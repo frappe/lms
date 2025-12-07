@@ -1,0 +1,32 @@
+{
+ "doctype": "DocType",
+ "name": "AI Knowledge Index Run",
+ "module": "LMS",
+ "custom": 0,
+ "istable": 0,
+ "editable_grid": 0,
+ "track_changes": 1,
+ "allow_rename": 0,
+ "field_order": [
+  "course",
+  "lesson",
+  "status",
+  "chunk_count",
+  "last_indexed_at",
+  "notes"
+ ],
+ "fields": [
+  {"fieldname": "course", "fieldtype": "Link", "label": "Course", "options": "LMS Course", "in_list_view": 1},
+  {"fieldname": "lesson", "fieldtype": "Link", "label": "Lesson", "options": "Course Lesson", "in_list_view": 1},
+  {"fieldname": "status", "fieldtype": "Select", "label": "Status", "options": "Queued\nRunning\nSuccess\nError", "in_list_view": 1},
+  {"fieldname": "chunk_count", "fieldtype": "Int", "label": "Chunk Count", "in_list_view": 1},
+  {"fieldname": "last_indexed_at", "fieldtype": "Datetime", "label": "Last Indexed At"},
+  {"fieldname": "notes", "fieldtype": "Small Text", "label": "Notes"}
+ ],
+ "permissions": [
+  {"role": "System Manager", "read": 1, "write": 1, "create": 1, "delete": 1, "share": 1},
+  {"role": "Moderator", "read": 1, "write": 1, "create": 1},
+  {"role": "Course Creator", "read": 1, "write": 1, "create": 1}
+ ]
+}
+

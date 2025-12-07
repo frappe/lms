@@ -1,0 +1,381 @@
+﻿2025-09-19T22:55:45.2902314Z Print service container logs: 369f5b7060074b54ac70daee275e34cf_redisalpine_05cecc
+2025-09-19T22:55:45.2907613Z ##[command]/usr/bin/docker logs --details d05bf412526af0ed748621e4b9b47b1dc6e34ae3b2587408ee77b95f7b7e20fb
+2025-09-19T22:55:45.3026249Z  Starting Redis Server
+2025-09-19T22:55:45.3028960Z  1:C 19 Sep 2025 22:48:48.945 # WARNING Memory overcommit must be enabled! Without it, a background save or replication may fail under low memory condition. Being disabled, it can also cause failures without low memory condition, see https://github.com/jemalloc/jemalloc/issues/1328. To fix this issue add 'vm.overcommit_memory = 1' to /etc/sysctl.conf and then reboot or run the command 'sysctl vm.overcommit_memory=1' for this to take effect.
+2025-09-19T22:55:45.3031718Z  1:C 19 Sep 2025 22:48:48.945 * oO0OoO0OoO0Oo Redis is starting oO0OoO0OoO0Oo
+2025-09-19T22:55:45.3032554Z  1:C 19 Sep 2025 22:48:48.945 * Redis version=8.2.1, bits=64, commit=00000000, modified=1, pid=1, just started
+2025-09-19T22:55:45.3033133Z  1:C 19 Sep 2025 22:48:48.945 * Configuration loaded
+2025-09-19T22:55:45.3033512Z  1:M 19 Sep 2025 22:48:48.945 * monotonic clock: POSIX clock_gettime
+2025-09-19T22:55:45.3033876Z  1:M 19 Sep 2025 22:48:48.946 * Running mode=standalone, port=6379.
+2025-09-19T22:55:45.3034249Z  1:M 19 Sep 2025 22:48:48.946 * <bf> RedisBloom version 8.2.0 (Git=unknown)
+2025-09-19T22:55:45.3034619Z  1:M 19 Sep 2025 22:48:48.946 * <bf> Registering configuration options: [
+2025-09-19T22:55:45.3034995Z  1:M 19 Sep 2025 22:48:48.946 * <bf> 	{ bf-error-rate       :      0.01 }
+2025-09-19T22:55:45.3035570Z  1:M 19 Sep 2025 22:48:48.946 * <bf> 	{ bf-initial-size     :       100 }
+2025-09-19T22:55:45.3035908Z  1:M 19 Sep 2025 22:48:48.946 * <bf> 	{ bf-expansion-factor :         2 }
+2025-09-19T22:55:45.3036241Z  1:M 19 Sep 2025 22:48:48.946 * <bf> 	{ cf-bucket-size      :         2 }
+2025-09-19T22:55:45.3036571Z  1:M 19 Sep 2025 22:48:48.946 * <bf> 	{ cf-initial-size     :      1024 }
+2025-09-19T22:55:45.3036898Z  1:M 19 Sep 2025 22:48:48.946 * <bf> 	{ cf-max-iterations   :        20 }
+2025-09-19T22:55:45.3037465Z  1:M 19 Sep 2025 22:48:48.946 * <bf> 	{ cf-expansion-factor :         1 }
+2025-09-19T22:55:45.3037800Z  1:M 19 Sep 2025 22:48:48.946 * <bf> 	{ cf-max-expansions   :        32 }
+2025-09-19T22:55:45.3038086Z  1:M 19 Sep 2025 22:48:48.946 * <bf> ]
+2025-09-19T22:55:45.3038438Z  1:M 19 Sep 2025 22:48:48.947 * Module 'bf' loaded from /usr/local/lib/redis/modules//redisbloom.so
+2025-09-19T22:55:45.3038897Z  1:M 19 Sep 2025 22:48:48.949 * <search> Redis version found by RedisSearch : 8.2.1 - oss
+2025-09-19T22:55:45.3039298Z  1:M 19 Sep 2025 22:48:48.950 * <search> RediSearch version 8.2.1 (Git=dba8dd0)
+2025-09-19T22:55:45.3039699Z  1:M 19 Sep 2025 22:48:48.950 * <search> Low level api version 1 initialized successfully
+2025-09-19T22:55:45.3040650Z  1:M 19 Sep 2025 22:48:48.950 * <search> gc: ON, prefix min length: 2, min word length to stem: 4, prefix max expansions: 200, query timeout (ms): 500, timeout policy: return, cursor read size: 1000, cursor max idle (ms): 300000, max doctable size: 1000000, max number of search results:  1000000, 
+2025-09-19T22:55:45.3041555Z  1:M 19 Sep 2025 22:48:48.950 * <search> Initialized thread pools!
+2025-09-19T22:55:45.3041915Z  1:M 19 Sep 2025 22:48:48.950 * <search> Disabled workers threadpool of size 0
+2025-09-19T22:55:45.3042267Z  1:M 19 Sep 2025 22:48:48.950 * <search> Subscribe to config changes
+2025-09-19T22:55:45.3042608Z  1:M 19 Sep 2025 22:48:48.950 * <search> Enabled role change notification
+2025-09-19T22:55:45.3043076Z  1:M 19 Sep 2025 22:48:48.950 * <search> Cluster configuration: AUTO partitions, type: 0, coordinator timeout: 0ms
+2025-09-19T22:55:45.3043771Z  1:M 19 Sep 2025 22:48:48.950 * <search> Register write commands
+2025-09-19T22:55:45.3044199Z  1:M 19 Sep 2025 22:48:48.950 * Module 'search' loaded from /usr/local/lib/redis/modules//redisearch.so
+2025-09-19T22:55:45.3045193Z  1:M 19 Sep 2025 22:48:48.951 * <timeseries> RedisTimeSeries version 80200, git_sha=1439d4a439ca9c063e6ef124a510abff09a5d493
+2025-09-19T22:55:45.3046250Z  1:M 19 Sep 2025 22:48:48.951 * <timeseries> Redis version found by RedisTimeSeries : 8.2.1 - oss
+2025-09-19T22:55:45.3046700Z  1:M 19 Sep 2025 22:48:48.951 * <timeseries> Registering configuration options: [
+2025-09-19T22:55:45.3047313Z  1:M 19 Sep 2025 22:48:48.951 * <timeseries> 	{ ts-compaction-policy   :              }
+2025-09-19T22:55:45.3047735Z  1:M 19 Sep 2025 22:48:48.951 * <timeseries> 	{ ts-num-threads         :            3 }
+2025-09-19T22:55:45.3048134Z  1:M 19 Sep 2025 22:48:48.951 * <timeseries> 	{ ts-retention-policy    :            0 }
+2025-09-19T22:55:45.3048533Z  1:M 19 Sep 2025 22:48:48.951 * <timeseries> 	{ ts-duplicate-policy    :        block }
+2025-09-19T22:55:45.3048923Z  1:M 19 Sep 2025 22:48:48.951 * <timeseries> 	{ ts-chunk-size-bytes    :         4096 }
+2025-09-19T22:55:45.3049307Z  1:M 19 Sep 2025 22:48:48.951 * <timeseries> 	{ ts-encoding            :   compressed }
+2025-09-19T22:55:45.3049882Z  1:M 19 Sep 2025 22:48:48.951 * <timeseries> 	{ ts-ignore-max-time-diff:            0 }
+2025-09-19T22:55:45.3050282Z  1:M 19 Sep 2025 22:48:48.951 * <timeseries> 	{ ts-ignore-max-val-diff :     0.000000 }
+2025-09-19T22:55:45.3050615Z  1:M 19 Sep 2025 22:48:48.951 * <timeseries> ]
+2025-09-19T22:55:45.3050902Z  1:M 19 Sep 2025 22:48:48.951 * <timeseries> Detected redis oss
+2025-09-19T22:55:45.3051244Z  1:M 19 Sep 2025 22:48:48.951 * <timeseries> Enabled diskless replication
+2025-09-19T22:55:45.3051713Z  1:M 19 Sep 2025 22:48:48.951 * Module 'timeseries' loaded from /usr/local/lib/redis/modules//redistimeseries.so
+2025-09-19T22:55:45.3052333Z  1:M 19 Sep 2025 22:48:48.952 * <ReJSON> Created new data type 'ReJSON-RL'
+2025-09-19T22:55:45.3052720Z  1:M 19 Sep 2025 22:48:48.952 * <ReJSON> version: 80200 git sha: unknown branch: unknown
+2025-09-19T22:55:45.3053102Z  1:M 19 Sep 2025 22:48:48.952 * <ReJSON> Exported RedisJSON_V1 API
+2025-09-19T22:55:45.3053433Z  1:M 19 Sep 2025 22:48:48.952 * <ReJSON> Exported RedisJSON_V2 API
+2025-09-19T22:55:45.3053748Z  1:M 19 Sep 2025 22:48:48.952 * <ReJSON> Exported RedisJSON_V3 API
+2025-09-19T22:55:45.3054075Z  1:M 19 Sep 2025 22:48:48.952 * <ReJSON> Exported RedisJSON_V4 API
+2025-09-19T22:55:45.3054530Z  1:M 19 Sep 2025 22:48:48.952 * <ReJSON> Exported RedisJSON_V5 API
+2025-09-19T22:55:45.3054865Z  1:M 19 Sep 2025 22:48:48.952 * <ReJSON> Enabled diskless replication
+2025-09-19T22:55:45.3055259Z  1:M 19 Sep 2025 22:48:48.952 * <ReJSON> Initialized shared string cache, thread safe: false.
+2025-09-19T22:55:45.3055722Z  1:M 19 Sep 2025 22:48:48.952 * Module 'ReJSON' loaded from /usr/local/lib/redis/modules//rejson.so
+2025-09-19T22:55:45.3056130Z  1:M 19 Sep 2025 22:48:48.952 * <search> Acquired RedisJSON_V5 API
+2025-09-19T22:55:45.3056427Z  1:M 19 Sep 2025 22:48:48.952 * Server initialized
+2025-09-19T22:55:45.3056722Z  1:M 19 Sep 2025 22:48:48.952 * Ready to accept connections tcp
+2025-09-19T22:55:45.3057013Z  1:M 19 Sep 2025 22:52:17.370 * DB saved on disk
+2025-09-19T22:55:45.3062753Z Stop and remove container: 369f5b7060074b54ac70daee275e34cf_redisalpine_05cecc
+2025-09-19T22:55:45.3067335Z ##[command]/usr/bin/docker rm --force d05bf412526af0ed748621e4b9b47b1dc6e34ae3b2587408ee77b95f7b7e20fb
+2025-09-19T22:55:45.4307965Z d05bf412526af0ed748621e4b9b47b1dc6e34ae3b2587408ee77b95f7b7e20fb
+2025-09-19T22:55:45.4328900Z Print service container logs: 88f22190a2ba4ad29ba4e5fe3c299995_redisalpine_a45579
+2025-09-19T22:55:45.4330074Z ##[command]/usr/bin/docker logs --details 8c96ed78e6930fff452180f8cbbd5423c0a9c89ef6a339e8c2e8a060dc09d59c
+2025-09-19T22:55:45.4449461Z  Starting Redis Server
+2025-09-19T22:55:45.4453166Z  1:C 19 Sep 2025 22:48:49.672 # WARNING Memory overcommit must be enabled! Without it, a background save or replication may fail under low memory condition. Being disabled, it can also cause failures without low memory condition, see https://github.com/jemalloc/jemalloc/issues/1328. To fix this issue add 'vm.overcommit_memory = 1' to /etc/sysctl.conf and then reboot or run the command 'sysctl vm.overcommit_memory=1' for this to take effect.
+2025-09-19T22:55:45.4456203Z  1:C 19 Sep 2025 22:48:49.672 * oO0OoO0OoO0Oo Redis is starting oO0OoO0OoO0Oo
+2025-09-19T22:55:45.4457034Z  1:C 19 Sep 2025 22:48:49.672 * Redis version=8.2.1, bits=64, commit=00000000, modified=1, pid=1, just started
+2025-09-19T22:55:45.4458001Z  1:C 19 Sep 2025 22:48:49.672 * Configuration loaded
+2025-09-19T22:55:45.4458571Z  1:M 19 Sep 2025 22:48:49.672 * monotonic clock: POSIX clock_gettime
+2025-09-19T22:55:45.4459187Z  1:M 19 Sep 2025 22:48:49.673 * Running mode=standalone, port=6379.
+2025-09-19T22:55:45.4459827Z  1:M 19 Sep 2025 22:48:49.674 * <bf> RedisBloom version 8.2.0 (Git=unknown)
+2025-09-19T22:55:45.4460491Z  1:M 19 Sep 2025 22:48:49.674 * <bf> Registering configuration options: [
+2025-09-19T22:55:45.4461118Z  1:M 19 Sep 2025 22:48:49.674 * <bf> 	{ bf-error-rate       :      0.01 }
+2025-09-19T22:55:45.4461711Z  1:M 19 Sep 2025 22:48:49.674 * <bf> 	{ bf-initial-size     :       100 }
+2025-09-19T22:55:45.4462327Z  1:M 19 Sep 2025 22:48:49.674 * <bf> 	{ bf-expansion-factor :         2 }
+2025-09-19T22:55:45.4462934Z  1:M 19 Sep 2025 22:48:49.674 * <bf> 	{ cf-bucket-size      :         2 }
+2025-09-19T22:55:45.4463527Z  1:M 19 Sep 2025 22:48:49.674 * <bf> 	{ cf-initial-size     :      1024 }
+2025-09-19T22:55:45.4464121Z  1:M 19 Sep 2025 22:48:49.674 * <bf> 	{ cf-max-iterations   :        20 }
+2025-09-19T22:55:45.4464722Z  1:M 19 Sep 2025 22:48:49.674 * <bf> 	{ cf-expansion-factor :         1 }
+2025-09-19T22:55:45.4465331Z  1:M 19 Sep 2025 22:48:49.674 * <bf> 	{ cf-max-expansions   :        32 }
+2025-09-19T22:55:45.4466080Z  1:M 19 Sep 2025 22:48:49.674 * <bf> ]
+2025-09-19T22:55:45.4466699Z  1:M 19 Sep 2025 22:48:49.674 * Module 'bf' loaded from /usr/local/lib/redis/modules//redisbloom.so
+2025-09-19T22:55:45.4467658Z  1:M 19 Sep 2025 22:48:49.677 * <search> Redis version found by RedisSearch : 8.2.1 - oss
+2025-09-19T22:55:45.4468311Z  1:M 19 Sep 2025 22:48:49.677 * <search> RediSearch version 8.2.1 (Git=dba8dd0)
+2025-09-19T22:55:45.4468940Z  1:M 19 Sep 2025 22:48:49.678 * <search> Low level api version 1 initialized successfully
+2025-09-19T22:55:45.4470408Z  1:M 19 Sep 2025 22:48:49.678 * <search> gc: ON, prefix min length: 2, min word length to stem: 4, prefix max expansions: 200, query timeout (ms): 500, timeout policy: return, cursor read size: 1000, cursor max idle (ms): 300000, max doctable size: 1000000, max number of search results:  1000000, 
+2025-09-19T22:55:45.4471996Z  1:M 19 Sep 2025 22:48:49.678 * <search> Initialized thread pools!
+2025-09-19T22:55:45.4472669Z  1:M 19 Sep 2025 22:48:49.678 * <search> Disabled workers threadpool of size 0
+2025-09-19T22:55:45.4473778Z  1:M 19 Sep 2025 22:48:49.678 * <search> Subscribe to config changes
+2025-09-19T22:55:45.4474245Z  1:M 19 Sep 2025 22:48:49.678 * <search> Enabled role change notification
+2025-09-19T22:55:45.4474743Z  1:M 19 Sep 2025 22:48:49.678 * <search> Cluster configuration: AUTO partitions, type: 0, coordinator timeout: 0ms
+2025-09-19T22:55:45.4475215Z  1:M 19 Sep 2025 22:48:49.678 * <search> Register write commands
+2025-09-19T22:55:45.4475642Z  1:M 19 Sep 2025 22:48:49.678 * Module 'search' loaded from /usr/local/lib/redis/modules//redisearch.so
+2025-09-19T22:55:45.4476219Z  1:M 19 Sep 2025 22:48:49.679 * <timeseries> RedisTimeSeries version 80200, git_sha=1439d4a439ca9c063e6ef124a510abff09a5d493
+2025-09-19T22:55:45.4476781Z  1:M 19 Sep 2025 22:48:49.679 * <timeseries> Redis version found by RedisTimeSeries : 8.2.1 - oss
+2025-09-19T22:55:45.4477467Z  1:M 19 Sep 2025 22:48:49.679 * <timeseries> Registering configuration options: [
+2025-09-19T22:55:45.4477889Z  1:M 19 Sep 2025 22:48:49.679 * <timeseries> 	{ ts-compaction-policy   :              }
+2025-09-19T22:55:45.4478304Z  1:M 19 Sep 2025 22:48:49.679 * <timeseries> 	{ ts-num-threads         :            3 }
+2025-09-19T22:55:45.4478699Z  1:M 19 Sep 2025 22:48:49.679 * <timeseries> 	{ ts-retention-policy    :            0 }
+2025-09-19T22:55:45.4479094Z  1:M 19 Sep 2025 22:48:49.679 * <timeseries> 	{ ts-duplicate-policy    :        block }
+2025-09-19T22:55:45.4479673Z  1:M 19 Sep 2025 22:48:49.679 * <timeseries> 	{ ts-chunk-size-bytes    :         4096 }
+2025-09-19T22:55:45.4480072Z  1:M 19 Sep 2025 22:48:49.679 * <timeseries> 	{ ts-encoding            :   compressed }
+2025-09-19T22:55:45.4480465Z  1:M 19 Sep 2025 22:48:49.679 * <timeseries> 	{ ts-ignore-max-time-diff:            0 }
+2025-09-19T22:55:45.4480875Z  1:M 19 Sep 2025 22:48:49.679 * <timeseries> 	{ ts-ignore-max-val-diff :     0.000000 }
+2025-09-19T22:55:45.4481214Z  1:M 19 Sep 2025 22:48:49.679 * <timeseries> ]
+2025-09-19T22:55:45.4481503Z  1:M 19 Sep 2025 22:48:49.679 * <timeseries> Detected redis oss
+2025-09-19T22:55:45.4481847Z  1:M 19 Sep 2025 22:48:49.679 * <timeseries> Enabled diskless replication
+2025-09-19T22:55:45.4482315Z  1:M 19 Sep 2025 22:48:49.679 * Module 'timeseries' loaded from /usr/local/lib/redis/modules//redistimeseries.so
+2025-09-19T22:55:45.4482798Z  1:M 19 Sep 2025 22:48:49.680 * <ReJSON> Created new data type 'ReJSON-RL'
+2025-09-19T22:55:45.4483182Z  1:M 19 Sep 2025 22:48:49.680 * <ReJSON> version: 80200 git sha: unknown branch: unknown
+2025-09-19T22:55:45.4483586Z  1:M 19 Sep 2025 22:48:49.680 * <ReJSON> Exported RedisJSON_V1 API
+2025-09-19T22:55:45.4483920Z  1:M 19 Sep 2025 22:48:49.680 * <ReJSON> Exported RedisJSON_V2 API
+2025-09-19T22:55:45.4484231Z  1:M 19 Sep 2025 22:48:49.680 * <ReJSON> Exported RedisJSON_V3 API
+2025-09-19T22:55:45.4484549Z  1:M 19 Sep 2025 22:48:49.680 * <ReJSON> Exported RedisJSON_V4 API
+2025-09-19T22:55:45.4484867Z  1:M 19 Sep 2025 22:48:49.680 * <ReJSON> Exported RedisJSON_V5 API
+2025-09-19T22:55:45.4485332Z  1:M 19 Sep 2025 22:48:49.680 * <ReJSON> Enabled diskless replication
+2025-09-19T22:55:45.4485727Z  1:M 19 Sep 2025 22:48:49.680 * <ReJSON> Initialized shared string cache, thread safe: false.
+2025-09-19T22:55:45.4486194Z  1:M 19 Sep 2025 22:48:49.680 * Module 'ReJSON' loaded from /usr/local/lib/redis/modules//rejson.so
+2025-09-19T22:55:45.4486599Z  1:M 19 Sep 2025 22:48:49.680 * <search> Acquired RedisJSON_V5 API
+2025-09-19T22:55:45.4486896Z  1:M 19 Sep 2025 22:48:49.681 * Server initialized
+2025-09-19T22:55:45.4487417Z  1:M 19 Sep 2025 22:48:49.681 * Ready to accept connections tcp
+2025-09-19T22:55:45.4488344Z Stop and remove container: 88f22190a2ba4ad29ba4e5fe3c299995_redisalpine_a45579
+2025-09-19T22:55:45.4489013Z ##[command]/usr/bin/docker rm --force 8c96ed78e6930fff452180f8cbbd5423c0a9c89ef6a339e8c2e8a060dc09d59c
+2025-09-19T22:55:45.5635975Z 8c96ed78e6930fff452180f8cbbd5423c0a9c89ef6a339e8c2e8a060dc09d59c
+2025-09-19T22:55:45.5650822Z Print service container logs: 9e54809121654c8ba2aee2260126416f_redisalpine_36c721
+2025-09-19T22:55:45.5651504Z ##[command]/usr/bin/docker logs --details 8807f3b5b5781ba456572b3bb60d21cf4da657d49459de236ce2d67f464c8bda
+2025-09-19T22:55:45.5766612Z  Starting Redis Server
+2025-09-19T22:55:45.5775836Z  1:C 19 Sep 2025 22:48:50.396 # WARNING Memory overcommit must be enabled! Without it, a background save or replication may fail under low memory condition. Being disabled, it can also cause failures without low memory condition, see https://github.com/jemalloc/jemalloc/issues/1328. To fix this issue add 'vm.overcommit_memory = 1' to /etc/sysctl.conf and then reboot or run the command 'sysctl vm.overcommit_memory=1' for this to take effect.
+2025-09-19T22:55:45.5778760Z  1:C 19 Sep 2025 22:48:50.396 * oO0OoO0OoO0Oo Redis is starting oO0OoO0OoO0Oo
+2025-09-19T22:55:45.5779591Z  1:C 19 Sep 2025 22:48:50.396 * Redis version=8.2.1, bits=64, commit=00000000, modified=1, pid=1, just started
+2025-09-19T22:55:45.5780324Z  1:C 19 Sep 2025 22:48:50.396 * Configuration loaded
+2025-09-19T22:55:45.5780896Z  1:M 19 Sep 2025 22:48:50.396 * monotonic clock: POSIX clock_gettime
+2025-09-19T22:55:45.5781512Z  1:M 19 Sep 2025 22:48:50.397 * Running mode=standalone, port=6379.
+2025-09-19T22:55:45.5782135Z  1:M 19 Sep 2025 22:48:50.397 * <bf> RedisBloom version 8.2.0 (Git=unknown)
+2025-09-19T22:55:45.5782790Z  1:M 19 Sep 2025 22:48:50.397 * <bf> Registering configuration options: [
+2025-09-19T22:55:45.5783416Z  1:M 19 Sep 2025 22:48:50.397 * <bf> 	{ bf-error-rate       :      0.01 }
+2025-09-19T22:55:45.5784278Z  1:M 19 Sep 2025 22:48:50.397 * <bf> 	{ bf-initial-size     :       100 }
+2025-09-19T22:55:45.5784879Z  1:M 19 Sep 2025 22:48:50.397 * <bf> 	{ bf-expansion-factor :         2 }
+2025-09-19T22:55:45.5785489Z  1:M 19 Sep 2025 22:48:50.397 * <bf> 	{ cf-bucket-size      :         2 }
+2025-09-19T22:55:45.5786323Z  1:M 19 Sep 2025 22:48:50.397 * <bf> 	{ cf-initial-size     :      1024 }
+2025-09-19T22:55:45.5786948Z  1:M 19 Sep 2025 22:48:50.397 * <bf> 	{ cf-max-iterations   :        20 }
+2025-09-19T22:55:45.5787751Z  1:M 19 Sep 2025 22:48:50.397 * <bf> 	{ cf-expansion-factor :         1 }
+2025-09-19T22:55:45.5788321Z  1:M 19 Sep 2025 22:48:50.397 * <bf> 	{ cf-max-expansions   :        32 }
+2025-09-19T22:55:45.5788642Z  1:M 19 Sep 2025 22:48:50.397 * <bf> ]
+2025-09-19T22:55:45.5789012Z  1:M 19 Sep 2025 22:48:50.398 * Module 'bf' loaded from /usr/local/lib/redis/modules//redisbloom.so
+2025-09-19T22:55:45.5789490Z  1:M 19 Sep 2025 22:48:50.400 * <search> Redis version found by RedisSearch : 8.2.1 - oss
+2025-09-19T22:55:45.5789914Z  1:M 19 Sep 2025 22:48:50.400 * <search> RediSearch version 8.2.1 (Git=dba8dd0)
+2025-09-19T22:55:45.5790319Z  1:M 19 Sep 2025 22:48:50.400 * <search> Low level api version 1 initialized successfully
+2025-09-19T22:55:45.5791267Z  1:M 19 Sep 2025 22:48:50.400 * <search> gc: ON, prefix min length: 2, min word length to stem: 4, prefix max expansions: 200, query timeout (ms): 500, timeout policy: return, cursor read size: 1000, cursor max idle (ms): 300000, max doctable size: 1000000, max number of search results:  1000000, 
+2025-09-19T22:55:45.5792360Z  1:M 19 Sep 2025 22:48:50.400 * <search> Initialized thread pools!
+2025-09-19T22:55:45.5792727Z  1:M 19 Sep 2025 22:48:50.400 * <search> Disabled workers threadpool of size 0
+2025-09-19T22:55:45.5793091Z  1:M 19 Sep 2025 22:48:50.400 * <search> Subscribe to config changes
+2025-09-19T22:55:45.5793446Z  1:M 19 Sep 2025 22:48:50.400 * <search> Enabled role change notification
+2025-09-19T22:55:45.5793972Z  1:M 19 Sep 2025 22:48:50.400 * <search> Cluster configuration: AUTO partitions, type: 0, coordinator timeout: 0ms
+2025-09-19T22:55:45.5794434Z  1:M 19 Sep 2025 22:48:50.400 * <search> Register write commands
+2025-09-19T22:55:45.5794857Z  1:M 19 Sep 2025 22:48:50.401 * Module 'search' loaded from /usr/local/lib/redis/modules//redisearch.so
+2025-09-19T22:55:45.5795443Z  1:M 19 Sep 2025 22:48:50.401 * <timeseries> RedisTimeSeries version 80200, git_sha=1439d4a439ca9c063e6ef124a510abff09a5d493
+2025-09-19T22:55:45.5796002Z  1:M 19 Sep 2025 22:48:50.401 * <timeseries> Redis version found by RedisTimeSeries : 8.2.1 - oss
+2025-09-19T22:55:45.5796450Z  1:M 19 Sep 2025 22:48:50.401 * <timeseries> Registering configuration options: [
+2025-09-19T22:55:45.5796865Z  1:M 19 Sep 2025 22:48:50.401 * <timeseries> 	{ ts-compaction-policy   :              }
+2025-09-19T22:55:45.5797505Z  1:M 19 Sep 2025 22:48:50.401 * <timeseries> 	{ ts-num-threads         :            3 }
+2025-09-19T22:55:45.5797930Z  1:M 19 Sep 2025 22:48:50.401 * <timeseries> 	{ ts-retention-policy    :            0 }
+2025-09-19T22:55:45.5798340Z  1:M 19 Sep 2025 22:48:50.401 * <timeseries> 	{ ts-duplicate-policy    :        block }
+2025-09-19T22:55:45.5798742Z  1:M 19 Sep 2025 22:48:50.401 * <timeseries> 	{ ts-chunk-size-bytes    :         4096 }
+2025-09-19T22:55:45.5799137Z  1:M 19 Sep 2025 22:48:50.401 * <timeseries> 	{ ts-encoding            :   compressed }
+2025-09-19T22:55:45.5799538Z  1:M 19 Sep 2025 22:48:50.401 * <timeseries> 	{ ts-ignore-max-time-diff:            0 }
+2025-09-19T22:55:45.5799949Z  1:M 19 Sep 2025 22:48:50.401 * <timeseries> 	{ ts-ignore-max-val-diff :     0.000000 }
+2025-09-19T22:55:45.5800283Z  1:M 19 Sep 2025 22:48:50.401 * <timeseries> ]
+2025-09-19T22:55:45.5800584Z  1:M 19 Sep 2025 22:48:50.401 * <timeseries> Detected redis oss
+2025-09-19T22:55:45.5800931Z  1:M 19 Sep 2025 22:48:50.401 * <timeseries> Enabled diskless replication
+2025-09-19T22:55:45.5801407Z  1:M 19 Sep 2025 22:48:50.401 * Module 'timeseries' loaded from /usr/local/lib/redis/modules//redistimeseries.so
+2025-09-19T22:55:45.5802006Z  1:M 19 Sep 2025 22:48:50.402 * <ReJSON> Created new data type 'ReJSON-RL'
+2025-09-19T22:55:45.5802402Z  1:M 19 Sep 2025 22:48:50.402 * <ReJSON> version: 80200 git sha: unknown branch: unknown
+2025-09-19T22:55:45.5802792Z  1:M 19 Sep 2025 22:48:50.402 * <ReJSON> Exported RedisJSON_V1 API
+2025-09-19T22:55:45.5803133Z  1:M 19 Sep 2025 22:48:50.402 * <ReJSON> Exported RedisJSON_V2 API
+2025-09-19T22:55:45.5803462Z  1:M 19 Sep 2025 22:48:50.402 * <ReJSON> Exported RedisJSON_V3 API
+2025-09-19T22:55:45.5803784Z  1:M 19 Sep 2025 22:48:50.402 * <ReJSON> Exported RedisJSON_V4 API
+2025-09-19T22:55:45.5804109Z  1:M 19 Sep 2025 22:48:50.402 * <ReJSON> Exported RedisJSON_V5 API
+2025-09-19T22:55:45.5804442Z  1:M 19 Sep 2025 22:48:50.402 * <ReJSON> Enabled diskless replication
+2025-09-19T22:55:45.5804845Z  1:M 19 Sep 2025 22:48:50.402 * <ReJSON> Initialized shared string cache, thread safe: false.
+2025-09-19T22:55:45.5805313Z  1:M 19 Sep 2025 22:48:50.402 * Module 'ReJSON' loaded from /usr/local/lib/redis/modules//rejson.so
+2025-09-19T22:55:45.5805727Z  1:M 19 Sep 2025 22:48:50.402 * <search> Acquired RedisJSON_V5 API
+2025-09-19T22:55:45.5806030Z  1:M 19 Sep 2025 22:48:50.402 * Server initialized
+2025-09-19T22:55:45.5806334Z  1:M 19 Sep 2025 22:48:50.402 * Ready to accept connections tcp
+2025-09-19T22:55:45.5807312Z Stop and remove container: 9e54809121654c8ba2aee2260126416f_redisalpine_36c721
+2025-09-19T22:55:45.5807915Z ##[command]/usr/bin/docker rm --force 8807f3b5b5781ba456572b3bb60d21cf4da657d49459de236ce2d67f464c8bda
+2025-09-19T22:55:45.6943521Z 8807f3b5b5781ba456572b3bb60d21cf4da657d49459de236ce2d67f464c8bda
+2025-09-19T22:55:45.6958477Z Print service container logs: 0a4a2f9be12945ed8a38f762783da3b2_anandologymariadbutf8mb4103_746d17
+2025-09-19T22:55:45.6959241Z ##[command]/usr/bin/docker logs --details fd034c66aefb4b821375adf6235b7acc61c66dd346e4b114415b9854fdb9c4e7
+2025-09-19T22:55:45.7084830Z  2025-09-19 22:48:56+00:00 [Note] [Entrypoint]: Entrypoint script for MySQL Server 1:10.3.27+maria~focal started.
+2025-09-19T22:55:45.7086455Z  2025-09-19 22:48:56+00:00 [Note] [Entrypoint]: Switching to dedicated user 'mysql'
+2025-09-19T22:55:45.7090360Z  2025-09-19 22:48:56+00:00 [Note] [Entrypoint]: Entrypoint script for MySQL Server 1:10.3.27+maria~focal started.
+2025-09-19T22:55:45.7091466Z  2025-09-19 22:48:56+00:00 [Note] [Entrypoint]: Initializing database files
+2025-09-19T22:55:45.7092049Z  
+2025-09-19T22:55:45.7092323Z  
+2025-09-19T22:55:45.7092786Z  PLEASE REMEMBER TO SET A PASSWORD FOR THE MariaDB root USER !
+2025-09-19T22:55:45.7093565Z  To do so, start the server, then issue the following commands:
+2025-09-19T22:55:45.7095304Z  2025-09-19 22:48:58 0 [Note] mysqld (mysqld 10.3.27-MariaDB-1:10.3.27+maria~focal) starting as process 120 ...
+2025-09-19T22:55:45.7096226Z  2025-09-19 22:48:58 0 [Note] InnoDB: Using Linux native AIO
+2025-09-19T22:55:45.7096930Z  2025-09-19 22:48:58 0 [Note] InnoDB: Mutexes and rw_locks use GCC atomic builtins
+2025-09-19T22:55:45.7097834Z  2025-09-19 22:48:58 0 [Note] InnoDB: Uses event mutexes
+2025-09-19T22:55:45.7098464Z  2025-09-19 22:48:58 0 [Note] InnoDB: Compressed tables use zlib 1.2.11
+2025-09-19T22:55:45.7099007Z  
+2025-09-19T22:55:45.7099404Z  '/usr/bin/mysqladmin' -u root password 'new-password'
+2025-09-19T22:55:45.7100002Z  '/usr/bin/mysqladmin' -u root -h  password 'new-password'
+2025-09-19T22:55:45.7100435Z  
+2025-09-19T22:55:45.7100732Z  Alternatively you can run:
+2025-09-19T22:55:45.7101131Z  '/usr/bin/mysql_secure_installation'
+2025-09-19T22:55:45.7101373Z  
+2025-09-19T22:55:45.7101613Z  which will also give you the option of removing the test
+2025-09-19T22:55:45.7101964Z  databases and anonymous user created by default.  This is
+2025-09-19T22:55:45.7102278Z  strongly recommended for production servers.
+2025-09-19T22:55:45.7102529Z  
+2025-09-19T22:55:45.7102775Z  See the MariaDB Knowledgebase at http://mariadb.com/kb or the
+2025-09-19T22:55:45.7103100Z  MySQL manual for more instructions.
+2025-09-19T22:55:45.7103320Z  
+2025-09-19T22:55:45.7103773Z  Please report any problems at http://mariadb.org/jira
+2025-09-19T22:55:45.7104051Z  
+2025-09-19T22:55:45.7104318Z  The latest information about MariaDB is available at http://mariadb.org/.
+2025-09-19T22:55:45.7104731Z  You can find additional information about the MySQL part at:
+2025-09-19T22:55:45.7105037Z  http://dev.mysql.com
+2025-09-19T22:55:45.7105296Z  Consider joining MariaDB's strong and vibrant community:
+2025-09-19T22:55:45.7105610Z  https://mariadb.org/get-involved/
+2025-09-19T22:55:45.7105829Z  
+2025-09-19T22:55:45.7106066Z  2025-09-19 22:48:58+00:00 [Note] [Entrypoint]: Database files initialized
+2025-09-19T22:55:45.7106448Z  2025-09-19 22:48:58+00:00 [Note] [Entrypoint]: Starting temporary server
+2025-09-19T22:55:45.7106816Z  2025-09-19 22:48:58+00:00 [Note] [Entrypoint]: Waiting for server startup
+2025-09-19T22:55:45.7107447Z  2025-09-19 22:48:58 0 [Note] InnoDB: Number of pools: 1
+2025-09-19T22:55:45.7107788Z  2025-09-19 22:48:58 0 [Note] InnoDB: Using SSE2 crc32 instructions
+2025-09-19T22:55:45.7108270Z  2025-09-19 22:48:58 0 [Note] InnoDB: Initializing buffer pool, total size = 256M, instances = 1, chunk size = 128M
+2025-09-19T22:55:45.7108788Z  2025-09-19 22:48:58 0 [Note] InnoDB: Completed initialization of buffer pool
+2025-09-19T22:55:45.7109427Z  2025-09-19 22:48:58 0 [Note] InnoDB: If the mysqld execution user is authorized, page cleaner thread priority can be changed. See the man page of setpriority().
+2025-09-19T22:55:45.7110081Z  2025-09-19 22:48:59 0 [Note] InnoDB: 128 out of 128 rollback segments are active.
+2025-09-19T22:55:45.7110712Z  2025-09-19 22:48:59 0 [Note] InnoDB: Creating shared tablespace for temporary tables
+2025-09-19T22:55:45.7111244Z  2025-09-19 22:48:59 0 [Note] InnoDB: Setting file './ibtmp1' size to 12 MB. Physically writing the file full; Please wait ...
+2025-09-19T22:55:45.7111733Z  2025-09-19 22:48:59 0 [Note] InnoDB: File './ibtmp1' size is now 12 MB.
+2025-09-19T22:55:45.7112159Z  2025-09-19 22:48:59 0 [Note] InnoDB: 10.3.27 started; log sequence number 1625443; transaction id 20
+2025-09-19T22:55:45.7112935Z  2025-09-19 22:48:59 0 [Note] InnoDB: Loading buffer pool(s) from /var/lib/mysql/ib_buffer_pool
+2025-09-19T22:55:45.7113661Z  2025-09-19 22:48:59 0 [Note] Plugin 'FEEDBACK' is disabled.
+2025-09-19T22:55:45.7114410Z  2025-09-19 22:48:59 0 [Warning] 'user' entry 'root@fd034c66aefb' ignored in --skip-name-resolve mode.
+2025-09-19T22:55:45.7115377Z  2025-09-19 22:48:59 0 [Warning] 'proxies_priv' entry '@% root@fd034c66aefb' ignored in --skip-name-resolve mode.
+2025-09-19T22:55:45.7116283Z  2025-09-19 22:48:59 0 [Note] InnoDB: Buffer pool(s) load completed at 250919 22:48:59
+2025-09-19T22:55:45.7116707Z  2025-09-19 22:48:59 0 [Note] Reading of all Master_info entries succeeded
+2025-09-19T22:55:45.7117072Z  2025-09-19 22:48:59 0 [Note] Added new Master_info '' to hash table
+2025-09-19T22:55:45.7117593Z  2025-09-19 22:48:59 0 [Note] mysqld: ready for connections.
+2025-09-19T22:55:45.7118125Z  Version: '10.3.27-MariaDB-1:10.3.27+maria~focal'  socket: '/var/run/mysqld/mysqld.sock'  port: 0  mariadb.org binary distribution
+2025-09-19T22:55:45.7118773Z  Warning: Unable to load '/usr/share/zoneinfo/leap-seconds.list' as time zone. Skipping it.
+2025-09-19T22:55:45.7119297Z  Warning: Unable to load '/usr/share/zoneinfo/leapseconds' as time zone. Skipping it.
+2025-09-19T22:55:45.7119788Z  Warning: Unable to load '/usr/share/zoneinfo/tzdata.zi' as time zone. Skipping it.
+2025-09-19T22:55:45.7120309Z  2025-09-19 22:49:01 10 [Warning] 'proxies_priv' entry '@% root@fd034c66aefb' ignored in --skip-name-resolve mode.
+2025-09-19T22:55:45.7120846Z  2025-09-19 22:49:01 0 [Note] mysqld (initiated by: root[root] @ localhost []): Normal shutdown
+2025-09-19T22:55:45.7121268Z  2025-09-19 22:49:01 0 [Note] Event Scheduler: Purging the queue. 0 events
+2025-09-19T22:55:45.7121625Z  2025-09-19 22:49:01 0 [Note] InnoDB: FTS optimize thread exiting.
+2025-09-19T22:55:45.7121959Z  2025-09-19 22:49:01 0 [Note] InnoDB: Starting shutdown...
+2025-09-19T22:55:45.7122344Z  2025-09-19 22:49:01 0 [Note] InnoDB: Dumping buffer pool(s) to /var/lib/mysql/ib_buffer_pool
+2025-09-19T22:55:45.7122951Z  2025-09-19 22:49:01 0 [Note] InnoDB: Buffer pool(s) dump completed at 250919 22:49:01
+2025-09-19T22:55:45.7123431Z  2025-09-19 22:49:02 0 [Note] InnoDB: Shutdown completed; log sequence number 1625452; transaction id 21
+2025-09-19T22:55:45.7123912Z  2025-09-19 22:49:02 0 [Note] InnoDB: Removed temporary tablespace data file: "ibtmp1"
+2025-09-19T22:55:45.7124279Z  2025-09-19 22:49:02 0 [Note] mysqld: Shutdown complete
+2025-09-19T22:55:45.7124534Z  
+2025-09-19T22:55:45.7124850Z  2025-09-19 22:49:03 0 [Note] mysqld (mysqld 10.3.27-MariaDB-1:10.3.27+maria~focal) starting as process 1 ...
+2025-09-19T22:55:45.7125281Z  2025-09-19 22:49:03 0 [Note] InnoDB: Using Linux native AIO
+2025-09-19T22:55:45.7125644Z  2025-09-19 22:49:03 0 [Note] InnoDB: Mutexes and rw_locks use GCC atomic builtins
+2025-09-19T22:55:45.7126004Z  2025-09-19 22:49:03 0 [Note] InnoDB: Uses event mutexes
+2025-09-19T22:55:45.7126342Z  2025-09-19 22:49:03 0 [Note] InnoDB: Compressed tables use zlib 1.2.11
+2025-09-19T22:55:45.7126676Z  2025-09-19 22:49:03 0 [Note] InnoDB: Number of pools: 1
+2025-09-19T22:55:45.7126996Z  2025-09-19 22:49:03 0 [Note] InnoDB: Using SSE2 crc32 instructions
+2025-09-19T22:55:45.7127700Z  2025-09-19 22:49:03 0 [Note] InnoDB: Initializing buffer pool, total size = 256M, instances = 1, chunk size = 128M
+2025-09-19T22:55:45.7128200Z  2025-09-19 22:49:03 0 [Note] InnoDB: Completed initialization of buffer pool
+2025-09-19T22:55:45.7128832Z  2025-09-19 22:49:03 0 [Note] InnoDB: If the mysqld execution user is authorized, page cleaner thread priority can be changed. See the man page of setpriority().
+2025-09-19T22:55:45.7129595Z  2025-09-19 22:49:03 0 [Note] InnoDB: 128 out of 128 rollback segments are active.
+2025-09-19T22:55:45.7130012Z  2025-09-19 22:49:03 0 [Note] InnoDB: Creating shared tablespace for temporary tables
+2025-09-19T22:55:45.7130533Z  2025-09-19 22:49:03 0 [Note] InnoDB: Setting file './ibtmp1' size to 12 MB. Physically writing the file full; Please wait ...
+2025-09-19T22:55:45.7131026Z  2025-09-19 22:49:03 0 [Note] InnoDB: File './ibtmp1' size is now 12 MB.
+2025-09-19T22:55:45.7131443Z  2025-09-19 22:49:03 0 [Note] InnoDB: 10.3.27 started; log sequence number 1625452; transaction id 20
+2025-09-19T22:55:45.7131927Z  2025-09-19 22:49:03 0 [Note] InnoDB: Loading buffer pool(s) from /var/lib/mysql/ib_buffer_pool
+2025-09-19T22:55:45.7132326Z  2025-09-19 22:49:03 0 [Note] Plugin 'FEEDBACK' is disabled.
+2025-09-19T22:55:45.7132651Z  2025-09-19 22:49:03 0 [Note] Server socket created on IP: '::'.
+2025-09-19T22:55:45.7133115Z  2025-09-19 22:49:03 0 [Warning] 'proxies_priv' entry '@% root@fd034c66aefb' ignored in --skip-name-resolve mode.
+2025-09-19T22:55:45.7133612Z  2025-09-19 22:49:03 0 [Note] InnoDB: Buffer pool(s) load completed at 250919 22:49:03
+2025-09-19T22:55:45.7134009Z  2025-09-19 22:49:03 0 [Note] Reading of all Master_info entries succeeded
+2025-09-19T22:55:45.7134366Z  2025-09-19 22:49:03 0 [Note] Added new Master_info '' to hash table
+2025-09-19T22:55:45.7134697Z  2025-09-19 22:49:03 0 [Note] mysqld: ready for connections.
+2025-09-19T22:55:45.7135226Z  Version: '10.3.27-MariaDB-1:10.3.27+maria~focal'  socket: '/var/run/mysqld/mysqld.sock'  port: 3306  mariadb.org binary distribution
+2025-09-19T22:55:45.7135846Z  2025-09-19 22:49:06 8 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7136333Z  2025-09-19 22:49:11 9 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7136814Z  2025-09-19 22:49:16 10 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7137459Z  2025-09-19 22:49:21 11 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7137979Z  2025-09-19 22:49:26 12 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7138457Z  2025-09-19 22:49:31 13 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7139068Z  2025-09-19 22:49:37 14 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7139540Z  2025-09-19 22:49:42 15 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7140007Z  2025-09-19 22:49:47 16 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7140478Z  2025-09-19 22:49:52 17 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7140948Z  2025-09-19 22:49:57 18 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7141426Z  2025-09-19 22:50:02 19 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7141896Z  2025-09-19 22:50:07 20 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7142360Z  2025-09-19 22:50:12 21 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7142835Z  2025-09-19 22:50:17 22 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7143304Z  2025-09-19 22:50:22 23 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7143772Z  2025-09-19 22:50:27 24 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7144239Z  2025-09-19 22:50:32 25 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7144701Z  2025-09-19 22:50:37 26 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7145284Z  2025-09-19 22:50:42 27 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7145754Z  2025-09-19 22:50:47 28 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7146227Z  2025-09-19 22:50:52 29 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7146698Z  2025-09-19 22:50:57 30 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7147382Z  2025-09-19 22:51:02 31 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7147869Z  2025-09-19 22:51:07 32 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7148347Z  2025-09-19 22:51:12 33 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7148817Z  2025-09-19 22:51:17 34 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7149289Z  2025-09-19 22:51:23 35 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7149758Z  2025-09-19 22:51:28 36 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7150233Z  2025-09-19 22:51:33 37 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7150707Z  2025-09-19 22:51:38 38 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7151176Z  2025-09-19 22:51:43 39 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7151643Z  2025-09-19 22:51:48 40 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7152119Z  2025-09-19 22:51:53 41 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7152587Z  2025-09-19 22:51:58 42 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7153061Z  2025-09-19 22:52:03 43 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7153530Z  2025-09-19 22:52:08 44 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7153999Z  2025-09-19 22:52:13 45 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7154469Z  2025-09-19 22:52:18 46 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7155116Z  2025-09-19 22:52:18 47 [Warning] 'proxies_priv' entry '@% root@fd034c66aefb' ignored in --skip-name-resolve mode.
+2025-09-19T22:55:45.7155644Z  2025-09-19 22:52:23 51 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7156124Z  2025-09-19 22:52:28 52 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7156587Z  2025-09-19 22:52:33 53 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7157060Z  2025-09-19 22:52:38 55 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7157788Z  2025-09-19 22:52:43 56 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7158268Z  2025-09-19 22:52:48 57 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7158742Z  2025-09-19 22:52:53 58 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7159218Z  2025-09-19 22:52:58 59 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7159690Z  2025-09-19 22:53:03 60 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7160163Z  2025-09-19 22:53:08 61 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7160629Z  2025-09-19 22:53:14 62 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7161223Z  2025-09-19 22:53:19 63 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7161692Z  2025-09-19 22:53:24 64 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7162159Z  2025-09-19 22:53:29 65 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7162624Z  2025-09-19 22:53:34 66 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7163101Z  2025-09-19 22:53:39 67 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7163573Z  2025-09-19 22:53:44 68 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7164035Z  2025-09-19 22:53:49 69 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7164503Z  2025-09-19 22:53:54 70 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7164972Z  2025-09-19 22:53:59 71 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7165443Z  2025-09-19 22:54:04 72 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7165910Z  2025-09-19 22:54:09 73 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7166373Z  2025-09-19 22:54:14 74 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7166846Z  2025-09-19 22:54:19 75 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7167650Z  2025-09-19 22:54:24 76 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7168132Z  2025-09-19 22:54:29 77 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7168600Z  2025-09-19 22:54:34 78 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7169078Z  2025-09-19 22:54:39 79 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7169546Z  2025-09-19 22:54:44 80 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7170014Z  2025-09-19 22:54:49 81 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7170484Z  2025-09-19 22:54:54 82 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7171080Z  2025-09-19 22:54:59 83 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7171552Z  2025-09-19 22:55:05 84 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7172021Z  2025-09-19 22:55:10 85 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7172489Z  2025-09-19 22:55:15 86 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7172960Z  2025-09-19 22:55:20 94 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7173423Z  2025-09-19 22:55:25 96 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7173892Z  2025-09-19 22:55:30 98 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7174371Z  2025-09-19 22:55:35 107 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7174862Z  2025-09-19 22:55:40 110 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7175343Z  2025-09-19 22:55:45 111 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7175770Z  2025-09-19 22:48:59+00:00 [Note] [Entrypoint]: Temporary server started.
+2025-09-19T22:55:45.7176080Z  
+2025-09-19T22:55:45.7176311Z  2025-09-19 22:49:01+00:00 [Note] [Entrypoint]: Stopping temporary server
+2025-09-19T22:55:45.7176677Z  2025-09-19 22:49:03+00:00 [Note] [Entrypoint]: Temporary server stopped
+2025-09-19T22:55:45.7177072Z  
+2025-09-19T22:55:45.7177481Z  2025-09-19 22:49:03+00:00 [Note] [Entrypoint]: MySQL init process done. Ready for start up.
+2025-09-19T22:55:45.7177822Z  
+2025-09-19T22:55:45.7178535Z Stop and remove container: 0a4a2f9be12945ed8a38f762783da3b2_anandologymariadbutf8mb4103_746d17
+2025-09-19T22:55:45.7179184Z ##[command]/usr/bin/docker rm --force fd034c66aefb4b821375adf6235b7acc61c66dd346e4b114415b9854fdb9c4e7
+2025-09-19T22:55:45.8575526Z fd034c66aefb4b821375adf6235b7acc61c66dd346e4b114415b9854fdb9c4e7
+2025-09-19T22:55:45.8591166Z Remove container network: github_network_401ac3bfc3df44e5b16761d9368fbd18
+2025-09-19T22:55:45.8595375Z ##[command]/usr/bin/docker network rm github_network_401ac3bfc3df44e5b16761d9368fbd18
+2025-09-19T22:55:45.9809607Z github_network_401ac3bfc3df44e5b16761d9368fbd18

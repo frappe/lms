@@ -1,0 +1,40 @@
+{
+ "doctype": "DocType",
+ "name": "AI External Source",
+ "module": "LMS",
+ "custom": 0,
+ "istable": 0,
+ "editable_grid": 0,
+ "track_changes": 1,
+ "allow_rename": 0,
+ "field_order": [
+  "course",
+  "lesson",
+  "title",
+  "url",
+  "allowed",
+  "status",
+  "last_fetched_at",
+  "mime_type",
+  "content_text",
+  "error"
+ ],
+ "fields": [
+  {"fieldname": "course", "fieldtype": "Link", "label": "Course", "options": "LMS Course", "in_list_view": 1, "reqd": 1},
+  {"fieldname": "lesson", "fieldtype": "Link", "label": "Lesson", "options": "Course Lesson"},
+  {"fieldname": "title", "fieldtype": "Data", "label": "Title", "in_list_view": 1},
+  {"fieldname": "url", "fieldtype": "Data", "label": "URL", "reqd": 1, "in_list_view": 1},
+  {"default": "1", "fieldname": "allowed", "fieldtype": "Check", "label": "Allowed"},
+  {"fieldname": "status", "fieldtype": "Select", "label": "Status", "options": "New\nFetched\nIndexed\nError", "in_list_view": 1},
+  {"fieldname": "last_fetched_at", "fieldtype": "Datetime", "label": "Last Fetched At"},
+  {"fieldname": "mime_type", "fieldtype": "Data", "label": "MIME Type"},
+  {"fieldname": "content_text", "fieldtype": "Long Text", "label": "Content (Text)"},
+  {"fieldname": "error", "fieldtype": "Small Text", "label": "Error"}
+ ],
+ "permissions": [
+  {"role": "System Manager", "read": 1, "write": 1, "create": 1, "delete": 1, "share": 1, "print": 1, "email": 1},
+  {"role": "Moderator", "read": 1, "write": 1, "create": 1},
+  {"role": "Course Creator", "read": 1, "write": 1, "create": 1}
+ ]
+}
+

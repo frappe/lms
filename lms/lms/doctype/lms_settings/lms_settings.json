@@ -71,7 +71,13 @@
   "contact_us_tab",
   "contact_us_email",
   "column_break_gcgv",
-  "contact_us_url"
+  "contact_us_url",
+  "assistant_tab",
+  "assistant_section",
+  "enable_lesson_assistant",
+  "assistant_mode",
+  "assistant_column_break",
+  "assistant_system_prompt"
  ],
  "fields": [
   {
@@ -438,6 +444,40 @@
    "fieldname": "certifications",
    "fieldtype": "Check",
    "label": "Certifications"
+  },
+  {
+   "fieldname": "assistant_tab",
+   "fieldtype": "Tab Break",
+   "label": "AI Assistant"
+  },
+  {
+   "fieldname": "assistant_section",
+   "fieldtype": "Section Break",
+   "label": "AI Assistant Settings"
+  },
+  {
+   "fieldname": "enable_lesson_assistant",
+   "fieldtype": "Check",
+   "label": "Enable Lesson Assistant",
+   "description": "Show AI assistant chat widget in lessons"
+  },
+  {
+   "fieldname": "assistant_mode",
+   "fieldtype": "Select",
+   "label": "Assistant Mode",
+   "options": "\nDemo Mode\nExternal AI Service",
+   "default": "Demo Mode",
+   "description": "Demo Mode uses heuristic responses. External AI Service calls an OpenAI-compatible API."
+  },
+  {
+   "fieldname": "assistant_column_break",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "assistant_system_prompt",
+   "fieldtype": "Small Text",
+   "label": "System Prompt",
+   "description": "Custom system prompt for the AI assistant"
   }
  ],
  "grid_page_length": 50,

@@ -1,0 +1,36 @@
+{
+ "doctype": "DocType",
+ "name": "AI Guardrail Event",
+ "module": "LMS",
+ "custom": 0,
+ "istable": 0,
+ "editable_grid": 0,
+ "track_changes": 1,
+ "allow_rename": 0,
+ "field_order": [
+  "time",
+  "user",
+  "course",
+  "lesson",
+  "source",
+  "event_type",
+  "snippet",
+  "notes"
+ ],
+ "fields": [
+  {"fieldname": "time", "fieldtype": "Datetime", "label": "Time", "default": "Now", "in_list_view": 1},
+  {"fieldname": "user", "fieldtype": "Link", "label": "User", "options": "User", "in_list_view": 1},
+  {"fieldname": "course", "fieldtype": "Link", "label": "Course", "options": "LMS Course", "in_list_view": 1},
+  {"fieldname": "lesson", "fieldtype": "Link", "label": "Lesson", "options": "Course Lesson", "in_list_view": 1},
+  {"fieldname": "source", "fieldtype": "Select", "label": "Source", "options": "chat\nexternal", "in_list_view": 1},
+  {"fieldname": "event_type", "fieldtype": "Select", "label": "Event Type", "options": "Injection\nSensitive", "in_list_view": 1},
+  {"fieldname": "snippet", "fieldtype": "Small Text", "label": "Snippet"},
+  {"fieldname": "notes", "fieldtype": "Small Text", "label": "Notes"}
+ ],
+ "permissions": [
+  {"role": "System Manager", "read": 1, "write": 1, "create": 1, "delete": 1, "share": 1, "print": 1, "email": 1},
+  {"role": "Moderator", "read": 1},
+  {"role": "Course Creator", "read": 1}
+ ]
+}
+

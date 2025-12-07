@@ -1,0 +1,27 @@
+﻿2025-09-19T22:58:34.5119090Z ##[group]Run echo "# Performance Testing Summary" > performance-summary.md
+2025-09-19T22:58:34.5120463Z [36;1mecho "# Performance Testing Summary" > performance-summary.md[0m
+2025-09-19T22:58:34.5121294Z [36;1mecho "" >> performance-summary.md[0m
+2025-09-19T22:58:34.5122071Z [36;1mecho "## Test Results" >> performance-summary.md[0m
+2025-09-19T22:58:34.5122901Z [36;1mecho "- Load Testing: failure" >> performance-summary.md[0m
+2025-09-19T22:58:34.5123874Z [36;1mecho "- Lighthouse Performance: success" >> performance-summary.md[0m
+2025-09-19T22:58:34.5124829Z [36;1mecho "- API Performance: success" >> performance-summary.md[0m
+2025-09-19T22:58:34.5125750Z [36;1mecho "- Memory Profiling: success" >> performance-summary.md[0m
+2025-09-19T22:58:34.5126542Z [36;1mecho "" >> performance-summary.md[0m
+2025-09-19T22:58:34.5127151Z [36;1m[0m
+2025-09-19T22:58:34.5127682Z [36;1m# Add API performance details if available[0m
+2025-09-19T22:58:34.5128560Z [36;1mif [ -f "api-performance-results/api_performance_results.json" ]; then[0m
+2025-09-19T22:58:34.5129546Z [36;1m  echo "## API Performance Results" >> performance-summary.md[0m
+2025-09-19T22:58:34.5130454Z [36;1m  echo "\`\`\`json" >> performance-summary.md[0m
+2025-09-19T22:58:34.5131410Z [36;1m  cat api-performance-results/api_performance_results.json >> performance-summary.md[0m
+2025-09-19T22:58:34.5132579Z [36;1m  echo "\`\`\`" >> performance-summary.md[0m
+2025-09-19T22:58:34.5133267Z [36;1m  echo "" >> performance-summary.md[0m
+2025-09-19T22:58:34.5133875Z [36;1mfi[0m
+2025-09-19T22:58:34.5134329Z [36;1m[0m
+2025-09-19T22:58:34.5134958Z [36;1mecho "## Performance Baseline" >> performance-summary.md[0m
+2025-09-19T22:58:34.5135880Z [36;1mecho "- API Response Time: < 500ms (target)" >> performance-summary.md[0m
+2025-09-19T22:58:34.5136813Z [36;1mecho "- Page Load Time: < 2s (target)" >> performance-summary.md[0m
+2025-09-19T22:58:34.5137723Z [36;1mecho "- Memory Usage: < 500MB (target)" >> performance-summary.md[0m
+2025-09-19T22:58:34.5138519Z [36;1mecho "" >> performance-summary.md[0m
+2025-09-19T22:58:34.5139261Z [36;1mecho "Generated on: $(date)" >> performance-summary.md[0m
+2025-09-19T22:58:34.5197794Z shell: /usr/bin/bash -e {0}
+2025-09-19T22:58:34.5198408Z ##[endgroup]

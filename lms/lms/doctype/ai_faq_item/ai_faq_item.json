@@ -1,0 +1,20 @@
+{
+ "doctype": "DocType",
+ "name": "AI FAQ Item",
+ "module": "LMS",
+ "custom": 0,
+ "istable": 1,
+ "editable_grid": 1,
+ "track_changes": 1,
+ "allow_rename": 0,
+ "field_order": [
+  "question",
+  "answer"
+ ],
+ "fields": [
+  {"fieldname": "question", "fieldtype": "Small Text", "label": "Question", "in_list_view": 1, "reqd": 1},
+  {"fieldname": "answer", "fieldtype": "Long Text", "label": "Answer", "in_list_view": 0, "reqd": 1}
+ ],
+ "permissions": []
+}
+

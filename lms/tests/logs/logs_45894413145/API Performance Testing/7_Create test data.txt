@@ -1,0 +1,29 @@
+﻿2025-09-19T22:53:00.9855004Z ##[group]Run cd ~/frappe-bench
+2025-09-19T22:53:00.9855324Z [36;1mcd ~/frappe-bench[0m
+2025-09-19T22:53:00.9855613Z [36;1mbench --site test.local console << 'EOF'[0m
+2025-09-19T22:53:00.9855913Z [36;1mimport frappe[0m
+2025-09-19T22:53:00.9856149Z [36;1m# Create test course if not exists[0m
+2025-09-19T22:53:00.9856499Z [36;1mif not frappe.db.exists("LMS Course", "test-course"):[0m
+2025-09-19T22:53:00.9856861Z [36;1m    course = frappe.new_doc("LMS Course")[0m
+2025-09-19T22:53:00.9857163Z [36;1m    course.title = "Test Course"[0m
+2025-09-19T22:53:00.9857437Z [36;1m    course.name = "test-course"[0m
+2025-09-19T22:53:00.9857709Z [36;1m    course.published = 1[0m
+2025-09-19T22:53:00.9857963Z [36;1m    course.save()[0m
+2025-09-19T22:53:00.9858191Z [36;1m    frappe.db.commit()[0m
+2025-09-19T22:53:00.9858421Z [36;1mEOF[0m
+2025-09-19T22:53:00.9889329Z shell: /usr/bin/bash -e {0}
+2025-09-19T22:53:00.9889580Z env:
+2025-09-19T22:53:00.9889853Z   pythonLocation: /opt/hostedtoolcache/Python/3.10.18/x64
+2025-09-19T22:53:00.9890367Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.10.18/x64/lib/pkgconfig
+2025-09-19T22:53:00.9890842Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.10.18/x64
+2025-09-19T22:53:00.9891253Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.10.18/x64
+2025-09-19T22:53:00.9891667Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.10.18/x64
+2025-09-19T22:53:00.9892323Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.10.18/x64/lib
+2025-09-19T22:53:00.9892686Z ##[endgroup]
+2025-09-19T22:53:02.0851392Z Apps in this namespace:
+2025-09-19T22:53:02.0851872Z frappe, lms
+2025-09-19T22:53:02.0852302Z 
+2025-09-19T22:53:02.0882791Z In [1]: 
+2025-09-19T22:53:02.0887151Z In [2]: 
+2025-09-19T22:53:02.1277211Z In [3]:    ...:    ...:    ...:    ...:    ...:    ...:    ...: Do you really want to exit ([y]/n)? 
+2025-09-19T22:53:02.1277651Z 

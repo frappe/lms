@@ -1,0 +1,20 @@
+﻿2025-09-19T22:54:49.0596884Z ##[group]Run npm install -g @lhci/cli
+2025-09-19T22:54:49.0597433Z [36;1mnpm install -g @lhci/cli[0m
+2025-09-19T22:54:49.0627606Z shell: /usr/bin/bash -e {0}
+2025-09-19T22:54:49.0627822Z env:
+2025-09-19T22:54:49.0628166Z   pythonLocation: /opt/hostedtoolcache/Python/3.10.18/x64
+2025-09-19T22:54:49.0628563Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.10.18/x64/lib/pkgconfig
+2025-09-19T22:54:49.0628951Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.10.18/x64
+2025-09-19T22:54:49.0629297Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.10.18/x64
+2025-09-19T22:54:49.0629636Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.10.18/x64
+2025-09-19T22:54:49.0629989Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.10.18/x64/lib
+2025-09-19T22:54:49.0630266Z ##[endgroup]
+2025-09-19T22:54:57.4470222Z npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
+2025-09-19T22:54:57.4829069Z npm warn deprecated glob@7.2.3: Glob versions prior to v9 are no longer supported
+2025-09-19T22:54:58.6041290Z npm warn deprecated rimraf@3.0.2: Rimraf versions prior to v4 are no longer supported
+2025-09-19T22:54:58.6429401Z npm warn deprecated rimraf@2.7.1: Rimraf versions prior to v4 are no longer supported
+2025-09-19T22:55:00.7412846Z 
+2025-09-19T22:55:00.7413459Z added 330 packages in 12s
+2025-09-19T22:55:00.7414745Z 
+2025-09-19T22:55:00.7415263Z 27 packages are looking for funding
+2025-09-19T22:55:00.7415791Z   run `npm fund` for details

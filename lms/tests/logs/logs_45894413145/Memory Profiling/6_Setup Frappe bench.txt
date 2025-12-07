@@ -1,0 +1,376 @@
+﻿2025-09-19T22:49:48.7703859Z ##[group]Run bench init ~/frappe-bench --skip-redis-config-generation --skip-assets --python "$(which python)"
+2025-09-19T22:49:48.7704772Z [36;1mbench init ~/frappe-bench --skip-redis-config-generation --skip-assets --python "$(which python)"[0m
+2025-09-19T22:49:48.7705329Z [36;1mcd ~/frappe-bench[0m
+2025-09-19T22:49:48.7705608Z [36;1mbench get-app lms $GITHUB_WORKSPACE[0m
+2025-09-19T22:49:48.7706101Z [36;1mbench new-site --mariadb-root-password root --admin-password admin test.local[0m
+2025-09-19T22:49:48.7706599Z [36;1mbench --site test.local install-app lms[0m
+2025-09-19T22:49:48.7737074Z shell: /usr/bin/bash -e {0}
+2025-09-19T22:49:48.7737328Z env:
+2025-09-19T22:49:48.7737606Z   pythonLocation: /opt/hostedtoolcache/Python/3.10.18/x64
+2025-09-19T22:49:48.7738090Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.10.18/x64/lib/pkgconfig
+2025-09-19T22:49:48.7738560Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.10.18/x64
+2025-09-19T22:49:48.7738985Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.10.18/x64
+2025-09-19T22:49:48.7739449Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.10.18/x64
+2025-09-19T22:49:48.7739904Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.10.18/x64/lib
+2025-09-19T22:49:48.7740504Z ##[endgroup]
+2025-09-19T22:49:48.8979913Z Setting Up Environment
+2025-09-19T22:49:48.9744043Z $ /opt/hostedtoolcache/Python/3.10.18/x64/bin/python -m venv env
+2025-09-19T22:49:52.9853153Z $ /home/runner/frappe-bench/env/bin/python -m pip install --quiet --upgrade pip
+2025-09-19T22:49:54.7521041Z $ /home/runner/frappe-bench/env/bin/python -m pip install --quiet wheel
+2025-09-19T22:49:55.4528463Z Getting frappe
+2025-09-19T22:49:55.4529625Z $ git clone https://github.com/frappe/frappe.git  --depth 1 --origin upstream
+2025-09-19T22:49:55.4542965Z Cloning into 'frappe'...
+2025-09-19T22:49:56.3422545Z Installing frappe
+2025-09-19T22:49:56.3444807Z $ /home/runner/frappe-bench/env/bin/python -m pip install --quiet --upgrade -e /home/runner/frappe-bench/apps/frappe 
+2025-09-19T22:50:16.1063252Z   DEPRECATION: Building 'PyQRCode' using the legacy setup.py bdist_wheel mechanism, which will be removed in a future version. pip 25.3 will enforce this behaviour change. A possible replacement is to use the standardized build interface by setting the `--use-pep517` option, (possibly combined with `--no-build-isolation`), or adding a `pyproject.toml` file to the source tree of 'PyQRCode'. Discussion can be found at https://github.com/pypa/pip/issues/6334
+2025-09-19T22:50:16.3963884Z   DEPRECATION: Building 'rauth' using the legacy setup.py bdist_wheel mechanism, which will be removed in a future version. pip 25.3 will enforce this behaviour change. A possible replacement is to use the standardized build interface by setting the `--use-pep517` option, (possibly combined with `--no-build-isolation`), or adding a `pyproject.toml` file to the source tree of 'rauth'. Discussion can be found at https://github.com/pypa/pip/issues/6334
+2025-09-19T22:50:16.6638617Z   DEPRECATION: Building 'docopt' using the legacy setup.py bdist_wheel mechanism, which will be removed in a future version. pip 25.3 will enforce this behaviour change. A possible replacement is to use the standardized build interface by setting the `--use-pep517` option, (possibly combined with `--no-build-isolation`), or adding a `pyproject.toml` file to the source tree of 'docopt'. Discussion can be found at https://github.com/pypa/pip/issues/6334
+2025-09-19T22:50:33.7332499Z $ yarn install --check-files
+2025-09-19T22:50:35.7420476Z yarn install v1.22.22
+2025-09-19T22:50:35.9684849Z [1/5] Validating package.json...
+2025-09-19T22:50:35.9711832Z [2/5] Resolving packages...
+2025-09-19T22:50:36.1270423Z [3/5] Fetching packages...
+2025-09-19T22:50:46.7821075Z [4/5] Linking dependencies...
+2025-09-19T22:50:46.7831220Z warning " > @frappe/esbuild-plugin-postcss2@0.1.3" has unmet peer dependency "less@^4.x".
+2025-09-19T22:50:46.7832204Z warning " > @frappe/esbuild-plugin-postcss2@0.1.3" has unmet peer dependency "stylus@^0.x".
+2025-09-19T22:50:46.7838373Z warning " > @vue/component-compiler@4.2.4" has unmet peer dependency "vue-template-compiler@*".
+2025-09-19T22:50:50.5191871Z [5/5] Building fresh packages...
+2025-09-19T22:50:51.8982688Z Done in 16.18s.
+2025-09-19T22:50:51.9866505Z Found existing apps updating states...
+2025-09-19T22:50:51.9867610Z SUCCESS: Bench /home/runner/frappe-bench initialized
+2025-09-19T22:50:52.2333180Z Getting frappe-lms-chat
+2025-09-19T22:50:52.2333840Z $ git clone /home/runner/work/frappe-lms-chat/frappe-lms-chat --branch develop --depth 1 --origin upstream
+2025-09-19T22:50:52.2348640Z Cloning into 'frappe-lms-chat'...
+2025-09-19T22:50:52.2369496Z warning: --depth is ignored in local clones; use file:// instead.
+2025-09-19T22:50:53.2373019Z Ignoring dependencies of /home/runner/work/frappe-lms-chat/frappe-lms-chat. To install dependencies use --resolve-deps
+2025-09-19T22:50:53.2373795Z Installing lms
+2025-09-19T22:50:53.2375851Z $ /home/runner/frappe-bench/env/bin/python -m pip install --quiet --upgrade -e /home/runner/frappe-bench/apps/lms 
+2025-09-19T22:50:58.4132687Z ERROR: pip's dependency resolver does not currently take into account all the packages that are installed. This behaviour is the source of the following dependency conflicts.
+2025-09-19T22:50:58.4134030Z frappe 16.0.0.dev0 requires beautifulsoup4~=4.13.4, but you have beautifulsoup4 4.12.3 which is incompatible.
+2025-09-19T22:50:58.5073390Z $ yarn install --check-files
+2025-09-19T22:50:58.6290886Z yarn install v1.22.22
+2025-09-19T22:50:58.6634107Z info No lockfile found.
+2025-09-19T22:50:58.6704386Z [1/4] Resolving packages...
+2025-09-19T22:50:59.9195162Z warning vite-plugin-pwa > workbox-build > source-map@0.8.0-beta.0: The work that was done in this beta branch won't be included in future versions
+2025-09-19T22:50:59.9311636Z warning vite-plugin-pwa > workbox-build > glob@7.2.3: Glob versions prior to v9 are no longer supported
+2025-09-19T22:51:00.0895515Z warning vite-plugin-pwa > workbox-build > glob > inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
+2025-09-19T22:51:00.8188313Z warning vite-plugin-pwa > workbox-build > @rollup/plugin-replace > magic-string > sourcemap-codec@1.4.8: Please use @jridgewell/sourcemap-codec instead
+2025-09-19T22:51:01.2779494Z [2/4] Fetching packages...
+2025-09-19T22:51:06.8300010Z [3/4] Linking dependencies...
+2025-09-19T22:51:06.8315150Z warning " > vite-plugin-pwa@1.0.3" has unmet peer dependency "vite@^3.1.0 || ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0".
+2025-09-19T22:51:06.8316578Z warning " > vite-plugin-pwa@1.0.3" has unmet peer dependency "workbox-build@^7.3.0".
+2025-09-19T22:51:06.8318844Z warning " > vite-plugin-pwa@1.0.3" has unmet peer dependency "workbox-window@^7.3.0".
+2025-09-19T22:51:09.3095314Z [4/4] Building fresh packages...
+2025-09-19T22:51:19.6269654Z success Saved lockfile.
+2025-09-19T22:51:19.6315850Z $ cd frontend && yarn install --check-files
+2025-09-19T22:51:19.7577605Z yarn install v1.22.22
+2025-09-19T22:51:19.8279224Z [1/4] Resolving packages...
+2025-09-19T22:51:20.0851080Z [2/4] Fetching packages...
+2025-09-19T22:51:33.3053698Z warning chart.js@4.5.0: The engine "pnpm" appears to be invalid.
+2025-09-19T22:51:33.3164334Z [3/4] Linking dependencies...
+2025-09-19T22:51:33.3231128Z warning " > thememirror@2.0.1" has unmet peer dependency "@codemirror/language@^6.0.0".
+2025-09-19T22:51:33.3239786Z warning " > thememirror@2.0.1" has unmet peer dependency "@codemirror/state@^6.0.0".
+2025-09-19T22:51:33.3243581Z warning " > thememirror@2.0.1" has unmet peer dependency "@codemirror/view@^6.0.0".
+2025-09-19T22:51:33.3246667Z warning " > vue-draggable-next@2.2.1" has unmet peer dependency "sortablejs@^1.14.0".
+2025-09-19T22:51:42.3785615Z [4/4] Building fresh packages...
+2025-09-19T22:51:44.9271304Z Done in 25.17s.
+2025-09-19T22:51:44.9787842Z Done in 46.35s.
+2025-09-19T22:51:44.9988353Z $ bench build --app lms
+2025-09-19T22:51:45.8889121Z Linking /home/runner/frappe-bench/apps/frappe/frappe/public to ./assets/frappe  
+2025-09-19T22:51:45.8891588Z Linking /home/runner/frappe-bench/apps/frappe/node_modules to ./assets/frappe/node_modules                                                                                
+2025-09-19T22:51:45.8892950Z Linking /home/runner/frappe-bench/apps/lms/lms/public to ./assets/lms           
+2025-09-19T22:51:45.8894064Z Linking /home/runner/frappe-bench/apps/lms/node_modules to ./assets/lms/node_modules                                                                                
+2025-09-19T22:51:45.8895329Z ✔ Application Assets Linked                                            
+2025-09-19T22:51:45.8895738Z 
+2025-09-19T22:51:45.8936730Z 
+2025-09-19T22:51:46.1258163Z yarn run v1.22.22
+2025-09-19T22:51:46.1637201Z $ node esbuild --production --apps lms --run-build-command
+2025-09-19T22:51:46.7479827Z Browserslist: caniuse-lite is outdated. Please run:
+2025-09-19T22:51:46.7480814Z   npx update-browserslist-db@latest
+2025-09-19T22:51:46.7481609Z   Why you should do it regularly: https://github.com/browserslist/update-db#readme
+2025-09-19T22:51:46.9194998Z File                                                        Size
+2025-09-19T22:51:46.9195483Z 
+2025-09-19T22:51:46.9195623Z lms/dist/css/
+2025-09-19T22:51:46.9196517Z └─ lms.bundle.LWDVM733.css                                  32.03 Kb
+2025-09-19T22:51:46.9197027Z 
+2025-09-19T22:51:46.9197145Z lms/dist/css-rtl/
+2025-09-19T22:51:46.9197671Z └─ lms.bundle.Q3PFFUFI.css                                  32.06 Kb
+2025-09-19T22:51:46.9198065Z 
+2025-09-19T22:51:46.9198228Z  DONE  Total Build Time: 302.566ms
+2025-09-19T22:51:46.9198489Z 
+2025-09-19T22:51:47.0262294Z 
+2025-09-19T22:51:47.0262785Z Running build command for lms
+2025-09-19T22:51:47.2826455Z $ cd frontend && yarn build
+2025-09-19T22:51:47.5448276Z $ vite build --base=/assets/lms/frontend/ && yarn copy-html-entry
+2025-09-19T22:51:48.0192680Z [36mvite v5.4.19 [32mbuilding for production...[36m[39m
+2025-09-19T22:51:48.3387454Z transforming...
+2025-09-19T22:51:58.0048143Z 
+2025-09-19T22:51:58.0049539Z Inter-DisplayRegular.woff2?v=3.19 referenced in Inter-DisplayRegular.woff2?v=3.19 didn't resolve at build time, it will remain unchanged to be resolved at runtime
+2025-09-19T22:52:09.3138287Z [32m✓[39m 3930 modules transformed.
+2025-09-19T22:52:10.3508716Z src/pages/ProfileRoles.vue (80:19): Use of eval in "src/pages/ProfileRoles.vue" is strongly discouraged as it poses security risks and may cause issues with minification.
+2025-09-19T22:52:10.3513310Z src/pages/ProfileRoles.vue (113:10): Use of eval in "src/pages/ProfileRoles.vue" is strongly discouraged as it poses security risks and may cause issues with minification.
+2025-09-19T22:52:10.6023916Z rendering chunks...
+2025-09-19T22:52:17.8926919Z [frappeui-build-config-plugin] Successfully copied index.html to ../lms/www/lms.html
+2025-09-19T22:52:17.8934075Z computing gzip size...
+2025-09-19T22:52:18.8282447Z [2m../lms/public/frontend/[22m[32mregisterSW.js                                                       [39m[1m[2m    0.17 kB[22m[1m[22m
+2025-09-19T22:52:18.8284730Z [2m../lms/public/frontend/[22m[32mmanifest.webmanifest                                                [39m[1m[2m    0.53 kB[22m[1m[22m
+2025-09-19T22:52:18.8286555Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-icon-180-D_n3lJOH.png                                  [39m[1m[2m    4.24 kB[22m[1m[22m
+2025-09-19T22:52:18.8288174Z [2m../lms/public/frontend/[22m[32mindex.html                                                          [39m[1m[2m   11.49 kB[22m[1m[22m[2m │ gzip:     1.65 kB[22m
+2025-09-19T22:52:18.8289837Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-640-1136-BR98aM7H.jpg                           [39m[1m[2m   15.39 kB[22m[1m[22m
+2025-09-19T22:52:18.8291855Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-1136-640-BocYFD09.jpg                           [39m[1m[2m   16.43 kB[22m[1m[22m
+2025-09-19T22:52:18.8293934Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-750-1334-Bc9LfBe-.jpg                           [39m[1m[2m   18.22 kB[22m[1m[22m
+2025-09-19T22:52:18.8295458Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-1334-750-ZapWTaEg.jpg                           [39m[1m[2m   19.20 kB[22m[1m[22m
+2025-09-19T22:52:18.8296630Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-828-1792-CitdGgZY.jpg                           [39m[1m[2m   22.93 kB[22m[1m[22m
+2025-09-19T22:52:18.8297826Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-1792-828-Cc6wR60-.jpg                           [39m[1m[2m   23.38 kB[22m[1m[22m
+2025-09-19T22:52:18.8299392Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-1125-2436-C3w0dSnH.jpg                          [39m[1m[2m   35.24 kB[22m[1m[22m
+2025-09-19T22:52:18.8302896Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-2436-1125-UBc56n4I.jpg                          [39m[1m[2m   36.05 kB[22m[1m[22m
+2025-09-19T22:52:18.8304206Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-1242-2208-D1K-FjW8.jpg                          [39m[1m[2m   36.19 kB[22m[1m[22m
+2025-09-19T22:52:18.8305126Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-1170-2532-MJgQ9zjx.jpg                          [39m[1m[2m   37.25 kB[22m[1m[22m
+2025-09-19T22:52:18.8306693Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-1179-2556-CYjIoO1a.jpg                          [39m[1m[2m   37.60 kB[22m[1m[22m
+2025-09-19T22:52:18.8307702Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-2208-1242-B0cjc1eL.jpg                          [39m[1m[2m   38.36 kB[22m[1m[22m
+2025-09-19T22:52:18.8308564Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-2532-1170-DyRAcsgg.jpg                          [39m[1m[2m   38.58 kB[22m[1m[22m
+2025-09-19T22:52:18.8309419Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-1206-2622-CsHAWTcr.jpg                          [39m[1m[2m   39.15 kB[22m[1m[22m
+2025-09-19T22:52:18.8310980Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-2556-1179-B5cAG8BK.jpg                          [39m[1m[2m   39.17 kB[22m[1m[22m
+2025-09-19T22:52:18.8312271Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-1242-2688-Bzfl4WPX.jpg                          [39m[1m[2m   39.69 kB[22m[1m[22m
+2025-09-19T22:52:18.8313619Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-2622-1206-Bc7YeGWe.jpg                          [39m[1m[2m   40.46 kB[22m[1m[22m
+2025-09-19T22:52:18.8314972Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-2688-1242-DNx5UzH6.jpg                          [39m[1m[2m   41.88 kB[22m[1m[22m
+2025-09-19T22:52:18.8316544Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-1284-2778-C-TDdDbQ.jpg                          [39m[1m[2m   42.45 kB[22m[1m[22m
+2025-09-19T22:52:18.8318067Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-1290-2796-BQw-p_Zz.jpg                          [39m[1m[2m   42.82 kB[22m[1m[22m
+2025-09-19T22:52:18.8319581Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-1536-2048-DWf2LykR.jpg                          [39m[1m[2m   43.84 kB[22m[1m[22m
+2025-09-19T22:52:18.8321203Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-2796-1290-DRM7pqfd.jpg                          [39m[1m[2m   43.92 kB[22m[1m[22m
+2025-09-19T22:52:18.8322733Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-2778-1284-nkoKAVGG.jpg                          [39m[1m[2m   44.50 kB[22m[1m[22m
+2025-09-19T22:52:18.8324208Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-1488-2266-oCwhNquF.jpg                          [39m[1m[2m   44.56 kB[22m[1m[22m
+2025-09-19T22:52:18.8325685Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-1320-2868-D7rS3PbF.jpg                          [39m[1m[2m   44.62 kB[22m[1m[22m
+2025-09-19T22:52:18.8327171Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-2048-1536-DAUDlzu8.jpg                          [39m[1m[2m   45.77 kB[22m[1m[22m
+2025-09-19T22:52:18.8328208Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-2868-1320-Bq_zwKIb.jpg                          [39m[1m[2m   46.01 kB[22m[1m[22m
+2025-09-19T22:52:18.8329208Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-2266-1488-MbTvgHmX.jpg                          [39m[1m[2m   46.58 kB[22m[1m[22m
+2025-09-19T22:52:18.8330324Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-1620-2160-BcBrHuwl.jpg                          [39m[1m[2m   47.62 kB[22m[1m[22m
+2025-09-19T22:52:18.8331785Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-2160-1620-BiOL-rzg.jpg                          [39m[1m[2m   49.28 kB[22m[1m[22m
+2025-09-19T22:52:18.8333316Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-1668-2224-BloaNeC-.jpg                          [39m[1m[2m   49.69 kB[22m[1m[22m
+2025-09-19T22:52:18.8334803Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-1640-2360-Dh-YwmK7.jpg                          [39m[1m[2m   49.82 kB[22m[1m[22m
+2025-09-19T22:52:18.8336306Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-2224-1668-VL9eJ66f.jpg                          [39m[1m[2m   51.35 kB[22m[1m[22m
+2025-09-19T22:52:18.8337803Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-2360-1640-Cbr-_bw-.jpg                          [39m[1m[2m   51.58 kB[22m[1m[22m
+2025-09-19T22:52:18.8339324Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-1668-2388-2B803rpN.jpg                          [39m[1m[2m   51.69 kB[22m[1m[22m
+2025-09-19T22:52:18.8341068Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-2388-1668-BofeGhV_.jpg                          [39m[1m[2m   53.15 kB[22m[1m[22m
+2025-09-19T22:52:18.8342601Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-2048-2732-BjakkKKb.jpg                          [39m[1m[2m   66.46 kB[22m[1m[22m
+2025-09-19T22:52:18.8344118Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-2732-2048-EzPQmp1m.jpg                          [39m[1m[2m   69.11 kB[22m[1m[22m
+2025-09-19T22:52:18.8345612Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-Regular-trENmjXB.woff2                                 [39m[1m[2m  100.79 kB[22m[1m[22m
+2025-09-19T22:52:18.8346537Z [33m
+2025-09-19T22:52:18.8346955Z (!) Some chunks are larger than 500 kB after minification. Consider:
+2025-09-19T22:52:18.8347570Z - Using dynamic import() to code-split the application
+2025-09-19T22:52:18.8348620Z - Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+2025-09-19T22:52:18.8349905Z - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.[39m
+2025-09-19T22:52:18.8351295Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-Thin-D3JiHKaG.woff2                                    [39m[1m[2m  101.16 kB[22m[1m[22m
+2025-09-19T22:52:18.8352793Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-DisplayBlack-WeYNDCAX.woff2                            [39m[1m[2m  101.92 kB[22m[1m[22m
+2025-09-19T22:52:18.8354176Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-DisplayThin-ChL4oFCg.woff2                             [39m[1m[2m  102.15 kB[22m[1m[22m
+2025-09-19T22:52:18.8355173Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-ExtraLight-CCj5KODw.woff2                              [39m[1m[2m  102.87 kB[22m[1m[22m
+2025-09-19T22:52:18.8356115Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-Light-dIA14uc3.woff2                                   [39m[1m[2m  103.27 kB[22m[1m[22m
+2025-09-19T22:52:18.8357265Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-Black-9EvaAvES.woff2                                   [39m[1m[2m  103.59 kB[22m[1m[22m
+2025-09-19T22:52:18.8358384Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-ExtraBold-Ce88byQn.woff2                               [39m[1m[2m  104.99 kB[22m[1m[22m
+2025-09-19T22:52:18.8359429Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-Bold-R0zHozHF.woff2                                    [39m[1m[2m  105.21 kB[22m[1m[22m
+2025-09-19T22:52:18.8361041Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-Medium-BN7iDkqy.woff2                                  [39m[1m[2m  105.22 kB[22m[1m[22m
+2025-09-19T22:52:18.8362547Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-DisplayLight-w8lPQKnS.woff2                            [39m[1m[2m  105.34 kB[22m[1m[22m
+2025-09-19T22:52:18.8364112Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-DisplayExtraBold-BXf2GJrG.woff2                        [39m[1m[2m  105.36 kB[22m[1m[22m
+2025-09-19T22:52:18.8365712Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-DisplayMedium-DcjtbkcA.woff2                           [39m[1m[2m  105.38 kB[22m[1m[22m
+2025-09-19T22:52:18.8367226Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-SemiBold-CBUekF9E.woff2                                [39m[1m[2m  105.40 kB[22m[1m[22m
+2025-09-19T22:52:18.8368750Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-DisplaySemiBold-BBWLY5vL.woff2                         [39m[1m[2m  105.56 kB[22m[1m[22m
+2025-09-19T22:52:18.8370449Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-DisplayBold-C-1EDGRh.woff2                             [39m[1m[2m  105.57 kB[22m[1m[22m
+2025-09-19T22:52:18.8372025Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-DisplayExtraLight-D2Ja0abb.woff2                       [39m[1m[2m  105.87 kB[22m[1m[22m
+2025-09-19T22:52:18.8373584Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-DisplayItalic-JNEE2o-3.woff2                           [39m[1m[2m  106.12 kB[22m[1m[22m
+2025-09-19T22:52:18.8375212Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-Italic-ClOttZep.woff2                                  [39m[1m[2m  106.55 kB[22m[1m[22m
+2025-09-19T22:52:18.8376738Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-ThinItalic-Dty9qLU6.woff2                              [39m[1m[2m  106.64 kB[22m[1m[22m
+2025-09-19T22:52:18.8378295Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-DisplayBlackItalic-DFEmIFsd.woff2                      [39m[1m[2m  107.28 kB[22m[1m[22m
+2025-09-19T22:52:18.8379909Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-DisplayThinItalic-Cxxw6hRb.woff2                       [39m[1m[2m  107.44 kB[22m[1m[22m
+2025-09-19T22:52:18.8381628Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-LightItalic-BcJQrN_r.woff2                             [39m[1m[2m  108.56 kB[22m[1m[22m
+2025-09-19T22:52:18.8383149Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-BlackItalic-I0v0TUo2.woff2                             [39m[1m[2m  108.59 kB[22m[1m[22m
+2025-09-19T22:52:18.8384722Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-ExtraLightItalic-BXS8QPqu.woff2                        [39m[1m[2m  109.00 kB[22m[1m[22m
+2025-09-19T22:52:18.8386320Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-DisplayBoldItalic-CISmTavk.woff2                       [39m[1m[2m  110.20 kB[22m[1m[22m
+2025-09-19T22:52:18.8387960Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-DisplaySemiBoldItalic-CNvBGF7e.woff2                   [39m[1m[2m  110.39 kB[22m[1m[22m
+2025-09-19T22:52:18.8389603Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-DisplayMediumItalic-BBCoS5uP.woff2                     [39m[1m[2m  110.46 kB[22m[1m[22m
+2025-09-19T22:52:18.8391240Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-BoldItalic-D0-5Ex_3.woff2                              [39m[1m[2m  110.52 kB[22m[1m[22m
+2025-09-19T22:52:18.8392872Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-ExtraBoldItalic-Cgmm6Ie2.woff2                         [39m[1m[2m  110.52 kB[22m[1m[22m
+2025-09-19T22:52:18.8394481Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-DisplayLightItalic-DBve3eI1.woff2                      [39m[1m[2m  110.56 kB[22m[1m[22m
+2025-09-19T22:52:18.8396075Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-SemiBoldItalic-J43nRLRr.woff2                          [39m[1m[2m  110.64 kB[22m[1m[22m
+2025-09-19T22:52:18.8397734Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-DisplayExtraBoldItalic-Czv3KFD8.woff2                  [39m[1m[2m  110.82 kB[22m[1m[22m
+2025-09-19T22:52:18.8399495Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-MediumItalic-iRTrRc5x.woff2                            [39m[1m[2m  110.82 kB[22m[1m[22m
+2025-09-19T22:52:18.8401211Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-DisplayExtraLightItalic-DRwiM9T2.woff2                 [39m[1m[2m  111.11 kB[22m[1m[22m
+2025-09-19T22:52:18.8402304Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-Regular-CODxxkJm.woff2                                 [39m[1m[2m  181.32 kB[22m[1m[22m
+2025-09-19T22:52:18.8403324Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-Thin-B_uUBCoZ.woff2                                    [39m[1m[2m  183.58 kB[22m[1m[22m
+2025-09-19T22:52:18.8404588Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-Black-Cshk1Ouu.woff2                                   [39m[1m[2m  189.20 kB[22m[1m[22m
+2025-09-19T22:52:18.8406027Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-Light-C30yDEIo.woff2                                   [39m[1m[2m  191.10 kB[22m[1m[22m
+2025-09-19T22:52:18.8407488Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-ExtraLight-CVi2P0ys.woff2                              [39m[1m[2m  192.27 kB[22m[1m[22m
+2025-09-19T22:52:18.8408954Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-Medium-CzCDdD8n.woff2                                  [39m[1m[2m  193.56 kB[22m[1m[22m
+2025-09-19T22:52:18.8410539Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-Bold-wPZ6LF5Z.woff2                                    [39m[1m[2m  194.16 kB[22m[1m[22m
+2025-09-19T22:52:18.8411981Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-Italic-C54yVidA.woff2                                  [39m[1m[2m  194.17 kB[22m[1m[22m
+2025-09-19T22:52:18.8413452Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-SemiBold-BeKvnjMK.woff2                                [39m[1m[2m  194.68 kB[22m[1m[22m
+2025-09-19T22:52:18.8414937Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-ExtraBold-BsIfWbEo.woff2                               [39m[1m[2m  195.07 kB[22m[1m[22m
+2025-09-19T22:52:18.8416420Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-ThinItalic-YHidimb8.woff2                              [39m[1m[2m  195.60 kB[22m[1m[22m
+2025-09-19T22:52:18.8417951Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-BlackItalic-BjcoK2hX.woff2                             [39m[1m[2m  198.44 kB[22m[1m[22m
+2025-09-19T22:52:18.8419469Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-LightItalic-BPE1IxhF.woff2                             [39m[1m[2m  202.69 kB[22m[1m[22m
+2025-09-19T22:52:18.8421166Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-ExtraLightItalic-6TFOpbKD.woff2                        [39m[1m[2m  202.93 kB[22m[1m[22m
+2025-09-19T22:52:18.8422716Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-BoldItalic-CzV6Tv7P.woff2                              [39m[1m[2m  203.78 kB[22m[1m[22m
+2025-09-19T22:52:18.8424219Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-SemiBoldItalic-C3grxp6v.woff2                          [39m[1m[2m  203.79 kB[22m[1m[22m
+2025-09-19T22:52:18.8426025Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-MediumItalic-CGBFDtcS.woff2                            [39m[1m[2m  204.23 kB[22m[1m[22m
+2025-09-19T22:52:18.8427759Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-ExtraBoldItalic-DxTsNEOh.woff2                         [39m[1m[2m  204.67 kB[22m[1m[22m
+2025-09-19T22:52:18.8429248Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-Regular-DBCApsjw.woff                                  [39m[1m[2m  246.04 kB[22m[1m[22m
+2025-09-19T22:52:18.8430771Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-Thin-Ul_XpALr.woff                                     [39m[1m[2m  250.35 kB[22m[1m[22m
+2025-09-19T22:52:18.8431571Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-Black-BOV8XG9T.woff                                    [39m[1m[2m  255.17 kB[22m[1m[22m
+2025-09-19T22:52:18.8432360Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-Light-BKVjUX-w.woff                                    [39m[1m[2m  258.66 kB[22m[1m[22m
+2025-09-19T22:52:18.8433335Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-ExtraLight-BMbphDvi.woff                               [39m[1m[2m  258.67 kB[22m[1m[22m
+2025-09-19T22:52:18.8434155Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-Medium-Bo29Umh-.woff                                   [39m[1m[2m  260.17 kB[22m[1m[22m
+2025-09-19T22:52:18.8434932Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-Italic-Cm_EBKra.woff                                   [39m[1m[2m  260.95 kB[22m[1m[22m
+2025-09-19T22:52:18.8435718Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-SemiBold-CNAjOvz0.woff                                 [39m[1m[2m  261.31 kB[22m[1m[22m
+2025-09-19T22:52:18.8436527Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-ExtraBold-CJBt3edo.woff                                [39m[1m[2m  261.85 kB[22m[1m[22m
+2025-09-19T22:52:18.8437313Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-Bold-g6Xj0jn7.woff                                     [39m[1m[2m  262.48 kB[22m[1m[22m
+2025-09-19T22:52:18.8438125Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter.var-C9xDBOS3.woff2                                     [39m[1m[2m  264.24 kB[22m[1m[22m
+2025-09-19T22:52:18.8438925Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-ThinItalic-BWOlBIs9.woff                               [39m[1m[2m  264.44 kB[22m[1m[22m
+2025-09-19T22:52:18.8439761Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-BlackItalic-Wdjh7EHa.woff                              [39m[1m[2m  265.52 kB[22m[1m[22m
+2025-09-19T22:52:18.8441106Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-ExtraLightItalic-D4UzWCoA.woff                         [39m[1m[2m  270.09 kB[22m[1m[22m
+2025-09-19T22:52:18.8442632Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-LightItalic-xkgxSzrU.woff                              [39m[1m[2m  270.72 kB[22m[1m[22m
+2025-09-19T22:52:18.8443733Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-MediumItalic-BuyD3L9U.woff                             [39m[1m[2m  271.80 kB[22m[1m[22m
+2025-09-19T22:52:18.8444783Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-SemiBoldItalic-CdzhttxU.woff                           [39m[1m[2m  271.90 kB[22m[1m[22m
+2025-09-19T22:52:18.8445927Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-ExtraBoldItalic-D0n3C9E8.woff                          [39m[1m[2m  272.21 kB[22m[1m[22m
+2025-09-19T22:52:18.8447468Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-BoldItalic-8tC2rJIs.woff                               [39m[1m[2m  272.32 kB[22m[1m[22m
+2025-09-19T22:52:18.8448947Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-Italic.var-BGHziHgI.woff2                              [39m[1m[2m  297.27 kB[22m[1m[22m
+2025-09-19T22:52:18.8450807Z [2m../lms/public/frontend/[22m[2massets/[22m[35mProgrammingExerciseSubmission-f5BXjTF8.css                   [39m[1m[2m    0.05 kB[22m[1m[22m[2m │ gzip:     0.07 kB[22m
+2025-09-19T22:52:18.8452823Z [2m../lms/public/frontend/[22m[2massets/[22m[35mNotifications-Bax51NhM.css                                   [39m[1m[2m    0.05 kB[22m[1m[22m[2m │ gzip:     0.06 kB[22m
+2025-09-19T22:52:18.8454388Z [2m../lms/public/frontend/[22m[2massets/[22m[35mJobDetail-CxNe8sOu.css                                       [39m[1m[2m    0.07 kB[22m[1m[22m[2m │ gzip:     0.08 kB[22m
+2025-09-19T22:52:18.8455950Z [2m../lms/public/frontend/[22m[2massets/[22m[35mCourseDetail-CbcHN0vY.css                                    [39m[1m[2m    0.11 kB[22m[1m[22m[2m │ gzip:     0.11 kB[22m
+2025-09-19T22:52:18.8457343Z [2m../lms/public/frontend/[22m[2massets/[22m[35mQuizForm-BVS5er5W.css                                        [39m[1m[2m    0.13 kB[22m[1m[22m[2m │ gzip:     0.11 kB[22m
+2025-09-19T22:52:18.8458969Z [2m../lms/public/frontend/[22m[2massets/[22m[35mCertifiedParticipants-CInkYQ8Q.css                           [39m[1m[2m    0.13 kB[22m[1m[22m[2m │ gzip:     0.12 kB[22m
+2025-09-19T22:52:18.8460741Z [2m../lms/public/frontend/[22m[2massets/[22m[35mJobs-BxS8k0Zn.css                                            [39m[1m[2m    0.17 kB[22m[1m[22m[2m │ gzip:     0.14 kB[22m
+2025-09-19T22:52:18.8462290Z [2m../lms/public/frontend/[22m[2massets/[22m[35mBatchDetail-svDRwAkr.css                                     [39m[1m[2m    0.23 kB[22m[1m[22m[2m │ gzip:     0.15 kB[22m
+2025-09-19T22:52:18.8463838Z [2m../lms/public/frontend/[22m[2massets/[22m[35mBatch-CheouqEg.css                                           [39m[1m[2m    0.27 kB[22m[1m[22m[2m │ gzip:     0.21 kB[22m
+2025-09-19T22:52:18.8465323Z [2m../lms/public/frontend/[22m[2massets/[22m[35mBatchCard-BE6B3NxE.css                                       [39m[1m[2m    0.34 kB[22m[1m[22m[2m │ gzip:     0.23 kB[22m
+2025-09-19T22:52:18.8466852Z [2m../lms/public/frontend/[22m[2massets/[22m[35mCourseForm-BiFSvuyG.css                                      [39m[1m[2m    0.43 kB[22m[1m[22m[2m │ gzip:     0.20 kB[22m
+2025-09-19T22:52:18.8468339Z [2m../lms/public/frontend/[22m[2massets/[22m[35mCourseCard-CQG0b0lt.css                                      [39m[1m[2m    0.57 kB[22m[1m[22m[2m │ gzip:     0.34 kB[22m
+2025-09-19T22:52:18.8469881Z [2m../lms/public/frontend/[22m[2massets/[22m[35mLessonForm-CUa4XeSd.css                                      [39m[1m[2m    2.92 kB[22m[1m[22m[2m │ gzip:     1.11 kB[22m
+2025-09-19T22:52:18.8471539Z [2m../lms/public/frontend/[22m[2massets/[22m[35mLesson-CV_oxQcs.css                                          [39m[1m[2m    4.16 kB[22m[1m[22m[2m │ gzip:     1.28 kB[22m
+2025-09-19T22:52:18.8472606Z [2m../lms/public/frontend/[22m[2massets/[22m[35mindex-C9XEr41a.css                                           [39m[1m[2m  178.60 kB[22m[1m[22m[2m │ gzip:    28.77 kB[22m
+2025-09-19T22:52:18.8473723Z [2m../lms/public/frontend/[22m[2massets/[22m[36mInsertLink-CDtB9_kU.js                                       [39m[1m[2m    0.31 kB[22m[1m[22m[2m │ gzip:     0.25 kB[22m[2m │ map:      0.67 kB[22m
+2025-09-19T22:52:18.8474832Z [2m../lms/public/frontend/[22m[2massets/[22m[36mInsertVideo-1eCF2lNK.js                                      [39m[1m[2m    0.33 kB[22m[1m[22m[2m │ gzip:     0.27 kB[22m[2m │ map:      0.73 kB[22m
+2025-09-19T22:52:18.8476547Z [2m../lms/public/frontend/[22m[2massets/[22m[36mDateRange-CldGRtID.js                                        [39m[1m[2m    0.42 kB[22m[1m[22m[2m │ gzip:     0.32 kB[22m[2m │ map:      0.95 kB[22m
+2025-09-19T22:52:18.8478254Z [2m../lms/public/frontend/[22m[2massets/[22m[36mUserAvatar-pgZQLSSr.js                                       [39m[1m[2m    0.54 kB[22m[1m[22m[2m │ gzip:     0.38 kB[22m[2m │ map:      0.96 kB[22m
+2025-09-19T22:52:18.8480124Z [2m../lms/public/frontend/[22m[2massets/[22m[36mEmptyState.vue_vue_type_script_setup_true_lang-_WC1MUIe.js   [39m[1m[2m    0.80 kB[22m[1m[22m[2m │ gzip:     0.51 kB[22m[2m │ map:      1.40 kB[22m
+2025-09-19T22:52:18.8482711Z [2m../lms/public/frontend/[22m[2massets/[22m[36mInsertImage-DtCyZzuq.js                                      [39m[1m[2m    0.96 kB[22m[1m[22m[2m │ gzip:     0.60 kB[22m[2m │ map:      2.49 kB[22m
+2025-09-19T22:52:18.8484363Z [2m../lms/public/frontend/[22m[2massets/[22m[36mBadge-DO_c2JcJ.js                                            [39m[1m[2m    1.10 kB[22m[1m[22m[2m │ gzip:     0.66 kB[22m[2m │ map:      2.95 kB[22m
+2025-09-19T22:52:18.8486003Z [2m../lms/public/frontend/[22m[2massets/[22m[36mQuizPage-DkH09Kut.js                                         [39m[1m[2m    1.20 kB[22m[1m[22m[2m │ gzip:     0.78 kB[22m[2m │ map:      2.84 kB[22m
+2025-09-19T22:52:18.8487812Z [2m../lms/public/frontend/[22m[2massets/[22m[36mRating.vue_vue_type_script_setup_true_lang-uF4uafRn.js       [39m[1m[2m    1.27 kB[22m[1m[22m[2m │ gzip:     0.75 kB[22m[2m │ map:      3.43 kB[22m
+2025-09-19T22:52:18.8489718Z [2m../lms/public/frontend/[22m[2massets/[22m[36mCourseInstructors-B-jSayN2.js                                [39m[1m[2m    1.27 kB[22m[1m[22m[2m │ gzip:     0.50 kB[22m[2m │ map:      2.56 kB[22m
+2025-09-19T22:52:18.8491708Z [2m../lms/public/frontend/[22m[2massets/[22m[36mProfileCertificates-DYg_22V9.js                              [39m[1m[2m    1.45 kB[22m[1m[22m[2m │ gzip:     0.85 kB[22m[2m │ map:      3.16 kB[22m
+2025-09-19T22:52:18.8493524Z [2m../lms/public/frontend/[22m[2massets/[22m[36mCertificationLinks-5KEyMmp1.js                               [39m[1m[2m    1.62 kB[22m[1m[22m[2m │ gzip:     0.76 kB[22m[2m │ map:      3.76 kB[22m
+2025-09-19T22:52:18.8495515Z [2m../lms/public/frontend/[22m[2massets/[22m[36mNumberChart.vue_vue_type_script_setup_true_lang-BjJvrV6B.js  [39m[1m[2m    2.14 kB[22m[1m[22m[2m │ gzip:     1.11 kB[22m[2m │ map:      6.88 kB[22m
+2025-09-19T22:52:18.8497545Z [2m../lms/public/frontend/[22m[2massets/[22m[36mAxisChart.vue_vue_type_script_setup_true_lang-D6LTr72H.js    [39m[1m[2m    2.18 kB[22m[1m[22m[2m │ gzip:     1.09 kB[22m[2m │ map:      7.40 kB[22m
+2025-09-19T22:52:18.8499470Z [2m../lms/public/frontend/[22m[2massets/[22m[36mQuizSubmissionList-DkVuhaxk.js                               [39m[1m[2m    2.28 kB[22m[1m[22m[2m │ gzip:     1.20 kB[22m[2m │ map:      5.32 kB[22m
+2025-09-19T22:52:18.8501390Z [2m../lms/public/frontend/[22m[2massets/[22m[36mBatchCard-CAp-tc75.js                                        [39m[1m[2m    2.32 kB[22m[1m[22m[2m │ gzip:     1.01 kB[22m[2m │ map:      5.01 kB[22m
+2025-09-19T22:52:18.8502800Z [2m../lms/public/frontend/[22m[2massets/[22m[36mBreadcrumbs.vue_vue_type_script_setup_true_lang-C6kwtBON.js  [39m[1m[2m    2.46 kB[22m[1m[22m[2m │ gzip:     1.12 kB[22m[2m │ map:      6.19 kB[22m
+2025-09-19T22:52:18.8504015Z [2m../lms/public/frontend/[22m[2massets/[22m[36mindex-DP_SKewI.js                                            [39m[1m[2m    2.59 kB[22m[1m[22m[2m │ gzip:     1.61 kB[22m[2m │ map:      5.95 kB[22m
+2025-09-19T22:52:18.8505080Z [2m../lms/public/frontend/[22m[2massets/[22m[36mPersonaForm-DTRgrrnk.js                                      [39m[1m[2m    2.68 kB[22m[1m[22m[2m │ gzip:     1.38 kB[22m[2m │ map:      6.38 kB[22m
+2025-09-19T22:52:18.8506192Z [2m../lms/public/frontend/[22m[2massets/[22m[36mCourseCertification-COaBDMEH.js                              [39m[1m[2m    2.72 kB[22m[1m[22m[2m │ gzip:     1.37 kB[22m[2m │ map:      6.72 kB[22m
+2025-09-19T22:52:18.8507388Z [2m../lms/public/frontend/[22m[2massets/[22m[36mDonutChart.vue_vue_type_script_setup_true_lang-DziC0zhl.js   [39m[1m[2m    2.83 kB[22m[1m[22m[2m │ gzip:     1.45 kB[22m[2m │ map:      7.96 kB[22m
+2025-09-19T22:52:18.8508608Z [2m../lms/public/frontend/[22m[2massets/[22m[36mProgramDetail-D2kzgPE9.js                                    [39m[1m[2m    2.86 kB[22m[1m[22m[2m │ gzip:     1.45 kB[22m[2m │ map:      6.46 kB[22m
+2025-09-19T22:52:18.8510081Z [2m../lms/public/frontend/[22m[2massets/[22m[36mProfileRoles-qQb72HRZ.js                                     [39m[1m[2m    3.14 kB[22m[1m[22m[2m │ gzip:     1.25 kB[22m[2m │ map:      4.89 kB[22m
+2025-09-19T22:52:18.8511352Z [2m../lms/public/frontend/[22m[2massets/[22m[36mSCORMChapter-CmoI4_yU.js                                     [39m[1m[2m    3.28 kB[22m[1m[22m[2m │ gzip:     1.56 kB[22m[2m │ map:      8.25 kB[22m
+2025-09-19T22:52:18.8512412Z [2m../lms/public/frontend/[22m[2massets/[22m[36mFontColor-Di5AGm8p.js                                        [39m[1m[2m    3.39 kB[22m[1m[22m[2m │ gzip:     1.15 kB[22m[2m │ map:      7.48 kB[22m
+2025-09-19T22:52:18.8513492Z [2m../lms/public/frontend/[22m[2massets/[22m[36mCourseCard-CDiST1Fq.js                                       [39m[1m[2m    3.46 kB[22m[1m[22m[2m │ gzip:     1.41 kB[22m[2m │ map:      9.82 kB[22m
+2025-09-19T22:52:18.8514632Z [2m../lms/public/frontend/[22m[2massets/[22m[36mQuizSubmission-j4QIKISi.js                                   [39m[1m[2m    3.47 kB[22m[1m[22m[2m │ gzip:     1.51 kB[22m[2m │ map:      7.57 kB[22m
+2025-09-19T22:52:18.8516381Z [2m../lms/public/frontend/[22m[2massets/[22m[36mNotifications-Cvc3rnS3.js                                    [39m[1m[2m    3.50 kB[22m[1m[22m[2m │ gzip:     1.67 kB[22m[2m │ map:      8.51 kB[22m
+2025-09-19T22:52:18.8518124Z [2m../lms/public/frontend/[22m[2massets/[22m[36mProfileAbout-HgtYA0Pn.js                                     [39m[1m[2m    3.67 kB[22m[1m[22m[2m │ gzip:     1.70 kB[22m[2m │ map:      9.00 kB[22m
+2025-09-19T22:52:18.8519925Z [2m../lms/public/frontend/[22m[2massets/[22m[36mAssignmentSubmissionList-CR-zeWMd.js                         [39m[1m[2m    3.84 kB[22m[1m[22m[2m │ gzip:     1.70 kB[22m[2m │ map:      9.74 kB[22m
+2025-09-19T22:52:18.8521904Z [2m../lms/public/frontend/[22m[2massets/[22m[36mStatistics-uMyjOtiw.js                                       [39m[1m[2m    4.00 kB[22m[1m[22m[2m │ gzip:     1.24 kB[22m[2m │ map:      9.12 kB[22m
+2025-09-19T22:52:18.8523080Z [2m../lms/public/frontend/[22m[2massets/[22m[36mCertifiedParticipants-CS7H-Vdq.js                            [39m[1m[2m    4.01 kB[22m[1m[22m[2m │ gzip:     1.82 kB[22m[2m │ map:      9.86 kB[22m
+2025-09-19T22:52:18.8524213Z [2m../lms/public/frontend/[22m[2massets/[22m[36mMultiSelect-CZsG8q5d.js                                      [39m[1m[2m    4.12 kB[22m[1m[22m[2m │ gzip:     2.05 kB[22m[2m │ map:     11.68 kB[22m
+2025-09-19T22:52:18.8525264Z [2m../lms/public/frontend/[22m[2massets/[22m[36mWelcome-CuS4jAVf.js                                          [39m[1m[2m    4.38 kB[22m[1m[22m[2m │ gzip:     1.56 kB[22m[2m │ map:      9.05 kB[22m
+2025-09-19T22:52:18.8526301Z [2m../lms/public/frontend/[22m[2massets/[22m[36mJobs-BnpY76Fr.js                                             [39m[1m[2m    4.59 kB[22m[1m[22m[2m │ gzip:     1.99 kB[22m[2m │ map:     11.51 kB[22m
+2025-09-19T22:52:18.8527384Z [2m../lms/public/frontend/[22m[2massets/[22m[36mQuizzes-sLm-hzxP.js                                          [39m[1m[2m    5.06 kB[22m[1m[22m[2m │ gzip:     2.24 kB[22m[2m │ map:     12.84 kB[22m
+2025-09-19T22:52:18.8528534Z [2m../lms/public/frontend/[22m[2massets/[22m[36mProgrammingExerciseSubmissions-BagzRhOv.js                   [39m[1m[2m    5.33 kB[22m[1m[22m[2m │ gzip:     2.22 kB[22m[2m │ map:     14.35 kB[22m
+2025-09-19T22:52:18.8529731Z [2m../lms/public/frontend/[22m[2massets/[22m[36mBatches-CGDVaQRT.js                                          [39m[1m[2m    5.59 kB[22m[1m[22m[2m │ gzip:     2.40 kB[22m[2m │ map:     14.61 kB[22m
+2025-09-19T22:52:18.8531202Z [2m../lms/public/frontend/[22m[2massets/[22m[36mCourses-Cho75Q90.js                                          [39m[1m[2m    5.71 kB[22m[1m[22m[2m │ gzip:     2.50 kB[22m[2m │ map:     15.43 kB[22m
+2025-09-19T22:52:18.8532605Z [2m../lms/public/frontend/[22m[2massets/[22m[36mmode-json-D1hG_EL8.js                                        [39m[1m[2m    5.79 kB[22m[1m[22m[2m │ gzip:     2.22 kB[22m[2m │ map:     17.10 kB[22m
+2025-09-19T22:52:18.8533710Z [2m../lms/public/frontend/[22m[2massets/[22m[36mJobForm-wFM0gYde.js                                          [39m[1m[2m    5.83 kB[22m[1m[22m[2m │ gzip:     2.23 kB[22m[2m │ map:     14.92 kB[22m
+2025-09-19T22:52:18.8534842Z [2m../lms/public/frontend/[22m[2massets/[22m[36mECharts.vue_vue_type_script_setup_true_lang-JexE1oMz.js      [39m[1m[2m    6.01 kB[22m[1m[22m[2m │ gzip:     2.39 kB[22m[2m │ map:     17.73 kB[22m
+2025-09-19T22:52:18.8536015Z [2m../lms/public/frontend/[22m[2massets/[22m[36mAssignments-jm8Oas9i.js                                      [39m[1m[2m    6.07 kB[22m[1m[22m[2m │ gzip:     2.60 kB[22m[2m │ map:     15.45 kB[22m
+2025-09-19T22:52:18.8537141Z [2m../lms/public/frontend/[22m[2massets/[22m[36mProfileEvaluator-DdQWEqK-.js                                 [39m[1m[2m    6.30 kB[22m[1m[22m[2m │ gzip:     2.17 kB[22m[2m │ map:     14.83 kB[22m
+2025-09-19T22:52:18.8538306Z [2m../lms/public/frontend/[22m[2massets/[22m[36mTabButtons-CGw54Qk4.js                                       [39m[1m[2m    6.63 kB[22m[1m[22m[2m │ gzip:     2.79 kB[22m[2m │ map:     16.17 kB[22m
+2025-09-19T22:52:18.8539396Z [2m../lms/public/frontend/[22m[2massets/[22m[36mJobDetail-BAqT05eY.js                                        [39m[1m[2m    6.86 kB[22m[1m[22m[2m │ gzip:     2.76 kB[22m[2m │ map:     16.73 kB[22m
+2025-09-19T22:52:18.8540696Z [2m../lms/public/frontend/[22m[2massets/[22m[36mUpcomingEvaluations-Ax9jOlLF.js                              [39m[1m[2m    7.16 kB[22m[1m[22m[2m │ gzip:     2.82 kB[22m[2m │ map:     18.14 kB[22m
+2025-09-19T22:52:18.8541818Z [2m../lms/public/frontend/[22m[2massets/[22m[36mBatchDetail-DCxtQOJ_.js                                      [39m[1m[2m    7.19 kB[22m[1m[22m[2m │ gzip:     2.58 kB[22m[2m │ map:     17.25 kB[22m
+2025-09-19T22:52:18.8542929Z [2m../lms/public/frontend/[22m[2massets/[22m[36mBilling-BWXaDTId.js                                          [39m[1m[2m    8.24 kB[22m[1m[22m[2m │ gzip:     3.05 kB[22m[2m │ map:     19.03 kB[22m
+2025-09-19T22:52:18.8543996Z [2m../lms/public/frontend/[22m[2massets/[22m[36mmode-python-BA-wClCF.js                                      [39m[1m[2m    8.56 kB[22m[1m[22m[2m │ gzip:     2.82 kB[22m[2m │ map:     25.59 kB[22m
+2025-09-19T22:52:18.8545125Z [2m../lms/public/frontend/[22m[2massets/[22m[36mDiscussions-DcLsTJRK.js                                      [39m[1m[2m    8.79 kB[22m[1m[22m[2m │ gzip:     3.10 kB[22m[2m │ map:     23.05 kB[22m
+2025-09-19T22:52:18.8546212Z [2m../lms/public/frontend/[22m[2massets/[22m[36mProgrammingExercises-DI_GA8s_.js                             [39m[1m[2m   10.00 kB[22m[1m[22m[2m │ gzip:     3.61 kB[22m[2m │ map:     25.71 kB[22m
+2025-09-19T22:52:18.8547373Z [2m../lms/public/frontend/[22m[2massets/[22m[36mTabs-U6v0Uifc.js                                             [39m[1m[2m   10.13 kB[22m[1m[22m[2m │ gzip:     3.80 kB[22m[2m │ map:     25.72 kB[22m
+2025-09-19T22:52:18.8548460Z [2m../lms/public/frontend/[22m[2massets/[22m[36mAssignmentSubmission-CO7Qawu2.js                             [39m[1m[2m   10.26 kB[22m[1m[22m[2m │ gzip:     3.81 kB[22m[2m │ map:     25.99 kB[22m
+2025-09-19T22:52:18.8549617Z [2m../lms/public/frontend/[22m[2massets/[22m[36mProfile-DpsVlNIU.js                                          [39m[1m[2m   10.46 kB[22m[1m[22m[2m │ gzip:     4.13 kB[22m[2m │ map:     25.56 kB[22m
+2025-09-19T22:52:18.8550831Z [2m../lms/public/frontend/[22m[2massets/[22m[36mBatchForm-E4KYJGUr.js                                        [39m[1m[2m   12.08 kB[22m[1m[22m[2m │ gzip:     4.00 kB[22m[2m │ map:     29.66 kB[22m
+2025-09-19T22:52:18.8552863Z [2m../lms/public/frontend/[22m[2massets/[22m[36mQuizForm-BXiIhqVH.js                                         [39m[1m[2m   13.68 kB[22m[1m[22m[2m │ gzip:     4.41 kB[22m[2m │ map:     33.87 kB[22m
+2025-09-19T22:52:18.8554589Z [2m../lms/public/frontend/[22m[2massets/[22m[36mCourseOutline-D9MCZoFZ.js                                    [39m[1m[2m   13.81 kB[22m[1m[22m[2m │ gzip:     4.92 kB[22m[2m │ map:     36.08 kB[22m
+2025-09-19T22:52:18.8556310Z [2m../lms/public/frontend/[22m[2massets/[22m[36mHome-ZAZ07O5W.js                                             [39m[1m[2m   15.48 kB[22m[1m[22m[2m │ gzip:     4.31 kB[22m[2m │ map:     36.81 kB[22m
+2025-09-19T22:52:18.8557986Z [2m../lms/public/frontend/[22m[2massets/[22m[36mCourseDetail-Bi6V2Xdm.js                                     [39m[1m[2m   18.21 kB[22m[1m[22m[2m │ gzip:     5.89 kB[22m[2m │ map:     43.38 kB[22m
+2025-09-19T22:52:18.8559773Z [2m../lms/public/frontend/[22m[2massets/[22m[36mPrograms-D23O-VoS.js                                         [39m[1m[2m   19.76 kB[22m[1m[22m[2m │ gzip:     5.98 kB[22m[2m │ map:     51.86 kB[22m
+2025-09-19T22:52:18.8561393Z [2m../lms/public/frontend/[22m[2massets/[22m[36mmode-css-BntFUd8Z.js                                         [39m[1m[2m   21.15 kB[22m[1m[22m[2m │ gzip:     7.45 kB[22m[2m │ map:     50.36 kB[22m
+2025-09-19T22:52:18.8563107Z [2m../lms/public/frontend/[22m[2massets/[22m[36mCourseForm-B3C2HSsg.js                                       [39m[1m[2m   24.42 kB[22m[1m[22m[2m │ gzip:     7.51 kB[22m[2m │ map:     61.27 kB[22m
+2025-09-19T22:52:18.8564833Z [2m../lms/public/frontend/[22m[2massets/[22m[36mLessonForm-DTjq0cRo.js                                       [39m[1m[2m   24.63 kB[22m[1m[22m[2m │ gzip:     7.29 kB[22m[2m │ map:     64.62 kB[22m
+2025-09-19T22:52:18.8566545Z [2m../lms/public/frontend/[22m[2massets/[22m[36mindex-CMYb06vK.js                                            [39m[1m[2m   25.99 kB[22m[1m[22m[2m │ gzip:    11.71 kB[22m[2m │ map:     48.27 kB[22m
+2025-09-19T22:52:18.8568189Z [2m../lms/public/frontend/[22m[2massets/[22m[36mindex-Do4fOOgz.js                                            [39m[1m[2m   26.34 kB[22m[1m[22m[2m │ gzip:     8.82 kB[22m[2m │ map:    111.43 kB[22m
+2025-09-19T22:52:18.8569897Z [2m../lms/public/frontend/[22m[2massets/[22m[36mmode-javascript-Dnz46kCk.js                                  [39m[1m[2m   28.21 kB[22m[1m[22m[2m │ gzip:     9.26 kB[22m[2m │ map:     76.55 kB[22m
+2025-09-19T22:52:18.8571768Z [2m../lms/public/frontend/[22m[2massets/[22m[36mindex-AuoNjc27.js                                            [39m[1m[2m   28.88 kB[22m[1m[22m[2m │ gzip:    11.78 kB[22m[2m │ map:     76.62 kB[22m
+2025-09-19T22:52:18.8573567Z [2m../lms/public/frontend/[22m[2massets/[22m[36mProfileEvaluationSchedule-BpgibHbD.js                        [39m[1m[2m   42.95 kB[22m[1m[22m[2m │ gzip:    13.57 kB[22m[2m │ map:    128.79 kB[22m
+2025-09-19T22:52:18.8575383Z [2m../lms/public/frontend/[22m[2massets/[22m[36mindex-AHGr_xoe.js                                            [39m[1m[2m   45.26 kB[22m[1m[22m[2m │ gzip:    19.26 kB[22m[2m │ map:     75.54 kB[22m
+2025-09-19T22:52:18.8577035Z [2m../lms/public/frontend/[22m[2massets/[22m[36mmode-html-sOyz11nV.js                                        [39m[1m[2m   63.58 kB[22m[1m[22m[2m │ gzip:    19.67 kB[22m[2m │ map:    165.67 kB[22m
+2025-09-19T22:52:18.8578547Z [2m../lms/public/frontend/[22m[2massets/[22m[36mindex-BG3q2ND5.js                                            [39m[1m[2m   86.44 kB[22m[1m[22m[2m │ gzip:    34.33 kB[22m[2m │ map:    119.89 kB[22m
+2025-09-19T22:52:18.8580428Z [2m../lms/public/frontend/[22m[2massets/[22m[36mvuedraggable.umd-DK9bXjRH.js                                 [39m[1m[2m  100.82 kB[22m[1m[22m[2m │ gzip:    36.13 kB[22m[2m │ map:    445.73 kB[22m
+2025-09-19T22:52:18.8582500Z [2m../lms/public/frontend/[22m[2massets/[22m[36mLesson-ChcvHpNg.js                                           [39m[1m[2m  126.08 kB[22m[1m[22m[2m │ gzip:    57.51 kB[22m[2m │ map:    521.40 kB[22m
+2025-09-19T22:52:18.8584147Z [2m../lms/public/frontend/[22m[2massets/[22m[36meditorjs-CjdnXl8-.js                                         [39m[1m[2m  243.42 kB[22m[1m[22m[2m │ gzip:    66.07 kB[22m[2m │ map:    618.64 kB[22m
+2025-09-19T22:52:18.8585999Z [2m../lms/public/frontend/[22m[2massets/[22m[36mProgrammingExerciseSubmission-DlGag_BK.js                    [39m[1m[2m  413.44 kB[22m[1m[22m[2m │ gzip:   133.04 kB[22m[2m │ map:  1,786.84 kB[22m
+2025-09-19T22:52:18.8587906Z [2m../lms/public/frontend/[22m[2massets/[22m[36mBatch-BiiQdxo-.js                                            [39m[1m[33m  628.86 kB[39m[22m[2m │ gzip:   172.30 kB[22m[2m │ map:  1,395.01 kB[22m
+2025-09-19T22:52:18.8589598Z [2m../lms/public/frontend/[22m[2massets/[22m[36mindex-Kt70A5nj.js                                            [39m[1m[33m4,212.31 kB[39m[22m[2m │ gzip: 1,202.61 kB[22m[2m │ map: 16,770.18 kB[22m
+2025-09-19T22:52:18.8590880Z [32m✓ built in 30.79s[39m
+2025-09-19T22:52:20.6713558Z 
+2025-09-19T22:52:20.6714280Z [36mPWA v0.20.5[39m
+2025-09-19T22:52:20.6714598Z mode      [35mgenerateSW[39m
+2025-09-19T22:52:20.6714927Z precache  [32m96 entries[39m [2m(6528.83 KiB)[22m
+2025-09-19T22:52:20.6715215Z files generated
+2025-09-19T22:52:20.6715464Z   [2m../lms/public/frontend/sw.js.map[22m
+2025-09-19T22:52:20.6715771Z   [2m../lms/public/frontend/sw.js[22m
+2025-09-19T22:52:20.6716109Z   [2m../lms/public/frontend/workbox-5ffe50d4.js.map[22m
+2025-09-19T22:52:20.6716480Z   [2m../lms/public/frontend/workbox-5ffe50d4.js[22m
+2025-09-19T22:52:21.1555668Z $ cp ../lms/public/frontend/index.html ../lms/www/lms.html
+2025-09-19T22:52:21.2124879Z Done in 35.09s.
+2025-09-19T22:52:21.3248771Z Compiling translations for lms
+2025-09-19T22:52:21.7735919Z MO file created at /home/runner/frappe-bench/sites/assets/locale/fr/LC_MESSAGES/lms.mo
+2025-09-19T22:52:21.7738248Z MO file created at /home/runner/frappe-bench/sites/assets/locale/pt/LC_MESSAGES/lms.mo
+2025-09-19T22:52:21.7740746Z MO file created at /home/runner/frappe-bench/sites/assets/locale/da/LC_MESSAGES/lms.mo
+2025-09-19T22:52:21.7743308Z MO file created at /home/runner/frappe-bench/sites/assets/locale/tr/LC_MESSAGES/lms.mo
+2025-09-19T22:52:21.7745699Z MO file created at /home/runner/frappe-bench/sites/assets/locale/zh/LC_MESSAGES/lms.mo
+2025-09-19T22:52:21.7746951Z MO file created at /home/runner/frappe-bench/sites/assets/locale/sr_CS/LC_MESSAGES/lms.mo
+2025-09-19T22:52:21.7748039Z MO file created at /home/runner/frappe-bench/sites/assets/locale/ar/LC_MESSAGES/lms.mo
+2025-09-19T22:52:21.7749101Z MO file created at /home/runner/frappe-bench/sites/assets/locale/id/LC_MESSAGES/lms.mo
+2025-09-19T22:52:21.7750392Z MO file created at /home/runner/frappe-bench/sites/assets/locale/bs/LC_MESSAGES/lms.mo
+2025-09-19T22:52:21.7751482Z MO file created at /home/runner/frappe-bench/sites/assets/locale/fa/LC_MESSAGES/lms.mo
+2025-09-19T22:52:21.7752336Z MO file created at /home/runner/frappe-bench/sites/assets/locale/es/LC_MESSAGES/lms.mo
+2025-09-19T22:52:21.7753213Z MO file created at /home/runner/frappe-bench/sites/assets/locale/pt_BR/LC_MESSAGES/lms.mo
+2025-09-19T22:52:21.7754165Z MO file created at /home/runner/frappe-bench/sites/assets/locale/sv/LC_MESSAGES/lms.mo
+2025-09-19T22:52:21.7754991Z MO file created at /home/runner/frappe-bench/sites/assets/locale/hu/LC_MESSAGES/lms.mo
+2025-09-19T22:52:21.7755846Z MO file created at /home/runner/frappe-bench/sites/assets/locale/sr/LC_MESSAGES/lms.mo
+2025-09-19T22:52:21.7756757Z MO file created at /home/runner/frappe-bench/sites/assets/locale/de/LC_MESSAGES/lms.mo
+2025-09-19T22:52:21.7757674Z MO file created at /home/runner/frappe-bench/sites/assets/locale/pl/LC_MESSAGES/lms.mo
+2025-09-19T22:52:21.7758888Z MO file created at /home/runner/frappe-bench/sites/assets/locale/th/LC_MESSAGES/lms.mo
+2025-09-19T22:52:21.7762254Z MO file created at /home/runner/frappe-bench/sites/assets/locale/vi/LC_MESSAGES/lms.mo
+2025-09-19T22:52:21.7763845Z MO file created at /home/runner/frappe-bench/sites/assets/locale/it/LC_MESSAGES/lms.mo
+2025-09-19T22:52:21.7765358Z MO file created at /home/runner/frappe-bench/sites/assets/locale/cs/LC_MESSAGES/lms.mo
+2025-09-19T22:52:21.7766968Z MO file created at /home/runner/frappe-bench/sites/assets/locale/nl/LC_MESSAGES/lms.mo
+2025-09-19T22:52:21.7768455Z MO file created at /home/runner/frappe-bench/sites/assets/locale/eo/LC_MESSAGES/lms.mo
+2025-09-19T22:52:21.7769888Z MO file created at /home/runner/frappe-bench/sites/assets/locale/ru/LC_MESSAGES/lms.mo
+2025-09-19T22:52:21.7771994Z MO file created at /home/runner/frappe-bench/sites/assets/locale/nb/LC_MESSAGES/lms.mo
+2025-09-19T22:52:21.7772797Z MO file created at /home/runner/frappe-bench/sites/assets/locale/hr/LC_MESSAGES/lms.mo
+2025-09-19T22:52:22.4514861Z Warning: MariaDB version ['10.3', '27'] is older than 10.6 which is not supported by Frappe
+2025-09-19T22:52:24.3606377Z 
+2025-09-19T22:52:24.3607142Z Installing frappe...
+2025-09-19T22:52:40.1847585Z Updating DocTypes for frappe.............................................................................................................................................................................................................................................................................................................................
+2025-09-19T22:52:40.1848847Z Updating Dashboard for frappe
+2025-09-19T22:52:40.1849175Z *** Scheduler is disabled ***
+2025-09-19T22:52:41.8383988Z 
+2025-09-19T22:52:41.8384416Z Installing lms...
+2025-09-19T22:52:50.2179170Z Updating DocTypes for lms...............................................................................................................
+2025-09-19T22:52:50.2179695Z Updating Dashboard for lms

@@ -1,0 +1,43 @@
+{
+ "doctype": "DocType",
+ "name": "AI Chat Session",
+ "module": "LMS",
+ "custom": 0,
+ "istable": 0,
+ "editable_grid": 0,
+ "track_changes": 1,
+ "allow_rename": 0,
+ "autoname": "field:title",
+ "field_order": [
+  "title",
+  "user",
+  "course",
+  "lesson",
+  "chapter_index",
+  "lesson_index",
+  "started_at",
+  "ended_at",
+  "token_usage_prompt",
+  "token_usage_completion",
+  "cost_estimate"
+ ],
+ "fields": [
+  {"fieldname": "title", "fieldtype": "Data", "label": "Title", "read_only": 1, "in_list_view": 1},
+  {"fieldname": "user", "fieldtype": "Link", "label": "User", "options": "User", "in_list_view": 1},
+  {"fieldname": "course", "fieldtype": "Link", "label": "Course", "options": "LMS Course", "in_list_view": 1},
+  {"fieldname": "lesson", "fieldtype": "Link", "label": "Lesson", "options": "Course Lesson", "in_list_view": 1},
+  {"fieldname": "chapter_index", "fieldtype": "Int", "label": "Chapter Index"},
+  {"fieldname": "lesson_index", "fieldtype": "Int", "label": "Lesson Index"},
+  {"fieldname": "started_at", "fieldtype": "Datetime", "label": "Started At", "default": "Now"},
+  {"fieldname": "ended_at", "fieldtype": "Datetime", "label": "Ended At"},
+  {"fieldname": "token_usage_prompt", "fieldtype": "Int", "label": "Prompt Tokens"},
+  {"fieldname": "token_usage_completion", "fieldtype": "Int", "label": "Completion Tokens"},
+  {"fieldname": "cost_estimate", "fieldtype": "Currency", "label": "Cost Estimate"}
+ ],
+ "permissions": [
+  {"role": "System Manager", "read": 1, "write": 1, "create": 1, "delete": 1, "share": 1, "print": 1, "email": 1},
+  {"role": "LMS Student", "read": 1, "write": 1, "create": 1},
+  {"role": "Moderator", "read": 1, "write": 1, "create": 1}
+ ]
+}
+

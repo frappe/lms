@@ -1,0 +1,27 @@
+﻿2025-09-19T22:53:37.8370103Z ##[group]Run actions/upload-artifact@v4
+2025-09-19T22:53:37.8370391Z with:
+2025-09-19T22:53:37.8370622Z   name: api-performance-results
+2025-09-19T22:53:37.8370872Z   path: api_performance_results.json
+2025-09-19T22:53:37.8371110Z   if-no-files-found: warn
+2025-09-19T22:53:37.8371318Z   compression-level: 6
+2025-09-19T22:53:37.8371505Z   overwrite: false
+2025-09-19T22:53:37.8371708Z   include-hidden-files: false
+2025-09-19T22:53:37.8371917Z env:
+2025-09-19T22:53:37.8372289Z   pythonLocation: /opt/hostedtoolcache/Python/3.10.18/x64
+2025-09-19T22:53:37.8372699Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.10.18/x64/lib/pkgconfig
+2025-09-19T22:53:37.8373081Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.10.18/x64
+2025-09-19T22:53:37.8373426Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.10.18/x64
+2025-09-19T22:53:37.8373764Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.10.18/x64
+2025-09-19T22:53:37.8374109Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.10.18/x64/lib
+2025-09-19T22:53:37.8374423Z ##[endgroup]
+2025-09-19T22:53:38.0496601Z With the provided path, there will be 1 file uploaded
+2025-09-19T22:53:38.0502526Z Artifact name is valid!
+2025-09-19T22:53:38.0504076Z Root directory input is valid!
+2025-09-19T22:53:38.3080880Z Beginning upload of artifact content to blob storage
+2025-09-19T22:53:38.5724468Z Uploaded bytes 301
+2025-09-19T22:53:38.6423916Z Finished uploading artifact content to blob storage!
+2025-09-19T22:53:38.6427109Z SHA256 digest of uploaded artifact zip is 43de3853d47b0cdbcafb1337d1f2b0c4e128b0e2554070f3dbcf9a835c6c4fde
+2025-09-19T22:53:38.6428647Z Finalizing artifact upload
+2025-09-19T22:53:38.7773978Z Artifact api-performance-results.zip successfully finalized. Artifact ID 4060812007
+2025-09-19T22:53:38.7775515Z Artifact api-performance-results has been successfully uploaded! Final size is 301 bytes. Artifact ID is 4060812007
+2025-09-19T22:53:38.7785210Z Artifact download URL: https://github.com/audit-brands/frappe-lms-chat/actions/runs/17871475744/artifacts/4060812007

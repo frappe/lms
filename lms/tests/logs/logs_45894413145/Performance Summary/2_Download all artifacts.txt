@@ -1,0 +1,34 @@
+﻿2025-09-19T22:58:34.0118566Z ##[group]Run actions/download-artifact@v4
+2025-09-19T22:58:34.0119598Z with:
+2025-09-19T22:58:34.0120226Z   merge-multiple: false
+2025-09-19T22:58:34.0120874Z   repository: audit-brands/frappe-lms-chat
+2025-09-19T22:58:34.0121467Z   run-id: 17871475744
+2025-09-19T22:58:34.0122184Z ##[endgroup]
+2025-09-19T22:58:34.3163338Z Found 4 artifact(s)
+2025-09-19T22:58:34.3164963Z No input name, artifact-ids or pattern filtered specified, downloading all artifacts
+2025-09-19T22:58:34.3166366Z An extra directory with the artifact name will be created for each download
+2025-09-19T22:58:34.3167723Z Preparing to download the following artifacts:
+2025-09-19T22:58:34.3169593Z - load-test-results (ID: 4060832032, Size: 293833, Expected Digest: sha256:e559d08b6b825db928636f4f32e3a5f41e5513777e0d8dd0a9780580f8191450)
+2025-09-19T22:58:34.3171574Z - memory-profile (ID: 4060831602, Size: 308, Expected Digest: sha256:675ff3dd2fea6b64c161250f5d31f01f2b21ab5bd31453dc0959f84a88d9ffba)
+2025-09-19T22:58:34.3173811Z - lighthouse-reports (ID: 4060820659, Size: 303482, Expected Digest: sha256:a96379f6d294895425949c6beee4b4c65960c186733bb8567efd5184a55e882a)
+2025-09-19T22:58:34.3175946Z - api-performance-results (ID: 4060812007, Size: 301, Expected Digest: sha256:43de3853d47b0cdbcafb1337d1f2b0c4e128b0e2554070f3dbcf9a835c6c4fde)
+2025-09-19T22:58:34.3870865Z Redirecting to blob download url: https://productionresultssa11.blob.core.windows.net/actions-results/ea265c14-b64a-4f0f-baa2-fe68c8a21a48/workflow-job-run-5ebe70bd-0f07-5a69-b59f-fbb39752c190/artifacts/13198da65349ac6b733c489965442b644eee7739df63507eafdf1150e3da6245.zip
+2025-09-19T22:58:34.3874602Z Starting download of artifact to: /home/runner/work/frappe-lms-chat/frappe-lms-chat/load-test-results
+2025-09-19T22:58:34.3916850Z Redirecting to blob download url: https://productionresultssa11.blob.core.windows.net/actions-results/ea265c14-b64a-4f0f-baa2-fe68c8a21a48/workflow-job-run-d54f45b5-bd1b-560e-8ded-46e6ffd2d865/artifacts/5a0d7400c80973fd4045ff4e27f09dcc89ffd2f844b0ff6f274541d8bb51074e.zip
+2025-09-19T22:58:34.3919501Z Starting download of artifact to: /home/runner/work/frappe-lms-chat/frappe-lms-chat/lighthouse-reports
+2025-09-19T22:58:34.4073722Z Redirecting to blob download url: https://productionresultssa11.blob.core.windows.net/actions-results/ea265c14-b64a-4f0f-baa2-fe68c8a21a48/workflow-job-run-fa6a2f71-54aa-5d4b-9699-0d06878cc5fd/artifacts/d8eb90f061cb0a77cddc8ee208a7ed6caa1daba4ab16cd217bf7cdf3a3dbc92b.zip
+2025-09-19T22:58:34.4077166Z Starting download of artifact to: /home/runner/work/frappe-lms-chat/frappe-lms-chat/memory-profile
+2025-09-19T22:58:34.4255163Z Redirecting to blob download url: https://productionresultssa11.blob.core.windows.net/actions-results/ea265c14-b64a-4f0f-baa2-fe68c8a21a48/workflow-job-run-52014089-ba17-5333-80b6-a7b91a5e849e/artifacts/52e8de3954a1735b872ee32599ac3f213e6eb36633c1f8783e6ab4fbc7bbee67.zip
+2025-09-19T22:58:34.4258113Z Starting download of artifact to: /home/runner/work/frappe-lms-chat/frappe-lms-chat/api-performance-results
+2025-09-19T22:58:34.4517794Z (node:1960) [DEP0005] DeprecationWarning: Buffer() is deprecated due to security and usability issues. Please use the Buffer.alloc(), Buffer.allocUnsafe(), or Buffer.from() methods instead.
+2025-09-19T22:58:34.4521967Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2025-09-19T22:58:34.4629421Z SHA256 digest of downloaded artifact is 675ff3dd2fea6b64c161250f5d31f01f2b21ab5bd31453dc0959f84a88d9ffba
+2025-09-19T22:58:34.4631460Z Artifact download completed successfully.
+2025-09-19T22:58:34.4633233Z SHA256 digest of downloaded artifact is 43de3853d47b0cdbcafb1337d1f2b0c4e128b0e2554070f3dbcf9a835c6c4fde
+2025-09-19T22:58:34.4635031Z Artifact download completed successfully.
+2025-09-19T22:58:34.4864213Z SHA256 digest of downloaded artifact is e559d08b6b825db928636f4f32e3a5f41e5513777e0d8dd0a9780580f8191450
+2025-09-19T22:58:34.4866350Z Artifact download completed successfully.
+2025-09-19T22:58:34.4905541Z SHA256 digest of downloaded artifact is a96379f6d294895425949c6beee4b4c65960c186733bb8567efd5184a55e882a
+2025-09-19T22:58:34.4907856Z Artifact download completed successfully.
+2025-09-19T22:58:34.4909055Z Total of 4 artifact(s) downloaded
+2025-09-19T22:58:34.4913959Z Download artifact has finished successfully

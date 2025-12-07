@@ -261,6 +261,15 @@
 								:quizId="lesson.data.quiz_id"
 							/>
 						</div>
+						<div v-if="assistantEnabled" class="mt-4 px-2">
+							<ChatbotPanel
+								:course="courseName"
+								:chapter="chapterNumber"
+								:lesson="lessonNumber"
+								:lessonTitle="lesson.data?.title"
+								:lessonId="lesson.data?.name"
+							/>
+						</div>
 					</div>
 					<div
 						v-if="lesson.data"
@@ -377,6 +386,7 @@ import CourseOutline from '@/components/CourseOutline.vue'
 import UserAvatar from '@/components/UserAvatar.vue'
 import Notes from '@/components/Notes/Notes.vue'
 import InlineLessonMenu from '@/components/Notes/InlineLessonMenu.vue'
+import ChatbotPanel from '@/components/ChatbotPanel.vue'
 
 const user = inject('$user')
 const socket = inject('$socket')
@@ -553,6 +563,31 @@ const notes = createListResource({
 			}, 500)
 		})
 	},
+})
+
+// Assistant feature flags from settings and per-course
+const assistantSetting = createResource({
+    url: 'lms.lms.api.get_lms_setting',
+    makeParams() {
+        return { field: 'enable_lesson_assistant' }
+    },
+    auto: true,
+})
+const courseAssistant = createResource({
+    url: 'lms.lms.api.is_assistant_enabled',
+    makeParams() {
+        return { course: props.courseName }
+    },
+    auto: true,
+})
+const assistantEnabled = computed(() => {
+    const val = assistantSetting.data
+    // Treat '1', 1, true, or 'true' as truthy
+    const global = val === 1 || val === '1' || val === true || val === 'true'
+    if (!global) return false
+    // Course-level can disable if explicitly false
+    if (courseAssistant.data === false) return false
+    return true
 })
 
 const breadcrumbs = computed(() => {

@@ -1,0 +1,37 @@
+﻿2025-09-19T22:55:00.7691272Z ##[group]Run lhci autorun --upload.target=temporary-public-storage || true
+2025-09-19T22:55:00.7691808Z [36;1mlhci autorun --upload.target=temporary-public-storage || true[0m
+2025-09-19T22:55:00.7692139Z [36;1m[0m
+2025-09-19T22:55:00.7692329Z [36;1m# Create manual lighthouse reports[0m
+2025-09-19T22:55:00.7692941Z [36;1mnpx lighthouse http://localhost:8080/lms --output html --output-path lighthouse-lms.html --quiet --chrome-flags="--headless --no-sandbox"[0m
+2025-09-19T22:55:00.7694080Z [36;1mnpx lighthouse http://localhost:8080/lms/courses --output html --output-path lighthouse-courses.html --quiet --chrome-flags="--headless --no-sandbox"[0m
+2025-09-19T22:55:00.7726091Z shell: /usr/bin/bash -e {0}
+2025-09-19T22:55:00.7726330Z env:
+2025-09-19T22:55:00.7726570Z   pythonLocation: /opt/hostedtoolcache/Python/3.10.18/x64
+2025-09-19T22:55:00.7726976Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.10.18/x64/lib/pkgconfig
+2025-09-19T22:55:00.7727536Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.10.18/x64
+2025-09-19T22:55:00.7727921Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.10.18/x64
+2025-09-19T22:55:00.7728266Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.10.18/x64
+2025-09-19T22:55:00.7728605Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.10.18/x64/lib
+2025-09-19T22:55:00.7728888Z ##[endgroup]
+2025-09-19T22:55:01.4173163Z ✅  .lighthouseci/ directory writable
+2025-09-19T22:55:01.4177993Z ⚠️   Configuration file not found
+2025-09-19T22:55:01.4978226Z ✅  Chrome installation found
+2025-09-19T22:55:01.4980416Z Healthcheck passed!
+2025-09-19T22:55:01.5039835Z 
+2025-09-19T22:55:01.5046209Z 
+2025-09-19T22:55:01.5046406Z ERROR:
+2025-09-19T22:55:01.5047527Z Unable to automatically determine the location of static site files.
+2025-09-19T22:55:01.5048974Z Use the CLI flag --collect.staticDistDir or a lighthouserc config file to tell Lighthouse CI where your HTML files are located.
+2025-09-19T22:55:01.5050555Z Learn More: https://github.com/GoogleChrome/lighthouse-ci/blob/v0.15.1/docs/configuration.md
+2025-09-19T22:55:01.5051253Z 
+2025-09-19T22:55:01.5056738Z Error: Failed to automatically determine `staticDistDir`
+2025-09-19T22:55:01.5058382Z     at findBuildDir (/opt/hostedtoolcache/node/18.20.8/x64/lib/node_modules/@lhci/cli/src/autorun/autorun.js:86:9)
+2025-09-19T22:55:01.5059818Z     at Object.runCommand (/opt/hostedtoolcache/node/18.20.8/x64/lib/node_modules/@lhci/cli/src/autorun/autorun.js:132:29)
+2025-09-19T22:55:01.5061115Z     at run (/opt/hostedtoolcache/node/18.20.8/x64/lib/node_modules/@lhci/cli/src/cli.js:109:24)
+2025-09-19T22:55:01.5062248Z     at Object.<anonymous> (/opt/hostedtoolcache/node/18.20.8/x64/lib/node_modules/@lhci/cli/src/cli.js:134:1)
+2025-09-19T22:55:01.5063125Z     at Module._compile (node:internal/modules/cjs/loader:1364:14)
+2025-09-19T22:55:01.5063820Z     at Module._extensions..js (node:internal/modules/cjs/loader:1422:10)
+2025-09-19T22:55:01.5064536Z     at Module.load (node:internal/modules/cjs/loader:1203:32)
+2025-09-19T22:55:01.5065126Z     at Module._load (node:internal/modules/cjs/loader:1019:12)
+2025-09-19T22:55:01.5065957Z     at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:128:12)
+2025-09-19T22:55:02.9411935Z     at node:internal/main/run_main_module:28:49npm warn exec The following package was not found and will be installed: lighthouse@12.8.2

@@ -1,0 +1,12 @@
+﻿2025-09-19T22:53:37.2753496Z ##[group]Run python api_performance_test.py
+2025-09-19T22:53:37.2753825Z [36;1mpython api_performance_test.py[0m
+2025-09-19T22:53:37.2780613Z shell: /usr/bin/bash -e {0}
+2025-09-19T22:53:37.2780838Z env:
+2025-09-19T22:53:37.2781072Z   pythonLocation: /opt/hostedtoolcache/Python/3.10.18/x64
+2025-09-19T22:53:37.2781635Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.10.18/x64/lib/pkgconfig
+2025-09-19T22:53:37.2782180Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.10.18/x64
+2025-09-19T22:53:37.2782539Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.10.18/x64
+2025-09-19T22:53:37.2782886Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.10.18/x64
+2025-09-19T22:53:37.2783224Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.10.18/x64/lib
+2025-09-19T22:53:37.2783514Z ##[endgroup]
+2025-09-19T22:53:37.8164770Z /api/method/lms.lms.utils.get_courses: 0.029s avg

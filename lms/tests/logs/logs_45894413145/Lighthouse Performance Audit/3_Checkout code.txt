@@ -1,0 +1,69 @@
+﻿2025-09-19T22:49:11.8379146Z ##[group]Run actions/checkout@v4
+2025-09-19T22:49:11.8379676Z with:
+2025-09-19T22:49:11.8379890Z   repository: audit-brands/frappe-lms-chat
+2025-09-19T22:49:11.8380286Z   token: ***
+2025-09-19T22:49:11.8380463Z   ssh-strict: true
+2025-09-19T22:49:11.8380641Z   ssh-user: git
+2025-09-19T22:49:11.8380820Z   persist-credentials: true
+2025-09-19T22:49:11.8381035Z   clean: true
+2025-09-19T22:49:11.8381214Z   sparse-checkout-cone-mode: true
+2025-09-19T22:49:11.8381441Z   fetch-depth: 1
+2025-09-19T22:49:11.8381612Z   fetch-tags: false
+2025-09-19T22:49:11.8381787Z   show-progress: true
+2025-09-19T22:49:11.8381968Z   lfs: false
+2025-09-19T22:49:11.8382125Z   submodules: false
+2025-09-19T22:49:11.8382306Z   set-safe-directory: true
+2025-09-19T22:49:11.8382677Z ##[endgroup]
+2025-09-19T22:49:11.9432049Z Syncing repository: audit-brands/frappe-lms-chat
+2025-09-19T22:49:11.9433661Z ##[group]Getting Git version info
+2025-09-19T22:49:11.9434377Z Working directory is '/home/runner/work/frappe-lms-chat/frappe-lms-chat'
+2025-09-19T22:49:11.9435362Z [command]/usr/bin/git version
+2025-09-19T22:49:11.9495092Z git version 2.51.0
+2025-09-19T22:49:11.9521201Z ##[endgroup]
+2025-09-19T22:49:11.9536417Z Temporarily overriding HOME='/home/runner/work/_temp/9d373f6d-768e-4fd9-a068-3df0517ae345' before making global git config changes
+2025-09-19T22:49:11.9538008Z Adding repository directory to the temporary git global config as a safe directory
+2025-09-19T22:49:11.9550247Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/frappe-lms-chat/frappe-lms-chat
+2025-09-19T22:49:11.9586437Z Deleting the contents of '/home/runner/work/frappe-lms-chat/frappe-lms-chat'
+2025-09-19T22:49:11.9590215Z ##[group]Initializing the repository
+2025-09-19T22:49:11.9594644Z [command]/usr/bin/git init /home/runner/work/frappe-lms-chat/frappe-lms-chat
+2025-09-19T22:49:11.9690936Z hint: Using 'master' as the name for the initial branch. This default branch name
+2025-09-19T22:49:11.9691872Z hint: is subject to change. To configure the initial branch name to use in all
+2025-09-19T22:49:11.9692646Z hint: of your new repositories, which will suppress this warning, call:
+2025-09-19T22:49:11.9692985Z hint:
+2025-09-19T22:49:11.9693237Z hint: 	git config --global init.defaultBranch <name>
+2025-09-19T22:49:11.9693515Z hint:
+2025-09-19T22:49:11.9693953Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2025-09-19T22:49:11.9694841Z hint: 'development'. The just-created branch can be renamed via this command:
+2025-09-19T22:49:11.9695231Z hint:
+2025-09-19T22:49:11.9695417Z hint: 	git branch -m <name>
+2025-09-19T22:49:11.9695630Z hint:
+2025-09-19T22:49:11.9696001Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2025-09-19T22:49:11.9697046Z Initialized empty Git repository in /home/runner/work/frappe-lms-chat/frappe-lms-chat/.git/
+2025-09-19T22:49:11.9706761Z [command]/usr/bin/git remote add origin https://github.com/audit-brands/frappe-lms-chat
+2025-09-19T22:49:11.9741986Z ##[endgroup]
+2025-09-19T22:49:11.9742588Z ##[group]Disabling automatic garbage collection
+2025-09-19T22:49:11.9746105Z [command]/usr/bin/git config --local gc.auto 0
+2025-09-19T22:49:11.9773826Z ##[endgroup]
+2025-09-19T22:49:11.9774248Z ##[group]Setting up auth
+2025-09-19T22:49:11.9781009Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2025-09-19T22:49:11.9810417Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2025-09-19T22:49:12.0168215Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2025-09-19T22:49:12.0196950Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2025-09-19T22:49:12.0416080Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2025-09-19T22:49:12.0451796Z ##[endgroup]
+2025-09-19T22:49:12.0452405Z ##[group]Fetching the repository
+2025-09-19T22:49:12.0468632Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +6d3d68757637cb2b81a49e9ccde7f050dc51d367:refs/remotes/origin/develop
+2025-09-19T22:49:13.6644994Z From https://github.com/audit-brands/frappe-lms-chat
+2025-09-19T22:49:13.6645930Z  * [new ref]         6d3d68757637cb2b81a49e9ccde7f050dc51d367 -> origin/develop
+2025-09-19T22:49:13.6677532Z ##[endgroup]
+2025-09-19T22:49:13.6678159Z ##[group]Determining the checkout info
+2025-09-19T22:49:13.6680831Z ##[endgroup]
+2025-09-19T22:49:13.6685972Z [command]/usr/bin/git sparse-checkout disable
+2025-09-19T22:49:13.6726682Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2025-09-19T22:49:13.6754422Z ##[group]Checking out the ref
+2025-09-19T22:49:13.6758941Z [command]/usr/bin/git checkout --progress --force -B develop refs/remotes/origin/develop
+2025-09-19T22:49:13.9307968Z Switched to a new branch 'develop'
+2025-09-19T22:49:13.9308783Z branch 'develop' set up to track 'origin/develop'.
+2025-09-19T22:49:13.9336802Z ##[endgroup]
+2025-09-19T22:49:13.9375628Z [command]/usr/bin/git log -1 --format=%H
+2025-09-19T22:49:13.9396938Z 6d3d68757637cb2b81a49e9ccde7f050dc51d367

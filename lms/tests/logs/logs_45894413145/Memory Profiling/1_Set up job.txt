@@ -1,0 +1,43 @@
+﻿2025-09-19T22:49:13.6463586Z Current runner version: '2.328.0'
+2025-09-19T22:49:13.6494566Z ##[group]Runner Image Provisioner
+2025-09-19T22:49:13.6495873Z Hosted Compute Agent
+2025-09-19T22:49:13.6496669Z Version: 20250829.383
+2025-09-19T22:49:13.6497569Z Commit: 27cb235aab5b0e52e153a26cd86b4742e89dac5d
+2025-09-19T22:49:13.6498884Z Build Date: 2025-08-29T13:48:48Z
+2025-09-19T22:49:13.6499767Z ##[endgroup]
+2025-09-19T22:49:13.6500797Z ##[group]Operating System
+2025-09-19T22:49:13.6501756Z Ubuntu
+2025-09-19T22:49:13.6502504Z 24.04.3
+2025-09-19T22:49:13.6503150Z LTS
+2025-09-19T22:49:13.6503991Z ##[endgroup]
+2025-09-19T22:49:13.6504699Z ##[group]Runner Image
+2025-09-19T22:49:13.6505566Z Image: ubuntu-24.04
+2025-09-19T22:49:13.6506450Z Version: 20250907.24.1
+2025-09-19T22:49:13.6508074Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20250907.24/images/ubuntu/Ubuntu2404-Readme.md
+2025-09-19T22:49:13.6510720Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20250907.24
+2025-09-19T22:49:13.6512648Z ##[endgroup]
+2025-09-19T22:49:13.6516810Z ##[group]GITHUB_TOKEN Permissions
+2025-09-19T22:49:13.6519624Z Actions: write
+2025-09-19T22:49:13.6520659Z Attestations: write
+2025-09-19T22:49:13.6521604Z Checks: write
+2025-09-19T22:49:13.6522349Z Contents: write
+2025-09-19T22:49:13.6523636Z Deployments: write
+2025-09-19T22:49:13.6524515Z Discussions: write
+2025-09-19T22:49:13.6525288Z Issues: write
+2025-09-19T22:49:13.6526157Z Metadata: read
+2025-09-19T22:49:13.6526908Z Models: read
+2025-09-19T22:49:13.6527722Z Packages: write
+2025-09-19T22:49:13.6528581Z Pages: write
+2025-09-19T22:49:13.6529449Z PullRequests: write
+2025-09-19T22:49:13.6530382Z RepositoryProjects: write
+2025-09-19T22:49:13.6531376Z SecurityEvents: write
+2025-09-19T22:49:13.6532411Z Statuses: write
+2025-09-19T22:49:13.6533133Z ##[endgroup]
+2025-09-19T22:49:13.6536322Z Secret source: Actions
+2025-09-19T22:49:13.6537708Z Prepare workflow directory
+2025-09-19T22:49:13.7136690Z Prepare all required actions
+2025-09-19T22:49:13.7191389Z Getting action download info
+2025-09-19T22:49:13.9808652Z Download action repository 'actions/checkout@v4' (SHA:08eba0b27e820071cde6df949e0beb9ba4906955)
+2025-09-19T22:49:14.1759449Z Download action repository 'actions/setup-python@v4' (SHA:7f4fc3e22c37d6ff65e88745f38bd3157c663f7c)
+2025-09-19T22:49:14.3008366Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+2025-09-19T22:49:14.5553971Z Complete job name: Memory Profiling

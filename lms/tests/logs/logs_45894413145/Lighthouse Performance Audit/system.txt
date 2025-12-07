@@ -1,0 +1,5 @@
+2025-09-19T22:48:19.7830000Z Requested labels: ubuntu-latest
+2025-09-19T22:48:19.7830000Z Job defined at: audit-brands/frappe-lms-chat/.github/workflows/performance.yml@refs/heads/develop
+2025-09-19T22:48:19.7830000Z Waiting for a runner to pick up this job...
+2025-09-19T22:48:40.8350000Z Job is about to start running on the hosted runner: GitHub Actions 1000008137
+2025-09-19T22:48:40.8350000Z Job is waiting for a hosted runner to come online.

@@ -1,0 +1,25 @@
+﻿2025-09-19T22:52:50.4270794Z ##[group]Run cd ~/frappe-bench
+2025-09-19T22:52:50.4271182Z [36;1mcd ~/frappe-bench[0m
+2025-09-19T22:52:50.4271456Z [36;1m[0m
+2025-09-19T22:52:50.4271695Z [36;1m# Start server and monitor memory[0m
+2025-09-19T22:52:50.4272081Z [36;1mbench --site test.local serve --port 8080 &[0m
+2025-09-19T22:52:50.4272442Z [36;1mSERVER_PID=$![0m
+2025-09-19T22:52:50.4272683Z [36;1msleep 30[0m
+2025-09-19T22:52:50.4272896Z [36;1m[0m
+2025-09-19T22:52:50.4273100Z [36;1m# Monitor memory usage[0m
+2025-09-19T22:52:50.4273379Z [36;1mfor i in {1..10}; do[0m
+2025-09-19T22:52:50.4273641Z [36;1m  echo "Memory check $i:"[0m
+2025-09-19T22:52:50.4274016Z [36;1m  ps -p $SERVER_PID -o pid,vsz,rss,pmem,pcpu,time,comm[0m
+2025-09-19T22:52:50.4274399Z [36;1m  sleep 30[0m
+2025-09-19T22:52:50.4274637Z [36;1mdone > memory_profile.txt[0m
+2025-09-19T22:52:50.4274912Z [36;1m[0m
+2025-09-19T22:52:50.4275110Z [36;1mkill $SERVER_PID[0m
+2025-09-19T22:52:50.4305367Z shell: /usr/bin/bash -e {0}
+2025-09-19T22:52:50.4305633Z env:
+2025-09-19T22:52:50.4305949Z   pythonLocation: /opt/hostedtoolcache/Python/3.10.18/x64
+2025-09-19T22:52:50.4306446Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.10.18/x64/lib/pkgconfig
+2025-09-19T22:52:50.4306914Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.10.18/x64
+2025-09-19T22:52:50.4307322Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.10.18/x64
+2025-09-19T22:52:50.4307724Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.10.18/x64
+2025-09-19T22:52:50.4308146Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.10.18/x64/lib
+2025-09-19T22:52:50.4308491Z ##[endgroup]

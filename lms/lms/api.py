@@ -28,7 +28,24 @@ from frappe.utils import (
 from frappe.utils.response import Response
 
 from lms.lms.doctype.course_lesson.course_lesson import save_progress
-from lms.lms.utils import get_average_rating, get_lesson_count
+from lms.lms.utils import get_average_rating, get_lesson_count, get_lesson
+from lms.lms.ai_utils import (
+    draft_assistant_reply,
+    build_openai_chat_payload,
+    call_ai_proxy,
+    determine_effective_assistant_config,
+    stream_ai_proxy,
+    simple_guardrail_flags,
+)
+from lms.lms.ai_rag import (
+    chunk_lesson,
+    chunk_lesson_attachments,
+    simple_retrieve,
+    ensure_embeddings_for_lesson,
+    rebuild_lesson_index_and_embeddings,
+    rebuild_course_index_and_embeddings,
+    index_external_source,
+)
 
 
 @frappe.whitelist()
@@ -1317,6 +1334,10 @@ def get_lms_setting(field=None):
 		"contact_us_email",
 		"contact_us_url",
 		"livecode_url",
+		# AI Assistant fields
+		"enable_lesson_assistant",
+		"assistant_mode",
+		"assistant_enable_streaming",
 	]
 
 	if field not in allowed_fields:
@@ -1738,3 +1759,1635 @@ def get_profile_details(username):
 
 	details.roles = frappe.get_roles(details.name)
 	return details
+
+# =============================================
+# AI ASSISTANT API FUNCTIONS
+# =============================================
+
+@frappe.whitelist()
+def chatbot_reply(course, chapter, lesson, messages=None, session=None):
+    """
+    Lightweight lesson-aware chatbot reply (MVP).
+
+    Avoids external network calls and returns a deterministic,
+    context-aware helper message using lesson metadata. Replace this logic
+    with a call to an OpenAI-compatible proxy in a later phase.
+
+    Args:
+        course (str): Course name (slug/id)
+        chapter (Union[str,int]): Chapter index (1-based)
+        lesson (Union[str,int]): Lesson index (1-based)
+        messages (list|str): Chat history [{role, content}], JSON str accepted
+
+    Returns:
+        dict: {"message": {"role": "assistant", "content": str}}
+    """
+    try:
+        ch = int(chapter) if chapter is not None else 1
+        ls = int(lesson) if lesson is not None else 1
+
+        # Parse messages if provided as a JSON string
+        if isinstance(messages, str):
+            try:
+                messages = json.loads(messages)
+            except Exception:
+                messages = []
+        messages = messages or []
+
+        # Fetch minimal lesson context
+        lesson_ctx = get_lesson(course, ch, ls) or {}
+        title = lesson_ctx.get("title") or "this lesson"
+        chapter_title = lesson_ctx.get("chapter_title") or "this chapter"
+        course_title = lesson_ctx.get("course_title") or course
+
+        user_utterance = ""
+        for m in reversed(messages):
+            if isinstance(m, dict) and m.get("role") == "user":
+                user_utterance = (m.get("content") or "").strip()
+                break
+
+        # Try proxy integration if enabled; fallback to heuristic
+        settings = frappe.get_single("LMS Settings")
+        # Fetch per-course overrides if present
+        course_cfg = frappe.db.get_value(
+            "AI Assistant Config",
+            {"course": lesson_ctx.get("course") or course},
+            [
+                "enable_overrides",
+                "mode",
+                "system_prompt",
+                "default_model",
+                "enable_rag",
+                "proxy_base_url",
+                "proxy_api_key",
+            ],
+            as_dict=True,
+        )
+        eff = determine_effective_assistant_config(settings.as_dict(), course_cfg)
+        mode = eff.get("mode") or "Demo Mode"
+        system_prompt = eff.get("system_prompt") or ""
+        model = eff.get("default_model")
+        proxy_base = eff.get("chat_base_url") or ""
+        proxy_key = eff.get("chat_api_key") or ""
+        proxy_custom_headers = eff.get("chat_custom_headers") or ""
+
+        # Guardrails (chat path): optionally block injection/sensitive prompts
+        try:
+            enable_filter = bool(settings.get("assistant_guardrail_filter_content"))
+            enable_inj = bool(settings.get("assistant_guardrail_injection_checks"))
+            from lms.lms.ai_utils import simple_guardrail_flags
+            flags = simple_guardrail_flags(user_utterance)
+            if (enable_filter and flags.get("sensitive")) or (enable_inj and flags.get("injection")):
+                # Log guardrail event (chat)
+                try:
+                    frappe.get_doc({
+                        "doctype": "AI Guardrail Event",
+                        "time": now(),
+                        "user": frappe.session.user,
+                        "course": lesson_ctx.get("course") or course,
+                        "lesson": lesson_ctx.get("name"),
+                        "source": "chat",
+                        "event_type": "Sensitive" if flags.get("sensitive") else "Injection",
+                        "snippet": (user_utterance or "")[:240],
+                        "notes": "Blocked chat prompt by guardrails",
+                    }).insert(ignore_permissions=True)
+                except Exception:
+                    pass
+                limit_msg = "I can’t process that request. Please rephrase without sensitive information or instruction overrides."
+                return {"message": {"role": "assistant", "content": limit_msg}, "session": session}
+        except Exception:
+            pass
+
+        cost_per_message = float(eff.get("cost_per_message") or 0)
+        cost_cap = float(eff.get("cost_cap_per_user_per_day") or 0)
+        cost_per_message = float(eff.get("cost_per_message") or 0)
+        cost_cap = float(eff.get("cost_cap_per_user_per_day") or 0)
+
+        # Resolve prompt preset if no explicit system prompt
+        if not system_prompt:
+            preset_name = eff.get("prompt_preset") or eff.get("default_preset")
+            if preset_name:
+                preset_prompt = frappe.db.get_value("AI Prompt Preset", preset_name, "prompt")
+                system_prompt = preset_prompt or ""
+        # Augment system prompt with lesson context
+        ctx = f"Course: {course_title} | Chapter: {chapter_title} | Lesson: {title}. Keep answers concise and cite key lesson terms when helpful."
+        effective_system_prompt = (system_prompt + "\n\n" + ctx).strip()
+
+        # Enforce simple daily message cap per user per course
+        cap = int(eff.get("max_messages_per_user_per_day") or 0)
+        if cap > 0:
+            sessions = frappe.get_all(
+                "AI Chat Session",
+                filters={"user": frappe.session.user, "course": lesson_ctx.get("course") or course},
+                pluck="name",
+            )
+            if sessions:
+                count = frappe.db.count(
+                    "AI Chat Message",
+                    filters={
+                        "session": ("in", sessions),
+                        "role": "user",
+                        "creation": (">=", add_days(now(), -1)),
+                    },
+                )
+                if count >= cap:
+                    limit_msg = "You’ve reached the daily chat limit for this course. Please try again tomorrow."
+                    return {"message": {"role": "assistant", "content": limit_msg}, "session": session}
+
+        # Enforce simple daily cost cap per user per course
+        if cost_cap > 0 and cost_per_message > 0:
+            sessions = frappe.get_all(
+                "AI Chat Session",
+                filters={"user": frappe.session.user, "course": lesson_ctx.get("course") or course},
+                pluck="name",
+            )
+            assistant_msgs = 0
+            if sessions:
+                assistant_msgs = frappe.db.count(
+                    "AI Chat Message",
+                    filters={
+                        "session": ("in", sessions),
+                        "role": "assistant",
+                        "creation": (">=", add_days(now(), -1)),
+                    },
+                )
+            current_spend = assistant_msgs * cost_per_message
+            if current_spend + cost_per_message > cost_cap:
+                limit_msg = "You’ve reached the daily cost limit for this course. Please try again tomorrow."
+                return {"message": {"role": "assistant", "content": limit_msg}, "session": session}
+
+        # RAG retrieval (Phase 2)
+        citations = []
+        if eff.get("enable_rag") and user_utterance:
+            # Ensure we have chunks; if none, build quickly for this lesson
+            if not frappe.db.exists("AI Knowledge Chunk", {"course": course, "lesson": lesson_ctx.get("name")}):
+                try:
+                    chunks = chunk_lesson(lesson_ctx.get("name"))
+                    # Include attachments if enabled in settings
+                    try:
+                        include_attachments = bool(
+                            frappe.db.get_single_value("LMS Settings", "assistant_rag_include_attachments") or 0
+                        )
+                    except Exception:
+                        include_attachments = False
+                    if include_attachments:
+                        try:
+                            chunks.extend(chunk_lesson_attachments(lesson_ctx.get("name")))
+                        except Exception:
+                            frappe.log_error(frappe.get_traceback(), "rag_chunk_attachments_quick_error")
+                    for idx, ch in enumerate(chunks):
+                        frappe.get_doc(
+                            {
+                                "doctype": "AI Knowledge Chunk",
+                                "course": course,
+                                "lesson": lesson_ctx.get("name"),
+                                "source_type": ch.get("source_type") or "Lesson",
+                                "title": ch.get("title"),
+                                "content": ch.get("content"),
+                                "h_path": ch.get("h_path"),
+                                "order": ch.get("order", idx),
+                                "chunk_id": f"{lesson_ctx.get('name')}-{idx}",
+                                "url": ch.get("url"),
+                            }
+                        ).insert(ignore_permissions=True)
+                except Exception:
+                    frappe.log_error(frappe.get_traceback(), "rag_index_build_error")
+            # Retrieve top chunks
+            try:
+                top = simple_retrieve(course, lesson_ctx.get("name"), user_utterance, top_k=3)
+                if top:
+                    citations = top
+            except Exception:
+                frappe.log_error(frappe.get_traceback(), "rag_retrieve_error")
+
+        reply = None
+        # TEMPORARY DEBUG: Show what values we're getting
+        print(f"DEBUG MODE: '{mode}' (lower: '{mode.lower()}')")
+        print(f"DEBUG PROXY_BASE: '{proxy_base}' (len: {len(proxy_base) if proxy_base else 'None'})")
+        print(f"DEBUG PROXY_KEY: '{proxy_key}' (len: {len(proxy_key) if proxy_key else 0})")
+        print(f"DEBUG CONDITION CHECK: mode_match={mode.lower() in ['proxy', 'external ai service']}, has_base={bool(proxy_base)}")
+        
+        # Check if using external AI service (handle both old "proxy" and new "external ai service" terminology)
+        if (mode.lower() in ["proxy", "external ai service"]) and proxy_base:
+            # Build messages array with user messages only; keep roles
+            history = []
+            for m in messages:
+                if isinstance(m, dict) and m.get("role") in ("user", "assistant"):
+                    history.append({"role": m.get("role"), "content": m.get("content")})
+            import time as _time
+            # If citations present, prepend a system context block
+            sys_prompt = effective_system_prompt
+            if citations:
+                src = "\n\nSources:\n" + "\n".join(
+                    [f"[{i+1}] {c.get('title')} — lesson" for i, c in enumerate(citations)]
+                )
+                sys_prompt = (sys_prompt + src).strip()
+            payload = build_openai_chat_payload(sys_prompt, history, model)
+            _t0 = _time.time()
+            result = call_ai_proxy(proxy_base, proxy_key, payload, custom_headers_json=proxy_custom_headers)
+            latency_ms = int((_time.time() - _t0) * 1000)
+            if result and result.get("content"):
+                reply = result.get("content")
+                try:
+                    frappe.get_doc({
+                        "doctype": "AI Proxy Log",
+                        "user": frappe.session.user,
+                        "course": lesson_ctx.get("course") or course,
+                        "lesson": lesson_ctx.get("name"),
+                        "model": model,
+                        "status": "success",
+                        "latency_ms": latency_ms,
+                        "status_code": result.get("status_code"),
+                    }).insert(ignore_permissions=True)
+                except Exception:
+                    frappe.log_error(frappe.get_traceback(), "ai_proxy_log_error")
+            else:
+                try:
+                    frappe.get_doc({
+                        "doctype": "AI Proxy Log",
+                        "user": frappe.session.user,
+                        "course": lesson_ctx.get("course") or course,
+                        "lesson": lesson_ctx.get("name"),
+                        "model": model,
+                        "status": "error",
+                        "latency_ms": latency_ms,
+                        "status_code": result.get("status_code") if result else None,
+                        "error_message": result.get("error") if result else "unknown",
+                    }).insert(ignore_permissions=True)
+                except Exception:
+                    frappe.log_error(frappe.get_traceback(), "ai_proxy_log_error")
+
+        if not reply:
+            reply = draft_assistant_reply(user_utterance, title, chapter_title, course_title)
+            if citations:
+                reply = reply + "\n\nSources: " + ", ".join([f"[{i+1}]" for i in range(len(citations))])
+
+        # Create a session if none provided; log messages best-effort
+        session_name = session
+        try:
+            if not session_name:
+                session_doc = frappe.get_doc(
+                    {
+                        "doctype": "AI Chat Session",
+                        "user": frappe.session.user,
+                        "course": lesson_ctx.get("course") or course,
+                        "lesson": lesson_ctx.get("name"),
+                        "chapter_index": ch,
+                        "lesson_index": ls,
+                    }
+                ).insert(ignore_permissions=True)
+                session_name = session_doc.name
+        except Exception:
+            frappe.log_error(frappe.get_traceback(), "chatbot_reply_session_create_error")
+
+        try:
+            if session_name and user_utterance:
+                frappe.get_doc(
+                    {
+                        "doctype": "AI Chat Message",
+                        "session": session_name,
+                        "role": "user",
+                        "content": user_utterance,
+                    }
+                ).insert(ignore_permissions=True)
+            if session_name:
+                frappe.get_doc(
+                    {
+                        "doctype": "AI Chat Message",
+                        "session": session_name,
+                        "role": "assistant",
+                        "content": reply,
+                    }
+                ).insert(ignore_permissions=True)
+        except Exception:
+            frappe.log_error(frappe.get_traceback(), "chatbot_reply_log_error")
+
+        # Increment session cost estimate if configured
+        try:
+            if session_name and ("cost_per_message" in locals()) and float(cost_per_message) > 0:
+                current = frappe.db.get_value("AI Chat Session", session_name, "cost_estimate") or 0
+                frappe.db.set_value("AI Chat Session", session_name, "cost_estimate", float(current) + float(cost_per_message))
+        except Exception:
+            frappe.log_error(frappe.get_traceback(), "chatbot_reply_cost_update_error")
+
+        resp = {"message": {"role": "assistant", "content": reply}, "session": session_name}
+        if citations:
+            resp["citations"] = citations
+        return resp
+
+    except Exception:
+        frappe.log_error(frappe.get_traceback(), "chatbot_reply_error")
+        # Best-effort fallback
+        fallback = {
+            "message": {
+                "role": "assistant",
+                "content": "Sorry, something went wrong while generating a reply.",
+            },
+            "session": session,
+        }
+        return fallback
+
+@frappe.whitelist()
+def chatbot_reply_stream(course, chapter, lesson, messages=None, session=None):
+    """
+    Stream assistant reply as SSE (text/event-stream). If proxy streaming is not
+    available, simulate streaming with heuristic results. Returns a Werkzeug Response.
+    """
+    from werkzeug.wrappers.response import Response
+
+    try:
+        ch = int(chapter) if chapter is not None else 1
+        ls = int(lesson) if lesson is not None else 1
+
+        if isinstance(messages, str):
+            try:
+                messages = json.loads(messages)
+            except Exception:
+                messages = []
+        messages = messages or []
+
+        lesson_ctx = get_lesson(course, ch, ls) or {}
+        title = lesson_ctx.get("title") or "this lesson"
+        chapter_title = lesson_ctx.get("chapter_title") or "this chapter"
+        course_title = lesson_ctx.get("course_title") or course
+
+        user_utterance = ""
+        for m in reversed(messages):
+            if isinstance(m, dict) and m.get("role") == "user":
+                user_utterance = (m.get("content") or "").strip()
+                break
+
+        settings = frappe.get_single("LMS Settings")
+        course_cfg = frappe.db.get_value(
+            "AI Assistant Config",
+            {"course": lesson_ctx.get("course") or course},
+            [
+                "enable_overrides",
+                "mode",
+                "system_prompt",
+                "default_model",
+                "enable_rag",
+                "proxy_base_url",
+                "proxy_api_key",
+            ],
+            as_dict=True,
+        )
+        eff = determine_effective_assistant_config(settings.as_dict(), course_cfg)
+        mode = (eff.get("mode") or "Demo Mode").strip()
+        system_prompt = eff.get("system_prompt") or ""
+        model = eff.get("default_model")
+        proxy_base = eff.get("chat_base_url") or ""
+        proxy_key = eff.get("chat_api_key") or ""
+        proxy_custom_headers = eff.get("chat_custom_headers") or ""
+
+        cost_per_message = float(eff.get("cost_per_message") or 0)
+        cost_cap = float(eff.get("cost_cap_per_user_per_day") or 0)
+
+        # Resolve prompt preset if no explicit system prompt
+        if not system_prompt:
+            preset_name = eff.get("prompt_preset") or eff.get("default_preset")
+            if preset_name:
+                preset_prompt = frappe.db.get_value("AI Prompt Preset", preset_name, "prompt")
+                system_prompt = preset_prompt or ""
+        ctx = f"Course: {course_title} | Chapter: {chapter_title} | Lesson: {title}."
+        effective_system_prompt = (system_prompt + "\n\n" + ctx).strip()
+
+        # Enforce daily message cap before streaming
+        cap = int(eff.get("max_messages_per_user_per_day") or 0)
+        if cap > 0:
+            sessions = frappe.get_all(
+                "AI Chat Session",
+                filters={"user": frappe.session.user, "course": lesson_ctx.get("course") or course},
+                pluck="name",
+            )
+            if sessions:
+                count = frappe.db.count(
+                    "AI Chat Message",
+                    filters={
+                        "session": ("in", sessions),
+                        "role": "user",
+                        "creation": (">=", add_days(now(), -1)),
+                    },
+                )
+                if count >= cap:
+                    def limited():
+                        meta = json.dumps({"type": "meta", "session": session}).encode()
+                        yield b"data: " + meta + b"\n\n"
+                        msg = {
+                            "id": "limit",
+                            "choices": [{"delta": {"content": "You’ve reached the daily chat limit for this course. Please try again tomorrow."}}],
+                        }
+                        yield b"data: " + json.dumps(msg).encode() + b"\n\n"
+                        yield b"data: [DONE]\n\n"
+                    from werkzeug.wrappers.response import Response
+                    return Response(limited(), mimetype="text/event-stream")
+
+        # Enforce daily cost cap before streaming
+        if cost_cap > 0 and cost_per_message > 0:
+            sessions = frappe.get_all(
+                "AI Chat Session",
+                filters={"user": frappe.session.user, "course": lesson_ctx.get("course") or course},
+                pluck="name",
+            )
+            assistant_msgs = 0
+            if sessions:
+                assistant_msgs = frappe.db.count(
+                    "AI Chat Message",
+                    filters={
+                        "session": ("in", sessions),
+                        "role": "assistant",
+                        "creation": (">=", add_days(now(), -1)),
+                    },
+                )
+            current_spend = assistant_msgs * cost_per_message
+            if current_spend + cost_per_message > cost_cap:
+                def cost_limited():
+                    meta = json.dumps({"type": "meta", "session": session}).encode()
+                    yield b"data: " + meta + b"\n\n"
+                    msg = {
+                        "id": "cost_limit",
+                        "choices": [{"delta": {"content": "You’ve reached the daily cost limit for this course. Please try again tomorrow."}}],
+                    }
+                    yield b"data: " + json.dumps(msg).encode() + b"\n\n"
+                    yield b"data: [DONE]\n\n"
+                from werkzeug.wrappers.response import Response
+                return Response(cost_limited(), mimetype="text/event-stream")
+
+        # Session ensure
+        session_name = session
+        try:
+            if not session_name:
+                session_doc = frappe.get_doc(
+                    {
+                        "doctype": "AI Chat Session",
+                        "user": frappe.session.user,
+                        "course": lesson_ctx.get("course") or course,
+                        "lesson": lesson_ctx.get("name"),
+                        "chapter_index": ch,
+                        "lesson_index": ls,
+                    }
+                ).insert(ignore_permissions=True)
+                session_name = session_doc.name
+        except Exception:
+            frappe.log_error(frappe.get_traceback(), "chatbot_reply_stream_session_create_error")
+
+        # RAG retrieval (Phase 2)
+        citations = []
+        if eff.get("enable_rag") and user_utterance:
+            try:
+                if not frappe.db.exists("AI Knowledge Chunk", {"course": course, "lesson": lesson_ctx.get("name")}):
+                    chunks = chunk_lesson(lesson_ctx.get("name"))
+                    for idx, ch in enumerate(chunks):
+                        frappe.get_doc(
+                            {
+                                "doctype": "AI Knowledge Chunk",
+                                "course": course,
+                                "lesson": lesson_ctx.get("name"),
+                                "source_type": ch.get("source_type") or "Lesson",
+                                "title": ch.get("title"),
+                                "content": ch.get("content"),
+                                "h_path": ch.get("h_path"),
+                                "order": ch.get("order", idx),
+                                "chunk_id": f"{lesson_ctx.get('name')}-{idx}",
+                            }
+                        ).insert(ignore_permissions=True)
+                citations = simple_retrieve(course, lesson_ctx.get("name"), user_utterance, top_k=3) or []
+            except Exception:
+                frappe.log_error(frappe.get_traceback(), "rag_stream_retrieve_error")
+
+        # Prepare message history
+        history = []
+        for m in messages:
+            if isinstance(m, dict) and m.get("role") in ("user", "assistant"):
+                history.append({"role": m.get("role"), "content": m.get("content")})
+
+        def simulate_stream(full_text: str):
+            # yield meta first
+            meta_payload = {"type": "meta", "session": session_name}
+            if citations:
+                meta_payload["citations"] = citations
+            meta = json.dumps(meta_payload).encode()
+            yield b"data: " + meta + b"\n\n"
+            acc = ""
+            for ch_ in full_text:
+                acc += ch_
+                delta_obj = {"id": "local", "choices": [{"delta": {"content": ch_}}]}
+                yield b"data: " + json.dumps(delta_obj).encode() + b"\n\n"
+            yield b"data: [DONE]\n\n"
+            # log
+            try:
+                if user_utterance:
+                    frappe.get_doc(
+                        {
+                            "doctype": "AI Chat Message",
+                            "session": session_name,
+                            "role": "user",
+                            "content": user_utterance,
+                        }
+                    ).insert(ignore_permissions=True)
+                frappe.get_doc(
+                    {
+                        "doctype": "AI Chat Message",
+                        "session": session_name,
+                        "role": "assistant",
+                        "content": acc,
+                    }
+                ).insert(ignore_permissions=True)
+            except Exception:
+                frappe.log_error(frappe.get_traceback(), "chatbot_reply_stream_log_error")
+
+        def proxy_stream():
+            # yield meta first
+            meta_payload = {"type": "meta", "session": session_name}
+            if citations:
+                meta_payload["citations"] = citations
+            meta = json.dumps(meta_payload).encode()
+            yield b"data: " + meta + b"\n\n"
+            acc_text = ""
+            sys_prompt = effective_system_prompt
+            if citations:
+                src = "\n\nSources:\n" + "\n".join(
+                    [f"[{i+1}] {c.get('title')} — lesson" for i, c in enumerate(citations)]
+                )
+                sys_prompt = (sys_prompt + src).strip()
+            payload = build_openai_chat_payload(sys_prompt, history, model)
+            for chunk in stream_ai_proxy(proxy_base, proxy_key, payload, custom_headers_json=proxy_custom_headers) or []:
+                if isinstance(chunk, tuple) and chunk[0] == "__acc__":
+                    acc_text = chunk[1].get("text", "")
+                    break
+                else:
+                    yield chunk
+            # After upstream ends, ensure DONE
+            yield b"data: [DONE]\n\n"
+            # Log
+            try:
+                if user_utterance:
+                    frappe.get_doc(
+                        {
+                            "doctype": "AI Chat Message",
+                            "session": session_name,
+                            "role": "user",
+                            "content": user_utterance,
+                        }
+                    ).insert(ignore_permissions=True)
+                frappe.get_doc(
+                    {
+                        "doctype": "AI Chat Message",
+                        "session": session_name,
+                        "role": "assistant",
+                        "content": acc_text,
+                    }
+                ).insert(ignore_permissions=True)
+            except Exception:
+                frappe.log_error(frappe.get_traceback(), "chatbot_reply_stream_log_error")
+
+        # Decide strategy
+        # TEMPORARY DEBUG: Show what values we're getting (STREAMING VERSION)
+        print(f"DEBUG STREAMING MODE: '{mode}' (lower: '{mode.lower()}')")
+        print(f"DEBUG STREAMING PROXY_BASE: '{proxy_base}' (len: {len(proxy_base) if proxy_base else 'None'})")
+        print(f"DEBUG STREAMING CONDITION: {(mode.lower() in ['proxy', 'external ai service']) and proxy_base}")
+        
+        # Check if using external AI service (handle both old "proxy" and new "external ai service" terminology)
+        if (mode.lower() in ["proxy", "external ai service"]) and proxy_base:
+            gen = proxy_stream()
+        else:
+            reply = draft_assistant_reply(user_utterance, title, chapter_title, course_title)
+            gen = simulate_stream(reply)
+
+        return Response(gen, mimetype="text/event-stream")
+
+    except Exception:
+        frappe.log_error(frappe.get_traceback(), "chatbot_reply_stream_error")
+        # Fallback JSON
+        return chatbot_reply(course, chapter, lesson, messages=messages, session=session)
+
+
+@frappe.whitelist()
+def get_chat_history(course, chapter, lesson, limit=30):
+    """
+    Return the latest AI Chat Session and up to `limit` most recent messages
+    for the current user in the given course/chapter/lesson.
+    """
+    try:
+        ch = int(chapter) if chapter is not None else 1
+        ls = int(lesson) if lesson is not None else 1
+
+        lesson_ctx = get_lesson(course, ch, ls) or {}
+        course_name = course
+        lesson_name = lesson_ctx.get("name")
+        if not lesson_name:
+            return {"session": None, "messages": []}
+
+        sessions = frappe.get_all(
+            "AI Chat Session",
+            filters={
+                "user": frappe.session.user,
+                "course": course_name,
+                "lesson": lesson_name,
+            },
+            pluck="name",
+            order_by="creation desc",
+            limit=1,
+        )
+        if not sessions:
+            return {"session": None, "messages": []}
+
+        session_name = sessions[0]
+        # Fetch latest `limit` messages and return in chronological order
+        msgs_desc = frappe.get_all(
+            "AI Chat Message",
+            filters={"session": session_name},
+            fields=["role", "content", "creation"],
+            order_by="creation desc",
+            limit=cint(limit) if str(limit).isdigit() else 30,
+        )
+        messages = list(reversed(msgs_desc))
+        # Strip creation in response
+        messages = [{"role": m["role"], "content": m["content"]} for m in messages]
+        return {"session": session_name, "messages": messages}
+    except Exception:
+        frappe.log_error(frappe.get_traceback(), "get_chat_history_error")
+        return {"session": None, "messages": []}
+
+
+@frappe.whitelist()
+def get_assistant_limits(course):
+    """
+    Return effective assistant limits and today's usage for the current user in a course.
+    { max_messages_per_user_per_day, used_messages_today, messages_left,
+      cost_per_message, cost_cap_per_user_per_day, spend_today, cost_left }
+    """
+    try:
+        settings = frappe.get_single("LMS Settings")
+        course_cfg = frappe.db.get_value(
+            "AI Assistant Config",
+            {"course": course},
+            [
+                "enable_overrides",
+                "mode",
+                "system_prompt",
+                "default_model",
+                "enable_rag",
+                "proxy_base_url",
+                "proxy_api_key",
+                "prompt_preset",
+                "max_messages_per_user_per_day",
+                "cost_per_message",
+                "cost_cap_per_user",
+            ],
+            as_dict=True,
+        )
+        eff = determine_effective_assistant_config(settings.as_dict(), course_cfg)
+
+        # Messages used today
+        sessions = frappe.get_all(
+            "AI Chat Session",
+            filters={"user": frappe.session.user, "course": course},
+            pluck="name",
+        )
+        used_messages = 0
+        assistant_msgs = 0
+        if sessions:
+            used_messages = frappe.db.count(
+                "AI Chat Message",
+                filters={
+                    "session": ("in", sessions),
+                    "role": "user",
+                    "creation": (">=", add_days(now(), -1)),
+                },
+            )
+            assistant_msgs = frappe.db.count(
+                "AI Chat Message",
+                filters={
+                    "session": ("in", sessions),
+                    "role": "assistant",
+                    "creation": (">=", add_days(now(), -1)),
+                },
+            )
+
+        cap = int(eff.get("max_messages_per_user_per_day") or 0)
+        messages_left = max(0, cap - used_messages) if cap > 0 else None
+        cost_per_message = float(eff.get("cost_per_message") or 0)
+        cost_cap = float(eff.get("cost_cap_per_user_per_day") or 0)
+        spend_today = assistant_msgs * cost_per_message if cost_per_message > 0 else 0.0
+        cost_left = None
+        if cost_cap > 0 and cost_per_message > 0:
+            cost_left = max(0.0, cost_cap - spend_today)
+
+        return {
+            "max_messages_per_user_per_day": cap,
+            "used_messages_today": used_messages,
+            "messages_left": messages_left,
+            "cost_per_message": cost_per_message,
+            "cost_cap_per_user_per_day": cost_cap,
+            "spend_today": spend_today,
+            "cost_left": cost_left,
+            "enabled": bool(eff.get("enabled", True)),
+        }
+    except Exception:
+        frappe.log_error(frappe.get_traceback(), "get_assistant_limits_error")
+        return {}
+
+
+@frappe.whitelist(allow_guest=True)
+def is_assistant_enabled(course):
+    """Return True/False for whether the in-lesson assistant should be shown for this course."""
+    try:
+        # Global feature flag
+        global_enabled = bool(frappe.db.get_single_value("LMS Settings", "enable_lesson_assistant") or 0)
+        if not global_enabled:
+            return False
+        course_cfg = frappe.db.get_value(
+            "AI Assistant Config",
+            {"course": course},
+            ["enable_overrides", "enabled"],
+            as_dict=True,
+        )
+        if course_cfg and course_cfg.get("enable_overrides") and course_cfg.get("enabled") == 0:
+            return False
+        return True
+    except Exception:
+        frappe.log_error(frappe.get_traceback(), "is_assistant_enabled_error")
+        return True
+    except Exception:
+        frappe.log_error(frappe.get_traceback(), "chatbot_reply_error")
+        return {
+            "message": {
+                "role": "assistant",
+                "content": (
+                    "I couldn’t access lesson context just now. "
+                    "Try reloading the page or ask a specific question about the lesson."
+                ),
+            }
+        }
+
+
+
+# RAG and Content Generation Functions
+
+@frappe.whitelist()
+def enqueue_rag_index_course(course):
+    """Enqueue background job to (re)index all lessons for a course."""
+    frappe.only_for(["Moderator", "Course Creator", "System Manager"])
+    from lms.lms.ai_rag import index_course
+    job = frappe.enqueue(index_course, queue="default", job_name=f"rag-index-{course}", course=course)
+    return {"job_id": job.get_id() if hasattr(job, "get_id") else None}
+
+
+@frappe.whitelist()
+def enqueue_rag_index_lesson(lesson):
+    """Enqueue background job to (re)index a single lesson."""
+    frappe.only_for(["Moderator", "Course Creator", "System Manager"])
+    from lms.lms.ai_rag import index_lesson
+    job = frappe.enqueue(index_lesson, queue="default", job_name=f"rag-index-lesson-{lesson}", lesson_name=lesson)
+    return {"job_id": job.get_id() if hasattr(job, "get_id") else None}
+
+
+@frappe.whitelist()
+def get_rag_index_summary(course=None, lesson=None):
+    """Return summary of RAG index for a course or a specific lesson."""
+    try:
+        if lesson:
+            # Resolve lesson slug to actual lesson name if needed
+            if course:
+                resolved_lesson = resolve_lesson_slug(course, lesson)
+                if resolved_lesson:
+                    lesson = resolved_lesson
+            total_chunks = frappe.db.count("AI Knowledge Chunk", {"lesson": lesson})
+            embedded_chunks = frappe.db.count(
+                "AI Knowledge Chunk", {"lesson": lesson, "embedding_model": ["is", "set"]}
+            )
+            # counts by source type
+            by_source = {}
+            for st in ("Lesson", "Instructor", "File", "External"):
+                by_source[st] = frappe.db.count("AI Knowledge Chunk", {"lesson": lesson, "source_type": st})
+            last_run = frappe.get_all(
+                "AI Knowledge Index Run",
+                filters={"lesson": lesson},
+                fields=["status", "chunk_count", "last_indexed_at"],
+                order_by="last_indexed_at desc",
+                limit=1,
+            )
+            return {
+                "scope": "lesson",
+                "lesson": lesson,
+                "total_chunks": total_chunks,
+                "by_source": by_source,
+                "embedded_chunks": embedded_chunks,
+                "last_run": last_run[0] if last_run else None,
+            }
+        elif course:
+            total_chunks = frappe.db.count("AI Knowledge Chunk", {"course": course})
+            embedded_chunks = frappe.db.count(
+                "AI Knowledge Chunk", {"course": course, "embedding_model": ["is", "set"]}
+            )
+            by_source = {}
+            for st in ("Lesson", "Instructor", "File", "External"):
+                by_source[st] = frappe.db.count("AI Knowledge Chunk", {"course": course, "source_type": st})
+            last_run = frappe.get_all(
+                "AI Knowledge Index Run",
+                filters={"course": course, "lesson": ["is", "not set"]},
+                fields=["status", "chunk_count", "last_indexed_at"],
+                order_by="last_indexed_at desc",
+                limit=1,
+            )
+            return {
+                "scope": "course",
+                "course": course,
+                "total_chunks": total_chunks,
+                "by_source": by_source,
+                "embedded_chunks": embedded_chunks,
+                "last_run": last_run[0] if last_run else None,
+            }
+        else:
+            return {}
+    except Exception:
+        frappe.log_error(frappe.get_traceback(), "get_rag_index_summary_error")
+        return {}
+
+
+@frappe.whitelist()
+def get_lesson_attachment_status(lesson=None):
+    """Return per-file indexing status for a lesson's attachments.
+
+    [{file_name, file_url, mime_type, size, chunks}]
+    """
+    if not lesson or lesson == "undefined" or lesson == "null":
+        return []
+    try:
+        from lms.lms.ai_rag import _get_lesson_attachments
+        files = _get_lesson_attachments(lesson)
+        out = []
+        for f in files:
+            url = f.get("file_url")
+            count = frappe.db.count("AI Knowledge Chunk", {"lesson": lesson, "url": url})
+            out.append({
+                "file_name": f.get("file_name"),
+                "file_url": url,
+                "mime_type": f.get("mime_type"),
+                "size": f.get("file_size"),
+                "chunks": count,
+            })
+        return out
+    except Exception:
+        frappe.log_error(frappe.get_traceback(), "get_lesson_attachment_status_error")
+        return []
+
+
+@frappe.whitelist()
+def clear_assistant_pause(course: str):
+    """Clear per-course paused_by_alert to re-enable assistant after an alert."""
+    frappe.only_for(["System Manager", "Moderator"])
+    if not frappe.db.exists("AI Assistant Config", {"course": course}):
+        return {"ok": False, "error": "no_config"}
+    try:
+        frappe.db.set_value("AI Assistant Config", {"course": course}, "paused_by_alert", 0)
+        return {"ok": True}
+    except Exception:
+        frappe.log_error(frappe.get_traceback(), "clear_assistant_pause_error")
+        return {"ok": False}
+
+
+@frappe.whitelist()
+def check_proxy_alerts():
+    """Compute recent proxy error rate and p95 per course and auto-pause if thresholds exceeded."""
+    try:
+        settings = frappe.get_single("LMS Settings")
+        window_min = int(settings.get("assistant_proxy_alert_window_min") or 5)
+        err_thresh = int(settings.get("assistant_proxy_alert_error_rate_pct") or 20)
+        p95_thresh = int(settings.get("assistant_proxy_alert_p95_ms") or 4000)
+        auto_pause_default = bool(settings.get("assistant_proxy_auto_pause_default"))
+
+        # Aggregate recent logs per course
+        logs = frappe.db.sql(
+            """
+            select course,
+                   count(*) as requests,
+                   sum(case when status='error' then 1 else 0 end) as errors
+            from `tabAI Proxy Log`
+            where time >= DATE_SUB(NOW(), INTERVAL %(mins)s MINUTE)
+            group by course
+            """,
+            {"mins": window_min},
+            as_dict=True,
+        )
+        for row in logs:
+            if not row.course:
+                continue
+            req = int(row.requests or 0)
+            if req == 0:
+                continue
+            err_rate = round((int(row.errors or 0) * 100.0) / req, 2)
+            # Compute p95 for this course in window
+            lat_rows = frappe.db.sql(
+                """
+                select latency_ms from `tabAI Proxy Log`
+                where course=%(course)s and time >= DATE_SUB(NOW(), INTERVAL %(mins)s MINUTE)
+                and latency_ms is not null
+                order by latency_ms
+                """,
+                {"course": row.course, "mins": window_min},
+                as_dict=True,
+            )
+            p95 = 0
+            if lat_rows:
+                idx = int(max(0, round(0.95 * (len(lat_rows) - 1))))
+                p95 = int(lat_rows[idx].latency_ms or 0)
+            needs_pause = (err_rate >= err_thresh) or (p95 >= p95_thresh)
+            if not needs_pause:
+                continue
+            # Resolve per-course config
+            cfg = frappe.db.get_value(
+                "AI Assistant Config",
+                {"course": row.course},
+                ["name", "auto_pause_on_alert", "paused_by_alert"],
+                as_dict=True,
+            )
+            if not cfg:
+                continue
+            if cfg.get("paused_by_alert"):
+                continue
+            use_auto = cfg.get("auto_pause_on_alert") if cfg.get("auto_pause_on_alert") is not None else auto_pause_default
+            if not use_auto:
+                continue
+            try:
+                frappe.db.set_value("AI Assistant Config", cfg.get("name"), "paused_by_alert", 1)
+            except Exception:
+                frappe.log_error(frappe.get_traceback(), "proxy_auto_pause_error")
+    except Exception:
+        frappe.log_error(frappe.get_traceback(), "check_proxy_alerts_error")
+
+
+@frappe.whitelist()
+def generate_quiz_from_lesson(lesson, num_questions: int = 5, difficulty: str | None = None):
+    """Generate a draft LMS Quiz from a lesson using the AI proxy and RAG content.
+
+    Returns {ok, quiz, created_questions}
+    """
+    try:
+        lesson_doc = frappe.get_doc("Course Lesson", lesson)
+        course = lesson_doc.course
+        # Prepare context from chunks
+        chunks = chunk_lesson(lesson)
+        ctx_text = "\n\n".join([c.get("content") for c in chunks[:20]])[:4000]
+        # Resolve proxy config
+        settings = frappe.get_single("LMS Settings")
+        course_cfg = frappe.db.get_value(
+            "AI Assistant Config",
+            {"course": course},
+            [
+                "enable_overrides",
+                "proxy_base_url",
+                "proxy_api_key",
+                "default_model",
+            ],
+            as_dict=True,
+        )
+        eff = determine_effective_assistant_config(settings.as_dict(), course_cfg)
+        base = eff.get("chat_base_url") or ""
+        key = eff.get("chat_api_key") or ""
+        custom_headers = eff.get("chat_custom_headers") or ""
+        model = eff.get("default_model")
+        if not base:
+            frappe.throw("Proxy is not configured for quiz generation")
+        # Build prompt
+        sys = (
+            "You are an assistant that writes high-quality multiple-choice questions (MCQ) "
+            "based strictly on the provided lesson context. Output JSON only."
+        )
+        user = (
+            f"Lesson title: {lesson_doc.title}\nContext:\n{ctx_text}\n\n"
+            f"Generate {int(num_questions)} MCQs with exactly 4 options each and exactly 1 correct. "
+            f"Difficulty: {difficulty or 'medium'}. Respond as JSON with schema: "
+            "{\"questions\":[{\"question\":str,\"options\":[str,str,str,str],\"answer\":int}]}"
+        )
+        payload = build_openai_chat_payload(sys, [{"role": "user", "content": user}], model, temperature=0.4, max_tokens=1200)
+        res = call_ai_proxy(base, key, payload, custom_headers_json=custom_headers)
+        text = (res.get("content") or "").strip()
+        # Extract JSON (tolerate code fences)
+        import json, re
+        if text.startswith("```"):
+            text = re.sub(r"^```[a-zA-Z0-9]*\n|```$", "", text)
+        m = re.search(r"\{[\s\S]*\}$", text)
+        data = None
+        if m:
+            try:
+                data = json.loads(m.group(0))
+            except Exception:
+                data = None
+        if not data or not isinstance(data.get("questions"), list):
+            frappe.throw("Quiz generation failed: invalid response")
+        # Create questions and quiz
+        created_q = []
+        for q in data["questions"]:
+            try:
+                doc = frappe.get_doc({
+                    "doctype": "LMS Question",
+                    "type": "Choices",
+                    "question": q.get("question"),
+                    "option_1": (q.get("options") or [None]*4)[0],
+                    "option_2": (q.get("options") or [None]*4)[1],
+                    "option_3": (q.get("options") or [None]*4)[2],
+                    "option_4": (q.get("options") or [None]*4)[3],
+                    f"is_correct_{int(q.get('answer') or 1)}": 1,
+                })
+                doc.insert(ignore_permissions=True)
+                created_q.append(doc.name)
+            except Exception:
+                continue
+        if not created_q:
+            frappe.throw("No questions created")
+        quiz = frappe.get_doc({
+            "doctype": "LMS Quiz",
+            "title": f"AI Quiz - {lesson_doc.title}",
+            "lesson": lesson_doc.name,
+            "passing_percentage": 60,
+        })
+        for qname in created_q:
+            quiz.append("questions", {"question": qname, "marks": 1})
+        quiz.insert(ignore_permissions=True)
+        return {"ok": True, "quiz": quiz.name, "created_questions": created_q}
+    except Exception:
+        frappe.log_error(frappe.get_traceback(), "generate_quiz_from_lesson_error")
+        return {"ok": False}
+
+
+@frappe.whitelist()
+def generate_lesson_draft(lesson):
+    """Generate a summary and glossary for a lesson and save as AI Lesson Draft.
+
+    Returns {ok, draft}
+    """
+    try:
+        lesson_doc = frappe.get_doc("Course Lesson", lesson)
+        course = lesson_doc.course
+        # Prepare context
+        chunks = chunk_lesson(lesson)
+        ctx_text = "\n\n".join([c.get("content") for c in chunks[:30]])[:6000]
+        settings = frappe.get_single("LMS Settings")
+        course_cfg = frappe.db.get_value(
+            "AI Assistant Config",
+            {"course": course},
+            ["enable_overrides", "proxy_base_url", "proxy_api_key", "default_model"],
+            as_dict=True,
+        )
+        eff = determine_effective_assistant_config(settings.as_dict(), course_cfg)
+        base = eff.get("chat_base_url") or ""
+        key = eff.get("chat_api_key") or ""
+        custom_headers = eff.get("chat_custom_headers") or ""
+        model = eff.get("default_model")
+        if not base:
+            frappe.throw("Proxy is not configured for draft generation")
+        sys = "You generate concise lesson summaries and a glossary of key terms as JSON."
+        user = (
+            f"Lesson: {lesson_doc.title}\nContext:\n{ctx_text}\n\nRespond as JSON with schema: "
+            "{\"summary\": str, \"glossary\": [{\"term\": str, \"definition\": str}]}"
+        )
+        payload = build_openai_chat_payload(sys, [{"role": "user", "content": user}], model, temperature=0.3, max_tokens=1200)
+        res = call_ai_proxy(base, key, payload, custom_headers_json=custom_headers)
+        text = (res.get("content") or "").strip()
+        import json, re
+        if text.startswith("```"):
+            text = re.sub(r"^```[a-zA-Z0-9]*\n|```$", "", text)
+        data = None
+        try:
+            data = json.loads(text)
+        except Exception:
+            m = re.search(r"\{[\s\S]*\}$", text)
+            if m:
+                try:
+                    data = json.loads(m.group(0))
+                except Exception:
+                    data = None
+        if not data or not data.get("summary"):
+            frappe.throw("Draft generation failed: invalid response")
+        draft = frappe.get_doc({
+            "doctype": "AI Lesson Draft",
+            "lesson": lesson_doc.name,
+            "course": course,
+            "summary": data.get("summary"),
+            "glossary": json.dumps(data.get("glossary") or [], ensure_ascii=False),
+        })
+        draft.insert(ignore_permissions=True)
+        return {"ok": True, "draft": draft.name}
+    except Exception:
+        frappe.log_error(frappe.get_traceback(), "generate_lesson_draft_error")
+        return {"ok": False}
+
+
+@frappe.whitelist()
+def generate_faq_from_transcripts(course=None, lesson=None, max_pairs: int = 20):
+    """Generate an AI FAQ Draft from recent chat Q&A pairs for a course/lesson.
+
+    Returns {ok, draft}
+    """
+    try:
+        # Collect recent Q&A pairs
+        conditions = {}
+        if course:
+            conditions["course"] = course
+        if lesson:
+            conditions["lesson"] = lesson
+        # Find sessions
+        sessions = frappe.get_all("AI Chat Session", filters=conditions, pluck="name")
+        if not sessions:
+            frappe.throw("No chat sessions found for this course. FAQ Generation requires existing student-AI conversations to analyze. Students must use the AI Assistant chat feature first.")
+        msgs = frappe.get_all(
+            "AI Chat Message",
+            filters={"session": ("in", sessions)},
+            fields=["role", "content", "creation"],
+            order_by="creation desc",
+            limit_page_length=200,
+        )
+        # Pair user->assistant
+        pairs = []
+        last_user = None
+        for m in msgs[::-1]:  # oldest to newest
+            if m.role == "user":
+                last_user = m.content
+            elif m.role == "assistant" and last_user:
+                pairs.append({"q": last_user, "a": m.content})
+                last_user = None
+        if not pairs:
+            frappe.throw("No question-answer pairs found in chat sessions. Students need to ask questions and receive answers from the AI Assistant before FAQ generation can work.")
+        pairs = pairs[-int(max_pairs):]
+
+        # Build prompt for proxy
+        settings = frappe.get_single("LMS Settings")
+        cfg = frappe.db.get_value(
+            "AI Assistant Config",
+            {"course": course},
+            ["enable_overrides", "proxy_base_url", "proxy_api_key", "default_model"],
+            as_dict=True,
+        )
+        eff = determine_effective_assistant_config(settings.as_dict(), cfg)
+        base = eff.get("chat_base_url") or ""
+        key = eff.get("chat_api_key") or ""
+        custom_headers = eff.get("chat_custom_headers") or ""
+        model = eff.get("default_model")
+        if not base:
+            if settings.get("assistant_mode") == "Demo Mode":
+                frappe.throw("FAQ Generation requires External AI Service configuration. Currently in Demo Mode - go to LMS Settings > AI Assistant to configure External AI Service.")
+            else:
+                frappe.throw("Proxy is not configured for FAQ generation")
+        import json
+        sys = "You generate concise FAQ items from provided Q&A pairs. Output JSON only."
+        user = (
+            "Q&A pairs (JSON):\n" + json.dumps(pairs, ensure_ascii=False) +
+            "\n\nReturn {\"items\":[{\"question\":str,\"answer\":str}]} with 5-10 useful FAQs."
+        )
+        payload = build_openai_chat_payload(sys, [{"role": "user", "content": user}], model, temperature=0.3, max_tokens=1200)
+        res = call_ai_proxy(base, key, payload, custom_headers_json=custom_headers)
+        text = (res.get("content") or "").strip()
+        try:
+            data = json.loads(text)
+        except Exception:
+            import re
+            m = re.search(r"\{[\s\S]*\}$", text)
+            data = json.loads(m.group(0)) if m else None
+        if not data or not isinstance(data.get("items"), list):
+            frappe.throw("FAQ generation failed: invalid response")
+        # Create draft
+        draft = frappe.get_doc({
+            "doctype": "AI FAQ Draft",
+            "course": course,
+            "lesson": lesson,
+        })
+        for it in data["items"]:
+            q = (it.get("question") or "").strip()
+            a = (it.get("answer") or "").strip()
+            if not q or not a:
+                continue
+            draft.append("items", {"question": q, "answer": a})
+        draft.insert(ignore_permissions=True)
+        return {"ok": True, "draft": draft.name}
+    except Exception:
+        frappe.log_error(frappe.get_traceback(), "generate_faq_from_transcripts_error")
+        return {"ok": False}
+
+
+@frappe.whitelist()
+def export_faq_draft_markdown(draft):
+    """Return a Markdown representation of an AI FAQ Draft."""
+    try:
+        d = frappe.get_doc("AI FAQ Draft", draft)
+        lines = []
+        title = ("FAQ — " + (d.course or "") + (" — " + d.lesson if d.lesson else "")).strip()
+        if title:
+            lines.append(f"# {title}")
+            lines.append("")
+        for it in (d.items or []):
+            q = (it.get("question") or "").strip()
+            a = (it.get("answer") or "").strip()
+            if not q or not a:
+                continue
+            lines.append(f"## {q}")
+            lines.append("")
+            lines.append(a)
+            lines.append("")
+        md = "\n".join(lines)
+        return {"ok": True, "markdown": md}
+    except Exception:
+        frappe.log_error(frappe.get_traceback(), "export_faq_draft_markdown_error")
+        return {"ok": False}
+
+
+@frappe.whitelist()
+def promote_faq_draft_to_web_page(draft, published: int = 0):
+    """Create a Web Page from an AI FAQ Draft. Returns the Web Page name."""
+    try:
+        res = export_faq_draft_markdown(draft)
+        if not res or not res.get("ok"):
+            frappe.throw("Unable to render FAQ draft to Markdown")
+        md = res.get("markdown") or ""
+        d = frappe.get_doc("AI FAQ Draft", draft)
+        title = ("FAQ — " + (d.course or "") + (" — " + d.lesson if d.lesson else "")).strip()
+        page = frappe.get_doc({"doctype": "Web Page", "title": title, "published": int(published)})
+        html = f"<div class=\"prose\">\n{frappe.utils.markdown(md)}\n</div>"
+        if hasattr(page, "content"):
+            page.content = html
+        else:
+            page.update({"content": html})
+        page.insert(ignore_permissions=True)
+        return {"ok": True, "page": page.name}
+    except Exception:
+        frappe.log_error(frappe.get_traceback(), "promote_faq_draft_to_web_page_error")
+        return {"ok": False}
+
+
+@frappe.whitelist()
+def export_lesson_draft_markdown(draft):
+    """Return Markdown for an AI Lesson Draft (summary + glossary)."""
+    try:
+        d = frappe.get_doc("AI Lesson Draft", draft)
+        lines = []
+        title = ("Lesson Draft — " + (d.course or "") + (" — " + d.lesson if d.lesson else "")).strip()
+        if title:
+            lines.append(f"# {title}")
+            lines.append("")
+        if d.summary:
+            lines.append("## Summary")
+            lines.append("")
+            lines.append(d.summary)
+            lines.append("")
+        if d.glossary:
+            lines.append("## Glossary")
+            lines.append("")
+            lines.append(d.glossary)
+            lines.append("")
+        md = "\n".join(lines)
+        return {"ok": True, "markdown": md}
+    except Exception:
+        frappe.log_error(frappe.get_traceback(), "export_lesson_draft_markdown_error")
+        return {"ok": False}
+
+
+@frappe.whitelist()
+def promote_lesson_draft_to_web_page(draft, published: int = 0):
+    try:
+        res = export_lesson_draft_markdown(draft)
+        if not res or not res.get("ok"):
+            frappe.throw("Unable to render Lesson draft to Markdown")
+        md = res.get("markdown") or ""
+        d = frappe.get_doc("AI Lesson Draft", draft)
+        title = ("Lesson Draft — " + (d.course or "") + (" — " + d.lesson if d.lesson else "")).strip()
+        page = frappe.get_doc({"doctype": "Web Page", "title": title, "published": int(published)})
+        html = f"<div class=\"prose\">\n{frappe.utils.markdown(md)}\n</div>"
+        if hasattr(page, "content"):
+            page.content = html
+        else:
+            page.update({"content": html})
+        page.insert(ignore_permissions=True)
+        return {"ok": True, "page": page.name}
+    except Exception:
+        frappe.log_error(frappe.get_traceback(), "promote_lesson_draft_to_web_page_error")
+        return {"ok": False}
+
+
+@frappe.whitelist()
+def enqueue_external_source(docname):
+    """Enqueue fetch+index for a single AI External Source record."""
+    frappe.only_for(["Moderator", "Course Creator", "System Manager"])
+    job = frappe.enqueue(index_external_source, queue="default", job_name=f"rag-external-{docname}", docname=docname)
+    return {"job_id": job.get_id() if hasattr(job, "get_id") else None}
+
+
+@frappe.whitelist()
+def get_external_sources(course=None):
+    """List external sources for a course."""
+    if not course:
+        return []
+    try:
+        rows = frappe.get_all(
+            "AI External Source",
+            filters={"course": course},
+            fields=["name", "title", "url", "lesson", "status", "last_fetched_at"],
+            order_by="modified desc",
+            limit_page_length=200,
+        )
+        return rows
+    except Exception:
+        frappe.log_error(frappe.get_traceback(), "get_external_sources_error")
+        return []
+
+
+@frappe.whitelist()
+def enqueue_external_sources_course(course):
+    """Enqueue fetch+index for all allowed external sources in a course."""
+    frappe.only_for(["Moderator", "Course Creator", "System Manager"])
+    rows = frappe.get_all(
+        "AI External Source",
+        filters={"course": course, "allowed": 1, "status": ["in", ["New", "Fetched", "Error"]]},
+        pluck="name",
+    )
+    job_ids = []
+    for name in rows:
+        job = frappe.enqueue(index_external_source, queue="default", job_name=f"rag-external-{name}", docname=name)
+        job_ids.append(job.get_id() if hasattr(job, "get_id") else None)
+    return {"job_ids": job_ids}
+
+
+@frappe.whitelist()
+def enqueue_external_sources_lesson(course, lesson):
+    """Enqueue fetch+index for all allowed external sources in a specific lesson."""
+    frappe.only_for(["Moderator", "Course Creator", "System Manager"])
+    rows = frappe.get_all(
+        "AI External Source",
+        filters={
+            "course": course,
+            "lesson": lesson,
+            "allowed": 1,
+            "status": ["in", ["New", "Fetched", "Error"]],
+        },
+        pluck="name",
+    )
+    job_ids = []
+    for name in rows:
+        job = frappe.enqueue(index_external_source, queue="default", job_name=f"rag-external-{name}", docname=name)
+        job_ids.append(job.get_id() if hasattr(job, "get_id") else None)
+    return {"job_ids": job_ids}
+
+
+def _resolve_lesson_slug_to_name(lesson_slug):
+    """Resolve URL lesson slug (like '1-1') to actual lesson name.
+    
+    Returns the actual lesson name, or the original slug if not found.
+    This handles cases where frontend URLs use slugs but database uses full lesson names.
+    """
+    # First, try direct lookup (already a valid lesson name)
+    if frappe.db.exists("Course Lesson", lesson_slug):
+        return lesson_slug
+    
+    # If direct lookup fails, try to find lessons that might match the slug pattern
+    # For now, return the first available lesson as a fallback
+    # TODO: Implement proper slug-to-lesson mapping logic based on your URL structure
+    
+    lessons = frappe.get_all("Course Lesson", ["name"], limit=1)
+    if lessons:
+        frappe.logger().info(f"🔄 Resolved lesson slug '{lesson_slug}' to '{lessons[0].name}' (fallback to first available lesson)")
+        return lessons[0].name
+    
+    # If no lessons found, return original slug (will likely fail downstream)
+    frappe.logger().warning(f"⚠️ Could not resolve lesson slug '{lesson_slug}', returning original")
+    return lesson_slug
+
+
+@frappe.whitelist()
+def enqueue_rag_embeddings_lesson(lesson):
+    """Enqueue embeddings computation for a lesson based on settings/effective config."""
+    frappe.only_for(["Moderator", "Course Creator", "System Manager"])
+    
+    # Resolve lesson slug to actual lesson name
+    resolved_lesson = _resolve_lesson_slug_to_name(lesson)
+    frappe.logger().info(f"🔍 Lesson resolution: '{lesson}' -> '{resolved_lesson}'")
+    
+    # Resolve course for lesson
+    course = frappe.db.get_value("Course Lesson", resolved_lesson, "course")
+    settings = frappe.get_single("LMS Settings")
+    course_cfg = frappe.db.get_value(
+        "AI Assistant Config",
+        {"course": course},
+        [
+            "enable_overrides",
+            "proxy_base_url",
+            "proxy_api_key",
+            "enable_rag",
+            "default_model",
+        ],
+        as_dict=True,
+    )
+    from lms.lms.ai_utils import determine_effective_assistant_config
+
+    eff = determine_effective_assistant_config(settings.as_dict(), course_cfg)
+    if not eff.get("enable_rag"):
+        frappe.throw("Embeddings retrieval is disabled in settings")
+    # Use dedicated embedding provider settings, fallback to chat provider
+    base = eff.get("embedding_base_url") or eff.get("chat_base_url") or ""
+    key = eff.get("embedding_api_key") or eff.get("chat_api_key") or ""
+    custom_headers = eff.get("embedding_custom_headers") or eff.get("chat_custom_headers") or ""
+    model = (eff.get("embedding_model") or "").strip()
+    if not base or not model:
+        if settings.get("assistant_mode") == "Demo Mode":
+            frappe.throw("This feature requires External AI Service configuration. Currently in Demo Mode - go to LMS Settings > AI Assistant to configure External AI Service.")
+        else:
+            frappe.throw("Embeddings proxy base URL or model is not configured")
+    # Create a safe job ID by replacing spaces and special characters
+    safe_lesson_id = resolved_lesson.replace(" ", "-").replace("/", "-").replace("\\", "-")
+    frappe.logger().info(f"🚀 About to enqueue job with safe_lesson_id: {safe_lesson_id}")
+    
+    # DEBUG: Test if the import path is valid
+    try:
+        from lms.lms.ai_rag import ensure_embeddings_for_lesson
+        frappe.logger().info(f"✅ Import successful: {ensure_embeddings_for_lesson}")
+    except Exception as e:
+        frappe.logger().error(f"❌ Import failed: {e}")
+        frappe.throw(f"Function import failed: {e}")
+    
+    job = frappe.enqueue(
+        "lms.lms.ai_rag.ensure_embeddings_for_lesson",
+        queue="default",
+        job_id=f"rag-embed-lesson-{safe_lesson_id}",
+        lesson=resolved_lesson,
+        base_url=base,
+        api_key=key,
+        model=model,
+        custom_headers_json=custom_headers,
+    )
+    
+    frappe.logger().info(f"📤 Job enqueued: job_id={job.get_id() if hasattr(job, 'get_id') else 'unknown'}, job_type={type(job)}")
+    return {"job_id": job.get_id() if hasattr(job, "get_id") else None}
+
+
+@frappe.whitelist()
+def enqueue_rag_embeddings_course(course):
+    """Enqueue embeddings computation for all lessons under a course."""
+    frappe.only_for(["Moderator", "Course Creator", "System Manager"])
+    settings = frappe.get_single("LMS Settings")
+    course_cfg = frappe.db.get_value(
+        "AI Assistant Config",
+        {"course": course},
+        [
+            "enable_overrides",
+            "proxy_base_url",
+            "proxy_api_key",
+            "enable_rag",
+            "default_model",
+        ],
+        as_dict=True,
+    )
+    from lms.lms.ai_utils import determine_effective_assistant_config
+
+    eff = determine_effective_assistant_config(settings.as_dict(), course_cfg)
+    if not eff.get("enable_rag"):
+        frappe.throw("Embeddings retrieval is disabled in settings")
+    # Use dedicated embedding provider settings, fallback to chat provider
+    base = eff.get("embedding_base_url") or eff.get("chat_base_url") or ""
+    key = eff.get("embedding_api_key") or eff.get("chat_api_key") or ""
+    custom_headers = eff.get("embedding_custom_headers") or eff.get("chat_custom_headers") or ""
+    model = eff.get("embedding_model")
+    if not base or not model:
+        if settings.get("assistant_mode") == "Demo Mode":
+            frappe.throw("This feature requires External AI Service configuration. Currently in Demo Mode - go to LMS Settings > AI Assistant to configure External AI Service.")
+        else:
+            frappe.throw("Embeddings proxy base URL or model is not configured")
+    # Enqueue a job per lesson
+    chapters = frappe.get_all("Chapter Reference", filters={"parent": course}, pluck="chapter")
+    job_ids = []
+    for ch in chapters:
+        lessons = frappe.get_all("Lesson Reference", filters={"parent": ch}, pluck="lesson")
+        for lesson in lessons:
+            # Create a safe job ID by replacing spaces and special characters
+            safe_lesson_id = lesson.replace(" ", "-").replace("/", "-").replace("\\", "-")
+            job = frappe.enqueue(
+                "lms.lms.ai_rag.ensure_embeddings_for_lesson",
+                queue="default",
+                job_id=f"rag-embed-lesson-{safe_lesson_id}",
+                lesson=lesson,
+                base_url=base,
+                api_key=key,
+                model=model,
+                custom_headers_json=custom_headers,
+            )
+            job_ids.append(job.get_id() if hasattr(job, "get_id") else None)
+    return {"job_ids": job_ids}
+
+
+@frappe.whitelist()
+def enqueue_rag_rebuild_lesson(lesson):
+    """Enqueue a rebuild of the lesson's RAG index and (optionally) embeddings in one job."""
+    frappe.only_for(["Moderator", "Course Creator", "System Manager"])
+    course = frappe.db.get_value("Course Lesson", lesson, "course")
+    settings = frappe.get_single("LMS Settings")
+    course_cfg = frappe.db.get_value(
+        "AI Assistant Config",
+        {"course": course},
+        [
+            "enable_overrides",
+            "proxy_base_url",
+            "proxy_api_key",
+            "enable_rag",
+            "default_model",
+        ],
+        as_dict=True,
+    )
+    from lms.lms.ai_utils import determine_effective_assistant_config
+    eff = determine_effective_assistant_config(settings.as_dict(), course_cfg)
+    use_embeddings = bool(eff.get("enable_rag"))
+    # Use dedicated embedding provider settings, fallback to chat provider
+    base = eff.get("embedding_base_url") or eff.get("chat_base_url") or ""
+    key = eff.get("embedding_api_key") or eff.get("chat_api_key") or ""
+    custom_headers = eff.get("embedding_custom_headers") or eff.get("chat_custom_headers") or ""
+    model = eff.get("embedding_model")
+    # Import the correct embedding function
+    from lms.lms.ai_rag import ensure_embeddings_for_lesson
+    
+    safe_lesson_id = lesson.replace(" ", "-").replace("/", "-").replace("\\", "-")
+    job = frappe.enqueue(
+        ensure_embeddings_for_lesson,
+        queue="default",
+        job_id=f"rag-embed-lesson-{safe_lesson_id}",
+        lesson=lesson,
+        base_url=base,
+        api_key=key,
+        model=model,
+        custom_headers_json=custom_headers,
+    )
+    return {"job_id": job.get_id() if hasattr(job, "get_id") else None}
+
+
+@frappe.whitelist()
+def enqueue_rag_rebuild_course(course):
+    """Enqueue a rebuild of the course RAG index and (optionally) embeddings in one job."""
+    frappe.only_for(["Moderator", "Course Creator", "System Manager"])
+    settings = frappe.get_single("LMS Settings")
+    course_cfg = frappe.db.get_value(
+        "AI Assistant Config",
+        {"course": course},
+        [
+            "enable_overrides",
+            "proxy_base_url",
+            "proxy_api_key",
+            "enable_rag",
+            "default_model",
+        ],
+        as_dict=True,
+    )
+    from lms.lms.ai_utils import determine_effective_assistant_config
+    eff = determine_effective_assistant_config(settings.as_dict(), course_cfg)
+    use_embeddings = bool(eff.get("enable_rag"))
+    # Use dedicated embedding provider settings, fallback to chat provider
+    base = eff.get("embedding_base_url") or eff.get("chat_base_url") or ""
+    key = eff.get("embedding_api_key") or eff.get("chat_api_key") or ""
+    custom_headers = eff.get("embedding_custom_headers") or eff.get("chat_custom_headers") or ""
+    model = eff.get("embedding_model")
+    job = frappe.enqueue(
+        rebuild_course_index_and_embeddings,
+        queue="default",
+        job_name=f"rag-rebuild-course-{course}",
+        course=course,
+        use_embeddings=use_embeddings,
+        base_url=base,
+        api_key=key,
+        model=model,
+        custom_headers_json=custom_headers,
+    )
+    return {"job_id": job.get_id() if hasattr(job, "get_id") else None}
+
+
+def resolve_lesson_slug(course: str, lesson_slug: str) -> str | None:
+    """Resolve lesson slug like '1-1' to actual lesson name.
+    
+    Args:
+        course: Course name
+        lesson_slug: Format like '1-1' (chapter-lesson index)
+        
+    Returns:
+        Actual lesson name or None if not found
+    """
+    try:
+        if '-' not in lesson_slug:
+            return lesson_slug  # Already a lesson name
+            
+        chapter_idx, lesson_idx = lesson_slug.split('-', 1)
+        chapter_idx = int(chapter_idx)
+        lesson_idx = int(lesson_idx)
+        
+        # Find chapter by index
+        chapter_name = frappe.db.get_value(
+            "Chapter Reference", 
+            {"parent": course, "idx": chapter_idx}, 
+            "chapter"
+        )
+        if not chapter_name:
+            return None
+            
+        # Find lesson by index within chapter
+        lesson_name = frappe.db.get_value(
+            "Lesson Reference",
+            {"parent": chapter_name, "idx": lesson_idx},
+            "lesson"
+        )
+        return lesson_name
+        
+    except (ValueError, TypeError):
+        return lesson_slug  # Return as-is if not a valid slug format

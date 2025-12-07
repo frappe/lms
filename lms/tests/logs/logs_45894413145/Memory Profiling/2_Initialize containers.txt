@@ -1,0 +1,195 @@
+﻿2025-09-19T22:49:14.6043098Z ##[group]Checking docker version
+2025-09-19T22:49:14.6056468Z ##[command]/usr/bin/docker version --format '{{.Server.APIVersion}}'
+2025-09-19T22:49:14.7168256Z '1.48'
+2025-09-19T22:49:14.7180456Z Docker daemon API version: '1.48'
+2025-09-19T22:49:14.7181396Z ##[command]/usr/bin/docker version --format '{{.Client.APIVersion}}'
+2025-09-19T22:49:14.7354694Z '1.48'
+2025-09-19T22:49:14.7368544Z Docker client API version: '1.48'
+2025-09-19T22:49:14.7373241Z ##[endgroup]
+2025-09-19T22:49:14.7376665Z ##[group]Clean up resources from previous jobs
+2025-09-19T22:49:14.7382246Z ##[command]/usr/bin/docker ps --all --quiet --no-trunc --filter "label=28662f"
+2025-09-19T22:49:14.7528069Z ##[command]/usr/bin/docker network prune --force --filter "label=28662f"
+2025-09-19T22:49:14.7664826Z ##[endgroup]
+2025-09-19T22:49:14.7665394Z ##[group]Create local container network
+2025-09-19T22:49:14.7676102Z ##[command]/usr/bin/docker network create --label 28662f github_network_af437d14d4cf4e769a00c6db38a3f5cd
+2025-09-19T22:49:14.8184564Z 7832cb3991b3258a9c3c61b224c75d6a93fc75bf6c5a37d05b81e233aae1f599
+2025-09-19T22:49:14.8204349Z ##[endgroup]
+2025-09-19T22:49:14.8229862Z ##[group]Starting redis-cache service container
+2025-09-19T22:49:14.8248839Z ##[command]/usr/bin/docker pull redis:alpine
+2025-09-19T22:49:15.0007455Z alpine: Pulling from library/redis
+2025-09-19T22:49:15.0655431Z 9824c27679d3: Pulling fs layer
+2025-09-19T22:49:15.0657177Z 9880d81ff87a: Pulling fs layer
+2025-09-19T22:49:15.0658728Z 168694ef5d62: Pulling fs layer
+2025-09-19T22:49:15.0660821Z f8eab6d4856e: Pulling fs layer
+2025-09-19T22:49:15.0661791Z 1f79dac8d2d4: Pulling fs layer
+2025-09-19T22:49:15.0662529Z 4f4fb700ef54: Pulling fs layer
+2025-09-19T22:49:15.0663346Z 61cfb50eeff3: Pulling fs layer
+2025-09-19T22:49:15.0664088Z 1f79dac8d2d4: Waiting
+2025-09-19T22:49:15.0664681Z 4f4fb700ef54: Waiting
+2025-09-19T22:49:15.0665274Z f8eab6d4856e: Waiting
+2025-09-19T22:49:15.0665860Z 61cfb50eeff3: Waiting
+2025-09-19T22:49:15.1164011Z 9880d81ff87a: Verifying Checksum
+2025-09-19T22:49:15.1165554Z 9880d81ff87a: Download complete
+2025-09-19T22:49:15.1252373Z 168694ef5d62: Verifying Checksum
+2025-09-19T22:49:15.1253599Z 168694ef5d62: Download complete
+2025-09-19T22:49:15.1394634Z 9824c27679d3: Verifying Checksum
+2025-09-19T22:49:15.1395916Z 9824c27679d3: Download complete
+2025-09-19T22:49:15.1790956Z 1f79dac8d2d4: Download complete
+2025-09-19T22:49:15.2000731Z 4f4fb700ef54: Verifying Checksum
+2025-09-19T22:49:15.2004802Z 4f4fb700ef54: Download complete
+2025-09-19T22:49:15.2639179Z 9824c27679d3: Pull complete
+2025-09-19T22:49:15.2700622Z 61cfb50eeff3: Verifying Checksum
+2025-09-19T22:49:15.2702722Z 61cfb50eeff3: Download complete
+2025-09-19T22:49:15.3933907Z f8eab6d4856e: Verifying Checksum
+2025-09-19T22:49:15.3934776Z f8eab6d4856e: Download complete
+2025-09-19T22:49:15.7419997Z 9880d81ff87a: Pull complete
+2025-09-19T22:49:15.8880911Z 168694ef5d62: Pull complete
+2025-09-19T22:49:16.2087099Z f8eab6d4856e: Pull complete
+2025-09-19T22:49:16.2188738Z 1f79dac8d2d4: Pull complete
+2025-09-19T22:49:16.2307056Z 4f4fb700ef54: Pull complete
+2025-09-19T22:49:16.2421167Z 61cfb50eeff3: Pull complete
+2025-09-19T22:49:16.2469010Z Digest: sha256:987c376c727652f99625c7d205a1cba3cb2c53b92b0b62aade2bd48ee1593232
+2025-09-19T22:49:16.2485165Z Status: Downloaded newer image for redis:alpine
+2025-09-19T22:49:16.2496423Z docker.io/library/redis:alpine
+2025-09-19T22:49:16.2534574Z ##[command]/usr/bin/docker create --name b99dae58b6044af588efde0f93b9a546_redisalpine_af1e89 --label 28662f --network github_network_af437d14d4cf4e769a00c6db38a3f5cd --network-alias redis-cache -p 13000:6379  -e GITHUB_ACTIONS=true -e CI=true redis:alpine
+2025-09-19T22:49:16.2867639Z 7efa8f41336247f4808f96d34e865ff9b22686aa9c03951388a6aa92d745003d
+2025-09-19T22:49:16.2891822Z ##[command]/usr/bin/docker start 7efa8f41336247f4808f96d34e865ff9b22686aa9c03951388a6aa92d745003d
+2025-09-19T22:49:16.6073680Z 7efa8f41336247f4808f96d34e865ff9b22686aa9c03951388a6aa92d745003d
+2025-09-19T22:49:16.6099161Z ##[command]/usr/bin/docker ps --all --filter id=7efa8f41336247f4808f96d34e865ff9b22686aa9c03951388a6aa92d745003d --filter status=running --no-trunc --format "{{.ID}} {{.Status}}"
+2025-09-19T22:49:16.6228948Z 7efa8f41336247f4808f96d34e865ff9b22686aa9c03951388a6aa92d745003d Up Less than a second
+2025-09-19T22:49:16.6251379Z ##[command]/usr/bin/docker port 7efa8f41336247f4808f96d34e865ff9b22686aa9c03951388a6aa92d745003d
+2025-09-19T22:49:16.6374694Z 6379/tcp -> 0.0.0.0:13000
+2025-09-19T22:49:16.6375185Z 6379/tcp -> [::]:13000
+2025-09-19T22:49:16.6420589Z ##[endgroup]
+2025-09-19T22:49:16.6421624Z ##[group]Starting redis-queue service container
+2025-09-19T22:49:16.6422712Z ##[command]/usr/bin/docker pull redis:alpine
+2025-09-19T22:49:16.7672234Z alpine: Pulling from library/redis
+2025-09-19T22:49:16.7726147Z Digest: sha256:987c376c727652f99625c7d205a1cba3cb2c53b92b0b62aade2bd48ee1593232
+2025-09-19T22:49:16.7727069Z Status: Image is up to date for redis:alpine
+2025-09-19T22:49:16.7733123Z docker.io/library/redis:alpine
+2025-09-19T22:49:16.7750119Z ##[command]/usr/bin/docker create --name cfb00a308cad4efaa9a01ab6d95a4764_redisalpine_3f348a --label 28662f --network github_network_af437d14d4cf4e769a00c6db38a3f5cd --network-alias redis-queue -p 11000:6379  -e GITHUB_ACTIONS=true -e CI=true redis:alpine
+2025-09-19T22:49:16.8001429Z 79484432f37bcab15d780139b849b6e3119e1019ca9f404d0c4e25d50a171a79
+2025-09-19T22:49:16.8014968Z ##[command]/usr/bin/docker start 79484432f37bcab15d780139b849b6e3119e1019ca9f404d0c4e25d50a171a79
+2025-09-19T22:49:16.9383865Z 79484432f37bcab15d780139b849b6e3119e1019ca9f404d0c4e25d50a171a79
+2025-09-19T22:49:16.9414369Z ##[command]/usr/bin/docker ps --all --filter id=79484432f37bcab15d780139b849b6e3119e1019ca9f404d0c4e25d50a171a79 --filter status=running --no-trunc --format "{{.ID}} {{.Status}}"
+2025-09-19T22:49:16.9554979Z 79484432f37bcab15d780139b849b6e3119e1019ca9f404d0c4e25d50a171a79 Up Less than a second
+2025-09-19T22:49:16.9566255Z ##[command]/usr/bin/docker port 79484432f37bcab15d780139b849b6e3119e1019ca9f404d0c4e25d50a171a79
+2025-09-19T22:49:16.9683012Z 6379/tcp -> 0.0.0.0:11000
+2025-09-19T22:49:16.9683589Z 6379/tcp -> [::]:11000
+2025-09-19T22:49:16.9695881Z ##[endgroup]
+2025-09-19T22:49:16.9696797Z ##[group]Starting redis-socketio service container
+2025-09-19T22:49:16.9697565Z ##[command]/usr/bin/docker pull redis:alpine
+2025-09-19T22:49:17.0825988Z alpine: Pulling from library/redis
+2025-09-19T22:49:17.0891631Z Digest: sha256:987c376c727652f99625c7d205a1cba3cb2c53b92b0b62aade2bd48ee1593232
+2025-09-19T22:49:17.0892541Z Status: Image is up to date for redis:alpine
+2025-09-19T22:49:17.0900524Z docker.io/library/redis:alpine
+2025-09-19T22:49:17.0916233Z ##[command]/usr/bin/docker create --name ee4a96d771c548b38484982901bb1ea8_redisalpine_a04f9a --label 28662f --network github_network_af437d14d4cf4e769a00c6db38a3f5cd --network-alias redis-socketio -p 12000:6379  -e GITHUB_ACTIONS=true -e CI=true redis:alpine
+2025-09-19T22:49:17.1170119Z d4dc2e31254a42b18168aadb5ed59371a90d19156c64fa822829c6acf53e3b62
+2025-09-19T22:49:17.1187099Z ##[command]/usr/bin/docker start d4dc2e31254a42b18168aadb5ed59371a90d19156c64fa822829c6acf53e3b62
+2025-09-19T22:49:17.2504018Z d4dc2e31254a42b18168aadb5ed59371a90d19156c64fa822829c6acf53e3b62
+2025-09-19T22:49:17.2523318Z ##[command]/usr/bin/docker ps --all --filter id=d4dc2e31254a42b18168aadb5ed59371a90d19156c64fa822829c6acf53e3b62 --filter status=running --no-trunc --format "{{.ID}} {{.Status}}"
+2025-09-19T22:49:17.2653060Z d4dc2e31254a42b18168aadb5ed59371a90d19156c64fa822829c6acf53e3b62 Up Less than a second
+2025-09-19T22:49:17.2668060Z ##[command]/usr/bin/docker port d4dc2e31254a42b18168aadb5ed59371a90d19156c64fa822829c6acf53e3b62
+2025-09-19T22:49:17.2812714Z 6379/tcp -> 0.0.0.0:12000
+2025-09-19T22:49:17.2813163Z 6379/tcp -> [::]:12000
+2025-09-19T22:49:17.2826782Z ##[endgroup]
+2025-09-19T22:49:17.2827902Z ##[group]Starting mariadb service container
+2025-09-19T22:49:17.2828662Z ##[command]/usr/bin/docker pull anandology/mariadb-utf8mb4:10.3
+2025-09-19T22:49:17.4535067Z 10.3: Pulling from anandology/mariadb-utf8mb4
+2025-09-19T22:49:17.4536337Z 83ee3a23efb7: Pulling fs layer
+2025-09-19T22:49:17.4539025Z db98fc6f11f0: Pulling fs layer
+2025-09-19T22:49:17.4539644Z f611acd52c6c: Pulling fs layer
+2025-09-19T22:49:17.4540439Z aa2333e25466: Pulling fs layer
+2025-09-19T22:49:17.4541016Z f53ac4b825fd: Pulling fs layer
+2025-09-19T22:49:17.4541526Z c20afcf9b055: Pulling fs layer
+2025-09-19T22:49:17.4542086Z 54c5dc6dcf19: Pulling fs layer
+2025-09-19T22:49:17.4542630Z b1c71d744483: Pulling fs layer
+2025-09-19T22:49:17.4543168Z 863a8cc01d1c: Pulling fs layer
+2025-09-19T22:49:17.4543743Z 60f77f5f102c: Pulling fs layer
+2025-09-19T22:49:17.4544286Z 2ce534039c7f: Pulling fs layer
+2025-09-19T22:49:17.4544820Z 01014da6acb1: Pulling fs layer
+2025-09-19T22:49:17.4545314Z 37ffc1a63001: Pulling fs layer
+2025-09-19T22:49:17.4545659Z c4c5b2bd62e6: Pulling fs layer
+2025-09-19T22:49:17.4546003Z f53ac4b825fd: Waiting
+2025-09-19T22:49:17.4546320Z c20afcf9b055: Waiting
+2025-09-19T22:49:17.4546605Z 54c5dc6dcf19: Waiting
+2025-09-19T22:49:17.4547136Z 2ce534039c7f: Waiting
+2025-09-19T22:49:17.4547526Z b1c71d744483: Waiting
+2025-09-19T22:49:17.4547915Z 01014da6acb1: Waiting
+2025-09-19T22:49:17.4548190Z 863a8cc01d1c: Waiting
+2025-09-19T22:49:17.4548388Z 37ffc1a63001: Waiting
+2025-09-19T22:49:17.4548599Z 60f77f5f102c: Waiting
+2025-09-19T22:49:17.4548823Z c4c5b2bd62e6: Waiting
+2025-09-19T22:49:17.4549018Z aa2333e25466: Waiting
+2025-09-19T22:49:17.5123761Z f611acd52c6c: Download complete
+2025-09-19T22:49:17.5209448Z db98fc6f11f0: Verifying Checksum
+2025-09-19T22:49:17.5209958Z db98fc6f11f0: Download complete
+2025-09-19T22:49:17.5652110Z aa2333e25466: Verifying Checksum
+2025-09-19T22:49:17.5653391Z aa2333e25466: Download complete
+2025-09-19T22:49:17.6086878Z f53ac4b825fd: Verifying Checksum
+2025-09-19T22:49:17.6089814Z f53ac4b825fd: Download complete
+2025-09-19T22:49:17.6377786Z c20afcf9b055: Verifying Checksum
+2025-09-19T22:49:17.6378269Z c20afcf9b055: Download complete
+2025-09-19T22:49:17.6736029Z 54c5dc6dcf19: Verifying Checksum
+2025-09-19T22:49:17.6736547Z 54c5dc6dcf19: Download complete
+2025-09-19T22:49:17.6941826Z b1c71d744483: Download complete
+2025-09-19T22:49:17.7470466Z 60f77f5f102c: Verifying Checksum
+2025-09-19T22:49:17.7473313Z 60f77f5f102c: Download complete
+2025-09-19T22:49:17.7486652Z 83ee3a23efb7: Verifying Checksum
+2025-09-19T22:49:17.7492905Z 83ee3a23efb7: Download complete
+2025-09-19T22:49:17.7497359Z 863a8cc01d1c: Verifying Checksum
+2025-09-19T22:49:17.7498270Z 863a8cc01d1c: Download complete
+2025-09-19T22:49:17.8002811Z 01014da6acb1: Download complete
+2025-09-19T22:49:17.8147926Z 37ffc1a63001: Verifying Checksum
+2025-09-19T22:49:17.8148384Z 37ffc1a63001: Download complete
+2025-09-19T22:49:17.8568204Z c4c5b2bd62e6: Verifying Checksum
+2025-09-19T22:49:17.8570125Z c4c5b2bd62e6: Download complete
+2025-09-19T22:49:18.3817579Z 2ce534039c7f: Verifying Checksum
+2025-09-19T22:49:18.3818450Z 2ce534039c7f: Download complete
+2025-09-19T22:49:18.7048954Z 83ee3a23efb7: Pull complete
+2025-09-19T22:49:18.8402752Z db98fc6f11f0: Pull complete
+2025-09-19T22:49:18.8534866Z f611acd52c6c: Pull complete
+2025-09-19T22:49:18.8694416Z aa2333e25466: Pull complete
+2025-09-19T22:49:19.0376511Z f53ac4b825fd: Pull complete
+2025-09-19T22:49:19.0898749Z c20afcf9b055: Pull complete
+2025-09-19T22:49:19.0996857Z 54c5dc6dcf19: Pull complete
+2025-09-19T22:49:19.5129326Z b1c71d744483: Pull complete
+2025-09-19T22:49:19.5246938Z 863a8cc01d1c: Pull complete
+2025-09-19T22:49:19.5361312Z 60f77f5f102c: Pull complete
+2025-09-19T22:49:21.6883833Z 2ce534039c7f: Pull complete
+2025-09-19T22:49:21.7017247Z 01014da6acb1: Pull complete
+2025-09-19T22:49:21.7260793Z 37ffc1a63001: Pull complete
+2025-09-19T22:49:21.7370920Z c4c5b2bd62e6: Pull complete
+2025-09-19T22:49:21.7403642Z Digest: sha256:099b419f9646bf1484e3dd26a00493ca4ac5431f04568d722e289e9df2ff7c90
+2025-09-19T22:49:21.7418428Z Status: Downloaded newer image for anandology/mariadb-utf8mb4:10.3
+2025-09-19T22:49:21.7427867Z docker.io/anandology/mariadb-utf8mb4:10.3
+2025-09-19T22:49:21.7474218Z ##[command]/usr/bin/docker create --name 246a4722d38a48a79eb80aa656d67b85_anandologymariadbutf8mb4103_d37ca2 --label 28662f --network github_network_af437d14d4cf4e769a00c6db38a3f5cd --network-alias mariadb -p 3306:3306 --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=2s --health-retries=3 -e "MYSQL_ROOT_PASSWORD=root" -e GITHUB_ACTIONS=true -e CI=true anandology/mariadb-utf8mb4:10.3
+2025-09-19T22:49:21.7711465Z 7b15ee3ee91c1f5feae01bc1b36c3c9f10c3ee544ff9a152bebe3df0793286a3
+2025-09-19T22:49:21.7727628Z ##[command]/usr/bin/docker start 7b15ee3ee91c1f5feae01bc1b36c3c9f10c3ee544ff9a152bebe3df0793286a3
+2025-09-19T22:49:21.9209190Z 7b15ee3ee91c1f5feae01bc1b36c3c9f10c3ee544ff9a152bebe3df0793286a3
+2025-09-19T22:49:21.9227023Z ##[command]/usr/bin/docker ps --all --filter id=7b15ee3ee91c1f5feae01bc1b36c3c9f10c3ee544ff9a152bebe3df0793286a3 --filter status=running --no-trunc --format "{{.ID}} {{.Status}}"
+2025-09-19T22:49:21.9357665Z 7b15ee3ee91c1f5feae01bc1b36c3c9f10c3ee544ff9a152bebe3df0793286a3 Up Less than a second (health: starting)
+2025-09-19T22:49:21.9376709Z ##[command]/usr/bin/docker port 7b15ee3ee91c1f5feae01bc1b36c3c9f10c3ee544ff9a152bebe3df0793286a3
+2025-09-19T22:49:21.9522581Z 3306/tcp -> 0.0.0.0:3306
+2025-09-19T22:49:21.9522969Z 3306/tcp -> [::]:3306
+2025-09-19T22:49:21.9542087Z ##[endgroup]
+2025-09-19T22:49:21.9556033Z ##[group]Waiting for all services to be ready
+2025-09-19T22:49:21.9570827Z ##[command]/usr/bin/docker inspect --format="{{if .Config.Healthcheck}}{{print .State.Health.Status}}{{end}}" 7efa8f41336247f4808f96d34e865ff9b22686aa9c03951388a6aa92d745003d
+2025-09-19T22:49:21.9736550Z redis-cache service is healthy.
+2025-09-19T22:49:21.9738308Z ##[command]/usr/bin/docker inspect --format="{{if .Config.Healthcheck}}{{print .State.Health.Status}}{{end}}" 79484432f37bcab15d780139b849b6e3119e1019ca9f404d0c4e25d50a171a79
+2025-09-19T22:49:21.9962552Z redis-queue service is healthy.
+2025-09-19T22:49:21.9963405Z ##[command]/usr/bin/docker inspect --format="{{if .Config.Healthcheck}}{{print .State.Health.Status}}{{end}}" d4dc2e31254a42b18168aadb5ed59371a90d19156c64fa822829c6acf53e3b62
+2025-09-19T22:49:22.0108221Z redis-socketio service is healthy.
+2025-09-19T22:49:22.0109017Z ##[command]/usr/bin/docker inspect --format="{{if .Config.Healthcheck}}{{print .State.Health.Status}}{{end}}" 7b15ee3ee91c1f5feae01bc1b36c3c9f10c3ee544ff9a152bebe3df0793286a3
+2025-09-19T22:49:22.0243568Z starting
+2025-09-19T22:49:22.0264492Z mariadb service is starting, waiting 2 seconds before checking again.
+2025-09-19T22:49:24.0271086Z ##[command]/usr/bin/docker inspect --format="{{if .Config.Healthcheck}}{{print .State.Health.Status}}{{end}}" 7b15ee3ee91c1f5feae01bc1b36c3c9f10c3ee544ff9a152bebe3df0793286a3
+2025-09-19T22:49:24.0397243Z starting
+2025-09-19T22:49:24.0412673Z mariadb service is starting, waiting 4 seconds before checking again.
+2025-09-19T22:49:28.2965580Z ##[command]/usr/bin/docker inspect --format="{{if .Config.Healthcheck}}{{print .State.Health.Status}}{{end}}" 7b15ee3ee91c1f5feae01bc1b36c3c9f10c3ee544ff9a152bebe3df0793286a3
+2025-09-19T22:49:28.3088474Z starting
+2025-09-19T22:49:28.3102012Z mariadb service is starting, waiting 9 seconds before checking again.
+2025-09-19T22:49:37.4325069Z ##[command]/usr/bin/docker inspect --format="{{if .Config.Healthcheck}}{{print .State.Health.Status}}{{end}}" 7b15ee3ee91c1f5feae01bc1b36c3c9f10c3ee544ff9a152bebe3df0793286a3
+2025-09-19T22:49:37.4449762Z healthy
+2025-09-19T22:49:37.4462836Z mariadb service is healthy.
+2025-09-19T22:49:37.4463644Z ##[endgroup]

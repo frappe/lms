@@ -1,0 +1,51 @@
+{
+ "doctype": "DocType",
+ "name": "AI Knowledge Chunk",
+ "module": "LMS",
+ "custom": 0,
+ "istable": 0,
+ "editable_grid": 0,
+ "track_changes": 1,
+ "allow_rename": 0,
+  "field_order": [
+  "course",
+  "lesson",
+  "source_type",
+  "title",
+  "content",
+  "url",
+  "file_name",
+  "page",
+  "slide",
+  "h_path",
+  "order",
+  "tokens",
+  "words",
+  "chunk_id",
+  "embedding",
+  "embedding_model"
+ ],
+ "fields": [
+  {"fieldname": "course", "fieldtype": "Link", "label": "Course", "options": "LMS Course", "in_list_view": 1},
+  {"fieldname": "lesson", "fieldtype": "Link", "label": "Lesson", "options": "Course Lesson", "in_list_view": 1},
+  {"fieldname": "source_type", "fieldtype": "Select", "label": "Source Type", "options": "Lesson\nFile\nExternal", "in_list_view": 1},
+  {"fieldname": "title", "fieldtype": "Data", "label": "Title", "in_list_view": 1},
+  {"fieldname": "content", "fieldtype": "Long Text", "label": "Content"},
+  {"fieldname": "url", "fieldtype": "Data", "label": "URL"},
+  {"fieldname": "file_name", "fieldtype": "Data", "label": "File Name"},
+  {"fieldname": "page", "fieldtype": "Int", "label": "Page"},
+  {"fieldname": "slide", "fieldtype": "Int", "label": "Slide"},
+  {"fieldname": "h_path", "fieldtype": "Data", "label": "Heading Path"},
+  {"fieldname": "order", "fieldtype": "Int", "label": "Order"},
+  {"fieldname": "tokens", "fieldtype": "Int", "label": "Tokens"},
+  {"fieldname": "words", "fieldtype": "Int", "label": "Words"},
+  {"fieldname": "chunk_id", "fieldtype": "Data", "label": "Chunk ID", "unique": 1},
+  {"fieldname": "embedding", "fieldtype": "JSON", "label": "Embedding"},
+  {"fieldname": "embedding_model", "fieldtype": "Data", "label": "Embedding Model"}
+ ],
+ "permissions": [
+  {"role": "System Manager", "read": 1, "write": 1, "create": 1, "delete": 1, "share": 1},
+  {"role": "Moderator", "read": 1, "write": 1, "create": 1},
+  {"role": "Course Creator", "read": 1, "write": 1, "create": 1}
+ ]
+}

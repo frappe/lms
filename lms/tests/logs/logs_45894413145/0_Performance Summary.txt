@@ -1,0 +1,125 @@
+﻿2025-09-19T22:58:32.9192076Z Current runner version: '2.328.0'
+2025-09-19T22:58:32.9227265Z ##[group]Runner Image Provisioner
+2025-09-19T22:58:32.9228156Z Hosted Compute Agent
+2025-09-19T22:58:32.9228691Z Version: 20250829.383
+2025-09-19T22:58:32.9229289Z Commit: 27cb235aab5b0e52e153a26cd86b4742e89dac5d
+2025-09-19T22:58:32.9230338Z Build Date: 2025-08-29T13:48:48Z
+2025-09-19T22:58:32.9230941Z ##[endgroup]
+2025-09-19T22:58:32.9231503Z ##[group]Operating System
+2025-09-19T22:58:32.9232012Z Ubuntu
+2025-09-19T22:58:32.9232556Z 24.04.3
+2025-09-19T22:58:32.9232982Z LTS
+2025-09-19T22:58:32.9233421Z ##[endgroup]
+2025-09-19T22:58:32.9233929Z ##[group]Runner Image
+2025-09-19T22:58:32.9234997Z Image: ubuntu-24.04
+2025-09-19T22:58:32.9235853Z Version: 20250907.24.1
+2025-09-19T22:58:32.9237627Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20250907.24/images/ubuntu/Ubuntu2404-Readme.md
+2025-09-19T22:58:32.9240484Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20250907.24
+2025-09-19T22:58:32.9242192Z ##[endgroup]
+2025-09-19T22:58:32.9246301Z ##[group]GITHUB_TOKEN Permissions
+2025-09-19T22:58:32.9249326Z Actions: write
+2025-09-19T22:58:32.9250345Z Attestations: write
+2025-09-19T22:58:32.9251214Z Checks: write
+2025-09-19T22:58:32.9252099Z Contents: write
+2025-09-19T22:58:32.9253093Z Deployments: write
+2025-09-19T22:58:32.9254049Z Discussions: write
+2025-09-19T22:58:32.9254914Z Issues: write
+2025-09-19T22:58:32.9255827Z Metadata: read
+2025-09-19T22:58:32.9256622Z Models: read
+2025-09-19T22:58:32.9257588Z Packages: write
+2025-09-19T22:58:32.9258443Z Pages: write
+2025-09-19T22:58:32.9259266Z PullRequests: write
+2025-09-19T22:58:32.9260416Z RepositoryProjects: write
+2025-09-19T22:58:32.9261443Z SecurityEvents: write
+2025-09-19T22:58:32.9262357Z Statuses: write
+2025-09-19T22:58:32.9263089Z ##[endgroup]
+2025-09-19T22:58:32.9266341Z Secret source: Actions
+2025-09-19T22:58:32.9268008Z Prepare workflow directory
+2025-09-19T22:58:32.9724597Z Prepare all required actions
+2025-09-19T22:58:32.9779467Z Getting action download info
+2025-09-19T22:58:33.2686188Z Download action repository 'actions/download-artifact@v4' (SHA:d3f86a106a0bac45b974a628896c90dbdf5c8093)
+2025-09-19T22:58:33.5586460Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+2025-09-19T22:58:33.6755789Z Download action repository 'actions/github-script@v6' (SHA:d7906e4ad0b1822421a7e6a35d5ca353c962f410)
+2025-09-19T22:58:33.9289311Z Complete job name: Performance Summary
+2025-09-19T22:58:34.0118598Z ##[group]Run actions/download-artifact@v4
+2025-09-19T22:58:34.0119609Z with:
+2025-09-19T22:58:34.0120239Z   merge-multiple: false
+2025-09-19T22:58:34.0120879Z   repository: audit-brands/frappe-lms-chat
+2025-09-19T22:58:34.0121471Z   run-id: 17871475744
+2025-09-19T22:58:34.0122195Z ##[endgroup]
+2025-09-19T22:58:34.3163416Z Found 4 artifact(s)
+2025-09-19T22:58:34.3164975Z No input name, artifact-ids or pattern filtered specified, downloading all artifacts
+2025-09-19T22:58:34.3166379Z An extra directory with the artifact name will be created for each download
+2025-09-19T22:58:34.3167731Z Preparing to download the following artifacts:
+2025-09-19T22:58:34.3169603Z - load-test-results (ID: 4060832032, Size: 293833, Expected Digest: sha256:e559d08b6b825db928636f4f32e3a5f41e5513777e0d8dd0a9780580f8191450)
+2025-09-19T22:58:34.3171580Z - memory-profile (ID: 4060831602, Size: 308, Expected Digest: sha256:675ff3dd2fea6b64c161250f5d31f01f2b21ab5bd31453dc0959f84a88d9ffba)
+2025-09-19T22:58:34.3173902Z - lighthouse-reports (ID: 4060820659, Size: 303482, Expected Digest: sha256:a96379f6d294895425949c6beee4b4c65960c186733bb8567efd5184a55e882a)
+2025-09-19T22:58:34.3175976Z - api-performance-results (ID: 4060812007, Size: 301, Expected Digest: sha256:43de3853d47b0cdbcafb1337d1f2b0c4e128b0e2554070f3dbcf9a835c6c4fde)
+2025-09-19T22:58:34.3870906Z Redirecting to blob download url: https://productionresultssa11.blob.core.windows.net/actions-results/ea265c14-b64a-4f0f-baa2-fe68c8a21a48/workflow-job-run-5ebe70bd-0f07-5a69-b59f-fbb39752c190/artifacts/13198da65349ac6b733c489965442b644eee7739df63507eafdf1150e3da6245.zip
+2025-09-19T22:58:34.3874620Z Starting download of artifact to: /home/runner/work/frappe-lms-chat/frappe-lms-chat/load-test-results
+2025-09-19T22:58:34.3916891Z Redirecting to blob download url: https://productionresultssa11.blob.core.windows.net/actions-results/ea265c14-b64a-4f0f-baa2-fe68c8a21a48/workflow-job-run-d54f45b5-bd1b-560e-8ded-46e6ffd2d865/artifacts/5a0d7400c80973fd4045ff4e27f09dcc89ffd2f844b0ff6f274541d8bb51074e.zip
+2025-09-19T22:58:34.3919512Z Starting download of artifact to: /home/runner/work/frappe-lms-chat/frappe-lms-chat/lighthouse-reports
+2025-09-19T22:58:34.4073747Z Redirecting to blob download url: https://productionresultssa11.blob.core.windows.net/actions-results/ea265c14-b64a-4f0f-baa2-fe68c8a21a48/workflow-job-run-fa6a2f71-54aa-5d4b-9699-0d06878cc5fd/artifacts/d8eb90f061cb0a77cddc8ee208a7ed6caa1daba4ab16cd217bf7cdf3a3dbc92b.zip
+2025-09-19T22:58:34.4077187Z Starting download of artifact to: /home/runner/work/frappe-lms-chat/frappe-lms-chat/memory-profile
+2025-09-19T22:58:34.4255184Z Redirecting to blob download url: https://productionresultssa11.blob.core.windows.net/actions-results/ea265c14-b64a-4f0f-baa2-fe68c8a21a48/workflow-job-run-52014089-ba17-5333-80b6-a7b91a5e849e/artifacts/52e8de3954a1735b872ee32599ac3f213e6eb36633c1f8783e6ab4fbc7bbee67.zip
+2025-09-19T22:58:34.4258154Z Starting download of artifact to: /home/runner/work/frappe-lms-chat/frappe-lms-chat/api-performance-results
+2025-09-19T22:58:34.4517874Z (node:1960) [DEP0005] DeprecationWarning: Buffer() is deprecated due to security and usability issues. Please use the Buffer.alloc(), Buffer.allocUnsafe(), or Buffer.from() methods instead.
+2025-09-19T22:58:34.4521997Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2025-09-19T22:58:34.4629458Z SHA256 digest of downloaded artifact is 675ff3dd2fea6b64c161250f5d31f01f2b21ab5bd31453dc0959f84a88d9ffba
+2025-09-19T22:58:34.4631472Z Artifact download completed successfully.
+2025-09-19T22:58:34.4633256Z SHA256 digest of downloaded artifact is 43de3853d47b0cdbcafb1337d1f2b0c4e128b0e2554070f3dbcf9a835c6c4fde
+2025-09-19T22:58:34.4635040Z Artifact download completed successfully.
+2025-09-19T22:58:34.4864297Z SHA256 digest of downloaded artifact is e559d08b6b825db928636f4f32e3a5f41e5513777e0d8dd0a9780580f8191450
+2025-09-19T22:58:34.4866376Z Artifact download completed successfully.
+2025-09-19T22:58:34.4905963Z SHA256 digest of downloaded artifact is a96379f6d294895425949c6beee4b4c65960c186733bb8567efd5184a55e882a
+2025-09-19T22:58:34.4907878Z Artifact download completed successfully.
+2025-09-19T22:58:34.4909072Z Total of 4 artifact(s) downloaded
+2025-09-19T22:58:34.4913989Z Download artifact has finished successfully
+2025-09-19T22:58:34.5119130Z ##[group]Run echo "# Performance Testing Summary" > performance-summary.md
+2025-09-19T22:58:34.5120470Z [36;1mecho "# Performance Testing Summary" > performance-summary.md[0m
+2025-09-19T22:58:34.5121299Z [36;1mecho "" >> performance-summary.md[0m
+2025-09-19T22:58:34.5122076Z [36;1mecho "## Test Results" >> performance-summary.md[0m
+2025-09-19T22:58:34.5122905Z [36;1mecho "- Load Testing: failure" >> performance-summary.md[0m
+2025-09-19T22:58:34.5123879Z [36;1mecho "- Lighthouse Performance: success" >> performance-summary.md[0m
+2025-09-19T22:58:34.5124833Z [36;1mecho "- API Performance: success" >> performance-summary.md[0m
+2025-09-19T22:58:34.5125753Z [36;1mecho "- Memory Profiling: success" >> performance-summary.md[0m
+2025-09-19T22:58:34.5126546Z [36;1mecho "" >> performance-summary.md[0m
+2025-09-19T22:58:34.5127155Z [36;1m[0m
+2025-09-19T22:58:34.5127687Z [36;1m# Add API performance details if available[0m
+2025-09-19T22:58:34.5128602Z [36;1mif [ -f "api-performance-results/api_performance_results.json" ]; then[0m
+2025-09-19T22:58:34.5129551Z [36;1m  echo "## API Performance Results" >> performance-summary.md[0m
+2025-09-19T22:58:34.5130458Z [36;1m  echo "\`\`\`json" >> performance-summary.md[0m
+2025-09-19T22:58:34.5131415Z [36;1m  cat api-performance-results/api_performance_results.json >> performance-summary.md[0m
+2025-09-19T22:58:34.5132583Z [36;1m  echo "\`\`\`" >> performance-summary.md[0m
+2025-09-19T22:58:34.5133271Z [36;1m  echo "" >> performance-summary.md[0m
+2025-09-19T22:58:34.5133879Z [36;1mfi[0m
+2025-09-19T22:58:34.5134332Z [36;1m[0m
+2025-09-19T22:58:34.5134962Z [36;1mecho "## Performance Baseline" >> performance-summary.md[0m
+2025-09-19T22:58:34.5135885Z [36;1mecho "- API Response Time: < 500ms (target)" >> performance-summary.md[0m
+2025-09-19T22:58:34.5136817Z [36;1mecho "- Page Load Time: < 2s (target)" >> performance-summary.md[0m
+2025-09-19T22:58:34.5137736Z [36;1mecho "- Memory Usage: < 500MB (target)" >> performance-summary.md[0m
+2025-09-19T22:58:34.5138523Z [36;1mecho "" >> performance-summary.md[0m
+2025-09-19T22:58:34.5139265Z [36;1mecho "Generated on: $(date)" >> performance-summary.md[0m
+2025-09-19T22:58:34.5197815Z shell: /usr/bin/bash -e {0}
+2025-09-19T22:58:34.5198413Z ##[endgroup]
+2025-09-19T22:58:34.5368985Z ##[group]Run actions/upload-artifact@v4
+2025-09-19T22:58:34.5369630Z with:
+2025-09-19T22:58:34.5370224Z   name: performance-summary
+2025-09-19T22:58:34.5370780Z   path: performance-summary.md
+2025-09-19T22:58:34.5371333Z   if-no-files-found: warn
+2025-09-19T22:58:34.5371847Z   compression-level: 6
+2025-09-19T22:58:34.5372340Z   overwrite: false
+2025-09-19T22:58:34.5372830Z   include-hidden-files: false
+2025-09-19T22:58:34.5373358Z ##[endgroup]
+2025-09-19T22:58:34.7474426Z With the provided path, there will be 1 file uploaded
+2025-09-19T22:58:34.7479315Z Artifact name is valid!
+2025-09-19T22:58:34.7480707Z Root directory input is valid!
+2025-09-19T22:58:34.8218597Z Beginning upload of artifact content to blob storage
+2025-09-19T22:58:34.8676674Z Uploaded bytes 483
+2025-09-19T22:58:34.8841032Z Finished uploading artifact content to blob storage!
+2025-09-19T22:58:34.8843234Z SHA256 digest of uploaded artifact zip is 4efe42cba15fed430dfb6413c617809214f8920dbb88f175f89b844a6c3ed68e
+2025-09-19T22:58:34.8845195Z Finalizing artifact upload
+2025-09-19T22:58:34.9731600Z Artifact performance-summary.zip successfully finalized. Artifact ID 4060832573
+2025-09-19T22:58:34.9733904Z Artifact performance-summary has been successfully uploaded! Final size is 483 bytes. Artifact ID is 4060832573
+2025-09-19T22:58:34.9740634Z Artifact download URL: https://github.com/audit-brands/frappe-lms-chat/actions/runs/17871475744/artifacts/4060832573
+2025-09-19T22:58:34.9915607Z Cleaning up orphan processes

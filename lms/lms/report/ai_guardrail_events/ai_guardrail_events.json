@@ -1,0 +1,33 @@
+{
+ "add_total_row": 0,
+ "columns": [],
+ "creation": "2025-09-10 00:00:00.000000",
+ "disabled": 0,
+ "docstatus": 0,
+ "doctype": "Report",
+ "filters": [
+  {"fieldname": "from", "fieldtype": "Datetime", "label": "From"},
+  {"fieldname": "to", "fieldtype": "Datetime", "label": "To"},
+  {"fieldname": "course", "fieldtype": "Link", "label": "Course", "options": "LMS Course"},
+  {"fieldname": "lesson", "fieldtype": "Link", "label": "Lesson", "options": "Course Lesson"},
+  {"fieldname": "source", "fieldtype": "Select", "label": "Source", "options": "\nchat\nexternal"},
+  {"fieldname": "event_type", "fieldtype": "Select", "label": "Event Type", "options": "\nInjection\nSensitive"},
+  {"fieldname": "user", "fieldtype": "Link", "label": "User", "options": "User"}
+ ],
+ "idx": 0,
+ "is_standard": "Yes",
+ "letter_head": "",
+ "modified": "2025-09-10 00:00:00.000000",
+ "module": "LMS",
+ "name": "AI Guardrail Events",
+ "owner": "Administrator",
+ "prepared_report": 0,
+ "ref_doctype": "AI Guardrail Event",
+ "report_name": "AI Guardrail Events",
+ "report_type": "Script Report",
+ "roles": [
+  {"role": "System Manager"},
+  {"role": "Moderator"}
+ ]
+}
+

@@ -1,0 +1,30 @@
+{
+ "doctype": "DocType",
+ "name": "AI Chat Message",
+ "module": "LMS",
+ "custom": 0,
+ "istable": 0,
+ "editable_grid": 0,
+ "track_changes": 1,
+ "allow_rename": 0,
+ "field_order": [
+  "session",
+  "role",
+  "content",
+  "citations",
+  "tool_calls"
+ ],
+ "fields": [
+  {"fieldname": "session", "fieldtype": "Link", "label": "Session", "options": "AI Chat Session", "in_list_view": 1},
+  {"fieldname": "role", "fieldtype": "Select", "label": "Role", "options": "system\nuser\nassistant", "in_list_view": 1},
+  {"fieldname": "content", "fieldtype": "Long Text", "label": "Content"},
+  {"fieldname": "citations", "fieldtype": "JSON", "label": "Citations"},
+  {"fieldname": "tool_calls", "fieldtype": "JSON", "label": "Tool Calls"}
+ ],
+ "permissions": [
+  {"role": "System Manager", "read": 1, "write": 1, "create": 1, "delete": 1, "share": 1, "print": 1, "email": 1},
+  {"role": "LMS Student", "read": 1, "write": 1, "create": 1},
+  {"role": "Moderator", "read": 1, "write": 1, "create": 1}
+ ]
+}
+

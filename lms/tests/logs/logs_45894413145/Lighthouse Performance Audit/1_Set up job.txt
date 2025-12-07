@@ -1,0 +1,44 @@
+﻿2025-09-19T22:48:44.6261126Z Current runner version: '2.328.0'
+2025-09-19T22:48:44.6284715Z ##[group]Runner Image Provisioner
+2025-09-19T22:48:44.6285515Z Hosted Compute Agent
+2025-09-19T22:48:44.6286137Z Version: 20250829.383
+2025-09-19T22:48:44.6286735Z Commit: 27cb235aab5b0e52e153a26cd86b4742e89dac5d
+2025-09-19T22:48:44.6287810Z Build Date: 2025-08-29T13:48:48Z
+2025-09-19T22:48:44.6288485Z ##[endgroup]
+2025-09-19T22:48:44.6289005Z ##[group]Operating System
+2025-09-19T22:48:44.6289517Z Ubuntu
+2025-09-19T22:48:44.6290044Z 24.04.3
+2025-09-19T22:48:44.6290469Z LTS
+2025-09-19T22:48:44.6290953Z ##[endgroup]
+2025-09-19T22:48:44.6291430Z ##[group]Runner Image
+2025-09-19T22:48:44.6291994Z Image: ubuntu-24.04
+2025-09-19T22:48:44.6292501Z Version: 20250907.24.1
+2025-09-19T22:48:44.6293543Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20250907.24/images/ubuntu/Ubuntu2404-Readme.md
+2025-09-19T22:48:44.6294894Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20250907.24
+2025-09-19T22:48:44.6296135Z ##[endgroup]
+2025-09-19T22:48:44.6298853Z ##[group]GITHUB_TOKEN Permissions
+2025-09-19T22:48:44.6300864Z Actions: write
+2025-09-19T22:48:44.6301407Z Attestations: write
+2025-09-19T22:48:44.6301956Z Checks: write
+2025-09-19T22:48:44.6302384Z Contents: write
+2025-09-19T22:48:44.6302952Z Deployments: write
+2025-09-19T22:48:44.6303421Z Discussions: write
+2025-09-19T22:48:44.6304260Z Issues: write
+2025-09-19T22:48:44.6304842Z Metadata: read
+2025-09-19T22:48:44.6305283Z Models: read
+2025-09-19T22:48:44.6305750Z Packages: write
+2025-09-19T22:48:44.6306265Z Pages: write
+2025-09-19T22:48:44.6306746Z PullRequests: write
+2025-09-19T22:48:44.6307438Z RepositoryProjects: write
+2025-09-19T22:48:44.6308075Z SecurityEvents: write
+2025-09-19T22:48:44.6308702Z Statuses: write
+2025-09-19T22:48:44.6309168Z ##[endgroup]
+2025-09-19T22:48:44.6311259Z Secret source: Actions
+2025-09-19T22:48:44.6311944Z Prepare workflow directory
+2025-09-19T22:48:44.6751901Z Prepare all required actions
+2025-09-19T22:48:44.6789469Z Getting action download info
+2025-09-19T22:48:45.0584630Z Download action repository 'actions/checkout@v4' (SHA:08eba0b27e820071cde6df949e0beb9ba4906955)
+2025-09-19T22:48:45.2137615Z Download action repository 'actions/setup-python@v4' (SHA:7f4fc3e22c37d6ff65e88745f38bd3157c663f7c)
+2025-09-19T22:48:45.2957707Z Download action repository 'actions/setup-node@v4' (SHA:49933ea5288caeca8642d1e84afbd3f7d6820020)
+2025-09-19T22:48:45.3840221Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+2025-09-19T22:48:45.5854158Z Complete job name: Lighthouse Performance Audit

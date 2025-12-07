@@ -1,0 +1,39 @@
+{
+ "doctype": "DocType",
+ "name": "AI Proxy Log",
+ "module": "LMS",
+ "custom": 0,
+ "istable": 0,
+ "editable_grid": 0,
+ "track_changes": 1,
+ "allow_rename": 0,
+ "autoname": "hash",
+ "field_order": [
+  "time",
+  "user",
+  "course",
+  "lesson",
+  "model",
+  "status",
+  "latency_ms",
+  "status_code",
+  "error_message"
+ ],
+ "fields": [
+  {"fieldname": "time", "fieldtype": "Datetime", "label": "Time", "default": "Now", "in_list_view": 1},
+  {"fieldname": "user", "fieldtype": "Link", "label": "User", "options": "User", "in_list_view": 1},
+  {"fieldname": "course", "fieldtype": "Link", "label": "Course", "options": "LMS Course"},
+  {"fieldname": "lesson", "fieldtype": "Link", "label": "Lesson", "options": "Course Lesson"},
+  {"fieldname": "model", "fieldtype": "Data", "label": "Model"},
+  {"fieldname": "status", "fieldtype": "Select", "label": "Status", "options": "success\nerror", "in_list_view": 1},
+  {"fieldname": "latency_ms", "fieldtype": "Int", "label": "Latency (ms)", "in_list_view": 1},
+  {"fieldname": "status_code", "fieldtype": "Int", "label": "HTTP Status"},
+  {"fieldname": "error_message", "fieldtype": "Small Text", "label": "Error"}
+ ],
+ "permissions": [
+  {"role": "System Manager", "read": 1, "write": 1, "create": 1, "delete": 1, "share": 1, "print": 1, "email": 1},
+  {"role": "Moderator", "read": 1},
+  {"role": "Course Creator", "read": 1}
+ ]
+}
+

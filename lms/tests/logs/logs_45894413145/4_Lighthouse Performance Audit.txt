@@ -1,0 +1,1561 @@
+﻿2025-09-19T22:48:44.6262058Z Current runner version: '2.328.0'
+2025-09-19T22:48:44.6284738Z ##[group]Runner Image Provisioner
+2025-09-19T22:48:44.6285520Z Hosted Compute Agent
+2025-09-19T22:48:44.6286141Z Version: 20250829.383
+2025-09-19T22:48:44.6286738Z Commit: 27cb235aab5b0e52e153a26cd86b4742e89dac5d
+2025-09-19T22:48:44.6287820Z Build Date: 2025-08-29T13:48:48Z
+2025-09-19T22:48:44.6288489Z ##[endgroup]
+2025-09-19T22:48:44.6289009Z ##[group]Operating System
+2025-09-19T22:48:44.6289520Z Ubuntu
+2025-09-19T22:48:44.6290048Z 24.04.3
+2025-09-19T22:48:44.6290472Z LTS
+2025-09-19T22:48:44.6290957Z ##[endgroup]
+2025-09-19T22:48:44.6291433Z ##[group]Runner Image
+2025-09-19T22:48:44.6291997Z Image: ubuntu-24.04
+2025-09-19T22:48:44.6292504Z Version: 20250907.24.1
+2025-09-19T22:48:44.6293548Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20250907.24/images/ubuntu/Ubuntu2404-Readme.md
+2025-09-19T22:48:44.6295097Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20250907.24
+2025-09-19T22:48:44.6296140Z ##[endgroup]
+2025-09-19T22:48:44.6298864Z ##[group]GITHUB_TOKEN Permissions
+2025-09-19T22:48:44.6300882Z Actions: write
+2025-09-19T22:48:44.6301410Z Attestations: write
+2025-09-19T22:48:44.6301959Z Checks: write
+2025-09-19T22:48:44.6302387Z Contents: write
+2025-09-19T22:48:44.6302955Z Deployments: write
+2025-09-19T22:48:44.6303424Z Discussions: write
+2025-09-19T22:48:44.6304266Z Issues: write
+2025-09-19T22:48:44.6304846Z Metadata: read
+2025-09-19T22:48:44.6305286Z Models: read
+2025-09-19T22:48:44.6305753Z Packages: write
+2025-09-19T22:48:44.6306267Z Pages: write
+2025-09-19T22:48:44.6306748Z PullRequests: write
+2025-09-19T22:48:44.6307443Z RepositoryProjects: write
+2025-09-19T22:48:44.6308079Z SecurityEvents: write
+2025-09-19T22:48:44.6308706Z Statuses: write
+2025-09-19T22:48:44.6309171Z ##[endgroup]
+2025-09-19T22:48:44.6311277Z Secret source: Actions
+2025-09-19T22:48:44.6311948Z Prepare workflow directory
+2025-09-19T22:48:44.6751935Z Prepare all required actions
+2025-09-19T22:48:44.6789522Z Getting action download info
+2025-09-19T22:48:45.0584662Z Download action repository 'actions/checkout@v4' (SHA:08eba0b27e820071cde6df949e0beb9ba4906955)
+2025-09-19T22:48:45.2137649Z Download action repository 'actions/setup-python@v4' (SHA:7f4fc3e22c37d6ff65e88745f38bd3157c663f7c)
+2025-09-19T22:48:45.2957740Z Download action repository 'actions/setup-node@v4' (SHA:49933ea5288caeca8642d1e84afbd3f7d6820020)
+2025-09-19T22:48:45.3840250Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+2025-09-19T22:48:45.5854190Z Complete job name: Lighthouse Performance Audit
+2025-09-19T22:48:45.6368761Z ##[group]Checking docker version
+2025-09-19T22:48:45.6381660Z ##[command]/usr/bin/docker version --format '{{.Server.APIVersion}}'
+2025-09-19T22:48:45.7172093Z '1.48'
+2025-09-19T22:48:45.7184517Z Docker daemon API version: '1.48'
+2025-09-19T22:48:45.7185329Z ##[command]/usr/bin/docker version --format '{{.Client.APIVersion}}'
+2025-09-19T22:48:45.7351808Z '1.48'
+2025-09-19T22:48:45.7365137Z Docker client API version: '1.48'
+2025-09-19T22:48:45.7371137Z ##[endgroup]
+2025-09-19T22:48:45.7374054Z ##[group]Clean up resources from previous jobs
+2025-09-19T22:48:45.7379696Z ##[command]/usr/bin/docker ps --all --quiet --no-trunc --filter "label=a1bd1c"
+2025-09-19T22:48:45.7530465Z ##[command]/usr/bin/docker network prune --force --filter "label=a1bd1c"
+2025-09-19T22:48:45.7660952Z ##[endgroup]
+2025-09-19T22:48:45.7661503Z ##[group]Create local container network
+2025-09-19T22:48:45.7672038Z ##[command]/usr/bin/docker network create --label a1bd1c github_network_401ac3bfc3df44e5b16761d9368fbd18
+2025-09-19T22:48:45.8171081Z cad268b9f23c3caef3f36cba69efd909c3ecb9e3869737edcfa43baf245b0076
+2025-09-19T22:48:45.8189460Z ##[endgroup]
+2025-09-19T22:48:45.8212803Z ##[group]Starting redis-cache service container
+2025-09-19T22:48:45.8232036Z ##[command]/usr/bin/docker pull redis:alpine
+2025-09-19T22:48:46.6112780Z alpine: Pulling from library/redis
+2025-09-19T22:48:46.8131048Z 9824c27679d3: Pulling fs layer
+2025-09-19T22:48:46.8132590Z 9880d81ff87a: Pulling fs layer
+2025-09-19T22:48:46.8133467Z 168694ef5d62: Pulling fs layer
+2025-09-19T22:48:46.8134337Z f8eab6d4856e: Pulling fs layer
+2025-09-19T22:48:46.8135211Z 1f79dac8d2d4: Pulling fs layer
+2025-09-19T22:48:46.8136373Z 4f4fb700ef54: Pulling fs layer
+2025-09-19T22:48:46.8137689Z 61cfb50eeff3: Pulling fs layer
+2025-09-19T22:48:46.8138530Z 1f79dac8d2d4: Waiting
+2025-09-19T22:48:46.8139193Z 4f4fb700ef54: Waiting
+2025-09-19T22:48:46.8139877Z 61cfb50eeff3: Waiting
+2025-09-19T22:48:46.8140543Z f8eab6d4856e: Waiting
+2025-09-19T22:48:47.1325953Z 9880d81ff87a: Verifying Checksum
+2025-09-19T22:48:47.1327770Z 9880d81ff87a: Download complete
+2025-09-19T22:48:47.1715692Z 168694ef5d62: Verifying Checksum
+2025-09-19T22:48:47.1716509Z 168694ef5d62: Download complete
+2025-09-19T22:48:47.4500790Z 1f79dac8d2d4: Verifying Checksum
+2025-09-19T22:48:47.4501375Z 1f79dac8d2d4: Download complete
+2025-09-19T22:48:47.4959280Z 9824c27679d3: Verifying Checksum
+2025-09-19T22:48:47.4959893Z 9824c27679d3: Download complete
+2025-09-19T22:48:47.6124134Z 9824c27679d3: Pull complete
+2025-09-19T22:48:47.7348288Z 4f4fb700ef54: Download complete
+2025-09-19T22:48:47.7669622Z 61cfb50eeff3: Verifying Checksum
+2025-09-19T22:48:47.7670224Z 61cfb50eeff3: Download complete
+2025-09-19T22:48:47.9076104Z f8eab6d4856e: Verifying Checksum
+2025-09-19T22:48:47.9076570Z f8eab6d4856e: Download complete
+2025-09-19T22:48:48.1780628Z 9880d81ff87a: Pull complete
+2025-09-19T22:48:48.3172403Z 168694ef5d62: Pull complete
+2025-09-19T22:48:48.6371913Z f8eab6d4856e: Pull complete
+2025-09-19T22:48:48.6477473Z 1f79dac8d2d4: Pull complete
+2025-09-19T22:48:48.6588426Z 4f4fb700ef54: Pull complete
+2025-09-19T22:48:48.6684807Z 61cfb50eeff3: Pull complete
+2025-09-19T22:48:48.6729701Z Digest: sha256:987c376c727652f99625c7d205a1cba3cb2c53b92b0b62aade2bd48ee1593232
+2025-09-19T22:48:48.6743093Z Status: Downloaded newer image for redis:alpine
+2025-09-19T22:48:48.6752378Z docker.io/library/redis:alpine
+2025-09-19T22:48:48.6786732Z ##[command]/usr/bin/docker create --name 369f5b7060074b54ac70daee275e34cf_redisalpine_05cecc --label a1bd1c --network github_network_401ac3bfc3df44e5b16761d9368fbd18 --network-alias redis-cache -p 13000:6379  -e GITHUB_ACTIONS=true -e CI=true redis:alpine
+2025-09-19T22:48:48.7218670Z d05bf412526af0ed748621e4b9b47b1dc6e34ae3b2587408ee77b95f7b7e20fb
+2025-09-19T22:48:48.7241822Z ##[command]/usr/bin/docker start d05bf412526af0ed748621e4b9b47b1dc6e34ae3b2587408ee77b95f7b7e20fb
+2025-09-19T22:48:48.9304042Z d05bf412526af0ed748621e4b9b47b1dc6e34ae3b2587408ee77b95f7b7e20fb
+2025-09-19T22:48:48.9333345Z ##[command]/usr/bin/docker ps --all --filter id=d05bf412526af0ed748621e4b9b47b1dc6e34ae3b2587408ee77b95f7b7e20fb --filter status=running --no-trunc --format "{{.ID}} {{.Status}}"
+2025-09-19T22:48:48.9466261Z d05bf412526af0ed748621e4b9b47b1dc6e34ae3b2587408ee77b95f7b7e20fb Up Less than a second
+2025-09-19T22:48:48.9490128Z ##[command]/usr/bin/docker port d05bf412526af0ed748621e4b9b47b1dc6e34ae3b2587408ee77b95f7b7e20fb
+2025-09-19T22:48:48.9616285Z 6379/tcp -> 0.0.0.0:13000
+2025-09-19T22:48:48.9616908Z 6379/tcp -> [::]:13000
+2025-09-19T22:48:48.9664748Z ##[endgroup]
+2025-09-19T22:48:48.9665686Z ##[group]Starting redis-queue service container
+2025-09-19T22:48:48.9667330Z ##[command]/usr/bin/docker pull redis:alpine
+2025-09-19T22:48:49.4901782Z alpine: Pulling from library/redis
+2025-09-19T22:48:49.4949087Z Digest: sha256:987c376c727652f99625c7d205a1cba3cb2c53b92b0b62aade2bd48ee1593232
+2025-09-19T22:48:49.4949855Z Status: Image is up to date for redis:alpine
+2025-09-19T22:48:49.4959538Z docker.io/library/redis:alpine
+2025-09-19T22:48:49.4975358Z ##[command]/usr/bin/docker create --name 88f22190a2ba4ad29ba4e5fe3c299995_redisalpine_a45579 --label a1bd1c --network github_network_401ac3bfc3df44e5b16761d9368fbd18 --network-alias redis-queue -p 11000:6379  -e GITHUB_ACTIONS=true -e CI=true redis:alpine
+2025-09-19T22:48:49.5212200Z 8c96ed78e6930fff452180f8cbbd5423c0a9c89ef6a339e8c2e8a060dc09d59c
+2025-09-19T22:48:49.5228760Z ##[command]/usr/bin/docker start 8c96ed78e6930fff452180f8cbbd5423c0a9c89ef6a339e8c2e8a060dc09d59c
+2025-09-19T22:48:49.6543902Z 8c96ed78e6930fff452180f8cbbd5423c0a9c89ef6a339e8c2e8a060dc09d59c
+2025-09-19T22:48:49.6565066Z ##[command]/usr/bin/docker ps --all --filter id=8c96ed78e6930fff452180f8cbbd5423c0a9c89ef6a339e8c2e8a060dc09d59c --filter status=running --no-trunc --format "{{.ID}} {{.Status}}"
+2025-09-19T22:48:49.6703913Z 8c96ed78e6930fff452180f8cbbd5423c0a9c89ef6a339e8c2e8a060dc09d59c Up Less than a second
+2025-09-19T22:48:49.6719015Z ##[command]/usr/bin/docker port 8c96ed78e6930fff452180f8cbbd5423c0a9c89ef6a339e8c2e8a060dc09d59c
+2025-09-19T22:48:49.6859799Z 6379/tcp -> 0.0.0.0:11000
+2025-09-19T22:48:49.6860423Z 6379/tcp -> [::]:11000
+2025-09-19T22:48:49.6874502Z ##[endgroup]
+2025-09-19T22:48:49.6875288Z ##[group]Starting redis-socketio service container
+2025-09-19T22:48:49.6876000Z ##[command]/usr/bin/docker pull redis:alpine
+2025-09-19T22:48:50.2055122Z alpine: Pulling from library/redis
+2025-09-19T22:48:50.2103179Z Digest: sha256:987c376c727652f99625c7d205a1cba3cb2c53b92b0b62aade2bd48ee1593232
+2025-09-19T22:48:50.2103806Z Status: Image is up to date for redis:alpine
+2025-09-19T22:48:50.2112090Z docker.io/library/redis:alpine
+2025-09-19T22:48:50.2132177Z ##[command]/usr/bin/docker create --name 9e54809121654c8ba2aee2260126416f_redisalpine_36c721 --label a1bd1c --network github_network_401ac3bfc3df44e5b16761d9368fbd18 --network-alias redis-socketio -p 12000:6379  -e GITHUB_ACTIONS=true -e CI=true redis:alpine
+2025-09-19T22:48:50.2394313Z 8807f3b5b5781ba456572b3bb60d21cf4da657d49459de236ce2d67f464c8bda
+2025-09-19T22:48:50.2417929Z ##[command]/usr/bin/docker start 8807f3b5b5781ba456572b3bb60d21cf4da657d49459de236ce2d67f464c8bda
+2025-09-19T22:48:50.3801542Z 8807f3b5b5781ba456572b3bb60d21cf4da657d49459de236ce2d67f464c8bda
+2025-09-19T22:48:50.3820303Z ##[command]/usr/bin/docker ps --all --filter id=8807f3b5b5781ba456572b3bb60d21cf4da657d49459de236ce2d67f464c8bda --filter status=running --no-trunc --format "{{.ID}} {{.Status}}"
+2025-09-19T22:48:50.3951779Z 8807f3b5b5781ba456572b3bb60d21cf4da657d49459de236ce2d67f464c8bda Up Less than a second
+2025-09-19T22:48:50.3970288Z ##[command]/usr/bin/docker port 8807f3b5b5781ba456572b3bb60d21cf4da657d49459de236ce2d67f464c8bda
+2025-09-19T22:48:50.4094811Z 6379/tcp -> 0.0.0.0:12000
+2025-09-19T22:48:50.4095220Z 6379/tcp -> [::]:12000
+2025-09-19T22:48:50.4106428Z ##[endgroup]
+2025-09-19T22:48:50.4107740Z ##[group]Starting mariadb service container
+2025-09-19T22:48:50.4108401Z ##[command]/usr/bin/docker pull anandology/mariadb-utf8mb4:10.3
+2025-09-19T22:48:51.1242164Z 10.3: Pulling from anandology/mariadb-utf8mb4
+2025-09-19T22:48:51.1242744Z 83ee3a23efb7: Pulling fs layer
+2025-09-19T22:48:51.1243193Z db98fc6f11f0: Pulling fs layer
+2025-09-19T22:48:51.1243617Z f611acd52c6c: Pulling fs layer
+2025-09-19T22:48:51.1243992Z aa2333e25466: Pulling fs layer
+2025-09-19T22:48:51.1244397Z f53ac4b825fd: Pulling fs layer
+2025-09-19T22:48:51.1244803Z c20afcf9b055: Pulling fs layer
+2025-09-19T22:48:51.1245163Z 54c5dc6dcf19: Pulling fs layer
+2025-09-19T22:48:51.1245574Z b1c71d744483: Pulling fs layer
+2025-09-19T22:48:51.1245932Z 863a8cc01d1c: Pulling fs layer
+2025-09-19T22:48:51.1246267Z 60f77f5f102c: Pulling fs layer
+2025-09-19T22:48:51.1246607Z 2ce534039c7f: Pulling fs layer
+2025-09-19T22:48:51.1246901Z 01014da6acb1: Pulling fs layer
+2025-09-19T22:48:51.1247374Z 37ffc1a63001: Pulling fs layer
+2025-09-19T22:48:51.1247678Z c4c5b2bd62e6: Pulling fs layer
+2025-09-19T22:48:51.1247893Z b1c71d744483: Waiting
+2025-09-19T22:48:51.1248073Z 01014da6acb1: Waiting
+2025-09-19T22:48:51.1248367Z 37ffc1a63001: Waiting
+2025-09-19T22:48:51.1248562Z 863a8cc01d1c: Waiting
+2025-09-19T22:48:51.1248729Z c4c5b2bd62e6: Waiting
+2025-09-19T22:48:51.1248900Z 60f77f5f102c: Waiting
+2025-09-19T22:48:51.1249165Z 2ce534039c7f: Waiting
+2025-09-19T22:48:51.1249374Z f53ac4b825fd: Waiting
+2025-09-19T22:48:51.1249538Z c20afcf9b055: Waiting
+2025-09-19T22:48:51.1249703Z 54c5dc6dcf19: Waiting
+2025-09-19T22:48:51.1249954Z aa2333e25466: Waiting
+2025-09-19T22:48:51.4058741Z db98fc6f11f0: Verifying Checksum
+2025-09-19T22:48:51.4059409Z db98fc6f11f0: Download complete
+2025-09-19T22:48:51.4215469Z f611acd52c6c: Download complete
+2025-09-19T22:48:51.6875093Z aa2333e25466: Verifying Checksum
+2025-09-19T22:48:51.6875707Z aa2333e25466: Download complete
+2025-09-19T22:48:51.8204451Z f53ac4b825fd: Verifying Checksum
+2025-09-19T22:48:51.8205041Z f53ac4b825fd: Download complete
+2025-09-19T22:48:52.0513571Z c20afcf9b055: Verifying Checksum
+2025-09-19T22:48:52.0514076Z c20afcf9b055: Download complete
+2025-09-19T22:48:52.0838740Z 54c5dc6dcf19: Verifying Checksum
+2025-09-19T22:48:52.0839410Z 54c5dc6dcf19: Download complete
+2025-09-19T22:48:52.1030762Z 83ee3a23efb7: Verifying Checksum
+2025-09-19T22:48:52.1032578Z 83ee3a23efb7: Download complete
+2025-09-19T22:48:52.3478116Z 863a8cc01d1c: Verifying Checksum
+2025-09-19T22:48:52.3478709Z 863a8cc01d1c: Download complete
+2025-09-19T22:48:52.3898342Z b1c71d744483: Verifying Checksum
+2025-09-19T22:48:52.3898817Z b1c71d744483: Download complete
+2025-09-19T22:48:52.4470980Z 60f77f5f102c: Verifying Checksum
+2025-09-19T22:48:52.4471461Z 60f77f5f102c: Download complete
+2025-09-19T22:48:52.6679576Z 01014da6acb1: Verifying Checksum
+2025-09-19T22:48:52.6682265Z 01014da6acb1: Download complete
+2025-09-19T22:48:52.7605288Z 37ffc1a63001: Verifying Checksum
+2025-09-19T22:48:52.7606446Z 37ffc1a63001: Download complete
+2025-09-19T22:48:52.9503760Z c4c5b2bd62e6: Verifying Checksum
+2025-09-19T22:48:52.9504414Z c4c5b2bd62e6: Download complete
+2025-09-19T22:48:53.0225047Z 83ee3a23efb7: Pull complete
+2025-09-19T22:48:53.0910268Z db98fc6f11f0: Pull complete
+2025-09-19T22:48:53.1022570Z f611acd52c6c: Pull complete
+2025-09-19T22:48:53.1206143Z aa2333e25466: Pull complete
+2025-09-19T22:48:53.3038093Z f53ac4b825fd: Pull complete
+2025-09-19T22:48:53.3545631Z c20afcf9b055: Pull complete
+2025-09-19T22:48:53.3656838Z 54c5dc6dcf19: Pull complete
+2025-09-19T22:48:53.8034475Z b1c71d744483: Pull complete
+2025-09-19T22:48:53.8202599Z 863a8cc01d1c: Pull complete
+2025-09-19T22:48:53.8342613Z 60f77f5f102c: Pull complete
+2025-09-19T22:48:54.3024260Z 2ce534039c7f: Verifying Checksum
+2025-09-19T22:48:54.3024665Z 2ce534039c7f: Download complete
+2025-09-19T22:48:56.4881857Z 2ce534039c7f: Pull complete
+2025-09-19T22:48:56.5042124Z 01014da6acb1: Pull complete
+2025-09-19T22:48:56.5169273Z 37ffc1a63001: Pull complete
+2025-09-19T22:48:56.5278407Z c4c5b2bd62e6: Pull complete
+2025-09-19T22:48:56.5311018Z Digest: sha256:099b419f9646bf1484e3dd26a00493ca4ac5431f04568d722e289e9df2ff7c90
+2025-09-19T22:48:56.5326740Z Status: Downloaded newer image for anandology/mariadb-utf8mb4:10.3
+2025-09-19T22:48:56.5335212Z docker.io/anandology/mariadb-utf8mb4:10.3
+2025-09-19T22:48:56.5378326Z ##[command]/usr/bin/docker create --name 0a4a2f9be12945ed8a38f762783da3b2_anandologymariadbutf8mb4103_746d17 --label a1bd1c --network github_network_401ac3bfc3df44e5b16761d9368fbd18 --network-alias mariadb -p 3306:3306 --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=2s --health-retries=3 -e "MYSQL_ROOT_PASSWORD=root" -e GITHUB_ACTIONS=true -e CI=true anandology/mariadb-utf8mb4:10.3
+2025-09-19T22:48:56.5617605Z fd034c66aefb4b821375adf6235b7acc61c66dd346e4b114415b9854fdb9c4e7
+2025-09-19T22:48:56.5631033Z ##[command]/usr/bin/docker start fd034c66aefb4b821375adf6235b7acc61c66dd346e4b114415b9854fdb9c4e7
+2025-09-19T22:48:56.6954261Z fd034c66aefb4b821375adf6235b7acc61c66dd346e4b114415b9854fdb9c4e7
+2025-09-19T22:48:56.6974411Z ##[command]/usr/bin/docker ps --all --filter id=fd034c66aefb4b821375adf6235b7acc61c66dd346e4b114415b9854fdb9c4e7 --filter status=running --no-trunc --format "{{.ID}} {{.Status}}"
+2025-09-19T22:48:56.7103229Z fd034c66aefb4b821375adf6235b7acc61c66dd346e4b114415b9854fdb9c4e7 Up Less than a second (health: starting)
+2025-09-19T22:48:56.7118385Z ##[command]/usr/bin/docker port fd034c66aefb4b821375adf6235b7acc61c66dd346e4b114415b9854fdb9c4e7
+2025-09-19T22:48:56.7253155Z 3306/tcp -> 0.0.0.0:3306
+2025-09-19T22:48:56.7254224Z 3306/tcp -> [::]:3306
+2025-09-19T22:48:56.7267765Z ##[endgroup]
+2025-09-19T22:48:56.7284388Z ##[group]Waiting for all services to be ready
+2025-09-19T22:48:56.7304248Z ##[command]/usr/bin/docker inspect --format="{{if .Config.Healthcheck}}{{print .State.Health.Status}}{{end}}" d05bf412526af0ed748621e4b9b47b1dc6e34ae3b2587408ee77b95f7b7e20fb
+2025-09-19T22:48:56.7467757Z redis-cache service is healthy.
+2025-09-19T22:48:56.7469016Z ##[command]/usr/bin/docker inspect --format="{{if .Config.Healthcheck}}{{print .State.Health.Status}}{{end}}" 8c96ed78e6930fff452180f8cbbd5423c0a9c89ef6a339e8c2e8a060dc09d59c
+2025-09-19T22:48:56.7618934Z redis-queue service is healthy.
+2025-09-19T22:48:56.7619717Z ##[command]/usr/bin/docker inspect --format="{{if .Config.Healthcheck}}{{print .State.Health.Status}}{{end}}" 8807f3b5b5781ba456572b3bb60d21cf4da657d49459de236ce2d67f464c8bda
+2025-09-19T22:48:56.7760941Z redis-socketio service is healthy.
+2025-09-19T22:48:56.7761738Z ##[command]/usr/bin/docker inspect --format="{{if .Config.Healthcheck}}{{print .State.Health.Status}}{{end}}" fd034c66aefb4b821375adf6235b7acc61c66dd346e4b114415b9854fdb9c4e7
+2025-09-19T22:48:56.7891617Z starting
+2025-09-19T22:48:56.7908634Z mariadb service is starting, waiting 2 seconds before checking again.
+2025-09-19T22:48:58.7918913Z ##[command]/usr/bin/docker inspect --format="{{if .Config.Healthcheck}}{{print .State.Health.Status}}{{end}}" fd034c66aefb4b821375adf6235b7acc61c66dd346e4b114415b9854fdb9c4e7
+2025-09-19T22:48:58.8058721Z starting
+2025-09-19T22:48:58.8073135Z mariadb service is starting, waiting 3 seconds before checking again.
+2025-09-19T22:49:02.6170846Z ##[command]/usr/bin/docker inspect --format="{{if .Config.Healthcheck}}{{print .State.Health.Status}}{{end}}" fd034c66aefb4b821375adf6235b7acc61c66dd346e4b114415b9854fdb9c4e7
+2025-09-19T22:49:02.6290963Z starting
+2025-09-19T22:49:02.6304726Z mariadb service is starting, waiting 9 seconds before checking again.
+2025-09-19T22:49:11.7969884Z ##[command]/usr/bin/docker inspect --format="{{if .Config.Healthcheck}}{{print .State.Health.Status}}{{end}}" fd034c66aefb4b821375adf6235b7acc61c66dd346e4b114415b9854fdb9c4e7
+2025-09-19T22:49:11.8096869Z healthy
+2025-09-19T22:49:11.8112797Z mariadb service is healthy.
+2025-09-19T22:49:11.8113636Z ##[endgroup]
+2025-09-19T22:49:11.8379157Z ##[group]Run actions/checkout@v4
+2025-09-19T22:49:11.8379680Z with:
+2025-09-19T22:49:11.8379893Z   repository: audit-brands/frappe-lms-chat
+2025-09-19T22:49:11.8380288Z   token: ***
+2025-09-19T22:49:11.8380465Z   ssh-strict: true
+2025-09-19T22:49:11.8380643Z   ssh-user: git
+2025-09-19T22:49:11.8380822Z   persist-credentials: true
+2025-09-19T22:49:11.8381038Z   clean: true
+2025-09-19T22:49:11.8381216Z   sparse-checkout-cone-mode: true
+2025-09-19T22:49:11.8381443Z   fetch-depth: 1
+2025-09-19T22:49:11.8381614Z   fetch-tags: false
+2025-09-19T22:49:11.8381789Z   show-progress: true
+2025-09-19T22:49:11.8381970Z   lfs: false
+2025-09-19T22:49:11.8382127Z   submodules: false
+2025-09-19T22:49:11.8382308Z   set-safe-directory: true
+2025-09-19T22:49:11.8382680Z ##[endgroup]
+2025-09-19T22:49:11.9432075Z Syncing repository: audit-brands/frappe-lms-chat
+2025-09-19T22:49:11.9433674Z ##[group]Getting Git version info
+2025-09-19T22:49:11.9434434Z Working directory is '/home/runner/work/frappe-lms-chat/frappe-lms-chat'
+2025-09-19T22:49:11.9435368Z [command]/usr/bin/git version
+2025-09-19T22:49:11.9495105Z git version 2.51.0
+2025-09-19T22:49:11.9521212Z ##[endgroup]
+2025-09-19T22:49:11.9536433Z Temporarily overriding HOME='/home/runner/work/_temp/9d373f6d-768e-4fd9-a068-3df0517ae345' before making global git config changes
+2025-09-19T22:49:11.9538018Z Adding repository directory to the temporary git global config as a safe directory
+2025-09-19T22:49:11.9550264Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/frappe-lms-chat/frappe-lms-chat
+2025-09-19T22:49:11.9586454Z Deleting the contents of '/home/runner/work/frappe-lms-chat/frappe-lms-chat'
+2025-09-19T22:49:11.9590228Z ##[group]Initializing the repository
+2025-09-19T22:49:11.9594659Z [command]/usr/bin/git init /home/runner/work/frappe-lms-chat/frappe-lms-chat
+2025-09-19T22:49:11.9690952Z hint: Using 'master' as the name for the initial branch. This default branch name
+2025-09-19T22:49:11.9691899Z hint: is subject to change. To configure the initial branch name to use in all
+2025-09-19T22:49:11.9692652Z hint: of your new repositories, which will suppress this warning, call:
+2025-09-19T22:49:11.9692987Z hint:
+2025-09-19T22:49:11.9693240Z hint: 	git config --global init.defaultBranch <name>
+2025-09-19T22:49:11.9693517Z hint:
+2025-09-19T22:49:11.9693958Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2025-09-19T22:49:11.9694851Z hint: 'development'. The just-created branch can be renamed via this command:
+2025-09-19T22:49:11.9695234Z hint:
+2025-09-19T22:49:11.9695420Z hint: 	git branch -m <name>
+2025-09-19T22:49:11.9695632Z hint:
+2025-09-19T22:49:11.9696006Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2025-09-19T22:49:11.9697055Z Initialized empty Git repository in /home/runner/work/frappe-lms-chat/frappe-lms-chat/.git/
+2025-09-19T22:49:11.9706774Z [command]/usr/bin/git remote add origin https://github.com/audit-brands/frappe-lms-chat
+2025-09-19T22:49:11.9742012Z ##[endgroup]
+2025-09-19T22:49:11.9742592Z ##[group]Disabling automatic garbage collection
+2025-09-19T22:49:11.9746124Z [command]/usr/bin/git config --local gc.auto 0
+2025-09-19T22:49:11.9773836Z ##[endgroup]
+2025-09-19T22:49:11.9774251Z ##[group]Setting up auth
+2025-09-19T22:49:11.9781018Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2025-09-19T22:49:11.9810440Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2025-09-19T22:49:12.0168235Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2025-09-19T22:49:12.0196967Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2025-09-19T22:49:12.0416503Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2025-09-19T22:49:12.0451813Z ##[endgroup]
+2025-09-19T22:49:12.0452410Z ##[group]Fetching the repository
+2025-09-19T22:49:12.0468649Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +6d3d68757637cb2b81a49e9ccde7f050dc51d367:refs/remotes/origin/develop
+2025-09-19T22:49:13.6645037Z From https://github.com/audit-brands/frappe-lms-chat
+2025-09-19T22:49:13.6645936Z  * [new ref]         6d3d68757637cb2b81a49e9ccde7f050dc51d367 -> origin/develop
+2025-09-19T22:49:13.6677549Z ##[endgroup]
+2025-09-19T22:49:13.6678169Z ##[group]Determining the checkout info
+2025-09-19T22:49:13.6680843Z ##[endgroup]
+2025-09-19T22:49:13.6685987Z [command]/usr/bin/git sparse-checkout disable
+2025-09-19T22:49:13.6726700Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2025-09-19T22:49:13.6754436Z ##[group]Checking out the ref
+2025-09-19T22:49:13.6758978Z [command]/usr/bin/git checkout --progress --force -B develop refs/remotes/origin/develop
+2025-09-19T22:49:13.9308013Z Switched to a new branch 'develop'
+2025-09-19T22:49:13.9308791Z branch 'develop' set up to track 'origin/develop'.
+2025-09-19T22:49:13.9336814Z ##[endgroup]
+2025-09-19T22:49:13.9375642Z [command]/usr/bin/git log -1 --format=%H
+2025-09-19T22:49:13.9396952Z 6d3d68757637cb2b81a49e9ccde7f050dc51d367
+2025-09-19T22:49:13.9597004Z ##[group]Run actions/setup-python@v4
+2025-09-19T22:49:13.9597505Z with:
+2025-09-19T22:49:13.9597682Z   python-version: 3.10
+2025-09-19T22:49:13.9597878Z   check-latest: false
+2025-09-19T22:49:13.9598199Z   token: ***
+2025-09-19T22:49:13.9598380Z   update-environment: true
+2025-09-19T22:49:13.9598607Z   allow-prereleases: false
+2025-09-19T22:49:13.9598815Z ##[endgroup]
+2025-09-19T22:49:14.1269975Z ##[group]Installed versions
+2025-09-19T22:49:14.1374289Z Successfully set up CPython (3.10.18)
+2025-09-19T22:49:14.1375072Z ##[endgroup]
+2025-09-19T22:49:14.1509276Z ##[group]Run actions/setup-node@v4
+2025-09-19T22:49:14.1509538Z with:
+2025-09-19T22:49:14.1509700Z   node-version: 18
+2025-09-19T22:49:14.1509889Z   always-auth: false
+2025-09-19T22:49:14.1510079Z   check-latest: false
+2025-09-19T22:49:14.1510392Z   token: ***
+2025-09-19T22:49:14.1510567Z env:
+2025-09-19T22:49:14.1510797Z   pythonLocation: /opt/hostedtoolcache/Python/3.10.18/x64
+2025-09-19T22:49:14.1511274Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.10.18/x64/lib/pkgconfig
+2025-09-19T22:49:14.1511660Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.10.18/x64
+2025-09-19T22:49:14.1512008Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.10.18/x64
+2025-09-19T22:49:14.1512350Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.10.18/x64
+2025-09-19T22:49:14.1512682Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.10.18/x64/lib
+2025-09-19T22:49:14.1512968Z ##[endgroup]
+2025-09-19T22:49:14.3390007Z Found in cache @ /opt/hostedtoolcache/node/18.20.8/x64
+2025-09-19T22:49:14.3396070Z ##[group]Environment details
+2025-09-19T22:49:16.7220061Z node: v18.20.8
+2025-09-19T22:49:16.7220315Z npm: 10.8.2
+2025-09-19T22:49:16.7220486Z yarn: 1.22.22
+2025-09-19T22:49:16.7221255Z ##[endgroup]
+2025-09-19T22:49:16.7347456Z ##[group]Run pip3 install frappe-bench
+2025-09-19T22:49:16.7347808Z [36;1mpip3 install frappe-bench[0m
+2025-09-19T22:49:16.7646959Z shell: /usr/bin/bash -e {0}
+2025-09-19T22:49:16.7647543Z env:
+2025-09-19T22:49:16.7647815Z   pythonLocation: /opt/hostedtoolcache/Python/3.10.18/x64
+2025-09-19T22:49:16.7648251Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.10.18/x64/lib/pkgconfig
+2025-09-19T22:49:16.7648689Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.10.18/x64
+2025-09-19T22:49:16.7649085Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.10.18/x64
+2025-09-19T22:49:16.7649475Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.10.18/x64
+2025-09-19T22:49:16.7649868Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.10.18/x64/lib
+2025-09-19T22:49:16.7650211Z ##[endgroup]
+2025-09-19T22:49:21.4525264Z Collecting frappe-bench
+2025-09-19T22:49:21.5535213Z   Downloading frappe_bench-5.25.9-py3-none-any.whl.metadata (16 kB)
+2025-09-19T22:49:21.5977485Z Collecting click~=8.2.0 (from frappe-bench)
+2025-09-19T22:49:21.6173065Z   Downloading click-8.2.1-py3-none-any.whl.metadata (2.5 kB)
+2025-09-19T22:49:21.6670676Z Collecting gitpython~=3.1.30 (from frappe-bench)
+2025-09-19T22:49:21.6863973Z   Downloading gitpython-3.1.45-py3-none-any.whl.metadata (13 kB)
+2025-09-19T22:49:21.7248179Z Collecting honcho (from frappe-bench)
+2025-09-19T22:49:21.7460083Z   Downloading honcho-2.0.0-py3-none-any.whl.metadata (3.8 kB)
+2025-09-19T22:49:21.7900849Z Collecting jinja2~=3.1.3 (from frappe-bench)
+2025-09-19T22:49:21.8093753Z   Downloading jinja2-3.1.6-py3-none-any.whl.metadata (2.9 kB)
+2025-09-19T22:49:21.8422581Z Collecting python-crontab~=2.6.0 (from frappe-bench)
+2025-09-19T22:49:21.8627296Z   Downloading python_crontab-2.6.0-py3-none-any.whl.metadata (15 kB)
+2025-09-19T22:49:21.9201653Z Collecting requests~=2.32.3 (from frappe-bench)
+2025-09-19T22:49:21.9403620Z   Downloading requests-2.32.5-py3-none-any.whl.metadata (4.9 kB)
+2025-09-19T22:49:21.9712536Z Collecting semantic-version~=2.10.0 (from frappe-bench)
+2025-09-19T22:49:21.9910005Z   Downloading semantic_version-2.10.0-py2.py3-none-any.whl.metadata (9.7 kB)
+2025-09-19T22:49:22.1661430Z Collecting setuptools>=71.0.0 (from frappe-bench)
+2025-09-19T22:49:22.1868123Z   Downloading setuptools-80.9.0-py3-none-any.whl.metadata (6.6 kB)
+2025-09-19T22:49:22.2346438Z Collecting tomli (from frappe-bench)
+2025-09-19T22:49:22.2538392Z   Downloading tomli-2.2.1-py3-none-any.whl.metadata (10 kB)
+2025-09-19T22:49:22.5413824Z Collecting uv~=0.7.12 (from frappe-bench)
+2025-09-19T22:49:22.5632152Z   Downloading uv-0.7.22-py3-none-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (11 kB)
+2025-09-19T22:49:22.5949671Z Collecting gitdb<5,>=4.0.1 (from gitpython~=3.1.30->frappe-bench)
+2025-09-19T22:49:22.6155043Z   Downloading gitdb-4.0.12-py3-none-any.whl.metadata (1.2 kB)
+2025-09-19T22:49:22.6456142Z Collecting smmap<6,>=3.0.1 (from gitdb<5,>=4.0.1->gitpython~=3.1.30->frappe-bench)
+2025-09-19T22:49:22.6647566Z   Downloading smmap-5.0.2-py3-none-any.whl.metadata (4.3 kB)
+2025-09-19T22:49:22.7385809Z Collecting MarkupSafe>=2.0 (from jinja2~=3.1.3->frappe-bench)
+2025-09-19T22:49:22.7586265Z   Downloading MarkupSafe-3.0.2-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (4.0 kB)
+2025-09-19T22:49:22.7899449Z Collecting python-dateutil (from python-crontab~=2.6.0->frappe-bench)
+2025-09-19T22:49:22.8090527Z   Downloading python_dateutil-2.9.0.post0-py2.py3-none-any.whl.metadata (8.4 kB)
+2025-09-19T22:49:22.9381090Z Collecting charset_normalizer<4,>=2 (from requests~=2.32.3->frappe-bench)
+2025-09-19T22:49:22.9602186Z   Downloading charset_normalizer-3.4.3-cp310-cp310-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (36 kB)
+2025-09-19T22:49:23.0011194Z Collecting idna<4,>=2.5 (from requests~=2.32.3->frappe-bench)
+2025-09-19T22:49:23.0202635Z   Downloading idna-3.10-py3-none-any.whl.metadata (10 kB)
+2025-09-19T22:49:23.0709894Z Collecting urllib3<3,>=1.21.1 (from requests~=2.32.3->frappe-bench)
+2025-09-19T22:49:23.0907523Z   Downloading urllib3-2.5.0-py3-none-any.whl.metadata (6.5 kB)
+2025-09-19T22:49:23.1299239Z Collecting certifi>=2017.4.17 (from requests~=2.32.3->frappe-bench)
+2025-09-19T22:49:23.1492071Z   Downloading certifi-2025.8.3-py3-none-any.whl.metadata (2.4 kB)
+2025-09-19T22:49:23.1865447Z Collecting six>=1.5 (from python-dateutil->python-crontab~=2.6.0->frappe-bench)
+2025-09-19T22:49:23.2074698Z   Downloading six-1.17.0-py2.py3-none-any.whl.metadata (1.7 kB)
+2025-09-19T22:49:23.2346987Z Downloading frappe_bench-5.25.9-py3-none-any.whl (153 kB)
+2025-09-19T22:49:23.2806818Z Downloading click-8.2.1-py3-none-any.whl (102 kB)
+2025-09-19T22:49:23.3057339Z Downloading gitpython-3.1.45-py3-none-any.whl (208 kB)
+2025-09-19T22:49:23.3336777Z Downloading gitdb-4.0.12-py3-none-any.whl (62 kB)
+2025-09-19T22:49:23.3554284Z Downloading jinja2-3.1.6-py3-none-any.whl (134 kB)
+2025-09-19T22:49:23.3822413Z Downloading python_crontab-2.6.0-py3-none-any.whl (25 kB)
+2025-09-19T22:49:23.4055654Z Downloading requests-2.32.5-py3-none-any.whl (64 kB)
+2025-09-19T22:49:23.4275232Z Downloading charset_normalizer-3.4.3-cp310-cp310-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (152 kB)
+2025-09-19T22:49:23.4503507Z Downloading idna-3.10-py3-none-any.whl (70 kB)
+2025-09-19T22:49:23.4740575Z Downloading semantic_version-2.10.0-py2.py3-none-any.whl (15 kB)
+2025-09-19T22:49:23.4956070Z Downloading smmap-5.0.2-py3-none-any.whl (24 kB)
+2025-09-19T22:49:23.5169780Z Downloading urllib3-2.5.0-py3-none-any.whl (129 kB)
+2025-09-19T22:49:23.5415042Z Downloading uv-0.7.22-py3-none-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (18.7 MB)
+2025-09-19T22:49:23.6873052Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 18.7/18.7 MB 132.2 MB/s  0:00:00
+2025-09-19T22:49:23.7094079Z Downloading certifi-2025.8.3-py3-none-any.whl (161 kB)
+2025-09-19T22:49:23.7316802Z Downloading MarkupSafe-3.0.2-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (20 kB)
+2025-09-19T22:49:23.7566953Z Downloading setuptools-80.9.0-py3-none-any.whl (1.2 MB)
+2025-09-19T22:49:23.7659566Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.2/1.2 MB 153.6 MB/s  0:00:00
+2025-09-19T22:49:23.7874536Z Downloading honcho-2.0.0-py3-none-any.whl (22 kB)
+2025-09-19T22:49:23.8086905Z Downloading python_dateutil-2.9.0.post0-py2.py3-none-any.whl (229 kB)
+2025-09-19T22:49:23.8306585Z Downloading six-1.17.0-py2.py3-none-any.whl (11 kB)
+2025-09-19T22:49:23.8518895Z Downloading tomli-2.2.1-py3-none-any.whl (14 kB)
+2025-09-19T22:49:23.9771053Z Installing collected packages: honcho, uv, urllib3, tomli, smmap, six, setuptools, semantic-version, MarkupSafe, idna, click, charset_normalizer, certifi, requests, python-dateutil, jinja2, gitdb, python-crontab, gitpython, frappe-bench
+2025-09-19T22:49:24.3107920Z   Attempting uninstall: setuptools
+2025-09-19T22:49:24.3117833Z     Found existing installation: setuptools 65.5.0
+2025-09-19T22:49:24.5691084Z     Uninstalling setuptools-65.5.0:
+2025-09-19T22:49:24.7357296Z       Successfully uninstalled setuptools-65.5.0
+2025-09-19T22:49:26.0384660Z 
+2025-09-19T22:49:26.0423679Z Successfully installed MarkupSafe-3.0.2 certifi-2025.8.3 charset_normalizer-3.4.3 click-8.2.1 frappe-bench-5.25.9 gitdb-4.0.12 gitpython-3.1.45 honcho-2.0.0 idna-3.10 jinja2-3.1.6 python-crontab-2.6.0 python-dateutil-2.9.0.post0 requests-2.32.5 semantic-version-2.10.0 setuptools-80.9.0 six-1.17.0 smmap-5.0.2 tomli-2.2.1 urllib3-2.5.0 uv-0.7.22
+2025-09-19T22:49:26.2763011Z ##[group]Run bench init ~/frappe-bench --skip-redis-config-generation --skip-assets --python "$(which python)"
+2025-09-19T22:49:26.2763779Z [36;1mbench init ~/frappe-bench --skip-redis-config-generation --skip-assets --python "$(which python)"[0m
+2025-09-19T22:49:26.2764233Z [36;1mcd ~/frappe-bench[0m
+2025-09-19T22:49:26.2764470Z [36;1mbench get-app lms $GITHUB_WORKSPACE[0m
+2025-09-19T22:49:26.2764897Z [36;1mbench new-site --mariadb-root-password root --admin-password admin test.local[0m
+2025-09-19T22:49:26.2765322Z [36;1mbench --site test.local install-app lms[0m
+2025-09-19T22:49:26.2795689Z shell: /usr/bin/bash -e {0}
+2025-09-19T22:49:26.2795909Z env:
+2025-09-19T22:49:26.2796146Z   pythonLocation: /opt/hostedtoolcache/Python/3.10.18/x64
+2025-09-19T22:49:26.2796544Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.10.18/x64/lib/pkgconfig
+2025-09-19T22:49:26.2796921Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.10.18/x64
+2025-09-19T22:49:26.2797482Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.10.18/x64
+2025-09-19T22:49:26.2797817Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.10.18/x64
+2025-09-19T22:49:26.2798156Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.10.18/x64/lib
+2025-09-19T22:49:26.2798434Z ##[endgroup]
+2025-09-19T22:49:26.4018130Z Setting Up Environment
+2025-09-19T22:49:26.4933741Z $ /opt/hostedtoolcache/Python/3.10.18/x64/bin/python -m venv env
+2025-09-19T22:49:30.1856354Z $ /home/runner/frappe-bench/env/bin/python -m pip install --quiet --upgrade pip
+2025-09-19T22:49:32.1650311Z $ /home/runner/frappe-bench/env/bin/python -m pip install --quiet wheel
+2025-09-19T22:49:33.0694381Z Getting frappe
+2025-09-19T22:49:33.0695186Z $ git clone https://github.com/frappe/frappe.git  --depth 1 --origin upstream
+2025-09-19T22:49:33.0707952Z Cloning into 'frappe'...
+2025-09-19T22:49:36.3841376Z Installing frappe
+2025-09-19T22:49:36.3862515Z $ /home/runner/frappe-bench/env/bin/python -m pip install --quiet --upgrade -e /home/runner/frappe-bench/apps/frappe 
+2025-09-19T22:50:06.2059999Z   DEPRECATION: Building 'PyQRCode' using the legacy setup.py bdist_wheel mechanism, which will be removed in a future version. pip 25.3 will enforce this behaviour change. A possible replacement is to use the standardized build interface by setting the `--use-pep517` option, (possibly combined with `--no-build-isolation`), or adding a `pyproject.toml` file to the source tree of 'PyQRCode'. Discussion can be found at https://github.com/pypa/pip/issues/6334
+2025-09-19T22:50:06.5079869Z   DEPRECATION: Building 'rauth' using the legacy setup.py bdist_wheel mechanism, which will be removed in a future version. pip 25.3 will enforce this behaviour change. A possible replacement is to use the standardized build interface by setting the `--use-pep517` option, (possibly combined with `--no-build-isolation`), or adding a `pyproject.toml` file to the source tree of 'rauth'. Discussion can be found at https://github.com/pypa/pip/issues/6334
+2025-09-19T22:50:06.7818077Z   DEPRECATION: Building 'docopt' using the legacy setup.py bdist_wheel mechanism, which will be removed in a future version. pip 25.3 will enforce this behaviour change. A possible replacement is to use the standardized build interface by setting the `--use-pep517` option, (possibly combined with `--no-build-isolation`), or adding a `pyproject.toml` file to the source tree of 'docopt'. Discussion can be found at https://github.com/pypa/pip/issues/6334
+2025-09-19T22:50:23.8533453Z $ yarn install --check-files
+2025-09-19T22:50:23.9960905Z yarn install v1.22.22
+2025-09-19T22:50:24.0713067Z [1/5] Validating package.json...
+2025-09-19T22:50:24.0743277Z [2/5] Resolving packages...
+2025-09-19T22:50:24.2085331Z [3/5] Fetching packages...
+2025-09-19T22:50:36.0934681Z [4/5] Linking dependencies...
+2025-09-19T22:50:36.0942178Z warning " > @frappe/esbuild-plugin-postcss2@0.1.3" has unmet peer dependency "less@^4.x".
+2025-09-19T22:50:36.0947989Z warning " > @frappe/esbuild-plugin-postcss2@0.1.3" has unmet peer dependency "stylus@^0.x".
+2025-09-19T22:50:36.0960865Z warning " > @vue/component-compiler@4.2.4" has unmet peer dependency "vue-template-compiler@*".
+2025-09-19T22:50:39.8634640Z [5/5] Building fresh packages...
+2025-09-19T22:50:41.3674768Z Done in 17.38s.
+2025-09-19T22:50:41.4180362Z Found existing apps updating states...
+2025-09-19T22:50:41.4180820Z SUCCESS: Bench /home/runner/frappe-bench initialized
+2025-09-19T22:50:41.7167656Z Getting frappe-lms-chat
+2025-09-19T22:50:41.7168444Z $ git clone /home/runner/work/frappe-lms-chat/frappe-lms-chat --branch develop --depth 1 --origin upstream
+2025-09-19T22:50:41.7181711Z Cloning into 'frappe-lms-chat'...
+2025-09-19T22:50:41.7204846Z warning: --depth is ignored in local clones; use file:// instead.
+2025-09-19T22:50:42.7449145Z Ignoring dependencies of /home/runner/work/frappe-lms-chat/frappe-lms-chat. To install dependencies use --resolve-deps
+2025-09-19T22:50:42.7450230Z Installing lms
+2025-09-19T22:50:42.7452087Z $ /home/runner/frappe-bench/env/bin/python -m pip install --quiet --upgrade -e /home/runner/frappe-bench/apps/lms 
+2025-09-19T22:50:48.5449534Z ERROR: pip's dependency resolver does not currently take into account all the packages that are installed. This behaviour is the source of the following dependency conflicts.
+2025-09-19T22:50:48.5451195Z frappe 16.0.0.dev0 requires beautifulsoup4~=4.13.4, but you have beautifulsoup4 4.12.3 which is incompatible.
+2025-09-19T22:50:48.6539097Z $ yarn install --check-files
+2025-09-19T22:50:48.7908572Z yarn install v1.22.22
+2025-09-19T22:50:48.8296411Z info No lockfile found.
+2025-09-19T22:50:48.8369088Z [1/4] Resolving packages...
+2025-09-19T22:50:51.3461692Z warning vite-plugin-pwa > workbox-build > source-map@0.8.0-beta.0: The work that was done in this beta branch won't be included in future versions
+2025-09-19T22:50:51.3545636Z warning vite-plugin-pwa > workbox-build > glob@7.2.3: Glob versions prior to v9 are no longer supported
+2025-09-19T22:50:51.6736922Z warning vite-plugin-pwa > workbox-build > glob > inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
+2025-09-19T22:50:52.8631564Z warning vite-plugin-pwa > workbox-build > @rollup/plugin-replace > magic-string > sourcemap-codec@1.4.8: Please use @jridgewell/sourcemap-codec instead
+2025-09-19T22:50:53.8301306Z [2/4] Fetching packages...
+2025-09-19T22:51:00.2340485Z [3/4] Linking dependencies...
+2025-09-19T22:51:00.2355795Z warning " > vite-plugin-pwa@1.0.3" has unmet peer dependency "vite@^3.1.0 || ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0".
+2025-09-19T22:51:00.2357375Z warning " > vite-plugin-pwa@1.0.3" has unmet peer dependency "workbox-build@^7.3.0".
+2025-09-19T22:51:00.2358542Z warning " > vite-plugin-pwa@1.0.3" has unmet peer dependency "workbox-window@^7.3.0".
+2025-09-19T22:51:03.2440739Z [4/4] Building fresh packages...
+2025-09-19T22:51:13.8666918Z success Saved lockfile.
+2025-09-19T22:51:13.8714706Z $ cd frontend && yarn install --check-files
+2025-09-19T22:51:14.0135823Z yarn install v1.22.22
+2025-09-19T22:51:14.0872363Z [1/4] Resolving packages...
+2025-09-19T22:51:14.3368750Z [2/4] Fetching packages...
+2025-09-19T22:51:28.1814442Z warning chart.js@4.5.0: The engine "pnpm" appears to be invalid.
+2025-09-19T22:51:28.1903009Z [3/4] Linking dependencies...
+2025-09-19T22:51:28.1974439Z warning " > thememirror@2.0.1" has unmet peer dependency "@codemirror/language@^6.0.0".
+2025-09-19T22:51:28.1977567Z warning " > thememirror@2.0.1" has unmet peer dependency "@codemirror/state@^6.0.0".
+2025-09-19T22:51:28.1978756Z warning " > thememirror@2.0.1" has unmet peer dependency "@codemirror/view@^6.0.0".
+2025-09-19T22:51:28.1979537Z warning " > vue-draggable-next@2.2.1" has unmet peer dependency "sortablejs@^1.14.0".
+2025-09-19T22:51:37.6332441Z [4/4] Building fresh packages...
+2025-09-19T22:51:40.1869090Z Done in 26.18s.
+2025-09-19T22:51:40.2337054Z Done in 51.45s.
+2025-09-19T22:51:40.2574275Z $ bench build --app lms
+2025-09-19T22:51:41.4346236Z Linking /home/runner/frappe-bench/apps/frappe/frappe/public to ./assets/frappe  
+2025-09-19T22:51:41.4348348Z Linking /home/runner/frappe-bench/apps/frappe/node_modules to ./assets/frappe/node_modules                                                                                
+2025-09-19T22:51:41.4349758Z Linking /home/runner/frappe-bench/apps/lms/lms/public to ./assets/lms           
+2025-09-19T22:51:41.4351241Z Linking /home/runner/frappe-bench/apps/lms/node_modules to ./assets/lms/node_modules                                                                                
+2025-09-19T22:51:41.4352799Z ✔ Application Assets Linked                                            
+2025-09-19T22:51:41.4353175Z 
+2025-09-19T22:51:41.4406672Z 
+2025-09-19T22:51:41.6911070Z yarn run v1.22.22
+2025-09-19T22:51:41.7338180Z $ node esbuild --production --apps lms --run-build-command
+2025-09-19T22:51:42.3821982Z Browserslist: caniuse-lite is outdated. Please run:
+2025-09-19T22:51:42.3822644Z   npx update-browserslist-db@latest
+2025-09-19T22:51:42.3823217Z   Why you should do it regularly: https://github.com/browserslist/update-db#readme
+2025-09-19T22:51:42.5727363Z File                                                        Size
+2025-09-19T22:51:42.5727864Z 
+2025-09-19T22:51:42.5727980Z lms/dist/css/
+2025-09-19T22:51:42.5728808Z └─ lms.bundle.SM2DVGIN.css                                  32.03 Kb
+2025-09-19T22:51:42.5729378Z 
+2025-09-19T22:51:42.5729563Z lms/dist/css-rtl/
+2025-09-19T22:51:42.5730241Z └─ lms.bundle.ACEHDNFB.css                                  32.06 Kb
+2025-09-19T22:51:42.5730539Z 
+2025-09-19T22:51:42.5730716Z  DONE  Total Build Time: 332.846ms
+2025-09-19T22:51:42.5730923Z 
+2025-09-19T22:51:42.7026877Z 
+2025-09-19T22:51:42.7027640Z Running build command for lms
+2025-09-19T22:51:42.9791051Z $ cd frontend && yarn build
+2025-09-19T22:51:43.2712247Z $ vite build --base=/assets/lms/frontend/ && yarn copy-html-entry
+2025-09-19T22:51:43.7139413Z [36mvite v5.4.19 [32mbuilding for production...[36m[39m
+2025-09-19T22:51:44.0654430Z transforming...
+2025-09-19T22:51:53.0798917Z 
+2025-09-19T22:51:53.0800461Z Inter-DisplayRegular.woff2?v=3.19 referenced in Inter-DisplayRegular.woff2?v=3.19 didn't resolve at build time, it will remain unchanged to be resolved at runtime
+2025-09-19T22:52:05.9730431Z [32m✓[39m 3930 modules transformed.
+2025-09-19T22:52:07.0624844Z src/pages/ProfileRoles.vue (80:19): Use of eval in "src/pages/ProfileRoles.vue" is strongly discouraged as it poses security risks and may cause issues with minification.
+2025-09-19T22:52:07.0629331Z src/pages/ProfileRoles.vue (113:10): Use of eval in "src/pages/ProfileRoles.vue" is strongly discouraged as it poses security risks and may cause issues with minification.
+2025-09-19T22:52:07.3188595Z rendering chunks...
+2025-09-19T22:52:14.5516564Z [frappeui-build-config-plugin] Successfully copied index.html to ../lms/www/lms.html
+2025-09-19T22:52:14.5523553Z computing gzip size...
+2025-09-19T22:52:14.7738587Z [2m../lms/public/frontend/[22m[32mregisterSW.js                                                       [39m[1m[2m    0.17 kB[22m[1m[22m
+2025-09-19T22:52:14.7740206Z [2m../lms/public/frontend/[22m[32mmanifest.webmanifest                                                [39m[1m[2m    0.53 kB[22m[1m[22m
+2025-09-19T22:52:14.7742526Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-icon-180-D_n3lJOH.png                                  [39m[1m[2m    4.24 kB[22m[1m[22m
+2025-09-19T22:52:14.7745294Z [2m../lms/public/frontend/[22m[32mindex.html                                                          [39m[1m[2m   11.49 kB[22m[1m[22m[2m │ gzip:     1.65 kB[22m
+2025-09-19T22:52:14.7746776Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-640-1136-BR98aM7H.jpg                           [39m[1m[2m   15.39 kB[22m[1m[22m
+2025-09-19T22:52:14.7749199Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-1136-640-BocYFD09.jpg                           [39m[1m[2m   16.43 kB[22m[1m[22m
+2025-09-19T22:52:14.7751707Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-750-1334-Bc9LfBe-.jpg                           [39m[1m[2m   18.22 kB[22m[1m[22m
+2025-09-19T22:52:14.7753807Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-1334-750-ZapWTaEg.jpg                           [39m[1m[2m   19.20 kB[22m[1m[22m
+2025-09-19T22:52:14.7756032Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-828-1792-CitdGgZY.jpg                           [39m[1m[2m   22.93 kB[22m[1m[22m
+2025-09-19T22:52:14.7758083Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-1792-828-Cc6wR60-.jpg                           [39m[1m[2m   23.38 kB[22m[1m[22m
+2025-09-19T22:52:14.7759993Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-1125-2436-C3w0dSnH.jpg                          [39m[1m[2m   35.24 kB[22m[1m[22m
+2025-09-19T22:52:14.7762049Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-2436-1125-UBc56n4I.jpg                          [39m[1m[2m   36.05 kB[22m[1m[22m
+2025-09-19T22:52:14.7763593Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-1242-2208-D1K-FjW8.jpg                          [39m[1m[2m   36.19 kB[22m[1m[22m
+2025-09-19T22:52:14.7765592Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-1170-2532-MJgQ9zjx.jpg                          [39m[1m[2m   37.25 kB[22m[1m[22m
+2025-09-19T22:52:14.7767750Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-1179-2556-CYjIoO1a.jpg                          [39m[1m[2m   37.60 kB[22m[1m[22m
+2025-09-19T22:52:14.7769669Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-2208-1242-B0cjc1eL.jpg                          [39m[1m[2m   38.36 kB[22m[1m[22m
+2025-09-19T22:52:14.7771547Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-2532-1170-DyRAcsgg.jpg                          [39m[1m[2m   38.58 kB[22m[1m[22m
+2025-09-19T22:52:14.7773519Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-1206-2622-CsHAWTcr.jpg                          [39m[1m[2m   39.15 kB[22m[1m[22m
+2025-09-19T22:52:14.7775523Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-2556-1179-B5cAG8BK.jpg                          [39m[1m[2m   39.17 kB[22m[1m[22m
+2025-09-19T22:52:14.7777613Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-1242-2688-Bzfl4WPX.jpg                          [39m[1m[2m   39.69 kB[22m[1m[22m
+2025-09-19T22:52:14.7779585Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-2622-1206-Bc7YeGWe.jpg                          [39m[1m[2m   40.46 kB[22m[1m[22m
+2025-09-19T22:52:14.7781019Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-2688-1242-DNx5UzH6.jpg                          [39m[1m[2m   41.88 kB[22m[1m[22m
+2025-09-19T22:52:14.7782052Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-1284-2778-C-TDdDbQ.jpg                          [39m[1m[2m   42.45 kB[22m[1m[22m
+2025-09-19T22:52:14.7783278Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-1290-2796-BQw-p_Zz.jpg                          [39m[1m[2m   42.82 kB[22m[1m[22m
+2025-09-19T22:52:14.7784300Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-1536-2048-DWf2LykR.jpg                          [39m[1m[2m   43.84 kB[22m[1m[22m
+2025-09-19T22:52:14.7785553Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-2796-1290-DRM7pqfd.jpg                          [39m[1m[2m   43.92 kB[22m[1m[22m
+2025-09-19T22:52:14.7786558Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-2778-1284-nkoKAVGG.jpg                          [39m[1m[2m   44.50 kB[22m[1m[22m
+2025-09-19T22:52:14.7787832Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-1488-2266-oCwhNquF.jpg                          [39m[1m[2m   44.56 kB[22m[1m[22m
+2025-09-19T22:52:14.7789135Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-1320-2868-D7rS3PbF.jpg                          [39m[1m[2m   44.62 kB[22m[1m[22m
+2025-09-19T22:52:14.7790161Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-2048-1536-DAUDlzu8.jpg                          [39m[1m[2m   45.77 kB[22m[1m[22m
+2025-09-19T22:52:14.7791170Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-2868-1320-Bq_zwKIb.jpg                          [39m[1m[2m   46.01 kB[22m[1m[22m
+2025-09-19T22:52:14.7792180Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-2266-1488-MbTvgHmX.jpg                          [39m[1m[2m   46.58 kB[22m[1m[22m
+2025-09-19T22:52:14.7793189Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-1620-2160-BcBrHuwl.jpg                          [39m[1m[2m   47.62 kB[22m[1m[22m
+2025-09-19T22:52:14.7794195Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-2160-1620-BiOL-rzg.jpg                          [39m[1m[2m   49.28 kB[22m[1m[22m
+2025-09-19T22:52:14.7795214Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-1668-2224-BloaNeC-.jpg                          [39m[1m[2m   49.69 kB[22m[1m[22m
+2025-09-19T22:52:14.7796224Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-1640-2360-Dh-YwmK7.jpg                          [39m[1m[2m   49.82 kB[22m[1m[22m
+2025-09-19T22:52:14.7797381Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-2224-1668-VL9eJ66f.jpg                          [39m[1m[2m   51.35 kB[22m[1m[22m
+2025-09-19T22:52:14.7798397Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-2360-1640-Cbr-_bw-.jpg                          [39m[1m[2m   51.58 kB[22m[1m[22m
+2025-09-19T22:52:14.7799395Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-1668-2388-2B803rpN.jpg                          [39m[1m[2m   51.69 kB[22m[1m[22m
+2025-09-19T22:52:14.7800404Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-2388-1668-BofeGhV_.jpg                          [39m[1m[2m   53.15 kB[22m[1m[22m
+2025-09-19T22:52:14.7801413Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-2048-2732-BjakkKKb.jpg                          [39m[1m[2m   66.46 kB[22m[1m[22m
+2025-09-19T22:52:14.7802418Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-2732-2048-EzPQmp1m.jpg                          [39m[1m[2m   69.11 kB[22m[1m[22m
+2025-09-19T22:52:14.7803416Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-Regular-trENmjXB.woff2                                 [39m[1m[2m  100.79 kB[22m[1m[22m
+2025-09-19T22:52:14.7804385Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-Thin-D3JiHKaG.woff2                                    [39m[1m[2m  101.16 kB[22m[1m[22m
+2025-09-19T22:52:14.7804939Z [33m
+2025-09-19T22:52:14.7805289Z (!) Some chunks are larger than 500 kB after minification. Consider:
+2025-09-19T22:52:14.7805728Z - Using dynamic import() to code-split the application
+2025-09-19T22:52:14.7806475Z - Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+2025-09-19T22:52:14.7807411Z - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.[39m
+2025-09-19T22:52:14.7808311Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-DisplayBlack-WeYNDCAX.woff2                            [39m[1m[2m  101.92 kB[22m[1m[22m
+2025-09-19T22:52:14.7809486Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-DisplayThin-ChL4oFCg.woff2                             [39m[1m[2m  102.15 kB[22m[1m[22m
+2025-09-19T22:52:14.7810501Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-ExtraLight-CCj5KODw.woff2                              [39m[1m[2m  102.87 kB[22m[1m[22m
+2025-09-19T22:52:14.7812033Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-Light-dIA14uc3.woff2                                   [39m[1m[2m  103.27 kB[22m[1m[22m
+2025-09-19T22:52:14.7814063Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-Black-9EvaAvES.woff2                                   [39m[1m[2m  103.59 kB[22m[1m[22m
+2025-09-19T22:52:14.7815989Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-ExtraBold-Ce88byQn.woff2                               [39m[1m[2m  104.99 kB[22m[1m[22m
+2025-09-19T22:52:14.7818143Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-Bold-R0zHozHF.woff2                                    [39m[1m[2m  105.21 kB[22m[1m[22m
+2025-09-19T22:52:14.7820066Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-Medium-BN7iDkqy.woff2                                  [39m[1m[2m  105.22 kB[22m[1m[22m
+2025-09-19T22:52:14.7821952Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-DisplayLight-w8lPQKnS.woff2                            [39m[1m[2m  105.34 kB[22m[1m[22m
+2025-09-19T22:52:14.7823928Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-DisplayExtraBold-BXf2GJrG.woff2                        [39m[1m[2m  105.36 kB[22m[1m[22m
+2025-09-19T22:52:14.7825932Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-DisplayMedium-DcjtbkcA.woff2                           [39m[1m[2m  105.38 kB[22m[1m[22m
+2025-09-19T22:52:14.7828095Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-SemiBold-CBUekF9E.woff2                                [39m[1m[2m  105.40 kB[22m[1m[22m
+2025-09-19T22:52:14.7830105Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-DisplaySemiBold-BBWLY5vL.woff2                         [39m[1m[2m  105.56 kB[22m[1m[22m
+2025-09-19T22:52:14.7832038Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-DisplayBold-C-1EDGRh.woff2                             [39m[1m[2m  105.57 kB[22m[1m[22m
+2025-09-19T22:52:14.7834128Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-DisplayExtraLight-D2Ja0abb.woff2                       [39m[1m[2m  105.87 kB[22m[1m[22m
+2025-09-19T22:52:14.7836172Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-DisplayItalic-JNEE2o-3.woff2                           [39m[1m[2m  106.12 kB[22m[1m[22m
+2025-09-19T22:52:14.7838288Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-Italic-ClOttZep.woff2                                  [39m[1m[2m  106.55 kB[22m[1m[22m
+2025-09-19T22:52:14.7840188Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-ThinItalic-Dty9qLU6.woff2                              [39m[1m[2m  106.64 kB[22m[1m[22m
+2025-09-19T22:52:14.7842146Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-DisplayBlackItalic-DFEmIFsd.woff2                      [39m[1m[2m  107.28 kB[22m[1m[22m
+2025-09-19T22:52:14.7844124Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-DisplayThinItalic-Cxxw6hRb.woff2                       [39m[1m[2m  107.44 kB[22m[1m[22m
+2025-09-19T22:52:14.7846088Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-LightItalic-BcJQrN_r.woff2                             [39m[1m[2m  108.56 kB[22m[1m[22m
+2025-09-19T22:52:14.7848201Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-BlackItalic-I0v0TUo2.woff2                             [39m[1m[2m  108.59 kB[22m[1m[22m
+2025-09-19T22:52:14.7850201Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-ExtraLightItalic-BXS8QPqu.woff2                        [39m[1m[2m  109.00 kB[22m[1m[22m
+2025-09-19T22:52:14.7852227Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-DisplayBoldItalic-CISmTavk.woff2                       [39m[1m[2m  110.20 kB[22m[1m[22m
+2025-09-19T22:52:14.7854566Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-DisplaySemiBoldItalic-CNvBGF7e.woff2                   [39m[1m[2m  110.39 kB[22m[1m[22m
+2025-09-19T22:52:14.7856650Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-DisplayMediumItalic-BBCoS5uP.woff2                     [39m[1m[2m  110.46 kB[22m[1m[22m
+2025-09-19T22:52:14.7859075Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-BoldItalic-D0-5Ex_3.woff2                              [39m[1m[2m  110.52 kB[22m[1m[22m
+2025-09-19T22:52:14.7861043Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-ExtraBoldItalic-Cgmm6Ie2.woff2                         [39m[1m[2m  110.52 kB[22m[1m[22m
+2025-09-19T22:52:14.7863073Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-DisplayLightItalic-DBve3eI1.woff2                      [39m[1m[2m  110.56 kB[22m[1m[22m
+2025-09-19T22:52:14.7867296Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-SemiBoldItalic-J43nRLRr.woff2                          [39m[1m[2m  110.64 kB[22m[1m[22m
+2025-09-19T22:52:14.7869357Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-DisplayExtraBoldItalic-Czv3KFD8.woff2                  [39m[1m[2m  110.82 kB[22m[1m[22m
+2025-09-19T22:52:14.7871370Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-MediumItalic-iRTrRc5x.woff2                            [39m[1m[2m  110.82 kB[22m[1m[22m
+2025-09-19T22:52:14.7873423Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-DisplayExtraLightItalic-DRwiM9T2.woff2                 [39m[1m[2m  111.11 kB[22m[1m[22m
+2025-09-19T22:52:14.7875383Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-Regular-CODxxkJm.woff2                                 [39m[1m[2m  181.32 kB[22m[1m[22m
+2025-09-19T22:52:14.7877439Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-Thin-B_uUBCoZ.woff2                                    [39m[1m[2m  183.58 kB[22m[1m[22m
+2025-09-19T22:52:14.7879336Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-Black-Cshk1Ouu.woff2                                   [39m[1m[2m  189.20 kB[22m[1m[22m
+2025-09-19T22:52:14.7881175Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-Light-C30yDEIo.woff2                                   [39m[1m[2m  191.10 kB[22m[1m[22m
+2025-09-19T22:52:14.7883064Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-ExtraLight-CVi2P0ys.woff2                              [39m[1m[2m  192.27 kB[22m[1m[22m
+2025-09-19T22:52:14.7884976Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-Medium-CzCDdD8n.woff2                                  [39m[1m[2m  193.56 kB[22m[1m[22m
+2025-09-19T22:52:14.7886832Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-Bold-wPZ6LF5Z.woff2                                    [39m[1m[2m  194.16 kB[22m[1m[22m
+2025-09-19T22:52:14.7888868Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-Italic-C54yVidA.woff2                                  [39m[1m[2m  194.17 kB[22m[1m[22m
+2025-09-19T22:52:14.7890745Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-SemiBold-BeKvnjMK.woff2                                [39m[1m[2m  194.68 kB[22m[1m[22m
+2025-09-19T22:52:14.7892589Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-ExtraBold-BsIfWbEo.woff2                               [39m[1m[2m  195.07 kB[22m[1m[22m
+2025-09-19T22:52:14.7894452Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-ThinItalic-YHidimb8.woff2                              [39m[1m[2m  195.60 kB[22m[1m[22m
+2025-09-19T22:52:14.7896395Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-BlackItalic-BjcoK2hX.woff2                             [39m[1m[2m  198.44 kB[22m[1m[22m
+2025-09-19T22:52:14.7898115Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-LightItalic-BPE1IxhF.woff2                             [39m[1m[2m  202.69 kB[22m[1m[22m
+2025-09-19T22:52:14.7899645Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-ExtraLightItalic-6TFOpbKD.woff2                        [39m[1m[2m  202.93 kB[22m[1m[22m
+2025-09-19T22:52:14.7900709Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-BoldItalic-CzV6Tv7P.woff2                              [39m[1m[2m  203.78 kB[22m[1m[22m
+2025-09-19T22:52:14.7901735Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-SemiBoldItalic-C3grxp6v.woff2                          [39m[1m[2m  203.79 kB[22m[1m[22m
+2025-09-19T22:52:14.7902905Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-MediumItalic-CGBFDtcS.woff2                            [39m[1m[2m  204.23 kB[22m[1m[22m
+2025-09-19T22:52:14.7903951Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-ExtraBoldItalic-DxTsNEOh.woff2                         [39m[1m[2m  204.67 kB[22m[1m[22m
+2025-09-19T22:52:14.7904951Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-Regular-DBCApsjw.woff                                  [39m[1m[2m  246.04 kB[22m[1m[22m
+2025-09-19T22:52:14.7905904Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-Thin-Ul_XpALr.woff                                     [39m[1m[2m  250.35 kB[22m[1m[22m
+2025-09-19T22:52:14.7906833Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-Black-BOV8XG9T.woff                                    [39m[1m[2m  255.17 kB[22m[1m[22m
+2025-09-19T22:52:14.7907980Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-Light-BKVjUX-w.woff                                    [39m[1m[2m  258.66 kB[22m[1m[22m
+2025-09-19T22:52:14.7908953Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-ExtraLight-BMbphDvi.woff                               [39m[1m[2m  258.67 kB[22m[1m[22m
+2025-09-19T22:52:14.7909933Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-Medium-Bo29Umh-.woff                                   [39m[1m[2m  260.17 kB[22m[1m[22m
+2025-09-19T22:52:14.7910904Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-Italic-Cm_EBKra.woff                                   [39m[1m[2m  260.95 kB[22m[1m[22m
+2025-09-19T22:52:14.7911881Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-SemiBold-CNAjOvz0.woff                                 [39m[1m[2m  261.31 kB[22m[1m[22m
+2025-09-19T22:52:14.7912869Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-ExtraBold-CJBt3edo.woff                                [39m[1m[2m  261.85 kB[22m[1m[22m
+2025-09-19T22:52:14.7913832Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-Bold-g6Xj0jn7.woff                                     [39m[1m[2m  262.48 kB[22m[1m[22m
+2025-09-19T22:52:14.7914786Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter.var-C9xDBOS3.woff2                                     [39m[1m[2m  264.24 kB[22m[1m[22m
+2025-09-19T22:52:14.7915752Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-ThinItalic-BWOlBIs9.woff                               [39m[1m[2m  264.44 kB[22m[1m[22m
+2025-09-19T22:52:14.7916742Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-BlackItalic-Wdjh7EHa.woff                              [39m[1m[2m  265.52 kB[22m[1m[22m
+2025-09-19T22:52:14.7917872Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-ExtraLightItalic-D4UzWCoA.woff                         [39m[1m[2m  270.09 kB[22m[1m[22m
+2025-09-19T22:52:14.7918888Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-LightItalic-xkgxSzrU.woff                              [39m[1m[2m  270.72 kB[22m[1m[22m
+2025-09-19T22:52:14.7919891Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-MediumItalic-BuyD3L9U.woff                             [39m[1m[2m  271.80 kB[22m[1m[22m
+2025-09-19T22:52:14.7920897Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-SemiBoldItalic-CdzhttxU.woff                           [39m[1m[2m  271.90 kB[22m[1m[22m
+2025-09-19T22:52:14.7921922Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-ExtraBoldItalic-D0n3C9E8.woff                          [39m[1m[2m  272.21 kB[22m[1m[22m
+2025-09-19T22:52:14.7923090Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-BoldItalic-8tC2rJIs.woff                               [39m[1m[2m  272.32 kB[22m[1m[22m
+2025-09-19T22:52:14.7924079Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-Italic.var-BGHziHgI.woff2                              [39m[1m[2m  297.27 kB[22m[1m[22m
+2025-09-19T22:52:14.7925348Z [2m../lms/public/frontend/[22m[2massets/[22m[35mProgrammingExerciseSubmission-f5BXjTF8.css                   [39m[1m[2m    0.05 kB[22m[1m[22m[2m │ gzip:     0.07 kB[22m
+2025-09-19T22:52:14.7926804Z [2m../lms/public/frontend/[22m[2massets/[22m[35mNotifications-Bax51NhM.css                                   [39m[1m[2m    0.05 kB[22m[1m[22m[2m │ gzip:     0.06 kB[22m
+2025-09-19T22:52:14.7928914Z [2m../lms/public/frontend/[22m[2massets/[22m[35mJobDetail-CxNe8sOu.css                                       [39m[1m[2m    0.07 kB[22m[1m[22m[2m │ gzip:     0.08 kB[22m
+2025-09-19T22:52:14.7930468Z [2m../lms/public/frontend/[22m[2massets/[22m[35mCourseDetail-CbcHN0vY.css                                    [39m[1m[2m    0.11 kB[22m[1m[22m[2m │ gzip:     0.11 kB[22m
+2025-09-19T22:52:14.7931552Z [2m../lms/public/frontend/[22m[2massets/[22m[35mQuizForm-BVS5er5W.css                                        [39m[1m[2m    0.13 kB[22m[1m[22m[2m │ gzip:     0.11 kB[22m
+2025-09-19T22:52:14.7933091Z [2m../lms/public/frontend/[22m[2massets/[22m[35mCertifiedParticipants-CInkYQ8Q.css                           [39m[1m[2m    0.13 kB[22m[1m[22m[2m │ gzip:     0.12 kB[22m
+2025-09-19T22:52:14.7935235Z [2m../lms/public/frontend/[22m[2massets/[22m[35mJobs-BxS8k0Zn.css                                            [39m[1m[2m    0.17 kB[22m[1m[22m[2m │ gzip:     0.14 kB[22m
+2025-09-19T22:52:14.7936774Z [2m../lms/public/frontend/[22m[2massets/[22m[35mBatchDetail-svDRwAkr.css                                     [39m[1m[2m    0.23 kB[22m[1m[22m[2m │ gzip:     0.15 kB[22m
+2025-09-19T22:52:14.7938049Z [2m../lms/public/frontend/[22m[2massets/[22m[35mBatch-CheouqEg.css                                           [39m[1m[2m    0.27 kB[22m[1m[22m[2m │ gzip:     0.21 kB[22m
+2025-09-19T22:52:14.7939087Z [2m../lms/public/frontend/[22m[2massets/[22m[35mBatchCard-BE6B3NxE.css                                       [39m[1m[2m    0.34 kB[22m[1m[22m[2m │ gzip:     0.23 kB[22m
+2025-09-19T22:52:14.7940144Z [2m../lms/public/frontend/[22m[2massets/[22m[35mCourseForm-BiFSvuyG.css                                      [39m[1m[2m    0.43 kB[22m[1m[22m[2m │ gzip:     0.20 kB[22m
+2025-09-19T22:52:14.7941198Z [2m../lms/public/frontend/[22m[2massets/[22m[35mCourseCard-CQG0b0lt.css                                      [39m[1m[2m    0.57 kB[22m[1m[22m[2m │ gzip:     0.34 kB[22m
+2025-09-19T22:52:14.7942251Z [2m../lms/public/frontend/[22m[2massets/[22m[35mLessonForm-CUa4XeSd.css                                      [39m[1m[2m    2.92 kB[22m[1m[22m[2m │ gzip:     1.11 kB[22m
+2025-09-19T22:52:14.7943285Z [2m../lms/public/frontend/[22m[2massets/[22m[35mLesson-CV_oxQcs.css                                          [39m[1m[2m    4.16 kB[22m[1m[22m[2m │ gzip:     1.28 kB[22m
+2025-09-19T22:52:14.7944309Z [2m../lms/public/frontend/[22m[2massets/[22m[35mindex-C9XEr41a.css                                           [39m[1m[2m  178.60 kB[22m[1m[22m[2m │ gzip:    28.77 kB[22m
+2025-09-19T22:52:14.7945450Z [2m../lms/public/frontend/[22m[2massets/[22m[36mInsertLink-CDtB9_kU.js                                       [39m[1m[2m    0.31 kB[22m[1m[22m[2m │ gzip:     0.25 kB[22m[2m │ map:      0.67 kB[22m
+2025-09-19T22:52:14.7946632Z [2m../lms/public/frontend/[22m[2massets/[22m[36mInsertVideo-1eCF2lNK.js                                      [39m[1m[2m    0.33 kB[22m[1m[22m[2m │ gzip:     0.27 kB[22m[2m │ map:      0.73 kB[22m
+2025-09-19T22:52:14.7948176Z [2m../lms/public/frontend/[22m[2massets/[22m[36mDateRange-CldGRtID.js                                        [39m[1m[2m    0.42 kB[22m[1m[22m[2m │ gzip:     0.32 kB[22m[2m │ map:      0.95 kB[22m
+2025-09-19T22:52:14.7949349Z [2m../lms/public/frontend/[22m[2massets/[22m[36mUserAvatar-pgZQLSSr.js                                       [39m[1m[2m    0.54 kB[22m[1m[22m[2m │ gzip:     0.38 kB[22m[2m │ map:      0.96 kB[22m
+2025-09-19T22:52:14.7950865Z [2m../lms/public/frontend/[22m[2massets/[22m[36mEmptyState.vue_vue_type_script_setup_true_lang-_WC1MUIe.js   [39m[1m[2m    0.80 kB[22m[1m[22m[2m │ gzip:     0.51 kB[22m[2m │ map:      1.40 kB[22m
+2025-09-19T22:52:14.7953328Z [2m../lms/public/frontend/[22m[2massets/[22m[36mInsertImage-DtCyZzuq.js                                      [39m[1m[2m    0.96 kB[22m[1m[22m[2m │ gzip:     0.60 kB[22m[2m │ map:      2.49 kB[22m
+2025-09-19T22:52:14.7955236Z [2m../lms/public/frontend/[22m[2massets/[22m[36mBadge-DO_c2JcJ.js                                            [39m[1m[2m    1.10 kB[22m[1m[22m[2m │ gzip:     0.66 kB[22m[2m │ map:      2.95 kB[22m
+2025-09-19T22:52:14.7956415Z [2m../lms/public/frontend/[22m[2massets/[22m[36mQuizPage-DkH09Kut.js                                         [39m[1m[2m    1.20 kB[22m[1m[22m[2m │ gzip:     0.78 kB[22m[2m │ map:      2.84 kB[22m
+2025-09-19T22:52:14.7957839Z [2m../lms/public/frontend/[22m[2massets/[22m[36mRating.vue_vue_type_script_setup_true_lang-uF4uafRn.js       [39m[1m[2m    1.27 kB[22m[1m[22m[2m │ gzip:     0.75 kB[22m[2m │ map:      3.43 kB[22m
+2025-09-19T22:52:14.7959123Z [2m../lms/public/frontend/[22m[2massets/[22m[36mCourseInstructors-B-jSayN2.js                                [39m[1m[2m    1.27 kB[22m[1m[22m[2m │ gzip:     0.50 kB[22m[2m │ map:      2.56 kB[22m
+2025-09-19T22:52:14.7960342Z [2m../lms/public/frontend/[22m[2massets/[22m[36mProfileCertificates-DYg_22V9.js                              [39m[1m[2m    1.45 kB[22m[1m[22m[2m │ gzip:     0.85 kB[22m[2m │ map:      3.16 kB[22m
+2025-09-19T22:52:14.7961567Z [2m../lms/public/frontend/[22m[2massets/[22m[36mCertificationLinks-5KEyMmp1.js                               [39m[1m[2m    1.62 kB[22m[1m[22m[2m │ gzip:     0.76 kB[22m[2m │ map:      3.76 kB[22m
+2025-09-19T22:52:14.7962848Z [2m../lms/public/frontend/[22m[2massets/[22m[36mNumberChart.vue_vue_type_script_setup_true_lang-BjJvrV6B.js  [39m[1m[2m    2.14 kB[22m[1m[22m[2m │ gzip:     1.11 kB[22m[2m │ map:      6.88 kB[22m
+2025-09-19T22:52:14.7964186Z [2m../lms/public/frontend/[22m[2massets/[22m[36mAxisChart.vue_vue_type_script_setup_true_lang-D6LTr72H.js    [39m[1m[2m    2.18 kB[22m[1m[22m[2m │ gzip:     1.09 kB[22m[2m │ map:      7.40 kB[22m
+2025-09-19T22:52:14.7965479Z [2m../lms/public/frontend/[22m[2massets/[22m[36mQuizSubmissionList-DkVuhaxk.js                               [39m[1m[2m    2.28 kB[22m[1m[22m[2m │ gzip:     1.20 kB[22m[2m │ map:      5.32 kB[22m
+2025-09-19T22:52:14.7966672Z [2m../lms/public/frontend/[22m[2massets/[22m[36mBatchCard-CAp-tc75.js                                        [39m[1m[2m    2.32 kB[22m[1m[22m[2m │ gzip:     1.01 kB[22m[2m │ map:      5.01 kB[22m
+2025-09-19T22:52:14.7968015Z [2m../lms/public/frontend/[22m[2massets/[22m[36mBreadcrumbs.vue_vue_type_script_setup_true_lang-C6kwtBON.js  [39m[1m[2m    2.46 kB[22m[1m[22m[2m │ gzip:     1.12 kB[22m[2m │ map:      6.19 kB[22m
+2025-09-19T22:52:14.7969242Z [2m../lms/public/frontend/[22m[2massets/[22m[36mindex-DP_SKewI.js                                            [39m[1m[2m    2.59 kB[22m[1m[22m[2m │ gzip:     1.61 kB[22m[2m │ map:      5.95 kB[22m
+2025-09-19T22:52:14.7970384Z [2m../lms/public/frontend/[22m[2massets/[22m[36mPersonaForm-DTRgrrnk.js                                      [39m[1m[2m    2.68 kB[22m[1m[22m[2m │ gzip:     1.38 kB[22m[2m │ map:      6.38 kB[22m
+2025-09-19T22:52:14.7971797Z [2m../lms/public/frontend/[22m[2massets/[22m[36mCourseCertification-COaBDMEH.js                              [39m[1m[2m    2.72 kB[22m[1m[22m[2m │ gzip:     1.37 kB[22m[2m │ map:      6.72 kB[22m
+2025-09-19T22:52:14.7973069Z [2m../lms/public/frontend/[22m[2massets/[22m[36mDonutChart.vue_vue_type_script_setup_true_lang-DziC0zhl.js   [39m[1m[2m    2.83 kB[22m[1m[22m[2m │ gzip:     1.45 kB[22m[2m │ map:      7.96 kB[22m
+2025-09-19T22:52:14.7974437Z [2m../lms/public/frontend/[22m[2massets/[22m[36mProgramDetail-D2kzgPE9.js                                    [39m[1m[2m    2.86 kB[22m[1m[22m[2m │ gzip:     1.45 kB[22m[2m │ map:      6.46 kB[22m
+2025-09-19T22:52:14.7975625Z [2m../lms/public/frontend/[22m[2massets/[22m[36mProfileRoles-qQb72HRZ.js                                     [39m[1m[2m    3.14 kB[22m[1m[22m[2m │ gzip:     1.25 kB[22m[2m │ map:      4.89 kB[22m
+2025-09-19T22:52:14.7976788Z [2m../lms/public/frontend/[22m[2massets/[22m[36mSCORMChapter-CmoI4_yU.js                                     [39m[1m[2m    3.28 kB[22m[1m[22m[2m │ gzip:     1.56 kB[22m[2m │ map:      8.25 kB[22m
+2025-09-19T22:52:14.7978918Z [2m../lms/public/frontend/[22m[2massets/[22m[36mFontColor-Di5AGm8p.js                                        [39m[1m[2m    3.39 kB[22m[1m[22m[2m │ gzip:     1.15 kB[22m[2m │ map:      7.48 kB[22m
+2025-09-19T22:52:14.7980319Z [2m../lms/public/frontend/[22m[2massets/[22m[36mCourseCard-CDiST1Fq.js                                       [39m[1m[2m    3.46 kB[22m[1m[22m[2m │ gzip:     1.41 kB[22m[2m │ map:      9.82 kB[22m
+2025-09-19T22:52:14.7981498Z [2m../lms/public/frontend/[22m[2massets/[22m[36mQuizSubmission-j4QIKISi.js                                   [39m[1m[2m    3.47 kB[22m[1m[22m[2m │ gzip:     1.51 kB[22m[2m │ map:      7.57 kB[22m
+2025-09-19T22:52:14.7982682Z [2m../lms/public/frontend/[22m[2massets/[22m[36mNotifications-Cvc3rnS3.js                                    [39m[1m[2m    3.50 kB[22m[1m[22m[2m │ gzip:     1.67 kB[22m[2m │ map:      8.51 kB[22m
+2025-09-19T22:52:14.7983859Z [2m../lms/public/frontend/[22m[2massets/[22m[36mProfileAbout-HgtYA0Pn.js                                     [39m[1m[2m    3.67 kB[22m[1m[22m[2m │ gzip:     1.70 kB[22m[2m │ map:      9.00 kB[22m
+2025-09-19T22:52:14.7985079Z [2m../lms/public/frontend/[22m[2massets/[22m[36mAssignmentSubmissionList-CR-zeWMd.js                         [39m[1m[2m    3.84 kB[22m[1m[22m[2m │ gzip:     1.70 kB[22m[2m │ map:      9.74 kB[22m
+2025-09-19T22:52:14.7986300Z [2m../lms/public/frontend/[22m[2massets/[22m[36mStatistics-uMyjOtiw.js                                       [39m[1m[2m    4.00 kB[22m[1m[22m[2m │ gzip:     1.24 kB[22m[2m │ map:      9.12 kB[22m
+2025-09-19T22:52:14.7987686Z [2m../lms/public/frontend/[22m[2massets/[22m[36mCertifiedParticipants-CS7H-Vdq.js                            [39m[1m[2m    4.01 kB[22m[1m[22m[2m │ gzip:     1.82 kB[22m[2m │ map:      9.86 kB[22m
+2025-09-19T22:52:14.7988915Z [2m../lms/public/frontend/[22m[2massets/[22m[36mMultiSelect-CZsG8q5d.js                                      [39m[1m[2m    4.12 kB[22m[1m[22m[2m │ gzip:     2.05 kB[22m[2m │ map:     11.68 kB[22m
+2025-09-19T22:52:14.7990071Z [2m../lms/public/frontend/[22m[2massets/[22m[36mWelcome-CuS4jAVf.js                                          [39m[1m[2m    4.38 kB[22m[1m[22m[2m │ gzip:     1.56 kB[22m[2m │ map:      9.05 kB[22m
+2025-09-19T22:52:14.7991200Z [2m../lms/public/frontend/[22m[2massets/[22m[36mJobs-BnpY76Fr.js                                             [39m[1m[2m    4.59 kB[22m[1m[22m[2m │ gzip:     1.99 kB[22m[2m │ map:     11.51 kB[22m
+2025-09-19T22:52:14.7992322Z [2m../lms/public/frontend/[22m[2massets/[22m[36mQuizzes-sLm-hzxP.js                                          [39m[1m[2m    5.06 kB[22m[1m[22m[2m │ gzip:     2.24 kB[22m[2m │ map:     12.84 kB[22m
+2025-09-19T22:52:14.7993730Z [2m../lms/public/frontend/[22m[2massets/[22m[36mProgrammingExerciseSubmissions-BagzRhOv.js                   [39m[1m[2m    5.33 kB[22m[1m[22m[2m │ gzip:     2.22 kB[22m[2m │ map:     14.35 kB[22m
+2025-09-19T22:52:14.7994965Z [2m../lms/public/frontend/[22m[2massets/[22m[36mBatches-CGDVaQRT.js                                          [39m[1m[2m    5.59 kB[22m[1m[22m[2m │ gzip:     2.40 kB[22m[2m │ map:     14.61 kB[22m
+2025-09-19T22:52:14.7996209Z [2m../lms/public/frontend/[22m[2massets/[22m[36mCourses-Cho75Q90.js                                          [39m[1m[2m    5.71 kB[22m[1m[22m[2m │ gzip:     2.50 kB[22m[2m │ map:     15.43 kB[22m
+2025-09-19T22:52:14.7997520Z [2m../lms/public/frontend/[22m[2massets/[22m[36mmode-json-D1hG_EL8.js                                        [39m[1m[2m    5.79 kB[22m[1m[22m[2m │ gzip:     2.22 kB[22m[2m │ map:     17.10 kB[22m
+2025-09-19T22:52:14.7998655Z [2m../lms/public/frontend/[22m[2massets/[22m[36mJobForm-wFM0gYde.js                                          [39m[1m[2m    5.83 kB[22m[1m[22m[2m │ gzip:     2.23 kB[22m[2m │ map:     14.92 kB[22m
+2025-09-19T22:52:14.7999891Z [2m../lms/public/frontend/[22m[2massets/[22m[36mECharts.vue_vue_type_script_setup_true_lang-JexE1oMz.js      [39m[1m[2m    6.01 kB[22m[1m[22m[2m │ gzip:     2.39 kB[22m[2m │ map:     17.73 kB[22m
+2025-09-19T22:52:14.8001140Z [2m../lms/public/frontend/[22m[2massets/[22m[36mAssignments-jm8Oas9i.js                                      [39m[1m[2m    6.07 kB[22m[1m[22m[2m │ gzip:     2.60 kB[22m[2m │ map:     15.45 kB[22m
+2025-09-19T22:52:14.8002335Z [2m../lms/public/frontend/[22m[2massets/[22m[36mProfileEvaluator-DdQWEqK-.js                                 [39m[1m[2m    6.30 kB[22m[1m[22m[2m │ gzip:     2.17 kB[22m[2m │ map:     14.83 kB[22m
+2025-09-19T22:52:14.8003517Z [2m../lms/public/frontend/[22m[2massets/[22m[36mTabButtons-CGw54Qk4.js                                       [39m[1m[2m    6.63 kB[22m[1m[22m[2m │ gzip:     2.79 kB[22m[2m │ map:     16.17 kB[22m
+2025-09-19T22:52:14.8004683Z [2m../lms/public/frontend/[22m[2massets/[22m[36mJobDetail-BAqT05eY.js                                        [39m[1m[2m    6.86 kB[22m[1m[22m[2m │ gzip:     2.76 kB[22m[2m │ map:     16.73 kB[22m
+2025-09-19T22:52:14.8005892Z [2m../lms/public/frontend/[22m[2massets/[22m[36mUpcomingEvaluations-Ax9jOlLF.js                              [39m[1m[2m    7.16 kB[22m[1m[22m[2m │ gzip:     2.82 kB[22m[2m │ map:     18.14 kB[22m
+2025-09-19T22:52:14.8007214Z [2m../lms/public/frontend/[22m[2massets/[22m[36mBatchDetail-DCxtQOJ_.js                                      [39m[1m[2m    7.19 kB[22m[1m[22m[2m │ gzip:     2.58 kB[22m[2m │ map:     17.25 kB[22m
+2025-09-19T22:52:14.8008376Z [2m../lms/public/frontend/[22m[2massets/[22m[36mBilling-BWXaDTId.js                                          [39m[1m[2m    8.24 kB[22m[1m[22m[2m │ gzip:     3.05 kB[22m[2m │ map:     19.03 kB[22m
+2025-09-19T22:52:14.8009538Z [2m../lms/public/frontend/[22m[2massets/[22m[36mmode-python-BA-wClCF.js                                      [39m[1m[2m    8.56 kB[22m[1m[22m[2m │ gzip:     2.82 kB[22m[2m │ map:     25.59 kB[22m
+2025-09-19T22:52:14.8010707Z [2m../lms/public/frontend/[22m[2massets/[22m[36mDiscussions-DcLsTJRK.js                                      [39m[1m[2m    8.79 kB[22m[1m[22m[2m │ gzip:     3.10 kB[22m[2m │ map:     23.05 kB[22m
+2025-09-19T22:52:14.8011911Z [2m../lms/public/frontend/[22m[2massets/[22m[36mProgrammingExercises-DI_GA8s_.js                             [39m[1m[2m   10.00 kB[22m[1m[22m[2m │ gzip:     3.61 kB[22m[2m │ map:     25.71 kB[22m
+2025-09-19T22:52:14.8013070Z [2m../lms/public/frontend/[22m[2massets/[22m[36mTabs-U6v0Uifc.js                                             [39m[1m[2m   10.13 kB[22m[1m[22m[2m │ gzip:     3.80 kB[22m[2m │ map:     25.72 kB[22m
+2025-09-19T22:52:14.8014392Z [2m../lms/public/frontend/[22m[2massets/[22m[36mAssignmentSubmission-CO7Qawu2.js                             [39m[1m[2m   10.26 kB[22m[1m[22m[2m │ gzip:     3.81 kB[22m[2m │ map:     25.99 kB[22m
+2025-09-19T22:52:14.8015590Z [2m../lms/public/frontend/[22m[2massets/[22m[36mProfile-DpsVlNIU.js                                          [39m[1m[2m   10.46 kB[22m[1m[22m[2m │ gzip:     4.13 kB[22m[2m │ map:     25.56 kB[22m
+2025-09-19T22:52:14.8016845Z [2m../lms/public/frontend/[22m[2massets/[22m[36mBatchForm-E4KYJGUr.js                                        [39m[1m[2m   12.08 kB[22m[1m[22m[2m │ gzip:     4.00 kB[22m[2m │ map:     29.66 kB[22m
+2025-09-19T22:52:14.8018119Z [2m../lms/public/frontend/[22m[2massets/[22m[36mQuizForm-BXiIhqVH.js                                         [39m[1m[2m   13.68 kB[22m[1m[22m[2m │ gzip:     4.41 kB[22m[2m │ map:     33.87 kB[22m
+2025-09-19T22:52:14.8019291Z [2m../lms/public/frontend/[22m[2massets/[22m[36mCourseOutline-D9MCZoFZ.js                                    [39m[1m[2m   13.81 kB[22m[1m[22m[2m │ gzip:     4.92 kB[22m[2m │ map:     36.08 kB[22m
+2025-09-19T22:52:14.8020450Z [2m../lms/public/frontend/[22m[2massets/[22m[36mHome-ZAZ07O5W.js                                             [39m[1m[2m   15.48 kB[22m[1m[22m[2m │ gzip:     4.31 kB[22m[2m │ map:     36.81 kB[22m
+2025-09-19T22:52:14.8021592Z [2m../lms/public/frontend/[22m[2massets/[22m[36mCourseDetail-Bi6V2Xdm.js                                     [39m[1m[2m   18.21 kB[22m[1m[22m[2m │ gzip:     5.89 kB[22m[2m │ map:     43.38 kB[22m
+2025-09-19T22:52:14.8022757Z [2m../lms/public/frontend/[22m[2massets/[22m[36mPrograms-D23O-VoS.js                                         [39m[1m[2m   19.76 kB[22m[1m[22m[2m │ gzip:     5.98 kB[22m[2m │ map:     51.86 kB[22m
+2025-09-19T22:52:14.8023896Z [2m../lms/public/frontend/[22m[2massets/[22m[36mmode-css-BntFUd8Z.js                                         [39m[1m[2m   21.15 kB[22m[1m[22m[2m │ gzip:     7.45 kB[22m[2m │ map:     50.36 kB[22m
+2025-09-19T22:52:14.8025053Z [2m../lms/public/frontend/[22m[2massets/[22m[36mCourseForm-B3C2HSsg.js                                       [39m[1m[2m   24.42 kB[22m[1m[22m[2m │ gzip:     7.51 kB[22m[2m │ map:     61.27 kB[22m
+2025-09-19T22:52:14.8026208Z [2m../lms/public/frontend/[22m[2massets/[22m[36mLessonForm-DTjq0cRo.js                                       [39m[1m[2m   24.63 kB[22m[1m[22m[2m │ gzip:     7.29 kB[22m[2m │ map:     64.62 kB[22m
+2025-09-19T22:52:14.8027453Z [2m../lms/public/frontend/[22m[2massets/[22m[36mindex-CMYb06vK.js                                            [39m[1m[2m   25.99 kB[22m[1m[22m[2m │ gzip:    11.71 kB[22m[2m │ map:     48.27 kB[22m
+2025-09-19T22:52:14.8028627Z [2m../lms/public/frontend/[22m[2massets/[22m[36mindex-Do4fOOgz.js                                            [39m[1m[2m   26.34 kB[22m[1m[22m[2m │ gzip:     8.82 kB[22m[2m │ map:    111.43 kB[22m
+2025-09-19T22:52:14.8029797Z [2m../lms/public/frontend/[22m[2massets/[22m[36mmode-javascript-Dnz46kCk.js                                  [39m[1m[2m   28.21 kB[22m[1m[22m[2m │ gzip:     9.26 kB[22m[2m │ map:     76.55 kB[22m
+2025-09-19T22:52:14.8030959Z [2m../lms/public/frontend/[22m[2massets/[22m[36mindex-AuoNjc27.js                                            [39m[1m[2m   28.88 kB[22m[1m[22m[2m │ gzip:    11.78 kB[22m[2m │ map:     76.62 kB[22m
+2025-09-19T22:52:14.8032158Z [2m../lms/public/frontend/[22m[2massets/[22m[36mProfileEvaluationSchedule-BpgibHbD.js                        [39m[1m[2m   42.95 kB[22m[1m[22m[2m │ gzip:    13.57 kB[22m[2m │ map:    128.79 kB[22m
+2025-09-19T22:52:14.8033354Z [2m../lms/public/frontend/[22m[2massets/[22m[36mindex-AHGr_xoe.js                                            [39m[1m[2m   45.26 kB[22m[1m[22m[2m │ gzip:    19.26 kB[22m[2m │ map:     75.54 kB[22m
+2025-09-19T22:52:14.8034487Z [2m../lms/public/frontend/[22m[2massets/[22m[36mmode-html-sOyz11nV.js                                        [39m[1m[2m   63.58 kB[22m[1m[22m[2m │ gzip:    19.67 kB[22m[2m │ map:    165.67 kB[22m
+2025-09-19T22:52:14.8035777Z [2m../lms/public/frontend/[22m[2massets/[22m[36mindex-BG3q2ND5.js                                            [39m[1m[2m   86.44 kB[22m[1m[22m[2m │ gzip:    34.33 kB[22m[2m │ map:    119.89 kB[22m
+2025-09-19T22:52:14.8037050Z [2m../lms/public/frontend/[22m[2massets/[22m[36mvuedraggable.umd-DK9bXjRH.js                                 [39m[1m[2m  100.82 kB[22m[1m[22m[2m │ gzip:    36.13 kB[22m[2m │ map:    445.73 kB[22m
+2025-09-19T22:52:14.8038408Z [2m../lms/public/frontend/[22m[2massets/[22m[36mLesson-ChcvHpNg.js                                           [39m[1m[2m  126.08 kB[22m[1m[22m[2m │ gzip:    57.51 kB[22m[2m │ map:    521.40 kB[22m
+2025-09-19T22:52:14.8039555Z [2m../lms/public/frontend/[22m[2massets/[22m[36meditorjs-CjdnXl8-.js                                         [39m[1m[2m  243.42 kB[22m[1m[22m[2m │ gzip:    66.07 kB[22m[2m │ map:    618.64 kB[22m
+2025-09-19T22:52:14.8040793Z [2m../lms/public/frontend/[22m[2massets/[22m[36mProgrammingExerciseSubmission-DlGag_BK.js                    [39m[1m[2m  413.44 kB[22m[1m[22m[2m │ gzip:   133.04 kB[22m[2m │ map:  1,786.84 kB[22m
+2025-09-19T22:52:14.8042013Z [2m../lms/public/frontend/[22m[2massets/[22m[36mBatch-BiiQdxo-.js                                            [39m[1m[33m  628.86 kB[39m[22m[2m │ gzip:   172.30 kB[22m[2m │ map:  1,395.01 kB[22m
+2025-09-19T22:52:14.8043163Z [2m../lms/public/frontend/[22m[2massets/[22m[36mindex-Kt70A5nj.js                                            [39m[1m[33m4,212.31 kB[39m[22m[2m │ gzip: 1,202.61 kB[22m[2m │ map: 16,770.18 kB[22m
+2025-09-19T22:52:14.8043769Z [32m✓ built in 31.03s[39m
+2025-09-19T22:52:16.7548522Z 
+2025-09-19T22:52:16.7549216Z [36mPWA v0.20.5[39m
+2025-09-19T22:52:16.7549780Z mode      [35mgenerateSW[39m
+2025-09-19T22:52:16.7550527Z precache  [32m96 entries[39m [2m(6528.83 KiB)[22m
+2025-09-19T22:52:16.7551001Z files generated
+2025-09-19T22:52:16.7551480Z   [2m../lms/public/frontend/sw.js.map[22m
+2025-09-19T22:52:16.7552074Z   [2m../lms/public/frontend/sw.js[22m
+2025-09-19T22:52:16.7552740Z   [2m../lms/public/frontend/workbox-5ffe50d4.js.map[22m
+2025-09-19T22:52:16.7553470Z   [2m../lms/public/frontend/workbox-5ffe50d4.js[22m
+2025-09-19T22:52:17.2938380Z $ cp ../lms/public/frontend/index.html ../lms/www/lms.html
+2025-09-19T22:52:17.3552204Z Done in 35.67s.
+2025-09-19T22:52:17.5419152Z Compiling translations for lms
+2025-09-19T22:52:18.0189205Z MO file created at /home/runner/frappe-bench/sites/assets/locale/ar/LC_MESSAGES/lms.mo
+2025-09-19T22:52:18.0190434Z MO file created at /home/runner/frappe-bench/sites/assets/locale/id/LC_MESSAGES/lms.mo
+2025-09-19T22:52:18.0191571Z MO file created at /home/runner/frappe-bench/sites/assets/locale/bs/LC_MESSAGES/lms.mo
+2025-09-19T22:52:18.0192769Z MO file created at /home/runner/frappe-bench/sites/assets/locale/fa/LC_MESSAGES/lms.mo
+2025-09-19T22:52:18.0193839Z MO file created at /home/runner/frappe-bench/sites/assets/locale/es/LC_MESSAGES/lms.mo
+2025-09-19T22:52:18.0194899Z MO file created at /home/runner/frappe-bench/sites/assets/locale/pt_BR/LC_MESSAGES/lms.mo
+2025-09-19T22:52:18.0196021Z MO file created at /home/runner/frappe-bench/sites/assets/locale/vi/LC_MESSAGES/lms.mo
+2025-09-19T22:52:18.0197311Z MO file created at /home/runner/frappe-bench/sites/assets/locale/it/LC_MESSAGES/lms.mo
+2025-09-19T22:52:18.0199067Z MO file created at /home/runner/frappe-bench/sites/assets/locale/da/LC_MESSAGES/lms.mo
+2025-09-19T22:52:18.0200158Z MO file created at /home/runner/frappe-bench/sites/assets/locale/tr/LC_MESSAGES/lms.mo
+2025-09-19T22:52:18.0201242Z MO file created at /home/runner/frappe-bench/sites/assets/locale/zh/LC_MESSAGES/lms.mo
+2025-09-19T22:52:18.0202328Z MO file created at /home/runner/frappe-bench/sites/assets/locale/sr_CS/LC_MESSAGES/lms.mo
+2025-09-19T22:52:18.0203616Z MO file created at /home/runner/frappe-bench/sites/assets/locale/sv/LC_MESSAGES/lms.mo
+2025-09-19T22:52:18.0204669Z MO file created at /home/runner/frappe-bench/sites/assets/locale/hu/LC_MESSAGES/lms.mo
+2025-09-19T22:52:18.0205721Z MO file created at /home/runner/frappe-bench/sites/assets/locale/sr/LC_MESSAGES/lms.mo
+2025-09-19T22:52:18.0206354Z MO file created at /home/runner/frappe-bench/sites/assets/locale/de/LC_MESSAGES/lms.mo
+2025-09-19T22:52:18.0206977Z MO file created at /home/runner/frappe-bench/sites/assets/locale/pl/LC_MESSAGES/lms.mo
+2025-09-19T22:52:18.0208044Z MO file created at /home/runner/frappe-bench/sites/assets/locale/th/LC_MESSAGES/lms.mo
+2025-09-19T22:52:18.0208664Z MO file created at /home/runner/frappe-bench/sites/assets/locale/fr/LC_MESSAGES/lms.mo
+2025-09-19T22:52:18.0209246Z MO file created at /home/runner/frappe-bench/sites/assets/locale/pt/LC_MESSAGES/lms.mo
+2025-09-19T22:52:18.0209814Z MO file created at /home/runner/frappe-bench/sites/assets/locale/cs/LC_MESSAGES/lms.mo
+2025-09-19T22:52:18.0210395Z MO file created at /home/runner/frappe-bench/sites/assets/locale/nl/LC_MESSAGES/lms.mo
+2025-09-19T22:52:18.0210966Z MO file created at /home/runner/frappe-bench/sites/assets/locale/eo/LC_MESSAGES/lms.mo
+2025-09-19T22:52:18.0211527Z MO file created at /home/runner/frappe-bench/sites/assets/locale/ru/LC_MESSAGES/lms.mo
+2025-09-19T22:52:18.0212108Z MO file created at /home/runner/frappe-bench/sites/assets/locale/nb/LC_MESSAGES/lms.mo
+2025-09-19T22:52:18.0212678Z MO file created at /home/runner/frappe-bench/sites/assets/locale/hr/LC_MESSAGES/lms.mo
+2025-09-19T22:52:18.8371474Z Warning: MariaDB version ['10.3', '27'] is older than 10.6 which is not supported by Frappe
+2025-09-19T22:52:21.0175235Z 
+2025-09-19T22:52:21.0175971Z Installing frappe...
+2025-09-19T22:52:36.5125983Z Updating DocTypes for frappe.............................................................................................................................................................................................................................................................................................................................
+2025-09-19T22:52:36.5127527Z Updating Dashboard for frappe
+2025-09-19T22:52:36.5127975Z *** Scheduler is disabled ***
+2025-09-19T22:52:38.2205637Z 
+2025-09-19T22:52:38.2206681Z Installing lms...
+2025-09-19T22:52:46.5176558Z Updating DocTypes for lms...............................................................................................................
+2025-09-19T22:52:46.5177582Z Updating Dashboard for lms
+2025-09-19T22:52:46.7182669Z ##[group]Run cd frontend
+2025-09-19T22:52:46.7183136Z [36;1mcd frontend[0m
+2025-09-19T22:52:46.7183485Z [36;1mnpm install[0m
+2025-09-19T22:52:46.7183817Z [36;1mnpm run build[0m
+2025-09-19T22:52:46.7225972Z shell: /usr/bin/bash -e {0}
+2025-09-19T22:52:46.7226199Z env:
+2025-09-19T22:52:46.7226439Z   pythonLocation: /opt/hostedtoolcache/Python/3.10.18/x64
+2025-09-19T22:52:46.7226841Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.10.18/x64/lib/pkgconfig
+2025-09-19T22:52:46.7227588Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.10.18/x64
+2025-09-19T22:52:46.7227943Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.10.18/x64
+2025-09-19T22:52:46.7228295Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.10.18/x64
+2025-09-19T22:52:46.7228636Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.10.18/x64/lib
+2025-09-19T22:52:46.7228922Z ##[endgroup]
+2025-09-19T22:53:29.1322725Z npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
+2025-09-19T22:53:29.2009869Z npm warn deprecated sourcemap-codec@1.4.8: Please use @jridgewell/sourcemap-codec instead
+2025-09-19T22:53:30.4511692Z npm warn deprecated source-map@0.8.0-beta.0: The work that was done in this beta branch won't be included in future versions
+2025-09-19T22:53:33.1927838Z npm warn deprecated glob@7.2.3: Glob versions prior to v9 are no longer supported
+2025-09-19T22:53:38.8268334Z 
+2025-09-19T22:53:38.8271083Z added 780 packages, and audited 781 packages in 52s
+2025-09-19T22:53:38.8271497Z 
+2025-09-19T22:53:38.8271694Z 221 packages are looking for funding
+2025-09-19T22:53:38.8272032Z   run `npm fund` for details
+2025-09-19T22:53:38.8368348Z 
+2025-09-19T22:53:38.8368636Z 2 moderate severity vulnerabilities
+2025-09-19T22:53:38.8368939Z 
+2025-09-19T22:53:38.8369071Z To address all issues, run:
+2025-09-19T22:53:38.8369333Z   npm audit fix
+2025-09-19T22:53:38.8369478Z 
+2025-09-19T22:53:38.8369598Z Run `npm audit` for details.
+2025-09-19T22:53:38.9977443Z 
+2025-09-19T22:53:38.9977897Z > frappe-ui-frontend@0.0.0 build
+2025-09-19T22:53:38.9978376Z > vite build --base=/assets/lms/frontend/ && yarn copy-html-entry
+2025-09-19T22:53:38.9978629Z 
+2025-09-19T22:53:39.3696060Z No common_site_config.json found, using default port 8000
+2025-09-19T22:53:39.4072172Z [36mvite v5.4.19 [32mbuilding for production...[36m[39m
+2025-09-19T22:53:39.7300745Z transforming...
+2025-09-19T22:53:48.7656799Z 
+2025-09-19T22:53:48.7658720Z Inter-DisplayRegular.woff2?v=3.19 referenced in Inter-DisplayRegular.woff2?v=3.19 didn't resolve at build time, it will remain unchanged to be resolved at runtime
+2025-09-19T22:54:01.8849809Z [32m✓[39m 3930 modules transformed.
+2025-09-19T22:54:02.9758118Z src/pages/ProfileRoles.vue (80:19): Use of eval in "src/pages/ProfileRoles.vue" is strongly discouraged as it poses security risks and may cause issues with minification.
+2025-09-19T22:54:02.9762633Z src/pages/ProfileRoles.vue (113:10): Use of eval in "src/pages/ProfileRoles.vue" is strongly discouraged as it poses security risks and may cause issues with minification.
+2025-09-19T22:54:03.2250825Z rendering chunks...
+2025-09-19T22:54:11.3680185Z [frappeui-build-config-plugin] Successfully copied index.html to ../lms/www/lms.html
+2025-09-19T22:54:11.3686845Z computing gzip size...
+2025-09-19T22:54:11.5841378Z [2m../lms/public/frontend/[22m[32mregisterSW.js                                                       [39m[1m[2m    0.17 kB[22m[1m[22m
+2025-09-19T22:54:11.5843103Z [2m../lms/public/frontend/[22m[32mmanifest.webmanifest                                                [39m[1m[2m    0.53 kB[22m[1m[22m
+2025-09-19T22:54:11.5845648Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-icon-180-D_n3lJOH.png                                  [39m[1m[2m    4.24 kB[22m[1m[22m
+2025-09-19T22:54:11.5848339Z [2m../lms/public/frontend/[22m[32mindex.html                                                          [39m[1m[2m   11.49 kB[22m[1m[22m[2m │ gzip:     1.65 kB[22m
+2025-09-19T22:54:11.5850294Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-640-1136-BR98aM7H.jpg                           [39m[1m[2m   15.39 kB[22m[1m[22m
+2025-09-19T22:54:11.5852522Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-1136-640-BocYFD09.jpg                           [39m[1m[2m   16.43 kB[22m[1m[22m
+2025-09-19T22:54:11.5854692Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-750-1334-Bc9LfBe-.jpg                           [39m[1m[2m   18.22 kB[22m[1m[22m
+2025-09-19T22:54:11.5856865Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-1334-750-ZapWTaEg.jpg                           [39m[1m[2m   19.20 kB[22m[1m[22m
+2025-09-19T22:54:11.5859006Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-828-1792-CitdGgZY.jpg                           [39m[1m[2m   22.93 kB[22m[1m[22m
+2025-09-19T22:54:11.5861017Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-1792-828-Cc6wR60-.jpg                           [39m[1m[2m   23.38 kB[22m[1m[22m
+2025-09-19T22:54:11.5863021Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-1125-2436-C3w0dSnH.jpg                          [39m[1m[2m   35.24 kB[22m[1m[22m
+2025-09-19T22:54:11.5864910Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-2436-1125-UBc56n4I.jpg                          [39m[1m[2m   36.05 kB[22m[1m[22m
+2025-09-19T22:54:11.5867458Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-1242-2208-D1K-FjW8.jpg                          [39m[1m[2m   36.19 kB[22m[1m[22m
+2025-09-19T22:54:11.5869012Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-1170-2532-MJgQ9zjx.jpg                          [39m[1m[2m   37.25 kB[22m[1m[22m
+2025-09-19T22:54:11.5871002Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-1179-2556-CYjIoO1a.jpg                          [39m[1m[2m   37.60 kB[22m[1m[22m
+2025-09-19T22:54:11.5872992Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-2208-1242-B0cjc1eL.jpg                          [39m[1m[2m   38.36 kB[22m[1m[22m
+2025-09-19T22:54:11.5874941Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-2532-1170-DyRAcsgg.jpg                          [39m[1m[2m   38.58 kB[22m[1m[22m
+2025-09-19T22:54:11.5876911Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-1206-2622-CsHAWTcr.jpg                          [39m[1m[2m   39.15 kB[22m[1m[22m
+2025-09-19T22:54:11.5878326Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-2556-1179-B5cAG8BK.jpg                          [39m[1m[2m   39.17 kB[22m[1m[22m
+2025-09-19T22:54:11.5879770Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-1242-2688-Bzfl4WPX.jpg                          [39m[1m[2m   39.69 kB[22m[1m[22m
+2025-09-19T22:54:11.5881765Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-2622-1206-Bc7YeGWe.jpg                          [39m[1m[2m   40.46 kB[22m[1m[22m
+2025-09-19T22:54:11.5883797Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-2688-1242-DNx5UzH6.jpg                          [39m[1m[2m   41.88 kB[22m[1m[22m
+2025-09-19T22:54:11.5885824Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-1284-2778-C-TDdDbQ.jpg                          [39m[1m[2m   42.45 kB[22m[1m[22m
+2025-09-19T22:54:11.5887878Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-1290-2796-BQw-p_Zz.jpg                          [39m[1m[2m   42.82 kB[22m[1m[22m
+2025-09-19T22:54:11.5888970Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-1536-2048-DWf2LykR.jpg                          [39m[1m[2m   43.84 kB[22m[1m[22m
+2025-09-19T22:54:11.5890349Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-2796-1290-DRM7pqfd.jpg                          [39m[1m[2m   43.92 kB[22m[1m[22m
+2025-09-19T22:54:11.5891423Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-2778-1284-nkoKAVGG.jpg                          [39m[1m[2m   44.50 kB[22m[1m[22m
+2025-09-19T22:54:11.5892432Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-1488-2266-oCwhNquF.jpg                          [39m[1m[2m   44.56 kB[22m[1m[22m
+2025-09-19T22:54:11.5893445Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-1320-2868-D7rS3PbF.jpg                          [39m[1m[2m   44.62 kB[22m[1m[22m
+2025-09-19T22:54:11.5894509Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-2048-1536-DAUDlzu8.jpg                          [39m[1m[2m   45.77 kB[22m[1m[22m
+2025-09-19T22:54:11.5895662Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-2868-1320-Bq_zwKIb.jpg                          [39m[1m[2m   46.01 kB[22m[1m[22m
+2025-09-19T22:54:11.5896671Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-2266-1488-MbTvgHmX.jpg                          [39m[1m[2m   46.58 kB[22m[1m[22m
+2025-09-19T22:54:11.5897829Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-1620-2160-BcBrHuwl.jpg                          [39m[1m[2m   47.62 kB[22m[1m[22m
+2025-09-19T22:54:11.5898834Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-2160-1620-BiOL-rzg.jpg                          [39m[1m[2m   49.28 kB[22m[1m[22m
+2025-09-19T22:54:11.5900033Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-1668-2224-BloaNeC-.jpg                          [39m[1m[2m   49.69 kB[22m[1m[22m
+2025-09-19T22:54:11.5901042Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-1640-2360-Dh-YwmK7.jpg                          [39m[1m[2m   49.82 kB[22m[1m[22m
+2025-09-19T22:54:11.5902045Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-2224-1668-VL9eJ66f.jpg                          [39m[1m[2m   51.35 kB[22m[1m[22m
+2025-09-19T22:54:11.5903039Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-2360-1640-Cbr-_bw-.jpg                          [39m[1m[2m   51.58 kB[22m[1m[22m
+2025-09-19T22:54:11.5904037Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-1668-2388-2B803rpN.jpg                          [39m[1m[2m   51.69 kB[22m[1m[22m
+2025-09-19T22:54:11.5905039Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-2388-1668-BofeGhV_.jpg                          [39m[1m[2m   53.15 kB[22m[1m[22m
+2025-09-19T22:54:11.5905621Z [33m
+2025-09-19T22:54:11.5905976Z (!) Some chunks are larger than 500 kB after minification. Consider:
+2025-09-19T22:54:11.5906406Z - Using dynamic import() to code-split the application
+2025-09-19T22:54:11.5907264Z - Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+2025-09-19T22:54:11.5908100Z - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.[39m
+2025-09-19T22:54:11.5908990Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-2048-2732-BjakkKKb.jpg                          [39m[1m[2m   66.46 kB[22m[1m[22m
+2025-09-19T22:54:11.5910019Z [2m../lms/public/frontend/[22m[2massets/[22m[32mapple-splash-2732-2048-EzPQmp1m.jpg                          [39m[1m[2m   69.11 kB[22m[1m[22m
+2025-09-19T22:54:11.5911022Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-Regular-trENmjXB.woff2                                 [39m[1m[2m  100.79 kB[22m[1m[22m
+2025-09-19T22:54:11.5912000Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-Thin-D3JiHKaG.woff2                                    [39m[1m[2m  101.16 kB[22m[1m[22m
+2025-09-19T22:54:11.5913002Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-DisplayBlack-WeYNDCAX.woff2                            [39m[1m[2m  101.92 kB[22m[1m[22m
+2025-09-19T22:54:11.5914143Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-DisplayThin-ChL4oFCg.woff2                             [39m[1m[2m  102.15 kB[22m[1m[22m
+2025-09-19T22:54:11.5915172Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-ExtraLight-CCj5KODw.woff2                              [39m[1m[2m  102.87 kB[22m[1m[22m
+2025-09-19T22:54:11.5916164Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-Light-dIA14uc3.woff2                                   [39m[1m[2m  103.27 kB[22m[1m[22m
+2025-09-19T22:54:11.5917230Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-Black-9EvaAvES.woff2                                   [39m[1m[2m  103.59 kB[22m[1m[22m
+2025-09-19T22:54:11.5918219Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-ExtraBold-Ce88byQn.woff2                               [39m[1m[2m  104.99 kB[22m[1m[22m
+2025-09-19T22:54:11.5919186Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-Bold-R0zHozHF.woff2                                    [39m[1m[2m  105.21 kB[22m[1m[22m
+2025-09-19T22:54:11.5920153Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-Medium-BN7iDkqy.woff2                                  [39m[1m[2m  105.22 kB[22m[1m[22m
+2025-09-19T22:54:11.5921147Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-DisplayLight-w8lPQKnS.woff2                            [39m[1m[2m  105.34 kB[22m[1m[22m
+2025-09-19T22:54:11.5922173Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-DisplayExtraBold-BXf2GJrG.woff2                        [39m[1m[2m  105.36 kB[22m[1m[22m
+2025-09-19T22:54:11.5923334Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-DisplayMedium-DcjtbkcA.woff2                           [39m[1m[2m  105.38 kB[22m[1m[22m
+2025-09-19T22:54:11.5924338Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-SemiBold-CBUekF9E.woff2                                [39m[1m[2m  105.40 kB[22m[1m[22m
+2025-09-19T22:54:11.5925352Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-DisplaySemiBold-BBWLY5vL.woff2                         [39m[1m[2m  105.56 kB[22m[1m[22m
+2025-09-19T22:54:11.5926380Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-DisplayBold-C-1EDGRh.woff2                             [39m[1m[2m  105.57 kB[22m[1m[22m
+2025-09-19T22:54:11.5927631Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-DisplayExtraLight-D2Ja0abb.woff2                       [39m[1m[2m  105.87 kB[22m[1m[22m
+2025-09-19T22:54:11.5928695Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-DisplayItalic-JNEE2o-3.woff2                           [39m[1m[2m  106.12 kB[22m[1m[22m
+2025-09-19T22:54:11.5929696Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-Italic-ClOttZep.woff2                                  [39m[1m[2m  106.55 kB[22m[1m[22m
+2025-09-19T22:54:11.5930685Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-ThinItalic-Dty9qLU6.woff2                              [39m[1m[2m  106.64 kB[22m[1m[22m
+2025-09-19T22:54:11.5931721Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-DisplayBlackItalic-DFEmIFsd.woff2                      [39m[1m[2m  107.28 kB[22m[1m[22m
+2025-09-19T22:54:11.5932779Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-DisplayThinItalic-Cxxw6hRb.woff2                       [39m[1m[2m  107.44 kB[22m[1m[22m
+2025-09-19T22:54:11.5933805Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-LightItalic-BcJQrN_r.woff2                             [39m[1m[2m  108.56 kB[22m[1m[22m
+2025-09-19T22:54:11.5934816Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-BlackItalic-I0v0TUo2.woff2                             [39m[1m[2m  108.59 kB[22m[1m[22m
+2025-09-19T22:54:11.5935839Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-ExtraLightItalic-BXS8QPqu.woff2                        [39m[1m[2m  109.00 kB[22m[1m[22m
+2025-09-19T22:54:11.5936897Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-DisplayBoldItalic-CISmTavk.woff2                       [39m[1m[2m  110.20 kB[22m[1m[22m
+2025-09-19T22:54:11.5938294Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-DisplaySemiBoldItalic-CNvBGF7e.woff2                   [39m[1m[2m  110.39 kB[22m[1m[22m
+2025-09-19T22:54:11.5939412Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-DisplayMediumItalic-BBCoS5uP.woff2                     [39m[1m[2m  110.46 kB[22m[1m[22m
+2025-09-19T22:54:11.5940440Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-BoldItalic-D0-5Ex_3.woff2                              [39m[1m[2m  110.52 kB[22m[1m[22m
+2025-09-19T22:54:11.5941467Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-ExtraBoldItalic-Cgmm6Ie2.woff2                         [39m[1m[2m  110.52 kB[22m[1m[22m
+2025-09-19T22:54:11.5942529Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-DisplayLightItalic-DBve3eI1.woff2                      [39m[1m[2m  110.56 kB[22m[1m[22m
+2025-09-19T22:54:11.5943581Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-SemiBoldItalic-J43nRLRr.woff2                          [39m[1m[2m  110.64 kB[22m[1m[22m
+2025-09-19T22:54:11.5944651Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-DisplayExtraBoldItalic-Czv3KFD8.woff2                  [39m[1m[2m  110.82 kB[22m[1m[22m
+2025-09-19T22:54:11.5945722Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-MediumItalic-iRTrRc5x.woff2                            [39m[1m[2m  110.82 kB[22m[1m[22m
+2025-09-19T22:54:11.5946786Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-DisplayExtraLightItalic-DRwiM9T2.woff2                 [39m[1m[2m  111.11 kB[22m[1m[22m
+2025-09-19T22:54:11.5948119Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-Regular-CODxxkJm.woff2                                 [39m[1m[2m  181.32 kB[22m[1m[22m
+2025-09-19T22:54:11.5949087Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-Thin-B_uUBCoZ.woff2                                    [39m[1m[2m  183.58 kB[22m[1m[22m
+2025-09-19T22:54:11.5950046Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-Black-Cshk1Ouu.woff2                                   [39m[1m[2m  189.20 kB[22m[1m[22m
+2025-09-19T22:54:11.5951009Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-Light-C30yDEIo.woff2                                   [39m[1m[2m  191.10 kB[22m[1m[22m
+2025-09-19T22:54:11.5951992Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-ExtraLight-CVi2P0ys.woff2                              [39m[1m[2m  192.27 kB[22m[1m[22m
+2025-09-19T22:54:11.5952979Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-Medium-CzCDdD8n.woff2                                  [39m[1m[2m  193.56 kB[22m[1m[22m
+2025-09-19T22:54:11.5953949Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-Bold-wPZ6LF5Z.woff2                                    [39m[1m[2m  194.16 kB[22m[1m[22m
+2025-09-19T22:54:11.5954912Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-Italic-C54yVidA.woff2                                  [39m[1m[2m  194.17 kB[22m[1m[22m
+2025-09-19T22:54:11.5955888Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-SemiBold-BeKvnjMK.woff2                                [39m[1m[2m  194.68 kB[22m[1m[22m
+2025-09-19T22:54:11.5956883Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-ExtraBold-BsIfWbEo.woff2                               [39m[1m[2m  195.07 kB[22m[1m[22m
+2025-09-19T22:54:11.5957977Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-ThinItalic-YHidimb8.woff2                              [39m[1m[2m  195.60 kB[22m[1m[22m
+2025-09-19T22:54:11.5958987Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-BlackItalic-BjcoK2hX.woff2                             [39m[1m[2m  198.44 kB[22m[1m[22m
+2025-09-19T22:54:11.5959999Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-LightItalic-BPE1IxhF.woff2                             [39m[1m[2m  202.69 kB[22m[1m[22m
+2025-09-19T22:54:11.5961155Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-ExtraLightItalic-6TFOpbKD.woff2                        [39m[1m[2m  202.93 kB[22m[1m[22m
+2025-09-19T22:54:11.5962195Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-BoldItalic-CzV6Tv7P.woff2                              [39m[1m[2m  203.78 kB[22m[1m[22m
+2025-09-19T22:54:11.5963208Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-SemiBoldItalic-C3grxp6v.woff2                          [39m[1m[2m  203.79 kB[22m[1m[22m
+2025-09-19T22:54:11.5964242Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-MediumItalic-CGBFDtcS.woff2                            [39m[1m[2m  204.23 kB[22m[1m[22m
+2025-09-19T22:54:11.5965279Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-ExtraBoldItalic-DxTsNEOh.woff2                         [39m[1m[2m  204.67 kB[22m[1m[22m
+2025-09-19T22:54:11.5966286Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-Regular-DBCApsjw.woff                                  [39m[1m[2m  246.04 kB[22m[1m[22m
+2025-09-19T22:54:11.5967334Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-Thin-Ul_XpALr.woff                                     [39m[1m[2m  250.35 kB[22m[1m[22m
+2025-09-19T22:54:11.5968285Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-Black-BOV8XG9T.woff                                    [39m[1m[2m  255.17 kB[22m[1m[22m
+2025-09-19T22:54:11.5969238Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-Light-BKVjUX-w.woff                                    [39m[1m[2m  258.66 kB[22m[1m[22m
+2025-09-19T22:54:11.5970330Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-ExtraLight-BMbphDvi.woff                               [39m[1m[2m  258.67 kB[22m[1m[22m
+2025-09-19T22:54:11.5971312Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-Medium-Bo29Umh-.woff                                   [39m[1m[2m  260.17 kB[22m[1m[22m
+2025-09-19T22:54:11.5972269Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-Italic-Cm_EBKra.woff                                   [39m[1m[2m  260.95 kB[22m[1m[22m
+2025-09-19T22:54:11.5973232Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-SemiBold-CNAjOvz0.woff                                 [39m[1m[2m  261.31 kB[22m[1m[22m
+2025-09-19T22:54:11.5974215Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-ExtraBold-CJBt3edo.woff                                [39m[1m[2m  261.85 kB[22m[1m[22m
+2025-09-19T22:54:11.5975183Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-Bold-g6Xj0jn7.woff                                     [39m[1m[2m  262.48 kB[22m[1m[22m
+2025-09-19T22:54:11.5976131Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter.var-C9xDBOS3.woff2                                     [39m[1m[2m  264.24 kB[22m[1m[22m
+2025-09-19T22:54:11.5977193Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-ThinItalic-BWOlBIs9.woff                               [39m[1m[2m  264.44 kB[22m[1m[22m
+2025-09-19T22:54:11.5978303Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-BlackItalic-Wdjh7EHa.woff                              [39m[1m[2m  265.52 kB[22m[1m[22m
+2025-09-19T22:54:11.5979329Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-ExtraLightItalic-D4UzWCoA.woff                         [39m[1m[2m  270.09 kB[22m[1m[22m
+2025-09-19T22:54:11.5980347Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-LightItalic-xkgxSzrU.woff                              [39m[1m[2m  270.72 kB[22m[1m[22m
+2025-09-19T22:54:11.5981358Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-MediumItalic-BuyD3L9U.woff                             [39m[1m[2m  271.80 kB[22m[1m[22m
+2025-09-19T22:54:11.5982371Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-SemiBoldItalic-CdzhttxU.woff                           [39m[1m[2m  271.90 kB[22m[1m[22m
+2025-09-19T22:54:11.5983395Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-ExtraBoldItalic-D0n3C9E8.woff                          [39m[1m[2m  272.21 kB[22m[1m[22m
+2025-09-19T22:54:11.5984521Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-BoldItalic-8tC2rJIs.woff                               [39m[1m[2m  272.32 kB[22m[1m[22m
+2025-09-19T22:54:11.5985531Z [2m../lms/public/frontend/[22m[2massets/[22m[32mInter-Italic.var-BGHziHgI.woff2                              [39m[1m[2m  297.27 kB[22m[1m[22m
+2025-09-19T22:54:11.5986680Z [2m../lms/public/frontend/[22m[2massets/[22m[35mProgrammingExerciseSubmission-f5BXjTF8.css                   [39m[1m[2m    0.05 kB[22m[1m[22m[2m │ gzip:     0.07 kB[22m
+2025-09-19T22:54:11.5988611Z [2m../lms/public/frontend/[22m[2massets/[22m[35mNotifications-Bax51NhM.css                                   [39m[1m[2m    0.05 kB[22m[1m[22m[2m │ gzip:     0.06 kB[22m
+2025-09-19T22:54:11.5990627Z [2m../lms/public/frontend/[22m[2massets/[22m[35mJobDetail-CxNe8sOu.css                                       [39m[1m[2m    0.07 kB[22m[1m[22m[2m │ gzip:     0.08 kB[22m
+2025-09-19T22:54:11.5992515Z [2m../lms/public/frontend/[22m[2massets/[22m[35mCourseDetail-CbcHN0vY.css                                    [39m[1m[2m    0.11 kB[22m[1m[22m[2m │ gzip:     0.11 kB[22m
+2025-09-19T22:54:11.5993614Z [2m../lms/public/frontend/[22m[2massets/[22m[35mQuizForm-BVS5er5W.css                                        [39m[1m[2m    0.13 kB[22m[1m[22m[2m │ gzip:     0.11 kB[22m
+2025-09-19T22:54:11.5994712Z [2m../lms/public/frontend/[22m[2massets/[22m[35mCertifiedParticipants-CInkYQ8Q.css                           [39m[1m[2m    0.13 kB[22m[1m[22m[2m │ gzip:     0.12 kB[22m
+2025-09-19T22:54:11.5995964Z [2m../lms/public/frontend/[22m[2massets/[22m[35mJobs-BxS8k0Zn.css                                            [39m[1m[2m    0.17 kB[22m[1m[22m[2m │ gzip:     0.14 kB[22m
+2025-09-19T22:54:11.5997022Z [2m../lms/public/frontend/[22m[2massets/[22m[35mBatchDetail-svDRwAkr.css                                     [39m[1m[2m    0.23 kB[22m[1m[22m[2m │ gzip:     0.15 kB[22m
+2025-09-19T22:54:11.5998211Z [2m../lms/public/frontend/[22m[2massets/[22m[35mBatch-CheouqEg.css                                           [39m[1m[2m    0.27 kB[22m[1m[22m[2m │ gzip:     0.21 kB[22m
+2025-09-19T22:54:11.5999241Z [2m../lms/public/frontend/[22m[2massets/[22m[35mBatchCard-BE6B3NxE.css                                       [39m[1m[2m    0.34 kB[22m[1m[22m[2m │ gzip:     0.23 kB[22m
+2025-09-19T22:54:11.6000287Z [2m../lms/public/frontend/[22m[2massets/[22m[35mCourseForm-BiFSvuyG.css                                      [39m[1m[2m    0.43 kB[22m[1m[22m[2m │ gzip:     0.20 kB[22m
+2025-09-19T22:54:11.6001349Z [2m../lms/public/frontend/[22m[2massets/[22m[35mCourseCard-CQG0b0lt.css                                      [39m[1m[2m    0.57 kB[22m[1m[22m[2m │ gzip:     0.34 kB[22m
+2025-09-19T22:54:11.6002402Z [2m../lms/public/frontend/[22m[2massets/[22m[35mLessonForm-CUa4XeSd.css                                      [39m[1m[2m    2.92 kB[22m[1m[22m[2m │ gzip:     1.11 kB[22m
+2025-09-19T22:54:11.6003439Z [2m../lms/public/frontend/[22m[2massets/[22m[35mLesson-CV_oxQcs.css                                          [39m[1m[2m    4.16 kB[22m[1m[22m[2m │ gzip:     1.28 kB[22m
+2025-09-19T22:54:11.6004450Z [2m../lms/public/frontend/[22m[2massets/[22m[35mindex-CnWfLn7U.css                                           [39m[1m[2m  178.28 kB[22m[1m[22m[2m │ gzip:    28.75 kB[22m
+2025-09-19T22:54:11.6005591Z [2m../lms/public/frontend/[22m[2massets/[22m[36mInsertLink-ColFqSGc.js                                       [39m[1m[2m    0.31 kB[22m[1m[22m[2m │ gzip:     0.25 kB[22m[2m │ map:      0.67 kB[22m
+2025-09-19T22:54:11.6006792Z [2m../lms/public/frontend/[22m[2massets/[22m[36mInsertVideo-DZ-qxFb1.js                                      [39m[1m[2m    0.33 kB[22m[1m[22m[2m │ gzip:     0.27 kB[22m[2m │ map:      0.73 kB[22m
+2025-09-19T22:54:11.6008310Z [2m../lms/public/frontend/[22m[2massets/[22m[36mDateRange-prW3nhVM.js                                        [39m[1m[2m    0.42 kB[22m[1m[22m[2m │ gzip:     0.32 kB[22m[2m │ map:      0.95 kB[22m
+2025-09-19T22:54:11.6009512Z [2m../lms/public/frontend/[22m[2massets/[22m[36mUserAvatar-DEhcJdGg.js                                       [39m[1m[2m    0.54 kB[22m[1m[22m[2m │ gzip:     0.38 kB[22m[2m │ map:      0.96 kB[22m
+2025-09-19T22:54:11.6010780Z [2m../lms/public/frontend/[22m[2massets/[22m[36mEmptyState.vue_vue_type_script_setup_true_lang-csd0T71i.js   [39m[1m[2m    0.80 kB[22m[1m[22m[2m │ gzip:     0.51 kB[22m[2m │ map:      1.40 kB[22m
+2025-09-19T22:54:11.6012078Z [2m../lms/public/frontend/[22m[2massets/[22m[36mInsertImage-BuoTg9hf.js                                      [39m[1m[2m    0.96 kB[22m[1m[22m[2m │ gzip:     0.60 kB[22m[2m │ map:      2.49 kB[22m
+2025-09-19T22:54:11.6013258Z [2m../lms/public/frontend/[22m[2massets/[22m[36mBadge-BpXW-uTH.js                                            [39m[1m[2m    1.10 kB[22m[1m[22m[2m │ gzip:     0.66 kB[22m[2m │ map:      2.95 kB[22m
+2025-09-19T22:54:11.6014403Z [2m../lms/public/frontend/[22m[2massets/[22m[36mQuizPage-Ddgx8KR6.js                                         [39m[1m[2m    1.20 kB[22m[1m[22m[2m │ gzip:     0.78 kB[22m[2m │ map:      2.84 kB[22m
+2025-09-19T22:54:11.6015647Z [2m../lms/public/frontend/[22m[2massets/[22m[36mRating.vue_vue_type_script_setup_true_lang-B0Se_QDI.js       [39m[1m[2m    1.27 kB[22m[1m[22m[2m │ gzip:     0.75 kB[22m[2m │ map:      3.43 kB[22m
+2025-09-19T22:54:11.6017055Z [2m../lms/public/frontend/[22m[2massets/[22m[36mCourseInstructors-Drcp3U3w.js                                [39m[1m[2m    1.27 kB[22m[1m[22m[2m │ gzip:     0.50 kB[22m[2m │ map:      2.56 kB[22m
+2025-09-19T22:54:11.6018477Z [2m../lms/public/frontend/[22m[2massets/[22m[36mProfileCertificates-Dz4KfXoN.js                              [39m[1m[2m    1.45 kB[22m[1m[22m[2m │ gzip:     0.85 kB[22m[2m │ map:      3.16 kB[22m
+2025-09-19T22:54:11.6019732Z [2m../lms/public/frontend/[22m[2massets/[22m[36mCertificationLinks-BKnzOGax.js                               [39m[1m[2m    1.62 kB[22m[1m[22m[2m │ gzip:     0.76 kB[22m[2m │ map:      3.76 kB[22m
+2025-09-19T22:54:11.6021040Z [2m../lms/public/frontend/[22m[2massets/[22m[36mNumberChart.vue_vue_type_script_setup_true_lang-Co1-s7s9.js  [39m[1m[2m    2.14 kB[22m[1m[22m[2m │ gzip:     1.11 kB[22m[2m │ map:      6.88 kB[22m
+2025-09-19T22:54:11.6022403Z [2m../lms/public/frontend/[22m[2massets/[22m[36mAxisChart.vue_vue_type_script_setup_true_lang-CBZQDIiM.js    [39m[1m[2m    2.18 kB[22m[1m[22m[2m │ gzip:     1.09 kB[22m[2m │ map:      7.40 kB[22m
+2025-09-19T22:54:11.6023698Z [2m../lms/public/frontend/[22m[2massets/[22m[36mQuizSubmissionList-F9r3jw1i.js                               [39m[1m[2m    2.28 kB[22m[1m[22m[2m │ gzip:     1.20 kB[22m[2m │ map:      5.32 kB[22m
+2025-09-19T22:54:11.6024902Z [2m../lms/public/frontend/[22m[2massets/[22m[36mBatchCard-CiYwDWv2.js                                        [39m[1m[2m    2.32 kB[22m[1m[22m[2m │ gzip:     1.02 kB[22m[2m │ map:      5.01 kB[22m
+2025-09-19T22:54:11.6026169Z [2m../lms/public/frontend/[22m[2massets/[22m[36mBreadcrumbs.vue_vue_type_script_setup_true_lang-CFP3mVDp.js  [39m[1m[2m    2.46 kB[22m[1m[22m[2m │ gzip:     1.12 kB[22m[2m │ map:      6.19 kB[22m
+2025-09-19T22:54:11.6027539Z [2m../lms/public/frontend/[22m[2massets/[22m[36mindex-Bj8YpEzn.js                                            [39m[1m[2m    2.59 kB[22m[1m[22m[2m │ gzip:     1.61 kB[22m[2m │ map:      5.95 kB[22m
+2025-09-19T22:54:11.6028712Z [2m../lms/public/frontend/[22m[2massets/[22m[36mPersonaForm-CKuylwNo.js                                      [39m[1m[2m    2.68 kB[22m[1m[22m[2m │ gzip:     1.38 kB[22m[2m │ map:      6.38 kB[22m
+2025-09-19T22:54:11.6030046Z [2m../lms/public/frontend/[22m[2massets/[22m[36mCourseCertification-FES1QQb-.js                              [39m[1m[2m    2.72 kB[22m[1m[22m[2m │ gzip:     1.37 kB[22m[2m │ map:      6.72 kB[22m
+2025-09-19T22:54:11.6031363Z [2m../lms/public/frontend/[22m[2massets/[22m[36mDonutChart.vue_vue_type_script_setup_true_lang-M0W59mDC.js   [39m[1m[2m    2.83 kB[22m[1m[22m[2m │ gzip:     1.45 kB[22m[2m │ map:      7.96 kB[22m
+2025-09-19T22:54:11.6032649Z [2m../lms/public/frontend/[22m[2massets/[22m[36mProgramDetail-BONEp8Oy.js                                    [39m[1m[2m    2.86 kB[22m[1m[22m[2m │ gzip:     1.44 kB[22m[2m │ map:      6.46 kB[22m
+2025-09-19T22:54:11.6033851Z [2m../lms/public/frontend/[22m[2massets/[22m[36mProfileRoles-B0hu4mZT.js                                     [39m[1m[2m    3.14 kB[22m[1m[22m[2m │ gzip:     1.25 kB[22m[2m │ map:      4.89 kB[22m
+2025-09-19T22:54:11.6035041Z [2m../lms/public/frontend/[22m[2massets/[22m[36mSCORMChapter-DyDYHc9y.js                                     [39m[1m[2m    3.28 kB[22m[1m[22m[2m │ gzip:     1.56 kB[22m[2m │ map:      8.25 kB[22m
+2025-09-19T22:54:11.6036231Z [2m../lms/public/frontend/[22m[2massets/[22m[36mFontColor-PcX4nFfu.js                                        [39m[1m[2m    3.39 kB[22m[1m[22m[2m │ gzip:     1.15 kB[22m[2m │ map:      7.48 kB[22m
+2025-09-19T22:54:11.6037508Z [2m../lms/public/frontend/[22m[2massets/[22m[36mCourseCard-CfiN3T_J.js                                       [39m[1m[2m    3.46 kB[22m[1m[22m[2m │ gzip:     1.41 kB[22m[2m │ map:      9.82 kB[22m
+2025-09-19T22:54:11.6038827Z [2m../lms/public/frontend/[22m[2massets/[22m[36mQuizSubmission-Bf9htKIK.js                                   [39m[1m[2m    3.47 kB[22m[1m[22m[2m │ gzip:     1.51 kB[22m[2m │ map:      7.57 kB[22m
+2025-09-19T22:54:11.6040037Z [2m../lms/public/frontend/[22m[2massets/[22m[36mNotifications-CuR3SnNS.js                                    [39m[1m[2m    3.50 kB[22m[1m[22m[2m │ gzip:     1.67 kB[22m[2m │ map:      8.51 kB[22m
+2025-09-19T22:54:11.6041236Z [2m../lms/public/frontend/[22m[2massets/[22m[36mProfileAbout-CAxehCsX.js                                     [39m[1m[2m    3.67 kB[22m[1m[22m[2m │ gzip:     1.71 kB[22m[2m │ map:      9.00 kB[22m
+2025-09-19T22:54:11.6042478Z [2m../lms/public/frontend/[22m[2massets/[22m[36mAssignmentSubmissionList-DiVxXgrx.js                         [39m[1m[2m    3.84 kB[22m[1m[22m[2m │ gzip:     1.70 kB[22m[2m │ map:      9.74 kB[22m
+2025-09-19T22:54:11.6043705Z [2m../lms/public/frontend/[22m[2massets/[22m[36mStatistics-Be_hEUht.js                                       [39m[1m[2m    4.00 kB[22m[1m[22m[2m │ gzip:     1.24 kB[22m[2m │ map:      9.12 kB[22m
+2025-09-19T22:54:11.6044916Z [2m../lms/public/frontend/[22m[2massets/[22m[36mCertifiedParticipants-Cv9tcvmj.js                            [39m[1m[2m    4.01 kB[22m[1m[22m[2m │ gzip:     1.82 kB[22m[2m │ map:      9.86 kB[22m
+2025-09-19T22:54:11.6046146Z [2m../lms/public/frontend/[22m[2massets/[22m[36mMultiSelect-DMDgND0z.js                                      [39m[1m[2m    4.12 kB[22m[1m[22m[2m │ gzip:     2.05 kB[22m[2m │ map:     11.68 kB[22m
+2025-09-19T22:54:11.6047406Z [2m../lms/public/frontend/[22m[2massets/[22m[36mWelcome-DoLFCe3f.js                                          [39m[1m[2m    4.38 kB[22m[1m[22m[2m │ gzip:     1.56 kB[22m[2m │ map:      9.05 kB[22m
+2025-09-19T22:54:11.6048548Z [2m../lms/public/frontend/[22m[2massets/[22m[36mJobs-Dv8VCAzX.js                                             [39m[1m[2m    4.59 kB[22m[1m[22m[2m │ gzip:     1.99 kB[22m[2m │ map:     11.51 kB[22m
+2025-09-19T22:54:11.6049695Z [2m../lms/public/frontend/[22m[2massets/[22m[36mQuizzes-BznBYazN.js                                          [39m[1m[2m    5.06 kB[22m[1m[22m[2m │ gzip:     2.24 kB[22m[2m │ map:     12.84 kB[22m
+2025-09-19T22:54:11.6051054Z [2m../lms/public/frontend/[22m[2massets/[22m[36mProgrammingExerciseSubmissions-Dv_mevuQ.js                   [39m[1m[2m    5.33 kB[22m[1m[22m[2m │ gzip:     2.22 kB[22m[2m │ map:     14.35 kB[22m
+2025-09-19T22:54:11.6052322Z [2m../lms/public/frontend/[22m[2massets/[22m[36mBatches-BeB0bxgk.js                                          [39m[1m[2m    5.59 kB[22m[1m[22m[2m │ gzip:     2.40 kB[22m[2m │ map:     14.61 kB[22m
+2025-09-19T22:54:11.6053471Z [2m../lms/public/frontend/[22m[2massets/[22m[36mCourses-a793PAH-.js                                          [39m[1m[2m    5.71 kB[22m[1m[22m[2m │ gzip:     2.50 kB[22m[2m │ map:     15.43 kB[22m
+2025-09-19T22:54:11.6054636Z [2m../lms/public/frontend/[22m[2massets/[22m[36mmode-json-vCRxLAOM.js                                        [39m[1m[2m    5.79 kB[22m[1m[22m[2m │ gzip:     2.22 kB[22m[2m │ map:     17.10 kB[22m
+2025-09-19T22:54:11.6055792Z [2m../lms/public/frontend/[22m[2massets/[22m[36mJobForm-X_wYObWr.js                                          [39m[1m[2m    5.83 kB[22m[1m[22m[2m │ gzip:     2.23 kB[22m[2m │ map:     14.92 kB[22m
+2025-09-19T22:54:11.6057032Z [2m../lms/public/frontend/[22m[2massets/[22m[36mECharts.vue_vue_type_script_setup_true_lang-xoei4zHl.js      [39m[1m[2m    6.01 kB[22m[1m[22m[2m │ gzip:     2.39 kB[22m[2m │ map:     17.73 kB[22m
+2025-09-19T22:54:11.6058443Z [2m../lms/public/frontend/[22m[2massets/[22m[36mAssignments-B7RdmPs1.js                                      [39m[1m[2m    6.07 kB[22m[1m[22m[2m │ gzip:     2.60 kB[22m[2m │ map:     15.45 kB[22m
+2025-09-19T22:54:11.6059770Z [2m../lms/public/frontend/[22m[2massets/[22m[36mProfileEvaluator-CP_m6j9u.js                                 [39m[1m[2m    6.30 kB[22m[1m[22m[2m │ gzip:     2.17 kB[22m[2m │ map:     14.83 kB[22m
+2025-09-19T22:54:11.6060965Z [2m../lms/public/frontend/[22m[2massets/[22m[36mTabButtons-Cg9Hg-zM.js                                       [39m[1m[2m    6.63 kB[22m[1m[22m[2m │ gzip:     2.78 kB[22m[2m │ map:     16.17 kB[22m
+2025-09-19T22:54:11.6062134Z [2m../lms/public/frontend/[22m[2massets/[22m[36mJobDetail-B_-H2i0c.js                                        [39m[1m[2m    6.86 kB[22m[1m[22m[2m │ gzip:     2.76 kB[22m[2m │ map:     16.73 kB[22m
+2025-09-19T22:54:11.6063338Z [2m../lms/public/frontend/[22m[2massets/[22m[36mUpcomingEvaluations-D9PTMGpM.js                              [39m[1m[2m    7.16 kB[22m[1m[22m[2m │ gzip:     2.82 kB[22m[2m │ map:     18.14 kB[22m
+2025-09-19T22:54:11.6064556Z [2m../lms/public/frontend/[22m[2massets/[22m[36mBatchDetail-0_3TsavL.js                                      [39m[1m[2m    7.19 kB[22m[1m[22m[2m │ gzip:     2.58 kB[22m[2m │ map:     17.25 kB[22m
+2025-09-19T22:54:11.6065714Z [2m../lms/public/frontend/[22m[2massets/[22m[36mBilling-Dj1tVQq-.js                                          [39m[1m[2m    8.24 kB[22m[1m[22m[2m │ gzip:     3.05 kB[22m[2m │ map:     19.03 kB[22m
+2025-09-19T22:54:11.6066887Z [2m../lms/public/frontend/[22m[2massets/[22m[36mmode-python-BTofk8iQ.js                                      [39m[1m[2m    8.56 kB[22m[1m[22m[2m │ gzip:     2.82 kB[22m[2m │ map:     25.59 kB[22m
+2025-09-19T22:54:11.6068162Z [2m../lms/public/frontend/[22m[2massets/[22m[36mDiscussions-HYEt_GtP.js                                      [39m[1m[2m    8.79 kB[22m[1m[22m[2m │ gzip:     3.10 kB[22m[2m │ map:     23.05 kB[22m
+2025-09-19T22:54:11.6069379Z [2m../lms/public/frontend/[22m[2massets/[22m[36mProgrammingExercises-9QQkMRs6.js                             [39m[1m[2m   10.00 kB[22m[1m[22m[2m │ gzip:     3.61 kB[22m[2m │ map:     25.71 kB[22m
+2025-09-19T22:54:11.6070581Z [2m../lms/public/frontend/[22m[2massets/[22m[36mTabs-C22u1Bd6.js                                             [39m[1m[2m   10.13 kB[22m[1m[22m[2m │ gzip:     3.81 kB[22m[2m │ map:     25.72 kB[22m
+2025-09-19T22:54:11.6071890Z [2m../lms/public/frontend/[22m[2massets/[22m[36mAssignmentSubmission-X9RNfbt2.js                             [39m[1m[2m   10.26 kB[22m[1m[22m[2m │ gzip:     3.81 kB[22m[2m │ map:     25.99 kB[22m
+2025-09-19T22:54:11.6073102Z [2m../lms/public/frontend/[22m[2massets/[22m[36mProfile-Clo1hvXL.js                                          [39m[1m[2m   10.46 kB[22m[1m[22m[2m │ gzip:     4.13 kB[22m[2m │ map:     25.56 kB[22m
+2025-09-19T22:54:11.6074263Z [2m../lms/public/frontend/[22m[2massets/[22m[36mBatchForm-DstfLu4R.js                                        [39m[1m[2m   12.08 kB[22m[1m[22m[2m │ gzip:     4.00 kB[22m[2m │ map:     29.66 kB[22m
+2025-09-19T22:54:11.6075429Z [2m../lms/public/frontend/[22m[2massets/[22m[36mQuizForm-E1q1N6Tv.js                                         [39m[1m[2m   13.68 kB[22m[1m[22m[2m │ gzip:     4.41 kB[22m[2m │ map:     33.87 kB[22m
+2025-09-19T22:54:11.6076609Z [2m../lms/public/frontend/[22m[2massets/[22m[36mCourseOutline-7fiZWejF.js                                    [39m[1m[2m   13.81 kB[22m[1m[22m[2m │ gzip:     4.92 kB[22m[2m │ map:     36.08 kB[22m
+2025-09-19T22:54:11.6077875Z [2m../lms/public/frontend/[22m[2massets/[22m[36mHome-B5PmEMl8.js                                             [39m[1m[2m   15.48 kB[22m[1m[22m[2m │ gzip:     4.30 kB[22m[2m │ map:     36.81 kB[22m
+2025-09-19T22:54:11.6079039Z [2m../lms/public/frontend/[22m[2massets/[22m[36mCourseDetail-BW1WBtPX.js                                     [39m[1m[2m   18.21 kB[22m[1m[22m[2m │ gzip:     5.89 kB[22m[2m │ map:     43.38 kB[22m
+2025-09-19T22:54:11.6080332Z [2m../lms/public/frontend/[22m[2massets/[22m[36mPrograms-D_nx9_NP.js                                         [39m[1m[2m   19.76 kB[22m[1m[22m[2m │ gzip:     5.98 kB[22m[2m │ map:     51.86 kB[22m
+2025-09-19T22:54:11.6081481Z [2m../lms/public/frontend/[22m[2massets/[22m[36mmode-css-Bq5wA6dt.js                                         [39m[1m[2m   21.15 kB[22m[1m[22m[2m │ gzip:     7.45 kB[22m[2m │ map:     50.36 kB[22m
+2025-09-19T22:54:11.6082657Z [2m../lms/public/frontend/[22m[2massets/[22m[36mCourseForm-DW3vRdRr.js                                       [39m[1m[2m   24.42 kB[22m[1m[22m[2m │ gzip:     7.51 kB[22m[2m │ map:     61.27 kB[22m
+2025-09-19T22:54:11.6083837Z [2m../lms/public/frontend/[22m[2massets/[22m[36mLessonForm-BfQTUZJe.js                                       [39m[1m[2m   24.63 kB[22m[1m[22m[2m │ gzip:     7.29 kB[22m[2m │ map:     64.62 kB[22m
+2025-09-19T22:54:11.6084998Z [2m../lms/public/frontend/[22m[2massets/[22m[36mindex-DNHeUrbD.js                                            [39m[1m[2m   25.99 kB[22m[1m[22m[2m │ gzip:    11.71 kB[22m[2m │ map:     48.27 kB[22m
+2025-09-19T22:54:11.6086145Z [2m../lms/public/frontend/[22m[2massets/[22m[36mindex-DH3HT4xA.js                                            [39m[1m[2m   26.34 kB[22m[1m[22m[2m │ gzip:     8.82 kB[22m[2m │ map:    111.43 kB[22m
+2025-09-19T22:54:11.6087451Z [2m../lms/public/frontend/[22m[2massets/[22m[36mmode-javascript-DEISMcqq.js                                  [39m[1m[2m   28.21 kB[22m[1m[22m[2m │ gzip:     9.26 kB[22m[2m │ map:     76.55 kB[22m
+2025-09-19T22:54:11.6088642Z [2m../lms/public/frontend/[22m[2massets/[22m[36mindex-B5xUoF5f.js                                            [39m[1m[2m   28.88 kB[22m[1m[22m[2m │ gzip:    11.78 kB[22m[2m │ map:     76.62 kB[22m
+2025-09-19T22:54:11.6089849Z [2m../lms/public/frontend/[22m[2massets/[22m[36mProfileEvaluationSchedule-CwY_K8g4.js                        [39m[1m[2m   42.95 kB[22m[1m[22m[2m │ gzip:    13.57 kB[22m[2m │ map:    128.79 kB[22m
+2025-09-19T22:54:11.6091065Z [2m../lms/public/frontend/[22m[2massets/[22m[36mindex-oOIXiVIh.js                                            [39m[1m[2m   45.26 kB[22m[1m[22m[2m │ gzip:    19.26 kB[22m[2m │ map:     75.54 kB[22m
+2025-09-19T22:54:11.6092774Z [2m../lms/public/frontend/[22m[2massets/[22m[36mmode-html-CxFmHiNF.js                                        [39m[1m[2m   63.58 kB[22m[1m[22m[2m │ gzip:    19.67 kB[22m[2m │ map:    165.67 kB[22m
+2025-09-19T22:54:11.6095082Z [2m../lms/public/frontend/[22m[2massets/[22m[36mindex-n3LH6G3c.js                                            [39m[1m[2m   86.44 kB[22m[1m[22m[2m │ gzip:    34.33 kB[22m[2m │ map:    119.89 kB[22m
+2025-09-19T22:54:11.6097849Z [2m../lms/public/frontend/[22m[2massets/[22m[36mvuedraggable.umd-Db3BrjIo.js                                 [39m[1m[2m  100.82 kB[22m[1m[22m[2m │ gzip:    36.13 kB[22m[2m │ map:    445.76 kB[22m
+2025-09-19T22:54:11.6100373Z [2m../lms/public/frontend/[22m[2massets/[22m[36mLesson-CRpDTBhU.js                                           [39m[1m[2m  126.08 kB[22m[1m[22m[2m │ gzip:    57.51 kB[22m[2m │ map:    521.40 kB[22m
+2025-09-19T22:54:11.6102727Z [2m../lms/public/frontend/[22m[2massets/[22m[36meditorjs-CjdnXl8-.js                                         [39m[1m[2m  243.42 kB[22m[1m[22m[2m │ gzip:    66.07 kB[22m[2m │ map:    618.64 kB[22m
+2025-09-19T22:54:11.6105308Z [2m../lms/public/frontend/[22m[2massets/[22m[36mProgrammingExerciseSubmission-CgMFztrb.js                    [39m[1m[2m  413.44 kB[22m[1m[22m[2m │ gzip:   133.05 kB[22m[2m │ map:  1,786.84 kB[22m
+2025-09-19T22:54:11.6108059Z [2m../lms/public/frontend/[22m[2massets/[22m[36mBatch-Bzhs_Fpe.js                                            [39m[1m[33m  628.86 kB[39m[22m[2m │ gzip:   172.30 kB[22m[2m │ map:  1,395.01 kB[22m
+2025-09-19T22:54:11.6110641Z [2m../lms/public/frontend/[22m[2massets/[22m[36mindex-Cbl1ORBB.js                                            [39m[1m[33m4,212.31 kB[39m[22m[2m │ gzip: 1,202.60 kB[22m[2m │ map: 16,770.18 kB[22m
+2025-09-19T22:54:11.6111802Z [32m✓ built in 32.14s[39m
+2025-09-19T22:54:13.4952243Z 
+2025-09-19T22:54:13.4952972Z [36mPWA v0.20.5[39m
+2025-09-19T22:54:13.4953616Z mode      [35mgenerateSW[39m
+2025-09-19T22:54:13.4954703Z precache  [32m96 entries[39m [2m(6528.52 KiB)[22m
+2025-09-19T22:54:13.4955132Z files generated
+2025-09-19T22:54:13.4955613Z   [2m../lms/public/frontend/sw.js.map[22m
+2025-09-19T22:54:13.4956119Z   [2m../lms/public/frontend/sw.js[22m
+2025-09-19T22:54:13.4956711Z   [2m../lms/public/frontend/workbox-5ffe50d4.js.map[22m
+2025-09-19T22:54:13.4957570Z   [2m../lms/public/frontend/workbox-5ffe50d4.js[22m
+2025-09-19T22:54:13.9678038Z yarn run v1.22.22
+2025-09-19T22:54:14.0084718Z $ cp ../lms/public/frontend/index.html ../lms/www/lms.html
+2025-09-19T22:54:14.0202287Z Done in 0.06s.
+2025-09-19T22:54:14.0418957Z ##[group]Run cd ~/frappe-bench
+2025-09-19T22:54:14.0419433Z [36;1mcd ~/frappe-bench[0m
+2025-09-19T22:54:14.0419968Z [36;1mbench --site test.local serve --port 8080 &[0m
+2025-09-19T22:54:14.0420523Z [36;1msleep 30[0m
+2025-09-19T22:54:14.0462855Z shell: /usr/bin/bash -e {0}
+2025-09-19T22:54:14.0463250Z env:
+2025-09-19T22:54:14.0463664Z   pythonLocation: /opt/hostedtoolcache/Python/3.10.18/x64
+2025-09-19T22:54:14.0464393Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.10.18/x64/lib/pkgconfig
+2025-09-19T22:54:14.0465109Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.10.18/x64
+2025-09-19T22:54:14.0465734Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.10.18/x64
+2025-09-19T22:54:14.0466368Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.10.18/x64
+2025-09-19T22:54:14.0466992Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.10.18/x64/lib
+2025-09-19T22:54:14.0467789Z ##[endgroup]
+2025-09-19T22:54:49.0596895Z ##[group]Run npm install -g @lhci/cli
+2025-09-19T22:54:49.0597437Z [36;1mnpm install -g @lhci/cli[0m
+2025-09-19T22:54:49.0627612Z shell: /usr/bin/bash -e {0}
+2025-09-19T22:54:49.0627825Z env:
+2025-09-19T22:54:49.0628169Z   pythonLocation: /opt/hostedtoolcache/Python/3.10.18/x64
+2025-09-19T22:54:49.0628566Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.10.18/x64/lib/pkgconfig
+2025-09-19T22:54:49.0628953Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.10.18/x64
+2025-09-19T22:54:49.0629299Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.10.18/x64
+2025-09-19T22:54:49.0629638Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.10.18/x64
+2025-09-19T22:54:49.0629991Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.10.18/x64/lib
+2025-09-19T22:54:49.0630268Z ##[endgroup]
+2025-09-19T22:54:57.4470359Z npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
+2025-09-19T22:54:57.4829103Z npm warn deprecated glob@7.2.3: Glob versions prior to v9 are no longer supported
+2025-09-19T22:54:58.6041329Z npm warn deprecated rimraf@3.0.2: Rimraf versions prior to v4 are no longer supported
+2025-09-19T22:54:58.6429435Z npm warn deprecated rimraf@2.7.1: Rimraf versions prior to v4 are no longer supported
+2025-09-19T22:55:00.7412891Z 
+2025-09-19T22:55:00.7413479Z added 330 packages in 12s
+2025-09-19T22:55:00.7414761Z 
+2025-09-19T22:55:00.7415270Z 27 packages are looking for funding
+2025-09-19T22:55:00.7415795Z   run `npm fund` for details
+2025-09-19T22:55:00.7691283Z ##[group]Run lhci autorun --upload.target=temporary-public-storage || true
+2025-09-19T22:55:00.7691811Z [36;1mlhci autorun --upload.target=temporary-public-storage || true[0m
+2025-09-19T22:55:00.7692142Z [36;1m[0m
+2025-09-19T22:55:00.7692332Z [36;1m# Create manual lighthouse reports[0m
+2025-09-19T22:55:00.7692945Z [36;1mnpx lighthouse http://localhost:8080/lms --output html --output-path lighthouse-lms.html --quiet --chrome-flags="--headless --no-sandbox"[0m
+2025-09-19T22:55:00.7694083Z [36;1mnpx lighthouse http://localhost:8080/lms/courses --output html --output-path lighthouse-courses.html --quiet --chrome-flags="--headless --no-sandbox"[0m
+2025-09-19T22:55:00.7726098Z shell: /usr/bin/bash -e {0}
+2025-09-19T22:55:00.7726332Z env:
+2025-09-19T22:55:00.7726573Z   pythonLocation: /opt/hostedtoolcache/Python/3.10.18/x64
+2025-09-19T22:55:00.7726979Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.10.18/x64/lib/pkgconfig
+2025-09-19T22:55:00.7727576Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.10.18/x64
+2025-09-19T22:55:00.7727923Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.10.18/x64
+2025-09-19T22:55:00.7728269Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.10.18/x64
+2025-09-19T22:55:00.7728607Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.10.18/x64/lib
+2025-09-19T22:55:00.7728890Z ##[endgroup]
+2025-09-19T22:55:01.4173187Z ✅  .lighthouseci/ directory writable
+2025-09-19T22:55:01.4178005Z ⚠️   Configuration file not found
+2025-09-19T22:55:01.4978245Z ✅  Chrome installation found
+2025-09-19T22:55:01.4980429Z Healthcheck passed!
+2025-09-19T22:55:01.5039849Z 
+2025-09-19T22:55:01.5046225Z 
+2025-09-19T22:55:01.5046412Z ERROR:
+2025-09-19T22:55:01.5047536Z Unable to automatically determine the location of static site files.
+2025-09-19T22:55:01.5048985Z Use the CLI flag --collect.staticDistDir or a lighthouserc config file to tell Lighthouse CI where your HTML files are located.
+2025-09-19T22:55:01.5050592Z Learn More: https://github.com/GoogleChrome/lighthouse-ci/blob/v0.15.1/docs/configuration.md
+2025-09-19T22:55:01.5051261Z 
+2025-09-19T22:55:01.5056752Z Error: Failed to automatically determine `staticDistDir`
+2025-09-19T22:55:01.5058395Z     at findBuildDir (/opt/hostedtoolcache/node/18.20.8/x64/lib/node_modules/@lhci/cli/src/autorun/autorun.js:86:9)
+2025-09-19T22:55:01.5059837Z     at Object.runCommand (/opt/hostedtoolcache/node/18.20.8/x64/lib/node_modules/@lhci/cli/src/autorun/autorun.js:132:29)
+2025-09-19T22:55:01.5061123Z     at run (/opt/hostedtoolcache/node/18.20.8/x64/lib/node_modules/@lhci/cli/src/cli.js:109:24)
+2025-09-19T22:55:01.5062254Z     at Object.<anonymous> (/opt/hostedtoolcache/node/18.20.8/x64/lib/node_modules/@lhci/cli/src/cli.js:134:1)
+2025-09-19T22:55:01.5063129Z     at Module._compile (node:internal/modules/cjs/loader:1364:14)
+2025-09-19T22:55:01.5063823Z     at Module._extensions..js (node:internal/modules/cjs/loader:1422:10)
+2025-09-19T22:55:01.5064539Z     at Module.load (node:internal/modules/cjs/loader:1203:32)
+2025-09-19T22:55:01.5065140Z     at Module._load (node:internal/modules/cjs/loader:1019:12)
+2025-09-19T22:55:01.5065961Z     at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:128:12)
+2025-09-19T22:55:02.9411979Z     at node:internal/main/run_main_module:28:49npm warn exec The following package was not found and will be installed: lighthouse@12.8.2
+2025-09-19T22:55:43.5523284Z ##[group]Run actions/upload-artifact@v4
+2025-09-19T22:55:43.5523554Z with:
+2025-09-19T22:55:43.5523731Z   name: lighthouse-reports
+2025-09-19T22:55:43.5523945Z   path: lighthouse-*.html
+2025-09-19T22:55:43.5524154Z   if-no-files-found: warn
+2025-09-19T22:55:43.5524347Z   compression-level: 6
+2025-09-19T22:55:43.5524531Z   overwrite: false
+2025-09-19T22:55:43.5524710Z   include-hidden-files: false
+2025-09-19T22:55:43.5524911Z env:
+2025-09-19T22:55:43.5525132Z   pythonLocation: /opt/hostedtoolcache/Python/3.10.18/x64
+2025-09-19T22:55:43.5525518Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.10.18/x64/lib/pkgconfig
+2025-09-19T22:55:43.5525895Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.10.18/x64
+2025-09-19T22:55:43.5526223Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.10.18/x64
+2025-09-19T22:55:43.5526553Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.10.18/x64
+2025-09-19T22:55:43.5526879Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.10.18/x64/lib
+2025-09-19T22:55:43.5527417Z ##[endgroup]
+2025-09-19T22:55:43.7624571Z With the provided path, there will be 2 files uploaded
+2025-09-19T22:55:43.7630705Z Artifact name is valid!
+2025-09-19T22:55:43.7632758Z Root directory input is valid!
+2025-09-19T22:55:43.9820108Z Beginning upload of artifact content to blob storage
+2025-09-19T22:55:44.5374441Z Uploaded bytes 303482
+2025-09-19T22:55:44.6511713Z Finished uploading artifact content to blob storage!
+2025-09-19T22:55:44.6515450Z SHA256 digest of uploaded artifact zip is a96379f6d294895425949c6beee4b4c65960c186733bb8567efd5184a55e882a
+2025-09-19T22:55:44.6516645Z Finalizing artifact upload
+2025-09-19T22:55:44.7826664Z Artifact lighthouse-reports.zip successfully finalized. Artifact ID 4060820659
+2025-09-19T22:55:44.7828334Z Artifact lighthouse-reports has been successfully uploaded! Final size is 303482 bytes. Artifact ID is 4060820659
+2025-09-19T22:55:44.7834337Z Artifact download URL: https://github.com/audit-brands/frappe-lms-chat/actions/runs/17871475744/artifacts/4060820659
+2025-09-19T22:55:44.7970099Z Post job cleanup.
+2025-09-19T22:55:44.9574411Z Post job cleanup.
+2025-09-19T22:55:45.1164679Z Post job cleanup.
+2025-09-19T22:55:45.2099976Z [command]/usr/bin/git version
+2025-09-19T22:55:45.2141816Z git version 2.51.0
+2025-09-19T22:55:45.2205706Z Temporarily overriding HOME='/home/runner/work/_temp/a54833d4-4333-40fa-b50c-122d9c2bade5' before making global git config changes
+2025-09-19T22:55:45.2206996Z Adding repository directory to the temporary git global config as a safe directory
+2025-09-19T22:55:45.2214257Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/frappe-lms-chat/frappe-lms-chat
+2025-09-19T22:55:45.2262070Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2025-09-19T22:55:45.2300996Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2025-09-19T22:55:45.2533344Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2025-09-19T22:55:45.2553255Z http.https://github.com/.extraheader
+2025-09-19T22:55:45.2565380Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2025-09-19T22:55:45.2594786Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2025-09-19T22:55:45.2902323Z Print service container logs: 369f5b7060074b54ac70daee275e34cf_redisalpine_05cecc
+2025-09-19T22:55:45.2907629Z ##[command]/usr/bin/docker logs --details d05bf412526af0ed748621e4b9b47b1dc6e34ae3b2587408ee77b95f7b7e20fb
+2025-09-19T22:55:45.3026265Z  Starting Redis Server
+2025-09-19T22:55:45.3028969Z  1:C 19 Sep 2025 22:48:48.945 # WARNING Memory overcommit must be enabled! Without it, a background save or replication may fail under low memory condition. Being disabled, it can also cause failures without low memory condition, see https://github.com/jemalloc/jemalloc/issues/1328. To fix this issue add 'vm.overcommit_memory = 1' to /etc/sysctl.conf and then reboot or run the command 'sysctl vm.overcommit_memory=1' for this to take effect.
+2025-09-19T22:55:45.3031732Z  1:C 19 Sep 2025 22:48:48.945 * oO0OoO0OoO0Oo Redis is starting oO0OoO0OoO0Oo
+2025-09-19T22:55:45.3032561Z  1:C 19 Sep 2025 22:48:48.945 * Redis version=8.2.1, bits=64, commit=00000000, modified=1, pid=1, just started
+2025-09-19T22:55:45.3033180Z  1:C 19 Sep 2025 22:48:48.945 * Configuration loaded
+2025-09-19T22:55:45.3033520Z  1:M 19 Sep 2025 22:48:48.945 * monotonic clock: POSIX clock_gettime
+2025-09-19T22:55:45.3033878Z  1:M 19 Sep 2025 22:48:48.946 * Running mode=standalone, port=6379.
+2025-09-19T22:55:45.3034251Z  1:M 19 Sep 2025 22:48:48.946 * <bf> RedisBloom version 8.2.0 (Git=unknown)
+2025-09-19T22:55:45.3034620Z  1:M 19 Sep 2025 22:48:48.946 * <bf> Registering configuration options: [
+2025-09-19T22:55:45.3034997Z  1:M 19 Sep 2025 22:48:48.946 * <bf> 	{ bf-error-rate       :      0.01 }
+2025-09-19T22:55:45.3035572Z  1:M 19 Sep 2025 22:48:48.946 * <bf> 	{ bf-initial-size     :       100 }
+2025-09-19T22:55:45.3035910Z  1:M 19 Sep 2025 22:48:48.946 * <bf> 	{ bf-expansion-factor :         2 }
+2025-09-19T22:55:45.3036243Z  1:M 19 Sep 2025 22:48:48.946 * <bf> 	{ cf-bucket-size      :         2 }
+2025-09-19T22:55:45.3036573Z  1:M 19 Sep 2025 22:48:48.946 * <bf> 	{ cf-initial-size     :      1024 }
+2025-09-19T22:55:45.3036904Z  1:M 19 Sep 2025 22:48:48.946 * <bf> 	{ cf-max-iterations   :        20 }
+2025-09-19T22:55:45.3037469Z  1:M 19 Sep 2025 22:48:48.946 * <bf> 	{ cf-expansion-factor :         1 }
+2025-09-19T22:55:45.3037802Z  1:M 19 Sep 2025 22:48:48.946 * <bf> 	{ cf-max-expansions   :        32 }
+2025-09-19T22:55:45.3038088Z  1:M 19 Sep 2025 22:48:48.946 * <bf> ]
+2025-09-19T22:55:45.3038440Z  1:M 19 Sep 2025 22:48:48.947 * Module 'bf' loaded from /usr/local/lib/redis/modules//redisbloom.so
+2025-09-19T22:55:45.3038899Z  1:M 19 Sep 2025 22:48:48.949 * <search> Redis version found by RedisSearch : 8.2.1 - oss
+2025-09-19T22:55:45.3039301Z  1:M 19 Sep 2025 22:48:48.950 * <search> RediSearch version 8.2.1 (Git=dba8dd0)
+2025-09-19T22:55:45.3039701Z  1:M 19 Sep 2025 22:48:48.950 * <search> Low level api version 1 initialized successfully
+2025-09-19T22:55:45.3040657Z  1:M 19 Sep 2025 22:48:48.950 * <search> gc: ON, prefix min length: 2, min word length to stem: 4, prefix max expansions: 200, query timeout (ms): 500, timeout policy: return, cursor read size: 1000, cursor max idle (ms): 300000, max doctable size: 1000000, max number of search results:  1000000, 
+2025-09-19T22:55:45.3041558Z  1:M 19 Sep 2025 22:48:48.950 * <search> Initialized thread pools!
+2025-09-19T22:55:45.3041917Z  1:M 19 Sep 2025 22:48:48.950 * <search> Disabled workers threadpool of size 0
+2025-09-19T22:55:45.3042269Z  1:M 19 Sep 2025 22:48:48.950 * <search> Subscribe to config changes
+2025-09-19T22:55:45.3042610Z  1:M 19 Sep 2025 22:48:48.950 * <search> Enabled role change notification
+2025-09-19T22:55:45.3043079Z  1:M 19 Sep 2025 22:48:48.950 * <search> Cluster configuration: AUTO partitions, type: 0, coordinator timeout: 0ms
+2025-09-19T22:55:45.3043776Z  1:M 19 Sep 2025 22:48:48.950 * <search> Register write commands
+2025-09-19T22:55:45.3044202Z  1:M 19 Sep 2025 22:48:48.950 * Module 'search' loaded from /usr/local/lib/redis/modules//redisearch.so
+2025-09-19T22:55:45.3045464Z  1:M 19 Sep 2025 22:48:48.951 * <timeseries> RedisTimeSeries version 80200, git_sha=1439d4a439ca9c063e6ef124a510abff09a5d493
+2025-09-19T22:55:45.3046255Z  1:M 19 Sep 2025 22:48:48.951 * <timeseries> Redis version found by RedisTimeSeries : 8.2.1 - oss
+2025-09-19T22:55:45.3046702Z  1:M 19 Sep 2025 22:48:48.951 * <timeseries> Registering configuration options: [
+2025-09-19T22:55:45.3047317Z  1:M 19 Sep 2025 22:48:48.951 * <timeseries> 	{ ts-compaction-policy   :              }
+2025-09-19T22:55:45.3047738Z  1:M 19 Sep 2025 22:48:48.951 * <timeseries> 	{ ts-num-threads         :            3 }
+2025-09-19T22:55:45.3048136Z  1:M 19 Sep 2025 22:48:48.951 * <timeseries> 	{ ts-retention-policy    :            0 }
+2025-09-19T22:55:45.3048535Z  1:M 19 Sep 2025 22:48:48.951 * <timeseries> 	{ ts-duplicate-policy    :        block }
+2025-09-19T22:55:45.3048925Z  1:M 19 Sep 2025 22:48:48.951 * <timeseries> 	{ ts-chunk-size-bytes    :         4096 }
+2025-09-19T22:55:45.3049309Z  1:M 19 Sep 2025 22:48:48.951 * <timeseries> 	{ ts-encoding            :   compressed }
+2025-09-19T22:55:45.3049894Z  1:M 19 Sep 2025 22:48:48.951 * <timeseries> 	{ ts-ignore-max-time-diff:            0 }
+2025-09-19T22:55:45.3050285Z  1:M 19 Sep 2025 22:48:48.951 * <timeseries> 	{ ts-ignore-max-val-diff :     0.000000 }
+2025-09-19T22:55:45.3050618Z  1:M 19 Sep 2025 22:48:48.951 * <timeseries> ]
+2025-09-19T22:55:45.3050904Z  1:M 19 Sep 2025 22:48:48.951 * <timeseries> Detected redis oss
+2025-09-19T22:55:45.3051247Z  1:M 19 Sep 2025 22:48:48.951 * <timeseries> Enabled diskless replication
+2025-09-19T22:55:45.3051716Z  1:M 19 Sep 2025 22:48:48.951 * Module 'timeseries' loaded from /usr/local/lib/redis/modules//redistimeseries.so
+2025-09-19T22:55:45.3052336Z  1:M 19 Sep 2025 22:48:48.952 * <ReJSON> Created new data type 'ReJSON-RL'
+2025-09-19T22:55:45.3052722Z  1:M 19 Sep 2025 22:48:48.952 * <ReJSON> version: 80200 git sha: unknown branch: unknown
+2025-09-19T22:55:45.3053104Z  1:M 19 Sep 2025 22:48:48.952 * <ReJSON> Exported RedisJSON_V1 API
+2025-09-19T22:55:45.3053434Z  1:M 19 Sep 2025 22:48:48.952 * <ReJSON> Exported RedisJSON_V2 API
+2025-09-19T22:55:45.3053754Z  1:M 19 Sep 2025 22:48:48.952 * <ReJSON> Exported RedisJSON_V3 API
+2025-09-19T22:55:45.3054076Z  1:M 19 Sep 2025 22:48:48.952 * <ReJSON> Exported RedisJSON_V4 API
+2025-09-19T22:55:45.3054533Z  1:M 19 Sep 2025 22:48:48.952 * <ReJSON> Exported RedisJSON_V5 API
+2025-09-19T22:55:45.3054868Z  1:M 19 Sep 2025 22:48:48.952 * <ReJSON> Enabled diskless replication
+2025-09-19T22:55:45.3055261Z  1:M 19 Sep 2025 22:48:48.952 * <ReJSON> Initialized shared string cache, thread safe: false.
+2025-09-19T22:55:45.3055724Z  1:M 19 Sep 2025 22:48:48.952 * Module 'ReJSON' loaded from /usr/local/lib/redis/modules//rejson.so
+2025-09-19T22:55:45.3056132Z  1:M 19 Sep 2025 22:48:48.952 * <search> Acquired RedisJSON_V5 API
+2025-09-19T22:55:45.3056429Z  1:M 19 Sep 2025 22:48:48.952 * Server initialized
+2025-09-19T22:55:45.3056724Z  1:M 19 Sep 2025 22:48:48.952 * Ready to accept connections tcp
+2025-09-19T22:55:45.3057015Z  1:M 19 Sep 2025 22:52:17.370 * DB saved on disk
+2025-09-19T22:55:45.3062774Z Stop and remove container: 369f5b7060074b54ac70daee275e34cf_redisalpine_05cecc
+2025-09-19T22:55:45.3067347Z ##[command]/usr/bin/docker rm --force d05bf412526af0ed748621e4b9b47b1dc6e34ae3b2587408ee77b95f7b7e20fb
+2025-09-19T22:55:45.4308007Z d05bf412526af0ed748621e4b9b47b1dc6e34ae3b2587408ee77b95f7b7e20fb
+2025-09-19T22:55:45.4328920Z Print service container logs: 88f22190a2ba4ad29ba4e5fe3c299995_redisalpine_a45579
+2025-09-19T22:55:45.4330079Z ##[command]/usr/bin/docker logs --details 8c96ed78e6930fff452180f8cbbd5423c0a9c89ef6a339e8c2e8a060dc09d59c
+2025-09-19T22:55:45.4449475Z  Starting Redis Server
+2025-09-19T22:55:45.4453482Z  1:C 19 Sep 2025 22:48:49.672 # WARNING Memory overcommit must be enabled! Without it, a background save or replication may fail under low memory condition. Being disabled, it can also cause failures without low memory condition, see https://github.com/jemalloc/jemalloc/issues/1328. To fix this issue add 'vm.overcommit_memory = 1' to /etc/sysctl.conf and then reboot or run the command 'sysctl vm.overcommit_memory=1' for this to take effect.
+2025-09-19T22:55:45.4456209Z  1:C 19 Sep 2025 22:48:49.672 * oO0OoO0OoO0Oo Redis is starting oO0OoO0OoO0Oo
+2025-09-19T22:55:45.4457038Z  1:C 19 Sep 2025 22:48:49.672 * Redis version=8.2.1, bits=64, commit=00000000, modified=1, pid=1, just started
+2025-09-19T22:55:45.4458005Z  1:C 19 Sep 2025 22:48:49.672 * Configuration loaded
+2025-09-19T22:55:45.4458575Z  1:M 19 Sep 2025 22:48:49.672 * monotonic clock: POSIX clock_gettime
+2025-09-19T22:55:45.4459190Z  1:M 19 Sep 2025 22:48:49.673 * Running mode=standalone, port=6379.
+2025-09-19T22:55:45.4459830Z  1:M 19 Sep 2025 22:48:49.674 * <bf> RedisBloom version 8.2.0 (Git=unknown)
+2025-09-19T22:55:45.4460494Z  1:M 19 Sep 2025 22:48:49.674 * <bf> Registering configuration options: [
+2025-09-19T22:55:45.4461121Z  1:M 19 Sep 2025 22:48:49.674 * <bf> 	{ bf-error-rate       :      0.01 }
+2025-09-19T22:55:45.4461715Z  1:M 19 Sep 2025 22:48:49.674 * <bf> 	{ bf-initial-size     :       100 }
+2025-09-19T22:55:45.4462339Z  1:M 19 Sep 2025 22:48:49.674 * <bf> 	{ bf-expansion-factor :         2 }
+2025-09-19T22:55:45.4462937Z  1:M 19 Sep 2025 22:48:49.674 * <bf> 	{ cf-bucket-size      :         2 }
+2025-09-19T22:55:45.4463530Z  1:M 19 Sep 2025 22:48:49.674 * <bf> 	{ cf-initial-size     :      1024 }
+2025-09-19T22:55:45.4464124Z  1:M 19 Sep 2025 22:48:49.674 * <bf> 	{ cf-max-iterations   :        20 }
+2025-09-19T22:55:45.4464726Z  1:M 19 Sep 2025 22:48:49.674 * <bf> 	{ cf-expansion-factor :         1 }
+2025-09-19T22:55:45.4465335Z  1:M 19 Sep 2025 22:48:49.674 * <bf> 	{ cf-max-expansions   :        32 }
+2025-09-19T22:55:45.4466085Z  1:M 19 Sep 2025 22:48:49.674 * <bf> ]
+2025-09-19T22:55:45.4466703Z  1:M 19 Sep 2025 22:48:49.674 * Module 'bf' loaded from /usr/local/lib/redis/modules//redisbloom.so
+2025-09-19T22:55:45.4467663Z  1:M 19 Sep 2025 22:48:49.677 * <search> Redis version found by RedisSearch : 8.2.1 - oss
+2025-09-19T22:55:45.4468314Z  1:M 19 Sep 2025 22:48:49.677 * <search> RediSearch version 8.2.1 (Git=dba8dd0)
+2025-09-19T22:55:45.4468950Z  1:M 19 Sep 2025 22:48:49.678 * <search> Low level api version 1 initialized successfully
+2025-09-19T22:55:45.4470413Z  1:M 19 Sep 2025 22:48:49.678 * <search> gc: ON, prefix min length: 2, min word length to stem: 4, prefix max expansions: 200, query timeout (ms): 500, timeout policy: return, cursor read size: 1000, cursor max idle (ms): 300000, max doctable size: 1000000, max number of search results:  1000000, 
+2025-09-19T22:55:45.4472003Z  1:M 19 Sep 2025 22:48:49.678 * <search> Initialized thread pools!
+2025-09-19T22:55:45.4472674Z  1:M 19 Sep 2025 22:48:49.678 * <search> Disabled workers threadpool of size 0
+2025-09-19T22:55:45.4473788Z  1:M 19 Sep 2025 22:48:49.678 * <search> Subscribe to config changes
+2025-09-19T22:55:45.4474248Z  1:M 19 Sep 2025 22:48:49.678 * <search> Enabled role change notification
+2025-09-19T22:55:45.4474746Z  1:M 19 Sep 2025 22:48:49.678 * <search> Cluster configuration: AUTO partitions, type: 0, coordinator timeout: 0ms
+2025-09-19T22:55:45.4475224Z  1:M 19 Sep 2025 22:48:49.678 * <search> Register write commands
+2025-09-19T22:55:45.4475650Z  1:M 19 Sep 2025 22:48:49.678 * Module 'search' loaded from /usr/local/lib/redis/modules//redisearch.so
+2025-09-19T22:55:45.4476221Z  1:M 19 Sep 2025 22:48:49.679 * <timeseries> RedisTimeSeries version 80200, git_sha=1439d4a439ca9c063e6ef124a510abff09a5d493
+2025-09-19T22:55:45.4476783Z  1:M 19 Sep 2025 22:48:49.679 * <timeseries> Redis version found by RedisTimeSeries : 8.2.1 - oss
+2025-09-19T22:55:45.4477470Z  1:M 19 Sep 2025 22:48:49.679 * <timeseries> Registering configuration options: [
+2025-09-19T22:55:45.4477891Z  1:M 19 Sep 2025 22:48:49.679 * <timeseries> 	{ ts-compaction-policy   :              }
+2025-09-19T22:55:45.4478306Z  1:M 19 Sep 2025 22:48:49.679 * <timeseries> 	{ ts-num-threads         :            3 }
+2025-09-19T22:55:45.4478701Z  1:M 19 Sep 2025 22:48:49.679 * <timeseries> 	{ ts-retention-policy    :            0 }
+2025-09-19T22:55:45.4479253Z  1:M 19 Sep 2025 22:48:49.679 * <timeseries> 	{ ts-duplicate-policy    :        block }
+2025-09-19T22:55:45.4479674Z  1:M 19 Sep 2025 22:48:49.679 * <timeseries> 	{ ts-chunk-size-bytes    :         4096 }
+2025-09-19T22:55:45.4480074Z  1:M 19 Sep 2025 22:48:49.679 * <timeseries> 	{ ts-encoding            :   compressed }
+2025-09-19T22:55:45.4480467Z  1:M 19 Sep 2025 22:48:49.679 * <timeseries> 	{ ts-ignore-max-time-diff:            0 }
+2025-09-19T22:55:45.4480876Z  1:M 19 Sep 2025 22:48:49.679 * <timeseries> 	{ ts-ignore-max-val-diff :     0.000000 }
+2025-09-19T22:55:45.4481216Z  1:M 19 Sep 2025 22:48:49.679 * <timeseries> ]
+2025-09-19T22:55:45.4481506Z  1:M 19 Sep 2025 22:48:49.679 * <timeseries> Detected redis oss
+2025-09-19T22:55:45.4481850Z  1:M 19 Sep 2025 22:48:49.679 * <timeseries> Enabled diskless replication
+2025-09-19T22:55:45.4482318Z  1:M 19 Sep 2025 22:48:49.679 * Module 'timeseries' loaded from /usr/local/lib/redis/modules//redistimeseries.so
+2025-09-19T22:55:45.4482800Z  1:M 19 Sep 2025 22:48:49.680 * <ReJSON> Created new data type 'ReJSON-RL'
+2025-09-19T22:55:45.4483187Z  1:M 19 Sep 2025 22:48:49.680 * <ReJSON> version: 80200 git sha: unknown branch: unknown
+2025-09-19T22:55:45.4483589Z  1:M 19 Sep 2025 22:48:49.680 * <ReJSON> Exported RedisJSON_V1 API
+2025-09-19T22:55:45.4483922Z  1:M 19 Sep 2025 22:48:49.680 * <ReJSON> Exported RedisJSON_V2 API
+2025-09-19T22:55:45.4484233Z  1:M 19 Sep 2025 22:48:49.680 * <ReJSON> Exported RedisJSON_V3 API
+2025-09-19T22:55:45.4484551Z  1:M 19 Sep 2025 22:48:49.680 * <ReJSON> Exported RedisJSON_V4 API
+2025-09-19T22:55:45.4484869Z  1:M 19 Sep 2025 22:48:49.680 * <ReJSON> Exported RedisJSON_V5 API
+2025-09-19T22:55:45.4485335Z  1:M 19 Sep 2025 22:48:49.680 * <ReJSON> Enabled diskless replication
+2025-09-19T22:55:45.4485730Z  1:M 19 Sep 2025 22:48:49.680 * <ReJSON> Initialized shared string cache, thread safe: false.
+2025-09-19T22:55:45.4486197Z  1:M 19 Sep 2025 22:48:49.680 * Module 'ReJSON' loaded from /usr/local/lib/redis/modules//rejson.so
+2025-09-19T22:55:45.4486601Z  1:M 19 Sep 2025 22:48:49.680 * <search> Acquired RedisJSON_V5 API
+2025-09-19T22:55:45.4486902Z  1:M 19 Sep 2025 22:48:49.681 * Server initialized
+2025-09-19T22:55:45.4487420Z  1:M 19 Sep 2025 22:48:49.681 * Ready to accept connections tcp
+2025-09-19T22:55:45.4488347Z Stop and remove container: 88f22190a2ba4ad29ba4e5fe3c299995_redisalpine_a45579
+2025-09-19T22:55:45.4489016Z ##[command]/usr/bin/docker rm --force 8c96ed78e6930fff452180f8cbbd5423c0a9c89ef6a339e8c2e8a060dc09d59c
+2025-09-19T22:55:45.5636013Z 8c96ed78e6930fff452180f8cbbd5423c0a9c89ef6a339e8c2e8a060dc09d59c
+2025-09-19T22:55:45.5650833Z Print service container logs: 9e54809121654c8ba2aee2260126416f_redisalpine_36c721
+2025-09-19T22:55:45.5651507Z ##[command]/usr/bin/docker logs --details 8807f3b5b5781ba456572b3bb60d21cf4da657d49459de236ce2d67f464c8bda
+2025-09-19T22:55:45.5766632Z  Starting Redis Server
+2025-09-19T22:55:45.5775868Z  1:C 19 Sep 2025 22:48:50.396 # WARNING Memory overcommit must be enabled! Without it, a background save or replication may fail under low memory condition. Being disabled, it can also cause failures without low memory condition, see https://github.com/jemalloc/jemalloc/issues/1328. To fix this issue add 'vm.overcommit_memory = 1' to /etc/sysctl.conf and then reboot or run the command 'sysctl vm.overcommit_memory=1' for this to take effect.
+2025-09-19T22:55:45.5778765Z  1:C 19 Sep 2025 22:48:50.396 * oO0OoO0OoO0Oo Redis is starting oO0OoO0OoO0Oo
+2025-09-19T22:55:45.5779595Z  1:C 19 Sep 2025 22:48:50.396 * Redis version=8.2.1, bits=64, commit=00000000, modified=1, pid=1, just started
+2025-09-19T22:55:45.5780327Z  1:C 19 Sep 2025 22:48:50.396 * Configuration loaded
+2025-09-19T22:55:45.5780900Z  1:M 19 Sep 2025 22:48:50.396 * monotonic clock: POSIX clock_gettime
+2025-09-19T22:55:45.5781515Z  1:M 19 Sep 2025 22:48:50.397 * Running mode=standalone, port=6379.
+2025-09-19T22:55:45.5782140Z  1:M 19 Sep 2025 22:48:50.397 * <bf> RedisBloom version 8.2.0 (Git=unknown)
+2025-09-19T22:55:45.5782794Z  1:M 19 Sep 2025 22:48:50.397 * <bf> Registering configuration options: [
+2025-09-19T22:55:45.5783674Z  1:M 19 Sep 2025 22:48:50.397 * <bf> 	{ bf-error-rate       :      0.01 }
+2025-09-19T22:55:45.5784282Z  1:M 19 Sep 2025 22:48:50.397 * <bf> 	{ bf-initial-size     :       100 }
+2025-09-19T22:55:45.5784883Z  1:M 19 Sep 2025 22:48:50.397 * <bf> 	{ bf-expansion-factor :         2 }
+2025-09-19T22:55:45.5785494Z  1:M 19 Sep 2025 22:48:50.397 * <bf> 	{ cf-bucket-size      :         2 }
+2025-09-19T22:55:45.5786329Z  1:M 19 Sep 2025 22:48:50.397 * <bf> 	{ cf-initial-size     :      1024 }
+2025-09-19T22:55:45.5786951Z  1:M 19 Sep 2025 22:48:50.397 * <bf> 	{ cf-max-iterations   :        20 }
+2025-09-19T22:55:45.5787757Z  1:M 19 Sep 2025 22:48:50.397 * <bf> 	{ cf-expansion-factor :         1 }
+2025-09-19T22:55:45.5788324Z  1:M 19 Sep 2025 22:48:50.397 * <bf> 	{ cf-max-expansions   :        32 }
+2025-09-19T22:55:45.5788644Z  1:M 19 Sep 2025 22:48:50.397 * <bf> ]
+2025-09-19T22:55:45.5789015Z  1:M 19 Sep 2025 22:48:50.398 * Module 'bf' loaded from /usr/local/lib/redis/modules//redisbloom.so
+2025-09-19T22:55:45.5789498Z  1:M 19 Sep 2025 22:48:50.400 * <search> Redis version found by RedisSearch : 8.2.1 - oss
+2025-09-19T22:55:45.5789916Z  1:M 19 Sep 2025 22:48:50.400 * <search> RediSearch version 8.2.1 (Git=dba8dd0)
+2025-09-19T22:55:45.5790322Z  1:M 19 Sep 2025 22:48:50.400 * <search> Low level api version 1 initialized successfully
+2025-09-19T22:55:45.5791270Z  1:M 19 Sep 2025 22:48:50.400 * <search> gc: ON, prefix min length: 2, min word length to stem: 4, prefix max expansions: 200, query timeout (ms): 500, timeout policy: return, cursor read size: 1000, cursor max idle (ms): 300000, max doctable size: 1000000, max number of search results:  1000000, 
+2025-09-19T22:55:45.5792363Z  1:M 19 Sep 2025 22:48:50.400 * <search> Initialized thread pools!
+2025-09-19T22:55:45.5792729Z  1:M 19 Sep 2025 22:48:50.400 * <search> Disabled workers threadpool of size 0
+2025-09-19T22:55:45.5793093Z  1:M 19 Sep 2025 22:48:50.400 * <search> Subscribe to config changes
+2025-09-19T22:55:45.5793452Z  1:M 19 Sep 2025 22:48:50.400 * <search> Enabled role change notification
+2025-09-19T22:55:45.5793975Z  1:M 19 Sep 2025 22:48:50.400 * <search> Cluster configuration: AUTO partitions, type: 0, coordinator timeout: 0ms
+2025-09-19T22:55:45.5794436Z  1:M 19 Sep 2025 22:48:50.400 * <search> Register write commands
+2025-09-19T22:55:45.5794859Z  1:M 19 Sep 2025 22:48:50.401 * Module 'search' loaded from /usr/local/lib/redis/modules//redisearch.so
+2025-09-19T22:55:45.5795446Z  1:M 19 Sep 2025 22:48:50.401 * <timeseries> RedisTimeSeries version 80200, git_sha=1439d4a439ca9c063e6ef124a510abff09a5d493
+2025-09-19T22:55:45.5796005Z  1:M 19 Sep 2025 22:48:50.401 * <timeseries> Redis version found by RedisTimeSeries : 8.2.1 - oss
+2025-09-19T22:55:45.5796452Z  1:M 19 Sep 2025 22:48:50.401 * <timeseries> Registering configuration options: [
+2025-09-19T22:55:45.5796868Z  1:M 19 Sep 2025 22:48:50.401 * <timeseries> 	{ ts-compaction-policy   :              }
+2025-09-19T22:55:45.5797508Z  1:M 19 Sep 2025 22:48:50.401 * <timeseries> 	{ ts-num-threads         :            3 }
+2025-09-19T22:55:45.5797937Z  1:M 19 Sep 2025 22:48:50.401 * <timeseries> 	{ ts-retention-policy    :            0 }
+2025-09-19T22:55:45.5798342Z  1:M 19 Sep 2025 22:48:50.401 * <timeseries> 	{ ts-duplicate-policy    :        block }
+2025-09-19T22:55:45.5798745Z  1:M 19 Sep 2025 22:48:50.401 * <timeseries> 	{ ts-chunk-size-bytes    :         4096 }
+2025-09-19T22:55:45.5799139Z  1:M 19 Sep 2025 22:48:50.401 * <timeseries> 	{ ts-encoding            :   compressed }
+2025-09-19T22:55:45.5799540Z  1:M 19 Sep 2025 22:48:50.401 * <timeseries> 	{ ts-ignore-max-time-diff:            0 }
+2025-09-19T22:55:45.5799951Z  1:M 19 Sep 2025 22:48:50.401 * <timeseries> 	{ ts-ignore-max-val-diff :     0.000000 }
+2025-09-19T22:55:45.5800285Z  1:M 19 Sep 2025 22:48:50.401 * <timeseries> ]
+2025-09-19T22:55:45.5800586Z  1:M 19 Sep 2025 22:48:50.401 * <timeseries> Detected redis oss
+2025-09-19T22:55:45.5800933Z  1:M 19 Sep 2025 22:48:50.401 * <timeseries> Enabled diskless replication
+2025-09-19T22:55:45.5801534Z  1:M 19 Sep 2025 22:48:50.401 * Module 'timeseries' loaded from /usr/local/lib/redis/modules//redistimeseries.so
+2025-09-19T22:55:45.5802009Z  1:M 19 Sep 2025 22:48:50.402 * <ReJSON> Created new data type 'ReJSON-RL'
+2025-09-19T22:55:45.5802404Z  1:M 19 Sep 2025 22:48:50.402 * <ReJSON> version: 80200 git sha: unknown branch: unknown
+2025-09-19T22:55:45.5802794Z  1:M 19 Sep 2025 22:48:50.402 * <ReJSON> Exported RedisJSON_V1 API
+2025-09-19T22:55:45.5803135Z  1:M 19 Sep 2025 22:48:50.402 * <ReJSON> Exported RedisJSON_V2 API
+2025-09-19T22:55:45.5803464Z  1:M 19 Sep 2025 22:48:50.402 * <ReJSON> Exported RedisJSON_V3 API
+2025-09-19T22:55:45.5803787Z  1:M 19 Sep 2025 22:48:50.402 * <ReJSON> Exported RedisJSON_V4 API
+2025-09-19T22:55:45.5804111Z  1:M 19 Sep 2025 22:48:50.402 * <ReJSON> Exported RedisJSON_V5 API
+2025-09-19T22:55:45.5804445Z  1:M 19 Sep 2025 22:48:50.402 * <ReJSON> Enabled diskless replication
+2025-09-19T22:55:45.5804847Z  1:M 19 Sep 2025 22:48:50.402 * <ReJSON> Initialized shared string cache, thread safe: false.
+2025-09-19T22:55:45.5805319Z  1:M 19 Sep 2025 22:48:50.402 * Module 'ReJSON' loaded from /usr/local/lib/redis/modules//rejson.so
+2025-09-19T22:55:45.5805729Z  1:M 19 Sep 2025 22:48:50.402 * <search> Acquired RedisJSON_V5 API
+2025-09-19T22:55:45.5806033Z  1:M 19 Sep 2025 22:48:50.402 * Server initialized
+2025-09-19T22:55:45.5806336Z  1:M 19 Sep 2025 22:48:50.402 * Ready to accept connections tcp
+2025-09-19T22:55:45.5807318Z Stop and remove container: 9e54809121654c8ba2aee2260126416f_redisalpine_36c721
+2025-09-19T22:55:45.5807918Z ##[command]/usr/bin/docker rm --force 8807f3b5b5781ba456572b3bb60d21cf4da657d49459de236ce2d67f464c8bda
+2025-09-19T22:55:45.6943565Z 8807f3b5b5781ba456572b3bb60d21cf4da657d49459de236ce2d67f464c8bda
+2025-09-19T22:55:45.6958487Z Print service container logs: 0a4a2f9be12945ed8a38f762783da3b2_anandologymariadbutf8mb4103_746d17
+2025-09-19T22:55:45.6959244Z ##[command]/usr/bin/docker logs --details fd034c66aefb4b821375adf6235b7acc61c66dd346e4b114415b9854fdb9c4e7
+2025-09-19T22:55:45.7084868Z  2025-09-19 22:48:56+00:00 [Note] [Entrypoint]: Entrypoint script for MySQL Server 1:10.3.27+maria~focal started.
+2025-09-19T22:55:45.7086467Z  2025-09-19 22:48:56+00:00 [Note] [Entrypoint]: Switching to dedicated user 'mysql'
+2025-09-19T22:55:45.7090376Z  2025-09-19 22:48:56+00:00 [Note] [Entrypoint]: Entrypoint script for MySQL Server 1:10.3.27+maria~focal started.
+2025-09-19T22:55:45.7091481Z  2025-09-19 22:48:56+00:00 [Note] [Entrypoint]: Initializing database files
+2025-09-19T22:55:45.7092055Z  
+2025-09-19T22:55:45.7092328Z  
+2025-09-19T22:55:45.7092791Z  PLEASE REMEMBER TO SET A PASSWORD FOR THE MariaDB root USER !
+2025-09-19T22:55:45.7093577Z  To do so, start the server, then issue the following commands:
+2025-09-19T22:55:45.7095314Z  2025-09-19 22:48:58 0 [Note] mysqld (mysqld 10.3.27-MariaDB-1:10.3.27+maria~focal) starting as process 120 ...
+2025-09-19T22:55:45.7096232Z  2025-09-19 22:48:58 0 [Note] InnoDB: Using Linux native AIO
+2025-09-19T22:55:45.7096953Z  2025-09-19 22:48:58 0 [Note] InnoDB: Mutexes and rw_locks use GCC atomic builtins
+2025-09-19T22:55:45.7097840Z  2025-09-19 22:48:58 0 [Note] InnoDB: Uses event mutexes
+2025-09-19T22:55:45.7098479Z  2025-09-19 22:48:58 0 [Note] InnoDB: Compressed tables use zlib 1.2.11
+2025-09-19T22:55:45.7099012Z  
+2025-09-19T22:55:45.7099409Z  '/usr/bin/mysqladmin' -u root password 'new-password'
+2025-09-19T22:55:45.7100008Z  '/usr/bin/mysqladmin' -u root -h  password 'new-password'
+2025-09-19T22:55:45.7100440Z  
+2025-09-19T22:55:45.7100736Z  Alternatively you can run:
+2025-09-19T22:55:45.7101135Z  '/usr/bin/mysql_secure_installation'
+2025-09-19T22:55:45.7101375Z  
+2025-09-19T22:55:45.7101615Z  which will also give you the option of removing the test
+2025-09-19T22:55:45.7101966Z  databases and anonymous user created by default.  This is
+2025-09-19T22:55:45.7102280Z  strongly recommended for production servers.
+2025-09-19T22:55:45.7102531Z  
+2025-09-19T22:55:45.7102778Z  See the MariaDB Knowledgebase at http://mariadb.com/kb or the
+2025-09-19T22:55:45.7103102Z  MySQL manual for more instructions.
+2025-09-19T22:55:45.7103551Z  
+2025-09-19T22:55:45.7103776Z  Please report any problems at http://mariadb.org/jira
+2025-09-19T22:55:45.7104053Z  
+2025-09-19T22:55:45.7104320Z  The latest information about MariaDB is available at http://mariadb.org/.
+2025-09-19T22:55:45.7104733Z  You can find additional information about the MySQL part at:
+2025-09-19T22:55:45.7105040Z  http://dev.mysql.com
+2025-09-19T22:55:45.7105298Z  Consider joining MariaDB's strong and vibrant community:
+2025-09-19T22:55:45.7105612Z  https://mariadb.org/get-involved/
+2025-09-19T22:55:45.7105830Z  
+2025-09-19T22:55:45.7106069Z  2025-09-19 22:48:58+00:00 [Note] [Entrypoint]: Database files initialized
+2025-09-19T22:55:45.7106450Z  2025-09-19 22:48:58+00:00 [Note] [Entrypoint]: Starting temporary server
+2025-09-19T22:55:45.7106818Z  2025-09-19 22:48:58+00:00 [Note] [Entrypoint]: Waiting for server startup
+2025-09-19T22:55:45.7107451Z  2025-09-19 22:48:58 0 [Note] InnoDB: Number of pools: 1
+2025-09-19T22:55:45.7107795Z  2025-09-19 22:48:58 0 [Note] InnoDB: Using SSE2 crc32 instructions
+2025-09-19T22:55:45.7108273Z  2025-09-19 22:48:58 0 [Note] InnoDB: Initializing buffer pool, total size = 256M, instances = 1, chunk size = 128M
+2025-09-19T22:55:45.7108790Z  2025-09-19 22:48:58 0 [Note] InnoDB: Completed initialization of buffer pool
+2025-09-19T22:55:45.7109430Z  2025-09-19 22:48:58 0 [Note] InnoDB: If the mysqld execution user is authorized, page cleaner thread priority can be changed. See the man page of setpriority().
+2025-09-19T22:55:45.7110083Z  2025-09-19 22:48:59 0 [Note] InnoDB: 128 out of 128 rollback segments are active.
+2025-09-19T22:55:45.7110715Z  2025-09-19 22:48:59 0 [Note] InnoDB: Creating shared tablespace for temporary tables
+2025-09-19T22:55:45.7111247Z  2025-09-19 22:48:59 0 [Note] InnoDB: Setting file './ibtmp1' size to 12 MB. Physically writing the file full; Please wait ...
+2025-09-19T22:55:45.7111735Z  2025-09-19 22:48:59 0 [Note] InnoDB: File './ibtmp1' size is now 12 MB.
+2025-09-19T22:55:45.7112165Z  2025-09-19 22:48:59 0 [Note] InnoDB: 10.3.27 started; log sequence number 1625443; transaction id 20
+2025-09-19T22:55:45.7112940Z  2025-09-19 22:48:59 0 [Note] InnoDB: Loading buffer pool(s) from /var/lib/mysql/ib_buffer_pool
+2025-09-19T22:55:45.7113665Z  2025-09-19 22:48:59 0 [Note] Plugin 'FEEDBACK' is disabled.
+2025-09-19T22:55:45.7114414Z  2025-09-19 22:48:59 0 [Warning] 'user' entry 'root@fd034c66aefb' ignored in --skip-name-resolve mode.
+2025-09-19T22:55:45.7115380Z  2025-09-19 22:48:59 0 [Warning] 'proxies_priv' entry '@% root@fd034c66aefb' ignored in --skip-name-resolve mode.
+2025-09-19T22:55:45.7116287Z  2025-09-19 22:48:59 0 [Note] InnoDB: Buffer pool(s) load completed at 250919 22:48:59
+2025-09-19T22:55:45.7116709Z  2025-09-19 22:48:59 0 [Note] Reading of all Master_info entries succeeded
+2025-09-19T22:55:45.7117074Z  2025-09-19 22:48:59 0 [Note] Added new Master_info '' to hash table
+2025-09-19T22:55:45.7117601Z  2025-09-19 22:48:59 0 [Note] mysqld: ready for connections.
+2025-09-19T22:55:45.7118132Z  Version: '10.3.27-MariaDB-1:10.3.27+maria~focal'  socket: '/var/run/mysqld/mysqld.sock'  port: 0  mariadb.org binary distribution
+2025-09-19T22:55:45.7118776Z  Warning: Unable to load '/usr/share/zoneinfo/leap-seconds.list' as time zone. Skipping it.
+2025-09-19T22:55:45.7119299Z  Warning: Unable to load '/usr/share/zoneinfo/leapseconds' as time zone. Skipping it.
+2025-09-19T22:55:45.7119790Z  Warning: Unable to load '/usr/share/zoneinfo/tzdata.zi' as time zone. Skipping it.
+2025-09-19T22:55:45.7120316Z  2025-09-19 22:49:01 10 [Warning] 'proxies_priv' entry '@% root@fd034c66aefb' ignored in --skip-name-resolve mode.
+2025-09-19T22:55:45.7120849Z  2025-09-19 22:49:01 0 [Note] mysqld (initiated by: root[root] @ localhost []): Normal shutdown
+2025-09-19T22:55:45.7121270Z  2025-09-19 22:49:01 0 [Note] Event Scheduler: Purging the queue. 0 events
+2025-09-19T22:55:45.7121627Z  2025-09-19 22:49:01 0 [Note] InnoDB: FTS optimize thread exiting.
+2025-09-19T22:55:45.7121962Z  2025-09-19 22:49:01 0 [Note] InnoDB: Starting shutdown...
+2025-09-19T22:55:45.7122487Z  2025-09-19 22:49:01 0 [Note] InnoDB: Dumping buffer pool(s) to /var/lib/mysql/ib_buffer_pool
+2025-09-19T22:55:45.7122953Z  2025-09-19 22:49:01 0 [Note] InnoDB: Buffer pool(s) dump completed at 250919 22:49:01
+2025-09-19T22:55:45.7123434Z  2025-09-19 22:49:02 0 [Note] InnoDB: Shutdown completed; log sequence number 1625452; transaction id 21
+2025-09-19T22:55:45.7123914Z  2025-09-19 22:49:02 0 [Note] InnoDB: Removed temporary tablespace data file: "ibtmp1"
+2025-09-19T22:55:45.7124281Z  2025-09-19 22:49:02 0 [Note] mysqld: Shutdown complete
+2025-09-19T22:55:45.7124537Z  
+2025-09-19T22:55:45.7124852Z  2025-09-19 22:49:03 0 [Note] mysqld (mysqld 10.3.27-MariaDB-1:10.3.27+maria~focal) starting as process 1 ...
+2025-09-19T22:55:45.7125283Z  2025-09-19 22:49:03 0 [Note] InnoDB: Using Linux native AIO
+2025-09-19T22:55:45.7125646Z  2025-09-19 22:49:03 0 [Note] InnoDB: Mutexes and rw_locks use GCC atomic builtins
+2025-09-19T22:55:45.7126011Z  2025-09-19 22:49:03 0 [Note] InnoDB: Uses event mutexes
+2025-09-19T22:55:45.7126344Z  2025-09-19 22:49:03 0 [Note] InnoDB: Compressed tables use zlib 1.2.11
+2025-09-19T22:55:45.7126678Z  2025-09-19 22:49:03 0 [Note] InnoDB: Number of pools: 1
+2025-09-19T22:55:45.7126998Z  2025-09-19 22:49:03 0 [Note] InnoDB: Using SSE2 crc32 instructions
+2025-09-19T22:55:45.7127710Z  2025-09-19 22:49:03 0 [Note] InnoDB: Initializing buffer pool, total size = 256M, instances = 1, chunk size = 128M
+2025-09-19T22:55:45.7128203Z  2025-09-19 22:49:03 0 [Note] InnoDB: Completed initialization of buffer pool
+2025-09-19T22:55:45.7128835Z  2025-09-19 22:49:03 0 [Note] InnoDB: If the mysqld execution user is authorized, page cleaner thread priority can be changed. See the man page of setpriority().
+2025-09-19T22:55:45.7129597Z  2025-09-19 22:49:03 0 [Note] InnoDB: 128 out of 128 rollback segments are active.
+2025-09-19T22:55:45.7130014Z  2025-09-19 22:49:03 0 [Note] InnoDB: Creating shared tablespace for temporary tables
+2025-09-19T22:55:45.7130539Z  2025-09-19 22:49:03 0 [Note] InnoDB: Setting file './ibtmp1' size to 12 MB. Physically writing the file full; Please wait ...
+2025-09-19T22:55:45.7131028Z  2025-09-19 22:49:03 0 [Note] InnoDB: File './ibtmp1' size is now 12 MB.
+2025-09-19T22:55:45.7131445Z  2025-09-19 22:49:03 0 [Note] InnoDB: 10.3.27 started; log sequence number 1625452; transaction id 20
+2025-09-19T22:55:45.7131929Z  2025-09-19 22:49:03 0 [Note] InnoDB: Loading buffer pool(s) from /var/lib/mysql/ib_buffer_pool
+2025-09-19T22:55:45.7132329Z  2025-09-19 22:49:03 0 [Note] Plugin 'FEEDBACK' is disabled.
+2025-09-19T22:55:45.7132658Z  2025-09-19 22:49:03 0 [Note] Server socket created on IP: '::'.
+2025-09-19T22:55:45.7133118Z  2025-09-19 22:49:03 0 [Warning] 'proxies_priv' entry '@% root@fd034c66aefb' ignored in --skip-name-resolve mode.
+2025-09-19T22:55:45.7133614Z  2025-09-19 22:49:03 0 [Note] InnoDB: Buffer pool(s) load completed at 250919 22:49:03
+2025-09-19T22:55:45.7134011Z  2025-09-19 22:49:03 0 [Note] Reading of all Master_info entries succeeded
+2025-09-19T22:55:45.7134372Z  2025-09-19 22:49:03 0 [Note] Added new Master_info '' to hash table
+2025-09-19T22:55:45.7134699Z  2025-09-19 22:49:03 0 [Note] mysqld: ready for connections.
+2025-09-19T22:55:45.7135228Z  Version: '10.3.27-MariaDB-1:10.3.27+maria~focal'  socket: '/var/run/mysqld/mysqld.sock'  port: 3306  mariadb.org binary distribution
+2025-09-19T22:55:45.7135848Z  2025-09-19 22:49:06 8 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7136335Z  2025-09-19 22:49:11 9 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7136816Z  2025-09-19 22:49:16 10 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7137463Z  2025-09-19 22:49:21 11 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7137981Z  2025-09-19 22:49:26 12 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7138575Z  2025-09-19 22:49:31 13 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7139070Z  2025-09-19 22:49:37 14 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7139542Z  2025-09-19 22:49:42 15 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7140009Z  2025-09-19 22:49:47 16 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7140479Z  2025-09-19 22:49:52 17 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7140951Z  2025-09-19 22:49:57 18 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7141428Z  2025-09-19 22:50:02 19 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7141897Z  2025-09-19 22:50:07 20 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7142366Z  2025-09-19 22:50:12 21 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7142837Z  2025-09-19 22:50:17 22 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7143306Z  2025-09-19 22:50:22 23 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7143774Z  2025-09-19 22:50:27 24 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7144240Z  2025-09-19 22:50:32 25 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7144702Z  2025-09-19 22:50:37 26 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7145286Z  2025-09-19 22:50:42 27 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7145756Z  2025-09-19 22:50:47 28 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7146233Z  2025-09-19 22:50:52 29 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7146705Z  2025-09-19 22:50:57 30 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7147385Z  2025-09-19 22:51:02 31 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7147871Z  2025-09-19 22:51:07 32 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7148349Z  2025-09-19 22:51:12 33 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7148820Z  2025-09-19 22:51:17 34 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7149291Z  2025-09-19 22:51:23 35 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7149759Z  2025-09-19 22:51:28 36 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7150238Z  2025-09-19 22:51:33 37 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7150709Z  2025-09-19 22:51:38 38 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7151177Z  2025-09-19 22:51:43 39 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7151646Z  2025-09-19 22:51:48 40 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7152121Z  2025-09-19 22:51:53 41 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7152589Z  2025-09-19 22:51:58 42 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7153063Z  2025-09-19 22:52:03 43 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7153532Z  2025-09-19 22:52:08 44 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7154001Z  2025-09-19 22:52:13 45 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7154588Z  2025-09-19 22:52:18 46 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7155119Z  2025-09-19 22:52:18 47 [Warning] 'proxies_priv' entry '@% root@fd034c66aefb' ignored in --skip-name-resolve mode.
+2025-09-19T22:55:45.7155645Z  2025-09-19 22:52:23 51 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7156125Z  2025-09-19 22:52:28 52 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7156589Z  2025-09-19 22:52:33 53 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7157062Z  2025-09-19 22:52:38 55 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7157792Z  2025-09-19 22:52:43 56 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7158269Z  2025-09-19 22:52:48 57 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7158748Z  2025-09-19 22:52:53 58 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7159219Z  2025-09-19 22:52:58 59 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7159692Z  2025-09-19 22:53:03 60 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7160164Z  2025-09-19 22:53:08 61 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7160631Z  2025-09-19 22:53:14 62 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7161226Z  2025-09-19 22:53:19 63 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7161694Z  2025-09-19 22:53:24 64 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7162161Z  2025-09-19 22:53:29 65 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7162630Z  2025-09-19 22:53:34 66 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7163103Z  2025-09-19 22:53:39 67 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7163574Z  2025-09-19 22:53:44 68 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7164037Z  2025-09-19 22:53:49 69 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7164506Z  2025-09-19 22:53:54 70 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7164974Z  2025-09-19 22:53:59 71 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7165445Z  2025-09-19 22:54:04 72 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7165912Z  2025-09-19 22:54:09 73 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7166379Z  2025-09-19 22:54:14 74 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7166848Z  2025-09-19 22:54:19 75 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7167655Z  2025-09-19 22:54:24 76 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7168134Z  2025-09-19 22:54:29 77 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7168607Z  2025-09-19 22:54:34 78 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7169080Z  2025-09-19 22:54:39 79 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7169548Z  2025-09-19 22:54:44 80 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7170016Z  2025-09-19 22:54:49 81 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7170611Z  2025-09-19 22:54:54 82 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7171082Z  2025-09-19 22:54:59 83 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7171554Z  2025-09-19 22:55:05 84 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7172023Z  2025-09-19 22:55:10 85 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7172491Z  2025-09-19 22:55:15 86 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7172962Z  2025-09-19 22:55:20 94 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7173424Z  2025-09-19 22:55:25 96 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7173895Z  2025-09-19 22:55:30 98 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7174377Z  2025-09-19 22:55:35 107 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7174865Z  2025-09-19 22:55:40 110 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7175345Z  2025-09-19 22:55:45 111 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-19T22:55:45.7175773Z  2025-09-19 22:48:59+00:00 [Note] [Entrypoint]: Temporary server started.
+2025-09-19T22:55:45.7176082Z  
+2025-09-19T22:55:45.7176314Z  2025-09-19 22:49:01+00:00 [Note] [Entrypoint]: Stopping temporary server
+2025-09-19T22:55:45.7176679Z  2025-09-19 22:49:03+00:00 [Note] [Entrypoint]: Temporary server stopped
+2025-09-19T22:55:45.7177075Z  
+2025-09-19T22:55:45.7177483Z  2025-09-19 22:49:03+00:00 [Note] [Entrypoint]: MySQL init process done. Ready for start up.
+2025-09-19T22:55:45.7177824Z  
+2025-09-19T22:55:45.7178537Z Stop and remove container: 0a4a2f9be12945ed8a38f762783da3b2_anandologymariadbutf8mb4103_746d17
+2025-09-19T22:55:45.7179191Z ##[command]/usr/bin/docker rm --force fd034c66aefb4b821375adf6235b7acc61c66dd346e4b114415b9854fdb9c4e7
+2025-09-19T22:55:45.8575550Z fd034c66aefb4b821375adf6235b7acc61c66dd346e4b114415b9854fdb9c4e7
+2025-09-19T22:55:45.8591179Z Remove container network: github_network_401ac3bfc3df44e5b16761d9368fbd18
+2025-09-19T22:55:45.8595385Z ##[command]/usr/bin/docker network rm github_network_401ac3bfc3df44e5b16761d9368fbd18
+2025-09-19T22:55:45.9809644Z github_network_401ac3bfc3df44e5b16761d9368fbd18
+2025-09-19T22:55:45.9864526Z Cleaning up orphan processes
+2025-09-19T22:55:46.0171769Z Terminate orphan process: pid (5306) (python)

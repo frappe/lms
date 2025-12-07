@@ -1,0 +1,697 @@
+﻿2025-09-19T22:52:50.5916492Z ##[group]Run cd ~/frappe-bench
+2025-09-19T22:52:50.5917080Z [36;1mcd ~/frappe-bench[0m
+2025-09-19T22:52:50.5917362Z [36;1mbench --site test.local serve --port 8080 &[0m
+2025-09-19T22:52:50.5917652Z [36;1msleep 30[0m
+2025-09-19T22:52:50.5917965Z [36;1mcurl -f http://localhost:8080 || (echo "Server failed to start" && exit 1)[0m
+2025-09-19T22:52:50.5948855Z shell: /usr/bin/bash -e {0}
+2025-09-19T22:52:50.5949078Z env:
+2025-09-19T22:52:50.5949320Z   pythonLocation: /opt/hostedtoolcache/Python/3.10.18/x64
+2025-09-19T22:52:50.5949724Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.10.18/x64/lib/pkgconfig
+2025-09-19T22:52:50.5950292Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.10.18/x64
+2025-09-19T22:52:50.5950629Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.10.18/x64
+2025-09-19T22:52:50.5950974Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.10.18/x64
+2025-09-19T22:52:50.5951322Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.10.18/x64/lib
+2025-09-19T22:52:50.5951597Z ##[endgroup]
+2025-09-19T22:53:20.6155726Z   % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+2025-09-19T22:53:20.6156573Z                                  Dload  Upload   Total   Spent    Left  Speed
+2025-09-19T22:53:20.6157185Z 
+2025-09-19T22:53:21.1940249Z   0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
+2025-09-19T22:53:21.1940843Z <!DOCTYPE html>
+2025-09-19T22:53:21.1941671Z 100 20778  100 20778    0     0  35915      0 --:--:-- --:--:-- --:--:-- 35948
+2025-09-19T22:53:21.1942386Z <!-- Built on Frappe. https://frappeframework.com/ -->
+2025-09-19T22:53:21.1942935Z <html lang="en" dir="ltr">
+2025-09-19T22:53:21.1943250Z <head>
+2025-09-19T22:53:21.1943525Z 	<meta charset="utf-8">
+2025-09-19T22:53:21.1944181Z 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+2025-09-19T22:53:21.1944901Z 	<meta name="generator" content="frappe">
+2025-09-19T22:53:21.1945208Z 
+2025-09-19T22:53:21.1945319Z 	
+2025-09-19T22:53:21.1946951Z 		<meta name="title" content="Login"><meta name="language" content="en"><meta property="og:type"  content="article"><meta property="og:title"  content="Login"><meta name="twitter:title" content="Login"><meta name="twitter:card" content="summary">
+2025-09-19T22:53:21.1948361Z 	
+2025-09-19T22:53:21.1948495Z 
+2025-09-19T22:53:21.1948617Z 	<title>Login</title>
+2025-09-19T22:53:21.1948819Z 
+2025-09-19T22:53:21.1948921Z 	
+2025-09-19T22:53:21.1949161Z 	<link
+2025-09-19T22:53:21.1949438Z 		rel="shortcut icon"
+2025-09-19T22:53:21.1949886Z 		href="/assets/frappe/images/frappe-favicon.svg"
+2025-09-19T22:53:21.1950343Z 		type="image/x-icon"
+2025-09-19T22:53:21.1950630Z 	>
+2025-09-19T22:53:21.1951085Z 	<link type="text/css" rel="stylesheet" href="/website.bundle.css">
+2025-09-19T22:53:21.1951966Z <link type="text/css" rel="stylesheet" href="/assets/lms/dist/css/lms.bundle.WNSXT3MN.css">
+2025-09-19T22:53:21.1952782Z <link type="text/css" rel="stylesheet" href="/login.bundle.css">
+2025-09-19T22:53:21.1953145Z 
+2025-09-19T22:53:21.1953257Z 		
+2025-09-19T22:53:21.1953409Z 
+2025-09-19T22:53:21.1953533Z 	<script>
+2025-09-19T22:53:21.1953827Z 		window.frappe = {};
+2025-09-19T22:53:21.1954226Z 		window._version_number = "1758322305.60559";
+2025-09-19T22:53:21.1954681Z 		frappe.ready_events = [];
+2025-09-19T22:53:21.1955088Z 		frappe.ready = function(fn) {
+2025-09-19T22:53:21.1955515Z 			frappe.ready_events.push(fn);
+2025-09-19T22:53:21.1955885Z 		}
+2025-09-19T22:53:21.1956159Z 		window.dev_server = 0;
+2025-09-19T22:53:21.1956549Z 		window.socketio_port = 9000;
+2025-09-19T22:53:21.1957345Z 		window.show_language_picker = false;
+2025-09-19T22:53:21.1957804Z 	</script>
+2025-09-19T22:53:21.1958085Z </head>
+2025-09-19T22:53:21.1958641Z <body frappe-session-status="logged-out" data-path="login" class="">
+2025-09-19T22:53:21.1959079Z 
+2025-09-19T22:53:21.1959189Z 		
+2025-09-19T22:53:21.1959333Z 
+2025-09-19T22:53:21.1959343Z 
+2025-09-19T22:53:21.1959351Z 
+2025-09-19T22:53:21.1959358Z 
+2025-09-19T22:53:21.1959365Z 
+2025-09-19T22:53:21.1959373Z 
+2025-09-19T22:53:21.1959746Z 
+2025-09-19T22:53:21.1959756Z 
+2025-09-19T22:53:21.1960036Z <div id="page-login" data-path="login">
+2025-09-19T22:53:21.1960514Z 	
+2025-09-19T22:53:21.1960903Z <div class="page-content-wrapper">
+2025-09-19T22:53:21.1961309Z 	<!-- breadcrumbs -->
+2025-09-19T22:53:21.1961692Z 	<div class="page-breadcrumbs">
+2025-09-19T22:53:21.1962048Z 		
+2025-09-19T22:53:21.1962252Z 			
+2025-09-19T22:53:21.1962394Z 		
+2025-09-19T22:53:21.1962538Z 	</div>
+2025-09-19T22:53:21.1962628Z 
+2025-09-19T22:53:21.1962695Z 	
+2025-09-19T22:53:21.1962853Z 	<main class="container">
+2025-09-19T22:53:21.1963322Z 		<div class="page-header-wrapper">
+2025-09-19T22:53:21.1963566Z 			<div class="page-header">
+2025-09-19T22:53:21.1963768Z 				
+2025-09-19T22:53:21.1963922Z 			</div>
+2025-09-19T22:53:21.1964015Z 
+2025-09-19T22:53:21.1964076Z 			
+2025-09-19T22:53:21.1964217Z 		</div>
+2025-09-19T22:53:21.1964304Z 
+2025-09-19T22:53:21.1964387Z 		<div class="page_content">
+2025-09-19T22:53:21.1964609Z <!-- login.html -->
+2025-09-19T22:53:21.1964790Z <div>
+2025-09-19T22:53:21.1964940Z 	<noscript>
+2025-09-19T22:53:21.1965138Z 		<div class="text-center my-5">
+2025-09-19T22:53:21.1965423Z 			<h4>Javascript is disabled on your browser</h4>
+2025-09-19T22:53:21.1965688Z 			<p class="text-muted">
+2025-09-19T22:53:21.1966415Z 				You need to enable JavaScript for your app to work.<br>To enable it follow the instructions in the following link: <a href='https://enable-javascript.com/'>enable-javascript.com</a></p>
+2025-09-19T22:53:21.1967281Z 		</div>
+2025-09-19T22:53:21.1967439Z 	</noscript>
+2025-09-19T22:53:21.1967626Z 	<section class='for-login'>
+2025-09-19T22:53:21.1967819Z 		
+2025-09-19T22:53:21.1967997Z <div class="page-card-head">
+2025-09-19T22:53:21.1968359Z 	<img class="app-logo" src="/assets/frappe/images/frappe-framework-logo.svg">
+2025-09-19T22:53:21.1968688Z 	
+2025-09-19T22:53:21.1968848Z 	<h4>Login to Frappe</h4>
+2025-09-19T22:53:21.1969029Z 	
+2025-09-19T22:53:21.1969169Z </div>
+2025-09-19T22:53:21.1969258Z 
+2025-09-19T22:53:21.1969377Z 		<div class="login-content page-card">
+2025-09-19T22:53:21.1969775Z 			<form class="form-signin form-login" role="form"><div class="page-card-body">
+2025-09-19T22:53:21.1970186Z 					<form class="form-signin form-login" role="form">
+2025-09-19T22:53:21.1970435Z 						
+2025-09-19T22:53:21.1970611Z <div class="page-card-body">
+2025-09-19T22:53:21.1970828Z 	<div class="form-group">
+2025-09-19T22:53:21.1971139Z 		<label class="form-label sr-only" for="login_email">Email</label>
+2025-09-19T22:53:21.1971479Z 		<div class="email-field">
+2025-09-19T22:53:21.1971764Z 			<input type="text" id="login_email" class="form-control"
+2025-09-19T22:53:21.1972082Z 				placeholder="jane@example.com"
+2025-09-19T22:53:21.1972372Z 				required autofocus autocomplete="username">
+2025-09-19T22:53:21.1972554Z 
+2025-09-19T22:53:21.1972813Z 			<svg class="field-icon email-icon" width="16" height="16" viewBox="0 0 16 16" fill="none"
+2025-09-19T22:53:21.1973209Z 				xmlns="http://www.w3.org/2000/svg">
+2025-09-19T22:53:21.1973512Z 				<use class="es-lock" href="#es-line-email"></use>
+2025-09-19T22:53:21.1973771Z 			</svg>
+2025-09-19T22:53:21.1973920Z 		</div>
+2025-09-19T22:53:21.1974071Z 	</div>
+2025-09-19T22:53:21.1974154Z 
+2025-09-19T22:53:21.1974233Z 	<div class="form-group">
+2025-09-19T22:53:21.1974575Z 		<label class="form-label sr-only" for="login_password">Password</label>
+2025-09-19T22:53:21.1974930Z 		<div class="password-field">
+2025-09-19T22:53:21.1975536Z 			<input type="password" id="login_password" class="form-control" placeholder="•••••"
+2025-09-19T22:53:21.1975956Z 				autocomplete="current-password" required>
+2025-09-19T22:53:21.1976153Z 
+2025-09-19T22:53:21.1976440Z 			<svg class="field-icon password-icon" width="16" height="16" viewBox="0 0 16 16" fill="none"
+2025-09-19T22:53:21.1977103Z 				xmlns="http://www.w3.org/2000/svg">
+2025-09-19T22:53:21.1977428Z 					<use class="es-lock" href="#es-line-lock"></use>
+2025-09-19T22:53:21.1977684Z 			</svg>
+2025-09-19T22:53:21.1978004Z 			<span toggle="#login_password" class="toggle-password text-muted">Show</span>
+2025-09-19T22:53:21.1978514Z 		</div>
+2025-09-19T22:53:21.1978664Z 	</div>
+2025-09-19T22:53:21.1978748Z 
+2025-09-19T22:53:21.1978810Z 	
+2025-09-19T22:53:21.1979006Z 	<p class="forgot-password-message">
+2025-09-19T22:53:21.1979279Z 		<a href="#forgot">Forgot Password?</a>
+2025-09-19T22:53:21.1979523Z 	</p>
+2025-09-19T22:53:21.1979670Z 	
+2025-09-19T22:53:21.1979805Z </div>
+2025-09-19T22:53:21.1979894Z 
+2025-09-19T22:53:21.1980015Z <div class="page-card-actions">
+2025-09-19T22:53:21.1980215Z 	
+2025-09-19T22:53:21.1980503Z 	<button class="btn btn-sm btn-primary btn-block btn-login" type="submit">
+2025-09-19T22:53:21.1980946Z 		Login</button>
+2025-09-19T22:53:21.1981106Z 	
+2025-09-19T22:53:21.1981239Z 	
+2025-09-19T22:53:21.1981370Z </div>
+2025-09-19T22:53:21.1981459Z 
+2025-09-19T22:53:21.1981525Z 					</form>
+2025-09-19T22:53:21.1981743Z 					<div class="social-logins text-center">
+2025-09-19T22:53:21.1981974Z 						
+2025-09-19T22:53:21.1982183Z 						<p class="text-muted login-divider">or</p>
+2025-09-19T22:53:21.1982420Z 						
+2025-09-19T22:53:21.1982615Z 						<div class="social-login-buttons">
+2025-09-19T22:53:21.1982840Z 							
+2025-09-19T22:53:21.1982979Z 						</div>
+2025-09-19T22:53:21.1983074Z 
+2025-09-19T22:53:21.1983135Z 						
+2025-09-19T22:53:21.1983216Z 
+2025-09-19T22:53:21.1983277Z 						
+2025-09-19T22:53:21.1983523Z 						<div class="login-with-email-link social-login-buttons">
+2025-09-19T22:53:21.1983856Z 							<div class="login-button-wrapper">
+2025-09-19T22:53:21.1984129Z 								<a href="#login-with-email-link"
+2025-09-19T22:53:21.1984563Z 									class="btn btn-block btn-default btn-sm btn-login-option btn-login-with-email-link">
+2025-09-19T22:53:21.1984965Z 									Login with Email Link</a>
+2025-09-19T22:53:21.1985173Z 							</div>
+2025-09-19T22:53:21.1985330Z 						</div>
+2025-09-19T22:53:21.1985474Z 						
+2025-09-19T22:53:21.1985620Z 					</div>
+2025-09-19T22:53:21.1985770Z 				</div>
+2025-09-19T22:53:21.1985915Z 				</form>
+2025-09-19T22:53:21.1986175Z 		</div></section><section class='for-signup signup-disabled'>
+2025-09-19T22:53:21.1986452Z 		
+2025-09-19T22:53:21.1986635Z <div class="page-card-head">
+2025-09-19T22:53:21.1987198Z 	<img class="app-logo" src="/assets/frappe/images/frappe-framework-logo.svg">
+2025-09-19T22:53:21.1987527Z 	
+2025-09-19T22:53:21.1987708Z 	<h4>Create a Frappe Account</h4>
+2025-09-19T22:53:21.1987911Z 	
+2025-09-19T22:53:21.1988048Z </div>
+2025-09-19T22:53:21.1988133Z 
+2025-09-19T22:53:21.1988351Z 		<div class="login-content page-card"><div class='page-card-head mb-2'>
+2025-09-19T22:53:21.1988754Z 				<span class='indicator gray'>Signup Disabled</span>
+2025-09-19T22:53:21.1989286Z 				<p class="text-muted text-normal sign-up-message mt-1 mb-8">Signups have been disabled for this website.</p>
+2025-09-19T22:53:21.1989810Z 				<div><a href='/' class='btn btn-primary btn-md'>Home</a></div>
+2025-09-19T22:53:21.1990097Z 			</div></div>
+2025-09-19T22:53:21.1990210Z 
+2025-09-19T22:53:21.1990274Z 	</section>
+2025-09-19T22:53:21.1990368Z 
+2025-09-19T22:53:21.1990463Z 	<section class='for-forgot'>
+2025-09-19T22:53:21.1990658Z 		
+2025-09-19T22:53:21.1990839Z <div class="page-card-head">
+2025-09-19T22:53:21.1991200Z 	<img class="app-logo" src="/assets/frappe/images/frappe-framework-logo.svg">
+2025-09-19T22:53:21.1991528Z 	
+2025-09-19T22:53:21.1991686Z 	<h4>Forgot Password</h4>
+2025-09-19T22:53:21.1991868Z 	
+2025-09-19T22:53:21.1992006Z </div>
+2025-09-19T22:53:21.1992092Z 
+2025-09-19T22:53:21.1992205Z 		<div class="login-content page-card">
+2025-09-19T22:53:21.1992529Z 			<form class="form-signin form-forgot hide" role="form">
+2025-09-19T22:53:21.1992845Z 				<div class="page-card-body">
+2025-09-19T22:53:21.1993084Z 					<div class="email-field">
+2025-09-19T22:53:21.1993386Z 						<input type="email" id="forgot_email" class="form-control"
+2025-09-19T22:53:21.1993829Z 							placeholder="Email Address" required autofocus autocomplete="username">
+2025-09-19T22:53:21.1994355Z 						<svg class="field-icon email-icon" width="20" height="20" viewBox="0 0 20 20" fill="none"
+2025-09-19T22:53:21.1994904Z 							xmlns="http://www.w3.org/2000/svg">
+2025-09-19T22:53:21.1995141Z 							<path
+2025-09-19T22:53:21.1995802Z 								d="M2.5 7.65149V15.0757C2.5 15.4374 2.64367 15.7842 2.8994 16.04C3.15513 16.2957 3.50198 16.4394 3.86364 16.4394H16.1364C16.498 16.4394 16.8449 16.2957 17.1006 16.04C17.3563 15.7842 17.5 15.4374 17.5 15.0757V7.65149"
+2025-09-19T22:53:21.1996522Z 								stroke="#74808B" stroke-miterlimit="10" stroke-linecap="square" />
+2025-09-19T22:53:21.1997008Z 							<path
+2025-09-19T22:53:21.1997750Z 								d="M17.5 7.57572V5.53026C17.5 5.1686 17.3563 4.82176 17.1006 4.56603C16.8449 4.31029 16.498 4.16663 16.1364 4.16663H3.86364C3.50198 4.16663 3.15513 4.31029 2.8994 4.56603C2.64367 4.82176 2.5 5.1686 2.5 5.53026V7.57572L10 10.8333L17.5 7.57572Z"
+2025-09-19T22:53:21.1998680Z 								stroke="#74808B" stroke-miterlimit="10" stroke-linecap="square" />
+2025-09-19T22:53:21.1998983Z 						</svg>
+2025-09-19T22:53:21.1999078Z 
+2025-09-19T22:53:21.1999154Z 					</div>
+2025-09-19T22:53:21.1999310Z 				</div>
+2025-09-19T22:53:21.1999510Z 				<div class="page-card-actions">
+2025-09-19T22:53:21.1999845Z 					<button class="btn btn-sm btn-primary btn-block btn-forgot"
+2025-09-19T22:53:21.2000210Z 						type="submit">Reset Password</button>
+2025-09-19T22:53:21.2000502Z 					<p class="text-center sign-up-message">
+2025-09-19T22:53:21.2000789Z 						<a href="#login">Back to Login</a>
+2025-09-19T22:53:21.2001013Z 					</p>
+2025-09-19T22:53:21.2001166Z 				</div>
+2025-09-19T22:53:21.2001253Z 
+2025-09-19T22:53:21.2001317Z 			</form>
+2025-09-19T22:53:21.2001472Z 		</div>
+2025-09-19T22:53:21.2001625Z 	</section>
+2025-09-19T22:53:21.2001713Z 
+2025-09-19T22:53:21.2001838Z 	<section class='for-login-with-email-link'>
+2025-09-19T22:53:21.2002077Z 			
+2025-09-19T22:53:21.2002260Z <div class="page-card-head">
+2025-09-19T22:53:21.2002620Z 	<img class="app-logo" src="/assets/frappe/images/frappe-framework-logo.svg">
+2025-09-19T22:53:21.2002948Z 	
+2025-09-19T22:53:21.2003120Z 	<h4>Login with Email Link</h4>
+2025-09-19T22:53:21.2003326Z 	
+2025-09-19T22:53:21.2003466Z </div>
+2025-09-19T22:53:21.2003556Z 
+2025-09-19T22:53:21.2003669Z 		<div class="login-content page-card">
+2025-09-19T22:53:21.2004045Z 			<form class="form-signin form-login-with-email-link hide" role="form">
+2025-09-19T22:53:21.2004398Z 				<div class="page-card-body">
+2025-09-19T22:53:21.2004639Z 					<div class="email-field">
+2025-09-19T22:53:21.2004982Z 						<input type="email" id="login_with_email_link_email" class="form-control"
+2025-09-19T22:53:21.2005450Z 							placeholder="Email Address" required autofocus autocomplete="username">
+2025-09-19T22:53:21.2005973Z 						<svg class="field-icon email-icon" width="20" height="20" viewBox="0 0 20 20" fill="none"
+2025-09-19T22:53:21.2006379Z 							xmlns="http://www.w3.org/2000/svg">
+2025-09-19T22:53:21.2006608Z 							<path
+2025-09-19T22:53:21.2007522Z 								d="M2.5 7.65149V15.0757C2.5 15.4374 2.64367 15.7842 2.8994 16.04C3.15513 16.2957 3.50198 16.4394 3.86364 16.4394H16.1364C16.498 16.4394 16.8449 16.2957 17.1006 16.04C17.3563 15.7842 17.5 15.4374 17.5 15.0757V7.65149"
+2025-09-19T22:53:21.2008255Z 								stroke="#74808B" stroke-miterlimit="10" stroke-linecap="square" />
+2025-09-19T22:53:21.2008561Z 							<path
+2025-09-19T22:53:21.2009298Z 								d="M17.5 7.57572V5.53026C17.5 5.1686 17.3563 4.82176 17.1006 4.56603C16.8449 4.31029 16.498 4.16663 16.1364 4.16663H3.86364C3.50198 4.16663 3.15513 4.31029 2.8994 4.56603C2.64367 4.82176 2.5 5.1686 2.5 5.53026V7.57572L10 10.8333L17.5 7.57572Z"
+2025-09-19T22:53:21.2010087Z 								stroke="#74808B" stroke-miterlimit="10" stroke-linecap="square" />
+2025-09-19T22:53:21.2010392Z 						</svg>
+2025-09-19T22:53:21.2010541Z 					</div>
+2025-09-19T22:53:21.2010695Z 				</div>
+2025-09-19T22:53:21.2010884Z 				<div class="page-card-actions">
+2025-09-19T22:53:21.2011266Z 					<button class="btn btn-sm btn-primary btn-block btn-login-with-email-link"
+2025-09-19T22:53:21.2011649Z 						type="submit">Send login link</button>
+2025-09-19T22:53:21.2011927Z 					<p class="text-center sign-up-message">
+2025-09-19T22:53:21.2012364Z 						<a href="#login">Back to Login</a>
+2025-09-19T22:53:21.2012593Z 					</p>
+2025-09-19T22:53:21.2012752Z 				</div>
+2025-09-19T22:53:21.2012902Z 			</form>
+2025-09-19T22:53:21.2013042Z 		</div>
+2025-09-19T22:53:21.2013192Z 	</section>
+2025-09-19T22:53:21.2013340Z </div>
+2025-09-19T22:53:21.2013478Z </div>
+2025-09-19T22:53:21.2013567Z 
+2025-09-19T22:53:21.2013671Z 		<div class="page-footer"></div>
+2025-09-19T22:53:21.2013879Z 	</main>
+2025-09-19T22:53:21.2014022Z 	
+2025-09-19T22:53:21.2014162Z </div>
+2025-09-19T22:53:21.2014390Z 
+2025-09-19T22:53:21.2014451Z </div>
+2025-09-19T22:53:21.2014540Z 
+2025-09-19T22:53:21.2014546Z 
+2025-09-19T22:53:21.2014646Z <footer class="web-footer">
+2025-09-19T22:53:21.2014870Z <div class="container">
+2025-09-19T22:53:21.2015106Z <div class="footer-logo-extension">
+2025-09-19T22:53:21.2015342Z <div class="row">
+2025-09-19T22:53:21.2015570Z <div class="text-left col-md-6"></div>
+2025-09-19T22:53:21.2015852Z <div class="text-right col-md-6">
+2025-09-19T22:53:21.2016067Z </div>
+2025-09-19T22:53:21.2016203Z </div>
+2025-09-19T22:53:21.2016342Z </div>
+2025-09-19T22:53:21.2016512Z <div class="footer-links">
+2025-09-19T22:53:21.2016909Z <div class="row">
+2025-09-19T22:53:21.2017330Z <div class="footer-col-left col-sm-6"></div>
+2025-09-19T22:53:21.2017710Z <div class="footer-col-right col-sm-6"></div>
+2025-09-19T22:53:21.2017949Z </div>
+2025-09-19T22:53:21.2018093Z </div>
+2025-09-19T22:53:21.2018263Z <div class="footer-info">
+2025-09-19T22:53:21.2018466Z <div class="row">
+2025-09-19T22:53:21.2018715Z <div class="footer-col-left col-sm-6 col-12">
+2025-09-19T22:53:21.2018951Z </div>
+2025-09-19T22:53:21.2019235Z <div class="footer-col-right col-sm-6 col-12 footer-powered">
+2025-09-19T22:53:21.2019829Z 			Built on <a class="text-muted" href="https://frappeframework.com?source=website_footer" target="_blank">Frappe</a>
+2025-09-19T22:53:21.2020278Z </div>
+2025-09-19T22:53:21.2020424Z </div>
+2025-09-19T22:53:21.2020560Z </div>
+2025-09-19T22:53:21.2020709Z </div>
+2025-09-19T22:53:21.2023011Z </footer><div id="all-symbols" style="display:none"></div><script type="text/javascript">fetch(`/assets/frappe/icons/timeless/icons.svg?v=${window._version_number}`, {credentials: "same-origin"}).then((r) => r.text()).then((svg) => {let c = document.getElementById("all-symbols"); c.insertAdjacentHTML("beforeend", svg);});</script><script type="text/javascript">fetch(`/assets/frappe/icons/espresso/icons.svg?v=${window._version_number}`, {credentials: "same-origin"}).then((r) => r.text()).then((svg) => {let c = document.getElementById("all-symbols"); c.insertAdjacentHTML("beforeend", svg);});</script>
+2025-09-19T22:53:21.2024837Z 	<!-- js should be loaded in body! -->
+2025-09-19T22:53:21.2025059Z 	<script>
+2025-09-19T22:53:21.2026650Z 		frappe.boot = {"lang":"en","apps_data":{"apps":[],"is_desk_apps":1,"default_path":""},"sysdefaults":{"float_precision":3,"date_format":"yyyy-mm-dd","time_format":"HH:mm:ss","first_day_of_the_week":"Sunday","number_format":"#,###.##","currency":null},"time_zone":{"system":"Asia/Kolkata","user":"Asia/Kolkata"},"assets_json":{"lms.bundle.css":"/assets/lms/dist/css/lms.bundle.WNSXT3MN.css","rtl_lms.bundle.css":"/assets/lms/dist/css-rtl/lms.bundle.5SJY2PTC.css"},"sitename":"test.local","is_fc_site":0}
+2025-09-19T22:53:21.2028302Z 		// for backward compatibility of some libs
+2025-09-19T22:53:21.2028619Z 		frappe.sys_defaults = frappe.boot.sysdefaults;
+2025-09-19T22:53:21.2028900Z 	</script>
+2025-09-19T22:53:21.2029193Z 	<script type="text/javascript" src="/frappe-web.bundle.js"></script>
+2025-09-19T22:53:21.2029505Z 	
+2025-09-19T22:53:21.2029773Z 	<script type="text/javascript" src="/website_script.js"></script>
+2025-09-19T22:53:21.2030091Z <script>// login.js
+2025-09-19T22:53:21.2030327Z // don't remove this line (used in test)
+2025-09-19T22:53:21.2030502Z 
+2025-09-19T22:53:21.2030605Z window.disable_signup = true;
+2025-09-19T22:53:21.2030870Z window.show_footer_on_login = false;
+2025-09-19T22:53:21.2031025Z 
+2025-09-19T22:53:21.2031252Z window.login = {};
+2025-09-19T22:53:21.2031372Z 
+2025-09-19T22:53:21.2031457Z window.verify = {};
+2025-09-19T22:53:21.2031567Z 
+2025-09-19T22:53:21.2031693Z login.bind_events = function () {
+2025-09-19T22:53:21.2031953Z 	$(window).on("hashchange", function () {
+2025-09-19T22:53:21.2032194Z 		login.route();
+2025-09-19T22:53:21.2032357Z 	});
+2025-09-19T22:53:21.2032445Z 
+2025-09-19T22:53:21.2032575Z 	$(".form-login").on("submit", function (event) {
+2025-09-19T22:53:21.2032847Z 		event.preventDefault();
+2025-09-19T22:53:21.2033044Z 		var args = {};
+2025-09-19T22:53:21.2033330Z 		args.cmd = "login";
+2025-09-19T22:53:21.2033576Z 		args.usr = ($("#login_email").val() || "").trim();
+2025-09-19T22:53:21.2033865Z 		args.pwd = $("#login_password").val();
+2025-09-19T22:53:21.2034128Z 		if (!args.usr || !args.pwd) {
+2025-09-19T22:53:21.2034331Z 			
+2025-09-19T22:53:21.2034570Z 			frappe.msgprint("Both login and password required");
+2025-09-19T22:53:21.2034845Z 			return false;
+2025-09-19T22:53:21.2035008Z 		}
+2025-09-19T22:53:21.2035191Z 		login.call(args, null, "/login");
+2025-09-19T22:53:21.2035412Z 		return false;
+2025-09-19T22:53:21.2035570Z 	});
+2025-09-19T22:53:21.2035656Z 
+2025-09-19T22:53:21.2035789Z 	$(".form-signup").on("submit", function (event) {
+2025-09-19T22:53:21.2036056Z 		event.preventDefault();
+2025-09-19T22:53:21.2036249Z 		var args = {};
+2025-09-19T22:53:21.2036500Z 		args.cmd = "frappe.core.doctype.user.user.sign_up";
+2025-09-19T22:53:21.2037000Z 		args.email = ($("#signup_email").val() || "").trim();
+2025-09-19T22:53:21.2037475Z 		args.redirect_to = frappe.utils.sanitise_redirect(frappe.utils.get_url_arg("redirect-to"));
+2025-09-19T22:53:21.2038054Z 		args.full_name = frappe.utils.xss_sanitise(($("#signup_fullname").val() || "").trim());
+2025-09-19T22:53:21.2038523Z 		if (!args.email || !validate_email(args.email) || !args.full_name) {
+2025-09-19T22:53:21.2038920Z 			login.set_status("Valid email and name required", 'red');
+2025-09-19T22:53:21.2039199Z 			return false;
+2025-09-19T22:53:21.2039362Z 		}
+2025-09-19T22:53:21.2039514Z 		login.call(args);
+2025-09-19T22:53:21.2039691Z 		return false;
+2025-09-19T22:53:21.2039847Z 	});
+2025-09-19T22:53:21.2039929Z 
+2025-09-19T22:53:21.2040068Z 	$(".form-forgot").on("submit", function (event) {
+2025-09-19T22:53:21.2040329Z 		event.preventDefault();
+2025-09-19T22:53:21.2040527Z 		var args = {};
+2025-09-19T22:53:21.2040804Z 		args.cmd = "frappe.core.doctype.user.user.reset_password";
+2025-09-19T22:53:21.2041157Z 		args.user = ($("#forgot_email").val() || "").trim();
+2025-09-19T22:53:21.2041409Z 		if (!args.user) {
+2025-09-19T22:53:21.2041665Z 			login.set_status("Valid Login id required.", 'red');
+2025-09-19T22:53:21.2041922Z 			return false;
+2025-09-19T22:53:21.2042084Z 		}
+2025-09-19T22:53:21.2042232Z 		login.call(args);
+2025-09-19T22:53:21.2042403Z 		return false;
+2025-09-19T22:53:21.2042562Z 	});
+2025-09-19T22:53:21.2042644Z 
+2025-09-19T22:53:21.2042832Z 	$(".form-login-with-email-link").on("submit", function (event) {
+2025-09-19T22:53:21.2043157Z 		event.preventDefault();
+2025-09-19T22:53:21.2043352Z 		var args = {};
+2025-09-19T22:53:21.2043577Z 		args.cmd = "frappe.www.login.send_login_link";
+2025-09-19T22:53:21.2043942Z 		args.email = ($("#login_with_email_link_email").val() || "").trim();
+2025-09-19T22:53:21.2044236Z 		if (!args.email) {
+2025-09-19T22:53:21.2044487Z 			login.set_status("Valid Login id required.", 'red');
+2025-09-19T22:53:21.2044747Z 			return false;
+2025-09-19T22:53:21.2044900Z 		}
+2025-09-19T22:53:21.2045077Z 		login.call(args).then(() => {
+2025-09-19T22:53:21.2045385Z 			login.set_status("Login link sent to your email", 'blue');
+2025-09-19T22:53:21.2045711Z 			$("#login_with_email_link_email").val("");
+2025-09-19T22:53:21.2045962Z 		}).catch(() => {
+2025-09-19T22:53:21.2046203Z 			login.set_status("Send login link", 'blue');
+2025-09-19T22:53:21.2046436Z 		});
+2025-09-19T22:53:21.2046544Z 
+2025-09-19T22:53:21.2046624Z 		return false;
+2025-09-19T22:53:21.2046986Z 	});
+2025-09-19T22:53:21.2047081Z 
+2025-09-19T22:53:21.2047204Z 	$(".toggle-password").click(function () {
+2025-09-19T22:53:21.2047631Z 		var input = $($(this).attr("toggle"));
+2025-09-19T22:53:21.2047903Z 		if (input.attr("type") == "password") {
+2025-09-19T22:53:21.2048170Z 			input.attr("type", "text");
+2025-09-19T22:53:21.2048381Z 			$(this).text("Hide")
+2025-09-19T22:53:21.2048552Z 		} else {
+2025-09-19T22:53:21.2048745Z 			input.attr("type", "password");
+2025-09-19T22:53:21.2048970Z 			$(this).text("Show")
+2025-09-19T22:53:21.2049138Z 		}
+2025-09-19T22:53:21.2049280Z 	});
+2025-09-19T22:53:21.2049363Z 
+2025-09-19T22:53:21.2049530Z 	
+2025-09-19T22:53:21.2049673Z }
+2025-09-19T22:53:21.2049752Z 
+2025-09-19T22:53:21.2049758Z 
+2025-09-19T22:53:21.2049862Z login.route = function () {
+2025-09-19T22:53:21.2050117Z 	var route = window.location.hash.slice(1);
+2025-09-19T22:53:21.2050372Z 	if (!route) route = "login";
+2025-09-19T22:53:21.2050612Z 	route = route.replaceAll("-", "_");
+2025-09-19T22:53:21.2050830Z 	login[route]();
+2025-09-19T22:53:21.2050992Z }
+2025-09-19T22:53:21.2051075Z 
+2025-09-19T22:53:21.2051209Z login.reset_sections = function (hide) {
+2025-09-19T22:53:21.2051471Z 	if (hide || hide === undefined) {
+2025-09-19T22:53:21.2051728Z 		$("section.for-login").toggle(false);
+2025-09-19T22:53:21.2052007Z 		$("section.for-email-login").toggle(false);
+2025-09-19T22:53:21.2052287Z 		$("section.for-forgot").toggle(false);
+2025-09-19T22:53:21.2052601Z 		$("section.for-login-with-email-link").toggle(false);
+2025-09-19T22:53:21.2052915Z 		$("section.for-signup").toggle(false);
+2025-09-19T22:53:21.2053140Z 	}
+2025-09-19T22:53:21.2053403Z 	$('section:not(.signup-disabled) .indicator').each(function () {
+2025-09-19T22:53:21.2053812Z 		$(this).removeClass().addClass('indicator').addClass('blue')
+2025-09-19T22:53:21.2054133Z 			.text($(this).attr('data-text'));
+2025-09-19T22:53:21.2054345Z 	});
+2025-09-19T22:53:21.2054488Z }
+2025-09-19T22:53:21.2054568Z 
+2025-09-19T22:53:21.2054671Z login.login = function () {
+2025-09-19T22:53:21.2054880Z 	login.reset_sections();
+2025-09-19T22:53:21.2055108Z 	$(".for-login").toggle(true);
+2025-09-19T22:53:21.2055302Z }
+2025-09-19T22:53:21.2055380Z 
+2025-09-19T22:53:21.2055474Z login.email = function () {
+2025-09-19T22:53:21.2055681Z 	login.reset_sections();
+2025-09-19T22:53:21.2055902Z 	$(".for-email-login").toggle(true);
+2025-09-19T22:53:21.2056128Z 	$("#login_email").focus();
+2025-09-19T22:53:21.2056311Z }
+2025-09-19T22:53:21.2056387Z 
+2025-09-19T22:53:21.2056487Z login.steptwo = function () {
+2025-09-19T22:53:21.2056892Z 	login.reset_sections();
+2025-09-19T22:53:21.2057130Z 	$(".for-login").toggle(true);
+2025-09-19T22:53:21.2057343Z 	$("#login_email").focus();
+2025-09-19T22:53:21.2057528Z }
+2025-09-19T22:53:21.2057609Z 
+2025-09-19T22:53:21.2057706Z login.forgot = function () {
+2025-09-19T22:53:21.2057924Z 	login.reset_sections();
+2025-09-19T22:53:21.2058142Z 	if ($("#login_email").val()) {
+2025-09-19T22:53:21.2058399Z 		$("#forgot_email").val($("#login_email").val());
+2025-09-19T22:53:21.2058641Z 	}
+2025-09-19T22:53:21.2058822Z 	$(".for-forgot").toggle(true);
+2025-09-19T22:53:21.2059038Z 	$("#forgot_email").focus();
+2025-09-19T22:53:21.2059230Z }
+2025-09-19T22:53:21.2059310Z 
+2025-09-19T22:53:21.2059455Z login.login_with_email_link = function () {
+2025-09-19T22:53:21.2059706Z 	login.reset_sections();
+2025-09-19T22:53:21.2059926Z 	if ($("#login_email").val()) {
+2025-09-19T22:53:21.2060220Z 		$("#login_with_email_link_email").val($("#login_email").val());
+2025-09-19T22:53:21.2060499Z 	}
+2025-09-19T22:53:21.2060710Z 	$(".for-login-with-email-link").toggle(true);
+2025-09-19T22:53:21.2060998Z 	$("#login_with_email_link_email").focus();
+2025-09-19T22:53:21.2061225Z }
+2025-09-19T22:53:21.2061308Z 
+2025-09-19T22:53:21.2061411Z login.signup = function () {
+2025-09-19T22:53:21.2061620Z 	login.reset_sections();
+2025-09-19T22:53:21.2061840Z 	$(".for-signup").toggle(true);
+2025-09-19T22:53:21.2062061Z 	$("#signup_fullname").focus();
+2025-09-19T22:53:21.2062255Z }
+2025-09-19T22:53:21.2062335Z 
+2025-09-19T22:53:21.2062342Z 
+2025-09-19T22:53:21.2062413Z // Login
+2025-09-19T22:53:21.2062796Z login.call = function (args, callback, url="/") {
+2025-09-19T22:53:21.2063100Z 	login.set_status("Verifying...", 'blue');
+2025-09-19T22:53:21.2063269Z 
+2025-09-19T22:53:21.2063353Z 	return frappe.call({
+2025-09-19T22:53:21.2063541Z 		type: "POST",
+2025-09-19T22:53:21.2063709Z 		url: url,
+2025-09-19T22:53:21.2063864Z 		args: args,
+2025-09-19T22:53:21.2064035Z 		callback: callback,
+2025-09-19T22:53:21.2064215Z 		freeze: true,
+2025-09-19T22:53:21.2064414Z 		statusCode: login.login_handlers
+2025-09-19T22:53:21.2064627Z 	});
+2025-09-19T22:53:21.2064768Z }
+2025-09-19T22:53:21.2064994Z 
+2025-09-19T22:53:21.2065147Z login.set_status = function (message, color) {
+2025-09-19T22:53:21.2065461Z 	$('section:visible .btn-primary').text(message)
+2025-09-19T22:53:21.2065721Z 	if (color == "red") {
+2025-09-19T22:53:21.2065998Z 		$('section:visible .page-card-body').addClass("invalid");
+2025-09-19T22:53:21.2066275Z 	}
+2025-09-19T22:53:21.2066413Z }
+2025-09-19T22:53:21.2066499Z 
+2025-09-19T22:53:21.2066634Z login.set_invalid = function (message) {
+2025-09-19T22:53:21.2067174Z 	$(".login-content.page-card").addClass('invalid-login');
+2025-09-19T22:53:21.2067460Z 	setTimeout(() => {
+2025-09-19T22:53:21.2067750Z 		$(".login-content.page-card").removeClass('invalid-login');
+2025-09-19T22:53:21.2068036Z 	}, 500)
+2025-09-19T22:53:21.2068221Z 	login.set_status(message, 'red');
+2025-09-19T22:53:21.2068478Z 	$("#login_password").focus();
+2025-09-19T22:53:21.2068674Z }
+2025-09-19T22:53:21.2068759Z 
+2025-09-19T22:53:21.2068887Z login.login_handlers = (function () {
+2025-09-19T22:53:21.2069201Z 	var get_error_handler = function (default_message) {
+2025-09-19T22:53:21.2069489Z 		return function (xhr, data) {
+2025-09-19T22:53:21.2069711Z 			if (xhr.responseJSON) {
+2025-09-19T22:53:21.2069926Z 				data = xhr.responseJSON;
+2025-09-19T22:53:21.2070117Z 			}
+2025-09-19T22:53:21.2070208Z 
+2025-09-19T22:53:21.2070307Z 			var message = default_message;
+2025-09-19T22:53:21.2070546Z 			if (data._server_messages) {
+2025-09-19T22:53:21.2070890Z 				message = ($.map(JSON.parse(data._server_messages || '[]'), function (v) {
+2025-09-19T22:53:21.2071258Z 					// temp fix for messages sent as dict
+2025-09-19T22:53:21.2071482Z 					try {
+2025-09-19T22:53:21.2071676Z 						return JSON.parse(v).message;
+2025-09-19T22:53:21.2071904Z 					} catch (e) {
+2025-09-19T22:53:21.2072071Z 						return v;
+2025-09-19T22:53:21.2072236Z 					}
+2025-09-19T22:53:21.2072437Z 				}) || []).join('<br>') || default_message;
+2025-09-19T22:53:21.2072656Z 			}
+2025-09-19T22:53:21.2072739Z 
+2025-09-19T22:53:21.2072850Z 			if (message === default_message) {
+2025-09-19T22:53:21.2073103Z 				login.set_invalid(message);
+2025-09-19T22:53:21.2073308Z 			} else {
+2025-09-19T22:53:21.2073499Z 				login.reset_sections(false);
+2025-09-19T22:53:21.2073699Z 			}
+2025-09-19T22:53:21.2073788Z 
+2025-09-19T22:53:21.2073851Z 		};
+2025-09-19T22:53:21.2074037Z 	}
+2025-09-19T22:53:21.2074119Z 
+2025-09-19T22:53:21.2074205Z 	var login_handlers = {
+2025-09-19T22:53:21.2074400Z 		200: function (data) {
+2025-09-19T22:53:21.2074631Z 			if (data.message == 'Logged In') {
+2025-09-19T22:53:21.2074895Z 				login.set_status("Success", 'green');
+2025-09-19T22:53:21.2075240Z 				document.body.innerHTML = `<div class="centered splash">
+2025-09-19T22:53:21.2075632Z 	<img src="/assets/frappe/images/frappe-framework-logo.svg"
+2025-09-19T22:53:21.2075973Z 		style="width: auto; max-width: 200px;">
+2025-09-19T22:53:21.2076194Z </div>`;
+2025-09-19T22:53:21.2076654Z 				window.location.href = frappe.utils.sanitise_redirect(frappe.utils.get_url_arg("redirect-to")) || data.home_page;
+2025-09-19T22:53:21.2077357Z 			} else if (data.message == 'Password Reset') {
+2025-09-19T22:53:21.2077764Z 				window.location.href = frappe.utils.sanitise_redirect(data.redirect_to);
+2025-09-19T22:53:21.2078149Z 			} else if (data.message == "No App") {
+2025-09-19T22:53:21.2078416Z 				login.set_status("Success", 'green');
+2025-09-19T22:53:21.2078654Z 				if (localStorage) {
+2025-09-19T22:53:21.2078857Z 					var last_visited =
+2025-09-19T22:53:21.2079223Z 						localStorage.getItem("last_visited")
+2025-09-19T22:53:21.2079631Z 						|| frappe.utils.sanitise_redirect(frappe.utils.get_url_arg("redirect-to"));
+2025-09-19T22:53:21.2080039Z 					localStorage.removeItem("last_visited");
+2025-09-19T22:53:21.2080289Z 				}
+2025-09-19T22:53:21.2080381Z 
+2025-09-19T22:53:21.2080463Z 				if (data.redirect_to) {
+2025-09-19T22:53:21.2080823Z 					window.location.href = frappe.utils.sanitise_redirect(data.redirect_to);
+2025-09-19T22:53:21.2081155Z 				}
+2025-09-19T22:53:21.2081246Z 
+2025-09-19T22:53:21.2081376Z 				if (last_visited && last_visited != "/login") {
+2025-09-19T22:53:21.2081780Z 					window.location.href = last_visited;
+2025-09-19T22:53:21.2082009Z 				} else {
+2025-09-19T22:53:21.2082218Z 					window.location.href = data.home_page;
+2025-09-19T22:53:21.2082445Z 				}
+2025-09-19T22:53:21.2082662Z 			} else if (window.location.hash === '#forgot') {
+2025-09-19T22:53:21.2082953Z 				if (data.message === 'not found') {
+2025-09-19T22:53:21.2083235Z 					login.set_status("Not a valid user", 'red');
+2025-09-19T22:53:21.2083538Z 				} else if (data.message == 'not allowed') {
+2025-09-19T22:53:21.2083823Z 					login.set_status("Not Allowed", 'red');
+2025-09-19T22:53:21.2084090Z 				} else if (data.message == 'disabled') {
+2025-09-19T22:53:21.2084404Z 					login.set_status("Not Allowed: Disabled User", 'red');
+2025-09-19T22:53:21.2084673Z 				} else {
+2025-09-19T22:53:21.2084904Z 					login.set_status("Instructions Emailed", 'green');
+2025-09-19T22:53:21.2085164Z 				}
+2025-09-19T22:53:21.2085247Z 
+2025-09-19T22:53:21.2085257Z 
+2025-09-19T22:53:21.2085397Z 			} else if (window.location.hash === '#signup') {
+2025-09-19T22:53:21.2085677Z 				if (cint(data.message[0]) == 0) {
+2025-09-19T22:53:21.2085949Z 					login.set_status(data.message[1], 'red');
+2025-09-19T22:53:21.2086180Z 				} else {
+2025-09-19T22:53:21.2086380Z 					login.set_status("Success", 'green');
+2025-09-19T22:53:21.2086655Z 					frappe.msgprint(data.message[1])
+2025-09-19T22:53:21.2087088Z 				}
+2025-09-19T22:53:21.2087313Z 				//login.set_status(__(data.message), 'green');
+2025-09-19T22:53:21.2087557Z 			}
+2025-09-19T22:53:21.2087639Z 
+2025-09-19T22:53:21.2087716Z 			//OTP verification
+2025-09-19T22:53:21.2087997Z 			if (data.verification && data.message != 'Logged In') {
+2025-09-19T22:53:21.2088313Z 				login.set_status("Success", 'green');
+2025-09-19T22:53:21.2088483Z 
+2025-09-19T22:53:21.2088604Z 				document.cookie = "tmp_id=" + data.tmp_id;
+2025-09-19T22:53:21.2088783Z 
+2025-09-19T22:53:21.2088914Z 				if (data.verification.method == 'OTP App') {
+2025-09-19T22:53:21.2089314Z 					continue_otp_app(data.verification.setup, data.verification.qrcode);
+2025-09-19T22:53:21.2089706Z 				} else if (data.verification.method == 'SMS') {
+2025-09-19T22:53:21.2090090Z 					continue_sms(data.verification.setup, data.verification.prompt);
+2025-09-19T22:53:21.2090477Z 				} else if (data.verification.method == 'Email') {
+2025-09-19T22:53:21.2090872Z 					continue_email(data.verification.setup, data.verification.prompt);
+2025-09-19T22:53:21.2091193Z 				}
+2025-09-19T22:53:21.2091337Z 			}
+2025-09-19T22:53:21.2091482Z 		},
+2025-09-19T22:53:21.2091710Z 		401: get_error_handler("Invalid Login. Try again."),
+2025-09-19T22:53:21.2092051Z 		417: get_error_handler("Oops! Something went wrong."),
+2025-09-19T22:53:21.2092377Z 		404: get_error_handler("User does not exist."),
+2025-09-19T22:53:21.2092684Z 		500: get_error_handler("Something went wrong.")
+2025-09-19T22:53:21.2092917Z 	};
+2025-09-19T22:53:21.2093008Z 
+2025-09-19T22:53:21.2093089Z 	return login_handlers;
+2025-09-19T22:53:21.2093273Z })();
+2025-09-19T22:53:21.2093363Z 
+2025-09-19T22:53:21.2093468Z frappe.ready(function () {
+2025-09-19T22:53:21.2093614Z 
+2025-09-19T22:53:21.2093700Z 	login.bind_events();
+2025-09-19T22:53:21.2093922Z 	if (window.show_footer_on_login) {
+2025-09-19T22:53:21.2094180Z 		$("body .web-footer").show();
+2025-09-19T22:53:21.2094384Z 	}
+2025-09-19T22:53:21.2094468Z 
+2025-09-19T22:53:21.2094710Z 	$(".form-signup, .form-forgot, .form-login-with-email-link").removeClass("hide");
+2025-09-19T22:53:21.2095256Z 	$(document).trigger('login_rendered');
+2025-09-19T22:53:21.2095480Z });
+2025-09-19T22:53:21.2095562Z 
+2025-09-19T22:53:21.2095688Z var verify_token = function (event) {
+2025-09-19T22:53:21.2095980Z 	$(".form-verify").on("submit", function (eventx) {
+2025-09-19T22:53:21.2096256Z 		eventx.preventDefault();
+2025-09-19T22:53:21.2096454Z 		var args = {};
+2025-09-19T22:53:21.2096633Z 		args.cmd = "login";
+2025-09-19T22:53:21.2097092Z 		args.otp = $("#login_token").val();
+2025-09-19T22:53:21.2097385Z 		args.tmp_id = frappe.get_cookie('tmp_id');
+2025-09-19T22:53:21.2097771Z 		if (!args.otp) {
+2025-09-19T22:53:21.2097937Z 			
+2025-09-19T22:53:21.2098140Z 			frappe.msgprint("Login token required");
+2025-09-19T22:53:21.2098386Z 			return false;
+2025-09-19T22:53:21.2098550Z 		}
+2025-09-19T22:53:21.2098706Z 		login.call(args);
+2025-09-19T22:53:21.2098877Z 		return false;
+2025-09-19T22:53:21.2099040Z 	});
+2025-09-19T22:53:21.2099182Z }
+2025-09-19T22:53:21.2099266Z 
+2025-09-19T22:53:21.2099388Z var request_otp = function (r) {
+2025-09-19T22:53:21.2099624Z 	$('.login-content').empty();
+2025-09-19T22:53:21.2099866Z 	$('.login-content:visible').append(
+2025-09-19T22:53:21.2100134Z 		`<div id="twofactor_div">
+2025-09-19T22:53:21.2100351Z 			<form class="form-verify">
+2025-09-19T22:53:21.2100597Z 				<div class="page-card-head p-0">
+2025-09-19T22:53:21.2100978Z 					<span class="indicator blue" data-text="Verification">Verification</span>
+2025-09-19T22:53:21.2101308Z 				</div>
+2025-09-19T22:53:21.2101473Z 				<div id="otp_div"></div>
+2025-09-19T22:53:21.2101975Z 				<input type="text" id="login_token" autocomplete="off" class="form-control" placeholder="Verification Code" required="">
+2025-09-19T22:53:21.2102627Z 				<button class="btn btn-sm btn-primary btn-block mt-3" id="verify_token">Verify</button>
+2025-09-19T22:53:21.2102984Z 			</form>
+2025-09-19T22:53:21.2103137Z 		</div>`
+2025-09-19T22:53:21.2103282Z 	);
+2025-09-19T22:53:21.2103472Z 	// add event handler for submit button
+2025-09-19T22:53:21.2103710Z 	verify_token();
+2025-09-19T22:53:21.2103907Z 	$("#login_token").get(0)?.focus();
+2025-09-19T22:53:21.2104120Z }
+2025-09-19T22:53:21.2104201Z 
+2025-09-19T22:53:21.2104371Z var continue_otp_app = function (setup, qrcode) {
+2025-09-19T22:53:21.2104628Z 	request_otp();
+2025-09-19T22:53:21.2104969Z 	var qrcode_div = $('<div class="text-muted" style="padding-bottom: 15px;"></div>');
+2025-09-19T22:53:21.2105243Z 
+2025-09-19T22:53:21.2105317Z 	if (setup) {
+2025-09-19T22:53:21.2105642Z 		direction = $('<div>').attr('id', 'qr_info').text("Enter Code displayed in OTP App.");
+2025-09-19T22:53:21.2106015Z 		qrcode_div.append(direction);
+2025-09-19T22:53:21.2106262Z 		$('#otp_div').prepend(qrcode_div);
+2025-09-19T22:53:21.2106481Z 	} else {
+2025-09-19T22:53:21.2107102Z 		direction = $('<div>').attr('id', 'qr_info').text("OTP setup using OTP App was not completed. Please contact Administrator.");
+2025-09-19T22:53:21.2107577Z 		qrcode_div.append(direction);
+2025-09-19T22:53:21.2107832Z 		$('#otp_div').prepend(qrcode_div);
+2025-09-19T22:53:21.2108050Z 	}
+2025-09-19T22:53:21.2108190Z }
+2025-09-19T22:53:21.2108278Z 
+2025-09-19T22:53:21.2108428Z var continue_sms = function (setup, prompt) {
+2025-09-19T22:53:21.2108682Z 	request_otp();
+2025-09-19T22:53:21.2108993Z 	var sms_div = $('<div class="text-muted" style="padding-bottom: 15px;"></div>');
+2025-09-19T22:53:21.2109258Z 
+2025-09-19T22:53:21.2109323Z 	if (setup) {
+2025-09-19T22:53:21.2109503Z 		sms_div.append(prompt)
+2025-09-19T22:53:21.2109723Z 		$('#otp_div').prepend(sms_div);
+2025-09-19T22:53:21.2109944Z 	} else {
+2025-09-19T22:53:21.2110320Z 		direction = $('<div>').attr('id', 'qr_info').html(prompt || "SMS was not sent. Please contact Administrator.");
+2025-09-19T22:53:21.2110728Z 		sms_div.append(direction);
+2025-09-19T22:53:21.2110966Z 		$('#otp_div').prepend(sms_div)
+2025-09-19T22:53:21.2111167Z 	}
+2025-09-19T22:53:21.2111308Z }
+2025-09-19T22:53:21.2111387Z 
+2025-09-19T22:53:21.2111546Z var continue_email = function (setup, prompt) {
+2025-09-19T22:53:21.2111931Z 	request_otp();
+2025-09-19T22:53:21.2112251Z 	var email_div = $('<div class="text-muted" style="padding-bottom: 15px;"></div>');
+2025-09-19T22:53:21.2112517Z 
+2025-09-19T22:53:21.2112589Z 	if (setup) {
+2025-09-19T22:53:21.2112762Z 		email_div.append(prompt)
+2025-09-19T22:53:21.2112995Z 		$('#otp_div').prepend(email_div);
+2025-09-19T22:53:21.2113204Z 	} else {
+2025-09-19T22:53:21.2113656Z 		var direction = $('<div>').attr('id', 'qr_info').html(prompt || "Verification code email not sent. Please contact Administrator.");
+2025-09-19T22:53:21.2114247Z 		email_div.append(direction);
+2025-09-19T22:53:21.2114487Z 		$('#otp_div').prepend(email_div);
+2025-09-19T22:53:21.2114697Z 	}
+2025-09-19T22:53:21.2114839Z }
+2025-09-19T22:53:21.2114917Z 
+2025-09-19T22:53:21.2115010Z login.route();</script>
+2025-09-19T22:53:21.2115136Z 
+2025-09-19T22:53:21.2115285Z 	<script>frappe.csrf_token = "None";</script></body>

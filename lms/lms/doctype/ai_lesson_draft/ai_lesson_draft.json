@@ -1,0 +1,28 @@
+{
+ "doctype": "DocType",
+ "name": "AI Lesson Draft",
+ "module": "LMS",
+ "custom": 0,
+ "istable": 0,
+ "editable_grid": 0,
+ "track_changes": 1,
+ "allow_rename": 0,
+ "field_order": [
+  "lesson",
+  "course",
+  "summary",
+  "glossary"
+ ],
+ "fields": [
+  {"fieldname": "lesson", "fieldtype": "Link", "label": "Lesson", "options": "Course Lesson", "in_list_view": 1, "reqd": 1},
+  {"fieldname": "course", "fieldtype": "Link", "label": "Course", "options": "LMS Course", "in_list_view": 1},
+  {"fieldname": "summary", "fieldtype": "Long Text", "label": "Summary"},
+  {"fieldname": "glossary", "fieldtype": "Long Text", "label": "Glossary (JSON or text)"}
+ ],
+ "permissions": [
+  {"role": "System Manager", "read": 1, "write": 1, "create": 1, "delete": 1, "share": 1, "print": 1, "email": 1},
+  {"role": "Moderator", "read": 1, "write": 1, "create": 1},
+  {"role": "Course Creator", "read": 1, "write": 1, "create": 1}
+ ]
+}
+

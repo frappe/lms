@@ -1,0 +1,60 @@
+﻿2025-09-19T22:53:37.2612405Z ##[group]Run cat > api_performance_test.py << 'EOF'
+2025-09-19T22:53:37.2612826Z [36;1mcat > api_performance_test.py << 'EOF'[0m
+2025-09-19T22:53:37.2613090Z [36;1mimport requests[0m
+2025-09-19T22:53:37.2613301Z [36;1mimport time[0m
+2025-09-19T22:53:37.2613479Z [36;1mimport json[0m
+2025-09-19T22:53:37.2613842Z [36;1m[0m
+2025-09-19T22:53:37.2614057Z [36;1mBASE_URL = "http://localhost:8080"[0m
+2025-09-19T22:53:37.2614309Z [36;1m[0m
+2025-09-19T22:53:37.2614485Z [36;1mdef test_api_performance():[0m
+2025-09-19T22:53:37.2614745Z [36;1m    # Test critical API endpoints[0m
+2025-09-19T22:53:37.2614990Z [36;1m    endpoints = [[0m
+2025-09-19T22:53:37.2615228Z [36;1m        "/api/method/lms.lms.utils.get_courses",[0m
+2025-09-19T22:53:37.2615547Z [36;1m        "/api/method/lms.lms.api.get_course_progress",[0m
+2025-09-19T22:53:37.2615855Z [36;1m        "/api/method/frappe.auth.get_logged_user"[0m
+2025-09-19T22:53:37.2616118Z [36;1m    ][0m
+2025-09-19T22:53:37.2616285Z [36;1m    [0m
+2025-09-19T22:53:37.2616487Z [36;1m    results = {}[0m
+2025-09-19T22:53:37.2616683Z [36;1m    [0m
+2025-09-19T22:53:37.2616862Z [36;1m    for endpoint in endpoints:[0m
+2025-09-19T22:53:37.2617104Z [36;1m        times = [][0m
+2025-09-19T22:53:37.2617311Z [36;1m        for _ in range(10):[0m
+2025-09-19T22:53:37.2617553Z [36;1m            start = time.time()[0m
+2025-09-19T22:53:37.2617780Z [36;1m            try:[0m
+2025-09-19T22:53:37.2618060Z [36;1m                response = requests.get(f"{BASE_URL}{endpoint}", timeout=10)[0m
+2025-09-19T22:53:37.2618397Z [36;1m                end = time.time()[0m
+2025-09-19T22:53:37.2618651Z [36;1m                if response.status_code == 200:[0m
+2025-09-19T22:53:37.2618938Z [36;1m                    times.append(end - start)[0m
+2025-09-19T22:53:37.2619186Z [36;1m            except:[0m
+2025-09-19T22:53:37.2619414Z [36;1m                times.append(10)  # Timeout[0m
+2025-09-19T22:53:37.2619653Z [36;1m        [0m
+2025-09-19T22:53:37.2619825Z [36;1m        if times:[0m
+2025-09-19T22:53:37.2620060Z [36;1m            avg_time = sum(times) / len(times)[0m
+2025-09-19T22:53:37.2631489Z [36;1m            results[endpoint] = {[0m
+2025-09-19T22:53:37.2631958Z [36;1m                "avg_response_time": avg_time,[0m
+2025-09-19T22:53:37.2632591Z [36;1m                "max_response_time": max(times),[0m
+2025-09-19T22:53:37.2633050Z [36;1m                "min_response_time": min(times)[0m
+2025-09-19T22:53:37.2633446Z [36;1m            }[0m
+2025-09-19T22:53:37.2633680Z [36;1m    [0m
+2025-09-19T22:53:37.2633863Z [36;1m    # Save results[0m
+2025-09-19T22:53:37.2634150Z [36;1m    with open("api_performance_results.json", "w") as f:[0m
+2025-09-19T22:53:37.2634475Z [36;1m        json.dump(results, f, indent=2)[0m
+2025-09-19T22:53:37.2634725Z [36;1m    [0m
+2025-09-19T22:53:37.2634900Z [36;1m    # Print results[0m
+2025-09-19T22:53:37.2635149Z [36;1m    for endpoint, metrics in results.items():[0m
+2025-09-19T22:53:37.2635496Z [36;1m        print(f"{endpoint}: {metrics['avg_response_time']:.3f}s avg")[0m
+2025-09-19T22:53:37.2635799Z [36;1m        [0m
+2025-09-19T22:53:37.2635976Z [36;1m    return results[0m
+2025-09-19T22:53:37.2636171Z [36;1m[0m
+2025-09-19T22:53:37.2636331Z [36;1mif __name__ == "__main__":[0m
+2025-09-19T22:53:37.2636562Z [36;1m    test_api_performance()[0m
+2025-09-19T22:53:37.2636777Z [36;1mEOF[0m
+2025-09-19T22:53:37.2667214Z shell: /usr/bin/bash -e {0}
+2025-09-19T22:53:37.2667429Z env:
+2025-09-19T22:53:37.2667662Z   pythonLocation: /opt/hostedtoolcache/Python/3.10.18/x64
+2025-09-19T22:53:37.2668068Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.10.18/x64/lib/pkgconfig
+2025-09-19T22:53:37.2668447Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.10.18/x64
+2025-09-19T22:53:37.2668810Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.10.18/x64
+2025-09-19T22:53:37.2669156Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.10.18/x64
+2025-09-19T22:53:37.2669495Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.10.18/x64/lib
+2025-09-19T22:53:37.2669974Z ##[endgroup]

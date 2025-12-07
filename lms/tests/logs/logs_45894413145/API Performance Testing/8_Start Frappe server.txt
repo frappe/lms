@@ -1,0 +1,13 @@
+﻿2025-09-19T22:53:02.2454231Z ##[group]Run cd ~/frappe-bench
+2025-09-19T22:53:02.2454751Z [36;1mcd ~/frappe-bench[0m
+2025-09-19T22:53:02.2455233Z [36;1mbench --site test.local serve --port 8080 &[0m
+2025-09-19T22:53:02.2455737Z [36;1msleep 30[0m
+2025-09-19T22:53:02.2501619Z shell: /usr/bin/bash -e {0}
+2025-09-19T22:53:02.2502234Z env:
+2025-09-19T22:53:02.2502644Z   pythonLocation: /opt/hostedtoolcache/Python/3.10.18/x64
+2025-09-19T22:53:02.2503375Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.10.18/x64/lib/pkgconfig
+2025-09-19T22:53:02.2504064Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.10.18/x64
+2025-09-19T22:53:02.2504694Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.10.18/x64
+2025-09-19T22:53:02.2505325Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.10.18/x64
+2025-09-19T22:53:02.2505954Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.10.18/x64/lib
+2025-09-19T22:53:02.2506479Z ##[endgroup]
