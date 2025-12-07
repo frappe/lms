@@ -1,10 +1,12 @@
-import { onMounted, onUnmounted, reactive, ref, watch } from 'vue'
+import { computed, onMounted, onUnmounted, reactive, ref, watch } from 'vue'
 
 export function useScreenSize() {
 	const size = reactive({
 		width: window.innerWidth,
 		height: window.innerHeight,
 	})
+
+	const isMobile = computed(() => size.width < 640)
 
 	const onResize = () => {
 		size.width = window.innerWidth
@@ -19,9 +21,11 @@ export function useScreenSize() {
 		window.removeEventListener('resize', onResize)
 	})
 
-	return size
+	return {
+		size,
+		isMobile,
+	}
 }
-// write a composable for detecting swipe gestures in mobile devices
 export function useSwipe() {
 	const swipe = reactive({
 		initialX: null,

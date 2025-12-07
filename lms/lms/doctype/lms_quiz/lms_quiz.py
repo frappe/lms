@@ -2,19 +2,21 @@
 # For license information, please see license.txt
 
 import json
-import frappe
 import re
+from binascii import Error as BinasciiError
+
+import frappe
 from frappe import _, safe_decode
+from frappe.core.doctype.file.utils import get_random_filename
 from frappe.model.document import Document
-from frappe.utils import cstr, comma_and, cint
+from frappe.utils import cint, comma_and, cstr
+from frappe.utils.file_manager import safe_b64decode
 from fuzzywuzzy import fuzz
+
 from lms.lms.doctype.course_lesson.course_lesson import save_progress
 from lms.lms.utils import (
 	generate_slug,
 )
-from binascii import Error as BinasciiError
-from frappe.utils.file_manager import safe_b64decode
-from frappe.core.doctype.file.utils import get_random_filename
 
 
 class LMSQuiz(Document):
@@ -28,15 +30,11 @@ class LMSQuiz(Document):
 		questions = [row.question for row in self.questions]
 		rows = [i + 1 for i, x in enumerate(questions) if questions.count(x) > 1]
 		if len(rows):
-			frappe.throw(
-				_("Rows {0} have the duplicate questions.").format(frappe.bold(comma_and(rows)))
-			)
+			frappe.throw(_("Rows {0} have the duplicate questions.").format(frappe.bold(comma_and(rows))))
 
 	def validate_limit(self):
 		if self.limit_questions_to and cint(self.limit_questions_to) >= len(self.questions):
-			frappe.throw(
-				_("Limit cannot be greater than or equal to the number of questions in the quiz.")
-			)
+			frappe.throw(_("Limit cannot be greater than or equal to the number of questions in the quiz."))
 
 		if self.limit_questions_to and cint(self.limit_questions_to) < len(self.questions):
 			marks = [question.marks for question in self.questions]
@@ -44,6 +42,11 @@ class LMSQuiz(Document):
 				frappe.throw(_("All questions should have the same marks if the limit is set."))
 
 	def calculate_total_marks(self):
+		if len(self.questions) == 0:
+			self.total_marks = 0
+			self.passing_percentage = 100
+			return
+
 		if self.limit_questions_to:
 			self.total_marks = sum(
 				question.marks for question in self.questions[: cint(self.limit_questions_to)]
@@ -102,20 +105,26 @@ def quiz_summary(quiz, results):
 	quiz_details = frappe.db.get_value(
 		"LMS Quiz",
 		quiz,
-		["total_marks", "passing_percentage", "lesson", "course"],
+		[
+			"name",
+			"total_marks",
+			"passing_percentage",
+			"lesson",
+			"course",
+			"enable_negative_marking",
+			"marks_to_cut",
+		],
 		as_dict=1,
 	)
 
-	data = process_results(results, quiz)
+	data = process_results(results, quiz_details)
 	results = data["results"]
 	score = data["score"]
 	is_open_ended = data["is_open_ended"]
 
 	score_out_of = quiz_details.total_marks
 	percentage = (score / score_out_of) * 100 if score_out_of else 0
-	submission = create_submission(
-		quiz, results, score_out_of, quiz_details.passing_percentage
-	)
+	submission = create_submission(quiz, results, score_out_of, quiz_details.passing_percentage)
 
 	save_progress_after_quiz(quiz_details, percentage)
 
@@ -129,14 +138,14 @@ def quiz_summary(quiz, results):
 	}
 
 
-def process_results(results, quiz):
+def process_results(results, quiz_details):
 	score = 0
 	is_open_ended = False
 
 	for result in results:
 		question_details = frappe.db.get_value(
 			"LMS Quiz Question",
-			{"parent": quiz, "question": result["question_name"]},
+			{"parent": quiz_details.name, "question": result["question_name"]},
 			["question", "marks", "question_detail", "type"],
 			as_dict=1,
 		)
@@ -154,7 +163,11 @@ def process_results(results, quiz):
 			else:
 				result["is_correct"] = 0
 
-			marks = question_details.marks if correct else 0
+			if correct:
+				marks = question_details.marks
+			else:
+				marks = -quiz_details.marks_to_cut if quiz_details.enable_negative_marking else 0
+
 			result["marks"] = marks
 			score += marks
 
@@ -235,11 +248,7 @@ def create_submission(quiz, results, score_out_of, passing_percentage):
 
 
 def save_progress_after_quiz(quiz_details, percentage):
-	if (
-		percentage >= quiz_details.passing_percentage
-		and quiz_details.lesson
-		and quiz_details.course
-	):
+	if percentage >= quiz_details.passing_percentage and quiz_details.lesson and quiz_details.course:
 		save_progress(quiz_details.lesson, quiz_details.course)
 	elif not quiz_details.passing_percentage:
 		save_progress(quiz_details.lesson, quiz_details.course)

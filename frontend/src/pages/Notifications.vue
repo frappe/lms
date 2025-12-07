@@ -18,7 +18,7 @@
 			/>
 		</div>
 	</header>
-	<div class="w-3/4 mx-auto px-5 pt-6 divide-y">
+	<div class="w-full md:w-3/4 mx-auto px-5 pt-6 divide-y">
 		<div
 			v-if="notifications?.length"
 			v-for="log in notifications"
@@ -30,14 +30,14 @@
 				<div class="notification text-ink-gray-7" v-html="log.subject"></div>
 			</div>
 			<div class="flex items-center space-x-2">
-				<Link
+				<a
 					v-if="log.link"
-					:to="log.link"
+					:href="log.link"
 					@click="(e) => handleMarkAsRead(e, log.name)"
 					class="text-ink-gray-5 font-medium text-sm hover:text-ink-gray-7"
 				>
 					{{ __('View') }}
-				</Link>
+				</a>
 				<Button
 					variant="ghost"
 					v-if="!log.read"
@@ -60,7 +60,6 @@ import {
 	createListResource,
 	createResource,
 	Breadcrumbs,
-	Link,
 	TabButtons,
 	Button,
 	usePageMeta,

@@ -18,13 +18,11 @@ class TestLMSCourse(unittest.TestCase):
 		course = new_course("Test Course")
 		assert course.get_mentors() == []
 
-		user = new_user("Tester", "tester@example.com")
+		new_user("Tester", "tester@example.com")
 		course.add_mentor("tester@example.com")
 
 		mentors = course.get_mentors()
-		mentors_data = [
-			dict(email=mentor.email, batch_count=mentor.batch_count) for mentor in mentors
-		]
+		mentors_data = [dict(email=mentor.email, batch_count=mentor.batch_count) for mentor in mentors]
 		assert mentors_data == [{"email": "tester@example.com", "batch_count": 0}]
 
 	def tearDown(self):
@@ -32,6 +30,7 @@ class TestLMSCourse(unittest.TestCase):
 			frappe.delete_doc("User", "tester@example.com")
 
 		if frappe.db.exists("LMS Course", "test-course"):
+			frappe.db.delete("Batch Course", {"course": "test-course"})
 			frappe.db.delete("Exercise Submission", {"course": "test-course"})
 			frappe.db.delete("Exercise Latest Submission", {"course": "test-course"})
 			frappe.db.delete("LMS Exercise", {"course": "test-course"})
@@ -95,6 +94,6 @@ def new_course(title, additional_filters=None):
 def create_evaluator():
 	if not frappe.db.exists("Course Evaluator", "evaluator@example.com"):
 		new_user("Evaluator", "evaluator@example.com")
-		frappe.get_doc(
-			{"doctype": "Course Evaluator", "evaluator": "evaluator@example.com"}
-		).save(ignore_permissions=True)
+		frappe.get_doc({"doctype": "Course Evaluator", "evaluator": "evaluator@example.com"}).save(
+			ignore_permissions=True
+		)

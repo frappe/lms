@@ -118,6 +118,10 @@ Replace the following parameters with your values:
 
 The script will set up a production-ready instance of Frappe Learning with all the necessary configurations in about 5 minutes.
 
+**Note:** To avoid a `404 Page Not Found` error:
+- If hosting on a **public server**, make sure your DNS **A record** points to your server's IP.
+- If hosting **locally**, map your domain to `127.0.0.1` in your `/etc/hosts` file:
+
 ## Development Setup
 
 ### Docker

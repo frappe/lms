@@ -3,20 +3,51 @@
 		class="sticky flex items-center justify-between top-0 z-10 border-b bg-surface-white px-3 py-2.5 sm:px-5"
 	>
 		<Breadcrumbs :items="breadcrumbs" />
-		<router-link
+
+		<Dropdown
+			placement="start"
+			side="bottom"
 			v-if="canCreateCourse()"
-			:to="{
-				name: 'CourseForm',
-				params: { courseName: 'new' },
-			}"
+			:options="[
+				{
+					label: __('New Course'),
+					icon: 'book-open',
+					onClick() {
+						router.push({
+							name: 'CourseForm',
+							params: { courseName: 'new' },
+						})
+					},
+				},
+				{
+					label: __('Import Course'),
+					icon: 'upload',
+					onClick() {
+						router.push({
+							name: 'NewDataImport',
+							params: { doctype: 'LMS Course' },
+						})
+					},
+				},
+			]"
 		>
-			<Button variant="solid">
-				<template #prefix>
-					<Plus class="h-4 w-4 stroke-1.5" />
-				</template>
-				{{ __('New') }}
-			</Button>
-		</router-link>
+			<template v-slot="{ open }">
+				<Button variant="solid">
+					<template #prefix>
+						<Plus class="h-4 w-4 stroke-1.5" />
+					</template>
+					{{ __('Create') }}
+					<template #suffix>
+						<ChevronDown
+							:class="[
+								'w-4 h-4 stroke-1.5 ml-1 transform transition-transform',
+								open ? 'rotate-180' : '',
+							]"
+						/>
+					</template>
+				</Button>
+			</template>
+		</Dropdown>
 	</header>
 	<div class="p-5 pb-10">
 		<div
@@ -26,24 +57,19 @@
 				{{ __('All Courses') }}
 			</div>
 			<div
-				class="flex flex-col space-y-2 lg:space-y-0 lg:flex-row lg:items-center lg:space-x-4"
+				class="flex flex-col space-y-3 lg:space-y-0 lg:flex-row lg:items-center lg:space-x-4"
 			>
-				<TabButtons :buttons="courseTabs" v-model="currentTab" />
-				<FormControl
-					v-model="certification"
-					:label="__('Certification')"
-					type="checkbox"
-					@change="updateCourses()"
-				/>
+				<TabButtons :buttons="courseTabs" v-model="currentTab" class="w-fit" />
+
 				<div class="grid grid-cols-2 gap-2">
 					<FormControl
 						v-model="title"
 						:placeholder="__('Search by Title')"
 						type="text"
-						class="min-w-40 lg:min-w-0 lg:w-32 xl:w-40"
+						class="w-full lg:min-w-0 lg:w-32 xl:w-40"
 						@input="updateCourses()"
 					/>
-					<div class="min-w-40 lg:min-w-0 lg:w-32 xl:w-40">
+					<div class="w-full lg:min-w-0 lg:w-32 xl:w-40">
 						<Select
 							v-if="categories.length"
 							v-model="currentCategory"
@@ -53,11 +79,18 @@
 						/>
 					</div>
 				</div>
+
+				<FormControl
+					v-model="certification"
+					:label="__('Certification')"
+					type="checkbox"
+					@change="updateCourses()"
+				/>
 			</div>
 		</div>
 		<div
 			v-if="courses.data?.length"
-			class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4"
+			class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-8"
 		>
 			<router-link
 				v-for="course in courses.data"
@@ -83,13 +116,14 @@ import {
 	Button,
 	call,
 	createListResource,
+	Dropdown,
 	FormControl,
 	Select,
 	TabButtons,
 	usePageMeta,
 } from 'frappe-ui'
 import { computed, inject, onMounted, ref, watch } from 'vue'
-import { Plus } from 'lucide-vue-next'
+import { ChevronDown, Plus } from 'lucide-vue-next'
 import { sessionStore } from '@/stores/session'
 import { canCreateCourse } from '@/utils'
 import CourseCard from '@/components/CourseCard.vue'

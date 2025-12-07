@@ -12,6 +12,7 @@
 			:variant="attrs.variant"
 			:placeholder="attrs.placeholder"
 			:filterable="false"
+			:readonly="attrs.readonly"
 		>
 			<template #target="{ open, togglePopover }">
 				<slot name="target" v-bind="{ open, togglePopover }" />
@@ -66,6 +67,7 @@ import { watchDebounced } from '@vueuse/core'
 import { createResource, Button } from 'frappe-ui'
 import { Plus, X } from 'lucide-vue-next'
 import { useAttrs, computed, ref } from 'vue'
+import { useSettings } from '@/stores/settings'
 
 const props = defineProps({
 	doctype: {
@@ -102,6 +104,7 @@ const value = computed({
 
 const autocomplete = ref(null)
 const text = ref('')
+const settingsStore = useSettings()
 
 watchDebounced(
 	() => autocomplete.value?.query,
@@ -118,6 +121,16 @@ watchDebounced(
 	() => props.doctype,
 	() => reload(''),
 	{ debounce: 300, immediate: true }
+)
+
+watchDebounced(
+	() => settingsStore.isSettingsOpen,
+	(isOpen, wasOpen) => {
+		if (wasOpen && !isOpen) {
+			reload('')
+		}
+	},
+	{ debounce: 200 }
 )
 
 const options = createResource({

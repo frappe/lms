@@ -101,7 +101,10 @@ doc_events = {
 			"lms.lms.doctype.lms_badge.lms_badge.process_badges",
 		]
 	},
-	"Discussion Reply": {"after_insert": "lms.lms.utils.handle_notifications"},
+	"Discussion Reply": {
+		"after_insert": "lms.lms.utils.handle_notifications",
+		"validate": "lms.lms.utils.validate_discussion_reply",
+	},
 	"Notification Log": {"on_change": "lms.lms.utils.publish_notifications"},
 	"User": {
 		"validate": "lms.lms.user.validate_username_duplicates",
@@ -194,7 +197,6 @@ jinja = {
 		"lms.lms.utils.get_instructors",
 		"lms.lms.utils.get_lesson_index",
 		"lms.lms.utils.get_lesson_url",
-		"lms.page_renderers.get_profile_url",
 		"lms.lms.utils.is_instructor",
 		"lms.lms.utils.get_palette",
 	],
@@ -230,10 +232,7 @@ lms_markdown_macro_renderers = {
 	"PDF": "lms.plugins.pdf_renderer",
 }
 
-# page_renderer to manage profile pages
 page_renderer = [
-	"lms.page_renderers.ProfileRedirectPage",
-	"lms.page_renderers.ProfilePage",
 	"lms.page_renderers.SCORMRenderer",
 ]
 
@@ -243,6 +242,8 @@ profile_url_prefix = "/users/"
 signup_form_template = "lms.plugins.show_custom_signup"
 
 on_login = "lms.lms.user.on_login"
+
+get_site_info = "lms.activation.get_site_info"
 
 add_to_apps_screen = [
 	{

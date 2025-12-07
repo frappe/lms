@@ -1,7 +1,6 @@
 <template>
 	<Dialog
 		v-model="show"
-		class="text-base"
 		:options="{
 			title: __('Add web page to sidebar'),
 			size: 'lg',
@@ -17,15 +16,17 @@
 		}"
 	>
 		<template #body-content>
-			<Link
-				v-model="page.webpage"
-				doctype="Web Page"
-				:label="__('Web Page')"
-				:filters="{
-					published: 1,
-				}"
-			/>
-			<IconPicker v-model="page.icon" :label="__('Icon')" class="mt-4" />
+			<div class="text-base">
+				<Link
+					v-model="page.webpage"
+					doctype="Web Page"
+					:label="__('Web Page')"
+					:filters="{
+						published: 1,
+					}"
+				/>
+				<IconPicker v-model="page.icon" :label="__('Icon')" class="mt-4" />
+			</div>
 		</template>
 	</Dialog>
 </template>

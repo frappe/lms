@@ -8,6 +8,7 @@ export class Markdown {
 		this.config = config || {}
 		this.text = data.text || ''
 		this.readOnly = readOnly
+		this.placeholder = __("Type '/' for commands or select text to format")
 	}
 
 	static get isReadOnlySupported() {
@@ -64,7 +65,15 @@ export class Markdown {
 			this.wrapper.contentEditable = true
 			this.wrapper.innerHTML = this.text
 
+			this.wrapper.addEventListener('focus', () =>
+				this._togglePlaceholder()
+			)
+			this.wrapper.addEventListener('blur', () =>
+				this._togglePlaceholder()
+			)
+
 			this.wrapper.addEventListener('input', (event) => {
+				this._togglePlaceholder()
 				let value = event.target.textContent
 				if (event.keyCode === 32 && value.startsWith('#')) {
 					this.convertToHeader(event, value)
@@ -83,6 +92,22 @@ export class Markdown {
 		}
 
 		return this.wrapper
+	}
+
+	_togglePlaceholder() {
+		const blocks = document.querySelectorAll(
+			'.cdx-block.ce-paragraph[data-placeholder]'
+		)
+		blocks.forEach((block) => {
+			if (block !== this.wrapper) {
+				delete block.dataset.placeholder
+			}
+		})
+		if (this.wrapper.innerHTML.trim() === '') {
+			this.wrapper.dataset.placeholder = this.placeholder
+		} else {
+			delete this.wrapper.dataset.placeholder
+		}
 	}
 
 	convertToHeader(event, value) {

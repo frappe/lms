@@ -21,7 +21,18 @@
 				class="flex items-center space-x-2"
 			>
 				<router-link
-					v-if="user.data.name == job.data?.owner"
+					v-if="canManageJob && applicationCount.data > 0"
+					:to="{
+						name: 'JobApplications',
+						params: { job: job.data?.name },
+					}"
+				>
+					<Button variant="subtle">
+						{{ __('View Applications') }}
+					</Button>
+				</router-link>
+				<router-link
+					v-if="canManageJob"
 					:to="{
 						name: 'JobForm',
 						params: { jobName: job.data?.name },
@@ -86,7 +97,7 @@
 						</div>
 					</div>
 
-					<div class="space-x-5">
+					<div class="space-x-2">
 						<Badge size="lg">
 							<template #prefix>
 								<CalendarDays class="size-3 stroke-2 text-ink-gray-7" />
@@ -98,6 +109,12 @@
 								<ClipboardType class="size-3 stroke-2 text-ink-gray-7" />
 							</template>
 							{{ job.data.type }}
+						</Badge>
+						<Badge v-if="job.data?.work_mode" size="lg">
+							<template #prefix>
+								<BriefcaseBusiness class="size-3 stroke-2 text-ink-gray-7" />
+							</template>
+							{{ job.data.work_mode }}
 						</Badge>
 						<Badge v-if="applicationCount.data" size="lg">
 							<template #prefix>
@@ -140,7 +157,7 @@ import {
 	createResource,
 	usePageMeta,
 } from 'frappe-ui'
-import { inject, ref } from 'vue'
+import { inject, ref, computed } from 'vue'
 import { sessionStore } from '../stores/session'
 import JobApplicationModal from '@/components/Modals/JobApplicationModal.vue'
 import {
@@ -152,6 +169,8 @@ import {
 	SquareArrowOutUpRight,
 	FileText,
 	ClipboardType,
+	BriefcaseBusiness,
+	Users,
 } from 'lucide-vue-next'
 
 const user = inject('$user')
@@ -218,6 +237,11 @@ const redirectToLogin = (job) => {
 const redirectToWebsite = (url) => {
 	window.open(url, '_blank')
 }
+
+const canManageJob = computed(() => {
+	if (!user.data?.name || !job.data) return false
+	return user.data.name === job.data.owner || user.data?.is_moderator
+})
 
 usePageMeta(() => {
 	return {

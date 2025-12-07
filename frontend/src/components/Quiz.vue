@@ -1,7 +1,7 @@
 <template>
 	<div v-if="quiz.data">
 		<div
-			class="bg-surface-blue-2 space-y-1 py-2 px-2 mb-4 rounded-md text-sm text-ink-blue-3 leading-5"
+			class="bg-surface-blue-2 space-y-2 py-2 px-3 mb-4 rounded-md text-sm text-ink-blue-2 leading-5"
 		>
 			<div v-if="inVideo">
 				{{ __('You will have to complete the quiz to continue the video') }}
@@ -41,12 +41,22 @@
 					)
 				}}
 			</div>
+			<div v-if="quiz.data.enable_negative_marking" class="leading-5">
+				{{
+					__(
+						'If you answer incorrectly, {0} {1} will be deducted from your score for each incorrect answer.'
+					).format(
+						quiz.data.marks_to_cut,
+						quiz.data.marks_to_cut == 1 ? 'mark' : 'marks'
+					)
+				}}
+			</div>
 		</div>
 
 		<div v-if="quiz.data.duration" class="flex flex-col space-x-1 my-4">
 			<div class="mb-2">
-				<span class=""> {{ __('Time') }}: </span>
-				<span class="font-semibold">
+				<span class="text-ink-gray-9"> {{ __('Time') }}: </span>
+				<span class="font-semibold text-ink-gray-9">
 					{{ formatTimer(timer) }}
 				</span>
 			</div>
@@ -155,14 +165,14 @@
 								</div>
 							</div>
 							<span
-								class="ml-2"
+								class="ml-2 text-ink-gray-9"
 								v-html="questionDetails.data[`option_${index}`]"
 							>
 							</span>
 						</label>
 						<div
 							v-if="questionDetails.data[`explanation_${index}`]"
-							class="mt-2 text-xs"
+							class="mt-2 text-xs text-ink-gray-7"
 							v-show="showAnswers.length"
 						>
 							{{ questionDetails.data[`explanation_${index}`] }}
@@ -250,7 +260,7 @@
 					)
 				}}
 			</div>
-			<div v-else>
+			<div v-else class="text-ink-gray-7">
 				{{
 					__(
 						'You got {0}% correct answers with a score of {1} out of {2}'
@@ -564,7 +574,17 @@ const addToLocalStorage = () => {
 			return answer != undefined
 		}),
 	}
-	quizData ? quizData.push(questionData) : (quizData = [questionData])
+
+	if (quizData) {
+		let existingQuestion = quizData.find(
+			(q) => q.question_name == questionData.question_name
+		)
+		if (!existingQuestion) {
+			quizData.push(questionData)
+		}
+	} else {
+		quizData = [questionData]
+	}
 	localStorage.setItem(quiz.data.title, JSON.stringify(quizData))
 }
 
@@ -638,6 +658,8 @@ const getInstructions = (question) => {
 
 const markLessonProgress = () => {
 	let pathname = window.location.pathname.split('/')
+	if (!pathname.includes('courses'))
+		pathname = window.parent.location.pathname.split('/')
 	if (pathname[2] != 'courses') return
 	let lessonIndex = pathname.pop().split('-')
 

@@ -6,6 +6,4 @@ def execute():
 	submissions = frappe.db.get_all("LMS Quiz Submission", fields=["name", "owner"])
 
 	for submission in submissions:
-		frappe.db.set_value(
-			"LMS Quiz Submission", submission.name, "member", submission.owner
-		)
+		frappe.db.set_value("LMS Quiz Submission", submission.name, "member", submission.owner)

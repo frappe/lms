@@ -5,6 +5,9 @@
 			class="float-right"
 			@click="openTopicModal()"
 		>
+			<template #prefix>
+				<Plus class="size-4" />
+			</template>
 			{{ __('New {0}').format(singularize(title)) }}
 		</Button>
 		<div class="text-xl font-semibold text-ink-gray-9">
@@ -49,7 +52,7 @@
 		class="flex flex-col items-center justify-center border-2 border-dashed mt-5 py-8 rounded-md"
 	>
 		<MessageSquareText class="w-7 h-7 text-ink-gray-4 stroke-1.5 mr-2" />
-		<div class="">
+		<div class="mt-2">
 			<div v-if="emptyStateTitle" class="font-medium mb-2">
 				{{ __(emptyStateTitle) }}
 			</div>
@@ -73,7 +76,7 @@ import { singularize, timeAgo } from '@/utils'
 import { ref, onMounted, inject, onUnmounted } from 'vue'
 import DiscussionReplies from '@/components/DiscussionReplies.vue'
 import DiscussionModal from '@/components/Modals/DiscussionModal.vue'
-import { MessageSquareText } from 'lucide-vue-next'
+import { MessageSquareText, Plus } from 'lucide-vue-next'
 import { getScrollContainer } from '@/utils/scrollContainer'
 
 const showTopics = ref(true)
@@ -102,7 +105,7 @@ const props = defineProps({
 	},
 	emptyStateText: {
 		type: String,
-		default: 'Start a discussion',
+		default: 'Start a Discussion',
 	},
 	singleThread: {
 		type: Boolean,

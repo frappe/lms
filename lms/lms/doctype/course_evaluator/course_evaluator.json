@@ -58,8 +58,7 @@
    "fetch_from": "evaluator.full_name",
    "fieldname": "full_name",
    "fieldtype": "Data",
-   "label": "Full Name",
-   "read_only": 1
+   "label": "Full Name"
   },
   {
    "fieldname": "column_break_casg",
@@ -73,20 +72,18 @@
    "fetch_from": "evaluator.user_image",
    "fieldname": "user_image",
    "fieldtype": "Attach Image",
-   "label": "User Image",
-   "read_only": 1
+   "label": "User Image"
   },
   {
    "fetch_from": "evaluator.username",
    "fieldname": "username",
    "fieldtype": "Data",
-   "label": "Username",
-   "read_only": 1
+   "label": "Username"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-06-05 11:04:32.475711",
+ "modified": "2025-11-10 11:41:51.802016",
  "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "Course Evaluator",
@@ -134,5 +131,6 @@
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": [],
- "title_field": "full_name"
+ "title_field": "full_name",
+ "track_changes": 1
 }

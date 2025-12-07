@@ -1,0 +1,163 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-06-30 13:00:22.655432",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "lesson",
+  "chapter",
+  "course",
+  "column_break_tmwj",
+  "member",
+  "member_name",
+  "member_image",
+  "member_username",
+  "section_break_fywc",
+  "source",
+  "column_break_uuyv",
+  "watch_time"
+ ],
+ "fields": [
+  {
+   "fieldname": "lesson",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Lesson",
+   "options": "Course Lesson",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "lesson.chapter",
+   "fieldname": "chapter",
+   "fieldtype": "Link",
+   "label": "Chapter",
+   "options": "Course Chapter",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "lesson.course",
+   "fieldname": "course",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "Course",
+   "options": "LMS Course",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_tmwj",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "member",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Member",
+   "options": "User",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "member.full_name",
+   "fieldname": "member_name",
+   "fieldtype": "Data",
+   "label": "Member Name"
+  },
+  {
+   "fetch_from": "member.user_image",
+   "fieldname": "member_image",
+   "fieldtype": "Attach Image",
+   "label": "Member Image"
+  },
+  {
+   "fetch_from": "member.username",
+   "fieldname": "member_username",
+   "fieldtype": "Data",
+   "label": "Member Username"
+  },
+  {
+   "fieldname": "section_break_fywc",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "source",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Source",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_uuyv",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "watch_time",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Watch Time",
+   "reqd": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-07-30 14:38:52.555010",
+ "modified_by": "sayali@frappe.io",
+ "module": "LMS",
+ "name": "LMS Video Watch Duration",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "LMS Student",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Moderator",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Course Creator",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}

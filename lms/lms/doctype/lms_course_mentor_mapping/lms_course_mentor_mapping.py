@@ -12,6 +12,4 @@ class LMSCourseMentorMapping(Document):
 			"LMS Course Mentor Mapping", filters={"course": self.course, "mentor": self.mentor}
 		)
 		if len(duplicate_mapping):
-			frappe.throw(
-				_("{0} is already a mentor for course {1}").format(self.mentor_name, self.course)
-			)
+			frappe.throw(_("{0} is already a mentor for course {1}").format(self.mentor_name, self.course))

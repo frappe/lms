@@ -56,12 +56,20 @@ export class Assignment {
 			})
 			return
 		}
-		this.wrapper.innerHTML = `<div class='border rounded-md p-10 text-center bg-surface-menu-bar mb-2'>
-            <span class="font-medium">
-                Assignment: ${assignment}
-            </span>
-        </div>`
-		return
+		call('frappe.client.get_value', {
+			doctype: 'LMS Assignment',
+			filters: {
+				name: assignment,
+			},
+			fieldname: ['title'],
+		}).then((data) => {
+			this.wrapper.innerHTML = `<div class='border rounded-md p-4 text-center bg-surface-menu-bar mb-4'>
+				<span class="font-medium">
+					Assignment: ${data.title}
+				</span>
+			</div>`
+			return
+		})
 	}
 
 	renderAssignmentModal() {
@@ -79,7 +87,8 @@ export class Assignment {
 		app.mount(this.wrapper)
 	}
 
-	save(blockContent) {
+	save() {
+		if (Object.keys(this.data).length === 0) return {}
 		return {
 			assignment: this.data.assignment,
 		}

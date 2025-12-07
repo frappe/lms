@@ -1,7 +1,7 @@
 <template>
 	<div
 		v-if="hasPermission() && !props.zoomAccount"
-		class="flex items-center space-x-2 mb-5 bg-surface-amber-1 py-1 px-2 rounded-md text-ink-amber-3"
+		class="flex items-center space-x-2 mb-5 bg-surface-amber-1 py-1 px-2 rounded-md text-ink-amber-3 text-xs"
 	>
 		<AlertCircle class="size-4 stroke-1.5" />
 		<span>
@@ -22,7 +22,10 @@
 			</span>
 		</Button>
 	</div>
-	<div v-if="liveClasses.data?.length" class="grid grid-cols-3 gap-5 mt-5">
+	<div
+		v-if="liveClasses.data?.length"
+		class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mt-5"
+	>
 		<div
 			v-for="cls in liveClasses.data"
 			class="flex flex-col border rounded-md h-full text-ink-gray-7 hover:border-outline-gray-3 p-3"
@@ -51,8 +54,8 @@
 				<div class="flex items-center space-x-2">
 					<Clock class="w-4 h-4 stroke-1.5" />
 					<span>
-						{{ formatTime(cls.time) }} -
-						{{ dayjs(getClassEnd(cls)).format('HH:mm') }}
+						{{ dayjs(getClassStart(cls)).format('hh:mm A') }} -
+						{{ dayjs(getClassEnd(cls)).format('hh:mm A') }}
 					</span>
 				</div>
 				<div
@@ -178,8 +181,12 @@ const canAccessClass = (cls) => {
 	return true
 }
 
+const getClassStart = (cls) => {
+	return new Date(`${cls.date}T${cls.time}`)
+}
+
 const getClassEnd = (cls) => {
-	const classStart = new Date(`${cls.date}T${cls.time}`)
+	const classStart = getClassStart(cls)
 	return new Date(classStart.getTime() + cls.duration * 60000)
 }
 

@@ -6,6 +6,7 @@
 					name: 'Profile',
 					params: { username: instructors[0].username },
 				}"
+				class="text-ink-gray-7 hover:text-ink-gray-9"
 			>
 				{{ instructors[0].full_name }}
 			</router-link>
@@ -16,15 +17,17 @@
 					name: 'Profile',
 					params: { username: instructors[0].username },
 				}"
+				class="text-ink-gray-7 hover:text-ink-gray-9"
 			>
 				{{ instructors[0].first_name }}
 			</router-link>
-			and
+			{{ __('and') }}
 			<router-link
 				:to="{
 					name: 'Profile',
 					params: { username: instructors[1].username },
 				}"
+				class="text-ink-gray-7 hover:text-ink-gray-9"
 			>
 				{{ instructors[1].first_name }}
 			</router-link>
@@ -35,10 +38,11 @@
 					name: 'Profile',
 					params: { username: instructors[0].username },
 				}"
+				class="text-ink-gray-7 hover:text-ink-gray-9"
 			>
 				{{ instructors[0].first_name }}
 			</router-link>
-			and {{ instructors?.length - 1 }} others
+			{{ __('and') }} {{ instructors?.length - 1 }} {{ __('others') }}
 		</span>
 	</div>
 </template>

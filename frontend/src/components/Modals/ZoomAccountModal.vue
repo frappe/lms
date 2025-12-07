@@ -41,7 +41,7 @@
 					v-model="account.member"
 					:label="__('Member')"
 					doctype="Course Evaluator"
-					:onCreate="(value, close) => openSettings('Members', close)"
+					:onCreate="(value: string, close: () => void) => openSettings('Members', close)"
 					:required="true"
 				/>
 				<FormControl
@@ -86,6 +86,12 @@ interface ZoomAccounts {
 			options: { onSuccess: () => void; onError: (err: any) => void }
 		) => void
 	}
+	setValue: {
+		submit: (
+			data: ZoomAccount,
+			options: { onSuccess: () => void; onError: (err: any) => void }
+		) => void
+	}
 }
 
 const show = defineModel('show')
@@ -111,33 +117,28 @@ const props = defineProps({
 watch(
 	() => props.accountID,
 	(val) => {
-		if (val != 'new') {
-			zoomAccounts.value?.data.forEach((acc) => {
-				if (acc.name === val) {
-					account.name = acc.name
-					account.enabled = acc.enabled || false
-					account.member = acc.member
-					account.account_id = acc.account_id
-					account.client_id = acc.client_id
-					account.client_secret = acc.client_secret
-				}
-			})
+		if (val === 'new') {
+			account.name = ''
+			account.enabled = false
+			account.member = user?.data?.name || ''
+			account.account_id = ''
+			account.client_id = ''
+			account.client_secret = ''
+		} else if (val && val !== 'new') {
+			const acc = zoomAccounts.value?.data.find((acc) => acc.name === val)
+			if (acc) {
+				account.name = acc.name
+				account.enabled = acc.enabled || false
+				account.member = acc.member
+				account.account_id = acc.account_id
+				account.client_id = acc.client_id
+				account.client_secret = acc.client_secret
+			}
 		}
 	}
 )
 
-watch(show, (val) => {
-	if (!val) {
-		account.name = ''
-		account.enabled = false
-		account.member = user?.data?.name || ''
-		account.account_id = ''
-		account.client_id = ''
-		account.client_secret = ''
-	}
-})
-
-const saveAccount = (close) => {
+const saveAccount = (close: () => void) => {
 	if (props.accountID == 'new') {
 		createAccount(close)
 	} else {
@@ -145,7 +146,7 @@ const saveAccount = (close) => {
 	}
 }
 
-const createAccount = (close) => {
+const createAccount = (close: () => void) => {
 	zoomAccounts.value?.insert.submit(
 		{
 			account_name: account.name,
@@ -167,7 +168,7 @@ const createAccount = (close) => {
 	)
 }
 
-const updateAccount = async (close) => {
+const updateAccount = async (close: () => void) => {
 	if (props.accountID != account.name) {
 		await renameDoc()
 	}
@@ -182,11 +183,12 @@ const renameDoc = async () => {
 	})
 }
 
-const setValue = (close) => {
+const setValue = (close: () => void) => {
 	zoomAccounts.value?.setValue.submit(
 		{
 			...account,
 			name: account.name,
+			account_name: props.accountID,
 		},
 		{
 			onSuccess() {
@@ -194,7 +196,7 @@ const setValue = (close) => {
 				close()
 				toast.success(__('Zoom Account updated successfully'))
 			},
-			onError(err) {
+			onError(err: any) {
 				close()
 				toast.error(
 					cleanError(err.messages[0]) || __('Error updating Zoom Account')

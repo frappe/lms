@@ -4,7 +4,8 @@
 import frappe
 from frappe import _
 from frappe.model.document import Document
-from lms.lms.utils import has_course_instructor_role, has_course_moderator_role
+
+from lms.lms.utils import has_course_instructor_role, has_moderator_role
 
 
 class LMSQuestion(Document):
@@ -71,9 +72,7 @@ def validate_possible_answer(question):
 
 def update_question_title(question):
 	if not question.is_new():
-		question_rows = frappe.get_all(
-			"LMS Quiz Question", {"question": question.name}, pluck="name"
-		)
+		question_rows = frappe.get_all("LMS Quiz Question", {"question": question.name}, pluck="name")
 
 		for row in question_rows:
 			frappe.db.set_value("LMS Quiz Question", row, "question_detail", question.question)
@@ -96,7 +95,7 @@ def get_correct_options(question):
 
 @frappe.whitelist()
 def get_question_details(question):
-	if not has_course_instructor_role() or not has_course_moderator_role():
+	if not has_course_instructor_role() or not has_moderator_role():
 		return
 
 	fields = ["question", "type", "name"]

@@ -10,9 +10,9 @@ import frappe
 class TestLMSQuiz(unittest.TestCase):
 	@classmethod
 	def setUpClass(cls) -> None:
-		frappe.get_doc(
-			{"doctype": "LMS Quiz", "title": "Test Quiz", "passing_percentage": 90}
-		).save(ignore_permissions=True)
+		frappe.get_doc({"doctype": "LMS Quiz", "title": "Test Quiz", "passing_percentage": 90}).save(
+			ignore_permissions=True
+		)
 
 	def test_with_multiple_options(self):
 		question = frappe.new_doc("LMS Question")

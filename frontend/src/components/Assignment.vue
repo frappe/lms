@@ -70,6 +70,9 @@
 					<FileUploader
 						v-if="!submissionFile"
 						:fileTypes="getType()"
+						:uploadArgs="{
+							private: true,
+						}"
 						:validateFile="validateFile"
 						@success="(file) => saveSubmission(file)"
 					>
@@ -127,6 +130,9 @@
 						@change="(val) => (answer = val)"
 						:editable="true"
 						:fixedMenu="true"
+						:uploadArgs="{
+							private: true,
+						}"
 						editorClass="prose-sm max-w-none border-b border-x bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[7rem]"
 					/>
 				</div>
@@ -173,6 +179,9 @@
 							"
 							:editable="true"
 							:fixedMenu="true"
+							:uploadArgs="{
+								private: true,
+							}"
 							editorClass="prose-sm max-w-none border-b border-x bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[7rem]"
 						/>
 					</div>

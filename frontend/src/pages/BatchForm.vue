@@ -4,16 +4,23 @@
 			class="sticky top-0 z-10 flex items-center justify-between border-b bg-surface-white px-3 py-2.5 sm:px-5"
 		>
 			<Breadcrumbs class="h-7" :items="breadcrumbs" />
-			<Button variant="solid" @click="saveBatch()">
-				{{ __('Save') }}
-			</Button>
+			<div class="flex items-center space-x-2">
+				<Button v-if="batchDetail.data?.name" @click="deleteBatch">
+					<template #icon>
+						<Trash2 class="size-4 stroke-1.5" />
+					</template>
+				</Button>
+				<Button variant="solid" @click="saveBatch()">
+					{{ __('Save') }}
+				</Button>
+			</div>
 		</header>
 		<div class="py-5">
-			<div class="px-20 pb-5 space-y-5 border-b mb-5">
+			<div class="px-5 md:px-20 pb-5 space-y-5 border-b mb-5">
 				<div class="text-lg text-ink-gray-9 font-semibold mb-4">
 					{{ __('Details') }}
 				</div>
-				<div class="grid grid-cols-2 gap-5">
+				<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
 					<div class="space-y-5">
 						<FormControl
 							v-model="batch.title"
@@ -41,11 +48,11 @@
 				</div>
 			</div>
 
-			<div class="px-20 pb-5 space-y-5 border-b mb-5">
+			<div class="px-5 md:px-20 pb-5 space-y-5 border-b mb-5">
 				<div class="text-lg text-ink-gray-9 font-semibold mb-4">
 					{{ __('Settings') }}
 				</div>
-				<div class="grid grid-cols-3 gap-5">
+				<div class="grid grid-cols-1 md:grid-cols-3 gap-5">
 					<FormControl
 						v-model="batch.published"
 						type="checkbox"
@@ -64,22 +71,22 @@
 				</div>
 			</div>
 
-			<div class="px-20 pb-5 space-y-5 border-b mb-5">
+			<div class="px-5 md:px-20 pb-5 space-y-5 border-b mb-5">
 				<div class="text-lg text-ink-gray-9 font-semibold mb-4">
 					{{ __('Date and Time') }}
 				</div>
-				<div class="grid grid-cols-3 gap-10">
+				<div class="grid grid-cols-1 md:grid-cols-3 gap-10">
 					<div class="space-y-5">
 						<FormControl
 							v-model="batch.start_date"
-							:label="__('Start Date')"
+							:label="__('Batch Start Date')"
 							type="date"
 							class="mb-4"
 							:required="true"
 						/>
 						<FormControl
 							v-model="batch.end_date"
-							:label="__('End Date')"
+							:label="__('Batch End Date')"
 							type="date"
 							class="mb-4"
 							:required="true"
@@ -88,14 +95,14 @@
 					<div class="space-y-5">
 						<FormControl
 							v-model="batch.start_time"
-							:label="__('Start Time')"
+							:label="__('Session Start Time')"
 							type="time"
 							class="mb-4"
 							:required="true"
 						/>
 						<FormControl
 							v-model="batch.end_time"
-							:label="__('End Time')"
+							:label="__('Session End Time')"
 							type="time"
 							class="mb-4"
 							:required="true"
@@ -120,7 +127,7 @@
 				</div>
 			</div>
 
-			<div class="px-20 pb-5 space-y-5 border-b mb-5">
+			<div class="px-5 md:px-20 pb-5 space-y-5 border-b mb-5">
 				<div>
 					<label class="block text-sm text-ink-gray-5 mb-1">
 						{{ __('Batch Details') }}
@@ -136,11 +143,11 @@
 				</div>
 			</div>
 
-			<div class="px-20 pb-5 space-y-5 border-b mb-5">
+			<div class="px-5 md:px-20 pb-5 space-y-5 border-b mb-5">
 				<div class="text-lg text-ink-gray-9 font-semibold mb-4">
 					{{ __('Configurations') }}
 				</div>
-				<div class="grid grid-cols-3 gap-10">
+				<div class="grid grid-cols-1 md:grid-cols-3 gap-10">
 					<div class="space-y-5">
 						<FormControl
 							v-model="batch.seat_count"
@@ -209,7 +216,10 @@
 									v-slot="{ file, progress, uploading, openFileSelector }"
 								>
 									<div class="flex items-center">
-										<div class="border rounded-md w-fit py-5 px-20">
+										<div
+											class="border rounded-md w-fit py-5 px-5 md:px-20 cursor-pointer"
+											@click="openFileSelector"
+										>
 											<Image class="size-5 stroke-1 text-ink-gray-7" />
 										</div>
 										<div class="ml-4">
@@ -250,7 +260,7 @@
 				</div>
 			</div>
 
-			<div class="px-20 pb-5 space-y-5">
+			<div class="px-5 md:px-20 pb-5 space-y-5">
 				<div class="text-lg text-ink-gray-9 font-semibold">
 					{{ __('Pricing') }}
 				</div>
@@ -259,7 +269,10 @@
 					type="checkbox"
 					:label="__('Paid Batch')"
 				/>
-				<div v-if="batch.paid_batch" class="grid grid-cols-3 gap-5">
+				<div
+					v-if="batch.paid_batch"
+					class="grid grid-cols-1 md:grid-cols-3 gap-5"
+				>
 					<FormControl
 						v-model="batch.amount"
 						:label="__('Amount')"
@@ -274,7 +287,7 @@
 				</div>
 			</div>
 
-			<div class="px-20 pb-5 space-y-5 border-b">
+			<div class="px-5 md:px-20 pb-5 space-y-5 border-b">
 				<div class="text-lg text-ink-gray-9 font-semibold">
 					{{ __('Meta Tags') }}
 				</div>
@@ -300,10 +313,11 @@
 <script setup>
 import {
 	computed,
-	onMounted,
+	getCurrentInstance,
 	inject,
-	reactive,
+	onMounted,
 	onBeforeUnmount,
+	reactive,
 	ref,
 } from 'vue'
 import {
@@ -315,21 +329,31 @@ import {
 	createResource,
 	usePageMeta,
 	toast,
+	call,
+	Toast,
 } from 'frappe-ui'
 import { useRouter } from 'vue-router'
-import { Image } from 'lucide-vue-next'
+import { Image, Trash2 } from 'lucide-vue-next'
 import { capture } from '@/telemetry'
 import { useOnboarding } from 'frappe-ui/frappe'
 import { sessionStore } from '../stores/session'
 import MultiSelect from '@/components/Controls/MultiSelect.vue'
 import Link from '@/components/Controls/Link.vue'
-import { openSettings, getMetaInfo, updateMetaInfo } from '@/utils'
+import {
+	openSettings,
+	getMetaInfo,
+	updateMetaInfo,
+	validateFile,
+	escapeHTML,
+} from '@/utils'
 
 const router = useRouter()
 const user = inject('$user')
 const { brand } = sessionStore()
 const { updateOnboardingStep } = useOnboarding('learning')
 const instructors = ref([])
+const app = getCurrentInstance()
+const { $dialog } = app.appContext.config.globalProperties
 
 const props = defineProps({
 	batchName: {
@@ -477,7 +501,19 @@ const imageResource = createResource({
 	},
 })
 
+const validateFields = () => {
+	Object.keys(batch).forEach((key) => {
+		if (
+			!['description', 'batch_details'].includes(key) &&
+			typeof batch[key] === 'string'
+		) {
+			batch[key] = escapeHTML(batch[key])
+		}
+	})
+}
+
 const saveBatch = () => {
+	validateFields()
 	if (batchDetail.data) {
 		editBatchDetails()
 	} else {
@@ -531,19 +567,44 @@ const editBatchDetails = () => {
 	)
 }
 
+const deleteBatch = () => {
+	$dialog({
+		title: __('Confirm your action to delete'),
+		message: __(
+			'Deleting this batch will also delete all its data including enrolled students, linked courses, assessments, feedback and discussions. Are you sure you want to continue?'
+		),
+		actions: [
+			{
+				label: __('Delete'),
+				theme: 'red',
+				variant: 'solid',
+				onClick({ close }) {
+					trashBatch(close)
+					close()
+				},
+			},
+		],
+	})
+}
+
+const trashBatch = (close) => {
+	call('lms.lms.api.delete_batch', {
+		batch: props.batchName,
+	}).then(() => {
+		toast.success(__('Batch deleted successfully'))
+		close()
+		router.push({
+			name: 'Batches',
+		})
+	})
+}
+
 const saveImage = (file) => {
 	batch.image = file
 }
 
 const removeImage = () => {
 	batch.image = null
-}
-
-const validateFile = (file) => {
-	let extension = file.name.split('.').pop().toLowerCase()
-	if (!['jpg', 'jpeg', 'png'].includes(extension)) {
-		return 'Only image file is allowed.'
-	}
 }
 
 const breadcrumbs = computed(() => {

@@ -2,7 +2,9 @@
 	<Dialog v-model="show" :options="{ size: '5xl' }">
 		<template #body>
 			<div class="flex h-[calc(100vh_-_8rem)]">
-				<div class="flex w-52 shrink-0 flex-col bg-surface-gray-2 p-2">
+				<div
+					class="flex w-52 shrink-0 flex-col bg-surface-gray-2 p-2 overflow-y-auto"
+				>
 					<h1 class="mb-3 px-2 pt-2 text-lg font-semibold text-ink-gray-9">
 						{{ __('Settings') }}
 					</h1>
@@ -14,67 +16,44 @@
 							<span>{{ __(tab.label) }}</span>
 						</div>
 						<nav class="space-y-1">
-							<SidebarLink
-								v-for="item in tab.items"
-								:link="item"
-								:key="item.label"
-								class="w-full"
-								:class="
-									activeTab?.label == item.label
-										? 'bg-surface-selected shadow-sm'
-										: 'hover:bg-surface-gray-2'
-								"
-								@click="activeTab = item"
-							/>
+							<div v-for="item in tab.items" @click="activeTab = item">
+								<SidebarLink
+									:link="item"
+									:key="item.label"
+									:activeTab="activeTab?.label"
+								/>
+							</div>
 						</nav>
 					</div>
 				</div>
 				<div
 					v-if="activeTab && data.doc"
 					:key="activeTab.label"
-					class="flex flex-1 flex-col px-10 py-8 bg-surface-modal"
+					class="flex flex-1 flex-col p-8 bg-surface-modal overflow-x-auto"
 				>
-					<Members
-						v-if="activeTab.label === 'Members'"
-						:label="activeTab.label"
-						:description="activeTab.description"
-						v-model:show="show"
+					<component
+						v-if="activeTab.template"
+						:is="activeTab.template"
+						v-bind="{
+							label: activeTab.label,
+							description: activeTab.description,
+							...(activeTab.label == 'Branding'
+								? { fields: activeTab.fields }
+								: {}),
+							...(activeTab.label == 'Evaluators' ||
+							activeTab.label == 'Members' ||
+							activeTab.label == 'Transactions'
+								? { 'onUpdate:show': (val) => (show = val), show }
+								: {}),
+						}"
 					/>
-					<Evaluators
-						v-else-if="activeTab.label === 'Evaluators'"
-						:label="activeTab.label"
-						:description="activeTab.description"
-						v-model:show="show"
-					/>
-					<Categories
-						v-else-if="activeTab.label === 'Categories'"
-						:label="activeTab.label"
-						:description="activeTab.description"
-					/>
-					<EmailTemplates
-						v-else-if="activeTab.label === 'Email Templates'"
-						:label="activeTab.label"
-						:description="activeTab.description"
-					/>
-					<ZoomSettings
-						v-else-if="activeTab.label === 'Zoom Accounts'"
-						:label="activeTab.label"
-						:description="activeTab.description"
-					/>
-					<PaymentSettings
-						v-else-if="activeTab.label === 'Payment Gateway'"
+					<!-- <PaymentSettings
+						v-else-if="activeTab.label === 'Gateways'"
 						:label="activeTab.label"
 						:description="activeTab.description"
 						:data="data"
 						:fields="activeTab.fields"
-					/>
-					<BrandSettings
-						v-else-if="activeTab.label === 'Branding'"
-						:label="activeTab.label"
-						:description="activeTab.description"
-						:fields="activeTab.fields"
-						:data="branding"
-					/>
+					/> -->
 					<SettingDetails
 						v-else
 						:fields="activeTab.fields"
@@ -88,18 +67,21 @@
 	</Dialog>
 </template>
 <script setup>
-import { Dialog, createDocumentResource, createResource } from 'frappe-ui'
-import { ref, computed, watch } from 'vue'
+import { Dialog, createDocumentResource } from 'frappe-ui'
+import { computed, markRaw, ref, watch } from 'vue'
 import { useSettings } from '@/stores/settings'
 import SettingDetails from '@/components/Settings/SettingDetails.vue'
-import SidebarLink from '@/components/SidebarLink.vue'
+import SidebarLink from '@/components/Sidebar/SidebarLink.vue'
 import Members from '@/components/Settings/Members.vue'
 import Evaluators from '@/components/Settings/Evaluators.vue'
 import Categories from '@/components/Settings/Categories.vue'
 import EmailTemplates from '@/components/Settings/EmailTemplates.vue'
 import BrandSettings from '@/components/Settings/BrandSettings.vue'
-import PaymentSettings from '@/components/Settings/PaymentSettings.vue'
+import PaymentGateways from '@/components/Settings/PaymentGateways.vue'
+import Coupons from '@/components/Settings/Coupons/Coupons.vue'
+import Transactions from '@/components/Settings/Transactions/Transactions.vue'
 import ZoomSettings from '@/components/Settings/ZoomSettings.vue'
+import Badges from '@/components/Settings/Badges.vue'
 
 const show = defineModel()
 const doctype = ref('LMS Settings')
@@ -114,12 +96,6 @@ const data = createDocumentResource({
 	auto: true,
 })
 
-const branding = createResource({
-	url: 'lms.lms.api.get_branding',
-	auto: true,
-	cache: 'brand',
-})
-
 const tabsStructure = computed(() => {
 	return [
 		{
@@ -131,18 +107,18 @@ const tabsStructure = computed(() => {
 					icon: 'Wrench',
 					fields: [
 						{
-							label: 'Enable Learning Paths',
-							name: 'enable_learning_paths',
-							description:
-								'This will ensure students follow the assigned programs in order.',
-							type: 'checkbox',
-						},
-						{
 							label: 'Allow Guest Access',
 							name: 'allow_guest_access',
 							description:
 								'If enabled, users can access the course and batch lists without logging in.',
 							type: 'checkbox',
+						},
+						{
+							label: 'Prevent Skipping Videos',
+							name: 'prevent_skipping_videos',
+							type: 'checkbox',
+							description:
+								'If enabled, users will no able to move forward in a video',
 						},
 						{
 							label: 'Send calendar invite for evaluations',
@@ -153,6 +129,14 @@ const tabsStructure = computed(() => {
 						},
 						{
 							type: 'Column Break',
+						},
+						{
+							label: 'Livecode URL',
+							name: 'livecode_url',
+							doctype: 'Livecode URL',
+							type: 'text',
+							description:
+								'https://docs.frappe.io/learning/falcon-self-hosting-guide',
 						},
 						{
 							label: 'Batch Confirmation Email Template',
@@ -175,17 +159,83 @@ const tabsStructure = computed(() => {
 						},
 					],
 				},
+				{
+					label: 'Contact Us',
+					icon: 'Phone',
+					fields: [
+						{
+							label: 'Email',
+							name: 'contact_us_email',
+							type: 'text',
+							description:
+								'Users can reach out to this email for support or inquiries.',
+						},
+						{
+							label: 'URL',
+							name: 'contact_us_url',
+							type: 'text',
+							description:
+								'Users can reach out to this URL for support or inquiries.',
+						},
+					],
+				},
 			],
 		},
 		{
-			label: 'Settings',
-			hideLabel: true,
+			label: 'Lists',
+			hideLabel: false,
 			items: [
 				{
-					label: 'Payment Gateway',
-					icon: 'DollarSign',
+					label: 'Members',
 					description:
-						'Configure the payment gateway and other payment related settings',
+						'Add new members or manage roles and permissions of existing members',
+					icon: 'UserRoundPlus',
+					template: markRaw(Members),
+				},
+				{
+					label: 'Evaluators',
+					description: '',
+					icon: 'UserCheck',
+					description:
+						'Add new evaluators or check the slots existing evaluators',
+					template: markRaw(Evaluators),
+				},
+				{
+					label: 'Zoom Accounts',
+					description:
+						'Manage zoom accounts to conduct live classes from batches',
+					icon: 'Video',
+					template: markRaw(ZoomSettings),
+				},
+				{
+					label: 'Badges',
+					description:
+						'Create badges and assign them to students to acknowledge their achievements',
+					icon: 'Award',
+					template: markRaw(Badges),
+				},
+				{
+					label: 'Categories',
+					description: 'Double click to edit the category',
+					icon: 'Network',
+					template: markRaw(Categories),
+				},
+				{
+					label: 'Email Templates',
+					description: 'Manage the email templates for your learning system',
+					icon: 'MailPlus',
+					template: markRaw(EmailTemplates),
+				},
+			],
+		},
+		{
+			label: 'Payment',
+			hideLabel: false,
+			items: [
+				{
+					label: 'Configuration',
+					icon: 'CreditCard',
+					description: 'Manage all your payment related settings and defaults',
 					fields: [
 						{
 							label: 'Default Currency',
@@ -219,46 +269,34 @@ const tabsStructure = computed(() => {
 						},
 					],
 				},
-			],
-		},
-		{
-			label: 'Lists',
-			hideLabel: false,
-			items: [
 				{
-					label: 'Members',
-					description: 'Manage the members of your learning system',
-					icon: 'UserRoundPlus',
+					label: 'Gateways',
+					icon: 'DollarSign',
+					template: markRaw(PaymentGateways),
+					description: 'Add and manage all your payment gateways',
 				},
 				{
-					label: 'Evaluators',
-					description: 'Manage the evaluators of your learning system',
-					icon: 'UserCheck',
+					label: 'Transactions',
+					icon: 'Landmark',
+					template: markRaw(Transactions),
+					description: 'View all your payment transactions',
 				},
 				{
-					label: 'Categories',
-					description: 'Double click to edit the category',
-					icon: 'Network',
-				},
-				{
-					label: 'Email Templates',
-					description: 'Manage the email templates for your learning system',
-					icon: 'MailPlus',
-				},
-				{
-					label: 'Zoom Accounts',
-					description: 'Manage the Zoom accounts for your learning system',
-					icon: 'Video',
+					label: 'Coupons',
+					icon: 'Ticket',
+					template: markRaw(Coupons),
+					description: 'Manage discount coupons for courses and batches',
 				},
 			],
 		},
 		{
-			label: 'Customise',
+			label: 'Customize',
 			hideLabel: false,
 			items: [
 				{
 					label: 'Branding',
 					icon: 'Blocks',
+					template: markRaw(BrandSettings),
 					fields: [
 						{
 							label: 'Brand Name',
@@ -269,11 +307,15 @@ const tabsStructure = computed(() => {
 							label: 'Logo',
 							name: 'banner_image',
 							type: 'Upload',
+							description:
+								'Appears in the top left corner of the application to represent your brand.',
 						},
 						{
 							label: 'Favicon',
 							name: 'favicon',
 							type: 'Upload',
+							description:
+								'Appears in the browser tab next to the page title to help users quickly identify the application.',
 						},
 					],
 				},
@@ -293,8 +335,13 @@ const tabsStructure = computed(() => {
 							type: 'checkbox',
 						},
 						{
-							label: 'Certified Members',
-							name: 'certified_members',
+							label: 'Programming Exercises',
+							name: 'programming_exercises',
+							type: 'checkbox',
+						},
+						{
+							label: 'Certifications',
+							name: 'certifications',
 							type: 'checkbox',
 						},
 						{

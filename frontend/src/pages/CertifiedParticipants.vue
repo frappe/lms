@@ -124,7 +124,7 @@ const memberCount = ref(0)
 const dayjs = inject('$dayjs')
 
 onMounted(() => {
-	getMemberCount()
+	setFiltersFromQuery()
 	updateParticipants()
 })
 
@@ -132,6 +132,7 @@ const participants = createListResource({
 	doctype: 'LMS Certificate',
 	url: 'lms.lms.api.get_certified_participants',
 	start: 0,
+	cache: ['certified_participants'],
 	pageLength: 100,
 })
 
@@ -157,6 +158,8 @@ const categories = createListResource({
 const updateParticipants = () => {
 	updateFilters()
 	getMemberCount()
+	setQueryParams()
+
 	participants.update({
 		filters: filters.value,
 	})
@@ -175,6 +178,33 @@ const updateFilters = () => {
 	} else {
 		delete filters.value.member_name
 	}
+}
+
+const setQueryParams = () => {
+	let queries = new URLSearchParams(location.search)
+	let filterKeys = {
+		category: currentCategory.value,
+		name: nameFilter.value,
+	}
+
+	Object.keys(filterKeys).forEach((key) => {
+		if (filterKeys[key]) {
+			queries.set(key, filterKeys[key])
+		} else {
+			queries.delete(key)
+		}
+	})
+	history.replaceState(
+		{},
+		'',
+		`${location.pathname}${queries.size > 0 ? `?${queries.toString()}` : ''}`
+	)
+}
+
+const setFiltersFromQuery = () => {
+	let queries = new URLSearchParams(location.search)
+	nameFilter.value = queries.get('name') || ''
+	currentCategory.value = queries.get('category') || ''
 }
 
 const breadcrumbs = computed(() => [

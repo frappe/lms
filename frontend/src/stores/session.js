@@ -54,12 +54,6 @@ export const sessionStore = defineStore('lms-session', () => {
 		},
 	})
 
-	const sidebarSettings = createResource({
-		url: 'lms.lms.api.get_sidebar_settings',
-		cache: 'Sidebar Settings',
-		auto: false,
-	})
-
 	return {
 		user,
 		isLoggedIn,
@@ -67,6 +61,5 @@ export const sessionStore = defineStore('lms-session', () => {
 		logout,
 		brand,
 		branding,
-		sidebarSettings,
 	}
 })

@@ -4,26 +4,58 @@ import { createResource } from 'frappe-ui'
 import { sessionStore } from './session'
 
 export const useSettings = defineStore('settings', () => {
-	const { isLoggedIn } = sessionStore()
 	const isSettingsOpen = ref(false)
 	const activeTab = ref(null)
 
-	const learningPaths = createResource({
-		url: 'lms.lms.api.is_learning_path_enabled',
-		auto: true,
-		cache: ['learningPath'],
-	})
-
 	const allowGuestAccess = createResource({
-		url: 'lms.lms.api.is_guest_allowed',
+		url: 'lms.lms.api.get_lms_setting',
+		params: { field: 'allow_guest_access' },
 		auto: true,
 		cache: ['allowGuestAccess'],
+	})
+
+	const preventSkippingVideos = createResource({
+		url: 'lms.lms.api.get_lms_setting',
+		params: { field: 'prevent_skipping_videos' },
+		auto: true,
+		cache: ['preventSkippingVideos'],
+	})
+
+	const contactUsEmail = createResource({
+		url: 'lms.lms.api.get_lms_setting',
+		params: { field: 'contact_us_email' },
+		auto: true,
+		cache: ['contactUsEmail'],
+	})
+
+	const contactUsURL = createResource({
+		url: 'lms.lms.api.get_lms_setting',
+		params: { field: 'contact_us_url' },
+		auto: true,
+		cache: ['contactUsURL'],
+	})
+
+	const sidebarSettings = createResource({
+		url: 'lms.lms.api.get_sidebar_settings',
+		cache: 'Sidebar Settings',
+		auto: false,
+	})
+
+	const livecodeURL = createResource({
+		url: 'lms.lms.api.get_lms_setting',
+		params: { field: 'livecode_url' },
+		auto: true,
+		cache: ['livecodeURL'],
 	})
 
 	return {
 		isSettingsOpen,
 		activeTab,
-		learningPaths,
 		allowGuestAccess,
+		preventSkippingVideos,
+		contactUsEmail,
+		contactUsURL,
+		sidebarSettings,
+		livecodeURL,
 	}
 })

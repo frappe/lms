@@ -12,8 +12,8 @@
   "country",
   "column_break_5",
   "type",
+  "work_mode",
   "status",
-  "disabled",
   "section_break_6",
   "company_name",
   "company_website",
@@ -97,12 +97,6 @@
    "reqd": 1
   },
   {
-   "default": "0",
-   "fieldname": "disabled",
-   "fieldtype": "Check",
-   "label": "Disabled"
-  },
-  {
    "fieldname": "company_email_address",
    "fieldtype": "Data",
    "label": "Company Email Address",
@@ -119,6 +113,12 @@
    "label": "Country",
    "options": "Country",
    "reqd": 1
+  },
+  {
+   "fieldname": "work_mode",
+   "fieldtype": "Select",
+   "label": "Work Mode",
+   "options": "\nRemote\nHybrid\nOn-site"
   }
  ],
  "grid_page_length": 50,
@@ -130,7 +130,7 @@
   }
  ],
  "make_attachments_public": 1,
- "modified": "2025-04-24 14:34:35.920242",
+ "modified": "2025-12-02 16:58:49.903274",
  "modified_by": "sayali@frappe.io",
  "module": "Job",
  "name": "Job Opportunity",

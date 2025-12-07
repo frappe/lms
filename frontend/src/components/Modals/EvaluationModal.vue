@@ -66,12 +66,18 @@
 	</Dialog>
 </template>
 <script setup>
-import { Dialog, createResource, Select, FormControl, toast } from 'frappe-ui'
+import {
+	dayjs,
+	Dialog,
+	createResource,
+	Select,
+	FormControl,
+	toast,
+} from 'frappe-ui'
 import { reactive, watch, inject } from 'vue'
 import { formatTime } from '@/utils/'
 
 const user = inject('$user')
-const dayjs = inject('$dayjs')
 const show = defineModel()
 const evaluations = defineModel('reloadEvals')
 
@@ -139,7 +145,8 @@ function submitEvaluation(close) {
 			close()
 		},
 		onError(err) {
-			toast.warning(__(err.messages?.[0] || err))
+			console.log(err.messages?.[0] || err)
+			toast.warning(__(err.messages?.[0] || err), { duration: 10000 })
 		},
 	})
 }

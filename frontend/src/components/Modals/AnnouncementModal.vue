@@ -25,6 +25,7 @@
 				<div class="">
 					<div class="mb-1.5 text-sm text-ink-gray-5">
 						{{ __('Reply To') }}
+						<span class="text-ink-red-3">*</span>
 					</div>
 					<Input type="text" v-model="announcement.replyTo" />
 				</div>
@@ -70,8 +71,8 @@ const announcementResource = createResource({
 	url: 'frappe.core.doctype.communication.email.make',
 	makeParams(values) {
 		return {
-			recipients: props.students.join(', '),
-			cc: announcement.replyTo,
+			recipients: announcement.replyTo,
+			bcc: props.students.join(', '),
 			subject: announcement.subject,
 			content: announcement.announcement,
 			doctype: 'LMS Batch',
@@ -94,6 +95,9 @@ const makeAnnouncement = (close) => {
 				}
 				if (!announcement.announcement) {
 					return __('Announcement is required')
+				}
+				if (!announcement.replyTo) {
+					return __('Reply To is required')
 				}
 			},
 			onSuccess() {

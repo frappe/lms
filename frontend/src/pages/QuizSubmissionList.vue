@@ -5,7 +5,7 @@
 		<Breadcrumbs :items="breadcrumbs" />
 	</header>
 	<div v-if="submissions.data?.length" class="md:w-3/4 md:mx-auto py-5 mx-5">
-		<div class="text-xl font-semibold mb-5">
+		<div class="text-xl font-semibold mb-5 text-ink-gray-9">
 			{{ submissions.data[0].quiz_title }}
 		</div>
 		<ListView
@@ -40,7 +40,7 @@
 			</Button>
 		</div>
 	</div>
-	<EmptyState v-else />
+	<EmptyState v-else type="Quiz Submissions" />
 </template>
 <script setup>
 import {

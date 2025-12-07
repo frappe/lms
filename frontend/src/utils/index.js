@@ -1,7 +1,8 @@
-import { watch } from 'vue'
 import { call, toast } from 'frappe-ui'
 import { useTimeAgo } from '@vueuse/core'
+import { theme } from '@/utils/theme'
 import { Quiz } from '@/utils/quiz'
+import { Program } from '@/utils/program'
 import { Assignment } from '@/utils/assignment'
 import { Upload } from '@/utils/upload'
 import { Markdown } from '@/utils/markdownParser'
@@ -103,24 +104,6 @@ export function getImgDimensions(imgSrc) {
 	})
 }
 
-export function updateDocumentTitle(meta) {
-	watch(
-		() => meta,
-		(meta) => {
-			if (!meta.value.title) return
-			if (meta.value.title && meta.value.subtitle) {
-				document.title = `${meta.value.title} | ${meta.value.subtitle}`
-				return
-			}
-			if (meta.value.title) {
-				document.title = `${meta.value.title}`
-				return
-			}
-		},
-		{ immediate: true, deep: true }
-	)
-}
-
 export function htmlToText(html) {
 	const div = document.createElement('div')
 	div.innerHTML = html
@@ -135,18 +118,26 @@ export function getEditorTools() {
 				placeholder: 'Header',
 			},
 		},
+		list: {
+			class: NestedList,
+			inlineToolbar: true,
+			config: {
+				defaultStyle: 'ordered',
+			},
+		},
+		table: {
+			class: Table,
+			inlineToolbar: true,
+		},
 		quiz: Quiz,
 		assignment: Assignment,
+		program: Program,
 		upload: Upload,
 		markdown: {
 			class: Markdown,
 			inlineToolbar: true,
 		},
 		image: SimpleImage,
-		table: {
-			class: Table,
-			inlineToolbar: true,
-		},
 		paragraph: {
 			class: Paragraph,
 			inlineToolbar: true,
@@ -158,13 +149,6 @@ export function getEditorTools() {
 			class: CodeBox,
 			config: {
 				useDefaultTheme: 'dark',
-			},
-		},
-		list: {
-			class: NestedList,
-			inlineToolbar: true,
-			config: {
-				defaultStyle: 'ordered',
 			},
 		},
 		inlineCode: {
@@ -438,7 +422,7 @@ export function getSidebarLinks() {
 			activeFor: ['Batches', 'BatchDetail', 'Batch', 'BatchForm'],
 		},
 		{
-			label: 'Certified Members',
+			label: 'Certifications',
 			icon: 'GraduationCap',
 			to: 'CertifiedParticipants',
 			activeFor: ['CertifiedParticipants'],
@@ -503,11 +487,39 @@ export function singularize(word) {
 	)
 }
 
-export const validateFile = (file) => {
-	let extension = file.name.split('.').pop().toLowerCase()
-	if (!['jpg', 'jpeg', 'png', 'webp'].includes(extension)) {
-		return __('Only image file is allowed.')
+export const validateFile = async (file, showToast = true) => {
+	const error = (msg) => {
+		if (showToast) toast.error(msg)
+		console.error(msg)
+		return msg
 	}
+
+	if (!file.type.startsWith('image/')) {
+		return error(__('Only image file is allowed.'))
+	}
+
+	if (file.type === 'image/svg+xml') {
+		const text = await file.text()
+
+		const blacklist = [
+			/<script[\s>]/i,
+			/on\w+=["']?/i,
+			/javascript:/i,
+			/data:/i,
+			/<iframe[\s>]/i,
+			/<object[\s>]/i,
+			/<embed[\s>]/i,
+			/<link[\s>]/i,
+		]
+
+		for (const pattern of blacklist) {
+			if (pattern.test(text)) {
+				return error(__('SVG contains potentially unsafe content.'))
+			}
+		}
+	}
+
+	return null
 }
 
 export const escapeHTML = (text) => {
@@ -536,45 +548,96 @@ export const canCreateCourse = () => {
 	)
 }
 
-export const enablePlyr = () => {
-	setTimeout(() => {
-		const videoElement = document.getElementsByClassName('video-player')
-		if (videoElement.length === 0) return
+export const enablePlyr = async () => {
+	await wait(500)
 
-		Array.from(videoElement).forEach((video) => {
-			const src = video.getAttribute('src')
-			if (src) {
-				let videoID = src.split('/').pop()
-				video.setAttribute('data-plyr-embed-id', videoID)
-			}
-			new Plyr(video, {
-				youtube: {
-					noCookie: true,
-				},
-				controls: [
-					'play-large',
-					'play',
-					'progress',
-					'current-time',
-					'mute',
-					'volume',
-					'fullscreen',
-				],
-			})
-		}, 500)
+	const players = []
+	const videoElements = document.getElementsByClassName('video-player')
+
+	if (videoElements.length === 0) return players
+
+	Array.from(videoElements).forEach((video) => {
+		setupPlyrForVideo(video, players)
 	})
+
+	return players
 }
 
-export const openSettings = (category, close) => {
+const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
+
+const setupPlyrForVideo = (video, players) => {
+	const src = video.getAttribute('src')
+
+	if (src) {
+		const videoID = extractYouTubeId(src)
+		video.setAttribute('data-plyr-embed-id', videoID)
+	}
+
+	let controls = [
+		'play-large',
+		'play',
+		'progress',
+		'current-time',
+		'mute',
+		'volume',
+		'fullscreen',
+	]
+
+	const player = new Plyr(video, {
+		youtube: { noCookie: true },
+		controls: controls,
+		listeners: {
+			seek: function customSeekBehavior(e) {
+				const current_time = player.currentTime
+				const newTime = getTargetTime(player, e)
+				if (
+					useSettings().preventSkippingVideos.data &&
+					parseFloat(newTime) > current_time
+				) {
+					e.preventDefault()
+					player.currentTime = current_time
+					return false
+				}
+			},
+		},
+	})
+
+	players.push(player)
+}
+
+const getTargetTime = (plyr, input) => {
+	if (
+		typeof input === 'object' &&
+		(input.type === 'input' || input.type === 'change')
+	) {
+		return (input.target.value / input.target.max) * plyr.duration
+	} else {
+		return Number(input)
+	}
+}
+
+const extractYouTubeId = (url) => {
+	try {
+		const parsedUrl = new URL(url)
+		return (
+			parsedUrl.searchParams.get('v') ||
+			parsedUrl.pathname.split('/').pop()
+		)
+	} catch {
+		return url.split('/').pop()
+	}
+}
+
+export const openSettings = (category, close = null) => {
 	const settingsStore = useSettings()
-	close()
+	if (close) {
+		close()
+	}
 	settingsStore.activeTab = category
 	settingsStore.isSettingsOpen = true
 }
 
 export const cleanError = (message) => {
-	// Remove HTML tags but keep the text within the tags
-
 	const cleanMessage = message.replace(/<[^>]+>/g, (match) => {
 		return match.replace(/<\/?[^>]+(>|$)/g, '')
 	})
@@ -612,7 +675,7 @@ export const getMetaInfo = (type, route, meta) => {
 
 export const updateMetaInfo = (type, route, meta) => {
 	call('lms.lms.api.update_meta_info', {
-		type: type,
+		meta_type: type,
 		route: route,
 		meta_tags: [
 			{ key: 'description', value: meta.description },
@@ -626,7 +689,119 @@ export const updateMetaInfo = (type, route, meta) => {
 
 export const formatTimestamp = (seconds) => {
 	const date = new Date(seconds * 1000)
+	const hours = String(date.getUTCHours()).padStart(2, '0')
 	const minutes = String(date.getUTCMinutes()).padStart(2, '0')
 	const secs = String(date.getUTCSeconds()).padStart(2, '0')
-	return `${minutes}:${secs}`
+	return hours > 0 ? `${hours}:${minutes}:${secs}` : `${minutes}:${secs}`
+}
+
+const getRootNode = (selector = '#editor') => {
+	const root = document.querySelector(selector)
+	if (!root) {
+		console.warn(`Root node not found for selector: ${selector}`)
+	}
+	return root
+}
+
+const createTextWalker = (root, phrase) => {
+	return document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+		acceptNode(node) {
+			return node.nodeValue.toLowerCase().includes(phrase.toLowerCase())
+				? NodeFilter.FILTER_ACCEPT
+				: NodeFilter.FILTER_SKIP
+		},
+	})
+}
+
+const findMatchingTextNode = (walker, phrase) => {
+	const node = walker.nextNode()
+	if (!node) return null
+
+	const startIndex = node.nodeValue
+		.toLowerCase()
+		.indexOf(phrase.toLowerCase())
+	const endIndex = startIndex + phrase.length
+
+	return { node, startIndex, endIndex }
+}
+
+const createHighlightSpan = (color, name, scrollIntoView) => {
+	const span = document.createElement('span')
+	span.className = 'highlighted-text'
+	if (scrollIntoView) {
+		span.style.border = `2px solid ${theme.backgroundColor[color][400]}`
+		span.style.borderRadius = '4px'
+	} else {
+		span.style.backgroundColor = theme.backgroundColor[color][200]
+	}
+	span.dataset.name = name
+	return span
+}
+
+const wrapRangeInHighlight = (
+	{ node, startIndex, endIndex },
+	color,
+	name,
+	scrollIntoView
+) => {
+	const range = document.createRange()
+	range.setStart(node, startIndex)
+	range.setEnd(node, endIndex)
+
+	const span = createHighlightSpan(color, name, scrollIntoView)
+	range.surroundContents(span)
+}
+
+export const highlightText = (note, scrollIntoView = false) => {
+	if (!note?.highlighted_text) return
+
+	const root = getRootNode()
+	if (!root) return
+
+	const phrase = note.highlighted_text
+	const color = note.color.toLowerCase()
+
+	const walker = createTextWalker(root, phrase)
+	const match = findMatchingTextNode(walker, phrase)
+	if (!match) return
+
+	wrapRangeInHighlight(match, color, note.name, scrollIntoView)
+
+	if (scrollIntoView) {
+		match.node.parentElement.scrollIntoView({
+			behavior: 'smooth',
+			block: 'center',
+		})
+		setTimeout(() => {
+			const highlightedElements =
+				document.querySelectorAll('.highlighted-text')
+			highlightedElements.forEach((el) => {
+				if (el.dataset.name === note.name) {
+					el.style.border = 'none'
+					el.style.borderRadius = '0px'
+				}
+			})
+		}, 3000)
+	}
+}
+
+export const scrollToReference = (text) => {
+	highlightText({ highlighted_text: text, color: 'yellow', name: '' }, true)
+}
+
+export const blockQuotesClick = () => {
+	document.querySelectorAll('blockquote').forEach((el) => {
+		el.addEventListener('click', (e) => {
+			const text = e.target.textContent || ''
+			if (text) {
+				scrollToReference(text)
+			}
+		})
+	})
+}
+
+export const decodeEntities = (encodedString) => {
+	const textarea = document.createElement('textarea')
+	textarea.innerHTML = encodedString
+	return textarea.value
 }

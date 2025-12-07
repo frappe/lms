@@ -1,11 +1,12 @@
 # Copyright (c) 2025, Frappe and contributors
 # For license information, please see license.txt
 
-import frappe
 import json
+
+import frappe
 from frappe import _
-from frappe.model.document import Document
 from frappe.email.doctype.email_template.email_template import get_email_template
+from frappe.model.document import Document
 
 
 class LMSBatchEnrollment(Document):
@@ -14,8 +15,18 @@ class LMSBatchEnrollment(Document):
 		self.add_member_to_live_class()
 
 	def validate(self):
+		self.validate_owner()
 		self.validate_duplicate_members()
+		self.validate_seat_availability()
 		self.validate_course_enrollment()
+
+	def validate_owner(self):
+		if self.owner == self.member:
+			return
+
+		roles = frappe.get_roles(self.owner)
+		if not ("Moderator" in roles or "Batch Evaluator" in roles):
+			frappe.throw(_("You must be a Moderator or Batch Evaluator to enroll users in a batch."))
 
 	def validate_duplicate_members(self):
 		if frappe.db.exists(
@@ -24,10 +35,14 @@ class LMSBatchEnrollment(Document):
 		):
 			frappe.throw(_("Member already enrolled in this batch"))
 
+	def validate_seat_availability(self):
+		seat_count = frappe.db.get_value("LMS Batch", self.batch, "seat_count")
+		enrolled_count = frappe.db.count("LMS Batch Enrollment", {"batch": self.batch})
+		if seat_count and enrolled_count >= seat_count:
+			frappe.throw(_("There are no seats available in this batch."))
+
 	def validate_course_enrollment(self):
-		courses = frappe.get_all(
-			"Batch Course", filters={"parent": self.batch}, fields=["course"]
-		)
+		courses = frappe.get_all("Batch Course", filters={"parent": self.batch}, fields=["course"])
 
 		for course in courses:
 			if not frappe.db.exists(
@@ -40,9 +55,7 @@ class LMSBatchEnrollment(Document):
 				enrollment.save()
 
 	def add_member_to_live_class(self):
-		live_classes = frappe.get_all(
-			"LMS Live Class", {"batch_name": self.batch}, ["name", "event"]
-		)
+		live_classes = frappe.get_all("LMS Live Class", {"batch_name": self.batch}, ["name", "event"])
 
 		for live_class in live_classes:
 			if live_class.event:
@@ -68,9 +81,7 @@ def send_confirmation_email(doc):
 		outgoing_email_account = frappe.get_cached_value(
 			"Email Account", {"default_outgoing": 1, "enable_outgoing": 1}, "name"
 		)
-		if not doc.confirmation_email_sent and (
-			outgoing_email_account or frappe.conf.get("mail_login")
-		):
+		if not doc.confirmation_email_sent and (outgoing_email_account or frappe.conf.get("mail_login")):
 			send_mail(doc)
 			frappe.db.set_value(doc.doctype, doc.name, "confirmation_email_sent", 1)
 

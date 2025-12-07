@@ -11,7 +11,8 @@
   "persona_captured",
   "column_break_zdel",
   "allow_guest_access",
-  "enable_learning_paths",
+  "prevent_skipping_videos",
+  "column_break_bjis",
   "unsplash_access_key",
   "livecode_url",
   "section_break_szgq",
@@ -34,8 +35,9 @@
   "items_in_sidebar_section",
   "courses",
   "batches",
-  "certified_participants",
   "certified_members",
+  "certifications",
+  "programming_exercises",
   "column_break_exdz",
   "jobs",
   "statistics",
@@ -65,14 +67,16 @@
   "meta_description",
   "meta_image",
   "column_break_xijv",
-  "meta_keywords"
+  "meta_keywords",
+  "contact_us_tab",
+  "contact_us_email",
+  "column_break_gcgv",
+  "contact_us_url"
  ],
  "fields": [
   {
-   "default": "https://livecode.dev.fossunited.org",
    "fieldname": "livecode_url",
    "fieldtype": "Data",
-   "hidden": 1,
    "label": "LiveCode URL"
   },
   {
@@ -276,13 +280,6 @@
   },
   {
    "default": "1",
-   "fieldname": "certified_participants",
-   "fieldtype": "Check",
-   "hidden": 1,
-   "label": "Certified Participants"
-  },
-  {
-   "default": "1",
    "fieldname": "jobs",
    "fieldtype": "Check",
    "label": "Jobs"
@@ -338,12 +335,6 @@
    "label": "Payments app is not installed"
   },
   {
-   "default": "0",
-   "fieldname": "enable_learning_paths",
-   "fieldtype": "Check",
-   "label": "Enable Learning Paths"
-  },
-  {
    "fieldname": "general_tab",
    "fieldtype": "Tab Break",
    "label": "General"
@@ -361,7 +352,7 @@
    "options": "Email Template"
   },
   {
-   "default": "0",
+   "default": "1",
    "fieldname": "disable_signup",
    "fieldtype": "Check",
    "label": "Disable Signup"
@@ -404,14 +395,56 @@
    "default": "0",
    "fieldname": "certified_members",
    "fieldtype": "Check",
+   "hidden": 1,
    "label": "Certified Members"
+  },
+  {
+   "default": "0",
+   "fieldname": "prevent_skipping_videos",
+   "fieldtype": "Check",
+   "label": "Prevent Skipping Videos"
+  },
+  {
+   "fieldname": "column_break_bjis",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "1",
+   "fieldname": "programming_exercises",
+   "fieldtype": "Check",
+   "label": "Programming Exercises"
+  },
+  {
+   "fieldname": "contact_us_tab",
+   "fieldtype": "Tab Break",
+   "label": "Contact Us"
+  },
+  {
+   "fieldname": "contact_us_email",
+   "fieldtype": "Data",
+   "label": "Contact Us Email"
+  },
+  {
+   "fieldname": "column_break_gcgv",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "contact_us_url",
+   "fieldtype": "Data",
+   "label": "Contact Us URL"
+  },
+  {
+   "default": "0",
+   "fieldname": "certifications",
+   "fieldtype": "Check",
+   "label": "Certifications"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2025-05-30 19:02:51.381668",
+ "modified": "2025-12-02 12:21:15.832799",
  "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "LMS Settings",

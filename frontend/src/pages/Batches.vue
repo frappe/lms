@@ -3,7 +3,49 @@
 		class="sticky flex items-center justify-between top-0 z-10 border-b bg-surface-white px-3 py-2.5 sm:px-5"
 	>
 		<Breadcrumbs :items="breadcrumbs" />
-		<router-link
+		<Dropdown
+			v-if="canCreateBatch()"
+			:options="[
+				{
+					label: __('New Batch'),
+					icon: 'users',
+					onClick() {
+						router.push({
+							name: 'BatchForm',
+							params: { batchName: 'new' },
+						})
+					},
+				},
+				{
+					label: __('Import Batch'),
+					icon: 'upload',
+					onClick() {
+						router.push({
+							name: 'NewDataImport',
+							params: { doctype: 'LMS Batch' },
+						})
+					},
+				},
+			]"
+		>
+			<template v-slot="{ open }">
+				<Button variant="solid">
+					<template #prefix>
+						<Plus class="h-4 w-4 stroke-1.5" />
+					</template>
+					{{ __('Create') }}
+					<template #suffix>
+						<ChevronDown
+							:class="[
+								'w-4 h-4 stroke-1.5 ml-1 transform transition-transform',
+								open ? 'rotate-180' : '',
+							]"
+						/>
+					</template>
+				</Button>
+			</template>
+		</Dropdown>
+		<!-- <router-link
 			v-if="canCreateBatch()"
 			:to="{
 				name: 'BatchForm',
@@ -14,9 +56,9 @@
 				<template #prefix>
 					<Plus class="h-4 w-4 stroke-1.5" />
 				</template>
-				{{ __('New') }}
+				{{ __('Create') }}
 			</Button>
-		</router-link>
+		</router-link> -->
 	</header>
 	<div class="p-5 pb-10">
 		<div
@@ -26,18 +68,13 @@
 				{{ __('All Batches') }}
 			</div>
 			<div
-				class="flex flex-col space-y-2 lg:space-y-0 lg:flex-row lg:items-center lg:space-x-4"
+				class="flex flex-col space-y-3 lg:space-y-0 lg:flex-row lg:items-center lg:space-x-4"
 			>
 				<TabButtons
 					v-if="user.data"
 					:buttons="batchTabs"
 					v-model="currentTab"
-				/>
-				<FormControl
-					v-model="certification"
-					:label="__('Certification')"
-					type="checkbox"
-					@change="updateBatches()"
+					class="w-fit"
 				/>
 				<div class="grid grid-cols-2 gap-2">
 					<FormControl
@@ -57,6 +94,13 @@
 						/>
 					</div>
 				</div>
+
+				<FormControl
+					v-model="certification"
+					:label="__('Certification')"
+					type="checkbox"
+					@change="updateBatches()"
+				/>
 			</div>
 		</div>
 		<div
@@ -88,13 +132,15 @@ import {
 	Button,
 	call,
 	createListResource,
+	Dropdown,
 	FormControl,
 	Select,
 	TabButtons,
 	usePageMeta,
 } from 'frappe-ui'
 import { computed, inject, onMounted, ref, watch } from 'vue'
-import { Plus } from 'lucide-vue-next'
+import { useRouter } from 'vue-router'
+import { ChevronDown, Plus } from 'lucide-vue-next'
 import { sessionStore } from '@/stores/session'
 import BatchCard from '@/components/BatchCard.vue'
 import EmptyState from '@/components/EmptyState.vue'
@@ -113,6 +159,7 @@ const is_student = computed(() => user.data?.is_student)
 const currentTab = ref(is_student.value ? 'All' : 'Upcoming')
 const orderBy = ref('start_date')
 const readOnlyMode = window.read_only_mode
+const router = useRouter()
 
 onMounted(() => {
 	setFiltersFromQuery()
@@ -242,12 +289,11 @@ const setQueryParams = () => {
 		}
 	})
 
-	let queryString = ''
-	if (queries.toString()) {
-		queryString = `?${queries.toString()}`
-	}
-
-	history.replaceState({}, '', `${location.pathname}${queryString}`)
+	history.replaceState(
+		{},
+		'',
+		`${location.pathname}${queries.size > 0 ? `?${queries.toString()}` : ''}`
+	)
 }
 
 const updateCategories = (data) => {
@@ -290,7 +336,12 @@ const batchTabs = computed(() => {
 
 const canCreateBatch = () => {
 	if (readOnlyMode) return false
-	if (user.data?.is_moderator || user.data?.is_instructor) return true
+	if (
+		user.data?.is_moderator ||
+		user.data?.is_instructor ||
+		user.data?.is_evaluator
+	)
+		return true
 	return false
 }
 

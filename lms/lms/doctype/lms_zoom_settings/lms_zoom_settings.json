@@ -11,6 +11,7 @@
   "account_name",
   "member",
   "member_name",
+  "member_image",
   "column_break_fxxg",
   "account_id",
   "client_id",
@@ -71,12 +72,18 @@
   {
    "fieldname": "column_break_fxxg",
    "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "member.user_image",
+   "fieldname": "member_image",
+   "fieldtype": "Attach Image",
+   "label": "Member Image"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-05-26 18:09:09.392368",
+ "modified": "2025-11-10 11:39:13.146961",
  "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "LMS Zoom Settings",
@@ -124,5 +131,6 @@
  "row_format": "Dynamic",
  "sort_field": "creation",
  "sort_order": "DESC",
- "states": []
+ "states": [],
+ "track_changes": 1
 }

@@ -1,0 +1,63 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-06-18 20:05:03.467705",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "input",
+  "expected_output",
+  "column_break_bsjs",
+  "output",
+  "status"
+ ],
+ "fields": [
+  {
+   "fieldname": "input",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Input"
+  },
+  {
+   "fieldname": "expected_output",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Expected Output",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_bsjs",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "output",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Output",
+   "reqd": 1
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Passed\nFailed",
+   "reqd": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2025-06-24 11:23:13.803159",
+ "modified_by": "sayali@frappe.io",
+ "module": "LMS",
+ "name": "LMS Test Case Submission",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}

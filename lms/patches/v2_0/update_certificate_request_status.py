@@ -9,6 +9,4 @@ def execute():
 		if evaluation.date > getdate():
 			frappe.db.set_value("LMS Certificate Request", evaluation.name, "status", "Upcoming")
 		else:
-			frappe.db.set_value(
-				"LMS Certificate Request", evaluation.name, "status", "Completed"
-			)
+			frappe.db.set_value("LMS Certificate Request", evaluation.name, "status", "Completed")
