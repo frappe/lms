@@ -769,17 +769,18 @@ def get_chart_data(
 	datefield = chart.based_on
 	value_field = chart.value_based_on or "1"
 
-	filters = [([chart.document_type, "docstatus", "<", 2, False])]
+	filters = [([chart.document_type, "docstatus", "<", 2])]
+	print(chart.filters_json)
 	filters = filters + json.loads(chart.filters_json)
-	filters.append([doctype, datefield, ">=", from_date, False])
-	filters.append([doctype, datefield, "<=", to_date, False])
+	filters.append([doctype, datefield, ">=", from_date])
+	filters.append([doctype, datefield, "<=", to_date])
 
 	data = frappe.db.get_all(
 		doctype,
-		fields=[f"{datefield} as _unit", f"SUM({value_field})", "COUNT(*)"],
+		fields=[datefield, {"SUM": value_field}, {"COUNT": "*"}],
 		filters=filters,
-		group_by="_unit",
-		order_by="_unit asc",
+		group_by=datefield,
+		order_by=datefield,
 		as_list=True,
 	)
 
