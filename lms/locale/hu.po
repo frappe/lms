@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-11-28 16:04+0000\n"
-"PO-Revision-Date: 2025-12-04 17:06\n"
+"PO-Revision-Date: 2025-12-05 17:28\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Hungarian\n"
 "MIME-Version: 1.0\n"
@@ -2382,7 +2382,7 @@ msgstr "Email azonosító"
 #. Label of the email_sent (Check) field in DocType 'LMS Course Interest'
 #: lms/lms/doctype/lms_course_interest/lms_course_interest.json
 msgid "Email Sent"
-msgstr ""
+msgstr "E-mail Elküldve"
 
 #: frontend/src/pages/BatchForm.vue:161
 msgid "Email Template"
@@ -2851,7 +2851,7 @@ msgstr ""
 #. Label of the field_to_check (Select) field in DocType 'LMS Badge'
 #: lms/lms/doctype/lms_badge/lms_badge.json
 msgid "Field To Check"
-msgstr ""
+msgstr "Ellenőrizendő Mező"
 
 #. Label of the major (Data) field in DocType 'Education Detail'
 #: lms/lms/doctype/education_detail/education_detail.json
@@ -3039,7 +3039,7 @@ msgstr ""
 #. Request'
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 msgid "Google Meet Link"
-msgstr ""
+msgstr "Google Meet Link"
 
 #. Label of the grade (Data) field in DocType 'Education Detail'
 #: frontend/src/components/Assignment.vue:164
@@ -3074,14 +3074,14 @@ msgstr ""
 #. Option for the 'Color' (Select) field in DocType 'LMS Course'
 #: lms/lms/doctype/lms_course/lms_course.json
 msgid "Gray"
-msgstr ""
+msgstr "Szürke"
 
 #. Option for the 'Color' (Select) field in DocType 'LMS Course'
 #. Option for the 'Color' (Select) field in DocType 'LMS Lesson Note'
 #: lms/lms/doctype/lms_course/lms_course.json
 #: lms/lms/doctype/lms_lesson_note/lms_lesson_note.json
 msgid "Green"
-msgstr ""
+msgstr "Zöld"
 
 #: lms/templates/signup-form.html:56
 msgid "Have an account? Login"
@@ -3149,7 +3149,7 @@ msgstr ""
 
 #: frontend/src/components/Notes/InlineLessonMenu.vue:12
 msgid "Highlight"
-msgstr ""
+msgstr "Fontos események"
 
 #. Label of the highlighted_text (Small Text) field in DocType 'LMS Lesson
 #. Note'
@@ -3261,7 +3261,7 @@ msgstr ""
 #: lms/lms/doctype/lms_badge/lms_badge.json
 #: lms/lms/doctype/lms_exercise/lms_exercise.json
 msgid "Image"
-msgstr ""
+msgstr "Kép"
 
 #: frontend/src/components/Modals/EditCoverImage.vue:58
 #: frontend/src/components/UnsplashImageBrowser.vue:52
