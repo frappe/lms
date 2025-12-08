@@ -65,6 +65,6 @@ export default defineConfig({
 			'highlight.js',
 			'plyr',
 		],
-		exclude: ['frappe-ui']
+		exclude: ['frappe-ui'],
 	},
 })

@@ -81,11 +81,11 @@ const chartOptions = computed(() => {
 				enableShades: true,
 				colorScale: {
 					ranges: [
-						{ from: 0, to: 0, color: getColor("green", 400) },
-						{ from: 1, to: 5, color: getColor("green", 200) },
-						{ from: 6, to: 15, color: getColor("green", 500) },
-						{ from: 16, to: 30, color: getColor("green", 700) },
-						{ from: 31, to: 100, color: getColor("green", 800) },
+						{ from: 0, to: 0, color: getColor('green', 400) },
+						{ from: 1, to: 5, color: getColor('green', 200) },
+						{ from: 6, to: 15, color: getColor('green', 500) },
+						{ from: 16, to: 30, color: getColor('green', 700) },
+						{ from: 31, to: 100, color: getColor('green', 800) },
 					],
 				},
 			},

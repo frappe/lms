@@ -807,6 +807,7 @@ export const decodeEntities = (encodedString) => {
 }
 
 export const getColor = (color, shade) => {
-	let theme = localStorage.getItem('theme') == "light" ? "lightMode" : "darkMode"
+	let theme =
+		localStorage.getItem('theme') == 'light' ? 'lightMode' : 'darkMode'
 	return colorsJSON[theme][color][shade]
 }

@@ -21,7 +21,10 @@
 								:style="
 									modelValue
 										? {
-												backgroundColor: getColor(modelValue.toLowerCase(), 400)
+												backgroundColor: getColor(
+													modelValue.toLowerCase(),
+													400
+												),
 										  }
 										: {}
 								"
@@ -54,8 +57,7 @@
 							:key="color"
 							class="size-5 rounded-full cursor-pointer"
 							:style="{
-								backgroundColor: 
-									getColor(color.toLowerCase(), 400),
+								backgroundColor: getColor(color.toLowerCase(), 400),
 							}"
 							@click="
 								(e) => {
@@ -104,5 +106,4 @@ const colors = computed(() => {
 		'Yellow',
 	]
 })
-
 </script>
