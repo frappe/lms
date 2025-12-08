@@ -52,6 +52,7 @@ describe("Batch Creation", () => {
 
 		// Create a batch
 		cy.get("button").contains("Create").click();
+		cy.get("span").contains("New Batch").click();
 		cy.wait(500);
 		cy.url().should("include", "/batches/new/edit");
 		cy.get("label").contains("Title").type("Test Batch");

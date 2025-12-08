@@ -5,7 +5,7 @@ import frappeui from 'frappe-ui/vite'
 import { VitePWA } from 'vite-plugin-pwa'
 
 // https://vitejs.dev/config/
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
 	plugins: [
 		frappeui({
 			frappeProxy: true,
@@ -32,6 +32,18 @@ export default defineConfig({
 			workbox: {
 				cleanupOutdatedCaches: true,
 				maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
+				globDirectory: '/assets/lms/frontend',
+				globPatterns: ['**/*.{js,ts,css,html,png,svg}'],
+				runtimeCaching: [
+					{
+						urlPattern: ({ request }) =>
+							request.destination === 'document',
+						handler: 'NetworkFirst',
+						options: {
+							cacheName: 'html-cache',
+						},
+					},
+				],
 			},
 			manifest: false,
 		}),
@@ -43,18 +55,16 @@ export default defineConfig({
 	resolve: {
 		alias: {
 			'@': path.resolve(__dirname, 'src'),
-			'tailwind.config.js': path.resolve(__dirname, 'tailwind.config.js'),
 		},
 	},
 	optimizeDeps: {
 		include: [
 			'feather-icons',
-			'showdown',
 			'engine.io-client',
-			'tailwind.config.js',
 			'interactjs',
 			'highlight.js',
 			'plyr',
 		],
+		exclude: mode === 'production' ? [] : ['frappe-ui'],
 	},
-})
+}))

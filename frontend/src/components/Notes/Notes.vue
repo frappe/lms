@@ -7,6 +7,9 @@
 		:placeholder="__('Make notes for quick revision. Press / for menu.')"
 		@change="(val: string) => updateNoteText(val)"
 		:editable="true"
+		:uploadArgs="{
+			private: true,
+		}"
 		editorClass="prose prose-sm min-h-[200px] max-w-none"
 	/>
 </template>

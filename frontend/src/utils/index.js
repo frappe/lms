@@ -1,6 +1,6 @@
 import { call, toast } from 'frappe-ui'
 import { useTimeAgo } from '@vueuse/core'
-import { theme } from '@/utils/theme'
+import colorsJSON from '@/utils/frappe-ui-colors.json'
 import { Quiz } from '@/utils/quiz'
 import { Program } from '@/utils/program'
 import { Assignment } from '@/utils/assignment'
@@ -680,7 +680,7 @@ export const getMetaInfo = (type, route, meta) => {
 
 export const updateMetaInfo = (type, route, meta) => {
 	call('lms.lms.api.update_meta_info', {
-		type: type,
+		meta_type: type,
 		route: route,
 		meta_tags: [
 			{ key: 'description', value: meta.description },
@@ -734,10 +734,10 @@ const createHighlightSpan = (color, name, scrollIntoView) => {
 	const span = document.createElement('span')
 	span.className = 'highlighted-text'
 	if (scrollIntoView) {
-		span.style.border = `2px solid ${theme.backgroundColor[color][400]}`
+		span.style.border = `2px solid ${getColor(color, 400)}`
 		span.style.borderRadius = '4px'
 	} else {
-		span.style.backgroundColor = theme.backgroundColor[color][200]
+		span.style.backgroundColor = getColor(color, 200)
 	}
 	span.dataset.name = name
 	return span
@@ -809,4 +809,10 @@ export const decodeEntities = (encodedString) => {
 	const textarea = document.createElement('textarea')
 	textarea.innerHTML = encodedString
 	return textarea.value
+}
+
+export const getColor = (color, shade) => {
+	let theme =
+		localStorage.getItem('theme') == 'light' ? 'lightMode' : 'darkMode'
+	return colorsJSON[theme][color][shade]
 }

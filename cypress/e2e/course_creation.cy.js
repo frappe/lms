@@ -9,6 +9,7 @@ describe("Course Creation", () => {
 
 		// Create a course
 		cy.get("button").contains("Create").click();
+		cy.get("span").contains("New Course").click();
 		cy.wait(500);
 		cy.url().should("include", "/courses/new/edit");
 
@@ -55,6 +56,7 @@ describe("Course Creation", () => {
 			.parent()
 			.within(() => {
 				cy.get("input").click().type("frappe");
+				cy.wait(500);
 				cy.get("input")
 					.invoke("attr", "aria-controls")
 					.as("instructor_list_id");

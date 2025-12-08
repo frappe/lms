@@ -1,7 +1,7 @@
 <template>
 	<div class="p-2">
 		<Dropdown :options="userDropdownOptions">
-			<template v-slot="{ open }">
+			<template v-slot="{ open, close }">
 				<button
 					class="flex h-12 py-2 items-center rounded-md duration-300 ease-in-out"
 					:class="
@@ -64,18 +64,19 @@
 </template>
 
 <script setup>
-import LMSLogo from '@/components/Icons/LMSLogo.vue'
 import { sessionStore } from '@/stores/session'
 import { Dropdown } from 'frappe-ui'
-import Apps from '@/components/Apps.vue'
 import { useRouter } from 'vue-router'
 import { convertToTitleCase } from '@/utils'
 import { usersStore } from '@/stores/user'
 import { useSettings } from '@/stores/settings'
 import { markRaw, watch, ref, onMounted, computed } from 'vue'
 import { createDialog } from '@/utils/dialogs'
-import SettingsModal from '@/components/Settings/Settings.vue'
+import Apps from '@/components/Sidebar/Apps.vue'
+import Configuration from '@/components/Sidebar/Configuration.vue'
 import FrappeCloudIcon from '@/components/Icons/FrappeCloudIcon.vue'
+import LMSLogo from '@/components/Icons/LMSLogo.vue'
+import SettingsModal from '@/components/Settings/Settings.vue'
 import {
 	ChevronDown,
 	LogIn,
@@ -84,6 +85,7 @@ import {
 	User,
 	Settings,
 	Sun,
+	Wrench,
 	Zap,
 } from 'lucide-vue-next'
 
@@ -164,6 +166,18 @@ const userDropdownOptions = computed(() => {
 					onClick: () => {
 						settingsStore.isSettingsOpen = true
 					},
+					condition: () => {
+						return userResource.data?.is_moderator
+					},
+				},
+				{
+					label: 'Configuration',
+					icon: Wrench,
+					submenu: [
+						{
+							component: markRaw(Configuration),
+						},
+					],
 					condition: () => {
 						return userResource.data?.is_moderator
 					},

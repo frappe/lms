@@ -248,6 +248,23 @@ const routes = [
 		name: 'Search',
 		component: () => import('@/pages/Search/Search.vue'),
 	},
+	{
+		path: '/data-import',
+		name: 'DataImportList',
+		component: () => import('@/pages/DataImport.vue'),
+	},
+	{
+		path: '/data-import/doctype/:doctype',
+		name: 'NewDataImport',
+		component: () => import('@/pages/DataImport.vue'),
+		props: true,
+	},
+	{
+		path: '/data-import/:importName',
+		name: 'DataImport',
+		component: () => import('@/pages/DataImport.vue'),
+		props: true,
+	},
 ]
 
 let router = createRouter({

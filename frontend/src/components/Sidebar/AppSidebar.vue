@@ -187,11 +187,12 @@ import { usersStore } from '@/stores/user'
 import { sessionStore } from '@/stores/session'
 import { useSidebar } from '@/stores/sidebar'
 import { useSettings } from '@/stores/settings'
-import { Button, call, createResource, Tooltip } from 'frappe-ui'
+import { Button, call, createResource, Tooltip, toast } from 'frappe-ui'
 import PageModal from '@/components/Modals/PageModal.vue'
 import { capture } from '@/telemetry'
 import LMSLogo from '@/components/Icons/LMSLogo.vue'
 import { useRouter } from 'vue-router'
+import InviteIcon from '@/components/Icons/InviteIcon.vue'
 import {
 	ref,
 	onMounted,
@@ -456,21 +457,13 @@ const openPageModal = (link) => {
 }
 
 const deletePage = (link) => {
-	createResource({
-		url: 'lms.lms.api.delete_sidebar_item',
-		makeParams(values) {
-			return {
-				webpage: link.web_page,
-			}
-		},
-	}).submit(
-		{},
-		{
-			onSuccess() {
-				sidebarSettings.reload()
-			},
-		}
-	)
+	call('lms.lms.api.delete_documents', {
+		doctype: 'LMS Sidebar Item',
+		documents: [link.name],
+	}).then(() => {
+		sidebarSettings.reload()
+		toast.success(__('Page deleted successfully'))
+	})
 }
 
 const toggleSidebar = () => {
