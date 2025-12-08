@@ -1470,7 +1470,7 @@ def get_meta_info(type, route):
 
 @frappe.whitelist()
 def update_meta_info(meta_type, route, meta_tags):
-	validate_meta_data_permissions()
+	validate_meta_data_permissions(meta_type)
 	validate_meta_tags(meta_tags)
 
 	parent_name = f"{meta_type}/{route}"

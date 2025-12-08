@@ -58,7 +58,7 @@
 						</Button>
 					</div>
 					<ListView
-						v-if="program.program_courses.length > 0"
+						v-if="program.program_courses?.length > 0"
 						:columns="courseColumns"
 						:rows="program.program_courses"
 						:options="{
@@ -133,7 +133,7 @@
 						</div>
 					</div>
 					<ListView
-						v-if="program.program_members.length > 0"
+						v-if="program.program_members?.length > 0"
 						:columns="memberColumns"
 						:rows="program.program_members"
 						:options="{
@@ -430,7 +430,7 @@ const addCourse = (close: () => void) => {
 	}
 
 	const existingCourse = program.value.program_courses.find(
-		(c) => c.course === course.value
+		(c: any) => c.course === course.value
 	)
 	if (!existingCourse) {
 		program.value.program_courses.push({
@@ -544,11 +544,11 @@ const remove = (
 	const selectionsArray = Array.from(selections)
 	if (type === 'courses') {
 		program.value.program_courses = program.value.program_courses.filter(
-			(c) => !selectionsArray.includes(c.name || c.course)
+			(c: any) => !selectionsArray.includes(c.name || c.course)
 		)
 	} else {
 		program.value.program_members = program.value.program_members.filter(
-			(m) => !selectionsArray.includes(m.name || m.member)
+			(m: any) => !selectionsArray.includes(m.name || m.member)
 		)
 	}
 	dirty.value = true

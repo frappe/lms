@@ -114,11 +114,11 @@
 							categoryColumn: 'category',
 							valueColumn: 'count',
 							colors: [
-								theme.colors.red['400'],
-								theme.colors.amber['400'],
-								theme.colors.pink['400'],
-								theme.colors.blue['400'],
-								theme.colors.green['400'],
+								getColor('red', 400),
+								getColor('amber', 400),
+								getColor('pink', 400),
+								getColor('blue', 400),
+								getColor('green', 400),
 							],
 						}"
 					/>
@@ -146,7 +146,7 @@ import {
 	NumberChart,
 } from 'frappe-ui'
 import { computed, ref, watch } from 'vue'
-import { theme } from '@/utils/theme'
+import { getColor } from '@/utils'
 
 const show = defineModel<boolean>({ default: false })
 const searchFilter = ref<string | null>(null)
