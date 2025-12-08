@@ -10,7 +10,6 @@ from frappe.utils import ceil
 class LMSEnrollment(Document):
 	def validate(self):
 		self.validate_membership_in_same_batch()
-		self.validate_membership_in_different_batch_same_course()
 
 	def on_update(self):
 		update_program_progress(self.member)
@@ -29,33 +28,6 @@ class LMSEnrollment(Document):
 			frappe.throw(
 				_("{0} is already a {1} of the course {2}").format(
 					member_name, previous_membership.member_type, course_title
-				)
-			)
-
-	def validate_membership_in_different_batch_same_course(self):
-		"""Ensures that a studnet is only part of one batch."""
-		# nothing to worry if the member is not a student
-		if self.member_type != "Student":
-			return
-
-		course = frappe.db.get_value("LMS Batch Old", self.batch_old, "course")
-		memberships = frappe.get_all(
-			"LMS Enrollment",
-			filters={
-				"member": self.member,
-				"name": ["!=", self.name],
-				"member_type": "Student",
-				"course": self.course,
-			},
-			fields=["batch_old", "member_type", "name"],
-		)
-
-		if memberships:
-			membership = memberships[0]
-			member_name = frappe.db.get_value("User", self.member, "full_name")
-			frappe.throw(
-				_("{0} is already a Student of {1} course through {2} batch").format(
-					member_name, course, membership.batch_old
 				)
 			)
 
