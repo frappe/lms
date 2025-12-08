@@ -5,7 +5,7 @@ import frappeui from 'frappe-ui/vite'
 import { VitePWA } from 'vite-plugin-pwa'
 
 // https://vitejs.dev/config/
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
 	plugins: [
 		frappeui({
 			frappeProxy: true,
@@ -65,6 +65,6 @@ export default defineConfig({
 			'highlight.js',
 			'plyr',
 		],
-		exclude: ['frappe-ui'],
+		exclude: mode === 'production' ? [] : ['frappe-ui'],
 	},
-})
+}))
