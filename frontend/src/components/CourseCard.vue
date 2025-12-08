@@ -136,11 +136,11 @@
 import { Award, BookOpen, GraduationCap, Star, Users } from 'lucide-vue-next'
 import { sessionStore } from '@/stores/session'
 import { Tooltip } from 'frappe-ui'
-import { theme } from '@/utils/theme'
 import { formatAmount } from '@/utils'
 import CourseInstructors from '@/components/CourseInstructors.vue'
 import UserAvatar from '@/components/UserAvatar.vue'
 import ProgressBar from '@/components/ProgressBar.vue'
+import colors from '@/utils/frappe-ui-colors.json'
 
 const { user } = sessionStore()
 
@@ -152,8 +152,9 @@ const props = defineProps({
 })
 
 const getGradientColor = () => {
+	let theme = localStorage.getItem('theme') == "light" ? "lightMode": "darkMode"
 	let color = props.course.card_gradient?.toLowerCase() || 'blue'
-	let colorMap = theme.backgroundColor[color]
+	let colorMap = colors[theme][color]
 	return `linear-gradient(to top right, black, ${colorMap[400]})`
 	/* return `bg-gradient-to-br from-${color}-100 via-${color}-200 to-${color}-400` */
 	/* return `linear-gradient(to bottom right, ${colorMap[100]}, ${colorMap[400]})` */

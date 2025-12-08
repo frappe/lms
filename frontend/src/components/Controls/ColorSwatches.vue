@@ -21,8 +21,7 @@
 								:style="
 									modelValue
 										? {
-												backgroundColor:
-													theme.backgroundColor[modelValue.toLowerCase()][400],
+												backgroundColor: getColor(modelValue.toLowerCase(), 400)
 										  }
 										: {}
 								"
@@ -55,8 +54,8 @@
 							:key="color"
 							class="size-5 rounded-full cursor-pointer"
 							:style="{
-								backgroundColor:
-									theme.backgroundColor[color.toLowerCase()][400],
+								backgroundColor: 
+									getColor(color.toLowerCase(), 400),
 							}"
 							@click="
 								(e) => {
@@ -79,7 +78,7 @@
 import { Button, FormControl, Popover } from 'frappe-ui'
 import { computed } from 'vue'
 import { Palette, X } from 'lucide-vue-next'
-import { theme } from '@/utils/theme'
+import { getColor } from '@/utils'
 
 const emit = defineEmits(['update:modelValue', 'change'])
 
@@ -105,4 +104,5 @@ const colors = computed(() => {
 		'Yellow',
 	]
 })
+
 </script>

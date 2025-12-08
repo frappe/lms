@@ -2288,10 +2288,10 @@ base64-js@^1.3.1:
   resolved "https://registry.yarnpkg.com/base64-js/-/base64-js-1.5.1.tgz#1b1b440160a5bf7ad40b650f095963481903930a"
   integrity sha512-AKpaYlHn8t4SVbOHCy+b5+KKgvR4vrsD8vbvrbiQJps7fKDTkjkDry6ji0rUJjC0kzbNePLwzxq8iypo41qeWA==
 
-baseline-browser-mapping@^2.8.25:
-  version "2.8.32"
-  resolved "https://registry.yarnpkg.com/baseline-browser-mapping/-/baseline-browser-mapping-2.8.32.tgz#5de72358cf363ac41e7d642af239f6ac5ed1270a"
-  integrity sha512-OPz5aBThlyLFgxyhdwf/s2+8ab3OvT7AdTNvKHBwpXomIYeXqpUUuT8LrdtxZSsWJ4R4CU1un4XGh5Ez3nlTpw==
+baseline-browser-mapping@^2.9.0:
+  version "2.9.2"
+  resolved "https://registry.yarnpkg.com/baseline-browser-mapping/-/baseline-browser-mapping-2.9.2.tgz#0ae89ec3e10e07c368b77def89db8044409461d1"
+  integrity sha512-PxSsosKQjI38iXkmb3d0Y32efqyA0uW4s41u4IVBsLlWLhCiYNpH/AfNOVWRqCQBlD8TFJTz6OUWNd4DFJCnmw==
 
 binary-extensions@^2.0.0:
   version "2.3.0"
@@ -2330,15 +2330,15 @@ braces@^3.0.3, braces@~3.0.2:
     fill-range "^7.1.1"
 
 browserslist@^4.19.1, browserslist@^4.24.0, browserslist@^4.28.0:
-  version "4.28.0"
-  resolved "https://registry.yarnpkg.com/browserslist/-/browserslist-4.28.0.tgz#9cefece0a386a17a3cd3d22ebf67b9deca1b5929"
-  integrity sha512-tbydkR/CxfMwelN0vwdP/pLkDwyAASZ+VfWm4EOwlB6SWhx1sYnWLqo8N5j0rAzPfzfRaxt0mM/4wPU/Su84RQ==
+  version "4.28.1"
+  resolved "https://registry.yarnpkg.com/browserslist/-/browserslist-4.28.1.tgz#7f534594628c53c63101079e27e40de490456a95"
+  integrity sha512-ZC5Bd0LgJXgwGqUknZY/vkUQ04r8NXnJZ3yYi4vDmSiZmC/pdSN0NbNRPxZpbtO4uAfDUAFffO8IZoM3Gj8IkA==
   dependencies:
-    baseline-browser-mapping "^2.8.25"
-    caniuse-lite "^1.0.30001754"
-    electron-to-chromium "^1.5.249"
+    baseline-browser-mapping "^2.9.0"
+    caniuse-lite "^1.0.30001759"
+    electron-to-chromium "^1.5.263"
     node-releases "^2.0.27"
-    update-browserslist-db "^1.1.4"
+    update-browserslist-db "^1.2.0"
 
 buffer-from@^1.0.0:
   version "1.1.2"
@@ -2389,7 +2389,7 @@ camelcase-css@^2.0.1:
   resolved "https://registry.yarnpkg.com/camelcase-css/-/camelcase-css-2.0.1.tgz#ee978f6947914cc30c6b44741b6ed1df7f043fd5"
   integrity sha512-QOSvevhslijgYwRx6Rv7zKdMF8lbRmx+uQGx2+vDc+KI/eBnsy9kit5aj23AgGu3pa4t9AgwbnXWqS+iOY+2aA==
 
-caniuse-lite@^1.0.30001297, caniuse-lite@^1.0.30001754:
+caniuse-lite@^1.0.30001297, caniuse-lite@^1.0.30001759:
   version "1.0.30001759"
   resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001759.tgz#d569e7b010372c6b0ca3946e30dada0a2e9d5006"
   integrity sha512-Pzfx9fOKoKvevQf8oCXoyNRQ5QyxJj+3O0Rqx2V5oxT61KGx8+n6hV/IUyJeifUci2clnmmKVpvtiqRzgiWjSw==
@@ -2579,10 +2579,10 @@ data-view-byte-offset@^1.0.1:
     es-errors "^1.3.0"
     is-data-view "^1.0.1"
 
-dayjs@1.11.6:
-  version "1.11.6"
-  resolved "https://registry.yarnpkg.com/dayjs/-/dayjs-1.11.6.tgz#2e79a226314ec3ec904e3ee1dd5a4f5e5b1c7afb"
-  integrity sha512-zZbY5giJAinCG+7AGaw0wIhNZ6J8AhWuSXKvuc1KAyMiRsvGQWqh4L+MomvhdAYjN+lqvVCMq1I41e3YHvXkyQ==
+dayjs@1.11.10:
+  version "1.11.10"
+  resolved "https://registry.yarnpkg.com/dayjs/-/dayjs-1.11.10.tgz#68acea85317a6e164457d6d6947564029a6a16a0"
+  integrity sha512-vjAczensTgRcqDERK0SR2XMwsF/tSvnvlv6VcF2GIhg6Sx4yOIt/irsr1RDJsKiIyBzJDpCoXiWWq28MqH2cnQ==
 
 dayjs@^1.11.13:
   version "1.11.19"
@@ -2698,10 +2698,10 @@ ejs@^3.1.6:
   dependencies:
     jake "^10.8.5"
 
-electron-to-chromium@^1.5.249:
-  version "1.5.263"
-  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.5.263.tgz#bec8f2887c30001dfacf415c136eae3b4386846a"
-  integrity sha512-DrqJ11Knd+lo+dv+lltvfMDLU27g14LMdH2b0O3Pio4uk0x+z7OR+JrmyacTPN2M8w3BrZ7/RTwG3R9B7irPlg==
+electron-to-chromium@^1.5.263:
+  version "1.5.266"
+  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.5.266.tgz#41ed029b3cf641c4ee071de42954b36dca8f5f4e"
+  integrity sha512-kgWEglXvkEfMH7rxP5OSZZwnaDWT7J9EoZCujhnpLbfi0bbNtRkgdX2E3gt0Uer11c61qCYktB3hwkAS325sJg==
 
 engine.io-client@~6.5.2:
   version "6.5.4"
@@ -3555,7 +3555,7 @@ jest-worker@^26.2.1:
     merge-stream "^2.0.0"
     supports-color "^7.0.0"
 
-jiti@^1.21.6:
+jiti@^1.21.7:
   version "1.21.7"
   resolved "https://registry.yarnpkg.com/jiti/-/jiti-1.21.7.tgz#9dd81043424a3d28458b193d965f0d18a2300ba9"
   integrity sha512-/imKNG4EbWNrVjoNC/1H5/9GFy+tqjGBHCaSsN+P2RnPqjsLmv6UD3Ej+Kj8nBWaRAwyk7kK5ZUc+OEatnTR3A==
@@ -3614,12 +3614,7 @@ leven@^3.1.0:
   resolved "https://registry.yarnpkg.com/leven/-/leven-3.1.0.tgz#77891de834064cccba82ae7842bb6b14a13ed7f2"
   integrity sha512-qsda+H8jTaUaN/x5vzW2rzc+8Rw4TAQ/4KjB46IwK5VH+IlVeeeje/EoZRpiXvIqjFgK84QffqPztGI3VBLG1A==
 
-lilconfig@^2.1.0:
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/lilconfig/-/lilconfig-2.1.0.tgz#78e23ac89ebb7e1bfbf25b18043de756548e7f52"
-  integrity sha512-utWOt/GHzuUxnLKxB6dk81RoOeoNeHgbrXiuGk4yyF5qlRz+iIVWu56E2fqGHFrXz0QNUhLB/8nKqvRH66JKGQ==
-
-lilconfig@^3.0.0:
+lilconfig@^3.1.1, lilconfig@^3.1.3:
   version "3.1.3"
   resolved "https://registry.yarnpkg.com/lilconfig/-/lilconfig-3.1.3.tgz#a1bcfd6257f9585bf5ae14ceeebb7b559025e4c4"
   integrity sha512-/vlFKAoH5Cgt3Ie+JLhRbwOsCQePABiU3tJ1egGvyQ+33R/vcwM2Zl2QR/LzjsBeItPt3oSVXapn+m4nQDvpzw==
@@ -4074,13 +4069,12 @@ postcss-js@^4.0.1:
   dependencies:
     camelcase-css "^2.0.1"
 
-postcss-load-config@^4.0.2:
-  version "4.0.2"
-  resolved "https://registry.yarnpkg.com/postcss-load-config/-/postcss-load-config-4.0.2.tgz#7159dcf626118d33e299f485d6afe4aff7c4a3e3"
-  integrity sha512-bSVhyJGL00wMVoPUzAVAnbEoWyqRxkjv64tUl427SKnPrENtq6hJwUojroMz2VB+Q1edmi4IfrAPpami5VVgMQ==
+"postcss-load-config@^4.0.2 || ^5.0 || ^6.0":
+  version "6.0.1"
+  resolved "https://registry.yarnpkg.com/postcss-load-config/-/postcss-load-config-6.0.1.tgz#6fd7dcd8ae89badcf1b2d644489cbabf83aa8096"
+  integrity sha512-oPtTM4oerL+UXmx+93ytZVN82RrlY/wPUV8IeDxFrzIjXOLF1pN+EmKPLbubvKHT2HC20xXsCAH2Z+CKV6Oz/g==
   dependencies:
-    lilconfig "^3.0.0"
-    yaml "^2.3.4"
+    lilconfig "^3.1.1"
 
 postcss-nested@^6.2.0:
   version "6.2.0"
@@ -4203,7 +4197,7 @@ prosemirror-inputrules@^1.4.0:
     prosemirror-state "^1.0.0"
     prosemirror-transform "^1.0.0"
 
-prosemirror-keymap@^1.0.0, prosemirror-keymap@^1.2.2:
+prosemirror-keymap@^1.0.0, prosemirror-keymap@^1.2.2, prosemirror-keymap@^1.2.3:
   version "1.2.3"
   resolved "https://registry.yarnpkg.com/prosemirror-keymap/-/prosemirror-keymap-1.2.3.tgz#c0f6ab95f75c0b82c97e44eb6aaf29cbfc150472"
   integrity sha512-4HucRlpiLd1IPQQXNqeo81BGtkY8Ai5smHhKW9jjPKRc2wQIxksg7Hl1tTI2IfT2B/LgX6bfYvXxEpJl7aKYKw==
@@ -4230,7 +4224,7 @@ prosemirror-menu@^1.2.4:
     prosemirror-history "^1.0.0"
     prosemirror-state "^1.0.0"
 
-prosemirror-model@^1.0.0, prosemirror-model@^1.20.0, prosemirror-model@^1.21.0, prosemirror-model@^1.23.0, prosemirror-model@^1.25.0:
+prosemirror-model@^1.0.0, prosemirror-model@^1.20.0, prosemirror-model@^1.21.0, prosemirror-model@^1.23.0, prosemirror-model@^1.25.0, prosemirror-model@^1.25.4:
   version "1.25.4"
   resolved "https://registry.yarnpkg.com/prosemirror-model/-/prosemirror-model-1.25.4.tgz#8ebfbe29ecbee9e5e2e4048c4fe8e363fcd56e7c"
   integrity sha512-PIM7E43PBxKce8OQeezAs9j4TP+5yDpZVbuurd1h5phUxEKIu+G2a+EUZzIC5nS1mJktDJWzbqS23n1tsAf5QA==
@@ -4253,7 +4247,7 @@ prosemirror-schema-list@^1.4.1:
     prosemirror-state "^1.0.0"
     prosemirror-transform "^1.7.3"
 
-prosemirror-state@^1.0.0, prosemirror-state@^1.2.2, prosemirror-state@^1.4.3:
+prosemirror-state@^1.0.0, prosemirror-state@^1.2.2, prosemirror-state@^1.4.3, prosemirror-state@^1.4.4:
   version "1.4.4"
   resolved "https://registry.yarnpkg.com/prosemirror-state/-/prosemirror-state-1.4.4.tgz#72b5e926f9e92dcee12b62a05fcc8a2de3bf5b39"
   integrity sha512-6jiYHH2CIGbCfnxdHbXZ12gySFY/fz/ulZE333G6bPqIZ4F+TXo9ifiR86nAHpWnfoNjOb3o5ESi7J8Uz1jXHw==
@@ -4263,15 +4257,15 @@ prosemirror-state@^1.0.0, prosemirror-state@^1.2.2, prosemirror-state@^1.4.3:
     prosemirror-view "^1.27.0"
 
 prosemirror-tables@^1.6.4:
-  version "1.8.1"
-  resolved "https://registry.yarnpkg.com/prosemirror-tables/-/prosemirror-tables-1.8.1.tgz#896a234e3e18240b629b747a871369dae78c8a9a"
-  integrity sha512-DAgDoUYHCcc6tOGpLVPSU1k84kCUWTWnfWX3UDy2Delv4ryH0KqTD6RBI6k4yi9j9I8gl3j8MkPpRD/vWPZbug==
+  version "1.8.3"
+  resolved "https://registry.yarnpkg.com/prosemirror-tables/-/prosemirror-tables-1.8.3.tgz#b10b08518b2aa3aecb8cc64303b833bd816d443c"
+  integrity sha512-wbqCR/RlRPRe41a4LFtmhKElzBEfBTdtAYWNIGHM6X2e24NN/MTNUKyXjjphfAfdQce37Kh/5yf765mLPYDe7Q==
   dependencies:
-    prosemirror-keymap "^1.2.2"
-    prosemirror-model "^1.25.0"
-    prosemirror-state "^1.4.3"
-    prosemirror-transform "^1.10.3"
-    prosemirror-view "^1.39.1"
+    prosemirror-keymap "^1.2.3"
+    prosemirror-model "^1.25.4"
+    prosemirror-state "^1.4.4"
+    prosemirror-transform "^1.10.5"
+    prosemirror-view "^1.41.4"
 
 prosemirror-trailing-node@^3.0.0:
   version "3.0.0"
@@ -4281,14 +4275,14 @@ prosemirror-trailing-node@^3.0.0:
     "@remirror/core-constants" "3.0.0"
     escape-string-regexp "^4.0.0"
 
-prosemirror-transform@^1.0.0, prosemirror-transform@^1.1.0, prosemirror-transform@^1.10.2, prosemirror-transform@^1.10.3, prosemirror-transform@^1.7.3:
+prosemirror-transform@^1.0.0, prosemirror-transform@^1.1.0, prosemirror-transform@^1.10.2, prosemirror-transform@^1.10.5, prosemirror-transform@^1.7.3:
   version "1.10.5"
   resolved "https://registry.yarnpkg.com/prosemirror-transform/-/prosemirror-transform-1.10.5.tgz#4cf9fe5dcbdbfebd62499f24386e7cec9bc9979b"
   integrity sha512-RPDQCxIDhIBb1o36xxwsaeAvivO8VLJcgBtzmOwQ64bMtsVFh5SSuJ6dWSxO1UsHTiTXPCgQm3PDJt7p6IOLbw==
   dependencies:
     prosemirror-model "^1.21.0"
 
-prosemirror-view@^1.0.0, prosemirror-view@^1.1.0, prosemirror-view@^1.27.0, prosemirror-view@^1.31.0, prosemirror-view@^1.37.0, prosemirror-view@^1.39.1:
+prosemirror-view@^1.0.0, prosemirror-view@^1.1.0, prosemirror-view@^1.27.0, prosemirror-view@^1.31.0, prosemirror-view@^1.37.0, prosemirror-view@^1.41.4:
   version "1.41.4"
   resolved "https://registry.yarnpkg.com/prosemirror-view/-/prosemirror-view-1.41.4.tgz#4e1b3e90accc0eebe3bddb497a40ce54e4de722d"
   integrity sha512-WkKgnyjNncri03Gjaz3IFWvCAE94XoiEgvtr0/r2Xw7R8/IjK3sKLSiDoCHWcsXSAinVaKlGRZDvMCsF1kbzjA==
@@ -4864,10 +4858,10 @@ supports-preserve-symlinks-flag@^1.0.0:
   resolved "https://registry.yarnpkg.com/supports-preserve-symlinks-flag/-/supports-preserve-symlinks-flag-1.0.0.tgz#6eda4bd344a3c94aea376d4cc31bc77311039e09"
   integrity sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==
 
-tailwindcss@3.4.15:
-  version "3.4.15"
-  resolved "https://registry.yarnpkg.com/tailwindcss/-/tailwindcss-3.4.15.tgz#04808bf4bf1424b105047d19e7d4bfab368044a9"
-  integrity sha512-r4MeXnfBmSOuKUWmXe6h2CcyfzJCEk4F0pptO5jlnYSIViUkVmsawj80N5h2lO3gwcmSb4n3PuN+e+GC1Guylw==
+tailwindcss@^3.4.15:
+  version "3.4.18"
+  resolved "https://registry.yarnpkg.com/tailwindcss/-/tailwindcss-3.4.18.tgz#9fa9650aace186644b608242f1e57d2d55593301"
+  integrity sha512-6A2rnmW5xZMdw11LYjhcI5846rt9pbLSabY5XPxo+XWdxwZaFEn47Go4NzFiHu9sNNmr/kXivP1vStfvMaK1GQ==
   dependencies:
     "@alloc/quick-lru" "^5.2.0"
     arg "^5.0.2"
@@ -4877,8 +4871,8 @@ tailwindcss@3.4.15:
     fast-glob "^3.3.2"
     glob-parent "^6.0.2"
     is-glob "^4.0.3"
-    jiti "^1.21.6"
-    lilconfig "^2.1.0"
+    jiti "^1.21.7"
+    lilconfig "^3.1.3"
     micromatch "^4.0.8"
     normalize-path "^3.0.0"
     object-hash "^3.0.0"
@@ -4886,7 +4880,7 @@ tailwindcss@3.4.15:
     postcss "^8.4.47"
     postcss-import "^15.1.0"
     postcss-js "^4.0.1"
-    postcss-load-config "^4.0.2"
+    postcss-load-config "^4.0.2 || ^5.0 || ^6.0"
     postcss-nested "^6.2.0"
     postcss-selector-parser "^6.1.2"
     resolve "^1.22.8"
@@ -5185,10 +5179,10 @@ upath@^1.2.0:
   resolved "https://registry.yarnpkg.com/upath/-/upath-1.2.0.tgz#8f66dbcd55a883acdae4408af8b035a5044c1894"
   integrity sha512-aZwGpamFO61g3OlfT7OQCHqhGnW43ieH9WZeP7QxN/G/jS4jfqUkZxoryvJgVPEcrl5NL/ggHsSmLMHuH64Lhg==
 
-update-browserslist-db@^1.1.4:
-  version "1.1.4"
-  resolved "https://registry.yarnpkg.com/update-browserslist-db/-/update-browserslist-db-1.1.4.tgz#7802aa2ae91477f255b86e0e46dbc787a206ad4a"
-  integrity sha512-q0SPT4xyU84saUX+tomz1WLkxUbuaJnR1xWt17M7fJtEJigJeWUNGUqrauFXsHnqev9y9JTRGwk13tFBuKby4A==
+update-browserslist-db@^1.2.0:
+  version "1.2.2"
+  resolved "https://registry.yarnpkg.com/update-browserslist-db/-/update-browserslist-db-1.2.2.tgz#cfb4358afa08b3d5731a2ecd95eebf4ddef8033e"
+  integrity sha512-E85pfNzMQ9jpKkA7+TJAi4TJN+tBCuWh5rUcS/sv6cFi+1q9LYDwDI5dpUL0u/73EElyQ8d3TEaeW4sPedBqYA==
   dependencies:
     escalade "^3.2.0"
     picocolors "^1.1.1"
@@ -5553,11 +5547,6 @@ yallist@^3.0.2:
   version "3.1.1"
   resolved "https://registry.yarnpkg.com/yallist/-/yallist-3.1.1.tgz#dbb7daf9bfd8bac9ab45ebf602b8cbad0d5d08fd"
   integrity sha512-a4UGQaWPH59mOXUYnAG2ewncQS4i4F43Tv3JoAM+s2VDAmS9NsK8GpDMLrCHPksFT7h3K6TOoUNn2pb7RoXx4g==
-
-yaml@^2.3.4:
-  version "2.8.2"
-  resolved "https://registry.yarnpkg.com/yaml/-/yaml-2.8.2.tgz#5694f25eca0ce9c3e7a9d9e00ce0ddabbd9e35c5"
-  integrity sha512-mplynKqc1C2hTVYxd0PU2xQAc22TI1vShAYGksCCfxbn/dFwnHTNi1bvYsBTkhdUNtGIf5xNOg938rrSSYvS9A==
 
 yocto-queue@^0.1.0:
   version "0.1.0"
