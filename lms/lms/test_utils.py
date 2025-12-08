@@ -6,6 +6,7 @@ from .utils import (
 	get_average_rating,
 	get_chapters,
 	get_instructors,
+	get_lesson_index,
 	get_lessons,
 	get_membership,
 	get_reviews,
@@ -16,12 +17,13 @@ from .utils import (
 
 class TestUtils(unittest.TestCase):
 	def setUp(self):
+		self.student1 = self.create_user("student1@example.com", "Ashley", "Smith", "LMS Student")
+		self.student2 = self.create_user("student2@example.com", "John", "Doe", "LMS Student")
+		self.admin = self.create_user("frappe@example.com", "Frappe", "Admin", "Moderator")
+
 		self.create_a_course()
 		self.add_chapters()
 		self.add_lessons()
-
-		self.student1 = self.create_student("student1@example.com", "Ashley", "Smith")
-		self.student2 = self.create_student("student2@example.com", "John", "Doe")
 
 		self.add_enrollment(self.course.name, self.student1.email)
 		self.add_enrollment(self.course.name, self.student2.email)
@@ -73,15 +75,18 @@ class TestUtils(unittest.TestCase):
 				chapterDoc.append("lessons", {"lesson": lesson.name})
 			chapterDoc.save()
 
-	def create_student(self, email, first_name, last_name):
-		student = frappe.new_doc("User")
-		student.email = email
-		student.first_name = first_name
-		student.last_name = last_name
-		student.user_type = "Website User"
-		student.append("roles", {"role": "LMS Student"})
-		student.save()
-		return student
+	def create_user(self, email, first_name, last_name, role):
+		if not frappe.db.exists("User", email):
+			student = frappe.new_doc("User")
+			student.email = email
+			student.first_name = first_name
+			student.last_name = last_name
+			student.user_type = "Website User"
+			student.append("roles", {"role": role})
+			student.save()
+			return student
+		else:
+			return frappe.get_doc("User", email)
 
 	def test_simple_slugs(self):
 		self.assertEqual(slugify("hello-world"), "hello-world")
@@ -121,7 +126,7 @@ class TestUtils(unittest.TestCase):
 			self.assertEqual(len(chapter_lessons), 2)
 			for j, lesson in enumerate(chapter_lessons, start=1):
 				self.assertEqual(lesson.title, f"Lesson {j} of {chapter.chapter}")
-				self.assertEqual(lesson.number, f"{chapter.idx}.{j}")
+				self.assertEqual(lesson.number, f"{chapter.idx}-{j}")
 
 	def test_get_tags(self):
 		tags = get_tags(self.course.name)
@@ -158,6 +163,11 @@ class TestUtils(unittest.TestCase):
 				self.assertEqual(review.member, self.student2.email)
 				self.assertEqual(review.review, "Excellent course")
 
+	def test_get_lesson_index(self):
+		lessons = get_lessons(self.course.name)
+		for lesson in lessons:
+			self.assertEqual(get_lesson_index(lesson.name), lesson.number)
+
 	def tearDown(self):
 		if frappe.db.exists("LMS Course", self.course.name):
 			frappe.db.delete("LMS Enrollment", {"course": self.course.name})
@@ -168,3 +178,4 @@ class TestUtils(unittest.TestCase):
 
 		frappe.delete_doc("User", "student1@example.com")
 		frappe.delete_doc("User", "student2@example.com")
+		frappe.delete_doc("User", "frappe@example.com")

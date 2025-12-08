@@ -19,9 +19,6 @@ class TestLMSCourse(unittest.TestCase):
 
 		if frappe.db.exists("LMS Course", "test-course"):
 			frappe.db.delete("Batch Course", {"course": "test-course"})
-			frappe.db.delete("Exercise Submission", {"course": "test-course"})
-			frappe.db.delete("Exercise Latest Submission", {"course": "test-course"})
-			frappe.db.delete("LMS Exercise", {"course": "test-course"})
 			frappe.db.delete("LMS Enrollment", {"course": "test-course"})
 			frappe.db.delete("Course Lesson", {"course": "test-course"})
 			frappe.db.delete("Course Chapter", {"course": "test-course"})
@@ -67,6 +64,7 @@ def new_course(title, additional_filters=None):
 			"video_link": "https://youtu.be/pEbIhUySqbk",
 			"image": "/assets/lms/images/course-home.png",
 			"instructors": [{"instructor": user}],
+			"published": 1,
 		}
 
 		if additional_filters:

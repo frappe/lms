@@ -154,7 +154,7 @@ def get_lesson_details(chapter, progress=False):
 			],
 			as_dict=True,
 		)
-		lesson_details.number = f"{chapter.idx}.{row.idx}"
+		lesson_details.number = f"{chapter.idx}-{row.idx}"
 		lesson_details.icon = get_lesson_icon(lesson_details.body, lesson_details.content)
 
 		if progress:
@@ -257,22 +257,6 @@ def get_reviews(course):
 		review.creation = pretty_date(review.creation)
 
 	return reviews
-
-
-def get_sorted_reviews(course):
-	rating_count = rating_percent = frappe._dict()
-	keys = ["5.0", "4.0", "3.0", "2.0", "1.0"]
-	for key in keys:
-		rating_count[key] = 0
-
-	reviews = get_reviews(course)
-	for review in reviews:
-		rating_count[cstr(review.rating)] += 1
-
-	for key in keys:
-		rating_percent[key] = rating_count[key] / len(reviews) * 100
-
-	return rating_percent
 
 
 def get_lesson_index(lesson_name):

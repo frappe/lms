@@ -21,7 +21,6 @@
   "section_break_8",
   "cohort",
   "subgroup",
-  "batch_old",
   "column_break_12",
   "member_type",
   "role"
@@ -149,7 +148,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-12-08 21:27:30.733482",
+ "modified": "2025-12-09 21:27:30.733482",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Enrollment",
