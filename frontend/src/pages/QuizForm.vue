@@ -39,37 +39,11 @@
 					{{ __('Check Submissions') }}
 				</Button>
 			</router-link>
-			<Button v-if="quizDetails.doc?.name" variant="solid" @click="submitQuiz()">
+			<Button variant="solid" @click="submitQuiz()">
 				{{ __('Save') }}
-			</Button>
-			<Button v-else variant="solid" @click="showNewQuizModal = true">
-				<template #prefix>
-					<Plus class="w-4 h-4" />
-				</template>
-				{{ __('Create') }}
 			</Button>
 		</div>
 	</header>
-	<Dialog
-		v-model="showNewQuizModal"
-		:options="{
-			title: __('Create a Quiz'),
-			size: 'sm',
-			actions: [
-				{
-					label: __('Save'),
-					variant: 'solid',
-					onClick({ close }) {
-						saveQuizCreation(close)
-					},
-				},
-			],
-		}"
-	>
-		<template #body-content>
-			<FormControl v-model="quizTitle" :label="__('Title')" type="text" />
-		</template>
-	</Dialog>
 	<div v-if="quizDetails.doc" class="py-5">
 		<div class="px-20 pb-5 space-y-5 border-b mb-5">
 			<div class="text-lg text-ink-gray-9 font-semibold mb-4">
@@ -243,7 +217,7 @@ import {
 	usePageMeta,
 	toast,
 	createDocumentResource,
-	Badge, Dialog, createListResource,
+	Badge,
 } from 'frappe-ui'
 import {
 	computed,
@@ -270,8 +244,6 @@ const currentQuestion = reactive({
 const user = inject('$user')
 const router = useRouter()
 const readOnlyMode = window.read_only_mode
-const quizTitle = ref('')
-const showNewQuizModal = ref(false)
 
 const props = defineProps({
 	quizID: {
@@ -288,8 +260,6 @@ onMounted(() => {
 	}
 	if (props.quizID !== 'new') {
 		quizDetails.reload()
-	} else {
-		showNewQuizModal.value = true
 	}
 	window.addEventListener('keydown', keyboardShortcut)
 })
@@ -326,41 +296,7 @@ const quizDetails = createDocumentResource({
 })
 
 const validateTitle = () => {
-	if (props.quizID !== 'new') {
-		quizDetails.doc.title = escapeHTML(quizDetails.doc.title.trim())
-	} else {
-		quizTitle.value = escapeHTML(quizTitle.value.trim())
-	}
-}
-
-const quizCreate = createListResource({
-	doctype: 'LMS Quiz',
-})
-
-const saveQuizCreation = (close) => {
-	validateTitle()
-	quizCreate.insert.submit(
-		{
-			title: quizTitle.value
-		},
-		{
-			onSuccess(data) {
-				toast.success(__('Quiz created successfully'))
-				close()
-				router.push({
-					name: 'QuizForm',
-					params: {
-						quizID: data.name,
-					},
-				}).then(() => {
-					router.go(0)
-				})
-			},
-			onError(error) {
-				toast.error(__('Error creating quiz: {0}', error.message))
-			},
-		}
-	)
+	quizDetails.doc.title = escapeHTML(quizDetails.doc.title.trim())
 }
 
 const submitQuiz = () => {
