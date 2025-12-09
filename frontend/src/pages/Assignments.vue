@@ -85,7 +85,7 @@ import {
 } from 'frappe-ui'
 import { computed, inject, onMounted, ref, watch } from 'vue'
 import { Plus } from 'lucide-vue-next'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { sessionStore } from '../stores/session'
 import AssignmentForm from '@/components/Modals/AssignmentForm.vue'
 import EmptyState from '@/components/EmptyState.vue'
@@ -99,11 +99,16 @@ const assignmentID = ref('new')
 const assignmentCount = ref(0)
 const { brand } = sessionStore()
 const router = useRouter()
+const route = useRoute();
 const readOnlyMode = window.read_only_mode
 
 onMounted(() => {
 	if (!user.data?.is_moderator && !user.data?.is_instructor) {
 		router.push({ name: 'Courses' })
+	}
+	if (route.query.new === 'true') {
+		assignmentID.value = 'new'
+		showAssignmentForm.value = true
 	}
 	getAssignmentCount()
 	titleFilter.value = router.currentRoute.value.query.title
