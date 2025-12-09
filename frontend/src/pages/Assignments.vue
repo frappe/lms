@@ -99,7 +99,7 @@ const assignmentID = ref('new')
 const assignmentCount = ref(0)
 const { brand } = sessionStore()
 const router = useRouter()
-const route = useRoute();
+const route = useRoute()
 const readOnlyMode = window.read_only_mode
 
 onMounted(() => {
