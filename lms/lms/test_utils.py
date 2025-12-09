@@ -7,19 +7,27 @@ from .utils import (
 	get_chapters,
 	get_instructors,
 	get_lesson_index,
+	get_lesson_url,
 	get_lessons,
 	get_membership,
 	get_reviews,
 	get_tags,
+	has_course_instructor_role,
+	has_evaluator_role,
+	has_moderator_role,
+	has_student_role,
+	is_instructor,
 	slugify,
 )
 
 
 class TestUtils(unittest.TestCase):
 	def setUp(self):
-		self.student1 = self.create_user("student1@example.com", "Ashley", "Smith", "LMS Student")
-		self.student2 = self.create_user("student2@example.com", "John", "Doe", "LMS Student")
-		self.admin = self.create_user("frappe@example.com", "Frappe", "Admin", "Moderator")
+		self.student1 = self.create_user("student1@example.com", "Ashley", "Smith", ["LMS Student"])
+		self.student2 = self.create_user("student2@example.com", "John", "Doe", ["LMS Student"])
+		self.admin = self.create_user(
+			"frappe@example.com", "Frappe", "Admin", ["Moderator", "Course Creator", "Batch Evaluator"]
+		)
 
 		self.create_a_course()
 		self.add_chapters()
@@ -75,16 +83,17 @@ class TestUtils(unittest.TestCase):
 				chapterDoc.append("lessons", {"lesson": lesson.name})
 			chapterDoc.save()
 
-	def create_user(self, email, first_name, last_name, role):
+	def create_user(self, email, first_name, last_name, roles):
 		if not frappe.db.exists("User", email):
-			student = frappe.new_doc("User")
-			student.email = email
-			student.first_name = first_name
-			student.last_name = last_name
-			student.user_type = "Website User"
-			student.append("roles", {"role": role})
-			student.save()
-			return student
+			user = frappe.new_doc("User")
+			user.email = email
+			user.first_name = first_name
+			user.last_name = last_name
+			user.user_type = "Website User"
+			for role in roles:
+				user.append("roles", {"role": role})
+			user.save()
+			return user
 		else:
 			return frappe.get_doc("User", email)
 
@@ -167,6 +176,34 @@ class TestUtils(unittest.TestCase):
 		lessons = get_lessons(self.course.name)
 		for lesson in lessons:
 			self.assertEqual(get_lesson_index(lesson.name), lesson.number)
+
+	def test_get_lesson_url(self):
+		lessons = get_lessons(self.course.name)
+		for lesson in lessons:
+			expected_url = f"/lms/courses/{self.course.name}/learn/{lesson.number}"
+			self.assertEqual(get_lesson_url(self.course.name, lesson.number), expected_url)
+
+	def test_is_instructor(self):
+		frappe.session.user = "frappe@example.com"
+		self.assertTrue(is_instructor(self.course.name))
+		frappe.session.user = "Administrator"
+		self.assertFalse(is_instructor(self.course.name))
+
+	def test_has_course_instructor_role(self):
+		self.assertIsNotNone(has_course_instructor_role("frappe@example.com"))
+		self.assertIsNone(has_course_instructor_role("student1@example.com"))
+
+	def test_has_moderator_role(self):
+		self.assertIsNotNone(has_moderator_role("frappe@example.com"))
+		self.assertIsNone(has_moderator_role("student2@example.com"))
+
+	def test_has_evaluator_role(self):
+		self.assertIsNotNone(has_evaluator_role("frappe@example.com"))
+		self.assertIsNone(has_evaluator_role("student2@example.com"))
+
+	def test_has_student_role(self):
+		self.assertIsNotNone(has_student_role("student1@example.com"))
+		self.assertIsNotNone(has_student_role("student2@example.com"))
 
 	def tearDown(self):
 		if frappe.db.exists("LMS Course", self.course.name):

@@ -12,7 +12,6 @@ from frappe.rate_limiter import rate_limit
 from frappe.utils import (
 	add_months,
 	cint,
-	cstr,
 	flt,
 	fmt_money,
 	format_datetime,
@@ -287,13 +286,6 @@ def get_progress(course, lesson, member=None):
 		{"course": course, "member": member, "lesson": lesson, "status": "Complete"},
 		["status"],
 	)
-
-
-def is_eligible_to_review(course):
-	"""Checks if user is eligible to review the course"""
-	if frappe.db.count("LMS Course Review", {"course": course, "owner": frappe.session.user}):
-		return False
-	return True
 
 
 def get_course_progress(course, member=None):
