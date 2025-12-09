@@ -4,13 +4,23 @@
 import frappe
 from frappe import _
 from frappe.model.document import Document
-from frappe.utils import ceil
-
+from frappe.utils import (
+	add_days,
+	cint,
+	date_diff,
+	flt,
+	format_date,
+	get_datetime,
+	getdate,
+	today,
+	now
+)
 
 class LMSEnrollment(Document):
 	def validate(self):
 		self.validate_membership_in_same_batch()
 		self.validate_membership_in_different_batch_same_course()
+		self.set_due_date()
 
 	def on_update(self):
 		update_program_progress(self.member)
@@ -58,6 +68,9 @@ class LMSEnrollment(Document):
 					member_name, course, membership.batch_old
 				)
 			)
+	def set_due_date(self):
+		if days := frappe.db.get_value("LMS Course", self.course, "available_for_days"):
+			self.due_date = add_days(str(getdate(self.creation)), days)
 
 
 def update_program_progress(member):

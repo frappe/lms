@@ -1067,7 +1067,7 @@ def get_enrollment_details(courses):
 			course.membership = frappe.db.get_value(
 				"LMS Enrollment",
 				filters,
-				["name", "course", "current_lesson", "progress", "member"],
+				["name", "course", "current_lesson", "progress", "member", "due_date"],
 				as_dict=1,
 			)
 

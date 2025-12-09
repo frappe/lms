@@ -102,6 +102,13 @@
 				{{ Math.ceil(course.membership.progress) }}% {{ __('completed') }}
 			</div>
 
+			<div
+				v-if="course.membership?.due_date"
+				class="text-sm mt-2 mb-4"
+			>
+				Due date: {{ course.membership.due_date }}
+			</div>
+
 			<div class="flex items-center justify-between mt-auto">
 				<div class="flex avatar-group overlap">
 					<div

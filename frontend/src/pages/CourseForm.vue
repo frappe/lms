@@ -156,6 +156,12 @@
 									:label="__('Published On')"
 									type="date"
 								/>
+								<FormControl
+									v-model="course.available_for_days"
+									:label="__('Available For Days')"
+									:description="__('Specify the number of days, and the system will calculate the course completion date based on the enrollment date.')"
+									type="Data"
+								/>
 							</div>
 							<div class="flex flex-col space-y-5">
 								<FormControl
@@ -391,6 +397,7 @@ const course = reactive({
 	category: '',
 	published: false,
 	published_on: '',
+	available_for_days: '',
 	featured: false,
 	upcoming: false,
 	disable_self_learning: false,
