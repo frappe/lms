@@ -1717,6 +1717,59 @@ def get_pwa_manifest():
 
 
 @frappe.whitelist()
+def get_courses(filters=None, field="creation", order="desc"):
+	"""
+	Get courses with optional filtering and ordering.
+	
+	@filters: optional filters dict for course filtering
+	@field: field to order by (validated against allowed fields)
+	@order: sort order direction (asc or desc)
+	"""
+	if not filters:
+		filters = {}
+	
+	# Whitelist allowed fields for ordering to prevent SQL injection
+	allowed_order_fields = [
+		"name",
+		"title",
+		"creation",
+		"modified",
+		"published_on",
+		"rating",
+		"enrollments",
+	]
+	
+	# Validate the order field
+	if field not in allowed_order_fields:
+		field = "creation"
+	
+	# Validate the order direction
+	if order.lower() not in ["asc", "desc"]:
+		order = "desc"
+	
+	# Build the order_by clause safely
+	order_by = f"{field} {order.lower()}"
+	
+	courses = frappe.get_all(
+		"LMS Course",
+		filters=filters,
+		fields=[
+			"name",
+			"title",
+			"description",
+			"image",
+			"published",
+			"rating",
+			"enrollments",
+			"creation",
+		],
+		order_by=order_by,
+	)
+	
+	return courses
+
+
+@frappe.whitelist()
 def get_profile_details(username):
 	details = frappe.db.get_value(
 		"User",
