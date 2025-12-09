@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-12-05 16:04+0000\n"
-"PO-Revision-Date: 2025-12-08 18:57\n"
+"PO-Revision-Date: 2025-12-09 18:55\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Hungarian\n"
 "MIME-Version: 1.0\n"
@@ -4854,7 +4854,7 @@ msgstr ""
 #. Label of the sb_00 (Section Break) field in DocType 'Zoom Settings'
 #: lms/lms/doctype/zoom_settings/zoom_settings.json
 msgid "OAuth Client ID"
-msgstr ""
+msgstr "OAuth Kliens Azonosító"
 
 #. Option for the 'Location Preference' (Select) field in DocType 'User'
 #: lms/fixtures/custom_field.json
