@@ -254,7 +254,17 @@ onMounted(() => {
 	}
 
 	if (props.jobName != 'new') jobDetail.reload()
+	addKeyboardShortcuts()
 })
+
+const addKeyboardShortcuts = () => {
+	document.addEventListener('keydown', (e) => {
+		if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 's') {
+			e.preventDefault()
+			saveJob()
+		}
+	})
+}
 
 const saveJob = () => {
 	validateJobFields()
@@ -359,7 +369,7 @@ const breadcrumbs = computed(() => {
 
 usePageMeta(() => {
 	return {
-		title: props.jobName == 'new' ? 'New Job' : jobDetail.data?.title,
+		title: props.jobName == 'new' ? 'New Job' : jobDetail.data?.job_title,
 		icon: brand.favicon,
 	}
 })
