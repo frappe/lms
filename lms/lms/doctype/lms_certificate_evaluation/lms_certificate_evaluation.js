@@ -18,7 +18,6 @@ frappe.ui.form.on("LMS Certificate Evaluation", {
 			return {
 				filters: {
 					enable_certification: true,
-					grant_certificate_after: "Evaluation",
 				},
 			};
 		});
