@@ -19,6 +19,7 @@ import SimpleImage from '@editorjs/simple-image'
 import Table from '@editorjs/table'
 import Plyr from 'plyr'
 import 'plyr/dist/plyr.css'
+import DOMPurify from 'dompurify'
 
 const readOnlyMode = window.read_only_mode
 
@@ -538,6 +539,26 @@ export const escapeHTML = (text) => {
 		/[&<>"'`=]/g,
 		(char) => escape_html_mapping[char] || char
 	)
+}
+
+export const sanitizeHTML = (text) => {
+	text = DOMPurify.sanitize(decodeEntities(text), {
+		ALLOWED_TAGS: [
+			'b',
+			'i',
+			'em',
+			'strong',
+			'a',
+			'p',
+			'br',
+			'ul',
+			'ol',
+			'li',
+			'img',
+		],
+		ALLOWED_ATTR: ['href', 'target', 'src'],
+	})
+	return text
 }
 
 export const canCreateCourse = () => {

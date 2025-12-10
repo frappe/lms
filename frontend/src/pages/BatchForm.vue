@@ -340,11 +340,12 @@ import { sessionStore } from '../stores/session'
 import MultiSelect from '@/components/Controls/MultiSelect.vue'
 import Link from '@/components/Controls/Link.vue'
 import {
-	openSettings,
+	escapeHTML,
 	getMetaInfo,
+	openSettings,
+	sanitizeHTML,
 	updateMetaInfo,
 	validateFile,
-	escapeHTML,
 } from '@/utils'
 
 const router = useRouter()
@@ -502,6 +503,9 @@ const imageResource = createResource({
 })
 
 const validateFields = () => {
+	batch.description = sanitizeHTML(batch.description)
+	batch.batch_details = sanitizeHTML(batch.batch_details)
+
 	Object.keys(batch).forEach((key) => {
 		if (
 			!['description', 'batch_details'].includes(key) &&
