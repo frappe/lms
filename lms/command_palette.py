@@ -1,4 +1,5 @@
 import frappe
+from frappe.utils import nowdate
 
 
 @frappe.whitelist()
@@ -12,14 +13,20 @@ def search_sqlite(query: str):
 	except LearningSearchIndexMissingError:
 		return []
 
+	return prepare_search_results(result)
+
+
+def prepare_search_results(result):
+	roles = frappe.get_roles()
 	groups = {}
-	print(result)
+
 	for r in result["results"]:
 		doctype = r["doctype"]
-
-		if doctype == "LMS Course":
+		if doctype == "LMS Course" and can_access_course(r, roles):
+			r["author_info"] = get_author_info(r.get("author"))
 			groups.setdefault("Courses", []).append(r)
-		elif doctype == "LMS Batch":
+		elif doctype == "LMS Batch" and can_access_batch(r, roles):
+			r["author_info"] = get_author_info(r.get("author"))
 			groups.setdefault("Batches", []).append(r)
 
 	out = []
@@ -27,3 +34,31 @@ def search_sqlite(query: str):
 		out.append({"title": key, "items": groups[key]})
 
 	return out
+
+
+def can_access_course(course, roles):
+	if can_create_course(roles):
+		return True
+	elif course.get("published"):
+		return True
+	return False
+
+
+def can_access_batch(batch, roles):
+	if can_create_batch(roles):
+		return True
+	elif batch.get("published") and batch.get("start_date") >= nowdate():
+		return True
+	return False
+
+
+def can_create_course(roles):
+	return "Course Creator" in roles or "Moderator" in roles
+
+
+def can_create_batch(roles):
+	return "Batch Evaluator" in roles or "Moderator" in roles
+
+
+def get_author_info(owner):
+	return frappe.db.get_value("User", owner, ["full_name", "user_image", "username", "email"], as_dict=True)

@@ -8,6 +8,7 @@
 				v-for="item in result.items"
 				class="flex items-center justify-between p-2 rounded hover:bg-surface-gray-2 cursor-pointer"
 				:class="{ 'bg-surface-gray-2': item.isActive }"
+				@click="emit('navigateTo', item.route)"
 			>
 				<div class="flex items-center space-x-3">
 					<component
@@ -18,7 +19,7 @@
 					<div v-html="item.title"></div>
 				</div>
 				<div v-if="item.modified" class="text-ink-gray-5">
-					{{ item.modified }} {{ dayjs.unix(item.modified).fromNow(true) }}
+					{{ dayjs.unix(item.modified).fromNow(true) }}
 				</div>
 			</div>
 		</div>
@@ -26,9 +27,9 @@
 </template>
 <script lang="ts" setup>
 import { inject } from 'vue'
-import { dayjsLocal } from 'frappe-ui'
 
 const dayjs = inject<any>('$dayjs')
+const emit = defineEmits(['navigateTo'])
 
 const props = defineProps<{
 	list: Array<{

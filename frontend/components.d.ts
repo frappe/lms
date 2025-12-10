@@ -90,6 +90,8 @@ declare module 'vue' {
     LucideArrowDown: typeof import('~icons/lucide/arrow-down')['default']
     LucideArrowUp: typeof import('~icons/lucide/arrow-up')['default']
     LucideCornerDownLeft: typeof import('~icons/lucide/corner-down-left')['default']
+    LucideSearch: typeof import('~icons/lucide/search')['default']
+    LucideX: typeof import('~icons/lucide/x')['default']
     Members: typeof import('./src/components/Settings/Members.vue')['default']
     MobileLayout: typeof import('./src/components/MobileLayout.vue')['default']
     MultiSelect: typeof import('./src/components/Controls/MultiSelect.vue')['default']

@@ -192,7 +192,6 @@ import PageModal from '@/components/Modals/PageModal.vue'
 import { capture } from '@/telemetry'
 import LMSLogo from '@/components/Icons/LMSLogo.vue'
 import { useRouter } from 'vue-router'
-import InviteIcon from '@/components/Icons/InviteIcon.vue'
 import {
 	ref,
 	onMounted,
@@ -225,10 +224,10 @@ import {
 	minimize,
 	IntermediateStepModal,
 } from 'frappe-ui/frappe'
-import InviteIcon from './Icons/InviteIcon.vue'
-import UserDropdown from '@/components/UserDropdown.vue'
+import InviteIcon from '@/components/Icons/InviteIcon.vue'
+import UserDropdown from '@/components/Sidebar/UserDropdown.vue'
 import CollapseSidebar from '@/components/Icons/CollapseSidebar.vue'
-import SidebarLink from '@/components/SidebarLink.vue'
+import SidebarLink from '@/components/Sidebar/SidebarLink.vue'
 import CommandPalette from '@/components/CommandPalette/CommandPalette.vue'
 
 const { user } = sessionStore()

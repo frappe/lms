@@ -2,15 +2,14 @@ from contextlib import suppress
 
 import frappe
 from frappe.search.sqlite_search import SQLiteSearch, SQLiteSearchIndexMissingError
-from frappe.utils import update_progress_bar
-from redis.exceptions import ResponseError
+from frappe.utils import nowdate
 
 
 class LearningSearch(SQLiteSearch):
 	INDEX_NAME = "learning.db"
 
 	INDEX_SCHEMA = {
-		"metadata_fields": ["category", "owner", "published"],
+		"metadata_fields": ["category", "owner", "published", "published_on", "start_date"],
 		"tokenizer": "unicode61 remove_diacritics 2 tokenchars '-_'",
 	}
 
@@ -64,31 +63,6 @@ class LearningSearch(SQLiteSearch):
 		],
 	}
 
-	def can_create_course(self, roles):
-		return "Course Creator" in roles or "Moderator" in roles
-
-	def can_create_batch(self, roles):
-		return "Batch Evaluator" in roles or "Moderator" in roles
-
-	def get_records(self, doctype):
-		records = []
-		roles = frappe.get_roles()
-		filters = {}
-
-		if doctype == "LMS Course":
-			if not self.can_create_course(roles):
-				filters = {"published": 1}
-
-		if doctype == "LMS Batch":
-			if not self.can_create_batch(roles):
-				filters = {"published": 1}
-
-		records = frappe.db.get_all(doctype, filters=filters, fields=self.DOCTYPE_FIELDS[doctype])
-		for record in records:
-			record["doctype"] = doctype
-
-		return records
-
 	def build_index(self):
 		try:
 			super().build_index()
@@ -96,10 +70,20 @@ class LearningSearch(SQLiteSearch):
 			frappe.throw(e)
 
 	def get_search_filters(self):
-		roles = frappe.get_roles()
-		if not (self.can_create_course(roles) and self.can_create_batch(roles)):
-			return {"published": 1}
 		return {}
+
+	@SQLiteSearch.scoring_function
+	def get_doctype_boost(self, row, query, query_words):
+		doctype = row["doctype"]
+		if doctype == "LMS Course":
+			if row["published"]:
+				return 1.3
+		elif doctype == "LMS Batch":
+			if row["published"] and row["start_date"] >= nowdate():
+				return 1.3
+			elif row["published"]:
+				return 1.2
+		return 1.0
 
 
 class LearningSearchIndexMissingError(SQLiteSearchIndexMissingError):

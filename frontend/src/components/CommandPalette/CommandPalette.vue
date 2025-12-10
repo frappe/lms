@@ -18,11 +18,17 @@
 
 				<div class="max-h-96 overflow-auto mb-2">
 					<div v-if="query.length" class="mt-5 space-y-5">
-						<CommandPaletteGroup :list="searchResults" />
+						<CommandPaletteGroup
+							:list="searchResults"
+							@navigateTo="navigateTo"
+						/>
 					</div>
 
 					<div v-else class="mt-5 space-y-5">
-						<CommandPaletteGroup :list="jumpToOptions" />
+						<CommandPaletteGroup
+							:list="jumpToOptions"
+							@navigateTo="navigateTo"
+						/>
 					</div>
 				</div>
 
@@ -61,7 +67,8 @@
 </template>
 <script setup lang="ts">
 import { createResource, debounce, Dialog } from 'frappe-ui'
-import { computed, inject, nextTick, onMounted, ref, watch } from 'vue'
+import { nextTick, onMounted, ref, watch } from 'vue'
+import { useRouter } from 'vue-router'
 import {
 	BookOpen,
 	Briefcase,
@@ -72,7 +79,6 @@ import {
 	Search,
 	Users,
 } from 'lucide-vue-next'
-import { useRouter } from 'vue-router'
 import CommandPaletteGroup from './CommandPaletteGroup.vue'
 
 const show = defineModel<boolean>({ required: true, default: false })
@@ -145,6 +151,13 @@ watch(
 	},
 	{ immediate: true }
 )
+
+watch(show, () => {
+	if (!show.value) {
+		query.value = ''
+		searchResults.value = []
+	}
+})
 
 onMounted(() => {
 	addKeyboardShortcuts()
