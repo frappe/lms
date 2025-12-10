@@ -16,7 +16,7 @@ class JobOpportunity(Document):
 		self.company_logo = validate_image(self.company_logo)
 
 	def validate_urls(self):
-		validate_url(self.company_website, True, ["http://", "https://"])
+		validate_url(self.company_website, True, ["http", "https"])
 
 	def autoname(self):
 		if not self.name:
