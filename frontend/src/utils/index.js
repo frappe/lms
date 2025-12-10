@@ -612,7 +612,7 @@ const setupPlyrForVideo = (video, players) => {
 				const current_time = player.currentTime
 				const newTime = getTargetTime(player, e)
 				if (
-					useSettings().preventSkippingVideos.data &&
+					useSettings().settings.data?.prevent_skipping_videos &&
 					parseFloat(newTime) > current_time
 				) {
 					e.preventDefault()
