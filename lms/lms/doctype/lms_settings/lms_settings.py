@@ -49,7 +49,7 @@ class LMSSettings(Document):
 	def validate_contact_us_details(self):
 		if self.contact_us_email and not validate_email_address(self.contact_us_email):
 			frappe.throw(_("Please enter a valid Contact Us Email."))
-		if self.contact_us_url and not validate_url(self.contact_us_url, True):
+		if self.contact_us_url and not validate_url(self.contact_us_url, True, ["http://", "https://"]):
 			frappe.throw(_("Please enter a valid Contact Us URL."))
 
 
