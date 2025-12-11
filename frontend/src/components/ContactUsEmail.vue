@@ -48,7 +48,7 @@ const settingsStore = useSettings()
 
 const sendMail = (close: Function) => {
 	call('frappe.core.doctype.communication.email.make', {
-		recipients: settingsStore.contactUsEmail?.data,
+		recipients: settingsStore.settings?.data?.contact_us_email,
 		subject: subject.value,
 		content: message.value,
 		send_email: true,

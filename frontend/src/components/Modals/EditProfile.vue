@@ -104,9 +104,8 @@ import {
 } from 'frappe-ui'
 import { ref, reactive, watch } from 'vue'
 import { X } from 'lucide-vue-next'
-import { getFileSize, decodeEntities } from '@/utils'
+import { getFileSize, sanitizeHTML } from '@/utils'
 import Link from '@/components/Controls/Link.vue'
-import DOMPurify from 'dompurify'
 
 const reloadProfile = defineModel('reloadProfile')
 const hasLanguageChanged = ref(false)
@@ -157,22 +156,7 @@ const updateProfile = createResource({
 })
 
 const saveProfile = (close) => {
-	profile.bio = DOMPurify.sanitize(decodeEntities(profile.bio), {
-		ALLOWED_TAGS: [
-			'b',
-			'i',
-			'em',
-			'strong',
-			'a',
-			'p',
-			'br',
-			'ul',
-			'ol',
-			'li',
-			'img',
-		],
-		ALLOWED_ATTR: ['href', 'target', 'src'],
-	})
+	profile.bio = sanitizeHTML(profile.bio)
 	updateProfile.submit(
 		{},
 		{

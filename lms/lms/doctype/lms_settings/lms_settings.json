@@ -12,6 +12,7 @@
   "column_break_zdel",
   "allow_guest_access",
   "prevent_skipping_videos",
+  "disable_pwa",
   "column_break_bjis",
   "unsplash_access_key",
   "livecode_url",
@@ -438,13 +439,19 @@
    "fieldname": "certifications",
    "fieldtype": "Check",
    "label": "Certifications"
+  },
+  {
+   "default": "0",
+   "fieldname": "disable_pwa",
+   "fieldtype": "Check",
+   "label": "Disable PWA"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2025-12-02 12:21:15.832799",
+ "modified": "2025-12-10 17:36:15.689695",
  "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "LMS Settings",

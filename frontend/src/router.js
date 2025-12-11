@@ -275,7 +275,7 @@ let router = createRouter({
 router.beforeEach(async (to, from, next) => {
 	const { userResource } = usersStore()
 	let { isLoggedIn } = sessionStore()
-	const { allowGuestAccess } = useSettings()
+	const { settings } = useSettings()
 
 	try {
 		if (isLoggedIn) {
@@ -288,8 +288,8 @@ router.beforeEach(async (to, from, next) => {
 	if (!isLoggedIn) {
 		if (to.name == 'Home') router.push({ name: 'Courses' })
 
-		await allowGuestAccess.promise
-		if (!allowGuestAccess.data) {
+		await settings.promise
+		if (!settings.data.allow_guest_access) {
 			window.location.href = '/login'
 			return
 		}
