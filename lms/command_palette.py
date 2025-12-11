@@ -23,10 +23,10 @@ def prepare_search_results(result):
 	for r in result["results"]:
 		doctype = r["doctype"]
 		if doctype == "LMS Course" and can_access_course(r, roles):
-			r["author_info"] = get_author_info(r.get("author"))
+			r["instructors_info"] = get_instructor_info(doctype, r)
 			groups.setdefault("Courses", []).append(r)
 		elif doctype == "LMS Batch" and can_access_batch(r, roles):
-			r["author_info"] = get_author_info(r.get("author"))
+			r["instructors_info"] = get_instructor_info(doctype, r)
 			groups.setdefault("Batches", []).append(r)
 
 	out = []
@@ -60,5 +60,18 @@ def can_create_batch(roles):
 	return "Batch Evaluator" in roles or "Moderator" in roles
 
 
-def get_author_info(owner):
-	return frappe.db.get_value("User", owner, ["full_name", "user_image", "username", "email"], as_dict=True)
+def get_instructor_info(doctype, record):
+	instructors = frappe.get_all(
+		"Course Instructor", filters={"parenttype": doctype, "parent": record.get("name")}, pluck="instructor"
+	)
+
+	instructor = record.get("author")
+	if len(instructors):
+		instructor = instructors[0]
+
+	return frappe.db.get_value(
+		"User",
+		instructor,
+		["full_name", "email", "user_image", "username"],
+		as_dict=True,
+	)

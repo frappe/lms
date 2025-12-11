@@ -240,7 +240,14 @@ const showPageModal = ref(false)
 const isModerator = ref(false)
 const isInstructor = ref(false)
 const pageToEdit = ref(null)
-const { settings, sidebarSettings, activeTab, isSettingsOpen } = useSettings()
+const {
+	settings,
+	sidebarSettings,
+	activeTab,
+	isSettingsOpen,
+	isCommandPaletteOpen,
+} = useSettings()
+const settingsStore = useSettings()
 const showOnboarding = ref(false)
 const showIntermediateModal = ref(false)
 const currentStep = ref({})

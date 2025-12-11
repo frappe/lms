@@ -215,7 +215,7 @@ const shortcutForEnter = () => {
 const navigateTo = (route: string) => {
 	show.value = false
 	query.value = ''
-	router.push({ name: route.name, params: route.params, query: route.query })
+	router.replace({ name: route.name, params: route.params, query: route.query })
 }
 
 const jumpToOptions = ref([
