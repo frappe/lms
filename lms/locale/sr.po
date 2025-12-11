@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-12-05 16:04+0000\n"
-"PO-Revision-Date: 2025-12-08 18:57\n"
+"PO-Revision-Date: 2025-12-10 19:29\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Serbian (Cyrillic)\n"
 "MIME-Version: 1.0\n"
@@ -745,7 +745,7 @@ msgstr "Беџ је успешно ажуриран"
 
 #: lms/lms/doctype/lms_badge_assignment/lms_badge_assignment.py:35
 msgid "Badge {0} has already been assigned to this {1}."
-msgstr ""
+msgstr "Беџ {0} је већ додељен овом {1}."
 
 #. Label of the batch (Link) field in DocType 'LMS Batch Enrollment'
 #. Label of the batch (Link) field in DocType 'LMS Batch Feedback'
@@ -1086,7 +1086,7 @@ msgstr "Назив сертификације"
 
 #: lms/lms/doctype/lms_certificate/lms_certificate.py:164
 msgid "Certification is not enabled for this course."
-msgstr ""
+msgstr "Сертификација није омогућена за ову обуку."
 
 #. Label of the certifications (Check) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
@@ -2538,7 +2538,7 @@ msgstr "Упис у програм {0}"
 
 #: lms/lms/utils.py:2095
 msgid "Enrollment in this batch is restricted. Please contact the Administrator."
-msgstr ""
+msgstr "Упис у ову групу је ограничен. Молимо Вас да контактирате администратора."
 
 #. Label of the enrollments (Int) field in DocType 'LMS Course'
 #. Label of a chart in the LMS Workspace
@@ -2861,7 +2861,7 @@ msgstr "Поља за проверу"
 
 #: lms/lms/api.py:1309
 msgid "Field name is required"
-msgstr ""
+msgstr "Назив поља је обавезан"
 
 #. Label of the major (Data) field in DocType 'Education Detail'
 #: lms/lms/doctype/education_detail/education_detail.json
@@ -4391,7 +4391,7 @@ msgstr "Члан се већ уписао у ову групу"
 
 #: lms/lms/doctype/lms_badge_assignment/lms_badge_assignment.py:64
 msgid "Member does not meet the criteria for the badge {0}."
-msgstr ""
+msgstr "Члан не испуњава критеријуме за беџ {0}."
 
 #: lms/lms/doctype/lms_program/lms_program.py:30
 msgid "Member {0} has already been added to this program."
@@ -5022,7 +5022,7 @@ msgstr "PDF"
 
 #: frontend/src/components/Sidebar/AppSidebar.vue:445
 msgid "Page deleted successfully"
-msgstr ""
+msgstr "Страница је успешно обрисана"
 
 #. Label of the pages (Table) field in DocType 'Cohort'
 #: lms/lms/doctype/cohort/cohort.json
@@ -5187,7 +5187,7 @@ msgstr "Плаћање за врсту документа"
 
 #: lms/lms/utils.py:2092
 msgid "Payment is required to enroll in this batch."
-msgstr ""
+msgstr "За упис у ову групу неопходна је уплата."
 
 #. Label of the payments_app_is_not_installed (HTML) field in DocType 'LMS
 #. Settings'
@@ -6868,7 +6868,7 @@ msgstr "Хвала и срдачан поздрав"
 
 #: lms/lms/utils.py:2727
 msgid "The batch does not exist."
-msgstr ""
+msgstr "Група не постоји."
 
 #: lms/templates/emails/batch_start_reminder.html:6
 msgid "The batch you have enrolled for is starting tomorrow. Please be prepared and be on time for the session."
@@ -6888,7 +6888,7 @@ msgstr "Особа која оцењује ову обуку није досту
 
 #: lms/lms/utils.py:2711
 msgid "The lesson does not exist."
-msgstr ""
+msgstr "Лекција не постоји."
 
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.py:74
 msgid "The slot is already booked by another participant."
@@ -6896,7 +6896,7 @@ msgstr "Термин је већ резервисан од стране друг
 
 #: lms/lms/utils.py:2067
 msgid "The specified batch does not exist."
-msgstr ""
+msgstr "Наведена група не постоји."
 
 #: lms/patches/create_mentor_request_email_templates.py:36
 msgid "The status of your application has changed."
@@ -7641,7 +7641,7 @@ msgstr "Већ сте уписани на ову обуку."
 
 #: lms/lms/utils.py:2088
 msgid "You are already enrolled in this batch."
-msgstr ""
+msgstr "Већ сте уписани у ову групу."
 
 #: frontend/src/pages/Batch.vue:172
 msgid "You are not a member of this batch. Please checkout our upcoming batches."
@@ -7653,11 +7653,11 @@ msgstr "Нисте ментор обуке {0}"
 
 #: lms/lms/api.py:1323
 msgid "You are not allowed to access this field"
-msgstr ""
+msgstr "Немате дозволу за приступ овом пољу"
 
 #: lms/lms/doctype/lms_certificate/lms_certificate.py:161
 msgid "You are not enrolled in this course."
-msgstr ""
+msgstr "Нисте уписани на ову обуку."
 
 #: frontend/src/pages/SCORMChapter.vue:25
 msgid "You are not enrolled in this course. Please enroll to access this lesson."
@@ -7690,15 +7690,15 @@ msgstr "Не можете мењати улоге у режиму само за 
 
 #: lms/lms/doctype/lms_enrollment/lms_enrollment.py:116
 msgid "You cannot enroll in an unpublished course."
-msgstr ""
+msgstr "Није могуће уписати се на необјављену обуку."
 
 #: lms/lms/utils.py:2228
 msgid "You cannot enroll in an unpublished program."
-msgstr ""
+msgstr "Није могуће уписати се на необјављен програм."
 
 #: lms/lms/doctype/lms_enrollment/lms_enrollment.py:110
 msgid "You cannot enroll in this course as self-learning is disabled. Please contact the Administrator."
-msgstr ""
+msgstr "Не можете се уписати на ову обуку јер је самостално учење онемогућено. Молимо Вас да контактирате администратора."
 
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.py:112
 msgid "You cannot schedule evaluations after {0}."
@@ -7710,11 +7710,11 @@ msgstr "Оцењивање није могуће заказати за терм�
 
 #: lms/lms/utils.py:2739
 msgid "You do not have access to this batch."
-msgstr ""
+msgstr "Немате приступ овој групи."
 
 #: lms/lms/utils.py:2722
 msgid "You do not have access to this course."
-msgstr ""
+msgstr "Немате приступ овој обуци."
 
 #: frontend/src/components/NoPermission.vue:11
 msgid "You do not have permission to access this page."
@@ -7722,7 +7722,7 @@ msgstr "Немате дозволу за приступ овој страниц�
 
 #: lms/lms/api.py:1535 lms/lms/api.py:1539
 msgid "You do not have permission to update meta tags."
-msgstr ""
+msgstr "Немате дозволу да ажурирате мета ознаке."
 
 #: lms/templates/notifications.html:27
 msgid "You don't have any notifications."
@@ -7775,7 +7775,7 @@ msgstr "Добили сте резултат од {0} на квизу {1}"
 
 #: lms/lms/doctype/lms_certificate/lms_certificate.py:170
 msgid "You have not completed the course yet."
-msgstr ""
+msgstr "Још увек нисте завршили обуку."
 
 #: frontend/src/pages/ProfileCertificates.vue:26
 msgid "You have not received any certificates yet."
@@ -7799,15 +7799,15 @@ msgstr "Имате заказане {0} {1}."
 
 #: lms/lms/doctype/lms_batch_enrollment/lms_batch_enrollment.py:29
 msgid "You must be a Moderator or Batch Evaluator to enroll users in a batch."
-msgstr ""
+msgstr "Морате бити модератор или особа за оцењивање групе да бисте уписивали кориснике у групу."
 
 #: lms/lms/doctype/lms_badge_assignment/lms_badge_assignment.py:23
 msgid "You must be a Moderator to assign badges to users."
-msgstr ""
+msgstr "Морате бити модератор да бисте додељивали беџеве корисницима."
 
 #: lms/lms/doctype/lms_enrollment/lms_enrollment.py:130
 msgid "You need to complete the payment for this course before enrolling."
-msgstr ""
+msgstr "Морате извршити уплату за ову обуку пре уписа."
 
 #: frontend/src/components/CourseCardOverlay.vue:218
 msgid "You need to login first to enroll for this course"
