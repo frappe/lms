@@ -158,7 +158,7 @@ import { computed, onMounted, reactive, inject } from 'vue'
 import { FileText, X } from 'lucide-vue-next'
 import { sessionStore } from '@/stores/session'
 import { useRouter } from 'vue-router'
-import { escapeHTML, getFileSize, validateFile } from '@/utils'
+import { escapeHTML, getFileSize, sanitizeHTML, validateFile } from '@/utils'
 
 const user = inject('$user')
 const router = useRouter()
@@ -314,6 +314,7 @@ const editJobDetails = () => {
 }
 
 const validateJobFields = () => {
+	job.description = sanitizeHTML(job.description)
 	Object.keys(job).forEach((key) => {
 		if (key != 'description' && typeof job[key] === 'string') {
 			job[key] = escapeHTML(job[key])

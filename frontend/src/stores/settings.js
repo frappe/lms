@@ -7,32 +7,10 @@ export const useSettings = defineStore('settings', () => {
 	const isSettingsOpen = ref(false)
 	const activeTab = ref(null)
 
-	const allowGuestAccess = createResource({
-		url: 'lms.lms.api.get_lms_setting',
-		params: { field: 'allow_guest_access' },
+	const settings = createResource({
+		url: 'lms.lms.api.get_lms_settings',
 		auto: true,
-		cache: ['allowGuestAccess'],
-	})
-
-	const preventSkippingVideos = createResource({
-		url: 'lms.lms.api.get_lms_setting',
-		params: { field: 'prevent_skipping_videos' },
-		auto: true,
-		cache: ['preventSkippingVideos'],
-	})
-
-	const contactUsEmail = createResource({
-		url: 'lms.lms.api.get_lms_setting',
-		params: { field: 'contact_us_email' },
-		auto: true,
-		cache: ['contactUsEmail'],
-	})
-
-	const contactUsURL = createResource({
-		url: 'lms.lms.api.get_lms_setting',
-		params: { field: 'contact_us_url' },
-		auto: true,
-		cache: ['contactUsURL'],
+		cache: 'LMS Settings',
 	})
 
 	const sidebarSettings = createResource({
@@ -41,21 +19,10 @@ export const useSettings = defineStore('settings', () => {
 		auto: false,
 	})
 
-	const livecodeURL = createResource({
-		url: 'lms.lms.api.get_lms_setting',
-		params: { field: 'livecode_url' },
-		auto: true,
-		cache: ['livecodeURL'],
-	})
-
 	return {
 		isSettingsOpen,
 		activeTab,
-		allowGuestAccess,
-		preventSkippingVideos,
-		contactUsEmail,
-		contactUsURL,
+		settings,
 		sidebarSettings,
-		livecodeURL,
 	}
 })
