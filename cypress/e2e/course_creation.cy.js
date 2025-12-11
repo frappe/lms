@@ -56,6 +56,7 @@ describe("Course Creation", () => {
 			.parent()
 			.within(() => {
 				cy.get("input").click().type("frappe");
+				cy.wait(500);
 				cy.get("input")
 					.invoke("attr", "aria-controls")
 					.as("instructor_list_id");

@@ -28,7 +28,7 @@ class LMSAssignmentSubmission(Document):
 			)
 
 	def validate_url(self):
-		if self.type == "URL" and not validate_url(self.answer):
+		if self.type == "URL" and not validate_url(self.answer, True, ["http", "https"]):
 			frappe.throw(_("Please enter a valid URL."))
 
 	def validate_status(self):

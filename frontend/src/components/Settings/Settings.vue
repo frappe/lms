@@ -121,6 +121,13 @@ const tabsStructure = computed(() => {
 								'If enabled, users will no able to move forward in a video',
 						},
 						{
+							label: 'Disable PWA',
+							name: 'disable_pwa',
+							type: 'checkbox',
+							description:
+								'If checked, users will not be able to install the application as a Progressive Web App.',
+						},
+						{
 							label: 'Send calendar invite for evaluations',
 							name: 'send_calendar_invite_for_evaluations',
 							description:

@@ -3,7 +3,7 @@
 		<Layout class="isolate text-base">
 			<router-view />
 		</Layout>
-		<InstallPrompt v-if="isMobile" />
+		<InstallPrompt v-if="isMobile && !settings.data?.disable_pwa" />
 		<Dialogs />
 	</FrappeUIProvider>
 </template>
@@ -13,6 +13,7 @@ import { Dialogs } from '@/utils/dialogs'
 import { computed, onUnmounted, ref, watch } from 'vue'
 import { useScreenSize } from './utils/composables'
 import { usersStore } from '@/stores/user'
+import { useSettings } from '@/stores/settings'
 import { useRouter } from 'vue-router'
 import { posthogSettings } from '@/telemetry'
 import DesktopLayout from './components/DesktopLayout.vue'
@@ -24,6 +25,7 @@ const { isMobile } = useScreenSize()
 const router = useRouter()
 const noSidebar = ref(false)
 const { userResource } = usersStore()
+const { settings } = useSettings()
 
 router.beforeEach((to, from, next) => {
 	if (to.query.fromLesson || to.path === '/persona') {
