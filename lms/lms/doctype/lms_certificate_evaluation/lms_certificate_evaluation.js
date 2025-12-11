@@ -14,14 +14,6 @@ frappe.ui.form.on("LMS Certificate Evaluation", {
 	},
 
 	onload: function (frm) {
-		frm.set_query("course", function (doc) {
-			return {
-				filters: {
-					enable_certification: true,
-				},
-			};
-		});
-
 		frm.set_query("member", function (doc) {
 			return {
 				filters: {
