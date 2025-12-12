@@ -6,9 +6,7 @@ from frappe import _
 from frappe.email.doctype.email_template.email_template import get_email_template
 from frappe.model.document import Document
 from frappe.model.naming import make_autoname
-from frappe.utils import add_years, nowdate
-
-from lms.lms.utils import is_certified
+from frappe.utils import nowdate
 
 
 class LMSCertificate(Document):
@@ -110,6 +108,13 @@ def has_website_permission(doc, ptype, user, verbose=False):
 	if doc.member == user and ptype == "create":
 		return True
 	return False
+
+
+def is_certified(course):
+	certificate = frappe.get_all("LMS Certificate", {"member": frappe.session.user, "course": course})
+	if len(certificate):
+		return certificate[0].name
+	return
 
 
 @frappe.whitelist()

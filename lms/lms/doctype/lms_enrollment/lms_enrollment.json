@@ -21,18 +21,11 @@
   "section_break_8",
   "cohort",
   "subgroup",
-  "batch_old",
   "column_break_12",
   "member_type",
   "role"
  ],
  "fields": [
-  {
-   "fieldname": "batch_old",
-   "fieldtype": "Link",
-   "label": "Batch Old",
-   "options": "LMS Batch Old"
-  },
   {
    "fieldname": "member",
    "fieldtype": "Link",
@@ -155,7 +148,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-07-02 21:27:30.733482",
+ "modified": "2025-12-09 21:27:30.733482",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Enrollment",

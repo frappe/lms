@@ -191,7 +191,6 @@ update_website_context = [
 
 jinja = {
 	"methods": [
-		"lms.lms.utils.get_signup_optin_checks",
 		"lms.lms.utils.get_tags",
 		"lms.lms.utils.get_lesson_count",
 		"lms.lms.utils.get_instructors",
