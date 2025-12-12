@@ -1,7 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { createResource } from 'frappe-ui'
-import { sessionStore } from './session'
 
 export const useSettings = defineStore('settings', () => {
 	const isSettingsOpen = ref(false)
@@ -20,10 +19,16 @@ export const useSettings = defineStore('settings', () => {
 		auto: false,
 	})
 
+	const programs = createResource({
+		url: 'lms.lms.utils.get_programs',
+		auto: false,
+	})
+
 	return {
+		activeTab,
 		isSettingsOpen,
 		isCommandPaletteOpen,
-		activeTab,
+		programs,
 		settings,
 		sidebarSettings,
 	}

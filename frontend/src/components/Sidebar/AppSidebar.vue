@@ -9,11 +9,21 @@
 		>
 			<UserDropdown :isCollapsed="sidebarStore.isSidebarCollapsed" />
 			<div class="flex flex-col" v-if="sidebarSettings.data">
-				<div v-for="link in sidebarLinks" class="mx-2 my-0.5">
-					<SidebarLink
-						:link="link"
-						:isCollapsed="sidebarStore.isSidebarCollapsed"
-					/>
+				<div v-for="link in sidebarLinks" class="mx-2 my-2.5">
+					<div
+						v-if="!link.hideLabel"
+						class="mb-2 mt-3 flex cursor-pointer gap-1.5 px-1 text-base font-medium text-ink-gray-5 transition-all duration-300 ease-in-out"
+					>
+						<span>{{ __(link.label) }}</span>
+					</div>
+					<nav class="space-y-1">
+						<div v-for="item in link.items">
+							<SidebarLink
+								:link="item"
+								:isCollapsed="sidebarStore.isSidebarCollapsed"
+							/>
+						</div>
+					</nav>
 				</div>
 			</div>
 			<div
@@ -235,18 +245,13 @@ const { userResource } = usersStore()
 let sidebarStore = useSidebar()
 const socket = inject('$socket')
 const unreadCount = ref(0)
-const sidebarLinks = ref(getSidebarLinks())
+const sidebarLinks = ref(null)
 const showPageModal = ref(false)
 const isModerator = ref(false)
 const isInstructor = ref(false)
 const pageToEdit = ref(null)
-const {
-	settings,
-	sidebarSettings,
-	activeTab,
-	isSettingsOpen,
-	isCommandPaletteOpen,
-} = useSettings()
+const { settings, sidebarSettings, activeTab, isSettingsOpen, programs } =
+	useSettings()
 const settingsStore = useSettings()
 const showOnboarding = ref(false)
 const showIntermediateModal = ref(false)
@@ -262,8 +267,6 @@ const iconProps = {
 }
 
 onMounted(() => {
-	addNotifications()
-	setSidebarLinks()
 	setUpOnboarding()
 	addKeyboardShortcut()
 	socket.on('publish_lms_notifications', (data) => {
@@ -278,9 +281,14 @@ const setSidebarLinks = () => {
 			onSuccess(data) {
 				Object.keys(data).forEach((key) => {
 					if (!parseInt(data[key])) {
-						sidebarLinks.value = sidebarLinks.value.filter(
+						sidebarLinks.value.forEach((link) => {
+							link.items = link.items.filter(
+								(item) => item.label.toLowerCase().split(' ').join('_') !== key
+							)
+						})
+						/* sidebarLinks.value = sidebarLinks.value?.items.filter(
 							(link) => link.label.toLowerCase().split(' ').join('_') !== key
-						)
+						) */
 					}
 				})
 			},
@@ -319,84 +327,15 @@ const unreadNotifications = createResource({
 	},
 	onSuccess(data) {
 		unreadCount.value = data
-		sidebarLinks.value = sidebarLinks.value.map((link) => {
+		/* sidebarLinks.value = sidebarLinks.value.map((link) => {
 			if (link.label === 'Notifications') {
 				link.count = data
 			}
 			return link
-		})
+		}) */
 	},
 	auto: user ? true : false,
 })
-
-const addNotifications = () => {
-	if (user) {
-		sidebarLinks.value.push({
-			label: 'Notifications',
-			icon: 'Bell',
-			to: 'Notifications',
-			activeFor: ['Notifications'],
-			count: unreadCount.value,
-		})
-	}
-}
-
-const addQuizzes = () => {
-	if (!isInstructor.value && !isModerator.value) return
-
-	const quizzesLinkExists = sidebarLinks.value.some(
-		(link) => link.label === 'Quizzes'
-	)
-	if (quizzesLinkExists) return
-
-	sidebarLinks.value.splice(4, 0, {
-		label: 'Quizzes',
-		icon: 'CircleHelp',
-		to: 'Quizzes',
-		activeFor: ['Quizzes', 'QuizForm', 'QuizSubmissionList', 'QuizSubmission'],
-	})
-}
-
-const addAssignments = () => {
-	if (!isInstructor.value && !isModerator.value) return
-
-	const assignmentsLinkExists = sidebarLinks.value.some(
-		(link) => link.label === 'Assignments'
-	)
-	if (assignmentsLinkExists) return
-
-	sidebarLinks.value.splice(5, 0, {
-		label: 'Assignments',
-		icon: 'Pencil',
-		to: 'Assignments',
-		activeFor: [
-			'Assignments',
-			'AssignmentForm',
-			'AssignmentSubmissionList',
-			'AssignmentSubmission',
-		],
-	})
-}
-
-const addProgrammingExercises = () => {
-	if (!isInstructor.value && !isModerator.value) return
-	const programmingExercisesLinkExists = sidebarLinks.value.some(
-		(link) => link.label === 'Programming Exercises'
-	)
-	if (programmingExercisesLinkExists) return
-
-	sidebarLinks.value.splice(3, 0, {
-		label: 'Programming Exercises',
-		icon: 'Code',
-		to: 'ProgrammingExercises',
-		activeFor: [
-			'ProgrammingExercises',
-			'ProgrammingExerciseForm',
-			'ProgrammingExerciseSubmissions',
-			'ProgrammingExerciseSubmission',
-		],
-	})
-}
 
 const addPrograms = async () => {
 	const programsLinkExists = sidebarLinks.value.some(
@@ -414,45 +353,6 @@ const addPrograms = async () => {
 		icon: 'Route',
 		to: 'Programs',
 		activeFor: activeFor,
-	})
-}
-
-const addContactUsDetails = () => {
-	if (!settings?.data?.contact_us_email && !settings?.data?.contact_us_url)
-		return
-
-	const contactUsLinkExists = sidebarLinks.value.some(
-		(link) => link.label === 'Contact Us'
-	)
-	if (contactUsLinkExists) return
-
-	sidebarLinks.value.push({
-		label: 'Contact Us',
-		icon: settings.data?.contact_us_url ? 'Headset' : 'Mail',
-		to: settings.data?.contact_us_url
-			? settings.data?.contact_us_url
-			: settings.data?.contact_us_email,
-	})
-}
-
-const checkIfCanAddProgram = async () => {
-	if (isModerator.value || isInstructor.value) {
-		return true
-	}
-	const programs = await call('lms.lms.utils.get_programs')
-	return programs.enrolled.length > 0 || programs.published.length > 0
-}
-
-const addHome = () => {
-	const homeLinkExists = sidebarLinks.value.some(
-		(link) => link.label === 'Home'
-	)
-	if (homeLinkExists) return
-	sidebarLinks.value.unshift({
-		label: 'Home',
-		icon: 'Home',
-		to: 'Home',
-		activeFor: ['Home'],
 	})
 }
 
@@ -700,16 +600,15 @@ const setUpOnboarding = () => {
 	}
 }
 
-watch(userResource, () => {
-	addContactUsDetails()
+watch(userResource, async () => {
+	await userResource.promise
+	sidebarLinks.value = getSidebarLinks()
+	setSidebarLinks()
 	if (userResource.data) {
 		isModerator.value = userResource.data.is_moderator
 		isInstructor.value = userResource.data.is_instructor
-		addHome()
-		addPrograms()
-		addProgrammingExercises()
-		addQuizzes()
-		addAssignments()
+		await programs.promise
+		sidebarLinks.value = getSidebarLinks()
 		setUpOnboarding()
 	}
 })
