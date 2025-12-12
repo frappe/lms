@@ -61,10 +61,10 @@
 							'border-b': index !== searchResults.length - 1,
 						}"
 					>
-						<Tooltip :text="result.instructors_info.full_name">
+						<Tooltip :text="result.author_info.full_name">
 							<Avatar
-								:label="result.instructors_info.full_name"
-								:image="result.instructors_info.user_image"
+								:label="result.author_info.full_name"
+								:image="result.author_info.user_image"
 								size="md"
 							/>
 						</Tooltip>
@@ -72,16 +72,20 @@
 							<div class="flex items-center">
 								<div class="font-medium" v-html="result.title"></div>
 								<div class="text-sm text-ink-gray-5 ml-2">
-									{{ result.doctype == 'LMS Course' ? 'Course' : 'Batch' }}
+									{{ getDocTypeTitle(result.doctype) }}
 								</div>
 								<div
-									v-if="result.published_on || result.start_date"
+									v-if="
+										result.published_on || result.start_date || result.creation
+									"
 									class="ml-auto text-sm text-ink-gray-5"
 								>
 									{{
-										dayjs(result.published_on || result.start_date).format(
-											'DD MMM YYYY'
-										)
+										dayjs(
+											result.published_on ||
+												result.start_date ||
+												result.creation
+										).format('DD MMM YYYY')
 									}}
 								</div>
 							</div>
@@ -173,6 +177,13 @@ const navigate = (result: any) => {
 				batchName: result.name,
 			},
 		})
+	} else if (result.doctype == 'Job Opportunity') {
+		router.push({
+			name: 'JobDetail',
+			params: {
+				job: result.name,
+			},
+		})
 	}
 }
 
@@ -194,6 +205,18 @@ watch(
 		}
 	}
 )
+
+const getDocTypeTitle = (doctype: string) => {
+	if (doctype === 'LMS Course') {
+		return __('Course')
+	} else if (doctype === 'LMS Batch') {
+		return __('Batch')
+	} else if (doctype === 'Job Opportunity') {
+		return __('Job')
+	} else {
+		return doctype
+	}
+}
 
 const clearSearch = () => {
 	query.value = ''

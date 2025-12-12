@@ -9,7 +9,15 @@ class LearningSearch(SQLiteSearch):
 	INDEX_NAME = "learning.db"
 
 	INDEX_SCHEMA = {
-		"metadata_fields": ["category", "owner", "published", "published_on", "start_date"],
+		"metadata_fields": [
+			"owner",
+			"published",
+			"published_on",
+			"start_date",
+			"status",
+			"company_name",
+			"creation",
+		],
 		"tokenizer": "unicode61 remove_diacritics 2 tokenchars '-_'",
 	}
 
@@ -38,6 +46,20 @@ class LearningSearch(SQLiteSearch):
 				{"modified": "start_date"},
 			],
 		},
+		"Job Opportunity": {
+			"fields": [
+				"name",
+				{"title": "job_title"},
+				{"content": "description"},
+				"owner",
+				"location",
+				"country",
+				"company_name",
+				"status",
+				"creation",
+				{"modified": "creation"},
+			],
+		},
 	}
 
 	DOCTYPE_FIELDS = {
@@ -57,6 +79,15 @@ class LearningSearch(SQLiteSearch):
 			"description",
 			"batch_details",
 			"category",
+			"creation",
+			"modified",
+			"owner",
+		],
+		"Job Opportunity": [
+			"name",
+			"job_title",
+			"company_name",
+			"description",
 			"creation",
 			"modified",
 			"owner",

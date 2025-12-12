@@ -23,11 +23,14 @@ def prepare_search_results(result):
 	for r in result["results"]:
 		doctype = r["doctype"]
 		if doctype == "LMS Course" and can_access_course(r, roles):
-			r["instructors_info"] = get_instructor_info(doctype, r)
+			r["author_info"] = get_instructor_info(doctype, r)
 			groups.setdefault("Courses", []).append(r)
 		elif doctype == "LMS Batch" and can_access_batch(r, roles):
-			r["instructors_info"] = get_instructor_info(doctype, r)
+			r["author_info"] = get_instructor_info(doctype, r)
 			groups.setdefault("Batches", []).append(r)
+		elif doctype == "Job Opportunity" and can_access_job(r, roles):
+			r["author_info"] = get_instructor_info(doctype, r)
+			groups.setdefault("Job Opportunities", []).append(r)
 
 	out = []
 	for key in groups:
@@ -50,6 +53,12 @@ def can_access_batch(batch, roles):
 	elif batch.get("published") and batch.get("start_date") >= nowdate():
 		return True
 	return False
+
+
+def can_access_job(job, roles):
+	if "Moderator" in roles:
+		return True
+	return job.get("status") == "Open"
 
 
 def can_create_course(roles):

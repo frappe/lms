@@ -156,7 +156,7 @@ const getGradientColor = () => {
 		localStorage.getItem('theme') == 'light' ? 'lightMode' : 'darkMode'
 	let color = props.course.card_gradient?.toLowerCase() || 'blue'
 	let colorMap = colors[theme][color]
-	return `linear-gradient(to top right, black, ${colorMap[400]})`
+	return `linear-gradient(to top right, black, ${colorMap[200]})`
 	/* return `bg-gradient-to-br from-${color}-100 via-${color}-200 to-${color}-400` */
 	/* return `linear-gradient(to bottom right, ${colorMap[100]}, ${colorMap[400]})` */
 	/* return `radial-gradient(ellipse at 80% 20%, black 20%, ${colorMap[500]} 100%)` */
