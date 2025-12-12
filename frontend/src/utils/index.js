@@ -403,44 +403,174 @@ export function getUserTimezone() {
 }
 
 export function getSidebarLinks() {
+	let links = getSidebarItems()
+
+	links.forEach((link) => {
+		link.items = link.items.filter((item) => {
+			return item.condition ? item.condition() : true
+		})
+	})
+
+	links = links.filter((link) => {
+		return link.items.length > 0
+	})
+
+	return links
+}
+
+const getSidebarItems = () => {
+	const { userResource } = usersStore()
+	const { settings } = useSettings()
+
 	return [
 		{
-			label: 'Courses',
-			icon: 'BookOpen',
-			to: 'Courses',
-			activeFor: [
-				'Courses',
-				'CourseDetail',
-				'Lesson',
-				'CourseForm',
-				'LessonForm',
+			label: 'General',
+			hideLabel: true,
+			items: [
+				{
+					label: 'Home',
+					icon: 'Home',
+					to: 'Home',
+					condition: () => {
+						return userResource?.data
+					},
+				},
+				{
+					label: 'Search',
+					icon: 'Search',
+					to: 'Search',
+					condition: () => {
+						return userResource?.data
+					},
+				},
+				{
+					label: 'Notifications',
+					icon: 'Bell',
+					to: 'Notifications',
+					condition: () => {
+						return userResource?.data
+					},
+				},
 			],
 		},
 		{
-			label: 'Batches',
-			icon: 'Users',
-			to: 'Batches',
-			activeFor: ['Batches', 'BatchDetail', 'Batch', 'BatchForm'],
+			label: 'Learning',
+			hideLabel: true,
+			items: [
+				{
+					label: 'Courses',
+					icon: 'BookOpen',
+					to: 'Courses',
+					activeFor: [
+						'Courses',
+						'CourseDetail',
+						'Lesson',
+						'CourseForm',
+						'LessonForm',
+					],
+				},
+				{
+					label: 'Programs',
+					icon: 'Route',
+					to: 'Programs',
+					activeFor: ['Programs', 'ProgramDetail'],
+					await: true,
+					condition: () => {
+						return checkIfCanAddProgram()
+					},
+				},
+				{
+					label: 'Batches',
+					icon: 'Users',
+					to: 'Batches',
+					activeFor: ['Batches', 'BatchDetail', 'Batch', 'BatchForm'],
+				},
+				{
+					label: 'Certifications',
+					icon: 'GraduationCap',
+					to: 'CertifiedParticipants',
+					activeFor: ['CertifiedParticipants'],
+				},
+				{
+					label: 'Jobs',
+					icon: 'Briefcase',
+					to: 'Jobs',
+					activeFor: ['Jobs', 'JobDetail'],
+				},
+				{
+					label: 'Statistics',
+					icon: 'TrendingUp',
+					to: 'Statistics',
+					activeFor: ['Statistics'],
+				},
+				{
+					label: 'Contact Us',
+					icon: settings.data?.contact_us_url ? 'Headset' : 'Mail',
+					to: settings.data?.contact_us_url
+						? settings.data?.contact_us_url
+						: settings.data?.contact_us_email,
+					condition: () => {
+						return (
+							settings?.data?.contact_us_email ||
+							settings?.data?.contact_us_url
+						)
+					},
+				},
+			],
 		},
 		{
-			label: 'Certifications',
-			icon: 'GraduationCap',
-			to: 'CertifiedParticipants',
-			activeFor: ['CertifiedParticipants'],
-		},
-		{
-			label: 'Jobs',
-			icon: 'Briefcase',
-			to: 'Jobs',
-			activeFor: ['Jobs', 'JobDetail'],
-		},
-		{
-			label: 'Statistics',
-			icon: 'TrendingUp',
-			to: 'Statistics',
-			activeFor: ['Statistics'],
+			label: 'Assessments',
+			hideLabel: true,
+			items: [
+				{
+					label: 'Quizzes',
+					icon: 'CircleHelp',
+					to: 'Quizzes',
+					condition: () => {
+						return isAdmin()
+					},
+				},
+				{
+					label: 'Assignments',
+					icon: 'Pencil',
+					to: 'Assignments',
+					condition: () => {
+						return isAdmin()
+					},
+				},
+				{
+					label: 'Programming Exercises',
+					icon: 'Code',
+					to: 'ProgrammingExercises',
+					condition: () => {
+						return isAdmin()
+					},
+				},
+			],
 		},
 	]
+}
+
+const isAdmin = () => {
+	const { userResource } = usersStore()
+	return (
+		userResource?.data?.is_instructor ||
+		userResource?.data?.is_moderator ||
+		userResource.data?.is_evaluator
+	)
+}
+
+const checkIfCanAddProgram = () => {
+	const { userResource } = usersStore()
+	const { programs } = useSettings()
+	if (!userResource.data) return false
+	if (userResource?.data?.is_moderator || userResource?.data?.is_instructor) {
+		return true
+	}
+	return (
+		programs.data?.enrolled.length > 0 ||
+		programs.data?.published.length > 0
+	)
 }
 
 export function getFormattedDateRange(
