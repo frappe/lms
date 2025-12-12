@@ -567,7 +567,6 @@ const checkIfCanAddProgram = () => {
 	if (userResource?.data?.is_moderator || userResource?.data?.is_instructor) {
 		return true
 	}
-	console.log('programs.data', programs.data)
 	return (
 		programs.data?.enrolled.length > 0 ||
 		programs.data?.published.length > 0

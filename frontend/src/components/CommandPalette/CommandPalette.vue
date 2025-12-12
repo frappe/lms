@@ -10,7 +10,6 @@
 						placeholder="Search"
 						class="w-full border-none bg-transparent py-3 !pl-2 pr-4.5 text-base text-ink-gray-7 placeholder-ink-gray-4 focus:ring-0"
 						@input="onInput"
-						@keydown="onKeyDown"
 						v-model="query"
 						autocomplete="off"
 					/>
@@ -108,7 +107,7 @@ const onInput = () => {
 
 const generateSearchResults = () => {
 	search.data?.forEach((type: any) => {
-		let result = {}
+		let result: { title: string; items: any[] } = { title: '', items: [] }
 		result.title = type.title
 		type.items.forEach((item: any) => {
 			let paramName = item.doctype === 'LMS Course' ? 'courseName' : 'batchName'
@@ -126,7 +125,10 @@ const generateSearchResults = () => {
 }
 
 const appendSearchPage = () => {
-	let searchPage = {}
+	let searchPage: { title: string; items: Array<any> } = {
+		title: '',
+		items: [],
+	}
 	searchPage.title = __('Jump to')
 	searchPage.items = [
 		{
@@ -212,7 +214,11 @@ const shortcutForEnter = () => {
 	}
 }
 
-const navigateTo = (route: string) => {
+const navigateTo = (route: {
+	name: string
+	params?: Record<string, any>
+	query?: Record<string, any>
+}) => {
 	show.value = false
 	query.value = ''
 	router.replace({ name: route.name, params: route.params, query: route.query })

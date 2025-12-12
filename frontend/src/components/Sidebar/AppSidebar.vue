@@ -250,8 +250,7 @@ const showPageModal = ref(false)
 const isModerator = ref(false)
 const isInstructor = ref(false)
 const pageToEdit = ref(null)
-const { settings, sidebarSettings, activeTab, isSettingsOpen, programs } =
-	useSettings()
+const { sidebarSettings, activeTab, isSettingsOpen, programs } = useSettings()
 const settingsStore = useSettings()
 const showOnboarding = ref(false)
 const showIntermediateModal = ref(false)
@@ -286,9 +285,6 @@ const setSidebarLinks = () => {
 								(item) => item.label.toLowerCase().split(' ').join('_') !== key
 							)
 						})
-						/* sidebarLinks.value = sidebarLinks.value?.items.filter(
-							(link) => link.label.toLowerCase().split(' ').join('_') !== key
-						) */
 					}
 				})
 			},
@@ -327,32 +323,18 @@ const unreadNotifications = createResource({
 	},
 	onSuccess(data) {
 		unreadCount.value = data
-		/* sidebarLinks.value = sidebarLinks.value.map((link) => {
-			if (link.label === 'Notifications') {
-				link.count = data
-			}
-			return link
-		}) */
+		updateUnreadCount()
 	},
 	auto: user ? true : false,
 })
 
-const addPrograms = async () => {
-	const programsLinkExists = sidebarLinks.value.some(
-		(link) => link.label === 'Programs'
-	)
-	if (programsLinkExists) return
-
-	let canAddProgram = await checkIfCanAddProgram()
-	if (!canAddProgram) return
-	let activeFor = ['Programs', 'ProgramDetail']
-	let index = 2
-
-	sidebarLinks.value.splice(index, 0, {
-		label: 'Programs',
-		icon: 'Route',
-		to: 'Programs',
-		activeFor: activeFor,
+const updateUnreadCount = () => {
+	sidebarLinks.value?.forEach((link) => {
+		link.items.forEach((item) => {
+			if (item.label === 'Notifications') {
+				item.count = unreadCount.value || 0
+			}
+		})
 	})
 }
 
@@ -602,15 +584,14 @@ const setUpOnboarding = () => {
 
 watch(userResource, async () => {
 	await userResource.promise
-	sidebarLinks.value = getSidebarLinks()
-	setSidebarLinks()
 	if (userResource.data) {
 		isModerator.value = userResource.data.is_moderator
 		isInstructor.value = userResource.data.is_instructor
-		await programs.promise
-		sidebarLinks.value = getSidebarLinks()
+		await programs.reload()
 		setUpOnboarding()
 	}
+	sidebarLinks.value = getSidebarLinks()
+	setSidebarLinks()
 })
 
 const redirectToWebsite = () => {
