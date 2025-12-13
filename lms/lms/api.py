@@ -449,8 +449,7 @@ def get_certification_categories():
 	for doc in docs:
 		category = doc.course_title if doc.course_title else doc.batch_title
 		if category not in categories:
-			categories.append(category)
-
+			categories.append({"label": category, "value": category})
 	return categories
 
 
