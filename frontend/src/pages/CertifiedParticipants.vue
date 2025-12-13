@@ -111,7 +111,7 @@ import {
 	Select,
 	usePageMeta,
 } from 'frappe-ui'
-import { computed, inject, onMounted, ref } from 'vue'
+import { computed, inject, onMounted, ref, watch } from 'vue'
 import { GraduationCap } from 'lucide-vue-next'
 import { sessionStore } from '../stores/session'
 import EmptyState from '@/components/EmptyState.vue'
@@ -219,6 +219,10 @@ usePageMeta(() => {
 		title: __('Certified Members'),
 		icon: brand.favicon,
 	}
+})
+
+watch(currentCategory, (val) => {
+	updateParticipants()
 })
 </script>
 <style>
