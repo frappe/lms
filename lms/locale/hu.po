@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-12-05 16:04+0000\n"
-"PO-Revision-Date: 2025-12-09 18:55\n"
+"PO-Revision-Date: 2025-12-13 20:35\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Hungarian\n"
 "MIME-Version: 1.0\n"
@@ -1514,7 +1514,7 @@ msgstr ""
 #. Label of the confirmation_email_template (Link) field in DocType 'LMS Batch'
 #: lms/lms/doctype/lms_batch/lms_batch.json
 msgid "Confirmation Email Template"
-msgstr ""
+msgstr "Megerősítő E-mail Sablon"
 
 #: lms/lms/doctype/lms_certificate/lms_certificate.py:30
 msgid "Congratulations on getting certified!"
@@ -4476,7 +4476,7 @@ msgstr ""
 
 #: frontend/src/pages/BatchForm.vue:292 frontend/src/pages/CourseForm.vue:298
 msgid "Meta Tags"
-msgstr ""
+msgstr "Meta Címkék"
 
 #: lms/lms/api.py:1510
 msgid "Meta tags should be a list."
@@ -4994,7 +4994,7 @@ msgstr ""
 #. Label of the output (Data) field in DocType 'LMS Test Case Submission'
 #: lms/lms/doctype/lms_test_case_submission/lms_test_case_submission.json
 msgid "Output"
-msgstr ""
+msgstr "Kimenet"
 
 #: frontend/src/components/Settings/BadgeForm.vue:216
 #: lms/lms/doctype/lms_badge/lms_badge.js:37
@@ -5213,7 +5213,7 @@ msgstr ""
 #: lms/lms/doctype/lms_coupon/lms_coupon.json
 #: lms/lms/doctype/lms_quiz_submission/lms_quiz_submission.json
 msgid "Percentage"
-msgstr ""
+msgstr "Százalék"
 
 #. Option for the 'Grade Type' (Select) field in DocType 'Education Detail'
 #: lms/lms/doctype/education_detail/education_detail.json
@@ -5857,7 +5857,7 @@ msgstr ""
 #: lms/lms/doctype/lms_course/lms_course.json
 #: lms/lms/doctype/lms_lesson_note/lms_lesson_note.json
 msgid "Red"
-msgstr ""
+msgstr "Piros"
 
 #. Label of the redemption_count (Int) field in DocType 'LMS Coupon'
 #: frontend/src/components/Settings/Coupons/CouponList.vue:189
@@ -5873,7 +5873,7 @@ msgstr ""
 #. Timetable'
 #: lms/lms/doctype/lms_batch_timetable/lms_batch_timetable.json
 msgid "Reference DocName"
-msgstr ""
+msgstr "Hivatkozás DocNév"
 
 #. Label of the reference_doctype (Link) field in DocType 'LMS Batch Timetable'
 #. Label of the reference_doctype (Select) field in DocType 'LMS Coupon Item'
@@ -6532,7 +6532,7 @@ msgstr ""
 
 #: frontend/src/pages/Billing.vue:118
 msgid "State/Province"
-msgstr ""
+msgstr "Állam / Megye"
 
 #. Label of the tab_4_tab (Tab Break) field in DocType 'LMS Course'
 #. Label of the statistics (Check) field in DocType 'LMS Settings'
@@ -6853,7 +6853,7 @@ msgstr ""
 #: lms/lms/doctype/lms_assignment/lms_assignment.json
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.json
 msgid "Text"
-msgstr ""
+msgstr "Szöveg"
 
 #: frontend/src/components/BatchFeedback.vue:6
 msgid "Thank you for providing your feedback."
@@ -7396,12 +7396,12 @@ msgstr ""
 #. Label of the user_field (Select) field in DocType 'LMS Badge'
 #: lms/lms/doctype/lms_badge/lms_badge.json
 msgid "User Field"
-msgstr ""
+msgstr "Felhasználói Mező"
 
 #. Label of the user_image (Attach Image) field in DocType 'Course Evaluator'
 #: lms/lms/doctype/course_evaluator/course_evaluator.json
 msgid "User Image"
-msgstr ""
+msgstr "Profilkép"
 
 #. Option for the 'Type' (Select) field in DocType 'LMS Question'
 #. Option for the 'Type' (Select) field in DocType 'LMS Quiz Question'
@@ -7459,7 +7459,7 @@ msgstr ""
 
 #: frontend/src/pages/Notifications.vue:39
 msgid "View"
-msgstr ""
+msgstr "Nézet"
 
 #: frontend/src/pages/JobDetail.vue:31
 msgid "View Applications"
@@ -7958,7 +7958,7 @@ msgstr ""
 
 #: frontend/src/pages/CertifiedParticipants.vue:79
 msgid "certificate"
-msgstr ""
+msgstr "tanúsítvány"
 
 #: frontend/src/pages/CertifiedParticipants.vue:78
 msgid "certificates"
