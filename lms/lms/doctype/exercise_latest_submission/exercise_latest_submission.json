@@ -19,9 +19,7 @@
   "comments",
   "latest_submission",
   "member",
-  "member_email",
-  "member_cohort",
-  "member_subgroup"
+  "member_email"
  ],
  "fields": [
   {
@@ -121,27 +119,11 @@
    "label": "Member Email",
    "options": "User",
    "search_index": 1
-  },
-  {
-   "fetch_from": "member.cohort",
-   "fieldname": "member_cohort",
-   "fieldtype": "Link",
-   "label": "Member Cohort",
-   "options": "Cohort",
-   "search_index": 1
-  },
-  {
-   "fetch_from": "member.subgroup",
-   "fieldname": "member_subgroup",
-   "fieldtype": "Link",
-   "label": "Member Subgroup",
-   "options": "Cohort Subgroup",
-   "search_index": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-12-08 22:58:46.312863",
+ "modified": "2025-12-14 20:56:52.370697",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "Exercise Latest Submission",
@@ -160,7 +142,9 @@
    "write": 1
   }
  ],
+ "row_format": "Dynamic",
  "sort_field": "modified",
  "sort_order": "DESC",
+ "states": [],
  "track_changes": 1
 }

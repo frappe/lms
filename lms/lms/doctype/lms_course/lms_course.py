@@ -179,18 +179,6 @@ class LMSCourse(Document):
 			batch_names = {m.batch_old for m in memberships}
 			return [b for b in batches if b.name in batch_names]
 
-	def get_cohorts(self):
-		return frappe.get_all(
-			"Cohort",
-			{"course": self.name},
-			["name", "slug", "title", "begin_date", "end_date"],
-			order_by="creation",
-		)
-
-	def get_cohort(self, cohort_slug):
-		name = frappe.get_value("Cohort", {"course": self.name, "slug": cohort_slug})
-		return name and frappe.get_doc("Cohort", name)
-
 	def reindex_exercises(self):
 		for i, c in enumerate(get_chapters(self.name), start=1):
 			self._reindex_exercises_in_chapter(c, i)

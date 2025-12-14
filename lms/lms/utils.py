@@ -356,13 +356,6 @@ def is_mentor(course, email):
 	return frappe.db.count("LMS Course Mentor Mapping", {"course": course, "mentor": email})
 
 
-def is_cohort_staff(course, user_email):
-	"""Returns True if the user is either a mentor or a staff for one or more active cohorts of this course."""
-	staff = {"doctype": "Cohort Staff", "course": course, "email": user_email}
-	mentor = {"doctype": "Cohort Mentor", "course": course, "email": user_email}
-	return frappe.db.exists(staff) or frappe.db.exists(mentor)
-
-
 def get_mentors(course):
 	"""Returns the list of all mentors for this course."""
 	course_mentors = []
