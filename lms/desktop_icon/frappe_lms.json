@@ -1,0 +1,19 @@
+{
+ "app": "lms",
+ "creation": "2025-12-15 14:31:50.704854",
+ "docstatus": 0,
+ "doctype": "Desktop Icon",
+ "hidden": 0,
+ "icon_type": "App",
+ "idx": 0,
+ "label": "Frappe LMS",
+ "link": "/lms",
+ "link_type": "External",
+ "logo_url": "/assets/lms/frontend/learning.svg",
+ "modified": "2025-12-15 14:31:50.704854",
+ "modified_by": "Administrator",
+ "name": "Frappe LMS",
+ "owner": "Administrator",
+ "roles": [],
+ "standard": 1
+}

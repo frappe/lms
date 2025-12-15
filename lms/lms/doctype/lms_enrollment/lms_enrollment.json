@@ -19,20 +19,11 @@
   "purchased_certificate",
   "certificate",
   "section_break_8",
-  "cohort",
-  "subgroup",
-  "batch_old",
   "column_break_12",
   "member_type",
   "role"
  ],
  "fields": [
-  {
-   "fieldname": "batch_old",
-   "fieldtype": "Link",
-   "label": "Batch Old",
-   "options": "LMS Batch Old"
-  },
   {
    "fieldname": "member",
    "fieldtype": "Link",
@@ -102,18 +93,6 @@
    "read_only": 1
   },
   {
-   "fieldname": "cohort",
-   "fieldtype": "Link",
-   "label": "Cohort",
-   "options": "Cohort"
-  },
-  {
-   "fieldname": "subgroup",
-   "fieldtype": "Link",
-   "label": "Subgroup",
-   "options": "Cohort Subgroup"
-  },
-  {
    "fieldname": "column_break_12",
    "fieldtype": "Column Break"
   },
@@ -155,7 +134,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-07-02 21:27:30.733482",
+ "modified": "2025-12-15 21:27:30.733483",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Enrollment",
