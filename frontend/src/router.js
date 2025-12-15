@@ -244,6 +244,11 @@ const routes = [
 		props: true,
 	},
 	{
+		path: '/search',
+		name: 'Search',
+		component: () => import('@/pages/Search/Search.vue'),
+	},
+	{
 		path: '/data-import',
 		name: 'DataImportList',
 		component: () => import('@/pages/DataImport.vue'),
