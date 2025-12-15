@@ -161,12 +161,12 @@ const props = defineProps<{
 }>()
 
 const myCourses = createResource({
-	url: 'lms.lms.utils.get_my_courses',
+	url: 'lms.lms.api.get_my_courses',
 	auto: true,
 })
 
 const myBatches = createResource({
-	url: 'lms.lms.utils.get_my_batches',
+	url: 'lms.lms.api.get_my_batches',
 	auto: true,
 })
 
