@@ -2068,7 +2068,7 @@ def enroll_in_batch(batch, payment_name=None):
 		frappe.throw(_("The specified batch does not exist."))
 
 	batch_doc = frappe.db.get_value(
-		"LMS Batch", batch, ["name", "seat_count", "allow_self_enrollment"], as_dict=True
+		"LMS Batch", batch, ["name", "seat_count", "allow_self_enrollment", "paid_batch"], as_dict=True
 	)
 	payment_doc = get_payment_details(payment_name)
 	validate_enrollment_eligibility(batch_doc, payment_doc)

@@ -239,8 +239,7 @@ const showPageModal = ref(false)
 const isModerator = ref(false)
 const isInstructor = ref(false)
 const pageToEdit = ref(null)
-const settingsStore = useSettings()
-const { sidebarSettings } = settingsStore
+const { settings, sidebarSettings, activeTab, isSettingsOpen } = useSettings()
 const showOnboarding = ref(false)
 const showIntermediateModal = ref(false)
 const currentStep = ref({})
@@ -393,7 +392,7 @@ const addPrograms = async () => {
 }
 
 const addContactUsDetails = () => {
-	if (!settingsStore.contactUsEmail?.data && !settingsStore.contactUsURL?.data)
+	if (!settings?.data?.contact_us_email && !settings?.data?.contact_us_url)
 		return
 
 	const contactUsLinkExists = sidebarLinks.value.some(
@@ -403,10 +402,10 @@ const addContactUsDetails = () => {
 
 	sidebarLinks.value.push({
 		label: 'Contact Us',
-		icon: settingsStore.contactUsURL?.data ? 'Headset' : 'Mail',
-		to: settingsStore.contactUsURL?.data
-			? settingsStore.contactUsURL.data
-			: settingsStore.contactUsEmail?.data,
+		icon: settings.data?.contact_us_url ? 'Headset' : 'Mail',
+		to: settings.data?.contact_us_url
+			? settings.data?.contact_us_url
+			: settings.data?.contact_us_email,
 	})
 }
 
@@ -540,8 +539,8 @@ const steps = reactive([
 		completed: false,
 		onClick: () => {
 			minimize.value = true
-			settingsStore.activeTab = 'Members'
-			settingsStore.isSettingsOpen = true
+			activeTab.value = 'Members'
+			isSettingsOpen.value = true
 		},
 	},
 	{

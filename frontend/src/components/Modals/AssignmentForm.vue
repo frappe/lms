@@ -66,7 +66,7 @@
 <script setup lang="ts">
 import { Button, Dialog, FormControl, TextEditor, toast } from 'frappe-ui'
 import { computed, reactive, watch } from 'vue'
-import { escapeHTML } from '@/utils'
+import { escapeHTML, sanitizeHTML } from '@/utils'
 
 const show = defineModel()
 const assignments = defineModel<Assignments>('assignments')
@@ -122,12 +122,13 @@ watch(show, (newVal) => {
 	}
 })
 
-const validateTitle = () => {
+const validateFields = () => {
 	assignment.title = escapeHTML(assignment.title.trim())
+	assignment.question = sanitizeHTML(assignment.question)
 }
 
 const saveAssignment = () => {
-	validateTitle()
+	validateFields()
 	if (props.assignmentID == 'new') {
 		createAssignment()
 	} else {

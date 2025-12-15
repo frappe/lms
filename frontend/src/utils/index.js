@@ -19,6 +19,7 @@ import SimpleImage from '@editorjs/simple-image'
 import Table from '@editorjs/table'
 import Plyr from 'plyr'
 import 'plyr/dist/plyr.css'
+import DOMPurify from 'dompurify'
 
 const readOnlyMode = window.read_only_mode
 
@@ -540,6 +541,26 @@ export const escapeHTML = (text) => {
 	)
 }
 
+export const sanitizeHTML = (text) => {
+	text = DOMPurify.sanitize(decodeEntities(text), {
+		ALLOWED_TAGS: [
+			'b',
+			'i',
+			'em',
+			'strong',
+			'a',
+			'p',
+			'br',
+			'ul',
+			'ol',
+			'li',
+			'img',
+		],
+		ALLOWED_ATTR: ['href', 'target', 'src'],
+	})
+	return text
+}
+
 export const canCreateCourse = () => {
 	const { userResource } = usersStore()
 	return (
@@ -591,7 +612,7 @@ const setupPlyrForVideo = (video, players) => {
 				const current_time = player.currentTime
 				const newTime = getTargetTime(player, e)
 				if (
-					useSettings().preventSkippingVideos.data &&
+					useSettings().settings.data?.prevent_skipping_videos &&
 					parseFloat(newTime) > current_time
 				) {
 					e.preventDefault()
