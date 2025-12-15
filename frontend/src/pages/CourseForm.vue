@@ -353,11 +353,12 @@ import { capture, startRecording, stopRecording } from '@/telemetry'
 import { useOnboarding } from 'frappe-ui/frappe'
 import { sessionStore } from '../stores/session'
 import {
-	openSettings,
+	escapeHTML,
 	getMetaInfo,
+	openSettings,
+	sanitizeHTML,
 	updateMetaInfo,
 	validateFile,
-	escapeHTML,
 } from '@/utils'
 import Link from '@/components/Controls/Link.vue'
 import CourseOutline from '@/components/CourseOutline.vue'
@@ -539,6 +540,8 @@ const imageResource = createResource({
 })
 
 const validateFields = () => {
+	course.description = sanitizeHTML(course.description)
+
 	Object.keys(course).forEach((key) => {
 		if (key != 'description' && typeof course[key] === 'string') {
 			course[key] = escapeHTML(course[key])

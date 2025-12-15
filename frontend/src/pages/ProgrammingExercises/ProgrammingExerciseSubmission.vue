@@ -168,7 +168,7 @@ const testCaseSection = ref<HTMLElement | null>(null)
 const testCases = ref<TestCase[]>([])
 const boilerplate = ref<string>('')
 const { brand } = sessionStore()
-const { livecodeURL } = useSettings()
+const { settings } = useSettings()
 const router = useRouter()
 const fromLesson = ref(false)
 const falconURL = ref<string>('https://falcon.frappe.io/')
@@ -291,8 +291,8 @@ watch(
 )
 
 const loadFalcon = () => {
-	if (livecodeURL.data) {
-		falconURL.value = livecodeURL.data
+	if (settings.data) {
+		falconURL.value = settings.data.livecode_url
 	}
 	return new Promise((resolve, reject) => {
 		const script = document.createElement('script')
