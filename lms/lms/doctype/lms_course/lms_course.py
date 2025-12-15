@@ -156,29 +156,6 @@ class LMSCourse(Document):
 		doc = frappe.get_doc({"doctype": "LMS Course Mentor Mapping", "course": self.name, "mentor": email})
 		doc.insert()
 
-	def get_student_batch(self, email):
-		"""Returns the batch the given student is part of.
-
-		Returns None if the student is not part of any batch.
-		"""
-		if not email:
-			return
-
-		batch_name = frappe.get_value(
-			doctype="LMS Enrollment",
-			filters={"course": self.name, "member_type": "Student", "member": email},
-			fieldname="batch_old",
-		)
-		return batch_name and frappe.get_doc("LMS Batch Old", batch_name)
-
-	def get_batches(self, mentor=None):
-		batches = frappe.get_all("LMS Batch Old", {"course": self.name})
-		if mentor:
-			# TODO: optimize this
-			memberships = frappe.db.get_all("LMS Enrollment", {"member": mentor}, ["batch_old"])
-			batch_names = {m.batch_old for m in memberships}
-			return [b for b in batches if b.name in batch_names]
-
 	def get_cohorts(self):
 		return frappe.get_all(
 			"Cohort",
@@ -203,14 +180,6 @@ class LMSCourse(Document):
 				exercise.index_label = f"{index}.{i}"
 				exercise.save()
 				i += 1
-
-	def get_all_memberships(self, member):
-		all_memberships = frappe.get_all(
-			"LMS Enrollment", {"member": member, "course": self.name}, ["batch_old"]
-		)
-		for membership in all_memberships:
-			membership.batch_title = frappe.db.get_value("LMS Batch Old", membership.batch_old, "title")
-		return all_memberships
 
 
 @frappe.whitelist()
