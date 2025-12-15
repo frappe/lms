@@ -2,6 +2,8 @@ import unittest
 
 import frappe
 
+from lms.lms.doctype.lms_certificate.lms_certificate import get_default_certificate_template, is_certified
+
 from .utils import (
 	get_average_rating,
 	get_chapters,
@@ -38,6 +40,8 @@ class TestUtils(unittest.TestCase):
 
 		self.add_rating(self.course.name, self.student1.email, 0.8, "Good course")
 		self.add_rating(self.course.name, self.student2.email, 1, "Excellent course")
+
+		self.create_certificate(self.course.name, self.student1.email)
 
 	def create_a_course(self):
 		course = frappe.new_doc("LMS Course")
@@ -96,6 +100,15 @@ class TestUtils(unittest.TestCase):
 			return user
 		else:
 			return frappe.get_doc("User", email)
+
+	def create_certificate(self, course_name, member):
+		certificate = frappe.new_doc("LMS Certificate")
+		certificate.course = course_name
+		certificate.member = member
+		certificate.issue_date = frappe.utils.nowdate()
+		certificate.template = get_default_certificate_template()
+		certificate.save()
+		return certificate
 
 	def test_simple_slugs(self):
 		self.assertEqual(slugify("hello-world"), "hello-world")
@@ -205,12 +218,28 @@ class TestUtils(unittest.TestCase):
 		self.assertIsNotNone(has_student_role("student1@example.com"))
 		self.assertIsNotNone(has_student_role("student2@example.com"))
 
+	def test_is_certified(self):
+		frappe.session.user = self.student1.email
+		self.assertIsNotNone(is_certified(self.course.name))
+		frappe.session.user = self.student2.email
+		self.assertIsNone(is_certified(self.course.name))
+		frappe.session.user = "Administrator"
+
+	def test_rating_validation(self):
+		student3 = self.create_user("student3@example.com", "Emily", "Cooper", ["LMS Student"])
+		with self.assertRaises(frappe.exceptions.ValidationError):
+			self.add_rating(self.course.name, student3.email, -0.5, "Bad course")
+		frappe.session.user = "Administrator"
+		frappe.delete_doc("User", student3.email)
+
 	def tearDown(self):
 		if frappe.db.exists("LMS Course", self.course.name):
+			frappe.db.delete("LMS Certificate", {"course": self.course.name})
 			frappe.db.delete("LMS Enrollment", {"course": self.course.name})
 			frappe.db.delete("LMS Course Review", {"course": self.course.name})
 			frappe.db.delete("Course Lesson", {"course": self.course.name})
 			frappe.db.delete("Course Chapter", {"course": self.course.name})
+			frappe.db.delete("Course Instructor", {"parent": self.course.name})
 			frappe.delete_doc("LMS Course", self.course.name)
 
 		frappe.delete_doc("User", "student1@example.com")
