@@ -9,8 +9,6 @@ from frappe import _
 from frappe.model.document import Document
 from frappe.utils import cint, today
 
-from lms.lms.utils import get_chapters
-
 from ...utils import generate_slug, update_payment_record, validate_image
 
 
@@ -133,58 +131,3 @@ class LMSCourse(Document):
 
 	def __repr__(self):
 		return f"<Course#{self.name}>"
-
-	def has_mentor(self, email):
-		"""Checks if this course has a mentor with given email."""
-		if not email or email == "Guest":
-			return False
-
-		mapping = frappe.get_all("LMS Course Mentor Mapping", {"course": self.name, "mentor": email})
-		return mapping != []
-
-	def add_mentor(self, email):
-		"""Adds a new mentor to the course."""
-		if not email:
-			raise ValueError("Invalid email")
-		if email == "Guest":
-			raise ValueError("Guest user can not be added as a mentor")
-
-		# given user is already a mentor
-		if self.has_mentor(email):
-			return
-
-		doc = frappe.get_doc({"doctype": "LMS Course Mentor Mapping", "course": self.name, "mentor": email})
-		doc.insert()
-
-	def get_cohorts(self):
-		return frappe.get_all(
-			"Cohort",
-			{"course": self.name},
-			["name", "slug", "title", "begin_date", "end_date"],
-			order_by="creation",
-		)
-
-	def get_cohort(self, cohort_slug):
-		name = frappe.get_value("Cohort", {"course": self.name, "slug": cohort_slug})
-		return name and frappe.get_doc("Cohort", name)
-
-	def reindex_exercises(self):
-		for i, c in enumerate(get_chapters(self.name), start=1):
-			self._reindex_exercises_in_chapter(c, i)
-
-	def _reindex_exercises_in_chapter(self, c, index):
-		i = 1
-		for lesson in self.get_lessons(c):
-			for exercise in lesson.get_exercises():
-				exercise.index_ = i
-				exercise.index_label = f"{index}.{i}"
-				exercise.save()
-				i += 1
-
-
-@frappe.whitelist()
-def reindex_exercises(doc):
-	course_data = json.loads(doc)
-	course = frappe.get_doc("LMS Course", course_data["name"])
-	course.reindex_exercises()
-	frappe.msgprint("All exercises in this course have been re-indexed.")

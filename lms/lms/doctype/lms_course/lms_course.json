@@ -1,12 +1,5 @@
 {
- "actions": [
-  {
-   "action": "lms.lms.doctype.lms_course.lms_course.reindex_exercises",
-   "action_type": "Server Action",
-   "group": "Reindex",
-   "label": "Reindex Exercises"
-  }
- ],
+ "actions": [],
  "allow_import": 1,
  "allow_rename": 1,
  "creation": "2022-02-22 15:28:26.091549",
@@ -313,7 +306,7 @@
   }
  ],
  "make_attachments_public": 1,
- "modified": "2025-12-11 17:21:05.231761",
+ "modified": "2025-12-15 15:15:42.226098",
  "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "LMS Course",
