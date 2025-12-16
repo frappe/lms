@@ -75,7 +75,7 @@
 							v-model="currentCategory"
 							:options="categories"
 							:placeholder="__('Category')"
-							@change="updateCourses()"
+							@update:modelValue="updateCourses()"
 						/>
 					</div>
 				</div>
