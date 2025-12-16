@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-12-12 16:04+0000\n"
-"PO-Revision-Date: 2025-12-15 21:20\n"
+"PO-Revision-Date: 2025-12-16 21:23\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Swedish\n"
 "MIME-Version: 1.0\n"
@@ -4722,7 +4722,7 @@ msgstr "Ej Sparad"
 #. Label of the note (Text Editor) field in DocType 'LMS Lesson Note'
 #: lms/lms/doctype/lms_lesson_note/lms_lesson_note.json
 msgid "Note"
-msgstr "Notera"
+msgstr "Anteckning"
 
 #: frontend/src/pages/Lesson.vue:404 frontend/src/pages/Lesson.vue:880
 #: frontend/src/pages/Lesson.vue:891
