@@ -90,7 +90,7 @@
 							v-model="currentCategory"
 							:options="categories"
 							:placeholder="__('Category')"
-							@change="updateBatches()"
+							@update:modelValue="updateBatches()"
 						/>
 					</div>
 				</div>
