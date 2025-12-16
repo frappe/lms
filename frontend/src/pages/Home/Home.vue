@@ -74,7 +74,7 @@ const isAdmin = computed(() => {
 })
 
 const myLiveClasses = createResource({
-	url: 'lms.lms.utils.get_my_live_classes',
+	url: 'lms.lms.api.get_my_live_classes',
 	auto: !isAdmin.value ? true : false,
 })
 
