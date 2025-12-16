@@ -451,6 +451,7 @@ def get_certification_categories():
 		category = doc.course_title if doc.course_title else doc.batch_title
 		if not category or category in seen:
 			continue
+
 		seen.add(category)
 		categories.append({"label": category, "value": category})
 	return categories
