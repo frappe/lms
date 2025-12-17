@@ -319,6 +319,7 @@ def get_count_of_certified_members(filters=None):
 @frappe.whitelist(allow_guest=True)
 def get_certification_categories():
 	categories = []
+	seen = set()
 	docs = frappe.get_all(
 		"LMS Certificate",
 		filters={
@@ -329,9 +330,11 @@ def get_certification_categories():
 
 	for doc in docs:
 		category = doc.course_title if doc.course_title else doc.batch_title
-		if category not in categories:
-			categories.append(category)
+		if not category or category in seen:
+			continue
 
+		seen.add(category)
+		categories.append({"label": category, "value": category})
 	return categories
 
 

@@ -33,7 +33,7 @@
 						v-model="currentCategory"
 						:options="categories.data"
 						:placeholder="__('Category')"
-						@change="updateParticipants()"
+						@update:modelValue="updateParticipants()"
 					/>
 				</div>
 			</div>
