@@ -152,11 +152,10 @@ const props = defineProps({
 })
 
 const getGradientColor = () => {
-	let theme =
-		localStorage.getItem('theme') == 'light' ? 'lightMode' : 'darkMode'
+	let theme = localStorage.getItem('theme') == 'dark' ? 'darkMode' : 'lightMode'
 	let color = props.course.card_gradient?.toLowerCase() || 'blue'
 	let colorMap = colors[theme][color]
-	return `linear-gradient(to top right, black, ${colorMap[200]})`
+	return `linear-gradient(to top right, black, ${colorMap[400]})`
 }
 </script>
 <style>

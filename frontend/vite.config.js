@@ -65,6 +65,6 @@ export default defineConfig(({ mode }) => ({
 			'highlight.js',
 			'plyr',
 		],
-		//exclude: mode === 'production' ? [] : ['frappe-ui'],
+		exclude: mode === 'production' ? [] : ['frappe-ui'],
 	},
 }))
