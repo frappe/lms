@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-12-12 16:04+0000\n"
-"PO-Revision-Date: 2025-12-15 21:20\n"
+"PO-Revision-Date: 2025-12-16 21:23\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Slovenian\n"
 "MIME-Version: 1.0\n"
@@ -486,7 +486,7 @@ msgstr "Arhivirano"
 
 #: frontend/src/components/UpcomingEvaluations.vue:179
 msgid "Are you sure you want to cancel this evaluation? This action cannot be undone."
-msgstr ""
+msgstr "Ali ste prepričani, da želite preklicati to ocenjevanje? Tega dejanja ni mogoče razveljaviti."
 
 #: frontend/src/pages/Programs/ProgramForm.vue:562
 msgid "Are you sure you want to delete this program? This action cannot be undone."
@@ -498,7 +498,7 @@ msgstr ""
 
 #: frontend/src/components/Sidebar/UserDropdown.vue:191
 msgid "Are you sure you want to login to your Frappe Cloud dashboard?"
-msgstr ""
+msgstr "Ali ste prepričani, da se želite prijaviti v nadzorno ploščo Frappe Cloud?"
 
 #: frontend/src/pages/Lesson.vue:289
 msgid "Ask a question to get help from the community."
@@ -1162,7 +1162,7 @@ msgstr ""
 
 #: lms/templates/certificates_section.html:24
 msgid "Check out the {0} to know more about certification."
-msgstr ""
+msgstr "Za več informacij o certificiranju si oglejte {0}."
 
 #: frontend/src/components/NoPermission.vue:19
 msgid "Checkout Courses"
@@ -2202,7 +2202,7 @@ msgstr "Sanjska Podjetja"
 
 #: lms/lms/doctype/lms_question/lms_question.py:34
 msgid "Duplicate options found for this question."
-msgstr ""
+msgstr "Za to vprašanje so bile najdene podvojene možnosti."
 
 #. Label of the duration (Data) field in DocType 'LMS Batch Timetable'
 #. Label of the duration (Int) field in DocType 'LMS Live Class'
@@ -2217,7 +2217,7 @@ msgstr "Trajanje"
 #. Label of the duration (Data) field in DocType 'LMS Quiz'
 #: frontend/src/pages/QuizForm.vue:67 lms/lms/doctype/lms_quiz/lms_quiz.json
 msgid "Duration (in minutes)"
-msgstr ""
+msgstr "Trajanje (v minutah)"
 
 #: frontend/src/components/Modals/LiveClassModal.vue:32
 msgid "Duration of the live class in minutes"
@@ -2243,7 +2243,7 @@ msgstr "Uredi Značko"
 
 #: frontend/src/components/Settings/BadgeAssignmentForm.vue:8
 msgid "Edit Badge Assignment"
-msgstr ""
+msgstr "Urejanje dodelitve značke"
 
 #: frontend/src/components/CourseOutline.vue:60
 #: frontend/src/components/Modals/ChapterModal.vue:5
@@ -2597,7 +2597,7 @@ msgstr ""
 #. Name of a DocType
 #: lms/lms/doctype/evaluator_schedule/evaluator_schedule.json
 msgid "Evaluator Schedule"
-msgstr ""
+msgstr "Razpored ocenjevalca"
 
 #: frontend/src/components/Settings/Evaluators.vue:160
 msgid "Evaluator added successfully"
@@ -3050,7 +3050,7 @@ msgstr ""
 
 #: frontend/src/pages/Home/Home.vue:11
 msgid "Hey"
-msgstr ""
+msgstr "Živjo"
 
 #: lms/lms/notification/certificate_request_reminder/certificate_request_reminder.html:1
 #: lms/templates/emails/certificate_request_notification.html:1
@@ -3091,7 +3091,7 @@ msgstr ""
 #. Label of the hints (Small Text) field in DocType 'LMS Exercise'
 #: lms/lms/doctype/lms_exercise/lms_exercise.json
 msgid "Hints"
-msgstr ""
+msgstr "Namigi"
 
 #: frontend/src/pages/Home/Home.vue:5 frontend/src/pages/Home/Home.vue:154
 msgid "Home"
@@ -3100,12 +3100,12 @@ msgstr ""
 #. Label of the host (Link) field in DocType 'LMS Live Class'
 #: lms/lms/doctype/lms_live_class/lms_live_class.json
 msgid "Host"
-msgstr ""
+msgstr "Gostitelj"
 
 #. Option for the 'Work Mode' (Select) field in DocType 'Job Opportunity'
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 msgid "Hybrid"
-msgstr ""
+msgstr "Hibrid"
 
 #. Label of the current (Check) field in DocType 'Work Experience'
 #: lms/lms/doctype/work_experience/work_experience.json
