@@ -3,23 +3,11 @@
 		:options="{
 			title: 'Edit your profile',
 			size: '3xl',
-			actions: [
-				{
-					label: 'Save',
-					variant: 'solid',
-					onClick: (close) => saveProfile(close),
-				},
-			],
 		}"
 	>
 		<template #body-content>
-			<div class="grid grid-cols-2 gap-5">
-				<div class="space-y-4">
-					<!-- <Uploader
-						v-model="profile.image.file_url"
-						label="Profile Image"
-						description="Your profile image to help others recognize you."
-					/> -->
+			<div>
+				<div class="grid grid-cols-2 gap-10">
 					<div>
 						<div class="text-xs text-ink-gray-5 mb-1">
 							{{ __('Profile Image') }}
@@ -66,39 +54,79 @@
 							</div>
 						</div>
 					</div>
-					<FormControl v-model="profile.first_name" :label="__('First Name')" />
-					<FormControl v-model="profile.last_name" :label="__('Last Name')" />
-					<FormControl v-model="profile.headline" :label="__('Headline')" />
-					<Link
-						:label="__('Language')"
-						v-model="profile.language"
-						doctype="Language"
+					<Switch
+						v-model="profile.looking_for_job"
+						:label="__('Open to Opportunities')"
+						:description="
+							__('Show recruiters and others that you are open to work.')
+						"
+						class="!px-0"
 					/>
 				</div>
-				<div>
-					<div class="mb-4">
-						<div class="mb-1.5 text-sm text-ink-gray-5">
-							{{ __('Bio') }}
+
+				<div class="grid grid-cols-2 gap-10">
+					<div class="space-y-4">
+						<div class="space-y-4">
+							<FormControl
+								v-model="profile.first_name"
+								:label="__('First Name')"
+							/>
+							<FormControl
+								v-model="profile.last_name"
+								:label="__('Last Name')"
+							/>
+							<FormControl v-model="profile.headline" :label="__('Headline')" />
+
+							<FormControl
+								v-model="profile.linkedin"
+								:label="__('LinkedIn ID')"
+							/>
+							<FormControl v-model="profile.github" :label="__('GitHub ID')" />
+							<FormControl
+								v-model="profile.twitter"
+								:label="__('Twitter ID')"
+							/>
 						</div>
-						<TextEditor
-							:fixedMenu="true"
-							@change="(val) => (profile.bio = val)"
-							:content="profile.bio"
-							editorClass="prose-sm py-2 px-2 min-h-[200px] border-outline-gray-2 hover:border-outline-gray-3 rounded-b-md bg-surface-gray-3"
+					</div>
+					<div class="space-y-4">
+						<Link
+							:label="__('Language')"
+							v-model="profile.language"
+							doctype="Language"
 						/>
+						<div>
+							<div class="mb-1.5 text-sm text-ink-gray-5">
+								{{ __('Bio') }}
+							</div>
+							<TextEditor
+								:fixedMenu="true"
+								@change="(val) => (profile.bio = val)"
+								:content="profile.bio"
+								:rows="15"
+								editorClass="prose-sm py-2 px-2 min-h-[200px] border-outline-gray-2 hover:border-outline-gray-3 rounded-b-md bg-surface-gray-3"
+							/>
+						</div>
 					</div>
 				</div>
+			</div>
+		</template>
+		<template #actions="{ close }">
+			<div class="pb-5 float-right">
+				<Button variant="solid" @click="saveProfile(close)">
+					{{ __('Save') }}
+				</Button>
 			</div>
 		</template>
 	</Dialog>
 </template>
 <script setup>
 import {
+	Button,
+	createResource,
 	Dialog,
 	FormControl,
 	FileUploader,
-	Button,
-	createResource,
+	Switch,
 	TextEditor,
 	toast,
 } from 'frappe-ui'
@@ -123,6 +151,10 @@ const profile = reactive({
 	headline: '',
 	bio: '',
 	image: '',
+	looking_for_job: false,
+	linkedin: '',
+	github: '',
+	twitter: '',
 })
 
 const imageResource = createResource({
@@ -199,6 +231,10 @@ watch(
 			profile.headline = newVal.headline
 			profile.language = newVal.language
 			profile.bio = newVal.bio
+			profile.looking_for_job = newVal.looking_for_job
+			profile.linkedin = newVal.linkedin
+			profile.github = newVal.github
+			profile.twitter = newVal.twitter
 			if (newVal.user_image) imageResource.submit({ image: newVal.user_image })
 		}
 	}

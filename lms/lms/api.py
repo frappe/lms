@@ -286,7 +286,7 @@ def get_certified_participants(filters=None, start=0, page_length=100):
 		details = frappe.db.get_value(
 			"User",
 			participant.member,
-			["full_name", "user_image", "username", "country", "headline"],
+			["full_name", "user_image", "username", "country", "headline", "looking_for_job"],
 			as_dict=1,
 		)
 		details["certificate_count"] = count
@@ -1612,6 +1612,10 @@ def get_profile_details(username):
 			"headline",
 			"language",
 			"cover_image",
+			"looking_for_job",
+			"linkedin",
+			"github",
+			"twitter",
 		],
 		as_dict=True,
 	)
