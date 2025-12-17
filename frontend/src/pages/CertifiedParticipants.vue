@@ -153,7 +153,6 @@ const categories = createListResource({
 })
 
 const updateParticipants = () => {
-	console.log('updating participants')
 	updateFilters()
 	getMemberCount()
 	setQueryParams()
@@ -165,7 +164,6 @@ const updateParticipants = () => {
 }
 
 const updateFilters = () => {
-	console.log(currentCategory.value)
 	if (currentCategory.value) {
 		filters.value.category = currentCategory.value
 	} else {

@@ -3,13 +3,6 @@
 		:options="{
 			title: 'Edit your profile',
 			size: '3xl',
-			actions: [
-				{
-					label: 'Save',
-					variant: 'solid',
-					onClick: (close) => saveProfile(close),
-				},
-			],
 		}"
 	>
 		<template #body-content>
@@ -115,6 +108,13 @@
 						</div>
 					</div>
 				</div>
+			</div>
+		</template>
+		<template #actions="{ close }">
+			<div class="pb-5 float-right">
+				<Button variant="solid" @click="saveProfile(close)">
+					{{ __('Save') }}
+				</Button>
 			</div>
 		</template>
 	</Dialog>
