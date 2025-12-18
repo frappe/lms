@@ -8,7 +8,7 @@ from frappe.utils import ceil
 
 
 class LMSEnrollment(Document):
-	def validate(self):
+	def before_insert(self):
 		self.validate_course_enrollment_eligibility()
 
 	def on_update(self):
@@ -22,7 +22,7 @@ class LMSEnrollment(Document):
 			as_dict=True,
 		)
 
-		if course_details.disable_self_learning:
+		if course_details.disable_self_learning and not is_admin():
 			frappe.throw(
 				_(
 					"You cannot enroll in this course as self-learning is disabled. Please contact the Administrator."
@@ -47,6 +47,15 @@ class LMSEnrollment(Document):
 				frappe.throw(_("You need to complete the payment for this course before enrolling."))
 
 
+def is_admin():
+	roles = frappe.get_roles(frappe.session.user)
+	admin_roles = ["Moderator", "Course Creator", "Batch Evaluator"]
+	for role in admin_roles:
+		if role in roles:
+			return True
+	return False
+
+
 def update_program_progress(member):
 	programs = frappe.get_all("LMS Program Member", {"member": member}, ["parent", "name"])
 
@@ -60,31 +69,3 @@ def update_program_progress(member):
 
 		average_progress = ceil(total_progress / len(courses))
 		frappe.db.set_value("LMS Program Member", program.name, "progress", average_progress)
-
-
-@frappe.whitelist()
-def create_membership(course, batch=None, member=None, member_type="Student", role="Member"):
-	enrollment = frappe.new_doc("LMS Enrollment")
-	enrollment.update(
-		{
-			"doctype": "LMS Enrollment",
-			"batch_old": batch,
-			"course": course,
-			"role": role,
-			"member_type": member_type,
-			"member": member or frappe.session.user,
-		}
-	)
-	enrollment.insert()
-	return enrollment
-
-
-@frappe.whitelist()
-def update_current_membership(batch, course, member):
-	all_memberships = frappe.get_all("LMS Enrollment", {"member": member, "course": course})
-	for membership in all_memberships:
-		frappe.db.set_value("LMS Enrollment", membership.name, "is_current", 0)
-
-	current_membership = frappe.get_all("LMS Enrollment", {"batch_old": batch, "member": member})
-	if len(current_membership):
-		frappe.db.set_value("LMS Enrollment", current_membership[0].name, "is_current", 1)
