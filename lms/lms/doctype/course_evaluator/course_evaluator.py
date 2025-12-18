@@ -6,7 +6,7 @@ from datetime import datetime
 import frappe
 from frappe import _
 from frappe.model.document import Document
-from frappe.utils import get_time, getdate
+from frappe.utils import add_days, get_time, getdate, nowdate
 
 from lms.lms.utils import get_evaluator
 
@@ -58,33 +58,126 @@ class CourseEvaluator(Document):
 
 
 @frappe.whitelist()
-def get_schedule(course, date, batch=None):
+def get_schedule(course, batch=None):
 	evaluator = get_evaluator(course, batch)
-	day = datetime.strptime(date, "%Y-%m-%d").strftime("%A")
+	start_date = nowdate()
+	end_date = get_end_date(start_date, batch)
+	print(start_date, end_date)
+	all_slots = get_all_slots(evaluator, start_date, end_date)
+	booked_slots = get_booked_slots(evaluator, start_date, end_date)
+	all_slots = remove_booked_slots(all_slots, booked_slots)
+	return all_slots
 
-	all_slots = frappe.get_all(
+
+def get_all_slots(evaluator, start_date, end_date):
+	schedule = get_evaluator_schedule(evaluator)
+	unavailable_dates = get_unavailable_dates(evaluator)
+	all_slots = []
+	current_date = getdate(start_date)
+	end_date = getdate(end_date)
+
+	while current_date <= end_date:
+		if current_date in unavailable_dates:
+			current_date = add_days(current_date, 1)
+			continue
+		day_of_week = current_date.strftime("%A")
+		slots_for_day = [x for x in schedule if x.day == day_of_week]
+		for slot in slots_for_day:
+			all_slots.append(
+				frappe._dict(
+					{
+						"day": day_of_week,
+						"date": current_date,
+						"start_time": slot.start_time,
+						"end_time": slot.end_time,
+					}
+				)
+			)
+		current_date = add_days(current_date, 1)
+	return all_slots
+
+
+def get_evaluator_schedule(evaluator):
+	return frappe.get_all(
 		"Evaluator Schedule",
 		filters={
 			"parent": evaluator,
-			"day": day,
 		},
 		fields=["day", "start_time", "end_time"],
 		order_by="start_time",
 	)
 
-	booked_slots = frappe.get_all(
+
+def get_booked_slots(evaluator, start_date, end_date):
+	date = ["between", [start_date, end_date]]
+	return frappe.get_all(
 		"LMS Certificate Request",
 		filters={
 			"evaluator": evaluator,
 			"date": date,
 			"status": ["!=", "Cancelled"],
 		},
-		fields=["start_time", "day"],
+		fields=["start_time", "day", "date"],
 	)
 
-	for slot in booked_slots:
-		same_slot = [x for x in all_slots if x.start_time == slot.start_time and x.day == slot.day]
-		if len(same_slot):
-			all_slots.remove(same_slot[0])
 
-	return all_slots
+def remove_booked_slots(all_slots, booked_slots):
+	slots_to_remove = []
+	for slot in all_slots:
+		for booked in booked_slots:
+			if slot.date == booked.date and slot.start_time == booked.start_time:
+				slots_to_remove.append(slot)
+
+	for slot in slots_to_remove:
+		all_slots.remove(slot)
+
+	return group_slots_by_date(all_slots)
+
+
+def group_slots_by_date(all_slots):
+	slots_by_date = []
+	dates_included = set()
+	for slot in all_slots:
+		date_str = slot.get("date").strftime("%Y-%m-%d")
+		if date_str not in dates_included:
+			slots_by_date.append({"date": date_str, "day": slot.day, "slots": []})
+			dates_included.add(date_str)
+
+		for date_slot in slots_by_date:
+			if date_slot.get("date") == date_str:
+				date_slot.get("slots").append(
+					{
+						"start_time": slot.get("start_time"),
+						"end_time": slot.get("end_time"),
+					}
+				)
+	return slots_by_date
+
+
+def get_evaluator_availability(evaluator):
+	return frappe.db.get_value(
+		"Course Evaluator", evaluator, ["unavailable_from", "unavailable_to"], as_dict=1
+	)
+
+
+def get_unavailable_dates(evaluator):
+	availability = get_evaluator_availability(evaluator)
+	unavailable_dates = []
+	if availability.unavailable_from and availability.unavailable_to:
+		current_date = getdate(availability.unavailable_from)
+		end_date = getdate(availability.unavailable_to)
+
+		while current_date <= end_date:
+			unavailable_dates.append(current_date)
+			current_date = add_days(current_date, 1)
+	return unavailable_dates
+
+
+def get_end_date(start_date, batch=None):
+	end_date = add_days(start_date, 30)
+	if batch:
+		batch_end_date = frappe.db.get_value("LMS Batch", batch, "evaluation_end_date")
+		if batch_end_date:
+			end_date = getdate(batch_end_date)
+
+	return end_date

@@ -2,7 +2,7 @@
 	<Dialog
 		v-model="show"
 		:options="{
-			title: __('Schedule Evaluation'),
+			title: __('Schedule your evaluation'),
 			size: 'xl',
 			actions: [
 				{
@@ -14,52 +14,49 @@
 		}"
 	>
 		<template #body-content>
-			<div class="flex flex-col gap-4">
-				<div>
-					<div class="mb-1.5 text-sm text-ink-gray-5">
-						{{ __('Course') }}
+			<div class="flex flex-col gap-4 text-base max-h-[60vh]">
+				<FormControl
+					v-model="evaluation.course"
+					type="select"
+					:label="__('Course')"
+					:options="getCourses()"
+				/>
+				<div v-if="slots.data?.length" class="space-y-4 overflow-y-auto mt-4">
+					<div class="text-ink-gray-9 font-medium">
+						{{ __('Available Slots') }}
 					</div>
-					<Select v-model="evaluation.course" :options="getCourses()" />
-				</div>
-				<div>
-					<div class="mb-1.5 text-sm text-ink-gray-5">
-						{{ __('Date') }}
-					</div>
-					<FormControl
-						type="date"
-						v-model="evaluation.date"
-						:min="
-							dayjs()
-								.add(dayjs.duration({ days: 1 }))
-								.format('YYYY-MM-DD')
-						"
-					/>
-				</div>
-				<div v-if="slots.data?.length">
-					<div class="mb-1.5 text-sm text-ink-gray-5">
-						{{ __('Select a slot') }}
-					</div>
-					<div class="grid grid-cols-2 gap-2">
-						<div v-for="slot in slots.data">
-							<div
-								class="text-base text-center border rounded-md text-ink-gray-8 bg-surface-gray-3 p-2 cursor-pointer"
-								@click="saveSlot(slot)"
-								:class="{
-									'border-outline-gray-4':
-										evaluation.start_time == slot.start_time,
-								}"
-							>
-								{{ formatTime(slot.start_time) }} -
-								{{ formatTime(slot.end_time) }}
+					<div class="space-y-5">
+						<div v-for="row in slots.data" class="space-y-2">
+							<div class="flex items-center text-ink-gray-7 space-x-2">
+								<Calendar class="size-3" />
+								<div class="">
+									{{ dayjs(row.date).format('DD MMMM YYYY') }}
+								</div>
+								<div>&middot;</div>
+								<div class="text-ink-gray-5">
+									{{ row.day }}
+								</div>
+							</div>
+							<div class="grid grid-cols-3 gap-2">
+								<div
+									v-for="slot in row.slots"
+									class="text-base text-center border rounded-md text-ink-gray-8 p-2 cursor-pointer text-ink-gray-7 hover:bg-surface-gray-2 hover:border-outline-gray-3"
+									@click="saveSlot(slot, row)"
+									:class="{
+										'border-outline-gray-4 text-ink-gray-9':
+											evaluation.date == row.date &&
+											evaluation.start_time == slot.start_time,
+									}"
+								>
+									{{ formatTime(slot.start_time) }} -
+									{{ formatTime(slot.end_time) }}
+								</div>
 							</div>
 						</div>
 					</div>
 				</div>
-				<div
-					v-else-if="evaluation.course && evaluation.date"
-					class="text-sm italic text-ink-red-4"
-				>
-					{{ __('No slots available for this date.') }}
+				<div v-else class="text-ink-red-3">
+					{{ __('No slots available for the selected course.') }}
 				</div>
 			</div>
 		</template>
@@ -67,14 +64,15 @@
 </template>
 <script setup>
 import {
+	call,
+	createResource,
 	dayjs,
 	Dialog,
-	createResource,
-	Select,
 	FormControl,
 	toast,
 } from 'frappe-ui'
-import { reactive, watch, inject } from 'vue'
+import { ref, watch, inject } from 'vue'
+import { Calendar } from 'lucide-vue-next'
 import { formatTime } from '@/utils/'
 
 const user = inject('$user')
@@ -96,7 +94,7 @@ const props = defineProps({
 	},
 })
 
-const evaluation = reactive({
+const evaluation = ref({
 	course: '',
 	date: '',
 	start_time: '',
@@ -120,21 +118,36 @@ const createEvaluation = createResource({
 })
 
 function submitEvaluation(close) {
-	createEvaluation.submit(evaluation, {
+	call('frappe.client.insert', {
+		doc: {
+			doctype: 'LMS Certificate Request',
+			batch_name: evaluation.value.batch,
+			...evaluation.value,
+		},
+	})
+		.then(() => {
+			evaluations.value.reload()
+			close()
+		})
+		.catch((err) => {
+			console.log(err.messages?.[0] || err)
+			toast.warning(__(err.messages?.[0] || err))
+		})
+	/* createEvaluation.submit(evaluation.value, {
 		validate() {
-			if (!evaluation.course) {
+			if (!evaluation.value.course) {
 				return 'Please select a course.'
 			}
-			if (!evaluation.date) {
+			if (!evaluation.value.date) {
 				return 'Please select a date.'
 			}
-			if (!evaluation.start_time) {
+			if (!evaluation.value.start_time) {
 				return 'Please select a slot.'
 			}
-			if (dayjs(evaluation.date).isBefore(dayjs(), 'day')) {
+			if (dayjs(evaluation.value.date).isBefore(dayjs(), 'day')) {
 				return 'Please select a future date.'
 			}
-			if (dayjs(evaluation.date).isAfter(dayjs(props.endDate), 'day')) {
+			if (dayjs(evaluation.value.date).isAfter(dayjs(props.endDate), 'day')) {
 				return `Please select a date before the end date ${dayjs(
 					props.endDate
 				).format('DD MMMM YYYY')}.`
@@ -148,7 +161,7 @@ function submitEvaluation(close) {
 			console.log(err.messages?.[0] || err)
 			toast.warning(__(err.messages?.[0] || err), { duration: 10000 })
 		},
-	})
+	}) */
 }
 
 const getCourses = () => {
@@ -163,7 +176,7 @@ const getCourses = () => {
 	}
 
 	if (courses.length === 1) {
-		evaluation.course = courses[0].value
+		evaluation.value.course = courses[0].value
 	}
 
 	return courses
@@ -174,13 +187,12 @@ const slots = createResource({
 	makeParams(values) {
 		return {
 			course: values.course,
-			date: values.date,
 			batch: props.batch,
 		}
 	},
 })
 
-watch(
+/* watch(
 	() => evaluation.date,
 	(date) => {
 		evaluation.start_time = ''
@@ -189,19 +201,18 @@ watch(
 		}
 	}
 )
-
+ */
 watch(
-	() => evaluation.course,
+	() => evaluation.value.course,
 	(course) => {
-		evaluation.date = ''
-		evaluation.start_time = ''
-		slots.reset()
+		slots.reload(evaluation.value)
 	}
 )
 
-const saveSlot = (slot) => {
-	evaluation.start_time = slot.start_time
-	evaluation.end_time = slot.end_time
-	evaluation.day = slot.day
+const saveSlot = (slot, row) => {
+	evaluation.value.start_time = slot.start_time
+	evaluation.value.end_time = slot.end_time
+	evaluation.value.date = row.date
+	evaluation.value.day = row.day
 }
 </script>

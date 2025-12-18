@@ -1,7 +1,7 @@
 <template>
 	<div v-if="user.data?.is_student">
 		<div>
-			<div class="leading-5 mb-4">
+			<div class="leading-5 mb-4 text-ink-gray-7">
 				<div v-if="readOnly">
 					{{ __('Thank you for providing your feedback.') }}
 					<span
