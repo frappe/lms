@@ -124,7 +124,7 @@ function submitEvaluation(close) {
 		})
 		.catch((err) => {
 			console.log(err.messages?.[0] || err)
-			toast.warning(__(err.messages?.[0] || err))
+			toast.warning(__(err.messages?.[0] || err), { duration: 20 })
 		})
 }
 
