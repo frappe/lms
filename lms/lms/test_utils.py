@@ -1,12 +1,13 @@
-import unittest
-
 import frappe
+from frappe.tests import UnitTestCase
+from frappe.utils import add_days, nowdate
 
 from lms.lms.doctype.lms_certificate.lms_certificate import get_default_certificate_template, is_certified
 
 from .utils import (
 	get_average_rating,
 	get_chapters,
+	get_evaluator,
 	get_instructors,
 	get_lesson_index,
 	get_lesson_url,
@@ -23,7 +24,7 @@ from .utils import (
 )
 
 
-class TestUtils(unittest.TestCase):
+class TestUtils(UnitTestCase):
 	def setUp(self):
 		self.student1 = self.create_user("student1@example.com", "Ashley", "Smith", ["LMS Student"])
 		self.student2 = self.create_user("student2@example.com", "John", "Doe", ["LMS Student"])
@@ -31,7 +32,7 @@ class TestUtils(unittest.TestCase):
 			"frappe@example.com", "Frappe", "Admin", ["Moderator", "Course Creator", "Batch Evaluator"]
 		)
 
-		self.create_a_course()
+		self.course = self.create_a_course()
 		self.add_chapters()
 		self.add_lessons()
 
@@ -43,7 +44,14 @@ class TestUtils(unittest.TestCase):
 
 		self.create_certificate(self.course.name, self.student1.email)
 
+		self.evaluator = self.create_evaluator()
+		self.batch = self.create_a_batch()
+
 	def create_a_course(self):
+		existing_course = frappe.db.exists("LMS Course", {"title": "Utility Course"})
+		if existing_course:
+			return frappe.get_doc("LMS Course", existing_course)
+
 		course = frappe.new_doc("LMS Course")
 		course.title = "Utility Course"
 		course.short_introduction = "A course to test utilities of Frappe Learning"
@@ -52,7 +60,7 @@ class TestUtils(unittest.TestCase):
 		course.published = 1
 		course.append("instructors", {"instructor": "frappe@example.com"})
 		course.save()
-		self.course = course
+		return course
 
 	def add_chapters(self):
 		chapters = []
@@ -66,7 +74,6 @@ class TestUtils(unittest.TestCase):
 		self.course.reload()
 		for chapter in chapters:
 			self.course.append("chapters", {"chapter": chapter.name})
-
 		self.course.save()
 
 	def add_lessons(self):
@@ -87,8 +94,43 @@ class TestUtils(unittest.TestCase):
 				chapterDoc.append("lessons", {"lesson": lesson.name})
 			chapterDoc.save()
 
+	def create_evaluator(self):
+		if frappe.db.exists("Course Evaluator", "frappe@example.com"):
+			return frappe.get_doc("Course Evaluator", "frappe@example.com")
+
+		evaluator = frappe.new_doc("Course Evaluator")
+		evaluator.evaluator = "frappe@example.com"
+		evaluator.append("schedule", {"day": "Monday", "start_time": "10:00", "end_time": "12:00"})
+		evaluator.append("schedule", {"day": "Wednesday", "start_time": "14:00", "end_time": "16:00"})
+		evaluator.unavailable_from = add_days(nowdate(), 5)
+		evaluator.unavailable_to = add_days(nowdate(), 12)
+		evaluator.save()
+		return evaluator
+
+	def create_a_batch(self):
+		existing_batch = frappe.db.exists("LMS Batch", {"title": "Utility Training"})
+		if existing_batch:
+			return frappe.get_doc("LMS Batch", existing_batch)
+
+		batch = frappe.new_doc("LMS Batch")
+		batch.title = "Utility Training"
+		batch.start_date = nowdate()
+		batch.end_date = add_days(batch.start_date, 10)
+		batch.start_time = "09:00:00"
+		batch.end_time = "11:00:00"
+		batch.timezone = "Asia/Kolkata"
+		batch.description = "Batch for Utility Course Training"
+		batch.batch_details = "This batch is created to test utility functions."
+		batch.evaluation_end_date = add_days(nowdate(), 120)
+		batch.append("instructors", {"instructor": "frappe@example.com"})
+		batch.append("courses", {"course": self.course.name, "evaluator": "frappe@example.com"})
+		batch.save()
+		return batch
+
 	def create_user(self, email, first_name, last_name, roles):
-		if not frappe.db.exists("User", email):
+		if frappe.db.exists("User", email):
+			return frappe.get_doc("User", email)
+		else:
 			user = frappe.new_doc("User")
 			user.email = email
 			user.first_name = first_name
@@ -98,8 +140,6 @@ class TestUtils(unittest.TestCase):
 				user.append("roles", {"role": role})
 			user.save()
 			return user
-		else:
-			return frappe.get_doc("User", email)
 
 	def create_certificate(self, course_name, member):
 		certificate = frappe.new_doc("LMS Certificate")
@@ -232,7 +272,14 @@ class TestUtils(unittest.TestCase):
 		frappe.session.user = "Administrator"
 		frappe.delete_doc("User", student3.email)
 
+	def test_get_evaluator(self):
+		evaluator_email = get_evaluator(self.course.name, self.batch.name)
+		self.assertEqual(evaluator_email, self.evaluator.evaluator)
+
 	def tearDown(self):
+		if frappe.db.exists("LMS Batch", self.batch.name):
+			frappe.delete_doc("LMS Batch", self.batch.name)
+
 		if frappe.db.exists("LMS Course", self.course.name):
 			frappe.db.delete("LMS Certificate", {"course": self.course.name})
 			frappe.db.delete("LMS Enrollment", {"course": self.course.name})
@@ -242,6 +289,7 @@ class TestUtils(unittest.TestCase):
 			frappe.db.delete("Course Instructor", {"parent": self.course.name})
 			frappe.delete_doc("LMS Course", self.course.name)
 
+		frappe.delete_doc("Course Evaluator", self.evaluator.name)
 		frappe.delete_doc("User", "student1@example.com")
 		frappe.delete_doc("User", "student2@example.com")
 		frappe.delete_doc("User", "frappe@example.com")
