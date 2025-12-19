@@ -3,7 +3,7 @@
 
 # import frappe
 from frappe.tests import UnitTestCase
-from frappe.utils import format_time
+from frappe.utils import add_days, format_time, getdate
 
 from lms.lms.doctype.course_evaluator.course_evaluator import get_schedule
 from lms.lms.test_utils import TestUtils
@@ -19,10 +19,10 @@ class TestCourseEvaluator(UnitTestCase):
 		self.evaluator = TestUtils.create_evaluator(self)
 		self.batch = TestUtils.create_a_batch(self)
 
-	def test_schedule(self):
+	def test_schedule_day_and_time(self):
 		schedule = get_schedule(self.batch.courses[0].course, self.batch.name)
 		days = ["Monday", "Wednesday"]
-		self.assertGreaterEqual(len(schedule), 16)
+		self.assertGreaterEqual(len(schedule), 14)
 		for row in schedule:
 			self.assertIn(row.get("day"), days)
 			if row.get("day") == "Monday":
@@ -33,3 +33,28 @@ class TestCourseEvaluator(UnitTestCase):
 				for slot in row.get("slots"):
 					self.assertEqual(format_time(slot.get("start_time"), "HH:mm:ss"), "14:00:00")
 					self.assertEqual(format_time(slot.get("end_time"), "HH:mm:ss"), "16:00:00")
+
+	def test_schedule_dates(self):
+		schedule = get_schedule(self.batch.courses[0].course, self.batch.name)
+		first_date = self.calculated_first_date_of_schedule()
+		last_date = self.calculated_last_date_of_schedule(first_date)
+		self.assertEqual(getdate(schedule[0].get("date")), first_date)
+		self.assertEqual(getdate(schedule[-1].get("date")), last_date)
+
+	def calculated_first_date_of_schedule(self):
+		today = getdate()
+		offset = (0 - today.weekday() + 7) % 7  # 0 for Monday
+		first_date = add_days(today, offset)
+		return first_date
+
+	def calculated_last_date_of_schedule(self, first_date):
+		last_date = add_days(first_date, 56)  # 8 weeks course
+		return last_date
+
+	def test_unavailability_dates(self):
+		unavailable_from = getdate(self.evaluator.unavailable_from)
+		unavailable_to = getdate(self.evaluator.unavailable_to)
+		schedule = get_schedule(self.batch.courses[0].course, self.batch.name)
+		for row in schedule:
+			schedule_date = getdate(row.get("date"))
+			self.assertFalse(unavailable_from < schedule_date < unavailable_to)

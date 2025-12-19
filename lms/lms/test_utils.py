@@ -1,6 +1,5 @@
-import unittest
-
 import frappe
+from frappe.tests import UnitTestCase
 from frappe.utils import add_days, nowdate
 
 from lms.lms.doctype.lms_certificate.lms_certificate import get_default_certificate_template, is_certified
@@ -25,7 +24,7 @@ from .utils import (
 )
 
 
-class TestUtils(unittest.TestCase):
+class TestUtils(UnitTestCase):
 	def setUp(self):
 		self.student1 = self.create_user("student1@example.com", "Ashley", "Smith", ["LMS Student"])
 		self.student2 = self.create_user("student2@example.com", "John", "Doe", ["LMS Student"])
@@ -103,6 +102,8 @@ class TestUtils(unittest.TestCase):
 		evaluator.evaluator = "frappe@example.com"
 		evaluator.append("schedule", {"day": "Monday", "start_time": "10:00", "end_time": "12:00"})
 		evaluator.append("schedule", {"day": "Wednesday", "start_time": "14:00", "end_time": "16:00"})
+		evaluator.unavailable_from = add_days(nowdate(), 5)
+		evaluator.unavailable_to = add_days(nowdate(), 12)
 		evaluator.save()
 		return evaluator
 
