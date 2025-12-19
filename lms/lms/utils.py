@@ -825,6 +825,7 @@ def get_course_fields():
 		"video_link",
 		"card_gradient",
 		"short_introduction",
+		"description",
 		"published",
 		"upcoming",
 		"featured",
