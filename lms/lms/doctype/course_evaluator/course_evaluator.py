@@ -61,8 +61,7 @@ class CourseEvaluator(Document):
 def get_schedule(course, batch=None):
 	evaluator = get_evaluator(course, batch)
 	start_date = nowdate()
-	end_date = get_end_date(start_date, batch)
-	print(start_date, end_date)
+	end_date = get_schedule_range_end_date(start_date, batch)
 	all_slots = get_all_slots(evaluator, start_date, end_date)
 	booked_slots = get_booked_slots(evaluator, start_date, end_date)
 	all_slots = remove_booked_slots(all_slots, booked_slots)
@@ -173,7 +172,7 @@ def get_unavailable_dates(evaluator):
 	return unavailable_dates
 
 
-def get_end_date(start_date, batch=None):
+def get_schedule_range_end_date(start_date, batch=None):
 	end_date = add_days(start_date, 60)
 	if batch:
 		batch_end_date = frappe.db.get_value("LMS Batch", batch, "evaluation_end_date")
