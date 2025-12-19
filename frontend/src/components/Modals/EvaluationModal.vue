@@ -29,7 +29,7 @@
 						<div v-for="row in slots.data" class="space-y-2">
 							<div class="flex items-center text-ink-gray-7 space-x-2">
 								<Calendar class="size-3" />
-								<div class="">
+								<div class="text-ink-gray-9">
 									{{ dayjs(row.date).format('DD MMMM YYYY') }}
 								</div>
 								<div>&middot;</div>
@@ -104,20 +104,13 @@ const evaluation = ref({
 	member: user.data.name,
 })
 
-const createEvaluation = createResource({
-	url: 'frappe.client.insert',
-	makeParams(values) {
-		return {
-			doc: {
-				doctype: 'LMS Certificate Request',
-				batch_name: values.batch,
-				...values,
-			},
-		}
-	},
-})
-
 function submitEvaluation(close) {
+	if (!evaluation.value.date || !evaluation.value.start_time) {
+		toast.warning(__('Please select a slot for your evaluation.'), {
+			duration: 10,
+		})
+		return
+	}
 	call('frappe.client.insert', {
 		doc: {
 			doctype: 'LMS Certificate Request',
@@ -133,35 +126,6 @@ function submitEvaluation(close) {
 			console.log(err.messages?.[0] || err)
 			toast.warning(__(err.messages?.[0] || err))
 		})
-	/* createEvaluation.submit(evaluation.value, {
-		validate() {
-			if (!evaluation.value.course) {
-				return 'Please select a course.'
-			}
-			if (!evaluation.value.date) {
-				return 'Please select a date.'
-			}
-			if (!evaluation.value.start_time) {
-				return 'Please select a slot.'
-			}
-			if (dayjs(evaluation.value.date).isBefore(dayjs(), 'day')) {
-				return 'Please select a future date.'
-			}
-			if (dayjs(evaluation.value.date).isAfter(dayjs(props.endDate), 'day')) {
-				return `Please select a date before the end date ${dayjs(
-					props.endDate
-				).format('DD MMMM YYYY')}.`
-			}
-		},
-		onSuccess() {
-			evaluations.value.reload()
-			close()
-		},
-		onError(err) {
-			console.log(err.messages?.[0] || err)
-			toast.warning(__(err.messages?.[0] || err), { duration: 10000 })
-		},
-	}) */
 }
 
 const getCourses = () => {
@@ -192,16 +156,6 @@ const slots = createResource({
 	},
 })
 
-/* watch(
-	() => evaluation.date,
-	(date) => {
-		evaluation.start_time = ''
-		if (date && evaluation.course) {
-			slots.submit(evaluation)
-		}
-	}
-)
- */
 watch(
 	() => evaluation.value.course,
 	(course) => {

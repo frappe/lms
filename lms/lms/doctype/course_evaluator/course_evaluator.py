@@ -174,10 +174,10 @@ def get_unavailable_dates(evaluator):
 
 
 def get_end_date(start_date, batch=None):
-	end_date = add_days(start_date, 30)
+	end_date = add_days(start_date, 60)
 	if batch:
 		batch_end_date = frappe.db.get_value("LMS Batch", batch, "evaluation_end_date")
-		if batch_end_date:
+		if batch_end_date and batch_end_date < getdate(end_date):
 			end_date = getdate(batch_end_date)
 
 	return end_date
