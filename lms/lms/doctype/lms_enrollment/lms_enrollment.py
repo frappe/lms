@@ -39,7 +39,7 @@ class LMSEnrollment(Document):
 					"reference_doctype": "LMS Course",
 					"reference_docname": self.course,
 					"member": self.member,
-					"payment_receipt": True,
+					"payment_received": True,
 				},
 			)
 
