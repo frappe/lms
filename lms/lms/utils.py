@@ -1800,12 +1800,17 @@ def validate_enrollment_eligibility(batch_doc, payment_doc=None):
 		if not payment_doc or not payment_doc.payment_received:
 			frappe.throw(_("Payment is required to enroll in this batch."))
 
-	elif not batch_doc.allow_self_enrollment:
+	elif not batch_doc.allow_self_enrollment and not is_admin():
 		frappe.throw(_("Enrollment in this batch is restricted. Please contact the Administrator."))
 
 	students = frappe.db.count("LMS Batch Enrollment", {"batch": batch_doc.name})
 	if batch_doc.seat_count and students >= batch_doc.seat_count:
 		frappe.throw(_("There are no seats available in this batch."))
+
+
+def is_admin():
+	roles = frappe.get_roles(frappe.session.user)
+	return "Course Creator" in roles or "Moderator" in roles or "Batch Evaluator" in roles
 
 
 def create_enrollment(batch, payment_doc=None):
