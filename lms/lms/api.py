@@ -148,6 +148,29 @@ def verify_billing_access(doctype, name, billing_type):
 
 
 @frappe.whitelist(allow_guest=True)
+def get_job_details(job):
+	return frappe.db.get_value(
+		"Job Opportunity",
+		job,
+		[
+			"job_title",
+			"location",
+			"country",
+			"type",
+			"work_mode",
+			"company_name",
+			"company_logo",
+			"company_website",
+			"name",
+			"creation",
+			"description",
+			"owner",
+		],
+		as_dict=1,
+	)
+
+
+@frappe.whitelist(allow_guest=True)
 def get_job_opportunities(filters=None, orFilters=None):
 	if not filters:
 		filters = {}
