@@ -10,6 +10,7 @@
   "progress",
   "payment",
   "current_lesson",
+  "enrollment_from_batch",
   "column_break_3",
   "member",
   "member_name",
@@ -129,13 +130,19 @@
    "fieldname": "member_image",
    "fieldtype": "Attach Image",
    "label": "Member Image"
+  },
+  {
+   "fieldname": "enrollment_from_batch",
+   "fieldtype": "Link",
+   "label": "Enrollment from Batch",
+   "options": "LMS Batch"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-12-15 21:27:30.733483",
- "modified_by": "Administrator",
+ "modified": "2025-12-23 12:50:13.622277",
+ "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "LMS Enrollment",
  "owner": "Administrator",
