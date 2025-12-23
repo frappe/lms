@@ -76,6 +76,7 @@
  ],
  "fields": [
   {
+   "default": "https://falcon.frappe.io/",
    "fieldname": "livecode_url",
    "fieldtype": "Data",
    "label": "LiveCode URL"
@@ -451,7 +452,7 @@
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2025-12-10 17:36:15.689695",
+ "modified": "2025-12-22 11:30:13.868031",
  "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "LMS Settings",

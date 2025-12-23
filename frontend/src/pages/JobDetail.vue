@@ -196,8 +196,8 @@ const job = createResource({
 	onSuccess: (data) => {
 		if (user.data?.name) {
 			jobApplication.submit()
+			applicationCount.submit()
 		}
-		applicationCount.submit()
 	},
 })
 
