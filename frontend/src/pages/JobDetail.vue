@@ -11,8 +11,8 @@
 						route: { name: 'Jobs' },
 					},
 					{
-						label: job.doc?.job_title,
-						route: { name: 'JobDetail', params: { job: job.doc?.name } },
+						label: job.data?.job_title,
+						route: { name: 'JobDetail', params: { job: job.data?.name } },
 					},
 				]"
 			/>
@@ -24,7 +24,7 @@
 					v-if="canManageJob && applicationCount.data > 0"
 					:to="{
 						name: 'JobApplications',
-						params: { job: job.doc?.name },
+						params: { job: job.data?.name },
 					}"
 				>
 					<Button variant="subtle">
@@ -35,7 +35,7 @@
 					v-if="canManageJob"
 					:to="{
 						name: 'JobForm',
-						params: { jobName: job.doc?.name },
+						params: { jobName: job.data?.name },
 					}"
 				>
 					<Button>
@@ -45,7 +45,7 @@
 						{{ __('Edit') }}
 					</Button>
 				</router-link>
-				<Button @click="redirectToWebsite(job.doc?.company_website)">
+				<Button @click="redirectToWebsite(job.data?.company_website)">
 					<template #prefix>
 						<SquareArrowOutUpRight class="h-4 w-4 stroke-1.5" />
 					</template>
@@ -69,30 +69,30 @@
 				</Badge>
 			</div>
 			<div v-else-if="!readOnlyMode">
-				<Button @click="redirectToLogin(job.doc?.name)">
+				<Button @click="redirectToLogin(job.data?.name)">
 					<span>
 						{{ __('Login to apply') }}
 					</span>
 				</Button>
 			</div>
 		</header>
-		<div v-if="job.doc" class="max-w-3xl mx-auto pt-5">
+		<div v-if="job.data" class="max-w-3xl mx-auto pt-5">
 			<div class="p-4">
 				<div class="space-y-5 mb-12">
 					<div class="flex">
 						<img
-							:src="job.doc.company_logo"
+							:src="job.data.company_logo"
 							class="size-10 rounded-lg object-contain cursor-pointer mr-4"
-							:alt="job.doc.company_name"
-							@click="redirectToWebsite(job.doc.company_website)"
+							:alt="job.data.company_name"
+							@click="redirectToWebsite(job.data.company_website)"
 						/>
 						<div class="">
 							<div class="text-2xl text-ink-gray-9 font-semibold mb-1">
-								{{ job.doc.job_title }}
+								{{ job.data.job_title }}
 							</div>
 							<div class="text-sm text-ink-gray-5 font-semibold">
-								{{ job.doc.company_name }} - {{ job.doc.location }},
-								{{ job.doc.country }}
+								{{ job.data.company_name }} - {{ job.data.location }},
+								{{ job.data.country }}
 							</div>
 						</div>
 					</div>
@@ -102,19 +102,19 @@
 							<template #prefix>
 								<CalendarDays class="size-3 stroke-2 text-ink-gray-7" />
 							</template>
-							{{ dayjs(job.doc.creation).fromNow() }}
+							{{ dayjs(job.data.creation).fromNow() }}
 						</Badge>
 						<Badge size="lg">
 							<template #prefix>
 								<ClipboardType class="size-3 stroke-2 text-ink-gray-7" />
 							</template>
-							{{ job.doc.type }}
+							{{ job.data.type }}
 						</Badge>
-						<Badge v-if="job.doc?.work_mode" size="lg">
+						<Badge v-if="job.data?.work_mode" size="lg">
 							<template #prefix>
 								<BriefcaseBusiness class="size-3 stroke-2 text-ink-gray-7" />
 							</template>
-							{{ job.doc.work_mode }}
+							{{ job.data.work_mode }}
 						</Badge>
 						<Badge v-if="applicationCount.data" size="lg">
 							<template #prefix>
@@ -137,14 +137,14 @@
 				</div>
 
 				<p
-					v-html="job.doc.description"
+					v-html="job.data.description"
 					class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2 prose-sm max-w-none !whitespace-normal mt-12"
 				></p>
 			</div>
 			<JobApplicationModal
 				v-model="showApplicationModal"
 				v-model:application="jobApplication"
-				:job="job.doc.name"
+				:job="job.data.name"
 			/>
 		</div>
 	</div>
@@ -155,7 +155,6 @@ import {
 	Button,
 	Breadcrumbs,
 	createResource,
-	createDocumentResource,
 	usePageMeta,
 } from 'frappe-ui'
 import { inject, ref, computed } from 'vue'
@@ -187,11 +186,13 @@ const props = defineProps({
 	},
 })
 
-const job = createDocumentResource({
-	doctype: 'Job Opportunity',
-	name: props.job,
-	auto: true,
+const job = createResource({
+	url: 'lms.lms.api.get_job_details',
+	params: {
+		job: props.job,
+	},
 	cache: ['job', props.job],
+	auto: true,
 	onSuccess: (data) => {
 		if (user.data?.name) {
 			jobApplication.submit()
@@ -206,7 +207,7 @@ const jobApplication = createResource({
 		return {
 			doctype: 'LMS Job Application',
 			filters: {
-				job: job.doc?.name,
+				job: job.data?.name,
 				user: user.data?.name,
 			},
 		}
@@ -219,7 +220,7 @@ const applicationCount = createResource({
 		return {
 			doctype: 'LMS Job Application',
 			filters: {
-				job: job.doc?.name,
+				job: job.data?.name,
 			},
 		}
 	},
@@ -238,13 +239,13 @@ const redirectToWebsite = (url) => {
 }
 
 const canManageJob = computed(() => {
-	if (!user.data?.name || !job.doc) return false
-	return user.data.name === job.doc.owner || user.data?.is_moderator
+	if (!user.data?.name || !job.data) return false
+	return user.data.name === job.data.owner || user.data?.is_moderator
 })
 
 usePageMeta(() => {
 	return {
-		title: job.doc?.job_title,
+		title: job.data?.job_title,
 		icon: brand.favicon,
 	}
 })
