@@ -29,6 +29,9 @@ class LMSEnrollment(Document):
 				)
 			)
 
+		if self.enrollment_from_batch:
+			return
+
 		if not course_details.published:
 			frappe.throw(_("You cannot enroll in an unpublished course."))
 
