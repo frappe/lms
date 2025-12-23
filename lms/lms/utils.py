@@ -1775,11 +1775,7 @@ def enroll_in_batch(batch, payment_name=None):
 	if not frappe.db.exists("LMS Batch", batch):
 		frappe.throw(_("The specified batch does not exist."))
 
-	batch_doc = frappe.db.get_value(
-		"LMS Batch", batch, ["name", "seat_count", "allow_self_enrollment", "paid_batch"], as_dict=True
-	)
 	payment_doc = get_payment_details(payment_name)
-	validate_enrollment_eligibility(batch_doc, payment_doc)
 	create_enrollment(batch, payment_doc)
 
 
@@ -1790,27 +1786,6 @@ def get_payment_details(payment_name):
 			"LMS Payment", payment_name, ["name", "source", "payment_received"], as_dict=True
 		)
 	return payment_doc
-
-
-def validate_enrollment_eligibility(batch_doc, payment_doc=None):
-	if frappe.db.exists("LMS Batch Enrollment", {"batch": batch_doc.name, "member": frappe.session.user}):
-		frappe.throw(_("You are already enrolled in this batch."))
-
-	if batch_doc.paid_batch:
-		if not payment_doc or not payment_doc.payment_received:
-			frappe.throw(_("Payment is required to enroll in this batch."))
-
-	elif not batch_doc.allow_self_enrollment and not is_admin():
-		frappe.throw(_("Enrollment in this batch is restricted. Please contact the Administrator."))
-
-	students = frappe.db.count("LMS Batch Enrollment", {"batch": batch_doc.name})
-	if batch_doc.seat_count and students >= batch_doc.seat_count:
-		frappe.throw(_("There are no seats available in this batch."))
-
-
-def is_admin():
-	roles = frappe.get_roles(frappe.session.user)
-	return "Course Creator" in roles or "Moderator" in roles or "Batch Evaluator" in roles
 
 
 def create_enrollment(batch, payment_doc=None):

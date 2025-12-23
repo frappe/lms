@@ -67,6 +67,7 @@ class LMSCertificateRequest(Document):
 			{
 				"evaluator": self.evaluator,
 				"date": self.date,
+				"status": ["!=", "Cancelled"],
 				"start_time": self.start_time,
 				"member": ["!=", self.member],
 			},

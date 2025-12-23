@@ -30,7 +30,6 @@ class LMSBatch(Document):
 		self.validate_payments_app()
 		self.validate_amount_and_currency()
 		self.validate_duplicate_assessments()
-		self.validate_membership()
 		self.validate_timetable()
 		self.validate_evaluation_end_date()
 
@@ -81,16 +80,6 @@ class LMSBatch(Document):
 	def validate_evaluation_end_date(self):
 		if self.evaluation_end_date and self.evaluation_end_date < self.end_date:
 			frappe.throw(_("Evaluation end date cannot be less than the batch end date."))
-
-	def validate_membership(self):
-		members = frappe.get_all("LMS Batch Enrollment", {"batch": self.name}, pluck="member")
-		for course in self.courses:
-			for member in members:
-				if not frappe.db.exists("LMS Enrollment", {"course": course.course, "member": member}):
-					enrollment = frappe.new_doc("LMS Enrollment")
-					enrollment.course = course.course
-					enrollment.member = member
-					enrollment.save()
 
 	def validate_seats_left(self):
 		if cint(self.seat_count) < 0:
