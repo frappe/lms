@@ -229,7 +229,7 @@ import {
 	toast,
 	call,
 } from 'frappe-ui'
-import { reactive, inject, onMounted, computed, ref } from 'vue'
+import { reactive, inject, onMounted, computed, ref, watch } from 'vue'
 import { sessionStore } from '../stores/session'
 import Link from '@/components/Controls/Link.vue'
 import NotPermitted from '@/components/NotPermitted.vue'
@@ -443,6 +443,12 @@ const redirectTo = computed(() => {
 		return `/lms/batches/${props.name}`
 	} else if (props.type == 'certificate') {
 		return `/lms/courses/${props.name}/certification`
+	}
+})
+
+watch(billingDetails, () => {
+	if (billingDetails.member_consent) {
+		showConsentWarning.value = false
 	}
 })
 
