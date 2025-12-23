@@ -35,16 +35,16 @@
 						<div v-else class="mb-4">
 							<div class="flex items-center">
 								<img
-									:src="profile.image.file_url"
+									:src="profile.image?.file_url"
 									class="object-cover h-[50px] w-[50px] rounded-full border-4 border-white object-cover"
 								/>
 
 								<div class="text-base flex flex-col ml-2">
 									<span>
-										{{ profile.image.file_name }}
+										{{ profile.image?.file_name }}
 									</span>
 									<span class="text-sm text-ink-gray-4 mt-1">
-										{{ getFileSize(profile.image.file_size) }}
+										{{ getFileSize(profile.image?.file_size) }}
 									</span>
 								</div>
 								<X
@@ -177,7 +177,7 @@ const updateProfile = createResource({
 			doctype: 'User',
 			name: props.profile.data.name,
 			fieldname: {
-				user_image: profile.image.file_url,
+				user_image: profile.image?.file_url || null,
 				...profile,
 			},
 		}

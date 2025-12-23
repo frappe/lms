@@ -43,8 +43,12 @@ class TestCourseEvaluator(UnitTestCase):
 
 	def calculated_first_date_of_schedule(self):
 		today = getdate()
-		offset = (0 - today.weekday() + 7) % 7  # 0 for Monday
-		first_date = add_days(today, offset)
+		offset_monday = (0 - today.weekday() + 7) % 7  # 0 for Monday
+		offset_wednesday = (2 - today.weekday() + 7) % 7  # 2 for Wednesday
+		if offset_monday < offset_wednesday:
+			first_date = add_days(today, offset_monday)
+		else:
+			first_date = add_days(today, offset_wednesday)
 		return first_date
 
 	def calculated_last_date_of_schedule(self, first_date):

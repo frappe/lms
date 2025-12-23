@@ -9,10 +9,11 @@
  "engine": "InnoDB",
  "field_order": [
   "title",
-  "question",
-  "column_break_hmwv",
   "type",
   "grade_assignment",
+  "course",
+  "column_break_hmwv",
+  "question",
   "section_break_sjti",
   "show_answer",
   "answer"
@@ -68,12 +69,18 @@
   {
    "fieldname": "section_break_sjti",
    "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "course",
+   "fieldtype": "Link",
+   "label": "Course",
+   "options": "LMS Course"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-12-17 14:47:05.489937",
+ "modified": "2025-12-19 16:30:58.531722",
  "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "LMS Assignment",
