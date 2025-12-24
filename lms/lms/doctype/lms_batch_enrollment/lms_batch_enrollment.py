@@ -44,6 +44,8 @@ class LMSBatchEnrollment(Document):
 			)
 			if not payment:
 				frappe.throw(_("Payment is required to enroll in this batch."))
+			else:
+				self.payment = payment
 
 	def validate_self_enrollment(self):
 		batch_details = frappe.db.get_value(
