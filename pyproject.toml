@@ -12,7 +12,7 @@ dependencies = [
     "websocket_client~=1.6.4",
     "markdown~=3.5.1",
     "beautifulsoup4>=4.12,<4.14",
-    "lxml~=4.9.3",
+    "lxml~=6.0.2",
     "cairocffi==1.5.1",
     "razorpay~=1.4.1",
     "fuzzywuzzy~=0.18.0",
