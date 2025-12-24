@@ -260,7 +260,7 @@
 					)
 				}}
 			</div>
-			<div v-else class="text-ink-gray-7">
+			<div v-else-if="quiz.data.show_quiz_summary" class="text-ink-gray-7">
 				{{
 					__(
 						'You got {0}% correct answers with a score of {1} out of {2}'
@@ -268,6 +268,15 @@
 						Math.ceil(quizSubmission.data.percentage),
 						quizSubmission.data.score,
 						quizSubmission.data.score_out_of
+					)
+				}}
+			</div>
+			<div v-else
+				class="leading-5 text-ink-gray-7"
+			>
+				{{
+					__(
+						"Your submission has been successfully saved."
 					)
 				}}
 			</div>
