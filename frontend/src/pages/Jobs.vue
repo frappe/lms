@@ -137,6 +137,10 @@ const isModerator = computed(() => {
 })
 
 const getClosedJobCount = () => {
+	if (!user.data?.name) {
+		return
+	}
+
 	const filters = {
 		status: 'Closed',
 	}

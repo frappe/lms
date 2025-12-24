@@ -50,23 +50,50 @@
 		<div class="mx-auto -mt-10 md:-mt-4 max-w-4xl translate-x-0 px-5">
 			<div class="flex flex-col md:flex-row items-center">
 				<div>
-					<img
-						v-if="profile.data.user_image"
-						:src="profile.data.user_image"
-						class="object-cover h-[100px] w-[100px] rounded-full border-4 border-white object-cover"
-					/>
-					<UserAvatar
-						v-else
-						:user="profile.data"
-						class="object-cover h-[100px] w-[100px] rounded-full border-4 border-white object-cover"
-					/>
+					<div class="relative">
+						<img
+							v-if="profile.data.user_image"
+							:src="profile.data.user_image"
+							class="object-cover h-[100px] w-[100px] rounded-full border-4 border-white object-cover"
+						/>
+						<Tooltip
+							v-if="profile.data.looking_for_job"
+							:text="__('Open to Opportunities')"
+							placement="right"
+						>
+							<div
+								class="absolute bottom-3 right-1 p-0.5 bg-surface-white rounded-full"
+							>
+								<div class="rounded-full bg-surface-green-3 w-fit">
+									<BadgeCheckIcon class="text-ink-white size-5" />
+								</div>
+							</div>
+						</Tooltip>
+					</div>
 				</div>
-				<div class="ml-6">
-					<h2 class="mt-2 text-3xl font-semibold text-ink-gray-9">
+				<div class="ml-6 mt-5">
+					<h2 class="text-3xl font-semibold text-ink-gray-9">
 						{{ profile.data.full_name }}
 					</h2>
-					<div class="mt-2 text-base text-ink-gray-7">
+					<div class="text-base text-ink-gray-7 mt-1">
 						{{ profile.data.headline }}
+					</div>
+					<div class="flex items-center space-x-4 mt-2">
+						<Twitter
+							v-if="profile.data.twitter"
+							class="size-4 text-ink-gray-5 cursor-pointer"
+							@click="navigateTo(profile.data.twitter)"
+						/>
+						<Linkedin
+							v-if="profile.data.linkedin"
+							class="size-4 text-ink-gray-5 cursor-pointer"
+							@click="navigateTo(profile.data.linkedin)"
+						/>
+						<Github
+							v-if="profile.data.github"
+							class="size-4 text-ink-gray-5 cursor-pointer"
+							@click="navigateTo(profile.data.github)"
+						/>
 					</div>
 				</div>
 				<Button
@@ -81,7 +108,7 @@
 				</Button>
 			</div>
 
-			<div class="mb-4 mt-6">
+			<div class="mb-4 mt-10">
 				<TabButtons
 					class="inline-block"
 					:buttons="getTabButtons()"
@@ -104,11 +131,19 @@ import {
 	call,
 	createResource,
 	TabButtons,
+	Tooltip,
 	usePageMeta,
 } from 'frappe-ui'
 import { computed, inject, watch, ref, onMounted, watchEffect } from 'vue'
 import { sessionStore } from '@/stores/session'
-import { Edit, RefreshCcw } from 'lucide-vue-next'
+import {
+	BadgeCheckIcon,
+	Edit,
+	Github,
+	Linkedin,
+	RefreshCcw,
+	Twitter,
+} from 'lucide-vue-next'
 import { useRoute, useRouter } from 'vue-router'
 import { convertToTitleCase } from '@/utils'
 import UserAvatar from '@/components/UserAvatar.vue'
@@ -227,6 +262,10 @@ const reloadUser = () => {
 			profile.reload()
 		})
 	})
+}
+
+const navigateTo = (url) => {
+	window.open(url, '_blank')
 }
 
 const breadcrumbs = computed(() => {

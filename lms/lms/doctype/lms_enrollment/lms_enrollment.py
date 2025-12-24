@@ -72,20 +72,3 @@ def update_program_progress(member):
 
 		average_progress = ceil(total_progress / len(courses))
 		frappe.db.set_value("LMS Program Member", program.name, "progress", average_progress)
-
-
-@frappe.whitelist()
-def create_membership(course, batch=None, member=None, member_type="Student", role="Member"):
-	enrollment = frappe.new_doc("LMS Enrollment")
-	enrollment.update(
-		{
-			"doctype": "LMS Enrollment",
-			"batch_old": batch,
-			"course": course,
-			"role": role,
-			"member_type": member_type,
-			"member": member or frappe.session.user,
-		}
-	)
-	enrollment.insert()
-	return enrollment

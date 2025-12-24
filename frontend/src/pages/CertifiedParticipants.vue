@@ -38,8 +38,8 @@
 				</div>
 			</div>
 		</div>
-		<div v-if="participants.data?.length" class="divide-y">
-			<template v-for="participant in participants.data">
+		<div v-if="participants.data?.length" class="">
+			<template v-for="(participant, index) in participants.data">
 				<router-link
 					:to="{
 						name: 'ProfileCertificates',
@@ -47,15 +47,16 @@
 							username: participant.username,
 						},
 					}"
-					class="flex sm:rounded px-3 py-2 sm:h-15 hover:bg-surface-gray-2"
+					class="flex h-15 rounded-md hover:bg-surface-gray-2 px-3"
 				>
-					<div class="flex items-center w-full space-x-3">
-						<Avatar
-							:image="participant.user_image"
-							class="size-8 rounded-full object-contain"
-							:label="participant.full_name"
-							size="2xl"
-						/>
+					<div
+						class="flex items-center w-full space-x-3 py-2"
+						:class="{
+							'border-b': index < participants.data.length - 1,
+						}"
+					>
+						<UserAvatar :user="participant" size="2xl" />
+
 						<div class="flex flex-col md:flex-row w-full">
 							<div class="flex-1">
 								<div class="text-base font-medium text-ink-gray-8">
@@ -115,6 +116,7 @@ import { computed, inject, onMounted, ref } from 'vue'
 import { GraduationCap } from 'lucide-vue-next'
 import { sessionStore } from '../stores/session'
 import EmptyState from '@/components/EmptyState.vue'
+import UserAvatar from '@/components/UserAvatar.vue'
 
 const currentCategory = ref('')
 const filters = ref({})

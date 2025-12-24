@@ -70,7 +70,10 @@
 						</Tooltip>
 						<div class="space-y-1 w-full">
 							<div class="flex items-center">
-								<div class="font-medium" v-html="result.title"></div>
+								<div
+									class="font-medium text-ink-gray-9"
+									v-html="result.title"
+								></div>
 								<div class="text-sm text-ink-gray-5 ml-2">
 									{{ getDocTypeTitle(result.doctype) }}
 								</div>
@@ -89,7 +92,10 @@
 									}}
 								</div>
 							</div>
-							<div class="leading-5" v-html="result.content"></div>
+							<div
+								class="leading-5 text-ink-gray-7"
+								v-html="result.content"
+							></div>
 						</div>
 					</div>
 				</div>

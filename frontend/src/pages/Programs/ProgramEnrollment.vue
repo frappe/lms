@@ -11,7 +11,7 @@
 			</div>
 		</template>
 		<template #body-content>
-			<div v-if="program.data" class="text-base">
+			<div v-if="program.data" class="text-base text-ink-gray-9">
 				<div class="bg-surface-blue-2 text-ink-blue-3 p-2 rounded-md leading-5">
 					<span>
 						{{
@@ -46,9 +46,9 @@
 					<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
 						<div
 							v-for="course in program.data.courses"
-							class="flex flex-col border p-2 rounded-md h-full"
+							class="flex flex-col border border-outline-gray-2 p-2 rounded-md h-full"
 						>
-							<div class="font-semibold leading-5 mb-2">
+							<div class="font-semibold text-ink-gray-9 leading-5 mb-2">
 								{{ course.title }}
 							</div>
 
@@ -85,7 +85,7 @@
 
 							<div class="flex items-center space-x-1 mt-auto">
 								<UserAvatar :user="course.instructors[0]" />
-								<span>
+								<span class="text-ink-gray-9">
 									{{ course.instructors[0].full_name }}
 								</span>
 							</div>

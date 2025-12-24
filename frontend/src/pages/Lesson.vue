@@ -342,6 +342,7 @@ import {
 	TabButtons,
 	Tooltip,
 	usePageMeta,
+	toast,
 } from 'frappe-ui'
 import {
 	computed,
@@ -798,6 +799,10 @@ const enrollStudent = () => {
 		{
 			onSuccess() {
 				window.location.reload()
+			},
+			onError(err) {
+				toast.error(__(err.messages?.[0] || err))
+				console.error(err)
 			},
 		}
 	)

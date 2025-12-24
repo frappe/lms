@@ -148,6 +148,29 @@ def verify_billing_access(doctype, name, billing_type):
 
 
 @frappe.whitelist(allow_guest=True)
+def get_job_details(job):
+	return frappe.db.get_value(
+		"Job Opportunity",
+		job,
+		[
+			"job_title",
+			"location",
+			"country",
+			"type",
+			"work_mode",
+			"company_name",
+			"company_logo",
+			"company_website",
+			"name",
+			"creation",
+			"description",
+			"owner",
+		],
+		as_dict=1,
+	)
+
+
+@frappe.whitelist(allow_guest=True)
 def get_job_opportunities(filters=None, orFilters=None):
 	if not filters:
 		filters = {}
@@ -286,7 +309,7 @@ def get_certified_participants(filters=None, start=0, page_length=100):
 		details = frappe.db.get_value(
 			"User",
 			participant.member,
-			["full_name", "user_image", "username", "country", "headline"],
+			["full_name", "user_image", "username", "country", "headline", "looking_for_job"],
 			as_dict=1,
 		)
 		details["certificate_count"] = count
@@ -1612,6 +1635,10 @@ def get_profile_details(username):
 			"headline",
 			"language",
 			"cover_image",
+			"looking_for_job",
+			"linkedin",
+			"github",
+			"twitter",
 		],
 		as_dict=True,
 	)

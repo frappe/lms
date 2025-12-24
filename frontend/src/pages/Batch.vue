@@ -144,6 +144,20 @@
 						</span>
 					</div>
 				</div>
+				<div
+					v-if="batch.data.evaluation_end_date && isStudent"
+					class="text-sm leading-5 bg-surface-amber-1 text-ink-amber-3 p-2 rounded-md mb-10"
+				>
+					{{ __('The last day to schedule your evaluations is ') }}
+					<span class="font-medium">
+						{{
+							dayjs(batch.data.evaluation_end_date).format('DD MMMM YYYY')
+						}} </span
+					>.
+					{{
+						__('Please make sure to schedule your evaluation before this date.')
+					}}
+				</div>
 				<div v-if="dayjs().isSameOrAfter(dayjs(batch.data.start_date))">
 					<div class="text-ink-gray-7 font-semibold mb-2">
 						{{ __('Feedback') }}

@@ -220,8 +220,12 @@ function enrollStudent() {
 			window.location.href = `/login?redirect-to=${window.location.pathname}`
 		}, 500)
 	} else {
-		call('lms.lms.doctype.lms_enrollment.lms_enrollment.create_membership', {
-			course: props.course.data.name,
+		call('frappe.client.insert', {
+			doc: {
+				doctype: 'LMS Enrollment',
+				course: props.course.data.name,
+				member: user.data.name,
+			},
 		})
 			.then(() => {
 				capture('enrolled_in_course', {

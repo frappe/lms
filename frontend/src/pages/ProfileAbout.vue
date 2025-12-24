@@ -56,11 +56,13 @@
 					</template>
 					<template #body-main>
 						<div class="w-[250px] text-base">
-							<img
-								:src="badge.badge_image"
-								:alt="badge.badge"
-								class="bg-surface-gray-2 rounded-t-md h-[200px] mx-auto"
-							/>
+							<div class="bg-surface-gray-2 rounded-t-md py-5">
+								<img
+									:src="badge.badge_image"
+									:alt="badge.badge"
+									class="h-[200px] mx-auto"
+								/>
+							</div>
 							<div class="p-5">
 								<div class="text-2xl font-semibold mb-2">
 									{{ badge.badge }}

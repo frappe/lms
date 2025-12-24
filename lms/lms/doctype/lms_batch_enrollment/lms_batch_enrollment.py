@@ -48,8 +48,12 @@ class LMSBatchEnrollment(Document):
 				self.payment = payment
 
 	def validate_self_enrollment(self):
-		allow_self_enrollment = frappe.db.get_value("LMS Batch", self.batch, "allow_self_enrollment")
-		if not allow_self_enrollment and not self.is_admin():
+		batch_details = frappe.db.get_value(
+			"LMS Batch", self.batch, ["allow_self_enrollment", "paid_batch"], as_dict=True
+		)
+		if batch_details.paid_batch:
+			return
+		if not batch_details.allow_self_enrollment and not self.is_admin():
 			frappe.throw(_("Enrollment in this batch is restricted. Please contact the Administrator."))
 
 	def is_admin(self):

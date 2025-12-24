@@ -68,11 +68,12 @@ const props = defineProps({
 
 const certification = createResource({
 	url: 'lms.lms.api.get_certification_details',
-	params: {
-		course: props.courseName,
+	makeParams(values) {
+		return {
+			course: props.courseName,
+		}
 	},
 	auto: user.data ? true : false,
-	cache: ['certificationData', user.data?.name],
 })
 
 const downloadCertificate = () => {

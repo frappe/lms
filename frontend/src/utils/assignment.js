@@ -4,6 +4,7 @@ import AssessmentPlugin from '@/components/AssessmentPlugin.vue'
 import translationPlugin from '../translation'
 import { usersStore } from '@/stores/user'
 import { call } from 'frappe-ui'
+import router from '@/router'
 
 export class Assignment {
 	constructor({ data, api, readOnly }) {
@@ -84,6 +85,7 @@ export class Assignment {
 			},
 		})
 		app.use(translationPlugin)
+		app.use(router)
 		app.mount(this.wrapper)
 	}
 
