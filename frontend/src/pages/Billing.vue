@@ -91,6 +91,16 @@
 							</Button>
 						</div>
 					</div>
+
+					<p
+						class="bg-surface-amber-2 text-ink-amber-2 text-sm leading-5 p-2 rounded-md"
+					>
+						{{
+							__(
+								'Please ensure that the billing name you enter is correct, as it will be used on your invoice.'
+							)
+						}}
+					</p>
 				</div>
 
 				<div class="flex-1 lg:mr-10">
@@ -104,16 +114,22 @@
 							<FormControl
 								:label="__('Billing Name')"
 								v-model="billingDetails.billing_name"
+								:required="true"
 							/>
 							<FormControl
 								:label="__('Address Line 1')"
 								v-model="billingDetails.address_line1"
+								:required="true"
 							/>
 							<FormControl
 								:label="__('Address Line 2')"
 								v-model="billingDetails.address_line2"
 							/>
-							<FormControl :label="__('City')" v-model="billingDetails.city" />
+							<FormControl
+								:label="__('City')"
+								v-model="billingDetails.city"
+								:required="true"
+							/>
 							<FormControl
 								:label="__('State/Province')"
 								v-model="billingDetails.state"
@@ -125,20 +141,24 @@
 								:value="billingDetails.country"
 								@change="(option) => changeCurrency(option)"
 								:label="__('Country')"
+								:required="true"
 							/>
 							<FormControl
 								:label="__('Postal Code')"
 								v-model="billingDetails.pincode"
+								:required="true"
 							/>
 							<FormControl
 								:label="__('Phone Number')"
 								v-model="billingDetails.phone"
+								:required="true"
 							/>
 							<Link
 								doctype="LMS Source"
 								:value="billingDetails.source"
 								@change="(option) => (billingDetails.source = option)"
 								:label="__('Where did you hear about us?')"
+								:required="true"
 							/>
 							<FormControl
 								v-if="billingDetails.country == 'India'"
@@ -152,14 +172,29 @@
 							/>
 						</div>
 					</div>
-					<div class="flex items-center justify-between border-t pt-4 mt-8">
-						<p class="text-ink-gray-5">
-							{{
-								__(
-									'Make sure to enter the correct billing name as the same will be used in your invoice.'
-								)
-							}}
-						</p>
+					<div
+						class="flex flex-col lg:flex-row items-start lg:items-center justify-between border-t pt-4 mt-8 space-y-4 lg:space-y-0"
+					>
+						<div>
+							<FormControl
+								:label="
+									__(
+										'I consent to my personal information being stored for invoicing'
+									)
+								"
+								type="checkbox"
+								class="leading-6"
+								v-model="billingDetails.member_consent"
+							/>
+							<div
+								v-if="showConsentWarning"
+								class="mt-1 text-xs text-ink-red-3"
+							>
+								{{
+									__('Please provide your consent to proceed with the payment')
+								}}
+							</div>
+						</div>
 						<Button variant="solid" size="md" @click="generatePaymentLink()">
 							{{ __('Proceed to Payment') }}
 						</Button>
@@ -194,7 +229,7 @@ import {
 	toast,
 	call,
 } from 'frappe-ui'
-import { reactive, inject, onMounted, computed, ref } from 'vue'
+import { reactive, inject, onMounted, computed, ref, watch } from 'vue'
 import { sessionStore } from '../stores/session'
 import Link from '@/components/Controls/Link.vue'
 import NotPermitted from '@/components/NotPermitted.vue'
@@ -202,6 +237,7 @@ import { X } from 'lucide-vue-next'
 
 const user = inject('$user')
 const { brand } = sessionStore()
+const showConsentWarning = ref(false)
 
 onMounted(() => {
 	const script = document.createElement('script')
@@ -295,6 +331,10 @@ const generatePaymentLink = () => {
 			validate() {
 				if (!billingDetails.source) {
 					return __('Please let us know where you heard about us from.')
+				}
+				if (!billingDetails.member_consent) {
+					showConsentWarning.value = true
+					return __('Please provide your consent to proceed with the payment.')
 				}
 				return validateAddress()
 			},
@@ -403,6 +443,12 @@ const redirectTo = computed(() => {
 		return `/lms/batches/${props.name}`
 	} else if (props.type == 'certificate') {
 		return `/lms/courses/${props.name}/certification`
+	}
+})
+
+watch(billingDetails, () => {
+	if (billingDetails.member_consent) {
+		showConsentWarning.value = false
 	}
 })
 
