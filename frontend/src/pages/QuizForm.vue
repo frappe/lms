@@ -97,6 +97,11 @@
 						type="checkbox"
 						:label="__('Show Submission History')"
 					/>
+					<FormControl
+						v-model="quizDetails.doc.show_quiz_summary"
+						type="checkbox"
+						:label="__('Show Quiz Summary')"
+					/>
 				</div>
 				<div class="flex flex-col space-y-5">
 					<FormControl
