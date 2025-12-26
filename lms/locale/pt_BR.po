@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-12-19 16:05+0000\n"
-"PO-Revision-Date: 2025-12-23 23:25\n"
+"PO-Revision-Date: 2025-12-24 23:25\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Portuguese, Brazilian\n"
 "MIME-Version: 1.0\n"
@@ -7750,7 +7750,7 @@ msgstr ""
 
 #: lms/lms/api.py:771
 msgid "{0} not found"
-msgstr ""
+msgstr "{0} não encontrado"
 
 #. Count format of shortcut in the LMS Workspace
 #: lms/lms/workspace/lms/lms.json
