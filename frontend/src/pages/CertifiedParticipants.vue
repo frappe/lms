@@ -14,10 +14,10 @@
 	</header>
 	<div class="mx-auto w-full max-w-4xl pt-6 pb-10">
 		<div class="flex flex-col md:flex-row justify-between mb-4 px-3">
-			<div class="text-xl font-semibold text-ink-gray-7 mb-4 md:mb-0">
+			<div class="text-xl font-semibold text-ink-gray-9 mb-4 md:mb-0">
 				{{ memberCount }} {{ __('certified members') }}
 			</div>
-			<div class="grid grid-cols-2 gap-2">
+			<div class="flex items-center space-x-4">
 				<FormControl
 					v-model="nameFilter"
 					:placeholder="__('Search by Name')"
@@ -36,13 +36,25 @@
 						@update:modelValue="updateParticipants()"
 					/>
 				</div>
+				<FormControl
+					v-model="openToOpportunities"
+					:label="__('Open to Opportunities')"
+					type="checkbox"
+					@change="updateParticipants()"
+				/>
+				<FormControl
+					v-model="hiring"
+					:label="__('Hiring')"
+					type="checkbox"
+					@change="updateParticipants()"
+				/>
 			</div>
 		</div>
 		<div v-if="participants.data?.length" class="">
 			<template v-for="(participant, index) in participants.data">
 				<router-link
 					:to="{
-						name: 'ProfileCertificates',
+						name: 'ProfileAbout',
 						params: {
 							username: participant.username,
 						},
@@ -118,9 +130,11 @@ import { sessionStore } from '../stores/session'
 import EmptyState from '@/components/EmptyState.vue'
 import UserAvatar from '@/components/UserAvatar.vue'
 
-const currentCategory = ref('')
 const filters = ref({})
+const currentCategory = ref('')
 const nameFilter = ref('')
+const openToOpportunities = ref(false)
+const hiring = ref(false)
 const { brand } = sessionStore()
 const memberCount = ref(0)
 const dayjs = inject('$dayjs')
@@ -152,7 +166,7 @@ const categories = createListResource({
 	cache: ['certification_categories'],
 	auto: true,
 	transform(data) {
-		data.unshift({ label: __(''), value: '' })
+		data.unshift({ label: __(' '), value: ' ' })
 		return data
 	},
 })
@@ -169,16 +183,19 @@ const updateParticipants = () => {
 }
 
 const updateFilters = () => {
-	if (currentCategory.value) {
-		filters.value.category = currentCategory.value
-	} else {
-		delete filters.value.category
-	}
-
-	if (nameFilter.value) {
-		filters.value.member_name = ['like', `%${nameFilter.value}%`]
-	} else {
-		delete filters.value.member_name
+	filters.value = {
+		...(currentCategory.value && {
+			category: currentCategory.value,
+		}),
+		...(nameFilter.value && {
+			member_name: ['like', `%${nameFilter.value}%`],
+		}),
+		...(openToOpportunities.value && {
+			open_to_opportunities: true,
+		}),
+		...(hiring.value && {
+			hiring: true,
+		}),
 	}
 }
 
@@ -190,7 +207,7 @@ const setQueryParams = () => {
 	}
 
 	Object.keys(filterKeys).forEach((key) => {
-		if (filterKeys[key]) {
+		if (filterKeys[key] && filterKeys[key].trim() !== '') {
 			queries.set(key, filterKeys[key])
 		} else {
 			queries.delete(key)
@@ -207,6 +224,8 @@ const setFiltersFromQuery = () => {
 	let queries = new URLSearchParams(location.search)
 	nameFilter.value = queries.get('name') || ''
 	currentCategory.value = queries.get('category') || ''
+	openToOpportunities.value = queries.get('open-to-opportunities') === 'true'
+	hiring.value = queries.get('hiring') === 'true'
 }
 
 const breadcrumbs = computed(() => [

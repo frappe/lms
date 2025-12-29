@@ -6,7 +6,7 @@
 		}"
 	>
 		<template #body-content>
-			<div>
+			<div class="text-base">
 				<div class="grid grid-cols-2 gap-10">
 					<div>
 						<div class="text-xs text-ink-gray-5 mb-1">
@@ -54,14 +54,21 @@
 							</div>
 						</div>
 					</div>
-					<Switch
-						v-model="profile.looking_for_job"
+					<FormControl
+						v-model="profile.open_to"
+						type="select"
+						:options="[' ', 'Opportunities', 'Hiring']"
+						:label="__('Open to')"
+						:placeholder="__('Looking for new work or hiring talent?')"
+					/>
+					<!-- <Switch
+						v-model="profile.open_to"
 						:label="__('Open to Opportunities')"
 						:description="
 							__('Show recruiters and others that you are open to work.')
 						"
 						class="!px-0"
-					/>
+					/> -->
 				</div>
 
 				<div class="grid grid-cols-2 gap-10">
@@ -151,7 +158,7 @@ const profile = reactive({
 	headline: '',
 	bio: '',
 	image: '',
-	looking_for_job: false,
+	open_to: '',
 	linkedin: '',
 	github: '',
 	twitter: '',
@@ -231,7 +238,7 @@ watch(
 			profile.headline = newVal.headline
 			profile.language = newVal.language
 			profile.bio = newVal.bio
-			profile.looking_for_job = newVal.looking_for_job
+			profile.open_to = newVal.open_to
 			profile.linkedin = newVal.linkedin
 			profile.github = newVal.github
 			profile.twitter = newVal.twitter
