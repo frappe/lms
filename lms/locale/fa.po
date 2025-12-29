@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-12-19 16:05+0000\n"
-"PO-Revision-Date: 2025-12-28 00:59\n"
+"PO-Revision-Date: 2025-12-29 01:19\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Persian\n"
 "MIME-Version: 1.0\n"
@@ -535,7 +535,7 @@ msgstr "ارزیابی ها"
 
 #: lms/lms/doctype/lms_badge/lms_badge.js:48
 msgid "Assign"
-msgstr "اختصاص دهید"
+msgstr "اختصاص دادن"
 
 #: frontend/src/components/Settings/BadgeForm.vue:28
 msgid "Assign For"
@@ -2944,7 +2944,7 @@ msgstr "سبز"
 
 #: lms/templates/signup-form.html:56
 msgid "Have an account? Login"
-msgstr "حساب کاربری دارید؟ وارد شدن"
+msgstr "حساب کاربری دارید؟ ورود"
 
 #. Label of the headline (Data) field in DocType 'User'
 #: frontend/src/components/Modals/EditProfile.vue:78
@@ -3859,7 +3859,7 @@ msgstr ""
 #: frontend/src/components/QuizBlock.vue:9 frontend/src/pages/Batch.vue:213
 #: frontend/src/pages/Lesson.vue:103
 msgid "Login"
-msgstr "وارد شدن"
+msgstr "ورود"
 
 #: frontend/src/components/Sidebar/UserDropdown.vue:190
 msgid "Login to Frappe Cloud?"
