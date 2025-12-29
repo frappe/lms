@@ -287,7 +287,7 @@ def get_certified_participants(filters=None, start=0, page_length=100):
 		"LMS Certificate",
 		filters=filters,
 		or_filters=or_filters,
-		fields=["member", "issue_date"],
+		fields=["member", "issue_date", "batch_name", "course", "name"],
 		group_by="member",
 		order_by="issue_date desc",
 		start=start,
@@ -309,7 +309,6 @@ def update_certification_filters(filters):
 	or_filters = {}
 	if not filters:
 		filters = {}
-
 	filters.update({"published": 1})
 
 	category = filters.get("category")

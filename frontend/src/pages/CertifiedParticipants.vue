@@ -204,10 +204,12 @@ const setQueryParams = () => {
 	let filterKeys = {
 		category: currentCategory.value,
 		name: nameFilter.value,
+		'open-to-opportunities': openToOpportunities.value,
+		hiring: hiring.value,
 	}
 
 	Object.keys(filterKeys).forEach((key) => {
-		if (filterKeys[key] && filterKeys[key].trim() !== '') {
+		if (filterKeys[key] && hasValue(filterKeys[key])) {
 			queries.set(key, filterKeys[key])
 		} else {
 			queries.delete(key)
@@ -218,6 +220,13 @@ const setQueryParams = () => {
 		'',
 		`${location.pathname}${queries.size > 0 ? `?${queries.toString()}` : ''}`
 	)
+}
+
+const hasValue = (value) => {
+	if (typeof value === 'string') {
+		return value.trim() !== ''
+	}
+	return true
 }
 
 const setFiltersFromQuery = () => {

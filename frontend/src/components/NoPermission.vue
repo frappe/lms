@@ -31,11 +31,20 @@
 </template>
 <script setup>
 import { inject } from 'vue'
-import { Button } from 'frappe-ui'
+import { Button, usePageMeta } from 'frappe-ui'
+import { sessionStore } from '../stores/session'
 
 const user = inject('$user')
+const { brand } = sessionStore()
 
 const redirectToLogin = () => {
 	window.location.href = '/login'
 }
+
+usePageMeta(() => {
+	return {
+		title: __('Not Permitted'),
+		icon: brand.favicon,
+	}
+})
 </script>
