@@ -52,8 +52,14 @@ class TestCourseEvaluator(UnitTestCase):
 		return first_date
 
 	def calculated_last_date_of_schedule(self, first_date):
-		last_date = add_days(first_date, 56)  # 8 weeks course
-		return last_date
+		last_day = add_days(first_date, 56)
+		offset_monday = (0 - last_day.weekday() + 7) % 7  # 0 for Monday
+		offset_wednesday = (2 - last_day.weekday() + 7) % 7  # 2 for Wednesday
+		if offset_monday > offset_wednesday and offset_monday < 4:
+			last_day = add_days(last_day, offset_monday)
+		else:
+			last_day = add_days(last_day, offset_wednesday)
+		return last_day
 
 	def test_unavailability_dates(self):
 		unavailable_from = getdate(self.evaluator.unavailable_from)
