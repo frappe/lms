@@ -1,32 +1,31 @@
 <template>
-	<div class="border rounded-md w-1/3 mx-auto my-32">
-		<div class="border-b px-5 py-3 font-medium text-ink-gray-9">
-			<span
-				class="inline-flex items-center before:bg-surface-red-5 before:w-2 before:h-2 before:rounded-md before:mr-2"
-			></span>
-			{{ __('Not Permitted') }}
-		</div>
-		<div v-if="user.data" class="px-5 py-3">
-			<div class="text-ink-gray-7">
-				{{ __('You do not have permission to access this page.') }}
+	<div class="bg-surface-white w-full h-full">
+		<div class="w-fit mx-auto mt-56 text-center p-4">
+			<div class="text-3xl font-semibold text-ink-gray-5 pb-4 mb-2 border-b">
+				{{ __('Not Permitted') }}
 			</div>
-			<router-link
-				:to="{
-					name: 'Courses',
-				}"
-			>
-				<Button variant="solid" class="mt-2">
-					{{ __('Checkout Courses') }}
+			<div v-if="user.data" class="px-5 py-3">
+				<div class="text-ink-gray-5">
+					{{ __('You do not have permission to access this page.') }}
+				</div>
+				<router-link
+					:to="{
+						name: 'Courses',
+					}"
+				>
+					<Button variant="solid" class="mt-2 w-full">
+						{{ __('Checkout Courses') }}
+					</Button>
+				</router-link>
+			</div>
+			<div class="px-5 py-3">
+				<div class="text-ink-gray-5">
+					{{ __('You are not permitted to access this page.') }}
+				</div>
+				<Button @click="redirectToLogin()" class="mt-4 w-full" variant="solid">
+					{{ __('Login') }}
 				</Button>
-			</router-link>
-		</div>
-		<div class="px-5 py-3">
-			<div class="text-ink-gray-7">
-				{{ __('Please login to access this page.') }}
 			</div>
-			<Button @click="redirectToLogin()" class="mt-4">
-				{{ __('Login') }}
-			</Button>
 		</div>
 	</div>
 </template>
