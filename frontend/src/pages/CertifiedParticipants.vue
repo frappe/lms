@@ -13,41 +13,47 @@
 		</router-link>
 	</header>
 	<div class="mx-auto w-full max-w-4xl pt-6 pb-10">
-		<div class="flex flex-col md:flex-row justify-between mb-4 px-3">
+		<div class="flex flex-col md:flex-row justify-between mb-8 px-3">
 			<div class="text-xl font-semibold text-ink-gray-9 mb-4 md:mb-0">
 				{{ memberCount }} {{ __('certified members') }}
 			</div>
-			<div class="flex items-center space-x-4">
-				<FormControl
-					v-model="nameFilter"
-					:placeholder="__('Search by Name')"
-					type="text"
-					class="min-w-40 lg:min-w-0 lg:w-32 xl:w-40"
-					@input="updateParticipants()"
-				/>
-				<div
-					v-if="categories.data?.length"
-					class="min-w-40 lg:min-w-0 lg:w-32 xl:w-40"
-				>
-					<Select
-						v-model="currentCategory"
-						:options="categories.data"
-						:placeholder="__('Category')"
-						@update:modelValue="updateParticipants()"
+			<div
+				class="flex flex-col md:flex-row md:items-center space-y-4 md:space-y-0 md:space-x-4"
+			>
+				<div class="flex items-center space-x-4">
+					<FormControl
+						v-model="nameFilter"
+						:placeholder="__('Search by Name')"
+						type="text"
+						class="min-w-40 lg:min-w-0 lg:w-32 xl:w-40"
+						@input="updateParticipants()"
+					/>
+					<div
+						v-if="categories.data?.length"
+						class="min-w-40 lg:min-w-0 lg:w-32 xl:w-40"
+					>
+						<Select
+							v-model="currentCategory"
+							:options="categories.data"
+							:placeholder="__('Category')"
+							@update:modelValue="updateParticipants()"
+						/>
+					</div>
+				</div>
+				<div class="flex items-center space-x-4">
+					<FormControl
+						v-model="openToOpportunities"
+						:label="__('Open to Opportunities')"
+						type="checkbox"
+						@change="updateParticipants()"
+					/>
+					<FormControl
+						v-model="hiring"
+						:label="__('Hiring')"
+						type="checkbox"
+						@change="updateParticipants()"
 					/>
 				</div>
-				<FormControl
-					v-model="openToOpportunities"
-					:label="__('Open to Opportunities')"
-					type="checkbox"
-					@change="updateParticipants()"
-				/>
-				<FormControl
-					v-model="hiring"
-					:label="__('Hiring')"
-					type="checkbox"
-					@change="updateParticipants()"
-				/>
 			</div>
 		</div>
 		<div v-if="participants.data?.length" class="">
@@ -59,10 +65,10 @@
 							username: participant.username,
 						},
 					}"
-					class="flex h-15 rounded-md hover:bg-surface-gray-2 px-3"
+					class="flex rounded-md hover:bg-surface-gray-2 px-3"
 				>
 					<div
-						class="flex items-center w-full space-x-3 py-2"
+						class="flex w-full space-x-3 py-2"
 						:class="{
 							'border-b': index < participants.data.length - 1,
 						}"
