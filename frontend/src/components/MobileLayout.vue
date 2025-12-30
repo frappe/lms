@@ -80,6 +80,7 @@ onMounted(() => {
 		{},
 		{
 			onSuccess(data) {
+				destructureSidebarLinks()
 				filterLinksToShow(data)
 				addOtherLinks()
 			},
@@ -102,6 +103,16 @@ watch(showMenu, (val) => {
 		document.removeEventListener('click', handleOutsideClick)
 	}
 })
+
+const destructureSidebarLinks = () => {
+	let links = []
+	sidebarLinks.value.forEach((link) => {
+		link.items?.forEach((item) => {
+			links.push(item)
+		})
+	})
+	sidebarLinks.value = links
+}
 
 const filterLinksToShow = (data) => {
 	Object.keys(data).forEach((key) => {

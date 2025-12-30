@@ -26,56 +26,72 @@
 		</header>
 		<div>
 			<div
-				class="flex flex-col lg:flex-row space-y-4 lg:space-y-0 lg:items-center justify-between w-full md:w-4/5 mx-auto p-5"
+				class="flex flex-col lg:flex-row space-y-4 lg:space-y-0 lg:items-center justify-between w-full md:w-4/5 mx-auto mb-2 p-5"
 			>
-				<div class="text-xl font-semibold text-ink-gray-7 mb-4 md:mb-0">
-					{{ __('{0} Open Jobs').format(jobCount) }}
-				</div>
-
-				<div class="flex items-center justify-between space-x-4">
+				<div class="flex items-center justify-between">
+					<div class="text-xl font-semibold text-ink-gray-9 md:mb-0">
+						{{ __('{0} {1} Jobs').format(jobCount, activeTab) }}
+					</div>
 					<TabButtons
 						v-if="tabs.length > 1"
 						v-model="activeTab"
 						:buttons="tabs"
+						class="lg:hidden"
 						@change="updateJobs"
 					/>
-					<FormControl
-						type="text"
-						:placeholder="__('Search')"
-						v-model="searchQuery"
-						class="min-w-40 lg:min-w-0 lg:w-32 xl:w-40"
-						@input="updateJobs"
-					>
-						<template #prefix>
-							<Search
-								class="w-4 h-4 stroke-1.5 text-ink-gray-5"
-								name="search"
-							/>
-						</template>
-					</FormControl>
-					<Link
-						v-if="user.data"
-						doctype="Country"
-						v-model="country"
-						:placeholder="__('Country')"
-						class="min-w-32 lg:min-w-0 lg:w-32 xl:w-32"
-					/>
-					<FormControl
-						v-model="jobType"
-						type="select"
-						:options="jobTypes"
-						class="min-w-32 lg:min-w-0 lg:w-32 xl:w-32"
-						:placeholder="__('Type')"
+				</div>
+
+				<div
+					class="flex flex-col md:flex-row md:items-center md:space-x-4 space-y-4 md:space-y-0"
+				>
+					<TabButtons
+						v-if="tabs.length > 1"
+						v-model="activeTab"
+						:buttons="tabs"
+						class="hidden lg:block"
 						@change="updateJobs"
 					/>
-					<FormControl
-						v-model="workMode"
-						type="select"
-						:options="workModes"
-						class="min-w-32 lg:min-w-0 lg:w-32 xl:w-32"
-						:placeholder="__('Work Mode')"
-						@change="updateJobs"
-					/>
+					<div class="grid grid-cols-2 gap-4">
+						<FormControl
+							type="text"
+							:placeholder="__('Search')"
+							v-model="searchQuery"
+							class="w-full max-w-40"
+							@input="updateJobs"
+						>
+							<template #prefix>
+								<Search
+									class="w-4 h-4 stroke-1.5 text-ink-gray-5"
+									name="search"
+								/>
+							</template>
+						</FormControl>
+						<Link
+							v-if="user.data"
+							doctype="Country"
+							v-model="country"
+							:placeholder="__('Country')"
+							class="w-full"
+						/>
+					</div>
+					<div class="grid grid-cols-2 gap-4">
+						<FormControl
+							v-model="jobType"
+							type="select"
+							:options="jobTypes"
+							class="w-full"
+							:placeholder="__('Type')"
+							@change="updateJobs"
+						/>
+						<FormControl
+							v-model="workMode"
+							type="select"
+							:options="workModes"
+							class="w-full"
+							:placeholder="__('Work Mode')"
+							@change="updateJobs"
+						/>
+					</div>
 				</div>
 			</div>
 			<div v-if="jobs.data?.length" class="w-full md:w-4/5 mx-auto p-5 pt-0">

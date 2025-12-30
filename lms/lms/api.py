@@ -281,10 +281,34 @@ def get_evaluator_details(evaluator):
 
 @frappe.whitelist(allow_guest=True)
 def get_certified_participants(filters=None, start=0, page_length=100):
+	filters, or_filters, open_to_opportunities, hiring = update_certification_filters(filters)
+
+	participants = frappe.db.get_all(
+		"LMS Certificate",
+		filters=filters,
+		or_filters=or_filters,
+		fields=["member", "issue_date", "batch_name", "course", "name"],
+		group_by="member",
+		order_by="issue_date desc",
+		start=start,
+		page_length=page_length,
+	)
+
+	for participant in participants:
+		details = get_certified_participant_details(participant.member)
+		participant.update(details)
+
+	participants = filter_by_open_to_criteria(participants, open_to_opportunities, hiring)
+
+	return participants
+
+
+def update_certification_filters(filters):
+	open_to_opportunities = False
+	hiring = False
 	or_filters = {}
 	if not filters:
 		filters = {}
-
 	filters.update({"published": 1})
 
 	category = filters.get("category")
@@ -293,27 +317,38 @@ def get_certified_participants(filters=None, start=0, page_length=100):
 		or_filters["course_title"] = ["like", f"%{category}%"]
 		or_filters["batch_title"] = ["like", f"%{category}%"]
 
-	participants = frappe.db.get_all(
-		"LMS Certificate",
-		filters=filters,
-		or_filters=or_filters,
-		fields=["member", "issue_date"],
-		group_by="member",
-		order_by="issue_date desc",
-		start=start,
-		page_length=page_length,
-	)
+	if filters.get("open_to_opportunities"):
+		del filters["open_to_opportunities"]
+		open_to_opportunities = True
 
-	for participant in participants:
-		count = frappe.db.count("LMS Certificate", {"member": participant.member})
-		details = frappe.db.get_value(
-			"User",
-			participant.member,
-			["full_name", "user_image", "username", "country", "headline", "looking_for_job"],
-			as_dict=1,
-		)
-		details["certificate_count"] = count
-		participant.update(details)
+	if filters.get("hiring"):
+		del filters["hiring"]
+		hiring = True
+
+	return filters, or_filters, open_to_opportunities, hiring
+
+
+def get_certified_participant_details(member):
+	count = frappe.db.count("LMS Certificate", {"member": member})
+	details = frappe.db.get_value(
+		"User",
+		member,
+		["full_name", "user_image", "username", "country", "headline", "open_to"],
+		as_dict=1,
+	)
+	details["certificate_count"] = count
+	return details
+
+
+def filter_by_open_to_criteria(participants, open_to_opportunities, hiring):
+	if not open_to_opportunities and not hiring:
+		return participants
+
+	if open_to_opportunities:
+		participants = [participant for participant in participants if participant.open_to == "Opportunities"]
+
+	if hiring:
+		participants = [participant for participant in participants if participant.open_to == "Hiring"]
 
 	return participants
 
@@ -1635,7 +1670,7 @@ def get_profile_details(username):
 			"headline",
 			"language",
 			"cover_image",
-			"looking_for_job",
+			"open_to",
 			"linkedin",
 			"github",
 			"twitter",

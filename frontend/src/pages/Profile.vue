@@ -56,15 +56,32 @@
 							:src="profile.data.user_image"
 							class="object-cover h-[100px] w-[100px] rounded-full border-4 border-white object-cover"
 						/>
+						<div
+							v-else
+							class="flex items-center justify-center h-[100px] w-[100px] rounded-full border-4 border-white bg-surface-gray-2 text-3xl font-semibold text-ink-gray-7"
+						>
+							{{ profile.data.full_name.charAt(0).toUpperCase() }}
+						</div>
 						<Tooltip
-							v-if="profile.data.looking_for_job"
-							:text="__('Open to Opportunities')"
+							v-if="profile.data.open_to"
+							:text="
+								profile.data.open_to === 'Opportunities'
+									? __('Open to Opportunities')
+									: __('Hiring')
+							"
 							placement="right"
 						>
 							<div
 								class="absolute bottom-3 right-1 p-0.5 bg-surface-white rounded-full"
 							>
-								<div class="rounded-full bg-surface-green-3 w-fit">
+								<div
+									class="rounded-full w-fit"
+									:class="
+										profile.data.open_to === 'Opportunities'
+											? 'bg-surface-green-3'
+											: 'bg-purple-500'
+									"
+								>
 									<BadgeCheckIcon class="text-ink-white size-5" />
 								</div>
 							</div>
