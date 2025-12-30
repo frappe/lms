@@ -56,7 +56,7 @@
     "autoprefixer": "10.4.2",
     "postcss": "8.4.5",
     "vite": "5.0.11",
-    "vite-plugin-pwa": "0.15.0"
+    "vite-plugin-pwa": "^1.2.0"
   },
   "resolutions": {
     "@iconify/utils": "2.1.7"

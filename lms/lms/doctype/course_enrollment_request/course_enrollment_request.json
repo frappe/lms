@@ -1,0 +1,114 @@
+{
+ "actions": [],
+ "autoname": "hash",
+ "creation": "2025-12-20 17:39:04.668930",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "course",
+  "student_email",
+  "student_name",
+  "status",
+  "request_date",
+  "reason",
+  "approved_by"
+ ],
+ "fields": [
+  {
+   "fieldname": "course",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Course",
+   "options": "LMS Course",
+   "reqd": 1
+  },
+  {
+   "fieldname": "student_email",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Student Email",
+   "options": "User",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "student_email.full_name",
+   "fieldname": "student_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Student Name "
+  },
+  {
+   "default": "Pending",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Pending\nApproved\nRejected",
+   "reqd": 1
+  },
+  {
+   "default": "Today",
+   "fieldname": "request_date",
+   "fieldtype": "Date",
+   "label": "Request date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "reason",
+   "fieldtype": "Small Text",
+   "label": "Reason"
+  },
+  {
+   "fieldname": "approved_by",
+   "fieldtype": "Link",
+   "label": "Approved By ",
+   "options": "User"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-12-29 13:22:46.258131",
+ "modified_by": "Administrator",
+ "module": "LMS",
+ "name": "Course Enrollment Request",
+ "naming_rule": "Random",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "if_owner": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "select": 1,
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "if_owner": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "LMS Student",
+   "select": 1,
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

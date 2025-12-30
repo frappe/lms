@@ -55,13 +55,55 @@
 						</span>
 					</Button>
 				</router-link>
-				<Badge
+				<div
 					v-else-if="course.data.disable_self_learning"
-					theme="blue"
-					size="lg"
+					class="space-y-2"
 				>
-					{{ __('Contact the Administrator to enroll for this course.') }}
-				</Badge>
+					<Badge 
+						v-if="hasEnrollmentRequest && requestStatus === 'Pending'" 
+						theme="orange" 
+						size="lg" 
+						class="w-full"
+					>
+						{{ __('Your enrollment request is pending approval') }}
+					</Badge>
+					<div v-else-if="hasEnrollmentRequest && requestStatus === 'Rejected'" class="space-y-2">
+						<Badge theme="red" size="lg" class="w-full">
+							{{ __('Your enrollment request was rejected') }}
+						</Badge>
+						<Button 
+							@click="requestEnrollment()"
+							variant="solid" 
+							size="md" 
+							class="w-full"
+						>
+							<template #prefix>
+								<Send class="size-4 stroke-1.5" />
+							</template>
+							<span>
+								{{ __('Request Again') }}
+							</span>
+						</Button>
+					</div>
+					<div v-else class="space-y-2">
+						<Badge theme="blue" size="lg" class="w-full">
+							{{ __('Contact the Administrator to enroll for this 1 .') }}
+						</Badge>
+						<Button 
+							@click="requestEnrollment()"
+							variant="solid" 
+							size="md" 
+							class="w-full"
+						>
+							<template #prefix>
+								<Send class="size-4 stroke-1.5" />
+							</template>
+							<span>
+								{{ __('Request Enrollment') }}
+							</span>
+						</Button>
+					</div>
+				</div>
 				<Button
 					v-else-if="!user.data?.is_moderator && !is_instructor()"
 					@click="enrollStudent()"
@@ -182,6 +224,7 @@ import {
 	CreditCard,
 	GraduationCap,
 	Pencil,
+	Send,
 	Star,
 	TrendingUp,
 	Users,
@@ -212,6 +255,52 @@ const video_link = computed(() => {
 	}
 	return null
 })
+
+const enrollmentRequest = createResource({
+	url: 'frappe.client.get_list',
+	makeParams() {
+		return {
+			doctype: 'Course Enrollment Request',
+			filters: {
+				course: props.course.data.name,
+				student_email: user.data?.name,
+			},
+			fields: ['name', 'status'],
+			limit: 1,
+			order_by: 'creation desc'
+		}
+	},
+	auto: user.data ? true : false,
+})
+
+const hasEnrollmentRequest = computed(() => {
+	return enrollmentRequest.data?.length > 0
+})
+
+const requestStatus = computed(() => {
+	return enrollmentRequest.data?.[0]?.status || null
+})
+
+function requestEnrollment() {
+	if (!user.data) {
+		toast.success(__('You need to login first to request enrollment'))
+		setTimeout(() => {
+			window.location.href = `/login?redirect-to=${window.location.pathname}`
+		}, 500)
+	} else {
+		// ✅ ALWAYS use course.data.name (docname)
+		const courseName = props.course?.data?.name
+
+		if (!courseName) {
+			toast.warning(__('Course not found'))
+			return
+		}
+
+		window.location.href = `/request-enrollment/new?course=${courseName}`
+	}
+}
+
+
 
 function enrollStudent() {
 	if (!user.data) {

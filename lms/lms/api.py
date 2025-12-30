@@ -1738,3 +1738,7 @@ def get_profile_details(username):
 
 	details.roles = frappe.get_roles(details.name)
 	return details
+
+
+
+

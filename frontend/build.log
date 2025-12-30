@@ -1,0 +1,13 @@
+yarn run v1.22.22
+warning ../../../package.json: No license field
+$ vite build --base=/assets/lms/frontend/ && yarn copy-html-entry
+plugin 'vite-plugin-pwa:build' uses deprecated 'enforce' option. Use 'order' option instead.
+plugin 'vite-plugin-pwa:build' uses deprecated 'transform' option. Use 'handler' option instead.
+vite v5.0.11 building for production...
+transforming...
+
+Inter-DisplayRegular.woff2?v=3.19 referenced in /home/mike/frappe-bench/apps/lms/frontend/src/index.css didn't resolve at build time, it will remain unchanged to be resolved at runtime
+✓ 4063 modules transformed.
+src/pages/ProfileRoles.vue (80:19): Use of eval in "src/pages/ProfileRoles.vue" is strongly discouraged as it poses security risks and may cause issues with minification.
+src/pages/ProfileRoles.vue (113:10): Use of eval in "src/pages/ProfileRoles.vue" is strongly discouraged as it poses security risks and may cause issues with minification.
+rendering chunks...

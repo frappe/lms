@@ -71,7 +71,11 @@
   "contact_us_tab",
   "contact_us_email",
   "column_break_gcgv",
-  "contact_us_url"
+  "contact_us_url",
+  "tab_8_tab",
+  "enable_enrollment_approval",
+  "enrollment_approval_roles",
+  "auto_enroll_on_approval"
  ],
  "fields": [
   {
@@ -438,14 +442,36 @@
    "fieldname": "certifications",
    "fieldtype": "Check",
    "label": "Certifications"
+  },
+  {
+   "fieldname": "tab_8_tab",
+   "fieldtype": "Tab Break",
+   "label": "Tab 8"
+  },
+  {
+   "default": "0",
+   "fieldname": "enable_enrollment_approval",
+   "fieldtype": "Check",
+   "label": "Enable Enrollment Approval"
+  },
+  {
+   "fieldname": "enrollment_approval_roles",
+   "fieldtype": "Table",
+   "label": "Enrollment Approval Roles",
+   "options": "Enrollment Approval Role"
+  },
+  {
+   "default": "0",
+   "fieldname": "auto_enroll_on_approval",
+   "fieldtype": "Check"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2025-12-02 12:21:15.832799",
- "modified_by": "sayali@frappe.io",
+ "modified": "2025-12-30 16:59:08.729448",
+ "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Settings",
  "owner": "Administrator",

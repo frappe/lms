@@ -11,6 +11,17 @@ app_color = "grey"
 app_email = "jannat@frappe.io"
 app_license = "AGPL"
 
+web_include_js = [
+    "/assets/lms/js/enrollment_request.js"
+]
+
+# Override DocType class
+override_doctype_class = {
+    "Course Enrollment Request": "lms.lms.doctype.course_enrollment_request.course_enrollment_request.CourseEnrollmentRequest"
+}
+
+
+
 # Includes in <head>
 # ------------------
 
