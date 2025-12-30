@@ -551,7 +551,7 @@ def get_chart_data(
 
 	data = frappe.db.get_all(
 		doctype,
-		fields=[f"{datefield} as _unit", f"SUM({value_field}) as total", "COUNT(*) as count"],
+		fields=[datefield, {"SUM": value_field}, {"COUNT": "*"}],
 		filters=filters,
 		group_by=datefield,
 		order_by=datefield,
