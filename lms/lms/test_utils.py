@@ -2,6 +2,7 @@ import frappe
 from frappe.tests import UnitTestCase
 from frappe.utils import add_days, nowdate
 
+from lms.lms.api import get_certified_participants
 from lms.lms.doctype.lms_certificate.lms_certificate import get_default_certificate_template, is_certified
 
 from .utils import (
@@ -147,6 +148,7 @@ class TestUtils(UnitTestCase):
 		certificate.member = member
 		certificate.issue_date = frappe.utils.nowdate()
 		certificate.template = get_default_certificate_template()
+		certificate.published = 1
 		certificate.save()
 		return certificate
 
@@ -264,6 +266,36 @@ class TestUtils(UnitTestCase):
 		frappe.session.user = self.student2.email
 		self.assertIsNone(is_certified(self.course.name))
 		frappe.session.user = "Administrator"
+
+	def test_certified_participants_with_category(self):
+		filters = {"category": "Utility Course"}
+		certified_participants = get_certified_participants(filters=filters)
+		self.assertEqual(len(certified_participants), 1)
+		self.assertEqual(certified_participants[0].member, self.student1.email)
+
+		filters = {"category": "Nonexistent Category"}
+		certified_participants_no_match = get_certified_participants(filters=filters)
+		self.assertEqual(len(certified_participants_no_match), 0)
+
+	def test_certified_participants_with_open_to_opportunities(self):
+		filters = {"open_to_opportunities": 1}
+		certified_participants_open_to_oppo = get_certified_participants(filters=filters)
+		self.assertEqual(len(certified_participants_open_to_oppo), 0)
+
+		frappe.db.set_value("User", self.student1.email, "open_to", "Opportunities")
+		certified_participants_open_to_oppo = get_certified_participants(filters=filters)
+		self.assertEqual(len(certified_participants_open_to_oppo), 1)
+		frappe.db.set_value("User", self.student1.email, "open_to", "")
+
+	def test_certified_participants_with_open_to_hiring(self):
+		filters = {"hiring": 1}
+		certified_participants_hiring = get_certified_participants(filters=filters)
+		self.assertEqual(len(certified_participants_hiring), 0)
+
+		frappe.db.set_value("User", self.student1.email, "open_to", "Hiring")
+		certified_participants_hiring = get_certified_participants(filters=filters)
+		self.assertEqual(len(certified_participants_hiring), 1)
+		frappe.db.set_value("User", self.student1.email, "open_to", "")
 
 	def test_rating_validation(self):
 		student3 = self.create_user("student3@example.com", "Emily", "Cooper", ["LMS Student"])

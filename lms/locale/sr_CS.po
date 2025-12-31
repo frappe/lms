@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-12-19 16:05+0000\n"
-"PO-Revision-Date: 2025-12-23 23:25\n"
+"PO-Revision-Date: 2025-12-25 23:32\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Serbian (Latin)\n"
 "MIME-Version: 1.0\n"
@@ -664,7 +664,7 @@ msgstr "Dostupnost je uspešno ažurirana"
 
 #: frontend/src/components/Modals/EvaluationModal.vue:26
 msgid "Available Slots"
-msgstr ""
+msgstr "Dostupni termini"
 
 #: frontend/src/components/BatchFeedback.vue:43
 msgid "Average Feedback Received"
@@ -2887,7 +2887,7 @@ msgstr "Preuzmi aplikaciju na svom iPhone uređaju za lakši pristup i bolje kor
 
 #: frontend/src/components/Modals/EditProfile.vue:84
 msgid "GitHub ID"
-msgstr ""
+msgstr "GitHub ID"
 
 #. Label of the github (Data) field in DocType 'User'
 #: lms/fixtures/custom_field.json
@@ -3387,7 +3387,7 @@ msgstr "Pristup ostvaren u"
 #: frontend/src/components/CommandPalette/CommandPalette.vue:132
 #: frontend/src/components/CommandPalette/CommandPalette.vue:229
 msgid "Jump to"
-msgstr ""
+msgstr "Idi na"
 
 #: frontend/src/pages/Home/Streak.vue:18
 msgid "Keep going,"
@@ -4503,7 +4503,7 @@ msgstr "Nema rezultata"
 
 #: frontend/src/components/Modals/EvaluationModal.vue:59
 msgid "No slots available for the selected course."
-msgstr ""
+msgstr "Nema dostupnih termina za odabranu obuku."
 
 #: frontend/src/components/Modals/VideoStatistics.vue:86
 msgid "No statistics available for this video."
@@ -4665,7 +4665,7 @@ msgstr "Otvori "
 #: frontend/src/components/UserAvatar.vue:11 frontend/src/pages/Profile.vue:61
 #: lms/fixtures/custom_field.json
 msgid "Open to Opportunities"
-msgstr ""
+msgstr "Otvoren za prilike"
 
 #. Label of the option (Data) field in DocType 'LMS Option'
 #: frontend/src/components/Modals/Question.vue:70
@@ -5077,7 +5077,7 @@ msgstr "Molimo Vas da se prijavite da biste se upisali u program."
 
 #: frontend/src/pages/Batch.vue:158
 msgid "Please make sure to schedule your evaluation before this date."
-msgstr ""
+msgstr "Molimo Vas da zakažete svoje ocenjivanje pre ovog datuma."
 
 #: lms/lms/notification/certificate_request_reminder/certificate_request_reminder.html:7
 #: lms/templates/emails/certificate_request_notification.html:7
@@ -5114,7 +5114,7 @@ msgstr "Molimo Vas da izaberete kviz"
 
 #: frontend/src/components/Modals/EvaluationModal.vue:109
 msgid "Please select a slot for your evaluation."
-msgstr ""
+msgstr "Molimo Vas da odaberete termin za Vaše ocenjivanje."
 
 #: frontend/src/components/Modals/LiveClassModal.vue:192
 msgid "Please select a time."
@@ -5214,7 +5214,7 @@ msgstr "Poželjna lokacija"
 
 #: frontend/src/pages/Search/Search.vue:41
 msgid "Press enter to search"
-msgstr ""
+msgstr "Pritisnite enter za pretragu"
 
 #. Label of the prevent_skipping_videos (Check) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
@@ -5832,7 +5832,7 @@ msgstr "Zakažite ocenjivanje da biste dobili sertifikat."
 
 #: frontend/src/components/Modals/EvaluationModal.vue:5
 msgid "Schedule your evaluation"
-msgstr ""
+msgstr "Zakažite svoje ocenjivanje"
 
 #. Name of a DocType
 #: lms/lms/doctype/scheduled_flow/scheduled_flow.json
@@ -6048,7 +6048,7 @@ msgstr "Prikaži onlajn predavanja"
 
 #: frontend/src/components/Modals/EditProfile.vue:61
 msgid "Show recruiters and others that you are open to work."
-msgstr ""
+msgstr "Pokažite rekruterima i drugima da ste otvoreni za posao."
 
 #. Label of the shuffle_questions (Check) field in DocType 'LMS Quiz'
 #: frontend/src/pages/QuizForm.vue:105 lms/lms/doctype/lms_quiz/lms_quiz.json
@@ -6501,7 +6501,7 @@ msgstr "Osoba koja ocenjuje ovu obuku nije dostupna u periodu od {0} do {1}. Mol
 
 #: frontend/src/pages/Batch.vue:151
 msgid "The last day to schedule your evaluations is "
-msgstr ""
+msgstr "Poslednji dan za zakazivanje Vašeg ocenjivanja je "
 
 #: lms/lms/utils.py:2083
 msgid "The lesson does not exist."
@@ -6840,7 +6840,7 @@ msgstr "Twitter"
 #: frontend/src/components/Modals/EditProfile.vue:87
 #: lms/fixtures/custom_field.json
 msgid "Twitter ID"
-msgstr ""
+msgstr "Twitter ID"
 
 #. Label of the type (Select) field in DocType 'Job Opportunity'
 #. Label of a field in the job-opportunity Web Form
@@ -7394,7 +7394,7 @@ msgstr "Morate biti moderator da biste dodeljivali bedževe korisnicima."
 
 #: lms/lms/doctype/lms_course_review/lms_course_review.py:18
 msgid "You must be enrolled in the course to submit a review"
-msgstr ""
+msgstr "Morate biti upisani na obuku da biste podneli recenziju"
 
 #: lms/lms/doctype/lms_enrollment/lms_enrollment.py:47
 msgid "You need to complete the payment for this course before enrolling."
@@ -7620,11 +7620,11 @@ msgstr "onlajn predavanja"
 
 #: frontend/src/pages/Search/Search.vue:38
 msgid "match"
-msgstr ""
+msgstr "rezultat"
 
 #: frontend/src/pages/Search/Search.vue:38
 msgid "matches"
-msgstr ""
+msgstr "rezultati"
 
 #: frontend/src/pages/Programs/Programs.vue:42
 #: frontend/src/pages/Programs/StudentPrograms.vue:36

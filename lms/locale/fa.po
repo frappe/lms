@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-12-19 16:05+0000\n"
-"PO-Revision-Date: 2025-12-23 23:25\n"
+"PO-Revision-Date: 2025-12-29 11:09\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Persian\n"
 "MIME-Version: 1.0\n"
@@ -24,11 +24,11 @@ msgstr " لطفا آن را ارزیابی و نمره دهید."
 
 #: frontend/src/pages/Programs/ProgramEnrollment.vue:32
 msgid " designed as a learning path to guide your progress. You may take the courses in any order that suits you. "
-msgstr ""
+msgstr " به عنوان یک مسیر یادگیری برای هدایت پیشرفت شما طراحی شده است. شما می‌توانید دوره‌ها را به هر ترتیبی که برای شما مناسب است، بگذرانید. "
 
 #: frontend/src/pages/Programs/ProgramEnrollment.vue:25
 msgid " designed as a structured learning path to guide your progress. Courses in this program must be taken in order, and each course will unlock as you complete the previous one. "
-msgstr ""
+msgstr " به عنوان یک مسیر یادگیری ساختاریافته برای هدایت پیشرفت شما طراحی شده است. دوره‌های این برنامه باید به ترتیب گذرانده شوند و هر دوره با تکمیل دوره قبلی، قفل آن باز می‌شود. "
 
 #: frontend/src/pages/Home/Streak.vue:21
 msgid " you are on a"
@@ -37,7 +37,7 @@ msgstr " شما در حال حاضر در یک"
 #. Paragraph text in the LMS Workspace
 #: lms/lms/workspace/lms/lms.json
 msgid "<a href=\"/app/lms-settings/LMS%20Settings\">LMS Settings</a>"
-msgstr ""
+msgstr "<a href=\"/app/lms-settings/LMS%20Settings\">تنظیمات LMS</a>"
 
 #. Paragraph text in the LMS Workspace
 #: lms/lms/workspace/lms/lms.json
@@ -52,12 +52,12 @@ msgstr ""
 #. Paragraph text in the LMS Workspace
 #: lms/lms/workspace/lms/lms.json
 msgid "<a href=\"/lms/courses/new/edit\">Create a Course</a>"
-msgstr ""
+msgstr "<a href=\"/lms/courses/new/edit\">ایجاد یک دوره</a>"
 
 #. Paragraph text in the LMS Workspace
 #: lms/lms/workspace/lms/lms.json
 msgid "<a href=\"https://docs.frappe.io/learning\">Documentation</a>"
-msgstr ""
+msgstr "<a href=\"https://docs.frappe.io/learning\">مستندات</a>"
 
 #: frontend/src/components/Modals/EmailTemplateModal.vue:50
 msgid "<p>Dear {{ member_name }},</p>\\n\\n<p>You have been enrolled in our upcoming batch {{ batch_name }}.</p>\\n\\n<p>Thanks,</p>\\n<p>Frappe Learning</p>"
@@ -124,7 +124,7 @@ msgstr "دستاوردها"
 
 #: frontend/src/pages/Statistics.vue:16
 msgid "Active Members"
-msgstr ""
+msgstr "اعضای فعال"
 
 #: frontend/src/components/Assessments.vue:11
 #: frontend/src/components/BatchCourses.vue:11
@@ -148,7 +148,7 @@ msgstr "افزودن فصل"
 
 #: frontend/src/pages/Programs/ProgramForm.vue:176
 msgid "Add Course to Program"
-msgstr ""
+msgstr "افزودن دوره به برنامه"
 
 #: frontend/src/components/Settings/Evaluators.vue:91
 msgid "Add Evaluator"
@@ -189,7 +189,7 @@ msgstr "افزودن دانش‌آموز"
 
 #: frontend/src/components/Sidebar/AppSidebar.vue:523
 msgid "Add a chapter"
-msgstr ""
+msgstr "افزودن یک فصل"
 
 #: frontend/src/components/Modals/BatchCourseModal.vue:5
 msgid "Add a course"
@@ -201,16 +201,16 @@ msgstr "یک کلمه کلیدی اضافه کنید و سپس اینتر را �
 
 #: frontend/src/components/Sidebar/AppSidebar.vue:524
 msgid "Add a lesson"
-msgstr ""
+msgstr "افزودن درس"
 
 #: frontend/src/components/Settings/Members.vue:88
 msgid "Add a new member"
-msgstr ""
+msgstr "افزودن یک عضو جدید"
 
 #: frontend/src/components/Modals/Question.vue:167
 #: frontend/src/pages/QuizForm.vue:200
 msgid "Add a new question"
-msgstr ""
+msgstr "افزودن سؤال جدید"
 
 #: frontend/src/components/Sidebar/AppSidebar.vue:538
 msgid "Add a program"
@@ -308,7 +308,7 @@ msgstr "همه دوره ها"
 
 #: frontend/src/pages/Programs/StudentPrograms.vue:5
 msgid "All Programs"
-msgstr ""
+msgstr "همه برنامه‌ها"
 
 #: lms/lms/doctype/lms_quiz/lms_quiz.py:42
 msgid "All questions should have the same marks if the limit is set."
@@ -419,7 +419,7 @@ msgstr ""
 
 #: frontend/src/components/Settings/Coupons/CouponDetails.vue:71
 msgid "Applicable For"
-msgstr ""
+msgstr "قابل استفاده برای"
 
 #. Label of the applicable_items (Table) field in DocType 'LMS Coupon'
 #: lms/lms/doctype/lms_coupon/lms_coupon.json
@@ -535,7 +535,7 @@ msgstr "ارزیابی ها"
 
 #: lms/lms/doctype/lms_badge/lms_badge.js:48
 msgid "Assign"
-msgstr "اختصاص دهید"
+msgstr "اختصاص دادن"
 
 #: frontend/src/components/Settings/BadgeForm.vue:28
 msgid "Assign For"
@@ -1676,7 +1676,7 @@ msgstr "طرح کلی دوره"
 #: frontend/src/components/Modals/CourseProgressSummary.vue:5
 #: lms/lms/report/course_progress_summary/course_progress_summary.json
 msgid "Course Progress Summary"
-msgstr ""
+msgstr "خلاصه پیشرفت دوره"
 
 #. Label of the section_break_7 (Section Break) field in DocType 'LMS Course'
 #: lms/lms/doctype/lms_course/lms_course.json
@@ -1811,7 +1811,7 @@ msgstr ""
 
 #: frontend/src/pages/Quizzes.vue:101
 msgid "Create a Quiz"
-msgstr ""
+msgstr "ایجاد یک آزمون"
 
 #: frontend/src/components/Sidebar/AppSidebar.vue:531
 msgid "Create a batch"
@@ -2014,7 +2014,7 @@ msgstr "این درس حذف شود؟"
 
 #: frontend/src/pages/CourseForm.vue:617
 msgid "Deleting the course will also delete all its chapters and lessons. Are you sure you want to delete this course?"
-msgstr ""
+msgstr "حذف دوره، تمام فصل‌ها و درس‌های آن را نیز حذف خواهد کرد. آیا از حذف این دوره مطمئن هستید؟"
 
 #: frontend/src/pages/BatchForm.vue:577
 msgid "Deleting this batch will also delete all its data including enrolled students, linked courses, assessments, feedback and discussions. Are you sure you want to continue?"
@@ -2887,7 +2887,7 @@ msgstr ""
 
 #: frontend/src/components/Modals/EditProfile.vue:84
 msgid "GitHub ID"
-msgstr ""
+msgstr "شناسه گیت‌هاب"
 
 #. Label of the github (Data) field in DocType 'User'
 #: lms/fixtures/custom_field.json
@@ -2944,7 +2944,7 @@ msgstr "سبز"
 
 #: lms/templates/signup-form.html:56
 msgid "Have an account? Login"
-msgstr "حساب کاربری دارید؟ وارد شدن"
+msgstr "حساب کاربری دارید؟ ورود"
 
 #. Label of the headline (Data) field in DocType 'User'
 #: frontend/src/components/Modals/EditProfile.vue:78
@@ -3225,7 +3225,7 @@ msgstr ""
 
 #: lms/lms/doctype/course_lesson/course_lesson.py:23
 msgid "Invalid Quiz ID"
-msgstr ""
+msgstr "شناسه آزمون نامعتبر"
 
 #: lms/lms/doctype/course_lesson/course_lesson.py:37
 msgid "Invalid Quiz ID in content"
@@ -3859,7 +3859,7 @@ msgstr ""
 #: frontend/src/components/QuizBlock.vue:9 frontend/src/pages/Batch.vue:213
 #: frontend/src/pages/Lesson.vue:103
 msgid "Login"
-msgstr "وارد شدن"
+msgstr "ورود"
 
 #: frontend/src/components/Sidebar/UserDropdown.vue:190
 msgid "Login to Frappe Cloud?"
@@ -4370,7 +4370,7 @@ msgstr ""
 
 #: frontend/src/pages/QuizForm.vue:406 frontend/src/pages/QuizForm.vue:414
 msgid "New Quiz"
-msgstr ""
+msgstr "آزمون جدید"
 
 #: lms/www/new-sign-up.html:3
 msgid "New Sign Up"
@@ -4416,7 +4416,7 @@ msgstr ""
 
 #: frontend/src/pages/Quizzes.vue:19
 msgid "No Quizzes"
-msgstr ""
+msgstr "بدون آزمون"
 
 #. Option for the 'Auto Recording' (Select) field in DocType 'LMS Live Class'
 #: lms/lms/doctype/lms_live_class/lms_live_class.json
@@ -5281,7 +5281,7 @@ msgstr "تصویر نمایه"
 
 #: frontend/src/pages/Programs/Programs.vue:18
 msgid "Program"
-msgstr ""
+msgstr "برنامه"
 
 #. Label of the program_courses (Table) field in DocType 'LMS Program'
 #: lms/lms/doctype/lms_program/lms_program.json
@@ -5373,7 +5373,7 @@ msgstr ""
 #: frontend/src/components/CourseCardOverlay.vue:99
 #: frontend/src/pages/Programs/ProgramForm.vue:125
 msgid "Progress Summary"
-msgstr ""
+msgstr "خلاصه پیشرفت"
 
 #: frontend/src/pages/Programs/ProgramProgressSummary.vue:5
 msgid "Progress Summary for {0}"
@@ -5518,12 +5518,12 @@ msgstr ""
 
 #: frontend/src/components/Quiz.vue:251
 msgid "Quiz Summary"
-msgstr ""
+msgstr "خلاصه آزمون"
 
 #. Label of the quiz_title (Data) field in DocType 'LMS Quiz Submission'
 #: lms/lms/doctype/lms_quiz_submission/lms_quiz_submission.json
 msgid "Quiz Title"
-msgstr ""
+msgstr "عنوان آزمون"
 
 #: frontend/src/pages/Quizzes.vue:211
 msgid "Quiz created successfully"
@@ -5546,7 +5546,7 @@ msgstr "تکلیف زیر درس نشان داده می‌شود."
 #: frontend/src/pages/QuizForm.vue:398 frontend/src/pages/Quizzes.vue:285
 #: frontend/src/pages/Quizzes.vue:295 lms/www/lms.py:250
 msgid "Quizzes"
-msgstr ""
+msgstr "آزمون‌ها"
 
 #: frontend/src/pages/Quizzes.vue:233
 msgid "Quizzes deleted successfully"
@@ -5745,7 +5745,7 @@ msgstr ""
 
 #: lms/lms/doctype/lms_quiz/lms_quiz.py:33
 msgid "Rows {0} have the duplicate questions."
-msgstr ""
+msgstr "ردیف‌های {0} سوالات تکراری دارند."
 
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmission.vue:56
 msgid "Run"
@@ -5930,7 +5930,7 @@ msgstr ""
 
 #: frontend/src/components/AssessmentPlugin.vue:28
 msgid "Select a quiz"
-msgstr ""
+msgstr "انتخاب یک آزمون"
 
 #: frontend/src/components/AssessmentPlugin.vue:35
 msgid "Select an assignment"
@@ -6192,7 +6192,7 @@ msgstr ""
 
 #: frontend/src/components/Quiz.vue:81
 msgid "Start the Quiz"
-msgstr ""
+msgstr "شروع آزمون"
 
 #. Option for the 'Company Type' (Select) field in DocType 'User'
 #: lms/fixtures/custom_field.json
@@ -6326,7 +6326,7 @@ msgstr "ارسال و ادامه"
 
 #: frontend/src/components/Modals/JobApplicationModal.vue:23
 msgid "Submit your resume to proceed with your application for this position. Upon submission, it will be shared with the job poster."
-msgstr ""
+msgstr "برای ادامه درخواست برای این موقعیت شغلی، رزومه خود را ارسال کنید. پس از ارسال، رزومه با آگهی‌دهنده به اشتراک گذاشته خواهد شد."
 
 #: frontend/src/pages/Programs/ProgramEnrollment.vue:145
 msgid "Successfully enrolled in program"
@@ -6451,7 +6451,7 @@ msgstr ""
 
 #: frontend/src/pages/QuizForm.vue:23
 msgid "Test Quiz"
-msgstr ""
+msgstr "آزمون آزمایشی"
 
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseForm.vue:82
 msgid "Test this Exercise"
@@ -6723,7 +6723,7 @@ msgstr "منطقه زمانی"
 
 #: lms/lms/doctype/lms_course/lms_course.py:70
 msgid "Timezone is required for paid certificates."
-msgstr ""
+msgstr "منطقه زمانی برای گواهینامه‌های پولی الزامی است."
 
 #: lms/templates/emails/batch_confirmation.html:21
 #: lms/templates/emails/batch_start_reminder.html:16
@@ -6840,7 +6840,7 @@ msgstr "توییتر"
 #: frontend/src/components/Modals/EditProfile.vue:87
 #: lms/fixtures/custom_field.json
 msgid "Twitter ID"
-msgstr ""
+msgstr "شناسه توییتر"
 
 #. Label of the type (Select) field in DocType 'Job Opportunity'
 #. Label of a field in the job-opportunity Web Form
@@ -6976,7 +6976,7 @@ msgstr "در حال آپلود {0}%"
 #: frontend/src/components/Settings/Coupons/CouponList.vue:182
 #: lms/lms/doctype/lms_coupon/lms_coupon.json
 msgid "Usage Limit"
-msgstr ""
+msgstr "محدودیت استفاده"
 
 #: lms/lms/doctype/lms_coupon/lms_coupon.py:31
 msgid "Usage limit cannot be negative"
@@ -6984,7 +6984,7 @@ msgstr "محدودیت استفاده نمی‌تواند منفی باشد"
 
 #: frontend/src/components/Modals/EmailTemplateModal.vue:38
 msgid "Use HTML"
-msgstr ""
+msgstr "استفاده از HTML"
 
 #. Label of the user (Link) field in DocType 'LMS Job Application'
 #. Label of the user (Link) field in DocType 'LMS Course Interest'
@@ -7366,7 +7366,7 @@ msgstr ""
 
 #: frontend/src/pages/ProfileCertificates.vue:26
 msgid "You have not received any certificates yet."
-msgstr ""
+msgstr "شما هنوز هیچ گواهی دریافت نکرده‌اید."
 
 #: lms/lms/widgets/NoPreviewModal.html:12
 msgid "You have opted to be notified for this course. You will receive an email when the course becomes available."
@@ -7483,7 +7483,7 @@ msgstr ""
 
 #: frontend/src/components/Quiz.vue:258
 msgid "Your submission has been successfully saved. The instructor will review and grade it shortly, and you'll be notified of your final result."
-msgstr ""
+msgstr "ارسال شما با موفقیت ذخیره شد. مدرس به زودی آن را بررسی و نمره‌دهی خواهد کرد و نتیجه نهایی به شما اطلاع داده خواهد شد."
 
 #: frontend/src/pages/Lesson.vue:8
 msgid "Zen Mode"
@@ -7662,15 +7662,15 @@ msgstr "دانش‌آموزان"
 
 #: frontend/src/components/CommandPalette/CommandPalette.vue:59
 msgid "to close"
-msgstr ""
+msgstr "برای بستن"
 
 #: frontend/src/components/CommandPalette/CommandPalette.vue:45
 msgid "to navigate"
-msgstr ""
+msgstr "برای پیمایش"
 
 #: frontend/src/components/CommandPalette/CommandPalette.vue:53
 msgid "to select"
-msgstr ""
+msgstr "برای انتخاب"
 
 #: frontend/src/components/BatchFeedback.vue:12
 msgid "to view your feedback."
@@ -7698,7 +7698,7 @@ msgstr ""
 
 #: frontend/src/pages/Quizzes.vue:18
 msgid "{0} Quizzes"
-msgstr ""
+msgstr "{0} آزمون"
 
 #: lms/lms/api.py:722 lms/lms/api.py:730
 msgid "{0} Settings not found"
