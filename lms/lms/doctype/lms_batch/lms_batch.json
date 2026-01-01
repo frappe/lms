@@ -377,9 +377,13 @@
   {
    "link_doctype": "LMS Certificate",
    "link_fieldname": "batch_name"
+  },
+  {
+   "link_doctype": "LMS Payment",
+   "link_fieldname": "payment_for_document"
   }
  ],
- "modified": "2025-12-04 12:54:11.190967",
+ "modified": "2025-12-23 11:27:00.424331",
  "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "LMS Batch",

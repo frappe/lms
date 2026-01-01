@@ -152,21 +152,10 @@ const props = defineProps({
 })
 
 const getGradientColor = () => {
-	let theme =
-		localStorage.getItem('theme') == 'light' ? 'lightMode' : 'darkMode'
+	let theme = localStorage.getItem('theme') == 'dark' ? 'darkMode' : 'lightMode'
 	let color = props.course.card_gradient?.toLowerCase() || 'blue'
 	let colorMap = colors[theme][color]
 	return `linear-gradient(to top right, black, ${colorMap[400]})`
-	/* return `bg-gradient-to-br from-${color}-100 via-${color}-200 to-${color}-400` */
-	/* return `linear-gradient(to bottom right, ${colorMap[100]}, ${colorMap[400]})` */
-	/* return `radial-gradient(ellipse at 80% 20%, black 20%, ${colorMap[500]} 100%)` */
-	/* return `radial-gradient(ellipse at 30% 70%, black 50%, ${colorMap[500]} 100%)` */
-	/* return `radial-gradient(ellipse at 80% 20%, ${colorMap[100]} 0%, ${colorMap[300]} 50%, ${colorMap[500]} 100%)` */
-	/* return `conic-gradient(from 180deg at 50% 50%, ${colorMap[100]} 0%, ${colorMap[200]} 50%, ${colorMap[400]} 100%)` */
-	/* return `linear-gradient(135deg, ${colorMap[100]}, ${colorMap[300]}), linear-gradient(120deg, rgba(255,255,255,0.4) 0%, transparent 60%) ` */
-	/* return `radial-gradient(circle at 20% 30%, ${colorMap[100]} 0%, transparent 40%),
-		radial-gradient(circle at 80% 40%, ${colorMap[200]} 0%, transparent 50%),
-		linear-gradient(135deg, ${colorMap[300]} 0%, ${colorMap[400]} 100%);` */
 }
 </script>
 <style>

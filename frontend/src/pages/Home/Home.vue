@@ -74,22 +74,22 @@ const isAdmin = computed(() => {
 })
 
 const myLiveClasses = createResource({
-	url: 'lms.lms.utils.get_my_live_classes',
+	url: 'lms.lms.api.get_my_live_classes',
 	auto: !isAdmin.value ? true : false,
 })
 
 const adminLiveClasses = createResource({
-	url: 'lms.lms.utils.get_admin_live_classes',
+	url: 'lms.lms.api.get_admin_live_classes',
 	auto: isAdmin.value ? true : false,
 })
 
 const adminEvals = createResource({
-	url: 'lms.lms.utils.get_admin_evals',
+	url: 'lms.lms.api.get_admin_evals',
 	auto: isAdmin.value ? true : false,
 })
 
 const streakInfo = createResource({
-	url: 'lms.lms.utils.get_streak_info',
+	url: 'lms.lms.api.get_streak_info',
 	auto: true,
 })
 

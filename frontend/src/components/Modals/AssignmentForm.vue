@@ -27,6 +27,12 @@
 						:label="__('Submission Type')"
 						:required="true"
 					/>
+					<Link
+						v-model="assignment.course"
+						:label="__('Course')"
+						doctype="LMS Course"
+						placeholder=" "
+					/>
 					<div>
 						<div class="text-xs text-ink-gray-5 mb-2">
 							{{ __('Question') }}
@@ -67,6 +73,7 @@
 import { Button, Dialog, FormControl, TextEditor, toast } from 'frappe-ui'
 import { computed, reactive, watch } from 'vue'
 import { escapeHTML, sanitizeHTML } from '@/utils'
+import { Link } from 'frappe-ui/frappe'
 
 const show = defineModel()
 const assignments = defineModel<Assignments>('assignments')
@@ -75,6 +82,7 @@ interface Assignment {
 	title: string
 	type: string
 	question: string
+	course?: string
 }
 
 interface Assignments {
@@ -89,6 +97,7 @@ const assignment = reactive({
 	title: '',
 	type: '',
 	question: '',
+	course: '',
 })
 
 const props = defineProps({
@@ -107,6 +116,7 @@ watch(
 					assignment.title = row.title
 					assignment.type = row.type
 					assignment.question = row.question
+					assignment.course = row.course || ''
 				}
 			})
 		}

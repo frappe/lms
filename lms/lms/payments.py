@@ -121,6 +121,7 @@ def record_payment(
 			"payment_for_document_type": doctype,
 			"payment_for_document": docname,
 			"payment_for_certificate": payment_for_certificate,
+			"member_consent": address.member_consent,
 		}
 	)
 	if coupon_code:

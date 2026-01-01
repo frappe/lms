@@ -17,7 +17,7 @@
 						@click="openDetails(program.name, category)"
 						class="border rounded-md p-3 hover:border-outline-gray-3 cursor-pointer"
 					>
-						<div class="text-lg font-semibold mb-2">
+						<div class="text-lg font-semibold text-ink-gray-9 mb-2">
 							{{ program.name }}
 						</div>
 
@@ -40,7 +40,7 @@
 
 						<div v-if="Object.keys(program).includes('progress')" class="mt-5">
 							<ProgressBar :progress="program.progress" />
-							<div class="text-sm mt-1">
+							<div class="text-sm text-ink-gray-7 mt-1">
 								{{ Math.ceil(program.progress) }}% {{ __('completed') }}
 							</div>
 						</div>

@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
-"POT-Creation-Date: 2025-12-05 16:04+0000\n"
-"PO-Revision-Date: 2025-12-08 18:58\n"
+"POT-Creation-Date: 2025-12-19 16:05+0000\n"
+"PO-Revision-Date: 2025-12-23 23:25\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Esperanto\n"
 "MIME-Version: 1.0\n"
@@ -78,7 +78,7 @@ msgstr "crwdns149196:0crwdne149196:0"
 msgid "<span style=\"font-size: 18px;\"><b>Statistics</b></span>"
 msgstr "crwdns149198:0crwdne149198:0"
 
-#: lms/lms/doctype/lms_course/lms_course.py:66
+#: lms/lms/doctype/lms_course/lms_course.py:64
 msgid "A course cannot have both paid certificate and certificate of completion."
 msgstr "crwdns152597:0crwdne152597:0"
 
@@ -103,11 +103,6 @@ msgstr "crwdns152174:0crwdne152174:0"
 msgid "Acceptance for Terms and/or Policies"
 msgstr "crwdns149202:0crwdne149202:0"
 
-#. Option for the 'Status' (Select) field in DocType 'Cohort Join Request'
-#: lms/lms/doctype/cohort_join_request/cohort_join_request.json
-msgid "Accepted"
-msgstr "crwdns149204:0crwdne149204:0"
-
 #. Label of the account_id (Data) field in DocType 'LMS Zoom Settings'
 #. Label of the account_id (Data) field in DocType 'Zoom Settings'
 #: frontend/src/components/Modals/ZoomAccountModal.vue:55
@@ -126,11 +121,6 @@ msgstr "crwdns155224:0crwdne155224:0"
 #: frontend/src/pages/ProfileAbout.vue:34
 msgid "Achievements"
 msgstr "crwdns149208:0crwdne149208:0"
-
-#. Option for the 'Status' (Select) field in DocType 'LMS Batch Old'
-#: lms/lms/doctype/lms_batch_old/lms_batch_old.json
-msgid "Active"
-msgstr "crwdns149210:0crwdne149210:0"
 
 #: frontend/src/pages/Statistics.vue:16
 msgid "Active Members"
@@ -197,7 +187,7 @@ msgstr "crwdns149222:0crwdne149222:0"
 msgid "Add a Student"
 msgstr "crwdns149224:0crwdne149224:0"
 
-#: frontend/src/components/Sidebar/AppSidebar.vue:616
+#: frontend/src/components/Sidebar/AppSidebar.vue:523
 msgid "Add a chapter"
 msgstr "crwdns151726:0crwdne151726:0"
 
@@ -209,7 +199,7 @@ msgstr "crwdns149226:0crwdne149226:0"
 msgid "Add a keyword and then press enter"
 msgstr "crwdns152004:0crwdne152004:0"
 
-#: frontend/src/components/Sidebar/AppSidebar.vue:617
+#: frontend/src/components/Sidebar/AppSidebar.vue:524
 msgid "Add a lesson"
 msgstr "crwdns151728:0crwdne151728:0"
 
@@ -222,7 +212,7 @@ msgstr "crwdns155798:0crwdne155798:0"
 msgid "Add a new question"
 msgstr "crwdns149228:0crwdne149228:0"
 
-#: frontend/src/components/Sidebar/AppSidebar.vue:631
+#: frontend/src/components/Sidebar/AppSidebar.vue:538
 msgid "Add a program"
 msgstr "crwdns159750:0crwdne159750:0"
 
@@ -246,7 +236,7 @@ msgstr "crwdns152104:0crwdne152104:0"
 msgid "Add at least one possible answer for this question: {0}"
 msgstr "crwdns149236:0{0}crwdne149236:0"
 
-#: frontend/src/components/Sidebar/AppSidebar.vue:580
+#: frontend/src/components/Sidebar/AppSidebar.vue:487
 msgid "Add courses to your batch"
 msgstr "crwdns154437:0crwdne154437:0"
 
@@ -254,7 +244,7 @@ msgstr "crwdns154437:0crwdne154437:0"
 msgid "Add quiz to this video"
 msgstr "crwdns155290:0crwdne155290:0"
 
-#: frontend/src/components/Sidebar/AppSidebar.vue:559
+#: frontend/src/components/Sidebar/AppSidebar.vue:466
 msgid "Add students to your batch"
 msgstr "crwdns154439:0crwdne154439:0"
 
@@ -270,11 +260,11 @@ msgstr "crwdns149238:0crwdne149238:0"
 msgid "Add your assignment as {0}"
 msgstr "crwdns149240:0{0}crwdne149240:0"
 
-#: frontend/src/components/Sidebar/AppSidebar.vue:492
+#: frontend/src/components/Sidebar/AppSidebar.vue:399
 msgid "Add your first chapter"
 msgstr "crwdns154441:0crwdne154441:0"
 
-#: frontend/src/components/Sidebar/AppSidebar.vue:508
+#: frontend/src/components/Sidebar/AppSidebar.vue:415
 msgid "Add your first lesson"
 msgstr "crwdns154443:0crwdne154443:0"
 
@@ -293,11 +283,7 @@ msgstr "crwdns149244:0crwdne149244:0"
 msgid "Address Line 2"
 msgstr "crwdns149246:0crwdne149246:0"
 
-#. Option for the 'Role' (Select) field in DocType 'Cohort Staff'
-#. Option for the 'Required Role' (Select) field in DocType 'Cohort Web Page'
 #. Option for the 'Role' (Select) field in DocType 'LMS Enrollment'
-#: lms/lms/doctype/cohort_staff/cohort_staff.json
-#: lms/lms/doctype/cohort_web_page/cohort_web_page.json
 #: lms/lms/doctype/lms_enrollment/lms_enrollment.json
 msgid "Admin"
 msgstr "crwdns149248:0crwdne149248:0"
@@ -384,11 +370,11 @@ msgstr "crwdns149270:0crwdne149270:0"
 msgid "Amount and currency are required for paid batches."
 msgstr "crwdns151730:0crwdne151730:0"
 
-#: lms/lms/doctype/lms_course/lms_course.py:79
+#: lms/lms/doctype/lms_course/lms_course.py:77
 msgid "Amount and currency are required for paid certificates."
 msgstr "crwdns152599:0crwdne152599:0"
 
-#: lms/lms/doctype/lms_course/lms_course.py:76
+#: lms/lms/doctype/lms_course/lms_course.py:74
 msgid "Amount and currency are required for paid courses."
 msgstr "crwdns151732:0crwdne151732:0"
 
@@ -413,11 +399,9 @@ msgstr "crwdns155068:0crwdne155068:0"
 #. Label of the answer (Text Editor) field in DocType 'LMS Assignment'
 #. Label of the answer (Text Editor) field in DocType 'LMS Assignment
 #. Submission'
-#. Label of the answer (Code) field in DocType 'LMS Exercise'
 #: frontend/src/pages/QuizSubmission.vue:60
 #: lms/lms/doctype/lms_assignment/lms_assignment.json
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.json
-#: lms/lms/doctype/lms_exercise/lms_exercise.json
 msgid "Answer"
 msgstr "crwdns149280:0crwdne149280:0"
 
@@ -543,7 +527,7 @@ msgstr "crwdns149308:0{0}crwdne149308:0"
 #. Label of the show_assessments (Check) field in DocType 'LMS Settings'
 #: frontend/src/components/AdminBatchDashboard.vue:32
 #: frontend/src/components/Assessments.vue:5
-#: frontend/src/components/Sidebar/AppSidebar.vue:634
+#: frontend/src/components/Sidebar/AppSidebar.vue:541
 #: lms/lms/doctype/lms_settings/lms_settings.json
 #: lms/templates/assessments.html:3
 msgid "Assessments"
@@ -602,7 +586,7 @@ msgstr "crwdns154518:0crwdne154518:0"
 msgid "Assignment Title"
 msgstr "crwdns149320:0crwdne149320:0"
 
-#: frontend/src/components/Modals/AssignmentForm.vue:146
+#: frontend/src/components/Modals/AssignmentForm.vue:147
 msgid "Assignment created successfully"
 msgstr "crwdns154596:0crwdne154596:0"
 
@@ -614,7 +598,7 @@ msgstr "crwdns149322:0{0}crwdnd149322:0{1}crwdne149322:0"
 msgid "Assignment submitted successfully"
 msgstr "crwdns155072:0crwdne155072:0"
 
-#: frontend/src/components/Modals/AssignmentForm.vue:161
+#: frontend/src/components/Modals/AssignmentForm.vue:162
 msgid "Assignment updated successfully"
 msgstr "crwdns154598:0crwdne154598:0"
 
@@ -624,8 +608,8 @@ msgid "Assignment will appear at the bottom of the lesson."
 msgstr "crwdns149324:0crwdne149324:0"
 
 #: frontend/src/components/Settings/Badges.vue:163
-#: frontend/src/components/Sidebar/AppSidebar.vue:638
-#: frontend/src/pages/Assignments.vue:208 lms/www/lms.py:272
+#: frontend/src/components/Sidebar/AppSidebar.vue:545
+#: frontend/src/pages/Assignments.vue:213 lms/www/lms.py:272
 msgid "Assignments"
 msgstr "crwdns152108:0crwdne152108:0"
 
@@ -677,6 +661,10 @@ msgstr "crwdns149334:0crwdne149334:0"
 #: frontend/src/pages/ProfileEvaluator.vue:241
 msgid "Availability updated successfully"
 msgstr "crwdns155074:0crwdne155074:0"
+
+#: frontend/src/components/Modals/EvaluationModal.vue:26
+msgid "Available Slots"
+msgstr "crwdns163990:0crwdne163990:0"
 
 #: frontend/src/components/BatchFeedback.vue:43
 msgid "Average Feedback Received"
@@ -756,6 +744,7 @@ msgstr "crwdns162040:0{0}crwdnd162040:0{1}crwdne162040:0"
 #: frontend/src/components/Settings/BadgeForm.vue:195
 #: frontend/src/components/Settings/Badges.vue:200
 #: frontend/src/components/Settings/Transactions/TransactionDetails.vue:125
+#: frontend/src/pages/Search/Search.vue:213
 #: lms/lms/doctype/lms_batch_enrollment/lms_batch_enrollment.json
 #: lms/lms/doctype/lms_batch_feedback/lms_batch_feedback.json
 #: lms/lms/doctype/lms_certificate/lms_certificate.json
@@ -774,12 +763,6 @@ msgstr "crwdns149348:0crwdne149348:0"
 #: lms/lms/doctype/batch_course/batch_course.json
 msgid "Batch Course"
 msgstr "crwdns149350:0crwdne149350:0"
-
-#. Label of the section_break_5 (Section Break) field in DocType 'LMS Batch
-#. Old'
-#: lms/lms/doctype/lms_batch_old/lms_batch_old.json
-msgid "Batch Description"
-msgstr "crwdns149354:0crwdne149354:0"
 
 #. Label of the batch_details (Text Editor) field in DocType 'LMS Batch'
 #: frontend/src/pages/BatchForm.vue:133
@@ -808,10 +791,12 @@ msgstr "crwdns155170:0crwdne155170:0"
 
 #. Name of a role
 #: lms/lms/doctype/course_evaluator/course_evaluator.json
+#: lms/lms/doctype/lms_assignment/lms_assignment.json
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.json
 #: lms/lms/doctype/lms_badge_assignment/lms_badge_assignment.json
 #: lms/lms/doctype/lms_batch/lms_batch.json
 #: lms/lms/doctype/lms_category/lms_category.json
+#: lms/lms/doctype/lms_certificate/lms_certificate.json
 #: lms/lms/doctype/lms_certificate_evaluation/lms_certificate_evaluation.json
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 #: lms/lms/doctype/lms_coupon/lms_coupon.json
@@ -826,20 +811,8 @@ msgstr "crwdns149360:0crwdne149360:0"
 msgid "Batch Name"
 msgstr "crwdns149362:0crwdne149362:0"
 
-#. Label of the batch_old (Link) field in DocType 'Exercise Latest Submission'
-#. Label of the batch_old (Link) field in DocType 'Exercise Submission'
-#. Label of the batch_old (Link) field in DocType 'LMS Enrollment'
-#: lms/lms/doctype/exercise_latest_submission/exercise_latest_submission.json
-#: lms/lms/doctype/exercise_submission/exercise_submission.json
-#: lms/lms/doctype/lms_enrollment/lms_enrollment.json
-msgid "Batch Old"
-msgstr "crwdns149364:0crwdne149364:0"
-
-#. Label of the section_break_7 (Section Break) field in DocType 'LMS Batch
-#. Old'
 #. Label of the section_break_szgq (Section Break) field in DocType 'LMS
 #. Settings'
-#: lms/lms/doctype/lms_batch_old/lms_batch_old.json
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Batch Settings"
 msgstr "crwdns149366:0crwdne149366:0"
@@ -863,7 +836,7 @@ msgstr "crwdns155230:0crwdne155230:0"
 msgid "Batch Title"
 msgstr "crwdns149372:0crwdne149372:0"
 
-#: frontend/src/pages/BatchForm.vue:594
+#: frontend/src/pages/BatchForm.vue:598
 msgid "Batch deleted successfully"
 msgstr "crwdns155874:0crwdne155874:0"
 
@@ -871,11 +844,11 @@ msgstr "crwdns155874:0crwdne155874:0"
 msgid "Batch end date cannot be before the batch start date"
 msgstr "crwdns149376:0crwdne149376:0"
 
-#: lms/lms/api.py:211
+#: lms/lms/api.py:132
 msgid "Batch has already started."
 msgstr "crwdns154786:0crwdne154786:0"
 
-#: lms/lms/api.py:206
+#: lms/lms/api.py:127
 msgid "Batch is sold out."
 msgstr "crwdns154325:0crwdne154325:0"
 
@@ -892,11 +865,6 @@ msgstr "crwdns152469:0crwdne152469:0"
 #: lms/lms/doctype/lms_settings/lms_settings.json lms/www/lms.py:121
 msgid "Batches"
 msgstr "crwdns149380:0crwdne149380:0"
-
-#. Label of the begin_date (Date) field in DocType 'Cohort'
-#: lms/lms/doctype/cohort/cohort.json
-msgid "Begin Date"
-msgstr "crwdns149382:0crwdne149382:0"
 
 #: lms/templates/emails/batch_confirmation.html:33
 #: lms/templates/emails/batch_start_reminder.html:31
@@ -921,7 +889,7 @@ msgstr "crwdns149386:0crwdne149386:0"
 msgid "Billing Name"
 msgstr "crwdns149388:0crwdne149388:0"
 
-#: frontend/src/components/Modals/EditProfile.vue:81
+#: frontend/src/components/Modals/EditProfile.vue:99
 msgid "Bio"
 msgstr "crwdns149390:0crwdne149390:0"
 
@@ -974,11 +942,7 @@ msgstr "crwdns152471:0crwdne152471:0"
 msgid "Cancel this evaluation?"
 msgstr "crwdns152473:0crwdne152473:0"
 
-#. Option for the 'Status' (Select) field in DocType 'Cohort'
-#. Option for the 'Stage' (Select) field in DocType 'LMS Batch Old'
 #. Option for the 'Status' (Select) field in DocType 'LMS Certificate Request'
-#: lms/lms/doctype/cohort/cohort.json
-#: lms/lms/doctype/lms_batch_old/lms_batch_old.json
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 msgid "Cancelled"
 msgstr "crwdns149410:0crwdne149410:0"
@@ -1059,10 +1023,11 @@ msgstr "crwdns151924:0crwdne151924:0"
 #. Label of the certification (Check) field in DocType 'LMS Batch'
 #. Label of the certification_section (Section Break) field in DocType 'LMS
 #. Enrollment'
+#. Label of a chart in the LMS Workspace
 #. Label of a Card Break in the LMS Workspace
 #. Label of a Link in the LMS Workspace
 #: frontend/src/components/Modals/Event.vue:411
-#: frontend/src/components/Sidebar/AppSidebar.vue:642
+#: frontend/src/components/Sidebar/AppSidebar.vue:549
 #: frontend/src/pages/BatchForm.vue:69 frontend/src/pages/Batches.vue:100
 #: frontend/src/pages/CourseCertification.vue:10
 #: frontend/src/pages/CourseCertification.vue:135
@@ -1084,7 +1049,7 @@ msgstr "crwdns149432:0crwdne149432:0"
 msgid "Certification Name"
 msgstr "crwdns149436:0crwdne149436:0"
 
-#: lms/lms/doctype/lms_certificate/lms_certificate.py:164
+#: lms/lms/doctype/lms_certificate/lms_certificate.py:168
 msgid "Certification is not enabled for this course."
 msgstr "crwdns162042:0crwdne162042:0"
 
@@ -1098,8 +1063,8 @@ msgid "Certified"
 msgstr "crwdns152422:0crwdne152422:0"
 
 #. Label of the certified_members (Check) field in DocType 'LMS Settings'
-#: frontend/src/pages/CertifiedParticipants.vue:212
-#: frontend/src/pages/CertifiedParticipants.vue:219
+#: frontend/src/pages/CertifiedParticipants.vue:209
+#: frontend/src/pages/CertifiedParticipants.vue:216
 #: frontend/src/pages/Statistics.vue:40
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Certified Members"
@@ -1257,11 +1222,9 @@ msgstr "crwdns155080:0crwdne155080:0"
 
 #. Option for the 'Status' (Select) field in DocType 'Job Opportunity'
 #. Option in a Select field in the job-opportunity Web Form
-#. Option for the 'Membership' (Select) field in DocType 'LMS Batch Old'
 #: frontend/src/pages/Jobs.vue:175
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 #: lms/job/web_form/job_opportunity/job_opportunity.json
-#: lms/lms/doctype/lms_batch_old/lms_batch_old.json
 msgid "Closed"
 msgstr "crwdns149474:0crwdne149474:0"
 
@@ -1271,64 +1234,20 @@ msgid "Cloud"
 msgstr "crwdns149476:0crwdne149476:0"
 
 #. Label of the code (Data) field in DocType 'LMS Coupon'
-#. Label of the code (Code) field in DocType 'LMS Exercise'
 #. Label of the code (Code) field in DocType 'LMS Programming Exercise
 #. Submission'
 #: frontend/src/components/Settings/Coupons/CouponList.vue:163
 #: lms/lms/doctype/lms_coupon/lms_coupon.json
-#: lms/lms/doctype/lms_exercise/lms_exercise.json
 #: lms/lms/doctype/lms_programming_exercise_submission/lms_programming_exercise_submission.json
 msgid "Code"
 msgstr "crwdns149478:0crwdne149478:0"
-
-#. Name of a DocType
-#. Label of the cohort (Link) field in DocType 'Cohort Join Request'
-#. Label of the cohort (Link) field in DocType 'Cohort Mentor'
-#. Label of the cohort (Link) field in DocType 'Cohort Staff'
-#. Label of the cohort (Link) field in DocType 'Cohort Subgroup'
-#. Option for the 'Scope' (Select) field in DocType 'Cohort Web Page'
-#. Label of the cohort (Link) field in DocType 'LMS Enrollment'
-#: lms/lms/doctype/cohort/cohort.json
-#: lms/lms/doctype/cohort_join_request/cohort_join_request.json
-#: lms/lms/doctype/cohort_mentor/cohort_mentor.json
-#: lms/lms/doctype/cohort_staff/cohort_staff.json
-#: lms/lms/doctype/cohort_subgroup/cohort_subgroup.json
-#: lms/lms/doctype/cohort_web_page/cohort_web_page.json
-#: lms/lms/doctype/lms_enrollment/lms_enrollment.json
-msgid "Cohort"
-msgstr "crwdns149480:0crwdne149480:0"
-
-#. Name of a DocType
-#: lms/lms/doctype/cohort_join_request/cohort_join_request.json
-msgid "Cohort Join Request"
-msgstr "crwdns149482:0crwdne149482:0"
-
-#. Name of a DocType
-#: lms/lms/doctype/cohort_mentor/cohort_mentor.json
-msgid "Cohort Mentor"
-msgstr "crwdns149484:0crwdne149484:0"
-
-#. Name of a DocType
-#: lms/lms/doctype/cohort_staff/cohort_staff.json
-msgid "Cohort Staff"
-msgstr "crwdns149486:0crwdne149486:0"
-
-#. Name of a DocType
-#: lms/lms/doctype/cohort_subgroup/cohort_subgroup.json
-msgid "Cohort Subgroup"
-msgstr "crwdns149488:0crwdne149488:0"
-
-#. Name of a DocType
-#: lms/lms/doctype/cohort_web_page/cohort_web_page.json
-msgid "Cohort Web Page"
-msgstr "crwdns149490:0crwdne149490:0"
 
 #. Label of the collaboration (Select) field in DocType 'User'
 #: lms/fixtures/custom_field.json
 msgid "Collaboration Preference"
 msgstr "crwdns149492:0crwdne149492:0"
 
-#: frontend/src/components/Sidebar/AppSidebar.vue:145
+#: frontend/src/components/Sidebar/AppSidebar.vue:155
 msgid "Collapse"
 msgstr "crwdns154602:0crwdne154602:0"
 
@@ -1351,15 +1270,10 @@ msgstr "crwdns149498:0crwdne149498:0"
 msgid "Comma separated keywords for SEO"
 msgstr "crwdns155232:0crwdne155232:0"
 
-#. Label of the comments (Small Text) field in DocType 'Exercise Latest
-#. Submission'
-#. Label of the comments (Small Text) field in DocType 'Exercise Submission'
 #. Label of the comments (Text Editor) field in DocType 'LMS Assignment
 #. Submission'
 #. Label of the comments (Small Text) field in DocType 'LMS Mentor Request'
 #: frontend/src/components/Assignment.vue:170
-#: lms/lms/doctype/exercise_latest_submission/exercise_latest_submission.json
-#: lms/lms/doctype/exercise_submission/exercise_submission.json
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.json
 #: lms/lms/doctype/lms_mentor_request/lms_mentor_request.json
 msgid "Comments"
@@ -1375,7 +1289,7 @@ msgstr "crwdns152114:0crwdne152114:0"
 msgid "Common keywords that will be used for all pages"
 msgstr "crwdns154700:0crwdne154700:0"
 
-#: frontend/src/pages/Lesson.vue:884
+#: frontend/src/pages/Lesson.vue:890
 msgid "Community"
 msgstr "crwdns157414:0crwdne157414:0"
 
@@ -1435,7 +1349,7 @@ msgstr "crwdns155698:0crwdne155698:0"
 #. Option for the 'Status' (Select) field in DocType 'LMS Course Progress'
 #: frontend/src/components/Modals/BatchStudentProgress.vue:24
 #: lms/lms/doctype/lms_course_progress/lms_course_progress.json
-#: lms/lms/widgets/CourseCard.html:75 lms/templates/reviews.html:48
+#: lms/lms/widgets/CourseCard.html:75
 msgid "Complete"
 msgstr "crwdns149516:0crwdne149516:0"
 
@@ -1455,11 +1369,7 @@ msgstr "crwdns152426:0crwdne152426:0"
 msgid "Complete the upcoming quiz to continue watching the video. The quiz will open in {0} {1}."
 msgstr "crwdns155438:0{0}crwdnd155438:0{1}crwdne155438:0"
 
-#. Option for the 'Status' (Select) field in DocType 'Cohort'
-#. Option for the 'Stage' (Select) field in DocType 'LMS Batch Old'
 #. Option for the 'Status' (Select) field in DocType 'LMS Certificate Request'
-#: lms/lms/doctype/cohort/cohort.json
-#: lms/lms/doctype/lms_batch_old/lms_batch_old.json
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 #: lms/lms/widgets/CourseCard.html:78
 msgid "Completed"
@@ -1501,7 +1411,7 @@ msgstr "crwdns152479:0crwdne152479:0"
 msgid "Confirm Enrollment"
 msgstr "crwdns158492:0crwdne158492:0"
 
-#: frontend/src/pages/BatchForm.vue:572
+#: frontend/src/pages/BatchForm.vue:576
 msgid "Confirm your action to delete"
 msgstr "crwdns155878:0crwdne155878:0"
 
@@ -1516,7 +1426,7 @@ msgstr "crwdns149532:0crwdne149532:0"
 msgid "Confirmation Email Template"
 msgstr "crwdns152481:0crwdne152481:0"
 
-#: lms/lms/doctype/lms_certificate/lms_certificate.py:30
+#: lms/lms/doctype/lms_certificate/lms_certificate.py:27
 msgid "Congratulations on getting certified!"
 msgstr "crwdns149534:0crwdne149534:0"
 
@@ -1563,21 +1473,12 @@ msgstr "crwdns149540:0crwdne149540:0"
 msgid "Contract"
 msgstr "crwdns149542:0crwdne149542:0"
 
-#: lms/lms/utils.py:430
-msgid "Cookie Policy"
-msgstr "crwdns149544:0crwdne149544:0"
-
 #. Option for the 'Company Type' (Select) field in DocType 'User'
 #: lms/fixtures/custom_field.json
 msgid "Corporate Organization"
 msgstr "crwdns149548:0crwdne149548:0"
 
-#. Option for the 'Status' (Select) field in DocType 'Exercise Latest
-#. Submission'
-#. Option for the 'Status' (Select) field in DocType 'Exercise Submission'
 #: frontend/src/components/Quiz.vue:189
-#: lms/lms/doctype/exercise_latest_submission/exercise_latest_submission.json
-#: lms/lms/doctype/exercise_submission/exercise_submission.json
 msgid "Correct"
 msgstr "crwdns149550:0crwdne149550:0"
 
@@ -1625,16 +1526,9 @@ msgid "Coupon(s) deleted successfully"
 msgstr "crwdns160970:0crwdne160970:0"
 
 #. Label of the course (Link) field in DocType 'Batch Course'
-#. Label of the course (Link) field in DocType 'Cohort'
-#. Label of the course (Link) field in DocType 'Cohort Mentor'
-#. Label of the course (Link) field in DocType 'Cohort Staff'
-#. Label of the course (Link) field in DocType 'Cohort Subgroup'
 #. Label of the course (Link) field in DocType 'Course Chapter'
 #. Label of the course (Link) field in DocType 'Course Lesson'
-#. Label of the course (Link) field in DocType 'Exercise Latest Submission'
-#. Label of the course (Link) field in DocType 'Exercise Submission'
 #. Label of the course (Link) field in DocType 'LMS Assignment Submission'
-#. Label of the course (Link) field in DocType 'LMS Batch Old'
 #. Label of the course (Link) field in DocType 'LMS Certificate'
 #. Label of the course (Link) field in DocType 'LMS Certificate Evaluation'
 #. Label of the course (Link) field in DocType 'LMS Certificate Request'
@@ -1643,7 +1537,6 @@ msgstr "crwdns160970:0crwdne160970:0"
 #. Label of the course (Link) field in DocType 'LMS Course Progress'
 #. Label of the course (Link) field in DocType 'LMS Course Review'
 #. Label of the course (Link) field in DocType 'LMS Enrollment'
-#. Label of the course (Link) field in DocType 'LMS Exercise'
 #. Label of the course (Link) field in DocType 'LMS Lesson Note'
 #. Label of the course (Link) field in DocType 'LMS Mentor Request'
 #. Label of the course (Link) field in DocType 'LMS Program Course'
@@ -1655,24 +1548,18 @@ msgstr "crwdns160970:0crwdne160970:0"
 #. Label of a shortcut in the LMS Workspace
 #: frontend/src/components/Modals/BatchCourseModal.vue:20
 #: frontend/src/components/Modals/BulkCertificates.vue:38
-#: frontend/src/components/Modals/EvaluationModal.vue:20
+#: frontend/src/components/Modals/EvaluationModal.vue:21
 #: frontend/src/components/Modals/Event.vue:24
 #: frontend/src/components/Settings/BadgeForm.vue:194
 #: frontend/src/components/Settings/Badges.vue:199
 #: frontend/src/components/Settings/Transactions/TransactionDetails.vue:124
 #: frontend/src/pages/Programs/ProgramForm.vue:196
 #: frontend/src/pages/Programs/Programs.vue:35
+#: frontend/src/pages/Search/Search.vue:211
 #: lms/lms/doctype/batch_course/batch_course.json
-#: lms/lms/doctype/cohort/cohort.json
-#: lms/lms/doctype/cohort_mentor/cohort_mentor.json
-#: lms/lms/doctype/cohort_staff/cohort_staff.json
-#: lms/lms/doctype/cohort_subgroup/cohort_subgroup.json
 #: lms/lms/doctype/course_chapter/course_chapter.json
 #: lms/lms/doctype/course_lesson/course_lesson.json
-#: lms/lms/doctype/exercise_latest_submission/exercise_latest_submission.json
-#: lms/lms/doctype/exercise_submission/exercise_submission.json
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.json
-#: lms/lms/doctype/lms_batch_old/lms_batch_old.json
 #: lms/lms/doctype/lms_certificate/lms_certificate.json
 #: lms/lms/doctype/lms_certificate_evaluation/lms_certificate_evaluation.json
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
@@ -1681,7 +1568,6 @@ msgstr "crwdns160970:0crwdne160970:0"
 #: lms/lms/doctype/lms_course_progress/lms_course_progress.json
 #: lms/lms/doctype/lms_course_review/lms_course_review.json
 #: lms/lms/doctype/lms_enrollment/lms_enrollment.json
-#: lms/lms/doctype/lms_exercise/lms_exercise.json
 #: lms/lms/doctype/lms_lesson_note/lms_lesson_note.json
 #: lms/lms/doctype/lms_mentor_request/lms_mentor_request.json
 #: lms/lms/doctype/lms_program_course/lms_program_course.json
@@ -1720,9 +1606,11 @@ msgstr "crwdns158494:0crwdne158494:0"
 #: frontend/src/pages/ProfileRoles.vue:26
 #: lms/lms/doctype/course_chapter/course_chapter.json
 #: lms/lms/doctype/course_lesson/course_lesson.json
+#: lms/lms/doctype/lms_assignment/lms_assignment.json
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.json
 #: lms/lms/doctype/lms_badge_assignment/lms_badge_assignment.json
 #: lms/lms/doctype/lms_category/lms_category.json
+#: lms/lms/doctype/lms_certificate/lms_certificate.json
 #: lms/lms/doctype/lms_coupon/lms_coupon.json
 #: lms/lms/doctype/lms_course/lms_course.json
 #: lms/lms/doctype/lms_lesson_note/lms_lesson_note.json
@@ -1821,15 +1709,15 @@ msgstr "crwdns158496:0crwdne158496:0"
 msgid "Course already added to program"
 msgstr "crwdns161518:0crwdne161518:0"
 
-#: frontend/src/pages/CourseForm.vue:569
+#: frontend/src/pages/CourseForm.vue:572
 msgid "Course created successfully"
 msgstr "crwdns155084:0crwdne155084:0"
 
-#: frontend/src/pages/CourseForm.vue:606
+#: frontend/src/pages/CourseForm.vue:609
 msgid "Course deleted successfully"
 msgstr "crwdns151586:0crwdne151586:0"
 
-#: frontend/src/pages/CourseForm.vue:589
+#: frontend/src/pages/CourseForm.vue:592
 msgid "Course updated successfully"
 msgstr "crwdns155086:0crwdne155086:0"
 
@@ -1925,15 +1813,15 @@ msgstr "crwdns149614:0crwdne149614:0"
 msgid "Create a Quiz"
 msgstr "crwdns155804:0crwdne155804:0"
 
-#: frontend/src/components/Sidebar/AppSidebar.vue:624
+#: frontend/src/components/Sidebar/AppSidebar.vue:531
 msgid "Create a batch"
 msgstr "crwdns154445:0crwdne154445:0"
 
-#: frontend/src/components/Sidebar/AppSidebar.vue:615
+#: frontend/src/components/Sidebar/AppSidebar.vue:522
 msgid "Create a course"
 msgstr "crwdns151738:0crwdne151738:0"
 
-#: frontend/src/components/Sidebar/AppSidebar.vue:625
+#: frontend/src/components/Sidebar/AppSidebar.vue:532
 msgid "Create a live class"
 msgstr "crwdns154447:0crwdne154447:0"
 
@@ -1945,27 +1833,27 @@ msgstr "crwdns155882:0crwdne155882:0"
 msgid "Create an Assignment"
 msgstr "crwdns154604:0crwdne154604:0"
 
-#: frontend/src/components/Sidebar/AppSidebar.vue:549
+#: frontend/src/components/Sidebar/AppSidebar.vue:456
 msgid "Create your first batch"
 msgstr "crwdns154449:0crwdne154449:0"
 
-#: frontend/src/components/Sidebar/AppSidebar.vue:480
+#: frontend/src/components/Sidebar/AppSidebar.vue:387
 msgid "Create your first course"
 msgstr "crwdns154451:0crwdne154451:0"
 
-#: frontend/src/components/Sidebar/AppSidebar.vue:527
+#: frontend/src/components/Sidebar/AppSidebar.vue:434
 msgid "Create your first quiz"
 msgstr "crwdns154453:0crwdne154453:0"
 
-#: frontend/src/pages/Assignments.vue:173 frontend/src/pages/Courses.vue:355
+#: frontend/src/pages/Assignments.vue:178 frontend/src/pages/Courses.vue:355
 msgid "Created"
 msgstr "crwdns152116:0crwdne152116:0"
 
-#: frontend/src/components/Sidebar/AppSidebar.vue:621
+#: frontend/src/components/Sidebar/AppSidebar.vue:528
 msgid "Creating a batch"
 msgstr "crwdns154455:0crwdne154455:0"
 
-#: frontend/src/components/Sidebar/AppSidebar.vue:612
+#: frontend/src/components/Sidebar/AppSidebar.vue:519
 msgid "Creating a course"
 msgstr "crwdns154457:0crwdne154457:0"
 
@@ -1989,7 +1877,7 @@ msgstr "crwdns149620:0crwdne149620:0"
 msgid "Current Streak"
 msgstr "crwdns159340:0crwdne159340:0"
 
-#: frontend/src/components/Sidebar/AppSidebar.vue:648
+#: frontend/src/components/Sidebar/AppSidebar.vue:555
 msgid "Custom Certificate Templates"
 msgstr "crwdns154459:0crwdne154459:0"
 
@@ -2033,7 +1921,6 @@ msgstr "crwdns161522:0crwdne161522:0"
 #. Label of the date (Date) field in DocType 'LMS Certificate Request'
 #. Label of the date (Date) field in DocType 'LMS Live Class'
 #. Label of the date (Date) field in DocType 'Scheduled Flow'
-#: frontend/src/components/Modals/EvaluationModal.vue:26
 #: frontend/src/components/Modals/Event.vue:40
 #: frontend/src/components/Modals/LiveClassModal.vue:29
 #: lms/lms/doctype/lms_batch_timetable/lms_batch_timetable.json
@@ -2094,7 +1981,7 @@ msgstr "crwdns149644:0crwdne149644:0"
 #: frontend/src/components/DiscussionReplies.vue:41
 #: frontend/src/components/Settings/Badges.vue:171
 #: frontend/src/components/Settings/Coupons/CouponList.vue:133
-#: frontend/src/pages/BatchForm.vue:578 frontend/src/pages/CourseForm.vue:619
+#: frontend/src/pages/BatchForm.vue:582 frontend/src/pages/CourseForm.vue:622
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseForm.vue:67
 #: frontend/src/pages/Programs/ProgramForm.vue:230
 #: frontend/src/pages/Programs/ProgramForm.vue:567
@@ -2105,7 +1992,7 @@ msgstr "crwdns149646:0crwdne149646:0"
 msgid "Delete Chapter"
 msgstr "crwdns151626:0crwdne151626:0"
 
-#: frontend/src/pages/CourseForm.vue:613
+#: frontend/src/pages/CourseForm.vue:616
 msgid "Delete Course"
 msgstr "crwdns151588:0crwdne151588:0"
 
@@ -2125,11 +2012,11 @@ msgstr "crwdns160972:0crwdne160972:0"
 msgid "Delete this lesson?"
 msgstr "crwdns151630:0crwdne151630:0"
 
-#: frontend/src/pages/CourseForm.vue:614
+#: frontend/src/pages/CourseForm.vue:617
 msgid "Deleting the course will also delete all its chapters and lessons. Are you sure you want to delete this course?"
 msgstr "crwdns151590:0crwdne151590:0"
 
-#: frontend/src/pages/BatchForm.vue:573
+#: frontend/src/pages/BatchForm.vue:577
 msgid "Deleting this batch will also delete all its data including enrolled students, linked courses, assessments, feedback and discussions. Are you sure you want to continue?"
 msgstr "crwdns155884:0crwdne155884:0"
 
@@ -2144,14 +2031,9 @@ msgstr "crwdns151634:0crwdne151634:0"
 #. Label of the description (Text Editor) field in DocType 'Job Opportunity'
 #. Label of a field in the job-opportunity Web Form
 #. Label of the description (Small Text) field in DocType 'Certification'
-#. Label of the description (Markdown Editor) field in DocType 'Cohort'
-#. Label of the description (Markdown Editor) field in DocType 'Cohort
-#. Subgroup'
 #. Label of the description (Small Text) field in DocType 'LMS Badge'
 #. Label of the description (Small Text) field in DocType 'LMS Batch'
-#. Label of the description (Markdown Editor) field in DocType 'LMS Batch Old'
 #. Label of the description (Text Editor) field in DocType 'LMS Course'
-#. Label of the description (Small Text) field in DocType 'LMS Exercise'
 #. Label of the description (Text) field in DocType 'LMS Live Class'
 #. Label of the description (Small Text) field in DocType 'Work Experience'
 #: frontend/src/components/Modals/LiveClassModal.vue:80
@@ -2160,13 +2042,9 @@ msgstr "crwdns151634:0crwdne151634:0"
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 #: lms/job/web_form/job_opportunity/job_opportunity.json
 #: lms/lms/doctype/certification/certification.json
-#: lms/lms/doctype/cohort/cohort.json
-#: lms/lms/doctype/cohort_subgroup/cohort_subgroup.json
 #: lms/lms/doctype/lms_badge/lms_badge.json
 #: lms/lms/doctype/lms_batch/lms_batch.json
-#: lms/lms/doctype/lms_batch_old/lms_batch_old.json
 #: lms/lms/doctype/lms_course/lms_course.json
-#: lms/lms/doctype/lms_exercise/lms_exercise.json
 #: lms/lms/doctype/lms_live_class/lms_live_class.json
 #: lms/lms/doctype/work_experience/work_experience.json
 msgid "Description"
@@ -2181,6 +2059,11 @@ msgstr "crwdns149652:0crwdne149652:0"
 #: frontend/src/pages/QuizForm.vue:50
 msgid "Details"
 msgstr "crwdns149654:0crwdne149654:0"
+
+#. Label of the disable_pwa (Check) field in DocType 'LMS Settings'
+#: lms/lms/doctype/lms_settings/lms_settings.json
+msgid "Disable PWA"
+msgstr "crwdns163906:0crwdne163906:0"
 
 #: frontend/src/pages/CourseForm.vue:174
 msgid "Disable Self Enrollment"
@@ -2204,7 +2087,7 @@ msgid "Disabled"
 msgstr "crwdns149660:0crwdne149660:0"
 
 #: frontend/src/components/DiscussionReplies.vue:57
-#: lms/lms/widgets/NoPreviewModal.html:25 lms/templates/reviews.html:159
+#: lms/lms/widgets/NoPreviewModal.html:25
 msgid "Discard"
 msgstr "crwdns149662:0crwdne149662:0"
 
@@ -2266,12 +2149,10 @@ msgstr "crwdns149668:0crwdne149668:0"
 msgid "Duplicate options found for this question."
 msgstr "crwdns149670:0crwdne149670:0"
 
-#. Label of the duration (Data) field in DocType 'Cohort'
 #. Label of the duration (Data) field in DocType 'LMS Batch Timetable'
 #. Label of the duration (Int) field in DocType 'LMS Live Class'
 #. Label of the duration (Int) field in DocType 'LMS Live Class Participant'
 #: frontend/src/components/Modals/LiveClassModal.vue:36
-#: lms/lms/doctype/cohort/cohort.json
 #: lms/lms/doctype/lms_batch_timetable/lms_batch_timetable.json
 #: lms/lms/doctype/lms_live_class/lms_live_class.json
 #: lms/lms/doctype/lms_live_class_participant/lms_live_class_participant.json
@@ -2286,16 +2167,6 @@ msgstr "crwdns149674:0crwdne149674:0"
 #: frontend/src/components/Modals/LiveClassModal.vue:32
 msgid "Duration of the live class in minutes"
 msgstr "crwdns149676:0crwdne149676:0"
-
-#. Label of the email (Link) field in DocType 'Cohort Join Request'
-#: lms/lms/doctype/cohort_join_request/cohort_join_request.json
-msgid "E-Mail"
-msgstr "crwdns149678:0crwdne149678:0"
-
-#. Label of the email (Link) field in DocType 'Cohort Mentor'
-#: lms/lms/doctype/cohort_mentor/cohort_mentor.json
-msgid "E-mail"
-msgstr "crwdns149680:0crwdne149680:0"
 
 #: frontend/src/components/BatchOverlay.vue:129
 #: frontend/src/components/CourseCardOverlay.vue:116
@@ -2336,7 +2207,7 @@ msgstr "crwdns155182:0crwdne155182:0"
 msgid "Edit Payment Gateway"
 msgstr "crwdns159752:0crwdne159752:0"
 
-#: frontend/src/pages/Profile.vue:80
+#: frontend/src/pages/Profile.vue:107
 msgid "Edit Profile"
 msgstr "crwdns149686:0crwdne149686:0"
 
@@ -2462,9 +2333,8 @@ msgstr "crwdns149714:0crwdne149714:0"
 msgid "Enabling this will publish the certificate on the certified participants page."
 msgstr "crwdns151926:0crwdne151926:0"
 
-#. Label of the end_date (Date) field in DocType 'Cohort'
 #. Label of the end_date (Date) field in DocType 'LMS Batch'
-#: lms/lms/doctype/cohort/cohort.json lms/lms/doctype/lms_batch/lms_batch.json
+#: lms/lms/doctype/lms_batch/lms_batch.json
 msgid "End Date"
 msgstr "crwdns149716:0crwdne149716:0"
 
@@ -2475,7 +2345,6 @@ msgstr "crwdns149718:0crwdne149718:0"
 
 #. Label of the end_time (Time) field in DocType 'Evaluator Schedule'
 #. Label of the end_time (Time) field in DocType 'LMS Batch'
-#. Label of the end_time (Time) field in DocType 'LMS Batch Old'
 #. Label of the end_time (Time) field in DocType 'LMS Batch Timetable'
 #. Label of the end_time (Time) field in DocType 'LMS Certificate Evaluation'
 #. Label of the end_time (Time) field in DocType 'LMS Certificate Request'
@@ -2483,7 +2352,6 @@ msgstr "crwdns149718:0crwdne149718:0"
 #: frontend/src/pages/ProfileEvaluator.vue:32
 #: lms/lms/doctype/evaluator_schedule/evaluator_schedule.json
 #: lms/lms/doctype/lms_batch/lms_batch.json
-#: lms/lms/doctype/lms_batch_old/lms_batch_old.json
 #: lms/lms/doctype/lms_batch_timetable/lms_batch_timetable.json
 #: lms/lms/doctype/lms_certificate_evaluation/lms_certificate_evaluation.json
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
@@ -2536,7 +2404,7 @@ msgstr "crwdns149730:0crwdne149730:0"
 msgid "Enrollment for Program {0}"
 msgstr "crwdns158510:0{0}crwdne158510:0"
 
-#: lms/lms/utils.py:2095
+#: lms/lms/utils.py:1804
 msgid "Enrollment in this batch is restricted. Please contact the Administrator."
 msgstr "crwdns162044:0crwdne162044:0"
 
@@ -2585,7 +2453,7 @@ msgstr "crwdns155190:0crwdne155190:0"
 msgid "Error creating live class. Please try again. {0}"
 msgstr "crwdns152489:0{0}crwdne152489:0"
 
-#: frontend/src/pages/Quizzes.vue:218
+#: frontend/src/pages/Quizzes.vue:222
 msgid "Error creating quiz: {0}"
 msgstr "crwdns155808:0{0}crwdne155808:0"
 
@@ -2682,11 +2550,11 @@ msgstr "crwdns155810:0crwdne155810:0"
 msgid "Evaluator deleted successfully"
 msgstr "crwdns155812:0crwdne155812:0"
 
-#: lms/lms/api.py:1435
+#: lms/lms/api.py:1315
 msgid "Evaluator does not exist."
 msgstr "crwdns155814:0crwdne155814:0"
 
-#: lms/lms/doctype/lms_course/lms_course.py:69
+#: lms/lms/doctype/lms_course/lms_course.py:67
 msgid "Evaluator is required for paid certificates."
 msgstr "crwdns152603:0crwdne152603:0"
 
@@ -2702,39 +2570,20 @@ msgstr "crwdns149766:0crwdne149766:0"
 msgid "Example: IST (+5:30)"
 msgstr "crwdns151472:0crwdne151472:0"
 
-#. Label of the exercise (Link) field in DocType 'Exercise Latest Submission'
-#. Label of the exercise (Link) field in DocType 'Exercise Submission'
 #. Label of the exercise (Link) field in DocType 'LMS Programming Exercise
 #. Submission'
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmissions.vue:274
-#: lms/lms/doctype/exercise_latest_submission/exercise_latest_submission.json
-#: lms/lms/doctype/exercise_submission/exercise_submission.json
 #: lms/lms/doctype/lms_programming_exercise_submission/lms_programming_exercise_submission.json
 msgid "Exercise"
 msgstr "crwdns149768:0crwdne149768:0"
 
-#. Name of a DocType
-#: lms/lms/doctype/exercise_latest_submission/exercise_latest_submission.json
-msgid "Exercise Latest Submission"
-msgstr "crwdns149770:0crwdne149770:0"
-
-#. Name of a DocType
-#: lms/lms/doctype/exercise_submission/exercise_submission.json
-msgid "Exercise Submission"
-msgstr "crwdns149772:0crwdne149772:0"
-
-#. Label of the exercise_title (Data) field in DocType 'Exercise Latest
-#. Submission'
-#. Label of the exercise_title (Data) field in DocType 'Exercise Submission'
 #. Label of the exercise_title (Data) field in DocType 'LMS Programming
 #. Exercise Submission'
-#: lms/lms/doctype/exercise_latest_submission/exercise_latest_submission.json
-#: lms/lms/doctype/exercise_submission/exercise_submission.json
 #: lms/lms/doctype/lms_programming_exercise_submission/lms_programming_exercise_submission.json
 msgid "Exercise Title"
 msgstr "crwdns149774:0crwdne149774:0"
 
-#: frontend/src/components/Sidebar/AppSidebar.vue:145
+#: frontend/src/components/Sidebar/AppSidebar.vue:155
 msgid "Expand"
 msgstr "crwdns154608:0crwdne154608:0"
 
@@ -2831,7 +2680,7 @@ msgstr "crwdns155708:0{0}crwdne155708:0"
 msgid "Failed to update badge assignment: "
 msgstr "crwdns155896:0crwdne155896:0"
 
-#: frontend/src/utils/index.js:685
+#: frontend/src/utils/index.js:836
 msgid "Failed to update meta tags {0}"
 msgstr "crwdns155244:0{0}crwdne155244:0"
 
@@ -2845,7 +2694,7 @@ msgstr "crwdns149790:0crwdne149790:0"
 
 #. Label of the feedback (Small Text) field in DocType 'LMS Batch Feedback'
 #: frontend/src/components/BatchFeedback.vue:30
-#: frontend/src/pages/Batch.vue:149
+#: frontend/src/pages/Batch.vue:163
 #: lms/lms/doctype/lms_batch_feedback/lms_batch_feedback.json
 msgid "Feedback"
 msgstr "crwdns152274:0crwdne152274:0"
@@ -2858,10 +2707,6 @@ msgstr "crwdns149792:0crwdne149792:0"
 #: lms/lms/doctype/lms_badge/lms_badge.json
 msgid "Field To Check"
 msgstr "crwdns149794:0crwdne149794:0"
-
-#: lms/lms/api.py:1309
-msgid "Field name is required"
-msgstr "crwdns162046:0crwdne162046:0"
 
 #. Label of the major (Data) field in DocType 'Education Detail'
 #: lms/lms/doctype/education_detail/education_detail.json
@@ -2890,7 +2735,7 @@ msgstr "crwdns155712:0crwdne155712:0"
 msgid "Filter by Status"
 msgstr "crwdns155714:0crwdne155714:0"
 
-#: frontend/src/components/Modals/EditProfile.vue:69
+#: frontend/src/components/Modals/EditProfile.vue:72
 #: frontend/src/components/Settings/Members.vue:110
 msgid "First Name"
 msgstr "crwdns149800:0crwdne149800:0"
@@ -3040,6 +2885,10 @@ msgstr "crwdns158316:0crwdne158316:0"
 msgid "Get the app on your iPhone for easy access & a better experience"
 msgstr "crwdns158318:0crwdne158318:0"
 
+#: frontend/src/components/Modals/EditProfile.vue:84
+msgid "GitHub ID"
+msgstr "crwdns163992:0crwdne163992:0"
+
 #. Label of the github (Data) field in DocType 'User'
 #: lms/fixtures/custom_field.json
 msgid "Github ID"
@@ -3098,7 +2947,7 @@ msgid "Have an account? Login"
 msgstr "crwdns149854:0crwdne149854:0"
 
 #. Label of the headline (Data) field in DocType 'User'
-#: frontend/src/components/Modals/EditProfile.vue:71
+#: frontend/src/components/Modals/EditProfile.vue:78
 #: lms/fixtures/custom_field.json
 msgid "Headline"
 msgstr "crwdns149856:0crwdne149856:0"
@@ -3107,7 +2956,7 @@ msgstr "crwdns149856:0crwdne149856:0"
 msgid "Hello"
 msgstr "crwdns149858:0crwdne149858:0"
 
-#: frontend/src/components/Sidebar/AppSidebar.vue:131
+#: frontend/src/components/Sidebar/AppSidebar.vue:141
 msgid "Help"
 msgstr "crwdns154461:0crwdne154461:0"
 
@@ -3118,10 +2967,6 @@ msgstr "crwdns149862:0crwdne149862:0"
 #: frontend/src/components/BatchFeedback.vue:15
 msgid "Help us improve by providing your feedback."
 msgstr "crwdns155196:0crwdne155196:0"
-
-#: lms/templates/reviews.html:101
-msgid "Help us improve our course material."
-msgstr "crwdns149864:0crwdne149864:0"
 
 #: frontend/src/pages/PersonaForm.vue:16
 msgid "Help us understand your needs"
@@ -3167,11 +3012,6 @@ msgstr "crwdns157416:0crwdne157416:0"
 msgid "Highlighted Text"
 msgstr "crwdns157418:0crwdne157418:0"
 
-#. Label of the hints (Small Text) field in DocType 'LMS Exercise'
-#: lms/lms/doctype/lms_exercise/lms_exercise.json
-msgid "Hints"
-msgstr "crwdns149878:0crwdne149878:0"
-
 #: frontend/src/pages/Home/Home.vue:5 frontend/src/pages/Home/Home.vue:154
 msgid "Home"
 msgstr "crwdns159344:0crwdne159344:0"
@@ -3194,11 +3034,6 @@ msgstr "crwdns149888:0crwdne149888:0"
 #: lms/templates/emails/certification.html:6
 msgid "I am delighted to inform you that you have successfully earned your certification for the {0} course. Congratulations!"
 msgstr "crwdns149890:0{0}crwdne149890:0"
-
-#. Label of the looking_for_job (Check) field in DocType 'User'
-#: lms/fixtures/custom_field.json
-msgid "I am looking for a job"
-msgstr "crwdns149892:0crwdne149892:0"
 
 #: frontend/src/pages/ProfileEvaluator.vue:101
 msgid "I am unavailable"
@@ -3257,19 +3092,13 @@ msgid "If you want open ended questions then make sure each question in the quiz
 msgstr "crwdns149908:0crwdne149908:0"
 
 #. Option for the 'File Type' (Select) field in DocType 'Course Lesson'
-#. Label of the image (Code) field in DocType 'Exercise Latest Submission'
-#. Label of the image (Code) field in DocType 'Exercise Submission'
 #. Option for the 'Type' (Select) field in DocType 'LMS Assignment'
 #. Option for the 'Type' (Select) field in DocType 'LMS Assignment Submission'
 #. Label of the image (Attach Image) field in DocType 'LMS Badge'
-#. Label of the image (Code) field in DocType 'LMS Exercise'
 #: lms/lms/doctype/course_lesson/course_lesson.json
-#: lms/lms/doctype/exercise_latest_submission/exercise_latest_submission.json
-#: lms/lms/doctype/exercise_submission/exercise_submission.json
 #: lms/lms/doctype/lms_assignment/lms_assignment.json
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.json
 #: lms/lms/doctype/lms_badge/lms_badge.json
-#: lms/lms/doctype/lms_exercise/lms_exercise.json
 msgid "Image"
 msgstr "crwdns149910:0crwdne149910:0"
 
@@ -3294,21 +3123,14 @@ msgstr "crwdns161526:0crwdne161526:0"
 msgid "Import Course"
 msgstr "crwdns161528:0crwdne161528:0"
 
-#. Option for the 'Stage' (Select) field in DocType 'LMS Batch Old'
 #. Option for the 'Status' (Select) field in DocType 'LMS Certificate
 #. Evaluation'
 #. Option for the 'Status' (Select) field in DocType 'LMS Course'
 #: frontend/src/components/Modals/Event.vue:388
-#: lms/lms/doctype/lms_batch_old/lms_batch_old.json
 #: lms/lms/doctype/lms_certificate_evaluation/lms_certificate_evaluation.json
 #: lms/lms/doctype/lms_course/lms_course.json
 msgid "In Progress"
 msgstr "crwdns149916:0crwdne149916:0"
-
-#. Option for the 'Status' (Select) field in DocType 'LMS Batch Old'
-#: lms/lms/doctype/lms_batch_old/lms_batch_old.json
-msgid "Inactive"
-msgstr "crwdns149918:0crwdne149918:0"
 
 #. Label of the include_in_preview (Check) field in DocType 'Course Lesson'
 #: lms/lms/doctype/course_lesson/course_lesson.json
@@ -3320,24 +3142,9 @@ msgstr "crwdns149920:0crwdne149920:0"
 msgid "Incomplete"
 msgstr "crwdns149922:0crwdne149922:0"
 
-#. Option for the 'Status' (Select) field in DocType 'Exercise Latest
-#. Submission'
-#. Option for the 'Status' (Select) field in DocType 'Exercise Submission'
 #: frontend/src/components/Quiz.vue:194
-#: lms/lms/doctype/exercise_latest_submission/exercise_latest_submission.json
-#: lms/lms/doctype/exercise_submission/exercise_submission.json
 msgid "Incorrect"
 msgstr "crwdns149924:0crwdne149924:0"
-
-#. Label of the index_ (Int) field in DocType 'LMS Exercise'
-#: lms/lms/doctype/lms_exercise/lms_exercise.json
-msgid "Index"
-msgstr "crwdns149926:0crwdne149926:0"
-
-#. Label of the index_label (Data) field in DocType 'LMS Exercise'
-#: lms/lms/doctype/lms_exercise/lms_exercise.json
-msgid "Index Label"
-msgstr "crwdns149928:0crwdne149928:0"
 
 #. Option for the 'Collaboration Preference' (Select) field in DocType 'User'
 #: lms/fixtures/custom_field.json
@@ -3374,9 +3181,8 @@ msgstr "crwdns158322:0crwdne158322:0"
 msgid "Institution Name"
 msgstr "crwdns149934:0crwdne149934:0"
 
-#. Label of the instructor (Link) field in DocType 'Cohort'
 #. Label of the instructor (Link) field in DocType 'Course Instructor'
-#: frontend/src/pages/Home/Home.vue:149 lms/lms/doctype/cohort/cohort.json
+#: frontend/src/pages/Home/Home.vue:149
 #: lms/lms/doctype/course_instructor/course_instructor.json
 msgid "Instructor"
 msgstr "crwdns149936:0crwdne149936:0"
@@ -3412,8 +3218,8 @@ msgstr "crwdns149944:0crwdne149944:0"
 msgid "Interest"
 msgstr "crwdns149946:0crwdne149946:0"
 
-#: frontend/src/components/Sidebar/AppSidebar.vue:604
-#: frontend/src/components/Sidebar/AppSidebar.vue:607
+#: frontend/src/components/Sidebar/AppSidebar.vue:511
+#: frontend/src/components/Sidebar/AppSidebar.vue:514
 msgid "Introduction"
 msgstr "crwdns154463:0crwdne154463:0"
 
@@ -3425,17 +3231,7 @@ msgstr "crwdns149952:0crwdne149952:0"
 msgid "Invalid Quiz ID in content"
 msgstr "crwdns154524:0crwdne154524:0"
 
-#. Label of the invite_code (Data) field in DocType 'Cohort Subgroup'
-#: lms/lms/doctype/cohort_subgroup/cohort_subgroup.json
-msgid "Invite Code"
-msgstr "crwdns149956:0crwdne149956:0"
-
-#. Option for the 'Membership' (Select) field in DocType 'LMS Batch Old'
-#: lms/lms/doctype/lms_batch_old/lms_batch_old.json
-msgid "Invite Only"
-msgstr "crwdns149960:0crwdne149960:0"
-
-#: frontend/src/components/Sidebar/AppSidebar.vue:538
+#: frontend/src/components/Sidebar/AppSidebar.vue:445
 msgid "Invite your team and students"
 msgstr "crwdns154465:0crwdne154465:0"
 
@@ -3472,7 +3268,7 @@ msgstr "crwdns151636:0crwdne151636:0"
 msgid "Issue Date"
 msgstr "crwdns149968:0crwdne149968:0"
 
-#: frontend/src/components/Sidebar/AppSidebar.vue:645
+#: frontend/src/components/Sidebar/AppSidebar.vue:552
 msgid "Issue a Certificate"
 msgstr "crwdns154467:0crwdne154467:0"
 
@@ -3484,7 +3280,7 @@ msgstr "crwdns154467:0crwdne154467:0"
 msgid "Issued On"
 msgstr "crwdns149970:0crwdne149970:0"
 
-#: frontend/src/pages/ProfileAbout.vue:73
+#: frontend/src/pages/ProfileAbout.vue:75
 #: frontend/src/pages/ProfileCertificates.vue:20
 #: lms/templates/certificates_section.html:11
 msgid "Issued on"
@@ -3507,6 +3303,7 @@ msgid "JavaScript"
 msgstr "crwdns155718:0crwdne155718:0"
 
 #. Label of the job (Link) field in DocType 'LMS Job Application'
+#: frontend/src/pages/Search/Search.vue:215
 #: lms/job/doctype/lms_job_application/lms_job_application.json
 msgid "Job"
 msgstr "crwdns149978:0crwdne149978:0"
@@ -3587,6 +3384,11 @@ msgstr "crwdns155246:0crwdne155246:0"
 msgid "Joined at"
 msgstr "crwdns155440:0crwdne155440:0"
 
+#: frontend/src/components/CommandPalette/CommandPalette.vue:132
+#: frontend/src/components/CommandPalette/CommandPalette.vue:229
+msgid "Jump to"
+msgstr "crwdns163994:0crwdne163994:0"
+
 #: frontend/src/pages/Home/Streak.vue:18
 msgid "Keep going,"
 msgstr "crwdns159348:0crwdne159348:0"
@@ -3641,11 +3443,6 @@ msgstr "crwdns152438:0crwdne152438:0"
 #: lms/lms/doctype/lms_batch_feedback/lms_batch_feedback.json
 msgid "LMS Batch Feedback"
 msgstr "crwdns152278:0crwdne152278:0"
-
-#. Name of a DocType
-#: lms/lms/doctype/lms_batch_old/lms_batch_old.json
-msgid "LMS Batch Old"
-msgstr "crwdns150016:0crwdne150016:0"
 
 #. Name of a DocType
 #: lms/lms/doctype/lms_batch_timetable/lms_batch_timetable.json
@@ -3717,11 +3514,6 @@ msgstr "crwdns150036:0crwdne150036:0"
 #: lms/lms/doctype/lms_enrollment/lms_enrollment.json
 msgid "LMS Enrollment"
 msgstr "crwdns150038:0crwdne150038:0"
-
-#. Name of a DocType
-#: lms/lms/doctype/lms_exercise/lms_exercise.json
-msgid "LMS Exercise"
-msgstr "crwdns150040:0crwdne150040:0"
 
 #. Name of a DocType
 #: lms/job/doctype/lms_job_application/lms_job_application.json
@@ -3826,7 +3618,6 @@ msgstr "crwdns150066:0crwdne150066:0"
 #. Name of a role
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 #: lms/job/doctype/lms_job_application/lms_job_application.json
-#: lms/lms/doctype/cohort_join_request/cohort_join_request.json
 #: lms/lms/doctype/course_chapter/course_chapter.json
 #: lms/lms/doctype/function/function.json
 #: lms/lms/doctype/industry/industry.json
@@ -3891,21 +3682,15 @@ msgid "Label"
 msgstr "crwdns150074:0crwdne150074:0"
 
 #. Label of the language (Select) field in DocType 'LMS Programming Exercise'
-#: frontend/src/components/Modals/EditProfile.vue:73
+#: frontend/src/components/Modals/EditProfile.vue:93
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseForm.vue:22
 #: lms/lms/doctype/lms_programming_exercise/lms_programming_exercise.json
 msgid "Language"
 msgstr "crwdns155728:0crwdne155728:0"
 
-#: frontend/src/components/Modals/EditProfile.vue:70
+#: frontend/src/components/Modals/EditProfile.vue:76
 msgid "Last Name"
 msgstr "crwdns150076:0crwdne150076:0"
-
-#. Label of the latest_submission (Link) field in DocType 'Exercise Latest
-#. Submission'
-#: lms/lms/doctype/exercise_latest_submission/exercise_latest_submission.json
-msgid "Latest Submission"
-msgstr "crwdns150078:0crwdne150078:0"
 
 #. Label of the launch_file (Code) field in DocType 'Course Chapter'
 #: lms/lms/doctype/course_chapter/course_chapter.json
@@ -3916,7 +3701,7 @@ msgstr "crwdns151638:0crwdne151638:0"
 msgid "Learning Consistency"
 msgstr "crwdns159350:0crwdne159350:0"
 
-#: frontend/src/components/Sidebar/AppSidebar.vue:629
+#: frontend/src/components/Sidebar/AppSidebar.vue:536
 msgid "Learning Paths"
 msgstr "crwdns159760:0crwdne159760:0"
 
@@ -3930,23 +3715,17 @@ msgstr "crwdns155252:0crwdne155252:0"
 msgid "Left at"
 msgstr "crwdns155442:0crwdne155442:0"
 
-#. Label of the lesson (Link) field in DocType 'Exercise Latest Submission'
-#. Label of the lesson (Link) field in DocType 'Exercise Submission'
 #. Label of the lesson (Link) field in DocType 'Lesson Reference'
 #. Label of the lesson (Link) field in DocType 'LMS Assignment Submission'
 #. Label of the lesson (Link) field in DocType 'LMS Course Progress'
-#. Label of the lesson (Link) field in DocType 'LMS Exercise'
 #. Label of the lesson (Link) field in DocType 'LMS Lesson Note'
 #. Label of the lesson (Link) field in DocType 'LMS Quiz'
 #. Label of the lesson (Link) field in DocType 'LMS Video Watch Duration'
 #. Label of the lesson (Link) field in DocType 'Scheduled Flow'
 #. Label of a Link in the LMS Workspace
-#: lms/lms/doctype/exercise_latest_submission/exercise_latest_submission.json
-#: lms/lms/doctype/exercise_submission/exercise_submission.json
 #: lms/lms/doctype/lesson_reference/lesson_reference.json
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.json
 #: lms/lms/doctype/lms_course_progress/lms_course_progress.json
-#: lms/lms/doctype/lms_exercise/lms_exercise.json
 #: lms/lms/doctype/lms_lesson_note/lms_lesson_note.json
 #: lms/lms/doctype/lms_quiz/lms_quiz.json
 #: lms/lms/doctype/lms_video_watch_duration/lms_video_watch_duration.json
@@ -4015,24 +3794,17 @@ msgstr "crwdns150094:0crwdne150094:0"
 msgid "Limit cannot be greater than or equal to the number of questions in the quiz."
 msgstr "crwdns150096:0crwdne150096:0"
 
-#: frontend/src/pages/ProfileAbout.vue:91
+#: frontend/src/pages/ProfileAbout.vue:93
 msgid "LinkedIn"
 msgstr "crwdns150098:0crwdne150098:0"
 
 #. Label of the linkedin (Data) field in DocType 'User'
+#: frontend/src/components/Modals/EditProfile.vue:82
 #: lms/fixtures/custom_field.json
 msgid "LinkedIn ID"
 msgstr "crwdns150100:0crwdne150100:0"
 
-#. Group in Cohort's connections
-#. Group in Cohort Subgroup's connections
-#: lms/lms/doctype/cohort/cohort.json
-#: lms/lms/doctype/cohort_subgroup/cohort_subgroup.json
-msgid "Links"
-msgstr "crwdns150102:0crwdne150102:0"
-
-#. Option for the 'Status' (Select) field in DocType 'Cohort'
-#: frontend/src/pages/Courses.vue:341 lms/lms/doctype/cohort/cohort.json
+#: frontend/src/pages/Courses.vue:341
 msgid "Live"
 msgstr "crwdns150106:0crwdne150106:0"
 
@@ -4054,7 +3826,7 @@ msgstr "crwdns150110:0crwdne150110:0"
 #: frontend/src/components/Settings/Members.vue:79
 #: frontend/src/components/Settings/Transactions/TransactionList.vue:94
 #: frontend/src/pages/Assignments.vue:66 frontend/src/pages/Batches.vue:124
-#: frontend/src/pages/CertifiedParticipants.vue:98
+#: frontend/src/pages/CertifiedParticipants.vue:94
 #: frontend/src/pages/Courses.vue:108
 #: frontend/src/pages/JobApplications.vue:101
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmissions.vue:129
@@ -4084,7 +3856,7 @@ msgid "Location Preference"
 msgstr "crwdns150120:0crwdne150120:0"
 
 #: frontend/src/components/NoPermission.vue:28
-#: frontend/src/components/QuizBlock.vue:9 frontend/src/pages/Batch.vue:199
+#: frontend/src/components/QuizBlock.vue:9 frontend/src/pages/Batch.vue:213
 #: frontend/src/pages/Lesson.vue:103
 msgid "Login"
 msgstr "crwdns150122:0crwdne150122:0"
@@ -4130,11 +3902,6 @@ msgstr "crwdns150132:0crwdne150132:0"
 #: frontend/src/pages/Home/Home.vue:120
 msgid "Manage your courses and batches at a glance"
 msgstr "crwdns159354:0crwdne159354:0"
-
-#. Option for the 'Role' (Select) field in DocType 'Cohort Staff'
-#: lms/lms/doctype/cohort_staff/cohort_staff.json
-msgid "Manager"
-msgstr "crwdns150134:0crwdne150134:0"
 
 #. Option for the 'User Category' (Select) field in DocType 'User'
 #: lms/fixtures/custom_field.json lms/templates/signup-form.html:24
@@ -4185,7 +3952,7 @@ msgid "Marks to Deduct"
 msgstr "crwdns159356:0crwdne159356:0"
 
 #. Label of the max_attempts (Int) field in DocType 'LMS Quiz'
-#: frontend/src/pages/Quizzes.vue:255 lms/lms/doctype/lms_quiz/lms_quiz.json
+#: frontend/src/pages/Quizzes.vue:259 lms/lms/doctype/lms_quiz/lms_quiz.json
 msgid "Max Attempts"
 msgstr "crwdns150150:0crwdne150150:0"
 
@@ -4214,8 +3981,6 @@ msgstr "crwdns150158:0crwdne150158:0"
 msgid "Meeting ID"
 msgstr "crwdns155254:0crwdne155254:0"
 
-#. Label of the member (Link) field in DocType 'Exercise Latest Submission'
-#. Label of the member (Link) field in DocType 'Exercise Submission'
 #. Label of the member (Link) field in DocType 'LMS Assignment Submission'
 #. Label of the member (Link) field in DocType 'LMS Badge Assignment'
 #. Label of the member (Link) field in DocType 'LMS Batch Enrollment'
@@ -4250,8 +4015,6 @@ msgstr "crwdns155254:0crwdne155254:0"
 #: frontend/src/pages/Programs/ProgramProgressSummary.vue:126
 #: frontend/src/pages/QuizSubmission.vue:31
 #: frontend/src/pages/QuizSubmissionList.vue:91
-#: lms/lms/doctype/exercise_latest_submission/exercise_latest_submission.json
-#: lms/lms/doctype/exercise_submission/exercise_submission.json
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.json
 #: lms/lms/doctype/lms_badge_assignment/lms_badge_assignment.json
 #: lms/lms/doctype/lms_batch_enrollment/lms_batch_enrollment.json
@@ -4274,22 +4037,10 @@ msgstr "crwdns155254:0crwdne155254:0"
 msgid "Member"
 msgstr "crwdns150160:0crwdne150160:0"
 
-#. Label of the member_cohort (Link) field in DocType 'Exercise Latest
-#. Submission'
-#: lms/lms/doctype/exercise_latest_submission/exercise_latest_submission.json
-msgid "Member Cohort"
-msgstr "crwdns150162:0crwdne150162:0"
-
 #. Label of the member_count (Int) field in DocType 'LMS Program'
 #: lms/lms/doctype/lms_program/lms_program.json
 msgid "Member Count"
 msgstr "crwdns158514:0crwdne158514:0"
-
-#. Label of the member_email (Link) field in DocType 'Exercise Latest
-#. Submission'
-#: lms/lms/doctype/exercise_latest_submission/exercise_latest_submission.json
-msgid "Member Email"
-msgstr "crwdns150164:0crwdne150164:0"
 
 #. Label of the member_image (Attach Image) field in DocType 'LMS Badge
 #. Assignment'
@@ -4351,12 +4102,6 @@ msgstr "crwdns152280:0crwdne152280:0"
 msgid "Member Name"
 msgstr "crwdns150166:0crwdne150166:0"
 
-#. Label of the member_subgroup (Link) field in DocType 'Exercise Latest
-#. Submission'
-#: lms/lms/doctype/exercise_latest_submission/exercise_latest_submission.json
-msgid "Member Subgroup"
-msgstr "crwdns150168:0crwdne150168:0"
-
 #. Label of the member_type (Select) field in DocType 'LMS Enrollment'
 #: lms/lms/doctype/lms_enrollment/lms_enrollment.json
 msgid "Member Type"
@@ -4397,21 +4142,12 @@ msgstr "crwdns162050:0{0}crwdne162050:0"
 msgid "Member {0} has already been added to this program."
 msgstr "crwdns161532:0{0}crwdne161532:0"
 
-#. Group in LMS Batch Old's connections
 #: frontend/src/pages/Programs/ProgramForm.vue:110
-#: lms/lms/doctype/lms_batch_old/lms_batch_old.json
 msgid "Members"
 msgstr "crwdns150172:0crwdne150172:0"
 
-#. Label of the membership (Select) field in DocType 'LMS Batch Old'
-#: lms/lms/doctype/lms_batch_old/lms_batch_old.json
-msgid "Membership"
-msgstr "crwdns150174:0crwdne150174:0"
-
-#. Option for the 'Required Role' (Select) field in DocType 'Cohort Web Page'
 #. Label of the mentor (Link) field in DocType 'LMS Course Mentor Mapping'
 #. Option for the 'Member Type' (Select) field in DocType 'LMS Enrollment'
-#: lms/lms/doctype/cohort_web_page/cohort_web_page.json
 #: lms/lms/doctype/lms_course_mentor_mapping/lms_course_mentor_mapping.json
 #: lms/lms/doctype/lms_enrollment/lms_enrollment.json
 msgid "Mentor"
@@ -4478,7 +4214,7 @@ msgstr "crwdns154704:0crwdne154704:0"
 msgid "Meta Tags"
 msgstr "crwdns155256:0crwdne155256:0"
 
-#: lms/lms/api.py:1510
+#: lms/lms/api.py:1390
 msgid "Meta tags should be a list."
 msgstr "crwdns155258:0crwdne155258:0"
 
@@ -4523,7 +4259,7 @@ msgid "Moderator"
 msgstr "crwdns150196:0crwdne150196:0"
 
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmissions.vue:286
-#: frontend/src/pages/Quizzes.vue:269
+#: frontend/src/pages/Quizzes.vue:273
 msgid "Modified"
 msgstr "crwdns155730:0crwdne155730:0"
 
@@ -4531,11 +4267,11 @@ msgstr "crwdns155730:0crwdne155730:0"
 msgid "Modified By"
 msgstr "crwdns150198:0crwdne150198:0"
 
-#: lms/lms/api.py:188
+#: lms/lms/api.py:109
 msgid "Module Name is incorrect or does not exist."
 msgstr "crwdns150200:0crwdne150200:0"
 
-#: lms/lms/api.py:184
+#: lms/lms/api.py:105
 msgid "Module is incorrect."
 msgstr "crwdns150202:0crwdne150202:0"
 
@@ -4546,11 +4282,11 @@ msgstr "crwdns150202:0crwdne150202:0"
 msgid "Monday"
 msgstr "crwdns150204:0crwdne150204:0"
 
-#: frontend/src/components/Sidebar/AppSidebar.vue:653
+#: frontend/src/components/Sidebar/AppSidebar.vue:560
 msgid "Monetization"
 msgstr "crwdns154469:0crwdne154469:0"
 
-#: frontend/src/components/Sidebar/AppSidebar.vue:39
+#: frontend/src/components/Sidebar/AppSidebar.vue:49
 msgid "More"
 msgstr "crwdns150206:0crwdne150206:0"
 
@@ -4607,7 +4343,7 @@ msgstr "crwdns150218:0crwdne150218:0"
 msgid "New Coupon"
 msgstr "crwdns161002:0crwdne161002:0"
 
-#: frontend/src/pages/CourseForm.vue:700 frontend/src/pages/Courses.vue:13
+#: frontend/src/pages/CourseForm.vue:703 frontend/src/pages/Courses.vue:13
 #: lms/www/lms.py:94
 msgid "New Course"
 msgstr "crwdns150220:0crwdne150220:0"
@@ -4644,11 +4380,11 @@ msgstr "crwdns150230:0crwdne150230:0"
 msgid "New Zoom Account"
 msgstr "crwdns155260:0crwdne155260:0"
 
-#: lms/lms/utils.py:603
+#: lms/lms/utils.py:416
 msgid "New comment in batch {0}"
 msgstr "crwdns150232:0{0}crwdne150232:0"
 
-#: lms/lms/utils.py:598
+#: lms/lms/utils.py:411
 msgid "New reply on the topic {0} in course {1}"
 msgstr "crwdns150234:0{0}crwdnd150234:0{1}crwdne150234:0"
 
@@ -4761,12 +4497,13 @@ msgid "No quizzes added yet."
 msgstr "crwdns155292:0crwdne155292:0"
 
 #: frontend/src/components/Controls/MultiSelect.vue:59
+#: frontend/src/pages/Search/Search.vue:47
 msgid "No results found"
 msgstr "crwdns162052:0crwdne162052:0"
 
-#: frontend/src/components/Modals/EvaluationModal.vue:62
-msgid "No slots available for this date."
-msgstr "crwdns150264:0crwdne150264:0"
+#: frontend/src/components/Modals/EvaluationModal.vue:59
+msgid "No slots available for the selected course."
+msgstr "crwdns163996:0crwdne163996:0"
 
 #: frontend/src/components/Modals/VideoStatistics.vue:86
 msgid "No statistics available for this video."
@@ -4808,7 +4545,7 @@ msgstr "crwdns150282:0crwdne150282:0"
 msgid "Not Graded"
 msgstr "crwdns150284:0crwdne150284:0"
 
-#: frontend/src/components/NoPermission.vue:7 frontend/src/pages/Batch.vue:167
+#: frontend/src/components/NoPermission.vue:7 frontend/src/pages/Batch.vue:181
 msgid "Not Permitted"
 msgstr "crwdns150286:0crwdne150286:0"
 
@@ -4825,8 +4562,8 @@ msgstr "crwdns150288:0crwdne150288:0"
 msgid "Note"
 msgstr "crwdns157426:0crwdne157426:0"
 
-#: frontend/src/pages/Lesson.vue:404 frontend/src/pages/Lesson.vue:880
-#: frontend/src/pages/Lesson.vue:891
+#: frontend/src/pages/Lesson.vue:405 frontend/src/pages/Lesson.vue:886
+#: frontend/src/pages/Lesson.vue:897
 msgid "Notes"
 msgstr "crwdns157428:0crwdne157428:0"
 
@@ -4888,7 +4625,7 @@ msgstr "crwdns150306:0crwdne150306:0"
 msgid "Only files of type {0} will be accepted."
 msgstr "crwdns150308:0{0}crwdne150308:0"
 
-#: frontend/src/utils/index.js:498
+#: frontend/src/utils/index.js:629
 msgid "Only image file is allowed."
 msgstr "crwdns150310:0crwdne150310:0"
 
@@ -4898,11 +4635,9 @@ msgstr "crwdns151642:0crwdne151642:0"
 
 #. Option for the 'Status' (Select) field in DocType 'Job Opportunity'
 #. Option in a Select field in the job-opportunity Web Form
-#. Option for the 'Membership' (Select) field in DocType 'LMS Batch Old'
 #: frontend/src/pages/Jobs.vue:169
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 #: lms/job/web_form/job_opportunity/job_opportunity.json
-#: lms/lms/doctype/lms_batch_old/lms_batch_old.json
 msgid "Open"
 msgstr "crwdns150312:0crwdne150312:0"
 
@@ -4924,6 +4659,13 @@ msgstr "crwdns150318:0crwdne150318:0"
 #: frontend/src/components/Settings/Transactions/TransactionDetails.vue:121
 msgid "Open the "
 msgstr "crwdns159766:0crwdne159766:0"
+
+#. Label of the looking_for_job (Check) field in DocType 'User'
+#: frontend/src/components/Modals/EditProfile.vue:59
+#: frontend/src/components/UserAvatar.vue:11 frontend/src/pages/Profile.vue:61
+#: lms/fixtures/custom_field.json
+msgid "Open to Opportunities"
+msgstr "crwdns163998:0crwdne163998:0"
 
 #. Label of the option (Data) field in DocType 'LMS Option'
 #: frontend/src/components/Modals/Question.vue:70
@@ -5020,14 +4762,9 @@ msgstr "crwdns161008:0crwdne161008:0"
 msgid "PDF"
 msgstr "crwdns150348:0crwdne150348:0"
 
-#: frontend/src/components/Sidebar/AppSidebar.vue:445
+#: frontend/src/components/Sidebar/AppSidebar.vue:352
 msgid "Page deleted successfully"
 msgstr "crwdns162054:0crwdne162054:0"
-
-#. Label of the pages (Table) field in DocType 'Cohort'
-#: lms/lms/doctype/cohort/cohort.json
-msgid "Pages"
-msgstr "crwdns150350:0crwdne150350:0"
 
 #. Label of the paid_batch (Check) field in DocType 'LMS Batch'
 #: frontend/src/pages/BatchForm.vue:270
@@ -5085,7 +4822,7 @@ msgstr "crwdns155736:0crwdne155736:0"
 
 #. Label of the passing_percentage (Int) field in DocType 'LMS Quiz'
 #. Label of the passing_percentage (Int) field in DocType 'LMS Quiz Submission'
-#: frontend/src/pages/QuizForm.vue:78 frontend/src/pages/Quizzes.vue:248
+#: frontend/src/pages/QuizForm.vue:78 frontend/src/pages/Quizzes.vue:252
 #: lms/lms/doctype/lms_quiz/lms_quiz.json
 #: lms/lms/doctype/lms_quiz_submission/lms_quiz_submission.json
 msgid "Passing Percentage"
@@ -5185,7 +4922,7 @@ msgstr "crwdns150382:0crwdne150382:0"
 msgid "Payment for Document Type"
 msgstr "crwdns150384:0crwdne150384:0"
 
-#: lms/lms/utils.py:2092
+#: lms/lms/utils.py:1801
 msgid "Payment is required to enroll in this batch."
 msgstr "crwdns162056:0crwdne162056:0"
 
@@ -5195,12 +4932,10 @@ msgstr "crwdns162056:0crwdne162056:0"
 msgid "Payments app is not installed"
 msgstr "crwdns150388:0crwdne150388:0"
 
-#. Option for the 'Status' (Select) field in DocType 'Cohort Join Request'
 #. Option for the 'Status' (Select) field in DocType 'LMS Certificate
 #. Evaluation'
 #. Option for the 'Status' (Select) field in DocType 'LMS Mentor Request'
 #: frontend/src/components/Modals/Event.vue:384
-#: lms/lms/doctype/cohort_join_request/cohort_join_request.json
 #: lms/lms/doctype/lms_certificate_evaluation/lms_certificate_evaluation.json
 #: lms/lms/doctype/lms_mentor_request/lms_mentor_request.json
 msgid "Pending"
@@ -5316,7 +5051,7 @@ msgstr "crwdns150414:0crwdne150414:0"
 msgid "Please install the Payments App to create a paid batch. Refer to the documentation for more details. {0}"
 msgstr "crwdns154614:0{0}crwdne154614:0"
 
-#: lms/lms/doctype/lms_course/lms_course.py:59
+#: lms/lms/doctype/lms_course/lms_course.py:57
 msgid "Please install the Payments App to create a paid course. Refer to the documentation for more details. {0}"
 msgstr "crwdns154616:0{0}crwdne154616:0"
 
@@ -5328,17 +5063,21 @@ msgstr "crwdns150422:0crwdne150422:0"
 msgid "Please login to access the quiz."
 msgstr "crwdns150424:0crwdne150424:0"
 
-#: frontend/src/components/NoPermission.vue:25 frontend/src/pages/Batch.vue:178
+#: frontend/src/components/NoPermission.vue:25 frontend/src/pages/Batch.vue:192
 msgid "Please login to access this page."
 msgstr "crwdns150426:0crwdne150426:0"
 
-#: lms/lms/api.py:180
+#: lms/lms/api.py:101
 msgid "Please login to continue with payment."
 msgstr "crwdns150428:0crwdne150428:0"
 
-#: lms/lms/utils.py:2224
+#: lms/lms/utils.py:1933
 msgid "Please login to enroll in the program."
 msgstr "crwdns158528:0crwdne158528:0"
+
+#: frontend/src/pages/Batch.vue:158
+msgid "Please make sure to schedule your evaluation before this date."
+msgstr "crwdns164000:0crwdne164000:0"
 
 #: lms/lms/notification/certificate_request_reminder/certificate_request_reminder.html:7
 #: lms/templates/emails/certificate_request_notification.html:7
@@ -5372,6 +5111,10 @@ msgstr "crwdns158532:0crwdne158532:0"
 #: frontend/src/components/Modals/QuizInVideo.vue:186
 msgid "Please select a quiz"
 msgstr "crwdns155296:0crwdne155296:0"
+
+#: frontend/src/components/Modals/EvaluationModal.vue:109
+msgid "Please select a slot for your evaluation."
+msgstr "crwdns164002:0crwdne164002:0"
 
 #: frontend/src/components/Modals/LiveClassModal.vue:192
 msgid "Please select a time."
@@ -5439,7 +5182,7 @@ msgstr "crwdns150448:0crwdne150448:0"
 msgid "Postal Code"
 msgstr "crwdns150450:0crwdne150450:0"
 
-#: frontend/src/components/Sidebar/AppSidebar.vue:125
+#: frontend/src/components/Sidebar/AppSidebar.vue:135
 msgid "Powered by Learning"
 msgstr "crwdns154618:0crwdne154618:0"
 
@@ -5468,6 +5211,10 @@ msgstr "crwdns150460:0crwdne150460:0"
 #: lms/fixtures/custom_field.json
 msgid "Preferred Location"
 msgstr "crwdns150462:0crwdne150462:0"
+
+#: frontend/src/pages/Search/Search.vue:41
+msgid "Press enter to search"
+msgstr "crwdns164004:0crwdne164004:0"
 
 #. Label of the prevent_skipping_videos (Check) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
@@ -5505,20 +5252,6 @@ msgstr "crwdns152617:0crwdne152617:0"
 msgid "Primary Countries"
 msgstr "crwdns150472:0crwdne150472:0"
 
-#. Label of the subgroup (Link) field in DocType 'Cohort Mentor'
-#: lms/lms/doctype/cohort_mentor/cohort_mentor.json
-msgid "Primary Subgroup"
-msgstr "crwdns150474:0crwdne150474:0"
-
-#: lms/lms/utils.py:429
-msgid "Privacy Policy"
-msgstr "crwdns150476:0crwdne150476:0"
-
-#. Option for the 'Visibility' (Select) field in DocType 'LMS Batch Old'
-#: lms/lms/doctype/lms_batch_old/lms_batch_old.json
-msgid "Private"
-msgstr "crwdns150478:0crwdne150478:0"
-
 #. Description of the 'Hide my Private Information from others' (Check) field
 #. in DocType 'User'
 #: lms/fixtures/custom_field.json
@@ -5542,7 +5275,7 @@ msgstr "crwdns150482:0crwdne150482:0"
 msgid "Profession"
 msgstr "crwdns150484:0crwdne150484:0"
 
-#: frontend/src/components/Modals/EditProfile.vue:25
+#: frontend/src/components/Modals/EditProfile.vue:13
 msgid "Profile Image"
 msgstr "crwdns150486:0crwdne150486:0"
 
@@ -5649,13 +5382,6 @@ msgstr "crwdns158540:0{0}crwdne158540:0"
 #: frontend/src/components/AdminBatchDashboard.vue:42
 msgid "Progress of students in courses and assessments"
 msgstr "crwdns155268:0crwdne155268:0"
-
-#. Option for the 'Required Role' (Select) field in DocType 'Cohort Web Page'
-#. Option for the 'Visibility' (Select) field in DocType 'LMS Batch Old'
-#: lms/lms/doctype/cohort_web_page/cohort_web_page.json
-#: lms/lms/doctype/lms_batch_old/lms_batch_old.json
-msgid "Public"
-msgstr "crwdns150492:0crwdne150492:0"
 
 #. Label of the published (Check) field in DocType 'LMS Certificate'
 #: lms/lms/doctype/lms_certificate/lms_certificate.json
@@ -5799,7 +5525,7 @@ msgstr "crwdns150530:0crwdne150530:0"
 msgid "Quiz Title"
 msgstr "crwdns150532:0crwdne150532:0"
 
-#: frontend/src/pages/Quizzes.vue:207
+#: frontend/src/pages/Quizzes.vue:211
 msgid "Quiz created successfully"
 msgstr "crwdns150534:0crwdne150534:0"
 
@@ -5816,13 +5542,13 @@ msgstr "crwdns150538:0crwdne150538:0"
 msgid "Quiz will appear at the bottom of the lesson."
 msgstr "crwdns150540:0crwdne150540:0"
 
-#: frontend/src/components/Sidebar/AppSidebar.vue:637
-#: frontend/src/pages/QuizForm.vue:398 frontend/src/pages/Quizzes.vue:281
-#: frontend/src/pages/Quizzes.vue:291 lms/www/lms.py:250
+#: frontend/src/components/Sidebar/AppSidebar.vue:544
+#: frontend/src/pages/QuizForm.vue:398 frontend/src/pages/Quizzes.vue:285
+#: frontend/src/pages/Quizzes.vue:295 lms/www/lms.py:250
 msgid "Quizzes"
 msgstr "crwdns150542:0crwdne150542:0"
 
-#: frontend/src/pages/Quizzes.vue:229
+#: frontend/src/pages/Quizzes.vue:233
 msgid "Quizzes deleted successfully"
 msgstr "crwdns155834:0crwdne155834:0"
 
@@ -5839,18 +5565,12 @@ msgstr "crwdns155298:0crwdne155298:0"
 #: lms/lms/doctype/lms_certificate_evaluation/lms_certificate_evaluation.json
 #: lms/lms/doctype/lms_course/lms_course.json
 #: lms/lms/doctype/lms_course_review/lms_course_review.json
-#: lms/templates/reviews.html:125
 msgid "Rating"
 msgstr "crwdns150544:0crwdne150544:0"
 
 #: lms/lms/doctype/lms_certificate_evaluation/lms_certificate_evaluation.py:18
 msgid "Rating cannot be 0"
 msgstr "crwdns150546:0crwdne150546:0"
-
-#. Option for the 'Stage' (Select) field in DocType 'LMS Batch Old'
-#: lms/lms/doctype/lms_batch_old/lms_batch_old.json
-msgid "Ready"
-msgstr "crwdns150550:0crwdne150550:0"
 
 #. Option for the 'Color' (Select) field in DocType 'LMS Course'
 #. Option for the 'Color' (Select) field in DocType 'LMS Lesson Note'
@@ -5908,9 +5628,7 @@ msgstr "crwdns150560:0crwdne150560:0"
 msgid "Registered but disabled"
 msgstr "crwdns150564:0crwdne150564:0"
 
-#. Option for the 'Status' (Select) field in DocType 'Cohort Join Request'
 #. Option for the 'Status' (Select) field in DocType 'LMS Mentor Request'
-#: lms/lms/doctype/cohort_join_request/cohort_join_request.json
 #: lms/lms/doctype/lms_mentor_request/lms_mentor_request.json
 msgid "Rejected"
 msgstr "crwdns150566:0crwdne150566:0"
@@ -5955,16 +5673,6 @@ msgstr "crwdns150572:0crwdne150572:0"
 msgid "Request for Mentorship"
 msgstr "crwdns150574:0crwdne150574:0"
 
-#. Label of the required_role (Select) field in DocType 'Cohort Web Page'
-#: lms/lms/doctype/cohort_web_page/cohort_web_page.json
-msgid "Required Role"
-msgstr "crwdns150576:0crwdne150576:0"
-
-#. Option for the 'Membership' (Select) field in DocType 'LMS Batch Old'
-#: lms/lms/doctype/lms_batch_old/lms_batch_old.json
-msgid "Restricted"
-msgstr "crwdns150578:0crwdne150578:0"
-
 #. Label of the result (Table) field in DocType 'LMS Quiz Submission'
 #: lms/lms/doctype/lms_quiz_submission/lms_quiz_submission.json
 msgid "Result"
@@ -5987,26 +5695,16 @@ msgstr "crwdns159368:0crwdne159368:0"
 #. Label of a Link in the LMS Workspace
 #: frontend/src/components/Modals/ReviewModal.vue:20
 #: lms/lms/doctype/lms_course_review/lms_course_review.json
-#: lms/lms/workspace/lms/lms.json lms/templates/reviews.html:143
+#: lms/lms/workspace/lms/lms.json
 msgid "Review"
 msgstr "crwdns150584:0crwdne150584:0"
-
-#: lms/templates/reviews.html:100
-msgid "Review the course"
-msgstr "crwdns150586:0crwdne150586:0"
 
 #. Label of the reviewed_by (Link) field in DocType 'LMS Mentor Request'
 #: lms/lms/doctype/lms_mentor_request/lms_mentor_request.json
 msgid "Reviewed By"
 msgstr "crwdns150588:0crwdne150588:0"
 
-#: lms/templates/reviews.html:4
-msgid "Reviews"
-msgstr "crwdns150590:0crwdne150590:0"
-
-#. Label of the role (Select) field in DocType 'Cohort Staff'
 #. Label of the role (Select) field in DocType 'LMS Enrollment'
-#: lms/lms/doctype/cohort_staff/cohort_staff.json
 #: lms/lms/doctype/lms_enrollment/lms_enrollment.json
 msgid "Role"
 msgstr "crwdns150592:0crwdne150592:0"
@@ -6020,7 +5718,7 @@ msgstr "crwdns150594:0crwdne150594:0"
 msgid "Role updated successfully"
 msgstr "crwdns155104:0crwdne155104:0"
 
-#: frontend/src/components/Sidebar/AppSidebar.vue:665
+#: frontend/src/components/Sidebar/AppSidebar.vue:572
 msgid "Roles"
 msgstr "crwdns154473:0crwdne154473:0"
 
@@ -6050,7 +5748,6 @@ msgid "Rows {0} have the duplicate questions."
 msgstr "crwdns150606:0{0}crwdne150606:0"
 
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmission.vue:56
-#: lms/templates/livecode/extension_footer.html:21
 msgid "Run"
 msgstr "crwdns150608:0crwdne150608:0"
 
@@ -6081,7 +5778,7 @@ msgstr "crwdns151652:0crwdne151652:0"
 msgid "SEO"
 msgstr "crwdns154534:0crwdne154534:0"
 
-#: frontend/src/utils/index.js:517
+#: frontend/src/utils/index.js:648
 msgid "SVG contains potentially unsafe content."
 msgstr "crwdns157432:0crwdne157432:0"
 
@@ -6098,6 +5795,7 @@ msgstr "crwdns150610:0crwdne150610:0"
 #: frontend/src/components/Controls/Code.vue:24
 #: frontend/src/components/Controls/CodeEditor.vue:25
 #: frontend/src/components/Modals/AssignmentForm.vue:59
+#: frontend/src/components/Modals/EditProfile.vue:116
 #: frontend/src/components/Modals/EmailTemplateModal.vue:12
 #: frontend/src/components/Modals/Event.vue:115
 #: frontend/src/components/Modals/Event.vue:151
@@ -6124,7 +5822,6 @@ msgstr "crwdns150612:0crwdne150612:0"
 msgid "Schedule"
 msgstr "crwdns150614:0crwdne150614:0"
 
-#: frontend/src/components/Modals/EvaluationModal.vue:5
 #: frontend/src/components/UpcomingEvaluations.vue:13
 msgid "Schedule Evaluation"
 msgstr "crwdns150616:0crwdne150616:0"
@@ -6133,15 +5830,14 @@ msgstr "crwdns150616:0crwdne150616:0"
 msgid "Schedule an evaluation to get certified."
 msgstr "crwdns159372:0crwdne159372:0"
 
+#: frontend/src/components/Modals/EvaluationModal.vue:5
+msgid "Schedule your evaluation"
+msgstr "crwdns164006:0crwdne164006:0"
+
 #. Name of a DocType
 #: lms/lms/doctype/scheduled_flow/scheduled_flow.json
 msgid "Scheduled Flow"
 msgstr "crwdns150618:0crwdne150618:0"
-
-#. Label of the scope (Select) field in DocType 'Cohort Web Page'
-#: lms/lms/doctype/cohort_web_page/cohort_web_page.json
-msgid "Scope"
-msgstr "crwdns150620:0crwdne150620:0"
 
 #. Label of the score (Int) field in DocType 'LMS Quiz Submission'
 #: frontend/src/pages/QuizSubmission.vue:39
@@ -6157,7 +5853,8 @@ msgstr "crwdns150624:0crwdne150624:0"
 
 #: frontend/src/components/Settings/Evaluators.vue:25
 #: frontend/src/components/Settings/Members.vue:25
-#: frontend/src/pages/Jobs.vue:44
+#: frontend/src/pages/Jobs.vue:44 frontend/src/pages/Search/Search.vue:5
+#: frontend/src/pages/Search/Search.vue:228
 msgid "Search"
 msgstr "crwdns150626:0crwdne150626:0"
 
@@ -6179,6 +5876,10 @@ msgstr "crwdns152288:0crwdne152288:0"
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExercises.vue:47
 msgid "Search by title"
 msgstr "crwdns152132:0crwdne152132:0"
+
+#: frontend/src/components/CommandPalette/CommandPalette.vue:135
+msgid "Search for "
+msgstr "crwdns164008:0crwdne164008:0"
 
 #: frontend/src/components/Controls/IconPicker.vue:36
 msgid "Search for an icon"
@@ -6231,10 +5932,6 @@ msgstr "crwdns150636:0crwdne150636:0"
 msgid "Select a quiz"
 msgstr "crwdns150638:0crwdne150638:0"
 
-#: frontend/src/components/Modals/EvaluationModal.vue:40
-msgid "Select a slot"
-msgstr "crwdns150640:0crwdne150640:0"
-
 #: frontend/src/components/AssessmentPlugin.vue:35
 msgid "Select an assignment"
 msgstr "crwdns152134:0crwdne152134:0"
@@ -6270,11 +5967,6 @@ msgstr "crwdns159376:0crwdne159376:0"
 msgid "Session Start Time"
 msgstr "crwdns159378:0crwdne159378:0"
 
-#. Label of the sessions_on (Data) field in DocType 'LMS Batch Old'
-#: lms/lms/doctype/lms_batch_old/lms_batch_old.json
-msgid "Sessions On Days"
-msgstr "crwdns150644:0crwdne150644:0"
-
 #: frontend/src/components/Controls/ColorSwatches.vue:13
 msgid "Set Color"
 msgstr "crwdns157176:0crwdne157176:0"
@@ -6283,16 +5975,16 @@ msgstr "crwdns157176:0crwdne157176:0"
 msgid "Set your Password"
 msgstr "crwdns150646:0crwdne150646:0"
 
-#: frontend/src/components/Sidebar/AppSidebar.vue:608
+#: frontend/src/components/Sidebar/AppSidebar.vue:515
 msgid "Setting up"
 msgstr "crwdns154475:0crwdne154475:0"
 
-#: frontend/src/components/Sidebar/AppSidebar.vue:658
+#: frontend/src/components/Sidebar/AppSidebar.vue:565
 msgid "Setting up payment gateway"
 msgstr "crwdns154477:0crwdne154477:0"
 
 #: frontend/src/components/Settings/Settings.vue:9
-#: frontend/src/components/Sidebar/AppSidebar.vue:663
+#: frontend/src/components/Sidebar/AppSidebar.vue:570
 #: frontend/src/pages/BatchForm.vue:53 frontend/src/pages/CourseForm.vue:142
 #: frontend/src/pages/ProfileRoles.vue:4
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmission.vue:19
@@ -6300,7 +5992,7 @@ msgstr "crwdns154477:0crwdne154477:0"
 msgid "Settings"
 msgstr "crwdns150648:0crwdne150648:0"
 
-#: frontend/src/pages/ProfileAbout.vue:79
+#: frontend/src/pages/ProfileAbout.vue:81
 msgid "Share on"
 msgstr "crwdns150650:0crwdne150650:0"
 
@@ -6324,7 +6016,7 @@ msgid "Show Answer"
 msgstr "crwdns150654:0crwdne150654:0"
 
 #. Label of the show_answers (Check) field in DocType 'LMS Quiz'
-#: frontend/src/pages/QuizForm.vue:93 frontend/src/pages/Quizzes.vue:262
+#: frontend/src/pages/QuizForm.vue:93 frontend/src/pages/Quizzes.vue:266
 #: lms/lms/doctype/lms_quiz/lms_quiz.json
 msgid "Show Answers"
 msgstr "crwdns150656:0crwdne150656:0"
@@ -6353,6 +6045,10 @@ msgstr "crwdns150664:0crwdne150664:0"
 #: lms/lms/doctype/lms_batch/lms_batch.json
 msgid "Show live class"
 msgstr "crwdns150666:0crwdne150666:0"
+
+#: frontend/src/components/Modals/EditProfile.vue:61
+msgid "Show recruiters and others that you are open to work."
+msgstr "crwdns164010:0crwdne164010:0"
 
 #. Label of the shuffle_questions (Check) field in DocType 'LMS Quiz'
 #: frontend/src/pages/QuizForm.vue:105 lms/lms/doctype/lms_quiz/lms_quiz.json
@@ -6424,26 +6120,10 @@ msgstr "crwdns155108:0crwdne155108:0"
 msgid "Slot deleted successfully"
 msgstr "crwdns155110:0crwdne155110:0"
 
-#. Label of the slug (Data) field in DocType 'Cohort'
-#. Label of the slug (Data) field in DocType 'Cohort Subgroup'
-#. Label of the slug (Data) field in DocType 'Cohort Web Page'
-#: lms/lms/doctype/cohort/cohort.json
-#: lms/lms/doctype/cohort_subgroup/cohort_subgroup.json
-#: lms/lms/doctype/cohort_web_page/cohort_web_page.json
-msgid "Slug"
-msgstr "crwdns150700:0crwdne150700:0"
-
 #: frontend/src/components/BatchCard.vue:25
 #: frontend/src/components/BatchOverlay.vue:24
 msgid "Sold Out"
 msgstr "crwdns150702:0crwdne150702:0"
-
-#. Label of the solution (Code) field in DocType 'Exercise Latest Submission'
-#. Label of the solution (Code) field in DocType 'Exercise Submission'
-#: lms/lms/doctype/exercise_latest_submission/exercise_latest_submission.json
-#: lms/lms/doctype/exercise_submission/exercise_submission.json
-msgid "Solution"
-msgstr "crwdns150704:0crwdne150704:0"
 
 #. Label of the source (Link) field in DocType 'LMS Batch Enrollment'
 #. Label of the source (Link) field in DocType 'LMS Payment'
@@ -6457,17 +6137,10 @@ msgstr "crwdns150704:0crwdne150704:0"
 msgid "Source"
 msgstr "crwdns150706:0crwdne150706:0"
 
-#. Option for the 'Role' (Select) field in DocType 'Cohort Staff'
 #. Option for the 'Member Type' (Select) field in DocType 'LMS Enrollment'
-#: lms/lms/doctype/cohort_staff/cohort_staff.json
 #: lms/lms/doctype/lms_enrollment/lms_enrollment.json
 msgid "Staff"
 msgstr "crwdns150708:0crwdne150708:0"
-
-#. Label of the stage (Select) field in DocType 'LMS Batch Old'
-#: lms/lms/doctype/lms_batch_old/lms_batch_old.json
-msgid "Stage"
-msgstr "crwdns150710:0crwdne150710:0"
 
 #: frontend/src/components/LiveClass.vue:73 frontend/src/components/Quiz.vue:81
 #: frontend/src/pages/Home/AdminHome.vue:167
@@ -6477,10 +6150,8 @@ msgstr "crwdns150712:0crwdne150712:0"
 
 #. Label of the start_date (Date) field in DocType 'Education Detail'
 #. Label of the start_date (Date) field in DocType 'LMS Batch'
-#. Label of the start_date (Date) field in DocType 'LMS Batch Old'
 #: lms/lms/doctype/education_detail/education_detail.json
 #: lms/lms/doctype/lms_batch/lms_batch.json
-#: lms/lms/doctype/lms_batch_old/lms_batch_old.json
 msgid "Start Date"
 msgstr "crwdns150714:0crwdne150714:0"
 
@@ -6496,7 +6167,6 @@ msgstr "crwdns150716:0crwdne150716:0"
 
 #. Label of the start_time (Time) field in DocType 'Evaluator Schedule'
 #. Label of the start_time (Time) field in DocType 'LMS Batch'
-#. Label of the start_time (Time) field in DocType 'LMS Batch Old'
 #. Label of the start_time (Time) field in DocType 'LMS Batch Timetable'
 #. Label of the start_time (Time) field in DocType 'LMS Certificate Evaluation'
 #. Label of the start_time (Time) field in DocType 'LMS Certificate Request'
@@ -6504,7 +6174,6 @@ msgstr "crwdns150716:0crwdne150716:0"
 #: frontend/src/pages/ProfileEvaluator.vue:29
 #: lms/lms/doctype/evaluator_schedule/evaluator_schedule.json
 #: lms/lms/doctype/lms_batch/lms_batch.json
-#: lms/lms/doctype/lms_batch_old/lms_batch_old.json
 #: lms/lms/doctype/lms_batch_timetable/lms_batch_timetable.json
 #: lms/lms/doctype/lms_certificate_evaluation/lms_certificate_evaluation.json
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
@@ -6545,12 +6214,7 @@ msgstr "crwdns150732:0crwdne150732:0"
 
 #. Label of the status (Select) field in DocType 'Job Opportunity'
 #. Label of a field in the job-opportunity Web Form
-#. Label of the status (Select) field in DocType 'Cohort'
-#. Label of the status (Select) field in DocType 'Cohort Join Request'
-#. Label of the status (Select) field in DocType 'Exercise Latest Submission'
-#. Label of the status (Select) field in DocType 'Exercise Submission'
 #. Label of the status (Select) field in DocType 'LMS Assignment Submission'
-#. Label of the status (Select) field in DocType 'LMS Batch Old'
 #. Label of the status (Select) field in DocType 'LMS Certificate Evaluation'
 #. Label of the status (Select) field in DocType 'LMS Certificate Request'
 #. Label of the status (Select) field in DocType 'LMS Course'
@@ -6567,12 +6231,7 @@ msgstr "crwdns150732:0crwdne150732:0"
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmissions.vue:280
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 #: lms/job/web_form/job_opportunity/job_opportunity.json
-#: lms/lms/doctype/cohort/cohort.json
-#: lms/lms/doctype/cohort_join_request/cohort_join_request.json
-#: lms/lms/doctype/exercise_latest_submission/exercise_latest_submission.json
-#: lms/lms/doctype/exercise_submission/exercise_submission.json
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.json
-#: lms/lms/doctype/lms_batch_old/lms_batch_old.json
 #: lms/lms/doctype/lms_certificate_evaluation/lms_certificate_evaluation.json
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 #: lms/lms/doctype/lms_course/lms_course.json
@@ -6588,11 +6247,9 @@ msgid "Status/Score"
 msgstr "crwdns150736:0crwdne150736:0"
 
 #. Option for the 'User Category' (Select) field in DocType 'User'
-#. Option for the 'Required Role' (Select) field in DocType 'Cohort Web Page'
 #. Option for the 'Member Type' (Select) field in DocType 'LMS Enrollment'
 #: frontend/src/pages/Home/Home.vue:148 frontend/src/pages/ProfileRoles.vue:38
 #: lms/fixtures/custom_field.json
-#: lms/lms/doctype/cohort_web_page/cohort_web_page.json
 #: lms/lms/doctype/lms_enrollment/lms_enrollment.json
 #: lms/templates/signup-form.html:26
 msgid "Student"
@@ -6617,15 +6274,6 @@ msgstr "crwdns150750:0crwdne150750:0"
 #: lms/lms/doctype/lms_batch/lms_batch.json
 msgid "Students will be enrolled in a paid batch once they complete the payment"
 msgstr "crwdns150752:0crwdne150752:0"
-
-#. Label of the subgroup (Link) field in DocType 'Cohort Join Request'
-#. Option for the 'Scope' (Select) field in DocType 'Cohort Web Page'
-#. Label of the subgroup (Link) field in DocType 'LMS Enrollment'
-#: lms/lms/doctype/cohort_join_request/cohort_join_request.json
-#: lms/lms/doctype/cohort_web_page/cohort_web_page.json
-#: lms/lms/doctype/lms_enrollment/lms_enrollment.json
-msgid "Subgroup"
-msgstr "crwdns150754:0crwdne150754:0"
 
 #: frontend/src/components/ContactUsEmail.vue:13
 #: frontend/src/components/Modals/AnnouncementModal.vue:20
@@ -6664,8 +6312,7 @@ msgstr "crwdns155762:0crwdne155762:0"
 #: frontend/src/components/Modals/BatchCourseModal.vue:9
 #: frontend/src/components/Modals/EvaluationModal.vue:9
 #: frontend/src/components/Quiz.vue:242 lms/templates/assignment.html:9
-#: lms/templates/livecode/extension_footer.html:25
-#: lms/templates/reviews.html:163 lms/www/new-sign-up.html:32
+#: lms/www/new-sign-up.html:32
 msgid "Submit"
 msgstr "crwdns150762:0crwdne150762:0"
 
@@ -6680,11 +6327,6 @@ msgstr "crwdns154710:0crwdne154710:0"
 #: frontend/src/components/Modals/JobApplicationModal.vue:23
 msgid "Submit your resume to proceed with your application for this position. Upon submission, it will be shared with the job poster."
 msgstr "crwdns150764:0crwdne150764:0"
-
-#: lms/templates/livecode/extension_footer.html:85
-#: lms/templates/livecode/extension_footer.html:115
-msgid "Submitted {0}"
-msgstr "crwdns150766:0{0}crwdne150766:0"
 
 #: frontend/src/pages/Programs/ProgramEnrollment.vue:145
 msgid "Successfully enrolled in program"
@@ -6704,11 +6346,11 @@ msgstr "crwdns150770:0crwdne150770:0"
 msgid "Sunday"
 msgstr "crwdns150772:0crwdne150772:0"
 
-#: lms/lms/api.py:1082
+#: lms/lms/api.py:966
 msgid "Suspicious pattern found in {0}: {1}"
 msgstr "crwdns151930:0{0}crwdnd151930:0{1}crwdne151930:0"
 
-#: frontend/src/components/Controls/ColorSwatches.vue:50
+#: frontend/src/components/Controls/ColorSwatches.vue:52
 msgid "Swatches"
 msgstr "crwdns157178:0crwdne157178:0"
 
@@ -6716,16 +6358,9 @@ msgstr "crwdns157178:0crwdne157178:0"
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 #: lms/job/doctype/job_settings/job_settings.json
 #: lms/job/doctype/lms_job_application/lms_job_application.json
-#: lms/lms/doctype/cohort/cohort.json
-#: lms/lms/doctype/cohort_join_request/cohort_join_request.json
-#: lms/lms/doctype/cohort_mentor/cohort_mentor.json
-#: lms/lms/doctype/cohort_staff/cohort_staff.json
-#: lms/lms/doctype/cohort_subgroup/cohort_subgroup.json
 #: lms/lms/doctype/course_chapter/course_chapter.json
 #: lms/lms/doctype/course_evaluator/course_evaluator.json
 #: lms/lms/doctype/course_lesson/course_lesson.json
-#: lms/lms/doctype/exercise_latest_submission/exercise_latest_submission.json
-#: lms/lms/doctype/exercise_submission/exercise_submission.json
 #: lms/lms/doctype/function/function.json
 #: lms/lms/doctype/industry/industry.json
 #: lms/lms/doctype/lms_assignment/lms_assignment.json
@@ -6735,7 +6370,6 @@ msgstr "crwdns157178:0crwdne157178:0"
 #: lms/lms/doctype/lms_batch/lms_batch.json
 #: lms/lms/doctype/lms_batch_enrollment/lms_batch_enrollment.json
 #: lms/lms/doctype/lms_batch_feedback/lms_batch_feedback.json
-#: lms/lms/doctype/lms_batch_old/lms_batch_old.json
 #: lms/lms/doctype/lms_category/lms_category.json
 #: lms/lms/doctype/lms_certificate/lms_certificate.json
 #: lms/lms/doctype/lms_certificate_evaluation/lms_certificate_evaluation.json
@@ -6747,7 +6381,6 @@ msgstr "crwdns157178:0crwdne157178:0"
 #: lms/lms/doctype/lms_course_progress/lms_course_progress.json
 #: lms/lms/doctype/lms_course_review/lms_course_review.json
 #: lms/lms/doctype/lms_enrollment/lms_enrollment.json
-#: lms/lms/doctype/lms_exercise/lms_exercise.json
 #: lms/lms/doctype/lms_lesson_note/lms_lesson_note.json
 #: lms/lms/doctype/lms_live_class/lms_live_class.json
 #: lms/lms/doctype/lms_live_class_participant/lms_live_class_participant.json
@@ -6795,11 +6428,9 @@ msgstr "crwdns150778:0crwdne150778:0"
 msgid "Team Work"
 msgstr "crwdns150780:0crwdne150780:0"
 
-#. Label of the template (Link) field in DocType 'Cohort Web Page'
 #. Label of the template (Link) field in DocType 'LMS Certificate'
 #: frontend/src/components/Modals/BulkCertificates.vue:43
 #: frontend/src/components/Modals/Event.vue:127
-#: lms/lms/doctype/cohort_web_page/cohort_web_page.json
 #: lms/lms/doctype/lms_certificate/lms_certificate.json
 msgid "Template"
 msgstr "crwdns150782:0crwdne150782:0"
@@ -6807,10 +6438,6 @@ msgstr "crwdns150782:0crwdne150782:0"
 #: lms/lms/user.py:40
 msgid "Temporarily Disabled"
 msgstr "crwdns150784:0crwdne150784:0"
-
-#: lms/lms/utils.py:428
-msgid "Terms of Use"
-msgstr "crwdns150786:0crwdne150786:0"
 
 #. Label of the test_cases (Table) field in DocType 'LMS Programming Exercise'
 #. Label of the test_cases (Table) field in DocType 'LMS Programming Exercise
@@ -6826,15 +6453,6 @@ msgstr "crwdns155764:0crwdne155764:0"
 msgid "Test Quiz"
 msgstr "crwdns155840:0crwdne155840:0"
 
-#. Label of the test_results (Small Text) field in DocType 'Exercise Latest
-#. Submission'
-#. Label of the test_results (Small Text) field in DocType 'Exercise
-#. Submission'
-#: lms/lms/doctype/exercise_latest_submission/exercise_latest_submission.json
-#: lms/lms/doctype/exercise_submission/exercise_submission.json
-msgid "Test Results"
-msgstr "crwdns150788:0crwdne150788:0"
-
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseForm.vue:82
 msgid "Test this Exercise"
 msgstr "crwdns155766:0crwdne155766:0"
@@ -6842,11 +6460,6 @@ msgstr "crwdns155766:0crwdne155766:0"
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmission.vue:93
 msgid "Test {0}"
 msgstr "crwdns155768:0{0}crwdne155768:0"
-
-#. Label of the tests (Code) field in DocType 'LMS Exercise'
-#: lms/lms/doctype/lms_exercise/lms_exercise.json
-msgid "Tests"
-msgstr "crwdns150790:0crwdne150790:0"
 
 #. Option for the 'Type' (Select) field in DocType 'LMS Assignment'
 #. Option for the 'Type' (Select) field in DocType 'LMS Assignment Submission'
@@ -6866,7 +6479,7 @@ msgstr "crwdns155204:0crwdne155204:0"
 msgid "Thanks and Regards"
 msgstr "crwdns150794:0crwdne150794:0"
 
-#: lms/lms/utils.py:2727
+#: lms/lms/utils.py:2099
 msgid "The batch does not exist."
 msgstr "crwdns162058:0crwdne162058:0"
 
@@ -6874,7 +6487,7 @@ msgstr "crwdns162058:0crwdne162058:0"
 msgid "The batch you have enrolled for is starting tomorrow. Please be prepared and be on time for the session."
 msgstr "crwdns152517:0crwdne152517:0"
 
-#: lms/lms/utils.py:1870
+#: lms/lms/utils.py:1579
 msgid "The coupon code '{0}' is invalid."
 msgstr "crwdns161020:0{0}crwdne161020:0"
 
@@ -6886,7 +6499,11 @@ msgstr "crwdns150796:0{0}crwdnd150796:0{1}crwdne150796:0"
 msgid "The evaluator of this course is unavailable from {0} to {1}. Please select a date after {1}"
 msgstr "crwdns150798:0{0}crwdnd150798:0{1}crwdnd150798:0{1}crwdne150798:0"
 
-#: lms/lms/utils.py:2711
+#: frontend/src/pages/Batch.vue:151
+msgid "The last day to schedule your evaluations is "
+msgstr "crwdns164012:0crwdne164012:0"
+
+#: lms/lms/utils.py:2083
 msgid "The lesson does not exist."
 msgstr "crwdns162060:0crwdne162060:0"
 
@@ -6894,7 +6511,7 @@ msgstr "crwdns162060:0crwdne162060:0"
 msgid "The slot is already booked by another participant."
 msgstr "crwdns150802:0crwdne150802:0"
 
-#: lms/lms/utils.py:2067
+#: lms/lms/utils.py:1776
 msgid "The specified batch does not exist."
 msgstr "crwdns162062:0crwdne162062:0"
 
@@ -6912,7 +6529,7 @@ msgstr "crwdns159380:0crwdne159380:0"
 
 #: lms/lms/doctype/lms_batch/lms_batch.py:101
 #: lms/lms/doctype/lms_batch_enrollment/lms_batch_enrollment.py:42
-#: lms/lms/utils.py:2099
+#: lms/lms/utils.py:1808
 msgid "There are no seats available in this batch."
 msgstr "crwdns150808:0crwdne150808:0"
 
@@ -6965,15 +6582,15 @@ msgstr "crwdns150818:0crwdne150818:0"
 msgid "This class has ended"
 msgstr "crwdns152144:0crwdne152144:0"
 
-#: lms/lms/utils.py:1899
+#: lms/lms/utils.py:1608
 msgid "This coupon has expired."
 msgstr "crwdns161022:0crwdne161022:0"
 
-#: lms/lms/utils.py:1902
+#: lms/lms/utils.py:1611
 msgid "This coupon has reached its maximum usage limit."
 msgstr "crwdns161024:0crwdne161024:0"
 
-#: lms/lms/utils.py:1911
+#: lms/lms/utils.py:1620
 msgid "This coupon is not applicable to this {0}."
 msgstr "crwdns161026:0{0}crwdne161026:0"
 
@@ -6981,7 +6598,7 @@ msgstr "crwdns161026:0{0}crwdne161026:0"
 msgid "This course has:"
 msgstr "crwdns150820:0crwdne150820:0"
 
-#: lms/lms/utils.py:1830
+#: lms/lms/utils.py:1539
 msgid "This course is free."
 msgstr "crwdns150822:0crwdne150822:0"
 
@@ -7017,8 +6634,8 @@ msgstr "crwdns158544:0{0}crwdne158544:0"
 msgid "This quiz consists of {0} questions."
 msgstr "crwdns150830:0{0}crwdne150830:0"
 
-#: frontend/src/components/Sidebar/AppSidebar.vue:78
-#: frontend/src/components/Sidebar/AppSidebar.vue:118
+#: frontend/src/components/Sidebar/AppSidebar.vue:88
+#: frontend/src/components/Sidebar/AppSidebar.vue:128
 msgid "This site is being updated. You will not be able to make any changes. Full access will be restored shortly."
 msgstr "crwdns154788:0crwdne154788:0"
 
@@ -7104,7 +6721,7 @@ msgstr "crwdns150844:0crwdne150844:0"
 msgid "Timezone"
 msgstr "crwdns150846:0crwdne150846:0"
 
-#: lms/lms/doctype/lms_course/lms_course.py:72
+#: lms/lms/doctype/lms_course/lms_course.py:70
 msgid "Timezone is required for paid certificates."
 msgstr "crwdns160434:0crwdne160434:0"
 
@@ -7114,17 +6731,12 @@ msgstr "crwdns160434:0crwdne160434:0"
 msgid "Timings:"
 msgstr "crwdns150848:0crwdne150848:0"
 
-#. Label of the title (Data) field in DocType 'Cohort'
-#. Label of the title (Data) field in DocType 'Cohort Subgroup'
-#. Label of the title (Data) field in DocType 'Cohort Web Page'
 #. Label of the title (Data) field in DocType 'Course Chapter'
 #. Label of the title (Data) field in DocType 'Course Lesson'
 #. Label of the title (Data) field in DocType 'LMS Assignment'
 #. Label of the title (Data) field in DocType 'LMS Badge'
 #. Label of the title (Data) field in DocType 'LMS Batch'
-#. Label of the title (Data) field in DocType 'LMS Batch Old'
 #. Label of the title (Data) field in DocType 'LMS Course'
-#. Label of the title (Data) field in DocType 'LMS Exercise'
 #. Label of the title (Data) field in DocType 'LMS Live Class'
 #. Label of the title (Data) field in DocType 'LMS Program'
 #. Label of the title (Data) field in DocType 'LMS Programming Exercise'
@@ -7136,22 +6748,18 @@ msgstr "crwdns150848:0crwdne150848:0"
 #: frontend/src/components/Modals/DiscussionModal.vue:18
 #: frontend/src/components/Modals/LiveClassModal.vue:23
 #: frontend/src/components/Settings/BadgeForm.vue:19
-#: frontend/src/pages/Assignments.vue:162 frontend/src/pages/BatchForm.vue:27
+#: frontend/src/pages/Assignments.vue:167 frontend/src/pages/BatchForm.vue:27
 #: frontend/src/pages/CourseForm.vue:30 frontend/src/pages/JobForm.vue:20
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseForm.vue:17
 #: frontend/src/pages/Programs/ProgramForm.vue:25
 #: frontend/src/pages/QuizForm.vue:56 frontend/src/pages/Quizzes.vue:115
-#: frontend/src/pages/Quizzes.vue:235 lms/lms/doctype/cohort/cohort.json
-#: lms/lms/doctype/cohort_subgroup/cohort_subgroup.json
-#: lms/lms/doctype/cohort_web_page/cohort_web_page.json
+#: frontend/src/pages/Quizzes.vue:239
 #: lms/lms/doctype/course_chapter/course_chapter.json
 #: lms/lms/doctype/course_lesson/course_lesson.json
 #: lms/lms/doctype/lms_assignment/lms_assignment.json
 #: lms/lms/doctype/lms_badge/lms_badge.json
 #: lms/lms/doctype/lms_batch/lms_batch.json
-#: lms/lms/doctype/lms_batch_old/lms_batch_old.json
 #: lms/lms/doctype/lms_course/lms_course.json
-#: lms/lms/doctype/lms_exercise/lms_exercise.json
 #: lms/lms/doctype/lms_live_class/lms_live_class.json
 #: lms/lms/doctype/lms_program/lms_program.json
 #: lms/lms/doctype/lms_programming_exercise/lms_programming_exercise.json
@@ -7177,7 +6785,7 @@ msgstr "crwdns150852:0crwdne150852:0"
 msgid "To Date"
 msgstr "crwdns150854:0crwdne150854:0"
 
-#: lms/lms/utils.py:1844
+#: lms/lms/utils.py:1553
 msgid "To join this batch, please contact the Administrator."
 msgstr "crwdns150858:0crwdne150858:0"
 
@@ -7190,7 +6798,7 @@ msgid "Total"
 msgstr "crwdns150864:0crwdne150864:0"
 
 #. Label of the total_marks (Int) field in DocType 'LMS Quiz'
-#: frontend/src/pages/QuizForm.vue:73 frontend/src/pages/Quizzes.vue:241
+#: frontend/src/pages/QuizForm.vue:73 frontend/src/pages/Quizzes.vue:245
 #: lms/lms/doctype/lms_quiz/lms_quiz.json
 msgid "Total Marks"
 msgstr "crwdns150866:0crwdne150866:0"
@@ -7224,9 +6832,15 @@ msgstr "crwdns150872:0crwdne150872:0"
 msgid "Tuesday"
 msgstr "crwdns150874:0crwdne150874:0"
 
-#: frontend/src/pages/ProfileAbout.vue:103
+#: frontend/src/pages/ProfileAbout.vue:105
 msgid "Twitter"
 msgstr "crwdns150876:0crwdne150876:0"
+
+#. Label of the twitter (Data) field in DocType 'User'
+#: frontend/src/components/Modals/EditProfile.vue:87
+#: lms/fixtures/custom_field.json
+msgid "Twitter ID"
+msgstr "crwdns164014:0crwdne164014:0"
 
 #. Label of the type (Select) field in DocType 'Job Opportunity'
 #. Label of a field in the job-opportunity Web Form
@@ -7236,7 +6850,7 @@ msgstr "crwdns150876:0crwdne150876:0"
 #. Label of the type (Select) field in DocType 'LMS Quiz Question'
 #: frontend/src/components/Modals/AssessmentModal.vue:22
 #: frontend/src/components/Modals/Question.vue:44
-#: frontend/src/pages/Assignments.vue:40 frontend/src/pages/Assignments.vue:167
+#: frontend/src/pages/Assignments.vue:40 frontend/src/pages/Assignments.vue:172
 #: frontend/src/pages/JobForm.vue:25 frontend/src/pages/Jobs.vue:68
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExercises.vue:53
 #: lms/job/doctype/job_opportunity/job_opportunity.json
@@ -7293,11 +6907,6 @@ msgstr "crwdns150888:0crwdne150888:0"
 msgid "Under Review"
 msgstr "crwdns150890:0crwdne150890:0"
 
-#. Option for the 'Visibility' (Select) field in DocType 'LMS Batch Old'
-#: lms/lms/doctype/lms_batch_old/lms_batch_old.json
-msgid "Unlisted"
-msgstr "crwdns150892:0crwdne150892:0"
-
 #: frontend/src/pages/Batches.vue:330 frontend/src/pages/Courses.vue:356
 msgid "Unpublished"
 msgstr "crwdns152296:0crwdne152296:0"
@@ -7317,17 +6926,16 @@ msgstr "crwdns150896:0crwdne150896:0"
 msgid "Unstructured Role"
 msgstr "crwdns150898:0crwdne150898:0"
 
-#. Option for the 'Status' (Select) field in DocType 'Cohort'
 #. Option for the 'Status' (Select) field in DocType 'LMS Certificate Request'
 #. Label of the upcoming (Check) field in DocType 'LMS Course'
 #: frontend/src/pages/Batches.vue:328 frontend/src/pages/CourseForm.vue:164
-#: frontend/src/pages/Courses.vue:347 lms/lms/doctype/cohort/cohort.json
+#: frontend/src/pages/Courses.vue:347
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 #: lms/lms/doctype/lms_course/lms_course.json
 msgid "Upcoming"
 msgstr "crwdns150900:0crwdne150900:0"
 
-#: frontend/src/pages/Batch.vue:190 frontend/src/pages/Home/AdminHome.vue:34
+#: frontend/src/pages/Batch.vue:204 frontend/src/pages/Home/AdminHome.vue:34
 msgid "Upcoming Batches"
 msgstr "crwdns150902:0crwdne150902:0"
 
@@ -7379,11 +6987,9 @@ msgid "Use HTML"
 msgstr "crwdns155208:0crwdne155208:0"
 
 #. Label of the user (Link) field in DocType 'LMS Job Application'
-#. Label of the email (Link) field in DocType 'Cohort Staff'
 #. Label of the user (Link) field in DocType 'LMS Course Interest'
 #: frontend/src/components/Settings/BadgeForm.vue:196
 #: lms/job/doctype/lms_job_application/lms_job_application.json
-#: lms/lms/doctype/cohort_staff/cohort_staff.json
 #: lms/lms/doctype/lms_course_interest/lms_course_interest.json
 msgid "User"
 msgstr "crwdns150914:0crwdne150914:0"
@@ -7482,11 +7088,6 @@ msgstr "crwdns155210:0crwdne155210:0"
 #: lms/lms/doctype/lms_course/lms_course.json
 msgid "Violet"
 msgstr "crwdns157182:0crwdne157182:0"
-
-#. Label of the visibility (Select) field in DocType 'LMS Batch Old'
-#: lms/lms/doctype/lms_batch_old/lms_batch_old.json
-msgid "Visibility"
-msgstr "crwdns150942:0crwdne150942:0"
 
 #: frontend/src/components/BatchOverlay.vue:73
 msgid "Visit Batch"
@@ -7603,14 +7204,8 @@ msgstr "crwdns159780:0crwdne159780:0"
 
 #: frontend/src/components/CourseReviews.vue:8
 #: frontend/src/components/Modals/ReviewModal.vue:5
-#: lms/templates/reviews.html:117
 msgid "Write a Review"
 msgstr "crwdns150972:0crwdne150972:0"
-
-#: lms/templates/reviews.html:31 lms/templates/reviews.html:103
-#: lms/templates/reviews_cta.html:3 lms/templates/reviews_cta.html:7
-msgid "Write a review"
-msgstr "crwdns150974:0crwdne150974:0"
 
 #: frontend/src/components/Assignment.vue:126
 msgid "Write your answer here"
@@ -7631,31 +7226,23 @@ msgstr "crwdns150978:0{0}crwdnd150978:0{1}crwdnd150978:0{2}crwdne150978:0"
 msgid "You are already certified for this course. Click on the card below to open your certificate."
 msgstr "crwdns152621:0crwdne152621:0"
 
-#: lms/lms/api.py:200
+#: lms/lms/api.py:121
 msgid "You are already enrolled for this batch."
 msgstr "crwdns150980:0crwdne150980:0"
 
-#: lms/lms/api.py:194
+#: lms/lms/api.py:115
 msgid "You are already enrolled for this course."
 msgstr "crwdns150982:0crwdne150982:0"
 
-#: lms/lms/utils.py:2088
+#: lms/lms/utils.py:1797
 msgid "You are already enrolled in this batch."
 msgstr "crwdns162064:0crwdne162064:0"
 
-#: frontend/src/pages/Batch.vue:172
+#: frontend/src/pages/Batch.vue:186
 msgid "You are not a member of this batch. Please checkout our upcoming batches."
 msgstr "crwdns150984:0crwdne150984:0"
 
-#: lms/lms/doctype/lms_batch_old/lms_batch_old.py:20
-msgid "You are not a mentor of the course {0}"
-msgstr "crwdns150986:0{0}crwdne150986:0"
-
-#: lms/lms/api.py:1323
-msgid "You are not allowed to access this field"
-msgstr "crwdns162066:0crwdne162066:0"
-
-#: lms/lms/doctype/lms_certificate/lms_certificate.py:161
+#: lms/lms/doctype/lms_certificate/lms_certificate.py:165
 msgid "You are not enrolled in this course."
 msgstr "crwdns162068:0crwdne162068:0"
 
@@ -7688,15 +7275,15 @@ msgstr "crwdns154790:0crwdne154790:0"
 msgid "You cannot change the roles in read-only mode."
 msgstr "crwdns154792:0crwdne154792:0"
 
-#: lms/lms/doctype/lms_enrollment/lms_enrollment.py:116
+#: lms/lms/doctype/lms_enrollment/lms_enrollment.py:33
 msgid "You cannot enroll in an unpublished course."
 msgstr "crwdns162070:0crwdne162070:0"
 
-#: lms/lms/utils.py:2228
+#: lms/lms/utils.py:1937
 msgid "You cannot enroll in an unpublished program."
 msgstr "crwdns162072:0crwdne162072:0"
 
-#: lms/lms/doctype/lms_enrollment/lms_enrollment.py:110
+#: lms/lms/doctype/lms_enrollment/lms_enrollment.py:27
 msgid "You cannot enroll in this course as self-learning is disabled. Please contact the Administrator."
 msgstr "crwdns162074:0crwdne162074:0"
 
@@ -7708,11 +7295,11 @@ msgstr "crwdns150996:0{0}crwdne150996:0"
 msgid "You cannot schedule evaluations for past slots."
 msgstr "crwdns150998:0crwdne150998:0"
 
-#: lms/lms/utils.py:2739
+#: lms/lms/utils.py:2111
 msgid "You do not have access to this batch."
 msgstr "crwdns162076:0crwdne162076:0"
 
-#: lms/lms/utils.py:2722
+#: lms/lms/utils.py:2094
 msgid "You do not have access to this course."
 msgstr "crwdns162078:0crwdne162078:0"
 
@@ -7720,7 +7307,7 @@ msgstr "crwdns162078:0crwdne162078:0"
 msgid "You do not have permission to access this page."
 msgstr "crwdns151000:0crwdne151000:0"
 
-#: lms/lms/api.py:1535 lms/lms/api.py:1539
+#: lms/lms/api.py:1415 lms/lms/api.py:1419
 msgid "You do not have permission to update meta tags."
 msgstr "crwdns162080:0crwdne162080:0"
 
@@ -7745,11 +7332,11 @@ msgstr "crwdns151008:0crwdne151008:0"
 msgid "You have already exceeded the maximum number of attempts allowed for this quiz."
 msgstr "crwdns151010:0crwdne151010:0"
 
-#: lms/lms/api.py:224
+#: lms/lms/api.py:145
 msgid "You have already purchased the certificate for this course."
 msgstr "crwdns152623:0crwdne152623:0"
 
-#: lms/lms/doctype/lms_course_review/lms_course_review.py:15
+#: lms/lms/doctype/lms_course_review/lms_course_review.py:22
 msgid "You have already reviewed this course"
 msgstr "crwdns151012:0crwdne151012:0"
 
@@ -7761,7 +7348,7 @@ msgstr "crwdns154718:0crwdne154718:0"
 msgid "You have been enrolled in this batch"
 msgstr "crwdns151014:0crwdne151014:0"
 
-#: frontend/src/components/CourseCardOverlay.vue:230
+#: frontend/src/components/CourseCardOverlay.vue:234
 msgid "You have been enrolled in this course"
 msgstr "crwdns151016:0crwdne151016:0"
 
@@ -7773,7 +7360,7 @@ msgstr "crwdns152527:0{0}crwdne152527:0"
 msgid "You have got a score of {0} for the quiz {1}"
 msgstr "crwdns151852:0{0}crwdnd151852:0{1}crwdne151852:0"
 
-#: lms/lms/doctype/lms_certificate/lms_certificate.py:170
+#: lms/lms/doctype/lms_certificate/lms_certificate.py:174
 msgid "You have not completed the course yet."
 msgstr "crwdns162082:0crwdne162082:0"
 
@@ -7805,7 +7392,11 @@ msgstr "crwdns162084:0crwdne162084:0"
 msgid "You must be a Moderator to assign badges to users."
 msgstr "crwdns162086:0crwdne162086:0"
 
-#: lms/lms/doctype/lms_enrollment/lms_enrollment.py:130
+#: lms/lms/doctype/lms_course_review/lms_course_review.py:18
+msgid "You must be enrolled in the course to submit a review"
+msgstr "crwdns164016:0crwdne164016:0"
+
+#: lms/lms/doctype/lms_enrollment/lms_enrollment.py:47
 msgid "You need to complete the payment for this course before enrolling."
 msgstr "crwdns162088:0crwdne162088:0"
 
@@ -7956,11 +7547,11 @@ msgstr "crwdns152456:0crwdne152456:0"
 msgid "cancel your application"
 msgstr "crwdns151052:0crwdne151052:0"
 
-#: frontend/src/pages/CertifiedParticipants.vue:79
+#: frontend/src/pages/CertifiedParticipants.vue:75
 msgid "certificate"
 msgstr "crwdns154622:0crwdne154622:0"
 
-#: frontend/src/pages/CertifiedParticipants.vue:78
+#: frontend/src/pages/CertifiedParticipants.vue:74
 msgid "certificates"
 msgstr "crwdns154624:0crwdne154624:0"
 
@@ -8027,6 +7618,14 @@ msgstr "crwdns159404:0crwdne159404:0"
 msgid "live classes"
 msgstr "crwdns159406:0crwdne159406:0"
 
+#: frontend/src/pages/Search/Search.vue:38
+msgid "match"
+msgstr "crwdns164018:0crwdne164018:0"
+
+#: frontend/src/pages/Search/Search.vue:38
+msgid "matches"
+msgstr "crwdns164020:0crwdne164020:0"
+
 #: frontend/src/pages/Programs/Programs.vue:42
 #: frontend/src/pages/Programs/StudentPrograms.vue:36
 msgid "member"
@@ -8053,21 +7652,25 @@ msgstr "crwdns151070:0crwdne151070:0"
 msgid "rating"
 msgstr "crwdns158552:0crwdne158552:0"
 
-#: lms/templates/reviews.html:25
-msgid "ratings"
-msgstr "crwdns151072:0crwdne151072:0"
-
 #: frontend/src/components/Settings/Categories.vue:19
 msgid "saving..."
 msgstr "crwdns155214:0crwdne155214:0"
 
-#: lms/templates/reviews.html:43
-msgid "stars"
-msgstr "crwdns151074:0crwdne151074:0"
-
 #: frontend/src/pages/Programs/ProgramEnrollment.vue:72
 msgid "students"
 msgstr "crwdns158554:0crwdne158554:0"
+
+#: frontend/src/components/CommandPalette/CommandPalette.vue:59
+msgid "to close"
+msgstr "crwdns164022:0crwdne164022:0"
+
+#: frontend/src/components/CommandPalette/CommandPalette.vue:45
+msgid "to navigate"
+msgstr "crwdns164024:0crwdne164024:0"
+
+#: frontend/src/components/CommandPalette/CommandPalette.vue:53
+msgid "to select"
+msgstr "crwdns164026:0crwdne164026:0"
 
 #: frontend/src/components/BatchFeedback.vue:12
 msgid "to view your feedback."
@@ -8097,7 +7700,7 @@ msgstr "crwdns154726:0{0}crwdne154726:0"
 msgid "{0} Quizzes"
 msgstr "crwdns155126:0{0}crwdne155126:0"
 
-#: lms/lms/api.py:838 lms/lms/api.py:846
+#: lms/lms/api.py:722 lms/lms/api.py:730
 msgid "{0} Settings not found"
 msgstr "crwdns151078:0{0}crwdne151078:0"
 
@@ -8117,23 +7720,15 @@ msgstr "crwdns151082:0{0}crwdne151082:0"
 msgid "{0} has submitted the assignment {1}"
 msgstr "crwdns151084:0{0}crwdnd151084:0{1}crwdne151084:0"
 
-#: lms/lms/doctype/lms_enrollment/lms_enrollment.py:57
-msgid "{0} is already a Student of {1} course through {2} batch"
-msgstr "crwdns151086:0{0}crwdnd151086:0{1}crwdnd151086:0{2}crwdne151086:0"
-
 #: lms/lms/doctype/lms_course_mentor_mapping/lms_course_mentor_mapping.py:15
 msgid "{0} is already a mentor for course {1}"
 msgstr "crwdns151088:0{0}crwdnd151088:0{1}crwdne151088:0"
 
-#: lms/lms/doctype/lms_enrollment/lms_enrollment.py:30
-msgid "{0} is already a {1} of the course {2}"
-msgstr "crwdns151090:0{0}crwdnd151090:0{1}crwdnd151090:0{2}crwdne151090:0"
-
-#: lms/lms/doctype/lms_certificate/lms_certificate.py:92
+#: lms/lms/doctype/lms_certificate/lms_certificate.py:89
 msgid "{0} is already certified for the batch {1}"
 msgstr "crwdns152302:0{0}crwdnd152302:0{1}crwdne152302:0"
 
-#: lms/lms/doctype/lms_certificate/lms_certificate.py:73
+#: lms/lms/doctype/lms_certificate/lms_certificate.py:70
 msgid "{0} is already certified for the course {1}"
 msgstr "crwdns151092:0{0}crwdnd151092:0{1}crwdne151092:0"
 
@@ -8141,7 +7736,7 @@ msgstr "crwdns151092:0{0}crwdnd151092:0{1}crwdne151092:0"
 msgid "{0} is your evaluator"
 msgstr "crwdns151094:0{0}crwdne151094:0"
 
-#: lms/lms/utils.py:676
+#: lms/lms/utils.py:489
 msgid "{0} mentioned you in a comment"
 msgstr "crwdns151096:0{0}crwdne151096:0"
 
@@ -8149,17 +7744,13 @@ msgstr "crwdns151096:0{0}crwdne151096:0"
 msgid "{0} mentioned you in a comment in your batch."
 msgstr "crwdns151098:0{0}crwdne151098:0"
 
-#: lms/lms/utils.py:633 lms/lms/utils.py:637
+#: lms/lms/utils.py:446 lms/lms/utils.py:450
 msgid "{0} mentioned you in a comment in {1}"
 msgstr "crwdns151100:0{0}crwdnd151100:0{1}crwdne151100:0"
 
-#: lms/lms/api.py:887
+#: lms/lms/api.py:771
 msgid "{0} not found"
 msgstr "crwdns159782:0{0}crwdne159782:0"
-
-#: lms/lms/utils.py:450
-msgid "{0}k"
-msgstr "crwdns151102:0{0}crwdne151102:0"
 
 #. Count format of shortcut in the LMS Workspace
 #: lms/lms/workspace/lms/lms.json
