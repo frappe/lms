@@ -17,9 +17,20 @@ def search_sqlite(query: str):
 
 
 def prepare_search_results(result):
+	groups = get_grouped_results(result)
+
+	out = []
+	for key in groups:
+		groups[key] = remove_duplicates(groups[key])
+		groups[key].sort(key=lambda x: x.get("modified"), reverse=True)
+		out.append({"title": key, "items": groups[key]})
+
+	return out
+
+
+def get_grouped_results(result):
 	roles = frappe.get_roles()
 	groups = {}
-
 	for r in result["results"]:
 		doctype = r["doctype"]
 		if doctype == "LMS Course" and can_access_course(r, roles):
@@ -31,14 +42,7 @@ def prepare_search_results(result):
 		elif doctype == "Job Opportunity" and can_access_job(r, roles):
 			r["author_info"] = get_instructor_info(doctype, r)
 			groups.setdefault("Job Opportunities", []).append(r)
-
-	out = []
-	for key in groups:
-		groups[key] = remove_duplicates(groups[key])
-		groups[key].sort(key=lambda x: x.get("modified"), reverse=True)
-		out.append({"title": key, "items": groups[key]})
-
-	return out
+	return groups
 
 
 def remove_duplicates(items):
@@ -52,7 +56,6 @@ def remove_duplicates(items):
 
 
 def can_access_course(course, roles):
-	print(course.get("name"), course.get("published"))
 	if can_create_course(roles):
 		return True
 	elif course.get("published"):

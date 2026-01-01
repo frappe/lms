@@ -2,7 +2,7 @@ from contextlib import suppress
 
 import frappe
 from frappe.search.sqlite_search import SQLiteSearch, SQLiteSearchIndexMissingError
-from frappe.utils import get_datetime, nowdate
+from frappe.utils import get_datetime, getdate, nowdate
 
 
 class LearningSearch(SQLiteSearch):
@@ -74,42 +74,54 @@ class LearningSearch(SQLiteSearch):
 		},
 	}
 
+	COURSE_FIELDS = [
+		"name",
+		"title",
+		"description",
+		"short_introduction",
+		"category",
+		"published",
+		"published_on",
+		"creation",
+		"modified",
+		"owner",
+	]
+
+	BATCH_FIELDS = [
+		"name",
+		"title",
+		"description",
+		"batch_details",
+		"category",
+		"start_date",
+		"creation",
+		"modified",
+		"owner",
+		"published",
+	]
+
+	JOB_FIELDS = [
+		"name",
+		"job_title",
+		"company_name",
+		"description",
+		"creation",
+		"modified",
+		"owner",
+	]
+
+	INSTRUCTOR_FIELDS = [
+		"name",
+		"instructor",
+		"parent",
+		"parenttype",
+	]
+
 	DOCTYPE_FIELDS = {
-		"LMS Course": [
-			"name",
-			"title",
-			"description",
-			"short_introduction",
-			"category",
-			"creation",
-			"modified",
-			"owner",
-		],
-		"LMS Batch": [
-			"name",
-			"title",
-			"description",
-			"batch_details",
-			"category",
-			"creation",
-			"modified",
-			"owner",
-		],
-		"Job Opportunity": [
-			"name",
-			"job_title",
-			"company_name",
-			"description",
-			"creation",
-			"modified",
-			"owner",
-		],
-		"Course Instructor": [
-			"name",
-			"instructor",
-			"parent",
-			"parenttype",
-		],
+		"LMS Course": COURSE_FIELDS,
+		"LMS Batch": BATCH_FIELDS,
+		"Job Opportunity": JOB_FIELDS,
+		"Course Instructor": INSTRUCTOR_FIELDS,
 	}
 
 	def build_index(self):
@@ -127,41 +139,35 @@ class LearningSearch(SQLiteSearch):
 			return None
 
 		if doc.doctype == "Course Instructor":
-			instructor = frappe.db.get_value("User", doc.instructor, "full_name")
-			if doc.parenttype == "LMS Course":
-				details = frappe.db.get_value(
-					"LMS Course",
-					doc.parent,
-					["name", "title", "description", "published_on", "modified", "published"],
-					as_dict=True,
-				)
-				document["published_on"] = details.get("published_on")
-			elif doc.parenttype == "LMS Batch":
-				details = frappe.db.get_value(
-					"LMS Batch",
-					doc.parent,
-					["name", "title", "batch_details as description", "start_date", "modified", "published"],
-					as_dict=True,
-				)
-				document["start_date"] = details.get("start_date")
-
-			if details:
-				document["doctype"] = doc.parenttype
-				document["name"] = doc.parent
-				document["title"] = self._process_content(details.title)
-				document["content"] = self._process_content(
-					f"Instructor: {instructor}\n{details.description}\n{doc.instructor}"
-				)
-				document["modified"] = self.get_modified_date(details, doc.parenttype)
-				document["published"] = details.get("published", 0)
-
+			document = self.get_instructor_details(doc, document)
 		else:
 			if not document.get("modified"):
-				document["modified"] = self.get_modified_date(doc, doc.doctype)
+				self.set_modified_date(doc, doc.doctype, document)
 
 		return document
 
-	def get_modified_date(self, details, doctype):
+	def get_instructor_details(self, doc, document):
+		instructor = frappe.db.get_value("User", doc.instructor, "full_name")
+		fields = self.COURSE_FIELDS if doc.parenttype == "LMS Course" else self.BATCH_FIELDS
+		details = frappe.db.get_value(doc.parenttype, doc.parent, fields, as_dict=True)
+
+		if details:
+			document["doctype"] = doc.parenttype
+			document["name"] = doc.parent
+			document["title"] = self._process_content(details.title)
+			document["published"] = details.get("published", 0)
+			document["content"] = self._process_content(
+				f"Instructor: {instructor}\n{details.description}\n{doc.instructor}"
+			)
+			self.set_modified_date(details, doc.parenttype, document)
+			if doc.parenttype == "LMS Course":
+				document["published_on"] = details.get("published_on")
+			elif doc.parenttype == "LMS Batch":
+				document["start_date"] = details.get("start_date")
+
+		return document
+
+	def set_modified_date(self, details, doctype, document):
 		modified_value = None
 		if doctype == "LMS Course":
 			modified_value = details.get("published_on")
@@ -170,13 +176,14 @@ class LearningSearch(SQLiteSearch):
 
 		if not modified_value:
 			modified_value = frappe.db.get_value(doctype, details.name, "creation")
-			print(details.name, modified_value)
 
 		modified_value = get_datetime(modified_value)
-		print(modified_value)
-		modified_value = modified_value.timestamp()
-		print(modified_value)
-		return modified_value
+		if doctype == "LMS Course":
+			document["published_on"] = getdate(modified_value)
+		elif doctype == "LMS Batch":
+			document["start_date"] = getdate(modified_value)
+
+		document["modified"] = modified_value.timestamp()
 
 	@SQLiteSearch.scoring_function
 	def get_doctype_boost(self, row, query, query_words):
