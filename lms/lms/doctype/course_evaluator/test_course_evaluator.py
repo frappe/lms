@@ -52,13 +52,17 @@ class TestCourseEvaluator(UnitTestCase):
 		return first_date
 
 	def calculated_last_date_of_schedule(self, first_date):
-		last_day = add_days(first_date, 56)
+		last_day = add_days(getdate(), 56)
 		offset_monday = (0 - last_day.weekday() + 7) % 7  # 0 for Monday
 		offset_wednesday = (2 - last_day.weekday() + 7) % 7  # 2 for Wednesday
-		if offset_monday > offset_wednesday and offset_monday < 4:
+
+		if offset_monday < offset_wednesday and offset_monday <= 4:
 			last_day = add_days(last_day, offset_monday)
-		else:
+		elif offset_wednesday <= 4:
 			last_day = add_days(last_day, offset_wednesday)
+		else:
+			last_day = add_days(last_day, min(offset_monday, offset_wednesday) + 7)
+
 		return last_day
 
 	def test_unavailability_dates(self):
