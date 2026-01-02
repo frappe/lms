@@ -17,7 +17,7 @@
 			</div>
 		</div>
 		<div class="overflow-y-auto">
-			<SettingFields :fields="fields" :data="branding.data" />
+			<SettingFields :sections="sections" :data="branding.data" />
 		</div>
 		<div class="flex flex-row-reverse mt-auto">
 			<Button variant="solid" :loading="saveSettings.loading" @click="update">
@@ -34,7 +34,7 @@ import { watch, ref } from 'vue'
 const isDirty = ref(false)
 
 const props = defineProps({
-	fields: {
+	sections: {
 		type: Array,
 		required: true,
 	},
