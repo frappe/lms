@@ -39,8 +39,8 @@ class LMSEnrollment(Document):
 			payment = frappe.db.exists(
 				"LMS Payment",
 				{
-					"reference_doctype": "LMS Course",
-					"reference_docname": self.course,
+					"payment_for_document_type": "LMS Course",
+					"payment_for_document": self.course,
 					"member": self.member,
 					"payment_received": True,
 				},
