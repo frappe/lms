@@ -65,23 +65,9 @@ const saveSettings = createResource({
 })
 
 const update = () => {
-	let fieldsToSave = {}
-	let imageFields = ['favicon', 'banner_image']
-	props.fields.forEach((f) => {
-		if (imageFields.includes(f.name)) {
-			fieldsToSave[f.name] =
-				branding.data[f.name] && branding.data[f.name].file_url
-					? branding.data[f.name].file_url
-					: null
-		} else {
-			fieldsToSave[f.name] = branding.data[f.name]
-		}
-	})
-
-	fieldsToSave['app_logo'] = fieldsToSave['banner_image']
 	saveSettings.submit(
 		{
-			fields: fieldsToSave,
+			fields: getFieldsToSave(),
 		},
 		{
 			onSuccess(data) {
@@ -91,17 +77,35 @@ const update = () => {
 	)
 }
 
-watch(branding, (updatedDoc) => {
-	let textFields = []
-	let imageFields = []
+const getFieldsToSave = () => {
+	let imageFields = ['favicon', 'banner_image']
+	let fieldsToSave = {}
 
-	props.fields.forEach((f) => {
-		if (f.type === 'Upload') {
-			imageFields.push(f.name)
-		} else {
-			textFields.push(f.name)
-		}
+	props.sections.forEach((section) => {
+		section.columns.forEach((column) => {
+			column.fields.forEach((field) => {
+				if (imageFields.includes(field.name)) {
+					fieldsToSave[field.name] =
+						branding.data[field.name] && branding.data[field.name].file_url
+							? branding.data[field.name].file_url
+							: null
+				} else {
+					fieldsToSave[field.name] = branding.data[field.name]
+				}
+			})
+		})
 	})
+
+	fieldsToSave['app_logo'] = fieldsToSave['banner_image']
+	return fieldsToSave
+}
+
+watch(branding, (updatedDoc) => {
+	updateDirtyState(updatedDoc)
+})
+
+const updateDirtyState = (updatedDoc) => {
+	const { textFields, imageFields } = segregateFields()
 
 	textFields.forEach((field) => {
 		if (updatedDoc.data[field] != updatedDoc.previousData[field]) {
@@ -111,11 +115,28 @@ watch(branding, (updatedDoc) => {
 
 	imageFields.forEach((field) => {
 		if (
-			updatedDoc.data[field] &&
-			updatedDoc.data[field].file_url != updatedDoc.previousData[field].file_url
+			updatedDoc.data[field]?.file_url != updatedDoc.previousData[field]?.file_url
 		) {
 			isDirty.value = true
 		}
 	})
-})
+}
+
+const segregateFields = () => {
+	let textFields = []
+	let imageFields = []
+
+	props.sections.forEach(section => {
+		section.columns.forEach(column => {
+			column.fields.forEach(field => {
+				if (field.type === 'Upload') {
+					imageFields.push(field.name)
+				} else {
+					textFields.push(field.name)
+				}
+			})
+		})
+	})
+	return { textFields, imageFields }
+}
 </script>

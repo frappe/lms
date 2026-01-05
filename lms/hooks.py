@@ -132,6 +132,7 @@ scheduler_events = {
 		"lms.lms.doctype.lms_payment.lms_payment.send_payment_reminder",
 		"lms.lms.doctype.lms_batch.lms_batch.send_batch_start_reminder",
 		"lms.lms.doctype.lms_live_class.lms_live_class.send_live_class_reminder",
+		"lms.lms.doctype.lms_course.lms_course.send_notification_for_published_courses",
 	],
 }
 

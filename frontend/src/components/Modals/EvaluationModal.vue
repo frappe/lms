@@ -55,7 +55,7 @@
 						</div>
 					</div>
 				</div>
-				<div v-else class="text-ink-red-3">
+				<div v-else-if class="text-ink-red-3">
 					{{ __('No slots available for the selected course.') }}
 				</div>
 			</div>
