@@ -2,12 +2,14 @@
 # For license information, please see license.txt
 
 import random
+
 import frappe
 from frappe import _
+from frappe.desk.doctype.notification_log.notification_log import make_notification_logs
 from frappe.model.document import Document
 from frappe.utils import cint, today
-from frappe.desk.doctype.notification_log.notification_log import make_notification_logs
-from ...utils import generate_slug, update_payment_record, validate_image
+
+from ...utils import generate_slug, get_instructors, update_payment_record, validate_image
 
 
 class LMSCourse(Document):
@@ -130,14 +132,21 @@ class LMSCourse(Document):
 	def __repr__(self):
 		return f"<Course#{self.name}>"
 
+
 def send_notification_for_published_courses():
-	send_notification_for_published_courses = frappe.db.get_single_value("LMS Settings", "send_notification_for_published_courses")
+	send_notification_for_published_courses = frappe.db.get_single_value(
+		"LMS Settings", "send_notification_for_published_courses"
+	)
 	if not send_notification_for_published_courses:
 		return
-	
-	courses_published_today = frappe.get_all("LMS Course", {
-		"published_on": today(),
-	}, ["name", "title", "video_link", "short_introduction"])
+
+	courses_published_today = frappe.get_all(
+		"LMS Course",
+		{
+			"published_on": today(),
+		},
+		["name", "title", "video_link", "short_introduction"],
+	)
 
 	if not courses_published_today:
 		return
@@ -147,27 +156,24 @@ def send_notification_for_published_courses():
 	else:
 		send_system_notification_for_published_courses(courses_published_today)
 
+
 def send_email_notification_for_published_courses(courses):
 	brand_name = frappe.db.get_single_value("Website Settings", "app_name")
 	brand_logo = frappe.db.get_single_value("Website Settings", "banner_image")
 	subject = _("A new course has been published on {0}").format(brand_name)
 	template = "published_course_notification"
-	students = frappe.get_all("User", { "enabled": 1 }, pluck="name")
-	
+	students = frappe.get_all("User", {"enabled": 1}, pluck="name")
+
 	for course in courses:
-		instructor_details = []
-		instructors = frappe.get_all("Course Instructor", { "parent": course.name }, pluck="instructor")
-		for instructor in instructors:
-			details = frappe.db.get_value("User", instructor, ["full_name", "email", "user_image"], as_dict=True)
-			instructor_details.append(details)
-      
+		instructors = get_instructors("LMS Course", course.name)
+
 		args = {
 			"brand_logo": brand_logo,
 			"brand_name": brand_name,
 			"preview_video": f"https://www.youtube.com/embed/{course.video_link}",
 			"title": course.title,
 			"short_introduction": course.short_introduction,
-			"instructors": instructor_details,
+			"instructors": instructors,
 			"course_url": f"{frappe.utils.get_url()}/lms/courses/{course.name}",
 		}
 
@@ -179,17 +185,25 @@ def send_email_notification_for_published_courses(courses):
 			args=args,
 		)
 
+
 def send_system_notification_for_published_courses(courses):
 	for course in courses:
-		students = frappe.get_all("User", { "enabled": 1 }, pluck="name")
-		instructors = frappe.get_all("Course Instructor", { "parent": course.name }, pluck="instructor")
-		notification = frappe._dict({
-			"subject": course.title,
-			"email_content": _("A new course '{0}' has been published that might interest you. Check it out!").format(course.title),
-			"document_type": "LMS Course",
-			"document_name": course.name,
-			"from_user": instructors[0] if instructors else None,
-			"type": "Alert",
-			"link": f"/lms/courses/{course.name}",
-		})
-		make_notification_logs(notification, ["ash@ipp.com"])
+		students = frappe.get_all("User", {"enabled": 1}, pluck="name")
+		instructors = frappe.get_all("Course Instructor", {"parent": course.name}, pluck="instructor")
+		instructor_name = frappe.db.get_value("User", instructors[0], "full_name")
+		notification = frappe._dict(
+			{
+				"subject": _("{0} has published a new course {1}").format(
+					frappe.bold(instructor_name), frappe.bold(course.title)
+				),
+				"email_content": _(
+					"A new course '{0}' has been published that might interest you. Check it out!"
+				).format(course.title),
+				"document_type": "LMS Course",
+				"document_name": course.name,
+				"from_user": instructors[0] if instructors else None,
+				"type": "Alert",
+				"link": f"/lms/courses/{course.name}",
+			}
+		)
+		make_notification_logs(notification, students)

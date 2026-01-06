@@ -23,30 +23,71 @@
 			v-if="notifications?.length"
 			v-for="log in notifications"
 			:key="log.name"
-			class="flex items-center py-2 justify-between"
+			class="flex space-x-2 p-2 rounded-md"
+			:class="{
+				'cursor-pointer': log.link,
+			}"
+			@click="navigateToPage(log)"
 		>
-			<div class="flex items-center">
-				<Avatar :image="log.user_image" :label="log.full_name" class="mr-2" />
-				<div class="notification text-ink-gray-7" v-html="log.subject"></div>
-			</div>
-			<div class="flex items-center space-x-2">
-				<a
-					v-if="log.link"
-					:href="log.link"
-					@click="(e) => handleMarkAsRead(e, log.name)"
-					class="text-ink-gray-5 font-medium text-sm hover:text-ink-gray-7"
+			<Avatar :image="log.user_image" size="2xl" :label="log.full_name" />
+			<div class="space-y-2">
+				<div class="flex items-center justify-between">
+					<div class="flex items-center">
+						<div class="text-ink-gray-9" v-html="log.subject"></div>
+					</div>
+					<div class="flex items-center space-x-2">
+						<div class="text-sm text-ink-gray-5">
+							{{ dayjs(log.creation).fromNow() }}
+						</div>
+						<Button
+							variant="ghost"
+							v-if="!log.read"
+							@click.stop="(e) => handleMarkAsRead(e, log.name)"
+						>
+							<template #icon>
+								<X class="h-4 w-4 text-ink-gray-7 stroke-1.5" />
+							</template>
+						</Button>
+					</div>
+				</div>
+				<div
+					v-if="log.document_type == 'LMS Course' && log.document_details"
+					class="flex space-x-5 border border-outline-gray-2 p-2 rounded-md"
 				>
-					{{ __('View') }}
-				</a>
-				<Button
-					variant="ghost"
-					v-if="!log.read"
-					@click.stop="(e) => handleMarkAsRead(e, log.name)"
-				>
-					<template #icon>
-						<X class="h-4 w-4 text-ink-gray-7 stroke-1.5" />
-					</template>
-				</Button>
+					<iframe
+						v-if="log.document_details.video_link"
+						:src="`https://www.youtube.com/embed/${log.document_details.video_link}`"
+						class="rounded-md w-64"
+					/>
+					<div class="">
+						<div
+							class="bg-surface-violet-1 w-fit py-1 px-1.5 rounded-full text-ink-violet-1 text-sm mb-2"
+						>
+							{{ __('New Course') }}
+						</div>
+						<div class="font-semibold mb-1">
+							{{ __(log.document_details.title) }}
+						</div>
+						<div class="leading-5">
+							{{ __(log.document_details.short_introduction) }}
+						</div>
+						<div class="mt-5 space-y-2">
+							<div
+								v-for="instructor in log.document_details.instructors"
+								class="flex items-center space-x-2"
+							>
+								<Avatar
+									:size="'sm'"
+									:image="instructor.user_image"
+									:label="instructor.full_name"
+								/>
+								<span class="text-ink-gray-7 text-sm">
+									{{ instructor.full_name }}
+								</span>
+							</div>
+						</div>
+					</div>
+				</div>
 			</div>
 		</div>
 		<div v-else class="text-ink-gray-5">
@@ -57,11 +98,12 @@
 <script setup>
 import {
 	Avatar,
+	Breadcrumbs,
+	Button,
 	createListResource,
 	createResource,
-	Breadcrumbs,
+	dayjs,
 	TabButtons,
-	Button,
 	usePageMeta,
 } from 'frappe-ui'
 import { sessionStore } from '../stores/session'
@@ -132,8 +174,26 @@ const markAllAsRead = createResource({
 	},
 })
 
-const handleMarkAsRead = (e, logName) => {
+const handleMarkAsRead = (logName) => {
 	markAsRead.submit({ name: logName })
+}
+
+const navigateToPage = (log) => {
+	if (!log.link) return
+	/* handleMarkAsRead(log.name) */
+	let link = log.link.split('/')
+	console.log(link)
+	if (link[2] == 'courses') {
+		router.push({
+			name: 'CourseDetail',
+			params: { courseName: link[3] },
+		})
+	} else if (link[2] == 'batches') {
+		router.push({
+			name: 'Batch',
+			params: { batchName: link[3] },
+		})
+	}
 }
 
 onUnmounted(() => {
@@ -159,11 +219,3 @@ usePageMeta(() => {
 	}
 })
 </script>
-<style>
-.notification strong {
-	font-weight: 400;
-}
-.notification b {
-	font-weight: 400;
-}
-</style>
