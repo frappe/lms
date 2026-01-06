@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-12-19 16:05+0000\n"
-"PO-Revision-Date: 2025-12-23 23:25\n"
+"PO-Revision-Date: 2026-01-06 14:31\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Hungarian\n"
 "MIME-Version: 1.0\n"
@@ -4741,7 +4741,7 @@ msgstr "Kimenet"
 #: frontend/src/components/Settings/BadgeForm.vue:216
 #: lms/lms/doctype/lms_badge/lms_badge.js:37
 msgid "Owner"
-msgstr ""
+msgstr "Tulajdonos"
 
 #. Label of the pan (Data) field in DocType 'LMS Payment'
 #: frontend/src/components/Settings/Transactions/TransactionDetails.vue:108
@@ -5969,7 +5969,7 @@ msgstr ""
 
 #: frontend/src/components/Controls/ColorSwatches.vue:13
 msgid "Set Color"
-msgstr ""
+msgstr "Szín Beállítása"
 
 #: lms/templates/emails/community_course_membership.html:1
 msgid "Set your Password"
