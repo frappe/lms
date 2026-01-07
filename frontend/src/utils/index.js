@@ -618,15 +618,19 @@ export function singularize(word) {
 	)
 }
 
-export const validateFile = async (file, showToast = true) => {
+export const validateFile = async (
+	file,
+	showToast = true,
+	fileType = 'image'
+) => {
 	const error = (msg) => {
 		if (showToast) toast.error(msg)
 		console.error(msg)
 		return msg
 	}
-
-	if (!file.type.startsWith('image/')) {
-		return error(__('Only image file is allowed.'))
+	console.log(file.type, fileType)
+	if (!file.type.startsWith(`${fileType}/`)) {
+		return error(__(`Only ${fileType} file is allowed.`))
 	}
 
 	if (file.type === 'image/svg+xml') {

@@ -23,14 +23,19 @@
 			v-if="notifications?.length"
 			v-for="log in notifications"
 			:key="log.name"
-			class="flex space-x-2 p-2 rounded-md"
+			class="flex space-x-2 px-2 py-4"
 			:class="{
 				'cursor-pointer': log.link,
+				'items-center': !showDetails(log) && !isMention(log),
 			}"
 			@click="navigateToPage(log)"
 		>
-			<Avatar :image="log.user_image" size="2xl" :label="log.full_name" />
-			<div class="space-y-2">
+			<Avatar
+				:image="log.from_user_details.user_image"
+				size="xl"
+				:label="log.from_user_details.full_name"
+			/>
+			<div class="space-y-2 w-full">
 				<div class="flex items-center justify-between">
 					<div class="flex items-center">
 						<div class="text-ink-gray-9" v-html="log.subject"></div>
@@ -42,7 +47,7 @@
 						<Button
 							variant="ghost"
 							v-if="!log.read"
-							@click.stop="(e) => handleMarkAsRead(e, log.name)"
+							@click.stop="(e) => handleMarkAsRead(log.name)"
 						>
 							<template #icon>
 								<X class="h-4 w-4 text-ink-gray-7 stroke-1.5" />
@@ -51,19 +56,39 @@
 					</div>
 				</div>
 				<div
-					v-if="log.document_type == 'LMS Course' && log.document_details"
-					class="flex space-x-5 border border-outline-gray-2 p-2 rounded-md"
+					v-if="isMention(log)"
+					v-html="log.email_content"
+					class="bg-surface-gray-2 rounded-md px-3 py-2"
+				></div>
+				<div
+					v-else-if="showDetails(log)"
+					class="flex items-stretch border border-outline-gray-2 space-x-2 rounded-md"
 				>
 					<iframe
-						v-if="log.document_details.video_link"
+						v-if="
+							log.document_type == 'LMS Course' &&
+							log.document_details.video_link
+						"
 						:src="`https://www.youtube.com/embed/${log.document_details.video_link}`"
-						class="rounded-md w-64"
+						class="rounded-l-md w-72"
 					/>
-					<div class="">
+					<video
+						v-else-if="
+							log.document_type == 'LMS Batch' &&
+							log.document_details.video_link
+						"
+						:src="log.document_details.video_link"
+						class="rounded-l-md w-72"
+					/>
+					<div class="p-3">
 						<div
 							class="bg-surface-violet-1 w-fit py-1 px-1.5 rounded-full text-ink-violet-1 text-sm mb-2"
 						>
-							{{ __('New Course') }}
+							{{
+								log.document_type === 'LMS Course'
+									? __('New Course')
+									: __('New Batch')
+							}}
 						</div>
 						<div class="font-semibold mb-1">
 							{{ __(log.document_details.title) }}
@@ -71,7 +96,31 @@
 						<div class="leading-5">
 							{{ __(log.document_details.short_introduction) }}
 						</div>
-						<div class="mt-5 space-y-2">
+						<div
+							v-if="log.document_details.start_date"
+							class="flex items-center space-x-2 text-sm mt-5"
+						>
+							<Calendar class="size-3 stroke-1.5" />
+							<span>
+								{{
+									dayjs(log.document_details.start_date).format('DD MMM YYYY')
+								}}
+							</span>
+						</div>
+						<div
+							v-if="log.document_details.start_time"
+							class="flex items-center space-x-2 text-sm mt-2"
+						>
+							<Clock class="size-3 stroke-1.5" />
+							<span>
+								{{ formatTime(log.document_details.start_time) }}
+								{{ log.document_details.timezone }}
+							</span>
+						</div>
+						<div
+							v-if="log.document_details.instructors.length > 1"
+							class="space-y-2 mt-5"
+						>
 							<div
 								v-for="instructor in log.document_details.instructors"
 								class="flex items-center space-x-2"
@@ -81,7 +130,7 @@
 									:image="instructor.user_image"
 									:label="instructor.full_name"
 								/>
-								<span class="text-ink-gray-7 text-sm">
+								<span class="font-medium text-sm">
 									{{ instructor.full_name }}
 								</span>
 							</div>
@@ -109,7 +158,8 @@ import {
 import { sessionStore } from '../stores/session'
 import { computed, inject, ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { X } from 'lucide-vue-next'
+import { Calendar, Clock, X } from 'lucide-vue-next'
+import { formatTime } from '@/utils/'
 
 const { brand } = sessionStore()
 const user = inject('$user')
@@ -189,11 +239,35 @@ const navigateToPage = (log) => {
 			params: { courseName: link[3] },
 		})
 	} else if (link[2] == 'batches') {
-		router.push({
-			name: 'Batch',
-			params: { batchName: link[3] },
-		})
+		if (link[3] == 'details') {
+			router.push({
+				name: 'BatchDetail',
+				params: { batchName: link[4] },
+			})
+		} else {
+			router.push({
+				name: 'Batch',
+				params: { batchName: link[3] },
+			})
+		}
 	}
+}
+
+const isMention = (log) => {
+	if (log.type == 'Mention') {
+		return true
+	}
+	if (log.subject.includes('mentioned you')) {
+		return true
+	}
+	return false
+}
+
+const showDetails = (log) => {
+	return (
+		['LMS Course', 'LMS Batch'].includes(log.document_type) &&
+		log.document_details
+	)
 }
 
 onUnmounted(() => {

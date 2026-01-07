@@ -1238,23 +1238,49 @@ def get_notifications(filters):
 	notifications = frappe.get_all(
 		"Notification Log",
 		filters,
-		["subject", "from_user", "link", "read", "name", "creation", "document_type", "document_name"],
+		[
+			"subject",
+			"from_user",
+			"link",
+			"read",
+			"name",
+			"creation",
+			"document_type",
+			"document_name",
+			"type",
+			"email_content",
+		],
 		order_by="creation desc",
 	)
 
 	for notification in notifications:
-		notification = update_user_details(notification)
 		notification = update_document_details(notification)
+		notification = update_user_details(notification)
 
 	return notifications
 
 
 def update_user_details(notification):
-	from_user_details = frappe.db.get_value(
-		"User", notification.from_user, ["full_name", "user_image"], as_dict=1
-	)
-	notification.update(from_user_details)
+	if (
+		notification.document_details
+		and len(notification.document_details.get("instructors", []))
+		and not is_mention(notification)
+	):
+		from_user_details = notification.document_details["instructors"][0]
+	else:
+		from_user_details = frappe.db.get_value(
+			"User", notification.from_user, ["full_name", "user_image"], as_dict=1
+		)
+	notification["from_user_details"] = from_user_details
 	return notification
+
+
+def is_mention(notification):
+	if notification.type == "Mention":
+		return True
+	if "mentioned you" in notification.subject.lower():
+		return True
+	return False
 
 
 def update_document_details(notification):
@@ -1263,6 +1289,25 @@ def update_document_details(notification):
 			"LMS Course", notification.document_name, ["title", "video_link", "short_introduction"], as_dict=1
 		)
 		instructors = get_instructors("LMS Course", notification.document_name)
+		details["instructors"] = instructors
+		notification["document_details"] = details
+
+	elif notification.document_type == "LMS Batch":
+		details = frappe.db.get_value(
+			"LMS Batch",
+			notification.document_name,
+			[
+				"title",
+				"description as short_introduction",
+				"video_link",
+				"start_date",
+				"end_date",
+				"start_time",
+				"timezone",
+			],
+			as_dict=1,
+		)
+		instructors = get_instructors("LMS Batch", notification.document_name)
 		details["instructors"] = instructors
 		notification["document_details"] = details
 	return notification

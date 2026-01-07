@@ -444,12 +444,16 @@ def notify_mentions_on_portal(doc, topic):
 
 	if topic.reference_doctype == "Course Lesson":
 		course = frappe.db.get_value("Course Lesson", topic.reference_docname, "course")
-		subject = _("{0} mentioned you in a comment in {1}").format(from_user_name, topic.title)
+		subject = _("{0} mentioned you in a comment in {1}").format(
+			frappe.bold(from_user_name), frappe.bold(topic.title)
+		)
 		link = get_lesson_url(course, get_lesson_index(topic.reference_docname))
 	else:
 		batch_title = frappe.db.get_value("LMS Batch", topic.reference_docname, "title")
-		subject = _("{0} mentioned you in a comment in {1}").format(from_user_name, batch_title)
-		link = f"/batches/{topic.reference_docname}"
+		subject = _("{0} mentioned you in a comment in {1}").format(
+			frappe.bold(from_user_name), frappe.bold(batch_title)
+		)
+		link = f"/lms/batches/{topic.reference_docname}"
 
 	for user in mentions:
 		notification = frappe._dict(
@@ -460,7 +464,7 @@ def notify_mentions_on_portal(doc, topic):
 				"document_name": topic.reference_docname,
 				"for_user": user,
 				"from_user": doc.owner,
-				"type": "Alert",
+				"type": "Mention",
 				"link": link,
 			}
 		)

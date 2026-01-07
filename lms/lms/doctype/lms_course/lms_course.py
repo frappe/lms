@@ -134,10 +134,8 @@ class LMSCourse(Document):
 
 
 def send_notification_for_published_courses():
-	send_notification_for_published_courses = frappe.db.get_single_value(
-		"LMS Settings", "send_notification_for_published_courses"
-	)
-	if not send_notification_for_published_courses:
+	send_notification = frappe.db.get_single_value("LMS Settings", "send_notification_for_published_courses")
+	if not send_notification:
 		return
 
 	courses_published_today = frappe.get_all(
@@ -145,13 +143,13 @@ def send_notification_for_published_courses():
 		{
 			"published_on": today(),
 		},
-		["name", "title", "video_link", "short_introduction"],
+		["name", "title", "short_introduction"],
 	)
 
 	if not courses_published_today:
 		return
 
-	if send_notification_for_published_courses == "Email":
+	if send_notification == "Email":
 		send_email_notification_for_published_courses(courses_published_today)
 	else:
 		send_system_notification_for_published_courses(courses_published_today)
@@ -170,7 +168,6 @@ def send_email_notification_for_published_courses(courses):
 		args = {
 			"brand_logo": brand_logo,
 			"brand_name": brand_name,
-			"preview_video": f"https://www.youtube.com/embed/{course.video_link}",
 			"title": course.title,
 			"short_introduction": course.short_introduction,
 			"instructors": instructors,

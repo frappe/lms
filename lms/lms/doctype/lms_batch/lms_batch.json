@@ -26,6 +26,7 @@
   "description",
   "column_break_hlqw",
   "instructors",
+  "video_link",
   "zoom_account",
   "section_break_rgfj",
   "medium",
@@ -361,6 +362,11 @@
    "fieldtype": "Link",
    "label": "Zoom Account",
    "options": "LMS Zoom Settings"
+  },
+  {
+   "fieldname": "video_link",
+   "fieldtype": "Attach",
+   "label": "Preview Video"
   }
  ],
  "grid_page_length": 50,
@@ -383,7 +389,7 @@
    "link_fieldname": "payment_for_document"
   }
  ],
- "modified": "2025-12-23 11:27:00.424331",
+ "modified": "2026-01-06 18:54:22.216656",
  "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "LMS Batch",
