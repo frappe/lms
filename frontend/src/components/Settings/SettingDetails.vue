@@ -1,28 +1,28 @@
 <template>
-	<div class="flex flex-col justify-between h-full text-base">
-		<div>
-			<div class="flex items-center justify-between">
-				<div class="text-xl font-semibold leading-none mb-2 text-ink-gray-9">
-					{{ __(label) }}
+	<div class="flex flex-col h-full text-base overflow-y-hidden">
+		<div class="">
+			<div class="flex items-center justify-between mb-2">
+				<div class="flex items-center space-x-2">
+					<div class="text-xl font-semibold leading-none text-ink-gray-9">
+						{{ __(label) }}
+					</div>
+					<Badge
+						v-if="data.isDirty"
+						:label="__('Not Saved')"
+						variant="subtle"
+						theme="orange"
+					/>
 				</div>
-				<Badge
-					v-if="data.isDirty"
-					:label="__('Not Saved')"
-					variant="subtle"
-					theme="orange"
-				/>
+				<Button variant="solid" :loading="data.save.loading" @click="update">
+					{{ __('Update') }}
+				</Button>
 			</div>
 			<div class="text-ink-gray-6 leading-5">
 				{{ __(description) }}
 			</div>
 		</div>
 
-		<SettingFields :fields="fields" :data="data.doc" />
-		<div class="flex flex-row-reverse mt-auto">
-			<Button variant="solid" :loading="data.save.loading" @click="update">
-				{{ __('Update') }}
-			</Button>
-		</div>
+		<SettingFields :sections="sections" :data="data.doc" />
 	</div>
 </template>
 
@@ -31,7 +31,7 @@ import { Button, Badge, toast } from 'frappe-ui'
 import SettingFields from '@/components/Settings/SettingFields.vue'
 
 const props = defineProps({
-	fields: {
+	sections: {
 		type: Array,
 		required: true,
 	},
@@ -49,13 +49,6 @@ const props = defineProps({
 })
 
 const update = () => {
-	props.fields.forEach((f) => {
-		if (f.type == 'Upload') {
-			props.data.doc[f.name] = f.value ? f.value.file_url : null
-		} else if (f.type != 'Column Break') {
-			props.data.doc[f.name] = f.value
-		}
-	})
 	props.data.save.submit(
 		{},
 		{

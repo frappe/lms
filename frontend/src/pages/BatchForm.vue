@@ -202,60 +202,12 @@
 						/>
 					</div>
 					<div class="space-y-5">
-						<div>
-							<div class="text-xs text-ink-gray-5">
-								{{ __('Meta Image') }}
-							</div>
-							<FileUploader
-								v-if="!batch.image"
-								:fileTypes="['image/*']"
-								:validateFile="validateFile"
-								@success="(file) => saveImage(file)"
-							>
-								<template
-									v-slot="{ file, progress, uploading, openFileSelector }"
-								>
-									<div class="flex items-center">
-										<div
-											class="border rounded-md w-fit py-5 px-5 md:px-20 cursor-pointer"
-											@click="openFileSelector"
-										>
-											<Image class="size-5 stroke-1 text-ink-gray-7" />
-										</div>
-										<div class="ml-4">
-											<Button @click="openFileSelector">
-												{{ __('Upload') }}
-											</Button>
-											<div class="mt-1 text-ink-gray-5 text-sm leading-5">
-												{{
-													__('Appears when the batch URL is shared on socials')
-												}}
-											</div>
-										</div>
-									</div>
-								</template>
-							</FileUploader>
-							<div v-else class="mb-4">
-								<div class="flex items-center">
-									<img
-										:src="batch.image.file_url"
-										class="border rounded-md w-40"
-									/>
-									<div class="ml-4">
-										<Button @click="removeImage()">
-											{{ __('Remove') }}
-										</Button>
-										<div class="mt-2 text-ink-gray-5 text-sm">
-											{{
-												__(
-													'Appears when the batch URL is shared on any online platform'
-												)
-											}}
-										</div>
-									</div>
-								</div>
-							</div>
-						</div>
+						<Uploader
+							v-model="batch.video_link"
+							:label="__('Preview Video')"
+							type="video"
+							:required="false"
+						/>
 					</div>
 				</div>
 			</div>
@@ -292,6 +244,12 @@
 					{{ __('Meta Tags') }}
 				</div>
 				<div class="space-y-5">
+					<Uploader
+						v-model="batch.meta_image"
+						:label="__('Meta Image')"
+						type="image"
+						:required="false"
+					/>
 					<FormControl
 						v-model="meta.description"
 						:label="__('Meta Description')"
@@ -345,8 +303,8 @@ import {
 	openSettings,
 	sanitizeHTML,
 	updateMetaInfo,
-	validateFile,
 } from '@/utils'
+import Uploader from '@/components/Controls/Uploader.vue'
 
 const router = useRouter()
 const user = inject('$user')
@@ -380,11 +338,12 @@ const batch = reactive({
 	category: '',
 	allow_self_enrollment: false,
 	certification: false,
-	image: null,
+	meta_image: null,
 	paid_batch: false,
 	currency: '',
 	amount: 0,
 	zoom_account: '',
+	video_link: '',
 })
 
 const meta = reactive({
@@ -428,7 +387,8 @@ const newBatch = createResource({
 		return {
 			doc: {
 				doctype: 'LMS Batch',
-				meta_image: batch.image?.file_url,
+				meta_image: batch.image,
+				video_link: batch.video_link,
 				instructors: instructors.value.map((instructor) => ({
 					instructor: instructor,
 				})),
@@ -447,58 +407,54 @@ const batchDetail = createResource({
 		}
 	},
 	onSuccess(data) {
-		Object.keys(data).forEach((key) => {
-			if (key == 'instructors') {
-				data.instructors.forEach((instructor) => {
-					instructors.value.push(instructor.instructor)
-				})
-			} else if (['start_time', 'end_time'].includes(key)) {
-				let [hours, minutes, seconds] = data[key].split(':')
-				hours = hours.length == 1 ? '0' + hours : hours
-				batch[key] = `${hours}:${minutes}`
-			} else if (Object.hasOwn(batch, key)) batch[key] = data[key]
-		})
-		let checkboxes = [
-			'published',
-			'paid_batch',
-			'allow_self_enrollment',
-			'certification',
-		]
-		for (let idx in checkboxes) {
-			let key = checkboxes[idx]
-			batch[key] = batch[key] ? true : false
-		}
-		if (data.meta_image) imageResource.reload({ image: data.meta_image })
+		updateBatchData(data)
 	},
 })
+
+const updateBatchData = (data) => {
+	Object.keys(data).forEach((key) => {
+		if (key == 'instructors') {
+			data.instructors.forEach((instructor) => {
+				instructors.value.push(instructor.instructor)
+			})
+		} else if (['start_time', 'end_time'].includes(key)) {
+			batch[key] = formatTime(data[key])
+		} else if (Object.hasOwn(batch, key)) batch[key] = data[key]
+	})
+	let checkboxes = [
+		'published',
+		'paid_batch',
+		'allow_self_enrollment',
+		'certification',
+	]
+	for (let idx in checkboxes) {
+		let key = checkboxes[idx]
+		batch[key] = batch[key] ? true : false
+	}
+}
+
+const formatTime = (timeStr) => {
+	let [hours, minutes, seconds] = timeStr.split(':')
+	hours = hours.length == 1 ? '0' + hours : hours
+	return `${hours}:${minutes}`
+}
 
 const editBatch = createResource({
 	url: 'frappe.client.set_value',
 	makeParams(values) {
+		console.log(batch.meta_image, batch.video_link)
 		return {
 			doctype: 'LMS Batch',
 			name: props.batchName,
 			fieldname: {
-				meta_image: batch.image?.file_url,
+				meta_image: batch.meta_image,
+				video_link: batch.video_link,
 				instructors: instructors.value.map((instructor) => ({
 					instructor: instructor,
 				})),
 				...batch,
 			},
 		}
-	},
-})
-
-const imageResource = createResource({
-	url: 'lms.lms.api.get_file_info',
-	makeParams(values) {
-		return {
-			file_url: values.image,
-		}
-	},
-	auto: false,
-	onSuccess(data) {
-		batch.image = data
 	},
 })
 
@@ -601,14 +557,6 @@ const trashBatch = (close) => {
 			name: 'Batches',
 		})
 	})
-}
-
-const saveImage = (file) => {
-	batch.image = file
-}
-
-const removeImage = () => {
-	batch.image = null
 }
 
 const breadcrumbs = computed(() => {
