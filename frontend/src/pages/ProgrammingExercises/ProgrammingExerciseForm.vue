@@ -25,7 +25,7 @@
 						:required="true"
 					/>
 					<ChildTable
-						v-model="exercise.test_cases"
+						v-model="testCases.data"
 						:label="__('Test Cases')"
 						:columns="testCaseColumns"
 						:required="true"
@@ -179,9 +179,7 @@ const testCases = createListResource({
 	fields: ['input', 'expected_output', 'name'],
 	cache: ['testCases', props.exerciseID],
 	parent: 'LMS Programming Exercise',
-	onSuccess(data: TestCase[]) {
-		exercise.value.test_cases = data
-	},
+	orderBy: 'idx',
 })
 
 const fetchTestCases = () => {
@@ -200,6 +198,13 @@ const validateTitle = () => {
 }
 
 const saveExercise = (close: () => void) => {
+	exercise.value.test_cases = testCases.data.map(
+		(tc: TestCase, index: number) => ({
+			input: tc.input,
+			expected_output: tc.expected_output,
+			idx: index + 1,
+		})
+	)
 	validateTitle()
 	if (props.exerciseID == 'new') createNewExercise(close)
 	else updateExercise(close)

@@ -79,7 +79,10 @@
 								</div>
 								<div
 									v-if="
-										result.published_on || result.start_date || result.creation
+										result.published_on ||
+										result.start_date ||
+										result.creation ||
+										result.modified
 									"
 									class="ml-auto text-sm text-ink-gray-5"
 								>
@@ -87,7 +90,8 @@
 										dayjs(
 											result.published_on ||
 												result.start_date ||
-												result.creation
+												result.creation ||
+												result.modified
 										).format('DD MMM YYYY')
 									}}
 								</div>
@@ -164,8 +168,20 @@ const generateSearchResults = () => {
 				searchResults.value.push(item)
 			})
 		})
-		searchResults.value.sort((a, b) => b.score - a.score)
+		sortResults()
 	}
+}
+
+const sortResults = () => {
+	searchResults.value.sort((a, b) => {
+		const dateA = new Date(
+			a.published_on || a.start_date || a.creation || a.modified
+		).getTime()
+		const dateB = new Date(
+			b.published_on || b.start_date || b.creation || b.modified
+		).getTime()
+		return dateB - dateA
+	})
 }
 
 const navigate = (result: any) => {

@@ -112,7 +112,12 @@
 		}"
 	>
 		<template #body-content>
-			<FormControl v-model="title" :label="__('Title')" type="text" />
+			<FormControl
+				v-model="title"
+				:label="__('Title')"
+				type="text"
+				@keydown.enter="insertQuiz(() => (showForm = false))"
+			/>
 		</template>
 	</Dialog>
 </template>
