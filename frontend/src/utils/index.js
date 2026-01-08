@@ -169,10 +169,26 @@ export function getEditorTools() {
 						id: ([id]) => id,
 					},
 					vimeo: {
-						regex: /(?:http[s]?:\/\/)?(?:www\.)?vimeo\.com\/(\d+)/,
-						embedUrl: '<%= remote_id %>',
+						// NEW REGEX: Captures ID (group 1) and optional Hash (group 2)
+						regex: /(?:http[s]?:\/\/)?(?:www\.)?vimeo\.com\/(\d+)(?:\/([a-zA-Z0-9]+))?/,
+						
+						// We can't easily use templating like '<%= remote_id %>' for complex logic here 
+						// without seeing how the template engine works.
+						// BUT looking at the 'id' function below, that is where we extract the data.
+						
+						embedUrl: '<%= remote_id %>', 
+						
 						html: `<div class="video-player" data-plyr-provider="vimeo"></div>`,
-						id: ([id]) => id,
+						
+						// CRITICAL CHANGE HERE:
+						// The 'id' function receives the regex match array.
+						// match[0] is full url, match[1] is ID, match[2] is Hash (if present).
+						id: (match) => {
+							const id = match[1];
+							const hash = match[2];
+							// If hash exists, append it using the query param format Vimeo expects
+							return hash ? `${id}?h=${hash}` : id;
+						},
 					},
 					cloudflareStream: {
 						regex: /https:\/\/customer-[a-z0-9]+\.cloudflarestream\.com\/([a-f0-9]{32})\/watch/,
