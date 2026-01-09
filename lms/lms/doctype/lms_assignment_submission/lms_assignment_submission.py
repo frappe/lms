@@ -73,13 +73,7 @@ class LMSAssignmentSubmission(Document):
 				"for_user": self.owner,
 				"from_user": self.evaluator,
 				"type": "Alert",
-				"link": f"/assignment-submission/{self.assignment}/{self.name}",
-			}
-		)
-		make_notification_logs(notification, [self.member])
-
-
-@frappe.whitelist()
+			"link": f"/lms/assignment-submission/{self.assignment}/{self.name}",
 def upload_assignment(
 	assignment_attachment=None,
 	answer=None,
