@@ -1,3 +1,4 @@
+import DOMPurify from 'dompurify'
 import { CodeXml } from 'lucide-vue-next'
 import { createApp, h } from 'vue'
 
@@ -42,7 +43,7 @@ export class Markdown {
 		this.wrapper.classList.add('cdx-block', 'ce-paragraph')
 		this.wrapper.contentEditable = !this.readOnly
 		this.wrapper.dataset.placeholder = this.placeholder
-		this.wrapper.innerHTML = this.text
+		this.wrapper.innerHTML = DOMPurify.sanitize(this.text)
 
 		if (!this.readOnly) {
 			this.wrapper.addEventListener('focus', () =>
