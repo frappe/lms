@@ -5,7 +5,7 @@
 	>
 		<div
 			class="flex flex-col overflow-hidden"
-			:class="sidebarStore.isSidebarCollapsed ? 'items-center' : ''"
+			:class="sidebarStore.isSidebarCollapsed ? 'items-start pl-1' : ''"
 		>
 			<UserDropdown :isCollapsed="sidebarStore.isSidebarCollapsed" />
 			<div class="flex flex-col" v-if="sidebarSettings.data">
