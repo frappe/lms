@@ -169,24 +169,16 @@ export function getEditorTools() {
 						id: ([id]) => id,
 					},
 					vimeo: {
-						// NEW REGEX: Captures ID (group 1) and optional Hash (group 2)
-						regex: /(?:http[s]?:\/\/)?(?:www\.)?vimeo\.com\/(\d+)(?:\/([a-zA-Z0-9]+))?/,
+						// UPDATED: Added (?:\?\S*)? at the end to consume query parameters like ?fl=ip
+						regex: /(?:http[s]?:\/\/)?(?:www\.)?vimeo\.com\/(\d+)(?:\/([a-zA-Z0-9]+))?(?:\?\S*)?/,
 						
-						// We can't easily use templating like '<%= remote_id %>' for complex logic here 
-						// without seeing how the template engine works.
-						// BUT looking at the 'id' function below, that is where we extract the data.
-						
-						embedUrl: '<%= remote_id %>', 
+						embedUrl: '<%= remote_id %>',
 						
 						html: `<div class="video-player" data-plyr-provider="vimeo"></div>`,
 						
-						// CRITICAL CHANGE HERE:
-						// The 'id' function receives the regex match array.
-						// match[0] is full url, match[1] is ID, match[2] is Hash (if present).
 						id: (match) => {
 							const id = match[1];
 							const hash = match[2];
-							// If hash exists, append it using the query param format Vimeo expects
 							return hash ? `${id}?h=${hash}` : id;
 						},
 					},
