@@ -177,43 +177,38 @@ export function getEditorTools() {
 						regex: /https:\/\/customer-[a-z0-9]+\.cloudflarestream\.com\/([a-f0-9]{32})\/watch/,
 						embedUrl:
 							'https://iframe.videodelivery.net/<%= remote_id %>',
-						html: `<iframe style="width:100%; height: ${
-							window.innerWidth < 640 ? '15rem' : '30rem'
-						};" frameborder="0" allowfullscreen></iframe>`,
+						html: `<iframe style="width:100%; height: ${window.innerWidth < 640 ? '15rem' : '30rem'
+							};" frameborder="0" allowfullscreen></iframe>`,
 					},
 					bunnyStream: {
 						regex: /https:\/\/(?:iframe\.mediadelivery\.net|video\.bunnycdn\.com)\/play\/([a-zA-Z0-9]+\/[a-zA-Z0-9-]+)/,
 						embedUrl:
 							'https://iframe.mediadelivery.net/embed/<%= remote_id %>',
-						html: `<iframe style="width:100%; height: ${
-							window.innerWidth < 640 ? '15rem' : '30rem'
-						};" frameborder="0" allowfullscreen></iframe>`,
+						html: `<iframe style="width:100%; height: ${window.innerWidth < 640 ? '15rem' : '30rem'
+							};" frameborder="0" allowfullscreen></iframe>`,
 					},
 					codepen: true,
 					aparat: {
 						regex: /(?:http[s]?:\/\/)?(?:www.)?aparat\.com\/v\/([^\/\?\&]+)\/?/,
 						embedUrl:
 							'https://www.aparat.com/video/video/embed/videohash/<%= remote_id %>/vt/frame',
-						html: `<iframe style="margin: 0 auto; width: 100%; height: ${
-							window.innerWidth < 640 ? '15rem' : '30rem'
-						};" frameborder="0" scrolling="no" allowtransparency="true"></iframe>`,
+						html: `<iframe style="margin: 0 auto; width: 100%; height: ${window.innerWidth < 640 ? '15rem' : '30rem'
+							};" frameborder="0" scrolling="no" allowtransparency="true"></iframe>`,
 					},
 					github: true,
 					slides: {
 						regex: /https:\/\/docs\.google\.com\/presentation\/d\/([A-Za-z0-9_-]+)\/pub/,
 						embedUrl:
 							'https://docs.google.com/presentation/d/<%= remote_id %>/embed',
-						html: `<iframe style='width: 100%; height: ${
-							window.innerWidth < 640 ? '15rem' : '30rem'
-						}; border: 1px solid #D3D3D3; border-radius: 12px; margin: 1rem 0' frameborder='0' allowfullscreen='true'></iframe>`,
+						html: `<iframe style='width: 100%; height: ${window.innerWidth < 640 ? '15rem' : '30rem'
+							}; border: 1px solid #D3D3D3; border-radius: 12px; margin: 1rem 0' frameborder='0' allowfullscreen='true'></iframe>`,
 					},
 					drive: {
 						regex: /https:\/\/drive\.google\.com\/file\/d\/([A-Za-z0-9_-]+)\/view(\?.+)?/,
 						embedUrl:
 							'https://drive.google.com/file/d/<%= remote_id %>/preview',
-						html: `<iframe style='width: 100%; height: ${
-							window.innerWidth < 640 ? '15rem' : '30rem'
-						}; border: 1px solid #D3D3D3; border-radius: 12px;' frameborder='0' allowfullscreen='true'></iframe>`,
+						html: `<iframe style='width: 100%; height: ${window.innerWidth < 640 ? '15rem' : '30rem'
+							}; border: 1px solid #D3D3D3; border-radius: 12px;' frameborder='0' allowfullscreen='true'></iframe>`,
 					},
 					docsPublic: {
 						regex: /https:\/\/docs\.google\.com\/document\/d\/([A-Za-z0-9_-]+)\/edit(\?.+)?/,
@@ -405,7 +400,7 @@ export function getSidebarLinks() {
 	return [
 		{
 			label: 'Courses',
-			icon: 'BookOpen',
+			icon: 'CoursesIcon',
 			to: 'Courses',
 			activeFor: [
 				'Courses',
@@ -417,7 +412,7 @@ export function getSidebarLinks() {
 		},
 		{
 			label: 'Batches',
-			icon: 'Users',
+			icon: 'BatchesIcon',
 			to: 'Batches',
 			activeFor: ['Batches', 'BatchDetail', 'Batch', 'BatchForm'],
 		},
@@ -435,7 +430,7 @@ export function getSidebarLinks() {
 		},
 		{
 			label: 'Statistics',
-			icon: 'TrendingUp',
+			icon: 'StatisticsIcon',
 			to: 'Statistics',
 			activeFor: ['Statistics'],
 		},

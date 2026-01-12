@@ -1,6 +1,6 @@
 <template>
 	<img
-		src="/cesgs-logo-only.png"
+		src="/cesgs-logo.png"
 		alt="LMS Logo"
 		v-bind="$attrs"
 	/>

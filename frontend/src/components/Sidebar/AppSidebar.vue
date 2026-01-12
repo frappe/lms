@@ -1,86 +1,131 @@
 <template>
 	<div
-		class="flex h-full flex-col justify-between transition-all duration-300 ease-in-out border-r bg-surface-menu-bar"
-		:class="sidebarStore.isSidebarCollapsed ? 'w-14' : 'w-56'"
+		class="flex h-full flex-col justify-between transition-all duration-300 ease-in-out relative overflow-hidden bg-white"
+		:class="sidebarStore.isSidebarCollapsed ? 'w-16' : 'w-60'"
 	>
+
 		<div
-			class="flex flex-col overflow-hidden"
+			class="absolute bottom-0 left-0 right-0 h-screen bg-repeat-x bg-bottom pointer-events-none z-0 opacity-90"
+			style="background-image: url('/sidebar-bg.png');"
+		></div>
+
+		<div
+			class="flex flex-col overflow-hidden relative z-10 h-full"
 			:class="sidebarStore.isSidebarCollapsed ? 'items-center' : ''"
 		>
-			<UserDropdown :isCollapsed="sidebarStore.isSidebarCollapsed" />
-			<div class="flex flex-col" v-if="sidebarSettings.data">
-				<div v-for="link in sidebarLinks" class="mx-2 my-0.5">
-					<SidebarLink
-						:link="link"
-						:isCollapsed="sidebarStore.isSidebarCollapsed"
-					/>
-				</div>
-			</div>
 			<div
-				v-if="sidebarSettings.data?.web_pages?.length || isModerator"
-				class="mt-4"
+				class="flex h-14 w-full items-center mb-4 shrink-0 border-b border-gray-200  backdrop-blur-sm"
+				:class="
+					sidebarStore.isSidebarCollapsed
+						? 'justify-center px-0'
+						: 'justify-between px-5'
+				"
 			>
 				<div
-					class="flex items-center justify-between pr-2 cursor-pointer"
-					:class="sidebarStore.isSidebarCollapsed ? 'pl-3' : 'pl-4'"
-					@click="toggleWebPages"
+					class="flex items-center overflow-hidden"
+					v-if="!sidebarStore.isSidebarCollapsed"
 				>
-					<div
-						v-if="!sidebarStore.isSidebarCollapsed"
-						class="flex items-center text-sm text-ink-gray-5 my-1"
-					>
-						<span class="grid h-5 w-6 flex-shrink-0 place-items-center">
-							<ChevronRight
-								class="h-4 w-4 stroke-1.5 text-ink-gray-9 transition-all duration-300 ease-in-out"
-								:class="{ 'rotate-90': !sidebarStore.isWebpagesCollapsed }"
-							/>
-						</span>
-						<span class="ml-2">
-							{{ __('More') }}
-						</span>
-					</div>
-					<Button
-						v-if="isModerator && !readOnlyMode"
-						variant="ghost"
-						@click="openPageModal()"
-					>
-						<template #icon>
-							<Plus class="h-4 w-4 text-ink-gray-7 stroke-1.5" />
-						</template>
-					</Button>
+					<LMSLogoFull class="h-10 rounded flex-shrink-0" />
 				</div>
-				<div
-					v-if="sidebarSettings.data?.web_pages?.length"
-					class="flex flex-col transition-all duration-300 ease-in-out"
-					:class="!sidebarStore.isWebpagesCollapsed ? 'block' : 'hidden'"
+				<div v-else class="flex items-center justify-center w-full">
+					<LMSLogo class="h-5" />
+				</div>
+				<button
+					v-if="!sidebarStore.isSidebarCollapsed"
+					class="p-1.5 rounded-md text-gray-600 hover:text-gray-800 transition-colors"
+					@click="toggleSidebar"
 				>
-					<div
-						v-for="link in sidebarSettings.data.web_pages"
-						class="mx-2 my-0.5"
-					>
+					<SidebarCollapseIcon class="w-5 h-5 stroke-1.5" />
+				</button>
+			</div>
+			<div class="flex flex-col flex-1 overflow-y-auto px-3 bg-gradient-to-b from-bg-gray-200/10 via-gray-200 to-gray-200/5">
+				<div v-if="sidebarSettings.data">
+					<div v-for="link in sidebarLinks" class="my-0.5">
 						<SidebarLink
 							:link="link"
 							:isCollapsed="sidebarStore.isSidebarCollapsed"
-							:showControls="isModerator ? true : false"
-							@openModal="openPageModal"
-							@deletePage="deletePage"
 						/>
 					</div>
 				</div>
+				<!-- HIDE WEB PAGES -->
+				<!-- <div
+					v-if="sidebarSettings.data?.web_pages?.length || isModerator"
+					class="mt-4"
+				>
+					<div
+						class="flex items-center justify-between pr-2 cursor-pointer mb-1"
+						:class="
+							sidebarStore.isSidebarCollapsed ? 'pl-1 justify-center' : 'pl-3'
+						"
+						@click="toggleWebPages"
+					>
+						<div
+							v-if="!sidebarStore.isSidebarCollapsed"
+							class="flex items-center text-xs font-semibold text-gray-400 uppercase tracking-wider"
+						>
+							<span class="mr-2">
+								{{ __('Pages') }}
+							</span>
+							<ChevronRight
+								class="h-3 w-3 stroke-2 text-gray-400 transition-all duration-300 ease-in-out"
+								:class="{ 'rotate-90': !sidebarStore.isWebpagesCollapsed }"
+							/>
+						</div>
+						<div v-else>
+							<ChevronRight
+								class="h-3 w-3 stroke-2 text-gray-400 transition-all duration-300 ease-in-out"
+								:class="{ 'rotate-90': !sidebarStore.isWebpagesCollapsed }"
+							/>
+						</div>
+
+						<Button
+							v-if="
+								isModerator && !readOnlyMode && !sidebarStore.isSidebarCollapsed
+							"
+							variant="ghost"
+							size="sm"
+							@click.stop="openPageModal()"
+						>
+							<template #icon>
+								<Plus class="h-3 w-3 text-ink-gray-7 stroke-2" />
+							</template>
+						</Button>
+					</div>
+					<div
+						v-if="sidebarSettings.data?.web_pages?.length"
+						class="flex flex-col transition-all duration-300 ease-in-out"
+						:class="!sidebarStore.isWebpagesCollapsed ? 'block' : 'hidden'"
+					>
+						<div v-for="link in sidebarSettings.data.web_pages" class="my-0.5">
+							<SidebarLink
+								:link="link"
+								:isCollapsed="sidebarStore.isSidebarCollapsed"
+								:showControls="isModerator ? true : false"
+								@openModal="openPageModal"
+								@deletePage="deletePage"
+							/>
+						</div>
+					</div>
+				</div> -->
 			</div>
 		</div>
-		<div class="m-2 flex flex-col gap-1">
+
+		<div
+			class="m-3 flex flex-col gap-1 relative z-10"
+			v-if="!sidebarStore.isSidebarCollapsed"
+		>
 			<div
-				v-if="readOnlyMode && !sidebarStore.isSidebarCollapsed"
-				class="z-10 m-2 bg-surface-modal py-2.5 px-3 text-xs text-ink-gray-7 leading-5 rounded-md"
+				v-if="readOnlyMode"
+				class="z-10 mb-2 bg-amber-50 border border-amber-200 py-2.5 px-3 text-xs text-amber-800 leading-5 rounded-md"
 			>
 				{{
 					__(
-						'This site is being updated. You will not be able to make any changes. Full access will be restored shortly.'
+						'This site is being updated. You will not be able to make any changes. Full access will be restored shortly.',
 					)
 				}}
 			</div>
-			<TrialBanner
+			<!-- HIDE BANNERS -->
+			<!-- <TrialBanner
 				v-if="
 					userResource.data?.is_system_manager && userResource.data?.is_fc_site
 				"
@@ -90,72 +135,21 @@
 				v-if="showOnboarding && !isOnboardingStepsCompleted"
 				:isSidebarCollapsed="sidebarStore.isSidebarCollapsed"
 				appName="learning"
-			/>
-
-			<div
-				class="flex items-center mt-4"
-				:class="
-					sidebarStore.isSidebarCollapsed ? 'flex-col space-y-3' : 'flex-row'
-				"
-			>
-				<div
-					class="flex items-center flex-1"
-					:class="
-						sidebarStore.isSidebarCollapsed
-							? 'flex-col space-y-3'
-							: 'flex-row space-x-3'
-					"
-				>
-					<Tooltip v-if="readOnlyMode && sidebarStore.isSidebarCollapsed">
-						<CircleAlert
-							class="size-4 stroke-1.5 text-ink-gray-7 cursor-pointer"
-						/>
-						<template #body>
-							<div
-								class="max-w-[30ch] rounded bg-surface-gray-7 px-2 py-1 text-center text-p-xs text-ink-white shadow-xl"
-							>
-								{{
-									__(
-										'This site is being updated. You will not be able to make any changes. Full access will be restored shortly.'
-									)
-								}}
-							</div>
-						</template>
-					</Tooltip>
-					<Tooltip :text="__('Powered by Learning')">
-						<Zap
-							class="size-4 stroke-1.5 text-ink-gray-7 cursor-pointer"
-							@click="redirectToWebsite()"
-						/>
-					</Tooltip>
-					<Tooltip v-if="showOnboarding" :text="__('Help')">
-						<CircleHelp
-							class="size-4 stroke-1.5 text-ink-gray-7 cursor-pointer"
-							@click="
-								() => {
-									showHelpModal = minimize ? true : !showHelpModal
-									minimize = !showHelpModal
-								}
-							"
-						/>
-					</Tooltip>
-				</div>
-				<Tooltip
-					:text="
-						sidebarStore.isSidebarCollapsed ? __('Expand') : __('Collapse')
-					"
-				>
-					<CollapseSidebar
-						class="size-4 text-ink-gray-7 duration-300 stroke-1.5 ease-in-out cursor-pointer"
-						:class="{
-							'[transform:rotateY(180deg)]': sidebarStore.isSidebarCollapsed,
-						}"
-						@click="toggleSidebar()"
-					/>
-				</Tooltip>
-			</div>
+			/> -->
 		</div>
-		<HelpModal
+		<div
+			class="p-2 flex justify-center z-10"
+			v-if="sidebarStore.isSidebarCollapsed"
+		>
+			<button
+				class="p-2 rounded-md text-gray-600 hover:text-gray-800 transition-colors"
+				@click="toggleSidebar"
+			>
+				<CollapseSidebar class="w-5 h-5 stroke-1.5 rotate-180" />
+			</button>
+		</div>
+		<!-- HIDE HELP MODAL -->
+		<!-- <HelpModal
 			v-if="showOnboarding && showHelpModal"
 			v-model="showHelpModal"
 			v-model:articles="articles"
@@ -171,7 +165,7 @@
 		<IntermediateStepModal
 			v-model="showIntermediateModal"
 			:currentStep="currentStep"
-		/>
+		/> -->
 	</div>
 	<PageModal
 		v-model="showPageModal"
@@ -181,8 +175,7 @@
 </template>
 
 <script setup>
-import UserDropdown from '@/components/Sidebar/UserDropdown.vue'
-import CollapseSidebar from '@/components/Icons/CollapseSidebar.vue'
+import SidebarCollapseIcon from '@/components/Icons/SidebarCollapseIcon.vue'
 import SidebarLink from '@/components/Sidebar/SidebarLink.vue'
 import { getSidebarLinks } from '@/utils'
 import { usersStore } from '@/stores/user'
@@ -193,6 +186,7 @@ import { Button, call, createResource, Tooltip, toast } from 'frappe-ui'
 import PageModal from '@/components/Modals/PageModal.vue'
 import { capture } from '@/telemetry'
 import LMSLogo from '@/components/Icons/LMSLogo.vue'
+import LMSLogoFull from '@/components/Icons/LMSLogoFull.vue'
 import { useRouter } from 'vue-router'
 import InviteIcon from '@/components/Icons/InviteIcon.vue'
 import {
@@ -229,7 +223,7 @@ import {
 	IntermediateStepModal,
 } from 'frappe-ui/frappe'
 
-const { user } = sessionStore()
+const { user, branding } = sessionStore()
 const { userResource } = usersStore()
 let sidebarStore = useSidebar()
 const socket = inject('$socket')
@@ -255,12 +249,8 @@ const iconProps = {
 }
 
 onMounted(() => {
-	addNotifications()
 	setSidebarLinks()
 	setUpOnboarding()
-	socket.on('publish_lms_notifications', (data) => {
-		unreadNotifications.reload()
-	})
 })
 
 const setSidebarLinks = () => {
@@ -271,56 +261,21 @@ const setSidebarLinks = () => {
 				Object.keys(data).forEach((key) => {
 					if (!parseInt(data[key])) {
 						sidebarLinks.value = sidebarLinks.value.filter(
-							(link) => link.label.toLowerCase().split(' ').join('_') !== key
+							(link) => link.label.toLowerCase().split(' ').join('_') !== key,
 						)
 					}
 				})
 			},
-		}
+		},
 	)
 }
 
-const unreadNotifications = createResource({
-	cache: 'Unread Notifications Count',
-	url: 'frappe.client.get_count',
-	makeParams(values) {
-		return {
-			doctype: 'Notification Log',
-			filters: {
-				for_user: user,
-				read: 0,
-			},
-		}
-	},
-	onSuccess(data) {
-		unreadCount.value = data
-		sidebarLinks.value = sidebarLinks.value.map((link) => {
-			if (link.label === 'Notifications') {
-				link.count = data
-			}
-			return link
-		})
-	},
-	auto: user ? true : false,
-})
-
-const addNotifications = () => {
-	if (user) {
-		sidebarLinks.value.push({
-			label: 'Notifications',
-			icon: 'Bell',
-			to: 'Notifications',
-			activeFor: ['Notifications'],
-			count: unreadCount.value,
-		})
-	}
-}
 
 const addQuizzes = () => {
 	if (!isInstructor.value && !isModerator.value) return
 
 	const quizzesLinkExists = sidebarLinks.value.some(
-		(link) => link.label === 'Quizzes'
+		(link) => link.label === 'Quizzes',
 	)
 	if (quizzesLinkExists) return
 
@@ -336,7 +291,7 @@ const addAssignments = () => {
 	if (!isInstructor.value && !isModerator.value) return
 
 	const assignmentsLinkExists = sidebarLinks.value.some(
-		(link) => link.label === 'Assignments'
+		(link) => link.label === 'Assignments',
 	)
 	if (assignmentsLinkExists) return
 
@@ -356,7 +311,7 @@ const addAssignments = () => {
 const addProgrammingExercises = () => {
 	if (!isInstructor.value && !isModerator.value) return
 	const programmingExercisesLinkExists = sidebarLinks.value.some(
-		(link) => link.label === 'Programming Exercises'
+		(link) => link.label === 'Programming Exercises',
 	)
 	if (programmingExercisesLinkExists) return
 
@@ -375,7 +330,7 @@ const addProgrammingExercises = () => {
 
 const addPrograms = async () => {
 	const programsLinkExists = sidebarLinks.value.some(
-		(link) => link.label === 'Programs'
+		(link) => link.label === 'Programs',
 	)
 	if (programsLinkExists) return
 
@@ -397,7 +352,7 @@ const addContactUsDetails = () => {
 		return
 
 	const contactUsLinkExists = sidebarLinks.value.some(
-		(link) => link.label === 'Contact Us'
+		(link) => link.label === 'Contact Us',
 	)
 	if (contactUsLinkExists) return
 
@@ -420,12 +375,12 @@ const checkIfCanAddProgram = async () => {
 
 const addHome = () => {
 	const homeLinkExists = sidebarLinks.value.some(
-		(link) => link.label === 'Home'
+		(link) => link.label === 'Home',
 	)
 	if (homeLinkExists) return
 	sidebarLinks.value.unshift({
 		label: 'Home',
-		icon: 'Home',
+		icon: 'HomeIcon',
 		to: 'Home',
 		activeFor: ['Home'],
 	})
@@ -450,7 +405,7 @@ const toggleSidebar = () => {
 	sidebarStore.isSidebarCollapsed = !sidebarStore.isSidebarCollapsed
 	localStorage.setItem(
 		'isSidebarCollapsed',
-		JSON.stringify(sidebarStore.isSidebarCollapsed)
+		JSON.stringify(sidebarStore.isSidebarCollapsed),
 	)
 }
 
@@ -458,7 +413,7 @@ const toggleWebPages = () => {
 	sidebarStore.isWebpagesCollapsed = !sidebarStore.isWebpagesCollapsed
 	localStorage.setItem(
 		'isWebpagesCollapsed',
-		JSON.stringify(sidebarStore.isWebpagesCollapsed)
+		JSON.stringify(sidebarStore.isWebpagesCollapsed),
 	)
 }
 
@@ -681,19 +636,18 @@ watch(userResource, () => {
 		isModerator.value = userResource.data.is_moderator
 		isInstructor.value = userResource.data.is_instructor
 		addHome()
-		addPrograms()
-		addProgrammingExercises()
+		// HIDE
+		// addPrograms()
+		// addProgrammingExercises()
 		addQuizzes()
 		addAssignments()
-		setUpOnboarding()
 	}
+	setUpOnboarding()
 })
 
 const redirectToWebsite = () => {
 	window.open('https://frappe.io/learning', '_blank')
 }
 
-onUnmounted(() => {
-	socket.off('publish_lms_notifications')
-})
+
 </script>
