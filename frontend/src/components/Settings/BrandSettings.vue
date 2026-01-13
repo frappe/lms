@@ -115,7 +115,8 @@ const updateDirtyState = (updatedDoc) => {
 
 	imageFields.forEach((field) => {
 		if (
-			updatedDoc.data[field]?.file_url != updatedDoc.previousData[field]?.file_url
+			updatedDoc.data[field]?.file_url !=
+			updatedDoc.previousData[field]?.file_url
 		) {
 			isDirty.value = true
 		}
@@ -126,9 +127,9 @@ const segregateFields = () => {
 	let textFields = []
 	let imageFields = []
 
-	props.sections.forEach(section => {
-		section.columns.forEach(column => {
-			column.fields.forEach(field => {
+	props.sections.forEach((section) => {
+		section.columns.forEach((column) => {
+			column.fields.forEach((field) => {
 				if (field.type === 'Upload') {
 					imageFields.push(field.name)
 				} else {
