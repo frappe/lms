@@ -230,26 +230,32 @@ const handleMarkAsRead = (logName) => {
 
 const navigateToPage = (log) => {
 	if (!log.link) return
-	/* handleMarkAsRead(log.name) */
 	let link = log.link.split('/')
-	console.log(link)
 	if (link[2] == 'courses') {
 		router.push({
 			name: 'CourseDetail',
 			params: { courseName: link[3] },
 		})
-	} else if (link[2] == 'batches') {
-		if (link[3] == 'details') {
+	} else if (link.includes('batches')) {
+		if (link.includes('details')) {
 			router.push({
 				name: 'BatchDetail',
-				params: { batchName: link[4] },
+				params: { batchName: link.pop() },
 			})
 		} else {
 			router.push({
 				name: 'Batch',
-				params: { batchName: link[3] },
+				params: { batchName: link.pop() },
 			})
 		}
+	} else if (link.includes('assignment-submission')) {
+		router.push({
+			name: 'AssignmentSubmission',
+			params: {
+				submissionName: link[4],
+				assignmentID: link[3],
+			},
+		})
 	}
 }
 
@@ -258,6 +264,9 @@ const isMention = (log) => {
 		return true
 	}
 	if (log.subject.includes('mentioned you')) {
+		return true
+	}
+	if (log.subject.includes('comment')) {
 		return true
 	}
 	return false

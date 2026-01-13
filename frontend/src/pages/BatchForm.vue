@@ -442,7 +442,6 @@ const formatTime = (timeStr) => {
 const editBatch = createResource({
 	url: 'frappe.client.set_value',
 	makeParams(values) {
-		console.log(batch.meta_image, batch.video_link)
 		return {
 			doctype: 'LMS Batch',
 			name: props.batchName,

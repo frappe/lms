@@ -136,6 +136,8 @@ def send_notification_for_published_batch(batch):
 
 	if not batch.published:
 		return
+	if batch.notification_sent:
+		return
 
 	if send_notification == "Email":
 		send_email_notification_for_published_batch(batch)
@@ -172,13 +174,7 @@ def send_email_notification_for_published_batch(batch):
 		template=template,
 		args=args,
 	)
-
-	""" frappe.sendmail(
-		recipients=["jannat@frappe.io"],
-		subject=subject,
-		template=template,
-		args=args,
-	) """
+	frappe.db.set_value("LMS Batch", batch.name, "notification_sent", 1)
 
 
 def send_system_notification_for_published_batch(batch):
@@ -201,6 +197,7 @@ def send_system_notification_for_published_batch(batch):
 		}
 	)
 	make_notification_logs(notification, students)
+	frappe.db.set_value("LMS Batch", batch.name, "notification_sent", 1)
 
 
 @frappe.whitelist()

@@ -142,6 +142,7 @@ def send_notification_for_published_courses():
 		"LMS Course",
 		{
 			"published_on": today(),
+			"notification_sent": 0,
 		},
 		["name", "title", "short_introduction"],
 	)
@@ -181,6 +182,7 @@ def send_email_notification_for_published_courses(courses):
 			template=template,
 			args=args,
 		)
+		frappe.db.set_value("LMS Course", course.name, "notification_sent", 1)
 
 
 def send_system_notification_for_published_courses(courses):
@@ -204,3 +206,4 @@ def send_system_notification_for_published_courses(courses):
 			}
 		)
 		make_notification_logs(notification, students)
+		frappe.db.set_value("LMS Course", course.name, "notification_sent", 1)

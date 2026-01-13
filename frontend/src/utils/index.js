@@ -628,7 +628,6 @@ export const validateFile = async (
 		console.error(msg)
 		return msg
 	}
-	console.log(file.type, fileType)
 	if (!file.type.startsWith(`${fileType}/`)) {
 		return error(__(`Only ${fileType} file is allowed.`))
 	}
