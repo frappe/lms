@@ -629,7 +629,7 @@ export const validateFile = async (
 		return msg
 	}
 	if (!file.type.startsWith(`${fileType}/`)) {
-		return error(__(`Only ${fileType} file is allowed.`))
+		return error(__('Only {0} file is allowed.').format(fileType))
 	}
 
 	if (file.type === 'image/svg+xml') {
