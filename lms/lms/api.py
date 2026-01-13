@@ -15,7 +15,7 @@ from frappe.integrations.frappe_providers.frappecloud_billing import (
 	current_site_info,
 	is_fc_site,
 )
-from frappe.query_builder import DocType
+from frappe.query_builder import DocType, Order
 from frappe.translate import get_all_translations
 from frappe.utils import (
 	add_days,
@@ -281,51 +281,15 @@ def get_evaluator_details(evaluator):
 
 @frappe.whitelist(allow_guest=True)
 def get_certified_participants(filters=None, start=0, page_length=100):
-	filters, or_filters, open_to_opportunities, hiring = update_certification_filters(filters)
-
-	participants = frappe.db.get_all(
-		"LMS Certificate",
-		filters=filters,
-		or_filters=or_filters,
-		fields=["member", "issue_date", "batch_name", "course", "name"],
-		group_by="member",
-		order_by="issue_date desc",
-		start=start,
-		page_length=page_length,
-	)
+	query = get_certification_query(filters)
+	query = query.orderby("issue_date", Order.desc).offset(start).limit(page_length)
+	participants = query.run(as_dict=True)
 
 	for participant in participants:
 		details = get_certified_participant_details(participant.member)
 		participant.update(details)
 
-	participants = filter_by_open_to_criteria(participants, open_to_opportunities, hiring)
-
 	return participants
-
-
-def update_certification_filters(filters):
-	open_to_opportunities = False
-	hiring = False
-	or_filters = {}
-	if not filters:
-		filters = {}
-	filters.update({"published": 1})
-
-	category = filters.get("category")
-	if category:
-		del filters["category"]
-		or_filters["course_title"] = ["like", f"%{category}%"]
-		or_filters["batch_title"] = ["like", f"%{category}%"]
-
-	if filters.get("open_to_opportunities"):
-		del filters["open_to_opportunities"]
-		open_to_opportunities = True
-
-	if filters.get("hiring"):
-		del filters["hiring"]
-		hiring = True
-
-	return filters, or_filters, open_to_opportunities, hiring
 
 
 def get_certified_participant_details(member):
@@ -340,25 +304,18 @@ def get_certified_participant_details(member):
 	return details
 
 
-def filter_by_open_to_criteria(participants, open_to_opportunities, hiring):
-	if not open_to_opportunities and not hiring:
-		return participants
-
-	if open_to_opportunities:
-		participants = [participant for participant in participants if participant.open_to == "Opportunities"]
-
-	if hiring:
-		participants = [participant for participant in participants if participant.open_to == "Hiring"]
-
-	return participants
-
-
-@frappe.whitelist(allow_guest=True)
-def get_count_of_certified_members(filters=None):
+def get_certification_query(filters):
 	Certificate = DocType("LMS Certificate")
+	User = DocType("User")
 
 	query = (
-		frappe.qb.from_(Certificate).select(Certificate.member).distinct().where(Certificate.published == 1)
+		frappe.qb.from_(Certificate)
+		.select(Certificate.member)
+		.distinct()
+		.join(User)
+		.on(Certificate.member == User.name)
+		.where(Certificate.published == 1)
+		.where(User.enabled == 1)
 	)
 
 	if filters:
@@ -367,9 +324,18 @@ def get_count_of_certified_members(filters=None):
 				query = query.where(
 					Certificate.course_title.like(f"%{value}%") | Certificate.batch_title.like(f"%{value}%")
 				)
-			elif field == "member_name":
+			if field == "member_name":
 				query = query.where(Certificate.member_name.like(value[1]))
+			if field == "open_to_opportunities":
+				query = query.where(User.open_to == "Opportunities")
+			if field == "hiring":
+				query = query.where(User.open_to == "Hiring")
+	return query
 
+
+@frappe.whitelist(allow_guest=True)
+def get_count_of_certified_members(filters=None):
+	query = get_certification_query(filters)
 	result = query.run(as_dict=True)
 	return len(result) or 0
 
