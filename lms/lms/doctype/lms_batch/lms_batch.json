@@ -34,6 +34,10 @@
   "column_break_flwy",
   "seat_count",
   "evaluation_end_date",
+  "notification_sent",
+  "section_break_jedp",
+  "video_link",
+  "column_break_kpct",
   "meta_image",
   "section_break_khcn",
   "batch_details",
@@ -361,6 +365,26 @@
    "fieldtype": "Link",
    "label": "Zoom Account",
    "options": "LMS Zoom Settings"
+  },
+  {
+   "fieldname": "video_link",
+   "fieldtype": "Attach",
+   "label": "Preview Video"
+  },
+  {
+   "default": "0",
+   "fieldname": "notification_sent",
+   "fieldtype": "Check",
+   "label": "Notification Sent",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_jedp",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_kpct",
+   "fieldtype": "Column Break"
   }
  ],
  "grid_page_length": 50,
@@ -383,7 +407,7 @@
    "link_fieldname": "payment_for_document"
   }
  ],
- "modified": "2025-12-23 11:27:00.424331",
+ "modified": "2026-01-13 18:50:27.420712",
  "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "LMS Batch",
