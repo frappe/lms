@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2025-12-19 16:05+0000\n"
-"PO-Revision-Date: 2025-12-24 23:25\n"
+"PO-Revision-Date: 2026-01-04 12:55\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Russian\n"
 "MIME-Version: 1.0\n"
@@ -664,7 +664,7 @@ msgstr "Доступность успешно обновлена"
 
 #: frontend/src/components/Modals/EvaluationModal.vue:26
 msgid "Available Slots"
-msgstr ""
+msgstr "Доступные слоты"
 
 #: frontend/src/components/BatchFeedback.vue:43
 msgid "Average Feedback Received"
@@ -2063,7 +2063,7 @@ msgstr "Детали"
 #. Label of the disable_pwa (Check) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Disable PWA"
-msgstr ""
+msgstr "Отключить PWA"
 
 #: frontend/src/pages/CourseForm.vue:174
 msgid "Disable Self Enrollment"
@@ -2887,7 +2887,7 @@ msgstr "Установите приложение на ваш iPhone для уд
 
 #: frontend/src/components/Modals/EditProfile.vue:84
 msgid "GitHub ID"
-msgstr ""
+msgstr "Github ID"
 
 #. Label of the github (Data) field in DocType 'User'
 #: lms/fixtures/custom_field.json
@@ -3387,7 +3387,7 @@ msgstr "Присоединился в"
 #: frontend/src/components/CommandPalette/CommandPalette.vue:132
 #: frontend/src/components/CommandPalette/CommandPalette.vue:229
 msgid "Jump to"
-msgstr ""
+msgstr "Перейти к"
 
 #: frontend/src/pages/Home/Streak.vue:18
 msgid "Keep going,"
@@ -4503,7 +4503,7 @@ msgstr "Результаты не найдены"
 
 #: frontend/src/components/Modals/EvaluationModal.vue:59
 msgid "No slots available for the selected course."
-msgstr ""
+msgstr "На выбранный курс нет свободных мест."
 
 #: frontend/src/components/Modals/VideoStatistics.vue:86
 msgid "No statistics available for this video."
@@ -4665,7 +4665,7 @@ msgstr "Откройте "
 #: frontend/src/components/UserAvatar.vue:11 frontend/src/pages/Profile.vue:61
 #: lms/fixtures/custom_field.json
 msgid "Open to Opportunities"
-msgstr ""
+msgstr "Открыт для новых возможностей"
 
 #. Label of the option (Data) field in DocType 'LMS Option'
 #: frontend/src/components/Modals/Question.vue:70
@@ -5077,7 +5077,7 @@ msgstr "Пожалуйста, войдите в систему, чтобы за�
 
 #: frontend/src/pages/Batch.vue:158
 msgid "Please make sure to schedule your evaluation before this date."
-msgstr ""
+msgstr "Пожалуйста, запишитесь на обследование до указанной даты."
 
 #: lms/lms/notification/certificate_request_reminder/certificate_request_reminder.html:7
 #: lms/templates/emails/certificate_request_notification.html:7
@@ -5114,7 +5114,7 @@ msgstr "Пожалуйста, выберите тест"
 
 #: frontend/src/components/Modals/EvaluationModal.vue:109
 msgid "Please select a slot for your evaluation."
-msgstr ""
+msgstr "Пожалуйста, выберите время для прохождения оценки."
 
 #: frontend/src/components/Modals/LiveClassModal.vue:192
 msgid "Please select a time."
@@ -5214,7 +5214,7 @@ msgstr "Предпочитаемое местоположение"
 
 #: frontend/src/pages/Search/Search.vue:41
 msgid "Press enter to search"
-msgstr ""
+msgstr "Нажмите enter для поиска"
 
 #. Label of the prevent_skipping_videos (Check) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
@@ -5832,7 +5832,7 @@ msgstr "Запланируйте оценку, чтобы получить се�
 
 #: frontend/src/components/Modals/EvaluationModal.vue:5
 msgid "Schedule your evaluation"
-msgstr ""
+msgstr "Запланируйте свою оценку"
 
 #. Name of a DocType
 #: lms/lms/doctype/scheduled_flow/scheduled_flow.json
@@ -6048,7 +6048,7 @@ msgstr "Показать онлайн урок"
 
 #: frontend/src/components/Modals/EditProfile.vue:61
 msgid "Show recruiters and others that you are open to work."
-msgstr ""
+msgstr "Покажите рекрутерам и другим заинтересованным сторонам, что вы открыты для работы."
 
 #. Label of the shuffle_questions (Check) field in DocType 'LMS Quiz'
 #: frontend/src/pages/QuizForm.vue:105 lms/lms/doctype/lms_quiz/lms_quiz.json
@@ -6501,7 +6501,7 @@ msgstr "Оценщик этого курса недоступен от {0} до 
 
 #: frontend/src/pages/Batch.vue:151
 msgid "The last day to schedule your evaluations is "
-msgstr ""
+msgstr "Последний день, когда можно назначить оценки "
 
 #: lms/lms/utils.py:2083
 msgid "The lesson does not exist."
@@ -6840,7 +6840,7 @@ msgstr "Twitter"
 #: frontend/src/components/Modals/EditProfile.vue:87
 #: lms/fixtures/custom_field.json
 msgid "Twitter ID"
-msgstr ""
+msgstr "Twitter ID"
 
 #. Label of the type (Select) field in DocType 'Job Opportunity'
 #. Label of a field in the job-opportunity Web Form
@@ -7394,7 +7394,7 @@ msgstr "Чтобы назначать значки пользователям, �
 
 #: lms/lms/doctype/lms_course_review/lms_course_review.py:18
 msgid "You must be enrolled in the course to submit a review"
-msgstr ""
+msgstr "Для того чтобы оставить отзыв, вы должны быть зачислены на курс"
 
 #: lms/lms/doctype/lms_enrollment/lms_enrollment.py:47
 msgid "You need to complete the payment for this course before enrolling."
@@ -7620,11 +7620,11 @@ msgstr "Интерактивное обучение"
 
 #: frontend/src/pages/Search/Search.vue:38
 msgid "match"
-msgstr ""
+msgstr "матч"
 
 #: frontend/src/pages/Search/Search.vue:38
 msgid "matches"
-msgstr ""
+msgstr "матчи"
 
 #: frontend/src/pages/Programs/Programs.vue:42
 #: frontend/src/pages/Programs/StudentPrograms.vue:36

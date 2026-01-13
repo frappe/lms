@@ -19,6 +19,14 @@
 									showOptions = true
 								}
 							"
+							@focus="
+								() => {
+									showOptions = true
+									if (!filterOptions.data || filterOptions.data.length === 0) {
+										reload('')
+									}
+								}
+							"
 							autocomplete="off"
 						/>
 					</template>
@@ -152,9 +160,6 @@ const selectedValue = computed({
 	get: () => query.value || '',
 	set: (val) => {
 		query.value = ''
-		if (val) {
-			showOptions.value = false
-		}
 		val?.value && addValue(val.value)
 	},
 })
@@ -183,7 +188,8 @@ const filterOptions = createResource({
 
 const options = computed(() => {
 	setFocus()
-	return filterOptions.data || []
+	const allOptions = filterOptions.data || []
+	return allOptions.filter((option) => !values.value?.includes(option.value))
 })
 
 function reload(val) {

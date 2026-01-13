@@ -32,11 +32,11 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: setup python
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v6
       with:
         python-version: '3.14'
     - name: setup node
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@v6
       with:
         node-version: '24'
         check-latest: true
