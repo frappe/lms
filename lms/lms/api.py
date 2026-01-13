@@ -15,7 +15,6 @@ from frappe.integrations.frappe_providers.frappecloud_billing import (
 	current_site_info,
 	is_fc_site,
 )
-from frappe.query_builder import DocType, Order
 from frappe.translate import get_all_translations
 from frappe.utils import (
 	add_days,
@@ -282,7 +281,7 @@ def get_evaluator_details(evaluator):
 @frappe.whitelist(allow_guest=True)
 def get_certified_participants(filters=None, start=0, page_length=100):
 	query = get_certification_query(filters)
-	query = query.orderby("issue_date", Order.desc).offset(start).limit(page_length)
+	query = query.orderby("issue_date", order=frappe.qb.desc).offset(start).limit(page_length)
 	participants = query.run(as_dict=True)
 
 	for participant in participants:
