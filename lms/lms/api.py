@@ -304,8 +304,8 @@ def get_certified_participant_details(member):
 
 
 def get_certification_query(filters):
-	Certificate = DocType("LMS Certificate")
-	User = DocType("User")
+	Certificate = frappe.qb.DocType("LMS Certificate")
+	User = frappe.qb.DocType("User")
 
 	query = (
 		frappe.qb.from_(Certificate)
