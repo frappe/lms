@@ -230,6 +230,7 @@ const handleMarkAsRead = (logName) => {
 
 const navigateToPage = (log) => {
 	if (!log.link) return
+	handleMarkAsRead(log.name)
 	let link = log.link.split('/')
 	if (link[2] == 'courses') {
 		router.push({
