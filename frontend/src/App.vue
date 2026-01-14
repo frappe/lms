@@ -15,7 +15,6 @@ import { useScreenSize } from './utils/composables'
 import { usersStore } from '@/stores/user'
 import { useSettings } from '@/stores/settings'
 import { useRouter } from 'vue-router'
-import { posthogSettings } from '@/telemetry'
 import DesktopLayout from './components/DesktopLayout.vue'
 import MobileLayout from './components/MobileLayout.vue'
 import NoSidebarLayout from './components/NoSidebarLayout.vue'
@@ -50,9 +49,4 @@ onUnmounted(() => {
 	noSidebar.value = false
 })
 
-watch(userResource, () => {
-	if (userResource.data) {
-		posthogSettings.reload()
-	}
-})
 </script>
