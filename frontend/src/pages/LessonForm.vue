@@ -29,31 +29,27 @@
 						/>
 					</div>
 					<div class="border-t mt-4">
-						<div class="w-5/6 mx-auto pt-4">
-							<div
-								class="flex justify-between cursor-pointer"
-								@click="
-									() => {
-										openInstructorEditor = !openInstructorEditor
-									}
-								"
-							>
-								<label class="block font-medium text-ink-gray-5 mb-1">
-									{{ __('Instructor Notes') }}
-								</label>
+						<div class="w-5/6 mx-auto pt-4 overflow-visible">
+						<div
+							class="flex items-center justify-between cursor-pointer"
+							@click="openInstructorEditor = !openInstructorEditor"
+						>
+							<label class="block font-medium text-ink-gray-5 mb-1">
+								{{ __('Instructor Notes') }}
+							</label>
+							<span class="ml-2">
 								<ChevronRight
-									class="stroke-2 h-5 w-5 text-ink-gray-5"
-									:class="{
-										'rotate-90 transform duration-200': openInstructorEditor,
-										'duration-200': !openInstructorEditor,
-									}"
+									class="h-4 w-4 transition-transform"
+									:class="{ 'rotate-90': openInstructorEditor }"
 								/>
-							</div>
+							</span>
+						</div>
+						<div v-show="openInstructorEditor" class="transition-all duration-200 overflow-visible">
 							<div
-								v-show="openInstructorEditor"
 								id="instructor-notes"
 								class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2 prose-sm max-w-none !whitespace-normal py-3"
 							></div>
+						</div>
 						</div>
 					</div>
 					<div class="border-t mt-4">
@@ -93,6 +89,7 @@ import {
 	inject,
 	ref,
 	onBeforeUnmount,
+	watch,
 } from 'vue'
 import { sessionStore } from '../stores/session'
 import EditorJS from '@editorjs/editorjs'
@@ -133,9 +130,17 @@ onMounted(() => {
 	capture('lesson_form_opened')
 	startRecording()
 	editor.value = renderEditor('content')
-	instructorEditor.value = renderEditor('instructor-notes')
 	window.addEventListener('keydown', keyboardShortcut)
 	enablePlyr()
+})
+
+watch(openInstructorEditor, (val) => {
+	if (val && !instructorEditor.value) {
+		instructorEditor.value = renderEditor('instructor-notes')
+		if (lessonDetails.data && lessonDetails.data.lesson) {
+			addInstructorNotes(lessonDetails.data)
+		}
+	}
 })
 
 const renderEditor = (holder) => {
@@ -194,6 +199,7 @@ const addLessonContent = (data) => {
 }
 
 const addInstructorNotes = (data) => {
+	if (!instructorEditor.value) return
 	instructorEditor.value.isReady.then(() => {
 		if (data.lesson.instructor_content) {
 			instructorEditor.value.render(JSON.parse(data.lesson.instructor_content))
@@ -386,15 +392,24 @@ const saveLesson = (e) => {
 	editor.value.save().then((outputData) => {
 		outputData = removeEmptyBlocks(outputData)
 		lesson.content = JSON.stringify(outputData)
-		instructorEditor.value.save().then((outputData) => {
-			outputData = removeEmptyBlocks(outputData)
-			lesson.instructor_content = JSON.stringify(outputData)
+		if (instructorEditor.value && instructorEditor.value.save) {
+			instructorEditor.value.save().then((outputData) => {
+				outputData = removeEmptyBlocks(outputData)
+				lesson.instructor_content = JSON.stringify(outputData)
+				if (lessonDetails.data?.lesson) {
+					editCurrentLesson()
+				} else {
+					createNewLesson()
+				}
+			})
+		} else {
+			lesson.instructor_content = lesson.instructor_content || ''
 			if (lessonDetails.data?.lesson) {
 				editCurrentLesson()
 			} else {
 				createNewLesson()
 			}
-		})
+		}
 	})
 }
 
@@ -665,15 +680,6 @@ iframe {
 .ce-popover__container {
 	border-radius: 12px;
 	padding: 8px;
-}
-
-.codex-editor--narrow .ce-toolbox .ce-popover {
-	right: unset;
-	left: initial;
-}
-
-.ce-popover {
-	border-radius: 12px;
 }
 
 .cdx-search-field {
