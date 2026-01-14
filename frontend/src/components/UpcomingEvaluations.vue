@@ -140,7 +140,6 @@ import { formatTime } from '@/utils'
 import { Button, createResource, call } from 'frappe-ui'
 import EvaluationModal from '@/components/Modals/EvaluationModal.vue'
 import { Menu, MenuButton, MenuItems, MenuItem } from '@headlessui/vue'
-import IsSameOrAfter from 'dayjs/esm/plugin/IsSameOrAfter'
 
 const dayjs = inject('$dayjs')
 const showEvalModal = ref(false)
@@ -198,8 +197,7 @@ const canScheduleEvals = computed(() => {
 })
 
 const endDateHasPassed = computed(() => {
-	dayjs.extend(IsSameOrAfter)
-	return dayjs().isSameOrAfter(dayjs(props.endDate), 'day')
+	return dayjs().isSameOrAfter(dayjs(props.endDate))
 })
 
 const cancelEvaluation = (evl) => {
