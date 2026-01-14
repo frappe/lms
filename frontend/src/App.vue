@@ -48,5 +48,4 @@ const Layout = computed(() => {
 onUnmounted(() => {
 	noSidebar.value = false
 })
-
 </script>
