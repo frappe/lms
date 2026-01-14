@@ -1354,17 +1354,30 @@ def get_exercise_details(assessment, member):
 
 
 @frappe.whitelist()
-def get_batch_students(batch):
+def get_batch_students(filters, offset=0, limit_start=0, limit_page_length=None, limit=None):
+	# limit_start and limit_page_length are used for backward compatibility
+	start = limit_start or offset
+	page_length = limit_page_length or limit
+
+	batch = filters.get("batch")
+	if not batch:
+		return []
+
 	students = []
 	students_list = frappe.get_all(
-		"LMS Batch Enrollment", filters={"batch": batch}, fields=["member", "name"]
+		"LMS Batch Enrollment",
+		filters={"batch": batch},
+		fields=["member", "name"],
+		offset=start,
+		limit=page_length,
+		order_by="creation desc",
 	)
 
 	for student in students_list:
 		details = get_batch_student_details(student)
 		calculate_student_progress(batch, details)
 		students.append(details)
-		students = sorted(students, key=lambda x: x.progress, reverse=True)
+
 	return students
 
 
