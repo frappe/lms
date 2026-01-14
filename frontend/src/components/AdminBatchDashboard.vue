@@ -82,18 +82,23 @@ const studentCount = createResource({
 
 const assessmentCount = createResource({
 	url: 'lms.lms.utils.get_batch_assessment_count',
-	params: { batch: props.batch?.data?.name },
+	cache: ['batch_assessment_count', props.batch?.data?.name],
+	params: {
+		batch: props.batch?.data?.name,
+	},
 	auto: true,
 })
 
 const chartData = createResource({
 	url: 'lms.lms.utils.get_batch_chart_data',
+	cache: ['batch_chart_data', props.batch?.data?.name],
 	params: { batch: props.batch?.data?.name },
 	auto: true,
 })
 
 const certificationCount = createResource({
 	url: 'frappe.client.get_count',
+	cache: ['batch_certificate_count', props.batch?.data?.name],
 	params: {
 		doctype: 'LMS Certificate',
 		filters: { batch_name: props.batch?.data?.name },

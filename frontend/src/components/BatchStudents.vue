@@ -88,8 +88,8 @@
 						</div>
 					</template>
 				</ListSelectBanner>
-				<div class="mt-4">
-					<Button v-if="students.hasNextPage" @click="students.next()">
+				<div class="mt-4" v-if="students.hasNextPage">
+					<Button @click="students.next()">
 						{{ __('Load More') }}
 					</Button>
 				</div>
@@ -146,10 +146,11 @@ const props = defineProps({
 })
 
 const studentCount = createResource({
-	url: 'lms.lms.utils.get_batch_student_count',
+	url: 'frappe.client.get_count',
 	cache: ['batch_student_count', props.batch?.data?.name],
 	params: {
-		batch: props.batch?.data?.name,
+		doctype: 'LMS Batch Enrollment',
+		filters: { batch: props.batch?.data?.name },
 	},
 	auto: true,
 })

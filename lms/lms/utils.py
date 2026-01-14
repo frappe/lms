@@ -1356,6 +1356,13 @@ def get_exercise_details(assessment, member):
 
 
 @frappe.whitelist()
+def get_batch_assessment_count(batch):
+	if not frappe.db.exists("LMS Batch", batch):
+		frappe.throw(_("The specified batch does not exist."))
+	return frappe.db.count("LMS Assessment", {"parent": batch})
+
+
+@frappe.whitelist()
 def get_batch_students(filters, offset=0, limit_start=0, limit_page_length=None, limit=None):
 	# limit_start and limit_page_length are used for backward compatibility
 	start = limit_start or offset
@@ -1381,27 +1388,6 @@ def get_batch_students(filters, offset=0, limit_start=0, limit_page_length=None,
 		students.append(details)
 
 	return students
-
-
-@frappe.whitelist()
-def get_batch_student_count(batch):
-	if not frappe.db.exists("LMS Batch", batch):
-		frappe.throw(_("The specified batch does not exist."))
-	return frappe.db.count("LMS Batch Enrollment", filters={"batch": batch})
-
-
-@frappe.whitelist()
-def get_batch_certificate_count(batch):
-	if not frappe.db.exists("LMS Batch", batch):
-		frappe.throw(_("The specified batch does not exist."))
-	return frappe.db.count("LMS Certificate", filters={"batch_name": batch})
-
-
-@frappe.whitelist()
-def get_batch_assessment_count(batch):
-	if not frappe.db.exists("LMS Batch", batch):
-		frappe.throw(_("The specified batch does not exist."))
-	return frappe.db.count("LMS Assessment", filters={"parent": batch})
 
 
 def get_course_completion_stats(batch):
