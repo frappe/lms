@@ -398,26 +398,47 @@ def handle_notifications(doc, method):
 	notify_mentions_via_email(doc, topic)
 
 
-def create_notification_log(doc, topic):
+def get_course_details_for_notification(topic):
 	users = []
+	course = frappe.db.get_value("Course Lesson", topic.reference_docname, "course")
+	course_title = frappe.db.get_value("LMS Course", course, "title")
+	instructors = frappe.db.get_all(
+		"Course Instructor", {"parent": course, "parenttype": "LMS Course"}, pluck="instructor"
+	)
+
+	users.append(topic.owner)
+	users += instructors
+
+	subject = _("New reply on the topic {0} in course {1}").format(topic.title, course_title)
+	link = get_lesson_url(course, get_lesson_index(topic.reference_docname))
+
+	return subject, link, users
+
+
+def get_batch_details_for_notification(topic):
+	users = []
+	batch_title = frappe.db.get_value("LMS Batch", topic.reference_docname, "title")
+	subject = _("New comment in batch {0}").format(batch_title)
+	link = f"/lms/batches/{topic.reference_docname}"
+	instructors = frappe.db.get_all(
+		"Course Instructor",
+		{"parenttype": "LMS Batch", "parent": topic.reference_docname},
+		pluck="instructor",
+	)
+	students = frappe.db.get_all("LMS Batch Enrollment", {"batch": topic.reference_docname}, pluck="member")
+	users += instructors
+	users += students
+	return subject, link, users
+
+
+def create_notification_log(doc, topic):
 	if topic.reference_doctype == "Course Lesson":
-		course = frappe.db.get_value("Course Lesson", topic.reference_docname, "course")
-		course_title = frappe.db.get_value("LMS Course", course, "title")
-		instructors = frappe.db.get_all("Course Instructor", {"parent": course}, pluck="instructor")
-
-		if doc.owner != topic.owner:
-			users.append(topic.owner)
-
-		users += instructors
-		subject = _("New reply on the topic {0} in course {1}").format(topic.title, course_title)
-		link = get_lesson_url(course, get_lesson_index(topic.reference_docname))
-
+		subject, link, users = get_course_details_for_notification(topic)
 	else:
-		batch_title = frappe.db.get_value("LMS Batch", topic.reference_docname, "title")
-		subject = _("New comment in batch {0}").format(batch_title)
-		link = f"/batches/{topic.reference_docname}"
-		moderators = frappe.get_all("Has Role", {"role": "Moderator"}, pluck="parent")
-		users += moderators
+		subject, link, users = get_batch_details_for_notification(topic)
+
+	if doc.owner in users:
+		users.remove(doc.owner)
 
 	notification = frappe._dict(
 		{
@@ -425,7 +446,6 @@ def create_notification_log(doc, topic):
 			"email_content": doc.reply,
 			"document_type": topic.reference_doctype,
 			"document_name": topic.reference_docname,
-			"for_user": topic.owner,
 			"from_user": doc.owner,
 			"type": "Alert",
 			"link": link,
@@ -444,12 +464,16 @@ def notify_mentions_on_portal(doc, topic):
 
 	if topic.reference_doctype == "Course Lesson":
 		course = frappe.db.get_value("Course Lesson", topic.reference_docname, "course")
-		subject = _("{0} mentioned you in a comment in {1}").format(from_user_name, topic.title)
+		subject = _("{0} mentioned you in a comment in {1}").format(
+			frappe.bold(from_user_name), frappe.bold(topic.title)
+		)
 		link = get_lesson_url(course, get_lesson_index(topic.reference_docname))
 	else:
 		batch_title = frappe.db.get_value("LMS Batch", topic.reference_docname, "title")
-		subject = _("{0} mentioned you in a comment in {1}").format(from_user_name, batch_title)
-		link = f"/batches/{topic.reference_docname}"
+		subject = _("{0} mentioned you in a comment in {1}").format(
+			frappe.bold(from_user_name), frappe.bold(batch_title)
+		)
+		link = f"/lms/batches/{topic.reference_docname}#discussions"
 
 	for user in mentions:
 		notification = frappe._dict(
@@ -460,7 +484,7 @@ def notify_mentions_on_portal(doc, topic):
 				"document_name": topic.reference_docname,
 				"for_user": user,
 				"from_user": doc.owner,
-				"type": "Alert",
+				"type": "Mention",
 				"link": link,
 			}
 		)
