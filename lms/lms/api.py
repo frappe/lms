@@ -2050,3 +2050,9 @@ def get_upcoming_batches():
 		limit=4,
 		pluck="name",
 	)
+
+
+@frappe.whitelist()
+def delete_programming_exercise(exercise):
+	frappe.db.delete("LMS Programming Exercise Submission", {"exercise": exercise})
+	frappe.db.delete("LMS Programming Exercise", exercise)
