@@ -34,7 +34,27 @@ export class Markdown {
 	}
 
 	static get pasteConfig() {
-		return { tags: ['P'] }
+		return {
+			tags: ['P'],
+			patterns: { plain: /^[\s\S]*$/ },
+		}
+	}
+
+	onPaste(event) {
+		const content = event.detail.data
+		let plainText = ''
+
+		if (content instanceof HTMLElement) {
+			plainText = content.innerText || content.textContent
+		} else {
+			plainText = content
+		}
+
+		this.text = plainText
+
+		if (this.wrapper) {
+			this.wrapper.textContent = this.text
+		}
 	}
 
 	render() {
