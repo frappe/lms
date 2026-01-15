@@ -233,7 +233,6 @@ import { ClipboardList, ListChecks, Plus, Trash2 } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
 import { escapeHTML } from '@/utils'
 import Question from '@/components/Modals/Question.vue'
-import { useTelemetry } from 'frappe-ui/frappe'
 
 const { brand } = sessionStore()
 const showQuestionModal = ref(false)
@@ -242,7 +241,6 @@ const currentQuestion = reactive({
 	marks: 0,
 	name: '',
 })
-const { capture } = useTelemetry()
 const user = inject('$user')
 const router = useRouter()
 const readOnlyMode = window.read_only_mode
@@ -260,9 +258,7 @@ onMounted(() => {
 	if (!user.data?.is_moderator && !user.data?.is_instructor) {
 		router.push({ name: 'Courses' })
 	}
-	if (props.quizID !== 'new') {
-		quizDetails.reload()
-	}
+	quizDetails.reload()
 	window.addEventListener('keydown', keyboardShortcut)
 })
 
@@ -310,9 +306,6 @@ const submitQuiz = () => {
 		},
 		{
 			onSuccess(data) {
-				if (props.quizID === 'new') {
-					capture('quiz_created')
-				}
 				quizDetails.doc.total_marks = data.total_marks
 				toast.success(__('Quiz updated successfully'))
 			},
@@ -408,7 +401,7 @@ const breadcrumbs = computed(() => {
 	]
 
 	crumbs.push({
-		label: props.quizID == 'new' ? __('New Quiz') : quizDetails.doc?.title,
+		label: quizDetails.doc?.title,
 		route: { name: 'QuizForm', params: { quizID: props.quizID } },
 	})
 	return crumbs
@@ -416,7 +409,7 @@ const breadcrumbs = computed(() => {
 
 usePageMeta(() => {
 	return {
-		title: props.quizID == 'new' ? __('New Quiz') : quizDetails.doc?.title,
+		title: quizDetails.doc?.title,
 		icon: brand.favicon,
 	}
 })

@@ -52,14 +52,12 @@ import {
 } from 'frappe-ui'
 import { computed, ref, watch } from 'vue'
 import SettingFields from '@/components/Settings/SettingFields.vue'
-import { useTelemetry } from 'frappe-ui/frappe'
 
 const show = defineModel<boolean>({ required: true, default: false })
 const paymentGateways = defineModel<any>('paymentGateways')
 const newGateway = ref(null)
 const newGatewayFields = ref([])
 const newGatewayData = ref<Record<string, any>>({})
-const { capture } = useTelemetry()
 
 const props = defineProps<{
 	gatewayID: string | null
@@ -160,7 +158,6 @@ const saveNewGateway = (close: () => void) => {
 				...newGatewayData.value,
 			},
 		}).then((data: any) => {
-			capture('payment_gateway_configured')
 			paymentGateways.value.reload()
 			close()
 		})

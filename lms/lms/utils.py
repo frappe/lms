@@ -1293,7 +1293,7 @@ def get_assignment_details(assessment, member):
 
 	assessment.edit_url = f"/assignments/{assessment.assessment_name}"
 	submission_name = existing_submission if existing_submission else "new-submission"
-	assessment.url = f"/assignment-submission/{assessment.assessment_name}/{submission_name}"
+	assessment.url = f"/lms/assignment-submission/{assessment.assessment_name}/{submission_name}"
 
 	return assessment
 

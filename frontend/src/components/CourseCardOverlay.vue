@@ -285,9 +285,6 @@ const certificate = createResource({
 			}&format=${encodeURIComponent(data.template)}`,
 			'_blank'
 		)
-		capture('certificate_issued', {
-			course: props.course.data.name,
-		})
 	},
 })
 

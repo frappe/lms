@@ -155,11 +155,17 @@ def create_attendance(live_class, data):
 		doc = frappe.new_doc("LMS Live Class Participant")
 		doc.live_class = live_class.name
 		doc.member = participant.get("user_email")
-		doc.joined_at = participant.get("join_time")
-		doc.left_at = participant.get("leave_time")
-		doc.duration = participant.get("duration")
+		doc.joined_at = get_datetime(participant.get("join_time"))
+		doc.left_at = get_datetime(participant.get("leave_time"))
+		doc.duration = get_minutes(participant.get("duration"))
 		doc.insert()
 
 
 def update_attendees_count(live_class, data):
 	frappe.db.set_value("LMS Live Class", live_class.name, "attendees", len(data))
+
+
+def get_minutes(duration_in_seconds):
+	if duration_in_seconds:
+		return int(duration_in_seconds) // 60
+	return 0

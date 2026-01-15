@@ -665,6 +665,15 @@ iframe {
 	padding: 8px;
 }
 
+.codex-editor--narrow .ce-toolbox .ce-popover {
+	right: unset;
+	left: initial;
+}
+
+.ce-popover {
+	border-radius: 12px;
+}
+
 .cdx-search-field {
 	border: none;
 }
