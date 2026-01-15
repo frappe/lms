@@ -30,7 +30,8 @@ from werkzeug.wrappers import Response
 from frappe.utils.response import Response
 
 from lms.lms.doctype.course_lesson.course_lesson import save_progress
-from lms.lms.utils import get_average_rating, get_lesson_count
+from lms.lms.utils import get_average_rating, get_lesson_count, has_moderator_role
+
 
 
 @frappe.whitelist()
@@ -1296,7 +1297,7 @@ def get_notifications(filters):
 	notifications = frappe.get_all(
 		"Notification Log",
 		filters,
-		["subject", "from_user", "link", "read", "name"],
+		["subject", "from_user", "link", "read", "name","creation",'document_type'],
 		order_by="creation desc",
 	)
 
@@ -1476,7 +1477,7 @@ def get_meta_info(type, route):
 
 @frappe.whitelist()
 def update_meta_info(meta_type, route, meta_tags):
-	validate_meta_data_permissions()
+	validate_meta_data_permissions('lms')
 	validate_meta_tags(meta_tags)
 
 	parent_name = f"{meta_type}/{route}"

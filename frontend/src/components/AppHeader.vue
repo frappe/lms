@@ -1,41 +1,28 @@
 <template>
-	<header
-		class="flex h-14 w-full items-center justify-between border-b bg-surface-white px-5"
-	>
+	<header class="flex h-14 w-full items-center justify-between border-b bg-surface-white px-5">
 		<div class="flex items-center"></div>
-		<div class="flex items-center gap-4" v-if="profile.data || userResource.data">
-			<Button
-				variant="ghost"
-				class="relative text-ink-gray-7"
-				@click="router.push({ name: 'Notifications' })"
-			>
+		<div class="flex items-center gap-4">
+			<Button variant="ghost" class="relative text-ink-gray-7 !bg-gray-50 !w-10 !h-10 rounded-full"
+				@click="router.push({ name: 'Notifications' })">
 				<Bell class="h-5 w-5 stroke-1.5" />
-				<span
-					v-if="unreadCount > 0"
-					class="absolute top-2 right-2.5 h-2 w-2 rounded-full bg-red-500 border border-white"
-				></span>
+				<span v-if="unreadCount > 0"
+					class="absolute top-2 right-2.5 h-2 w-2 rounded-full bg-red-500 border border-white"></span>
 			</Button>
 
-			<Dropdown
-				:options="userDropdownOptions"
-				placement="right"
-				side="bottom"
-			>
+			<Dropdown :options="userDropdownOptions" placement="right" side="bottom">
 				<template v-slot="{ open }">
+					<!-- redirect to my profile -->
 					<button
 						class="flex items-center gap-2 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-primary-500"
-						
-					>
-						<UserAvatar  :user="profile.data || userResource.data" size="xl" />
+						v-if="profile.data || userResource.data"
+						v-on:click="router.push(`/user/${userResource.data?.username}`)">
+						<UserAvatar :user="profile.data || userResource.data" size='3xl' />
 					</button>
 				</template>
 			</Dropdown>
 		</div>
 	</header>
-	<SettingsModal
-		v-if="userResource.data?.is_moderator"
-		v-model="showSettingsModal"
-	/>
+	<SettingsModal v-if="userResource.data?.is_moderator" v-model="showSettingsModal" />
 </template>
 
 <script setup>
@@ -245,9 +232,7 @@ const userDropdownOptions = computed(() => {
 					icon: LogOut,
 					label: 'Log out',
 					onClick: () => {
-						logout.submit().then(() => {
-							isLoggedIn = false
-						})
+						logout.submit()
 					},
 					condition: () => {
 						return isLoggedIn
