@@ -1,7 +1,7 @@
 <template>
-	<header class="flex h-14 w-full items-center justify-between border-b bg-surface-white px-5">
+	<header class="flex h-16 w-full items-center justify-between border-b bg-surface-white px-5">
 		<div class="flex items-center"></div>
-		<div class="flex items-center gap-4">
+		<div class="flex items-center gap-4" v-if="profile.data || userResource.data">
 			<Button variant="ghost" class="relative text-ink-gray-7 !bg-gray-50 !w-10 !h-10 rounded-full"
 				@click="router.push({ name: 'Notifications' })">
 				<Bell class="h-5 w-5 stroke-1.5" />
@@ -11,12 +11,10 @@
 
 			<Dropdown :options="userDropdownOptions" placement="right" side="bottom">
 				<template v-slot="{ open }">
-					<!-- redirect to my profile -->
 					<button
 						class="flex items-center gap-2 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-primary-500"
-						v-if="profile.data || userResource.data"
-						v-on:click="router.push(`/user/${userResource.data?.username}`)">
-						<UserAvatar :user="profile.data || userResource.data" size='3xl' />
+					>
+						<UserAvatar :user="profile.data || userResource.data" size='2xl' />
 					</button>
 				</template>
 			</Dropdown>

@@ -1,120 +1,161 @@
 <template>
 	<NoPermission v-if="!$user.data" />
-	<div v-else-if="profile.data">
-		<header
-			class="sticky group top-0 z-10 flex flex-col md:flex-row md:items-center justify-between border-b bg-surface-white px-3 py-2.5 sm:px-5"
-		>
-			<Breadcrumbs class="h-7" :items="breadcrumbs" />
-			<Button v-if="isSessionUser()" class="invisible group-hover:visible">
-				<template #icon>
-					<RefreshCcw
-						class="w-4 h-4 stroke-1.5 text-ink-gray-7"
-						@click="reloadUser()"
-					/>
-				</template>
-			</Button>
-		</header>
-		<div class="group relative h-[130px] w-full">
+	<div v-else-if="profile.data" class="min-h-screen bg-gray-50 pb-12">
+		<div class="group relative h-48 w-full bg-gradient-to-r from-[#125CA2] to-[#51E3B2]">
 			<img
 				v-if="profile.data.cover_image"
 				:src="profile.data.cover_image"
-				class="h-[130px] w-full object-cover object-center"
+				class="h-full w-full object-cover object-center"
 			/>
 			<div
-				v-else
-				:class="{ 'bg-surface-gray-2': !profile.data.cover_image }"
-				class="h-[130px] w-full"
-			></div>
-			<div
-				class="absolute bottom-[30%] md:bottom-0 left-[50%] mb-4 flex -translate-x-1/2 space-x-2 opacity-0 transition-opacity focus-within:opacity-100 group-hover:opacity-100"
+				class="absolute top-4 right-4"
 				v-if="isSessionUser()"
 			>
 				<EditCoverImage
 					@select="(imageUrl) => coverImage.submit({ url: imageUrl })"
 				>
 					<template v-slot="{ togglePopover }">
-						<Button
+						<button
 							v-if="!readOnlyMode"
-							variant="outline"
+							class="flex items-center space-x-2 rounded bg-white/20 px-3 py-1.5 text-sm font-medium text-white backdrop-blur-sm hover:bg-white/30 transition-colors"
 							@click="togglePopover()"
 						>
-							<template #prefix>
-								<Edit class="w-4 h-4 stroke-1.5 text-ink-gray-7" />
-							</template>
-							{{ __('Edit') }}
-						</Button>
+							<Edit class="h-4 w-4" />
+							<span>{{ __('Change image') }}</span>
+						</button>
 					</template>
 				</EditCoverImage>
 			</div>
 		</div>
-		<div class="mx-auto -mt-10 md:-mt-4 max-w-4xl translate-x-0 px-5">
-			<div class="flex flex-col md:flex-row items-center">
-				<div>
-					<img
-						v-if="profile.data.user_image"
-						:src="profile.data.user_image"
-						class="object-cover h-[100px] w-[100px] rounded-full border-4 border-white object-cover"
-					/>
-					<UserAvatar
-						v-else
-						:user="profile.data"
-						class="object-cover h-[100px] w-[100px] rounded-full border-4 border-white object-cover"
-					/>
-				</div>
-				<div class="ml-6">
-					<h2 class="mt-2 text-3xl font-semibold text-ink-gray-9">
-						{{ profile.data.full_name }}
-					</h2>
-					<div class="mt-2 text-base text-ink-gray-7">
-						{{ profile.data.headline }}
+
+		<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+			<div
+				class="relative -mt-12 rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-200 sm:p-8"
+			>
+				<div
+					class="flex flex-col items-center sm:flex-row sm:items-start sm:space-x-8"
+				>
+					<div class="relative">
+						<img
+							v-if="profile.data.user_image"
+							:src="profile.data.user_image"
+							class="h-24 w-24 rounded-full border-4 border-white object-cover shadow-sm bg-gray-100"
+						/>
+						<UserAvatar
+							v-else
+							:user="profile.data"
+							class="h-24 w-24 rounded-full border-4 border-white object-cover shadow-sm"
+						/>
+					</div>
+
+					<div class="mt-4 text-center sm:mt-8 sm:text-left flex-1">
+						<div
+							class="flex flex-col sm:flex-row sm:items-center sm:justify-between"
+						>
+							<div>
+								<h1
+									class="flex items-center justify-center gap-2 text-2xl font-bold text-gray-900 sm:justify-start"
+								>
+									{{ profile.data.full_name }}
+									<button
+										v-if="isSessionUser() && !readOnlyMode"
+										@click="editProfile()"
+										class="text-[#00C49F] hover:text-[#00a082]"
+									>
+										<Edit class="h-5 w-5" />
+									</button>
+								</h1>
+								<p class="mt-1 text-base text-gray-500">
+									{{ profile.data.headline || 'Learning Enthusiast' }}
+								</p>
+							</div>
+						</div>
 					</div>
 				</div>
-				<Button
-					v-if="isSessionUser() && !readOnlyMode"
-					class="mt-3 sm:mt-0 md:ml-auto"
-					@click="editProfile()"
-				>
-					<template #prefix>
-						<Edit class="w-4 h-4 stroke-1.5 text-ink-gray-7" />
-					</template>
-					{{ __('Edit Profile') }}
-				</Button>
 			</div>
 
-			<div class="mb-4 mt-6">
-				<TabButtons
-					class="inline-block"
-					:buttons="getTabButtons()"
-					v-model="activeTab"
-				/>
+			<div
+				class="mt-8 flex flex-col overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-200 lg:flex-row min-h-[300px]"
+			>
+				<div class="w-full border-r border-gray-200 lg:w-64 flex-shrink-0">
+					<nav class="flex flex-col">
+						<div
+							v-for="tab in getTabButtons()"
+							:key="tab.label"
+							@click="activeTab = tab.label"
+							:class="[
+								activeTab === tab.label
+									? 'bg-[#E6FFFA] text-[#00C49F]'
+									: 'text-gray-600 hover:bg-gray-50 hover:text-gray-900',
+								'group flex items-center px-6 py-4 text-sm font-medium cursor-pointer transition-colors border-b border-gray-100 lg:border-b-0',
+							]"
+						>
+							<span class="truncate">{{ tab.label }}</span>
+						</div>
+					</nav>
+				</div>
+
+				<div class="flex-1 min-h-[400px]">
+					<div class="h-full">
+						<div
+							v-if="activeTab === 'About' && !profile.data.bio"
+							class="flex h-full flex-col items-center justify-center text-center p-8"
+						>
+							<EmptyIcon class="mb-4 text-gray-300" />
+							<h3 class="mt-2 text-lg font-medium text-gray-900">
+								Tell us who you are
+							</h3>
+							<p class="mt-1 max-w-sm text-sm text-gray-500">
+								Add a short introduction so others can get to know you better.
+							</p>
+							<div class="mt-6">
+								<Button
+									v-if="isSessionUser() && !readOnlyMode"
+									variant="solid"
+									class="!bg-[#00C49F] hover:!bg-[#00a082] text-white"
+									@click="editProfile()"
+								>
+									{{ __('Add Bio') }}
+								</Button>
+							</div>
+						</div>
+
+						<div v-else class="p-6 lg:p-8">
+							<router-view
+								:profile="profile"
+								:key="profile.data?.name"
+							/>
+						</div>
+					</div>
+				</div>
 			</div>
-			<router-view :profile="profile" :key="profile.data?.name" />
 		</div>
 	</div>
+
 	<EditProfile
 		v-model="showProfileModal"
 		v-model:reloadProfile="profile"
 		:profile="profile"
 	/>
 </template>
+
 <script setup>
 import {
-	Breadcrumbs,
 	Button,
 	call,
 	createResource,
-	TabButtons,
 	usePageMeta,
 } from 'frappe-ui'
-import { computed, inject, watch, ref, onMounted, watchEffect } from 'vue'
+import { inject, watch, ref, onMounted, watchEffect } from 'vue'
 import { sessionStore } from '@/stores/session'
-import { Edit, RefreshCcw } from 'lucide-vue-next'
+import { Edit } from 'lucide-vue-next'
 import { useRoute, useRouter } from 'vue-router'
 import { convertToTitleCase } from '@/utils'
 import UserAvatar from '@/components/UserAvatar.vue'
 import NoPermission from '@/components/NoPermission.vue'
 import EditProfile from '@/components/Modals/EditProfile.vue'
 import EditCoverImage from '@/components/Modals/EditCoverImage.vue'
+import EmptyIcon from '@/components/Icons/EmptyIcon.vue'
 
 const { user, brand } = sessionStore()
 const $user = inject('$user')
@@ -220,32 +261,6 @@ const getTabButtons = () => {
 	}
 	return buttons
 }
-
-const reloadUser = () => {
-	call('frappe.sessions.clear').then(() => {
-		$user.reload().then(() => {
-			profile.reload()
-		})
-	})
-}
-
-const breadcrumbs = computed(() => {
-	let crumbs = [
-		{
-			label: 'People',
-		},
-		{
-			label: profile.data?.full_name,
-			route: {
-				name: 'Profile',
-				params: {
-					username: user.doc?.username,
-				},
-			},
-		},
-	]
-	return crumbs
-})
 
 usePageMeta(() => {
 	return {

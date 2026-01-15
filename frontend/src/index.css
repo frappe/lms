@@ -51,11 +51,12 @@
     font-family: "Inter", sans-serif;
 }
 
-.sidebar{
-   position: relative;
+.sidebar {
+    position: relative;
+    background-color: #fff;
 }
 
-.sidebar:before{
+.sidebar:before {
     clear: both;
     content: '';
     display: table;
@@ -66,7 +67,7 @@
     height: 400px;
     border-radius: 100%;
     background: rgba(18, 92, 162, 0.3);
-    filter: blur(120px);
+    filter: blur(240px);
 }
 
 .sidebar:after {
@@ -75,7 +76,7 @@
     display: table;
     position: absolute;
     bottom: -200px;
-    left: -200px;
+    left: -257px;
     width: 400px;
     height: 400px;
     border-radius: 100%;
@@ -84,11 +85,11 @@
 }
 
 /* override breadcrumbs text size  */
-.router-link-active{
+.router-link-active {
     font-size: 20px !important;
     font-weight: 600 !important;
 }
 
-.codex-editor{
+.codex-editor {
     z-index: 11 !important;
 }

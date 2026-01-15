@@ -2,30 +2,41 @@
 	<div class="flex h-full flex-col justify-between transition-all duration-300 ease-in-out relative overflow-hidden bg-white sidebar"
 		:class="sidebarStore.isSidebarCollapsed ? 'w-16' : 'w-60'">
 
-		<!-- <div
-			class="absolute bottom-0 left-0 right-0 h-screen bg-repeat-x bg-bottom pointer-events-none z-0 opacity-90"
-			style="background-image: url('/sidebar-bg.png');"
-		></div> -->
-
-		<div class="flex flex-col overflow-hidden relative z-10 h-full"
-			:class="sidebarStore.isSidebarCollapsed ? 'items-center' : ''">
-			<div class="flex h-14 w-full items-center mb-4 shrink-0 border-b border-gray-200  backdrop-blur-sm" :class="sidebarStore.isSidebarCollapsed
-					? 'justify-center px-0'
-					: 'justify-between px-5'
-				">
-				<div class="flex items-center overflow-hidden" v-if="!sidebarStore.isSidebarCollapsed">
-					<LMSLogoFull class="h-10 rounded flex-shrink-0" />
+		<div
+			class="flex flex-col overflow-hidden relative z-10 h-full"
+			:class="sidebarStore.isSidebarCollapsed ? 'items-center' : ''"
+		>
+			<div
+				class="flex h-16 w-full mb-4 items-center shrink-0 border-b border-gray-300  backdrop-blur-sm"
+				:class="
+					sidebarStore.isSidebarCollapsed
+						? 'justify-center px-0 flex-col h-24'
+						: 'justify-between px-5'
+				"
+			>
+				<div
+					class="flex items-center overflow-hidden"
+					v-if="!sidebarStore.isSidebarCollapsed"
+				>
+					<LMSLogoFull class="h-12 rounded flex-shrink-0" />
 				</div>
 				<div v-else class="flex items-center justify-center w-full">
-					<LMSLogo class="h-5" />
+					<LMSLogo class="h-7" />
 				</div>
 				<button v-if="!sidebarStore.isSidebarCollapsed"
 					class="p-1.5 rounded-md text-gray-600 hover:text-gray-800 transition-colors" @click="toggleSidebar">
 					<SidebarCollapseIcon class="w-5 h-5 stroke-1.5" />
 				</button>
+				<button
+					class="px-2 pt-4 rounded-md text-gray-600 hover:text-gray-800 transition-colors"
+					@click="toggleSidebar"
+					v-if="sidebarStore.isSidebarCollapsed"
+				>
+					<SidebarCollapseIcon class="w-5 h-5 stroke-1.5 rotate-180" />
+				</button>
 			</div>
-			<div
-				class="flex flex-col flex-1 overflow-y-auto px-3 bg-gradient-to-b from-bg-gray-200/10 via-gray-200 to-gray-200/5">
+			
+			<div class="flex flex-col flex-1 overflow-y-auto px-3">
 				<div v-if="sidebarSettings.data">
 					<div v-for="link in sidebarLinks" class="my-0.5">
 						<SidebarLink :link="link" :isCollapsed="sidebarStore.isSidebarCollapsed" />
@@ -91,8 +102,7 @@
 				class="z-10 mb-2 bg-amber-50 border border-amber-200 py-2.5 px-3 text-xs text-amber-800 leading-5 rounded-md">
 				{{
 					__(
-						'This site is being updated. You will not be able to make any changes. Full access will be restored
-				shortly.',
+						'This site is being updated. You will not be able to make any changes. Full access will be restored shortly.',
 					)
 				}}
 			</div>
@@ -109,11 +119,7 @@
 				appName="learning"
 			/> -->
 		</div>
-		<div class="p-2 flex justify-center z-10" v-if="sidebarStore.isSidebarCollapsed">
-			<button class="p-2 rounded-md text-gray-600 hover:text-gray-800 transition-colors" @click="toggleSidebar">
-				<SidebarCollapseIcon class="w-5 h-5 stroke-1.5 rotate-180" />
-			</button>
-		</div>
+		
 		<!-- HIDE HELP MODAL -->
 		<!-- <HelpModal
 			v-if="showOnboarding && showHelpModal"
