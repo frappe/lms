@@ -464,7 +464,6 @@ const validateFields = () => {
 			!['description', 'batch_details'].includes(key) &&
 			typeof batch[key] === 'string'
 		) {
-			console.log(key)
 			batch[key] = escapeHTML(batch[key])
 		}
 	})
