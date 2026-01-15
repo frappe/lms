@@ -1,0 +1,524 @@
+{% extends "templates/web.html" %}
+
+{% macro email_login_body() -%}
+{% if not disable_user_pass_login or (ldap_settings and ldap_settings.enabled) %}
+<div class="page-card-body">
+	<div class="form-group">
+		<label class="form-label" for="login_email">{{ login_label or _("Email")}}</label>
+		<div class="email-field">
+			<input type="text" id="login_email" class="form-control"
+				placeholder="{% if login_name_placeholder %}{{ login_name_placeholder  }}{% else %}{{ _('Enter your email') }}{% endif %}"
+				required autofocus autocomplete="username">
+
+		</div>
+	</div>
+	<div class="form-group">
+		<div class="d-flex justify-content-between align-items-center">
+			<label class="form-label" for="login_password">{{ _("Password") }}</label>
+			{% if not disable_user_pass_login %}
+			<p class="forgot-password-message mb-0">
+				<a href="#forgot">{{ _("Forgot Password?") }}</a>
+			</p>
+			{% endif %}
+		</div>
+		<div class="password-field">
+			<input type="password" id="login_password" class="form-control" placeholder="Enter your password"
+				autocomplete="current-password" required>
+			<span toggle="#login_password" class="toggle-password-custom text-muted">
+				<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+					stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+					class="lucide lucide-eye-off-icon lucide-eye-off">
+					<path
+						d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49" />
+					<path d="M14.084 14.158a3 3 0 0 1-4.242-4.242" />
+					<path
+						d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143" />
+					<path d="m2 2 20 20" />
+				</svg>
+			</span>
+		</div>
+	</div>
+</div>
+{% endif %}
+<div class="page-card-actions">
+	{% if not disable_user_pass_login %}
+	<button class="btn btn-sm btn-primary btn-block btn-login" type="submit">
+		{{ _("Sign In") }}</button>
+	{% endif %}
+	{% if ldap_settings and ldap_settings.enabled %}
+	<button class="btn btn-sm {{ " btn-primary" if disable_user_pass_login else "btn-default" }} btn-block btn-login
+		btn-ldap-login">
+		{{ _("Sign In with LDAP") }}</button>
+	{% endif %}
+</div>
+{% endmacro %}
+
+{% block head_include %}
+{{ include_style('login.bundle.css') }}
+{% endblock %}
+
+{% macro logo_section(title=null, description=null) %}
+<div class="page-card-head mb-4 text-left">
+	<img class="app-logo" src="{{ logo }}">
+	{% if title %}
+	<h4 class="mt-3">{{ _(title)}}</h4>
+	{% if description %}
+	<p class="text-muted">{{_(description)}}</p>
+	{% endif %}
+	{% else %}
+	<h4 class="mt-3">{{ _('Sign in to your Account') }}</h4>
+	<p class="text-muted">{{ _('Welcome back to {0}').format(app_name or _("ESGI Learning Management System")) }}</p>
+	{% endif %}
+</div>
+{% endmacro %}
+
+
+{% block head %}
+{{ super() }}
+<style>
+	:root {
+		--primary-color: #01C295 !important;
+		--text-main: #1D2026 !important;
+		--text-muted: #6E7485 !important;
+	}
+
+	body {
+		background-color: white !important;
+	}
+
+	.page_content {
+		min-height: calc(100vh - 2rem);
+		display: flex;
+		flex-direction: column;
+
+	}
+
+	.login-container {
+		display: flex;
+		min-height: 0;
+		flex-grow: 1;
+		flex-shrink: 1;
+		width: 100%;
+	}
+
+	.login-sidebar {
+		flex: 1.2;
+		background-image: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.6)), url('/assets/lms/images/login-bg.jpg');
+		background-size: cover;
+		background-position: center;
+		display: flex;
+		flex-direction: column;
+		justify-content: flex-end;
+		padding: 40px;
+		color: white;
+		border-radius: 1%;
+	}
+
+	.login-sidebar h1 {
+		font-size: 2.5rem;
+		font-weight: 700;
+		margin-bottom: 15px;
+		line-height: 1.2;
+		color: white;
+	}
+
+	.login-sidebar p {
+		font-size: 1.1rem;
+		opacity: 0.9;
+		max-width: 450px;
+		line-height: 1.5;
+		color: white;
+	}
+
+	.login-form-container {
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		padding: 40px 40px;
+		background: #fff;
+	}
+
+	.login-form-content {
+		width: 100%;
+		max-width: 440px;
+		margin: 0 auto;
+	}
+
+	.app-logo {
+		max-height: 40px;
+	}
+
+	.page-card-head h4 {
+		font-size: 1.85rem !important;
+		font-weight: 700 !important;
+		color: var(--text-main);
+		margin-bottom: 8px;
+	}
+
+	.page-card-head p {
+		font-size: 1rem;
+		color: var(--text-muted);
+		font-weight: 400 !important;
+	}
+
+	.form-label {
+		font-weight: 500;
+		font-size: 0.9rem;
+		color: var(--text-muted);
+		margin-bottom: 8px;
+	}
+
+	.form-group {
+		margin-bottom: 24px;
+	}
+
+	.form-label {
+		font-weight: 500;
+		font-size: 0.9rem;
+		color: var(--text-muted);
+		margin-bottom: 8px;
+	}
+
+	.form-control {
+		height: 48px;
+		border-radius: 8px;
+		border: 1px solid #e5e7eb;
+		padding: 10px 16px;
+		font-size: 1rem;
+		transition: all 0.2s;
+		background-color: white !important;
+	}
+
+	.form-control:focus {
+		border-color: var(--primary-color) !important;
+	}
+
+	.password-field {
+		position: relative;
+	}
+
+	.forgot-password-message a {
+		color: #125CA2;
+		font-weight: 600;
+		font-size: 0.85rem;
+	}
+
+	.toggle-password-custom {
+		position: absolute;
+		right: 16px;
+		top: 50%;
+		transform: translateY(-50%);
+		cursor: pointer;
+		opacity: 0.5;
+		transition: opacity 0.2s;
+	}
+
+	.toggle-password-custom:hover {
+		opacity: 1;
+	}
+
+
+	.btn-primary {
+		background-color: var(--primary-color) !important;
+		border-color: var(--primary-color) !important;
+		height: 50px;
+		font-weight: 600;
+		border-radius: 8px;
+		font-size: 1rem;
+		transition: all 0.2s;
+	}
+
+	.btn-primary:hover {
+		background-color: #00a57e !important;
+	}
+
+	.divider {
+		display: flex;
+		align-items: center;
+		text-align: center;
+		margin: 26px 0;
+		color: #9ca3af;
+		font-size: 0.875rem;
+	}
+
+	.divider::before,
+	.divider::after {
+		content: '';
+		flex: 1;
+		border-bottom: 1px solid #e5e7eb;
+	}
+
+	.divider:not(:empty)::before {
+		margin-right: 1em;
+	}
+
+	.divider:not(:empty)::after {
+		margin-left: 1em;
+	}
+
+
+	.btn-default {
+		border-radius: 8px;
+		height: 50px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		font-weight: 600;
+		border: 1px solid #e5e7eb;
+		color: var(--text-main);
+		background: white !important;
+		transition: all 0.2s;
+
+	}
+
+	.btn-default:hover {
+		background-color: #f9fafb;
+		border-color: #d1d5db;
+	}
+
+
+
+	.sign-up-message {
+		margin-top: 30px;
+		font-size: 0.95rem;
+		color: var(--text-muted);
+	}
+
+	.sign-up-message a {
+		color: #125CA2 !important;
+		font-weight: 600;
+	}
+
+	@media (max-width: 992px) {
+		.login-sidebar {
+			display: none;
+		}
+
+		.login-form-container {
+			padding: 40px 20px;
+		}
+
+		.form-group {
+			margin-bottom: 20px;
+		}
+
+		.divider {
+			margin: 20px 0;
+		}
+	}
+</style>
+{% endblock %}
+
+{%- block navbar -%}
+{%- endblock -%}
+
+{% block page_content %}
+<!-- {{ for_test }} -->
+<div class="login-container">
+	<noscript>
+		<div class="text-center my-5">
+			<h4>{{ _("Javascript is disabled on your browser") }}</h4>
+			<p class="text-muted">
+				{{ _("You need to enable JavaScript for your app to work.") }}<br>{{ _("To enable it follow the
+				instructions in the following link: {0}").format("<a
+					href='https://enable-javascript.com/'>enable-javascript.com</a></p>") }}
+		</div>
+	</noscript>
+	<div class="login-sidebar">
+		<h1>AI-Powered Learning Starts Here</h1>
+		<p>Access automated recommendations, progress insights, and personalized learning paths.</p>
+	</div>
+	<div class="login-form-container">
+		<div class="login-form-content">
+			<section class='for-login'>
+				{{ logo_section() }}
+				<div class="login-content">
+					<form class="form-signin form-login" role="form">
+						{%- if social_login or login_with_email_link -%}
+						<div class="page-card-body">
+							<form class="form-signin form-login" role="form">
+								{{ email_login_body() }}
+							</form>
+							<div class="social-logins text-center">
+								{% if not disable_user_pass_login or (ldap_settings and ldap_settings.enabled) %}
+								<div class="divider">or continue with</div>
+								{% endif %}
+								<div class="social-login-buttons">
+									{% for provider in provider_logins %}
+									<div class="login-button-wrapper">
+										<a href="{{ provider.auth_url }}"
+											class="btn btn-block btn-default btn-sm btn-login-option btn-{{ provider.name }}">
+											{% if provider.icon %}
+											{{ provider.icon }}
+											{% endif %}
+											{{ _("Sign In with {0}").format(provider.provider_name) }}</a>
+									</div>
+									{% endfor %}
+								</div>
+
+								{% if login_with_frappe_cloud_url %}
+								<div class="social-login-buttons">
+									<div class="login-button-wrapper">
+										<a href="{{ login_with_frappe_cloud_url }}"
+											class="btn btn-block btn-default btn-sm btn-login-option btn-login-with-frappe-cloud">
+											<svg class="mr-2" width="24" height="20" viewBox="0 5 23 23" fill="none"
+												xmlns="http://www.w3.org/2000/svg">
+												<path
+													d="M24.5011 14.1124C23.3954 12.4873 21.532 11.5477 19.594 11.6747C18.7616 10.1384 17.2211 9.12267 15.4198 9.0084C14.1651 8.93222 12.8979 9.3766 11.9165 10.24C11.2456 10.8367 10.7611 11.5223 10.463 12.2968C10.289 12.7539 9.89151 13.0459 9.46912 13.0459H6.5V15.5852H9.46912C10.9226 15.5852 12.2271 14.6584 12.7737 13.2237C12.9227 12.8301 13.1712 12.4873 13.5439 12.1571C14.0284 11.7255 14.662 11.4969 15.2583 11.535C16.1528 11.5985 16.7863 12.0175 17.1839 12.538C17.6063 13.0205 17.8423 13.7696 17.979 14.5187C18.774 14.2902 19.6437 14.0997 20.476 14.2394C21.1593 14.3536 21.7929 14.7218 22.2525 15.2678C22.327 15.3567 22.4016 15.4456 22.4637 15.5471C23.06 16.4232 23.1718 17.5024 22.7743 18.5689C22.414 19.5592 21.0847 20.4607 19.9791 20.4607H11.3326C10.1524 20.4607 9.18339 19.5592 9.03432 18.4038H6.54969C6.71119 20.9686 8.78585 23 11.3326 23H19.9915C22.1283 23 24.3769 21.451 25.1098 19.4704C25.7931 17.6167 25.5695 15.6614 24.5135 14.0997L24.5011 14.1124Z"
+													fill="currentColor" />
+											</svg>
+											{{ _("Sign In with Frappe Cloud") }}</a>
+									</div>
+								</div>
+								{% endif %}
+
+								{% if login_with_email_link %}
+								<div class="login-with-email-link social-login-buttons">
+									<div class="login-button-wrapper">
+										<a href="#login-with-email-link"
+											class="btn btn-block btn-default btn-sm btn-login-option btn-login-with-email-link">
+
+											<svg class="mr-2" width="20" height="20" viewBox="0 0 24 24" fill="none"
+												xmlns="http://www.w3.org/2000/svg">
+												<path
+													d="M17 21.25H7C3.35 21.25 1.25 19.15 1.25 15.5V8.5C1.25 4.85 3.35 2.75 7 2.75H14C14.41 2.75 14.75 3.09 14.75 3.5C14.75 3.91 14.41 4.25 14 4.25H7C4.14 4.25 2.75 5.64 2.75 8.5V15.5C2.75 18.36 4.14 19.75 7 19.75H17C19.86 19.75 21.25 18.36 21.25 15.5V10.5C21.25 10.09 21.59 9.75 22 9.75C22.41 9.75 22.75 10.09 22.75 10.5V15.5C22.75 19.15 20.65 21.25 17 21.25Z"
+													fill="#292D32" />
+												<path
+													d="M11.9998 12.8688C11.1598 12.8688 10.3098 12.6088 9.65978 12.0788L6.52978 9.5788C6.20978 9.3188 6.14978 8.8488 6.40978 8.5288C6.66978 8.2088 7.13977 8.14881 7.45977 8.4088L10.5898 10.9088C11.3498 11.5188 12.6398 11.5188 13.3998 10.9088L14.5798 9.9688C14.8998 9.7088 15.3798 9.7588 15.6298 10.0888C15.8898 10.4088 15.8398 10.8888 15.5098 11.1388L14.3298 12.0788C13.6898 12.6088 12.8398 12.8688 11.9998 12.8688Z"
+													fill="#292D32" />
+												<path
+													d="M19.5 8.75C17.71 8.75 16.25 7.29 16.25 5.5C16.25 3.71 17.71 2.25 19.5 2.25C21.29 2.25 22.75 3.71 22.75 5.5C22.75 7.29 21.29 8.75 19.5 8.75ZM19.5 3.75C18.54 3.75 17.75 4.54 17.75 5.5C17.75 6.46 18.54 7.25 19.5 7.25C20.46 7.25 21.25 6.46 21.25 5.5C21.25 4.54 20.46 3.75 19.5 3.75Z"
+													fill="#292D32" />
+											</svg>
+											{{ _("Sign In with Email Link") }}</a>
+									</div>
+								</div>
+								{% endif %}
+							</div>
+						</div>
+						{% else %}
+						{{ email_login_body() }}
+						{%- endif -%}
+					</form>
+				</div>
+				{%- if not disable_signup and not disable_user_pass_login -%}
+				<div class="text-left sign-up-message">
+					{{ _("New to CESGS?") }}
+					<a href="#signup">{{ _("Sign up") }}</a>
+				</div>
+				{%- endif -%}
+			</section>
+
+			{%- if social_login -%}
+			<section class='for-email-login'>
+				{{ logo_section() }}
+				<div class="login-content page-card">
+					<form class="form-signin form-login" role="form">
+						{{ email_login_body() }}
+					</form>
+				</div>
+				{%- if not disable_signup and not disable_user_pass_login -%}
+				<div class="text-center sign-up-message">
+					{{ _("Don't have an account?") }}
+					<a href="#signup">{{ _("Sign up") }}</a>
+				</div>
+				{%- endif -%}
+			</section>
+			{%- endif -%}
+			<section class='for-signup {{ "signup-disabled" if disable_signup else "" }}'>
+				{{ logo_section(_('Sign Up'), 'Create account to access ESGI Learning Management System') }}
+				{%- if not disable_signup -%}
+				{{ signup_form_template }}
+				{%- else -%}
+				<div class='page-card-head mb-2'>
+					<span class='indicator gray'>{{_("Signup Disabled")}}</span>
+					<p class="text-muted text-normal sign-up-message mt-1 mb-8">{{_("Signups have been disabled for this
+						website.")}}</p>
+					<div><a href='/' class='btn btn-primary btn-md'>{{ _("Home") }}</a></div>
+				</div>
+				{%- endif -%}
+
+			</section>
+
+			<section class='for-forgot'>
+				{{ logo_section('Forgot Password', 'Enter registered email address to reset your password') }}
+				<div class="login-content">
+					<form class="form-signin form-forgot hide" role="form">
+						<div class="page-card-body form-group">
+							<label class="form-label" for="login_email">{{ login_label or _("Email")}}</label>
+							<div class="email-field">
+								<input type="email" id="forgot_email" class="form-control"
+									placeholder="{{ _('Email Address') }}" required autofocus autocomplete="username">
+							</div>
+						</div>
+						<div class="page-card-actions">
+							<button class="btn btn-sm btn-primary btn-block btn-forgot" type="submit">{{ _("Reset
+								Password") }}</button>
+							<a href="#login" class="mt-4 btn btn-block btn-default btn-sm">{{ _("Back to Sign in")
+								}}</a>
+						</div>
+
+					</form>
+				</div>
+			</section>
+
+			<section class='for-login-with-email-link'>
+				{{ logo_section(_('Sign in with Email Link'),_('Enter your registered email to receive login access'))
+				}}
+				<div class="login-content">
+					<form class="form-signin form-login-with-email-link hide" role="form">
+						<div class="page-card-body form-group">
+							<label class="form-label" for="login_email">{{ login_label or _("Email")}}</label>
+							<div class="email-field">
+								<input type="email" id="login_with_email_link_email" class="form-control"
+									placeholder="{{ _('Email Address') }}" required autofocus autocomplete="username">
+							</div>
+						</div>
+						<div class="page-card-actions">
+							<button class="btn btn-sm btn-primary btn-block btn-login-with-email-link" type="submit">{{
+								_("Send Sign Link") }}</button>
+
+							<a href="#login" class="mt-4 btn btn-block btn-default btn-sm">{{ _("Back to Sign in")
+								}}</a>
+						</div>
+					</form>
+				</div>
+			</section>
+		</div>
+
+	</div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script>{% include "templates/includes/login/login.js" %}</script>
+
+<script>
+	frappe.ready(function () {
+
+
+		$(".toggle-password-custom").click(function () {
+			var input = $($(this).attr("toggle"));
+
+			if (input.attr("type") === "password") {
+				input.attr("type", "text");
+
+				$(this).html(`
+				<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-eye-icon lucide-eye"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/></svg>
+			`);
+			} else {
+				input.attr("type", "password");
+
+				$(this).html(`
+			<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-eye-off-icon lucide-eye-off"><path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49"/><path d="M14.084 14.158a3 3 0 0 1-4.242-4.242"/><path d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143"/><path d="m2 2 20 20"/></svg>
+				
+			`);
+			}
+		});
+
+	});
+</script>
+{% endblock %}
+
+{% block sidebar %}{% endblock %}

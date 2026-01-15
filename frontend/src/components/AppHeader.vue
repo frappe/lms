@@ -9,7 +9,7 @@
 					class="absolute top-2 right-2.5 h-2 w-2 rounded-full bg-red-500 border border-white"></span>
 			</Button>
 
-			<Dropdown :options="userDropdownOptions">
+			<Dropdown :options="userDropdownOptions" placement="right" side="bottom">
 				<template v-slot="{ open }">
 					<!-- redirect to my profile -->
 					<button

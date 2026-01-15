@@ -37,6 +37,7 @@ declare module 'vue' {
     BatchStudents: typeof import('./src/components/BatchStudents.vue')['default']
     BrandSettings: typeof import('./src/components/Settings/BrandSettings.vue')['default']
     BulkCertificates: typeof import('./src/components/Modals/BulkCertificates.vue')['default']
+    Button: typeof import('./src/components/ui/Button.vue')['default']
     Categories: typeof import('./src/components/Settings/Categories.vue')['default']
     CertificationLinks: typeof import('./src/components/CertificationLinks.vue')['default']
     ChapterModal: typeof import('./src/components/Modals/ChapterModal.vue')['default']
