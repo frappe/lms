@@ -3,9 +3,9 @@
 		<div class="h-full bg-surface-menu-bar">
 			<AppSidebar />
 		</div>
-		<div class="flex-1 flex flex-col h-full overflow-hidden bg-surface-white">
+		<div class="flex-1 flex flex-col h-full bg-surface-white">
 			<AppHeader />
-			<div class="flex-1 overflow-auto">
+			<div class="flex-1">
 				<slot />
 			</div>
 		</div>

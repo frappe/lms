@@ -2,6 +2,10 @@
 @import 'frappe-ui/style.css';
 @import './styles/codemirror.css';
 
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 :root {
     --primary-50: 236 253 249;
     --primary-100: 209 250 240;
@@ -15,8 +19,18 @@
     --primary-900: 0 83 66;
     --primary-950: 0 46 38;
 
+    --secondary-0: 255 255 255;
+    --secondary-50: 232 243 251;
+    --secondary-100: 209 231 247;
+    --secondary-200: 163 207 239;
+    --secondary-300: 117 183 231;
+    --secondary-400: 71 159 223;
     --secondary-500: 18 92 162;
-    /* #125CA2 */
+    --secondary-600: 14 74 130;
+    --secondary-700: 11 55 97;
+    --secondary-800: 7 37 65;
+    --secondary-900: 4 18 32;
+    --secondary-950: 2 9 16;
 }
 
 .bg-surface-selected {
@@ -31,4 +45,50 @@
 
 .bg-surface-selected svg.custom-icon path {
     fill: white !important;
+}
+
+* {
+    font-family: "Inter", sans-serif;
+}
+
+.sidebar{
+   position: relative;
+}
+
+.sidebar:before{
+    clear: both;
+    content: '';
+    display: table;
+    position: absolute;
+    top: -200px;
+    right: -200px;
+    width: 400px;
+    height: 400px;
+    border-radius: 100%;
+    background: rgba(18, 92, 162, 0.3);
+    filter: blur(120px);
+}
+
+.sidebar:after {
+    clear: both;
+    content: '';
+    display: table;
+    position: absolute;
+    bottom: -200px;
+    left: -200px;
+    width: 400px;
+    height: 400px;
+    border-radius: 100%;
+    background: rgba(1, 194, 149, 0.35);
+    filter: blur(120px);
+}
+
+/* override breadcrumbs text size  */
+.router-link-active{
+    font-size: 20px !important;
+    font-weight: 600 !important;
+}
+
+.codex-editor{
+    z-index: 11 !important;
 }

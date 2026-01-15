@@ -1,13 +1,13 @@
 <template>
 	<div
-		class="flex h-full flex-col justify-between transition-all duration-300 ease-in-out relative overflow-hidden bg-white"
+		class="flex h-full flex-col justify-between transition-all duration-300 ease-in-out relative overflow-hidden bg-white sidebar"
 		:class="sidebarStore.isSidebarCollapsed ? 'w-16' : 'w-60'"
 	>
 
-		<div
+		<!-- <div
 			class="absolute bottom-0 left-0 right-0 h-screen bg-repeat-x bg-bottom pointer-events-none z-0 opacity-90"
 			style="background-image: url('/sidebar-bg.png');"
-		></div>
+		></div> -->
 
 		<div
 			class="flex flex-col overflow-hidden relative z-10 h-full"
