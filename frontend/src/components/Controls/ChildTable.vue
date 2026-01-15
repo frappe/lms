@@ -3,55 +3,56 @@
 		<div class="text-xs text-ink-gray-5 mb-2">
 			{{ label }}
 		</div>
-		<div class="overflow-x-auto overflow-y-visible border rounded-md">
-			<div
-				class="grid items-center space-x-4 p-2 border-b"
-				:style="{ gridTemplateColumns: getGridTemplateColumns() }"
-			>
+		<div class="overflow-visible border rounded-md">
+			<div class="overflow-x-auto">
 				<div
-					v-for="(column, index) in columns"
-					:key="index"
-					class="text-sm text-ink-gray-5"
+					class="grid items-center space-x-4 p-2 border-b"
+					:style="{ gridTemplateColumns: getGridTemplateColumns() }"
 				>
-					{{ column }}
-				</div>
-				<div></div>
-			</div>
-			<div
-				v-for="(row, rowIndex) in rows"
-				:key="rowIndex"
-				class="grid items-center space-x-4 p-2"
-				:style="{ gridTemplateColumns: getGridTemplateColumns() }"
-			>
-				<template v-for="key in Object.keys(row)" :key="key">
-					<input
-						v-if="showKey(key)"
-						v-model="row[key]"
-						class="py-1.5 px-2 border-none focus:ring-0 focus:border focus:border-gray-300 focus:bg-surface-gray-2 rounded-md text-sm focus:outline-none"
-					/>
-				</template>
-
-				<div class="relative" ref="menuRef">
-					<Button
-						variant="ghost"
-						@click="(event: MouseEvent) => toggleMenu(rowIndex, event)"
+					<div
+						v-for="(column, index) in columns"
+						:key="index"
+						class="text-sm text-ink-gray-5"
 					>
-						<template #icon>
-							<Ellipsis
-								class="size-4 text-ink-gray-7 stroke-1.5 cursor-pointer"
-							/>
-						</template>
-					</Button>
+						{{ column }}
+					</div>
+					<div></div>
+				</div>
+				<div
+					v-for="(row, rowIndex) in rows"
+					:key="rowIndex"
+					class="grid items-center space-x-4 p-2"
+					:style="{ gridTemplateColumns: getGridTemplateColumns() }"
+				>
+					<template v-for="key in Object.keys(row)" :key="key">
+						<input
+							v-if="showKey(key)"
+							v-model="row[key]"
+							class="py-1.5 px-2 border-none focus:ring-0 focus:border focus:border-gray-300 focus:bg-surface-gray-2 rounded-md text-sm focus:outline-none"
+						/>
+					</template>
 
-					<Teleport to="body">
+					<div class="relative">
+						<Button
+							variant="ghost"
+							@click="(event: MouseEvent) => toggleMenu(rowIndex, event)"
+						>
+							<template #icon>
+								<Ellipsis
+									class="size-4 text-ink-gray-7 stroke-1.5 cursor-pointer"
+								/>
+							</template>
+						</Button>
+
 						<div
 							v-if="menuOpenIndex === rowIndex"
-							:style="{
-								position: 'absolute',
-								top: menuTopPosition,
-								left: menuLeftPosition,
-							}"
-							class="top-5 mt-1 w-32 bg-surface-white border border-outline-gray-1 rounded-md shadow-sm"
+							ref="menuRef"
+							class="absolute right-0 w-32 z-50 bg-surface-white border border-outline-gray-1 rounded-md shadow-sm"
+							:class="
+								rowIndex == (rows?.length ?? 0) - 1
+									? 'bottom-full mb-1'
+									: 'top-full mt-1'
+							"
 						>
 							<button
 								@click="deleteRow(rowIndex)"
@@ -63,7 +64,7 @@
 								</span>
 							</button>
 						</div>
-					</Teleport>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -154,10 +155,7 @@ const getGridTemplateColumns = () => {
 }
 
 const toggleMenu = (index: number, event: MouseEvent) => {
-	const rect = (event.target as HTMLElement).getBoundingClientRect()
-	menuOpenIndex.value = index
-	menuTopPosition.value = rect.bottom + 'px'
-	menuLeftPosition.value = rect.right + 'px'
+	menuOpenIndex.value = menuOpenIndex.value === index ? null : index
 }
 
 onClickOutside(menuRef, () => {
