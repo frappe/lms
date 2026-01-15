@@ -6,7 +6,7 @@
 
 		<div
 			class="absolute bottom-0 left-0 right-0 h-screen bg-repeat-x bg-bottom pointer-events-none z-0 opacity-90"
-			style="background-image: url('/sidebar-bg.png');"
+			style="background-image: url('/assets/lms/images/sidebar-bg.png');"
 		></div>
 
 		<div
@@ -145,7 +145,7 @@
 				class="p-2 rounded-md text-gray-600 hover:text-gray-800 transition-colors"
 				@click="toggleSidebar"
 			>
-				<CollapseSidebar class="w-5 h-5 stroke-1.5 rotate-180" />
+				<SidebarCollapseIcon class="w-5 h-5 stroke-1.5 rotate-180" />
 			</button>
 		</div>
 		<!-- HIDE HELP MODAL -->

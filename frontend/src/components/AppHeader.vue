@@ -3,7 +3,7 @@
 		class="flex h-14 w-full items-center justify-between border-b bg-surface-white px-5"
 	>
 		<div class="flex items-center"></div>
-		<div class="flex items-center gap-4">
+		<div class="flex items-center gap-4" v-if="profile.data || userResource.data">
 			<Button
 				variant="ghost"
 				class="relative text-ink-gray-7"
@@ -16,13 +16,17 @@
 				></span>
 			</Button>
 
-			<Dropdown :options="userDropdownOptions">
+			<Dropdown
+				:options="userDropdownOptions"
+				placement="right"
+				side="bottom"
+			>
 				<template v-slot="{ open }">
 					<button
 						class="flex items-center gap-2 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-primary-500"
-						v-if="profile.data || userResource.data"
+						
 					>
-						<UserAvatar :user="profile.data || userResource.data" size="xl" />
+						<UserAvatar  :user="profile.data || userResource.data" size="xl" />
 					</button>
 				</template>
 			</Dropdown>
