@@ -199,7 +199,6 @@ import { useSidebar } from '@/stores/sidebar'
 import { useSettings } from '@/stores/settings'
 import { Button, call, createResource, Tooltip, toast } from 'frappe-ui'
 import PageModal from '@/components/Modals/PageModal.vue'
-import { capture } from '@/telemetry'
 import LMSLogo from '@/components/Icons/LMSLogo.vue'
 import { useRouter } from 'vue-router'
 import {
@@ -233,6 +232,7 @@ import {
 	showHelpModal,
 	minimize,
 	IntermediateStepModal,
+	useTelemetry,
 } from 'frappe-ui/frappe'
 import InviteIcon from '@/components/Icons/InviteIcon.vue'
 import UserDropdown from '@/components/Sidebar/UserDropdown.vue'
@@ -246,6 +246,7 @@ let sidebarStore = useSidebar()
 const socket = inject('$socket')
 const unreadCount = ref(0)
 const sidebarLinks = ref(null)
+const { capture } = useTelemetry()
 const showPageModal = ref(false)
 const isModerator = ref(false)
 const isInstructor = ref(false)

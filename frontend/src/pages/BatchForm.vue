@@ -297,8 +297,7 @@ import {
 } from '@/utils'
 import { useRouter } from 'vue-router'
 import { Trash2 } from 'lucide-vue-next'
-import { capture } from '@/telemetry'
-import { useOnboarding } from 'frappe-ui/frappe'
+import { useOnboarding, useTelemetry } from 'frappe-ui/frappe'
 import { sessionStore } from '../stores/session'
 import Uploader from '@/components/Controls/Uploader.vue'
 import MultiSelect from '@/components/Controls/MultiSelect.vue'
@@ -310,6 +309,7 @@ const { brand } = sessionStore()
 const { updateOnboardingStep } = useOnboarding('learning')
 const instructors = ref([])
 const app = getCurrentInstance()
+const { capture } = useTelemetry()
 const { $dialog } = app.appContext.config.globalProperties
 
 const props = defineProps({
@@ -464,7 +464,6 @@ const validateFields = () => {
 			!['description', 'batch_details'].includes(key) &&
 			typeof batch[key] === 'string'
 		) {
-			console.log(key)
 			batch[key] = escapeHTML(batch[key])
 		}
 	})
