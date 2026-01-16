@@ -6,27 +6,26 @@
 	</header>
 	<div class="p-6">
 		<div class="flex items-center justify-between space-x-32 mb-5">
-			<div class="text-xl font-semibold text-ink-gray-7">
+			<div class="text-lg font-semibold text-ink-gray-9">
 				{{
 					submissions.data?.length
 						? __('{0} Submissions').format(submissions.data.length)
 						: __('No Submissions')
 				}}
 			</div>
-			<div
-				v-if="submissions.data?.length"
-				class="grid grid-cols-3 gap-5 flex-1"
-			>
+			<div v-if="submissions.data?.length" class="grid grid-cols-3 gap-5">
 				<Link
 					doctype="LMS Programming Exercise"
 					v-model="filters.exercise"
 					:placeholder="__('Filter by Exercise')"
+					class="w-40"
 				/>
 				<Link
 					doctype="User"
 					v-model="filters.member"
 					:placeholder="__('Filter by Member')"
 					:readonly="isStudent"
+					class="w-40"
 				/>
 				<FormControl
 					v-model="filters.status"
@@ -37,6 +36,7 @@
 						{ label: __('Failed'), value: 'Failed' },
 					]"
 					:placeholder="__('Filter by Status')"
+					class="w-40"
 				/>
 			</div>
 		</div>
@@ -47,6 +47,7 @@
 			rowKey="name"
 			:options="{
 				selectable: true,
+				showTooltip: false,
 			}"
 		>
 			<ListHeader
@@ -73,7 +74,7 @@
 						},
 					}"
 				>
-					<ListRow :row="row">
+					<ListRow :row="row" class="hover:bg-surface-gray-1">
 						<template #default="{ column, item }">
 							<ListRowItem :item="row[column.key]" :align="column.align">
 								<template #prefix>
