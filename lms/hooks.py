@@ -12,8 +12,12 @@ app_color = "grey"
 app_email = "jannat@frappe.io"
 app_license = "AGPL"
 
-lms_path = frappe.conf.get("lms_path") or "lms"
-app_icon_route = f"/{lms_path}"
+
+def get_lms_path():
+	return (frappe.conf.get("lms_path") or "lms").strip("/")
+
+
+app_icon_route = f"/{get_lms_path()}"
 
 # Includes in <head>
 # ------------------
@@ -167,8 +171,8 @@ override_whitelisted_methods = {
 
 # Add all simple route rules here
 website_route_rules = [
-	{"from_route": f"/{lms_path}/<path:app_path>", "to_route": "_lms"},
-	{"from_route": f"/{lms_path}", "to_route": "_lms"},
+	{"from_route": f"/{get_lms_path()}/<path:app_path>", "to_route": "_lms"},
+	{"from_route": f"/{get_lms_path()}", "to_route": "_lms"},
 	{
 		"from_route": "/courses/<course_name>/<certificate_id>",
 		"to_route": "certificate",
@@ -177,25 +181,25 @@ website_route_rules = [
 
 website_redirects = [
 	{"source": "/update-profile", "target": "/edit-profile"},
-	{"source": "/courses", "target": f"/{lms_path}/courses"},
+	{"source": "/courses", "target": f"/{get_lms_path()}/courses"},
 	{
 		"source": r"^/courses/.*$",
-		"target": f"/{lms_path}/courses",
+		"target": f"/{get_lms_path()}/courses",
 	},
-	{"source": "/batches", "target": f"/{lms_path}/batches"},
+	{"source": "/batches", "target": f"/{get_lms_path()}/batches"},
 	{
 		"source": r"/batches/(.*)",
-		"target": f"/{lms_path}/batches",
+		"target": f"/{get_lms_path()}/batches",
 		"match_with_query_string": True,
 	},
-	{"source": "/job-openings", "target": f"/{lms_path}/job-openings"},
+	{"source": "/job-openings", "target": f"/{get_lms_path()}/job-openings"},
 	{
 		"source": r"/job-openings/(.*)",
-		"target": f"/{lms_path}/job-openings",
+		"target": f"/{get_lms_path()}/job-openings",
 		"match_with_query_string": True,
 	},
-	{"source": "/statistics", "target": f"/{lms_path}/statistics"},
-	{"source": "_lms", "target": f"/{lms_path}"},
+	{"source": "/statistics", "target": f"/{get_lms_path()}/statistics"},
+	{"source": "_lms", "target": f"/{get_lms_path()}"},
 ]
 
 update_website_context = [
@@ -267,7 +271,7 @@ add_to_apps_screen = [
 		"name": "lms",
 		"logo": "/assets/lms/frontend/learning.svg",
 		"title": "Learning",
-		"route": f"/{lms_path}",
+		"route": f"/{get_lms_path()}",
 		"has_permission": "lms.lms.api.check_app_permission",
 	}
 ]

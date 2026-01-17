@@ -4,8 +4,7 @@ from frappe.model.naming import append_number_if_name_exists
 from frappe.utils import escape_html, random_string
 from frappe.website.utils import cleanup_page_name, is_signup_disabled
 
-from lms.hooks import lms_path
-from lms.lms.utils import get_country_code
+from lms.lms.utils import get_country_code, get_lms_route
 
 
 def validate_username_duplicates(doc, method):
@@ -89,4 +88,4 @@ def set_country_from_ip(login_manager=None, user=None):
 def on_login(login_manager):
 	default_app = frappe.db.get_single_value("System Settings", "default_app")
 	if default_app == "lms":
-		frappe.local.response["home_page"] = f"/{lms_path}"
+		frappe.local.response["home_page"] = get_lms_route()

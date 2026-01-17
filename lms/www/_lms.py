@@ -5,8 +5,7 @@ from bs4 import BeautifulSoup
 from frappe import _
 from frappe.utils.telemetry import capture
 
-from lms.hooks import lms_path
-from lms.lms.utils import get_lms_route
+from lms.lms.utils import get_lms_path, get_lms_route
 
 no_cache = 1
 
@@ -35,7 +34,7 @@ def get_boot():
 			"read_only_mode": frappe.flags.read_only,
 			"csrf_token": frappe.sessions.get_csrf_token(),
 			"site_name": frappe.local.site,
-			"lms_path": lms_path,
+			"lms_path": get_lms_path(),
 		}
 	)
 
