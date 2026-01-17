@@ -18,6 +18,7 @@ from lms.lms.utils import (
 	get_instructors,
 	get_lesson_index,
 	get_lesson_url,
+	get_lms_route,
 	get_quiz_details,
 	update_payment_record,
 )
@@ -164,7 +165,7 @@ def send_email_notification_for_published_batch(batch):
 		"medium": batch.medium,
 		"timezone": batch.timezone,
 		"instructors": instructors,
-		"batch_url": f"{frappe.utils.get_url()}/lms/batches/details/{batch.name}",
+		"batch_url": frappe.utils.get_url(get_lms_route(f"batches/details/{batch.name}")),
 	}
 
 	frappe.sendmail(
@@ -193,7 +194,7 @@ def send_system_notification_for_published_batch(batch):
 			"document_name": batch.name,
 			"from_user": instructors[0] if instructors else None,
 			"type": "Alert",
-			"link": f"/lms/batches/details/{batch.name}",
+			"link": get_lms_route(f"batches/details/{batch.name}"),
 		}
 	)
 	make_notification_logs(notification, students)

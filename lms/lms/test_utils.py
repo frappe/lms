@@ -2,6 +2,7 @@ import frappe
 from frappe.tests import UnitTestCase
 from frappe.utils import add_days, nowdate
 
+from lms.hooks import lms_path
 from lms.lms.api import get_certified_participants
 from lms.lms.doctype.lms_certificate.lms_certificate import get_default_certificate_template, is_certified
 
@@ -235,7 +236,7 @@ class TestUtils(UnitTestCase):
 	def test_get_lesson_url(self):
 		lessons = get_lessons(self.course.name)
 		for lesson in lessons:
-			expected_url = f"/lms/courses/{self.course.name}/learn/{lesson.number}"
+			expected_url = f"/{lms_path}/courses/{self.course.name}/learn/{lesson.number}"
 			self.assertEqual(get_lesson_url(self.course.name, lesson.number), expected_url)
 
 	def test_is_instructor(self):

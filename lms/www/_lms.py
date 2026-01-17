@@ -5,6 +5,9 @@ from bs4 import BeautifulSoup
 from frappe import _
 from frappe.utils.telemetry import capture
 
+from lms.hooks import lms_path
+from lms.lms.utils import get_lms_route
+
 no_cache = 1
 
 
@@ -32,6 +35,7 @@ def get_boot():
 			"read_only_mode": frappe.flags.read_only,
 			"csrf_token": frappe.sessions.get_csrf_token(),
 			"site_name": frappe.local.site,
+			"lms_path": lms_path,
 		}
 	)
 
@@ -85,7 +89,7 @@ def get_meta_from_document(app_path):
 		return {
 			"title": _("Course List"),
 			"keywords": "All Courses, Courses, Learn",
-			"link": "/courses",
+			"link": get_lms_route("courses"),
 		}
 
 	if re.match(r"^courses/.*$", app_path):
@@ -94,7 +98,7 @@ def get_meta_from_document(app_path):
 				"title": _("New Course"),
 				"image": frappe.db.get_single_value("Website Settings", "banner_image"),
 				"keywords": "New Course, Create Course",
-				"link": "/lms/courses/new/edit",
+				"link": get_lms_route("courses/new/edit"),
 			}
 		course_name = app_path.split("/")[1]
 		course = frappe.db.get_value(
@@ -113,14 +117,14 @@ def get_meta_from_document(app_path):
 			"image": course.image,
 			"description": course.description,
 			"keywords": course.tags,
-			"link": f"/courses/{course_name}",
+			"link": get_lms_route(f"courses/{course_name}"),
 		}
 
 	if app_path == "batches":
 		return {
 			"title": _("Batches"),
 			"keywords": "All Batches, Batches, Learn",
-			"link": "/batches",
+			"link": get_lms_route("batches"),
 		}
 	if re.match(r"^batches/details/.*$", app_path):
 		batch_name = app_path.split("/")[2]
@@ -140,7 +144,7 @@ def get_meta_from_document(app_path):
 			"image": batch.meta_image,
 			"description": batch.batch_details,
 			"keywords": f"{batch.category} {batch.medium}",
-			"link": f"/batches/details/{batch_name}",
+			"link": get_lms_route(f"batches/details/{batch_name}"),
 		}
 
 	if re.match(r"^batches/.*$", app_path):
@@ -149,7 +153,7 @@ def get_meta_from_document(app_path):
 			return {
 				"title": _("New Batch"),
 				"keywords": "New Batch, Create Batch",
-				"link": "/lms/batches/new/edit",
+				"link": get_lms_route("batches/new/edit"),
 			}
 		batch = frappe.db.get_value(
 			"LMS Batch",
@@ -167,14 +171,14 @@ def get_meta_from_document(app_path):
 			"image": batch.meta_image,
 			"description": batch.batch_details,
 			"keywords": f"{batch.category} {batch.medium}",
-			"link": f"/batches/{batch_name}",
+			"link": get_lms_route(f"batches/{batch_name}"),
 		}
 
 	if app_path == "job-openings":
 		return {
 			"title": _("Job Openings"),
 			"keywords": "Job Openings, Jobs, Vacancies",
-			"link": "/job-openings",
+			"link": get_lms_route("job-openings"),
 		}
 
 	if re.match(r"^job-openings/.*$", app_path):
@@ -195,14 +199,14 @@ def get_meta_from_document(app_path):
 			"image": job_opening.company_logo,
 			"description": job_opening.description,
 			"keywords": "Job Openings, Jobs, Vacancies",
-			"link": f"/job-openings/{job_opening_name}",
+			"link": get_lms_route(f"job-openings/{job_opening_name}"),
 		}
 
 	if app_path == "statistics":
 		return {
 			"title": _("Statistics"),
 			"keywords": "Enrollment Count, Completion, Signups",
-			"link": "/statistics",
+			"link": get_lms_route("statistics"),
 		}
 
 	if re.match(r"^user/.*$", app_path):
@@ -225,7 +229,7 @@ def get_meta_from_document(app_path):
 			"image": user.user_image,
 			"description": user.bio,
 			"keywords": f"{user.full_name}, {user.bio}",
-			"link": f"/user/{username}",
+			"link": get_lms_route(f"user/{username}"),
 		}
 
 	if re.match(r"^badges/.*/.*$", app_path):
@@ -242,14 +246,14 @@ def get_meta_from_document(app_path):
 			"image": badge.image,
 			"description": badge.description,
 			"keywords": f"{badge.title}, {badge.description}",
-			"link": f"/badges/{badgeName}/{email}",
+			"link": get_lms_route(f"badges/{badgeName}/{email}"),
 		}
 
 	if app_path == "quizzes":
 		return {
 			"title": _("Quizzes"),
 			"keywords": "Quizzes, interactive quizzes, online quizzes",
-			"link": "/quizzes",
+			"link": get_lms_route("quizzes"),
 		}
 
 	if re.match(r"^quizzes/[^/]+$", app_path):
@@ -264,14 +268,14 @@ def get_meta_from_document(app_path):
 			return {
 				"title": quiz.title,
 				"keywords": quiz.title,
-				"link": f"/quizzes/{quiz_name}",
+				"link": get_lms_route(f"quizzes/{quiz_name}"),
 			}
 
 	if app_path == "assignments":
 		return {
 			"title": _("Assignments"),
 			"keywords": "Assignments, interactive assignments, online assignments",
-			"link": "/assignments",
+			"link": get_lms_route("assignments"),
 		}
 
 	if re.match(r"^assignments/[^/]+$", app_path):
@@ -286,21 +290,21 @@ def get_meta_from_document(app_path):
 			return {
 				"title": assignment.title,
 				"keywords": assignment.title,
-				"link": f"/assignments/{assignment_name}",
+				"link": get_lms_route(f"assignments/{assignment_name}"),
 			}
 
 	if app_path == "programs":
 		return {
 			"title": _("Programs"),
 			"keywords": "All Programs, Programs, Learn",
-			"link": "/programs",
+			"link": get_lms_route("programs"),
 		}
 
 	if app_path == "certified-participants":
 		return {
 			"title": _("Certified Participants"),
 			"keywords": "All Certified Participants, Certified Participants, Learn, Certification",
-			"link": "/certified-participants",
+			"link": get_lms_route("certified-participants"),
 		}
 
 	return {}

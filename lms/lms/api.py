@@ -28,6 +28,7 @@ from frappe.utils import (
 )
 from frappe.utils.response import Response
 
+from lms.hooks import lms_path
 from lms.lms.doctype.course_lesson.course_lesson import save_progress
 from lms.lms.utils import (
 	get_average_rating,
@@ -1673,7 +1674,7 @@ def get_pwa_manifest():
 		"name": title,
 		"short_name": title,
 		"description": "Easy to use, 100% open source Learning Management System",
-		"start_url": "/lms",
+		"start_url": f"/{lms_path}",
 		"icons": [
 			{
 				"src": banner_image or "/assets/lms/frontend/manifest/manifest-icon-192.maskable.png",

@@ -5,6 +5,8 @@ import frappe
 from frappe import _
 from frappe.model.document import Document
 
+from lms.lms.utils import get_lms_route
+
 
 class LMSMentorRequest(Document):
 	def on_update(self):
@@ -37,7 +39,7 @@ class LMSMentorRequest(Document):
 			email_template.response,
 			{
 				"member_name": frappe.db.get_value("User", frappe.session.user, "full_name"),
-				"course_url": "/lms/courses/" + course_details.slug,
+				"course_url": get_lms_route(f"courses/{course_details.slug}"),
 				"course": course_details.title,
 			},
 		)
