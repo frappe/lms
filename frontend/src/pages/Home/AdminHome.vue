@@ -5,24 +5,20 @@
 				<span class="font-semibold text-lg text-ink-gray-9">
 					{{ __('Courses Created') }}
 				</span>
-				<router-link
-					:to="{
-						name: 'Courses',
-					}"
-				>
-					<span class="flex items-center space-x-1 text-ink-gray-5 text-xs">
+				<router-link :to="{
+					name: 'Courses',
+				}">
+					<span class="flex items-center space-x-1  text-primary-500 text-sm">
 						<span>
-							{{ __('See all') }}
+							{{ __('View all courses') }}
 						</span>
 						<MoveRight class="size-3 stroke-1.5" />
 					</span>
 				</router-link>
 			</div>
 			<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-				<router-link
-					v-for="course in createdCourses.data"
-					:to="{ name: 'CourseDetail', params: { courseName: course.name } }"
-				>
+				<router-link v-for="course in createdCourses.data"
+					:to="{ name: 'CourseDetail', params: { courseName: course.name } }">
 					<CourseCard :course="course" />
 				</router-link>
 			</div>
@@ -33,50 +29,39 @@
 				<span class="font-semibold text-lg text-ink-gray-9">
 					{{ __('Upcoming Batches') }}
 				</span>
-				<router-link
-					:to="{
-						name: 'Batches',
-					}"
-				>
-					<span class="flex items-center space-x-1 text-ink-gray-5 text-xs">
+				<router-link :to="{
+					name: 'Batches',
+				}">
+					<span class="flex items-center space-x-1 text-primary-500 text-sm">
 						<span>
-							{{ __('See all') }}
+							{{ __('View all batch') }}
 						</span>
 						<MoveRight class="size-3 stroke-1.5" />
 					</span>
 				</router-link>
 			</div>
 			<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-				<router-link
-					v-for="batch in createdBatches.data"
-					:to="{ name: 'BatchDetail', params: { batchName: batch.name } }"
-				>
+				<router-link v-for="batch in createdBatches.data"
+					:to="{ name: 'BatchDetail', params: { batchName: batch.name } }">
 					<BatchCard :batch="batch" />
 				</router-link>
 			</div>
 		</div>
 
-		<div
-			v-if="!createdCourses.data?.length && !createdBatches.data?.length"
-			class="flex flex-col items-center justify-center mt-60"
-		>
+		<div v-if="!createdCourses.data?.length && !createdBatches.data?.length"
+			class="flex flex-col items-center justify-center mt-60">
 			<GraduationCap class="size-10 mx-auto stroke-1 text-ink-gray-5" />
 			<div class="text-lg font-semibold text-ink-gray-7 mb-1.5">
 				{{ __('No courses created') }}
 			</div>
-			<div
-				class="leading-5 text-base w-full md:w-2/5 text-base text-center text-ink-gray-7"
-			>
+			<div class="leading-5 text-base w-full md:w-2/5 text-base text-center text-ink-gray-7">
 				{{
 					__(
 						'There are no courses currently. Create your first course to get started!'
 					)
 				}}
 			</div>
-			<router-link
-				:to="{ name: 'CourseForm', params: { courseName: 'new' } }"
-				class="mt-4"
-			>
+			<router-link :to="{ name: 'CourseForm', params: { courseName: 'new' } }" class="mt-4">
 				<Button>
 					<template #prefix>
 						<Plus class="size-4 stroke-1.5" />
@@ -92,11 +77,9 @@
 					{{ __('Upcoming Evaluations') }}
 				</div>
 				<div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
-					<div
-						v-for="evaluation in evals?.data"
+					<div v-for="evaluation in evals?.data"
 						class="border hover:border-outline-gray-3 rounded-md p-3 flex flex-col h-full cursor-pointer"
-						@click="redirectToProfile()"
-					>
+						@click="redirectToProfile()">
 						<div class="font-semibold text-ink-gray-9 text-lg leading-5 mb-1">
 							{{ evaluation.course_title }}
 						</div>
@@ -128,10 +111,7 @@
 					{{ __('Upcoming Live Classes') }}
 				</div>
 				<div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
-					<div
-						v-for="cls in liveClasses?.data"
-						class="border hover:border-outline-gray-3 rounded-md p-3"
-					>
+					<div v-for="cls in liveClasses?.data" class="border hover:border-outline-gray-3 rounded-md p-3">
 						<div class="font-semibold text-ink-gray-9 text-lg leading-5 mb-1">
 							{{ cls.title }}
 						</div>
@@ -152,34 +132,22 @@
 									{{ dayjs(getClassEnd(cls)).format('HH:mm A') }}
 								</span>
 							</div>
-							<div
-								v-if="canAccessClass(cls)"
-								class="flex items-center space-x-2 text-ink-gray-9 mt-auto"
-							>
-								<a
-									v-if="user.data?.is_moderator || user.data?.is_evaluator"
-									:href="cls.start_url"
+							<div v-if="canAccessClass(cls)" class="flex items-center space-x-2 text-ink-gray-9 mt-auto">
+								<a v-if="user.data?.is_moderator || user.data?.is_evaluator" :href="cls.start_url"
 									target="_blank"
 									class="cursor-pointer inline-flex items-center justify-center gap-2 transition-colors focus:outline-none text-ink-gray-8 bg-surface-gray-2 hover:bg-surface-gray-3 active:bg-surface-gray-4 focus-visible:ring focus-visible:ring-outline-gray-3 h-7 text-base px-2 rounded"
-									:class="cls.join_url ? 'w-full' : 'w-1/2'"
-								>
+									:class="cls.join_url ? 'w-full' : 'w-1/2'">
 									<Monitor class="h-4 w-4 stroke-1.5" />
 									{{ __('Start') }}
 								</a>
-								<a
-									:href="cls.join_url"
-									target="_blank"
-									class="w-full cursor-pointer inline-flex items-center justify-center gap-2 transition-colors focus:outline-none text-ink-gray-8 bg-surface-gray-2 hover:bg-surface-gray-3 active:bg-surface-gray-4 focus-visible:ring focus-visible:ring-outline-gray-3 h-7 text-base px-2 rounded"
-								>
+								<a :href="cls.join_url" target="_blank"
+									class="w-full cursor-pointer inline-flex items-center justify-center gap-2 transition-colors focus:outline-none text-ink-gray-8 bg-surface-gray-2 hover:bg-surface-gray-3 active:bg-surface-gray-4 focus-visible:ring focus-visible:ring-outline-gray-3 h-7 text-base px-2 rounded">
 									<Video class="h-4 w-4 stroke-1.5" />
 									{{ __('Join') }}
 								</a>
 							</div>
-							<Tooltip
-								v-else-if="hasClassEnded(cls)"
-								:text="__('This class has ended')"
-								placement="right"
-							>
+							<Tooltip v-else-if="hasClassEnded(cls)" :text="__('This class has ended')"
+								placement="right">
 								<div class="flex items-center space-x-2 text-ink-amber-3 w-fit">
 									<Info class="w-4 h-4 stroke-1.5" />
 									<span>

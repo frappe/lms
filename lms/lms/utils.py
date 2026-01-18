@@ -1001,7 +1001,18 @@ def get_courses(filters=None, start=0):
 
 
 def get_course_card_details(courses):
+	course_names = [course.name for course in courses]
+	review_counts = frappe.db.get_all(
+		"LMS Course Review",
+		filters={"course": ["in", course_names]},
+		fields=["course", "count(name) as count"],
+		group_by="course",
+		as_list=True,
+	)
+	review_counts_map = {row[0]: row[1] for row in review_counts}
+
 	for course in courses:
+		course.review_total = review_counts_map.get(course.name, 0)
 		course.instructors = get_instructors("LMS Course", course.name)
 
 		if course.paid_course and course.published == 1:
@@ -1146,6 +1157,8 @@ def get_course_details(course):
 		],
 		as_dict=1,
 	)
+
+	course_details.review_total = frappe.db.count("LMS Course Review", {"course": course})
 
 	course_details.instructors = get_instructors("LMS Course", course_details.name)
 	# course_details.is_instructor = is_instructor(course_details.name)
@@ -1362,6 +1375,7 @@ def get_batch_details(batch):
 		[
 			"name",
 			"title",
+			"meta_image",
 			"description",
 			"batch_details",
 			"batch_details_raw",
@@ -1381,6 +1395,7 @@ def get_batch_details(batch):
 			"timezone",
 			"category",
 			"zoom_account",
+			"medium"
 		],
 		as_dict=True,
 	)
@@ -2249,6 +2264,7 @@ def get_batches(filters=None, start=0, order_by="start_date"):
 		fields=[
 			"name",
 			"title",
+			"meta_image",
 			"description",
 			"seat_count",
 			"paid_batch",

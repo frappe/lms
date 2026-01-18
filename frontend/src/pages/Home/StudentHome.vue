@@ -9,24 +9,20 @@
 							: __('Our Popular Courses')
 					}}
 				</span>
-				<router-link
-					:to="{
-						name: 'Courses',
-					}"
-				>
-					<span class="flex items-center space-x-1 text-ink-gray-5 text-xs">
+				<router-link :to="{
+					name: 'Courses',
+				}">
+					<span class="flex items-center space-x-1 text-primary-500 text-sm">
 						<span>
-							{{ __('See all') }}
+							{{ __('View all courses') }}
 						</span>
 						<MoveRight class="size-3 stroke-1.5" />
 					</span>
 				</router-link>
 			</div>
 			<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-				<router-link
-					v-for="course in myCourses.data"
-					:to="{ name: 'CourseDetail', params: { courseName: course.name } }"
-				>
+				<router-link v-for="course in myCourses.data"
+					:to="{ name: 'CourseDetail', params: { courseName: course.name } }">
 					<CourseCard :course="course" />
 				</router-link>
 			</div>
@@ -41,24 +37,20 @@
 							: __('Our Upcoming Batches')
 					}}
 				</span>
-				<router-link
-					:to="{
-						name: 'Batches',
-					}"
-				>
-					<span class="flex items-center space-x-1 text-ink-gray-5 text-xs">
+				<router-link :to="{
+					name: 'Batches',
+				}">
+					<span class="flex items-center space-x-1 text-primary-500 text-sm">
 						<span>
-							{{ __('See all') }}
+							{{ __('View all batch') }}
 						</span>
 						<MoveRight class="size-3 stroke-1.5" />
 					</span>
 				</router-link>
 			</div>
 			<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-				<router-link
-					v-for="batch in myBatches.data"
-					:to="{ name: 'BatchDetail', params: { batchName: batch.name } }"
-				>
+				<router-link v-for="batch in myBatches.data"
+					:to="{ name: 'BatchDetail', params: { batchName: batch.name } }">
 					<BatchCard :batch="batch" />
 				</router-link>
 			</div>
@@ -71,10 +63,7 @@
 					{{ __('Upcoming Live Classes') }}
 				</div>
 				<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-					<div
-						v-for="cls in myLiveClasses.data"
-						class="border rounded-md hover:border-outline-gray-3 p-2"
-					>
+					<div v-for="cls in myLiveClasses.data" class="border rounded-md hover:border-outline-gray-3 p-2">
 						<div class="font-semibold text-ink-gray-9 text-lg leading-5 mb-1">
 							{{ cls.title }}
 						</div>
@@ -95,34 +84,22 @@
 									{{ dayjs(getClassEnd(cls)).format('HH:mm A') }}
 								</span>
 							</div>
-							<div
-								v-if="canAccessClass(cls)"
-								class="flex items-center space-x-2 text-ink-gray-9 mt-auto"
-							>
-								<a
-									v-if="user.data?.is_moderator || user.data?.is_evaluator"
-									:href="cls.start_url"
+							<div v-if="canAccessClass(cls)" class="flex items-center space-x-2 text-ink-gray-9 mt-auto">
+								<a v-if="user.data?.is_moderator || user.data?.is_evaluator" :href="cls.start_url"
 									target="_blank"
 									class="cursor-pointer inline-flex items-center justify-center gap-2 transition-colors focus:outline-none text-ink-gray-8 bg-surface-gray-2 hover:bg-surface-gray-3 active:bg-surface-gray-4 focus-visible:ring focus-visible:ring-outline-gray-3 h-7 text-base px-2 rounded"
-									:class="cls.join_url ? 'w-full' : 'w-1/2'"
-								>
+									:class="cls.join_url ? 'w-full' : 'w-1/2'">
 									<Monitor class="h-4 w-4 stroke-1.5" />
 									{{ __('Start') }}
 								</a>
-								<a
-									:href="cls.join_url"
-									target="_blank"
-									class="w-full cursor-pointer inline-flex items-center justify-center gap-2 transition-colors focus:outline-none text-ink-gray-8 bg-surface-gray-2 hover:bg-surface-gray-3 active:bg-surface-gray-4 focus-visible:ring focus-visible:ring-outline-gray-3 h-7 text-base px-2 rounded"
-								>
+								<a :href="cls.join_url" target="_blank"
+									class="w-full cursor-pointer inline-flex items-center justify-center gap-2 transition-colors focus:outline-none text-ink-gray-8 bg-surface-gray-2 hover:bg-surface-gray-3 active:bg-surface-gray-4 focus-visible:ring focus-visible:ring-outline-gray-3 h-7 text-base px-2 rounded">
 									<Video class="h-4 w-4 stroke-1.5" />
 									{{ __('Join') }}
 								</a>
 							</div>
-							<Tooltip
-								v-else-if="hasClassEnded(cls)"
-								:text="__('This class has ended')"
-								placement="right"
-							>
+							<Tooltip v-else-if="hasClassEnded(cls)" :text="__('This class has ended')"
+								placement="right">
 								<div class="flex items-center space-x-2 text-ink-amber-3 w-fit">
 									<Info class="w-4 h-4 stroke-1.5" />
 									<span>

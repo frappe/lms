@@ -1,46 +1,39 @@
 <template>
-	<header
-		class="sticky flex items-center justify-between top-0 z-10  bg-surface-white px-3 py-2.5 sm:px-5"
-	>
+	<header class="sticky flex items-center justify-between top-0 z-10  bg-surface-white px-3 py-2.5 sm:px-5">
 		<Breadcrumbs :items="breadcrumbs" />
-		<Dropdown
-			v-if="canCreateBatch()"
-			:options="[
-				{
-					label: __('New Batch'),
-					icon: 'users',
-					onClick() {
-						router.push({
-							name: 'BatchForm',
-							params: { batchName: 'new' },
-						})
-					},
+		<Dropdown v-if="canCreateBatch()" :options="[
+			{
+				label: __('New Batch'),
+				icon: 'users',
+				onClick() {
+					router.push({
+						name: 'BatchForm',
+						params: { batchName: 'new' },
+					})
 				},
-				{
-					label: __('Import Batch'),
-					icon: 'upload',
-					onClick() {
-						router.push({
-							name: 'NewDataImport',
-							params: { doctype: 'LMS Batch' },
-						})
-					},
+			},
+			{
+				label: __('Import Batch'),
+				icon: 'upload',
+				onClick() {
+					router.push({
+						name: 'NewDataImport',
+						params: { doctype: 'LMS Batch' },
+					})
 				},
-			]"
-		>
+			},
+		]">
 			<template v-slot="{ open }">
-				<Button variant="solid">
+				<Button variant="solid" size="lg" theme="gray">
 					<template #prefix>
 						<Plus class="h-4 w-4 stroke-1.5" />
 					</template>
 					{{ __('Create') }}
 					<template #suffix>
-						<ChevronDown
-							:class="[
-								'w-4 h-4 stroke-1.5 ml-1 transform transition-transform',
-								open ? 'rotate-180' : '',
-							]"
-						/>
+						<ChevronDown :class="[
+							'w-4 h-4 stroke-1.5 ml-1 transform transition-transform',
+							open ? 'rotate-180' : '',
+						]" />
 					</template>
 				</Button>
 			</template>
@@ -61,65 +54,38 @@
 		</router-link> -->
 	</header>
 	<div class="p-5 pb-10">
-		<div
-			class="flex flex-col lg:flex-row space-y-4 lg:space-y-0 lg:items-center justify-between mb-5"
-		>
+		<div class="flex flex-col lg:flex-row space-y-4 lg:space-y-0 lg:items-center justify-between mb-5">
 			<div class="text-lg text-ink-gray-9 font-semibold">
 				{{ __('All Batches') }}
 			</div>
-			<div
-				class="flex flex-col space-y-3 lg:space-y-0 lg:flex-row lg:items-center lg:space-x-4"
-			>
-				<TabButtons
-					v-if="user.data"
-					:buttons="batchTabs"
-					v-model="currentTab"
-					class="w-fit"
-				/>
+			<div class="flex flex-col space-y-3 lg:space-y-0 lg:flex-row lg:items-center lg:space-x-4">
+				<!-- <TabButtons v-if="user.data" :buttons="batchTabs" v-model="currentTab" class="w-fit" /> -->
 				<div class="grid grid-cols-2 gap-2">
-					<FormControl
-						v-model="title"
-						:placeholder="__('Search by Title')"
-						type="text"
-						class="min-w-40 lg:min-w-0 lg:w-32 xl:w-40"
-						@input="updateBatches()"
-					/>
+					<FormControl v-model="title" :placeholder="__('Search in your batches...')" type="text"
+						class="min-w-40 lg:min-w-0 lg:w-32 xl:w-40" @input="updateBatches()" variant="outline"
+						size="lg" />
 					<div class="min-w-40 lg:min-w-0 lg:w-32 xl:w-40">
-						<Select
-							v-if="categories.length"
-							v-model="currentCategory"
-							:options="categories"
-							:placeholder="__('Category')"
-							@change="updateBatches()"
-						/>
+						<Select v-if="batchTabs.length" v-model="currentTab" :options="batchTabs"
+							:placeholder="__('All')" @change="updateBatches()" variant="outline" size="lg" />
 					</div>
+					<!-- <div class="min-w-40 lg:min-w-0 lg:w-32 xl:w-40">
+						<Select v-if="categories.length" v-model="currentCategory" :options="categories"
+							:placeholder="__('Category')" @change="updateBatches()" />
+					</div> -->
 				</div>
 
-				<FormControl
-					v-model="certification"
-					:label="__('Certification')"
-					type="checkbox"
-					@change="updateBatches()"
-				/>
+				<!-- <FormControl v-model="certification" :label="__('Certification')" type="checkbox"
+					@change="updateBatches()" /> -->
 			</div>
 		</div>
-		<div
-			v-if="batches.data?.length"
-			class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5"
-		>
-			<router-link
-				v-for="batch in batches.data"
-				:to="{ name: 'BatchDetail', params: { batchName: batch.name } }"
-			>
+		<div v-if="batches.data?.length" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+			<router-link v-for="batch in batches.data" :to="{ name: 'BatchDetail', params: { batchName: batch.name } }">
 				<BatchCard :batch="batch" />
 			</router-link>
 		</div>
 		<EmptyState v-else-if="!batches.list.loading" type="Batches" />
 
-		<div
-			v-if="!batches.list.loading && batches.hasNextPage"
-			class="flex justify-center mt-5"
-		>
+		<div v-if="!batches.list.loading && batches.hasNextPage" class="flex justify-center mt-5">
 			<Button @click="batches.next()">
 				{{ __('Load More') }}
 			</Button>
