@@ -42,14 +42,13 @@ def authenticate():
 	else:
 		path = frappe.request.path
 
-	user_type = frappe.get_cached_value("User", frappe.session.user, "user_type")
-
+	user_type = frappe.db.get_value("User", frappe.session.user, "user_type")
 	if user_type == "System User":
 		return
 
 	if not path.startswith("/api/"):
 		return
-
+	print("path", path)
 	if path.startswith("/lms") or path.startswith("/api/method/lms."):
 		return
 
