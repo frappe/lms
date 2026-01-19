@@ -46,6 +46,9 @@ ALLOWED_PATHS = [
 
 
 def authenticate():
+	if not frappe.conf.get("block_endpoints"):
+		return
+
 	if frappe.form_dict.cmd:
 		path = f"/api/method/{frappe.form_dict.cmd}"
 	else:
