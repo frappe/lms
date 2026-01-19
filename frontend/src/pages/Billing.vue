@@ -234,10 +234,12 @@ import { sessionStore } from '../stores/session'
 import Link from '@/components/Controls/Link.vue'
 import NotPermitted from '@/components/NotPermitted.vue'
 import { X } from 'lucide-vue-next'
+import { useTelemetry } from 'frappe-ui/frappe'
 
 const user = inject('$user')
 const { brand } = sessionStore()
 const showConsentWarning = ref(false)
+const { capture } = useTelemetry()
 
 onMounted(() => {
 	const script = document.createElement('script')
@@ -339,6 +341,7 @@ const generatePaymentLink = () => {
 				return validateAddress()
 			},
 			onSuccess(data) {
+				capture('checkout_initiated', { type: props.type })
 				window.location.href = data
 			},
 			onError(err) {

@@ -529,6 +529,13 @@ const getSidebarItems = () => {
 					condition: () => {
 						return isAdmin()
 					},
+					activeFor: [
+						'Quizzes',
+						'QuizForm',
+						'QuizPage',
+						'QuizSubmissionList',
+						'QuizSubmission',
+					],
 				},
 				{
 					label: 'Assignments',
@@ -537,6 +544,11 @@ const getSidebarItems = () => {
 					condition: () => {
 						return isAdmin()
 					},
+					activeFor: [
+						'Assignments',
+						'AssignmentSubmissionList',
+						'AssignmentSubmission',
+					],
 				},
 				{
 					label: 'Programming Exercises',
@@ -545,6 +557,11 @@ const getSidebarItems = () => {
 					condition: () => {
 						return isAdmin()
 					},
+					activeFor: [
+						'ProgrammingExercises',
+						'ProgrammingExerciseSubmissions',
+						'ProgrammingExerciseSubmission',
+					],
 				},
 			],
 		},

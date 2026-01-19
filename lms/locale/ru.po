@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2026-01-13 05:34+0000\n"
-"PO-Revision-Date: 2026-01-13 19:44\n"
+"PO-Revision-Date: 2026-01-14 19:44\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Russian\n"
 "MIME-Version: 1.0\n"
@@ -2412,7 +2412,7 @@ msgstr "Регистрация на программу {0}"
 #. Label of the enrollment_from_batch (Link) field in DocType 'LMS Enrollment'
 #: lms/lms/doctype/lms_enrollment/lms_enrollment.json
 msgid "Enrollment from Batch"
-msgstr ""
+msgstr "Зачисление из группы"
 
 #: lms/lms/doctype/lms_batch_enrollment/lms_batch_enrollment.py:57
 msgid "Enrollment in this batch is restricted. Please contact the Administrator."
@@ -2730,7 +2730,7 @@ msgstr "Тип файла"
 
 #: frontend/src/components/AssessmentPlugin.vue:54
 msgid "Filter assignments by course"
-msgstr ""
+msgstr "Фильтруйте задания по курсу"
 
 #: frontend/src/components/Settings/Transactions/TransactionList.vue:15
 msgid "Filter by Billing Name"
@@ -3031,7 +3031,7 @@ msgstr "Подсвеченный текст"
 #: frontend/src/pages/CertifiedParticipants.vue:52
 #: frontend/src/pages/Profile.vue:70 lms/fixtures/custom_field.json
 msgid "Hiring"
-msgstr ""
+msgstr "Набор персонала"
 
 #: frontend/src/pages/Home/Home.vue:5 frontend/src/pages/Home/Home.vue:154
 msgid "Home"
@@ -3062,7 +3062,7 @@ msgstr "Я недоступен"
 
 #: frontend/src/pages/Billing.vue:181
 msgid "I consent to my personal information being stored for invoicing"
-msgstr ""
+msgstr "Я даю согласие на хранение моих персональных данных для выставления счетов"
 
 #: frontend/src/pages/QuizForm.vue:340
 msgid "ID"
@@ -3900,7 +3900,7 @@ msgstr "Самая длинная серия"
 
 #: frontend/src/components/Modals/EditProfile.vue:95
 msgid "Looking for new work or hiring talent?"
-msgstr ""
+msgstr "Ищете новую работу или нанимаете талантливых сотрудников?"
 
 #: lms/templates/emails/payment_reminder.html:23
 msgid "Looking forward to seeing you enrolled!"
@@ -4065,7 +4065,7 @@ msgstr "Участник"
 #. Label of the member_consent (Check) field in DocType 'LMS Payment'
 #: lms/lms/doctype/lms_payment/lms_payment.json
 msgid "Member Consent"
-msgstr ""
+msgstr "Согласие участника"
 
 #. Label of the member_count (Int) field in DocType 'LMS Program'
 #: lms/lms/doctype/lms_program/lms_program.json
@@ -4696,7 +4696,7 @@ msgstr "Откройте "
 #: frontend/src/components/Modals/EditProfile.vue:94
 #: lms/fixtures/custom_field.json
 msgid "Open to"
-msgstr ""
+msgstr "Открыто для"
 
 #: frontend/src/components/UserAvatar.vue:11
 #: frontend/src/pages/CertifiedParticipants.vue:46
@@ -5054,7 +5054,7 @@ msgstr "Запишитесь на этот курс, чтобы просмотр
 
 #: frontend/src/pages/Billing.vue:99
 msgid "Please ensure that the billing name you enter is correct, as it will be used on your invoice."
-msgstr ""
+msgstr "Пожалуйста, убедитесь, что указанное вами имя плательщика верное, так как оно будет использовано в вашем счете."
 
 #: frontend/src/components/Quiz.vue:16
 msgid "Please ensure that you complete all the questions in {0} minutes."
@@ -5132,11 +5132,11 @@ msgstr "Пожалуйста, хорошо подготовьтесь и при�
 
 #: frontend/src/pages/Billing.vue:194
 msgid "Please provide your consent to proceed with the payment"
-msgstr ""
+msgstr "Пожалуйста, подтвердите свое согласие на продолжение оплаты"
 
 #: frontend/src/pages/Billing.vue:337
 msgid "Please provide your consent to proceed with the payment."
-msgstr ""
+msgstr "Пожалуйста, подтвердите свое согласие на продолжение оплаты."
 
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmission.vue:139
 msgid "Please run the code to execute the test cases."
@@ -5989,7 +5989,7 @@ msgstr "Выберите тест"
 #: frontend/src/components/AssessmentPlugin.vue:41
 #: frontend/src/components/AssessmentPlugin.vue:49
 msgid "Select an Assignment"
-msgstr ""
+msgstr "Выберите задание"
 
 #: frontend/src/components/ContactUsEmail.vue:33
 #: frontend/src/pages/JobApplications.vue:115
@@ -7796,7 +7796,7 @@ msgstr "{0} не найден"
 
 #: frontend/src/pages/Jobs.vue:33
 msgid "{0} {1} Jobs"
-msgstr ""
+msgstr "{0} {1} Работа"
 
 #. Count format of shortcut in the LMS Workspace
 #: lms/lms/workspace/lms/lms.json

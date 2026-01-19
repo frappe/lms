@@ -26,7 +26,7 @@
 			class="flex space-x-2 px-2 py-4"
 			:class="{
 				'cursor-pointer': log.link,
-				'items-center': !showDetails(log) && !isMention(log),
+				'items-center': !showDetails(log) && !isMentionOrComment(log),
 			}"
 			@click="navigateToPage(log)"
 		>
@@ -56,9 +56,9 @@
 					</div>
 				</div>
 				<div
-					v-if="isMention(log)"
+					v-if="isMentionOrComment(log)"
 					v-html="log.email_content"
-					class="bg-surface-gray-2 rounded-md px-3 py-2"
+					class="bg-surface-gray-2 rounded-md px-3 py-2 line-clamp-3 overflow-hidden"
 				></div>
 				<div
 					v-else-if="showDetails(log)"
@@ -260,7 +260,7 @@ const navigateToPage = (log) => {
 	}
 }
 
-const isMention = (log) => {
+const isMentionOrComment = (log) => {
 	if (log.type == 'Mention') {
 		return true
 	}
