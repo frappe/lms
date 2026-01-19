@@ -421,7 +421,7 @@ def get_batch_details_for_notification(topic):
 	users = []
 	batch_title = frappe.db.get_value("LMS Batch", topic.reference_docname, "title")
 	subject = _("New comment in batch {0}").format(batch_title)
-	link = f"/lms/batches/{topic.reference_docname}"
+	link = f"/lms/batches/{topic.reference_docname}#discussions"
 	instructors = frappe.db.get_all(
 		"Course Instructor",
 		{"parenttype": "LMS Batch", "parent": topic.reference_docname},
