@@ -37,7 +37,7 @@ class TestCourseEvaluator(UnitTestCase):
 	def test_schedule_dates(self):
 		schedule = get_schedule(self.batch.courses[0].course, self.batch.name)
 		first_date = self.calculated_first_date_of_schedule()
-		last_date = self.calculated_last_date_of_schedule(first_date)
+		last_date = self.calculated_last_date_of_schedule()
 		self.assertEqual(getdate(schedule[0].get("date")), first_date)
 		self.assertEqual(getdate(schedule[-1].get("date")), last_date)
 
