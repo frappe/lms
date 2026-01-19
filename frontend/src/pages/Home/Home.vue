@@ -12,29 +12,22 @@
 				</div>
 				<div>
 					<TabButtons v-if="isAdmin" v-model="currentTab" :buttons="tabs" />
-					<div
-						v-else
-						@click="showStreakModal = true"
-						class="bg-surface-amber-2 px-2 py-1 rounded-md cursor-pointer"
-					>
+					<!-- <div v-else @click="showStreakModal = true"
+						class="bg-surface-amber-2 px-2 py-1 rounded-md cursor-pointer">
 						<span> 🔥 </span>
 						<span class="text-ink-gray-9">
 							{{ streakInfo.data?.current_streak }}
 						</span>
-					</div>
+					</div> -->
 				</div>
 			</div>
 
-			<div class="text-lg text-ink-gray-6 leading-6">
+			<div class="text-lg text-gray-600 leading-6">
 				{{ subtitle }}
 			</div>
 		</div>
 
-		<AdminHome
-			v-if="isAdmin && currentTab === 'instructor'"
-			:liveClasses="adminLiveClasses"
-			:evals="adminEvals"
-		/>
+		<AdminHome v-if="isAdmin && currentTab === 'instructor'" :liveClasses="adminLiveClasses" :evals="adminEvals" />
 		<StudentHome v-else :myLiveClasses="myLiveClasses" />
 	</div>
 	<Streak v-model="showStreakModal" :streakInfo="streakInfo" />
