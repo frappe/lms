@@ -61,6 +61,16 @@ def authenticate():
 	if path.startswith("/lms") or path.startswith("/api/method/lms."):
 		return
 
+	if is_server_script_path(path):
+		return
+
 	if path in ALLOWED_PATHS:
 		return
 	frappe.throw(f"Access not allowed for this URL: {path}", frappe.PermissionError)
+
+
+def is_server_script_path(path):
+	endpoint = path.split("/api/method/")[-1]
+	if frappe.db.exists("Server Script", {"script_type": "API", "api_method": endpoint, "disabled": 0}):
+		return True
+	return False
