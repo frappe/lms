@@ -205,7 +205,7 @@ const identifyUserPersona = async () => {
 
 const getCourseCount = () => {
 	if (!user.data) return
-
+	if (!user.data.is_moderator) return
 	call('frappe.client.get_count', {
 		doctype: 'LMS Course',
 	}).then((data) => {

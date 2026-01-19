@@ -590,38 +590,39 @@ def get_chart_date_range(from_date, to_date):
 
 def get_chart_filters(doctype, chart, datefield, from_date, to_date):
 	version = get_frappe_version()
-	if version.startswith("16."):
-		filters = [([chart.document_type, "docstatus", "<", 2])]
-		filters = filters + json.loads(chart.filters_json)
-		filters.append([doctype, datefield, ">=", from_date])
-		filters.append([doctype, datefield, "<=", to_date])
-	else:
+	if version.startswith("15.") or version.startswith("14."):
 		filters = [([chart.document_type, "docstatus", "<", 2, False])]
 		filters = filters + json.loads(chart.filters_json)
 		filters.append([doctype, datefield, ">=", from_date, False])
 		filters.append([doctype, datefield, "<=", to_date, False])
+	else:
+		filters = [([chart.document_type, "docstatus", "<", 2])]
+		filters = filters + json.loads(chart.filters_json)
+		filters.append([doctype, datefield, ">=", from_date])
+		filters.append([doctype, datefield, "<=", to_date])
+
 	return filters
 
 
 def get_chart_details(doctype, datefield, value_field, chart, from_date, to_date):
 	filters = get_chart_filters(doctype, chart, datefield, from_date, to_date)
 	version = get_frappe_version()
-	if version.startswith("16."):
-		return frappe.db.get_all(
-			doctype,
-			fields=[datefield, {"SUM": value_field}, {"COUNT": "*"}],
-			filters=filters,
-			group_by=datefield,
-			order_by=datefield,
-			as_list=True,
-		)
-	else:
+	if version.startswith("15.") or version.startswith("14."):
 		return frappe.db.get_all(
 			doctype,
 			fields=[f"{datefield} as _unit", f"SUM({value_field})", "COUNT(*)"],
 			filters=filters,
 			group_by="_unit",
 			order_by="_unit asc",
+			as_list=True,
+		)
+	else:
+		return frappe.db.get_all(
+			doctype,
+			fields=[datefield, {"SUM": value_field}, {"COUNT": "*"}],
+			filters=filters,
+			group_by=datefield,
+			order_by=datefield,
 			as_list=True,
 		)
 
