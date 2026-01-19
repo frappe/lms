@@ -7,6 +7,8 @@ from frappe.desk.doctype.notification_log.notification_log import make_notificat
 from frappe.model.document import Document
 from frappe.utils import validate_url
 
+from lms.lms.utils import get_lms_route
+
 
 class LMSAssignmentSubmission(Document):
 	def validate(self):
@@ -72,7 +74,7 @@ class LMSAssignmentSubmission(Document):
 				"document_name": self.name,
 				"from_user": self.evaluator,
 				"type": "Alert",
-				"link": f"/lms/assignment-submission/{self.assignment}/{self.name}",
+				"link": get_lms_route(f"assignment-submission/{self.assignment}/{self.name}"),
 			}
 		)
 		make_notification_logs(notification, [self.member])

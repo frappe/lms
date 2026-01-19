@@ -207,14 +207,18 @@
 				:text="access.data.message"
 				:buttonLabel="type == 'course' ? 'Checkout Course' : 'Checkout Batch'"
 				:buttonLink="
-					type == 'course' ? `/lms/courses/${name}` : `/lms/batches/${name}`
+					type == 'course'
+						? getLmsRoute(`courses/${name}`)
+						: getLmsRoute(`batches/${name}`)
 				"
 			/>
 		</div>
 		<div v-else-if="!user.data?.name">
 			<NotPermitted
 				text="Please login to access this page."
-				:buttonLink="`/login?redirect-to=/lms/billing/${type}/${name}`"
+				:buttonLink="`/login?redirect-to=${getLmsRoute(
+					`billing/${type}/${name}`
+				)}`"
 			/>
 		</div>
 	</div>
@@ -235,6 +239,7 @@ import Link from '@/components/Controls/Link.vue'
 import NotPermitted from '@/components/NotPermitted.vue'
 import { X } from 'lucide-vue-next'
 import { useTelemetry } from 'frappe-ui/frappe'
+import { getLmsRoute } from '@/utils/basePath'
 
 const user = inject('$user')
 const { brand } = sessionStore()
@@ -441,11 +446,11 @@ const changeCurrency = (country) => {
 
 const redirectTo = computed(() => {
 	if (props.type == 'course') {
-		return `/lms/courses/${props.name}`
+		return getLmsRoute(`courses/${props.name}`)
 	} else if (props.type == 'batch') {
-		return `/lms/batches/${props.name}`
+		return getLmsRoute(`batches/${props.name}`)
 	} else if (props.type == 'certificate') {
-		return `/lms/courses/${props.name}/certification`
+		return getLmsRoute(`courses/${props.name}/certification`)
 	}
 })
 

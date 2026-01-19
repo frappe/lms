@@ -158,6 +158,7 @@ import { sessionStore } from '@/stores/session'
 import { useRouter } from 'vue-router'
 import { openSettings } from '@/utils'
 import { useSettings } from '@/stores/settings'
+import { getLmsRoute } from '@/utils/basePath'
 
 const user = inject<any>('$user')
 const code = ref<string | null>('')
@@ -255,7 +256,10 @@ const updateBoilerPlate = () => {
 
 const checkIfUserIsPermitted = (doc: any = null) => {
 	if (!user.data) {
-		window.location.href = `/login?redirect-to=/lms/programming-exercises/${props.exerciseID}/submission/${props.submissionID}`
+		const redirectPath = getLmsRoute(
+			`programming-exercises/${props.exerciseID}/submission/${props.submissionID}`
+		)
+		window.location.href = `/login?redirect-to=${redirectPath}`
 	}
 
 	if (!doc) return

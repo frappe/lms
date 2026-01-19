@@ -7,7 +7,7 @@
     "dev": "vite",
     "serve": "vite preview",
     "build": "vite build --base=/assets/lms/frontend/ && yarn copy-html-entry && yarn copy-colors-json",
-    "copy-html-entry": "cp ../lms/public/frontend/index.html ../lms/www/lms.html",
+    "copy-html-entry": "cp ../lms/public/frontend/index.html ../lms/www/_lms.html",
     "copy-colors-json": "cp node_modules/frappe-ui/tailwind/colors.json src/utils/frappe-ui-colors.json"
   },
   "dependencies": {

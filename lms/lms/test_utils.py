@@ -13,6 +13,7 @@ from .utils import (
 	get_lesson_index,
 	get_lesson_url,
 	get_lessons,
+	get_lms_route,
 	get_membership,
 	get_reviews,
 	get_tags,
@@ -235,7 +236,7 @@ class TestUtils(UnitTestCase):
 	def test_get_lesson_url(self):
 		lessons = get_lessons(self.course.name)
 		for lesson in lessons:
-			expected_url = f"/lms/courses/{self.course.name}/learn/{lesson.number}"
+			expected_url = get_lms_route(f"courses/{self.course.name}/learn/{lesson.number}")
 			self.assertEqual(get_lesson_url(self.course.name, lesson.number), expected_url)
 
 	def test_is_instructor(self):

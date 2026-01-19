@@ -20,7 +20,11 @@ frappe.ui.form.on("LMS Course", {
 		});
 	},
 	refresh: (frm) => {
-		frm.add_web_link(`/lms/courses/${frm.doc.name}`, "See on Website");
+		const lmsPath = frappe.boot.lms_path || "lms";
+		frm.add_web_link(
+			`/${lmsPath}/courses/${frm.doc.name}`,
+			"See on Website"
+		);
 
 		if (!frm.doc.currency)
 			frappe.db
