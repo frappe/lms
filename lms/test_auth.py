@@ -1,8 +1,6 @@
 import frappe
-from frappe.tests import UnitTestCase
 from frappe.tests.test_api import FrappeAPITestCase
 
-from lms.auth import authenticate
 from lms.lms.test_utils import TestUtils
 
 
