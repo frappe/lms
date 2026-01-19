@@ -5,7 +5,7 @@
 from frappe.tests import UnitTestCase
 from frappe.utils import add_days, format_time, getdate
 
-from lms.lms.doctype.course_evaluator.course_evaluator import get_schedule
+from lms.lms.doctype.course_evaluator.course_evaluator import get_schedule, get_schedule_range_end_date
 from lms.lms.test_utils import TestUtils
 
 
@@ -51,17 +51,10 @@ class TestCourseEvaluator(UnitTestCase):
 			first_date = add_days(today, offset_wednesday)
 		return first_date
 
-	def calculated_last_date_of_schedule(self, first_date):
-		last_day = add_days(getdate(), 56)
-		offset_monday = (0 - last_day.weekday() + 7) % 7  # 0 for Monday
-		offset_wednesday = (2 - last_day.weekday() + 7) % 7  # 2 for Wednesday
-
-		if offset_monday < offset_wednesday and offset_monday <= 4:
-			last_day = add_days(last_day, offset_monday)
-		elif offset_wednesday <= 4:
-			last_day = add_days(last_day, offset_wednesday)
-		else:
-			last_day = add_days(last_day, min(offset_monday, offset_wednesday) + 7)
+	def calculated_last_date_of_schedule(self):
+		last_day = getdate(get_schedule_range_end_date(getdate(), self.batch.name))
+		while last_day.weekday() not in (0, 2):
+			last_day = add_days(last_day, -1)
 
 		return last_day
 

@@ -32,7 +32,7 @@ ALLOWED_PATHS = [
 	"/api/method/frappe.onboarding.get_onboarding_status",
 	"/api/method/frappe.utils.print_format.download_pdf",
 	"/api/method/frappe.desk.search.search_link",
-	"/api/method/frappe.core.doctype.communication.email.make_email",
+	"/api/method/frappe.core.doctype.communication.email.make",
 ]
 
 
@@ -53,7 +53,6 @@ def authenticate():
 	if path.startswith("/lms") or path.startswith("/api/method/lms."):
 		return
 
-	print(ALLOWED_PATHS)
 	if path in ALLOWED_PATHS:
 		return
 	frappe.throw(f"Access not allowed for this URL: {path}", frappe.PermissionError)
