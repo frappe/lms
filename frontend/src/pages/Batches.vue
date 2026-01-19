@@ -130,7 +130,6 @@
 import {
 	Breadcrumbs,
 	Button,
-	call,
 	createListResource,
 	Dropdown,
 	FormControl,
@@ -185,16 +184,17 @@ const batches = createListResource({
 	cache: ['batches', user.data?.name],
 	pageLength: pageLength.value,
 	start: start.value,
-	onSuccess(data) {
-		let allCategories = data.map((batch) => batch.category)
-		allCategories = allCategories.filter(
-			(category, index) => allCategories.indexOf(category) === index && category
-		)
-		if (categories.value.length <= allCategories.length) {
-			updateCategories(data)
-		}
-	},
 })
+
+const setCategories = (data) => {
+	let allCategories = data.map((batch) => batch.category)
+	allCategories = allCategories.filter(
+		(category, index) => allCategories.indexOf(category) === index && category
+	)
+	if (categories.value.length <= allCategories.length) {
+		updateCategories(data)
+	}
+}
 
 const updateBatches = () => {
 	updateFilters()
@@ -202,7 +202,9 @@ const updateBatches = () => {
 		filters: filters.value,
 		orderBy: orderBy.value,
 	})
-	batches.reload()
+	batches.reload().then((data) => {
+		setCategories(data)
+	})
 }
 
 const updateFilters = () => {

@@ -216,7 +216,7 @@ const video_link = computed(() => {
 
 function enrollStudent() {
 	if (!user.data) {
-		toast.success(__('You need to login first to enroll for this course'))
+		toast.warning(__('You need to login first to enroll for this course'))
 		setTimeout(() => {
 			window.location.href = `/login?redirect-to=${window.location.pathname}`
 		}, 500)
