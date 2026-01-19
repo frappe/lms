@@ -70,7 +70,7 @@ const props = withDefaults(
 		modelValue: string
 		label?: string
 		description?: string
-		type: 'image' | 'video'
+		type?: 'image' | 'video'
 		required?: boolean
 	}>(),
 	{

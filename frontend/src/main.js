@@ -9,6 +9,7 @@ import translationPlugin from './translation'
 import { usersStore } from './stores/user'
 import { initSocket } from './socket'
 import { FrappeUI, setConfig, frappeRequest, pageMetaPlugin } from 'frappe-ui'
+import { telemetryPlugin } from 'frappe-ui/frappe'
 
 let pinia = createPinia()
 let app = createApp(App)
@@ -18,6 +19,7 @@ app.use(FrappeUI)
 app.use(pinia)
 app.use(router)
 app.use(translationPlugin)
+app.use(telemetryPlugin, { app_name: 'lms' })
 app.use(pageMetaPlugin)
 app.provide('$dayjs', dayjs)
 app.provide('$socket', initSocket())

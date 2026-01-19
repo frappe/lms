@@ -281,22 +281,13 @@ import {
 import {
 	Breadcrumbs,
 	FormControl,
-	FileUploader,
 	Button,
 	TextEditor,
 	createResource,
 	usePageMeta,
 	toast,
 	call,
-	Toast,
 } from 'frappe-ui'
-import { useRouter } from 'vue-router'
-import { Image, Trash2 } from 'lucide-vue-next'
-import { capture } from '@/telemetry'
-import { useOnboarding } from 'frappe-ui/frappe'
-import { sessionStore } from '../stores/session'
-import MultiSelect from '@/components/Controls/MultiSelect.vue'
-import Link from '@/components/Controls/Link.vue'
 import {
 	escapeHTML,
 	getMetaInfo,
@@ -304,7 +295,13 @@ import {
 	sanitizeHTML,
 	updateMetaInfo,
 } from '@/utils'
+import { useRouter } from 'vue-router'
+import { Trash2 } from 'lucide-vue-next'
+import { useOnboarding, useTelemetry } from 'frappe-ui/frappe'
+import { sessionStore } from '../stores/session'
 import Uploader from '@/components/Controls/Uploader.vue'
+import MultiSelect from '@/components/Controls/MultiSelect.vue'
+import Link from '@/components/Controls/Link.vue'
 
 const router = useRouter()
 const user = inject('$user')
@@ -312,6 +309,7 @@ const { brand } = sessionStore()
 const { updateOnboardingStep } = useOnboarding('learning')
 const instructors = ref([])
 const app = getCurrentInstance()
+const { capture } = useTelemetry()
 const { $dialog } = app.appContext.config.globalProperties
 
 const props = defineProps({

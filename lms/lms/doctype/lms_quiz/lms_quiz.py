@@ -33,6 +33,9 @@ class LMSQuiz(Document):
 			frappe.throw(_("Rows {0} have the duplicate questions.").format(frappe.bold(comma_and(rows))))
 
 	def validate_limit(self):
+		if not self.shuffle_questions and self.limit_questions_to:
+			self.limit_questions_to = 0
+
 		if self.limit_questions_to and cint(self.limit_questions_to) >= len(self.questions):
 			frappe.throw(_("Limit cannot be greater than or equal to the number of questions in the quiz."))
 

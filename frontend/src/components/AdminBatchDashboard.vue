@@ -8,7 +8,7 @@
 		<div class="grid grid-cols-2 md:grid-cols-4 gap-5 mb-8">
 			<NumberChart
 				class="border rounded-md"
-				:config="{ title: __('Students'), value: students.data?.length || 0 }"
+				:config="{ title: __('Students'), value: studentCount.data || 0 }"
 			/>
 
 			<NumberChart
@@ -29,7 +29,7 @@
 
 			<NumberChart
 				class="border rounded-md"
-				:config="{ title: __('Assessments'), value: assessmentCount || 0 }"
+				:config="{ title: __('Assessments'), value: assessmentCount.data || 0 }"
 			/>
 		</div>
 
@@ -37,7 +37,7 @@
 			v-if="showProgressChart"
 			class="border"
 			:config="{
-				data: chartData || [],
+				data: filteredChartData,
 				title: __('Batch Summary'),
 				subtitle: __('Progress of students in courses and assessments'),
 				xAxis: {
@@ -64,96 +64,55 @@
 </template>
 <script setup lang="ts">
 import { AxisChart, createResource, NumberChart } from 'frappe-ui'
-import { ref, watch } from 'vue'
-
-const chartData = ref<null | any[]>(null)
-const showProgressChart = ref(false)
-const assessmentCount = ref(0)
+import { computed } from 'vue'
 
 const props = defineProps<{
 	batch: { [key: string]: any } | null
 }>()
 
-const students = createResource({
-	url: 'lms.lms.utils.get_batch_students',
+const studentCount = createResource({
+	url: 'frappe.client.get_count',
+	cache: ['batch_student_count', props.batch?.data?.name],
+	params: {
+		doctype: 'LMS Batch Enrollment',
+		filters: { batch: props.batch?.data?.name },
+	},
+	auto: true,
+})
+
+const assessmentCount = createResource({
+	url: 'lms.lms.utils.get_batch_assessment_count',
+	cache: ['batch_assessment_count', props.batch?.data?.name],
 	params: {
 		batch: props.batch?.data?.name,
 	},
 	auto: true,
-	onSuccess(data: any[]) {
-		chartData.value = getChartData()
-		showProgressChart.value =
-			data.length &&
-			(props.batch?.data?.courses?.length || assessmentCount.value)
-	},
 })
 
-const getChartData = () => {
-	let tasks: any[] = []
-	let data: { task: any; value: any }[] = []
-
-	students.data.forEach((row: any) => {
-		tasks = countAssessments(row, tasks)
-		tasks = countCourses(row, tasks)
-	})
-
-	tasks.forEach((task) => {
-		data.push({
-			task: task.label,
-			value: task.value,
-		})
-	})
-	return data
-}
-
-const countAssessments = (
-	row: { assessments: { [x: string]: { result: string } } },
-	tasks: any[]
-) => {
-	Object.keys(row.assessments).forEach((assessment) => {
-		if (row.assessments[assessment].result === 'Pass') {
-			tasks.filter((task) => task.label === assessment).length
-				? tasks.filter((task) => task.label === assessment)[0].value++
-				: tasks.push({
-						value: 1,
-						label: assessment,
-				  })
-		}
-	})
-	return tasks
-}
-
-const countCourses = (
-	row: { courses: { [x: string]: number } },
-	tasks: any[]
-) => {
-	Object.keys(row.courses).forEach((course) => {
-		if (row.courses[course] === 100) {
-			tasks.filter((task) => task.label === course).length
-				? tasks.filter((task) => task.label === course)[0].value++
-				: tasks.push({
-						value: 1,
-						label: course,
-				  })
-		}
-	})
-	return tasks
-}
+const chartData = createResource({
+	url: 'lms.lms.utils.get_batch_chart_data',
+	cache: ['batch_chart_data', props.batch?.data?.name],
+	params: { batch: props.batch?.data?.name },
+	auto: true,
+})
 
 const certificationCount = createResource({
 	url: 'frappe.client.get_count',
+	cache: ['batch_certificate_count', props.batch?.data?.name],
 	params: {
 		doctype: 'LMS Certificate',
-		filters: {
-			batch_name: props.batch?.data?.name,
-		},
+		filters: { batch_name: props.batch?.data?.name },
 	},
 	auto: true,
 })
 
-watch(students, () => {
-	if (students.data?.length) {
-		assessmentCount.value = Object.keys(students.data?.[0].assessments).length
-	}
-})
+const filteredChartData = computed(() =>
+	(chartData.data || []).filter((item: { value: number }) => item.value > 0)
+)
+
+const showProgressChart = computed(
+	() =>
+		studentCount.data &&
+		(props.batch?.data?.courses?.length || assessmentCount.data)
+)
 </script>

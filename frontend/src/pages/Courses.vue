@@ -168,9 +168,6 @@ const courses = createListResource({
 	cache: ['courses', user.data?.name],
 	pageLength: pageLength.value,
 	start: start.value,
-	onSuccess(data) {
-		setCategories(data)
-	},
 })
 
 const setCategories = (data) => {
@@ -205,7 +202,7 @@ const identifyUserPersona = async () => {
 
 const getCourseCount = () => {
 	if (!user.data) return
-
+	if (!user.data.is_moderator) return
 	call('frappe.client.get_count', {
 		doctype: 'LMS Course',
 	}).then((data) => {
@@ -219,7 +216,9 @@ const updateCourses = () => {
 	courses.update({
 		filters: filters.value,
 	})
-	courses.reload()
+	courses.reload().then((data) => {
+		setCategories(data)
+	})
 }
 
 const updateFilters = () => {

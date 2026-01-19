@@ -190,7 +190,7 @@ const evaluationCourses = computed(() => {
 
 const canScheduleEvals = computed(() => {
 	return (
-		upcoming_evals.data?.length != evaluationCourses.length &&
+		upcoming_evals.data?.length != evaluationCourses.value?.length &&
 		!props.forHome &&
 		!endDateHasPassed.value
 	)
