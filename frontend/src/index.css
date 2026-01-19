@@ -93,3 +93,8 @@
 .codex-editor {
     z-index: 11 !important;
 }
+
+.router-link-active.breadcrumb-link {
+    font-size: 14px !important;
+    font-weight: 600 !important;
+}

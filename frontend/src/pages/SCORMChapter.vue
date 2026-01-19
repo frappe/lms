@@ -1,15 +1,22 @@
 <template>
-	<header class="sticky top-0 z-10 flex items-center justify-between border-b bg-surface-white px-3 py-2.5 sm:px-5">
+	<header
+		class="sticky top-0 z-10 flex items-center justify-between border-b bg-surface-white px-3 py-2.5 sm:px-5"
+	>
 		<Breadcrumbs class="h-7" :items="breadcrumbs" />
 	</header>
 	<ChatAssistant v-model="showAssistantModal" />
-	<div v-if="
-		readyToRender &&
-		(enrollment.data?.length ||
-			user.data?.is_moderator ||
-			user.data?.is_instructor)
-	">
-		<iframe :src="chapter.doc.launch_file" class="w-full h-[calc(100vh-3.00rem)]" />
+	<div
+		v-if="
+			readyToRender &&
+			(enrollment.data?.length ||
+				user.data?.is_moderator ||
+				user.data?.is_instructor)
+		"
+	>
+		<iframe
+			:src="chapter.doc.launch_file"
+			class="w-full h-[calc(100vh-3.00rem)]"
+		/>
 	</div>
 	<div v-else-if="!enrollment.data?.length">
 		<div class="text-center pt-10 px-5 md:px-0 pb-10">
@@ -17,7 +24,7 @@
 				<div class="mb-4">
 					{{
 						__(
-							'You are not enrolled in this course. Please enroll to access this lesson.'
+							'You are not enrolled in this course. Please enroll to access this lesson.',
 						)
 					}}
 				</div>
@@ -170,7 +177,7 @@ const enrollStudent = () => {
 			onSuccess(data) {
 				window.location.reload()
 			},
-		}
+		},
 	)
 }
 
