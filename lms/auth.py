@@ -12,6 +12,15 @@ ALLOWED_PATHS = [
 	"/api/method/frappe.integrations.oauth2.authorize",
 	"/api/method/frappe.integrations.oauth2.approve",
 	"/api/method/frappe.integrations.oauth2.get_token",
+	"/api/method/frappe.www.login.login_via_google",
+	"/api/method/frappe.www.login.login_via_github",
+	"/api/method/frappe.www.login.login_via_facebook",
+	"/api/method/frappe.www.login.login_via_frappe",
+	"/api/method/frappe.www.login.login_via_office365",
+	"/api/method/frappe.www.login.login_via_salesforce",
+	"/api/method/frappe.www.login.login_via_fairlogin",
+	"/api/method/frappe.www.login.login_via_keycloak",
+	"/api/method/frappe.www.login.custom",
 	"/api/method/frappe.integrations.oauth2.openid_profile",
 	"/api/method/frappe.website.doctype.web_page_view.web_page_view.make_view_log",
 	"/api/method/upload_file",
@@ -48,7 +57,7 @@ def authenticate():
 
 	if not path.startswith("/api/"):
 		return
-	print("path", path)
+
 	if path.startswith("/lms") or path.startswith("/api/method/lms."):
 		return
 
