@@ -78,7 +78,6 @@ import { ref, inject } from 'vue'
 import BatchCourseModal from '@/components/Modals/BatchCourseModal.vue'
 import {
 	createResource,
-	Button,
 	ListHeader,
 	ListHeaderItem,
 	ListSelectBanner,
@@ -154,7 +153,7 @@ const removeCourses = (selections, unselectAll) => {
 				toast.success(__('Courses deleted successfully'))
 				unselectAll()
 			},
-		}
+		},
 	)
 }
 

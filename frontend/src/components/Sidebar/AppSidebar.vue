@@ -1,13 +1,14 @@
 <template>
-	<div class="flex h-full flex-col justify-between transition-all duration-300 ease-in-out relative overflow-hidden bg-white sidebar"
-		:class="sidebarStore.isSidebarCollapsed ? 'w-16' : 'w-60'">
-
+	<div
+		class="flex h-full flex-col justify-between transition-all duration-300 ease-in-out relative overflow-hidden bg-white sidebar"
+		:class="sidebarStore.isSidebarCollapsed ? 'w-16' : 'w-60'"
+	>
 		<div
 			class="flex flex-col overflow-hidden relative z-10 h-full"
 			:class="sidebarStore.isSidebarCollapsed ? 'items-center' : ''"
 		>
 			<div
-				class="flex h-16 w-full mb-4 items-center shrink-0 border-b border-gray-300  backdrop-blur-sm"
+				class="flex h-16 w-full mb-4 items-center shrink-0 border-b border-gray-200 backdrop-blur-sm"
 				:class="
 					sidebarStore.isSidebarCollapsed
 						? 'justify-center px-0 flex-col h-24'
@@ -23,8 +24,11 @@
 				<div v-else class="flex items-center justify-center w-full">
 					<LMSLogo class="h-7" />
 				</div>
-				<button v-if="!sidebarStore.isSidebarCollapsed"
-					class="p-1.5 rounded-md text-gray-600 hover:text-gray-800 transition-colors" @click="toggleSidebar">
+				<button
+					v-if="!sidebarStore.isSidebarCollapsed"
+					class="p-1.5 rounded-md text-gray-600 hover:text-gray-800 transition-colors"
+					@click="toggleSidebar"
+				>
 					<SidebarCollapseIcon class="w-5 h-5 stroke-1.5" />
 				</button>
 				<button
@@ -35,11 +39,14 @@
 					<SidebarCollapseIcon class="w-5 h-5 stroke-1.5 rotate-180" />
 				</button>
 			</div>
-			
+
 			<div class="flex flex-col flex-1 overflow-y-auto px-3">
 				<div v-if="sidebarSettings.data">
 					<div v-for="link in sidebarLinks" class="my-0.5">
-						<SidebarLink :link="link" :isCollapsed="sidebarStore.isSidebarCollapsed" />
+						<SidebarLink
+							:link="link"
+							:isCollapsed="sidebarStore.isSidebarCollapsed"
+						/>
 					</div>
 				</div>
 				<!-- HIDE WEB PAGES -->
@@ -97,9 +104,14 @@
 			</div>
 		</div>
 
-		<div class="m-3 flex flex-col gap-1 relative z-10" v-if="!sidebarStore.isSidebarCollapsed">
-			<div v-if="readOnlyMode"
-				class="z-10 mb-2 bg-amber-50 border border-amber-200 py-2.5 px-3 text-xs text-amber-800 leading-5 rounded-md">
+		<div
+			class="m-3 flex flex-col gap-1 relative z-10"
+			v-if="!sidebarStore.isSidebarCollapsed"
+		>
+			<div
+				v-if="readOnlyMode"
+				class="z-10 mb-2 bg-amber-50 border border-amber-200 py-2.5 px-3 text-xs text-amber-800 leading-5 rounded-md"
+			>
 				{{
 					__(
 						'This site is being updated. You will not be able to make any changes. Full access will be restored shortly.',
@@ -119,7 +131,7 @@
 				appName="learning"
 			/> -->
 		</div>
-		
+
 		<!-- HIDE HELP MODAL -->
 		<!-- <HelpModal
 			v-if="showOnboarding && showHelpModal"
@@ -139,7 +151,11 @@
 			:currentStep="currentStep"
 		/> -->
 	</div>
-	<PageModal v-model="showPageModal" v-model:reloadSidebar="sidebarSettings" :page="pageToEdit" />
+	<PageModal
+		v-model="showPageModal"
+		v-model:reloadSidebar="sidebarSettings"
+		:page="pageToEdit"
+	/>
 </template>
 
 <script setup>
@@ -237,7 +253,6 @@ const setSidebarLinks = () => {
 		},
 	)
 }
-
 
 const addQuizzes = () => {
 	if (!isInstructor.value && !isModerator.value) return
@@ -616,6 +631,4 @@ watch(userResource, () => {
 const redirectToWebsite = () => {
 	window.open('https://frappe.io/learning', '_blank')
 }
-
-
 </script>
