@@ -64,6 +64,9 @@ def authenticate():
 	if is_server_script_path(path):
 		return
 
+	if is_custom_app_endpoint(path):
+		return
+
 	if path in ALLOWED_PATHS:
 		return
 	frappe.throw(f"Access not allowed for this URL: {path}", frappe.PermissionError)
@@ -73,4 +76,12 @@ def is_server_script_path(path):
 	endpoint = path.split("/api/method/")[-1]
 	if frappe.db.exists("Server Script", {"script_type": "API", "api_method": endpoint, "disabled": 0}):
 		return True
+	return False
+
+
+def is_custom_app_endpoint(path):
+	allowed_custom_endpoints = frappe.conf.get("allowed_custom_endpoints", [])
+	for endpoint in allowed_custom_endpoints:
+		if endpoint in path:
+			return True
 	return False
