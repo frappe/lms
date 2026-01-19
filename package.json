@@ -30,6 +30,6 @@
     "cypress-real-events": "^1.14.0"
   },
   "dependencies": {
-    "pre-commit": "^1.2.2",
+    "pre-commit": "^1.2.2"
   }
 }
