@@ -86,7 +86,7 @@
 						<Uploader
 							v-model="job.company_logo"
 							:label="__('Company Logo')"
-							:required="false"
+							:required="true"
 						/>
 					</div>
 				</div>
