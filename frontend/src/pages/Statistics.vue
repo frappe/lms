@@ -4,7 +4,7 @@
 			<Breadcrumbs :items="breadcrumbs" />
 		</header>
 		<div v-if="chartDetails.data" class="p-5">
-			<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+			<div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-5 gap-4">
 				<Tooltip :text="__('Published Courses')">
 					<!-- <NumberChart class="border rounded-xl"
 						:config="{ title: 'Courses', value: chartDetails.data.courses }" /> -->
@@ -110,72 +110,44 @@
 			</div>
 			<div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
 				<div class="border rounded-xl min-h-72">
-					<AxisChart v-if="signupsChart.data" :config="{
-						data: signupsChart.data,
-						title: 'Signups',
-						subtitle: 'Signups per day',
-						xAxis: {
-							key: 'date',
-							type: 'time',
-							title: 'Date',
-							timeGrain: 'day',
-						},
-						yAxis: {
-							title: 'Signups',
-						},
-						series: [{ name: 'signups', type: 'line', showDataPoints: true }],
-					}" />
+					<div>
+						<div class="text-lg text-gray-900 font-medium px-5 py-3 border-b">
+							Daily Signups</div>
+					</div>
+					<div class="px-5 py-3">
+						<AreaChart v-if="signupsChart.data"
+							:data="(signupsChart.data || []).map(e => ({ x: e.date, y: e.signups }))"
+							:name="__('Signups')" />
+					</div>
 				</div>
 				<div class="border rounded-xl min-h-72">
-					<AxisChart v-if="enrollmentChart.data" :config="{
-						data: enrollmentChart.data,
-						title: 'Enrollments',
-						subtitle: 'Enrollments per day',
-						xAxis: {
-							key: 'date',
-							type: 'time',
-							title: 'Date',
-							timeGrain: 'day',
-						},
-						yAxis: {
-							title: 'Enrollments',
-						},
-						series: [
-							{ name: 'enrollments', type: 'line', showDataPoints: true },
-						],
-					}" />
+					<div>
+						<div class="text-lg text-gray-900 font-medium px-5 py-3 border-b">
+							Daily Enrollments</div>
+					</div>
+					<div class="px-5 py-3">
+						<AreaChart v-if="enrollmentChart.data"
+							:data="(enrollmentChart.data || []).map(e => ({ x: e.date, y: e.enrollments }))"
+							:name="__('Enrollments')" />
+					</div>
 				</div>
 				<div class="border rounded-xl">
-					<AxisChart v-if="certification.data" :config="{
-						data: certification.data,
-						title: 'Certifications',
-						subtitle: 'Certifications per day',
-						xAxis: {
-							key: 'date',
-							type: 'time',
-							title: 'Date',
-							timeGrain: 'day',
-						},
-						yAxis: {
-							title: 'Certifications',
-						},
-						series: [
-							{
-								name: 'certifications',
-								type: 'line',
-								showDataPoints: true,
-							},
-						],
-					}" />
+					<div>
+						<div class="text-lg text-gray-900 font-medium px-5 py-3 border-b">
+							Daily Certifications</div>
+					</div>
+					<div class="px-5 py-3">
+						<AreaChart v-if="certification.data"
+							:data="(certification.data || []).map(e => ({ x: e.date, y: e.certifications }))"
+							:name="__('Certifications')" />
+					</div>
 				</div>
 				<div class="border rounded-xl">
-					<DonutChart v-if="courseCompletion.data" :config="{
-						data: courseCompletion.data,
-						title: 'Completions',
-						subtitle: 'Course Completion',
-						categoryColumn: 'label',
-						valueColumn: 'value',
-					}" />
+					<div>
+						<div class="text-lg text-gray-900 font-medium px-5 py-3 border-b">
+							Course Completions</div>
+					</div>
+					<DonutChart v-if="courseCompletion.data" :data="courseCompletion.data" />
 				</div>
 			</div>
 		</div>
@@ -183,10 +155,10 @@
 </template>
 <script setup>
 import {
-	AxisChart,
+	// AxisChart,
 	Breadcrumbs,
 	createResource,
-	DonutChart,
+	// DonutChart,
 	NumberChart,
 	Tooltip,
 	usePageMeta,
@@ -199,6 +171,9 @@ import UserCircleAddIcon from '@/components/Icons/UserCircleAddIcon.vue'
 import ClipboardIcon from "@/components/icons/ClipboardIcon.vue"
 import TickCircleIcon from '@/components/icons/TickCircleIcon.vue'
 import AwardIcon from '@/components/icons/AwardIcon.vue'
+import AreaChart from '@/components/AreaChart.vue'
+import DonutChart from '@/components/DonutChart.vue'
+
 
 const { brand } = sessionStore()
 
@@ -218,6 +193,8 @@ const chartDetails = createResource({
 	cache: ['statistics'],
 	auto: true,
 })
+
+console.log(chartDetails)
 
 const signupsChart = createResource({
 	url: 'lms.lms.utils.get_chart_data',
