@@ -277,14 +277,14 @@ class TestUtils(UnitTestCase):
 		certified_participants_no_match = get_certified_participants(filters=filters)
 		self.assertEqual(len(certified_participants_no_match), 0)
 
-	def test_certified_participants_with_open_to_opportunities(self):
-		filters = {"open_to_opportunities": 1}
-		certified_participants_open_to_oppo = get_certified_participants(filters=filters)
-		self.assertEqual(len(certified_participants_open_to_oppo), 0)
+	def test_certified_participants_with_open_to_work(self):
+		filters = {"open_to_work": 1}
+		certified_participants_open_to_work = get_certified_participants(filters=filters)
+		self.assertEqual(len(certified_participants_open_to_work), 0)
 
-		frappe.db.set_value("User", self.student1.email, "open_to", "Opportunities")
-		certified_participants_open_to_oppo = get_certified_participants(filters=filters)
-		self.assertEqual(len(certified_participants_open_to_oppo), 1)
+		frappe.db.set_value("User", self.student1.email, "open_to", "Work")
+		certified_participants_open_to_work = get_certified_participants(filters=filters)
+		self.assertEqual(len(certified_participants_open_to_work), 1)
 		frappe.db.set_value("User", self.student1.email, "open_to", "")
 
 	def test_certified_participants_with_open_to_hiring(self):

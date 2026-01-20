@@ -28,6 +28,7 @@ class TestAuth(FrappeAPITestCase):
 			url,
 			headers=headers,
 		)
+		print(response.json)
 		self.assertEqual(response.json.get("exc_type"), "PermissionError")
 
 	def tearDown(self):
