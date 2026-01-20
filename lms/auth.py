@@ -44,6 +44,7 @@ ALLOWED_PATHS = [
 	"/api/method/frappe.utils.print_format.download_pdf",
 	"/api/method/frappe.desk.search.search_link",
 	"/api/method/frappe.core.doctype.communication.email.make",
+	"/api/method/frappe.core.doctype.user.user.reset_password",
 ]
 
 

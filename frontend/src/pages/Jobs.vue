@@ -51,12 +51,12 @@
 						class="hidden lg:block"
 						@change="updateJobs"
 					/>
-					<div class="grid grid-cols-2 gap-4">
+					<div class="flex items-center space-x-4">
 						<FormControl
 							type="text"
 							:placeholder="__('Search')"
 							v-model="searchQuery"
-							class="w-full max-w-40"
+							class="w-full"
 							@input="updateJobs"
 						>
 							<template #prefix>
@@ -79,17 +79,17 @@
 							v-model="jobType"
 							type="select"
 							:options="jobTypes"
-							class="w-full"
+							class="w-full min-w-32"
 							:placeholder="__('Type')"
-							@change="updateJobs"
+							@update:modelValue="updateJobs"
 						/>
 						<FormControl
 							v-model="workMode"
 							type="select"
 							:options="workModes"
-							class="w-full"
+							class="w-full min-w-32"
 							:placeholder="__('Work Mode')"
-							@change="updateJobs"
+							@update:modelValue="updateJobs"
 						/>
 					</div>
 				</div>
@@ -218,13 +218,13 @@ const updateJobs = () => {
 const updateFilters = () => {
 	filters.value.status = 'Open'
 
-	if (jobType.value) {
+	if (jobType.value && jobType.value !== ' ') {
 		filters.value.type = jobType.value
 	} else {
 		delete filters.value.type
 	}
 
-	if (workMode.value) {
+	if (workMode.value && workMode.value !== ' ') {
 		filters.value.work_mode = workMode.value
 	} else {
 		delete filters.value.work_mode
@@ -271,7 +271,7 @@ watch(jobs, () => {
 
 const jobTypes = computed(() => {
 	return [
-		{ label: '', value: '' },
+		{ label: ' ', value: ' ' },
 		{ label: __('Full Time'), value: 'Full Time' },
 		{ label: __('Part Time'), value: 'Part Time' },
 		{ label: __('Contract'), value: 'Contract' },
@@ -281,7 +281,7 @@ const jobTypes = computed(() => {
 
 const workModes = computed(() => {
 	return [
-		{ label: '', value: '' },
+		{ label: ' ', value: ' ' },
 		{ label: 'On site', value: 'On-site' },
 		{ label: 'Hybrid', value: 'Hybrid' },
 		{ label: 'Remote', value: 'Remote' },
