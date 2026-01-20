@@ -1,3 +1,5 @@
+import json
+
 import frappe
 
 ALLOWED_PATHS = [
@@ -84,6 +86,14 @@ def is_server_script_path(path):
 
 def is_custom_app_endpoint(path):
 	allowed_custom_endpoints = frappe.conf.get("allowed_custom_endpoints", [])
+
+	if isinstance(allowed_custom_endpoints, str):
+		try:
+			parsed = json.loads(allowed_custom_endpoints)
+			allowed_custom_endpoints = parsed if isinstance(parsed, list) else [allowed_custom_endpoints]
+		except Exception:
+			allowed_custom_endpoints = [allowed_custom_endpoints]
+
 	for endpoint in allowed_custom_endpoints:
 		if endpoint in path:
 			return True
