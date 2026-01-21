@@ -7,12 +7,12 @@
 				>
 					<Breadcrumbs class="h-7" :items="breadcrumbs" />
 					<div class="flex items-center mt-3 md:mt-0">
-						<Button v-if="courseResource.data?.name" @click="trashCourse()">
+						<Button v-if="courseResource.data?.name" @click="trashCourse()" size="lg">
 							<template #icon>
 								<Trash2 class="w-4 h-4 stroke-1.5" />
 							</template>
 						</Button>
-						<Button variant="solid" @click="submitCourse()" class="ml-2">
+						<Button variant="solid" @click="submitCourse()" class="ml-2 !bg-primary-500" size="lg">
 							<span>
 								{{ __('Save') }}
 							</span>

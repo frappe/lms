@@ -1,7 +1,7 @@
 <template>
 	<Dialog
 		:options="{
-			title: 'Edit your profile',
+			title: 'Edit profile',
 			size: '3xl',
 			actions: [
 				{

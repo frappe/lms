@@ -173,9 +173,9 @@ import { sessionStore } from '../stores/session'
 import { ArrowUpIcon, ArrowDownIcon } from 'lucide-vue-next'
 import BookIcon from '@/components/Icons/BookIcon.vue'
 import UserCircleAddIcon from '@/components/Icons/UserCircleAddIcon.vue'
-import ClipboardIcon from "@/components/icons/ClipboardIcon.vue"
-import TickCircleIcon from '@/components/icons/TickCircleIcon.vue'
-import AwardIcon from '@/components/icons/AwardIcon.vue'
+import ClipboardIcon from "@/components/Icons/ClipboardIcon.vue"
+import TickCircleIcon from '@/components/Icons/TickCircleIcon.vue'
+import AwardIcon from '@/components/Icons/AwardIcon.vue'
 import AreaChart from '@/components/AreaChart.vue'
 import DonutChart from '@/components/DonutChart.vue'
 
@@ -199,7 +199,7 @@ const chartDetails = createResource({
 	auto: true,
 })
 
-console.log(chartDetails)
+
 
 const signupsChart = createResource({
 	url: 'lms.lms.utils.get_chart_data',

@@ -24,6 +24,7 @@ declare module 'vue' {
     AssistantMessage: typeof import('./src/components/AssistantMessage.vue')['default']
     AudioBlock: typeof import('./src/components/AudioBlock.vue')['default']
     Autocomplete: typeof import('./src/components/Controls/Autocomplete.vue')['default']
+    Award2Icon: typeof import('./src/components/Icons/Award2Icon.vue')['default']
     AwardIcon: typeof import('./src/components/Icons/AwardIcon.vue')['default']
     BadgeAssignmentForm: typeof import('./src/components/Settings/BadgeAssignmentForm.vue')['default']
     BadgeAssignments: typeof import('./src/components/Settings/BadgeAssignments.vue')['default']

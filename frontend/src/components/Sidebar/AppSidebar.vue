@@ -540,16 +540,14 @@ const setUpOnboarding = () => {
 
         // Show overlay if onboarding is not fully completed
         if (!isOnboardingStepsCompleted.value) {
-             console.log('Showing Onboarding Overlay')
-             showOverlay.value = true
+            showOverlay.value = true
         }
-	} else {
-        console.log('User is not system manager, skipping onboarding setup')
-    }
+	}
+
 }
 
 // Remove the root level console.log that causes confusion
-// console.log(onboardingDetails)
+
 
 const completeOnboardingOverlay = () => {
     // Tombol "Continue": User ingin memulai onboarding langkah-demi-langkah.
