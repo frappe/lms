@@ -1786,3 +1786,41 @@ def llm_get_sources(bsid, bcid):
 	}
 	response = requests.post(url=f'{base_url}/general/sources', json=data, headers=headers)
 	return response.json()
+
+
+@frappe.whitelist(allow_guest=True)
+def get_rating_breakdown(course):
+	reviews = frappe.get_all("LMS Course Review", filters={"course": course}, fields=["rating"])
+	total_reviews = len(reviews)
+
+	breakdown = []
+	if total_reviews > 0:
+		counts = {i: 0 for i in range(1, 6)}
+		for r in reviews:
+			# Ratings are stored as 0-1 scale in Frappe Rating fields, usually.
+			# Multiply by 5 to get the star count.
+			rating = round(r.rating * 5)
+			if 1 <= rating <= 5:
+				counts[rating] += 1
+
+
+		for i in range(5, 0, -1):
+			percentage = (counts[i] / total_reviews) * 100
+			breakdown.append({
+				"stars": i,
+				"percentage": round(percentage, 2),
+			})
+	else:
+		for i in range(5, 0, -1):
+			breakdown.append({
+				"stars": i,
+				"percentage": 0,
+			})
+
+	avg_rating = (sum([r.rating for r in reviews]) * 5) / total_reviews if total_reviews > 0 else 0
+
+	return {
+		"breakdown": breakdown,
+		"total_reviews": total_reviews,
+		"avg_rating": round(avg_rating, 1)
+	}

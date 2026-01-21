@@ -9,6 +9,7 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     AdminBatchDashboard: typeof import('./src/components/AdminBatchDashboard.vue')['default']
+    AIStarIcon: typeof import('./src/components/Icons/AIStarIcon.vue')['default']
     Annoucements: typeof import('./src/components/Annoucements.vue')['default']
     AnnouncementModal: typeof import('./src/components/Modals/AnnouncementModal.vue')['default']
     AppHeader: typeof import('./src/components/AppHeader.vue')['default']
@@ -69,11 +70,13 @@ declare module 'vue' {
     CourseReviews: typeof import('./src/components/CourseReviews.vue')['default']
     CoursesIcon: typeof import('./src/components/Icons/CoursesIcon.vue')['default']
     CreateOutline: typeof import('./src/components/CreateOutline.vue')['default']
+    CustomBreadcrumb: typeof import('./src/components/ui/CustomBreadcrumb.vue')['default']
     DateRange: typeof import('./src/components/Common/DateRange.vue')['default']
     DesktopLayout: typeof import('./src/components/DesktopLayout.vue')['default']
     DiscussionModal: typeof import('./src/components/Modals/DiscussionModal.vue')['default']
     DiscussionReplies: typeof import('./src/components/DiscussionReplies.vue')['default']
     Discussions: typeof import('./src/components/Discussions.vue')['default']
+    DocumentTextIcon: typeof import('./src/components/Icons/DocumentTextIcon.vue')['default']
     DonutChart: typeof import('./src/components/DonutChart.vue')['default']
     EditCoverImage: typeof import('./src/components/Modals/EditCoverImage.vue')['default']
     EditProfile: typeof import('./src/components/Modals/EditProfile.vue')['default']
