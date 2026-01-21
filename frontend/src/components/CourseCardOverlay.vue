@@ -1,15 +1,132 @@
 <template>
-	<div class="border-2 rounded-md min-w-80 max-w-sm">
-		<iframe
-			v-if="course.data.video_link"
-			:src="video_link"
-			class="rounded-t-md min-h-56 w-full"
-		/>
-		<div class="p-5">
-			<div v-if="course.data.paid_course" class="text-2xl font-semibold mb-3">
+	<div
+		class="bg-white rounded-xl w-full border border-gray-100 shadow-xl shadow-gray-100 p-5 lg:sticky lg:top-14"
+	>
+		<div class="rounded-lg aspect-video w-full relative overflow-hidden">
+			<iframe
+				v-if="course.data.video_link"
+				:src="video_link"
+				class="w-full h-full"
+			/>
+			<div
+				v-else
+				class="bg-cover bg-center rounded-md w-full h-full"
+				:class="{ 'default-image': !course.data.image }"
+				:style="{
+					backgroundImage: 'url(\'' + encodeURI(course.data.image) + '\')',
+				}"
+			></div>
+			<Badge
+				v-if="course.data.enable_certification"
+				theme="green"
+				size="lg"
+				class="absolute top-3 left-3 bg-teal-500 text-white font-medium text-sm"
+			>
+				{{ __('Certification') }}
+			</Badge>
+		</div>
+
+		<div class="py-4 space-y-4">
+			<h1 class="text-lg font-semibold text-ink-gray-9 leading-tight">
+				{{ course.data.title }}
+			</h1>
+
+			<div v-if="!course.data.paid_course" class="text-xl font-semibold mb-3">
 				{{ course.data.price }}
 			</div>
-			<div v-if="!readOnlyMode">
+
+			<div class="space-y-2 text-sm text-ink-gray-9">
+				<div class="flex items-center">
+					<BookIcon class="size-5 mr-2 stroke-1.5" />
+					<span class="font-medium text-base">
+						{{ course.data.lessons }}
+					</span>
+					<span class="text-ink-gray-5 ml-1">{{ __('Lessons') }}</span>
+				</div>
+				<div class="flex items-center text-ink-gray-9">
+					<PeopleIcon class="size-5 mr-2 stroke-1.5" />
+					<span class="font-medium text-base">{{
+						formatAmount(course.data.enrollments)
+					}}</span>
+					<span class="text-ink-gray-5 ml-1">{{
+						__('Enrolled Students')
+					}}</span>
+				</div>
+				<div class="flex items-center text-ink-gray-9">
+					<Star
+						class="size-5 mr-2 stroke-1 fill-warning-500 text-warning-500"
+					/>
+					<span class="font-medium text-base">
+						{{
+							course.data.rating
+								? parseFloat(course.data.rating).toFixed(1)
+								: '0.0'
+						}}
+					</span>
+					<span class="text-ink-gray-5 ml-1"
+						>({{ course.data.review_total || 0 }} reviews)</span
+					>
+				</div>
+
+				<div
+					v-if="course.data.enable_certification"
+					class="flex items-center font-semibold text-ink-gray-9"
+				>
+					<GraduationCap class="h-4 w-4 stroke-2" />
+					<span class="ml-2">
+						{{ __('Certificate of Completion') }}
+					</span>
+				</div>
+				<div
+					v-if="course.data.paid_certificate"
+					class="flex items-center font-semibold text-ink-gray-9"
+				>
+					<GraduationCap class="h-4 w-4 stroke-2" />
+					<span class="ml-2">
+						{{ __('Paid Certificate after Evaluation') }}
+					</span>
+				</div>
+			</div>
+			<div class="space-y-3 mt-2">
+				<div class="flex items-center">
+					<span
+						class="h-6 mr-1"
+						:class="{
+							'avatar-group overlap': course.data.instructors.length > 1,
+						}"
+					>
+						<UserAvatar
+							v-for="instructor in course.data.instructors"
+							:user="instructor"
+						/>
+					</span>
+					<CourseInstructors :instructors="course.data.instructors" />
+				</div>
+
+				<div v-if="user && course.data.membership">
+					<div class="flex items-center justify-between text-sm mb-1">
+						<span class="text-md text-gray-600">Course progress</span>
+						<span class="text-md text-gray-600"
+							>{{ Math.ceil(course.data.membership.progress) }}%</span
+						>
+					</div>
+
+					<ProgressBar :progress="course.data.membership.progress" />
+				</div>
+			</div>
+
+			<div v-if="!readOnlyMode" class="space-y-2 !mt-20">
+				<Button
+					v-if="user.data?.is_moderator || is_instructor()"
+					class="w-full"
+					variant="subtle"
+					size="md"
+					@click="showProgressSummary"
+				>
+					<template #prefix>
+						{{ __('Progress Summary') }}
+					</template>
+				</Button>
 				<div v-if="course.data.membership" class="space-y-2">
 					<router-link
 						:to="{
@@ -26,9 +143,6 @@
 						}"
 					>
 						<Button variant="solid" size="md" class="w-full">
-							<template #prefix>
-								<BookText class="size-4 stroke-1.5" />
-							</template>
 							<span>
 								{{ __('Continue Learning') }}
 							</span>
@@ -62,6 +176,7 @@
 				>
 					{{ __('Contact the Administrator to enroll for this course.') }}
 				</Badge>
+
 				<Button
 					v-else-if="!user.data?.is_moderator && !is_instructor()"
 					@click="enrollStudent()"
@@ -69,9 +184,6 @@
 					class="w-full"
 					size="md"
 				>
-					<template #prefix>
-						<BookText class="size-4 stroke-1.5" />
-					</template>
 					<span>
 						{{ __('Start Learning') }}
 					</span>
@@ -79,26 +191,13 @@
 				<Button
 					v-if="canGetCertificate"
 					@click="fetchCertificate()"
-					variant="subtle"
+					variant="outline"
 					class="w-full mt-2"
 					size="md"
 				>
-					<template #prefix>
-						<GraduationCap class="size-4 stroke-1.5" />
-					</template>
-					{{ __('Get Certificate') }}
+					{{ __('View Certificate') }}
 				</Button>
-				<Button
-					v-if="user.data?.is_moderator || is_instructor()"
-					class="w-full mt-2"
-					size="md"
-					@click="showProgressSummary"
-				>
-					<template #prefix>
-						<TrendingUp class="size-4 stroke-1.5" />
-						{{ __('Progress Summary') }}
-					</template>
-				</Button>
+
 				<router-link
 					v-if="user?.data?.is_moderator || is_instructor()"
 					:to="{
@@ -108,63 +207,12 @@
 						},
 					}"
 				>
-					<Button variant="subtle" class="w-full mt-2" size="md">
-						<template #prefix>
-							<Pencil class="size-4 stroke-1.5" />
-						</template>
+					<Button variant="outline" class="w-full mt-2" size="md">
 						<span>
 							{{ __('Edit') }}
 						</span>
 					</Button>
 				</router-link>
-			</div>
-			<div class="space-y-4">
-				<div
-					class="font-medium text-ink-gray-9"
-					:class="{ 'mt-8': !readOnlyMode }"
-				>
-					{{ __('This course has:') }}
-				</div>
-				<div class="flex items-center text-ink-gray-9">
-					<BookOpen class="h-4 w-4 stroke-1.5" />
-					<span class="ml-2">
-						{{ course.data.lessons }} {{ __('Lessons') }}
-					</span>
-				</div>
-				<div class="flex items-center text-ink-gray-9">
-					<Users class="h-4 w-4 stroke-1.5" />
-					<span class="ml-2">
-						{{ formatAmount(course.data.enrollments) }}
-						{{ __('Enrolled Students') }}
-					</span>
-				</div>
-				<div
-					v-if="parseInt(course.data.rating) > 0"
-					class="flex items-center text-ink-gray-9"
-				>
-					<Star class="size-4 stroke-1.5 fill-yellow-500 text-transparent" />
-					<span class="ml-2">
-						{{ course.data.rating }} {{ __('Rating') }}
-					</span>
-				</div>
-				<div
-					v-if="course.data.enable_certification"
-					class="flex items-center font-semibold text-ink-gray-9"
-				>
-					<GraduationCap class="h-4 w-4 stroke-2" />
-					<span class="ml-2">
-						{{ __('Certificate of Completion') }}
-					</span>
-				</div>
-				<div
-					v-if="course.data.paid_certificate"
-					class="flex items-center font-semibold text-ink-gray-9"
-				>
-					<GraduationCap class="h-4 w-4 stroke-2" />
-					<span class="ml-2">
-						{{ __('Paid Certificate after Evaluation') }}
-					</span>
-				</div>
 			</div>
 		</div>
 	</div>
@@ -187,13 +235,15 @@ import {
 	Users,
 } from 'lucide-vue-next'
 import { computed, inject, ref } from 'vue'
-import { Badge, Button, call, createResource, toast } from 'frappe-ui'
+import { Badge, call, createResource, toast } from 'frappe-ui'
 import { formatAmount } from '@/utils/'
 import { capture } from '@/telemetry'
 import { useRouter } from 'vue-router'
 import CertificationLinks from '@/components/CertificationLinks.vue'
 import CourseProgressSummary from '@/components/Modals/CourseProgressSummary.vue'
-
+import Button from '@/components/ui/Button.vue'
+import BookIcon from './Icons/BookIcon.vue'
+import PeopleIcon from './Icons/PeopleIcon.vue'
 const router = useRouter()
 const user = inject('$user')
 const showProgressModal = ref(false)
@@ -278,7 +328,7 @@ const certificate = createResource({
 			`/api/method/frappe.utils.print_format.download_pdf?doctype=LMS+Certificate&name=${
 				data.name
 			}&format=${encodeURIComponent(data.template)}`,
-			'_blank'
+			'_blank',
 		)
 	},
 })

@@ -22,12 +22,13 @@ const attrs = useAttrs()
 const buttonClass = computed(() => {
 	const variantClasses = {
 		subtle:
-			'!text-primary-600 !bg-primary-100 hover:!bg-primary-200 active:!bg-primary-300',
-		solid: '!bg-primary-500 hover:!bg-primary-300 active:!bg-primary-400',
+			'!text-primary-700 !bg-primary-50 hover:!bg-primary-100 active:!bg-primary-200',
+		solid:
+			'!bg-primary-500 hover:!bg-primary-300 active:!bg-primary-400 !text-white',
 		outline:
 			'!text-primary-600 !border-primary-500 hover:!border-primary-500 hover:!text-white hover:!bg-primary-500 active:!border-primary-500 active:!bg-primary-500',
 		ghost: '!text-primary-600 hover:!bg-primary-100 active:!bg-primary-200',
-	}[attrs.variant]
+	}[attrs.variant || 'solid']
 	return (
 		'!py-3 !px-4 !h-10 font-semibold [&_svg]:stroke-2 text-sm' +
 		(!attrs.theme || attrs.theme == 'gray' ? ` ${variantClasses}` : '')

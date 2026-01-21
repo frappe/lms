@@ -1,69 +1,82 @@
 <template>
 	<div v-if="course.data">
 		<header
-			class="sticky top-0 z-10 flex items-center justify-between border-b bg-surface-white px-3 py-2.5 sm:px-5">
-			<Breadcrumbs class="h-7" :items="breadcrumbs" />
+			class="sticky top-0 z-10 flex items-center justify-between bg-surface-white px-3 py-2.5 sm:px-5"
+		>
+			<CustomBreadcrumb :items="breadcrumbs" />
 		</header>
 		<div class="m-5">
-			<div class="flex justify-between w-full space-x-5">
-				<div class="md:w-2/3">
-					<div class="text-3xl font-semibold text-ink-gray-9">
-						{{ course.data.title }}
-					</div>
-					<div class="rounded my-2" :class="{ 'default-image': !course.data.image }"
-						:style="{ backgroundImage: 'url(\'' + encodeURI(course.data.image) + '\')' }"
-						style="height: 250px">
-					</div>
-					<div class="my-3 leading-6 text-ink-gray-7 text-justify" :hidden="true">
-						{{ course.data.short_introduction }}
-					</div>
-					<div class="flex items-center hidden">
-						<Tooltip v-if="parseInt(course.data.rating) > 0" :text="__('Average Rating')"
-							class="flex items-center">
-							<Star class="size-4 text-transparent fill-yellow-500" />
-							<span class="ml-1 text-ink-gray-7">
-								{{ course.data.rating }}
-							</span>
-						</Tooltip>
-						<span v-if="parseInt(course.data.rating) > 0" class="mx-3">&middot;</span>
-						<Tooltip v-if="course.data.enrollment_count" :text="__('Enrolled Students')"
-							class="flex items-center">
-							<Users class="h-4 w-4 text-ink-gray-7" />
-							<span class="ml-1">
-								{{ course.data.enrollment_count_formatted }}
-							</span>
-						</Tooltip>
-						<span v-if="course.data.enrollment_count" class="mx-3">&middot;</span>
-						<div class="flex items-center">
-							<span class="h-6 mr-1" :class="{
-								'avatar-group overlap': course.data.instructors.length > 1,
-							}">
-								<UserAvatar v-for="instructor in course.data.instructors" :user="instructor" />
-							</span>
-							<CourseInstructors :instructors="course.data.instructors" />
-						</div>
-					</div>
-					<div v-if="course.data.tags" class="flex my-4 w-fit">
-						<Badge theme="gray" size="lg" class="mr-2 text-ink-gray-9"
-							v-for="tag in course.data.tags.split(', ')">
-							{{ tag }}
-						</Badge>
-					</div>
-					<div class="md:hidden my-4">
-						<CourseCardOverlay :course="course" />
-					</div>
-					<div v-html="course.data.description"
-						class="ProseMirror text-justify prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2 prose-sm max-w-none !whitespace-normal mt-10">
-					</div>
-					<div class="mt-10">
-						<CourseOutline :title="__('Course Outline')" :courseName="course.data.name" :showOutline="true"
-							:getProgress="course.data.membership ? true : false" />
-					</div>
-					<CourseReviews :courseName="course.data.name" :avg_rating="course.data.rating"
-						:membership="course.data.membership" />
-				</div>
-				<div class="hidden md:block">
+			<div class="flex w-full gap-5 flex-col lg:flex-row">
+				<div class="lg:w-96 flex-shrink-0">
 					<CourseCardOverlay :course="course" />
+				</div>
+				<div class="flex-1 min-w-0">
+					<div class="border-b mb-6">
+						<nav class="flex space-x-8">
+							<button
+								@click="activeTab = 'overview'"
+								:class="[
+									'pb-3 text-center px-2 border-b-[3px] font-medium transition-colors min-w-40',
+									activeTab === 'overview'
+										? 'border-primary-500 text-primary-600'
+										: 'border-transparent text-ink-gray-5 hover:text-ink-gray-7',
+								]"
+							>
+								{{ __('Overview') }}
+							</button>
+							<button
+								@click="activeTab = 'review'"
+								:class="[
+									'pb-3 text-center px-2 border-b-[3px] font-medium transition-colors min-w-40',
+									activeTab === 'review'
+										? 'border-primary-500 text-primary-600'
+										: 'border-transparent text-ink-gray-5 hover:text-ink-gray-7',
+								]"
+							>
+								{{ __('Review') }}
+							</button>
+						</nav>
+					</div>
+					<section v-show="activeTab === 'overview'" class="space-y-2">
+						<h2 class="text-xl font-semibold text-ink-gray-9 mb-1">
+							{{ __('Tentang Kursus') }}
+						</h2>
+						<div
+							class="my-3 leading-6 text-ink-gray-7 text-justify"
+							:hidden="true"
+						>
+							{{ course.data.short_introduction }}
+						</div>
+						<div
+							v-html="course.data.description"
+							class="ProseMirror text-justify prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2 prose-sm max-w-none !whitespace-normal"
+						></div>
+						<div v-if="course.data.tags" class="flex my-4 w-fit">
+							<Badge
+								theme="gray"
+								size="lg"
+								class="mr-2 text-ink-gray-9"
+								v-for="tag in course.data.tags.split(', ')"
+							>
+								{{ tag }}
+							</Badge>
+						</div>
+						<div class="mt-10">
+							<CourseOutline
+								:title="__('Course Outline')"
+								:courseName="course.data.name"
+								:showOutline="true"
+								:getProgress="course.data.membership ? true : false"
+							/>
+						</div>
+					</section>
+					<section v-show="activeTab === 'review'" class="">
+						<CourseReviews
+							:courseName="course.data.name"
+							:avg_rating="course.data.rating"
+							:membership="course.data.membership"
+						/>
+					</section>
 				</div>
 			</div>
 			<RelatedCourses :courseName="course.data.name" />
@@ -71,14 +84,8 @@
 	</div>
 </template>
 <script setup>
-import {
-	createResource,
-	Breadcrumbs,
-	Badge,
-	Tooltip,
-	usePageMeta,
-} from 'frappe-ui'
-import { computed, inject, watch } from 'vue'
+import { createResource, Badge, Tooltip, usePageMeta } from 'frappe-ui'
+import { computed, inject, ref, watch } from 'vue'
 import { Users, Star } from 'lucide-vue-next'
 import { sessionStore } from '@/stores/session'
 import { useRouter } from 'vue-router'
@@ -88,10 +95,12 @@ import CourseReviews from '@/components/CourseReviews.vue'
 import UserAvatar from '@/components/UserAvatar.vue'
 import CourseInstructors from '@/components/CourseInstructors.vue'
 import RelatedCourses from '@/components/RelatedCourses.vue'
+import CustomBreadcrumb from '@/components/ui/CustomBreadcrumb.vue'
 
 const { brand } = sessionStore()
 const router = useRouter()
 const user = inject('$user')
+const activeTab = ref('overview')
 
 const props = defineProps({
 	courseName: {
@@ -115,7 +124,7 @@ watch(
 	() => props.courseName,
 	() => {
 		course.reload()
-	}
+	},
 )
 
 watch(course, () => {
