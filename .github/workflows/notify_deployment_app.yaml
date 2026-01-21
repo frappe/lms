@@ -1,0 +1,35 @@
+name: Notify Deployment App
+
+on:
+  push:
+    branches:
+      - develop
+
+jobs:
+  notify-deployment-app:
+    name: Notify deployment app of LMS update
+    runs-on: ubuntu-latest
+    # Only on the main repo, not forks
+    if: github.repository == 'surgeventures/lms'
+
+    steps:
+      - name: Generate GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@29824e69f54612133e76f7eaac726eef6c875baf # v2.2.1
+        with:
+            app-id: ${{ secrets.FRESHA_LMS_UPDATE_NOTIFIER_APP_ID }}
+            private-key: ${{ secrets.FRESHA_LMS_UPDATE_NOTIFIER_APP_PRIVATE_KEY }}
+            owner: surgeventures
+            repositories: app-launchpad
+
+      - name: Notify
+        uses: peter-evans/repository-dispatch@28959ce8df70de7be546dd1250a005dd32156697 # v4.0.1
+        with:
+            token: ${{ steps.app-token.outputs.token }}
+            repository: surgeventures/app-launchpad
+            event-type: lms-update
+            client-payload: '{"lms_commit_sha": "${{ github.sha }}"}'
+
+      - name: Log trigger
+        run: |
+          echo "Notified downstream app of LMS update for commit: ${{ github.sha }}"
