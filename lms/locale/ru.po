@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2026-01-16 16:04+0000\n"
-"PO-Revision-Date: 2026-01-19 20:13\n"
+"PO-Revision-Date: 2026-01-21 20:16\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Russian\n"
 "MIME-Version: 1.0\n"
@@ -1938,7 +1938,7 @@ msgstr "Персонализация"
 #. Option for the 'Color' (Select) field in DocType 'LMS Course'
 #: lms/lms/doctype/lms_course/lms_course.json
 msgid "Cyan"
-msgstr "Циан"
+msgstr "Бирюзовый"
 
 #. Label of the show_dashboard (Check) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
@@ -3076,7 +3076,7 @@ msgstr "Скрыть мою личную информацию от других"
 
 #: frontend/src/components/Notes/InlineLessonMenu.vue:12
 msgid "Highlight"
-msgstr "Выделите"
+msgstr ""
 
 #. Label of the highlighted_text (Small Text) field in DocType 'LMS Lesson
 #. Note'
@@ -4310,7 +4310,7 @@ msgstr "Мета-ключевые слова"
 
 #: frontend/src/pages/BatchForm.vue:244 frontend/src/pages/CourseForm.vue:251
 msgid "Meta Tags"
-msgstr "Мета-теги"
+msgstr ""
 
 #: lms/lms/api.py:1481
 msgid "Meta tags should be a list."
@@ -4855,7 +4855,7 @@ msgstr "Наши предстоящие пакеты"
 #. Label of the output (Data) field in DocType 'LMS Test Case Submission'
 #: lms/lms/doctype/lms_test_case_submission/lms_test_case_submission.json
 msgid "Output"
-msgstr "Выход"
+msgstr ""
 
 #: frontend/src/components/Settings/BadgeForm.vue:216
 #: lms/lms/doctype/lms_badge/lms_badge.js:37
@@ -6342,7 +6342,7 @@ msgstr "Организация запуска"
 
 #: frontend/src/pages/Billing.vue:134
 msgid "State/Province"
-msgstr "Штат/провинция"
+msgstr ""
 
 #. Label of the tab_4_tab (Tab Break) field in DocType 'LMS Course'
 #. Label of the statistics (Check) field in DocType 'LMS Settings'
@@ -7364,7 +7364,7 @@ msgstr "Напишите свой ответ здесь"
 #: lms/lms/doctype/lms_course/lms_course.json
 #: lms/lms/doctype/lms_lesson_note/lms_lesson_note.json
 msgid "Yellow"
-msgstr "Желтый"
+msgstr "Жёлтый"
 
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.py:97
 msgid "You already have an evaluation on {0} at {1} for the course {2}."
