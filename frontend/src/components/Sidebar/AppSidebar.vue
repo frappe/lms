@@ -536,13 +536,6 @@ const setUpOnboarding = () => {
 		onboardingDetails.setUp(steps)
 		// Ensure we are accessing the value correctly if it is a ref
 		isOnboardingStepsCompleted = onboardingDetails.isOnboardingStepsCompleted
-
-        console.log('Setup Onboarding:', {
-            stepsCompleted: onboardingDetails.stepsCompleted.value,
-            isOnboardingStepsCompleted: isOnboardingStepsCompleted.value,
-            totalSteps: onboardingDetails.totalSteps.value
-        })
-
 		showOnboarding.value = true
 
         // Show overlay if onboarding is not fully completed

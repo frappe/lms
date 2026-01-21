@@ -299,24 +299,52 @@ def get_job_opportunities(filters=None, orFilters=None):
 	return jobs
 
 
+def get_growth_details(doctype, filters=None):
+	if not filters:
+		filters = {}
+
+	# Total Count
+	total_count = frappe.db.count(doctype, filters)
+	
+	# Count Today
+	filters_today = filters.copy()
+	filters_today["creation"] = [">=", frappe.utils.today()]
+	count_today = frappe.db.count(doctype, filters_today)
+
+	# Count Yesterday
+	filters_yesterday = filters.copy()
+	filters_yesterday["creation"] = ["between", [frappe.utils.add_days(frappe.utils.today(), -1), frappe.utils.today()]]
+	count_yesterday = frappe.db.count(doctype, filters_yesterday)
+
+	if count_yesterday > 0:
+		growth = ((count_today - count_yesterday) / count_yesterday) * 100
+	else:
+		# If yesterday was 0, and today > 0, 100% growth. Else 0.
+		growth = 100.0 if count_today > 0 else 0.0
+
+	return {
+		"count": total_count,
+		"growth": flt(growth, 1) # Round to 1 decimal place
+	}
+
 @frappe.whitelist(allow_guest=True)
 def get_chart_details():
 	details = frappe._dict()
-	details.enrollments = frappe.db.count("LMS Enrollment")
-	details.courses = frappe.db.count(
+	details.enrollments = get_growth_details("LMS Enrollment")
+	details.courses = get_growth_details(
 		"LMS Course",
 		{
 			"published": 1,
 			"upcoming": 0,
 		},
 	)
-	details.users = frappe.db.count(
+	details.users = get_growth_details(
 		"User", {"enabled": 1, "name": ["not in", ("Administrator", "Guest")]}
 	)
-	details.completions = frappe.db.count(
+	details.completions = get_growth_details(
 		"LMS Enrollment", {"progress": 100}
 	)
-	details.certifications = frappe.db.count("LMS Certificate", {"published": 1})
+	details.certifications = get_growth_details("LMS Certificate", {"published": 1})
 	return details
 
 

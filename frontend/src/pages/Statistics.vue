@@ -7,38 +7,40 @@
 			<div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-5 gap-4">
 				<Tooltip :text="__('Published Courses')">
 					<!-- <NumberChart class="border rounded-xl"
-						:config="{ title: 'Courses', value: chartDetails.data.courses }" /> -->
+						:config="{ title: 'Courses', value: chartDetails.data.courses.count }" /> -->
 					<div class="border rounded-xl p-4 flex items-center gap-4">
 						<div class="bg-primary-50 w-12 h-12 rounded-full flex items-center justify-center">
 							<BookIcon class="text-primary-500 w-6 h-6" />
 						</div>
 						<div class="flex-1">
-							<div class="text-xl text-gray-900 font-semibold">{{ chartDetails.data.courses }}</div>
+							<div class="text-xl text-gray-900 font-semibold">{{ chartDetails.data.courses.count }}</div>
 							<div class="text-sm text-gray-700">Courses</div>
 						</div>
 						<div class="flex items-start h-12">
-							<div class="text-primary-500 text-sm font-medium flex items-center gap-1">
-								<ArrowUpIcon class="w-4 h-4" />
-								1.2%
+							<div class="text-sm font-medium flex items-center gap-1"
+                                :class="chartDetails.data.courses.growth >= 0 ? 'text-primary-500' : 'text-error-500'">
+								<component :is="chartDetails.data.courses.growth >= 0 ? ArrowUpIcon : ArrowDownIcon" class="w-4 h-4" />
+								{{ chartDetails.data.courses.growth }}%
 							</div>
 						</div>
 					</div>
 				</Tooltip>
 				<Tooltip :text="__('Active Members')">
 					<!-- <NumberChart class="border rounded-xl"
-						:config="{ title: 'Signups', value: chartDetails.data.users }" /> -->
+						:config="{ title: 'Signups', value: chartDetails.data.users.count }" /> -->
 					<div class="border rounded-xl p-4 flex items-center gap-4">
 						<div class="bg-primary-50 w-12 h-12 rounded-full flex items-center justify-center">
 							<UserCircleAddIcon class="text-primary-500 w-6 h-6" />
 						</div>
 						<div class="flex-1">
-							<div class="text-xl text-gray-900 font-semibold">{{ chartDetails.data.users }}</div>
+							<div class="text-xl text-gray-900 font-semibold">{{ chartDetails.data.users.count }}</div>
 							<div class="text-sm text-gray-700">Signups</div>
 						</div>
 						<div class="flex items-start h-12">
-							<div class="text-primary-500 text-sm font-medium flex items-center gap-1">
-								<ArrowUpIcon class="w-4 h-4" />
-								2.5%
+							<div class="text-sm font-medium flex items-center gap-1"
+                                :class="chartDetails.data.users.growth >= 0 ? 'text-primary-500' : 'text-error-500'">
+								<component :is="chartDetails.data.users.growth >= 0 ? ArrowUpIcon : ArrowDownIcon" class="w-4 h-4" />
+								{{ chartDetails.data.users.growth }}%
 							</div>
 						</div>
 					</div>
@@ -46,20 +48,21 @@
 				<Tooltip :text="__('Course Enrollments')">
 					<!-- <NumberChart class="border rounded-xl" :config="{
 						title: 'Enrollments',
-						value: chartDetails.data.enrollments,
+						value: chartDetails.data.enrollments.count,
 					}" /> -->
 					<div class="border rounded-xl p-4 flex items-center gap-4">
 						<div class="bg-primary-50 w-12 h-12 rounded-full flex items-center justify-center">
 							<ClipboardIcon class="text-primary-500 w-6 h-6" />
 						</div>
 						<div class="flex-1">
-							<div class="text-xl text-gray-900 font-semibold">{{ chartDetails.data.enrollments }}</div>
+							<div class="text-xl text-gray-900 font-semibold">{{ chartDetails.data.enrollments.count }}</div>
 							<div class="text-sm text-gray-700">Enrollments</div>
 						</div>
 						<div class="flex items-start h-12">
-							<div class="text-error-500 text-sm font-medium flex items-center gap-1">
-								<ArrowDownIcon class="w-4 h-4" />
-								1.7%
+							<div class="text-sm font-medium flex items-center gap-1"
+                                :class="chartDetails.data.enrollments.growth >= 0 ? 'text-primary-500' : 'text-error-500'">
+								<component :is="chartDetails.data.enrollments.growth >= 0 ? ArrowUpIcon : ArrowDownIcon" class="w-4 h-4" />
+								{{ chartDetails.data.enrollments.growth }}%
 							</div>
 						</div>
 					</div>
@@ -67,20 +70,21 @@
 				<Tooltip :text="__('Course Completions')">
 					<!-- <NumberChart class="border rounded-xl" :config="{
 						title: 'Completions',
-						value: chartDetails.data.completions,
+						value: chartDetails.data.completions.count,
 					}" /> -->
 					<div class="border rounded-xl p-4 flex items-center gap-4">
 						<div class="bg-primary-50 w-12 h-12 rounded-full flex items-center justify-center">
 							<TickCircleIcon class="text-primary-500 w-6 h-6" />
 						</div>
 						<div class="flex-1">
-							<div class="text-xl text-gray-900 font-semibold">{{ chartDetails.data.completions }}</div>
+							<div class="text-xl text-gray-900 font-semibold">{{ chartDetails.data.completions.count }}</div>
 							<div class="text-sm text-gray-700">Completions</div>
 						</div>
 						<div class="flex items-start h-12">
-							<div class="text-primary-500 text-sm font-medium flex items-center gap-1">
-								<ArrowUpIcon class="w-4 h-4" />
-								2.5%
+							<div class="text-sm font-medium flex items-center gap-1"
+                                :class="chartDetails.data.completions.growth >= 0 ? 'text-primary-500' : 'text-error-500'">
+								<component :is="chartDetails.data.completions.growth >= 0 ? ArrowUpIcon : ArrowDownIcon" class="w-4 h-4" />
+								{{ chartDetails.data.completions.growth }}%
 							</div>
 						</div>
 					</div>
@@ -88,21 +92,22 @@
 				<Tooltip :text="__('Certified Members')">
 					<!-- <NumberChart class="border rounded-xl" :config="{
 						title: 'Certifications',
-						value: chartDetails.data.certifications,
+						value: chartDetails.data.certifications.count,
 					}" /> -->
 					<div class="border rounded-xl p-4 flex items-center gap-4">
 						<div class="bg-primary-50 w-12 h-12 rounded-full flex items-center justify-center">
 							<AwardIcon class="text-primary-500 w-6 h-6" />
 						</div>
 						<div class="flex-1">
-							<div class="text-xl text-gray-900 font-semibold">{{ chartDetails.data.certifications }}
+							<div class="text-xl text-gray-900 font-semibold">{{ chartDetails.data.certifications.count }}
 							</div>
 							<div class="text-sm text-gray-700">Certifications</div>
 						</div>
 						<div class="flex items-start h-12">
-							<div class="text-gray-500 text-sm font-medium flex items-center gap-1">
-								<ArrowUpIcon class="w-4 h-4" />
-								0%
+							<div class="text-sm font-medium flex items-center gap-1"
+                                :class="chartDetails.data.certifications.growth >= 0 ? 'text-primary-500' : 'text-error-500'">
+								<component :is="chartDetails.data.certifications.growth >= 0 ? ArrowUpIcon : ArrowDownIcon" class="w-4 h-4" />
+								{{ chartDetails.data.certifications.growth }}%
 							</div>
 						</div>
 					</div>
