@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2026-01-16 16:04+0000\n"
-"PO-Revision-Date: 2026-01-19 20:13\n"
+"PO-Revision-Date: 2026-01-21 20:16\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Spanish\n"
 "MIME-Version: 1.0\n"
@@ -658,7 +658,7 @@ msgstr "Preferencia de vestimenta"
 
 #: frontend/src/pages/ProfileEvaluator.vue:146
 msgid "Authorize Google Calendar Access"
-msgstr "Autorizar acceso a Google Calendar"
+msgstr ""
 
 #. Option for the 'Event' (Select) field in DocType 'LMS Badge'
 #: lms/lms/doctype/lms_badge/lms_badge.json
@@ -1454,7 +1454,7 @@ msgstr "Correo de confirmación enviado"
 #. Label of the confirmation_email_template (Link) field in DocType 'LMS Batch'
 #: lms/lms/doctype/lms_batch/lms_batch.json
 msgid "Confirmation Email Template"
-msgstr "Plantilla de correo electrónico de confirmación"
+msgstr ""
 
 #: lms/lms/doctype/lms_certificate/lms_certificate.py:32
 msgid "Congratulations on getting certified!"
@@ -2300,7 +2300,7 @@ msgstr ""
 #. Label of the email_sent (Check) field in DocType 'LMS Course Interest'
 #: lms/lms/doctype/lms_course_interest/lms_course_interest.json
 msgid "Email Sent"
-msgstr "Correo Electrónico Enviado"
+msgstr ""
 
 #: frontend/src/pages/BatchForm.vue:161
 msgid "Email Template"
@@ -2960,7 +2960,7 @@ msgstr "Github ID"
 #. Request'
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 msgid "Google Meet Link"
-msgstr "Enlace Google Meet"
+msgstr ""
 
 #. Label of the grade (Data) field in DocType 'Education Detail'
 #: frontend/src/components/Assignment.vue:164
@@ -3076,7 +3076,7 @@ msgstr "Ocultar mi información privada a los demás"
 
 #: frontend/src/components/Notes/InlineLessonMenu.vue:12
 msgid "Highlight"
-msgstr "Resaltar"
+msgstr ""
 
 #. Label of the highlighted_text (Small Text) field in DocType 'LMS Lesson
 #. Note'
@@ -3183,7 +3183,7 @@ msgstr "Si desea preguntas abiertas, asegúrese de que cada pregunta del cuestio
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.json
 #: lms/lms/doctype/lms_badge/lms_badge.json
 msgid "Image"
-msgstr "Imagen"
+msgstr ""
 
 #: frontend/src/components/Modals/EditCoverImage.vue:58
 #: frontend/src/components/UnsplashImageBrowser.vue:52
@@ -3391,7 +3391,7 @@ msgstr "María Pérez"
 #. Exercise'
 #: lms/lms/doctype/lms_programming_exercise/lms_programming_exercise.json
 msgid "JavaScript"
-msgstr "JavaScript"
+msgstr ""
 
 #. Label of the job (Link) field in DocType 'LMS Job Application'
 #: frontend/src/pages/Search/Search.vue:237
@@ -4242,7 +4242,7 @@ msgstr ""
 
 #: frontend/src/pages/Programs/ProgramForm.vue:110
 msgid "Members"
-msgstr "Miembros"
+msgstr ""
 
 #. Label of the mentor (Link) field in DocType 'LMS Course Mentor Mapping'
 #. Option for the 'Member Type' (Select) field in DocType 'LMS Enrollment'
@@ -4310,7 +4310,7 @@ msgstr ""
 
 #: frontend/src/pages/BatchForm.vue:244 frontend/src/pages/CourseForm.vue:251
 msgid "Meta Tags"
-msgstr "Metaetiquetas"
+msgstr ""
 
 #: lms/lms/api.py:1481
 msgid "Meta tags should be a list."
@@ -4700,7 +4700,7 @@ msgstr "Número de plazas disponibles"
 #. Label of the sb_00 (Section Break) field in DocType 'Zoom Settings'
 #: lms/lms/doctype/zoom_settings/zoom_settings.json
 msgid "OAuth Client ID"
-msgstr "ID de cliente de OAuth"
+msgstr ""
 
 #. Option for the 'Location Preference' (Select) field in DocType 'User'
 #: lms/fixtures/custom_field.json
@@ -4855,7 +4855,7 @@ msgstr ""
 #. Label of the output (Data) field in DocType 'LMS Test Case Submission'
 #: lms/lms/doctype/lms_test_case_submission/lms_test_case_submission.json
 msgid "Output"
-msgstr "Salida"
+msgstr ""
 
 #: frontend/src/components/Settings/BadgeForm.vue:216
 #: lms/lms/doctype/lms_badge/lms_badge.js:37
@@ -5067,7 +5067,7 @@ msgstr ""
 #: lms/lms/doctype/lms_coupon/lms_coupon.json
 #: lms/lms/doctype/lms_quiz_submission/lms_quiz_submission.json
 msgid "Percentage"
-msgstr "Porcentaje"
+msgstr ""
 
 #. Option for the 'Grade Type' (Select) field in DocType 'Education Detail'
 #: lms/lms/doctype/education_detail/education_detail.json
@@ -5563,7 +5563,7 @@ msgstr "Morado"
 #. Exercise'
 #: lms/lms/doctype/lms_programming_exercise/lms_programming_exercise.json
 msgid "Python"
-msgstr "Python"
+msgstr ""
 
 #. Label of the question (Small Text) field in DocType 'Course Lesson'
 #. Label of the question (Text Editor) field in DocType 'LMS Assignment'
@@ -5726,7 +5726,7 @@ msgstr ""
 #. Timetable'
 #: lms/lms/doctype/lms_batch_timetable/lms_batch_timetable.json
 msgid "Reference DocName"
-msgstr "DocName de referencia"
+msgstr ""
 
 #. Label of the reference_doctype (Link) field in DocType 'LMS Batch Timetable'
 #. Label of the reference_doctype (Select) field in DocType 'LMS Coupon Item'
@@ -5736,7 +5736,7 @@ msgstr "DocName de referencia"
 #: lms/lms/doctype/lms_coupon_item/lms_coupon_item.json
 #: lms/lms/doctype/lms_timetable_legend/lms_timetable_legend.json
 msgid "Reference DocType"
-msgstr "DocType de referencia"
+msgstr ""
 
 #. Label of the reference_doctype (Link) field in DocType 'LMS Badge'
 #: lms/lms/doctype/lms_badge/lms_badge.json
@@ -6199,12 +6199,12 @@ msgstr "Preguntas aleatorias"
 #. Label of the sidebar_tab (Tab Break) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Sidebar"
-msgstr "Barra Lateral"
+msgstr ""
 
 #. Label of the sidebar_items (Table) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Sidebar Items"
-msgstr "Elementos de barra lateral"
+msgstr ""
 
 #: lms/lms/user.py:29
 msgid "Sign Up is disabled"
@@ -6342,7 +6342,7 @@ msgstr "Startup"
 
 #: frontend/src/pages/Billing.vue:134
 msgid "State/Province"
-msgstr "Provincia del estado"
+msgstr "Provincia"
 
 #. Label of the tab_4_tab (Tab Break) field in DocType 'LMS Course'
 #. Label of the statistics (Check) field in DocType 'LMS Settings'
@@ -6351,7 +6351,7 @@ msgstr "Provincia del estado"
 #: lms/lms/doctype/lms_course/lms_course.json
 #: lms/lms/doctype/lms_settings/lms_settings.json lms/www/lms.py:203
 msgid "Statistics"
-msgstr "Estadísticas"
+msgstr ""
 
 #. Label of the status (Select) field in DocType 'Job Opportunity'
 #. Label of a field in the job-opportunity Web Form
@@ -6607,7 +6607,7 @@ msgstr ""
 #: lms/lms/doctype/lms_assignment/lms_assignment.json
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.json
 msgid "Text"
-msgstr "Texto"
+msgstr ""
 
 #: frontend/src/components/BatchFeedback.vue:6
 msgid "Thank you for providing your feedback."
@@ -7030,7 +7030,7 @@ msgstr "Calificación de Reino Unido (ej., 1º, 2:2)"
 #: lms/lms/doctype/lms_assignment/lms_assignment.json
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.json
 msgid "URL"
-msgstr "URL"
+msgstr ""
 
 #. Label of the uuid (Data) field in DocType 'LMS Live Class'
 #: lms/lms/doctype/lms_live_class/lms_live_class.json
@@ -7136,7 +7136,7 @@ msgstr ""
 
 #: frontend/src/components/Modals/EmailTemplateModal.vue:38
 msgid "Use HTML"
-msgstr "Usar HTML"
+msgstr ""
 
 #. Label of the user (Link) field in DocType 'LMS Job Application'
 #. Label of the user (Link) field in DocType 'LMS Course Interest'
@@ -7159,7 +7159,7 @@ msgstr "Campo de usuario"
 #. Label of the user_image (Attach Image) field in DocType 'Course Evaluator'
 #: lms/lms/doctype/course_evaluator/course_evaluator.json
 msgid "User Image"
-msgstr "Imagen de Usuario"
+msgstr ""
 
 #. Option for the 'Type' (Select) field in DocType 'LMS Question'
 #. Option for the 'Type' (Select) field in DocType 'LMS Quiz Question'
