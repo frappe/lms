@@ -6,6 +6,8 @@
 		<Button
 			v-if="!readOnlyMode"
 			variant="solid"
+			size="lg"
+			class="!bg-primary-500"
 			@click="
 				() => {
 					assignmentID = 'new'

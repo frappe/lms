@@ -150,11 +150,18 @@
 			v-model="showIntermediateModal"
 			:currentStep="currentStep"
 		/> -->
+
 	</div>
 	<PageModal
 		v-model="showPageModal"
 		v-model:reloadSidebar="sidebarSettings"
 		:page="pageToEdit"
+	/>
+	<OnboardingOverlay
+		:show="showOverlay"
+        :updateOnboardingStep="onboardingDetails?.updateOnboardingStep"
+		@complete="completeOnboardingOverlay"
+		@exit="dismissOnboardingOverlay"
 	/>
 </template>
 
@@ -168,6 +175,7 @@ import { useSidebar } from '@/stores/sidebar'
 import { useSettings } from '@/stores/settings'
 import { Button, call, createResource, Tooltip, toast } from 'frappe-ui'
 import PageModal from '@/components/Modals/PageModal.vue'
+import OnboardingOverlay from '@/components/Onboarding/OnboardingOverlay.vue'
 import { capture } from '@/telemetry'
 import LMSLogo from '@/components/Icons/LMSLogo.vue'
 import LMSLogoFull from '@/components/Icons/LMSLogoFull.vue'
@@ -220,6 +228,7 @@ const pageToEdit = ref(null)
 const settingsStore = useSettings()
 const { sidebarSettings } = settingsStore
 const showOnboarding = ref(false)
+const showOverlay = ref(false)
 const showIntermediateModal = ref(false)
 const currentStep = ref({})
 const router = useRouter()
@@ -413,128 +422,42 @@ const getFirstBatch = async () => {
 }
 
 const steps = reactive([
-	{
-		name: 'create_first_course',
-		title: __('Create your first course'),
-		icon: markRaw(h(BookOpen, iconProps)),
-		completed: false,
-		onClick: () => {
-			minimize.value = true
-			router.push({
-				name: 'Courses',
-			})
-		},
-	},
-	{
-		name: 'create_first_chapter',
-		title: __('Add your first chapter'),
-		icon: markRaw(h(FolderTree, iconProps)),
-		completed: false,
-		dependsOn: 'create_first_course',
-		onClick: async () => {
-			minimize.value = true
-			let course = await getFirstCourse()
-			if (course) {
-				router.push({ name: 'CourseForm', params: { courseName: course } })
-			} else {
-				router.push({ name: 'CourseForm' })
-			}
-		},
-	},
-	{
-		name: 'create_first_lesson',
-		title: __('Add your first lesson'),
-		icon: markRaw(h(FileText, iconProps)),
-		completed: false,
-		dependsOn: 'create_first_chapter',
-		onClick: async () => {
-			minimize.value = true
-			let course = await getFirstCourse()
-			if (course) {
-				router.push({
-					name: 'CourseForm',
-					params: { courseName: course },
-				})
-			} else {
-				router.push({ name: 'Courses' })
-			}
-		},
-	},
-	{
-		name: 'create_first_quiz',
-		title: __('Create your first quiz'),
-		icon: markRaw(h(CircleHelp, iconProps)),
-		completed: false,
-		dependsOn: 'create_first_course',
-		onClick: () => {
-			minimize.value = true
-			router.push({ name: 'Quizzes' })
-		},
-	},
-	{
-		name: 'invite_students',
-		title: __('Invite your team and students'),
-		icon: markRaw(h(InviteIcon, iconProps)),
-		completed: false,
-		onClick: () => {
-			minimize.value = true
-			settingsStore.activeTab = 'Members'
-			settingsStore.isSettingsOpen = true
-		},
-	},
-	{
-		name: 'create_first_batch',
-		title: __('Create your first batch'),
-		icon: markRaw(h(Users, iconProps)),
-		completed: false,
-		onClick: () => {
-			minimize.value = true
-			router.push({ name: 'Batches' })
-		},
-	},
-	{
-		name: 'add_batch_student',
-		title: __('Add students to your batch'),
-		icon: markRaw(h(UserPlus, iconProps)),
-		completed: false,
-		dependsOn: 'create_first_batch',
-		onClick: async () => {
-			minimize.value = true
-			let batch = await getFirstBatch()
-			if (batch) {
-				router.push({
-					name: 'Batch',
-					params: {
-						batchName: batch,
-					},
-				})
-			} else {
-				router.push({ name: 'Batch' })
-			}
-		},
-	},
-	{
-		name: 'add_batch_course',
-		title: __('Add courses to your batch'),
-		icon: markRaw(h(BookText, iconProps)),
-		completed: false,
-		dependsOn: 'create_first_batch',
-		onClick: async () => {
-			minimize.value = true
-			let batch = await getFirstBatch()
-			if (batch) {
-				router.push({
-					name: 'Batch',
-					params: {
-						batchName: batch,
-					},
-					hash: '#courses',
-				})
-			} else {
-				router.push({ name: 'Batch' })
-			}
-		},
-	},
+    {
+        name: 'slide_1',
+        title: 'CESGS Learning Management System',
+        icon: markRaw(h(Zap, iconProps)),
+        completed: false,
+        onClick: () => {
+            showOverlay.value = true
+        },
+    },
+    {
+        name: 'slide_2',
+        title: 'Sharpen your skills',
+        icon: markRaw(h(BookOpen, iconProps)),
+        completed: false,
+        onClick: () => {
+            showOverlay.value = true
+        },
+    },
+    {
+        name: 'slide_3',
+        title: 'Learn Efficiently With AI Assistance',
+        icon: markRaw(h(Zap, iconProps)),
+        completed: false,
+        onClick: () => {
+            showOverlay.value = true
+        },
+    },
+    {
+        name: 'slide_4',
+        title: 'Learn without limits',
+        icon: markRaw(h(Check, iconProps)),
+        completed: false,
+        onClick: () => {
+            showOverlay.value = true
+        },
+    },
 ])
 
 const articles = ref([
@@ -604,13 +527,51 @@ const articles = ref([
 	},
 ])
 
+
 const setUpOnboarding = () => {
 	if (userResource.data?.is_system_manager) {
-		onboardingDetails = useOnboarding('learning')
+		// Menggunakan key baru 'lms_onboarding' karena jumlah steps berubah (8 -> 4).
+        // Key lama 'learning' masih menyimpan state 8 steps yang menyebabkan crash.
+		onboardingDetails = useOnboarding('lms_onboarding')
 		onboardingDetails.setUp(steps)
+		// Ensure we are accessing the value correctly if it is a ref
 		isOnboardingStepsCompleted = onboardingDetails.isOnboardingStepsCompleted
+
+        console.log('Setup Onboarding:', {
+            stepsCompleted: onboardingDetails.stepsCompleted.value,
+            isOnboardingStepsCompleted: isOnboardingStepsCompleted.value,
+            totalSteps: onboardingDetails.totalSteps.value
+        })
+
 		showOnboarding.value = true
-	}
+
+        // Show overlay if onboarding is not fully completed
+        if (!isOnboardingStepsCompleted.value) {
+             console.log('Showing Onboarding Overlay')
+             showOverlay.value = true
+        }
+	} else {
+        console.log('User is not system manager, skipping onboarding setup')
+    }
+}
+
+// Remove the root level console.log that causes confusion
+// console.log(onboardingDetails)
+
+const completeOnboardingOverlay = () => {
+    // Tombol "Continue": User ingin memulai onboarding langkah-demi-langkah.
+    // Kita hanya menutup overlay. Banner "Getting Started" akan tetap ada karena langkah belum selesai.
+	showOverlay.value = false
+}
+
+const dismissOnboardingOverlay = () => {
+    // Tombol "Exit": User ingin melewatkan/skip onboarding sepenuhnya.
+    // Berdasarkan source code `onboarding.js`, `skipAll()` akan menandai semua steps menjadi completed (true).
+    // Ini akan mengubah `isOnboardingStepsCompleted` menjadi true, sehingga overlay tidak akan muncul lagi.
+    if (onboardingDetails && onboardingDetails.skipAll) {
+        onboardingDetails.skipAll()
+    }
+    showOverlay.value = false
 }
 
 watch(userResource, () => {

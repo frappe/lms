@@ -11,7 +11,9 @@
 				>
 					{{ __('Generate Certificates') }}
 				</Button>
-				<Button v-if="canMakeAnnouncement()" @click="openAnnouncementModal()">
+				<Button v-if="canMakeAnnouncement()" @click="openAnnouncementModal()"
+			 variant="solid" size="lg" class="!bg-primary-500"
+				>
 					<span>
 						{{ __('Make an Announcement') }}
 					</span>

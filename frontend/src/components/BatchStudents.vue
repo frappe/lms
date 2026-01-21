@@ -4,7 +4,7 @@
 			<div class="text-ink-gray-9 font-medium">
 				{{ students.data?.length }} {{ __('Students') }}
 			</div>
-			<Button v-if="!readOnlyMode" @click="openStudentModal()">
+			<Button v-if="!readOnlyMode" @click="openStudentModal()" variant="solid" size="lg" class="!bg-primary-500">
 				<template #prefix>
 					<Plus class="h-4 w-4" />
 				</template>

@@ -113,6 +113,7 @@ declare module 'vue' {
     NoSidebarLayout: typeof import('./src/components/NoSidebarLayout.vue')['default']
     Notes: typeof import('./src/components/Notes/Notes.vue')['default']
     NotPermitted: typeof import('./src/components/NotPermitted.vue')['default']
+    OnboardingOverlay: typeof import('./src/components/Onboarding/OnboardingOverlay.vue')['default']
     PageModal: typeof import('./src/components/Modals/PageModal.vue')['default']
     PaymentGatewayDetails: typeof import('./src/components/Settings/PaymentGatewayDetails.vue')['default']
     PaymentGateways: typeof import('./src/components/Settings/PaymentGateways.vue')['default']
