@@ -24,7 +24,7 @@
 			},
 		]">
 			<template v-slot="{ open }">
-				<Button variant="solid" size="lg" theme="gray">
+				<Button variant="solid" size="lg" class="!bg-primary-500">
 					<template #prefix>
 						<Plus class="h-4 w-4 stroke-1.5" />
 					</template>
@@ -60,10 +60,9 @@
 			</div>
 			<div class="flex flex-col space-y-3 lg:space-y-0 lg:flex-row lg:items-center lg:space-x-4">
 				<!-- <TabButtons v-if="user.data" :buttons="batchTabs" v-model="currentTab" class="w-fit" /> -->
-				<div class="grid grid-cols-2 gap-2">
+				<div class="flex flex-row gap-2">
 					<FormControl v-model="title" :placeholder="__('Search in your batches...')" type="text"
-						class="min-w-40 lg:min-w-0 lg:w-32 xl:w-40" @input="updateBatches()" variant="outline"
-						size="lg" />
+						class="min-w-40 lg:min-w-0 lg:w-64" @input="updateBatches()" variant="outline" size="lg" />
 					<div class="min-w-40 lg:min-w-0 lg:w-32 xl:w-40">
 						<Select v-if="batchTabs.length" v-model="currentTab" :options="batchTabs"
 							:placeholder="__('All')" @change="updateBatches()" variant="outline" size="lg" />
@@ -122,7 +121,8 @@ const title = ref('')
 const certification = ref(false)
 const filters = ref({})
 const is_student = computed(() => user.data?.is_student)
-const currentTab = ref(is_student.value ? 'All' : 'Upcoming')
+// const currentTab = ref(is_student.value ? 'All' : 'Upcoming')
+const currentTab = ref('All')
 const orderBy = ref('start_date')
 const readOnlyMode = window.read_only_mode
 const router = useRouter()
