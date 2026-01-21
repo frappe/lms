@@ -486,7 +486,7 @@ const getSidebarItems = () => {
 					activeFor: ['Batches', 'BatchDetail', 'Batch', 'BatchForm'],
 				},
 				{
-					label: 'Certifications',
+					label: 'Members',
 					icon: 'GraduationCap',
 					to: 'CertifiedParticipants',
 					activeFor: ['CertifiedParticipants'],
