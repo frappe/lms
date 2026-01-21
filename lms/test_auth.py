@@ -1,16 +1,14 @@
 import frappe
-from frappe.tests import UnitTestCase
 from frappe.tests.test_api import FrappeAPITestCase
 
-from lms.auth import authenticate
-from lms.lms.test_utils import TestUtils
+from lms.lms.test_helpers import BaseTestUtils
 
 
-class TestAuth(FrappeAPITestCase):
+class TestAuth(FrappeAPITestCase, BaseTestUtils):
 	def setUp(self):
-		self.normal_user = TestUtils.create_user(
-			self, "normal-user@example.com", "Normal", "User", ["LMS Student"]
-		)
+		super().setUp()
+		BaseTestUtils.setUp(self)
+		self.normal_user = self._create_user("normal-user@example.com", "Normal", "User", ["LMS Student"])
 
 	def test_allowed_path(self):
 		site_url = frappe.utils.get_site_url(frappe.local.site)
@@ -33,4 +31,4 @@ class TestAuth(FrappeAPITestCase):
 		self.assertEqual(response.json.get("exc_type"), "PermissionError")
 
 	def tearDown(self):
-		frappe.delete_doc("User", self.normal_user.name)
+		BaseTestUtils.tearDown(self)
