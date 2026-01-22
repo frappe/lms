@@ -1,6 +1,6 @@
 <template>
 	<header
-		class="sticky top-0 z-10 flex flex-col md:flex-row md:items-center justify-between bg-surface-white px-3 py-2.5 sm:px-5">
+		class="sticky top-0 z-10 flex flex-row md:items-center justify-between bg-surface-white px-3 py-2.5 sm:px-5 border-b">
 		<Breadcrumbs :items="breadcrumbs" />
 		<div class="flex items-center space-x-2">
 			<Button @click="markAllAsRead.submit" :loading="markAllAsRead.loading"
@@ -13,33 +13,24 @@
 		</div>
 	</header>
 	<div class="w-full mx-auto px-5 pt-6 divide-y">
-		<div v-if="notifications?.length" v-for="log in notifications" :key="log.name"
+		<div v-if="notifications?.data?.length" v-for="log in notifications?.data" :key="log.name"
 			class="flex items-center py-2 justify-between">
-			<div class="flex items-center bg-[#F2FFFC] p-4 rounded-xl border border-gray-100 w-full space-x-4">
+			<div class="flex items-start p-4 rounded-xl border border-gray-100 w-full space-x-4 cursor-pointer"
+			:class="!log.read ? 'bg-[#F2FFFC]' : 'bg-white'"
+			 @click="(e) => handleMarkAsRead(e, log.name)">
 				<!-- <Avatar :image="log.user_image" :label="log.full_name" class="mr-2" /> -->
 				<div v-if="log.document_type === 'LMS Quiz Submission'">
-					<img src="/icons/score.png" alt="score" class="w-10 h-10" />
+					<img src="/icons/score.png" alt="score" class="w-10 h-10 flex-shrink-0" />
 				</div>
 				<div v-else>
-					<img src="/icons/notif.png" alt="score" class="w-10 h-10" />
+					<img src="/icons/notif.png" alt="score" class="w-10 h-10 flex-shrink-0" />
 				</div>
-				<div class="notification">
-					<div class="text-gray-900 font-medium text-lg" v-html="log.subject"></div>
-					<div class="text-gray-700 font-regular text-md">
+				<div class="notification flex-1">
+					<div class="text-gray-900 text-md md:font-medium md:text-lg" v-html="log.subject"></div>
+					<div class="text-gray-700 font-regular text-sm md:text-md">
 						{{ dayjs(log.creation).fromNow() }}
 					</div>
 				</div>
-			</div>
-			<div class="flex items-center space-x-2">
-				<a v-if="log.link" :href="log.link" @click="(e) => handleMarkAsRead(e, log.name)"
-					class="text-ink-gray-5 font-medium text-sm hover:text-ink-gray-7">
-					{{ __('View') }}
-				</a>
-				<!-- <Button variant="ghost" v-if="!log.read" @click.stop="(e) => handleMarkAsRead(e, log.name)">
-					<template #icon>
-						<X class="h-4 w-4 text-ink-gray-7 stroke-1.5" />
-					</template>
-</Button> -->
 			</div>
 		</div>
 		<div v-else>
@@ -88,10 +79,20 @@ onMounted(() => {
 	})
 })
 
-const notifications = computed(() => {
-	return activeTab.value === 'Unread'
-		? unReadNotifications.data
-		: readNotifications.data
+// const notifications = computed(() => {
+// 	return activeTab.value === 'Unread'
+// 		? unReadNotifications.data
+// 		: readNotifications.data
+// })
+
+const notifications = createListResource({
+	doctype: 'Notification Log',
+	url: 'lms.lms.api.get_notifications',
+	filters: {
+		for_user: user.data?.name,
+	},
+	auto: true,
+	cache: 'Notifications',
 })
 
 const unReadNotifications = createListResource({

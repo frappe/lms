@@ -21,7 +21,8 @@
 				v-model="moderator"
 				type="checkbox"
 				@change.stop="changeRole('moderator')"
-			/>
+				/>
+
 			<FormControl
 				:label="__('Course Creator')"
 				v-model="course_creator"

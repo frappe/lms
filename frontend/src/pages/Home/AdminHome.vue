@@ -1,6 +1,6 @@
 <template>
 	<div>
-		<div v-if="createdCourses.data?.length" class="mt-10">
+		<div class="mt-10">
 			<div class="flex items-center justify-between mb-3">
 				<span class="font-semibold text-lg text-ink-gray-9">
 					{{ __('Courses Created') }}
@@ -16,15 +16,32 @@
 					</span>
 				</router-link>
 			</div>
-			<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+			<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5" v-if="createdCourses.data?.length">
 				<router-link v-for="course in createdCourses.data"
 					:to="{ name: 'CourseDetail', params: { courseName: course.name } }">
 					<CourseCard :course="course" />
 				</router-link>
 			</div>
+			<div v-else class="flex flex-col items-center justify-center mt-60">
+				<EmptyIcon class="size-32 mb-6" />
+				<h3 class="text-xl font-bold text-gray-900 mb-2">
+					Nothing to see here yet
+				</h3>
+				<p class="text-gray-500 font-medium">
+					Your learning updates will show up here soon
+				</p>
+				<!-- <router-link :to="{ name: 'CourseForm', params: { courseName: 'new' } }" class="mt-4">
+					<Button variant="solid" size="lg" class="!bg-primary-500">
+						<template #prefix>
+							<Plus class="size-4 stroke-1.5" />
+						</template>
+						{{ __('Create Course') }}
+					</Button>
+				</router-link> -->
+			</div>
 		</div>
 
-		<div v-if="createdBatches.data?.length" class="mt-10">
+		<div class="mt-10">
 			<div class="flex items-center justify-between mb-3">
 				<span class="font-semibold text-lg text-ink-gray-9">
 					{{ __('Upcoming Batches') }}
@@ -40,35 +57,21 @@
 					</span>
 				</router-link>
 			</div>
-			<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+			<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5" v-if="createdBatches.data?.length">
 				<router-link v-for="batch in createdBatches.data"
 					:to="{ name: 'BatchDetail', params: { batchName: batch.name } }">
 					<BatchCard :batch="batch" />
 				</router-link>
 			</div>
-		</div>
-
-		<div v-if="!createdCourses.data?.length && !createdBatches.data?.length"
-			class="flex flex-col items-center justify-center mt-60">
-			<GraduationCap class="size-10 mx-auto stroke-1 text-ink-gray-5" />
-			<div class="text-lg font-semibold text-ink-gray-7 mb-1.5">
-				{{ __('No courses created') }}
+			<div v-else class="flex flex-col items-center justify-center mt-60">
+				<EmptyIcon class="size-32 mb-6" />
+				<h3 class="text-xl font-bold text-gray-900 mb-2">
+					Nothing to see here yet
+				</h3>
+				<p class="text-gray-500 font-medium">
+					Your learning updates will show up here soon
+				</p>
 			</div>
-			<div class="leading-5 text-base w-full md:w-2/5 text-base text-center text-ink-gray-7">
-				{{
-					__(
-						'There are no courses currently. Create your first course to get started!'
-					)
-				}}
-			</div>
-			<router-link :to="{ name: 'CourseForm', params: { courseName: 'new' } }" class="mt-4">
-				<Button>
-					<template #prefix>
-						<Plus class="size-4 stroke-1.5" />
-					</template>
-					{{ __('Create Course') }}
-				</Button>
-			</router-link>
 		</div>
 
 		<div class="grid grid-cols-2 gap-5 mt-10">

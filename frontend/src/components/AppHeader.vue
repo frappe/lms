@@ -2,12 +2,58 @@
 	<header class="flex h-16 w-full items-center justify-between border-b bg-surface-white px-5">
 		<div class="flex items-center"></div>
 		<div class="flex items-center gap-4" v-if="profile.data || userResource.data">
-			<Button variant="ghost" class="relative text-ink-gray-7 !bg-gray-50 !w-10 !h-10 rounded-full"
-				@click="router.push({ name: 'Notifications' })">
-				<Bell class="h-5 w-5 stroke-1.5" />
-				<span v-if="unreadCount > 0"
-					class="absolute top-2 right-2.5 h-2 w-2 rounded-full bg-red-500 border border-white"></span>
-			</Button>
+			 <Popover placement="bottom-end">
+				<template #target="{ togglePopover }">
+				<Button @click="togglePopover()" variant="ghost" class="relative text-ink-gray-7 !bg-gray-50 !w-10 !h-10 rounded-full">
+					<Bell class="h-5 w-5 stroke-1.5" />
+					<span v-if="unreadCount > 0"
+						class="absolute top-2 right-2.5 h-2 w-2 rounded-full bg-red-500 border border-white"></span>
+				</Button>
+				</template>
+				<template #body-main :class="'p-0'">
+					<div class="w-96 h-80 bg-white rounded flex flex-col">
+						<div class="flex items-center justify-between border-b p-4">
+							<h2 class="text-lg font-semibold">Notifications</h2>
+							<Button variant="ghost" class="text-secondary-500 bg-transparent"
+							@click="markAllAsRead.submit" :loading="markAllAsRead.loading">Mark all as read</Button>
+						</div>
+						<div class="flex-1 p-4 overflow-y-auto">
+							<div v-if="notifications?.data?.length" v-for="log in notifications?.data" :key="log.name"
+							class="flex items-center py-2 justify-between">
+								<div class="flex items-start bg-[#F2FFFC] p-4 rounded-xl border border-gray-100 w-full space-x-4 cursor-pointer"
+								@click="(e) => handleMarkAsRead(e, log.name)"
+								:class="!log.read ? 'bg-[#F2FFFC]' : 'bg-white'"
+								>
+									<!-- <Avatar :image="log.user_image" :label="log.full_name" class="mr-2" /> -->
+									<div v-if="log.document_type === 'LMS Quiz Submission'">
+										<img src="/icons/score.png" alt="score" class="w-10 h-10 flex-shrink-0" />
+									</div>
+									<div v-else>
+										<img src="/icons/notif.png" alt="score" class="w-10 h-10 flex-shrink-0" />
+									</div>
+									<div class="notification flex-1">
+										<div class="text-gray-900 text-md md:font-medium md:text-lg" v-html="log.subject"></div>
+										<div class="text-gray-700 font-regular text-sm md:text-md">
+											{{ dayjs(log?.creation).fromNow() }}
+										</div>
+									</div>
+								</div>
+							</div>
+							<div v-else>
+								<div class="m-auto flex flex-col items-center justify-center">
+									<EmptyIcon />
+									<h2 class="text-lg font-semibold text-gray-900 mt-4">Everything looks quiet for now</h2>
+									<p class="text-gray-600">Your learning updates will show up here soon</p>
+								</div>
+							</div>
+						</div>
+						<div class="border-t flex justify-center items-center py-1.5 text-secondary-500 text-sm cursor-pointer font-medium"
+						@click="router.push({ name: 'Notifications' })">
+							View all notification
+						</div>
+					</div>
+				</template>
+			</Popover>
 
 			<Dropdown :options="userDropdownOptions" placement="right" side="bottom">
 				<template v-slot="{ open }">
@@ -18,6 +64,7 @@
 					</button>
 				</template>
 			</Dropdown>
+
 		</div>
 	</header>
 	<SettingsModal v-if="userResource.data?.is_moderator" v-model="showSettingsModal" />
@@ -37,7 +84,7 @@ import { useRouter } from 'vue-router'
 import { sessionStore } from '@/stores/session'
 import { usersStore } from '@/stores/user'
 import { useSettings } from '@/stores/settings'
-import { createResource, Button, Dropdown } from 'frappe-ui'
+import { createListResource,createResource, Button, Dropdown,Popover } from 'frappe-ui'
 import { createDialog } from '@/utils/dialogs'
 import UserAvatar from '@/components/UserAvatar.vue'
 import SettingsModal from '@/components/Settings/Settings.vue'
@@ -55,6 +102,7 @@ import {
 	LogOut,
 	LogIn,
 } from 'lucide-vue-next'
+import dayjs from 'dayjs'
 
 const router = useRouter()
 const { user, isLoggedIn, logout } = sessionStore()
@@ -98,7 +146,9 @@ onMounted(() => {
 	)
 
 	socket.on('publish_lms_notifications', (data) => {
-		unreadNotifications.reload()
+		if(unreadNotifications.data?.length > 0) {
+			unreadNotifications.reload()
+		}
 	})
 })
 
@@ -123,6 +173,55 @@ const unreadNotifications = createResource({
 	},
 	auto: false, // Triggered manually in onMounted
 })
+
+const notifications = createListResource({
+	doctype: 'Notification Log',
+	url: 'lms.lms.api.get_notifications',
+	filters: {
+		for_user: user.data?.name,
+		read: 0,
+	},
+	auto: true,
+	cache: 'Unread Notifications',
+})
+
+const readNotifications = createListResource({
+	doctype: 'Notification Log',
+	url: 'lms.lms.api.get_notifications',
+	filters: {
+		for_user: user?.data?.name,
+		read: 1,
+	},
+	auto: true,
+	cache: 'Read Notifications',
+})
+
+const markAllAsRead = createResource({
+	url: 'lms.lms.api.mark_all_as_read',
+	onSuccess(data) {
+		unreadNotifications.reload()
+		readNotifications.reload()
+	},
+})
+
+
+const markAsRead = createResource({
+	url: 'lms.lms.api.mark_as_read',
+	makeParams(values) {
+		return {
+			name: values.name,
+		}
+	},
+	onSuccess(data) {
+		unReadNotifications.reload()
+		readNotifications.reload()
+	},
+})
+
+const handleMarkAsRead = (e, logName) => {
+	markAsRead.submit({ name: logName })
+}
+
 
 const toggleTheme = () => {
 	const currentTheme = document.documentElement.getAttribute('data-theme')
