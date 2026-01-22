@@ -48,9 +48,9 @@ const buttonClass = computed(() => {
 	}[attrs.variant || 'subtle']
 
 	return [
-		'!h-10 !font-semibold text-sm !flex !items-center !justify-center !rounded-[8px]',
+		'!h-10 !font-semibold text-sm !flex !items-center !justify-center !rounded-[8px] [&_svg]:!stroke-2',
 		(!attrs.theme || attrs.theme === 'gray') && variantClasses,
-		isIconOnly.value ? '!w-10 !px-0' : '!px-8',
+		isIconOnly.value ? '!w-10 !px-0' : '!px-4',
 	]
 })
 </script>
