@@ -71,6 +71,9 @@ jobs:
     - name: setup requirements
       working-directory: /home/runner/frappe-bench
       run: bench setup requirements --dev
+    - name: block endpoints
+      working-directory: /home/runner/frappe-bench
+      run: bench --site frappe.local set-config block_endpoints 1
     - name: allow tests
       working-directory: /home/runner/frappe-bench
       run: bench --site frappe.local set-config allow_tests true

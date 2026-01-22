@@ -42,8 +42,8 @@
 				</div>
 				<div class="flex items-center space-x-4">
 					<FormControl
-						v-model="openToOpportunities"
-						:label="__('Open to Opportunities')"
+						v-model="openToWork"
+						:label="__('Open to Work')"
 						type="checkbox"
 						@change="updateParticipants()"
 					/>
@@ -140,7 +140,7 @@ import UserAvatar from '@/components/UserAvatar.vue'
 const filters = ref({})
 const currentCategory = ref('')
 const nameFilter = ref('')
-const openToOpportunities = ref(false)
+const openToWork = ref(false)
 const hiring = ref(false)
 const { brand } = sessionStore()
 const memberCount = ref(0)
@@ -197,8 +197,8 @@ const updateFilters = () => {
 		...(nameFilter.value && {
 			member_name: ['like', `%${nameFilter.value}%`],
 		}),
-		...(openToOpportunities.value && {
-			open_to_opportunities: true,
+		...(openToWork.value && {
+			open_to_work: true,
 		}),
 		...(hiring.value && {
 			hiring: true,
@@ -211,7 +211,7 @@ const setQueryParams = () => {
 	let filterKeys = {
 		category: currentCategory.value,
 		name: nameFilter.value,
-		'open-to-opportunities': openToOpportunities.value,
+		'open-to-work': openToWork.value,
 		hiring: hiring.value,
 	}
 
@@ -240,7 +240,7 @@ const setFiltersFromQuery = () => {
 	let queries = new URLSearchParams(location.search)
 	nameFilter.value = queries.get('name') || ''
 	currentCategory.value = queries.get('category') || ''
-	openToOpportunities.value = queries.get('open-to-opportunities') === 'true'
+	openToWork.value = queries.get('open-to-opportunities') === 'true'
 	hiring.value = queries.get('hiring') === 'true'
 }
 
