@@ -8,22 +8,27 @@
 			:class="sidebarStore.isSidebarCollapsed ? 'items-center' : ''"
 		>
 			<div
-				class="flex h-16 w-full mb-4 items-center shrink-0 border-b border-gray-200 backdrop-blur-sm"
+				class="flex h-16 w-full mb-4 items-center shrink-0 border-b border-gray-200/50 backdrop-blur-sm"
 				:class="
 					sidebarStore.isSidebarCollapsed
-						? 'justify-center px-0 flex-col h-24'
+						? 'justify-center px-0 flex-col h-36'
 						: 'justify-between px-5'
 				"
 			>
 				<div
-					class="flex items-center overflow-hidden"
-					v-if="!sidebarStore.isSidebarCollapsed"
+					class="flex items-center overflow-hidden gap-x-1 gap-y-2"
+					:class="
+						!sidebarStore.isSidebarCollapsed ? 'flex-row' : 'flex-col mb-2'
+					"
 				>
-					<LMSLogoFull class="h-12 rounded flex-shrink-0" />
+					<UnairLogo :class="sidebarStore.isSidebarCollapsed ? 'h-7' : 'h-7'" />
+					<LMSLogoFull
+						v-if="!sidebarStore.isSidebarCollapsed"
+						class="h-10 flex-shrink-0"
+					/>
+					<LMSLogo v-else class="h-7" />
 				</div>
-				<div v-else class="flex items-center justify-center w-full">
-					<LMSLogo class="h-7" />
-				</div>
+
 				<button
 					v-if="!sidebarStore.isSidebarCollapsed"
 					class="p-1.5 rounded-md text-gray-600 hover:text-gray-800 transition-colors"
@@ -214,6 +219,7 @@ import {
 	minimize,
 	IntermediateStepModal,
 } from 'frappe-ui/frappe'
+import UnairLogo from '@/components/Icons/UnairLogo.vue'
 
 const { user, branding } = sessionStore()
 const { userResource } = usersStore()

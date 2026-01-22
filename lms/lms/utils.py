@@ -1248,6 +1248,17 @@ def get_course_outline(course, progress=False):
 
 
 @frappe.whitelist(allow_guest=True)
+def get_course_outline_summary(course):
+	outline = get_course_outline(course)
+	total_modules = len(outline)
+	total_materials = sum(len(chapter.lessons) for chapter in outline)
+	return {
+		"modules": total_modules,
+		"materials": total_materials,
+	}
+
+
+@frappe.whitelist(allow_guest=True)
 @rate_limit(limit=500, seconds=60 * 60)
 def get_lesson(course, chapter, lesson):
 	chapter_name = frappe.db.get_value("Chapter Reference", {"parent": course, "idx": chapter}, "chapter")

@@ -1,7 +1,7 @@
 <template>
 	<div v-if="batch.data" class="">
-		<header class="sticky top-0 z-10 border-b bg-surface-white px-3 py-2.5 sm:px-5">
-			<Breadcrumbs :items="breadcrumbs" />
+		<header class="sticky top-0 z-10 bg-surface-white px-3 py-2.5 sm:px-5">
+			<CustomBreadcrumb :items="breadcrumbs" />
 		</header>
 		<div class="m-5 pb-10">
 			<div class="w-full">
@@ -14,19 +14,28 @@
 					</div>
 				</div>
 				<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-5">
-					<div v-if="batch.data.courses" v-for="course in courses.data" :key="course.course">
-						<router-link :to="{
-							name: 'CourseDetail',
-							params: {
-								courseName: course.name,
-							},
-						}">
+					<div
+						v-if="batch.data.courses"
+						v-for="course in courses.data"
+						:key="course.course"
+					>
+						<router-link
+							:to="{
+								name: 'CourseDetail',
+								params: {
+									courseName: course.name,
+								},
+							}"
+						>
 							<CourseCard :course="course" :key="course.name" />
 						</router-link>
 					</div>
 				</div>
 				<div v-if="batch.data.batch_details_raw">
-					<div v-html="batch.data.batch_details_raw" class="batch-description"></div>
+					<div
+						v-html="batch.data.batch_details_raw"
+						class="batch-description"
+					></div>
 				</div>
 			</div>
 		</div>
@@ -44,6 +53,7 @@ import BatchOverlay from '@/components/BatchOverlay.vue'
 import DateRange from '../components/Common/DateRange.vue'
 import CourseInstructors from '@/components/CourseInstructors.vue'
 import UserAvatar from '@/components/UserAvatar.vue'
+import CustomBreadcrumb from '@/components/ui/CustomBreadcrumb.vue'
 
 const user = inject('$user')
 const router = useRouter()

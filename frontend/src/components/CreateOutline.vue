@@ -10,7 +10,7 @@
 			<div>
 				{{
 					__(
-						'There are no chapters in this course. Create and manage chapters from here.'
+						'There are no chapters in this course. Create and manage chapters from here.',
 					)
 				}}
 			</div>
@@ -21,6 +21,7 @@
 	</div>
 </template>
 <script setup>
+import Button from './ui/Button.vue'
 const props = defineProps({
 	course: {
 		type: Object,

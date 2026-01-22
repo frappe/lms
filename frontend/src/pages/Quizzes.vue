@@ -3,7 +3,13 @@
 		class="sticky top-0 z-10 flex items-center justify-between border-b bg-surface-white px-3 py-2.5 sm:px-5"
 	>
 		<Breadcrumbs :items="breadcrumbs" />
-		<Button v-if="!readOnlyMode" variant="solid" @click="showForm = true" size="lg" class="!bg-primary-500">
+		<Button
+			v-if="!readOnlyMode"
+			variant="solid"
+			@click="showForm = true"
+			size="lg"
+			class="!bg-primary-500"
+		>
 			<template #prefix>
 				<Plus class="w-4 h-4" />
 			</template>
@@ -119,7 +125,6 @@
 <script setup>
 import {
 	Breadcrumbs,
-	Button,
 	createListResource,
 	Dialog,
 	FeatherIcon,
@@ -140,6 +145,7 @@ import { Plus } from 'lucide-vue-next'
 import { sessionStore } from '@/stores/session'
 import { escapeHTML } from '@/utils'
 import EmptyState from '@/components/EmptyState.vue'
+import Button from '@/components/ui/Button.vue'
 
 const { brand } = sessionStore()
 const user = inject('$user')
@@ -217,7 +223,7 @@ const insertQuiz = (close) => {
 			onError(error) {
 				toast.error(__('Error creating quiz: {0}', error.message))
 			},
-		}
+		},
 	)
 }
 

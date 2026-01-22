@@ -7,15 +7,6 @@
 					? __('Add a quiz to your lesson')
 					: __('Add an assignment to your lesson'),
 			size: 'xl',
-			actions: [
-				{
-					label: __('Save'),
-					variant: 'solid',
-					onClick: () => {
-						addAssessment()
-					},
-				},
-			],
 		}"
 	>
 		<template #body-content>
@@ -36,6 +27,13 @@
 						:onCreate="(value, close) => redirectToForm()"
 					/>
 				</div>
+			</div>
+		</template>
+		<template #actions>
+			<div class="flex justify-start flex-row-reverse gap-2">
+				<Button class="w-full" variant="solid" @click="addAssessment()">
+					Submit
+				</Button>
 			</div>
 		</template>
 	</Dialog>

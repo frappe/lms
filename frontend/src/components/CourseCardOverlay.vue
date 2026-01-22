@@ -123,9 +123,9 @@
 					size="md"
 					@click="showProgressSummary"
 				>
-					<template #prefix>
+					<span>
 						{{ __('Progress Summary') }}
-					</template>
+					</span>
 				</Button>
 				<div v-if="course.data.membership" class="space-y-2">
 					<router-link

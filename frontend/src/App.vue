@@ -26,7 +26,11 @@ const noSidebar = ref(false)
 const { userResource } = usersStore()
 
 router.beforeEach((to, from, next) => {
-	if (to.query.fromLesson || to.path === '/persona') {
+	if (
+		to.query.fromLesson ||
+		to.path === '/persona' ||
+		to.path === '/e-learning'
+	) {
 		noSidebar.value = true
 	} else {
 		noSidebar.value = false

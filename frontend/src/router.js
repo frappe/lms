@@ -39,6 +39,11 @@ const routes = [
 		props: true,
 	},
 	{
+		path: '/e-learning',
+		name: 'ELearning',
+		component: () => import('@/pages/ELearning.vue'),
+	},
+	{
 		path: '/batches',
 		name: 'Batches',
 		component: () => import('@/pages/Batches.vue'),
@@ -229,18 +234,14 @@ const routes = [
 		path: '/programming-exercises/submissions',
 		name: 'ProgrammingExerciseSubmissions',
 		component: () =>
-			import(
-				'@/pages/ProgrammingExercises/ProgrammingExerciseSubmissions.vue'
-			),
+			import('@/pages/ProgrammingExercises/ProgrammingExerciseSubmissions.vue'),
 		props: true,
 	},
 	{
 		path: '/programming-exercises/:exerciseID/submission/:submissionID',
 		name: 'ProgrammingExerciseSubmission',
 		component: () =>
-			import(
-				'@/pages/ProgrammingExercises/ProgrammingExerciseSubmission.vue'
-			),
+			import('@/pages/ProgrammingExercises/ProgrammingExerciseSubmission.vue'),
 		props: true,
 	},
 	{

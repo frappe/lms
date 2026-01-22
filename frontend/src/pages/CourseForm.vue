@@ -5,14 +5,24 @@
 				<header
 					class="sticky top-0 z-10 flex flex-col md:flex-row md:items-center justify-between border-b bg-surface-white px-3 py-2.5 sm:px-5"
 				>
-					<Breadcrumbs class="h-7" :items="breadcrumbs" />
+					<CustomBreadcrumb class="h-7" :items="breadcrumbs" />
 					<div class="flex items-center mt-3 md:mt-0">
-						<Button v-if="courseResource.data?.name" @click="trashCourse()" size="lg">
+						<Button
+							theme="red"
+							v-if="courseResource.data?.name"
+							@click="trashCourse()"
+							size="lg"
+						>
 							<template #icon>
 								<Trash2 class="w-4 h-4 stroke-1.5" />
 							</template>
 						</Button>
-						<Button variant="solid" @click="submitCourse()" class="ml-2 !bg-primary-500" size="lg">
+						<Button
+							variant="solid"
+							@click="submitCourse()"
+							class="ml-2"
+							size="lg"
+						>
 							<span>
 								{{ __('Save') }}
 							</span>
@@ -188,7 +198,7 @@
 							:label="__('Short Introduction')"
 							:placeholder="
 								__(
-									'A one line introduction to the course that appears on the course card'
+									'A one line introduction to the course that appears on the course card',
 								)
 							"
 							:required="true"
@@ -212,7 +222,7 @@
 							:label="__('Preview Video')"
 							:placeholder="
 								__(
-									'Paste the youtube link of a short video introducing the course'
+									'Paste the youtube link of a short video introducing the course',
 								)
 							"
 						/>
@@ -329,9 +339,7 @@
 </template>
 <script setup>
 import {
-	Breadcrumbs,
 	TextEditor,
-	Button,
 	createResource,
 	FormControl,
 	FileUploader,
@@ -364,6 +372,8 @@ import Link from '@/components/Controls/Link.vue'
 import CourseOutline from '@/components/CourseOutline.vue'
 import MultiSelect from '@/components/Controls/MultiSelect.vue'
 import ColorSwatches from '@/components/Controls/ColorSwatches.vue'
+import CustomBreadcrumb from '@/components/ui/CustomBreadcrumb.vue'
+import Button from '@/components/ui/Button.vue'
 
 const user = inject('$user')
 const newTag = ref('')
@@ -592,7 +602,7 @@ const editCourse = () => {
 			onError(err) {
 				toast.error(err.messages?.[0] || err)
 			},
-		}
+		},
 	)
 }
 
@@ -613,7 +623,7 @@ const trashCourse = () => {
 	$dialog({
 		title: __('Delete Course'),
 		message: __(
-			'Deleting the course will also delete all its chapters and lessons. Are you sure you want to delete this course?'
+			'Deleting the course will also delete all its chapters and lessons. Are you sure you want to delete this course?',
 		),
 		actions: [
 			{
@@ -635,7 +645,7 @@ watch(
 		if (newVal) {
 			fetchCourseInfo()
 		}
-	}
+	},
 )
 
 const updateTags = () => {

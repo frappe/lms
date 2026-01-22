@@ -5,7 +5,7 @@
 				<header
 					class="sticky top-0 z-10 flex flex-col md:flex-row md:items-center justify-between border-b overflow-hidden bg-surface-white px-3 py-2.5 sm:px-5"
 				>
-					<Breadcrumbs class="text-ellipsis" :items="breadcrumbs" />
+					<CustomBreadcrumb class="text-ellipsis" :items="breadcrumbs" />
 					<Button
 						variant="solid"
 						@click="saveLesson({ showSuccessMessage: true })"
@@ -101,6 +101,7 @@ import { ChevronRight } from 'lucide-vue-next'
 import { getEditorTools, enablePlyr } from '@/utils'
 import { capture, startRecording, stopRecording } from '@/telemetry'
 import { useOnboarding } from 'frappe-ui/frappe'
+import CustomBreadcrumb from '@/components/ui/CustomBreadcrumb.vue'
 
 const { brand } = sessionStore()
 const editor = ref(null)
@@ -425,13 +426,13 @@ const createNewLesson = () => {
 							toast.success(__('Lesson created successfully'))
 							lessonDetails.reload()
 						},
-					}
+					},
 				)
 			},
 			onError(err) {
 				toast.error(err.messages?.[0] || err)
 			},
-		}
+		},
 	)
 }
 
@@ -452,7 +453,7 @@ const editCurrentLesson = () => {
 			onError(err) {
 				toast.error(err.message)
 			},
-		}
+		},
 	)
 }
 

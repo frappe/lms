@@ -49,6 +49,8 @@ def get_context(context):
 	context["show_footer_on_login"] = cint(frappe.get_website_settings("show_footer_on_login"))
 	context["disable_user_pass_login"] = cint(frappe.get_system_settings("disable_user_pass_login"))
 	context["logo"] = get_app_logo()
+	context["logo_unair"] = '/assets/lms/images/unair-logo.png'
+	context["logo_cesgs"] = '/assets/lms/images/cesgs-logo.png'
 	context["app_name"] = (
 		frappe.get_website_settings("app_name") or frappe.get_system_settings("app_name") or _("Frappe")
 	)

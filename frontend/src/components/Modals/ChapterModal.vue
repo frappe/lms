@@ -4,14 +4,6 @@
 		:options="{
 			title: chapterDetail ? __('Edit Chapter') : __('Add Chapter'),
 			size: 'lg',
-			actions: [
-				{
-					label: chapterDetail ? __('Edit') : __('Create'),
-					variant: 'solid',
-					onClick: (close) =>
-						chapterDetail ? editChapter(close) : addChapter(close),
-				},
-			],
 		}"
 	>
 		<template #body-content>
@@ -22,7 +14,7 @@
 					:label="__('SCORM Package')"
 					:description="
 						__(
-							'Enable this only if you want to upload a SCORM package as a chapter.'
+							'Enable this only if you want to upload a SCORM package as a chapter.',
 						)
 					"
 					v-model="chapter.is_scorm_package"
@@ -64,6 +56,17 @@
 						</div>
 					</div>
 				</div>
+			</div>
+		</template>
+		<template #actions="{ close }">
+			<div class="flex justify-start flex-row-reverse gap-2">
+				<Button
+					class="w-full"
+					variant="solid"
+					@click="chapterDetail ? editChapter(close) : addChapter(close)"
+				>
+					{{ chapterDetail ? __('Edit') : __('Create') }}
+				</Button>
 			</div>
 		</template>
 	</Dialog>
@@ -156,14 +159,14 @@ const addChapter = async (close) => {
 						onError(err) {
 							toast.error(err.messages?.[0] || err)
 						},
-					}
+					},
 				)
 				close()
 			},
 			onError(err) {
 				toast.error(err.messages?.[0] || err)
 			},
-		}
+		},
 	)
 }
 
@@ -199,7 +202,7 @@ const editChapter = (close) => {
 			onError(err) {
 				toast.error(err.messages?.[0] || err)
 			},
-		}
+		},
 	)
 }
 
@@ -209,7 +212,7 @@ watch(
 		chapter.title = newChapter?.title
 		chapter.is_scorm_package = newChapter?.is_scorm_package
 		chapter.scorm_package = newChapter?.scorm_package
-	}
+	},
 )
 
 const validateFile = (file) => {

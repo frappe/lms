@@ -161,7 +161,7 @@
 	/>
 </template>
 <script setup>
-import { Button, createResource, Tooltip, toast } from 'frappe-ui'
+import { createResource, Tooltip, toast } from 'frappe-ui'
 import { getCurrentInstance, inject, ref, watch } from 'vue'
 import Draggable from 'vuedraggable'
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
@@ -178,6 +178,7 @@ import {
 import { useRoute, useRouter } from 'vue-router'
 import ChapterModal from '@/components/Modals/ChapterModal.vue'
 import DocumentTextIcon from './Icons/DocumentTextIcon.vue'
+import Button from './ui/Button.vue'
 
 const route = useRoute()
 const router = useRouter()

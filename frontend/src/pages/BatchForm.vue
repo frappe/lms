@@ -3,9 +3,9 @@
 		<header
 			class="sticky top-0 z-10 flex items-center justify-between border-b bg-surface-white px-3 py-2.5 sm:px-5"
 		>
-			<Breadcrumbs class="h-7" :items="breadcrumbs" />
+			<CustomBreadcrumb class="h-7" :items="breadcrumbs" />
 			<div class="flex items-center space-x-2">
-				<Button v-if="batchDetail.data?.name" @click="deleteBatch">
+				<Button v-if="batchDetail.data?.name" @click="deleteBatch" theme="red">
 					<template #icon>
 						<Trash2 class="size-4 stroke-1.5" />
 					</template>
@@ -248,7 +248,7 @@
 										<div class="mt-2 text-ink-gray-5 text-sm">
 											{{
 												__(
-													'Appears when the batch URL is shared on any online platform'
+													'Appears when the batch URL is shared on any online platform',
 												)
 											}}
 										</div>
@@ -324,7 +324,6 @@ import {
 	Breadcrumbs,
 	FormControl,
 	FileUploader,
-	Button,
 	TextEditor,
 	createResource,
 	usePageMeta,
@@ -346,6 +345,8 @@ import {
 	validateFile,
 	escapeHTML,
 } from '@/utils'
+import Button from '@/components/ui/Button.vue'
+import CustomBreadcrumb from '@/components/ui/CustomBreadcrumb.vue'
 
 const router = useRouter()
 const user = inject('$user')
@@ -543,7 +544,7 @@ const createNewBatch = () => {
 			onError(err) {
 				toast.error(err.messages?.[0] || err)
 			},
-		}
+		},
 	)
 }
 
@@ -563,7 +564,7 @@ const editBatchDetails = () => {
 			onError(err) {
 				toast.error(err.messages?.[0] || err)
 			},
-		}
+		},
 	)
 }
 
@@ -571,7 +572,7 @@ const deleteBatch = () => {
 	$dialog({
 		title: __('Confirm your action to delete'),
 		message: __(
-			'Deleting this batch will also delete all its data including enrolled students, linked courses, assessments, feedback and discussions. Are you sure you want to continue?'
+			'Deleting this batch will also delete all its data including enrolled students, linked courses, assessments, feedback and discussions. Are you sure you want to continue?',
 		),
 		actions: [
 			{
