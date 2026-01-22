@@ -8,7 +8,6 @@ from frappe import _
 from frappe.desk.doctype.dashboard_chart.dashboard_chart import get_result
 from frappe.desk.doctype.notification_log.notification_log import make_notification_logs
 from frappe.desk.notifications import extract_mentions
-from frappe.pulse.utils import get_frappe_version
 from frappe.rate_limiter import rate_limit
 from frappe.utils import (
 	add_months,
@@ -17,6 +16,7 @@ from frappe.utils import (
 	fmt_money,
 	format_datetime,
 	get_datetime,
+	get_frappe_version,
 	get_fullname,
 	get_time_str,
 	getdate,
