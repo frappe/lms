@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2026-01-16 16:04+0000\n"
-"PO-Revision-Date: 2026-01-19 20:13\n"
+"PO-Revision-Date: 2026-01-21 20:16\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Turkish\n"
 "MIME-Version: 1.0\n"
@@ -908,7 +908,7 @@ msgstr "Fatura İsmi"
 
 #: frontend/src/components/Modals/EditProfile.vue:104
 msgid "Bio"
-msgstr "Hakkında"
+msgstr ""
 
 #. Option for the 'Color' (Select) field in DocType 'LMS Course'
 #. Option for the 'Color' (Select) field in DocType 'LMS Lesson Note'
@@ -989,7 +989,7 @@ msgstr "Kategori"
 
 #: frontend/src/components/Settings/Categories.vue:39
 msgid "Category Name"
-msgstr "Kategori Adı"
+msgstr ""
 
 #: frontend/src/components/Settings/Categories.vue:133
 msgid "Category added successfully"
@@ -1139,7 +1139,7 @@ msgstr "Bölümler"
 
 #: frontend/src/components/Quiz.vue:229
 msgid "Check"
-msgstr "Kontrol et"
+msgstr ""
 
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExercises.vue:16
 msgid "Check All Submissions"
@@ -1232,7 +1232,7 @@ msgstr "Buraya tıklayın"
 #: lms/lms/doctype/lms_zoom_settings/lms_zoom_settings.json
 #: lms/lms/doctype/zoom_settings/zoom_settings.json
 msgid "Client ID"
-msgstr "Client ID"
+msgstr ""
 
 #. Label of the client_secret (Password) field in DocType 'LMS Zoom Settings'
 #. Label of the client_secret (Password) field in DocType 'Zoom Settings'
@@ -1240,7 +1240,7 @@ msgstr "Client ID"
 #: lms/lms/doctype/lms_zoom_settings/lms_zoom_settings.json
 #: lms/lms/doctype/zoom_settings/zoom_settings.json
 msgid "Client Secret"
-msgstr "Client Secret"
+msgstr ""
 
 #: frontend/src/components/Settings/Categories.vue:27
 msgid "Close"
@@ -1266,7 +1266,7 @@ msgstr "Bulut"
 #: lms/lms/doctype/lms_coupon/lms_coupon.json
 #: lms/lms/doctype/lms_programming_exercise_submission/lms_programming_exercise_submission.json
 msgid "Code"
-msgstr "Kod"
+msgstr ""
 
 #. Label of the collaboration (Select) field in DocType 'User'
 #: lms/fixtures/custom_field.json
@@ -1454,7 +1454,7 @@ msgstr "Onay E-postası Gönderildi"
 #. Label of the confirmation_email_template (Link) field in DocType 'LMS Batch'
 #: lms/lms/doctype/lms_batch/lms_batch.json
 msgid "Confirmation Email Template"
-msgstr "Onay E-postası Şablonu"
+msgstr ""
 
 #: lms/lms/doctype/lms_certificate/lms_certificate.py:32
 msgid "Congratulations on getting certified!"
@@ -1938,7 +1938,7 @@ msgstr "Özelleştirmeler"
 #. Option for the 'Color' (Select) field in DocType 'LMS Course'
 #: lms/lms/doctype/lms_course/lms_course.json
 msgid "Cyan"
-msgstr "Açık Mavi"
+msgstr ""
 
 #. Label of the show_dashboard (Check) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
@@ -2164,7 +2164,7 @@ msgstr "Tartışma"
 #: lms/lms/doctype/lms_assignment/lms_assignment.json
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.json
 msgid "Document"
-msgstr "Belge"
+msgstr ""
 
 #: frontend/src/components/Settings/Coupons/CouponItems.vue:11
 msgid "Document Name"
@@ -2342,7 +2342,7 @@ msgstr "Personel"
 #. Label of the enable (Check) field in DocType 'Zoom Settings'
 #: lms/lms/doctype/zoom_settings/zoom_settings.json
 msgid "Enable"
-msgstr "Etkinleştir"
+msgstr ""
 
 #: lms/lms/doctype/lms_settings/lms_settings.py:22
 msgid "Enable Google API in Google Settings to send calendar invites for evaluations."
@@ -2960,7 +2960,7 @@ msgstr "Github Kimliği"
 #. Request'
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 msgid "Google Meet Link"
-msgstr "Google Meet Bağlantısı"
+msgstr ""
 
 #. Label of the grade (Data) field in DocType 'Education Detail'
 #: frontend/src/components/Assignment.vue:164
@@ -2995,7 +2995,7 @@ msgstr "Sadece bir kez ver"
 #. Option for the 'Color' (Select) field in DocType 'LMS Course'
 #: lms/lms/doctype/lms_course/lms_course.json
 msgid "Gray"
-msgstr "Gri"
+msgstr ""
 
 #. Option for the 'Color' (Select) field in DocType 'LMS Course'
 #. Option for the 'Color' (Select) field in DocType 'LMS Lesson Note'
@@ -3076,7 +3076,7 @@ msgstr "Özel Bilgilerimi başkalarından gizle"
 
 #: frontend/src/components/Notes/InlineLessonMenu.vue:12
 msgid "Highlight"
-msgstr "Vurgulama"
+msgstr ""
 
 #. Label of the highlighted_text (Small Text) field in DocType 'LMS Lesson
 #. Note'
@@ -4242,7 +4242,7 @@ msgstr ""
 
 #: frontend/src/pages/Programs/ProgramForm.vue:110
 msgid "Members"
-msgstr "Üyeler"
+msgstr ""
 
 #. Label of the mentor (Link) field in DocType 'LMS Course Mentor Mapping'
 #. Option for the 'Member Type' (Select) field in DocType 'LMS Enrollment'
@@ -4310,7 +4310,7 @@ msgstr ""
 
 #: frontend/src/pages/BatchForm.vue:244 frontend/src/pages/CourseForm.vue:251
 msgid "Meta Tags"
-msgstr "Meta Etiketleri"
+msgstr ""
 
 #: lms/lms/api.py:1481
 msgid "Meta tags should be a list."
@@ -5067,7 +5067,7 @@ msgstr ""
 #: lms/lms/doctype/lms_coupon/lms_coupon.json
 #: lms/lms/doctype/lms_quiz_submission/lms_quiz_submission.json
 msgid "Percentage"
-msgstr "Yüzde"
+msgstr ""
 
 #. Option for the 'Grade Type' (Select) field in DocType 'Education Detail'
 #: lms/lms/doctype/education_detail/education_detail.json
@@ -5095,7 +5095,7 @@ msgstr "Telefon Numarası"
 #. Option for the 'Color' (Select) field in DocType 'LMS Course'
 #: lms/lms/doctype/lms_course/lms_course.json
 msgid "Pink"
-msgstr "Pembe"
+msgstr ""
 
 #: lms/lms/doctype/lms_settings/lms_settings.py:35
 msgid "Please add <a href='{0}'>{1}</a> for <a href='{2}'>{3}</a> to send calendar invites for evaluations."
@@ -5557,13 +5557,13 @@ msgstr ""
 #: lms/lms/doctype/lms_course/lms_course.json
 #: lms/lms/doctype/lms_lesson_note/lms_lesson_note.json
 msgid "Purple"
-msgstr "Mor"
+msgstr ""
 
 #. Option for the 'Language' (Select) field in DocType 'LMS Programming
 #. Exercise'
 #: lms/lms/doctype/lms_programming_exercise/lms_programming_exercise.json
 msgid "Python"
-msgstr "Python"
+msgstr ""
 
 #. Label of the question (Small Text) field in DocType 'Course Lesson'
 #. Label of the question (Text Editor) field in DocType 'LMS Assignment'
@@ -6199,12 +6199,12 @@ msgstr "Soruları Karıştır"
 #. Label of the sidebar_tab (Tab Break) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Sidebar"
-msgstr "Kenar Çubuğu"
+msgstr ""
 
 #. Label of the sidebar_items (Table) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Sidebar Items"
-msgstr "Kenar Çubuğu Öğeleri"
+msgstr ""
 
 #: lms/lms/user.py:29
 msgid "Sign Up is disabled"
@@ -6351,7 +6351,7 @@ msgstr "Mahalle"
 #: lms/lms/doctype/lms_course/lms_course.json
 #: lms/lms/doctype/lms_settings/lms_settings.json lms/www/lms.py:203
 msgid "Statistics"
-msgstr "İstatistik"
+msgstr ""
 
 #. Label of the status (Select) field in DocType 'Job Opportunity'
 #. Label of a field in the job-opportunity Web Form
@@ -6607,7 +6607,7 @@ msgstr ""
 #: lms/lms/doctype/lms_assignment/lms_assignment.json
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.json
 msgid "Text"
-msgstr "Yazı"
+msgstr ""
 
 #: frontend/src/components/BatchFeedback.vue:6
 msgid "Thank you for providing your feedback."
@@ -7030,7 +7030,7 @@ msgstr "Birleşik Krallık Derecelendirmesi (örn. 1, 2:2)"
 #: lms/lms/doctype/lms_assignment/lms_assignment.json
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.json
 msgid "URL"
-msgstr "URL"
+msgstr ""
 
 #. Label of the uuid (Data) field in DocType 'LMS Live Class'
 #: lms/lms/doctype/lms_live_class/lms_live_class.json
@@ -7364,7 +7364,7 @@ msgstr "Cevabınızı buraya yazın"
 #: lms/lms/doctype/lms_course/lms_course.json
 #: lms/lms/doctype/lms_lesson_note/lms_lesson_note.json
 msgid "Yellow"
-msgstr "Sarı"
+msgstr ""
 
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.py:97
 msgid "You already have an evaluation on {0} at {1} for the course {2}."

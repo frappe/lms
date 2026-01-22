@@ -331,8 +331,8 @@ def get_certification_query(filters):
 				)
 			if field == "member_name":
 				query = query.where(Certificate.member_name.like(value[1]))
-			if field == "open_to_opportunities":
-				query = query.where(User.open_to == "Opportunities")
+			if field == "open_to_work":
+				query = query.where(User.open_to == "Work")
 			if field == "hiring":
 				query = query.where(User.open_to == "Hiring")
 	return query

@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2026-01-16 16:04+0000\n"
-"PO-Revision-Date: 2026-01-19 20:13\n"
+"PO-Revision-Date: 2026-01-21 20:16\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Hungarian\n"
 "MIME-Version: 1.0\n"
@@ -548,7 +548,7 @@ msgstr ""
 
 #: lms/lms/doctype/lms_badge/lms_badge.js:48
 msgid "Assign"
-msgstr ""
+msgstr "Hozzárendel"
 
 #: frontend/src/components/Settings/BadgeForm.vue:28
 msgid "Assign For"
@@ -1996,7 +1996,7 @@ msgstr "Tisztelt "
 
 #: frontend/src/components/Modals/EmailTemplateModal.vue:66
 msgid "Dear {{ member_name }},\\n\\nYou have been enrolled in our upcoming batch {{ batch_name }}.\\n\\nThanks,\\nFrappe Learning"
-msgstr ""
+msgstr "Kedves {{ member_name }},\\n\\nBeiratkoztunk a következő csoportunkba {{ batch_name }}.\\n\\nKöszönjük,\\nFrappé Tanulás"
 
 #. Label of the default_currency (Link) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
@@ -2300,7 +2300,7 @@ msgstr "Email azonosító"
 #. Label of the email_sent (Check) field in DocType 'LMS Course Interest'
 #: lms/lms/doctype/lms_course_interest/lms_course_interest.json
 msgid "Email Sent"
-msgstr "E-mail Elküldve"
+msgstr ""
 
 #: frontend/src/pages/BatchForm.vue:161
 msgid "Email Template"
@@ -3888,7 +3888,7 @@ msgstr ""
 
 #: frontend/src/pages/ProfileAbout.vue:93
 msgid "LinkedIn"
-msgstr ""
+msgstr "LinkedIn"
 
 #. Label of the linkedin (Data) field in DocType 'User'
 #: frontend/src/components/Modals/EditProfile.vue:80
@@ -4361,7 +4361,7 @@ msgstr ""
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmissions.vue:287
 #: frontend/src/pages/Quizzes.vue:281
 msgid "Modified"
-msgstr ""
+msgstr "Módosítva"
 
 #: lms/lms/doctype/lms_badge/lms_badge.js:38
 msgid "Modified By"
@@ -5156,7 +5156,7 @@ msgstr ""
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.py:32
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.py:106
 msgid "Please enter a valid URL."
-msgstr ""
+msgstr "Kérjük, érvényes URL címet adjon meg."
 
 #: frontend/src/components/Modals/LiveClassModal.vue:198
 msgid "Please enter a valid time in the format HH:mm."
@@ -7790,7 +7790,7 @@ msgstr "percek"
 
 #: frontend/src/components/CourseInstructors.vue:45
 msgid "others"
-msgstr ""
+msgstr "egyebek"
 
 #: frontend/src/pages/QuizForm.vue:344
 msgid "question_detail"

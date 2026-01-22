@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2026-01-16 16:04+0000\n"
-"PO-Revision-Date: 2026-01-19 20:13\n"
+"PO-Revision-Date: 2026-01-21 20:16\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: German\n"
 "MIME-Version: 1.0\n"
@@ -455,7 +455,7 @@ msgstr ""
 
 #: frontend/src/pages/JobApplications.vue:311
 msgid "Applied On"
-msgstr "Aufgetragen auf"
+msgstr "Angewandt auf"
 
 #: frontend/src/pages/Billing.vue:81 frontend/src/pages/JobDetail.vue:62
 msgid "Apply"
@@ -658,7 +658,7 @@ msgstr ""
 
 #: frontend/src/pages/ProfileEvaluator.vue:146
 msgid "Authorize Google Calendar Access"
-msgstr "Autorisieren Sie den Zugriff auf Google Kalender"
+msgstr "Zugriff auf Google Kalender autorisieren"
 
 #. Option for the 'Event' (Select) field in DocType 'LMS Badge'
 #: lms/lms/doctype/lms_badge/lms_badge.json
@@ -908,7 +908,7 @@ msgstr "Rechnungsname"
 
 #: frontend/src/components/Modals/EditProfile.vue:104
 msgid "Bio"
-msgstr "Lebenslauf"
+msgstr "Biografie"
 
 #. Option for the 'Color' (Select) field in DocType 'LMS Course'
 #. Option for the 'Color' (Select) field in DocType 'LMS Lesson Note'
@@ -1139,7 +1139,7 @@ msgstr "Kapitel"
 
 #: frontend/src/components/Quiz.vue:229
 msgid "Check"
-msgstr "Prüfen"
+msgstr "Kontrollkästchen"
 
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExercises.vue:16
 msgid "Check All Submissions"
@@ -2342,7 +2342,7 @@ msgstr "Mitarbeiter"
 #. Label of the enable (Check) field in DocType 'Zoom Settings'
 #: lms/lms/doctype/zoom_settings/zoom_settings.json
 msgid "Enable"
-msgstr "ermöglichen"
+msgstr "Aktivieren"
 
 #: lms/lms/doctype/lms_settings/lms_settings.py:22
 msgid "Enable Google API in Google Settings to send calendar invites for evaluations."
@@ -4361,7 +4361,7 @@ msgstr ""
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmissions.vue:287
 #: frontend/src/pages/Quizzes.vue:281
 msgid "Modified"
-msgstr ""
+msgstr "Geändert"
 
 #: lms/lms/doctype/lms_badge/lms_badge.js:38
 msgid "Modified By"
@@ -6342,7 +6342,7 @@ msgstr ""
 
 #: frontend/src/pages/Billing.vue:134
 msgid "State/Province"
-msgstr "Staat / Provinz"
+msgstr "Bundesland/Kanton"
 
 #. Label of the tab_4_tab (Tab Break) field in DocType 'LMS Course'
 #. Label of the statistics (Check) field in DocType 'LMS Settings'
@@ -7159,7 +7159,7 @@ msgstr "Benutzerfeld"
 #. Label of the user_image (Attach Image) field in DocType 'Course Evaluator'
 #: lms/lms/doctype/course_evaluator/course_evaluator.json
 msgid "User Image"
-msgstr "Bild des Benutzers"
+msgstr "Benutzerbild"
 
 #. Option for the 'Type' (Select) field in DocType 'LMS Question'
 #. Option for the 'Type' (Select) field in DocType 'LMS Quiz Question'

@@ -65,8 +65,8 @@
 						<Tooltip
 							v-if="profile.data.open_to"
 							:text="
-								profile.data.open_to === 'Opportunities'
-									? __('Open to Opportunities')
+								profile.data.open_to === 'Work'
+									? __('Open to Work')
 									: __('Hiring')
 							"
 							placement="right"
@@ -77,7 +77,7 @@
 								<div
 									class="rounded-full w-fit"
 									:class="
-										profile.data.open_to === 'Opportunities'
+										profile.data.open_to === 'Work'
 											? 'bg-surface-green-3'
 											: 'bg-purple-500'
 									"

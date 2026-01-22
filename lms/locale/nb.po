@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2026-01-16 16:04+0000\n"
-"PO-Revision-Date: 2026-01-19 20:13\n"
+"PO-Revision-Date: 2026-01-21 20:16\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Norwegian Bokmal\n"
 "MIME-Version: 1.0\n"
@@ -908,7 +908,7 @@ msgstr ""
 
 #: frontend/src/components/Modals/EditProfile.vue:104
 msgid "Bio"
-msgstr ""
+msgstr "Bio"
 
 #. Option for the 'Color' (Select) field in DocType 'LMS Course'
 #. Option for the 'Color' (Select) field in DocType 'LMS Lesson Note'
@@ -989,7 +989,7 @@ msgstr "Kategori"
 
 #: frontend/src/components/Settings/Categories.vue:39
 msgid "Category Name"
-msgstr ""
+msgstr "Kategorinavn"
 
 #: frontend/src/components/Settings/Categories.vue:133
 msgid "Category added successfully"
@@ -1139,7 +1139,7 @@ msgstr ""
 
 #: frontend/src/components/Quiz.vue:229
 msgid "Check"
-msgstr ""
+msgstr "Marker"
 
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExercises.vue:16
 msgid "Check All Submissions"
@@ -1232,7 +1232,7 @@ msgstr "Klikk her"
 #: lms/lms/doctype/lms_zoom_settings/lms_zoom_settings.json
 #: lms/lms/doctype/zoom_settings/zoom_settings.json
 msgid "Client ID"
-msgstr ""
+msgstr "Klient-ID"
 
 #. Label of the client_secret (Password) field in DocType 'LMS Zoom Settings'
 #. Label of the client_secret (Password) field in DocType 'Zoom Settings'
@@ -1240,7 +1240,7 @@ msgstr ""
 #: lms/lms/doctype/lms_zoom_settings/lms_zoom_settings.json
 #: lms/lms/doctype/zoom_settings/zoom_settings.json
 msgid "Client Secret"
-msgstr ""
+msgstr "Klienthemmelighet"
 
 #: frontend/src/components/Settings/Categories.vue:27
 msgid "Close"
@@ -1266,7 +1266,7 @@ msgstr ""
 #: lms/lms/doctype/lms_coupon/lms_coupon.json
 #: lms/lms/doctype/lms_programming_exercise_submission/lms_programming_exercise_submission.json
 msgid "Code"
-msgstr ""
+msgstr "Kode"
 
 #. Label of the collaboration (Select) field in DocType 'User'
 #: lms/fixtures/custom_field.json
@@ -1454,7 +1454,7 @@ msgstr ""
 #. Label of the confirmation_email_template (Link) field in DocType 'LMS Batch'
 #: lms/lms/doctype/lms_batch/lms_batch.json
 msgid "Confirmation Email Template"
-msgstr ""
+msgstr "Mal for bekreftelses-e-post"
 
 #: lms/lms/doctype/lms_certificate/lms_certificate.py:32
 msgid "Congratulations on getting certified!"
@@ -1938,7 +1938,7 @@ msgstr ""
 #. Option for the 'Color' (Select) field in DocType 'LMS Course'
 #: lms/lms/doctype/lms_course/lms_course.json
 msgid "Cyan"
-msgstr ""
+msgstr "Cyan"
 
 #. Label of the show_dashboard (Check) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
@@ -2164,7 +2164,7 @@ msgstr ""
 #: lms/lms/doctype/lms_assignment/lms_assignment.json
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.json
 msgid "Document"
-msgstr ""
+msgstr "Dokument"
 
 #: frontend/src/components/Settings/Coupons/CouponItems.vue:11
 msgid "Document Name"
@@ -2960,7 +2960,7 @@ msgstr ""
 #. Request'
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 msgid "Google Meet Link"
-msgstr ""
+msgstr "Google Meet Link"
 
 #. Label of the grade (Data) field in DocType 'Education Detail'
 #: frontend/src/components/Assignment.vue:164
@@ -2995,7 +2995,7 @@ msgstr ""
 #. Option for the 'Color' (Select) field in DocType 'LMS Course'
 #: lms/lms/doctype/lms_course/lms_course.json
 msgid "Gray"
-msgstr ""
+msgstr "Grå"
 
 #. Option for the 'Color' (Select) field in DocType 'LMS Course'
 #. Option for the 'Color' (Select) field in DocType 'LMS Lesson Note'
@@ -3076,7 +3076,7 @@ msgstr ""
 
 #: frontend/src/components/Notes/InlineLessonMenu.vue:12
 msgid "Highlight"
-msgstr ""
+msgstr "Uthevet"
 
 #. Label of the highlighted_text (Small Text) field in DocType 'LMS Lesson
 #. Note'
@@ -3183,7 +3183,7 @@ msgstr ""
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.json
 #: lms/lms/doctype/lms_badge/lms_badge.json
 msgid "Image"
-msgstr ""
+msgstr "Bilde"
 
 #: frontend/src/components/Modals/EditCoverImage.vue:58
 #: frontend/src/components/UnsplashImageBrowser.vue:52
@@ -3391,7 +3391,7 @@ msgstr "Jane Doe"
 #. Exercise'
 #: lms/lms/doctype/lms_programming_exercise/lms_programming_exercise.json
 msgid "JavaScript"
-msgstr ""
+msgstr "JavaScript"
 
 #. Label of the job (Link) field in DocType 'LMS Job Application'
 #: frontend/src/pages/Search/Search.vue:237
@@ -4242,7 +4242,7 @@ msgstr ""
 
 #: frontend/src/pages/Programs/ProgramForm.vue:110
 msgid "Members"
-msgstr ""
+msgstr "Medlemmer"
 
 #. Label of the mentor (Link) field in DocType 'LMS Course Mentor Mapping'
 #. Option for the 'Member Type' (Select) field in DocType 'LMS Enrollment'
@@ -4819,7 +4819,7 @@ msgstr "Alternativer"
 #. Option for the 'Color' (Select) field in DocType 'LMS Course'
 #: lms/lms/doctype/lms_course/lms_course.json
 msgid "Orange"
-msgstr ""
+msgstr "Oransje"
 
 #. Label of the order_id (Data) field in DocType 'LMS Payment'
 #: frontend/src/components/Settings/Transactions/TransactionDetails.vue:114
@@ -5095,7 +5095,7 @@ msgstr ""
 #. Option for the 'Color' (Select) field in DocType 'LMS Course'
 #: lms/lms/doctype/lms_course/lms_course.json
 msgid "Pink"
-msgstr ""
+msgstr "Rosa"
 
 #: lms/lms/doctype/lms_settings/lms_settings.py:35
 msgid "Please add <a href='{0}'>{1}</a> for <a href='{2}'>{3}</a> to send calendar invites for evaluations."
@@ -5557,13 +5557,13 @@ msgstr ""
 #: lms/lms/doctype/lms_course/lms_course.json
 #: lms/lms/doctype/lms_lesson_note/lms_lesson_note.json
 msgid "Purple"
-msgstr ""
+msgstr "Lilla"
 
 #. Option for the 'Language' (Select) field in DocType 'LMS Programming
 #. Exercise'
 #: lms/lms/doctype/lms_programming_exercise/lms_programming_exercise.json
 msgid "Python"
-msgstr ""
+msgstr "Python"
 
 #. Label of the question (Small Text) field in DocType 'Course Lesson'
 #. Label of the question (Text Editor) field in DocType 'LMS Assignment'
@@ -5726,7 +5726,7 @@ msgstr ""
 #. Timetable'
 #: lms/lms/doctype/lms_batch_timetable/lms_batch_timetable.json
 msgid "Reference DocName"
-msgstr ""
+msgstr "Referanse-DocName"
 
 #. Label of the reference_doctype (Link) field in DocType 'LMS Batch Timetable'
 #. Label of the reference_doctype (Select) field in DocType 'LMS Coupon Item'
@@ -5736,7 +5736,7 @@ msgstr ""
 #: lms/lms/doctype/lms_coupon_item/lms_coupon_item.json
 #: lms/lms/doctype/lms_timetable_legend/lms_timetable_legend.json
 msgid "Reference DocType"
-msgstr "Referanse-dokumenttype (DocType)"
+msgstr "Referanse-DocType"
 
 #. Label of the reference_doctype (Link) field in DocType 'LMS Badge'
 #: lms/lms/doctype/lms_badge/lms_badge.json
@@ -6199,12 +6199,12 @@ msgstr ""
 #. Label of the sidebar_tab (Tab Break) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Sidebar"
-msgstr ""
+msgstr "Sidefelt"
 
 #. Label of the sidebar_items (Table) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Sidebar Items"
-msgstr ""
+msgstr "Elementer i sidefeltet"
 
 #: lms/lms/user.py:29
 msgid "Sign Up is disabled"
@@ -6351,7 +6351,7 @@ msgstr "Delstat/provins"
 #: lms/lms/doctype/lms_course/lms_course.json
 #: lms/lms/doctype/lms_settings/lms_settings.json lms/www/lms.py:203
 msgid "Statistics"
-msgstr ""
+msgstr "Statistikk"
 
 #. Label of the status (Select) field in DocType 'Job Opportunity'
 #. Label of a field in the job-opportunity Web Form
@@ -6607,7 +6607,7 @@ msgstr ""
 #: lms/lms/doctype/lms_assignment/lms_assignment.json
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.json
 msgid "Text"
-msgstr ""
+msgstr "Tekst"
 
 #: frontend/src/components/BatchFeedback.vue:6
 msgid "Thank you for providing your feedback."
@@ -7136,7 +7136,7 @@ msgstr ""
 
 #: frontend/src/components/Modals/EmailTemplateModal.vue:38
 msgid "Use HTML"
-msgstr ""
+msgstr "Bruk HTML"
 
 #. Label of the user (Link) field in DocType 'LMS Job Application'
 #. Label of the user (Link) field in DocType 'LMS Course Interest'
@@ -7159,7 +7159,7 @@ msgstr ""
 #. Label of the user_image (Attach Image) field in DocType 'Course Evaluator'
 #: lms/lms/doctype/course_evaluator/course_evaluator.json
 msgid "User Image"
-msgstr ""
+msgstr "Brukerbilde"
 
 #. Option for the 'Type' (Select) field in DocType 'LMS Question'
 #. Option for the 'Type' (Select) field in DocType 'LMS Quiz Question'
@@ -7364,7 +7364,7 @@ msgstr ""
 #: lms/lms/doctype/lms_course/lms_course.json
 #: lms/lms/doctype/lms_lesson_note/lms_lesson_note.json
 msgid "Yellow"
-msgstr ""
+msgstr "Gul"
 
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.py:97
 msgid "You already have an evaluation on {0} at {1} for the course {2}."
