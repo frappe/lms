@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2026-01-16 16:04+0000\n"
-"PO-Revision-Date: 2026-01-19 20:13\n"
+"PO-Revision-Date: 2026-01-21 20:16\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Bosnian\n"
 "MIME-Version: 1.0\n"
@@ -908,7 +908,7 @@ msgstr "Faktura Adresa"
 
 #: frontend/src/components/Modals/EditProfile.vue:104
 msgid "Bio"
-msgstr "Bio"
+msgstr "Biografija"
 
 #. Option for the 'Color' (Select) field in DocType 'LMS Course'
 #. Option for the 'Color' (Select) field in DocType 'LMS Lesson Note'
@@ -989,7 +989,7 @@ msgstr "Kategorija"
 
 #: frontend/src/components/Settings/Categories.vue:39
 msgid "Category Name"
-msgstr "Naziv kategorije"
+msgstr "Naziv Kategorije"
 
 #: frontend/src/components/Settings/Categories.vue:133
 msgid "Category added successfully"
@@ -1232,7 +1232,7 @@ msgstr "Klikni ovdje"
 #: lms/lms/doctype/lms_zoom_settings/lms_zoom_settings.json
 #: lms/lms/doctype/zoom_settings/zoom_settings.json
 msgid "Client ID"
-msgstr "ID klijenta"
+msgstr "ID Klijenta"
 
 #. Label of the client_secret (Password) field in DocType 'LMS Zoom Settings'
 #. Label of the client_secret (Password) field in DocType 'Zoom Settings'
@@ -1240,7 +1240,7 @@ msgstr "ID klijenta"
 #: lms/lms/doctype/lms_zoom_settings/lms_zoom_settings.json
 #: lms/lms/doctype/zoom_settings/zoom_settings.json
 msgid "Client Secret"
-msgstr "Tajna klijenta"
+msgstr "Tajna Klijenta"
 
 #: frontend/src/components/Settings/Categories.vue:27
 msgid "Close"
@@ -1454,7 +1454,7 @@ msgstr "E-pošta potvrde poslana"
 #. Label of the confirmation_email_template (Link) field in DocType 'LMS Batch'
 #: lms/lms/doctype/lms_batch/lms_batch.json
 msgid "Confirmation Email Template"
-msgstr "Šablon e-pošte za potvrdu"
+msgstr "Šablon e-pošte Potvrde"
 
 #: lms/lms/doctype/lms_certificate/lms_certificate.py:32
 msgid "Congratulations on getting certified!"
@@ -2960,7 +2960,7 @@ msgstr "Github ID"
 #. Request'
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 msgid "Google Meet Link"
-msgstr "Google Meet veza"
+msgstr "Google Meet Veza"
 
 #. Label of the grade (Data) field in DocType 'Education Detail'
 #: frontend/src/components/Assignment.vue:164
@@ -4310,7 +4310,7 @@ msgstr "Meta Ključne Riječi"
 
 #: frontend/src/pages/BatchForm.vue:244 frontend/src/pages/CourseForm.vue:251
 msgid "Meta Tags"
-msgstr "Meta tagovi"
+msgstr "Meta Oznake"
 
 #: lms/lms/api.py:1481
 msgid "Meta tags should be a list."
@@ -4700,7 +4700,7 @@ msgstr "Broj slobodnih mjesta"
 #. Label of the sb_00 (Section Break) field in DocType 'Zoom Settings'
 #: lms/lms/doctype/zoom_settings/zoom_settings.json
 msgid "OAuth Client ID"
-msgstr "OAuth ID klijenta"
+msgstr "OAuth ID Klijenta"
 
 #. Option for the 'Location Preference' (Select) field in DocType 'User'
 #: lms/fixtures/custom_field.json
@@ -5067,7 +5067,7 @@ msgstr "Na Čekanju"
 #: lms/lms/doctype/lms_coupon/lms_coupon.json
 #: lms/lms/doctype/lms_quiz_submission/lms_quiz_submission.json
 msgid "Percentage"
-msgstr "Procenat"
+msgstr "Procentualno"
 
 #. Option for the 'Grade Type' (Select) field in DocType 'Education Detail'
 #: lms/lms/doctype/education_detail/education_detail.json
@@ -5726,7 +5726,7 @@ msgstr "Broj Iskorištenja"
 #. Timetable'
 #: lms/lms/doctype/lms_batch_timetable/lms_batch_timetable.json
 msgid "Reference DocName"
-msgstr "Referentni naziv dokumenta"
+msgstr "Referentni Naziv Dokumenta"
 
 #. Label of the reference_doctype (Link) field in DocType 'LMS Batch Timetable'
 #. Label of the reference_doctype (Select) field in DocType 'LMS Coupon Item'
@@ -6199,12 +6199,12 @@ msgstr "Nasumična Pitanja"
 #. Label of the sidebar_tab (Tab Break) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Sidebar"
-msgstr "Bočna traka"
+msgstr "Bočna Traka"
 
 #. Label of the sidebar_items (Table) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Sidebar Items"
-msgstr "Stavke bočne trake"
+msgstr "Stavke Bočne Trake"
 
 #: lms/lms/user.py:29
 msgid "Sign Up is disabled"
@@ -6342,7 +6342,7 @@ msgstr "Pokretačka Organizacija"
 
 #: frontend/src/pages/Billing.vue:134
 msgid "State/Province"
-msgstr "Država/Pokrajina"
+msgstr "Zemlja/Pokrajina"
 
 #. Label of the tab_4_tab (Tab Break) field in DocType 'LMS Course'
 #. Label of the statistics (Check) field in DocType 'LMS Settings'
@@ -7159,7 +7159,7 @@ msgstr "Korisničko polje"
 #. Label of the user_image (Attach Image) field in DocType 'Course Evaluator'
 #: lms/lms/doctype/course_evaluator/course_evaluator.json
 msgid "User Image"
-msgstr "Slika korisnika"
+msgstr "Slika Korisnika"
 
 #. Option for the 'Type' (Select) field in DocType 'LMS Question'
 #. Option for the 'Type' (Select) field in DocType 'LMS Quiz Question'

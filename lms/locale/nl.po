@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2026-01-16 16:04+0000\n"
-"PO-Revision-Date: 2026-01-19 20:13\n"
+"PO-Revision-Date: 2026-01-21 20:16\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Dutch\n"
 "MIME-Version: 1.0\n"
@@ -6114,7 +6114,7 @@ msgstr ""
 
 #: frontend/src/components/Controls/ColorSwatches.vue:13
 msgid "Set Color"
-msgstr ""
+msgstr "Kleur instellen"
 
 #: lms/templates/emails/community_course_membership.html:1
 msgid "Set your Password"
@@ -7756,7 +7756,7 @@ msgstr ""
 
 #: frontend/src/pages/Programs/ProgramEnrollment.vue:65
 msgid "lessons"
-msgstr ""
+msgstr "lessen"
 
 #: frontend/src/pages/Home/Home.vue:99 frontend/src/pages/Home/Home.vue:123
 msgid "live class"
@@ -7798,7 +7798,7 @@ msgstr ""
 
 #: frontend/src/pages/Programs/ProgramEnrollment.vue:80
 msgid "rating"
-msgstr ""
+msgstr "beoordeling"
 
 #: frontend/src/components/Settings/Categories.vue:19
 msgid "saving..."

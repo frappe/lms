@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2026-01-16 16:04+0000\n"
-"PO-Revision-Date: 2026-01-19 20:13\n"
+"PO-Revision-Date: 2026-01-21 20:16\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Arabic\n"
 "MIME-Version: 1.0\n"
@@ -113,7 +113,7 @@ msgstr ""
 
 #: frontend/src/pages/ProfileAbout.vue:4
 msgid "About"
-msgstr ""
+msgstr "معلومات عن النظام"
 
 #: frontend/src/pages/CourseForm.vue:135
 msgid "About the Course"
@@ -163,7 +163,7 @@ msgstr ""
 #: frontend/src/pages/Programs/ProgramForm.vue:131
 #: frontend/src/pages/Programs/ProgramForm.vue:180
 msgid "Add"
-msgstr ""
+msgstr "إضافة"
 
 #: frontend/src/components/CourseOutline.vue:18
 #: frontend/src/components/CreateOutline.vue:18
@@ -298,15 +298,15 @@ msgstr ""
 #: frontend/src/pages/Billing.vue:109
 #: lms/lms/doctype/lms_payment/lms_payment.json
 msgid "Address"
-msgstr ""
+msgstr "عنوان"
 
 #: frontend/src/pages/Billing.vue:120
 msgid "Address Line 1"
-msgstr ""
+msgstr "العنوان سطر 1"
 
 #: frontend/src/pages/Billing.vue:125
 msgid "Address Line 2"
-msgstr ""
+msgstr "العنوان سطر 2"
 
 #. Option for the 'Role' (Select) field in DocType 'LMS Enrollment'
 #: lms/lms/doctype/lms_enrollment/lms_enrollment.json
@@ -316,12 +316,12 @@ msgstr "مسؤول"
 #. Name of a role
 #: lms/lms/doctype/lms_coupon/lms_coupon.json
 msgid "Administrator"
-msgstr ""
+msgstr "مدير"
 
 #. Name of a role
 #: frontend/src/pages/Batches.vue:319 lms/lms/doctype/lms_badge/lms_badge.json
 msgid "All"
-msgstr ""
+msgstr "الكل"
 
 #: frontend/src/pages/Batches.vue:68
 msgid "All Batches"
@@ -432,7 +432,7 @@ msgstr ""
 
 #: frontend/src/components/Settings/Coupons/CouponDetails.vue:71
 msgid "Applicable For"
-msgstr ""
+msgstr "قابل للتطبيق ل"
 
 #. Label of the applicable_items (Table) field in DocType 'LMS Coupon'
 #: lms/lms/doctype/lms_coupon/lms_coupon.json
@@ -459,7 +459,7 @@ msgstr "تم التطبيق"
 
 #: frontend/src/pages/Billing.vue:81 frontend/src/pages/JobDetail.vue:62
 msgid "Apply"
-msgstr ""
+msgstr "تقديم"
 
 #. Label of the apply_gst (Check) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
@@ -488,7 +488,7 @@ msgstr "التطبيقات"
 
 #: frontend/src/pages/Batches.vue:329
 msgid "Archived"
-msgstr ""
+msgstr "أرشفة"
 
 #: frontend/src/components/UpcomingEvaluations.vue:206
 msgid "Are you sure you want to cancel this evaluation? This action cannot be undone."
@@ -576,7 +576,7 @@ msgstr ""
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.json
 #: lms/templates/assignment.html:3
 msgid "Assignment"
-msgstr ""
+msgstr "مهمة"
 
 #. Label of the assignment_attachment (Attach) field in DocType 'LMS Assignment
 #. Submission'
@@ -908,14 +908,14 @@ msgstr ""
 
 #: frontend/src/components/Modals/EditProfile.vue:104
 msgid "Bio"
-msgstr "نبذة"
+msgstr "السيرة الذاتية"
 
 #. Option for the 'Color' (Select) field in DocType 'LMS Course'
 #. Option for the 'Color' (Select) field in DocType 'LMS Lesson Note'
 #: lms/lms/doctype/lms_course/lms_course.json
 #: lms/lms/doctype/lms_lesson_note/lms_lesson_note.json
 msgid "Blue"
-msgstr ""
+msgstr "أزرق"
 
 #. Label of the body (Markdown Editor) field in DocType 'Course Lesson'
 #: lms/lms/doctype/course_lesson/course_lesson.json
@@ -962,7 +962,7 @@ msgstr ""
 #. Option for the 'Status' (Select) field in DocType 'LMS Certificate Request'
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 msgid "Cancelled"
-msgstr ""
+msgstr "ألغيت"
 
 #. Label of the carrer_preference_details (Section Break) field in DocType
 #. 'User'
@@ -1207,7 +1207,7 @@ msgstr ""
 #: lms/fixtures/custom_field.json
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 msgid "City"
-msgstr ""
+msgstr "مدينة"
 
 #: lms/templates/emails/live_class_reminder.html:10
 msgid "Class:"
@@ -1244,7 +1244,7 @@ msgstr "سر العميل"
 
 #: frontend/src/components/Settings/Categories.vue:27
 msgid "Close"
-msgstr ""
+msgstr "أغلق"
 
 #. Option for the 'Status' (Select) field in DocType 'Job Opportunity'
 #. Option in a Select field in the job-opportunity Web Form
@@ -1252,7 +1252,7 @@ msgstr ""
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 #: lms/job/web_form/job_opportunity/job_opportunity.json
 msgid "Closed"
-msgstr ""
+msgstr "مغلق"
 
 #. Option for the 'Auto Recording' (Select) field in DocType 'LMS Live Class'
 #: lms/lms/doctype/lms_live_class/lms_live_class.json
@@ -1303,7 +1303,7 @@ msgstr ""
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.json
 #: lms/lms/doctype/lms_mentor_request/lms_mentor_request.json
 msgid "Comments"
-msgstr ""
+msgstr "تعليقات"
 
 #: frontend/src/components/Assignment.vue:148
 msgid "Comments by Evaluator"
@@ -1353,7 +1353,7 @@ msgstr "شعار الشركة"
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 #: lms/job/web_form/job_opportunity/job_opportunity.json
 msgid "Company Name"
-msgstr ""
+msgstr "اسم الشركة"
 
 #. Label of the company_type (Select) field in DocType 'User'
 #: lms/fixtures/custom_field.json
@@ -1377,7 +1377,7 @@ msgstr ""
 #: lms/lms/doctype/lms_course_progress/lms_course_progress.json
 #: lms/lms/widgets/CourseCard.html:75
 msgid "Complete"
-msgstr ""
+msgstr "أكمال"
 
 #: lms/templates/emails/lms_invite_request_approved.html:7
 msgid "Complete Sign Up"
@@ -1399,7 +1399,7 @@ msgstr ""
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 #: lms/lms/widgets/CourseCard.html:78
 msgid "Completed"
-msgstr ""
+msgstr "أكتمل"
 
 #. Label of the enable_certification (Check) field in DocType 'LMS Course'
 #: frontend/src/pages/CourseForm.vue:202
@@ -1411,7 +1411,7 @@ msgstr ""
 #: frontend/src/components/Settings/BadgeForm.vue:65
 #: lms/lms/doctype/lms_badge/lms_badge.json
 msgid "Condition"
-msgstr ""
+msgstr "الحالة"
 
 #: lms/lms/doctype/lms_badge/lms_badge.py:17
 msgid "Condition must be in valid JSON format."
@@ -1524,7 +1524,7 @@ msgstr ""
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 #: lms/lms/doctype/payment_country/payment_country.json
 msgid "Country"
-msgstr ""
+msgstr "الدولة"
 
 #. Label of the coupon (Link) field in DocType 'LMS Payment'
 #: lms/lms/doctype/lms_payment/lms_payment.json
@@ -1811,7 +1811,7 @@ msgstr ""
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExercises.vue:32
 #: frontend/src/pages/Quizzes.vue:10
 msgid "Create"
-msgstr ""
+msgstr "انشاء"
 
 #: lms/lms/doctype/lms_certificate_evaluation/lms_certificate_evaluation.js:7
 msgid "Create Certificate"
@@ -1899,7 +1899,7 @@ msgstr ""
 #: lms/lms/doctype/lms_course/lms_course.json
 #: lms/lms/doctype/lms_payment/lms_payment.json
 msgid "Currency"
-msgstr ""
+msgstr "العملة"
 
 #. Label of the current_lesson (Link) field in DocType 'LMS Enrollment'
 #: lms/lms/doctype/lms_enrollment/lms_enrollment.json
@@ -1943,7 +1943,7 @@ msgstr "أزرق سماوي"
 #. Label of the show_dashboard (Check) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Dashboard"
-msgstr ""
+msgstr "لوحة القيادة"
 
 #: frontend/src/pages/DataImport.vue:46
 msgid "Data Import"
@@ -1962,7 +1962,7 @@ msgstr "استيراد البيانات"
 #: lms/lms/doctype/lms_live_class/lms_live_class.json
 #: lms/lms/doctype/scheduled_flow/scheduled_flow.json
 msgid "Date"
-msgstr ""
+msgstr "تاريخ"
 
 #: frontend/src/pages/BatchForm.vue:76
 msgid "Date and Time"
@@ -1985,7 +1985,7 @@ msgstr "يوم"
 #: lms/templates/emails/mentor_request_creation_email.html:2
 #: lms/templates/emails/mentor_request_status_update_email.html:2
 msgid "Dear"
-msgstr ""
+msgstr "العزيز"
 
 #: lms/templates/emails/batch_confirmation.html:2
 #: lms/templates/emails/batch_start_reminder.html:2
@@ -2020,7 +2020,7 @@ msgstr ""
 #: frontend/src/pages/Programs/ProgramForm.vue:230
 #: frontend/src/pages/Programs/ProgramForm.vue:567
 msgid "Delete"
-msgstr ""
+msgstr "حذف"
 
 #: frontend/src/components/CourseOutline.vue:67
 msgid "Delete Chapter"
@@ -2086,7 +2086,7 @@ msgstr ""
 #: lms/lms/doctype/lms_live_class/lms_live_class.json
 #: lms/lms/doctype/work_experience/work_experience.json
 msgid "Description"
-msgstr ""
+msgstr "وصف"
 
 #: frontend/src/components/Sidebar/Apps.vue:50
 msgid "Desk"
@@ -2122,7 +2122,7 @@ msgstr ""
 #: frontend/src/components/Settings/PaymentGateways.vue:55
 #: frontend/src/components/Settings/ZoomSettings.vue:66
 msgid "Disabled"
-msgstr ""
+msgstr "معطل"
 
 #: frontend/src/components/DiscussionReplies.vue:57
 #: lms/lms/widgets/NoPreviewModal.html:25
@@ -2168,11 +2168,11 @@ msgstr "وثيقة"
 
 #: frontend/src/components/Settings/Coupons/CouponItems.vue:11
 msgid "Document Name"
-msgstr ""
+msgstr "اسم المستند"
 
 #: frontend/src/components/Settings/Coupons/CouponItems.vue:8
 msgid "Document Type"
-msgstr ""
+msgstr "نوع الوثيقة"
 
 #: lms/templates/emails/payment_reminder.html:11
 msgid "Don’t miss this opportunity to enhance your skills. Click below to complete your enrollment"
@@ -2195,7 +2195,7 @@ msgstr ""
 #: lms/lms/doctype/lms_live_class/lms_live_class.json
 #: lms/lms/doctype/lms_live_class_participant/lms_live_class_participant.json
 msgid "Duration"
-msgstr ""
+msgstr "المدة الزمنية"
 
 #. Label of the duration (Data) field in DocType 'LMS Quiz'
 #: frontend/src/pages/QuizForm.vue:67 lms/lms/doctype/lms_quiz/lms_quiz.json
@@ -2214,7 +2214,7 @@ msgstr ""
 #: frontend/src/pages/JobDetail.vue:45 frontend/src/pages/Lesson.vue:42
 #: frontend/src/pages/Lesson.vue:178 frontend/src/pages/Profile.vue:44
 msgid "Edit"
-msgstr ""
+msgstr "تصحيح"
 
 #: frontend/src/components/Modals/AssignmentForm.vue:14
 msgid "Edit Assignment"
@@ -2291,16 +2291,16 @@ msgstr ""
 #: lms/lms/doctype/lms_settings/lms_settings.json
 #: lms/templates/signup-form.html:10
 msgid "Email"
-msgstr ""
+msgstr "البريد الإلكتروني"
 
 #: frontend/src/components/Modals/Event.vue:16
 msgid "Email ID"
-msgstr ""
+msgstr "عنوان الايميل"
 
 #. Label of the email_sent (Check) field in DocType 'LMS Course Interest'
 #: lms/lms/doctype/lms_course_interest/lms_course_interest.json
 msgid "Email Sent"
-msgstr "إرسال البريد الإلكتروني"
+msgstr ""
 
 #: frontend/src/pages/BatchForm.vue:161
 msgid "Email Template"
@@ -2381,7 +2381,7 @@ msgstr ""
 #. Label of the end_date (Date) field in DocType 'LMS Batch'
 #: lms/lms/doctype/lms_batch/lms_batch.json
 msgid "End Date"
-msgstr ""
+msgstr "نهاية التاريخ"
 
 #. Label of the end_date (Date) field in DocType 'Education Detail'
 #: lms/lms/doctype/education_detail/education_detail.json
@@ -2708,7 +2708,7 @@ msgstr "فشل"
 #: lms/lms/doctype/lms_programming_exercise_submission/lms_programming_exercise_submission.json
 #: lms/lms/doctype/lms_test_case_submission/lms_test_case_submission.json
 msgid "Failed"
-msgstr ""
+msgstr "باءت بالفشل"
 
 #: frontend/src/components/Settings/BadgeAssignmentForm.vue:136
 msgid "Failed to create badge assignment: "
@@ -2850,13 +2850,13 @@ msgstr ""
 #: lms/lms/doctype/evaluator_schedule/evaluator_schedule.json
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 msgid "Friday"
-msgstr ""
+msgstr "الجمعة"
 
 #. Label of the unavailable_from (Date) field in DocType 'Course Evaluator'
 #: frontend/src/pages/ProfileEvaluator.vue:106
 #: lms/lms/doctype/course_evaluator/course_evaluator.json
 msgid "From"
-msgstr ""
+msgstr "من"
 
 #: lms/templates/emails/published_batch_notification.html:19
 msgid "From "
@@ -2865,7 +2865,7 @@ msgstr "من "
 #. Label of the from_date (Date) field in DocType 'Work Experience'
 #: lms/lms/doctype/work_experience/work_experience.json
 msgid "From Date"
-msgstr ""
+msgstr "من تاريخ"
 
 #. Label of the full_name (Data) field in DocType 'Course Evaluator'
 #. Label of the full_name (Data) field in DocType 'LMS Program Member'
@@ -3025,7 +3025,7 @@ msgstr ""
 
 #: frontend/src/components/Sidebar/AppSidebar.vue:141
 msgid "Help"
-msgstr ""
+msgstr "مساعدة"
 
 #: lms/templates/courses_created.html:15
 msgid "Help others learn something new by creating a course."
@@ -3093,7 +3093,7 @@ msgstr ""
 
 #: frontend/src/pages/Home/Home.vue:5 frontend/src/pages/Home/Home.vue:154
 msgid "Home"
-msgstr ""
+msgstr "الصفحة الرئيسية"
 
 #. Label of the host (Link) field in DocType 'LMS Live Class'
 #: lms/lms/doctype/lms_live_class/lms_live_class.json
@@ -3124,7 +3124,7 @@ msgstr ""
 
 #: frontend/src/pages/QuizForm.vue:338
 msgid "ID"
-msgstr ""
+msgstr "هوية شخصية"
 
 #. Label of the icon (Data) field in DocType 'LMS Sidebar Item'
 #: frontend/src/components/Modals/PageModal.vue:28
@@ -3196,7 +3196,7 @@ msgstr ""
 
 #: frontend/src/components/Sidebar/Configuration.vue:17
 msgid "Import"
-msgstr ""
+msgstr "استيراد"
 
 #: frontend/src/pages/Batches.vue:20
 msgid "Import Batch"
@@ -3213,7 +3213,7 @@ msgstr ""
 #: lms/lms/doctype/lms_certificate_evaluation/lms_certificate_evaluation.json
 #: lms/lms/doctype/lms_course/lms_course.json
 msgid "In Progress"
-msgstr ""
+msgstr "في تَقَدم"
 
 #. Option for the 'Send Notification for Published Courses' (Select) field in
 #. DocType 'LMS Settings'
@@ -3312,7 +3312,7 @@ msgstr ""
 #: frontend/src/components/Sidebar/AppSidebar.vue:512
 #: frontend/src/components/Sidebar/AppSidebar.vue:515
 msgid "Introduction"
-msgstr ""
+msgstr "مقدمة"
 
 #: lms/lms/doctype/course_lesson/course_lesson.py:23
 msgid "Invalid Quiz ID"
@@ -3941,7 +3941,7 @@ msgstr "محلي"
 #: lms/lms/doctype/education_detail/education_detail.json
 #: lms/lms/doctype/work_experience/work_experience.json
 msgid "Location"
-msgstr ""
+msgstr "الموقع"
 
 #. Label of the location_preference (Select) field in DocType 'User'
 #: lms/fixtures/custom_field.json
@@ -4012,7 +4012,7 @@ msgstr ""
 
 #: frontend/src/pages/Notifications.vue:12
 msgid "Mark all as read"
-msgstr ""
+msgstr "وضع علامة \"مقروءة\" على الكل"
 
 #. Label of the marks (Int) field in DocType 'LMS Quiz Question'
 #. Label of the marks (Int) field in DocType 'LMS Quiz Result'
@@ -4057,7 +4057,7 @@ msgstr ""
 #: frontend/src/pages/BatchForm.vue:194
 #: lms/lms/doctype/lms_batch/lms_batch.json
 msgid "Medium"
-msgstr ""
+msgstr "متوسط"
 
 #. Label of the medium (Data) field in DocType 'User'
 #: lms/fixtures/custom_field.json
@@ -4380,7 +4380,7 @@ msgstr ""
 #: lms/lms/doctype/evaluator_schedule/evaluator_schedule.json
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 msgid "Monday"
-msgstr ""
+msgstr "يوم الاثنين"
 
 #: frontend/src/components/Sidebar/AppSidebar.vue:561
 msgid "Monetization"
@@ -4417,7 +4417,7 @@ msgstr ""
 
 #: frontend/src/components/Modals/EmailTemplateModal.vue:24
 msgid "Name"
-msgstr ""
+msgstr "اسم"
 
 #. Option for the 'Event' (Select) field in DocType 'LMS Badge'
 #: frontend/src/components/Settings/BadgeAssignments.vue:21
@@ -4433,7 +4433,7 @@ msgstr ""
 #: frontend/src/pages/Programs/Programs.vue:10
 #: lms/lms/doctype/lms_badge/lms_badge.json
 msgid "New"
-msgstr ""
+msgstr "جديد"
 
 #: frontend/src/pages/Batches.vue:10 frontend/src/pages/Notifications.vue:90
 #: lms/www/lms.py:150
@@ -4493,7 +4493,7 @@ msgstr "{0} جديد"
 #: frontend/src/components/Quiz.vue:237 frontend/src/pages/Lesson.vue:51
 #: frontend/src/pages/Lesson.vue:187
 msgid "Next"
-msgstr ""
+msgstr "التالي"
 
 #: frontend/src/components/Assessments.vue:75 lms/templates/assessments.html:58
 msgid "No Assessments"
@@ -4620,7 +4620,7 @@ msgstr ""
 
 #: lms/lms/user.py:29
 msgid "Not Allowed"
-msgstr ""
+msgstr "غير مسموح"
 
 #. Option for the 'Status' (Select) field in DocType 'LMS Assignment
 #. Submission'
@@ -4645,7 +4645,7 @@ msgstr ""
 #: frontend/src/components/NoPermission.vue:5
 #: frontend/src/components/NoPermission.vue:46 frontend/src/pages/Batch.vue:168
 msgid "Not Permitted"
-msgstr ""
+msgstr "لا يسمح"
 
 #: frontend/src/components/Assignment.vue:36
 #: frontend/src/components/Modals/EditProfile.vue:13
@@ -4660,7 +4660,7 @@ msgstr "لم يتم الحفظ"
 #. Label of the note (Text Editor) field in DocType 'LMS Lesson Note'
 #: lms/lms/doctype/lms_lesson_note/lms_lesson_note.json
 msgid "Note"
-msgstr ""
+msgstr "ملاحظات"
 
 #: frontend/src/pages/Lesson.vue:405 frontend/src/pages/Lesson.vue:886
 #: frontend/src/pages/Lesson.vue:897
@@ -4748,7 +4748,7 @@ msgstr ""
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 #: lms/job/web_form/job_opportunity/job_opportunity.json
 msgid "Open"
-msgstr ""
+msgstr "فتح"
 
 #: lms/templates/emails/assignment_submission.html:8
 msgid "Open Assignment"
@@ -5058,7 +5058,7 @@ msgstr ""
 #: lms/lms/doctype/lms_certificate_evaluation/lms_certificate_evaluation.json
 #: lms/lms/doctype/lms_mentor_request/lms_mentor_request.json
 msgid "Pending"
-msgstr ""
+msgstr "معلق"
 
 #. Option for the 'Discount Type' (Select) field in DocType 'LMS Coupon'
 #. Label of the percentage (Int) field in DocType 'LMS Quiz Submission'
@@ -5311,7 +5311,7 @@ msgstr "بعد"
 
 #: frontend/src/pages/Billing.vue:147
 msgid "Postal Code"
-msgstr ""
+msgstr "الرمز البريدي"
 
 #: frontend/src/components/Sidebar/AppSidebar.vue:135
 msgid "Powered by Learning"
@@ -5491,7 +5491,7 @@ msgstr ""
 #: lms/lms/doctype/lms_enrollment/lms_enrollment.json
 #: lms/lms/doctype/lms_program_member/lms_program_member.json
 msgid "Progress"
-msgstr ""
+msgstr "تقدم"
 
 #: frontend/src/pages/Programs/ProgramProgressSummary.vue:131
 #: lms/lms/report/course_progress_summary/course_progress_summary.py:77
@@ -5699,7 +5699,7 @@ msgstr ""
 #: lms/lms/doctype/lms_course/lms_course.json
 #: lms/lms/doctype/lms_course_review/lms_course_review.json
 msgid "Rating"
-msgstr ""
+msgstr "تقييم"
 
 #: lms/lms/doctype/lms_certificate_evaluation/lms_certificate_evaluation.py:18
 msgid "Rating cannot be 0"
@@ -5741,13 +5741,13 @@ msgstr "مرجع DOCTYPE"
 #. Label of the reference_doctype (Link) field in DocType 'LMS Badge'
 #: lms/lms/doctype/lms_badge/lms_badge.json
 msgid "Reference Document Type"
-msgstr ""
+msgstr "مرجع نوع الوثيقة"
 
 #. Label of the reference_name (Dynamic Link) field in DocType 'LMS Coupon
 #. Item'
 #: lms/lms/doctype/lms_coupon_item/lms_coupon_item.json
 msgid "Reference Name"
-msgstr ""
+msgstr "اسم الإشارة"
 
 #: lms/templates/emails/community_course_membership.html:17
 msgid "Regards"
@@ -5764,7 +5764,7 @@ msgstr "سجل لكن المعوقين"
 #. Option for the 'Status' (Select) field in DocType 'LMS Mentor Request'
 #: lms/lms/doctype/lms_mentor_request/lms_mentor_request.json
 msgid "Rejected"
-msgstr ""
+msgstr "مرفوض"
 
 #. Label of the related_courses (Table) field in DocType 'LMS Course'
 #. Name of a DocType
@@ -5782,7 +5782,7 @@ msgstr ""
 
 #: frontend/src/components/Controls/Uploader.vue:45
 msgid "Remove"
-msgstr ""
+msgstr "حذف"
 
 #: frontend/src/components/Notes/InlineLessonMenu.vue:49
 msgid "Remove Highlight"
@@ -5857,7 +5857,7 @@ msgstr "الصلاحيات"
 #. Label of the route (Data) field in DocType 'LMS Sidebar Item'
 #: lms/lms/doctype/lms_sidebar_item/lms_sidebar_item.json
 msgid "Route"
-msgstr ""
+msgstr "مسار"
 
 #: lms/lms/doctype/lms_batch/lms_batch.py:125
 msgid "Row #{0} Date cannot be outside the batch duration."
@@ -5919,7 +5919,7 @@ msgstr ""
 #: lms/lms/doctype/evaluator_schedule/evaluator_schedule.json
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 msgid "Saturday"
-msgstr ""
+msgstr "السبت"
 
 #. Button label of the job-opportunity Web Form
 #: frontend/src/components/AssessmentPlugin.vue:12
@@ -5947,7 +5947,7 @@ msgstr ""
 #: frontend/src/pages/Quizzes.vue:105
 #: lms/job/web_form/job_opportunity/job_opportunity.json
 msgid "Save"
-msgstr ""
+msgstr "حفظ"
 
 #. Label of the schedule (Table) field in DocType 'Course Evaluator'
 #: lms/lms/doctype/course_evaluator/course_evaluator.json
@@ -5988,7 +5988,7 @@ msgstr ""
 #: frontend/src/pages/Jobs.vue:57 frontend/src/pages/Search/Search.vue:5
 #: frontend/src/pages/Search/Search.vue:250
 msgid "Search"
-msgstr ""
+msgstr "البحث"
 
 #: frontend/src/components/Modals/CourseProgressSummary.vue:17
 #: frontend/src/components/Modals/VideoStatistics.vue:20
@@ -6072,7 +6072,7 @@ msgstr ""
 #: frontend/src/components/ContactUsEmail.vue:33
 #: frontend/src/pages/JobApplications.vue:115
 msgid "Send"
-msgstr ""
+msgstr "إرسال"
 
 #: lms/lms/doctype/lms_batch_enrollment/lms_batch_enrollment.js:7
 msgid "Send Confirmation Email"
@@ -6135,7 +6135,7 @@ msgstr ""
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmission.vue:19
 #: frontend/src/pages/QuizForm.vue:86
 msgid "Settings"
-msgstr ""
+msgstr "إعدادات"
 
 #: frontend/src/pages/ProfileAbout.vue:81
 msgid "Share on"
@@ -6276,7 +6276,7 @@ msgstr ""
 #: lms/lms/doctype/lms_source/lms_source.json
 #: lms/lms/doctype/lms_video_watch_duration/lms_video_watch_duration.json
 msgid "Source"
-msgstr ""
+msgstr "المصدر"
 
 #. Option for the 'Member Type' (Select) field in DocType 'LMS Enrollment'
 #: lms/lms/doctype/lms_enrollment/lms_enrollment.json
@@ -6287,14 +6287,14 @@ msgstr ""
 #: frontend/src/pages/Home/AdminHome.vue:167
 #: frontend/src/pages/Home/StudentHome.vue:110
 msgid "Start"
-msgstr ""
+msgstr "بداية"
 
 #. Label of the start_date (Date) field in DocType 'Education Detail'
 #. Label of the start_date (Date) field in DocType 'LMS Batch'
 #: lms/lms/doctype/education_detail/education_detail.json
 #: lms/lms/doctype/lms_batch/lms_batch.json
 msgid "Start Date"
-msgstr ""
+msgstr "تاريخ البدء"
 
 #: lms/templates/emails/batch_start_reminder.html:13
 msgid "Start Date:"
@@ -6320,7 +6320,7 @@ msgstr ""
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 #: lms/lms/doctype/scheduled_flow/scheduled_flow.json
 msgid "Start Time"
-msgstr ""
+msgstr "بداية الوقت"
 
 #: lms/lms/doctype/course_evaluator/course_evaluator.py:36
 msgid "Start Time cannot be greater than End Time"
@@ -6381,7 +6381,7 @@ msgstr ""
 #: lms/lms/doctype/lms_programming_exercise_submission/lms_programming_exercise_submission.json
 #: lms/lms/doctype/lms_test_case_submission/lms_test_case_submission.json
 msgid "Status"
-msgstr ""
+msgstr "الحالة"
 
 #: lms/templates/assessments.html:17
 msgid "Status/Score"
@@ -6421,7 +6421,7 @@ msgstr ""
 #: frontend/src/components/Modals/EmailTemplateModal.vue:31
 #: frontend/src/pages/JobApplications.vue:126
 msgid "Subject"
-msgstr ""
+msgstr "موضوع"
 
 #: frontend/src/components/Modals/AnnouncementModal.vue:94
 #: frontend/src/pages/JobApplications.vue:258
@@ -6455,7 +6455,7 @@ msgstr ""
 #: frontend/src/components/Quiz.vue:242 lms/templates/assignment.html:9
 #: lms/www/new-sign-up.html:32
 msgid "Submit"
-msgstr ""
+msgstr "تسجيل"
 
 #: frontend/src/components/BatchFeedback.vue:35
 msgid "Submit Feedback"
@@ -6485,7 +6485,7 @@ msgstr "ملخص"
 #: lms/lms/doctype/evaluator_schedule/evaluator_schedule.json
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 msgid "Sunday"
-msgstr ""
+msgstr "الأحد"
 
 #: lms/lms/api.py:995
 msgid "Suspicious pattern found in {0}: {1}"
@@ -6541,7 +6541,7 @@ msgstr ""
 #: lms/lms/doctype/user_skill/user_skill.json
 #: lms/lms/doctype/zoom_settings/zoom_settings.json
 msgid "System Manager"
-msgstr ""
+msgstr "مدير النظام"
 
 #. Label of the tags (Data) field in DocType 'LMS Course'
 #: frontend/src/pages/CourseForm.vue:51
@@ -6574,7 +6574,7 @@ msgstr ""
 #: frontend/src/components/Modals/Event.vue:127
 #: lms/lms/doctype/lms_certificate/lms_certificate.json
 msgid "Template"
-msgstr ""
+msgstr "قالب"
 
 #: lms/lms/user.py:40
 msgid "Temporarily Disabled"
@@ -6796,7 +6796,7 @@ msgstr ""
 #: lms/lms/doctype/evaluator_schedule/evaluator_schedule.json
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 msgid "Thursday"
-msgstr ""
+msgstr "الخميس"
 
 #. Label of the time (Time) field in DocType 'LMS Live Class'
 #: frontend/src/components/Modals/Event.vue:48
@@ -6917,7 +6917,7 @@ msgstr ""
 #: lms/lms/doctype/lms_timetable_template/lms_timetable_template.json
 #: lms/lms/doctype/work_experience/work_experience.json
 msgid "Title"
-msgstr ""
+msgstr "اللقب"
 
 #: frontend/src/components/Modals/ChapterModal.vue:172
 msgid "Title is required"
@@ -6927,12 +6927,12 @@ msgstr ""
 #: frontend/src/pages/ProfileEvaluator.vue:120
 #: lms/lms/doctype/course_evaluator/course_evaluator.json
 msgid "To"
-msgstr ""
+msgstr "إلى"
 
 #. Label of the to_date (Date) field in DocType 'Work Experience'
 #: lms/lms/doctype/work_experience/work_experience.json
 msgid "To Date"
-msgstr ""
+msgstr "إلى تاريخ"
 
 #: lms/lms/utils.py:1721
 msgid "To join this batch, please contact the Administrator."
@@ -6944,7 +6944,7 @@ msgstr "وقعت الكثير من المستخدمين في الآونة الأ
 
 #: frontend/src/pages/Billing.vue:54
 msgid "Total"
-msgstr ""
+msgstr "الاجمالي غير شامل الضريبة"
 
 #. Label of the total_marks (Int) field in DocType 'LMS Quiz'
 #: frontend/src/pages/QuizForm.vue:73 frontend/src/pages/Quizzes.vue:253
@@ -6979,7 +6979,7 @@ msgstr "حاول مرة أخرى"
 #: lms/lms/doctype/evaluator_schedule/evaluator_schedule.json
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 msgid "Tuesday"
-msgstr ""
+msgstr "الثلاثاء"
 
 #: frontend/src/pages/ProfileAbout.vue:105
 msgid "Twitter"
@@ -7010,7 +7010,7 @@ msgstr ""
 #: lms/lms/doctype/lms_quiz_question/lms_quiz_question.json
 #: lms/templates/assessments.html:14
 msgid "Type"
-msgstr ""
+msgstr "النوع"
 
 #: frontend/src/utils/markdownParser.js:11
 msgid "Type '/' for commands or select text to format"
@@ -7101,7 +7101,7 @@ msgstr ""
 #: frontend/src/components/Settings/BrandSettings.vue:24
 #: frontend/src/components/Settings/SettingDetails.vue:17
 msgid "Update"
-msgstr ""
+msgstr "تحديث"
 
 #: lms/templates/emails/community_course_membership.html:11
 msgid "Update Password"
@@ -7144,7 +7144,7 @@ msgstr ""
 #: lms/job/doctype/lms_job_application/lms_job_application.json
 #: lms/lms/doctype/lms_course_interest/lms_course_interest.json
 msgid "User"
-msgstr ""
+msgstr "المستعمل"
 
 #. Label of the user_category (Select) field in DocType 'User'
 #: lms/fixtures/custom_field.json lms/templates/signup-form.html:17
@@ -7199,12 +7199,12 @@ msgstr ""
 #. Label of the value (Rating) field in DocType 'LMS Batch Feedback'
 #: lms/lms/doctype/lms_batch_feedback/lms_batch_feedback.json
 msgid "Value"
-msgstr ""
+msgstr "القيمة"
 
 #. Option for the 'Event' (Select) field in DocType 'LMS Badge'
 #: lms/lms/doctype/lms_badge/lms_badge.json
 msgid "Value Change"
-msgstr ""
+msgstr "قيمة التغير"
 
 #. Label of the video_link (Data) field in DocType 'LMS Course'
 #: lms/lms/doctype/lms_course/lms_course.json
@@ -7292,7 +7292,7 @@ msgstr ""
 #: lms/lms/doctype/evaluator_schedule/evaluator_schedule.json
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 msgid "Wednesday"
-msgstr ""
+msgstr "الأربعاء"
 
 #: lms/templates/emails/lms_invite_request_approved.html:4
 msgid "Welcome to {0}!"
@@ -7673,7 +7673,7 @@ msgstr "نشاط"
 #: frontend/src/components/CourseInstructors.vue:24
 #: frontend/src/components/CourseInstructors.vue:45
 msgid "and"
-msgstr ""
+msgstr "و"
 
 #: frontend/src/components/InstallPrompt.vue:54
 msgid "and then 'Add to Home Screen'"

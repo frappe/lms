@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2026-01-16 16:04+0000\n"
-"PO-Revision-Date: 2026-01-19 20:13\n"
+"PO-Revision-Date: 2026-01-21 20:16\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Vietnamese\n"
 "MIME-Version: 1.0\n"
@@ -370,7 +370,7 @@ msgstr ""
 #. Option for the 'Color' (Select) field in DocType 'LMS Course'
 #: lms/lms/doctype/lms_course/lms_course.json
 msgid "Amber"
-msgstr ""
+msgstr "Màu vàng cam"
 
 #. Label of the amount (Currency) field in DocType 'LMS Batch'
 #. Label of the course_price (Currency) field in DocType 'LMS Course'
@@ -4579,7 +4579,7 @@ msgstr ""
 
 #: frontend/src/pages/Programs/ProgramProgressSummary.vue:60
 msgid "No members found."
-msgstr ""
+msgstr "Không tìm thấy thành viên nào."
 
 #: frontend/src/pages/Programs/StudentPrograms.vue:51
 msgid "No programs found in this category."
@@ -4596,7 +4596,7 @@ msgstr ""
 #: frontend/src/components/Controls/MultiSelect.vue:67
 #: frontend/src/pages/Search/Search.vue:47
 msgid "No results found"
-msgstr ""
+msgstr "Không tìm thấy kết quả nào"
 
 #: frontend/src/components/Modals/EvaluationModal.vue:59
 msgid "No slots available for the selected course."

@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2026-01-16 16:04+0000\n"
-"PO-Revision-Date: 2026-01-19 20:13\n"
+"PO-Revision-Date: 2026-01-21 20:16\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Chinese Simplified\n"
 "MIME-Version: 1.0\n"
@@ -1938,7 +1938,7 @@ msgstr "自定义配置"
 #. Option for the 'Color' (Select) field in DocType 'LMS Course'
 #: lms/lms/doctype/lms_course/lms_course.json
 msgid "Cyan"
-msgstr "青色"
+msgstr "蓝绿色"
 
 #. Label of the show_dashboard (Check) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
@@ -2995,7 +2995,7 @@ msgstr "仅授予一次"
 #. Option for the 'Color' (Select) field in DocType 'LMS Course'
 #: lms/lms/doctype/lms_course/lms_course.json
 msgid "Gray"
-msgstr "灰色"
+msgstr "灰色(美式)"
 
 #. Option for the 'Color' (Select) field in DocType 'LMS Course'
 #. Option for the 'Color' (Select) field in DocType 'LMS Lesson Note'
@@ -3391,7 +3391,7 @@ msgstr "示例用户"
 #. Exercise'
 #: lms/lms/doctype/lms_programming_exercise/lms_programming_exercise.json
 msgid "JavaScript"
-msgstr "JavaScript"
+msgstr "JavaScript的"
 
 #. Label of the job (Link) field in DocType 'LMS Job Application'
 #: frontend/src/pages/Search/Search.vue:237
@@ -4310,7 +4310,7 @@ msgstr "元关键词"
 
 #: frontend/src/pages/BatchForm.vue:244 frontend/src/pages/CourseForm.vue:251
 msgid "Meta Tags"
-msgstr "元标签"
+msgstr "元标记"
 
 #: lms/lms/api.py:1481
 msgid "Meta tags should be a list."
@@ -5095,7 +5095,7 @@ msgstr "电话号码"
 #. Option for the 'Color' (Select) field in DocType 'LMS Course'
 #: lms/lms/doctype/lms_course/lms_course.json
 msgid "Pink"
-msgstr "粉色"
+msgstr "粉红色"
 
 #: lms/lms/doctype/lms_settings/lms_settings.py:35
 msgid "Please add <a href='{0}'>{1}</a> for <a href='{2}'>{3}</a> to send calendar invites for evaluations."
@@ -6342,7 +6342,7 @@ msgstr "初创机构"
 
 #: frontend/src/pages/Billing.vue:134
 msgid "State/Province"
-msgstr "州/省"
+msgstr "省/市/自治州"
 
 #. Label of the tab_4_tab (Tab Break) field in DocType 'LMS Course'
 #. Label of the statistics (Check) field in DocType 'LMS Settings'
