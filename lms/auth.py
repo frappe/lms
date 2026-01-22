@@ -1,3 +1,5 @@
+import json
+
 import frappe
 
 ALLOWED_PATHS = [
@@ -12,6 +14,15 @@ ALLOWED_PATHS = [
 	"/api/method/frappe.integrations.oauth2.authorize",
 	"/api/method/frappe.integrations.oauth2.approve",
 	"/api/method/frappe.integrations.oauth2.get_token",
+	"/api/method/frappe.www.login.login_via_google",
+	"/api/method/frappe.www.login.login_via_github",
+	"/api/method/frappe.www.login.login_via_facebook",
+	"/api/method/frappe.www.login.login_via_frappe",
+	"/api/method/frappe.www.login.login_via_office365",
+	"/api/method/frappe.www.login.login_via_salesforce",
+	"/api/method/frappe.www.login.login_via_fairlogin",
+	"/api/method/frappe.www.login.login_via_keycloak",
+	"/api/method/frappe.www.login.custom",
 	"/api/method/frappe.integrations.oauth2.openid_profile",
 	"/api/method/frappe.website.doctype.web_page_view.web_page_view.make_view_log",
 	"/api/method/upload_file",
@@ -33,10 +44,14 @@ ALLOWED_PATHS = [
 	"/api/method/frappe.utils.print_format.download_pdf",
 	"/api/method/frappe.desk.search.search_link",
 	"/api/method/frappe.core.doctype.communication.email.make",
+	"/api/method/frappe.core.doctype.user.user.reset_password",
 ]
 
 
 def authenticate():
+	if not frappe.conf.get("block_endpoints"):
+		return
+
 	if frappe.form_dict.cmd:
 		path = f"/api/method/{frappe.form_dict.cmd}"
 	else:
@@ -48,10 +63,39 @@ def authenticate():
 
 	if not path.startswith("/api/"):
 		return
-	print("path", path)
+
 	if path.startswith("/lms") or path.startswith("/api/method/lms."):
+		return
+
+	if is_server_script_path(path):
+		return
+
+	if is_custom_app_endpoint(path):
 		return
 
 	if path in ALLOWED_PATHS:
 		return
 	frappe.throw(f"Access not allowed for this URL: {path}", frappe.PermissionError)
+
+
+def is_server_script_path(path):
+	endpoint = path.split("/api/method/")[-1]
+	if frappe.db.exists("Server Script", {"script_type": "API", "api_method": endpoint, "disabled": 0}):
+		return True
+	return False
+
+
+def is_custom_app_endpoint(path):
+	allowed_custom_endpoints = frappe.conf.get("allowed_custom_endpoints", [])
+
+	if isinstance(allowed_custom_endpoints, str):
+		try:
+			parsed = json.loads(allowed_custom_endpoints)
+			allowed_custom_endpoints = parsed if isinstance(parsed, list) else [allowed_custom_endpoints]
+		except Exception:
+			allowed_custom_endpoints = [allowed_custom_endpoints]
+
+	for endpoint in allowed_custom_endpoints:
+		if endpoint in path:
+			return True
+	return False

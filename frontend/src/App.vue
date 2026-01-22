@@ -10,9 +10,8 @@
 <script setup>
 import { FrappeUIProvider } from 'frappe-ui'
 import { Dialogs } from '@/utils/dialogs'
-import { computed, onUnmounted, ref, watch } from 'vue'
+import { computed, onUnmounted, ref } from 'vue'
 import { useScreenSize } from './utils/composables'
-import { usersStore } from '@/stores/user'
 import { useSettings } from '@/stores/settings'
 import { useRouter } from 'vue-router'
 import DesktopLayout from './components/DesktopLayout.vue'
@@ -23,7 +22,6 @@ import InstallPrompt from './components/InstallPrompt.vue'
 const { isMobile } = useScreenSize()
 const router = useRouter()
 const noSidebar = ref(false)
-const { userResource } = usersStore()
 const { settings } = useSettings()
 
 router.beforeEach((to, from, next) => {

@@ -2,21 +2,25 @@
 	<Dialog
 		v-model="show"
 		:options="{
-			title:
-				gatewayID === 'new'
-					? __('New Payment Gateway')
-					: __('Edit Payment Gateway'),
 			size: '3xl',
 		}"
 	>
+		<template #body-header>
+			<div class="text-lg font-semibold">
+				{{
+					gatewayID === 'new'
+						? __('New Payment Gateway')
+						: __('Edit Payment Gateway')
+				}}
+			</div>
+		</template>
 		<template #body-content>
 			<SettingFields
 				v-if="gatewayID != 'new' && paymentGateway.data"
-				:fields="paymentGateway.data.fields"
+				:sections="paymentGateway.data.sections"
 				:data="paymentGateway.data.data"
-				class="pt-5 my-0"
 			/>
-			<div v-else>
+			<div v-else class="mt-5">
 				<FormControl
 					v-model="newGateway"
 					:label="__('Select Payment Gateway')"
@@ -26,9 +30,8 @@
 				/>
 				<SettingFields
 					v-if="newGateway"
-					:fields="newGatewayFields"
+					:sections="newGatewayFields"
 					:data="newGatewayData"
-					class="pt-5 my-0"
 				/>
 			</div>
 		</template>
@@ -56,7 +59,7 @@ import SettingFields from '@/components/Settings/SettingFields.vue'
 const show = defineModel<boolean>({ required: true, default: false })
 const paymentGateways = defineModel<any>('paymentGateways')
 const newGateway = ref(null)
-const newGatewayFields = ref([])
+const newGatewayFields = ref<{ columns: { fields: any[] }[] }[]>([])
 const newGatewayData = ref<Record<string, any>>({})
 
 const props = defineProps<{
@@ -72,6 +75,7 @@ const paymentGateway = createResource({
 	},
 	transform(data: any) {
 		arrangeFields(data.fields)
+		data.sections = makeSections(data.fields)
 		return data
 	},
 })
@@ -102,10 +106,6 @@ const arrangeFields = (fields: any[]) => {
 		}
 		return 0
 	})
-
-	fields.splice(3, 0, {
-		type: 'Column Break',
-	})
 }
 
 watch(
@@ -130,7 +130,7 @@ watch(newGateway, () => {
 	gatewayFields.reload({ doctype: gatewayDoc.name }).then(() => {
 		let fields = gatewayFields.data || []
 		arrangeFields(fields)
-		newGatewayFields.value = fields
+		newGatewayFields.value = makeSections(fields)
 		prepareGatewayData()
 	})
 })
@@ -192,19 +192,6 @@ const getGatewayFields = () => {
 	}, {})
 }
 
-const createGatewayRecord = (gatewayDoc: any, data: any = {}) => {
-	call('frappe.client.insert', {
-		doc: {
-			doctype: 'Payment Gateway',
-			gateway: newGateway.value,
-			gateway_controller: gatewayDoc.issingle ? '' : gatewayDoc.name,
-			gateway_settings: gatewayDoc.issingle ? '' : data.name,
-		},
-	}).then(() => {
-		paymentGateways.value?.reload()
-	})
-}
-
 const allGatewayOptions = computed(() => {
 	let options: string[] = []
 	let gatewayList = allGateways.data?.map((gateway: any) => gateway.name) || []
@@ -229,5 +216,21 @@ const prepareGatewayData = () => {
 			newGatewayData.value[field.fieldname] = field.default || ''
 		})
 	}
+}
+
+const makeSections = (fields: any[]) => {
+	const columnCount = fields.length / 3
+	let sections: { columns: { fields: any[] }[] }[] = [
+		{
+			columns: [],
+		},
+	]
+
+	for (let i = 0; i < columnCount; i++) {
+		sections[0].columns.push({
+			fields: fields.slice(i * 3, i * 3 + 3),
+		})
+	}
+	return sections
 }
 </script>

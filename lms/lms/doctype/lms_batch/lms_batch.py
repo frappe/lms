@@ -37,7 +37,7 @@ class LMSBatch(Document):
 
 	def on_update(self):
 		if self.has_value_changed("published") and self.published:
-			frappe.enqueue(send_notification_for_published_batch, batch=self, now=True)
+			frappe.enqueue(send_notification_for_published_batch, batch=self)
 
 	def autoname(self):
 		if not self.name:

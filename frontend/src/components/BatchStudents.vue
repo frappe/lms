@@ -43,7 +43,7 @@
 					<ListRow
 						:row="row"
 						v-for="row in students.data"
-						class="group cursor-pointer"
+						class="group cursor-pointer hover:bg-surface-gray-2 rounded"
 						@click="openStudentProgressModal(row)"
 					>
 						<template #default="{ column, item }">
@@ -88,7 +88,7 @@
 						</div>
 					</template>
 				</ListSelectBanner>
-				<div class="mt-4" v-if="students.hasNextPage">
+				<div class="mt-4 flex justify-center" v-if="students.hasNextPage">
 					<Button @click="students.next()">
 						{{ __('Load More') }}
 					</Button>
@@ -170,7 +170,7 @@ const studentColumns = [
 	{
 		label: 'Full Name',
 		key: 'full_name',
-		width: '20rem',
+		width: '25rem',
 		icon: 'user',
 	},
 	{
