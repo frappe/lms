@@ -4,7 +4,7 @@
 			<div class="text-lg font-semibold text-ink-gray-9">
 				{{ __('Assessments') }}
 			</div>
-			<Button v-if="canAddAssessments()" @click="showModal = true">
+			<Button v-if="canAddAssessments()" @click="showModal = true"  variant="solid" size="lg" class="!bg-primary-500">
 				<template #prefix>
 					<Plus class="h-4 w-4" />
 				</template>

@@ -84,7 +84,9 @@
 		/>
 		<div v-if="!readOnlyMode" class="flex justify-between mt-2">
 			<span> </span>
-			<Button @click="postReply()">
+			<Button @click="postReply()"
+			 variant="solid" size="lg" class="!bg-primary-500"
+			>
 				<span>
 					{{ __('Post') }}
 				</span>

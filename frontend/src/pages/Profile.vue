@@ -30,7 +30,7 @@
 
 		<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 			<div
-				class="relative -mt-12 rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-200 sm:p-8"
+				class="relative -mt-12 rounded-xl bg-white p-6 border border-gray-100 sm:p-8"
 			>
 				<div
 					class="flex flex-col items-center sm:flex-row sm:items-start sm:space-x-8"
@@ -75,9 +75,9 @@
 			</div>
 
 			<div
-				class="mt-8 flex flex-col overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-200 lg:flex-row min-h-[300px]"
+				class="mt-8 flex flex-col overflow-hidden rounded-xl bg-white border border-gray-100 lg:flex-row min-h-[300px]"
 			>
-				<div class="w-full border-r border-gray-200 lg:w-64 flex-shrink-0">
+				<div class="w-full border-r border-gray-100 lg:w-64 flex-shrink-0">
 					<nav class="flex flex-col">
 						<div
 							v-for="tab in getTabButtons()"
@@ -87,7 +87,7 @@
 								activeTab === tab.label
 									? 'bg-[#E6FFFA] text-[#00C49F]'
 									: 'text-gray-600 hover:bg-gray-50 hover:text-gray-900',
-								'group flex items-center px-6 py-4 text-sm font-medium cursor-pointer transition-colors border-b border-gray-100 lg:border-b-0',
+								'group flex items-center px-6 py-4 text-sm font-medium cursor-pointer transition-colors !border-b border-gray-100 lg:border-b-0',
 							]"
 						>
 							<span class="truncate">{{ tab.label }}</span>
@@ -102,11 +102,11 @@
 							class="flex h-full flex-col items-center justify-center text-center p-8"
 						>
 							<EmptyIcon class="mb-4 text-gray-300" />
-							<h3 class="mt-2 text-lg font-medium text-gray-900">
-								Tell us who you are
+							<h3 class="mt-2 text-lg font-semibold text-gray-900">
+								Nothing to see here yet
 							</h3>
 							<p class="mt-1 max-w-sm text-sm text-gray-500">
-								Add a short introduction so others can get to know you better.
+								Your learning updates will show up here soon
 							</p>
 							<div class="mt-6">
 								<Button

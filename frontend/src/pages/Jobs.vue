@@ -16,7 +16,7 @@
 					},
 				}"
 			>
-				<Button v-if="!readOnlyMode" variant="solid">
+				<Button v-if="!readOnlyMode" variant="solid" size="lg" class="!bg-primary-500">
 					<template #prefix>
 						<Plus class="h-4 w-4" />
 					</template>
