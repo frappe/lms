@@ -16,36 +16,50 @@
 			v-else
 			class="flex flex-col md:flex-row gap-4 md:gap-0 justify-between w-3/4 mt-5"
 		>
-			<FormControl
-				:label="__('Moderator')"
-				v-model="moderator"
-				type="checkbox"
-				@change.stop="changeRole('moderator')"
+			<label class="flex items-center gap-2 cursor-pointer">
+				<input
+					type="checkbox"
+					v-model="moderator"
+					@change.stop="changeRole('moderator')"
+					class="w-5 h-5 rounded border-gray-300 text-primary-500 focus:ring-primary-500 transition duration-150 ease-in-out cursor-pointer"
 				/>
+				<span class="text-sm font-medium text-gray-900 select-none">{{ __('Moderator') }}</span>
+			</label>
 
-			<FormControl
-				:label="__('Course Creator')"
-				v-model="course_creator"
-				type="checkbox"
-				@change.stop="changeRole('course_creator')"
-			/>
-			<FormControl
-				:label="__('Evaluator')"
-				v-model="batch_evaluator"
-				type="checkbox"
-				@change.stop="changeRole('batch_evaluator')"
-			/>
-			<FormControl
-				:label="__('Student')"
-				v-model="lms_student"
-				type="checkbox"
-				@change.stop="changeRole('lms_student')"
-			/>
+			<label class="flex items-center gap-2 cursor-pointer">
+				<input
+					type="checkbox"
+					v-model="course_creator"
+					@change.stop="changeRole('course_creator')"
+					class="w-5 h-5 rounded border-gray-300 text-primary-500 focus:ring-primary-500 transition duration-150 ease-in-out cursor-pointer"
+				/>
+				<span class="text-sm font-medium text-gray-900 select-none">{{ __('Course Creator') }}</span>
+			</label>
+
+			<label class="flex items-center gap-2 cursor-pointer">
+				<input
+					type="checkbox"
+					v-model="batch_evaluator"
+					@change.stop="changeRole('batch_evaluator')"
+					class="w-5 h-5 rounded border-gray-300 text-primary-500 focus:ring-primary-500 transition duration-150 ease-in-out cursor-pointer"
+				/>
+				<span class="text-sm font-medium text-gray-900 select-none">{{ __('Evaluator') }}</span>
+			</label>
+
+			<label class="flex items-center gap-2 cursor-pointer">
+				<input
+					type="checkbox"
+					v-model="lms_student"
+					@change.stop="changeRole('lms_student')"
+					class="w-5 h-5 rounded border-gray-300 text-primary-500 focus:ring-primary-500 transition duration-150 ease-in-out cursor-pointer"
+				/>
+				<span class="text-sm font-medium text-gray-900 select-none">{{ __('Student') }}</span>
+			</label>
 		</div>
 	</div>
 </template>
 <script setup>
-import { FormControl, createResource, toast } from 'frappe-ui'
+import { createResource, toast } from 'frappe-ui'
 import { ref, watch } from 'vue'
 import { convertToTitleCase } from '@/utils'
 import { CircleAlert } from 'lucide-vue-next'
