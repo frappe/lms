@@ -128,7 +128,7 @@ import { sessionStore } from '@/stores/session'
 import { canCreateCourse } from '@/utils'
 import CourseCard from '@/components/CourseCard.vue'
 import EmptyState from '@/components/EmptyState.vue'
-import router from '../router'
+import { useRouter } from 'vue-router'
 
 const user = inject('$user')
 const dayjs = inject('$dayjs')
@@ -142,6 +142,7 @@ const filters = ref({})
 const currentTab = ref('Live')
 const { brand } = sessionStore()
 const courseCount = ref(0)
+const router = useRouter()
 
 onMounted(() => {
 	setFiltersFromQuery()

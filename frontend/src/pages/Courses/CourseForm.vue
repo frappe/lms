@@ -309,7 +309,7 @@ import {
 import { Trash2, X } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
 import { useOnboarding, useTelemetry } from 'frappe-ui/frappe'
-import { sessionStore } from '../stores/session'
+import { sessionStore } from '../../stores/session'
 import Link from '@/components/Controls/Link.vue'
 import CourseOutline from '@/components/CourseOutline.vue'
 import MultiSelect from '@/components/Controls/MultiSelect.vue'

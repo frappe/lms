@@ -56,14 +56,14 @@
 					</Button>
 				</router-link>
 				<Badge
-					v-else-if="course.data.disable_self_learning"
+					v-else-if="course.data.disable_self_learning && !isAdmin"
 					theme="blue"
 					size="lg"
 				>
-					{{ __('Contact the Administrator to enroll for this course.') }}
+					{{ __('Contact the Administrator to enroll for this course') }}
 				</Badge>
 				<Button
-					v-else-if="!user.data?.is_moderator && !is_instructor()"
+					v-else-if="!isAdmin"
 					@click="enrollStudent()"
 					variant="solid"
 					class="w-full"
@@ -87,17 +87,6 @@
 						<GraduationCap class="size-4 stroke-1.5" />
 					</template>
 					{{ __('Get Certificate') }}
-				</Button>
-				<Button
-					v-if="user.data?.is_moderator || is_instructor()"
-					class="w-full mt-2"
-					size="md"
-					@click="showProgressSummary"
-				>
-					<template #prefix>
-						<TrendingUp class="size-4 stroke-1.5" />
-						{{ __('Progress Summary') }}
-					</template>
 				</Button>
 				<router-link
 					v-if="user?.data?.is_moderator || is_instructor()"
@@ -168,12 +157,6 @@
 			</div>
 		</div>
 	</div>
-	<CourseProgressSummary
-		v-if="user.data?.is_moderator || is_instructor()"
-		v-model="showProgressModal"
-		:courseName="course.data.name"
-		:enrollments="course.data.enrollments"
-	/>
 </template>
 <script setup>
 import {
@@ -191,12 +174,10 @@ import { Badge, Button, call, createResource, toast } from 'frappe-ui'
 import { formatAmount } from '@/utils/'
 import { useRouter } from 'vue-router'
 import CertificationLinks from '@/components/CertificationLinks.vue'
-import CourseProgressSummary from '@/components/Modals/CourseProgressSummary.vue'
 import { useTelemetry } from 'frappe-ui/frappe'
 
 const router = useRouter()
 const user = inject('$user')
-const showProgressModal = ref(false)
 const readOnlyMode = window.read_only_mode
 const { capture } = useTelemetry()
 
@@ -295,7 +276,7 @@ const fetchCertificate = () => {
 	})
 }
 
-const showProgressSummary = () => {
-	showProgressModal.value = true
-}
+const isAdmin = computed(() => {
+	return user.data?.is_moderator || is_instructor()
+})
 </script>

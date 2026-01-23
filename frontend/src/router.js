@@ -12,12 +12,12 @@ const routes = [
 	{
 		path: '/courses',
 		name: 'Courses',
-		component: () => import('@/pages/Courses.vue'),
+		component: () => import('@/pages/Courses/Courses.vue'),
 	},
 	{
 		path: '/courses/:courseName',
 		name: 'CourseDetail',
-		component: () => import('@/pages/CourseDetail.vue'),
+		component: () => import('@/pages/Courses/CourseDetail.vue'),
 		props: true,
 	},
 	{
@@ -29,7 +29,7 @@ const routes = [
 	{
 		path: '/courses/:courseName/certification',
 		name: 'CourseCertification',
-		component: () => import('@/pages/CourseCertification.vue'),
+		component: () => import('@/pages/Courses/CourseCertification.vue'),
 		props: true,
 	},
 	{
@@ -121,7 +121,7 @@ const routes = [
 	{
 		path: '/courses/:courseName/edit',
 		name: 'CourseForm',
-		component: () => import('@/pages/CourseForm.vue'),
+		component: () => import('@/pages/Courses/CourseForm.vue'),
 		props: true,
 	},
 	{

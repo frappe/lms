@@ -1640,24 +1640,16 @@ def get_average_course_progress(progress_list):
 def get_progress_distribution(progressList):
 	distribution = [
 		{
-			"category": "0-20%",
-			"count": len([p for p in progressList if 0 <= p < 20]),
+			"name": "Just Started (0-30%)",
+			"value": len([p for p in progressList if 0 <= p < 30]),
 		},
 		{
-			"category": "20-40%",
-			"count": len([p for p in progressList if 20 <= p < 40]),
+			"name": "In Progress (30-60%)",
+			"value": len([p for p in progressList if 30 <= p < 60]),
 		},
 		{
-			"category": "40-60%",
-			"count": len([p for p in progressList if 40 <= p < 60]),
-		},
-		{
-			"category": "60-80%",
-			"count": len([p for p in progressList if 60 <= p < 80]),
-		},
-		{
-			"category": "80-100%",
-			"count": len([p for p in progressList if 80 <= p <= 100]),
+			"name": "Advanced (60-100%)",
+			"value": len([p for p in progressList if 60 <= p <= 100]),
 		},
 	]
 

@@ -67,7 +67,7 @@ const emit = defineEmits<{
 
 const props = withDefaults(
 	defineProps<{
-		modelValue: string
+		modelValue: string | null
 		label?: string
 		description?: string
 		type?: 'image' | 'video'
