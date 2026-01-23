@@ -665,7 +665,8 @@ iframe {
 	padding: 8px;
 }
 
-.codex-editor--narrow .ce-toolbox .ce-popover {
+.codex-editor--narrow .ce-toolbox .ce-popover,
+.codex-editor--narrow .ce-toolbar__actions .ce-popover {
 	right: unset;
 	left: initial;
 }
