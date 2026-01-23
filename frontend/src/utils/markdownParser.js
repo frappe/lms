@@ -34,7 +34,9 @@ export class Markdown {
 	}
 
 	static get pasteConfig() {
-		return { tags: ['P'] }
+		return {
+			tags: ['P'],
+		}
 	}
 
 	render() {
@@ -52,9 +54,275 @@ export class Markdown {
 				this._togglePlaceholder()
 			)
 			this.wrapper.addEventListener('keydown', (e) => this._onKeyDown(e))
+			this.wrapper.addEventListener(
+				'paste',
+				(e) => this._onNativePaste(e),
+				true
+			)
 		}
 
 		return this.wrapper
+	}
+
+	_onNativePaste(event) {
+		const clipboardData = event.clipboardData || window.clipboardData
+		if (!clipboardData) return
+
+		const pastedText = clipboardData.getData('text/plain')
+
+		if (pastedText && this._looksLikeMarkdown(pastedText)) {
+			event.preventDefault()
+			event.stopPropagation()
+			event.stopImmediatePropagation()
+
+			this._insertMarkdownAsBlocks(pastedText)
+		}
+	}
+
+	_looksLikeMarkdown(text) {
+		const markdownPatterns = [
+			/^#{1,6}\s+/m,
+			/^[\-\*]\s+/m,
+			/^\d+\.\s+/m,
+			/```[\s\S]*```/,
+		]
+
+		return markdownPatterns.some((pattern) => pattern.test(text))
+	}
+
+	async _insertMarkdownAsBlocks(markdown) {
+		const blocks = this._parseMarkdownToBlocks(markdown)
+
+		if (blocks.length === 0) return
+
+		const currentIndex = this.api.blocks.getCurrentBlockIndex()
+
+		for (let i = 0; i < blocks.length; i++) {
+			try {
+				await this.api.blocks.insert(
+					blocks[i].type,
+					blocks[i].data,
+					{},
+					currentIndex + i,
+					false
+				)
+			} catch (error) {
+				console.error('Failed to insert block:', blocks[i], error)
+			}
+		}
+
+		try {
+			await this.api.blocks.delete(currentIndex + blocks.length)
+		} catch (error) {
+			console.error('Failed to delete original block:', error)
+		}
+
+		setTimeout(() => {
+			this.api.caret.setToBlock(currentIndex, 'end')
+		}, 100)
+	}
+
+	_parseMarkdownToBlocks(markdown) {
+		const lines = markdown.split('\n')
+		const blocks = []
+		let i = 0
+
+		while (i < lines.length) {
+			const line = lines[i]
+
+			if (line.trim() === '') {
+				i++
+				continue
+			}
+
+			if (line.trim().startsWith('```')) {
+				const codeBlock = this._parseCodeBlock(lines, i)
+				blocks.push(codeBlock.block)
+				i = codeBlock.nextIndex
+				continue
+			}
+
+			if (/^#{1,6}\s+/.test(line)) {
+				blocks.push(this._parseHeading(line))
+				i++
+				continue
+			}
+
+			if (/^[\s]*[-*+]\s+/.test(line)) {
+				const listBlock = this._parseUnorderedList(lines, i)
+				blocks.push(listBlock.block)
+				i = listBlock.nextIndex
+				continue
+			}
+
+			if (/^[\s]*(\d+)\.\s+/.test(line)) {
+				const listBlock = this._parseOrderedList(lines, i)
+				blocks.push(listBlock.block)
+				i = listBlock.nextIndex
+				continue
+			}
+
+			blocks.push({
+				type: 'paragraph',
+				data: { text: this._parseInlineMarkdown(line) },
+			})
+			i++
+		}
+
+		return blocks
+	}
+
+	_parseHeading(line) {
+		const match = line.match(/^(#{1,6})\s+(.*)$/)
+		const level = match[1].length
+		const text = match[2]
+
+		return {
+			type: 'header',
+			data: {
+				text: this._parseInlineMarkdown(text),
+				level: level,
+			},
+		}
+	}
+
+	_parseUnorderedList(lines, startIndex) {
+		const items = []
+		let i = startIndex
+
+		while (i < lines.length) {
+			const line = lines[i]
+
+			if (/^[\s]*[-*+]\s+/.test(line)) {
+				const text = line.replace(/^[\s]*[-*+]\s+/, '')
+				items.push({
+					content: this._parseInlineMarkdown(text),
+					items: [],
+				})
+				i++
+			} else if (line.trim() === '') {
+				i++
+				if (i < lines.length && /^[\s]*[-*+]\s+/.test(lines[i])) {
+					continue
+				} else {
+					break
+				}
+			} else {
+				break
+			}
+		}
+
+		return {
+			block: {
+				type: 'list',
+				data: {
+					style: 'unordered',
+					items: items,
+				},
+			},
+			nextIndex: i,
+		}
+	}
+
+	_parseOrderedList(lines, startIndex) {
+		const items = []
+		let i = startIndex
+
+		while (i < lines.length) {
+			const line = lines[i]
+
+			const match = line.match(/^[\s]*(\d+)\.\s+(.*)$/)
+
+			if (match) {
+				const number = match[1]
+				const text = match[2]
+
+				if (number === '1') {
+					if (items.length > 0) {
+						break
+					}
+				}
+
+				items.push({
+					content: this._parseInlineMarkdown(text),
+					items: [],
+				})
+				i++
+			} else if (line.trim() === '') {
+				i++
+				if (i < lines.length && /^[\s]*(\d+)\.\s+/.test(lines[i])) {
+					continue
+				} else {
+					break
+				}
+			} else {
+				break
+			}
+		}
+
+		return {
+			block: {
+				type: 'list',
+				data: {
+					style: 'ordered',
+					items: items,
+				},
+			},
+			nextIndex: i,
+		}
+	}
+
+	_parseCodeBlock(lines, startIndex) {
+		let i = startIndex + 1
+		const codeLines = []
+		let language = lines[startIndex].trim().substring(3).trim()
+
+		while (i < lines.length) {
+			if (lines[i].trim().startsWith('```')) {
+				i++
+				break
+			}
+			codeLines.push(lines[i])
+			i++
+		}
+
+		return {
+			block: {
+				type: 'codeBox',
+				data: {
+					code: codeLines.join('\n'),
+					language: language || 'plaintext',
+				},
+			},
+			nextIndex: i,
+		}
+	}
+
+	_parseInlineMarkdown(text) {
+		if (!text) return ''
+
+		let html = this._escapeHtml(text)
+
+		html = html.replace(/`([^`]+)`/g, '<code class="inline-code">$1</code>')
+
+		html = html.replace(/\*\*([^\*\n]+?)\*\*/g, '<b>$1</b>')
+		html = html.replace(/__([^_\n]+?)__/g, '<b>$1</b>')
+
+		html = html.replace(/\*([^\*\n]+?)\*/g, '<i>$1</i>')
+		html = html.replace(/(?<!\w)_([^_\n]+?)_(?!\w)/g, '<i>$1</i>')
+
+		html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>')
+
+		return html
+	}
+
+	_escapeHtml(text) {
+		return text
+			.replace(/&/g, '&amp;')
+			.replace(/</g, '&lt;')
+			.replace(/>/g, '&gt;')
+			.replace(/"/g, '&quot;')
+			.replace(/'/g, '&#39;')
 	}
 
 	_togglePlaceholder() {
