@@ -38,24 +38,29 @@
 					v-for="slot in evaluator.data.slots.schedule"
 					class="grid grid-cols-3 md:grid-cols-4 gap-4 mb-4 group"
 				>
-					<FormControl
-						type="select"
+					<Select
 						:options="days"
 						v-model="slot.day"
 						@focusout.stop="update(slot.name, 'day', slot.day)"
 						:disabled="!isSessionUser()"
+						variant="solid"
+						size="lg"
 					/>
-					<FormControl
+					<Input
 						type="time"
 						v-model="slot.start_time"
 						@focusout.stop="update(slot.name, 'start_time', slot.start_time)"
 						:disabled="!isSessionUser()"
+						variant="solid"
+						size="lg"
 					/>
-					<FormControl
+					<Input
 						type="time"
 						v-model="slot.end_time"
 						@focusout.stop="update(slot.name, 'end_time', slot.end_time)"
 						:disabled="!isSessionUser()"
+						variant="solid"
+						size="lg"
 					/>
 					<X
 						v-if="isSessionUser()"
@@ -68,24 +73,29 @@
 					class="grid grid-cols-3 md:grid-cols-4 gap-4 mb-4"
 					v-show="showSlotsTemplate"
 				>
-					<FormControl
-						type="select"
+					<Select
 						:options="days"
 						v-model="newSlot.day"
 						@focusout.stop="add()"
 						:disabled="!isSessionUser()"
+						variant="solid"
+						size="lg"
 					/>
-					<FormControl
+					<Input
 						type="time"
 						v-model="newSlot.start_time"
 						@focusout.stop="add()"
 						:disabled="!isSessionUser()"
+						variant="solid"
+						size="lg"
 					/>
-					<FormControl
+					<Input
 						type="time"
 						v-model="newSlot.end_time"
 						@focusout.stop="add()"
 						:disabled="!isSessionUser()"
+						variant="solid"
+						size="lg"
 					/>
 				</div>
 
@@ -101,34 +111,42 @@
 					{{ __('I am unavailable') }}
 				</h2>
 				<div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-					<FormControl
-						type="date"
-						:label="__('From')"
-						v-model="from"
-						:disabled="!isSessionUser()"
-						@blur="
-							() => {
-								updateUnavailability.submit({
-									field: 'unavailable_from',
-									value: from,
-								})
-							}
-						"
-					/>
-					<FormControl
-						type="date"
-						:label="__('To')"
-						v-model="to"
-						:disabled="!isSessionUser()"
-						@blur="
-							() => {
-								updateUnavailability.submit({
-									field: 'unavailable_to',
-									value: to,
-								})
-							}
-						"
-					/>
+					<div>
+						<div class="mb-1.5 text-sm text-gray-600">{{ __('From') }}</div>
+						<Input
+							type="date"
+							v-model="from"
+							:disabled="!isSessionUser()"
+							@blur="
+								() => {
+									updateUnavailability.submit({
+										field: 'unavailable_from',
+										value: from,
+									})
+								}
+							"
+							variant="solid"
+							size="lg"
+						/>
+					</div>
+					<div>
+						<div class="mb-1.5 text-sm text-gray-600">{{ __('To') }}</div>
+						<Input
+							type="date"
+							v-model="to"
+							:disabled="!isSessionUser()"
+							@blur="
+								() => {
+									updateUnavailability.submit({
+										field: 'unavailable_to',
+										value: to,
+									})
+								}
+							"
+							variant="solid"
+							size="lg"
+						/>
+					</div>
 				</div>
 			</div>
 			<div v-if="isSessionUser()">
@@ -150,7 +168,7 @@
 	</div>
 </template>
 <script setup>
-import { createResource, FormControl, Button, Badge, toast } from 'frappe-ui'
+import { createResource, Input, Select, Button, Badge, toast } from 'frappe-ui'
 import { computed, reactive, ref, onMounted, inject } from 'vue'
 import { convertToTitleCase } from '@/utils'
 import { Plus, X, Check, CircleAlert } from 'lucide-vue-next'

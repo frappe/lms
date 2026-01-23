@@ -1326,7 +1326,7 @@ def get_notifications(filters):
 		"Notification Log",
 		filters,
 		["subject", "from_user", "link", "read", "name","creation",'document_type'],
-		order_by="creation desc",
+		order_by="modified asc",
 	)
 
 	for notification in notifications:

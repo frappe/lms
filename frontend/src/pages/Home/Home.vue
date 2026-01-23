@@ -8,7 +8,7 @@
 		<div class="space-y-2">
 			<div class="flex items-center justify-between">
 				<div class="text-xl font-bold text-ink-gray-9">
-					{{ __('Hey') }}, {{ user.data?.full_name }} 👋
+					{{ __('Welcome back') }}, {{ user.data?.full_name }} 👋
 				</div>
 				<div>
 					<TabButtons v-if="isAdmin" v-model="currentTab" :buttons="tabs" />
@@ -133,7 +133,7 @@ const subtitle = computed(() => {
 				evalSuffix
 			)
 		}
-		return __('Resume where you left off')
+		return __('Continue your learning journey from where you left off')
 	}
 })
 
