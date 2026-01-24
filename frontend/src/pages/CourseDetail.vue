@@ -38,9 +38,9 @@
 						</nav>
 					</div>
 					<section v-show="activeTab === 'overview'" class="space-y-2">
-						<h2 class="text-xl font-semibold text-ink-gray-9 mb-1">
+						<!-- <h2 class="text-xl font-semibold text-ink-gray-9 mb-1">
 							{{ __('Tentang Kursus') }}
-						</h2>
+						</h2> -->
 						<div
 							class="my-3 leading-6 text-ink-gray-7 text-justify"
 							:hidden="true"

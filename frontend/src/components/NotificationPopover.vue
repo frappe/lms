@@ -21,7 +21,7 @@
 					<h2 class="text-lg font-semibold">Notifications</h2>
 					<Button
 						variant="ghost"
-						class="!text-sm bg-transparent !px-0"
+						class="!text-sm bg-transparent !px-2"
 						:class="
 							unreadCount > 0
 								? 'text-secondary-500 cursor-pointer'
@@ -84,7 +84,7 @@
 					</div>
 				</div>
 				<div
-					class="border-t flex justify-center items-center py-2 text-secondary-500 text-sm cursor-pointer font-medium"
+					class="border-t flex justify-center items-center py-2 text-secondary-400 hover:text-secondary-600 text-sm cursor-pointer font-medium"
 					@click="router.push({ name: 'Notifications' })"
 				>
 					View all notification

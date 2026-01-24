@@ -8,10 +8,15 @@
 					allowEdit,
 			}"
 		>
-			<div class="text-xl font-semibold text-ink-gray-9">
+			<div class="text-lg font-semibold text-ink-gray-9">
 				{{ __(title) }}
 			</div>
-			<Button size="lg" v-if="allowEdit" @click="openChapterModal()" variant="solid" class="!bg-primary-500">
+			<Button
+				v-if="allowEdit"
+				@click="openChapterModal()"
+				variant="solid"
+				class="!bg-primary-500"
+			>
 				{{ __('Add Chapter') }}
 			</Button>
 		</div>

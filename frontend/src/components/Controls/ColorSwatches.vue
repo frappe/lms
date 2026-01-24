@@ -1,47 +1,53 @@
 <template>
 	<div>
-		<div class="text-xs text-ink-gray-5 mb-1">
+		<div class="text-xs md:text-sm text-ink-gray-5 mb-1">
 			{{ __(label) }}
 		</div>
 		<Popover placement="bottom" class="!block">
 			<template #target="{ togglePopover, isOpen }">
 				<div class="space-y-2">
-					<FormControl
-						type="text"
-						autocomplete="off"
-						class="w-full"
-						:placeholder="__('Set Color')"
-						@focus="togglePopover"
-						:modelValue="modelValue"
-						@update:modelValue="(val: string) => emit('update:modelValue', val)"
-					>
-						<template #prefix>
-							<div
-								class="size-4 rounded-full"
-								:style="
-									modelValue
-										? {
-												backgroundColor:
-													theme.backgroundColor[modelValue.toLowerCase()][400],
-										  }
-										: {}
-								"
-							>
-								<Palette
-									v-if="!modelValue"
-									class="size-4 stroke-1.5 text-ink-gray-5"
-								/>
-							</div>
-						</template>
-						<template #suffix>
-							<Button variant="ghost">
-								<X
-									class="size-3 text-ink-gray-5"
-									@click="emit('update:modelValue', null)"
-								/>
-							</Button>
-						</template>
-					</FormControl>
+					<FormWrapper class="[&_input]:!pl-8">
+						<FormControl
+							type="text"
+							autocomplete="off"
+							class="w-full"
+							:placeholder="__('Set Color')"
+							@focus="togglePopover"
+							:modelValue="modelValue"
+							@update:modelValue="
+								(val: string) => emit('update:modelValue', val)
+							"
+						>
+							<template #prefix>
+								<div
+									class="size-4 rounded-full"
+									:style="
+										modelValue
+											? {
+													backgroundColor:
+														theme.backgroundColor[
+															modelValue.toLowerCase()
+														][400],
+												}
+											: {}
+									"
+								>
+									<Palette
+										v-if="!modelValue"
+										class="size-4 stroke-1.5 text-ink-gray-5"
+									/>
+								</div>
+							</template>
+							<template #suffix>
+								<Button variant="ghost">
+									<X
+										class="size-3 text-ink-gray-5"
+										@click="emit('update:modelValue', null)"
+									/>
+								</Button>
+							</template>
+						</FormControl>
+					</FormWrapper>
 				</div>
 			</template>
 			<template #body="{ close }">
@@ -80,6 +86,7 @@ import { Button, FormControl, Popover } from 'frappe-ui'
 import { computed } from 'vue'
 import { Palette, X } from 'lucide-vue-next'
 import { theme } from '@/utils/theme'
+import FormWrapper from '../ui/FormWrapper.vue'
 
 const emit = defineEmits(['update:modelValue', 'change'])
 

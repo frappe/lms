@@ -2,7 +2,9 @@
 	<div class="space-y-1.5">
 		<label class="block" :class="labelClasses" v-if="attrs.label">
 			{{ attrs.label }}
-			<span class="text-ink-red-3" v-if="attrs.required">*</span>
+			<span class="text-ink-red-3 text-xs md:text-sm" v-if="attrs.required"
+				>*</span
+			>
 		</label>
 		<Autocomplete
 			ref="autocomplete"
@@ -114,13 +116,13 @@ watchDebounced(
 		text.value = val
 		reload(val)
 	},
-	{ debounce: 300, immediate: true }
+	{ debounce: 300, immediate: true },
 )
 
 watchDebounced(
 	() => props.doctype,
 	() => reload(''),
-	{ debounce: 300, immediate: true }
+	{ debounce: 300, immediate: true },
 )
 
 watchDebounced(
@@ -130,7 +132,7 @@ watchDebounced(
 			reload('')
 		}
 	},
-	{ debounce: 200 }
+	{ debounce: 200 },
 )
 
 const options = createResource({

@@ -3,7 +3,7 @@
 		<div class="grid grid-cols-1 md:grid-cols-[70%,30%] h-full">
 			<div>
 				<header
-					class="sticky top-0 z-10 flex flex-col md:flex-row md:items-center justify-between border-b bg-surface-white px-3 py-2.5 sm:px-5"
+					class="sticky top-0 z-10 flex flex-col md:flex-row md:items-center justify-between bg-surface-white px-3 py-2.5 sm:px-5"
 				>
 					<CustomBreadcrumb class="h-7" :items="breadcrumbs" />
 					<div class="flex items-center mt-3 md:mt-0">
@@ -11,7 +11,7 @@
 							theme="red"
 							v-if="courseResource.data?.name"
 							@click="trashCourse()"
-							size="lg"
+							size="md"
 						>
 							<template #icon>
 								<Trash2 class="w-4 h-4 stroke-1.5" />
@@ -21,7 +21,7 @@
 							variant="solid"
 							@click="submitCourse()"
 							class="ml-2"
-							size="lg"
+							size="md"
 						>
 							<span>
 								{{ __('Save') }}
@@ -35,38 +35,48 @@
 							{{ __('Details') }}
 						</div>
 						<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-							<FormControl
-								v-model="course.title"
-								:label="__('Title')"
-								:required="true"
-							/>
-							<Link
-								doctype="LMS Category"
-								v-model="course.category"
-								:label="__('Category')"
-								:onCreate="(value, close) => openSettings('Categories', close)"
-							/>
+							<FormWrapper>
+								<FormControl
+									v-model="course.title"
+									:label="__('Title')"
+									:required="true"
+								/>
+							</FormWrapper>
+							<AutoCompleteWrapper>
+								<Link
+									doctype="LMS Category"
+									v-model="course.category"
+									:label="__('Category')"
+									:onCreate="
+										(value, close) => openSettings('Categories', close)
+									"
+								/>
+							</AutoCompleteWrapper>
 						</div>
 						<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-							<MultiSelect
-								v-model="instructors"
-								doctype="User"
-								:label="__('Instructors')"
-								:filters="{ ignore_user_type: 1 }"
-								:onCreate="(close) => openSettings('Members', close)"
-								:required="true"
-							/>
+							<FormWrapper>
+								<MultiSelect
+									v-model="instructors"
+									doctype="User"
+									:label="__('Instructors')"
+									:filters="{ ignore_user_type: 1 }"
+									:onCreate="(close) => openSettings('Members', close)"
+									:required="true"
+								/>
+							</FormWrapper>
 							<div>
-								<div class="text-xs text-ink-gray-5">
+								<div class="text-xs md:text-sm text-ink-gray-5">
 									{{ __('Tags') }}
 								</div>
-								<FormControl
-									v-model="newTag"
-									:placeholder="__('Add a keyword and then press enter')"
-									:class="['w-full', 'flex-1', 'my-1']"
-									@keyup.enter="updateTags()"
-									id="tags"
-								/>
+								<FormWrapper>
+									<FormControl
+										v-model="newTag"
+										:placeholder="__('Add a keyword and then press enter')"
+										:class="['w-full', 'flex-1', 'my-1']"
+										@keyup.enter="updateTags()"
+										id="tags"
+									/>
+								</FormWrapper>
 								<div>
 									<div class="flex items-center flex-wrap gap-2">
 										<div
@@ -86,7 +96,7 @@
 						</div>
 						<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
 							<div class="mb-4">
-								<div class="text-xs text-ink-gray-5 mb-2">
+								<div class="text-xs md:text-sm text-ink-gray-5 mb-2">
 									{{ __('Course Image') }}
 								</div>
 								<FileUploader
@@ -374,6 +384,7 @@ import MultiSelect from '@/components/Controls/MultiSelect.vue'
 import ColorSwatches from '@/components/Controls/ColorSwatches.vue'
 import CustomBreadcrumb from '@/components/ui/CustomBreadcrumb.vue'
 import Button from '@/components/ui/Button.vue'
+import AutoCompleteWrapper from '@/components/ui/AutoCompleteWrapper.vue'
 
 const user = inject('$user')
 const newTag = ref('')

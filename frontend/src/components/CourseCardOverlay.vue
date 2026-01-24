@@ -20,20 +20,22 @@
 				v-if="course.data.enable_certification"
 				theme="green"
 				size="lg"
-				class="absolute top-3 left-3 bg-teal-500 text-white font-medium text-sm"
+				class="absolute !rounded top-3 left-3 bg-white text-primary-500 font-medium text-xs p-2"
 			>
 				{{ __('Certification') }}
 			</Badge>
 		</div>
 
 		<div class="py-4 space-y-4">
+			<div
+				v-if="!course.data.paid_course"
+				class="text-xl font-semibold mb-3 text-left"
+			>
+				{{ course.data.price }}
+			</div>
 			<h1 class="text-lg font-semibold text-ink-gray-9 leading-tight">
 				{{ course.data.title }}
 			</h1>
-
-			<div v-if="!course.data.paid_course" class="text-xl font-semibold mb-3">
-				{{ course.data.price }}
-			</div>
 
 			<div class="space-y-2 text-sm text-ink-gray-9">
 				<div class="flex items-center">
@@ -70,25 +72,25 @@
 
 				<div
 					v-if="course.data.enable_certification"
-					class="flex items-center font-semibold text-ink-gray-9"
+					class="flex items-center font-medium text-ink-gray-9"
 				>
-					<GraduationCap class="h-4 w-4 stroke-2" />
-					<span class="ml-2">
+					<GraduationCap class="size-5 mr-2 stroke-1.5" />
+					<span class="text-ink-gray-7 ml-1">
 						{{ __('Certificate of Completion') }}
 					</span>
 				</div>
 				<div
 					v-if="course.data.paid_certificate"
-					class="flex items-center font-semibold text-ink-gray-9"
+					class="flex items-center font-medium text-ink-gray-9"
 				>
-					<GraduationCap class="h-4 w-4 stroke-2" />
-					<span class="ml-2">
+					<GraduationCap class="size-5 mr-2 stroke-1.5" />
+					<span class="text-ink-gray-7 ml-1">
 						{{ __('Paid Certificate after Evaluation') }}
 					</span>
 				</div>
 			</div>
 			<div class="space-y-3 mt-2">
-				<div class="flex items-center">
+				<div class="flex items-start">
 					<span
 						class="h-6 mr-1"
 						:class="{
@@ -98,9 +100,15 @@
 						<UserAvatar
 							v-for="instructor in course.data.instructors"
 							:user="instructor"
+							size="xl"
 						/>
 					</span>
-					<CourseInstructors :instructors="course.data.instructors" />
+					<div class="flex flex-col">
+						<p class="text-gray-500 tracking-wider text-xs font-medium -mb-1">
+							{{ __('Lecture') }}
+						</p>
+						<CourseInstructors :instructors="course.data.instructors" />
+					</div>
 				</div>
 
 				<div v-if="user && course.data.membership">

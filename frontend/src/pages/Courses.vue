@@ -1,9 +1,7 @@
 <template>
 	<header
-		class="sticky flex items-center justify-between top-0 z-10 bg-surface-white px-3 py-2.5 sm:px-5"
+		class="sticky flex items-center justify-end top-0 z-10 bg-surface-white px-3 py-2.5 sm:px-5"
 	>
-		<Breadcrumbs :items="breadcrumbs" />
-
 		<Dropdown
 			placement="start"
 			side="bottom"
@@ -32,15 +30,15 @@
 			]"
 		>
 			<template v-slot="{ open }">
-				<Button variant="solid" size="lg" class="!bg-primary-500">
+				<Button variant="solid">
 					<template #prefix>
-						<Plus class="h-4 w-4 stroke-1.5" />
+						<Plus class="h-4 w-4" />
 					</template>
 					{{ __('Create') }}
 					<template #suffix>
 						<ChevronDown
 							:class="[
-								'w-4 h-4 stroke-1.5 ml-1 transform transition-transform',
+								'w-4 h-4 ml-1 transform transition-transform',
 								open ? 'rotate-180' : '',
 							]"
 						/>
@@ -113,7 +111,6 @@
 <script setup>
 import {
 	Breadcrumbs,
-	Button,
 	call,
 	createListResource,
 	Dropdown,
@@ -129,6 +126,7 @@ import { canCreateCourse } from '@/utils'
 import CourseCard from '@/components/CourseCard.vue'
 import EmptyState from '@/components/EmptyState.vue'
 import router from '../router'
+import Button from '@/components/ui/Button.vue'
 
 const user = inject('$user')
 const dayjs = inject('$dayjs')
