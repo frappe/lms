@@ -570,10 +570,14 @@ const createCourse = () => {
 	courseCreationResource.submit(course, {
 		onSuccess(data) {
 			updateMetaInfo('courses', data.name, meta)
-			if (user.data?.is_system_manager) {
-				updateOnboardingStep('create_first_course', true, false, () => {
-					localStorage.setItem('firstCourse', data.name)
-				})
+			try {
+				if (user.data?.is_system_manager) {
+					updateOnboardingStep('create_first_course', true, false, () => {
+						localStorage.setItem('firstCourse', data.name)
+					})
+				}
+			} catch (err) {
+				console.log(err)
 			}
 
 			capture('course_created')

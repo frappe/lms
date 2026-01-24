@@ -1,10 +1,27 @@
 <template>
-	<div class="flex flex-col border rounded-xl h-full" style="min-height: 150px">
-		<div class="w-[100%] h-[140px] bg-cover bg-center bg-no-repeat border-t border-x rounded-t-xl" :style="batch.meta_image
-			? { backgroundImage: `url('${encodeURI(batch.meta_image)}')` } : { display: 'none' }">
+	<div
+		class="flex flex-col h-full rounded-xl overflow-auto text-ink-gray-9"
+		style="min-height: 150px"
+	>
+		<div
+			class="w-full aspect-[330/140] overflow-hidden object-cover bg-cover bg-top bg-no-repeat border-t border-x rounded-t-xl relative"
+		>
+			<div
+				class="w-full h-full"
+				v-if="batch.meta_image"
+				:style="
+					batch.meta_image
+						? { backgroundImage: `url('${encodeURI(batch.meta_image)}')` }
+						: { display: 'none' }
+				"
+			></div>
+			<NoImageFallback v-else />
 		</div>
-		<div class="p-4">
-			<div class="text-lg leading-5 font-semibold mb-2 text-gray-900">
+
+		<div
+			class="flex flex-col flex-auto p-4 border-x border-gray-100 shadow-lg border-b rounded-b-xl"
+		>
+			<div class="text-lg leading-5 font-semibold mb-4 text-gray-900">
 				{{ batch.title }}
 			</div>
 			<!-- <div v-if="batch.seat_count && batch.seats_left > 0"
@@ -28,11 +45,16 @@
 				{{ batch.price }}
 			</div>
 			<div class="flex flex-col space-y-2 mb-4">
-				<DateRange :startDate="batch.start_date" :endDate="batch.end_date" class="text-sm text-gray-600" />
+				<DateRange
+					:startDate="batch.start_date"
+					:endDate="batch.end_date"
+					class="text-sm text-gray-600"
+				/>
 				<div class="flex items-center text-sm text-gray-600">
 					<Clock class="h-4 w-4 stroke-1.5 mr-2 text-gray-600" />
 					<span>
-						{{ formatTime(batch.start_time) }} - {{ formatTime(batch.end_time) }}
+						{{ formatTime(batch.start_time) }} -
+						{{ formatTime(batch.end_time) }}
 					</span>
 				</div>
 				<!-- <div v-if="batch.timezone" class="flex items-center text-sm text-ink-gray-7">
@@ -48,17 +70,20 @@
 				</div>
 				<CourseInstructors :instructors="batch.instructors" />
 			</div> -->
-
-			<button v-if="batch.seat_count && batch.seats_left <= 0"
-				class="w-full border border-gray-500 text-gray-500 px-4 py-3 rounded-md font-semibold text-sm cursor-not-allowed bg-gray-200">
-				{{ __('Sold Out') }}
-			</button>
-			<button v-else
-				class="w-full border border-primary-500 text-primary-500 hover:bg-primary-500 hover:text-white px-4 py-3 rounded-md font-semibold text-sm">
-				Visit Batches
-			</button>
-
-
+			<div class="flex flex-col mt-auto">
+				<button
+					v-if="batch.seat_count && batch.seats_left <= 0"
+					class="w-full border border-gray-500 text-gray-500 px-4 py-3 rounded-md font-semibold text-sm cursor-not-allowed bg-gray-200"
+				>
+					{{ __('Sold Out') }}
+				</button>
+				<button
+					v-else
+					class="w-full border border-primary-500 text-primary-500 hover:bg-primary-500 hover:text-white px-4 py-3 rounded-md font-semibold text-sm"
+				>
+					Visit Batches
+				</button>
+			</div>
 		</div>
 	</div>
 </template>
@@ -69,6 +94,7 @@ import Clock from '@/components/Icons/ClockIcon.vue'
 import DateRange from '@/components/Common/DateRange.vue'
 import CourseInstructors from '@/components/CourseInstructors.vue'
 import UserAvatar from '@/components/UserAvatar.vue'
+import NoImageFallback from './NoImageFallback.vue'
 
 const props = defineProps({
 	batch: {
@@ -98,7 +124,7 @@ const props = defineProps({
 	transition: margin 0.1s ease-in-out;
 }
 
-.avatar-group.overlap .avatar+.avatar {
+.avatar-group.overlap .avatar + .avatar {
 	margin-left: calc(-8px);
 }
 </style>

@@ -36,6 +36,37 @@ const hasDefaultSlotIcon = computed(() => {
 const isIconOnly = computed(() => {
 	return !!attrs.icon || !!slots.icon || hasDefaultSlotIcon.value
 })
+
+const props = defineProps({
+	size: {
+		type: String,
+		default: 'sm',
+	},
+})
+
+const sizeClasses = computed(() => {
+	let sizes =
+		{
+			sm: '!h-10 !text-sm !px-4 !rounded-[8px]',
+			md: '!h-11 !text-base !font-medium !px-5 !rounded-[8px]',
+			lg: '!h-12 !text-lg !font-medium !px-6 !rounded-[8px]',
+			xl: '!h-14 !text-xl !font-medium !px-8 !rounded-[10px]',
+			'2xl': '!h-16 !text-2xl !font-medium !px-10 !rounded-[12px]',
+		}[props.size] || '!h-11 !text-base !font-medium !px-5 !rounded-[8px]'
+
+	if (isIconOnly.value) {
+		sizes =
+			{
+				sm: '!h-10 !w-10 !rounded-[8px]',
+				md: '!h-11 !w-11 !rounded-[8px]',
+				lg: '!h-12 !w-12 !rounded-[8px]',
+				xl: '!h-14 !w-14 !rounded-[10px]',
+				'2xl': '!h-16 !w-16 !rounded-[12px]',
+			}[props.size] || '!h-11 !w-11 !rounded-[8px]'
+	}
+	return sizes
+})
+
 const buttonClass = computed(() => {
 	const variantClasses = {
 		subtle:
@@ -48,9 +79,9 @@ const buttonClass = computed(() => {
 	}[attrs.variant || 'subtle']
 
 	return [
-		'!h-10 !font-semibold text-sm !flex !items-center !justify-center !rounded-[8px] [&_svg]:!stroke-2',
+		'!font-semibold !flex !items-center !justify-center [&_svg]:!stroke-2',
 		(!attrs.theme || attrs.theme === 'gray') && variantClasses,
-		isIconOnly.value ? '!w-10 !px-0' : '!px-4',
+		sizeClasses.value,
 	]
 })
 </script>

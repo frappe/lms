@@ -1,55 +1,82 @@
 <template>
 	<div class="flex h-full flex-col relative">
-		<div class="h-full pb-10" id="scrollContainer">
-			<slot />
-		</div>
-
 		<div class="relative z-20">
-			<!-- Dropdown menu -->
 			<div
-				class="fixed bottom-16 right-2 w-[80%] rounded-md bg-surface-white text-base p-5 space-y-4 shadow-md"
+				class="fixed top-16 right-4 w-[280px] rounded bg-surface-white text-base py-3 border border-gray-100 shadow-xl z-50 overflow-hidden"
 				v-if="showMenu"
 				ref="menu"
 			>
-				<div
-					v-for="link in otherLinks"
-					:key="link.label"
-					class="flex items-center space-x-2 cursor-pointer"
-					@click="handleClick(link)"
-				>
-					<component
-						:is="icons[link.icon]"
-						class="h-4 w-4 stroke-1.5 text-ink-gray-5"
-					/>
-					<div>{{ link.label }}</div>
+				<div class="flex flex-col px-2 gap-1">
+					<div
+						v-for="link in allLinks"
+						:key="link.label"
+						class="flex items-center space-x-3 cursor-pointer p-3 rounded-xl transition-colors"
+						:class="
+							isActive(link)
+								? 'bg-surface-selected text-ink-gray-9'
+								: 'hover:bg-gray-50 text-ink-gray-6'
+						"
+						@click="handleClick(link)"
+					>
+						<component
+							:is="allIcons[link.icon] || allIcons['Circle']"
+							class="h-5 w-5 stroke-1.5"
+						/>
+						<div class="font-medium text-sm">{{ __(link.label) }}</div>
+					</div>
+
+					<div class="h-px bg-gray-100 my-2 mx-1"></div>
+
+					<div
+						class="px-4 py-2 text-xs font-semibold text-gray-400 uppercase tracking-widest"
+					>
+						{{ __('Profile') }}
+					</div>
+
+					<div
+						v-for="link in accountLinks"
+						:key="link.label"
+						class="flex items-center space-x-3 cursor-pointer p-3 rounded-xl transition-colors group"
+						:class="
+							link.label === 'Log out'
+								? 'hover:bg-red-50 text-red-600'
+								: 'hover:bg-gray-50 text-gray-900 font-medium'
+						"
+						@click="handleClick(link)"
+					>
+						<component
+							:is="allIcons[link.icon]"
+							class="h-5 w-5 stroke-[1.5px]"
+							:class="
+								link.label === 'Log out' ? 'text-red-500' : 'text-gray-900'
+							"
+						/>
+						<div class="text-sm">{{ __(link.label) }}</div>
+					</div>
 				</div>
 			</div>
 
-			<!-- Fixed menu -->
 			<div
 				v-if="sidebarSettings.data"
-				class="fixed bottom-0 left-0 w-full flex items-center justify-around border-t border-outline-gray-2 bg-surface-white standalone:pb-4 z-10"
+				class="fixed top-0 left-0 w-full h-16 px-4 flex items-center justify-between border-b border-gray-100 bg-surface-white standalone:pb-4 z-20"
 			>
-				<button
-					v-for="tab in sidebarLinks"
-					:key="tab.label"
-					:class="isVisible(tab) ? 'block' : 'hidden'"
-					class="flex flex-col items-center justify-center py-3 transition active:scale-95"
-					@click="handleClick(tab)"
-				>
-					<component
-						:is="icons[tab.icon]"
-						class="h-6 w-6 stroke-1.5"
-						:class="[isActive(tab) ? 'text-ink-gray-9' : 'text-ink-gray-5']"
-					/>
-				</button>
-				<button @click="toggleMenu">
-					<component
-						:is="icons['List']"
-						class="h-6 w-6 stroke-1.5 text-ink-gray-5"
-					/>
-				</button>
+				<div class="flex items-center gap-x-2">
+					<UnairLogo class="h-8" />
+					<LMSLogoFull class="h-10 flex-shrink-0" />
+				</div>
+				<div class="flex items-center gap-x-1">
+					<NotificationPopover placement="bottom-end" />
+					<button @click="toggleMenu" class="pl-1 pr-4 py-2">
+						<component
+							:is="icons['Menu']"
+							class="h-6 w-6 stroke-1.5 text-gray-900"
+						/>
+					</button>
+				</div>
 			</div>
+		</div>
+		<div class="h-full pt-16" id="scrollContainer">
+			<slot />
 		</div>
 	</div>
 </template>
@@ -57,11 +84,30 @@
 import { getSidebarLinks } from '@/utils'
 import { useRouter } from 'vue-router'
 import { call } from 'frappe-ui'
-import { watch, ref, onMounted } from 'vue'
+import { watch, ref, onMounted, computed } from 'vue'
 import { sessionStore } from '@/stores/session'
 import { useSettings } from '@/stores/settings'
 import { usersStore } from '@/stores/user'
 import * as icons from 'lucide-vue-next'
+import LMSLogoFull from '@/components/Icons/LMSLogoFull.vue'
+import UnairLogo from '@/components/Icons/UnairLogo.vue'
+import NotificationPopover from '@/components/NotificationPopover.vue'
+import BatchesIcon from '@/components/Icons/BatchesIcon.vue'
+import StatisticsIcon from '@/components/Icons/StatisticsIcon.vue'
+import CircleProfileIcon from '@/components/Icons/CircleProfileIcon.vue'
+import LogoutIcon from '@/components/Icons/LogoutIcon.vue'
+import HomeIcon from '@/components/Icons/HomeIcon.vue'
+import CoursesIcon from '@/components/Icons/CoursesIcon.vue'
+
+const allIcons = {
+	...icons,
+	HomeIcon,
+	CoursesIcon,
+	BatchesIcon,
+	StatisticsIcon,
+	CircleProfileIcon,
+	LogoutIcon,
+}
 
 const { logout, user } = sessionStore()
 let { isLoggedIn } = sessionStore()
@@ -69,23 +115,153 @@ const { sidebarSettings } = useSettings()
 const router = useRouter()
 let { userResource } = usersStore()
 const sidebarLinks = ref(getSidebarLinks())
-const otherLinks = ref([])
+const accountLinks = ref([])
 const showMenu = ref(false)
 const menu = ref(null)
 const isModerator = ref(false)
 const isInstructor = ref(false)
 
 onMounted(() => {
+	setSidebarLinks()
+})
+
+const setSidebarLinks = () => {
 	sidebarSettings.reload(
 		{},
 		{
 			onSuccess(data) {
-				filterLinksToShow(data)
-				addOtherLinks()
+				Object.keys(data).forEach((key) => {
+					if (!parseInt(data[key])) {
+						sidebarLinks.value = sidebarLinks.value.filter(
+							(link) => link.label.toLowerCase().split(' ').join('_') !== key,
+						)
+					}
+				})
+				addAccountLinks()
 			},
-		}
+		},
 	)
+}
+
+const addAccountLinks = () => {
+	accountLinks.value = []
+	if (user) {
+		accountLinks.value.push({
+			label: 'My Profile',
+			icon: 'CircleProfileIcon',
+			to: 'Profile',
+		})
+		accountLinks.value.push({
+			label: 'Log out',
+			icon: 'LogoutIcon',
+		})
+	} else {
+		accountLinks.value.push({
+			label: 'Log in',
+			icon: 'LogIn',
+		})
+	}
+}
+
+const allLinks = computed(() => {
+	return sidebarLinks.value
 })
+
+watch(userResource, () => {
+	addContactUsDetails()
+	if (userResource.data) {
+		isModerator.value = userResource.data.is_moderator
+		isInstructor.value = userResource.data.is_instructor
+		addHome()
+		addQuizzes()
+		addAssignments()
+		addProgrammingExercises()
+	}
+})
+
+const addContactUsDetails = () => {
+	const settingsStore = useSettings()
+	if (!settingsStore.contactUsEmail?.data && !settingsStore.contactUsURL?.data)
+		return
+
+	const exists = sidebarLinks.value.some((link) => link.label === 'Contact Us')
+	if (exists) return
+
+	sidebarLinks.value.push({
+		label: 'Contact Us',
+		icon: settingsStore.contactUsURL?.data ? 'Headset' : 'Mail',
+		to: settingsStore.contactUsURL?.data
+			? settingsStore.contactUsURL.data
+			: settingsStore.contactUsEmail?.data,
+	})
+}
+
+const addQuizzes = () => {
+	if (!isInstructor.value && !isModerator.value) return
+	const exists = sidebarLinks.value.some((link) => link.label === 'Quizzes')
+	if (exists) return
+	sidebarLinks.value.splice(4, 0, {
+		label: 'Quizzes',
+		icon: 'CircleHelp',
+		to: 'Quizzes',
+		activeFor: ['Quizzes', 'QuizForm', 'QuizSubmissionList', 'QuizSubmission'],
+	})
+}
+
+const addAssignments = () => {
+	if (!isInstructor.value && !isModerator.value) return
+	const exists = sidebarLinks.value.some((link) => link.label === 'Assignments')
+	if (exists) return
+	sidebarLinks.value.splice(5, 0, {
+		label: 'Assignments',
+		icon: 'Pencil',
+		to: 'Assignments',
+		activeFor: [
+			'Assignments',
+			'AssignmentForm',
+			'AssignmentSubmissionList',
+			'AssignmentSubmission',
+		],
+	})
+}
+
+const addProgrammingExercises = () => {
+	if (!isInstructor.value && !isModerator.value) return
+	const exists = sidebarLinks.value.some(
+		(link) => link.label === 'Programming Exercises',
+	)
+	if (exists) return
+	sidebarLinks.value.splice(3, 0, {
+		label: 'Programming Exercises',
+		icon: 'Code',
+		to: 'ProgrammingExercises',
+		activeFor: [
+			'ProgrammingExercises',
+			'ProgrammingExerciseForm',
+			'ProgrammingExerciseSubmissions',
+			'ProgrammingExerciseSubmission',
+		],
+	})
+}
+
+const addHome = () => {
+	const exists = sidebarLinks.value.some((link) => link.label === 'Home')
+	if (exists) return
+	sidebarLinks.value.unshift({
+		label: 'Home',
+		icon: 'HomeIcon',
+		to: 'Home',
+		activeFor: ['Home'],
+	})
+}
+
+const checkIfCanAddProgram = async () => {
+	if (isModerator.value || isInstructor.value) {
+		return true
+	}
+	const programs = await call('lms.lms.utils.get_programs')
+	return programs.enrolled.length > 0 || programs.published.length > 0
+}
 
 const handleOutsideClick = (e) => {
 	if (menu.value && !menu.value.contains(e.target)) {
@@ -103,98 +279,6 @@ watch(showMenu, (val) => {
 	}
 })
 
-const filterLinksToShow = (data) => {
-	Object.keys(data).forEach((key) => {
-		if (!parseInt(data[key])) {
-			sidebarLinks.value = sidebarLinks.value.filter(
-				(link) => link.label.toLowerCase().split(' ').join('_') !== key
-			)
-		}
-	})
-}
-
-const addOtherLinks = () => {
-	if (user) {
-		otherLinks.value.push({
-			label: 'Notifications',
-			icon: 'Bell',
-			to: 'Notifications',
-		})
-		otherLinks.value.push({
-			label: 'Profile',
-			icon: 'UserRound',
-		})
-		otherLinks.value.push({
-			label: 'Log out',
-			icon: 'LogOut',
-		})
-	} else {
-		otherLinks.value.push({
-			label: 'Log in',
-			icon: 'LogIn',
-		})
-	}
-}
-
-watch(userResource, () => {
-	if (userResource.data) {
-		isModerator.value = userResource.data.is_moderator
-		isInstructor.value = userResource.data.is_instructor
-		addPrograms()
-		if (isModerator.value || isInstructor.value) {
-			addProgrammingExercises()
-			addQuizzes()
-			addAssignments()
-		}
-	}
-})
-
-const addQuizzes = () => {
-	otherLinks.value.push({
-		label: 'Quizzes',
-		icon: 'CircleHelp',
-		to: 'Quizzes',
-	})
-}
-
-const addAssignments = () => {
-	otherLinks.value.push({
-		label: 'Assignments',
-		icon: 'Pencil',
-		to: 'Assignments',
-	})
-}
-
-const addProgrammingExercises = () => {
-	otherLinks.value.push({
-		label: 'Programming Exercises',
-		icon: 'Code',
-		to: 'ProgrammingExercises',
-	})
-}
-
-const addPrograms = async () => {
-	let canAddProgram = await checkIfCanAddProgram()
-	if (!canAddProgram) return
-	let activeFor = ['Programs', 'ProgramDetail']
-	let index = 1
-
-	sidebarLinks.value.splice(index, 0, {
-		label: 'Programs',
-		icon: 'Route',
-		to: 'Programs',
-		activeFor: activeFor,
-	})
-}
-
-const checkIfCanAddProgram = async () => {
-	if (isModerator.value || isInstructor.value) {
-		return true
-	}
-	const programs = await call('lms.lms.utils.get_programs')
-	return programs.enrolled.length > 0 || programs.published.length > 0
-}
-
 let isActive = (tab) => {
 	return tab.activeFor?.includes(router.currentRoute.value.name)
 }
@@ -205,7 +289,7 @@ const handleClick = (tab) => {
 		logout.submit().then(() => {
 			isLoggedIn = false
 		})
-	else if (tab.label == 'Profile')
+	else if (tab.label == 'My Profile' || tab.label == 'Profile')
 		router.push({
 			name: 'Profile',
 			params: {

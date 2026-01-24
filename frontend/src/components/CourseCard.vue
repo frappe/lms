@@ -1,36 +1,52 @@
 <template>
-	<div v-if="course.title" class="flex flex-col h-full rounded-xl overflow-auto text-ink-gray-9"
-		style="min-height: 300px">
-		<div class="w-[100%] h-[140px] bg-cover bg-center bg-no-repeat border-t border-x rounded-t-xl relative" :style="course.image
-			? { backgroundImage: `url('${encodeURI(course.image)}')` }
-			: {
-				backgroundImage: getGradientColor(),
-				backgroundBlendMode: 'screen',
-			}">
-			<Tooltip v-if="course.paid_certificate || course.enable_certification" :text="__('Get Certified')">
+	<div
+		v-if="course.title"
+		class="flex flex-col h-full rounded-xl overflow-auto text-ink-gray-9"
+		style="min-height: 300px"
+	>
+		<div
+			class="w-full aspect-[330/140] overflow-hidden object-cover bg-cover bg-top bg-no-repeat border-t border-x rounded-t-xl relative"
+			:style="
+				course.image
+					? { backgroundImage: `url('${encodeURI(course.image)}')` }
+					: {
+							backgroundImage: getGradientColor(),
+							backgroundBlendMode: 'screen',
+						}
+			"
+		>
+			<Tooltip
+				v-if="course.paid_certificate || course.enable_certification"
+				:text="__('Get Certified')"
+			>
 				<div
-					class="table w-auto bg-primary-100 text-primary-500 text-xs rounded px-2 py-1 absolute top-3 left-3">
+					class="table w-auto bg-primary-50 text-primary-500 text-xs rounded px-2 py-1 absolute top-3 left-3"
+				>
 					Certification
 				</div>
 			</Tooltip>
-			<div v-if="!course.image"
-				class="flex items-center justify-center flex-1 font-extrabold my-auto px-5 text-center leading-6 h-full text-lg text-gray-900"
-				:style="{ color: colorMap[900] }">
-				{{ course.title }}
-			</div>
 		</div>
-		<div class="flex flex-col flex-auto p-4 border-x-2 border-b-2 rounded-b-xl">
-
-			<div v-if="course.image" class="font-semibold leading-6 text-lg text-gray-900">
+		<div
+			class="flex flex-col flex-auto p-4 border-x border-gray-100 shadow-lg border-b rounded-b-xl"
+		>
+			<div v-if="course.paid_course" class="font-medium text-xs text-right">
+				{{ course.price }}
+			</div>
+			<div
+				v-if="course.title"
+				class="font-semibold leading-6 text-lg text-gray-900 mb-3"
+			>
 				{{ course.title }}
 			</div>
 
-			<div class="flex flex-col items-start mb-4">
+			<div class="flex flex-col items-start mb-4 gap-y-2 text-ink-gray-9">
 				<div v-if="course.lessons != undefined">
 					<Tooltip :text="__('Lessons')">
-						<div class="flex items-center space-x-1">
-							<BookIcon class="h-4 w-4 stroke-1.5" />
-							<span class="text-md font-medium">{{ course.lessons }}</span>
+						<div class="flex items-center">
+							<BookIcon class="h-4 w-4 stroke-1.5 mr-2" />
+							<span class="text-base font-medium mr-1">{{
+								course.lessons
+							}}</span>
 							<span class="text-sm text-gray-600">lessons</span>
 						</div>
 					</Tooltip>
@@ -38,9 +54,11 @@
 
 				<div v-if="course.enrollments != undefined">
 					<Tooltip :text="__('Enrolled Students')">
-						<div class="flex items-center space-x-1">
-							<PeopleIcon class="h-4 w-4 stroke-1.5" />
-							<span class="text-md font-medium">{{ formatAmount(course.enrollments) }}</span>
+						<div class="flex items-center">
+							<PeopleIcon class="h-5 w-5 stroke-1.5 mr-2" />
+							<span class="text-base font-medium mr-1">{{
+								formatAmount(course.enrollments)
+							}}</span>
 							<span class="text-sm text-gray-600">Enrolled Students</span>
 						</div>
 					</Tooltip>
@@ -48,10 +66,16 @@
 
 				<div v-if="course.rating != undefined">
 					<Tooltip :text="__('Average Rating')">
-						<div class="flex items-center space-x-1">
-							<StarIcon class="h-4 w-4 stroke-1.5" />
-							<span class="text-md font-medium">{{ course.rating }}</span>
-							<span class="text-sm text-gray-600">({{ course.review_total }} reviews)</span>
+						<div class="flex items-center">
+							<Star
+								class="size-5 stroke-1 fill-warning-500 text-warning-500 mr-2"
+							/>
+							<span class="text-base font-medium mr-1">{{
+								course.rating
+							}}</span>
+							<span class="text-sm text-gray-600"
+								>({{ course.review_total }} reviews)</span
+							>
 						</div>
 					</Tooltip>
 				</div>
@@ -67,8 +91,15 @@
 
 			<div class="flex items-center justify-between mb-4">
 				<div class="flex avatar-group overlap">
-					<div class="h-6 mr-1" :class="{ 'avatar-group overlap': course.instructors.length > 1 }">
-						<UserAvatar v-for="instructor in course.instructors" :user="instructor" size="xl" />
+					<div
+						class="h-fit mr-1"
+						:class="{ 'avatar-group overlap': course.instructors.length > 1 }"
+					>
+						<UserAvatar
+							v-for="instructor in course.instructors"
+							:user="instructor"
+							size="xl"
+						/>
 					</div>
 					<CourseInstructors :instructors="course.instructors" />
 				</div>
@@ -83,33 +114,38 @@
 			<div class="mb-4" v-if="user && course.membership">
 				<div class="flex items-center justify-between text-sm mb-1">
 					<span class="text-md text-gray-600">Course progress</span>
-					<span class="text-md text-gray-600">{{ Math.ceil(course.membership.progress) }}%</span>
+					<span class="text-md text-gray-600"
+						>{{ Math.ceil(course.membership.progress) }}%</span
+					>
 				</div>
 
 				<ProgressBar :progress="course.membership.progress" />
 			</div>
-
-			<button
-				class="border border-primary-500 text-primary-500 hover:bg-primary-500 hover:text-white px-4 py-3 rounded-md font-semibold text-sm"
-				v-if="user && !course.enrollments">
-				Enroll Course
-			</button>
-			<button
-				class="border border-primary-500 text-primary-500 hover:bg-primary-500 hover:text-white px-4 py-3 rounded-md font-semibold text-sm"
-				v-else-if="user && course.enrollments">
-				Continue Learning
-			</button>
-			<button
-				class="border border-primary-500 text-primary-500 hover:bg-primary-500 hover:text-white px-4 py-3 rounded-md font-semibold text-sm"
-				v-else>
-				View Course
-			</button>
-
+			<div class="flex flex-col mt-auto">
+				<button
+					class="border border-primary-500 text-primary-500 hover:bg-primary-500 hover:text-white px-4 py-3 rounded-md font-semibold text-sm"
+					v-if="user && !course.enrollments"
+				>
+					Enroll Course
+				</button>
+				<button
+					class="border border-primary-500 text-primary-500 hover:bg-primary-500 hover:text-white px-4 py-3 rounded-md font-semibold text-sm"
+					v-else-if="user && course.enrollments"
+				>
+					Continue Learning
+				</button>
+				<button
+					class="border border-primary-500 text-primary-500 hover:bg-primary-500 hover:text-white px-4 py-3 rounded-md font-semibold text-sm"
+					v-else
+				>
+					View Course
+				</button>
+			</div>
 		</div>
 	</div>
 </template>
 <script setup>
-import { Award, } from 'lucide-vue-next'
+import { Award, Star } from 'lucide-vue-next'
 import BookIcon from '@/components/Icons/BookIcon.vue'
 import PeopleIcon from '@/components/Icons/PeopleIcon.vue'
 import StarIcon from '@/components/Icons/StarIcon.vue'
@@ -174,7 +210,7 @@ const getGradientColor = () => {
 	transition: margin 0.1s ease-in-out;
 }
 
-.avatar-group.overlap .avatar+.avatar {
+.avatar-group.overlap .avatar + .avatar {
 	margin-left: calc(-8px);
 }
 

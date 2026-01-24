@@ -5,29 +5,39 @@
 		<Breadcrumbs :items="[{ label: __('Home'), route: { name: 'Home' } }]" />
 	</header> -->
 	<div class="w-full px-5 pt-5 pb-10">
-		<div class="space-y-2">
-			<div class="flex items-center justify-between">
+		<div
+			class="flex gap-y-2 md:gap-y-0 md:items-center flex-col md:flex-row md:justify-between"
+		>
+			<div class="order-2 md:order-1">
 				<div class="text-xl font-bold text-ink-gray-9">
 					{{ __('Welcome back') }}, {{ user.data?.full_name }} 👋
 				</div>
-				<div>
-					<TabButtons v-if="isAdmin" v-model="currentTab" :buttons="tabs" />
-					<!-- <div v-else @click="showStreakModal = true"
+				<p class="text-base text-gray-600 leading-6">
+					{{ subtitle }}
+				</p>
+			</div>
+			<div class="order-1 md:order-2 ml-auto mb-5 md:mb-0">
+				<TabButtons
+					v-if="isAdmin"
+					v-model="currentTab"
+					:buttons="tabs"
+					class="[&>.flex]:h-10 [&>.flex]:rounded [&_button]:!h-9.5 [&_button:first-child]:!rounded-l [&_button:last-child]:rounded-r [&_button]:!ring-0 [&_button]:!font-semibold [&_button]:!text-sm [&_button]:px-5"
+				/>
+				<!-- <div v-else @click="showStreakModal = true"
 						class="bg-surface-amber-2 px-2 py-1 rounded-md cursor-pointer">
 						<span> 🔥 </span>
 						<span class="text-ink-gray-9">
 							{{ streakInfo.data?.current_streak }}
 						</span>
 					</div> -->
-				</div>
-			</div>
-
-			<div class="text-lg text-gray-600 leading-6">
-				{{ subtitle }}
 			</div>
 		</div>
 
-		<AdminHome v-if="isAdmin && currentTab === 'instructor'" :liveClasses="adminLiveClasses" :evals="adminEvals" />
+		<AdminHome
+			v-if="isAdmin && currentTab === 'instructor'"
+			:liveClasses="adminLiveClasses"
+			:evals="adminEvals"
+		/>
 		<StudentHome v-else :myLiveClasses="myLiveClasses" />
 	</div>
 	<Streak v-model="showStreakModal" :streakInfo="streakInfo" />
@@ -97,17 +107,17 @@ const subtitle = computed(() => {
 				adminLiveClasses.data.length,
 				liveClassSuffix,
 				adminEvals.data.length,
-				evalSuffix
+				evalSuffix,
 			)
 		} else if (adminLiveClasses.data?.length > 0) {
 			return __('You have {0} upcoming {1}.').format(
 				adminLiveClasses.data.length,
-				liveClassSuffix
+				liveClassSuffix,
 			)
 		} else if (adminEvals.data?.length > 0) {
 			return __('You have {0} {1} scheduled.').format(
 				adminEvals.data.length,
-				evalSuffix
+				evalSuffix,
 			)
 		}
 		return __('Manage your courses and batches at a glance')
@@ -120,17 +130,17 @@ const subtitle = computed(() => {
 				myLiveClasses.data.length,
 				liveClassSuffix,
 				evalCount.value,
-				evalSuffix
+				evalSuffix,
 			)
 		} else if (myLiveClasses.data?.length > 0) {
 			return __('You have {0} upcoming {1}.').format(
 				myLiveClasses.data.length,
-				liveClassSuffix
+				liveClassSuffix,
 			)
 		} else if (evalCount.value > 0) {
 			return __('You have {0} {1} scheduled.').format(
 				evalCount.value,
-				evalSuffix
+				evalSuffix,
 			)
 		}
 		return __('Continue your learning journey from where you left off')

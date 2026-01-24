@@ -1,6 +1,6 @@
 <template>
 	<div
-		class="flex h-full flex-col justify-between transition-all duration-300 ease-in-out relative overflow-hidden bg-white sidebar"
+		class="flex h-full flex-col justify-between transition-all duration-300 ease-in-out relative overflow-hidden bg-white sidebar border-r-primary-200"
 		:class="sidebarStore.isSidebarCollapsed ? 'w-16' : 'w-60'"
 	>
 		<div
@@ -155,7 +155,6 @@
 			v-model="showIntermediateModal"
 			:currentStep="currentStep"
 		/> -->
-
 	</div>
 	<PageModal
 		v-model="showPageModal"
@@ -164,7 +163,7 @@
 	/>
 	<OnboardingOverlay
 		:show="showOverlay"
-        :updateOnboardingStep="onboardingDetails?.updateOnboardingStep"
+		:updateOnboardingStep="onboardingDetails?.updateOnboardingStep"
 		@complete="completeOnboardingOverlay"
 		@exit="dismissOnboardingOverlay"
 	/>
@@ -428,42 +427,42 @@ const getFirstBatch = async () => {
 }
 
 const steps = reactive([
-    {
-        name: 'slide_1',
-        title: 'CESGS Learning Management System',
-        icon: markRaw(h(Zap, iconProps)),
-        completed: false,
-        onClick: () => {
-            showOverlay.value = true
-        },
-    },
-    {
-        name: 'slide_2',
-        title: 'Sharpen your skills',
-        icon: markRaw(h(BookOpen, iconProps)),
-        completed: false,
-        onClick: () => {
-            showOverlay.value = true
-        },
-    },
-    {
-        name: 'slide_3',
-        title: 'Learn Efficiently With AI Assistance',
-        icon: markRaw(h(Zap, iconProps)),
-        completed: false,
-        onClick: () => {
-            showOverlay.value = true
-        },
-    },
-    {
-        name: 'slide_4',
-        title: 'Learn without limits',
-        icon: markRaw(h(Check, iconProps)),
-        completed: false,
-        onClick: () => {
-            showOverlay.value = true
-        },
-    },
+	{
+		name: 'slide_1',
+		title: 'CESGS Learning Management System',
+		icon: markRaw(h(Zap, iconProps)),
+		completed: false,
+		onClick: () => {
+			showOverlay.value = true
+		},
+	},
+	{
+		name: 'slide_2',
+		title: 'Sharpen your skills',
+		icon: markRaw(h(BookOpen, iconProps)),
+		completed: false,
+		onClick: () => {
+			showOverlay.value = true
+		},
+	},
+	{
+		name: 'slide_3',
+		title: 'Learn Efficiently With AI Assistance',
+		icon: markRaw(h(Zap, iconProps)),
+		completed: false,
+		onClick: () => {
+			showOverlay.value = true
+		},
+	},
+	{
+		name: 'slide_4',
+		title: 'Learn without limits',
+		icon: markRaw(h(Check, iconProps)),
+		completed: false,
+		onClick: () => {
+			showOverlay.value = true
+		},
+	},
 ])
 
 const articles = ref([
@@ -533,42 +532,39 @@ const articles = ref([
 	},
 ])
 
-
 const setUpOnboarding = () => {
 	if (userResource.data?.is_system_manager) {
 		// Menggunakan key baru 'lms_onboarding' karena jumlah steps berubah (8 -> 4).
-        // Key lama 'learning' masih menyimpan state 8 steps yang menyebabkan crash.
+		// Key lama 'learning' masih menyimpan state 8 steps yang menyebabkan crash.
 		onboardingDetails = useOnboarding('lms_onboarding')
 		onboardingDetails.setUp(steps)
 		// Ensure we are accessing the value correctly if it is a ref
 		isOnboardingStepsCompleted = onboardingDetails.isOnboardingStepsCompleted
 		showOnboarding.value = true
 
-        // Show overlay if onboarding is not fully completed
-        if (!isOnboardingStepsCompleted.value) {
-            showOverlay.value = true
-        }
+		// Show overlay if onboarding is not fully completed
+		if (!isOnboardingStepsCompleted.value) {
+			showOverlay.value = true
+		}
 	}
-
 }
 
 // Remove the root level console.log that causes confusion
 
-
 const completeOnboardingOverlay = () => {
-    // Tombol "Continue": User ingin memulai onboarding langkah-demi-langkah.
-    // Kita hanya menutup overlay. Banner "Getting Started" akan tetap ada karena langkah belum selesai.
+	// Tombol "Continue": User ingin memulai onboarding langkah-demi-langkah.
+	// Kita hanya menutup overlay. Banner "Getting Started" akan tetap ada karena langkah belum selesai.
 	showOverlay.value = false
 }
 
 const dismissOnboardingOverlay = () => {
-    // Tombol "Exit": User ingin melewatkan/skip onboarding sepenuhnya.
-    // Berdasarkan source code `onboarding.js`, `skipAll()` akan menandai semua steps menjadi completed (true).
-    // Ini akan mengubah `isOnboardingStepsCompleted` menjadi true, sehingga overlay tidak akan muncul lagi.
-    if (onboardingDetails && onboardingDetails.skipAll) {
-        onboardingDetails.skipAll()
-    }
-    showOverlay.value = false
+	// Tombol "Exit": User ingin melewatkan/skip onboarding sepenuhnya.
+	// Berdasarkan source code `onboarding.js`, `skipAll()` akan menandai semua steps menjadi completed (true).
+	// Ini akan mengubah `isOnboardingStepsCompleted` menjadi true, sehingga overlay tidak akan muncul lagi.
+	if (onboardingDetails && onboardingDetails.skipAll) {
+		onboardingDetails.skipAll()
+	}
+	showOverlay.value = false
 }
 
 watch(userResource, () => {
