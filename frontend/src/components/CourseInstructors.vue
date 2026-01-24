@@ -1,5 +1,5 @@
 <template>
-	<div class="text-gray-700 font-medium">
+	<div class="text-gray-700 font-medium overflow-hidden">
 		<span v-if="instructors?.length == 1">
 			<router-link
 				:to="{

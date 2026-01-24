@@ -19,7 +19,7 @@
 							:class="
 								i <= Math.round(ratingBreakdownResource.data?.avg_rating || 0)
 									? 'fill-warning-500 text-warning-500'
-									: 'fill-warning-500/50 text-warning-500'
+									: 'fill-warning-500/30 text-warning-500/30'
 							"
 						/>
 					</div>
