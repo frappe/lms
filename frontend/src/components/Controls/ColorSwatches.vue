@@ -1,6 +1,6 @@
 <template>
 	<div>
-		<div class="text-xs md:text-sm text-ink-gray-5 mb-1">
+		<div class="text-sm text-gray-600 mb-1">
 			{{ __(label) }}
 		</div>
 		<Popover placement="bottom" class="!block">

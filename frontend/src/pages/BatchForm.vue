@@ -1,10 +1,10 @@
 <template>
 	<div class="">
 		<header
-			class="sticky top-0 z-10 flex items-center justify-between border-b bg-surface-white px-3 py-2.5 sm:px-5"
+			class="sticky top-0 z-10 flex flex-col sm:flex-row md:items-center gap-2 bg-surface-white px-3 py-2.5 sm:px-5 border-b"
 		>
-			<CustomBreadcrumb class="h-7" :items="breadcrumbs" />
-			<div class="flex items-center space-x-2">
+			<CustomBreadcrumb cclass="h-7 order-2 sm:order-1" :items="breadcrumbs" />
+			<div class="flex items-center sm:mt-0 order-1 sm:order-2 ml-auto">
 				<Button v-if="batchDetail.data?.name" @click="deleteBatch" theme="red">
 					<template #icon>
 						<Trash2 class="size-4 stroke-1.5" />

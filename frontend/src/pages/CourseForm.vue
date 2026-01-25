@@ -1,28 +1,25 @@
 <template>
-	<div class="h-full">
-		<div class="grid grid-cols-1 md:grid-cols-[70%,30%] h-full">
+	<div class="min-h-screen">
+		<div class="grid grid-cols-1 md:grid-cols-[70%,30%]">
 			<div>
 				<header
-					class="sticky top-0 z-10 flex flex-col md:flex-row md:items-center justify-between bg-surface-white px-3 py-2.5 sm:px-5"
+					class="sticky top-0 z-10 flex flex-col sm:flex-row sm:items-center gap-2 bg-surface-white px-3 py-2.5 sm:px-5 border-b"
 				>
-					<CustomBreadcrumb class="h-7" :items="breadcrumbs" />
-					<div class="flex items-center mt-3 md:mt-0">
+					<CustomBreadcrumb
+						class="h-7 order-2 sm:order-1"
+						:items="breadcrumbs"
+					/>
+					<div class="flex items-center sm:mt-0 order-1 sm:order-2 ml-auto">
 						<Button
 							theme="red"
 							v-if="courseResource.data?.name"
 							@click="trashCourse()"
-							size="md"
 						>
 							<template #icon>
 								<Trash2 class="w-4 h-4 stroke-1.5" />
 							</template>
 						</Button>
-						<Button
-							variant="solid"
-							@click="submitCourse()"
-							class="ml-2"
-							size="md"
-						>
+						<Button variant="solid" @click="submitCourse()" class="ml-2">
 							<span>
 								{{ __('Save') }}
 							</span>
@@ -42,7 +39,7 @@
 									:required="true"
 								/>
 							</FormWrapper>
-							<AutoCompleteWrapper>
+							<FormWrapper type="combobox">
 								<Link
 									doctype="LMS Category"
 									v-model="course.category"
@@ -51,7 +48,7 @@
 										(value, close) => openSettings('Categories', close)
 									"
 								/>
-							</AutoCompleteWrapper>
+							</FormWrapper>
 						</div>
 						<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
 							<FormWrapper>
@@ -65,7 +62,7 @@
 								/>
 							</FormWrapper>
 							<div>
-								<div class="text-xs md:text-sm text-ink-gray-5">
+								<div class="text-sm text-gray-600">
 									{{ __('Tags') }}
 								</div>
 								<FormWrapper>
@@ -96,7 +93,7 @@
 						</div>
 						<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
 							<div class="mb-4">
-								<div class="text-xs md:text-sm text-ink-gray-5 mb-2">
+								<div class="text-sm md:text-sm text-gray-600 mb-2">
 									{{ __('Course Image') }}
 								</div>
 								<FileUploader
@@ -119,7 +116,7 @@
 												<Button @click="openFileSelector">
 													{{ __('Upload') }}
 												</Button>
-												<div class="mt-1 text-ink-gray-5 text-sm leading-5">
+												<div class="mt-1 text-gray-600 text-sm leading-5">
 													{{
 														__('Appears on the course card in the course list')
 													}}
@@ -138,7 +135,7 @@
 											<Button @click="removeImage()">
 												{{ __('Remove') }}
 											</Button>
-											<div class="mt-2 text-ink-gray-5 text-sm">
+											<div class="mt-2 text-gray-600 text-sm">
 												{{
 													__('Appears on the course card in the course list')
 												}}
@@ -166,33 +163,43 @@
 								v-if="user.data?.is_moderator"
 								class="flex flex-col space-y-5"
 							>
-								<FormControl
-									type="checkbox"
-									v-model="course.published"
-									:label="__('Published')"
-								/>
-								<FormControl
-									v-model="course.published_on"
-									:label="__('Published On')"
-									type="date"
-								/>
+								<FormWrapper type="checkbox">
+									<FormControl
+										type="checkbox"
+										v-model="course.published"
+										:label="__('Published')"
+									/>
+								</FormWrapper>
+								<FormWrapper>
+									<FormControl
+										v-model="course.published_on"
+										:label="__('Published On')"
+										type="date"
+									/>
+								</FormWrapper>
 							</div>
 							<div class="flex flex-col space-y-5">
-								<FormControl
-									type="checkbox"
-									v-model="course.upcoming"
-									:label="__('Upcoming')"
-								/>
-								<FormControl
-									type="checkbox"
-									v-model="course.featured"
-									:label="__('Featured')"
-								/>
-								<FormControl
-									type="checkbox"
-									v-model="course.disable_self_learning"
-									:label="__('Disable Self Enrollment')"
-								/>
+								<FormWrapper type="checkbox">
+									<FormControl
+										type="checkbox"
+										v-model="course.upcoming"
+										:label="__('Upcoming')"
+									/>
+								</FormWrapper>
+								<FormWrapper type="checkbox">
+									<FormControl
+										type="checkbox"
+										v-model="course.featured"
+										:label="__('Featured')"
+									/>
+								</FormWrapper>
+								<FormWrapper type="checkbox">
+									<FormControl
+										type="checkbox"
+										v-model="course.disable_self_learning"
+										:label="__('Disable Self Enrollment')"
+									/>
+								</FormWrapper>
 							</div>
 						</div>
 					</div>
@@ -201,56 +208,62 @@
 						<div class="text-lg font-semibold text-ink-gray-9">
 							{{ __('About the Course') }}
 						</div>
-						<FormControl
-							v-model="course.short_introduction"
-							type="textarea"
-							:rows="5"
-							:label="__('Short Introduction')"
-							:placeholder="
-								__(
-									'A one line introduction to the course that appears on the course card',
-								)
-							"
-							:required="true"
-						/>
+						<FormWrapper type="textarea">
+							<FormControl
+								v-model="course.short_introduction"
+								type="textarea"
+								:rows="5"
+								:label="__('Short Introduction')"
+								:placeholder="
+									__(
+										'A one line introduction to the course that appears on the course card',
+									)
+								"
+								:required="true"
+							/>
+						</FormWrapper>
 						<div class="">
-							<div class="mb-1.5 text-sm text-ink-gray-5">
+							<div class="mb-1.5 text-sm text-gray-600">
 								{{ __('Course Description') }}
 								<span class="text-ink-red-3">*</span>
 							</div>
-							<TextEditor
-								:content="course.description"
-								@change="(val) => (course.description = val)"
-								:editable="true"
-								:fixedMenu="true"
-								editorClass="prose-sm max-w-none border-b border-x bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[7rem]"
-							/>
+							<FormWrapper type="editor">
+								<TextEditor
+									:content="course.description"
+									@change="(val) => (course.description = val)"
+									:editable="true"
+									:fixedMenu="true"
+									editorClass="prose-sm max-w-none border-b border-x bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[7rem]"
+								/>
+							</FormWrapper>
 						</div>
-
-						<FormControl
-							v-model="course.video_link"
-							:label="__('Preview Video')"
-							:placeholder="
-								__(
-									'Paste the youtube link of a short video introducing the course',
-								)
-							"
-						/>
-
-						<MultiSelect
-							v-model="related_courses"
-							doctype="LMS Course"
-							:label="__('Related Courses')"
-							:filters="{ name: ['!=', courseResource.data?.name] }"
-							:onCreate="
-								(close) => {
-									router.push({
-										name: 'CourseForm',
-										params: { courseName: 'new' },
-									})
-								}
-							"
-						/>
+						<FormWrapper>
+							<FormControl
+								v-model="course.video_link"
+								:label="__('Preview Video')"
+								:placeholder="
+									__(
+										'Paste the youtube link of a short video introducing the course',
+									)
+								"
+							/>
+						</FormWrapper>
+						<FormWrapper>
+							<MultiSelect
+								v-model="related_courses"
+								doctype="LMS Course"
+								:label="__('Related Courses')"
+								:filters="{ name: ['!=', courseResource.data?.name] }"
+								:onCreate="
+									(close) => {
+										router.push({
+											name: 'CourseForm',
+											params: { courseName: 'new' },
+										})
+									}
+								"
+							/>
+						</FormWrapper>
 					</div>
 
 					<div class="px-5 md:px-10 pb-5 space-y-5 border-b">
@@ -258,57 +271,71 @@
 							{{ __('Pricing and Certification') }}
 						</div>
 						<div class="grid grid-cols-1 md:grid-cols-3 gap-5">
-							<FormControl
-								type="checkbox"
-								v-model="course.paid_course"
-								:label="__('Paid Course')"
-							/>
-							<FormControl
-								type="checkbox"
-								v-model="course.enable_certification"
-								:label="__('Completion Certificate')"
-							/>
-							<FormControl
-								type="checkbox"
-								v-model="course.paid_certificate"
-								:label="__('Paid Certificate')"
-							/>
+							<FormWrapper type="checkbox">
+								<FormControl
+									type="checkbox"
+									v-model="course.paid_course"
+									:label="__('Paid Course')"
+								/>
+							</FormWrapper>
+							<FormWrapper type="checkbox">
+								<FormControl
+									type="checkbox"
+									v-model="course.enable_certification"
+									:label="__('Completion Certificate')"
+								/>
+							</FormWrapper>
+							<FormWrapper type="checkbox">
+								<FormControl
+									type="checkbox"
+									v-model="course.paid_certificate"
+									:label="__('Paid Certificate')"
+								/>
+							</FormWrapper>
 						</div>
 						<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
 							<div class="space-y-5">
-								<FormControl
-									v-if="course.paid_course || course.paid_certificate"
-									v-model="course.course_price"
-									:label="__('Amount')"
-									:required="course.paid_course || course.paid_certificate"
-								/>
-								<Link
-									v-if="course.paid_certificate"
-									doctype="Course Evaluator"
-									v-model="course.evaluator"
-									:label="__('Evaluator')"
-									:required="course.paid_certificate"
-									:onCreate="
-										(value, close) => openSettings('Evaluators', close)
-									"
-								/>
+								<FormWrapper>
+									<FormControl
+										v-if="course.paid_course || course.paid_certificate"
+										v-model="course.course_price"
+										:label="__('Amount')"
+										:required="course.paid_course || course.paid_certificate"
+									/>
+								</FormWrapper>
+								<FormWrapper type="combobox">
+									<Link
+										v-if="course.paid_certificate"
+										doctype="Course Evaluator"
+										v-model="course.evaluator"
+										:label="__('Evaluator')"
+										:required="course.paid_certificate"
+										:onCreate="
+											(value, close) => openSettings('Evaluators', close)
+										"
+									/>
+								</FormWrapper>
 							</div>
 							<div class="space-y-5">
-								<Link
-									v-if="course.paid_course || course.paid_certificate"
-									doctype="Currency"
-									v-model="course.currency"
-									:filters="{ enabled: 1 }"
-									:label="__('Currency')"
-									:required="course.paid_course || course.paid_certificate"
-								/>
-								<FormControl
-									v-if="course.paid_certificate"
-									v-model="course.timezone"
-									:label="__('Timezone')"
-									:required="course.paid_certificate"
-									:placeholder="__('e.g. IST, UTC, GMT...')"
-								/>
+								<FormWrapper type="combobox">
+									<Link
+										v-if="course.paid_course || course.paid_certificate"
+										doctype="Currency"
+										v-model="course.currency"
+										:filters="{ enabled: 1 }"
+										:label="__('Currency')"
+										:required="course.paid_course || course.paid_certificate"
+									/>
+								</FormWrapper>
+								<FormWrapper>
+									<FormControl
+										v-if="course.paid_certificate"
+										v-model="course.timezone"
+										:label="__('Timezone')"
+										:required="course.paid_certificate"
+										:placeholder="__('e.g. IST, UTC, GMT...')"
+									/>
+								</FormWrapper>
 							</div>
 						</div>
 					</div>
@@ -318,19 +345,30 @@
 							{{ __('Meta Tags') }}
 						</div>
 						<div class="space-y-5">
-							<FormControl
-								v-model="meta.description"
-								:label="__('Meta Description')"
-								type="textarea"
-								:rows="7"
-							/>
-							<FormControl
-								v-model="meta.keywords"
-								:label="__('Meta Keywords')"
-								type="textarea"
-								:rows="7"
-								:placeholder="__('Comma separated keywords for SEO')"
-							/>
+							<FormWrapper>
+								<FormControl
+									v-model="meta.title"
+									:label="__('Meta Title')"
+									:required="true"
+								/>
+							</FormWrapper>
+							<FormWrapper type="textarea">
+								<FormControl
+									v-model="meta.description"
+									:label="__('Meta Description')"
+									type="textarea"
+									:rows="7"
+								/>
+							</FormWrapper>
+							<FormWrapper type="textarea">
+								<FormControl
+									v-model="meta.keywords"
+									:label="__('Meta Keywords')"
+									type="textarea"
+									:rows="7"
+									:placeholder="__('Comma separated keywords for SEO')"
+								/>
+							</FormWrapper>
 						</div>
 					</div>
 				</div>
@@ -384,7 +422,7 @@ import MultiSelect from '@/components/Controls/MultiSelect.vue'
 import ColorSwatches from '@/components/Controls/ColorSwatches.vue'
 import CustomBreadcrumb from '@/components/ui/CustomBreadcrumb.vue'
 import Button from '@/components/ui/Button.vue'
-import AutoCompleteWrapper from '@/components/ui/AutoCompleteWrapper.vue'
+import FormWrapper from '@/components/ui/FormWrapper.vue'
 
 const user = inject('$user')
 const newTag = ref('')
