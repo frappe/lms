@@ -35,7 +35,7 @@
 							<img
 								v-if="batch.data.meta_image"
 								:src="batch.data.meta_image"
-								class="w-full h-full object-cover"
+								class="w-full h-full object-cover rounded-tl-xl rounded-bl-xl"
 							/>
 							<NoImageFallback
 								v-else

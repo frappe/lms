@@ -6,7 +6,6 @@
 		<Button
 			v-if="!readOnlyMode"
 			variant="solid"
-			size="lg"
 			class=""
 			@click="
 				() => {

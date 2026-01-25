@@ -3,7 +3,7 @@
 		<div class="flex items-start justify-between">
 			<div class="flex items-start space-x-4 flex-1">
 				<div class="w-32 h-32 object-cover rounded-tl-xl rounded-bl-xl">
-					<img v-if="batch.data.meta_image" :src="batch.data.meta_image" class="w-full h-full object-cover"/>
+					<img v-if="batch.data.meta_image" :src="batch.data.meta_image" class="w-full h-full object-cover rounded-tl-xl rounded-bl-xl"/>
 					<NoImageFallback v-else  class="w-full h-full rounded-tl-xl rounded-bl-xl"/>
 				</div>
 				

@@ -104,7 +104,6 @@
 import {
 	Avatar,
 	Breadcrumbs,
-	Button,
 	call,
 	createListResource,
 	FormControl,
@@ -115,6 +114,7 @@ import { computed, inject, onMounted, ref } from 'vue'
 import { GraduationCap } from 'lucide-vue-next'
 import { sessionStore } from '../stores/session'
 import EmptyState from '@/components/EmptyState.vue'
+import Button from '@/components/ui/Button.vue'
 
 const currentCategory = ref('')
 const filters = ref({})
@@ -197,7 +197,7 @@ const setQueryParams = () => {
 	history.replaceState(
 		{},
 		'',
-		`${location.pathname}${queries.size > 0 ? `?${queries.toString()}` : ''}`
+		`${location.pathname}${queries.size > 0 ? `?${queries.toString()}` : ''}`,
 	)
 }
 

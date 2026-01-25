@@ -8,7 +8,12 @@
 	>
 		<template #body-content>
 			<div class="flex flex-col gap-4">
-				<Rating v-model="review.rating" :label="__('Rating')" />
+				<div
+					class="[&_.\!fill-yellow-500]:!fill-warning-500 [&_.\!fill-yellow-200]:!fill-warning-200"
+				>
+					<Rating v-model="review.rating" :label="__('Rating')" />
+				</div>
+
 				<FormControl
 					:label="__('Review')"
 					type="textarea"
