@@ -13,7 +13,7 @@
 		>
 			<div
 				v-if="!minimize"
-				class="pointer-events-auto w-[380px] h-[600px] max-h-[calc(100vh-120px)] flex flex-col bg-surface-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden"
+				class="pointer-events-auto w-[380px] h-[600px] max-h-[calc(100vh-120px)] flex flex-col bg-surface-white rounded-xl shadow-xl border border-gray-100 overflow-hidden"
 				@click.stop
 			>
 				<div
@@ -27,11 +27,12 @@
 					<div class="flex gap-1">
 						<Button
 							@click="minimize = true"
+							theme="dark"
 							variant="ghost"
-							size="sm"
-							class="h-8 w-8 p-0 hover:bg-gray-100 rounded-full"
+							size="lg"
+							class="!px-0"
 						>
-							<X class="h-5 w-5 text-gray-500" />
+							<CircleX class="text-gray-500" />
 						</Button>
 					</div>
 				</div>
@@ -43,12 +44,12 @@
 								class="h-full flex flex-col items-center justify-center text-center p-6 text-gray-500"
 							>
 								<div
-									class="h-12 w-12 rounded-full bg-blue-50 flex items-center justify-center mb-3"
+									class="h-12 w-12 rounded-full bg-gradient-right flex items-center justify-center mb-3"
 								>
-									<AIStarIcon class="h-6 w-6 text-blue-500" />
+									<AIStarIcon class="h-6 w-6 text-white" />
 								</div>
 								<h3 class="font-medium text-gray-900 mb-1">
-									How can I help you?
+									What can i help for you??
 								</h3>
 								<p class="text-sm">
 									Ask me anything about your course or lessons.
@@ -70,21 +71,23 @@
 							@submit.prevent="sendMessage"
 							class="flex justify-between gap-x-2"
 						>
-							<TextInput
-								:type="'text'"
-								size="md"
-								variant="subtle"
-								placeholder="Ask me anything"
-								:disabled="isSending"
-								v-model="messageText"
-								class="w-full"
-							/>
+							<FormWrapper class="[&_input]:h-10 flex-1">
+								<TextInput
+									:type="'text'"
+									size="md"
+									variant="subtle"
+									placeholder="Ask me anything"
+									:disabled="isSending"
+									v-model="messageText"
+									class="w-full"
+								/>
+							</FormWrapper>
 							<button
 								@click="sendMessage"
 								:disabled="isSending"
-								class="rounded bg-primary-500 p-2"
+								class="rounded bg-gradient-left p-2 size-10 shadow-sm"
 							>
-								<SendHorizonalIcon class="h-3.5 text-white" />
+								<SendHorizonalIcon class="h-4 text-white" />
 							</button>
 						</form>
 					</div>
@@ -112,18 +115,15 @@
 </template>
 
 <script setup>
-import { Button, TextInput } from 'frappe-ui'
-import {
-	Minimize2,
-	Maximize2,
-	SendHorizonalIcon,
-	ChevronDown,
-} from 'lucide-vue-next'
+import { TextInput } from 'frappe-ui'
+import { SendHorizonalIcon, ChevronDown, CircleX } from 'lucide-vue-next'
 import { ref, watch } from 'vue'
 import MarkdownIt from 'markdown-it'
 import AssistantMessage from './AssistantMessage.vue'
 import chatSearching from '@/assets/images/search-loading.gif'
 import AIStarIcon from './Icons/AIStarIcon.vue'
+import FormWrapper from './ui/FormWrapper.vue'
+import Button from './ui/Button.vue'
 
 const props = defineProps({})
 const show = defineModel()

@@ -1,6 +1,6 @@
 <template>
 	<div class="text-lg font-semibold mb-4 text-ink-gray-9">
-		{{ __('My Notes') }}
+		{{ __('Saved Notes') }}
 	</div>
 	<TextEditor
 		:content="note"
@@ -41,7 +41,7 @@ watch(
 	() => {
 		updateCurrentNote()
 		blockQuotesClick()
-	}
+	},
 )
 
 const updateCurrentNote = () => {
@@ -92,7 +92,7 @@ const createNote = () => {
 			onError(err: any) {
 				console.error('Error creating note:', err)
 			},
-		}
+		},
 	)
 }
 
@@ -112,7 +112,7 @@ const updateNote = () => {
 			onError(err: any) {
 				console.error('Error updating note:', err)
 			},
-		}
+		},
 	)
 }
 </script>

@@ -2,7 +2,7 @@
 	<div class="!mt-10">
 		<div
 			v-if="title && (outline.data?.length || allowEdit)"
-			class="flex items-center justify-between space-x-2 mb-4"
+			class="title-outline flex items-center justify-between space-x-2 mb-4"
 			:class="{
 				'sticky top-0 z-10 bg-surface-white border-b px-3 py-2.5 sm:px-5':
 					allowEdit,
@@ -54,11 +54,20 @@
 									class="h-4 w-4 text-ink-gray-9 stroke-1"
 								/>
 								<div
-									class="text-base text-left text-ink-gray-9 font-medium leading-5 ml-2"
+									class="flex-1 relative text-base text-left text-ink-gray-9 font-medium leading-5 px-2 flex flex-wrap gap-x-2 items-center"
 									@click="redirectToChapter(chapter)"
 								>
-									{{ chapter.title }}
+									<span class="title-chapter">
+										{{ chapter.title }}
+									</span>
+									<div
+										class="flex items-center text-xs gap-x-1 absolute top-1/2 transform -translate-y-1/2 right-1"
+									>
+										<DocumentTextIcon class="size-4 text-primary-500" />
+										{{ chapter.lessons.length }} Materials
+									</div>
 								</div>
+
 								<div class="flex ml-auto space-x-4">
 									<Tooltip :text="__('Edit Chapter')" placement="bottom">
 										<FilePenLine

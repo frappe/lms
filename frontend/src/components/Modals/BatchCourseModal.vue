@@ -4,13 +4,6 @@
 		:options="{
 			title: __('Add a course'),
 			size: 'sm',
-			actions: [
-				{
-					label: __('Submit'),
-					variant: 'solid',
-					onClick: (close) => addCourse(close),
-				},
-			],
 		}"
 	>
 		<template #body-content>
@@ -38,6 +31,11 @@
 				:onCreate="(value, close) => openSettings('Evaluators', close)"
 				class="mt-4"
 			/>
+		</template>
+		<template #actions="{ close }">
+			<Button class="w-full" variant="solid" @click="addCourse(close)">
+				Submit
+			</Button>
 		</template>
 	</Dialog>
 </template>
@@ -96,7 +94,7 @@ const addCourse = (close) => {
 			onError(err) {
 				toast.error(err.messages?.[0] || err)
 			},
-		}
+		},
 	)
 }
 </script>

@@ -35,7 +35,7 @@
 				<CertificationLinks :courseName="courseName" />
 			</div>
 		</header>
-		<div class="grid md:grid-cols-[30%,70%] h-screen">
+		<div class="grid md:grid-cols-[40%,60%] h-screen">
 			<div class="px-5 py-3">
 				<div
 					class="bg-white space-y-3 rounded-xl w-full border border-gray-100 shadow-xl shadow-gray-100 p-5"
@@ -59,12 +59,12 @@
 						<CourseInstructors :instructors="lesson.data.instructors" />
 					</div>
 					<div class="flex flex-col text-sm text-ink-gray-5 mb-4">
-						<span class="flex items-center">
-							<BookIcon class="h-4 w-4 mr-1 text-primary-500" />
+						<span class="flex items-center gap-x-2">
+							<FolderIcon class="h-4 w-4 text-primary-500" />
 							{{ courseSummary.data?.modules || 0 }} Module
 						</span>
-						<span class="flex items-center">
-							<DocumentTextIcon class="h-4 w-4 mr-1 text-primary-500" />
+						<span class="flex items-center gap-x-2">
+							<DocumentTextIcon class="h-4 w-4 text-primary-500" />
 							{{ courseSummary.data?.materials || 0 }} Materials
 						</span>
 					</div>
@@ -79,14 +79,17 @@
 						v-if="user && lesson.data.membership"
 						:progress="lessonProgress"
 					/>
-
-					<CourseOutline
-						ref="childRef"
-						:courseName="courseName"
-						:key="chapterNumber"
-						:getProgress="lesson.data.membership ? true : false"
-						:lessonProgress="lessonProgress"
-					/>
+					<div
+						class="w-full h-fit [&_.title-outline]:hide [&_.title-chapter]:!text-sm [&_.title-chapter]:!font-medium"
+					>
+						<CourseOutline
+							ref="childRef"
+							:courseName="courseName"
+							:key="chapterNumber"
+							:getProgress="lesson.data.membership ? true : false"
+							:lessonProgress="lessonProgress"
+						/>
+					</div>
 
 					<div class="space-y-2 !mt-10">
 						<div class="flex items-center">
@@ -312,15 +315,26 @@
 					</div>
 					<div
 						v-if="lesson.data"
-						class="mt-10 pb-20 pt-5 border-t px-5"
+						class="mt-10 pb-20 pt-5 px-5"
 						ref="discussionsContainer"
 					>
-						<TabButtons
-							v-if="tabs.length > 1"
-							:buttons="tabs"
-							v-model="currentTab"
-							class="w-fit mb-10"
-						/>
+						<div class="border-b mb-6">
+							<nav class="flex space-x-8">
+								<button
+									v-for="tab in tabs"
+									:key="tab.value"
+									@click="currentTab = tab.value"
+									:class="[
+										'pb-3 text-center px-2 border-b-[3px] font-medium transition-colors min-w-40',
+										currentTab === tab.value
+											? 'border-primary-500 text-primary-600'
+											: 'border-transparent text-ink-gray-5 hover:text-ink-gray-7',
+									]"
+								>
+									{{ tab.label }}
+								</button>
+							</nav>
+						</div>
 						<Notes
 							v-if="currentTab === 'Notes'"
 							:lesson="lesson.data?.name"
@@ -406,6 +420,7 @@ import CustomBreadcrumbs from '@/components/ui/CustomBreadcrumb.vue'
 import DocumentTextIcon from '@/components/Icons/DocumentTextIcon.vue'
 import BookIcon from '@/components/Icons/BookIcon.vue'
 import Button from '@/components/ui/Button.vue'
+import FolderIcon from '@/components/Icons/FolderIcon.vue'
 
 const user = inject('$user')
 const socket = inject('$socket')
@@ -428,6 +443,7 @@ const sidebarStore = useSidebar()
 const plyrSources = ref([])
 const showInlineMenu = ref(false)
 const currentTab = ref('Notes')
+
 let timerInterval
 
 const tabs = ref([
@@ -892,7 +908,7 @@ const showDiscussionsInZenMode = () => {
 		allowDiscussions.value = false
 	} else {
 		allowDiscussions.value = true
-		currentTab.value = 'Community'
+		currentTab.value = 'Discussion'
 		scrollDiscussionsIntoView()
 	}
 }
@@ -925,8 +941,8 @@ watch(allowDiscussions, () => {
 				value: 'Notes',
 			},
 			{
-				label: __('Community'),
-				value: 'Community',
+				label: __('Discussion'),
+				value: 'Discussion',
 			},
 		]
 	} else {

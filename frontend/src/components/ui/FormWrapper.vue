@@ -29,7 +29,7 @@ const typeClasses: Record<FormWrapperType, string> = {
 	editor:
 		'[&_.ProseMirror]:!border-gray-100 [&_.ProseMirror]:!bg-white [&_.ProseMirror]:!border-t-[1.5px] [&_.ProseMirror]:!border-x-[1.5px] [&>div>div:first-child]:!py-3',
 	editorBottomMenu:
-		'[&_.ProseMirror]:!border-gray-100 [&_.ProseMirror]:!bg-white [&_.ProseMirror]:!border-t-[1.5px] [&_.ProseMirror]:!border-x-[1.5px] [&>div>div:first-child]:!py-3 [&_.ProseMirror]:!pb-14 [&>div>div:first-child]:!absolute [&>div>div:first-child]:!bottom-0 [&>div>div:first-child]:!left-0 [&>div>div:first-child]:!z-10 [&>div>div:first-child]:!rounded-t-none [&>div>div:first-child]:!rounded-b-md',
+		'[&_.ProseMirror]:rounded-md [&_.ProseMirror]:!border-gray-100 [&_.ProseMirror]:!bg-white [&_.ProseMirror]:!border-t-[1.5px] [&_.ProseMirror]:!border-x-[1.5px] [&>div>div:first-child]:!py-3 [&_.ProseMirror]:!pb-14 [&>div>div:first-child]:!absolute [&>div>div:first-child]:!bottom-0 [&>div>div:first-child]:!left-0 [&>div>div:first-child]:!z-10 [&>div>div:first-child]:!rounded-t-none [&>div>div:first-child]:!rounded-b-md',
 	combobox:
 		'[&_button]:!rounded [&_button]:!py-3 [&_button]:!px-4 [&_button]:!border-[1.5px] [&_button]:!border-gray-100 [&_button]:!bg-white [&_button]:!h-10',
 	checkbox:

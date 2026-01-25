@@ -84,8 +84,11 @@
 		/>
 		<div v-if="!readOnlyMode" class="flex justify-between mt-2">
 			<span> </span>
-			<Button @click="postReply()"
-			 variant="solid" size="lg" class="!bg-primary-500"
+			<Button
+				@click="postReply()"
+				variant="solid"
+				size="lg"
+				class="!bg-primary-500"
 			>
 				<span>
 					{{ __('Post') }}
@@ -174,7 +177,7 @@ const fetchMentionUsers = () => {
 					})
 					renderEditor.value = true
 				},
-			}
+			},
 		)
 	}
 }
@@ -195,7 +198,7 @@ const postReply = () => {
 			onError(err) {
 				toast.error(err.messages?.[0] || err)
 			},
-		}
+		},
 	)
 }
 
@@ -227,7 +230,7 @@ const postEdited = (reply) => {
 				reply.editable = false
 				replies.reload()
 			},
-		}
+		},
 	)
 }
 
@@ -250,7 +253,7 @@ const deleteReply = (reply) => {
 			onSuccess() {
 				replies.reload()
 			},
-		}
+		},
 	)
 }
 

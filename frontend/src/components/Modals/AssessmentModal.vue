@@ -4,13 +4,6 @@
 		:options="{
 			title: __('Add an assessment'),
 			size: 'sm',
-			actions: [
-				{
-					label: __('Submit'),
-					variant: 'solid',
-					onClick: (close) => addAssessment(close),
-				},
-			],
 		}"
 	>
 		<template #body-content>
@@ -44,6 +37,11 @@
 					"
 				/>
 			</div>
+		</template>
+		<template #actions="{ close }">
+			<Button class="w-full" variant="solid" @click="addAssessment(close)">
+				Submit
+			</Button>
 		</template>
 	</Dialog>
 </template>
@@ -91,7 +89,7 @@ const addAssessment = (close) => {
 				toast.success(__('Assessment added successfully'))
 				close()
 			},
-		}
+		},
 	)
 }
 

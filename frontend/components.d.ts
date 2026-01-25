@@ -91,6 +91,7 @@ declare module 'vue' {
     Event: typeof import('./src/components/Modals/Event.vue')['default']
     ExplanationVideos: typeof import('./src/components/Modals/ExplanationVideos.vue')['default']
     FeedbackModal: typeof import('./src/components/Modals/FeedbackModal.vue')['default']
+    FolderIcon: typeof import('./src/components/Icons/FolderIcon.vue')['default']
     FormWrapper: typeof import('./src/components/ui/FormWrapper.vue')['default']
     FrappeCloudIcon: typeof import('./src/components/Icons/FrappeCloudIcon.vue')['default']
     GalleryEditIcon: typeof import('./src/components/Icons/GalleryEditIcon.vue')['default']

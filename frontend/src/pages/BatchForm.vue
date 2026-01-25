@@ -1,10 +1,10 @@
 <template>
 	<div class="">
 		<header
-			class="sticky top-0 z-10 flex flex-col sm:flex-row md:items-center gap-2 bg-surface-white px-3 py-2.5 sm:px-5 border-b"
+			class="sticky top-0 z-10 flex flex-col-reverse sm:flex-row sm:items-center gap-2 bg-surface-white px-3 py-2.5 sm:px-5 border-b"
 		>
-			<CustomBreadcrumb cclass="h-7 order-2 sm:order-1" :items="breadcrumbs" />
-			<div class="flex items-center sm:mt-0 order-1 sm:order-2 ml-auto">
+			<CustomBreadcrumb cclass="h-7" :items="breadcrumbs" />
+			<div class="flex gap-x-2 items-center ml-auto">
 				<Button v-if="batchDetail.data?.name" @click="deleteBatch" theme="red">
 					<template #icon>
 						<Trash2 class="size-4 stroke-1.5" />
@@ -22,29 +22,35 @@
 				</div>
 				<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
 					<div class="space-y-5">
-						<FormControl
-							v-model="batch.title"
-							:label="__('Title')"
-							:required="true"
-							class="w-full"
-						/>
-						<MultiSelect
-							v-model="instructors"
-							doctype="Course Evaluator"
-							:label="__('Instructors')"
-							:required="true"
-							:onCreate="(close) => openSettings('Evaluators', close)"
-							:filters="{ ignore_user_type: 1 }"
-						/>
+						<FormWrapper>
+							<FormControl
+								v-model="batch.title"
+								:label="__('Title')"
+								:required="true"
+								class="w-full"
+							/>
+						</FormWrapper>
+						<FormWrapper>
+							<MultiSelect
+								v-model="instructors"
+								doctype="Course Evaluator"
+								:label="__('Instructors')"
+								:required="true"
+								:onCreate="(close) => openSettings('Evaluators', close)"
+								:filters="{ ignore_user_type: 1 }"
+							/>
+						</FormWrapper>
 					</div>
-					<FormControl
-						v-model="batch.description"
-						:label="__('Short Description')"
-						type="textarea"
-						:rows="8"
-						:placeholder="__('Short description of the batch')"
-						:required="true"
-					/>
+					<FormWrapper type="textarea">
+						<FormControl
+							v-model="batch.description"
+							:label="__('Short Description')"
+							type="textarea"
+							:rows="8"
+							:placeholder="__('Short description of the batch')"
+							:required="true"
+						/>
+					</FormWrapper>
 				</div>
 			</div>
 
@@ -53,21 +59,27 @@
 					{{ __('Settings') }}
 				</div>
 				<div class="grid grid-cols-1 md:grid-cols-3 gap-5">
-					<FormControl
-						v-model="batch.published"
-						type="checkbox"
-						:label="__('Published')"
-					/>
-					<FormControl
-						v-model="batch.allow_self_enrollment"
-						type="checkbox"
-						:label="__('Allow self enrollment')"
-					/>
-					<FormControl
-						v-model="batch.certification"
-						type="checkbox"
-						:label="__('Certification')"
-					/>
+					<FormWrapper type="checkbox">
+						<FormControl
+							v-model="batch.published"
+							type="checkbox"
+							:label="__('Published')"
+						/>
+					</FormWrapper>
+					<FormWrapper type="checkbox">
+						<FormControl
+							v-model="batch.allow_self_enrollment"
+							type="checkbox"
+							:label="__('Allow self enrollment')"
+						/>
+					</FormWrapper>
+					<FormWrapper type="checkbox">
+						<FormControl
+							v-model="batch.certification"
+							type="checkbox"
+							:label="__('Certification')"
+						/>
+					</FormWrapper>
 				</div>
 			</div>
 
@@ -77,52 +89,64 @@
 				</div>
 				<div class="grid grid-cols-1 md:grid-cols-3 gap-10">
 					<div class="space-y-5">
-						<FormControl
-							v-model="batch.start_date"
-							:label="__('Batch Start Date')"
-							type="date"
-							class="mb-4"
-							:required="true"
-						/>
-						<FormControl
-							v-model="batch.end_date"
-							:label="__('Batch End Date')"
-							type="date"
-							class="mb-4"
-							:required="true"
-						/>
+						<FormWrapper>
+							<FormControl
+								v-model="batch.start_date"
+								:label="__('Batch Start Date')"
+								type="date"
+								class="mb-4"
+								:required="true"
+							/>
+						</FormWrapper>
+						<FormWrapper>
+							<FormControl
+								v-model="batch.end_date"
+								:label="__('Batch End Date')"
+								type="date"
+								class="mb-4"
+								:required="true"
+							/>
+						</FormWrapper>
 					</div>
 					<div class="space-y-5">
-						<FormControl
-							v-model="batch.start_time"
-							:label="__('Session Start Time')"
-							type="time"
-							class="mb-4"
-							:required="true"
-						/>
-						<FormControl
-							v-model="batch.end_time"
-							:label="__('Session End Time')"
-							type="time"
-							class="mb-4"
-							:required="true"
-						/>
+						<FormWrapper>
+							<FormControl
+								v-model="batch.start_time"
+								:label="__('Session Start Time')"
+								type="time"
+								class="mb-4"
+								:required="true"
+							/>
+						</FormWrapper>
+						<FormWrapper>
+							<FormControl
+								v-model="batch.end_time"
+								:label="__('Session End Time')"
+								type="time"
+								class="mb-4"
+								:required="true"
+							/>
+						</FormWrapper>
 					</div>
 					<div class="space-y-5">
-						<FormControl
-							v-model="batch.timezone"
-							:label="__('Timezone')"
-							type="text"
-							:placeholder="__('Example: IST (+5:30)')"
-							class="mb-4"
-							:required="true"
-						/>
-						<FormControl
-							v-model="batch.evaluation_end_date"
-							:label="__('Evaluation End Date')"
-							type="date"
-							class="mb-4"
-						/>
+						<FormWrapper>
+							<FormControl
+								v-model="batch.timezone"
+								:label="__('Timezone')"
+								type="text"
+								:placeholder="__('Example: IST (+5:30)')"
+								class="mb-4"
+								:required="true"
+							/>
+						</FormWrapper>
+						<FormWrapper>
+							<FormControl
+								v-model="batch.evaluation_end_date"
+								:label="__('Evaluation End Date')"
+								type="date"
+								class="mb-4"
+							/>
+						</FormWrapper>
 					</div>
 				</div>
 			</div>
@@ -133,13 +157,15 @@
 						{{ __('Batch Details') }}
 						<span class="text-ink-red-3">*</span>
 					</label>
-					<TextEditor
-						:content="batch.batch_details"
-						@change="(val) => (batch.batch_details = val)"
-						:editable="true"
-						:fixedMenu="true"
-						editorClass="prose-sm max-w-none border-b border-x bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[7rem] max-h-[20rem] overflow-y-scroll mb-4"
-					/>
+					<FormWrapper type="editor">
+						<TextEditor
+							:content="batch.batch_details"
+							@change="(val) => (batch.batch_details = val)"
+							:editable="true"
+							:fixedMenu="true"
+							editorClass="prose-sm max-w-none border-b border-x bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[7rem] max-h-[20rem] overflow-y-scroll mb-4"
+						/>
+					</FormWrapper>
 				</div>
 			</div>
 
@@ -149,62 +175,73 @@
 				</div>
 				<div class="grid grid-cols-1 md:grid-cols-3 gap-10">
 					<div class="space-y-5">
-						<FormControl
-							v-model="batch.seat_count"
-							:label="__('Seat Count')"
-							type="number"
-							class="mb-4"
-							:placeholder="__('Number of seats available')"
-						/>
-						<Link
-							doctype="Email Template"
-							:label="__('Email Template')"
-							v-model="batch.confirmation_email_template"
-							:onCreate="
-								(value, close) => {
-									openSettings('Email Templates', close)
-								}
-							"
-						/>
-						<Link
-							doctype="LMS Zoom Settings"
-							:label="__('Zoom Account')"
-							v-model="batch.zoom_account"
-							:onCreate="
-								(value, close) => {
-									openSettings('Zoom Accounts', close)
-								}
-							"
-						/>
+						<FormWrapper>
+							<FormControl
+								v-model="batch.seat_count"
+								:label="__('Seat Count')"
+								type="number"
+								class="mb-4"
+								:placeholder="__('Number of seats available')"
+							/>
+						</FormWrapper>
+
+						<FormWrapper type="combobox">
+							<Link
+								doctype="Email Template"
+								:label="__('Email Template')"
+								v-model="batch.confirmation_email_template"
+								:onCreate="
+									(value, close) => {
+										openSettings('Email Templates', close)
+									}
+								"
+							/>
+						</FormWrapper>
+						<FormWrapper type="combobox">
+							<Link
+								doctype="LMS Zoom Settings"
+								:label="__('Zoom Account')"
+								v-model="batch.zoom_account"
+								:onCreate="
+									(value, close) => {
+										openSettings('Zoom Accounts', close)
+									}
+								"
+							/>
+						</FormWrapper>
 					</div>
 					<div class="space-y-5">
-						<FormControl
-							v-model="batch.medium"
-							type="select"
-							:options="[
-								{
-									label: 'Online',
-									value: 'Online',
-								},
-								{
-									label: 'Offline',
-									value: 'Offline',
-								},
-							]"
-							:label="__('Medium')"
-							class="mb-4"
-						/>
-						<Link
-							doctype="LMS Category"
-							:label="__('Category')"
-							v-model="batch.category"
-							:onCreate="(value, close) => openSettings('Categories', close)"
-						/>
+						<FormWrapper type="combobox">
+							<FormControl
+								v-model="batch.medium"
+								type="select"
+								:options="[
+									{
+										label: 'Online',
+										value: 'Online',
+									},
+									{
+										label: 'Offline',
+										value: 'Offline',
+									},
+								]"
+								:label="__('Medium')"
+								class="mb-4"
+							/>
+						</FormWrapper>
+						<FormWrapper type="combobox">
+							<Link
+								doctype="LMS Category"
+								:label="__('Category')"
+								v-model="batch.category"
+								:onCreate="(value, close) => openSettings('Categories', close)"
+							/>
+						</FormWrapper>
 					</div>
 					<div class="space-y-5">
 						<div>
 							<div class="text-xs text-ink-gray-5">
-								{{ __('Meta Image') }}
+								{{ __('Batch Image') }}
 							</div>
 							<FileUploader
 								v-if="!batch.image"
@@ -264,26 +301,32 @@
 				<div class="text-lg text-ink-gray-9 font-semibold">
 					{{ __('Pricing') }}
 				</div>
-				<FormControl
-					v-model="batch.paid_batch"
-					type="checkbox"
-					:label="__('Paid Batch')"
-				/>
+				<FormWrapper type="checkbox">
+					<FormControl
+						v-model="batch.paid_batch"
+						type="checkbox"
+						:label="__('Paid Batch')"
+					/>
+				</FormWrapper>
 				<div
 					v-if="batch.paid_batch"
 					class="grid grid-cols-1 md:grid-cols-3 gap-5"
 				>
-					<FormControl
-						v-model="batch.amount"
-						:label="__('Amount')"
-						type="number"
-					/>
-					<Link
-						doctype="Currency"
-						v-model="batch.currency"
-						:filters="{ enabled: 1 }"
-						:label="__('Currency')"
-					/>
+					<FormWrapper>
+						<FormControl
+							v-model="batch.amount"
+							:label="__('Amount')"
+							type="number"
+						/>
+					</FormWrapper>
+					<FormWrapper type="combobox">
+						<Link
+							doctype="Currency"
+							v-model="batch.currency"
+							:filters="{ enabled: 1 }"
+							:label="__('Currency')"
+						/>
+					</FormWrapper>
 				</div>
 			</div>
 
@@ -292,19 +335,30 @@
 					{{ __('Meta Tags') }}
 				</div>
 				<div class="space-y-5">
-					<FormControl
-						v-model="meta.description"
-						:label="__('Meta Description')"
-						type="textarea"
-						:rows="7"
-					/>
-					<FormControl
-						v-model="meta.keywords"
-						:label="__('Meta Keywords')"
-						type="textarea"
-						:rows="7"
-						:placeholder="__('Comma separated keywords for SEO')"
-					/>
+					<FormWrapper>
+						<FormControl
+							v-model="meta.title"
+							:label="__('Meta Title')"
+							type="text"
+						/>
+					</FormWrapper>
+					<FormWrapper type="textarea">
+						<FormControl
+							v-model="meta.description"
+							:label="__('Meta Description')"
+							type="textarea"
+							:rows="7"
+						/>
+					</FormWrapper>
+					<FormWrapper type="textarea">
+						<FormControl
+							v-model="meta.keywords"
+							:label="__('Meta Keywords')"
+							type="textarea"
+							:rows="7"
+							:placeholder="__('Comma separated keywords for SEO')"
+						/>
+					</FormWrapper>
 				</div>
 			</div>
 		</div>
@@ -347,6 +401,7 @@ import {
 } from '@/utils'
 import Button from '@/components/ui/Button.vue'
 import CustomBreadcrumb from '@/components/ui/CustomBreadcrumb.vue'
+import FormWrapper from '@/components/ui/FormWrapper.vue'
 
 const router = useRouter()
 const user = inject('$user')

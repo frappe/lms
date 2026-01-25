@@ -3,13 +3,10 @@
 		<div class="grid grid-cols-1 md:grid-cols-[70%,30%]">
 			<div>
 				<header
-					class="sticky top-0 z-10 flex flex-col sm:flex-row sm:items-center gap-2 bg-surface-white px-3 py-2.5 sm:px-5 border-b"
+					class="sticky top-0 z-10 flex flex-col-reverse sm:flex-row sm:items-center gap-2 bg-surface-white px-3 py-2.5 sm:px-5 border-b"
 				>
-					<CustomBreadcrumb
-						class="h-7 order-2 sm:order-1"
-						:items="breadcrumbs"
-					/>
-					<div class="flex items-center sm:mt-0 order-1 sm:order-2 ml-auto">
+					<CustomBreadcrumb class="h-7" :items="breadcrumbs" />
+					<div class="flex items-center sm:mt-0 ml-auto">
 						<Button
 							theme="red"
 							v-if="courseResource.data?.name"

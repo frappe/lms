@@ -2,9 +2,12 @@
 	<div v-if="batch.data" <div class="bg-white rounded-xl border mb-8">
 		<div class="flex items-start justify-between">
 			<div class="flex items-start space-x-4 flex-1">
-				<img v-if="batch.data.meta_image" :src="batch.data.meta_image"
-					class="w-32 h-32 object-cover rounded-tl-xl rounded-bl-xl" />
-				<div class="flex-1 py-2">
+				<div class="w-32 h-32 object-cover rounded-tl-xl rounded-bl-xl">
+					<img v-if="batch.data.meta_image" :src="batch.data.meta_image" class="w-full h-full object-cover"/>
+					<NoImageFallback v-else  class="w-full h-full rounded-tl-xl rounded-bl-xl"/>
+				</div>
+				
+				<div class="h-32 flex-1 py-2 flex justify-center flex-col">
 					<!-- <div v-if="batch.data.seat_count && seats_left > 0"
 						class="text-sm bg-green-100 text-green-700 px-2 py-1 rounded-md" :class="batch.data.amount || batch.data.courses.length
 							? 'float-right'
@@ -138,6 +141,7 @@ import DateRange from '@/components/Common/DateRange.vue'
 import { useRouter } from 'vue-router'
 import ClockIcon from '@/components/Icons/ClockIcon.vue'
 import Button from '@/components/ui/Button.vue'
+import NoImageFallback from './NoImageFallback.vue'
 
 const router = useRouter()
 const user = inject('$user')

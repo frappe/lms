@@ -1,19 +1,8 @@
 <template>
-	<div>
-		<Button
-			v-if="!singleThread && !readOnlyMode"
-			class="float-right"
-			@click="openTopicModal()"
-		>
-			<template #prefix>
-				<Plus class="size-4" />
-			</template>
-			{{ __('New {0}').format(singularize(title)) }}
-		</Button>
-		<div class="text-xl font-semibold text-ink-gray-9">
-			{{ __(title) }}
-		</div>
+	<div v-if="!title" class="text-xl font-semibold text-ink-gray-9">
+		{{ __(title) }}
 	</div>
+
 	<div v-if="topics.data?.length && !singleThread">
 		<div v-if="showTopics" v-for="(topic, index) in topics.data">
 			<div
@@ -60,10 +49,20 @@
 				{{ __(emptyStateText) }}
 			</div>
 		</div>
+		<Button
+			v-if="!singleThread && !readOnlyMode"
+			class="mx-auto mt-2"
+			@click="openTopicModal()"
+		>
+			<template #prefix>
+				<Plus class="size-4" />
+			</template>
+			{{ __('New {0}').format(singularize('Discussion')) }}
+		</Button>
 	</div>
 	<DiscussionModal
 		v-model="showTopicModal"
-		:title="__('New {0}').format(title)"
+		:title="__('New {0}').format('Discussion')"
 		:doctype="props.doctype"
 		:docname="props.docname"
 		v-model:reloadTopics="topics"

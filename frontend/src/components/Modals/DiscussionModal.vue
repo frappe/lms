@@ -3,33 +3,33 @@
 		:options="{
 			title: singularize(props.title),
 			size: '2xl',
-			actions: [
-				{
-					label: 'Post',
-					variant: 'solid',
-					onClick: (close) => submitTopic(close),
-				},
-			],
 		}"
 	>
 		<template #body-content>
 			<div class="flex flex-col gap-4">
-				<div>
+				<FormWrapper>
 					<FormControl v-model="topic.title" :label="__('Title')" type="text" />
-				</div>
+				</FormWrapper>
 				<div>
 					<div class="mb-1.5 text-sm text-ink-gray-5">
 						{{ __('Details') }}
 					</div>
-					<TextEditor
-						:content="topic.reply"
-						@change="(val) => (topic.reply = val)"
-						:editable="true"
-						:fixedMenu="true"
-						editorClass="prose-sm max-w-none border-b border-x bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[7rem]"
-					/>
+					<FormWrapper type="editorBottomMenu">
+						<TextEditor
+							:content="topic.reply"
+							@change="(val) => (topic.reply = val)"
+							:editable="true"
+							:fixedMenu="true"
+							editorClass="prose-sm rounded-md max-w-none border-b border-x bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[7rem]"
+						/>
+					</FormWrapper>
 				</div>
 			</div>
+		</template>
+		<template #actions="{ close }">
+			<Button class="w-full" variant="solid" @click="submitTopic(close)">
+				Submit
+			</Button>
 		</template>
 	</Dialog>
 </template>
@@ -43,7 +43,8 @@ import {
 } from 'frappe-ui'
 import { reactive } from 'vue'
 import { singularize } from '@/utils'
-
+import FormWrapper from '../ui/FormWrapper.vue'
+import Button from '../ui/Button.vue'
 const topics = defineModel('reloadTopics')
 
 const props = defineProps({
@@ -117,13 +118,13 @@ const submitTopic = (close) => {
 							topics.value.reload()
 							close()
 						},
-					}
+					},
 				)
 			},
 			onError(err) {
 				toast.error(err.messages?.[0] || err)
 			},
-		}
+		},
 	)
 }
 </script>

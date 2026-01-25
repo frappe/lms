@@ -29,14 +29,21 @@
 		</header>
 		<div class="px-5 py-4" v-if="batch.data">
 			<div class="bg-white rounded-xl border mb-6 flex">
-				<div class="flex items-center justify-between pr-4">
+				<div class="flex items-center w-full pr-4">
 					<div class="flex items-start space-x-4 flex-1 pr-4">
-						<img
-							v-if="batch.data.meta_image"
-							:src="batch.data.meta_image"
-							class="object-cover h-32 rounded-tl-xl rounded-bl-xl"
-						/>
-						<div>
+						<div class="w-32 h-32 object-cover rounded-tl-xl rounded-bl-xl">
+							<img
+								v-if="batch.data.meta_image"
+								:src="batch.data.meta_image"
+								class="w-full h-full object-cover"
+							/>
+							<NoImageFallback
+								v-else
+								class="w-full h-full rounded-tl-xl rounded-bl-xl"
+							/>
+						</div>
+
+						<div class="h-32 flex-1 py-2 flex justify-center flex-col">
 							<div class="py-2">
 								<div class="text-lg leading-5 font-semibold mb-2 text-gray-900">
 									{{ batch.data.title }}
@@ -94,16 +101,72 @@
 				</div>
 			</div>
 			<div class="grid grid-cols-1 h-[calc(100vh-3.2rem)]">
-				<div class="">
-					<Tabs
+				<div class="w-full overflow-x-hidden hover:overflow-x-scroll">
+					<div class="border-b mb-6">
+						<nav
+							class="w-full flex space-x-8 overflow-x-hidden hover:overflow-x-scroll"
+						>
+							<button
+								v-for="tab in tabs"
+								:key="tab.value"
+								@click="currentTab = tab.label"
+								:class="[
+									'pb-2 text-center px-2 border-b-[2px] font-medium transition-colors min-w-40',
+									currentTab === tab.label
+										? 'border-secondary-500 text-gray-900'
+										: 'border-transparent text-ink-gray-5 hover:text-ink-gray-7',
+								]"
+							>
+								{{ tab.label }}
+							</button>
+						</nav>
+					</div>
+					<div class="pt-5 px-5">
+						<div v-if="currentTab == 'Courses'">
+							<BatchCourses :batch="batch.data.name" />
+						</div>
+						<div v-else-if="currentTab == 'Dashboard' && isStudent">
+							<BatchDashboard :batch="batch" :isStudent="isStudent" />
+						</div>
+						<div v-else-if="currentTab == 'Dashboard'">
+							<AdminBatchDashboard :batch="batch" />
+						</div>
+						<div v-else-if="currentTab == 'Students'">
+							<BatchStudents :batch="batch" />
+						</div>
+						<div v-else-if="currentTab == 'Classes'">
+							<LiveClass
+								:batch="batch.data.name"
+								:zoomAccount="batch.data.zoom_account"
+							/>
+						</div>
+						<div v-else-if="currentTab == 'Assessments'">
+							<Assessments :batch="batch.data.name" />
+						</div>
+						<div v-else-if="currentTab == 'Announcements'">
+							<Announcements :batch="batch.data.name" />
+						</div>
+						<div v-else-if="currentTab == 'Discussions'">
+							<Discussions
+								doctype="LMS Batch"
+								:docname="batch.data.name"
+								:title="__('Discussions')"
+								:key="batch.data.name"
+								:singleThread="true"
+								:scrollToBottom="false"
+							/>
+						</div>
+					</div>
+					<!-- <Tabs
 						v-model="tabIndex"
 						as="div"
 						:tabs="tabs"
-						tablistClass="overflow-y-hidden bg-surface-white"
+						tablistClass="bg-surface-white"
 						:class="[
 							'[&_[data-state=active]]:text-primary-500',
-							'[&_.bg-surface-gray-7]:!bg-primary-500',
-							'[&_.bg-surface-gray-7]:!h-[2px]',
+							'[&>div:first-child>div:first-child>div:first-child]:!bg-primary-500',
+							'[&>div:first-child>div:first-child>div:first-child]:!h-[2px]',
+							'[&_[data-reka-collection-item]]:px-8 [&_[data-reka-collection-item]>svg]:hidden ',
 						]"
 					>
 						<template #tab="{ tab, selected }" class="overflow-x-hidden">
@@ -132,45 +195,8 @@
 								</button>
 							</div>
 						</template>
-						<template #tab-panel="{ tab }">
-							<div class="pt-5 px-5 pb-10">
-								<div v-if="tab.label == 'Courses'">
-									<BatchCourses :batch="batch.data.name" />
-								</div>
-								<div v-else-if="tab.label == 'Dashboard' && isStudent">
-									<BatchDashboard :batch="batch" :isStudent="isStudent" />
-								</div>
-								<div v-else-if="tab.label == 'Dashboard'">
-									<AdminBatchDashboard :batch="batch" />
-								</div>
-								<div v-else-if="tab.label == 'Students'">
-									<BatchStudents :batch="batch" />
-								</div>
-								<div v-else-if="tab.label == 'Classes'">
-									<LiveClass
-										:batch="batch.data.name"
-										:zoomAccount="batch.data.zoom_account"
-									/>
-								</div>
-								<div v-else-if="tab.label == 'Assessments'">
-									<Assessments :batch="batch.data.name" />
-								</div>
-								<div v-else-if="tab.label == 'Announcements'">
-									<Announcements :batch="batch.data.name" />
-								</div>
-								<div v-else-if="tab.label == 'Discussions'">
-									<Discussions
-										doctype="LMS Batch"
-										:docname="batch.data.name"
-										:title="__('Discussions')"
-										:key="batch.data.name"
-										:singleThread="true"
-										:scrollToBottom="false"
-									/>
-								</div>
-							</div>
-						</template>
-					</Tabs>
+						<template #tab-panel="{ tab }"> </template>
+					</Tabs> -->
 				</div>
 				<!-- <div class="p-5 border-t md:border-t-0">
 				<div class="mb-10">
@@ -324,9 +350,8 @@ const openCertificateDialog = ref(false)
 const route = useRoute()
 const router = useRouter()
 const { brand } = sessionStore()
-const tabIndex = ref(0)
 const readOnlyMode = window.read_only_mode
-
+const currentTab = ref('Dashboard')
 const tabs = computed(() => {
 	let batchTabs = []
 	batchTabs.push({
@@ -382,7 +407,7 @@ onMounted(() => {
 	if (hash) {
 		tabs.value.forEach((tab, index) => {
 			if (tab.label?.toLowerCase() === hash.replace('#', '')) {
-				tabIndex.value = index
+				currentTab.value = tab.label
 			}
 		})
 	}
@@ -433,10 +458,9 @@ const openAnnouncementModal = () => {
 	showAnnouncementModal.value = true
 }
 
-watch(tabIndex, () => {
-	const tab = tabs.value[tabIndex.value]
-	if (tab.label != route.hash.replace('#', '')) {
-		router.push({ ...route, hash: `#${tab.label.toLowerCase()}` })
+watch(currentTab, () => {
+	if (currentTab.value != route.hash.replace('#', '')) {
+		router.push({ ...route, hash: `#${currentTab.value.toLowerCase()}` })
 	}
 })
 

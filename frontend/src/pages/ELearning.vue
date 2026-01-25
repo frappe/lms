@@ -27,18 +27,21 @@
 						</nav>
 					</div>
 					<div class="flex items-center gap-4">
-						<a
-							href="/login"
-							class="hidden sm:inline-flex items-center justify-center px-4 h-10 text-sm font-semibold text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
-						>
-							Sign In
-						</a>
-						<a
-							href="/login#signup"
-							class="inline-flex items-center justify-center px-8 h-10 text-sm font-semibold text-white bg-primary-500 hover:bg-primary-600 rounded-full transition-colors shadow-sm"
-						>
-							Register
-						</a>
+						<UserDropdown v-if="user.data?.name" />
+						<template v-else>
+							<a
+								href="/login"
+								class="hidden sm:inline-flex items-center justify-center px-4 h-10 text-sm font-semibold text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
+							>
+								Sign In
+							</a>
+							<a
+								href="/login#signup"
+								class="inline-flex items-center justify-center px-8 h-10 text-sm font-semibold text-white bg-primary-500 hover:bg-primary-600 rounded-full transition-colors shadow-sm"
+							>
+								Register
+							</a>
+						</template>
 					</div>
 				</div>
 
@@ -301,7 +304,10 @@
 					:key="course.name"
 					:to="{ name: 'CourseDetail', params: { courseName: course.name } }"
 				>
-					<CourseCard :course="course" />
+					<CourseCard
+						:course="course"
+						class="[&_.avatar-group.overlap]:hidden"
+					/>
 				</router-link>
 			</div>
 			<div v-else-if="courses.list.loading" class="flex justify-center p-12">
@@ -322,7 +328,10 @@
 				</p>
 			</div>
 
-			<div class="flex items-center justify-center gap-4 mt-16">
+			<div
+				v-if="courses.data?.length"
+				class="flex items-center justify-center gap-4 mt-16"
+			>
 				<Button variant="outline" @click="router.push({ name: 'Courses' })"
 					>View All Courses</Button
 				>
@@ -405,6 +414,7 @@ import CourseCard from '@/components/CourseCard.vue'
 import BatchCard from '@/components/BatchCard.vue'
 import EmptyIcon from '@/components/Icons/EmptyIcon.vue'
 import PeopleIcon from '@/components/Icons/PeopleIcon.vue'
+import UserDropdown from '@/components/UserDropdown.vue'
 
 const user = inject('$user')
 const dayjs = inject('$dayjs')
@@ -414,40 +424,43 @@ const { brand } = sessionStore()
 const batches = createListResource({
 	doctype: 'LMS Batch',
 	url: 'lms.lms.utils.get_batches',
-	cache: ['batches', user.data?.name],
+	cache: ['home batches', user.data?.name],
 	pageLength: 4,
 	auto: true,
 	filters: {
 		published: 1,
 		start_date: ['>=', dayjs().format('YYYY-MM-DD')],
 	},
+	orderBy: 'start_date',
 })
 
 const courses = createListResource({
 	doctype: 'LMS Course',
 	url: 'lms.lms.utils.get_courses',
-	cache: ['courses', user.data?.name],
+	cache: ['home_courses', user.data?.name],
 	pageLength: 4,
 	auto: true,
-	onSuccess(data) {
-		updateCategoriesFromData(data)
+	filters: {
+		published: 1,
+		upcoming: 0,
+		live: 1,
 	},
 })
 
-const updateCategoriesFromData = (data) => {
-	const newCategories = ['All Courses']
-	data.forEach((course) => {
-		if (course.category && !newCategories.includes(course.category)) {
-			newCategories.push(course.category)
-		}
-	})
-	categories.value = newCategories
-}
+const categoryResource = createListResource({
+	doctype: 'LMS Category',
+	fields: ['name', 'category'],
+	auto: true,
+})
 
 const activeCategory = ref('All Courses')
 
 watch(activeCategory, (newCat) => {
-	const filters = {}
+	const filters = {
+		published: 1,
+		upcoming: 0,
+		live: 1,
+	}
 	if (newCat !== 'All Courses') {
 		filters.category = newCat
 	}
@@ -455,7 +468,15 @@ watch(activeCategory, (newCat) => {
 	courses.reload()
 })
 
-const categories = ref(['All Courses'])
+const categories = computed(() => {
+	const cats = ['All Courses']
+	if (categoryResource.data) {
+		categoryResource.data.forEach((cat) => {
+			cats.push(cat.category)
+		})
+	}
+	return cats
+})
 
 const simplifiedNav = [
 	{ label: 'Courses', to: 'Courses' },
@@ -467,7 +488,8 @@ const currentSlide = ref(0)
 const heroSlides = [
 	{
 		title: 'CESGS Learning Management System',
-		subtitle: 'Empowering structured learning in one integrated platform',
+		subtitle:
+			'Empowering structured learning in one integrated platform. Brought to you by Center for Environmental, Social, and Governance Studies (CESGS) Universitas Airlangga: the first Center of Excellence for Sustainable Business (PUI PT Bisnis Berkelanjutan) and #1 ESG Research Center in Indonesia.',
 		content: 'text',
 		highlight: 'CESGS',
 		layout: 'centered',
