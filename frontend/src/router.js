@@ -282,7 +282,7 @@ router.beforeEach(async (to, from, next) => {
 	}
 
 	if (!isLoggedIn) {
-		if (to.name == 'Home') router.push({ name: 'Courses' })
+		if (to.name == 'Home') router.push({ name: 'ELearning' })
 
 		await allowGuestAccess.promise
 		if (!allowGuestAccess.data) {
