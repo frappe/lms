@@ -5,12 +5,7 @@
 		<Breadcrumbs class="h-7" :items="breadcrumbs" />
 	</header>
 	<div
-		v-if="
-			readyToRender &&
-			(enrollment.data?.length ||
-				user.data?.is_moderator ||
-				user.data?.is_instructor)
-		"
+		v-if="canRenderScorm && progressReady"
 	>
 		<iframe
 			:src="chapter.doc.launch_file"
@@ -44,15 +39,15 @@ import {
 	createResource,
 	usePageMeta,
 } from 'frappe-ui'
-import { computed, inject, onBeforeMount, ref } from 'vue'
+import { computed, inject, onBeforeMount, ref , watchEffect } from 'vue'
 import { useSidebar } from '@/stores/sidebar'
 import { sessionStore } from '../stores/session'
 
 const { brand } = sessionStore()
 const sidebarStore = useSidebar()
 const user = inject('$user')
-const readyToRender = ref(false)
 const isSuccessfullyCompleted = ref(false)
+const progressReady = ref(false)
 
 // If courseRestartOnFailure is true, student has to restart the whole course if failed.
 // Otherwise, student could retake the final quiz portion.
@@ -69,6 +64,19 @@ const props = defineProps({
 		required: true,
 	},
 })
+
+const canRenderScorm = computed(() => {
+	return (
+		!!chapter.doc?.launch_file &&
+		(
+			enrollment.data?.length ||
+			user.data?.is_moderator ||
+			user.data?.is_instructor
+		)
+	)
+})
+
+
 
 onBeforeMount(() => {
 	sidebarStore.isSidebarCollapsed = true
@@ -117,12 +125,14 @@ const debouncedSaveProgress = (scormDetails) => {
 
 const saveDataToLMS = (key, value) => {
 	if (key === 'cmi.core.lesson_status') {
-		if (value === 'passed') {
+		if (value === 'passed' || value == 'Completed') {
 			isSuccessfullyCompleted.value = true
 			saveProgress({
+				status:'Complete',
 				is_complete: isSuccessfullyCompleted.value,
 				scorm_content: '',
 			})
+			return 'true'
 		} else if (value === 'failed' && courseRestartOnFailure) {
 			saveProgress({
 				is_complete: isSuccessfullyCompleted.value,
@@ -135,6 +145,24 @@ const saveDataToLMS = (key, value) => {
 			scorm_content: value,
 		})
 	}
+
+	if(key === "cmi.success_status") {
+		if (value === "passed") {
+			isSuccessfullyCompleted.value = true
+			saveProgress({ status: 'Complete', is_complete: isSuccessfullyCompleted.value , scorm_content: '' })
+			return 'true'
+		} else if (value === "failed") {
+			saveProgress({ is_complete: isSuccessfullyCompleted.value, scorm_content: '' })
+		}
+	}
+
+	if (key === 'cmi.completion_status' && value === 'completed') {
+		saveProgress({ status: 'Complete', is_complete: true })
+		return 'true'
+	}
+
+
+
 }
 
 const saveProgress = (scormDetails = null) => {
@@ -148,20 +176,23 @@ const saveProgress = (scormDetails = null) => {
 const progress = createResource({
 	url: 'frappe.client.get_value',
 	makeParams(values) {
+		const lesson = chapter.doc?.lessons?.[0]?.lesson
+		if (!lesson) return null
+
 		return {
 			doctype: 'LMS Course Progress',
 			fieldname: ['status', 'scorm_content'],
 			filters: {
 				member: user.data?.name,
-				lesson: chapter.doc.lessons[0].lesson,
+				lesson,
 				chapter: chapter.doc.name,
 				course: chapter.doc?.course,
 			},
 		}
 	},
 	onSuccess(data) {
-		readyToRender.value = true
-	},
+		progressReady.value = true
+	}
 })
 
 const enrollStudent = () => {
@@ -238,4 +269,13 @@ usePageMeta(() => {
 		icon: brand.favicon,
 	}
 })
+
+watchEffect(() => {
+	const lesson = chapter.doc?.lessons?.[0]?.lesson
+	if (lesson && user.data && !progressReady.value) {
+		progress.submit()
+	}
+})
+
+
 </script>
