@@ -4,14 +4,29 @@
 			<div class="text-lg text-ink-gray-9 font-semibold">
 				{{ __('Upcoming Evaluations') }}
 			</div>
-			<Button
-				v-if="
-					upcoming_evals.data?.length != evaluationCourses.length && !forHome
-				"
-				@click="openEvalModal"
-			>
+			<Button v-if="canScheduleEvals" @click="openEvalModal">
 				{{ __('Schedule Evaluation') }}
 			</Button>
+		</div>
+		<div
+			v-if="endDate && !endDateHasPassed"
+			class="text-sm leading-5 bg-surface-amber-1 text-ink-amber-3 p-2 rounded-md mb-4"
+		>
+			{{ __('The last day to schedule your evaluations is ') }}
+			<span class="font-medium">
+				{{ dayjs(endDate).format('DD MMMM YYYY') }} </span
+			>.
+			{{ __('Please make sure to schedule your evaluation before this date.') }}
+		</div>
+		<div
+			v-else-if="endDateHasPassed"
+			class="text-sm leading-5 bg-surface-red-1 text-ink-red-3 p-2 rounded-md mb-4"
+		>
+			{{
+				__(
+					'The deadline to schedule evaluations has passed. Please contact the Instructor for assistance.'
+				)
+			}}
 		</div>
 		<div v-if="upcoming_evals.data?.length">
 			<div
@@ -99,7 +114,7 @@
 				</div>
 			</div>
 		</div>
-		<div v-else class="text-ink-gray-5">
+		<div v-else-if="!endDateHasPassed" class="text-ink-gray-5">
 			{{ __('Schedule an evaluation to get certified.') }}
 		</div>
 	</div>
@@ -171,6 +186,18 @@ const evaluationCourses = computed(() => {
 	return props.courses.filter((course) => {
 		return course.evaluator != ''
 	})
+})
+
+const canScheduleEvals = computed(() => {
+	return (
+		upcoming_evals.data?.length != evaluationCourses.value?.length &&
+		!props.forHome &&
+		!endDateHasPassed.value
+	)
+})
+
+const endDateHasPassed = computed(() => {
+	return dayjs().isSameOrAfter(dayjs(props.endDate))
 })
 
 const cancelEvaluation = (evl) => {

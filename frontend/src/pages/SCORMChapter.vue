@@ -124,22 +124,30 @@ const debouncedSaveProgress = (scormDetails) => {
 }
 
 const saveDataToLMS = (key, value) => {
-	if (key === 'cmi.core.lesson_status') {
-		if (value === 'passed' || value == 'Completed') {
-			isSuccessfullyCompleted.value = true
-			saveProgress({
-				status:'Complete',
-				is_complete: isSuccessfullyCompleted.value,
-				scorm_content: '',
-			})
-			return 'true'
-		} else if (value === 'failed' && courseRestartOnFailure) {
-			saveProgress({
-				is_complete: isSuccessfullyCompleted.value,
-				scorm_content: '',
-			})
-		}
-	} else if (key === 'cmi.suspend_data' && !isSuccessfullyCompleted.value) {
+	const isLessonStatus = key === 'cmi.core.lesson_status' && value === 'passed'
+	const isCompletionStatus =
+		key === 'cmi.completion_status' && value === 'completed'
+	const shouldRestart =
+		(key === 'cmi.core.lesson_status' && value === 'failed') ||
+		(key === 'cmi.completion_status' && value === 'incomplete')
+
+	if (isLessonStatus || isCompletionStatus) {
+		isSuccessfullyCompleted.value = true
+	}
+
+	if (
+		isLessonStatus ||
+		isCompletionStatus ||
+		(shouldRestart && courseRestartOnFailure)
+	) {
+		saveProgress({
+			is_complete: isSuccessfullyCompleted.value,
+			scorm_content: '',
+		})
+		return
+	}
+
+	if (key === 'cmi.suspend_data' && !isSuccessfullyCompleted.value) {
 		debouncedSaveProgress({
 			is_complete: false,
 			scorm_content: value,

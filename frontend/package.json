@@ -8,7 +8,7 @@
     "serve": "vite preview",
     "build": "vite build --base=/assets/lms/frontend/ && yarn copy-html-entry && yarn copy-colors-json",
     "copy-html-entry": "cp ../lms/public/frontend/index.html ../lms/www/lms.html",
-    "copy-colors-json": "cp node_modules/frappe-ui/src/tailwind/colors.json src/utils/frappe-ui-colors.json"
+    "copy-colors-json": "cp node_modules/frappe-ui/tailwind/colors.json src/utils/frappe-ui-colors.json"
   },
   "dependencies": {
     "@codemirror/lang-html": "6.4.9",
@@ -34,7 +34,7 @@
     "dayjs": "1.11.10",
     "dompurify": "3.2.6",
     "feather-icons": "4.28.0",
-    "frappe-ui": "0.1.227",
+    "frappe-ui": "^0.1.256",
     "highlight.js": "11.11.1",
     "lucide-vue-next": "0.383.0",
     "markdown-it": "14.0.0",
@@ -59,8 +59,5 @@
     "unplugin-auto-import": "^20.3.0",
     "vite": "5.0.11",
     "vite-plugin-pwa": "0.15.0"
-  },
-  "resolutions": {
-    "@iconify/utils": "2.1.7"
   }
 }

@@ -66,6 +66,7 @@ import { inject, reactive, watch } from 'vue'
 import { User } from '@/components/Settings/types'
 import { openSettings, cleanError } from '@/utils'
 import Link from '@/components/Controls/Link.vue'
+import { useTelemetry } from 'frappe-ui/frappe'
 
 interface ZoomAccount {
 	name: string
@@ -97,6 +98,7 @@ interface ZoomAccounts {
 const show = defineModel('show')
 const user = inject<User | null>('$user')
 const zoomAccounts = defineModel<ZoomAccounts>('zoomAccounts')
+const { capture } = useTelemetry()
 
 const account = reactive({
 	name: '',
@@ -154,6 +156,7 @@ const createAccount = (close: () => void) => {
 		},
 		{
 			onSuccess() {
+				capture('zoom_account_linked')
 				zoomAccounts.value?.reload()
 				close()
 				toast.success(__('Zoom Account created successfully'))
