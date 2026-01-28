@@ -75,58 +75,11 @@
 							</div>
 						</div>
 						<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-							<div class="mb-4">
-								<div class="text-xs text-ink-gray-5 mb-2">
-									{{ __('Course Image') }}
-								</div>
-								<FileUploader
-									v-if="!course.course_image"
-									:fileTypes="['image/*']"
-									:validateFile="validateFile"
-									@success="(file) => saveImage(file)"
-								>
-									<template
-										v-slot="{ file, progress, uploading, openFileSelector }"
-									>
-										<div class="flex items-center">
-											<div
-												class="border rounded-md w-fit py-5 px-20 cursor-pointer"
-												@click="openFileSelector"
-											>
-												<Image class="size-5 stroke-1 text-ink-gray-7" />
-											</div>
-											<div class="ml-4">
-												<Button @click="openFileSelector">
-													{{ __('Upload') }}
-												</Button>
-												<div class="mt-1 text-ink-gray-5 text-sm leading-5">
-													{{
-														__('Appears on the course card in the course list')
-													}}
-												</div>
-											</div>
-										</div>
-									</template>
-								</FileUploader>
-								<div v-else class="mb-4">
-									<div class="flex items-center">
-										<img
-											:src="course.course_image.file_url"
-											class="border rounded-md w-40"
-										/>
-										<div class="ml-4">
-											<Button @click="removeImage()">
-												{{ __('Remove') }}
-											</Button>
-											<div class="mt-2 text-ink-gray-5 text-sm">
-												{{
-													__('Appears on the course card in the course list')
-												}}
-											</div>
-										</div>
-									</div>
-								</div>
-							</div>
+							<Uploader
+								v-model="course.image"
+								:label="__('Course Image')"
+								:required="false"
+							/>
 
 							<ColorSwatches
 								v-model="course.card_gradient"
@@ -333,7 +286,6 @@ import {
 	Button,
 	createResource,
 	FormControl,
-	FileUploader,
 	usePageMeta,
 	toast,
 } from 'frappe-ui'
@@ -347,23 +299,22 @@ import {
 	watch,
 	getCurrentInstance,
 } from 'vue'
-import { Image, Trash2, X } from 'lucide-vue-next'
-import { useRouter } from 'vue-router'
-import { capture, startRecording, stopRecording } from '@/telemetry'
-import { useOnboarding } from 'frappe-ui/frappe'
-import { sessionStore } from '../stores/session'
 import {
 	escapeHTML,
 	getMetaInfo,
 	openSettings,
 	sanitizeHTML,
 	updateMetaInfo,
-	validateFile,
 } from '@/utils'
+import { Trash2, X } from 'lucide-vue-next'
+import { useRouter } from 'vue-router'
+import { useOnboarding, useTelemetry } from 'frappe-ui/frappe'
+import { sessionStore } from '../stores/session'
 import Link from '@/components/Controls/Link.vue'
 import CourseOutline from '@/components/CourseOutline.vue'
 import MultiSelect from '@/components/Controls/MultiSelect.vue'
 import ColorSwatches from '@/components/Controls/ColorSwatches.vue'
+import Uploader from '@/components/Controls/Uploader.vue'
 
 const user = inject('$user')
 const newTag = ref('')
@@ -372,6 +323,7 @@ const router = useRouter()
 const instructors = ref([])
 const related_courses = ref([])
 const app = getCurrentInstance()
+const { capture } = useTelemetry()
 const { updateOnboardingStep } = useOnboarding('learning')
 const { $dialog } = app.appContext.config.globalProperties
 
@@ -386,7 +338,7 @@ const course = reactive({
 	short_introduction: '',
 	description: '',
 	video_link: '',
-	course_image: null,
+	image: null,
 	card_gradient: '',
 	tags: '',
 	category: '',
@@ -418,7 +370,6 @@ onMounted(() => {
 		fetchCourseInfo()
 	} else {
 		capture('course_form_opened')
-		startRecording()
 	}
 	window.addEventListener('keydown', keyboardShortcut)
 })
@@ -441,7 +392,6 @@ const keyboardShortcut = (e) => {
 
 onBeforeUnmount(() => {
 	window.removeEventListener('keydown', keyboardShortcut)
-	stopRecording()
 })
 
 const courseCreationResource = createResource({
@@ -450,7 +400,7 @@ const courseCreationResource = createResource({
 		return {
 			doc: {
 				doctype: 'LMS Course',
-				image: course.course_image?.file_url || '',
+				image: course.image,
 				instructors: instructors.value.map((instructor) => ({
 					instructor: instructor,
 				})),
@@ -471,7 +421,7 @@ const courseEditResource = createResource({
 			doctype: 'LMS Course',
 			name: values.course,
 			fieldname: {
-				image: course.course_image?.file_url || '',
+				image: course.image,
 				instructors: instructors.value.map((instructor) => ({
 					instructor: instructor,
 				})),
@@ -521,21 +471,7 @@ const courseResource = createResource({
 			course[key] = course[key] ? true : false
 		}
 
-		if (data.image) imageResource.reload({ image: data.image })
 		check_permission()
-	},
-})
-
-const imageResource = createResource({
-	url: 'lms.lms.api.get_file_info',
-	makeParams(values) {
-		return {
-			file_url: values.image,
-		}
-	},
-	auto: false,
-	onSuccess(data) {
-		course.course_image = data
 	},
 })
 
@@ -653,14 +589,6 @@ const removeTag = (tag) => {
 		.filter((t) => t !== tag)
 		.join(', ')
 	newTag.value = ''
-}
-
-const saveImage = (file) => {
-	course.course_image = file
-}
-
-const removeImage = () => {
-	course.course_image = null
 }
 
 const check_permission = () => {

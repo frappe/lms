@@ -1,12 +1,17 @@
 <template>
-	<Dialog v-model="show" :options="{ size: '5xl' }">
+	<Dialog v-model="show" :options="{ size: '4xl' }">
 		<template #body-title>
-			<div class="text-xl font-semibold text-ink-gray-9">
-				{{
-					props.exerciseID === 'new'
-						? __('Create Programming Exercise')
-						: __('Edit Programming Exercise')
-				}}
+			<div class="flex items-center space-x-2">
+				<div class="text-xl font-semibold text-ink-gray-9">
+					{{
+						props.exerciseID === 'new'
+							? __('Create Programming Exercise')
+							: __('Edit Programming Exercise')
+					}}
+				</div>
+				<Badge v-if="isDirty" theme="orange">
+					{{ __('Not Saved') }}
+				</Badge>
 			</div>
 		</template>
 		<template #body-content>
@@ -59,7 +64,6 @@
 					@click="deleteExercise(close)"
 					variant="outline"
 					theme="red"
-					class="invisible group-hover:visible"
 				>
 					<template #prefix>
 						<Trash2 class="size-4 stroke-1.5" />
@@ -108,6 +112,7 @@
 import { computed, ref, watch } from 'vue'
 import { escapeHTML } from '@/utils'
 import {
+	Badge,
 	Button,
 	createListResource,
 	Dialog,
@@ -125,6 +130,8 @@ import ChildTable from '@/components/Controls/ChildTable.vue'
 
 const show = defineModel()
 const exercises = defineModel<ProgrammingExercises>('exercises')
+const isDirty = ref(false)
+const originalTestCaseCount = ref(0)
 
 const exercise = ref<ProgrammingExercise>({
 	title: '',
@@ -172,6 +179,7 @@ const setExerciseData = () => {
 			test_cases: [],
 		}
 	}
+	isDirty.value = false
 }
 
 const testCases = createListResource({
@@ -180,6 +188,14 @@ const testCases = createListResource({
 	cache: ['testCases', props.exerciseID],
 	parent: 'LMS Programming Exercise',
 	orderBy: 'idx',
+	onSuccess(data: TestCase[]) {
+		isDirty.value = false
+		originalTestCaseCount.value = data.length
+	},
+	onError(err: any) {
+		toast.error(__(err.messages?.[0] || err))
+		console.error('Error loading testCases:', err)
+	},
 })
 
 const fetchTestCases = () => {
@@ -191,13 +207,28 @@ const fetchTestCases = () => {
 		},
 	})
 	testCases.reload()
+	originalTestCaseCount.value = testCases.data.length
 }
 
 const validateTitle = () => {
 	exercise.value.title = escapeHTML(exercise.value.title.trim())
 }
 
-const saveExercise = (close: () => void) => {
+watch(
+	exercise,
+	() => {
+		isDirty.value = true
+	},
+	{ deep: true }
+)
+
+watch(testCases, () => {
+	if (testCases.data.length !== originalTestCaseCount.value) {
+		isDirty.value = true
+	}
+})
+
+const updateTestCasesInExercise = () => {
 	exercise.value.test_cases = testCases.data.map(
 		(tc: TestCase, index: number) => ({
 			input: tc.input,
@@ -205,7 +236,11 @@ const saveExercise = (close: () => void) => {
 			idx: index + 1,
 		})
 	)
+}
+
+const saveExercise = (close: () => void) => {
 	validateTitle()
+	updateTestCasesInExercise()
 	if (props.exerciseID == 'new') createNewExercise(close)
 	else updateExercise(close)
 }
@@ -218,6 +253,7 @@ const createNewExercise = (close: () => void) => {
 		{
 			onSuccess() {
 				close()
+				isDirty.value = false
 				exercises.value?.reload()
 				toast.success(__('Programming Exercise created successfully'))
 			},
@@ -237,6 +273,7 @@ const updateExercise = (close: () => void) => {
 		{
 			onSuccess() {
 				close()
+				isDirty.value = false
 				exercises.value?.reload()
 				toast.success(__('Programming Exercise updated successfully'))
 			},

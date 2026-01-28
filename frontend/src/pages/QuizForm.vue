@@ -258,9 +258,7 @@ onMounted(() => {
 	if (!user.data?.is_moderator && !user.data?.is_instructor) {
 		router.push({ name: 'Courses' })
 	}
-	if (props.quizID !== 'new') {
-		quizDetails.reload()
-	}
+	quizDetails.reload()
 	window.addEventListener('keydown', keyboardShortcut)
 })
 
@@ -403,7 +401,7 @@ const breadcrumbs = computed(() => {
 	]
 
 	crumbs.push({
-		label: props.quizID == 'new' ? __('New Quiz') : quizDetails.doc?.title,
+		label: quizDetails.doc?.title,
 		route: { name: 'QuizForm', params: { quizID: props.quizID } },
 	})
 	return crumbs
@@ -411,7 +409,7 @@ const breadcrumbs = computed(() => {
 
 usePageMeta(() => {
 	return {
-		title: props.quizID == 'new' ? __('New Quiz') : quizDetails.doc?.title,
+		title: quizDetails.doc?.title,
 		icon: brand.favicon,
 	}
 })

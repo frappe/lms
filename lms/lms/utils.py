@@ -8,7 +8,6 @@ from frappe import _
 from frappe.desk.doctype.dashboard_chart.dashboard_chart import get_result
 from frappe.desk.doctype.notification_log.notification_log import make_notification_logs
 from frappe.desk.notifications import extract_mentions
-from frappe.pulse.utils import get_frappe_version
 from frappe.rate_limiter import rate_limit
 from frappe.utils import (
 	add_months,
@@ -17,6 +16,7 @@ from frappe.utils import (
 	fmt_money,
 	format_datetime,
 	get_datetime,
+	get_frappe_version,
 	get_fullname,
 	get_time_str,
 	getdate,
@@ -24,6 +24,8 @@ from frappe.utils import (
 	pretty_date,
 	rounded,
 )
+from pypika import Case
+from pypika import functions as fn
 
 from lms.lms.md import find_macros
 
@@ -398,26 +400,47 @@ def handle_notifications(doc, method):
 	notify_mentions_via_email(doc, topic)
 
 
-def create_notification_log(doc, topic):
+def get_course_details_for_notification(topic):
 	users = []
+	course = frappe.db.get_value("Course Lesson", topic.reference_docname, "course")
+	course_title = frappe.db.get_value("LMS Course", course, "title")
+	instructors = frappe.db.get_all(
+		"Course Instructor", {"parent": course, "parenttype": "LMS Course"}, pluck="instructor"
+	)
+
+	users.append(topic.owner)
+	users += instructors
+
+	subject = _("New reply on the topic {0} in course {1}").format(topic.title, course_title)
+	link = get_lesson_url(course, get_lesson_index(topic.reference_docname))
+
+	return subject, link, users
+
+
+def get_batch_details_for_notification(topic):
+	users = []
+	batch_title = frappe.db.get_value("LMS Batch", topic.reference_docname, "title")
+	subject = _("New comment in batch {0}").format(batch_title)
+	link = f"/lms/batches/{topic.reference_docname}#discussions"
+	instructors = frappe.db.get_all(
+		"Course Instructor",
+		{"parenttype": "LMS Batch", "parent": topic.reference_docname},
+		pluck="instructor",
+	)
+	students = frappe.db.get_all("LMS Batch Enrollment", {"batch": topic.reference_docname}, pluck="member")
+	users += instructors
+	users += students
+	return subject, link, users
+
+
+def create_notification_log(doc, topic):
 	if topic.reference_doctype == "Course Lesson":
-		course = frappe.db.get_value("Course Lesson", topic.reference_docname, "course")
-		course_title = frappe.db.get_value("LMS Course", course, "title")
-		instructors = frappe.db.get_all("Course Instructor", {"parent": course}, pluck="instructor")
-
-		if doc.owner != topic.owner:
-			users.append(topic.owner)
-
-		users += instructors
-		subject = _("New reply on the topic {0} in course {1}").format(topic.title, course_title)
-		link = get_lesson_url(course, get_lesson_index(topic.reference_docname))
-
+		subject, link, users = get_course_details_for_notification(topic)
 	else:
-		batch_title = frappe.db.get_value("LMS Batch", topic.reference_docname, "title")
-		subject = _("New comment in batch {0}").format(batch_title)
-		link = f"/batches/{topic.reference_docname}"
-		moderators = frappe.get_all("Has Role", {"role": "Moderator"}, pluck="parent")
-		users += moderators
+		subject, link, users = get_batch_details_for_notification(topic)
+
+	if doc.owner in users:
+		users.remove(doc.owner)
 
 	notification = frappe._dict(
 		{
@@ -425,7 +448,6 @@ def create_notification_log(doc, topic):
 			"email_content": doc.reply,
 			"document_type": topic.reference_doctype,
 			"document_name": topic.reference_docname,
-			"for_user": topic.owner,
 			"from_user": doc.owner,
 			"type": "Alert",
 			"link": link,
@@ -444,12 +466,16 @@ def notify_mentions_on_portal(doc, topic):
 
 	if topic.reference_doctype == "Course Lesson":
 		course = frappe.db.get_value("Course Lesson", topic.reference_docname, "course")
-		subject = _("{0} mentioned you in a comment in {1}").format(from_user_name, topic.title)
+		subject = _("{0} mentioned you in a comment in {1}").format(
+			frappe.bold(from_user_name), frappe.bold(topic.title)
+		)
 		link = get_lesson_url(course, get_lesson_index(topic.reference_docname))
 	else:
 		batch_title = frappe.db.get_value("LMS Batch", topic.reference_docname, "title")
-		subject = _("{0} mentioned you in a comment in {1}").format(from_user_name, batch_title)
-		link = f"/batches/{topic.reference_docname}"
+		subject = _("{0} mentioned you in a comment in {1}").format(
+			frappe.bold(from_user_name), frappe.bold(batch_title)
+		)
+		link = f"/lms/batches/{topic.reference_docname}#discussions"
 
 	for user in mentions:
 		notification = frappe._dict(
@@ -460,7 +486,7 @@ def notify_mentions_on_portal(doc, topic):
 				"document_name": topic.reference_docname,
 				"for_user": user,
 				"from_user": doc.owner,
-				"type": "Alert",
+				"type": "Mention",
 				"link": link,
 			}
 		)
@@ -564,38 +590,39 @@ def get_chart_date_range(from_date, to_date):
 
 def get_chart_filters(doctype, chart, datefield, from_date, to_date):
 	version = get_frappe_version()
-	if version.startswith("16."):
-		filters = [([chart.document_type, "docstatus", "<", 2])]
-		filters = filters + json.loads(chart.filters_json)
-		filters.append([doctype, datefield, ">=", from_date])
-		filters.append([doctype, datefield, "<=", to_date])
-	else:
+	if version.startswith("15.") or version.startswith("14."):
 		filters = [([chart.document_type, "docstatus", "<", 2, False])]
 		filters = filters + json.loads(chart.filters_json)
 		filters.append([doctype, datefield, ">=", from_date, False])
 		filters.append([doctype, datefield, "<=", to_date, False])
+	else:
+		filters = [([chart.document_type, "docstatus", "<", 2])]
+		filters = filters + json.loads(chart.filters_json)
+		filters.append([doctype, datefield, ">=", from_date])
+		filters.append([doctype, datefield, "<=", to_date])
+
 	return filters
 
 
 def get_chart_details(doctype, datefield, value_field, chart, from_date, to_date):
 	filters = get_chart_filters(doctype, chart, datefield, from_date, to_date)
 	version = get_frappe_version()
-	if version.startswith("16."):
-		return frappe.db.get_all(
-			doctype,
-			fields=[datefield, {"SUM": value_field}, {"COUNT": "*"}],
-			filters=filters,
-			group_by=datefield,
-			order_by=datefield,
-			as_list=True,
-		)
-	else:
+	if version.startswith("15.") or version.startswith("14."):
 		return frappe.db.get_all(
 			doctype,
 			fields=[f"{datefield} as _unit", f"SUM({value_field})", "COUNT(*)"],
 			filters=filters,
 			group_by="_unit",
 			order_by="_unit asc",
+			as_list=True,
+		)
+	else:
+		return frappe.db.get_all(
+			doctype,
+			fields=[datefield, {"SUM": value_field}, {"COUNT": "*"}],
+			filters=filters,
+			group_by=datefield,
+			order_by=datefield,
 			as_list=True,
 		)
 
@@ -1269,7 +1296,7 @@ def get_assignment_details(assessment, member):
 
 	assessment.edit_url = f"/assignments/{assessment.assessment_name}"
 	submission_name = existing_submission if existing_submission else "new-submission"
-	assessment.url = f"/assignment-submission/{assessment.assessment_name}/{submission_name}"
+	assessment.url = f"/lms/assignment-submission/{assessment.assessment_name}/{submission_name}"
 
 	return assessment
 
@@ -1330,18 +1357,127 @@ def get_exercise_details(assessment, member):
 
 
 @frappe.whitelist()
-def get_batch_students(batch):
+def get_batch_assessment_count(batch):
+	if not frappe.db.exists("LMS Batch", batch):
+		frappe.throw(_("The specified batch does not exist."))
+	return frappe.db.count("LMS Assessment", {"parent": batch})
+
+
+@frappe.whitelist()
+def get_batch_students(filters, offset=0, limit_start=0, limit_page_length=None, limit=None):
+	# limit_start and limit_page_length are used for backward compatibility
+	start = limit_start or offset
+	page_length = limit_page_length or limit
+
+	batch = filters.get("batch")
+	if not batch:
+		return []
+
 	students = []
 	students_list = frappe.get_all(
-		"LMS Batch Enrollment", filters={"batch": batch}, fields=["member", "name"]
+		"LMS Batch Enrollment",
+		filters={"batch": batch},
+		fields=["member", "name"],
+		offset=start,
+		limit=page_length,
+		order_by="creation desc",
 	)
 
 	for student in students_list:
 		details = get_batch_student_details(student)
 		calculate_student_progress(batch, details)
 		students.append(details)
-		students = sorted(students, key=lambda x: x.progress, reverse=True)
+
 	return students
+
+
+def get_course_completion_stats(batch):
+	"""Get completion counts per course in batch"""
+	BatchCourse = frappe.qb.DocType("Batch Course")
+	BatchEnrollment = frappe.qb.DocType("LMS Batch Enrollment")
+	Enrollment = frappe.qb.DocType("LMS Enrollment")
+
+	rows = (
+		frappe.qb.from_(BatchCourse)
+		.left_join(BatchEnrollment)
+		.on(BatchEnrollment.batch == BatchCourse.parent)
+		.left_join(Enrollment)
+		.on((Enrollment.course == BatchCourse.course) & (Enrollment.member == BatchEnrollment.member))
+		.where(BatchCourse.parent == batch)
+		.groupby(BatchCourse.course, BatchCourse.title)
+		.select(
+			BatchCourse.title,
+			fn.Count(Case().when(Enrollment.progress == 100, Enrollment.member)).distinct().as_("completed"),
+		)
+	).run(as_dict=True)
+
+	return [{"task": row.title, "value": row.completed or 0} for row in rows]
+
+
+def get_assignment_pass_stats(batch):
+	"""Get pass counts per assignment in batch"""
+	Assessment = frappe.qb.DocType("LMS Assessment")
+	Assignment = frappe.qb.DocType("LMS Assignment")
+	BatchEnrollment = frappe.qb.DocType("LMS Batch Enrollment")
+	Submission = frappe.qb.DocType("LMS Assignment Submission")
+
+	rows = (
+		frappe.qb.from_(Assessment)
+		.join(Assignment)
+		.on(Assignment.name == Assessment.assessment_name)
+		.left_join(BatchEnrollment)
+		.on(BatchEnrollment.batch == Assessment.parent)
+		.left_join(Submission)
+		.on(
+			(Submission.assignment == Assessment.assessment_name)
+			& (Submission.member == BatchEnrollment.member)
+		)
+		.where((Assessment.parent == batch) & (Assessment.assessment_type == "LMS Assignment"))
+		.groupby(Assessment.assessment_name, Assignment.title)
+		.select(
+			Assignment.title,
+			fn.Count(Case().when(Submission.status == "Pass", Submission.member)).distinct().as_("passed"),
+		)
+	).run(as_dict=True)
+
+	return [{"task": row.title, "value": row.passed or 0} for row in rows]
+
+
+def get_quiz_pass_stats(batch):
+	"""Get pass counts per quiz in batch"""
+	Assessment = frappe.qb.DocType("LMS Assessment")
+	Quiz = frappe.qb.DocType("LMS Quiz")
+	BatchEnrollment = frappe.qb.DocType("LMS Batch Enrollment")
+	Submission = frappe.qb.DocType("LMS Quiz Submission")
+
+	rows = (
+		frappe.qb.from_(Assessment)
+		.join(Quiz)
+		.on(Quiz.name == Assessment.assessment_name)
+		.left_join(BatchEnrollment)
+		.on(BatchEnrollment.batch == Assessment.parent)
+		.left_join(Submission)
+		.on((Submission.quiz == Assessment.assessment_name) & (Submission.member == BatchEnrollment.member))
+		.where((Assessment.parent == batch) & (Assessment.assessment_type == "LMS Quiz"))
+		.groupby(Assessment.assessment_name, Quiz.title)
+		.select(
+			Quiz.title,
+			fn.Count(Case().when(Submission.percentage >= Submission.passing_percentage, Submission.member))
+			.distinct()
+			.as_("passed"),
+		)
+	).run(as_dict=True)
+
+	return [{"task": row.title, "value": row.passed or 0} for row in rows]
+
+
+@frappe.whitelist()
+def get_batch_chart_data(batch):
+	"""Get completion counts per course and assessment"""
+	if not frappe.db.exists("LMS Batch", batch):
+		frappe.throw(_("The specified batch does not exist."))
+
+	return get_course_completion_stats(batch) + get_assignment_pass_stats(batch) + get_quiz_pass_stats(batch)
 
 
 def get_batch_student_details(student):
@@ -1386,8 +1522,11 @@ def calculate_course_progress(batch_courses, details):
 	details.courses = frappe._dict()
 
 	for course in batch_courses:
-		progress = frappe.db.get_value(
-			"LMS Enrollment", {"course": course.course, "member": details.email}, "progress"
+		progress = (
+			frappe.db.get_value(
+				"LMS Enrollment", {"course": course.course, "member": details.email}, "progress"
+			)
+			or 0
 		)
 		details.courses[course.title] = progress
 		course_progress.append(progress)
