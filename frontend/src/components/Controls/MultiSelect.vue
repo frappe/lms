@@ -33,10 +33,10 @@
 					<template #body="{ isOpen, close }">
 						<div v-show="isOpen">
 							<div
-								class="mt-1 rounded-lg bg-surface-white py-1 text-base border-2"
+								class="flex flex-col mt-1 rounded-lg bg-surface-white py-1 text-base border-2 max-h-[13rem]"
 							>
 								<ComboboxOptions
-									class="my-1 max-h-[12rem] overflow-y-auto px-1.5"
+									class="flex-1 my-1 overflow-y-auto px-1.5"
 									:class="options.length ? 'min-h-[6rem]' : 'min-h-[3.8rem]'"
 									static
 								>
@@ -66,22 +66,19 @@
 									<div v-else class="text-ink-gray-7 px-4">
 										{{ __('No results found') }}
 									</div>
-									<div
-										v-if="attrs.onCreate"
-										class="absolute bottom-2 left-1 w-[95%] pt-2 bg-white border-t"
-									>
-										<Button
-											variant="ghost"
-											class="w-full !justify-start"
-											:label="__('Create New')"
-											@click="attrs.onCreate(close)"
-										>
-											<template #prefix>
-												<Plus class="h-4 w-4 stroke-1.5" />
-											</template>
-										</Button>
-									</div>
 								</ComboboxOptions>
+								<div v-if="attrs.onCreate" class="px-1 pt-2 bg-white border-t">
+									<Button
+										variant="ghost"
+										class="w-full !justify-start"
+										:label="__('Create New')"
+										@click="attrs.onCreate(close)"
+									>
+										<template #prefix>
+											<Plus class="h-4 w-4 stroke-1.5" />
+										</template>
+									</Button>
+								</div>
 							</div>
 						</div>
 					</template>
