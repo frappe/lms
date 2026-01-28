@@ -19,6 +19,13 @@
 					placeholder=" "
 					v-model="student"
 					:required="true"
+					:allowCreate="true"
+					@create="
+						() => {
+							openSettings('Members')
+							show = false
+						}
+					"
 				/>
 				<Link
 					v-if="purchasedCertificate"

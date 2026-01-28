@@ -119,12 +119,6 @@ const routes = [
 		props: true,
 	},
 	{
-		path: '/courses/:courseName/edit',
-		name: 'CourseForm',
-		component: () => import('@/pages/Courses/CourseForm.vue'),
-		props: true,
-	},
-	{
 		path: '/courses/:courseName/learn/:chapterNumber-:lessonNumber/edit',
 		name: 'LessonForm',
 		component: () => import('@/pages/LessonForm.vue'),

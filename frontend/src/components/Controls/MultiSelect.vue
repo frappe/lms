@@ -19,9 +19,14 @@
 									showOptions = true
 								}
 							"
+							@click="(e) => {
+								showOptions = true
+								nextTick(() => {
+									setFocus()
+								})
+							}"
 							@focus="
 								() => {
-									showOptions = true
 									if (!filterOptions.data || filterOptions.data.length === 0) {
 										reload('')
 									}
@@ -115,7 +120,7 @@ import {
 } from '@headlessui/vue'
 import { createResource, Popover, Button } from 'frappe-ui'
 import { ref, computed, nextTick, useAttrs } from 'vue'
-import { watchDebounced } from '@vueuse/core'
+import { set, watchDebounced } from '@vueuse/core'
 import { X, Plus } from 'lucide-vue-next'
 
 const props = defineProps({
@@ -149,7 +154,6 @@ const props = defineProps({
 
 const values = defineModel()
 const attrs = useAttrs()
-const emails = ref([])
 const search = ref(null)
 const error = ref(null)
 const query = ref('')
@@ -161,6 +165,7 @@ const selectedValue = computed({
 	set: (val) => {
 		query.value = ''
 		val?.value && addValue(val.value)
+		showOptions.value = false
 	},
 })
 

@@ -88,29 +88,11 @@
 					</template>
 					{{ __('Get Certificate') }}
 				</Button>
-				<router-link
-					v-if="user?.data?.is_moderator || is_instructor()"
-					:to="{
-						name: 'CourseForm',
-						params: {
-							courseName: course.data.name,
-						},
-					}"
-				>
-					<Button variant="subtle" class="w-full mt-2" size="md">
-						<template #prefix>
-							<Pencil class="size-4 stroke-1.5" />
-						</template>
-						<span>
-							{{ __('Edit') }}
-						</span>
-					</Button>
-				</router-link>
 			</div>
 			<div class="space-y-4">
 				<div
 					class="font-medium text-ink-gray-9"
-					:class="{ 'mt-8': !readOnlyMode }"
+					:class="{ 'mt-8': course.data.membership && !readOnlyMode }"
 				>
 					{{ __('This course has:') }}
 				</div>

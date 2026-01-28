@@ -4,37 +4,70 @@
 			class="sticky top-0 z-10 flex items-center justify-between border-b bg-surface-white px-3 py-2.5 sm:px-5"
 		>
 			<Breadcrumbs class="h-7" :items="breadcrumbs" />
+			<div v-if="tabIndex == 2" class="flex items-center space-x-2">
+				<Button>
+					<template #icon>
+						<Trash2 class="w-4 h-4 stroke-1.5" />
+					</template>
+				</Button>
+				<Button variant="solid">
+					{{ __("Save") }}
+				</Button>
+			</div>
 		</header>
-		<CourseOverview v-if="!isAdmin" :course="course" class="p-5" />
+		<CourseOverview v-if="!isAdmin" :course="course" />
 		<div v-else>
 			<Tabs :tabs="tabs" v-model="tabIndex">
 				<template #tab-panel="{ tab }">
-					<component :is="tab.component" :course="course" class="p-5" />
+					<component :is="tab.component" :course="course" />
 				</template>
 			</Tabs>
 		</div>
 	</div>
 </template>
 <script setup>
-import { createResource, Breadcrumbs, Tabs, usePageMeta } from 'frappe-ui'
-import { computed, inject, markRaw, ref, watch } from 'vue'
+import { Button, createResource, Breadcrumbs, Tabs, usePageMeta } from 'frappe-ui'
+import { computed, inject, markRaw, onMounted, ref, watch } from 'vue'
 import { sessionStore } from '@/stores/session'
-import { useRouter } from 'vue-router'
-import { List, Settings2, TrendingUp } from 'lucide-vue-next'
+import { useRouter, useRoute } from 'vue-router'
+import { List, Settings2, Trash2, TrendingUp } from 'lucide-vue-next'
 import CourseOverview from '@/pages/Courses/CourseOverview.vue'
 import CourseDashboard from '@/pages/Courses/CourseDashboard.vue'
 import CourseForm from '@/pages/Courses/CourseForm.vue'
 
 const { brand } = sessionStore()
 const router = useRouter()
+const route = useRoute()
 const user = inject('$user')
-const tabIndex = ref(1)
+const tabIndex = ref(0)
 
 const props = defineProps({
 	courseName: {
 		type: String,
 		required: true,
 	},
+})
+
+onMounted(() => {
+	updateTabIndex()
+})
+
+const updateTabIndex = () => {
+	const hash = route.hash
+	if (hash) {
+		tabs.value.forEach((tab, index) => {
+			if (tab.label?.toLowerCase() === hash.replace('#', '')) {
+				tabIndex.value = index
+			}
+		})
+	}
+}
+
+watch(tabIndex, () => {
+	const tab = tabs.value[tabIndex.value]
+	if (tab.label != route.hash.replace('#', '')) {
+		router.push({ ...route, hash: `#${tab.label.toLowerCase()}` })
+	}
 })
 
 const course = createResource({

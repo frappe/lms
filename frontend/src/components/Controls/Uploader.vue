@@ -34,7 +34,7 @@
 				<img
 					v-if="type == 'image'"
 					:src="modelValue"
-					class="border rounded-md w-44 h-auto"
+					class="border rounded-md w-44 h-auto min-h-20 object-cover"
 				/>
 				<video v-else controls class="border rounded-md w-44 h-auto">
 					<source :src="modelValue" />

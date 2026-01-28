@@ -13,10 +13,7 @@
 					label: __('New Course'),
 					icon: 'book-open',
 					onClick() {
-						router.push({
-							name: 'CourseForm',
-							params: { courseName: 'new' },
-						})
+						showCourseModal = true
 					},
 				},
 				{
@@ -109,6 +106,7 @@
 			</Button>
 		</div>
 	</div>
+	<NewCourseModal v-if="showCourseModal" v-model="showCourseModal" :courses="courses" />
 </template>
 <script setup>
 import {
@@ -129,6 +127,7 @@ import { canCreateCourse } from '@/utils'
 import CourseCard from '@/components/CourseCard.vue'
 import EmptyState from '@/components/EmptyState.vue'
 import { useRouter } from 'vue-router'
+import NewCourseModal from '@/pages/Courses/NewCourseModal.vue'
 
 const user = inject('$user')
 const dayjs = inject('$dayjs')
@@ -143,6 +142,7 @@ const currentTab = ref('Live')
 const { brand } = sessionStore()
 const courseCount = ref(0)
 const router = useRouter()
+const showCourseModal = ref(false)
 
 onMounted(() => {
 	setFiltersFromQuery()

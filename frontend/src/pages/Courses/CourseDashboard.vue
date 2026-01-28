@@ -1,5 +1,5 @@
 <template>
-	<div :class="$attrs.class">
+	<div class="p-5">
 		<div class="grid grid-cols-3 gap-5 mb-5">
 			<NumberChartGraph :title="__('Enrolled')" :value="memberCount || 0" />
 			<NumberChartGraph
