@@ -476,15 +476,17 @@ def delete_sidebar_item(webpage):
 
 @frappe.whitelist()
 def delete_lesson(lesson, chapter):
-	# Delete Reference
-	chapter = frappe.get_doc("Course Chapter", chapter)
-	chapter.lessons = [row for row in chapter.lessons if row.lesson != lesson]
-	chapter.save()
+	lessons = frappe.get_all(
+		"Lesson Reference",
+		{"parent": chapter},
+		pluck="lesson",
+		order_by="idx",
+	)
+	lessons.remove(lesson)
+	frappe.db.delete("Lesson Reference", {"parent": chapter, "lesson": lesson})
+	update_index(lessons, chapter)
 
-	# Delete progress
 	frappe.db.delete("LMS Course Progress", {"lesson": lesson})
-
-	# Delete Lesson
 	frappe.db.delete("Course Lesson", lesson)
 
 
