@@ -20,7 +20,7 @@
 			<NumberChartGraph :title="__('Lessons')" :value="course.data?.lessons" />
 		</div>
 		<div class="grid grid-cols-[2fr_1fr] gap-5 items-start">
-			<div class="border rounded-lg py-3 px-4">
+			<div v-if="course.data?.enrollments" class="border rounded-lg py-3 px-4">
 				<div class="flex items-center justify-between mb-3">
 					<div class="text-lg font-semibold">
 						{{ __('Students') }}
@@ -120,7 +120,7 @@
 				</div>
 			</div>
 			<div class="space-y-5">
-				<div class="border rounded-lg p-4">
+				<div v-if="chartDetails.data?.length" class="border rounded-lg p-4">
 					<div class="text-ink-gray-5 mb-4">
 						{{ __('Progress Summary') }}
 					</div>
