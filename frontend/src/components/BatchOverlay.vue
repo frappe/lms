@@ -1,7 +1,7 @@
 <template>
 	<div v-if="batch.data" class="border-2 rounded-md p-5 lg:w-72">
 		<div
-			v-if="batch.data.seat_count && seats_left > 0"
+			v-if="batch.data.seat_count && batch.data.seats_left > 0"
 			class="text-sm bg-green-100 text-green-700 px-2 py-1 rounded-md"
 			:class="
 				batch.data.amount || batch.data.courses.length
@@ -9,16 +9,16 @@
 					: 'w-fit mb-4'
 			"
 		>
-			{{ seats_left }}
-			<span v-if="seats_left > 1">
+			{{ batch.data.seats_left }}
+			<span v-if="batch.data.seats_left > 1">
 				{{ __('Seats Left') }}
 			</span>
-			<span v-else-if="seats_left == 1">
+			<span v-else-if="batch.data.seats_left == 1">
 				{{ __('Seat Left') }}
 			</span>
 		</div>
 		<div
-			v-else-if="batch.data.seat_count && seats_left <= 0"
+			v-else-if="batch.data.seat_count && batch.data.seats_left <= 0"
 			class="text-xs bg-red-100 text-red-700 float-right px-2 py-0.5 rounded-md"
 		>
 			{{ __('Sold Out') }}
@@ -54,6 +54,7 @@
 				{{ batch.data.timezone }}
 			</span>
 		</div>
+
 		<div v-if="!readOnlyMode">
 			<router-link
 				v-if="canAccessBatch"
@@ -190,15 +191,10 @@ const enrollInBatch = () => {
 	)
 }
 
-const seats_left = computed(() => {
-	if (props.batch.data?.seat_count) {
-		return props.batch.data?.seat_count - props.batch.data?.students?.length
-	}
-	return null
-})
-
 const isStudent = computed(() => {
-	return props.batch.data?.students?.includes(user.data?.name)
+	return user.data
+		? props.batch.data?.students?.includes(user.data?.name)
+		: false
 })
 
 const isModerator = computed(() => {
@@ -218,6 +214,9 @@ const isInstructor = computed(() => {
 })
 
 const canAccessBatch = computed(() => {
+	if (!user.data) {
+		return false
+	}
 	return isModerator.value || isStudent.value || isEvaluator.value
 })
 

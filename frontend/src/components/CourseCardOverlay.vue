@@ -59,6 +59,7 @@
 					v-else-if="course.data.disable_self_learning && !isAdmin"
 					theme="blue"
 					size="lg"
+					class="mb-4"
 				>
 					{{ __('Contact the Administrator to enroll for this course') }}
 				</Badge>

@@ -185,10 +185,9 @@ const unReadNotifications = createListResource({
 	doctype: 'Notification Log',
 	url: 'lms.lms.api.get_notifications',
 	filters: {
-		for_user: user.data?.name,
 		read: 0,
 	},
-	auto: true,
+	auto: user.data ? true : false,
 	cache: 'Unread Notifications',
 })
 
@@ -196,18 +195,17 @@ const readNotifications = createListResource({
 	doctype: 'Notification Log',
 	url: 'lms.lms.api.get_notifications',
 	filters: {
-		for_user: user.data?.name,
 		read: 1,
 	},
-	auto: true,
+	auto: user.data ? true : false,
 	cache: 'Read Notifications',
 })
 
 const markAsRead = createResource({
-	url: 'lms.lms.api.mark_as_read',
+	url: 'frappe.desk.doctype.notification_log.notification_log.mark_as_read',
 	makeParams(values) {
 		return {
-			name: values.name,
+			docname: values.name,
 		}
 	},
 	onSuccess(data) {
@@ -217,7 +215,7 @@ const markAsRead = createResource({
 })
 
 const markAllAsRead = createResource({
-	url: 'lms.lms.api.mark_all_as_read',
+	url: 'frappe.desk.doctype.notification_log.notification_log.mark_all_as_read',
 	onSuccess(data) {
 		unReadNotifications.reload()
 		readNotifications.reload()

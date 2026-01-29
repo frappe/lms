@@ -182,8 +182,3 @@ def get_assignment_progress(lesson):
 		):
 			return False
 	return True
-
-
-@frappe.whitelist()
-def get_lesson_info(chapter):
-	return frappe.db.get_value("Course Chapter", chapter, "course")

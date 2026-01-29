@@ -31,15 +31,20 @@ from pypika import functions as fn
 
 from lms.lms.doctype.course_lesson.course_lesson import save_progress
 from lms.lms.utils import (
+	can_modify_batch,
+	can_modify_course,
 	get_average_rating,
 	get_batch_details,
 	get_course_details,
 	get_instructors,
 	get_lesson_count,
+	has_course_instructor_role,
+	has_evaluator_role,
+	has_moderator_role,
 )
 
 
-@frappe.whitelist(allow_guest=True)
+@frappe.whitelist()
 def get_user_info():
 	if frappe.session.user == "Guest":
 		return None
@@ -223,7 +228,6 @@ def get_chart_details():
 	return details
 
 
-@frappe.whitelist()
 def get_file_info(file_url):
 	"""Get file info for the given file URL."""
 	file_info = frappe.db.get_value(
@@ -235,17 +239,20 @@ def get_file_info(file_url):
 @frappe.whitelist(allow_guest=True)
 def get_branding():
 	"""Get branding details."""
-	website_settings = frappe.get_single("Website Settings")
-	image_fields = ["banner_image", "footer_logo", "favicon"]
+	fields = ["app_name"]
+	image_fields = ["banner_image", "footer_logo", "favicon", "app_logo"]
+	fields = fields + image_fields
+	settings = frappe._dict()
 
-	for field in image_fields:
-		if website_settings.get(field):
-			file_info = get_file_info(website_settings.get(field))
-			website_settings.update({field: json.loads(json.dumps(file_info))})
+	for field in fields:
+		value = frappe.get_cached_value("Website Settings", None, field)
+		if field in image_fields and value:
+			file_info = get_file_info(value)
+			settings.update({field: json.loads(json.dumps(file_info))})
 		else:
-			website_settings.update({field: None})
+			settings.update({field: value})
 
-	return website_settings
+	return settings
 
 
 @frappe.whitelist()
@@ -285,7 +292,7 @@ def get_evaluator_details(evaluator):
 	}
 
 
-@frappe.whitelist(allow_guest=True)
+@frappe.whitelist()
 def get_certified_participants(filters=None, start=0, page_length=100):
 	query = get_certification_query(filters)
 	query = query.orderby("issue_date", order=frappe.qb.desc).offset(start).limit(page_length)
@@ -339,14 +346,14 @@ def get_certification_query(filters):
 	return query
 
 
-@frappe.whitelist(allow_guest=True)
+@frappe.whitelist()
 def get_count_of_certified_members(filters=None):
 	query = get_certification_query(filters)
 	result = query.run(as_dict=True)
 	return len(result) or 0
 
 
-@frappe.whitelist(allow_guest=True)
+@frappe.whitelist()
 def get_certification_categories():
 	categories = []
 	seen = set()
@@ -369,20 +376,6 @@ def get_certification_categories():
 
 
 @frappe.whitelist()
-def get_assigned_badges(member):
-	assigned_badges = frappe.get_all(
-		"LMS Badge Assignment",
-		{"member": member},
-		["badge"],
-		as_dict=1,
-	)
-
-	for badge in assigned_badges:
-		badge.update(frappe.db.get_value("LMS Badge", badge.badge, ["name", "title", "image"]))
-	return assigned_badges
-
-
-@frappe.whitelist()
 def get_all_users():
 	frappe.only_for(["Moderator", "Course Creator", "Batch Evaluator"])
 	users = frappe.get_all(
@@ -396,28 +389,13 @@ def get_all_users():
 	return {user.name: user for user in users}
 
 
-@frappe.whitelist()
-def mark_as_read(name):
-	doc = frappe.get_doc("Notification Log", name)
-	doc.read = 1
-	doc.save(ignore_permissions=True)
-
-
-@frappe.whitelist()
-def mark_all_as_read():
-	notifications = frappe.get_all(
-		"Notification Log", {"for_user": frappe.session.user, "read": 0}, pluck="name"
-	)
-
-	for notification in notifications:
-		mark_as_read(notification)
-
-
 @frappe.whitelist(allow_guest=True)
 def get_sidebar_settings():
 	lms_settings = frappe.get_single("LMS Settings")
-	sidebar_items = frappe._dict()
+	if not lms_settings.allow_guest_access:
+		return []
 
+	sidebar_items = frappe._dict()
 	items = [
 		"courses",
 		"batches",
@@ -446,6 +424,7 @@ def get_sidebar_settings():
 
 @frappe.whitelist()
 def update_sidebar_item(webpage, icon):
+	frappe.only_for("Moderator")
 	filters = {
 		"web_page": webpage,
 		"parenttype": "LMS Settings",
@@ -464,6 +443,7 @@ def update_sidebar_item(webpage, icon):
 
 @frappe.whitelist()
 def delete_sidebar_item(webpage):
+	frappe.only_for("Moderator")
 	return frappe.db.delete(
 		"LMS Sidebar Item",
 		{
@@ -477,6 +457,10 @@ def delete_sidebar_item(webpage):
 
 @frappe.whitelist()
 def delete_lesson(lesson, chapter):
+	course = frappe.db.get_value("Course Chapter", chapter, "course")
+	if not can_modify_course(course):
+		frappe.throw(_("You do not have permission to delete this lesson."), frappe.PermissionError)
+
 	# Delete Reference
 	chapter = frappe.get_doc("Course Chapter", chapter)
 	chapter.lessons = [row for row in chapter.lessons if row.lesson != lesson]
@@ -491,8 +475,11 @@ def delete_lesson(lesson, chapter):
 
 @frappe.whitelist()
 def update_lesson_index(lesson, sourceChapter, targetChapter, idx):
-	hasMoved = sourceChapter == targetChapter
+	course = frappe.db.get_value("Course Chapter", sourceChapter, "course")
+	if not can_modify_course(course):
+		frappe.throw(_("You do not have permission to modify this lesson."), frappe.PermissionError)
 
+	hasMoved = sourceChapter == targetChapter
 	update_source_chapter(lesson, sourceChapter, idx, hasMoved)
 	if not hasMoved:
 		update_target_chapter(lesson, targetChapter, idx)
@@ -551,6 +538,10 @@ def update_index(lessons, chapter):
 @frappe.whitelist()
 def update_chapter_index(chapter, course, idx):
 	"""Update the index of a chapter within a course"""
+
+	if not can_modify_course(course):
+		frappe.throw(_("You do not have permission to modify this chapter."), frappe.PermissionError)
+
 	chapters = frappe.get_all(
 		"Chapter Reference",
 		{"parent": course},
@@ -567,26 +558,9 @@ def update_chapter_index(chapter, course, idx):
 		frappe.db.set_value("Chapter Reference", {"chapter": chapter_name, "parent": course}, "idx", i + 1)
 
 
-@frappe.whitelist(allow_guest=True)
-def get_categories(doctype, filters):
-	categoryOptions = []
-
-	categories = frappe.get_all(
-		doctype,
-		filters,
-		pluck="category",
-	)
-	categories = list(set(categories))
-
-	for category in categories:
-		if category:
-			categoryOptions.append({"label": category, "value": category})
-
-	return categoryOptions
-
-
 @frappe.whitelist()
 def get_members(start=0, search=""):
+	frappe.only_for(["Moderator"])
 	filters = {"enabled": 1, "name": ["not in", ["Administrator", "Guest"]]}
 	or_filters = {}
 
@@ -653,6 +627,7 @@ def save_evaluation_details(
 	"""
 	Save evaluation details for a member against a course.
 	"""
+	frappe.only_for(["Batch Evaluator", "Moderator"])
 	evaluation = frappe.db.exists("LMS Certificate Evaluation", {"member": member, "course": course})
 
 	details = {
@@ -696,6 +671,7 @@ def save_certificate_details(
 	"""
 	Save certificate details for a member against a course.
 	"""
+	frappe.only_for(["Batch Evaluator", "Moderator"])
 	certificate = frappe.db.exists("LMS Certificate", {"member": member, "course": course})
 
 	details = {
@@ -730,16 +706,9 @@ def delete_documents(doctype, documents):
 		frappe.delete_doc(doctype, doc)
 
 
-@frappe.whitelist(allow_guest=True)
-def get_count(doctype, filters):
-	return frappe.db.count(
-		doctype,
-		filters=filters,
-	)
-
-
 @frappe.whitelist()
 def get_payment_gateway_details(payment_gateway):
+	frappe.only_for("Moderator")
 	gateway = frappe.get_doc("Payment Gateway", payment_gateway)
 
 	if gateway.gateway_controller is None:
@@ -795,6 +764,7 @@ def get_transformed_fields(meta, data=None):
 
 @frappe.whitelist()
 def get_new_gateway_fields(doctype):
+	frappe.only_for("Moderator")
 	try:
 		meta = frappe.get_meta(doctype).fields
 	except Exception:
@@ -825,6 +795,18 @@ def update_course_statistics():
 
 @frappe.whitelist()
 def get_announcements(batch):
+	roles = frappe.get_roles()
+	is_batch_student = frappe.db.exists(
+		"LMS Batch Enrollment", {"batch": batch, "member": frappe.session.user}
+	)
+	is_moderator = "Moderator" in roles
+	is_evaluator = "Batch Evaluator" in roles
+
+	if not (is_batch_student or is_moderator or is_evaluator):
+		frappe.throw(
+			_("You do not have permission to access announcements for this batch."), frappe.PermissionError
+		)
+
 	communications = frappe.get_all(
 		"Communication",
 		filters={
@@ -851,6 +833,9 @@ def get_announcements(batch):
 
 @frappe.whitelist()
 def delete_course(course):
+	if not can_modify_course(course):
+		frappe.throw(_("You do not have permission to delete this course."), frappe.PermissionError)
+
 	frappe.db.delete("LMS Enrollment", {"course": course})
 	frappe.db.delete("LMS Course Progress", {"course": course})
 	frappe.db.set_value("LMS Quiz", {"course": course}, "course", None)
@@ -885,6 +870,9 @@ def delete_course(course):
 
 @frappe.whitelist()
 def delete_batch(batch):
+	if not can_modify_batch(batch):
+		frappe.throw(_("You do not have permission to delete this batch."), frappe.PermissionError)
+
 	frappe.db.delete("LMS Batch Enrollment", {"batch": batch})
 	frappe.db.delete("Batch Course", {"parent": batch, "parenttype": "LMS Batch"})
 	frappe.db.delete("LMS Assessment", {"parent": batch, "parenttype": "LMS Batch"})
@@ -928,6 +916,9 @@ def give_discussions_permission():
 
 @frappe.whitelist()
 def upsert_chapter(title, course, is_scorm_package, scorm_package, name=None):
+	if not can_modify_course(course):
+		frappe.throw(_("You do not have permission to modify this chapter."), frappe.PermissionError)
+
 	values = frappe._dict({"title": title, "course": course, "is_scorm_package": is_scorm_package})
 
 	if is_scorm_package:
@@ -1050,6 +1041,10 @@ def add_lesson(title, chapter, course, idx):
 
 @frappe.whitelist()
 def delete_chapter(chapter):
+	course = frappe.db.get_value("Course Chapter", chapter, "course")
+	if not can_modify_course(course):
+		frappe.throw(_("You do not have permission to delete this chapter."), frappe.PermissionError)
+
 	chapterInfo = frappe.db.get_value(
 		"Course Chapter", chapter, ["is_scorm_package", "scorm_package_path"], as_dict=True
 	)
@@ -1092,9 +1087,9 @@ def mark_lesson_progress(course, chapter_number, lesson_number):
 
 
 @frappe.whitelist()
-def get_heatmap_data(member=None, base_days=200):
-	if not member:
-		member = frappe.session.user
+def get_heatmap_data(member, base_days=200):
+	if not (has_course_instructor_role() or has_moderator_role() or has_evaluator_role()):
+		frappe.throw(_("You do not have permission to access heatmap data."), frappe.PermissionError)
 
 	base_date, start_date, number_of_days, days = calculate_date_ranges(base_days)
 	date_count = initialize_date_count(days)
@@ -1207,6 +1202,8 @@ def get_week_difference(start_date, current_date):
 
 @frappe.whitelist()
 def get_notifications(filters):
+	filters = frappe._dict(filters or {})
+	filters.for_user = frappe.session.user
 	notifications = frappe.get_all(
 		"Notification Log",
 		filters,
@@ -1306,9 +1303,8 @@ def get_lms_settings():
 @frappe.whitelist()
 def cancel_evaluation(evaluation):
 	evaluation = frappe._dict(evaluation)
-
 	if evaluation.member != frappe.session.user:
-		return
+		frappe.throw(_("You do not have permission to cancel this evaluation."), frappe.PermissionError)
 
 	frappe.db.set_value("LMS Certificate Request", evaluation.name, "status", "Cancelled")
 	events = frappe.get_all(
@@ -1407,16 +1403,6 @@ def add_an_evaluator(email):
 
 
 @frappe.whitelist()
-def delete_evaluator(evaluator):
-	frappe.only_for("Moderator")
-	if not frappe.db.exists("Course Evaluator", evaluator):
-		frappe.throw(_("Evaluator does not exist."))
-
-	frappe.db.delete("Has Role", {"parent": evaluator, "role": "Batch Evaluator"})
-	frappe.db.delete("Course Evaluator", evaluator)
-
-
-@frappe.whitelist()
 def capture_user_persona(responses):
 	frappe.only_for("System Manager")
 	data = frappe.parse_json(responses)
@@ -1448,6 +1434,7 @@ def get_meta_info(type, route):
 
 @frappe.whitelist()
 def update_meta_info(meta_type, route, meta_tags):
+	frappe.only_for(["Course Creator", "Batch Evaluator", "Moderator"])
 	validate_meta_data_permissions(meta_type)
 	validate_meta_tags(meta_tags)
 
@@ -1548,6 +1535,10 @@ def make_new_exercise_submission(exercise, code, test_cases):
 
 
 def update_exercise_submission(submission, code, test_cases):
+	member = frappe.db.get_value("LMS Programming Exercise Submission", submission, "member")
+	if member != frappe.session.user:
+		frappe.throw(_("You do not have permission to update this submission."), frappe.PermissionError)
+
 	update_test_cases(test_cases, submission)
 	status = get_exercise_status(test_cases)
 	frappe.db.set_value("LMS Programming Exercise Submission", submission, {"status": status, "code": code})
@@ -1620,11 +1611,12 @@ def track_new_watch_time(lesson, video):
 
 @frappe.whitelist()
 def get_course_progress_distribution(course):
-	roles = frappe.get_roles()
-	if "Course Creator" not in roles and "Moderator" not in roles:
-		frappe.throw(_("You do not have permission to access course progress data."))
+	if not can_modify_course(course):
+		frappe.throw(
+			_("You do not have permission to access this course's progress data."), frappe.PermissionError
+		)
 
-	all_progress = frappe.get_list(
+	all_progress = frappe.get_all(
 		"LMS Enrollment",
 		{
 			"course": course,
@@ -1720,9 +1712,6 @@ def get_profile_details(username):
 
 @frappe.whitelist()
 def get_streak_info():
-	if frappe.session.user == "Guest":
-		return {}
-
 	all_dates = fetch_activity_dates(frappe.session.user)
 	streak, longest_streak = calculate_streaks(all_dates)
 	current_streak = calculate_current_streak(all_dates, streak)
@@ -1791,8 +1780,6 @@ def calculate_current_streak(all_dates, streak):
 @frappe.whitelist()
 def get_my_live_classes():
 	my_live_classes = []
-	if frappe.session.user == "Guest":
-		return my_live_classes
 
 	batches = frappe.get_all(
 		"LMS Batch Enrollment",
@@ -1837,8 +1824,6 @@ def get_my_live_classes():
 @frappe.whitelist()
 def get_created_courses():
 	created_courses = []
-	if frappe.session.user == "Guest":
-		return created_courses
 
 	CourseInstructor = frappe.qb.DocType("Course Instructor")
 	Course = frappe.qb.DocType("LMS Course")
@@ -1866,8 +1851,6 @@ def get_created_courses():
 @frappe.whitelist()
 def get_created_batches():
 	created_batches = []
-	if frappe.session.user == "Guest":
-		return created_batches
 
 	CourseInstructor = frappe.qb.DocType("Course Instructor")
 	Batch = frappe.qb.DocType("LMS Batch")
@@ -1895,9 +1878,6 @@ def get_created_batches():
 
 @frappe.whitelist()
 def get_admin_live_classes():
-	if frappe.session.user == "Guest":
-		return []
-
 	CourseInstructor = frappe.qb.DocType("Course Instructor")
 	LMSLiveClass = frappe.qb.DocType("LMS Live Class")
 
@@ -1928,9 +1908,6 @@ def get_admin_live_classes():
 
 @frappe.whitelist()
 def get_admin_evals():
-	if frappe.session.user == "Guest":
-		return []
-
 	evals = frappe.get_all(
 		"LMS Certificate Request",
 		{
@@ -1960,9 +1937,6 @@ def get_admin_evals():
 @frappe.whitelist()
 def get_my_courses():
 	my_courses = []
-	if frappe.session.user == "Guest":
-		return my_courses
-
 	courses = get_my_latest_courses()
 
 	if not len(courses):
@@ -2014,9 +1988,6 @@ def get_popular_courses():
 @frappe.whitelist()
 def get_my_batches():
 	my_batches = []
-	if frappe.session.user == "Guest":
-		return my_batches
-
 	batches = get_my_latest_batches()
 
 	if not len(batches):
@@ -2057,6 +2028,7 @@ def get_upcoming_batches():
 
 @frappe.whitelist()
 def delete_programming_exercise(exercise):
+	frappe.only_for(["Moderator", "Course Creator"])
 	frappe.db.delete("LMS Programming Exercise Submission", {"exercise": exercise})
 	frappe.db.delete("LMS Programming Exercise", exercise)
 
