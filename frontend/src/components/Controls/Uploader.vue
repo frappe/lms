@@ -38,7 +38,7 @@
 						'border object-cover',
 						shape === 'circle'
 							? 'w-20 h-20 rounded-full'
-							: 'w-44 h-auto rounded-md',
+							: 'w-44 h-auto min-h-20 rounded-md',
 					]"
 				/>
 				<video v-else controls class="border rounded-md w-44 h-auto">

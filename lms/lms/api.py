@@ -31,6 +31,8 @@ from pypika import functions as fn
 
 from lms.lms.doctype.course_lesson.course_lesson import save_progress
 from lms.lms.utils import (
+	can_modify_batch,
+	can_modify_course,
 	get_average_rating,
 	get_batch_details,
 	get_course_details,
@@ -39,7 +41,6 @@ from lms.lms.utils import (
 	has_course_instructor_role,
 	has_evaluator_role,
 	has_moderator_role,
-	has_student_role,
 )
 
 
@@ -830,16 +831,6 @@ def get_announcements(batch):
 	return communications
 
 
-def can_modify_course(course):
-	is_instructor = frappe.db.exists(
-		"Course Instructor",
-		{"instructor": frappe.session.user, "parent": course, "parenttype": "LMS Course"},
-	)
-	if not (has_moderator_role() or is_instructor):
-		return False
-	return True
-
-
 @frappe.whitelist()
 def delete_course(course):
 	if not can_modify_course(course):
@@ -875,20 +866,6 @@ def delete_course(course):
 		frappe.delete_doc("Course Chapter", chapter)
 
 	frappe.delete_doc("LMS Course", course)
-
-
-def can_modify_batch(batch):
-	is_instructor = frappe.db.exists(
-		"Course Instructor",
-		{
-			"instructor": frappe.session.user,
-			"parent": batch,
-			"parenttype": "LMS Batch",
-		},
-	)
-	if not (has_moderator_role() or is_instructor):
-		return False
-	return True
 
 
 @frappe.whitelist()
