@@ -1179,6 +1179,8 @@ def get_batch_details(batch):
 	if batch_details.seat_count:
 		batch_details.seats_left = batch_details.seat_count - len(batch_students)
 
+	print(batch_details.seat_count, len(batch_students))
+
 	return batch_details
 
 

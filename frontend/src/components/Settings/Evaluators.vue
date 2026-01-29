@@ -186,8 +186,9 @@ const openProfile = (username: string) => {
 }
 
 const deleteEvaluator = (evaluator: string) => {
-	call('lms.lms.api.delete_evaluator', {
-		evaluator: evaluator,
+	call('frappe.client.delete', {
+		doctype: 'Course Evaluator',
+		name: evaluator,
 	})
 		.then(() => {
 			toast.success(__('Evaluator deleted successfully'))

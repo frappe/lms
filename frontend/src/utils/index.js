@@ -490,6 +490,9 @@ const getSidebarItems = () => {
 					icon: 'GraduationCap',
 					to: 'CertifiedParticipants',
 					activeFor: ['CertifiedParticipants'],
+					condition: () => {
+						return userResource?.data
+					},
 				},
 				{
 					label: 'Jobs',

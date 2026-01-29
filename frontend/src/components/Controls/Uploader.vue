@@ -34,7 +34,12 @@
 				<img
 					v-if="type == 'image'"
 					:src="modelValue"
-					class="border rounded-md w-44 h-auto"
+					:class="[
+						'border object-cover',
+						shape === 'circle'
+							? 'w-20 h-20 rounded-full'
+							: 'w-44 h-auto rounded-md',
+					]"
 				/>
 				<video v-else controls class="border rounded-md w-44 h-auto">
 					<source :src="modelValue" />
@@ -72,6 +77,7 @@ const props = withDefaults(
 		description?: string
 		type?: 'image' | 'video'
 		required?: boolean
+		shape?: 'square' | 'circle'
 	}>(),
 	{
 		modelValue: '',
@@ -79,6 +85,7 @@ const props = withDefaults(
 		description: '',
 		type: 'image',
 		required: true,
+		shape: 'square',
 	}
 )
 

@@ -9,7 +9,6 @@ export const usersStore = defineStore('lms-users', () => {
 				window.location.href = '/login'
 			}
 		},
-		auto: true,
 	})
 
 	const allUsers = createResource({

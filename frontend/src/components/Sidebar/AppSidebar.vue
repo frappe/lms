@@ -269,12 +269,13 @@ const iconProps = {
 onMounted(() => {
 	setUpOnboarding()
 	addKeyboardShortcut()
+	updateSidebarLinks()
 	socket.on('publish_lms_notifications', (data) => {
 		unreadNotifications.reload()
 	})
 })
 
-const setSidebarLinks = () => {
+const updateSidebarLinksVisibility = () => {
 	sidebarSettings.reload(
 		{},
 		{
@@ -591,9 +592,17 @@ watch(userResource, async () => {
 		await programs.reload()
 		setUpOnboarding()
 	}
-	sidebarLinks.value = getSidebarLinks()
-	setSidebarLinks()
+	updateSidebarLinks()
 })
+
+watch(settingsStore.settings, () => {
+	updateSidebarLinks()
+})
+
+const updateSidebarLinks = () => {
+	sidebarLinks.value = getSidebarLinks()
+	updateSidebarLinksVisibility()
+}
 
 const redirectToWebsite = () => {
 	window.open('https://frappe.io/learning', '_blank')
