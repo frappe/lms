@@ -27,6 +27,7 @@ from frappe.utils import (
 	now,
 )
 from frappe.utils.response import Response
+from pypika import functions as fn
 
 from lms.lms.doctype.course_lesson.course_lesson import save_progress
 from lms.lms.utils import (
@@ -2060,11 +2061,31 @@ def get_lesson_completion_stats(course):
 	if "Course Creator" not in roles and "Moderator" not in roles:
 		frappe.throw(_("You do not have permission to access lesson completion stats."))
 
-	lesson_progress = frappe.get_list(
-		"LMS Course Progress",
-		{"course": course, "status": "Complete"},
-		["lesson", "COUNT(name) as completion_count"],
-		group_by="lesson",
+	CourseProgress = frappe.qb.DocType("LMS Course Progress")
+	LessonReference = frappe.qb.DocType("Lesson Reference")
+	ChapterReference = frappe.qb.DocType("Chapter Reference")
+	Lesson = frappe.qb.DocType("Course Lesson")
+
+	rows = (
+		frappe.qb.from_(CourseProgress)
+		.join(LessonReference)
+		.on(CourseProgress.lesson == LessonReference.lesson)
+		.join(ChapterReference)
+		.on(LessonReference.parent == ChapterReference.chapter)
+		.join(Lesson)
+		.on(CourseProgress.lesson == Lesson.name)
+		.select(
+			LessonReference.idx,
+			ChapterReference.idx.as_("chapter_idx"),
+			CourseProgress.lesson,
+			Lesson.title,
+			Lesson.name.as_("lesson_name"),
+			fn.Count(CourseProgress.name).as_("completion_count"),
+		)
+		.where((CourseProgress.course == course) & (CourseProgress.status == "Complete"))
+		.groupby(CourseProgress.lesson)
+		.orderby(ChapterReference.idx, LessonReference.idx)
+		.run(as_dict=True)
 	)
 
-	return lesson_progress
+	return rows

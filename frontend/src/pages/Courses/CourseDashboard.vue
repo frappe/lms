@@ -187,14 +187,46 @@
 						/>
 					</div>
 				</div>
-				{{ lessonProgress.data }}
-				<div v-if="lessonProgress.data?.length" class="border rounded-lg p-4">
-					<div class="text-ink-gray-5 mb-4">
-						{{ __('Lesson Completion') }}
+				<div
+					v-if="lessonProgress.data?.length"
+					class="border rounded-lg pt-4 px-4"
+				>
+					<div class="flex items-center justify-between mb-4">
+						<div class="text-ink-gray-5">
+							{{ __('Lesson Completion') }}
+						</div>
+						<Select
+							:options="lessonProgressSortingOptions"
+							@update:modelValue="(value: string) => updateLessonProgress(value)"
+							:placeholder="__('Sort by')"
+							class="!w-32"
+						/>
 					</div>
-					<!-- <div v-for="progress in lessonProgress.data">
-						{{ progress }}
-					</div> -->
+					<div class="divide-y max-h-[43vh] overflow-y-auto">
+						<div
+							v-for="progress in lessonProgress.data"
+							class="flex justify-between text-sm py-2 my-1"
+						>
+							<div class="">
+								<span class="mr-3 text-xs">
+									{{ progress.chapter_idx }}.{{ progress.idx }}
+								</span>
+								<span>
+									{{ progress.title }}
+								</span>
+							</div>
+							<Tooltip :text="progress.completion_count">
+								<div>
+									{{
+										Math.ceil(
+											(progress.completion_count / course.data?.enrollments) *
+												100
+										)
+									}}%
+								</div>
+							</Tooltip>
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -212,6 +244,7 @@ import {
 	createListResource,
 	createResource,
 	dayjs,
+	Dropdown,
 	ECharts,
 	FormControl,
 	ListView,
@@ -220,10 +253,11 @@ import {
 	ListRows,
 	ListRow,
 	ListRowItem,
+	Select,
 	Tooltip,
 } from 'frappe-ui'
 import { computed, ref, watch } from 'vue'
-import { Plus, Star } from 'lucide-vue-next'
+import { ChevronDown, Plus, Star } from 'lucide-vue-next'
 import { formatAmount } from '@/utils'
 import colors from '@/utils/frappe-ui-colors.json'
 import CourseEnrollmentModal from '@/pages/Courses/CourseEnrollmentModal.vue'
@@ -280,16 +314,19 @@ const lessonProgress = createResource({
 	auto: true,
 })
 
-/* const lessonProgress = createListResource({
-	doctype: 'LMS Course Progress',
-	filters: {
-		course: props.course.data?.name,
-		status: 'Complete',
-	},
-	fields: ['lesson', `count(name) as completed_count`],
-	groupBy: 'lesson',
-	auto: true,
-}) */
+const updateLessonProgress = (value: string) => {
+	if (value == 'completion_rate') {
+		lessonProgress.data?.sort((a: any, b: any) => {
+			const rateA = a.completion_count / (props.course.data?.enrollments || 1)
+			const rateB = b.completion_count / (props.course.data?.enrollments || 1)
+			return rateB - rateA
+		})
+	} else if (value == 'index') {
+		lessonProgress.data?.sort((a: any, b: any) => {
+			return a.chapter_idx - b.chapter_idx || a.idx - b.idx
+		})
+	}
+}
 
 watch([searchFilter], () => {
 	let filterApplied = false
@@ -340,4 +377,21 @@ const progressColumns = computed(() => {
 		},
 	]
 })
+
+const lessonProgressSortingOptions = [
+	{
+		label: __('Lesson Index'),
+		value: 'index',
+		onClick() {
+			updateLessonProgress('index')
+		},
+	},
+	{
+		label: __('Completion Rate'),
+		value: 'completion_rate',
+		onClick() {
+			updateLessonProgress('completion_rate')
+		},
+	},
+]
 </script>

@@ -5,7 +5,7 @@
 		<Breadcrumbs :items="breadcrumbs" />
 
 		<Dropdown
-			placement="start"
+			placement="right"
 			side="bottom"
 			v-if="canCreateCourse()"
 			:options="[
