@@ -851,17 +851,18 @@ def get_announcements(batch):
 
 @frappe.whitelist()
 def delete_course(course):
-	chapters = frappe.get_all("Course Chapter", {"course": course}, pluck="name")
+	frappe.db.delete("LMS Enrollment", {"course": course})
+	frappe.db.delete("LMS Course Progress", {"course": course})
+	frappe.db.set_value("LMS Quiz", {"course": course}, "course", None)
+	frappe.db.set_value("LMS Quiz Submission", {"course": course}, "course", None)
 
-	chapter_references = frappe.get_all("Chapter Reference", {"parent": course}, pluck="name")
+	chapters = frappe.get_all("Course Chapter", {"course": course}, pluck="name")
+	frappe.db.delete("Chapter Reference", {"parent": course})
 
 	for chapter in chapters:
 		lessons = frappe.get_all("Course Lesson", {"chapter": chapter}, pluck="name")
 
-		lesson_references = frappe.get_all("Lesson Reference", {"parent": chapter}, pluck="name")
-
-		for lesson in lesson_references:
-			frappe.delete_doc("Lesson Reference", lesson)
+		frappe.db.delete("Lesson Reference", {"parent": chapter})
 
 		for lesson in lessons:
 			topics = frappe.get_all(
@@ -872,21 +873,13 @@ def delete_course(course):
 
 			for topic in topics:
 				frappe.db.delete("Discussion Reply", {"topic": topic})
-
 				frappe.db.delete("Discussion Topic", topic)
 
 			frappe.delete_doc("Course Lesson", lesson)
 
-	for chapter in chapter_references:
-		frappe.delete_doc("Chapter Reference", chapter)
-
 	for chapter in chapters:
 		frappe.delete_doc("Course Chapter", chapter)
 
-	frappe.db.delete("LMS Course Progress", {"course": course})
-	frappe.db.delete("LMS Quiz", {"course": course})
-	frappe.db.delete("LMS Quiz Submission", {"course": course})
-	frappe.db.delete("LMS Enrollment", {"course": course})
 	frappe.delete_doc("LMS Course", course)
 
 
@@ -1064,10 +1057,23 @@ def delete_chapter(chapter):
 	if chapterInfo.is_scorm_package:
 		delete_scorm_package(chapterInfo.scorm_package_path)
 
+	course = frappe.db.get_value("Chapter Reference", {"chapter": chapter}, "parent")
+
 	frappe.db.delete("Chapter Reference", {"chapter": chapter})
 	frappe.db.delete("Lesson Reference", {"parent": chapter})
 	frappe.db.delete("Course Lesson", {"chapter": chapter})
 	frappe.db.delete("Course Chapter", chapter)
+
+	# reset chapter reference index after deletion
+	if course:
+		chapters = frappe.get_all(
+			"Chapter Reference", filters={"parent": course}, fields=["name"], order_by="idx asc"
+		)
+
+		i = 1
+		for chapter in chapters:
+			frappe.db.set_value("Chapter Reference", chapter.name, "idx", i)
+			i += 1
 
 
 def delete_scorm_package(scorm_package_path):
