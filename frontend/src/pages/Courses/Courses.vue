@@ -5,7 +5,7 @@
 		<Breadcrumbs :items="breadcrumbs" />
 
 		<Dropdown
-			placement="start"
+			placement="right"
 			side="bottom"
 			v-if="canCreateCourse()"
 			:options="[
@@ -13,10 +13,7 @@
 					label: __('New Course'),
 					icon: 'book-open',
 					onClick() {
-						router.push({
-							name: 'CourseForm',
-							params: { courseName: 'new' },
-						})
+						showCourseModal = true
 					},
 				},
 				{
@@ -109,6 +106,11 @@
 			</Button>
 		</div>
 	</div>
+	<NewCourseModal
+		v-if="showCourseModal"
+		v-model="showCourseModal"
+		:courses="courses"
+	/>
 </template>
 <script setup>
 import {
@@ -128,13 +130,19 @@ import { sessionStore } from '@/stores/session'
 import { canCreateCourse } from '@/utils'
 import CourseCard from '@/components/CourseCard.vue'
 import EmptyState from '@/components/EmptyState.vue'
-import router from '../router'
+import { useRouter } from 'vue-router'
+import NewCourseModal from '@/pages/Courses/NewCourseModal.vue'
 
 const user = inject('$user')
 const dayjs = inject('$dayjs')
 const start = ref(0)
 const pageLength = ref(30)
-const categories = ref([])
+const categories = ref([
+	{
+		label: '',
+		value: null,
+	},
+])
 const currentCategory = ref(null)
 const title = ref('')
 const certification = ref(false)
@@ -142,17 +150,13 @@ const filters = ref({})
 const currentTab = ref('Live')
 const { brand } = sessionStore()
 const courseCount = ref(0)
+const router = useRouter()
+const showCourseModal = ref(false)
 
 onMounted(() => {
 	setFiltersFromQuery()
 	updateCourses()
 	getCourseCount()
-	categories.value = [
-		{
-			label: '',
-			value: null,
-		},
-	]
 })
 
 const setFiltersFromQuery = () => {
@@ -160,6 +164,9 @@ const setFiltersFromQuery = () => {
 	title.value = queries.get('title') || ''
 	currentCategory.value = queries.get('category') || null
 	certification.value = queries.get('certification') || false
+	if (queries.get('newCourse') == '1') {
+		showCourseModal.value = true
+	}
 }
 
 const courses = createListResource({

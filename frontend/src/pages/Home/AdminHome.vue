@@ -74,7 +74,7 @@
 				}}
 			</div>
 			<router-link
-				:to="{ name: 'CourseForm', params: { courseName: 'new' } }"
+				:to="{ name: 'Courses', query: { newCourse: '1' } }"
 				class="mt-4"
 			>
 				<Button>

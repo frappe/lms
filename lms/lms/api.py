@@ -27,6 +27,7 @@ from frappe.utils import (
 	now,
 )
 from frappe.utils.response import Response
+from pypika import functions as fn
 
 from lms.lms.doctype.course_lesson.course_lesson import save_progress
 from lms.lms.utils import (
@@ -1619,7 +1620,11 @@ def track_new_watch_time(lesson, video):
 
 @frappe.whitelist()
 def get_course_progress_distribution(course):
-	all_progress = frappe.get_all(
+	roles = frappe.get_roles()
+	if "Course Creator" not in roles and "Moderator" not in roles:
+		frappe.throw(_("You do not have permission to access course progress data."))
+
+	all_progress = frappe.get_list(
 		"LMS Enrollment",
 		{
 			"course": course,
@@ -1646,24 +1651,16 @@ def get_average_course_progress(progress_list):
 def get_progress_distribution(progressList):
 	distribution = [
 		{
-			"category": "0-20%",
-			"count": len([p for p in progressList if 0 <= p < 20]),
+			"name": "Just Started (0-30%)",
+			"value": len([p for p in progressList if 0 <= p < 30]),
 		},
 		{
-			"category": "20-40%",
-			"count": len([p for p in progressList if 20 <= p < 40]),
+			"name": "In Progress (30-60%)",
+			"value": len([p for p in progressList if 30 <= p < 60]),
 		},
 		{
-			"category": "40-60%",
-			"count": len([p for p in progressList if 40 <= p < 60]),
-		},
-		{
-			"category": "60-80%",
-			"count": len([p for p in progressList if 60 <= p < 80]),
-		},
-		{
-			"category": "80-100%",
-			"count": len([p for p in progressList if 80 <= p <= 100]),
+			"name": "Advanced (60-100%)",
+			"value": len([p for p in progressList if 60 <= p <= 100]),
 		},
 	]
 
@@ -2062,3 +2059,39 @@ def get_upcoming_batches():
 def delete_programming_exercise(exercise):
 	frappe.db.delete("LMS Programming Exercise Submission", {"exercise": exercise})
 	frappe.db.delete("LMS Programming Exercise", exercise)
+
+
+@frappe.whitelist()
+def get_lesson_completion_stats(course):
+	roles = frappe.get_roles()
+	if "Course Creator" not in roles and "Moderator" not in roles:
+		frappe.throw(_("You do not have permission to access lesson completion stats."))
+
+	CourseProgress = frappe.qb.DocType("LMS Course Progress")
+	LessonReference = frappe.qb.DocType("Lesson Reference")
+	ChapterReference = frappe.qb.DocType("Chapter Reference")
+	Lesson = frappe.qb.DocType("Course Lesson")
+
+	rows = (
+		frappe.qb.from_(CourseProgress)
+		.join(LessonReference)
+		.on(CourseProgress.lesson == LessonReference.lesson)
+		.join(ChapterReference)
+		.on(LessonReference.parent == ChapterReference.chapter)
+		.join(Lesson)
+		.on(CourseProgress.lesson == Lesson.name)
+		.select(
+			LessonReference.idx,
+			ChapterReference.idx.as_("chapter_idx"),
+			CourseProgress.lesson,
+			Lesson.title,
+			Lesson.name.as_("lesson_name"),
+			fn.Count(CourseProgress.name).as_("completion_count"),
+		)
+		.where((CourseProgress.course == course) & (CourseProgress.status == "Complete"))
+		.groupby(CourseProgress.lesson)
+		.orderby(ChapterReference.idx, LessonReference.idx)
+		.run(as_dict=True)
+	)
+
+	return rows
