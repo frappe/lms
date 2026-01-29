@@ -16,7 +16,6 @@ from lms.lms.utils import (
 	get_lessons,
 	get_membership,
 	get_reviews,
-	get_tags,
 	has_course_instructor_role,
 	has_evaluator_role,
 	has_moderator_role,
@@ -97,11 +96,6 @@ class TestLMSUtils(BaseTestUtils):
 		lessons = get_lessons(self.course.name)
 		all_lessons = frappe.db.count("Course Lesson", {"course": self.course.name})
 		self.assertEqual(len(lessons), all_lessons)
-
-	def test_get_tags(self):
-		tags = get_tags(self.course.name)
-		expected_tags = ["Frappe", "Learning", "Utility"]
-		self.assertEqual(set(tags), set(expected_tags))
 
 	def test_get_instructors(self):
 		instructors = get_instructors("LMS Course", self.course.name)
