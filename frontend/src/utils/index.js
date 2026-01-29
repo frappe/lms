@@ -465,7 +465,6 @@ const getSidebarItems = () => {
 						'Courses',
 						'CourseDetail',
 						'Lesson',
-						'CourseForm',
 						'LessonForm',
 					],
 				},

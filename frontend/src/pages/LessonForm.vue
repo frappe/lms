@@ -471,7 +471,11 @@ const breadcrumbs = computed(() => {
 		},
 		{
 			label: lessonDetails.data?.course_title,
-			route: { name: 'CourseForm', params: { courseName: props.courseName } },
+			route: {
+				name: 'CourseDetail',
+				params: { courseName: props.courseName },
+				hash: '#settings',
+			},
 		},
 	]
 

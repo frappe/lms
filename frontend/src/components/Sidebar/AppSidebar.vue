@@ -406,9 +406,13 @@ const steps = reactive([
 			minimize.value = true
 			let course = await getFirstCourse()
 			if (course) {
-				router.push({ name: 'CourseForm', params: { courseName: course } })
+				router.push({
+					name: 'CourseDetail',
+					params: { courseName: course },
+					hash: '#settings',
+				})
 			} else {
-				router.push({ name: 'CourseForm' })
+				router.push({ name: 'Courses', query: { newCourse: '1' } })
 			}
 		},
 	},
@@ -423,11 +427,12 @@ const steps = reactive([
 			let course = await getFirstCourse()
 			if (course) {
 				router.push({
-					name: 'CourseForm',
+					name: 'CourseDetail',
 					params: { courseName: course },
+					hash: '#settings',
 				})
 			} else {
-				router.push({ name: 'Courses' })
+				router.push({ name: 'Courses', query: { newCourse: '1' } })
 			}
 		},
 	},
