@@ -8,7 +8,6 @@ from frappe import _
 from frappe.desk.doctype.dashboard_chart.dashboard_chart import get_result
 from frappe.desk.doctype.notification_log.notification_log import make_notification_logs
 from frappe.desk.notifications import extract_mentions
-from frappe.pulse.utils import get_frappe_version
 from frappe.rate_limiter import rate_limit
 from frappe.utils import (
 	add_months,
@@ -17,6 +16,7 @@ from frappe.utils import (
 	fmt_money,
 	format_datetime,
 	get_datetime,
+	get_frappe_version,
 	get_fullname,
 	get_time_str,
 	getdate,
@@ -1115,11 +1115,12 @@ def get_neighbour_lesson(course, chapter, lesson):
 @rate_limit(limit=500, seconds=60 * 60)
 def get_batch_details(batch):
 	batch_students = frappe.get_all("LMS Batch Enrollment", {"batch": batch}, pluck="member")
-	if (
-		not frappe.db.get_value("LMS Batch", batch, "published")
-		and not can_create_batches()
-		and frappe.session.user not in batch_students
-	):
+
+	has_create_batch_role = can_create_batches()
+	is_course_published = frappe.db.get_value("LMS Batch", batch, "published")
+	is_student_enrolled = frappe.session.user in batch_students
+
+	if not (is_course_published or has_create_batch_role or is_student_enrolled):
 		return
 
 	batch_details = frappe.db.get_value(
@@ -1164,7 +1165,10 @@ def get_batch_details(batch):
 	batch_details.courses = frappe.get_all(
 		"Batch Course", filters={"parent": batch}, fields=["course", "title", "evaluator"]
 	)
-	batch_details.students = batch_students
+	if can_create_batches():
+		batch_details.students = batch_students
+	else:
+		batch_details.students = []
 
 	if batch_details.paid_batch and batch_details.start_date >= getdate():
 		batch_details.amount, batch_details.currency = check_multicurrency(
@@ -1173,7 +1177,7 @@ def get_batch_details(batch):
 		batch_details.price = fmt_money(batch_details.amount, 0, batch_details.currency)
 
 	if batch_details.seat_count:
-		batch_details.seats_left = batch_details.seat_count - len(batch_details.students)
+		batch_details.seats_left = batch_details.seat_count - len(batch_students)
 
 	return batch_details
 
