@@ -1056,10 +1056,23 @@ def delete_chapter(chapter):
 	if chapterInfo.is_scorm_package:
 		delete_scorm_package(chapterInfo.scorm_package_path)
 
+	course = frappe.db.get_value("Chapter Reference", {"chapter": chapter}, "parent")
+
 	frappe.db.delete("Chapter Reference", {"chapter": chapter})
 	frappe.db.delete("Lesson Reference", {"parent": chapter})
 	frappe.db.delete("Course Lesson", {"chapter": chapter})
 	frappe.db.delete("Course Chapter", chapter)
+
+	# reset chapter reference index after deletion
+	if course:
+		chapters = frappe.get_all(
+			"Chapter Reference", filters={"parent": course}, fields=["name"], order_by="idx asc"
+		)
+
+		i = 1
+		for chapter in chapters:
+			frappe.db.set_value("Chapter Reference", chapter.name, "idx", i)
+			i += 1
 
 
 def delete_scorm_package(scorm_package_path):
