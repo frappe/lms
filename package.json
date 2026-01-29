@@ -25,6 +25,8 @@
   },
   "homepage": "https://github.com/frappe/lms#readme",
   "devDependencies": {
+    "@semantic-release/exec": "^7.1.0",
+    "@semantic-release/git": "^10.0.1",
     "cypress": "^14.5.4",
     "cypress-file-upload": "^5.0.8",
     "cypress-real-events": "^1.14.0"

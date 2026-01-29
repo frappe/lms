@@ -38,7 +38,7 @@
 import { computed, inject, onMounted, ref } from 'vue'
 import { Breadcrumbs, call, createResource, usePageMeta } from 'frappe-ui'
 import { useRouter } from 'vue-router'
-import { sessionStore } from '../stores/session'
+import { sessionStore } from '../../stores/session'
 import UpcomingEvaluations from '@/components/UpcomingEvaluations.vue'
 
 const courseTitle = ref(null)

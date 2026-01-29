@@ -141,7 +141,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-12-23 11:11:23.908797",
+ "modified": "2026-01-28 18:07:58.529033",
  "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "LMS Enrollment",
@@ -163,6 +163,7 @@
    "create": 1,
    "email": 1,
    "export": 1,
+   "if_owner": 1,
    "print": 1,
    "read": 1,
    "report": 1,
@@ -181,6 +182,18 @@
    "report": 1,
    "role": "Moderator",
    "select": 1,
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Course Creator",
    "share": 1,
    "write": 1
   }

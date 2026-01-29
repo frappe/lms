@@ -1,16 +1,25 @@
 <template>
-	<div class="flex flex-col justify-between h-full">
+	<div class="flex flex-col h-full">
 		<div>
 			<div class="flex items-center justify-between">
 				<div class="font-semibold mb-1 text-ink-gray-9">
 					{{ __(label) }}
 				</div>
-				<Badge
-					v-if="isDirty"
-					:label="__('Not Saved')"
-					variant="subtle"
-					theme="orange"
-				/>
+				<div class="space-x-2">
+					<Badge
+						v-if="isDirty"
+						:label="__('Not Saved')"
+						variant="subtle"
+						theme="orange"
+					/>
+					<Button
+						variant="solid"
+						:loading="saveSettings.loading"
+						@click="update"
+					>
+						{{ __('Update') }}
+					</Button>
+				</div>
 			</div>
 			<div class="text-xs text-ink-gray-5">
 				{{ __(description) }}
@@ -18,11 +27,6 @@
 		</div>
 		<div class="overflow-y-auto">
 			<SettingFields :sections="sections" :data="branding.data" />
-		</div>
-		<div class="flex flex-row-reverse mt-auto">
-			<Button variant="solid" :loading="saveSettings.loading" @click="update">
-				{{ __('Update') }}
-			</Button>
 		</div>
 	</div>
 </template>
