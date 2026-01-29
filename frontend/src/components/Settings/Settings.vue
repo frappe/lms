@@ -8,7 +8,7 @@
 					<h1 class="mb-3 px-2 pt-2 text-lg font-semibold text-ink-gray-9">
 						{{ __('Settings') }}
 					</h1>
-					<div class="space-y-6">
+					<div class="space-y-5">
 						<div v-for="tab in tabs" :key="tab.label">
 							<div
 								v-if="!tab.hideLabel"

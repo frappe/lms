@@ -368,25 +368,27 @@ const courseResource = createDocumentResource({
 	doctype: 'LMS Course',
 	name: props.course.data?.name,
 	auto: true,
-	transform(data) {
-		updateCourseData(data)
-	},
-	onSuccess(data) {
-		check_permission()
-		getMetaInfo('courses', data.name, meta)
-	},
 })
 
-const updateCourseData = (data) => {
-	Object.keys(data).forEach((key) => {
+watch(
+	() => courseResource.doc,
+	() => {
+		check_permission()
+		getMetaInfo('courses', courseResource.doc?.name, meta)
+		updateCourseData()
+	}
+)
+
+const updateCourseData = () => {
+	Object.keys(courseResource.doc).forEach((key) => {
 		if (key == 'instructors') {
 			instructors.value = []
-			data.instructors.forEach((instructor) => {
+			courseResource.doc.instructors.forEach((instructor) => {
 				instructors.value.push(instructor.instructor)
 			})
 		} else if (key == 'related_courses') {
 			related_courses.value = []
-			data.related_courses.forEach((course) => {
+			courseResource.doc.related_courses.forEach((course) => {
 				related_courses.value.push(course.course)
 			})
 		}
@@ -402,7 +404,7 @@ const updateCourseData = (data) => {
 	]
 	for (let idx in checkboxes) {
 		let key = checkboxes[idx]
-		data[key] = data[key] ? true : false
+		courseResource.doc[key] = courseResource.doc[key] ? true : false
 	}
 }
 
