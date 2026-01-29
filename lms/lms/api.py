@@ -1613,7 +1613,11 @@ def track_new_watch_time(lesson, video):
 
 @frappe.whitelist()
 def get_course_progress_distribution(course):
-	all_progress = frappe.get_all(
+	roles = frappe.get_roles()
+	if "Course Creator" not in roles and "Moderator" not in roles:
+		frappe.throw(_("You do not have permission to access course progress data."))
+
+	all_progress = frappe.get_list(
 		"LMS Enrollment",
 		{
 			"course": course,
@@ -2048,3 +2052,19 @@ def get_upcoming_batches():
 def delete_programming_exercise(exercise):
 	frappe.db.delete("LMS Programming Exercise Submission", {"exercise": exercise})
 	frappe.db.delete("LMS Programming Exercise", exercise)
+
+
+@frappe.whitelist()
+def get_lesson_completion_stats(course):
+	roles = frappe.get_roles()
+	if "Course Creator" not in roles and "Moderator" not in roles:
+		frappe.throw(_("You do not have permission to access lesson completion stats."))
+
+	lesson_progress = frappe.get_list(
+		"LMS Course Progress",
+		{"course": course, "status": "Complete"},
+		["lesson", "COUNT(name) as completion_count"],
+		group_by="lesson",
+	)
+
+	return lesson_progress

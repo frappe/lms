@@ -8,22 +8,24 @@
 					<h1 class="mb-3 px-2 pt-2 text-lg font-semibold text-ink-gray-9">
 						{{ __('Settings') }}
 					</h1>
-					<div v-for="tab in tabs" :key="tab.label">
-						<div
-							v-if="!tab.hideLabel"
-							class="mb-2 mt-3 flex cursor-pointer gap-1.5 px-1 text-base text-ink-gray-5 transition-all duration-300 ease-in-out"
-						>
-							<span>{{ __(tab.label) }}</span>
-						</div>
-						<nav class="space-y-1">
-							<div v-for="item in tab.items" @click="activeTab = item">
-								<SidebarLink
-									:link="item"
-									:key="item.label"
-									:activeTab="activeTab?.label"
-								/>
+					<div class="space-y-6">
+						<div v-for="tab in tabs" :key="tab.label">
+							<div
+								v-if="!tab.hideLabel"
+								class="mb-2 mt-3 flex cursor-pointer gap-1.5 px-1 text-base text-ink-gray-5 transition-all duration-300 ease-in-out"
+							>
+								<span>{{ __(tab.label) }}</span>
 							</div>
-						</nav>
+							<nav class="space-y-1">
+								<div v-for="item in tab.items" @click="activeTab = item">
+									<SidebarLink
+										:link="item"
+										:key="item.label"
+										:activeTab="activeTab?.label"
+									/>
+								</div>
+							</nav>
+						</div>
 					</div>
 				</div>
 				<div

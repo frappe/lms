@@ -1,7 +1,10 @@
 <template>
 	<div class="p-5">
-		<div class="grid grid-cols-3 gap-5 mb-5">
-			<NumberChartGraph :title="__('Enrolled')" :value="memberCount || 0" />
+		<div class="grid grid-cols-4 gap-5 mb-5">
+			<NumberChartGraph
+				:title="__('Enrolled')"
+				:value="formatAmount(course.data?.enrollments)"
+			/>
 			<NumberChartGraph
 				:title="__('Average Completion Rate')"
 				:value="averageCompletionRate"
@@ -14,17 +17,18 @@
 					<Star class="size-5 text-transparent fill-amber-500" />
 				</template>
 			</NumberChartGraph>
+			<NumberChartGraph :title="__('Lessons')" :value="course.data?.lessons" />
 		</div>
 		<div class="grid grid-cols-[2fr_1fr] gap-5 items-start">
-			<div class="border rounded-md py-3 px-4">
-				<div class="flex items-center justify-between mb-4">
+			<div class="border rounded-lg py-3 px-4">
+				<div class="flex items-center justify-between mb-3">
 					<div class="text-lg font-semibold">
 						{{ __('Students') }}
 					</div>
 					<div class="flex items-center space-x-2">
 						<FormControl
 							v-model="searchFilter"
-							:placeholder="__('Search by Member')"
+							:placeholder="__('Search by name')"
 							type="text"
 						/>
 						<Button @click="showEnrollmentModal = true">
@@ -49,7 +53,7 @@
 						}"
 					>
 						<ListHeader
-							class="mb-2 grid items-center space-x-4 rounded bg-surface-white p-2"
+							class="mb-2 grid items-center space-x-4 rounded bg-surface-white border-b rounded-none p-2"
 						>
 							<ListHeaderItem
 								:item="item"
@@ -115,67 +119,82 @@
 					</div>
 				</div>
 			</div>
-			<div class="border rounded-md p-4">
-				<div class="text-ink-gray-5 mb-4">
-					{{ __('Progress Summary') }}
-				</div>
-				<div class="grid grid-cols-[2fr_1fr] items-center justify-between">
-					<div class="flex flex-col space-y-3 flex-1 text-xs">
-						<div
-							class="flex items-center"
-							v-for="row in chartDetails.data?.progress_distribution"
-						>
+			<div class="space-y-5">
+				<div class="border rounded-lg p-4">
+					<div class="text-ink-gray-5 mb-4">
+						{{ __('Progress Summary') }}
+					</div>
+					<div class="grid grid-cols-[2fr_1fr] items-center justify-between">
+						<div class="flex flex-col space-y-4 flex-1 text-sm">
 							<div
-								class="size-2 rounded"
-								:style="{
-									backgroundColor:
-										colors[theme][
-											row.name.startsWith('Just')
-												? 'red'
-												: row.name.startsWith('In')
-												? 'amber'
-												: 'green'
-										][400],
-								}"
-							></div>
-							<div class="ml-2">
-								{{ row.name }}
-							</div>
-							<div class="ml-auto">
-								{{ Math.round((row.value / course.data?.enrollments) * 100) }}%
+								class="flex items-center"
+								v-for="row in chartDetails.data?.progress_distribution"
+							>
+								<div
+									class="size-2 rounded"
+									:style="{
+										backgroundColor:
+											colors[theme][
+												row.name.startsWith('Just')
+													? 'red'
+													: row.name.startsWith('In')
+													? 'amber'
+													: 'green'
+											][400],
+									}"
+								></div>
+								<Tooltip :text="row.name.split('(')[1].replace(')', '')">
+									<div class="ml-2">
+										{{ row.name.split('(')[0] }}
+									</div>
+								</Tooltip>
+								<div class="ml-auto">
+									{{
+										Math.round((row.value / course.data?.enrollments) * 100)
+									}}%
+								</div>
 							</div>
 						</div>
-					</div>
-					<ECharts
-						class="w-40 h-20"
-						:options="{
-							color: progressColors,
-							series: [
-								{
-									type: 'pie',
-									radius: ['50%', '70%'],
-									center: ['50%', '50%'],
-									label: {
-										show: false,
-									},
-									labelLine: {
-										show: false,
-									},
-									emphasis: {
+						<ECharts
+							class="w-40 h-20"
+							:options="{
+								color: progressColors,
+								series: [
+									{
+										type: 'pie',
+										radius: ['50%', '70%'],
+										center: ['50%', '50%'],
 										label: {
 											show: false,
 										},
-										scale: false,
+										labelLine: {
+											show: false,
+										},
+										emphasis: {
+											label: {
+												show: false,
+											},
+											scale: false,
+										},
+										legend: {
+											show: false,
+										},
+										data: chartDetails.data?.progress_distribution || [],
 									},
-									legend: {
-										show: false,
-									},
-									data: chartDetails.data?.progress_distribution || [],
-								},
-							],
-							showInlineLabels: false,
-						}"
-					/>
+								],
+								showInlineLabels: false,
+							}"
+						/>
+					</div>
+				</div>
+				{{ lessonProgress.data }}
+				<div v-if="lessonProgress.data?.length" class="border rounded-lg p-4">
+					<div class="text-ink-gray-5 mb-4">
+						{{ __('Lesson Completion') }}
+					</div>
+					<!-- <div v-for="progress in lessonProgress.data">
+						{{ progress }}
+					</div> -->
 				</div>
 			</div>
 		</div>
@@ -201,9 +220,11 @@ import {
 	ListRows,
 	ListRow,
 	ListRowItem,
+	Tooltip,
 } from 'frappe-ui'
 import { computed, ref, watch } from 'vue'
 import { Plus, Star } from 'lucide-vue-next'
+import { formatAmount } from '@/utils'
 import colors from '@/utils/frappe-ui-colors.json'
 import CourseEnrollmentModal from '@/pages/Courses/CourseEnrollmentModal.vue'
 import NumberChartGraph from '@/components/NumberChartGraph.vue'
@@ -215,7 +236,6 @@ const props = defineProps<{
 
 const showEnrollmentModal = ref(false)
 const searchFilter = ref<string | null>(null)
-const memberCount = ref<number>(props.course.data?.enrollments || 0)
 const theme = ref<'darkMode' | 'lightMode'>(
 	localStorage.getItem('theme') == 'dark' ? 'darkMode' : 'lightMode'
 )
@@ -252,6 +272,25 @@ const progressList = createListResource({
 	auto: true,
 })
 
+const lessonProgress = createResource({
+	url: 'lms.lms.api.get_lesson_completion_stats',
+	params: {
+		course: props.course.data?.name,
+	},
+	auto: true,
+})
+
+/* const lessonProgress = createListResource({
+	doctype: 'LMS Course Progress',
+	filters: {
+		course: props.course.data?.name,
+		status: 'Complete',
+	},
+	fields: ['lesson', `count(name) as completed_count`],
+	groupBy: 'lesson',
+	auto: true,
+}) */
+
 watch([searchFilter], () => {
 	let filterApplied = false
 	let filters: Filters = {
@@ -266,16 +305,7 @@ watch([searchFilter], () => {
 	progressList.update({
 		filters: filters,
 	})
-	progressList.reload(
-		{},
-		{
-			onSuccess(data: any[]) {
-				memberCount.value = filterApplied
-					? data.length
-					: props.course.data?.enrollments || 0
-			},
-		}
-	)
+	progressList.reload()
 })
 
 const averageCompletionRate = computed(() => {

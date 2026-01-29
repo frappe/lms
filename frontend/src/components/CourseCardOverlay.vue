@@ -37,7 +37,7 @@
 					<CertificationLinks :courseName="course.data.name" class="w-full" />
 				</div>
 				<router-link
-					v-else-if="course.data.paid_course"
+					v-else-if="course.data.paid_course && !isAdmin"
 					:to="{
 						name: 'Billing',
 						params: {

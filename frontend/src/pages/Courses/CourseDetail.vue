@@ -5,13 +5,16 @@
 		>
 			<Breadcrumbs class="h-7" :items="breadcrumbs" />
 			<div v-if="tabIndex == 2" class="flex items-center space-x-2">
-				<Button>
+				<Badge v-if="childRef?.isDirty" theme="orange">
+					{{ __('Not Saved') }}
+				</Badge>
+				<Button @click="childRef.trashCourse()">
 					<template #icon>
 						<Trash2 class="w-4 h-4 stroke-1.5" />
 					</template>
 				</Button>
-				<Button variant="solid">
-					{{ __("Save") }}
+				<Button variant="solid" @click="childRef.submitCourse()">
+					{{ __('Save') }}
 				</Button>
 			</div>
 		</header>
@@ -19,14 +22,21 @@
 		<div v-else>
 			<Tabs :tabs="tabs" v-model="tabIndex">
 				<template #tab-panel="{ tab }">
-					<component :is="tab.component" :course="course" />
+					<component :is="tab.component" :course="course" ref="childRef" />
 				</template>
 			</Tabs>
 		</div>
 	</div>
 </template>
 <script setup>
-import { Button, createResource, Breadcrumbs, Tabs, usePageMeta } from 'frappe-ui'
+import {
+	Badge,
+	Button,
+	createResource,
+	Breadcrumbs,
+	Tabs,
+	usePageMeta,
+} from 'frappe-ui'
 import { computed, inject, markRaw, onMounted, ref, watch } from 'vue'
 import { sessionStore } from '@/stores/session'
 import { useRouter, useRoute } from 'vue-router'
@@ -40,6 +50,7 @@ const router = useRouter()
 const route = useRoute()
 const user = inject('$user')
 const tabIndex = ref(0)
+const childRef = ref(null)
 
 const props = defineProps({
 	courseName: {

@@ -19,12 +19,14 @@
 									showOptions = true
 								}
 							"
-							@click="(e) => {
-								showOptions = true
-								nextTick(() => {
-									setFocus()
-								})
-							}"
+							@click="
+								(e) => {
+									showOptions = true
+									nextTick(() => {
+										setFocus()
+									})
+								}
+							"
 							@focus="
 								() => {
 									if (!filterOptions.data || filterOptions.data.length === 0) {
@@ -60,7 +62,11 @@
 										>
 											<div class="flex flex-col gap-1 p-1">
 												<div class="text-base font-medium text-ink-gray-8">
-													{{ option.description }}
+													{{
+														option.value == option.label
+															? option.description
+															: option.label
+													}}
 												</div>
 												<div class="text-sm text-ink-gray-5">
 													{{ option.value }}
@@ -159,6 +165,7 @@ const error = ref(null)
 const query = ref('')
 const text = ref('')
 const showOptions = ref(false)
+const emit = defineEmits(['update:modelValue'])
 
 const selectedValue = computed({
 	get: () => query.value || '',
@@ -166,6 +173,7 @@ const selectedValue = computed({
 		query.value = ''
 		val?.value && addValue(val.value)
 		showOptions.value = false
+		emit('update:modelValue', values.value)
 	},
 })
 
@@ -237,6 +245,7 @@ const addValue = (value) => {
 
 const removeValue = (value) => {
 	values.value = values.value.filter((v) => v !== value)
+	emit('update:modelValue', values.value)
 }
 
 function setFocus() {

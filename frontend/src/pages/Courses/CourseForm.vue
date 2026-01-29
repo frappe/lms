@@ -1,7 +1,7 @@
 <template>
 	<div class="pl-5">
-		<div class="grid grid-cols-1 md:grid-cols-[70%,30%] ">
-			<div v-if="courseResource.doc" class="max-h-[88vh] overflow-y-auto">
+		<div class="grid grid-cols-1 md:grid-cols-[70%,30%] overflow-hidden">
+			<div v-if="courseResource.doc" class="h-[88vh] overflow-y-auto">
 				<div class="my-5">
 					<div class="pr-5 md:pr-10 pb-5 mb-5 space-y-5 border-b">
 						<div class="text-lg font-semibold mb-4 text-ink-gray-9">
@@ -12,12 +12,14 @@
 								v-model="courseResource.doc.title"
 								:label="__('Title')"
 								:required="true"
+								@input="makeFormDirty()"
 							/>
 							<Link
 								doctype="LMS Category"
 								v-model="courseResource.doc.category"
 								:label="__('Category')"
 								:onCreate="(value, close) => openSettings('Categories', close)"
+								@update:modelValue="makeFormDirty()"
 							/>
 						</div>
 						<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -28,6 +30,7 @@
 								:filters="{ ignore_user_type: 1 }"
 								:onCreate="(close) => openSettings('Members', close)"
 								:required="true"
+								@update:modelValue="makeFormDirty()"
 							/>
 							<div>
 								<div class="text-xs text-ink-gray-5">
@@ -62,6 +65,7 @@
 								v-model="courseResource.doc.image"
 								:label="__('Course Image')"
 								:required="false"
+								@update:modelValue="makeFormDirty()"
 							/>
 
 							<ColorSwatches
@@ -69,6 +73,7 @@
 								:label="__('Color')"
 								:description="__('Choose a color for the course card')"
 								class="w-full"
+								@update:modelValue="makeFormDirty()"
 							/>
 						</div>
 					</div>
@@ -86,11 +91,13 @@
 									type="checkbox"
 									v-model="courseResource.doc.published"
 									:label="__('Published')"
+									@change="makeFormDirty()"
 								/>
 								<FormControl
 									v-model="courseResource.doc.published_on"
 									:label="__('Published On')"
 									type="date"
+									@change="makeFormDirty()"
 								/>
 							</div>
 							<div class="flex flex-col space-y-5">
@@ -98,16 +105,19 @@
 									type="checkbox"
 									v-model="courseResource.doc.upcoming"
 									:label="__('Upcoming')"
+									@change="makeFormDirty()"
 								/>
 								<FormControl
 									type="checkbox"
 									v-model="courseResource.doc.featured"
 									:label="__('Featured')"
+									@change="makeFormDirty()"
 								/>
 								<FormControl
 									type="checkbox"
 									v-model="courseResource.doc.disable_self_learning"
 									:label="__('Disable Self Enrollment')"
+									@change="makeFormDirty()"
 								/>
 							</div>
 						</div>
@@ -128,6 +138,7 @@
 								)
 							"
 							:required="true"
+							@change="makeFormDirty()"
 						/>
 						<div class="">
 							<div class="mb-1.5 text-sm text-ink-gray-5">
@@ -136,7 +147,12 @@
 							</div>
 							<TextEditor
 								:content="courseResource.doc.description"
-								@change="(val) => (courseResource.doc.description = val)"
+								@change="
+									(val) => {
+										courseResource.doc.description = val
+										makeFormDirty()
+									}
+								"
 								:editable="true"
 								:fixedMenu="true"
 								editorClass="prose-sm max-w-none border-b border-x bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[7rem]"
@@ -151,6 +167,7 @@
 									'Paste the youtube link of a short video introducing the course'
 								)
 							"
+							@input="makeFormDirty()"
 						/>
 
 						<MultiSelect
@@ -161,11 +178,12 @@
 							:onCreate="
 								(close) => {
 									router.push({
-										name: 'CourseForm',
-										params: { courseName: 'new' },
+										name: 'Courses',
+										query: { newCourse: '1' },
 									})
 								}
 							"
+							@update:modelValue="makeFormDirty()"
 						/>
 					</div>
 
@@ -178,25 +196,35 @@
 								type="checkbox"
 								v-model="courseResource.doc.paid_course"
 								:label="__('Paid Course')"
+								@change="makeFormDirty()"
 							/>
 							<FormControl
 								type="checkbox"
 								v-model="courseResource.doc.enable_certification"
 								:label="__('Completion Certificate')"
+								@change="makeFormDirty()"
 							/>
 							<FormControl
 								type="checkbox"
 								v-model="courseResource.doc.paid_certificate"
 								:label="__('Paid Certificate')"
+								@change="makeFormDirty()"
 							/>
 						</div>
 						<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
 							<div class="space-y-5">
 								<FormControl
-									v-if="courseResource.doc.paid_course || courseResource.doc.paid_certificate"
+									v-if="
+										courseResource.doc.paid_course ||
+										courseResource.doc.paid_certificate
+									"
 									v-model="courseResource.doc.course_price"
 									:label="__('Amount')"
-									:required="courseResource.doc.paid_course || courseResource.doc.paid_certificate"
+									:required="
+										courseResource.doc.paid_course ||
+										courseResource.doc.paid_certificate
+									"
+									@input="makeFormDirty()"
 								/>
 								<Link
 									v-if="courseResource.doc.paid_certificate"
@@ -207,16 +235,24 @@
 									:onCreate="
 										(value, close) => openSettings('Evaluators', close)
 									"
+									@update:modelValue="makeFormDirty()"
 								/>
 							</div>
 							<div class="space-y-5">
 								<Link
-									v-if="courseResource.doc.paid_course || courseResource.doc.paid_certificate"
+									v-if="
+										courseResource.doc.paid_course ||
+										courseResource.doc.paid_certificate
+									"
 									doctype="Currency"
 									v-model="courseResource.doc.currency"
 									:filters="{ enabled: 1 }"
 									:label="__('Currency')"
-									:required="courseResource.doc.paid_course || courseResource.doc.paid_certificate"
+									:required="
+										courseResource.doc.paid_course ||
+										courseResource.doc.paid_certificate
+									"
+									@update:modelValue="makeFormDirty()"
 								/>
 								<FormControl
 									v-if="courseResource.doc.paid_certificate"
@@ -224,6 +260,7 @@
 									:label="__('Timezone')"
 									:required="courseResource.doc.paid_certificate"
 									:placeholder="__('e.g. IST, UTC, GMT...')"
+									@input="makeFormDirty()"
 								/>
 							</div>
 						</div>
@@ -239,6 +276,7 @@
 								:label="__('Meta Description')"
 								type="textarea"
 								:rows="7"
+								@input="makeFormDirty()"
 							/>
 							<FormControl
 								v-model="meta.keywords"
@@ -246,12 +284,13 @@
 								type="textarea"
 								:rows="7"
 								:placeholder="__('Comma separated keywords for SEO')"
+								@input="makeFormDirty()"
 							/>
 						</div>
 					</div>
 				</div>
 			</div>
-			<div class="border-l">
+			<div class="border-l h-[88vh] overflow-y-auto">
 				<CourseOutline
 					v-if="courseResource.doc"
 					:courseName="courseResource.doc.name"
@@ -276,7 +315,6 @@ import {
 	inject,
 	onMounted,
 	onBeforeUnmount,
-	computed,
 	ref,
 	reactive,
 	watch,
@@ -306,6 +344,7 @@ const instructors = ref([])
 const related_courses = ref([])
 const app = getCurrentInstance()
 const { $dialog } = app.appContext.config.globalProperties
+const isDirty = ref(false)
 
 const props = defineProps({
 	course: {
@@ -365,7 +404,6 @@ const updateCourseData = (data) => {
 		let key = checkboxes[idx]
 		data[key] = data[key] ? true : false
 	}
-
 }
 
 const submitCourse = () => {
@@ -384,24 +422,29 @@ const validateFields = () => {
 }
 
 const updateCourse = () => {
-	courseResource.setValue.submit({
-		...courseResource.doc,
-		instructors: instructors.value.map((instructor) => ({
-			instructor: instructor,
-		})),
-		related_courses: related_courses.value.map((course) => ({
-			course: course,
-		})),
-	}, {
-		onSuccess() {
-			updateMetaInfo('courses', courseResource.doc?.name, meta)
-			toast.success(__('Course updated successfully'))
+	courseResource.setValue.submit(
+		{
+			...courseResource.doc,
+			instructors: instructors.value.map((instructor) => ({
+				instructor: instructor,
+			})),
+			related_courses: related_courses.value.map((course) => ({
+				course: course,
+			})),
 		},
-		onError(err) {
-			toast.error(err.messages?.[0] || err)
-			console.error(err)
-		},
-	})
+		{
+			onSuccess() {
+				updateMetaInfo('courses', courseResource.doc?.name, meta)
+				toast.success(__('Course updated successfully'))
+				isDirty.value = false
+				courseResource.reload()
+			},
+			onError(err) {
+				toast.error(err.messages?.[0] || err)
+				console.error(err)
+			},
+		}
+	)
 }
 
 const keyboardShortcut = (e) => {
@@ -458,6 +501,7 @@ const updateTags = () => {
 			? `${courseResource.doc.tags}, ${newTag.value}`
 			: newTag.value
 		newTag.value = ''
+		makeFormDirty()
 	}
 }
 
@@ -467,6 +511,7 @@ const removeTag = (tag) => {
 		.filter((t) => t !== tag)
 		.join(', ')
 	newTag.value = ''
+	makeFormDirty()
 }
 
 const check_permission = () => {
@@ -484,10 +529,20 @@ const check_permission = () => {
 	}
 }
 
+const makeFormDirty = () => {
+	isDirty.value = true
+}
+
 usePageMeta(() => {
 	return {
 		title: courseResource.doc?.title,
 		icon: brand.favicon,
 	}
+})
+
+defineExpose({
+	submitCourse,
+	trashCourse,
+	isDirty,
 })
 </script>

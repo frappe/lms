@@ -106,7 +106,11 @@
 			</Button>
 		</div>
 	</div>
-	<NewCourseModal v-if="showCourseModal" v-model="showCourseModal" :courses="courses" />
+	<NewCourseModal
+		v-if="showCourseModal"
+		v-model="showCourseModal"
+		:courses="courses"
+	/>
 </template>
 <script setup>
 import {
@@ -133,7 +137,12 @@ const user = inject('$user')
 const dayjs = inject('$dayjs')
 const start = ref(0)
 const pageLength = ref(30)
-const categories = ref([])
+const categories = ref([
+	{
+		label: '',
+		value: null,
+	},
+])
 const currentCategory = ref(null)
 const title = ref('')
 const certification = ref(false)
@@ -148,12 +157,6 @@ onMounted(() => {
 	setFiltersFromQuery()
 	updateCourses()
 	getCourseCount()
-	categories.value = [
-		{
-			label: '',
-			value: null,
-		},
-	]
 })
 
 const setFiltersFromQuery = () => {
@@ -161,6 +164,9 @@ const setFiltersFromQuery = () => {
 	title.value = queries.get('title') || ''
 	currentCategory.value = queries.get('category') || null
 	certification.value = queries.get('certification') || false
+	if (queries.get('newCourse') == '1') {
+		showCourseModal.value = true
+	}
 }
 
 const courses = createListResource({
