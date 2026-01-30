@@ -38,6 +38,7 @@ from lms.lms.utils import (
 	get_course_details,
 	get_instructors,
 	get_lesson_count,
+	get_lms_route,
 	has_course_instructor_role,
 	has_evaluator_role,
 	has_moderator_role,
@@ -1668,7 +1669,7 @@ def get_pwa_manifest():
 		"name": title,
 		"short_name": title,
 		"description": "Easy to use, 100% open source Learning Management System",
-		"start_url": "/lms",
+		"start_url": get_lms_route(),
 		"icons": [
 			{
 				"src": banner_image or "/assets/lms/frontend/manifest/manifest-icon-192.maskable.png",

@@ -18,7 +18,7 @@ export default defineConfig(async ({ mode }) => {
 				lucideIcons: true,
 				jinjaBootData: true,
 				buildConfig: {
-					indexHtmlPath: '../lms/www/lms.html',
+					indexHtmlPath: '../lms/www/_lms.html',
 				},
 			}),
 			vue(),

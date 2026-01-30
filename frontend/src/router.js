@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import { usersStore } from './stores/user'
 import { sessionStore } from './stores/session'
 import { useSettings } from './stores/settings'
+import { getLmsBasePath } from './utils/basePath'
 
 const routes = [
 	{
@@ -262,7 +263,7 @@ const routes = [
 ]
 
 let router = createRouter({
-	history: createWebHistory('/lms'),
+	history: createWebHistory(`/${getLmsBasePath()}`),
 	routes,
 })
 

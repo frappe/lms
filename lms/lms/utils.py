@@ -32,6 +32,22 @@ from lms.lms.md import find_macros
 RE_SLUG_NOTALLOWED = re.compile("[^a-z0-9]+")
 
 
+def get_lms_path():
+	path = frappe.conf.get("lms_path") or "lms"
+	return path.strip("/")
+
+
+def get_lms_route(path=""):
+	base = f"/{get_lms_path()}"
+	if not path:
+		return base
+	return f"{base}/{path.lstrip('/')}"
+
+
+def extend_bootinfo(bootinfo):
+	bootinfo["lms_path"] = get_lms_path()
+
+
 def slugify(title, used_slugs=None):
 	"""Converts title to a slug.
 
@@ -270,7 +286,7 @@ def get_lesson_index(lesson_name):
 def get_lesson_url(course, lesson_number):
 	if not lesson_number:
 		return
-	return f"/lms/courses/{course}/learn/{lesson_number}"
+	return get_lms_route(f"courses/{course}/learn/{lesson_number}")
 
 
 def get_progress(course, lesson, member=None):
@@ -414,7 +430,7 @@ def get_batch_details_for_notification(topic):
 	users = []
 	batch_title = frappe.db.get_value("LMS Batch", topic.reference_docname, "title")
 	subject = _("New comment in batch {0}").format(batch_title)
-	link = f"/lms/batches/{topic.reference_docname}#discussions"
+	link = get_lms_route(f"batches/{topic.reference_docname}#discussions")
 	instructors = frappe.db.get_all(
 		"Course Instructor",
 		{"parenttype": "LMS Batch", "parent": topic.reference_docname},
@@ -468,7 +484,7 @@ def notify_mentions_on_portal(doc, topic):
 		subject = _("{0} mentioned you in a comment in {1}").format(
 			frappe.bold(from_user_name), frappe.bold(batch_title)
 		)
-		link = f"/lms/batches/{topic.reference_docname}#discussions"
+		link = get_lms_route(f"batches/{topic.reference_docname}#discussions")
 
 	for user in mentions:
 		notification = frappe._dict(
@@ -1313,7 +1329,7 @@ def get_assignment_details(assessment, member):
 
 	assessment.edit_url = f"/assignments/{assessment.assessment_name}"
 	submission_name = existing_submission if existing_submission else "new-submission"
-	assessment.url = f"/lms/assignment-submission/{assessment.assessment_name}/{submission_name}"
+	assessment.url = get_lms_route(f"assignment-submission/{assessment.assessment_name}/{submission_name}")
 
 	return assessment
 

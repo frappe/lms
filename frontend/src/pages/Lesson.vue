@@ -379,6 +379,7 @@ import CourseOutline from '@/components/CourseOutline.vue'
 import UserAvatar from '@/components/UserAvatar.vue'
 import Notes from '@/components/Notes/Notes.vue'
 import InlineLessonMenu from '@/components/Notes/InlineLessonMenu.vue'
+import { getLmsRoute } from '@/utils/basePath'
 
 const user = inject('$user')
 const socket = inject('$socket')
@@ -904,7 +905,9 @@ watch(allowDiscussions, () => {
 })
 
 const redirectToLogin = () => {
-	window.location.href = `/login?redirect-to=/lms/courses/${props.courseName}`
+	window.location.href = `/login?redirect-to=${getLmsRoute(
+		`courses/${props.courseName}`
+	)}`
 }
 
 usePageMeta(() => {
