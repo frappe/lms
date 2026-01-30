@@ -462,15 +462,17 @@ def delete_lesson(lesson, chapter):
 	if not can_modify_course(course):
 		frappe.throw(_("You do not have permission to delete this lesson."), frappe.PermissionError)
 
-	# Delete Reference
-	chapter = frappe.get_doc("Course Chapter", chapter)
-	chapter.lessons = [row for row in chapter.lessons if row.lesson != lesson]
-	chapter.save()
+	lessons = frappe.get_all(
+		"Lesson Reference",
+		{"parent": chapter},
+		pluck="lesson",
+		order_by="idx",
+	)
+	lessons.remove(lesson)
+	frappe.db.delete("Lesson Reference", {"parent": chapter, "lesson": lesson})
+	update_index(lessons, chapter)
 
-	# Delete progress
 	frappe.db.delete("LMS Course Progress", {"lesson": lesson})
-
-	# Delete Lesson
 	frappe.db.delete("Course Lesson", lesson)
 
 
