@@ -120,7 +120,10 @@
 				</div>
 			</div>
 			<div class="space-y-5">
-				<div v-if="chartDetails.data?.length" class="border rounded-lg p-4">
+				<div
+					v-if="chartDetails.data?.average_progress > 0"
+					class="border rounded-lg p-4"
+				>
 					<div class="text-ink-gray-5 mb-4">
 						{{ __('Progress Summary') }}
 					</div>
