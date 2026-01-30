@@ -1195,8 +1195,8 @@ def get_batch_details(batch):
 	)
 	if can_create_batches():
 		batch_details.students = batch_students
-	else:
-		batch_details.students = []
+	elif is_student_enrolled:
+		batch_details.students = [frappe.session.user]
 
 	if batch_details.paid_batch and batch_details.start_date >= getdate():
 		batch_details.amount, batch_details.currency = check_multicurrency(
