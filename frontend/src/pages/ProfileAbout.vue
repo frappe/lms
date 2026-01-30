@@ -122,6 +122,7 @@ import { X, LinkedinIcon, Twitter } from 'lucide-vue-next'
 import { sessionStore } from '@/stores/session'
 import { decodeEntities } from '@/utils'
 import DOMPurify from 'dompurify'
+import { getLmsRoute } from '@/utils/basePath'
 
 const dayjs = inject('$dayjs')
 const { branding } = sessionStore()
@@ -158,7 +159,9 @@ const badges = createResource({
 const shareOnSocial = (badge, medium) => {
 	let shareUrl
 	const url = encodeURIComponent(
-		`${window.location.origin}/lms/badges/${badge.badge}/${props.profile.data?.email}`
+		`${window.location.origin}${getLmsRoute(
+			`badges/${badge.badge}/${props.profile.data?.email}`
+		)}`
 	)
 	const summary = `I am happy to announce that I earned the ${
 		badge.badge

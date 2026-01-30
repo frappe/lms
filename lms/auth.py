@@ -45,6 +45,8 @@ ALLOWED_PATHS = [
 	"/api/method/frappe.desk.search.search_link",
 	"/api/method/frappe.core.doctype.communication.email.make",
 	"/api/method/frappe.core.doctype.user.user.reset_password",
+	"/api/method/frappe.desk.doctype.notification_log.notification_log.mark_as_read",
+	"/api/method/frappe.desk.doctype.notification_log.notification_log.mark_all_as_read",
 ]
 
 

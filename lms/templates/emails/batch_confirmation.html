@@ -23,7 +23,7 @@
 <br>
 <p>
     {{ _("Visit the following link to view your ") }}
-    <a href="/lms/batches/{{ name }}">{{ _("Batch Details") }}</a>
+    <a href="{{ get_lms_route('batches/' ~ name) }}">{{ _("Batch Details") }}</a>
 </p>
 <p>
     {{ _("If you have any questions or require assistance, feel free to contact us.") }}
@@ -32,4 +32,3 @@
 <p>
     {{ _("Best Regards") }}
 </p>
-

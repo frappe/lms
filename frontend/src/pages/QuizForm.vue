@@ -226,7 +226,6 @@ import {
 	onMounted,
 	inject,
 	onBeforeUnmount,
-	watch,
 } from 'vue'
 import { sessionStore } from '../stores/session'
 import { ClipboardList, ListChecks, Plus, Trash2 } from 'lucide-vue-next'
@@ -252,7 +251,9 @@ const props = defineProps({
 	},
 })
 
-const questions = ref([])
+const questions = computed(() => {
+	return quizDetails.doc?.questions || []
+})
 
 onMounted(() => {
 	if (!user.data?.is_moderator && !user.data?.is_instructor) {
@@ -273,24 +274,10 @@ onBeforeUnmount(() => {
 	window.removeEventListener('keydown', keyboardShortcut)
 })
 
-watch(
-	() => props.quizID !== 'new',
-	(newVal) => {
-		if (newVal) {
-			quizDetails.reload()
-		}
-	}
-)
-
 const quizDetails = createDocumentResource({
 	doctype: 'LMS Quiz',
 	name: props.quizID,
 	auto: false,
-	onSuccess(doc) {
-		if (doc.questions && doc.questions.length > 0) {
-			questions.value = doc.questions.map((question) => question)
-		}
-	},
 })
 
 const validateTitle = () => {

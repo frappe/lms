@@ -7,6 +7,8 @@ from frappe.email.doctype.email_template.email_template import get_email_templat
 from frappe.model.document import Document
 from frappe.utils import add_days, flt, nowdate
 
+from lms.lms.utils import get_lms_route
+
 
 class LMSPayment(Document):
 	pass
@@ -76,7 +78,9 @@ def send_mail(payment):
 		"title": frappe.db.get_value(
 			payment.payment_for_document_type, payment.payment_for_document, "title"
 		),
-		"link": f"/lms/billing/{ payment.payment_for_document_type.split(' ')[-1].lower() }/{ payment.payment_for_document }",
+		"link": get_lms_route(
+			f"billing/{payment.payment_for_document_type.split(' ')[-1].lower()}/{payment.payment_for_document}"
+		),
 	}
 
 	if custom_template:
