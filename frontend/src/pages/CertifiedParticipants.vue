@@ -3,7 +3,7 @@
 		class="sticky flex items-center justify-between top-0 z-10 border-b bg-surface-white px-3 py-2.5 sm:px-5"
 	>
 		<Breadcrumbs :items="breadcrumbs" />
-		<router-link :to="{ name: 'Batches', query: { certification: true } }">
+		<router-link :to="{ name: 'Courses', query: { certification: true } }">
 			<Button>
 				<template #prefix>
 					<GraduationCap class="h-4 w-4 stroke-1.5" />
@@ -42,8 +42,8 @@
 				</div>
 				<div class="flex items-center space-x-4">
 					<FormControl
-						v-model="openToOpportunities"
-						:label="__('Open to Opportunities')"
+						v-model="openToWork"
+						:label="__('Open to Work')"
 						type="checkbox"
 						@change="updateParticipants()"
 					/>
@@ -134,19 +134,26 @@ import {
 import { computed, inject, onMounted, ref } from 'vue'
 import { GraduationCap } from 'lucide-vue-next'
 import { sessionStore } from '../stores/session'
+import { useRouter } from 'vue-router'
 import EmptyState from '@/components/EmptyState.vue'
 import UserAvatar from '@/components/UserAvatar.vue'
 
 const filters = ref({})
 const currentCategory = ref('')
 const nameFilter = ref('')
-const openToOpportunities = ref(false)
+const openToWork = ref(false)
 const hiring = ref(false)
 const { brand } = sessionStore()
 const memberCount = ref(0)
 const dayjs = inject('$dayjs')
+const user = inject('$user')
+const router = useRouter()
 
 onMounted(() => {
+	if (!user.data) {
+		router.push({ name: 'Courses' })
+		return
+	}
 	setFiltersFromQuery()
 	updateParticipants()
 })
@@ -171,7 +178,7 @@ const categories = createListResource({
 	doctype: 'LMS Certificate',
 	url: 'lms.lms.api.get_certification_categories',
 	cache: ['certification_categories'],
-	auto: true,
+	auto: user.data ? true : false,
 	transform(data) {
 		data.unshift({ label: __(' '), value: ' ' })
 		return data
@@ -197,8 +204,8 @@ const updateFilters = () => {
 		...(nameFilter.value && {
 			member_name: ['like', `%${nameFilter.value}%`],
 		}),
-		...(openToOpportunities.value && {
-			open_to_opportunities: true,
+		...(openToWork.value && {
+			open_to_work: true,
 		}),
 		...(hiring.value && {
 			hiring: true,
@@ -211,7 +218,7 @@ const setQueryParams = () => {
 	let filterKeys = {
 		category: currentCategory.value,
 		name: nameFilter.value,
-		'open-to-opportunities': openToOpportunities.value,
+		'open-to-work': openToWork.value,
 		hiring: hiring.value,
 	}
 
@@ -240,7 +247,7 @@ const setFiltersFromQuery = () => {
 	let queries = new URLSearchParams(location.search)
 	nameFilter.value = queries.get('name') || ''
 	currentCategory.value = queries.get('category') || ''
-	openToOpportunities.value = queries.get('open-to-opportunities') === 'true'
+	openToWork.value = queries.get('open-to-opportunities') === 'true'
 	hiring.value = queries.get('hiring') === 'true'
 }
 

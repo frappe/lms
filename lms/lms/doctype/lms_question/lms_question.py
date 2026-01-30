@@ -39,6 +39,8 @@ def validate_correct_options(question):
 
 	if len(correct_options) > 1:
 		question.multiple = 1
+	else:
+		question.multiple = 0
 
 	if not len(correct_options):
 		frappe.throw(_("At least one option must be correct for this question."))

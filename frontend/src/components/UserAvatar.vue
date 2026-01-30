@@ -7,8 +7,8 @@
 		:size="size"
 		v-bind="$attrs"
 	>
-		<template v-if="user.open_to === 'Opportunities'" #indicator>
-			<Tooltip :text="__('Open to Opportunities')" placement="right">
+		<template v-if="user.open_to === 'Work'" #indicator>
+			<Tooltip :text="__('Open to Work')" placement="right">
 				<div class="rounded-full bg-surface-green-3 w-fit">
 					<BadgeCheckIcon :class="'text-ink-white ' + checkSize" />
 				</div>

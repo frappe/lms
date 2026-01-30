@@ -1,17 +1,25 @@
 <template>
 	<Dialog
+		v-model="show"
 		:options="{
 			size: '3xl',
 		}"
 	>
 		<template #body-header>
-			<div class="flex items-center mb-5">
+			<div class="flex items-center justify-between mb-5">
 				<div class="text-2xl font-semibold leading-6 text-ink-gray-9">
 					{{ __('Edit Profile') }}
 				</div>
-				<Badge v-if="isDirty" class="ml-4" theme="orange">
-					{{ __('Not Saved') }}
-				</Badge>
+				<div class="space-x-2">
+					<Badge v-if="isDirty" theme="orange">
+						{{ __('Not Saved') }}
+					</Badge>
+					<div class="pb-5 float-right">
+						<Button variant="solid" @click="saveProfile()">
+							{{ __('Save') }}
+						</Button>
+					</div>
+				</div>
 			</div>
 		</template>
 		<template #body-content>
@@ -19,52 +27,13 @@
 				<div class="grid grid-cols-2 gap-10">
 					<div class="space-y-4">
 						<div class="space-y-4">
-							<div>
-								<div class="text-xs text-ink-gray-5 mb-1">
-									{{ __('Profile Image') }}
-								</div>
-								<FileUploader
-									v-if="!profile.image"
-									:fileTypes="['image/*']"
-									:validateFile="validateFile"
-									@success="(file) => saveImage(file)"
-								>
-									<template
-										v-slot="{ file, progress, uploading, openFileSelector }"
-									>
-										<div class="mb-4">
-											<Button @click="openFileSelector" :loading="uploading">
-												{{
-													uploading
-														? `Uploading ${progress}%`
-														: 'Upload a profile image'
-												}}
-											</Button>
-										</div>
-									</template>
-								</FileUploader>
-								<div v-else class="mb-4">
-									<div class="flex items-center">
-										<img
-											:src="profile.image?.file_url"
-											class="object-cover h-[50px] w-[50px] rounded-full border-4 border-white object-cover"
-										/>
+							<Uploader
+								v-model="profile.image"
+								:label="__('Profile Image')"
+								:required="true"
+								shape="circle"
+							/>
 
-										<div class="text-base flex flex-col ml-2">
-											<span>
-												{{ profile.image?.file_name }}
-											</span>
-											<span class="text-sm text-ink-gray-4 mt-1">
-												{{ getFileSize(profile.image?.file_size) }}
-											</span>
-										</div>
-										<X
-											@click="removeImage()"
-											class="bg-surface-gray-3 rounded-md cursor-pointer stroke-1.5 w-5 h-5 p-1 ml-4"
-										/>
-									</div>
-								</div>
-							</div>
 							<FormControl
 								v-model="profile.first_name"
 								:label="__('First Name')"
@@ -90,7 +59,7 @@
 						<FormControl
 							v-model="profile.open_to"
 							type="select"
-							:options="[' ', 'Opportunities', 'Hiring']"
+							:options="[' ', 'Work', 'Hiring']"
 							:label="__('Open to')"
 							:placeholder="__('Looking for new work or hiring talent?')"
 						/>
@@ -115,13 +84,6 @@
 				</div>
 			</div>
 		</template>
-		<template #actions="{ close }">
-			<div class="pb-5 float-right">
-				<Button variant="solid" @click="saveProfile(close)">
-					{{ __('Save') }}
-				</Button>
-			</div>
-		</template>
 	</Dialog>
 </template>
 <script setup>
@@ -131,15 +93,14 @@ import {
 	createResource,
 	Dialog,
 	FormControl,
-	FileUploader,
 	TextEditor,
 	toast,
 } from 'frappe-ui'
 import { ref, reactive, watch } from 'vue'
-import { X } from 'lucide-vue-next'
-import { getFileSize, sanitizeHTML } from '@/utils'
+import { sanitizeHTML } from '@/utils'
 import Link from '@/components/Controls/Link.vue'
 
+const show = defineModel()
 const reloadProfile = defineModel('reloadProfile')
 const hasLanguageChanged = ref(false)
 const isDirty = ref(false)
@@ -163,19 +124,6 @@ const profile = reactive({
 	twitter: '',
 })
 
-const imageResource = createResource({
-	url: 'lms.lms.api.get_file_info',
-	makeParams(values) {
-		return {
-			file_url: values.image,
-		}
-	},
-	auto: false,
-	onSuccess(data) {
-		profile.image = data
-	},
-})
-
 const updateProfile = createResource({
 	url: 'frappe.client.set_value',
 	makeParams(values) {
@@ -183,7 +131,7 @@ const updateProfile = createResource({
 			doctype: 'User',
 			name: props.profile.data.name,
 			fieldname: {
-				user_image: profile.image?.file_url || null,
+				user_image: profile.image || null,
 				...profile,
 			},
 		}
@@ -193,13 +141,13 @@ const updateProfile = createResource({
 	},
 })
 
-const saveProfile = (close) => {
+const saveProfile = () => {
 	profile.bio = sanitizeHTML(profile.bio)
 	updateProfile.submit(
 		{},
 		{
 			onSuccess() {
-				close()
+				show.value = false
 				reloadProfile.value.reload()
 				if (hasLanguageChanged.value) {
 					hasLanguageChanged.value = false
@@ -211,21 +159,6 @@ const saveProfile = (close) => {
 			},
 		}
 	)
-}
-
-const validateFile = (file) => {
-	let extension = file.name.split('.').pop().toLowerCase()
-	if (!['jpg', 'jpeg', 'png'].includes(extension)) {
-		return 'Only image file is allowed.'
-	}
-}
-
-const saveImage = (file) => {
-	profile.image = file
-}
-
-const removeImage = () => {
-	profile.image = null
 }
 
 watch(
@@ -240,7 +173,7 @@ watch(
 				return
 			}
 		}
-		if (profile.image?.file_url !== props.profile.data.user_image) {
+		if (profile.image !== props.profile.data.user_image) {
 			isDirty.value = true
 			return
 		}
@@ -262,7 +195,7 @@ watch(
 			profile.linkedin = newVal.linkedin
 			profile.github = newVal.github
 			profile.twitter = newVal.twitter
-			if (newVal.user_image) imageResource.submit({ image: newVal.user_image })
+			profile.image = newVal.user_image
 			isDirty.value = false
 		}
 	}

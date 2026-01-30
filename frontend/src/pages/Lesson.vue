@@ -326,6 +326,7 @@
 		@updateNotes="updateNotes"
 	/>
 	<VideoStatistics
+		v-if="showStatsDialog"
 		v-model="showStatsDialog"
 		:lessonName="lesson.data?.name"
 		:lessonTitle="lesson.data?.title"
@@ -871,6 +872,7 @@ const scrollDiscussionsIntoView = () => {
 }
 
 const updateNotes = () => {
+	if (!user.data) return
 	notes.update({
 		filters: {
 			lesson: lesson.data?.name,

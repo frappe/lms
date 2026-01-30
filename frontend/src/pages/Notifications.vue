@@ -26,7 +26,7 @@
 			class="flex space-x-2 px-2 py-4"
 			:class="{
 				'cursor-pointer': log.link,
-				'items-center': !showDetails(log) && !isMention(log),
+				'items-center': !showDetails(log) && !isMentionOrComment(log),
 			}"
 			@click="navigateToPage(log)"
 		>
@@ -56,9 +56,9 @@
 					</div>
 				</div>
 				<div
-					v-if="isMention(log)"
+					v-if="isMentionOrComment(log)"
 					v-html="log.email_content"
-					class="bg-surface-gray-2 rounded-md px-3 py-2"
+					class="bg-surface-gray-2 rounded-md px-3 py-2 line-clamp-3 overflow-hidden"
 				></div>
 				<div
 					v-else-if="showDetails(log)"
@@ -185,10 +185,9 @@ const unReadNotifications = createListResource({
 	doctype: 'Notification Log',
 	url: 'lms.lms.api.get_notifications',
 	filters: {
-		for_user: user.data?.name,
 		read: 0,
 	},
-	auto: true,
+	auto: user.data ? true : false,
 	cache: 'Unread Notifications',
 })
 
@@ -196,18 +195,17 @@ const readNotifications = createListResource({
 	doctype: 'Notification Log',
 	url: 'lms.lms.api.get_notifications',
 	filters: {
-		for_user: user.data?.name,
 		read: 1,
 	},
-	auto: true,
+	auto: user.data ? true : false,
 	cache: 'Read Notifications',
 })
 
 const markAsRead = createResource({
-	url: 'lms.lms.api.mark_as_read',
+	url: 'frappe.desk.doctype.notification_log.notification_log.mark_as_read',
 	makeParams(values) {
 		return {
-			name: values.name,
+			docname: values.name,
 		}
 	},
 	onSuccess(data) {
@@ -217,7 +215,7 @@ const markAsRead = createResource({
 })
 
 const markAllAsRead = createResource({
-	url: 'lms.lms.api.mark_all_as_read',
+	url: 'frappe.desk.doctype.notification_log.notification_log.mark_all_as_read',
 	onSuccess(data) {
 		unReadNotifications.reload()
 		readNotifications.reload()
@@ -260,7 +258,7 @@ const navigateToPage = (log) => {
 	}
 }
 
-const isMention = (log) => {
+const isMentionOrComment = (log) => {
 	if (log.type == 'Mention') {
 		return true
 	}

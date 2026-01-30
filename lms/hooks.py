@@ -208,7 +208,6 @@ update_website_context = [
 
 jinja = {
 	"methods": [
-		"lms.lms.utils.get_tags",
 		"lms.lms.utils.get_lesson_count",
 		"lms.lms.utils.get_instructors",
 		"lms.lms.utils.get_lesson_index",
@@ -277,3 +276,4 @@ add_to_apps_screen = [
 ]
 
 sqlite_search = ["lms.sqlite.LearningSearch"]
+auth_hooks = ["lms.auth.authenticate"]
