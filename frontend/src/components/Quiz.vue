@@ -98,6 +98,20 @@
 						)
 					}}
 				</div>
+				<div
+					v-if="
+						quiz.data.max_attempts &&
+						attempts.data?.length >= quiz.data.max_attempts
+					"
+					class="space-x-2 mt-4"
+				>
+					<Button @click="router.push({ name: 'Quizzes' })">
+						{{ __('Go Back') }}
+					</Button>
+					<Button @click="router.push({ name: 'Batches' })">
+						{{ __('Go to Batches') }}
+					</Button>
+				</div>
 			</div>
 		</div>
 		<div v-else-if="!quizSubmission.data">
@@ -277,7 +291,7 @@
 					class="mt-2"
 					v-if="
 						!quiz.data.max_attempts ||
-						attempts?.data.length < quiz.data.max_attempts
+						attempts?.data?.length < quiz.data.max_attempts
 					"
 				>
 					<span>
@@ -286,6 +300,20 @@
 				</Button>
 				<Button v-if="inVideo" @click="props.backToVideo()">
 					{{ __('Resume Video') }}
+				</Button>
+				<Button
+					v-if="!inVideo"
+					@click="router.push({ name: 'Quizzes' })"
+					class="mt-2"
+				>
+					{{ __('Go Back') }}
+				</Button>
+				<Button
+					v-if="!inVideo"
+					@click="router.push({ name: 'Batches' })"
+					class="mt-2"
+				>
+					{{ __('Go to Batches') }}
 				</Button>
 			</div>
 		</div>
@@ -329,6 +357,7 @@ import { useRouter } from 'vue-router'
 import ProgressBar from '@/components/ProgressBar.vue'
 
 const user = inject('$user')
+const router = useRouter()
 const activeQuestion = ref(0)
 const currentQuestion = ref('')
 const selectedOptions = reactive([0, 0, 0, 0])
