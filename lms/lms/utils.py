@@ -661,45 +661,6 @@ def get_evaluator(course, batch=None):
 	return evaluator
 
 
-@frappe.whitelist()
-def get_upcoming_evals(courses=None, batch=None):
-	if not courses:
-		courses = []
-
-	filters = {
-		"member": frappe.session.user,
-		"date": [">=", frappe.utils.nowdate()],
-		"status": "Upcoming",
-	}
-
-	if len(courses) > 0:
-		filters["course"] = ["in", courses]
-
-	if batch:
-		filters["batch_name"] = batch
-
-	upcoming_evals = frappe.get_all(
-		"LMS Certificate Request",
-		filters,
-		[
-			"name",
-			"date",
-			"start_time",
-			"course",
-			"evaluator",
-			"google_meet_link",
-			"member",
-			"member_name",
-		],
-		order_by="date",
-	)
-
-	for evals in upcoming_evals:
-		evals.course_title = frappe.db.get_value("LMS Course", evals.course, "title")
-		evals.evaluator_name = frappe.db.get_value("User", evals.evaluator, "full_name")
-	return upcoming_evals
-
-
 def check_multicurrency(amount, currency, country=None, amount_usd=None):
 	settings = frappe.get_single("LMS Settings")
 	show_usd_equivalent = settings.show_usd_equivalent
@@ -1897,7 +1858,7 @@ def get_lesson_creation_details(course, chapter, lesson):
 
 @frappe.whitelist()
 def get_roles(name):
-	frappe.only_for("Moderator")
+	frappe.only_for(["Moderator", "Batch Evaluator"])
 	return {
 		"moderator": has_moderator_role(name),
 		"course_creator": has_course_instructor_role(name),
