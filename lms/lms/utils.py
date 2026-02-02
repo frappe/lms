@@ -329,17 +329,6 @@ def has_course_instructor_role(member=None):
 	)
 
 
-def can_create_batches(member=None):
-	if not member:
-		member = frappe.session.user
-
-	if has_moderator_role(member):
-		return True
-	if has_evaluator_role(member):
-		return True
-	return False
-
-
 def has_moderator_role(member=None):
 	return frappe.db.get_value(
 		"Has Role",
@@ -885,6 +874,10 @@ def get_course_details(course):
 	if not guest_access_allowed():
 		return {}
 
+	is_course_published = frappe.db.get_value("LMS Course", course, "published")
+	if not is_course_published and not can_modify_course(course):
+		return {}
+
 	fields = get_course_fields()
 	course_details = frappe.db.get_value(
 		"LMS Course",
@@ -1105,11 +1098,11 @@ def get_batch_details(batch):
 		return {}
 
 	batch_students = frappe.get_all("LMS Batch Enrollment", {"batch": batch}, pluck="member")
-	has_create_batch_role = can_create_batches()
-	is_course_published = frappe.db.get_value("LMS Batch", batch, "published")
+	is_batch_admin = can_modify_batch(batch)
+	is_batch_published = frappe.db.get_value("LMS Batch", batch, "published")
 	is_student_enrolled = frappe.session.user in batch_students
 
-	if not (is_course_published or has_create_batch_role or is_student_enrolled):
+	if not (is_batch_published or is_batch_admin or is_student_enrolled):
 		return
 
 	batch_details = frappe.db.get_value(
@@ -1154,7 +1147,7 @@ def get_batch_details(batch):
 	batch_details.courses = frappe.get_all(
 		"Batch Course", filters={"parent": batch}, fields=["course", "title", "evaluator"]
 	)
-	if can_create_batches():
+	if can_modify_batch(batch):
 		batch_details.students = batch_students
 	elif is_student_enrolled:
 		batch_details.students = [frappe.session.user]
