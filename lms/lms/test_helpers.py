@@ -54,6 +54,7 @@ class BaseTestUtils(UnitTestCase):
 				"short_introduction": "A course to test utilities of Frappe Learning",
 				"description": "This is a detailed description of the Utility Course.",
 				"tags": "Frappe,Learning,Utility",
+				"category": "Business",
 				"published": 1,
 				"instructors": [{"instructor": instructor}],
 			}
@@ -187,6 +188,7 @@ class BaseTestUtils(UnitTestCase):
 				"start_time": "09:00:00",
 				"end_time": "11:00:00",
 				"timezone": "Asia/Kolkata",
+				"published": 1,
 				"description": "Batch for Utility Course Training",
 				"batch_details": "This batch is created to test utility functions.",
 				"evaluation_end_date": add_days(nowdate(), 120),
@@ -197,6 +199,17 @@ class BaseTestUtils(UnitTestCase):
 		batch.save()
 		self.cleanup_items.append(("LMS Batch", batch.name))
 		return batch
+
+	def _create_batch_enrollment(self, member, batch):
+		existing = frappe.db.exists("LMS Batch Enrollment", {"batch": batch, "member": member})
+		if existing:
+			return frappe.get_doc("LMS Batch Enrollment", existing)
+
+		batch_enrollment = frappe.new_doc("LMS Batch Enrollment")
+		batch_enrollment.update({"member": member, "batch": batch})
+		batch_enrollment.insert()
+		self.cleanup_items.append(("LMS Batch Enrollment", batch_enrollment.name))
+		return batch_enrollment
 
 	def _add_rating(self, course, member, rating, review_text):
 		existing = frappe.db.exists("LMS Course Review", {"course": course, "owner": member})

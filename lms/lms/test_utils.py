@@ -2,13 +2,16 @@
 # See license.txt
 
 import frappe
+from frappe.utils import get_time, getdate, to_timedelta
 
 from lms.lms.api import get_certified_participants
 from lms.lms.doctype.lms_certificate.lms_certificate import is_certified
 from lms.lms.test_helpers import BaseTestUtils
 from lms.lms.utils import (
 	get_average_rating,
+	get_batch_details,
 	get_chapters,
+	get_course_details,
 	get_evaluator,
 	get_instructors,
 	get_lesson_index,
@@ -48,6 +51,8 @@ class TestLMSUtils(BaseTestUtils):
 
 		self.evaluator = self._create_evaluator()
 		self.batch = self._create_batch(self.course.name)
+		self._create_batch_enrollment(self.student1.email, self.batch.name)
+		self._create_batch_enrollment(self.student2.email, self.batch.name)
 
 	def _setup_chapters_and_lessons(self):
 		chapters = []
@@ -195,3 +200,31 @@ class TestLMSUtils(BaseTestUtils):
 	def test_get_evaluator(self):
 		evaluator_email = get_evaluator(self.course.name, self.batch.name)
 		self.assertEqual(evaluator_email, self.evaluator.evaluator)
+
+	def test_get_course_details(self):
+		course_details = get_course_details(self.course.name)
+		self.assertEqual(course_details.name, self.course.name)
+		self.assertEqual(course_details.title, self.course.title)
+		self.assertEqual(course_details.category, self.course.category)
+		self.assertEqual(course_details.description, self.course.description)
+		self.assertEqual(course_details.short_introduction, self.course.short_introduction)
+		self.assertEqual(course_details.tags, self.course.tags)
+		self.assertEqual(course_details.published, 1)
+		self.assertEqual(len(course_details.instructors), len(self.course.instructors))
+
+	def test_get_batch_details(self):
+		batch_details = get_batch_details(self.batch.name)
+		self.assertEqual(batch_details.name, self.batch.name)
+		self.assertEqual(batch_details.title, self.batch.title)
+		self.assertEqual(batch_details.start_date, getdate(self.batch.start_date))
+		self.assertEqual(batch_details.end_date, getdate(self.batch.end_date))
+		self.assertEqual(batch_details.start_time, to_timedelta(self.batch.start_time))
+		self.assertEqual(batch_details.end_time, to_timedelta(self.batch.end_time))
+		self.assertEqual(batch_details.timezone, self.batch.timezone)
+		self.assertEqual(batch_details.published, 1)
+		self.assertEqual(batch_details.description, self.batch.description)
+		self.assertEqual(batch_details.batch_details, self.batch.batch_details)
+		self.assertEqual(len(batch_details.courses), len(self.batch.courses))
+		self.assertEqual(batch_details.evaluation_end_date, getdate(self.batch.evaluation_end_date))
+		self.assertEqual(len(batch_details.instructors), len(self.batch.instructors))
+		self.assertEqual(len(batch_details.students), 2)

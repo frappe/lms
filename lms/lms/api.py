@@ -914,7 +914,7 @@ def give_discussions_permission():
 						"delete": 1,
 						"if_owner": 0 if role == "Moderator" else 1,
 					}
-				).save(ignore_permissions=True)
+				).save()
 
 
 @frappe.whitelist()

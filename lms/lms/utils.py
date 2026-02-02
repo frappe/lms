@@ -329,17 +329,6 @@ def has_course_instructor_role(member=None):
 	)
 
 
-def can_create_batches(member=None):
-	if not member:
-		member = frappe.session.user
-
-	if has_moderator_role(member):
-		return True
-	if has_evaluator_role(member):
-		return True
-	return False
-
-
 def has_moderator_role(member=None):
 	return frappe.db.get_value(
 		"Has Role",
@@ -661,45 +650,6 @@ def get_evaluator(course, batch=None):
 	return evaluator
 
 
-@frappe.whitelist()
-def get_upcoming_evals(courses=None, batch=None):
-	if not courses:
-		courses = []
-
-	filters = {
-		"member": frappe.session.user,
-		"date": [">=", frappe.utils.nowdate()],
-		"status": "Upcoming",
-	}
-
-	if len(courses) > 0:
-		filters["course"] = ["in", courses]
-
-	if batch:
-		filters["batch_name"] = batch
-
-	upcoming_evals = frappe.get_all(
-		"LMS Certificate Request",
-		filters,
-		[
-			"name",
-			"date",
-			"start_time",
-			"course",
-			"evaluator",
-			"google_meet_link",
-			"member",
-			"member_name",
-		],
-		order_by="date",
-	)
-
-	for evals in upcoming_evals:
-		evals.course_title = frappe.db.get_value("LMS Course", evals.course, "title")
-		evals.evaluator_name = frappe.db.get_value("User", evals.evaluator, "full_name")
-	return upcoming_evals
-
-
 def check_multicurrency(amount, currency, country=None, amount_usd=None):
 	settings = frappe.get_single("LMS Settings")
 	show_usd_equivalent = settings.show_usd_equivalent
@@ -924,6 +874,10 @@ def get_course_details(course):
 	if not guest_access_allowed():
 		return {}
 
+	is_course_published = frappe.db.get_value("LMS Course", course, "published")
+	if not is_course_published and not can_modify_course(course):
+		return {}
+
 	fields = get_course_fields()
 	course_details = frappe.db.get_value(
 		"LMS Course",
@@ -1144,11 +1098,11 @@ def get_batch_details(batch):
 		return {}
 
 	batch_students = frappe.get_all("LMS Batch Enrollment", {"batch": batch}, pluck="member")
-	has_create_batch_role = can_create_batches()
-	is_course_published = frappe.db.get_value("LMS Batch", batch, "published")
+	is_batch_admin = can_modify_batch(batch)
+	is_batch_published = frappe.db.get_value("LMS Batch", batch, "published")
 	is_student_enrolled = frappe.session.user in batch_students
 
-	if not (is_course_published or has_create_batch_role or is_student_enrolled):
+	if not (is_batch_published or is_batch_admin or is_student_enrolled):
 		return
 
 	batch_details = frappe.db.get_value(
@@ -1193,7 +1147,7 @@ def get_batch_details(batch):
 	batch_details.courses = frappe.get_all(
 		"Batch Course", filters={"parent": batch}, fields=["course", "title", "evaluator"]
 	)
-	if can_create_batches():
+	if can_modify_batch(batch):
 		batch_details.students = batch_students
 	elif is_student_enrolled:
 		batch_details.students = [frappe.session.user]
@@ -1897,7 +1851,7 @@ def get_lesson_creation_details(course, chapter, lesson):
 
 @frappe.whitelist()
 def get_roles(name):
-	frappe.only_for("Moderator")
+	frappe.only_for(["Moderator", "Batch Evaluator"])
 	return {
 		"moderator": has_moderator_role(name),
 		"course_creator": has_course_instructor_role(name),
