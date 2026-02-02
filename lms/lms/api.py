@@ -324,7 +324,7 @@ def get_certification_query(filters):
 
 	query = (
 		frappe.qb.from_(Certificate)
-		.select(Certificate.member)
+		.select(Certificate.member, Certificate.issue_date)
 		.distinct()
 		.join(User)
 		.on(Certificate.member == User.name)
