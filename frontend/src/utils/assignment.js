@@ -5,6 +5,7 @@ import translationPlugin from '../translation'
 import { usersStore } from '@/stores/user'
 import { call } from 'frappe-ui'
 import router from '@/router'
+import { getLmsRoute } from '@/utils/basePath'
 
 export class Assignment {
 	constructor({ data, api, readOnly }) {
@@ -53,7 +54,10 @@ export class Assignment {
 				fieldname: ['name'],
 			}).then((data) => {
 				let submission = data.name || 'new'
-				this.wrapper.innerHTML = `<iframe src="/lms/assignment-submission/${assignment}/${submission}?fromLesson=1" class="w-full h-[500px]"></iframe>`
+				const submissionPath = getLmsRoute(
+					`assignment-submission/${assignment}/${submission}?fromLesson=1`
+				)
+				this.wrapper.innerHTML = `<iframe src="${submissionPath}" class="w-full h-[500px]"></iframe>`
 			})
 			return
 		}

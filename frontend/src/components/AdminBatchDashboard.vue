@@ -35,7 +35,7 @@
 
 		<AxisChart
 			v-if="showProgressChart"
-			class="border"
+			class="border rounded-lg p-3 min-h-[300px]"
 			:config="{
 				data: filteredChartData,
 				title: __('Batch Summary'),

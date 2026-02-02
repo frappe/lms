@@ -1,12 +1,20 @@
 <template>
 	<div class="flex min-h-0 flex-col text-base">
-		<div class="mb-5">
-			<div class="text-xl font-semibold mb-1 text-ink-gray-9">
-				{{ __(label) }}
+		<div class="flex items-center justify-between mb-5">
+			<div>
+				<div class="text-xl font-semibold mb-1 text-ink-gray-9">
+					{{ __(label) }}
+				</div>
+				<div class="text-ink-gray-6 leading-5">
+					{{ __(description) }}
+				</div>
 			</div>
-			<div class="text-ink-gray-6 leading-5">
-				{{ __(description) }}
-			</div>
+			<Button @click="emit('updateStep', 'new', null)">
+				<template #prefix>
+					<FeatherIcon name="plus" class="h-4 w-4 stroke-1.5" />
+				</template>
+				{{ __('Add Transaction') }}
+			</Button>
 		</div>
 
 		<div class="flex items-center space-x-5 mb-4">

@@ -2,14 +2,13 @@ import frappe
 from frappe.tests.test_api import FrappeAPITestCase
 
 from lms.auth import authenticate
-from lms.lms.test_utils import TestUtils
+from lms.lms.test_helpers import BaseTestUtils
 
 
-class TestAuth(FrappeAPITestCase):
+class TestAuth(BaseTestUtils, FrappeAPITestCase):
 	def setUp(self):
-		self.normal_user = TestUtils.create_user(
-			self, "normal-user@example.com", "Normal", "User", ["LMS Student"]
-		)
+		super().setUp()
+		self.normal_user = self._create_user("normal-user@example.com", "Normal", "User", ["LMS Student"])
 
 	def test_allowed_path(self):
 		frappe.form_dict.cmd = "ping"
@@ -24,4 +23,4 @@ class TestAuth(FrappeAPITestCase):
 		frappe.session.user = "Administrator"
 
 	def tearDown(self):
-		frappe.delete_doc("User", self.normal_user.name)
+		super().tearDown()
