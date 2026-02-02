@@ -1242,6 +1242,7 @@ def get_assessments(batch):
 		"LMS Assessment",
 		{"parent": batch},
 		["name", "assessment_type", "assessment_name"],
+		order_by="idx",
 	)
 
 	for assessment in assessments:
