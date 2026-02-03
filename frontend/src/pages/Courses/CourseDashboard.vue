@@ -63,50 +63,52 @@
 							</ListHeaderItem>
 						</ListHeader>
 						<ListRows v-for="row in progressList.data" class="max-h-[500px]">
-							<router-link
-								:to="{
-									name: 'Profile',
-									params: { username: row.member_username },
-								}"
+							<ListRow
+								:row="row"
+								@click="
+									() => {
+										showProgressModal = true
+										currentStudent = row
+									}
+								"
+								class="cursor-pointer"
 							>
-								<ListRow :row="row">
-									<template #default="{ column, item }">
-										<ListRowItem
-											:item="row[column.key]"
-											:align="column.align"
-											class="w-full"
-										>
-											<template #prefix>
-												<div v-if="column.key == 'member_name'">
-													<Avatar
-														class="flex items-center"
-														:image="row['member_image']"
-														:label="item"
-														size="sm"
-													/>
-												</div>
-												<ProgressBar
-													v-else-if="column.key == 'progress'"
-													:progress="Math.ceil(row[column.key])"
-													class="!mx-0 !mr-4"
+								<template #default="{ column, item }">
+									<ListRowItem
+										:item="row[column.key]"
+										:align="column.align"
+										class="w-full"
+									>
+										<template #prefix>
+											<div v-if="column.key == 'member_name'">
+												<Avatar
+													class="flex items-center"
+													:image="row['member_image']"
+													:label="item"
+													size="sm"
 												/>
-											</template>
-											<div v-if="column.key == 'creation'">
-												{{ dayjs(row[column.key]).format('DD MMM YYYY') }}
 											</div>
-											<div
+											<ProgressBar
 												v-else-if="column.key == 'progress'"
-												class="text-xs !mx-0 w-5"
-											>
-												{{ Math.ceil(row[column.key]) }}%
-											</div>
-											<div v-else>
-												{{ row[column.key].toString() }}
-											</div>
-										</ListRowItem>
-									</template>
-								</ListRow>
-							</router-link>
+												:progress="Math.ceil(row[column.key])"
+												class="!mx-0 !mr-4"
+											/>
+										</template>
+										<div v-if="column.key == 'creation'">
+											{{ dayjs(row[column.key]).format('DD MMM YYYY') }}
+										</div>
+										<div
+											v-else-if="column.key == 'progress'"
+											class="text-xs !mx-0 w-5"
+										>
+											{{ Math.ceil(row[column.key]) }}%
+										</div>
+										<div v-else>
+											{{ row[column.key].toString() }}
+										</div>
+									</ListRowItem>
+								</template>
+							</ListRow>
 						</ListRows>
 					</ListView>
 					<div
@@ -142,6 +144,8 @@
 													? 'red'
 													: row.name.startsWith('In')
 													? 'amber'
+													: row.name.startsWith('Adv')
+													? 'blue'
 													: 'green'
 											][400],
 									}"
@@ -151,11 +155,13 @@
 										{{ row.name.split('(')[0] }}
 									</div>
 								</Tooltip>
-								<div class="ml-auto">
-									{{
-										Math.round((row.value / course.data?.enrollments) * 100)
-									}}%
-								</div>
+								<Tooltip :text="row.value">
+									<div class="ml-auto">
+										{{
+											Math.round((row.value / course.data?.enrollments) * 100)
+										}}%
+									</div>
+								</Tooltip>
 							</div>
 						</div>
 						<ECharts
@@ -239,6 +245,13 @@
 		v-model="showEnrollmentModal"
 		:course="course"
 	/>
+	<StudentCourseProgress
+		v-if="showProgressModal"
+		v-model="showProgressModal"
+		:course="course"
+		:student="currentStudent"
+		:lessons="lessonProgress"
+	/>
 </template>
 <script setup lang="ts">
 import {
@@ -260,12 +273,13 @@ import {
 	Tooltip,
 } from 'frappe-ui'
 import { computed, ref, watch } from 'vue'
-import { ChevronDown, Plus, Star } from 'lucide-vue-next'
+import { Plus, Star } from 'lucide-vue-next'
 import { formatAmount } from '@/utils'
 import colors from '@/utils/frappe-ui-colors.json'
 import CourseEnrollmentModal from '@/pages/Courses/CourseEnrollmentModal.vue'
 import NumberChartGraph from '@/components/NumberChartGraph.vue'
 import ProgressBar from '@/components/ProgressBar.vue'
+import StudentCourseProgress from '@/pages/Courses/StudentCourseProgress.vue'
 
 const props = defineProps<{
 	course: any
@@ -273,6 +287,8 @@ const props = defineProps<{
 
 const showEnrollmentModal = ref(false)
 const searchFilter = ref<string | null>(null)
+const showProgressModal = ref(false)
+const currentStudent = ref<any>(null)
 const theme = ref<'darkMode' | 'lightMode'>(
 	localStorage.getItem('theme') == 'dark' ? 'darkMode' : 'lightMode'
 )
@@ -307,6 +323,7 @@ const progressList = createListResource({
 	],
 	pageLength: 100,
 	auto: true,
+	cache: ['courseProgress', props.course.data?.name],
 })
 
 const lessonProgress = createResource({
@@ -357,6 +374,7 @@ const progressColors = computed(() => {
 	let colorList = []
 	colorList.push(colors[theme.value]['red'][400])
 	colorList.push(colors[theme.value]['amber'][400])
+	colorList.push(colors[theme.value]['blue'][400])
 	colorList.push(colors[theme.value]['green'][400])
 	return colorList
 })
