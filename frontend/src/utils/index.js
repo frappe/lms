@@ -169,10 +169,10 @@ export function getEditorTools() {
 						id: ([id]) => id,
 					},
 					vimeo: {
-						regex: /(?:http[s]?:\/\/)?(?:www\.)?vimeo\.com\/(\d+)/,
+						regex: /(?:http[s]?:\/\/)?(?:www\.)?vimeo\.com\/(\d+)(?:\/([a-zA-Z0-9]+))?(?:\?[^\s]*)?/,
 						embedUrl: '<%= remote_id %>',
 						html: `<div class="video-player" data-plyr-provider="vimeo"></div>`,
-						id: ([id]) => id,
+						id: ([id, hash]) => (hash ? `${id}?h=${hash}` : id),
 					},
 					cloudflareStream: {
 						regex: /https:\/\/customer-[a-z0-9]+\.cloudflarestream\.com\/([a-f0-9]{32})\/watch/,
