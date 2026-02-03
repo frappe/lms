@@ -6,16 +6,20 @@
  "engine": "InnoDB",
  "field_order": [
   "general_tab",
-  "default_home",
-  "send_calendar_invite_for_evaluations",
-  "persona_captured",
-  "column_break_zdel",
   "allow_guest_access",
   "prevent_skipping_videos",
+  "send_calendar_invite_for_evaluations",
+  "column_break_zdel",
   "disable_pwa",
+  "persona_captured",
+  "default_home",
   "column_break_bjis",
   "unsplash_access_key",
   "livecode_url",
+  "notifications_section",
+  "send_notification_for_published_courses",
+  "column_break_dtns",
+  "send_notification_for_published_batches",
   "section_break_szgq",
   "show_day_view",
   "column_break_2",
@@ -446,13 +450,34 @@
    "fieldname": "disable_pwa",
    "fieldtype": "Check",
    "label": "Disable PWA"
+  },
+  {
+   "fieldname": "send_notification_for_published_courses",
+   "fieldtype": "Select",
+   "label": "Send Notification for Published Courses",
+   "options": "\nEmail\nIn-app"
+  },
+  {
+   "fieldname": "send_notification_for_published_batches",
+   "fieldtype": "Select",
+   "label": "Send Notification for Published Batches",
+   "options": "\nEmail\nIn-app"
+  },
+  {
+   "fieldname": "notifications_section",
+   "fieldtype": "Section Break",
+   "label": "Notifications"
+  },
+  {
+   "fieldname": "column_break_dtns",
+   "fieldtype": "Column Break"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2025-12-22 11:30:13.868031",
+ "modified": "2026-01-01 19:36:54.443390",
  "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "LMS Settings",

@@ -89,8 +89,8 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-05-27 22:32:24.196643",
- "modified_by": "Administrator",
+ "modified": "2026-01-14 08:54:21.421321",
+ "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "LMS Live Class Participant",
  "owner": "Administrator",
@@ -104,6 +104,30 @@
    "read": 1,
    "report": 1,
    "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Moderator",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Batch Evaluator",
    "share": 1,
    "write": 1
   }

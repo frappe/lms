@@ -136,7 +136,7 @@ def delete_custom_fields():
 		"medium",
 		"linkedin",
 		"profession",
-		"looking_for_job",
+		"open_to",
 		"cover_image" "work_environment",
 		"dream_companies",
 		"career_preference_column",

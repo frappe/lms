@@ -11,7 +11,6 @@ describe("Course Creation", () => {
 		cy.get("button").contains("Create").click();
 		cy.get("span").contains("New Course").click();
 		cy.wait(500);
-		cy.url().should("include", "/courses/new/edit");
 
 		cy.get("label").contains("Title").type("Test Course");
 		cy.get("label")
@@ -35,21 +34,6 @@ describe("Course Creation", () => {
 				});
 		});
 
-		cy.get("label")
-			.contains("Preview Video")
-			.type("https://www.youtube.com/embed/-LPmw2Znl2c");
-		cy.get("[id=tags]").type("Learning{enter}Frappe{enter}ERPNext{enter}");
-		cy.get("label")
-			.contains("Category")
-			.parent()
-			.within(() => {
-				cy.get("button").click();
-			});
-		cy.get("[id^=headlessui-combobox-option-")
-			.should("be.visible")
-			.first()
-			.click();
-
 		/* Instructor */
 		cy.get("label")
 			.contains("Instructors")
@@ -69,13 +53,32 @@ describe("Course Creation", () => {
 				});
 		});
 
+		cy.button("Create").last().click();
+
+		// Edit Course Details
+		cy.wait(500);
+		cy.get("label")
+			.contains("Preview Video")
+			.type("https://www.youtube.com/embed/-LPmw2Znl2c");
+		cy.get("[id=tags]").type("Learning{enter}Frappe{enter}ERPNext{enter}");
+		cy.get("label")
+			.contains("Category")
+			.parent()
+			.within(() => {
+				cy.get("button").click();
+			});
+		cy.get("[id^=headlessui-combobox-option-")
+			.should("be.visible")
+			.first()
+			.click();
+
 		cy.get("label").contains("Published").click();
 		cy.get("label").contains("Published On").type("2021-01-01");
 		cy.button("Save").click();
 
 		// Add Chapter
 		cy.wait(1000);
-		cy.button("Add Chapter").click();
+		cy.button("Add").click();
 
 		cy.wait(1000);
 		cy.get("[data-dismissable-layer]")

@@ -25,9 +25,9 @@
 			></div>
 		</div>
 
-		<div class="flex flex-col">
-			<div class="p-5">
-				<div class="flex items-center justify-between mb-4">
+		<div class="flex flex-col overflow-y-auto">
+			<div class="p-5 space-y-5">
+				<div class="flex items-center justify-between">
 					<div class="font-semibold text-ink-gray-9">
 						{{ __('Submission') }}
 					</div>
@@ -53,7 +53,7 @@
 						!['Pass', 'Fail'].includes(submissionResource.doc?.status) &&
 						submissionResource.doc?.owner == user.data?.name
 					"
-					class="bg-surface-blue-2 text-ink-blue-2 p-3 rounded-md leading-5 text-sm mb-4"
+					class="bg-surface-blue-2 text-ink-blue-2 p-3 rounded-md leading-5 text-sm"
 				>
 					{{ __("You've successfully submitted the assignment.") }}
 					{{
@@ -63,12 +63,17 @@
 					}}
 					{{ __('Feel free to make edits to your submission if needed.') }}
 				</div>
-				<div v-if="showUploader()">
-					<div class="text-xs text-ink-gray-5 mt-1 mb-2">
-						{{ __('Add your assignment as {0}').format(assignment.data.type) }}
+				<div v-if="showUploader()" class="border rounded-lg p-3">
+					<div class="font-semibold mb-2">
+						{{ __('Upload Assignment') }}
+					</div>
+					<div class="text-ink-gray-5 text-sm mt-1 mb-4">
+						{{
+							__('You can only upload {0} files').format(assignment.data.type)
+						}}
 					</div>
 					<FileUploader
-						v-if="!submissionFile"
+						v-if="!submissionResource.doc?.assignment_attachment"
 						:fileTypes="getType()"
 						:uploadArgs="{
 							private: true,
@@ -87,21 +92,24 @@
 						</template>
 					</FileUploader>
 					<div v-else>
-						<div class="flex text-ink-gray-7">
-							<div class="border self-start rounded-md p-2 mr-2">
-								<FileText class="h-5 w-5 stroke-1.5" />
-							</div>
+						<div class="flex items-center text-ink-gray-7">
 							<a
-								:href="submissionFile.file_url"
+								:href="submissionResource.doc.assignment_attachment"
 								target="_blank"
-								class="flex flex-col cursor-pointer !no-underline"
+								class="cursor-pointer !no-underline text-sm leading-5"
 							>
-								<span class="text-sm leading-5">
-									{{ submissionFile.file_name }}
-								</span>
-								<span class="text-sm text-ink-gray-5 mt-1">
-									{{ getFileSize(submissionFile.file_size) }}
-								</span>
+								<div class="flex items-center">
+									<div class="border rounded-md p-2 mr-2">
+										<FileText class="h-5 w-5 stroke-1.5" />
+									</div>
+									<span>
+										{{
+											submissionResource.doc.assignment_attachment
+												.split('/')
+												.pop()
+										}}
+									</span>
+								</div>
 							</a>
 							<X
 								v-if="canModifyAssignment"
@@ -142,13 +150,13 @@
 						user.data?.name == submissionResource.doc?.owner &&
 						submissionResource.doc?.comments
 					"
-					class="mt-8 p-3 bg-surface-blue-2 rounded-md"
+					class="mt-8 p-3 border rounded-lg"
 				>
-					<div class="text-sm text-ink-gray-5 font-medium mb-2">
-						{{ __('Comments by Evaluator') }}:
+					<div class="text-ink-gray-5 mb-4">
+						{{ __('Comments by Evaluator') }}
 					</div>
 					<div
-						class="leading-5 text-ink-gray-9"
+						class="leading-6 text-ink-gray-9"
 						v-html="submissionResource.doc.comments"
 					></div>
 				</div>
@@ -204,10 +212,8 @@ import {
 } from 'frappe-ui'
 import { computed, inject, onMounted, onBeforeUnmount, ref, watch } from 'vue'
 import { FileText, X } from 'lucide-vue-next'
-import { getFileSize } from '@/utils'
 import { useRouter } from 'vue-router'
 
-const submissionFile = ref(null)
 const answer = ref(null)
 const comments = ref(null)
 const router = useRouter()
@@ -266,27 +272,12 @@ const newSubmission = createResource({
 			assignment: props.assignmentID,
 			member: user.data?.name,
 		}
-		if (showUploader()) {
-			doc.assignment_attachment = submissionFile.value.file_url
-		} else {
+		if (!showUploader()) {
 			doc.answer = answer.value
 		}
 		return {
 			doc: doc,
 		}
-	},
-})
-
-const imageResource = createResource({
-	url: 'lms.lms.api.get_file_info',
-	makeParams(values) {
-		return {
-			file_url: values.image,
-		}
-	},
-	auto: false,
-	onSuccess(data) {
-		submissionFile.value = data
 	},
 })
 
@@ -302,11 +293,6 @@ const submissionResource = createDocumentResource({
 
 watch(submissionResource, () => {
 	if (submissionResource.doc) {
-		if (submissionResource.doc.assignment_attachment) {
-			imageResource.reload({
-				image: submissionResource.doc.assignment_attachment,
-			})
-		}
 		if (submissionResource.doc.answer) {
 			answer.value = submissionResource.doc.answer
 		}
@@ -315,7 +301,10 @@ watch(submissionResource, () => {
 		}
 		if (submissionResource.isDirty) {
 			isDirty.value = true
-		} else if (showUploader() && !submissionFile.value) {
+		} else if (
+			showUploader() &&
+			!submissionResource.doc.assignment_attachment
+		) {
 			isDirty.value = true
 		} else if (!showUploader() && !answer.value) {
 			isDirty.value = true
@@ -325,11 +314,17 @@ watch(submissionResource, () => {
 	}
 })
 
-watch(submissionFile, () => {
-	if (props.submissionName == 'new' && submissionFile.value) {
-		isDirty.value = true
+watch(
+	() => submissionResource.doc,
+	() => {
+		if (
+			props.submissionName == 'new' &&
+			submissionResource.doc?.assignment_attachment
+		) {
+			isDirty.value = true
+		}
 	}
-})
+)
 
 const submitAssignment = () => {
 	if (props.submissionName != 'new') {
@@ -341,13 +336,13 @@ const submitAssignment = () => {
 		submissionResource.setValue.submit(
 			{
 				...submissionResource.doc,
-				assignment_attachment: submissionFile.value?.file_url,
 				evaluator: evaluator,
 				comments: comments.value,
 				answer: answer.value,
 			},
 			{
 				onSuccess(data) {
+					isDirty.value = false
 					toast.success(__('Changes saved successfully'))
 				},
 			}
@@ -388,7 +383,7 @@ const addNewSubmission = () => {
 
 const saveSubmission = (file) => {
 	isDirty.value = true
-	submissionFile.value = file
+	submissionResource.doc.assignment_attachment = file.file_url
 }
 
 const markLessonProgress = () => {
@@ -439,7 +434,7 @@ const validateFile = (file) => {
 
 const removeSubmission = () => {
 	isDirty.value = true
-	submissionFile.value = null
+	submissionResource.doc.assignment_attachment = ''
 }
 
 const canGradeSubmission = computed(() => {

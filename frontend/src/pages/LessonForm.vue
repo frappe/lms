@@ -99,14 +99,14 @@ import EditorJS from '@editorjs/editorjs'
 import LessonHelp from '@/components/LessonHelp.vue'
 import { ChevronRight } from 'lucide-vue-next'
 import { getEditorTools, enablePlyr } from '@/utils'
-import { capture, startRecording, stopRecording } from '@/telemetry'
-import { useOnboarding } from 'frappe-ui/frappe'
+import { useOnboarding, useTelemetry } from 'frappe-ui/frappe'
 
 const { brand } = sessionStore()
 const editor = ref(null)
 const instructorEditor = ref(null)
 const user = inject('$user')
 const openInstructorEditor = ref(false)
+const { capture } = useTelemetry()
 const { updateOnboardingStep } = useOnboarding('learning')
 let autoSaveInterval
 let showSuccessMessage = false
@@ -131,7 +131,6 @@ onMounted(() => {
 		window.location.href = '/login'
 	}
 	capture('lesson_form_opened')
-	startRecording()
 	editor.value = renderEditor('content')
 	instructorEditor.value = renderEditor('instructor-notes')
 	window.addEventListener('keydown', keyboardShortcut)
@@ -226,7 +225,6 @@ const keyboardShortcut = (e) => {
 onBeforeUnmount(() => {
 	clearInterval(autoSaveInterval)
 	window.removeEventListener('keydown', keyboardShortcut)
-	stopRecording()
 })
 
 const newLessonResource = createResource({
@@ -473,7 +471,11 @@ const breadcrumbs = computed(() => {
 		},
 		{
 			label: lessonDetails.data?.course_title,
-			route: { name: 'CourseForm', params: { courseName: props.courseName } },
+			route: {
+				name: 'CourseDetail',
+				params: { courseName: props.courseName },
+				hash: '#settings',
+			},
 		},
 	]
 
@@ -665,6 +667,16 @@ iframe {
 .ce-popover__container {
 	border-radius: 12px;
 	padding: 8px;
+}
+
+.codex-editor--narrow .ce-toolbox .ce-popover,
+.codex-editor--narrow .ce-toolbar__actions .ce-popover {
+	right: unset;
+	left: initial;
+}
+
+.ce-popover {
+	border-radius: 12px;
 }
 
 .cdx-search-field {

@@ -1,3 +1,5 @@
+import frappe
+
 from . import __version__ as app_version
 
 app_name = "frappe_lms"
@@ -6,10 +8,16 @@ app_publisher = "Frappe"
 app_description = "Frappe LMS App"
 app_icon_url = "/assets/lms/images/lms-logo.png"
 app_icon_title = "Learning"
-app_icon_route = "/lms"
 app_color = "grey"
 app_email = "jannat@frappe.io"
 app_license = "AGPL"
+
+
+def get_lms_path():
+	return (frappe.conf.get("lms_path") or "lms").strip("/")
+
+
+app_icon_route = f"/{get_lms_path()}"
 
 # Includes in <head>
 # ------------------
@@ -132,6 +140,7 @@ scheduler_events = {
 		"lms.lms.doctype.lms_payment.lms_payment.send_payment_reminder",
 		"lms.lms.doctype.lms_batch.lms_batch.send_batch_start_reminder",
 		"lms.lms.doctype.lms_live_class.lms_live_class.send_live_class_reminder",
+		"lms.lms.doctype.lms_course.lms_course.send_notification_for_published_courses",
 	],
 }
 
@@ -162,7 +171,8 @@ override_whitelisted_methods = {
 
 # Add all simple route rules here
 website_route_rules = [
-	{"from_route": "/lms/<path:app_path>", "to_route": "lms"},
+	{"from_route": f"/{get_lms_path()}/<path:app_path>", "to_route": "_lms"},
+	{"from_route": f"/{get_lms_path()}", "to_route": "_lms"},
 	{
 		"from_route": "/courses/<course_name>/<certificate_id>",
 		"to_route": "certificate",
@@ -171,24 +181,25 @@ website_route_rules = [
 
 website_redirects = [
 	{"source": "/update-profile", "target": "/edit-profile"},
-	{"source": "/courses", "target": "/lms/courses"},
+	{"source": "/courses", "target": f"/{get_lms_path()}/courses"},
 	{
 		"source": r"^/courses/.*$",
-		"target": "/lms/courses",
+		"target": f"/{get_lms_path()}/courses",
 	},
-	{"source": "/batches", "target": "/lms/batches"},
+	{"source": "/batches", "target": f"/{get_lms_path()}/batches"},
 	{
 		"source": r"/batches/(.*)",
-		"target": "/lms/batches",
+		"target": f"/{get_lms_path()}/batches",
 		"match_with_query_string": True,
 	},
-	{"source": "/job-openings", "target": "/lms/job-openings"},
+	{"source": "/job-openings", "target": f"/{get_lms_path()}/job-openings"},
 	{
 		"source": r"/job-openings/(.*)",
-		"target": "/lms/job-openings",
+		"target": f"/{get_lms_path()}/job-openings",
 		"match_with_query_string": True,
 	},
-	{"source": "/statistics", "target": "/lms/statistics"},
+	{"source": "/statistics", "target": f"/{get_lms_path()}/statistics"},
+	{"source": "_lms", "target": f"/{get_lms_path()}"},
 ]
 
 update_website_context = [
@@ -197,16 +208,20 @@ update_website_context = [
 
 jinja = {
 	"methods": [
-		"lms.lms.utils.get_tags",
 		"lms.lms.utils.get_lesson_count",
 		"lms.lms.utils.get_instructors",
 		"lms.lms.utils.get_lesson_index",
 		"lms.lms.utils.get_lesson_url",
+		"lms.lms.utils.get_lms_route",
 		"lms.lms.utils.is_instructor",
 		"lms.lms.utils.get_palette",
 	],
 	"filters": [],
 }
+
+extend_bootinfo = [
+	"lms.lms.utils.extend_bootinfo",
+]
 ## Specify the additional tabs to be included in the user profile page.
 ## Each entry must be a subclass of lms.lms.plugins.ProfileTab
 # profile_tabs = []
@@ -255,9 +270,10 @@ add_to_apps_screen = [
 		"name": "lms",
 		"logo": "/assets/lms/frontend/learning.svg",
 		"title": "Learning",
-		"route": "/lms",
+		"route": f"/{get_lms_path()}",
 		"has_permission": "lms.lms.api.check_app_permission",
 	}
 ]
 
 sqlite_search = ["lms.sqlite.LearningSearch"]
+auth_hooks = ["lms.auth.authenticate"]

@@ -8,14 +8,17 @@ from datetime import timedelta
 import frappe
 import requests
 from frappe import _
+from frappe.desk.doctype.notification_log.notification_log import make_notification_logs
 from frappe.model.document import Document
 from frappe.utils import add_days, cint, format_datetime, get_time, nowdate
 
 from lms.lms.utils import (
 	generate_slug,
 	get_assignment_details,
+	get_instructors,
 	get_lesson_index,
 	get_lesson_url,
+	get_lms_route,
 	get_quiz_details,
 	update_payment_record,
 )
@@ -32,6 +35,10 @@ class LMSBatch(Document):
 		self.validate_duplicate_assessments()
 		self.validate_timetable()
 		self.validate_evaluation_end_date()
+
+	def on_update(self):
+		if self.has_value_changed("published") and self.published:
+			frappe.enqueue(send_notification_for_published_batch, batch=self)
 
 	def autoname(self):
 		if not self.name:
@@ -121,6 +128,77 @@ class LMSBatch(Document):
 	def on_payment_authorized(self, payment_status):
 		if payment_status in ["Authorized", "Completed"]:
 			update_payment_record("LMS Batch", self.name)
+
+
+def send_notification_for_published_batch(batch):
+	send_notification = frappe.db.get_single_value("LMS Settings", "send_notification_for_published_batches")
+	if not send_notification:
+		return
+
+	if not batch.published:
+		return
+	if batch.notification_sent:
+		return
+
+	if send_notification == "Email":
+		send_email_notification_for_published_batch(batch)
+	else:
+		send_system_notification_for_published_batch(batch)
+
+
+def send_email_notification_for_published_batch(batch):
+	brand_name = frappe.db.get_single_value("Website Settings", "app_name")
+	brand_logo = frappe.db.get_single_value("Website Settings", "banner_image")
+	subject = _("A new course has been published on {0}").format(brand_name)
+	template = "published_batch_notification"
+	students = frappe.get_all("User", {"enabled": 1}, pluck="name")
+	instructors = get_instructors("LMS Batch", batch.name)
+
+	args = {
+		"brand_logo": brand_logo,
+		"brand_name": brand_name,
+		"title": batch.title,
+		"short_introduction": batch.description,
+		"start_date": batch.start_date,
+		"end_date": batch.end_date,
+		"start_time": batch.start_time,
+		"medium": batch.medium,
+		"timezone": batch.timezone,
+		"instructors": instructors,
+		"batch_url": frappe.utils.get_url(get_lms_route(f"batches/details/{batch.name}")),
+	}
+
+	frappe.sendmail(
+		recipients=instructors,
+		bcc=students,
+		subject=subject,
+		template=template,
+		args=args,
+	)
+	frappe.db.set_value("LMS Batch", batch.name, "notification_sent", 1)
+
+
+def send_system_notification_for_published_batch(batch):
+	students = frappe.get_all("User", {"enabled": 1}, pluck="name")
+	instructors = frappe.get_all("Course Instructor", {"parent": batch.name}, pluck="instructor")
+	instructor_name = frappe.db.get_value("User", instructors[0], "full_name")
+	notification = frappe._dict(
+		{
+			"subject": _("{0} has published a new batch {1}").format(
+				frappe.bold(instructor_name), frappe.bold(batch.title)
+			),
+			"email_content": _(
+				"A new batch '{0}' has been published that might interest you. Check it out!"
+			).format(batch.title),
+			"document_type": "LMS Batch",
+			"document_name": batch.name,
+			"from_user": instructors[0] if instructors else None,
+			"type": "Alert",
+			"link": get_lms_route(f"batches/details/{batch.name}"),
+		}
+	)
+	make_notification_logs(notification, students)
+	frappe.db.set_value("LMS Batch", batch.name, "notification_sent", 1)
 
 
 @frappe.whitelist()

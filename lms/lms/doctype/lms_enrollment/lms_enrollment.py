@@ -9,10 +9,23 @@ from frappe.utils import ceil
 
 class LMSEnrollment(Document):
 	def before_insert(self):
+		self.validate_duplicate_enrollment()
 		self.validate_course_enrollment_eligibility()
 
 	def on_update(self):
 		update_program_progress(self.member)
+
+	def validate_duplicate_enrollment(self):
+		existing_enrollment = frappe.db.exists(
+			"LMS Enrollment",
+			{
+				"course": self.course,
+				"member": self.member,
+			},
+		)
+
+		if existing_enrollment:
+			frappe.throw(_("Student is already enrolled in this course."))
 
 	def validate_course_enrollment_eligibility(self):
 		course_details = frappe.db.get_value(
@@ -39,8 +52,8 @@ class LMSEnrollment(Document):
 			payment = frappe.db.exists(
 				"LMS Payment",
 				{
-					"reference_doctype": "LMS Course",
-					"reference_docname": self.course,
+					"payment_for_document_type": "LMS Course",
+					"payment_for_document": self.course,
 					"member": self.member,
 					"payment_received": True,
 				},

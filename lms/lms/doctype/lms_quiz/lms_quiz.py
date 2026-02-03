@@ -33,6 +33,9 @@ class LMSQuiz(Document):
 			frappe.throw(_("Rows {0} have the duplicate questions.").format(frappe.bold(comma_and(rows))))
 
 	def validate_limit(self):
+		if not self.shuffle_questions and self.limit_questions_to:
+			self.limit_questions_to = 0
+
 		if self.limit_questions_to and cint(self.limit_questions_to) >= len(self.questions):
 			frappe.throw(_("Limit cannot be greater than or equal to the number of questions in the quiz."))
 
@@ -252,20 +255,6 @@ def save_progress_after_quiz(quiz_details, percentage):
 		save_progress(quiz_details.lesson, quiz_details.course)
 	elif not quiz_details.passing_percentage:
 		save_progress(quiz_details.lesson, quiz_details.course)
-
-
-@frappe.whitelist()
-def get_question_details(question):
-	if frappe.db.exists("LMS Quiz Question", question):
-		fields = ["name", "question", "type"]
-		for num in range(1, 5):
-			fields.append(f"option_{cstr(num)}")
-			fields.append(f"is_correct_{cstr(num)}")
-			fields.append(f"explanation_{cstr(num)}")
-			fields.append(f"possibility_{cstr(num)}")
-
-		return frappe.db.get_value("LMS Quiz Question", question, fields, as_dict=1)
-	return
 
 
 @frappe.whitelist()

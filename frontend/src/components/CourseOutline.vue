@@ -15,7 +15,10 @@
 				{{ __(title) }}
 			</div>
 			<Button size="sm" v-if="allowEdit" @click="openChapterModal()">
-				{{ __('Add Chapter') }}
+				<template #prefix>
+					<Plus class="size-4 stroke-1.5" />
+				</template>
+				{{ __('Add') }}
 			</Button>
 		</div>
 		<div
@@ -174,6 +177,7 @@ import {
 	FilePenLine,
 	HelpCircle,
 	MonitorPlay,
+	Plus,
 	Trash2,
 } from 'lucide-vue-next'
 import { useRoute, useRouter } from 'vue-router'

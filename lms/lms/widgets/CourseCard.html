@@ -14,7 +14,7 @@
     <div class="course-image {% if not course.image %} default-image {% endif %}"
     {% if course.image %} style="background-image: url( {{ course.image | urlencode }} );" {% endif %}>
         <div class="course-tags">
-        {% for tag in get_tags(course.name) %}
+        {% for tag in frappe.db.get_value("LMS Course", course.name, "tags").split(",") %}
             <div class="course-card-pills">{{ tag }}</div>
         {% endfor %}
         </div>
@@ -93,7 +93,7 @@
                 </div>
                 {% endif %}
                 {% endfor %}
-                <a class="button-links" href="/lms/users/{{ instructors[0].username }}">
+                <a class="button-links" href="{{ get_lms_route('users/' ~ instructors[0].username) }}">
                     <span class="course-instructor">
                     {% if ins_len == 1 %}
                         {{ instructors[0].full_name }}
@@ -128,7 +128,7 @@
 				<a class="stretched-link" href="{{ get_lesson_url(course.name, lesson_index) }}{{ query_parameter }}"></a>
 
 			{% else %}
-				<a class="stretched-link" href="/lms/courses/{{ course.name }}"></a>
+				<a class="stretched-link" href="{{ get_lms_route('courses/' ~ course.name) }}"></a>
             {% endif %}
         {% endif %}
     </div>

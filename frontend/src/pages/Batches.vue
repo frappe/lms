@@ -130,7 +130,6 @@
 import {
 	Breadcrumbs,
 	Button,
-	call,
 	createListResource,
 	Dropdown,
 	FormControl,
@@ -156,7 +155,7 @@ const title = ref('')
 const certification = ref(false)
 const filters = ref({})
 const is_student = computed(() => user.data?.is_student)
-const currentTab = ref(is_student.value ? 'All' : 'Upcoming')
+const currentTab = ref(is_student.value ? 'all' : 'upcoming')
 const orderBy = ref('start_date')
 const readOnlyMode = window.read_only_mode
 const router = useRouter()
@@ -185,16 +184,17 @@ const batches = createListResource({
 	cache: ['batches', user.data?.name],
 	pageLength: pageLength.value,
 	start: start.value,
-	onSuccess(data) {
-		let allCategories = data.map((batch) => batch.category)
-		allCategories = allCategories.filter(
-			(category, index) => allCategories.indexOf(category) === index && category
-		)
-		if (categories.value.length <= allCategories.length) {
-			updateCategories(data)
-		}
-	},
 })
+
+const setCategories = (data) => {
+	let allCategories = data.map((batch) => batch.category)
+	allCategories = allCategories.filter(
+		(category, index) => allCategories.indexOf(category) === index && category
+	)
+	if (categories.value.length <= allCategories.length) {
+		updateCategories(data)
+	}
+}
 
 const updateBatches = () => {
 	updateFilters()
@@ -202,7 +202,9 @@ const updateBatches = () => {
 		filters: filters.value,
 		orderBy: orderBy.value,
 	})
-	batches.reload()
+	batches.reload().then((data) => {
+		setCategories(data)
+	})
 }
 
 const updateFilters = () => {
@@ -243,7 +245,7 @@ const updateTabFilter = () => {
 	if (!user.data) {
 		return
 	}
-	if (currentTab.value == 'Enrolled' && is_student.value) {
+	if (currentTab.value == 'enrolled' && is_student.value) {
 		filters.value['enrolled'] = 1
 		delete filters.value['start_date']
 		delete filters.value['published']
@@ -254,20 +256,20 @@ const updateTabFilter = () => {
 		delete filters.value['start_date']
 		delete filters.value['published']
 		orderBy.value = 'start_date desc'
-		if (currentTab.value == 'Upcoming') {
+		if (currentTab.value == 'upcoming') {
 			filters.value['start_date'] = ['>=', dayjs().format('YYYY-MM-DD')]
 			filters.value['published'] = 1
 			orderBy.value = 'start_date'
-		} else if (currentTab.value == 'Archived') {
+		} else if (currentTab.value == 'archived') {
 			filters.value['start_date'] = ['<=', dayjs().format('YYYY-MM-DD')]
-		} else if (currentTab.value == 'Unpublished') {
+		} else if (currentTab.value == 'unpublished') {
 			filters.value['published'] = 0
 		}
 	}
 }
 
 const updateStudentFilter = () => {
-	if (!user.data || (is_student.value && currentTab.value != 'Enrolled')) {
+	if (!user.data || (is_student.value && currentTab.value != 'enrolled')) {
 		filters.value['start_date'] = ['>=', dayjs().format('YYYY-MM-DD')]
 		filters.value['published'] = 1
 	}
@@ -317,6 +319,7 @@ const batchTabs = computed(() => {
 	let tabs = [
 		{
 			label: __('All'),
+			value: 'all',
 		},
 	]
 
@@ -325,11 +328,11 @@ const batchTabs = computed(() => {
 		user.data?.is_instructor ||
 		user.data?.is_evaluator
 	) {
-		tabs.push({ label: __('Upcoming') })
-		tabs.push({ label: __('Archived') })
-		tabs.push({ label: __('Unpublished') })
+		tabs.push({ label: __('Upcoming'), value: 'upcoming' })
+		tabs.push({ label: __('Archived'), value: 'archived' })
+		tabs.push({ label: __('Unpublished'), value: 'unpublished' })
 	} else if (user.data) {
-		tabs.push({ label: __('Enrolled') })
+		tabs.push({ label: __('Enrolled'), value: 'enrolled' })
 	}
 	return tabs
 })

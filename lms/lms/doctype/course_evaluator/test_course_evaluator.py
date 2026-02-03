@@ -1,23 +1,21 @@
 # Copyright (c) 2022, Frappe and Contributors
 # See license.txt
 
-# import frappe
-from frappe.tests import UnitTestCase
 from frappe.utils import add_days, format_time, getdate
 
-from lms.lms.doctype.course_evaluator.course_evaluator import get_schedule
-from lms.lms.test_utils import TestUtils
+from lms.lms.doctype.course_evaluator.course_evaluator import get_schedule, get_schedule_range_end_date
+from lms.lms.test_helpers import BaseTestUtils
 
 
-class TestCourseEvaluator(UnitTestCase):
+class TestCourseEvaluator(BaseTestUtils):
 	def setUp(self):
-		self.admin = TestUtils.create_user(
-			self, "frappe@example.com", "Frappe", "Admin", ["Moderator", "Course Creator", "Batch Evaluator"]
+		super().setUp()
+		self.admin = self._create_user(
+			"frappe@example.com", "Frappe", "Admin", ["Moderator", "Course Creator", "Batch Evaluator"]
 		)
-		self.course = TestUtils.create_a_course(self)
-
-		self.evaluator = TestUtils.create_evaluator(self)
-		self.batch = TestUtils.create_a_batch(self)
+		self.course = self._create_course()
+		self.evaluator = self._create_evaluator()
+		self.batch = self._create_batch(self.course.name)
 
 	def test_schedule_day_and_time(self):
 		schedule = get_schedule(self.batch.courses[0].course, self.batch.name)
@@ -37,7 +35,7 @@ class TestCourseEvaluator(UnitTestCase):
 	def test_schedule_dates(self):
 		schedule = get_schedule(self.batch.courses[0].course, self.batch.name)
 		first_date = self.calculated_first_date_of_schedule()
-		last_date = self.calculated_last_date_of_schedule(first_date)
+		last_date = self.calculated_last_date_of_schedule()
 		self.assertEqual(getdate(schedule[0].get("date")), first_date)
 		self.assertEqual(getdate(schedule[-1].get("date")), last_date)
 
@@ -51,9 +49,12 @@ class TestCourseEvaluator(UnitTestCase):
 			first_date = add_days(today, offset_wednesday)
 		return first_date
 
-	def calculated_last_date_of_schedule(self, first_date):
-		last_date = add_days(first_date, 56)  # 8 weeks course
-		return last_date
+	def calculated_last_date_of_schedule(self):
+		last_day = getdate(get_schedule_range_end_date(getdate(), self.batch.name))
+		while last_day.weekday() not in (0, 2):
+			last_day = add_days(last_day, -1)
+
+		return last_day
 
 	def test_unavailability_dates(self):
 		unavailable_from = getdate(self.evaluator.unavailable_from)

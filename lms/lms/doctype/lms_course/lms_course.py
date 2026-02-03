@@ -1,15 +1,21 @@
 # Copyright (c) 2021, Frappe and contributors
 # For license information, please see license.txt
 
-import json
 import random
 
 import frappe
 from frappe import _
+from frappe.desk.doctype.notification_log.notification_log import make_notification_logs
 from frappe.model.document import Document
 from frappe.utils import cint, today
 
-from ...utils import generate_slug, update_payment_record, validate_image
+from ...utils import (
+	generate_slug,
+	get_instructors,
+	get_lms_route,
+	update_payment_record,
+	validate_image,
+)
 
 
 class LMSCourse(Document):
@@ -107,7 +113,7 @@ class LMSCourse(Document):
 		subject = self.title + " is available!"
 		args = {
 			"title": self.title,
-			"course_link": f"/lms/courses/{self.name}",
+			"course_link": get_lms_route(f"courses/{self.name}"),
 			"app_name": frappe.db.get_single_value("System Settings", "app_name"),
 			"site_url": frappe.utils.get_url(),
 		}
@@ -131,3 +137,79 @@ class LMSCourse(Document):
 
 	def __repr__(self):
 		return f"<Course#{self.name}>"
+
+
+def send_notification_for_published_courses():
+	send_notification = frappe.db.get_single_value("LMS Settings", "send_notification_for_published_courses")
+	if not send_notification:
+		return
+
+	courses_published_today = frappe.get_all(
+		"LMS Course",
+		{
+			"published_on": today(),
+			"notification_sent": 0,
+		},
+		["name", "title", "short_introduction"],
+	)
+
+	if not courses_published_today:
+		return
+
+	if send_notification == "Email":
+		send_email_notification_for_published_courses(courses_published_today)
+	else:
+		send_system_notification_for_published_courses(courses_published_today)
+
+
+def send_email_notification_for_published_courses(courses):
+	brand_name = frappe.db.get_single_value("Website Settings", "app_name")
+	brand_logo = frappe.db.get_single_value("Website Settings", "banner_image")
+	subject = _("A new course has been published on {0}").format(brand_name)
+	template = "published_course_notification"
+	students = frappe.get_all("User", {"enabled": 1}, pluck="name")
+
+	for course in courses:
+		instructors = get_instructors("LMS Course", course.name)
+
+		args = {
+			"brand_logo": brand_logo,
+			"brand_name": brand_name,
+			"title": course.title,
+			"short_introduction": course.short_introduction,
+			"instructors": instructors,
+			"course_url": frappe.utils.get_url(get_lms_route(f"courses/{course.name}")),
+		}
+
+		frappe.sendmail(
+			recipients=instructors,
+			bcc=students,
+			subject=subject,
+			template=template,
+			args=args,
+		)
+		frappe.db.set_value("LMS Course", course.name, "notification_sent", 1)
+
+
+def send_system_notification_for_published_courses(courses):
+	for course in courses:
+		students = frappe.get_all("User", {"enabled": 1}, pluck="name")
+		instructors = frappe.get_all("Course Instructor", {"parent": course.name}, pluck="instructor")
+		instructor_name = frappe.db.get_value("User", instructors[0], "full_name")
+		notification = frappe._dict(
+			{
+				"subject": _("{0} has published a new course {1}").format(
+					frappe.bold(instructor_name), frappe.bold(course.title)
+				),
+				"email_content": _(
+					"A new course '{0}' has been published that might interest you. Check it out!"
+				).format(course.title),
+				"document_type": "LMS Course",
+				"document_name": course.name,
+				"from_user": instructors[0] if instructors else None,
+				"type": "Alert",
+				"link": get_lms_route(f"courses/{course.name}"),
+			}
+		)
+		make_notification_logs(notification, students)
+		frappe.db.set_value("LMS Course", course.name, "notification_sent", 1)

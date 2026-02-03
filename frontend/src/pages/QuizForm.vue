@@ -226,7 +226,6 @@ import {
 	onMounted,
 	inject,
 	onBeforeUnmount,
-	watch,
 } from 'vue'
 import { sessionStore } from '../stores/session'
 import { ClipboardList, ListChecks, Plus, Trash2 } from 'lucide-vue-next'
@@ -252,15 +251,15 @@ const props = defineProps({
 	},
 })
 
-const questions = ref([])
+const questions = computed(() => {
+	return quizDetails.doc?.questions || []
+})
 
 onMounted(() => {
 	if (!user.data?.is_moderator && !user.data?.is_instructor) {
 		router.push({ name: 'Courses' })
 	}
-	if (props.quizID !== 'new') {
-		quizDetails.reload()
-	}
+	quizDetails.reload()
 	window.addEventListener('keydown', keyboardShortcut)
 })
 
@@ -275,24 +274,10 @@ onBeforeUnmount(() => {
 	window.removeEventListener('keydown', keyboardShortcut)
 })
 
-watch(
-	() => props.quizID !== 'new',
-	(newVal) => {
-		if (newVal) {
-			quizDetails.reload()
-		}
-	}
-)
-
 const quizDetails = createDocumentResource({
 	doctype: 'LMS Quiz',
 	name: props.quizID,
 	auto: false,
-	onSuccess(doc) {
-		if (doc.questions && doc.questions.length > 0) {
-			questions.value = doc.questions.map((question) => question)
-		}
-	},
 })
 
 const validateTitle = () => {
@@ -403,7 +388,7 @@ const breadcrumbs = computed(() => {
 	]
 
 	crumbs.push({
-		label: props.quizID == 'new' ? __('New Quiz') : quizDetails.doc?.title,
+		label: quizDetails.doc?.title,
 		route: { name: 'QuizForm', params: { quizID: props.quizID } },
 	})
 	return crumbs
@@ -411,7 +396,7 @@ const breadcrumbs = computed(() => {
 
 usePageMeta(() => {
 	return {
-		title: props.quizID == 'new' ? __('New Quiz') : quizDetails.doc?.title,
+		title: quizDetails.doc?.title,
 		icon: brand.favicon,
 	}
 })

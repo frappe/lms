@@ -177,7 +177,7 @@
    "link_fieldname": "live_class"
   }
  ],
- "modified": "2025-05-27 14:44:35.679712",
+ "modified": "2026-01-14 08:54:07.684781",
  "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "LMS Live Class",
@@ -215,6 +215,18 @@
    "report": 1,
    "role": "LMS Student",
    "share": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Batch Evaluator",
+   "share": 1,
+   "write": 1
   }
  ],
  "row_format": "Dynamic",
