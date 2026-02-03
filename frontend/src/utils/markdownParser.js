@@ -421,16 +421,6 @@ export class Markdown {
 		return { alt: '', url: '' }
 	}
 
-	_isLink(text) {
-		return /\[.+?\]\(.+?\)/.test(text)
-	}
-
-	_extractLink(text) {
-		const match = text.match(/\[(.+?)\]\((.+?)\)/)
-		if (match) return { text: match[1], url: match[2] }
-		return { text: '', url: '' }
-	}
-
 	_isEmbed(text) {
 		return /^https?:\/\/.+/.test(text.trim())
 	}
