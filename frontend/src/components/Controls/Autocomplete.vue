@@ -99,18 +99,17 @@
 												name="item-label"
 												v-bind="{ active, selected, option }"
 											>
-												<div class="flex flex-col space-y-1 text-ink-gray-8">
-													<div>
-														{{ option.label }}
+												<div class="flex flex-col gap-1 p-1">
+													<div class="text-base font-medium text-ink-gray-8">
+														{{
+															option.value == option.label
+																? option.description
+																: option.label
+														}}
 													</div>
-													<div
-														v-if="
-															option.description &&
-															option.description != option.label
-														"
-														class="text-xs text-ink-gray-7"
-														v-html="option.description"
-													></div>
+													<div class="text-sm text-ink-gray-5">
+														{{ option.value }}
+													</div>
 												</div>
 											</slot>
 										</li>
