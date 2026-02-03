@@ -1,5 +1,6 @@
 import { CodeXml } from 'lucide-vue-next'
 import { createApp, h } from 'vue'
+import { escapeHTML } from '@/utils'
 
 export class Markdown {
 	constructor({ data, api, readOnly, config }) {
@@ -301,7 +302,7 @@ export class Markdown {
 	_parseInlineMarkdown(text) {
 		if (!text) return ''
 
-		let html = this._escapeHtml(text)
+		let html = escapeHTML(text)
 
 		html = html.replace(/`([^`]+)`/g, '<code class="inline-code">$1</code>')
 
@@ -314,15 +315,6 @@ export class Markdown {
 		html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>')
 
 		return html
-	}
-
-	_escapeHtml(text) {
-		return text
-			.replace(/&/g, '&amp;')
-			.replace(/</g, '&lt;')
-			.replace(/>/g, '&gt;')
-			.replace(/"/g, '&quot;')
-			.replace(/'/g, '&#39;')
 	}
 
 	_togglePlaceholder() {
