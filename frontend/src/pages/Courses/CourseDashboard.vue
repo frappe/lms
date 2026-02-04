@@ -22,7 +22,7 @@
 		<div class="grid grid-cols-[2fr_1fr] gap-5 items-start">
 			<div v-if="course.data?.enrollments" class="border rounded-lg py-3 px-4">
 				<div class="flex items-center justify-between mb-3">
-					<div class="text-lg font-semibold">
+					<div class="text-lg text-ink-gray-9 font-semibold">
 						{{ __('Students') }}
 					</div>
 					<div class="flex items-center space-x-2">
@@ -132,7 +132,7 @@
 					<div class="grid grid-cols-[2fr_1fr] items-center justify-between">
 						<div class="flex flex-col space-y-4 flex-1 text-sm">
 							<div
-								class="flex items-center"
+								class="flex items-center text-ink-gray-7"
 								v-for="row in chartDetails.data?.progress_distribution"
 							>
 								<div
@@ -211,7 +211,7 @@
 							class="!w-32"
 						/>
 					</div>
-					<div class="divide-y max-h-[43vh] overflow-y-auto">
+					<div class="divide-y max-h-[43vh] text-ink-gray-7 overflow-y-auto">
 						<div
 							v-for="progress in lessonProgress.data"
 							class="flex justify-between text-sm py-2 my-1"

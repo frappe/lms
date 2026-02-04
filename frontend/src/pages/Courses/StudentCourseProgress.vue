@@ -2,18 +2,18 @@
 	<Dialog
 		v-model="show"
 		:options="{
-			title: __('Course Progress'),
-			size: '4xl',
+			title: __('Student Progress'),
+			size: hasAssessmentData ? '3xl' : 'xl',
 		}"
 	>
 		<template #body-content>
-			<div class="text-base">
-				<div class="flex justify-between mb-5">
-					<div class="flex space-x-2">
+			<div class="text-base text-ink-gray-9 max-h-[70vh] overflow-y-auto">
+				<div class="flex justify-between mb-5 px-2">
+					<div class="flex items-center space-x-2">
 						<Avatar
 							:image="student?.member_image"
 							:label="student?.member_name"
-							size="lg"
+							size="xl"
 						/>
 						<div>
 							<div class="font-semibold">
@@ -35,8 +35,11 @@
 					</div>
 				</div>
 
-				<div class="grid grid-cols-2 gap-5">
-					<div v-if="lessons.data" class="border rounded-lg px-3 pt-3">
+				<div class="grid gap-5" :class="hasAssessmentData ? 'grid-cols-2' : ''">
+					<div
+						v-if="lessons.data"
+						class="border border-outline-gray-1 rounded-lg px-3 pt-3 max-h-[60vh] overflow-y-auto"
+					>
 						<div>
 							<div class="text-ink-gray-5 mb-5">
 								{{ __('Lesson Progress') }}
@@ -54,9 +57,18 @@
 									{{ progress.title }}
 								</span>
 							</div>
-							<Badge :theme="getLessonStatusTheme(progress)">
+							<Tooltip
+								v-if="getLessonStatus(progress) == 'Complete'"
+								:text="__('Complete')"
+							>
+								<Check class="text-ink-green-3 size-4" />
+							</Tooltip>
+							<Tooltip v-else :text="__('Pending')">
+								<Minus class="text-ink-amber-2 size-4" />
+							</Tooltip>
+							<!-- <Badge :theme="getLessonStatusTheme(progress)">
 								{{ getLessonStatus(progress) }}
-							</Badge>
+							</Badge> -->
 						</div>
 					</div>
 
@@ -140,8 +152,11 @@ import {
 	createListResource,
 	createResource,
 	Dialog,
+	Tooltip,
 } from 'frappe-ui'
 import ProgressBar from '@/components/ProgressBar.vue'
+import { computed } from 'vue'
+import { Check, Minus } from 'lucide-vue-next'
 
 const show = defineModel<boolean>({ required: true, default: false })
 
@@ -191,4 +206,15 @@ const getAssessmentStatusTheme = (status: string) => {
 	else if (status.includes('Fail')) return 'red'
 	else return 'orange'
 }
+
+const hasAssessmentData = computed(() => {
+	return (
+		(assessmentProgress.data?.quizzes &&
+			assessmentProgress.data.quizzes.length > 0) ||
+		(assessmentProgress.data?.assignments &&
+			assessmentProgress.data.assignments.length > 0) ||
+		(assessmentProgress.data?.exercises &&
+			assessmentProgress.data.exercises.length > 0)
+	)
+})
 </script>
