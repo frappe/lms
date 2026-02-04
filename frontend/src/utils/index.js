@@ -465,7 +465,6 @@ const getSidebarItems = () => {
 						'Courses',
 						'CourseDetail',
 						'Lesson',
-						'CourseForm',
 						'LessonForm',
 					],
 				},
@@ -490,6 +489,9 @@ const getSidebarItems = () => {
 					icon: 'GraduationCap',
 					to: 'CertifiedParticipants',
 					activeFor: ['CertifiedParticipants'],
+					condition: () => {
+						return userResource?.data
+					},
 				},
 				{
 					label: 'Jobs',

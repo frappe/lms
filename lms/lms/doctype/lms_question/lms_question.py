@@ -39,6 +39,8 @@ def validate_correct_options(question):
 
 	if len(correct_options) > 1:
 		question.multiple = 1
+	else:
+		question.multiple = 0
 
 	if not len(correct_options):
 		frappe.throw(_("At least one option must be correct for this question."))
@@ -91,18 +93,3 @@ def get_correct_options(question):
 			correct_options.append(field)
 
 	return correct_options
-
-
-@frappe.whitelist()
-def get_question_details(question):
-	if not has_course_instructor_role() or not has_moderator_role():
-		return
-
-	fields = ["question", "type", "name"]
-	for i in range(1, 5):
-		fields.append(f"option_{i}")
-		fields.append(f"is_correct_{i}")
-		fields.append(f"explanation_{i}")
-		fields.append(f"possibility_{i}")
-
-	return frappe.db.get_value("LMS Question", question, fields, as_dict=1)

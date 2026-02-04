@@ -9,7 +9,13 @@ from frappe.desk.doctype.notification_log.notification_log import make_notificat
 from frappe.model.document import Document
 from frappe.utils import cint, today
 
-from ...utils import generate_slug, get_instructors, update_payment_record, validate_image
+from ...utils import (
+	generate_slug,
+	get_instructors,
+	get_lms_route,
+	update_payment_record,
+	validate_image,
+)
 
 
 class LMSCourse(Document):
@@ -107,7 +113,7 @@ class LMSCourse(Document):
 		subject = self.title + " is available!"
 		args = {
 			"title": self.title,
-			"course_link": f"/lms/courses/{self.name}",
+			"course_link": get_lms_route(f"courses/{self.name}"),
 			"app_name": frappe.db.get_single_value("System Settings", "app_name"),
 			"site_url": frappe.utils.get_url(),
 		}
@@ -172,7 +178,7 @@ def send_email_notification_for_published_courses(courses):
 			"title": course.title,
 			"short_introduction": course.short_introduction,
 			"instructors": instructors,
-			"course_url": f"{frappe.utils.get_url()}/lms/courses/{course.name}",
+			"course_url": frappe.utils.get_url(get_lms_route(f"courses/{course.name}")),
 		}
 
 		frappe.sendmail(
@@ -202,7 +208,7 @@ def send_system_notification_for_published_courses(courses):
 				"document_name": course.name,
 				"from_user": instructors[0] if instructors else None,
 				"type": "Alert",
-				"link": f"/lms/courses/{course.name}",
+				"link": get_lms_route(f"courses/{course.name}"),
 			}
 		)
 		make_notification_logs(notification, students)

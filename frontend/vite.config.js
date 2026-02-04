@@ -5,6 +5,7 @@ import { VitePWA } from 'vite-plugin-pwa'
 
 export default defineConfig(async ({ mode }) => {
 	const isDev = mode === 'development'
+	console.log(mode, isDev)
 	const frappeui = await importFrappeUIPlugin(isDev)
 
 	const config = {
@@ -17,7 +18,7 @@ export default defineConfig(async ({ mode }) => {
 				lucideIcons: true,
 				jinjaBootData: true,
 				buildConfig: {
-					indexHtmlPath: '../lms/www/lms.html',
+					indexHtmlPath: '../lms/www/_lms.html',
 				},
 			}),
 			vue(),

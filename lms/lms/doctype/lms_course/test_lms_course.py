@@ -1,84 +1,55 @@
 # Copyright (c) 2021, FOSS United and Contributors
 # See license.txt
 
-import unittest
-
 import frappe
 
-from .lms_course import LMSCourse
+from lms.lms.api import delete_course
+from lms.lms.test_helpers import BaseTestUtils
 
 
-class TestLMSCourse(unittest.TestCase):
+class TestLMSCourse(BaseTestUtils):
+	def setUp(self):
+		super().setUp()
+		self.instructor = self._create_user(
+			"frappe@example.com", "Frappe", "Admin", ["Moderator", "Course Creator"]
+		)
+
 	def test_new_course(self):
-		course = new_course("Test Course")
-		assert course.title == "Test Course"
+		course_name = f"Test Course {frappe.generate_hash()}"
 
-	def tearDown(self):
-		if frappe.db.exists("User", "tester@example.com"):
-			frappe.delete_doc("User", "tester@example.com")
+		course = self._create_course(course_name)
 
-		if frappe.db.exists("LMS Course", "test-course"):
-			frappe.db.delete("Batch Course", {"course": "test-course"})
-			frappe.db.delete("LMS Enrollment", {"course": "test-course"})
-			frappe.db.delete("Course Lesson", {"course": "test-course"})
-			frappe.db.delete("Course Chapter", {"course": "test-course"})
-			frappe.db.delete("LMS Course Mentor Mapping", {"course": "test-course"})
-			frappe.db.delete("Course Instructor", {"parent": "test-course"})
-			frappe.db.sql("delete from `tabCourse Instructor`")
-			frappe.delete_doc("LMS Course", "test-course")
+		self.assertEqual(course.title, course_name)
+		self.assertTrue(frappe.db.exists("LMS Course", course.name))
 
+	def test_delete_course(self):
+		course = self._create_course(f"Test Course {frappe.generate_hash()}")
+		chapter = self._create_chapter(f"Test Chapter {frappe.generate_hash()}", course.name)
+		lesson = self._create_lesson(f"Test Lesson {frappe.generate_hash()}", chapter.name, course.name)
 
-def new_user(name, email):
-	user = frappe.db.exists("User", email)
-	if user:
-		return frappe.get_doc("User", user)
-	else:
-		filters = {
-			"email": email,
-			"first_name": name,
-			"send_welcome_email": False,
-		}
+		lesson_ref = self._create_lesson_reference(chapter.name, lesson.name)
+		chapter_ref = self._create_chapter_reference(course.name, chapter.name)
 
-		doc = frappe.new_doc("User")
-		doc.update(filters)
-		doc.save()
-		return doc
+		user_email = f"test_{frappe.generate_hash()}@example.com"
+		self._create_user(user_email, "Test", "Member", ["LMS Student"])
+		enrollment = self._create_enrollment(user_email, course.name)
+		progress = self._create_progress(user_email, course.name, lesson.name)
 
+		delete_course(course.name)
 
-def new_course(title, additional_filters=None):
-	course = frappe.db.exists("LMS Course", {"title": title})
-	if course:
-		return frappe.get_doc("LMS Course", course)
-	else:
-		create_evaluator()
-		user = frappe.db.get_value(
-			"User",
-			{
-				"user_type": "System User",
-			},
-		)
-		filters = {
-			"title": title,
-			"short_introduction": title,
-			"description": title,
-			"video_link": "https://youtu.be/pEbIhUySqbk",
-			"image": "/assets/lms/images/course-home.png",
-			"instructors": [{"instructor": user}],
-			"published": 1,
-		}
+		self.assertFalse(frappe.db.exists("LMS Course", course.name))
+		self.assertFalse(frappe.db.exists("Course Chapter", chapter.name))
+		self.assertFalse(frappe.db.exists("Course Lesson", lesson.name))
+		self.assertFalse(frappe.db.exists("LMS Enrollment", enrollment.name))
+		self.assertFalse(frappe.db.exists("LMS Course Progress", {"course": course.name}))
+		self.assertFalse(frappe.db.exists("Chapter Reference", {"parent": course.name}))
+		self.assertFalse(frappe.db.exists("Lesson Reference", {"parent": chapter.name}))
 
-		if additional_filters:
-			filters.update(additional_filters)
-
-		doc = frappe.new_doc("LMS Course")
-		doc.update(filters)
-		doc.save()
-		return doc
-
-
-def create_evaluator():
-	if not frappe.db.exists("Course Evaluator", "evaluator@example.com"):
-		new_user("Evaluator", "evaluator@example.com")
-		frappe.get_doc({"doctype": "Course Evaluator", "evaluator": "evaluator@example.com"}).save(
-			ignore_permissions=True
-		)
+		# remove from cleanup_items list since delete_course already deleted them
+		self.cleanup_items.remove(("LMS Course", course.name))
+		self.cleanup_items.remove(("LMS Enrollment", enrollment.name))
+		self.cleanup_items.remove(("LMS Course Progress", progress.name))
+		self.cleanup_items.remove(("Chapter Reference", chapter_ref.name))
+		self.cleanup_items.remove(("Lesson Reference", lesson_ref.name))
+		self.cleanup_items.remove(("Course Chapter", chapter.name))
+		self.cleanup_items.remove(("Course Lesson", lesson.name))

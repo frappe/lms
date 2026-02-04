@@ -134,6 +134,7 @@ import {
 import { computed, inject, onMounted, ref } from 'vue'
 import { GraduationCap } from 'lucide-vue-next'
 import { sessionStore } from '../stores/session'
+import { useRouter } from 'vue-router'
 import EmptyState from '@/components/EmptyState.vue'
 import UserAvatar from '@/components/UserAvatar.vue'
 
@@ -145,8 +146,14 @@ const hiring = ref(false)
 const { brand } = sessionStore()
 const memberCount = ref(0)
 const dayjs = inject('$dayjs')
+const user = inject('$user')
+const router = useRouter()
 
 onMounted(() => {
+	if (!user.data) {
+		router.push({ name: 'Courses' })
+		return
+	}
 	setFiltersFromQuery()
 	updateParticipants()
 })
@@ -171,7 +178,7 @@ const categories = createListResource({
 	doctype: 'LMS Certificate',
 	url: 'lms.lms.api.get_certification_categories',
 	cache: ['certification_categories'],
-	auto: true,
+	auto: user.data ? true : false,
 	transform(data) {
 		data.unshift({ label: __(' '), value: ' ' })
 		return data

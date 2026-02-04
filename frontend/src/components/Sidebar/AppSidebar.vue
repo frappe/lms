@@ -269,12 +269,13 @@ const iconProps = {
 onMounted(() => {
 	setUpOnboarding()
 	addKeyboardShortcut()
+	updateSidebarLinks()
 	socket.on('publish_lms_notifications', (data) => {
 		unreadNotifications.reload()
 	})
 })
 
-const setSidebarLinks = () => {
+const updateSidebarLinksVisibility = () => {
 	sidebarSettings.reload(
 		{},
 		{
@@ -405,9 +406,13 @@ const steps = reactive([
 			minimize.value = true
 			let course = await getFirstCourse()
 			if (course) {
-				router.push({ name: 'CourseForm', params: { courseName: course } })
+				router.push({
+					name: 'CourseDetail',
+					params: { courseName: course },
+					hash: '#settings',
+				})
 			} else {
-				router.push({ name: 'CourseForm' })
+				router.push({ name: 'Courses', query: { newCourse: '1' } })
 			}
 		},
 	},
@@ -422,11 +427,12 @@ const steps = reactive([
 			let course = await getFirstCourse()
 			if (course) {
 				router.push({
-					name: 'CourseForm',
+					name: 'CourseDetail',
 					params: { courseName: course },
+					hash: '#settings',
 				})
 			} else {
-				router.push({ name: 'Courses' })
+				router.push({ name: 'Courses', query: { newCourse: '1' } })
 			}
 		},
 	},
@@ -591,9 +597,17 @@ watch(userResource, async () => {
 		await programs.reload()
 		setUpOnboarding()
 	}
-	sidebarLinks.value = getSidebarLinks()
-	setSidebarLinks()
+	updateSidebarLinks()
 })
+
+watch(settingsStore.settings, () => {
+	updateSidebarLinks()
+})
+
+const updateSidebarLinks = () => {
+	sidebarLinks.value = getSidebarLinks()
+	updateSidebarLinksVisibility()
+}
 
 const redirectToWebsite = () => {
 	window.open('https://frappe.io/learning', '_blank')

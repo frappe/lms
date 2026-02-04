@@ -5,7 +5,7 @@
 		<Breadcrumbs :items="breadcrumbs" />
 
 		<Dropdown
-			placement="start"
+			placement="right"
 			side="bottom"
 			v-if="canCreateCourse()"
 			:options="[
@@ -13,10 +13,7 @@
 					label: __('New Course'),
 					icon: 'book-open',
 					onClick() {
-						router.push({
-							name: 'CourseForm',
-							params: { courseName: 'new' },
-						})
+						showCourseModal = true
 					},
 				},
 				{
@@ -109,6 +106,11 @@
 			</Button>
 		</div>
 	</div>
+	<NewCourseModal
+		v-if="showCourseModal"
+		v-model="showCourseModal"
+		:courses="courses"
+	/>
 </template>
 <script setup>
 import {
@@ -128,31 +130,33 @@ import { sessionStore } from '@/stores/session'
 import { canCreateCourse } from '@/utils'
 import CourseCard from '@/components/CourseCard.vue'
 import EmptyState from '@/components/EmptyState.vue'
-import router from '../router'
+import { useRouter } from 'vue-router'
+import NewCourseModal from '@/pages/Courses/NewCourseModal.vue'
 
 const user = inject('$user')
 const dayjs = inject('$dayjs')
 const start = ref(0)
 const pageLength = ref(30)
-const categories = ref([])
+const categories = ref([
+	{
+		label: '',
+		value: null,
+	},
+])
 const currentCategory = ref(null)
 const title = ref('')
 const certification = ref(false)
 const filters = ref({})
-const currentTab = ref('Live')
+const currentTab = ref('live')
 const { brand } = sessionStore()
 const courseCount = ref(0)
+const router = useRouter()
+const showCourseModal = ref(false)
 
 onMounted(() => {
 	setFiltersFromQuery()
 	updateCourses()
 	getCourseCount()
-	categories.value = [
-		{
-			label: '',
-			value: null,
-		},
-	]
 })
 
 const setFiltersFromQuery = () => {
@@ -160,6 +164,9 @@ const setFiltersFromQuery = () => {
 	title.value = queries.get('title') || ''
 	currentCategory.value = queries.get('category') || null
 	certification.value = queries.get('certification') || false
+	if (queries.get('newCourse') == '1') {
+		showCourseModal.value = true
+	}
 }
 
 const courses = createListResource({
@@ -260,35 +267,35 @@ const updateTabFilter = () => {
 	delete filters.value['published_on']
 	delete filters.value['upcoming']
 
-	if (currentTab.value == 'Enrolled' && user.data?.is_student) {
+	if (currentTab.value == 'enrolled' && user.data?.is_student) {
 		filters.value['enrolled'] = 1
 		delete filters.value['published']
 	} else {
 		delete filters.value['published']
 		delete filters.value['enrolled']
 
-		if (currentTab.value == 'Live') {
+		if (currentTab.value == 'live') {
 			filters.value['published'] = 1
 			filters.value['upcoming'] = 0
 			filters.value['live'] = 1
-		} else if (currentTab.value == 'Upcoming') {
+		} else if (currentTab.value == 'upcoming') {
 			filters.value['upcoming'] = 1
-		} else if (currentTab.value == 'New') {
+		} else if (currentTab.value == 'new') {
 			filters.value['published'] = 1
 			filters.value['published_on'] = [
 				'>=',
 				dayjs().add(-3, 'month').format('YYYY-MM-DD'),
 			]
-		} else if (currentTab.value == 'Created') {
+		} else if (currentTab.value == 'created') {
 			filters.value['created'] = 1
-		} else if (currentTab.value == 'Unpublished') {
+		} else if (currentTab.value == 'unpublished') {
 			filters.value['published'] = 0
 		}
 	}
 }
 
 const updateStudentFilter = () => {
-	if (!user.data || (user.data?.is_student && currentTab.value != 'Enrolled')) {
+	if (!user.data || (user.data?.is_student && currentTab.value != 'enrolled')) {
 		filters.value['published'] = 1
 	}
 }
@@ -338,12 +345,15 @@ const courseTabs = computed(() => {
 	let tabs = [
 		{
 			label: __('Live'),
+			value: 'live',
 		},
 		{
 			label: __('New'),
+			value: 'new',
 		},
 		{
 			label: __('Upcoming'),
+			value: 'upcoming',
 		},
 	]
 	if (
@@ -351,10 +361,10 @@ const courseTabs = computed(() => {
 		user.data?.is_instructor ||
 		user.data?.is_evaluator
 	) {
-		tabs.push({ label: __('Created') })
-		tabs.push({ label: __('Unpublished') })
+		tabs.push({ label: __('Created'), value: 'created' })
+		tabs.push({ label: __('Unpublished'), value: 'unpublished' })
 	} else if (user.data) {
-		tabs.push({ label: __('Enrolled') })
+		tabs.push({ label: __('Enrolled'), value: 'enrolled' })
 	}
 	return tabs
 })

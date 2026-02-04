@@ -137,11 +137,12 @@ import {
 } from 'lucide-vue-next'
 import { inject, ref, getCurrentInstance, computed } from 'vue'
 import { formatTime } from '@/utils'
-import { Button, createResource, call } from 'frappe-ui'
+import { Button, createResource, createListResource, call } from 'frappe-ui'
 import EvaluationModal from '@/components/Modals/EvaluationModal.vue'
 import { Menu, MenuButton, MenuItems, MenuItem } from '@headlessui/vue'
 
 const dayjs = inject('$dayjs')
+const user = inject('$user')
 const showEvalModal = ref(false)
 const app = getCurrentInstance()
 const { $dialog } = app.appContext.config.globalProperties
@@ -165,12 +166,26 @@ const props = defineProps({
 	},
 })
 
-const upcoming_evals = createResource({
-	url: 'lms.lms.utils.get_upcoming_evals',
-	params: {
-		courses: props.courses.map((course) => course.course),
-		batch: props.batch,
+const upcoming_evals = createListResource({
+	doctype: 'LMS Certificate Request',
+	filters: {
+		course: props.courses?.length
+			? ['in', props.courses.map((course) => course.course)]
+			: undefined,
+		batch_name: props.batch || undefined,
+		status: 'Upcoming',
+		member: user?.data?.name,
+		date: ['>=', dayjs().format('YYYY-MM-DD')],
 	},
+	fields: [
+		'name',
+		'date',
+		'start_time',
+		'evaluator_name',
+		'course_title',
+		'google_meet_link',
+	],
+	orderBy: 'date',
 	auto: true,
 })
 

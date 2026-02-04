@@ -60,8 +60,15 @@ const currentTab = ref<'student' | 'instructor'>('instructor')
 const showStreakModal = ref(false)
 
 onMounted(() => {
-	call('lms.lms.utils.get_upcoming_evals').then((data: any) => {
-		evalCount.value = data.length
+	call('frappe.client.get_count', {
+		doctype: 'LMS Certificate Request',
+		filters: {
+			member: user?.data?.name,
+			status: 'Upcoming',
+			date: ['>=', inject<any>('$dayjs')().format('YYYY-MM-DD')],
+		},
+	}).then((data: any) => {
+		evalCount.value = data
 	})
 })
 
