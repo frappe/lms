@@ -278,6 +278,13 @@ const tabsStructure = computed(() => {
 					template: markRaw(ZoomSettings),
 				},
 				{
+					label: 'Google Meet Accounts',
+					description:
+						'Manage Google Meet accounts to conduct live classes from batches',
+					icon: 'Video',
+					template: markRaw(ZoomSettings),
+				},
+				{
 					label: 'Badges',
 					description:
 						'Create badges and assign them to students to acknowledge their achievements',

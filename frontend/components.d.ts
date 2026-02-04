@@ -72,6 +72,8 @@ declare module 'vue' {
     ExplanationVideos: typeof import('./src/components/Modals/ExplanationVideos.vue')['default']
     FeedbackModal: typeof import('./src/components/Modals/FeedbackModal.vue')['default']
     FrappeCloudIcon: typeof import('./src/components/Icons/FrappeCloudIcon.vue')['default']
+    GoogleMeetAccountModal: typeof import('./src/components/Modals/GoogleMeetAccountModal.vue')['default']
+    GoogleMeetSettings: typeof import('./src/components/Settings/GoogleMeetSettings.vue')['default']
     IconPicker: typeof import('./src/components/Controls/IconPicker.vue')['default']
     IndicatorIcon: typeof import('./src/components/Icons/IndicatorIcon.vue')['default']
     InlineLessonMenu: typeof import('./src/components/Notes/InlineLessonMenu.vue')['default']
