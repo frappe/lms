@@ -3,7 +3,7 @@ import frappe
 from . import __version__ as app_version
 
 app_name = "frappe_lms"
-app_title = "Frappe LMS"
+app_title = "Learning"
 app_publisher = "Frappe"
 app_description = "Frappe LMS App"
 app_icon_url = "/assets/lms/images/lms-logo.png"

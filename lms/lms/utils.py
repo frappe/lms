@@ -205,6 +205,10 @@ def get_lesson_icon(body, content):
 
 			if block.get("type") == "quiz":
 				return "icon-quiz"
+			if block.get("type") == "assignment":
+				return "icon-assignment"
+			if block.get("type") == "program":
+				return "icon-code"
 
 		return "icon-list"
 

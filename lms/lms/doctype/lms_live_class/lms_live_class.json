@@ -1,5 +1,6 @@
 {
  "actions": [],
+ "allow_import": 1,
  "allow_rename": 1,
  "creation": "2023-03-02 10:59:01.741349",
  "default_view": "List",
@@ -177,7 +178,7 @@
    "link_fieldname": "live_class"
   }
  ],
- "modified": "2026-01-14 08:54:07.684781",
+ "modified": "2026-02-03 10:54:39.198916",
  "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "LMS Live Class",
@@ -200,6 +201,7 @@
    "delete": 1,
    "email": 1,
    "export": 1,
+   "import": 1,
    "print": 1,
    "read": 1,
    "report": 1,
@@ -221,6 +223,7 @@
    "delete": 1,
    "email": 1,
    "export": 1,
+   "import": 1,
    "print": 1,
    "read": 1,
    "report": 1,
