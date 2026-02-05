@@ -80,8 +80,13 @@
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
- "links": [],
- "modified": "2026-02-03 10:55:14.821486",
+ "links": [
+  {
+   "link_doctype": "LMS Assignment Submission",
+   "link_fieldname": "assignment"
+  }
+ ],
+ "modified": "2026-02-05 11:37:36.492016",
  "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "LMS Assignment",
