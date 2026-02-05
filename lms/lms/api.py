@@ -2041,7 +2041,7 @@ def delete_programming_exercise(exercise):
 
 
 @frappe.whitelist()
-def get_lesson_completion_stats(course):
+def get_lesson_completion_stats(course: str):
 	roles = frappe.get_roles()
 	if "Course Creator" not in roles and "Moderator" not in roles:
 		frappe.throw(_("You do not have permission to access lesson completion stats."))
@@ -2081,7 +2081,7 @@ def get_lesson_completion_stats(course):
 
 
 @frappe.whitelist()
-def get_course_assessment_progress(course, member):
+def get_course_assessment_progress(course: str, member: str):
 	if not can_modify_course(course):
 		frappe.throw(
 			_("You do not have permission to access this course's assessment data."), frappe.PermissionError
@@ -2098,7 +2098,7 @@ def get_course_assessment_progress(course, member):
 	}
 
 
-def get_course_quiz_progress(course, member):
+def get_course_quiz_progress(course: str, member: str):
 	quizzes = get_assessment_from_lesson(course, "quiz")
 	attempts = []
 
@@ -2128,7 +2128,7 @@ def get_course_quiz_progress(course, member):
 	return attempts
 
 
-def get_course_assignment_progress(course, member):
+def get_course_assignment_progress(course: str, member: str):
 	assignments = get_assessment_from_lesson(course, "assignment")
 	submissions = []
 
@@ -2157,7 +2157,7 @@ def get_course_assignment_progress(course, member):
 	return submissions
 
 
-def get_course_programming_exercise_progress(course, member):
+def get_course_programming_exercise_progress(course: str, member: str):
 	exercises = get_assessment_from_lesson(course, "program")
 	submissions = []
 
@@ -2186,7 +2186,7 @@ def get_course_programming_exercise_progress(course, member):
 	return submissions
 
 
-def get_assessment_from_lesson(course, assessmentType):
+def get_assessment_from_lesson(course: str, assessmentType: str):
 	assessments = []
 	lessons = frappe.get_all("Course Lesson", {"course": course}, ["name", "title", "content"])
 
