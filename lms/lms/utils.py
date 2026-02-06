@@ -8,6 +8,7 @@ from frappe import _
 from frappe.desk.doctype.dashboard_chart.dashboard_chart import get_result
 from frappe.desk.doctype.notification_log.notification_log import make_notification_logs
 from frappe.desk.notifications import extract_mentions
+from frappe.model.document import Document
 from frappe.rate_limiter import rate_limit
 from frappe.utils import (
 	add_months,
@@ -388,7 +389,7 @@ def validate_image(path: str) -> str:
 	return path
 
 
-def handle_notifications(doc: object, method: str):
+def handle_notifications(doc: Document, method: str):
 	topic = frappe.db.get_value(
 		"Discussion Topic",
 		doc.topic,
@@ -435,7 +436,7 @@ def get_batch_details_for_notification(topic: dict):
 	return subject, link, users
 
 
-def create_notification_log(doc: object, topic: dict):
+def create_notification_log(doc: Document, topic: dict):
 	if topic.reference_doctype == "Course Lesson":
 		subject, link, users = get_course_details_for_notification(topic)
 	else:
@@ -459,7 +460,7 @@ def create_notification_log(doc: object, topic: dict):
 	make_notification_logs(notification, users)
 
 
-def notify_mentions_on_portal(doc: object, topic: dict):
+def notify_mentions_on_portal(doc: Document, topic: dict):
 	mentions = extract_mentions(doc.reply)
 	if not mentions:
 		return
@@ -495,7 +496,7 @@ def notify_mentions_on_portal(doc: object, topic: dict):
 		make_notification_logs(notification, user)
 
 
-def notify_mentions_via_email(doc: object, topic: dict):
+def notify_mentions_via_email(doc: Document, topic: dict):
 	outgoing_email_account = frappe.get_cached_value(
 		"Email Account", {"default_outgoing": 1, "enable_outgoing": 1}, "name"
 	)
@@ -1869,7 +1870,7 @@ def get_roles(name: str) -> dict:
 	}
 
 
-def publish_notifications(doc: dict, method: str):
+def publish_notifications(doc: Document, method: str):
 	frappe.publish_realtime("publish_lms_notifications", user=doc.for_user, after_commit=True)
 
 
@@ -2249,7 +2250,7 @@ def persona_captured():
 	frappe.db.set_single_value("LMS Settings", "persona_captured", 1)
 
 
-def validate_discussion_reply(doc: dict, method: str):
+def validate_discussion_reply(doc: Document, method: str):
 	topic = frappe.db.get_value(
 		"Discussion Topic", doc.topic, ["reference_doctype", "reference_docname"], as_dict=True
 	)
