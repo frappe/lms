@@ -85,7 +85,7 @@ def set_country_from_ip(login_manager: object = None, user: str = None):
 	return
 
 
-def on_login():
+def on_login(login_manager):
 	default_app = frappe.db.get_single_value("System Settings", "default_app")
 	if default_app == "lms":
 		frappe.local.response["home_page"] = get_lms_route()

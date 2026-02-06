@@ -199,7 +199,7 @@ def create_event(eval: dict):
 	return event
 
 
-def add_participants(eval: dict, event: frappe._dict):
+def add_participants(eval: dict, event: Document):
 	participants = [eval.member, eval.evaluator]
 	for participant in participants:
 		contact_name = frappe.db.get_value("Contact", {"email_id": participant}, "name")
@@ -216,7 +216,7 @@ def add_participants(eval: dict, event: frappe._dict):
 		).save()
 
 
-def update_meeting_details(eval: dict, event: frappe._dict, calendar: str):
+def update_meeting_details(eval: dict, event: Document, calendar: str):
 	event.reload()
 	event.update(
 		{

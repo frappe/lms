@@ -73,7 +73,7 @@ def get_payment_link(
 	return url
 
 
-def create_order(payment_gateway: str, payment_details: dict, controller):
+def create_order(payment_gateway: str, payment_details: dict, controller: object):
 	if payment_gateway != "Razorpay":
 		return
 

@@ -488,7 +488,7 @@ def update_lesson_index(lesson: str, sourceChapter: str, targetChapter: str, idx
 		update_target_chapter(lesson, targetChapter, idx)
 
 
-def update_source_chapter(lesson: str, chapter: str, idx: int, hasMoved=False):
+def update_source_chapter(lesson: str, chapter: str, idx: int, hasMoved: bool = False):
 	lessons = frappe.get_all(
 		"Lesson Reference",
 		{
