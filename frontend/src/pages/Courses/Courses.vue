@@ -147,7 +147,7 @@ const currentCategory = ref(null)
 const title = ref('')
 const certification = ref(false)
 const filters = ref({})
-const currentTab = ref('Live')
+const currentTab = ref('live')
 const { brand } = sessionStore()
 const courseCount = ref(0)
 const router = useRouter()
@@ -267,35 +267,35 @@ const updateTabFilter = () => {
 	delete filters.value['published_on']
 	delete filters.value['upcoming']
 
-	if (currentTab.value == 'Enrolled' && user.data?.is_student) {
+	if (currentTab.value == 'enrolled' && user.data?.is_student) {
 		filters.value['enrolled'] = 1
 		delete filters.value['published']
 	} else {
 		delete filters.value['published']
 		delete filters.value['enrolled']
 
-		if (currentTab.value == 'Live') {
+		if (currentTab.value == 'live') {
 			filters.value['published'] = 1
 			filters.value['upcoming'] = 0
 			filters.value['live'] = 1
-		} else if (currentTab.value == 'Upcoming') {
+		} else if (currentTab.value == 'upcoming') {
 			filters.value['upcoming'] = 1
-		} else if (currentTab.value == 'New') {
+		} else if (currentTab.value == 'new') {
 			filters.value['published'] = 1
 			filters.value['published_on'] = [
 				'>=',
 				dayjs().add(-3, 'month').format('YYYY-MM-DD'),
 			]
-		} else if (currentTab.value == 'Created') {
+		} else if (currentTab.value == 'created') {
 			filters.value['created'] = 1
-		} else if (currentTab.value == 'Unpublished') {
+		} else if (currentTab.value == 'unpublished') {
 			filters.value['published'] = 0
 		}
 	}
 }
 
 const updateStudentFilter = () => {
-	if (!user.data || (user.data?.is_student && currentTab.value != 'Enrolled')) {
+	if (!user.data || (user.data?.is_student && currentTab.value != 'enrolled')) {
 		filters.value['published'] = 1
 	}
 }
@@ -345,12 +345,15 @@ const courseTabs = computed(() => {
 	let tabs = [
 		{
 			label: __('Live'),
+			value: 'live',
 		},
 		{
 			label: __('New'),
+			value: 'new',
 		},
 		{
 			label: __('Upcoming'),
+			value: 'upcoming',
 		},
 	]
 	if (
@@ -358,10 +361,10 @@ const courseTabs = computed(() => {
 		user.data?.is_instructor ||
 		user.data?.is_evaluator
 	) {
-		tabs.push({ label: __('Created') })
-		tabs.push({ label: __('Unpublished') })
+		tabs.push({ label: __('Created'), value: 'created' })
+		tabs.push({ label: __('Unpublished'), value: 'unpublished' })
 	} else if (user.data) {
-		tabs.push({ label: __('Enrolled') })
+		tabs.push({ label: __('Enrolled'), value: 'enrolled' })
 	}
 	return tabs
 })

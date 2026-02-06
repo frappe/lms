@@ -19,8 +19,7 @@
 					placeholder=" "
 					v-model="student"
 					:required="true"
-					:allowCreate="true"
-					@create="
+					:onCreate="
 						() => {
 							openSettings('Members')
 							show = false
@@ -33,8 +32,7 @@
 					:label="__('Payment')"
 					placeholder=" "
 					v-model="payment"
-					:allowCreate="true"
-					@create="
+					:onCreate="
 						() => {
 							openSettings('Transactions')
 							show = false
@@ -54,9 +52,9 @@
 </template>
 <script setup lang="ts">
 import { Button, call, Dialog, FormControl, toast } from 'frappe-ui'
-import { Link } from 'frappe-ui/frappe'
 import { ref } from 'vue'
 import { openSettings } from '@/utils'
+import Link from '@/components/Controls/Link.vue'
 
 const show = defineModel<boolean>({ required: true, default: false })
 const student = ref<string | null>(null)

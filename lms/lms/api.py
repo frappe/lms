@@ -1654,8 +1654,12 @@ def get_progress_distribution(progressList):
 			"value": len([p for p in progressList if 30 <= p < 60]),
 		},
 		{
-			"name": "Advanced (60-100%)",
-			"value": len([p for p in progressList if 60 <= p <= 100]),
+			"name": "Advanced (60-99%)",
+			"value": len([p for p in progressList if 60 <= p < 100]),
+		},
+		{
+			"name": "Completed (100%)",
+			"value": len([p for p in progressList if p == 100]),
 		},
 	]
 
@@ -2037,7 +2041,7 @@ def delete_programming_exercise(exercise):
 
 
 @frappe.whitelist()
-def get_lesson_completion_stats(course):
+def get_lesson_completion_stats(course: str):
 	roles = frappe.get_roles()
 	if "Course Creator" not in roles and "Moderator" not in roles:
 		frappe.throw(_("You do not have permission to access lesson completion stats."))
@@ -2048,13 +2052,17 @@ def get_lesson_completion_stats(course):
 	Lesson = frappe.qb.DocType("Course Lesson")
 
 	rows = (
-		frappe.qb.from_(CourseProgress)
-		.join(LessonReference)
-		.on(CourseProgress.lesson == LessonReference.lesson)
+		frappe.qb.from_(LessonReference)
 		.join(ChapterReference)
 		.on(LessonReference.parent == ChapterReference.chapter)
 		.join(Lesson)
-		.on(CourseProgress.lesson == Lesson.name)
+		.on(LessonReference.lesson == Lesson.name)
+		.left_join(CourseProgress)
+		.on(
+			(CourseProgress.lesson == LessonReference.lesson)
+			& (CourseProgress.course == course)
+			& (CourseProgress.status == "Complete")
+		)
 		.select(
 			LessonReference.idx,
 			ChapterReference.idx.as_("chapter_idx"),
@@ -2063,10 +2071,132 @@ def get_lesson_completion_stats(course):
 			Lesson.name.as_("lesson_name"),
 			fn.Count(CourseProgress.name).as_("completion_count"),
 		)
-		.where((CourseProgress.course == course) & (CourseProgress.status == "Complete"))
-		.groupby(CourseProgress.lesson)
+		.where(ChapterReference.parent == course)
+		.groupby(LessonReference.lesson)
 		.orderby(ChapterReference.idx, LessonReference.idx)
 		.run(as_dict=True)
 	)
 
 	return rows
+
+
+@frappe.whitelist()
+def get_course_assessment_progress(course: str, member: str):
+	if not can_modify_course(course):
+		frappe.throw(
+			_("You do not have permission to access this course's assessment data."), frappe.PermissionError
+		)
+
+	quizzes = get_course_quiz_progress(course, member)
+	assignments = get_course_assignment_progress(course, member)
+	programming_exercises = get_course_programming_exercise_progress(course, member)
+
+	return {
+		"quizzes": quizzes,
+		"assignments": assignments,
+		"exercises": programming_exercises,
+	}
+
+
+def get_course_quiz_progress(course: str, member: str):
+	quizzes = get_assessment_from_lesson(course, "quiz")
+	attempts = []
+
+	for quiz in quizzes:
+		submissions = frappe.get_all(
+			"LMS Quiz Submission",
+			{
+				"quiz": quiz,
+				"member": member,
+			},
+			["name", "score", "percentage", "quiz", "quiz_title"],
+			order_by="creation desc",
+			limit=1,
+		)
+		if len(submissions):
+			attempts.append(submissions[0])
+		else:
+			attempts.append(
+				{
+					"quiz": quiz,
+					"quiz_title": frappe.db.get_value("LMS Quiz", quiz, "title"),
+					"score": 0,
+					"percentage": 0,
+				}
+			)
+
+	return attempts
+
+
+def get_course_assignment_progress(course: str, member: str):
+	assignments = get_assessment_from_lesson(course, "assignment")
+	submissions = []
+
+	for assignment in assignments:
+		assignment_subs = frappe.get_all(
+			"LMS Assignment Submission",
+			{
+				"assignment": assignment,
+				"member": member,
+			},
+			["name", "status", "assignment", "assignment_title"],
+			order_by="creation desc",
+			limit=1,
+		)
+		if len(assignment_subs):
+			submissions.append(assignment_subs[0])
+		else:
+			submissions.append(
+				{
+					"assignment": assignment,
+					"assignment_title": frappe.db.get_value("LMS Assignment", assignment, "title"),
+					"status": "Not Submitted",
+				}
+			)
+
+	return submissions
+
+
+def get_course_programming_exercise_progress(course: str, member: str):
+	exercises = get_assessment_from_lesson(course, "program")
+	submissions = []
+
+	for exercise in exercises:
+		exercise_subs = frappe.get_all(
+			"LMS Programming Exercise Submission",
+			{
+				"exercise": exercise,
+				"member": member,
+			},
+			["name", "status", "exercise", "exercise_title"],
+			order_by="creation desc",
+			limit=1,
+		)
+		if len(exercise_subs):
+			submissions.append(exercise_subs[0])
+		else:
+			submissions.append(
+				{
+					"exercise": exercise,
+					"exercise_title": frappe.db.get_value("LMS Programming Exercise", exercise, "title"),
+					"status": "Not Attempted",
+				}
+			)
+
+	return submissions
+
+
+def get_assessment_from_lesson(course: str, assessmentType: str):
+	assessments = []
+	lessons = frappe.get_all("Course Lesson", {"course": course}, ["name", "title", "content"])
+
+	for lesson in lessons:
+		if lesson.content:
+			content = json.loads(lesson.content)
+			for block in content.get("blocks", []):
+				if block.get("type") == assessmentType:
+					data_field = "exercise" if assessmentType == "program" else assessmentType
+					quiz_name = block.get("data", {}).get(data_field)
+					assessments.append(quiz_name)
+
+	return assessments

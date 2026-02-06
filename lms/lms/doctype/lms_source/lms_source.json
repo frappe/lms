@@ -1,5 +1,6 @@
 {
  "actions": [],
+ "allow_import": 1,
  "allow_rename": 1,
  "autoname": "field:source",
  "creation": "2023-10-26 16:28:53.932278",
@@ -21,7 +22,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-11-10 11:39:57.251861",
+ "modified": "2026-02-03 10:53:42.654881",
  "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "LMS Source",
@@ -45,6 +46,7 @@
    "delete": 1,
    "email": 1,
    "export": 1,
+   "import": 1,
    "print": 1,
    "read": 1,
    "report": 1,

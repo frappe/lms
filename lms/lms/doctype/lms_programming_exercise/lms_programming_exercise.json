@@ -1,5 +1,6 @@
 {
  "actions": [],
+ "allow_import": 1,
  "allow_rename": 1,
  "creation": "2025-06-18 15:02:36.198855",
  "doctype": "DocType",
@@ -33,7 +34,7 @@
    "fieldname": "language",
    "fieldtype": "Select",
    "label": "Language",
-   "options": "Python\nJavaScript",
+   "options": "Python\nJavaScript\nRust\nGo",
    "reqd": 1
   },
   {
@@ -63,7 +64,7 @@
    "link_fieldname": "exercise"
   }
  ],
- "modified": "2025-06-24 14:42:27.463492",
+ "modified": "2026-02-03 10:45:23.687185",
  "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "LMS Programming Exercise",
@@ -74,6 +75,7 @@
    "delete": 1,
    "email": 1,
    "export": 1,
+   "import": 1,
    "print": 1,
    "read": 1,
    "report": 1,
@@ -86,6 +88,7 @@
    "delete": 1,
    "email": 1,
    "export": 1,
+   "import": 1,
    "print": 1,
    "read": 1,
    "report": 1,
@@ -98,6 +101,7 @@
    "delete": 1,
    "email": 1,
    "export": 1,
+   "import": 1,
    "print": 1,
    "read": 1,
    "report": 1,
@@ -110,6 +114,7 @@
    "delete": 1,
    "email": 1,
    "export": 1,
+   "import": 1,
    "print": 1,
    "read": 1,
    "report": 1,
