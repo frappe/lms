@@ -1,5 +1,6 @@
 {
  "actions": [],
+ "allow_import": 1,
  "allow_rename": 1,
  "autoname": "field:title",
  "creation": "2024-04-30 11:29:53.548647",
@@ -99,8 +100,8 @@
    "link_fieldname": "badge"
   }
  ],
- "modified": "2025-07-04 13:02:19.048994",
- "modified_by": "Administrator",
+ "modified": "2026-02-03 10:52:37.122370",
+ "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "LMS Badge",
  "naming_rule": "By fieldname",
@@ -119,12 +120,25 @@
    "write": 1
   },
   {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "import": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Moderator",
+   "share": 1,
+   "write": 1
+  },
+  {
    "email": 1,
    "export": 1,
    "print": 1,
    "read": 1,
    "report": 1,
-   "role": "All",
+   "role": "LMS Student",
    "share": 1
   }
  ],

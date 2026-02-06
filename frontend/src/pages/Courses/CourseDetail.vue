@@ -140,12 +140,12 @@ const isAdmin = computed(() => {
 })
 
 const breadcrumbs = computed(() => {
-	let items = [{ label: 'Courses', route: { name: 'Courses' } }]
-	items.push({
+	let crumbs = [{ label: __('Courses'), route: { name: 'Courses' } }]
+	crumbs.push({
 		label: course?.data?.title,
 		route: { name: 'CourseDetail', params: { courseName: course?.data?.name } },
 	})
-	return items
+	return crumbs
 })
 
 usePageMeta(() => {

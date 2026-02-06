@@ -513,7 +513,8 @@ const getSidebarItems = () => {
 						: settings.data?.contact_us_email,
 					condition: () => {
 						return (
-							settings?.data?.contact_us_email ||
+							(settings?.data?.contact_us_email &&
+								userResource?.data) ||
 							settings?.data?.contact_us_url
 						)
 					},

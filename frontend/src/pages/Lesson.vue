@@ -559,12 +559,12 @@ const notes = createListResource({
 })
 
 const breadcrumbs = computed(() => {
-	let items = [{ label: 'Courses', route: { name: 'Courses' } }]
-	items.push({
+	let crumbs = [{ label: __('Courses'), route: { name: 'Courses' } }]
+	crumbs.push({
 		label: lesson?.data?.course_title,
 		route: { name: 'CourseDetail', params: { courseName: props.courseName } },
 	})
-	items.push({
+	crumbs.push({
 		label: lesson?.data?.title,
 		route: {
 			name: 'Lesson',
@@ -575,7 +575,7 @@ const breadcrumbs = computed(() => {
 			},
 		},
 	})
-	return items
+	return crumbs
 })
 
 const switchLesson = (direction) => {

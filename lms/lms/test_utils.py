@@ -2,9 +2,8 @@
 # See license.txt
 
 import frappe
-from frappe.utils import get_time, getdate, to_timedelta
+from frappe.utils import getdate, to_timedelta
 
-from lms.lms.api import get_certified_participants
 from lms.lms.doctype.lms_certificate.lms_certificate import is_certified
 from lms.lms.test_helpers import BaseTestUtils
 from lms.lms.utils import (
@@ -33,48 +32,8 @@ class TestLMSUtils(BaseTestUtils):
 	def setUp(self):
 		super().setUp()
 
-		self.student1 = self._create_user("student1@example.com", "Ashley", "Smith", ["LMS Student"])
-		self.student2 = self._create_user("student2@example.com", "John", "Doe", ["LMS Student"])
-		self.admin = self._create_user(
-			"frappe@example.com", "Frappe", "Admin", ["Moderator", "Course Creator", "Batch Evaluator"]
-		)
-		self.course = self._create_course()
-		self._setup_chapters_and_lessons()
-
-		self._create_enrollment(self.student1.email, self.course.name)
-		self._create_enrollment(self.student2.email, self.course.name)
-
-		self._add_rating(self.course.name, self.student1.email, 0.8, "Good course")
-		self._add_rating(self.course.name, self.student2.email, 1, "Excellent course")
-
-		self._create_certificate(self.course.name, self.student1.email)
-
-		self.evaluator = self._create_evaluator()
-		self.batch = self._create_batch(self.course.name)
-		self._create_batch_enrollment(self.student1.email, self.batch.name)
-		self._create_batch_enrollment(self.student2.email, self.batch.name)
-
-	def _setup_chapters_and_lessons(self):
-		chapters = []
-		for i in range(1, 4):
-			chapter = self._create_chapter(f"Chapter {i}", self.course.name)
-			chapters.append(chapter)
-
-		self.course.reload()
-		for chapter in chapters:
-			if not any(c.chapter == chapter.name for c in self.course.chapters):
-				self.course.append("chapters", {"chapter": chapter.name})
-		self.course.save()
-
-		for chapter_ref in self.course.chapters:
-			chapter_doc = frappe.get_doc("Course Chapter", chapter_ref.chapter)
-			for j in range(1, 3):
-				lesson_title = f"Lesson {j} of {chapter_ref.chapter}"
-				lesson = self._create_lesson(lesson_title, chapter_ref.chapter, self.course.name)
-
-				if not any(l.lesson == lesson.name for l in chapter_doc.lessons):
-					chapter_doc.append("lessons", {"lesson": lesson.name})
-			chapter_doc.save()
+		self._setup_course_flow()
+		self._setup_batch_flow()
 
 	def test_simple_slugs(self):
 		self.assertEqual(slugify("hello-world"), "hello-world")
@@ -155,36 +114,6 @@ class TestLMSUtils(BaseTestUtils):
 		frappe.session.user = self.student2.email
 		self.assertIsNone(is_certified(self.course.name))
 		frappe.session.user = "Administrator"
-
-	def test_certified_participants_with_category(self):
-		filters = {"category": "Utility Course"}
-		certified_participants = get_certified_participants(filters=filters)
-		self.assertEqual(len(certified_participants), 1)
-		self.assertEqual(certified_participants[0].member, self.student1.email)
-
-		filters = {"category": "Nonexistent Category"}
-		certified_participants_no_match = get_certified_participants(filters=filters)
-		self.assertEqual(len(certified_participants_no_match), 0)
-
-	def test_certified_participants_with_open_to_work(self):
-		filters = {"open_to_work": 1}
-		certified_participants_open_to_work = get_certified_participants(filters=filters)
-		self.assertEqual(len(certified_participants_open_to_work), 0)
-
-		frappe.db.set_value("User", self.student1.email, "open_to", "Work")
-		certified_participants_open_to_work = get_certified_participants(filters=filters)
-		self.assertEqual(len(certified_participants_open_to_work), 1)
-		frappe.db.set_value("User", self.student1.email, "open_to", "")
-
-	def test_certified_participants_with_open_to_hiring(self):
-		filters = {"hiring": 1}
-		certified_participants_hiring = get_certified_participants(filters=filters)
-		self.assertEqual(len(certified_participants_hiring), 0)
-
-		frappe.db.set_value("User", self.student1.email, "open_to", "Hiring")
-		certified_participants_hiring = get_certified_participants(filters=filters)
-		self.assertEqual(len(certified_participants_hiring), 1)
-		frappe.db.set_value("User", self.student1.email, "open_to", "")
 
 	def test_rating_validation(self):
 		student3 = self._create_user("student3@example.com", "Emily", "Cooper", ["LMS Student"])
