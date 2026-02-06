@@ -208,12 +208,12 @@ const canAddAssessments = () => {
 const getAssessmentColumns = () => {
 	let columns = [
 		{
-			label: 'Assessment',
+			label: __('Assessment'),
 			key: 'title',
 			width: '25rem',
 		},
 		{
-			label: 'Type',
+			label: __('Type'),
 			key: 'assessment_type',
 			width: '15rem',
 		},
@@ -221,7 +221,7 @@ const getAssessmentColumns = () => {
 
 	if (!user.data?.is_moderator) {
 		columns.push({
-			label: 'Status/Percentage',
+			label: __('Status/Percentage'),
 			key: 'status',
 			align: 'left',
 			width: '10rem',
