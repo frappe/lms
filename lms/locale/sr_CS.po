@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2026-01-23 16:05+0000\n"
-"PO-Revision-Date: 2026-02-05 06:43\n"
+"PO-Revision-Date: 2026-02-06 06:38\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Serbian (Latin)\n"
 "MIME-Version: 1.0\n"
@@ -4779,7 +4779,7 @@ msgstr "Otvoren za"
 #: frontend/src/pages/CertifiedParticipants.vue:46
 #: frontend/src/pages/Profile.vue:69
 msgid "Open to Work"
-msgstr ""
+msgstr "Otvoren za radni angažman"
 
 #. Label of the option (Data) field in DocType 'LMS Option'
 #: frontend/src/components/Modals/Question.vue:70
@@ -7325,7 +7325,7 @@ msgstr "Povučeno"
 #. Option for the 'Open to' (Select) field in DocType 'User'
 #: lms/fixtures/custom_field.json
 msgid "Work"
-msgstr ""
+msgstr "Radni angažman"
 
 #. Label of the work_environment (Section Break) field in DocType 'User'
 #: lms/fixtures/custom_field.json
