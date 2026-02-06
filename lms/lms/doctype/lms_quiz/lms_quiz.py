@@ -93,7 +93,7 @@ class LMSQuiz(Document):
 			return result[0]
 
 
-def set_total_marks(questions):
+def set_total_marks(questions: list) -> int:
 	marks = 0
 	for question in questions:
 		marks += question.get("marks")
@@ -101,7 +101,7 @@ def set_total_marks(questions):
 
 
 @frappe.whitelist()
-def quiz_summary(quiz, results):
+def quiz_summary(quiz: str, results: str):
 	results = results and json.loads(results)
 	percentage = 0
 
@@ -141,7 +141,7 @@ def quiz_summary(quiz, results):
 	}
 
 
-def process_results(results, quiz_details):
+def process_results(results: list, quiz_details: dict):
 	score = 0
 	is_open_ended = False
 
@@ -188,7 +188,7 @@ def process_results(results, quiz_details):
 	}
 
 
-def _save_file(match):
+def _save_file(match: re.Match) -> str:
 	data = match.group(1).split("data:")[1]
 	headers, content = data.split(",")
 	mtype = headers.split(";", 1)[0]
@@ -231,7 +231,7 @@ def get_corrupted_image_msg():
 	return _("Image: Corrupted Data Stream")
 
 
-def create_submission(quiz, results, score_out_of, passing_percentage):
+def create_submission(quiz: str, results: list, score_out_of: int, passing_percentage: float):
 	submission = frappe.new_doc("LMS Quiz Submission")
 	# Score and percentage are calculated by the controller function
 	submission.update(
@@ -250,7 +250,7 @@ def create_submission(quiz, results, score_out_of, passing_percentage):
 	return submission
 
 
-def save_progress_after_quiz(quiz_details, percentage):
+def save_progress_after_quiz(quiz_details: dict, percentage: float):
 	if percentage >= quiz_details.passing_percentage and quiz_details.lesson and quiz_details.course:
 		save_progress(quiz_details.lesson, quiz_details.course)
 	elif not quiz_details.passing_percentage:
@@ -258,7 +258,7 @@ def save_progress_after_quiz(quiz_details, percentage):
 
 
 @frappe.whitelist()
-def check_answer(question, type, answers):
+def check_answer(question: str, type: str, answers: str):
 	answers = json.loads(answers)
 	if type == "Choices":
 		return check_choice_answers(question, answers)
@@ -266,7 +266,7 @@ def check_answer(question, type, answers):
 		return check_input_answers(question, answers[0])
 
 
-def check_choice_answers(question, answers):
+def check_choice_answers(question: str, answers: list):
 	fields = ["multiple"]
 	is_correct = []
 	for num in range(1, 5):
@@ -286,7 +286,7 @@ def check_choice_answers(question, answers):
 	return is_correct
 
 
-def check_input_answers(question, answer):
+def check_input_answers(question: str, answer: str):
 	fields = []
 	for num in range(1, 5):
 		fields.append(f"possibility_{cstr(num)}")

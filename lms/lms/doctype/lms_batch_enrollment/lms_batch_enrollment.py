@@ -106,7 +106,7 @@ class LMSBatchEnrollment(Document):
 
 
 @frappe.whitelist()
-def send_confirmation_email(doc):
+def send_confirmation_email(doc: Document):
 	if isinstance(doc, str):
 		doc = frappe._dict(json.loads(doc))
 
