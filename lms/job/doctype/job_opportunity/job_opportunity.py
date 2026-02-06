@@ -35,7 +35,7 @@ def update_job_openings():
 
 
 @frappe.whitelist()
-def report(job, reason):
+def report(job: str, reason: str):
 	system_managers = get_system_managers(only_name=True)
 	user = frappe.db.get_value("User", frappe.session.user, "full_name")
 	subject = _("User {0} has reported the job post {1}").format(user, job)

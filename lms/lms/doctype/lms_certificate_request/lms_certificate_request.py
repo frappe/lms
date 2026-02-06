@@ -174,7 +174,7 @@ def schedule_evals():
 
 
 @frappe.whitelist()
-def setup_calendar_event(eval):
+def setup_calendar_event(eval: str):
 	if isinstance(eval, str):
 		eval = frappe._dict(json.loads(eval))
 
@@ -186,7 +186,7 @@ def setup_calendar_event(eval):
 		update_meeting_details(eval, event, calendar)
 
 
-def create_event(eval):
+def create_event(eval: dict):
 	event = frappe.get_doc(
 		{
 			"doctype": "Event",
@@ -199,7 +199,7 @@ def create_event(eval):
 	return event
 
 
-def add_participants(eval, event):
+def add_participants(eval: dict, event: frappe._dict):
 	participants = [eval.member, eval.evaluator]
 	for participant in participants:
 		contact_name = frappe.db.get_value("Contact", {"email_id": participant}, "name")
@@ -216,7 +216,7 @@ def add_participants(eval, event):
 		).save()
 
 
-def update_meeting_details(eval, event, calendar):
+def update_meeting_details(eval: dict, event: frappe._dict, calendar: str):
 	event.reload()
 	event.update(
 		{
@@ -232,7 +232,7 @@ def update_meeting_details(eval, event, calendar):
 
 
 @frappe.whitelist()
-def create_lms_certificate_evaluation(source_name, target_doc=None):
+def create_lms_certificate_evaluation(source_name: str, target_doc: dict = None):
 	frappe.only_for(["Moderator", "Batch Evaluator", "System Manager"])
 	doc = get_mapped_doc(
 		"LMS Certificate Request",
