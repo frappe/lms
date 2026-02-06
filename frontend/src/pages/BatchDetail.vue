@@ -120,12 +120,12 @@ const courses = createResource({
 })
 
 const breadcrumbs = computed(() => {
-	let items = [{ label: 'Batches', route: { name: 'Batches' } }]
-	items.push({
+	let crumbs = [{ label: __('Batches'), route: { name: 'Batches' } }]
+	crumbs.push({
 		label: batch?.data?.title,
 		route: { name: 'BatchDetail', params: { batchName: batch?.data?.name } },
 	})
-	return items
+	return crumbs
 })
 
 usePageMeta(() => {
