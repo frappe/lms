@@ -918,7 +918,9 @@ def give_discussions_permission():
 
 
 @frappe.whitelist()
-def upsert_chapter(title: str, course: str, is_scorm_package: bool, scorm_package: dict, name: str = None):
+def upsert_chapter(
+	title: str, course: str, is_scorm_package: bool, scorm_package: dict = None, name: str = None
+):
 	if not can_modify_course(course):
 		frappe.throw(_("You do not have permission to modify this chapter."), frappe.PermissionError)
 
