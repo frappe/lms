@@ -183,7 +183,7 @@ def get_job_details(job):
 
 
 @frappe.whitelist(allow_guest=True)
-def get_job_opportunities(filters=None, orFilters=None):
+def get_job_opportunities(filters: dict = None, orFilters: dict = None):
 	if not filters:
 		filters = {}
 
