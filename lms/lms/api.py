@@ -663,12 +663,12 @@ def save_evaluation_details(
 @frappe.whitelist()
 def save_certificate_details(
 	member: str,
-	course: str,
-	batch_name: str,
-	evaluator: str,
 	issue_date: str,
-	expiry_date: str,
 	template: str,
+	course: str = None,
+	batch_name: str = None,
+	evaluator: str = None,
+	expiry_date: str = None,
 	published: bool = True,
 ):
 	"""
