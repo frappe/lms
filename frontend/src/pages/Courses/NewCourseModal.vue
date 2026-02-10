@@ -78,7 +78,7 @@ import { Button, Dialog, FormControl, TextEditor, toast } from 'frappe-ui'
 import { Link, useOnboarding, useTelemetry } from 'frappe-ui/frappe'
 import { inject, onMounted, onBeforeUnmount, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { openSettings } from '@/utils'
+import { cleanError, openSettings } from '@/utils'
 import MultiSelect from '@/components/Controls/MultiSelect.vue'
 import Uploader from '@/components/Controls/Uploader.vue'
 
@@ -124,6 +124,9 @@ const saveCourse = (close: () => void = () => {}) => {
 						localStorage.setItem('firstCourse', data.name)
 					})
 				}
+			},
+			onError(err: any) {
+				toast.error(cleanError(err.messages?.[0]))
 			},
 		}
 	)
