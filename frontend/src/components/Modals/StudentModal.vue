@@ -3,7 +3,7 @@
 		v-model="show"
 		:options="{
 			title: __('Enroll a Student'),
-			size: 'sm',
+			size: 'lg',
 			actions: [
 				{
 					label: 'Submit',
@@ -52,8 +52,6 @@ import { useOnboarding } from 'frappe-ui/frappe'
 import { openSettings } from '@/utils'
 import Link from '@/components/Controls/Link.vue'
 
-const students = defineModel('reloadStudents')
-const batchModal = defineModel('batchModal')
 const student = ref(null)
 const payment = ref(null)
 const user = inject('$user')
@@ -62,33 +60,37 @@ const show = defineModel()
 
 const props = defineProps({
 	batch: {
-		type: String,
+		type: Object,
+		default: null,
+	},
+	students: {
+		type: Object,
 		default: null,
 	},
 })
 
 const addStudent = (close) => {
-	call('frappe.client.insert', {
-		doc: {
-			doctype: 'LMS Batch Enrollment',
-			batch: props.batch,
+	props.students.insert.submit(
+		{
 			member: student.value,
 			payment: payment.value,
+			batch: props.batch.data?.name,
 		},
-	})
-		.then(() => {
-			if (user.data?.is_system_manager)
-				updateOnboardingStep('add_batch_student')
+		{
+			onSuccess() {
+				if (user.data?.is_system_manager)
+					updateOnboardingStep('add_batch_student')
 
-			students.value.reload()
-			batchModal.value.reload()
-			student.value = null
-			payment.value = null
-			close()
-		})
-		.catch((err) => {
-			toast.error(err.messages?.[0] || err)
-			console.error(err)
-		})
+				student.value = null
+				payment.value = null
+				props.batch.reload()
+				close()
+			},
+			onError(err) {
+				toast.error(err.messages?.[0] || err)
+				console.error(err)
+			},
+		}
+	)
 }
 </script>

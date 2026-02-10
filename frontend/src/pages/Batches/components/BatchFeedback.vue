@@ -1,63 +1,68 @@
 <template>
-	<div v-if="user.data?.is_student">
-		<div>
-			<div class="leading-5 mb-4 text-ink-gray-7">
-				<div v-if="readOnly">
-					{{ __('Thank you for providing your feedback.') }}
-					<span
-						@click="showFeedbackForm = !showFeedbackForm"
-						class="underline cursor-pointer"
-						>{{ __('Click here') }}</span
-					>
-					{{ __('to view your feedback.') }}
+	<div>
+		<div class="text-lg text-ink-gray-9 font-semibold mb-5">
+			{{ __('Feedback') }}
+		</div>
+		<div v-if="user.data?.is_student">
+			<div>
+				<div class="leading-5 mb-4 text-ink-gray-7">
+					<div v-if="readOnly">
+						{{ __('Thank you for providing your feedback.') }}
+						<span
+							@click="showFeedbackForm = !showFeedbackForm"
+							class="underline cursor-pointer"
+							>{{ __('Click here') }}</span
+						>
+						{{ __('to view your feedback.') }}
+					</div>
+					<div v-else>
+						{{ __('Help us improve by providing your feedback.') }}
+					</div>
 				</div>
-				<div v-else>
-					{{ __('Help us improve by providing your feedback.') }}
-				</div>
-			</div>
-			<div class="space-y-4" :class="showFeedbackForm ? 'block' : 'hidden'">
-				<div class="space-y-4">
-					<Rating
-						v-for="key in ratingKeys"
-						v-model="feedback[key]"
-						:label="__(convertToTitleCase(key))"
+				<div class="space-y-4" :class="showFeedbackForm ? 'block' : 'hidden'">
+					<div class="space-y-4">
+						<Rating
+							v-for="key in ratingKeys"
+							v-model="feedback[key]"
+							:label="__(convertToTitleCase(key))"
+							:readonly="readOnly"
+						/>
+					</div>
+					<FormControl
+						v-model="feedback.feedback"
+						type="textarea"
+						:label="__('Feedback')"
+						:rows="9"
 						:readonly="readOnly"
 					/>
+					<Button v-if="!readOnly" @click="submitFeedback">
+						{{ __('Submit Feedback') }}
+					</Button>
 				</div>
-				<FormControl
-					v-model="feedback.feedback"
-					type="textarea"
-					:label="__('Feedback')"
-					:rows="9"
-					:readonly="readOnly"
-				/>
-				<Button v-if="!readOnly" @click="submitFeedback">
-					{{ __('Submit Feedback') }}
-				</Button>
 			</div>
 		</div>
-	</div>
 
-	<div v-else-if="feedbackList.data?.length">
-		<div class="leading-5 text-sm mb-2 mt-5">
-			{{ __('Average Feedback Received') }}
+		<div v-else-if="feedbackList.data?.length">
+			<div class="leading-5 text-sm mb-2 mt-5">
+				{{ __('Average Feedback Received') }}
+			</div>
+
+			<div class="space-y-4">
+				<Rating
+					v-for="key in ratingKeys"
+					v-model="average[key]"
+					:label="__(convertToTitleCase(key))"
+					:readonly="true"
+				/>
+			</div>
+
+			<Button variant="outline" class="mt-5" @click="showAllFeedback = true">
+				{{ __('View all feedback') }}
+			</Button>
 		</div>
-
-		<div class="space-y-4">
-			<Rating
-				v-for="key in ratingKeys"
-				v-model="average[key]"
-				:label="__(convertToTitleCase(key))"
-				:readonly="true"
-			/>
+		<div v-else class="text-ink-gray-7 leading-5">
+			{{ __('No feedback received yet.') }}
 		</div>
-
-		<Button variant="outline" class="mt-5" @click="showAllFeedback = true">
-			{{ __('View all feedback') }}
-		</Button>
-	</div>
-	<div v-else class="text-ink-gray-7 mt-5 leading-5">
-		{{ __('No feedback received yet.') }}
 	</div>
 	<FeedbackModal
 		v-if="feedbackList.data?.length"

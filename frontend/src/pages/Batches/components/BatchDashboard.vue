@@ -11,7 +11,7 @@
 </template>
 <script setup>
 import UpcomingEvaluations from '@/components/UpcomingEvaluations.vue'
-import Assessments from '@/components/Assessments.vue'
+import Assessments from '@/pages/Batches/components/Assessments.vue'
 
 const props = defineProps({
 	batch: {

@@ -150,7 +150,7 @@ import {
 	Video,
 } from 'lucide-vue-next'
 import CourseCard from '@/components/CourseCard.vue'
-import BatchCard from '@/components/BatchCard.vue'
+import BatchCard from '@/pages/Batches/components/BatchCard.vue'
 import UpcomingEvaluations from '@/components/UpcomingEvaluations.vue'
 
 const dayjs = inject<any>('$dayjs')

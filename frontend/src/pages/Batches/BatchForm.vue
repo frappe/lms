@@ -1,6 +1,6 @@
 <template>
 	<div class="">
-		<header
+		<!-- <header
 			class="sticky top-0 z-10 flex items-center justify-between border-b bg-surface-white px-3 py-2.5 sm:px-5"
 		>
 			<Breadcrumbs class="h-7" :items="breadcrumbs" />
@@ -14,7 +14,7 @@
 					{{ __('Save') }}
 				</Button>
 			</div>
-		</header>
+		</header> -->
 		<div class="py-5">
 			<div class="px-5 md:px-20 pb-5 space-y-5 border-b mb-5">
 				<div class="text-lg text-ink-gray-9 font-semibold mb-4">
@@ -298,7 +298,7 @@ import {
 import { useRouter } from 'vue-router'
 import { Trash2 } from 'lucide-vue-next'
 import { useOnboarding, useTelemetry } from 'frappe-ui/frappe'
-import { sessionStore } from '../stores/session'
+import { sessionStore } from '@/stores/session'
 import Uploader from '@/components/Controls/Uploader.vue'
 import MultiSelect from '@/components/Controls/MultiSelect.vue'
 import Link from '@/components/Controls/Link.vue'
@@ -313,8 +313,8 @@ const { capture } = useTelemetry()
 const { $dialog } = app.appContext.config.globalProperties
 
 const props = defineProps({
-	batchName: {
-		type: String,
+	batch: {
+		type: Object,
 		required: true,
 	},
 })
@@ -361,7 +361,7 @@ onMounted(() => {
 
 const fetchBatchInfo = () => {
 	batchDetail.reload()
-	getMetaInfo('batches', props.batchName, meta)
+	getMetaInfo('batches', props.batch?.data?.name, meta)
 }
 
 const keyboardShortcut = (e) => {

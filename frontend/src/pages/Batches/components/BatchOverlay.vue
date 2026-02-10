@@ -25,7 +25,7 @@
 		</div>
 		<div
 			v-if="batch.data.amount"
-			class="text-lg font-semibold mb-3 text-ink-gray-9"
+			class="text-lg font-semibold mb-5 text-ink-gray-9"
 		>
 			{{ formatNumberIntoCurrency(batch.data.amount, batch.data.currency) }}
 		</div>
@@ -57,25 +57,6 @@
 
 		<div v-if="!readOnlyMode">
 			<router-link
-				v-if="canAccessBatch"
-				:to="{
-					name: 'Batch',
-					params: {
-						batchName: batch.data.name,
-					},
-				}"
-			>
-				<Button variant="solid" class="w-full mt-4">
-					<template #prefix>
-						<LogIn v-if="isStudent" class="size-4 stroke-1.5" />
-						<Settings v-else class="size-4 stroke-1.5" />
-					</template>
-					<span>
-						{{ isStudent ? __('Visit Batch') : __('Manage Batch') }}
-					</span>
-				</Button>
-			</router-link>
-			<router-link
 				:to="{
 					name: 'Billing',
 					params: {
@@ -83,7 +64,7 @@
 						name: batch.data.name,
 					},
 				}"
-				v-else-if="
+				v-if="
 					batch.data.paid_batch &&
 					batch.data.seats_left > 0 &&
 					batch.data.accept_enrollments
@@ -113,24 +94,6 @@
 				</template>
 				{{ __('Enroll Now') }}
 			</Button>
-			<router-link
-				v-if="canEditBatch"
-				:to="{
-					name: 'BatchForm',
-					params: {
-						batchName: batch.data.name,
-					},
-				}"
-			>
-				<Button class="w-full mt-2">
-					<template #prefix>
-						<Pencil class="size-4 stroke-1.5" />
-					</template>
-					<span>
-						{{ __('Edit') }}
-					</span>
-				</Button>
-			</router-link>
 		</div>
 	</div>
 </template>

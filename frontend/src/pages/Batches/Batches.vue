@@ -141,7 +141,7 @@ import { computed, inject, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { ChevronDown, Plus } from 'lucide-vue-next'
 import { sessionStore } from '@/stores/session'
-import BatchCard from '@/components/BatchCard.vue'
+import BatchCard from '@/pages/Batches/components/BatchCard.vue'
 import EmptyState from '@/components/EmptyState.vue'
 
 const user = inject('$user')

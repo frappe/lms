@@ -1110,7 +1110,7 @@ def get_batch_details(batch: str):
 	is_student_enrolled = frappe.session.user in batch_students
 
 	if not (is_batch_published or is_batch_admin or is_student_enrolled):
-		return
+		return {}
 
 	batch_details = frappe.db.get_value(
 		"LMS Batch",
