@@ -1236,8 +1236,9 @@ def get_batch_courses(batch: str) -> list:
 
 	for course in course_list:
 		details = get_course_details(course.course)
-		details.batch_course = course.name
-		courses.append(details)
+		if details.get("name"):
+			details.batch_course = course.name
+			courses.append(details)
 
 	return courses
 

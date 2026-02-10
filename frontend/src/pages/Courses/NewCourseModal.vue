@@ -127,6 +127,7 @@ const saveCourse = (close: () => void = () => {}) => {
 			},
 			onError(err: any) {
 				toast.error(cleanError(err.messages?.[0]))
+				console.error(err)
 			},
 		}
 	)
@@ -154,6 +155,6 @@ onBeforeUnmount(() => {
 })
 
 watch(show, () => {
-	capture('course_form_opened')
+	if (show.value) capture('course_form_opened')
 })
 </script>
