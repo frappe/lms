@@ -4,8 +4,10 @@ import { createApp, h } from 'vue'
 import { usersStore } from '../stores/user'
 import translationPlugin from '../translation'
 import { CircleHelp } from 'lucide-vue-next'
-import router from '@/router'
 import { getLmsRoute } from '@/utils/basePath'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
 
 export class Quiz {
 	constructor({ data, api, readOnly }) {
