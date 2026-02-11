@@ -1,7 +1,7 @@
 <template>
 	<div>
 		<div class="flex items-center justify-between mb-4">
-			<div class="text-lg font-semibold text-ink-gray-9">
+			<div class="text-lg text-ink-gray-9 font-semibold">
 				{{ __('Assessments') }}
 			</div>
 			<Button v-if="canAddAssessments()" @click="showModal = true">
@@ -16,6 +16,7 @@
 				:columns="getAssessmentColumns()"
 				:rows="assessments.data"
 				row-key="name"
+				class="border rounded-lg"
 				:options="{
 					showTooltip: false,
 					getRowRoute: (row) => getRowRoute(row),
@@ -23,7 +24,7 @@
 				}"
 			>
 				<ListHeader
-					class="mb-2 grid items-center space-x-4 rounded bg-surface-gray-2 p-2"
+					class="mb-2 grid items-center space-x-4 rounded-none rounded-t bg-surface-gray-2 p-2"
 				>
 					<ListHeaderItem :item="item" v-for="item in getAssessmentColumns()">
 						<template #prefix="{ item }">
@@ -210,12 +211,11 @@ const getAssessmentColumns = () => {
 		{
 			label: __('Assessment'),
 			key: 'title',
-			width: '25rem',
 		},
 		{
 			label: __('Type'),
 			key: 'assessment_type',
-			width: '15rem',
+			width: '10rem',
 		},
 	]
 

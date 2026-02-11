@@ -15,254 +15,244 @@
 				</Button>
 			</div>
 		</header> -->
-		<div class="py-5">
-			<div class="px-5 md:px-20 pb-5 space-y-5 border-b mb-5">
-				<div class="text-lg text-ink-gray-9 font-semibold mb-4">
-					{{ __('Details') }}
-				</div>
-				<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-					<div class="space-y-5">
+		<div class="grid grid-cols-[3fr,2fr]">
+			<div v-if="batchDetail.doc" class="py-5 h-[88vh] overflow-y-auto">
+				<div class="px-5 pb-5 space-y-5 border-b mb-5">
+					<div class="grid grid-cols-1 md:grid-cols-3 gap-5">
 						<FormControl
-							v-model="batch.title"
-							:label="__('Title')"
-							:required="true"
-							class="w-full"
+							v-model="batchDetail.doc.published"
+							type="checkbox"
+							:label="__('Published')"
+							@change="makeFormDirty"
 						/>
-						<MultiSelect
-							v-model="instructors"
-							doctype="Course Evaluator"
-							:label="__('Instructors')"
-							:required="true"
-							:onCreate="(close) => openSettings('Evaluators', close)"
-							:filters="{ ignore_user_type: 1 }"
+						<FormControl
+							v-model="batchDetail.doc.allow_self_enrollment"
+							type="checkbox"
+							:label="__('Allow Self Enrollment')"
+							@change="makeFormDirty"
+						/>
+						<FormControl
+							v-model="batchDetail.doc.certification"
+							type="checkbox"
+							:label="__('Certification')"
+							@change="makeFormDirty"
 						/>
 					</div>
-					<FormControl
-						v-model="batch.description"
-						:label="__('Short Description')"
-						type="textarea"
-						:rows="8"
-						:placeholder="__('Short description of the batch')"
-						:required="true"
-					/>
 				</div>
-			</div>
 
-			<div class="px-5 md:px-20 pb-5 space-y-5 border-b mb-5">
-				<div class="text-lg text-ink-gray-9 font-semibold mb-4">
-					{{ __('Settings') }}
+				<div class="px-5 pb-5 space-y-5 border-b mb-5">
+					<div class="text-lg text-ink-gray-9 font-semibold mb-4">
+						{{ __('Details') }}
+					</div>
+
+					<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+						<div class="space-y-5">
+							<FormControl
+								v-model="batchDetail.doc.title"
+								:label="__('Title')"
+								:required="true"
+								class="w-full"
+							/>
+							<FormControl
+								v-model="batchDetail.doc.start_date"
+								:label="__('Batch Start Date')"
+								type="date"
+								class="mb-4"
+								:required="true"
+							/>
+							<FormControl
+								v-model="batchDetail.doc.end_date"
+								:label="__('Batch End Date')"
+								type="date"
+								class="mb-4"
+								:required="true"
+							/>
+							<FormControl
+								v-model="batchDetail.doc.seat_count"
+								:label="__('Seat Count')"
+								type="number"
+								class="mb-4"
+								:placeholder="__('Number of seats available')"
+							/>
+						</div>
+						<div class="space-y-5">
+							<FormControl
+								v-model="batchDetail.doc.start_time"
+								:label="__('Session Start Time')"
+								type="time"
+								class="mb-4"
+								:required="true"
+							/>
+							<FormControl
+								v-model="batchDetail.doc.end_time"
+								:label="__('Session End Time')"
+								type="time"
+								class="mb-4"
+								:required="true"
+							/>
+							<FormControl
+								v-model="batchDetail.doc.timezone"
+								:label="__('Timezone')"
+								type="text"
+								:placeholder="__('Example: IST (+5:30)')"
+								class="mb-4"
+								:required="true"
+							/>
+
+							<Link
+								doctype="LMS Category"
+								:label="__('Category')"
+								v-model="batchDetail.doc.category"
+								:onCreate="(value, close) => openSettings('Categories', close)"
+							/>
+						</div>
+					</div>
 				</div>
-				<div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+
+				<div class="px-5 pb-5 space-y-5 border-b mb-5">
+					<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+						<div class="space-y-5">
+							<FormControl
+								v-model="batchDetail.doc.description"
+								:label="__('Short Description')"
+								type="textarea"
+								:rows="4"
+								:placeholder="__('Short description of the batch')"
+								:required="true"
+							/>
+							<MultiSelect
+								v-model="instructors"
+								doctype="Course Evaluator"
+								:label="__('Instructors')"
+								:required="true"
+								:onCreate="(close) => openSettings('Evaluators', close)"
+								:filters="{ ignore_user_type: 1 }"
+							/>
+						</div>
+						<div>
+							<label class="block text-sm text-ink-gray-5 mb-1">
+								{{ __('Batch Details') }}
+								<span class="text-ink-red-3">*</span>
+							</label>
+							<TextEditor
+								:content="batchDetail.doc.batch_details"
+								@change="(val) => (batchDetail.doc.batch_details = val)"
+								:editable="true"
+								:fixedMenu="true"
+								editorClass="prose-sm max-w-none border-b border-x bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[7rem] max-h-[16rem] overflow-y-scroll mb-4"
+							/>
+						</div>
+					</div>
+				</div>
+
+				<div class="px-5 pb-5 space-y-5 border-b mb-5">
+					<div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+						<div class="space-y-5">
+							<FormControl
+								v-model="batchDetail.doc.medium"
+								type="select"
+								:options="mediumOptions"
+								:label="__('Medium')"
+								class="mb-4"
+							/>
+							<Link
+								doctype="Email Template"
+								:label="__('Email Template')"
+								v-model="batchDetail.doc.confirmation_email_template"
+								:onCreate="
+									(value, close) => {
+										openSettings('Email Templates', close)
+									}
+								"
+							/>
+							<Link
+								doctype="LMS Zoom Settings"
+								:label="__('Zoom Account')"
+								v-model="batchDetail.doc.zoom_account"
+								:onCreate="
+									(value, close) => {
+										openSettings('Zoom Accounts', close)
+									}
+								"
+							/>
+						</div>
+						<div class="space-y-5">
+							<FormControl
+								v-model="batchDetail.doc.evaluation_end_date"
+								:label="__('Evaluation End Date')"
+								type="date"
+								class="mb-4"
+							/>
+							<Uploader
+								v-model="batchDetail.doc.video_link"
+								:label="__('Preview Video')"
+								type="video"
+								:required="false"
+							/>
+						</div>
+					</div>
+				</div>
+
+				<div class="px-5 pb-5 space-y-5 border-b mb-5">
+					<div class="text-lg text-ink-gray-9 font-semibold">
+						{{ __('Pricing') }}
+					</div>
 					<FormControl
-						v-model="batch.published"
+						v-model="batchDetail.doc.paid_batch"
 						type="checkbox"
-						:label="__('Published')"
+						:label="__('Paid Batch')"
 					/>
-					<FormControl
-						v-model="batch.allow_self_enrollment"
-						type="checkbox"
-						:label="__('Allow self enrollment')"
-					/>
-					<FormControl
-						v-model="batch.certification"
-						type="checkbox"
-						:label="__('Certification')"
-					/>
-				</div>
-			</div>
-
-			<div class="px-5 md:px-20 pb-5 space-y-5 border-b mb-5">
-				<div class="text-lg text-ink-gray-9 font-semibold mb-4">
-					{{ __('Date and Time') }}
-				</div>
-				<div class="grid grid-cols-1 md:grid-cols-3 gap-10">
-					<div class="space-y-5">
+					<div
+						v-if="batchDetail.doc.paid_batch"
+						class="grid grid-cols-1 md:grid-cols-2 gap-5"
+					>
 						<FormControl
-							v-model="batch.start_date"
-							:label="__('Batch Start Date')"
-							type="date"
-							class="mb-4"
-							:required="true"
-						/>
-						<FormControl
-							v-model="batch.end_date"
-							:label="__('Batch End Date')"
-							type="date"
-							class="mb-4"
-							:required="true"
-						/>
-					</div>
-					<div class="space-y-5">
-						<FormControl
-							v-model="batch.start_time"
-							:label="__('Session Start Time')"
-							type="time"
-							class="mb-4"
-							:required="true"
-						/>
-						<FormControl
-							v-model="batch.end_time"
-							:label="__('Session End Time')"
-							type="time"
-							class="mb-4"
-							:required="true"
-						/>
-					</div>
-					<div class="space-y-5">
-						<FormControl
-							v-model="batch.timezone"
-							:label="__('Timezone')"
-							type="text"
-							:placeholder="__('Example: IST (+5:30)')"
-							class="mb-4"
-							:required="true"
-						/>
-						<FormControl
-							v-model="batch.evaluation_end_date"
-							:label="__('Evaluation End Date')"
-							type="date"
-							class="mb-4"
-						/>
-					</div>
-				</div>
-			</div>
-
-			<div class="px-5 md:px-20 pb-5 space-y-5 border-b mb-5">
-				<div>
-					<label class="block text-sm text-ink-gray-5 mb-1">
-						{{ __('Batch Details') }}
-						<span class="text-ink-red-3">*</span>
-					</label>
-					<TextEditor
-						:content="batch.batch_details"
-						@change="(val) => (batch.batch_details = val)"
-						:editable="true"
-						:fixedMenu="true"
-						editorClass="prose-sm max-w-none border-b border-x bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[7rem] max-h-[20rem] overflow-y-scroll mb-4"
-					/>
-				</div>
-			</div>
-
-			<div class="px-5 md:px-20 pb-5 space-y-5 border-b mb-5">
-				<div class="text-lg text-ink-gray-9 font-semibold mb-4">
-					{{ __('Configurations') }}
-				</div>
-				<div class="grid grid-cols-1 md:grid-cols-3 gap-10">
-					<div class="space-y-5">
-						<FormControl
-							v-model="batch.seat_count"
-							:label="__('Seat Count')"
+							v-model="batchDetail.doc.amount"
+							:label="__('Amount')"
 							type="number"
-							class="mb-4"
-							:placeholder="__('Number of seats available')"
 						/>
 						<Link
-							doctype="Email Template"
-							:label="__('Email Template')"
-							v-model="batch.confirmation_email_template"
-							:onCreate="
-								(value, close) => {
-									openSettings('Email Templates', close)
-								}
-							"
-						/>
-						<Link
-							doctype="LMS Zoom Settings"
-							:label="__('Zoom Account')"
-							v-model="batch.zoom_account"
-							:onCreate="
-								(value, close) => {
-									openSettings('Zoom Accounts', close)
-								}
-							"
+							doctype="Currency"
+							v-model="batchDetail.doc.currency"
+							:filters="{ enabled: 1 }"
+							:label="__('Currency')"
 						/>
 					</div>
-					<div class="space-y-5">
+				</div>
+
+				<div class="px-5 pb-5 space-y-5">
+					<div class="text-lg text-ink-gray-9 font-semibold">
+						{{ __('Meta Tags') }}
+					</div>
+					<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
 						<FormControl
-							v-model="batch.medium"
-							type="select"
-							:options="[
-								{
-									label: 'Online',
-									value: 'Online',
-								},
-								{
-									label: 'Offline',
-									value: 'Offline',
-								},
-							]"
-							:label="__('Medium')"
-							class="mb-4"
+							v-model="meta.description"
+							:label="__('Meta Description')"
+							type="textarea"
+							:rows="4"
 						/>
-						<Link
-							doctype="LMS Category"
-							:label="__('Category')"
-							v-model="batch.category"
-							:onCreate="(value, close) => openSettings('Categories', close)"
+						<FormControl
+							v-model="meta.keywords"
+							:label="__('Meta Keywords')"
+							type="textarea"
+							:rows="4"
+							:placeholder="__('Comma separated keywords')"
 						/>
-					</div>
-					<div class="space-y-5">
 						<Uploader
-							v-model="batch.video_link"
-							:label="__('Preview Video')"
-							type="video"
+							v-model="batchDetail.doc.meta_image"
+							:label="__('Meta Image')"
+							type="image"
 							:required="false"
 						/>
 					</div>
 				</div>
 			</div>
-
-			<div class="px-5 md:px-20 pb-5 space-y-5">
-				<div class="text-lg text-ink-gray-9 font-semibold">
-					{{ __('Pricing') }}
+			<div class="border-l min-w-0">
+				<div class="border-b p-4">
+					<BatchCourses :batch="batch.data?.name" />
 				</div>
-				<FormControl
-					v-model="batch.paid_batch"
-					type="checkbox"
-					:label="__('Paid Batch')"
-				/>
-				<div
-					v-if="batch.paid_batch"
-					class="grid grid-cols-1 md:grid-cols-3 gap-5"
-				>
-					<FormControl
-						v-model="batch.amount"
-						:label="__('Amount')"
-						type="number"
-					/>
-					<Link
-						doctype="Currency"
-						v-model="batch.currency"
-						:filters="{ enabled: 1 }"
-						:label="__('Currency')"
-					/>
-				</div>
-			</div>
-
-			<div class="px-5 md:px-20 pb-5 space-y-5 border-b">
-				<div class="text-lg text-ink-gray-9 font-semibold">
-					{{ __('Meta Tags') }}
-				</div>
-				<div class="space-y-5">
-					<Uploader
-						v-model="batch.meta_image"
-						:label="__('Meta Image')"
-						type="image"
-						:required="false"
-					/>
-					<FormControl
-						v-model="meta.description"
-						:label="__('Meta Description')"
-						type="textarea"
-						:rows="7"
-					/>
-					<FormControl
-						v-model="meta.keywords"
-						:label="__('Meta Keywords')"
-						type="textarea"
-						:rows="7"
-						:placeholder="__('Comma separated keywords for SEO')"
-					/>
+				<div class="p-4">
+					<Assessments :batch="batch.data?.name" />
 				</div>
 			</div>
 		</div>
@@ -277,13 +267,14 @@ import {
 	onBeforeUnmount,
 	reactive,
 	ref,
+	watch,
 } from 'vue'
 import {
-	Breadcrumbs,
 	FormControl,
 	Button,
 	TextEditor,
 	createResource,
+	createDocumentResource,
 	usePageMeta,
 	toast,
 	call,
@@ -302,6 +293,8 @@ import { sessionStore } from '@/stores/session'
 import Uploader from '@/components/Controls/Uploader.vue'
 import MultiSelect from '@/components/Controls/MultiSelect.vue'
 import Link from '@/components/Controls/Link.vue'
+import BatchCourses from '@/pages/Batches/components/BatchCourses.vue'
+import Assessments from '@/pages/Batches/components/Assessments.vue'
 
 const router = useRouter()
 const user = inject('$user')
@@ -311,42 +304,19 @@ const instructors = ref([])
 const app = getCurrentInstance()
 const { capture } = useTelemetry()
 const { $dialog } = app.appContext.config.globalProperties
+const isDirty = ref(false)
+const originalDoc = ref(null)
+
+const meta = reactive({
+	description: '',
+	keywords: '',
+})
 
 const props = defineProps({
 	batch: {
 		type: Object,
 		required: true,
 	},
-})
-
-const batch = reactive({
-	title: '',
-	published: false,
-	description: '',
-	batch_details: '',
-	start_date: '',
-	end_date: '',
-	start_time: '',
-	end_time: '',
-	timezone: '',
-	evaluation_end_date: '',
-	confirmation_email_template: '',
-	seat_count: '',
-	medium: '',
-	category: '',
-	allow_self_enrollment: false,
-	certification: false,
-	meta_image: null,
-	paid_batch: false,
-	currency: '',
-	amount: 0,
-	zoom_account: '',
-	video_link: '',
-})
-
-const meta = reactive({
-	description: '',
-	keywords: '',
 })
 
 onMounted(() => {
@@ -396,28 +366,29 @@ const newBatch = createResource({
 	},
 })
 
-const batchDetail = createResource({
-	url: 'frappe.client.get',
-	makeParams(values) {
-		return {
-			doctype: 'LMS Batch',
-			name: props.batchName,
-		}
-	},
-	onSuccess(data) {
-		updateBatchData(data)
-	},
+const batchDetail = createDocumentResource({
+	doctype: 'LMS Batch',
+	name: props.batch.data?.name,
+	auto: true,
 })
 
-const updateBatchData = (data) => {
-	Object.keys(data).forEach((key) => {
+watch(
+	() => batchDetail.doc,
+	() => {
+		getMetaInfo('batches', batchDetail.doc?.name, meta)
+		updateBatchData()
+	}
+)
+
+const updateBatchData = () => {
+	Object.keys(batchDetail.doc).forEach((key) => {
 		if (key == 'instructors') {
-			data.instructors.forEach((instructor) => {
+			batchDetail.doc.instructors.forEach((instructor) => {
 				instructors.value.push(instructor.instructor)
 			})
 		} else if (['start_time', 'end_time'].includes(key)) {
-			batch[key] = formatTime(data[key])
-		} else if (Object.hasOwn(batch, key)) batch[key] = data[key]
+			batchDetail.doc[key] = formatTime(batchDetail.doc[key])
+		}
 	})
 	let checkboxes = [
 		'published',
@@ -427,8 +398,9 @@ const updateBatchData = (data) => {
 	]
 	for (let idx in checkboxes) {
 		let key = checkboxes[idx]
-		batch[key] = batch[key] ? true : false
+		batchDetail.doc[key] = batchDetail.doc[key] ? true : false
 	}
+	originalDoc.value = batchDetail.doc
 }
 
 const formatTime = (timeStr) => {
@@ -469,59 +441,35 @@ const validateFields = () => {
 	})
 }
 
-const saveBatch = () => {
+const submitBatch = () => {
 	validateFields()
-	if (batchDetail.data) {
-		editBatchDetails()
-	} else {
-		createNewBatch()
-	}
+	updateBatch()
 }
 
-const createNewBatch = () => {
-	newBatch.submit(
-		{},
+const updateBatch = () => {
+	batchDetails.setValue.submit(
+		{
+			...batchDetail.doc,
+			instructors: instructors.value.map((instructor) => ({
+				instructor: instructor,
+			})),
+		},
 		{
 			onSuccess(data) {
-				if (user.data?.is_system_manager) {
-					updateOnboardingStep('create_first_batch', true, false, () => {
-						localStorage.setItem('firstBatch', data.name)
-					})
-				}
 				updateMetaInfo('batches', data.name, meta)
-				capture('batch_created')
-				router.push({
-					name: 'BatchDetail',
-					params: {
-						batchName: data.name,
-					},
-				})
+				toast.success(__('Batch updated successfully'))
+				isDirty.value = false
 			},
 			onError(err) {
 				toast.error(err.messages?.[0] || err)
+				console.error(err)
 			},
 		}
 	)
 }
 
-const editBatchDetails = () => {
-	editBatch.submit(
-		{},
-		{
-			onSuccess(data) {
-				updateMetaInfo('batches', data.name, meta)
-				router.push({
-					name: 'BatchDetail',
-					params: {
-						batchName: data.name,
-					},
-				})
-			},
-			onError(err) {
-				toast.error(err.messages?.[0] || err)
-			},
-		}
-	)
+const makeFormDirty = () => {
+	isDirty.value = true
 }
 
 const deleteBatch = () => {
@@ -556,37 +504,22 @@ const trashBatch = (close) => {
 	})
 }
 
-const breadcrumbs = computed(() => {
-	let crumbs = [
+const mediumOptions = computed(() => {
+	return [
 		{
-			label: __('Batches'),
-			route: {
-				name: 'Batches',
-			},
+			label: 'Online',
+			value: 'Online',
+		},
+		{
+			label: 'Offline',
+			value: 'Offline',
 		},
 	]
-	if (batchDetail.data) {
-		crumbs.push({
-			label: batchDetail.data.title,
-			route: {
-				name: 'BatchDetail',
-				params: {
-					batchName: props.batchName,
-				},
-			},
-		})
-	}
-	crumbs.push({
-		label: props.batchName == 'new' ? __('New Batch') : __('Edit Batch'),
-		route: { name: 'BatchForm', params: { batchName: props.batchName } },
-	})
-	return crumbs
 })
 
-usePageMeta(() => {
-	return {
-		title: props.batchName == 'new' ? 'New Batch' : batchDetail.data?.title,
-		icon: brand.favicon,
-	}
+defineExpose({
+	submitBatch,
+	trashBatch,
+	isDirty,
 })
 </script>

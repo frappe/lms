@@ -107,9 +107,10 @@
 	</div>
 
 	<LiveClassModal
+		v-if="showLiveClassModal"
+		v-model="showLiveClassModal"
 		:batch="props.batch"
 		:zoomAccount="props.zoomAccount"
-		v-model="showLiveClassModal"
 		v-model:reloadLiveClasses="liveClasses"
 	/>
 
@@ -144,7 +145,7 @@ const attendanceFor = ref(null)
 
 const props = defineProps({
 	batch: {
-		type: String,
+		type: Object,
 		required: true,
 	},
 	zoomAccount: String,
@@ -153,7 +154,7 @@ const props = defineProps({
 const liveClasses = createListResource({
 	doctype: 'LMS Live Class',
 	filters: {
-		batch_name: props.batch,
+		batch_name: props.batch.data?.name,
 	},
 	fields: [
 		'title',

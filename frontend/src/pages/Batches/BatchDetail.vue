@@ -1,9 +1,22 @@
 <template>
 	<div v-if="batch.data" class="">
 		<header
-			class="sticky top-0 z-10 border-b bg-surface-white px-3 py-2.5 sm:px-5"
+			class="sticky top-0 z-10 border-b flex items-center justify-between bg-surface-white px-3 py-2.5 sm:px-5"
 		>
 			<Breadcrumbs :items="breadcrumbs" />
+			<div v-if="tabIndex == 5" class="flex items-center space-x-2">
+				<Badge v-if="childRef?.isDirty" theme="orange">
+					{{ __('Not Saved') }}
+				</Badge>
+				<Button @click="childRef.trashCourse()">
+					<template #icon>
+						<Trash2 class="w-4 h-4 stroke-1.5" />
+					</template>
+				</Button>
+				<Button variant="solid" @click="childRef.submitCourse()">
+					{{ __('Save') }}
+				</Button>
+			</div>
 		</header>
 		<div>
 			<BatchOverview v-if="!isAdmin && !isStudent" :batch="batch" />
@@ -18,17 +31,25 @@
 	</div>
 </template>
 <script setup>
-import { computed, inject, markRaw, ref, watch } from 'vue'
-import { useRouter } from 'vue-router'
 import {
 	Laptop,
 	List,
 	Mail,
 	MessageCircle,
 	Settings2,
+	Trash2,
 	TrendingUp,
 } from 'lucide-vue-next'
-import { Breadcrumbs, createResource, Tabs, usePageMeta } from 'frappe-ui'
+import { computed, inject, markRaw, ref, watch } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
+import {
+	Badge,
+	Breadcrumbs,
+	Button,
+	createResource,
+	Tabs,
+	usePageMeta,
+} from 'frappe-ui'
 import { sessionStore } from '@/stores/session'
 import AdminBatchDashboard from '@/pages/Batches/components/AdminBatchDashboard.vue'
 import StudentBatchDashboard from '@/pages/Batches/components/BatchDashboard.vue'
@@ -39,10 +60,11 @@ import BatchForm from '@/pages/Batches/BatchForm.vue'
 import Discussions from '@/components/Discussions.vue'
 
 const router = useRouter()
+const route = useRoute()
 const { brand } = sessionStore()
 const user = inject('$user')
 const childRef = ref(null)
-const tabIndex = ref(5)
+const tabIndex = ref(0)
 const tabs = ref([])
 
 const props = defineProps({
@@ -50,6 +72,24 @@ const props = defineProps({
 		type: String,
 		required: true,
 	},
+})
+
+const updateTabIndex = () => {
+	const hash = route.hash
+	if (hash) {
+		tabs.value.forEach((tab, index) => {
+			if (tab.label?.toLowerCase() === hash.replace('#', '')) {
+				tabIndex.value = index
+			}
+		})
+	}
+}
+
+watch(tabIndex, () => {
+	const tab = tabs.value[tabIndex.value]
+	if (tab.label != route.hash.replace('#', '')) {
+		router.push({ ...route, hash: `#${tab.label.toLowerCase()}` })
+	}
 })
 
 const batch = createResource({
@@ -68,6 +108,7 @@ const batch = createResource({
 
 watch(batch, () => {
 	updateTabs()
+	updateTabIndex()
 })
 
 const updateTabs = () => {

@@ -373,7 +373,7 @@ const courseResource = createDocumentResource({
 watch(
 	() => courseResource.doc,
 	() => {
-		check_permission()
+		checkPermission()
 		getMetaInfo('courses', courseResource.doc?.name, meta)
 		updateCourseData()
 	}
@@ -516,7 +516,7 @@ const removeTag = (tag) => {
 	makeFormDirty()
 }
 
-const check_permission = () => {
+const checkPermission = () => {
 	let user_is_instructor = false
 	if (user.data?.is_moderator) return
 

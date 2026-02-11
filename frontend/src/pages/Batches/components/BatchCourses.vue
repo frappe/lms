@@ -1,7 +1,7 @@
 <template>
 	<div>
 		<div class="flex items-center justify-between mb-4">
-			<div class="font-medium text-ink-gray-9">
+			<div class="text-lg text-ink-gray-9 font-semibold">
 				{{ __('Courses') }}
 			</div>
 			<Button v-if="canSeeAddButton()" @click="openCourseModal()">
@@ -11,11 +11,12 @@
 				{{ __('Add') }}
 			</Button>
 		</div>
-		<div v-if="courses.data?.length">
+		<div v-if="courses.data?.length" class="text-sm">
 			<ListView
 				:columns="getCoursesColumns()"
 				:rows="courses.data"
 				row-key="batch_course"
+				class="border rounded-lg"
 				:options="{
 					showTooltip: false,
 					selectable: user.data?.is_student ? false : true,
@@ -26,16 +27,9 @@
 				}"
 			>
 				<ListHeader
-					class="mb-2 grid items-center space-x-4 rounded bg-surface-gray-2 p-2"
+					class="mb-2 grid items-center space-x-4 rounded-none rounded-t bg-surface-gray-2 p-2"
 				>
 					<ListHeaderItem :item="item" v-for="item in getCoursesColumns()">
-						<template #prefix="{ item }">
-							<component
-								v-if="item.icon"
-								:is="item.icon"
-								class="h-4 w-4 stroke-1.5 ml-4"
-							/>
-						</template>
 					</ListHeaderItem>
 				</ListHeader>
 				<ListRows>
@@ -78,6 +72,7 @@ import { ref, inject } from 'vue'
 import BatchCourseModal from '@/components/Modals/BatchCourseModal.vue'
 import {
 	createResource,
+	createListResource,
 	Button,
 	ListHeader,
 	ListHeaderItem,
@@ -101,11 +96,14 @@ const props = defineProps({
 	},
 })
 
-const courses = createResource({
-	url: 'lms.lms.utils.get_batch_courses',
-	params: {
-		batch: props.batch,
+const courses = createListResource({
+	doctype: 'Batch Course',
+	filters: {
+		parent: props.batch,
+		parenttype: 'LMS Batch',
 	},
+	fields: ['name', 'course', 'title', 'evaluator'],
+	parent: 'LMS Batch',
 	auto: true,
 })
 
@@ -118,17 +116,11 @@ const getCoursesColumns = () => {
 		{
 			label: 'Title',
 			key: 'title',
-			width: 2,
 		},
 		{
-			label: 'Lessons',
-			key: 'lessons',
-			align: 'right',
-		},
-		{
-			label: 'Enrollments',
-			align: 'right',
-			key: 'enrollments',
+			label: 'Evaluator',
+			key: 'evaluator',
+			width: '10rem',
 		},
 	]
 }
