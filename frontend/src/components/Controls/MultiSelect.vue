@@ -78,7 +78,7 @@
 										{{ __('No results found') }}
 									</div>
 								</ComboboxOptions>
-								<div v-if="attrs.onCreate" class="px-1 pt-2 bg-white border-t">
+								<div v-if="attrs.onCreate" class="px-1 pt-2 bg-surface-white border-t">
 									<Button
 										variant="ghost"
 										class="w-full !justify-start"
