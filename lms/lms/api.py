@@ -160,7 +160,7 @@ def verify_billing_access(doctype, name, billing_type):
 
 
 @frappe.whitelist(allow_guest=True)
-def get_job_details(job):
+def get_job_details(job: str):
 	return frappe.db.get_value(
 		"Job Opportunity",
 		job,
