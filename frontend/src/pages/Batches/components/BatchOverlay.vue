@@ -70,7 +70,7 @@
 					batch.data.accept_enrollments
 				"
 			>
-				<Button v-if="!isStudent" class="w-full mt-4" variant="solid">
+				<Button v-if="!canAccessBatch" class="w-full mt-4" variant="solid">
 					<template #prefix>
 						<CreditCard class="size-4 stroke-1.5" />
 					</template>

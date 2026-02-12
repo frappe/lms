@@ -114,7 +114,7 @@
 				</div>
 			</div>
 		</div>
-		<div v-else-if="!endDateHasPassed" class="text-ink-gray-5">
+		<div v-else-if="!endDateHasPassed" class="text-ink-gray-7">
 			{{ __('Schedule an evaluation to get certified.') }}
 		</div>
 	</div>

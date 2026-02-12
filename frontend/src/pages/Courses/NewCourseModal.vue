@@ -2,7 +2,7 @@
 	<Dialog
 		v-model="show"
 		:options="{
-			title: __('Create Course'),
+			title: __('New Course'),
 			size: '3xl',
 		}"
 	>
@@ -67,7 +67,7 @@
 		<template #actions="{ close }">
 			<div class="text-right">
 				<Button variant="solid" @click="saveCourse(close)">
-					{{ __('Create') }}
+					{{ __('Save') }}
 				</Button>
 			</div>
 		</template>

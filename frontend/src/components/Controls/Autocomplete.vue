@@ -16,7 +16,12 @@
 							<button
 								class="flex w-full items-center justify-between focus:outline-none"
 								:class="inputClasses"
-								@click="() => togglePopover()"
+								@click="
+									() => {
+										showOptions = true
+										togglePopover()
+									}
+								"
 								:disabled="attrs.readonly"
 							>
 								<div class="flex items-center w-[90%]">

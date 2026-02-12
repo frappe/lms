@@ -10,10 +10,7 @@
 					label: __('New Batch'),
 					icon: 'users',
 					onClick() {
-						router.push({
-							name: 'BatchForm',
-							params: { batchName: 'new' },
-						})
+						showBatchModal = true
 					},
 				},
 				{
@@ -45,20 +42,6 @@
 				</Button>
 			</template>
 		</Dropdown>
-		<!-- <router-link
-			v-if="canCreateBatch()"
-			:to="{
-				name: 'BatchForm',
-				params: { batchName: 'new' },
-			}"
-		>
-			<Button variant="solid">
-				<template #prefix>
-					<Plus class="h-4 w-4 stroke-1.5" />
-				</template>
-				{{ __('Create') }}
-			</Button>
-		</router-link> -->
 	</header>
 	<div class="p-5 pb-10">
 		<div
@@ -125,6 +108,11 @@
 			</Button>
 		</div>
 	</div>
+	<NewBatchModal
+		v-if="showBatchModal"
+		v-model="showBatchModal"
+		:batches="batches"
+	/>
 </template>
 <script setup>
 import {
@@ -143,6 +131,7 @@ import { ChevronDown, Plus } from 'lucide-vue-next'
 import { sessionStore } from '@/stores/session'
 import BatchCard from '@/pages/Batches/components/BatchCard.vue'
 import EmptyState from '@/components/EmptyState.vue'
+import NewBatchModal from '@/pages/Batches/components/NewBatchModal.vue'
 
 const user = inject('$user')
 const dayjs = inject('$dayjs')
@@ -159,6 +148,7 @@ const currentTab = ref(is_student.value ? 'all' : 'upcoming')
 const orderBy = ref('start_date')
 const readOnlyMode = window.read_only_mode
 const router = useRouter()
+const showBatchModal = ref(false)
 
 onMounted(() => {
 	setFiltersFromQuery()

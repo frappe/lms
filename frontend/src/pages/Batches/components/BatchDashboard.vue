@@ -1,12 +1,13 @@
 <template>
-	<div class="space-y-10 p-5">
+	<div class="space-y-10 mt-5 w-[75%] mx-auto">
 		<UpcomingEvaluations
 			:batch="batch.data.name"
 			:endDate="batch.data.evaluation_end_date"
 			:courses="batch.data.courses"
 		/>
+		<BatchCourses :batch="batch" />
 		<Assessments :batch="batch.data.name" />
-		<BatchCourses :batch="batch.data.name" />
+		<div class="grid grid-cols-2 gap-10"></div>
 	</div>
 </template>
 <script setup>

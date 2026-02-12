@@ -1,20 +1,5 @@
 <template>
 	<div class="">
-		<!-- <header
-			class="sticky top-0 z-10 flex items-center justify-between border-b bg-surface-white px-3 py-2.5 sm:px-5"
-		>
-			<Breadcrumbs class="h-7" :items="breadcrumbs" />
-			<div class="flex items-center space-x-2">
-				<Button v-if="batchDetail.data?.name" @click="deleteBatch">
-					<template #icon>
-						<Trash2 class="size-4 stroke-1.5" />
-					</template>
-				</Button>
-				<Button variant="solid" @click="saveBatch()">
-					{{ __('Save') }}
-				</Button>
-			</div>
-		</header> -->
 		<div class="grid grid-cols-[3fr,2fr]">
 			<div v-if="batchDetail.doc" class="py-5 h-[88vh] overflow-y-auto">
 				<div class="px-5 pb-5 space-y-5 border-b mb-5">
@@ -143,7 +128,7 @@
 				</div>
 
 				<div class="px-5 pb-5 space-y-5 border-b mb-5">
-					<div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+					<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
 						<div class="space-y-5">
 							<FormControl
 								v-model="batchDetail.doc.medium"
@@ -246,7 +231,7 @@
 			</div>
 			<div class="border-l min-w-0">
 				<div class="border-b p-4">
-					<BatchCourses :batch="batch.data?.name" />
+					<BatchCourses :batch="batch" />
 				</div>
 				<div class="p-4">
 					<Assessments :batch="batch.data?.name" />
@@ -270,11 +255,8 @@ import {
 } from 'vue'
 import {
 	FormControl,
-	Button,
 	TextEditor,
-	createResource,
 	createDocumentResource,
-	usePageMeta,
 	toast,
 	call,
 } from 'frappe-ui'
@@ -286,7 +268,6 @@ import {
 	updateMetaInfo,
 } from '@/utils'
 import { useRouter } from 'vue-router'
-import { Trash2 } from 'lucide-vue-next'
 import { useOnboarding, useTelemetry } from 'frappe-ui/frappe'
 import { sessionStore } from '@/stores/session'
 import Uploader from '@/components/Controls/Uploader.vue'
@@ -320,10 +301,6 @@ const props = defineProps({
 
 onMounted(() => {
 	if (!user.data) window.location.href = '/login'
-	if (props.batchName != 'new') {
-	} else {
-		capture('batch_form_opened')
-	}
 	window.addEventListener('keydown', keyboardShortcut)
 })
 
@@ -342,23 +319,6 @@ onBeforeUnmount(() => {
 	window.removeEventListener('keydown', keyboardShortcut)
 })
 
-const newBatch = createResource({
-	url: 'frappe.client.insert',
-	makeParams(values) {
-		return {
-			doc: {
-				doctype: 'LMS Batch',
-				meta_image: batch.image,
-				video_link: batch.video_link,
-				instructors: instructors.value.map((instructor) => ({
-					instructor: instructor,
-				})),
-				...batch,
-			},
-		}
-	},
-})
-
 const batchDetail = createDocumentResource({
 	doctype: 'LMS Batch',
 	name: props.batch.data?.name,
@@ -369,7 +329,6 @@ watch(
 	() => batchDetail.doc,
 	() => {
 		if (!batchDetail.doc) return
-		console.log('watch batch detail')
 		getMetaInfo('batches', batchDetail.doc?.name, meta)
 		updateBatchData()
 	}
@@ -378,6 +337,7 @@ watch(
 const updateBatchData = () => {
 	Object.keys(batchDetail.doc).forEach((key) => {
 		if (key == 'instructors') {
+			instructors.value = []
 			batchDetail.doc.instructors.forEach((instructor) => {
 				instructors.value.push(instructor.instructor)
 			})
@@ -481,7 +441,7 @@ const deleteBatch = () => {
 
 const trashBatch = (close) => {
 	call('lms.lms.api.delete_batch', {
-		batch: props.batchName,
+		batch: props.batch.data.name,
 	}).then(() => {
 		toast.success(__('Batch deleted successfully'))
 		close()
@@ -506,7 +466,7 @@ const mediumOptions = computed(() => {
 
 defineExpose({
 	submitBatch,
-	trashBatch,
+	deleteBatch,
 	isDirty,
 })
 </script>
