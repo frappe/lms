@@ -160,7 +160,7 @@ def verify_billing_access(doctype, name, billing_type):
 
 
 @frappe.whitelist(allow_guest=True)
-def get_job_details(job):
+def get_job_details(job: str):
 	return frappe.db.get_value(
 		"Job Opportunity",
 		job,
@@ -618,14 +618,14 @@ def check_app_permission():
 def save_evaluation_details(
 	member: str,
 	course: str,
-	batch_name: str,
-	evaluator: str,
 	date: str,
 	start_time: str,
 	end_time: str,
 	status: str,
-	rating: float,
-	summary: str,
+	batch_name: str = None,
+	evaluator: str = None,
+	rating: float = 0,
+	summary: str = None,
 ):
 	"""
 	Save evaluation details for a member against a course.

@@ -882,7 +882,8 @@ def get_course_details(course: str):
 		return {}
 
 	is_course_published = frappe.db.get_value("LMS Course", course, "published")
-	if not is_course_published and not can_modify_course(course):
+	membership = get_membership(course)
+	if not is_course_published and not can_modify_course(course) and not membership:
 		return {}
 
 	fields = get_course_fields()
@@ -894,6 +895,7 @@ def get_course_details(course: str):
 	)
 
 	course_details.instructors = get_instructors("LMS Course", course_details.name)
+	course_details.membership = membership
 	# course_details.is_instructor = is_instructor(course_details.name)
 	if course_details.paid_course or course_details.paid_certificate:
 		"""course_details.course_price, course_details.currency = check_multicurrency(
@@ -902,15 +904,7 @@ def get_course_details(course: str):
 		course_details.price = fmt_money(course_details.course_price, 0, course_details.currency)
 
 	if frappe.session.user == "Guest":
-		course_details.membership = None
 		course_details.is_instructor = False
-	else:
-		course_details.membership = frappe.db.get_value(
-			"LMS Enrollment",
-			{"member": frappe.session.user, "course": course_details.name},
-			["name", "course", "current_lesson", "progress", "member"],
-			as_dict=1,
-		)
 
 	if course_details.membership and course_details.membership.current_lesson:
 		course_details.current_lesson = get_lesson_index(course_details.membership.current_lesson)
