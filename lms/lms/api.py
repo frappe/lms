@@ -618,14 +618,14 @@ def check_app_permission():
 def save_evaluation_details(
 	member: str,
 	course: str,
-	batch_name: str,
-	evaluator: str,
 	date: str,
 	start_time: str,
 	end_time: str,
 	status: str,
-	rating: float,
-	summary: str,
+	batch_name: str = None,
+	evaluator: str = None,
+	rating: float = 0,
+	summary: str = None,
 ):
 	"""
 	Save evaluation details for a member against a course.
