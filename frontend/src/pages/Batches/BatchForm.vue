@@ -23,19 +23,16 @@
 							v-model="batchDetail.doc.published"
 							type="checkbox"
 							:label="__('Published')"
-							@change="makeFormDirty"
 						/>
 						<FormControl
 							v-model="batchDetail.doc.allow_self_enrollment"
 							type="checkbox"
 							:label="__('Allow Self Enrollment')"
-							@change="makeFormDirty"
 						/>
 						<FormControl
 							v-model="batchDetail.doc.certification"
 							type="checkbox"
 							:label="__('Certification')"
-							@change="makeFormDirty"
 						/>
 					</div>
 				</div>
@@ -267,7 +264,9 @@ import {
 	onBeforeUnmount,
 	reactive,
 	ref,
+	toRaw,
 	watch,
+	nextTick,
 } from 'vue'
 import {
 	FormControl,
@@ -322,17 +321,11 @@ const props = defineProps({
 onMounted(() => {
 	if (!user.data) window.location.href = '/login'
 	if (props.batchName != 'new') {
-		fetchBatchInfo()
 	} else {
 		capture('batch_form_opened')
 	}
 	window.addEventListener('keydown', keyboardShortcut)
 })
-
-const fetchBatchInfo = () => {
-	batchDetail.reload()
-	getMetaInfo('batches', props.batch?.data?.name, meta)
-}
 
 const keyboardShortcut = (e) => {
 	if (
@@ -340,7 +333,7 @@ const keyboardShortcut = (e) => {
 		(e.ctrlKey || e.metaKey) &&
 		!e.target.classList.contains('ProseMirror')
 	) {
-		saveBatch()
+		submitBatch()
 		e.preventDefault()
 	}
 }
@@ -375,6 +368,8 @@ const batchDetail = createDocumentResource({
 watch(
 	() => batchDetail.doc,
 	() => {
+		if (!batchDetail.doc) return
+		console.log('watch batch detail')
 		getMetaInfo('batches', batchDetail.doc?.name, meta)
 		updateBatchData()
 	}
@@ -400,7 +395,7 @@ const updateBatchData = () => {
 		let key = checkboxes[idx]
 		batchDetail.doc[key] = batchDetail.doc[key] ? true : false
 	}
-	originalDoc.value = batchDetail.doc
+	originalDoc.value = structuredClone(toRaw(batchDetail.doc))
 }
 
 const formatTime = (timeStr) => {
@@ -409,34 +404,16 @@ const formatTime = (timeStr) => {
 	return `${hours}:${minutes}`
 }
 
-const editBatch = createResource({
-	url: 'frappe.client.set_value',
-	makeParams(values) {
-		return {
-			doctype: 'LMS Batch',
-			name: props.batchName,
-			fieldname: {
-				meta_image: batch.meta_image,
-				video_link: batch.video_link,
-				instructors: instructors.value.map((instructor) => ({
-					instructor: instructor,
-				})),
-				...batch,
-			},
-		}
-	},
-})
-
 const validateFields = () => {
-	batch.description = sanitizeHTML(batch.description)
-	batch.batch_details = sanitizeHTML(batch.batch_details)
+	batchDetail.doc.description = sanitizeHTML(batchDetail.doc.description)
+	batchDetail.doc.batch_details = sanitizeHTML(batchDetail.doc.batch_details)
 
-	Object.keys(batch).forEach((key) => {
+	Object.keys(batchDetail.doc).forEach((key) => {
 		if (
 			!['description', 'batch_details'].includes(key) &&
-			typeof batch[key] === 'string'
+			typeof batchDetail.doc[key] === 'string'
 		) {
-			batch[key] = escapeHTML(batch[key])
+			batchDetail.doc[key] = escapeHTML(batchDetail.doc[key])
 		}
 	})
 }
@@ -447,7 +424,7 @@ const submitBatch = () => {
 }
 
 const updateBatch = () => {
-	batchDetails.setValue.submit(
+	batchDetail.setValue.submit(
 		{
 			...batchDetail.doc,
 			instructors: instructors.value.map((instructor) => ({
@@ -458,7 +435,10 @@ const updateBatch = () => {
 			onSuccess(data) {
 				updateMetaInfo('batches', data.name, meta)
 				toast.success(__('Batch updated successfully'))
-				isDirty.value = false
+				nextTick(() => {
+					originalDoc.value = structuredClone(data)
+					isDirty.value = false
+				})
 			},
 			onError(err) {
 				toast.error(err.messages?.[0] || err)
@@ -468,9 +448,16 @@ const updateBatch = () => {
 	)
 }
 
-const makeFormDirty = () => {
-	isDirty.value = true
-}
+watch(
+	() => batchDetail.doc,
+	() => {
+		if (originalDoc.value) {
+			isDirty.value =
+				JSON.stringify(batchDetail.doc) !== JSON.stringify(originalDoc.value)
+		}
+	},
+	{ deep: true }
+)
 
 const deleteBatch = () => {
 	$dialog({
