@@ -3,10 +3,10 @@
 		<div class="text-xs text-ink-gray-5 mb-2">
 			{{ label }}
 		</div>
-		<div class="overflow-visible border rounded-md">
+		<div class="overflow-visible border border-outline-gray-modals rounded-md">
 			<div class="overflow-x-auto">
 				<div
-					class="grid items-center space-x-4 p-2 border-b"
+					class="grid items-center space-x-4 p-2 border-b border-outline-gray-modals"
 					:style="{ gridTemplateColumns: getGridTemplateColumns() }"
 				>
 					<div
@@ -28,7 +28,7 @@
 						<input
 							v-if="showKey(key)"
 							v-model="row[key]"
-							class="py-1.5 px-2 border-none focus:ring-0 focus:border focus:border-gray-300 focus:bg-surface-gray-2 rounded-md text-sm focus:outline-none"
+							class="py-1.5 px-2 w-full border-none bg-transparent text-ink-gray-8 focus:ring-0 focus:border focus:border-outline-gray-3 focus:bg-surface-gray-2 rounded-md text-sm focus:outline-none"
 						/>
 					</template>
 
@@ -47,7 +47,7 @@
 						<div
 							v-if="menuOpenIndex === rowIndex"
 							ref="menuRef"
-							class="absolute right-0 w-32 z-50 bg-surface-white border border-outline-gray-1 rounded-md shadow-sm"
+							class="absolute right-0 w-32 z-50 bg-surface-modal border border-outline-gray-modals rounded-md shadow-sm"
 							:class="
 								rowIndex == (rows?.length ?? 0) - 1
 									? 'bottom-full mb-1'

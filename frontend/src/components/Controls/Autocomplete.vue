@@ -39,7 +39,7 @@
 				<template #body="{ isOpen }">
 					<div v-show="isOpen" class="">
 						<div
-							class="mt-1 rounded-lg bg-surface-white py-1 text-base border-2"
+							class="mt-1 rounded-lg bg-surface-modal py-1 text-base border-2 border-outline-gray-modals"
 						>
 							<div class="relative px-1.5 pt-0.5">
 								<ComboboxInput
@@ -122,7 +122,10 @@
 									No results found
 								</li>
 							</ComboboxOptions>
-							<div v-if="slots.footer" class="border-t p-1.5 pb-0.5">
+							<div
+								v-if="slots.footer"
+								class="border-t border-outline-gray-modals p-1.5 pb-0.5"
+							>
 								<slot
 									name="footer"
 									v-bind="{ value: search?.el._value, close }"
@@ -283,7 +286,7 @@ const inputClasses = computed(() => {
 	let variant = props.disabled ? 'disabled' : props.variant
 	let variantClasses = {
 		subtle:
-			'border border-gray-100 bg-surface-gray-2 placeholder-ink-gray-4 hover:border-outline-gray-modals hover:bg-surface-gray-3 focus:bg-surface-white focus:border-outline-gray-4 focus:shadow-sm focus:ring-0 focus-visible:ring-2 focus-visible:ring-outline-gray-3',
+			'border border-outline-gray-modals bg-surface-gray-2 placeholder-ink-gray-4 hover:border-outline-gray-modals hover:bg-surface-gray-3 focus:bg-surface-white focus:border-outline-gray-4 focus:shadow-sm focus:ring-0 focus-visible:ring-2 focus-visible:ring-outline-gray-3',
 		outline:
 			'border border-outline-gray-2 bg-surface-white placeholder-ink-gray-4 hover:border-outline-gray-3 hover:shadow-sm focus:bg-surface-white focus:border-outline-gray-4 focus:shadow-sm focus:ring-0 focus-visible:ring-2 focus-visible:ring-outline-gray-3',
 		disabled: [
