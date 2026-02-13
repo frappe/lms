@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2026-01-23 16:05+0000\n"
-"PO-Revision-Date: 2026-02-05 06:43\n"
+"PO-Revision-Date: 2026-02-12 13:58\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Spanish\n"
 "MIME-Version: 1.0\n"
@@ -2291,7 +2291,7 @@ msgstr "Detalles de la educación"
 #: lms/lms/doctype/lms_settings/lms_settings.json
 #: lms/templates/signup-form.html:10
 msgid "Email"
-msgstr ""
+msgstr "Correo electrónico"
 
 #: frontend/src/components/Modals/Event.vue:16
 msgid "Email ID"
@@ -2850,7 +2850,7 @@ msgstr "Francés (por ejemplo, Distinción)"
 #: lms/lms/doctype/evaluator_schedule/evaluator_schedule.json
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 msgid "Friday"
-msgstr ""
+msgstr "Viernes"
 
 #. Label of the unavailable_from (Date) field in DocType 'Course Evaluator'
 #: frontend/src/pages/ProfileEvaluator.vue:106
@@ -4380,7 +4380,7 @@ msgstr "Módulo incorrecto."
 #: lms/lms/doctype/evaluator_schedule/evaluator_schedule.json
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 msgid "Monday"
-msgstr ""
+msgstr "Lunes"
 
 #: frontend/src/components/Sidebar/AppSidebar.vue:561
 msgid "Monetization"
@@ -5914,7 +5914,7 @@ msgstr ""
 #: lms/lms/doctype/evaluator_schedule/evaluator_schedule.json
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 msgid "Saturday"
-msgstr ""
+msgstr "Sábado"
 
 #. Button label of the job-opportunity Web Form
 #: frontend/src/components/AssessmentPlugin.vue:12
@@ -5983,7 +5983,7 @@ msgstr "Puntuación fuera de"
 #: frontend/src/pages/Jobs.vue:57 frontend/src/pages/Search/Search.vue:5
 #: frontend/src/pages/Search/Search.vue:250
 msgid "Search"
-msgstr ""
+msgstr "Buscar"
 
 #: frontend/src/components/Modals/CourseProgressSummary.vue:17
 #: frontend/src/components/Modals/VideoStatistics.vue:20
@@ -6480,7 +6480,7 @@ msgstr "Resumen"
 #: lms/lms/doctype/evaluator_schedule/evaluator_schedule.json
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 msgid "Sunday"
-msgstr ""
+msgstr "Domingo"
 
 #: lms/lms/api.py:995
 msgid "Suspicious pattern found in {0}: {1}"
@@ -6536,7 +6536,7 @@ msgstr ""
 #: lms/lms/doctype/user_skill/user_skill.json
 #: lms/lms/doctype/zoom_settings/zoom_settings.json
 msgid "System Manager"
-msgstr ""
+msgstr "Administrador del sistema"
 
 #. Label of the tags (Data) field in DocType 'LMS Course'
 #: frontend/src/pages/CourseForm.vue:51
@@ -6791,7 +6791,7 @@ msgstr ""
 #: lms/lms/doctype/evaluator_schedule/evaluator_schedule.json
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 msgid "Thursday"
-msgstr ""
+msgstr "Jueves"
 
 #. Label of the time (Time) field in DocType 'LMS Live Class'
 #: frontend/src/components/Modals/Event.vue:54
@@ -6974,7 +6974,7 @@ msgstr "Inténtelo de nuevo"
 #: lms/lms/doctype/evaluator_schedule/evaluator_schedule.json
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 msgid "Tuesday"
-msgstr ""
+msgstr "Martes"
 
 #: frontend/src/pages/ProfileAbout.vue:105
 msgid "Twitter"
@@ -7287,7 +7287,7 @@ msgstr ""
 #: lms/lms/doctype/evaluator_schedule/evaluator_schedule.json
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 msgid "Wednesday"
-msgstr ""
+msgstr "Miércoles"
 
 #: lms/templates/emails/lms_invite_request_approved.html:4
 msgid "Welcome to {0}!"
