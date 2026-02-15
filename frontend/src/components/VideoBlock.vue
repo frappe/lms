@@ -89,6 +89,34 @@
 				<span class="text-sm font-medium">
 					{{ formatSeconds(currentTime) }} / {{ formatSeconds(duration) }}
 				</span>
+
+				<!-- SPEED CONTROL -->
+				<div class="relative speed-control-wrapper">
+					<Button
+						variant="ghost"
+						@click="toggleSpeedMenu"
+						class="hover:bg-transparent px-2 sm:px-3"
+					>
+						<span class="text-xs sm:text-sm font-medium text-ink-white whitespace-nowrap">{{ playbackSpeed }}x</span>
+					</Button>
+					<div
+						v-if="showSpeedMenu"
+						class="speed-menu absolute bottom-full right-0 mb-2 bg-gray-800 rounded-md shadow-lg overflow-hidden"
+						@click.stop
+					>
+						<div
+							v-for="speed in playbackSpeeds"
+							:key="speed"
+							@click="setPlaybackSpeed(speed)"
+							class="speed-option px-4 py-2.5 text-sm text-ink-white cursor-pointer flex items-center justify-between whitespace-nowrap"
+							:class="{ 'speed-selected': playbackSpeed === speed }"
+						>
+							<span>{{ speed }}x</span>
+							<span v-if="playbackSpeed === speed" class="ml-3 text-xs">✓</span>
+						</div>
+					</div>
+				</div>
+
 				<Button
 					variant="ghost"
 					@click="toggleMute"
@@ -151,7 +179,7 @@
 	</Dialog>
 </template>
 <script setup>
-import { ref, onMounted, computed, watch } from 'vue'
+import { ref, onMounted, computed, watch, onBeforeUnmount } from 'vue'
 import { Pause, Maximize, Volume2, VolumeX } from 'lucide-vue-next'
 import { Button, Dialog } from 'frappe-ui'
 import { formatSeconds, formatTimestamp } from '@/utils'
@@ -172,6 +200,11 @@ const quizLoadTimer = ref(0)
 const currentQuiz = ref(null)
 const nextQuiz = ref({})
 const { settings } = useSettings()
+
+// Speed control states
+const showSpeedMenu = ref(false)
+const playbackSpeed = ref(1)
+const playbackSpeeds = [0.5, 1, 1.5, 2]
 
 const props = defineProps({
 	file: {
@@ -199,6 +232,12 @@ const props = defineProps({
 onMounted(() => {
 	updateCurrentTime()
 	updateNextQuiz()
+	// Close speed menu when clicking outside
+	document.addEventListener('click', handleClickOutside)
+})
+
+onBeforeUnmount(() => {
+	document.removeEventListener('click', handleClickOutside)
 })
 
 const updateCurrentTime = () => {
@@ -321,6 +360,26 @@ const getQuizMarkerStyle = (time) => {
 		left: `${percentage}%`,
 	}
 }
+
+// Speed control functions
+const toggleSpeedMenu = (event) => {
+	event.stopPropagation()
+	showSpeedMenu.value = !showSpeedMenu.value
+}
+
+const setPlaybackSpeed = (speed) => {
+	playbackSpeed.value = speed
+	if (videoRef.value) {
+		videoRef.value.playbackRate = speed
+	}
+	showSpeedMenu.value = false
+}
+
+const handleClickOutside = (event) => {
+	if (showSpeedMenu.value && !event.target.closest('.speed-control-wrapper')) {
+		showSpeedMenu.value = false
+	}
+}
 </script>
 
 <style scoped>
@@ -365,6 +424,52 @@ iframe {
 		-webkit-appearance: none;
 		cursor: pointer;
 		box-shadow: -500px 0 0 500px theme('colors.white');
+	}
+}
+
+/* Speed Control Styles */
+.speed-menu {
+	min-width: 4.5rem;
+	z-index: 50;
+}
+
+.speed-option {
+	transition: background-color 0.15s ease;
+	min-height: 2.5rem;
+}
+
+.speed-option:first-child {
+	border-radius: 0.375rem 0.375rem 0 0;
+}
+
+.speed-option:last-child {
+	border-radius: 0 0 0.375rem 0.375rem;
+}
+
+.speed-option:hover {
+	background-color: theme('colors.gray.700');
+}
+
+.speed-option.speed-selected {
+	background-color: theme('colors.gray.700');
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+	.speed-menu {
+		min-width: 4rem;
+	}
+	
+	.speed-option {
+		padding: 0.625rem 0.75rem;
+		font-size: 0.813rem;
+	}
+}
+
+@media (max-width: 480px) {
+	.speed-option {
+		padding: 0.5rem 0.625rem;
+		min-height: 2.25rem;
 	}
 }
 </style>
