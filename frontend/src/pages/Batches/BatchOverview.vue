@@ -32,7 +32,7 @@
 				<BatchOverlay :batch="batch" />
 			</div>
 		</div>
-		<div v-if="batch.data.courses.length">
+		<div v-if="courses.data?.length">
 			<div class="flex items-center mt-10">
 				<div class="text-2xl font-semibold text-ink-gray-9">
 					{{ __('Courses') }}
@@ -40,7 +40,7 @@
 			</div>
 			<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-5">
 				<div
-					v-if="batch.data.courses"
+					v-if="courses.data?.length"
 					v-for="course in courses.data"
 					:key="course.course"
 				>

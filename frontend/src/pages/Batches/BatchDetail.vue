@@ -75,6 +75,7 @@
 </template>
 <script setup>
 import {
+	ClipboardPen,
 	Laptop,
 	List,
 	Mail,
@@ -166,7 +167,7 @@ const updateTabs = () => {
 	if (isAdmin.value) {
 		addToTabs('Dashboard', markRaw(AdminBatchDashboard), TrendingUp)
 	} else if (isStudent.value) {
-		addToTabs('Dashboard', markRaw(StudentBatchDashboard), null)
+		addToTabs('Dashboard', markRaw(StudentBatchDashboard), ClipboardPen)
 	}
 	addToTabs('Classes', markRaw(LiveClass), Laptop)
 	addToTabs('Announcements', markRaw(Announcements), Mail)

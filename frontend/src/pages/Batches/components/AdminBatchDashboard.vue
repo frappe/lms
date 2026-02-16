@@ -20,7 +20,7 @@
 			<NumberChartGraph
 				class="border rounded-md"
 				:title="__('Assessments')"
-				:value="assessmentCount.data || 0"
+				:value="batch?.data?.assessments?.length || 0"
 			/>
 		</div>
 
@@ -198,15 +198,6 @@ const props = defineProps<{
 	batch: { [key: string]: any } | null
 }>()
 
-const assessmentCount = createResource({
-	url: 'lms.lms.utils.get_batch_assessment_count',
-	cache: ['batch_assessment_count', props.batch?.data?.name],
-	params: {
-		batch: props.batch?.data?.name,
-	},
-	auto: true,
-})
-
 const chartData = createResource({
 	url: 'lms.lms.utils.get_batch_chart_data',
 	cache: ['batch_chart_data', props.batch?.data?.name],
@@ -276,6 +267,7 @@ const studentColumns = computed(() => {
 const showProgressChart = computed(
 	() =>
 		students.data?.length &&
-		(props.batch?.data?.courses?.length || assessmentCount.data)
+		(props.batch?.data?.courses?.length ||
+			props.batch?.data?.assessments?.length)
 )
 </script>

@@ -3,32 +3,17 @@
 		<div class="grid grid-cols-[3fr,2fr]">
 			<div v-if="batchDetail.doc" class="py-5 h-[88vh] overflow-y-auto">
 				<div class="px-5 pb-5 space-y-5 border-b mb-5">
-					<div class="grid grid-cols-1 md:grid-cols-3 gap-5">
-						<FormControl
-							v-model="batchDetail.doc.published"
-							type="checkbox"
-							:label="__('Published')"
-						/>
-						<FormControl
-							v-model="batchDetail.doc.allow_self_enrollment"
-							type="checkbox"
-							:label="__('Allow Self Enrollment')"
-						/>
-						<FormControl
-							v-model="batchDetail.doc.certification"
-							type="checkbox"
-							:label="__('Certification')"
-						/>
-					</div>
-				</div>
-
-				<div class="px-5 pb-5 space-y-5 border-b mb-5">
 					<div class="text-lg text-ink-gray-9 font-semibold mb-4">
 						{{ __('Details') }}
 					</div>
 
 					<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
 						<div class="space-y-5">
+							<FormControl
+								v-model="batchDetail.doc.published"
+								type="checkbox"
+								:label="__('Published')"
+							/>
 							<FormControl
 								v-model="batchDetail.doc.title"
 								:label="__('Title')"
@@ -58,6 +43,11 @@
 							/>
 						</div>
 						<div class="space-y-5">
+							<FormControl
+								v-model="batchDetail.doc.allow_self_enrollment"
+								type="checkbox"
+								:label="__('Allow Self Enrollment')"
+							/>
 							<FormControl
 								v-model="batchDetail.doc.start_time"
 								:label="__('Session Start Time')"
@@ -92,6 +82,35 @@
 				</div>
 
 				<div class="px-5 pb-5 space-y-5 border-b mb-5">
+					<div class="text-lg text-ink-gray-9 font-semibold mb-4">
+						{{ __('Certification') }}
+					</div>
+					<div class="grid grid-cols-1 md:grid-cols-2 gap-5 items-start">
+						<div class="flex flex-col space-y-5">
+							<FormControl
+								v-model="batchDetail.doc.evaluation"
+								type="checkbox"
+								:label="__('Evaluation')"
+							/>
+							<FormControl
+								v-if="batchDetail.doc.evaluation"
+								v-model="batchDetail.doc.evaluation_end_date"
+								:label="__('Evaluation End Date')"
+								type="date"
+								class="mb-4"
+							/>
+						</div>
+						<div>
+							<FormControl
+								v-model="batchDetail.doc.certification"
+								type="checkbox"
+								:label="__('Certification')"
+							/>
+						</div>
+					</div>
+				</div>
+
+				<div class="px-5 pb-5 space-y-5 border-b mb-5">
 					<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
 						<div class="space-y-5">
 							<FormControl
@@ -110,9 +129,15 @@
 								:onCreate="(close) => openSettings('Evaluators', close)"
 								:filters="{ ignore_user_type: 1 }"
 							/>
+							<Uploader
+								v-model="batchDetail.doc.video_link"
+								:label="__('Preview Video')"
+								type="video"
+								:required="false"
+							/>
 						</div>
 						<div>
-							<label class="block text-sm text-ink-gray-5 mb-1">
+							<label class="block text-sm text-ink-gray-5 mb-2">
 								{{ __('Batch Details') }}
 								<span class="text-ink-red-3">*</span>
 							</label>
@@ -139,7 +164,7 @@
 							/>
 							<Link
 								doctype="Email Template"
-								:label="__('Email Template')"
+								:label="__('Enrollment Confirmation Email Template')"
 								v-model="batchDetail.doc.confirmation_email_template"
 								:onCreate="
 									(value, close) => {
@@ -147,6 +172,8 @@
 									}
 								"
 							/>
+						</div>
+						<div class="space-y-5">
 							<Link
 								doctype="LMS Zoom Settings"
 								:label="__('Zoom Account')"
@@ -156,20 +183,6 @@
 										openSettings('Zoom Accounts', close)
 									}
 								"
-							/>
-						</div>
-						<div class="space-y-5">
-							<FormControl
-								v-model="batchDetail.doc.evaluation_end_date"
-								:label="__('Evaluation End Date')"
-								type="date"
-								class="mb-4"
-							/>
-							<Uploader
-								v-model="batchDetail.doc.video_link"
-								:label="__('Preview Video')"
-								type="video"
-								:required="false"
 							/>
 						</div>
 					</div>
@@ -350,6 +363,7 @@ const updateBatchData = () => {
 		'paid_batch',
 		'allow_self_enrollment',
 		'certification',
+		'evaluation',
 	]
 	for (let idx in checkboxes) {
 		let key = checkboxes[idx]

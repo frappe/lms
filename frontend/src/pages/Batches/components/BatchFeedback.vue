@@ -1,7 +1,24 @@
 <template>
 	<div>
-		<div class="text-lg text-ink-gray-9 font-semibold mb-5">
-			{{ __('Feedback') }}
+		<div class="flex justify-between mb-5">
+			<div class="space-y-1">
+				<div class="text-lg text-ink-gray-9 font-semibold">
+					{{ __('Feedback') }}
+				</div>
+				<div
+					v-if="feedbackList.data?.length && isAdmin"
+					class="leading-5 text-ink-gray-7 text-sm mb-2 mt-5"
+				>
+					{{ __('Average Feedback Received') }}
+				</div>
+			</div>
+			<Button
+				v-if="feedbackList.data?.length && isAdmin"
+				variant="outline"
+				@click="showAllFeedback = true"
+			>
+				{{ __('View all feedback') }}
+			</Button>
 		</div>
 		<div v-if="user.data?.is_student">
 			<div>
@@ -43,10 +60,6 @@
 		</div>
 
 		<div v-else-if="feedbackList.data?.length">
-			<div class="leading-5 text-sm mb-2 mt-5">
-				{{ __('Average Feedback Received') }}
-			</div>
-
 			<div class="space-y-4">
 				<Rating
 					v-for="key in ratingKeys"
@@ -55,10 +68,6 @@
 					:readonly="true"
 				/>
 			</div>
-
-			<Button variant="outline" class="mt-5" @click="showAllFeedback = true">
-				{{ __('View all feedback') }}
-			</Button>
 		</div>
 		<div v-else class="text-ink-gray-7 leading-5">
 			{{ __('No feedback received yet.') }}
@@ -71,7 +80,7 @@
 	/>
 </template>
 <script setup>
-import { inject, onMounted, reactive, ref, watch } from 'vue'
+import { computed, inject, onMounted, reactive, ref, watch } from 'vue'
 import { convertToTitleCase } from '@/utils'
 import { Button, createListResource, FormControl, Rating } from 'frappe-ui'
 import FeedbackModal from '@/components/Modals/FeedbackModal.vue'
@@ -164,10 +173,15 @@ const submitFeedback = () => {
 			onSuccess: () => {
 				feedbackList.reload()
 				showFeedbackForm.value = false
+				readOnly.value = true
 			},
 		}
 	)
 }
+
+const isAdmin = computed(() => {
+	return user.data?.is_moderator || user.data?.is_evaluator
+})
 </script>
 <style>
 .feedback-list > button > div {

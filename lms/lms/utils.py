@@ -1128,6 +1128,7 @@ def get_batch_details(batch: str):
 			"evaluation_end_date",
 			"allow_self_enrollment",
 			"certification",
+			"evaluation",
 			"timezone",
 			"category",
 			"zoom_account",
@@ -1148,6 +1149,10 @@ def get_batch_details(batch: str):
 	batch_details.courses = frappe.get_all(
 		"Batch Course", filters={"parent": batch}, fields=["course", "title", "evaluator"]
 	)
+	batch_details.assessments = frappe.get_all(
+		"LMS Assessment", {"parent": batch}, ["assessment_name", "assessment_type"]
+	)
+
 	if can_modify_batch(batch):
 		batch_details.students = batch_students
 	elif is_student_enrolled:
@@ -1344,14 +1349,6 @@ def get_exercise_details(assessment: dict, member: str) -> dict:
 		assessment.color = "red"
 		assessment.completed = False
 		assessment.edit_url = f"/exercises/{assessment.assessment_name}/submission/new"
-
-
-@frappe.whitelist()
-def get_batch_assessment_count(batch: str) -> int:
-	frappe.only_for(["Moderator", "Batch Evaluator"])
-	if not frappe.db.exists("LMS Batch", batch):
-		frappe.throw(_("The specified batch does not exist."))
-	return frappe.db.count("LMS Assessment", {"parent": batch})
 
 
 @frappe.whitelist()
@@ -1669,8 +1666,10 @@ def create_discussion_topic(doctype: str, docname: str) -> str:
 
 @frappe.whitelist()
 def get_discussion_replies(topic: str):
-	doctype = frappe.db.get_value("Discussion Topic", topic, "reference_doctype")
-	if not can_access_topic(doctype, topic):
+	topic_details = frappe.db.get_value(
+		"Discussion Topic", topic, ["reference_doctype", "reference_docname"], as_dict=True
+	)
+	if not can_access_topic(topic_details.reference_doctype, topic_details.reference_docname):
 		frappe.throw(_("You are not authorized to view the discussion replies for this topic."))
 
 	replies = frappe.get_all(
