@@ -4,7 +4,10 @@ on:
   pull_request:
   workflow_dispatch:
   push:
-    branches: [ main ]
+    branches: 
+      - main
+      - develop
+      - main-hotfix
 
 permissions:
   # Do not change this as GITHUB_TOKEN is being used by roulette
