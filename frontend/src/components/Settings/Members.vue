@@ -31,7 +31,7 @@
 					<Search class="size-4 stroke-1.5 text-ink-gray-5" />
 				</template>
 			</FormControl>
-			<div class="overflow-y-scroll h-[60vh]">
+			<div class="overflow-y-auto h-[60vh]">
 				<ul class="divide-y">
 					<li
 						v-for="member in memberList"
