@@ -1669,8 +1669,10 @@ def create_discussion_topic(doctype: str, docname: str) -> str:
 
 @frappe.whitelist()
 def get_discussion_replies(topic: str):
-	doctype = frappe.db.get_value("Discussion Topic", topic, "reference_doctype")
-	if not can_access_topic(doctype, topic):
+	topic_details = frappe.db.get_value(
+		"Discussion Topic", topic, ["reference_doctype", "reference_docname"], as_dict=1
+	)
+	if not can_access_topic(topic_details.reference_doctype, topic_details.reference_docname):
 		frappe.throw(_("You are not authorized to view the discussion replies for this topic."))
 
 	replies = frappe.get_all(
