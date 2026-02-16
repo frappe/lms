@@ -1511,6 +1511,7 @@ def validate_meta_data_permissions(meta_type: str):
 
 @frappe.whitelist()
 def create_programming_exercise_submission(exercise: str, submission: str, code: str, test_cases: list):
+	frappe.only_for(["Moderator", "Course Creator", "Batch Evaluator"])
 	if submission == "new":
 		return make_new_exercise_submission(exercise, code, test_cases)
 	else:
@@ -2037,7 +2038,7 @@ def get_upcoming_batches():
 
 @frappe.whitelist()
 def delete_programming_exercise(exercise: str):
-	frappe.only_for(["Moderator", "Course Creator"])
+	frappe.only_for(["Moderator", "Course Creator", "Batch Evaluator"])
 	frappe.db.delete("LMS Programming Exercise Submission", {"exercise": exercise})
 	frappe.db.delete("LMS Programming Exercise", exercise)
 
