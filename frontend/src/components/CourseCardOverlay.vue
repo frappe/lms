@@ -91,10 +91,7 @@
 				</Button>
 			</div>
 			<div class="space-y-4">
-				<div
-					class="font-medium text-ink-gray-9"
-					:class="{ 'mt-8': course.data.membership && !readOnlyMode }"
-				>
+				<div class="font-medium text-ink-gray-9 mt-8">
 					{{ __('This course has:') }}
 				</div>
 				<div class="flex items-center text-ink-gray-9">
