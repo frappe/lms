@@ -11,7 +11,6 @@
 			:size="attrs.size || 'sm'"
 			:variant="attrs.variant"
 			:placeholder="attrs.placeholder"
-			:filterable="false"
 			:readonly="attrs.readonly"
 		>
 			<template #target="{ open, togglePopover }">
@@ -95,6 +94,7 @@ const valuePropPassed = computed(() => 'value' in attrs)
 const value = computed({
 	get: () => (valuePropPassed.value ? attrs.value : props.modelValue),
 	set: (val) => {
+		console.log('Setting value to:', val)
 		return (
 			val?.value &&
 			emit(valuePropPassed.value ? 'change' : 'update:modelValue', val?.value)
