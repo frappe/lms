@@ -47,6 +47,7 @@ ALLOWED_PATHS = [
 	"/api/method/frappe.core.doctype.user.user.reset_password",
 	"/api/method/frappe.desk.doctype.notification_log.notification_log.mark_as_read",
 	"/api/method/frappe.desk.doctype.notification_log.notification_log.mark_all_as_read",
+	"/api/method/frappe.sessions.clear",
 ]
 
 
