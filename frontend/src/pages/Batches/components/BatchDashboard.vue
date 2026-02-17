@@ -3,7 +3,7 @@
 		<div class="grid grid-cols-[2fr,1fr] gap-5">
 			<div class="p-5">
 				<div class="mb-8 space-y-2">
-					<div class="text-lg font-semibold">
+					<div class="text-lg text-ink-gray-9 font-semibold">
 						{{ __('Curriculum') }}
 					</div>
 					<div class="text-ink-gray-7">
@@ -16,7 +16,7 @@
 				</div>
 				<div class="space-y-10">
 					<div>
-						<div class="font-semibold mb-4">
+						<div class="text-ink-gray-9 font-semibold mb-4">
 							{{ __('Courses') }}
 						</div>
 						<ListView

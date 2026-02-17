@@ -55,6 +55,10 @@
 						:options="{
 							selectable: false,
 							showTooltip: false,
+							onRowClick: (row: any) => {
+								currentStudent = row.member
+								showProgressModal = true
+							},
 						}"
 					>
 						<ListHeader
@@ -68,16 +72,7 @@
 							</ListHeaderItem>
 						</ListHeader>
 						<ListRows v-for="row in students.data" class="max-h-[500px]">
-							<ListRow
-								:row="row"
-								@click="
-									() => {
-										/* showProgressModal = true
-										currentStudent = row */
-									}
-								"
-								class="cursor-pointer"
-							>
+							<ListRow :row="row">
 								<template #default="{ column, item }">
 									<ListRowItem
 										:item="row[column.key]"
@@ -167,6 +162,12 @@
 		:batch="batch"
 		:students="students"
 	/>
+	<BatchStudentProgress
+		v-if="showProgressModal"
+		v-model="showProgressModal"
+		:student="currentStudent"
+		:batch="batch?.data?.name"
+	/>
 </template>
 <script setup lang="ts">
 import {
@@ -188,11 +189,14 @@ import { computed, ref, watch } from 'vue'
 import { formatAmount } from '@/utils'
 import { Plus } from 'lucide-vue-next'
 import BatchFeedback from '@/pages/Batches/components/BatchFeedback.vue'
+import BatchStudentProgress from '@/pages/Batches/components/BatchStudentProgress.vue'
 import NumberChartGraph from '@/components/NumberChartGraph.vue'
 import StudentModal from '@/components/Modals/StudentModal.vue'
 
 const searchFilter = ref<string | null>(null)
 const showEnrollmentModal = ref<boolean>(false)
+const showProgressModal = ref<boolean>(false)
+const currentStudent = ref<any>(null)
 
 const props = defineProps<{
 	batch: { [key: string]: any } | null

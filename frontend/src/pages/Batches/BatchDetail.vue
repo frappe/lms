@@ -17,22 +17,20 @@
 					{{ __('Save') }}
 				</Button>
 			</div>
-			<div v-else-if="isAdmin" class="space-x-2">
-				<Button
-					v-if="batch.data?.certification"
-					@click="openCertificateDialog = true"
-				>
-					{{ __('Generate Certificates') }}
-				</Button>
-				<Button v-if="canMakeAnnouncement()" @click="openAnnouncementModal()">
-					<span>
-						{{ __('Make an Announcement') }}
-					</span>
-					<template #suffix>
-						<SendIcon class="h-4 stroke-1.5" />
-					</template>
-				</Button>
-			</div>
+			<Dropdown
+				v-else-if="isAdmin"
+				:options="batchMenu"
+				placement="left"
+				side="left"
+			>
+				<template v-slot="{ open }">
+					<Button variant="ghost">
+						<template #icon>
+							<EllipsisVertical class="w-4 h-4 stroke-1.5" />
+						</template>
+					</Button>
+				</template>
+			</Dropdown>
 		</header>
 		<div>
 			<BatchOverview v-if="!isAdmin && !isStudent" :batch="batch" />
@@ -76,6 +74,7 @@
 <script setup>
 import {
 	ClipboardPen,
+	EllipsisVertical,
 	Laptop,
 	List,
 	Mail,
@@ -92,6 +91,7 @@ import {
 	Breadcrumbs,
 	Button,
 	createResource,
+	Dropdown,
 	Tabs,
 	usePageMeta,
 } from 'frappe-ui'
@@ -204,6 +204,26 @@ const canMakeAnnouncement = () => {
 	if (!batch.data?.students?.length) return false
 	return user.data?.is_moderator || user.data?.is_evaluator
 }
+
+const batchMenu = computed(() => {
+	let options = [
+		{
+			label: __('Generate Certificates'),
+			onClick() {
+				openCertificateDialog.value = true
+			},
+			condition: () => batch.data?.certification,
+		},
+		{
+			label: __('Make an Announcement'),
+			onClick() {
+				openAnnouncementModal()
+			},
+			condition: () => canMakeAnnouncement(),
+		},
+	]
+	return options
+})
 
 const breadcrumbs = computed(() => {
 	let crumbs = [{ label: __('Batches'), route: { name: 'Batches' } }]

@@ -1,6 +1,6 @@
 <template>
 	<div class="w-[75%] mx-auto mt-5">
-		<div class="font-semibold text-lg mb-5">
+		<div class="text-ink-gray-9 font-semibold text-lg mb-5">
 			{{ __('Announcements') }}
 		</div>
 		<div v-if="communications.data?.length">
