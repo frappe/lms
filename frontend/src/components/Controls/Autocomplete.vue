@@ -149,7 +149,6 @@ const valuePropPassed = computed(() => 'value' in attrs)
 
 watch(selectedValue, (val) => {
 	query.value = ''
-	console.log(val)
 	emit(valuePropPassed.value ? 'change' : 'update:modelValue', val)
 })
 

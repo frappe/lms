@@ -80,7 +80,7 @@ const props = defineProps({
 		required: true,
 	},
 	membership: {
-		type: Object,
+		type: Object || null,
 		required: false,
 	},
 })
