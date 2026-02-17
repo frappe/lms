@@ -117,7 +117,15 @@
 	</Dialog>
 </template>
 <script setup lang="ts">
-import { Avatar, Button, createResource, Dialog, FormControl } from 'frappe-ui'
+import {
+	Avatar,
+	Button,
+	call,
+	createResource,
+	Dialog,
+	FormControl,
+	toast,
+} from 'frappe-ui'
 import { useRouter } from 'vue-router'
 import { ref, watch, reactive, inject } from 'vue'
 import { RefreshCw, Plus, Search, Shield } from 'lucide-vue-next'
@@ -184,34 +192,29 @@ const openProfile = (username: string) => {
 	})
 }
 
-const newMember = createResource({
-	url: 'frappe.client.insert',
-	makeParams() {
-		return {
-			doc: {
-				doctype: 'User',
-				first_name: member.first_name,
-				email: member.email,
-			},
-		}
-	},
-	auto: false,
-	onSuccess(data: Member) {
-		show.value = false
-		if (user?.data?.is_system_manager) updateOnboardingStep('invite_students')
-
-		router.push({
-			name: 'ProfileRoles',
-			params: {
-				username: data.username,
-			},
-		})
-	},
-})
-
 const addMember = (close: () => void) => {
-	newMember.reload()
-	close()
+	call('frappe.client.insert', {
+		doc: {
+			doctype: 'User',
+			first_name: member.first_name,
+			email: member.email,
+		},
+	})
+		.then((data: Member) => {
+			if (user?.data?.is_system_manager) updateOnboardingStep('invite_students')
+			show.value = false
+			router.push({
+				name: 'ProfileRoles',
+				params: {
+					username: data.username,
+				},
+			})
+			close()
+		})
+		.catch((err: any) => {
+			console.error(err)
+			toast.error(__(err.messages?.[0] || err))
+		})
 }
 
 watch(search, () => {

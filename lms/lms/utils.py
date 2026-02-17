@@ -1010,12 +1010,7 @@ def get_lesson(course: str, chapter: int, lesson: int) -> dict:
 		as_dict=1,
 	)
 
-	if (
-		not lesson_details.include_in_preview
-		and not membership
-		and not has_moderator_role()
-		and not is_instructor(course)
-	):
+	if not lesson_details.include_in_preview and not membership and not can_modify_course(course):
 		return {
 			"no_preview": 1,
 			"title": lesson_details.title,
@@ -1669,8 +1664,10 @@ def create_discussion_topic(doctype: str, docname: str) -> str:
 
 @frappe.whitelist()
 def get_discussion_replies(topic: str):
-	doctype = frappe.db.get_value("Discussion Topic", topic, "reference_doctype")
-	if not can_access_topic(doctype, topic):
+	topic_details = frappe.db.get_value(
+		"Discussion Topic", topic, ["reference_doctype", "reference_docname"], as_dict=1
+	)
+	if not can_access_topic(topic_details.reference_doctype, topic_details.reference_docname):
 		frappe.throw(_("You are not authorized to view the discussion replies for this topic."))
 
 	replies = frappe.get_all(
@@ -2047,6 +2044,13 @@ def get_programs():
 def get_program_details(program_name: str) -> dict:
 	if not guest_access_allowed():
 		frappe.throw(_("Please login to view program details."))
+
+	is_published = frappe.db.get_value("LMS Program", program_name, "published")
+	is_member = frappe.db.exists(
+		"LMS Program Member", {"parent": program_name, "member": frappe.session.user}
+	)
+	if not is_published and not is_member:
+		frappe.throw(_("You are not authorized to view the details of this program."))
 
 	program = frappe.db.get_value(
 		"LMS Program",
