@@ -162,8 +162,12 @@ describe("Batch Creation", () => {
 		/* Add student to batch */
 		cy.get("button").contains("Students").click();
 		cy.get("button").contains("Add").click();
-		cy.get('div[role="dialog"]').first().find("button").eq(1).click();
-		cy.get("input[id^='headlessui-combobox-input-v-']").type(randomEmail);
+		cy.get('div[role="dialog"]')
+			.first()
+			.find("input[id^='headlessui-combobox-input-v-']")
+			.first()
+			.click();
+		cy.get("input[placeholder='Search']").type(randomEmail);
 		cy.get("div").contains(randomEmail).click();
 		cy.get("button").contains("Submit").click();
 
