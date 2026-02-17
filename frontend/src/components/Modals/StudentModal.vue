@@ -18,7 +18,6 @@
 				<Link
 					doctype="User"
 					v-model="student"
-					:filters="{ ignore_user_type: 1 }"
 					placeholder=" "
 					:label="__('Student')"
 					:onCreate="

@@ -93,7 +93,7 @@
 			<div class="space-y-4">
 				<div
 					class="font-medium text-ink-gray-9"
-					:class="{ 'mt-8': course.data.membership && !readOnlyMode }"
+					:class="{ 'mt-8': !readOnlyMode }"
 				>
 					{{ __('This course has:') }}
 				</div>
