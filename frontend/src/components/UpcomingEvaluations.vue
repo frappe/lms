@@ -137,7 +137,7 @@ import {
 } from 'lucide-vue-next'
 import { inject, ref, getCurrentInstance, computed } from 'vue'
 import { formatTime } from '@/utils'
-import { Button, createResource, createListResource, call } from 'frappe-ui'
+import { Button, createListResource, call, toast } from 'frappe-ui'
 import EvaluationModal from '@/components/Modals/EvaluationModal.vue'
 import { Menu, MenuButton, MenuItems, MenuItem } from '@headlessui/vue'
 
@@ -183,6 +183,7 @@ const upcoming_evals = createListResource({
 		'start_time',
 		'evaluator_name',
 		'course_title',
+		'member',
 		'google_meet_link',
 	],
 	orderBy: 'date',
@@ -227,11 +228,15 @@ const cancelEvaluation = (evl) => {
 				theme: 'red',
 				variant: 'solid',
 				onClick(close) {
-					call('lms.lms.api.cancel_evaluation', { evaluation: evl }).then(
-						() => {
+					call('lms.lms.api.cancel_evaluation', { evaluation: evl })
+						.then(() => {
 							upcoming_evals.reload()
-						}
-					)
+							toast.success(__('Evaluation cancelled successfully'))
+						})
+						.catch((err) => {
+							toast.error(__(err.messages?.[0] || err))
+							console.error(err)
+						})
 					close()
 				},
 			},
