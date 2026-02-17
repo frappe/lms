@@ -5,54 +5,30 @@
 			{{ __(label) }}
 			<span class="text-ink-red-3" v-if="attrs.required">*</span>
 		</div>
-
-		<Combobox v-model="selectedValue" nullable by="value">
+		<Combobox v-model="selectedValue" nullable v-slot="{ open }">
 			<div class="relative w-full">
-				<ComboboxButton
-					class="flex w-full items-center justify-between focus:outline-none"
+				<ComboboxInput
+					class="form-input w-full"
 					:class="inputClasses"
-					:disabled="attrs.readonly || disabled"
-				>
-					<div class="flex items-center w-[90%] truncate">
-						<slot name="prefix" />
-						<span
-							v-if="selectedValue"
-							class="block truncate text-base leading-5"
-						>
-							{{ displayValue(selectedValue) }}
-						</span>
-						<span v-else class="text-base leading-5 text-ink-gray-4">
-							{{ placeholder || '' }}
-						</span>
-					</div>
-					<ChevronDown class="h-4 w-4 stroke-1.5" />
-				</ComboboxButton>
+					type="text"
+					:value="selectedValue"
+					autocomplete="off"
+					@click="onFocus"
+				/>
+				<ComboboxButton ref="trigger" class="hidden" />
 
 				<!-- Dropdown -->
 				<ComboboxOptions
 					class="absolute z-20 mt-1 w-full rounded-lg bg-surface-white py-1 text-base border-2 shadow-lg"
 				>
-					<!-- Search -->
-					<div class="relative px-1.5 pt-1">
-						<ComboboxInput
-							ref="search"
-							class="form-input w-full"
-							type="text"
-							@change="(e) => (query = e.target.value)"
-							autocomplete="off"
-							placeholder="Search"
-						/>
-
-						<!-- Clear -->
-						<button
-							v-if="selectedValue"
-							class="absolute right-1.5 top-1 inline-flex h-7 w-7 items-center justify-center"
-							@mousedown.prevent="clearValue"
-						>
-							<X class="h-4 w-4 stroke-1.5 text-ink-gray-7" />
-						</button>
-					</div>
-
+					<input
+						ref="search"
+						v-model="query"
+						class="form-input w-[98%] rounded-tl-lg rounded-tr-lg mb-1 mx-1"
+						type="text"
+						placeholder="Search"
+						autocomplete="off"
+					/>
 					<!-- Options -->
 					<div class="my-1 max-h-[12rem] overflow-y-auto px-1.5">
 						<template v-for="group in groups" :key="group.key">
@@ -66,7 +42,7 @@
 							<ComboboxOption
 								v-for="option in group.items"
 								:key="option.value"
-								:value="option"
+								:value="option.value"
 								v-slot="{ active }"
 							>
 								<li
@@ -101,7 +77,13 @@
 
 					<!-- Footer -->
 					<div v-if="slots.footer" class="border-t p-1.5 pb-0.5">
-						<slot name="footer" :value="query" />
+						<slot
+							name="footer"
+							v-bind="{
+								value: selectedValue,
+								close,
+							}"
+						/>
 					</div>
 				</ComboboxOptions>
 			</div>
@@ -117,7 +99,7 @@ import {
 	ComboboxOption,
 	ComboboxButton,
 } from '@headlessui/vue'
-import { ref, computed, useAttrs, useSlots, watch } from 'vue'
+import { ref, computed, useAttrs, useSlots, watch, nextTick } from 'vue'
 import { ChevronDown, X } from 'lucide-vue-next'
 import { watchDebounced } from '@vueuse/core'
 
@@ -157,18 +139,17 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['update:modelValue', 'update:query', 'change'])
-
+const trigger = ref(null)
+const search = ref(null)
 const attrs = useAttrs()
 const slots = useSlots()
 const selectedValue = ref(props.modelValue)
 const query = ref('')
-
 const valuePropPassed = computed(() => 'value' in attrs)
 
 watch(selectedValue, (val) => {
-	if (!val?.value) return
 	query.value = ''
-	console.log('Selected value changed:', val)
+	console.log(val)
 	emit(valuePropPassed.value ? 'change' : 'update:modelValue', val)
 })
 
@@ -202,18 +183,6 @@ function filterOptions(options) {
 	)
 }
 
-function displayValue(option) {
-	if (!option) return ''
-
-	if (typeof option === 'string') {
-		const flat = groups.value.flatMap((g) => g.items)
-		const match = flat.find((o) => o.value === option)
-		return match?.label || option
-	}
-
-	return option.label
-}
-
 watchDebounced(
 	query,
 	(val) => {
@@ -221,6 +190,18 @@ watchDebounced(
 	},
 	{ debounce: 300 }
 )
+
+const onFocus = () => {
+	trigger.value?.$el.click()
+	nextTick(() => {
+		search.value?.focus()
+	})
+}
+
+const close = () => {
+	selectedValue.value = null
+	trigger.value?.$el.click()
+}
 
 const textColor = computed(() =>
 	props.disabled ? 'text-ink-gray-5' : 'text-ink-gray-8'
