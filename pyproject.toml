@@ -66,4 +66,20 @@ indent-style = "tab"
 docstring-code-format = true
 
 [tool.bench.frappe-dependencies]
+<<<<<<< HEAD
 frappe = ">=15.0.0,<=17.0.0-dev"
+=======
+frappe = ">=15.0.0,<=17.0.0-dev"
+
+[tool.bench.assets]
+build_dir = "./frontend"
+out_dir = "../lms/public/frontend"
+index_html_path = "../lms/www/_lms.html"
+
+
+[project.urls]
+Homepage = "https://frappe.io/learning"
+Repository = "https://github.com/frappe/lms.git"
+"Bug Reports" = "https://github.com/frappe/lms/issues"
+
+>>>>>>> 3cd9d89f (chore: project URLs (#2087))
