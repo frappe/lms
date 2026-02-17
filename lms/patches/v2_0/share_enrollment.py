@@ -15,6 +15,6 @@ def execute():
 		is_shared = frappe.db.exists("DocShare", filters)
 		if not is_shared:
 			share = frappe.new_doc("DocShare")
-			filters.update({"read": 1, "notify_by_email": 0})
+			filters.update({"read": 1, "write": 1, "notify_by_email": 0})
 			share.update(filters)
 			share.save()

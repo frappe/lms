@@ -1308,6 +1308,7 @@ def get_lms_settings():
 @frappe.whitelist()
 def cancel_evaluation(evaluation: dict):
 	evaluation = frappe._dict(evaluation)
+	print(evaluation.member, frappe.session.user)
 	if evaluation.member != frappe.session.user:
 		frappe.throw(_("You do not have permission to cancel this evaluation."), frappe.PermissionError)
 
