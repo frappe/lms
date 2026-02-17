@@ -44,7 +44,7 @@
 			</Button>
 		</div>
 
-		<div class="overflow-y-scroll">
+		<div class="overflow-y-auto">
 			<div class="divide-y space-y-2">
 				<div
 					v-for="(cat, index) in categories.data"
