@@ -32,7 +32,7 @@
 				</template>
 			</FormControl>
 			<div class="overflow-auto h-[60vh]">
-				<div class="divide-y">
+				<div class="divide-y divide-outline-gray-modals">
 					<div
 						v-for="evaluator in evaluators.data"
 						:key="evaluator.evaluator"

@@ -32,7 +32,7 @@
 				</template>
 			</FormControl>
 			<div class="overflow-y-scroll h-[60vh]">
-				<ul class="divide-y">
+				<ul class="divide-y divide-outline-gray-modals">
 					<li
 						v-for="member in memberList"
 						class="flex items-center justify-between py-2 cursor-pointer"
@@ -58,7 +58,7 @@
 							</div>
 						</div>
 						<div
-							class="flex items-center space-x-1 bg-surface-gray-2 px-2 py-1.5 rounded-md"
+							class="flex items-center text-ink-gray-9 space-x-1 bg-surface-gray-2 px-2 py-1.5 rounded-md"
 							v-if="member.role && member.role !== 'LMS Student'"
 						>
 							<Shield class="size-4 stroke-1.5" />

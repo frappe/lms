@@ -128,12 +128,9 @@ describe("Batch Creation", () => {
 					.should("be.visible");
 				cy.get("span").contains("IST").should("be.visible");
 				cy.get("a").contains("Evaluator").should("be.visible");
-				cy.get("div")
-					.contains("10")
-					.should("be.visible")
-					.get("span")
-					.contains("Seats Left")
-					.should("be.visible");
+				cy.contains("div:visible", "10 Seats Left").should(
+					"be.visible"
+				);
 			});
 			cy.get(`a[href='/lms/batches/details/${batchName}'`).click();
 		});

@@ -19,7 +19,7 @@
 
 				<!-- Dropdown -->
 				<ComboboxOptions
-					class="absolute z-20 mt-1 w-full rounded-lg bg-surface-white py-1 text-base border-2 shadow-lg"
+					class="absolute z-20 mt-1 w-full rounded-lg bg-surface-modal py-1 text-base border-2 border-outline-gray-modals shadow-lg"
 				>
 					<input
 						ref="search"
@@ -76,7 +76,10 @@
 					</div>
 
 					<!-- Footer -->
-					<div v-if="slots.footer" class="border-t p-1.5 pb-0.5">
+					<div
+						v-if="slots.footer"
+						class="border-t border-outline-gray-modals p-1.5 pb-0.5"
+					>
 						<slot
 							name="footer"
 							v-bind="{
@@ -100,7 +103,6 @@ import {
 	ComboboxButton,
 } from '@headlessui/vue'
 import { ref, computed, useAttrs, useSlots, watch, nextTick } from 'vue'
-import { ChevronDown, X } from 'lucide-vue-next'
 import { watchDebounced } from '@vueuse/core'
 
 const props = defineProps({
@@ -225,7 +227,7 @@ const inputClasses = computed(() => {
 
 	const variantClasses = {
 		subtle:
-			'border border-gray-100 bg-surface-gray-2 placeholder-ink-gray-4 hover:border-outline-gray-modals hover:bg-surface-gray-3 focus:bg-surface-white focus:border-outline-gray-4 focus:shadow-sm focus:ring-0 focus-visible:ring-2 focus-visible:ring-outline-gray-3',
+			'border border-outline-gray-modals bg-surface-gray-2 placeholder-ink-gray-4 hover:border-outline-gray-modals hover:bg-surface-gray-3 focus:bg-surface-white focus:border-outline-gray-4 focus:shadow-sm focus:ring-0 focus-visible:ring-2 focus-visible:ring-outline-gray-3',
 		outline:
 			'border border-outline-gray-2 bg-surface-white placeholder-ink-gray-4 hover:border-outline-gray-3 hover:shadow-sm focus:bg-surface-white focus:border-outline-gray-4 focus:shadow-sm focus:ring-0 focus-visible:ring-2 focus-visible:ring-outline-gray-3',
 		disabled: [
