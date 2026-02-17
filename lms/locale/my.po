@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2026-01-23 16:05+0000\n"
-"PO-Revision-Date: 2026-02-05 06:43\n"
+"PO-Revision-Date: 2026-02-11 13:22\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Burmese\n"
 "MIME-Version: 1.0\n"
@@ -962,7 +962,7 @@ msgstr ""
 #. Option for the 'Status' (Select) field in DocType 'LMS Certificate Request'
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 msgid "Cancelled"
-msgstr ""
+msgstr "ပယ်ဖျက်ခဲ့သည်။"
 
 #. Label of the carrer_preference_details (Section Break) field in DocType
 #. 'User'
@@ -5942,7 +5942,7 @@ msgstr ""
 #: frontend/src/pages/Quizzes.vue:105
 #: lms/job/web_form/job_opportunity/job_opportunity.json
 msgid "Save"
-msgstr ""
+msgstr "သိမ်းမည်။"
 
 #. Label of the schedule (Table) field in DocType 'Course Evaluator'
 #: lms/lms/doctype/course_evaluator/course_evaluator.json

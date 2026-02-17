@@ -46,7 +46,7 @@ class CourseLesson(Document):
 
 
 @frappe.whitelist()
-def save_progress(lesson, course, scorm_details=None):
+def save_progress(lesson: str, course: str, scorm_details: dict = None):
 	"""
 	Note: Pass the argument scorm_details as a dict if it is SCORM related save_progress
 	"""

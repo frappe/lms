@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2026-01-23 16:05+0000\n"
-"PO-Revision-Date: 2026-02-05 06:43\n"
+"PO-Revision-Date: 2026-02-10 12:02\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Italian\n"
 "MIME-Version: 1.0\n"
@@ -1324,7 +1324,7 @@ msgstr ""
 #: lms/job/doctype/lms_job_application/lms_job_application.json
 #: lms/lms/doctype/work_experience/work_experience.json
 msgid "Company"
-msgstr ""
+msgstr "Azienda"
 
 #. Label of the section_break_6 (Section Break) field in DocType 'Job
 #. Opportunity'
@@ -2291,7 +2291,7 @@ msgstr ""
 #: lms/lms/doctype/lms_settings/lms_settings.json
 #: lms/templates/signup-form.html:10
 msgid "Email"
-msgstr "E-mail"
+msgstr "Email"
 
 #: frontend/src/components/Modals/Event.vue:16
 msgid "Email ID"

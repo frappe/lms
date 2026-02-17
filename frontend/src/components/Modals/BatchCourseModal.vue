@@ -2,7 +2,7 @@
 	<Dialog
 		v-model="show"
 		:options="{
-			title: __('Add a course'),
+			title: __('Add Course'),
 			size: 'sm',
 			actions: [
 				{
@@ -19,6 +19,7 @@
 				v-model="course"
 				:label="__('Course')"
 				:required="true"
+				:filters="{ published: 1 }"
 				:onCreate="
 					(value, close) => {
 						close()

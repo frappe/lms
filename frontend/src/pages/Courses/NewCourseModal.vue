@@ -78,7 +78,7 @@ import { Button, Dialog, FormControl, TextEditor, toast } from 'frappe-ui'
 import { Link, useOnboarding, useTelemetry } from 'frappe-ui/frappe'
 import { inject, onMounted, onBeforeUnmount, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { openSettings } from '@/utils'
+import { cleanError, openSettings } from '@/utils'
 import MultiSelect from '@/components/Controls/MultiSelect.vue'
 import Uploader from '@/components/Controls/Uploader.vue'
 
@@ -125,6 +125,10 @@ const saveCourse = (close: () => void = () => {}) => {
 					})
 				}
 			},
+			onError(err: any) {
+				toast.error(cleanError(err.messages?.[0]))
+				console.error(err)
+			},
 		}
 	)
 }
@@ -151,6 +155,6 @@ onBeforeUnmount(() => {
 })
 
 watch(show, () => {
-	capture('course_form_opened')
+	if (show.value) capture('course_form_opened')
 })
 </script>

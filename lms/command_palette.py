@@ -16,7 +16,7 @@ def search_sqlite(query: str):
 	return prepare_search_results(result)
 
 
-def prepare_search_results(result):
+def prepare_search_results(result: dict):
 	groups = get_grouped_results(result)
 
 	out = []

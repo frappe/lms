@@ -55,7 +55,7 @@
 						v-if="editing?.name !== cat.name"
 						class="flex items-center justify-between group text-sm"
 					>
-						<div @dblclick="allowEdit(cat, index)">
+						<div class="text-ink-gray-9" @dblclick="allowEdit(cat, index)">
 							{{ cat.category }}
 						</div>
 						<Button

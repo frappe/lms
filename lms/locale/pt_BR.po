@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2026-01-23 16:05+0000\n"
-"PO-Revision-Date: 2026-02-05 06:43\n"
+"PO-Revision-Date: 2026-02-14 14:28\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Portuguese, Brazilian\n"
 "MIME-Version: 1.0\n"
@@ -7831,7 +7831,7 @@ msgstr ""
 
 #: frontend/src/components/StudentHeatmap.vue:10
 msgid "weeks"
-msgstr ""
+msgstr "semanas"
 
 #: lms/templates/emails/mentor_request_creation_email.html:5
 msgid "you can"

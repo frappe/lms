@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2026-01-23 16:05+0000\n"
-"PO-Revision-Date: 2026-02-05 06:43\n"
+"PO-Revision-Date: 2026-02-15 14:24\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Portuguese\n"
 "MIME-Version: 1.0\n"
@@ -190,7 +190,7 @@ msgstr ""
 #: frontend/src/components/Controls/ChildTable.vue:77
 #: frontend/src/components/Settings/Coupons/CouponItems.vue:55
 msgid "Add Row"
-msgstr ""
+msgstr "Adicionar Linha"
 
 #: frontend/src/pages/ProfileEvaluator.vue:96
 msgid "Add Slot"

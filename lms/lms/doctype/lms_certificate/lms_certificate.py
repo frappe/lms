@@ -123,7 +123,7 @@ def is_certified(course):
 
 
 @frappe.whitelist()
-def create_certificate(course):
+def create_certificate(course: str):
 	if is_certified(course):
 		return frappe.db.get_value(
 			"LMS Certificate", certificate, ["name", "course", "template"], as_dict=True
