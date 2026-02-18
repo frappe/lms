@@ -1,63 +1,77 @@
 <template>
-	<div v-if="user.data?.is_student">
-		<div>
-			<div class="leading-5 mb-4 text-ink-gray-7">
-				<div v-if="readOnly">
-					{{ __('Thank you for providing your feedback.') }}
-					<span
-						@click="showFeedbackForm = !showFeedbackForm"
-						class="underline cursor-pointer"
-						>{{ __('Click here') }}</span
-					>
-					{{ __('to view your feedback.') }}
+	<div>
+		<div class="flex justify-between mb-5">
+			<div class="space-y-1">
+				<div class="text-lg text-ink-gray-9 font-semibold">
+					{{ __('Feedback') }}
 				</div>
-				<div v-else>
-					{{ __('Help us improve by providing your feedback.') }}
+				<div
+					v-if="feedbackList.data?.length && isAdmin"
+					class="leading-5 text-ink-gray-7 text-sm mb-2 mt-5"
+				>
+					{{ __('Average Feedback Received') }}
 				</div>
 			</div>
-			<div class="space-y-4" :class="showFeedbackForm ? 'block' : 'hidden'">
-				<div class="space-y-4">
-					<Rating
-						v-for="key in ratingKeys"
-						v-model="feedback[key]"
-						:label="__(convertToTitleCase(key))"
+			<Button
+				v-if="feedbackList.data?.length && isAdmin"
+				variant="outline"
+				@click="showAllFeedback = true"
+			>
+				{{ __('View all feedback') }}
+			</Button>
+		</div>
+		<div v-if="user.data?.is_student">
+			<div>
+				<div class="leading-5 mb-4 text-ink-gray-7">
+					<div v-if="readOnly">
+						{{ __('Thank you for providing your feedback.') }}
+						<span
+							@click="showFeedbackForm = !showFeedbackForm"
+							class="underline cursor-pointer"
+							>{{ __('Click here') }}</span
+						>
+						{{ __('to view your feedback.') }}
+					</div>
+					<div v-else>
+						{{ __('Help us improve by providing your feedback.') }}
+					</div>
+				</div>
+				<div class="space-y-4" :class="showFeedbackForm ? 'block' : 'hidden'">
+					<div class="space-y-4">
+						<Rating
+							v-for="key in ratingKeys"
+							v-model="feedback[key]"
+							:label="__(convertToTitleCase(key))"
+							:readonly="readOnly"
+						/>
+					</div>
+					<FormControl
+						v-model="feedback.feedback"
+						type="textarea"
+						:label="__('Feedback')"
+						:rows="9"
 						:readonly="readOnly"
 					/>
+					<Button v-if="!readOnly" @click="submitFeedback">
+						{{ __('Submit Feedback') }}
+					</Button>
 				</div>
-				<FormControl
-					v-model="feedback.feedback"
-					type="textarea"
-					:label="__('Feedback')"
-					:rows="9"
-					:readonly="readOnly"
-				/>
-				<Button v-if="!readOnly" @click="submitFeedback">
-					{{ __('Submit Feedback') }}
-				</Button>
 			</div>
 		</div>
-	</div>
 
-	<div v-else-if="feedbackList.data?.length">
-		<div class="leading-5 text-sm mb-2 mt-5">
-			{{ __('Average Feedback Received') }}
+		<div v-else-if="feedbackList.data?.length">
+			<div class="space-y-4">
+				<Rating
+					v-for="key in ratingKeys"
+					v-model="average[key]"
+					:label="__(convertToTitleCase(key))"
+					:readonly="true"
+				/>
+			</div>
 		</div>
-
-		<div class="space-y-4">
-			<Rating
-				v-for="key in ratingKeys"
-				v-model="average[key]"
-				:label="__(convertToTitleCase(key))"
-				:readonly="true"
-			/>
+		<div v-else class="text-ink-gray-7 leading-5">
+			{{ __('No feedback received yet.') }}
 		</div>
-
-		<Button variant="outline" class="mt-5" @click="showAllFeedback = true">
-			{{ __('View all feedback') }}
-		</Button>
-	</div>
-	<div v-else class="text-ink-gray-7 mt-5 leading-5">
-		{{ __('No feedback received yet.') }}
 	</div>
 	<FeedbackModal
 		v-if="feedbackList.data?.length"
@@ -66,7 +80,7 @@
 	/>
 </template>
 <script setup>
-import { inject, onMounted, reactive, ref, watch } from 'vue'
+import { computed, inject, onMounted, reactive, ref, watch } from 'vue'
 import { convertToTitleCase } from '@/utils'
 import { Button, createListResource, FormControl, Rating } from 'frappe-ui'
 import FeedbackModal from '@/components/Modals/FeedbackModal.vue'
@@ -159,10 +173,15 @@ const submitFeedback = () => {
 			onSuccess: () => {
 				feedbackList.reload()
 				showFeedbackForm.value = false
+				readOnly.value = true
 			},
 		}
 	)
 }
+
+const isAdmin = computed(() => {
+	return user.data?.is_moderator || user.data?.is_evaluator
+})
 </script>
 <style>
 .feedback-list > button > div {

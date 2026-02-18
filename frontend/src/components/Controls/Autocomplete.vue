@@ -1,95 +1,142 @@
 <template>
 	<div>
-		<!-- Label -->
 		<div v-if="label" class="text-xs text-ink-gray-5 mb-1">
 			{{ __(label) }}
 			<span class="text-ink-red-3" v-if="attrs.required">*</span>
 		</div>
-		<Combobox v-model="selectedValue" nullable v-slot="{ open }">
-			<div class="relative w-full">
-				<ComboboxInput
-					class="form-input w-full"
-					:class="inputClasses"
-					type="text"
-					:value="selectedValue"
-					autocomplete="off"
-					@click="onFocus"
-				/>
-				<ComboboxButton ref="trigger" class="hidden" />
-
-				<!-- Dropdown -->
-				<ComboboxOptions
-					class="absolute z-20 mt-1 w-full rounded-lg bg-surface-modal py-1 text-base border-2 border-outline-gray-modals shadow-lg"
-				>
-					<input
-						ref="search"
-						v-model="query"
-						class="form-input w-[98%] rounded-tl-lg rounded-tr-lg mb-1 mx-1"
-						type="text"
-						placeholder="Search"
-						autocomplete="off"
-					/>
-					<!-- Options -->
-					<div class="my-1 max-h-[12rem] overflow-y-auto px-1.5">
-						<template v-for="group in groups" :key="group.key">
-							<div
-								v-if="group.group && !group.hideLabel"
-								class="px-2.5 py-1.5 text-sm font-medium text-ink-gray-4"
+		<Combobox
+			v-model="selectedValue"
+			nullable
+			v-slot="{ open: isComboboxOpen }"
+		>
+			<Popover class="w-full" v-model:show="showOptions">
+				<template #target="{ open: openPopover, togglePopover }">
+					<slot name="target" v-bind="{ open: openPopover, togglePopover }">
+						<div class="w-full">
+							<button
+								class="flex w-full items-center justify-between focus:outline-none"
+								:class="inputClasses"
+								@click="
+									() => {
+										showOptions = !showOptions
+										togglePopover()
+									}
+								"
+								:disabled="attrs.readonly"
 							>
-								{{ group.group }}
-							</div>
-
-							<ComboboxOption
-								v-for="option in group.items"
-								:key="option.value"
-								:value="option.value"
-								v-slot="{ active }"
-							>
-								<li
-									:class="[
-										'flex items-center rounded px-2.5 py-2 text-base cursor-pointer',
-										{ 'bg-surface-gray-2': active },
-									]"
-								>
-									<div class="flex flex-col gap-1 p-1">
-										<div class="text-base font-medium text-ink-gray-8">
-											{{
-												option.value === option.label
-													? option.description
-													: option.label
-											}}
-										</div>
-										<div class="text-sm text-ink-gray-5">
-											{{ option.value }}
-										</div>
-									</div>
-								</li>
-							</ComboboxOption>
-						</template>
-
+								<div class="flex items-center w-[90%]">
+									<slot name="prefix" />
+									<span
+										class="block truncate text-base leading-5"
+										v-if="selectedValue"
+									>
+										{{ displayValue(selectedValue) }}
+									</span>
+									<span class="text-base leading-5 text-ink-gray-4" v-else>
+										{{ placeholder || '' }}
+									</span>
+								</div>
+								<ChevronDown class="h-4 w-4 stroke-1.5" />
+							</button>
+						</div>
+					</slot>
+				</template>
+				<template #body="{ isOpen }">
+					<div v-show="isOpen" class="">
 						<div
-							v-if="groups.length === 0"
-							class="mt-1.5 rounded-md px-2.5 py-1.5 text-base text-ink-gray-5"
+							class="mt-1 rounded-lg bg-surface-white py-1 text-base border-2"
 						>
-							{{ __('No results found') }}
+							<div class="relative px-1.5 pt-0.5">
+								<ComboboxInput
+									ref="search"
+									class="form-input w-full"
+									type="text"
+									@change="
+										(e) => {
+											query = e.target.value
+										}
+									"
+									:value="query"
+									autocomplete="off"
+									placeholder="Search"
+								/>
+								<button
+									class="absolute right-1.5 inline-flex h-7 w-7 items-center justify-center"
+									@click="selectedValue = null"
+								>
+									<X class="h-4 w-4 stroke-1.5 text-ink-gray-7" />
+								</button>
+							</div>
+							<ComboboxOptions
+								class="my-1 max-h-[12rem] overflow-y-auto px-1.5"
+								static
+							>
+								<div
+									class="mt-1.5"
+									v-for="group in groups"
+									:key="group.key"
+									v-show="group.items.length > 0"
+								>
+									<div
+										v-if="group.group && !group.hideLabel"
+										class="px-2.5 py-1.5 text-sm font-medium text-ink-gray-4"
+									>
+										{{ group.group }}
+									</div>
+									<ComboboxOption
+										as="template"
+										v-for="option in group.items"
+										:key="option.value"
+										:value="option"
+										v-slot="{ active, selected }"
+									>
+										<li
+											:class="[
+												'flex items-center rounded px-2.5 py-2 text-base',
+												{ 'bg-surface-gray-2': active },
+											]"
+										>
+											<slot
+												name="item-prefix"
+												v-bind="{ active, selected, option }"
+											/>
+											<slot
+												name="item-label"
+												v-bind="{ active, selected, option }"
+											>
+												<div class="flex flex-col gap-1 p-1">
+													<div class="text-base font-medium text-ink-gray-8">
+														{{
+															option.value == option.label
+																? option.description
+																: option.label
+														}}
+													</div>
+													<div class="text-sm text-ink-gray-5">
+														{{ option.value }}
+													</div>
+												</div>
+											</slot>
+										</li>
+									</ComboboxOption>
+								</div>
+								<li
+									v-if="groups.length == 0"
+									class="mt-1.5 rounded-md px-2.5 py-1.5 text-base text-ink-gray-5"
+								>
+									No results found
+								</li>
+							</ComboboxOptions>
+							<div v-if="slots.footer" class="border-t p-1.5 pb-0.5">
+								<slot
+									name="footer"
+									v-bind="{ value: search?.el._value, close }"
+								></slot>
+							</div>
 						</div>
 					</div>
-
-					<!-- Footer -->
-					<div
-						v-if="slots.footer"
-						class="border-t border-outline-gray-modals p-1.5 pb-0.5"
-					>
-						<slot
-							name="footer"
-							v-bind="{
-								value: selectedValue,
-								close,
-							}"
-						/>
-					</div>
-				</ComboboxOptions>
-			</div>
+				</template>
+			</Popover>
 		</Combobox>
 	</div>
 </template>
@@ -100,15 +147,15 @@ import {
 	ComboboxInput,
 	ComboboxOptions,
 	ComboboxOption,
-	ComboboxButton,
 } from '@headlessui/vue'
+import { Popover } from 'frappe-ui'
+import { ChevronDown, X } from 'lucide-vue-next'
 import { ref, computed, useAttrs, useSlots, watch, nextTick } from 'vue'
-import { watchDebounced } from '@vueuse/core'
 
 const props = defineProps({
 	modelValue: {
-		type: [String, Object],
-		default: null,
+		type: String,
+		default: '',
 	},
 	options: {
 		type: Array,
@@ -139,93 +186,107 @@ const props = defineProps({
 		default: true,
 	},
 })
-
 const emit = defineEmits(['update:modelValue', 'update:query', 'change'])
-const trigger = ref(null)
+
+const query = ref('')
+const showOptions = ref(false)
 const search = ref(null)
+
 const attrs = useAttrs()
 const slots = useSlots()
-const selectedValue = ref(props.modelValue)
-const query = ref('')
+
 const valuePropPassed = computed(() => 'value' in attrs)
 
-watch(selectedValue, (val) => {
-	query.value = ''
-	emit(valuePropPassed.value ? 'change' : 'update:modelValue', val)
+const selectedValue = computed({
+	get() {
+		return valuePropPassed.value ? attrs.value : props.modelValue
+	},
+	set(val) {
+		query.value = ''
+		if (val) {
+			showOptions.value = false
+		}
+		emit(valuePropPassed.value ? 'change' : 'update:modelValue', val)
+	},
 })
 
-function clearValue() {
-	emit('update:modelValue', null)
+function close() {
+	showOptions.value = false
 }
 
 const groups = computed(() => {
-	if (!props.options?.length) return []
+	if (!props.options || props.options.length == 0) return []
 
-	const normalized = props.options[0]?.group
+	let groups = props.options[0]?.group
 		? props.options
 		: [{ group: '', items: props.options }]
-	return normalized
-		.map((group, i) => ({
-			key: i,
-			group: group.group,
-			hideLabel: group.hideLabel || false,
-			items: props.filterable ? filterOptions(group.items) : group.items,
-		}))
+
+	return groups
+		.map((group, i) => {
+			return {
+				key: i,
+				group: group.group,
+				hideLabel: group.hideLabel || false,
+				items: props.filterable ? filterOptions(group.items) : group.items,
+			}
+		})
 		.filter((group) => group.items.length > 0)
 })
 
 function filterOptions(options) {
-	if (!query.value) return options
-	const q = query.value.toLowerCase()
-	return options.filter((option) =>
-		[option.label, option.value]
-			.filter(Boolean)
-			.some((text) => text.toString().toLowerCase().includes(q))
-	)
-}
-
-watchDebounced(
-	query,
-	(val) => {
-		emit('update:query', val)
-	},
-	{ debounce: 300 }
-)
-
-const onFocus = () => {
-	trigger.value?.$el.click()
-	nextTick(() => {
-		search.value?.focus()
+	if (!query.value) {
+		return options
+	}
+	return options.filter((option) => {
+		let searchTexts = [option.label, option.value]
+		return searchTexts.some((text) =>
+			(text || '').toString().toLowerCase().includes(query.value.toLowerCase())
+		)
 	})
 }
 
-const close = () => {
-	selectedValue.value = null
-	trigger.value?.$el.click()
+function displayValue(option) {
+	if (typeof option === 'string') {
+		let allOptions = groups.value.flatMap((group) => group.items)
+		let selectedOption = allOptions.find((o) => o.value === option)
+		return selectedOption?.label || option
+	}
+	return option?.label
 }
 
-const textColor = computed(() =>
-	props.disabled ? 'text-ink-gray-5' : 'text-ink-gray-8'
-)
+watch(query, (q) => {
+	emit('update:query', q)
+})
+
+watch(showOptions, (val) => {
+	if (val) {
+		nextTick(() => {
+			search.value.el.focus()
+		})
+	}
+})
+
+const textColor = computed(() => {
+	return props.disabled ? 'text-ink-gray-5' : 'text-ink-gray-8'
+})
 
 const inputClasses = computed(() => {
-	const sizeClasses = {
+	let sizeClasses = {
 		sm: 'text-base rounded h-7',
 		md: 'text-base rounded h-8',
 		lg: 'text-lg rounded-md h-10',
 		xl: 'text-xl rounded-md h-10',
 	}[props.size]
 
-	const paddingClasses = {
+	let paddingClasses = {
 		sm: 'py-1.5 px-2',
 		md: 'py-1.5 px-2.5',
 		lg: 'py-1.5 px-3',
 		xl: 'py-1.5 px-3',
 	}[props.size]
 
-	const variant = props.disabled ? 'disabled' : props.variant
-
-	const variantClasses = {
+	let variant = props.disabled ? 'disabled' : props.variant
+	let variantClasses = {
 		subtle:
 			'border border-outline-gray-modals bg-surface-gray-2 placeholder-ink-gray-4 hover:border-outline-gray-modals hover:bg-surface-gray-3 focus:bg-surface-white focus:border-outline-gray-4 focus:shadow-sm focus:ring-0 focus-visible:ring-2 focus-visible:ring-outline-gray-3',
 		outline:
@@ -246,4 +307,6 @@ const inputClasses = computed(() => {
 		'transition-colors w-full',
 	]
 })
+
+defineExpose({ query })
 </script>

@@ -5,7 +5,7 @@
 				{{ __('Upcoming Evaluations') }}
 			</div>
 			<Button v-if="canScheduleEvals" @click="openEvalModal">
-				{{ __('Schedule Evaluation') }}
+				{{ __('Schedule') }}
 			</Button>
 		</div>
 		<div
@@ -31,7 +31,7 @@
 		<div v-if="upcoming_evals.data?.length">
 			<div
 				class="grid gap-4"
-				:class="forHome ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-3'"
+				:class="forHome ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-1'"
 			>
 				<div v-for="evl in upcoming_evals.data">
 					<div class="border text-ink-gray-7 rounded-md p-3">
@@ -114,7 +114,7 @@
 				</div>
 			</div>
 		</div>
-		<div v-else-if="!endDateHasPassed" class="text-ink-gray-5">
+		<div v-else-if="!endDateHasPassed" class="text-ink-gray-7">
 			{{ __('Schedule an evaluation to get certified.') }}
 		</div>
 	</div>

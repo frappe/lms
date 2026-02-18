@@ -1099,7 +1099,7 @@ def get_batch_details(batch: str):
 	is_student_enrolled = frappe.session.user in batch_students
 
 	if not (is_batch_published or is_batch_admin or is_student_enrolled):
-		return
+		return {}
 
 	batch_details = frappe.db.get_value(
 		"LMS Batch",
@@ -1123,6 +1123,7 @@ def get_batch_details(batch: str):
 			"evaluation_end_date",
 			"allow_self_enrollment",
 			"certification",
+			"evaluation",
 			"timezone",
 			"category",
 			"zoom_account",
@@ -1143,6 +1144,10 @@ def get_batch_details(batch: str):
 	batch_details.courses = frappe.get_all(
 		"Batch Course", filters={"parent": batch}, fields=["course", "title", "evaluator"]
 	)
+	batch_details.assessments = frappe.get_all(
+		"LMS Assessment", {"parent": batch}, ["assessment_name", "assessment_type"]
+	)
+
 	if can_modify_batch(batch):
 		batch_details.students = batch_students
 	elif is_student_enrolled:
@@ -1342,43 +1347,13 @@ def get_exercise_details(assessment: dict, member: str) -> dict:
 
 
 @frappe.whitelist()
-def get_batch_assessment_count(batch: str) -> int:
-	frappe.only_for(["Moderator", "Batch Evaluator"])
-	if not frappe.db.exists("LMS Batch", batch):
-		frappe.throw(_("The specified batch does not exist."))
-	return frappe.db.count("LMS Assessment", {"parent": batch})
-
-
-@frappe.whitelist()
-def get_batch_students(
-	filters: dict, offset: int = 0, limit_start: int = 0, limit_page_length: int = None, limit: int = None
-):
-	# limit_start and limit_page_length are used for backward compatibility
-	start = limit_start or offset
-	page_length = limit_page_length or limit
-	batch = filters.get("batch")
-	if not batch:
-		return []
-
+def get_batch_student_progress(member: str, batch: str) -> dict:
 	if not can_modify_batch(batch):
 		frappe.throw(_("You are not authorized to view the students of this batch."))
 
-	students = []
-	students_list = frappe.get_all(
-		"LMS Batch Enrollment",
-		filters={"batch": batch},
-		fields=["member", "name"],
-		offset=start,
-		limit=page_length,
-		order_by="creation desc",
-	)
-
-	for student in students_list:
-		details = get_batch_student_details(student)
-		calculate_student_progress(batch, details)
-		students.append(details)
-
-	return students
+	details = get_batch_student_details(member)
+	calculate_student_progress(batch, details)
+	return details
 
 
 def get_course_completion_stats(batch: str) -> list:
@@ -1472,16 +1447,14 @@ def get_batch_chart_data(batch: str) -> list:
 	return get_course_completion_stats(batch) + get_assignment_pass_stats(batch) + get_quiz_pass_stats(batch)
 
 
-def get_batch_student_details(student: dict) -> dict:
+def get_batch_student_details(student: str) -> dict:
 	details = frappe.db.get_value(
 		"User",
-		student.member,
-		["full_name", "email", "username", "last_active", "user_image"],
+		student,
+		["full_name", "email", "username", "last_active", "user_image", "name"],
 		as_dict=True,
 	)
 	details.last_active = format_datetime(details.last_active, "dd MMM YY")
-	details.name = student.name
-	details.assessments = frappe._dict()
 	return details
 
 
@@ -1511,8 +1484,7 @@ def calculate_student_progress(batch: str, details: dict):
 
 def calculate_course_progress(batch_courses: list, details: dict):
 	course_progress = []
-	details.courses = frappe._dict()
-
+	details.courses = []
 	for course in batch_courses:
 		progress = (
 			frappe.db.get_value(
@@ -1520,7 +1492,7 @@ def calculate_course_progress(batch_courses: list, details: dict):
 			)
 			or 0
 		)
-		details.courses[course.title] = progress
+		details.courses.append({"course": course.course, "title": course.title, "progress": progress})
 		course_progress.append(progress)
 
 	details.average_course_progress = (
@@ -1530,14 +1502,15 @@ def calculate_course_progress(batch_courses: list, details: dict):
 
 def calculate_assessment_progress(assessments: list, details: dict):
 	assessments_completed = 0
-	details.assessments = frappe._dict()
+	details.assessments = []
 
 	for assessment in assessments:
 		title = frappe.db.get_value(assessment.assessment_type, assessment.assessment_name, "title")
 		assessment_info = has_submitted_assessment(
 			assessment.assessment_name, assessment.assessment_type, details.email
 		)
-		details.assessments[title] = assessment_info
+		assessment_info.title = title
+		details.assessments.append(assessment_info)
 
 		if assessment_info.result == "Pass":
 			assessments_completed += 1
@@ -1551,6 +1524,24 @@ def has_submitted_assessment(assessment: str, assessment_type: str, member: str 
 	if not member:
 		member = frappe.session.user
 
+	doctype, docfield, fields, not_attempted = get_assessment_meta(assessment_type)
+	filters = {}
+	filters[docfield] = assessment
+	filters["member"] = member
+
+	attempt = frappe.db.exists(doctype, filters)
+	if attempt:
+		return get_assessment_attempt_details(doctype, filters, fields, assessment_type, assessment)
+	else:
+		return frappe._dict(
+			{
+				"status": not_attempted,
+				"result": "Failed",
+			}
+		)
+
+
+def get_assessment_meta(assessment_type: str):
 	if assessment_type == "LMS Assignment":
 		doctype = "LMS Assignment Submission"
 		docfield = "assignment"
@@ -1567,39 +1558,30 @@ def has_submitted_assessment(assessment: str, assessment_type: str, member: str 
 		fields = ["status"]
 		not_attempted = "Not Attempted"
 
-	filters = {}
-	filters[docfield] = assessment
-	filters["member"] = member
+	return doctype, docfield, fields, not_attempted
 
-	attempt = frappe.db.exists(doctype, filters)
-	if attempt:
-		fields.append("name")
-		attempt_details = frappe.db.get_value(doctype, filters, fields, as_dict=1)
-		if assessment_type == "LMS Quiz":
-			result = "Failed"
-			passing_percentage = frappe.db.get_value("LMS Quiz", assessment, "passing_percentage")
-			if attempt_details.percentage >= passing_percentage:
-				result = "Pass"
-		else:
-			result = attempt_details.status
-		return frappe._dict(
-			{
-				"status": attempt_details.percentage
-				if assessment_type == "LMS Quiz"
-				else attempt_details.status,
-				"result": result,
-				"assessment": assessment,
-				"type": assessment_type,
-				"submission": attempt_details.name,
-			}
-		)
+
+def get_assessment_attempt_details(
+	doctype: str, filters: dict, fields: list, assessment_type: str, assessment: str
+):
+	fields.append("name")
+	attempt_details = frappe.db.get_value(doctype, filters, fields, as_dict=1)
+	if assessment_type == "LMS Quiz":
+		result = "Failed"
+		passing_percentage = frappe.db.get_value("LMS Quiz", assessment, "passing_percentage")
+		if attempt_details.percentage >= passing_percentage:
+			result = "Pass"
 	else:
-		return frappe._dict(
-			{
-				"status": not_attempted,
-				"result": "Failed",
-			}
-		)
+		result = attempt_details.status
+	return frappe._dict(
+		{
+			"status": attempt_details.percentage if assessment_type == "LMS Quiz" else attempt_details.status,
+			"result": result,
+			"assessment": assessment,
+			"type": assessment_type,
+			"submission": attempt_details.name,
+		}
+	)
 
 
 def can_access_topic(doctype: str, docname: str) -> bool:
@@ -1665,7 +1647,7 @@ def create_discussion_topic(doctype: str, docname: str) -> str:
 @frappe.whitelist()
 def get_discussion_replies(topic: str):
 	topic_details = frappe.db.get_value(
-		"Discussion Topic", topic, ["reference_doctype", "reference_docname"], as_dict=1
+		"Discussion Topic", topic, ["reference_doctype", "reference_docname"], as_dict=True
 	)
 	if not can_access_topic(topic_details.reference_doctype, topic_details.reference_docname):
 		frappe.throw(_("You are not authorized to view the discussion replies for this topic."))

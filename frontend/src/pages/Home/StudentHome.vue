@@ -72,7 +72,7 @@
 			</div>
 		</div>
 
-		<div v-if="myCourses.data?.length">
+		<div v-if="myCourses.data?.length" class="mt-10">
 			<div class="flex items-center justify-between mb-3">
 				<span class="font-semibold text-lg text-ink-gray-9">
 					{{
@@ -150,7 +150,7 @@ import {
 	Video,
 } from 'lucide-vue-next'
 import CourseCard from '@/components/CourseCard.vue'
-import BatchCard from '@/components/BatchCard.vue'
+import BatchCard from '@/pages/Batches/components/BatchCard.vue'
 import UpcomingEvaluations from '@/components/UpcomingEvaluations.vue'
 
 const dayjs = inject<any>('$dayjs')

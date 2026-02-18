@@ -8,6 +8,7 @@ on:
   pull_request: {}
 jobs:
   tests:
+    name: Server Tests
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false

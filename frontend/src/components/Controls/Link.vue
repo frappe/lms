@@ -95,7 +95,8 @@ const value = computed({
 	get: () => (valuePropPassed.value ? attrs.value : props.modelValue),
 	set: (val) => {
 		return (
-			val && emit(valuePropPassed.value ? 'change' : 'update:modelValue', val)
+			val?.value &&
+			emit(valuePropPassed.value ? 'change' : 'update:modelValue', val.value)
 		)
 	},
 })
