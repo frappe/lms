@@ -22,7 +22,7 @@
 				<ComboboxOptions
 					v-show="open"
 					static
-					class="absolute z-20 mt-1 w-full rounded-lg bg-surface-white border-2 max-h-[13rem] flex flex-col"
+					class="absolute z-20 mt-1 w-full rounded-lg bg-surface-modal border-2 border-outline-gray-modals max-h-[13rem] flex flex-col"
 				>
 					<div
 						class="flex-1 my-1 overflow-y-auto px-1.5"

@@ -58,7 +58,7 @@
 							@change="(val: string) => (course.description = val)"
 							:editable="true"
 							:fixedMenu="true"
-							editorClass="prose-sm max-w-none border-b border-x bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[10rem]"
+							editorClass="prose-sm max-w-none border-b border-x border-outline-gray-modals bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[10rem]"
 						/>
 					</div>
 				</div>

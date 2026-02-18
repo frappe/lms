@@ -45,7 +45,7 @@
 		</div>
 
 		<div class="overflow-y-scroll">
-			<div class="divide-y space-y-2">
+			<div class="divide-y divide-outline-gray-modals space-y-2">
 				<div
 					v-for="(cat, index) in categories.data"
 					:key="cat.name"
@@ -53,7 +53,7 @@
 				>
 					<div
 						v-if="editing?.name !== cat.name"
-						class="flex items-center justify-between group text-sm"
+						class="flex items-center justify-between group text-sm text-ink-gray-9"
 					>
 						<div class="text-ink-gray-9" @dblclick="allowEdit(cat, index)">
 							{{ cat.category }}
