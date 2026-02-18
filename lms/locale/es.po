@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2026-01-23 16:05+0000\n"
-"PO-Revision-Date: 2026-02-12 13:58\n"
+"PO-Revision-Date: 2026-02-17 15:36\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Spanish\n"
 "MIME-Version: 1.0\n"
@@ -1411,7 +1411,7 @@ msgstr "Certificado de finalización"
 #: frontend/src/components/Settings/BadgeForm.vue:65
 #: lms/lms/doctype/lms_badge/lms_badge.json
 msgid "Condition"
-msgstr ""
+msgstr "Condición"
 
 #: lms/lms/doctype/lms_badge/lms_badge.py:17
 msgid "Condition must be in valid JSON format."
@@ -2214,7 +2214,7 @@ msgstr "Duración de la clase en vivo en minutos"
 #: frontend/src/pages/JobDetail.vue:45 frontend/src/pages/Lesson.vue:42
 #: frontend/src/pages/Lesson.vue:178 frontend/src/pages/Profile.vue:44
 msgid "Edit"
-msgstr ""
+msgstr "Editar"
 
 #: frontend/src/components/Modals/AssignmentForm.vue:14
 msgid "Edit Assignment"

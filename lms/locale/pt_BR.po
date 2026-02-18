@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2026-01-23 16:05+0000\n"
-"PO-Revision-Date: 2026-02-14 14:28\n"
+"PO-Revision-Date: 2026-02-17 15:36\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Portuguese, Brazilian\n"
 "MIME-Version: 1.0\n"
@@ -4748,7 +4748,7 @@ msgstr ""
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 #: lms/job/web_form/job_opportunity/job_opportunity.json
 msgid "Open"
-msgstr ""
+msgstr "Aberto"
 
 #: lms/templates/emails/assignment_submission.html:8
 msgid "Open Assignment"
