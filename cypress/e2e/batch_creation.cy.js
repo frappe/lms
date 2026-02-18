@@ -158,7 +158,7 @@ describe("Batch Creation", () => {
 		cy.get('div[role="dialog"]')
 			.first()
 			.find("div[label='Student']")
-			.find("button")
+			.find("div")
 			.first()
 			.click();
 		cy.get("input[placeholder='Search']").type(randomEmail);

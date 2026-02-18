@@ -36,7 +36,7 @@
 						:columns="assessmentColumns"
 						:rows="studentDetails.data.assessments"
 						row-key="title"
-						class="border rounded-lg"
+						class="border border-outline-gray-modals rounded-lg"
 						:options="{
 							selectable: false,
 							showTooltip: false,
@@ -78,7 +78,7 @@
 						:columns="courseColumns"
 						:rows="studentDetails.data.courses"
 						row-key="title"
-						class="border rounded-lg"
+						class="border border-outline-gray-modals rounded-lg"
 						:options="{
 							selectable: false,
 							showTooltip: false,

@@ -137,7 +137,7 @@ const enroll = createResource({
 
 const enrollInBatch = () => {
 	if (!user.data) {
-		window.location.href = `/login?redirect-to=/batches/details/${props.batch.data.name}`
+		window.location.href = `/login?redirect-to=/batches/${props.batch.data.name}`
 	}
 	enroll.submit(
 		{},

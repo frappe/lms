@@ -45,6 +45,10 @@ const routes = [
 		component: () => import('@/pages/Batches/Batches.vue'),
 	},
 	{
+		path: '/batches/details/:batchName',
+		redirect: (to) => `/batches/${to.params.batchName}`,
+	},
+	{
 		path: '/batches/:batchName',
 		name: 'BatchDetail',
 		component: () => import('@/pages/Batches/BatchDetail.vue'),
