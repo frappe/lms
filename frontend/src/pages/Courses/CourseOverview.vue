@@ -76,7 +76,7 @@
 				<CourseReviews
 					:courseName="course.data.name"
 					:avg_rating="course.data.rating"
-					:membership="course.data.membership"
+					:membership="course.data.membership || null"
 				/>
 			</div>
 			<div class="hidden md:block">

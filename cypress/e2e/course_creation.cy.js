@@ -65,7 +65,7 @@ describe("Course Creation", () => {
 			.contains("Category")
 			.parent()
 			.within(() => {
-				cy.get("button").click();
+				cy.get("input").click();
 			});
 		cy.get("[id^=headlessui-combobox-option-")
 			.should("be.visible")

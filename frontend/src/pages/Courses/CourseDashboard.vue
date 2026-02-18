@@ -1,6 +1,6 @@
 <template>
 	<div class="p-5">
-		<div class="grid grid-cols-4 gap-5 mb-5">
+		<div class="grid grid-cols-4 gap-5 mb-5 text-ink-gray-9">
 			<NumberChartGraph
 				:title="__('Enrolled')"
 				:value="formatAmount(course.data?.enrollments)"
@@ -20,7 +20,7 @@
 			<NumberChartGraph :title="__('Lessons')" :value="course.data?.lessons" />
 		</div>
 		<div class="grid grid-cols-[2fr_1fr] gap-5 items-start">
-			<div v-if="course.data?.enrollments" class="border rounded-lg py-3 px-4">
+			<div class="border rounded-lg py-3 px-4">
 				<div class="flex items-center justify-between mb-3">
 					<div class="text-lg text-ink-gray-9 font-semibold">
 						{{ __('Students') }}
@@ -129,7 +129,9 @@
 					<div class="text-ink-gray-5 mb-4">
 						{{ __('Progress Summary') }}
 					</div>
-					<div class="grid grid-cols-[2fr_1fr] items-center justify-between">
+					<div
+						class="grid grid-cols-[2fr_1fr] items-center justify-between text-ink-gray-9"
+					>
 						<div class="flex flex-col space-y-4 flex-1 text-sm">
 							<div
 								class="flex items-center text-ink-gray-7"
@@ -211,10 +213,12 @@
 							class="!w-32"
 						/>
 					</div>
-					<div class="divide-y max-h-[43vh] text-ink-gray-7 overflow-y-auto">
+					<div
+						class="divide-y max-h-[43vh divide-outline-gray-modals text-ink-gray-7 overflow-y-auto"
+					>
 						<div
 							v-for="progress in lessonProgress.data"
-							class="flex justify-between text-sm py-2 my-1"
+							class="flex justify-between text-sm py-2 my-1 text-ink-gray-9"
 						>
 							<div class="">
 								<span class="mr-3 text-xs">
@@ -244,6 +248,7 @@
 		v-if="showEnrollmentModal"
 		v-model="showEnrollmentModal"
 		:course="course"
+		:students="progressList"
 	/>
 	<StudentCourseProgress
 		v-if="showProgressModal"

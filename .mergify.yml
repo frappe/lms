@@ -1,0 +1,30 @@
+pull_request_rules:
+    - name: backport to develop
+      conditions:
+          - label="backport develop"
+      actions:
+          backport:
+              branches:
+                  - develop
+              assignees:
+                  - "{{ author }}"
+
+    - name: backport to main-hotfix
+      conditions:
+          - label="backport main-hotfix"
+      actions:
+          backport:
+              branches:
+                  - main-hotfix
+              assignees:
+                  - "{{ author }}"
+
+    - name: backport to main
+      conditions:
+          - label="backport main"
+      actions:
+          backport:
+              branches:
+                  - main
+              assignees:
+                  - "{{ author }}"
