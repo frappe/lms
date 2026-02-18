@@ -8,7 +8,6 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
-    AnnouncementModal: typeof import('./src/components/Modals/AnnouncementModal.vue')['default']
     Apps: typeof import('./src/components/Sidebar/Apps.vue')['default']
     AppSidebar: typeof import('./src/components/Sidebar/AppSidebar.vue')['default']
     AssessmentModal: typeof import('./src/components/Modals/AssessmentModal.vue')['default']
@@ -22,9 +21,7 @@ declare module 'vue' {
     BadgeForm: typeof import('./src/components/Settings/BadgeForm.vue')['default']
     Badges: typeof import('./src/components/Settings/Badges.vue')['default']
     BatchCourseModal: typeof import('./src/components/Modals/BatchCourseModal.vue')['default']
-    BatchStudentProgress: typeof import('./src/components/Modals/BatchStudentProgress.vue')['default']
     BrandSettings: typeof import('./src/components/Settings/BrandSettings.vue')['default']
-    BulkCertificates: typeof import('./src/components/Modals/BulkCertificates.vue')['default']
     Categories: typeof import('./src/components/Settings/Categories.vue')['default']
     CertificationLinks: typeof import('./src/components/CertificationLinks.vue')['default']
     ChapterModal: typeof import('./src/components/Modals/ChapterModal.vue')['default']

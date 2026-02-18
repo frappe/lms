@@ -37,7 +37,10 @@
 			<div v-else>
 				<Tabs :tabs="tabs" v-model="tabIndex">
 					<template #tab-panel="{ tab }">
-						<div v-if="tab.label == 'Discussions'" class="w-[75%] mx-auto mt-5">
+						<div
+							v-if="tab.label == 'Discussions'"
+							class="w-[90%] lg:w-[75%] mx-auto mt-5"
+						>
 							<Discussions
 								doctype="LMS Batch"
 								:docname="batch.data.name"

@@ -197,7 +197,7 @@ const redirectToCourse = (row: any) => {
 }
 
 const assessmentColumns = [
-	{ key: 'title', label: 'Assessment', align: 'left' },
+	{ key: 'title', label: 'Assessment', align: 'left', width: '60%' },
 	{ key: 'status', label: 'Percentage/Status', align: 'right' },
 ]
 

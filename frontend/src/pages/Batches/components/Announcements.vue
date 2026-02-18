@@ -1,5 +1,5 @@
 <template>
-	<div class="w-[75%] mx-auto mt-5">
+	<div class="w-[90%] lg:w-[75%] mx-auto mt-5">
 		<div class="text-ink-gray-9 font-semibold text-lg mb-5">
 			{{ __('Announcements') }}
 		</div>
@@ -24,7 +24,7 @@
 				</div>
 			</div>
 		</div>
-		<div v-else class="text-ink-gray-7">
+		<div v-else class="text-ink-gray-7 leading-5">
 			{{ __('No announcements have been made yet for this batch') }}
 		</div>
 	</div>

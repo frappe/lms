@@ -2,10 +2,10 @@
 	<div class="p-5">
 		<div
 			v-if="isAdmin() && !props.zoomAccount"
-			class="flex items-center space-x-2 mb-5 bg-surface-amber-1 px-3 py-2 rounded-lg text-ink-amber-3"
+			class="flex lg:items-center space-x-2 mb-5 bg-surface-amber-1 px-3 py-2 rounded-lg text-ink-amber-3"
 		>
-			<AlertCircle class="size-4 stroke-1.5" />
-			<span>
+			<AlertCircle class="size-7 md:size-4 stroke-1.5" />
+			<span class="leading-5">
 				{{
 					__(
 						'Link a Zoom account to this batch from the Settings tab to create live classes'

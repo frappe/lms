@@ -24,9 +24,9 @@
 			/>
 		</div>
 
-		<div class="grid grid-cols-[3fr_2fr] gap-5 items-start">
-			<div v-if="students.data?.length" class="border rounded-lg py-3 px-4">
-				<div class="flex items-center justify-between mb-3">
+		<div class="grid grid-cols-1 lg:grid-cols-[3fr_2fr] gap-5 items-start">
+			<div class="border rounded-lg py-3 px-4 order-2 lg:order-1">
+				<div class="flex items-center justify-between space-x-2 mb-3">
 					<div class="text-lg text-ink-gray-9 font-semibold">
 						{{ __('Students') }}
 					</div>
@@ -122,7 +122,7 @@
 				</div>
 			</div>
 
-			<div>
+			<div class="order-1 lg:order-2">
 				<AxisChart
 					v-if="showProgressChart"
 					class="border rounded-lg p-3 min-h-[300px]"
