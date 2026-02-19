@@ -1369,6 +1369,10 @@ def get_certification_details(course: str):
 @frappe.whitelist()
 def save_role(user: str, role: str, value: int):
 	frappe.only_for("Moderator")
+	ALLOWED_ROLES = ["Moderator", "Course Creator", "Batch Evaluator", "LMS Student"]
+	if role not in ALLOWED_ROLES:
+		frappe.throw(_("You do not have permission to modify this role."), frappe.PermissionError)
+
 	if cint(value):
 		doc = frappe.get_doc(
 			{
