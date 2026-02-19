@@ -752,8 +752,7 @@ def get_courses(filters: dict = None, start: int = 0) -> list:
 		start=start,
 		page_length=30,
 	)
-
-	if show_featured:
+	if show_featured and start == 0:
 		courses = get_featured_courses(filters, or_filters, fields) + courses
 
 	courses = get_enrollment_details(courses)
