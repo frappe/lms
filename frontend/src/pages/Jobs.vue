@@ -8,7 +8,9 @@
 				:items="[{ label: __('Jobs'), route: { name: 'Jobs' } }]"
 			/>
 			<router-link
-				v-if="user.data?.name"
+				v-if="
+					user.data?.name && settings.data?.allow_job_posting && !readOnlyMode
+				"
 				:to="{
 					name: 'JobForm',
 					params: {
@@ -16,7 +18,7 @@
 					},
 				}"
 			>
-				<Button v-if="!readOnlyMode" variant="solid">
+				<Button variant="solid">
 					<template #prefix>
 						<Plus class="h-4 w-4" />
 					</template>
@@ -123,7 +125,8 @@ import {
 	usePageMeta,
 } from 'frappe-ui'
 import { Plus, Search } from 'lucide-vue-next'
-import { sessionStore } from '../stores/session'
+import { sessionStore } from '@/stores/session'
+import { useSettings } from '@/stores/settings'
 import { inject, computed, ref, onMounted, watch } from 'vue'
 import JobCard from '@/components/JobCard.vue'
 import Link from '@/components/Controls/Link.vue'
@@ -133,6 +136,7 @@ const user = inject('$user')
 const jobType = ref(null)
 const workMode = ref(null)
 const { brand } = sessionStore()
+const { settings } = useSettings()
 const searchQuery = ref('')
 const country = ref(null)
 const filters = ref({})

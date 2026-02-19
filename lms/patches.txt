@@ -119,3 +119,4 @@ lms.patches.v2_0.open_to_work
 lms.patches.v2_0.share_enrollment
 lms.patches.v2_0.give_user_list_permission #11-02-2026
 lms.patches.v2_0.rename_badge_assignment_event
+lms.patches.v2_0.enable_allow_job_posting

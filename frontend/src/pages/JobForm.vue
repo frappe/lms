@@ -4,9 +4,14 @@
 			class="sticky top-0 z-10 flex items-center justify-between border-b bg-surface-white px-3 py-2.5 sm:px-5"
 		>
 			<Breadcrumbs :items="breadcrumbs" />
-			<Button variant="solid" @click="saveJob()">
-				{{ __('Save') }}
-			</Button>
+			<div class="space-x-2">
+				<Badge v-if="isDirty" theme="orange">
+					{{ __('Not Saved') }}
+				</Badge>
+				<Button variant="solid" @click="saveJob()">
+					{{ __('Save') }}
+				</Button>
+			</div>
 		</header>
 		<div class="py-5">
 			<div class="container border-b mb-4 pb-5">
@@ -109,15 +114,25 @@
 </template>
 <script setup>
 import {
+	Badge,
 	Breadcrumbs,
+	call,
 	FormControl,
-	createResource,
+	createDocumentResource,
 	Button,
 	TextEditor,
 	usePageMeta,
 	toast,
 } from 'frappe-ui'
-import { computed, onMounted, reactive, inject } from 'vue'
+import {
+	computed,
+	inject,
+	onMounted,
+	onBeforeUnmount,
+	reactive,
+	ref,
+	watch,
+} from 'vue'
 import { sessionStore } from '@/stores/session'
 import { useRouter } from 'vue-router'
 import { escapeHTML, sanitizeHTML } from '@/utils'
@@ -126,73 +141,14 @@ import Uploader from '@/components/Controls/Uploader.vue'
 const user = inject('$user')
 const router = useRouter()
 const { brand } = sessionStore()
+const isDirty = ref(false)
+const originalJobData = ref(null)
 
 const props = defineProps({
 	jobName: {
 		type: String,
 		default: 'new',
 	},
-})
-
-const newJob = createResource({
-	url: 'frappe.client.insert',
-	makeParams(values) {
-		return {
-			doc: {
-				doctype: 'Job Opportunity',
-				company_logo: job.company_logo,
-				...job,
-			},
-		}
-	},
-})
-
-const updateJob = createResource({
-	url: 'frappe.client.set_value',
-	makeParams(values) {
-		return {
-			doctype: 'Job Opportunity',
-			name: props.jobName,
-			fieldname: {
-				company_logo: job.company_logo,
-				...job,
-			},
-		}
-	},
-})
-
-const jobDetail = createResource({
-	url: 'frappe.client.get',
-	makeParams(values) {
-		return {
-			doctype: 'Job Opportunity',
-			name: props.jobName,
-		}
-	},
-	onSuccess(data) {
-		if (data.owner != user.data?.name && !user.data?.is_moderator) {
-			router.push({
-				name: 'Jobs',
-			})
-		}
-		Object.keys(data).forEach((key) => {
-			if (Object.hasOwn(job, key)) job[key] = data[key]
-		})
-	},
-})
-
-const job = reactive({
-	job_title: '',
-	location: '',
-	country: '',
-	type: 'Full Time',
-	work_mode: 'On-site',
-	status: 'Open',
-	company_name: '',
-	company_website: '',
-	company_logo: null,
-	description: '',
-	company_email_address: '',
 })
 
 onMounted(() => {
@@ -202,22 +158,63 @@ onMounted(() => {
 		})
 	}
 
-	if (props.jobName != 'new') jobDetail.reload()
-	addKeyboardShortcuts()
+	if (props.jobName != 'new') jobDetails.reload()
+	window.addEventListener('keydown', keyboardShortcut)
 })
 
-const addKeyboardShortcuts = () => {
-	document.addEventListener('keydown', (e) => {
-		if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 's') {
-			e.preventDefault()
-			saveJob()
+const job = reactive({
+	job_title: '',
+	type: '',
+	work_mode: '',
+	location: '',
+	country: '',
+	status: 'Open',
+	description: '',
+	company_name: '',
+	company_website: '',
+	company_email_address: '',
+	company_logo: '',
+})
+
+const jobDetails = createDocumentResource({
+	doctype: 'Job Opportunity',
+	name: props.jobName != 'new' ? props.jobName : undefined,
+	onError(err) {
+		toast.error(err.messages?.[0] || err)
+		console.error(err)
+	},
+	auto: props.jobName != 'new',
+})
+
+watch(
+	() => jobDetails?.doc,
+	() => {
+		if (jobDetails.doc.owner != user.data?.name && !user.data?.is_moderator) {
+			router.push({
+				name: 'Jobs',
+			})
 		}
-	})
-}
+
+		if (jobDetails.doc) {
+			Object.assign(job, jobDetails.doc)
+			originalJobData.value = JSON.parse(JSON.stringify(jobDetails.doc))
+		}
+	}
+)
+
+watch(
+	job,
+	() => {
+		isDirty.value = Object.keys(job).some((key) => {
+			return job[key] != originalJobData.value?.[key]
+		})
+	},
+	{ deep: true }
+)
 
 const saveJob = () => {
 	validateJobFields()
-	if (jobDetail.data) {
+	if (jobDetails?.doc) {
 		editJobDetails()
 	} else {
 		createNewJob()
@@ -225,38 +222,46 @@ const saveJob = () => {
 }
 
 const createNewJob = () => {
-	newJob.submit(
-		{},
-		{
-			onSuccess(data) {
-				router.push({
-					name: 'JobDetail',
-					params: {
-						job: data.name,
-					},
-				})
-			},
-			onError(err) {
-				toast.error(err.messages?.[0] || err)
-			},
-		}
-	)
+	call('frappe.client.insert', {
+		doc: {
+			doctype: 'Job Opportunity',
+			company_logo: job.company_logo,
+			...job,
+		},
+	})
+		.then((data) => {
+			router.push({
+				name: 'JobDetail',
+				params: {
+					job: data.name,
+				},
+			})
+		})
+		.catch((err) => {
+			toast.error(err.messages?.[0] || err)
+			console.error(err)
+		})
 }
 
 const editJobDetails = () => {
-	updateJob.submit(
-		{},
+	jobDetails.setValue.submit(
+		{
+			company_logo: job.company_logo,
+			...job,
+		},
 		{
 			onSuccess(data) {
+				jobDetails.reload()
 				router.push({
 					name: 'JobDetail',
 					params: {
-						job: data.name,
+						job: props.jobName,
 					},
 				})
 			},
 			onError(err) {
 				toast.error(err.messages?.[0] || err)
+				console.error(err)
 			},
 		}
 	)
@@ -271,27 +276,38 @@ const validateJobFields = () => {
 	})
 }
 
+const keyboardShortcut = (e) => {
+	if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 's') {
+		e.preventDefault()
+		saveJob()
+	}
+}
+
+onBeforeUnmount(() => {
+	window.removeEventListener('keydown', keyboardShortcut)
+})
+
 const jobTypes = computed(() => {
 	return [
-		{ label: 'Full Time', value: 'Full Time' },
-		{ label: 'Part Time', value: 'Part Time' },
-		{ label: 'Contract', value: 'Contract' },
-		{ label: 'Freelance', value: 'Freelance' },
+		{ label: __('Full Time'), value: 'Full Time' },
+		{ label: __('Part Time'), value: 'Part Time' },
+		{ label: __('Contract'), value: 'Contract' },
+		{ label: __('Freelance'), value: 'Freelance' },
 	]
 })
 
 const workModes = computed(() => {
 	return [
-		{ label: 'On site', value: 'On-site' },
-		{ label: 'Hybrid', value: 'Hybrid' },
-		{ label: 'Remote', value: 'Remote' },
+		{ label: __('On site'), value: 'On-site' },
+		{ label: __('Hybrid'), value: 'Hybrid' },
+		{ label: __('Remote'), value: 'Remote' },
 	]
 })
 
 const jobStatuses = computed(() => {
 	return [
-		{ label: 'Open', value: 'Open' },
-		{ label: 'Closed', value: 'Closed' },
+		{ label: __('Open'), value: 'Open' },
+		{ label: __('Closed'), value: 'Closed' },
 	]
 })
 
@@ -302,8 +318,11 @@ const breadcrumbs = computed(() => {
 			route: { name: 'Jobs' },
 		},
 		{
-			label: props.jobName == 'new' ? __('New Job') : __('Edit Job'),
-			route: { name: 'JobForm' },
+			label: props.jobName == 'new' ? __('New Job') : jobDetails.doc?.job_title,
+			route:
+				props.jobName == 'new'
+					? {}
+					: { name: 'JobDetail', params: { job: props.jobName } },
 		},
 	]
 	return crumbs
@@ -311,7 +330,7 @@ const breadcrumbs = computed(() => {
 
 usePageMeta(() => {
 	return {
-		title: props.jobName == 'new' ? __('New Job') : jobDetail.data?.job_title,
+		title: props.jobName == 'new' ? __('New Job') : jobDetails.doc?.job_title,
 		icon: brand.favicon,
 	}
 })
