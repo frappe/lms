@@ -52,14 +52,14 @@
    "fieldtype": "Select",
    "in_list_view": 1,
    "label": "Event",
-   "options": "New\nValue Change\nAuto Assign",
+   "options": "New\nValue Change\nManual Assignment",
    "reqd": 1
   },
   {
    "fieldname": "condition",
    "fieldtype": "Code",
    "label": "Condition",
-   "mandatory_depends_on": "eval:doc.event == \"Auto Assign\""
+   "mandatory_depends_on": "eval:doc.event == \"Manual Assignment\""
   },
   {
    "depends_on": "eval:doc.event == 'Value Change'",
@@ -100,7 +100,7 @@
    "link_fieldname": "badge"
   }
  ],
- "modified": "2026-02-03 10:52:37.122370",
+ "modified": "2026-02-19 12:04:56.263316",
  "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "LMS Badge",
