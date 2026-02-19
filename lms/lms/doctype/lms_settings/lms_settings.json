@@ -490,7 +490,7 @@
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2026-02-19 12:57:28.499184",
+ "modified": "2026-02-19 16:28:15.310145",
  "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "LMS Settings",
@@ -505,13 +505,6 @@
    "role": "System Manager",
    "share": 1,
    "write": 1
-  },
-  {
-   "email": 1,
-   "print": 1,
-   "read": 1,
-   "role": "LMS Student",
-   "share": 1
   },
   {
    "create": 1,
