@@ -1298,6 +1298,7 @@ def get_lms_settings():
 		"contact_us_url",
 		"livecode_url",
 		"disable_pwa",
+		"allow_job_posting",
 	]
 
 	settings = frappe._dict()
@@ -1310,7 +1311,6 @@ def get_lms_settings():
 @frappe.whitelist()
 def cancel_evaluation(evaluation: dict):
 	evaluation = frappe._dict(evaluation)
-	print(evaluation.member, frappe.session.user)
 	if evaluation.member != frappe.session.user:
 		frappe.throw(_("You do not have permission to cancel this evaluation."), frappe.PermissionError)
 
@@ -2219,3 +2219,17 @@ def get_assessment_from_lesson(course: str, assessmentType: str):
 					assessments.append(quiz_name)
 
 	return assessments
+
+
+@frappe.whitelist()
+def get_badges(member: str):
+	if not has_lms_role(frappe.get_roles()):
+		frappe.throw(_("You do not have permission to access badges."), frappe.PermissionError)
+
+	badges = frappe.get_all(
+		"LMS Badge Assignment",
+		{"member": member},
+		["name", "member", "badge", "badge_image", "badge_description", "issued_on"],
+	)
+
+	return badges
