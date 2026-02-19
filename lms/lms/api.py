@@ -44,6 +44,8 @@ from lms.lms.utils import (
 	has_moderator_role,
 )
 
+LMS_ROLES = ["Moderator", "Course Creator", "Batch Evaluator", "LMS Student"]
+
 
 @frappe.whitelist()
 def get_user_info():
@@ -1369,8 +1371,7 @@ def get_certification_details(course: str):
 @frappe.whitelist()
 def save_role(user: str, role: str, value: int):
 	frappe.only_for("Moderator")
-	ALLOWED_ROLES = ["Moderator", "Course Creator", "Batch Evaluator", "LMS Student"]
-	if role not in ALLOWED_ROLES:
+	if role not in LMS_ROLES:
 		frappe.throw(_("You do not have permission to modify this role."), frappe.PermissionError)
 
 	if cint(value):
@@ -1720,9 +1721,19 @@ def get_profile_details(username: str):
 		],
 		as_dict=True,
 	)
-
-	details.roles = frappe.get_roles(details.name)
+	roles = frappe.get_roles(details.name)
+	if not has_lms_role(roles):
+		frappe.throw(
+			_("User does not have permission to access this users profile details."), frappe.PermissionError
+		)
+	details.roles = roles
 	return details
+
+
+def has_lms_role(roles: list):
+	lms_roles = set(LMS_ROLES)
+	user_roles = set(roles)
+	return not lms_roles.isdisjoint(user_roles)
 
 
 @frappe.whitelist()
