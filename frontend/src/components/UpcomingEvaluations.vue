@@ -31,12 +31,14 @@
 		<div v-if="upcoming_evals.data?.length">
 			<div
 				class="grid gap-4"
-				:class="forHome ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-1'"
+				:class="forHome ? 'grid-cols-1 md:grid-cols-4' : 'grid-cols-1'"
 			>
 				<div v-for="evl in upcoming_evals.data">
-					<div class="border text-ink-gray-7 rounded-md p-3">
+					<div
+						class="border hover:border-outline-gray-3 text-ink-gray-7 rounded-md p-3"
+					>
 						<div class="flex justify-between mb-3">
-							<span class="text-lg font-semibold text-ink-gray-9 leading-5">
+							<span class="font-semibold text-ink-gray-9 leading-5">
 								{{ evl.course_title }}
 							</span>
 							<Menu
