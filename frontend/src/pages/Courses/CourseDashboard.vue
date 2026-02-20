@@ -1,6 +1,6 @@
 <template>
 	<div class="p-5">
-		<div class="grid grid-cols-4 gap-5 mb-5">
+		<div class="grid grid-cols-4 gap-5 mb-5 text-ink-gray-9">
 			<NumberChartGraph
 				:title="__('Enrolled')"
 				:value="formatAmount(course.data?.enrollments)"
@@ -129,7 +129,9 @@
 					<div class="text-ink-gray-5 mb-4">
 						{{ __('Progress Summary') }}
 					</div>
-					<div class="grid grid-cols-[2fr_1fr] items-center justify-between">
+					<div
+						class="grid grid-cols-[2fr_1fr] items-center justify-between text-ink-gray-9"
+					>
 						<div class="flex flex-col space-y-4 flex-1 text-sm">
 							<div
 								class="flex items-center text-ink-gray-7"
@@ -211,10 +213,12 @@
 							class="!w-32"
 						/>
 					</div>
-					<div class="divide-y max-h-[43vh] text-ink-gray-7 overflow-y-auto">
+					<div
+						class="divide-y max-h-[43vh divide-outline-gray-modals text-ink-gray-7 overflow-y-auto"
+					>
 						<div
 							v-for="progress in lessonProgress.data"
-							class="flex justify-between text-sm py-2 my-1"
+							class="flex justify-between text-sm py-2 my-1 text-ink-gray-9"
 						>
 							<div class="">
 								<span class="mr-3 text-xs">
@@ -350,14 +354,12 @@ const updateLessonProgress = (value: string) => {
 }
 
 watch([searchFilter], () => {
-	let filterApplied = false
 	let filters: Filters = {
 		course: props.course.data?.name,
 	}
 
 	if (searchFilter.value) {
 		filters.member_name = ['like', `%${searchFilter.value}%`]
-		filterApplied = true
 	}
 
 	progressList.update({
@@ -393,7 +395,7 @@ const progressColumns = computed(() => {
 			width: '30%',
 		},
 		{
-			label: __('Start Date'),
+			label: __('Enrolled On'),
 			key: 'creation',
 			align: 'right',
 		},

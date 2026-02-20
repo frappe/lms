@@ -6,24 +6,26 @@
 		<div class="text-lg leading-5 font-semibold mb-2 text-ink-gray-9">
 			{{ batch.title }}
 		</div>
-		<div
+		<Badge
 			v-if="batch.seat_count && batch.seats_left > 0"
-			class="text-xs bg-green-100 text-green-700 self-start px-2 py-0.5 rounded-md"
-		>
-			{{ batch.seats_left }}
-			<span v-if="batch.seats_left > 1">
-				{{ __('Seats Left') }}
-			</span>
-			<span v-else-if="batch.seats_left == 1">
-				{{ __('Seat Left') }}
-			</span>
-		</div>
-		<div
+			variant="subtle"
+			theme="green"
+			size="md"
+			class="self-start"
+			:label="
+				batch.seats_left +
+				' ' +
+				(batch.seats_left > 1 ? __('Seats Left') : __('Seat Left'))
+			"
+		/>
+		<Badge
 			v-else-if="batch.seat_count && batch.seats_left <= 0"
-			class="text-xs bg-red-100 text-red-700 self-start px-2 py-0.5 rounded-md"
-		>
-			{{ __('Sold Out') }}
-		</div>
+			variant="subtle"
+			theme="red"
+			size="md"
+			class="self-start"
+			:label="__('Sold Out')"
+		/>
 		<div class="short-introduction text-sm text-ink-gray-7">
 			{{ batch.description }}
 		</div>
@@ -70,6 +72,7 @@
 	</div>
 </template>
 <script setup>
+import { Badge } from 'frappe-ui'
 import { formatTime } from '@/utils'
 import { Clock, Globe } from 'lucide-vue-next'
 import DateRange from '@/components/Common/DateRange.vue'

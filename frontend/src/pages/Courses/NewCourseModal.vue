@@ -2,7 +2,7 @@
 	<Dialog
 		v-model="show"
 		:options="{
-			title: __('Create Course'),
+			title: __('New Course'),
 			size: '3xl',
 		}"
 	>
@@ -58,7 +58,7 @@
 							@change="(val: string) => (course.description = val)"
 							:editable="true"
 							:fixedMenu="true"
-							editorClass="prose-sm max-w-none border-b border-x bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[10rem]"
+							editorClass="prose-sm max-w-none border-b border-x border-outline-gray-modals bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[10rem]"
 						/>
 					</div>
 				</div>
@@ -67,7 +67,7 @@
 		<template #actions="{ close }">
 			<div class="text-right">
 				<Button variant="solid" @click="saveCourse(close)">
-					{{ __('Create') }}
+					{{ __('Save') }}
 				</Button>
 			</div>
 		</template>

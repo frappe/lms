@@ -1,7 +1,7 @@
 <template>
 	<div class="pl-5">
-		<div class="grid grid-cols-1 md:grid-cols-[70%,30%] overflow-hidden">
-			<div v-if="courseResource.doc" class="h-[88vh] overflow-y-auto">
+		<div class="grid grid-cols-1 md:grid-cols-[70%,30%]">
+			<div v-if="courseResource.doc" class="lg:max-h-[88vh] lg:overflow-y-auto">
 				<div class="my-5">
 					<div class="pr-5 md:pr-10 pb-5 mb-5 space-y-5 border-b">
 						<div class="text-lg font-semibold mb-4 text-ink-gray-9">
@@ -155,7 +155,7 @@
 								"
 								:editable="true"
 								:fixedMenu="true"
-								editorClass="prose-sm max-w-none border-b border-x bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[7rem]"
+								editorClass="prose-sm max-w-none border-b border-x border-outline-gray-modals bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[7rem]"
 							/>
 						</div>
 
@@ -191,59 +191,20 @@
 						<div class="text-lg font-semibold mt-5 text-ink-gray-9">
 							{{ __('Pricing and Certification') }}
 						</div>
-						<div class="grid grid-cols-1 md:grid-cols-3 gap-5">
-							<FormControl
-								type="checkbox"
-								v-model="courseResource.doc.paid_course"
-								:label="__('Paid Course')"
-								@change="makeFormDirty()"
-							/>
-							<FormControl
-								type="checkbox"
-								v-model="courseResource.doc.enable_certification"
-								:label="__('Completion Certificate')"
-								@change="makeFormDirty()"
-							/>
-							<FormControl
-								type="checkbox"
-								v-model="courseResource.doc.paid_certificate"
-								:label="__('Paid Certificate')"
-								@change="makeFormDirty()"
-							/>
-						</div>
 						<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-							<div class="space-y-5">
+							<div
+								v-if="
+									courseResource.doc.paid_course ||
+									courseResource.doc.paid_certificate
+								"
+								class="space-y-5"
+							>
 								<FormControl
-									v-if="
-										courseResource.doc.paid_course ||
-										courseResource.doc.paid_certificate
-									"
 									v-model="courseResource.doc.course_price"
 									:label="__('Amount')"
-									:required="
-										courseResource.doc.paid_course ||
-										courseResource.doc.paid_certificate
-									"
 									@input="makeFormDirty()"
 								/>
 								<Link
-									v-if="courseResource.doc.paid_certificate"
-									doctype="Course Evaluator"
-									v-model="courseResource.doc.evaluator"
-									:label="__('Evaluator')"
-									:required="courseResource.doc.paid_certificate"
-									:onCreate="
-										(value, close) => openSettings('Evaluators', close)
-									"
-									@update:modelValue="makeFormDirty()"
-								/>
-							</div>
-							<div class="space-y-5">
-								<Link
-									v-if="
-										courseResource.doc.paid_course ||
-										courseResource.doc.paid_certificate
-									"
 									doctype="Currency"
 									v-model="courseResource.doc.currency"
 									:filters="{ enabled: 1 }"
@@ -254,11 +215,21 @@
 									"
 									@update:modelValue="makeFormDirty()"
 								/>
+							</div>
+							<div v-if="courseResource.doc.paid_certificate" class="space-y-5">
+								<Link
+									doctype="Course Evaluator"
+									v-model="courseResource.doc.evaluator"
+									:label="__('Evaluator')"
+									:required="courseResource.doc.paid_certificate"
+									:onCreate="
+										(value, close) => openSettings('Evaluators', close)
+									"
+									@update:modelValue="makeFormDirty()"
+								/>
 								<FormControl
-									v-if="courseResource.doc.paid_certificate"
 									v-model="courseResource.doc.timezone"
 									:label="__('Timezone')"
-									:required="courseResource.doc.paid_certificate"
 									:placeholder="__('e.g. IST, UTC, GMT...')"
 									@input="makeFormDirty()"
 								/>
@@ -290,7 +261,7 @@
 					</div>
 				</div>
 			</div>
-			<div class="border-l h-[88vh] overflow-y-auto">
+			<div class="min-h-0 border-l">
 				<CourseOutline
 					v-if="courseResource.doc"
 					:courseName="courseResource.doc.name"
@@ -304,7 +275,6 @@
 <script setup>
 import {
 	TextEditor,
-	Button,
 	createResource,
 	createDocumentResource,
 	FormControl,
@@ -373,9 +343,9 @@ const courseResource = createDocumentResource({
 watch(
 	() => courseResource.doc,
 	() => {
-		check_permission()
 		getMetaInfo('courses', courseResource.doc?.name, meta)
 		updateCourseData()
+		checkPermission()
 	}
 )
 
@@ -516,11 +486,10 @@ const removeTag = (tag) => {
 	makeFormDirty()
 }
 
-const check_permission = () => {
+const checkPermission = () => {
 	let user_is_instructor = false
 	if (user.data?.is_moderator) return
-
-	instructors.value.forEach((instructor) => {
+	instructors.value?.forEach((instructor) => {
 		if (!user_is_instructor && instructor == user.data?.name) {
 			user_is_instructor = true
 		}
