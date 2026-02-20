@@ -30,7 +30,7 @@ class LMSEnrollment(Document):
 			},
 		)
 
-		if existing_enrollment:
+		if existing_enrollment and existing_enrollment != self.name:
 			frappe.throw(_("Student is already enrolled in this course."))
 
 	def validate_course_enrollment_eligibility(self):
