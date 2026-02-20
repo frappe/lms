@@ -67,7 +67,6 @@
   {
    "fieldname": "body",
    "fieldtype": "Markdown Editor",
-   "ignore_xss_filter": 1,
    "label": "Body"
   },
   {
