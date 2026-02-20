@@ -113,11 +113,12 @@
    "read_only": 1
   }
  ],
+ "grid_page_length": 50,
  "in_create": 1,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-10-07 16:52:04.162521",
- "modified_by": "Administrator",
+ "modified": "2026-02-19 16:31:23.401819",
+ "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "LMS Quiz Submission",
  "owner": "Administrator",
@@ -133,18 +134,9 @@
    "role": "System Manager",
    "share": 1,
    "write": 1
-  },
-  {
-   "create": 1,
-   "email": 1,
-   "export": 1,
-   "print": 1,
-   "read": 1,
-   "report": 1,
-   "role": "LMS Student",
-   "share": 1
   }
  ],
+ "row_format": "Dynamic",
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": [],

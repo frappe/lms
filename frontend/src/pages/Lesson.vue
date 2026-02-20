@@ -12,7 +12,7 @@
 						</template>
 					</Button>
 				</Tooltip>
-				<Button v-if="canSeeStats()" @click="showVideoStats()">
+				<Button v-if="isAdmin" @click="showVideoStats()">
 					<template #icon>
 						<TrendingUp class="size-4 stroke-1.5" />
 					</template>
@@ -326,7 +326,7 @@
 		@updateNotes="updateNotes"
 	/>
 	<VideoStatistics
-		v-if="showStatsDialog"
+		v-if="isAdmin"
 		v-model="showStatsDialog"
 		:lessonName="lesson.data?.name"
 		:lessonTitle="lesson.data?.title"
@@ -524,7 +524,14 @@ const renderEditor = (holder, content) => {
 
 const markProgress = () => {
 	if (user.data && lesson.data && !lesson.data.progress) {
-		progress.submit()
+		progress.submit(
+			{},
+			{
+				onError(err) {
+					console.error(err)
+				},
+			}
+		)
 	}
 }
 
@@ -605,7 +612,6 @@ watch(
 			plyrSources.value = []
 			await nextTick()
 			resetLessonState(newChapterNumber, newLessonNumber)
-			startTimer()
 			updateNotes()
 			checkIfDiscussionsAllowed()
 			checkQuiz()
@@ -652,7 +658,7 @@ const getVideoDetails = () => {
 
 const getPlyrSourceDetails = () => {
 	let details = []
-	plyrSources.value.forEach((source) => {
+	plyrSources.value.forEach(async (source) => {
 		if (source.currentTime == source.duration) markProgress()
 		let src = cleanYouTubeUrl(source.source)
 		details.push({
@@ -674,6 +680,7 @@ watch(
 	() => lesson.data,
 	async (data) => {
 		setupLesson(data)
+		startTimer()
 		getPlyrSource()
 		updateNotes()
 		if (data.icon == 'icon-youtube') clearInterval(timerInterval)
@@ -769,17 +776,19 @@ const checkIfDiscussionsAllowed = () => {
 	}
 }
 
+const isAdmin = computed(() => {
+	let isInstructor = lesson.data?.instructors?.includes(user.data?.name)
+	return user.data?.is_moderator || isInstructor
+})
+
 const allowEdit = () => {
 	if (window.read_only_mode) return false
-	if (user.data?.is_moderator) return true
-	if (lesson.data?.instructors?.includes(user.data?.name)) return true
+	if (isAdmin.value) return true
 	return false
 }
 
 const allowInstructorContent = () => {
-	if (user.data?.is_moderator) return true
-	if (lesson.data?.instructors?.includes(user.data?.name)) return true
-	return false
+	return isAdmin.value
 }
 
 const enrollment = createResource({
@@ -817,11 +826,6 @@ const toggleInlineMenu = async () => {
 	if (selection.toString()) {
 		showInlineMenu.value = true
 	}
-}
-
-const canSeeStats = () => {
-	if (user.data?.is_moderator || user.data?.is_instructor) return true
-	return false
 }
 
 const showVideoStats = () => {
