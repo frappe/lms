@@ -3,7 +3,11 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2026-01-23 16:05+0000\n"
+<<<<<<< HEAD
 "PO-Revision-Date: 2026-02-05 06:43\n"
+=======
+"PO-Revision-Date: 2026-02-21 16:43\n"
+>>>>>>> db49cb2d (chore: Thai translations)
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Thai\n"
 "MIME-Version: 1.0\n"
@@ -441,7 +445,7 @@ msgstr ""
 
 #: frontend/src/pages/JobApplications.vue:22
 msgid "Application"
-msgstr ""
+msgstr "ใบสมัคร"
 
 #. Label of a field in the job-opportunity Web Form
 #: lms/job/web_form/job_opportunity/job_opportunity.json
@@ -480,7 +484,7 @@ msgstr ""
 #: lms/lms/doctype/lms_course/lms_course.json
 #: lms/lms/doctype/lms_mentor_request/lms_mentor_request.json
 msgid "Approved"
-msgstr ""
+msgstr "อนุมัติแล้ว"
 
 #: frontend/src/components/Sidebar/Apps.vue:12
 msgid "Apps"
@@ -692,7 +696,7 @@ msgstr ""
 #: frontend/src/pages/CourseDetail.vue:20
 #: frontend/src/pages/Programs/ProgramEnrollment.vue:76
 msgid "Average Rating"
-msgstr ""
+msgstr "คะแนนเฉลี่ย"
 
 #: frontend/src/components/Modals/VideoStatistics.vue:74
 msgid "Average Watch Time"
@@ -1612,7 +1616,7 @@ msgstr ""
 #: lms/lms/report/course_progress_summary/course_progress_summary.py:51
 #: lms/lms/workspace/lms/lms.json
 msgid "Course"
-msgstr ""
+msgstr "หลักสูตร"
 
 #. Name of a DocType
 #. Label of the chapter (Link) field in DocType 'Course Lesson'
@@ -2531,7 +2535,7 @@ msgstr ""
 #. Label of a shortcut in the LMS Workspace
 #: frontend/src/components/Modals/Event.vue:420 lms/lms/workspace/lms/lms.json
 msgid "Evaluation"
-msgstr ""
+msgstr "การประเมิน"
 
 #. Label of the section_break_6 (Section Break) field in DocType 'LMS
 #. Certificate Evaluation'
@@ -2682,7 +2686,7 @@ msgstr ""
 #: frontend/src/components/Modals/Question.vue:75
 #: lms/lms/doctype/lms_question/lms_question.json
 msgid "Explanation"
-msgstr ""
+msgstr "คำอธิบาย"
 
 #. Label of the explanation_2 (Small Text) field in DocType 'LMS Question'
 #: lms/lms/doctype/lms_question/lms_question.json
@@ -2944,11 +2948,11 @@ msgstr ""
 
 #: frontend/src/components/InstallPrompt.vue:9
 msgid "Get the app on your device for easy access & a better experience!"
-msgstr ""
+msgstr "รับแอปบนอุปกรณ์ของคุณเพื่อการเข้าถึงที่ง่ายและประสบการณ์ที่ดีขึ้น!"
 
 #: frontend/src/components/InstallPrompt.vue:46
 msgid "Get the app on your iPhone for easy access & a better experience"
-msgstr ""
+msgstr "รับแอปบน iPhone ของคุณเพื่อการเข้าถึงที่ง่ายและประสบการณ์ที่ดีขึ้น"
 
 #: frontend/src/components/Modals/EditProfile.vue:82
 msgid "GitHub ID"
@@ -2969,7 +2973,7 @@ msgstr "ลิงก์ Google Meet"
 #: frontend/src/components/Assignment.vue:164
 #: lms/lms/doctype/education_detail/education_detail.json
 msgid "Grade"
-msgstr ""
+msgstr "ระดับ"
 
 #. Label of the grade_assignment (Check) field in DocType 'LMS Assignment'
 #: lms/lms/doctype/lms_assignment/lms_assignment.json
@@ -3263,7 +3267,7 @@ msgstr ""
 
 #: frontend/src/components/InstallPrompt.vue:18
 msgid "Install"
-msgstr ""
+msgstr "ติดตั้ง"
 
 #: frontend/src/components/InstallPrompt.vue:4
 #: frontend/src/components/InstallPrompt.vue:32
@@ -3418,7 +3422,7 @@ msgstr ""
 
 #: lms/www/lms.py:175
 msgid "Job Openings"
-msgstr ""
+msgstr "ตำแหน่งงานว่าง"
 
 #. Name of a DocType
 #. Title of the job-opportunity Web Form
@@ -3446,7 +3450,7 @@ msgstr ""
 #: frontend/src/pages/Jobs.vue:8 frontend/src/pages/Jobs.vue:293
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Jobs"
-msgstr ""
+msgstr "งาน"
 
 #: frontend/src/components/LiveClass.vue:81
 #: frontend/src/pages/Home/AdminHome.vue:175
@@ -4868,7 +4872,7 @@ msgstr ""
 
 #: frontend/src/pages/Billing.vue:170
 msgid "PAN Number"
-msgstr ""
+msgstr "หมายเลข PAN"
 
 #. Option for the 'File Type' (Select) field in DocType 'Course Lesson'
 #. Option for the 'Type' (Select) field in DocType 'LMS Assignment'
@@ -5223,7 +5227,7 @@ msgstr ""
 
 #: frontend/src/components/Modals/LiveClassModal.vue:189
 msgid "Please select a date."
-msgstr ""
+msgstr "โปรดเลือกวันที่"
 
 #: frontend/src/components/Modals/LiveClassModal.vue:213
 msgid "Please select a duration."
@@ -6226,7 +6230,7 @@ msgstr ""
 #. Label of the skill (Data) field in DocType 'User Skill'
 #: lms/fixtures/custom_field.json lms/lms/doctype/user_skill/user_skill.json
 msgid "Skill"
-msgstr ""
+msgstr "ทักษะ"
 
 #. Label of the skill_details (Section Break) field in DocType 'User'
 #: lms/fixtures/custom_field.json
@@ -6236,12 +6240,12 @@ msgstr ""
 #. Label of the skill_name (Link) field in DocType 'Skills'
 #: lms/lms/doctype/skills/skills.json
 msgid "Skill Name"
-msgstr ""
+msgstr "ชื่อทักษะ"
 
 #. Name of a DocType
 #: lms/lms/doctype/skills/skills.json
 msgid "Skills"
-msgstr ""
+msgstr "ทักษะ"
 
 #: frontend/src/pages/PersonaForm.vue:51 lms/templates/onboarding_header.html:6
 msgid "Skip"
@@ -6457,7 +6461,7 @@ msgstr "ส่ง"
 
 #: frontend/src/components/BatchFeedback.vue:35
 msgid "Submit Feedback"
-msgstr ""
+msgstr "ส่งข้อเสนอแนะ"
 
 #: frontend/src/pages/PersonaForm.vue:43
 msgid "Submit and Continue"
@@ -6957,7 +6961,7 @@ msgstr ""
 
 #: frontend/src/components/Modals/FeedbackModal.vue:11
 msgid "Training Feedback"
-msgstr ""
+msgstr "ข้อเสนอแนะการฝึกอบรม"
 
 #: frontend/src/components/Settings/Transactions/TransactionDetails.vue:9
 msgid "Transaction Details"
@@ -6966,7 +6970,7 @@ msgstr "รายละเอียดธุรกรรม"
 #. Option for the 'Location Preference' (Select) field in DocType 'User'
 #: lms/fixtures/custom_field.json
 msgid "Travel"
-msgstr ""
+msgstr "การเดินทาง"
 
 #: frontend/src/components/Quiz.vue:284
 msgid "Try Again"
@@ -7052,7 +7056,7 @@ msgstr ""
 #. Option for the 'Status' (Select) field in DocType 'LMS Course'
 #: lms/lms/doctype/lms_course/lms_course.json
 msgid "Under Review"
-msgstr ""
+msgstr "อยู่ระหว่างการตรวจสอบ"
 
 #: frontend/src/pages/Batches.vue:332 frontend/src/pages/Courses.vue:355
 msgid "Unpublished"
@@ -7233,7 +7237,7 @@ msgstr ""
 #. Option for the 'Color' (Select) field in DocType 'LMS Course'
 #: lms/lms/doctype/lms_course/lms_course.json
 msgid "Violet"
-msgstr ""
+msgstr "สีม่วง"
 
 #: frontend/src/components/BatchOverlay.vue:73
 msgid "Visit Batch"
