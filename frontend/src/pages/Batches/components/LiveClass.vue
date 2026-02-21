@@ -1,7 +1,7 @@
 <template>
 	<div class="p-5">
 		<div
-			v-if="isAdmin() && !props.zoomAccount"
+			v-if="isAdmin() && !batch.data?.zoom_account"
 			class="flex lg:items-center space-x-2 mb-5 bg-surface-amber-1 px-3 py-2 rounded-lg text-ink-amber-3"
 		>
 			<AlertCircle class="size-7 md:size-4 stroke-1.5" />
@@ -110,7 +110,7 @@
 		v-if="showLiveClassModal"
 		v-model="showLiveClassModal"
 		:batch="props.batch"
-		:zoomAccount="props.zoomAccount"
+		:zoomAccount="batch.data?.zoom_account"
 		v-model:reloadLiveClasses="liveClasses"
 	/>
 
@@ -148,7 +148,6 @@ const props = defineProps({
 		type: Object,
 		required: true,
 	},
-	zoomAccount: String,
 })
 
 const liveClasses = createListResource({
@@ -177,7 +176,7 @@ const openLiveClassModal = () => {
 
 const canCreateClass = () => {
 	if (readOnlyMode) return false
-	if (!props.zoomAccount) return false
+	if (!props.batch.data?.zoom_account) return false
 	return isAdmin()
 }
 
