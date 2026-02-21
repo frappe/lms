@@ -109,7 +109,7 @@
 	<LiveClassModal
 		v-if="showLiveClassModal"
 		v-model="showLiveClassModal"
-		:batch="props.batch"
+		:batch="batch.data?.name"
 		:zoomAccount="batch.data?.zoom_account"
 		v-model:reloadLiveClasses="liveClasses"
 	/>
