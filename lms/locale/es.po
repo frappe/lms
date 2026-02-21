@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2026-01-23 16:05+0000\n"
-"PO-Revision-Date: 2026-02-19 15:53\n"
+"PO-Revision-Date: 2026-02-21 16:43\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Spanish\n"
 "MIME-Version: 1.0\n"
@@ -3213,7 +3213,7 @@ msgstr ""
 #: lms/lms/doctype/lms_certificate_evaluation/lms_certificate_evaluation.json
 #: lms/lms/doctype/lms_course/lms_course.json
 msgid "In Progress"
-msgstr ""
+msgstr "En Progreso"
 
 #. Option for the 'Send Notification for Published Courses' (Select) field in
 #. DocType 'LMS Settings'
@@ -5942,7 +5942,7 @@ msgstr "Sábado"
 #: frontend/src/pages/Quizzes.vue:105
 #: lms/job/web_form/job_opportunity/job_opportunity.json
 msgid "Save"
-msgstr ""
+msgstr "Guardar"
 
 #. Label of the schedule (Table) field in DocType 'Course Evaluator'
 #: lms/lms/doctype/course_evaluator/course_evaluator.json
@@ -6569,7 +6569,7 @@ msgstr "Trabajo en equipo"
 #: frontend/src/components/Modals/Event.vue:133
 #: lms/lms/doctype/lms_certificate/lms_certificate.json
 msgid "Template"
-msgstr ""
+msgstr "Plantilla"
 
 #: lms/lms/user.py:40
 msgid "Temporarily Disabled"
@@ -7096,7 +7096,7 @@ msgstr ""
 #: frontend/src/components/Settings/BrandSettings.vue:24
 #: frontend/src/components/Settings/SettingDetails.vue:17
 msgid "Update"
-msgstr ""
+msgstr "Actualizar"
 
 #: lms/templates/emails/community_course_membership.html:11
 msgid "Update Password"
@@ -7139,7 +7139,7 @@ msgstr "Usar HTML"
 #: lms/job/doctype/lms_job_application/lms_job_application.json
 #: lms/lms/doctype/lms_course_interest/lms_course_interest.json
 msgid "User"
-msgstr ""
+msgstr "Usuario"
 
 #. Label of the user_category (Select) field in DocType 'User'
 #: lms/fixtures/custom_field.json lms/templates/signup-form.html:17
@@ -7673,7 +7673,7 @@ msgstr "actividad"
 #: frontend/src/components/CourseInstructors.vue:24
 #: frontend/src/components/CourseInstructors.vue:45
 msgid "and"
-msgstr ""
+msgstr "y"
 
 #: frontend/src/components/InstallPrompt.vue:54
 msgid "and then 'Add to Home Screen'"
