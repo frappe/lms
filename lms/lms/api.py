@@ -1722,7 +1722,7 @@ def get_profile_details(username: str):
 		as_dict=True,
 	)
 	roles = frappe.get_roles(details.name)
-	if not has_lms_role(roles):
+	if not has_lms_role():
 		frappe.throw(
 			_("User does not have permission to access this users profile details."), frappe.PermissionError
 		)
@@ -1730,7 +1730,8 @@ def get_profile_details(username: str):
 	return details
 
 
-def has_lms_role(roles: list):
+def has_lms_role():
+	roles = frappe.get_roles()
 	lms_roles = set(LMS_ROLES)
 	user_roles = set(roles)
 	return not lms_roles.isdisjoint(user_roles)
@@ -2223,7 +2224,7 @@ def get_assessment_from_lesson(course: str, assessmentType: str):
 
 @frappe.whitelist()
 def get_badges(member: str):
-	if not has_lms_role(frappe.get_roles()):
+	if not has_lms_role():
 		frappe.throw(_("You do not have permission to access badges."), frappe.PermissionError)
 
 	badges = frappe.get_all(

@@ -59,7 +59,7 @@
    "fieldname": "condition",
    "fieldtype": "Code",
    "label": "Condition",
-   "mandatory_depends_on": "eval:doc.event == \"Manual Assignment\""
+   "reqd": 1
   },
   {
    "depends_on": "eval:doc.event == 'Value Change'",
@@ -100,7 +100,7 @@
    "link_fieldname": "badge"
   }
  ],
- "modified": "2026-02-19 15:05:49.719925",
+ "modified": "2026-02-20 17:58:25.924109",
  "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "LMS Badge",

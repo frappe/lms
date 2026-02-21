@@ -86,13 +86,16 @@ after_migrate = [
 # -----------
 # Permissions evaluated in scripted ways
 
-# permission_query_conditions = {
-# 	"Event": "frappe.desk.doctype.event.event.get_permission_query_conditions",
-# }
-#
-# has_permission = {
-# 	"Event": "frappe.desk.doctype.event.event.has_permission",
-# }
+permission_query_conditions = {
+	"LMS Certificate": "lms.lms.doctype.lms_certificate.lms_certificate.get_permission_query_conditions",
+}
+
+has_permission = {
+	"LMS Live Class": "lms.lms.doctype.lms_live_class.lms_live_class.has_permission",
+	"LMS Batch": "lms.lms.doctype.lms_batch.lms_batch.has_permission",
+	"LMS Program": "lms.lms.doctype.lms_program.lms_program.has_permission",
+	"LMS Certificate": "lms.lms.doctype.lms_certificate.lms_certificate.has_permission",
+}
 
 # DocType Class
 # ---------------
