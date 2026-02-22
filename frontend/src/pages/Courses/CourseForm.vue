@@ -425,7 +425,9 @@ const keyboardShortcut = (e) => {
 		(e.ctrlKey || e.metaKey) &&
 		!e.target.classList.contains('ProseMirror')
 	) {
-		submitCourse()
+		if(isDirty.value) {
+			submitCourse()
+		}
 		e.preventDefault()
 	}
 }

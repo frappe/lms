@@ -13,7 +13,7 @@
 						<Trash2 class="w-4 h-4 stroke-1.5" />
 					</template>
 				</Button>
-				<Button variant="solid" @click="childRef.submitCourse()">
+				<Button :disabled="!childRef?.isDirty" variant="solid" @click="childRef.submitCourse()">
 					{{ __('Save') }}
 				</Button>
 			</div>
