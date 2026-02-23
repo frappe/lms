@@ -41,10 +41,9 @@ from lms.lms.utils import (
 	get_lms_route,
 	has_course_instructor_role,
 	has_evaluator_role,
+	has_lms_role,
 	has_moderator_role,
 )
-
-LMS_ROLES = ["Moderator", "Course Creator", "Batch Evaluator", "LMS Student"]
 
 
 @frappe.whitelist()
@@ -1728,13 +1727,6 @@ def get_profile_details(username: str):
 		)
 	details.roles = roles
 	return details
-
-
-def has_lms_role():
-	roles = frappe.get_roles()
-	lms_roles = set(LMS_ROLES)
-	user_roles = set(roles)
-	return not lms_roles.isdisjoint(user_roles)
 
 
 @frappe.whitelist()
