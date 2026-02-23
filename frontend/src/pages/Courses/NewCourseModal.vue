@@ -76,7 +76,7 @@
 <script setup lang="ts">
 import { Button, Dialog, FormControl, TextEditor, toast } from 'frappe-ui'
 import { Link, useOnboarding, useTelemetry } from 'frappe-ui/frappe'
-import { inject, onMounted, onBeforeUnmount, ref, watch } from 'vue'
+import { inject, onMounted, onBeforeUnmount, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { cleanError, openSettings } from '@/utils'
 import MultiSelect from '@/components/Controls/MultiSelect.vue'
@@ -148,13 +148,13 @@ const keyboardShortcut = (e: KeyboardEvent) => {
 
 onMounted(() => {
 	window.addEventListener('keydown', keyboardShortcut)
+	capture('course_form_opened')
 })
 
 onBeforeUnmount(() => {
 	window.removeEventListener('keydown', keyboardShortcut)
-})
-
-watch(show, () => {
-	if (show.value) capture('course_form_opened')
+	capture('course_form_closed', {
+		data: course.value,
+	})
 })
 </script>

@@ -93,11 +93,19 @@
 	</div>
 </template>
 <script setup>
-import { createResource, TextEditor, Button, Dropdown, toast } from 'frappe-ui'
+import {
+	call,
+	createResource,
+	TextEditor,
+	Button,
+	Dropdown,
+	toast,
+} from 'frappe-ui'
 import { timeAgo } from '@/utils'
 import UserAvatar from '@/components/UserAvatar.vue'
 import { ChevronLeft, MoreHorizontal } from 'lucide-vue-next'
 import { ref, inject, onMounted, onUnmounted } from 'vue'
+import { useTelemetry } from 'frappe-ui/frappe'
 
 const showTopics = defineModel('showTopics')
 const newReply = ref('')
@@ -107,6 +115,7 @@ const allUsers = inject('$allUsers')
 const mentionUsers = ref([])
 const renderEditor = ref(false)
 const readOnlyMode = window.read_only_mode
+const { capture } = useTelemetry()
 
 const props = defineProps({
 	topic: {
@@ -143,19 +152,6 @@ const replies = createResource({
 	auto: true,
 })
 
-const newReplyResource = createResource({
-	url: 'frappe.client.insert',
-	makeParams(values) {
-		return {
-			doc: {
-				doctype: 'Discussion Reply',
-				reply: newReply.value,
-				topic: props.topic.name,
-			},
-		}
-	},
-})
-
 const fetchMentionUsers = () => {
 	if (user.data?.is_student) {
 		renderEditor.value = true
@@ -178,78 +174,61 @@ const fetchMentionUsers = () => {
 }
 
 const postReply = () => {
-	newReplyResource.submit(
-		{},
-		{
-			validate() {
-				if (!newReply.value) {
-					return 'Reply cannot be empty'
-				}
-			},
-			onSuccess() {
-				newReply.value = ''
-				replies.reload()
-			},
-			onError(err) {
-				toast.error(err.messages?.[0] || err)
-			},
-		}
-	)
-}
-
-const editReplyResource = createResource({
-	url: 'frappe.client.set_value',
-	makeParams(values) {
-		return {
+	if (!newReply.value) {
+		toast.error(__('Reply cannot be empty.'))
+		return
+	}
+	call('frappe.client.insert', {
+		doc: {
 			doctype: 'Discussion Reply',
-			name: values.name,
-			fieldname: 'reply',
-			value: values.reply,
-		}
-	},
-})
+			reply: newReply.value,
+			topic: props.topic.name,
+		},
+	})
+		.then((data) => {
+			newReply.value = ''
+			replies.reload()
+			capture('discussion_reply_created')
+		})
+		.catch((err) => {
+			toast.error(err.messages?.[0] || err)
+			console.error(err)
+		})
+}
 
 const postEdited = (reply) => {
-	editReplyResource.submit(
-		{
-			name: reply.name,
-			reply: reply.reply,
-		},
-		{
-			validate() {
-				if (!reply.reply) {
-					return 'Reply cannot be empty'
-				}
-			},
-			onSuccess() {
-				reply.editable = false
-				replies.reload()
-			},
-		}
-	)
+	if (!reply.reply) {
+		toast.error(__('Reply cannot be empty.'))
+		return
+	}
+	call('frappe.client.set_value', {
+		doctype: 'Discussion Reply',
+		name: reply.name,
+		fieldname: 'reply',
+		value: reply.reply,
+	})
+		.then(() => {
+			reply.editable = false
+			replies.reload()
+		})
+		.catch((err) => {
+			toast.error(err.messages?.[0] || err)
+			console.error(err)
+		})
 }
 
-const deleteReplyResource = createResource({
-	url: 'frappe.client.delete',
-	makeParams(values) {
-		return {
-			doctype: 'Discussion Reply',
-			name: values.name,
-		}
-	},
-})
-
 const deleteReply = (reply) => {
-	deleteReplyResource.submit(
-		{
-			name: reply.name,
-		},
-		{
-			onSuccess() {
-				replies.reload()
-			},
-		}
-	)
+	call('frappe.client.delete', {
+		doctype: 'Discussion Reply',
+		name: reply.name,
+	})
+		.then(() => {
+			replies.reload()
+		})
+		.catch((err) => {
+			toast.error(err.messages?.[0] || err)
+			console.error(err)
+		})
 }
 
 onUnmounted(() => {
