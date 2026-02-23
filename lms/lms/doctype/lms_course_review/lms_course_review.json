@@ -41,11 +41,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
-<<<<<<< HEAD
- "modified": "2026-01-29 16:10:47.787285",
-=======
  "modified": "2026-02-23 16:21:18.503806",
->>>>>>> b3c8fbd8 (chore: capture more events for analytics)
  "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "LMS Course Review",
