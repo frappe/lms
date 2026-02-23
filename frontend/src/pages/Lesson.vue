@@ -783,11 +783,11 @@ const isAdmin = computed(() => {
 
 const allowEdit = () => {
 	if (window.read_only_mode) return false
-	if (isAdmin.value) return true
-	return false
+	return isAdmin.value
 }
 
 const allowInstructorContent = () => {
+	if (window.read_only_mode) return false
 	return isAdmin.value
 }
 

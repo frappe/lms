@@ -23,7 +23,7 @@
  "icon": "education",
  "idx": 0,
  "is_hidden": 0,
- "label": "LMS",
+ "label": "Learning",
  "links": [
   {
    "hidden": 0,
@@ -150,10 +150,10 @@
    "type": "Link"
   }
  ],
- "modified": "2025-12-08 13:23:09.718683",
- "modified_by": "sayali@frappe.io",
+ "modified": "2026-02-23 12:27:25.010341",
+ "modified_by": "Administrator",
  "module": "LMS",
- "name": "LMS",
+ "name": "Learning",
  "number_cards": [],
  "owner": "Administrator",
  "parent_page": "",
@@ -217,6 +217,6 @@
    "type": "DocType"
   }
  ],
- "title": "LMS",
+ "title": "Learning",
  "type": "Workspace"
 }
