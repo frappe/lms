@@ -2,4 +2,4 @@ import frappe
 
 
 def execute():
-	frappe.db.set_value("LMS Settings", None, "allow_job_posting", 1)
+	frappe.db.set_single_value("LMS Settings", "allow_job_posting", 1)
