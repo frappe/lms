@@ -131,6 +131,7 @@ import { ref, watch, reactive, inject } from 'vue'
 import { RefreshCw, Plus, Search, Shield } from 'lucide-vue-next'
 import { useOnboarding } from 'frappe-ui/frappe'
 import type { User } from '@/components/Settings/types'
+import { useTelemetry } from 'frappe-ui/frappe'
 
 type Member = {
 	username: string
@@ -149,6 +150,7 @@ const hasNextPage = ref(false)
 const showForm = ref(false)
 const user = inject<User | null>('$user')
 const { updateOnboardingStep } = useOnboarding('learning')
+const { capture } = useTelemetry()
 
 const member = reactive({
 	email: '',
@@ -202,6 +204,7 @@ const addMember = (close: () => void) => {
 	})
 		.then((data: Member) => {
 			if (user?.data?.is_system_manager) updateOnboardingStep('invite_students')
+			capture('user_added')
 			show.value = false
 			router.push({
 				name: 'ProfileRoles',
