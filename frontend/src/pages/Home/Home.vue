@@ -1,9 +1,4 @@
 <template>
-	<!-- <header
-		class="sticky flex items-center justify-between top-0 z-10 border-b bg-surface-white px-3 py-2.5 sm:px-5"
-	>
-		<Breadcrumbs :items="[{ label: __('Home'), route: { name: 'Home' } }]" />
-	</header> -->
 	<div class="w-full px-5 pt-5 pb-10">
 		<div class="space-y-2">
 			<div class="flex items-center justify-between">
@@ -11,9 +6,8 @@
 					{{ __('Hey') }}, {{ user.data?.full_name }} 👋
 				</div>
 				<div>
-					<TabButtons v-if="isAdmin" v-model="currentTab" :buttons="tabs" />
 					<div
-						v-else
+						v-if="!isAdmin"
 						@click="showStreakModal = true"
 						class="bg-surface-amber-2 px-2 py-1 rounded-md cursor-pointer"
 					>
@@ -35,19 +29,16 @@
 			:liveClasses="adminLiveClasses"
 			:evals="adminEvals"
 		/>
-		<StudentHome v-else :myLiveClasses="myLiveClasses" />
+		<StudentHome
+			v-else-if="currentTab === 'student'"
+			:myLiveClasses="myLiveClasses"
+		/>
 	</div>
 	<Streak v-model="showStreakModal" :streakInfo="streakInfo" />
 </template>
 <script setup lang="ts">
 import { computed, inject, onMounted, ref } from 'vue'
-import {
-	Breadcrumbs,
-	call,
-	createResource,
-	TabButtons,
-	usePageMeta,
-} from 'frappe-ui'
+import { call, createResource, usePageMeta } from 'frappe-ui'
 import { sessionStore } from '@/stores/session'
 import StudentHome from '@/pages/Home/StudentHome.vue'
 import AdminHome from '@/pages/Home/AdminHome.vue'
@@ -56,10 +47,10 @@ import Streak from '@/pages/Home/Streak.vue'
 const user = inject<any>('$user')
 const { brand } = sessionStore()
 const evalCount = ref(0)
-const currentTab = ref<'student' | 'instructor'>('instructor')
+const currentTab = ref<'student' | 'instructor'>('student')
 const showStreakModal = ref(false)
 
-onMounted(() => {
+const fetchEvalCount = () => {
 	call('frappe.client.get_count', {
 		doctype: 'LMS Certificate Request',
 		filters: {
@@ -70,7 +61,7 @@ onMounted(() => {
 	}).then((data: any) => {
 		evalCount.value = data
 	})
-})
+}
 
 const isAdmin = computed(() => {
 	return (
@@ -78,6 +69,15 @@ const isAdmin = computed(() => {
 		user.data?.is_instructor ||
 		user.data?.is_evaluator
 	)
+})
+
+onMounted(() => {
+	if (isAdmin.value) {
+		currentTab.value = 'instructor'
+	} else {
+		currentTab.value = 'student'
+		fetchEvalCount()
+	}
 })
 
 const myLiveClasses = createResource({
@@ -150,11 +150,6 @@ const subtitle = computed(() => {
 		return __('Resume where you left off')
 	}
 })
-
-const tabs = [
-	{ label: __('Student'), value: 'student' },
-	{ label: __('Instructor'), value: 'instructor' },
-]
 
 usePageMeta(() => {
 	return {
