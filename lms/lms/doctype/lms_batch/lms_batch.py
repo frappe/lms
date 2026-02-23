@@ -20,6 +20,7 @@ from lms.lms.utils import (
 	get_lesson_url,
 	get_lms_route,
 	get_quiz_details,
+	guest_access_allowed,
 	update_payment_record,
 )
 
@@ -213,6 +214,10 @@ def create_live_class(
 	auto_recording: str,
 	description: str = None,
 ):
+	roles = frappe.get_roles()
+	if not any(role in roles for role in ["Moderator", "Batch Evaluator"]):
+		frappe.throw(_("You do not have permission to create a live class."))
+
 	payload = {
 		"topic": title,
 		"start_time": format_datetime(f"{date} {time}", "yyyy-MM-ddTHH:mm:ssZ"),
@@ -391,3 +396,26 @@ def send_mail(batch, student):
 		args=args,
 		header=[_(f"Batch Start Reminder: {batch.title}"), "orange"],
 	)
+
+
+def has_permission(doc, ptype="read", user=None):
+	user = user or frappe.session.user
+	if user == "Guest" and not guest_access_allowed():
+		return False
+
+	roles = frappe.get_roles(user)
+	if "Moderator" in roles or "Batch Evaluator" in roles:
+		return True
+
+	if ptype not in ("read", "select", "print"):
+		return False
+
+	is_enrolled = frappe.db.exists("LMS Batch Enrollment", {"batch": doc.name, "member": user})
+	if is_enrolled:
+		return True
+
+	is_batch_published = frappe.db.get_value("LMS Batch", doc.name, "published")
+	if is_batch_published:
+		return True
+
+	return False

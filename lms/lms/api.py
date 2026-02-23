@@ -31,6 +31,7 @@ from pypika import functions as fn
 
 from lms.lms.doctype.course_lesson.course_lesson import save_progress
 from lms.lms.utils import (
+	LMS_ROLES,
 	can_modify_batch,
 	can_modify_course,
 	get_average_rating,
@@ -41,6 +42,7 @@ from lms.lms.utils import (
 	get_lms_route,
 	has_course_instructor_role,
 	has_evaluator_role,
+	has_lms_role,
 	has_moderator_role,
 )
 
@@ -606,12 +608,7 @@ def check_app_permission():
 	if frappe.session.user == "Administrator":
 		return True
 
-	roles = frappe.get_roles()
-	lms_roles = ["Moderator", "Course Creator", "Batch Evaluator", "LMS Student"]
-	if any(role in roles for role in lms_roles):
-		return True
-
-	return False
+	return has_lms_role()
 
 
 @frappe.whitelist()
@@ -1296,6 +1293,7 @@ def get_lms_settings():
 		"contact_us_url",
 		"livecode_url",
 		"disable_pwa",
+		"allow_job_posting",
 	]
 
 	settings = frappe._dict()
@@ -1308,7 +1306,6 @@ def get_lms_settings():
 @frappe.whitelist()
 def cancel_evaluation(evaluation: dict):
 	evaluation = frappe._dict(evaluation)
-	print(evaluation.member, frappe.session.user)
 	if evaluation.member != frappe.session.user:
 		frappe.throw(_("You do not have permission to cancel this evaluation."), frappe.PermissionError)
 
@@ -1369,6 +1366,9 @@ def get_certification_details(course: str):
 @frappe.whitelist()
 def save_role(user: str, role: str, value: int):
 	frappe.only_for("Moderator")
+	if role not in LMS_ROLES:
+		frappe.throw(_("You do not have permission to modify this role."), frappe.PermissionError)
+
 	if cint(value):
 		doc = frappe.get_doc(
 			{
@@ -1716,8 +1716,12 @@ def get_profile_details(username: str):
 		],
 		as_dict=True,
 	)
-
-	details.roles = frappe.get_roles(details.name)
+	roles = frappe.get_roles(details.name)
+	if not has_lms_role():
+		frappe.throw(
+			_("User does not have permission to access this user's profile details."), frappe.PermissionError
+		)
+	details.roles = roles
 	return details
 
 
@@ -2204,3 +2208,17 @@ def get_assessment_from_lesson(course: str, assessmentType: str):
 					assessments.append(quiz_name)
 
 	return assessments
+
+
+@frappe.whitelist()
+def get_badges(member: str):
+	if not has_lms_role():
+		frappe.throw(_("You do not have permission to access badges."), frappe.PermissionError)
+
+	badges = frappe.get_all(
+		"LMS Badge Assignment",
+		{"member": member},
+		["name", "member", "badge", "badge_image", "badge_description", "issued_on"],
+	)
+
+	return badges

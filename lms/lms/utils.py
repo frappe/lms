@@ -31,6 +31,7 @@ from pypika import functions as fn
 from lms.lms.md import find_macros
 
 RE_SLUG_NOTALLOWED = re.compile("[^a-z0-9]+")
+LMS_ROLES = ["Moderator", "Course Creator", "Batch Evaluator", "LMS Student"]
 
 
 def get_lms_path():
@@ -1209,6 +1210,9 @@ def get_country_code():
 
 @frappe.whitelist()
 def get_question_details(question: str) -> dict:
+	if not has_lms_role():
+		frappe.throw(_("You are not authorized to view the question details."))
+
 	fields = ["question", "type", "multiple"]
 	for i in range(1, 5):
 		fields.append(f"option_{i}")
@@ -1239,6 +1243,10 @@ def get_batch_courses(batch: str) -> list:
 @frappe.whitelist()
 def get_assessments(batch: str) -> list:
 	member = frappe.session.user
+	is_enrolled = frappe.db.exists("LMS Batch Enrollment", {"batch": batch, "member": member})
+	if not is_enrolled and not can_modify_batch(batch):
+		frappe.throw(_("You are not authorized to view the assessments of this batch."))
+
 	assessments = frappe.get_all(
 		"LMS Assessment",
 		{"parent": batch},
@@ -2297,3 +2305,10 @@ def can_modify_batch(batch: str) -> bool:
 	if not (has_moderator_role() or is_instructor):
 		return False
 	return True
+
+
+def has_lms_role():
+	roles = frappe.get_roles()
+	lms_roles = set(LMS_ROLES)
+	user_roles = set(roles)
+	return not lms_roles.isdisjoint(user_roles)

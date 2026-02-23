@@ -140,12 +140,6 @@ const routes = [
 		component: () => import('@/pages/Notifications.vue'),
 	},
 	{
-		path: '/badges/:badgeName/:email',
-		name: 'Badge',
-		component: () => import('@/pages/Badge.vue'),
-		props: true,
-	},
-	{
 		path: '/quizzes',
 		name: 'Quizzes',
 		component: () => import('@/pages/Quizzes.vue'),

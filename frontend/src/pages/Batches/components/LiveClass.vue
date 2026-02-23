@@ -43,7 +43,7 @@
 					}
 				"
 			>
-				<div class="font-semibold text-ink-gray-9 text-lg mb-1">
+				<div class="font-semibold text-ink-gray-9 mb-1">
 					{{ cls.title }}
 				</div>
 				<div class="short-introduction">

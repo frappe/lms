@@ -220,6 +220,25 @@ const tabsStructure = computed(() => {
 							],
 						},
 						{
+							label: 'Jobs',
+							columns: [
+								{
+									fields: [
+										{
+											label: 'Allow Job Posting',
+											name: 'allow_job_posting',
+											type: 'checkbox',
+											description:
+												'If enabled, users can post job openings on the job board. Else only admins can post jobs.',
+										},
+									],
+								},
+								{
+									fields: [],
+								},
+							],
+						},
+						{
 							label: '',
 							columns: [
 								{

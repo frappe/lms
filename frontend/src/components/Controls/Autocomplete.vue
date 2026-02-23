@@ -107,7 +107,7 @@
 												<div class="flex flex-col gap-1 p-1">
 													<div class="text-base font-medium text-ink-gray-8">
 														{{
-															option.value == option.label
+															option.value == option.label && option.description
 																? option.description
 																: option.label
 														}}
@@ -124,7 +124,7 @@
 									v-if="groups.length == 0"
 									class="mt-1.5 rounded-md px-2.5 py-1.5 text-base text-ink-gray-5"
 								>
-									No results found
+									{{ __('No results found') }}
 								</li>
 							</ComboboxOptions>
 							<div v-if="slots.footer" class="border-t p-1.5 pb-0.5">

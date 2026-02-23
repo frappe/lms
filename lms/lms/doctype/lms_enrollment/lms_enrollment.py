@@ -8,7 +8,7 @@ from frappe.utils import ceil
 
 
 class LMSEnrollment(Document):
-	def validate(self):
+	def before_insert(self):
 		self.validate_duplicate_enrollment()
 		self.validate_course_enrollment_eligibility()
 		self.validate_owner()
@@ -27,6 +27,7 @@ class LMSEnrollment(Document):
 			{
 				"course": self.course,
 				"member": self.member,
+				"name": ["!=", self.name],
 			},
 		)
 
@@ -49,7 +50,10 @@ class LMSEnrollment(Document):
 			)
 
 		if self.enrollment_from_batch:
-			return
+			if frappe.db.exists(
+				"LMS Batch Enrollment", {"batch": self.enrollment_from_batch, "member": self.member}
+			):
+				return
 
 		if not course_details.published and not is_admin():
 			frappe.throw(_("You cannot enroll in an unpublished course."))
