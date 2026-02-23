@@ -70,14 +70,17 @@ def assign_badge(badge_name: str):
 		["name", "event", "reference_doctype", "condition", "user_field"],
 		as_dict=True,
 	)
+	if not badge:
+		frappe.throw(_("Badge {0} not found").format(badge_name), frappe.DoesNotExistError)
+
 	if not badge.event == "Manual Assignment":
 		return
 
 	fields = ["name"]
 	fields.append(badge.user_field)
-	list = frappe.get_all(badge.reference_doctype, filters=json.loads(badge.condition), fields=fields)
+	docs = frappe.get_all(badge.reference_doctype, filters=json.loads(badge.condition), fields=fields)
 
-	for doc in list:
+	for doc in docs:
 		assignment_name = award(badge, doc.get(badge.user_field))
 		if assignment_name:
 			assignments.append(assignment_name)

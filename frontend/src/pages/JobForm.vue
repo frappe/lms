@@ -189,6 +189,7 @@ const jobDetails = createDocumentResource({
 watch(
 	() => jobDetails?.doc,
 	() => {
+		if (!jobDetails.doc) return
 		if (jobDetails.doc.owner != user.data?.name && !user.data?.is_moderator) {
 			router.push({
 				name: 'Jobs',

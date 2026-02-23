@@ -31,6 +31,7 @@ from pypika import functions as fn
 
 from lms.lms.doctype.course_lesson.course_lesson import save_progress
 from lms.lms.utils import (
+	LMS_ROLES,
 	can_modify_batch,
 	can_modify_course,
 	get_average_rating,
@@ -607,12 +608,7 @@ def check_app_permission():
 	if frappe.session.user == "Administrator":
 		return True
 
-	roles = frappe.get_roles()
-	lms_roles = ["Moderator", "Course Creator", "Batch Evaluator", "LMS Student"]
-	if any(role in roles for role in lms_roles):
-		return True
-
-	return False
+	return has_lms_role()
 
 
 @frappe.whitelist()
@@ -1723,7 +1719,7 @@ def get_profile_details(username: str):
 	roles = frappe.get_roles(details.name)
 	if not has_lms_role():
 		frappe.throw(
-			_("User does not have permission to access this users profile details."), frappe.PermissionError
+			_("User does not have permission to access this user's profile details."), frappe.PermissionError
 		)
 	details.roles = roles
 	return details

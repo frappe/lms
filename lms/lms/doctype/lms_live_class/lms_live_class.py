@@ -177,6 +177,9 @@ def has_permission(doc, ptype="read", user=None):
 	if "Moderator" in roles or "Batch Evaluator" in roles:
 		return True
 
+	if ptype not in ("read", "select", "print"):
+		return False
+
 	return frappe.db.exists(
 		"LMS Batch Enrollment",
 		{"batch": doc.batch_name, "member": user},

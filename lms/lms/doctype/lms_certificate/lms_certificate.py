@@ -222,6 +222,10 @@ def has_permission(doc, ptype="read", user=None):
 	roles = frappe.get_roles(user)
 	if "Moderator" in roles or "Course Creator" in roles or "Batch Evaluator" in roles:
 		return True
+	if doc.owner == user:
+		return True
+	if ptype not in ("read", "select", "print"):
+		return False
 	return doc.published
 
 

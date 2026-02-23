@@ -658,7 +658,7 @@ const getVideoDetails = () => {
 
 const getPlyrSourceDetails = () => {
 	let details = []
-	plyrSources.value.forEach(async (source) => {
+	plyrSources.value.forEach((source) => {
 		if (source.currentTime == source.duration) markProgress()
 		let src = cleanYouTubeUrl(source.source)
 		details.push({

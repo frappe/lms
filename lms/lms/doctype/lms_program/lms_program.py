@@ -55,6 +55,9 @@ def has_permission(doc, ptype="read", user=None):
 	if "Moderator" in roles or "Course Creator" in roles:
 		return True
 
+	if ptype not in ("read", "select", "print"):
+		return False
+
 	is_enrolled = frappe.db.exists("LMS Program Member", {"parent": doc.name, "member": user})
 	if is_enrolled:
 		return True
