@@ -18,8 +18,8 @@ class LMSCertificate(Document):
 		self.name = make_autoname("hash", self.doctype)
 
 	def after_insert(self):
-		self.send_certification_email()
 		capture("certificate_issued", "lms")
+		self.send_certification_email()
 
 	def send_certification_email(self):
 		outgoing_email_account = frappe.get_cached_value(
