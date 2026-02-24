@@ -5,7 +5,7 @@ from . import __version__ as app_version
 app_name = "frappe_lms"
 app_title = "Learning"
 app_publisher = "Frappe"
-app_description = "Frappe LMS App"
+app_description = "Open Source Learning Management System built with Frappe Framework"
 app_icon_url = "/assets/lms/images/lms-logo.png"
 app_icon_title = "Learning"
 app_color = "grey"
