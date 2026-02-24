@@ -16,15 +16,15 @@ from ...md import find_macros
 
 class CourseLesson(Document):
 	def after_insert(self):
-		frappe.enqueue(method=self.recalculate_progress, queue="long", is_async=True)
+		self.validate_progress_recalculation()
 
 	def after_delete(self):
-		frappe.enqueue(method=self.recalculate_progress, queue="long", is_async=True)
+		self.validate_progress_recalculation()
 
 	def on_update(self):
 		self.validate_quiz_id()
 
-	def recalculate_progress(self):
+	def validate_progress_recalculation(self):
 		if not self.course or not self.chapter:
 			return
 
@@ -36,6 +36,9 @@ class CourseLesson(Document):
 		if not len(enrollments):
 			return
 
+		frappe.enqueue(method=self.recalculate_progress, queue="long", is_async=True, enrollments=enrollments)
+
+	def recalculate_progress(self, enrollments):
 		for enrollment in enrollments:
 			recalculate_course_progress(self.course, enrollment.member)
 

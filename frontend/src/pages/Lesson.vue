@@ -743,7 +743,6 @@ const updateVideoTime = (video) => {
 const startTimer = () => {
 	if (!lesson.data?.membership) return
 	timerInterval = setInterval(() => {
-		console.log('Timer:', timer.value)
 		timer.value++
 		if (timer.value == 30) {
 			clearInterval(timerInterval)
