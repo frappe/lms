@@ -395,7 +395,7 @@ def get_all_users():
 @frappe.whitelist(allow_guest=True)
 def get_sidebar_settings():
 	lms_settings = frappe.get_single("LMS Settings")
-	if not lms_settings.allow_guest_access:
+	if frappe.session.user == "Guest" and not lms_settings.allow_guest_access:
 		return []
 
 	sidebar_items = frappe._dict()
