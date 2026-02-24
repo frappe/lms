@@ -111,44 +111,36 @@
 				</div>
 
 				<div class="px-5 pb-5 space-y-5 border-b mb-5">
-					<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-						<div class="space-y-5">
-							<FormControl
-								v-model="batchDetail.doc.description"
-								:label="__('Short Description')"
-								type="textarea"
-								:rows="4"
-								:placeholder="__('Short description of the batch')"
-								:required="true"
-							/>
-							<MultiSelect
-								v-model="instructors"
-								doctype="Course Evaluator"
-								:label="__('Instructors')"
-								:required="true"
-								:onCreate="(close) => openSettings('Evaluators', close)"
-								:filters="{ ignore_user_type: 1 }"
-							/>
-							<Uploader
-								v-model="batchDetail.doc.video_link"
-								:label="__('Preview Video')"
-								type="video"
-								:required="false"
-							/>
-						</div>
-						<div>
-							<label class="block text-sm text-ink-gray-5 mb-2">
-								{{ __('Batch Details') }}
-								<span class="text-ink-red-3">*</span>
-							</label>
-							<TextEditor
-								:content="batchDetail.doc.batch_details"
-								@change="(val) => (batchDetail.doc.batch_details = val)"
-								:editable="true"
-								:fixedMenu="true"
-								editorClass="prose-sm max-w-none border-b border-x bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[7rem] max-h-[16rem] overflow-y-scroll mb-4"
-							/>
-						</div>
+					<div class="grid grid-cols-2 gap-5">
+						<MultiSelect
+							v-model="instructors"
+							doctype="Course Evaluator"
+							:label="__('Instructors')"
+							:required="true"
+							:onCreate="(close) => openSettings('Evaluators', close)"
+							:filters="{ ignore_user_type: 1 }"
+						/>
+						<FormControl
+							v-model="batchDetail.doc.description"
+							:label="__('Short Description')"
+							type="textarea"
+							:rows="4"
+							:placeholder="__('Short description of the batch')"
+							:required="true"
+						/>
+					</div>
+					<div>
+						<label class="block text-sm text-ink-gray-5 mb-2">
+							{{ __('Batch Details') }}
+							<span class="text-ink-red-3">*</span>
+						</label>
+						<TextEditor
+							:content="batchDetail.doc.batch_details"
+							@change="(val) => (batchDetail.doc.batch_details = val)"
+							:editable="true"
+							:fixedMenu="true"
+							editorClass="prose-sm max-w-none border-b border-x bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[7rem] max-h-[16rem] overflow-y-scroll mb-4"
+						/>
 					</div>
 				</div>
 
@@ -183,6 +175,12 @@
 										openSettings('Zoom Accounts', close)
 									}
 								"
+							/>
+							<Uploader
+								v-model="batchDetail.doc.video_link"
+								:label="__('Preview Video')"
+								type="video"
+								:required="false"
 							/>
 						</div>
 					</div>

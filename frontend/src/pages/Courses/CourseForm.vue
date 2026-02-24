@@ -80,7 +80,7 @@
 
 					<div class="pr-5 md:pr-10 pb-5 mb-5 space-y-5 border-b">
 						<div class="text-lg font-semibold text-ink-gray-9">
-							{{ __('Settings') }}
+							{{ __('Publishing Settings') }}
 						</div>
 						<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
 							<div

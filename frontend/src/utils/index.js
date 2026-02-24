@@ -644,6 +644,7 @@ export const validateFile = async (
 	showToast = true,
 	fileType = 'image'
 ) => {
+	const extension = file.name.split('.').pop().toLowerCase()
 	const error = (msg) => {
 		if (showToast) toast.error(msg)
 		console.error(msg)
@@ -651,6 +652,16 @@ export const validateFile = async (
 	}
 	if (!file.type.startsWith(`${fileType}/`)) {
 		return error(__('Only {0} file is allowed.').format(fileType))
+	}
+
+	if (fileType == 'pdf' && extension !== 'pdf') {
+		return error(__('Only PDF files are allowed.'))
+	}
+
+	if (fileType == 'document' && !['doc', 'docx'].includes(extension)) {
+		return error(
+			__('Only document file of type .doc or .docx are allowed.')
+		)
 	}
 
 	if (file.type === 'image/svg+xml') {
@@ -680,7 +691,6 @@ export const validateFile = async (
 export const escapeHTML = (text) => {
 	if (!text) return ''
 	let escape_html_mapping = {
-		'&': '&amp;',
 		'<': '&lt;',
 		'>': '&gt;',
 		'"': '&quot;',
