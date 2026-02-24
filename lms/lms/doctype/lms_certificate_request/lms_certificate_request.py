@@ -13,6 +13,7 @@ from frappe.utils import (
 	format_time,
 	get_datetime,
 	get_fullname,
+	get_system_timezone,
 	get_time,
 	getdate,
 	nowtime,
@@ -118,16 +119,7 @@ class LMSCertificateRequest(Document):
 	def validate_timezone(self):
 		if self.timezone:
 			return
-		if self.batch_name:
-			timezone = frappe.db.get_value("LMS Batch", self.batch_name, "timezone")
-			if timezone:
-				self.timezone = timezone
-				return
-		if self.course:
-			timezone = frappe.db.get_value("LMS Course", self.course, "timezone")
-			if timezone:
-				self.timezone = timezone
-				return
+		self.timezone = get_system_timezone()
 
 	def send_notification(self):
 		outgoing_email_account = frappe.get_cached_value(
