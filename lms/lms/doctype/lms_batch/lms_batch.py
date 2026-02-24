@@ -36,6 +36,7 @@ class LMSBatch(Document):
 		self.validate_duplicate_assessments()
 		self.validate_timetable()
 		self.validate_evaluation_end_date()
+		self.validate_conferencing_provider()
 
 	def on_update(self):
 		if self.has_value_changed("published") and self.published:
@@ -125,6 +126,22 @@ class LMSBatch(Document):
 
 			if schedule.date < self.start_date or schedule.date > self.end_date:
 				frappe.throw(_("Row #{0} Date cannot be outside the batch duration.").format(schedule.idx))
+
+	def validate_conferencing_provider(self):
+		if self.conferencing_provider == "Google Meet":
+			if not self.google_meet_account:
+				frappe.throw(_("Please select a Google Meet account for this batch."))
+
+			google_meet_settings = frappe.get_doc("LMS Google Meet Settings", self.google_meet_account)
+			if not google_meet_settings.enabled:
+				frappe.throw(_("The selected Google Meet account is disabled. Please enable it or select another account."))
+
+			if not google_meet_settings.google_calendar:
+				frappe.throw(_("The selected Google Meet account does not have a Google Calendar configured."))
+
+		elif self.conferencing_provider == "Zoom":
+			if not self.zoom_account:
+				frappe.throw(_("Please select a Zoom account for this batch."))
 
 	def on_payment_authorized(self, payment_status):
 		if payment_status in ["Authorized", "Completed"]:
@@ -260,6 +277,43 @@ def create_live_class(
 		return class_details
 	else:
 		frappe.throw(_("Error creating live class. Please try again. {0}").format(response.text))
+
+
+@frappe.whitelist()
+def create_google_meet_live_class(
+	batch_name,
+	google_meet_account,
+	title,
+	duration,
+	date,
+	time,
+	timezone,
+	description=None,
+):
+	google_meet_settings = frappe.get_doc("LMS Google Meet Settings", google_meet_account)
+	if not google_meet_settings.enabled:
+		frappe.throw(_("Please enable the Google Meet account to use this feature."))
+
+	if not google_meet_settings.google_calendar:
+		frappe.throw(_("The Google Meet account does not have a Google Calendar configured. Please set up a Google Calendar first."))
+
+	class_details = frappe.get_doc(
+		{
+			"doctype": "LMS Live Class",
+			"title": title,
+			"host": frappe.session.user,
+			"date": date,
+			"time": time,
+			"duration": duration,
+			"timezone": timezone,
+			"description": description,
+			"batch_name": batch_name,
+			"conferencing_provider": "Google Meet",
+			"google_meet_account": google_meet_account,
+		}
+	)
+	class_details.save()
+	return class_details
 
 
 def authenticate(zoom_account):

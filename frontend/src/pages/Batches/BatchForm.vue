@@ -166,13 +166,31 @@
 							/>
 						</div>
 						<div class="space-y-5">
+							<FormControl
+								v-model="batchDetail.doc.conferencing_provider"
+								type="select"
+								:options="conferencingOptions"
+								:label="__('Conferencing Provider')"
+							/>
 							<Link
+								v-if="batchDetail.doc.conferencing_provider === 'Zoom'"
 								doctype="LMS Zoom Settings"
 								:label="__('Zoom Account')"
 								v-model="batchDetail.doc.zoom_account"
 								:onCreate="
 									(value, close) => {
 										openSettings('Zoom Accounts', close)
+									}
+								"
+							/>
+							<Link
+								v-if="batchDetail.doc.conferencing_provider === 'Google Meet'"
+								doctype="LMS Google Meet Settings"
+								:label="__('Google Meet Account')"
+								v-model="batchDetail.doc.google_meet_account"
+								:onCreate="
+									(value, close) => {
+										openSettings('Google Meet Accounts', close)
 									}
 								"
 							/>
@@ -462,6 +480,19 @@ const trashBatch = (close) => {
 		})
 	})
 }
+
+const conferencingOptions = computed(() => {
+	return [
+		{
+			label: 'Zoom',
+			value: 'Zoom',
+		},
+		{
+			label: 'Google Meet',
+			value: 'Google Meet',
+		},
+	]
+})
 
 const mediumOptions = computed(() => {
 	return [

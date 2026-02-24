@@ -10,7 +10,9 @@
  "field_order": [
   "title",
   "host",
+  "conferencing_provider",
   "zoom_account",
+  "google_meet_account",
   "batch_name",
   "column_break_astv",
   "date",
@@ -107,6 +109,7 @@
    "read_only": 1
   },
   {
+   "depends_on": "eval:doc.conferencing_provider=='Zoom'",
    "fieldname": "password",
    "fieldtype": "Password",
    "label": "Password"
@@ -125,6 +128,7 @@
   },
   {
    "default": "No Recording",
+   "depends_on": "eval:doc.conferencing_provider=='Zoom'",
    "fieldname": "auto_recording",
    "fieldtype": "Select",
    "label": "Auto Recording",
@@ -138,13 +142,29 @@
    "read_only": 1
   },
   {
+   "fieldname": "conferencing_provider",
+   "fieldtype": "Select",
+   "label": "Conferencing Provider",
+   "options": "Zoom\nGoogle Meet"
+  },
+  {
    "fieldname": "zoom_account",
    "fieldtype": "Link",
    "label": "Zoom Account",
    "options": "LMS Zoom Settings",
-   "reqd": 1
+   "depends_on": "eval:doc.conferencing_provider=='Zoom'",
+   "mandatory_depends_on": "eval:doc.conferencing_provider=='Zoom'"
   },
   {
+   "fieldname": "google_meet_account",
+   "fieldtype": "Link",
+   "label": "Google Meet Account",
+   "options": "LMS Google Meet Settings",
+   "depends_on": "eval:doc.conferencing_provider=='Google Meet'",
+   "mandatory_depends_on": "eval:doc.conferencing_provider=='Google Meet'"
+  },
+  {
+   "depends_on": "eval:doc.conferencing_provider=='Zoom'",
    "fieldname": "meeting_id",
    "fieldtype": "Data",
    "label": "Meeting ID"
@@ -160,6 +180,7 @@
    "fieldtype": "Section Break"
   },
   {
+   "depends_on": "eval:doc.conferencing_provider=='Zoom'",
    "fieldname": "uuid",
    "fieldtype": "Data",
    "label": "UUID"

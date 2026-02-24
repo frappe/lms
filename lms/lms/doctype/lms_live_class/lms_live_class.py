@@ -15,12 +15,135 @@ from lms.lms.doctype.lms_batch.lms_batch import authenticate
 
 class LMSLiveClass(Document):
 	def after_insert(self):
+		if self.conferencing_provider == "Google Meet":
+			self._create_google_meet_event()
+		else:
+			self._create_calendar_event()
+
+	def on_update(self):
+		if not self.event:
+			return
+
+		if not self.has_value_changed("date") and not self.has_value_changed("time") \
+				and not self.has_value_changed("duration") and not self.has_value_changed("title"):
+			return
+
+		self._update_linked_event()
+
+	def on_trash(self):
+		if self.event and frappe.db.exists("Event", self.event):
+			frappe.delete_doc("Event", self.event, ignore_permissions=True)
+
+	def _update_linked_event(self):
+		event = frappe.get_doc("Event", self.event)
+		start = f"{self.date} {self.time}"
+
+		event.subject = f"Live Class on {self.title}"
+		event.starts_on = start
+		event.ends_on = get_datetime(start) + timedelta(minutes=cint(self.duration))
+
+		description = f"A Live Class has been scheduled on {format_date(self.date, 'medium')} at {format_time(self.time, 'hh:mm a')}."
+		if self.join_url:
+			description += f" Click on this link to join. {self.join_url}."
+		if self.description:
+			description += f" {self.description}"
+		event.description = description
+
+		event.save(ignore_permissions=True)
+
+	def _create_calendar_event(self):
 		calendar = frappe.db.get_value("Google Calendar", {"user": frappe.session.user, "enable": 1}, "name")
 
 		if calendar:
 			event = self.create_event()
 			self.add_event_participants(event, calendar)
 			frappe.db.set_value(self.doctype, self.name, "event", event.name)
+
+	def _create_google_meet_event(self):
+		google_meet_settings = frappe.get_doc("LMS Google Meet Settings", self.google_meet_account)
+		calendar = google_meet_settings.google_calendar
+
+		if not calendar:
+			frappe.throw(_("Google Calendar is not configured for this Google Meet account."))
+
+		event = self.create_event()
+
+		description = f"A Live Class has been scheduled on {format_date(self.date, 'medium')} at {format_time(self.time, 'hh:mm a')}."
+		if self.description:
+			description += f" {self.description}"
+
+		event.reload()
+		event.update(
+			{
+				"sync_with_google_calendar": 1,
+				"add_video_conferencing": 1,
+				"google_calendar": calendar,
+				"description": description,
+			}
+		)
+		event.save()
+		event.reload()
+
+		meet_link = event.google_meet_link
+		frappe.db.set_value(
+			self.doctype,
+			self.name,
+			{
+				"event": event.name,
+				"join_url": meet_link or "",
+				"start_url": meet_link or "",
+			},
+		)
+
+		if not meet_link:
+			frappe.msgprint(
+				_("The Meet link is not yet available. It will be generated once Google Calendar syncs the event. Please refresh the page after a few moments."),
+				indicator="orange",
+				alert=True,
+			)
+
+		self._add_google_meet_participants(event, calendar)
+
+	def _add_google_meet_participants(self, event, calendar):
+		from frappe.integrations.doctype.google_calendar.google_calendar import get_google_calendar_object
+
+		participants = frappe.get_all("LMS Batch Enrollment", {"batch": self.batch_name}, pluck="member")
+		instructors = frappe.get_all(
+			"Course Instructor", {"parenttype": "LMS Batch", "parent": self.batch_name}, pluck="instructor"
+		)
+
+		participants.append(frappe.session.user)
+		participants.extend(instructors)
+		participants = list(set(participants))
+
+		attendees = []
+		for participant in participants:
+			email = frappe.db.get_value("User", participant, "email")
+			if not email:
+				continue
+			attendees.append({"email": email})
+
+		if not attendees:
+			return
+
+		try:
+			google_calendar_api, account = get_google_calendar_object(calendar)
+			google_calendar_api.events().patch(
+				calendarId=event.google_calendar_id,
+				eventId=event.google_calendar_event_id,
+				body={
+					"attendees": attendees,
+					"guestsCanSeeOtherGuests": False,
+				},
+				sendUpdates="all",
+			).execute()
+		except Exception:
+			frappe.log_error(title=_("Google Meet - Failed to add participants to calendar event"))
+			frappe.msgprint(
+				_("Live class was created but calendar invites could not be sent to participants. You may need to share the Meet link manually."),
+				indicator="orange",
+				alert=True,
+			)
 
 	def create_event(self):
 		start = f"{self.date} {self.time}"
@@ -37,7 +160,7 @@ class LMSLiveClass(Document):
 		event.save()
 		return event
 
-	def add_event_participants(self, event, calendar):
+	def add_event_participants(self, event, calendar, add_video_conferencing=False):
 		participants = frappe.get_all("LMS Batch Enrollment", {"batch": self.batch_name}, pluck="member")
 		instructors = frappe.get_all(
 			"Course Instructor", {"parenttype": "LMS Batch", "parent": self.batch_name}, pluck="instructor"
@@ -61,14 +184,23 @@ class LMSLiveClass(Document):
 			).save()
 
 		event.reload()
-		event.update(
-			{
-				"sync_with_google_calendar": 1,
-				"google_calendar": calendar,
-				"description": f"A Live Class has been scheduled on {format_date(self.date, 'medium')} at {format_time(self.time, 'hh:mm a')}. Click on this link to join. {self.join_url}. {self.description}",
-			}
-		)
 
+		description = f"A Live Class has been scheduled on {format_date(self.date, 'medium')} at {format_time(self.time, 'hh:mm a')}."
+		if self.join_url:
+			description += f" Click on this link to join. {self.join_url}."
+		if self.description:
+			description += f" {self.description}"
+
+		update_data = {
+			"sync_with_google_calendar": 1,
+			"google_calendar": calendar,
+			"description": description,
+		}
+
+		if add_video_conferencing:
+			update_data["add_video_conferencing"] = 1
+
+		event.update(update_data)
 		event.save()
 
 
@@ -118,6 +250,7 @@ def update_attendance():
 		{
 			"uuid": ["is", "set"],
 			"attendees": ["is", "not set"],
+			"conferencing_provider": ["!=", "Google Meet"],
 		},
 		["name", "uuid", "zoom_account"],
 	)
@@ -169,6 +302,36 @@ def get_minutes(duration_in_seconds):
 	if duration_in_seconds:
 		return int(duration_in_seconds) // 60
 	return 0
+
+
+@frappe.whitelist()
+def mark_manual_attendance(live_class, members):
+	if isinstance(members, str):
+		members = json.loads(members)
+
+	live_class_doc = frappe.get_doc("LMS Live Class", live_class)
+	start = get_datetime(f"{live_class_doc.date} {live_class_doc.time}")
+	end = start + timedelta(minutes=cint(live_class_doc.duration))
+
+	# Remove existing manual attendance records for this class
+	existing = frappe.get_all(
+		"LMS Live Class Participant",
+		{"live_class": live_class},
+		pluck="name",
+	)
+	for record in existing:
+		frappe.delete_doc("LMS Live Class Participant", record, ignore_permissions=True)
+
+	for member in members:
+		doc = frappe.new_doc("LMS Live Class Participant")
+		doc.live_class = live_class
+		doc.member = member
+		doc.joined_at = start
+		doc.left_at = end
+		doc.duration = cint(live_class_doc.duration)
+		doc.insert(ignore_permissions=True)
+
+	frappe.db.set_value("LMS Live Class", live_class, "attendees", len(members))
 
 
 def has_permission(doc, ptype="read", user=None):
