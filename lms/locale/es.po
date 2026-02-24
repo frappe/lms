@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2026-01-23 16:05+0000\n"
-"PO-Revision-Date: 2026-02-21 16:43\n"
+"PO-Revision-Date: 2026-02-24 17:18\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Spanish\n"
 "MIME-Version: 1.0\n"
@@ -2300,7 +2300,7 @@ msgstr "ID de correo electrónico"
 #. Label of the email_sent (Check) field in DocType 'LMS Course Interest'
 #: lms/lms/doctype/lms_course_interest/lms_course_interest.json
 msgid "Email Sent"
-msgstr ""
+msgstr "Correo Electrónico Enviado"
 
 #: frontend/src/pages/BatchForm.vue:161
 msgid "Email Template"
@@ -3436,7 +3436,7 @@ msgstr "Configuración de trabajo"
 #: lms/job/doctype/lms_job_application/lms_job_application.json
 #: lms/job/web_form/job_opportunity/job_opportunity.json
 msgid "Job Title"
-msgstr ""
+msgstr "Título del trabajo"
 
 #. Label of the jobs (Check) field in DocType 'LMS Settings'
 #: frontend/src/pages/JobApplications.vue:9 frontend/src/pages/JobDetail.vue:10
