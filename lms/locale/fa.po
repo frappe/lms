@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2026-01-23 16:05+0000\n"
-"PO-Revision-Date: 2026-02-15 14:24\n"
+"PO-Revision-Date: 2026-02-24 17:18\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Persian\n"
 "MIME-Version: 1.0\n"
@@ -7798,7 +7798,7 @@ msgstr ""
 
 #: frontend/src/pages/Programs/ProgramEnrollment.vue:80
 msgid "rating"
-msgstr "رتبه بندی"
+msgstr "رتبه‌بندی"
 
 #: frontend/src/components/Settings/Categories.vue:19
 msgid "saving..."
