@@ -28,6 +28,7 @@ from frappe.utils import (
 from pypika import Case
 from pypika import functions as fn
 
+from lms.lms.doctype.lms_enrollment.lms_enrollment import update_program_progress
 from lms.lms.md import find_macros
 
 RE_SLUG_NOTALLOWED = re.compile("[^a-z0-9]+")
@@ -2312,3 +2313,17 @@ def has_lms_role():
 	lms_roles = set(LMS_ROLES)
 	user_roles = set(roles)
 	return not lms_roles.isdisjoint(user_roles)
+
+
+def recalculate_course_progress(course: str, member: str):
+	progress = get_course_progress(course, member)
+	membership = frappe.db.get_value(
+		"LMS Enrollment",
+		{
+			"member": member,
+			"course": course,
+		},
+		"name",
+	)
+	frappe.db.set_value("LMS Enrollment", membership, "progress", progress)
+	update_program_progress(member)

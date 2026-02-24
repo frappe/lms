@@ -9,14 +9,35 @@ from frappe.model.document import Document
 from frappe.realtime import get_website_room
 from frappe.utils.telemetry import capture
 
-from lms.lms.utils import get_course_progress
+from lms.lms.utils import get_course_progress, recalculate_course_progress
 
 from ...md import find_macros
 
 
 class CourseLesson(Document):
+	def after_insert(self):
+		frappe.enqueue(method=self.recalculate_progress, queue="long", is_async=True)
+
+	def after_delete(self):
+		frappe.enqueue(method=self.recalculate_progress, queue="long", is_async=True)
+
 	def on_update(self):
 		self.validate_quiz_id()
+
+	def recalculate_progress(self):
+		if not self.course or not self.chapter:
+			return
+
+		enrollments = frappe.db.get_all(
+			"LMS Enrollment",
+			filters={"course": self.course},
+			fields=["name", "member"],
+		)
+		if not len(enrollments):
+			return
+
+		for enrollment in enrollments:
+			recalculate_course_progress(self.course, enrollment.member)
 
 	def validate_quiz_id(self):
 		if self.quiz_id and not frappe.db.exists("LMS Quiz", self.quiz_id):
