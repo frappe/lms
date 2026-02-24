@@ -1128,6 +1128,8 @@ def get_batch_details(batch: str):
 			"timezone",
 			"category",
 			"zoom_account",
+			"conferencing_provider",
+			"google_meet_account",
 		],
 		as_dict=True,
 	)
