@@ -116,8 +116,13 @@
  "in_create": 1,
  "index_web_pages_for_search": 1,
  "links": [],
+<<<<<<< HEAD
  "modified": "2024-10-07 16:52:04.162521",
  "modified_by": "Administrator",
+=======
+ "modified": "2026-02-25 12:36:40.110346",
+ "modified_by": "sayali@frappe.io",
+>>>>>>> af5bce9e (fix: permission issue during quiz submission)
  "module": "LMS",
  "name": "LMS Quiz Submission",
  "owner": "Administrator",
@@ -138,11 +143,20 @@
    "create": 1,
    "email": 1,
    "export": 1,
+<<<<<<< HEAD
+=======
+   "if_owner": 1,
+>>>>>>> af5bce9e (fix: permission issue during quiz submission)
    "print": 1,
    "read": 1,
    "report": 1,
    "role": "LMS Student",
+<<<<<<< HEAD
    "share": 1
+=======
+   "share": 1,
+   "write": 1
+>>>>>>> af5bce9e (fix: permission issue during quiz submission)
   }
  ],
  "sort_field": "modified",
