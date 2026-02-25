@@ -46,7 +46,7 @@ class CourseLesson(Document):
 
 
 @frappe.whitelist()
-def save_progress(lesson, course, scorm_details=None):
+def save_progress(lesson: str, course: str, scorm_details: dict = None):
 	"""
 	Note: Pass the argument scorm_details as a dict if it is SCORM related save_progress
 	"""
@@ -103,7 +103,7 @@ def save_progress(lesson, course, scorm_details=None):
 		)
 
 	progress = get_course_progress(course)
-	capture_progress_for_analytics(progress, course)
+	capture_progress_for_analytics()
 
 	# Had to get doc, as on_change doesn't trigger when you use set_value. The trigger is necessary for badge to get assigned.
 	enrollment = frappe.get_doc("LMS Enrollment", membership)
@@ -121,9 +121,8 @@ def save_progress(lesson, course, scorm_details=None):
 	return progress
 
 
-def capture_progress_for_analytics(progress, course):
-	if progress in [25, 50, 75, 100]:
-		capture("course_progress", "lms", properties={"course": course, "progress": progress})
+def capture_progress_for_analytics():
+	capture("course_progress", "lms")
 
 
 def get_quiz_progress(lesson):

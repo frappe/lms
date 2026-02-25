@@ -8,9 +8,15 @@ from frappe.utils import ceil
 
 
 class LMSEnrollment(Document):
-	def before_insert(self):
+	def validate(self):
 		self.validate_duplicate_enrollment()
 		self.validate_course_enrollment_eligibility()
+		self.validate_owner()
+
+	def validate_owner(self):
+		"""Makes the member as the owner of the document so that users can update their progress"""
+		if self.owner != self.member:
+			self.owner = self.member
 
 	def on_update(self):
 		update_program_progress(self.member)
@@ -45,7 +51,7 @@ class LMSEnrollment(Document):
 		if self.enrollment_from_batch:
 			return
 
-		if not course_details.published:
+		if not course_details.published and not is_admin():
 			frappe.throw(_("You cannot enroll in an unpublished course."))
 
 		if course_details.paid_course:

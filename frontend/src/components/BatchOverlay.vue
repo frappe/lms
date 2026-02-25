@@ -1,28 +1,29 @@
 <template>
 	<div v-if="batch.data" class="border-2 rounded-md p-5 lg:w-72">
-		<div
+		<Badge
 			v-if="batch.data.seat_count && batch.data.seats_left > 0"
-			class="text-sm bg-green-100 text-green-700 px-2 py-1 rounded-md"
+			variant="subtle"
+			theme="green"
+			size="md"
 			:class="
 				batch.data.amount || batch.data.courses.length
 					? 'float-right'
 					: 'w-fit mb-4'
 			"
-		>
-			{{ batch.data.seats_left }}
-			<span v-if="batch.data.seats_left > 1">
-				{{ __('Seats Left') }}
-			</span>
-			<span v-else-if="batch.data.seats_left == 1">
-				{{ __('Seat Left') }}
-			</span>
-		</div>
-		<div
+			:label="
+				batch.data.seats_left +
+				' ' +
+				(batch.data.seats_left > 1 ? __('Seats Left') : __('Seat Left'))
+			"
+		/>
+		<Badge
 			v-else-if="batch.data.seat_count && batch.data.seats_left <= 0"
-			class="text-xs bg-red-100 text-red-700 float-right px-2 py-0.5 rounded-md"
-		>
-			{{ __('Sold Out') }}
-		</div>
+			variant="subtle"
+			theme="red"
+			size="md"
+			class="float-right"
+			:label="__('Sold Out')"
+		/>
 		<div
 			v-if="batch.data.amount"
 			class="text-lg font-semibold mb-3 text-ink-gray-9"
@@ -136,7 +137,7 @@
 </template>
 <script setup>
 import { inject, computed } from 'vue'
-import { Button, createResource, toast } from 'frappe-ui'
+import { Badge, Button, createResource, toast } from 'frappe-ui'
 import {
 	BookOpen,
 	Clock,

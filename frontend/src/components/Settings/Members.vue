@@ -32,7 +32,7 @@
 				</template>
 			</FormControl>
 			<div class="overflow-y-scroll h-[60vh]">
-				<ul class="divide-y">
+				<ul class="divide-y divide-outline-gray-modals">
 					<li
 						v-for="member in memberList"
 						class="flex items-center justify-between py-2 cursor-pointer"
@@ -58,7 +58,7 @@
 							</div>
 						</div>
 						<div
-							class="flex items-center space-x-1 bg-surface-gray-2 px-2 py-1.5 rounded-md"
+							class="flex items-center text-ink-gray-9 space-x-1 bg-surface-gray-2 px-2 py-1.5 rounded-md"
 							v-if="member.role && member.role !== 'LMS Student'"
 						>
 							<Shield class="size-4 stroke-1.5" />
@@ -117,12 +117,21 @@
 	</Dialog>
 </template>
 <script setup lang="ts">
-import { Avatar, Button, createResource, Dialog, FormControl } from 'frappe-ui'
+import {
+	Avatar,
+	Button,
+	call,
+	createResource,
+	Dialog,
+	FormControl,
+	toast,
+} from 'frappe-ui'
 import { useRouter } from 'vue-router'
 import { ref, watch, reactive, inject } from 'vue'
 import { RefreshCw, Plus, Search, Shield } from 'lucide-vue-next'
 import { useOnboarding } from 'frappe-ui/frappe'
 import type { User } from '@/components/Settings/types'
+import { useTelemetry } from 'frappe-ui/frappe'
 
 type Member = {
 	username: string
@@ -141,6 +150,7 @@ const hasNextPage = ref(false)
 const showForm = ref(false)
 const user = inject<User | null>('$user')
 const { updateOnboardingStep } = useOnboarding('learning')
+const { capture } = useTelemetry()
 
 const member = reactive({
 	email: '',
@@ -184,34 +194,30 @@ const openProfile = (username: string) => {
 	})
 }
 
-const newMember = createResource({
-	url: 'frappe.client.insert',
-	makeParams() {
-		return {
-			doc: {
-				doctype: 'User',
-				first_name: member.first_name,
-				email: member.email,
-			},
-		}
-	},
-	auto: false,
-	onSuccess(data: Member) {
-		show.value = false
-		if (user?.data?.is_system_manager) updateOnboardingStep('invite_students')
-
-		router.push({
-			name: 'ProfileRoles',
-			params: {
-				username: data.username,
-			},
-		})
-	},
-})
-
 const addMember = (close: () => void) => {
-	newMember.reload()
-	close()
+	call('frappe.client.insert', {
+		doc: {
+			doctype: 'User',
+			first_name: member.first_name,
+			email: member.email,
+		},
+	})
+		.then((data: Member) => {
+			if (user?.data?.is_system_manager) updateOnboardingStep('invite_students')
+			capture('user_added')
+			show.value = false
+			router.push({
+				name: 'ProfileRoles',
+				params: {
+					username: data.username,
+				},
+			})
+			close()
+		})
+		.catch((err: any) => {
+			console.error(err)
+			toast.error(__(err.messages?.[0] || err))
+		})
 }
 
 watch(search, () => {

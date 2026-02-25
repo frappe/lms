@@ -61,7 +61,7 @@ def eval_condition(doc, condition):
 
 
 @frappe.whitelist()
-def assign_badge(badge):
+def assign_badge(badge: str, user: str):
 	badge = frappe._dict(json.loads(badge))
 	if not badge.event == "Auto Assign":
 		return

@@ -138,7 +138,7 @@
 						@change="(val) => (batch.batch_details = val)"
 						:editable="true"
 						:fixedMenu="true"
-						editorClass="prose-sm max-w-none border-b border-x bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[7rem] max-h-[20rem] overflow-y-scroll mb-4"
+						editorClass="prose-sm max-w-none border-b border-x border-outline-gray-modals bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[7rem] max-h-[20rem] overflow-y-scroll mb-4"
 					/>
 				</div>
 			</div>
@@ -559,7 +559,7 @@ const trashBatch = (close) => {
 const breadcrumbs = computed(() => {
 	let crumbs = [
 		{
-			label: 'Batches',
+			label: __('Batches'),
 			route: {
 				name: 'Batches',
 			},
@@ -577,7 +577,7 @@ const breadcrumbs = computed(() => {
 		})
 	}
 	crumbs.push({
-		label: props.batchName == 'new' ? 'New Batch' : 'Edit Batch',
+		label: props.batchName == 'new' ? __('New Batch') : __('Edit Batch'),
 		route: { name: 'BatchForm', params: { batchName: props.batchName } },
 	})
 	return crumbs

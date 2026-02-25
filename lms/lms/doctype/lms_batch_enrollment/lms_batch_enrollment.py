@@ -26,7 +26,7 @@ class LMSBatchEnrollment(Document):
 		if self.owner == self.member:
 			return
 
-		roles = frappe.get_roles(self.owner)
+		roles = frappe.get_roles()
 		if "Moderator" not in roles and "Batch Evaluator" not in roles:
 			frappe.throw(_("You must be a Moderator or Batch Evaluator to enroll users in a batch."))
 
@@ -106,7 +106,7 @@ class LMSBatchEnrollment(Document):
 
 
 @frappe.whitelist()
-def send_confirmation_email(doc):
+def send_confirmation_email(doc: Document):
 	if isinstance(doc, str):
 		doc = frappe._dict(json.loads(doc))
 

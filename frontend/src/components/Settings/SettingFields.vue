@@ -1,5 +1,5 @@
 <template>
-	<div class="mb-5 divide-y overflow-y-auto">
+	<div class="mb-5 divide-y divide-outline-gray-modals overflow-y-auto">
 		<div v-for="(section, index) in sections" class="py-5">
 			<div v-if="section.label" class="font-semibold text-ink-gray-9 mb-4">
 				{{ section.label }}
@@ -65,7 +65,7 @@
 							<div v-else>
 								<div class="flex items-center text-sm space-x-2">
 									<div
-										class="flex items-center justify-center rounded border border-outline-gray-1 bg-surface-gray-2"
+										class="flex items-center justify-center rounded border border-outline-gray-modals bg-surface-gray-2"
 										:class="field.size == 'lg' ? 'px-5 py-5' : 'px-20 py-8'"
 									>
 										<img
@@ -90,7 +90,7 @@
 									</div>
 									<X
 										@click="data[field.name] = null"
-										class="border text-ink-gray-7 border-outline-gray-3 rounded-md cursor-pointer stroke-1.5 w-5 h-5 p-1 ml-4"
+										class="border text-ink-gray-7 border-outline-gray-modals rounded-md cursor-pointer stroke-1.5 w-5 h-5 p-1 ml-4"
 									/>
 								</div>
 							</div>

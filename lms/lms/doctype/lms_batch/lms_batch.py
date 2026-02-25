@@ -203,15 +203,15 @@ def send_system_notification_for_published_batch(batch):
 
 @frappe.whitelist()
 def create_live_class(
-	batch_name,
-	zoom_account,
-	title,
-	duration,
-	date,
-	time,
-	timezone,
-	auto_recording,
-	description=None,
+	batch_name: str,
+	zoom_account: str,
+	title: str,
+	duration: int,
+	date: str,
+	time: str,
+	timezone: str,
+	auto_recording: str,
+	description: str = None,
 ):
 	payload = {
 		"topic": title,
@@ -280,7 +280,7 @@ def authenticate(zoom_account):
 
 
 @frappe.whitelist()
-def get_batch_timetable(batch):
+def get_batch_timetable(batch: str):
 	timetable = frappe.get_all(
 		"LMS Batch Timetable",
 		filters={"parent": batch},

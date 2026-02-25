@@ -19,18 +19,18 @@ def validate_currency(payment_gateway, currency):
 
 @frappe.whitelist()
 def get_payment_link(
-	doctype,
-	docname,
-	title,
-	amount,
-	discount_amount,
-	gst_amount,
-	currency,
-	address,
-	redirect_to,
-	payment_for_certificate,
-	coupon_code=None,
-	coupon=None,
+	doctype: str,
+	docname: str,
+	title: str,
+	amount: float,
+	discount_amount: float,
+	gst_amount: float,
+	currency: str,
+	address: dict,
+	redirect_to: str,
+	payment_for_certificate: int,
+	coupon_code: str = None,
+	coupon: str = None,
 ):
 	payment_gateway = get_payment_gateway()
 	address = frappe._dict(address)
@@ -73,7 +73,7 @@ def get_payment_link(
 	return url
 
 
-def create_order(payment_gateway, payment_details, controller):
+def create_order(payment_gateway: str, payment_details: dict, controller: object):
 	if payment_gateway != "Razorpay":
 		return
 
@@ -81,7 +81,7 @@ def create_order(payment_gateway, payment_details, controller):
 	payment_details.update({"order_id": order.get("id")})
 
 
-def get_amount_with_gst(amount, gst_amount):
+def get_amount_with_gst(amount: float, gst_amount: float) -> float:
 	amount_with_gst = 0
 	if gst_amount:
 		amount_with_gst = amount + gst_amount
@@ -90,17 +90,17 @@ def get_amount_with_gst(amount, gst_amount):
 
 
 def record_payment(
-	address,
-	doctype,
-	docname,
-	amount,
-	original_amount,
-	currency,
-	amount_with_gst=0,
-	discount_amount=0,
-	payment_for_certificate=0,
-	coupon_code=None,
-	coupon=None,
+	address: dict,
+	doctype: str,
+	docname: str,
+	amount: float,
+	original_amount: float,
+	currency: str,
+	amount_with_gst: float = 0,
+	discount_amount: float = 0,
+	payment_for_certificate: int = 0,
+	coupon_code: str = None,
+	coupon: str = None,
 ):
 	address = frappe._dict(address)
 	address_name = save_address(address)
@@ -138,7 +138,7 @@ def record_payment(
 	return payment_doc
 
 
-def save_address(address):
+def save_address(address: dict) -> str:
 	filters = {"email_id": frappe.session.user}
 	exists = frappe.db.exists("Address", filters)
 	if exists:

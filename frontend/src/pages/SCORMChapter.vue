@@ -229,7 +229,7 @@ const setupSCORMAPI = () => {
 const breadcrumbs = computed(() => {
 	return [
 		{
-			label: 'Courses',
+			label: __('Courses'),
 			route: { name: 'Courses' },
 		},
 		{

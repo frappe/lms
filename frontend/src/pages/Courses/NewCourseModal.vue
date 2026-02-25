@@ -58,7 +58,7 @@
 							@change="(val: string) => (course.description = val)"
 							:editable="true"
 							:fixedMenu="true"
-							editorClass="prose-sm max-w-none border-b border-x bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[10rem]"
+							editorClass="prose-sm max-w-none border-b border-x border-outline-gray-modals bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[10rem]"
 						/>
 					</div>
 				</div>
@@ -76,9 +76,9 @@
 <script setup lang="ts">
 import { Button, Dialog, FormControl, TextEditor, toast } from 'frappe-ui'
 import { Link, useOnboarding, useTelemetry } from 'frappe-ui/frappe'
-import { inject, onMounted, onBeforeUnmount, ref, watch } from 'vue'
+import { inject, onMounted, onBeforeUnmount, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { openSettings } from '@/utils'
+import { cleanError, openSettings } from '@/utils'
 import MultiSelect from '@/components/Controls/MultiSelect.vue'
 import Uploader from '@/components/Controls/Uploader.vue'
 
@@ -125,6 +125,10 @@ const saveCourse = (close: () => void = () => {}) => {
 					})
 				}
 			},
+			onError(err: any) {
+				toast.error(cleanError(err.messages?.[0]))
+				console.error(err)
+			},
 		}
 	)
 }
@@ -144,13 +148,13 @@ const keyboardShortcut = (e: KeyboardEvent) => {
 
 onMounted(() => {
 	window.addEventListener('keydown', keyboardShortcut)
+	capture('course_form_opened')
 })
 
 onBeforeUnmount(() => {
 	window.removeEventListener('keydown', keyboardShortcut)
-})
-
-watch(show, () => {
-	capture('course_form_opened')
+	capture('course_form_closed', {
+		data: course.value,
+	})
 })
 </script>

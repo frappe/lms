@@ -3,7 +3,7 @@ import frappe
 from . import __version__ as app_version
 
 app_name = "frappe_lms"
-app_title = "Frappe LMS"
+app_title = "Learning"
 app_publisher = "Frappe"
 app_description = "Frappe LMS App"
 app_icon_url = "/assets/lms/images/lms-logo.png"
@@ -277,3 +277,4 @@ add_to_apps_screen = [
 
 sqlite_search = ["lms.sqlite.LearningSearch"]
 auth_hooks = ["lms.auth.authenticate"]
+require_type_annotated_api_methods = True

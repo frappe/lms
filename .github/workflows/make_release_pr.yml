@@ -18,9 +18,9 @@ jobs:
           owner: frappe
           repo: lms
           title: |-
-            "chore: merge 'develop' into 'main'"
+            "chore: merge 'main-hotfix' into 'main'"
           body: "Automated weekly release"
           base: main
-          head: develop
+          head: main-hotfix
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}

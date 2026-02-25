@@ -26,7 +26,7 @@
 						@change="(val) => (topic.reply = val)"
 						:editable="true"
 						:fixedMenu="true"
-						editorClass="prose-sm max-w-none border-b border-x bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[7rem]"
+						editorClass="prose-sm max-w-none border-b border-x border-outline-gray-modals bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[7rem]"
 					/>
 				</div>
 			</div>
@@ -34,17 +34,13 @@
 	</Dialog>
 </template>
 <script setup>
-import {
-	Dialog,
-	FormControl,
-	TextEditor,
-	createResource,
-	toast,
-} from 'frappe-ui'
+import { call, Dialog, FormControl, TextEditor, toast } from 'frappe-ui'
 import { reactive } from 'vue'
 import { singularize } from '@/utils'
+import { useTelemetry } from 'frappe-ui/frappe'
 
 const topics = defineModel('reloadTopics')
+const { capture } = useTelemetry()
 
 const props = defineProps({
 	title: {
@@ -66,64 +62,50 @@ const topic = reactive({
 	reply: '',
 })
 
-const topicResource = createResource({
-	url: 'frappe.client.insert',
-	makeParams(values) {
-		return {
-			doc: {
-				doctype: 'Discussion Topic',
-				reference_doctype: props.doctype,
-				reference_docname: props.docname,
-				title: topic.title,
-			},
-		}
-	},
-})
-
-const replyResource = createResource({
-	url: 'frappe.client.insert',
-	makeParams(values) {
-		return {
-			doc: {
-				doctype: 'Discussion Reply',
-				topic: values.topic,
-				reply: topic.reply,
-			},
-		}
-	},
-})
-
 const submitTopic = (close) => {
-	topicResource.submit(
-		{},
-		{
-			validate() {
-				if (!topic.title) {
-					return 'Title cannot be empty.'
-				}
-				if (!topic.reply) {
-					return 'Reply cannot be empty.'
-				}
-			},
-			onSuccess(data) {
-				replyResource.submit(
-					{
-						topic: data.name,
-					},
-					{
-						onSuccess() {
-							topic.title = ''
-							topic.reply = ''
-							topics.value.reload()
-							close()
-						},
-					}
-				)
-			},
-			onError(err) {
-				toast.error(err.messages?.[0] || err)
-			},
-		}
-	)
+	if (!topic.title) {
+		toast.error(__('Title cannot be empty.'))
+		return
+	}
+	if (!topic.reply) {
+		toast.error(__('Details cannot be empty.'))
+		return
+	}
+	call('frappe.client.insert', {
+		doc: {
+			doctype: 'Discussion Topic',
+			reference_doctype: props.doctype,
+			reference_docname: props.docname,
+			title: topic.title,
+		},
+	})
+		.then((data) => {
+			createReply(data.name, close)
+		})
+		.catch((err) => {
+			toast.error(err.messages?.[0] || err)
+			console.error(err)
+		})
+}
+
+const createReply = (topicName, close) => {
+	call('frappe.client.insert', {
+		doc: {
+			doctype: 'Discussion Reply',
+			topic: topicName,
+			reply: topic.reply,
+		},
+	})
+		.then((data) => {
+			topic.title = ''
+			topic.reply = ''
+			topics.value.reload()
+			capture('discussion_topic_created')
+			close()
+		})
+		.catch((err) => {
+			toast.error(err.messages?.[0] || err)
+			console.error(err)
+		})
 }
 </script>

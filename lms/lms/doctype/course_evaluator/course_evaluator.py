@@ -58,7 +58,7 @@ class CourseEvaluator(Document):
 
 
 @frappe.whitelist()
-def get_schedule(course, batch=None):
+def get_schedule(course: str, batch: str = None):
 	evaluator = get_evaluator(course, batch)
 	start_date = nowdate()
 	end_date = get_schedule_range_end_date(start_date, batch)

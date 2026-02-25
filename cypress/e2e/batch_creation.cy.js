@@ -128,12 +128,9 @@ describe("Batch Creation", () => {
 					.should("be.visible");
 				cy.get("span").contains("IST").should("be.visible");
 				cy.get("a").contains("Evaluator").should("be.visible");
-				cy.get("div")
-					.contains("10")
-					.should("be.visible")
-					.get("span")
-					.contains("Seats Left")
-					.should("be.visible");
+				cy.contains("div:visible", "10 Seats Left").should(
+					"be.visible"
+				);
 			});
 			cy.get(`a[href='/lms/batches/details/${batchName}'`).click();
 		});
@@ -162,8 +159,12 @@ describe("Batch Creation", () => {
 		/* Add student to batch */
 		cy.get("button").contains("Students").click();
 		cy.get("button").contains("Add").click();
-		cy.get('div[role="dialog"]').first().find("button").eq(1).click();
-		cy.get("input[id^='headlessui-combobox-input-v-']").type(randomEmail);
+		cy.get('div[role="dialog"]')
+			.first()
+			.find("input[id^='headlessui-combobox-input-v-']")
+			.first()
+			.click();
+		cy.get("input[placeholder='Search']").type(randomEmail);
 		cy.get("div").contains(randomEmail).click();
 		cy.get("button").contains("Submit").click();
 

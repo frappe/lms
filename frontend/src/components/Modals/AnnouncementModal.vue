@@ -15,20 +15,18 @@
 	>
 		<template #body-content>
 			<div class="flex flex-col gap-4">
-				<div class="">
-					<div class="mb-1.5 text-sm text-ink-gray-5">
-						{{ __('Subject') }}
-						<span class="text-ink-red-3">*</span>
-					</div>
-					<Input type="text" v-model="announcement.subject" />
-				</div>
-				<div class="">
-					<div class="mb-1.5 text-sm text-ink-gray-5">
-						{{ __('Reply To') }}
-						<span class="text-ink-red-3">*</span>
-					</div>
-					<Input type="text" v-model="announcement.replyTo" />
-				</div>
+				<FormControl
+					:label="__('Subject')"
+					type="text"
+					v-model="announcement.subject"
+					:required="true"
+				/>
+				<FormControl
+					:label="__('Reply To')"
+					type="text"
+					v-model="announcement.replyTo"
+					:required="true"
+				/>
 				<div class="mb-4">
 					<div class="mb-1.5 text-sm text-ink-gray-5">
 						{{ __('Announcement') }}
@@ -45,7 +43,13 @@
 	</Dialog>
 </template>
 <script setup>
-import { Dialog, Input, TextEditor, createResource, toast } from 'frappe-ui'
+import {
+	Dialog,
+	FormControl,
+	TextEditor,
+	createResource,
+	toast,
+} from 'frappe-ui'
 import { reactive } from 'vue'
 
 const show = defineModel()

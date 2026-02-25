@@ -263,12 +263,17 @@ const isEvaluatorOrModerator = () => {
 }
 
 const getTabButtons = () => {
-	let buttons = [{ label: 'About' }, { label: 'Certificates' }]
-	if ($user.data?.is_moderator) buttons.push({ label: 'Roles' })
+	let buttons = [
+		{ label: __('About'), value: 'About' },
+		{ label: __('Certificates'), value: 'Certificates' },
+	]
+	if ($user.data?.is_moderator) {
+		buttons.push({ label: __('Roles'), value: 'Roles' })
+	}
 
 	if (currentUserHasHigherAccess() && isEvaluatorOrModerator()) {
-		buttons.push({ label: 'Slots' })
-		buttons.push({ label: 'Schedule' })
+		buttons.push({ label: __('Slots'), value: 'Slots' })
+		buttons.push({ label: __('Schedule'), value: 'Schedule' })
 	}
 	return buttons
 }
@@ -288,7 +293,7 @@ const navigateTo = (url) => {
 const breadcrumbs = computed(() => {
 	let crumbs = [
 		{
-			label: 'People',
+			label: __('People'),
 		},
 		{
 			label: profile.data?.full_name,

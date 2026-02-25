@@ -101,7 +101,7 @@
 					@change="(val) => (job.description = val)"
 					:editable="true"
 					:fixedMenu="true"
-					editorClass="prose-sm max-w-none border-b border-x bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[7rem] mb-4"
+					editorClass="prose-sm max-w-none border-b border-x border-outline-gray-modals bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[7rem] mb-4"
 				/>
 			</div>
 		</div>
@@ -298,11 +298,11 @@ const jobStatuses = computed(() => {
 const breadcrumbs = computed(() => {
 	let crumbs = [
 		{
-			label: 'Jobs',
+			label: __('Jobs'),
 			route: { name: 'Jobs' },
 		},
 		{
-			label: props.jobName == 'new' ? 'New Job' : 'Edit Job',
+			label: props.jobName == 'new' ? __('New Job') : __('Edit Job'),
 			route: { name: 'JobForm' },
 		},
 	]
@@ -311,7 +311,7 @@ const breadcrumbs = computed(() => {
 
 usePageMeta(() => {
 	return {
-		title: props.jobName == 'new' ? 'New Job' : jobDetail.data?.job_title,
+		title: props.jobName == 'new' ? __('New Job') : jobDetail.data?.job_title,
 		icon: brand.favicon,
 	}
 })
