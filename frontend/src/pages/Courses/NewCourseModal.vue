@@ -77,7 +77,7 @@ import { Button, Dialog, FormControl, TextEditor, toast } from 'frappe-ui'
 import { useOnboarding, useTelemetry } from 'frappe-ui/frappe'
 import { inject, onMounted, onBeforeUnmount, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { cleanError, openSettings } from '@/utils'
+import { cleanError, openSettings, sanitizeHTML, escapeHTML } from '@/utils'
 import Link from '@/components/Controls/Link.vue'
 import MultiSelect from '@/components/Controls/MultiSelect.vue'
 import Uploader from '@/components/Controls/Uploader.vue'
@@ -92,7 +92,16 @@ const props = defineProps<{
 	courses: any
 }>()
 
-const course = ref({
+type Course = {
+	title: string
+	short_introduction: string
+	description: string
+	instructors: string[]
+	category: string | null
+	image: string | null
+}
+
+const course = ref<Course>({
 	title: '',
 	short_introduction: '',
 	description: '',
@@ -101,7 +110,23 @@ const course = ref({
 	image: null,
 })
 
+const validateFields = () => {
+	course.value.description = sanitizeHTML(course.value.description)
+
+	Object.keys(course.value).forEach((key) => {
+		if (
+			key != 'description' &&
+			typeof course.value[key as keyof Course] === 'string'
+		) {
+			course.value[key as keyof Course] = escapeHTML(
+				course.value[key as keyof Course] as string
+			)
+		}
+	})
+}
+
 const saveCourse = (close: () => void = () => {}) => {
+	validateFields()
 	props.courses.insert.submit(
 		{
 			...course.value,
