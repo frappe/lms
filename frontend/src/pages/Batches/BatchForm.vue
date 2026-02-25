@@ -484,6 +484,10 @@ const trashBatch = (close) => {
 const conferencingOptions = computed(() => {
 	return [
 		{
+			label: '',
+			value: '',
+		},
+		{
 			label: 'Zoom',
 			value: 'Zoom',
 		},

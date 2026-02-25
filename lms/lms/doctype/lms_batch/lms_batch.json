@@ -366,7 +366,7 @@
    "fieldname": "conferencing_provider",
    "fieldtype": "Select",
    "label": "Conferencing Provider",
-   "options": "Zoom\nGoogle Meet"
+   "options": "\nZoom\nGoogle Meet"
   },
   {
    "depends_on": "eval:doc.conferencing_provider=='Zoom'",
