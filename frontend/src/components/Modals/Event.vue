@@ -32,7 +32,7 @@
 								</span>
 							</div>
 						</Tooltip>
-						<Tooltip v-if="event.batch_title" :text="__('Batch')">
+						<Tooltip v-if="event.batch_title" :text="__('LMS Batch')">
 							<div
 								class="flex space-x-2 w-fit cursor-pointer"
 								@click="openLink('batch', event.batch_name)"

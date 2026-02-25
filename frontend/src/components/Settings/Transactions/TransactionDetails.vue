@@ -22,7 +22,7 @@
 					{{
 						transactionData.payment_for_document_type == 'LMS Course'
 							? __('Course')
-							: __('Batch')
+							: __('LMS Batch')
 					}}
 				</Button>
 				<Button variant="solid" @click="saveTransaction()">

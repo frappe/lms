@@ -232,7 +232,7 @@ const getDocTypeTitle = (doctype: string) => {
 	if (doctype === 'LMS Course') {
 		return __('Course')
 	} else if (doctype === 'LMS Batch') {
-		return __('Batch')
+		return __('LMS Batch')
 	} else if (doctype === 'Job Opportunity') {
 		return __('Job')
 	} else {
