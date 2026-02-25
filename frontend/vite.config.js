@@ -5,7 +5,6 @@ import { VitePWA } from 'vite-plugin-pwa'
 
 export default defineConfig(async ({ mode }) => {
 	const isDev = mode === 'development'
-	console.log(mode, isDev)
 	const frappeui = await importFrappeUIPlugin(isDev)
 
 	const config = {

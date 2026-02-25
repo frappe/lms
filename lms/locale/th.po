@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2026-01-23 16:05+0000\n"
-"PO-Revision-Date: 2026-02-05 06:43\n"
+"PO-Revision-Date: 2026-02-21 16:43\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Thai\n"
 "MIME-Version: 1.0\n"
@@ -134,14 +134,14 @@ msgstr ""
 #: lms/lms/doctype/lms_zoom_settings/lms_zoom_settings.json
 #: lms/lms/doctype/zoom_settings/zoom_settings.json
 msgid "Account ID"
-msgstr ""
+msgstr "ID บัญชี"
 
 #. Label of the account_name (Data) field in DocType 'LMS Zoom Settings'
 #: frontend/src/components/Modals/ZoomAccountModal.vue:30
 #: frontend/src/components/Settings/ZoomSettings.vue:192
 #: lms/lms/doctype/lms_zoom_settings/lms_zoom_settings.json
 msgid "Account Name"
-msgstr ""
+msgstr "ชื่อบัญชี"
 
 #: frontend/src/pages/ProfileAbout.vue:34
 msgid "Achievements"
@@ -311,7 +311,7 @@ msgstr ""
 #. Option for the 'Role' (Select) field in DocType 'LMS Enrollment'
 #: lms/lms/doctype/lms_enrollment/lms_enrollment.json
 msgid "Admin"
-msgstr ""
+msgstr "ผู้ดูแลระบบ"
 
 #. Name of a role
 #: lms/lms/doctype/lms_coupon/lms_coupon.json
@@ -382,7 +382,7 @@ msgstr ""
 #: lms/lms/doctype/lms_course/lms_course.json
 #: lms/lms/doctype/lms_payment/lms_payment.json
 msgid "Amount"
-msgstr ""
+msgstr "จำนวนเงิน"
 
 #. Label of the amount_usd (Currency) field in DocType 'LMS Batch'
 #. Label of the amount_usd (Currency) field in DocType 'LMS Course'
@@ -441,7 +441,7 @@ msgstr ""
 
 #: frontend/src/pages/JobApplications.vue:22
 msgid "Application"
-msgstr ""
+msgstr "ใบสมัคร"
 
 #. Label of a field in the job-opportunity Web Form
 #: lms/job/web_form/job_opportunity/job_opportunity.json
@@ -480,7 +480,7 @@ msgstr ""
 #: lms/lms/doctype/lms_course/lms_course.json
 #: lms/lms/doctype/lms_mentor_request/lms_mentor_request.json
 msgid "Approved"
-msgstr ""
+msgstr "อนุมัติแล้ว"
 
 #: frontend/src/components/Sidebar/Apps.vue:12
 msgid "Apps"
@@ -649,7 +649,7 @@ msgstr ""
 #. Label of the attendees (Int) field in DocType 'LMS Live Class'
 #: lms/lms/doctype/lms_live_class/lms_live_class.json
 msgid "Attendees"
-msgstr ""
+msgstr "ผู้เข้าร่วม"
 
 #. Label of the attire (Select) field in DocType 'User'
 #: lms/fixtures/custom_field.json
@@ -692,7 +692,7 @@ msgstr ""
 #: frontend/src/pages/CourseDetail.vue:20
 #: frontend/src/pages/Programs/ProgramEnrollment.vue:76
 msgid "Average Rating"
-msgstr ""
+msgstr "คะแนนเฉลี่ย"
 
 #: frontend/src/components/Modals/VideoStatistics.vue:74
 msgid "Average Watch Time"
@@ -764,7 +764,7 @@ msgstr ""
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 #: lms/lms/doctype/lms_live_class/lms_live_class.json
 msgid "Batch"
-msgstr ""
+msgstr "ล็อต"
 
 #. Label of the batch_confirmation_template (Link) field in DocType 'LMS
 #. Settings'
@@ -782,7 +782,7 @@ msgstr ""
 #: lms/lms/doctype/lms_batch/lms_batch.json
 #: lms/templates/emails/batch_confirmation.html:26
 msgid "Batch Details"
-msgstr ""
+msgstr "รายละเอียดล็อต"
 
 #. Label of the batch_details_raw (HTML Editor) field in DocType 'LMS Batch'
 #: lms/lms/doctype/lms_batch/lms_batch.json
@@ -896,7 +896,7 @@ msgstr ""
 #: frontend/src/pages/Billing.vue:8 frontend/src/pages/Billing.vue:460
 #: lms/lms/doctype/lms_payment/lms_payment.json
 msgid "Billing Details"
-msgstr ""
+msgstr "รายละเอียดการเรียกเก็บเงิน"
 
 #. Label of the billing_name (Data) field in DocType 'LMS Payment'
 #: frontend/src/components/Settings/Transactions/TransactionDetails.vue:33
@@ -920,7 +920,7 @@ msgstr ""
 #. Label of the body (Markdown Editor) field in DocType 'Course Lesson'
 #: lms/lms/doctype/course_lesson/course_lesson.json
 msgid "Body"
-msgstr ""
+msgstr "เนื้อหา"
 
 #. Option for the 'Collaboration Preference' (Select) field in DocType 'User'
 #: lms/fixtures/custom_field.json
@@ -930,7 +930,7 @@ msgstr ""
 #. Label of the branch (Data) field in DocType 'User'
 #: lms/fixtures/custom_field.json
 msgid "Branch"
-msgstr ""
+msgstr "สาขา"
 
 #. Option for the 'User Category' (Select) field in DocType 'User'
 #: lms/fixtures/custom_field.json lms/templates/signup-form.html:23
@@ -1008,7 +1008,7 @@ msgstr ""
 #: lms/lms/doctype/lms_enrollment/lms_enrollment.json
 #: lms/lms/workspace/lms/lms.json
 msgid "Certificate"
-msgstr ""
+msgstr "ใบรับรอง"
 
 #. Label of the certification_template (Link) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
@@ -1331,7 +1331,7 @@ msgstr "บริษัท"
 #: frontend/src/pages/JobForm.vue:63
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 msgid "Company Details"
-msgstr ""
+msgstr "รายละเอียดบริษัท"
 
 #. Label of the company_email_address (Data) field in DocType 'Job Opportunity'
 #: frontend/src/pages/JobForm.vue:82
@@ -1345,7 +1345,7 @@ msgstr ""
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 #: lms/job/web_form/job_opportunity/job_opportunity.json
 msgid "Company Logo"
-msgstr ""
+msgstr "โลโก้บริษัท"
 
 #. Label of the company_name (Data) field in DocType 'Job Opportunity'
 #. Label of a field in the job-opportunity Web Form
@@ -1501,7 +1501,7 @@ msgstr ""
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 #: lms/job/web_form/job_opportunity/job_opportunity.json
 msgid "Contract"
-msgstr ""
+msgstr "สัญญา"
 
 #. Option for the 'Company Type' (Select) field in DocType 'User'
 #: lms/fixtures/custom_field.json
@@ -1537,7 +1537,7 @@ msgstr ""
 #: frontend/src/components/Settings/Transactions/TransactionDetails.vue:82
 #: lms/lms/doctype/lms_payment/lms_payment.json
 msgid "Coupon Code"
-msgstr ""
+msgstr "รหัสคูปอง"
 
 #: frontend/src/components/Settings/Transactions/TransactionDetails.vue:72
 msgid "Coupon Details"
@@ -1612,7 +1612,7 @@ msgstr ""
 #: lms/lms/report/course_progress_summary/course_progress_summary.py:51
 #: lms/lms/workspace/lms/lms.json
 msgid "Course"
-msgstr ""
+msgstr "หลักสูตร"
 
 #. Name of a DocType
 #. Label of the chapter (Link) field in DocType 'Course Lesson'
@@ -2004,7 +2004,7 @@ msgstr "เรียน {{ member_name }},\n\n"
 #. Label of the default_currency (Link) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Default Currency"
-msgstr ""
+msgstr "สกุลเงินเริ่มต้น"
 
 #. Label of the degree_type (Data) field in DocType 'Education Detail'
 #: lms/lms/doctype/education_detail/education_detail.json
@@ -2135,24 +2135,24 @@ msgstr ""
 #: frontend/src/components/Settings/Coupons/CouponList.vue:169
 #: frontend/src/pages/Billing.vue:41
 msgid "Discount"
-msgstr ""
+msgstr "ส่วนลด"
 
 #. Label of the discount_amount (Currency) field in DocType 'LMS Payment'
 #: frontend/src/components/Settings/Coupons/CouponDetails.vue:53
 #: frontend/src/components/Settings/Transactions/TransactionDetails.vue:87
 #: lms/lms/doctype/lms_payment/lms_payment.json
 msgid "Discount Amount"
-msgstr ""
+msgstr "จำนวนส่วนลด"
 
 #: frontend/src/components/Settings/Coupons/CouponDetails.vue:46
 msgid "Discount Percentage"
-msgstr ""
+msgstr "เปอร์เซ็นต์ส่วนลด"
 
 #. Label of the discount_type (Select) field in DocType 'LMS Coupon'
 #: frontend/src/components/Settings/Coupons/CouponDetails.vue:30
 #: lms/lms/doctype/lms_coupon/lms_coupon.json
 msgid "Discount Type"
-msgstr ""
+msgstr "ประเภทส่วนลด"
 
 #. Label of the show_discussions (Check) field in DocType 'LMS Settings'
 #: frontend/src/pages/Batch.vue:91
@@ -2405,7 +2405,7 @@ msgstr ""
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 #: lms/lms/doctype/scheduled_flow/scheduled_flow.json
 msgid "End Time"
-msgstr ""
+msgstr "เวลาสิ้นสุด"
 
 #: frontend/src/components/LiveClass.vue:92
 #: frontend/src/pages/Home/AdminHome.vue:186
@@ -2531,7 +2531,7 @@ msgstr ""
 #. Label of a shortcut in the LMS Workspace
 #: frontend/src/components/Modals/Event.vue:420 lms/lms/workspace/lms/lms.json
 msgid "Evaluation"
-msgstr ""
+msgstr "การประเมิน"
 
 #. Label of the section_break_6 (Section Break) field in DocType 'LMS
 #. Certificate Evaluation'
@@ -2682,7 +2682,7 @@ msgstr ""
 #: frontend/src/components/Modals/Question.vue:75
 #: lms/lms/doctype/lms_question/lms_question.json
 msgid "Explanation"
-msgstr ""
+msgstr "คำอธิบาย"
 
 #. Label of the explanation_2 (Small Text) field in DocType 'LMS Question'
 #: lms/lms/doctype/lms_question/lms_question.json
@@ -2944,11 +2944,11 @@ msgstr ""
 
 #: frontend/src/components/InstallPrompt.vue:9
 msgid "Get the app on your device for easy access & a better experience!"
-msgstr ""
+msgstr "รับแอปบนอุปกรณ์ของคุณเพื่อการเข้าถึงที่ง่ายและประสบการณ์ที่ดีขึ้น!"
 
 #: frontend/src/components/InstallPrompt.vue:46
 msgid "Get the app on your iPhone for easy access & a better experience"
-msgstr ""
+msgstr "รับแอปบน iPhone ของคุณเพื่อการเข้าถึงที่ง่ายและประสบการณ์ที่ดีขึ้น"
 
 #: frontend/src/components/Modals/EditProfile.vue:82
 msgid "GitHub ID"
@@ -2969,7 +2969,7 @@ msgstr "ลิงก์ Google Meet"
 #: frontend/src/components/Assignment.vue:164
 #: lms/lms/doctype/education_detail/education_detail.json
 msgid "Grade"
-msgstr ""
+msgstr "ระดับ"
 
 #. Label of the grade_assignment (Check) field in DocType 'LMS Assignment'
 #: lms/lms/doctype/lms_assignment/lms_assignment.json
@@ -3263,7 +3263,7 @@ msgstr ""
 
 #: frontend/src/components/InstallPrompt.vue:18
 msgid "Install"
-msgstr ""
+msgstr "ติดตั้ง"
 
 #: frontend/src/components/InstallPrompt.vue:4
 #: frontend/src/components/InstallPrompt.vue:32
@@ -3418,7 +3418,7 @@ msgstr ""
 
 #: lms/www/lms.py:175
 msgid "Job Openings"
-msgstr ""
+msgstr "ตำแหน่งงานว่าง"
 
 #. Name of a DocType
 #. Title of the job-opportunity Web Form
@@ -3439,14 +3439,14 @@ msgstr ""
 #: lms/job/doctype/lms_job_application/lms_job_application.json
 #: lms/job/web_form/job_opportunity/job_opportunity.json
 msgid "Job Title"
-msgstr ""
+msgstr "ตำแหน่งงาน"
 
 #. Label of the jobs (Check) field in DocType 'LMS Settings'
 #: frontend/src/pages/JobApplications.vue:9 frontend/src/pages/JobDetail.vue:10
 #: frontend/src/pages/Jobs.vue:8 frontend/src/pages/Jobs.vue:293
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Jobs"
-msgstr ""
+msgstr "งาน"
 
 #: frontend/src/components/LiveClass.vue:81
 #: frontend/src/pages/Home/AdminHome.vue:175
@@ -3935,7 +3935,7 @@ msgstr ""
 #. Option for the 'Auto Recording' (Select) field in DocType 'LMS Live Class'
 #: lms/lms/doctype/lms_live_class/lms_live_class.json
 msgid "Local"
-msgstr ""
+msgstr "ท้องถิ่น"
 
 #. Label of a field in the job-opportunity Web Form
 #. Label of the location (Data) field in DocType 'Education Detail'
@@ -4599,7 +4599,7 @@ msgstr ""
 #: frontend/src/components/Controls/MultiSelect.vue:67
 #: frontend/src/pages/Search/Search.vue:47
 msgid "No results found"
-msgstr ""
+msgstr "ไม่พบผลลัพธ์"
 
 #: frontend/src/components/Modals/EvaluationModal.vue:59
 msgid "No slots available for the selected course."
@@ -4840,7 +4840,7 @@ msgstr ""
 #. Option for the 'User Category' (Select) field in DocType 'User'
 #: lms/fixtures/custom_field.json lms/templates/signup-form.html:28
 msgid "Others"
-msgstr ""
+msgstr "อื่นๆ"
 
 #: frontend/src/pages/Home/StudentHome.vue:9
 msgid "Our Popular Courses"
@@ -4868,7 +4868,7 @@ msgstr ""
 
 #: frontend/src/pages/Billing.vue:170
 msgid "PAN Number"
-msgstr ""
+msgstr "หมายเลข PAN"
 
 #. Option for the 'File Type' (Select) field in DocType 'Course Lesson'
 #. Option for the 'Type' (Select) field in DocType 'LMS Assignment'
@@ -5223,7 +5223,7 @@ msgstr ""
 
 #: frontend/src/components/Modals/LiveClassModal.vue:189
 msgid "Please select a date."
-msgstr ""
+msgstr "โปรดเลือกวันที่"
 
 #: frontend/src/components/Modals/LiveClassModal.vue:213
 msgid "Please select a duration."
@@ -5494,7 +5494,7 @@ msgstr "ความคืบหน้า"
 #: frontend/src/pages/Programs/ProgramProgressSummary.vue:131
 #: lms/lms/report/course_progress_summary/course_progress_summary.py:77
 msgid "Progress (%)"
-msgstr ""
+msgstr "ความคืบหน้า (%)"
 
 #: frontend/src/components/Modals/CourseProgressSummary.vue:113
 #: frontend/src/pages/Programs/ProgramProgressSummary.vue:30
@@ -5974,7 +5974,7 @@ msgstr ""
 #: frontend/src/pages/QuizSubmissionList.vue:96
 #: lms/lms/doctype/lms_quiz_submission/lms_quiz_submission.json
 msgid "Score"
-msgstr ""
+msgstr "คะแนน"
 
 #. Label of the score_out_of (Int) field in DocType 'LMS Quiz Submission'
 #: lms/lms/doctype/lms_quiz_submission/lms_quiz_submission.json
@@ -6226,7 +6226,7 @@ msgstr ""
 #. Label of the skill (Data) field in DocType 'User Skill'
 #: lms/fixtures/custom_field.json lms/lms/doctype/user_skill/user_skill.json
 msgid "Skill"
-msgstr ""
+msgstr "ทักษะ"
 
 #. Label of the skill_details (Section Break) field in DocType 'User'
 #: lms/fixtures/custom_field.json
@@ -6236,12 +6236,12 @@ msgstr ""
 #. Label of the skill_name (Link) field in DocType 'Skills'
 #: lms/lms/doctype/skills/skills.json
 msgid "Skill Name"
-msgstr ""
+msgstr "ชื่อทักษะ"
 
 #. Name of a DocType
 #: lms/lms/doctype/skills/skills.json
 msgid "Skills"
-msgstr ""
+msgstr "ทักษะ"
 
 #: frontend/src/pages/PersonaForm.vue:51 lms/templates/onboarding_header.html:6
 msgid "Skip"
@@ -6457,7 +6457,7 @@ msgstr "ส่ง"
 
 #: frontend/src/components/BatchFeedback.vue:35
 msgid "Submit Feedback"
-msgstr ""
+msgstr "ส่งข้อเสนอแนะ"
 
 #: frontend/src/pages/PersonaForm.vue:43
 msgid "Submit and Continue"
@@ -6957,7 +6957,7 @@ msgstr ""
 
 #: frontend/src/components/Modals/FeedbackModal.vue:11
 msgid "Training Feedback"
-msgstr ""
+msgstr "ข้อเสนอแนะการฝึกอบรม"
 
 #: frontend/src/components/Settings/Transactions/TransactionDetails.vue:9
 msgid "Transaction Details"
@@ -6966,7 +6966,7 @@ msgstr "รายละเอียดธุรกรรม"
 #. Option for the 'Location Preference' (Select) field in DocType 'User'
 #: lms/fixtures/custom_field.json
 msgid "Travel"
-msgstr ""
+msgstr "การเดินทาง"
 
 #: frontend/src/components/Quiz.vue:284
 msgid "Try Again"
@@ -7052,7 +7052,7 @@ msgstr ""
 #. Option for the 'Status' (Select) field in DocType 'LMS Course'
 #: lms/lms/doctype/lms_course/lms_course.json
 msgid "Under Review"
-msgstr ""
+msgstr "อยู่ระหว่างการตรวจสอบ"
 
 #: frontend/src/pages/Batches.vue:332 frontend/src/pages/Courses.vue:355
 msgid "Unpublished"
@@ -7233,7 +7233,7 @@ msgstr ""
 #. Option for the 'Color' (Select) field in DocType 'LMS Course'
 #: lms/lms/doctype/lms_course/lms_course.json
 msgid "Violet"
-msgstr ""
+msgstr "สีม่วง"
 
 #: frontend/src/components/BatchOverlay.vue:73
 msgid "Visit Batch"

@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2026-01-23 16:05+0000\n"
-"PO-Revision-Date: 2026-02-17 15:36\n"
+"PO-Revision-Date: 2026-02-19 15:53\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Portuguese, Brazilian\n"
 "MIME-Version: 1.0\n"
@@ -382,7 +382,7 @@ msgstr "Âmbar"
 #: lms/lms/doctype/lms_course/lms_course.json
 #: lms/lms/doctype/lms_payment/lms_payment.json
 msgid "Amount"
-msgstr "Montante"
+msgstr "Valor Total"
 
 #. Label of the amount_usd (Currency) field in DocType 'LMS Batch'
 #. Label of the amount_usd (Currency) field in DocType 'LMS Course'
@@ -1353,7 +1353,7 @@ msgstr ""
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 #: lms/job/web_form/job_opportunity/job_opportunity.json
 msgid "Company Name"
-msgstr ""
+msgstr "Nome da Empresa"
 
 #. Label of the company_type (Select) field in DocType 'User'
 #: lms/fixtures/custom_field.json
@@ -2139,7 +2139,7 @@ msgstr "Desconto"
 #: frontend/src/components/Settings/Transactions/TransactionDetails.vue:87
 #: lms/lms/doctype/lms_payment/lms_payment.json
 msgid "Discount Amount"
-msgstr "Valor do desconto"
+msgstr "Valor do Desconto"
 
 #: frontend/src/components/Settings/Coupons/CouponDetails.vue:46
 msgid "Discount Percentage"
@@ -3248,7 +3248,7 @@ msgstr ""
 #: lms/lms/doctype/industry/industry.json
 #: lms/lms/doctype/preferred_industry/preferred_industry.json
 msgid "Industry"
-msgstr "Segmento"
+msgstr "Setor de Atuação"
 
 #. Label of the input (Data) field in DocType 'LMS Test Case'
 #. Label of the input (Data) field in DocType 'LMS Test Case Submission'
@@ -4488,7 +4488,7 @@ msgstr ""
 #: frontend/src/components/Discussions.vue:11
 #: frontend/src/components/Discussions.vue:66
 msgid "New {0}"
-msgstr ""
+msgstr "Novo {0}"
 
 #: frontend/src/components/Quiz.vue:237 frontend/src/pages/Lesson.vue:51
 #: frontend/src/pages/Lesson.vue:187
@@ -5062,7 +5062,7 @@ msgstr ""
 #: lms/lms/doctype/lms_coupon/lms_coupon.json
 #: lms/lms/doctype/lms_quiz_submission/lms_quiz_submission.json
 msgid "Percentage"
-msgstr ""
+msgstr "Porcentagem"
 
 #. Option for the 'Grade Type' (Select) field in DocType 'Education Detail'
 #: lms/lms/doctype/education_detail/education_detail.json
@@ -6939,7 +6939,7 @@ msgstr ""
 
 #: frontend/src/pages/Billing.vue:54
 msgid "Total"
-msgstr ""
+msgstr "Total"
 
 #. Label of the total_marks (Int) field in DocType 'LMS Quiz'
 #: frontend/src/pages/QuizForm.vue:73 frontend/src/pages/Quizzes.vue:253

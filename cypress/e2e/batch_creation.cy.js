@@ -54,25 +54,21 @@ describe("Batch Creation", () => {
 		cy.get("button").contains("Create").click();
 		cy.get("span").contains("New Batch").click();
 		cy.wait(500);
-		cy.url().should("include", "/batches/new/edit");
 		cy.get("label").contains("Title").type("Test Batch");
-
 		cy.get("label").contains("Start Date").type("2030-10-01");
 		cy.get("label").contains("End Date").type("2030-10-31");
 		cy.get("label").contains("Start Time").type("10:00");
 		cy.get("label").contains("End Time").type("11:00");
 		cy.get("label").contains("Timezone").type("IST");
 		cy.get("label").contains("Seat Count").type("10");
-		cy.get("label").contains("Published").click();
 
 		cy.get("label")
-			.contains("Short Description")
+			.contains("Description")
 			.type("Test Batch Short Description to test the UI");
 		cy.get("div[contenteditable=true").invoke(
 			"text",
 			"Test Batch Description. I need a very big description to test the UI. This is a very big description. It contains more than once sentence. Its meant to be this long as this is a UI test. Its unbearably long and I'm not sure why I'm typing this much. I'm just going to keep typing until I feel like its long enough. I think its long enough now. I'm going to stop typing now."
 		);
-
 		/* Instructor */
 		cy.get("label")
 			.contains("Instructors")
@@ -90,13 +86,14 @@ describe("Batch Creation", () => {
 					cy.get("[id^=headlessui-combobox-option-").first().click();
 				});
 		});
-
+		cy.button("Save").click();
+		cy.get("label").contains("Published").click();
 		cy.button("Save").click();
 		cy.wait(1000);
 		let batchName;
 		cy.url().then((url) => {
 			console.log(url);
-			batchName = url.split("/").pop();
+			batchName = url.split("/").pop().split("#")[0];
 			cy.wrap(batchName).as("batchName");
 		});
 		cy.wait(500);
@@ -115,7 +112,7 @@ describe("Batch Creation", () => {
 			.click();
 
 		cy.get("@batchName").then((batchName) => {
-			cy.get(`a[href='/lms/batches/details/${batchName}'`).within(() => {
+			cy.get(`a[href='/lms/batches/${batchName}'`).within(() => {
 				cy.get("div").contains("Test Batch").should("be.visible");
 				cy.get("div")
 					.contains("Test Batch Short Description to test the UI")
@@ -132,7 +129,7 @@ describe("Batch Creation", () => {
 					"be.visible"
 				);
 			});
-			cy.get(`a[href='/lms/batches/details/${batchName}'`).click();
+			cy.get(`a[href='/lms/batches/${batchName}'`).click();
 		});
 
 		cy.get("div").contains("Test Batch").should("be.visible");
@@ -154,14 +151,14 @@ describe("Batch Creation", () => {
 				"Test Batch Description. I need a very big description to test the UI. This is a very big description. It contains more than once sentence. Its meant to be this long as this is a UI test. Its unbearably long and I'm not sure why I'm typing this much. I'm just going to keep typing until I feel like its long enough. I think its long enough now. I'm going to stop typing now."
 			)
 			.should("be.visible");
-		cy.get("button:visible").contains("Manage Batch").click();
+		cy.get("button:visible").contains("Dashboard").click();
 
 		/* Add student to batch */
-		cy.get("button").contains("Students").click();
-		cy.get("button").contains("Add").click();
+		cy.get("button").contains("Enroll").click();
 		cy.get('div[role="dialog"]')
 			.first()
-			.find("input[id^='headlessui-combobox-input-v-']")
+			.find("div[label='Student']")
+			.find("div")
 			.first()
 			.click();
 		cy.get("input[placeholder='Search']").type(randomEmail);
@@ -169,7 +166,7 @@ describe("Batch Creation", () => {
 		cy.get("button").contains("Submit").click();
 
 		// Verify Seat Count
-		cy.get("span").contains("Details").click();
+		cy.get("button:visible").contains("Overview").click();
 		cy.contains("div:visible", "9 Seats Left").should("be.visible");
 	});
 });
