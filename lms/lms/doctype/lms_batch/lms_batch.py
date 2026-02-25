@@ -128,6 +128,9 @@ class LMSBatch(Document):
 				frappe.throw(_("Row #{0} Date cannot be outside the batch duration.").format(schedule.idx))
 
 	def validate_conferencing_provider(self):
+		if self.is_new() or not self.conferencing_provider:
+			return
+
 		if self.conferencing_provider == "Google Meet":
 			if not self.google_meet_account:
 				frappe.throw(_("Please select a Google Meet account for this batch."))
