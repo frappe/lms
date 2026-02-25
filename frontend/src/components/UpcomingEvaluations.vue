@@ -186,6 +186,7 @@ const upcoming_evals = createListResource({
 		'evaluator_name',
 		'course_title',
 		'member',
+		'member_name',
 		'google_meet_link',
 	],
 	orderBy: 'date',
