@@ -113,7 +113,7 @@ import { Button, Dialog, FormControl, TextEditor, toast } from 'frappe-ui'
 import { useOnboarding, useTelemetry } from 'frappe-ui/frappe'
 import { ref, inject, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
-import { cleanError, openSettings } from '@/utils'
+import { cleanError, openSettings, sanitizeHTML, escapeHTML } from '@/utils'
 import Link from '@/components/Controls/Link.vue'
 import MultiSelect from '@/components/Controls/MultiSelect.vue'
 
@@ -127,7 +127,21 @@ const props = defineProps<{
 	batches: any
 }>()
 
-const batch = ref({
+type Batch = {
+	title: string
+	start_date: string | null
+	end_date: string | null
+	start_time: string | null
+	end_time: string | null
+	timezone: string | null
+	description: string
+	batch_details: string
+	instructors: string[]
+	category: string | null
+	seat_count: number
+}
+
+const batch = ref<Batch>({
 	title: '',
 	start_date: null,
 	end_date: null,
@@ -141,7 +155,23 @@ const batch = ref({
 	seat_count: 0,
 })
 
+const validateFields = () => {
+	batch.value.description = sanitizeHTML(batch.value.description)
+
+	Object.keys(batch.value).forEach((key) => {
+		if (
+			key != 'description' &&
+			typeof batch.value[key as keyof Batch] === 'string'
+		) {
+			batch.value[key as keyof Batch] = escapeHTML(
+				batch.value[key as keyof Batch] as string
+			)
+		}
+	})
+}
+
 const saveBatch = (close: () => void = () => {}) => {
+	validateFields()
 	props.batches.insert.submit(
 		{
 			...batch.value,
