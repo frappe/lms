@@ -650,21 +650,19 @@ export const validateFile = async (
 		console.error(msg)
 		return msg
 	}
-	if (!file.type.startsWith(`${fileType}/`)) {
-		return error(__('Only {0} file is allowed.').format(fileType))
-	}
 
-	if (fileType == 'pdf' && extension !== 'pdf') {
+	if (fileType == 'pdf' && extension != 'pdf') {
 		return error(__('Only PDF files are allowed.'))
-	}
-
-	if (fileType == 'document' && !['doc', 'docx'].includes(extension)) {
+	} else if (fileType == 'document' && !['doc', 'docx'].includes(extension)) {
 		return error(
 			__('Only document file of type .doc or .docx are allowed.')
 		)
-	}
-
-	if (file.type === 'image/svg+xml') {
+	} else if (
+		['image', 'video'].includes(fileType) &&
+		!file.type.startsWith(`${fileType}/`)
+	) {
+		return error(__('Only {0} file is allowed.').format(fileType))
+	} else if (file.type === 'image/svg+xml') {
 		const text = await file.text()
 
 		const blacklist = [

@@ -83,7 +83,8 @@
 							private: true,
 						}"
 						:validateFile="
-							(file) => validateFile(file, assignment.data.type.toLowerCase())
+							(file) =>
+								validateFile(file, true, assignment.data.type.toLowerCase())
 						"
 						@success="(file) => saveSubmission(file)"
 					>
