@@ -799,10 +799,9 @@ def get_announcements(batch: str):
 	is_batch_student = frappe.db.exists(
 		"LMS Batch Enrollment", {"batch": batch, "member": frappe.session.user}
 	)
-	is_moderator = "Moderator" in roles
-	is_evaluator = "Batch Evaluator" in roles
+	is_admin = "Moderator" in roles or "Batch Evaluator" in roles
 
-	if not (is_batch_student or is_moderator or is_evaluator):
+	if not (is_batch_student or is_admin):
 		frappe.throw(
 			_("You do not have permission to access announcements for this batch."), frappe.PermissionError
 		)
@@ -1307,6 +1306,15 @@ def get_lms_settings():
 def cancel_evaluation(evaluation: dict):
 	evaluation = frappe._dict(evaluation)
 	if evaluation.member != frappe.session.user:
+		frappe.throw(_("You do not have permission to cancel this evaluation."), frappe.PermissionError)
+
+	if not frappe.db.exists(
+		"LMS Certificate Request",
+		{
+			"name": evaluation.name,
+			"member": frappe.session.user,
+		},
+	):
 		frappe.throw(_("You do not have permission to cancel this evaluation."), frappe.PermissionError)
 
 	frappe.db.set_value("LMS Certificate Request", evaluation.name, "status", "Cancelled")

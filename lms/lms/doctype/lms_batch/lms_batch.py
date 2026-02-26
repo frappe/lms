@@ -286,6 +286,16 @@ def authenticate(zoom_account):
 
 @frappe.whitelist()
 def get_batch_timetable(batch: str):
+	roles = frappe.get_roles()
+	is_batch_student = frappe.db.exists(
+		"LMS Batch Enrollment", {"batch": batch, "member": frappe.session.user}
+	)
+	is_admin = "Moderator" in roles or "Batch Evaluator" in roles
+	if not (is_batch_student or is_admin):
+		frappe.throw(
+			_("You do not have permission to access announcements for this batch."), frappe.PermissionError
+		)
+
 	timetable = frappe.get_all(
 		"LMS Batch Timetable",
 		filters={"parent": batch},

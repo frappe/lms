@@ -214,7 +214,7 @@
 						/>
 					</div>
 					<div
-						class="divide-y max-h-[43vh divide-outline-gray-modals text-ink-gray-7 overflow-y-auto"
+						class="divide-y max-h-[40vh] divide-outline-gray-modals text-ink-gray-7 overflow-y-auto"
 					>
 						<div
 							v-for="progress in lessonProgress.data"
