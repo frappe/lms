@@ -40,7 +40,7 @@
 						class="flex items-center text-sm text-ink-gray-5 my-1"
 					>
 						<span class="grid h-5 w-6 flex-shrink-0 place-items-center">
-							<ChevronRight
+							<ChevronsRight
 								class="h-4 w-4 stroke-1.5 text-ink-gray-9 transition-all duration-300 ease-in-out"
 								:class="{ 'rotate-90': !sidebarStore.isWebpagesCollapsed }"
 							/>
@@ -89,6 +89,36 @@
 						'This site is being updated. You will not be able to make any changes. Full access will be restored shortly.'
 					)
 				}}
+			</div>
+			<div
+				v-if="isStudent && !profileIsComplete"
+				class="flex flex-col gap-3 text-ink-gray-9 py-2.5 px-3 bg-surface-white shadow-sm rounded-md"
+			>
+				<div class="flex flex-col text-p-sm gap-1">
+					<div class="inline-flex gap-1">
+						<User class="h-4 my-0.5 shrink-0" />
+						<div class="font-medium">
+							{{ __('Complete your profile') }}
+						</div>
+					</div>
+					<div class="text-ink-gray-7 leading-5">
+						{{ __('Highlight what makes you unique and show your skills.') }}
+					</div>
+				</div>
+				<router-link
+					:to="{
+						name: 'Profile',
+						params: {
+							username: userResource.data?.username,
+						},
+					}"
+				>
+					<Button :label="__('My Profile')" class="w-full">
+						<template #prefix>
+							<ChevronsRight class="h-4 w-4 text-ink-gray-7 stroke-1.5" />
+						</template>
+					</Button>
+				</router-link>
 			</div>
 			<TrialBanner
 				v-if="
@@ -210,15 +240,18 @@ import {
 	markRaw,
 	h,
 	onUnmounted,
+	computed,
 } from 'vue'
 import {
 	BookOpen,
 	CircleAlert,
 	ChevronRight,
+	ChevronsRight,
 	Plus,
 	CircleHelp,
 	FolderTree,
 	FileText,
+	User,
 	UserPlus,
 	Users,
 	BookText,
@@ -612,6 +645,18 @@ const updateSidebarLinks = () => {
 const redirectToWebsite = () => {
 	window.open('https://frappe.io/learning', '_blank')
 }
+
+const isStudent = computed(() => {
+	return userResource.data?.is_student
+})
+
+const profileIsComplete = computed(() => {
+	return (
+		userResource.data?.user_image &&
+		userResource.data?.headline &&
+		userResource.data?.bio
+	)
+})
 
 onUnmounted(() => {
 	socket.off('publish_lms_notifications')
