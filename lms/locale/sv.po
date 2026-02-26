@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2026-01-23 16:05+0000\n"
-"PO-Revision-Date: 2026-02-06 06:38\n"
+"PO-Revision-Date: 2026-02-26 18:11\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Swedish\n"
 "MIME-Version: 1.0\n"
@@ -41,7 +41,7 @@ msgstr " du är på"
 #. Paragraph text in the LMS Workspace
 #: lms/lms/workspace/lms/lms.json
 msgid "<a href=\"/app/lms-settings/LMS%20Settings\">LMS Settings</a>"
-msgstr "<a href=\"/app/lms-settings/LMS%20Settings\">LMS Inställningar</a>"
+msgstr "<a href=\"/app/lms-settings/LMS%20Settings\">Inställningar</a>"
 
 #. Paragraph text in the LMS Workspace
 #: lms/lms/workspace/lms/lms.json
@@ -70,7 +70,7 @@ msgstr "<p>Kära {{ member_name }},</p>\\n\\n<p>Du har blivit inskriven i vår k
 #. Header text in the LMS Workspace
 #: lms/lms/workspace/lms/lms.json
 msgid "<span class=\"h4\"><b>Get Started</b></span>"
-msgstr "<span class=\"h4\"><b>Kom Igång</b></span>"
+msgstr "<span class=\"h4\"><b>Genvägar</b></span>"
 
 #. Header text in the LMS Workspace
 #: lms/lms/workspace/lms/lms.json
@@ -347,12 +347,12 @@ msgstr "Tillåt Gäst Åtkomst"
 #. Label of the allow_posting (Check) field in DocType 'Job Settings'
 #: lms/job/doctype/job_settings/job_settings.json
 msgid "Allow Job Posting From Website"
-msgstr "Tillåt jobbannonsering från webbplats"
+msgstr "Tillåt Jobb Annonsering från Webbplats"
 
 #. Label of the allow_self_enrollment (Check) field in DocType 'LMS Batch'
 #: lms/lms/doctype/lms_batch/lms_batch.json
 msgid "Allow Self Enrollment"
-msgstr "Tillåt självregistrering"
+msgstr "Tillåt Självregistrering"
 
 #. Label of the allow_future (Check) field in DocType 'LMS Batch'
 #: lms/lms/doctype/lms_batch/lms_batch.json
@@ -1624,7 +1624,7 @@ msgstr "Kurs Kapitel"
 #. Label of a shortcut in the LMS Workspace
 #: lms/lms/workspace/lms/lms.json
 msgid "Course Completed"
-msgstr "Klara Kurser"
+msgstr "Klar Kurs"
 
 #: frontend/src/pages/Statistics.vue:31
 msgid "Course Completions"
@@ -1668,7 +1668,7 @@ msgstr "Kursbeskrivning"
 #: frontend/src/components/Settings/BadgeForm.vue:203
 #: frontend/src/components/Settings/Badges.vue:201
 msgid "Course Enrollment"
-msgstr "Kurs Inskrivning"
+msgstr "Kurs Registrering"
 
 #: frontend/src/pages/Statistics.vue:22
 msgid "Course Enrollments"
@@ -2465,7 +2465,7 @@ msgstr "Registrering i denna grupp är begränsad. Vänligen kontakta Administra
 #: frontend/src/pages/Programs/ProgramProgressSummary.vue:15
 #: lms/lms/doctype/lms_course/lms_course.json lms/lms/workspace/lms/lms.json
 msgid "Enrollments"
-msgstr "Inskrivningar"
+msgstr "Registreringar"
 
 #: lms/lms/doctype/lms_settings/lms_settings.py:27
 msgid "Enter Client Id and Client Secret in Google Settings to send calendar invites for evaluations."
@@ -2937,7 +2937,7 @@ msgstr "Bli Certifierad"
 
 #: lms/templates/onboarding_header.html:8
 msgid "Get Started"
-msgstr "Kom Igång"
+msgstr "Genvägar"
 
 #: frontend/src/components/InstallPrompt.vue:9
 msgid "Get the app on your device for easy access & a better experience!"
@@ -3589,7 +3589,7 @@ msgstr "Kurs Intresse"
 #. Name of a DocType
 #: lms/lms/doctype/lms_course_mentor_mapping/lms_course_mentor_mapping.json
 msgid "LMS Course Mentor Mapping"
-msgstr "LMS Kurs Mentor Tilldelning"
+msgstr "Kurs Mentor Tilldelning"
 
 #. Name of a DocType
 #: lms/lms/doctype/lms_course_progress/lms_course_progress.json
@@ -3599,12 +3599,12 @@ msgstr "Kurs Framsteg"
 #. Name of a DocType
 #: lms/lms/doctype/lms_course_review/lms_course_review.json
 msgid "LMS Course Review"
-msgstr "LMS Kurs Granskning"
+msgstr "Kurs Recension"
 
 #. Name of a DocType
 #: lms/lms/doctype/lms_enrollment/lms_enrollment.json
 msgid "LMS Enrollment"
-msgstr "Inskrivning"
+msgstr "Registrering"
 
 #. Name of a DocType
 #: lms/job/doctype/lms_job_application/lms_job_application.json
@@ -3614,7 +3614,7 @@ msgstr "Jobb Ansökan"
 #. Name of a DocType
 #: lms/lms/doctype/lms_lesson_note/lms_lesson_note.json
 msgid "LMS Lesson Note"
-msgstr "Lektionsanteckning"
+msgstr "Lektion Anteckning"
 
 #. Name of a DocType
 #: lms/lms/doctype/lms_live_class/lms_live_class.json
@@ -3659,12 +3659,12 @@ msgstr "Program Medlem"
 #. Name of a DocType
 #: lms/lms/doctype/lms_programming_exercise/lms_programming_exercise.json
 msgid "LMS Programming Exercise"
-msgstr "Programmeringsövning"
+msgstr "Programmering Övning"
 
 #. Name of a DocType
 #: lms/lms/doctype/lms_programming_exercise_submission/lms_programming_exercise_submission.json
 msgid "LMS Programming Exercise Submission"
-msgstr "Programmeringsövning Inlämning"
+msgstr "Programmering Övning Inlämning"
 
 #. Name of a DocType
 #: lms/lms/doctype/lms_question/lms_question.json
@@ -7081,7 +7081,7 @@ msgstr "Kommande"
 
 #: frontend/src/pages/Batch.vue:191 frontend/src/pages/Home/AdminHome.vue:34
 msgid "Upcoming Batches"
-msgstr "Kommande grupper"
+msgstr "Kommande Grupper"
 
 #: frontend/src/components/UpcomingEvaluations.vue:5
 #: frontend/src/pages/Home/AdminHome.vue:92 lms/templates/upcoming_evals.html:3
@@ -7234,7 +7234,7 @@ msgstr "Violett"
 
 #: frontend/src/components/BatchOverlay.vue:73
 msgid "Visit Batch"
-msgstr "Besök Omgång"
+msgstr "Besök Grupp"
 
 #: frontend/src/pages/JobDetail.vue:52
 msgid "Visit Website"
@@ -7610,7 +7610,7 @@ msgstr "Din lektion {0} är idag"
 
 #: frontend/src/components/Modals/EmailTemplateModal.vue:35
 msgid "Your enrollment in {{ batch_name }} is confirmed"
-msgstr "Din inskrivning till {{ batch_name }} är bekräftad"
+msgstr "Din registrering till {{ batch_name }} är bekräftad"
 
 #: lms/lms/notification/certificate_request_reminder/certificate_request_reminder.html:3
 #: lms/templates/emails/certificate_request_notification.html:3
