@@ -110,6 +110,16 @@ def send_confirmation_email(doc: Document):
 	if isinstance(doc, str):
 		doc = frappe._dict(json.loads(doc))
 
+	roles = frappe.get_roles()
+	is_admin = "Moderator" in roles or "Batch Evaluator" in roles
+	is_member = doc.member == frappe.session.user
+
+	if not is_member and not is_admin:
+		frappe.throw(
+			_("You do not have permission to send confirmation emails for this enrollment."),
+			frappe.PermissionError,
+		)
+
 	if not doc.confirmation_email_sent:
 		outgoing_email_account = frappe.get_cached_value(
 			"Email Account", {"default_outgoing": 1, "enable_outgoing": 1}, "name"

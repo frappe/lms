@@ -170,6 +170,16 @@ def setup_calendar_event(eval: str):
 	if isinstance(eval, str):
 		eval = frappe._dict(json.loads(eval))
 
+	is_member = eval.member == frappe.session.user
+	roles = frappe.get_roles(frappe.session.user)
+	is_admin = "Moderator" in roles or "Batch Evaluator" in roles
+
+	if not is_member and not is_admin:
+		frappe.throw(
+			_("You do not have permission to set up calendar events for this evaluation."),
+			frappe.PermissionError,
+		)
+
 	calendar = frappe.db.get_value("Google Calendar", {"user": eval.evaluator, "enable": 1}, "name")
 
 	if calendar:
