@@ -35,7 +35,7 @@
 				v-for="cls in liveClasses.data"
 				class="flex flex-col border rounded-md h-full text-ink-gray-7 hover:border-outline-gray-3 p-3"
 				:class="{
-					'cursor-pointer': isAdmin() && (cls.attendees > 0 || cls.conferencing_provider === 'Google Meet'),
+					'cursor-pointer': isAdmin() && cls.attendees > 0,
 				}"
 				@click="
 					() => {
@@ -131,13 +131,6 @@
 		:live_class="attendanceFor"
 	/>
 
-	<ManualAttendance
-		v-if="showManualAttendance"
-		v-model="showManualAttendance"
-		:live_class="attendanceFor"
-		:batch="batch.data?.name"
-		@saved="liveClasses.reload()"
-	/>
 </template>
 <script setup>
 import { createListResource, Button, Tooltip } from 'frappe-ui'
@@ -154,14 +147,12 @@ import { inject, ref } from 'vue'
 import { formatTime } from '@/utils/'
 import LiveClassModal from '@/components/Modals/LiveClassModal.vue'
 import LiveClassAttendance from '@/components/Modals/LiveClassAttendance.vue'
-import ManualAttendance from '@/components/Modals/ManualAttendance.vue'
 
 const user = inject('$user')
 const showLiveClassModal = ref(false)
 const dayjs = inject('$dayjs')
 const readOnlyMode = window.read_only_mode
 const showAttendance = ref(false)
-const showManualAttendance = ref(false)
 const attendanceFor = ref(null)
 
 const props = defineProps({
@@ -238,13 +229,9 @@ const hasClassEnded = (cls) => {
 
 const openAttendanceModal = (cls) => {
 	if (!isAdmin()) return
+	if (cls.attendees <= 0) return
 	attendanceFor.value = cls
-	if (cls.conferencing_provider === 'Google Meet') {
-		showManualAttendance.value = true
-	} else {
-		if (cls.attendees <= 0) return
-		showAttendance.value = true
-	}
+	showAttendance.value = true
 }
 </script>
 <style>

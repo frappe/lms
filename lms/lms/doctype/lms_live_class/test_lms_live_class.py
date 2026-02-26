@@ -1,7 +1,6 @@
 # Copyright (c) 2023, Frappe and Contributors
 # See license.txt
 
-import json
 from unittest.mock import MagicMock, patch
 
 import frappe
@@ -296,59 +295,6 @@ class TestLMSLiveClass(BaseTestUtils):
 
 		# Reset
 		self.batch.reload()
-
-	def test_manual_attendance_marking(self):
-		"""Manual attendance marking should create participant records."""
-		from lms.lms.doctype.lms_live_class.lms_live_class import mark_manual_attendance
-
-		live_class = self._create_live_class()
-		members = [self.student1.email, self.student2.email]
-		mark_manual_attendance(live_class.name, json.dumps(members))
-
-		participants = frappe.get_all(
-			"LMS Live Class Participant",
-			{"live_class": live_class.name},
-			pluck="member",
-		)
-		for p in participants:
-			self.cleanup_items.append(("LMS Live Class Participant", frappe.db.get_value(
-				"LMS Live Class Participant", {"live_class": live_class.name, "member": p}
-			)))
-
-		self.assertEqual(len(participants), 2)
-		self.assertIn(self.student1.email, participants)
-		self.assertIn(self.student2.email, participants)
-
-		live_class.reload()
-		self.assertEqual(live_class.attendees, 2)
-
-	def test_manual_attendance_replaces_existing(self):
-		"""Re-marking attendance should replace previous records."""
-		from lms.lms.doctype.lms_live_class.lms_live_class import mark_manual_attendance
-
-		live_class = self._create_live_class()
-
-		# First marking with 2 students
-		mark_manual_attendance(live_class.name, json.dumps([self.student1.email, self.student2.email]))
-
-		# Second marking with only 1 student
-		mark_manual_attendance(live_class.name, json.dumps([self.student1.email]))
-
-		participants = frappe.get_all(
-			"LMS Live Class Participant",
-			{"live_class": live_class.name},
-			pluck="member",
-		)
-		for p in participants:
-			self.cleanup_items.append(("LMS Live Class Participant", frappe.db.get_value(
-				"LMS Live Class Participant", {"live_class": live_class.name, "member": p}
-			)))
-
-		self.assertEqual(len(participants), 1)
-		self.assertIn(self.student1.email, participants)
-
-		live_class.reload()
-		self.assertEqual(live_class.attendees, 1)
 
 	def test_update_attendance_skips_google_meet(self):
 		"""The Zoom attendance scheduler should skip Google Meet classes."""

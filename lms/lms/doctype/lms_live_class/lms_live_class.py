@@ -1,7 +1,6 @@
 # Copyright (c) 2023, Frappe and contributors
 # For license information, please see license.txt
 
-import json
 from datetime import timedelta
 
 import frappe
@@ -302,36 +301,6 @@ def get_minutes(duration_in_seconds):
 	if duration_in_seconds:
 		return int(duration_in_seconds) // 60
 	return 0
-
-
-@frappe.whitelist()
-def mark_manual_attendance(live_class, members):
-	if isinstance(members, str):
-		members = json.loads(members)
-
-	live_class_doc = frappe.get_doc("LMS Live Class", live_class)
-	start = get_datetime(f"{live_class_doc.date} {live_class_doc.time}")
-	end = start + timedelta(minutes=cint(live_class_doc.duration))
-
-	# Remove existing manual attendance records for this class
-	existing = frappe.get_all(
-		"LMS Live Class Participant",
-		{"live_class": live_class},
-		pluck="name",
-	)
-	for record in existing:
-		frappe.delete_doc("LMS Live Class Participant", record, ignore_permissions=True)
-
-	for member in members:
-		doc = frappe.new_doc("LMS Live Class Participant")
-		doc.live_class = live_class
-		doc.member = member
-		doc.joined_at = start
-		doc.left_at = end
-		doc.duration = cint(live_class_doc.duration)
-		doc.insert(ignore_permissions=True)
-
-	frappe.db.set_value("LMS Live Class", live_class, "attendees", len(members))
 
 
 def has_permission(doc, ptype="read", user=None):
