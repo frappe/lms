@@ -3,7 +3,7 @@
 		v-model="show"
 		:options="{
 			title: __('Student Progress'),
-			size: hasAssessmentData ? '3xl' : 'xl',
+			size: hasAssessmentData ? '4xl' : 'xl',
 		}"
 	>
 		<template #body-content>
@@ -15,7 +15,7 @@
 							:label="student?.member_name"
 							size="xl"
 						/>
-						<div>
+						<div class="space-y-1">
 							<div class="font-semibold">
 								{{ student?.member_name }}
 							</div>
@@ -77,16 +77,22 @@
 							v-if="assessmentProgress.data?.quizzes?.length"
 							class="border border-outline-gray-modals rounded-lg px-3 pt-3 h-fit"
 						>
-							<div>
-								<div class="text-ink-gray-5 mb-5">
+							<div class="grid grid-cols-4 gap-5 text-ink-gray-5 mb-5">
+								<div class="col-span-2">
 									{{ __('Quiz Progress') }}
+								</div>
+								<div>
+									{{ __('Score') }}
+								</div>
+								<div>
+									{{ __('Percentage') }}
 								</div>
 							</div>
 							<div
 								v-for="quiz in assessmentProgress.data.quizzes"
-								class="flex justify-between text-sm py-2 my-1"
+								class="grid grid-cols-4 gap-15 text-sm py-1 my-1"
 							>
-								<div>
+								<div class="col-span-2 leading-5">
 									{{ quiz.quiz_title }}
 								</div>
 								<div>
