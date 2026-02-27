@@ -130,7 +130,6 @@
 		v-model="showAttendance"
 		:live_class="attendanceFor"
 	/>
-
 </template>
 <script setup>
 import { createListResource, Button, Tooltip } from 'frappe-ui'
@@ -191,7 +190,11 @@ const openLiveClassModal = () => {
 const hasProviderAccount = () => {
 	const data = props.batch.data
 	if (data?.conferencing_provider === 'Zoom' && data?.zoom_account) return true
-	if (data?.conferencing_provider === 'Google Meet' && data?.google_meet_account) return true
+	if (
+		data?.conferencing_provider === 'Google Meet' &&
+		data?.google_meet_account
+	)
+		return true
 	return false
 }
 

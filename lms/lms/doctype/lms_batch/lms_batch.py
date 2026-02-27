@@ -137,10 +137,16 @@ class LMSBatch(Document):
 
 			google_meet_settings = frappe.get_doc("LMS Google Meet Settings", self.google_meet_account)
 			if not google_meet_settings.enabled:
-				frappe.throw(_("The selected Google Meet account is disabled. Please enable it or select another account."))
+				frappe.throw(
+					_(
+						"The selected Google Meet account is disabled. Please enable it or select another account."
+					)
+				)
 
 			if not google_meet_settings.google_calendar:
-				frappe.throw(_("The selected Google Meet account does not have a Google Calendar configured."))
+				frappe.throw(
+					_("The selected Google Meet account does not have a Google Calendar configured.")
+				)
 
 		elif self.conferencing_provider == "Zoom":
 			if not self.zoom_account:
@@ -298,7 +304,11 @@ def create_google_meet_live_class(
 		frappe.throw(_("Please enable the Google Meet account to use this feature."))
 
 	if not google_meet_settings.google_calendar:
-		frappe.throw(_("The Google Meet account does not have a Google Calendar configured. Please set up a Google Calendar first."))
+		frappe.throw(
+			_(
+				"The Google Meet account does not have a Google Calendar configured. Please set up a Google Calendar first."
+			)
+		)
 
 	class_details = frappe.get_doc(
 		{

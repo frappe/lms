@@ -252,9 +252,7 @@ class TestLMSLiveClass(BaseTestUtils):
 			(t, n) for t, n in self.cleanup_items if not (t == "LMS Live Class" and n == live_class.name)
 		]
 		# Remove event from cleanup too since on_trash will delete it
-		self.cleanup_items = [
-			(t, n) for t, n in self.cleanup_items if not (t == "Event" and n == event.name)
-		]
+		self.cleanup_items = [(t, n) for t, n in self.cleanup_items if not (t == "Event" and n == event.name)]
 		frappe.delete_doc("LMS Live Class", live_class.name, force=True)
 
 		self.assertFalse(frappe.db.exists("Event", event.name))

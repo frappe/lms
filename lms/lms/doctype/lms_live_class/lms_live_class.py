@@ -23,8 +23,12 @@ class LMSLiveClass(Document):
 		if not self.event:
 			return
 
-		if not self.has_value_changed("date") and not self.has_value_changed("time") \
-				and not self.has_value_changed("duration") and not self.has_value_changed("title"):
+		if (
+			not self.has_value_changed("date")
+			and not self.has_value_changed("time")
+			and not self.has_value_changed("duration")
+			and not self.has_value_changed("title")
+		):
 			return
 
 		self._update_linked_event()
@@ -96,7 +100,9 @@ class LMSLiveClass(Document):
 
 		if not meet_link:
 			frappe.msgprint(
-				_("The Meet link is not yet available. It will be generated once Google Calendar syncs the event. Please refresh the page after a few moments."),
+				_(
+					"The Meet link is not yet available. It will be generated once Google Calendar syncs the event. Please refresh the page after a few moments."
+				),
 				indicator="orange",
 				alert=True,
 			)
@@ -139,7 +145,9 @@ class LMSLiveClass(Document):
 		except Exception:
 			frappe.log_error(title=_("Google Meet - Failed to add participants to calendar event"))
 			frappe.msgprint(
-				_("Live class was created but calendar invites could not be sent to participants. You may need to share the Meet link manually."),
+				_(
+					"Live class was created but calendar invites could not be sent to participants. You may need to share the Meet link manually."
+				),
 				indicator="orange",
 				alert=True,
 			)
