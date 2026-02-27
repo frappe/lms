@@ -290,15 +290,17 @@ def create_live_class(
 
 @frappe.whitelist()
 def create_google_meet_live_class(
-	batch_name,
-	google_meet_account,
-	title,
-	duration,
-	date,
-	time,
-	timezone,
-	description=None,
+	batch_name: str,
+	google_meet_account: str,
+	title: str,
+	duration: int,
+	date: str,
+	time: str,
+	timezone: str,
+	description: str = None,
 ):
+	frappe.only_for(["Moderator", "Batch Evaluator"])
+
 	google_meet_settings = frappe.get_doc("LMS Google Meet Settings", google_meet_account)
 	if not google_meet_settings.enabled:
 		frappe.throw(_("Please enable the Google Meet account to use this feature."))
