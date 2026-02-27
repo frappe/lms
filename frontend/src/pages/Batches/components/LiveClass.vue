@@ -86,15 +86,6 @@
 							{{ __('Join') }}
 						</a>
 					</div>
-					<div
-						v-else-if="canAccessClass(cls) && !cls.join_url"
-						class="flex items-center space-x-2 text-ink-amber-3 w-fit"
-					>
-						<Info class="w-4 h-4 stroke-1.5" />
-						<span class="text-sm">
-							{{ __('Meet link generating...') }}
-						</span>
-					</div>
 					<Tooltip
 						v-else-if="hasClassEnded(cls)"
 						:text="__('This class has ended')"
