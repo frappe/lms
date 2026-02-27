@@ -165,42 +165,48 @@
 								"
 							/>
 						</div>
-						<div class="space-y-5">
-							<FormControl
-								v-model="batchDetail.doc.conferencing_provider"
-								type="select"
-								:options="conferencingOptions"
-								:label="__('Conferencing Provider')"
-							/>
-							<Link
-								v-if="batchDetail.doc.conferencing_provider === 'Zoom'"
-								doctype="LMS Zoom Settings"
-								:label="__('Zoom Account')"
-								v-model="batchDetail.doc.zoom_account"
-								:onCreate="
-									(value, close) => {
-										openSettings('Zoom Accounts', close)
-									}
-								"
-							/>
-							<Link
-								v-if="batchDetail.doc.conferencing_provider === 'Google Meet'"
-								doctype="LMS Google Meet Settings"
-								:label="__('Google Meet Account')"
-								v-model="batchDetail.doc.google_meet_account"
-								:onCreate="
-									(value, close) => {
-										openSettings('Google Meet Accounts', close)
-									}
-								"
-							/>
-							<Uploader
-								v-model="batchDetail.doc.video_link"
-								:label="__('Preview Video')"
-								type="video"
-								:required="false"
-							/>
-						</div>
+						<Uploader
+							v-model="batchDetail.doc.video_link"
+							:label="__('Preview Video')"
+							type="video"
+							:required="false"
+						/>
+					</div>
+				</div>
+
+				<div class="px-5 pb-5 space-y-5 border-b mb-5">
+					<div class="text-lg text-ink-gray-9 font-semibold mb-4">
+						{{ __('Conferencing') }}
+					</div>
+					<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+						<FormControl
+							v-model="batchDetail.doc.conferencing_provider"
+							type="select"
+							:options="conferencingOptions"
+							:label="__('Conferencing Provider')"
+						/>
+						<Link
+							v-if="batchDetail.doc.conferencing_provider === 'Zoom'"
+							doctype="LMS Zoom Settings"
+							:label="__('Zoom Account')"
+							v-model="batchDetail.doc.zoom_account"
+							:onCreate="
+								(value, close) => {
+									openSettings('Zoom Accounts', close)
+								}
+							"
+						/>
+						<Link
+							v-if="batchDetail.doc.conferencing_provider === 'Google Meet'"
+							doctype="LMS Google Meet Settings"
+							:label="__('Google Meet Account')"
+							v-model="batchDetail.doc.google_meet_account"
+							:onCreate="
+								(value, close) => {
+									openSettings('Google Meet Accounts', close)
+								}
+							"
+						/>
 					</div>
 				</div>
 
@@ -488,11 +494,11 @@ const conferencingOptions = computed(() => {
 			value: '',
 		},
 		{
-			label: 'Zoom',
+			label: __('Zoom'),
 			value: 'Zoom',
 		},
 		{
-			label: 'Google Meet',
+			label: __('Google Meet'),
 			value: 'Google Meet',
 		},
 	]
