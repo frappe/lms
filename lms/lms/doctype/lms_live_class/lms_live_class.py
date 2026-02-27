@@ -37,6 +37,23 @@ class LMSLiveClass(Document):
 		if self.event and frappe.db.exists("Event", self.event):
 			frappe.delete_doc("Event", self.event, ignore_permissions=True)
 
+	def _get_participants(self):
+		participants = frappe.get_all("LMS Batch Enrollment", {"batch": self.batch_name}, pluck="member")
+		instructors = frappe.get_all(
+			"Course Instructor", {"parenttype": "LMS Batch", "parent": self.batch_name}, pluck="instructor"
+		)
+		participants.append(frappe.session.user)
+		participants.extend(instructors)
+		return list(set(participants))
+
+	def _build_event_description(self):
+		description = f"A Live Class has been scheduled on {format_date(self.date, 'medium')} at {format_time(self.time, 'hh:mm a')}."
+		if self.join_url:
+			description += f" Click on this link to join. {self.join_url}."
+		if self.description:
+			description += f" {self.description}"
+		return description
+
 	def _update_linked_event(self):
 		event = frappe.get_doc("Event", self.event)
 		start = f"{self.date} {self.time}"
@@ -44,13 +61,7 @@ class LMSLiveClass(Document):
 		event.subject = f"Live Class on {self.title}"
 		event.starts_on = start
 		event.ends_on = get_datetime(start) + timedelta(minutes=cint(self.duration))
-
-		description = f"A Live Class has been scheduled on {format_date(self.date, 'medium')} at {format_time(self.time, 'hh:mm a')}."
-		if self.join_url:
-			description += f" Click on this link to join. {self.join_url}."
-		if self.description:
-			description += f" {self.description}"
-		event.description = description
+		event.description = self._build_event_description()
 
 		event.save(ignore_permissions=True)
 
@@ -71,17 +82,13 @@ class LMSLiveClass(Document):
 
 		event = self.create_event()
 
-		description = f"A Live Class has been scheduled on {format_date(self.date, 'medium')} at {format_time(self.time, 'hh:mm a')}."
-		if self.description:
-			description += f" {self.description}"
-
 		event.reload()
 		event.update(
 			{
 				"sync_with_google_calendar": 1,
 				"add_video_conferencing": 1,
 				"google_calendar": calendar,
-				"description": description,
+				"description": self._build_event_description(),
 			}
 		)
 		event.save()
@@ -112,17 +119,8 @@ class LMSLiveClass(Document):
 	def _add_google_meet_participants(self, event, calendar):
 		from frappe.integrations.doctype.google_calendar.google_calendar import get_google_calendar_object
 
-		participants = frappe.get_all("LMS Batch Enrollment", {"batch": self.batch_name}, pluck="member")
-		instructors = frappe.get_all(
-			"Course Instructor", {"parenttype": "LMS Batch", "parent": self.batch_name}, pluck="instructor"
-		)
-
-		participants.append(frappe.session.user)
-		participants.extend(instructors)
-		participants = list(set(participants))
-
 		attendees = []
-		for participant in participants:
+		for participant in self._get_participants():
 			email = frappe.db.get_value("User", participant, "email")
 			if not email:
 				continue
@@ -168,16 +166,7 @@ class LMSLiveClass(Document):
 		return event
 
 	def add_event_participants(self, event, calendar, add_video_conferencing=False):
-		participants = frappe.get_all("LMS Batch Enrollment", {"batch": self.batch_name}, pluck="member")
-		instructors = frappe.get_all(
-			"Course Instructor", {"parenttype": "LMS Batch", "parent": self.batch_name}, pluck="instructor"
-		)
-
-		participants.append(frappe.session.user)
-		participants.extend(instructors)
-		participants = list(set(participants))
-
-		for participant in participants:
+		for participant in self._get_participants():
 			frappe.get_doc(
 				{
 					"doctype": "Event Participants",
@@ -192,16 +181,10 @@ class LMSLiveClass(Document):
 
 		event.reload()
 
-		description = f"A Live Class has been scheduled on {format_date(self.date, 'medium')} at {format_time(self.time, 'hh:mm a')}."
-		if self.join_url:
-			description += f" Click on this link to join. {self.join_url}."
-		if self.description:
-			description += f" {self.description}"
-
 		update_data = {
 			"sync_with_google_calendar": 1,
 			"google_calendar": calendar,
-			"description": description,
+			"description": self._build_event_description(),
 		}
 
 		if add_video_conferencing:
