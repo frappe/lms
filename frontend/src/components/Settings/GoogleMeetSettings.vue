@@ -116,7 +116,7 @@ import { computed, inject, onMounted, ref } from 'vue'
 import { Plus, Trash2 } from 'lucide-vue-next'
 import { cleanError } from '@/utils'
 import { User } from '@/components/Settings/types'
-import GoogleMeetAccountModal from '@/components/Modals/GoogleMeetAccountModal.vue'
+import GoogleMeetAccountModal from '@/components/Settings/GoogleMeetAccountModal.vue'
 
 const user = inject<User | null>('$user')
 const showForm = ref(false)
