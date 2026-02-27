@@ -41,47 +41,28 @@
 							<span class="font-semibold text-ink-gray-9 leading-5">
 								{{ evl.course_title }}
 							</span>
-							<Menu
+							<Dropdown
 								v-if="evl.date > dayjs().format()"
-								as="div"
-								class="relative inline-block text-left"
+								:options="[
+									{
+										label: __('Cancel'),
+										icon: Ban,
+										onClick() {
+											cancelEvaluation(evl)
+										},
+									},
+								]"
+								placement="left"
+								side="left"
 							>
-								<div>
-									<MenuButton class="inline-flex w-full justify-center">
-										<EllipsisVertical class="w-4 h-4 stroke-1.5" />
-									</MenuButton>
-								</div>
-
-								<transition
-									enter-active-class="transition duration-100 ease-out"
-									enter-from-class="transform scale-95 opacity-0"
-									enter-to-class="transform scale-100 opacity-100"
-									leave-active-class="transition duration-75 ease-in"
-									leave-from-class="transform scale-100 opacity-100"
-									leave-to-class="transform scale-95 opacity-0"
-								>
-									<MenuItems
-										class="absolute mt-2 w-32 rounded-md bg-surface-white border p-1.5"
-									>
-										<MenuItem v-slot="{ active }">
-											<Button
-												variant="ghost"
-												class="w-full"
-												@click="cancelEvaluation(evl)"
-											>
-												<template #prefix>
-													<Ban
-														:active="active"
-														class="size-4 stroke-1.5"
-														aria-hidden="true"
-													/>
-												</template>
-												{{ __('Cancel') }}
-											</Button>
-										</MenuItem>
-									</MenuItems>
-								</transition>
-							</Menu>
+								<template v-slot="{ open }">
+									<Button variant="ghost">
+										<template #icon>
+											<EllipsisVertical class="w-4 h-4 stroke-1.5" />
+										</template>
+									</Button>
+								</template>
+							</Dropdown>
 						</div>
 						<div class="flex items-center mb-3">
 							<Calendar class="w-4 h-4 stroke-1.5" />
@@ -139,9 +120,8 @@ import {
 } from 'lucide-vue-next'
 import { inject, ref, getCurrentInstance, computed } from 'vue'
 import { formatTime } from '@/utils'
-import { Button, createListResource, call, toast } from 'frappe-ui'
+import { Button, createListResource, call, Dropdown, toast } from 'frappe-ui'
 import EvaluationModal from '@/components/Modals/EvaluationModal.vue'
-import { Menu, MenuButton, MenuItems, MenuItem } from '@headlessui/vue'
 
 const dayjs = inject('$dayjs')
 const user = inject('$user')
@@ -221,7 +201,7 @@ const endDateHasPassed = computed(() => {
 
 const cancelEvaluation = (evl) => {
 	$dialog({
-		title: __('Cancel this evaluation?'),
+		title: __('Confirm Cancellation?'),
 		message: __(
 			'Are you sure you want to cancel this evaluation? This action cannot be undone.'
 		),
