@@ -91,7 +91,9 @@
 				}}
 			</div>
 			<div
-				v-if="isStudent && !profileIsComplete && !sidebarStore.isSidebarCollapsed"
+				v-if="
+					isStudent && !profileIsComplete && !sidebarStore.isSidebarCollapsed
+				"
 				class="flex flex-col gap-3 text-ink-gray-9 py-2.5 px-3 bg-surface-white shadow-sm rounded-md"
 			>
 				<div class="flex flex-col text-p-sm gap-1">
@@ -121,7 +123,9 @@
 				</router-link>
 			</div>
 			<Tooltip
-				v-if="isStudent && !profileIsComplete && sidebarStore.isSidebarCollapsed"
+				v-if="
+					isStudent && !profileIsComplete && sidebarStore.isSidebarCollapsed
+				"
 				:text="__('Complete your profile')"
 			>
 				<router-link
@@ -133,9 +137,7 @@
 					}"
 					class="flex items-center justify-center"
 				>
-					<User
-						class="size-4 stroke-1.5 text-ink-gray-7 cursor-pointer"
-					/>
+					<User class="size-4 stroke-1.5 text-ink-gray-7 cursor-pointer" />
 				</router-link>
 			</Tooltip>
 			<TrialBanner
