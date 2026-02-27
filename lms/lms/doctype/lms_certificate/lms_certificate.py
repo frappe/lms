@@ -57,8 +57,10 @@ class LMSCertificate(Document):
 
 	def validate_criteria(self):
 		self.validate_role_of_owner()
-		self.validate_batch_enrollment()
-		self.validate_course_enrollment()
+		if self.batch_name:
+			self.validate_batch_enrollment()
+		elif self.course:
+			self.validate_course_enrollment()
 
 	def validate_role_of_owner(self):
 		roles = frappe.get_roles()
