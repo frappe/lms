@@ -144,6 +144,7 @@ const createAccount = (close: () => void) => {
 				toast.success(__('Google Meet Account created successfully'))
 			},
 			onError(err) {
+				console.error(err)
 				close()
 				toast.error(
 					cleanError(err.messages[0]) ||
@@ -183,6 +184,7 @@ const setValue = (close: () => void) => {
 				toast.success(__('Google Meet Account updated successfully'))
 			},
 			onError(err: any) {
+				console.error(err)
 				close()
 				toast.error(
 					cleanError(err.messages[0]) ||
