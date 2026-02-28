@@ -1,8 +1,6 @@
 # Copyright (c) 2023, Frappe and Contributors
 # See license.txt
 
-from unittest.mock import MagicMock, patch
-
 import frappe
 from frappe.utils import add_days, nowdate
 
@@ -18,8 +16,27 @@ class TestLMSLiveClass(BaseTestUtils):
 		self._setup_batch_flow()
 		self._setup_google_meet()
 
+	def tearDown(self):
+		super().tearDown()
+		if hasattr(self, "_original_google_settings"):
+			google_settings = frappe.get_doc("Google Settings")
+			google_settings.enable = self._original_google_settings["enable"]
+			google_settings.client_id = self._original_google_settings["client_id"]
+			google_settings.client_secret = ""
+			google_settings.save(ignore_permissions=True)
+
 	def _setup_google_meet(self):
 		"""Create Google Calendar and Google Meet Settings for testing."""
+		google_settings = frappe.get_doc("Google Settings")
+		self._original_google_settings = {
+			"enable": google_settings.enable,
+			"client_id": google_settings.client_id,
+		}
+		google_settings.enable = 1
+		google_settings.client_id = "test-client-id"
+		google_settings.client_secret = "test-client-secret"
+		google_settings.save(ignore_permissions=True)
+
 		calendar_name = f"Test GCal {frappe.generate_hash(length=6)}"
 		if not frappe.db.exists("Google Calendar", calendar_name):
 			calendar = frappe.get_doc(
