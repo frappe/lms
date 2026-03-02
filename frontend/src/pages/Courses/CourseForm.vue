@@ -164,7 +164,7 @@
 							:label="__('Preview Video')"
 							:placeholder="
 								__(
-									'Paste the youtube link of a short video introducing the course'
+									'Paste a YouTube link of a short video introducing the course'
 								)
 							"
 							@input="makeFormDirty()"
