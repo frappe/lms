@@ -191,6 +191,26 @@
 						<div class="text-lg font-semibold mt-5 text-ink-gray-9">
 							{{ __('Pricing and Certification') }}
 						</div>
+						<div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+							<FormControl
+								type="checkbox"
+								v-model="courseResource.doc.paid_course"
+								:label="__('Paid Course')"
+								@change="makeFormDirty()"
+							/>
+							<FormControl
+								type="checkbox"
+								v-model="courseResource.doc.enable_certification"
+								:label="__('Completion Certificate')"
+								@change="makeFormDirty()"
+							/>
+							<FormControl
+								type="checkbox"
+								v-model="courseResource.doc.paid_certificate"
+								:label="__('Paid Certificate')"
+								@change="makeFormDirty()"
+							/>
+						</div>
 						<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
 							<div
 								v-if="
