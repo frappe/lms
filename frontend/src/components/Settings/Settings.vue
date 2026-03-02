@@ -76,6 +76,7 @@ import PaymentGateways from '@/components/Settings/PaymentGateways.vue'
 import Coupons from '@/components/Settings/Coupons/Coupons.vue'
 import Transactions from '@/components/Settings/Transactions/Transactions.vue'
 import ZoomSettings from '@/components/Settings/ZoomSettings.vue'
+import GoogleMeetSettings from '@/components/Settings/GoogleMeetSettings.vue'
 import Badges from '@/components/Settings/Badges.vue'
 
 const show = defineModel()
@@ -295,6 +296,13 @@ const tabsStructure = computed(() => {
 						'Manage zoom accounts to conduct live classes from batches',
 					icon: 'Video',
 					template: markRaw(ZoomSettings),
+				},
+				{
+					label: 'Google Meet Accounts',
+					description:
+						'Manage Google Meet accounts to conduct live classes from batches',
+					icon: 'Video',
+					template: markRaw(GoogleMeetSettings),
 				},
 				{
 					label: 'Badges',
