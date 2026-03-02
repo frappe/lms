@@ -696,7 +696,6 @@ export const escapeHTML = (text) => {
 		'"': '&quot;',
 		"'": '&#39;',
 		'`': '&#x60;',
-		'=': '&#x3D;',
 	}
 
 	return String(text).replace(
