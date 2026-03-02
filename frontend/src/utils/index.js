@@ -706,6 +706,19 @@ export const sanitizeHTML = (text) => {
 	text = DOMPurify.sanitize(decodeEntities(text), {
 		ALLOWED_TAGS: [
 			'b',
+			'br',
+			'h1',
+			'h2',
+			'h3',
+			'h4',
+			'h5',
+			'h6',
+			'table',
+			'thead',
+			'tbody',
+			'tr',
+			'th',
+			'td',
 			'i',
 			'em',
 			'strong',
@@ -716,6 +729,7 @@ export const sanitizeHTML = (text) => {
 			'ol',
 			'li',
 			'img',
+			'blockquote',
 		],
 		ALLOWED_ATTR: ['href', 'target', 'src'],
 	})
