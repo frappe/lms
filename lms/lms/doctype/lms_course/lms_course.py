@@ -47,7 +47,9 @@ class LMSCourse(Document):
 			).save(ignore_permissions=True)
 
 	def validate_video_link(self):
-		if self.video_link and "/" in self.video_link:
+		if self.video_link and "watch?v=" in self.video_link:
+			self.video_link = self.video_link.split("watch?v=")[-1]
+		elif self.video_link and "/" in self.video_link:
 			self.video_link = self.video_link.split("/")[-1]
 
 	def validate_status(self):
