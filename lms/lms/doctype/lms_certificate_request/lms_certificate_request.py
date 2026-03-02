@@ -161,16 +161,20 @@ def schedule_evals():
 			},
 			["name", "member", "member_name", "evaluator", "date", "start_time", "end_time"],
 		)
-		for eval in evals:
-			setup_calendar_event(eval)
+		for evaluation in evals:
+			setup_calendar_event(evaluation.name)
 
 
 @frappe.whitelist()
-def setup_calendar_event(eval: str):
-	if isinstance(eval, str):
-		eval = frappe._dict(json.loads(eval))
+def setup_calendar_event(eval_name: str):
+	evaluation = frappe.db.get_value(
+		"LMS Certificate Request",
+		eval_name,
+		["name", "member", "member_name", "evaluator", "date", "start_time", "end_time"],
+		as_dict=1,
+	)
 
-	is_member = eval.member == frappe.session.user
+	is_member = evaluation.member == frappe.session.user
 	roles = frappe.get_roles(frappe.session.user)
 	is_admin = "Moderator" in roles or "Batch Evaluator" in roles
 
@@ -180,29 +184,31 @@ def setup_calendar_event(eval: str):
 			frappe.PermissionError,
 		)
 
-	calendar = frappe.db.get_value("Google Calendar", {"user": eval.evaluator, "enable": 1}, "name")
+	calendar = frappe.db.get_value("Google Calendar", {"user": evaluation.evaluator, "enable": 1}, "name")
 
 	if calendar:
-		event = create_event(eval)
-		add_participants(eval, event)
-		update_meeting_details(eval, event, calendar)
+		event = create_event(evaluation)
+		add_participants(evaluation, event)
+		update_meeting_details(evaluation, event, calendar)
 
 
-def create_event(eval: dict):
+def create_event(evaluation: dict):
 	event = frappe.get_doc(
 		{
 			"doctype": "Event",
-			"subject": f"Evaluation of {eval.member_name}",
-			"starts_on": f"{eval.date} {eval.start_time}",
-			"ends_on": f"{eval.date} {eval.end_time}",
+			"subject": f"Evaluation of {evaluation.member_name}",
+			"starts_on": f"{evaluation.date} {evaluation.start_time}",
+			"ends_on": f"{evaluation.date} {evaluation.end_time}",
+			"reference_doctype": "LMS Certificate Request",
+			"reference_docname": evaluation.name,
 		}
 	)
 	event.save()
 	return event
 
 
-def add_participants(eval: dict, event: Document):
-	participants = [eval.member, eval.evaluator]
+def add_participants(evaluation: dict, event: Document):
+	participants = [evaluation.member, evaluation.evaluator]
 	for participant in participants:
 		contact_name = frappe.db.get_value("Contact", {"email_id": participant}, "name")
 		frappe.get_doc(
@@ -218,7 +224,7 @@ def add_participants(eval: dict, event: Document):
 		).save()
 
 
-def update_meeting_details(eval: dict, event: Document, calendar: str):
+def update_meeting_details(evaluation: dict, event: Document, calendar: str):
 	event.reload()
 	event.update(
 		{
@@ -230,7 +236,9 @@ def update_meeting_details(eval: dict, event: Document, calendar: str):
 
 	event.save()
 	event.reload()
-	frappe.db.set_value("LMS Certificate Request", eval.name, "google_meet_link", event.google_meet_link)
+	frappe.db.set_value(
+		"LMS Certificate Request", evaluation.name, "google_meet_link", event.google_meet_link
+	)
 
 
 @frappe.whitelist()
