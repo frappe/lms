@@ -751,13 +751,25 @@ def get_transformed_fields(meta: list, data: dict = None):
 			else:
 				fieldtype = row.fieldtype
 
-			transformed_fields.append(
-				{
-					"label": row.label,
-					"name": row.fieldname,
-					"type": fieldtype,
-				}
-			)
+			field = {
+				"label": row.label,
+				"name": row.fieldname,
+				"type": fieldtype,
+			}
+
+			if row.reqd:
+				field["reqd"] = 1
+
+			if row.options:
+				field["options"] = row.options
+
+			if row.default:
+				field["default"] = row.default
+
+			if row.description:
+				field["description"] = row.description
+
+			transformed_fields.append(field)
 
 	return transformed_fields
 
