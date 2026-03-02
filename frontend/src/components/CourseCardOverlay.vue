@@ -10,7 +10,7 @@
 				{{ course.data.price }}
 			</div>
 			<div v-if="!readOnlyMode">
-				<div v-if="course.data.membership" class="space-y-2">
+				<div v-if="course.data.membership" class="space-y-2 mb-8">
 					<router-link
 						:to="{
 							name: 'Lesson',
@@ -46,7 +46,7 @@
 						},
 					}"
 				>
-					<Button variant="solid" size="md" class="w-full">
+					<Button variant="solid" size="md" class="w-full mb-8">
 						<template #prefix>
 							<CreditCard class="size-4 stroke-1.5" />
 						</template>
@@ -67,7 +67,7 @@
 					v-else-if="!isAdmin"
 					@click="enrollStudent()"
 					variant="solid"
-					class="w-full"
+					class="w-full mb-8"
 					size="md"
 				>
 					<template #prefix>
@@ -91,10 +91,7 @@
 				</Button>
 			</div>
 			<div class="space-y-4">
-				<div
-					class="font-medium text-ink-gray-9"
-					:class="{ 'mt-8': !readOnlyMode }"
-				>
+				<div class="font-medium text-ink-gray-9">
 					{{ __('This course has:') }}
 				</div>
 				<div class="flex items-center text-ink-gray-9">
