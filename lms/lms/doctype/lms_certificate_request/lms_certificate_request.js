@@ -16,7 +16,7 @@ frappe.ui.form.on("LMS Certificate Request", {
 				frappe.call({
 					method: "lms.lms.doctype.lms_certificate_request.lms_certificate_request.setup_calendar_event",
 					args: {
-						eval: frm.doc,
+						eval_name: frm.doc.name,
 					},
 				});
 			});
