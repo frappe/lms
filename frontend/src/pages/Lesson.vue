@@ -627,6 +627,7 @@ const resetLessonState = (newChapterNumber, newLessonNumber) => {
 		chapter: newChapterNumber,
 		lesson: newLessonNumber,
 	})
+	console.log('resetting lesson state')
 	clearInterval(timerInterval)
 	timer.value = 0
 }
@@ -741,14 +742,18 @@ const updateVideoTime = (video) => {
 }
 
 const startTimer = () => {
+	console.log(lesson.data?.membership)
 	if (!lesson.data?.membership) return
+	console.log('past')
 	timerInterval = setInterval(() => {
+		console.log(`Timer: ${timer.value} seconds`)
 		timer.value++
 		if (timer.value == 30) {
 			clearInterval(timerInterval)
 			markProgress()
 		}
 	}, 1000)
+	console.log(timerInterval)
 }
 
 onBeforeUnmount(() => {

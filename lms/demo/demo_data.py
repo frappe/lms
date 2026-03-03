@@ -27,6 +27,7 @@ def create_course():
 			"video_link": "VIt_bsbBjLI",
 			"instructors": [{"instructor": instructor.name}],
 			"short_introduction": "Learn the basics of Frappe Learning and how to get started.",
+			"image": "/assets/lms/images/course_card.jpeg",
 		}
 	)
 
@@ -64,6 +65,7 @@ def create_instructor():
 	instructor = frappe.new_doc("User")
 	instructor.first_name = "Jannat"
 	instructor.last_name = "Patel"
+	instructor.user_image = "/assets/lms/images/instructor.png"
 	instructor.email = "jannat@example.com"
 	instructor.save()
 	return instructor
