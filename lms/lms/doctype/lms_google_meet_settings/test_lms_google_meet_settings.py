@@ -22,6 +22,16 @@ class IntegrationTestLMSGoogleMeetSettings(IntegrationTestCase):
 	def setUp(self):
 		self.cleanup_items = []
 
+		google_settings = frappe.get_doc("Google Settings")
+		self._original_google_settings = {
+			"enable": google_settings.enable,
+			"client_id": google_settings.client_id,
+		}
+		google_settings.enable = 1
+		google_settings.client_id = "test-client-id"
+		google_settings.client_secret = "test-client-secret"
+		google_settings.save(ignore_permissions=True)
+
 	def tearDown(self):
 		for item_type, item_name in reversed(self.cleanup_items):
 			if frappe.db.exists(item_type, item_name):
@@ -29,6 +39,13 @@ class IntegrationTestLMSGoogleMeetSettings(IntegrationTestCase):
 					frappe.delete_doc(item_type, item_name, force=True)
 				except Exception:
 					pass
+
+		if hasattr(self, "_original_google_settings"):
+			google_settings = frappe.get_doc("Google Settings")
+			google_settings.enable = self._original_google_settings["enable"]
+			google_settings.client_id = self._original_google_settings["client_id"]
+			google_settings.client_secret = ""
+			google_settings.save(ignore_permissions=True)
 
 	def _create_google_calendar(self, name="Test Google Calendar"):
 		if frappe.db.exists("Google Calendar", name):

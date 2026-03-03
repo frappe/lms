@@ -35,7 +35,9 @@ class LMSLiveClass(Document):
 
 	def on_trash(self):
 		if self.event and frappe.db.exists("Event", self.event):
-			frappe.delete_doc("Event", self.event, ignore_permissions=True)
+			event_name = self.event
+			frappe.db.set_value("LMS Live Class", self.name, "event", "")
+			frappe.delete_doc("Event", event_name, ignore_permissions=True)
 
 	def _get_participants(self):
 		participants = frappe.get_all("LMS Batch Enrollment", {"batch": self.batch_name}, pluck="member")

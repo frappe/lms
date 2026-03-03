@@ -1,10 +1,14 @@
 # Copyright (c) 2023, Frappe and Contributors
 # See license.txt
 
+from unittest.mock import MagicMock, patch
+
 import frappe
 from frappe.utils import add_days, nowdate
 
 from lms.lms.test_helpers import BaseTestUtils
+
+GOOGLE_CALENDAR_MODULE = "frappe.integrations.doctype.google_calendar.google_calendar"
 
 
 class TestLMSLiveClass(BaseTestUtils):
@@ -12,12 +16,35 @@ class TestLMSLiveClass(BaseTestUtils):
 
 	def setUp(self):
 		super().setUp()
+
+		# Mock get_google_calendar_object to prevent Frappe's Event hooks
+		# from calling the real Google Calendar API (no OAuth tokens in CI).
+		mock_api = MagicMock()
+		mock_api.events.return_value.insert.return_value.execute.return_value = {
+			"id": "test-gcal-event-id",
+			"hangoutLink": "https://meet.google.com/test-link",
+			"status": "confirmed",
+		}
+		mock_api.events.return_value.update.return_value.execute.return_value = {
+			"id": "test-gcal-event-id",
+			"hangoutLink": "https://meet.google.com/test-link",
+		}
+		mock_api.events.return_value.patch.return_value.execute.return_value = {}
+		mock_api.events.return_value.delete.return_value.execute.return_value = None
+
+		self._gcal_patcher = patch(
+			f"{GOOGLE_CALENDAR_MODULE}.get_google_calendar_object",
+			return_value=(mock_api, MagicMock()),
+		)
+		self._gcal_patcher.start()
+
 		self._setup_course_flow()
 		self._setup_batch_flow()
 		self._setup_google_meet()
 
 	def tearDown(self):
 		super().tearDown()
+		self._gcal_patcher.stop()
 		if hasattr(self, "_original_google_settings"):
 			google_settings = frappe.get_doc("Google Settings")
 			google_settings.enable = self._original_google_settings["enable"]
@@ -139,7 +166,8 @@ class TestLMSLiveClass(BaseTestUtils):
 
 		old_calendar = self.google_meet_settings.google_calendar
 		self.google_meet_settings.google_calendar = ""
-		self.google_meet_settings.save(ignore_mandatory=True)
+		self.google_meet_settings.flags.ignore_mandatory = True
+		self.google_meet_settings.save()
 
 		with self.assertRaises(frappe.exceptions.ValidationError):
 			create_google_meet_live_class(
@@ -313,18 +341,15 @@ class TestLMSLiveClass(BaseTestUtils):
 
 	def test_update_attendance_skips_google_meet(self):
 		"""The Zoom attendance scheduler should skip Google Meet classes."""
-		from lms.lms.doctype.lms_live_class.lms_live_class import update_attendance
-
 		live_class = self._create_live_class()
 		live_class.reload()
 
-		# The update_attendance function filters out Google Meet classes
-		# It should not raise an error or attempt to call Zoom API for Google Meet classes
+		# The update_attendance function uses conferencing_provider != "Google Meet"
+		# to filter out Google Meet classes from Zoom attendance processing.
+		# Verify a Google Meet class is excluded by that filter.
 		past_classes = frappe.get_all(
 			"LMS Live Class",
 			{
-				"uuid": ["is", "set"],
-				"attendees": ["is", "not set"],
 				"conferencing_provider": ["!=", "Google Meet"],
 			},
 			pluck="name",
