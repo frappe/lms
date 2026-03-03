@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2026-01-23 16:05+0000\n"
-"PO-Revision-Date: 2026-02-24 17:18\n"
+"PO-Revision-Date: 2026-03-03 18:47\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Spanish\n"
 "MIME-Version: 1.0\n"
@@ -3307,7 +3307,7 @@ msgstr "Comentarios del instructor"
 #. Label of a Link in the LMS Workspace
 #: lms/lms/workspace/lms/lms.json
 msgid "Interest"
-msgstr ""
+msgstr "Interés"
 
 #: frontend/src/components/Sidebar/AppSidebar.vue:512
 #: frontend/src/components/Sidebar/AppSidebar.vue:515
