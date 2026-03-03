@@ -8,7 +8,7 @@ from frappe.utils import ceil
 
 
 class LMSEnrollment(Document):
-	def validate(self):
+	def before_insert(self):
 		self.validate_duplicate_enrollment()
 		self.validate_course_enrollment_eligibility()
 		self.validate_owner()
@@ -27,6 +27,7 @@ class LMSEnrollment(Document):
 			{
 				"course": self.course,
 				"member": self.member,
+				"name": ["!=", self.name],
 			},
 		)
 
