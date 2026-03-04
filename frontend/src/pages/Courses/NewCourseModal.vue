@@ -2,7 +2,7 @@
 	<Dialog
 		v-model="show"
 		:options="{
-			title: __('Create Course'),
+			title: __('New Course'),
 			size: '3xl',
 		}"
 	>
@@ -18,8 +18,7 @@
 						doctype="LMS Category"
 						v-model="course.category"
 						:label="__('Category')"
-						:allowCreate="true"
-						@create="
+						:onCreate="
 							() => {
 								openSettings('Categories')
 								show = false
@@ -67,7 +66,7 @@
 		<template #actions="{ close }">
 			<div class="text-right">
 				<Button variant="solid" @click="saveCourse(close)">
-					{{ __('Create') }}
+					{{ __('Save') }}
 				</Button>
 			</div>
 		</template>
@@ -75,10 +74,11 @@
 </template>
 <script setup lang="ts">
 import { Button, Dialog, FormControl, TextEditor, toast } from 'frappe-ui'
-import { Link, useOnboarding, useTelemetry } from 'frappe-ui/frappe'
+import { useOnboarding, useTelemetry } from 'frappe-ui/frappe'
 import { inject, onMounted, onBeforeUnmount, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { cleanError, openSettings } from '@/utils'
+import Link from '@/components/Controls/Link.vue'
 import MultiSelect from '@/components/Controls/MultiSelect.vue'
 import Uploader from '@/components/Controls/Uploader.vue'
 

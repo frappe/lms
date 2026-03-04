@@ -16,8 +16,8 @@
 					{{ __('Submission by') }} {{ submissionResource.doc?.member_name }}
 				</div>
 			</div>
-			<div class="text-sm text-ink-gray-7 font-medium mb-2">
-				{{ __('Question') }}:
+			<div class="text-ink-gray-9 font-semibold mb-5">
+				{{ __('Assignment Question') }}
 			</div>
 			<div
 				v-html="assignment.data.question"
@@ -42,7 +42,11 @@
 						>
 							{{ submissionResource.doc?.status }}
 						</Badge>
-						<Button variant="solid" @click="submitAssignment()">
+						<Button
+							v-if="canModifyAssignment"
+							variant="solid"
+							@click="submitAssignment()"
+						>
 							{{ __('Save') }}
 						</Button>
 					</div>
@@ -73,12 +77,14 @@
 						}}
 					</div>
 					<FileUploader
-						v-if="!submissionResource.doc?.assignment_attachment"
+						v-if="!attachment"
 						:fileTypes="getType()"
 						:uploadArgs="{
 							private: true,
 						}"
-						:validateFile="validateFile"
+						:validateFile="
+							(file) => validateFile(file, assignment.data.type.toLowerCase())
+						"
 						@success="(file) => saveSubmission(file)"
 					>
 						<template #default="{ uploading, progress, openFileSelector }">
@@ -94,7 +100,7 @@
 					<div v-else>
 						<div class="flex items-center text-ink-gray-7">
 							<a
-								:href="submissionResource.doc.assignment_attachment"
+								:href="attachment"
 								target="_blank"
 								class="cursor-pointer !no-underline text-sm leading-5"
 							>
@@ -103,11 +109,7 @@
 										<FileText class="h-5 w-5 stroke-1.5" />
 									</div>
 									<span>
-										{{
-											submissionResource.doc.assignment_attachment
-												.split('/')
-												.pop()
-										}}
+										{{ attachment.split('/').pop() }}
 									</span>
 								</div>
 							</a>
@@ -138,6 +140,7 @@
 						@change="(val) => (answer = val)"
 						:editable="true"
 						:fixedMenu="true"
+						:readonly="!canModifyAssignment"
 						:uploadArgs="{
 							private: true,
 						}"
@@ -150,7 +153,7 @@
 						user.data?.name == submissionResource.doc?.owner &&
 						submissionResource.doc?.comments
 					"
-					class="mt-8 p-3 border rounded-lg"
+					class="mt-8 p-3 border rounded-lg bg-surface-gray-2"
 				>
 					<div class="text-ink-gray-5 mb-4">
 						{{ __('Comments by Evaluator') }}
@@ -213,8 +216,10 @@ import {
 import { computed, inject, onMounted, onBeforeUnmount, ref, watch } from 'vue'
 import { FileText, X } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
+import { validateFile } from '@/utils'
 
 const answer = ref(null)
+const attachment = ref(null)
 const comments = ref(null)
 const router = useRouter()
 const user = inject('$user')
@@ -264,118 +269,98 @@ const assignment = createResource({
 	},
 })
 
-const newSubmission = createResource({
-	url: 'frappe.client.insert',
-	makeParams(values) {
-		let doc = {
-			doctype: 'LMS Assignment Submission',
-			assignment: props.assignmentID,
-			member: user.data?.name,
-		}
-		if (!showUploader()) {
-			doc.answer = answer.value
-		}
-		return {
-			doc: doc,
-		}
-	},
-})
-
 const submissionResource = createDocumentResource({
 	doctype: 'LMS Assignment Submission',
 	name: props.submissionName,
+	auto: false,
 	onError(err) {
 		toast.error(err.messages?.[0] || err)
 	},
-	auto: false,
-	cache: [user.data?.name, props.assignmentID],
 })
 
 watch(submissionResource, () => {
-	if (submissionResource.doc) {
-		if (submissionResource.doc.answer) {
-			answer.value = submissionResource.doc.answer
-		}
-		if (submissionResource.doc.comments) {
-			comments.value = submissionResource.doc.comments
-		}
-		if (submissionResource.isDirty) {
-			isDirty.value = true
-		} else if (
-			showUploader() &&
-			!submissionResource.doc.assignment_attachment
-		) {
-			isDirty.value = true
-		} else if (!showUploader() && !answer.value) {
-			isDirty.value = true
-		} else {
-			isDirty.value = false
-		}
+	if (!submissionResource.doc) return
+	console.log(submissionResource.doc)
+	if (submissionResource.doc.answer) {
+		answer.value = submissionResource.doc.answer
+	}
+	if (submissionResource.doc.assignment_attachment) {
+		attachment.value = submissionResource.doc.assignment_attachment
+	}
+	if (submissionResource.doc.comments) {
+		comments.value = submissionResource.doc.comments
 	}
 })
 
-watch(
-	() => submissionResource.doc,
-	() => {
-		if (
-			props.submissionName == 'new' &&
-			submissionResource.doc?.assignment_attachment
-		) {
-			isDirty.value = true
-		}
-	}
-)
-
 const submitAssignment = () => {
 	if (props.submissionName != 'new') {
-		let evaluator =
-			submissionResource.doc && submissionResource.doc.owner != user.data?.name
-				? user.data?.name
-				: null
-
-		submissionResource.setValue.submit(
-			{
-				...submissionResource.doc,
-				evaluator: evaluator,
-				comments: comments.value,
-				answer: answer.value,
-			},
-			{
-				onSuccess(data) {
-					isDirty.value = false
-					toast.success(__('Changes saved successfully'))
-				},
-			}
-		)
+		updateSubmission()
 	} else {
 		addNewSubmission()
 	}
 }
 
 const addNewSubmission = () => {
-	newSubmission.submit(
-		{},
+	let doc = {
+		doctype: 'LMS Assignment Submission',
+		assignment: props.assignmentID,
+		member: user.data?.name,
+	}
+	if (!showUploader()) {
+		doc.answer = answer.value
+	} else {
+		doc.assignment_attachment = attachment.value
+	}
+	call('frappe.client.insert', {
+		doc: doc,
+	})
+		.then((data) => {
+			toast.success(__('Assignment submitted successfully'))
+			if (router.currentRoute.value.name == 'AssignmentSubmission') {
+				router.push({
+					name: 'AssignmentSubmission',
+					params: {
+						assignmentID: props.assignmentID,
+						submissionName: data.name,
+					},
+					query: { fromLesson: router.currentRoute.value.query.fromLesson },
+				})
+			} else {
+				markLessonProgress()
+				router.go()
+			}
+			isDirty.value = false
+			submissionResource.name = data.name
+			submissionResource.reload()
+		})
+		.catch((err) => {
+			toast.error(err.messages?.[0] || err)
+			console.error(err)
+		})
+}
+
+const updateSubmission = () => {
+	let evaluator =
+		submissionResource.doc && submissionResource.doc.owner != user.data?.name
+			? user.data?.name
+			: null
+
+	submissionResource.setValue.submit(
+		{
+			...submissionResource.doc,
+			evaluator: evaluator,
+			comments: comments.value,
+			answer: answer.value,
+			assignment_attachment: attachment.value,
+		},
 		{
 			onSuccess(data) {
-				toast.success(__('Assignment submitted successfully'))
-				if (router.currentRoute.value.name == 'AssignmentSubmission') {
-					router.push({
-						name: 'AssignmentSubmission',
-						params: {
-							assignmentID: props.assignmentID,
-							submissionName: data.name,
-						},
-						query: { fromLesson: router.currentRoute.value.query.fromLesson },
-					})
-				} else {
-					markLessonProgress()
-					router.go()
-				}
-				submissionResource.name = data.name
-				submissionResource.reload()
+				isDirty.value = false
+				toast.success(__('Changes saved successfully'))
 			},
 			onError(err) {
 				toast.error(err.messages?.[0] || err)
+				console.error(err)
 			},
 		}
 	)
@@ -383,7 +368,7 @@ const addNewSubmission = () => {
 
 const saveSubmission = (file) => {
 	isDirty.value = true
-	submissionResource.doc.assignment_attachment = file.file_url
+	attachment.value = file.file_url
 }
 
 const markLessonProgress = () => {
@@ -414,21 +399,6 @@ const getType = () => {
 		]
 	} else if (type == 'PDF') {
 		return ['.pdf']
-	}
-}
-
-const validateFile = (file) => {
-	let type = assignment.data?.type
-	let extension = file.name.split('.').pop().toLowerCase()
-	if (type == 'Image' && !['jpg', 'jpeg', 'png'].includes(extension)) {
-		return 'Only image file is allowed.'
-	} else if (
-		type == 'Document' &&
-		!['doc', 'docx', 'xml'].includes(extension)
-	) {
-		return 'Only document file is allowed.'
-	} else if (type == 'PDF' && !['pdf'].includes(extension)) {
-		return 'Only PDF file is allowed.'
 	}
 }
 

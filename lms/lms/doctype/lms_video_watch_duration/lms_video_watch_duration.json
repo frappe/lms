@@ -102,7 +102,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-07-30 14:38:52.555010",
+ "modified": "2026-02-20 12:02:29.458645",
  "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "LMS Video Watch Duration",
@@ -117,17 +117,6 @@
    "read": 1,
    "report": 1,
    "role": "System Manager",
-   "share": 1,
-   "write": 1
-  },
-  {
-   "create": 1,
-   "email": 1,
-   "export": 1,
-   "print": 1,
-   "read": 1,
-   "report": 1,
-   "role": "LMS Student",
    "share": 1,
    "write": 1
   },
@@ -152,6 +141,18 @@
    "read": 1,
    "report": 1,
    "role": "Course Creator",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "if_owner": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "LMS Student",
    "share": 1,
    "write": 1
   }

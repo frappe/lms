@@ -76,7 +76,9 @@
   "contact_us_tab",
   "contact_us_email",
   "column_break_gcgv",
-  "contact_us_url"
+  "contact_us_url",
+  "jobs_tab",
+  "allow_job_posting"
  ],
  "fields": [
   {
@@ -471,13 +473,24 @@
   {
    "fieldname": "column_break_dtns",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "jobs_tab",
+   "fieldtype": "Tab Break",
+   "label": "Jobs"
+  },
+  {
+   "default": "1",
+   "fieldname": "allow_job_posting",
+   "fieldtype": "Check",
+   "label": "Allow Job Posting"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2026-01-01 19:36:54.443390",
+ "modified": "2026-02-19 16:28:15.310145",
  "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "LMS Settings",
@@ -492,13 +505,6 @@
    "role": "System Manager",
    "share": 1,
    "write": 1
-  },
-  {
-   "email": 1,
-   "print": 1,
-   "read": 1,
-   "role": "LMS Student",
-   "share": 1
   },
   {
    "create": 1,

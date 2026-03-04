@@ -10,7 +10,7 @@ from frappe.model.document import Document
 
 class LMSBadge(Document):
 	def on_update(self):
-		if self.event == "Auto Assign" and self.condition:
+		if self.event == "Manual Assignment" and self.condition:
 			try:
 				json.loads(self.condition)
 			except ValueError:
@@ -54,6 +54,7 @@ def award(doc, member):
 		}
 	)
 	assignment.save()
+	return assignment.name
 
 
 def eval_condition(doc, condition):
@@ -61,16 +62,30 @@ def eval_condition(doc, condition):
 
 
 @frappe.whitelist()
-def assign_badge(badge: str, user: str):
-	badge = frappe._dict(json.loads(badge))
-	if not badge.event == "Auto Assign":
+def assign_badge(badge_name: str):
+	assignments = []
+	badge = frappe.db.get_value(
+		"LMS Badge",
+		badge_name,
+		["name", "event", "reference_doctype", "condition", "user_field"],
+		as_dict=True,
+	)
+	if not badge:
+		frappe.throw(_("Badge {0} not found").format(badge_name), frappe.DoesNotExistError)
+
+	if not badge.event == "Manual Assignment":
 		return
 
 	fields = ["name"]
 	fields.append(badge.user_field)
-	list = frappe.get_all(badge.reference_doctype, filters=badge.condition, fields=fields)
-	for doc in list:
-		award(badge, doc.get(badge.user_field))
+	docs = frappe.get_all(badge.reference_doctype, filters=json.loads(badge.condition), fields=fields)
+
+	for doc in docs:
+		assignment_name = award(badge, doc.get(badge.user_field))
+		if assignment_name:
+			assignments.append(assignment_name)
+
+	return "success" if assignments else "failed"
 
 
 def process_badges(doc, state):

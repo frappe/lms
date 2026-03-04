@@ -5,7 +5,7 @@
 				{{ __('Upcoming Evaluations') }}
 			</div>
 			<Button v-if="canScheduleEvals" @click="openEvalModal">
-				{{ __('Schedule Evaluation') }}
+				{{ __('Schedule') }}
 			</Button>
 		</div>
 		<div
@@ -31,12 +31,14 @@
 		<div v-if="upcoming_evals.data?.length">
 			<div
 				class="grid gap-4"
-				:class="forHome ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-3'"
+				:class="forHome ? 'grid-cols-1 md:grid-cols-4' : 'grid-cols-1'"
 			>
 				<div v-for="evl in upcoming_evals.data">
-					<div class="border text-ink-gray-7 rounded-md p-3">
+					<div
+						class="border hover:border-outline-gray-3 text-ink-gray-7 rounded-md p-3"
+					>
 						<div class="flex justify-between mb-3">
-							<span class="text-lg font-semibold text-ink-gray-9 leading-5">
+							<span class="font-semibold text-ink-gray-9 leading-5">
 								{{ evl.course_title }}
 							</span>
 							<Menu
@@ -114,7 +116,7 @@
 				</div>
 			</div>
 		</div>
-		<div v-else-if="!endDateHasPassed" class="text-ink-gray-5">
+		<div v-else-if="!endDateHasPassed" class="text-ink-gray-7">
 			{{ __('Schedule an evaluation to get certified.') }}
 		</div>
 	</div>
@@ -200,7 +202,7 @@ const openEvalCall = (evl) => {
 
 const evaluationCourses = computed(() => {
 	return props.courses.filter((course) => {
-		return course.evaluator != ''
+		return course.evaluator && course.evaluator != ''
 	})
 })
 

@@ -9,41 +9,43 @@
  "engine": "InnoDB",
  "field_order": [
   "section_break_earo",
+  "published",
   "title",
   "start_date",
   "end_date",
   "column_break_4",
+  "allow_self_enrollment",
   "start_time",
   "end_time",
   "timezone",
+  "section_break_wuxt",
+  "seat_count",
+  "column_break_uamg",
+  "category",
   "section_break_cssv",
-  "published",
+  "evaluation",
+  "evaluation_end_date",
   "column_break_wfkz",
-  "allow_self_enrollment",
-  "column_break_vnrp",
   "certification",
   "section_break_6",
   "description",
-  "column_break_hlqw",
   "instructors",
-  "zoom_account",
+  "column_break_hlqw",
+  "batch_details",
   "section_break_rgfj",
   "medium",
-  "category",
   "confirmation_email_template",
   "column_break_flwy",
-  "seat_count",
-  "evaluation_end_date",
+  "zoom_account",
   "notification_sent",
   "section_break_jedp",
   "video_link",
   "column_break_kpct",
   "meta_image",
-  "section_break_khcn",
-  "batch_details",
-  "batch_details_raw",
   "section_break_jgji",
   "courses",
+  "section_break_khcn",
+  "batch_details_raw",
   "assessment_tab",
   "assessment",
   "schedule_tab",
@@ -297,6 +299,7 @@
    "label": "Allow accessing future dates"
   },
   {
+   "depends_on": "evaluation",
    "fieldname": "evaluation_end_date",
    "fieldtype": "Date",
    "label": "Evaluation End Date"
@@ -342,10 +345,6 @@
    "fieldtype": "Column Break"
   },
   {
-   "fieldname": "column_break_vnrp",
-   "fieldtype": "Column Break"
-  },
-  {
    "default": "0",
    "fieldname": "certification",
    "fieldtype": "Check",
@@ -358,7 +357,8 @@
   },
   {
    "fieldname": "section_break_cssv",
-   "fieldtype": "Section Break"
+   "fieldtype": "Section Break",
+   "label": "Certification"
   },
   {
    "fieldname": "zoom_account",
@@ -385,6 +385,20 @@
   {
    "fieldname": "column_break_kpct",
    "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "evaluation",
+   "fieldtype": "Check",
+   "label": "Evaluation"
+  },
+  {
+   "fieldname": "section_break_wuxt",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_uamg",
+   "fieldtype": "Column Break"
   }
  ],
  "grid_page_length": 50,
@@ -407,7 +421,7 @@
    "link_fieldname": "payment_for_document"
   }
  ],
- "modified": "2026-01-13 18:50:27.420712",
+ "modified": "2026-02-13 14:23:51.913875",
  "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "LMS Batch",

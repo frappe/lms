@@ -42,18 +42,16 @@ const routes = [
 	{
 		path: '/batches',
 		name: 'Batches',
-		component: () => import('@/pages/Batches.vue'),
+		component: () => import('@/pages/Batches/Batches.vue'),
 	},
 	{
 		path: '/batches/details/:batchName',
-		name: 'BatchDetail',
-		component: () => import('@/pages/BatchDetail.vue'),
-		props: true,
+		redirect: (to) => `/batches/${to.params.batchName}`,
 	},
 	{
 		path: '/batches/:batchName',
-		name: 'Batch',
-		component: () => import('@/pages/Batch.vue'),
+		name: 'BatchDetail',
+		component: () => import('@/pages/Batches/BatchDetail.vue'),
 		props: true,
 	},
 	{
@@ -126,12 +124,6 @@ const routes = [
 		props: true,
 	},
 	{
-		path: '/batches/:batchName/edit',
-		name: 'BatchForm',
-		component: () => import('@/pages/BatchForm.vue'),
-		props: true,
-	},
-	{
 		path: '/job-opening/:jobName/edit',
 		name: 'JobForm',
 		component: () => import('@/pages/JobForm.vue'),
@@ -146,12 +138,6 @@ const routes = [
 		path: '/notifications',
 		name: 'Notifications',
 		component: () => import('@/pages/Notifications.vue'),
-	},
-	{
-		path: '/badges/:badgeName/:email',
-		name: 'Badge',
-		component: () => import('@/pages/Badge.vue'),
-		props: true,
 	},
 	{
 		path: '/quizzes',

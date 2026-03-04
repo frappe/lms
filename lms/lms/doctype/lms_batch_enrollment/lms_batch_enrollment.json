@@ -9,6 +9,7 @@
   "member",
   "member_name",
   "member_username",
+  "member_image",
   "column_break_sjzm",
   "batch",
   "payment",
@@ -70,11 +71,17 @@
    "label": "Batch",
    "options": "LMS Batch",
    "reqd": 1
+  },
+  {
+   "fetch_from": "member.user_image",
+   "fieldname": "member_image",
+   "fieldtype": "Attach Image",
+   "label": "Member Image"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-02-03 10:51:28.475356",
+ "modified": "2026-02-10 16:07:28.315982",
  "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "LMS Batch Enrollment",

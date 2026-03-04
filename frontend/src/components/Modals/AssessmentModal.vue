@@ -20,11 +20,15 @@
 					:options="assessmentTypes"
 					v-model="assessmentType"
 					:label="__('Type')"
+					placeholder=" "
+					@update:modelValue="() => (assessment = null)"
 				/>
 				<Link
+					v-if="assessmentType"
 					v-model="assessment"
 					:doctype="assessmentType"
 					:label="__('Assessment')"
+					placeholder=" "
 					:onCreate="
 						(value, close) => {
 							close()
@@ -49,7 +53,7 @@
 </template>
 <script setup>
 import { Dialog, FormControl, createResource, toast } from 'frappe-ui'
-import Link from '@/components/Controls/Link.vue'
+import { Link } from 'frappe-ui/frappe'
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 

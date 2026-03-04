@@ -53,7 +53,7 @@ describe("Course Creation", () => {
 				});
 		});
 
-		cy.button("Create").last().click();
+		cy.button("Save").last().click();
 
 		// Edit Course Details
 		cy.wait(500);
@@ -65,12 +65,9 @@ describe("Course Creation", () => {
 			.contains("Category")
 			.parent()
 			.within(() => {
-				cy.get("input").click();
+				cy.get("button").click();
 			});
-		cy.get("[id^=headlessui-combobox-option-")
-			.should("be.visible")
-			.first()
-			.click();
+		cy.get("div").contains("Business").click();
 
 		cy.get("label").contains("Published").click();
 		cy.get("label").contains("Published On").type("2021-01-01");

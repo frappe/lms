@@ -210,7 +210,7 @@ import {
 } from 'lucide-vue-next'
 import { formatTime } from '@/utils'
 import CourseCard from '@/components/CourseCard.vue'
-import BatchCard from '@/components/BatchCard.vue'
+import BatchCard from '@/pages/Batches/components/BatchCard.vue'
 
 const user = inject<any>('$user')
 const dayjs = inject<any>('$dayjs')

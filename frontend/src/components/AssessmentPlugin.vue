@@ -64,8 +64,8 @@
 import { Dialog, FormControl } from 'frappe-ui'
 import { nextTick, onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
-import { Link } from 'frappe-ui/frappe'
 import { getLmsRoute } from '@/utils/basePath'
+import Link from '@/components/Controls/Link.vue'
 
 const show = ref(false)
 const quiz = ref(null)

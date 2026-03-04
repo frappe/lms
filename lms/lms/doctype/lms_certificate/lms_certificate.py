@@ -12,6 +12,7 @@ from frappe.utils.telemetry import capture
 
 class LMSCertificate(Document):
 	def validate(self):
+		self.validate_criteria()
 		self.validate_duplicate_certificate()
 
 	def autoname(self):
@@ -53,6 +54,43 @@ class LMSCertificate(Document):
 			args=args,
 			header=[subject, "green"],
 		)
+
+	def validate_criteria(self):
+		self.validate_role_of_owner()
+		self.validate_batch_enrollment()
+		self.validate_course_enrollment()
+
+	def validate_role_of_owner(self):
+		roles = frappe.get_roles()
+		is_admin = any(role in roles for role in ["Moderator", "Course Creator", "Batch Evaluator"])
+		if not self.course and not self.batch_name and not is_admin:
+			frappe.throw(_("Course or Batch is required to issue a certificate."))
+
+	def validate_batch_enrollment(self):
+		if self.batch_name:
+			is_enrolled = frappe.db.exists(
+				"LMS Batch Enrollment", {"batch": self.batch_name, "member": self.member}
+			)
+			if not is_enrolled:
+				frappe.throw(_("Certification cannot be issued as the member is not enrolled in this batch."))
+
+	def validate_course_enrollment(self):
+		if self.course:
+			is_enrolled = frappe.db.exists("LMS Enrollment", {"course": self.course, "member": self.member})
+			if not is_enrolled:
+				frappe.throw(
+					_("Certification cannot be issued as the member is not enrolled in this course.")
+				)
+
+			completion_certificate = frappe.db.get_value("LMS Course", self.course, "enable_certification")
+			if completion_certificate:
+				progress = frappe.db.get_value(
+					"LMS Enrollment", {"course": self.course, "member": self.member}, "progress"
+				)
+				if progress < 100:
+					frappe.throw(
+						_("Certification cannot be issued as the member has not completed the course.")
+					)
 
 	def validate_duplicate_certificate(self):
 		self.validate_course_duplicates()
@@ -177,3 +215,23 @@ def validate_certification_eligibility(course):
 	)
 	if progress < 100:
 		frappe.throw(_("You have not completed the course yet."))
+
+
+def has_permission(doc, ptype="read", user=None):
+	user = user or frappe.session.user
+	roles = frappe.get_roles(user)
+	if "Moderator" in roles or "Course Creator" in roles or "Batch Evaluator" in roles:
+		return True
+	if doc.owner == user:
+		return True
+	if ptype not in ("read", "select", "print"):
+		return False
+	return doc.published
+
+
+def get_permission_query_conditions(user):
+	user = user or frappe.session.user
+	roles = frappe.get_roles(user)
+	if "Moderator" in roles or "Course Creator" in roles or "Batch Evaluator" in roles:
+		return None
+	return """(`tabLMS Certificate`.published = 1)"""

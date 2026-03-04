@@ -84,7 +84,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-12-04 17:06:26.090276",
+ "modified": "2026-02-19 15:06:08.389081",
  "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "LMS Badge Assignment",
@@ -117,10 +117,6 @@
   {
    "create": 1,
    "if_owner": 1,
-   "read": 1,
-   "role": "LMS Student"
-  },
-  {
    "read": 1,
    "role": "LMS Student"
   },

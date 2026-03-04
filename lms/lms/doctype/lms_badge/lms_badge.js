@@ -5,7 +5,7 @@ frappe.ui.form.on("LMS Badge", {
 	refresh: (frm) => {
 		frm.events.set_field_options(frm);
 
-		if (frm.doc.event == "Auto Assign") {
+		if (frm.doc.event == "Manual Assignment" && frm.doc.enabled) {
 			add_assign_button(frm);
 		}
 	},
@@ -49,11 +49,13 @@ const add_assign_button = (frm) => {
 		frappe.call({
 			method: "lms.lms.doctype.lms_badge.lms_badge.assign_badge",
 			args: {
-				badge: frm.doc,
+				badge_name: frm.doc.name,
 			},
 			callback: function (r) {
-				if (r.message) {
-					frappe.msgprint(r.message);
+				if (r.message == "success") {
+					frappe.toast(__("Badge assigned successfully"));
+				} else {
+					frappe.toast(__("Failed to assign badge"));
 				}
 			},
 		});

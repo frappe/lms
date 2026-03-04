@@ -12,7 +12,7 @@
 		</div>
 		<div class="grid gap-8 mt-10">
 			<div v-for="(review, index) in reviews.data">
-				<div class="flex items-center">
+				<div class="flex">
 					<router-link
 						:to="{
 							name: 'Profile',
@@ -46,10 +46,10 @@
 								"
 							/>
 						</div>
+						<div v-if="review.review" class="mt-4 leading-5 text-ink-gray-7">
+							{{ review.review }}
+						</div>
 					</div>
-				</div>
-				<div v-if="review.review" class="mt-4 leading-5 text-ink-gray-7">
-					{{ review.review }}
 				</div>
 			</div>
 		</div>

@@ -1,7 +1,7 @@
 <template>
 	<div>
 		<div class="flex items-center justify-between mb-4">
-			<div class="text-lg font-semibold text-ink-gray-9">
+			<div class="text-ink-gray-9 font-semibold">
 				{{ __('Assessments') }}
 			</div>
 			<Button v-if="canAddAssessments()" @click="showModal = true">
@@ -16,6 +16,7 @@
 				:columns="getAssessmentColumns()"
 				:rows="assessments.data"
 				row-key="name"
+				class="border rounded-lg"
 				:options="{
 					showTooltip: false,
 					getRowRoute: (row) => getRowRoute(row),
@@ -23,20 +24,17 @@
 				}"
 			>
 				<ListHeader
-					class="mb-2 grid items-center space-x-4 rounded bg-surface-gray-2 p-2"
+					class="mb-2 grid items-center space-x-4 rounded-none rounded-t bg-surface-gray-2 p-2"
 				>
 					<ListHeaderItem :item="item" v-for="item in getAssessmentColumns()">
-						<template #prefix="{ item }">
-							<component
-								v-if="item.icon"
-								:is="item.icon"
-								class="h-4 w-4 stroke-1.5 ml-4"
-							/>
-						</template>
 					</ListHeaderItem>
 				</ListHeader>
 				<ListRows>
-					<ListRow :row="row" v-for="row in assessments.data">
+					<ListRow
+						:row="row"
+						v-for="row in assessments.data"
+						class="!rounded-none"
+					>
 						<template #default="{ column, item }">
 							<ListRowItem :item="row[column.key]" :align="column.align">
 								<div v-if="column.key == 'assessment_type'">
@@ -57,7 +55,7 @@
 						</template>
 					</ListRow>
 				</ListRows>
-				<ListSelectBanner>
+				<ListSelectBanner class="!min-w-0">
 					<template #actions="{ unselectAll, selections }">
 						<div class="flex gap-2">
 							<Button
@@ -71,8 +69,8 @@
 				</ListSelectBanner>
 			</ListView>
 		</div>
-		<div v-else class="text-sm italic text-ink-gray-5">
-			{{ __('No Assessments') }}
+		<div v-else class="text-ink-gray-7">
+			{{ __('No assessments added to this batch') }}
 		</div>
 	</div>
 	<AssessmentModal
@@ -210,12 +208,11 @@ const getAssessmentColumns = () => {
 		{
 			label: __('Assessment'),
 			key: 'title',
-			width: '25rem',
 		},
 		{
 			label: __('Type'),
 			key: 'assessment_type',
-			width: '15rem',
+			width: '10rem',
 		},
 	]
 

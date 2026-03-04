@@ -7,7 +7,7 @@
 	>
 		<template #body>
 			<div class="p-5 min-h-[300px]">
-				<div class="text-lg font-semibold mb-4">
+				<div class="text-lg text-ink-gray-9 font-semibold mb-4">
 					{{ __('Training Feedback') }}
 				</div>
 				<ListView

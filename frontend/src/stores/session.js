@@ -1,7 +1,6 @@
 import { defineStore } from 'pinia'
 import { createResource } from 'frappe-ui'
 import { usersStore } from './user'
-import router from '@/router'
 import { computed, reactive, ref } from 'vue'
 
 export const sessionStore = defineStore('lms-session', () => {
@@ -21,19 +20,6 @@ export const sessionStore = defineStore('lms-session', () => {
 
 	let user = ref(sessionUser())
 	const isLoggedIn = computed(() => !!user.value)
-
-	const login = createResource({
-		url: 'login',
-		onError() {
-			throw new Error('Invalid email or password')
-		},
-		onSuccess() {
-			userResource.reload()
-			user.value = sessionUser()
-			login.reset()
-			router.replace({ path: '/' })
-		},
-	})
 
 	const logout = createResource({
 		url: 'logout',
@@ -59,7 +45,6 @@ export const sessionStore = defineStore('lms-session', () => {
 	return {
 		user,
 		isLoggedIn,
-		login,
 		logout,
 		brand,
 		branding,

@@ -169,3 +169,18 @@ def get_minutes(duration_in_seconds):
 	if duration_in_seconds:
 		return int(duration_in_seconds) // 60
 	return 0
+
+
+def has_permission(doc, ptype="read", user=None):
+	user = user or frappe.session.user
+	roles = frappe.get_roles(user)
+	if "Moderator" in roles or "Batch Evaluator" in roles:
+		return True
+
+	if ptype not in ("read", "select", "print"):
+		return False
+
+	return frappe.db.exists(
+		"LMS Batch Enrollment",
+		{"batch": doc.batch_name, "member": user},
+	)

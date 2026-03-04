@@ -31,7 +31,7 @@ class LMSEnrollment(Document):
 			},
 		)
 
-		if existing_enrollment:
+		if existing_enrollment and existing_enrollment != self.name:
 			frappe.throw(_("Student is already enrolled in this course."))
 
 	def validate_course_enrollment_eligibility(self):
@@ -50,7 +50,10 @@ class LMSEnrollment(Document):
 			)
 
 		if self.enrollment_from_batch:
-			return
+			if frappe.db.exists(
+				"LMS Batch Enrollment", {"batch": self.enrollment_from_batch, "member": self.member}
+			):
+				return
 
 		if not course_details.published and not is_admin():
 			frappe.throw(_("You cannot enroll in an unpublished course."))
