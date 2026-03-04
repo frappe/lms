@@ -58,7 +58,7 @@ class LMSLiveClass(Document):
 		event.subject = f"Live Class on {self.title}"
 		event.starts_on = start
 		event.ends_on = get_datetime(start) + timedelta(minutes=cint(self.duration))
-		event.description = self._build_event_description()
+		event.description = self.build_event_description()
 
 		event.save(ignore_permissions=True)
 
@@ -99,8 +99,6 @@ class LMSLiveClass(Document):
 				"event_type": "Public",
 				"starts_on": start,
 				"ends_on": get_datetime(start) + timedelta(minutes=cint(self.duration)),
-				"reference_doctype": self.doctype,
-				"reference_docname": self.name,
 			}
 		)
 
