@@ -1,9 +1,14 @@
 <template>
-	<div class="flex flex-col h-full">
+	<div class="flex flex-col h-full text-p-base">
 		<div>
 			<div class="flex items-center justify-between">
-				<div class="font-semibold mb-1 text-ink-gray-9">
-					{{ __(label) }}
+				<div class="space-y-2">
+					<div class="font-semibold text-xl text-ink-gray-9">
+						{{ __(label) }}
+					</div>
+					<div class="text-ink-gray-6 leading-5">
+						{{ __(description) }}
+					</div>
 				</div>
 				<div class="space-x-2">
 					<Badge
@@ -20,9 +25,6 @@
 						{{ __('Update') }}
 					</Button>
 				</div>
-			</div>
-			<div class="text-xs text-ink-gray-5">
-				{{ __(description) }}
 			</div>
 		</div>
 		<div class="overflow-y-auto">

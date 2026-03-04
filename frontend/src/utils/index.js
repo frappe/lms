@@ -126,6 +126,7 @@ export function getEditorTools() {
 				defaultStyle: 'ordered',
 			},
 		},
+		upload: Upload,
 		table: {
 			class: Table,
 			inlineToolbar: true,
@@ -133,7 +134,6 @@ export function getEditorTools() {
 		quiz: Quiz,
 		assignment: Assignment,
 		program: Program,
-		upload: Upload,
 		markdown: {
 			class: Markdown,
 			inlineToolbar: true,
