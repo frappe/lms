@@ -3,6 +3,7 @@
 		v-if="step == 'new'"
 		:transactions="transactions"
 		:data="data"
+		:fieldMeta="fieldMeta.data || {}"
 		v-model:show="show"
 		@updateStep="updateStep"
 	/>
@@ -17,13 +18,14 @@
 		v-else-if="step == 'details'"
 		:transactions="transactions"
 		:data="data"
+		:fieldMeta="fieldMeta.data || {}"
 		v-model:show="show"
 		@updateStep="updateStep"
 	/>
 </template>
 <script setup lang="ts">
 import { ref } from 'vue'
-import { createListResource } from 'frappe-ui'
+import { createListResource, createResource } from 'frappe-ui'
 import TransactionList from '@/components/Settings/Transactions/TransactionList.vue'
 import TransactionDetails from '@/components/Settings/Transactions/TransactionDetails.vue'
 
@@ -44,6 +46,11 @@ const updateStep = (newStep: 'list' | 'new' | 'edit', newData: any) => {
 		data.value = null
 	}
 }
+
+const fieldMeta = createResource({
+	url: 'lms.lms.api.get_payment_field_meta',
+	auto: true,
+})
 
 const transactions = createListResource({
 	doctype: 'LMS Payment',
