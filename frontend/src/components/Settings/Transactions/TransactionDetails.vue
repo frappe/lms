@@ -233,17 +233,15 @@ const updateTransaction = () => {
 }
 
 const openDetails = () => {
-	if (props.data) {
-		const docType = props.data.payment_for_document_type
-		const docName = props.data.payment_for_document
-		if (docType && docName) {
-			router.push({
-				name: docType == 'LMS Course' ? 'CourseDetail' : 'BatchDetail',
-				params: {
-					[docType == 'LMS Course' ? 'courseName' : 'batchName']: docName,
-				},
-			})
-		}
+	const docType = transactionData.value?.payment_for_document_type
+	const docName = transactionData.value?.payment_for_document
+	if (docType && docName) {
+		router.push({
+			name: docType == 'LMS Course' ? 'CourseDetail' : 'BatchDetail',
+			params: {
+				[docType == 'LMS Course' ? 'courseName' : 'batchName']: docName,
+			},
+		})
 		show.value = false
 	}
 }
