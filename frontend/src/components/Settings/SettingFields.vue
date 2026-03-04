@@ -20,6 +20,7 @@
 							:doctype="field.doctype"
 							:label="__(field.label)"
 							:description="__(field.description)"
+							:required="field.reqd"
 						/>
 
 						<div v-else-if="field.type == 'Code'">
@@ -115,6 +116,7 @@
 							:rows="field.rows"
 							:options="field.options"
 							:description="field.description"
+							:required="field.reqd"
 							placeholder=""
 						/>
 					</div>

@@ -88,6 +88,7 @@
 import {
 	Badge,
 	Button,
+	call,
 	createListResource,
 	FeatherIcon,
 	ListView,
@@ -97,10 +98,12 @@ import {
 	ListRow,
 	ListRowItem,
 	ListSelectBanner,
+	toast,
 } from 'frappe-ui'
 import { computed, ref } from 'vue'
 import { Plus, Trash2 } from 'lucide-vue-next'
 import PaymentGatewayDetails from '@/components/Settings/PaymentGatewayDetails.vue'
+import { cleanError } from '@/utils'
 
 const showForm = ref(false)
 const currentGateway = ref(null)
@@ -126,6 +129,23 @@ const paymentGateways = createListResource({
 const openForm = (gatewayID) => {
 	currentGateway.value = gatewayID
 	showForm.value = true
+}
+
+const removeAccount = (selections, unselectAll) => {
+	call('lms.lms.api.delete_documents', {
+		doctype: 'Payment Gateway',
+		documents: Array.from(selections),
+	})
+		.then(() => {
+			paymentGateways.reload()
+			toast.success(__('Payment gateways deleted successfully'))
+			unselectAll()
+		})
+		.catch((err) => {
+			toast.error(
+				cleanError(err.messages[0]) || __('Error deleting payment gateways')
+			)
+		})
 }
 
 const columns = computed(() => {

@@ -702,7 +702,13 @@ def save_certificate_details(
 @frappe.whitelist()
 def delete_documents(doctype: str, documents: list):
 	frappe.only_for("Moderator")
+	meta = frappe.get_meta(doctype)
+	non_lms_allowed = ["Payment Gateway", "Email Template"]
+	if meta.module != "LMS" and doctype not in non_lms_allowed:
+		frappe.throw(_("Deletion not allowed for {0}").format(doctype))
 	for doc in documents:
+		if not isinstance(doc, str) or not doc.strip():
+			frappe.throw(_("Invalid document name"))
 		frappe.delete_doc(doctype, doc)
 
 
@@ -751,13 +757,25 @@ def get_transformed_fields(meta: list, data: dict = None):
 			else:
 				fieldtype = row.fieldtype
 
-			transformed_fields.append(
-				{
-					"label": row.label,
-					"name": row.fieldname,
-					"type": fieldtype,
-				}
-			)
+			field = {
+				"label": row.label,
+				"name": row.fieldname,
+				"type": fieldtype,
+			}
+
+			if row.reqd:
+				field["reqd"] = 1
+
+			if row.options:
+				field["options"] = row.options
+
+			if row.default:
+				field["default"] = row.default
+
+			if row.description:
+				field["description"] = row.description
+
+			transformed_fields.append(field)
 
 	return transformed_fields
 
