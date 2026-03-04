@@ -13,6 +13,7 @@
 						v-model="course.title"
 						:label="__('Title')"
 						:required="true"
+						autocomplete="off"
 					/>
 					<Link
 						doctype="LMS Category"
@@ -57,7 +58,7 @@
 							@change="(val: string) => (course.description = val)"
 							:editable="true"
 							:fixedMenu="true"
-							editorClass="prose-sm max-w-none border-b border-x border-outline-gray-modals bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[10rem]"
+							editorClass="prose-sm max-w-none border-b border-x border-outline-gray-modals bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[10rem] max-h-[17rem] overflow-auto"
 						/>
 					</div>
 				</div>
@@ -87,6 +88,7 @@ const router = useRouter()
 const { capture } = useTelemetry()
 const { updateOnboardingStep } = useOnboarding('learning')
 const user = inject<any>('$user')
+const courseCreated = ref(false)
 
 const props = defineProps<{
 	courses: any
@@ -139,6 +141,7 @@ const saveCourse = (close: () => void = () => {}) => {
 				toast.success(__('Course created successfully'))
 				close()
 				capture('course_created')
+				courseCreated.value = true
 				router.push({
 					name: 'CourseDetail',
 					params: { courseName: data.name },
@@ -178,8 +181,10 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
 	window.removeEventListener('keydown', keyboardShortcut)
-	capture('course_form_closed', {
-		data: course.value,
-	})
+	if (!courseCreated.value) {
+		capture('course_form_closed', {
+			data: course.value,
+		})
+	}
 })
 </script>

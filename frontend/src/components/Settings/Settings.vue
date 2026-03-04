@@ -269,41 +269,6 @@ const tabsStructure = computed(() => {
 						},
 					],
 				},
-			],
-		},
-		{
-			label: 'Lists',
-			hideLabel: false,
-			items: [
-				{
-					label: 'Members',
-					description:
-						'Add new members or manage roles and permissions of existing members',
-					icon: 'UserRoundPlus',
-					template: markRaw(Members),
-				},
-				{
-					label: 'Evaluators',
-					description: '',
-					icon: 'UserCheck',
-					description:
-						'Add new evaluators or check the slots existing evaluators',
-					template: markRaw(Evaluators),
-				},
-				{
-					label: 'Zoom Accounts',
-					description:
-						'Manage zoom accounts to conduct live classes from batches',
-					icon: 'Video',
-					template: markRaw(ZoomSettings),
-				},
-				{
-					label: 'Google Meet Accounts',
-					description:
-						'Manage Google Meet accounts to conduct live classes from batches',
-					icon: 'Video',
-					template: markRaw(GoogleMeetSettings),
-				},
 				{
 					label: 'Badges',
 					description:
@@ -322,6 +287,27 @@ const tabsStructure = computed(() => {
 					description: 'Manage the email templates for your learning system',
 					icon: 'MailPlus',
 					template: markRaw(EmailTemplates),
+				},
+			],
+		},
+		{
+			label: 'Users',
+			hideLabel: false,
+			items: [
+				{
+					label: 'Members',
+					description:
+						'Add new members or manage roles and permissions of existing members',
+					icon: 'User',
+					template: markRaw(Members),
+				},
+				{
+					label: 'Evaluators',
+					description: '',
+					icon: 'UserCircle2',
+					description:
+						'Add new evaluators or check the slots of existing evaluators',
+					template: markRaw(Evaluators),
 				},
 			],
 		},
@@ -396,12 +382,34 @@ const tabsStructure = computed(() => {
 			],
 		},
 		{
+			label: 'Conferencing',
+			hideLabel: false,
+			items: [
+				{
+					label: 'Zoom',
+					description:
+						'Manage zoom accounts to conduct live classes from batches',
+					icon: 'Video',
+					template: markRaw(ZoomSettings),
+				},
+				{
+					label: 'Google Meet',
+					description:
+						'Manage Google Meet accounts to conduct live classes from batches',
+					icon: 'Presentation',
+					template: markRaw(GoogleMeetSettings),
+				},
+			],
+		},
+		{
 			label: 'Customize',
 			hideLabel: false,
 			items: [
 				{
 					label: 'Branding',
 					icon: 'Blocks',
+					description:
+						'Customize the brand name and logo to make the application your own',
 					template: markRaw(BrandSettings),
 					sections: [
 						{
@@ -490,6 +498,8 @@ const tabsStructure = computed(() => {
 				{
 					label: 'Signup',
 					icon: 'LogIn',
+					description:
+						'Manage the settings related to user signup and registration',
 					sections: [
 						{
 							columns: [
@@ -525,6 +535,8 @@ const tabsStructure = computed(() => {
 				{
 					label: 'SEO',
 					icon: 'Search',
+					description:
+						'Manage the SEO settings to improve your website ranking on search engines',
 					sections: [
 						{
 							columns: [
