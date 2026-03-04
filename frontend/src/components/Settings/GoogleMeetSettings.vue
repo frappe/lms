@@ -1,26 +1,27 @@
 <template>
-	<div class="flex min-h-0 flex-col text-base">
+	<div class="flex flex-col min-h-0 text-base">
 		<div class="flex items-center justify-between mb-5">
-			<div>
-				<div class="text-xl font-semibold mb-2 text-ink-gray-9">
-					{{ __(label) }}
+			<div class="flex flex-col space-y-2">
+				<div class="text-xl font-semibold text-ink-gray-9">
+					{{ label }}
 				</div>
 				<div class="text-ink-gray-6 leading-5">
 					{{ __(description) }}
 				</div>
 			</div>
-			<Button @click="openForm('new')">
-				<template #prefix>
-					<Plus class="h-3 w-3 stroke-1.5" />
-				</template>
-				{{ __('New') }}
-			</Button>
+			<div class="flex items-center space-x-5">
+				<Button @click="openForm('new')">
+					<template #prefix>
+						<Plus class="h-3 w-3 stroke-1.5" />
+					</template>
+					{{ __('New') }}
+				</Button>
+			</div>
 		</div>
-
-		<div v-if="paymentGateways.data?.length" class="overflow-y-scroll">
+		<div v-if="googleMeetAccounts.data?.length" class="overflow-y-scroll">
 			<ListView
 				:columns="columns"
-				:rows="paymentGateways.data"
+				:rows="googleMeetAccounts.data"
 				row-key="name"
 				:options="{
 					showTooltip: false,
@@ -44,9 +45,19 @@
 				</ListHeader>
 
 				<ListRows>
-					<ListRow :row="row" v-for="row in paymentGateways.data">
+					<ListRow :row="row" v-for="row in googleMeetAccounts.data">
 						<template #default="{ column, item }">
 							<ListRowItem :item="row[column.key]" :align="column.align">
+								<template #prefix>
+									<div v-if="column.key == 'member_name'">
+										<Avatar
+											class="flex items-center"
+											:image="row['member_image']"
+											:label="item"
+											size="sm"
+										/>
+									</div>
+								</template>
 								<div v-if="column.key == 'enabled'">
 									<Badge v-if="row[column.key]" theme="green">
 										{{ __('Enabled') }}
@@ -78,16 +89,17 @@
 			</ListView>
 		</div>
 	</div>
-	<PaymentGatewayDetails
+	<GoogleMeetAccountModal
 		v-model="showForm"
-		:gatewayID="currentGateway"
-		v-model:paymentGateways="paymentGateways"
+		v-model:googleMeetAccounts="googleMeetAccounts"
+		:accountID="currentAccount"
 	/>
 </template>
-<script setup>
+<script setup lang="ts">
 import {
-	Badge,
+	Avatar,
 	Button,
+	Badge,
 	call,
 	createListResource,
 	FeatherIcon,
@@ -100,50 +112,69 @@ import {
 	ListSelectBanner,
 	toast,
 } from 'frappe-ui'
-import { computed, ref } from 'vue'
+import { computed, inject, onMounted, ref } from 'vue'
 import { Plus, Trash2 } from 'lucide-vue-next'
-import PaymentGatewayDetails from '@/components/Settings/PaymentGatewayDetails.vue'
 import { cleanError } from '@/utils'
+import { User } from '@/components/Settings/types'
+import GoogleMeetAccountModal from '@/components/Settings/GoogleMeetAccountModal.vue'
 
+const user = inject<User | null>('$user')
 const showForm = ref(false)
-const currentGateway = ref(null)
+const currentAccount = ref<string | null>(null)
 
 const props = defineProps({
-	label: {
-		type: String,
-		required: true,
-	},
-	description: {
-		type: String,
-		required: true,
-	},
+	label: String,
+	description: String,
 })
 
-const paymentGateways = createListResource({
-	doctype: 'Payment Gateway',
-	fields: ['name', 'gateway_settings', 'gateway_controller'],
-	auto: true,
-	orderBy: 'modified desc',
+const googleMeetAccounts = createListResource({
+	doctype: 'LMS Google Meet Settings',
+	fields: [
+		'name',
+		'enabled',
+		'member',
+		'member_name',
+		'member_image',
+		'google_calendar',
+	],
+	cache: ['googleMeetAccounts'],
 })
 
-const openForm = (gatewayID) => {
-	currentGateway.value = gatewayID
+onMounted(() => {
+	fetchGoogleMeetAccounts()
+})
+
+const fetchGoogleMeetAccounts = () => {
+	if (!user?.data?.is_moderator && !user?.data?.is_evaluator) return
+
+	if (!user?.data?.is_moderator) {
+		googleMeetAccounts.update({
+			filters: {
+				member: user.data.name,
+			},
+		})
+	}
+	googleMeetAccounts.reload()
+}
+
+const openForm = (accountID: string) => {
+	currentAccount.value = accountID
 	showForm.value = true
 }
 
 const removeAccount = (selections, unselectAll) => {
 	call('lms.lms.api.delete_documents', {
-		doctype: 'Payment Gateway',
+		doctype: 'LMS Google Meet Settings',
 		documents: Array.from(selections),
 	})
 		.then(() => {
-			paymentGateways.reload()
-			toast.success(__('Payment gateways deleted successfully'))
+			googleMeetAccounts.reload()
+			toast.success(__('Google Meet Account deleted successfully'))
 			unselectAll()
 		})
 		.catch((err) => {
 			toast.error(
-				cleanError(err.messages[0]) || __('Error deleting payment gateways')
+				cleanError(err.messages[0]) || __('Error deleting Google Meet Account')
 			)
 		})
 }
@@ -151,9 +182,20 @@ const removeAccount = (selections, unselectAll) => {
 const columns = computed(() => {
 	return [
 		{
-			label: __('Gateway'),
+			label: __('Member'),
+			key: 'member_name',
+			icon: 'user',
+		},
+		{
+			label: __('Account Name'),
 			key: 'name',
-			icon: 'credit-card',
+			icon: 'video',
+		},
+		{
+			label: __('Status'),
+			key: 'enabled',
+			align: 'center',
+			icon: 'check-square',
 		},
 	]
 })

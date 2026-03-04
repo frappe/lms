@@ -419,11 +419,15 @@ const canGradeSubmission = computed(() => {
 })
 
 const canModifyAssignment = computed(() => {
-	return (
-		!submissionResource.doc ||
-		(submissionResource.doc?.owner == user.data?.name &&
-			submissionResource.doc?.status == 'Not Graded')
-	)
+	if (canGradeSubmission.value) {
+		return true
+	} else if (
+		submissionResource.doc?.owner == user.data?.name &&
+		submissionResource.doc?.status == 'Not Graded'
+	) {
+		return true
+	}
+	return false
 })
 
 const submissionStatusOptions = computed(() => {

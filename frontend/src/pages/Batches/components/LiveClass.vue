@@ -1,14 +1,14 @@
 <template>
 	<div class="p-5">
 		<div
-			v-if="isAdmin() && !batch.data?.zoom_account"
+			v-if="isAdmin() && !hasProviderAccount()"
 			class="flex lg:items-center space-x-2 mb-5 bg-surface-amber-1 px-3 py-2 rounded-lg text-ink-amber-3"
 		>
 			<AlertCircle class="size-7 md:size-4 stroke-1.5" />
 			<span class="leading-5">
 				{{
 					__(
-						'Link a Zoom account to this batch from the Settings tab to create live classes'
+						'Please select a conferencing provider and add an account to the batch to create live classes.'
 					)
 				}}
 			</span>
@@ -64,12 +64,12 @@
 						</span>
 					</div>
 					<div
-						v-if="canAccessClass(cls)"
+						v-if="canAccessClass(cls) && cls.join_url"
 						class="flex items-center space-x-2 text-ink-gray-9 mt-auto"
 					>
 						<a
 							v-if="user.data?.is_moderator || user.data?.is_evaluator"
-							:href="cls.start_url"
+							:href="cls.start_url || cls.join_url"
 							target="_blank"
 							class="cursor-pointer inline-flex items-center justify-center gap-2 transition-colors focus:outline-none text-ink-gray-8 bg-surface-gray-2 hover:bg-surface-gray-3 active:bg-surface-gray-4 focus-visible:ring focus-visible:ring-outline-gray-3 h-7 text-base px-2 rounded"
 							:class="cls.join_url ? 'w-full' : 'w-1/2'"
@@ -111,6 +111,8 @@
 		v-model="showLiveClassModal"
 		:batch="batch.data?.name"
 		:zoomAccount="batch.data?.zoom_account"
+		:googleMeetAccount="batch.data?.google_meet_account"
+		:conferencingProvider="batch.data?.conferencing_provider"
 		v-model:reloadLiveClasses="liveClasses"
 	/>
 
@@ -165,6 +167,8 @@ const liveClasses = createListResource({
 		'start_url',
 		'join_url',
 		'owner',
+		'conferencing_provider',
+		'batch_name',
 	],
 	orderBy: 'date',
 	auto: true,
@@ -174,9 +178,20 @@ const openLiveClassModal = () => {
 	showLiveClassModal.value = true
 }
 
+const hasProviderAccount = () => {
+	const data = props.batch.data
+	if (data?.conferencing_provider === 'Zoom' && data?.zoom_account) return true
+	if (
+		data?.conferencing_provider === 'Google Meet' &&
+		data?.google_meet_account
+	)
+		return true
+	return false
+}
+
 const canCreateClass = () => {
 	if (readOnlyMode) return false
-	if (!props.batch.data?.zoom_account) return false
+	if (!hasProviderAccount()) return false
 	return isAdmin()
 }
 
@@ -209,8 +224,8 @@ const hasClassEnded = (cls) => {
 const openAttendanceModal = (cls) => {
 	if (!isAdmin()) return
 	if (cls.attendees <= 0) return
-	showAttendance.value = true
 	attendanceFor.value = cls
+	showAttendance.value = true
 }
 </script>
 <style>
