@@ -17,31 +17,30 @@
 				</div>
 
 				<div class="mb-5">
+					<div class="text-sm text-gray-700 mb-2">
+						{{ __('What is your use case for Frappe Learning?') }}
+					</div>
 					<FormControl
 						v-model="persona.useCase"
 						type="select"
-						:label="__('How will you use Learning?')"
 						:options="useCaseOptions"
 					/>
 				</div>
 
 				<div class="mb-5">
+					<div class="text-sm text-gray-700 mb-2">
+						{{ __('What best describes your role?') }}
+					</div>
 					<FormControl
 						v-model="persona.role"
 						type="select"
-						:label="__('Your role')"
 						:options="roleOptions"
 					/>
 				</div>
 
 				<div class="flex w-full">
-					<Button
-						variant="solid"
-						class="mx-auto"
-						@click="submitPersona()"
-						:disabled="!persona.useCase || !persona.role"
-					>
-						{{ __('Continue') }}
+					<Button variant="solid" class="mx-auto" @click="submitPersona()">
+						{{ __('Submit and Continue') }}
 					</Button>
 				</div>
 			</div>
@@ -100,13 +99,13 @@ const skipPersonaForm = () => {
 
 const roleOptions = computed(() => {
 	const options = [
-		'Instructor',
-		'Freelancer',
-		'HR / L&D',
-		'School Admin',
-		'Developer',
+		'Trainer / Instructor',
+		'Freelancer / Consultant',
+		'HR / L&D Professional',
+		'School / University Admin',
+		'Software Developer',
 		'Community Manager',
-		'Business Owner',
+		'Business Owner / Team Lead',
 		'Other',
 	]
 
@@ -133,11 +132,10 @@ const noOfStudentsOptions = computed(() => {
 
 const useCaseOptions = computed(() => {
 	const options = [
-		'Teach students',
-		'Train employees',
-		'Onboard users or community',
-		'Sell courses',
-		'Share learning content',
+		'Teaching students in a school/university',
+		'Training employees in my company',
+		'Onboarding and educating my users/community',
+		'Selling courses and earning income',
 		'Other',
 	]
 
