@@ -53,9 +53,9 @@
 </template>
 <script setup>
 import { Dialog, FormControl, createResource, toast } from 'frappe-ui'
-import { Link } from 'frappe-ui/frappe'
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import Link from '@/components/Controls/Link.vue'
 
 const show = defineModel()
 const assessmentType = ref(null)

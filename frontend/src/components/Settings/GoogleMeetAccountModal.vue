@@ -3,7 +3,9 @@
 		v-model="show"
 		:options="{
 			title:
-				accountID === 'new' ? __('New Zoom Account') : __('Edit Zoom Account'),
+				accountID === 'new'
+					? __('New Google Meet Account')
+					: __('Edit Google Meet Account'),
 			size: 'xl',
 			actions: [
 				{
@@ -31,12 +33,6 @@
 					type="text"
 					:required="true"
 				/>
-				<FormControl
-					v-model="account.client_id"
-					:label="__('Client ID')"
-					type="text"
-					:required="true"
-				/>
 				<Link
 					v-model="account.member"
 					:label="__('Member')"
@@ -44,16 +40,10 @@
 					:onCreate="(value: string, close: () => void) => openSettings('Members', close)"
 					:required="true"
 				/>
-				<FormControl
-					v-model="account.client_secret"
-					:label="__('Client Secret')"
-					type="password"
-					:required="true"
-				/>
-				<FormControl
-					v-model="account.account_id"
-					:label="__('Account ID')"
-					type="text"
+				<Link
+					v-model="account.google_calendar"
+					:label="__('Google Calendar')"
+					doctype="Google Calendar"
 					:required="true"
 				/>
 			</div>
@@ -68,28 +58,26 @@ import { openSettings, cleanError } from '@/utils'
 import Link from '@/components/Controls/Link.vue'
 import { useTelemetry } from 'frappe-ui/frappe'
 
-interface ZoomAccount {
+interface GoogleMeetAccount {
 	name: string
 	account_name: string
 	enabled: boolean
 	member: string
-	account_id: string
-	client_id: string
-	client_secret: string
+	google_calendar: string
 }
 
-interface ZoomAccounts {
-	data: ZoomAccount[]
+interface GoogleMeetAccounts {
+	data: GoogleMeetAccount[]
 	reload: () => void
 	insert: {
 		submit: (
-			data: ZoomAccount,
+			data: GoogleMeetAccount,
 			options: { onSuccess: () => void; onError: (err: any) => void }
 		) => void
 	}
 	setValue: {
 		submit: (
-			data: ZoomAccount,
+			data: GoogleMeetAccount,
 			options: { onSuccess: () => void; onError: (err: any) => void }
 		) => void
 	}
@@ -97,42 +85,38 @@ interface ZoomAccounts {
 
 const show = defineModel('show')
 const user = inject<User | null>('$user')
-const zoomAccounts = defineModel<ZoomAccounts>('zoomAccounts')
+const googleMeetAccounts = defineModel<GoogleMeetAccounts>('googleMeetAccounts')
 const { capture } = useTelemetry()
 
 const account = reactive({
 	name: '',
 	enabled: false,
 	member: user?.data?.name || '',
-	account_id: '',
-	client_id: '',
-	client_secret: '',
+	google_calendar: '',
 })
 
-const props = defineProps<{
-	accountID: string | null
-}>()
+const props = defineProps({
+	accountID: {
+		type: String,
+		default: 'new',
+	},
+})
 
 watch(
 	() => props.accountID,
 	(val) => {
-		console.log(props.accountID)
 		if (val === 'new') {
 			account.name = ''
 			account.enabled = false
 			account.member = user?.data?.name || ''
-			account.account_id = ''
-			account.client_id = ''
-			account.client_secret = ''
+			account.google_calendar = ''
 		} else if (val && val !== 'new') {
-			const acc = zoomAccounts.value?.data.find((acc) => acc.name === val)
+			const acc = googleMeetAccounts.value?.data.find((acc) => acc.name === val)
 			if (acc) {
 				account.name = acc.name
 				account.enabled = acc.enabled || false
 				account.member = acc.member
-				account.account_id = acc.account_id
-				account.client_id = acc.client_id
-				account.client_secret = acc.client_secret
+				account.google_calendar = acc.google_calendar
 			}
 		}
 	}
@@ -147,22 +131,24 @@ const saveAccount = (close: () => void) => {
 }
 
 const createAccount = (close: () => void) => {
-	zoomAccounts.value?.insert.submit(
+	googleMeetAccounts.value?.insert.submit(
 		{
 			account_name: account.name,
 			...account,
 		},
 		{
 			onSuccess() {
-				capture('zoom_account_linked')
-				zoomAccounts.value?.reload()
+				capture('google_meet_account_linked')
+				googleMeetAccounts.value?.reload()
 				close()
-				toast.success(__('Zoom Account created successfully'))
+				toast.success(__('Google Meet Account created successfully'))
 			},
 			onError(err) {
+				console.error(err)
 				close()
 				toast.error(
-					cleanError(err.messages[0]) || __('Error creating Zoom Account')
+					cleanError(err.messages[0]) ||
+						__('Error creating Google Meet Account')
 				)
 			},
 		}
@@ -178,14 +164,14 @@ const updateAccount = async (close: () => void) => {
 
 const renameDoc = async () => {
 	await call('frappe.client.rename_doc', {
-		doctype: 'LMS Zoom Settings',
+		doctype: 'LMS Google Meet Settings',
 		old_name: props.accountID,
 		new_name: account.name,
 	})
 }
 
 const setValue = (close: () => void) => {
-	zoomAccounts.value?.setValue.submit(
+	googleMeetAccounts.value?.setValue.submit(
 		{
 			...account,
 			name: account.name,
@@ -193,14 +179,16 @@ const setValue = (close: () => void) => {
 		},
 		{
 			onSuccess() {
-				zoomAccounts.value?.reload()
+				googleMeetAccounts.value?.reload()
 				close()
-				toast.success(__('Zoom Account updated successfully'))
+				toast.success(__('Google Meet Account updated successfully'))
 			},
 			onError(err: any) {
+				console.error(err)
 				close()
 				toast.error(
-					cleanError(err.messages[0]) || __('Error updating Zoom Account')
+					cleanError(err.messages[0]) ||
+						__('Error updating Google Meet Account')
 				)
 			},
 		}

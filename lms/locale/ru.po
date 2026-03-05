@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2026-01-23 16:05+0000\n"
-"PO-Revision-Date: 2026-02-05 06:43\n"
+"PO-Revision-Date: 2026-03-01 18:33\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Russian\n"
 "MIME-Version: 1.0\n"
@@ -3076,7 +3076,7 @@ msgstr "Скрыть мою личную информацию от других"
 
 #: frontend/src/components/Notes/InlineLessonMenu.vue:12
 msgid "Highlight"
-msgstr ""
+msgstr "Выделите"
 
 #. Label of the highlighted_text (Small Text) field in DocType 'LMS Lesson
 #. Note'
@@ -4310,7 +4310,7 @@ msgstr "Мета-ключевые слова"
 
 #: frontend/src/pages/BatchForm.vue:244 frontend/src/pages/CourseForm.vue:251
 msgid "Meta Tags"
-msgstr ""
+msgstr "Мета-теги"
 
 #: lms/lms/api.py:1481
 msgid "Meta tags should be a list."

@@ -191,7 +191,7 @@ const addToTabs = (label, component, icon) => {
 }
 
 const isAdmin = computed(() => {
-	return user.data?.is_moderator || batch.data?.is_evaluator
+	return user.data?.is_moderator || user.data?.is_evaluator
 })
 
 const isStudent = computed(() => {

@@ -6,7 +6,7 @@
 					{{ label }}
 				</div>
 				<div class="text-ink-gray-6 leading-5">
-					{{ __(description || '') }}
+					{{ __(description) }}
 				</div>
 			</div>
 			<div class="flex items-center space-x-5">
@@ -18,10 +18,10 @@
 				</Button>
 			</div>
 		</div>
-		<div v-if="zoomAccounts.data?.length" class="overflow-y-scroll">
+		<div v-if="googleMeetAccounts.data?.length" class="overflow-y-scroll">
 			<ListView
 				:columns="columns"
-				:rows="zoomAccounts.data"
+				:rows="googleMeetAccounts.data"
 				row-key="name"
 				:options="{
 					showTooltip: false,
@@ -45,7 +45,7 @@
 				</ListHeader>
 
 				<ListRows>
-					<ListRow :row="row" v-for="row in zoomAccounts.data">
+					<ListRow :row="row" v-for="row in googleMeetAccounts.data">
 						<template #default="{ column, item }">
 							<ListRowItem :item="row[column.key]" :align="column.align">
 								<template #prefix>
@@ -89,10 +89,9 @@
 			</ListView>
 		</div>
 	</div>
-	<ZoomAccountModal
-		v-if="showForm"
+	<GoogleMeetAccountModal
 		v-model="showForm"
-		v-model:zoomAccounts="zoomAccounts"
+		v-model:googleMeetAccounts="googleMeetAccounts"
 		:accountID="currentAccount"
 	/>
 </template>
@@ -101,6 +100,7 @@ import {
 	Avatar,
 	Button,
 	Badge,
+	call,
 	createListResource,
 	FeatherIcon,
 	ListView,
@@ -112,40 +112,49 @@ import {
 	ListSelectBanner,
 	toast,
 } from 'frappe-ui'
-import { computed, onMounted, ref } from 'vue'
+import { computed, inject, onMounted, ref } from 'vue'
 import { Plus, Trash2 } from 'lucide-vue-next'
 import { cleanError } from '@/utils'
-import ZoomAccountModal from '@/components/Modals/ZoomAccountModal.vue'
+import { User } from '@/components/Settings/types'
+import GoogleMeetAccountModal from '@/components/Settings/GoogleMeetAccountModal.vue'
 
+const user = inject<User | null>('$user')
 const showForm = ref(false)
 const currentAccount = ref<string | null>(null)
 
-const props = defineProps<{
-	label: string
-	description?: string
-}>()
+const props = defineProps({
+	label: String,
+	description: String,
+})
 
-const zoomAccounts = createListResource({
-	doctype: 'LMS Zoom Settings',
+const googleMeetAccounts = createListResource({
+	doctype: 'LMS Google Meet Settings',
 	fields: [
 		'name',
 		'enabled',
 		'member',
 		'member_name',
 		'member_image',
-		'account_id',
-		'client_id',
-		'client_secret',
+		'google_calendar',
 	],
-	cache: ['zoomAccounts'],
+	cache: ['googleMeetAccounts'],
 })
 
 onMounted(() => {
-	fetchZoomAccounts()
+	fetchGoogleMeetAccounts()
 })
 
-const fetchZoomAccounts = () => {
-	zoomAccounts.reload()
+const fetchGoogleMeetAccounts = () => {
+	if (!user?.data?.is_moderator && !user?.data?.is_evaluator) return
+
+	if (!user?.data?.is_moderator) {
+		googleMeetAccounts.update({
+			filters: {
+				member: user.data.name,
+			},
+		})
+	}
+	googleMeetAccounts.reload()
 }
 
 const openForm = (accountID: string) => {
@@ -153,20 +162,21 @@ const openForm = (accountID: string) => {
 	showForm.value = true
 }
 
-const removeAccount = (selections: Set<string>, unselectAll: () => void) => {
-	Array.from(selections).forEach((accountID) => {
-		zoomAccounts.delete.submit(accountID, {
-			onSuccess() {
-				toast.success(__('Zoom account deleted successfully'))
-				fetchZoomAccounts()
-				unselectAll()
-			},
-			onError(err: any) {
-				toast.error(cleanError(err.messages[0] || err))
-				console.error(err)
-			},
-		})
+const removeAccount = (selections, unselectAll) => {
+	call('lms.lms.api.delete_documents', {
+		doctype: 'LMS Google Meet Settings',
+		documents: Array.from(selections),
 	})
+		.then(() => {
+			googleMeetAccounts.reload()
+			toast.success(__('Google Meet Account deleted successfully'))
+			unselectAll()
+		})
+		.catch((err) => {
+			toast.error(
+				cleanError(err.messages[0]) || __('Error deleting Google Meet Account')
+			)
+		})
 }
 
 const columns = computed(() => {

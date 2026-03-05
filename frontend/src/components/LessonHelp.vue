@@ -3,13 +3,13 @@
 		<div class="space-y-2">
 			<div class="flex items-center text-sm font-medium space-x-2">
 				<span>
-					{{ __('What does include in preview mean?') }}
+					{{ __('What are Instructor Notes?') }}
 				</span>
 			</div>
 			<div class="text-xs text-ink-gray-5 mb-1 leading-5">
 				{{
 					__(
-						'If Include in Preview is enabled for a lesson then the lesson will also be accessible to non logged in users.'
+						'Instructor Notes are private notes that only instructors can see. They can be used to provide additional context or guidance for the lesson.'
 					)
 				}}
 			</div>

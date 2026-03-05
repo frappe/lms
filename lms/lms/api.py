@@ -55,7 +55,7 @@ def get_user_info():
 	user = frappe.db.get_value(
 		"User",
 		frappe.session.user,
-		["name", "email", "enabled", "user_image", "full_name", "user_type", "username"],
+		["name", "email", "enabled", "user_image", "full_name", "user_type", "username", "bio", "headline"],
 		as_dict=1,
 	)
 	user["roles"] = frappe.get_roles(user.name)
@@ -702,7 +702,13 @@ def save_certificate_details(
 @frappe.whitelist()
 def delete_documents(doctype: str, documents: list):
 	frappe.only_for("Moderator")
+	meta = frappe.get_meta(doctype)
+	non_lms_allowed = ["Payment Gateway", "Email Template"]
+	if meta.module != "LMS" and doctype not in non_lms_allowed:
+		frappe.throw(_("Deletion not allowed for {0}").format(doctype))
 	for doc in documents:
+		if not isinstance(doc, str) or not doc.strip():
+			frappe.throw(_("Invalid document name"))
 		frappe.delete_doc(doctype, doc)
 
 
@@ -751,13 +757,25 @@ def get_transformed_fields(meta: list, data: dict = None):
 			else:
 				fieldtype = row.fieldtype
 
-			transformed_fields.append(
-				{
-					"label": row.label,
-					"name": row.fieldname,
-					"type": fieldtype,
-				}
-			)
+			field = {
+				"label": row.label,
+				"name": row.fieldname,
+				"type": fieldtype,
+			}
+
+			if row.reqd:
+				field["reqd"] = 1
+
+			if row.options:
+				field["options"] = row.options
+
+			if row.default:
+				field["default"] = row.default
+
+			if row.description:
+				field["description"] = row.description
+
+			transformed_fields.append(field)
 
 	return transformed_fields
 
@@ -799,10 +817,9 @@ def get_announcements(batch: str):
 	is_batch_student = frappe.db.exists(
 		"LMS Batch Enrollment", {"batch": batch, "member": frappe.session.user}
 	)
-	is_moderator = "Moderator" in roles
-	is_evaluator = "Batch Evaluator" in roles
+	is_admin = "Moderator" in roles or "Batch Evaluator" in roles
 
-	if not (is_batch_student or is_moderator or is_evaluator):
+	if not (is_batch_student or is_admin):
 		frappe.throw(
 			_("You do not have permission to access announcements for this batch."), frappe.PermissionError
 		)
@@ -1307,6 +1324,15 @@ def get_lms_settings():
 def cancel_evaluation(evaluation: dict):
 	evaluation = frappe._dict(evaluation)
 	if evaluation.member != frappe.session.user:
+		frappe.throw(_("You do not have permission to cancel this evaluation."), frappe.PermissionError)
+
+	if not frappe.db.exists(
+		"LMS Certificate Request",
+		{
+			"name": evaluation.name,
+			"member": frappe.session.user,
+		},
+	):
 		frappe.throw(_("You do not have permission to cancel this evaluation."), frappe.PermissionError)
 
 	frappe.db.set_value("LMS Certificate Request", evaluation.name, "status", "Cancelled")

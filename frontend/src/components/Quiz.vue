@@ -465,7 +465,7 @@ watch(
 )
 
 const quizSubmission = createResource({
-	url: 'lms.lms.doctype.lms_quiz.lms_quiz.quiz_summary',
+	url: 'lms.lms.doctype.lms_quiz.lms_quiz.submit_quiz',
 	makeParams(values) {
 		return {
 			quiz: quiz.data.name,
@@ -538,7 +538,7 @@ const checkAnswer = () => {
 		url: 'lms.lms.doctype.lms_quiz.lms_quiz.check_answer',
 		params: {
 			question: currentQuestion.value,
-			type: questionDetails.data.type,
+			question_type: questionDetails.data.type,
 			answers: JSON.stringify(answers),
 		},
 		auto: true,
@@ -569,10 +569,7 @@ const addToLocalStorage = () => {
 	let quizData = JSON.parse(localStorage.getItem(quiz.data.title))
 	let questionData = {
 		question_name: currentQuestion.value,
-		answer: getAnswers().join(),
-		is_correct: showAnswers.filter((answer) => {
-			return answer != undefined
-		}),
+		answer: getAnswers(),
 	}
 
 	if (quizData) {

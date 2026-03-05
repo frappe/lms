@@ -126,6 +126,7 @@ export function getEditorTools() {
 				defaultStyle: 'ordered',
 			},
 		},
+		upload: Upload,
 		table: {
 			class: Table,
 			inlineToolbar: true,
@@ -133,7 +134,6 @@ export function getEditorTools() {
 		quiz: Quiz,
 		assignment: Assignment,
 		program: Program,
-		upload: Upload,
 		markdown: {
 			class: Markdown,
 			inlineToolbar: true,
@@ -650,21 +650,19 @@ export const validateFile = async (
 		console.error(msg)
 		return msg
 	}
-	if (!file.type.startsWith(`${fileType}/`)) {
-		return error(__('Only {0} file is allowed.').format(fileType))
-	}
 
-	if (fileType == 'pdf' && extension !== 'pdf') {
+	if (fileType == 'pdf' && extension != 'pdf') {
 		return error(__('Only PDF files are allowed.'))
-	}
-
-	if (fileType == 'document' && !['doc', 'docx'].includes(extension)) {
+	} else if (fileType == 'document' && !['doc', 'docx'].includes(extension)) {
 		return error(
 			__('Only document file of type .doc or .docx are allowed.')
 		)
-	}
-
-	if (file.type === 'image/svg+xml') {
+	} else if (
+		['image', 'video'].includes(fileType) &&
+		!file.type.startsWith(`${fileType}/`)
+	) {
+		return error(__('Only {0} file is allowed.').format(fileType))
+	} else if (file.type === 'image/svg+xml') {
 		const text = await file.text()
 
 		const blacklist = [
@@ -696,7 +694,6 @@ export const escapeHTML = (text) => {
 		'"': '&quot;',
 		"'": '&#39;',
 		'`': '&#x60;',
-		'=': '&#x3D;',
 	}
 
 	return String(text).replace(
@@ -709,6 +706,19 @@ export const sanitizeHTML = (text) => {
 	text = DOMPurify.sanitize(decodeEntities(text), {
 		ALLOWED_TAGS: [
 			'b',
+			'br',
+			'h1',
+			'h2',
+			'h3',
+			'h4',
+			'h5',
+			'h6',
+			'table',
+			'thead',
+			'tbody',
+			'tr',
+			'th',
+			'td',
 			'i',
 			'em',
 			'strong',
@@ -719,6 +729,7 @@ export const sanitizeHTML = (text) => {
 			'ol',
 			'li',
 			'img',
+			'blockquote',
 		],
 		ALLOWED_ATTR: ['href', 'target', 'src'],
 	})
