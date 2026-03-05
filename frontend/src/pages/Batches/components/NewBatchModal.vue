@@ -8,81 +8,86 @@
 	>
 		<template #body-content>
 			<div class="text-base">
-				<div class="grid grid-cols-2 gap-10">
-					<div class="space-y-5">
-						<FormControl
-							v-model="batch.title"
-							:label="__('Title')"
-							:required="true"
-						/>
-						<FormControl
-							v-model="batch.start_date"
-							:label="__('Start Date')"
-							type="date"
-							:required="true"
-						/>
-						<FormControl
-							v-model="batch.end_date"
-							:label="__('End Date')"
-							type="date"
-							:required="true"
-						/>
-						<Link
-							doctype="LMS Category"
-							v-model="batch.category"
-							:label="__('Category')"
-							:allowCreate="true"
-							:onCreate="
-								() => {
-									openSettings('Categories')
-									show = false
-								}
-							"
-						/>
-					</div>
-					<div class="space-y-5">
-						<FormControl
-							v-model="batch.start_time"
-							:label="__('Start Time')"
-							type="time"
-							:required="true"
-						/>
-						<FormControl
-							v-model="batch.end_time"
-							:label="__('End Time')"
-							type="time"
-							:required="true"
-						/>
-						<FormControl
-							v-model="batch.timezone"
-							:label="__('Timezone')"
-							:required="true"
-						/>
-						<FormControl
-							v-model="batch.seat_count"
-							:label="__('Seat Count')"
-							type="number"
-							:required="false"
-						/>
-					</div>
+				<div class="grid grid-cols-3 gap-5">
+					<FormControl
+						v-model="batch.title"
+						:label="__('Title')"
+						:required="true"
+					/>
+					<FormControl
+						v-model="batch.start_date"
+						:label="__('Start Date')"
+						type="date"
+						:required="true"
+					/>
+					<FormControl
+						v-model="batch.end_date"
+						:label="__('End Date')"
+						type="date"
+						:required="true"
+					/>
+					<FormControl
+						v-model="batch.start_time"
+						:label="__('Start Time')"
+						type="time"
+						:required="true"
+					/>
+					<FormControl
+						v-model="batch.end_time"
+						:label="__('End Time')"
+						type="time"
+						:required="true"
+					/>
+					<FormControl
+						v-model="batch.timezone"
+						:label="__('Timezone')"
+						:required="true"
+					/>
+					<Link
+						doctype="LMS Category"
+						v-model="batch.category"
+						:label="__('Category')"
+						:allowCreate="true"
+						:onCreate="
+							() => {
+								openSettings('Categories')
+								show = false
+							}
+						"
+					/>
+					<FormControl
+						v-model="batch.seat_count"
+						:label="__('Seat Count')"
+						type="number"
+						:required="false"
+					/>
+					<FormControl
+						v-model="batch.medium"
+						type="select"
+						:options="mediumOptions"
+						:label="__('Medium')"
+						class="mb-4"
+					/>
 				</div>
 
 				<div class="space-y-5 border-t mt-5 pt-5">
-					<MultiSelect
-						v-model="batch.instructors"
-						doctype="Course Evaluator"
-						:label="__('Instructors')"
-						:required="true"
-						:onCreate="(close: () => void) => openSettings('Evaluators', close)"
-						:filters="{ ignore_user_type: 1 }"
-					/>
-					<FormControl
-						v-model="batch.description"
-						:label="__('Description')"
-						type="textarea"
-						:required="true"
-						:rows="4"
-					/>
+					<div class="grid grid-cols-2 gap-5">
+						<MultiSelect
+							v-model="batch.instructors"
+							doctype="Course Evaluator"
+							:label="__('Instructors')"
+							:required="true"
+							:onCreate="(close: () => void) => openSettings('Evaluators', close)"
+							:filters="{ ignore_user_type: 1 }"
+						/>
+						<FormControl
+							v-model="batch.description"
+							:label="__('Description')"
+							type="textarea"
+							:required="true"
+							:rows="4"
+						/>
+					</div>
 					<div class="">
 						<div class="mb-1.5 text-sm text-ink-gray-5">
 							{{ __('Batch Details') }}
@@ -93,7 +98,7 @@
 							@change="(val: string) => (batch.batch_details = val)"
 							:editable="true"
 							:fixedMenu="true"
-							editorClass="prose-sm max-w-none border-b border-x bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[10rem]"
+							editorClass="prose-sm max-w-none border-b border-x bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[10rem] max-h-[14rem] overflow-auto"
 						/>
 					</div>
 				</div>
@@ -111,7 +116,7 @@
 <script setup lang="ts">
 import { Button, Dialog, FormControl, TextEditor, toast } from 'frappe-ui'
 import { useOnboarding, useTelemetry } from 'frappe-ui/frappe'
-import { ref, inject, onMounted, onBeforeUnmount } from 'vue'
+import { computed, inject, onMounted, onBeforeUnmount, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { cleanError, openSettings, sanitizeHTML, escapeHTML } from '@/utils'
 import Link from '@/components/Controls/Link.vue'
@@ -139,6 +144,7 @@ type Batch = {
 	instructors: string[]
 	category: string | null
 	seat_count: number
+	medium: string | null
 }
 
 const batch = ref<Batch>({
@@ -153,6 +159,7 @@ const batch = ref<Batch>({
 	instructors: [],
 	category: null,
 	seat_count: 0,
+	medium: null,
 })
 
 const validateFields = () => {
@@ -226,5 +233,18 @@ onBeforeUnmount(() => {
 	capture('batch_form_closed', {
 		data: batch.value,
 	})
+})
+
+const mediumOptions = computed(() => {
+	return [
+		{
+			label: __('Online'),
+			value: 'Online',
+		},
+		{
+			label: __('Offline'),
+			value: 'Offline',
+		},
+	]
 })
 </script>

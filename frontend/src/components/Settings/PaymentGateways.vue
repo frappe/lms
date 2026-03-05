@@ -2,7 +2,7 @@
 	<div class="flex min-h-0 flex-col text-base">
 		<div class="flex items-center justify-between mb-5">
 			<div>
-				<div class="text-xl font-semibold mb-1 text-ink-gray-9">
+				<div class="text-xl font-semibold mb-2 text-ink-gray-9">
 					{{ __(label) }}
 				</div>
 				<div class="text-ink-gray-6 leading-5">

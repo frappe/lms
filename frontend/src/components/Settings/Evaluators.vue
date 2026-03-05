@@ -2,7 +2,7 @@
 	<div class="flex min-h-0 flex-col text-base">
 		<div class="flex items-center justify-between">
 			<div>
-				<div class="text-xl font-semibold mb-1 text-ink-gray-9">
+				<div class="text-xl font-semibold mb-2 text-ink-gray-9">
 					{{ __(label) }}
 				</div>
 				<div class="text-ink-gray-6 leading-5">
@@ -10,7 +10,7 @@
 				</div>
 			</div>
 			<div class="flex item-center space-x-2">
-				<Button variant="solid" @click="() => (showForm = !showForm)">
+				<Button @click="() => (showForm = !showForm)">
 					<template #prefix>
 						<Plus class="size-4 stroke-1.5" />
 					</template>

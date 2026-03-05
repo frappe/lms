@@ -507,11 +507,11 @@ const conferencingOptions = computed(() => {
 const mediumOptions = computed(() => {
 	return [
 		{
-			label: 'Online',
+			label: __('Online'),
 			value: 'Online',
 		},
 		{
-			label: 'Offline',
+			label: __('Offline'),
 			value: 'Offline',
 		},
 	]

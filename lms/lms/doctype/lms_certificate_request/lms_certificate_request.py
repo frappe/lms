@@ -199,8 +199,6 @@ def create_event(evaluation: dict):
 			"subject": f"Evaluation of {evaluation.member_name}",
 			"starts_on": f"{evaluation.date} {evaluation.start_time}",
 			"ends_on": f"{evaluation.date} {evaluation.end_time}",
-			"reference_doctype": "LMS Certificate Request",
-			"reference_docname": evaluation.name,
 		}
 	)
 	event.save()
