@@ -12,6 +12,7 @@ bench -v setup requirements
 
 echo "Setting Up LMS App..."
 bench get-app lms "${GITHUB_WORKSPACE}"
+bench get-app payments "${GITHUB_WORKSPACE}"
 
 echo "Setting Up Sites & Database..."
 
