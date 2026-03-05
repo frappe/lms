@@ -65,7 +65,7 @@
 				</router-link>
 			</div>
 		</header>
-		<div class="grid md:grid-cols-[70%,30%] h-screen">
+		<div class="grid md:grid-cols-[70%,30%] h-[94vh]">
 			<div v-if="lesson.data.no_preview" class="border-r">
 				<div class="shadow rounded-md w-3/4 mt-10 mx-auto text-center p-4">
 					<div class="flex items-center justify-center mt-4 space-x-2">
@@ -263,7 +263,7 @@
 						</div>
 					</div>
 					<div
-						v-if="lesson.data"
+						v-if="lesson.data && (allowDiscussions || tabs.length > 1)"
 						class="mt-10 pb-20 pt-5 border-t px-5"
 						ref="discussionsContainer"
 					>
@@ -399,15 +399,10 @@ const { brand } = sessionStore()
 const sidebarStore = useSidebar()
 const plyrSources = ref([])
 const showInlineMenu = ref(false)
-const currentTab = ref('Notes')
+const currentTab = ref(null)
 let timerInterval = null
 
-const tabs = ref([
-	{
-		label: __('Notes'),
-		value: 'Notes',
-	},
-])
+const tabs = ref([])
 
 const props = defineProps({
 	courseName: {
@@ -627,7 +622,6 @@ const resetLessonState = (newChapterNumber, newLessonNumber) => {
 		chapter: newChapterNumber,
 		lesson: newLessonNumber,
 	})
-	console.log('resetting lesson state')
 	clearInterval(timerInterval)
 	timer.value = 0
 }
@@ -742,18 +736,14 @@ const updateVideoTime = (video) => {
 }
 
 const startTimer = () => {
-	console.log(lesson.data?.membership)
 	if (!lesson.data?.membership) return
-	console.log('past')
 	timerInterval = setInterval(() => {
-		console.log(`Timer: ${timer.value} seconds`)
 		timer.value++
 		if (timer.value == 30) {
 			clearInterval(timerInterval)
 			markProgress()
 		}
 	}, 1000)
-	console.log(timerInterval)
 }
 
 onBeforeUnmount(() => {
@@ -892,24 +882,24 @@ const updateNotes = () => {
 }
 
 watch(allowDiscussions, () => {
-	if (allowDiscussions.value) {
-		tabs.value = [
-			{
+	if (!isAdmin.value) {
+		if (!tabs.value.find((tab) => tab.value === 'Notes')) {
+			tabs.value.push({
 				label: __('Notes'),
 				value: 'Notes',
-			},
-			{
+			})
+		}
+		currentTab.value = 'Notes'
+	} else {
+		currentTab.value = allowDiscussions.value ? 'Community' : null
+	}
+	if (allowDiscussions.value) {
+		if (!tabs.value.find((tab) => tab.value === 'Community')) {
+			tabs.value.push({
 				label: __('Community'),
 				value: 'Community',
-			},
-		]
-	} else {
-		tabs.value = [
-			{
-				label: __('Notes'),
-				value: 'Notes',
-			},
-		]
+			})
+		}
 	}
 })
 

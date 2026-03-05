@@ -71,7 +71,11 @@
 							<ColorSwatches
 								v-model="courseResource.doc.card_gradient"
 								:label="__('Color')"
-								:description="__('Choose a color for the course card')"
+								:description="
+									__(
+										'Select a fallback color for the course card when no image is set.'
+									)
+								"
 								class="w-full"
 								@update:modelValue="makeFormDirty()"
 							/>

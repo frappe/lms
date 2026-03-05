@@ -4,9 +4,7 @@
 		<div class="text-lg font-semibold text-ink-gray-7 mb-2.5">
 			{{ __('No {0}').format(type?.toLowerCase()) }}
 		</div>
-		<div
-			class="leading-5 text-base w-full md:w-2/5 text-base text-center text-ink-gray-7"
-		>
+		<div class="text-p-base w-full md:w-2/5 text-center text-ink-gray-7">
 			{{
 				__(
 					'There are no {0} currently. Keep an eye out, fresh learning experiences are on the way!'
