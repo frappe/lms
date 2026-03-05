@@ -90,7 +90,9 @@
 					{{ formatSeconds(currentTime) }} / {{ formatSeconds(duration) }}
 				</span>
 
-				<Dropdown :options="dropdownOptions"></Dropdown>
+				<Dropdown :options="dropdownOptions">
+					<Button>{{ playbackSpeedLabel }}</Button>
+				</Dropdown>
 
 				<Button
 					variant="ghost"
@@ -178,9 +180,10 @@ const { settings } = useSettings()
 
 // Speed control states
 const playbackSpeed = ref(1)
+const playbackSpeedLabel = ref('1x')
 const playbackSpeeds = [
 	{ label: '0.5x', value: 0.5 },
-	{ label: 'Normal', value: 1 },
+	{ label: '1x', value: 1 },
 	{ label: '1.5x', value: 1.5 },
 	{ label: '2x', value: 2 },
 ]
@@ -337,8 +340,9 @@ const getQuizMarkerStyle = (time) => {
 	}
 }
 
-const setPlaybackSpeed = (speed) => {
+const setPlaybackSpeed = (speed, label) => {
 	playbackSpeed.value = speed
+	playbackSpeedLabel.value = label
 	if (videoRef.value) {
 		videoRef.value.playbackRate = speed
 	}
@@ -348,7 +352,7 @@ const dropdownOptions = computed(() =>
 	playbackSpeeds.map((speed) => ({
 		label: speed.label,
 		active: playbackSpeed.value === speed.value,
-		onClick: () => setPlaybackSpeed(speed.value),
+		onClick: () => setPlaybackSpeed(speed.value, speed.label),
 	}))
 )
 </script>
