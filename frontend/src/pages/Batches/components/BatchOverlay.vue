@@ -56,7 +56,7 @@
 			</span>
 		</div>
 
-		<div v-if="!readOnlyMode">
+		<div v-if="!readOnlyMode && !canAccessBatch">
 			<router-link
 				:to="{
 					name: 'Billing',
@@ -71,7 +71,7 @@
 					batch.data.accept_enrollments
 				"
 			>
-				<Button v-if="!canAccessBatch" class="w-full mt-4" variant="solid">
+				<Button class="w-full mt-4" variant="solid">
 					<template #prefix>
 						<CreditCard class="size-4 stroke-1.5" />
 					</template>
@@ -169,14 +169,6 @@ const isEvaluator = computed(() => {
 	return user.data?.is_evaluator
 })
 
-const isInstructor = computed(() => {
-	return (
-		props.batch.data?.instructors?.filter(
-			(instructor) => instructor.name === user.data?.name
-		).length > 0
-	)
-})
-
 const canAccessBatch = computed(() => {
 	if (!user.data) {
 		return false
@@ -184,7 +176,7 @@ const canAccessBatch = computed(() => {
 	return isModerator.value || isStudent.value || isEvaluator.value
 })
 
-const canEditBatch = computed(() => {
-	return isModerator.value || isInstructor.value
+const isAdmin = computed(() => {
+	return isModerator.value || isEvaluator.value
 })
 </script>

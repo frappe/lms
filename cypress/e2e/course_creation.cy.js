@@ -142,7 +142,6 @@ describe("Course Creation", () => {
 		);
 
 		// Add Discussion
-		cy.get("span").contains("Community").click();
 		cy.button("New Question").click();
 		cy.wait(500);
 		cy.get("[data-dismissable-layer]").within(() => {

@@ -12,12 +12,8 @@
 	</header>
 	<div class="py-5 mx-5">
 		<div class="flex items-center justify-between mb-4">
-			<div class="text-lg font-semibold text-ink-gray-7">
-				{{
-					quizzes.data?.length
-						? __('{0} Quizzes').format(quizzes.data.length)
-						: __('No Quizzes')
-				}}
+			<div class="text-lg font-semibold">
+				{{ __('{0} Quizzes').format(quizzes.data.length) }}
 			</div>
 			<FormControl v-model="search" type="text" placeholder="Search">
 				<template #prefix>
@@ -116,6 +112,7 @@
 				v-model="title"
 				:label="__('Title')"
 				type="text"
+				autocomplete="off"
 				@keydown.enter="insertQuiz(() => (showForm = false))"
 			/>
 		</template>

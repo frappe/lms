@@ -2,11 +2,25 @@ import json
 
 import frappe
 
+from lms.lms.doctype.lms_course.lms_course import update_course_statistics
+from lms.lms.utils import get_course_progress
 
-def create_demo_data():
+
+def create_demo_data(args: dict = None):
 	course = create_course()
+	student = create_user("Ashley", "Ippolito", "ash@ipp.com", "/assets/lms/images/student.jpg")
+	student1 = create_user("John", "Doe", "john.doe@example.com", "/assets/lms/images/student1.jpeg")
+	student2 = create_user("Jane", "Smith", "jane.smith@example.com", "/assets/lms/images/student2.jpeg")
 	create_chapter(course)
 	create_lessons(course)
+	enroll_student_in_course(student, course)
+	enroll_student_in_course(student1, course)
+	enroll_student_in_course(student2, course)
+	create_reviews(course, student)
+	create_progress(course, student, 3)
+	create_progress(course, student1, 2)
+	create_progress(course, student2, 4)
+	frappe.db.set_single_value("LMS Settings", "demo_data_present", 1)
 
 
 def create_course():
@@ -26,54 +40,75 @@ def create_course():
 			"published_on": frappe.utils.now(),
 			"video_link": "VIt_bsbBjLI",
 			"instructors": [{"instructor": instructor.name}],
-			"short_introduction": "Learn the basics of Frappe Learning and how to get started.",
+			"short_introduction": "Learn the basics of Frappe Learning and how to get started with your very first course.",
 			"image": "/assets/lms/images/course_card.jpeg",
 		}
 	)
 
 	course.description = """
-		This course will cover the fundamentals of Frappe Learning, including how to create and manage courses, enroll students, and track progress.
-
-		You will learn about the following key features of the app:
-
-	   <h3>Key Features</h3>
-
-		1. Structured Learning
-		Design a course with a 3-level hierarchy, where your courses have chapters and you can group your lessons within these chapters. This ensures that the context of each lesson is clearly defined by its chapter.
-
-		2. Live Classes
-		Group learners into batches based on courses and duration. You can then create Zoom live classes for these batches directly from the app. Learners can view all the live classes they need to attend as part of their batch.
-
-		3. Quizzes and Assignments
-		Create quizzes with single-choice, multiple-choice, or open-ended questions. Instructors can also add assignments that learners can submit as PDFs or documents.
-
-		4. Getting Certified
-		Once a learner completes the course or batch, you can grant them a certificate. The app provides an inbuilt certificate template that you can use as-is or customize by creating your own template.
-
-	To know more about the app and its features, check out the documentation: https://docs.frappe.io/learning
-
+		This course will cover the fundamentals of Frappe Learning, including how to create and manage courses, enroll students, and track progress. You will learn about the following key features of the app:
+		<br>
+		<h3>Key Features</h3>
+		<br>
+		1. Structured Learning: Design a course with a 3-level hierarchy, where your courses have chapters, and you can group your lessons within these chapters. This ensures that the context of each lesson is clearly defined by its chapter.
+		<br>
+		<br>
+		2. Live Classes: Group learners into batches based on courses and duration. You can then create Zoom live classes for these batches directly from the app. Learners can view all the live classes they need to attend as part of their batch.
+		<br>
+		<br>
+		3. Quizzes and Assignments: Create quizzes with single-choice, multiple-choice, or open-ended questions. Instructors can also add assignments that learners can submit as PDFs or documents.
+		<br>
+		<br>
+		4. Getting Certified: Once a learner completes the course or batch, you can grant them a certificate. The app provides an inbuilt certificate template that you can use as-is or customize by creating your own template.
+		<br>
+		<br>
+		To know more about the app and its features, <a href="https://docs.frappe.io/learning">check out the documentation</a>.
  """
 	course.save()
 	return course
 
 
 def create_instructor():
-	filters = {"first_name": "Jannat", "last_name": "Patel", "email": "jannat@example.com"}
+	if (
+		frappe.db.count(
+			"User",
+			{
+				"name": ["not in", ("Administrator", "Guest")],
+			},
+		)
+		> 0
+	):
+		user = frappe.get_all(
+			"User",
+			{
+				"name": ["not in", ("Administrator", "Guest")],
+			},
+			fields=["name"],
+			limit=1,
+		)[0]
+		return frappe.get_doc("User", user.name)
+
+	return create_user("Jannat", "Patel", "jannat@example.com", "/assets/lms/images/instructor.png")
+
+
+def create_user(first_name, last_name, email, user_image):
+	filters = {"first_name": first_name, "last_name": last_name, "email": email}
 	if frappe.db.exists("User", filters):
 		return frappe.get_doc("User", filters)
 
-	instructor = frappe.new_doc("User")
-	instructor.first_name = "Jannat"
-	instructor.last_name = "Patel"
-	instructor.user_image = "/assets/lms/images/instructor.png"
-	instructor.email = "jannat@example.com"
-	instructor.save()
-	return instructor
+	user = frappe.new_doc("User")
+	user.first_name = first_name
+	user.last_name = last_name
+	user.user_image = user_image
+	user.email = email
+	user.save()
+	return user
 
 
 def create_chapter(course):
 	prepare_chapter(course, "Introduction")
 	prepare_chapter(course, "Adding content to your lessons")
+	prepare_chapter(course, "Assessments")
 
 
 def prepare_chapter(course, chapter_title):
@@ -104,6 +139,7 @@ def create_lessons(course):
 	create_intro_lesson_2(course)
 	create_content_lesson_1(course)
 	create_content_lesson_2(course)
+	create_assessment_lesson_1(course)
 
 
 def get_chapter(course, chapter_title):
@@ -162,6 +198,159 @@ def create_content_lesson_2(course):
 	chapter = get_chapter(course, "Adding content to your lessons")
 	content = json.dumps(get_google_suite_content())
 	create_lesson(course, chapter, title, content)
+
+
+def create_assessment_lesson_1(course):
+	quiz = create_quiz()
+	title = "Quiz Time"
+	chapter = get_chapter(course, "Assessments")
+	content = f"""{{
+		"time": 1770118649591,
+		"blocks": [
+			{{
+				"id": "3xqARGZqQa",
+				"type": "quiz",
+				"data": {{ "quiz": "{quiz.name}" }}
+			}}
+		],
+		"version": "2.29.0"
+	}}"""
+	create_lesson(course, chapter, title, content)
+
+
+def create_quiz():
+	title = "Do you know Frappe Learning?"
+	filters = {"title": title}
+	if frappe.db.exists("LMS Quiz", filters):
+		return frappe.get_doc("LMS Quiz", filters)
+
+	questions = []
+	questions.append(
+		create_quiz_questions(
+			"What is Frappe Learning primarily used for?",
+			"Project Management",
+			False,
+			"Learning Management",
+			True,
+		)
+	)
+	questions.append(
+		create_quiz_questions(
+			"Which of the following can be added to a course in Frappe Learning?",
+			"Lessons",
+			True,
+			"Issues",
+			False,
+		)
+	)
+	questions.append(
+		create_quiz_questions(
+			"What is the top-level structure in Frappe Learning?", "Chapter", False, "Course", True
+		)
+	)
+	questions.append(
+		create_quiz_questions("Can you create quizzes in Frappe Learning?", "Yes", True, "No", False)
+	)
+	questions.append(
+		create_quiz_questions(
+			"Which of the following content can be added to lessons?", "Bugs", False, "Videos", True
+		)
+	)
+	questions.append(
+		create_quiz_questions("Can you track learner progress in Frappe Learning?", "Yes", True, "No", False)
+	)
+	questions.append(
+		create_quiz_questions(
+			"What is the purpose of a batch in Frappe Learning?",
+			"To group learners",
+			True,
+			"To store website themes",
+			False,
+		)
+	)
+	questions.append(
+		create_quiz_questions(
+			"How can you create custom certificates in Frappe Learning?",
+			"Using Server Scripts",
+			False,
+			"Using Print Formats",
+			True,
+		)
+	)
+	quiz = frappe.new_doc("LMS Quiz")
+	quiz.update(
+		{
+			"title": title,
+			"passing_percentage": 70,
+			"total_marks": 40,
+		}
+	)
+	for question in questions:
+		quiz.append(
+			"questions",
+			{
+				"question": question.name,
+				"marks": 5,
+			},
+		)
+	quiz.save()
+	return quiz
+
+
+def create_quiz_questions(question, option_1, is_correct_1, option_2, is_correct_2):
+	doc = frappe.new_doc("LMS Question")
+	doc.update(
+		{
+			"question": question,
+			"type": "Choices",
+			"option_1": option_1,
+			"is_correct_1": is_correct_1,
+			"option_2": option_2,
+			"is_correct_2": is_correct_2,
+		}
+	)
+	doc.save()
+	return doc
+
+
+def create_reviews(course, student):
+	frappe.session.user = student.name
+	review = frappe.new_doc("LMS Course Review")
+	review.course = course.name
+	review.rating = 0.8
+	review.review = "This is a great course to get started with Frappe Learning. The content is well-structured and easy to follow."
+	review.save()
+	frappe.session.user = "Administrator"
+	update_course_statistics()
+
+
+def enroll_student_in_course(student, course):
+	filters = {"member": student.name, "course": course.name}
+	if not frappe.db.exists("LMS Enrollment", filters):
+		enrollment = frappe.new_doc("LMS Enrollment")
+		enrollment.member = student.name
+		enrollment.course = course.name
+		enrollment.save()
+
+
+def create_progress(course, student, limit=None):
+	lessons = frappe.get_all(
+		"Course Lesson", {"course": course.name}, pluck="name", limit=limit, order_by="creation asc"
+	)
+	for lesson in lessons:
+		filters = {"member": student.name, "lesson": lesson, "course": course.name}
+		if not frappe.db.exists("LMS Course Progress", filters):
+			progress = frappe.new_doc("LMS Course Progress")
+			progress.member = student.name
+			progress.lesson = lesson
+			progress.course = course.name
+			progress.status = "Complete"
+			progress.save()
+
+	progress = get_course_progress(course.name, student.name)
+	frappe.db.set_value(
+		"LMS Enrollment", {"member": student.name, "course": course.name}, "progress", progress
+	)
 
 
 def get_video_content():

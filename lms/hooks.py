@@ -11,6 +11,7 @@ app_icon_title = "Learning"
 app_color = "grey"
 app_email = "jannat@frappe.io"
 app_license = "AGPL"
+required_apps = ["frappe/payments"]
 
 
 def get_lms_path():
@@ -71,7 +72,7 @@ web_include_js = []
 after_install = "lms.install.after_install"
 after_sync = "lms.install.after_sync"
 before_uninstall = "lms.install.before_uninstall"
-setup_wizard_requires = "assets/lms/js/setup_wizard.js"
+setup_wizard_complete = "lms.demo.demo_data.create_demo_data"
 after_migrate = [
 	"lms.sqlite.build_index_in_background",
 ]
@@ -134,7 +135,7 @@ scheduler_events = {
 	],
 	"hourly": [
 		"lms.lms.doctype.lms_certificate_request.lms_certificate_request.schedule_evals",
-		"lms.lms.api.update_course_statistics",
+		"lms.lms.doctype.lms_course.lms_course.update_course_statistics",
 		"lms.lms.doctype.lms_certificate_request.lms_certificate_request.mark_eval_as_completed",
 		"lms.lms.doctype.lms_live_class.lms_live_class.update_attendance",
 	],

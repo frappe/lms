@@ -1,6 +1,5 @@
 import frappe
 
-from lms.demo.demo_data import create_demo_data
 from lms.lms.api import give_discussions_permission
 
 
@@ -14,7 +13,6 @@ def after_sync():
 	create_lms_roles()
 	set_default_certificate_print_format()
 	give_lms_roles_to_admin()
-	create_demo_data()
 
 
 def before_uninstall():
