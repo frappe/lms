@@ -87,6 +87,9 @@ const identifyUserPersona = async () => {
 		if (personaCaptured) return
 		let courseCount = await call('frappe.client.get_count', {
 			doctype: 'LMS Course',
+			filters: {
+				title: ['not like', '%A guide to Frappe Learning%'],
+			},
 		})
 		if (!courseCount) {
 			router.push({ name: 'PersonaForm' })
