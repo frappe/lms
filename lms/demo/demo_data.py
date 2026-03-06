@@ -83,10 +83,10 @@ def create_instructor():
 			{
 				"name": ["not in", ("Administrator", "Guest")],
 			},
-			fields=["name"],
+			pluck="name",
 			limit=1,
 		)[0]
-		return frappe.get_doc("User", user.name)
+		return frappe.get_doc("User", user)
 
 	return create_user("Jannat", "Patel", "jannat@example.com", "/assets/lms/images/instructor.png")
 
