@@ -65,9 +65,6 @@ jobs:
     - name: add lms app to bench
       working-directory: /home/runner/frappe-bench
       run: bench get-app lms $GITHUB_WORKSPACE
-    - name: add payments app to bench
-      working-directory: /home/runner/frappe-bench
-      run: bench get-app payments $GITHUB_WORKSPACE
     - name: create bench site
       working-directory: /home/runner/frappe-bench
       run: bench new-site --mariadb-root-password root --admin-password admin frappe.local
