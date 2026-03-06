@@ -37,6 +37,7 @@ from lms.lms.utils import (
 	get_average_rating,
 	get_batch_details,
 	get_course_details,
+	get_field_meta,
 	get_instructors,
 	get_lesson_count,
 	get_lms_route,
@@ -103,7 +104,54 @@ def validate_billing_access(billing_type: str, name: str):
 		as_dict=1,
 	)
 
-	return {"access": access, "message": message, "address": address}
+	payment_fields = get_payment_field_meta()
+	address_fields = get_field_meta(
+		"Address",
+		[
+			"address_line1",
+			"address_line2",
+			"city",
+			"state",
+			"country",
+			"pincode",
+			"phone",
+		],
+	)
+	billing_field_meta = {**payment_fields, **address_fields}
+
+	return {
+		"access": access,
+		"message": message,
+		"address": address,
+		"billing_field_meta": billing_field_meta,
+	}
+
+
+@frappe.whitelist()
+def get_payment_field_meta():
+	return get_field_meta(
+		"LMS Payment",
+		[
+			"member",
+			"billing_name",
+			"source",
+			"payment_for_document_type",
+			"payment_for_document",
+			"currency",
+			"amount",
+			"amount_with_gst",
+			"original_amount",
+			"discount_amount",
+			"coupon",
+			"coupon_code",
+			"address",
+			"gstin",
+			"pan",
+			"payment_id",
+			"order_id",
+			"member_consent",
+		],
+	)
 
 
 def verify_billing_access(doctype, name, billing_type):
