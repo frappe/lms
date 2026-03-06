@@ -2328,3 +2328,20 @@ def recalculate_course_progress(course: str, member: str):
 	)
 	frappe.db.set_value("LMS Enrollment", membership, "progress", progress)
 	update_program_progress(member)
+
+
+def get_field_meta(doctype, fieldnames):
+	"""Returns field metadata for 'fieldnames' from 'doctype'"""
+	meta = frappe.get_meta(doctype)
+	fieldnames_meta = {}
+
+	for fieldname in fieldnames:
+		field = meta.get_field(fieldname)
+		if field:
+			fieldnames_meta[fieldname] = {
+				"reqd": field.reqd,
+				"default": field.default,
+				"description": field.description,
+			}
+
+	return fieldnames_meta
