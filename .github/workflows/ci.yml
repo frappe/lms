@@ -62,6 +62,9 @@ jobs:
           mkdir -p ~/bench-cache
           (cd && tar czf ~/bench-cache/bench.tgz frappe-bench)
         fi
+    - name: add payments app to bench
+      working-directory: /home/runner/frappe-bench
+      run: bench get-app https://github.com/frappe/payments
     - name: add lms app to bench
       working-directory: /home/runner/frappe-bench
       run: bench get-app lms $GITHUB_WORKSPACE
