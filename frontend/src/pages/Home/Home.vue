@@ -71,6 +71,33 @@ const isAdmin = computed(() => {
 	)
 })
 
+<<<<<<< HEAD
+=======
+const isPersonaCaptured = async () => {
+	let persona = await call('frappe.client.get_single_value', {
+		doctype: 'LMS Settings',
+		field: 'persona_captured',
+	})
+	return persona
+}
+
+const identifyUserPersona = async () => {
+	if (user.data?.is_system_manager && !user.data?.developer_mode) {
+		let personaCaptured = await isPersonaCaptured()
+		if (personaCaptured) return
+		let courseCount = await call('frappe.client.get_count', {
+			doctype: 'LMS Course',
+			filters: {
+				title: ['not like', '%A guide to Frappe Learning%'],
+			},
+		})
+		if (!courseCount) {
+			router.push({ name: 'PersonaForm' })
+		}
+	}
+}
+
+>>>>>>> 711d89b6 (fix: exclude demo course count before showing persona)
 onMounted(() => {
 	if (isAdmin.value) {
 		currentTab.value = 'instructor'
