@@ -89,6 +89,11 @@
 				<span class="text-sm font-medium">
 					{{ formatSeconds(currentTime) }} / {{ formatSeconds(duration) }}
 				</span>
+
+				<Dropdown :options="dropdownOptions">
+					<Button>{{ playbackSpeedLabel }}</Button>
+				</Dropdown>
+
 				<Button
 					variant="ghost"
 					@click="toggleMute"
@@ -151,9 +156,9 @@
 	</Dialog>
 </template>
 <script setup>
-import { ref, onMounted, computed, watch } from 'vue'
+import { ref, onMounted, computed, watch, onBeforeUnmount } from 'vue'
 import { Pause, Maximize, Volume2, VolumeX } from 'lucide-vue-next'
-import { Button, Dialog } from 'frappe-ui'
+import { Button, Dialog, Dropdown } from 'frappe-ui'
 import { formatSeconds, formatTimestamp } from '@/utils'
 import { useSettings } from '@/stores/settings'
 import Play from '@/components/Icons/Play.vue'
@@ -172,6 +177,16 @@ const quizLoadTimer = ref(0)
 const currentQuiz = ref(null)
 const nextQuiz = ref({})
 const { settings } = useSettings()
+
+// Speed control states
+const playbackSpeed = ref(1)
+const playbackSpeedLabel = ref('1x')
+const playbackSpeeds = [
+	{ label: '0.5x', value: 0.5 },
+	{ label: '1x', value: 1 },
+	{ label: '1.5x', value: 1.5 },
+	{ label: '2x', value: 2 },
+]
 
 const props = defineProps({
 	file: {
@@ -199,6 +214,9 @@ const props = defineProps({
 onMounted(() => {
 	updateCurrentTime()
 	updateNextQuiz()
+	if (videoRef.value) {
+		videoRef.value.playbackRate = 1
+	}
 })
 
 const updateCurrentTime = () => {
@@ -321,6 +339,22 @@ const getQuizMarkerStyle = (time) => {
 		left: `${percentage}%`,
 	}
 }
+
+const setPlaybackSpeed = (speed, label) => {
+	playbackSpeed.value = speed
+	playbackSpeedLabel.value = label
+	if (videoRef.value) {
+		videoRef.value.playbackRate = speed
+	}
+}
+
+const dropdownOptions = computed(() =>
+	playbackSpeeds.map((speed) => ({
+		label: speed.label,
+		active: playbackSpeed.value === speed.value,
+		onClick: () => setPlaybackSpeed(speed.value, speed.label),
+	}))
+)
 </script>
 
 <style scoped>
