@@ -104,15 +104,17 @@ describe("Course Creation", () => {
 		cy.closeOnboardingModal();
 
 		cy.url().should("include", "/lms/courses");
-		cy.get(".grid a:first").within(() => {
-			cy.get("div").contains("Test Course");
-			cy.get("div").contains(
-				"Test Course Short Introduction to test the UI"
-			);
-			cy.get(".bg-cover")
-				.invoke("css", "background-image")
-				.should("include", "/files/profile");
-		});
+		cy.get("div")
+			.contains("Test Course")
+			.closest("a")
+			.within(() => {
+				cy.get("div").contains(
+					"Test Course Short Introduction to test the UI"
+				);
+				cy.get(".bg-cover")
+					.invoke("css", "background-image")
+					.should("include", "/files/profile");
+			});
 		cy.get(".grid a:first").click();
 		cy.url().should("include", "/lms/courses/test-course");
 		cy.get("div").contains("Test Course");
