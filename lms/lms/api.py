@@ -1941,6 +1941,7 @@ def get_admin_evals():
 		{
 			"evaluator": frappe.session.user,
 			"date": [">=", getdate()],
+			"status": "Upcoming",
 		},
 		[
 			"name",
