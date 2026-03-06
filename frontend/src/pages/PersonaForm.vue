@@ -79,7 +79,7 @@ const submitPersona = () => {
 		responses: JSON.stringify(responses),
 	}).then(() => {
 		router.push({
-			name: 'Courses',
+			name: 'Home',
 		})
 	})
 }
@@ -87,12 +87,12 @@ const submitPersona = () => {
 const skipPersonaForm = () => {
 	call('frappe.client.set_value', {
 		doctype: 'LMS Settings',
-		name: null,
+		name: 'LMS Settings',
 		fieldname: 'persona_captured',
 		value: 1,
 	}).then(() => {
 		router.push({
-			name: 'Courses',
+			name: 'Home',
 		})
 	})
 }
