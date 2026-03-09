@@ -172,7 +172,7 @@ def create_intro_lesson_1(course):
 	title = "What is a Learning Management System?"
 	chapter = get_chapter(course, "Introduction")
 	content = """
-		{"time":1772449622100,"blocks":[{"id":"vYTdcXYVgI","type":"embed","data":{"service":"youtube","source":"http://youtube.com/watch?v=SauviPVDItU","embed":"SauviPVDItU","caption":""}}],"version":"2.29.0"}
+		{"time":1772449622100,"blocks":[{"id":"vYTdcXYVgI","type":"embed","data":{"service":"youtube","source":"https://www.youtube.com/watch?v=-Ulzqjj49lk","embed":"-Ulzqjj49lk","caption":""}}],"version":"2.29.0"}
 	"""
 	create_lesson(course, chapter, title, content)
 
@@ -181,7 +181,7 @@ def create_intro_lesson_2(course):
 	title = "What is Frappe Learning?"
 	chapter = get_chapter(course, "Introduction")
 	content = """
-		{"time":1772449622100,"blocks":[{"id":"vYTdcXYVgI","type":"embed","data":{"service":"youtube","source":"http://youtube.com/watch?v=SauviPVDItU","embed":"SauviPVDItU","caption":""}}],"version":"2.29.0"}
+		{"time":1772449622100,"blocks":[{"id":"vYTdcXYVgI","type":"embed","data":{"service":"youtube","source":"https://www.youtube.com/watch?v=VIt_bsbBjLI","embed":"VIt_bsbBjLI","caption":""}}],"version":"2.29.0"}
 	"""
 	create_lesson(course, chapter, title, content)
 

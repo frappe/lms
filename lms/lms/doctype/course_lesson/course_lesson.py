@@ -9,7 +9,7 @@ from frappe.model.document import Document
 from frappe.realtime import get_website_room
 from frappe.utils.telemetry import capture
 
-from lms.lms.utils import get_course_progress, recalculate_course_progress
+from lms.lms.utils import get_course_progress, is_demo_course, recalculate_course_progress
 
 from ...md import find_macros
 
@@ -127,7 +127,8 @@ def save_progress(lesson: str, course: str, scorm_details: dict = None):
 		)
 
 	progress = get_course_progress(course)
-	capture_progress_for_analytics()
+	if not is_demo_course(course):
+		capture("course_progress", "lms")
 
 	# Had to get doc, as on_change doesn't trigger when you use set_value. The trigger is necessary for badge to get assigned.
 	enrollment = frappe.get_doc("LMS Enrollment", membership)
@@ -143,10 +144,6 @@ def save_progress(lesson: str, course: str, scorm_details: dict = None):
 	)
 
 	return progress
-
-
-def capture_progress_for_analytics():
-	capture("course_progress", "lms")
 
 
 def get_quiz_progress(lesson):
