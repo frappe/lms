@@ -194,11 +194,7 @@
 		v-model="showQuestionModal"
 		:questionDetail="currentQuestion"
 		v-model:quiz="quizDetails"
-		:title="
-			currentQuestion.question
-				? __('Edit the question')
-				: __('Add a new question')
-		"
+		:title="currentQuestion.question ? __('Edit Question') : __('Add Question')"
 	/>
 </template>
 <script setup>

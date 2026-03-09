@@ -13,6 +13,7 @@
 						v-model="batch.title"
 						:label="__('Title')"
 						:required="true"
+						autocomplete="off"
 					/>
 					<FormControl
 						v-model="batch.start_date"
@@ -42,6 +43,7 @@
 						v-model="batch.timezone"
 						:label="__('Timezone')"
 						:required="true"
+						autocomplete="off"
 					/>
 					<Link
 						doctype="LMS Category"
@@ -72,6 +74,13 @@
 
 				<div class="space-y-5 border-t mt-5 pt-5">
 					<div class="grid grid-cols-2 gap-5">
+						<FormControl
+							v-model="batch.description"
+							:label="__('Description')"
+							type="textarea"
+							:required="true"
+							:rows="4"
+						/>
 						<MultiSelect
 							v-model="batch.instructors"
 							doctype="Course Evaluator"
@@ -79,13 +88,6 @@
 							:required="true"
 							:onCreate="(close: () => void) => openSettings('Evaluators', close)"
 							:filters="{ ignore_user_type: 1 }"
-						/>
-						<FormControl
-							v-model="batch.description"
-							:label="__('Description')"
-							type="textarea"
-							:required="true"
-							:rows="4"
 						/>
 					</div>
 					<div class="">

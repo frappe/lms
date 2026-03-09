@@ -1,7 +1,10 @@
 <template>
 	<div class="pl-5">
 		<div class="grid grid-cols-1 md:grid-cols-[70%,30%]">
-			<div v-if="courseResource.doc" class="lg:max-h-[88vh] lg:overflow-y-auto">
+			<div
+				v-if="courseResource.doc"
+				class="lg:max-h-[88vh] lg:overflow-y-auto px-1"
+			>
 				<div class="my-5">
 					<div class="pr-5 md:pr-10 pb-5 mb-5 space-y-5 border-b">
 						<div class="text-lg font-semibold mb-4 text-ink-gray-9">
@@ -71,7 +74,11 @@
 							<ColorSwatches
 								v-model="courseResource.doc.card_gradient"
 								:label="__('Color')"
-								:description="__('Choose a color for the course card')"
+								:description="
+									__(
+										'Select a fallback color for the course card when no image is set.'
+									)
+								"
 								class="w-full"
 								@update:modelValue="makeFormDirty()"
 							/>

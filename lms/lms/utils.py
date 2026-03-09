@@ -2345,3 +2345,8 @@ def get_field_meta(doctype, fieldnames):
 			}
 
 	return fieldnames_meta
+
+
+def is_demo_course(course: str) -> bool:
+	title = frappe.db.get_value("LMS Course", course, "title")
+	return title == "A guide to Frappe Learning"

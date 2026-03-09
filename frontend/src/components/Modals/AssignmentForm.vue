@@ -14,7 +14,7 @@
 							: __('Edit Assignment')
 					}}
 				</div>
-				<div class="space-y-4 max-h-[75vh] overflow-y-auto">
+				<div class="space-y-4 max-h-[75vh] overflow-y-auto p-1">
 					<FormControl
 						v-model="assignment.title"
 						:label="__('Title')"
@@ -43,7 +43,7 @@
 							@change="(val) => (assignment.question = val)"
 							:editable="true"
 							:fixedMenu="true"
-							editorClass="prose-sm max-w-none border-b border-x border-outline-gray-modals bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[7rem] max-h-[18rem] overflow-y-auto"
+							editorClass="prose-sm max-w-none border-b border-x border-outline-gray-modals bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[10rem] max-h-[18rem] overflow-y-auto"
 						/>
 					</div>
 				</div>
@@ -73,7 +73,7 @@
 import { Button, Dialog, FormControl, TextEditor, toast } from 'frappe-ui'
 import { computed, reactive, watch } from 'vue'
 import { escapeHTML, sanitizeHTML } from '@/utils'
-import { Link } from 'frappe-ui/frappe'
+import Link from '@/components/Controls/Link.vue'
 
 const show = defineModel()
 const assignments = defineModel<Assignments>('assignments')
