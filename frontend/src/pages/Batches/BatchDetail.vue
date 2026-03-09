@@ -18,7 +18,7 @@
 				</Button>
 			</div>
 			<Dropdown
-				v-else-if="isAdmin"
+				v-else-if="isAdmin && batchMenu.length"
 				:options="batchMenu"
 				placement="left"
 				side="left"
@@ -209,6 +209,9 @@ const canMakeAnnouncement = () => {
 }
 
 const batchMenu = computed(() => {
+	if (!batch.data?.certification && !canMakeAnnouncement()) {
+		return []
+	}
 	let options = [
 		{
 			label: __('Generate Certificates'),

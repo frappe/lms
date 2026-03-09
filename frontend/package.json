@@ -27,8 +27,6 @@
     "@editorjs/table": "2.4.2",
     "@vueuse/core": "^14.1.0",
     "ace-builds": "1.36.2",
-    "apexcharts": "4.3.0",
-    "chart.js": "4.4.1",
     "codemirror": "6.0.1",
     "dayjs": "1.11.10",
     "dompurify": "3.2.6",

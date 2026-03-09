@@ -154,7 +154,8 @@
    "fieldname": "source",
    "fieldtype": "Link",
    "label": "Source",
-   "options": "LMS Source"
+   "options": "LMS Source",
+   "reqd": 1
   },
   {
    "default": "0",
@@ -202,8 +203,8 @@
    "link_fieldname": "payment"
   }
  ],
- "modified": "2026-02-03 10:54:12.361407",
- "modified_by": "sayali@frappe.io",
+ "modified": "2026-03-06 17:38:02.235044",
+ "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Payment",
  "owner": "Administrator",
