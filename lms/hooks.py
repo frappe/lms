@@ -15,7 +15,10 @@ app_license = "AGPL"
 
 
 def get_lms_path():
-	return (frappe.conf.get("lms_path") if frappe.conf else "lms").strip("/")
+	path = "lms"
+	if frappe.conf and frappe.conf.get("lms_path"):
+		path = frappe.conf.get("lms_path")
+	return path.strip("/")
 
 
 # Includes in <head>
