@@ -885,6 +885,7 @@ def delete_course(course: str):
 
 	frappe.db.delete("LMS Enrollment", {"course": course})
 	frappe.db.delete("LMS Course Progress", {"course": course})
+	frappe.db.delete("LMS Course Review", {"course": course})
 	frappe.db.set_value("LMS Quiz", {"course": course}, "course", None)
 	frappe.db.set_value("LMS Quiz Submission", {"course": course}, "course", None)
 
@@ -2289,9 +2290,18 @@ def get_badges(member: str):
 @frappe.whitelist()
 def clear_demo_data():
 	frappe.only_for("Moderator")
+	quiz_title = "Do you know Frappe Learning?"
+	if frappe.db.exists("LMS Quiz", {"title": quiz_title}):
+		frappe.db.delete("LMS Quiz", {"title": quiz_title})
+
 	demo_course = frappe.get_all("LMS Course", {"title": "A guide to Frappe Learning"}, pluck="name")
 
 	if len(demo_course):
 		delete_course(demo_course[0])
+
+	users = ["ash@ipp.com", "john.doe@example.com", "jane.smith@example.com", "jannat@example.com"]
+	for user in users:
+		if frappe.db.exists("User", user):
+			frappe.delete_doc("User", user, ignore_permissions=True)
 
 	frappe.db.set_single_value("LMS Settings", "demo_data_present", False)

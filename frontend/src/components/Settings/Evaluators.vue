@@ -31,7 +31,7 @@
 					<Search class="size-4 stroke-1.5 text-ink-gray-5" />
 				</template>
 			</FormControl>
-			<div class="overflow-auto h-[60vh]">
+			<div class="overflow-auto max-h-[60vh]">
 				<div class="divide-y divide-outline-gray-modals">
 					<div
 						v-for="evaluator in evaluators.data"
