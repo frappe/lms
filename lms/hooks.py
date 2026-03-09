@@ -8,16 +8,18 @@ app_publisher = "Frappe"
 app_description = "Open Source Learning Management System built with Frappe Framework"
 app_icon_url = "/assets/lms/images/lms-logo.png"
 app_icon_title = "Learning"
+app_icon_route = "/lms"
 app_color = "grey"
 app_email = "jannat@frappe.io"
 app_license = "AGPL"
 
 
 def get_lms_path():
-	return (frappe.conf.get("lms_path") or "lms").strip("/")
+	path = "lms"
+	if frappe.conf and frappe.conf.get("lms_path"):
+		path = frappe.conf.get("lms_path")
+	return path.strip("/")
 
-
-app_icon_route = f"/{get_lms_path()}"
 
 # Includes in <head>
 # ------------------
