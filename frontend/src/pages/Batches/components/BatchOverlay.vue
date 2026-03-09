@@ -151,6 +151,10 @@ const enrollInBatch = () => {
 					},
 				})
 			},
+			onError(err) {
+				toast.error(__(err.messages?.[0] || err))
+				console.error(err)
+			},
 		}
 	)
 }

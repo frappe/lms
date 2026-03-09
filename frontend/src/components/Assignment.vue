@@ -421,6 +421,8 @@ const canGradeSubmission = computed(() => {
 const canModifyAssignment = computed(() => {
 	if (canGradeSubmission.value) {
 		return true
+	} else if (props.submissionName == 'new') {
+		return true
 	} else if (
 		submissionResource.doc?.owner == user.data?.name &&
 		submissionResource.doc?.status == 'Not Graded'
