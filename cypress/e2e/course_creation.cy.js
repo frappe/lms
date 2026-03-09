@@ -115,7 +115,7 @@ describe("Course Creation", () => {
 					.invoke("css", "background-image")
 					.should("include", "/files/profile");
 			});
-		cy.get(".grid a:first").click();
+		cy.get("div").contains("Test Course").closest("a").click();
 		cy.url().should("include", "/lms/courses/test-course");
 		cy.get("div").contains("Test Course");
 		cy.get("div").contains("Test Course Short Introduction to test the UI");
