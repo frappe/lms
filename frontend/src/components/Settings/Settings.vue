@@ -331,29 +331,62 @@ const tabsStructure = computed(() => {
 											doctype: 'Currency',
 										},
 										{
-											label: 'Payment Gateway',
-											name: 'payment_gateway',
-											type: 'Link',
-											doctype: 'Payment Gateway',
+											label: 'Show USD equivalent amount',
+											name: 'show_usd_equivalent',
+											type: 'checkbox',
+											description:
+												'If enabled, it shows the USD equivalent amount for all transactions based on the current exchange rate.',
+										},
+										{
+											label: 'Apply rounding on equivalent',
+											name: 'apply_rounding',
+											type: 'checkbox',
+											description:
+												'If enabled, it applies rounding on the USD equivalent amount.',
 										},
 									],
 								},
 								{
 									fields: [
 										{
+											label: 'Payment Gateway',
+											name: 'payment_gateway',
+											type: 'Link',
+											doctype: 'Payment Gateway',
+										},
+										{
 											label: 'Apply GST for India',
 											name: 'apply_gst',
 											type: 'checkbox',
+											description:
+												'If enabled, GST will be applied to the price for students from India.',
 										},
+									],
+								},
+							],
+						},
+						{
+							label: 'Payment Reminders',
+							columns: [
+								{
+									fields: [
 										{
-											label: 'Show USD equivalent amount',
-											name: 'show_usd_equivalent',
+											label: 'Send payment reminders for batch',
+											name: 'send_payment_reminders_for_batch',
 											type: 'checkbox',
+											description:
+												'If enabled, it sends payment reminders to students who left the payment incomplete for a batch.',
 										},
+									],
+								},
+								{
+									fields: [
 										{
-											label: 'Apply rounding on equivalent',
-											name: 'apply_rounding',
+											label: 'Send payment reminders for course',
+											name: 'send_payment_reminders_for_course',
 											type: 'checkbox',
+											description:
+												'If enabled, it sends payment reminders to students who left the payment incomplete for a course.',
 										},
 									],
 								},

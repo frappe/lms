@@ -27,7 +27,7 @@ def send_payment_reminder():
 		{
 			"payment_received": 0,
 			"creation": [">", add_days(nowdate(), -1)],
-			"payment_for_document_type": "LMS Batch",
+			"payment_for_document_type": ["in", allowed_payment_types()],
 		},
 		[
 			"name",
@@ -46,6 +46,20 @@ def send_payment_reminder():
 			continue
 
 		send_mail(payment)
+
+
+def allowed_payment_types():
+	send_batch_reminders = frappe.db.get_single_value("LMS Settings", "send_payment_reminders_for_batch")
+	send_course_reminders = frappe.db.get_single_value("LMS Settings", "send_payment_reminders_for_course")
+
+	allowed_types = []
+	if send_batch_reminders:
+		allowed_types.append("LMS Batch")
+
+	if send_course_reminders:
+		allowed_types.append("LMS Course")
+
+	return allowed_types
 
 
 def has_paid_later(payment):
