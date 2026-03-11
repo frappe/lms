@@ -21,11 +21,17 @@ describe("Course Creation", () => {
 			"Test Course Description. I need a very big description to test the UI. This is a very big description. It contains more than once sentence. Its meant to be this long as this is a UI test. Its unbearably long and I'm not sure why I'm typing this much. I'm just going to keep typing until I feel like its long enough. I think its long enough now. I'm going to stop typing now."
 		);
 
-		cy.fixture("profile.png", "base64").then((fileContent) => {
+		cy.contains("Course Image")
+			.should("exist")
+			.parent()
+			.find('input[type="file"]')
+			.attachFile("profile.png", { force: true });
+
+		/* cy.fixture("profile.png", "base64").then((fileContent) => {
 			expect(fileContent).to.exist;
 			cy.get("div")
 				.contains("Course Image")
-				.siblings("div")
+				.parent()
 				.children('input[type="file"]')
 				.attachFile({
 					fileContent,
@@ -33,7 +39,7 @@ describe("Course Creation", () => {
 					mimeType: "image/png",
 					encoding: "base64",
 				});
-		});
+		}); */
 
 		/* Instructor */
 		cy.get("label")
