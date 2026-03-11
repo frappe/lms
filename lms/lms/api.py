@@ -885,8 +885,10 @@ def delete_course(course: str):
 
 	frappe.db.delete("LMS Enrollment", {"course": course})
 	frappe.db.delete("LMS Course Progress", {"course": course})
+	frappe.db.delete("LMS Certificate", {"course": course})
+	frappe.db.delete("Batch Course", {"course": course})
 	frappe.db.delete("LMS Course Review", {"course": course})
-	frappe.db.set_value("LMS Quiz", {"course": course}, "course", None)
+	frappe.db.set_value("LMS Quiz", {"course": course}, {"course": None, "lesson": None})
 	frappe.db.set_value("LMS Quiz Submission", {"course": course}, "course", None)
 
 	chapters = frappe.get_all("Course Chapter", {"course": course}, pluck="name")
