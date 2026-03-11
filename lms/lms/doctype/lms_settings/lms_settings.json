@@ -11,8 +11,9 @@
   "send_calendar_invite_for_evaluations",
   "column_break_zdel",
   "disable_pwa",
-  "persona_captured",
   "default_home",
+  "persona_captured",
+  "demo_data_present",
   "column_break_bjis",
   "unsplash_access_key",
   "livecode_url",
@@ -61,6 +62,8 @@
   "apply_gst",
   "show_usd_equivalent",
   "apply_rounding",
+  "send_payment_reminders_for_batch",
+  "send_payment_reminders_for_course",
   "no_payments_app",
   "payments_app_is_not_installed",
   "email_templates_tab",
@@ -484,13 +487,32 @@
    "fieldname": "allow_job_posting",
    "fieldtype": "Check",
    "label": "Allow Job Posting"
+  },
+  {
+   "default": "0",
+   "fieldname": "demo_data_present",
+   "fieldtype": "Check",
+   "label": "Demo Data Present",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "send_payment_reminders_for_batch",
+   "fieldtype": "Check",
+   "label": "Send Payment Reminders for Batch"
+  },
+  {
+   "default": "0",
+   "fieldname": "send_payment_reminders_for_course",
+   "fieldtype": "Check",
+   "label": "Send Payment Reminders for Course"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2026-02-19 16:28:15.310145",
+ "modified": "2026-03-10 18:18:51.733955",
  "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "LMS Settings",

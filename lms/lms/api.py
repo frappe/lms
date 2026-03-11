@@ -37,6 +37,7 @@ from lms.lms.utils import (
 	get_average_rating,
 	get_batch_details,
 	get_course_details,
+	get_field_meta,
 	get_instructors,
 	get_lesson_count,
 	get_lms_route,
@@ -103,7 +104,54 @@ def validate_billing_access(billing_type: str, name: str):
 		as_dict=1,
 	)
 
-	return {"access": access, "message": message, "address": address}
+	payment_fields = get_payment_field_meta()
+	address_fields = get_field_meta(
+		"Address",
+		[
+			"address_line1",
+			"address_line2",
+			"city",
+			"state",
+			"country",
+			"pincode",
+			"phone",
+		],
+	)
+	billing_field_meta = {**payment_fields, **address_fields}
+
+	return {
+		"access": access,
+		"message": message,
+		"address": address,
+		"billing_field_meta": billing_field_meta,
+	}
+
+
+@frappe.whitelist()
+def get_payment_field_meta():
+	return get_field_meta(
+		"LMS Payment",
+		[
+			"member",
+			"billing_name",
+			"source",
+			"payment_for_document_type",
+			"payment_for_document",
+			"currency",
+			"amount",
+			"amount_with_gst",
+			"original_amount",
+			"discount_amount",
+			"coupon",
+			"coupon_code",
+			"address",
+			"gstin",
+			"pan",
+			"payment_id",
+			"order_id",
+			"member_consent",
+		],
+	)
 
 
 def verify_billing_access(doctype, name, billing_type):
@@ -793,24 +841,6 @@ def get_new_gateway_fields(doctype: str):
 	return transformed_fields
 
 
-def update_course_statistics():
-	courses = frappe.get_all("LMS Course", fields=["name"])
-
-	for course in courses:
-		lessons = get_lesson_count(course.name)
-
-		enrollments = frappe.db.count("LMS Enrollment", {"course": course.name, "member_type": "Student"})
-
-		avg_rating = get_average_rating(course.name) or 0
-		avg_rating = flt(avg_rating, frappe.get_system_settings("float_precision") or 3)
-
-		frappe.db.set_value(
-			"LMS Course",
-			course.name,
-			{"lessons": lessons, "enrollments": enrollments, "rating": avg_rating},
-		)
-
-
 @frappe.whitelist()
 def get_announcements(batch: str):
 	roles = frappe.get_roles()
@@ -855,7 +885,10 @@ def delete_course(course: str):
 
 	frappe.db.delete("LMS Enrollment", {"course": course})
 	frappe.db.delete("LMS Course Progress", {"course": course})
-	frappe.db.set_value("LMS Quiz", {"course": course}, "course", None)
+	frappe.db.delete("LMS Certificate", {"course": course})
+	frappe.db.delete("Batch Course", {"course": course})
+	frappe.db.delete("LMS Course Review", {"course": course})
+	frappe.db.set_value("LMS Quiz", {"course": course}, {"course": None, "lesson": None})
 	frappe.db.set_value("LMS Quiz Submission", {"course": course}, "course", None)
 
 	chapters = frappe.get_all("Course Chapter", {"course": course}, pluck="name")
@@ -1311,6 +1344,7 @@ def get_lms_settings():
 		"livecode_url",
 		"disable_pwa",
 		"allow_job_posting",
+		"demo_data_present",
 	]
 
 	settings = frappe._dict()
@@ -1865,23 +1899,27 @@ def get_my_live_classes():
 @frappe.whitelist()
 def get_created_courses():
 	created_courses = []
+	roles = frappe.get_roles()
 
 	CourseInstructor = frappe.qb.DocType("Course Instructor")
 	Course = frappe.qb.DocType("LMS Course")
 
-	query = (
+	base_query = (
 		frappe.qb.from_(CourseInstructor)
 		.join(Course)
 		.on(CourseInstructor.parent == Course.name)
 		.select(Course.name)
-		.where(CourseInstructor.instructor == frappe.session.user)
 		.orderby(Course.published_on, order=frappe.qb.desc)
 		.limit(3)
 	)
 
+	query = base_query.where(CourseInstructor.instructor == frappe.session.user)
 	results = query.run(as_dict=True)
-	courses = [row["name"] for row in results]
 
+	if not len(results) and ("Moderator" in roles):
+		results = base_query.run(as_dict=True)
+
+	courses = [row["name"] for row in results]
 	for course in courses:
 		course_details = get_course_details(course)
 		created_courses.append(course_details)
@@ -1954,6 +1992,7 @@ def get_admin_evals():
 		{
 			"evaluator": frappe.session.user,
 			"date": [">=", getdate()],
+			"status": "Upcoming",
 		},
 		[
 			"name",
@@ -2248,3 +2287,23 @@ def get_badges(member: str):
 	)
 
 	return badges
+
+
+@frappe.whitelist()
+def clear_demo_data():
+	frappe.only_for("Moderator")
+	quiz_title = "Do you know Frappe Learning?"
+	if frappe.db.exists("LMS Quiz", {"title": quiz_title}):
+		frappe.db.delete("LMS Quiz", {"title": quiz_title})
+
+	demo_course = frappe.get_all("LMS Course", {"title": "A guide to Frappe Learning"}, pluck="name")
+
+	if len(demo_course):
+		delete_course(demo_course[0])
+
+	users = ["ash@ipp.com", "john.doe@example.com", "jane.smith@example.com", "jannat@example.com"]
+	for user in users:
+		if frappe.db.exists("User", user):
+			frappe.delete_doc("User", user, ignore_permissions=True)
+
+	frappe.db.set_single_value("LMS Settings", "demo_data_present", False)

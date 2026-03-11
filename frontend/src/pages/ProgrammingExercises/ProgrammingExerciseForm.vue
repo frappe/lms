@@ -51,7 +51,7 @@
 							@change="(val: string) => (exercise.problem_statement = val)"
 							:editable="true"
 							:fixedMenu="true"
-							editorClass="prose-sm max-w-none border-b border-x border-outline-gray-modals bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[7rem] max-h-[21rem] overflow-y-auto"
+							editorClass="prose-sm max-w-none border-b border-x border-outline-gray-modals bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[10rem] max-h-[21rem] overflow-y-auto"
 						/>
 					</div>
 				</div>
@@ -71,6 +71,7 @@
 					{{ __('Delete') }}
 				</Button>
 				<router-link
+					v-if="exerciseID != 'new'"
 					:to="{
 						name: 'ProgrammingExerciseSubmission',
 						params: {
@@ -87,6 +88,7 @@
 					</Button>
 				</router-link>
 				<router-link
+					v-if="exerciseID != 'new'"
 					:to="{
 						name: 'ProgrammingExerciseSubmissions',
 						query: {
@@ -148,6 +150,7 @@ const languageOptions = [
 const props = withDefaults(
 	defineProps<{
 		exerciseID: string
+		getExerciseCount: () => Promise<number>
 	}>(),
 	{
 		exerciseID: 'new',
@@ -185,7 +188,6 @@ const setExerciseData = () => {
 const testCases = createListResource({
 	doctype: 'LMS Test Case',
 	fields: ['input', 'expected_output', 'name'],
-	cache: ['testCases', props.exerciseID],
 	parent: 'LMS Programming Exercise',
 	orderBy: 'idx',
 	onSuccess(data: TestCase[]) {
@@ -207,7 +209,7 @@ const fetchTestCases = () => {
 		},
 	})
 	testCases.reload()
-	originalTestCaseCount.value = testCases.data.length
+	originalTestCaseCount.value = testCases.data?.length
 }
 
 const validateTitle = () => {
@@ -223,7 +225,7 @@ watch(
 )
 
 watch(testCases, () => {
-	if (testCases.data.length !== originalTestCaseCount.value) {
+	if (testCases.data?.length !== originalTestCaseCount.value) {
 		isDirty.value = true
 	}
 })
@@ -255,6 +257,7 @@ const createNewExercise = (close: () => void) => {
 				close()
 				isDirty.value = false
 				exercises.value?.reload()
+				props.getExerciseCount()
 				toast.success(__('Programming Exercise created successfully'))
 			},
 			onError(err: any) {
