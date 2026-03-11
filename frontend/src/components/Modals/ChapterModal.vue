@@ -16,7 +16,12 @@
 	>
 		<template #body-content>
 			<div class="space-y-4 text-base">
-				<FormControl label="Title" v-model="chapter.title" :required="true" />
+				<FormControl
+					label="Title"
+					v-model="chapter.title"
+					:required="true"
+					autocomplete="off"
+				/>
 				<Switch
 					size="sm"
 					:label="__('SCORM Package')"

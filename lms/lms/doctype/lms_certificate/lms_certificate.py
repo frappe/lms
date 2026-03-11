@@ -57,8 +57,10 @@ class LMSCertificate(Document):
 
 	def validate_criteria(self):
 		self.validate_role_of_owner()
-		self.validate_batch_enrollment()
-		self.validate_course_enrollment()
+		if self.batch_name:
+			self.validate_batch_enrollment()
+		elif self.course:
+			self.validate_course_enrollment()
 
 	def validate_role_of_owner(self):
 		roles = frappe.get_roles()
@@ -162,7 +164,8 @@ def is_certified(course):
 
 @frappe.whitelist()
 def create_certificate(course: str):
-	if is_certified(course):
+	certificate = is_certified(course)
+	if certificate:
 		return frappe.db.get_value(
 			"LMS Certificate", certificate, ["name", "course", "template"], as_dict=True
 		)

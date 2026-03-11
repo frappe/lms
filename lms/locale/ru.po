@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2026-01-23 16:05+0000\n"
-"PO-Revision-Date: 2026-02-05 06:43\n"
+"PO-Revision-Date: 2026-03-07 00:33\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Russian\n"
 "MIME-Version: 1.0\n"
@@ -3076,7 +3076,7 @@ msgstr "Скрыть мою личную информацию от других"
 
 #: frontend/src/components/Notes/InlineLessonMenu.vue:12
 msgid "Highlight"
-msgstr ""
+msgstr "Выделите"
 
 #. Label of the highlighted_text (Small Text) field in DocType 'LMS Lesson
 #. Note'
@@ -4310,7 +4310,7 @@ msgstr "Мета-ключевые слова"
 
 #: frontend/src/pages/BatchForm.vue:244 frontend/src/pages/CourseForm.vue:251
 msgid "Meta Tags"
-msgstr ""
+msgstr "Мета-теги"
 
 #: lms/lms/api.py:1481
 msgid "Meta tags should be a list."
@@ -4850,7 +4850,7 @@ msgstr "Наши предстоящие пакеты"
 #. Label of the output (Data) field in DocType 'LMS Test Case Submission'
 #: lms/lms/doctype/lms_test_case_submission/lms_test_case_submission.json
 msgid "Output"
-msgstr ""
+msgstr "Выход"
 
 #: frontend/src/components/Settings/BadgeForm.vue:216
 #: lms/lms/doctype/lms_badge/lms_badge.js:37
@@ -6337,7 +6337,7 @@ msgstr "Организация запуска"
 
 #: frontend/src/pages/Billing.vue:134
 msgid "State/Province"
-msgstr ""
+msgstr "Штат/провинция"
 
 #. Label of the tab_4_tab (Tab Break) field in DocType 'LMS Course'
 #. Label of the statistics (Check) field in DocType 'LMS Settings'

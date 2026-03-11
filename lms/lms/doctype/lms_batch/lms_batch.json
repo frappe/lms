@@ -36,7 +36,9 @@
   "medium",
   "confirmation_email_template",
   "column_break_flwy",
+  "conferencing_provider",
   "zoom_account",
+  "google_meet_account",
   "notification_sent",
   "section_break_jedp",
   "video_link",
@@ -361,10 +363,24 @@
    "label": "Certification"
   },
   {
+   "fieldname": "conferencing_provider",
+   "fieldtype": "Select",
+   "label": "Conferencing Provider",
+   "options": "\nZoom\nGoogle Meet"
+  },
+  {
+   "depends_on": "eval:doc.conferencing_provider=='Zoom'",
    "fieldname": "zoom_account",
    "fieldtype": "Link",
    "label": "Zoom Account",
    "options": "LMS Zoom Settings"
+  },
+  {
+   "depends_on": "eval:doc.conferencing_provider=='Google Meet'",
+   "fieldname": "google_meet_account",
+   "fieldtype": "Link",
+   "label": "Google Meet Account",
+   "options": "LMS Google Meet Settings"
   },
   {
    "fieldname": "video_link",

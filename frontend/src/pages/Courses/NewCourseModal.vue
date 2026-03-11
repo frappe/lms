@@ -13,6 +13,7 @@
 						v-model="course.title"
 						:label="__('Title')"
 						:required="true"
+						autocomplete="off"
 					/>
 					<Link
 						doctype="LMS Category"
@@ -57,7 +58,7 @@
 							@change="(val: string) => (course.description = val)"
 							:editable="true"
 							:fixedMenu="true"
-							editorClass="prose-sm max-w-none border-b border-x border-outline-gray-modals bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[10rem]"
+							editorClass="prose-sm max-w-none border-b border-x border-outline-gray-modals bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[10rem] max-h-[17rem] overflow-auto"
 						/>
 					</div>
 				</div>
@@ -77,7 +78,7 @@ import { Button, Dialog, FormControl, TextEditor, toast } from 'frappe-ui'
 import { useOnboarding, useTelemetry } from 'frappe-ui/frappe'
 import { inject, onMounted, onBeforeUnmount, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { cleanError, openSettings } from '@/utils'
+import { cleanError, openSettings, sanitizeHTML, escapeHTML } from '@/utils'
 import Link from '@/components/Controls/Link.vue'
 import MultiSelect from '@/components/Controls/MultiSelect.vue'
 import Uploader from '@/components/Controls/Uploader.vue'
@@ -87,12 +88,22 @@ const router = useRouter()
 const { capture } = useTelemetry()
 const { updateOnboardingStep } = useOnboarding('learning')
 const user = inject<any>('$user')
+const courseCreated = ref(false)
 
 const props = defineProps<{
 	courses: any
 }>()
 
-const course = ref({
+type Course = {
+	title: string
+	short_introduction: string
+	description: string
+	instructors: string[]
+	category: string | null
+	image: string | null
+}
+
+const course = ref<Course>({
 	title: '',
 	short_introduction: '',
 	description: '',
@@ -101,7 +112,23 @@ const course = ref({
 	image: null,
 })
 
+const validateFields = () => {
+	course.value.description = sanitizeHTML(course.value.description)
+
+	Object.keys(course.value).forEach((key) => {
+		if (
+			key != 'description' &&
+			typeof course.value[key as keyof Course] === 'string'
+		) {
+			course.value[key as keyof Course] = escapeHTML(
+				course.value[key as keyof Course] as string
+			)
+		}
+	})
+}
+
 const saveCourse = (close: () => void = () => {}) => {
+	validateFields()
 	props.courses.insert.submit(
 		{
 			...course.value,
@@ -114,6 +141,7 @@ const saveCourse = (close: () => void = () => {}) => {
 				toast.success(__('Course created successfully'))
 				close()
 				capture('course_created')
+				courseCreated.value = true
 				router.push({
 					name: 'CourseDetail',
 					params: { courseName: data.name },
@@ -153,8 +181,10 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
 	window.removeEventListener('keydown', keyboardShortcut)
-	capture('course_form_closed', {
-		data: course.value,
-	})
+	if (!courseCreated.value) {
+		capture('course_form_closed', {
+			data: course.value,
+		})
+	}
 })
 </script>

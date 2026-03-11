@@ -109,16 +109,14 @@ const account = reactive({
 	client_secret: '',
 })
 
-const props = defineProps({
-	accountID: {
-		type: String,
-		default: 'new',
-	},
-})
+const props = defineProps<{
+	accountID: string | null
+}>()
 
 watch(
 	() => props.accountID,
 	(val) => {
+		console.log(props.accountID)
 		if (val === 'new') {
 			account.name = ''
 			account.enabled = false

@@ -199,11 +199,16 @@ const evaluator = createResource({
 		if (data.slots.unavailable_from) from.value = data.slots.unavailable_from
 		if (data.slots.unavailable_to) to.value = data.slots.unavailable_to
 	},
+	onError(err) {
+		toast.error(err.messages?.[0] || err)
+		console.error(err)
+	},
 })
 
 const createSlot = createResource({
 	url: 'frappe.client.insert',
 	makeParams(values) {
+		console.log(evaluator.data)
 		return {
 			doc: {
 				doctype: 'Evaluator Schedule',

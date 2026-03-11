@@ -108,7 +108,7 @@
 			<div class="flex items-center justify-between mb-3">
 				<span class="font-semibold text-lg text-ink-gray-9">
 					{{
-						myBatches.data?.[0].students.includes(user.data?.name)
+						myBatches.data?.[0].students?.includes(user.data?.name)
 							? __('My Batches')
 							: __('Our Upcoming Batches')
 					}}

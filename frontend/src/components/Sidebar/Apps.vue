@@ -48,7 +48,7 @@ const apps = createResource({
 				name: 'frappe',
 				logo: '/assets/lms/images/desk.png',
 				title: __('Desk'),
-				route: '/desk/lms',
+				route: '/desk/learning',
 			},
 		]
 		data.map((app) => {

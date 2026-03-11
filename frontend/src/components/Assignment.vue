@@ -83,7 +83,8 @@
 							private: true,
 						}"
 						:validateFile="
-							(file) => validateFile(file, assignment.data.type.toLowerCase())
+							(file) =>
+								validateFile(file, true, assignment.data.type.toLowerCase())
 						"
 						@success="(file) => saveSubmission(file)"
 					>
@@ -418,11 +419,17 @@ const canGradeSubmission = computed(() => {
 })
 
 const canModifyAssignment = computed(() => {
-	return (
-		!submissionResource.doc ||
-		(submissionResource.doc?.owner == user.data?.name &&
-			submissionResource.doc?.status == 'Not Graded')
-	)
+	if (canGradeSubmission.value) {
+		return true
+	} else if (props.submissionName == 'new') {
+		return true
+	} else if (
+		submissionResource.doc?.owner == user.data?.name &&
+		submissionResource.doc?.status == 'Not Graded'
+	) {
+		return true
+	}
+	return false
 })
 
 const submissionStatusOptions = computed(() => {

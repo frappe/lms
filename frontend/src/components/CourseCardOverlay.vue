@@ -10,7 +10,7 @@
 				{{ course.data.price }}
 			</div>
 			<div v-if="!readOnlyMode">
-				<div v-if="course.data.membership" class="space-y-2">
+				<div v-if="course.data.membership" class="space-y-2 mb-8">
 					<router-link
 						:to="{
 							name: 'Lesson',
@@ -46,7 +46,7 @@
 						},
 					}"
 				>
-					<Button variant="solid" size="md" class="w-full">
+					<Button variant="solid" size="md" class="w-full mb-8">
 						<template #prefix>
 							<CreditCard class="size-4 stroke-1.5" />
 						</template>
@@ -67,7 +67,7 @@
 					v-else-if="!isAdmin"
 					@click="enrollStudent()"
 					variant="solid"
-					class="w-full"
+					class="w-full mb-8"
 					size="md"
 				>
 					<template #prefix>
@@ -90,24 +90,26 @@
 					{{ __('Get Certificate') }}
 				</Button>
 			</div>
-			<div class="space-y-4">
-				<div
-					class="font-medium text-ink-gray-9"
-					:class="{ 'mt-8': !readOnlyMode }"
-				>
+			<div class="space-y-3">
+				<div class="font-medium text-ink-gray-9">
 					{{ __('This course has:') }}
 				</div>
 				<div class="flex items-center text-ink-gray-9">
 					<BookOpen class="h-4 w-4 stroke-1.5" />
 					<span class="ml-2">
-						{{ course.data.lessons }} {{ __('Lessons') }}
+						{{ course.data.lessons }}
+						{{ course.data.lessons > 1 ? __('lessons') : __('lesson') }}
 					</span>
 				</div>
 				<div class="flex items-center text-ink-gray-9">
 					<Users class="h-4 w-4 stroke-1.5" />
 					<span class="ml-2">
 						{{ formatAmount(course.data.enrollments) }}
-						{{ __('Enrolled Students') }}
+						{{
+							course.data.enrollments > 1
+								? __('enrolled students')
+								: __('enrolled student')
+						}}
 					</span>
 				</div>
 				<div
@@ -116,7 +118,7 @@
 				>
 					<Star class="size-4 stroke-1.5 fill-yellow-500 text-transparent" />
 					<span class="ml-2">
-						{{ course.data.rating }} {{ __('Rating') }}
+						{{ course.data.rating }} {{ __('average rating') }}
 					</span>
 				</div>
 				<div

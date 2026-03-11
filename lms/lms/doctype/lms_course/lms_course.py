@@ -7,11 +7,13 @@ import frappe
 from frappe import _
 from frappe.desk.doctype.notification_log.notification_log import make_notification_logs
 from frappe.model.document import Document
-from frappe.utils import cint, today
+from frappe.utils import cint, flt, today
 
 from ...utils import (
 	generate_slug,
+	get_average_rating,
 	get_instructors,
+	get_lesson_count,
 	get_lms_route,
 	update_payment_record,
 	validate_image,
@@ -47,7 +49,9 @@ class LMSCourse(Document):
 			).save(ignore_permissions=True)
 
 	def validate_video_link(self):
-		if self.video_link and "/" in self.video_link:
+		if self.video_link and "watch?v=" in self.video_link:
+			self.video_link = self.video_link.split("watch?v=")[-1]
+		elif self.video_link and "/" in self.video_link:
 			self.video_link = self.video_link.split("/")[-1]
 
 	def validate_status(self):
@@ -213,3 +217,21 @@ def send_system_notification_for_published_courses(courses):
 		)
 		make_notification_logs(notification, students)
 		frappe.db.set_value("LMS Course", course.name, "notification_sent", 1)
+
+
+def update_course_statistics():
+	courses = frappe.get_all("LMS Course", fields=["name"])
+
+	for course in courses:
+		lessons = get_lesson_count(course.name)
+
+		enrollments = frappe.db.count("LMS Enrollment", {"course": course.name, "member_type": "Student"})
+
+		avg_rating = get_average_rating(course.name) or 0
+		avg_rating = flt(avg_rating, frappe.get_system_settings("float_precision") or 3)
+
+		frappe.db.set_value(
+			"LMS Course",
+			course.name,
+			{"lessons": lessons, "enrollments": enrollments, "rating": avg_rating},
+		)

@@ -63,6 +63,7 @@ def eval_condition(doc, condition):
 
 @frappe.whitelist()
 def assign_badge(badge_name: str):
+	frappe.only_for(["Moderator", "Course Creator", "Batch Evaluator"])
 	assignments = []
 	badge = frappe.db.get_value(
 		"LMS Badge",

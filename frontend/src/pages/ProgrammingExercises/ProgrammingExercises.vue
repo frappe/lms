@@ -5,6 +5,7 @@
 		<Breadcrumbs :items="breadcrumbs" />
 		<div class="space-x-2">
 			<router-link
+				v-if="exercises.data?.length"
 				:to="{
 					name: 'ProgrammingExerciseSubmissions',
 				}"
@@ -120,8 +121,9 @@
 	</div>
 	<ProgrammingExerciseForm
 		v-model="showForm"
-		:exerciseID="exerciseID"
 		v-model:exercises="exercises"
+		:exerciseID="exerciseID"
+		:getExerciseCount="getExerciseCount"
 	/>
 </template>
 <script setup lang="ts">
@@ -152,7 +154,7 @@ const exerciseCount = ref<number>(0)
 const readOnlyMode = window.read_only_mode
 const { brand } = sessionStore()
 const showForm = ref<boolean>(false)
-const exerciseID = ref<string | null>('new')
+const exerciseID = ref<string>('new')
 const user = inject<any>('$user')
 const titleFilter = ref<string>('')
 const languageFilter = ref<string>('')
