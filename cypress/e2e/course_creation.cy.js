@@ -22,6 +22,7 @@ describe("Course Creation", () => {
 		);
 
 		cy.fixture("profile.png", "base64").then((fileContent) => {
+			expect(fileContent).to.exist;
 			cy.get("div")
 				.contains("Course Image")
 				.siblings("div")
@@ -74,10 +75,10 @@ describe("Course Creation", () => {
 		cy.button("Save").click();
 
 		// Add Chapter
-		cy.wait(1000);
+		cy.wait(500);
 		cy.button("Add").click();
 
-		cy.wait(1000);
+		cy.wait(500);
 		cy.get("[data-dismissable-layer]")
 			.should("be.visible")
 			.within(() => {
@@ -86,12 +87,10 @@ describe("Course Creation", () => {
 			});
 
 		// Add Lesson
-		cy.wait(1000);
+		cy.wait(500);
 		cy.button("Add Lesson").click();
-		cy.wait(1000);
+		cy.wait(500);
 		cy.url().should("include", "/learn/1-1/edit");
-		cy.wait(1000);
-
 		cy.get("label").contains("Title").type("Test Lesson");
 		cy.get("#content .ce-block").type(
 			"{enter}This is an extremely big paragraph that is meant to test the UI. This is a very long paragraph. It contains more than once sentence. Its meant to be this long as this is a UI test. Its unbearably long and I'm not sure why I'm typing this much. I'm just going to keep typing until I feel like its long enough. I think its long enough now. I'm going to stop typing now."
@@ -99,7 +98,7 @@ describe("Course Creation", () => {
 		cy.button("Save").click();
 
 		// View Course
-		cy.wait(1000);
+		cy.wait(500);
 		cy.visit("/lms/courses");
 		cy.closeOnboardingModal();
 
@@ -133,7 +132,7 @@ describe("Course Creation", () => {
 		cy.get("[id^=headlessui-disclosure-panel-").within(() => {
 			cy.get("div").contains("Test Lesson").click();
 		});
-		cy.wait(3000);
+		cy.wait(500);
 
 		// View Lesson
 		cy.url().should("include", "/learn/1-1");
@@ -166,5 +165,16 @@ describe("Course Creation", () => {
 		cy.get("div").contains(
 			"This is a test comment. This will check if the UI is working properly."
 		);
+
+		// Delete Course
+		cy.get("div").contains("Test Course").click();
+		cy.get("button").contains("Settings").click();
+		cy.get("header").within(() => {
+			cy.get("svg.lucide.lucide-trash2-icon").click();
+		});
+		cy.get("span").contains("Delete").click();
+		cy.wait(500);
+		cy.url().should("include", "/lms/courses");
+		cy.get("div").contains("Test Course").should("not.exist");
 	});
 });
