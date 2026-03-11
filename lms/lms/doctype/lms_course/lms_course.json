@@ -49,7 +49,10 @@
   "enrollments",
   "lessons",
   "rating",
-  "notification_sent"
+  "notification_sent",
+  "release_schedule_tab",
+  "release_schedule_section",
+  "chapter_release_rules"
  ],
  "fields": [
   {
@@ -296,6 +299,21 @@
    "fieldtype": "Check",
    "label": "Notification Sent",
    "read_only": 1
+  },
+  {
+   "fieldname": "release_schedule_tab",
+   "fieldtype": "Tab Break",
+   "label": "Release Schedule"
+  },
+  {
+   "fieldname": "release_schedule_section",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "chapter_release_rules",
+   "fieldtype": "Table",
+   "label": "Chapter Release Rules",
+   "options": "LMS Chapter Release Rule"
   }
  ],
  "is_published_field": "published",

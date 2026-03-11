@@ -10,6 +10,7 @@
  "field_order": [
   "title",
   "include_in_preview",
+  "completion_time_minutes",
   "column_break_4",
   "chapter",
   "is_scorm_package",
@@ -46,6 +47,12 @@
    "fieldname": "include_in_preview",
    "fieldtype": "Check",
    "label": "Include In Preview"
+  },
+  {
+   "default": "1",
+   "fieldname": "completion_time_minutes",
+   "fieldtype": "Int",
+   "label": "Required View Time (minutes)"
   },
   {
    "fieldname": "column_break_4",

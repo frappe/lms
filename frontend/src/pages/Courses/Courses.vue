@@ -26,6 +26,13 @@
 						})
 					},
 				},
+				{
+					label: __('Bulk Upload Lessons'),
+					icon: 'layers',
+					onClick() {
+						router.push({ name: 'BulkUpload' })
+					},
+				},
 			]"
 		>
 			<template v-slot="{ open }">

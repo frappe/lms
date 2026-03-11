@@ -55,12 +55,16 @@ def save_progress(lesson, course, scorm_details=None):
 		return 0
 
 	frappe.db.set_value("LMS Enrollment", membership, "current_lesson", lesson)
+
+	# Always include course in existence checks so that orphaned records
+	# (course=null) from a previous bug do not block creation of a correct record.
 	progress_already_exists = frappe.db.exists(
-		"LMS Course Progress", {"lesson": lesson, "member": frappe.session.user}
+		"LMS Course Progress",
+		{"lesson": lesson, "course": course, "member": frappe.session.user},
 	)
 	lesson_already_completed = frappe.db.exists(
 		"LMS Course Progress",
-		{"lesson": lesson, "member": frappe.session.user, "status": "Complete"},
+		{"lesson": lesson, "course": course, "member": frappe.session.user, "status": "Complete"},
 	)
 
 	quiz_completed = get_quiz_progress(lesson)
@@ -69,11 +73,19 @@ def save_progress(lesson, course, scorm_details=None):
 	if scorm_details:
 		scorm_details = frappe._dict(**scorm_details)
 
+	# Resolve chapter explicitly so both `chapter` and `course` are stored on the
+	# progress record.  The doctype uses fetch_from chains (lesson→chapter→course)
+	# which are NOT guaranteed to resolve during a programmatic .save(), so we
+	# look them up ourselves.
+	chapter = frappe.db.get_value("Course Lesson", lesson, "chapter")
+
 	if not progress_already_exists and quiz_completed and assignment_completed and not scorm_details:
 		frappe.get_doc(
 			{
 				"doctype": "LMS Course Progress",
 				"lesson": lesson,
+				"chapter": chapter,
+				"course": course,
 				"status": "Complete",
 				"member": frappe.session.user,
 			}
@@ -84,6 +96,8 @@ def save_progress(lesson, course, scorm_details=None):
 			{
 				"doctype": "LMS Course Progress",
 				"lesson": lesson,
+				"chapter": chapter,
+				"course": course,
 				"status": "Complete" if scorm_details.is_complete else "Partially Complete",
 				"member": frappe.session.user,
 				"scorm_content": "" if scorm_details.is_complete else scorm_details.scorm_content,
@@ -96,6 +110,8 @@ def save_progress(lesson, course, scorm_details=None):
 			progress_already_exists,
 			{
 				"lesson": lesson,
+				"chapter": chapter,
+				"course": course,
 				"status": "Complete" if scorm_details.is_complete else "Partially Complete",
 				"member": frappe.session.user,
 				"scorm_content": "" if scorm_details.is_complete else scorm_details.scorm_content,
@@ -108,7 +124,7 @@ def save_progress(lesson, course, scorm_details=None):
 	# Had to get doc, as on_change doesn't trigger when you use set_value. The trigger is necessary for badge to get assigned.
 	enrollment = frappe.get_doc("LMS Enrollment", membership)
 	enrollment.progress = progress
-	enrollment.save()
+	enrollment.save(ignore_permissions=True)
 	enrollment.run_method("on_change")
 
 	frappe.publish_realtime(

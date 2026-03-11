@@ -201,13 +201,39 @@ onMounted(() => {
 	updateNextQuiz()
 })
 
+const ninetyPercentFired = ref(false)
+const maxWatchedTime = ref(0)
+
 const updateCurrentTime = () => {
 	setTimeout(() => {
 		videoRef.value.onloadedmetadata = () => {
 			duration.value = videoRef.value.duration
 		}
+		// Authoritative anti-skip enforcement at the video-element level.
+		// Fires for every seek — slider, keyboard, programmatic, or otherwise.
+		videoRef.value.onseeking = () => {
+			if (
+				settings.data?.prevent_skipping_videos &&
+				videoRef.value.currentTime > maxWatchedTime.value
+			) {
+				videoRef.value.currentTime = maxWatchedTime.value
+			}
+		}
 		videoRef.value.ontimeupdate = () => {
 			currentTime.value = videoRef.value?.currentTime || currentTime.value
+			// video.seeking is the browser-native flag; true while any seek is in flight.
+			// Only advance maxWatchedTime during genuine continuous playback.
+			if (!videoRef.value.seeking) {
+				maxWatchedTime.value = Math.max(maxWatchedTime.value, currentTime.value)
+			}
+			if (
+				!ninetyPercentFired.value &&
+				duration.value > 0 &&
+				currentTime.value / duration.value >= 0.9
+			) {
+				ninetyPercentFired.value = true
+				document.dispatchEvent(new CustomEvent('lms:video-ninety-percent'))
+			}
 			if (currentTime.value >= nextQuiz.value.time) {
 				videoRef.value.pause()
 				playing.value = false
@@ -298,11 +324,15 @@ const toggleMute = () => {
 }
 
 const changeCurrentTime = () => {
+	// UI-level first pass: snap the slider back immediately for visual feedback
+	// before onseeking fires. onseeking is the authoritative enforcement layer.
 	if (
 		settings.data?.prevent_skipping_videos &&
-		currentTime.value > videoRef.value.currentTime
-	)
+		currentTime.value > maxWatchedTime.value
+	) {
+		currentTime.value = videoRef.value.currentTime
 		return
+	}
 	videoRef.value.currentTime = currentTime.value
 	updateNextQuiz()
 }

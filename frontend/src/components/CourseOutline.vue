@@ -93,7 +93,35 @@
 												isActiveLesson(lesson.number) ? 'bg-surface-gray-3' : ''
 											"
 										>
+											<!-- M2: DOJ chapter lock — release date not yet reached -->
+											<Tooltip
+												v-if="lesson.is_chapter_locked && !allowEdit"
+												:text="__('Available from {0}', [lesson.unlock_date])"
+											>
+												<div
+													class="flex items-center text-sm leading-5 text-ink-gray-4 cursor-not-allowed select-none"
+												>
+													<LockKeyhole class="h-4 w-4 stroke-1 mr-2 shrink-0" />
+													{{ lesson.title }}
+												</div>
+											</Tooltip>
+
+											<!-- Sequential lock: previous lesson not yet complete -->
+											<Tooltip
+												v-else-if="lesson.is_locked && !allowEdit"
+												:text="__('Complete the previous lesson first')"
+											>
+												<div
+													class="flex items-center text-sm leading-5 text-ink-gray-4 cursor-not-allowed select-none"
+												>
+													<LockKeyhole class="h-4 w-4 stroke-1 mr-2 shrink-0" />
+													{{ lesson.title }}
+												</div>
+											</Tooltip>
+
+											<!-- Normal (unlocked) lesson -->
 											<router-link
+												v-else
 												:to="{
 													name: allowEdit ? 'LessonForm' : 'Lesson',
 													params: {
@@ -176,6 +204,7 @@ import {
 	FileText,
 	FilePenLine,
 	HelpCircle,
+	LockKeyhole,
 	MonitorPlay,
 	Plus,
 	Trash2,

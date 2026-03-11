@@ -26,6 +26,13 @@
 						})
 					},
 				},
+				{
+					label: __('Import & Assign Users'),
+					icon: 'user-plus',
+					onClick() {
+						router.push({ name: 'BatchImport' })
+					},
+				},
 			]"
 		>
 			<template v-slot="{ open }">

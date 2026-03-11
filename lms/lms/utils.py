@@ -974,7 +974,86 @@ def get_course_outline(course, progress=False):
 			)
 
 		outline.append(chapter_details)
+
+	if progress and frappe.session.user != "Guest":
+		_mark_sequential_locks(outline, course)
+		_mark_doj_locks(outline, course)
+
 	return outline
+
+
+def _get_previous_lesson_name(lesson_name, course):
+	"""Return the lesson that immediately precedes lesson_name in course order, or None."""
+	chapters = frappe.get_all(
+		"Chapter Reference",
+		filters={"parent": course},
+		fields=["idx", "chapter"],
+		order_by="idx asc",
+	)
+	ordered = []
+	for chap in chapters:
+		lessons = frappe.get_all(
+			"Lesson Reference",
+			filters={"parent": chap.chapter},
+			fields=["lesson"],
+			order_by="idx asc",
+		)
+		for les in lessons:
+			ordered.append(les.lesson)
+
+	try:
+		pos = ordered.index(lesson_name)
+	except ValueError:
+		return None
+
+	return ordered[pos - 1] if pos > 0 else None
+
+
+def _is_course_privileged(user, course):
+	"""Returns True if user is a moderator or instructor for this course."""
+	if has_moderator_role():
+		return True
+	roles = frappe.get_roles(user)
+	if "System Manager" in roles:
+		return True
+	return bool(frappe.db.exists("Course Instructor", {"parent": course, "instructor": user}))
+
+
+def _mark_sequential_locks(outline, course):
+	"""
+	Walk every lesson in course order and set is_locked=True on any lesson
+	whose immediate predecessor is not yet complete.
+	Moderators and instructors are never locked.
+	"""
+	user = frappe.session.user
+	if _is_course_privileged(user, course):
+		return
+
+	prev_complete = True  # the lesson before the very first one is implicitly "complete"
+	for chapter in outline:
+		for lesson in chapter.get("lessons", []):
+			lesson["is_locked"] = not prev_complete
+			prev_complete = bool(lesson.get("is_complete"))
+
+
+def _mark_doj_locks(outline, course):
+	"""
+	M2 · For each lesson, if the chapter's DOJ-based release date has not yet
+	passed for the current user, set is_chapter_locked=True and unlock_date on
+	the lesson so the frontend can display the date.
+	Moderators and instructors are never locked.
+	"""
+	user = frappe.session.user
+	if _is_course_privileged(user, course):
+		return
+
+	from lms.lms.lms_doj_unlock import get_lesson_unlock_date, is_lesson_unlocked
+
+	for chapter in outline:
+		for lesson in chapter.get("lessons", []):
+			if not is_lesson_unlocked(lesson["name"], user, course):
+				lesson["is_chapter_locked"] = True
+				lesson["unlock_date"] = get_lesson_unlock_date(lesson["name"], user, course)
 
 
 @frappe.whitelist(allow_guest=True)
@@ -1022,6 +1101,34 @@ def get_lesson(course, chapter, lesson):
 			"disable_self_learning": course_info.disable_self_learning,
 		}
 
+	# M2 · DOJ-based chapter unlock: check before sequential enforcement.
+	# If the chapter has not yet reached its unlock date for this employee,
+	# return a chapter_locked response so the frontend can display the date.
+	if membership and not _is_course_privileged(frappe.session.user, course):
+		from lms.lms.lms_doj_unlock import get_lesson_unlock_date, is_lesson_unlocked
+
+		if not is_lesson_unlocked(lesson_name, frappe.session.user, course):
+			unlock_date = get_lesson_unlock_date(lesson_name, frappe.session.user, course)
+			return {
+				"chapter_locked": 1,
+				"title": lesson_details.title,
+				"course_title": course_info.title,
+				"unlock_date": unlock_date,
+			}
+
+	# Sequential enforcement: enrolled students cannot access a lesson
+	# until the previous lesson in the course is complete.
+	if membership and not _is_course_privileged(frappe.session.user, course):
+		prev_lesson = _get_previous_lesson_name(lesson_name, course)
+		if prev_lesson and not get_progress(course, prev_lesson):
+			prev_title = frappe.db.get_value("Course Lesson", prev_lesson, "title")
+			return {
+				"lesson_locked": 1,
+				"title": lesson_details.title,
+				"course_title": course_info.title,
+				"prev_lesson_title": prev_title,
+			}
+
 	lesson_details = frappe.db.get_value(
 		"Course Lesson",
 		lesson_name,
@@ -1039,6 +1146,7 @@ def get_lesson(course, chapter, lesson):
 			"course",
 			"content",
 			"instructor_content",
+			"completion_time_minutes",
 		],
 		as_dict=True,
 	)
@@ -1369,15 +1477,18 @@ def get_batch_students(filters, offset=0, limit_start=0, limit_page_length=None,
 		"LMS Batch Enrollment",
 		filters={"batch": batch},
 		fields=["member", "name"],
-		offset=start,
-		limit=page_length,
+		limit_start=start,
+		limit_page_length=page_length,
 		order_by="creation desc",
 	)
 
 	for student in students_list:
-		details = get_batch_student_details(student)
-		calculate_student_progress(batch, details)
-		students.append(details)
+		try:
+			details = get_batch_student_details(student)
+			calculate_student_progress(batch, details)
+			students.append(details)
+		except Exception:
+			frappe.log_error(frappe.get_traceback(), f"get_batch_students: error processing {student.member}")
 
 	return students
 
@@ -1480,7 +1591,16 @@ def get_batch_student_details(student):
 		["full_name", "email", "username", "last_active", "user_image"],
 		as_dict=True,
 	)
-	details.last_active = format_datetime(details.last_active, "dd MMM YY")
+	if not details:
+		# Enrollment exists but user record is missing — return minimal placeholder
+		details = frappe._dict(
+			full_name=student.member,
+			email=student.member,
+			username="",
+			last_active=None,
+			user_image=None,
+		)
+	details.last_active = format_datetime(details.last_active, "dd MMM YY") if details.last_active else ""
 	details.name = student.name
 	details.assessments = frappe._dict()
 	return details

@@ -40,6 +40,16 @@ const routes = [
 		props: true,
 	},
 	{
+		path: '/batches/import-users',
+		name: 'BatchImport',
+		component: () => import('@/pages/BatchImport.vue'),
+	},
+	{
+		path: '/bulk-upload-lessons',
+		name: 'BulkUpload',
+		component: () => import('@/pages/BulkUpload.vue'),
+	},
+	{
 		path: '/batches',
 		name: 'Batches',
 		component: () => import('@/pages/Batches.vue'),

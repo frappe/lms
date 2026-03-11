@@ -43,7 +43,23 @@
 					</Button>
 				</router-link>
 
-				<Button v-if="lesson.data.next" @click="switchLesson('next')">
+				<Tooltip
+					v-if="lesson.data.next && shouldBlockNext"
+					:text="__('Complete this lesson to proceed')"
+				>
+					<Button :disabled="true" class="opacity-50 cursor-not-allowed">
+						<template #suffix>
+							<ChevronRight class="w-4 h-4 stroke-1" />
+						</template>
+						<span>
+							{{ __('Next') }}
+						</span>
+					</Button>
+				</Tooltip>
+				<Button
+					v-else-if="lesson.data.next"
+					@click="switchLesson('next')"
+				>
 					<template #suffix>
 						<ChevronRight class="w-4 h-4 stroke-1" />
 					</template>
@@ -66,7 +82,41 @@
 			</div>
 		</header>
 		<div class="grid md:grid-cols-[70%,30%] h-screen">
-			<div v-if="lesson.data.no_preview" class="border-r">
+			<div v-if="lesson.data.chapter_locked" class="border-r">
+				<div class="shadow rounded-md w-3/4 mt-10 mx-auto text-center p-4">
+					<div class="flex items-center justify-center mt-4 space-x-2">
+						<LockKeyholeIcon class="size-4 stroke-2 text-ink-gray-5" />
+						<div class="text-lg font-semibold text-ink-gray-7">
+							{{ __('Chapter not yet available') }}
+						</div>
+					</div>
+					<div class="mt-1 mb-4 text-ink-gray-7">
+						{{
+							__('This chapter will be available from {0}.').format(
+								lesson.data.unlock_date
+							)
+						}}
+					</div>
+				</div>
+			</div>
+			<div v-else-if="lesson.data.lesson_locked" class="border-r">
+				<div class="shadow rounded-md w-3/4 mt-10 mx-auto text-center p-4">
+					<div class="flex items-center justify-center mt-4 space-x-2">
+						<LockKeyholeIcon class="size-4 stroke-2 text-ink-gray-5" />
+						<div class="text-lg font-semibold text-ink-gray-7">
+							{{ __('Complete the previous lesson first') }}
+						</div>
+					</div>
+					<div class="mt-1 mb-4 text-ink-gray-7">
+						{{
+							__('You need to finish "{0}" before accessing this lesson.').format(
+								lesson.data.prev_lesson_title
+							)
+						}}
+					</div>
+				</div>
+			</div>
+			<div v-else-if="lesson.data.no_preview" class="border-r">
 				<div class="shadow rounded-md w-3/4 mt-10 mx-auto text-center p-4">
 					<div class="flex items-center justify-center mt-4 space-x-2">
 						<LockKeyholeIcon class="size-4 stroke-2 text-ink-gray-5" />
@@ -179,7 +229,23 @@
 									</Button>
 								</router-link>
 
-								<Button v-if="lesson.data.next" @click="switchLesson('next')">
+								<Tooltip
+									v-if="lesson.data.next && shouldBlockNext"
+									:text="__('Complete this lesson to proceed')"
+								>
+									<Button :disabled="true" class="opacity-50 cursor-not-allowed">
+										<template #suffix>
+											<ChevronRight class="w-4 h-4 stroke-1" />
+										</template>
+										<span>
+											{{ __('Next') }}
+										</span>
+									</Button>
+								</Tooltip>
+								<Button
+									v-else-if="lesson.data.next"
+									@click="switchLesson('next')"
+								>
 									<template #suffix>
 										<ChevronRight class="w-4 h-4 stroke-1" />
 									</template>
@@ -400,7 +466,12 @@ const sidebarStore = useSidebar()
 const plyrSources = ref([])
 const showInlineMenu = ref(false)
 const currentTab = ref('Notes')
+const lessonComplete = ref(false)
+const videoNinetyPercentReached = ref(false)
+const timerCompleted = ref(false)
 let timerInterval
+let videoListenerElement = null
+let videoListenerHandler = null
 
 const tabs = ref([
 	{
@@ -424,16 +495,44 @@ const props = defineProps({
 	},
 })
 
+const handleVideoNinetyPercent = () => {
+	markProgress()
+}
+
+const onLessonProgressUpdate = (data) => {
+	if (data.course === props.courseName) {
+		lessonProgress.value = data.progress
+	}
+}
+
 onMounted(() => {
-	startTimer()
 	sidebarStore.isSidebarCollapsed = true
 	document.addEventListener('fullscreenchange', attachFullscreenEvent)
-	socket.on('update_lesson_progress', (data) => {
-		if (data.course === props.courseName) {
-			lessonProgress.value = data.progress
-		}
-	})
+	document.addEventListener('lms:video-ninety-percent', handleVideoNinetyPercent)
+	socket.on('update_lesson_progress', onLessonProgressUpdate)
 })
+
+const attachVideoNinetyPercentListener = () => {
+	nextTick(() => {
+		const video = document.querySelector('video')
+		if (!video) return
+
+		let fired = false
+		videoListenerHandler = () => {
+			if (fired) return
+			if (video.duration > 0 && (video.currentTime / video.duration) * 100 >= 90) {
+				fired = true
+				video.removeEventListener('timeupdate', videoListenerHandler)
+				videoListenerHandler = null
+				videoListenerElement = null
+				videoNinetyPercentReached.value = true
+				checkAndMarkProgress()
+			}
+		}
+		videoListenerElement = video
+		video.addEventListener('timeupdate', videoListenerHandler)
+	})
+}
 
 const attachFullscreenEvent = () => {
 	if (document.fullscreenElement) {
@@ -449,8 +548,15 @@ const attachFullscreenEvent = () => {
 
 onBeforeUnmount(() => {
 	document.removeEventListener('fullscreenchange', attachFullscreenEvent)
+	document.removeEventListener('lms:video-ninety-percent', handleVideoNinetyPercent)
+	socket.off('update_lesson_progress', onLessonProgressUpdate)
 	sidebarStore.isSidebarCollapsed = false
 	trackVideoWatchDuration()
+	if (videoListenerElement && videoListenerHandler) {
+		videoListenerElement.removeEventListener('timeupdate', videoListenerHandler)
+		videoListenerHandler = null
+		videoListenerElement = null
+	}
 })
 
 const lesson = createResource({
@@ -483,6 +589,7 @@ const setupLesson = (data) => {
 		})
 	}
 	lessonProgress.value = data.membership?.progress
+	lessonComplete.value = !!data.progress
 	if (data.content) editor.value = renderEditor('editor', data.content)
 	if (
 		data.instructor_content &&
@@ -496,6 +603,8 @@ const setupLesson = (data) => {
 		checkIfDiscussionsAllowed()
 	})
 	checkQuiz()
+	startTimer()
+	attachVideoNinetyPercentListener()
 }
 
 const checkQuiz = () => {
@@ -511,8 +620,9 @@ const checkQuiz = () => {
 }
 
 const renderEditor = (holder, content) => {
-	if (document.getElementById(holder))
-		document.getElementById(holder).innerHTML = ''
+	const el = document.getElementById(holder)
+	if (!el) return null
+	el.innerHTML = ''
 	return new EditorJS({
 		holder: holder,
 		tools: getEditorTools(),
@@ -523,8 +633,26 @@ const renderEditor = (holder, content) => {
 }
 
 const markProgress = () => {
-	if (user.data && lesson.data && !lesson.data.progress) {
+	// Guard on lessonComplete (not lesson.data.progress) so that once the
+	// backend confirms completion in onSuccess we stop submitting.
+	if (user.data && lesson.data && !lessonComplete.value) {
 		progress.submit()
+	}
+}
+
+// Gate: call markProgress() only when all required conditions are met.
+// If the lesson contains an HTML5 <video>, both the timer and 90% video
+// watch must be satisfied. If there is no <video>, the timer alone suffices.
+const checkAndMarkProgress = () => {
+	const video = document.querySelector('video')
+	if (video) {
+		if (timerCompleted.value && videoNinetyPercentReached.value) {
+			markProgress()
+		}
+	} else {
+		if (timerCompleted.value) {
+			markProgress()
+		}
 	}
 }
 
@@ -538,6 +666,7 @@ const progress = createResource({
 	},
 	onSuccess(data) {
 		lessonProgress.value = data
+		lessonComplete.value = true
 	},
 })
 
@@ -578,6 +707,13 @@ const breadcrumbs = computed(() => {
 	return items
 })
 
+const shouldBlockNext = computed(() => {
+	if (!lesson.data?.membership) return false
+	if (user.data?.is_moderator || user.data?.is_instructor || user.data?.is_evaluator)
+		return false
+	return !lessonComplete.value
+})
+
 const switchLesson = (direction) => {
 	trackVideoWatchDuration()
 	let lessonIndex =
@@ -605,7 +741,6 @@ watch(
 			plyrSources.value = []
 			await nextTick()
 			resetLessonState(newChapterNumber, newLessonNumber)
-			startTimer()
 			updateNotes()
 			checkIfDiscussionsAllowed()
 			checkQuiz()
@@ -617,12 +752,20 @@ const resetLessonState = (newChapterNumber, newLessonNumber) => {
 	editor.value = null
 	instructorEditor.value = null
 	allowDiscussions.value = false
+	lessonComplete.value = false
 	lesson.submit({
 		chapter: newChapterNumber,
 		lesson: newLessonNumber,
 	})
 	clearInterval(timerInterval)
 	timer.value = 0
+	if (videoListenerElement && videoListenerHandler) {
+		videoListenerElement.removeEventListener('timeupdate', videoListenerHandler)
+		videoListenerHandler = null
+		videoListenerElement = null
+	}
+	videoNinetyPercentReached.value = false
+	timerCompleted.value = false
 }
 
 const trackVideoWatchDuration = () => {
@@ -676,7 +819,7 @@ watch(
 		setupLesson(data)
 		getPlyrSource()
 		updateNotes()
-		if (data.icon == 'icon-youtube') clearInterval(timerInterval)
+		if (data.icon == 'icon-youtube' && data.youtube) clearInterval(timerInterval)
 	}
 )
 
@@ -702,14 +845,21 @@ const updateVideoWatchDuration = () => {
 
 const updatePlyrVideoTime = (video) => {
 	plyrSources.value.forEach((plyrSource) => {
-		let lastWatchedTime = 0
-		let isSeeking = false
-
 		plyrSource.on('ready', () => {
 			if (plyrSource.source === video.source) {
 				plyrSource.embed.seekTo(video.watch_time, true)
 				plyrSource.play()
 				plyrSource.pause()
+			}
+		})
+
+		plyrSource.on('timeupdate', () => {
+			if (
+				!lessonComplete.value &&
+				plyrSource.duration > 0 &&
+				plyrSource.currentTime / plyrSource.duration >= 0.9
+			) {
+				markProgress()
 			}
 		})
 	})
@@ -735,11 +885,20 @@ const updateVideoTime = (video) => {
 
 const startTimer = () => {
 	if (!lesson.data?.membership) return
-	let timerInterval = setInterval(() => {
+	if (lessonComplete.value) return
+	// Only skip the timer for lessons that use the dedicated YouTube URL field
+	// (lesson.data.youtube is set). EditorJS content lessons whose embed block
+	// happens to have service "youtube" share the same icon but must still use
+	// the timer — their YouTube iframe is not a native <video> element, so
+	// checkAndMarkProgress() will correctly take the no-video branch.
+	if (lesson.data?.icon === 'icon-youtube' && lesson.data?.youtube) return
+	const requiredSeconds = (lesson.data?.completion_time_minutes || 1) * 60
+	timerInterval = setInterval(() => {
 		timer.value++
-		if (timer.value == 30) {
+		if (timer.value >= requiredSeconds) {
 			clearInterval(timerInterval)
-			markProgress()
+			timerCompleted.value = true
+			checkAndMarkProgress()
 		}
 	}, 1000)
 }
