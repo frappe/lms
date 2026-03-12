@@ -145,6 +145,7 @@ def process_results(results: list, quiz_details: dict):
 	is_open_ended = False
 
 	for result in results:
+		print(result)
 		question_details = frappe.db.get_value(
 			"LMS Quiz Question",
 			{"parent": quiz_details.name, "question": result["question_name"]},
@@ -170,7 +171,7 @@ def process_results(results: list, quiz_details: dict):
 			is_open_ended = True
 			result["is_correct"] = 0
 			result["answer"] = re.sub(
-				r'<img[^>]*src\s*=\s*["\'](?=data:)(.*?)["\']', _save_file, result["answer"]
+				r'<img[^>]*src\s*=\s*["\'](?=data:)(.*?)["\']', _save_file, result["answer"][0]
 			)
 
 	return {
@@ -263,10 +264,12 @@ def create_submission(quiz: str, results: list, score_out_of: int, passing_perce
 
 
 def save_progress_after_quiz(quiz_details: dict, percentage: float):
-	if percentage >= quiz_details.passing_percentage and quiz_details.lesson and quiz_details.course:
-		save_progress(quiz_details.lesson, quiz_details.course)
-	elif not quiz_details.passing_percentage:
-		save_progress(quiz_details.lesson, quiz_details.course)
+	if not quiz_details.lesson or not quiz_details.course:
+		return
+
+	if quiz_details.passing_percentage and percentage < quiz_details.passing_percentage:
+		return
+	save_progress(quiz_details.lesson, quiz_details.course)
 
 
 @frappe.whitelist()
