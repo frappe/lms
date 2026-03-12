@@ -1429,19 +1429,41 @@ def save_role(user: str, role: str, value: int):
 	if role not in LMS_ROLES:
 		frappe.throw(_("You do not have permission to modify this role."), frappe.PermissionError)
 
+	if role == "Batch Evaluator":
+		return save_evaluator_role(user, value)
+
 	if cint(value):
-		doc = frappe.get_doc(
-			{
-				"doctype": "Has Role",
-				"parent": user,
-				"role": role,
-				"parenttype": "User",
-				"parentfield": "roles",
-			}
-		)
-		doc.save(ignore_permissions=True)
+		if not frappe.db.exists("Has Role", {"parent": user, "role": role}):
+			doc = frappe.new_doc("Has Role")
+			doc.parent = user
+			doc.parenttype = "User"
+			doc.parentfield = "roles"
+			doc.role = role
+			doc.save(ignore_permissions=True)
 	else:
 		frappe.db.delete("Has Role", {"parent": user, "role": role})
+	frappe.clear_cache(user=user)
+	return True
+
+
+def save_evaluator_role(user: str, value: int):
+	frappe.only_for("Moderator")
+	if cint(value):
+		if not frappe.db.exists("Has Role", {"parent": user, "role": "Batch Evaluator"}):
+			doc = frappe.new_doc("Has Role")
+			doc.parent = user
+			doc.parenttype = "User"
+			doc.parentfield = "roles"
+			doc.role = "Batch Evaluator"
+			doc.save(ignore_permissions=True)
+		if not frappe.db.exists("Course Evaluator", {"evaluator": user}):
+			doc = frappe.new_doc("Course Evaluator")
+			doc.evaluator = user
+			doc.save(ignore_permissions=True)
+	else:
+		frappe.db.delete("Has Role", {"parent": user, "role": "Batch Evaluator"})
+		if frappe.db.exists("Course Evaluator", {"evaluator": user}):
+			frappe.db.delete("Course Evaluator", {"evaluator": user})
 	frappe.clear_cache(user=user)
 	return True
 
