@@ -19,30 +19,16 @@
 						{{ __('saving...') }}
 					</span>
 				</div>
-				<Button @click="() => showCategoryForm()">
+				<Button @click="showForm = true">
 					<template #prefix>
-						<Plus v-if="!showForm" class="h-3 w-3 stroke-1.5" />
-						<X v-else class="h-3 w-3 stroke-1.5" />
+						<Plus class="h-3 w-3 stroke-1.5" />
 					</template>
-					{{ showForm ? __('Close') : __('New') }}
+					{{ __('New') }}
 				</Button>
 			</div>
 		</div>
 
-		<div
-			v-if="showForm"
-			class="flex items-center justify-between my-4 space-x-2"
-		>
-			<FormControl
-				ref="categoryInput"
-				v-model="category"
-				:placeholder="__('Category Name')"
-				class="flex-1"
-			/>
-			<Button @click="addCategory()" variant="subtle">
-				{{ __('Add') }}
-			</Button>
-		</div>
+
 
 		<div class="overflow-y-scroll">
 			<div class="divide-y divide-outline-gray-modals space-y-2">
@@ -80,6 +66,29 @@
 				</div>
 			</div>
 		</div>
+
+		<Dialog
+			v-model="showForm"
+			:options="{
+				title: __('Create a Category'),
+				size: 'sm',				
+			}"
+		>
+			<template #body-content>
+				<FormControl
+					v-model="category"
+					:label="__('Category Name')"
+					type="text"
+					autocomplete="off"					
+					@keydown.enter="addCategory()"
+				/>
+			</template>
+			 <template #actions>
+				<div class="flex justify-end">
+					<Button variant="solid" :loading="saving" @click="addCategory()">Save</Button>
+				</div>
+			</template>
+		</Dialog>
 	</div>
 </template>
 <script setup>
@@ -87,6 +96,7 @@ import {
 	Button,
 	FormControl,
 	LoadingIndicator,
+	Dialog,
 	createListResource,
 	createResource,
 	toast,
@@ -121,6 +131,7 @@ const categories = createListResource({
 })
 
 const addCategory = () => {
+	saving.value = true
 	categories.insert.submit(
 		{
 			category: category.value,
@@ -128,23 +139,19 @@ const addCategory = () => {
 		{
 			onSuccess(data) {
 				categories.reload()
-				category.value = null
+				category.value = ''
+				saving.value = false
 				showForm.value = false
-				toast.success(__('Category added successfully'))
+				toast.success(__('Category created successfully'))
 			},
 			onError(err) {
-				toast.error(__(cleanError(err.messages[0]) || 'Unable to add category'))
+				saving.value = false
+				toast.error(__(cleanError('Error creating category: {0}', err.message)))
 			},
 		}
 	)
 }
 
-const showCategoryForm = () => {
-	showForm.value = !showForm.value
-	setTimeout(() => {
-		categoryInput.value.$el.querySelector('input').focus()
-	}, 0)
-}
 
 const updateCategory = createResource({
 	url: 'frappe.client.rename_doc',
