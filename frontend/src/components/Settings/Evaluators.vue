@@ -21,6 +21,7 @@
 
 		<div class="mt-8 pb-5">
 			<FormControl
+				v-if="evaluators.data?.length > 0"
 				v-model="search"
 				:placeholder="__('Search')"
 				type="text"
