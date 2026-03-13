@@ -426,7 +426,15 @@ import {
 	FormControl,
 	toast,
 } from 'frappe-ui'
-import { computed, inject, reactive, ref, watch } from 'vue'
+import {
+	computed,
+	inject,
+	onMounted,
+	onUnmounted,
+	reactive,
+	ref,
+	watch,
+} from 'vue'
 import {
 	CheckCircle,
 	ChevronLeft,
@@ -463,6 +471,28 @@ const props = defineProps({
 		default: () => {},
 	},
 })
+
+onMounted(() => {
+	window.addEventListener('beforeunload', handleBeforeUnload)
+	window.addEventListener('unload', handleUnload)
+})
+
+onUnmounted(() => {
+	window.removeEventListener('beforeunload', handleBeforeUnload)
+	window.removeEventListener('unload', handleUnload)
+})
+
+const handleBeforeUnload = (event) => {
+	if (activeQuestion.value > 0 && !quizSubmission.data) {
+		event.preventDefault()
+		return ''
+	}
+}
+
+const handleUnload = (event) => {
+	console.log('unload event triggered')
+	submitQuiz()
+}
 
 const quiz = createResource({
 	url: 'frappe.client.get',

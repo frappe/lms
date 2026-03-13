@@ -145,14 +145,12 @@ def process_results(results: list, quiz_details: dict):
 	is_open_ended = False
 
 	for result in results:
-		print(result)
 		question_details = frappe.db.get_value(
 			"LMS Quiz Question",
 			{"parent": quiz_details.name, "question": result["question_name"]},
 			["question", "marks", "question_detail", "type"],
 			as_dict=1,
 		)
-
 		result["question_name"] = question_details.question
 		result["question"] = question_details.question_detail
 		result["marks_out_of"] = question_details.marks
@@ -166,6 +164,7 @@ def process_results(results: list, quiz_details: dict):
 				result["marks"] = -quiz_details.marks_to_cut if quiz_details.enable_negative_marking else 0
 
 			score += result["marks"]
+			result["is_correct"] = 1 if correct else 0
 
 		else:
 			is_open_ended = True
