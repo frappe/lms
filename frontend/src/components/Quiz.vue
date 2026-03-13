@@ -16,6 +16,13 @@
 				</li>
 				<li>
 					{{
+						__(
+							'Do not refresh the page or close this window. If you do, the quiz will be submitted automatically.'
+						)
+					}}
+				</li>
+				<li>
+					{{
 						__('This quiz consists of {0} questions.').format(questions.length)
 					}}
 				</li>
@@ -473,25 +480,37 @@ const props = defineProps({
 })
 
 onMounted(() => {
+	window.addEventListener('pagehide', handlePageHide)
 	window.addEventListener('beforeunload', handleBeforeUnload)
-	window.addEventListener('unload', handleUnload)
 })
 
 onUnmounted(() => {
+	window.removeEventListener('pagehide', handlePageHide)
 	window.removeEventListener('beforeunload', handleBeforeUnload)
-	window.removeEventListener('unload', handleUnload)
 })
 
-const handleBeforeUnload = (event) => {
+const handlePageHide = () => {
 	if (activeQuestion.value > 0 && !quizSubmission.data) {
-		event.preventDefault()
-		return ''
+		const params = new URLSearchParams({
+			quiz: quiz.data.name,
+			results: localStorage.getItem(quiz.data.title),
+		})
+
+		navigator.sendBeacon(
+			'/api/method/lms.lms.doctype.lms_quiz.lms_quiz.submit_quiz?' +
+				params.toString()
+		)
 	}
 }
 
-const handleUnload = (event) => {
-	console.log('unload event triggered')
-	submitQuiz()
+const handleBeforeUnload = (event) => {
+	if (activeQuestion.value > 0 && !quizSubmission.data) {
+		if (attemptedQuestions.value.length) {
+			switchQuestion(activeQuestion.value)
+		}
+		event.preventDefault()
+		event.returnValue = ''
+	}
 }
 
 const quiz = createResource({
