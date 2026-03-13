@@ -83,9 +83,15 @@
 					@keydown.enter="addCategory()"
 				/>
 			</template>
-			 <template #actions>
-				<div class="flex justify-end">
-					<Button variant="solid" :loading="saving" @click="addCategory()">Save</Button>
+			<template #actions>
+				<div class="flex">
+					<Button
+						class="w-full"
+						variant="solid"
+						:loading="saving"
+						:label="saving ? __('Saving...') : __('Save')"
+						@click="addCategory()"
+					/>
 				</div>
 			</template>
 		</Dialog>
