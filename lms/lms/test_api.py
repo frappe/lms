@@ -47,8 +47,8 @@ class TestLMSAPI(BaseTestUtils):
 		for quiz in progress.quizzes:
 			self.assertEqual(quiz.quiz, self.quiz.name)
 			self.assertEqual(quiz.quiz_title, self.quiz.title)
-			self.assertEqual(quiz.score, 12)
-			self.assertEqual(quiz.percentage, 80)
+			self.assertEqual(quiz.score, 10)
+			self.assertEqual(quiz.percentage, 66)
 
 		self.assertEqual(len(progress.assignments), 1)
 		for assignment in progress.assignments:
@@ -61,3 +61,25 @@ class TestLMSAPI(BaseTestUtils):
 			self.assertEqual(exercise.exercise, self.programming_exercise.name)
 			self.assertEqual(exercise.exercise_title, self.programming_exercise.title)
 			self.assertEqual(exercise.status, "Passed")
+
+	def test_quiz_submission(self):
+		submission = frappe.get_all(
+			"LMS Quiz Submission", filters={"quiz": self.quiz.name, "member": self.student1.name}
+		)
+		self.assertEqual(len(submission), 1)
+		submission = submission[0]
+		submission = frappe.get_doc("LMS Quiz Submission", submission.name)
+
+		self.assertEqual(submission.score, 10)
+		self.assertEqual(submission.score_out_of, 15)
+		self.assertEqual(submission.percentage, 66)
+		self.assertEqual(submission.passing_percentage, 70)
+		self.assertEqual(len(submission.result), 3)
+		for index, result in enumerate(submission.result):
+			self.assertEqual(result.question_name, self.quiz.questions[index].question)
+			self.assertEqual(
+				result.answer,
+				self.questions[index].option_1 if index % 2 == 0 else self.questions[index].option_2,
+			)
+			self.assertEqual(result.is_correct, 1 if index % 2 == 0 else 0)
+			self.assertEqual(result.marks, 5 if index % 2 == 0 else 0)

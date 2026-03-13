@@ -189,7 +189,6 @@ import {
 	Plus,
 	SquareCode,
 	Trash2,
-	Notebook,
 } from 'lucide-vue-next'
 import { useRoute, useRouter } from 'vue-router'
 import ChapterModal from '@/components/Modals/ChapterModal.vue'
