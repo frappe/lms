@@ -202,7 +202,6 @@ def get_lesson_icon(body: str, content: str):
 				"vimeo",
 				"cloudflareStream",
 				"bunnyStream",
-				"legacyBunnyStream",
 			]:
 				return "icon-youtube"
 
