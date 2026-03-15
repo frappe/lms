@@ -28,8 +28,6 @@
 			</div>
 		</div>
 
-
-
 		<div class="overflow-y-scroll">
 			<div class="divide-y divide-outline-gray-modals space-y-2">
 				<div
@@ -71,7 +69,7 @@
 			v-model="showForm"
 			:options="{
 				title: __('Create a Category'),
-				size: 'sm',				
+				size: 'sm',
 			}"
 		>
 			<template #body-content>
@@ -79,7 +77,7 @@
 					v-model="category"
 					:label="__('Category Name')"
 					type="text"
-					autocomplete="off"					
+					autocomplete="off"
 					@keydown.enter="addCategory()"
 				/>
 			</template>
@@ -157,7 +155,6 @@ const addCategory = () => {
 		}
 	)
 }
-
 
 const updateCategory = createResource({
 	url: 'frappe.client.rename_doc',
