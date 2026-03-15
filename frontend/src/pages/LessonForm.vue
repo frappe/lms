@@ -485,6 +485,17 @@ const breadcrumbs = computed(() => {
 		},
 	]
 
+	// Chapter: use API title when available, else fallback to "Chapter N"
+	const chapterLabel =
+		lessonDetails?.data?.chapter?.title ||
+		( props.chapterNumber ? `${__('Chapter')} ${props.chapterNumber}` : null )
+	if (chapterLabel) {
+		crumbs.push({
+			label: chapterLabel,
+			route: { name: 'CourseDetail', params: { courseName: props.courseName } },
+		})
+	}
+
 	if (lessonDetails?.data?.lesson) {
 		crumbs.push({
 			label: lessonDetails.data.lesson.title,
