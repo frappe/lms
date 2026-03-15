@@ -1814,9 +1814,14 @@ def calculate_discount_amount(base_amount: float, coupon: dict) -> float:
 @frappe.whitelist()
 def get_lesson_creation_details(course: str, chapter: int, lesson: int) -> dict:
 	frappe.only_for(["Moderator", "Course Creator"])
-	chapter_name = frappe.db.get_value("Chapter Reference", {"parent": course, "idx": chapter}, "chapter")
-	lesson_name = frappe.db.get_value("Lesson Reference", {"parent": chapter_name, "idx": lesson}, "lesson")
+	# Coerce to int (whitelist may pass strings from frontend route params)
+	chapter = cint(chapter)
+	lesson = cint(lesson)
 
+	chapter_name = frappe.db.get_value("Chapter Reference", {"parent": course, "idx": chapter}, "chapter")
+	lesson_name = frappe.db.get_value("Lesson Reference", {"parent": chapter_name, "idx": lesson}, "lesson") if chapter_name else None
+
+	lesson_details = None
 	if lesson_name:
 		lesson_details = frappe.db.get_value(
 			"Course Lesson",
@@ -1835,10 +1840,14 @@ def get_lesson_creation_details(course: str, chapter: int, lesson: int) -> dict:
 			as_dict=1,
 		)
 
+	chapter_info = None
+	if chapter_name:
+		chapter_info = frappe.db.get_value("Course Chapter", chapter_name, ["title", "name"], as_dict=True)
+
 	return {
 		"course_title": frappe.db.get_value("LMS Course", course, "title"),
-		"chapter": frappe.db.get_value("Course Chapter", chapter_name, ["title", "name"], as_dict=True),
-		"lesson": lesson_details if lesson_name else None,
+		"chapter": chapter_info,
+		"lesson": lesson_details,
 	}
 
 

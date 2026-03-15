@@ -566,6 +566,12 @@ const breadcrumbs = computed(() => {
 		label: lesson?.data?.course_title,
 		route: { name: 'CourseDetail', params: { courseName: props.courseName } },
 	})
+	if (lesson?.data?.chapter_title) {
+		crumbs.push({
+			label: lesson.data.chapter_title,
+			route: { name: 'CourseDetail', params: { courseName: props.courseName } },
+		})
+	}
 	crumbs.push({
 		label: lesson?.data?.title,
 		route: {
