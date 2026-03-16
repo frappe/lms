@@ -114,11 +114,12 @@
 					<div class="grid grid-cols-2 gap-5">
 						<MultiSelect
 							v-model="instructors"
-							doctype="Course Evaluator"
+							doctype="User"
 							:label="__('Instructors')"
 							:required="true"
-							:onCreate="(close) => openSettings('Evaluators', close)"
-							:filters="{ ignore_user_type: 1 }"
+							:onCreate="() => (showMemberModal = true)"
+							url="lms.lms.api.search_users_by_role"
+							:searchParams="{ roles: JSON.stringify(['Batch Evaluator']) }"
 						/>
 						<FormControl
 							v-model="batchDetail.doc.description"
@@ -274,6 +275,11 @@
 			</div>
 		</div>
 	</div>
+	<NewMemberModal
+		v-model="showMemberModal"
+		:defaultRoles="['batch_evaluator']"
+		@created="onInstructorCreated"
+	/>
 </template>
 <script setup>
 import {
@@ -310,6 +316,7 @@ import MultiSelect from '@/components/Controls/MultiSelect.vue'
 import Link from '@/components/Controls/Link.vue'
 import BatchCourses from '@/pages/Batches/components/BatchCourses.vue'
 import Assessments from '@/pages/Batches/components/Assessments.vue'
+import NewMemberModal from '@/components/Modals/NewMemberModal.vue'
 
 const router = useRouter()
 const user = inject('$user')
@@ -321,6 +328,11 @@ const { capture } = useTelemetry()
 const { $dialog } = app.appContext.config.globalProperties
 const isDirty = ref(false)
 const originalDoc = ref(null)
+const showMemberModal = ref(false)
+
+const onInstructorCreated = (user) => {
+	instructors.value = [...instructors.value, user.name]
+}
 
 const meta = reactive({
 	description: '',

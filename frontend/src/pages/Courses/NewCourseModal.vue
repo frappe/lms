@@ -30,8 +30,11 @@
 						v-model="course.instructors"
 						doctype="User"
 						:label="__('Instructors')"
-						:filters="{ ignore_user_type: 1 }"
-						:onCreate="(close: () => void) => openSettings('Members', close)"
+						url="lms.lms.api.search_users_by_role"
+						:searchParams="{
+							roles: JSON.stringify(['Course Creator', 'Batch Evaluator']),
+						}"
+						:onCreate="() => (showMemberModal = true)"
 						:required="true"
 					/>
 					<Uploader
@@ -72,6 +75,11 @@
 			</div>
 		</template>
 	</Dialog>
+	<NewMemberModal
+		v-model="showMemberModal"
+		:defaultRoles="['course_creator']"
+		@created="onInstructorCreated"
+	/>
 </template>
 <script setup lang="ts">
 import { Button, Dialog, FormControl, TextEditor, toast } from 'frappe-ui'
@@ -82,6 +90,7 @@ import { cleanError, openSettings, sanitizeHTML, escapeHTML } from '@/utils'
 import Link from '@/components/Controls/Link.vue'
 import MultiSelect from '@/components/Controls/MultiSelect.vue'
 import Uploader from '@/components/Controls/Uploader.vue'
+import NewMemberModal from '@/components/Modals/NewMemberModal.vue'
 
 const show = defineModel<boolean>({ required: true, default: false })
 const router = useRouter()
@@ -89,6 +98,7 @@ const { capture } = useTelemetry()
 const { updateOnboardingStep } = useOnboarding('learning')
 const user = inject<any>('$user')
 const courseCreated = ref(false)
+const showMemberModal = ref(false)
 
 const props = defineProps<{
 	courses: any
@@ -111,6 +121,10 @@ const course = ref<Course>({
 	category: null,
 	image: null,
 })
+
+const onInstructorCreated = (user: any) => {
+	course.value.instructors = [...course.value.instructors, user.name]
+}
 
 const validateFields = () => {
 	course.value.description = sanitizeHTML(course.value.description)

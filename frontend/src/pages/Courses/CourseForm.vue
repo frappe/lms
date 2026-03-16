@@ -30,8 +30,16 @@
 								v-model="instructors"
 								doctype="User"
 								:label="__('Instructors')"
-								:filters="{ ignore_user_type: 1 }"
-								:onCreate="(close) => openSettings('Members', close)"
+								url="lms.lms.api.search_users_by_role"
+								:searchParams="{
+									roles: JSON.stringify(['Course Creator', 'Batch Evaluator']),
+								}"
+								:onCreate="
+									() => {
+										memberModalRoles = ['course_creator']
+										showMemberModal = true
+									}
+								"
 								:required="true"
 								@update:modelValue="makeFormDirty()"
 							/>
@@ -250,7 +258,10 @@
 									:label="__('Evaluator')"
 									:required="courseResource.doc.paid_certificate"
 									:onCreate="
-										(value, close) => openSettings('Evaluators', close)
+										() => {
+											memberModalRoles = ['batch_evaluator']
+											showMemberModal = true
+										}
 									"
 									@update:modelValue="makeFormDirty()"
 								/>
@@ -298,6 +309,11 @@
 			</div>
 		</div>
 	</div>
+	<NewMemberModal
+		v-model="showMemberModal"
+		:defaultRoles="memberModalRoles"
+		@created="onMemberCreated"
+	/>
 </template>
 <script setup>
 import {
@@ -332,6 +348,7 @@ import CourseOutline from '@/components/CourseOutline.vue'
 import MultiSelect from '@/components/Controls/MultiSelect.vue'
 import ColorSwatches from '@/components/Controls/ColorSwatches.vue'
 import Uploader from '@/components/Controls/Uploader.vue'
+import NewMemberModal from '@/components/Modals/NewMemberModal.vue'
 
 const user = inject('$user')
 const newTag = ref('')
@@ -342,6 +359,8 @@ const related_courses = ref([])
 const app = getCurrentInstance()
 const { $dialog } = app.appContext.config.globalProperties
 const isDirty = ref(false)
+const showMemberModal = ref(false)
+const memberModalRoles = ref(['course_creator'])
 
 const props = defineProps({
 	course: {
@@ -408,6 +427,15 @@ const updateCourseData = () => {
 const submitCourse = () => {
 	validateFields()
 	updateCourse()
+}
+
+const onMemberCreated = (user) => {
+	if (memberModalRoles.value.includes('batch_evaluator')) {
+		courseResource.doc.evaluator = user.name
+		makeFormDirty()
+	} else {
+		instructors.value = [...instructors.value, user.name]
+	}
 }
 
 const validateFields = () => {
