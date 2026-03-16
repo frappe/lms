@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
-"POT-Creation-Date: 2026-03-09 08:28+0000\n"
-"PO-Revision-Date: 2026-03-11 00:24\n"
+"POT-Creation-Date: 2026-03-13 16:10+0000\n"
+"PO-Revision-Date: 2026-03-16 13:08\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Russian\n"
 "MIME-Version: 1.0\n"
@@ -82,7 +82,7 @@ msgstr "<span class=\"h4\"><b>Мастер</b></span>"
 msgid "<span style=\"font-size: 18px;\"><b>Statistics</b></span>"
 msgstr "<span style=\"font-size: 18px;\"><b>Статистика</b></span>"
 
-#: lms/lms/doctype/lms_course/lms_course.py:72
+#: lms/lms/doctype/lms_course/lms_course.py:74
 msgid "A course cannot have both paid certificate and certificate of completion."
 msgstr "Курс не может иметь как платного сертификата, так и аттестата."
 
@@ -94,7 +94,7 @@ msgstr ""
 msgid "A new batch has been published on "
 msgstr ""
 
-#: lms/lms/doctype/lms_course/lms_course.py:206
+#: lms/lms/doctype/lms_course/lms_course.py:208
 msgid "A new course '{0}' has been published that might interest you. Check it out!"
 msgstr ""
 
@@ -103,11 +103,11 @@ msgid "A new course has been published on "
 msgstr ""
 
 #: lms/lms/doctype/lms_batch/lms_batch.py:179
-#: lms/lms/doctype/lms_course/lms_course.py:170
+#: lms/lms/doctype/lms_course/lms_course.py:172
 msgid "A new course has been published on {0}"
 msgstr ""
 
-#: frontend/src/pages/Courses/CourseForm.vue:136
+#: frontend/src/pages/Courses/CourseForm.vue:143
 msgid "A one line introduction to the course that appears on the course card"
 msgstr "Однострочное введение в курс на карточке курса"
 
@@ -115,7 +115,7 @@ msgstr "Однострочное введение в курс на карточ�
 msgid "About"
 msgstr "О"
 
-#: frontend/src/pages/Courses/CourseForm.vue:128
+#: frontend/src/pages/Courses/CourseForm.vue:135
 msgid "About the Course"
 msgstr "О курсе"
 
@@ -182,6 +182,10 @@ msgstr "Добавить оценщика"
 msgid "Add Lesson"
 msgstr "Добавить урок"
 
+#: frontend/src/pages/QuizForm.vue:197
+msgid "Add Question"
+msgstr ""
+
 #: frontend/src/components/VideoBlock.vue:121
 msgid "Add Quiz to Video"
 msgstr "Добавить викторину в видео"
@@ -219,7 +223,7 @@ msgstr "Добавить главу"
 msgid "Add a course to the batch"
 msgstr ""
 
-#: frontend/src/pages/Courses/CourseForm.vue:41
+#: frontend/src/pages/Courses/CourseForm.vue:44
 msgid "Add a keyword and then press enter"
 msgstr "Добавьте ключевое слово и нажмите Ввод"
 
@@ -230,11 +234,6 @@ msgstr "Добавить урок"
 #: frontend/src/components/Settings/Members.vue:88
 msgid "Add a new member"
 msgstr "Добавить нового участника"
-
-#: frontend/src/components/Modals/Question.vue:167
-#: frontend/src/pages/QuizForm.vue:200
-msgid "Add a new question"
-msgstr "Добавить новый вопрос"
 
 #: frontend/src/components/Sidebar/AppSidebar.vue:598
 msgid "Add a program"
@@ -263,6 +262,10 @@ msgstr "Добавьте хотя бы один возможный ответ н
 #: frontend/src/components/Sidebar/AppSidebar.vue:547
 msgid "Add courses to your batch"
 msgstr "Добавить курсы к вашей партии"
+
+#: frontend/src/components/Modals/Question.vue:164
+msgid "Add new question"
+msgstr ""
 
 #: frontend/src/components/Modals/QuizInVideo.vue:5
 msgid "Add quiz to this video"
@@ -369,7 +372,7 @@ msgstr "Янтарный"
 #: frontend/src/components/Settings/Transactions/TransactionDetails.vue:99
 #: frontend/src/components/Settings/Transactions/TransactionList.vue:188
 #: frontend/src/pages/Batches/BatchForm.vue:228
-#: frontend/src/pages/Courses/CourseForm.vue:224
+#: frontend/src/pages/Courses/CourseForm.vue:231
 #: lms/lms/doctype/lms_batch/lms_batch.json
 #: lms/lms/doctype/lms_course/lms_course.json
 #: lms/lms/doctype/lms_payment/lms_payment.json
@@ -387,11 +390,11 @@ msgstr "Сумма"
 msgid "Amount and currency are required for paid batches."
 msgstr "Сумма и валюта необходимы для выплаченных партий."
 
-#: lms/lms/doctype/lms_course/lms_course.py:85
+#: lms/lms/doctype/lms_course/lms_course.py:87
 msgid "Amount and currency are required for paid certificates."
 msgstr "Для оплаты сертификатов требуется сумма и валюта."
 
-#: lms/lms/doctype/lms_course/lms_course.py:82
+#: lms/lms/doctype/lms_course/lms_course.py:84
 msgid "Amount and currency are required for paid courses."
 msgstr "Сумма и валюта необходимы для оплаченных курсов."
 
@@ -488,6 +491,10 @@ msgstr "Архивировано"
 msgid "Are you sure you want to cancel this evaluation? This action cannot be undone."
 msgstr "Вы уверены, что хотите отменить эту оценку? Это действие нельзя отменить."
 
+#: frontend/src/components/Sidebar/UserDropdown.vue:254
+msgid "Are you sure you want to clear the demo data? This would delete the course \"A guide  to Frappe Learning\" along with all its associated data. This action cannot be undone."
+msgstr ""
+
 #: frontend/src/pages/Programs/ProgramForm.vue:562
 msgid "Are you sure you want to delete this program? This action cannot be undone."
 msgstr "Вы уверены, что хотите удалить эту программу? Это действие не может быть отменено."
@@ -496,9 +503,13 @@ msgstr "Вы уверены, что хотите удалить эту прог�
 msgid "Are you sure you want to enroll?"
 msgstr "Вы уверены, что хотите зарегистрироваться?"
 
-#: frontend/src/components/Sidebar/UserDropdown.vue:184
+#: frontend/src/components/Sidebar/UserDropdown.vue:197
 msgid "Are you sure you want to login to your Frappe Cloud dashboard?"
 msgstr "Вы уверены, что хотите войти в панель управления Frappe?"
+
+#: frontend/src/components/Quiz.vue:378
+msgid "Are you sure you want to submit the quiz?"
+msgstr ""
 
 #: frontend/src/pages/Batches/components/BatchDashboard.vue:11
 msgid "As a part of this batch's curriculum you will have to complete the following courses and assessments."
@@ -629,7 +640,7 @@ msgstr "Задание появится в конце урока."
 #: frontend/src/components/Settings/Badges.vue:163
 #: frontend/src/components/Sidebar/AppSidebar.vue:605
 #: frontend/src/pages/Assignments.vue:203
-#: frontend/src/pages/Assignments.vue:210 lms/www/_lms.py:275
+#: frontend/src/pages/Assignments.vue:210 lms/www/_lms.py:276
 msgid "Assignments"
 msgstr "Задания"
 
@@ -644,6 +655,10 @@ msgstr "Для этого вопроса должен быть верным хо
 #: lms/lms/doctype/lms_programming_exercise/lms_programming_exercise.py:15
 msgid "At least one test case is required for the programming exercise."
 msgstr "Для упражнения по программированию требуется как минимум один тестовый пример."
+
+#: frontend/src/components/Quiz.vue:405
+msgid "Attempted Questions"
+msgstr ""
 
 #: frontend/src/components/Modals/LiveClassAttendance.vue:5
 msgid "Attendance for Class - {0}"
@@ -673,7 +688,7 @@ msgstr "Разрешить доступ к Google Календарю"
 msgid "Auto Recording"
 msgstr "Авто. запись"
 
-#: frontend/src/pages/ProfileEvaluator.vue:241
+#: frontend/src/pages/ProfileEvaluator.vue:246
 msgid "Availability updated successfully"
 msgstr "Доступность успешно обновлена"
 
@@ -767,7 +782,6 @@ msgstr ""
 #. Label of the batch_name (Link) field in DocType 'LMS Certificate'
 #. Label of the batch_name (Link) field in DocType 'LMS Certificate Request'
 #. Label of the batch_name (Link) field in DocType 'LMS Live Class'
-#. Label of a Workspace Sidebar Item
 #: frontend/src/components/Modals/Event.vue:35
 #: frontend/src/components/Settings/BadgeForm.vue:195
 #: frontend/src/components/Settings/Badges.vue:200
@@ -779,7 +793,6 @@ msgstr ""
 #: lms/lms/doctype/lms_certificate/lms_certificate.json
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 #: lms/lms/doctype/lms_live_class/lms_live_class.json
-#: lms/workspace_sidebar/lms.json
 msgid "Batch"
 msgstr "Пакет"
 
@@ -796,7 +809,7 @@ msgstr "Группа курса"
 
 #. Label of the batch_details (Text Editor) field in DocType 'LMS Batch'
 #: frontend/src/pages/Batches/BatchForm.vue:134
-#: frontend/src/pages/Batches/components/NewBatchModal.vue:93
+#: frontend/src/pages/Batches/components/NewBatchModal.vue:95
 #: lms/lms/doctype/lms_batch/lms_batch.json
 #: lms/templates/emails/batch_confirmation.html:26
 msgid "Batch Details"
@@ -811,10 +824,8 @@ msgstr "Подробности группы Необработанные"
 msgid "Batch End Date"
 msgstr "Срок годности партии"
 
-#. Label of a Workspace Sidebar Item
 #: frontend/src/components/Settings/BadgeForm.vue:204
 #: frontend/src/components/Settings/Badges.vue:202
-#: lms/workspace_sidebar/lms.json
 msgid "Batch Enrollment"
 msgstr "Пакетная запись LMS"
 
@@ -875,7 +886,7 @@ msgstr "Сводка по пакету"
 msgid "Batch Title"
 msgstr "Название пакета"
 
-#: frontend/src/pages/Batches/components/NewBatchModal.vue:191
+#: frontend/src/pages/Batches/components/NewBatchModal.vue:193
 msgid "Batch created successfully"
 msgstr ""
 
@@ -908,10 +919,10 @@ msgid "Batch:"
 msgstr "Партия:"
 
 #. Label of the batches (Check) field in DocType 'LMS Settings'
-#: frontend/src/pages/Batches/BatchDetail.vue:232
+#: frontend/src/pages/Batches/BatchDetail.vue:235
 #: frontend/src/pages/Batches/Batches.vue:343
 #: frontend/src/pages/Batches/Batches.vue:350
-#: lms/lms/doctype/lms_settings/lms_settings.json lms/www/_lms.py:124
+#: lms/lms/doctype/lms_settings/lms_settings.json lms/www/_lms.py:125
 msgid "Batches"
 msgstr "Группы"
 
@@ -1008,9 +1019,9 @@ msgstr "Повседневный"
 #. Label of the category (Link) field in DocType 'LMS Course'
 #: frontend/src/pages/Batches/BatchForm.vue:76
 #: frontend/src/pages/Batches/Batches.vue:75
-#: frontend/src/pages/Batches/components/NewBatchModal.vue:49
+#: frontend/src/pages/Batches/components/NewBatchModal.vue:51
 #: frontend/src/pages/CertifiedParticipants.vue:38
-#: frontend/src/pages/Courses/CourseForm.vue:20
+#: frontend/src/pages/Courses/CourseForm.vue:23
 #: frontend/src/pages/Courses/Courses.vue:74
 #: frontend/src/pages/Courses/NewCourseModal.vue:21
 #: lms/lms/doctype/lms_batch/lms_batch.json
@@ -1037,9 +1048,8 @@ msgstr "Категория успешно обновлена"
 
 #. Label of the certificate (Link) field in DocType 'LMS Enrollment'
 #. Label of a shortcut in the Learning Workspace
-#. Label of a Workspace Sidebar Item
 #: lms/lms/doctype/lms_enrollment/lms_enrollment.json
-#: lms/lms/workspace/learning/learning.json lms/workspace_sidebar/lms.json
+#: lms/lms/workspace/learning/learning.json
 msgid "Certificate"
 msgstr "Сертификат"
 
@@ -1052,7 +1062,7 @@ msgstr "Шаблон письма с сертификатом"
 msgid "Certificate Link"
 msgstr "Ссылка на сертификат"
 
-#: frontend/src/components/CourseCardOverlay.vue:125
+#: frontend/src/components/CourseCardOverlay.vue:130
 msgid "Certificate of Completion"
 msgstr "Сертификат об окончании"
 
@@ -1137,7 +1147,7 @@ msgstr "Сертифицирован"
 msgid "Certified Members"
 msgstr "Сертифицированные члены"
 
-#: lms/www/_lms.py:304
+#: lms/www/_lms.py:305
 msgid "Certified Participants"
 msgstr "Сертифицированные участники"
 
@@ -1169,11 +1179,11 @@ msgstr "Ссылка на главу"
 msgid "Chapter added successfully"
 msgstr "Глава успешно добавлена"
 
-#: frontend/src/components/CourseOutline.vue:363
+#: frontend/src/components/CourseOutline.vue:362
 msgid "Chapter deleted successfully"
 msgstr "Глава успешно удалена"
 
-#: frontend/src/components/CourseOutline.vue:297
+#: frontend/src/components/CourseOutline.vue:296
 msgid "Chapter moved successfully"
 msgstr "Глава успешно добавлена"
 
@@ -1182,16 +1192,16 @@ msgid "Chapter updated successfully"
 msgstr "Глава успешно обновлена"
 
 #. Label of the chapters (Table) field in DocType 'LMS Course'
-#: frontend/src/pages/Courses/CourseForm.vue:288
+#: frontend/src/pages/Courses/CourseForm.vue:295
 #: lms/lms/doctype/lms_course/lms_course.json
 msgid "Chapters"
 msgstr "Главы"
 
-#: frontend/src/components/Quiz.vue:229
+#: frontend/src/components/Quiz.vue:289
 msgid "Check"
 msgstr "Проверка"
 
-#: frontend/src/pages/ProgrammingExercises/ProgrammingExercises.vue:16
+#: frontend/src/pages/ProgrammingExercises/ProgrammingExercises.vue:17
 msgid "Check All Submissions"
 msgstr "Проверить все отправки"
 
@@ -1199,7 +1209,7 @@ msgstr "Проверить все отправки"
 msgid "Check Discussion"
 msgstr "Проверить дискуссию"
 
-#: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseForm.vue:101
+#: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseForm.vue:103
 msgid "Check Submission"
 msgstr "Проверить отправку"
 
@@ -1231,15 +1241,11 @@ msgstr ""
 msgid "Choices"
 msgstr "Варианты ответов"
 
-#: frontend/src/pages/Courses/CourseForm.vue:74
-msgid "Choose a color for the course card"
-msgstr "Выберите цвет для карточки курса"
-
-#: frontend/src/components/Quiz.vue:651
+#: frontend/src/components/Quiz.vue:861
 msgid "Choose all answers that apply"
 msgstr "Выберите все подходящие ответы"
 
-#: frontend/src/components/Modals/Question.vue:19
+#: frontend/src/components/Modals/Question.vue:16
 msgid "Choose an existing question"
 msgstr "Выберите существующий вопрос"
 
@@ -1247,7 +1253,7 @@ msgstr "Выберите существующий вопрос"
 msgid "Choose an icon"
 msgstr "Выберите иконку"
 
-#: frontend/src/components/Quiz.vue:652
+#: frontend/src/components/Quiz.vue:862
 msgid "Choose one answer"
 msgstr "Выберите один ответ"
 
@@ -1335,7 +1341,7 @@ msgstr "Название академии"
 #. Label of the card_gradient (Select) field in DocType 'LMS Course'
 #. Label of the color (Select) field in DocType 'LMS Lesson Note'
 #. Label of the color (Color) field in DocType 'LMS Timetable Legend'
-#: frontend/src/pages/Courses/CourseForm.vue:73
+#: frontend/src/pages/Courses/CourseForm.vue:76
 #: lms/lms/doctype/lms_course/lms_course.json
 #: lms/lms/doctype/lms_lesson_note/lms_lesson_note.json
 #: lms/lms/doctype/lms_timetable_legend/lms_timetable_legend.json
@@ -1346,7 +1352,7 @@ msgstr "Цвет"
 msgid "Comma separated keywords"
 msgstr ""
 
-#: frontend/src/pages/Courses/CourseForm.vue:277
+#: frontend/src/pages/Courses/CourseForm.vue:284
 msgid "Comma separated keywords for SEO"
 msgstr "Ключевые слова для SEO, разделённые запятыми"
 
@@ -1367,7 +1373,7 @@ msgstr "Комментарии оценщика"
 msgid "Common keywords that will be used for all pages"
 msgstr "Общие ключевые слова, которые будут использоваться для всех страниц"
 
-#: frontend/src/pages/Lesson.vue:897
+#: frontend/src/pages/Lesson.vue:899
 msgid "Community"
 msgstr "Сообщество"
 
@@ -1440,7 +1446,7 @@ msgstr "Завершить регистрацию"
 msgid "Complete Your Enrollment"
 msgstr "Завершите регистрацию"
 
-#: lms/lms/doctype/lms_payment/lms_payment.py:71
+#: lms/lms/doctype/lms_payment/lms_payment.py:89
 msgid "Complete Your Enrollment - Don't miss out!"
 msgstr "Завершите регистрацию - Не пропустите!"
 
@@ -1460,7 +1466,7 @@ msgid "Completed"
 msgstr "Завершено"
 
 #. Label of the enable_certification (Check) field in DocType 'LMS Course'
-#: frontend/src/pages/Courses/CourseForm.vue:204
+#: frontend/src/pages/Courses/CourseForm.vue:211
 #: lms/lms/doctype/lms_course/lms_course.json
 msgid "Completion Certificate"
 msgstr "Сертификат об окончании"
@@ -1504,7 +1510,8 @@ msgstr ""
 msgid "Configuration"
 msgstr "Конфигурация"
 
-#: frontend/src/components/Sidebar/UserDropdown.vue:189
+#: frontend/src/components/Sidebar/UserDropdown.vue:202
+#: frontend/src/components/Sidebar/UserDropdown.vue:259
 msgid "Confirm"
 msgstr "Подтвердить"
 
@@ -1516,8 +1523,12 @@ msgstr ""
 msgid "Confirm Enrollment"
 msgstr "Подтвердить участие"
 
-#: frontend/src/pages/ProgrammingExercises/ProgrammingExercises.vue:226
+#: frontend/src/pages/ProgrammingExercises/ProgrammingExercises.vue:228
 msgid "Confirm Your Action"
+msgstr ""
+
+#: frontend/src/components/Sidebar/UserDropdown.vue:253
+msgid "Confirm clearing demo data?"
 msgstr ""
 
 #: frontend/src/pages/Batches/BatchForm.vue:460
@@ -1590,11 +1601,11 @@ msgstr "Контракт"
 msgid "Corporate Organization"
 msgstr "Корпоративная организация"
 
-#: frontend/src/components/Quiz.vue:189
+#: frontend/src/components/Quiz.vue:207
 msgid "Correct"
 msgstr "Правильный"
 
-#: frontend/src/components/Modals/Question.vue:79
+#: frontend/src/components/Modals/Question.vue:76
 msgid "Correct Answer"
 msgstr "Правильный ответ"
 
@@ -1658,7 +1669,6 @@ msgstr "Купон(ы) успешно удален"
 #. Label of the course (Link) field in DocType 'Related Courses'
 #. Label of a Link in the Learning Workspace
 #. Label of a shortcut in the Learning Workspace
-#. Label of a Workspace Sidebar Item
 #: frontend/src/components/Modals/AssignmentForm.vue:32
 #: frontend/src/components/Modals/BatchCourseModal.vue:20
 #: frontend/src/components/Modals/EvaluationModal.vue:21
@@ -1693,7 +1703,7 @@ msgstr "Купон(ы) успешно удален"
 #: lms/lms/doctype/related_courses/related_courses.json
 #: lms/lms/report/course_progress_summary/course_progress_summary.js:9
 #: lms/lms/report/course_progress_summary/course_progress_summary.py:51
-#: lms/lms/workspace/learning/learning.json lms/workspace_sidebar/lms.json
+#: lms/lms/workspace/learning/learning.json
 msgid "Course"
 msgstr "Курс"
 
@@ -1749,7 +1759,7 @@ msgstr "Создание курса"
 msgid "Course Data"
 msgstr "Данные курса"
 
-#: frontend/src/pages/Courses/CourseForm.vue:145
+#: frontend/src/pages/Courses/CourseForm.vue:152
 #: frontend/src/pages/Courses/NewCourseModal.vue:53
 msgid "Course Description"
 msgstr "Описание курса"
@@ -1768,7 +1778,7 @@ msgstr "Регистрация на курс"
 msgid "Course Evaluator"
 msgstr "Оценщик курса"
 
-#: frontend/src/pages/Courses/CourseForm.vue:66
+#: frontend/src/pages/Courses/CourseForm.vue:69
 #: frontend/src/pages/Courses/NewCourseModal.vue:39
 msgid "Course Image"
 msgstr "Изображение курса"
@@ -1783,7 +1793,7 @@ msgstr "Преподаватель курса"
 msgid "Course Lesson"
 msgstr "Урок курса"
 
-#: lms/www/_lms.py:89
+#: lms/www/_lms.py:90
 msgid "Course List"
 msgstr "Список курсов"
 
@@ -1843,7 +1853,7 @@ msgstr "Курс уже добавлен в программу"
 msgid "Course created successfully"
 msgstr "Курс успешно создан"
 
-#: frontend/src/pages/Courses/CourseForm.vue:465
+#: frontend/src/pages/Courses/CourseForm.vue:472
 msgid "Course deleted successfully"
 msgstr "Курс успешно удален"
 
@@ -1851,7 +1861,7 @@ msgstr "Курс успешно удален"
 msgid "Course or Batch is required to issue a certificate."
 msgstr ""
 
-#: frontend/src/pages/Courses/CourseForm.vue:430
+#: frontend/src/pages/Courses/CourseForm.vue:437
 msgid "Course updated successfully"
 msgstr "Курс обновлен успешно"
 
@@ -1874,7 +1884,7 @@ msgstr "Курс {0} уже добавлен в эту программу."
 #: frontend/src/pages/Courses/CourseCertification.vue:127
 #: frontend/src/pages/Courses/CourseDetail.vue:143
 #: frontend/src/pages/Courses/Courses.vue:353
-#: frontend/src/pages/Courses/Courses.vue:360 frontend/src/pages/Lesson.vue:569
+#: frontend/src/pages/Courses/Courses.vue:360 frontend/src/pages/Lesson.vue:564
 #: frontend/src/pages/LessonForm.vue:475
 #: frontend/src/pages/Programs/ProgramForm.vue:49
 #: frontend/src/pages/Programs/Programs.vue:35
@@ -1914,7 +1924,7 @@ msgstr "Изображение обложки"
 #: frontend/src/pages/Assignments.vue:19
 #: frontend/src/pages/Batches/Batches.vue:33
 #: frontend/src/pages/Courses/Courses.vue:36
-#: frontend/src/pages/ProgrammingExercises/ProgrammingExercises.vue:32
+#: frontend/src/pages/ProgrammingExercises/ProgrammingExercises.vue:33
 #: frontend/src/pages/Quizzes.vue:10
 msgid "Create"
 msgstr "Создать"
@@ -1952,7 +1962,7 @@ msgstr "Создать курс"
 msgid "Create a Live Class"
 msgstr "Создайте живой класс"
 
-#: frontend/src/pages/Quizzes.vue:101
+#: frontend/src/pages/Quizzes.vue:97
 msgid "Create a Quiz"
 msgstr "Создать тест"
 
@@ -2006,7 +2016,7 @@ msgstr "Создание курса"
 #. Label of the currency (Link) field in DocType 'LMS Payment'
 #: frontend/src/components/Settings/Transactions/TransactionDetails.vue:93
 #: frontend/src/pages/Batches/BatchForm.vue:235
-#: frontend/src/pages/Courses/CourseForm.vue:231
+#: frontend/src/pages/Courses/CourseForm.vue:238
 #: lms/lms/doctype/lms_batch/lms_batch.json
 #: lms/lms/doctype/lms_course/lms_course.json
 #: lms/lms/doctype/lms_payment/lms_payment.json
@@ -2122,15 +2132,15 @@ msgid "Degree Type"
 msgstr "Тип степени"
 
 #: frontend/src/components/Controls/ChildTable.vue:63
-#: frontend/src/components/CourseOutline.vue:309
-#: frontend/src/components/CourseOutline.vue:375
+#: frontend/src/components/CourseOutline.vue:308
+#: frontend/src/components/CourseOutline.vue:374
 #: frontend/src/components/DiscussionReplies.vue:41
 #: frontend/src/components/Settings/Badges.vue:171
 #: frontend/src/components/Settings/Coupons/CouponList.vue:133
 #: frontend/src/pages/Batches/BatchForm.vue:466
-#: frontend/src/pages/Courses/CourseForm.vue:478
+#: frontend/src/pages/Courses/CourseForm.vue:485
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseForm.vue:71
-#: frontend/src/pages/ProgrammingExercises/ProgrammingExercises.vue:232
+#: frontend/src/pages/ProgrammingExercises/ProgrammingExercises.vue:234
 #: frontend/src/pages/Programs/ProgramForm.vue:230
 #: frontend/src/pages/Programs/ProgramForm.vue:567
 msgid "Delete"
@@ -2140,7 +2150,7 @@ msgstr "Удалить"
 msgid "Delete Chapter"
 msgstr "Удалить главу"
 
-#: frontend/src/pages/Courses/CourseForm.vue:472
+#: frontend/src/pages/Courses/CourseForm.vue:479
 msgid "Delete Course"
 msgstr "Удалить курс"
 
@@ -2148,7 +2158,7 @@ msgstr "Удалить курс"
 msgid "Delete Program"
 msgstr "Удалить программу"
 
-#: frontend/src/components/CourseOutline.vue:369
+#: frontend/src/components/CourseOutline.vue:368
 msgid "Delete this chapter?"
 msgstr "Удалить эту главу?"
 
@@ -2156,15 +2166,15 @@ msgstr "Удалить эту главу?"
 msgid "Delete this coupon?"
 msgstr "Удалить этот купон?"
 
-#: frontend/src/components/CourseOutline.vue:303
+#: frontend/src/components/CourseOutline.vue:302
 msgid "Delete this lesson?"
 msgstr "Удалить этот урок?"
 
-#: frontend/src/pages/Courses/CourseForm.vue:473
+#: frontend/src/pages/Courses/CourseForm.vue:480
 msgid "Deleting the course will also delete all its chapters and lessons. Are you sure you want to delete this course?"
 msgstr "Удаление курса также приведет к удалению всех его глав и уроков. Вы уверены, что хотите удалить этот курс?"
 
-#: frontend/src/pages/ProgrammingExercises/ProgrammingExercises.vue:227
+#: frontend/src/pages/ProgrammingExercises/ProgrammingExercises.vue:229
 msgid "Deleting these exercises will permanently remove them from the system, along with all associated submissions. This action is irreversible. Are you sure you want to proceed?"
 msgstr ""
 
@@ -2172,16 +2182,25 @@ msgstr ""
 msgid "Deleting this batch will also delete all its data including enrolled students, linked courses, assessments, feedback and discussions. Are you sure you want to continue?"
 msgstr "Удаление этой группы также приведет к удалению всех ее данных, включая зачисленных студентов, связанные курсы, оценки, отзывы и обсуждения. Вы уверены, что хотите продолжить?"
 
-#: frontend/src/components/CourseOutline.vue:370
+#: frontend/src/components/CourseOutline.vue:369
 msgid "Deleting this chapter will also delete all its lessons and permanently remove it from the course. This action cannot be undone. Are you sure you want to continue?"
 msgstr "Удаление этой главы также удалит все свои уроки и навсегда удалит их из курса. Это действие нельзя отменить. Вы уверены, что хотите продолжить?"
 
-#: frontend/src/components/CourseOutline.vue:304
+#: frontend/src/components/CourseOutline.vue:303
 msgid "Deleting this lesson will permanently remove it from the course. This action cannot be undone. Are you sure you want to continue?"
 msgstr "Удаление этого урока навсегда удалит его из курса. Это действие нельзя отменить. Вы уверены, что хотите продолжить?"
 
 #: lms/lms/api.py:756
 msgid "Deletion not allowed for {0}"
+msgstr ""
+
+#. Label of the demo_data_present (Check) field in DocType 'LMS Settings'
+#: lms/lms/doctype/lms_settings/lms_settings.json
+msgid "Demo Data Present"
+msgstr ""
+
+#: frontend/src/components/Sidebar/UserDropdown.vue:275
+msgid "Demo data cleared successfully"
 msgstr ""
 
 #. Label of the description (Text Editor) field in DocType 'Job Opportunity'
@@ -2194,7 +2213,7 @@ msgstr ""
 #. Label of the description (Small Text) field in DocType 'Work Experience'
 #: frontend/src/components/Modals/LiveClassModal.vue:81
 #: frontend/src/components/Settings/BadgeForm.vue:32
-#: frontend/src/pages/Batches/components/NewBatchModal.vue:85
+#: frontend/src/pages/Batches/components/NewBatchModal.vue:79
 #: frontend/src/pages/JobForm.vue:101
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 #: lms/job/web_form/job_opportunity/job_opportunity.json
@@ -2213,7 +2232,7 @@ msgstr "Стол"
 
 #: frontend/src/components/Modals/DiscussionModal.vue:22
 #: frontend/src/pages/Batches/BatchForm.vue:7
-#: frontend/src/pages/Courses/CourseForm.vue:8
+#: frontend/src/pages/Courses/CourseForm.vue:11
 #: frontend/src/pages/QuizForm.vue:50
 msgid "Details"
 msgstr "Детали"
@@ -2227,7 +2246,7 @@ msgstr ""
 msgid "Disable PWA"
 msgstr "Отключить PWA"
 
-#: frontend/src/pages/Courses/CourseForm.vue:119
+#: frontend/src/pages/Courses/CourseForm.vue:126
 msgid "Disable Self Enrollment"
 msgstr "Отключить самостоятельную регистрацию"
 
@@ -2281,6 +2300,10 @@ msgstr "Тип скидки"
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Discussions"
 msgstr "Обсуждения"
+
+#: frontend/src/components/Quiz.vue:19
+msgid "Do not refresh the page or close this window. If you do, the quiz will be submitted automatically."
+msgstr ""
 
 #. Option for the 'File Type' (Select) field in DocType 'Course Lesson'
 #. Option for the 'Type' (Select) field in DocType 'LMS Assignment'
@@ -2389,13 +2412,13 @@ msgstr "Редактировать программу"
 msgid "Edit Programming Exercise"
 msgstr "Редактировать упражнение по программированию"
 
+#: frontend/src/pages/QuizForm.vue:197
+msgid "Edit Question"
+msgstr ""
+
 #: frontend/src/components/Modals/ZoomAccountModal.vue:6
 msgid "Edit Zoom Account"
 msgstr "Редактировать учетную запись Zoom"
-
-#: frontend/src/pages/QuizForm.vue:199
-msgid "Edit the question"
-msgstr "Редактировать вопрос"
 
 #. Label of the education (Table) field in DocType 'User'
 #: lms/fixtures/custom_field.json
@@ -2509,7 +2532,7 @@ msgid "Enabling this will publish the certificate on the certified participants 
 msgstr "Включение этого параметра будет опубликовать сертификат на странице сертифицированных участников."
 
 #. Label of the end_date (Date) field in DocType 'LMS Batch'
-#: frontend/src/pages/Batches/components/NewBatchModal.vue:25
+#: frontend/src/pages/Batches/components/NewBatchModal.vue:26
 #: lms/lms/doctype/lms_batch/lms_batch.json
 msgid "End Date"
 msgstr "Дата окончания"
@@ -2525,7 +2548,7 @@ msgstr "Дата окончания (или ожидаемая)"
 #. Label of the end_time (Time) field in DocType 'LMS Certificate Evaluation'
 #. Label of the end_time (Time) field in DocType 'LMS Certificate Request'
 #. Label of the end_time (Time) field in DocType 'Scheduled Flow'
-#: frontend/src/pages/Batches/components/NewBatchModal.vue:37
+#: frontend/src/pages/Batches/components/NewBatchModal.vue:38
 #: frontend/src/pages/ProfileEvaluator.vue:32
 #: lms/lms/doctype/evaluator_schedule/evaluator_schedule.json
 #: lms/lms/doctype/lms_batch/lms_batch.json
@@ -2581,7 +2604,6 @@ msgid "Enrolled On"
 msgstr ""
 
 #: frontend/src/components/CourseCard.vue:62
-#: frontend/src/components/CourseCardOverlay.vue:107
 #: frontend/src/pages/Courses/CourseOverview.vue:27
 #: frontend/src/pages/Programs/ProgramEnrollment.vue:69
 msgid "Enrolled Students"
@@ -2616,10 +2638,9 @@ msgstr "Набор в эту группу ограничен. Пожалуйст
 #. Label of the enrollments (Int) field in DocType 'LMS Course'
 #. Label of a chart in the Learning Workspace
 #. Label of a shortcut in the Learning Workspace
-#. Label of a Workspace Sidebar Item
 #: frontend/src/pages/Programs/ProgramProgressSummary.vue:15
 #: lms/lms/doctype/lms_course/lms_course.json
-#: lms/lms/workspace/learning/learning.json lms/workspace_sidebar/lms.json
+#: lms/lms/workspace/learning/learning.json
 msgid "Enrollments"
 msgstr "Зачисления"
 
@@ -2663,7 +2684,7 @@ msgstr "Ошибка при создании шаблона письма"
 msgid "Error creating live class. Please try again. {0}"
 msgstr "Ошибка создания живого класса. Пожалуйста, попробуйте еще раз. {0}"
 
-#: frontend/src/pages/Quizzes.vue:230
+#: frontend/src/pages/Quizzes.vue:227
 msgid "Error creating quiz: {0}"
 msgstr "Ошибка создания {0}"
 
@@ -2698,11 +2719,10 @@ msgstr "Ошибка при обновлении шаблона письма"
 #. Label of the evaluation (Check) field in DocType 'LMS Batch'
 #. Label of a Link in the Learning Workspace
 #. Label of a shortcut in the Learning Workspace
-#. Label of a Workspace Sidebar Item
 #: frontend/src/components/Modals/Event.vue:420
 #: frontend/src/pages/Batches/BatchForm.vue:93
 #: lms/lms/doctype/lms_batch/lms_batch.json
-#: lms/lms/workspace/learning/learning.json lms/workspace_sidebar/lms.json
+#: lms/lms/workspace/learning/learning.json
 msgid "Evaluation"
 msgstr "Оценка"
 
@@ -2719,8 +2739,7 @@ msgid "Evaluation End Date"
 msgstr "Дата окончания оценки"
 
 #. Label of a Link in the Learning Workspace
-#. Label of a Workspace Sidebar Item
-#: lms/lms/workspace/learning/learning.json lms/workspace_sidebar/lms.json
+#: lms/lms/workspace/learning/learning.json
 msgid "Evaluation Request"
 msgstr "Запрос на оценку"
 
@@ -2745,7 +2764,7 @@ msgstr "Вычисление успешно сохранено"
 #. Label of the evaluator (Link) field in DocType 'LMS Course'
 #: frontend/src/components/Modals/BatchCourseModal.vue:36
 #: frontend/src/pages/Batches/components/BulkCertificates.vue:22
-#: frontend/src/pages/Courses/CourseForm.vue:243
+#: frontend/src/pages/Courses/CourseForm.vue:250
 #: frontend/src/pages/ProfileRoles.vue:32
 #: lms/lms/doctype/batch_course/batch_course.json
 #: lms/lms/doctype/course_evaluator/course_evaluator.json
@@ -2782,7 +2801,7 @@ msgstr "Вычисление успешно сохранено"
 msgid "Evaluator deleted successfully"
 msgstr "Глава успешно удалена"
 
-#: lms/lms/doctype/lms_course/lms_course.py:75
+#: lms/lms/doctype/lms_course/lms_course.py:77
 msgid "Evaluator is required for paid certificates."
 msgstr "Для оплаты сертификатов необходим оценщик."
 
@@ -2811,7 +2830,7 @@ msgstr "Упражнения"
 msgid "Exercise Title"
 msgstr "Название упражнения"
 
-#: frontend/src/pages/ProgrammingExercises/ProgrammingExercises.vue:250
+#: frontend/src/pages/ProgrammingExercises/ProgrammingExercises.vue:252
 msgid "Exercise deleted successfully"
 msgstr ""
 
@@ -2854,7 +2873,7 @@ msgstr "Дата истечения срока действия не может 
 #. Label of the explanation_1 (Small Text) field in DocType 'LMS Question'
 #. Label of the explanation_3 (Small Text) field in DocType 'LMS Question'
 #. Label of the explanation_4 (Small Text) field in DocType 'LMS Question'
-#: frontend/src/components/Modals/Question.vue:75
+#: frontend/src/components/Modals/Question.vue:72
 #: lms/lms/doctype/lms_question/lms_question.json
 msgid "Explanation"
 msgstr "Объяснение"
@@ -2923,7 +2942,7 @@ msgstr "Не удалось обновить мета теги {0}"
 #. Label of the featured (Check) field in DocType 'LMS Course'
 #: frontend/src/components/CourseCard.vue:25
 #: frontend/src/components/CourseCard.vue:79
-#: frontend/src/pages/Courses/CourseForm.vue:113
+#: frontend/src/pages/Courses/CourseForm.vue:120
 #: lms/lms/doctype/lms_course/lms_course.json
 msgid "Featured"
 msgstr "Популярные"
@@ -3103,7 +3122,7 @@ msgstr "Шлюз"
 msgid "General"
 msgstr "Основные"
 
-#: frontend/src/pages/Batches/BatchDetail.vue:214
+#: frontend/src/pages/Batches/BatchDetail.vue:217
 #: frontend/src/pages/Batches/components/BulkCertificates.vue:5
 msgid "Generate Certificates"
 msgstr "Сгенерировать сертификаты"
@@ -3325,8 +3344,7 @@ msgstr "Подсвеченный текст"
 msgid "Hiring"
 msgstr "Набор персонала"
 
-#. Label of a Workspace Sidebar Item
-#: frontend/src/pages/Home/Home.vue:180 lms/workspace_sidebar/lms.json
+#: frontend/src/pages/Home/Home.vue:183
 msgid "Home"
 msgstr "Главная"
 
@@ -3362,7 +3380,7 @@ msgstr "Я недоступен"
 msgid "I consent to my personal information being stored for invoicing"
 msgstr "Я даю согласие на хранение моих персональных данных для выставления счетов"
 
-#: frontend/src/pages/QuizForm.vue:325
+#: frontend/src/pages/QuizForm.vue:321
 msgid "ID"
 msgstr "ID"
 
@@ -3381,7 +3399,7 @@ msgstr "Определить категорию пользователя"
 msgid "If enabled, the lesson will also be accessible to users who are not enrolled in the course."
 msgstr ""
 
-#: frontend/src/components/Quiz.vue:46
+#: frontend/src/components/Quiz.vue:61
 msgid "If you answer incorrectly, {0} {1} will be deducted from your score for each incorrect answer."
 msgstr "Если вы ответите неправильно, из вашего счета будет вычтено {0} {1} за каждый неправильный ответ."
 
@@ -3389,7 +3407,7 @@ msgstr "Если вы ответите неправильно, из вашего
 msgid "If you are not any more interested to mentor the course"
 msgstr "Если вы больше не заинтересованы в руководстве курсом"
 
-#: frontend/src/components/Quiz.vue:23
+#: frontend/src/components/Quiz.vue:38
 msgid "If you fail to do so, the quiz will be automatically submitted when the timer ends."
 msgstr "Если вы не сделаете этого, викторина будет автоматически отправлена после окончания таймера."
 
@@ -3477,7 +3495,7 @@ msgstr ""
 msgid "Incomplete"
 msgstr "Не выполнено"
 
-#: frontend/src/components/Quiz.vue:194
+#: frontend/src/components/Quiz.vue:212
 msgid "Incorrect"
 msgstr "Неправильно"
 
@@ -3541,8 +3559,8 @@ msgstr ""
 #. Label of the instructors (Rating) field in DocType 'LMS Batch Feedback'
 #. Label of the instructors (Table MultiSelect) field in DocType 'LMS Course'
 #: frontend/src/pages/Batches/BatchForm.vue:118
-#: frontend/src/pages/Batches/components/NewBatchModal.vue:78
-#: frontend/src/pages/Courses/CourseForm.vue:29
+#: frontend/src/pages/Batches/components/NewBatchModal.vue:87
+#: frontend/src/pages/Courses/CourseForm.vue:32
 #: frontend/src/pages/Courses/NewCourseModal.vue:32
 #: lms/lms/doctype/lms_batch/lms_batch.json
 #: lms/lms/doctype/lms_batch_feedback/lms_batch_feedback.json
@@ -3657,7 +3675,7 @@ msgstr "Работа"
 msgid "Job Details"
 msgstr "Подробности вакансии"
 
-#: lms/www/_lms.py:178
+#: lms/www/_lms.py:179
 msgid "Job Openings"
 msgstr "Открытые вакансии"
 
@@ -3724,11 +3742,6 @@ msgstr "Перейти к"
 #: frontend/src/pages/Home/Streak.vue:18
 msgid "Keep going,"
 msgstr "Продолжать идти,"
-
-#. Title of a Workspace Sidebar
-#: lms/workspace_sidebar/lms.json
-msgid "LMS"
-msgstr "LMS"
 
 #. Name of a DocType
 #: lms/lms/doctype/lms_assessment/lms_assessment.json
@@ -4015,7 +4028,7 @@ msgstr "Заголовок"
 #. Label of the language (Select) field in DocType 'LMS Programming Exercise'
 #: frontend/src/components/Modals/EditProfile.vue:69
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseForm.vue:27
-#: frontend/src/pages/ProgrammingExercises/ProgrammingExercises.vue:275
+#: frontend/src/pages/ProgrammingExercises/ProgrammingExercises.vue:277
 #: lms/lms/doctype/lms_programming_exercise/lms_programming_exercise.json
 msgid "Language"
 msgstr "Язык"
@@ -4098,11 +4111,11 @@ msgstr "Название урока"
 msgid "Lesson created successfully"
 msgstr "Урок успешно создан"
 
-#: frontend/src/components/CourseOutline.vue:268
+#: frontend/src/components/CourseOutline.vue:267
 msgid "Lesson deleted successfully"
 msgstr "Урок успешно удален"
 
-#: frontend/src/components/CourseOutline.vue:283
+#: frontend/src/components/CourseOutline.vue:282
 msgid "Lesson moved successfully"
 msgstr "Урок успешно перемещен"
 
@@ -4114,7 +4127,6 @@ msgstr "Урок успешно обновлен"
 #. Group in Course Chapter's connections
 #. Label of the lessons (Int) field in DocType 'LMS Course'
 #: frontend/src/components/CourseCard.vue:53
-#: frontend/src/components/CourseCardOverlay.vue:100
 #: frontend/src/pages/Courses/CourseDashboard.vue:20
 #: frontend/src/pages/Programs/ProgramEnrollment.vue:62
 #: lms/lms/doctype/course_chapter/course_chapter.json
@@ -4183,9 +4195,9 @@ msgstr "LiveCode URL"
 #: frontend/src/pages/Courses/Courses.vue:105
 #: frontend/src/pages/JobApplications.vue:101
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmissions.vue:130
-#: frontend/src/pages/ProgrammingExercises/ProgrammingExercises.vue:117
+#: frontend/src/pages/ProgrammingExercises/ProgrammingExercises.vue:118
 #: frontend/src/pages/QuizSubmissionList.vue:39
-#: frontend/src/pages/Quizzes.vue:94
+#: frontend/src/pages/Quizzes.vue:90
 msgid "Load More"
 msgstr "Загрузить больше"
 
@@ -4213,7 +4225,7 @@ msgstr "Настройки местоположения"
 msgid "Login"
 msgstr "Логин"
 
-#: frontend/src/components/Sidebar/UserDropdown.vue:183
+#: frontend/src/components/Sidebar/UserDropdown.vue:196
 msgid "Login to Frappe Cloud?"
 msgstr "Войти в Frappe Cloud?"
 
@@ -4238,7 +4250,7 @@ msgstr "С нетерпением ожидаем вашей регистраци
 msgid "Make LMS the default home"
 msgstr "Сделать LMS домашней системой по умолчанию"
 
-#: frontend/src/pages/Batches/BatchDetail.vue:221
+#: frontend/src/pages/Batches/BatchDetail.vue:224
 #: frontend/src/pages/Batches/components/AnnouncementModal.vue:5
 msgid "Make an Announcement"
 msgstr "Разместить объявление"
@@ -4247,7 +4259,7 @@ msgstr "Разместить объявление"
 msgid "Make notes for quick revision. Press / for menu."
 msgstr "Делайте заметки для быстрого повторения. Нажмите / для открытия меню."
 
-#: frontend/src/pages/Home/Home.vue:151
+#: frontend/src/pages/Home/Home.vue:154
 msgid "Manage your courses and batches at a glance"
 msgstr "Управляйте своими курсами и партиями одним взглядом"
 
@@ -4266,7 +4278,7 @@ msgstr "Файл манифеста"
 msgid "Manual Assignment"
 msgstr ""
 
-#: frontend/src/components/Quiz.vue:120
+#: frontend/src/components/Quiz.vue:136
 msgid "Mark"
 msgstr "Отметка"
 
@@ -4276,9 +4288,9 @@ msgstr "Отметить все как прочитанное"
 
 #. Label of the marks (Int) field in DocType 'LMS Quiz Question'
 #. Label of the marks (Int) field in DocType 'LMS Quiz Result'
-#: frontend/src/components/Modals/Question.vue:40
-#: frontend/src/components/Modals/Question.vue:106
-#: frontend/src/components/Quiz.vue:120 frontend/src/pages/QuizForm.vue:335
+#: frontend/src/components/Modals/Question.vue:37
+#: frontend/src/components/Modals/Question.vue:103
+#: frontend/src/components/Quiz.vue:136 frontend/src/pages/QuizForm.vue:331
 #: frontend/src/pages/QuizSubmission.vue:64
 #: lms/lms/doctype/lms_quiz_question/lms_quiz_question.json
 #: lms/lms/doctype/lms_quiz_result/lms_quiz_result.json
@@ -4305,7 +4317,7 @@ msgid "Marks to Deduct"
 msgstr "Баллы для вычета"
 
 #. Label of the max_attempts (Int) field in DocType 'LMS Quiz'
-#: frontend/src/pages/Quizzes.vue:267 lms/lms/doctype/lms_quiz/lms_quiz.json
+#: frontend/src/pages/Quizzes.vue:264 lms/lms/doctype/lms_quiz/lms_quiz.json
 msgid "Max Attempts"
 msgstr "Максимум попыток"
 
@@ -4315,7 +4327,7 @@ msgstr "Максимум попыток"
 
 #. Label of the medium (Select) field in DocType 'LMS Batch'
 #: frontend/src/pages/Batches/BatchForm.vue:154
-#: frontend/src/pages/Batches/components/NewBatchModal.vue:68
+#: frontend/src/pages/Batches/components/NewBatchModal.vue:70
 #: lms/lms/doctype/lms_batch/lms_batch.json
 msgid "Medium"
 msgstr "Средний"
@@ -4559,7 +4571,7 @@ msgstr "Сообщение обязательно"
 
 #. Label of the meta_description (Small Text) field in DocType 'LMS Settings'
 #: frontend/src/pages/Batches/BatchForm.vue:247
-#: frontend/src/pages/Courses/CourseForm.vue:267
+#: frontend/src/pages/Courses/CourseForm.vue:274
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Meta Description"
 msgstr "Мета-описание"
@@ -4574,17 +4586,17 @@ msgstr "Мета изображение"
 
 #. Label of the meta_keywords (Small Text) field in DocType 'LMS Settings'
 #: frontend/src/pages/Batches/BatchForm.vue:253
-#: frontend/src/pages/Courses/CourseForm.vue:274
+#: frontend/src/pages/Courses/CourseForm.vue:281
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Meta Keywords"
 msgstr "Мета-ключевые слова"
 
 #: frontend/src/pages/Batches/BatchForm.vue:242
-#: frontend/src/pages/Courses/CourseForm.vue:262
+#: frontend/src/pages/Courses/CourseForm.vue:269
 msgid "Meta Tags"
 msgstr "Мета-теги"
 
-#: lms/lms/api.py:1555
+#: lms/lms/api.py:1563
 msgid "Meta tags should be a list."
 msgstr "Мета теги должны быть списком."
 
@@ -4636,7 +4648,7 @@ msgid "Moderator"
 msgstr "Модератор"
 
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmissions.vue:287
-#: frontend/src/pages/Quizzes.vue:281
+#: frontend/src/pages/Quizzes.vue:278
 msgid "Modified"
 msgstr "Изменено"
 
@@ -4721,7 +4733,7 @@ msgstr "Новый"
 
 #: frontend/src/pages/Batches/Batches.vue:10
 #: frontend/src/pages/Batches/components/NewBatchModal.vue:5
-#: frontend/src/pages/Notifications.vue:90 lms/www/_lms.py:153
+#: frontend/src/pages/Notifications.vue:90 lms/www/_lms.py:154
 msgid "New Batch"
 msgstr "Новая группа"
 
@@ -4731,7 +4743,7 @@ msgstr "Новый купон"
 
 #: frontend/src/pages/Courses/Courses.vue:13
 #: frontend/src/pages/Courses/NewCourseModal.vue:5
-#: frontend/src/pages/Notifications.vue:89 lms/www/_lms.py:97
+#: frontend/src/pages/Notifications.vue:89 lms/www/_lms.py:98
 msgid "New Course"
 msgstr "Новый курс"
 
@@ -4785,7 +4797,7 @@ msgstr "Новый ответ по теме {0} в курсе {1}"
 msgid "New {0}"
 msgstr "Новый {0}"
 
-#: frontend/src/components/Quiz.vue:237 frontend/src/pages/Lesson.vue:51
+#: frontend/src/components/Quiz.vue:299 frontend/src/pages/Lesson.vue:51
 #: frontend/src/pages/Lesson.vue:187
 msgid "Next"
 msgstr "Следующий"
@@ -4802,13 +4814,9 @@ msgstr "Нет заданий"
 msgid "No Notifications"
 msgstr "Нет Уведомлений"
 
-#: frontend/src/components/Quiz.vue:307
+#: frontend/src/components/Quiz.vue:369
 msgid "No Quiz submissions found"
 msgstr "Не найдено викторин"
-
-#: frontend/src/pages/Quizzes.vue:19
-msgid "No Quizzes"
-msgstr "Нет викторин"
 
 #. Option for the 'Auto Recording' (Select) field in DocType 'LMS Live Class'
 #: lms/lms/doctype/lms_live_class/lms_live_class.json
@@ -4970,8 +4978,7 @@ msgstr "Не сохранено"
 msgid "Note"
 msgstr "Заметка"
 
-#: frontend/src/pages/Lesson.vue:407 frontend/src/pages/Lesson.vue:893
-#: frontend/src/pages/Lesson.vue:904
+#: frontend/src/pages/Lesson.vue:888
 msgid "Notes"
 msgstr "Заметки"
 
@@ -5017,7 +5024,7 @@ msgstr "Офис рядом с Домом"
 
 #. Option for the 'Medium' (Select) field in DocType 'LMS Batch'
 #: frontend/src/pages/Batches/BatchForm.vue:514
-#: frontend/src/pages/Batches/components/NewBatchModal.vue:245
+#: frontend/src/pages/Batches/components/NewBatchModal.vue:247
 #: lms/lms/doctype/lms_batch/lms_batch.json
 msgid "Offline"
 msgstr "Offline"
@@ -5041,7 +5048,7 @@ msgstr "Как только модератор оценит вашу заявк�
 
 #. Option for the 'Medium' (Select) field in DocType 'LMS Batch'
 #: frontend/src/pages/Batches/BatchForm.vue:510
-#: frontend/src/pages/Batches/components/NewBatchModal.vue:241
+#: frontend/src/pages/Batches/components/NewBatchModal.vue:243
 #: lms/lms/doctype/lms_batch/lms_batch.json
 msgid "Online"
 msgstr "Online"
@@ -5106,7 +5113,7 @@ msgid "Open to Work"
 msgstr ""
 
 #. Label of the option (Data) field in DocType 'LMS Option'
-#: frontend/src/components/Modals/Question.vue:70
+#: frontend/src/components/Modals/Question.vue:67
 #: lms/lms/doctype/lms_option/lms_option.json
 msgid "Option"
 msgstr "Вариант"
@@ -5131,7 +5138,7 @@ msgstr "Вариант 3"
 msgid "Option 4"
 msgstr "Вариант 4"
 
-#: frontend/src/components/Modals/Question.vue:56
+#: frontend/src/components/Modals/Question.vue:53
 msgid "Options"
 msgstr "Параметры"
 
@@ -5215,17 +5222,17 @@ msgid "Paid Batch"
 msgstr "Платная группа"
 
 #. Label of the paid_certificate (Check) field in DocType 'LMS Course'
-#: frontend/src/pages/Courses/CourseForm.vue:210
+#: frontend/src/pages/Courses/CourseForm.vue:217
 #: lms/lms/doctype/lms_course/lms_course.json
 msgid "Paid Certificate"
 msgstr "Платный сертификат"
 
-#: frontend/src/components/CourseCardOverlay.vue:134
+#: frontend/src/components/CourseCardOverlay.vue:139
 msgid "Paid Certificate after Evaluation"
 msgstr "Платный сертификат после оценки"
 
 #. Label of the paid_course (Check) field in DocType 'LMS Course'
-#: frontend/src/pages/Courses/CourseForm.vue:198
+#: frontend/src/pages/Courses/CourseForm.vue:205
 #: lms/lms/doctype/lms_course/lms_course.json
 msgid "Paid Course"
 msgstr "Платный курс"
@@ -5264,7 +5271,7 @@ msgstr "Прошедший"
 
 #. Label of the passing_percentage (Int) field in DocType 'LMS Quiz'
 #. Label of the passing_percentage (Int) field in DocType 'LMS Quiz Submission'
-#: frontend/src/pages/QuizForm.vue:78 frontend/src/pages/Quizzes.vue:260
+#: frontend/src/pages/QuizForm.vue:78 frontend/src/pages/Quizzes.vue:257
 #: lms/lms/doctype/lms_quiz/lms_quiz.json
 #: lms/lms/doctype/lms_quiz_submission/lms_quiz_submission.json
 msgid "Passing Percentage"
@@ -5275,7 +5282,7 @@ msgstr "Процент сдачи экзамена"
 msgid "Password"
 msgstr "Пароль"
 
-#: frontend/src/pages/Courses/CourseForm.vue:166
+#: frontend/src/pages/Courses/CourseForm.vue:173
 msgid "Paste a YouTube link of a short video introducing the course"
 msgstr ""
 
@@ -5455,7 +5462,7 @@ msgstr ""
 msgid "Please enable the zoom account to use this feature."
 msgstr "Пожалуйста, включите учетную запись Zoom, чтобы использовать эту функцию."
 
-#: frontend/src/components/CourseOutline.vue:392
+#: frontend/src/components/CourseOutline.vue:391
 msgid "Please enroll for this course to view this lesson"
 msgstr "Запишитесь на этот курс, чтобы просмотреть этот урок"
 
@@ -5463,7 +5470,7 @@ msgstr "Запишитесь на этот курс, чтобы просмотр
 msgid "Please ensure that the billing name you enter is correct, as it will be used on your invoice."
 msgstr "Пожалуйста, убедитесь, что указанное вами имя плательщика верное, так как оно будет использовано в вашем счете."
 
-#: frontend/src/components/Quiz.vue:16
+#: frontend/src/components/Quiz.vue:31
 msgid "Please ensure that you complete all the questions in {0} minutes."
 msgstr "Пожалуйста, убедитесь, что вы ответите на все вопросы за {0} минут."
 
@@ -5503,7 +5510,7 @@ msgstr ""
 msgid "Please install the Payments App to create a paid batch. Refer to the documentation for more details. {0}"
 msgstr "Пожалуйста, установите платные приложения для создания платной партии. Обратитесь к документации для получения более подробной информации. {0}"
 
-#: lms/lms/doctype/lms_course/lms_course.py:65
+#: lms/lms/doctype/lms_course/lms_course.py:67
 msgid "Please install the Payments App to create a paid course. Refer to the documentation for more details. {0}"
 msgstr "Пожалуйста, установите Платежное приложение, чтобы создать платный курс. Обратитесь к документации для получения более подробной информации. {0}"
 
@@ -5543,6 +5550,10 @@ msgstr "Пожалуйста, подтвердите свое согласие �
 #: frontend/src/pages/Billing.vue:354
 msgid "Please provide your consent to proceed with the payment."
 msgstr "Пожалуйста, подтвердите свое согласие на продолжение оплаты."
+
+#: frontend/src/components/Quiz.vue:8
+msgid "Please read the following instructions carefully before starting the quiz"
+msgstr ""
 
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmission.vue:139
 msgid "Please run the code to execute the test cases."
@@ -5608,7 +5619,7 @@ msgstr "Пожалуйста, выберите время."
 msgid "Please select a timezone."
 msgstr "Пожалуйста, выберите часовой пояс."
 
-#: frontend/src/components/Quiz.vue:533
+#: frontend/src/components/Quiz.vue:744
 msgid "Please select an option"
 msgstr "Пожалуйста, выберите вариант"
 
@@ -5625,11 +5636,11 @@ msgstr "Пожалуйста, загрузите пакет SCORM"
 msgid "Point of Score (e.g. 70)"
 msgstr "Балл (например, 70)"
 
-#: frontend/src/components/Modals/Question.vue:62
+#: frontend/src/components/Modals/Question.vue:59
 msgid "Possibilities"
 msgstr "Возможности"
 
-#: frontend/src/components/Modals/Question.vue:91
+#: frontend/src/components/Modals/Question.vue:88
 msgid "Possibility"
 msgstr "Возможность"
 
@@ -5708,7 +5719,7 @@ msgstr "Просмотр изображения"
 
 #. Label of the video_link (Attach) field in DocType 'LMS Batch'
 #: frontend/src/pages/Batches/BatchForm.vue:170
-#: frontend/src/pages/Courses/CourseForm.vue:164
+#: frontend/src/pages/Courses/CourseForm.vue:171
 #: lms/lms/doctype/lms_batch/lms_batch.json
 msgid "Preview Video"
 msgstr "Предварительный просмотр видео"
@@ -5724,7 +5735,7 @@ msgid "Pricing"
 msgstr "Цены"
 
 #. Label of the pricing_tab (Tab Break) field in DocType 'LMS Course'
-#: frontend/src/pages/Courses/CourseForm.vue:192
+#: frontend/src/pages/Courses/CourseForm.vue:199
 #: lms/lms/doctype/lms_course/lms_course.json
 msgid "Pricing and Certification"
 msgstr "Цены и сертификация"
@@ -5812,22 +5823,22 @@ msgstr "Отправка упражнения по программирован�
 msgid "Programming Exercise Submissions"
 msgstr "Отправка упражнения по программированию"
 
-#: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseForm.vue:258
+#: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseForm.vue:261
 msgid "Programming Exercise created successfully"
 msgstr "Упражнение по программированию успешно создано"
 
-#: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseForm.vue:295
+#: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseForm.vue:298
 msgid "Programming Exercise deleted successfully"
 msgstr "Упражнение по программированию успешно удалено"
 
-#: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseForm.vue:278
+#: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseForm.vue:281
 msgid "Programming Exercise updated successfully"
 msgstr "Упражнение по программированию успешно обновлено"
 
 #. Label of the programming_exercises (Check) field in DocType 'LMS Settings'
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmissions.vue:309
-#: frontend/src/pages/ProgrammingExercises/ProgrammingExercises.vue:290
-#: frontend/src/pages/ProgrammingExercises/ProgrammingExercises.vue:298
+#: frontend/src/pages/ProgrammingExercises/ProgrammingExercises.vue:292
+#: frontend/src/pages/ProgrammingExercises/ProgrammingExercises.vue:300
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Programming Exercises"
 msgstr "Упражнение по программированию"
@@ -5835,7 +5846,7 @@ msgstr "Упражнение по программированию"
 #: frontend/src/pages/Programs/ProgramDetail.vue:123
 #: frontend/src/pages/Programs/Programs.vue:18
 #: frontend/src/pages/Programs/Programs.vue:113
-#: frontend/src/pages/Programs/Programs.vue:119 lms/www/_lms.py:297
+#: frontend/src/pages/Programs/Programs.vue:119 lms/www/_lms.py:298
 msgid "Programs"
 msgstr "Программы"
 
@@ -5881,7 +5892,7 @@ msgstr "Опубликовать на странице участника"
 #: frontend/src/components/Modals/Event.vue:128
 #: frontend/src/pages/Batches/BatchForm.vue:15
 #: frontend/src/pages/Batches/components/BulkCertificates.vue:51
-#: frontend/src/pages/Courses/CourseForm.vue:93
+#: frontend/src/pages/Courses/CourseForm.vue:100
 #: frontend/src/pages/Programs/ProgramForm.vue:33
 #: frontend/src/pages/Programs/StudentPrograms.vue:100
 #: lms/lms/doctype/lms_batch/lms_batch.json
@@ -5897,12 +5908,12 @@ msgid "Published Courses"
 msgstr "Опубликованные курсы"
 
 #. Label of the published_on (Date) field in DocType 'LMS Course'
-#: frontend/src/pages/Courses/CourseForm.vue:98
+#: frontend/src/pages/Courses/CourseForm.vue:105
 #: lms/lms/doctype/lms_course/lms_course.json
 msgid "Published On"
 msgstr "Опубликована"
 
-#: frontend/src/pages/Courses/CourseForm.vue:83
+#: frontend/src/pages/Courses/CourseForm.vue:90
 msgid "Publishing Settings"
 msgstr ""
 
@@ -5933,8 +5944,8 @@ msgstr "Python"
 #. Label of the question (Link) field in DocType 'LMS Quiz Question'
 #. Label of the question (Text) field in DocType 'LMS Quiz Result'
 #: frontend/src/components/Modals/AssignmentForm.vue:38
-#: frontend/src/components/Modals/Question.vue:27
-#: frontend/src/pages/QuizForm.vue:330 frontend/src/pages/QuizSubmission.vue:56
+#: frontend/src/components/Modals/Question.vue:24
+#: frontend/src/pages/QuizForm.vue:326 frontend/src/pages/QuizSubmission.vue:56
 #: lms/lms/doctype/course_lesson/course_lesson.json
 #: lms/lms/doctype/lms_assignment/lms_assignment.json
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.json
@@ -5954,19 +5965,19 @@ msgstr "Детали вопроса"
 msgid "Question Name"
 msgstr "Название вопроса"
 
-#: frontend/src/components/Modals/Question.vue:285
+#: frontend/src/components/Modals/Question.vue:282
 msgid "Question added successfully"
 msgstr "Вопрос успешно добавлен"
 
-#: frontend/src/components/Modals/Question.vue:335
+#: frontend/src/components/Modals/Question.vue:332
 msgid "Question updated successfully"
 msgstr "Вопрос успешно обновлен"
 
-#: frontend/src/components/Quiz.vue:112
+#: frontend/src/components/Quiz.vue:128
 msgid "Question {0}"
 msgstr "Вопрос {0}:"
 
-#: frontend/src/components/Quiz.vue:214
+#: frontend/src/components/Quiz.vue:232
 msgid "Question {0} of {1}"
 msgstr "Вопрос {0} из {1}"
 
@@ -5975,7 +5986,7 @@ msgstr "Вопрос {0} из {1}"
 msgid "Questions"
 msgstr "Вопросы"
 
-#: frontend/src/pages/QuizForm.vue:372
+#: frontend/src/pages/QuizForm.vue:368
 msgid "Questions deleted successfully"
 msgstr "Вопросы успешно удалены"
 
@@ -6012,7 +6023,7 @@ msgstr "Подача теста"
 msgid "Quiz Submissions"
 msgstr "Опросы"
 
-#: frontend/src/components/Quiz.vue:251
+#: frontend/src/components/Quiz.vue:313
 msgid "Quiz Summary"
 msgstr "Краткое содержание теста"
 
@@ -6021,7 +6032,7 @@ msgstr "Краткое содержание теста"
 msgid "Quiz Title"
 msgstr "Название теста"
 
-#: frontend/src/pages/Quizzes.vue:218
+#: frontend/src/pages/Quizzes.vue:215
 msgid "Quiz created successfully"
 msgstr "Тест успешно создан"
 
@@ -6029,7 +6040,7 @@ msgstr "Тест успешно создан"
 msgid "Quiz is not available to Guest users. Please login to continue."
 msgstr "Тест недоступен для гостевых пользователей. Пожалуйста, войдите, чтобы продолжить."
 
-#: frontend/src/pages/QuizForm.vue:297
+#: frontend/src/pages/QuizForm.vue:293
 msgid "Quiz updated successfully"
 msgstr "Тест успешно обновлен"
 
@@ -6039,12 +6050,12 @@ msgid "Quiz will appear at the bottom of the lesson."
 msgstr "Тест появится в конце урока."
 
 #: frontend/src/components/Sidebar/AppSidebar.vue:604
-#: frontend/src/pages/QuizForm.vue:383 frontend/src/pages/Quizzes.vue:293
-#: frontend/src/pages/Quizzes.vue:303 lms/www/_lms.py:253
+#: frontend/src/pages/QuizForm.vue:379 frontend/src/pages/Quizzes.vue:290
+#: frontend/src/pages/Quizzes.vue:300 lms/www/_lms.py:254
 msgid "Quizzes"
 msgstr "Тесты"
 
-#: frontend/src/pages/Quizzes.vue:241
+#: frontend/src/pages/Quizzes.vue:238
 msgid "Quizzes deleted successfully"
 msgstr "Тесты были успешно удалены"
 
@@ -6055,7 +6066,6 @@ msgstr "Тесты в этом видео"
 #. Label of the rating (Rating) field in DocType 'LMS Certificate Evaluation'
 #. Label of the rating (Data) field in DocType 'LMS Course'
 #. Label of the rating (Rating) field in DocType 'LMS Course Review'
-#: frontend/src/components/CourseCardOverlay.vue:116
 #: frontend/src/components/Modals/Event.vue:98
 #: frontend/src/components/Modals/ReviewModal.vue:18
 #: lms/lms/doctype/lms_certificate_evaluation/lms_certificate_evaluation.json
@@ -6127,7 +6137,7 @@ msgstr "Зарегистрирован, но отключен"
 #. Label of the related_courses (Table) field in DocType 'LMS Course'
 #. Name of a DocType
 #: frontend/src/components/RelatedCourses.vue:5
-#: frontend/src/pages/Courses/CourseForm.vue:176
+#: frontend/src/pages/Courses/CourseForm.vue:183
 #: lms/lms/doctype/lms_course/lms_course.json
 #: lms/lms/doctype/related_courses/related_courses.json
 msgid "Related Courses"
@@ -6179,11 +6189,11 @@ msgstr "Результат"
 msgid "Resume"
 msgstr "Возобновить"
 
-#: frontend/src/components/Quiz.vue:85 frontend/src/components/Quiz.vue:288
+#: frontend/src/components/Quiz.vue:101 frontend/src/components/Quiz.vue:350
 msgid "Resume Video"
 msgstr "Возобновить видео"
 
-#: frontend/src/pages/Home/Home.vue:174
+#: frontend/src/pages/Home/Home.vue:177
 msgid "Resume where you left off"
 msgstr "Продолжить с того места, где вы остановились"
 
@@ -6297,7 +6307,7 @@ msgstr "Суббота"
 #: frontend/src/components/Modals/EmailTemplateModal.vue:12
 #: frontend/src/components/Modals/Event.vue:121
 #: frontend/src/components/Modals/Event.vue:157
-#: frontend/src/components/Modals/Question.vue:112
+#: frontend/src/components/Modals/Question.vue:109
 #: frontend/src/components/Modals/ZoomAccountModal.vue:10
 #: frontend/src/components/Settings/BadgeAssignmentForm.vue:12
 #: frontend/src/components/Settings/BadgeForm.vue:78
@@ -6306,15 +6316,15 @@ msgstr "Суббота"
 #: frontend/src/components/Settings/PaymentGatewayDetails.vue:41
 #: frontend/src/components/Settings/Transactions/TransactionDetails.vue:29
 #: frontend/src/pages/Batches/BatchDetail.vue:17
-#: frontend/src/pages/Batches/components/NewBatchModal.vue:110
+#: frontend/src/pages/Batches/components/NewBatchModal.vue:112
 #: frontend/src/pages/Courses/CourseDetail.vue:17
 #: frontend/src/pages/Courses/NewCourseModal.vue:70
 #: frontend/src/pages/JobForm.vue:12 frontend/src/pages/LessonForm.vue:14
-#: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseForm.vue:105
+#: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseForm.vue:107
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseModal.vue:9
 #: frontend/src/pages/Programs/ProgramForm.vue:233
 #: frontend/src/pages/QuizForm.vue:43 frontend/src/pages/QuizSubmission.vue:14
-#: frontend/src/pages/Quizzes.vue:105
+#: frontend/src/pages/Quizzes.vue:101
 #: lms/job/web_form/job_opportunity/job_opportunity.json
 msgid "Save"
 msgstr "Сохранить"
@@ -6370,7 +6380,7 @@ msgid "Search by Name"
 msgstr "Поиск по названию"
 
 #: frontend/src/pages/Batches/Batches.vue:65
-#: frontend/src/pages/ProgrammingExercises/ProgrammingExercises.vue:44
+#: frontend/src/pages/ProgrammingExercises/ProgrammingExercises.vue:45
 msgid "Search by Title"
 msgstr "Поиск по названию"
 
@@ -6393,7 +6403,7 @@ msgstr "Поиск значка"
 
 #. Label of the seat_count (Int) field in DocType 'LMS Batch'
 #: frontend/src/pages/Batches/BatchForm.vue:39
-#: frontend/src/pages/Batches/components/NewBatchModal.vue:60
+#: frontend/src/pages/Batches/components/NewBatchModal.vue:62
 #: lms/lms/doctype/lms_batch/lms_batch.json
 msgid "Seat Count"
 msgstr "Количество мест"
@@ -6431,7 +6441,11 @@ msgstr "Выберите платежный шлюз"
 msgid "Select a Programming Exercise"
 msgstr "Выбрать упражнение по программированию"
 
-#: frontend/src/components/Modals/Question.vue:101
+#: frontend/src/pages/Courses/CourseForm.vue:78
+msgid "Select a fallback color for the course card when no image is set."
+msgstr ""
+
+#: frontend/src/components/Modals/Question.vue:98
 msgid "Select a question"
 msgstr "Выберите вопрос"
 
@@ -6443,6 +6457,10 @@ msgstr "Выберите тест"
 #: frontend/src/components/AssessmentPlugin.vue:49
 msgid "Select an Assignment"
 msgstr "Выберите задание"
+
+#: frontend/src/components/Modals/Question.vue:17
+msgid "Select from questions you have already created"
+msgstr ""
 
 #: frontend/src/components/ContactUsEmail.vue:33
 #: frontend/src/pages/JobApplications.vue:115
@@ -6471,6 +6489,18 @@ msgstr ""
 #. DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Send Notification for Published Courses"
+msgstr ""
+
+#. Label of the send_payment_reminders_for_batch (Check) field in DocType 'LMS
+#. Settings'
+#: lms/lms/doctype/lms_settings/lms_settings.json
+msgid "Send Payment Reminders for Batch"
+msgstr ""
+
+#. Label of the send_payment_reminders_for_course (Check) field in DocType 'LMS
+#. Settings'
+#: lms/lms/doctype/lms_settings/lms_settings.json
+msgid "Send Payment Reminders for Course"
 msgstr ""
 
 #. Label of the send_calendar_invite_for_evaluations (Check) field in DocType
@@ -6521,7 +6551,7 @@ msgid "Short Description"
 msgstr "Краткое описание"
 
 #. Label of the short_introduction (Small Text) field in DocType 'LMS Course'
-#: frontend/src/pages/Courses/CourseForm.vue:134
+#: frontend/src/pages/Courses/CourseForm.vue:141
 #: frontend/src/pages/Courses/NewCourseModal.vue:46
 #: lms/lms/doctype/lms_course/lms_course.json
 msgid "Short Introduction"
@@ -6537,7 +6567,7 @@ msgid "Show Answer"
 msgstr "Показать ответ"
 
 #. Label of the show_answers (Check) field in DocType 'LMS Quiz'
-#: frontend/src/pages/QuizForm.vue:93 frontend/src/pages/Quizzes.vue:274
+#: frontend/src/pages/QuizForm.vue:93 frontend/src/pages/Quizzes.vue:271
 #: lms/lms/doctype/lms_quiz/lms_quiz.json
 msgid "Show Answers"
 msgstr "Показать ответы"
@@ -6625,15 +6655,15 @@ msgstr "Навыки"
 msgid "Skip"
 msgstr "Пропустить"
 
-#: lms/lms/doctype/course_evaluator/course_evaluator.py:57
+#: lms/lms/doctype/course_evaluator/course_evaluator.py:62
 msgid "Slot Times are overlapping for some schedules."
 msgstr "В некоторых расписаниях интервалы времени пересекаются."
 
-#: frontend/src/pages/ProfileEvaluator.vue:218
+#: frontend/src/pages/ProfileEvaluator.vue:223
 msgid "Slot added successfully"
 msgstr "Слот успешно добавлен"
 
-#: frontend/src/pages/ProfileEvaluator.vue:257
+#: frontend/src/pages/ProfileEvaluator.vue:262
 msgid "Slot deleted successfully"
 msgstr "Слот успешно удален"
 
@@ -6667,7 +6697,7 @@ msgstr "Источник"
 msgid "Staff"
 msgstr "Персонал"
 
-#: frontend/src/components/Quiz.vue:81
+#: frontend/src/components/Quiz.vue:97
 #: frontend/src/pages/Batches/components/LiveClass.vue:78
 #: frontend/src/pages/Home/AdminHome.vue:81
 #: frontend/src/pages/Home/StudentHome.vue:46
@@ -6676,7 +6706,7 @@ msgstr "Начать"
 
 #. Label of the start_date (Date) field in DocType 'Education Detail'
 #. Label of the start_date (Date) field in DocType 'LMS Batch'
-#: frontend/src/pages/Batches/components/NewBatchModal.vue:19
+#: frontend/src/pages/Batches/components/NewBatchModal.vue:20
 #: lms/lms/doctype/education_detail/education_detail.json
 #: lms/lms/doctype/lms_batch/lms_batch.json
 msgid "Start Date"
@@ -6698,7 +6728,7 @@ msgstr "Начать изучение"
 #. Label of the start_time (Time) field in DocType 'LMS Certificate Evaluation'
 #. Label of the start_time (Time) field in DocType 'LMS Certificate Request'
 #. Label of the start_time (Time) field in DocType 'Scheduled Flow'
-#: frontend/src/pages/Batches/components/NewBatchModal.vue:31
+#: frontend/src/pages/Batches/components/NewBatchModal.vue:32
 #: frontend/src/pages/ProfileEvaluator.vue:29
 #: lms/lms/doctype/evaluator_schedule/evaluator_schedule.json
 #: lms/lms/doctype/lms_batch/lms_batch.json
@@ -6709,7 +6739,7 @@ msgstr "Начать изучение"
 msgid "Start Time"
 msgstr "Время начала"
 
-#: lms/lms/doctype/course_evaluator/course_evaluator.py:36
+#: lms/lms/doctype/course_evaluator/course_evaluator.py:41
 msgid "Start Time cannot be greater than End Time"
 msgstr "Время начала не может быть позже времени окончания"
 
@@ -6718,7 +6748,7 @@ msgstr "Время начала не может быть позже времен
 msgid "Start URL"
 msgstr "Стартовый URL"
 
-#: frontend/src/components/Quiz.vue:81
+#: frontend/src/components/Quiz.vue:97
 msgid "Start the Quiz"
 msgstr "Начать тест"
 
@@ -6735,7 +6765,7 @@ msgstr "Штат/провинция"
 #. Label of the statistics (Check) field in DocType 'LMS Settings'
 #: frontend/src/pages/Statistics.vue:153 frontend/src/pages/Statistics.vue:225
 #: lms/lms/doctype/lms_course/lms_course.json
-#: lms/lms/doctype/lms_settings/lms_settings.json lms/www/_lms.py:206
+#: lms/lms/doctype/lms_settings/lms_settings.json lms/www/_lms.py:207
 msgid "Statistics"
 msgstr "Статистика"
 
@@ -6854,8 +6884,8 @@ msgstr "Заявка успешно удалена"
 #: frontend/src/components/Modals/AssessmentModal.vue:9
 #: frontend/src/components/Modals/BatchCourseModal.vue:9
 #: frontend/src/components/Modals/EvaluationModal.vue:9
-#: frontend/src/components/Quiz.vue:242 lms/templates/assignment.html:9
-#: lms/www/new-sign-up.html:32
+#: frontend/src/components/Quiz.vue:304 frontend/src/components/Quiz.vue:382
+#: lms/templates/assignment.html:9 lms/www/new-sign-up.html:32
 msgid "Submit"
 msgstr "Отправить"
 
@@ -6889,7 +6919,7 @@ msgstr "Резюме"
 msgid "Sunday"
 msgstr "Воскресенье"
 
-#: lms/lms/api.py:1047
+#: lms/lms/api.py:1032
 msgid "Suspicious pattern found in {0}: {1}"
 msgstr "Найден подозрительный шаблон в {0}: {1}"
 
@@ -6945,7 +6975,7 @@ msgid "System Manager"
 msgstr "Системный менеджер"
 
 #. Label of the tags (Data) field in DocType 'LMS Course'
-#: frontend/src/pages/Courses/CourseForm.vue:37
+#: frontend/src/pages/Courses/CourseForm.vue:40
 #: lms/lms/doctype/lms_course/lms_course.json
 msgid "Tags"
 msgstr "Теги"
@@ -6995,7 +7025,7 @@ msgstr "Тестовые примеры"
 msgid "Test Quiz"
 msgstr "Испытать тест"
 
-#: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseForm.vue:86
+#: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseForm.vue:87
 msgid "Test this Exercise"
 msgstr "Испытать это упражнение"
 
@@ -7098,7 +7128,7 @@ msgstr "В этой группе нет свободных мест."
 msgid "There are no submissions for this assignment."
 msgstr "Для этого задания нет отправленных данных."
 
-#: frontend/src/components/EmptyState.vue:11
+#: frontend/src/components/EmptyState.vue:9
 msgid "There are no {0} currently. Keep an eye out, fresh learning experiences are on the way!"
 msgstr "На данный момент нет {0}. Следите за обновлениями, продолжайте учиться!"
 
@@ -7179,7 +7209,7 @@ msgstr "Этот урок недоступен для предварительн
 msgid "This program consists of {0} courses"
 msgstr "Эта программа состоит из {0} курсов"
 
-#: frontend/src/components/Quiz.vue:11
+#: frontend/src/components/Quiz.vue:26
 msgid "This quiz consists of {0} questions."
 msgstr "Этот тест состоит из {0} вопросов."
 
@@ -7206,7 +7236,7 @@ msgstr "Четверг"
 #. Label of the time (Time) field in DocType 'LMS Live Class'
 #: frontend/src/components/Modals/Event.vue:54
 #: frontend/src/components/Modals/LiveClassModal.vue:52
-#: frontend/src/components/Quiz.vue:58
+#: frontend/src/components/Quiz.vue:74
 #: lms/lms/doctype/lms_live_class/lms_live_class.json
 msgid "Time"
 msgstr "Время "
@@ -7267,8 +7297,8 @@ msgstr "Шаблон расписания"
 #. Label of the timezone (Data) field in DocType 'LMS Live Class'
 #: frontend/src/components/Modals/LiveClassModal.vue:59
 #: frontend/src/pages/Batches/BatchForm.vue:67
-#: frontend/src/pages/Batches/components/NewBatchModal.vue:43
-#: frontend/src/pages/Courses/CourseForm.vue:252
+#: frontend/src/pages/Batches/components/NewBatchModal.vue:44
+#: frontend/src/pages/Courses/CourseForm.vue:259
 #: lms/lms/doctype/lms_batch/lms_batch.json
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 #: lms/lms/doctype/lms_course/lms_course.json
@@ -7276,7 +7306,7 @@ msgstr "Шаблон расписания"
 msgid "Timezone"
 msgstr "Часовой пояс"
 
-#: lms/lms/doctype/lms_course/lms_course.py:78
+#: lms/lms/doctype/lms_course/lms_course.py:80
 msgid "Timezone is required for paid certificates."
 msgstr "Для платных сертификатов требуется указывать часовой пояс."
 
@@ -7306,14 +7336,14 @@ msgstr "Сроки:"
 #: frontend/src/pages/Assignments.vue:164
 #: frontend/src/pages/Batches/BatchForm.vue:19
 #: frontend/src/pages/Batches/components/NewBatchModal.vue:14
-#: frontend/src/pages/Courses/CourseForm.vue:13
+#: frontend/src/pages/Courses/CourseForm.vue:16
 #: frontend/src/pages/Courses/NewCourseModal.vue:14
 #: frontend/src/pages/JobForm.vue:25 frontend/src/pages/LessonForm.vue:21
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseForm.vue:22
-#: frontend/src/pages/ProgrammingExercises/ProgrammingExercises.vue:270
+#: frontend/src/pages/ProgrammingExercises/ProgrammingExercises.vue:272
 #: frontend/src/pages/Programs/ProgramForm.vue:25
-#: frontend/src/pages/QuizForm.vue:56 frontend/src/pages/Quizzes.vue:117
-#: frontend/src/pages/Quizzes.vue:247
+#: frontend/src/pages/QuizForm.vue:56 frontend/src/pages/Quizzes.vue:113
+#: frontend/src/pages/Quizzes.vue:244
 #: lms/lms/doctype/course_chapter/course_chapter.json
 #: lms/lms/doctype/course_lesson/course_lesson.json
 #: lms/lms/doctype/lms_assignment/lms_assignment.json
@@ -7362,10 +7392,14 @@ msgid "Total"
 msgstr "Итого"
 
 #. Label of the total_marks (Int) field in DocType 'LMS Quiz'
-#: frontend/src/pages/QuizForm.vue:73 frontend/src/pages/Quizzes.vue:253
+#: frontend/src/pages/QuizForm.vue:73 frontend/src/pages/Quizzes.vue:250
 #: lms/lms/doctype/lms_quiz/lms_quiz.json
 msgid "Total Marks"
 msgstr "Всего задач"
+
+#: frontend/src/components/Quiz.vue:397
+msgid "Total Questions"
+msgstr ""
 
 #: lms/lms/web_template/lms_statistics/lms_statistics.html:14
 #: lms/templates/statistics.html:12
@@ -7393,7 +7427,7 @@ msgstr ""
 msgid "Travel"
 msgstr "Путешествия"
 
-#: frontend/src/components/Quiz.vue:284
+#: frontend/src/components/Quiz.vue:346
 msgid "Try Again"
 msgstr "Попробовать снова"
 
@@ -7421,11 +7455,11 @@ msgstr "Twitter ID"
 #. Label of the type (Select) field in DocType 'LMS Question'
 #. Label of the type (Select) field in DocType 'LMS Quiz Question'
 #: frontend/src/components/Modals/AssessmentModal.vue:22
-#: frontend/src/components/Modals/Question.vue:44
+#: frontend/src/components/Modals/Question.vue:41
 #: frontend/src/pages/Assignments.vue:40 frontend/src/pages/Assignments.vue:169
 #: frontend/src/pages/Batches/components/Assessments.vue:213
 #: frontend/src/pages/JobForm.vue:30 frontend/src/pages/Jobs.vue:85
-#: frontend/src/pages/ProgrammingExercises/ProgrammingExercises.vue:51
+#: frontend/src/pages/ProgrammingExercises/ProgrammingExercises.vue:52
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 #: lms/job/web_form/job_opportunity/job_opportunity.json
 #: lms/lms/doctype/lms_assignment/lms_assignment.json
@@ -7440,7 +7474,7 @@ msgstr "Тип"
 msgid "Type '/' for commands or select text to format"
 msgstr "Введите '/' для команд или выберите текст для форматирования"
 
-#: frontend/src/components/Quiz.vue:653
+#: frontend/src/components/Quiz.vue:863
 msgid "Type your answer"
 msgstr "Введите свой ответ"
 
@@ -7461,17 +7495,21 @@ msgstr "URL"
 msgid "UUID"
 msgstr "UUID"
 
+#: frontend/src/components/Quiz.vue:413
+msgid "Unattempted Questions"
+msgstr ""
+
 #. Label of the unavailability_section (Section Break) field in DocType 'Course
 #. Evaluator'
 #: lms/lms/doctype/course_evaluator/course_evaluator.json
 msgid "Unavailability"
 msgstr "Недоступность"
 
-#: frontend/src/pages/ProfileEvaluator.vue:276
+#: frontend/src/pages/ProfileEvaluator.vue:281
 msgid "Unavailability updated successfully"
 msgstr "Недоступность успешно обновлена"
 
-#: lms/lms/doctype/course_evaluator/course_evaluator.py:31
+#: lms/lms/doctype/course_evaluator/course_evaluator.py:36
 msgid "Unavailable From Date cannot be greater than Unavailable To Date"
 msgstr "Недоступно с даты не может быть больше, чем Недоступно по дату"
 
@@ -7503,7 +7541,7 @@ msgstr "Неструктурированная роль"
 #. Option for the 'Status' (Select) field in DocType 'LMS Certificate Request'
 #. Label of the upcoming (Check) field in DocType 'LMS Course'
 #: frontend/src/pages/Batches/Batches.vue:321
-#: frontend/src/pages/Courses/CourseForm.vue:107
+#: frontend/src/pages/Courses/CourseForm.vue:114
 #: frontend/src/pages/Courses/Courses.vue:334
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 #: lms/lms/doctype/lms_course/lms_course.json
@@ -7533,7 +7571,7 @@ msgstr "Обновить"
 msgid "Update Password"
 msgstr "Обновить пароль"
 
-#: frontend/src/pages/ProgrammingExercises/ProgrammingExercises.vue:281
+#: frontend/src/pages/ProgrammingExercises/ProgrammingExercises.vue:283
 msgid "Updated On"
 msgstr ""
 
@@ -7603,7 +7641,7 @@ msgstr "Ввод пользователем"
 msgid "User Skill"
 msgstr "Навыки пользователя"
 
-#: lms/lms/api.py:1796
+#: lms/lms/api.py:1804
 msgid "User does not have permission to access this user's profile details."
 msgstr ""
 
@@ -7617,8 +7655,7 @@ msgid "Username"
 msgstr "Имя пользователя"
 
 #. Label of a shortcut in the Learning Workspace
-#. Label of a Workspace Sidebar Item
-#: lms/lms/workspace/learning/learning.json lms/workspace_sidebar/lms.json
+#: lms/lms/workspace/learning/learning.json
 msgid "Users"
 msgstr "Пользователи"
 
@@ -7861,7 +7898,7 @@ msgstr "Вы не имеете права доступа к этой стран�
 msgid "You can also copy-paste following link in your browser"
 msgstr "Вы также можете скопировать и вставить следующую ссылку в свой браузер"
 
-#: frontend/src/components/Quiz.vue:37
+#: frontend/src/components/Quiz.vue:52
 msgid "You can attempt this quiz {0}."
 msgstr "Вы можете попробовать пройти этот тест {0}."
 
@@ -7913,27 +7950,27 @@ msgstr "У вас нет доступа к этому пакету."
 msgid "You do not have access to this course."
 msgstr "У вас нет доступа к этому курсу."
 
-#: lms/lms/api.py:872 lms/lms/doctype/lms_batch/lms_batch.py:365
+#: lms/lms/api.py:854 lms/lms/doctype/lms_batch/lms_batch.py:365
 msgid "You do not have permission to access announcements for this batch."
 msgstr ""
 
-#: lms/lms/api.py:2290
+#: lms/lms/api.py:2303
 msgid "You do not have permission to access badges."
 msgstr ""
 
-#: lms/lms/api.py:1159
+#: lms/lms/api.py:1144
 msgid "You do not have permission to access heatmap data."
 msgstr ""
 
-#: lms/lms/api.py:2129
+#: lms/lms/api.py:2142
 msgid "You do not have permission to access lesson completion stats."
 msgstr ""
 
-#: lms/lms/api.py:2169
+#: lms/lms/api.py:2182
 msgid "You do not have permission to access this course's assessment data."
 msgstr ""
 
-#: lms/lms/api.py:1697
+#: lms/lms/api.py:1705
 msgid "You do not have permission to access this course's progress data."
 msgstr ""
 
@@ -7941,7 +7978,7 @@ msgstr ""
 msgid "You do not have permission to access this page."
 msgstr "У вас нет доступа к этой странице."
 
-#: lms/lms/api.py:1375 lms/lms/api.py:1384
+#: lms/lms/api.py:1361 lms/lms/api.py:1370
 msgid "You do not have permission to cancel this evaluation."
 msgstr ""
 
@@ -7949,15 +7986,15 @@ msgstr ""
 msgid "You do not have permission to create a live class."
 msgstr ""
 
-#: lms/lms/api.py:939
+#: lms/lms/api.py:924
 msgid "You do not have permission to delete this batch."
 msgstr ""
 
-#: lms/lms/api.py:1113
+#: lms/lms/api.py:1098
 msgid "You do not have permission to delete this chapter."
 msgstr ""
 
-#: lms/lms/api.py:902
+#: lms/lms/api.py:884
 msgid "You do not have permission to delete this course."
 msgstr ""
 
@@ -7965,7 +8002,7 @@ msgstr ""
 msgid "You do not have permission to delete this lesson."
 msgstr ""
 
-#: lms/lms/api.py:596 lms/lms/api.py:987
+#: lms/lms/api.py:596 lms/lms/api.py:972
 msgid "You do not have permission to modify this chapter."
 msgstr ""
 
@@ -7973,7 +8010,7 @@ msgstr ""
 msgid "You do not have permission to modify this lesson."
 msgstr ""
 
-#: lms/lms/api.py:1444
+#: lms/lms/api.py:1430
 msgid "You do not have permission to modify this role."
 msgstr ""
 
@@ -7985,11 +8022,11 @@ msgstr ""
 msgid "You do not have permission to set up calendar events for this evaluation."
 msgstr ""
 
-#: lms/lms/api.py:1580 lms/lms/api.py:1584
+#: lms/lms/api.py:1588 lms/lms/api.py:1592
 msgid "You do not have permission to update meta tags."
 msgstr "У вас нет разрешения на обновление метатегов."
 
-#: lms/lms/api.py:1621
+#: lms/lms/api.py:1629
 msgid "You do not have permission to update this submission."
 msgstr ""
 
@@ -7997,7 +8034,7 @@ msgstr ""
 msgid "You don't have any notifications."
 msgstr "У вас нет уведомлений."
 
-#: frontend/src/components/Quiz.vue:265
+#: frontend/src/components/Quiz.vue:327
 #, python-format
 msgid "You got {0}% correct answers with a score of {1} out of {2}"
 msgstr "Вы получили {0}% правильных ответов с оценкой {1} из {2}"
@@ -8010,7 +8047,7 @@ msgstr "На завтра запланирован живой урок. Будь
 msgid "You have already applied for this job."
 msgstr "Вы уже подали заявку на эту вакансию."
 
-#: frontend/src/components/Quiz.vue:96
+#: frontend/src/components/Quiz.vue:112
 msgid "You have already exceeded the maximum number of attempts allowed for this quiz."
 msgstr "Вы уже превысили максимально допустимое количество попыток для этого теста."
 
@@ -8030,7 +8067,7 @@ msgstr "Вы подали заявку"
 msgid "You have been enrolled in this batch"
 msgstr "Вы были записаны в этот пакет"
 
-#: frontend/src/components/CourseCardOverlay.vue:196
+#: frontend/src/components/CourseCardOverlay.vue:201
 msgid "You have been enrolled in this course"
 msgstr "Вы зарегистрированы на этот курс"
 
@@ -8054,15 +8091,15 @@ msgstr "Вы пока не получили ни одного сертифика
 msgid "You have opted to be notified for this course. You will receive an email when the course becomes available."
 msgstr "Вы выбрали получение уведомлений об этом курсе. Вы получите электронное письмо, когда курс станет доступен."
 
-#: frontend/src/pages/Home/Home.vue:134 frontend/src/pages/Home/Home.vue:157
+#: frontend/src/pages/Home/Home.vue:137 frontend/src/pages/Home/Home.vue:160
 msgid "You have {0} upcoming {1} and {2} {3} scheduled."
 msgstr "У вас запланировано {0} предстоящих {1} и {2} {3}."
 
-#: frontend/src/pages/Home/Home.vue:141 frontend/src/pages/Home/Home.vue:164
+#: frontend/src/pages/Home/Home.vue:144 frontend/src/pages/Home/Home.vue:167
 msgid "You have {0} upcoming {1}."
 msgstr "У вас {0} предстоящих {1}."
 
-#: frontend/src/pages/Home/Home.vue:146 frontend/src/pages/Home/Home.vue:169
+#: frontend/src/pages/Home/Home.vue:149 frontend/src/pages/Home/Home.vue:172
 msgid "You have {0} {1} scheduled."
 msgstr "У вас запланировано {0} {1}."
 
@@ -8082,7 +8119,7 @@ msgstr "Для того чтобы оставить отзыв, вы должн�
 msgid "You need to complete the payment for this course before enrolling."
 msgstr "Перед регистрацией вам необходимо оплатить этот курс."
 
-#: frontend/src/components/CourseCardOverlay.vue:180
+#: frontend/src/components/CourseCardOverlay.vue:185
 msgid "You need to login first to enroll for this course"
 msgstr "Вы должны войти, чтобы зарегистрироваться на этот курс"
 
@@ -8090,11 +8127,11 @@ msgstr "Вы должны войти, чтобы зарегистрироват�
 msgid "You rock,"
 msgstr "Вы получили,"
 
-#: frontend/src/components/Quiz.vue:7
+#: frontend/src/components/Quiz.vue:15
 msgid "You will have to complete the quiz to continue the video"
 msgstr "Вы должны пройти тест, чтобы продолжить видео"
 
-#: frontend/src/components/Quiz.vue:30
+#: frontend/src/components/Quiz.vue:45
 #, python-format
 msgid "You will have to get {0}% correct answers in order to pass the quiz."
 msgstr "Чтобы пройти тест, вам нужно будет дать {0}% правильных ответов."
@@ -8170,7 +8207,7 @@ msgstr "Ваша учебная серия — это количество дн�
 msgid "Your request to join us as a mentor for the course"
 msgstr "Ваш запрос на присоединение к нам в качестве наставника курса"
 
-#: frontend/src/components/Quiz.vue:258
+#: frontend/src/components/Quiz.vue:320
 msgid "Your submission has been successfully saved. The instructor will review and grade it shortly, and you'll be notified of your final result."
 msgstr "Ваше задание было успешно сохранено. Преподаватель в ближайшее время проверит и проверит его оценку, и вы будете уведомлены об окончательных результатах."
 
@@ -8241,6 +8278,10 @@ msgstr "заявители"
 msgid "at {0} minutes"
 msgstr "через {0} минут"
 
+#: frontend/src/components/CourseCardOverlay.vue:121
+msgid "average rating"
+msgstr ""
+
 #: lms/templates/emails/payment_reminder.html:4
 msgid "but didn’t complete your payment"
 msgstr "но не завершил ваш платеж"
@@ -8281,15 +8322,23 @@ msgstr "дневная серия"
 msgid "days"
 msgstr "дни"
 
-#: frontend/src/pages/Courses/CourseForm.vue:253
+#: frontend/src/pages/Courses/CourseForm.vue:260
 msgid "e.g. IST, UTC, GMT..."
 msgstr "например, IST, UTC, GMT..."
 
-#: frontend/src/pages/Home/Home.vue:132 frontend/src/pages/Home/Home.vue:155
+#: frontend/src/components/CourseCardOverlay.vue:111
+msgid "enrolled student"
+msgstr ""
+
+#: frontend/src/components/CourseCardOverlay.vue:110
+msgid "enrolled students"
+msgstr ""
+
+#: frontend/src/pages/Home/Home.vue:135 frontend/src/pages/Home/Home.vue:158
 msgid "evaluation"
 msgstr "оценка"
 
-#: frontend/src/pages/Home/Home.vue:132 frontend/src/pages/Home/Home.vue:155
+#: frontend/src/pages/Home/Home.vue:135 frontend/src/pages/Home/Home.vue:158
 msgid "evaluations"
 msgstr "оценки"
 
@@ -8305,15 +8354,20 @@ msgstr "за последние"
 msgid "jane@example.com"
 msgstr "ivan@example.com"
 
+#: frontend/src/components/CourseCardOverlay.vue:101
+msgid "lesson"
+msgstr "урок"
+
+#: frontend/src/components/CourseCardOverlay.vue:101
 #: frontend/src/pages/Programs/ProgramEnrollment.vue:65
 msgid "lessons"
 msgstr "уроки"
 
-#: frontend/src/pages/Home/Home.vue:130 frontend/src/pages/Home/Home.vue:154
+#: frontend/src/pages/Home/Home.vue:133 frontend/src/pages/Home/Home.vue:157
 msgid "live class"
 msgstr "урок онлайн"
 
-#: frontend/src/pages/Home/Home.vue:130 frontend/src/pages/Home/Home.vue:154
+#: frontend/src/pages/Home/Home.vue:133 frontend/src/pages/Home/Home.vue:157
 msgid "live classes"
 msgstr "Интерактивное обучение"
 
@@ -8343,7 +8397,7 @@ msgstr "минуты"
 msgid "others"
 msgstr "другие"
 
-#: frontend/src/pages/QuizForm.vue:331
+#: frontend/src/pages/QuizForm.vue:327
 msgid "question_detail"
 msgstr "деталь_вопрос"
 
@@ -8392,11 +8446,11 @@ msgstr "вы можете"
 msgid "{0} Assignments"
 msgstr "{0} задания"
 
-#: frontend/src/pages/ProgrammingExercises/ProgrammingExercises.vue:39
+#: frontend/src/pages/ProgrammingExercises/ProgrammingExercises.vue:40
 msgid "{0} Exercises"
 msgstr "{0} Упражнений"
 
-#: frontend/src/pages/Quizzes.vue:18
+#: frontend/src/pages/Quizzes.vue:16
 msgid "{0} Quizzes"
 msgstr "{0} викторины"
 
@@ -8416,7 +8470,7 @@ msgstr "{0} подал заявку на вакансию {1}"
 msgid "{0} has published a new batch {1}"
 msgstr ""
 
-#: lms/lms/doctype/lms_course/lms_course.py:203
+#: lms/lms/doctype/lms_course/lms_course.py:205
 msgid "{0} has published a new course {1}"
 msgstr ""
 
