@@ -83,11 +83,12 @@
 						/>
 						<MultiSelect
 							v-model="batch.instructors"
-							doctype="Course Evaluator"
+							doctype="User"
 							:label="__('Instructors')"
 							:required="true"
-							:onCreate="(close: () => void) => openSettings('Evaluators', close)"
-							:filters="{ ignore_user_type: 1 }"
+							:onCreate="() => (showMemberModal = true)"
+							url="lms.lms.api.search_users_by_role"
+							:searchParams="{ roles: JSON.stringify(['Batch Evaluator']) }"
 						/>
 					</div>
 					<div class="">
@@ -114,6 +115,11 @@
 			</div>
 		</template>
 	</Dialog>
+	<NewMemberModal
+		v-model="showMemberModal"
+		:defaultRoles="['batch_evaluator']"
+		@created="onInstructorCreated"
+	/>
 </template>
 <script setup lang="ts">
 import { Button, Dialog, FormControl, TextEditor, toast } from 'frappe-ui'
@@ -121,14 +127,16 @@ import { useOnboarding, useTelemetry } from 'frappe-ui/frappe'
 import { computed, inject, onMounted, onBeforeUnmount, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { cleanError, openSettings, sanitizeHTML, escapeHTML } from '@/utils'
-import Link from '@/components/Controls/Link.vue'
 import MultiSelect from '@/components/Controls/MultiSelect.vue'
+import Link from '@/components/Controls/Link.vue'
+import NewMemberModal from '@/components/Modals/NewMemberModal.vue'
 
 const show = defineModel<boolean>({ required: true, default: false })
 const router = useRouter()
 const { capture } = useTelemetry()
 const { updateOnboardingStep } = useOnboarding('learning')
 const user = inject<any>('$user')
+const showMemberModal = ref(false)
 
 const props = defineProps<{
 	batches: any
@@ -163,6 +171,10 @@ const batch = ref<Batch>({
 	seat_count: 0,
 	medium: null,
 })
+
+const onInstructorCreated = (user: any) => {
+	batch.value.instructors = [...batch.value.instructors, user.name]
+}
 
 const validateFields = () => {
 	batch.value.description = sanitizeHTML(batch.value.description)

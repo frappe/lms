@@ -1469,28 +1469,6 @@ def save_evaluator_role(user: str, value: int):
 
 
 @frappe.whitelist()
-def add_an_evaluator(email: str):
-	frappe.only_for("Moderator")
-	if not frappe.db.exists("User", email):
-		user = frappe.new_doc("User")
-		user.update(
-			{
-				"email": email,
-				"first_name": email.split("@")[0].capitalize(),
-				"enabled": 1,
-			}
-		)
-		user.insert()
-		user.add_roles("Batch Evaluator")
-
-	evaluator = frappe.new_doc("Course Evaluator")
-	evaluator.evaluator = email
-	evaluator.insert()
-
-	return evaluator
-
-
-@frappe.whitelist()
 def capture_user_persona(responses: str):
 	frappe.only_for("System Manager")
 	data = frappe.parse_json(responses)
@@ -2329,3 +2307,49 @@ def clear_demo_data():
 			frappe.delete_doc("User", user, ignore_permissions=True)
 
 	frappe.db.set_single_value("LMS Settings", "demo_data_present", False)
+
+
+@frappe.whitelist()
+def search_users_by_role(txt: str = "", roles: str | list | None = None, page_length: int = 10):
+	"""Returns users with `roles` in search_link format"""
+	frappe.only_for(["Moderator", "Course Creator", "Batch Evaluator"])
+	if not roles:
+		return []
+
+	if isinstance(roles, str):
+		roles = json.loads(roles)
+
+	invalid_roles = set(roles) - set(LMS_ROLES)
+	if invalid_roles:
+		frappe.throw(_("Cannot search for roles: {0}").format(", ".join(invalid_roles)))
+
+	users_with_roles = frappe.get_all(
+		"Has Role",
+		filters={"role": ["in", roles], "parenttype": "User"},
+		pluck="parent",
+		distinct=True,
+	)
+
+	if not users_with_roles:
+		return []
+
+	results = frappe.get_all(
+		"User",
+		filters=[
+			["name", "in", users_with_roles],
+			["name", "not in", ["Administrator", "Guest"]],
+			["enabled", "=", 1],
+		],
+		or_filters=[
+			["full_name", "like", f"%{txt}%"],
+			["name", "like", f"%{txt}%"],
+		],
+		fields=["name", "full_name"],
+		limit_page_length=cint(page_length),
+		order_by="full_name asc",
+	)
+
+	return [
+		{"value": r.name, "description": r.full_name or r.name, "label": r.full_name or r.name}
+		for r in results
+	]

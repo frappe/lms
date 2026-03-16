@@ -10,7 +10,7 @@
 				</div>
 			</div>
 			<div class="flex item-center space-x-2">
-				<Button @click="() => (showForm = !showForm)">
+				<Button @click="showNewMember = true">
 					<template #prefix>
 						<Plus class="size-4 stroke-1.5" />
 					</template>
@@ -82,56 +82,16 @@
 			</div>
 		</div>
 	</div>
-	<Dialog
-		v-model="showForm"
-		:options="{
-			title: __('Add a new member'),
-			size: 'lg',
-			actions: [{
-				label: __('Add'),
-				variant: 'solid',
-				onClick({ close }: any) {
-					addMember(close)
-				}
-			}]
-		}"
-	>
-		<template #body-content>
-			<div class="flex items-center space-x-2">
-				<FormControl
-					v-model="member.email"
-					:label="__('Email')"
-					placeholder="jane@doe.com"
-					type="email"
-					class="w-full"
-				/>
-				<FormControl
-					v-model="member.first_name"
-					:label="__('First Name')"
-					placeholder="Jane"
-					type="text"
-					class="w-full"
-				/>
-			</div>
-		</template>
-	</Dialog>
+	<NewMemberModal v-model="showNewMember" @created="onMemberCreated" />
 </template>
 <script setup lang="ts">
-import {
-	Avatar,
-	Button,
-	call,
-	createResource,
-	Dialog,
-	FormControl,
-	toast,
-} from 'frappe-ui'
+import { Avatar, Button, createResource, FormControl } from 'frappe-ui'
 import { useRouter } from 'vue-router'
-import { ref, watch, reactive, inject } from 'vue'
+import { ref, watch, inject } from 'vue'
 import { RefreshCw, Plus, Search, Shield } from 'lucide-vue-next'
-import { useOnboarding } from 'frappe-ui/frappe'
+import { useOnboarding, useTelemetry } from 'frappe-ui/frappe'
 import type { User } from '@/components/Settings/types'
-import { useTelemetry } from 'frappe-ui/frappe'
+import NewMemberModal from '@/components/Modals/NewMemberModal.vue'
 
 type Member = {
 	username: string
@@ -147,15 +107,10 @@ const search = ref('')
 const start = ref(0)
 const memberList = ref<Member[]>([])
 const hasNextPage = ref(false)
-const showForm = ref(false)
+const showNewMember = ref(false)
 const user = inject<User | null>('$user')
 const { updateOnboardingStep } = useOnboarding('learning')
 const { capture } = useTelemetry()
-
-const member = reactive({
-	email: '',
-	first_name: '',
-})
 
 const props = defineProps({
 	label: {
@@ -194,30 +149,12 @@ const openProfile = (username: string) => {
 	})
 }
 
-const addMember = (close: () => void) => {
-	call('frappe.client.insert', {
-		doc: {
-			doctype: 'User',
-			first_name: member.first_name,
-			email: member.email,
-		},
-	})
-		.then((data: Member) => {
-			if (user?.data?.is_system_manager) updateOnboardingStep('invite_students')
-			capture('user_added')
-			show.value = false
-			router.push({
-				name: 'ProfileRoles',
-				params: {
-					username: data.username,
-				},
-			})
-			close()
-		})
-		.catch((err: any) => {
-			console.error(err)
-			toast.error(__(err.messages?.[0] || err))
-		})
+const onMemberCreated = (data: any) => {
+	if (user?.data?.is_system_manager) updateOnboardingStep('invite_students')
+	capture('user_added')
+	memberList.value = []
+	start.value = 0
+	members.reload()
 }
 
 watch(search, () => {

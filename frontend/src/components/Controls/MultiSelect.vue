@@ -10,6 +10,7 @@
 					ref="search"
 					class="form-input w-full focus-visible:!ring-0"
 					type="text"
+					:displayValue="() => query"
 					@change="
 						(e) => {
 							query = e.target.value
@@ -106,7 +107,7 @@ import {
 	ComboboxOptions,
 	ComboboxOption,
 } from '@headlessui/vue'
-import { createResource, Button } from 'frappe-ui'
+import { createResource, Button, toast } from 'frappe-ui'
 import { ref, computed, useAttrs, watch } from 'vue'
 import { watchDebounced } from '@vueuse/core'
 import { X, Plus } from 'lucide-vue-next'
@@ -115,7 +116,9 @@ const props = defineProps({
 	label: String,
 	size: { type: String, default: 'sm' },
 	doctype: { type: String, required: true },
-	filters: { type: Object, default: () => ({}) },
+	filters: { type: [Object, Array], default: () => ({}) },
+	url: { type: String, default: 'frappe.desk.search.search_link' },
+	searchParams: { type: Object, default: () => ({}) },
 	validate: Function,
 	errorMessage: {
 		type: Function,
@@ -124,22 +127,18 @@ const props = defineProps({
 	required: Boolean,
 })
 
-const values = defineModel()
+const values = defineModel({ default: () => [] })
 const attrs = useAttrs()
 const trigger = ref(null)
 const query = ref('')
 const text = ref('')
 const selectedValue = ref(null)
-const error = ref(null)
-
-const emit = defineEmits(['update:modelValue'])
 
 watch(selectedValue, (val) => {
 	if (!val?.value) return
 	query.value = ''
 	addValue(val.value)
 	selectedValue.value = null
-	emit('update:modelValue', values.value)
 })
 
 watchDebounced(
@@ -153,14 +152,27 @@ watchDebounced(
 	{ debounce: 300, immediate: true }
 )
 
-const filterOptions = createResource({
-	url: 'frappe.desk.search.search_link',
-	method: 'POST',
-	auto: true,
-	params: {
-		txt: text.value,
-		doctype: props.doctype,
+// Refetch when filters or searchParams change
+watch(
+	() => [props.filters, props.searchParams],
+	() => {
+		reload(text.value)
 	},
+	{ deep: true }
+)
+
+function getParams(txt) {
+	return {
+		txt,
+		doctype: props.doctype,
+		filters: JSON.stringify(props.filters),
+		...props.searchParams,
+	}
+}
+
+const filterOptions = createResource({
+	url: props.url,
+	method: 'POST',
 })
 
 const options = computed(() => {
@@ -170,10 +182,7 @@ const options = computed(() => {
 
 function reload(val) {
 	filterOptions.update({
-		params: {
-			txt: val,
-			doctype: props.doctype,
-		},
+		params: getParams(val),
 	})
 	filterOptions.reload()
 }
@@ -186,34 +195,30 @@ function onFocus() {
 }
 
 function addValue(value) {
-	error.value = null
-
 	if (!value) return
 
 	const splitValues = value.split(',')
+	let newValues = [...(values.value || [])]
 
 	splitValues.forEach((val) => {
 		val = val.trim()
 
 		if (!val) return
-		if (values.value?.includes(val)) return
+		if (newValues.includes(val)) return
 
 		if (props.validate && !props.validate(val)) {
-			error.value = props.errorMessage(val)
+			toast.error(props.errorMessage(val))
 			return
 		}
 
-		if (!values.value) values.value = [val]
-		else values.value.push(val)
+		newValues.push(val)
 	})
+
+	values.value = newValues
 }
 
 function removeValue(value) {
-	let indexToRemove = values.value.indexOf(value)
-	if (indexToRemove > -1) {
-		values.value.splice(indexToRemove, 1)
-	}
-	emit('update:modelValue', values.value)
+	values.value = values.value.filter((v) => v !== value)
 }
 
 const labelClasses = computed(() => [

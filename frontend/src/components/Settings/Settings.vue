@@ -42,8 +42,7 @@
 							...(activeTab.label == 'Branding'
 								? { sections: activeTab.sections }
 								: {}),
-							...(activeTab.label == 'Evaluators' ||
-							activeTab.label == 'Members' ||
+							...(activeTab.label == 'Members' ||
 							activeTab.label == 'Transactions'
 								? { 'onUpdate:show': (val) => (show = val), show }
 								: {}),
