@@ -6,19 +6,34 @@
 		</label>
 		<Combobox v-model="selectedValue" nullable v-slot="{ open }">
 			<div class="relative w-full">
-				<ComboboxInput
-					ref="search"
-					class="form-input w-full focus-visible:!ring-0"
-					type="text"
-					:displayValue="() => query"
-					@change="
-						(e) => {
-							query = e.target.value
-						}
-					"
-					autocomplete="off"
-					@focus="onFocus"
-				/>
+				<div
+					class="flex flex-wrap items-center gap-1.5 w-full rounded-lg border border-outline-gray-2 bg-surface-gray-2 px-2 py-1.5 cursor-text transition-colors focus-within:border-outline-gray-4 focus-within:bg-surface-white focus-within:shadow-sm"
+					@click="focusInput"
+				>
+					<button
+						v-for="value in values"
+						:key="value"
+						type="button"
+						class="inline-flex items-center gap-1 bg-surface-white border border-outline-gray-2 text-ink-gray-7 pl-2 pr-1.5 py-0.5 rounded text-base leading-5"
+						@click.stop="removeValue(value)"
+					>
+						<span>{{ value }}</span>
+						<X class="size-3.5 stroke-1.5 shrink-0" />
+					</button>
+					<ComboboxInput
+						ref="search"
+						class="flex-1 min-w-[4rem] border-none outline-none bg-transparent p-0 text-base focus:ring-0"
+						type="text"
+						:placeholder="!values?.length ? __('Search...') : ''"
+						@change="
+							(e) => {
+								query = e.target.value
+							}
+						"
+						autocomplete="off"
+						@focus="onFocus"
+					/>
+				</div>
 				<ComboboxButton ref="trigger" class="hidden" />
 				<ComboboxOptions
 					v-show="open"
@@ -27,7 +42,7 @@
 				>
 					<div
 						class="flex-1 my-1 overflow-y-auto px-1.5"
-						:class="options.length ? 'min-h-[6rem]' : 'min-h-[3.8rem]'"
+						:class="options.length ? 'min-h-[6rem]' : 'min-h-[1rem]'"
 					>
 						<template v-if="options.length">
 							<ComboboxOption
@@ -81,21 +96,6 @@
 				</ComboboxOptions>
 			</div>
 		</Combobox>
-
-		<!-- Selected values -->
-		<div v-if="values?.length" class="grid grid-cols-2 gap-2 mt-1">
-			<div
-				v-for="value in values"
-				:key="value"
-				class="flex items-center justify-between break-all bg-surface-gray-2 text-ink-gray-7 p-2 rounded-md"
-			>
-				<span>{{ value }}</span>
-				<X
-					class="size-4 stroke-1.5 cursor-pointer"
-					@click="removeValue(value)"
-				/>
-			</div>
-		</div>
 	</div>
 </template>
 
