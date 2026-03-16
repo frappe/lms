@@ -43,7 +43,7 @@
 							{{ submissionResource.doc?.status }}
 						</Badge>
 						<Button
-							v-if="canModifyAssignment"
+							v-if="canModifyAssignment || canGradeSubmission"
 							variant="solid"
 							@click="submitAssignment()"
 						>
@@ -281,7 +281,6 @@ const submissionResource = createDocumentResource({
 
 watch(submissionResource, () => {
 	if (!submissionResource.doc) return
-	console.log(submissionResource.doc)
 	if (submissionResource.doc.answer) {
 		answer.value = submissionResource.doc.answer
 	}
@@ -405,7 +404,7 @@ const getType = () => {
 
 const removeSubmission = () => {
 	isDirty.value = true
-	submissionResource.doc.assignment_attachment = ''
+	attachment.value = null
 }
 
 const canGradeSubmission = computed(() => {
@@ -419,9 +418,7 @@ const canGradeSubmission = computed(() => {
 })
 
 const canModifyAssignment = computed(() => {
-	if (canGradeSubmission.value) {
-		return true
-	} else if (props.submissionName == 'new') {
+	if (props.submissionName == 'new') {
 		return true
 	} else if (
 		submissionResource.doc?.owner == user.data?.name &&
