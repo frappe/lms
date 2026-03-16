@@ -281,7 +281,6 @@ const submissionResource = createDocumentResource({
 
 watch(submissionResource, () => {
 	if (!submissionResource.doc) return
-	console.log(submissionResource.doc)
 	if (submissionResource.doc.answer) {
 		answer.value = submissionResource.doc.answer
 	}
@@ -405,7 +404,7 @@ const getType = () => {
 
 const removeSubmission = () => {
 	isDirty.value = true
-	submissionResource.doc.assignment_attachment = ''
+	attachment.value = null
 }
 
 const canGradeSubmission = computed(() => {
