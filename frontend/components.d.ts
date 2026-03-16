@@ -8,6 +8,7 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    AddEvaluatorModal: typeof import('./src/components/Modals/AddEvaluatorModal.vue')['default']
     Apps: typeof import('./src/components/Sidebar/Apps.vue')['default']
     AppSidebar: typeof import('./src/components/Sidebar/AppSidebar.vue')['default']
     AssessmentModal: typeof import('./src/components/Modals/AssessmentModal.vue')['default']
@@ -78,6 +79,7 @@ declare module 'vue' {
     Members: typeof import('./src/components/Settings/Members.vue')['default']
     MobileLayout: typeof import('./src/components/MobileLayout.vue')['default']
     MultiSelect: typeof import('./src/components/Controls/MultiSelect.vue')['default']
+    NewMemberModal: typeof import('./src/components/Modals/NewMemberModal.vue')['default']
     NoPermission: typeof import('./src/components/NoPermission.vue')['default']
     NoSidebarLayout: typeof import('./src/components/NoSidebarLayout.vue')['default']
     Notes: typeof import('./src/components/Notes/Notes.vue')['default']
