@@ -182,10 +182,13 @@
 							</div>
 						</template>
 					</Tooltip>
-					<Tooltip :text="__('Powered by Learning')">
-						<Zap
+					<Tooltip
+						v-if="showAppointmentIcon"
+						:text="__('Book a free onboarding session with the Frappe team')"
+					>
+						<Phone
 							class="size-4 stroke-1.5 text-ink-gray-7 cursor-pointer"
-							@click="redirectToWebsite()"
+							@click="redirectToAppointmentScreen()"
 						/>
 					</Tooltip>
 					<Tooltip v-if="showOnboarding" :text="__('Help')">
@@ -197,6 +200,12 @@
 									minimize = !showHelpModal
 								}
 							"
+						/>
+					</Tooltip>
+					<Tooltip :text="__('Powered by Frappe Learning')">
+						<Zap
+							class="size-4 stroke-1.5 text-ink-gray-7 cursor-pointer"
+							@click="redirectToWebsite()"
 						/>
 					</Tooltip>
 				</div>
@@ -267,10 +276,11 @@ import {
 	CircleAlert,
 	ChevronRight,
 	ChevronsRight,
-	Plus,
 	CircleHelp,
 	FolderTree,
 	FileText,
+	Phone,
+	Plus,
 	User,
 	UserPlus,
 	Users,
@@ -677,6 +687,36 @@ const profileIsComplete = computed(() => {
 		userResource.data?.bio
 	)
 })
+
+const showAppointmentIcon = computed(() => {
+	let isTrialPlan = userResource.data?.site_info?.plan?.is_trial_plan
+	let trialEndDate = calculateTrialEndDays(
+		userResource.data?.site_info?.trial_end_date
+	)
+	return (
+		userResource.data?.is_system_manager &&
+		userResource.data?.is_fc_site &&
+		isTrialPlan &&
+		trialEndDate > 0
+	)
+})
+
+const calculateTrialEndDays = (trialEndDate) => {
+	if (!trialEndDate) return 0
+
+	trialEndDate = new Date(trialEndDate)
+	const today = new Date()
+	const diffTime = trialEndDate - today
+	const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+	return diffDays
+}
+
+const redirectToAppointmentScreen = () => {
+	window.open(
+		'https://calendar.google.com/calendar/u/0/appointments/schedules/AcZssZ0c7Z3XIpW1WgbeIuktSaoX6qudoYuSdRbIlJty5TW7p4IZaOk5viHQGwTNi6HpNVqzOZOTHcle',
+		'_blank'
+	)
+}
 
 onUnmounted(() => {
 	socket.off('publish_lms_notifications')
