@@ -824,6 +824,24 @@ const extractYouTubeId = (url) => {
 	}
 }
 
+export const createLMSCategory = (name) => {
+	return call('frappe.client.insert', {
+		doc: {
+			doctype: 'LMS Category',
+			category: name,
+		},
+	})
+		.then((data) => {
+			toast.success(__('Category created successfully'))
+			return data.name
+		})
+		.catch((err) => {
+			toast.error(
+				cleanError(err.messages?.[0]) || __('Unable to create category')
+			)
+		})
+}
+
 export const openSettings = (category, close = null) => {
 	const settingsStore = useSettings()
 	if (close) {

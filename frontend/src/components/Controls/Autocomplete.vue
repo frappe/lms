@@ -9,7 +9,11 @@
 			nullable
 			v-slot="{ open: isComboboxOpen }"
 		>
-			<Popover class="w-full" v-model:show="showOptions">
+			<Popover
+				class="w-full"
+				v-model:show="showOptions"
+				:matchTargetWidth="true"
+			>
 				<template #target="{ open: openPopover, togglePopover }">
 					<slot name="target" v-bind="{ open: openPopover, togglePopover }">
 						<div class="w-full">
@@ -92,7 +96,8 @@
 									>
 										<li
 											:class="[
-												'flex items-center rounded px-2.5 py-2 text-base',
+												'flex items-center rounded px-2.5 text-base py-1.5',
+												optionLines(option).secondary ? '' : 'h-7',
 												{ 'bg-surface-gray-2': active },
 											]"
 										>
@@ -104,16 +109,20 @@
 												name="item-label"
 												v-bind="{ active, selected, option }"
 											>
-												<div class="flex flex-col gap-1 p-1">
+												<div
+													class="flex flex-col px-1"
+													:class="
+														optionLines(option).secondary ? 'gap-0.5' : ''
+													"
+												>
 													<div class="text-base font-medium text-ink-gray-8">
-														{{
-															option.value == option.label && option.description
-																? option.description
-																: option.label
-														}}
+														{{ optionLines(option).primary }}
 													</div>
-													<div class="text-sm text-ink-gray-5">
-														{{ option.value }}
+													<div
+														v-if="optionLines(option).secondary"
+														class="text-sm text-ink-gray-5"
+													>
+														{{ optionLines(option).secondary }}
 													</div>
 												</div>
 											</slot>
@@ -243,6 +252,17 @@ function filterOptions(options) {
 			(text || '').toString().toLowerCase().includes(query.value.toLowerCase())
 		)
 	})
+}
+
+function optionLines(option) {
+	const primary = option.label
+	let secondary = null
+	if (option.description && option.description !== primary) {
+		secondary = option.description
+	} else if (option.value && option.value !== primary) {
+		secondary = option.value
+	}
+	return { primary, secondary }
 }
 
 function displayValue(option) {
