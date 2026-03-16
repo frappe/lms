@@ -184,9 +184,9 @@ export function getEditorTools() {
 						};" frameborder="0" allowfullscreen></iframe>`,
 					},
 					bunnyStream: {
-						regex: /^https:\/\/(?:iframe\.mediadelivery\.net|video\.bunnycdn\.com)\/play\/([a-zA-Z0-9]+\/[a-zA-Z0-9-]+)$/,
+						regex: /^https:\/\/(?:iframe\.mediadelivery\.net|video\.bunnycdn\.com|player\.mediadelivery\.net)\/play\/([a-zA-Z0-9]+\/[a-zA-Z0-9-]+)$/,
 						embedUrl:
-							'https://iframe.mediadelivery.net/embed/<%= remote_id %>',
+							'https://player.mediadelivery.net/embed/<%= remote_id %>',
 						html: `<iframe style="width:100%; height: ${
 							window.innerWidth < 640 ? '15rem' : '30rem'
 						};" frameborder="0" allowfullscreen></iframe>`,
