@@ -140,7 +140,7 @@ const options = createResource({
 	params: {
 		txt: text.value,
 		doctype: props.doctype,
-		filters: props.filters,
+		filters: JSON.stringify(props.filters),
 	},
 	transform: (data) => {
 		return data.map((option) => {
@@ -158,7 +158,7 @@ const reload = (val) => {
 		params: {
 			txt: val,
 			doctype: props.doctype,
-			filters: props.filters,
+			filters: JSON.stringify(props.filters),
 		},
 	})
 	options.reload()
