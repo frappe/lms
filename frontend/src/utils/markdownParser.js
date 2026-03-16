@@ -70,6 +70,21 @@ export class Markdown {
 		if (!clipboardData) return
 
 		const pastedText = clipboardData.getData('text/plain')
+		const pastedHTML = clipboardData.getData('text/html')
+		const hasHTMLTags = (s) => /<(pre|h[1-6]|ul|ol)[\s>]/i.test(s)
+
+		const html =
+			(pastedText && hasHTMLTags(pastedText) && pastedText) ||
+			(pastedHTML && hasHTMLTags(pastedHTML) && pastedHTML)
+
+		if (html) {
+			event.preventDefault()
+			event.stopPropagation()
+			event.stopImmediatePropagation()
+
+			this._insertBlocks(this._parsePastedHTMLToBlocks(html))
+			return
+		}
 
 		if (pastedText && this._looksLikeMarkdown(pastedText)) {
 			event.preventDefault()
@@ -91,9 +106,7 @@ export class Markdown {
 		return markdownPatterns.some((pattern) => pattern.test(text))
 	}
 
-	async _insertMarkdownAsBlocks(markdown) {
-		const blocks = this._parseMarkdownToBlocks(markdown)
-
+	async _insertBlocks(blocks) {
 		if (blocks.length === 0) return
 
 		const currentIndex = this.api.blocks.getCurrentBlockIndex()
@@ -114,13 +127,17 @@ export class Markdown {
 
 		try {
 			await this.api.blocks.delete(currentIndex + blocks.length)
-		} catch (error) {
-			console.error('Failed to delete original block:', error)
+		} catch (e) {
+			// original block may already be gone
 		}
 
 		setTimeout(() => {
 			this.api.caret.setToBlock(currentIndex, 'end')
 		}, 100)
+	}
+
+	_insertMarkdownAsBlocks(markdown) {
+		this._insertBlocks(this._parseMarkdownToBlocks(markdown))
 	}
 
 	_parseMarkdownToBlocks(markdown) {
@@ -291,7 +308,7 @@ export class Markdown {
 			block: {
 				type: 'codeBox',
 				data: {
-					code: codeLines.join('\n'),
+					code: escapeHTML(codeLines.join('\n')),
 					language: language || 'plaintext',
 				},
 			},
@@ -423,6 +440,71 @@ export class Markdown {
 
 	_isEmbed(text) {
 		return /^https?:\/\/.+/.test(text.trim())
+	}
+
+	_parsePastedHTMLToBlocks(html) {
+		const doc = new DOMParser().parseFromString(html, 'text/html')
+		const blocks = []
+
+		const walk = (node) => {
+			if (node.nodeType === Node.TEXT_NODE) {
+				const text = node.textContent.trim()
+				if (text)
+					blocks.push({
+						type: 'paragraph',
+						data: { text: escapeHTML(text) },
+					})
+				return
+			}
+
+			if (node.nodeType !== Node.ELEMENT_NODE) return
+
+			const tag = node.tagName
+
+			if (tag === 'PRE') {
+				blocks.push({
+					type: 'codeBox',
+					data: {
+						code: escapeHTML(node.textContent),
+						language: 'Auto-detect',
+					},
+				})
+			} else if (/^H[1-6]$/.test(tag)) {
+				blocks.push({
+					type: 'header',
+					data: {
+						text: escapeHTML(node.textContent.trim()),
+						level: +tag[1],
+					},
+				})
+			} else if (tag === 'UL' || tag === 'OL') {
+				const items = [...node.querySelectorAll(':scope > li')].map(
+					(li) => ({
+						content: escapeHTML(li.textContent.trim()),
+						items: [],
+					})
+				)
+				blocks.push({
+					type: 'list',
+					data: {
+						style: tag === 'UL' ? 'unordered' : 'ordered',
+						items,
+					},
+				})
+			} else if (node.childNodes.length) {
+				for (const child of node.childNodes) walk(child)
+			} else {
+				const text = node.textContent.trim()
+				if (text)
+					blocks.push({
+						type: 'paragraph',
+						data: { text: escapeHTML(text) },
+					})
+			}
+		}
+
+		for (const child of doc.body.childNodes) walk(child)
+		return blocks
 	}
 }
 
