@@ -1,5 +1,6 @@
 export default {
 	parserPreset: "conventional-changelog-conventionalcommits",
+	ignores: [(commit) => commit.startsWith("Initial plan")],
 	rules: {
 		"subject-empty": [2, "never"],
 		"type-case": [2, "always", "lower-case"],
