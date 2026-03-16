@@ -88,6 +88,7 @@ const props = defineProps({
 
 const show = defineModel()
 const emailTemplates = defineModel('emailTemplates')
+const emit = defineEmits(['created'])
 const template = reactive({
 	name: '',
 	subject: '',
@@ -113,6 +114,7 @@ const createNewTemplate = (close) => {
 		{
 			onSuccess() {
 				emailTemplates.value.reload()
+				emit('created', template.name)
 				refreshForm(close)
 				toast.success(__('Email Template created successfully'))
 			},

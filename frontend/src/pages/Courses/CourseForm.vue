@@ -18,10 +18,11 @@
 								@input="makeFormDirty()"
 							/>
 							<Link
-								doctype="LMS Category"
 								v-model="courseResource.doc.category"
+								doctype="LMS Category"
 								:label="__('Category')"
-								:onCreate="(value, close) => openSettings('Categories', close)"
+								:inlineCreate="true"
+								:onCreate="createCategory"
 								@update:modelValue="makeFormDirty()"
 							/>
 						</div>
@@ -253,6 +254,7 @@
 							</div>
 							<div v-if="courseResource.doc.paid_certificate" class="space-y-5">
 								<Link
+									ref="evaluatorLinkRef"
 									doctype="Course Evaluator"
 									v-model="courseResource.doc.evaluator"
 									:label="__('Evaluator')"
@@ -336,9 +338,10 @@ import {
 import {
 	escapeHTML,
 	getMetaInfo,
-	openSettings,
 	sanitizeHTML,
 	updateMetaInfo,
+	createLMSCategory,
+	cleanError,
 } from '@/utils'
 import { Trash2, X } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
@@ -360,6 +363,7 @@ const app = getCurrentInstance()
 const { $dialog } = app.appContext.config.globalProperties
 const isDirty = ref(false)
 const showMemberModal = ref(false)
+const evaluatorLinkRef = ref(null)
 const memberModalRoles = ref(['course_creator'])
 
 const props = defineProps({
@@ -432,6 +436,7 @@ const submitCourse = () => {
 const onMemberCreated = (user) => {
 	if (memberModalRoles.value.includes('batch_evaluator')) {
 		courseResource.doc.evaluator = user.name
+		evaluatorLinkRef.value?.reload()
 		makeFormDirty()
 	} else {
 		instructors.value = [...instructors.value, user.name]
@@ -553,6 +558,15 @@ const checkPermission = () => {
 	if (!user_is_instructor) {
 		router.push({ name: 'Courses' })
 	}
+}
+
+const createCategory = (name, done) => {
+	createLMSCategory(name).then((categoryName) => {
+		if (!categoryName) return
+		courseResource.doc.category = categoryName
+		done()
+		makeFormDirty()
+	})
 }
 
 const makeFormDirty = () => {

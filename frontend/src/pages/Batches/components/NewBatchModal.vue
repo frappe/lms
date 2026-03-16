@@ -46,16 +46,10 @@
 						autocomplete="off"
 					/>
 					<Link
-						doctype="LMS Category"
 						v-model="batch.category"
+						doctype="LMS Category"
 						:label="__('Category')"
-						:allowCreate="true"
-						:onCreate="
-							() => {
-								openSettings('Categories')
-								show = false
-							}
-						"
+						:onCreate="createCategory"
 					/>
 					<FormControl
 						v-model="batch.seat_count"
@@ -126,7 +120,7 @@ import { Button, Dialog, FormControl, TextEditor, toast } from 'frappe-ui'
 import { useOnboarding, useTelemetry } from 'frappe-ui/frappe'
 import { computed, inject, onMounted, onBeforeUnmount, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { cleanError, openSettings, sanitizeHTML, escapeHTML } from '@/utils'
+import { sanitizeHTML, escapeHTML, createLMSCategory } from '@/utils'
 import MultiSelect from '@/components/Controls/MultiSelect.vue'
 import Link from '@/components/Controls/Link.vue'
 import NewMemberModal from '@/components/Modals/NewMemberModal.vue'
@@ -171,6 +165,14 @@ const batch = ref<Batch>({
 	seat_count: 0,
 	medium: null,
 })
+
+const createCategory = (name: string, done: () => void) => {
+	createLMSCategory(name).then((categoryName: string) => {
+		if (!categoryName) return
+		batch.value.category = categoryName
+		done()
+	})
+}
 
 const onInstructorCreated = (user: any) => {
 	batch.value.instructors = [...batch.value.instructors, user.name]

@@ -9,7 +9,11 @@
 			nullable
 			v-slot="{ open: isComboboxOpen }"
 		>
-			<Popover class="w-full" v-model:show="showOptions" :matchTargetWidth="true">
+			<Popover
+				class="w-full"
+				v-model:show="showOptions"
+				:matchTargetWidth="true"
+			>
 				<template #target="{ open: openPopover, togglePopover }">
 					<slot name="target" v-bind="{ open: openPopover, togglePopover }">
 						<div class="w-full">
@@ -105,7 +109,12 @@
 												name="item-label"
 												v-bind="{ active, selected, option }"
 											>
-												<div class="flex flex-col px-1" :class="optionLines(option).secondary ? 'gap-0.5' : ''">
+												<div
+													class="flex flex-col px-1"
+													:class="
+														optionLines(option).secondary ? 'gap-0.5' : ''
+													"
+												>
 													<div class="text-base font-medium text-ink-gray-8">
 														{{ optionLines(option).primary }}
 													</div>
@@ -246,16 +255,15 @@ function filterOptions(options) {
 }
 
 function optionLines(option) {
-  const primary = option.label
-  let secondary = null
-  if (option.description && option.description !== primary) {
-    secondary = option.description
-  } else if (option.value && option.value !== primary) {
-    secondary = option.value
-  }
-  return { primary, secondary }
+	const primary = option.label
+	let secondary = null
+	if (option.description && option.description !== primary) {
+		secondary = option.description
+	} else if (option.value && option.value !== primary) {
+		secondary = option.value
+	}
+	return { primary, secondary }
 }
-
 
 function displayValue(option) {
 	if (typeof option === 'string') {

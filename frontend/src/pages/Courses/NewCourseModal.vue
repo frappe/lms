@@ -16,15 +16,11 @@
 						autocomplete="off"
 					/>
 					<Link
-						doctype="LMS Category"
 						v-model="course.category"
+						doctype="LMS Category"
 						:label="__('Category')"
-						:onCreate="
-							() => {
-								openSettings('Categories')
-								show = false
-							}
-						"
+						:inlineCreate="true"
+						:onCreate="createCategory"
 					/>
 					<MultiSelect
 						v-model="course.instructors"
@@ -86,8 +82,13 @@ import { Button, Dialog, FormControl, TextEditor, toast } from 'frappe-ui'
 import { useOnboarding, useTelemetry } from 'frappe-ui/frappe'
 import { inject, onMounted, onBeforeUnmount, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { cleanError, openSettings, sanitizeHTML, escapeHTML } from '@/utils'
 import Link from '@/components/Controls/Link.vue'
+import {
+	cleanError,
+	sanitizeHTML,
+	escapeHTML,
+	createLMSCategory,
+} from '@/utils'
 import MultiSelect from '@/components/Controls/MultiSelect.vue'
 import Uploader from '@/components/Controls/Uploader.vue'
 import NewMemberModal from '@/components/Modals/NewMemberModal.vue'
@@ -121,6 +122,14 @@ const course = ref<Course>({
 	category: null,
 	image: null,
 })
+
+const createCategory = (name: string, done: () => void) => {
+	createLMSCategory(name).then((categoryName: string) => {
+		if (!categoryName) return
+		course.value.category = categoryName
+		done()
+	})
+}
 
 const onInstructorCreated = (user: any) => {
 	course.value.instructors = [...course.value.instructors, user.name]

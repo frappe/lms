@@ -72,10 +72,11 @@
 							/>
 
 							<Link
+								v-model="batchDetail.doc.category"
 								doctype="LMS Category"
 								:label="__('Category')"
-								v-model="batchDetail.doc.category"
-								:onCreate="(value, close) => openSettings('Categories', close)"
+								:inlineCreate="true"
+								:onCreate="createCategory"
 							/>
 						</div>
 					</div>
@@ -156,12 +157,14 @@
 								class="mb-4"
 							/>
 							<Link
+								ref="emailTemplateLinkRef"
 								doctype="Email Template"
 								:label="__('Enrollment Confirmation Email Template')"
 								v-model="batchDetail.doc.confirmation_email_template"
 								:onCreate="
 									(value, close) => {
-										openSettings('Email Templates', close)
+										if (close) close()
+										showEmailTemplateModal = true
 									}
 								"
 							/>
@@ -280,6 +283,12 @@
 		:defaultRoles="['batch_evaluator']"
 		@created="onInstructorCreated"
 	/>
+	<EmailTemplateModal
+		v-model="showEmailTemplateModal"
+		v-model:emailTemplates="emailTemplates"
+		templateID="new"
+		@created="onEmailTemplateCreated"
+	/>
 </template>
 <script setup>
 import {
@@ -300,8 +309,10 @@ import {
 	createDocumentResource,
 	toast,
 	call,
+	createListResource,
 } from 'frappe-ui'
 import {
+	createLMSCategory,
 	escapeHTML,
 	getMetaInfo,
 	openSettings,
@@ -317,6 +328,7 @@ import Link from '@/components/Controls/Link.vue'
 import BatchCourses from '@/pages/Batches/components/BatchCourses.vue'
 import Assessments from '@/pages/Batches/components/Assessments.vue'
 import NewMemberModal from '@/components/Modals/NewMemberModal.vue'
+import EmailTemplateModal from '@/components/Modals/EmailTemplateModal.vue'
 
 const router = useRouter()
 const user = inject('$user')
@@ -329,6 +341,29 @@ const { $dialog } = app.appContext.config.globalProperties
 const isDirty = ref(false)
 const originalDoc = ref(null)
 const showMemberModal = ref(false)
+const showEmailTemplateModal = ref(false)
+const emailTemplateLinkRef = ref(null)
+
+const emailTemplates = createListResource({
+	doctype: 'Email Template',
+	fields: ['name', 'subject', 'use_html', 'response', 'response_html'],
+	auto: true,
+	orderBy: 'modified desc',
+	cache: 'email-templates',
+})
+
+const onEmailTemplateCreated = (name) => {
+	batchDetail.doc.confirmation_email_template = name
+	emailTemplateLinkRef.value?.reload()
+}
+
+const createCategory = (name, done) => {
+	createLMSCategory(name).then((categoryName) => {
+		if (!categoryName) return
+		batchDetail.doc.category = categoryName
+		done()
+	})
+}
 
 const onInstructorCreated = (user) => {
 	instructors.value = [...instructors.value, user.name]
