@@ -120,16 +120,12 @@
 			<div v-for="(question, qtidx) in questions">
 				<div
 					v-if="qtidx == activeQuestion - 1 && questionDetails.data"
-					class="border rounded-md p-5"
+					class="border rounded-lg p-5"
 				>
 					<div class="flex justify-between">
 						<div class="text-sm text-ink-gray-5">
-							<span class="mr-2">
-								{{ __('Question {0}').format(activeQuestion) }}:
-							</span>
-							<span>
-								{{ getInstructions(questionDetails.data) }}
-							</span>
+							{{ __('Question {0}').format(activeQuestion) }} -
+							{{ getInstructions(questionDetails.data) }}
 						</div>
 						<div class="text-ink-gray-9 text-sm font-semibold item-left">
 							{{ question.marks }}
@@ -227,14 +223,19 @@
 						/>
 					</div>
 					<div class="flex items-center justify-between mt-8">
-						<div class="text-sm text-ink-gray-5">
+						<Checkbox
+							:label="__('Mark for review')"
+							:model-value="reviewQuestions.includes(activeQuestion) ? 1 : 0"
+							@change="markForReview($event, activeQuestion)"
+						/>
+						<!-- <div class="text-sm text-ink-gray-5">
 							{{
 								__('Question {0} of {1}').format(
 									activeQuestion,
 									questions.length
 								)
 							}}
-						</div>
+						</div> -->
 						<div
 							v-if="!quiz.data.show_answers"
 							class="flex items-center space-x-2"
@@ -307,8 +308,22 @@
 					</div>
 				</div>
 			</div>
+			<div v-if="reviewQuestions.length" class="border rounded-lg p-4 mt-4">
+				<div class="font-semibold">
+					{{ __('Questions marked for review') }}
+				</div>
+				<div class="flex items-center space-x-2 mt-2">
+					<div
+						v-for="index in reviewQuestions"
+						@click="activeQuestion = index"
+						class="w-6 h-6 rounded-full flex items-center justify-center text-sm cursor-pointer bg-surface-gray-3"
+					>
+						{{ index }}
+					</div>
+				</div>
+			</div>
 		</div>
-		<div v-else class="border rounded-md p-20 text-center space-y-2">
+		<div v-else class="border rounded-lg p-20 text-center space-y-2">
 			<div class="text-lg font-semibold text-ink-gray-9">
 				{{ __('Quiz Summary') }}
 			</div>
@@ -426,6 +441,7 @@ import {
 	Badge,
 	Button,
 	call,
+	Checkbox,
 	createResource,
 	Dialog,
 	ListView,
@@ -459,6 +475,7 @@ const selectedOptions = ref([0, 0, 0, 0])
 const showAnswers = reactive([])
 let questions = reactive([])
 const attemptedQuestions = ref([])
+const reviewQuestions = ref([])
 const showSubmissionConfirmation = ref(false)
 const possibleAnswer = ref(null)
 const timer = ref(0)
@@ -910,6 +927,18 @@ const paginationWindow = computed(() => {
 	return pages
 })
 
+const markForReview = (event, questionNumber) => {
+	if (event.target.checked) {
+		if (!reviewQuestions.value.includes(questionNumber)) {
+			reviewQuestions.value.push(questionNumber)
+		}
+	} else {
+		reviewQuestions.value = reviewQuestions.value.filter(
+			(num) => num !== questionNumber
+		)
+	}
+}
+
 const getSubmissionColumns = () => {
 	return [
 		{
@@ -938,8 +967,3 @@ const getSubmissionColumns = () => {
 	]
 }
 </script>
-<style>
-p {
-	line-height: 1.5rem;
-}
-</style>
