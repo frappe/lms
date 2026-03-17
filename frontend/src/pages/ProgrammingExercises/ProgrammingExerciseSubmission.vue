@@ -49,11 +49,14 @@
 						"
 						variant="solid"
 						@click="submitCode"
+						:loading="running"
+						:disabled="running"
+						class="text-ink-gray-9"
 					>
 						<template #prefix>
 							<Play class="size-3" />
 						</template>
-						{{ __('Run') }}
+						{{ running ? __('Running') : __('Run') }}
 					</Button>
 				</div>
 			</div>
@@ -172,8 +175,9 @@ const { brand } = sessionStore()
 const { settings } = useSettings()
 const router = useRouter()
 const fromLesson = ref(false)
-const falconURL = ref<string>('https://falcon.frappe.io/')
+const falconURL = ref<string>('https://falcon.frappe.io')
 const falconError = ref<string | null>(null)
+const running = ref<boolean>(false)
 
 const props = withDefaults(
 	defineProps<{
@@ -308,8 +312,10 @@ const loadFalcon = () => {
 }
 
 const submitCode = async () => {
+	running.value = true
 	await runCode()
 	createSubmission()
+	running.value = false
 }
 
 const runCode = async () => {
@@ -381,8 +387,6 @@ const execute = (stdin = ''): Promise<string> => {
 			code: code.value,
 			files: [{ filename: 'stdin', contents: stdin }],
 			onMessage: (msg: any) => {
-				console.log('msg', msg)
-
 				if (msg.msgtype === 'write' && msg.file === 'stdout') {
 					outputChunks.push(msg.data)
 				}
@@ -406,6 +410,7 @@ const execute = (stdin = ''): Promise<string> => {
 
 		setTimeout(() => {
 			if (!hasExited) {
+				running.value = false
 				error.value = true
 				errorMessage.value = 'Execution timed out.'
 				reject('Execution timed out.')
