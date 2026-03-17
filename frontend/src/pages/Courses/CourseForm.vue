@@ -136,11 +136,13 @@
 									:description="__('Highlight the course on the homepage.')"
 									@change="makeFormDirty()"
 								/>
-								<FormControl
-									type="checkbox"
-									v-model="courseResource.doc.disable_self_learning"
-									:label="__('Disable Self Enrollment')"
-									@change="makeFormDirty()"
+								<Switch
+									size="sm"
+									v-model="selfEnrollment"
+									:label="__('Allow Self Enrollment')"
+									:description="
+										__('Allow users to enroll in this course on their own.')
+									"
 								/>
 							</div>
 						</div>
@@ -338,6 +340,7 @@ import {
 	toast,
 } from 'frappe-ui'
 import {
+	computed,
 	inject,
 	onMounted,
 	onBeforeUnmount,
@@ -374,6 +377,14 @@ const app = getCurrentInstance()
 const { $dialog } = app.appContext.config.globalProperties
 const isDirty = ref(false)
 const showMemberModal = ref(false)
+
+const selfEnrollment = computed({
+	get: () => !courseResource.doc?.disable_self_learning,
+	set: (val) => {
+		courseResource.doc.disable_self_learning = !val
+		makeFormDirty()
+	},
+})
 const evaluatorLinkRef = ref(null)
 const memberModalRoles = ref(['course_creator'])
 
