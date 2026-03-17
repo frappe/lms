@@ -2,8 +2,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
+<<<<<<< HEAD
 "POT-Creation-Date: 2026-03-09 08:28+0000\n"
 "PO-Revision-Date: 2026-03-11 00:25\n"
+=======
+"POT-Creation-Date: 2026-03-13 16:10+0000\n"
+"PO-Revision-Date: 2026-03-17 13:10\n"
+>>>>>>> 0cc68cce (chore: Serbian (Latin) translations)
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Serbian (Latin)\n"
 "MIME-Version: 1.0\n"
@@ -182,6 +187,13 @@ msgstr "Dodaj osobu za ocenjivanje"
 msgid "Add Lesson"
 msgstr "Dodaj lekciju"
 
+<<<<<<< HEAD
+=======
+#: frontend/src/pages/QuizForm.vue:197
+msgid "Add Question"
+msgstr "Dodaj pitanje"
+
+>>>>>>> 0cc68cce (chore: Serbian (Latin) translations)
 #: frontend/src/components/VideoBlock.vue:121
 msgid "Add Quiz to Video"
 msgstr "Dodaj kviz u video-snimak"
@@ -264,6 +276,13 @@ msgstr "Dodajte bar jedan mogući odgovor za ovo pitanje: {0}"
 msgid "Add courses to your batch"
 msgstr "Dodajte obuke u Vašu grupu"
 
+<<<<<<< HEAD
+=======
+#: frontend/src/components/Modals/Question.vue:164
+msgid "Add new question"
+msgstr "Dodaj novo pitanje"
+
+>>>>>>> 0cc68cce (chore: Serbian (Latin) translations)
 #: frontend/src/components/Modals/QuizInVideo.vue:5
 msgid "Add quiz to this video"
 msgstr "Dodaj kviz u ovaj video-snimak"
@@ -488,6 +507,13 @@ msgstr "Arhivirano"
 msgid "Are you sure you want to cancel this evaluation? This action cannot be undone."
 msgstr "Da li ste sigurni da želite da otkažete ovo ocenjivanje? Ova radnja se ne može poništiti."
 
+<<<<<<< HEAD
+=======
+#: frontend/src/components/Sidebar/UserDropdown.vue:254
+msgid "Are you sure you want to clear the demo data? This would delete the course \"A guide  to Frappe Learning\" along with all its associated data. This action cannot be undone."
+msgstr "Da li ste sigurni da želite da obrišete demo podatke? Ovo će obrisati obuku \"Vodič za Frappe Learning\" zajedno sa svim povezanim podacima. Ova radnja se ne može poništiti."
+
+>>>>>>> 0cc68cce (chore: Serbian (Latin) translations)
 #: frontend/src/pages/Programs/ProgramForm.vue:562
 msgid "Are you sure you want to delete this program? This action cannot be undone."
 msgstr "Da li ste sigurni da želite da obrišete ovaj program? Ova radnja se ne može poništiti."
@@ -500,6 +526,13 @@ msgstr "Da li ste sigurni da želite da se upišete?"
 msgid "Are you sure you want to login to your Frappe Cloud dashboard?"
 msgstr "Da li ste sigurni da želite da se prijavite na svoju Frappe Cloud kontrolnu tablu?"
 
+<<<<<<< HEAD
+=======
+#: frontend/src/components/Quiz.vue:378
+msgid "Are you sure you want to submit the quiz?"
+msgstr "Da li ste sigurni da želite da završite kviz?"
+
+>>>>>>> 0cc68cce (chore: Serbian (Latin) translations)
 #: frontend/src/pages/Batches/components/BatchDashboard.vue:11
 msgid "As a part of this batch's curriculum you will have to complete the following courses and assessments."
 msgstr "Kao deo programa obuke ove grupe moraćete da završite sledeće obuke i procene."
@@ -645,6 +678,13 @@ msgstr "Bar jedna opcija mora biti tačna za ovo pitanje."
 msgid "At least one test case is required for the programming exercise."
 msgstr "Najmanje jedan test primer je neophodan za vežbu programiranja."
 
+<<<<<<< HEAD
+=======
+#: frontend/src/components/Quiz.vue:405
+msgid "Attempted Questions"
+msgstr "Rešena pitanja"
+
+>>>>>>> 0cc68cce (chore: Serbian (Latin) translations)
 #: frontend/src/components/Modals/LiveClassAttendance.vue:5
 msgid "Attendance for Class - {0}"
 msgstr "Prisustvo na predavanju - {0}"
@@ -1520,6 +1560,13 @@ msgstr "Potvrdi upis"
 msgid "Confirm Your Action"
 msgstr "Potvrdite svoju radnju"
 
+<<<<<<< HEAD
+=======
+#: frontend/src/components/Sidebar/UserDropdown.vue:253
+msgid "Confirm clearing demo data?"
+msgstr "Potvrdite brisanje demo podataka?"
+
+>>>>>>> 0cc68cce (chore: Serbian (Latin) translations)
 #: frontend/src/pages/Batches/BatchForm.vue:460
 msgid "Confirm your action to delete"
 msgstr "Potvrdite svoju radnju za brisanje"
@@ -2184,6 +2231,18 @@ msgstr "Brisanjem ove lekcije ona će trajno biti uklonjena iz obuke. Ova radnja
 msgid "Deletion not allowed for {0}"
 msgstr "Brisanje nije dozvoljeno za {0}"
 
+<<<<<<< HEAD
+=======
+#. Label of the demo_data_present (Check) field in DocType 'LMS Settings'
+#: lms/lms/doctype/lms_settings/lms_settings.json
+msgid "Demo Data Present"
+msgstr "Demo podaci su prisutni"
+
+#: frontend/src/components/Sidebar/UserDropdown.vue:275
+msgid "Demo data cleared successfully"
+msgstr "Demo podaci su uspešno obrisani"
+
+>>>>>>> 0cc68cce (chore: Serbian (Latin) translations)
 #. Label of the description (Text Editor) field in DocType 'Job Opportunity'
 #. Label of a field in the job-opportunity Web Form
 #. Label of the description (Small Text) field in DocType 'Certification'
@@ -2282,6 +2341,13 @@ msgstr "Vrsta popusta"
 msgid "Discussions"
 msgstr "Diskusija"
 
+<<<<<<< HEAD
+=======
+#: frontend/src/components/Quiz.vue:19
+msgid "Do not refresh the page or close this window. If you do, the quiz will be submitted automatically."
+msgstr "Nemojte osvežavati stranicu niti zatvarati ovaj prozor. Ukoliko to uradite, kviz će automatski biti završen."
+
+>>>>>>> 0cc68cce (chore: Serbian (Latin) translations)
 #. Option for the 'File Type' (Select) field in DocType 'Course Lesson'
 #. Option for the 'Type' (Select) field in DocType 'LMS Assignment'
 #. Option for the 'Type' (Select) field in DocType 'LMS Assignment Submission'
@@ -2389,6 +2455,13 @@ msgstr "Uredi program"
 msgid "Edit Programming Exercise"
 msgstr "Uredi vežbu programiranja"
 
+<<<<<<< HEAD
+=======
+#: frontend/src/pages/QuizForm.vue:197
+msgid "Edit Question"
+msgstr "Uredi pitanje"
+
+>>>>>>> 0cc68cce (chore: Serbian (Latin) translations)
 #: frontend/src/components/Modals/ZoomAccountModal.vue:6
 msgid "Edit Zoom Account"
 msgstr "Uredi Zoom nalog"
@@ -5544,6 +5617,13 @@ msgstr "Molimo Vas da date saglasnost kako biste nastavili sa plaćanjem"
 msgid "Please provide your consent to proceed with the payment."
 msgstr "Molimo Vas da date saglasnost kako biste nastavili sa plaćanjem."
 
+<<<<<<< HEAD
+=======
+#: frontend/src/components/Quiz.vue:8
+msgid "Please read the following instructions carefully before starting the quiz"
+msgstr "Molimo Vas da pažljivo pročitate sledeće uputstva pre početka kviza"
+
+>>>>>>> 0cc68cce (chore: Serbian (Latin) translations)
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmission.vue:139
 msgid "Please run the code to execute the test cases."
 msgstr "Molimo Vas da pokrenete kod da biste izvršili test primere."
@@ -6431,7 +6511,15 @@ msgstr "Izaberite platni portal"
 msgid "Select a Programming Exercise"
 msgstr "Izaberite vežbu programiranja"
 
+<<<<<<< HEAD
 #: frontend/src/components/Modals/Question.vue:101
+=======
+#: frontend/src/pages/Courses/CourseForm.vue:78
+msgid "Select a fallback color for the course card when no image is set."
+msgstr "Izaberite rezervnu boju za karticu obuke kada nije postavljena slika."
+
+#: frontend/src/components/Modals/Question.vue:98
+>>>>>>> 0cc68cce (chore: Serbian (Latin) translations)
 msgid "Select a question"
 msgstr "Izaberite pitanje"
 
@@ -6444,6 +6532,13 @@ msgstr "Izaberite kviz"
 msgid "Select an Assignment"
 msgstr "Izaberite zadatak"
 
+<<<<<<< HEAD
+=======
+#: frontend/src/components/Modals/Question.vue:17
+msgid "Select from questions you have already created"
+msgstr "Izaberite iz pitanja koja ste već kreirali"
+
+>>>>>>> 0cc68cce (chore: Serbian (Latin) translations)
 #: frontend/src/components/ContactUsEmail.vue:33
 #: frontend/src/pages/JobApplications.vue:115
 msgid "Send"
@@ -6473,6 +6568,21 @@ msgstr "Pošalji obaveštenje za objavljene grupe"
 msgid "Send Notification for Published Courses"
 msgstr "Pošalji obaveštenje za objavljene obuke"
 
+<<<<<<< HEAD
+=======
+#. Label of the send_payment_reminders_for_batch (Check) field in DocType 'LMS
+#. Settings'
+#: lms/lms/doctype/lms_settings/lms_settings.json
+msgid "Send Payment Reminders for Batch"
+msgstr "Pošaljite podsetnike za plaćanje za ovu grupu"
+
+#. Label of the send_payment_reminders_for_course (Check) field in DocType 'LMS
+#. Settings'
+#: lms/lms/doctype/lms_settings/lms_settings.json
+msgid "Send Payment Reminders for Course"
+msgstr "Pošaljite podsetnike za plaćanje za ovu obuku"
+
+>>>>>>> 0cc68cce (chore: Serbian (Latin) translations)
 #. Label of the send_calendar_invite_for_evaluations (Check) field in DocType
 #. 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
@@ -7367,6 +7477,13 @@ msgstr "Ukupno"
 msgid "Total Marks"
 msgstr "Ukupan broj poena"
 
+<<<<<<< HEAD
+=======
+#: frontend/src/components/Quiz.vue:397
+msgid "Total Questions"
+msgstr "Ukupan broj pitanja"
+
+>>>>>>> 0cc68cce (chore: Serbian (Latin) translations)
 #: lms/lms/web_template/lms_statistics/lms_statistics.html:14
 #: lms/templates/statistics.html:12
 msgid "Total Signups"
@@ -7461,6 +7578,13 @@ msgstr "URL"
 msgid "UUID"
 msgstr "UUID"
 
+<<<<<<< HEAD
+=======
+#: frontend/src/components/Quiz.vue:413
+msgid "Unattempted Questions"
+msgstr "Nerešena pitanja"
+
+>>>>>>> 0cc68cce (chore: Serbian (Latin) translations)
 #. Label of the unavailability_section (Section Break) field in DocType 'Course
 #. Evaluator'
 #: lms/lms/doctype/course_evaluator/course_evaluator.json
@@ -8241,6 +8365,13 @@ msgstr "kandidati"
 msgid "at {0} minutes"
 msgstr "na {0} minuta"
 
+<<<<<<< HEAD
+=======
+#: frontend/src/components/CourseCardOverlay.vue:121
+msgid "average rating"
+msgstr "prosečna ocena"
+
+>>>>>>> 0cc68cce (chore: Serbian (Latin) translations)
 #: lms/templates/emails/payment_reminder.html:4
 msgid "but didn’t complete your payment"
 msgstr "ali niste završili plaćanje"
@@ -8285,7 +8416,19 @@ msgstr "dani"
 msgid "e.g. IST, UTC, GMT..."
 msgstr "npr. IST, UTC, GMT..."
 
+<<<<<<< HEAD
 #: frontend/src/pages/Home/Home.vue:132 frontend/src/pages/Home/Home.vue:155
+=======
+#: frontend/src/components/CourseCardOverlay.vue:111
+msgid "enrolled student"
+msgstr "upisani student"
+
+#: frontend/src/components/CourseCardOverlay.vue:110
+msgid "enrolled students"
+msgstr "upisani studenti"
+
+#: frontend/src/pages/Home/Home.vue:135 frontend/src/pages/Home/Home.vue:158
+>>>>>>> 0cc68cce (chore: Serbian (Latin) translations)
 msgid "evaluation"
 msgstr "evaluacija"
 
