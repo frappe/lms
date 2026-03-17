@@ -87,22 +87,29 @@
 			</div>
 			<div class="grid grid-cols-3 gap-5">
 				<div class="flex flex-col space-y-10">
-					<FormControl
+					<Switch
 						v-model="quizDetails.doc.show_answers"
-						type="checkbox"
+						size="sm"
 						:label="__('Show Answers')"
+						:description="
+							__('Display correct answers after each question is attempted.')
+						"
 					/>
-					<FormControl
+					<Switch
 						v-model="quizDetails.doc.show_submission_history"
-						type="checkbox"
+						size="sm"
 						:label="__('Show Submission History')"
+						:description="__('Allow users to view their past quiz attempts.')"
 					/>
 				</div>
 				<div class="flex flex-col space-y-5">
-					<FormControl
+					<Switch
 						v-model="quizDetails.doc.shuffle_questions"
-						type="checkbox"
+						size="sm"
 						:label="__('Shuffle Questions')"
+						:description="
+							__('Randomize the order of questions for each attempt.')
+						"
 					/>
 					<FormControl
 						v-if="quizDetails.doc.shuffle_questions"
@@ -111,10 +118,11 @@
 					/>
 				</div>
 				<div class="flex flex-col space-y-5">
-					<FormControl
+					<Switch
 						v-model="quizDetails.doc.enable_negative_marking"
-						type="checkbox"
+						size="sm"
 						:label="__('Enable Negative Marking')"
+						:description="__('Deduct marks for incorrect answers.')"
 					/>
 					<FormControl
 						v-if="quizDetails.doc.enable_negative_marking"
@@ -214,6 +222,7 @@ import {
 	toast,
 	createDocumentResource,
 	Badge,
+	Switch,
 } from 'frappe-ui'
 import {
 	computed,

@@ -12,39 +12,48 @@
 				{{ __('You cannot change the roles in read-only mode.') }}
 			</span>
 		</div>
-		<div
-			v-else
-			class="flex flex-col md:flex-row gap-4 md:gap-0 justify-between w-3/4 mt-5"
-		>
-			<FormControl
-				:label="__('Moderator')"
-				v-model="moderator"
-				type="checkbox"
-				@change.stop="changeRole('moderator')"
-			/>
-			<FormControl
-				:label="__('Course Creator')"
-				v-model="course_creator"
-				type="checkbox"
-				@change.stop="changeRole('course_creator')"
-			/>
-			<FormControl
-				:label="__('Evaluator')"
-				v-model="batch_evaluator"
-				type="checkbox"
-				@change.stop="changeRole('batch_evaluator')"
-			/>
-			<FormControl
+		<div v-else class="grid grid-cols-1 lg:grid-cols-2 gap-5 mt-5">
+			<Switch
+				size="sm"
 				:label="__('Student')"
+				:description="
+					__('Can browse courses, enroll in batches, and view content.')
+				"
 				v-model="lms_student"
-				type="checkbox"
-				@change.stop="changeRole('lms_student')"
+				@change="changeRole('lms_student')"
+			/>
+			<Switch
+				size="sm"
+				:label="__('Course Creator')"
+				:description="
+					__('Can create, edit, and manage courses, chapters, and lessons.')
+				"
+				v-model="course_creator"
+				@change="changeRole('course_creator')"
+			/>
+			<Switch
+				size="sm"
+				:label="__('Evaluator')"
+				:description="
+					__('Can create batches/live classes and grade student assignments.')
+				"
+				v-model="batch_evaluator"
+				@change="changeRole('batch_evaluator')"
+			/>
+			<Switch
+				size="sm"
+				:label="__('Moderator')"
+				:description="
+					__('Full access to all content, users, and system-wide settings.')
+				"
+				v-model="moderator"
+				@change="changeRole('moderator')"
 			/>
 		</div>
 	</div>
 </template>
 <script setup>
-import { FormControl, createResource, toast } from 'frappe-ui'
+import { Switch, call, createResource, toast } from 'frappe-ui'
 import { ref, watch } from 'vue'
 import { convertToTitleCase } from '@/utils'
 import { CircleAlert } from 'lucide-vue-next'
@@ -103,17 +112,24 @@ const updateRole = createResource({
 	},
 })
 
+// todo: use save_role for all roles to ensure consistent behavior and error handling
 const changeRole = (role) => {
+	const roleName =
+		role == 'lms_student'
+			? 'LMS Student'
+			: convertToTitleCase(role.split('_').join(' '))
+	const value = eval(role).value
+
 	updateRole.submit(
 		{
-			role:
-				role == 'lms_student'
-					? 'LMS Student'
-					: convertToTitleCase(role.split('_').join(' ')),
-			value: eval(role).value,
+			role: roleName,
+			value: value,
 		},
 		{
-			onSuccess(data) {
+			async onSuccess() {
+				if (role === 'batch_evaluator') {
+					await syncEvaluatorRecord(value)
+				}
 				toast.success(__('Role updated successfully'))
 			},
 		}
