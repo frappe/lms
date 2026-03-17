@@ -9,10 +9,11 @@
 
 					<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
 						<div class="space-y-5">
-							<FormControl
+							<Switch
+								size="sm"
 								v-model="batchDetail.doc.published"
-								type="checkbox"
 								:label="__('Published')"
+								:description="__('Make the batch visible to all users.')"
 							/>
 							<FormControl
 								v-model="batchDetail.doc.title"
@@ -43,10 +44,13 @@
 							/>
 						</div>
 						<div class="space-y-5">
-							<FormControl
+							<Switch
+								size="sm"
 								v-model="batchDetail.doc.allow_self_enrollment"
-								type="checkbox"
 								:label="__('Allow Self Enrollment')"
+								:description="
+									__('Allow users to enroll in this batch on their own.')
+								"
 							/>
 							<FormControl
 								v-model="batchDetail.doc.start_time"
@@ -88,10 +92,11 @@
 					</div>
 					<div class="grid grid-cols-1 md:grid-cols-2 gap-5 items-start">
 						<div class="flex flex-col space-y-5">
-							<FormControl
+							<Switch
+								size="sm"
 								v-model="batchDetail.doc.evaluation"
-								type="checkbox"
 								:label="__('Evaluation')"
+								:description="__('Enable evaluations for batch participants.')"
 							/>
 							<FormControl
 								v-if="batchDetail.doc.evaluation"
@@ -102,10 +107,11 @@
 							/>
 						</div>
 						<div>
-							<FormControl
+							<Switch
+								size="sm"
 								v-model="batchDetail.doc.certification"
-								type="checkbox"
 								:label="__('Certification')"
+								:description="__('Issue certificates to batch participants.')"
 							/>
 						</div>
 					</div>
@@ -218,10 +224,11 @@
 					<div class="text-lg text-ink-gray-9 font-semibold">
 						{{ __('Pricing') }}
 					</div>
-					<FormControl
+					<Switch
+						size="sm"
 						v-model="batchDetail.doc.paid_batch"
-						type="checkbox"
 						:label="__('Paid Batch')"
+						:description="__('Charge a fee for batch enrollment.')"
 					/>
 					<div
 						v-if="batchDetail.doc.paid_batch"
@@ -305,6 +312,7 @@ import {
 } from 'vue'
 import {
 	FormControl,
+	Switch,
 	TextEditor,
 	createDocumentResource,
 	toast,

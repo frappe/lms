@@ -11,10 +11,11 @@
 		</div>
 		<div class="space-y-4 overflow-y-auto">
 			<div>
-				<FormControl
+				<Switch
+					size="sm"
 					v-model="data.enabled"
 					:label="__('Enabled')"
-					type="checkbox"
+					:description="__('Allow this coupon to be used for discounts.')"
 				/>
 			</div>
 			<div class="grid grid-cols-2 gap-4">
@@ -81,7 +82,7 @@
 	</div>
 </template>
 <script setup lang="ts">
-import { Button, FormControl, toast } from 'frappe-ui'
+import { Button, FormControl, toast, Switch } from 'frappe-ui'
 import { ref } from 'vue'
 import { ChevronLeft } from 'lucide-vue-next'
 import type { Coupon, Coupons } from './types'

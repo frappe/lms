@@ -44,26 +44,26 @@
 					<div class="text-sm text-ink-gray-5">
 						{{ __('Roles') }}
 					</div>
-					<div class="flex flex-wrap gap-x-6">
-						<FormControl
+					<div class="grid md:grid-cols-2 gap-x-6 gap-y-3">
+						<Switch
+							size="sm"
 							:label="__('Student')"
 							v-model="roles.lms_student"
-							type="checkbox"
 						/>
-						<FormControl
+						<Switch
+							size="sm"
 							:label="__('Course Creator')"
 							v-model="roles.course_creator"
-							type="checkbox"
 						/>
-						<FormControl
+						<Switch
+							size="sm"
 							:label="__('Evaluator')"
 							v-model="roles.batch_evaluator"
-							type="checkbox"
 						/>
-						<FormControl
+						<Switch
+							size="sm"
 							:label="__('Moderator')"
 							v-model="roles.moderator"
-							type="checkbox"
 						/>
 					</div>
 				</div>
@@ -73,7 +73,7 @@
 </template>
 
 <script setup lang="ts">
-import { call, Dialog, FormControl, toast } from 'frappe-ui'
+import { call, Dialog, FormControl, toast, Switch } from 'frappe-ui'
 import { reactive, ref, watch } from 'vue'
 import { cleanError } from '@/utils'
 

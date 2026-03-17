@@ -122,10 +122,13 @@
 							</Button>
 						</div>
 						<div v-else class="flex flex-col space-y-4 p-5">
-							<FormControl
-								type="checkbox"
+							<Switch
+								size="sm"
 								v-model="certificate.published"
 								:label="__('Published')"
+								:description="
+									__('Make this certificate visible to the participant.')
+								"
 								:disabled="!userIsEvaluator()"
 							/>
 							<Link
@@ -169,6 +172,7 @@ import {
 	Button,
 	FormControl,
 	createResource,
+	Switch,
 	Tabs,
 	Tooltip,
 	Textarea,

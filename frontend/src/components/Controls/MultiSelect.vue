@@ -7,7 +7,7 @@
 		<Combobox v-model="selectedValue" nullable v-slot="{ open }">
 			<div class="relative w-full">
 				<div
-					class="flex flex-wrap items-center gap-1.5 w-full rounded-lg border border-outline-gray-2 bg-surface-gray-2 px-2 py-1.5 cursor-text transition-colors focus-within:border-outline-gray-4 focus-within:bg-surface-white focus-within:shadow-sm"
+					class="flex flex-wrap items-center gap-1.5 w-full rounded-lg border border-[--surface-gray-2] bg-surface-gray-2 px-2 py-1.5 cursor-text transition-colors focus-within:bg-surface-white focus-within:border-outline-gray-4 focus-within:shadow-sm focus-within:ring-0 focus-within:ring-2 focus-within:ring-outline-gray-3"
 					@click="focusInput"
 				>
 					<button

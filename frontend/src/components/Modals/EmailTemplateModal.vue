@@ -34,10 +34,11 @@
 					:required="true"
 					:placeholder="__('Your enrollment in {{ batch_name }} is confirmed')"
 				/>
-				<FormControl
+				<Switch
+					size="sm"
+					:description="__('Use HTML content for the email response')"
 					:label="__('Use HTML')"
 					v-model="template.use_html"
-					type="checkbox"
 				/>
 				<FormControl
 					v-if="template.use_html"
@@ -75,7 +76,7 @@
 	</Dialog>
 </template>
 <script setup lang="ts">
-import { call, Dialog, FormControl, TextEditor, toast } from 'frappe-ui'
+import { call, Dialog, FormControl, TextEditor, toast, Switch } from 'frappe-ui'
 import { reactive, watch } from 'vue'
 import { cleanError } from '@/utils'
 

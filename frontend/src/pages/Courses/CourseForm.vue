@@ -103,10 +103,11 @@
 								v-if="user.data?.is_moderator"
 								class="flex flex-col space-y-5"
 							>
-								<FormControl
-									type="checkbox"
+								<Switch
+									size="sm"
 									v-model="courseResource.doc.published"
 									:label="__('Published')"
+									:description="__('Make the course visible to all users.')"
 									@change="makeFormDirty()"
 								/>
 								<FormControl
@@ -117,23 +118,31 @@
 								/>
 							</div>
 							<div class="flex flex-col space-y-5">
-								<FormControl
-									type="checkbox"
+								<Switch
+									size="sm"
 									v-model="courseResource.doc.upcoming"
 									:label="__('Upcoming')"
+									:description="
+										__(
+											'Mark the course as upcoming but not yet open for enrollment.'
+										)
+									"
 									@change="makeFormDirty()"
 								/>
-								<FormControl
-									type="checkbox"
+								<Switch
+									size="sm"
 									v-model="courseResource.doc.featured"
 									:label="__('Featured')"
+									:description="__('Highlight the course on the homepage.')"
 									@change="makeFormDirty()"
 								/>
-								<FormControl
-									type="checkbox"
-									v-model="courseResource.doc.disable_self_learning"
-									:label="__('Disable Self Enrollment')"
-									@change="makeFormDirty()"
+								<Switch
+									size="sm"
+									v-model="selfEnrollment"
+									:label="__('Allow Self Enrollment')"
+									:description="
+										__('Allow users to enroll in this course on their own.')
+									"
 								/>
 							</div>
 						</div>
@@ -178,9 +187,9 @@
 						<FormControl
 							v-model="courseResource.doc.video_link"
 							:label="__('Preview Video')"
-							:placeholder="
+							:description="
 								__(
-									'Paste a YouTube link of a short video introducing the course'
+									'Paste a YouTube link of a short video introducing the course.'
 								)
 							"
 							@input="makeFormDirty()"
@@ -208,22 +217,25 @@
 							{{ __('Pricing and Certification') }}
 						</div>
 						<div class="grid grid-cols-1 md:grid-cols-3 gap-5">
-							<FormControl
-								type="checkbox"
+							<Switch
+								size="sm"
 								v-model="courseResource.doc.paid_course"
 								:label="__('Paid Course')"
+								:description="__('Charge a fee for course access.')"
 								@change="makeFormDirty()"
 							/>
-							<FormControl
-								type="checkbox"
+							<Switch
+								size="sm"
 								v-model="courseResource.doc.enable_certification"
 								:label="__('Completion Certificate')"
+								:description="__('Issue a certificate on course completion.')"
 								@change="makeFormDirty()"
 							/>
-							<FormControl
-								type="checkbox"
+							<Switch
+								size="sm"
 								v-model="courseResource.doc.paid_certificate"
 								:label="__('Paid Certificate')"
+								:description="__('Charge a fee for the certificate.')"
 								@change="makeFormDirty()"
 							/>
 						</div>
@@ -320,6 +332,7 @@
 <script setup>
 import {
 	TextEditor,
+	Switch,
 	createResource,
 	createDocumentResource,
 	FormControl,
@@ -327,6 +340,7 @@ import {
 	toast,
 } from 'frappe-ui'
 import {
+	computed,
 	inject,
 	onMounted,
 	onBeforeUnmount,
@@ -363,6 +377,14 @@ const app = getCurrentInstance()
 const { $dialog } = app.appContext.config.globalProperties
 const isDirty = ref(false)
 const showMemberModal = ref(false)
+
+const selfEnrollment = computed({
+	get: () => !courseResource.doc?.disable_self_learning,
+	set: (val) => {
+		courseResource.doc.disable_self_learning = !val
+		makeFormDirty()
+	},
+})
 const evaluatorLinkRef = ref(null)
 const memberModalRoles = ref(['course_creator'])
 
