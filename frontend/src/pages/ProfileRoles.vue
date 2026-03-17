@@ -20,7 +20,7 @@
 					__('Can browse courses, enroll in batches, and view content.')
 				"
 				v-model="lms_student"
-				@change="changeRole('lms_student')"
+				@update:modelValue="saveRole('lms_student')"
 			/>
 			<Switch
 				size="sm"
@@ -29,7 +29,7 @@
 					__('Can create, edit, and manage courses, chapters, and lessons.')
 				"
 				v-model="course_creator"
-				@change="changeRole('course_creator')"
+				@update:modelValue="saveRole('course_creator')"
 			/>
 			<Switch
 				size="sm"
@@ -38,7 +38,7 @@
 					__('Can create batches/live classes and grade student assignments.')
 				"
 				v-model="batch_evaluator"
-				@change="changeRole('batch_evaluator')"
+				@update:modelValue="saveRole('batch_evaluator')"
 			/>
 			<Switch
 				size="sm"
@@ -47,7 +47,7 @@
 					__('Full access to all content, users, and system-wide settings.')
 				"
 				v-model="moderator"
-				@change="changeRole('moderator')"
+				@update:modelValue="saveRole('moderator')"
 			/>
 		</div>
 	</div>
@@ -101,38 +101,18 @@ watch(
 	{ immediate: true }
 )
 
-const updateRole = createResource({
-	url: 'lms.lms.api.save_role',
-	makeParams(values) {
-		return {
-			user: props.profile.data?.name,
-			role: values.role,
-			value: values.value,
-		}
-	},
-})
-
-// todo: use save_role for all roles to ensure consistent behavior and error handling
-const changeRole = (role) => {
+const saveRole = async (role) => {
 	const roleName =
 		role == 'lms_student'
 			? 'LMS Student'
 			: convertToTitleCase(role.split('_').join(' '))
 	const value = eval(role).value
 
-	updateRole.submit(
-		{
-			role: roleName,
-			value: value,
-		},
-		{
-			async onSuccess() {
-				if (role === 'batch_evaluator') {
-					await syncEvaluatorRecord(value)
-				}
-				toast.success(__('Role updated successfully'))
-			},
-		}
-	)
+	await call('lms.lms.api.save_role', {
+		user: props.profile.data?.name,
+		role: roleName,
+		value: value,
+	})
+	toast.success(__('Role updated successfully'))
 }
 </script>
