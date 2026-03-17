@@ -187,9 +187,9 @@
 						<FormControl
 							v-model="courseResource.doc.video_link"
 							:label="__('Preview Video')"
-							:placeholder="
+							:description="
 								__(
-									'Paste a YouTube link of a short video introducing the course'
+									'Paste a YouTube link of a short video introducing the course.'
 								)
 							"
 							@input="makeFormDirty()"
