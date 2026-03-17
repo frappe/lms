@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2026-03-13 16:10+0000\n"
-"PO-Revision-Date: 2026-03-16 13:08\n"
+"PO-Revision-Date: 2026-03-17 13:10\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Serbian (Cyrillic)\n"
 "MIME-Version: 1.0\n"
@@ -184,7 +184,7 @@ msgstr "Додај лекцију"
 
 #: frontend/src/pages/QuizForm.vue:197
 msgid "Add Question"
-msgstr ""
+msgstr "Додај питање"
 
 #: frontend/src/components/VideoBlock.vue:121
 msgid "Add Quiz to Video"
@@ -265,7 +265,7 @@ msgstr "Додајте обуке у Вашу групу"
 
 #: frontend/src/components/Modals/Question.vue:164
 msgid "Add new question"
-msgstr ""
+msgstr "Додај ново питање"
 
 #: frontend/src/components/Modals/QuizInVideo.vue:5
 msgid "Add quiz to this video"
@@ -493,7 +493,7 @@ msgstr "Да ли сте сигурни да желите да откажете 
 
 #: frontend/src/components/Sidebar/UserDropdown.vue:254
 msgid "Are you sure you want to clear the demo data? This would delete the course \"A guide  to Frappe Learning\" along with all its associated data. This action cannot be undone."
-msgstr ""
+msgstr "Да ли сте сигурни да желите да обришете демо податке? Ово ће обрисати обуку \"Водич за Frappe Learning\" заједно са свим повезаним подацима. Ова радња се не може поништити."
 
 #: frontend/src/pages/Programs/ProgramForm.vue:562
 msgid "Are you sure you want to delete this program? This action cannot be undone."
@@ -509,7 +509,7 @@ msgstr "Да ли сте сигурни да желите да се пријав
 
 #: frontend/src/components/Quiz.vue:378
 msgid "Are you sure you want to submit the quiz?"
-msgstr ""
+msgstr "Да ли сте сигурни да желите да завршите квиз?"
 
 #: frontend/src/pages/Batches/components/BatchDashboard.vue:11
 msgid "As a part of this batch's curriculum you will have to complete the following courses and assessments."
@@ -658,7 +658,7 @@ msgstr "Најмање један тест пример је неопходан 
 
 #: frontend/src/components/Quiz.vue:405
 msgid "Attempted Questions"
-msgstr ""
+msgstr "Решена питања"
 
 #: frontend/src/components/Modals/LiveClassAttendance.vue:5
 msgid "Attendance for Class - {0}"
@@ -1529,7 +1529,7 @@ msgstr "Потврдите своју радњу"
 
 #: frontend/src/components/Sidebar/UserDropdown.vue:253
 msgid "Confirm clearing demo data?"
-msgstr ""
+msgstr "Потврдите брисање демо података?"
 
 #: frontend/src/pages/Batches/BatchForm.vue:460
 msgid "Confirm your action to delete"
@@ -2197,11 +2197,11 @@ msgstr "Брисање није дозвољено за {0}"
 #. Label of the demo_data_present (Check) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Demo Data Present"
-msgstr ""
+msgstr "Демо подаци су присутни"
 
 #: frontend/src/components/Sidebar/UserDropdown.vue:275
 msgid "Demo data cleared successfully"
-msgstr ""
+msgstr "Демо подаци су успешно обрисани"
 
 #. Label of the description (Text Editor) field in DocType 'Job Opportunity'
 #. Label of a field in the job-opportunity Web Form
@@ -2303,7 +2303,7 @@ msgstr "Дискусија"
 
 #: frontend/src/components/Quiz.vue:19
 msgid "Do not refresh the page or close this window. If you do, the quiz will be submitted automatically."
-msgstr ""
+msgstr "Немојте освежавати страницу нити затварати овај прозор. Уколико то урадите, квиз ће аутоматски бити завршен."
 
 #. Option for the 'File Type' (Select) field in DocType 'Course Lesson'
 #. Option for the 'Type' (Select) field in DocType 'LMS Assignment'
@@ -2414,7 +2414,7 @@ msgstr "Уреди вежбу програмирања"
 
 #: frontend/src/pages/QuizForm.vue:197
 msgid "Edit Question"
-msgstr ""
+msgstr "Уреди питање"
 
 #: frontend/src/components/Modals/ZoomAccountModal.vue:6
 msgid "Edit Zoom Account"
@@ -5553,7 +5553,7 @@ msgstr "Молимо Вас да дате сагласност како бист
 
 #: frontend/src/components/Quiz.vue:8
 msgid "Please read the following instructions carefully before starting the quiz"
-msgstr ""
+msgstr "Молимо Вас да пажљиво прочитате следећа упутства пре почетка квиза"
 
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmission.vue:139
 msgid "Please run the code to execute the test cases."
@@ -6443,7 +6443,7 @@ msgstr "Изаберите вежбу програмирања"
 
 #: frontend/src/pages/Courses/CourseForm.vue:78
 msgid "Select a fallback color for the course card when no image is set."
-msgstr ""
+msgstr "Изаберите резервну боју за картицу обуке када није постављена слика."
 
 #: frontend/src/components/Modals/Question.vue:98
 msgid "Select a question"
@@ -6460,7 +6460,7 @@ msgstr "Изаберите задатак"
 
 #: frontend/src/components/Modals/Question.vue:17
 msgid "Select from questions you have already created"
-msgstr ""
+msgstr "Изаберите из питања која сте већ креирали"
 
 #: frontend/src/components/ContactUsEmail.vue:33
 #: frontend/src/pages/JobApplications.vue:115
@@ -6495,13 +6495,13 @@ msgstr "Пошаљи обавештење за објављене обуке"
 #. Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Send Payment Reminders for Batch"
-msgstr ""
+msgstr "Пошаљите подсетнике за плаћање за ову групу"
 
 #. Label of the send_payment_reminders_for_course (Check) field in DocType 'LMS
 #. Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Send Payment Reminders for Course"
-msgstr ""
+msgstr "Пошаљите подсетнике за плаћање за ову обуку"
 
 #. Label of the send_calendar_invite_for_evaluations (Check) field in DocType
 #. 'LMS Settings'
@@ -7399,7 +7399,7 @@ msgstr "Укупан број поена"
 
 #: frontend/src/components/Quiz.vue:397
 msgid "Total Questions"
-msgstr ""
+msgstr "Укупан број питања"
 
 #: lms/lms/web_template/lms_statistics/lms_statistics.html:14
 #: lms/templates/statistics.html:12
@@ -7497,7 +7497,7 @@ msgstr "UUID"
 
 #: frontend/src/components/Quiz.vue:413
 msgid "Unattempted Questions"
-msgstr ""
+msgstr "Нерешена питања"
 
 #. Label of the unavailability_section (Section Break) field in DocType 'Course
 #. Evaluator'
@@ -8280,7 +8280,7 @@ msgstr "на {0} минута"
 
 #: frontend/src/components/CourseCardOverlay.vue:121
 msgid "average rating"
-msgstr ""
+msgstr "просечна оцена"
 
 #: lms/templates/emails/payment_reminder.html:4
 msgid "but didn’t complete your payment"
@@ -8328,11 +8328,11 @@ msgstr "нпр. IST, UTC, GMT..."
 
 #: frontend/src/components/CourseCardOverlay.vue:111
 msgid "enrolled student"
-msgstr ""
+msgstr "уписани студент"
 
 #: frontend/src/components/CourseCardOverlay.vue:110
 msgid "enrolled students"
-msgstr ""
+msgstr "уписани студенти"
 
 #: frontend/src/pages/Home/Home.vue:135 frontend/src/pages/Home/Home.vue:158
 msgid "evaluation"
