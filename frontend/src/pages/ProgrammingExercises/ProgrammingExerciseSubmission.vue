@@ -387,6 +387,8 @@ const execute = (stdin = ''): Promise<string> => {
 			code: code.value,
 			files: [{ filename: 'stdin', contents: stdin }],
 			onMessage: (msg: any) => {
+				console.log('msg', msg)
+
 				if (msg.msgtype === 'write' && msg.file === 'stdout') {
 					outputChunks.push(msg.data)
 				}
