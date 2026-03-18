@@ -13,7 +13,10 @@
 						: __('No Submissions')
 				}}
 			</div>
-			<div v-if="submissions.data?.length" class="grid grid-cols-3 gap-5">
+			<div
+				v-if="submissions.data?.length || filters"
+				class="grid grid-cols-3 gap-5"
+			>
 				<Link
 					doctype="LMS Programming Exercise"
 					v-model="filters.exercise"
@@ -31,7 +34,7 @@
 					v-model="filters.status"
 					type="select"
 					:options="[
-						{ label: __(''), value: '' },
+						{},
 						{ label: __('Passed'), value: 'Passed' },
 						{ label: __('Failed'), value: 'Failed' },
 					]"
