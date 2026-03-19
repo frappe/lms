@@ -419,9 +419,16 @@ watch(
 	() => batchDetail.doc,
 	() => {
 		if (!batchDetail.doc) return
-		getMetaInfo('batches', batchDetail.doc?.name, meta)
+
+		if (originalDoc.value) {
+			isDirty.value =
+				JSON.stringify(batchDetail.doc) !== JSON.stringify(originalDoc.value)
+		}
+
 		updateBatchData()
-	}
+		getMetaInfo('batches', batchDetail.doc?.name, meta)
+	},
+	{ deep: true }
 )
 
 const updateBatchData = () => {
@@ -498,17 +505,6 @@ const updateBatch = () => {
 		}
 	)
 }
-
-watch(
-	() => batchDetail.doc,
-	() => {
-		if (originalDoc.value) {
-			isDirty.value =
-				JSON.stringify(batchDetail.doc) !== JSON.stringify(originalDoc.value)
-		}
-	},
-	{ deep: true }
-)
 
 const deleteBatch = () => {
 	$dialog({
