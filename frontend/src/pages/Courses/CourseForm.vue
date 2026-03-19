@@ -355,11 +355,9 @@ import {
 	sanitizeHTML,
 	updateMetaInfo,
 	createLMSCategory,
-	cleanError,
 } from '@/utils'
-import { Trash2, X } from 'lucide-vue-next'
+import { X } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
-import { sessionStore } from '../../stores/session'
 import Link from '@/components/Controls/Link.vue'
 import CourseOutline from '@/components/CourseOutline.vue'
 import MultiSelect from '@/components/Controls/MultiSelect.vue'
@@ -369,7 +367,6 @@ import NewMemberModal from '@/components/Modals/NewMemberModal.vue'
 
 const user = inject('$user')
 const newTag = ref('')
-const { brand } = sessionStore()
 const router = useRouter()
 const instructors = ref([])
 const related_courses = ref([])
@@ -594,13 +591,6 @@ const createCategory = (name, done) => {
 const makeFormDirty = () => {
 	isDirty.value = true
 }
-
-usePageMeta(() => {
-	return {
-		title: courseResource.doc?.title,
-		icon: brand.favicon,
-	}
-})
 
 defineExpose({
 	submitCourse,

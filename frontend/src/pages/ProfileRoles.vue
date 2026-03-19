@@ -17,7 +17,7 @@
 				size="sm"
 				:label="__('Student')"
 				:description="
-					__('Can browse courses, enroll in batches, and view content.')
+					__('Access courses, join batches, and track learning progress')
 				"
 				v-model="lms_student"
 				@update:modelValue="saveRole('lms_student')"
@@ -25,27 +25,21 @@
 			<Switch
 				size="sm"
 				:label="__('Course Creator')"
-				:description="
-					__('Can create, edit, and manage courses, chapters, and lessons.')
-				"
+				:description="__('Build and manage courses, chapters, and lessons')"
 				v-model="course_creator"
 				@update:modelValue="saveRole('course_creator')"
 			/>
 			<Switch
 				size="sm"
 				:label="__('Evaluator')"
-				:description="
-					__('Can create batches/live classes and grade student assignments.')
-				"
+				:description="__('Manage batches, review and grade submissions')"
 				v-model="batch_evaluator"
 				@update:modelValue="saveRole('batch_evaluator')"
 			/>
 			<Switch
 				size="sm"
 				:label="__('Moderator')"
-				:description="
-					__('Full access to all content, users, and system-wide settings.')
-				"
+				:description="__('Oversee all users, content, and system settings')"
 				v-model="moderator"
 				@update:modelValue="saveRole('moderator')"
 			/>
