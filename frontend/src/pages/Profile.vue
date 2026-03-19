@@ -149,6 +149,7 @@ import {
 	createResource,
 	TabButtons,
 	Tooltip,
+	toast,
 	usePageMeta,
 } from 'frappe-ui'
 import { computed, inject, watch, ref, onMounted, watchEffect } from 'vue'
@@ -279,11 +280,17 @@ const getTabButtons = () => {
 }
 
 const reloadUser = () => {
-	call('frappe.sessions.clear').then(() => {
-		$user.reload().then(() => {
-			profile.reload()
+	call('frappe.sessions.clear')
+		.then(() => {
+			$user.reload().then(() => {
+				profile.reload()
+				toast.success(__('Session refreshed successfully'))
+			})
 		})
-	})
+		.catch((err) => {
+			toast.error(__('Failed to refresh session'))
+			console.error(err)
+		})
 }
 
 const navigateTo = (url) => {
