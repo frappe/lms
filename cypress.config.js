@@ -1,5 +1,5 @@
 import { defineConfig } from "cypress";
-const cypressSplit = require('cypress-split')
+import cypressSplit from "cypress-split";
 
 export default defineConfig({
 	projectId: "vandxn",
@@ -20,7 +20,7 @@ export default defineConfig({
 			if (process.env.CYPRESS_CLOUD_PARALLEL !== "1") {
 				cypressSplit(on, config);
 			}
-			return config
+			return config;
 		},
 	},
 });
