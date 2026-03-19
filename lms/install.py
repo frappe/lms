@@ -7,6 +7,7 @@ def after_install():
 	create_batch_source()
 	give_discussions_permission()
 	give_user_list_permission()
+	give_event_permission()
 
 
 def after_sync():
@@ -189,8 +190,22 @@ def give_user_list_permission():
 	create_role(doctype, "System Manager", 1)
 
 
-def create_role(doctype, role, permlevel):
+def give_event_permission():
+	doctype = "Event"
+	roles = ["Moderator", "Batch Evaluator"]
+	for role in roles:
+		permlevel = 0
+		create_role(doctype, role, permlevel, 1, 1)
+	create_role(doctype, "System Manager", 0, 1, 1)
+
+
+def create_role(doctype, role, permlevel, write=0, create=0):
 	if not frappe.db.exists("Custom DocPerm", {"parent": doctype, "role": role, "permlevel": permlevel}):
+		if not write and not create:
+			if role in ["Moderator", "System Manager"]:
+				write = 1
+			if role == "Moderator":
+				create = 1
 		doc = frappe.new_doc("Custom DocPerm")
 		doc.update(
 			{
@@ -198,8 +213,9 @@ def create_role(doctype, role, permlevel):
 				"parent": doctype,
 				"role": role,
 				"read": 1,
-				"write": 1 if role in ["Moderator", "System Manager"] else 0,
-				"create": 1 if role == "Moderator" else 0,
+				"select": 1,
+				"write": write,
+				"create": create,
 				"permlevel": permlevel,
 			}
 		)
