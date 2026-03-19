@@ -1,4 +1,5 @@
 import { defineConfig } from "cypress";
+import cypressSplit from "cypress-split";
 
 export default defineConfig({
 	projectId: "vandxn",
@@ -14,5 +15,12 @@ export default defineConfig({
 	},
 	e2e: {
 		baseUrl: "http://pertest:8000",
+		setupNodeEvents(on, config) {
+			// Splitting tests only works when Cypress Cloud is not orchestrating parallel runs.
+			if (process.env.CYPRESS_CLOUD_PARALLEL !== "1") {
+				cypressSplit(on, config);
+			}
+			return config;
+		},
 	},
 });
