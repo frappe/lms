@@ -64,13 +64,13 @@
 								</template>
 							</Dropdown>
 						</div>
-						<div class="flex items-center mb-3">
+						<div class="flex items-center mb-2">
 							<Calendar class="w-4 h-4 stroke-1.5" />
 							<span class="ml-2">
 								{{ dayjs(evl.date).format('DD MMMM YYYY') }}
 							</span>
 						</div>
-						<div class="flex items-center mb-3">
+						<div class="flex items-center mb-2">
 							<Clock class="w-4 h-4 stroke-1.5" />
 							<span class="ml-2">
 								{{ formatTime(evl.start_time) }}
