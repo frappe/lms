@@ -12,7 +12,7 @@
 	</header>
 	<div class="py-5 mx-5">
 		<div class="flex items-center justify-between mb-4">
-			<div class="text-lg font-semibold">
+			<div class="text-lg font-semibold text-ink-gray-9">
 				{{ __('{0} Quizzes').format(quizzes.data.length) }}
 			</div>
 			<FormControl v-model="search" type="text" placeholder="Search">

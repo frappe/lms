@@ -1,8 +1,11 @@
+import json
+
 import frappe
 from frappe.tests import UnitTestCase
 from frappe.utils import add_days, nowdate
 
 from lms.lms.doctype.lms_certificate.lms_certificate import get_default_certificate_template
+from lms.lms.doctype.lms_quiz.lms_quiz import submit_quiz
 
 
 class BaseTestUtils(UnitTestCase):
@@ -267,7 +270,7 @@ class BaseTestUtils(UnitTestCase):
 				}
 			)
 			question.save()
-			self.cleanup_items.append(("LMS Quiz Question", question.name))
+			self.cleanup_items.append(("LMS Question", question.name))
 			questions.append(question)
 		return questions
 
@@ -450,29 +453,22 @@ class BaseTestUtils(UnitTestCase):
 		existing = frappe.db.exists("LMS Quiz Submission", {"quiz": self.quiz.name, "member": member})
 		if existing:
 			return frappe.get_doc("LMS Quiz Submission", existing)
-		submission = frappe.new_doc("LMS Quiz Submission")
-		submission.update(
-			{
-				"quiz": self.quiz.name,
-				"member": member,
-				"score_out_of": self.quiz.total_marks,
-				"passing_percentage": self.quiz.passing_percentage,
-			}
-		)
 
-		for question in self.questions:
-			submission.append(
-				"result",
+		frappe.session.user = member
+		results = []
+		for index, question in enumerate(self.questions):
+			results.append(
 				{
-					"question": question.name,
-					"marks": 4,
-					"marks_out_of": 5,
-				},
+					"question_name": question.name,
+					"answer": [question.option_1 if index % 2 == 0 else question.option_2],
+				}
 			)
-
-		submission.insert()
-		self.cleanup_items.append(("LMS Quiz Submission", submission.name))
-		return submission
+		submit_quiz(self.quiz.name, json.dumps(results))
+		submission = frappe.db.get_value(
+			"LMS Quiz Submission", {"quiz": self.quiz.name, "member": member}, "name"
+		)
+		self.cleanup_items.append(("LMS Quiz Submission", submission))
+		frappe.session.user = "Administrator"
 
 	def _create_assignment_submission(self, member):
 		existing = frappe.db.exists(

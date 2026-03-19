@@ -27,15 +27,17 @@
 				doctype="User"
 				:placeholder="__('Filter by Member')"
 			/>
-			<FormControl
-				v-model="paymentReceived"
-				type="checkbox"
+			<Switch
+				size="sm"
 				:label="__('Payment Received')"
+				:description="__('Mark the payment as received.')"
+				v-model="paymentReceived"
 			/>
-			<FormControl
+			<Switch
+				size="sm"
+				:label="__('Payment For Certificate')"
+				:description="__('This payment is for a certificate.')"
 				v-model="paymentForCertificate"
-				type="checkbox"
-				:label="__('Payment for Certificate')"
 			/>
 		</div>
 
@@ -116,6 +118,7 @@ import {
 	ListRow,
 	ListRowItem,
 	FormControl,
+	Switch,
 } from 'frappe-ui'
 import { computed, ref, watch } from 'vue'
 import { RefreshCw } from 'lucide-vue-next'

@@ -20,10 +20,13 @@
 	>
 		<template #body-content>
 			<div class="mb-4">
-				<FormControl
+				<Switch
+					size="sm"
 					v-model="account.enabled"
 					:label="__('Enabled')"
-					type="checkbox"
+					:description="
+						__('Activate this Google Meet account for scheduling meetings.')
+					"
 				/>
 			</div>
 			<div class="grid grid-cols-2 gap-5">
@@ -51,7 +54,7 @@
 	</Dialog>
 </template>
 <script setup lang="ts">
-import { call, Dialog, FormControl, toast } from 'frappe-ui'
+import { call, Dialog, FormControl, Switch, toast } from 'frappe-ui'
 import { inject, reactive, watch } from 'vue'
 import { User } from '@/components/Settings/types'
 import { openSettings, cleanError } from '@/utils'

@@ -6,18 +6,34 @@
 		</label>
 		<Combobox v-model="selectedValue" nullable v-slot="{ open }">
 			<div class="relative w-full">
-				<ComboboxInput
-					ref="search"
-					class="form-input w-full focus-visible:!ring-0"
-					type="text"
-					@change="
-						(e) => {
-							query = e.target.value
-						}
-					"
-					autocomplete="off"
-					@focus="onFocus"
-				/>
+				<div
+					class="flex flex-wrap items-center gap-1.5 w-full rounded-lg border border-[--surface-gray-2] bg-surface-gray-2 px-2 py-1.5 cursor-text transition-colors focus-within:bg-surface-white focus-within:border-outline-gray-4 focus-within:shadow-sm focus-within:ring-0 focus-within:ring-2 focus-within:ring-outline-gray-3"
+					@click="focusInput"
+				>
+					<button
+						v-for="value in values"
+						:key="value"
+						type="button"
+						class="inline-flex items-center gap-1 bg-surface-white border border-outline-gray-2 text-ink-gray-7 pl-2 pr-1.5 py-0.5 rounded text-base leading-5"
+						@click.stop="removeValue(value)"
+					>
+						<span>{{ value }}</span>
+						<X class="size-3.5 stroke-1.5 shrink-0" />
+					</button>
+					<ComboboxInput
+						ref="search"
+						class="flex-1 min-w-[4rem] border-none outline-none bg-transparent p-0 text-base focus:ring-0"
+						type="text"
+						:placeholder="!values?.length ? __('Search...') : ''"
+						@change="
+							(e) => {
+								query = e.target.value
+							}
+						"
+						autocomplete="off"
+						@focus="onFocus"
+					/>
+				</div>
 				<ComboboxButton ref="trigger" class="hidden" />
 				<ComboboxOptions
 					v-show="open"
@@ -26,7 +42,7 @@
 				>
 					<div
 						class="flex-1 my-1 overflow-y-auto px-1.5"
-						:class="options.length ? 'min-h-[6rem]' : 'min-h-[3.8rem]'"
+						:class="options.length ? 'min-h-[6rem]' : 'min-h-[1rem]'"
 					>
 						<template v-if="options.length">
 							<ComboboxOption
@@ -80,21 +96,6 @@
 				</ComboboxOptions>
 			</div>
 		</Combobox>
-
-		<!-- Selected values -->
-		<div v-if="values?.length" class="grid grid-cols-2 gap-2 mt-1">
-			<div
-				v-for="value in values"
-				:key="value"
-				class="flex items-center justify-between break-all bg-surface-gray-2 text-ink-gray-7 p-2 rounded-md"
-			>
-				<span>{{ value }}</span>
-				<X
-					class="size-4 stroke-1.5 cursor-pointer"
-					@click="removeValue(value)"
-				/>
-			</div>
-		</div>
 	</div>
 </template>
 
@@ -106,7 +107,7 @@ import {
 	ComboboxOptions,
 	ComboboxOption,
 } from '@headlessui/vue'
-import { createResource, Button } from 'frappe-ui'
+import { createResource, Button, toast } from 'frappe-ui'
 import { ref, computed, useAttrs, watch } from 'vue'
 import { watchDebounced } from '@vueuse/core'
 import { X, Plus } from 'lucide-vue-next'
@@ -115,7 +116,9 @@ const props = defineProps({
 	label: String,
 	size: { type: String, default: 'sm' },
 	doctype: { type: String, required: true },
-	filters: { type: Object, default: () => ({}) },
+	filters: { type: [Object, Array], default: () => ({}) },
+	url: { type: String, default: 'frappe.desk.search.search_link' },
+	searchParams: { type: Object, default: () => ({}) },
 	validate: Function,
 	errorMessage: {
 		type: Function,
@@ -124,22 +127,18 @@ const props = defineProps({
 	required: Boolean,
 })
 
-const values = defineModel()
+const values = defineModel({ default: () => [] })
 const attrs = useAttrs()
 const trigger = ref(null)
 const query = ref('')
 const text = ref('')
 const selectedValue = ref(null)
-const error = ref(null)
-
-const emit = defineEmits(['update:modelValue'])
 
 watch(selectedValue, (val) => {
 	if (!val?.value) return
 	query.value = ''
 	addValue(val.value)
 	selectedValue.value = null
-	emit('update:modelValue', values.value)
 })
 
 watchDebounced(
@@ -153,14 +152,27 @@ watchDebounced(
 	{ debounce: 300, immediate: true }
 )
 
-const filterOptions = createResource({
-	url: 'frappe.desk.search.search_link',
-	method: 'POST',
-	auto: true,
-	params: {
-		txt: text.value,
-		doctype: props.doctype,
+// Refetch when filters or searchParams change
+watch(
+	() => [props.filters, props.searchParams],
+	() => {
+		reload(text.value)
 	},
+	{ deep: true }
+)
+
+function getParams(txt) {
+	return {
+		txt,
+		doctype: props.doctype,
+		filters: JSON.stringify(props.filters),
+		...props.searchParams,
+	}
+}
+
+const filterOptions = createResource({
+	url: props.url,
+	method: 'POST',
 })
 
 const options = computed(() => {
@@ -170,10 +182,7 @@ const options = computed(() => {
 
 function reload(val) {
 	filterOptions.update({
-		params: {
-			txt: val,
-			doctype: props.doctype,
-		},
+		params: getParams(val),
 	})
 	filterOptions.reload()
 }
@@ -186,34 +195,30 @@ function onFocus() {
 }
 
 function addValue(value) {
-	error.value = null
-
 	if (!value) return
 
 	const splitValues = value.split(',')
+	let newValues = [...(values.value || [])]
 
 	splitValues.forEach((val) => {
 		val = val.trim()
 
 		if (!val) return
-		if (values.value?.includes(val)) return
+		if (newValues.includes(val)) return
 
 		if (props.validate && !props.validate(val)) {
-			error.value = props.errorMessage(val)
+			toast.error(props.errorMessage(val))
 			return
 		}
 
-		if (!values.value) values.value = [val]
-		else values.value.push(val)
+		newValues.push(val)
 	})
+
+	values.value = newValues
 }
 
 function removeValue(value) {
-	let indexToRemove = values.value.indexOf(value)
-	if (indexToRemove > -1) {
-		values.value.splice(indexToRemove, 1)
-	}
-	emit('update:modelValue', values.value)
+	values.value = values.value.filter((v) => v !== value)
 }
 
 const labelClasses = computed(() => [

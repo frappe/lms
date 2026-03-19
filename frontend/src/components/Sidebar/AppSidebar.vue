@@ -4,11 +4,11 @@
 		:class="sidebarStore.isSidebarCollapsed ? 'w-14' : 'w-56'"
 	>
 		<div
-			class="flex flex-col overflow-hidden"
+			class="flex flex-col overflow-y-auto"
 			:class="sidebarStore.isSidebarCollapsed ? 'items-center' : ''"
 		>
 			<UserDropdown :isCollapsed="sidebarStore.isSidebarCollapsed" />
-			<div class="flex flex-col" v-if="sidebarSettings.data">
+			<div class="flex flex-col overflow-y-auto" v-if="sidebarSettings.data">
 				<div v-for="link in sidebarLinks" class="mx-2 my-2.5">
 					<div
 						v-if="!link.hideLabel"
@@ -37,10 +37,10 @@
 				>
 					<div
 						v-if="!sidebarStore.isSidebarCollapsed"
-						class="flex items-center text-sm text-ink-gray-5 my-1"
+						class="flex items-center text-ink-gray-5 my-1"
 					>
 						<span class="grid h-5 w-6 flex-shrink-0 place-items-center">
-							<ChevronsRight
+							<ChevronRight
 								class="h-4 w-4 stroke-1.5 text-ink-gray-9 transition-all duration-300 ease-in-out"
 								:class="{ 'rotate-90': !sidebarStore.isWebpagesCollapsed }"
 							/>

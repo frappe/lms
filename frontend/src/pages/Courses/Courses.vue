@@ -77,10 +77,11 @@
 					</div>
 				</div>
 
-				<FormControl
+				<Switch
+					size="sm"
 					v-model="certification"
 					:label="__('Certification')"
-					type="checkbox"
+					:description="__('Only show courses that offer a certificate.')"
 					@change="updateCourses()"
 				/>
 			</div>
@@ -122,6 +123,7 @@ import {
 	FormControl,
 	Select,
 	TabButtons,
+	Switch,
 	usePageMeta,
 } from 'frappe-ui'
 import { computed, inject, onMounted, ref, watch } from 'vue'
