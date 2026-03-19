@@ -445,7 +445,7 @@
    "label": "Contact Us URL"
   },
   {
-   "default": "0",
+   "default": "1",
    "fieldname": "certifications",
    "fieldtype": "Check",
    "label": "Certifications"
@@ -512,7 +512,7 @@
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2026-03-10 18:18:51.733955",
+ "modified": "2026-03-18 15:32:56.259783",
  "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "LMS Settings",
