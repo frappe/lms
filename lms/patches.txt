@@ -123,3 +123,4 @@ lms.patches.v2_0.enable_allow_job_posting
 lms.patches.v2_0.set_conferencing_provider_for_zoom
 lms.patches.v2_0.sync_evaluator_roles
 lms.patches.v2_0.fix_livecode_url_default
+lms.patches.v2_0.give_event_permission #10-03-2026

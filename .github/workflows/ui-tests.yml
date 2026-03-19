@@ -1,4 +1,4 @@
-name: UI
+name: UI Tests
 
 on:
   pull_request:
@@ -16,13 +16,14 @@ permissions:
 jobs:
   
   test:
+    name: UI Tests (Cypress) - ${{ matrix.containers }}
     runs-on: ubuntu-latest
     timeout-minutes: 60
 
     strategy:
       fail-fast: false
-
-    name: UI Tests (Cypress)
+      matrix:
+        containers: [1, 2]
 
     services:
       mariadb:
@@ -114,6 +115,15 @@ jobs:
         env:
           CYPRESS_BASE_URL: http://lms.test:8000
           CYPRESS_RECORD_KEY: 095366ec-7b9f-41bd-aeec-03bb76d627fe
+          SPLIT: ${{ strategy.job-total }}
+          SPLIT_INDEX: ${{ strategy.job-index }}
+
+      - name: Upload Cypress screenshots if tests fail
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-screenshots-${{ matrix.containers }}
+          path: cypress/screenshots
 
       - name: Stop server and wait for coverage file
         run: |

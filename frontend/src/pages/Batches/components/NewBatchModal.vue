@@ -180,10 +180,12 @@ const onInstructorCreated = (user: any) => {
 
 const validateFields = () => {
 	batch.value.description = sanitizeHTML(batch.value.description)
+	batch.value.batch_details = sanitizeHTML(batch.value.batch_details)
 
 	Object.keys(batch.value).forEach((key) => {
 		if (
 			key != 'description' &&
+			key != 'batch_details' &&
 			typeof batch.value[key as keyof Batch] === 'string'
 		) {
 			batch.value[key as keyof Batch] = escapeHTML(

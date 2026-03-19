@@ -445,7 +445,7 @@
    "label": "Contact Us URL"
   },
   {
-   "default": "0",
+   "default": "1",
    "fieldname": "certifications",
    "fieldtype": "Check",
    "label": "Certifications"
