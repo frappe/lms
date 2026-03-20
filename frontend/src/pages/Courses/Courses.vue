@@ -77,7 +77,7 @@
 					</div>
 				</div>
 
-				<Tooltip :text="__('Only show courses that offer a certificate.')">
+				<Tooltip :text="__('Only show courses that offer a certificate')">
 					<FormControl
 						type="checkbox"
 						v-model="certification"

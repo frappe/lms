@@ -328,8 +328,7 @@ import {
 	updateMetaInfo,
 } from '@/utils'
 import { useRouter } from 'vue-router'
-import { useOnboarding, useTelemetry } from 'frappe-ui/frappe'
-import { sessionStore } from '@/stores/session'
+import { useTelemetry } from 'frappe-ui/frappe'
 import Uploader from '@/components/Controls/Uploader.vue'
 import MultiSelect from '@/components/Controls/MultiSelect.vue'
 import Link from '@/components/Controls/Link.vue'
@@ -340,8 +339,6 @@ import EmailTemplateModal from '@/components/Modals/EmailTemplateModal.vue'
 
 const router = useRouter()
 const user = inject('$user')
-const { brand } = sessionStore()
-const { updateOnboardingStep } = useOnboarding('learning')
 const instructors = ref([])
 const app = getCurrentInstance()
 const { capture } = useTelemetry()
