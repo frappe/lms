@@ -49,7 +49,7 @@ Function ConfigPage
     ${NSD_CreateText} 90u 78u 60u 12u "8000"
     Pop $LmsPort
 
-    ${NSD_CreateLabel} 0 100u 100% 12u "Other LAN machines will access: http://$COMPUTERNAME:<port>"
+    ${NSD_CreateLabel} 0 100u 100% 12u "Other LAN machines will access: http://<machine-name>:<port>"
 
     nsDialogs::Show
 FunctionEnd
@@ -92,7 +92,7 @@ Section "Install"
     !if "${VARIANT}" == "full"
         nsExec::ExecToLog 'powershell -Command "if (!(Test-Path \"C:\Program Files\WSL\wsl.exe\")) { msiexec /i \"$INSTDIR\bundle\wsl.msi\" /quiet /norestart; Start-Sleep 10 }"'
     !else
-        nsExec::ExecToLog 'powershell -Command "if (!(Test-Path \"C:\Program Files\WSL\wsl.exe\")) { curl.exe -L -o $env:TEMP\wsl.msi https://github.com/microsoft/WSL/releases/download/2.6.3/wsl.2.6.3.0.x64.msi; msiexec /i $env:TEMP\wsl.msi /quiet /norestart; Start-Sleep 10 }"'
+        nsExec::ExecToLog 'powershell -Command "if (!(Test-Path $\'C:\Program Files\WSL\wsl.exe$\')) { curl.exe -L -o %TEMP%\wsl.msi https://github.com/microsoft/WSL/releases/download/2.6.3/wsl.2.6.3.0.x64.msi; msiexec /i %TEMP%\wsl.msi /quiet /norestart; Start-Sleep 10 }"'
     !endif
 
     ; --- Step 2: Ubuntu ---
