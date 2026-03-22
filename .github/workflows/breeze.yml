@@ -1,0 +1,29 @@
+# .github/workflows/breeze.yml
+# Builds Windows installers and attaches to release
+# Add this file to the repo's .github/workflows/ directory
+name: Breeze Windows Installer
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        variant: [lite, full]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install NSIS
+        run: choco install nsis -y
+
+      - name: Build ${{ matrix.variant }} installer
+        run: powershell -ExecutionPolicy Bypass -File breeze/build-installer.ps1 -Variant ${{ matrix.variant }}
+
+      - name: Upload to release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: breeze/frappe-lms-breeze-${{ matrix.variant }}.exe
