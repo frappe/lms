@@ -1,4 +1,4 @@
-# breeze-service.ps1 - NSSM service entry point
+# lms-service.ps1 - NSSM service entry point
 # Sequence: wait for systemd → start containers → wait for ready → port proxy → keepalive
 $WSL = "wsl.exe"
 $LMS_DIR = "/opt/frappe-lms"
@@ -10,7 +10,7 @@ for ($i = 0; $i -lt 30; $i++) {
     Start-Sleep 2
 }
 
-# Clean stale containers then start fresh
+# Clean stale containers (WSL restart leaves them in bad state) then start fresh
 & $WSL -u root -- bash -c "cd $LMS_DIR && podman-compose down 2>/dev/null; podman-compose up -d"
 
 # Wait for HTTP 200 before setting up port proxy

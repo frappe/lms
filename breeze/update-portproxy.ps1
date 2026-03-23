@@ -1,12 +1,12 @@
 # update-portproxy.ps1 - Refresh port forwarding (WSL IP changes on reboot)
 param([string]$Port = "8000")
 
-$WSL = "C:\Program Files\WSL\wsl.exe"
+$WSL = "wsl.exe"
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 
 # Read port from config if not passed
-if ($Port -eq "8000" -and (Test-Path "$scriptDir\breeze.conf")) {
-    $line = Get-Content "$scriptDir\breeze.conf" | Where-Object { $_ -match "^LMS_PORT=" }
+if ($Port -eq "8000" -and (Test-Path "$scriptDir\lms.conf")) {
+    $line = Get-Content "$scriptDir\lms.conf" | Where-Object { $_ -match "^LMS_PORT=" }
     if ($line) { $Port = ($line -split '=', 2)[1].Trim() }
 }
 

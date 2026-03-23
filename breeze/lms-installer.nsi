@@ -1,5 +1,5 @@
-; breeze-installer.nsi - NSIS installer for Frappe LMS
-; Build: makensis /DVARIANT=lite|full breeze-installer.nsi
+; lms-installer.nsi - NSIS installer for Frappe LMS on Windows
+; Build: makensis /DVARIANT=lite|full lms-installer.nsi
 
 !include "MUI2.nsh"
 
@@ -7,9 +7,9 @@
     !define VARIANT "lite"
 !endif
 
-Name "Frappe LMS (Breeze)"
-OutFile "frappe-lms-breeze-${VARIANT}.exe"
-InstallDir "$PROGRAMFILES\BreezeLMS"
+Name "Frappe LMS"
+OutFile "frappe-lms-${VARIANT}.exe"
+InstallDir "$PROGRAMFILES\FrappeLMS"
 RequestExecutionLevel admin
 
 !insertmacro MUI_PAGE_WELCOME
@@ -49,7 +49,7 @@ Function ConfigPage
     ${NSD_CreateText} 90u 78u 60u 12u "8000"
     Pop $LmsPort
 
-    ${NSD_CreateLabel} 0 100u 100% 12u "Other LAN machines will access: http://<machine-name>:<port>"
+    ${NSD_CreateLabel} 0 100u 100% 12u "Other LAN machines will access: http://<machine-name>:<port>/lms"
 
     nsDialogs::Show
 FunctionEnd
@@ -64,8 +64,9 @@ FunctionEnd
 Section "Install"
     SetOutPath $INSTDIR
 
-    ; Copy breeze scripts
+    ; Copy scripts
     File "install.ps1"
+    File "lms-service.ps1"
     File "start.ps1"
     File "stop.ps1"
     File "uninstall.ps1"
@@ -83,7 +84,7 @@ Section "Install"
         File "bundle\wsl.msi"
         File "bundle\ubuntu.appx"
         File "bundle\vclibs.appx"
-        File "bundle\breeze-images.tar"
+        File "bundle\lms-images.tar"
         SetOutPath $INSTDIR
     !endif
 
@@ -111,13 +112,13 @@ Section "Install"
     ; --- Step 4: Load images (full) or pull (lite) ---
     !if "${VARIANT}" == "full"
         DetailPrint "Loading container images (offline)..."
-        nsExec::ExecToLog '\"C:\Program Files\WSL\wsl.exe\" -u root -- bash -c "podman load -i /mnt/c/Program\ Files/BreezeLMS/bundle/breeze-images.tar"'
+        nsExec::ExecToLog '\"C:\Program Files\WSL\wsl.exe\" -u root -- bash -c "podman load -i /mnt/c/Program\ Files/FrappeLMS/bundle/lms-images.tar"'
     !endif
 
     ; --- Step 5: Deploy and start ---
     DetailPrint "Starting Frappe LMS..."
     ; Write config from wizard inputs
-    FileOpen $0 "$INSTDIR\breeze.conf" w
+    FileOpen $0 "$INSTDIR\lms.conf" w
     FileWrite $0 "SITE_NAME=$SiteName$\r$\n"
     FileWrite $0 "ADMIN_EMAIL=$AdminEmail$\r$\n"
     FileWrite $0 "ADMIN_PASSWORD=$AdminPassword$\r$\n"
@@ -127,18 +128,17 @@ Section "Install"
 
     ; Start Menu
     CreateDirectory "$SMPROGRAMS\Frappe LMS"
-    CreateShortcut "$SMPROGRAMS\Frappe LMS\Open LMS.lnk" "http://localhost:8000"
+    CreateShortcut "$SMPROGRAMS\Frappe LMS\Open LMS.lnk" "http://lms.localhost:8000/lms"
     CreateShortcut "$SMPROGRAMS\Frappe LMS\Start LMS.lnk" "powershell.exe" '-ExecutionPolicy Bypass -File "$INSTDIR\start.ps1"'
     CreateShortcut "$SMPROGRAMS\Frappe LMS\Stop LMS.lnk" "powershell.exe" '-ExecutionPolicy Bypass -File "$INSTDIR\stop.ps1"'
 
     ; Uninstaller + Add/Remove Programs
     WriteUninstaller "$INSTDIR\uninstall.exe"
-    WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\BreezeLMS" "DisplayName" "Frappe LMS (Breeze)"
-    WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\BreezeLMS" "UninstallString" "$INSTDIR\uninstall.exe"
-    WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\BreezeLMS" "Publisher" "Breeze"
+    WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\FrappeLMS" "DisplayName" "Frappe LMS"
+    WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\FrappeLMS" "UninstallString" "$INSTDIR\uninstall.exe"
+    WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\FrappeLMS" "Publisher" "Frappe"
 
     !if "${VARIANT}" == "full"
-        ; Clean up bundle after install
         RMDir /r "$INSTDIR\bundle"
     !endif
 SectionEnd
@@ -147,5 +147,5 @@ Section "Uninstall"
     nsExec::ExecToLog 'powershell -ExecutionPolicy Bypass -File "$INSTDIR\uninstall.ps1"'
     RMDir /r "$SMPROGRAMS\Frappe LMS"
     RMDir /r "$INSTDIR"
-    DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\BreezeLMS"
+    DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\FrappeLMS"
 SectionEnd

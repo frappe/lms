@@ -1,87 +1,84 @@
-# frappe-lms-breeze 🌬️
+# Frappe LMS — Windows Installer
 
-Windows installer for [Frappe LMS](https://github.com/frappe/lms) — runs on any Windows machine, accessible to the entire LAN.
+One-click Windows installer for [Frappe LMS](https://github.com/frappe/lms). Runs the full stack (MariaDB, Redis, Frappe) inside WSL2 + podman — no Docker Desktop, no Linux VM, no manual setup.
 
-> *Open Windows and let the breeze in!*
+> *ikuku* (Igbo: breeze) — open Windows and let the breeze in.
 
-Part of the **breeze** family: `frappe-lms-breeze` · `frappe-erpnext-breeze` · `frappe-crm-breeze` · ...
+## Quick Start
 
-## Download
+1. Download `frappe-lms-lite.exe` from [Releases](../../releases)
+2. Run the installer (needs admin rights + internet)
+3. Open `http://lms.localhost:8000/lms`
 
-Go to [Releases](../../releases/latest) and pick your installer:
+That's it. Frappe LMS is running as a Windows service — survives reboots, accessible from LAN.
 
-| Installer | Size | Use when |
+## Variants
+
+| Installer | Size | Use case |
 |-----------|------|----------|
-| `frappe-lms-breeze-lite.exe` | ~5 MB | PC has internet — downloads WSL, Ubuntu, containers during install |
-| `frappe-lms-breeze-full.exe` | ~1.5 GB | Offline LAN — bundles WSL MSI, Ubuntu appx, container images, everything |
+| `frappe-lms-lite.exe` | ~5 MB | PC has internet — downloads WSL, Ubuntu, containers during install |
+| `frappe-lms-full.exe` | ~1.5 GB | Offline LAN — bundles WSL MSI, Ubuntu appx, container images |
 
-## Install
-
-1. Download the `.exe` to the target Windows machine (or copy to USB drive for offline)
-2. Run as Administrator
-3. Follow the wizard — takes 5-15 minutes depending on internet speed
-4. Done! Open `http://localhost:8000` or `http://<machine-name>:8000` from any LAN machine
-
-## What gets installed
-
-- WSL2 with Ubuntu 24.04 (if not already present)
-- Podman container runtime (inside WSL2)
-- Frappe LMS (MariaDB + Redis + Frappe, as containers)
-- Windows service for auto-start on boot
-- Port forwarding + firewall rule for LAN access
-- Start Menu shortcuts
-
-## Architecture
+## How it works
 
 ```
 ┌─────────────────────────────────────────┐
-│  Windows Machine (LAN IP: 192.168.1.x) │
+│  Windows 10/11 or Server 2022           │
 │                                         │
-│  BreezeLMS service (Windows Service)    │
-│    ├─ netsh portproxy :8000 → WSL:8000  │
-│    └─ WSL2 Ubuntu                       │
-│         └─ podman-compose               │
-│              ├─ frappe (port 8000)       │
-│              ├─ mariadb                  │
-│              └─ redis                    │
+│  ┌─────────────────────────────────┐    │
+│  │  WSL2 Ubuntu                    │    │
+│  │  ┌───────────┐ ┌─────────┐     │    │
+│  │  │ MariaDB   │ │  Redis  │     │    │
+│  │  └───────────┘ └─────────┘     │    │
+│  │  ┌───────────────────────┐     │    │
+│  │  │  Frappe LMS (:8000)   │     │    │
+│  │  └───────────────────────┘     │    │
+│  └─────────────────────────────────┘    │
+│                                         │
+│  FrappeLMS service (auto-start)         │
+│  Port proxy: LAN:port → WSL:8000       │
+│  Sleep mode: disabled                   │
 └─────────────────────────────────────────┘
-         ↑
-  Other LAN machines browse to
-  http://<machine-name>:8000
 ```
 
-## Lite vs Full installer
+## Access
 
-### Lite (`frappe-lms-breeze-lite.exe`)
-- Small download, requires internet during install
-- Downloads WSL2, Ubuntu, and container images on the fly
-- Best for: office PCs with internet access
+- Local: `http://lms.localhost:8000/lms`
+- LAN: `http://<machine-name>:8000/lms`
+- Admin: `http://lms.localhost:8000` (Frappe desk)
 
-### Full (`frappe-lms-breeze-full.exe`)
-- Large download, works completely offline
-- Bundles: WSL 2.6.3 MSI, Ubuntu 24.04 appx, VCLibs appx, pre-pulled container images (MariaDB, Redis, Frappe)
-- Best for: air-gapped LANs, USB drive deployment, slow internet
+## Scripts
+
+For power users who prefer scripts over the installer:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File install.ps1   # install
+powershell -ExecutionPolicy Bypass -File start.ps1     # start service
+powershell -ExecutionPolicy Bypass -File stop.ps1      # stop service
+powershell -ExecutionPolicy Bypass -File uninstall.ps1 # remove everything
+```
 
 ## Uninstall
 
-Control Panel → Add/Remove Programs → "Frappe LMS (Breeze)" → Uninstall
+Control Panel → Add/Remove Programs → "Frappe LMS" → Uninstall
 
-Or run: `"C:\Program Files\BreezeLMS\uninstall.exe"`
+Or run: `powershell -File "C:\Program Files\FrappeLMS\uninstall.ps1"`
 
-## For developers
+## Requirements
 
-### Build the installers
+- Windows 10 (build 19041+), Windows 11, or Windows Server 2022
+- Hardware virtualization enabled (for WSL2)
+- 16 GB RAM recommended (WSL gets 12 GB)
+- Admin rights for install
 
-On a Windows machine with NSIS and Chocolatey:
+## Building
 
 ```powershell
-# Build lite installer
-powershell -File breeze\build-installer.ps1 -Variant lite
+# Lite (downloads everything during install)
+powershell -File build-installer.ps1 -Variant lite
 
-# Build full installer (downloads all dependencies first)
-powershell -File breeze\build-installer.ps1 -Variant full
+# Full (offline, bundles all dependencies)
+powershell -File build-installer.ps1 -Variant full
 ```
 
-### Base platform
-
-For the dev environment (AWS metal spot instances with QEMU/KVM), see [ec2-win22-qemu-spot-metal](https://github.com/labsji/ec2-win22-qemu-spot-metal).
+Requires [NSIS](https://nsis.sourceforge.io/) installed.

@@ -7,7 +7,7 @@ $NSSM = Join-Path $scriptDir "nssm.exe"
 
 # Read config from wizard (or use defaults)
 $conf = @{ SITE_NAME="lms.local"; ADMIN_EMAIL="admin@example.com"; ADMIN_PASSWORD="admin"; LMS_PORT="8000" }
-$confFile = Join-Path $scriptDir "breeze.conf"
+$confFile = Join-Path $scriptDir "lms.conf"
 if (Test-Path $confFile) {
     Get-Content $confFile | ForEach-Object {
         $k, $v = $_ -split '=', 2
@@ -15,7 +15,7 @@ if (Test-Path $confFile) {
     }
 }
 
-Write-Host "=== Breeze: Installing Frappe LMS ===" -ForegroundColor Cyan
+Write-Host "=== Installing Frappe LMS ===" -ForegroundColor Cyan
 Write-Host "Site: $($conf.SITE_NAME) | Port: $($conf.LMS_PORT)"
 
 # Step 0: Check WSL2 support
@@ -61,21 +61,21 @@ if (Test-Path $dockerDir) {
 
 # Step 5: Install NSSM service (starts containers → waits for ready → port proxy → keepalive)
 # WSL can't run as SYSTEM — service must run as the current Windows user
-Write-Host "Installing NSSM service..."
+Write-Host "Installing service..."
 if (!(Test-Path $NSSM)) { choco install nssm -y | Out-Null; $NSSM = "nssm" }
-& $NSSM install BreezeLMS powershell "-ExecutionPolicy Bypass -File `"$scriptDir\breeze-service.ps1`""
-& $NSSM set BreezeLMS AppDirectory $scriptDir
-& $NSSM set BreezeLMS AppStdout "$scriptDir\service.log"
-& $NSSM set BreezeLMS AppStderr "$scriptDir\service.log"
-& $NSSM set BreezeLMS Description "Frappe LMS: containers + port proxy + WSL keepalive"
-& $NSSM set BreezeLMS Start SERVICE_AUTO_START
+& $NSSM install FrappeLMS powershell "-ExecutionPolicy Bypass -File `"$scriptDir\lms-service.ps1`""
+& $NSSM set FrappeLMS AppDirectory $scriptDir
+& $NSSM set FrappeLMS AppStdout "$scriptDir\service.log"
+& $NSSM set FrappeLMS AppStderr "$scriptDir\service.log"
+& $NSSM set FrappeLMS Description "Frappe LMS: containers + port proxy + WSL keepalive"
+& $NSSM set FrappeLMS Start SERVICE_AUTO_START
 if ($conf.WIN_PASSWORD) {
-    & $NSSM set BreezeLMS ObjectName ".\$env:USERNAME" $conf.WIN_PASSWORD
+    & $NSSM set FrappeLMS ObjectName ".\$env:USERNAME" $conf.WIN_PASSWORD
 } else {
     Write-Host "NOTE: Enter your Windows password to allow the service to run as your user." -ForegroundColor Yellow
-    & $NSSM set BreezeLMS ObjectName ".\$env:USERNAME"
+    & $NSSM set FrappeLMS ObjectName ".\$env:USERNAME"
 }
-& $NSSM start BreezeLMS
+& $NSSM start FrappeLMS
 
 # Step 6: Disable sleep mode
 Write-Host "Disabling sleep mode..."
@@ -84,15 +84,15 @@ powercfg /change standby-timeout-dc 0
 powercfg /change hibernate-timeout-ac 0
 powercfg /change hibernate-timeout-dc 0
 
-# Step 7: Firewall rule (port proxy is handled by breeze-service.ps1 on every boot)
-netsh advfirewall firewall add rule name="Breeze-LMS" dir=in action=allow protocol=TCP localport=$($conf.LMS_PORT)
+# Step 7: Firewall rule (port proxy is handled by lms-service.ps1 on every boot)
+netsh advfirewall firewall add rule name="Frappe-LMS" dir=in action=allow protocol=TCP localport=$($conf.LMS_PORT)
 
 Write-Host ""
 Write-Host "=== Frappe LMS installed! ===" -ForegroundColor Green
 Write-Host "Access at: http://lms.localhost:$($conf.LMS_PORT)/lms"
 Write-Host "Or from LAN: http://$($env:COMPUTERNAME):$($conf.LMS_PORT)/lms"
 Write-Host ""
-Write-Host "Service: BreezeLMS (auto-starts on boot, keeps WSL alive)"
+Write-Host "Service: FrappeLMS (auto-starts on boot, keeps WSL alive)"
 Write-Host "Sleep mode: disabled"
 Write-Host ""
 Write-Host "To uninstall: powershell -File `"$scriptDir\uninstall.ps1`"" -ForegroundColor DarkGray

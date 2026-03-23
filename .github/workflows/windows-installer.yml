@@ -1,7 +1,6 @@
-# .github/workflows/breeze.yml
+# .github/workflows/windows-installer.yml
 # Builds Windows installers and attaches to release
-# Add this file to the repo's .github/workflows/ directory
-name: Breeze Windows Installer
+name: Windows Installer
 
 on:
   release:
@@ -26,4 +25,4 @@ jobs:
       - name: Upload to release
         uses: softprops/action-gh-release@v2
         with:
-          files: breeze/frappe-lms-breeze-${{ matrix.variant }}.exe
+          files: breeze/frappe-lms-${{ matrix.variant }}.exe
