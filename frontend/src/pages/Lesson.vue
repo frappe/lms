@@ -581,6 +581,10 @@ const breadcrumbs = computed(() => {
 })
 
 const switchLesson = (direction) => {
+	if (direction === 'next' && !lesson.data.progress) {
+		toast.warning(__('Please complete this lesson before moving to the next one.'))
+		return
+	}
 	trackVideoWatchDuration()
 	let lessonIndex =
 		direction === 'prev'
