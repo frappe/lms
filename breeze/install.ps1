@@ -3,6 +3,7 @@ $ErrorActionPreference = "Stop"
 $WSL = "wsl.exe"
 $LMS_DIR = "/opt/frappe-lms"
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+$NSSM = Join-Path $scriptDir "nssm.exe"
 
 # Read config from wizard (or use defaults)
 $conf = @{ SITE_NAME="lms.local"; ADMIN_EMAIL="admin@example.com"; ADMIN_PASSWORD="admin"; LMS_PORT="8000" }
@@ -26,20 +27,21 @@ if ($wslVersion -match "VERSION\s+1" -and $wslVersion -notmatch "VERSION\s+2") {
     Write-Host "On VMs: ensure nested virtualization is enabled."
 }
 
-# Step 1: Ensure Ubuntu is installed in WSL
+# Step 1: WSL memory config
+Write-Host "Configuring WSL memory..."
+@("[wsl2]","memory=12GB","swap=4GB") | Set-Content "$env:USERPROFILE\.wslconfig"
+
+# Step 2: Ensure Ubuntu is installed in WSL
 Write-Host "Checking WSL Ubuntu..."
 $distros = & $WSL -l -q 2>&1 | Out-String
 if ($distros -notmatch "Ubuntu") {
     Write-Host "Installing Ubuntu (this may take a few minutes)..."
     & $WSL --install Ubuntu --no-launch
-    # Initialize Ubuntu with root user
     $ubuntuExe = (Get-AppxPackage *Ubuntu*).InstallLocation + "\ubuntu.exe"
-    if (Test-Path $ubuntuExe) {
-        & $ubuntuExe install --root
-    }
+    if (Test-Path $ubuntuExe) { & $ubuntuExe install --root }
 }
 
-# Step 2: Ensure podman is installed
+# Step 3: Ensure podman is installed
 Write-Host "Checking podman..."
 $podmanCheck = & $WSL -u root -- which podman 2>&1
 if ($LASTEXITCODE -ne 0) {
@@ -47,39 +49,44 @@ if ($LASTEXITCODE -ne 0) {
     & $WSL -u root -- bash -c "apt-get update && apt-get install -y podman podman-compose > /dev/null 2>&1 && sed -i '/^unqualified-search-registries/d' /etc/containers/registries.conf && echo 'unqualified-search-registries = [\"docker.io\"]' >> /etc/containers/registries.conf"
 }
 
-# Step 3: Copy docker config into WSL
+# Step 4: Copy docker config into WSL
 Write-Host "Setting up LMS in WSL..."
 & $WSL -u root -- bash -c "mkdir -p $LMS_DIR"
 $dockerDir = Join-Path $scriptDir "..\docker"
+if (!(Test-Path $dockerDir)) { $dockerDir = Join-Path $scriptDir "docker" }
 if (Test-Path $dockerDir) {
-    $wslPath = & $WSL -u root -- wslpath -a ($dockerDir -replace '\\','/')
-    & $WSL -u root -- bash -c "cp -r $($wslPath.Trim())/* $LMS_DIR/"
-} else {
-    # Fallback: use bundled docker dir
-    $bundledDocker = Join-Path $scriptDir "docker"
-    if (Test-Path $bundledDocker) {
-        $wslPath = & $WSL -u root -- wslpath -a ($bundledDocker -replace '\\','/')
-        & $WSL -u root -- bash -c "cp -r $($wslPath.Trim())/* $LMS_DIR/"
-    }
+    $wslPath = (& $WSL -u root -- wslpath -a ($dockerDir -replace '\\','/')).Trim()
+    & $WSL -u root -- bash -c "cp -r $wslPath/* $LMS_DIR/"
 }
 
-# Step 4: Start services
-Write-Host "Starting LMS services (first run pulls images, may take several minutes)..."
-& $WSL -u root -- bash -c "cd $LMS_DIR && podman-compose up -d"
+# Step 5: Install NSSM and register WSL as a Windows service
+Write-Host "Installing NSSM service..."
+if (!(Test-Path $NSSM)) { choco install nssm -y | Out-Null; $NSSM = "nssm" }
+& $NSSM install BreezeLMS $WSL "-u root -- bash -c `"cd $LMS_DIR && podman-compose up && sleep infinity`""
+& $NSSM set BreezeLMS AppDirectory $scriptDir
+& $NSSM set BreezeLMS Description "Frappe LMS via WSL2 + Podman"
+& $NSSM set BreezeLMS Start SERVICE_AUTO_START
+& $NSSM start BreezeLMS
 
-# Step 5: Port forwarding
+# Step 6: Disable sleep mode
+Write-Host "Disabling sleep mode..."
+powercfg /change standby-timeout-ac 0
+powercfg /change standby-timeout-dc 0
+powercfg /change hibernate-timeout-ac 0
+powercfg /change hibernate-timeout-dc 0
+
+# Step 7: Port forwarding
 Write-Host "Configuring LAN access..."
+Start-Sleep 10  # wait for WSL to start via NSSM
 & $PSScriptRoot\update-portproxy.ps1 -Port $conf.LMS_PORT
 
-# Step 6: Firewall rule
+# Step 8: Firewall rule
 netsh advfirewall firewall add rule name="Breeze-LMS" dir=in action=allow protocol=TCP localport=$($conf.LMS_PORT)
-
-# Step 7: Register as startup task
-$action = New-ScheduledTaskAction -Execute 'powershell.exe' -Argument "-ExecutionPolicy Bypass -File $PSScriptRoot\start.ps1"
-$trigger = New-ScheduledTaskTrigger -AtStartup
-Register-ScheduledTask -TaskName 'BreezeLMS' -Action $action -Trigger $trigger -User 'SYSTEM' -RunLevel Highest -Force
 
 Write-Host ""
 Write-Host "=== Frappe LMS installed! ===" -ForegroundColor Green
 Write-Host "Access at: http://$($env:COMPUTERNAME):$($conf.LMS_PORT)"
 Write-Host "Or: http://localhost:$($conf.LMS_PORT)"
+Write-Host ""
+Write-Host "Service: BreezeLMS (auto-starts on boot, keeps WSL alive)"
+Write-Host "Sleep mode: disabled"
