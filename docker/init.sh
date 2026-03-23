@@ -24,8 +24,7 @@ bench set-redis-socketio-host redis://redis:6379
 sed -i '/redis/d' ./Procfile
 sed -i '/watch/d' ./Procfile
 
-bench get-app payments
-bench get-app lms
+bench get-app --resolve-deps lms
 
 bench new-site lms.localhost \
 --force \
