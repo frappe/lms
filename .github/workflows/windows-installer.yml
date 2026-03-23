@@ -20,9 +20,9 @@ jobs:
         run: choco install nsis -y
 
       - name: Build ${{ matrix.variant }} installer
-        run: powershell -ExecutionPolicy Bypass -File breeze/build-installer.ps1 -Variant ${{ matrix.variant }}
+        run: powershell -ExecutionPolicy Bypass -File ikuku/build-installer.ps1 -Variant ${{ matrix.variant }}
 
       - name: Upload to release
         uses: softprops/action-gh-release@v2
         with:
-          files: breeze/frappe-lms-${{ matrix.variant }}.exe
+          files: ikuku/frappe-lms-${{ matrix.variant }}.exe
