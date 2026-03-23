@@ -49,36 +49,33 @@
 			<div class="text-lg text-ink-gray-9 font-semibold mb-4">
 				{{ __('Details') }}
 			</div>
-			<div class="grid grid-cols-2 gap-5">
-				<div class="space-y-5">
-					<FormControl
-						v-model="quizDetails.doc.title"
-						:label="__('Title')"
-						:required="true"
-					/>
-					<FormControl
-						type="number"
-						v-model="quizDetails.doc.max_attempts"
-						:label="__('Maximum Attempts')"
-					/>
-					<FormControl
-						type="number"
-						v-model="quizDetails.doc.duration"
-						:label="__('Duration (in minutes)')"
-					/>
-				</div>
-				<div class="space-y-5">
-					<FormControl
-						v-model="quizDetails.doc.total_marks"
-						:label="__('Total Marks')"
-						disabled
-					/>
-					<FormControl
-						v-model="quizDetails.doc.passing_percentage"
-						:label="__('Passing Percentage')"
-						:required="true"
-					/>
-				</div>
+			<div class="grid grid-cols-3 gap-5">
+				<FormControl
+					v-model="quizDetails.doc.title"
+					:label="__('Title')"
+					:required="true"
+				/>
+				<FormControl
+					type="number"
+					v-model="quizDetails.doc.max_attempts"
+					:label="__('Maximum Attempts')"
+				/>
+				<FormControl
+					type="number"
+					v-model="quizDetails.doc.duration"
+					:label="__('Duration (in minutes)')"
+					:required="quizDetails.doc.enable_proctoring"
+				/>
+				<FormControl
+					v-model="quizDetails.doc.total_marks"
+					:label="__('Total Marks')"
+					disabled
+				/>
+				<FormControl
+					v-model="quizDetails.doc.passing_percentage"
+					:label="__('Passing Percentage')"
+					:required="true"
+				/>
 			</div>
 		</div>
 		<div class="px-20 pb-5 space-y-5 border-b mb-5">
@@ -86,50 +83,64 @@
 				{{ __('Settings') }}
 			</div>
 			<div class="grid grid-cols-3 gap-5">
-				<div class="flex flex-col space-y-10">
-					<Switch
-						v-model="quizDetails.doc.show_answers"
-						size="sm"
-						:label="__('Show Answers')"
-						:description="
-							__('Display correct answers after each question is attempted.')
-						"
-					/>
-					<Switch
-						v-model="quizDetails.doc.show_submission_history"
-						size="sm"
-						:label="__('Show Submission History')"
-						:description="__('Allow users to view their past quiz attempts.')"
-					/>
-				</div>
-				<div class="flex flex-col space-y-5">
-					<Switch
-						v-model="quizDetails.doc.shuffle_questions"
-						size="sm"
-						:label="__('Shuffle Questions')"
-						:description="
-							__('Randomize the order of questions for each attempt.')
-						"
-					/>
-					<FormControl
-						v-if="quizDetails.doc.shuffle_questions"
-						v-model="quizDetails.doc.limit_questions_to"
-						:label="__('Limit Questions To')"
-					/>
-				</div>
-				<div class="flex flex-col space-y-5">
-					<Switch
-						v-model="quizDetails.doc.enable_negative_marking"
-						size="sm"
-						:label="__('Enable Negative Marking')"
-						:description="__('Deduct marks for incorrect answers.')"
-					/>
-					<FormControl
-						v-if="quizDetails.doc.enable_negative_marking"
-						v-model="quizDetails.doc.marks_to_cut"
-						:label="__('Marks to Deduct')"
-					/>
-				</div>
+				<Switch
+					v-model="quizDetails.doc.show_answers"
+					size="sm"
+					:label="__('Show Answers')"
+					:description="
+						__('Display correct answers after each question is attempted')
+					"
+				/>
+				<Switch
+					v-model="quizDetails.doc.shuffle_questions"
+					size="sm"
+					:label="__('Shuffle Questions')"
+					:description="__('Randomize the order of questions for each attempt')"
+				/>
+				<Switch
+					v-model="quizDetails.doc.enable_negative_marking"
+					size="sm"
+					:label="__('Enable Negative Marking')"
+					:description="__('Deduct marks for incorrect answers')"
+				/>
+				<Switch
+					v-model="quizDetails.doc.show_submission_history"
+					size="sm"
+					:label="__('Show Submission History')"
+					:description="__('Allow users to view their past quiz attempts')"
+				/>
+				<FormControl
+					v-if="quizDetails.doc.shuffle_questions"
+					v-model="quizDetails.doc.limit_questions_to"
+					:label="__('Limit Questions To')"
+				/>
+				<FormControl
+					v-if="quizDetails.doc.enable_negative_marking"
+					v-model="quizDetails.doc.marks_to_cut"
+					:label="__('Marks to Deduct')"
+				/>
+			</div>
+		</div>
+
+		<div class="px-20 pb-5 space-y-5 border-b mb-5">
+			<div class="text-lg font-semibold text-ink-gray-9">
+				{{ __('Proctoring') }}
+			</div>
+			<div class="grid grid-cols-3 gap-5">
+				<Switch
+					v-model="quizDetails.doc.enable_proctoring"
+					size="sm"
+					:label="__('Enable Proctoring')"
+					:description="
+						__('Monitors student activity during the quiz to ensure integrity')
+					"
+				/>
+				<FormControl
+					v-if="quizDetails.doc.enable_proctoring"
+					v-model="quizDetails.doc.maximum_violations_allowed"
+					:label="__('Maximum Violations Allowed')"
+					:required="quizDetails.doc.enable_proctoring"
+				/>
 			</div>
 		</div>
 

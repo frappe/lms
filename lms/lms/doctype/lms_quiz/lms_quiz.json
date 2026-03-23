@@ -21,6 +21,10 @@
   "column_break_clsh",
   "enable_negative_marking",
   "marks_to_cut",
+  "proctoring_section",
+  "enable_proctoring",
+  "column_break_hmdx",
+  "maximum_violations_allowed",
   "section_break_sbjx",
   "questions",
   "section_break_3",
@@ -135,7 +139,8 @@
   {
    "fieldname": "duration",
    "fieldtype": "Data",
-   "label": "Duration (in minutes)"
+   "label": "Duration (in minutes)",
+   "mandatory_depends_on": "enable_proctoring"
   },
   {
    "default": "0",
@@ -149,6 +154,28 @@
    "fieldname": "marks_to_cut",
    "fieldtype": "Int",
    "label": "Marks To Cut"
+  },
+  {
+   "fieldname": "proctoring_section",
+   "fieldtype": "Section Break",
+   "label": "Proctoring"
+  },
+  {
+   "default": "0",
+   "fieldname": "enable_proctoring",
+   "fieldtype": "Check",
+   "label": "Enable Proctoring"
+  },
+  {
+   "fieldname": "column_break_hmdx",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "enable_proctoring",
+   "fieldname": "maximum_violations_allowed",
+   "fieldtype": "Int",
+   "label": "Maximum Violations Allowed",
+   "mandatory_depends_on": "enable_proctoring"
   }
  ],
  "grid_page_length": 50,
@@ -159,7 +186,7 @@
    "link_fieldname": "quiz"
   }
  ],
- "modified": "2025-06-27 20:00:15.660323",
+ "modified": "2026-03-23 11:39:53.195691",
  "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "LMS Quiz",
