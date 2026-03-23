@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2026-03-13 16:10+0000\n"
-"PO-Revision-Date: 2026-03-16 13:07\n"
+"PO-Revision-Date: 2026-03-22 14:18\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Hungarian\n"
 "MIME-Version: 1.0\n"
@@ -2454,7 +2454,7 @@ msgstr "Email azonosító"
 #. Label of the email_sent (Check) field in DocType 'LMS Course Interest'
 #: lms/lms/doctype/lms_course_interest/lms_course_interest.json
 msgid "Email Sent"
-msgstr ""
+msgstr "E-mail Elküldve"
 
 #: frontend/src/components/Modals/EmailTemplateModal.vue:117
 msgid "Email Template created successfully"
