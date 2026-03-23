@@ -60,12 +60,21 @@ if (Test-Path $dockerDir) {
 }
 
 # Step 5: Install NSSM service (starts containers → waits for ready → port proxy → keepalive)
+# WSL can't run as SYSTEM — service must run as the current Windows user
 Write-Host "Installing NSSM service..."
 if (!(Test-Path $NSSM)) { choco install nssm -y | Out-Null; $NSSM = "nssm" }
 & $NSSM install BreezeLMS powershell "-ExecutionPolicy Bypass -File `"$scriptDir\breeze-service.ps1`""
 & $NSSM set BreezeLMS AppDirectory $scriptDir
+& $NSSM set BreezeLMS AppStdout "$scriptDir\service.log"
+& $NSSM set BreezeLMS AppStderr "$scriptDir\service.log"
 & $NSSM set BreezeLMS Description "Frappe LMS: containers + port proxy + WSL keepalive"
 & $NSSM set BreezeLMS Start SERVICE_AUTO_START
+if ($conf.WIN_PASSWORD) {
+    & $NSSM set BreezeLMS ObjectName ".\$env:USERNAME" $conf.WIN_PASSWORD
+} else {
+    Write-Host "NOTE: Enter your Windows password to allow the service to run as your user." -ForegroundColor Yellow
+    & $NSSM set BreezeLMS ObjectName ".\$env:USERNAME"
+}
 & $NSSM start BreezeLMS
 
 # Step 6: Disable sleep mode
@@ -80,8 +89,8 @@ netsh advfirewall firewall add rule name="Breeze-LMS" dir=in action=allow protoc
 
 Write-Host ""
 Write-Host "=== Frappe LMS installed! ===" -ForegroundColor Green
-Write-Host "Access at: http://$($env:COMPUTERNAME):$($conf.LMS_PORT)"
-Write-Host "Or: http://localhost:$($conf.LMS_PORT)"
+Write-Host "Access at: http://lms.localhost:$($conf.LMS_PORT)/lms"
+Write-Host "Or from LAN: http://$($env:COMPUTERNAME):$($conf.LMS_PORT)/lms"
 Write-Host ""
 Write-Host "Service: BreezeLMS (auto-starts on boot, keeps WSL alive)"
 Write-Host "Sleep mode: disabled"
