@@ -59,12 +59,12 @@ if (Test-Path $dockerDir) {
     & $WSL -u root -- bash -c "cp -r $wslPath/* $LMS_DIR/"
 }
 
-# Step 5: Install NSSM and register WSL as a Windows service
+# Step 5: Install NSSM service (starts containers → waits for ready → port proxy → keepalive)
 Write-Host "Installing NSSM service..."
 if (!(Test-Path $NSSM)) { choco install nssm -y | Out-Null; $NSSM = "nssm" }
-& $NSSM install BreezeLMS $WSL "-u root -- bash -c `"cd $LMS_DIR && podman-compose up && sleep infinity`""
+& $NSSM install BreezeLMS powershell "-ExecutionPolicy Bypass -File `"$scriptDir\breeze-service.ps1`""
 & $NSSM set BreezeLMS AppDirectory $scriptDir
-& $NSSM set BreezeLMS Description "Frappe LMS via WSL2 + Podman"
+& $NSSM set BreezeLMS Description "Frappe LMS: containers + port proxy + WSL keepalive"
 & $NSSM set BreezeLMS Start SERVICE_AUTO_START
 & $NSSM start BreezeLMS
 
@@ -75,12 +75,7 @@ powercfg /change standby-timeout-dc 0
 powercfg /change hibernate-timeout-ac 0
 powercfg /change hibernate-timeout-dc 0
 
-# Step 7: Port forwarding
-Write-Host "Configuring LAN access..."
-Start-Sleep 10  # wait for WSL to start via NSSM
-& $PSScriptRoot\update-portproxy.ps1 -Port $conf.LMS_PORT
-
-# Step 8: Firewall rule
+# Step 7: Firewall rule (port proxy is handled by breeze-service.ps1 on every boot)
 netsh advfirewall firewall add rule name="Breeze-LMS" dir=in action=allow protocol=TCP localport=$($conf.LMS_PORT)
 
 Write-Host ""
@@ -90,3 +85,5 @@ Write-Host "Or: http://localhost:$($conf.LMS_PORT)"
 Write-Host ""
 Write-Host "Service: BreezeLMS (auto-starts on boot, keeps WSL alive)"
 Write-Host "Sleep mode: disabled"
+Write-Host ""
+Write-Host "To uninstall: powershell -File `"$scriptDir\uninstall.ps1`"" -ForegroundColor DarkGray
