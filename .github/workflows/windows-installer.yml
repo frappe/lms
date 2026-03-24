@@ -1,5 +1,7 @@
 # .github/workflows/windows-installer.yml
-# Builds Windows installers — run manually from Actions tab
+# Builds Windows installer
+# - Auto-builds lite on push to feature branch
+# - Manual trigger for lite or full via Actions tab (once on default branch)
 name: Windows Installer
 
 on:
@@ -13,10 +15,18 @@ on:
         options:
           - lite
           - full
+  push:
+    branches:
+      - breeze-windows-installer-clean
+    paths:
+      - 'ikuku/**'
+      - '.github/workflows/windows-installer.yml'
 
 jobs:
   build-windows:
     runs-on: windows-latest
+    env:
+      VARIANT: ${{ inputs.variant || 'lite' }}
 
     steps:
       - uses: actions/checkout@v4
@@ -24,11 +34,11 @@ jobs:
       - name: Install NSIS
         run: choco install nsis -y
 
-      - name: Build ${{ inputs.variant }} installer
-        run: powershell -ExecutionPolicy Bypass -File ikuku/build-installer.ps1 -Variant ${{ inputs.variant }}
+      - name: Build ${{ env.VARIANT }} installer
+        run: powershell -ExecutionPolicy Bypass -File ikuku/build-installer.ps1 -Variant ${{ env.VARIANT }}
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: frappe-lms-${{ inputs.variant }}
-          path: ikuku/frappe-lms-${{ inputs.variant }}.exe
+          name: frappe-lms-${{ env.VARIANT }}
+          path: ikuku/frappe-lms-${{ env.VARIANT }}.exe
