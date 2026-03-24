@@ -1,17 +1,22 @@
 # .github/workflows/windows-installer.yml
-# Builds Windows installers and attaches to release
+# Builds Windows installers — run manually from Actions tab
 name: Windows Installer
 
 on:
-  release:
-    types: [published]
+  workflow_dispatch:
+    inputs:
+      variant:
+        description: 'Installer variant'
+        required: true
+        default: 'lite'
+        type: choice
+        options:
+          - lite
+          - full
 
 jobs:
   build-windows:
     runs-on: windows-latest
-    strategy:
-      matrix:
-        variant: [lite, full]
 
     steps:
       - uses: actions/checkout@v4
@@ -19,10 +24,11 @@ jobs:
       - name: Install NSIS
         run: choco install nsis -y
 
-      - name: Build ${{ matrix.variant }} installer
-        run: powershell -ExecutionPolicy Bypass -File ikuku/build-installer.ps1 -Variant ${{ matrix.variant }}
+      - name: Build ${{ inputs.variant }} installer
+        run: powershell -ExecutionPolicy Bypass -File ikuku/build-installer.ps1 -Variant ${{ inputs.variant }}
 
-      - name: Upload to release
-        uses: softprops/action-gh-release@v2
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
         with:
-          files: ikuku/frappe-lms-${{ matrix.variant }}.exe
+          name: frappe-lms-${{ inputs.variant }}
+          path: ikuku/frappe-lms-${{ inputs.variant }}.exe
