@@ -314,6 +314,7 @@ const submitQuiz = () => {
 			},
 			onError(err) {
 				toast.error(err.messages?.[0] || err)
+				console.error(err)
 			},
 		}
 	)

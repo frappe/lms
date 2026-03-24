@@ -25,6 +25,7 @@ class LMSQuiz(Document):
 		self.validate_limit()
 		self.calculate_total_marks()
 		self.validate_open_ended_questions()
+		self.validate_proctoring()
 
 	def validate_duplicate_questions(self):
 		questions = [row.question for row in self.questions]
@@ -70,6 +71,20 @@ class LMSQuiz(Document):
 				)
 			else:
 				self.show_answers = 0
+
+	def validate_proctoring(self):
+		if not self.enable_proctoring:
+			self.maximum_violations_allowed = 0
+			return
+		if self.enable_proctoring:
+			if not self.duration:
+				frappe.throw(_("Please set a duration to enable proctoring."))
+			if self.show_answers:
+				frappe.throw(
+					_(
+						"You cannot show answers if proctoring is enabled. Please disable showing answers to enable proctoring."
+					)
+				)
 
 	def autoname(self):
 		if not self.name:
