@@ -700,6 +700,31 @@ const updateVideoWatchDuration = () => {
 			}
 		})
 	}
+	attachVideoEndedListeners()
+}
+
+const attachVideoEndedListeners = () => {
+	const onVideoEnded = () => {
+		markProgress()
+		trackVideoWatchDuration()
+	}
+
+	document.querySelectorAll('video').forEach((video) => {
+		if (!video._lmsEndedAttached) {
+			video.addEventListener('ended', onVideoEnded)
+			video._lmsEndedAttached = true
+		}
+	})
+
+	plyrSources.value.forEach((plyrSource) => {
+		if (!plyrSource._lmsEndedAttached) {
+			plyrSource.on('ended', onVideoEnded)
+			plyrSource.on('statechange', (event) => {
+				if (event.detail?.code === 0) onVideoEnded()
+			})
+			plyrSource._lmsEndedAttached = true
+		}
+	})
 }
 
 const updatePlyrVideoTime = (video) => {
