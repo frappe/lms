@@ -1129,6 +1129,7 @@ def get_batch_details(batch: str):
 			"zoom_account",
 			"conferencing_provider",
 			"google_meet_account",
+			"video_link",
 		],
 		as_dict=True,
 	)
