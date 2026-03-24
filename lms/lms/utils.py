@@ -1087,9 +1087,9 @@ def get_neighbour_lesson(course: str, chapter: int, lesson: int) -> dict:
 	}
 
 
-@frappe.whitelist(allow_guest=True)
+@frappe.whitelist(allow_guest=True)  # nosemgrep: frappe-semgrep-rules.rules.security.guest-whitelisted-method
 @rate_limit(limit=500, seconds=60 * 60)
-def get_batch_details(batch: str):  # nosemgrep: frappe-semgrep-rules.rules.security.guest-whitelisted-method
+def get_batch_details(batch: str):
 	if not guest_access_allowed():
 		return {}
 
