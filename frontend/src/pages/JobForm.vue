@@ -14,11 +14,11 @@
 			</div>
 		</header>
 		<div class="py-5">
-			<div class="container border-b mb-4 pb-5">
+			<div class="border-b px-5 mb-4 pb-5">
 				<div class="text-lg font-semibold mb-4 text-ink-gray-9">
 					{{ __('Job Details') }}
 				</div>
-				<div class="grid grid-cols-2 gap-5">
+				<div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
 					<div class="space-y-4">
 						<FormControl
 							v-model="job.job_title"
@@ -63,11 +63,11 @@
 					</div>
 				</div>
 			</div>
-			<div class="container border-b mb-4 pb-5">
+			<div class="border-b px-5 mb-4 pb-5">
 				<div class="text-lg font-semibold mb-4 text-ink-gray-9">
 					{{ __('Company Details') }}
 				</div>
-				<div class="grid grid-cols-2 gap-5">
+				<div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
 					<div>
 						<FormControl
 							v-model="job.company_name"
@@ -96,7 +96,7 @@
 					</div>
 				</div>
 			</div>
-			<div class="container mt-4">
+			<div class="mt-4 px-5">
 				<label class="block text-ink-gray-5 text-xs mb-1">
 					{{ __('Description') }}
 					<span class="text-ink-red-3">*</span>
