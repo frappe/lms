@@ -45,30 +45,35 @@
 								@update:modelValue="makeFormDirty()"
 							/>
 							<div>
-								<div class="text-xs text-ink-gray-5">
+								<label class="block mb-1 text-xs text-ink-gray-5">
 									{{ __('Tags') }}
-								</div>
-								<FormControl
-									v-model="newTag"
-									:placeholder="__('Add a keyword and then press enter')"
-									:class="['w-full', 'flex-1', 'my-1']"
-									@keyup.enter="updateTags()"
-									id="tags"
-								/>
-								<div>
-									<div class="flex items-center flex-wrap gap-2">
-										<div
-											v-if="courseResource.doc.tags"
-											v-for="tag in courseResource.doc.tags?.split(', ')"
-											class="flex items-center bg-surface-gray-2 text-ink-gray-7 p-2 rounded-md"
-										>
-											{{ tag }}
-											<X
-												class="stroke-1.5 w-3 h-3 ml-2 cursor-pointer"
-												@click="removeTag(tag)"
-											/>
-										</div>
-									</div>
+								</label>
+								<div
+									class="flex flex-wrap items-center gap-1.5 w-full rounded-lg border border-[--surface-gray-2] bg-surface-gray-2 px-2 py-1.5 cursor-text transition-colors focus-within:bg-surface-white focus-within:border-outline-gray-4 focus-within:shadow-sm focus-within:ring-0 focus-within:ring-2 focus-within:ring-outline-gray-3"
+									@click="$refs.tagInput?.focus()"
+								>
+									<button
+										v-for="tag in parsedTags"
+										:key="tag"
+										class="inline-flex items-center gap-1 bg-surface-white border border-outline-gray-2 text-ink-gray-7 pl-2 pr-1.5 py-0.5 rounded text-base leading-5"
+										@click.stop="removeTag(tag)"
+									>
+										<span>{{ tag }}</span>
+										<X class="size-3.5 stroke-1.5 shrink-0" />
+									</button>
+									<input
+										id="tags"
+										ref="tagInput"
+										v-model="newTag"
+										type="text"
+										:placeholder="
+											!parsedTags.length
+												? __('Add a keyword and press enter')
+												: ''
+										"
+										class="flex-1 min-w-[4rem] border-none outline-none bg-transparent p-0 text-base focus:ring-0"
+										@keyup.enter="updateTags()"
+									/>
 								</div>
 							</div>
 						</div>
@@ -407,6 +412,11 @@ const courseResource = createDocumentResource({
 	doctype: 'LMS Course',
 	name: props.course.data?.name,
 	auto: true,
+})
+
+const parsedTags = computed(() => {
+	const tags = courseResource.doc?.tags
+	return tags ? tags.split(', ').filter(Boolean) : []
 })
 
 watch(
