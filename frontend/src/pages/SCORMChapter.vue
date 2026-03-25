@@ -109,9 +109,10 @@ const getDataFromLMS = (key) => {
 
 let saveTimeout = null
 const debouncedSaveProgress = (scormDetails) => {
+	if (isSuccessfullyCompleted.value) return
 	clearTimeout(saveTimeout)
 	saveTimeout = setTimeout(() => {
-		saveProgress(scormDetails)
+		if (!isSuccessfullyCompleted.value) saveProgress(scormDetails)
 	}, 300)
 }
 
@@ -124,6 +125,7 @@ const saveDataToLMS = (key, value) => {
 		(key === 'cmi.completion_status' && value === 'incomplete')
 
 	if (isLessonStatus || isCompletionStatus) {
+		if (isSuccessfullyCompleted.value) return
 		isSuccessfullyCompleted.value = true
 	}
 
