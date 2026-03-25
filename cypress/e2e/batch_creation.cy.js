@@ -27,24 +27,24 @@ describe("Batch Creation", () => {
 		cy.get("input[placeholder='Jane']").type(randomName);
 		cy.get("button").contains("Add").click();
 
-		// Open Settings
-		cy.get("span").contains("Learning").click();
-		cy.get("span").contains("Settings").click();
-
-		// Add evaluator
+		// Switch to Evaluators tab
 		cy.get("[data-dismissable-layer]")
 			.find("span")
 			.contains(/^Evaluators$/)
 			.click();
 
+		// Click "New" dropdown and select "New Evaluator"
 		cy.get("[data-dismissable-layer]")
 			.find("button")
 			.contains("New")
 			.click();
-		const randomEvaluator = `evaluator${dateNow}@example.com`;
+		cy.get("span").contains("New Evaluator").click();
 
+		const randomEvaluator = `evaluator${dateNow}@example.com`;
 		cy.get("input[placeholder='jane@doe.com']").type(randomEvaluator);
+		cy.get("input[placeholder='Jane']").type("Evaluator");
 		cy.get("button").contains("Add").click();
+		cy.wait(500);
 		cy.get("div").contains(randomEvaluator).should("be.visible").click();
 
 		cy.visit("/lms/batches");

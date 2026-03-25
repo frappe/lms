@@ -77,12 +77,14 @@
 					</div>
 				</div>
 
-				<FormControl
-					v-model="certification"
-					:label="__('Certification')"
-					type="checkbox"
-					@change="updateCourses()"
-				/>
+				<Tooltip :text="__('Only show courses that offer a certificate')">
+					<FormControl
+						type="checkbox"
+						v-model="certification"
+						:label="__('Certification')"
+						@change="updateCourses()"
+					/>
+				</Tooltip>
 			</div>
 		</div>
 		<div
@@ -122,6 +124,7 @@ import {
 	FormControl,
 	Select,
 	TabButtons,
+	Tooltip,
 	usePageMeta,
 } from 'frappe-ui'
 import { computed, inject, onMounted, ref, watch } from 'vue'

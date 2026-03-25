@@ -10,17 +10,49 @@
 				</div>
 			</div>
 			<div class="flex item-center space-x-2">
-				<Button @click="() => (showForm = !showForm)">
-					<template #prefix>
-						<Plus class="size-4 stroke-1.5" />
+				<Dropdown
+					placement="right"
+					side="bottom"
+					:options="[
+						{
+							label: __('New Evaluator'),
+							icon: 'user-plus',
+							onClick() {
+								showNewEvaluator = true
+							},
+						},
+						{
+							label: __('Existing User'),
+							icon: 'user-check',
+							onClick() {
+								showExistingUser = true
+							},
+						},
+					]"
+				>
+					<template v-slot="{ open }">
+						<Button variant="solid">
+							<template #prefix>
+								<Plus class="size-4 stroke-1.5" />
+							</template>
+							{{ __('New') }}
+							<template #suffix>
+								<ChevronDown
+									:class="[
+										'w-4 h-4 stroke-1.5 ml-1 transform transition-transform',
+										open ? 'rotate-180' : '',
+									]"
+								/>
+							</template>
+						</Button>
 					</template>
-					{{ __('New') }}
-				</Button>
+				</Dropdown>
 			</div>
 		</div>
 
 		<div class="mt-8 pb-5">
 			<FormControl
+				v-if="evaluators.data?.length > 0 || search"
 				v-model="search"
 				:placeholder="__('Search')"
 				type="text"
@@ -70,11 +102,8 @@
 						</div>
 					</div>
 				</div>
-				<div
-					v-if="evaluators.length && hasNextPage"
-					class="flex justify-center mt-4"
-				>
-					<Button @click="evaluators.reload()">
+				<div v-if="evaluators.hasNextPage" class="flex justify-center mt-4">
+					<Button @click="evaluators.next()">
 						<template #prefix>
 							<RefreshCw class="h-3 w-3 stroke-1.5" />
 						</template>
@@ -84,33 +113,12 @@
 			</div>
 		</div>
 	</div>
-	<Dialog
-		v-model="showForm"
-		:options="{ 
-			size: 'xl',
-			title: __('Add Evaluator'),
-			actions: [{
-				label: __('Add'),
-				variant: 'solid',
-				onClick({ close }: any) {
-					addEvaluator(close)
-				},
-			}]
-	}"
-	>
-		<template #body-content>
-			<div v-if="showForm" class="flex items-center">
-				<FormControl
-					v-model="email"
-					:label="__('Email')"
-					placeholder="jane@doe.com"
-					type="email"
-					class="w-full"
-					@keydown.enter="addEvaluator"
-				/>
-			</div>
-		</template>
-	</Dialog>
+	<AddEvaluatorModal v-model="showExistingUser" @added="evaluators.reload()" />
+	<NewMemberModal
+		v-model="showNewEvaluator"
+		:defaultRoles="['batch_evaluator']"
+		@created="onMemberCreated"
+	/>
 </template>
 <script setup lang="ts">
 import {
@@ -118,18 +126,19 @@ import {
 	Button,
 	call,
 	createListResource,
-	Dialog,
+	Dropdown,
 	FormControl,
 	toast,
 } from 'frappe-ui'
 import { ref, watch } from 'vue'
-import { Plus, Search, Trash2, RefreshCw } from 'lucide-vue-next'
+import { Plus, Search, Trash2, RefreshCw, ChevronDown } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
+import NewMemberModal from '@/components/Modals/NewMemberModal.vue'
+import AddEvaluatorModal from '@/components/Modals/AddEvaluatorModal.vue'
 
-const show = defineModel('show')
 const search = ref('')
-const showForm = ref(false)
-const email = ref('')
+const showExistingUser = ref(false)
+const showNewEvaluator = ref(false)
 const router = useRouter()
 
 const props = defineProps({
@@ -150,20 +159,8 @@ const evaluators = createListResource({
 	orderBy: 'creation desc',
 })
 
-const addEvaluator = (close: () => void) => {
-	call('lms.lms.api.add_an_evaluator', {
-		email: email.value,
-	})
-		.then(() => {
-			email.value = ''
-			evaluators.reload()
-			toast.success(__('Evaluator added successfully'))
-			close()
-		})
-		.catch((error: any) => {
-			toast.error(__(error.messages[0] || error.messages))
-			console.error('Error adding evaluator:', error)
-		})
+const onMemberCreated = () => {
+	evaluators.reload()
 }
 
 watch(search, () => {
@@ -176,7 +173,6 @@ watch(search, () => {
 })
 
 const openProfile = (username: string) => {
-	show.value = false
 	router.push({
 		name: 'Profile',
 		params: {

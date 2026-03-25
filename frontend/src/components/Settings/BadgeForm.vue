@@ -9,11 +9,7 @@
 		<template #body-content>
 			<div class="grid grid-cols-2 gap-x-5">
 				<div class="space-y-4">
-					<FormControl
-						v-model="badge.enabled"
-						:label="__('Enabled')"
-						type="checkbox"
-					/>
+					<Switch size="sm" v-model="badge.enabled" :label="__('Enabled')" />
 					<FormControl
 						v-model="badge.title"
 						:label="__('Title')"
@@ -41,10 +37,11 @@
 				</div>
 
 				<div class="space-y-4">
-					<FormControl
+					<Switch
+						size="sm"
 						v-model="badge.grant_only_once"
 						:label="__('Grant Only Once')"
-						type="checkbox"
+						:description="__('Each user can only receive this badge one time.')"
 					/>
 					<FormControl
 						v-model="badge.event"
@@ -82,7 +79,7 @@
 	</Dialog>
 </template>
 <script setup lang="ts">
-import { Button, call, Dialog, FormControl, toast } from 'frappe-ui'
+import { Button, call, Dialog, FormControl, Switch, toast } from 'frappe-ui'
 import { computed, ref, watch } from 'vue'
 import { cleanError } from '@/utils'
 import type { Badges, Badge } from '@/components/Settings/types'

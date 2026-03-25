@@ -49,8 +49,9 @@
 							:label="__('Select an Assignment')"
 							:onCreate="(value, close) => redirectToForm()"
 						/>
-						<FormControl
-							type="checkbox"
+						<Switch
+							size="sm"
+							:description="__('Only show assignments from the current course')"
 							:label="__('Filter assignments by course')"
 							v-model="filterAssignmentsByCourse"
 						/>
@@ -61,7 +62,7 @@
 	</Dialog>
 </template>
 <script setup>
-import { Dialog, FormControl } from 'frappe-ui'
+import { Dialog, Switch } from 'frappe-ui'
 import { nextTick, onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { getLmsRoute } from '@/utils/basePath'

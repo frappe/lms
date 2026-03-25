@@ -9,10 +9,11 @@
 
 					<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
 						<div class="space-y-5">
-							<FormControl
+							<Switch
+								size="sm"
 								v-model="batchDetail.doc.published"
-								type="checkbox"
 								:label="__('Published')"
+								:description="__('Make the batch visible to all users.')"
 							/>
 							<FormControl
 								v-model="batchDetail.doc.title"
@@ -43,10 +44,13 @@
 							/>
 						</div>
 						<div class="space-y-5">
-							<FormControl
+							<Switch
+								size="sm"
 								v-model="batchDetail.doc.allow_self_enrollment"
-								type="checkbox"
 								:label="__('Allow Self Enrollment')"
+								:description="
+									__('Allow users to enroll in this batch on their own.')
+								"
 							/>
 							<FormControl
 								v-model="batchDetail.doc.start_time"
@@ -72,10 +76,11 @@
 							/>
 
 							<Link
+								v-model="batchDetail.doc.category"
 								doctype="LMS Category"
 								:label="__('Category')"
-								v-model="batchDetail.doc.category"
-								:onCreate="(value, close) => openSettings('Categories', close)"
+								:inlineCreate="true"
+								:onCreate="createCategory"
 							/>
 						</div>
 					</div>
@@ -87,10 +92,11 @@
 					</div>
 					<div class="grid grid-cols-1 md:grid-cols-2 gap-5 items-start">
 						<div class="flex flex-col space-y-5">
-							<FormControl
+							<Switch
+								size="sm"
 								v-model="batchDetail.doc.evaluation"
-								type="checkbox"
 								:label="__('Evaluation')"
+								:description="__('Enable evaluations for batch participants.')"
 							/>
 							<FormControl
 								v-if="batchDetail.doc.evaluation"
@@ -101,10 +107,11 @@
 							/>
 						</div>
 						<div>
-							<FormControl
+							<Switch
+								size="sm"
 								v-model="batchDetail.doc.certification"
-								type="checkbox"
 								:label="__('Certification')"
+								:description="__('Issue certificates to batch participants.')"
 							/>
 						</div>
 					</div>
@@ -114,11 +121,12 @@
 					<div class="grid grid-cols-2 gap-5">
 						<MultiSelect
 							v-model="instructors"
-							doctype="Course Evaluator"
+							doctype="User"
 							:label="__('Instructors')"
 							:required="true"
-							:onCreate="(close) => openSettings('Evaluators', close)"
-							:filters="{ ignore_user_type: 1 }"
+							:onCreate="() => (showMemberModal = true)"
+							url="lms.lms.api.search_users_by_role"
+							:searchParams="{ roles: JSON.stringify(['Batch Evaluator']) }"
 						/>
 						<FormControl
 							v-model="batchDetail.doc.description"
@@ -155,12 +163,14 @@
 								class="mb-4"
 							/>
 							<Link
+								ref="emailTemplateLinkRef"
 								doctype="Email Template"
 								:label="__('Enrollment Confirmation Email Template')"
 								v-model="batchDetail.doc.confirmation_email_template"
 								:onCreate="
 									(value, close) => {
-										openSettings('Email Templates', close)
+										if (close) close()
+										showEmailTemplateModal = true
 									}
 								"
 							/>
@@ -214,10 +224,11 @@
 					<div class="text-lg text-ink-gray-9 font-semibold">
 						{{ __('Pricing') }}
 					</div>
-					<FormControl
+					<Switch
+						size="sm"
 						v-model="batchDetail.doc.paid_batch"
-						type="checkbox"
 						:label="__('Paid Batch')"
+						:description="__('Charge a fee for batch enrollment.')"
 					/>
 					<div
 						v-if="batchDetail.doc.paid_batch"
@@ -274,6 +285,17 @@
 			</div>
 		</div>
 	</div>
+	<NewMemberModal
+		v-model="showMemberModal"
+		:defaultRoles="['batch_evaluator']"
+		@created="onInstructorCreated"
+	/>
+	<EmailTemplateModal
+		v-model="showEmailTemplateModal"
+		v-model:emailTemplates="emailTemplates"
+		templateID="new"
+		@created="onEmailTemplateCreated"
+	/>
 </template>
 <script setup>
 import {
@@ -290,12 +312,15 @@ import {
 } from 'vue'
 import {
 	FormControl,
+	Switch,
 	TextEditor,
 	createDocumentResource,
 	toast,
 	call,
+	createListResource,
 } from 'frappe-ui'
 import {
+	createLMSCategory,
 	escapeHTML,
 	getMetaInfo,
 	openSettings,
@@ -310,6 +335,8 @@ import MultiSelect from '@/components/Controls/MultiSelect.vue'
 import Link from '@/components/Controls/Link.vue'
 import BatchCourses from '@/pages/Batches/components/BatchCourses.vue'
 import Assessments from '@/pages/Batches/components/Assessments.vue'
+import NewMemberModal from '@/components/Modals/NewMemberModal.vue'
+import EmailTemplateModal from '@/components/Modals/EmailTemplateModal.vue'
 
 const router = useRouter()
 const user = inject('$user')
@@ -321,6 +348,34 @@ const { capture } = useTelemetry()
 const { $dialog } = app.appContext.config.globalProperties
 const isDirty = ref(false)
 const originalDoc = ref(null)
+const showMemberModal = ref(false)
+const showEmailTemplateModal = ref(false)
+const emailTemplateLinkRef = ref(null)
+
+const emailTemplates = createListResource({
+	doctype: 'Email Template',
+	fields: ['name', 'subject', 'use_html', 'response', 'response_html'],
+	auto: true,
+	orderBy: 'modified desc',
+	cache: 'email-templates',
+})
+
+const onEmailTemplateCreated = (name) => {
+	batchDetail.doc.confirmation_email_template = name
+	emailTemplateLinkRef.value?.reload()
+}
+
+const createCategory = (name, done) => {
+	createLMSCategory(name).then((categoryName) => {
+		if (!categoryName) return
+		batchDetail.doc.category = categoryName
+		done()
+	})
+}
+
+const onInstructorCreated = (user) => {
+	instructors.value = [...instructors.value, user.name]
+}
 
 const meta = reactive({
 	description: '',
@@ -364,9 +419,16 @@ watch(
 	() => batchDetail.doc,
 	() => {
 		if (!batchDetail.doc) return
-		getMetaInfo('batches', batchDetail.doc?.name, meta)
+
+		if (originalDoc.value) {
+			isDirty.value =
+				JSON.stringify(batchDetail.doc) !== JSON.stringify(originalDoc.value)
+		}
+
 		updateBatchData()
-	}
+		getMetaInfo('batches', batchDetail.doc?.name, meta)
+	},
+	{ deep: true }
 )
 
 const updateBatchData = () => {
@@ -443,17 +505,6 @@ const updateBatch = () => {
 		}
 	)
 }
-
-watch(
-	() => batchDetail.doc,
-	() => {
-		if (originalDoc.value) {
-			isDirty.value =
-				JSON.stringify(batchDetail.doc) !== JSON.stringify(originalDoc.value)
-		}
-	},
-	{ deep: true }
-)
 
 const deleteBatch = () => {
 	$dialog({

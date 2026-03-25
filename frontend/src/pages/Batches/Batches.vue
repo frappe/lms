@@ -78,10 +78,11 @@
 					</div>
 				</div>
 
-				<FormControl
+				<Switch
+					size="sm"
 					v-model="certification"
 					:label="__('Certification')"
-					type="checkbox"
+					:description="__('Only show batches that offer a certificate.')"
 					@change="updateBatches()"
 				/>
 			</div>
@@ -122,6 +123,7 @@ import {
 	Dropdown,
 	FormControl,
 	Select,
+	Switch,
 	TabButtons,
 	usePageMeta,
 } from 'frappe-ui'

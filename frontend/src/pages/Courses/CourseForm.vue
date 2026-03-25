@@ -18,10 +18,11 @@
 								@input="makeFormDirty()"
 							/>
 							<Link
-								doctype="LMS Category"
 								v-model="courseResource.doc.category"
+								doctype="LMS Category"
 								:label="__('Category')"
-								:onCreate="(value, close) => openSettings('Categories', close)"
+								:inlineCreate="true"
+								:onCreate="createCategory"
 								@update:modelValue="makeFormDirty()"
 							/>
 						</div>
@@ -30,8 +31,16 @@
 								v-model="instructors"
 								doctype="User"
 								:label="__('Instructors')"
-								:filters="{ ignore_user_type: 1 }"
-								:onCreate="(close) => openSettings('Members', close)"
+								url="lms.lms.api.search_users_by_role"
+								:searchParams="{
+									roles: JSON.stringify(['Course Creator', 'Batch Evaluator']),
+								}"
+								:onCreate="
+									() => {
+										memberModalRoles = ['course_creator']
+										showMemberModal = true
+									}
+								"
 								:required="true"
 								@update:modelValue="makeFormDirty()"
 							/>
@@ -94,10 +103,11 @@
 								v-if="user.data?.is_moderator"
 								class="flex flex-col space-y-5"
 							>
-								<FormControl
-									type="checkbox"
+								<Switch
+									size="sm"
 									v-model="courseResource.doc.published"
 									:label="__('Published')"
+									:description="__('Make the course visible to all users.')"
 									@change="makeFormDirty()"
 								/>
 								<FormControl
@@ -108,23 +118,31 @@
 								/>
 							</div>
 							<div class="flex flex-col space-y-5">
-								<FormControl
-									type="checkbox"
+								<Switch
+									size="sm"
 									v-model="courseResource.doc.upcoming"
 									:label="__('Upcoming')"
+									:description="
+										__(
+											'Mark the course as upcoming but not yet open for enrollment.'
+										)
+									"
 									@change="makeFormDirty()"
 								/>
-								<FormControl
-									type="checkbox"
+								<Switch
+									size="sm"
 									v-model="courseResource.doc.featured"
 									:label="__('Featured')"
+									:description="__('Highlight the course on the homepage.')"
 									@change="makeFormDirty()"
 								/>
-								<FormControl
-									type="checkbox"
-									v-model="courseResource.doc.disable_self_learning"
-									:label="__('Disable Self Enrollment')"
-									@change="makeFormDirty()"
+								<Switch
+									size="sm"
+									v-model="selfEnrollment"
+									:label="__('Allow Self Enrollment')"
+									:description="
+										__('Allow users to enroll in this course on their own.')
+									"
 								/>
 							</div>
 						</div>
@@ -169,9 +187,9 @@
 						<FormControl
 							v-model="courseResource.doc.video_link"
 							:label="__('Preview Video')"
-							:placeholder="
+							:description="
 								__(
-									'Paste a YouTube link of a short video introducing the course'
+									'Paste a YouTube link of a short video introducing the course.'
 								)
 							"
 							@input="makeFormDirty()"
@@ -199,22 +217,25 @@
 							{{ __('Pricing and Certification') }}
 						</div>
 						<div class="grid grid-cols-1 md:grid-cols-3 gap-5">
-							<FormControl
-								type="checkbox"
+							<Switch
+								size="sm"
 								v-model="courseResource.doc.paid_course"
 								:label="__('Paid Course')"
+								:description="__('Charge a fee for course access.')"
 								@change="makeFormDirty()"
 							/>
-							<FormControl
-								type="checkbox"
+							<Switch
+								size="sm"
 								v-model="courseResource.doc.enable_certification"
 								:label="__('Completion Certificate')"
+								:description="__('Issue a certificate on course completion.')"
 								@change="makeFormDirty()"
 							/>
-							<FormControl
-								type="checkbox"
+							<Switch
+								size="sm"
 								v-model="courseResource.doc.paid_certificate"
 								:label="__('Paid Certificate')"
+								:description="__('Charge a fee for the certificate.')"
 								@change="makeFormDirty()"
 							/>
 						</div>
@@ -245,12 +266,16 @@
 							</div>
 							<div v-if="courseResource.doc.paid_certificate" class="space-y-5">
 								<Link
+									ref="evaluatorLinkRef"
 									doctype="Course Evaluator"
 									v-model="courseResource.doc.evaluator"
 									:label="__('Evaluator')"
 									:required="courseResource.doc.paid_certificate"
 									:onCreate="
-										(value, close) => openSettings('Evaluators', close)
+										() => {
+											memberModalRoles = ['batch_evaluator']
+											showMemberModal = true
+										}
 									"
 									@update:modelValue="makeFormDirty()"
 								/>
@@ -298,10 +323,16 @@
 			</div>
 		</div>
 	</div>
+	<NewMemberModal
+		v-model="showMemberModal"
+		:defaultRoles="memberModalRoles"
+		@created="onMemberCreated"
+	/>
 </template>
 <script setup>
 import {
 	TextEditor,
+	Switch,
 	createResource,
 	createDocumentResource,
 	FormControl,
@@ -309,6 +340,7 @@ import {
 	toast,
 } from 'frappe-ui'
 import {
+	computed,
 	inject,
 	onMounted,
 	onBeforeUnmount,
@@ -320,9 +352,10 @@ import {
 import {
 	escapeHTML,
 	getMetaInfo,
-	openSettings,
 	sanitizeHTML,
 	updateMetaInfo,
+	createLMSCategory,
+	cleanError,
 } from '@/utils'
 import { Trash2, X } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
@@ -332,6 +365,7 @@ import CourseOutline from '@/components/CourseOutline.vue'
 import MultiSelect from '@/components/Controls/MultiSelect.vue'
 import ColorSwatches from '@/components/Controls/ColorSwatches.vue'
 import Uploader from '@/components/Controls/Uploader.vue'
+import NewMemberModal from '@/components/Modals/NewMemberModal.vue'
 
 const user = inject('$user')
 const newTag = ref('')
@@ -342,6 +376,17 @@ const related_courses = ref([])
 const app = getCurrentInstance()
 const { $dialog } = app.appContext.config.globalProperties
 const isDirty = ref(false)
+const showMemberModal = ref(false)
+
+const selfEnrollment = computed({
+	get: () => !courseResource.doc?.disable_self_learning,
+	set: (val) => {
+		courseResource.doc.disable_self_learning = !val
+		makeFormDirty()
+	},
+})
+const evaluatorLinkRef = ref(null)
+const memberModalRoles = ref(['course_creator'])
 
 const props = defineProps({
 	course: {
@@ -408,6 +453,16 @@ const updateCourseData = () => {
 const submitCourse = () => {
 	validateFields()
 	updateCourse()
+}
+
+const onMemberCreated = (user) => {
+	if (memberModalRoles.value.includes('batch_evaluator')) {
+		courseResource.doc.evaluator = user.name
+		evaluatorLinkRef.value?.reload()
+		makeFormDirty()
+	} else {
+		instructors.value = [...instructors.value, user.name]
+	}
 }
 
 const validateFields = () => {
@@ -525,6 +580,15 @@ const checkPermission = () => {
 	if (!user_is_instructor) {
 		router.push({ name: 'Courses' })
 	}
+}
+
+const createCategory = (name, done) => {
+	createLMSCategory(name).then((categoryName) => {
+		if (!categoryName) return
+		courseResource.doc.category = categoryName
+		done()
+		makeFormDirty()
+	})
 }
 
 const makeFormDirty = () => {

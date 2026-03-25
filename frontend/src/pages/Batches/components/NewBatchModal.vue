@@ -46,16 +46,10 @@
 						autocomplete="off"
 					/>
 					<Link
-						doctype="LMS Category"
 						v-model="batch.category"
+						doctype="LMS Category"
 						:label="__('Category')"
-						:allowCreate="true"
-						:onCreate="
-							() => {
-								openSettings('Categories')
-								show = false
-							}
-						"
+						:onCreate="createCategory"
 					/>
 					<FormControl
 						v-model="batch.seat_count"
@@ -83,11 +77,12 @@
 						/>
 						<MultiSelect
 							v-model="batch.instructors"
-							doctype="Course Evaluator"
+							doctype="User"
 							:label="__('Instructors')"
 							:required="true"
-							:onCreate="(close: () => void) => openSettings('Evaluators', close)"
-							:filters="{ ignore_user_type: 1 }"
+							:onCreate="() => (showMemberModal = true)"
+							url="lms.lms.api.search_users_by_role"
+							:searchParams="{ roles: JSON.stringify(['Batch Evaluator']) }"
 						/>
 					</div>
 					<div class="">
@@ -114,21 +109,28 @@
 			</div>
 		</template>
 	</Dialog>
+	<NewMemberModal
+		v-model="showMemberModal"
+		:defaultRoles="['batch_evaluator']"
+		@created="onInstructorCreated"
+	/>
 </template>
 <script setup lang="ts">
 import { Button, Dialog, FormControl, TextEditor, toast } from 'frappe-ui'
 import { useOnboarding, useTelemetry } from 'frappe-ui/frappe'
 import { computed, inject, onMounted, onBeforeUnmount, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { cleanError, openSettings, sanitizeHTML, escapeHTML } from '@/utils'
-import Link from '@/components/Controls/Link.vue'
+import { sanitizeHTML, escapeHTML, createLMSCategory } from '@/utils'
 import MultiSelect from '@/components/Controls/MultiSelect.vue'
+import Link from '@/components/Controls/Link.vue'
+import NewMemberModal from '@/components/Modals/NewMemberModal.vue'
 
 const show = defineModel<boolean>({ required: true, default: false })
 const router = useRouter()
 const { capture } = useTelemetry()
 const { updateOnboardingStep } = useOnboarding('learning')
 const user = inject<any>('$user')
+const showMemberModal = ref(false)
 
 const props = defineProps<{
 	batches: any
@@ -164,12 +166,26 @@ const batch = ref<Batch>({
 	medium: null,
 })
 
+const createCategory = (name: string, done: () => void) => {
+	createLMSCategory(name).then((categoryName: string) => {
+		if (!categoryName) return
+		batch.value.category = categoryName
+		done()
+	})
+}
+
+const onInstructorCreated = (user: any) => {
+	batch.value.instructors = [...batch.value.instructors, user.name]
+}
+
 const validateFields = () => {
 	batch.value.description = sanitizeHTML(batch.value.description)
+	batch.value.batch_details = sanitizeHTML(batch.value.batch_details)
 
 	Object.keys(batch.value).forEach((key) => {
 		if (
 			key != 'description' &&
+			key != 'batch_details' &&
 			typeof batch.value[key as keyof Batch] === 'string'
 		) {
 			batch.value[key as keyof Batch] = escapeHTML(

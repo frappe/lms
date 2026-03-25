@@ -29,14 +29,12 @@
 							:label="__('Date')"
 							:required="true"
 						/>
-						<Tooltip :text="__('Duration of the live class in minutes')">
-							<FormControl
-								type="number"
-								v-model="liveClass.duration"
-								:label="__('Duration')"
-								:required="true"
-							/>
-						</Tooltip>
+						<FormControl
+							type="number"
+							v-model="liveClass.duration"
+							:label="__('Duration (in minutes)')"
+							:required="true"
+						/>
 					</div>
 					<div class="space-y-4">
 						<Tooltip
@@ -186,6 +184,7 @@ const submitLiveClass = (close) => {
 		},
 		onError(err) {
 			toast.error(err.messages?.[0] || err)
+			console.error(err)
 		},
 	})
 }

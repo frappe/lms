@@ -72,10 +72,11 @@
 								:label="__('Explanation')"
 								v-model="question[`explanation_${n}`]"
 							/>
-							<FormControl
+							<Switch
+								size="sm"
 								:label="__('Correct Answer')"
+								:description="__('Mark this option as a correct answer.')"
 								v-model="question[`is_correct_${n}`]"
-								type="checkbox"
 							/>
 						</div>
 					</div>

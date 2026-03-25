@@ -1429,43 +1429,43 @@ def save_role(user: str, role: str, value: int):
 	if role not in LMS_ROLES:
 		frappe.throw(_("You do not have permission to modify this role."), frappe.PermissionError)
 
+	if role == "Batch Evaluator":
+		return save_evaluator_role(user, value)
+
 	if cint(value):
-		doc = frappe.get_doc(
-			{
-				"doctype": "Has Role",
-				"parent": user,
-				"role": role,
-				"parenttype": "User",
-				"parentfield": "roles",
-			}
-		)
-		doc.save(ignore_permissions=True)
+		if not frappe.db.exists("Has Role", {"parent": user, "role": role}):
+			doc = frappe.new_doc("Has Role")
+			doc.parent = user
+			doc.parenttype = "User"
+			doc.parentfield = "roles"
+			doc.role = role
+			doc.save(ignore_permissions=True)
 	else:
 		frappe.db.delete("Has Role", {"parent": user, "role": role})
 	frappe.clear_cache(user=user)
 	return True
 
 
-@frappe.whitelist()
-def add_an_evaluator(email: str):
+def save_evaluator_role(user: str, value: int):
 	frappe.only_for("Moderator")
-	if not frappe.db.exists("User", email):
-		user = frappe.new_doc("User")
-		user.update(
-			{
-				"email": email,
-				"first_name": email.split("@")[0].capitalize(),
-				"enabled": 1,
-			}
-		)
-		user.insert()
-		user.add_roles("Batch Evaluator")
-
-	evaluator = frappe.new_doc("Course Evaluator")
-	evaluator.evaluator = email
-	evaluator.insert()
-
-	return evaluator
+	if cint(value):
+		if not frappe.db.exists("Has Role", {"parent": user, "role": "Batch Evaluator"}):
+			doc = frappe.new_doc("Has Role")
+			doc.parent = user
+			doc.parenttype = "User"
+			doc.parentfield = "roles"
+			doc.role = "Batch Evaluator"
+			doc.save(ignore_permissions=True)
+		if not frappe.db.exists("Course Evaluator", {"evaluator": user}):
+			doc = frappe.new_doc("Course Evaluator")
+			doc.evaluator = user
+			doc.save(ignore_permissions=True)
+	else:
+		frappe.db.delete("Has Role", {"parent": user, "role": "Batch Evaluator"})
+		if frappe.db.exists("Course Evaluator", {"evaluator": user}):
+			frappe.db.delete("Course Evaluator", {"evaluator": user})
+	frappe.clear_cache(user=user)
+	return True
 
 
 @frappe.whitelist()
@@ -2307,3 +2307,49 @@ def clear_demo_data():
 			frappe.delete_doc("User", user, ignore_permissions=True)
 
 	frappe.db.set_single_value("LMS Settings", "demo_data_present", False)
+
+
+@frappe.whitelist()
+def search_users_by_role(txt: str = "", roles: str | list | None = None, page_length: int = 10):
+	"""Returns users with `roles` in search_link format"""
+	frappe.only_for(["Moderator", "Course Creator", "Batch Evaluator"])
+	if not roles:
+		return []
+
+	if isinstance(roles, str):
+		roles = json.loads(roles)
+
+	invalid_roles = set(roles) - set(LMS_ROLES)
+	if invalid_roles:
+		frappe.throw(_("Cannot search for roles: {0}").format(", ".join(invalid_roles)))
+
+	users_with_roles = frappe.get_all(
+		"Has Role",
+		filters={"role": ["in", roles], "parenttype": "User"},
+		pluck="parent",
+		distinct=True,
+	)
+
+	if not users_with_roles:
+		return []
+
+	results = frappe.get_all(
+		"User",
+		filters=[
+			["name", "in", users_with_roles],
+			["name", "not in", ["Administrator", "Guest"]],
+			["enabled", "=", 1],
+		],
+		or_filters=[
+			["full_name", "like", f"%{txt}%"],
+			["name", "like", f"%{txt}%"],
+		],
+		fields=["name", "full_name"],
+		limit_page_length=cint(page_length),
+		order_by="full_name asc",
+	)
+
+	return [
+		{"value": r.name, "description": r.full_name or r.name, "label": r.full_name or r.name}
+		for r in results
+	]

@@ -9,7 +9,11 @@
 			nullable
 			v-slot="{ open: isComboboxOpen }"
 		>
-			<Popover class="w-full" v-model:show="showOptions">
+			<Popover
+				class="w-full"
+				v-model:show="showOptions"
+				:matchTargetWidth="true"
+			>
 				<template #target="{ open: openPopover, togglePopover }">
 					<slot name="target" v-bind="{ open: openPopover, togglePopover }">
 						<div class="w-full">
@@ -92,7 +96,8 @@
 									>
 										<li
 											:class="[
-												'flex items-center rounded px-2.5 py-2 text-base',
+												'flex items-center rounded px-2.5 text-base py-1.5',
+												optionLines(option).secondary ? '' : 'h-7',
 												{ 'bg-surface-gray-2': active },
 											]"
 										>
@@ -104,16 +109,20 @@
 												name="item-label"
 												v-bind="{ active, selected, option }"
 											>
-												<div class="flex flex-col gap-1 p-1">
+												<div
+													class="flex flex-col px-1"
+													:class="
+														optionLines(option).secondary ? 'gap-0.5' : ''
+													"
+												>
 													<div class="text-base font-medium text-ink-gray-8">
-														{{
-															option.value == option.label && option.description
-																? option.description
-																: option.label
-														}}
+														{{ optionLines(option).primary }}
 													</div>
-													<div class="text-sm text-ink-gray-5">
-														{{ option.value }}
+													<div
+														v-if="optionLines(option).secondary"
+														class="text-sm text-ink-gray-5"
+													>
+														{{ optionLines(option).secondary }}
 													</div>
 												</div>
 											</slot>
@@ -245,6 +254,17 @@ function filterOptions(options) {
 	})
 }
 
+function optionLines(option) {
+	const primary = option.label
+	let secondary = null
+	if (option.description && option.description !== primary) {
+		secondary = option.description
+	} else if (option.value && option.value !== primary) {
+		secondary = option.value
+	}
+	return { primary, secondary }
+}
+
 function displayValue(option) {
 	if (typeof option === 'string') {
 		let allOptions = groups.value.flatMap((group) => group.items)
@@ -288,9 +308,9 @@ const inputClasses = computed(() => {
 	let variant = props.disabled ? 'disabled' : props.variant
 	let variantClasses = {
 		subtle:
-			'border border-outline-gray-modals bg-surface-gray-2 placeholder-ink-gray-4 hover:border-outline-gray-modals hover:bg-surface-gray-3 focus:bg-surface-white focus:border-outline-gray-4 focus:shadow-sm focus:ring-0 focus-visible:ring-2 focus-visible:ring-outline-gray-3',
+			'border border-[--surface-gray-2] bg-surface-gray-2 placeholder-ink-gray-4 hover:border-outline-gray-modals hover:bg-surface-gray-3 focus-within:bg-surface-white focus-within:border-outline-gray-4 focus-within:shadow-sm focus-within:ring-0 focus-within:ring-2 focus-within:ring-outline-gray-3',
 		outline:
-			'border border-outline-gray-2 bg-surface-white placeholder-ink-gray-4 hover:border-outline-gray-3 hover:shadow-sm focus:bg-surface-white focus:border-outline-gray-4 focus:shadow-sm focus:ring-0 focus-visible:ring-2 focus-visible:ring-outline-gray-3',
+			'border border-outline-gray-2 bg-surface-white placeholder-ink-gray-4 hover:border-outline-gray-3 hover:shadow-sm focus-within:bg-surface-white focus-within:border-outline-gray-4 focus-within:shadow-sm focus-within:ring-0 focus-within:ring-2 focus-within:ring-outline-gray-3',
 		disabled: [
 			'border bg-surface-menu-bar placeholder-ink-gray-3',
 			props.variant === 'outline'
