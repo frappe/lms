@@ -1,100 +1,108 @@
 <template>
-	<div v-if="batch.data" class="border-2 rounded-md p-5 lg:w-72">
-		<Badge
-			v-if="batch.data.seat_count && batch.data.seats_left > 0"
-			variant="subtle"
-			theme="green"
-			size="md"
-			:class="
-				batch.data.amount || batch.data.courses.length
-					? 'float-right'
-					: 'w-fit mb-4'
-			"
-			:label="
-				batch.data.seats_left +
-				' ' +
-				(batch.data.seats_left > 1 ? __('Seats Left') : __('Seat Left'))
-			"
+	<div v-if="batch.data" class="border-2 rounded-md lg:w-72">
+		<video
+			v-if="batch.data.video_link"
+			:src="batch.data.video_link"
+			controls
+			class="rounded-t-md w-full"
 		/>
-		<Badge
-			v-else-if="batch.data.seat_count && batch.data.seats_left <= 0"
-			variant="subtle"
-			theme="red"
-			size="md"
-			class="float-right"
-			:label="__('Sold Out')"
-		/>
-		<div
-			v-if="batch.data.amount"
-			class="text-lg font-semibold mb-5 text-ink-gray-9"
-		>
-			{{ formatNumberIntoCurrency(batch.data.amount, batch.data.currency) }}
-		</div>
-		<div
-			v-if="batch.data.courses.length"
-			class="flex items-center mb-3 text-ink-gray-7"
-		>
-			<BookOpen class="h-4 w-4 stroke-1.5 mr-2" />
-			<span> {{ batch.data.courses.length }} {{ __('Courses') }} </span>
-		</div>
-		<DateRange
-			:startDate="batch.data.start_date"
-			:endDate="batch.data.end_date"
-			class="mb-3"
-		/>
-		<div class="flex items-center mb-3 text-ink-gray-7">
-			<Clock class="h-4 w-4 stroke-1.5 mr-2" />
-			<span>
-				{{ formatTime(batch.data.start_time) }} -
-				{{ formatTime(batch.data.end_time) }}
-			</span>
-		</div>
-		<div v-if="batch.data.timezone" class="flex items-center text-ink-gray-7">
-			<Globe class="h-4 w-4 stroke-1.5 mr-2" />
-			<span>
-				{{ batch.data.timezone }}
-			</span>
-		</div>
+		<div class="p-5">
+			<Badge
+				v-if="batch.data.seat_count && batch.data.seats_left > 0"
+				variant="subtle"
+				theme="green"
+				size="md"
+				:class="
+					batch.data.amount || batch.data.courses.length
+						? 'float-right'
+						: 'w-fit mb-4'
+				"
+				:label="
+					batch.data.seats_left +
+					' ' +
+					(batch.data.seats_left > 1 ? __('Seats Left') : __('Seat Left'))
+				"
+			/>
+			<Badge
+				v-else-if="batch.data.seat_count && batch.data.seats_left <= 0"
+				variant="subtle"
+				theme="red"
+				size="md"
+				class="float-right"
+				:label="__('Sold Out')"
+			/>
+			<div
+				v-if="batch.data.amount"
+				class="text-lg font-semibold mb-5 text-ink-gray-9"
+			>
+				{{ formatNumberIntoCurrency(batch.data.amount, batch.data.currency) }}
+			</div>
+			<div
+				v-if="batch.data.courses.length"
+				class="flex items-center mb-3 text-ink-gray-7"
+			>
+				<BookOpen class="h-4 w-4 stroke-1.5 mr-2" />
+				<span> {{ batch.data.courses.length }} {{ __('Courses') }} </span>
+			</div>
+			<DateRange
+				:startDate="batch.data.start_date"
+				:endDate="batch.data.end_date"
+				class="mb-3"
+			/>
+			<div class="flex items-center mb-3 text-ink-gray-7">
+				<Clock class="h-4 w-4 stroke-1.5 mr-2" />
+				<span>
+					{{ formatTime(batch.data.start_time) }} -
+					{{ formatTime(batch.data.end_time) }}
+				</span>
+			</div>
+			<div v-if="batch.data.timezone" class="flex items-center text-ink-gray-7">
+				<Globe class="h-4 w-4 stroke-1.5 mr-2" />
+				<span>
+					{{ batch.data.timezone }}
+				</span>
+			</div>
 
-		<div v-if="!readOnlyMode && !canAccessBatch">
-			<router-link
-				:to="{
-					name: 'Billing',
-					params: {
-						type: 'batch',
-						name: batch.data.name,
-					},
-				}"
-				v-if="
-					batch.data.paid_batch &&
-					batch.data.seats_left > 0 &&
-					batch.data.accept_enrollments
-				"
-			>
-				<Button class="w-full mt-4" variant="solid">
+			<div v-if="!readOnlyMode && !canAccessBatch">
+				<router-link
+					:to="{
+						name: 'Billing',
+						params: {
+							type: 'batch',
+							name: batch.data.name,
+						},
+					}"
+					v-if="
+						batch.data.paid_batch &&
+						batch.data.seats_left > 0 &&
+						batch.data.accept_enrollments
+					"
+				>
+					<Button class="w-full mt-4" variant="solid">
+						<template #prefix>
+							<CreditCard class="size-4 stroke-1.5" />
+						</template>
+						<span>
+							{{ __('Register Now') }}
+						</span>
+					</Button>
+				</router-link>
+				<Button
+					variant="solid"
+					class="w-full mt-2"
+					v-else-if="
+						batch.data.allow_self_enrollment &&
+						batch.data.seats_left &&
+						batch.data.accept_enrollments
+					"
+					@click="enrollInBatch()"
+				>
 					<template #prefix>
-						<CreditCard class="size-4 stroke-1.5" />
+						<GraduationCap class="size-4 stroke-1.5" />
 					</template>
-					<span>
-						{{ __('Register Now') }}
-					</span>
+					{{ __('Enroll Now') }}
 				</Button>
-			</router-link>
-			<Button
-				variant="solid"
-				class="w-full mt-2"
-				v-else-if="
-					batch.data.allow_self_enrollment &&
-					batch.data.seats_left &&
-					batch.data.accept_enrollments
-				"
-				@click="enrollInBatch()"
-			>
-				<template #prefix>
-					<GraduationCap class="size-4 stroke-1.5" />
-				</template>
-				{{ __('Enroll Now') }}
-			</Button>
+			</div>
 		</div>
 	</div>
 </template>
