@@ -157,7 +157,7 @@ import {
 	createResource,
 	usePageMeta,
 } from 'frappe-ui'
-import { inject, ref, computed } from 'vue'
+import { inject, ref, computed, watch, nextTick } from 'vue'
 import { sessionStore } from '../stores/session'
 import JobApplicationModal from '@/components/Modals/JobApplicationModal.vue'
 import {
@@ -193,17 +193,11 @@ const job = createResource({
 	},
 	cache: ['job', props.job],
 	auto: true,
-	onSuccess: (data) => {
-		if (user.data?.name) {
-			jobApplication.submit()
-			applicationCount.submit()
-		}
-	},
 })
 
 const jobApplication = createResource({
 	url: 'frappe.client.get_list',
-	makeParams(values) {
+	makeParams() {
 		return {
 			doctype: 'LMS Job Application',
 			filters: {
@@ -216,7 +210,7 @@ const jobApplication = createResource({
 
 const applicationCount = createResource({
 	url: 'frappe.client.get_count',
-	makeParams(values) {
+	makeParams() {
 		return {
 			doctype: 'LMS Job Application',
 			filters: {
@@ -225,6 +219,18 @@ const applicationCount = createResource({
 		}
 	},
 })
+
+const stopWatch = watch(
+	() => [job.data?.name, user.data?.name],
+	([jobName, userName]) => {
+		if (jobName && userName) {
+			jobApplication.submit()
+			applicationCount.submit()
+			nextTick(() => stopWatch())
+		}
+	},
+	{ immediate: true }
+)
 
 const openApplicationModal = () => {
 	showApplicationModal.value = true
