@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2026-03-20 16:13+0000\n"
-"PO-Revision-Date: 2026-03-23 14:16\n"
+"PO-Revision-Date: 2026-03-25 15:26\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Spanish\n"
 "MIME-Version: 1.0\n"
@@ -6275,7 +6275,7 @@ msgstr ""
 #: lms/lms/doctype/lms_coupon_item/lms_coupon_item.json
 #: lms/lms/doctype/lms_timetable_legend/lms_timetable_legend.json
 msgid "Reference DocType"
-msgstr ""
+msgstr "DocType de referencia"
 
 #. Label of the reference_doctype (Link) field in DocType 'LMS Badge'
 #: lms/lms/doctype/lms_badge/lms_badge.json
