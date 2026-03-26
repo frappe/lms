@@ -151,7 +151,7 @@
 </template>
 <script setup>
 import { createResource, FormControl, Button, Badge, toast } from 'frappe-ui'
-import { computed, reactive, ref, onMounted, inject } from 'vue'
+import { computed, reactive, ref, onMounted, inject, watch } from 'vue'
 import { convertToTitleCase } from '@/utils'
 import { Plus, X, Check, CircleAlert } from 'lucide-vue-next'
 
@@ -195,15 +195,29 @@ const evaluator = createResource({
 		evaluator: props.profile.data?.name,
 	},
 	auto: true,
-	onSuccess(data) {
-		if (data.slots.unavailable_from) from.value = data.slots.unavailable_from
-		if (data.slots.unavailable_to) to.value = data.slots.unavailable_to
-	},
 	onError(err) {
 		toast.error(err.messages?.[0] || err)
 		console.error(err)
 	},
 })
+
+watch(evaluator, () => {
+	if (evaluator.data?.slots?.unavailable_from)
+		from.value = evaluator.data.slots.unavailable_from
+	if (evaluator.data?.slots?.unavailable_to)
+		to.value = evaluator.data.slots.unavailable_to
+
+	evaluator.data?.slots?.schedule.forEach((slot) => {
+		slot.start_time = formatTime(slot.start_time)
+		slot.end_time = formatTime(slot.end_time)
+	})
+})
+
+const formatTime = (time) => {
+	if (!time) return ''
+	const [hour, minute] = time.split(':')
+	return `${hour.padStart(2, '0')}:${minute.padStart(2, '0')}`
+}
 
 const createSlot = createResource({
 	url: 'frappe.client.insert',

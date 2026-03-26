@@ -335,7 +335,8 @@ def get_evaluator_details(evaluator: str):
 		doc = frappe.new_doc("Course Evaluator")
 		doc.evaluator = evaluator
 		doc.insert()
-
+	for slot in doc.schedule:
+		print(slot.start_time, slot.end_time)
 	return {
 		"slots": doc.as_dict(),
 		"calendar": calendar.name,
