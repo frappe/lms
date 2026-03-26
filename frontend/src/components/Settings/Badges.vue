@@ -21,7 +21,7 @@
 				{{ __('New') }}
 			</Button>
 		</div>
-		<div v-if="badges.data?.length" class="overflow-y-scroll">
+		<div v-if="badges.data?.length" class="overflow-y-auto">
 			<ListView
 				:columns="columns"
 				:rows="badges.data"

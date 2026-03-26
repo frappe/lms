@@ -17,7 +17,7 @@
 			</Button>
 		</div>
 
-		<div v-if="paymentGateways.data?.length" class="overflow-y-scroll">
+		<div v-if="paymentGateways.data?.length" class="overflow-y-auto">
 			<ListView
 				:columns="columns"
 				:rows="paymentGateways.data"
