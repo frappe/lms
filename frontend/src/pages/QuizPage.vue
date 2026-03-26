@@ -7,7 +7,10 @@
 	</header>
 	<div
 		class="md:w-7/12 md:mx-auto mx-4 py-10"
-		:class="{ 'pt-4 md:w-full': fromLesson }"
+		:class="{
+			'pt-4 md:w-full': fromLesson || proctored.data?.enable_proctoring,
+			'px-5': proctored.data?.enable_proctoring,
+		}"
 	>
 		<Quiz :quizName="quizID" />
 	</div>
@@ -46,6 +49,18 @@ const title = createResource({
 	params: {
 		doctype: 'LMS Quiz',
 		fieldname: 'title',
+		filters: {
+			name: props.quizID,
+		},
+	},
+	auto: true,
+})
+
+const proctored = createResource({
+	url: 'frappe.client.get_value',
+	params: {
+		doctype: 'LMS Quiz',
+		fieldname: 'enable_proctoring',
 		filters: {
 			name: props.quizID,
 		},
