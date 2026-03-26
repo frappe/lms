@@ -75,6 +75,12 @@
 										/>
 									</Tooltip>
 								</div>
+								<Check
+									v-if="
+										chapter.is_scorm_package && isScormChapterComplete(chapter)
+									"
+									class="h-4 w-4 text-green-700"
+								/>
 							</DisclosureButton>
 							<DisclosurePanel v-if="!chapter.is_scorm_package">
 								<Draggable
@@ -399,6 +405,10 @@ const redirectToChapter = (chapter) => {
 			chapterName: chapter.name,
 		},
 	})
+}
+
+const isScormChapterComplete = (chapter) => {
+	return chapter.lessons?.length && chapter.lessons.every((l) => l.is_complete)
 }
 
 const isActiveLesson = (lessonNumber) => {
