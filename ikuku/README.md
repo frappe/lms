@@ -2,7 +2,7 @@
 
 One-click Windows installer for [Frappe LMS](https://github.com/frappe/lms). Runs the full stack (MariaDB, Redis, Frappe) inside WSL2 + podman — no Docker Desktop, no Linux VM, no manual setup.
 
-> *ikuku* (in Igbo - Nigeria  means breeze) — open Windows and let the breeze in.
+> *ikuku* (in Igbo - Nigeria  means *breeze* ) — open Windows and let the breeze in.
 
 ## Quick Start
 

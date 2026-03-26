@@ -1,4 +1,4 @@
-# lms-service.ps1 - NSSM service entry point
+# lms-service.ps1 - Scheduled task entry point
 # Sequence: wait for systemd → start containers → wait for ready → port proxy → keepalive
 $WSL = "wsl.exe"
 $LMS_DIR = "/opt/frappe-lms"
@@ -23,5 +23,5 @@ for ($i = 0; $i -lt 30; $i++) {
 # Refresh port proxy (WSL IP changes on reboot)
 & "$PSScriptRoot\update-portproxy.ps1"
 
-# Keep WSL alive (NSSM monitors this process)
+# Keep WSL alive (task stays running, WSL won't shut down)
 & $WSL -u root -- sleep infinity

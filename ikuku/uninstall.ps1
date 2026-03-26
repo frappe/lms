@@ -1,7 +1,6 @@
 # uninstall.ps1 - Remove Frappe LMS
 $WSL = "wsl.exe"
 $LMS_DIR = "/opt/frappe-lms"
-$NSSM = if (Test-Path "$PSScriptRoot\nssm.exe") { "$PSScriptRoot\nssm.exe" } else { "nssm" }
 
 # Read port from config
 $Port = "8000"
@@ -11,9 +10,9 @@ if (Test-Path $confFile) {
     if ($line) { $Port = ($line -split '=', 2)[1].Trim() }
 }
 
-Write-Host "Stopping service..."
-& $NSSM stop FrappeLMS 2>$null
-& $NSSM remove FrappeLMS confirm 2>$null
+Write-Host "Removing scheduled task..."
+schtasks /end /tn "FrappeLMS" 2>$null
+schtasks /delete /tn "FrappeLMS" /f 2>$null
 
 Write-Host "Stopping containers..."
 & $WSL -u root -- bash -c "cd $LMS_DIR && podman-compose down -v 2>/dev/null"

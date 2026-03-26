@@ -1,9 +1,8 @@
-# stop.ps1 - Stop Frappe LMS services
+# stop.ps1 - Stop Frappe LMS
 $WSL = "wsl.exe"
 $LMS_DIR = "/opt/frappe-lms"
-$NSSM = if (Test-Path "$PSScriptRoot\nssm.exe") { "$PSScriptRoot\nssm.exe" } else { "nssm" }
 
-& $NSSM stop FrappeLMS 2>$null
+schtasks /end /tn "FrappeLMS" 2>$null
 & $WSL -u root -- bash -c "cd $LMS_DIR && podman-compose down" 2>$null
 
 # Read port from config

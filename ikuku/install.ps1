@@ -3,7 +3,6 @@ $ErrorActionPreference = "Stop"
 $WSL = "wsl.exe"
 $LMS_DIR = "/opt/frappe-lms"
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
-$NSSM = Join-Path $scriptDir "nssm.exe"
 
 # Read config from wizard (or use defaults)
 $conf = @{ SITE_NAME="lms.local"; ADMIN_EMAIL="admin@example.com"; ADMIN_PASSWORD="admin"; LMS_PORT="8000" }
@@ -59,23 +58,11 @@ if (Test-Path $dockerDir) {
     & $WSL -u root -- bash -c "cp -r $wslPath/* $LMS_DIR/"
 }
 
-# Step 5: Install NSSM service (starts containers → waits for ready → port proxy → keepalive)
-# WSL can't run as SYSTEM — service must run as the current Windows user
-Write-Host "Installing service..."
-if (!(Test-Path $NSSM)) { choco install nssm -y | Out-Null; $NSSM = "nssm" }
-& $NSSM install FrappeLMS powershell "-ExecutionPolicy Bypass -File `"$scriptDir\lms-service.ps1`""
-& $NSSM set FrappeLMS AppDirectory $scriptDir
-& $NSSM set FrappeLMS AppStdout "$scriptDir\service.log"
-& $NSSM set FrappeLMS AppStderr "$scriptDir\service.log"
-& $NSSM set FrappeLMS Description "Frappe LMS: containers + port proxy + WSL keepalive"
-& $NSSM set FrappeLMS Start SERVICE_AUTO_START
-if ($conf.WIN_PASSWORD) {
-    & $NSSM set FrappeLMS ObjectName ".\$env:USERNAME" $conf.WIN_PASSWORD
-} else {
-    Write-Host "NOTE: Enter your Windows password to allow the service to run as your user." -ForegroundColor Yellow
-    & $NSSM set FrappeLMS ObjectName ".\$env:USERNAME"
-}
-& $NSSM start FrappeLMS
+# Step 5: Register scheduled task (runs at boot as current user, no password needed)
+Write-Host "Registering startup task..."
+$taskCmd = "powershell -WindowStyle Hidden -ExecutionPolicy Bypass -File `"$scriptDir\lms-service.ps1`""
+schtasks /create /tn "FrappeLMS" /tr "$taskCmd" /sc onstart /rl highest /f
+schtasks /run /tn "FrappeLMS"
 
 # Step 6: Disable sleep mode
 Write-Host "Disabling sleep mode..."
@@ -92,7 +79,7 @@ Write-Host "=== Frappe LMS installed! ===" -ForegroundColor Green
 Write-Host "Access at: http://lms.localhost:$($conf.LMS_PORT)/lms"
 Write-Host "Or from LAN: http://$($env:COMPUTERNAME):$($conf.LMS_PORT)/lms"
 Write-Host ""
-Write-Host "Service: FrappeLMS (auto-starts on boot, keeps WSL alive)"
+Write-Host "Task: FrappeLMS (auto-starts on boot, keeps WSL alive)"
 Write-Host "Sleep mode: disabled"
 Write-Host ""
 Write-Host "To uninstall: powershell -File `"$scriptDir\uninstall.ps1`"" -ForegroundColor DarkGray
