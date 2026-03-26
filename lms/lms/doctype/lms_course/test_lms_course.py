@@ -22,6 +22,16 @@ class TestLMSCourse(BaseTestUtils):
 		self.assertEqual(course.title, course_name)
 		self.assertTrue(frappe.db.exists("LMS Course", course.name))
 
+	def test_html_entities_are_decoded_in_plain_text_fields(self):
+		title = f"Test bug&#39;s {frappe.generate_hash()}"
+		course = self._create_course(title)
+
+		course.short_introduction = "Rock &amp; Roll &quot;Intro&quot;"
+		course.save()
+
+		self.assertEqual(course.title, title.replace("&#39;", "'"))
+		self.assertEqual(course.short_introduction, 'Rock & Roll "Intro"')
+
 	def test_delete_course(self):
 		course = self._create_course(f"Test Course {frappe.generate_hash()}")
 		chapter = self._create_chapter(f"Test Chapter {frappe.generate_hash()}", course.name)

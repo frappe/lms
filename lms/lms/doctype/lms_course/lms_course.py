@@ -2,6 +2,7 @@
 # For license information, please see license.txt
 
 import random
+from html import unescape
 
 import frappe
 from frappe import _
@@ -22,6 +23,7 @@ from ...utils import (
 
 class LMSCourse(Document):
 	def validate(self):
+		self.normalize_plain_text_fields()
 		self.validate_published()
 		self.validate_instructors()
 		self.validate_video_link()
@@ -31,6 +33,13 @@ class LMSCourse(Document):
 		self.validate_amount_and_currency()
 		self.image = validate_image(self.image)
 		self.validate_card_gradient()
+
+	def normalize_plain_text_fields(self):
+		if isinstance(self.title, str):
+			self.title = unescape(self.title)
+
+		if isinstance(self.short_introduction, str):
+			self.short_introduction = unescape(self.short_introduction)
 
 	def validate_published(self):
 		if self.published and not self.published_on:
