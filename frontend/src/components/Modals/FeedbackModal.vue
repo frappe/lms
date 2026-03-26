@@ -2,7 +2,7 @@
 	<Dialog
 		v-model="show"
 		:options="{
-			size: '4xl',
+			size: '5xl',
 		}"
 	>
 		<template #body>
@@ -19,10 +19,17 @@
 						rowHeight: 'h-16',
 						selectable: false,
 					}"
+					class="border rounded-lg py-2 px-3"
 				>
 					<ListHeader
-						class="mb-2 grid items-center space-x-4 rounded bg-surface-gray-2 p-2"
-					></ListHeader>
+						class="mb-2 grid items-center rounded bg-surface-white border-b rounded-none !px-0"
+					>
+						<ListHeaderItem :item="item" v-for="item in feedbackColumns">
+							<template #prefix="{ item }">
+								<FeatherIcon :name="item.icon?.toString()" class="h-4 w-4" />
+							</template>
+						</ListHeaderItem>
+					</ListHeader>
 					<ListRows>
 						<ListRow
 							:row="row"
@@ -41,7 +48,7 @@
 												class="flex"
 												:image="row['member_image']"
 												:label="item"
-												size="sm"
+												size="xl"
 											/>
 										</div>
 									</template>
@@ -63,9 +70,11 @@
 <script setup lang="ts">
 import {
 	Dialog,
-	ListView,
 	Avatar,
+	FeatherIcon,
+	ListView,
 	ListHeader,
+	ListHeaderItem,
 	ListRows,
 	ListRow,
 	ListRowItem,
@@ -89,27 +98,43 @@ const feedbackColumns = computed(() => {
 			label: 'Member',
 			key: 'member_name',
 			width: '10rem',
+			align: 'left',
+			icon: 'user',
 		},
 		{
 			label: 'Feedback',
 			key: 'feedback',
 			width: '15rem',
+			align: 'left',
+			icon: 'message-square',
 		},
 		{
 			label: 'Content',
 			key: 'content',
-			width: '9rem',
+			width: '10rem',
+			align: 'center',
+			icon: 'book',
 		},
 		{
 			label: 'Instructors',
 			key: 'instructors',
-			width: '9rem',
+			width: '10rem',
+			align: 'center',
+			icon: 'users',
 		},
 		{
 			label: 'Value',
 			key: 'value',
-			width: '9rem',
+			width: '10rem',
+			align: 'center',
+			icon: 'dollar-sign',
 		},
 	]
 })
 </script>
+<style>
+.feedback-list > button > div {
+	padding: 0.2rem 0;
+	margin-bottom: 0.2rem;
+}
+</style>

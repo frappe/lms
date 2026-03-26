@@ -71,8 +71,13 @@
 				}"
 			>
 				<ListHeader
-					class="mb-2 grid items-center space-x-4 rounded bg-surface-gray-2 p-2"
+					class="mb-2 grid items-center rounded bg-surface-gray-2 p-2"
 				>
+					<ListHeaderItem :item="item" v-for="item in columns">
+						<template #prefix="{ item }">
+							<FeatherIcon :name="item.icon?.toString()" class="h-4 w-4" />
+						</template>
+					</ListHeaderItem>
 				</ListHeader>
 				<ListRows>
 					<ListRow
@@ -134,13 +139,14 @@ import {
 	call,
 	createListResource,
 	dayjs,
+	FeatherIcon,
 	FormControl,
 	ListView,
 	ListHeader,
+	ListHeaderItem,
 	ListRows,
 	ListRow,
 	ListRowItem,
-	FeatherIcon,
 	ListSelectBanner,
 	toast,
 	usePageMeta,
@@ -272,17 +278,20 @@ const columns = computed(() => {
 			label: __('Title'),
 			key: 'title',
 			width: 3,
+			icon: 'file-text',
 		},
 		{
 			label: __('Language'),
 			key: 'language',
 			width: 2,
 			align: 'left',
+			icon: 'code',
 		},
 		{
 			label: __('Updated On'),
 			key: 'modified',
 			width: 1,
+			icon: 'clock',
 		},
 	]
 })

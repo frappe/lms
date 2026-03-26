@@ -10,10 +10,10 @@
 			{{ __('Create') }}
 		</Button>
 	</header>
-	<div class="py-5 mx-5">
-		<div class="flex items-center justify-between mb-4">
+	<div class="pt-5 mx-5">
+		<div class="flex items-center justify-between mb-5">
 			<div class="text-lg font-semibold text-ink-gray-9">
-				{{ __('{0} Quizzes').format(quizzes.data.length) }}
+				{{ __('{0} Quizzes').format(quizzes.data?.length) }}
 			</div>
 			<FormControl v-model="search" type="text" placeholder="Search">
 				<template #prefix>
@@ -27,9 +27,10 @@
 			:rows="quizzes.data"
 			row-key="name"
 			:options="{ showTooltip: false, selectable: true }"
+			class="h-[79vh] border-b"
 		>
 			<ListHeader
-				class="mb-2 grid items-center space-x-4 rounded bg-surface-gray-2 p-2"
+				class="mb-2 grid items-center rounded bg-surface-white border-b rounded-none p-2"
 			>
 				<ListHeaderItem :item="item" v-for="item in quizColumns">
 					<template #prefix="{ item }">
@@ -47,7 +48,7 @@
 						},
 					}"
 				>
-					<ListRow :row="row">
+					<ListRow :row="row" class="hover:bg-surface-gray-2">
 						<template #default="{ column, item }">
 							<ListRowItem :item="row[column.key]" :align="column.align">
 								<div v-if="column.key == 'show_answers'">
@@ -59,7 +60,7 @@
 								</div>
 								<div
 									v-else-if="column.key == 'modified'"
-									class="text-xs text-ink-gray-5"
+									class="text-sm text-ink-gray-5"
 								>
 									{{ row[column.key] }}
 								</div>
@@ -71,7 +72,7 @@
 					</ListRow>
 				</router-link>
 			</ListRows>
-			<ListSelectBanner>
+			<ListSelectBanner class="bottom-50">
 				<template #actions="{ unselectAll, selections }">
 					<div class="flex gap-2">
 						<Button
@@ -85,10 +86,14 @@
 			</ListSelectBanner>
 		</ListView>
 		<EmptyState v-else type="Quizzes" />
-		<div v-if="quizzes.hasNextPage" class="flex justify-center my-5">
-			<Button @click="quizzes.next()">
+		<div class="flex items-center justify-end space-x-3 mt-3">
+			<Button v-if="quizzes.hasNextPage" @click="quizzes.next()">
 				{{ __('Load More') }}
 			</Button>
+			<div v-if="quizzes.hasNextPage" class="h-8 border-l"></div>
+			<div class="text-ink-gray-5">
+				{{ quizzes.data?.length }} {{ __('of') }} {{ totalQuizzes.data }}
+			</div>
 		</div>
 	</div>
 	<Dialog
@@ -123,6 +128,7 @@ import {
 	Breadcrumbs,
 	Button,
 	createListResource,
+	createResource,
 	Dialog,
 	FeatherIcon,
 	FormControl,
@@ -157,10 +163,12 @@ const showForm = ref(false)
 const title = ref('')
 
 onMounted(() => {
-	if (!user.data?.is_moderator && !user.data?.is_instructor) {
+	if (
+		!user.data?.is_moderator &&
+		!user.data?.is_instructor &&
+		!user.data?.is_evaluator
+	) {
 		router.push({ name: 'Courses' })
-	} else if (!user.data?.is_moderator) {
-		quizFilters.value['owner'] = user.data?.name
 	}
 	if (route.query.new === 'true') {
 		showForm.value = true
@@ -173,6 +181,9 @@ watch(search, () => {
 		filters: quizFilters.value,
 	})
 	quizzes.reload()
+	totalQuizzes.update({
+		filters: quizFilters.value,
+	})
 })
 
 const quizzes = createListResource({
@@ -194,9 +205,23 @@ const quizzes = createListResource({
 		return data.map((quiz) => {
 			return {
 				...quiz,
-				modified: dayjs(quiz.modified).fromNow(),
+				modified: dayjs(quiz.modified).fromNow(true),
 			}
 		})
+	},
+})
+
+const totalQuizzes = createResource({
+	url: 'frappe.client.get_count',
+	params: {
+		doctype: 'LMS Quiz',
+		filters: quizFilters.value,
+	},
+	auto: true,
+	cache: ['quizzes_count', user.data?.name],
+	onError(err) {
+		toast.error(err.messages?.[0] || err)
+		console.error(err)
 	},
 })
 
@@ -249,7 +274,7 @@ const quizColumns = computed(() => {
 		{
 			label: __('Total Marks'),
 			key: 'total_marks',
-			width: 1,
+			width: 0.5,
 			align: 'center',
 			icon: 'hash',
 		},
@@ -263,7 +288,7 @@ const quizColumns = computed(() => {
 		{
 			label: __('Max Attempts'),
 			key: 'max_attempts',
-			width: 1,
+			width: 0.5,
 			align: 'center',
 			icon: 'repeat',
 		},
@@ -275,7 +300,7 @@ const quizColumns = computed(() => {
 			icon: 'eye',
 		},
 		{
-			label: __('Modified'),
+			label: __('Updated On'),
 			key: 'modified',
 			width: 1,
 			align: 'center',
