@@ -183,9 +183,3 @@ const isAdmin = computed(() => {
 	return user.data?.is_moderator || user.data?.is_evaluator
 })
 </script>
-<style>
-.feedback-list > button > div {
-	align-items: start;
-	padding: 0.15rem 0;
-}
-</style>
