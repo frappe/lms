@@ -228,14 +228,6 @@
 							:model-value="reviewQuestions.includes(activeQuestion) ? 1 : 0"
 							@change="markForReview($event, activeQuestion)"
 						/>
-						<!-- <div class="text-sm text-ink-gray-5">
-							{{
-								__('Question {0} of {1}').format(
-									activeQuestion,
-									questions.length
-								)
-							}}
-						</div> -->
 						<div
 							v-if="!quiz.data.show_answers"
 							class="flex items-center space-x-2"
@@ -257,11 +249,13 @@
 									'cursor-pointer': item !== '...',
 									'bg-surface-gray-4 border border-outline-gray-5 font-medium':
 										activeQuestion == item,
-									'bg-surface-gray-3 text-ink-gray-6':
-										activeQuestion != item && item !== '...',
 									'text-ink-gray-5': item === '...',
 									'bg-surface-blue-3 text-ink-white':
 										attemptedQuestions.includes(item) && activeQuestion != item,
+									'bg-surface-gray-3 text-ink-gray-6':
+										activeQuestion != item &&
+										item !== '...' &&
+										!attemptedQuestions.includes(item),
 								}"
 								@click="item !== '...' && switchQuestion(item)"
 							>
@@ -315,7 +309,7 @@
 				<div class="flex items-center space-x-2 mt-2">
 					<div
 						v-for="index in reviewQuestions"
-						@click="activeQuestion = index"
+						@click="switchQuestion(index)"
 						class="w-6 h-6 rounded-full flex items-center justify-center text-sm cursor-pointer bg-surface-gray-3"
 					>
 						{{ index }}
