@@ -86,12 +86,21 @@ def create_instructor():
 			pluck="name",
 			limit=1,
 		)[0]
-		return frappe.get_doc("User", user)
+		instructor = frappe.get_doc("User", user)
+		instructor.user_image = "/assets/lms/images/instructor.png"
+		instructor.add_roles("Moderator")
+		instructor.save()
+		return instructor
 
-	return create_user("Jannat", "Patel", "jannat@example.com", "/assets/lms/images/instructor.png")
+	return create_user(
+		"Jannat", "Patel", "jannat@example.com", "/assets/lms/images/instructor.png", ["Moderator"]
+	)
 
 
-def create_user(first_name, last_name, email, user_image):
+def create_user(first_name, last_name, email, user_image, roles=None):
+	if roles is None:
+		roles = ["LMS Student"]
+
 	filters = {"first_name": first_name, "last_name": last_name, "email": email}
 	if frappe.db.exists("User", filters):
 		return frappe.get_doc("User", filters)
@@ -101,6 +110,8 @@ def create_user(first_name, last_name, email, user_image):
 	user.last_name = last_name
 	user.user_image = user_image
 	user.email = email
+	user.send_welcome_email = False
+	user.add_roles(*roles)
 	user.save()
 	return user
 
