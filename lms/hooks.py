@@ -28,6 +28,7 @@ def get_lms_path():
 # include js, css files in header of desk.html
 # app_include_css = "/assets/lms/css/lms.css"
 # app_include_js = "/assets/lms/js/lms.js"
+# app_include_js = "/assets/lms/js/course_list.js"
 
 # include js, css files in header of web template
 web_include_css = "lms.bundle.css"
@@ -47,6 +48,7 @@ web_include_js = []
 # include js in doctype views
 # doctype_js = {"doctype" : "public/js/doctype.js"}
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
+doctype_list_js = {"LMS Course" : "public/js/course_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
 # doctype_calendar_js = {"doctype" : "public/js/doctype_calendar.js"}
 
