@@ -480,7 +480,6 @@ def import_course(file_url: str):
             course.append("chapters", {"chapter": ch_name})
         course.save(ignore_permissions=True)
 
-        frappe.db.commit()
         return course_name
 
     except Exception:
