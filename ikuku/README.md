@@ -4,6 +4,12 @@ One-click Windows installer for [Frappe LMS](https://github.com/frappe/lms). Run
 
 > *ikuku* (in Igbo - Nigeria  means *breeze* ) — open Windows and let the breeze in.
 
+<p align="center">
+  <a href="webcomic-eva-ikuku.svg">
+    <img src="webcomic-eva-ikuku.svg" alt="How Eva finally evaluated Frappe LMS on Windows" width="700"/>
+  </a>
+</p>
+
 ## Quick Start
 
 1. Download `frappe-lms-lite.exe` from [Releases](../../releases)
