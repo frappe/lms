@@ -57,6 +57,8 @@ if (Test-Path $dockerDir) {
     $wslPath = (& $WSL -u root -- wslpath -a ($dockerDir -replace '\\','/')).Trim()
     & $WSL -u root -- bash -c "cp -r $wslPath/* $LMS_DIR/"
 }
+# Ensure dependencies (payments) are resolved when fetching lms
+& $WSL -u root -- bash -c "sed -i 's/bench get-app lms/bench get-app --resolve-deps lms/' $LMS_DIR/init.sh"
 
 # Step 5: Register scheduled task (runs at boot as current user, no password needed)
 # S4U logon type uses service-for-user Kerberos — no stored credentials required
