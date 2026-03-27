@@ -83,12 +83,7 @@ import { useOnboarding, useTelemetry } from 'frappe-ui/frappe'
 import { inject, onMounted, onBeforeUnmount, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import Link from '@/components/Controls/Link.vue'
-import {
-	cleanError,
-	sanitizeHTML,
-	escapeHTML,
-	createLMSCategory,
-} from '@/utils'
+import { cleanError, sanitizeHTML, createLMSCategory } from '@/utils'
 import MultiSelect from '@/components/Controls/MultiSelect.vue'
 import Uploader from '@/components/Controls/Uploader.vue'
 import NewMemberModal from '@/components/Modals/NewMemberModal.vue'
@@ -136,14 +131,9 @@ const onInstructorCreated = (user: any) => {
 }
 
 const validateFields = () => {
-	course.value.description = sanitizeHTML(course.value.description)
-
 	Object.keys(course.value).forEach((key) => {
-		if (
-			key != 'description' &&
-			typeof course.value[key as keyof Course] === 'string'
-		) {
-			course.value[key as keyof Course] = escapeHTML(
+		if (typeof course.value[key as keyof Course] === 'string') {
+			course.value[key as keyof Course] = sanitizeHTML(
 				course.value[key as keyof Course] as string
 			)
 		}

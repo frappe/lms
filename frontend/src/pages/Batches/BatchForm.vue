@@ -321,7 +321,6 @@ import {
 } from 'frappe-ui'
 import {
 	createLMSCategory,
-	escapeHTML,
 	getMetaInfo,
 	openSettings,
 	sanitizeHTML,
@@ -460,15 +459,9 @@ const formatTime = (timeStr) => {
 }
 
 const validateFields = () => {
-	batchDetail.doc.description = sanitizeHTML(batchDetail.doc.description)
-	batchDetail.doc.batch_details = sanitizeHTML(batchDetail.doc.batch_details)
-
 	Object.keys(batchDetail.doc).forEach((key) => {
-		if (
-			!['description', 'batch_details'].includes(key) &&
-			typeof batchDetail.doc[key] === 'string'
-		) {
-			batchDetail.doc[key] = escapeHTML(batchDetail.doc[key])
+		if (typeof batchDetail.doc[key] === 'string') {
+			batchDetail.doc[key] = sanitizeHTML(batchDetail.doc[key])
 		}
 	})
 }

@@ -112,7 +112,7 @@
 </template>
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import { escapeHTML } from '@/utils'
+import { sanitizeHTML } from '@/utils'
 import {
 	Badge,
 	Button,
@@ -213,7 +213,7 @@ const fetchTestCases = () => {
 }
 
 const validateTitle = () => {
-	exercise.value.title = escapeHTML(exercise.value.title.trim())
+	exercise.value.title = sanitizeHTML(exercise.value.title.trim())
 }
 
 watch(
