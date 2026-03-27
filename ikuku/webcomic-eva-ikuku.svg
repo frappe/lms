@@ -1,0 +1,302 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 2400" font-family="Comic Sans MS, cursive, sans-serif">
+  <style>
+    .panel { fill: white; stroke: #333; stroke-width: 2; rx: 8; }
+    .speech { fill: white; stroke: #333; stroke-width: 1.5; }
+    .thought { fill: #f0f0ff; stroke: #333; stroke-width: 1.5; stroke-dasharray: 4,2; }
+    .narrator { fill: #fff8e0; stroke: #b8860b; stroke-width: 1.5; rx: 6; }
+    .title { font-size: 28px; font-weight: bold; fill: #2c3e50; }
+    .subtitle { font-size: 16px; fill: #666; font-style: italic; }
+    .dialog { font-size: 14px; fill: #333; }
+    .small { font-size: 12px; fill: #555; }
+    .name { font-size: 11px; fill: #888; font-style: italic; }
+    .emphasis { font-weight: bold; fill: #c0392b; }
+    .happy { fill: #27ae60; font-weight: bold; }
+    .cmd { font-family: monospace; font-size: 12px; fill: #2c3e50; }
+    .screen { fill: #1a1a2e; rx: 4; }
+    .screentext { font-family: monospace; font-size: 11px; fill: #0f0; }
+    .eva-hair { fill: #4a2c0a; }
+    .eva-skin { fill: #f5d0a9; }
+    .eva-shirt { fill: #3498db; }
+    .colleague-hair { fill: #2c1810; }
+    .colleague-skin { fill: #d4a574; }
+    .colleague-shirt { fill: #e67e22; }
+    .it-hair { fill: #555; }
+    .it-skin { fill: #f0c8a0; }
+    .it-shirt { fill: #7f8c8d; }
+  </style>
+
+  <!-- Background -->
+  <rect width="900" height="2400" fill="#f5f5f5"/>
+
+  <!-- Title -->
+  <text x="450" y="45" text-anchor="middle" class="title">ikuku 🌬️</text>
+  <text x="450" y="70" text-anchor="middle" class="subtitle">How Eva finally evaluated Frappe LMS on Windows</text>
+  <text x="450" y="90" text-anchor="middle" class="small">(ikuku is Igbo for breeze — open Windows and let the breeze in)</text>
+
+  <!-- ==================== PANEL 1: The Email ==================== -->
+  <rect x="20" y="110" width="860" height="260" class="panel"/>
+
+  <!-- Narrator box -->
+  <rect x="40" y="120" width="300" height="35" class="narrator"/>
+  <text x="50" y="143" class="small">Monday morning. Eva checks her inbox.</text>
+
+  <!-- Eva at desk - simple stick figure with features -->
+  <circle cx="150" cy="230" r="25" class="eva-skin" stroke="#333" stroke-width="1.5"/>
+  <path d="M125,215 Q150,195 175,215" class="eva-hair" stroke="none"/>
+  <circle cx="142" cy="228" r="2" fill="#333"/>
+  <circle cx="158" cy="228" r="2" fill="#333"/>
+  <path d="M145,238 Q150,243 155,238" fill="none" stroke="#333" stroke-width="1.5"/>
+  <rect x="130" y="255" width="40" height="50" class="eva-shirt" rx="4" stroke="#333" stroke-width="1"/>
+  <line x1="130" y1="270" x2="110" y2="300" stroke="#333" stroke-width="2"/>
+  <line x1="170" y1="270" x2="190" y2="260" stroke="#333" stroke-width="2"/>
+
+  <!-- Computer screen -->
+  <rect x="200" y="200" width="160" height="100" fill="#ddd" rx="6" stroke="#333" stroke-width="1.5"/>
+  <rect x="208" y="208" width="144" height="76" fill="white"/>
+  <text x="215" y="225" class="small" fill="#333">From: Principal</text>
+  <text x="215" y="240" class="small" fill="#333">Subject: LMS Evaluation</text>
+  <text x="215" y="258" class="small" fill="#c0392b">Please evaluate Frappe</text>
+  <text x="215" y="273" class="small" fill="#c0392b">LMS by end of month.</text>
+
+  <!-- Eva's speech -->
+  <rect x="420" y="170" width="400" height="60" class="speech" rx="8"/>
+  <text x="435" y="195" class="dialog">Frappe LMS... that's the open source one everyone</text>
+  <text x="435" y="215" class="dialog">raves about. Let me check the install docs...</text>
+  <polygon points="420,200 400,230 420,210" fill="white" stroke="#333" stroke-width="1.5"/>
+
+  <text x="440" y="260" class="name">— Eva Lua Tour, Senior Lecturer &amp; Accidental IT Liaison</text>
+
+  <!-- ==================== PANEL 2: The Documentation ==================== -->
+  <rect x="20" y="390" width="860" height="280" class="panel"/>
+
+  <rect x="40" y="400" width="250" height="35" class="narrator"/>
+  <text x="50" y="423" class="small">Eva reads the installation guide.</text>
+
+  <!-- Browser window -->
+  <rect x="60" y="445" width="350" height="180" fill="#fff" rx="4" stroke="#333" stroke-width="1.5"/>
+  <rect x="60" y="445" width="350" height="25" fill="#e0e0e0" rx="4"/>
+  <circle cx="75" cy="457" r="5" fill="#ff5f57"/>
+  <circle cx="90" cy="457" r="5" fill="#ffbd2e"/>
+  <circle cx="105" cy="457" r="5" fill="#28c840"/>
+  <text x="200" y="462" class="small" text-anchor="middle">docs.frappe.io/lms</text>
+  <text x="75" y="490" class="small" font-weight="bold">Production Setup:</text>
+  <text x="75" y="508" class="cmd">python3 ./easy-install.py deploy \</text>
+  <text x="85" y="523" class="cmd">  --project=learning_prod_setup \</text>
+  <text x="85" y="538" class="cmd">  --image=ghcr.io/frappe/lms \</text>
+  <text x="75" y="560" class="small" fill="#888">Requires: Docker, Linux server</text>
+  <text x="75" y="578" class="small" fill="#888">DNS A record, domain name...</text>
+  <text x="75" y="596" class="small" fill="#888">For development: bench, Node, Python...</text>
+
+  <!-- Eva's reaction -->
+  <rect x="460" y="440" width="380" height="90" class="thought" rx="12"/>
+  <text x="475" y="465" class="dialog">Linux server... Docker... DNS records...</text>
+  <text x="475" y="485" class="dialog">I just want to <tspan class="emphasis">see</tspan> the thing running.</text>
+  <text x="475" y="505" class="dialog">Not deploy it to production. Not yet.</text>
+
+  <!-- Eva frustrated -->
+  <circle cx="700" cy="590" r="25" class="eva-skin" stroke="#333" stroke-width="1.5"/>
+  <path d="M675,575 Q700,555 725,575" class="eva-hair" stroke="none"/>
+  <circle cx="692" cy="588" r="2" fill="#333"/>
+  <circle cx="708" cy="588" r="2" fill="#333"/>
+  <path d="M693,602 Q700,596 707,602" fill="none" stroke="#333" stroke-width="1.5"/>
+  <line x1="680" y1="580" x2="688" y2="584" stroke="#333" stroke-width="1.5"/>
+  <line x1="720" y1="580" x2="712" y2="584" stroke="#333" stroke-width="1.5"/>
+
+  <rect x="460" y="560" width="200" height="40" class="speech" rx="8"/>
+  <text x="475" y="585" class="dialog">*sigh* Here we go again.</text>
+  <polygon points="660,580 680,590 660,590" fill="white" stroke="#333" stroke-width="1.5"/>
+
+  <!-- ==================== PANEL 3: The Docker Conversation ==================== -->
+  <rect x="20" y="690" width="860" height="300" class="panel"/>
+
+  <rect x="40" y="700" width="280" height="35" class="narrator"/>
+  <text x="50" y="723" class="small">Eva asks IT. IT says the magic words.</text>
+
+  <!-- IT person -->
+  <circle cx="200" cy="810" r="25" class="it-skin" stroke="#333" stroke-width="1.5"/>
+  <rect x="180" y="785" width="40" height="12" class="it-hair" rx="2"/>
+  <circle cx="192" cy="808" r="2" fill="#333"/>
+  <circle cx="208" cy="808" r="2" fill="#333"/>
+  <path d="M195,820 Q200,825 205,820" fill="none" stroke="#333" stroke-width="1.5"/>
+  <rect x="180" y="835" width="40" height="50" class="it-shirt" rx="4" stroke="#333" stroke-width="1"/>
+  <text x="200" y="910" text-anchor="middle" class="name">Raj, IT Support</text>
+
+  <rect x="250" y="770" width="320" height="45" class="speech" rx="8"/>
+  <text x="265" y="790" class="dialog">Just use Docker! It works the same on</text>
+  <text x="265" y="808" class="dialog">every platform. Very straightforward.</text>
+  <polygon points="250,790 230,810 250,800" fill="white" stroke="#333" stroke-width="1.5"/>
+
+  <!-- Eva's eye roll -->
+  <circle cx="700" cy="810" r="25" class="eva-skin" stroke="#333" stroke-width="1.5"/>
+  <path d="M675,795 Q700,775 725,795" class="eva-hair" stroke="none"/>
+  <circle cx="692" cy="805" r="2.5" fill="#333"/>
+  <circle cx="708" cy="805" r="2.5" fill="#333"/>
+  <!-- Eyes looking up (eye roll) -->
+  <circle cx="692" cy="803" r="1.5" fill="white"/>
+  <circle cx="708" cy="803" r="1.5" fill="white"/>
+  <path d="M693,822 L707,822" fill="none" stroke="#333" stroke-width="1.5"/>
+
+  <rect x="500" y="850" width="370" height="110" class="thought" rx="12"/>
+  <text x="515" y="873" class="dialog">Oh yeah. "Works the same." Let me recall...</text>
+  <text x="515" y="893" class="dialog">✗ Docker Desktop needs a license for us</text>
+  <text x="515" y="913" class="dialog">✗ WSL containers die when I log out</text>
+  <text x="515" y="933" class="dialog">✗ IT won't provision a Linux box for "just eval"</text>
+  <text x="515" y="953" class="small" fill="#888">...and is WSL on version 3 yet?</text>
+
+  <!-- ==================== PANEL 4: Discovery ==================== -->
+  <rect x="20" y="1010" width="860" height="260" class="panel"/>
+
+  <rect x="40" y="1020" width="350" height="35" class="narrator"/>
+  <text x="50" y="1043" class="small">Two weeks later. Eva finds ikuku in the LMS repo.</text>
+
+  <!-- Eva at laptop, happy -->
+  <circle cx="150" cy="1130" r="25" class="eva-skin" stroke="#333" stroke-width="1.5"/>
+  <path d="M125,1115 Q150,1095 175,1115" class="eva-hair" stroke="none"/>
+  <circle cx="142" cy="1128" r="2" fill="#333"/>
+  <circle cx="158" cy="1128" r="2" fill="#333"/>
+  <path d="M143,1140 Q150,1148 157,1140" fill="none" stroke="#333" stroke-width="1.5"/>
+
+  <!-- Screen showing ikuku README -->
+  <rect x="200" y="1080" width="340" height="160" fill="#fff" rx="4" stroke="#333" stroke-width="1.5"/>
+  <rect x="200" y="1080" width="340" height="25" fill="#e0e0e0" rx="4"/>
+  <text x="370" y="1097" class="small" text-anchor="middle">github.com/frappe/lms/ikuku</text>
+  <text x="215" y="1125" font-size="16" font-weight="bold" fill="#2c3e50">Frappe LMS — Windows Installer</text>
+  <text x="215" y="1145" class="small">1. Download frappe-lms-lite.exe</text>
+  <text x="215" y="1162" class="small">2. Run the installer</text>
+  <text x="215" y="1179" class="small">3. Open http://lms.localhost:8000/lms</text>
+  <text x="215" y="1200" class="small" fill="#27ae60">No Docker Desktop. No Linux server.</text>
+  <text x="215" y="1217" class="small" fill="#27ae60">No license. Survives logout &amp; reboot.</text>
+
+  <rect x="580" y="1100" width="270" height="50" class="speech" rx="8"/>
+  <text x="595" y="1120" class="dialog">Wait... a Windows .exe installer?</text>
+  <text x="595" y="1138" class="dialog happy">That actually sounds doable!</text>
+  <polygon points="580,1120 560,1140 580,1130" fill="white" stroke="#333" stroke-width="1.5"/>
+
+  <!-- ==================== PANEL 5: Installation ==================== -->
+  <rect x="20" y="1290" width="860" height="280" class="panel"/>
+
+  <rect x="40" y="1300" width="200" height="35" class="narrator"/>
+  <text x="50" y="1323" class="small">Five minutes later.</text>
+
+  <!-- Terminal/installer window -->
+  <rect x="60" y="1345" width="400" height="190" class="screen"/>
+  <text x="75" y="1370" class="screentext">C:\&gt; frappe-lms-lite.exe</text>
+  <text x="75" y="1390" class="screentext">=== Installing Frappe LMS ===</text>
+  <text x="75" y="1410" class="screentext">Configuring WSL memory... done</text>
+  <text x="75" y="1430" class="screentext">Checking WSL Ubuntu... found</text>
+  <text x="75" y="1450" class="screentext">Checking podman... installed</text>
+  <text x="75" y="1470" class="screentext">Registering startup task... done</text>
+  <text x="75" y="1490" class="screentext">=== Frappe LMS installed! ===</text>
+  <text x="75" y="1510" class="screentext">Access: http://lms.localhost:8000/lms</text>
+
+  <!-- Eva celebrating -->
+  <circle cx="650" cy="1420" r="25" class="eva-skin" stroke="#333" stroke-width="1.5"/>
+  <path d="M625,1405 Q650,1385 675,1405" class="eva-hair" stroke="none"/>
+  <circle cx="642" cy="1418" r="2" fill="#333"/>
+  <circle cx="658" cy="1418" r="2" fill="#333"/>
+  <path d="M643,1432 Q650,1440 657,1432" fill="none" stroke="#333" stroke-width="1.5"/>
+  <rect x="630" y="1445" width="40" height="50" class="eva-shirt" rx="4" stroke="#333" stroke-width="1"/>
+  <!-- Arms up -->
+  <line x1="630" y1="1460" x2="605" y2="1435" stroke="#333" stroke-width="2"/>
+  <line x1="670" y1="1460" x2="695" y2="1435" stroke="#333" stroke-width="2"/>
+
+  <rect x="550" y="1360" width="310" height="45" class="speech" rx="8"/>
+  <text x="565" y="1380" class="dialog">It just... worked? On my Windows laptop?</text>
+  <text x="565" y="1398" class="dialog happy">No Docker Desktop! No Linux VM!</text>
+  <polygon points="640,1405 650,1410 660,1405" fill="white" stroke="#333" stroke-width="1.5"/>
+
+  <!-- ==================== PANEL 6: Delegation ==================== -->
+  <rect x="20" y="1590" width="860" height="280" class="panel"/>
+
+  <rect x="40" y="1600" width="300" height="35" class="narrator"/>
+  <text x="50" y="1623" class="small">Week 2. Eva delegates to her colleague.</text>
+
+  <!-- Eva -->
+  <circle cx="200" cy="1730" r="22" class="eva-skin" stroke="#333" stroke-width="1.5"/>
+  <path d="M178,1718 Q200,1700 222,1718" class="eva-hair" stroke="none"/>
+  <circle cx="193" cy="1728" r="2" fill="#333"/>
+  <circle cx="207" cy="1728" r="2" fill="#333"/>
+  <path d="M194,1740 Q200,1746 206,1740" fill="none" stroke="#333" stroke-width="1.5"/>
+
+  <!-- Colleague -->
+  <circle cx="700" cy="1730" r="22" class="colleague-skin" stroke="#333" stroke-width="1.5"/>
+  <rect x="680" y="1708" width="40" height="14" class="colleague-hair" rx="2"/>
+  <circle cx="693" cy="1728" r="2" fill="#333"/>
+  <circle cx="707" cy="1728" r="2" fill="#333"/>
+  <path d="M694,1740 Q700,1746 706,1740" fill="none" stroke="#333" stroke-width="1.5"/>
+  <text x="700" y="1800" text-anchor="middle" class="name">Sam, Teaching Assistant</text>
+
+  <rect x="230" y="1660" width="350" height="65" class="speech" rx="8"/>
+  <text x="245" y="1683" class="dialog">Sam, I've done the smoke test. Looks promising.</text>
+  <text x="245" y="1700" class="dialog">Run the same .exe on your machine and evaluate</text>
+  <text x="245" y="1717" class="dialog">the course builder. Compare notes Friday?</text>
+  <polygon points="230,1690 210,1720 230,1700" fill="white" stroke="#333" stroke-width="1.5"/>
+
+  <rect x="500" y="1750" width="310" height="45" class="speech" rx="8"/>
+  <text x="515" y="1770" class="dialog">Just an .exe? No Docker? No Linux?</text>
+  <text x="515" y="1788" class="dialog">I'll have it running by lunch.</text>
+  <polygon points="700,1750 700,1740 710,1750" fill="white" stroke="#333" stroke-width="1.5"/>
+
+  <!-- ==================== PANEL 7: Week 4 - Fresh Demo ==================== -->
+  <rect x="20" y="1890" width="860" height="260" class="panel"/>
+
+  <rect x="40" y="1900" width="380" height="35" class="narrator"/>
+  <text x="50" y="1923" class="small">Week 4. Fresh install for the stakeholder demo.</text>
+
+  <!-- Meeting scene - Eva presenting -->
+  <circle cx="150" cy="2010" r="22" class="eva-skin" stroke="#333" stroke-width="1.5"/>
+  <path d="M128,1998 Q150,1980 172,1998" class="eva-hair" stroke="none"/>
+  <circle cx="143" cy="2008" r="2" fill="#333"/>
+  <circle cx="157" cy="2008" r="2" fill="#333"/>
+  <path d="M144,2020 Q150,2026 156,2020" fill="none" stroke="#333" stroke-width="1.5"/>
+
+  <!-- Presentation screen -->
+  <rect x="250" y="1950" width="380" height="170" fill="#fff" rx="6" stroke="#333" stroke-width="2"/>
+  <text x="440" y="1980" text-anchor="middle" font-size="15" font-weight="bold" fill="#2c3e50">Frappe LMS Evaluation Summary</text>
+  <text x="270" y="2005" class="small">✓ Installed in 5 minutes on 3 Windows machines</text>
+  <text x="270" y="2025" class="small">✓ Survives reboot — runs as scheduled task</text>
+  <text x="270" y="2045" class="small">✓ LAN accessible — team evaluated simultaneously</text>
+  <text x="270" y="2065" class="small">✓ No Docker Desktop license needed (uses podman)</text>
+  <text x="270" y="2085" class="small">✓ Course builder, quizzes, certificates — all work</text>
+  <text x="270" y="2105" class="small" fill="#27ae60">Recommendation: Proceed with pilot deployment</text>
+
+  <!-- Audience dots -->
+  <circle cx="700" cy="2040" r="15" fill="#ddd" stroke="#333" stroke-width="1"/>
+  <circle cx="740" cy="2060" r="15" fill="#ddd" stroke="#333" stroke-width="1"/>
+  <circle cx="770" cy="2030" r="15" fill="#ddd" stroke="#333" stroke-width="1"/>
+  <text x="735" y="2100" text-anchor="middle" class="name">Stakeholders</text>
+
+  <rect x="100" y="1940" width="130" height="35" class="speech" rx="8"/>
+  <text x="112" y="1963" class="dialog">Fresh install,</text>
+  <text x="112" y="1978" class="dialog">clean demo. ✨</text>
+  <polygon points="150,1975 150,1990 160,1975" fill="white" stroke="#333" stroke-width="1.5"/>
+
+  <!-- ==================== PANEL 8: The Punchline ==================== -->
+  <rect x="20" y="2170" width="860" height="190" class="panel"/>
+
+  <!-- Eva and Raj -->
+  <circle cx="300" cy="2270" r="25" class="eva-skin" stroke="#333" stroke-width="1.5"/>
+  <path d="M275,2255 Q300,2235 325,2255" class="eva-hair" stroke="none"/>
+  <circle cx="292" cy="2268" r="2" fill="#333"/>
+  <circle cx="308" cy="2268" r="2" fill="#333"/>
+  <path d="M293,2282 Q300,2290 307,2282" fill="none" stroke="#333" stroke-width="1.5"/>
+
+  <circle cx="600" cy="2270" r="25" class="it-skin" stroke="#333" stroke-width="1.5"/>
+  <rect x="580" y="2245" width="40" height="12" class="it-hair" rx="2"/>
+  <circle cx="592" cy="2268" r="2" fill="#333"/>
+  <circle cx="608" cy="2268" r="2" fill="#333"/>
+  <path d="M595,2280 Q600,2272 605,2280" fill="none" stroke="#333" stroke-width="1.5"/>
+
+  <rect x="150" y="2195" width="300" height="50" class="speech" rx="8"/>
+  <text x="165" y="2218" class="dialog">Raj, we evaluated Frappe LMS. On Windows.</text>
+  <text x="165" y="2236" class="dialog happy">No Docker Desktop. No Linux box needed.</text>
+  <polygon points="300,2245 300,2255 310,2245" fill="white" stroke="#333" stroke-width="1.5"/>
+
+  <rect x="480" y="2195" width="370" height="50" class="speech" rx="8"/>
+  <text x="495" y="2218" class="dialog">Wait, how? I thought it needed—</text>
+  <text x="495" y="2236" class="dialog">...did you just open Windows and let the breeze in?</text>
+  <polygon points="600,2245 600,2255 590,2245" fill="white" stroke="#333" stroke-width="1.5"/>
+
+  <!-- Footer -->
+  <text x="450" y="2385" text-anchor="middle" class="small" fill="#888">ikuku — open Windows and let the breeze in 🌬️</text>
+</svg>
