@@ -59,10 +59,13 @@ if (Test-Path $dockerDir) {
 }
 
 # Step 5: Register scheduled task (runs at boot as current user, no password needed)
+# S4U logon type uses service-for-user Kerberos — no stored credentials required
 Write-Host "Registering startup task..."
-$taskCmd = "powershell -WindowStyle Hidden -ExecutionPolicy Bypass -File `"$scriptDir\lms-service.ps1`""
-schtasks /create /tn "FrappeLMS" /tr "$taskCmd" /sc onstart /rl highest /f
-schtasks /run /tn "FrappeLMS"
+$action = New-ScheduledTaskAction -Execute "powershell" -Argument "-WindowStyle Hidden -ExecutionPolicy Bypass -File `"$scriptDir\lms-service.ps1`""
+$trigger = New-ScheduledTaskTrigger -AtStartup
+$principal = New-ScheduledTaskPrincipal -UserId $env:USERNAME -RunLevel Highest -LogonType S4U
+Register-ScheduledTask -TaskName "FrappeLMS" -Action $action -Trigger $trigger -Principal $principal -Force
+Start-ScheduledTask -TaskName "FrappeLMS"
 
 # Step 6: Disable sleep mode
 Write-Host "Disabling sleep mode..."
