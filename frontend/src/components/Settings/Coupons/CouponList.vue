@@ -17,7 +17,7 @@
 			</Button>
 		</div>
 
-		<div v-if="coupons.data?.length" class="overflow-y-scroll">
+		<div v-if="coupons.data?.length" class="overflow-y-auto">
 			<ListView
 				:columns="columns"
 				:rows="coupons.data"

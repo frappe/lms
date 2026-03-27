@@ -18,7 +18,7 @@
 				</Button>
 			</div>
 		</div>
-		<div v-if="emailTemplates.data?.length" class="overflow-y-scroll">
+		<div v-if="emailTemplates.data?.length" class="overflow-y-auto">
 			<ListView
 				:columns="columns"
 				:rows="emailTemplates.data"
