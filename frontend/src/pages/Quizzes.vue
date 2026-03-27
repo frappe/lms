@@ -140,7 +140,7 @@ import { useRouter, useRoute } from 'vue-router'
 import { computed, inject, onMounted, ref, watch } from 'vue'
 import { Plus } from 'lucide-vue-next'
 import { sessionStore } from '@/stores/session'
-import { escapeHTML } from '@/utils'
+import { sanitizeHTML } from '@/utils'
 import { useTelemetry } from 'frappe-ui/frappe'
 import EmptyState from '@/components/EmptyState.vue'
 
@@ -201,7 +201,7 @@ const quizzes = createListResource({
 })
 
 const validateTitle = () => {
-	title.value = escapeHTML(title.value.trim())
+	title.value = sanitizeHTML(title.value.trim())
 }
 
 const insertQuiz = (close) => {

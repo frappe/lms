@@ -72,7 +72,7 @@
 <script setup lang="ts">
 import { Button, Dialog, FormControl, TextEditor, toast } from 'frappe-ui'
 import { computed, reactive, watch } from 'vue'
-import { escapeHTML, sanitizeHTML } from '@/utils'
+import { sanitizeHTML } from '@/utils'
 import Link from '@/components/Controls/Link.vue'
 
 const show = defineModel()
@@ -133,7 +133,7 @@ watch(show, (newVal) => {
 })
 
 const validateFields = () => {
-	assignment.title = escapeHTML(assignment.title.trim())
+	assignment.title = sanitizeHTML(assignment.title.trim())
 	assignment.question = sanitizeHTML(assignment.question)
 }
 

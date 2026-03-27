@@ -350,7 +350,6 @@ import {
 	getCurrentInstance,
 } from 'vue'
 import {
-	escapeHTML,
 	getMetaInfo,
 	sanitizeHTML,
 	updateMetaInfo,
@@ -463,11 +462,9 @@ const onMemberCreated = (user) => {
 }
 
 const validateFields = () => {
-	courseResource.doc.description = sanitizeHTML(courseResource.doc.description)
-
 	Object.keys(courseResource.doc).forEach((key) => {
-		if (key != 'description' && typeof courseResource.doc[key] === 'string') {
-			courseResource.doc[key] = escapeHTML(courseResource.doc[key])
+		if (typeof courseResource.doc[key] === 'string') {
+			courseResource.doc[key] = sanitizeHTML(courseResource.doc[key])
 		}
 	})
 }
