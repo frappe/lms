@@ -137,6 +137,7 @@ import NewMemberModal from '@/components/Modals/NewMemberModal.vue'
 import AddEvaluatorModal from '@/components/Modals/AddEvaluatorModal.vue'
 
 const search = ref('')
+const show = defineModel('show')
 const showExistingUser = ref(false)
 const showNewEvaluator = ref(false)
 const router = useRouter()
@@ -173,6 +174,7 @@ watch(search, () => {
 })
 
 const openProfile = (username: string) => {
+	show.value = false
 	router.push({
 		name: 'Profile',
 		params: {

@@ -43,6 +43,7 @@
 								? { sections: activeTab.sections }
 								: {}),
 							...(activeTab.label == 'Members' ||
+							activeTab.label == 'Evaluators' ||
 							activeTab.label == 'Transactions'
 								? { 'onUpdate:show': (val) => (show = val), show }
 								: {}),
