@@ -2353,3 +2353,6 @@ def search_users_by_role(txt: str = "", roles: str | list | None = None, page_le
 		{"value": r.name, "description": r.full_name or r.name, "label": r.full_name or r.name}
 		for r in results
 	]
+@frappe.whitelist()
+def update_course_statistics(course=None):
+    return
