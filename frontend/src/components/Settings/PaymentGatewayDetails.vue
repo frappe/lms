@@ -6,7 +6,7 @@
 		}"
 	>
 		<template #body-header>
-			<div class="text-lg font-semibold">
+			<div class="text-lg font-semibold text-ink-gray-9">
 				{{
 					gatewayID === 'new'
 						? __('New Payment Gateway')
