@@ -1,9 +1,11 @@
 <template>
 	<header
-		class="sticky top-0 z-10 flex flex-col md:flex-row md:items-center justify-between border-b bg-surface-white px-3 py-2.5 sm:px-5"
+		class="sticky top-0 z-10 flex flex-row items-center justify-between border-b bg-surface-white px-3 py-2.5 sm:px-5"
 	>
-		<Breadcrumbs :items="breadcrumbs" />
-		<div class="flex items-center space-x-2">
+		<div class="flex-1">
+			<Breadcrumbs :items="breadcrumbs" />
+		</div>
+		<div class="flex items-center space-x-2 shrink-0">
 			<Button
 				@click="markAllAsRead.submit"
 				:loading="markAllAsRead.loading"
@@ -139,8 +141,22 @@
 				</div>
 			</div>
 		</div>
-		<div v-else class="text-ink-gray-5">
-			{{ __('Nothing to see here.') }}
+		<div v-else class="flex flex-col items-center justify-center mt-60">
+			<Bell class="size-10 mx-auto stroke-1 text-ink-gray-5" />
+			<p class="text-lg font-semibold text-ink-gray-7 mb-2.5">
+				{{
+					activeTab === 'Unread'
+						? __('No unread notifications')
+						: __('No read notifications')
+				}}
+			</p>
+			<p class="text-p-base w-full md:w-2/5 text-center text-ink-gray-7">
+				{{
+					activeTab === 'Unread'
+						? __("You're all caught up! Check back later for updates.")
+						: __('Notifications you have read will appear here.')
+				}}
+			</p>
 		</div>
 	</div>
 </template>
@@ -158,7 +174,7 @@ import {
 import { sessionStore } from '../stores/session'
 import { computed, inject, ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { Calendar, Clock, X } from 'lucide-vue-next'
+import { Bell, Calendar, Clock, X } from 'lucide-vue-next'
 import { formatTime } from '@/utils/'
 
 const { brand } = sessionStore()
