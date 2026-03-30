@@ -20,12 +20,12 @@
 			/>
 		</div>
 	</header>
-	<div class="w-full md:w-3/4 mx-auto px-5 pt-6 divide-y">
+	<div class="w-full md:w-3/4 mx-auto px-3 sm:px-5 pt-4 sm:pt-6 divide-y">
 		<div
 			v-if="notifications?.length"
 			v-for="log in notifications"
 			:key="log.name"
-			class="flex space-x-2 px-2 py-4"
+			class="flex space-x-2 sm:space-x-3 px-1 sm:px-2 py-3 sm:py-4"
 			:class="{
 				'cursor-pointer': log.link,
 				'items-center': !showDetails(log) && !isMentionOrComment(log),
@@ -37,15 +37,18 @@
 				size="xl"
 				:label="log.from_user_details.full_name"
 			/>
-			<div class="space-y-2 w-full">
-				<div class="flex items-center justify-between">
-					<div class="flex items-center">
-						<div class="text-ink-gray-9" v-html="log.subject"></div>
-					</div>
-					<div class="flex items-center space-x-2">
-						<div class="text-sm text-ink-gray-5">
+			<div class="space-y-1.5 sm:space-y-2 w-full">
+				<div class="flex items-start sm:items-center justify-between gap-2">
+					<div class="flex-1 flex flex-row justify-between">
+						<div
+							class="text-ink-gray-9 text-sm sm:text-base"
+							v-html="log.subject"
+						></div>
+						<div class="text-xs text-ink-gray-5 whitespace-nowrap">
 							{{ dayjs(log.creation).fromNow() }}
 						</div>
+					</div>
+					<div class="flex items-center space-x-2 shrink-0">
 						<Button
 							variant="ghost"
 							v-if="!log.read"
@@ -64,7 +67,7 @@
 				></div>
 				<div
 					v-else-if="showDetails(log)"
-					class="flex items-stretch border border-outline-gray-2 space-x-2 rounded-md"
+					class="flex flex-col sm:flex-row sm:items-stretch border border-outline-gray-2 sm:space-x-2 rounded-md"
 				>
 					<iframe
 						v-if="
@@ -72,7 +75,7 @@
 							log.document_details.video_link
 						"
 						:src="`https://www.youtube.com/embed/${log.document_details.video_link}`"
-						class="rounded-l-md w-72"
+						class="sm:rounded-l-md rounded-t-md w-full sm:w-72"
 					/>
 					<video
 						v-else-if="
@@ -80,7 +83,7 @@
 							log.document_details.video_link
 						"
 						:src="log.document_details.video_link"
-						class="rounded-l-md w-72"
+						class="sm:rounded-l-md rounded-t-md w-full sm:w-72"
 					/>
 					<div class="p-3">
 						<div
@@ -92,15 +95,15 @@
 									: __('New Batch')
 							}}
 						</div>
-						<div class="font-semibold mb-1">
+						<div class="font-semibold mb-1 text-ink-gray-9">
 							{{ __(log.document_details.title) }}
 						</div>
-						<div class="leading-5">
+						<div class="leading-5 text-ink-gray-7">
 							{{ __(log.document_details.short_introduction) }}
 						</div>
 						<div
 							v-if="log.document_details.start_date"
-							class="flex items-center space-x-2 text-sm mt-5"
+							class="flex items-center space-x-2 text-sm mt-5 text-ink-gray-7"
 						>
 							<Calendar class="size-3 stroke-1.5" />
 							<span>
@@ -111,7 +114,7 @@
 						</div>
 						<div
 							v-if="log.document_details.start_time"
-							class="flex items-center space-x-2 text-sm mt-2"
+							class="flex items-center space-x-2 text-sm mt-2 text-ink-gray-7"
 						>
 							<Clock class="size-3 stroke-1.5" />
 							<span>
@@ -132,7 +135,7 @@
 									:image="instructor.user_image"
 									:label="instructor.full_name"
 								/>
-								<span class="font-medium text-sm">
+								<span class="font-medium text-sm text-ink-gray-9">
 									{{ instructor.full_name }}
 								</span>
 							</div>
