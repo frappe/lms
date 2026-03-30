@@ -1003,9 +1003,20 @@ def upsert_chapter(
 def extract_package(course: str, title: str, scorm_package: dict):
 	package = frappe.get_doc("File", scorm_package.name)
 	zip_path = package.get_full_path()
-	# check_for_malicious_code(zip_path)
+	scorm_root = os.path.realpath(frappe.get_site_path("public", "scorm"))
 	extract_path = frappe.get_site_path("public", "scorm", course, title)
-	zipfile.ZipFile(zip_path).extractall(extract_path)
+
+	if not os.path.realpath(extract_path).startswith(scorm_root + os.sep):
+		frappe.throw(_("Invalid course or chapter name"))
+
+	with zipfile.ZipFile(zip_path, "r") as zf:
+		dest = os.path.realpath(extract_path)
+		for name in zf.namelist():
+			target = os.path.realpath(os.path.join(extract_path, name))
+			if not target.startswith(dest + os.sep) and target != dest:
+				frappe.throw(_("Invalid file path in package"))
+		zf.extractall(extract_path)
+
 	return extract_path
 
 
