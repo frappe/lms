@@ -87,7 +87,7 @@
 				/>
 			</div>
 
-			<div class="font-semibold mt-10">
+			<div class="font-semibold mt-10 text-ink-gray-9">
 				{{ __('Payment Details') }}
 			</div>
 			<div class="grid grid-cols-3 gap-5 mt-5">
@@ -111,7 +111,7 @@
 			</div>
 
 			<div v-if="transactionData.coupon">
-				<div class="font-semibold mt-10">
+				<div class="font-semibold mt-10 text-ink-gray-9">
 					{{ __('Coupon Details') }}
 				</div>
 				<div class="grid grid-cols-3 gap-5 mt-5">
@@ -142,7 +142,7 @@
 				</div>
 			</div>
 
-			<div class="font-semibold mt-10">
+			<div class="font-semibold mt-10 text-ink-gray-9">
 				{{ __('Billing Details') }}
 			</div>
 			<div class="grid grid-cols-3 gap-5 mt-5">
