@@ -301,6 +301,42 @@ const submitAssignment = () => {
 }
 
 const addNewSubmission = () => {
+	call('frappe.client.get_value', {
+		doctype: 'LMS Assignment Submission',
+		filters: {
+			assignment: props.assignmentID,
+			member: user.data?.name,
+		},
+		fieldname: 'name',
+	})
+		.then((data) => {
+			if (data?.name) {
+				handleExistingSubmission(data.name)
+				return
+			}
+			createNewSubmission()
+		})
+		.catch(() => {
+			createNewSubmission()
+		})
+}
+
+const handleExistingSubmission = (existingName) => {
+	if (router.currentRoute.value.name == 'AssignmentSubmission') {
+		router.push({
+			name: 'AssignmentSubmission',
+			params: {
+				assignmentID: props.assignmentID,
+				submissionName: existingName,
+			},
+			query: { fromLesson: router.currentRoute.value.query.fromLesson },
+		})
+	}
+	submissionResource.name = existingName
+	submissionResource.reload()
+}
+
+const createNewSubmission = () => {
 	let doc = {
 		doctype: 'LMS Assignment Submission',
 		assignment: props.assignmentID,

@@ -20,13 +20,19 @@ class LMSAssignmentSubmission(Document):
 		self.validate_private_attachments()
 
 	def validate_duplicates(self):
-		if frappe.db.exists(
+		if not self.is_new():
+			return
+
+		existing = frappe.db.exists(
 			"LMS Assignment Submission",
-			{"assignment": self.assignment, "member": self.member, "name": ["!=", self.name]},
-		):
-			lesson_title = frappe.db.get_value("Course Lesson", self.lesson, "title")
+			{"assignment": self.assignment, "member": self.member},
+		)
+		if existing:
+			assignment_title = frappe.db.get_value("LMS Assignment", self.assignment, "title")
 			frappe.throw(
-				_("Assignment for Lesson {0} by {1} already exists.").format(lesson_title, self.member_name)
+				_("Submission for Assignment {0} by {1} already exists.").format(
+					assignment_title, self.member_name
+				)
 			)
 
 	def validate_url(self):
