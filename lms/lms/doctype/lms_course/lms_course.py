@@ -252,6 +252,14 @@ def get_unique_course_title(base_title):
         counter += 1
     return f"{base_title} ({counter})"
 
+def get_unique_quiz_title(base_title):
+    """Asegura que el título del Quiz sea único en el sistema."""
+    if not frappe.db.exists("LMS Quiz", {"title": base_title}):
+        return base_title
+    counter = 1
+    while frappe.db.exists("LMS Quiz", {"title": f"{base_title} ({counter})"}):
+        counter += 1
+    return f"{base_title} ({counter})"
 
 def safe_extract(zip_ref, target_dir):
     """
@@ -297,15 +305,17 @@ def export_course(course_name: str):
         "card_gradient": course.card_gradient,
         "instructors": [],
         "chapters": [],
+        "assignments": [], # NUEVO: Inicializar lista de asignaciones
+        "quizzes": [],     # NUEVO: Inicializar lista de quizzes
     }
 
-    # Exportar Instructores (Solo guardamos el email/link)
+    # Exportar Instructores
     for inst in course.instructors:
         course_data["instructors"].append({
             "instructor": inst.instructor
         })
 
-    # Exportar Estructura
+    # Exportar Estructura (Capítulos y Lecciones)
     for chapter_ref in course.chapters:
         chapter_doc_name = chapter_ref.chapter if hasattr(chapter_ref, "chapter") else chapter_ref.name
         chapter_doc = frappe.get_doc("Course Chapter", chapter_doc_name)
@@ -330,6 +340,68 @@ def export_course(course_name: str):
             )
 
         course_data["chapters"].append(chapter_data)
+
+    # NUEVO: Exportar Asignaciones
+    assignments = frappe.get_all("LMS Assignment", {"course": course.name}, ["name"])
+    for a in assignments:
+        a_doc = frappe.get_doc("LMS Assignment", a.name)
+        course_data["assignments"].append({
+            "title": a_doc.title,
+            "type": a_doc.type,
+            "question": a_doc.question,
+            "answer": a_doc.answer,
+            "show_answer": a_doc.show_answer,
+            "grade_assignment": a_doc.grade_assignment
+        })
+
+    # NUEVO: Exportar Quizzes (y sus Preguntas)
+    quizzes = frappe.get_all("LMS Quiz", {"course": course.name}, ["name"])
+    for q in quizzes:
+        q_doc = frappe.get_doc("LMS Quiz", q.name)
+        
+        q_data = {
+            "title": q_doc.title,
+            "max_attempts": q_doc.max_attempts,
+            "show_answers": q_doc.show_answers,
+            "passing_percentage": q_doc.passing_percentage,
+            "duration": q_doc.duration,
+            "shuffle_questions": q_doc.shuffle_questions,
+            "limit_questions_to": q_doc.limit_questions_to,
+            "enable_negative_marking": q_doc.enable_negative_marking,
+            "marks_to_cut": q_doc.marks_to_cut,
+            "lesson_title": frappe.db.get_value("Course Lesson", q_doc.lesson, "title") if q_doc.lesson else None,
+            "questions": []
+        }
+
+        for row in q_doc.questions:
+            question_doc = frappe.get_doc("LMS Question", row.question)
+            
+            # Exportamos toda la pregunta completa para portabilidad
+            question_data = {
+                "question": question_doc.question,
+                "type": question_doc.type,
+                "multiple": question_doc.multiple,
+                "option_1": question_doc.option_1,
+                "is_correct_1": question_doc.is_correct_1,
+                "explanation_1": question_doc.explanation_1,
+                "option_2": question_doc.option_2,
+                "is_correct_2": question_doc.is_correct_2,
+                "explanation_2": question_doc.explanation_2,
+                "option_3": question_doc.option_3,
+                "is_correct_3": question_doc.is_correct_3,
+                "explanation_3": question_doc.explanation_3,
+                "option_4": question_doc.option_4,
+                "is_correct_4": question_doc.is_correct_4,
+                "explanation_4": question_doc.explanation_4,
+                "possibility_1": question_doc.possibility_1,
+                "possibility_2": question_doc.possibility_2,
+                "possibility_3": question_doc.possibility_3,
+                "possibility_4": question_doc.possibility_4,
+                "marks": row.marks # Marks está en la tabla hija (Quiz Question)
+            }
+            q_data["questions"].append(question_data)
+        
+        course_data["quizzes"].append(q_data)
 
     # 2. Crear ZIP
     from io import BytesIO
@@ -414,7 +486,6 @@ def import_course(file_url: str):
             course.category = raw_category
 
         # 5. Importar Instructores
-        # Si el instructor del ZIP no existe, usamos el usuario actual
         instructors_imported = False
         for inst in course_data.get("instructors", []):
             email = inst.get("instructor")
@@ -449,6 +520,7 @@ def import_course(file_url: str):
 
         # 7. Crear capítulos y lecciones
         chapter_names = []
+        lesson_map = {} # NUEVO: Mapa para vincular quizzes a lecciones
 
         for chapter_data in course_data.get("chapters", []):
             chapter = frappe.new_doc("Course Chapter")
@@ -466,8 +538,10 @@ def import_course(file_url: str):
                 lesson.content = lesson_data.get("content")
                 lesson.youtube = lesson_data.get("youtube")
                 lesson.insert(ignore_permissions=True)
+                
+                # NUEVO: Guardar relación Título -> ID
+                lesson_map[lesson.title] = lesson.name
 
-                # Actualizar timestamp del capítulo antes de agregar lección
                 chapter = frappe.get_doc("Course Chapter", chapter_name)
                 chapter.append("lessons", {"lesson": lesson.name})
                 chapter.save(ignore_permissions=True)
@@ -480,6 +554,72 @@ def import_course(file_url: str):
             course.append("chapters", {"chapter": ch_name})
         course.save(ignore_permissions=True)
 
+        # NUEVO: 9. Crear Asignaciones
+        for a_data in course_data.get("assignments", []):
+            assignment = frappe.new_doc("LMS Assignment")
+            assignment.course = course_name
+            assignment.title = a_data.get("title")
+            assignment.type = a_data.get("type")
+            assignment.question = a_data.get("question")
+            assignment.answer = a_data.get("answer")
+            assignment.show_answer = a_data.get("show_answer")
+            assignment.grade_assignment = a_data.get("grade_assignment")
+            assignment.insert(ignore_permissions=True)
+
+        # NUEVO: 10. Crear Quizzes
+        for q_data in course_data.get("quizzes", []):
+            quiz = frappe.new_doc("LMS Quiz")
+            quiz.title = get_unique_quiz_title(q_data.get("title"))
+            quiz.max_attempts = q_data.get("max_attempts")
+            quiz.show_answers = q_data.get("show_answers")
+            quiz.passing_percentage = q_data.get("passing_percentage")
+            quiz.duration = q_data.get("duration")
+            quiz.shuffle_questions = q_data.get("shuffle_questions")
+            quiz.limit_questions_to = q_data.get("limit_questions_to")
+            quiz.enable_negative_marking = q_data.get("enable_negative_marking")
+            quiz.marks_to_cut = q_data.get("marks_to_cut")
+            
+            # Vincular lección si existe
+            lesson_title = q_data.get("lesson_title")
+            if lesson_title and lesson_title in lesson_map:
+                quiz.lesson = lesson_map[lesson_title]
+            
+            quiz.course = course_name
+            
+            # Crear Preguntas y añadir al Quiz
+            for qst_data in q_data.get("questions", []):
+                # A. Crear LMS Question
+                question = frappe.new_doc("LMS Question")
+                question.question = qst_data.get("question")
+                question.type = qst_data.get("type")
+                question.multiple = qst_data.get("multiple")
+                question.option_1 = qst_data.get("option_1")
+                question.is_correct_1 = qst_data.get("is_correct_1")
+                question.explanation_1 = qst_data.get("explanation_1")
+                question.option_2 = qst_data.get("option_2")
+                question.is_correct_2 = qst_data.get("is_correct_2")
+                question.explanation_2 = qst_data.get("explanation_2")
+                question.option_3 = qst_data.get("option_3")
+                question.is_correct_3 = qst_data.get("is_correct_3")
+                question.explanation_3 = qst_data.get("explanation_3")
+                question.option_4 = qst_data.get("option_4")
+                question.is_correct_4 = qst_data.get("is_correct_4")
+                question.explanation_4 = qst_data.get("explanation_4")
+                question.possibility_1 = qst_data.get("possibility_1")
+                question.possibility_2 = qst_data.get("possibility_2")
+                question.possibility_3 = qst_data.get("possibility_3")
+                question.possibility_4 = qst_data.get("possibility_4")
+                question.insert(ignore_permissions=True)
+                
+                # B. Añadir referencia al Quiz
+                quiz.append("questions", {
+                    "question": question.name,
+                    "marks": qst_data.get("marks")
+                })
+            
+            quiz.insert(ignore_permissions=True)
+
+        frappe.db.commit()
         return course_name
 
     except Exception:
