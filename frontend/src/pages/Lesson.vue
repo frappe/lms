@@ -127,14 +127,19 @@
 									{{ lesson.data.title }}
 								</div>
 
+								<div class="mt-2 flex items-center gap-x-2 text-sm text-ink-gray-7">
+									<span>
+										{{ lesson.data.chapter_title }}
+										<span v-if="lesson.data.course_title">
+											- {{ lesson.data.course_title }}
+										</span>
+									</span>
+								</div>
+
 								<div
 									v-if="zenModeEnabled"
-									class="relative flex items-center gap-x-2 text-sm mt-1 text-ink-gray-7 group w-fit mt-2"
+									class="relative flex items-center gap-x-2 text-sm mt-1 text-ink-gray-7 group w-fit"
 								>
-									<span>
-										{{ lesson.data.chapter_title }} -
-										{{ lesson.data.course_title }}
-									</span>
 									<Info class="size-3" />
 									<div
 										class="hidden group-hover:block rounded bg-gray-900 px-2 py-1 text-xs text-white shadow-xl absolute start-0 top-full mt-2"
@@ -332,6 +337,7 @@
 		:lessonTitle="lesson.data?.title"
 	/>
 </template>
+
 <script setup>
 import {
 	Badge,
@@ -497,7 +503,7 @@ const checkQuiz = () => {
 	if (!editor.value && lesson.body) {
 		const quizRegex = /\{\{ Quiz\(".*"\) \}\}/
 		hasQuiz.value = quizRegex.test(lesson.body)
-		if (!hasQuiz.value && !zenModeEnabled) {
+		if (!hasQuiz.value && !zenModeEnabled.value) {
 			allowDiscussions.value = true
 		} else {
 			allowDiscussions.value = false
@@ -944,6 +950,7 @@ usePageMeta(() => {
 	}
 })
 </script>
+
 <style>
 .avatar-group {
 	display: inline-flex;
