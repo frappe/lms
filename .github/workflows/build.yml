@@ -63,5 +63,5 @@ jobs:
             "FRAPPE_BRANCH=${{ env.FRAPPE_BRANCH }}"
             "APPS_JSON_BASE64=${{ env.APPS_JSON_BASE64 }}"
           secrets: |
-            apps_json=${{ env.APPS_JSON_BASE64 }}
+            apps_json=${{ env.APPS_JSON }}
 
