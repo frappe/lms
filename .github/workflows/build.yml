@@ -18,6 +18,9 @@ jobs:
     permissions:
       packages: write
 
+    env:
+      APPS_JSON_PATH: /tmp/apps.json
+
     steps:
       - name: Checkout Entire Repository
         uses: actions/checkout@v4
@@ -29,22 +32,28 @@ jobs:
         uses: docker/setup-buildx-action@v3
         with:
           platforms: linux/${{ matrix.arch }}
+
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v2
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-          
-      - name: Set Branch
+
+      - name: Create apps.json
         run: |
-          export APPS_JSON='[{"url": "https://github.com/frappe/payments","branch": "version-15"},{"url": "https://github.com/frappe/lms","branch": "main"}]'
-          echo "APPS_JSON_BASE64=$(echo $APPS_JSON | base64 -w 0)" >> $GITHUB_ENV
+          cat > "$APPS_JSON_PATH" <<'EOF'
+          [
+            {"url": "https://github.com/frappe/payments", "branch": "version-15"},
+            {"url": "https://github.com/frappe/lms", "branch": "main"}
+          ]
+          EOF
           echo "FRAPPE_BRANCH=version-16" >> $GITHUB_ENV
 
       - name: Set Image Tag
         run: |
           echo "IMAGE_TAG=stable" >> $GITHUB_ENV
+
       - uses: actions/checkout@v4
         with:
           repository: frappe/frappe_docker
@@ -60,8 +69,6 @@ jobs:
             ghcr.io/${{ github.repository }}:${{ github.ref_name }},
             ghcr.io/${{ github.repository }}:${{ env.IMAGE_TAG }}
           build-args: |
-            "FRAPPE_BRANCH=${{ env.FRAPPE_BRANCH }}"
-            "APPS_JSON_BASE64=${{ env.APPS_JSON_BASE64 }}"
+            FRAPPE_BRANCH=${{ env.FRAPPE_BRANCH }}
           secrets: |
-            apps_json=${{ env.APPS_JSON }}
-
+            id=apps_json,src=${{ env.APPS_JSON_PATH }}
