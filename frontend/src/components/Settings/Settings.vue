@@ -311,7 +311,7 @@ const tabsStructure = computed(() => {
 			],
 		},
 		{
-			label: 'Users',
+			label: 'User Management',
 			hideLabel: false,
 			items: [
 				{
@@ -323,16 +323,15 @@ const tabsStructure = computed(() => {
 				},
 				{
 					label: 'Evaluators',
-					description: '',
-					icon: 'UserCircle2',
 					description:
 						'Add new evaluators or check the slots of existing evaluators',
+					icon: 'UserCircle2',
 					template: markRaw(Evaluators),
 				},
 			],
 		},
 		{
-			label: 'Payment',
+			label: 'Payments',
 			hideLabel: false,
 			items: [
 				{
@@ -455,7 +454,7 @@ const tabsStructure = computed(() => {
 			],
 		},
 		{
-			label: 'Customize',
+			label: 'Customization',
 			hideLabel: false,
 			items: [
 				{
