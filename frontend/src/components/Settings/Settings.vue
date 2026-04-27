@@ -1,6 +1,10 @@
 <template>
 	<Dialog v-model="show" :options="{ size: '5xl' }">
 		<template #body>
+			<DialogTitle class="sr-only">{{ __('Settings') }}</DialogTitle>
+			<DialogDescription class="sr-only">
+				{{ __('Manage your account, system, and customization settings.') }}
+			</DialogDescription>
 			<div class="flex h-[calc(100vh_-_8rem)]">
 				<div
 					class="flex w-52 shrink-0 flex-col bg-surface-gray-2 p-2 overflow-y-auto"
@@ -61,6 +65,7 @@
 </template>
 <script setup>
 import { Dialog, createDocumentResource, createResource } from 'frappe-ui'
+import { DialogTitle, DialogDescription } from 'reka-ui'
 import { computed, markRaw, ref, watch } from 'vue'
 import { useSettings } from '@/stores/settings'
 import SettingDetails from '@/components/Settings/SettingDetails.vue'
