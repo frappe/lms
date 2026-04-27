@@ -28,3 +28,9 @@ force_grid_wrap = 0
 use_parentheses = true
 ensure_newline_before_comments = true
 indent = "\t"
+
+[deploy.dependencies.apt]
+packages = [
+  "libxml2-dev",
+  "libxslt1-dev"
+]
