@@ -5,9 +5,6 @@
 				<div
 					class="flex w-52 shrink-0 flex-col bg-surface-gray-2 p-2 overflow-y-auto"
 				>
-					<h1 class="mb-3 px-2 pt-2 text-lg font-semibold text-ink-gray-9">
-						{{ __('Settings') }}
-					</h1>
 					<div class="space-y-5">
 						<div v-for="tab in tabs" :key="tab.label">
 							<div
@@ -42,6 +39,7 @@
 							...(activeTab.label == 'Branding'
 								? { sections: activeTab.sections }
 								: {}),
+							...(activeTab.label == 'Profile' ? { userSettings } : {}),
 							...(activeTab.label == 'Members' ||
 							activeTab.label == 'Evaluators' ||
 							activeTab.label == 'Transactions'
@@ -62,7 +60,7 @@
 	</Dialog>
 </template>
 <script setup>
-import { Dialog, createDocumentResource } from 'frappe-ui'
+import { Dialog, createDocumentResource, createResource } from 'frappe-ui'
 import { computed, markRaw, ref, watch } from 'vue'
 import { useSettings } from '@/stores/settings'
 import SettingDetails from '@/components/Settings/SettingDetails.vue'
@@ -77,6 +75,7 @@ import Coupons from '@/components/Settings/Coupons/Coupons.vue'
 import Transactions from '@/components/Settings/Transactions/Transactions.vue'
 import ZoomSettings from '@/components/Settings/ZoomSettings.vue'
 import GoogleMeetSettings from '@/components/Settings/GoogleMeetSettings.vue'
+import ProfileSettings from '@/components/Settings/Profile/ProfileSettings.vue'
 import Badges from '@/components/Settings/Badges.vue'
 
 const show = defineModel()
@@ -92,11 +91,27 @@ const data = createDocumentResource({
 	auto: true,
 })
 
+const userSettings = createResource({
+	url: 'lms.lms.api.get_user_settings',
+	cache: 'UserSettings',
+	auto: true,
+})
+
 const tabsStructure = computed(() => {
 	return [
 		{
-			label: 'Configuration',
-			hideLabel: true,
+			label: 'User Configuration',
+			items: [
+				{
+					label: 'Profile',
+					description: 'Manage your profile & login information.',
+					icon: 'User',
+					template: markRaw(ProfileSettings),
+				},
+			],
+		},
+		{
+			label: 'System Configuration',
 			items: [
 				{
 					label: 'General',
