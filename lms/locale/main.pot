@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Learning VERSION\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
-"POT-Creation-Date: 2026-04-17 16:20+0000\n"
-"PO-Revision-Date: 2026-04-17 16:20+0000\n"
+"POT-Creation-Date: 2026-04-24 16:20+0000\n"
+"PO-Revision-Date: 2026-04-24 16:20+0000\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: jannat@frappe.io\n"
 "MIME-Version: 1.0\n"
@@ -929,7 +929,7 @@ msgstr ""
 msgid "Batch created successfully"
 msgstr ""
 
-#: frontend/src/pages/Batches/BatchForm.vue:523
+#: frontend/src/pages/Batches/BatchForm.vue:513
 msgid "Batch deleted successfully"
 msgstr ""
 
@@ -949,7 +949,7 @@ msgstr ""
 msgid "Batch start time cannot be greater than or equal to end time."
 msgstr ""
 
-#: frontend/src/pages/Batches/BatchForm.vue:485
+#: frontend/src/pages/Batches/BatchForm.vue:475
 msgid "Batch updated successfully"
 msgstr ""
 
@@ -1053,7 +1053,7 @@ msgstr ""
 msgid "Cancelled"
 msgstr ""
 
-#: lms/lms/api.py:2341
+#: lms/lms/api.py:2359
 msgid "Cannot search for roles: {0}"
 msgstr ""
 
@@ -1377,7 +1377,7 @@ msgstr ""
 
 #. Option for the 'Status' (Select) field in DocType 'Job Opportunity'
 #. Option in a Select field in the job-opportunity Web Form
-#: frontend/src/pages/JobForm.vue:310 frontend/src/pages/Jobs.vue:307
+#: frontend/src/pages/JobForm.vue:310 frontend/src/pages/Jobs.vue:293
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 #: lms/job/web_form/job_opportunity/job_opportunity.json
 msgid "Closed"
@@ -1604,7 +1604,7 @@ msgstr ""
 msgid "Confirm clearing demo data?"
 msgstr ""
 
-#: frontend/src/pages/Batches/BatchForm.vue:501
+#: frontend/src/pages/Batches/BatchForm.vue:491
 msgid "Confirm your action to delete"
 msgstr ""
 
@@ -1663,7 +1663,7 @@ msgstr ""
 
 #. Option for the 'Type' (Select) field in DocType 'Job Opportunity'
 #. Option in a Select field in the job-opportunity Web Form
-#: frontend/src/pages/JobForm.vue:294 frontend/src/pages/Jobs.vue:319
+#: frontend/src/pages/JobForm.vue:294 frontend/src/pages/Jobs.vue:305
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 #: lms/job/web_form/job_opportunity/job_opportunity.json
 msgid "Contract"
@@ -1936,7 +1936,7 @@ msgstr ""
 msgid "Course created successfully"
 msgstr ""
 
-#: frontend/src/pages/Courses/CourseForm.vue:531
+#: frontend/src/pages/Courses/CourseForm.vue:517
 msgid "Course deleted successfully"
 msgstr ""
 
@@ -1944,7 +1944,7 @@ msgstr ""
 msgid "Course or Batch is required to issue a certificate."
 msgstr ""
 
-#: frontend/src/pages/Courses/CourseForm.vue:496
+#: frontend/src/pages/Courses/CourseForm.vue:482
 msgid "Course updated successfully"
 msgstr ""
 
@@ -2228,9 +2228,9 @@ msgstr ""
 #: frontend/src/components/DiscussionReplies.vue:41
 #: frontend/src/components/Settings/Badges.vue:171
 #: frontend/src/components/Settings/Coupons/CouponList.vue:133
-#: frontend/src/pages/Batches/BatchForm.vue:507
+#: frontend/src/pages/Batches/BatchForm.vue:497
 #: frontend/src/pages/Courses/CourseDetail.vue:213
-#: frontend/src/pages/Courses/CourseForm.vue:544
+#: frontend/src/pages/Courses/CourseForm.vue:530
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseForm.vue:71
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExercises.vue:237
 #: frontend/src/pages/Programs/ProgramForm.vue:230
@@ -2242,7 +2242,7 @@ msgstr ""
 msgid "Delete Chapter"
 msgstr ""
 
-#: frontend/src/pages/Courses/CourseForm.vue:538
+#: frontend/src/pages/Courses/CourseForm.vue:524
 msgid "Delete Course"
 msgstr ""
 
@@ -2262,7 +2262,7 @@ msgstr ""
 msgid "Delete this lesson?"
 msgstr ""
 
-#: frontend/src/pages/Courses/CourseForm.vue:539
+#: frontend/src/pages/Courses/CourseForm.vue:525
 msgid "Deleting the course will also delete all its chapters and lessons. Are you sure you want to delete this course?"
 msgstr ""
 
@@ -2270,7 +2270,7 @@ msgstr ""
 msgid "Deleting these exercises will permanently remove them from the system, along with all associated submissions. This action is irreversible. Are you sure you want to proceed?"
 msgstr ""
 
-#: frontend/src/pages/Batches/BatchForm.vue:502
+#: frontend/src/pages/Batches/BatchForm.vue:492
 msgid "Deleting this batch will also delete all its data including enrolled students, linked courses, assessments, feedback and discussions. Are you sure you want to continue?"
 msgstr ""
 
@@ -2282,7 +2282,7 @@ msgstr ""
 msgid "Deleting this lesson will permanently remove it from the course. This action cannot be undone. Are you sure you want to continue?"
 msgstr ""
 
-#: lms/lms/api.py:759
+#: lms/lms/api.py:777
 msgid "Deletion not allowed for {0}"
 msgstr ""
 
@@ -3188,7 +3188,7 @@ msgstr ""
 
 #. Option for the 'Type' (Select) field in DocType 'Job Opportunity'
 #. Option in a Select field in the job-opportunity Web Form
-#: frontend/src/pages/JobForm.vue:295 frontend/src/pages/Jobs.vue:320
+#: frontend/src/pages/JobForm.vue:295 frontend/src/pages/Jobs.vue:306
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 #: lms/job/web_form/job_opportunity/job_opportunity.json
 msgid "Freelance"
@@ -3237,7 +3237,7 @@ msgstr ""
 
 #. Option for the 'Type' (Select) field in DocType 'Job Opportunity'
 #. Option in a Select field in the job-opportunity Web Form
-#: frontend/src/pages/JobForm.vue:292 frontend/src/pages/Jobs.vue:317
+#: frontend/src/pages/JobForm.vue:292 frontend/src/pages/Jobs.vue:303
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 #: lms/job/web_form/job_opportunity/job_opportunity.json
 msgid "Full Time"
@@ -3331,7 +3331,7 @@ msgstr ""
 #. Option for the 'Conferencing Provider' (Select) field in DocType 'LMS Batch'
 #. Option for the 'Conferencing Provider' (Select) field in DocType 'LMS Live
 #. Class'
-#: frontend/src/pages/Batches/BatchForm.vue:542
+#: frontend/src/pages/Batches/BatchForm.vue:532
 #: lms/lms/doctype/lms_batch/lms_batch.json
 #: lms/lms/doctype/lms_live_class/lms_live_class.json
 msgid "Google Meet"
@@ -3510,7 +3510,7 @@ msgid "Host"
 msgstr ""
 
 #. Option for the 'Work Mode' (Select) field in DocType 'Job Opportunity'
-#: frontend/src/pages/JobForm.vue:302 frontend/src/pages/Jobs.vue:328
+#: frontend/src/pages/JobForm.vue:302 frontend/src/pages/Jobs.vue:314
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 msgid "Hybrid"
 msgstr ""
@@ -3763,15 +3763,15 @@ msgstr ""
 msgid "Invalid course ZIP: Missing course.json"
 msgstr ""
 
-#: lms/lms/api.py:1013
+#: lms/lms/api.py:1031
 msgid "Invalid course or chapter name"
 msgstr ""
 
-#: lms/lms/api.py:762
+#: lms/lms/api.py:780
 msgid "Invalid document name"
 msgstr ""
 
-#: lms/lms/api.py:1020
+#: lms/lms/api.py:1038
 msgid "Invalid file path in package"
 msgstr ""
 
@@ -3888,7 +3888,7 @@ msgstr ""
 #. Label of the jobs_tab (Tab Break) field in DocType 'LMS Settings'
 #: frontend/src/pages/JobApplications.vue:9 frontend/src/pages/JobDetail.vue:10
 #: frontend/src/pages/JobForm.vue:317 frontend/src/pages/Jobs.vue:8
-#: frontend/src/pages/Jobs.vue:335
+#: frontend/src/pages/Jobs.vue:321
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Jobs"
 msgstr ""
@@ -4820,7 +4820,7 @@ msgstr ""
 msgid "Meta Tags"
 msgstr ""
 
-#: lms/lms/api.py:1555
+#: lms/lms/api.py:1573
 msgid "Meta tags should be a list."
 msgstr ""
 
@@ -5258,7 +5258,7 @@ msgid "Office close to Home"
 msgstr ""
 
 #. Option for the 'Medium' (Select) field in DocType 'LMS Batch'
-#: frontend/src/pages/Batches/BatchForm.vue:555
+#: frontend/src/pages/Batches/BatchForm.vue:545
 #: frontend/src/pages/Batches/components/NewBatchModal.vue:256
 #: lms/lms/doctype/lms_batch/lms_batch.json
 msgid "Offline"
@@ -5269,7 +5269,7 @@ msgid "On site"
 msgstr ""
 
 #. Option for the 'Work Mode' (Select) field in DocType 'Job Opportunity'
-#: frontend/src/pages/Jobs.vue:327
+#: frontend/src/pages/Jobs.vue:313
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 msgid "On-site"
 msgstr ""
@@ -5283,7 +5283,7 @@ msgid "Once the moderator grades your submission, you'll find the details here."
 msgstr ""
 
 #. Option for the 'Medium' (Select) field in DocType 'LMS Batch'
-#: frontend/src/pages/Batches/BatchForm.vue:551
+#: frontend/src/pages/Batches/BatchForm.vue:541
 #: frontend/src/pages/Batches/components/NewBatchModal.vue:252
 #: lms/lms/doctype/lms_batch/lms_batch.json
 msgid "Online"
@@ -5327,7 +5327,7 @@ msgstr ""
 
 #. Option for the 'Status' (Select) field in DocType 'Job Opportunity'
 #. Option in a Select field in the job-opportunity Web Form
-#: frontend/src/pages/JobForm.vue:309 frontend/src/pages/Jobs.vue:301
+#: frontend/src/pages/JobForm.vue:309 frontend/src/pages/Jobs.vue:287
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 #: lms/job/web_form/job_opportunity/job_opportunity.json
 msgid "Open"
@@ -5495,7 +5495,7 @@ msgstr ""
 
 #. Option for the 'Type' (Select) field in DocType 'Job Opportunity'
 #. Option in a Select field in the job-opportunity Web Form
-#: frontend/src/pages/JobForm.vue:293 frontend/src/pages/Jobs.vue:318
+#: frontend/src/pages/JobForm.vue:293 frontend/src/pages/Jobs.vue:304
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 #: lms/job/web_form/job_opportunity/job_opportunity.json
 msgid "Part Time"
@@ -6412,7 +6412,7 @@ msgid "Related Courses"
 msgstr ""
 
 #. Option for the 'Work Mode' (Select) field in DocType 'Job Opportunity'
-#: frontend/src/pages/JobForm.vue:303 frontend/src/pages/Jobs.vue:329
+#: frontend/src/pages/JobForm.vue:303 frontend/src/pages/Jobs.vue:315
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 msgid "Remote"
 msgstr ""
@@ -7206,7 +7206,7 @@ msgstr ""
 msgid "Sunday"
 msgstr ""
 
-#: lms/lms/api.py:1046
+#: lms/lms/api.py:1064
 msgid "Suspicious pattern found in {0}: {1}"
 msgstr ""
 
@@ -7958,7 +7958,7 @@ msgstr ""
 msgid "User Skill"
 msgstr ""
 
-#: lms/lms/api.py:1799
+#: lms/lms/api.py:1817
 msgid "User does not have permission to access this user's profile details."
 msgstr ""
 
@@ -8267,27 +8267,27 @@ msgstr ""
 msgid "You do not have access to this course."
 msgstr ""
 
-#: lms/lms/api.py:857 lms/lms/doctype/lms_batch/lms_batch.py:365
+#: lms/lms/api.py:875 lms/lms/doctype/lms_batch/lms_batch.py:365
 msgid "You do not have permission to access announcements for this batch."
 msgstr ""
 
-#: lms/lms/api.py:2298
+#: lms/lms/api.py:2316
 msgid "You do not have permission to access badges."
 msgstr ""
 
-#: lms/lms/api.py:1158
+#: lms/lms/api.py:1176
 msgid "You do not have permission to access heatmap data."
 msgstr ""
 
-#: lms/lms/api.py:2137
+#: lms/lms/api.py:2155
 msgid "You do not have permission to access lesson completion stats."
 msgstr ""
 
-#: lms/lms/api.py:2177
+#: lms/lms/api.py:2195
 msgid "You do not have permission to access this course's assessment data."
 msgstr ""
 
-#: lms/lms/api.py:1700
+#: lms/lms/api.py:1718
 msgid "You do not have permission to access this course's progress data."
 msgstr ""
 
@@ -8295,7 +8295,7 @@ msgstr ""
 msgid "You do not have permission to access this page."
 msgstr ""
 
-#: lms/lms/api.py:1375 lms/lms/api.py:1384
+#: lms/lms/api.py:1393 lms/lms/api.py:1402
 msgid "You do not have permission to cancel this evaluation."
 msgstr ""
 
@@ -8303,35 +8303,35 @@ msgstr ""
 msgid "You do not have permission to create a live class."
 msgstr ""
 
-#: lms/lms/api.py:927
+#: lms/lms/api.py:945
 msgid "You do not have permission to delete this batch."
 msgstr ""
 
-#: lms/lms/api.py:1112
+#: lms/lms/api.py:1130
 msgid "You do not have permission to delete this chapter."
 msgstr ""
 
-#: lms/lms/api.py:887
+#: lms/lms/api.py:905
 msgid "You do not have permission to delete this course."
 msgstr ""
 
-#: lms/lms/api.py:516
+#: lms/lms/api.py:534
 msgid "You do not have permission to delete this lesson."
 msgstr ""
 
-#: lms/lms/api.py:2378
+#: lms/lms/api.py:2396
 msgid "You do not have permission to export this course."
 msgstr ""
 
-#: lms/lms/api.py:599 lms/lms/api.py:975
+#: lms/lms/api.py:617 lms/lms/api.py:993
 msgid "You do not have permission to modify this chapter."
 msgstr ""
 
-#: lms/lms/api.py:536
+#: lms/lms/api.py:554
 msgid "You do not have permission to modify this lesson."
 msgstr ""
 
-#: lms/lms/api.py:1444
+#: lms/lms/api.py:1462
 msgid "You do not have permission to modify this role."
 msgstr ""
 
@@ -8343,11 +8343,11 @@ msgstr ""
 msgid "You do not have permission to set up calendar events for this evaluation."
 msgstr ""
 
-#: lms/lms/api.py:1583 lms/lms/api.py:1587
+#: lms/lms/api.py:1601 lms/lms/api.py:1605
 msgid "You do not have permission to update meta tags."
 msgstr ""
 
-#: lms/lms/api.py:1624
+#: lms/lms/api.py:1642
 msgid "You do not have permission to update this submission."
 msgstr ""
 
@@ -8543,7 +8543,7 @@ msgstr ""
 #. Option for the 'Conferencing Provider' (Select) field in DocType 'LMS Batch'
 #. Option for the 'Conferencing Provider' (Select) field in DocType 'LMS Live
 #. Class'
-#: frontend/src/pages/Batches/BatchForm.vue:538
+#: frontend/src/pages/Batches/BatchForm.vue:528
 #: lms/lms/doctype/lms_batch/lms_batch.json
 #: lms/lms/doctype/lms_live_class/lms_live_class.json
 msgid "Zoom"
@@ -8787,7 +8787,7 @@ msgstr ""
 msgid "{0} Quizzes"
 msgstr ""
 
-#: lms/lms/api.py:778 lms/lms/api.py:786
+#: lms/lms/api.py:796 lms/lms/api.py:804
 msgid "{0} Settings not found"
 msgstr ""
 
@@ -8843,7 +8843,7 @@ msgstr ""
 msgid "{0} mentioned you in a comment in {1}"
 msgstr ""
 
-#: lms/lms/api.py:840
+#: lms/lms/api.py:858
 msgid "{0} not found"
 msgstr ""
 
