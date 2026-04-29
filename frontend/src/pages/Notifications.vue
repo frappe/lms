@@ -170,7 +170,11 @@ import {
 	Button,
 	createListResource,
 	createResource,
+<<<<<<< HEAD
 	dayjs,
+=======
+	getCachedResource,
+>>>>>>> 7fecbe57 (fix: update notification count on sidebar after they are read)
 	TabButtons,
 	usePageMeta,
 } from 'frappe-ui'
@@ -220,6 +224,10 @@ const readNotifications = createListResource({
 	cache: 'Read Notifications',
 })
 
+const refreshSidebarCount = () => {
+	getCachedResource('Unread Notifications Count')?.reload()
+}
+
 const markAsRead = createResource({
 	url: 'frappe.desk.doctype.notification_log.notification_log.mark_as_read',
 	makeParams(values) {
@@ -230,6 +238,7 @@ const markAsRead = createResource({
 	onSuccess(data) {
 		unReadNotifications.reload()
 		readNotifications.reload()
+		refreshSidebarCount()
 	},
 })
 
@@ -238,6 +247,7 @@ const markAllAsRead = createResource({
 	onSuccess(data) {
 		unReadNotifications.reload()
 		readNotifications.reload()
+		refreshSidebarCount()
 	},
 })
 
