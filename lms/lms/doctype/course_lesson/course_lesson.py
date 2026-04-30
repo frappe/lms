@@ -7,10 +7,9 @@ import frappe
 from frappe import _
 from frappe.model.document import Document
 from frappe.realtime import get_website_room
-from frappe.utils.html_utils import sanitize_html
 from frappe.utils.telemetry import capture
 
-from lms.lms.utils import get_course_progress, is_demo_course, recalculate_course_progress
+from lms.lms.utils import get_course_progress, is_demo_course, recalculate_course_progress, sanitize_editorjs
 
 from ...md import find_macros
 
@@ -72,24 +71,6 @@ class CourseLesson(Document):
 						"lesson": self.name,
 					},
 				)
-
-
-def sanitize_editorjs(raw):
-	try:
-		data = json.loads(raw)
-	except (TypeError, ValueError):
-		return raw
-	return json.dumps(sanitize_json(data), separators=(",", ":"))
-
-
-def sanitize_json(node):
-	if isinstance(node, dict):
-		return {k: sanitize_json(v) for k, v in node.items()}
-	if isinstance(node, list):
-		return [sanitize_json(v) for v in node]
-	if isinstance(node, str) and ("<" in node or ">" in node):
-		return sanitize_html(node, always_sanitize=True)
-	return node
 
 
 @frappe.whitelist()
