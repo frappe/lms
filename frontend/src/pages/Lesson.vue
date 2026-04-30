@@ -365,7 +365,12 @@ import {
 	MessageCircleQuestion,
 	TrendingUp,
 } from 'lucide-vue-next'
-import { getEditorTools, enablePlyr, highlightText } from '@/utils'
+import {
+	getEditorTools,
+	enablePlyr,
+	highlightText,
+	sanitizeEditorJs,
+} from '@/utils'
 import { sessionStore } from '@/stores/session'
 import { useSidebar } from '@/stores/sidebar'
 import EditorJS from '@editorjs/editorjs'
@@ -511,7 +516,7 @@ const renderEditor = (holder, content) => {
 	return new EditorJS({
 		holder: holder,
 		tools: getEditorTools(),
-		data: JSON.parse(content),
+		data: sanitizeEditorJs(JSON.parse(content)),
 		readOnly: true,
 		defaultBlock: 'embed',
 	})

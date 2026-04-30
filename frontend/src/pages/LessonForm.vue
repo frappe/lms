@@ -104,7 +104,7 @@ import { sessionStore } from '../stores/session'
 import EditorJS from '@editorjs/editorjs'
 import LessonHelp from '@/components/LessonHelp.vue'
 import { ChevronRight } from 'lucide-vue-next'
-import { getEditorTools, enablePlyr } from '@/utils'
+import { getEditorTools, enablePlyr, sanitizeEditorJs } from '@/utils'
 import { useOnboarding, useTelemetry } from 'frappe-ui/frappe'
 
 const { brand } = sessionStore()
@@ -188,7 +188,7 @@ const lessonDetails = createResource({
 const addLessonContent = (data) => {
 	editor.value.isReady.then(() => {
 		if (data.lesson.content) {
-			editor.value.render(JSON.parse(data.lesson.content))
+			editor.value.render(sanitizeEditorJs(JSON.parse(data.lesson.content)))
 		} else if (data.lesson.body) {
 			let blocks = convertToJSON(data.lesson)
 			editor.value.render({
@@ -201,7 +201,9 @@ const addLessonContent = (data) => {
 const addInstructorNotes = (data) => {
 	instructorEditor.value.isReady.then(() => {
 		if (data.lesson.instructor_content) {
-			instructorEditor.value.render(JSON.parse(data.lesson.instructor_content))
+			instructorEditor.value.render(
+				sanitizeEditorJs(JSON.parse(data.lesson.instructor_content))
+			)
 		} else if (data.lesson.instructor_notes) {
 			let blocks = convertToJSON(data.lesson)
 			instructorEditor.value.render({
