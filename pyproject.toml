@@ -66,7 +66,12 @@ indent-style = "tab"
 docstring-code-format = true
 
 [tool.bench.frappe-dependencies]
+<<<<<<< HEAD
 frappe = "<=17.0.0-dev"
+=======
+frappe = ">=14.0.0,<=17.0.0-dev"
+payments = ">=14.0.0,<=17.0.0-dev"
+>>>>>>> c2a4ef69 (chore: add payments in pyproject for auto install)
 
 [tool.bench.assets]
 build_dir = "./frontend"
