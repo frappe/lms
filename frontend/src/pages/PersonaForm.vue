@@ -1,55 +1,50 @@
 <template>
-	<div class="flex h-screen overflow-hidden sm:bg-gray-50">
-		<div class="relative h-full z-10 mx-auto sm:w-max pt-40">
-			<div class="mx-auto flex items-center justify-center gap-x-2">
-				<LMSLogo class="size-7" />
-				<span
-					class="select-none text-xl font-semibold tracking-tight text-gray-900"
-				>
-					Learning
-				</span>
-			</div>
-			<div
-				class="mx-auto w-full h-fit bg-white py-8 sm:mt-6 sm:w-96 sm:rounded-lg sm:px-8 sm:shadow-xl"
-			>
-				<div class="font-medium text-center mb-8">
-					{{ __('Help us understand your needs') }}
+	<div class="flex min-h-screen flex-col bg-white sm:bg-gray-50">
+		<!-- Center Container -->
+		<div class="flex flex-1 flex-col items-center justify-start px-4 py-10 sm:justify-center sm:px-6 lg:px-8">
+			<div class="w-full max-w-md min-w-0">
+				<!-- Logo -->
+				<div class="mb-6 flex items-center justify-center gap-x-2">
+					<LMSLogo class="size-7" />
+					<span class="text-xl font-semibold tracking-tight text-gray-900">
+						{{ __('Learning') }}
+					</span>
 				</div>
 
-				<div class="mb-5">
-					<div class="text-sm text-gray-700 mb-2">
-						{{ __('What is your use case for Frappe Learning?') }}
+				<!-- Card -->
+				<div class="w-full overflow-hidden bg-white px-6 py-8 sm:rounded-lg sm:px-8 sm:shadow-xl">
+					<p class="mb-8 text-center font-medium">
+						{{ __('Help us understand your needs') }}
+					</p>
+
+					<!-- Use Case -->
+					<div class="mb-5 min-w-0">
+						<label class="mb-2 block text-sm text-gray-700">
+							{{ __('What is your use case for Frappe Learning?') }}
+						</label>
+						<FormControl v-model="persona.useCase" type="select" :options="useCaseOptions"
+							class="w-full min-w-0 [&_[data-slot=trigger]]:w-full" />
 					</div>
-					<FormControl
-						v-model="persona.useCase"
-						type="select"
-						:options="useCaseOptions"
-					/>
-				</div>
 
-				<div class="mb-5">
-					<div class="text-sm text-gray-700 mb-2">
-						{{ __('What best describes your role?') }}
+					<!-- Role -->
+					<div class="mb-6 min-w-0">
+						<label class="mb-2 block text-sm text-gray-700">
+							{{ __('What best describes your role?') }}
+						</label>
+						<FormControl v-model="persona.role" type="select" :options="roleOptions"
+							class="w-full min-w-0 [&_[data-slot=trigger]]:w-full" />
 					</div>
-					<FormControl
-						v-model="persona.role"
-						type="select"
-						:options="roleOptions"
-					/>
-				</div>
 
-				<div class="flex w-full">
-					<Button variant="solid" class="mx-auto" @click="submitPersona()">
+					<Button variant="solid" class="w-full" @click="submitPersona">
 						{{ __('Submit and Continue') }}
 					</Button>
 				</div>
 			</div>
-			<div
-				class="text-center absolute bottom-0 end-0 start-0 mx-auto cursor-pointer text-sm pb-4"
-				@click="skipPersonaForm()"
-			>
-				{{ __('Skip') }}
-			</div>
+		</div>
+
+		<!-- Skip -->
+		<div class="pb-6 text-center text-sm text-gray-600 hover:text-gray-900 cursor-pointer" @click="skipPersonaForm">
+			{{ __('Skip') }}
 		</div>
 	</div>
 </template>
