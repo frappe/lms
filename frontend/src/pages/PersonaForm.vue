@@ -1,5 +1,5 @@
 <template>
-	<div class="flex min-h-screen flex-col bg-white sm:bg-gray-50">
+	<div class="flex min-h-screen flex-col sm:bg-gray-50">
 		<!-- Center Container -->
 		<div class="flex flex-1 flex-col items-center justify-start px-4 py-10 sm:justify-center sm:px-6 lg:px-8">
 			<div class="w-full max-w-md min-w-0">
@@ -12,7 +12,7 @@
 				</div>
 
 				<!-- Card -->
-				<div class="w-full overflow-hidden bg-white px-6 py-8 sm:rounded-lg sm:px-8 sm:shadow-xl">
+				<div class="w-full overflow-hidden px-6 py-8 sm:rounded-lg sm:px-8 sm:shadow-xl">
 					<p class="mb-8 text-center font-medium">
 						{{ __('Help us understand your needs') }}
 					</p>
