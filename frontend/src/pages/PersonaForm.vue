@@ -24,6 +24,7 @@
 						v-model="persona.useCase"
 						type="select"
 						:options="useCaseOptions"
+						class="w-full min-w-0 [&_[data-slot=trigger]]:w-full"
 					/>
 				</div>
 
