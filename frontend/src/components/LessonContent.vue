@@ -57,7 +57,7 @@
 			>
 			</iframe>
 		</div>
-		<div v-else v-html="markdown.render(block)"></div>
+		<div v-else v-html="renderSafe(block)"></div>
 	</div>
 	<div v-if="quizId">
 		<Quiz :quiz="quizId" />
@@ -66,6 +66,7 @@
 <script setup>
 import Quiz from '@/components/QuizBlock.vue'
 import MarkdownIt from 'markdown-it'
+import DOMPurify from 'dompurify'
 import { useScreenSize } from '@/utils/composables'
 
 const screenSize = useScreenSize()
@@ -74,6 +75,8 @@ const markdown = new MarkdownIt({
 	html: true,
 	linkify: true,
 })
+
+const renderSafe = (block) => DOMPurify.sanitize(markdown.render(block))
 
 const props = defineProps({
 	content: {

@@ -9,7 +9,7 @@ from frappe.model.document import Document
 from frappe.realtime import get_website_room
 from frappe.utils.telemetry import capture
 
-from lms.lms.utils import get_course_progress, is_demo_course, recalculate_course_progress
+from lms.lms.utils import get_course_progress, is_demo_course, recalculate_course_progress, sanitize_editorjs
 
 from ...md import find_macros
 
@@ -20,6 +20,10 @@ class CourseLesson(Document):
 
 	def after_delete(self):
 		self.validate_progress_recalculation()
+
+	def validate(self):
+		self.content = sanitize_editorjs(self.content)
+		self.instructor_content = sanitize_editorjs(self.instructor_content)
 
 	def on_update(self):
 		self.validate_quiz_id()
