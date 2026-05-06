@@ -73,7 +73,7 @@ docstring-code-format = true
 
 [tool.bench.frappe-dependencies]
 frappe = ">=14.0.0,<=17.0.0-dev"
-payments = ">=14.0.0,<=17.0.0-dev"
+payments = ">=0.0.1,<1.0.0"
 
 [tool.bench.assets]
 build_dir = "./frontend"
