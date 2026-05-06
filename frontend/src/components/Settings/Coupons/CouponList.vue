@@ -78,9 +78,12 @@
 				</ListSelectBanner>
 			</ListView>
 		</div>
-		<div v-else class="text-center text-ink-gray-6 italic mt-40">
-			{{ __('No coupons created yet.') }}
-		</div>
+		<EmptyStateLayout
+			v-else
+			name="Coupons"
+			:description="__('Add one to get started.')"
+			:icon="Ticket"
+		/>
 	</div>
 </template>
 <script setup lang="ts">
@@ -100,8 +103,9 @@ import {
 	toast,
 } from 'frappe-ui'
 import { computed, getCurrentInstance, inject, ref } from 'vue'
-import { Plus, Trash2 } from 'lucide-vue-next'
+import { Plus, Trash2, Ticket } from 'lucide-vue-next'
 import type { Coupon, Coupons } from './types'
+import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 
 const dayjs = inject('$dayjs') as typeof import('dayjs')
 const app = getCurrentInstance()

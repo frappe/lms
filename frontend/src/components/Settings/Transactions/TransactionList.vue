@@ -103,6 +103,12 @@
 				</Button>
 			</div>
 		</div>
+		<EmptyStateLayout
+			v-else
+			name="Transactions"
+			:description="__('Add one to get started.')"
+			:icon="Landmark"
+		/>
 	</div>
 </template>
 <script setup lang="ts">
@@ -119,8 +125,9 @@ import {
 	Switch,
 } from 'frappe-ui'
 import { computed, ref, watch } from 'vue'
-import { RefreshCw } from 'lucide-vue-next'
+import { RefreshCw, Landmark } from 'lucide-vue-next'
 import Link from '@/components/Controls/Link.vue'
+import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 
 const billingName = ref(null)
 const paymentReceived = ref(false)

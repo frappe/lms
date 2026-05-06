@@ -92,6 +92,12 @@
 				</ListRows>
 			</ListView>
 		</div>
+		<EmptyStateLayout
+			v-else
+			name="Badges"
+			:description="__('Add one to get started.')"
+			:icon="Award"
+		/>
 	</div>
 	<BadgeForm
 		v-model="showForm"
@@ -116,10 +122,11 @@ import {
 	toast,
 } from 'frappe-ui'
 import { computed, ref } from 'vue'
-import { Plus } from 'lucide-vue-next'
+import { Award, Plus } from 'lucide-vue-next'
 import { cleanError } from '@/utils'
 import BadgeForm from '@/components/Settings/BadgeForm.vue'
 import BadgeAssignments from '@/components/Settings/BadgeAssignments.vue'
+import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 
 const showForm = ref<boolean>(false)
 const selectedBadge = ref<string | null>(null)
