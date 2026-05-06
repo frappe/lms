@@ -25,6 +25,7 @@ from frappe.utils import (
 	rounded,
 	validate_email_address,
 )
+from frappe.utils.html_utils import sanitize_html
 from pypika import Case
 from pypika import functions as fn
 
@@ -2398,3 +2399,21 @@ def get_field_meta(doctype, fieldnames):
 def is_demo_course(course: str) -> bool:
 	title = frappe.db.get_value("LMS Course", course, "title")
 	return title == "A guide to Frappe Learning"
+
+
+def sanitize_editorjs(raw):
+	try:
+		data = json.loads(raw)
+	except (TypeError, ValueError):
+		return raw
+	return json.dumps(sanitize_json(data), separators=(",", ":"))
+
+
+def sanitize_json(node):
+	if isinstance(node, dict):
+		return {k: sanitize_json(v) for k, v in node.items()}
+	if isinstance(node, list):
+		return [sanitize_json(v) for v in node]
+	if isinstance(node, str) and ("<" in node or ">" in node):
+		return sanitize_html(node, always_sanitize=True)
+	return node

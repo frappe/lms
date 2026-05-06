@@ -706,6 +706,34 @@ export const escapeHTML = (text) => {
 	)
 }
 
+const sanitizeJSON = (node) => {
+	if (Array.isArray(node)) return node.map(sanitizeJSON)
+	if (node && typeof node === 'object') {
+		const temp = {}
+		for (const n in node) {
+			temp[n] = sanitizeJSON(node[n])
+		}
+		return temp
+	}
+	if (
+		typeof node === 'string' &&
+		(node.includes('<') || node.includes('>'))
+	) {
+		return DOMPurify.sanitize(node)
+	}
+	return node
+}
+
+export const sanitizeEditorJs = (data) => {
+	if (!data || !Array.isArray(data.blocks)) return data
+	for (const node of data.blocks) {
+		if (node && node.type !== 'code') {
+			node.data = sanitizeJSON(node.data)
+		}
+	}
+	return data
+}
+
 export const sanitizeHTML = (text) => {
 	text = DOMPurify.sanitize(decodeEntities(text), {
 		ALLOWED_TAGS: [
