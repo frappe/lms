@@ -40,7 +40,7 @@
 			</Button>
 		</div>
 	</div>
-	<EmptyState v-else type="Quiz Submissions" />
+	<EmptyStateLayout v-else name="Quiz Submissions" />
 </template>
 <script setup>
 import {
@@ -57,7 +57,7 @@ import {
 import { computed, onMounted, inject } from 'vue'
 import { sessionStore } from '../stores/session'
 import { useRouter } from 'vue-router'
-import EmptyState from '@/components/EmptyState.vue'
+import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 
 const { brand } = sessionStore()
 const router = useRouter()

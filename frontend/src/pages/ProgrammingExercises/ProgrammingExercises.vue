@@ -115,8 +115,10 @@
 				</ListSelectBanner>
 			</ListView>
 		</div>
-		<EmptyState v-else type="Programming Exercises" />
-		<div class="flex items-center justify-end space-x-3 mt-3">
+		<div v-else class="h-[45vh] lg:h-[53vh] px-5">
+			<EmptyStateLayout name="Programming Exercises" />
+		</div>
+		<div class="flex items-center justify-end gap-x-3 px-5 pt-3 border-t">
 			<Button v-if="exercises.hasNextPage" @click="exercises.next()">
 				{{ __('Load More') }}
 			</Button>
