@@ -114,7 +114,7 @@
 				</div>
 			</div>
 			<div v-else class="h-[32vh] lg:h-[50vh] px-5">
-				<EmptyState type="Job Openings" />
+				<EmptyStateLayout name="Job Openings" />
 			</div>
 			<div class="flex items-center justify-end gap-x-3 border-t pt-3 px-5">
 				<Button v-if="jobs.hasNextPage" @click="jobs.next()">
@@ -146,7 +146,7 @@ import { useSettings } from '@/stores/settings'
 import { inject, computed, ref, onMounted, watch } from 'vue'
 import JobCard from '@/components/JobCard.vue'
 import Link from '@/components/Controls/Link.vue'
-import EmptyState from '@/components/EmptyState.vue'
+import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 
 const user = inject('$user')
 const jobType = ref(null)

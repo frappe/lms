@@ -124,7 +124,7 @@
 				</template>
 			</ListSelectBanner>
 		</ListView>
-		<EmptyState v-else type="Programming Exercise Submissions" />
+		<EmptyStateLayout v-else name="Programming Exercise Submissions" />
 		<div
 			v-if="submissions.data && submissions.hasNextPage"
 			class="flex justify-center my-5"
@@ -163,7 +163,7 @@ import { sessionStore } from '@/stores/session'
 import { useRouter } from 'vue-router'
 import { Trash2 } from 'lucide-vue-next'
 import Link from '@/components/Controls/Link.vue'
-import EmptyState from '@/components/EmptyState.vue'
+import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 
 const { brand } = sessionStore()
 const dayjs = inject('$dayjs') as any

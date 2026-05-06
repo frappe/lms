@@ -99,7 +99,7 @@
 				<BatchCard :batch="batch" />
 			</router-link>
 		</div>
-		<EmptyState v-else-if="!batches.list.loading" type="Batches" />
+		<EmptyStateLayout v-else-if="!batches.list.loading" name="Batches" />
 
 		<div
 			v-if="!batches.list.loading && batches.hasNextPage"
@@ -133,7 +133,7 @@ import { useRouter } from 'vue-router'
 import { ChevronDown, Plus } from 'lucide-vue-next'
 import { sessionStore } from '@/stores/session'
 import BatchCard from '@/pages/Batches/components/BatchCard.vue'
-import EmptyState from '@/components/EmptyState.vue'
+import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 import NewBatchModal from '@/pages/Batches/components/NewBatchModal.vue'
 
 const user = inject('$user')
