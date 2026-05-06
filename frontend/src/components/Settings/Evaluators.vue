@@ -110,6 +110,12 @@
 						{{ __('Load More') }}
 					</Button>
 				</div>
+				<EmptyStateLayout
+					v-if="!evaluators.data?.length"
+					name="Evaluators"
+					:description="__('Add one to get started.')"
+					:icon="UserCircle2"
+				/>
 			</div>
 		</div>
 	</div>
@@ -131,10 +137,18 @@ import {
 	toast,
 } from 'frappe-ui'
 import { ref, watch } from 'vue'
-import { Plus, Search, Trash2, RefreshCw, ChevronDown } from 'lucide-vue-next'
+import {
+	Plus,
+	Search,
+	Trash2,
+	RefreshCw,
+	ChevronDown,
+	UserCircle2,
+} from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
 import NewMemberModal from '@/components/Modals/NewMemberModal.vue'
 import AddEvaluatorModal from '@/components/Modals/AddEvaluatorModal.vue'
+import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 
 const search = ref('')
 const show = defineModel('show')

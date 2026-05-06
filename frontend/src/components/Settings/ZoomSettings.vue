@@ -88,6 +88,12 @@
 				</ListSelectBanner>
 			</ListView>
 		</div>
+		<EmptyStateLayout
+			v-else
+			name="Zoom Settings"
+			:description="__('Add one to get started.')"
+			:icon="Video"
+		/>
 	</div>
 	<ZoomAccountModal
 		v-if="showForm"
@@ -113,9 +119,10 @@ import {
 	toast,
 } from 'frappe-ui'
 import { computed, onMounted, ref } from 'vue'
-import { Plus, Trash2 } from 'lucide-vue-next'
+import { Plus, Trash2, Video } from 'lucide-vue-next'
 import { cleanError } from '@/utils'
 import ZoomAccountModal from '@/components/Modals/ZoomAccountModal.vue'
+import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 
 const showForm = ref(false)
 const currentAccount = ref<string | null>(null)
