@@ -19,8 +19,8 @@ def validate_username_duplicates(doc, method):
 		doc.username = doc.email.replace("@", "").replace(".", "")
 
 
-def after_insert(doc, method):
-	doc.add_roles("LMS Student")
+def add_lms_student_role(doc, method):
+	doc.append_roles("LMS Student")
 
 
 @frappe.whitelist(allow_guest=True)  # nosemgrep: frappe-semgrep-rules.rules.security.guest-whitelisted-method
