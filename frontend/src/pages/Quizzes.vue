@@ -86,7 +86,7 @@
 			</ListSelectBanner>
 		</ListView>
 		<div v-else class="h-[49vh] lg:h-[53vh] px-5">
-			<EmptyState type="Quizzes" />
+			<EmptyStateLayout name="Quizzes" />
 		</div>
 		<div class="flex items-center justify-end gap-x-3 pt-3 border-t px-5">
 			<Button v-if="quizzes.hasNextPage" @click="quizzes.next()">
@@ -150,7 +150,7 @@ import { Plus } from 'lucide-vue-next'
 import { sessionStore } from '@/stores/session'
 import { sanitizeHTML } from '@/utils'
 import { useTelemetry } from 'frappe-ui/frappe'
-import EmptyState from '@/components/EmptyState.vue'
+import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 
 const { brand } = sessionStore()
 const { capture } = useTelemetry()

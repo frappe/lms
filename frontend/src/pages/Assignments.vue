@@ -107,7 +107,7 @@
 			</ListSelectBanner>
 		</ListView>
 		<div v-else class="h-[53vh]">
-			<EmptyState type="Assignments" />
+			<EmptyStateLayout name="Assignments" />
 		</div>
 		<div class="flex items-center justify-end gap-x-3 pt-3 border-t px-5">
 			<Button v-if="assignments.hasNextPage" @click="assignments.next()">
@@ -150,7 +150,7 @@ import { Plus } from 'lucide-vue-next'
 import { useRouter, useRoute } from 'vue-router'
 import { sessionStore } from '../stores/session'
 import AssignmentForm from '@/components/Modals/AssignmentForm.vue'
-import EmptyState from '@/components/EmptyState.vue'
+import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 
 const user = inject('$user')
 const dayjs = inject('$dayjs')

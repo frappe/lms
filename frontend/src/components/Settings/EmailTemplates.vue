@@ -70,6 +70,12 @@
 				</ListSelectBanner>
 			</ListView>
 		</div>
+		<EmptyStateLayout
+			v-else
+			name="Email Templates"
+			:description="__('Add one to get started.')"
+			:icon="MailPlus"
+		/>
 	</div>
 	<EmailTemplateModal
 		v-model="showForm"
@@ -92,8 +98,9 @@ import {
 	toast,
 } from 'frappe-ui'
 import { computed, ref } from 'vue'
-import { Plus, Trash2 } from 'lucide-vue-next'
+import { Plus, Trash2, MailPlus } from 'lucide-vue-next'
 import EmailTemplateModal from '@/components/Modals/EmailTemplateModal.vue'
+import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 
 const props = defineProps({
 	label: {

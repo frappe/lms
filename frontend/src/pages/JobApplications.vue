@@ -111,7 +111,10 @@
 					</div>
 				</div>
 			</div>
-			<EmptyState v-else-if="!applications.loading" type="Job Applications" />
+			<EmptyStateLayout
+				v-else-if="!applications.loading"
+				name="Job Applications"
+			/>
 		</div>
 
 		<Dialog
@@ -183,7 +186,7 @@ import {
 } from 'frappe-ui'
 import { computed, inject, ref, reactive, watch } from 'vue'
 import { sessionStore } from '../stores/session'
-import EmptyState from '@/components/EmptyState.vue'
+import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 
 const dayjs = inject('$dayjs')
 const { brand } = sessionStore()
