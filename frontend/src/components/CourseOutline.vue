@@ -327,7 +327,8 @@ const trashLesson = (lessonName, chapterName) => {
 }
 
 const openChapterDetail = (index) => {
-	return index == route.params.chapterNumber || index == 1
+	const activeChapter = route.params.chapterNumber
+	return activeChapter ? index == activeChapter : index == 1
 }
 
 const openChapterModal = (chapter = null) => {
