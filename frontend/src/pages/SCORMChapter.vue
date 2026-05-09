@@ -53,6 +53,10 @@ const sidebarStore = useSidebar()
 const user = inject('$user')
 const readyToRender = ref(false)
 const isSuccessfullyCompleted = ref(false)
+const scormSessionTime = ref(0)
+const scormTotalTime = ref(null)
+const scormContent = ref('')
+const scormSessionEnded = ref(false)
 
 // If courseRestartOnFailure is true, student has to restart the whole course if failed.
 // Otherwise, student could retake the final quiz portion.
@@ -103,17 +107,87 @@ const getDataFromLMS = (key) => {
 		return progress.data?.scorm_content || ''
 	} else if (key === 'cmi.suspend_data') {
 		return progress.data?.scorm_content || ''
+	} else if (key === 'cmi.session_time' || key === 'cmi.core.session_time') {
+		return formatSCORMDuration(progress.data?.session_time, key)
+	} else if (key === 'cmi.total_time' || key === 'cmi.core.total_time') {
+		return formatSCORMDuration(progress.data?.total_time, key)
 	}
 	return ''
 }
 
 let saveTimeout = null
 const debouncedSaveProgress = (scormDetails) => {
-	if (isSuccessfullyCompleted.value) return
+	if (isSuccessfullyCompleted.value && !hasSCORMTime(scormDetails)) return
 	clearTimeout(saveTimeout)
 	saveTimeout = setTimeout(() => {
-		if (!isSuccessfullyCompleted.value) saveProgress(scormDetails)
+		if (!isSuccessfullyCompleted.value || hasSCORMTime(scormDetails))
+			saveProgress(scormDetails)
 	}, 300)
+}
+
+const parseSCORMDuration = (value) => {
+	if (!value) return null
+	const timeSpan = /^(\d+):([0-5]\d):([0-5]\d(?:\.\d+)?)$/.exec(value)
+	if (timeSpan) {
+		return Math.round(
+			Number(timeSpan[1]) * 3600 +
+				Number(timeSpan[2]) * 60 +
+				Number(timeSpan[3])
+		)
+	}
+
+	const isoDuration =
+		/^P(?:(\d+(?:\.\d+)?)Y)?(?:(\d+(?:\.\d+)?)M)?(?:(\d+(?:\.\d+)?)D)?(?:T(?:(\d+(?:\.\d+)?)H)?(?:(\d+(?:\.\d+)?)M)?(?:(\d+(?:\.\d+)?)S)?)?$/.exec(
+			value
+		)
+	if (!isoDuration) return null
+
+	const [, years, months, days, hours, minutes, seconds] = isoDuration
+	return Math.round(
+		Number(years || 0) * 31536000 +
+			Number(months || 0) * 2592000 +
+			Number(days || 0) * 86400 +
+			Number(hours || 0) * 3600 +
+			Number(minutes || 0) * 60 +
+			Number(seconds || 0)
+	)
+}
+
+const formatSCORMDuration = (seconds, key) => {
+	const totalSeconds = Math.max(0, Math.round(Number(seconds || 0)))
+	if (key.startsWith('cmi.core')) {
+		const hours = String(Math.floor(totalSeconds / 3600)).padStart(4, '0')
+		const minutes = String(Math.floor((totalSeconds % 3600) / 60)).padStart(
+			2,
+			'0'
+		)
+		const remainingSeconds = String(totalSeconds % 60).padStart(2, '0')
+		return `${hours}:${minutes}:${remainingSeconds}`
+	}
+
+	const hours = Math.floor(totalSeconds / 3600)
+	const minutes = Math.floor((totalSeconds % 3600) / 60)
+	const remainingSeconds = totalSeconds % 60
+	return `PT${hours}H${minutes}M${remainingSeconds}S`
+}
+
+const hasSCORMTime = (scormDetails) => {
+	return (
+		scormDetails &&
+		('session_time' in scormDetails || 'total_time' in scormDetails)
+	)
+}
+
+const getSCORMTimeDetails = (extraDetails = {}) => {
+	return {
+		is_complete: isSuccessfullyCompleted.value,
+		scorm_content: scormContent.value || progress.data?.scorm_content || '',
+		session_time: scormSessionTime.value,
+		...(scormTotalTime.value !== null
+			? { total_time: scormTotalTime.value }
+			: {}),
+		...extraDetails,
+	}
 }
 
 const saveDataToLMS = (key, value) => {
@@ -135,18 +209,46 @@ const saveDataToLMS = (key, value) => {
 		(shouldRestart && courseRestartOnFailure)
 	) {
 		saveProgress({
+			...getSCORMTimeDetails(),
 			is_complete: isSuccessfullyCompleted.value,
 			scorm_content: '',
 		})
 		return
 	}
 
+	if (key === 'cmi.session_time' || key === 'cmi.core.session_time') {
+		const duration = parseSCORMDuration(value)
+		if (duration === null) return
+		scormSessionTime.value = duration
+		scormSessionEnded.value = false
+		debouncedSaveProgress(getSCORMTimeDetails({ session_time: duration }))
+		return
+	}
+
+	if (key === 'cmi.total_time' || key === 'cmi.core.total_time') {
+		const duration = parseSCORMDuration(value)
+		if (duration === null) return
+		scormTotalTime.value = duration
+		debouncedSaveProgress(getSCORMTimeDetails({ total_time: duration }))
+		return
+	}
+
 	if (key === 'cmi.suspend_data' && !isSuccessfullyCompleted.value) {
+		scormContent.value = value
 		debouncedSaveProgress({
 			is_complete: false,
 			scorm_content: value,
 		})
 	}
+}
+
+const endSCORMSession = () => {
+	if (scormSessionEnded.value) return 'true'
+	if (scormSessionTime.value || scormTotalTime.value !== null) {
+		scormSessionEnded.value = true
+		saveProgress(getSCORMTimeDetails({ is_session_end: true }))
+	}
+	return 'true'
 }
 
 const saveProgress = (scormDetails = null) => {
@@ -162,7 +264,7 @@ const progress = createResource({
 	makeParams(values) {
 		return {
 			doctype: 'LMS Course Progress',
-			fieldname: ['status', 'scorm_content'],
+			fieldname: ['status', 'scorm_content', 'session_time', 'total_time'],
 			filters: {
 				member: user.data?.name,
 				lesson: chapter.doc.lessons[0].lesson,
@@ -193,7 +295,7 @@ const enrollStudent = () => {
 const setupSCORMAPI = () => {
 	window.API_1484_11 = {
 		Initialize: () => 'true',
-		Terminate: () => 'true',
+		Terminate: endSCORMSession,
 		GetValue: (key) => {
 			console.log(`GET: ${key}`)
 			return getDataFromLMS(key)
@@ -211,7 +313,7 @@ const setupSCORMAPI = () => {
 	}
 	window.API = {
 		LMSInitialize: () => 'true',
-		LMSFinish: () => 'true',
+		LMSFinish: endSCORMSession,
 		LMSGetValue: (key) => {
 			console.log(`GET: ${key}`)
 			return getDataFromLMS(key)

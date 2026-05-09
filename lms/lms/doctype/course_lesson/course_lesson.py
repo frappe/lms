@@ -7,6 +7,7 @@ import frappe
 from frappe import _
 from frappe.model.document import Document
 from frappe.realtime import get_website_room
+from frappe.utils import cint
 from frappe.utils.telemetry import capture
 
 from lms.lms.utils import get_course_progress, is_demo_course, recalculate_course_progress, sanitize_editorjs
@@ -96,6 +97,9 @@ def save_progress(lesson: str, course: str, scorm_details: dict = None):
 
 	if scorm_details:
 		scorm_details = frappe._dict(**scorm_details)
+		scorm_progress = get_scorm_progress_values(scorm_details, progress_already_exists)
+	else:
+		scorm_progress = {}
 
 	if not progress_already_exists and quiz_completed and assignment_completed and not scorm_details:
 		frappe.get_doc(
@@ -115,20 +119,27 @@ def save_progress(lesson: str, course: str, scorm_details: dict = None):
 				"status": "Complete" if scorm_details.is_complete else "Partially Complete",
 				"member": frappe.session.user,
 				"scorm_content": "" if scorm_details.is_complete else scorm_details.scorm_content,
+				**scorm_progress,
 			}
 		).save(ignore_permissions=True)
-	elif scorm_details and not lesson_already_completed and progress_already_exists:
+	elif scorm_details and progress_already_exists:
 		# Update Existing SCORM Progress
-		frappe.db.set_value(
-			"LMS Course Progress",
-			progress_already_exists,
-			{
-				"lesson": lesson,
-				"status": "Complete" if scorm_details.is_complete else "Partially Complete",
-				"member": frappe.session.user,
-				"scorm_content": "" if scorm_details.is_complete else scorm_details.scorm_content,
-			},
-		)
+		progress_values = scorm_progress
+		if not lesson_already_completed:
+			progress_values.update(
+				{
+					"lesson": lesson,
+					"status": "Complete" if scorm_details.is_complete else "Partially Complete",
+					"member": frappe.session.user,
+					"scorm_content": "" if scorm_details.is_complete else scorm_details.scorm_content,
+				}
+			)
+		if progress_values:
+			frappe.db.set_value(
+				"LMS Course Progress",
+				progress_already_exists,
+				progress_values,
+			)
 	if (not progress_already_exists and quiz_completed and assignment_completed and not scorm_details) or (
 		scorm_details and scorm_details.is_complete and not lesson_already_completed
 	):
@@ -160,6 +171,27 @@ def save_progress(lesson: str, course: str, scorm_details: dict = None):
 	)
 
 	return progress
+
+
+def get_scorm_progress_values(scorm_details, progress_name=None):
+	progress_values = {}
+
+	if "session_time" in scorm_details:
+		progress_values["session_time"] = max(cint(scorm_details.session_time), 0)
+
+	if "total_time" in scorm_details:
+		progress_values["total_time"] = max(cint(scorm_details.total_time), 0)
+	elif scorm_details.get("is_session_end") and progress_values.get("session_time"):
+		current_total = (
+			frappe.db.get_value("LMS Course Progress", progress_name, "total_time")
+			if progress_name
+			else 0
+		)
+		progress_values["total_time"] = (
+			max(cint(current_total), 0) + progress_values["session_time"]
+		)
+
+	return progress_values
 
 
 def get_next_lesson(course: str, lesson: str):

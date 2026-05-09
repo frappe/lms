@@ -15,7 +15,9 @@
   "section_break_uoob",
   "is_scorm_chapter",
   "column_break_wskp",
-  "scorm_content"
+  "scorm_content",
+  "session_time",
+  "total_time"
  ],
  "fields": [
   {
@@ -96,6 +98,22 @@
    "fieldname": "scorm_content",
    "fieldtype": "Long Text",
    "label": "SCORM Content",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval: doc.is_scorm_chapter == 1",
+   "description": "Duration in seconds for the current SCORM session.",
+   "fieldname": "session_time",
+   "fieldtype": "Int",
+   "label": "Session Time",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval: doc.is_scorm_chapter == 1",
+   "description": "Total SCORM duration in seconds across learner sessions.",
+   "fieldname": "total_time",
+   "fieldtype": "Int",
+   "label": "Total Time",
    "read_only": 1
   }
  ],
