@@ -159,11 +159,12 @@ To setup the repository locally follow the steps mentioned below:
 1. In a separate terminal window, run the following commands.
 	```sh
 	$ bench new-site learning.test
- 	$ bench --site learning.test add-to-hosts
- 	$ bench get-app https://github.com/frappe/payments
- 	$ bench get-app https://github.com/frappe/lms
- 	$ bench --site learning.test install-app lms
- 	
+	$ bench --site learning.test add-to-hosts
+	$ bench get-app https://github.com/frappe/payments
+	$ bench get-app https://github.com/frappe/lms
+	$ bench --site learning.test install-app payments
+	$ bench --site learning.test install-app lms
+
 	```
 1. Now open the URL `http://learning.test:8000/lms` in your browser, you should see the app running
 
