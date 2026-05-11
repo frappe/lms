@@ -49,7 +49,7 @@
 								v-if="!data[field.name]"
 								:fileTypes="['image/*']"
 								:validateFile="validateFile"
-								@success="(file) => (data[field.name] = file)"
+								@success="(file) => (data[field.name] = file.file_url)"
 							>
 								<template
 									v-slot="{ file, progress, uploading, openFileSelector }"
@@ -70,23 +70,14 @@
 										:class="field.size == 'lg' ? 'px-5 py-5' : 'px-20 py-8'"
 									>
 										<img
-											:src="data[field.name]?.file_url || data[field.name]"
+											:src="data[field.name]"
 											class="rounded"
 											:class="field.size == 'lg' ? 'w-36' : 'size-6'"
 										/>
 									</div>
 									<div class="flex flex-col flex-wrap">
 										<span class="break-all text-ink-gray-9">
-											{{
-												data[field.name]?.file_name ||
-												data[field.name].split('/').pop()
-											}}
-										</span>
-										<span
-											v-if="data[field.name]?.file_size"
-											class="text-sm text-ink-gray-5 mt-1"
-										>
-											{{ getFileSize(data[field.name]?.file_size) }}
+											{{ data[field.name].split('/').pop() }}
 										</span>
 									</div>
 									<X
@@ -105,7 +96,7 @@
 						/>
 						<!-- <div v-else>
 							{{ data[field.name] }}
-							
+
 						</div> -->
 						<FormControl
 							v-else
@@ -127,8 +118,8 @@
 </template>
 <script setup>
 import { FormControl, FileUploader, Button, Switch } from 'frappe-ui'
-import { computed, onMounted, watch } from 'vue'
-import { getFileSize, validateFile } from '@/utils'
+import { onMounted, watch } from 'vue'
+import { validateFile } from '@/utils'
 import { X } from 'lucide-vue-next'
 import Link from '@/components/Controls/Link.vue'
 import CodeEditor from '@/components/Controls/CodeEditor.vue'
