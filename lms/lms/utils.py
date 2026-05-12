@@ -173,24 +173,15 @@ def get_chapters(course: str):
 	return chapters
 
 
-def get_lessons(course: str, chapter: str = None, get_details: bool = True, progress: bool = False):
-	"""If chapter is passed, returns lessons of only that chapter.
-	Else returns lessons of all chapters of the course"""
-	lessons = []
-	lesson_count = 0
+def get_lessons(course: str, chapter: dict = None, progress: bool = False):
+	"""Returns lessons of a single chapter (when given) or all lessons of the course."""
 	if chapter:
-		if get_details:
-			return get_lesson_details(chapter, progress=progress)
-		else:
-			return frappe.db.count("Lesson Reference", {"parent": chapter.name})
+		return get_lesson_details(chapter, progress=progress)
 
+	lessons = []
 	for chapter in get_chapters(course):
-		if get_details:
-			lessons += get_lesson_details(chapter, progress=progress)
-		else:
-			lesson_count += frappe.db.count("Lesson Reference", {"parent": chapter.name})
-
-	return lessons if get_details else lesson_count
+		lessons += get_lesson_details(chapter, progress=progress)
+	return lessons
 
 
 def get_lesson_details(chapter: dict, progress: bool = False):
@@ -270,23 +261,19 @@ def get_lesson_icon(body: str, content: str):
 
 
 def get_instructors(doctype: str, docname: str):
-	instructor_details = []
-	instructors = frappe.get_all(
-		"Course Instructor",
-		{"parent": docname, "parenttype": doctype},
-		order_by="idx",
-		pluck="instructor",
-	)
+	CourseInstructor = frappe.qb.DocType("Course Instructor")
+	User = frappe.qb.DocType("User")
 
-	for instructor in instructors:
-		instructor_details.append(
-			frappe.db.get_value(
-				"User",
-				instructor,
-				["name", "username", "full_name", "user_image", "first_name"],
-				as_dict=True,
-			)
-		)
+	instructor_details = (
+		frappe.qb.from_(CourseInstructor)
+		.join(User)
+		.on(User.name == CourseInstructor.instructor)
+		.select(User.name, User.username, User.full_name, User.user_image, User.first_name)
+		.where(CourseInstructor.parent == docname)
+		.where(CourseInstructor.parenttype == doctype)
+		.orderby(CourseInstructor.idx)
+	).run(as_dict=True)
+
 	return instructor_details
 
 
@@ -353,7 +340,7 @@ def get_progress(course: str, lesson: str, member: str = None):
 
 def get_course_progress(course: str, member: str = None):
 	"""Returns the course progress of the session user"""
-	lesson_count = get_lessons(course, get_details=False)
+	lesson_count = get_lesson_count(course)
 	if not lesson_count:
 		return 0
 	completed_lessons = frappe.db.count(
@@ -590,11 +577,10 @@ def notify_mentions_via_email(doc: Document, topic: dict):
 
 
 def get_lesson_count(course: str) -> int:
-	lesson_count = 0
-	chapters = frappe.get_all("Chapter Reference", {"parent": course}, ["chapter"])
-	for chapter in chapters:
-		lesson_count += frappe.db.count("Lesson Reference", {"parent": chapter.chapter})
-	return lesson_count
+	chapter_references = frappe.get_all("Chapter Reference", {"parent": course}, pluck="chapter")
+	if not chapter_references:
+		return 0
+	return frappe.db.count("Lesson Reference", {"parent": ("in", chapter_references)})
 
 
 @frappe.whitelist(allow_guest=True)
@@ -998,27 +984,130 @@ def get_course_outline(course: str, progress: bool = False) -> list:
 	if not guest_access_allowed():
 		return []
 
-	outline = []
-	chapters = frappe.get_all("Chapter Reference", {"parent": course}, ["chapter", "idx"], order_by="idx")
-	for chapter in chapters:
-		chapter_details = frappe.db.get_value(
-			"Course Chapter",
-			chapter.chapter,
-			["name", "title", "is_scorm_package", "launch_file", "scorm_package"],
-			as_dict=True,
+	chapters = get_outline_chapter(course)
+	if not chapters:
+		return []
+
+	lesson_rows = get_outline_lessons([c.name for c in chapters])
+	files_by_name = get_scorm_files(chapters)
+	completed = get_completed_lessons(course, lesson_rows) if progress else set()
+
+	return build_outline(chapters, lesson_rows, files_by_name, completed, progress)
+
+
+def get_outline_chapter(course: str) -> list:
+	ChapterReference = frappe.qb.DocType("Chapter Reference")
+	CourseChapter = frappe.qb.DocType("Course Chapter")
+	return (
+		frappe.qb.from_(ChapterReference)
+		.join(CourseChapter)
+		.on(CourseChapter.name == ChapterReference.chapter)
+		.select(
+			ChapterReference.idx.as_("idx"),
+			CourseChapter.name.as_("name"),
+			CourseChapter.title.as_("title"),
+			CourseChapter.is_scorm_package.as_("is_scorm_package"),
+			CourseChapter.launch_file.as_("launch_file"),
+			CourseChapter.scorm_package.as_("scorm_package"),
 		)
-		chapter_details["idx"] = chapter.idx
-		chapter_details.lessons = get_lessons(course, chapter_details, progress=progress)
+		.where(ChapterReference.parent == course)
+		.orderby(ChapterReference.idx)
+	).run(as_dict=True)
 
-		if chapter_details.is_scorm_package:
-			chapter_details.scorm_package = frappe.db.get_value(
-				"File",
-				chapter_details.scorm_package,
-				["file_name", "file_size", "file_url"],
-				as_dict=1,
-			)
 
-		outline.append(chapter_details)
+def get_outline_lessons(chapter_names: list) -> list:
+	LessonReference = frappe.qb.DocType("Lesson Reference")
+	CourseLesson = frappe.qb.DocType("Course Lesson")
+	return (
+		frappe.qb.from_(LessonReference)
+		.join(CourseLesson)
+		.on(CourseLesson.name == LessonReference.lesson)
+		.select(
+			LessonReference.parent.as_("chapter_name"),
+			LessonReference.idx.as_("lesson_idx"),
+			CourseLesson.name.as_("name"),
+			CourseLesson.title.as_("title"),
+			CourseLesson.include_in_preview.as_("include_in_preview"),
+			CourseLesson.body.as_("body"),
+			CourseLesson.content.as_("content"),
+			CourseLesson.youtube.as_("youtube"),
+			CourseLesson.quiz_id.as_("quiz_id"),
+			CourseLesson.question.as_("question"),
+			CourseLesson.file_type.as_("file_type"),
+			CourseLesson.course.as_("course"),
+			CourseLesson.chapter.as_("chapter"),
+		)
+		.where(LessonReference.parent.isin(chapter_names))
+		.orderby(LessonReference.idx)
+	).run(as_dict=True)
+
+
+def get_scorm_files(chapters: list) -> dict:
+	file_names = [c.scorm_package for c in chapters if c.is_scorm_package and c.scorm_package]
+	if not file_names:
+		return {}
+	files = frappe.get_all(
+		"File",
+		filters={"name": ("in", file_names)},
+		fields=["name", "file_name", "file_size", "file_url"],
+	)
+	return {f.name: f for f in files}
+
+
+def get_completed_lessons(course: str, lesson_rows: list) -> set:
+	if frappe.session.user == "Guest" or not lesson_rows:
+		return set()
+	return set(
+		frappe.get_all(
+			"LMS Course Progress",
+			filters={
+				"course": course,
+				"member": frappe.session.user,
+				"status": "Complete",
+				"lesson": ("in", [lr.name for lr in lesson_rows]),
+			},
+			pluck="lesson",
+		)
+	)
+
+
+def build_outline(
+	chapters: list, lesson_rows: list, files_by_name: dict, completed: set, progress: bool
+) -> list:
+	chapter_idx_by_name = {c.name: c.idx for c in chapters}
+	lessons_by_chapter = {}
+	for lr in lesson_rows:
+		lesson = frappe._dict(
+			name=lr.name,
+			title=lr.title,
+			include_in_preview=lr.include_in_preview,
+			icon=get_lesson_icon(lr.body, lr.content),
+			youtube=lr.youtube,
+			quiz_id=lr.quiz_id,
+			question=lr.question,
+			file_type=lr.file_type,
+			course=lr.course,
+			chapter=lr.chapter,
+			number=f"{chapter_idx_by_name[lr.chapter_name]}-{lr.lesson_idx}",
+		)
+		if progress:
+			lesson.is_complete = lr.name in completed
+		lessons_by_chapter.setdefault(lr.chapter_name, []).append(lesson)
+
+	outline = []
+	for c in chapters:
+		chapter = frappe._dict(
+			name=c.name,
+			title=c.title,
+			is_scorm_package=c.is_scorm_package,
+			launch_file=c.launch_file,
+			scorm_package=c.scorm_package,
+			idx=c.idx,
+			lessons=lessons_by_chapter.get(c.name, []),
+		)
+		if c.is_scorm_package and c.scorm_package and c.scorm_package in files_by_name:
+			chapter.scorm_package = files_by_name[c.scorm_package]
+		outline.append(chapter)
 	return outline
 
 
@@ -1028,12 +1117,47 @@ def get_lesson(course: str, chapter: int, lesson: int) -> dict:
 	if not guest_access_allowed():
 		return {}
 
-	chapter_name = frappe.db.get_value("Chapter Reference", {"parent": course, "idx": chapter}, "chapter")
+	ChapterReference = frappe.qb.DocType("Chapter Reference")
+	CourseChapter = frappe.qb.DocType("Course Chapter")
+
+	chapter_row = (
+		frappe.qb.from_(ChapterReference)
+		.join(CourseChapter)
+		.on(CourseChapter.name == ChapterReference.chapter)
+		.select(ChapterReference.chapter.as_("name"), CourseChapter.title.as_("title"))
+		.where(ChapterReference.parent == course)
+		.where(ChapterReference.idx == chapter)
+		.limit(1)
+	).run(as_dict=1)
+	if not chapter_row:
+		return {}
+
+	chapter_name = chapter_row[0].name
+	chapter_title = chapter_row[0].title
+
 	lesson_name = frappe.db.get_value("Lesson Reference", {"parent": chapter_name, "idx": lesson}, "lesson")
+	if not lesson_name:
+		return {}
+
 	lesson_details = frappe.db.get_value(
 		"Course Lesson",
 		lesson_name,
-		["include_in_preview", "title", "is_scorm_package"],
+		[
+			"name",
+			"title",
+			"include_in_preview",
+			"is_scorm_package",
+			"body",
+			"creation",
+			"youtube",
+			"quiz_id",
+			"question",
+			"file_type",
+			"instructor_notes",
+			"course",
+			"content",
+			"instructor_content",
+		],
 		as_dict=1,
 	)
 
@@ -1062,34 +1186,14 @@ def get_lesson(course: str, chapter: int, lesson: int) -> dict:
 			"disable_self_learning": course_info.disable_self_learning,
 		}
 
-	lesson_details = frappe.db.get_value(
-		"Course Lesson",
-		lesson_name,
-		[
-			"name",
-			"title",
-			"include_in_preview",
-			"body",
-			"creation",
-			"youtube",
-			"quiz_id",
-			"question",
-			"file_type",
-			"instructor_notes",
-			"course",
-			"content",
-			"instructor_content",
-		],
-		as_dict=True,
-	)
-
 	if frappe.session.user == "Guest":
 		progress = 0
 	else:
 		progress = get_progress(course, lesson_details.name)
 
-	lesson_details.chapter_title = frappe.db.get_value("Course Chapter", chapter_name, "title")
 	neighbours = get_neighbour_lesson(course, chapter, lesson)
+
+	lesson_details.chapter_title = chapter_title
 	lesson_details.next = neighbours["next"]
 	lesson_details.progress = progress
 	lesson_details.prev = neighbours["prev"]
@@ -1112,22 +1216,32 @@ def get_video_details(lesson_name: str) -> list:
 
 
 def get_neighbour_lesson(course: str, chapter: int, lesson: int) -> dict:
-	numbers = []
-	current = f"{chapter}.{lesson}"
-	chapters = frappe.get_all("Chapter Reference", {"parent": course}, ["idx", "chapter"])
-	for chapter in chapters:
-		lessons = frappe.get_all("Lesson Reference", {"parent": chapter.chapter}, pluck="idx")
-		for lesson in lessons:
-			numbers.append(f"{chapter.idx}.{lesson}")
+	ChapterReference = frappe.qb.DocType("Chapter Reference")
+	LessonReference = frappe.qb.DocType("Lesson Reference")
 
-	tuples_list = [tuple(int(x) for x in s.split(".")) for s in numbers]
-	sorted_tuples = sorted(tuples_list)
-	sorted_numbers = [".".join(str(num) for num in t) for t in sorted_tuples]
-	index = sorted_numbers.index(current)
+	rows = (
+		frappe.qb.from_(ChapterReference)
+		.join(LessonReference)
+		.on(LessonReference.parent == ChapterReference.chapter)
+		.select(
+			ChapterReference.idx.as_("chapter_idx"),
+			LessonReference.idx.as_("lesson_idx"),
+		)
+		.where(ChapterReference.parent == course)
+		.orderby(ChapterReference.idx)
+		.orderby(LessonReference.idx)
+	).run(as_dict=True)
+
+	numbers = [f"{r.chapter_idx}.{r.lesson_idx}" for r in rows]
+	current = f"{chapter}.{lesson}"
+	try:
+		index = numbers.index(current)
+	except ValueError:
+		return {"prev": None, "next": None}
 
 	return {
-		"prev": sorted_numbers[index - 1] if index - 1 >= 0 else None,
-		"next": sorted_numbers[index + 1] if index + 1 < len(sorted_numbers) else None,
+		"prev": numbers[index - 1] if index > 0 else None,
+		"next": numbers[index + 1] if index + 1 < len(numbers) else None,
 	}
 
 

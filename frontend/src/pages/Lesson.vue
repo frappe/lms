@@ -313,7 +313,7 @@
 					:courseName="courseName"
 					:key="chapterNumber"
 					:getProgress="lesson.data.membership ? true : false"
-					:lessonProgress="lessonProgress"
+					:completedLesson="completedLesson"
 				/>
 			</div>
 		</div>
@@ -405,6 +405,7 @@ const sidebarStore = useSidebar()
 const plyrSources = ref([])
 const showInlineMenu = ref(false)
 const currentTab = ref(null)
+const completedLesson = ref(null)
 let timerInterval = null
 
 const tabs = ref([])
@@ -548,6 +549,7 @@ const progress = createResource({
 	},
 	onSuccess(data) {
 		lessonProgress.value = data
+		completedLesson.value = lesson.data?.name
 	},
 })
 
@@ -785,11 +787,17 @@ onBeforeUnmount(() => {
 
 const checkIfDiscussionsAllowed = () => {
 	hasQuiz.value = false
-	JSON.parse(lesson.data?.content)?.blocks?.forEach((block) => {
-		if (block.type === 'quiz') {
-			hasQuiz.value = true
+	if (lesson.data?.content) {
+		try {
+			JSON.parse(lesson.data.content)?.blocks?.forEach((block) => {
+				if (block.type === 'quiz') {
+					hasQuiz.value = true
+				}
+			})
+		} catch {
+			// legacy markdown lessons
 		}
-	})
+	}
 
 	if (
 		!hasQuiz.value &&
