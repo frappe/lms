@@ -8,5 +8,8 @@ from lms.lms.utils import recalculate_course_progress
 
 
 class LMSCourseProgress(Document):
+	def on_update(self):
+		recalculate_course_progress(self.course, self.member)
+
 	def after_delete(self):
 		recalculate_course_progress(self.course, self.member)
