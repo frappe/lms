@@ -275,7 +275,19 @@ def save_progress_after_quiz(quiz_details: dict, percentage: float):
 
 
 @frappe.whitelist()
-def check_answer(question: str, question_type: str, answers: str):
+def check_answer(quiz: str, question: str, question_type: str, answers: str):
+	ADMIN_ROLES = ("System Manager", "Moderator", "Course Creator", "Batch Evaluator")
+	is_admin = any(role in ADMIN_ROLES for role in frappe.get_roles())
+
+	if not frappe.db.exists("LMS Quiz Question", {"parent": quiz, "question": question}):
+		frappe.throw(_("Question not found in this quiz."), frappe.PermissionError)
+
+	if not is_admin and not frappe.db.get_value("LMS Quiz", quiz, "show_answers"):
+		frappe.throw(
+			_("Live answer checking is not enabled for this quiz."),
+			frappe.PermissionError,
+		)
+
 	answers = answers and json.loads(answers)
 	if question_type == "Choices":
 		return check_choice_answers(question, answers)
