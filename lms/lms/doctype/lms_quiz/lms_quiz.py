@@ -187,19 +187,26 @@ def verify_answer(question: str, answer: list):
 	question_details = get_question_details(question)
 	correct = False
 
-	if question_details.multiple:
+	if question_details.type == "Choices":
+		if question_details.multiple:
+			for num in range(1, 5):
+				if question_details[f"option_{num}"] in answer:
+					correct = question_details[f"is_correct_{num}"]
+					if not correct:
+						return False
+				if question_details[f"is_correct_{num}"] and question_details[f"option_{num}"] not in answer:
+					return False
+			return True
+
 		for num in range(1, 5):
 			if question_details[f"option_{num}"] in answer:
 				correct = question_details[f"is_correct_{num}"]
-				if not correct:
-					return False
-			if question_details[f"is_correct_{num}"] and question_details[f"option_{num}"] not in answer:
-				return False
-		return True
 
-	for num in range(1, 5):
-		if question_details[f"option_{num}"] in answer:
-			correct = question_details[f"is_correct_{num}"]
+	if question_details.type == "User Input":
+		for num in range(1, 5):
+			current_possibility = question_details[f"possibility_{num}"]
+			if current_possibility and fuzz.token_sort_ratio(current_possibility, answer[0]) > 85:
+				correct = True
 	return correct
 
 
@@ -296,10 +303,11 @@ def check_answer(quiz: str, question: str, question_type: str, answers: str):
 
 
 def get_question_details(question: str):
-	fields = ["multiple"]
+	fields = ["multiple", "type"]
 	for num in range(1, 5):
 		fields.append(f"option_{cstr(num)}")
 		fields.append(f"is_correct_{cstr(num)}")
+		fields.append(f"possibility_{cstr(num)}")
 
 	question_details = frappe.db.get_value("LMS Question", question, fields, as_dict=1)
 	return question_details
