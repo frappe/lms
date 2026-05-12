@@ -101,8 +101,8 @@ def set_total_marks(questions: list) -> int:
 
 
 @frappe.whitelist()
-def submit_quiz(quiz: str, results: str):
-	results = results and json.loads(results)
+def submit_quiz(quiz: str, results: str | None = None):
+	results = json.loads(results) if results else []
 	percentage = 0
 
 	quiz_details = frappe.db.get_value(
