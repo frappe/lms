@@ -148,8 +148,8 @@ const question = reactive({
 
 const populateFields = () => {
 	let fields = ['option', 'is_correct', 'explanation', 'possibility']
-	let counter = 1
 	fields.forEach((field) => {
+		let counter = 1
 		while (counter <= 4) {
 			question[`${field}_${counter}`] = field === 'is_correct' ? false : null
 			counter++
