@@ -767,6 +767,7 @@ const checkAnswer = () => {
 	createResource({
 		url: 'lms.lms.doctype.lms_quiz.lms_quiz.check_answer',
 		params: {
+			quiz: quiz.data.name,
 			question: currentQuestion.value,
 			question_type: questionDetails.data.type,
 			answers: JSON.stringify(answers),
