@@ -156,7 +156,10 @@ def process_results(results: list, quiz_details: dict):
 		result["marks_out_of"] = question_details.marks
 
 		if question_details.type != "Open Ended":
-			correct = verify_answer(question_details.question, result["answer"])
+			if question_details.type == "User Input":
+				correct = bool(check_input_answers(question_details.question, result["answer"][0]))
+			else:
+				correct = verify_answer(question_details.question, result["answer"])
 			result["answer"] = ", ".join(result["answer"])
 			if correct:
 				result["marks"] = question_details.marks
