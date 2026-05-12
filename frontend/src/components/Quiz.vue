@@ -512,7 +512,7 @@ const handlePageHide = () => {
 	if (activeQuestion.value > 0 && !quizSubmission.data) {
 		const params = new URLSearchParams({
 			quiz: quiz.data.name,
-			results: localStorage.getItem(quiz.data.title),
+			results: localStorage.getItem(quiz.data.title) || '[]',
 		})
 
 		navigator.sendBeacon(
@@ -648,7 +648,7 @@ const quizSubmission = createResource({
 	makeParams(values) {
 		return {
 			quiz: quiz.data.name,
-			results: localStorage.getItem(quiz.data.title),
+			results: localStorage.getItem(quiz.data.title) || '[]',
 		}
 	},
 })
@@ -833,7 +833,9 @@ const resetQuestion = () => {
 
 const submitQuiz = () => {
 	if (!quiz.data.show_answers) {
-		if (questionDetails.data.type == 'Open Ended') addToLocalStorage()
+		if (questionDetails.data.type == 'Open Ended' || getAnswers().length) {
+			addToLocalStorage()
+		}
 		setTimeout(() => {
 			createSubmission()
 		}, 500)
