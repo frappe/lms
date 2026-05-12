@@ -92,53 +92,42 @@ const skipPersonaForm = () => {
 	})
 }
 
-const roleOptions = computed(() => {
-	const options = [
-		'Trainer / Instructor',
-		'Freelancer / Consultant',
-		'HR / L&D Professional',
-		'School / University Admin',
-		'Software Developer',
-		'Community Manager',
-		'Business Owner / Team Lead',
-		'Other',
-	]
+const roleOptions = computed(() => [
+	{ label: __('Trainer / Instructor'), value: 'Trainer / Instructor' },
+	{ label: __('Freelancer / Consultant'), value: 'Freelancer / Consultant' },
+	{ label: __('HR / L&D Professional'), value: 'HR / L&D Professional' },
+	{
+		label: __('School / University Admin'),
+		value: 'School / University Admin',
+	},
+	{ label: __('Software Developer'), value: 'Software Developer' },
+	{ label: __('Community Manager'), value: 'Community Manager' },
+	{
+		label: __('Business Owner / Team Lead'),
+		value: 'Business Owner / Team Lead',
+	},
+	{ label: __('Other'), value: 'Other' },
+])
 
-	return options.map((option) => ({
-		label: option,
-		value: option,
-	}))
-})
-
-const noOfStudentsOptions = computed(() => {
-	const options = [
-		'Less than 50',
-		'50-200',
-		'200-1000',
-		'1000+',
-		'Not sure yet',
-	]
-
-	return options.map((option) => ({
-		label: option,
-		value: option,
-	}))
-})
-
-const useCaseOptions = computed(() => {
-	const options = [
-		'Teaching students in a school/university',
-		'Training employees in my company',
-		'Onboarding and educating my users/community',
-		'Selling courses and earning income',
-		'Other',
-	]
-
-	return options.map((option) => ({
-		label: option,
-		value: option,
-	}))
-})
+const useCaseOptions = computed(() => [
+	{
+		label: __('Teaching students in a school/university'),
+		value: 'Teaching students in a school/university',
+	},
+	{
+		label: __('Training employees in my company'),
+		value: 'Training employees in my company',
+	},
+	{
+		label: __('Onboarding and educating my users/community'),
+		value: 'Onboarding and educating my users/community',
+	},
+	{
+		label: __('Selling courses and earning income'),
+		value: 'Selling courses and earning income',
+	},
+	{ label: __('Other'), value: 'Other' },
+])
 
 usePageMeta(() => {
 	return {
