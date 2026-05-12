@@ -1,7 +1,7 @@
 <template>
 	<div class="flex h-screen overflow-hidden sm:bg-gray-50">
-		<div class="relative h-full z-10 mx-auto sm:w-max pt-40">
-			<div class="mx-auto flex items-center justify-center gap-x-2">
+		<div class="relative h-full mx-auto sm:w-max pt-40">
+			<div class="flex items-center justify-center gap-x-2">
 				<LMSLogo class="size-7" />
 				<span
 					class="select-none text-xl font-semibold tracking-tight text-gray-900"
@@ -10,52 +10,47 @@
 				</span>
 			</div>
 			<div
-				class="mx-auto w-full h-fit bg-white py-8 sm:mt-6 sm:w-96 sm:rounded-lg sm:px-8 sm:shadow-xl"
+				class="flex flex-col gap-5 bg-white py-8 sm:mt-6 sm:w-96 sm:rounded-lg sm:px-8 sm:shadow-xl"
 			>
-				<div class="font-medium text-center mb-8">
+				<h1 class="font-medium text-center">
 					{{ __('Help us understand your needs') }}
-				</div>
+				</h1>
 
-				<div class="mb-5">
-					<div class="text-sm text-gray-700 mb-2">
+				<div class="flex flex-col gap-2">
+					<div class="text-sm text-gray-700">
 						{{ __('What is your use case for Frappe Learning?') }}
 					</div>
-					<FormControl
-						v-model="persona.useCase"
-						type="select"
-						:options="useCaseOptions"
-					/>
+					<Select v-model="persona.useCase" :options="useCaseOptions" />
 				</div>
 
-				<div class="mb-5">
-					<div class="text-sm text-gray-700 mb-2">
+				<div class="flex flex-col gap-2">
+					<div class="text-sm text-gray-700">
 						{{ __('What best describes your role?') }}
 					</div>
-					<FormControl
-						v-model="persona.role"
-						type="select"
-						:options="roleOptions"
-					/>
+					<Select v-model="persona.role" :options="roleOptions" />
 				</div>
 
-				<div class="flex w-full">
-					<Button variant="solid" class="mx-auto" @click="submitPersona()">
-						{{ __('Submit and Continue') }}
-					</Button>
-				</div>
+				<Button
+					variant="solid"
+					class="self-center"
+					:disabled="!persona.role || !persona.useCase"
+					@click="submitPersona()"
+				>
+					{{ __('Submit and Continue') }}
+				</Button>
 			</div>
-			<div
-				class="text-center absolute bottom-0 end-0 start-0 mx-auto cursor-pointer text-sm pb-4"
+			<button
+				class="text-center absolute bottom-0 end-0 start-0 text-sm py-4"
 				@click="skipPersonaForm()"
 			>
 				{{ __('Skip') }}
-			</div>
+			</button>
 		</div>
 	</div>
 </template>
 <script setup>
 import LMSLogo from '@/components/Icons/LMSLogo.vue'
-import { Button, call, FormControl, usePageMeta } from 'frappe-ui'
+import { Button, call, Select, usePageMeta } from 'frappe-ui'
 import { computed, inject, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { sessionStore } from '@/stores/session'
