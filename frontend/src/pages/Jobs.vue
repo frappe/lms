@@ -1,13 +1,23 @@
 <template>
+<<<<<<< HEAD
 	<div class="flex h-full flex-col">
 <<<<<<< HEAD
 		<header
 			class="sticky top-0 z-10 flex items-center justify-between border-b bg-surface-white px-3 py-2.5 sm:px-5"
 		>
+=======
+	<LayoutHeader>
+		<template #left-header>
+>>>>>>> ffc6f37b (refactor(ui): layout alignment, replace form control with select and checkbox)
 			<Breadcrumbs
 				class="h-7"
 				:items="[{ label: __('Jobs'), route: { name: 'Jobs' } }]"
 			/>
+<<<<<<< HEAD
+=======
+		</template>
+		<template #right-header>
+>>>>>>> ffc6f37b (refactor(ui): layout alignment, replace form control with select and checkbox)
 			<router-link
 				v-if="
 					user.data?.name && settings.data?.allow_job_posting && !readOnlyMode
@@ -17,6 +27,7 @@
 					params: {
 						jobName: 'new',
 					},
+<<<<<<< HEAD
 				}"
 			>
 				<Button variant="solid">
@@ -189,7 +200,129 @@
 				</template>
 			</ListFooter>
 >>>>>>> bd49f898 (fix(ui): footer is consistent across all pages)
+=======
+				}"
+			>
+				<Button variant="solid">
+					<template #prefix>
+						<Plus class="size-4 stroke-1.5" />
+					</template>
+					{{ __('Create') }}
+				</Button>
+			</router-link>
+		</template>
+	</LayoutHeader>
+	<div class="mx-auto flex min-h-0 w-full flex-1 flex-col">
+		<div
+			class="mx-auto mb-2 flex w-full flex-col justify-between space-y-4 p-5 lg:flex-row lg:items-center lg:space-y-0"
+		>
+			<div class="flex items-center justify-between">
+				<div class="text-lg font-semibold text-ink-gray-9 md:mb-0">
+					{{ __('{0} {1} Jobs').format(jobCount.data ?? 0, activeTab) }}
+				</div>
+				<TabButtons
+					v-if="tabs.length > 1"
+					v-model="activeTab"
+					:buttons="tabs"
+					class="lg:hidden"
+					@change="updateJobs"
+				/>
+			</div>
+
+			<div
+				class="flex flex-col space-y-4 md:flex-row md:items-center md:gap-x-4 md:space-y-0"
+			>
+				<TabButtons
+					v-if="tabs.length > 1"
+					v-model="activeTab"
+					:buttons="tabs"
+					class="hidden lg:block"
+					@change="updateJobs"
+				/>
+				<div class="flex items-center gap-x-4">
+					<FormControl
+						type="text"
+						:placeholder="__('Search')"
+						v-model="searchQuery"
+						class="w-full"
+						@input="updateJobs"
+					>
+						<template #prefix>
+							<Search class="size-4 stroke-1.5 text-ink-gray-5" name="search" />
+						</template>
+					</FormControl>
+					<Link
+						v-if="user.data"
+						doctype="Country"
+						v-model="country"
+						:placeholder="__('Country')"
+						class="w-full"
+					/>
+				</div>
+				<div class="flex gap-4">
+					<Select
+						v-model="jobType"
+						:options="jobTypes"
+						class="w-full"
+						:placeholder="__('Type')"
+						@update:modelValue="updateJobs"
+					/>
+					<Select
+						v-model="workMode"
+						:options="workModes"
+						class="w-full"
+						:placeholder="__('Work Mode')"
+						@update:modelValue="updateJobs"
+					/>
+				</div>
+			</div>
+>>>>>>> ffc6f37b (refactor(ui): layout alignment, replace form control with select and checkbox)
 		</div>
+		<div
+			v-if="jobs.data?.length"
+			class="mx-auto w-full flex-1 overflow-y-auto p-5 pt-0"
+		>
+			<div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+				<router-link
+					v-for="job in jobs.data"
+					:to="{
+						name: 'JobDetail',
+						params: { job: job.name },
+					}"
+					:key="job.name"
+				>
+					<JobCard :job="job" />
+				</router-link>
+			</div>
+		</div>
+		<div v-else class="flex flex-1 items-center justify-center px-5">
+			<EmptyStateLayout name="Job Openings" />
+		</div>
+		<ListFooter
+			v-model="pageLength"
+			class="border-t px-3 py-2 sm:px-5"
+			:options="{
+				rowCount: jobs.data?.length,
+				totalCount: jobCount.data ?? 0,
+				pageLengthOptions: [40, 80, 160],
+			}"
+		>
+			<template #right>
+				<div class="flex items-center">
+					<Button
+						v-if="jobs.hasNextPage"
+						:label="__('Load More')"
+						@click="jobs.next()"
+					/>
+					<div v-if="jobs.hasNextPage" class="mx-3 h-[80%] border-l" />
+					<div class="flex items-center gap-1 text-base text-ink-gray-5">
+						<div>{{ jobs.data?.length || 0 }}</div>
+						<div>{{ __('of') }}</div>
+						<div>{{ jobCount.data ?? 0 }}</div>
+					</div>
+				</div>
+			</template>
+		</ListFooter>
 	</div>
 </template>
 <script setup>
@@ -202,6 +335,7 @@ import {
 	ListFooter,
 	TabButtons,
 	usePageMeta,
+	Select,
 } from 'frappe-ui'
 import { Plus, Search } from 'lucide-vue-next'
 import { sessionStore } from '@/stores/session'

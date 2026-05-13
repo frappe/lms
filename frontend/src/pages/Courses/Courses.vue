@@ -67,13 +67,17 @@
 >>>>>>> 57420dba (refactor(header): refactored all pages to use same layoutheader component)
 	<div class="p-5 pb-10">
 		<div
-			class="flex flex-col lg:flex-row space-y-4 lg:space-y-0 lg:items-center justify-between mb-5"
+			class="mb-5 flex flex-col justify-between space-y-4 lg:flex-row lg:items-center lg:space-y-0"
 		>
-			<div class="text-lg text-ink-gray-9 font-semibold">
+			<div class="text-lg font-semibold text-ink-gray-9">
 				{{ __('All Courses') }}
 			</div>
 			<div
+<<<<<<< HEAD
 				class="flex flex-col space-y-3 lg:space-y-0 lg:flex-row lg:items-center lg:space-x-4"
+=======
+				class="flex flex-col space-y-3 lg:flex-row lg:items-center lg:gap-x-4 lg:space-y-0"
+>>>>>>> ffc6f37b (refactor(ui): layout alignment, replace form control with select and checkbox)
 			>
 				<TabButtons :buttons="courseTabs" v-model="currentTab" class="w-fit" />
 
@@ -82,18 +86,16 @@
 						v-model="title"
 						:placeholder="__('Search')"
 						type="text"
-						class="w-full lg:min-w-0 lg:w-32 xl:w-40"
+						class="w-full"
 						@input="updateCourses()"
 					/>
-					<div class="w-full lg:min-w-0 lg:w-32 xl:w-40">
-						<Select
-							v-if="categories.length"
-							v-model="currentCategory"
-							:options="categories"
-							:placeholder="__('Category')"
-							@update:modelValue="updateCourses()"
-						/>
-					</div>
+					<Select
+						v-if="categories.length"
+						v-model="currentCategory"
+						:options="categories"
+						:placeholder="__('Category')"
+						@update:modelValue="updateCourses()"
+					/>
 				</div>
 
 				<Tooltip :text="__('Only show courses that offer a certificate')">
@@ -108,7 +110,7 @@
 		</div>
 		<div
 			v-if="courses.data?.length"
-			class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-8"
+			class="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4"
 		>
 			<router-link
 				v-for="course in courses.data"
