@@ -1,11 +1,9 @@
 <template>
-	<header
-		class="sticky top-0 z-10 flex flex-row items-center justify-between border-b bg-surface-white px-3 py-2.5 sm:px-5"
-	>
-		<div class="flex-1">
+	<LayoutHeader>
+		<template #left-header>
 			<Breadcrumbs :items="breadcrumbs" />
-		</div>
-		<div class="flex items-center gap-x-2 shrink-0">
+		</template>
+		<template #right-header>
 			<Button
 				@click="markAllAsRead.submit"
 				:loading="markAllAsRead.loading"
@@ -18,8 +16,8 @@
 				:buttons="[{ label: 'Unread', active: true }, { label: 'Read' }]"
 				v-model="activeTab"
 			/>
-		</div>
-	</header>
+		</template>
+	</LayoutHeader>
 	<div class="w-full md:w-3/4 mx-auto px-3 sm:px-5 pt-4 sm:pt-6 divide-y">
 		<div
 			v-if="notifications?.length"
@@ -178,6 +176,7 @@ import { computed, inject, ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { Bell, Calendar, Clock, X } from 'lucide-vue-next'
 import { formatTime } from '@/utils/'
+import LayoutHeader from '@/components/Layouts/LayoutHeader.vue'
 
 const { brand } = sessionStore()
 const dayjs = inject('$dayjs')
