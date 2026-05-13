@@ -12,8 +12,11 @@
 			</Button>
 		</template>
 	</LayoutHeader>
+
 	<div class="flex min-h-0 flex-1 flex-col pt-5">
-		<div class="mx-5 mb-5 flex items-center justify-between">
+		<div
+			class="mx-5 mb-5 flex flex-col justify-between gap-y-4 sm:flex-row sm:items-center"
+		>
 			<div class="text-lg font-semibold text-ink-gray-9">
 				{{ __('{0} Quizzes').format(quizzes.data?.length) }}
 			</div>
@@ -54,11 +57,7 @@
 						<template #default="{ column, item }">
 							<ListRowItem :item="row[column.key]" :align="column.align">
 								<div v-if="column.key == 'show_answers'">
-									<FormControl
-										type="checkbox"
-										v-model="row[column.key]"
-										:disabled="true"
-									/>
+									<Checkbox v-model="row[column.key]" :disabled="true" />
 								</div>
 								<div
 									v-else-if="column.key == 'modified'"
@@ -161,6 +160,7 @@ import {
 	ListSelectBanner,
 	toast,
 	usePageMeta,
+	Checkbox,
 } from 'frappe-ui'
 import { useRouter, useRoute } from 'vue-router'
 import { computed, inject, onMounted, ref, watch } from 'vue'

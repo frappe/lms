@@ -30,29 +30,23 @@
 						class="min-w-40 lg:w-32 lg:min-w-0 xl:w-40"
 						@input="updateParticipants()"
 					/>
-					<div
+					<Select
 						v-if="categories.data?.length"
-						class="min-w-40 lg:w-32 lg:min-w-0 xl:w-40"
-					>
-						<Select
-							v-model="currentCategory"
-							:options="categories.data"
-							:placeholder="__('Category')"
-							@update:modelValue="updateParticipants()"
-						/>
-					</div>
+						v-model="currentCategory"
+						:options="categories.data"
+						:placeholder="__('Category')"
+						@update:modelValue="updateParticipants()"
+					/>
 				</div>
 				<div class="flex items-center gap-x-4">
-					<FormControl
+					<Checkbox
 						v-model="openToWork"
 						:label="__('Open to Work')"
-						type="checkbox"
 						@change="updateParticipants()"
 					/>
-					<FormControl
+					<Checkbox
 						v-model="hiring"
 						:label="__('Hiring')"
-						type="checkbox"
 						@change="updateParticipants()"
 					/>
 				</div>
@@ -149,6 +143,7 @@ import {
 	ListFooter,
 	Select,
 	usePageMeta,
+	Checkbox,
 } from 'frappe-ui'
 import { computed, inject, onMounted, ref } from 'vue'
 import { GraduationCap, Calendar } from 'lucide-vue-next'

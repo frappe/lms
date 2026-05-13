@@ -47,13 +47,13 @@
 	</LayoutHeader>
 	<div class="p-5 pb-10">
 		<div
-			class="flex flex-col lg:flex-row space-y-4 lg:space-y-0 lg:items-center justify-between mb-5"
+			class="mb-5 flex flex-col justify-between space-y-4 lg:flex-row lg:items-center lg:space-y-0"
 		>
-			<div class="text-lg text-ink-gray-9 font-semibold">
+			<div class="text-lg font-semibold text-ink-gray-9">
 				{{ __('All Batches') }}
 			</div>
 			<div
-				class="flex flex-col space-y-3 lg:space-y-0 lg:flex-row lg:items-center lg:gap-x-4"
+				class="flex flex-col space-y-3 lg:flex-row lg:items-center lg:gap-x-4 lg:space-y-0"
 			>
 				<TabButtons
 					v-if="user.data"
@@ -66,23 +66,20 @@
 						v-model="title"
 						:placeholder="__('Search by Title')"
 						type="text"
-						class="min-w-40 lg:min-w-0 lg:w-32 xl:w-40"
+						class="min-w-40"
 						@input="updateBatches()"
 					/>
-					<div class="min-w-40 lg:min-w-0 lg:w-32 xl:w-40">
-						<Select
-							v-if="categories.length"
-							v-model="currentCategory"
-							:options="categories"
-							:placeholder="__('Category')"
-							@update:modelValue="updateBatches()"
-						/>
-					</div>
+					<Select
+						v-if="categories.length"
+						v-model="currentCategory"
+						:options="categories"
+						:placeholder="__('Category')"
+						@update:modelValue="updateBatches()"
+					/>
 				</div>
 
 				<Tooltip :text="__('Only show batches that offer a certificate')">
-					<FormControl
-						type="checkbox"
+					<Checkbox
 						v-model="certification"
 						:label="__('Certification')"
 						@change="updateBatches()"
@@ -92,7 +89,7 @@
 		</div>
 		<div
 			v-if="batches.data?.length"
-			class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5"
+			class="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
 		>
 			<router-link
 				v-for="batch in batches.data"
@@ -105,7 +102,7 @@
 
 		<div
 			v-if="!batches.list.loading && batches.hasNextPage"
-			class="flex justify-center mt-5"
+			class="mt-5 flex justify-center"
 		>
 			<Button @click="batches.next()">
 				{{ __('Load More') }}
@@ -129,6 +126,7 @@ import {
 	Tooltip,
 	TabButtons,
 	usePageMeta,
+	Checkbox,
 } from 'frappe-ui'
 import { computed, inject, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'

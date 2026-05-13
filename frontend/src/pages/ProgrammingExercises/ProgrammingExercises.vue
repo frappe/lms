@@ -37,7 +37,7 @@
 	</LayoutHeader>
 	<div class="flex min-h-0 flex-1 flex-col pt-5">
 		<div
-			class="mb-5 flex flex-col justify-between space-y-4 px-5 md:flex-row md:items-center md:space-y-0"
+			class="mb-5 flex flex-col justify-between gap-y-4 px-5 sm:flex-row sm:items-center"
 		>
 			<div class="text-lg font-semibold text-ink-gray-9">
 				{{ __('{0} Exercises').format(exercises.data?.length) }}
