@@ -5,9 +5,9 @@
 		<Breadcrumbs :items="breadcrumbs" />
 		<Button v-if="canCreateProgram()" @click="openForm('new')" variant="solid">
 			<template #prefix>
-				<Plus class="h-4 w-4 stroke-1.5" />
+				<Plus class="size-4 stroke-1.5" />
 			</template>
-			{{ __('New') }}
+			{{ __('Create') }}
 		</Button>
 	</header>
 	<div v-if="programs.data?.length && !isStudent" class="py-10 w-3/4 mx-auto">
