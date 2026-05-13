@@ -20,8 +20,15 @@
 		</Button>
 	</header>
 
+<<<<<<< HEAD
 	<div class="py-5 mx-5">
 		<div class="flex items-center justify-between mb-5">
+=======
+	<div class="flex min-h-0 flex-1 flex-col pt-5">
+		<div
+			class="mx-5 mb-5 flex flex-col justify-between space-y-4 md:flex-row md:items-center md:space-y-0"
+		>
+>>>>>>> bd49f898 (fix(ui): footer is consistent across all pages)
 			<div class="text-lg font-semibold text-ink-gray-9">
 				{{ __('{0} Assignments').format(assignments.data?.length) }}
 			</div>
@@ -30,9 +37,8 @@
 					v-model="titleFilter"
 					:placeholder="__('Search by Title')"
 				/>
-				<FormControl
+				<Select
 					v-model="typeFilter"
-					type="select"
 					:options="assignmentTypes"
 					:placeholder="__('Type')"
 				/>
@@ -52,10 +58,14 @@
 					showAssignmentForm = true
 				},
 			}"
+<<<<<<< HEAD
 			class="h-[79vh] border-b"
+=======
+			class="flex-1 px-5"
+>>>>>>> bd49f898 (fix(ui): footer is consistent across all pages)
 		>
 			<ListHeader
-				class="mb-2 grid items-center rounded bg-surface-white border-b rounded-none p-2"
+				class="mb-2 grid items-center rounded-none border-b bg-surface-white p-2"
 			>
 				<ListHeaderItem :item="item" v-for="item in assignmentColumns">
 					<template #prefix="{ item }">
@@ -104,6 +114,7 @@
 				</template>
 			</ListSelectBanner>
 		</ListView>
+<<<<<<< HEAD
 		<EmptyState v-else type="Assignments" />
 		<div class="flex items-center justify-end space-x-3 mt-3">
 			<Button v-if="assignments.hasNextPage" @click="assignments.next()">
@@ -115,6 +126,35 @@
 				{{ totalAssignments.data }}
 			</div>
 		</div>
+=======
+		<div v-else class="flex-1">
+			<EmptyStateLayout name="Assignments" />
+		</div>
+		<ListFooter
+			v-model="pageLength"
+			class="border-t px-3 py-2 sm:px-5"
+			:options="{
+				rowCount: assignments.data?.length,
+				totalCount: totalAssignments.data,
+			}"
+		>
+			<template #right>
+				<div class="flex items-center">
+					<Button
+						v-if="assignments.hasNextPage"
+						:label="__('Load More')"
+						@click="assignments.next()"
+					/>
+					<div v-if="assignments.hasNextPage" class="mx-3 h-[80%] border-l" />
+					<div class="flex items-center gap-1 text-base text-ink-gray-5">
+						<div>{{ assignments.data?.length || 0 }}</div>
+						<div>{{ __('of') }}</div>
+						<div>{{ totalAssignments.data || 0 }}</div>
+					</div>
+				</div>
+			</template>
+		</ListFooter>
+>>>>>>> bd49f898 (fix(ui): footer is consistent across all pages)
 	</div>
 	<AssignmentForm
 		v-model="showAssignmentForm"
@@ -126,16 +166,16 @@
 import {
 	Breadcrumbs,
 	Button,
-	call,
 	createListResource,
 	createResource,
-	FormControl,
+	Select,
 	ListView,
 	ListHeader,
 	ListHeaderItem,
 	ListRows,
 	ListRow,
 	ListRowItem,
+	ListFooter,
 	ListSelectBanner,
 	FeatherIcon,
 	toast,
@@ -214,6 +254,14 @@ const assignments = createListResource({
 				modified: dayjs(row.modified).format('DD MMM YYYY'),
 			}
 		})
+	},
+})
+
+const pageLength = computed({
+	get: () => assignments.pageLength,
+	set: (value) => {
+		assignments.update({ pageLength: value })
+		assignments.reload()
 	},
 })
 

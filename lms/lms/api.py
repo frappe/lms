@@ -232,9 +232,25 @@ def get_job_details(job: str):
 
 
 @frappe.whitelist(allow_guest=True)
+<<<<<<< HEAD
 def get_job_opportunities(filters: dict = None, orFilters: dict = None):
 	if not filters:
 		filters = {}
+=======
+def get_job_opportunities(
+	filters: dict = None,
+	or_filters: dict = None,
+	start: int = 0,
+	page_length: int = 40,
+	limit_start: int = None,
+	limit_page_length: int = None,
+):
+	if limit_page_length is not None:
+		page_length = cint(limit_page_length)
+	if limit_start is not None:
+		start = cint(limit_start)
+	filters, or_filters = sanitize_job_filters(filters, or_filters)
+>>>>>>> bd49f898 (fix(ui): footer is consistent across all pages)
 
 	jobs = frappe.get_all(
 		"Job Opportunity",
@@ -344,7 +360,21 @@ def get_evaluator_details(evaluator: str):
 
 
 @frappe.whitelist()
+<<<<<<< HEAD
 def get_certified_participants(filters: dict = None, start: int = 0, page_length: int = 100):
+=======
+def get_certified_participants(
+	filters: dict = None,
+	start: int = 0,
+	page_length: int = 40,
+	limit_start: int = None,
+	limit_page_length: int = None,
+):
+	if limit_page_length is not None:
+		page_length = cint(limit_page_length)
+	if limit_start is not None:
+		start = cint(limit_start)
+>>>>>>> bd49f898 (fix(ui): footer is consistent across all pages)
 	query = get_certification_query(filters)
 	query = query.orderby("issue_date", order=frappe.qb.desc).offset(start).limit(page_length)
 	participants = query.run(as_dict=True)

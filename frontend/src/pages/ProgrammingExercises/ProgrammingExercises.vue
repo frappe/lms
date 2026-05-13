@@ -1,6 +1,6 @@
 <template>
 	<header
-		class="sticky flex items-center justify-between top-0 z-10 border-b bg-surface-white px-3 py-2.5 sm:px-5"
+		class="sticky top-0 z-10 flex items-center justify-between border-b bg-surface-white px-3 py-2.5 sm:px-5"
 	>
 		<Breadcrumbs :items="breadcrumbs" />
 		<div class="space-x-2">
@@ -34,20 +34,26 @@
 			</Button>
 		</div>
 	</header>
+<<<<<<< HEAD
 	<div class="p-5">
 		<div class="flex items-center justify-between mb-5">
+=======
+	<div class="flex min-h-0 flex-1 flex-col pt-5">
+		<div
+			class="mb-5 flex flex-col justify-between space-y-4 px-5 md:flex-row md:items-center md:space-y-0"
+		>
+>>>>>>> bd49f898 (fix(ui): footer is consistent across all pages)
 			<div class="text-lg font-semibold text-ink-gray-9">
 				{{ __('{0} Exercises').format(exercises.data?.length) }}
 			</div>
-			<div class="grid grid-cols-2 gap-5">
+			<div class="flex flex-col gap-3 sm:gap-5 md:flex-row">
 				<FormControl
 					v-model="titleFilter"
 					:placeholder="__('Search by Title')"
 					@input="updateList"
 				/>
-				<FormControl
+				<Select
 					v-model="languageFilter"
-					type="select"
 					:options="languages"
 					:placeholder="__('Type')"
 					@update:modelValue="updateList"
@@ -55,6 +61,7 @@
 			</div>
 		</div>
 
+<<<<<<< HEAD
 		<div v-if="exercises.data?.length">
 			<ListView
 				:columns="columns"
@@ -70,48 +77,32 @@
 					},
 				}"
 				class="h-[79vh] border-b"
+=======
+		<ListView
+			v-if="exercises.data?.length"
+			:columns="columns"
+			:rows="exercises.data"
+			row-key="name"
+			:options="{
+				showTooltip: false,
+				selectable: true,
+				onRowClick: (row: any) => {
+					if (readOnlyMode) return
+					exerciseID = row.name
+					showForm = true
+				},
+			}"
+			class="flex-1 overflow-y-auto px-5"
+		>
+			<ListHeader
+				class="mb-2 grid items-center rounded-none border-b bg-surface-white p-2"
+>>>>>>> bd49f898 (fix(ui): footer is consistent across all pages)
 			>
-				<ListHeader
-					class="mb-2 grid items-center rounded bg-surface-white border-b rounded-none p-2"
-				>
-					<ListHeaderItem :item="item" v-for="item in columns">
-						<template #prefix="{ item }">
-							<FeatherIcon :name="item.icon?.toString()" class="h-4 w-4" />
-						</template>
-					</ListHeaderItem>
-				</ListHeader>
-				<ListRows>
-					<ListRow
-						:row="row"
-						v-for="row in exercises.data"
-						class="hover:bg-surface-gray-1"
-					>
-						<template #default="{ column, item }">
-							<ListRowItem :item="row[column.key]" :align="column.align">
-								<div
-									v-if="column.key == 'modified'"
-									class="text-sm text-ink-gray-5"
-								>
-									{{ dayjs(row[column.key]).format('MMM D, YYYY') }}
-								</div>
-								<div v-else>
-									{{ row[column.key] }}
-								</div>
-							</ListRowItem>
-						</template>
-					</ListRow>
-				</ListRows>
-				<ListSelectBanner>
-					<template #actions="{ unselectAll, selections }">
-						<div class="flex gap-2">
-							<Button
-								variant="ghost"
-								@click="showDeleteConfirmation(selections, unselectAll)"
-							>
-								<FeatherIcon name="trash-2" class="h-4 w-4 stroke-1.5" />
-							</Button>
-						</div>
+				<ListHeaderItem :item="item" v-for="item in columns">
+					<template #prefix="{ item }">
+						<FeatherIcon :name="item.icon?.toString()" class="h-4 w-4" />
 					</template>
+<<<<<<< HEAD
 				</ListSelectBanner>
 			</ListView>
 		</div>
@@ -125,6 +116,71 @@
 				{{ exercises.data?.length }} {{ __('of') }} {{ totalExercises.data }}
 			</div>
 		</div>
+=======
+				</ListHeaderItem>
+			</ListHeader>
+			<ListRows>
+				<ListRow
+					:row="row"
+					v-for="row in exercises.data"
+					class="hover:bg-surface-gray-1"
+				>
+					<template #default="{ column, item }">
+						<ListRowItem :item="row[column.key]" :align="column.align">
+							<div
+								v-if="column.key == 'modified'"
+								class="text-sm text-ink-gray-5"
+							>
+								{{ dayjs(row[column.key]).format('MMM D, YYYY') }}
+							</div>
+							<div v-else>
+								{{ row[column.key] }}
+							</div>
+						</ListRowItem>
+					</template>
+				</ListRow>
+			</ListRows>
+			<ListSelectBanner>
+				<template #actions="{ unselectAll, selections }">
+					<div class="flex gap-2">
+						<Button
+							variant="ghost"
+							@click="showDeleteConfirmation(selections, unselectAll)"
+						>
+							<FeatherIcon name="trash-2" class="h-4 w-4 stroke-1.5" />
+						</Button>
+					</div>
+				</template>
+			</ListSelectBanner>
+		</ListView>
+		<div v-else class="flex flex-1 items-center justify-center px-5">
+			<EmptyStateLayout name="Programming Exercises" />
+		</div>
+		<ListFooter
+			v-model="pageLength"
+			class="border-t px-3 py-2 sm:px-5"
+			:options="{
+				rowCount: exercises.data?.length,
+				totalCount: totalExercises.data,
+			}"
+		>
+			<template #right>
+				<div class="flex items-center">
+					<Button
+						v-if="exercises.hasNextPage"
+						:label="__('Load More')"
+						@click="exercises.next()"
+					/>
+					<div v-if="exercises.hasNextPage" class="mx-3 h-[80%] border-l" />
+					<div class="flex items-center gap-1 text-base text-ink-gray-5">
+						<div>{{ exercises.data?.length || 0 }}</div>
+						<div>{{ __('of') }}</div>
+						<div>{{ totalExercises.data || 0 }}</div>
+					</div>
+				</div>
+			</template>
+		</ListFooter>
+>>>>>>> bd49f898 (fix(ui): footer is consistent across all pages)
 	</div>
 	<ProgrammingExerciseForm
 		v-model="showForm"
@@ -150,9 +206,11 @@ import {
 	ListRows,
 	ListRow,
 	ListRowItem,
+	ListFooter,
 	ListSelectBanner,
 	toast,
 	usePageMeta,
+	Select,
 } from 'frappe-ui'
 import { ClipboardList, Plus } from 'lucide-vue-next'
 import { sessionStore } from '@/stores/session'
@@ -255,6 +313,14 @@ const deleteExercises = (selections: Set<string>, unselectAll: () => void) => {
 	})
 	unselectAll()
 }
+
+const pageLength = computed({
+	get: () => exercises.pageLength,
+	set: (value) => {
+		exercises.update({ pageLength: value })
+		exercises.reload()
+	},
+})
 
 const totalExercises = createResource({
 	url: 'frappe.client.get_count',

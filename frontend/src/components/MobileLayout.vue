@@ -1,20 +1,31 @@
 <template>
-	<div class="flex h-full flex-col relative">
-		<div class="h-full pb-10" id="scrollContainer">
+	<div class="relative flex h-screen flex-col">
+		<div
+			class="flex flex-1 flex-col overflow-hidden pb-10"
+			id="scrollContainer"
+		>
 			<slot />
 		</div>
 
 		<div class="relative z-20">
 			<!-- Dropdown menu -->
 			<div
+<<<<<<< HEAD:frontend/src/components/MobileLayout.vue
 				class="fixed bottom-16 right-2 w-[80%] rounded-md bg-surface-white text-base p-5 space-y-4 shadow-md"
+=======
+				class="fixed bottom-16 end-2 w-[80%] space-y-4 rounded-md bg-surface-white p-5 text-base shadow-md"
+>>>>>>> bd49f898 (fix(ui): footer is consistent across all pages):frontend/src/components/Layouts/MobileLayout.vue
 				v-if="showMenu"
 				ref="menu"
 			>
 				<div
 					v-for="link in otherLinks"
 					:key="link.label"
+<<<<<<< HEAD:frontend/src/components/MobileLayout.vue
 					class="flex items-center space-x-2 cursor-pointer"
+=======
+					class="flex cursor-pointer items-center gap-x-2"
+>>>>>>> bd49f898 (fix(ui): footer is consistent across all pages):frontend/src/components/Layouts/MobileLayout.vue
 					@click="handleClick(link)"
 				>
 					<component
@@ -28,7 +39,11 @@
 			<!-- Fixed menu -->
 			<div
 				v-if="sidebarSettings.data"
+<<<<<<< HEAD:frontend/src/components/MobileLayout.vue
 				class="fixed bottom-0 left-0 w-full flex items-center justify-around border-t border-outline-gray-2 bg-surface-white standalone:pb-4 z-10"
+=======
+				class="standalone:pb-4 fixed bottom-0 start-0 z-10 flex w-full items-center justify-around border-t border-outline-gray-2 bg-surface-white"
+>>>>>>> bd49f898 (fix(ui): footer is consistent across all pages):frontend/src/components/Layouts/MobileLayout.vue
 			>
 				<button
 					v-for="tab in sidebarLinks"

@@ -1,6 +1,6 @@
 <template>
 	<header
-		class="sticky flex items-center justify-between top-0 z-10 border-b bg-surface-white px-3 py-2.5 sm:px-5"
+		class="sticky top-0 z-10 flex items-center justify-between border-b bg-surface-white px-3 py-2.5 sm:px-5"
 	>
 		<Breadcrumbs :items="breadcrumbs" />
 		<router-link :to="{ name: 'Courses', query: { certification: true } }">
@@ -12,6 +12,7 @@
 			</Button>
 		</router-link>
 	</header>
+<<<<<<< HEAD
 	<div class="mx-auto w-full max-w-4xl pt-6 pb-10">
 		<div class="flex flex-col md:flex-row justify-between mb-8 px-3">
 			<div class="text-xl font-semibold text-ink-gray-9 mb-4 md:mb-0">
@@ -19,18 +20,27 @@
 			</div>
 			<div
 				class="flex flex-col md:flex-row md:items-center space-y-4 md:space-y-0 md:space-x-4"
+=======
+	<div class="mx-auto flex min-h-0 w-full flex-1 flex-col">
+		<div class="mb-5 flex flex-col justify-between px-5 pt-5 md:flex-row">
+			<div class="mb-4 text-lg font-semibold text-ink-gray-9 md:mb-0">
+				{{ memberCount }} {{ __('Certified Members') }}
+			</div>
+			<div
+				class="flex flex-col space-y-4 md:flex-row md:items-center md:gap-x-4 md:space-y-0"
+>>>>>>> bd49f898 (fix(ui): footer is consistent across all pages)
 			>
 				<div class="flex items-center space-x-4">
 					<FormControl
 						v-model="nameFilter"
 						:placeholder="__('Search by Name')"
 						type="text"
-						class="min-w-40 lg:min-w-0 lg:w-32 xl:w-40"
+						class="min-w-40 lg:w-32 lg:min-w-0 xl:w-40"
 						@input="updateParticipants()"
 					/>
 					<div
 						v-if="categories.data?.length"
-						class="min-w-40 lg:min-w-0 lg:w-32 xl:w-40"
+						class="min-w-40 lg:w-32 lg:min-w-0 xl:w-40"
 					>
 						<Select
 							v-model="currentCategory"
@@ -56,6 +66,7 @@
 				</div>
 			</div>
 		</div>
+<<<<<<< HEAD
 		<div v-if="participants.data?.length" class="">
 			<template v-for="(participant, index) in participants.data">
 				<router-link
@@ -118,6 +129,87 @@
 				{{ __('Load More') }}
 			</Button>
 		</div>
+=======
+		<div
+			v-if="participants.data?.length"
+			class="flex-1 overflow-y-auto px-5 pb-5"
+		>
+			<div class="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-4">
+				<div
+					v-for="participant in participants.data"
+					class="flex cursor-pointer flex-col rounded-lg border p-3 text-ink-gray-9 hover:border-outline-gray-3"
+					@click="
+						router.push({
+							name: 'ProfileAbout',
+							params: { username: participant.username },
+						})
+					"
+				>
+					<div class="flex items-center gap-x-4">
+						<UserAvatar :user="participant" size="2xl" />
+						<div class="flex flex-col">
+							<div class="line-clamp-1 font-semibold">
+								{{ participant.full_name }}
+							</div>
+							<div class="mb-4 line-clamp-1 text-sm leading-5">
+								{{
+									participant.headline ||
+									'Joined ' + dayjs(participant.creation).fromNow()
+								}}
+							</div>
+						</div>
+					</div>
+					<div class="mt-auto space-y-2 text-ink-gray-7">
+						<div class="flex items-center gap-x-1">
+							<GraduationCap class="me-1 h-4 w-4 stroke-1.5" />
+							<span>
+								{{ participant.certificate_count }}
+								{{
+									participant.certificate_count > 1
+										? __('certificates')
+										: __('certificate')
+								}}
+							</span>
+						</div>
+						<div class="flex items-center gap-x-1">
+							<Calendar class="me-1 h-4 w-4 stroke-1.5" />
+							<span>{{
+								dayjs(participant.issue_date).format('DD MMM YYYY')
+							}}</span>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div v-else class="flex min-h-0 flex-1 items-center justify-center px-5">
+			<EmptyStateLayout name="Certified Members" />
+		</div>
+		<ListFooter
+			v-model="pageLength"
+			class="border-t px-3 py-2 sm:px-5"
+			:options="{
+				rowCount: participants.data?.length,
+				totalCount: memberCount,
+				pageLengthOptions: [40, 80, 160],
+			}"
+		>
+			<template #right>
+				<div class="flex items-center">
+					<Button
+						v-if="participants.hasNextPage"
+						:label="__('Load More')"
+						@click="participants.next()"
+					/>
+					<div v-if="participants.hasNextPage" class="mx-3 h-[80%] border-l" />
+					<div class="flex items-center gap-1 text-base text-ink-gray-5">
+						<div>{{ participants.data?.length || 0 }}</div>
+						<div>{{ __('of') }}</div>
+						<div>{{ memberCount || 0 }}</div>
+					</div>
+				</div>
+			</template>
+		</ListFooter>
+>>>>>>> bd49f898 (fix(ui): footer is consistent across all pages)
 	</div>
 </template>
 <script setup>
@@ -128,6 +220,7 @@ import {
 	call,
 	createListResource,
 	FormControl,
+	ListFooter,
 	Select,
 	usePageMeta,
 } from 'frappe-ui'
@@ -164,6 +257,14 @@ const participants = createListResource({
 	start: 0,
 	cache: ['certified_participants'],
 	pageLength: 100,
+})
+
+const pageLength = computed({
+	get: () => participants.pageLength,
+	set: (value) => {
+		participants.update({ pageLength: value })
+		participants.reload()
+	},
 })
 
 const getMemberCount = () => {
