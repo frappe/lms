@@ -28,13 +28,13 @@
 			<template v-slot="{ open }">
 				<Button variant="solid">
 					<template #prefix>
-						<Plus class="h-4 w-4 stroke-1.5" />
+						<Plus class="size-4 stroke-1.5" />
 					</template>
 					{{ __('Create') }}
 					<template #suffix>
 						<ChevronDown
 							:class="[
-								'w-4 h-4 stroke-1.5 ms-1 transform transition-transform',
+								'ms-1 size-4 transform stroke-1.5 transition-transform',
 								open ? 'rotate-180' : '',
 							]"
 						/>

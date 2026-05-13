@@ -5,7 +5,7 @@
 		<Breadcrumbs :items="breadcrumbs" />
 		<Button v-if="!readOnlyMode" variant="solid" @click="showForm = true">
 			<template #prefix>
-				<Plus class="w-4 h-4" />
+				<Plus class="size-4 stroke-1.5" />
 			</template>
 			{{ __('Create') }}
 		</Button>
