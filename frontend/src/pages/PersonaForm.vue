@@ -10,7 +10,7 @@
 				</span>
 			</div>
 			<div
-				class="mx-auto w-full h-fit bg-white py-8 sm:mt-6 sm:w-96 sm:rounded-lg sm:px-8 sm:shadow-xl"
+				class="mx-auto w-full h-fit bg-white py-8 sm:mt-6 sm:w-fit sm:rounded-lg sm:px-8 sm:shadow-xl"
 			>
 				<div class="font-medium text-center mb-8">
 					{{ __('Help us understand your needs') }}
