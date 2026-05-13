@@ -1,31 +1,33 @@
 <template>
 	<div class="flex h-full flex-col">
-		<header
-			class="sticky top-0 z-10 flex items-center justify-between border-b bg-surface-white px-3 py-2.5 sm:px-5"
-		>
-			<Breadcrumbs
-				class="h-7"
-				:items="[{ label: __('Jobs'), route: { name: 'Jobs' } }]"
-			/>
-			<router-link
-				v-if="
-					user.data?.name && settings.data?.allow_job_posting && !readOnlyMode
-				"
-				:to="{
-					name: 'JobForm',
-					params: {
-						jobName: 'new',
-					},
-				}"
-			>
-				<Button variant="solid">
-					<template #prefix>
-						<Plus class="size-4 stroke-1.5" />
-					</template>
-					{{ __('Create') }}
-				</Button>
-			</router-link>
-		</header>
+		<LayoutHeader>
+			<template #left-header>
+				<Breadcrumbs
+					class="h-7"
+					:items="[{ label: __('Jobs'), route: { name: 'Jobs' } }]"
+				/>
+			</template>
+			<template #right-header>
+				<router-link
+					v-if="
+						user.data?.name && settings.data?.allow_job_posting && !readOnlyMode
+					"
+					:to="{
+						name: 'JobForm',
+						params: {
+							jobName: 'new',
+						},
+					}"
+				>
+					<Button variant="solid">
+						<template #prefix>
+							<Plus class="size-4 stroke-1.5" />
+						</template>
+						{{ __('Create') }}
+					</Button>
+				</router-link>
+			</template>
+		</LayoutHeader>
 		<div class="flex min-h-0 flex-1 flex-col">
 			<div
 				class="mx-auto mb-2 flex w-full flex-col justify-between space-y-4 p-5 lg:flex-row lg:items-center lg:space-y-0"
@@ -163,6 +165,7 @@ import { inject, computed, ref, onMounted, watch } from 'vue'
 import JobCard from '@/components/JobCard.vue'
 import Link from '@/components/Controls/Link.vue'
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
+import LayoutHeader from '@/components/Layouts/LayoutHeader.vue'
 
 const user = inject('$user')
 const jobType = ref(null)
