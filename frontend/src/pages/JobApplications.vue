@@ -1,5 +1,6 @@
 <template>
 	<div class="">
+<<<<<<< HEAD
 		<header
 			class="sticky top-0 z-10 flex items-center justify-between border-b bg-surface-white px-3 py-2.5 sm:px-5"
 		>
@@ -21,6 +22,38 @@
 					{{ applicationCount }}
 					{{ applicationCount === 1 ? __('Application') : __('Applications') }}
 				</h1>
+=======
+		<LayoutHeader>
+			<template #left-header>
+				<Breadcrumbs
+					class="h-7"
+					:items="[
+						{ label: __('Jobs'), route: { name: 'Jobs' } },
+						{
+							label: applications.data?.[0]?.job_title,
+							route: { name: 'JobDetail', params: { job: props.job } },
+						},
+						{ label: __('Applications') },
+					]"
+				/>
+			</template>
+		</LayoutHeader>
+		<div class="mx-auto pt-5 p-4">
+			<div class="flex items-center justify-between mb-5">
+				<div class="text-lg font-semibold text-ink-gray-9 mb-4 md:mb-0">
+					{{ totalApplications.data }}
+					{{
+						totalApplications.data === 1
+							? __('Application')
+							: __('Applications')
+					}}
+				</div>
+				<FormControl v-model="search" type="text" placeholder="Search">
+					<template #prefix>
+						<FeatherIcon name="search" class="size-4 text-ink-gray-5" />
+					</template>
+				</FormControl>
+>>>>>>> 57420dba (refactor(header): refactored all pages to use same layoutheader component)
 			</div>
 
 			<div v-if="applications.data?.length">
@@ -175,7 +208,12 @@ import {
 import { RefreshCw } from 'lucide-vue-next'
 import { computed, inject, onMounted, ref, reactive } from 'vue'
 import { sessionStore } from '../stores/session'
+<<<<<<< HEAD
 import EmptyState from '@/components/EmptyState.vue'
+=======
+import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
+import LayoutHeader from '@/components/Layouts/LayoutHeader.vue'
+>>>>>>> 57420dba (refactor(header): refactored all pages to use same layoutheader component)
 
 const dayjs = inject('$dayjs')
 const { brand } = sessionStore()

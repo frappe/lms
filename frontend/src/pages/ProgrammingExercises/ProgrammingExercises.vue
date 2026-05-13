@@ -1,9 +1,17 @@
 <template>
+<<<<<<< HEAD
 	<header
 		class="sticky top-0 z-10 flex items-center justify-between border-b bg-surface-white px-3 py-2.5 sm:px-5"
 	>
 		<Breadcrumbs :items="breadcrumbs" />
 		<div class="space-x-2">
+=======
+	<LayoutHeader>
+		<template #left-header>
+			<Breadcrumbs :items="breadcrumbs" />
+		</template>
+		<template #right-header>
+>>>>>>> 57420dba (refactor(header): refactored all pages to use same layoutheader component)
 			<router-link
 				v-if="exercises.data?.length"
 				:to="{
@@ -32,12 +40,17 @@
 				</template>
 				{{ __('Create') }}
 			</Button>
+<<<<<<< HEAD
 		</div>
 	</header>
 <<<<<<< HEAD
 	<div class="p-5">
 		<div class="flex items-center justify-between mb-5">
 =======
+=======
+		</template>
+	</LayoutHeader>
+>>>>>>> 57420dba (refactor(header): refactored all pages to use same layoutheader component)
 	<div class="flex min-h-0 flex-1 flex-col pt-5">
 		<div
 			class="mb-5 flex flex-col justify-between space-y-4 px-5 md:flex-row md:items-center md:space-y-0"
@@ -216,6 +229,7 @@ import { ClipboardList, Plus } from 'lucide-vue-next'
 import { sessionStore } from '@/stores/session'
 import { useRouter } from 'vue-router'
 import ProgrammingExerciseForm from '@/pages/ProgrammingExercises/ProgrammingExerciseForm.vue'
+import LayoutHeader from '@/components/Layouts/LayoutHeader.vue'
 
 const readOnlyMode = window.read_only_mode
 const { brand } = sessionStore()

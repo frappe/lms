@@ -1,5 +1,6 @@
 <template>
 	<div class="flex h-full flex-col">
+<<<<<<< HEAD
 		<header
 			class="sticky top-0 z-10 flex items-center justify-between border-b bg-surface-white px-3 py-2.5 sm:px-5"
 		>
@@ -26,6 +27,36 @@
 				</Button>
 			</router-link>
 		</header>
+=======
+		<LayoutHeader>
+			<template #left-header>
+				<Breadcrumbs
+					class="h-7"
+					:items="[{ label: __('Jobs'), route: { name: 'Jobs' } }]"
+				/>
+			</template>
+			<template #right-header>
+				<router-link
+					v-if="
+						user.data?.name && settings.data?.allow_job_posting && !readOnlyMode
+					"
+					:to="{
+						name: 'JobForm',
+						params: {
+							jobName: 'new',
+						},
+					}"
+				>
+					<Button variant="solid">
+						<template #prefix>
+							<Plus class="size-4 stroke-1.5" />
+						</template>
+						{{ __('Create') }}
+					</Button>
+				</router-link>
+			</template>
+		</LayoutHeader>
+>>>>>>> 57420dba (refactor(header): refactored all pages to use same layoutheader component)
 		<div class="flex min-h-0 flex-1 flex-col">
 			<div
 <<<<<<< HEAD
@@ -178,7 +209,12 @@ import { useSettings } from '@/stores/settings'
 import { inject, computed, ref, onMounted, watch } from 'vue'
 import JobCard from '@/components/JobCard.vue'
 import Link from '@/components/Controls/Link.vue'
+<<<<<<< HEAD
 import EmptyState from '@/components/EmptyState.vue'
+=======
+import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
+import LayoutHeader from '@/components/Layouts/LayoutHeader.vue'
+>>>>>>> 57420dba (refactor(header): refactored all pages to use same layoutheader component)
 
 const user = inject('$user')
 const jobType = ref(null)
