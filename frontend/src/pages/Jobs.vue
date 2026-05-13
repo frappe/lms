@@ -1,5 +1,5 @@
 <template>
-	<div class="">
+	<div class="flex h-full flex-col">
 		<header
 			class="sticky top-0 z-10 flex items-center justify-between border-b bg-surface-white px-3 py-2.5 sm:px-5"
 		>
@@ -26,9 +26,9 @@
 				</Button>
 			</router-link>
 		</header>
-		<div>
+		<div class="flex min-h-0 flex-1 flex-col">
 			<div
-				class="flex flex-col lg:flex-row space-y-4 lg:space-y-0 lg:items-center justify-between w-full mx-auto mb-2 p-5"
+				class="mx-auto mb-2 flex w-full flex-col justify-between space-y-4 p-5 lg:flex-row lg:items-center lg:space-y-0"
 			>
 				<div class="flex items-center justify-between">
 					<div class="text-lg font-semibold text-ink-gray-9 md:mb-0">
@@ -44,7 +44,7 @@
 				</div>
 
 				<div
-					class="flex flex-col md:flex-row md:items-center md:gap-x-4 space-y-4 md:space-y-0"
+					class="flex flex-col space-y-4 md:flex-row md:items-center md:gap-x-4 md:space-y-0"
 				>
 					<TabButtons
 						v-if="tabs.length > 1"
@@ -63,7 +63,7 @@
 						>
 							<template #prefix>
 								<Search
-									class="w-4 h-4 stroke-1.5 text-ink-gray-5"
+									class="size-4 stroke-1.5 text-ink-gray-5"
 									name="search"
 								/>
 							</template>
@@ -98,9 +98,9 @@
 			</div>
 			<div
 				v-if="jobs.data?.length"
-				class="w-full h-[61vh] lg:h-[78vh] overflow-y-auto mx-auto p-5 pt-0"
+				class="mx-auto w-full flex-1 overflow-y-auto p-5 pt-0"
 			>
-				<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+				<div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
 					<router-link
 						v-for="job in jobs.data"
 						:to="{
@@ -113,19 +113,34 @@
 					</router-link>
 				</div>
 			</div>
-			<div v-else class="h-[32vh] lg:h-[50vh] px-5">
+			<div v-else class="flex flex-1 items-center justify-center px-5">
 				<EmptyStateLayout name="Job Openings" />
 			</div>
-			<div class="flex items-center justify-end gap-x-3 border-t pt-3 px-5">
-				<Button v-if="jobs.hasNextPage" @click="jobs.next()">
-					{{ __('Load More') }}
-				</Button>
-				<div v-if="jobs.hasNextPage" class="h-8 border-s"></div>
-				<div class="text-ink-gray-5">
-					{{ jobs.data?.length }} {{ __('of') }}
-					{{ jobCount.data ?? 0 }}
-				</div>
-			</div>
+			<ListFooter
+				v-model="pageLength"
+				class="border-t px-3 py-2 sm:px-5"
+				:options="{
+					rowCount: jobs.data?.length,
+					totalCount: jobCount.data ?? 0,
+					pageLengthOptions: [40, 80, 160],
+				}"
+			>
+				<template #right>
+					<div class="flex items-center">
+						<Button
+							v-if="jobs.hasNextPage"
+							:label="__('Load More')"
+							@click="jobs.next()"
+						/>
+						<div v-if="jobs.hasNextPage" class="mx-3 h-[80%] border-l" />
+						<div class="flex items-center gap-1 text-base text-ink-gray-5">
+							<div>{{ jobs.data?.length || 0 }}</div>
+							<div>{{ __('of') }}</div>
+							<div>{{ jobCount.data ?? 0 }}</div>
+						</div>
+					</div>
+				</template>
+			</ListFooter>
 		</div>
 	</div>
 </template>
@@ -137,6 +152,7 @@ import {
 	createListResource,
 	createResource,
 	FormControl,
+	ListFooter,
 	TabButtons,
 	usePageMeta,
 } from 'frappe-ui'
@@ -217,6 +233,14 @@ const jobs = createListResource({
 	start: 0,
 	cache: ['jobs'],
 	pageLength: 40,
+})
+
+const pageLength = computed({
+	get: () => jobs.pageLength,
+	set: (value) => {
+		jobs.update({ pageLength: value })
+		jobs.reload()
+	},
 })
 
 const updateJobs = () => {

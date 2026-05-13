@@ -10,8 +10,8 @@
 			{{ __('Create') }}
 		</Button>
 	</header>
-	<div class="pt-5">
-		<div class="flex items-center justify-between mb-5 mx-5">
+	<div class="flex min-h-0 flex-1 flex-col pt-5">
+		<div class="mx-5 mb-5 flex items-center justify-between">
 			<div class="text-lg font-semibold text-ink-gray-9">
 				{{ __('{0} Quizzes').format(quizzes.data?.length) }}
 			</div>
@@ -27,10 +27,10 @@
 			:rows="quizzes.data"
 			row-key="name"
 			:options="{ showTooltip: false, selectable: true }"
-			class="h-[74.5vh] lg:h-[79vh] px-5"
+			class="flex-1 overflow-y-auto px-5"
 		>
 			<ListHeader
-				class="mb-2 grid items-center rounded bg-surface-white border-b rounded-none p-2"
+				class="mb-2 grid items-center rounded-none border-b bg-surface-white p-2"
 			>
 				<ListHeaderItem :item="item" v-for="item in quizColumns">
 					<template #prefix="{ item }">
@@ -85,18 +85,33 @@
 				</template>
 			</ListSelectBanner>
 		</ListView>
-		<div v-else class="h-[49vh] lg:h-[53vh] px-5">
+		<div v-else class="flex flex-1 items-center justify-center px-5">
 			<EmptyStateLayout name="Quizzes" />
 		</div>
-		<div class="flex items-center justify-end gap-x-3 pt-3 border-t px-5">
-			<Button v-if="quizzes.hasNextPage" @click="quizzes.next()">
-				{{ __('Load More') }}
-			</Button>
-			<div v-if="quizzes.hasNextPage" class="h-8 border-s"></div>
-			<div class="text-ink-gray-5">
-				{{ quizzes.data?.length }} {{ __('of') }} {{ totalQuizzes.data }}
-			</div>
-		</div>
+		<ListFooter
+			v-model="pageLength"
+			class="border-t px-3 py-2 sm:px-5"
+			:options="{
+				rowCount: quizzes.data?.length,
+				totalCount: totalQuizzes.data,
+			}"
+		>
+			<template #right>
+				<div class="flex items-center">
+					<Button
+						v-if="quizzes.hasNextPage"
+						:label="__('Load More')"
+						@click="quizzes.next()"
+					/>
+					<div v-if="quizzes.hasNextPage" class="mx-3 h-[80%] border-l" />
+					<div class="flex items-center gap-1 text-base text-ink-gray-5">
+						<div>{{ quizzes.data?.length || 0 }}</div>
+						<div>{{ __('of') }}</div>
+						<div>{{ totalQuizzes.data || 0 }}</div>
+					</div>
+				</div>
+			</template>
+		</ListFooter>
 	</div>
 	<Dialog
 		v-model="showForm"
@@ -140,6 +155,7 @@ import {
 	ListRowItem,
 	ListHeader,
 	ListHeaderItem,
+	ListFooter,
 	ListSelectBanner,
 	toast,
 	usePageMeta,
@@ -211,6 +227,14 @@ const quizzes = createListResource({
 				modified: dayjs(quiz.modified).format('DD MMM YYYY'),
 			}
 		})
+	},
+})
+
+const pageLength = computed({
+	get: () => quizzes.pageLength,
+	set: (value) => {
+		quizzes.update({ pageLength: value })
+		quizzes.reload()
 	},
 })
 

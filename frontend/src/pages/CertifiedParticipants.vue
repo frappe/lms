@@ -1,6 +1,6 @@
 <template>
 	<header
-		class="sticky flex items-center justify-between top-0 z-10 border-b bg-surface-white px-3 py-2.5 sm:px-5"
+		class="sticky top-0 z-10 flex items-center justify-between border-b bg-surface-white px-3 py-2.5 sm:px-5"
 	>
 		<Breadcrumbs :items="breadcrumbs" />
 		<router-link :to="{ name: 'Courses', query: { certification: true } }">
@@ -12,25 +12,25 @@
 			</Button>
 		</router-link>
 	</header>
-	<div class="mx-auto w-full">
-		<div class="flex flex-col md:flex-row justify-between mb-5 px-5 pt-5">
-			<div class="text-lg font-semibold text-ink-gray-9 mb-4 md:mb-0">
+	<div class="mx-auto flex min-h-0 w-full flex-1 flex-col">
+		<div class="mb-5 flex flex-col justify-between px-5 pt-5 md:flex-row">
+			<div class="mb-4 text-lg font-semibold text-ink-gray-9 md:mb-0">
 				{{ memberCount }} {{ __('Certified Members') }}
 			</div>
 			<div
-				class="flex flex-col md:flex-row md:items-center space-y-4 md:space-y-0 md:gap-x-4"
+				class="flex flex-col space-y-4 md:flex-row md:items-center md:gap-x-4 md:space-y-0"
 			>
 				<div class="flex items-center gap-x-4">
 					<FormControl
 						v-model="nameFilter"
 						:placeholder="__('Search by Name')"
 						type="text"
-						class="min-w-40 lg:min-w-0 lg:w-32 xl:w-40"
+						class="min-w-40 lg:w-32 lg:min-w-0 xl:w-40"
 						@input="updateParticipants()"
 					/>
 					<div
 						v-if="categories.data?.length"
-						class="min-w-40 lg:min-w-0 lg:w-32 xl:w-40"
+						class="min-w-40 lg:w-32 lg:min-w-0 xl:w-40"
 					>
 						<Select
 							v-model="currentCategory"
@@ -58,12 +58,12 @@
 		</div>
 		<div
 			v-if="participants.data?.length"
-			class="h-[63vh] lg:h-[77vh] overflow-y-auto mb-5 px-5"
+			class="flex-1 overflow-y-auto px-5 pb-5"
 		>
-			<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+			<div class="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-4">
 				<div
 					v-for="participant in participants.data"
-					class="flex flex-col border hover:border-outline-gray-3 rounded-lg p-3 text-ink-gray-9 cursor-pointer"
+					class="flex cursor-pointer flex-col rounded-lg border p-3 text-ink-gray-9 hover:border-outline-gray-3"
 					@click="
 						router.push({
 							name: 'ProfileAbout',
@@ -74,10 +74,10 @@
 					<div class="flex items-center gap-x-4">
 						<UserAvatar :user="participant" size="2xl" />
 						<div class="flex flex-col">
-							<div class="font-semibold line-clamp-1">
+							<div class="line-clamp-1 font-semibold">
 								{{ participant.full_name }}
 							</div>
-							<div class="text-sm leading-5 line-clamp-1 mb-4">
+							<div class="mb-4 line-clamp-1 text-sm leading-5">
 								{{
 									participant.headline ||
 									'Joined ' + dayjs(participant.creation).fromNow()
@@ -87,7 +87,7 @@
 					</div>
 					<div class="mt-auto space-y-2 text-ink-gray-7">
 						<div class="flex items-center gap-x-1">
-							<GraduationCap class="h-4 w-4 stroke-1.5 me-1" />
+							<GraduationCap class="me-1 h-4 w-4 stroke-1.5" />
 							<span>
 								{{ participant.certificate_count }}
 								{{
@@ -98,7 +98,7 @@
 							</span>
 						</div>
 						<div class="flex items-center gap-x-1">
-							<Calendar class="h-4 w-4 stroke-1.5 me-1" />
+							<Calendar class="me-1 h-4 w-4 stroke-1.5" />
 							<span>{{
 								dayjs(participant.issue_date).format('DD MMM YYYY')
 							}}</span>
@@ -107,19 +107,34 @@
 				</div>
 			</div>
 		</div>
-		<div v-else class="h-[40vh] lg:h-[53vh] px-5">
+		<div v-else class="flex min-h-0 flex-1 items-center justify-center px-5">
 			<EmptyStateLayout name="Certified Members" />
 		</div>
-		<div class="flex items-center justify-end gap-x-3 border-t pt-3 px-5">
-			<Button v-if="participants.hasNextPage" @click="participants.next()">
-				{{ __('Load More') }}
-			</Button>
-			<div v-if="participants.hasNextPage" class="h-8 border-s"></div>
-			<div class="text-ink-gray-5">
-				{{ participants.data?.length }} {{ __('of') }}
-				{{ memberCount }}
-			</div>
-		</div>
+		<ListFooter
+			v-model="pageLength"
+			class="border-t px-3 py-2 sm:px-5"
+			:options="{
+				rowCount: participants.data?.length,
+				totalCount: memberCount,
+				pageLengthOptions: [40, 80, 160],
+			}"
+		>
+			<template #right>
+				<div class="flex items-center">
+					<Button
+						v-if="participants.hasNextPage"
+						:label="__('Load More')"
+						@click="participants.next()"
+					/>
+					<div v-if="participants.hasNextPage" class="mx-3 h-[80%] border-l" />
+					<div class="flex items-center gap-1 text-base text-ink-gray-5">
+						<div>{{ participants.data?.length || 0 }}</div>
+						<div>{{ __('of') }}</div>
+						<div>{{ memberCount || 0 }}</div>
+					</div>
+				</div>
+			</template>
+		</ListFooter>
 	</div>
 </template>
 <script setup>
@@ -129,6 +144,7 @@ import {
 	call,
 	createListResource,
 	FormControl,
+	ListFooter,
 	Select,
 	usePageMeta,
 } from 'frappe-ui'
@@ -165,6 +181,14 @@ const participants = createListResource({
 	start: 0,
 	pageLength: 40,
 	cache: ['certified_participants'],
+})
+
+const pageLength = computed({
+	get: () => participants.pageLength,
+	set: (value) => {
+		participants.update({ pageLength: value })
+		participants.reload()
+	},
 })
 
 const getMemberCount = () => {
