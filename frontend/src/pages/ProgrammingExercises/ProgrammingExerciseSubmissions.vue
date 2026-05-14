@@ -1,9 +1,9 @@
 <template>
-	<header
-		class="sticky flex items-center justify-between top-0 z-10 border-b bg-surface-white px-3 py-2.5 sm:px-5"
-	>
-		<Breadcrumbs :items="breadcrumbs" />
-	</header>
+	<LayoutHeader>
+		<template #left-header>
+			<Breadcrumbs :items="breadcrumbs" />
+		</template>
+	</LayoutHeader>
 	<div class="p-6">
 		<div class="flex items-center justify-between gap-x-32 mb-5">
 			<div class="text-lg font-semibold text-ink-gray-9">
@@ -164,6 +164,7 @@ import { useRouter } from 'vue-router'
 import { Trash2 } from 'lucide-vue-next'
 import Link from '@/components/Controls/Link.vue'
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
+import LayoutHeader from '@/components/Layouts/LayoutHeader.vue'
 
 const { brand } = sessionStore()
 const dayjs = inject('$dayjs') as any

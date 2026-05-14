@@ -1,20 +1,20 @@
 <template>
 	<div class="">
-		<header
-			class="sticky top-0 z-10 flex items-center justify-between border-b bg-surface-white px-3 py-2.5 sm:px-5"
-		>
-			<Breadcrumbs
-				class="h-7"
-				:items="[
-					{ label: __('Jobs'), route: { name: 'Jobs' } },
-					{
-						label: applications.data?.[0]?.job_title,
-						route: { name: 'JobDetail', params: { job: props.job } },
-					},
-					{ label: __('Applications') },
-				]"
-			/>
-		</header>
+		<LayoutHeader>
+			<template #left-header>
+				<Breadcrumbs
+					class="h-7"
+					:items="[
+						{ label: __('Jobs'), route: { name: 'Jobs' } },
+						{
+							label: applications.data?.[0]?.job_title,
+							route: { name: 'JobDetail', params: { job: props.job } },
+						},
+						{ label: __('Applications') },
+					]"
+				/>
+			</template>
+		</LayoutHeader>
 		<div class="mx-auto pt-5 p-4">
 			<div class="flex items-center justify-between mb-5">
 				<div class="text-lg font-semibold text-ink-gray-9 mb-4 md:mb-0">
@@ -187,6 +187,7 @@ import {
 import { computed, inject, ref, reactive, watch } from 'vue'
 import { sessionStore } from '../stores/session'
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
+import LayoutHeader from '@/components/Layouts/LayoutHeader.vue'
 
 const dayjs = inject('$dayjs')
 const { brand } = sessionStore()

@@ -246,8 +246,17 @@ def sanitize_job_filters(filters, or_filters):
 
 @frappe.whitelist(allow_guest=True)
 def get_job_opportunities(
-	filters: dict = None, or_filters: dict = None, start: int = 0, page_length: int = 40
+	filters: dict = None,
+	or_filters: dict = None,
+	start: int = 0,
+	page_length: int = 40,
+	limit_start: int = None,
+	limit_page_length: int = None,
 ):
+	if limit_page_length is not None:
+		page_length = cint(limit_page_length)
+	if limit_start is not None:
+		start = cint(limit_start)
 	filters, or_filters = sanitize_job_filters(filters, or_filters)
 
 	jobs = frappe.get_all(
@@ -366,7 +375,17 @@ def get_evaluator_details(evaluator: str):
 
 
 @frappe.whitelist()
-def get_certified_participants(filters: dict = None, start: int = 0, page_length: int = 40):
+def get_certified_participants(
+	filters: dict = None,
+	start: int = 0,
+	page_length: int = 40,
+	limit_start: int = None,
+	limit_page_length: int = None,
+):
+	if limit_page_length is not None:
+		page_length = cint(limit_page_length)
+	if limit_start is not None:
+		start = cint(limit_start)
 	query = get_certification_query(filters)
 	query = query.orderby("issue_date", order=frappe.qb.desc).offset(start).limit(page_length)
 	participants = query.run(as_dict=True)
