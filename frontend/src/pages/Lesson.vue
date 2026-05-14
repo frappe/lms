@@ -1146,7 +1146,7 @@ watch(allowDiscussions, () => {
 
 const redirectToLogin = () => {
 	window.location.href = `/login?redirect-to=${getLmsRoute(
-		courses/${props.courseName}
+		`courses/${props.courseName}`
 	)}`
 }
 
