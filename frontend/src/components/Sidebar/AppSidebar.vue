@@ -1,6 +1,6 @@
 <template>
 	<div
-		class="flex h-full flex-col justify-between transition-all duration-300 ease-in-out border-r bg-surface-menu-bar overflow-x-hidden"
+		class="flex h-full flex-col justify-between transition-all duration-300 ease-in-out border-e bg-surface-menu-bar overflow-x-hidden"
 		:class="sidebarStore.isSidebarCollapsed ? 'w-14' : 'w-56'"
 	>
 		<div
@@ -31,8 +31,8 @@
 				class="mt-4"
 			>
 				<div
-					class="flex items-center justify-between pr-2 cursor-pointer"
-					:class="sidebarStore.isSidebarCollapsed ? 'pl-3' : 'pl-4'"
+					class="flex items-center justify-between pe-2 cursor-pointer"
+					:class="sidebarStore.isSidebarCollapsed ? 'ps-3' : 'ps-4'"
 					@click="toggleWebPages"
 				>
 					<div
@@ -42,10 +42,13 @@
 						<span class="grid h-5 w-6 flex-shrink-0 place-items-center">
 							<ChevronRight
 								class="h-4 w-4 stroke-1.5 text-ink-gray-9 transition-all duration-300 ease-in-out"
-								:class="{ 'rotate-90': !sidebarStore.isWebpagesCollapsed }"
+								:class="{
+									'rotate-90': !sidebarStore.isWebpagesCollapsed,
+									'rtl:rotate-180': sidebarStore.isWebpagesCollapsed,
+								}"
 							/>
 						</span>
-						<span class="ml-2">
+						<span class="ms-2">
 							{{ __('More') }}
 						</span>
 					</div>
@@ -159,12 +162,8 @@
 				"
 			>
 				<div
-					class="flex items-center flex-1"
-					:class="
-						sidebarStore.isSidebarCollapsed
-							? 'flex-col space-y-3'
-							: 'flex-row space-x-3'
-					"
+					class="flex items-center flex-1 gap-3"
+					:class="sidebarStore.isSidebarCollapsed ? 'flex-col' : 'flex-row'"
 				>
 					<Tooltip v-if="readOnlyMode && sidebarStore.isSidebarCollapsed">
 						<CircleAlert
@@ -216,8 +215,11 @@
 				>
 					<CollapseSidebar
 						class="size-4 text-ink-gray-7 duration-300 stroke-1.5 ease-in-out cursor-pointer"
-						:class="{
-							'[transform:rotateY(180deg)]': sidebarStore.isSidebarCollapsed,
+						:style="{
+							transform:
+								isRtl !== sidebarStore.isSidebarCollapsed
+									? 'rotateY(180deg)'
+									: '',
 						}"
 						@click="toggleSidebar()"
 					/>
@@ -225,6 +227,7 @@
 			</div>
 		</div>
 		<HelpModal
+			data-testid="onboarding-help-modal"
 			v-if="showOnboarding && showHelpModal"
 			v-model="showHelpModal"
 			v-model:articles="articles"
@@ -323,6 +326,7 @@ const router = useRouter()
 let onboardingDetails
 let isOnboardingStepsCompleted = false
 const readOnlyMode = window.read_only_mode
+const isRtl = document.documentElement.dir === 'rtl'
 const iconProps = {
 	strokeWidth: 1.5,
 	width: 16,
@@ -670,6 +674,7 @@ watch(settingsStore.settings, () => {
 const updateSidebarLinks = () => {
 	sidebarLinks.value = getSidebarLinks()
 	updateSidebarLinksVisibility()
+	updateUnreadCount()
 }
 
 const redirectToWebsite = () => {

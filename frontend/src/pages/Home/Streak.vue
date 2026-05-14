@@ -29,7 +29,7 @@
 				<div
 					class="grid grid-cols-2 bg-surface-gray-1 px-2.5 py-2 rounded-md mt-8"
 				>
-					<div class="space-y-1 border-r border-outline-gray-2 mr-4">
+					<div class="space-y-1 border-e border-outline-gray-2 me-4">
 						<div class="text-ink-gray-6">
 							{{ __('Current Streak') }}
 						</div>

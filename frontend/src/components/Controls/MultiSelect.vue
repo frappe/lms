@@ -14,7 +14,7 @@
 						v-for="value in values"
 						:key="value"
 						type="button"
-						class="inline-flex items-center gap-1 bg-surface-white border border-outline-gray-2 text-ink-gray-7 pl-2 pr-1.5 py-0.5 rounded text-base leading-5"
+						class="inline-flex items-center gap-1 bg-surface-white border border-outline-gray-2 text-ink-gray-7 ps-2 pe-1.5 py-0.5 rounded text-base leading-5"
 						@click.stop="removeValue(value)"
 					>
 						<span>{{ value }}</span>

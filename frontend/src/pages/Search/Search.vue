@@ -56,7 +56,7 @@
 					class="rounded-md cursor-pointer hover:bg-surface-gray-2 px-2"
 				>
 					<div
-						class="flex space-x-2 py-3"
+						class="flex gap-x-2 py-3"
 						:class="{
 							'border-b': index !== searchResults.length - 1,
 						}"
@@ -74,7 +74,7 @@
 									class="font-medium text-ink-gray-9"
 									v-html="result.title"
 								></div>
-								<div class="text-sm text-ink-gray-5 ml-2">
+								<div class="text-sm text-ink-gray-5 ms-2">
 									{{ getDocTypeTitle(result.doctype) }}
 								</div>
 								<div
@@ -84,7 +84,7 @@
 										result.creation ||
 										result.modified
 									"
-									class="ml-auto text-sm text-ink-gray-5"
+									class="ms-auto text-sm text-ink-gray-5"
 								>
 									{{
 										dayjs(

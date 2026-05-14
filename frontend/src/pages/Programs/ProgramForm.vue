@@ -6,7 +6,7 @@
 		}"
 	>
 		<template #body-title>
-			<div class="flex items-center justify-between space-x-2 text-base w-full">
+			<div class="flex items-center justify-between gap-x-2 text-base w-full">
 				<div class="text-xl font-semibold text-ink-gray-9">
 					{{
 						programName === 'new' ? __('Create Program') : __('Edit Program')
@@ -69,7 +69,7 @@
 						:rowKey="programName === 'new' ? 'course' : 'name'"
 					>
 						<ListHeader
-							class="mb-2 grid items-center space-x-4 rounded bg-surface-gray-2 p-2"
+							class="mb-2 grid items-center gap-x-4 rounded bg-surface-gray-2 p-2"
 						>
 							<ListHeaderItem :item="item" v-for="item in courseColumns" />
 						</ListHeader>
@@ -110,7 +110,7 @@
 							{{ __('Members') }}
 						</div>
 
-						<div class="space-x-2">
+						<div class="flex gap-x-2">
 							<Button
 								v-if="programMembers.data.length > 0"
 								@click="
@@ -143,7 +143,7 @@
 						:rowKey="programName === 'new' ? 'member' : 'name'"
 					>
 						<ListHeader
-							class="mb-2 grid items-center space-x-4 rounded bg-surface-gray-2 p-2"
+							class="mb-2 grid items-center gap-x-4 rounded bg-surface-gray-2 p-2"
 						>
 							<ListHeaderItem :item="item" v-for="item in memberColumns" />
 						</ListHeader>
@@ -217,7 +217,7 @@
 			/>
 		</template>
 		<template #actions="{ close }">
-			<div class="flex justify-end space-x-2">
+			<div class="flex justify-end gap-x-2">
 				<Button
 					v-if="programName != 'new'"
 					@click="deleteProgram(close)"

@@ -1,12 +1,12 @@
 <template>
-	<div class="pl-5">
+	<div class="ps-5">
 		<div class="grid grid-cols-1 md:grid-cols-[70%,30%]">
 			<div
 				v-if="courseResource.doc"
 				class="lg:max-h-[88vh] lg:overflow-y-auto px-1"
 			>
 				<div class="my-5">
-					<div class="pr-5 md:pr-10 pb-5 mb-5 space-y-5 border-b">
+					<div class="pe-5 md:pe-10 pb-5 mb-5 space-y-5 border-b">
 						<div class="text-lg font-semibold mb-4 text-ink-gray-9">
 							{{ __('Details') }}
 						</div>
@@ -55,7 +55,7 @@
 									<button
 										v-for="tag in parsedTags"
 										:key="tag"
-										class="inline-flex items-center gap-1 bg-surface-white border border-outline-gray-2 text-ink-gray-7 pl-2 pr-1.5 py-0.5 rounded text-base leading-5"
+										class="inline-flex items-center gap-1 bg-surface-white border border-outline-gray-2 text-ink-gray-7 ps-2 pe-1.5 py-0.5 rounded text-base leading-5"
 										@click.stop="removeTag(tag)"
 									>
 										<span>{{ tag }}</span>
@@ -99,7 +99,7 @@
 						</div>
 					</div>
 
-					<div class="pr-5 md:pr-10 pb-5 mb-5 space-y-5 border-b">
+					<div class="pe-5 md:pe-10 pb-5 mb-5 space-y-5 border-b">
 						<div class="text-lg font-semibold text-ink-gray-9">
 							{{ __('Publishing Settings') }}
 						</div>
@@ -153,7 +153,7 @@
 						</div>
 					</div>
 
-					<div class="pr-5 md:pr-10 pb-5 mb-5 space-y-5 border-b">
+					<div class="pe-5 md:pe-10 pb-5 mb-5 space-y-5 border-b">
 						<div class="text-lg font-semibold text-ink-gray-9">
 							{{ __('About the Course') }}
 						</div>
@@ -217,7 +217,7 @@
 						/>
 					</div>
 
-					<div class="pr-5 md:pr-10 pb-5 space-y-5 border-b">
+					<div class="pe-5 md:pe-10 pb-5 space-y-5 border-b">
 						<div class="text-lg font-semibold mt-5 text-ink-gray-9">
 							{{ __('Pricing and Certification') }}
 						</div>
@@ -294,7 +294,7 @@
 						</div>
 					</div>
 
-					<div class="pr-5 md:pr-10 pb-5 space-y-5">
+					<div class="pe-5 md:pe-10 pb-5 space-y-5">
 						<div class="text-lg font-semibold mt-5 text-ink-gray-9">
 							{{ __('Meta Tags') }}
 						</div>
@@ -318,7 +318,7 @@
 					</div>
 				</div>
 			</div>
-			<div class="min-h-0 border-l">
+			<div class="min-h-0 border-s">
 				<CourseOutline
 					v-if="courseResource.doc"
 					:courseName="courseResource.doc.name"

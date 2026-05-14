@@ -5,7 +5,7 @@
 		:class="{ 'border rounded-lg overflow-auto': !showTitle }"
 	>
 		<div
-			class="border-r p-5 overflow-y-auto h-[calc(100vh-3.2rem)]"
+			class="border-e p-5 overflow-y-auto h-[calc(100vh-3.2rem)]"
 			:class="{ 'h-full': !showTitle }"
 		>
 			<div v-if="showTitle" class="text-lg font-semibold mb-5 text-ink-gray-9">
@@ -31,7 +31,7 @@
 					<div class="font-semibold text-ink-gray-9">
 						{{ __('Submission') }}
 					</div>
-					<div class="flex items-center space-x-2">
+					<div class="flex items-center gap-x-2">
 						<Badge v-if="isDirty" theme="orange">
 							{{ __('Not Saved') }}
 						</Badge>
@@ -106,7 +106,7 @@
 								class="cursor-pointer !no-underline text-sm leading-5"
 							>
 								<div class="flex items-center">
-									<div class="border rounded-md p-2 mr-2">
+									<div class="border rounded-md p-2 me-2">
 										<FileText class="h-5 w-5 stroke-1.5" />
 									</div>
 									<span>
@@ -117,7 +117,7 @@
 							<X
 								v-if="canModifyAssignment"
 								@click="removeSubmission()"
-								class="bg-surface-gray-3 rounded-md cursor-pointer stroke-1.5 w-5 h-5 p-1 ml-4"
+								class="bg-surface-gray-3 rounded-md cursor-pointer stroke-1.5 w-5 h-5 p-1 ms-4"
 							/>
 						</div>
 					</div>

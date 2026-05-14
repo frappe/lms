@@ -2,7 +2,7 @@
 	<div class="p-5">
 		<div
 			v-if="isAdmin() && !hasProviderAccount()"
-			class="flex lg:items-center space-x-2 mb-5 bg-surface-amber-1 px-3 py-2 rounded-lg text-ink-amber-3"
+			class="flex lg:items-center gap-x-2 mb-5 bg-surface-amber-1 px-3 py-2 rounded-lg text-ink-amber-3"
 		>
 			<AlertCircle class="size-7 md:size-4 stroke-1.5" />
 			<span class="leading-5">
@@ -50,13 +50,13 @@
 					{{ cls.description }}
 				</div>
 				<div class="mt-auto space-y-3">
-					<div class="flex items-center space-x-2">
+					<div class="flex items-center gap-x-2">
 						<Calendar class="w-4 h-4 stroke-1.5" />
 						<span>
 							{{ dayjs(cls.date).format('DD MMMM YYYY') }}
 						</span>
 					</div>
-					<div class="flex items-center space-x-2">
+					<div class="flex items-center gap-x-2">
 						<Clock class="w-4 h-4 stroke-1.5" />
 						<span>
 							{{ dayjs(getClassStart(cls)).format('hh:mm A') }} -
@@ -65,7 +65,7 @@
 					</div>
 					<div
 						v-if="canAccessClass(cls) && cls.join_url"
-						class="flex items-center space-x-2 text-ink-gray-9 mt-auto"
+						class="flex items-center gap-x-2 text-ink-gray-9 mt-auto"
 					>
 						<a
 							v-if="user.data?.is_moderator || user.data?.is_evaluator"
@@ -91,7 +91,7 @@
 						:text="__('This class has ended')"
 						placement="right"
 					>
-						<div class="flex items-center space-x-2 text-ink-amber-3 w-fit">
+						<div class="flex items-center gap-x-2 text-ink-amber-3 w-fit">
 							<Info class="w-4 h-4 stroke-1.5" />
 							<span>
 								{{ __('Ended') }}

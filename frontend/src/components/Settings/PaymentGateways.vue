@@ -30,7 +30,7 @@
 				}"
 			>
 				<ListHeader
-					class="mb-2 grid items-center space-x-4 rounded bg-surface-gray-2 p-2"
+					class="mb-2 grid items-center gap-x-4 rounded bg-surface-gray-2 p-2"
 				>
 					<ListHeaderItem :item="item" v-for="item in columns">
 						<template #prefix="{ item }">
@@ -77,6 +77,12 @@
 				</ListSelectBanner>
 			</ListView>
 		</div>
+		<EmptyStateLayout
+			v-else
+			name="Payment Gateways"
+			:description="__('Add one to get started.')"
+			:icon="DollarSign"
+		/>
 	</div>
 	<PaymentGatewayDetails
 		v-model="showForm"
@@ -101,9 +107,10 @@ import {
 	toast,
 } from 'frappe-ui'
 import { computed, ref } from 'vue'
-import { Plus, Trash2 } from 'lucide-vue-next'
+import { Plus, Trash2, DollarSign } from 'lucide-vue-next'
 import PaymentGatewayDetails from '@/components/Settings/PaymentGatewayDetails.vue'
 import { cleanError } from '@/utils'
+import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 
 const showForm = ref(false)
 const currentGateway = ref(null)

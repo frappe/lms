@@ -9,7 +9,7 @@
 		<template #body-content>
 			<div class="text-base text-ink-gray-9 max-h-[70vh] overflow-y-auto">
 				<div class="flex justify-between mb-5 px-2">
-					<div class="flex items-center space-x-2">
+					<div class="flex items-center gap-x-2">
 						<Avatar
 							:image="student?.member_image"
 							:label="student?.member_name"
@@ -50,7 +50,7 @@
 							class="flex justify-between text-sm py-2 my-1"
 						>
 							<div class="">
-								<span class="mr-3 text-xs">
+								<span class="me-3 text-xs">
 									{{ progress.chapter_idx }}.{{ progress.idx }}
 								</span>
 								<span>

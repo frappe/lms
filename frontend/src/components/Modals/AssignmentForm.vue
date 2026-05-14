@@ -48,7 +48,7 @@
 					</div>
 				</div>
 
-				<div class="flex justify-end space-x-2 mt-5">
+				<div class="flex justify-end gap-x-2 mt-5">
 					<router-link
 						:to="{
 							name: 'AssignmentSubmissionList',

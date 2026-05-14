@@ -19,11 +19,11 @@
 					/>
 					<LMSLogo v-else class="w-8 h-8 rounded flex-shrink-0" />
 					<div
-						class="flex flex-1 flex-col text-left duration-300 ease-in-out"
+						class="flex flex-1 flex-col text-start duration-300 ease-in-out"
 						:class="
 							isCollapsed
-								? 'opacity-0 ml-0 w-0 overflow-hidden'
-								: 'opacity-100 ml-2 w-auto'
+								? 'opacity-0 ms-0 w-0 overflow-hidden'
+								: 'opacity-100 ms-2 w-auto'
 						"
 					>
 						<div class="text-base font-medium text-ink-gray-9 leading-none">
@@ -47,8 +47,8 @@
 						class="duration-300 ease-in-out"
 						:class="
 							isCollapsed
-								? 'opacity-0 ml-0 w-0 overflow-hidden'
-								: 'opacity-100 ml-2 w-auto'
+								? 'opacity-0 ms-0 w-0 overflow-hidden'
+								: 'opacity-100 ms-2 w-auto'
 						"
 					>
 						<ChevronDown class="h-4 w-4 text-ink-gray-7" />

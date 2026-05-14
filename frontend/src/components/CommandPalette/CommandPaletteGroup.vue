@@ -10,7 +10,7 @@
 				:class="{ 'bg-surface-gray-2': item.isActive }"
 				@click="emit('navigateTo', item.route)"
 			>
-				<div class="flex items-center space-x-3">
+				<div class="flex items-center gap-x-3">
 					<component
 						v-if="item.icon"
 						:is="item.icon"

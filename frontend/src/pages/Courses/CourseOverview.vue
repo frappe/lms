@@ -1,6 +1,6 @@
 <template>
 	<div class="p-5">
-		<div class="flex justify-between w-full space-x-5">
+		<div class="flex justify-between w-full gap-x-5">
 			<div class="md:w-2/3">
 				<div class="text-3xl font-semibold text-ink-gray-9">
 					{{ course.data.title }}
@@ -15,7 +15,7 @@
 						class="flex items-center"
 					>
 						<Star class="size-4 text-transparent fill-yellow-500" />
-						<span class="ml-1 text-ink-gray-7">
+						<span class="ms-1 text-ink-gray-7">
 							{{ course.data.rating }}
 						</span>
 					</Tooltip>
@@ -28,14 +28,14 @@
 						class="flex items-center"
 					>
 						<Users class="h-4 w-4 text-ink-gray-7" />
-						<span class="ml-1">
+						<span class="ms-1">
 							{{ course.data.enrollment_count_formatted }}
 						</span>
 					</Tooltip>
 					<span v-if="course.data.enrollment_count" class="mx-3">&middot;</span>
 					<div class="flex items-center">
 						<span
-							class="h-6 mr-1"
+							class="h-6 me-1"
 							:class="{
 								'avatar-group overlap': course.data.instructors.length > 1,
 							}"
@@ -52,7 +52,7 @@
 					<Badge
 						theme="gray"
 						size="lg"
-						class="mr-2 text-ink-gray-9"
+						class="me-2 text-ink-gray-9"
 						v-for="tag in course.data.tags.split(', ')"
 					>
 						{{ tag }}

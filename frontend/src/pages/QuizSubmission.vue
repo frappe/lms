@@ -3,7 +3,7 @@
 		class="sticky top-0 z-10 flex items-center justify-between border-b bg-surface-white px-3 py-2.5 sm:px-5"
 	>
 		<Breadcrumbs v-if="submissionDetails.doc" :items="breadcrumbs" />
-		<div class="space-x-2">
+		<div class="flex gap-2 items-center">
 			<Badge
 				v-if="submissionDetails.isDirty"
 				:label="__('Not Saved')"

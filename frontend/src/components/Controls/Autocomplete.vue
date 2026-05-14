@@ -65,7 +65,7 @@
 									placeholder="Search"
 								/>
 								<button
-									class="absolute right-1.5 inline-flex h-7 w-7 items-center justify-center"
+									class="absolute end-1.5 inline-flex h-7 w-7 items-center justify-center"
 									@click="selectedValue = null"
 								>
 									<X class="h-4 w-4 stroke-1.5 text-ink-gray-7" />

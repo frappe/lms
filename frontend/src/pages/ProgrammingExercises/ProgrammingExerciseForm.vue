@@ -1,7 +1,7 @@
 <template>
 	<Dialog v-model="show" :options="{ size: '4xl' }">
 		<template #body-title>
-			<div class="flex items-center space-x-2">
+			<div class="flex items-center gap-x-2">
 				<div class="text-xl font-semibold text-ink-gray-9">
 					{{
 						props.exerciseID === 'new'
@@ -58,7 +58,7 @@
 			</div>
 		</template>
 		<template #actions="{ close }">
-			<div class="flex justify-end space-x-2 group">
+			<div class="flex justify-end gap-x-2 group">
 				<Button
 					v-if="exerciseID != 'new'"
 					@click="deleteExercise(close)"

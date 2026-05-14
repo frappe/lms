@@ -2,7 +2,7 @@
 	<div>
 		<Button
 			v-if="!singleThread && !readOnlyMode"
-			class="float-right"
+			class="float-end"
 			@click="openTopicModal()"
 		>
 			<template #prefix>
@@ -21,7 +21,7 @@
 				class="flex items-center cursor-pointer py-5 w-full"
 				:class="{ 'border-b': index + 1 != topics.data.length }"
 			>
-				<UserAvatar :user="topic.user" size="2xl" class="mr-4" />
+				<UserAvatar :user="topic.user" size="2xl" class="me-4" />
 				<div>
 					<div class="text-lg font-semibold mb-1 text-ink-gray-7">
 						{{ topic.title }}
@@ -30,7 +30,7 @@
 						<span>
 							{{ topic.user.full_name }}
 						</span>
-						<span class="text-sm ml-3">
+						<span class="text-sm ms-3">
 							{{ timeAgo(topic.creation) }}
 						</span>
 					</div>
@@ -51,7 +51,7 @@
 		v-else
 		class="flex flex-col items-center justify-center border-2 border-dashed mt-5 py-8 rounded-md"
 	>
-		<MessageSquareText class="w-7 h-7 text-ink-gray-4 stroke-1.5 mr-2" />
+		<MessageSquareText class="w-7 h-7 text-ink-gray-4 stroke-1.5 me-2" />
 		<div class="mt-2">
 			<div v-if="emptyStateTitle" class="font-medium mb-2">
 				{{ __(emptyStateTitle) }}

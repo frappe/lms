@@ -3,14 +3,21 @@
 		v-model="show"
 		:options="{
 			size: 'xl',
+			title: studentDetails.data?.full_name || __('Student Details'),
 		}"
 	>
 		<template #body>
-			<div v-if="studentDetails.data" class="p-5 space-y-10 text-sm">
-				<div class="flex items-center space-x-2">
+			<div
+				v-if="studentDetails.loading && !studentDetails.data"
+				class="flex items-center justify-center py-12"
+			>
+				<LoadingIndicator class="size-4" />
+			</div>
+			<div v-else-if="studentDetails.data" class="p-5 space-y-10 text-sm">
+				<div class="flex items-center gap-x-2">
 					<Avatar :image="studentDetails.data.user_image" size="3xl" />
 					<div class="space-y-1">
-						<div class="flex items-center space-x-2">
+						<div class="flex items-center gap-x-2">
 							<div class="text-xl font-semibold text-ink-gray-9">
 								{{ studentDetails.data.full_name }}
 							</div>
@@ -46,7 +53,7 @@
 						}"
 					>
 						<ListHeader
-							class="mb-2 grid items-center space-x-4 rounded-none rounded-t bg-surface-gray-2 p-2"
+							class="mb-2 grid items-center gap-x-4 rounded-none rounded-t bg-surface-gray-2 p-2"
 						>
 						</ListHeader>
 						<ListRows v-for="row in studentDetails.data.assessments">
@@ -88,7 +95,7 @@
 						}"
 					>
 						<ListHeader
-							class="mb-2 grid items-center space-x-4 rounded-none rounded-t bg-surface-gray-2 p-2"
+							class="mb-2 grid items-center gap-x-4 rounded-none rounded-t bg-surface-gray-2 p-2"
 						>
 						</ListHeader>
 						<ListRows v-for="row in studentDetails.data.courses">
@@ -103,12 +110,12 @@
 											<ProgressBar
 												v-if="column.key == 'progress'"
 												:progress="Math.ceil(row[column.key])"
-												class="!mx-0 !mr-4 max-w-32"
+												class="!mx-0 !me-4 max-w-32"
 											/>
 										</template>
 										<div
 											v-if="column.key == 'progress'"
-											class="text-xs !ml-0 !mr-3 w-5"
+											class="text-xs !ms-0 !me-3 w-5"
 										>
 											{{ Math.ceil(row[column.key]) }}%
 										</div>
@@ -136,6 +143,7 @@ import {
 	ListRows,
 	ListRow,
 	ListRowItem,
+	LoadingIndicator,
 } from 'frappe-ui'
 import { useRouter } from 'vue-router'
 import ProgressBar from '@/components/ProgressBar.vue'

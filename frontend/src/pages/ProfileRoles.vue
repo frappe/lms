@@ -5,7 +5,7 @@
 		</h2>
 		<div
 			v-if="readOnlyMode"
-			class="flex items-center space-x-2 text-sm text-ink-gray-7 bg-surface-gray-1 px-3 py-2 rounded-md w-full text-center"
+			class="flex items-center gap-x-2 text-sm text-ink-gray-7 bg-surface-gray-1 px-3 py-2 rounded-md w-full text-center"
 		>
 			<CircleAlert class="size-4 stroke-1.5" />
 			<span>

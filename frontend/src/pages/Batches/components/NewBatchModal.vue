@@ -102,7 +102,7 @@
 			</div>
 		</template>
 		<template #actions="{ close }">
-			<div class="text-right">
+			<div class="text-end">
 				<Button variant="solid" @click="saveBatch(close)">
 					{{ __('Save') }}
 				</Button>

@@ -46,7 +46,7 @@ export class Quiz {
 	renderQuiz(quiz) {
 		if (this.readOnly) {
 			const quizPath = getLmsRoute(`quiz/${quiz}?fromLesson=1`)
-			this.wrapper.innerHTML = `<iframe src="${quizPath}" class="w-full h-[500px]"></iframe>`
+			this.wrapper.innerHTML = `<iframe src="${quizPath}" class="w-full h-[700px]"></iframe>`
 			return
 		}
 		this.wrapper.innerHTML = `<div class='border rounded-md p-4 text-center bg-surface-menu-bar mb-4'>

@@ -28,7 +28,7 @@
 			</div>
 		</template>
 		<template #actions="{ close }">
-			<div class="pb-5 float-right">
+			<div class="pb-5 float-end">
 				<Button variant="solid" @click="sendMail(close)">
 					{{ __('Send') }}
 				</Button>

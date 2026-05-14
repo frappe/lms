@@ -1,7 +1,7 @@
 <template>
 	<div class="text-base">
-		<div class="flex items-center justify-between space-x-2 mb-5">
-			<div class="flex items-center space-x-2">
+		<div class="flex items-center justify-between gap-x-2 mb-5">
+			<div class="flex items-center gap-x-2">
 				<ChevronLeft
 					class="size-5 stroke-1.5 text-ink-gray-5 cursor-pointer"
 					@click="
@@ -34,7 +34,7 @@
                 }"
 			>
 				<ListHeader
-					class="mb-2 grid items-center space-x-4 rounded bg-surface-gray-2 p-2"
+					class="mb-2 grid items-center gap-x-4 rounded bg-surface-gray-2 p-2"
 				>
 					<ListHeaderItem :item="item" v-for="item in columns">
 						<template #prefix="{ item }">

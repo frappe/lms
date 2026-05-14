@@ -64,7 +64,7 @@
 			</div>
 		</template>
 		<template #actions="{ close }">
-			<div class="text-right">
+			<div class="text-end">
 				<Button variant="solid" @click="saveCourse(close)">
 					{{ __('Save') }}
 				</Button>

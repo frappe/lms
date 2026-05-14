@@ -1,7 +1,7 @@
 <template>
 	<div class="space-y-5 text-ink-gray-9">
 		<div class="space-y-2">
-			<div class="flex items-center text-sm font-medium space-x-2">
+			<div class="flex items-center text-sm font-medium gap-x-2">
 				<span>
 					{{ __('What are Instructor Notes?') }}
 				</span>
@@ -17,7 +17,7 @@
 
 		<div class="space-y-2" v-for="(item, key) in contentMap" :key="key">
 			<div
-				class="flex items-center text-sm font-medium space-x-2 cursor-pointer"
+				class="flex items-center text-sm font-medium gap-x-2 cursor-pointer"
 				@click="openHelpDialog(key)"
 			>
 				<span>

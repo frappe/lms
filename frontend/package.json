@@ -31,7 +31,7 @@
     "dayjs": "1.11.10",
     "dompurify": "3.2.6",
     "feather-icons": "4.28.0",
-    "frappe-ui": "^0.1.264",
+    "frappe-ui": "^0.1.276",
     "highlight.js": "11.11.1",
     "lucide-vue-next": "0.383.0",
     "markdown-it": "14.0.0",
@@ -49,7 +49,7 @@
     "vuedraggable": "4.1.0"
   },
   "devDependencies": {
-     "@vitejs/plugin-vue": "5.0.3",
+    "@vitejs/plugin-vue": "5.0.3",
     "autoprefixer": "10.4.2",
     "postcss": "8.4.5",
     "tailwindcss": "^3.4.15",

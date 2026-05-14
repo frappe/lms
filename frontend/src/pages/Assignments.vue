@@ -1,38 +1,42 @@
 <template>
-	<header
-		class="sticky top-0 z-10 flex items-center justify-between border-b bg-surface-white px-3 py-2.5 sm:px-5"
-	>
-		<Breadcrumbs :items="breadcrumbs" />
-		<Button
-			v-if="!readOnlyMode"
-			variant="solid"
-			@click="
-				() => {
-					assignmentID = 'new'
-					showAssignmentForm = true
-				}
-			"
-		>
-			<template #prefix>
-				<Plus class="w-4 h-4" />
-			</template>
-			{{ __('Create') }}
-		</Button>
-	</header>
+	<LayoutHeader>
+		<template #left-header>
+			<Breadcrumbs :items="breadcrumbs" />
+		</template>
+		<template #right-header>
+			<Button
+				v-if="!readOnlyMode"
+				variant="solid"
+				@click="
+					() => {
+						assignmentID = 'new'
+						showAssignmentForm = true
+					}
+				"
+			>
+				<template #prefix>
+					<Plus class="size-4 stroke-1.5" />
+				</template>
+				{{ __('Create') }}
+			</Button>
+		</template>
+	</LayoutHeader>
 
-	<div class="py-5 mx-5">
-		<div class="flex items-center justify-between mb-5">
+	<div class="flex min-h-0 flex-1 flex-col pt-5">
+		<div
+			class="mx-5 mb-5 flex flex-col justify-between gap-y-4 sm:flex-row sm:items-center"
+		>
 			<div class="text-lg font-semibold text-ink-gray-9">
 				{{ __('{0} Assignments').format(assignments.data?.length) }}
 			</div>
-			<div class="grid grid-cols-2 gap-5">
+			<div class="flex flex-col gap-3 sm:flex-row md:gap-5">
 				<FormControl
+					type="text"
 					v-model="titleFilter"
 					:placeholder="__('Search by Title')"
 				/>
-				<FormControl
+				<Select
 					v-model="typeFilter"
-					type="select"
 					:options="assignmentTypes"
 					:placeholder="__('Type')"
 				/>
@@ -52,10 +56,10 @@
 					showAssignmentForm = true
 				},
 			}"
-			class="h-[79vh] border-b"
+			class="flex-1 px-5"
 		>
 			<ListHeader
-				class="mb-2 grid items-center rounded bg-surface-white border-b rounded-none p-2"
+				class="mb-2 grid items-center rounded-none border-b bg-surface-white p-2"
 			>
 				<ListHeaderItem :item="item" v-for="item in assignmentColumns">
 					<template #prefix="{ item }">
@@ -72,11 +76,7 @@
 					<template #default="{ column, item }">
 						<ListRowItem :item="row[column.key]" :align="column.align">
 							<div v-if="column.key == 'show_answers'">
-								<FormControl
-									type="checkbox"
-									v-model="row[column.key]"
-									:disabled="true"
-								/>
+								<Checkbox v-model="row[column.key]" :disabled="true" />
 							</div>
 							<div
 								v-else-if="column.key == 'modified'"
@@ -104,17 +104,33 @@
 				</template>
 			</ListSelectBanner>
 		</ListView>
-		<EmptyState v-else type="Assignments" />
-		<div class="flex items-center justify-end space-x-3 mt-3">
-			<Button v-if="assignments.hasNextPage" @click="assignments.next()">
-				{{ __('Load More') }}
-			</Button>
-			<div v-if="assignments.hasNextPage" class="h-8 border-l"></div>
-			<div class="text-ink-gray-5">
-				{{ assignments.data?.length }} {{ __('of') }}
-				{{ totalAssignments.data }}
-			</div>
+		<div v-else class="flex-1">
+			<EmptyStateLayout name="Assignments" />
 		</div>
+		<ListFooter
+			v-model="pageLength"
+			class="border-t px-3 py-2 sm:px-5"
+			:options="{
+				rowCount: assignments.data?.length,
+				totalCount: totalAssignments.data,
+			}"
+		>
+			<template #right>
+				<div class="flex items-center">
+					<Button
+						v-if="assignments.hasNextPage"
+						:label="__('Load More')"
+						@click="assignments.next()"
+					/>
+					<div v-if="assignments.hasNextPage" class="mx-3 h-[80%] border-l" />
+					<div class="flex items-center gap-1 text-base text-ink-gray-5">
+						<div>{{ assignments.data?.length || 0 }}</div>
+						<div>{{ __('of') }}</div>
+						<div>{{ totalAssignments.data || 0 }}</div>
+					</div>
+				</div>
+			</template>
+		</ListFooter>
 	</div>
 	<AssignmentForm
 		v-model="showAssignmentForm"
@@ -126,27 +142,30 @@
 import {
 	Breadcrumbs,
 	Button,
-	call,
 	createListResource,
 	createResource,
-	FormControl,
+	Select,
 	ListView,
 	ListHeader,
 	ListHeaderItem,
 	ListRows,
 	ListRow,
 	ListRowItem,
+	ListFooter,
 	ListSelectBanner,
 	FeatherIcon,
 	toast,
 	usePageMeta,
+	FormControl,
+	Checkbox,
 } from 'frappe-ui'
 import { computed, inject, onMounted, ref, watch } from 'vue'
 import { Plus } from 'lucide-vue-next'
 import { useRouter, useRoute } from 'vue-router'
 import { sessionStore } from '../stores/session'
 import AssignmentForm from '@/components/Modals/AssignmentForm.vue'
-import EmptyState from '@/components/EmptyState.vue'
+import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
+import LayoutHeader from '@/components/Layouts/LayoutHeader.vue'
 
 const user = inject('$user')
 const dayjs = inject('$dayjs')
@@ -182,6 +201,7 @@ watch([titleFilter, typeFilter], () => {
 	totalAssignments.update({
 		filters: assignmentFilter.value,
 	})
+	totalAssignments.reload()
 })
 
 const reloadAssignments = () => {
@@ -217,6 +237,14 @@ const assignments = createListResource({
 	},
 })
 
+const pageLength = computed({
+	get: () => assignments.pageLength,
+	set: (value) => {
+		assignments.update({ pageLength: value })
+		assignments.reload()
+	},
+})
+
 const totalAssignments = createResource({
 	url: 'frappe.client.get_count',
 	params: {
@@ -247,7 +275,7 @@ const assignmentColumns = computed(() => {
 			icon: 'tag',
 		},
 		{
-			label: __('Modified'),
+			label: __('Updated On'),
 			key: 'modified',
 			width: 1,
 			align: 'right',

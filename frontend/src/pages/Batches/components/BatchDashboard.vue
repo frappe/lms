@@ -35,7 +35,7 @@
 							}"
 						>
 							<ListHeader
-								class="mb-2 grid items-center space-x-4 rounded-none rounded-t bg-surface-gray-2 p-2"
+								class="mb-2 grid items-center gap-x-4 rounded-none rounded-t bg-surface-gray-2 p-2"
 							>
 							</ListHeader>
 							<ListRows>
@@ -65,7 +65,7 @@
 					<Assessments :batch="batch.data.name" />
 				</div>
 			</div>
-			<div class="border-l h-[88vh] divide-y">
+			<div class="border-s h-[88vh] divide-y">
 				<div v-if="batch.data?.evaluation" class="p-4 mb-5">
 					<UpcomingEvaluations
 						:batch="batch.data.name"
