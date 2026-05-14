@@ -1,9 +1,9 @@
 <template>
-	<header
-		class="sticky flex items-center justify-between top-0 z-10 border-b bg-surface-white px-3 py-2.5 sm:px-5"
-	>
-		<Breadcrumbs :items="breadcrumbs" />
-		<div class="flex gap-2">
+	<LayoutHeader>
+		<template #left-header>
+			<Breadcrumbs :items="breadcrumbs" />
+		</template>
+		<template #right-header>
 			<router-link
 				v-if="exercises.data?.length"
 				class="hidden md:block"
@@ -29,28 +29,27 @@
 				"
 			>
 				<template #prefix>
-					<Plus class="h-4 w-4 stroke-1.5" />
+					<Plus class="size-4 stroke-1.5" />
 				</template>
 				{{ __('Create') }}
 			</Button>
-		</div>
-	</header>
-	<div class="py-5">
+		</template>
+	</LayoutHeader>
+	<div class="flex min-h-0 flex-1 flex-col pt-5">
 		<div
-			class="flex flex-col md:flex-row md:items-center space-y-4 md:space-y-0 justify-between mb-5 px-5"
+			class="mb-5 flex flex-col justify-between gap-y-4 px-5 sm:flex-row sm:items-center"
 		>
 			<div class="text-lg font-semibold text-ink-gray-9">
 				{{ __('{0} Exercises').format(exercises.data?.length) }}
 			</div>
-			<div class="grid grid-cols-2 gap-5">
+			<div class="flex flex-col gap-3 sm:gap-5 md:flex-row">
 				<FormControl
 					v-model="titleFilter"
 					:placeholder="__('Search by Title')"
 					@input="updateList"
 				/>
-				<FormControl
+				<Select
 					v-model="languageFilter"
-					type="select"
 					:options="languages"
 					:placeholder="__('Type')"
 					@update:modelValue="updateList"
@@ -58,78 +57,92 @@
 			</div>
 		</div>
 
-		<div v-if="exercises.data?.length">
-			<ListView
-				:columns="columns"
-				:rows="exercises.data"
-				row-key="name"
-				:options="{
-					showTooltip: false,
-					selectable: true,
-					onRowClick: (row: any) => {
-						if (readOnlyMode) return
-						exerciseID = row.name
-						showForm = true
-					},
-				}"
-				class="h-[71vh] lg:h-[79vh] px-5"
+		<ListView
+			v-if="exercises.data?.length"
+			:columns="columns"
+			:rows="exercises.data"
+			row-key="name"
+			:options="{
+				showTooltip: false,
+				selectable: true,
+				onRowClick: (row: any) => {
+					if (readOnlyMode) return
+					exerciseID = row.name
+					showForm = true
+				},
+			}"
+			class="flex-1 overflow-y-auto px-5"
+		>
+			<ListHeader
+				class="mb-2 grid items-center rounded-none border-b bg-surface-white p-2"
 			>
-				<ListHeader
-					class="mb-2 grid items-center rounded bg-surface-white border-b rounded-none p-2"
-				>
-					<ListHeaderItem :item="item" v-for="item in columns">
-						<template #prefix="{ item }">
-							<FeatherIcon :name="item.icon?.toString()" class="h-4 w-4" />
-						</template>
-					</ListHeaderItem>
-				</ListHeader>
-				<ListRows>
-					<ListRow
-						:row="row"
-						v-for="row in exercises.data"
-						class="hover:bg-surface-gray-1"
-					>
-						<template #default="{ column, item }">
-							<ListRowItem :item="row[column.key]" :align="column.align">
-								<div
-									v-if="column.key == 'modified'"
-									class="text-sm text-ink-gray-5"
-								>
-									{{ dayjs(row[column.key]).format('MMM D, YYYY') }}
-								</div>
-								<div v-else>
-									{{ row[column.key] }}
-								</div>
-							</ListRowItem>
-						</template>
-					</ListRow>
-				</ListRows>
-				<ListSelectBanner>
-					<template #actions="{ unselectAll, selections }">
-						<div class="flex gap-2">
-							<Button
-								variant="ghost"
-								@click="showDeleteConfirmation(selections, unselectAll)"
-							>
-								<FeatherIcon name="trash-2" class="h-4 w-4 stroke-1.5" />
-							</Button>
-						</div>
+				<ListHeaderItem :item="item" v-for="item in columns">
+					<template #prefix="{ item }">
+						<FeatherIcon :name="item.icon?.toString()" class="h-4 w-4" />
 					</template>
-				</ListSelectBanner>
-			</ListView>
-		</div>
-		<div v-else class="h-[45vh] lg:h-[53vh] px-5">
+				</ListHeaderItem>
+			</ListHeader>
+			<ListRows>
+				<ListRow
+					:row="row"
+					v-for="row in exercises.data"
+					class="hover:bg-surface-gray-1"
+				>
+					<template #default="{ column, item }">
+						<ListRowItem :item="row[column.key]" :align="column.align">
+							<div
+								v-if="column.key == 'modified'"
+								class="text-sm text-ink-gray-5"
+							>
+								{{ dayjs(row[column.key]).format('MMM D, YYYY') }}
+							</div>
+							<div v-else>
+								{{ row[column.key] }}
+							</div>
+						</ListRowItem>
+					</template>
+				</ListRow>
+			</ListRows>
+			<ListSelectBanner>
+				<template #actions="{ unselectAll, selections }">
+					<div class="flex gap-2">
+						<Button
+							variant="ghost"
+							@click="showDeleteConfirmation(selections, unselectAll)"
+						>
+							<FeatherIcon name="trash-2" class="h-4 w-4 stroke-1.5" />
+						</Button>
+					</div>
+				</template>
+			</ListSelectBanner>
+		</ListView>
+		<div v-else class="flex flex-1 items-center justify-center px-5">
 			<EmptyStateLayout name="Programming Exercises" />
 		</div>
-		<div class="flex items-center justify-end gap-x-3 px-5 pt-3 border-t">
-			<Button v-if="exercises.hasNextPage" @click="exercises.next()">
-				{{ __('Load More') }}
-			</Button>
-			<div v-if="exercises.hasNextPage" class="h-8 border-s"></div>
-			<div class="text-ink-gray-5">
-				{{ exercises.data?.length }} {{ __('of') }} {{ totalExercises.data }}
-			</div>
-		</div>
+		<ListFooter
+			v-model="pageLength"
+			class="border-t px-3 py-2 sm:px-5"
+			:options="{
+				rowCount: exercises.data?.length,
+				totalCount: totalExercises.data,
+			}"
+		>
+			<template #right>
+				<div class="flex items-center">
+					<Button
+						v-if="exercises.hasNextPage"
+						:label="__('Load More')"
+						@click="exercises.next()"
+					/>
+					<div v-if="exercises.hasNextPage" class="mx-3 h-[80%] border-l" />
+					<div class="flex items-center gap-1 text-base text-ink-gray-5">
+						<div>{{ exercises.data?.length || 0 }}</div>
+						<div>{{ __('of') }}</div>
+						<div>{{ totalExercises.data || 0 }}</div>
+					</div>
+				</div>
+			</template>
+		</ListFooter>
 	</div>
 	<ProgrammingExerciseForm
 		v-model="showForm"
@@ -155,14 +168,17 @@ import {
 	ListRows,
 	ListRow,
 	ListRowItem,
+	ListFooter,
 	ListSelectBanner,
 	toast,
 	usePageMeta,
+	Select,
 } from 'frappe-ui'
 import { ClipboardList, Plus } from 'lucide-vue-next'
 import { sessionStore } from '@/stores/session'
 import { useRouter } from 'vue-router'
 import ProgrammingExerciseForm from '@/pages/ProgrammingExercises/ProgrammingExerciseForm.vue'
+import LayoutHeader from '@/components/Layouts/LayoutHeader.vue'
 
 const readOnlyMode = window.read_only_mode
 const { brand } = sessionStore()
@@ -262,6 +278,14 @@ const deleteExercises = (selections: Set<string>, unselectAll: () => void) => {
 	})
 	unselectAll()
 }
+
+const pageLength = computed({
+	get: () => exercises.pageLength,
+	set: (value) => {
+		exercises.update({ pageLength: value })
+		exercises.reload()
+	},
+})
 
 const totalExercises = createResource({
 	url: 'frappe.client.get_count',

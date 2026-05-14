@@ -43,8 +43,8 @@
 							<ChevronRight
 								class="h-4 w-4 stroke-1.5 text-ink-gray-9 transition-all duration-300 ease-in-out"
 								:class="{
-									'rotate-90': sidebarStore.isWebpagesCollapsed,
-									'rtl:rotate-180': !sidebarStore.isWebpagesCollapsed,
+									'rotate-90': !sidebarStore.isWebpagesCollapsed,
+									'rtl:rotate-180': sidebarStore.isWebpagesCollapsed,
 								}"
 							/>
 						</span>
