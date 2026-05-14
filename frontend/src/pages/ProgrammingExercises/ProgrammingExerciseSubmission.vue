@@ -20,7 +20,7 @@
 		</Button>
 	</div>
 	<div class="grid grid-cols-2 h-[calc(100vh_-_3rem)]">
-		<div class="border-r py-5 px-8 h-full">
+		<div class="border-e py-5 px-8 h-full">
 			<div class="font-semibold mb-2 text-ink-gray-9">
 				{{ __('Problem Statement') }}
 			</div>
@@ -34,7 +34,7 @@
 				<div class="font-semibold text-ink-gray-9">
 					{{ exercise.doc?.language }}
 				</div>
-				<div class="space-x-2">
+				<div class="flex items-center gap-x-2">
 					<Badge
 						v-if="submission.doc?.status"
 						:theme="submission.doc.status == 'Passed' ? 'green' : 'red'"
@@ -96,7 +96,7 @@
 								{{ __('Test {0}').format(index + 1) }} -
 							</span>
 							<span
-								class="font-semibold ml-2 mr-1"
+								class="font-semibold ms-2 me-1"
 								:class="
 									testCase.status === 'Passed'
 										? 'text-ink-green-3'

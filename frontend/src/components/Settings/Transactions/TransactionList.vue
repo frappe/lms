@@ -17,7 +17,7 @@
 			</Button>
 		</div>
 
-		<div class="flex items-center space-x-5 mb-4">
+		<div class="flex items-center gap-x-5 mb-4">
 			<FormControl
 				v-model="billingName"
 				:placeholder="__('Filter by Billing Name')"
@@ -53,7 +53,7 @@
         }"
 			>
 				<ListHeader
-					class="mb-2 grid items-center space-x-4 rounded bg-surface-gray-2 p-2"
+					class="mb-2 grid items-center gap-x-4 rounded bg-surface-gray-2 p-2"
 				>
 					<ListHeaderItem :item="item" v-for="item in columns">
 						<template #prefix="{ item }">

@@ -45,7 +45,7 @@
 							/>
 							<div
 								v-if="badge.count > 1"
-								class="flex items-end bg-surface-gray-2 p-2 text-xs font-semibold rounded-full absolute right-0 bottom-0"
+								class="flex items-end bg-surface-gray-2 p-2 text-xs font-semibold rounded-full absolute end-0 bottom-0"
 							>
 								<span>
 									<X class="w-3 h-3" />
@@ -83,7 +83,7 @@
 									<span class="text-xs text-ink-gray-7 font-medium mb-1">
 										{{ __('Share on') }}:
 									</span>
-									<div class="flex items-center space-x-2">
+									<div class="flex items-center gap-x-2">
 										<Button
 											variant="outline"
 											size="sm"

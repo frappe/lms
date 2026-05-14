@@ -14,7 +14,7 @@
 				size="md"
 				:class="
 					batch.data.amount || batch.data.courses.length
-						? 'float-right'
+						? 'float-end'
 						: 'w-fit mb-4'
 				"
 				:label="
@@ -28,7 +28,7 @@
 				variant="subtle"
 				theme="red"
 				size="md"
-				class="float-right"
+				class="float-end"
 				:label="__('Sold Out')"
 			/>
 			<div
@@ -41,7 +41,7 @@
 				v-if="batch.data.courses.length"
 				class="flex items-center mb-3 text-ink-gray-7"
 			>
-				<BookOpen class="h-4 w-4 stroke-1.5 mr-2" />
+				<BookOpen class="h-4 w-4 stroke-1.5 me-2" />
 				<span> {{ batch.data.courses.length }} {{ __('Courses') }} </span>
 			</div>
 			<DateRange
@@ -50,14 +50,14 @@
 				class="mb-3"
 			/>
 			<div class="flex items-center mb-3 text-ink-gray-7">
-				<Clock class="h-4 w-4 stroke-1.5 mr-2" />
-				<span>
+				<Clock class="h-4 w-4 stroke-1.5 me-2" />
+				<span dir="ltr">
 					{{ formatTime(batch.data.start_time) }} -
 					{{ formatTime(batch.data.end_time) }}
 				</span>
 			</div>
 			<div v-if="batch.data.timezone" class="flex items-center text-ink-gray-7">
-				<Globe class="h-4 w-4 stroke-1.5 mr-2" />
+				<Globe class="h-4 w-4 stroke-1.5 me-2" />
 				<span>
 					{{ batch.data.timezone }}
 				</span>

@@ -6,7 +6,7 @@
 					<ChevronLeft class="w-5 h-5 stroke-1.5 text-ink-gray-7" />
 				</template>
 			</Button>
-			<span class="text-lg font-semibold ml-2 text-ink-gray-9">
+			<span class="text-lg font-semibold ms-2 text-ink-gray-9">
 				{{ topic.title }}
 			</span>
 		</div>
@@ -18,11 +18,11 @@
 			>
 				<div class="flex items-center justify-between mb-2">
 					<div class="flex items-center text-ink-gray-5">
-						<UserAvatar :user="reply.user" class="mr-2" />
+						<UserAvatar :user="reply.user" class="me-2" />
 						<span>
 							{{ reply.user.full_name }}
 						</span>
-						<span class="text-sm ml-2">
+						<span class="text-sm ms-2">
 							{{ timeAgo(reply.creation) }}
 						</span>
 					</div>

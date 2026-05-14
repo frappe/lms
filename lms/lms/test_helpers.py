@@ -50,6 +50,12 @@ class BaseTestUtils(UnitTestCase):
 		if existing:
 			return frappe.get_doc("LMS Course", existing)
 
+		if not frappe.db.exists("LMS Category", "Business"):
+			frappe.get_doc({"doctype": "LMS Category", "category": "Business"}).insert(
+				ignore_permissions=True
+			)
+			self.cleanup_items.append(("LMS Category", "Business"))
+
 		course = frappe.new_doc("LMS Course")
 		course.update(
 			{

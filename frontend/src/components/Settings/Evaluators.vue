@@ -9,7 +9,7 @@
 					{{ __(description) }}
 				</div>
 			</div>
-			<div class="flex item-center space-x-2">
+			<div class="flex item-center gap-x-2">
 				<Dropdown
 					placement="right"
 					side="bottom"
@@ -39,7 +39,7 @@
 							<template #suffix>
 								<ChevronDown
 									:class="[
-										'w-4 h-4 stroke-1.5 ml-1 transform transition-transform',
+										'w-4 h-4 stroke-1.5 ms-1 transform transition-transform',
 										open ? 'rotate-180' : '',
 									]"
 								/>
@@ -72,7 +72,7 @@
 					>
 						<div class="flex items-center justify-between group py-3">
 							<div
-								class="flex items-center space-x-3"
+								class="flex items-center gap-x-3"
 								@click="openProfile(evaluator.username)"
 							>
 								<Avatar

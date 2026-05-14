@@ -57,24 +57,24 @@
                             </div> -->
 
 							<div
-								class="flex items-center space-x-5 text-sm text-ink-gray-5 mb-8"
+								class="flex items-center gap-x-5 text-sm text-ink-gray-5 mb-8"
 							>
 								<Tooltip :text="__('Lessons')">
-									<span class="flex items-center space-x-1">
+									<span class="flex items-center gap-x-1">
 										<BookOpen class="size-3 stroke-1.5" />
 										<span> {{ course.lessons }} {{ __('lessons') }} </span>
 									</span>
 								</Tooltip>
 
 								<Tooltip :text="__('Enrolled Students')">
-									<span class="flex items-center space-x-1">
+									<span class="flex items-center gap-x-1">
 										<User class="size-3 stroke-1.5" />
 										<span> {{ course.enrollments }} {{ __('students') }} </span>
 									</span>
 								</Tooltip>
 
 								<!-- <Tooltip v-if="course.rating" :text="__('Average Rating')">
-                                    <span class="flex items-center space-x-1">
+                                    <span class="flex items-center gap-x-1">
                                         <Star class="size-3 stroke-1.5" />
                                         <span>
                                             {{ course.rating }} {{ __("rating") }}
@@ -83,7 +83,7 @@
                                 </Tooltip> -->
 							</div>
 
-							<div class="flex items-center space-x-1 mt-auto">
+							<div class="flex items-center gap-x-1 mt-auto">
 								<UserAvatar :user="course.instructors[0]" />
 								<span class="text-ink-gray-9">
 									{{ course.instructors[0].full_name }}
@@ -95,7 +95,7 @@
 			</div>
 		</template>
 		<template #actions="{ close }">
-			<div class="flex justify-end space-x-2 group">
+			<div class="flex justify-end gap-x-2 group">
 				<Button variant="solid" @click="enrollInProgram(close)">
 					{{ __('Confirm Enrollment') }}
 				</Button>

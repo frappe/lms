@@ -7,7 +7,7 @@ describe("Batch Creation", () => {
 
 		// Open Settings
 		cy.get("span").contains("Learning").click();
-		cy.get("span").contains("Settings").click();
+		cy.contains('[role="menuitem"]', "Settings").click();
 
 		// Add a new member
 		cy.get("[data-dismissable-layer]")
@@ -38,7 +38,7 @@ describe("Batch Creation", () => {
 			.find("button")
 			.contains("New")
 			.click();
-		cy.get("span").contains("New Evaluator").click();
+		cy.contains('[role="menuitem"]', "New Evaluator").click();
 
 		const randomEvaluator = `evaluator${dateNow}@example.com`;
 		cy.get("input[placeholder='jane@doe.com']").type(randomEvaluator);
@@ -52,7 +52,7 @@ describe("Batch Creation", () => {
 
 		// Create a batch
 		cy.get("button").contains("Create").click();
-		cy.get("span").contains("New Batch").click();
+		cy.contains('[role="menuitem"]', "New Batch").click();
 		cy.wait(500);
 		cy.get("label").contains("Title").type("Test Batch");
 		cy.get("label").contains("Start Date").type("2030-10-01");
@@ -65,7 +65,7 @@ describe("Batch Creation", () => {
 		cy.get("label")
 			.contains("Description")
 			.type("Test Batch Short Description to test the UI");
-		cy.get("div[contenteditable=true").invoke(
+		cy.get("div.ProseMirror").invoke(
 			"text",
 			"Test Batch Description. I need a very big description to test the UI. This is a very big description. It contains more than once sentence. Its meant to be this long as this is a UI test. Its unbearably long and I'm not sure why I'm typing this much. I'm just going to keep typing until I feel like its long enough. I think its long enough now. I'm going to stop typing now."
 		);
@@ -74,7 +74,7 @@ describe("Batch Creation", () => {
 			.contains("Instructors")
 			.parent()
 			.within(() => {
-				cy.get("input").click().type("evaluator");
+				cy.get("input").click().clear().type(randomEvaluator);
 				cy.get("input")
 					.invoke("attr", "aria-controls")
 					.as("instructor_list_id");
@@ -87,7 +87,20 @@ describe("Batch Creation", () => {
 				});
 		});
 		cy.button("Save").click();
-		cy.get("label").contains("Published").click();
+		cy.wait(1000);
+
+		// going to batch settings and publishing the batch
+		cy.url().should("include", "#settings");
+		cy.closeOnboardingModal();
+		cy.contains("label", "Published")
+			.invoke("attr", "for")
+			.then((id) => {
+				cy.get(`#${id}`)
+					.scrollIntoView()
+					.should("be.visible")
+					.click({ force: true });
+				cy.get(`#${id}`).should("have.attr", "aria-checked", "true");
+			});
 		cy.button("Save").click();
 		cy.wait(1000);
 		let batchName;
@@ -105,11 +118,7 @@ describe("Batch Creation", () => {
 
 		cy.url().should("include", "/lms/batches");
 
-		cy.get('[id^="headlessui-radiogroup-v-"]')
-			.find("span")
-			.contains("Upcoming")
-			.should("be.visible")
-			.click();
+		cy.contains('[role="radio"]', "Upcoming").should("be.visible").click();
 
 		cy.get("@batchName").then((batchName) => {
 			cy.get(`a[href='/lms/batches/${batchName}'`).within(() => {
@@ -154,6 +163,7 @@ describe("Batch Creation", () => {
 		cy.get("button:visible").contains("Dashboard").click();
 
 		/* Add student to batch */
+		cy.closeOnboardingModal();
 		cy.get("button").contains("Enroll").click();
 		cy.get('div[role="dialog"]')
 			.first()

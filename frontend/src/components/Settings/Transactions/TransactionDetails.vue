@@ -1,7 +1,7 @@
 <template>
 	<div class="flex flex-col h-full text-base">
-		<div class="flex items-center justify-between mb-10 -ml-1.5">
-			<div class="flex items-center space-x-2">
+		<div class="flex items-center justify-between mb-10 -ms-1.5">
+			<div class="flex items-center gap-x-2">
 				<ChevronLeft
 					class="size-5 stroke-1.5 text-ink-gray-7 cursor-pointer"
 					@click="emit('updateStep', 'list')"
@@ -10,7 +10,7 @@
 					{{ __('Transaction Details') }}
 				</div>
 			</div>
-			<div class="space-x-2">
+			<div class="flex items-center gap-x-2">
 				<Button
 					v-if="
 						transactionData?.payment_for_document_type &&

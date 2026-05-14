@@ -3,7 +3,7 @@
 		<Button
 			v-if="membership && !hasReviewed.data"
 			@click="openReviewModal()"
-			class="float-right"
+			class="float-end"
 		>
 			{{ __('Write a Review') }}
 		</Button>
@@ -28,14 +28,14 @@
 								params: { username: review.owner_details.username },
 							}"
 						>
-							<span class="text-lg font-medium mr-4 text-ink-gray-7">
+							<span class="text-lg font-medium me-4 text-ink-gray-7">
 								{{ review.owner_details.full_name }}
 							</span>
 						</router-link>
 						<span class="text-ink-gray-7">
 							{{ review.creation }}
 						</span>
-						<div class="flex mt-2 space-x-1">
+						<div class="flex mt-2 gap-x-1">
 							<Star
 								v-for="index in 5"
 								class="size-4 text-transparent rounded-sm"

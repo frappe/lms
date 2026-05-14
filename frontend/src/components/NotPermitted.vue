@@ -2,7 +2,7 @@
 	<div class="text-base border rounded-md w-1/3 mx-auto my-32">
 		<div class="border-b px-5 py-3 font-medium text-ink-gray-9">
 			<span
-				class="inline-flex items-center before:bg-surface-red-5 before:w-2 before:h-2 before:rounded-md before:mr-2"
+				class="inline-flex items-center before:bg-surface-red-5 before:w-2 before:h-2 before:rounded-md before:me-2"
 			></span>
 			{{ __(title) }}
 		</div>

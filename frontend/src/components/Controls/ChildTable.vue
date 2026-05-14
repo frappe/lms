@@ -6,7 +6,7 @@
 		<div class="overflow-visible border border-outline-gray-modals rounded-md">
 			<div class="overflow-x-auto">
 				<div
-					class="grid items-center space-x-4 p-2 border-b border-outline-gray-modals"
+					class="grid items-center gap-x-4 p-2 border-b border-outline-gray-modals"
 					:style="{ gridTemplateColumns: getGridTemplateColumns() }"
 				>
 					<div
@@ -21,7 +21,7 @@
 				<div
 					v-for="(row, rowIndex) in rows"
 					:key="rowIndex"
-					class="grid items-center space-x-4 p-2"
+					class="grid items-center gap-x-4 p-2"
 					:style="{ gridTemplateColumns: getGridTemplateColumns() }"
 				>
 					<template v-for="key in Object.keys(row)" :key="key">
@@ -47,7 +47,7 @@
 						<div
 							v-if="menuOpenIndex === rowIndex"
 							ref="menuRef"
-							class="absolute right-0 w-32 z-50 bg-surface-modal border border-outline-gray-modals rounded-md shadow-sm"
+							class="absolute end-0 w-32 z-50 bg-surface-modal border border-outline-gray-modals rounded-md shadow-sm"
 							:class="
 								rowIndex == (rows?.length ?? 0) - 1
 									? 'bottom-full mb-1'
@@ -56,7 +56,7 @@
 						>
 							<button
 								@click="deleteRow(rowIndex)"
-								class="flex items-center space-x-2 w-full text-left px-3 py-2 text-sm text-ink-red-3"
+								class="flex items-center gap-x-2 w-full text-start px-3 py-2 text-sm text-ink-red-3"
 							>
 								<Trash2 class="size-4 stroke-1.5" />
 								<span>

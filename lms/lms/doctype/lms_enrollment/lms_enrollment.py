@@ -63,7 +63,7 @@ class LMSEnrollment(Document):
 		if not course_details.published and not is_admin():
 			frappe.throw(_("You cannot enroll in an unpublished course."))
 
-		if course_details.paid_course:
+		if course_details.paid_course and not is_admin():
 			payment = frappe.db.exists(
 				"LMS Payment",
 				{

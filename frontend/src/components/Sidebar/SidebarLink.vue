@@ -25,18 +25,18 @@
 				class="flex-shrink-0 text-sm duration-300 ease-in-out"
 				:class="
 					isCollapsed
-						? 'ml-0 w-0 overflow-hidden opacity-0'
-						: 'ml-2 w-auto opacity-100'
+						? 'ms-0 w-0 overflow-hidden opacity-0'
+						: 'ms-2 w-auto opacity-100'
 				"
 			>
 				{{ __(link.label) }}
 			</span>
 			<span
 				v-if="link.count && !isCollapsed"
-				class="!ml-auto block text-xs text-ink-gray-5"
+				class="!ms-auto block text-xs text-ink-gray-5"
 				:class="
 					isCollapsed && link.count > 9
-						? 'absolute top-[2px] right-0 bg-surface-white'
+						? 'absolute top-[2px] end-0 bg-surface-white'
 						: ''
 				"
 			>
@@ -44,7 +44,7 @@
 			</span>
 			<div
 				v-if="showControls && !isCollapsed"
-				class="flex items-center space-x-2 !ml-auto block text-xs text-ink-gray-5 group-hover:visible invisible"
+				class="flex items-center gap-x-2 !ms-auto block text-xs text-ink-gray-5 group-hover:visible invisible"
 			>
 				<component
 					:is="icons['Edit']"

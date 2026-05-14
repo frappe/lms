@@ -105,7 +105,7 @@
 						type="number"
 					/>
 				</div>
-				<div class="flex items-center justify-end space-x-2 mt-5">
+				<div class="flex items-center justify-end gap-x-2 mt-5">
 					<Button variant="solid" @click="submitQuestion()">
 						{{ __('Save') }}
 					</Button>

@@ -8,7 +8,7 @@
 				<template #target="{ togglePopover }">
 					<button
 						@click="openPopover(togglePopover)"
-						class="flex w-full items-center space-x-2 focus:outline-none bg-surface-gray-2 rounded h-7 py-1.5 px-2 hover:bg-surface-gray-3 focus:bg-surface-white border border-gray-100 hover:border-outline-gray-modals focus:border-outline-gray-4"
+						class="flex w-full items-center gap-x-2 focus:outline-none bg-surface-gray-2 rounded h-7 py-1.5 px-2 hover:bg-surface-gray-3 focus:bg-surface-white border border-gray-100 hover:border-outline-gray-modals focus:border-outline-gray-4"
 					>
 						<component
 							v-if="selectedIcon"

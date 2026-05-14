@@ -9,7 +9,7 @@
 					{{ __(description) }}
 				</div>
 			</div>
-			<div class="flex item-center space-x-2">
+			<div class="flex item-center gap-x-2">
 				<Button @click="showNewMember = true">
 					<template #prefix>
 						<Plus class="size-4 stroke-1.5" />
@@ -39,7 +39,7 @@
 					>
 						<div
 							@click="openProfile(member.username)"
-							class="flex items-center space-x-3 col-span-2"
+							class="flex items-center gap-x-3 col-span-2"
 						>
 							<Avatar
 								:image="member.user_image"
@@ -58,7 +58,7 @@
 							</div>
 						</div>
 						<div
-							class="flex items-center text-ink-gray-9 space-x-1 bg-surface-gray-2 px-2 py-1.5 rounded-md"
+							class="flex items-center text-ink-gray-9 gap-x-1 bg-surface-gray-2 px-2 py-1.5 rounded-md"
 							v-if="member.role && member.role !== 'LMS Student'"
 						>
 							<Shield class="size-4 stroke-1.5" />

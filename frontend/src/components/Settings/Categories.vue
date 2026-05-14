@@ -9,9 +9,9 @@
 					{{ __(description) }}
 				</div>
 			</div>
-			<div class="flex items-center space-x-5">
+			<div class="flex items-center gap-x-5">
 				<div
-					class="flex items-center space-x-1 text-ink-amber-3 border border-outline-amber-1 bg-surface-amber-1 rounded-lg px-2 py-1"
+					class="flex items-center gap-x-1 text-ink-amber-3 border border-outline-amber-1 bg-surface-amber-1 rounded-lg px-2 py-1"
 					v-if="saving"
 				>
 					<LoadingIndicator class="size-2" />
@@ -29,10 +29,7 @@
 			</div>
 		</div>
 
-		<div
-			v-if="showForm"
-			class="flex items-center justify-between my-4 space-x-2"
-		>
+		<div v-if="showForm" class="flex items-center justify-between my-4 gap-x-2">
 			<FormControl
 				ref="categoryInput"
 				v-model="category"

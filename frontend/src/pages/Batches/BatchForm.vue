@@ -275,7 +275,7 @@
 					</div>
 				</div>
 			</div>
-			<div class="border-l min-w-0">
+			<div class="border-s min-w-0">
 				<div class="border-b p-4">
 					<BatchCourses :batch="batch" />
 				</div>

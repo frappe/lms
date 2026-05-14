@@ -39,8 +39,8 @@
 				class="text-sm text-ink-gray-7"
 			/>
 			<div class="flex items-center text-sm text-ink-gray-7">
-				<Clock class="h-4 w-4 stroke-1.5 mr-2 text-ink-gray-7" />
-				<span>
+				<Clock class="h-4 w-4 stroke-1.5 me-2 text-ink-gray-7" />
+				<span dir="ltr">
 					{{ formatTime(batch.start_time) }} - {{ formatTime(batch.end_time) }}
 				</span>
 			</div>
@@ -48,7 +48,7 @@
 				v-if="batch.timezone"
 				class="flex items-center text-sm text-ink-gray-7"
 			>
-				<Globe class="h-4 w-4 stroke-1.5 mr-2 text-ink-gray-5" />
+				<Globe class="h-4 w-4 stroke-1.5 me-2 text-ink-gray-5" />
 				<span>
 					{{ batch.timezone }}
 				</span>
@@ -59,7 +59,7 @@
 			class="flex avatar-group overlap mt-4"
 		>
 			<div
-				class="h-6 mr-1"
+				class="h-6 me-1"
 				:class="{ 'avatar-group overlap': batch.instructors.length > 1 }"
 			>
 				<UserAvatar
@@ -108,6 +108,6 @@ const props = defineProps({
 }
 
 .avatar-group.overlap .avatar + .avatar {
-	margin-left: calc(-8px);
+	margin-inline-start: calc(-8px);
 }
 </style>
