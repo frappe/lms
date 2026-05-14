@@ -96,14 +96,14 @@
 				</div>
 				<div class="flex items-center text-ink-gray-9">
 					<BookOpen class="h-4 w-4 stroke-1.5" />
-					<span class="ml-2">
+					<span class="ms-2">
 						{{ course.data.lessons }}
 						{{ course.data.lessons > 1 ? __('lessons') : __('lesson') }}
 					</span>
 				</div>
 				<div class="flex items-center text-ink-gray-9">
 					<Users class="h-4 w-4 stroke-1.5" />
-					<span class="ml-2">
+					<span class="ms-2">
 						{{ formatAmount(course.data.enrollments) }}
 						{{
 							course.data.enrollments > 1
@@ -117,7 +117,7 @@
 					class="flex items-center text-ink-gray-9"
 				>
 					<Star class="size-4 stroke-1.5 fill-yellow-500 text-transparent" />
-					<span class="ml-2">
+					<span class="ms-2">
 						{{ course.data.rating }} {{ __('average rating') }}
 					</span>
 				</div>
@@ -126,7 +126,7 @@
 					class="flex items-center font-semibold text-ink-gray-9"
 				>
 					<GraduationCap class="h-4 w-4 stroke-2" />
-					<span class="ml-2">
+					<span class="ms-2">
 						{{ __('Certificate of Completion') }}
 					</span>
 				</div>
@@ -135,7 +135,7 @@
 					class="flex items-center font-semibold text-ink-gray-9"
 				>
 					<GraduationCap class="h-4 w-4 stroke-2" />
-					<span class="ml-2">
+					<span class="ms-2">
 						{{ __('Paid Certificate after Evaluation') }}
 					</span>
 				</div>

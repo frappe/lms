@@ -1836,7 +1836,7 @@ def get_discussion_replies(topic: str):
 
 
 @frappe.whitelist()
-def get_order_summary(doctype: str, docname: str, coupon: str = None, country: str = None):
+def get_order_summary(doctype: str, docname: str, coupon: str | None = None, country: str | None = None):
 	details = get_paid_course_details(docname) if doctype == "LMS Course" else get_paid_batch_details(docname)
 
 	details.amount, details.currency = check_multicurrency(

@@ -72,15 +72,19 @@ Cypress.Commands.add("paste", { prevSubject: true }, (subject, text) => {
 
 Cypress.Commands.add("closeOnboardingModal", () => {
 	cy.wait(500);
+	const modalSelector = '[data-testid="onboarding-help-modal"]';
 	cy.get("body").then(($body) => {
-		// Check if any element with class including 'z-50' exists
-		if ($body.find('[class*="z-50"]').length > 0) {
-			cy.get('[class*="z-50"]')
-				.find('button:has(svg[class*="feather-x"])')
-				.realClick();
-			cy.wait(1000);
-		} else {
-			cy.log("Onboarding modal not found, skipping close.");
+		if (!$body.find(modalSelector).length) {
+			cy.log("Onboarding modal not present, skipping close.");
+			return;
 		}
+
+		// Skip onboarding steps if the button exists, otherwise just close the modal.
+		if ($body.find(`${modalSelector} button:contains("Skip all")`).length) {
+			cy.get(modalSelector).contains("button", "Skip all").click();
+		}
+
+		cy.get(modalSelector).find("button:has(svg.feather-x)").click();
+		cy.get(modalSelector).should("not.exist");
 	});
 });

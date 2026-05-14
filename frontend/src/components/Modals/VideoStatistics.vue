@@ -18,7 +18,7 @@
 					<!-- <FormControl
 						v-model="searchText"
 						:placeholder="__('Search by Member')"
-						class="mt-2 mr-5 w-[25%]"
+						class="mt-2 me-5 w-[25%]"
 					/> -->
 				</div>
 				<div
@@ -50,7 +50,7 @@
 									}"
 								>
 									<div class="grid grid-cols-[70%,30%] items-center">
-										<div class="flex items-center space-x-2">
+										<div class="flex items-center gap-x-2">
 											<Avatar
 												:image="row.member_image"
 												:label="row.member_name"

@@ -7,11 +7,11 @@
 			{{ tags }}
 			<div
 				v-for="tag in tags?.split(', ')"
-				class="flex items-center bg-surface-gray-2 p-2 rounded-md mr-2"
+				class="flex items-center bg-surface-gray-2 p-2 rounded-md me-2"
 			>
 				{{ tag }}
 				<X
-					class="stroke-1.5 w-3 h-3 ml-2 cursor-pointer"
+					class="stroke-1.5 w-3 h-3 ms-2 cursor-pointer"
 					@click="removeTag(tag)"
 				/>
 			</div>

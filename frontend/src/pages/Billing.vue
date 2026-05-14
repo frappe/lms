@@ -63,7 +63,7 @@
 						<span class="text-ink-gray-5 uppercase text-xs">
 							{{ __('Enter a Coupon Code') }}:
 						</span>
-						<div class="flex items-center space-x-2">
+						<div class="flex items-center gap-x-2">
 							<FormControl
 								v-model="appliedCoupon"
 								:disabled="orderSummary.data.discount_amount > 0"
@@ -103,7 +103,7 @@
 					</p>
 				</div>
 
-				<div class="flex-1 lg:mr-10">
+				<div class="flex-1 lg:me-10">
 					<div class="mb-5">
 						<div class="text-lg font-semibold text-ink-gray-9">
 							{{ __('Address') }}

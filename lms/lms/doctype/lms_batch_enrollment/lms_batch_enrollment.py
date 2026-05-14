@@ -32,7 +32,7 @@ class LMSBatchEnrollment(Document):
 
 	def validate_payment(self):
 		paid_batch = frappe.db.get_value("LMS Batch", self.batch, "paid_batch")
-		if paid_batch:
+		if paid_batch and not self.is_admin():
 			payment = frappe.db.exists(
 				"LMS Payment",
 				{

@@ -26,11 +26,11 @@
 
 		<div class="grid grid-cols-1 lg:grid-cols-[3fr_2fr] gap-5 items-start">
 			<div class="border rounded-lg py-3 px-4 order-2 lg:order-1">
-				<div class="flex items-center justify-between space-x-2 mb-3">
+				<div class="flex items-center justify-between gap-x-2 mb-3">
 					<div class="text-lg text-ink-gray-9 font-semibold">
 						{{ __('Students') }}
 					</div>
-					<div class="flex items-center space-x-2">
+					<div class="flex items-center gap-x-2">
 						<FormControl
 							v-model="searchFilter"
 							:placeholder="__('Search by name')"
@@ -62,7 +62,7 @@
 						}"
 					>
 						<ListHeader
-							class="mb-2 grid items-center space-x-4 rounded bg-surface-white border-b rounded-none p-2"
+							class="mb-2 grid items-center gap-x-4 rounded bg-surface-white border-b rounded-none p-2"
 						>
 							<ListHeaderItem
 								:item="item"
@@ -91,7 +91,7 @@
 											<!-- <ProgressBar
 												v-else-if="column.key == 'progress'"
 												:progress="Math.ceil(row[column.key])"
-												class="!mx-0 !mr-4"
+												class="!mx-0 !me-4"
 											/> -->
 										</template>
 										<div v-if="column.key == 'creation'">
@@ -174,7 +174,6 @@ import {
 	AxisChart,
 	createResource,
 	createListResource,
-	dayjs,
 	FormControl,
 	ListView,
 	ListHeader,
@@ -185,7 +184,8 @@ import {
 	Avatar,
 	Button,
 } from 'frappe-ui'
-import { computed, ref, watch } from 'vue'
+import { computed, inject, ref, watch } from 'vue'
+import type dayjsType from 'dayjs'
 import { formatAmount } from '@/utils'
 import { Plus } from 'lucide-vue-next'
 import BatchFeedback from '@/pages/Batches/components/BatchFeedback.vue'
@@ -193,6 +193,7 @@ import BatchStudentProgress from '@/pages/Batches/components/BatchStudentProgres
 import NumberChartGraph from '@/components/NumberChartGraph.vue'
 import StudentModal from '@/components/Modals/StudentModal.vue'
 
+const dayjs = inject<typeof dayjsType>('$dayjs')!
 const searchFilter = ref<string | null>(null)
 const showEnrollmentModal = ref<boolean>(false)
 const showProgressModal = ref<boolean>(false)

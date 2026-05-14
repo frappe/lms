@@ -18,7 +18,7 @@
 			/>
 			<div
 				v-if="user.data?.name && !readOnlyMode"
-				class="flex items-center space-x-2"
+				class="flex items-center gap-x-2"
 			>
 				<router-link
 					v-if="canManageJob && applicationCount.data > 0"
@@ -82,7 +82,7 @@
 					<div class="flex">
 						<img
 							:src="job.data.company_logo"
-							class="size-10 rounded-lg object-contain cursor-pointer mr-4"
+							class="size-10 rounded-lg object-contain cursor-pointer me-4"
 							:alt="job.data.company_name"
 							@click="redirectToWebsite(job.data.company_website)"
 						/>
@@ -97,7 +97,7 @@
 						</div>
 					</div>
 
-					<div class="space-x-2">
+					<div class="flex items-center gap-x-2">
 						<Badge size="lg">
 							<template #prefix>
 								<CalendarDays class="size-3 stroke-2 text-ink-gray-7" />

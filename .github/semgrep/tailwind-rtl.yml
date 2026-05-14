@@ -1,0 +1,22 @@
+# Local run: semgrep scan --config .github/semgrep/tailwind-rtl.yml --metrics off .
+rules:
+    - id: tailwind-physical-class
+      message: |
+          RTL: replace physical Tailwind class with logical equivalent.
+      languages: [generic]
+      severity: WARNING
+      paths: { include: ["*.vue"] }
+      pattern-regex: |
+          (?x)
+          (?:^|[\s'"`{(\[,]) !?(?:[a-z][a-z0-9-]*:)*-?
+          (?:
+              (?:scroll-)?[mp][lr]-(?:auto|px|full|\d+(?:[./]\d+)?|\[[^\]]+\])
+            | (?:left|right)-(?:auto|px|full|\d+(?:[./]\d+)?|\[[^\]]+\])
+            | text-(?:left|right)
+            | float-(?:left|right)
+            | clear-(?:left|right)
+            | (?:border|rounded)-[lr](?:-[A-Za-z0-9\[\]./#%_-]+)?
+            | rounded-(?:tl|tr|bl|br)(?:-[A-Za-z0-9\[\]./#%_-]+)?
+            | space-x-(?:auto|px|reverse|\d+(?:[./]\d+)?|\[[^\]]+\])
+          )
+          !? (?=$|[\s'"`})\],>;])

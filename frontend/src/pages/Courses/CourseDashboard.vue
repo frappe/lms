@@ -25,7 +25,7 @@
 					<div class="text-lg text-ink-gray-9 font-semibold">
 						{{ __('Students') }}
 					</div>
-					<div class="flex items-center space-x-2">
+					<div class="flex items-center gap-x-2">
 						<FormControl
 							v-model="searchFilter"
 							:placeholder="__('Search by name')"
@@ -53,7 +53,7 @@
 						}"
 					>
 						<ListHeader
-							class="mb-2 grid items-center space-x-4 rounded bg-surface-white border-b rounded-none p-2"
+							class="mb-2 grid items-center gap-x-4 rounded bg-surface-white border-b rounded-none p-2"
 						>
 							<ListHeaderItem
 								:item="item"
@@ -91,7 +91,7 @@
 											<ProgressBar
 												v-else-if="column.key == 'progress'"
 												:progress="Math.ceil(row[column.key])"
-												class="!mx-0 !mr-4"
+												class="!mx-0 !me-4"
 											/>
 										</template>
 										<div v-if="column.key == 'creation'">
@@ -153,12 +153,12 @@
 									}"
 								></div>
 								<Tooltip :text="row.name.split('(')[1].replace(')', '')">
-									<div class="ml-2">
+									<div class="ms-2">
 										{{ row.name.split('(')[0] }}
 									</div>
 								</Tooltip>
 								<Tooltip :text="row.value">
-									<div class="ml-auto">
+									<div class="ms-auto">
 										{{
 											Math.round((row.value / course.data?.enrollments) * 100)
 										}}%
@@ -221,7 +221,7 @@
 							class="flex justify-between text-sm py-2 my-1 text-ink-gray-9"
 						>
 							<div class="">
-								<span class="mr-3 text-xs">
+								<span class="me-3 text-xs">
 									{{ progress.chapter_idx }}.{{ progress.idx }}
 								</span>
 								<span>
@@ -264,7 +264,6 @@ import {
 	Button,
 	createListResource,
 	createResource,
-	dayjs,
 	Dropdown,
 	ECharts,
 	FormControl,
@@ -277,7 +276,8 @@ import {
 	Select,
 	Tooltip,
 } from 'frappe-ui'
-import { computed, ref, watch } from 'vue'
+import { computed, inject, ref, watch } from 'vue'
+import type dayjsType from 'dayjs'
 import { Plus, Star } from 'lucide-vue-next'
 import { formatAmount } from '@/utils'
 import colors from '@/utils/frappe-ui-colors.json'
@@ -290,6 +290,7 @@ const props = defineProps<{
 	course: any
 }>()
 
+const dayjs = inject<typeof dayjsType>('$dayjs')!
 const showEnrollmentModal = ref(false)
 const searchFilter = ref<string | null>(null)
 const showProgressModal = ref(false)

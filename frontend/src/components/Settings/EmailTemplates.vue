@@ -9,7 +9,7 @@
 					{{ __(description) }}
 				</div> -->
 			</div>
-			<div class="flex items-center space-x-5">
+			<div class="flex items-center gap-x-5">
 				<Button @click="openTemplateForm('new')">
 					<template #prefix>
 						<Plus class="h-3 w-3 stroke-1.5" />
@@ -31,14 +31,14 @@
 				}"
 			>
 				<ListHeader
-					class="mb-2 grid items-center space-x-4 rounded bg-surface-gray-2 p-2"
+					class="mb-2 grid items-center gap-x-4 rounded bg-surface-gray-2 p-2"
 				>
 					<ListHeaderItem :item="item" v-for="item in columns">
 						<template #prefix="{ item }">
 							<component
 								v-if="item.icon"
 								:is="item.icon"
-								class="h-4 w-4 stroke-1.5 ml-4"
+								class="h-4 w-4 stroke-1.5 ms-4"
 							/>
 						</template>
 					</ListHeaderItem>
@@ -70,6 +70,12 @@
 				</ListSelectBanner>
 			</ListView>
 		</div>
+		<EmptyStateLayout
+			v-else
+			name="Email Templates"
+			:description="__('Add one to get started.')"
+			:icon="MailPlus"
+		/>
 	</div>
 	<EmailTemplateModal
 		v-model="showForm"
@@ -92,8 +98,9 @@ import {
 	toast,
 } from 'frappe-ui'
 import { computed, ref } from 'vue'
-import { Plus, Trash2 } from 'lucide-vue-next'
+import { Plus, Trash2, MailPlus } from 'lucide-vue-next'
 import EmailTemplateModal from '@/components/Modals/EmailTemplateModal.vue'
+import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 
 const props = defineProps({
 	label: {

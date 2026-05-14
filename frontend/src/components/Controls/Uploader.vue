@@ -19,7 +19,7 @@
 							class="size-5 stroke-1 text-ink-gray-7"
 						/>
 					</div>
-					<div class="ml-4">
+					<div class="ms-4">
 						<Button @click="openFileSelector" :loading="uploading">
 							{{ uploading ? `${__('Uploading')} ${progress}%` : __('Upload') }}
 						</Button>
@@ -46,7 +46,7 @@
 					<source :src="modelValue" />
 					{{ __('Your browser does not support the video tag.') }}
 				</video>
-				<div class="ml-4">
+				<div class="ms-4">
 					<Button @click="removeImage()">
 						{{ __('Remove') }}
 					</Button>
