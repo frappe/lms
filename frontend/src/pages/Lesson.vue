@@ -619,10 +619,10 @@ const setupLesson = async (data) => {
 }
 
 const checkQuiz = () => {
-	if (!editor.value && lesson.body) {
+	if (!editor.value && lesson.data?.body) {
 		const quizRegex = /\{\{ Quiz\(".*"\) \}\}/
-		hasQuiz.value = quizRegex.test(lesson.body)
-		if (!hasQuiz.value && !zenModeEnabled) {
+		hasQuiz.value = quizRegex.test(lesson.data.body)
+		if (!hasQuiz.value && !zenModeEnabled.value) {
 			allowDiscussions.value = true
 		} else {
 			allowDiscussions.value = false
@@ -1145,9 +1145,8 @@ watch(allowDiscussions, () => {
 })
 
 const redirectToLogin = () => {
-	window.location.href = `/login?redirect-to=${getLmsRoute(
-		`courses/${props.courseName}`
-	)}`
+	const coursePath = getLmsRoute(`courses/${props.courseName}`)
+	window.location.href = `/login?redirect-to=${coursePath}`
 }
 
 usePageMeta(() => {

@@ -374,14 +374,13 @@ const quiz = createResource({
 
 const populateQuestions = () => {
 	let data = quiz.data
-	if (data.shuffle_questions) {
-		questions = shuffleArray(data.questions)
-		if (data.limit_questions_to) {
-			questions = questions.slice(0, data.limit_questions_to)
-		}
-	} else {
-		questions = data.questions
+	let list = data.shuffle_questions
+		? shuffleArray([...data.questions])
+		: [...data.questions]
+	if (data.limit_questions_to) {
+		list = list.slice(0, data.limit_questions_to)
 	}
+	questions = list
 }
 
 const setupTimer = () => {
@@ -485,7 +484,7 @@ const questionDetails = createResource({
 
 watch(activeQuestion, (value) => {
 	if (value > 0) {
-		currentQuestion.value = quiz.data.questions[value - 1].question
+		currentQuestion.value = questions[value - 1].question
 		questionDetails.reload()
 	}
 })
@@ -598,7 +597,7 @@ const nextQuestion = () => {
 }
 
 const resetQuestion = () => {
-	if (activeQuestion.value == quiz.data.questions.length) return
+	if (activeQuestion.value == questions.length) return
 	activeQuestion.value = activeQuestion.value + 1
 	selectedOptions.splice(0, selectedOptions.length, ...[0, 0, 0, 0])
 	showAnswers.length = 0
