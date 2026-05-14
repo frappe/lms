@@ -226,4 +226,6 @@ def delete_lms_roles():
 	roles = ["Course Creator", "Moderator", "Batch Evaluator", "LMS Student"]
 	for role in roles:
 		if frappe.db.exists("Role", role):
+			frappe.db.delete("Has Role", {"role": role})
+			frappe.db.delete("Custom DocPerm", {"role": role})
 			frappe.db.delete("Role", role)
