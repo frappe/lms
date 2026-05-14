@@ -505,10 +505,17 @@ const onLessonProgressUpdate = (data) => {
 	}
 }
 
+const handleQuizCompleted = () => {
+	// Quiz submitted and progress saved — mark lesson as complete
+	lessonComplete.value = true
+	timerCompleted.value = true
+}
+
 onMounted(() => {
 	sidebarStore.isSidebarCollapsed = true
 	document.addEventListener('fullscreenchange', attachFullscreenEvent)
 	document.addEventListener('lms:video-ninety-percent', handleVideoNinetyPercent)
+	document.addEventListener('lms:quiz-completed', handleQuizCompleted)
 	socket.on('update_lesson_progress', onLessonProgressUpdate)
 })
 
@@ -549,6 +556,7 @@ const attachFullscreenEvent = () => {
 onBeforeUnmount(() => {
 	document.removeEventListener('fullscreenchange', attachFullscreenEvent)
 	document.removeEventListener('lms:video-ninety-percent', handleVideoNinetyPercent)
+	document.removeEventListener('lms:quiz-completed', handleQuizCompleted)
 	socket.off('update_lesson_progress', onLessonProgressUpdate)
 	sidebarStore.isSidebarCollapsed = false
 	trackVideoWatchDuration()
@@ -1138,7 +1146,7 @@ watch(allowDiscussions, () => {
 
 const redirectToLogin = () => {
 	window.location.href = `/login?redirect-to=${getLmsRoute(
-		`courses/${props.courseName}`
+		courses/${props.courseName}
 	)}`
 }
 

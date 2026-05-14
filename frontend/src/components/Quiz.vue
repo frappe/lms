@@ -37,7 +37,7 @@
 					__('You can attempt this quiz {0}.').format(
 						quiz.data.max_attempts == 1
 							? '1 time'
-							: `${quiz.data.max_attempts} times`
+							: ${quiz.data.max_attempts} times
 					)
 				}}
 			</div>
@@ -78,7 +78,7 @@
 						@click="startQuiz"
 					>
 						<span>
-							{{ inVideo ? __('Start the Quiz') : __('Start') }}
+							{{ inVideo ? _('Start the Quiz') : _('Start') }}
 						</span>
 					</Button>
 					<Button v-if="inVideo" @click="props.backToVideo()">
@@ -117,7 +117,7 @@
 						</div>
 						<div class="text-ink-gray-9 text-sm font-semibold item-left">
 							{{ question.marks }}
-							{{ question.marks == 1 ? __('Mark') : __('Marks') }}
+							{{ question.marks == 1 ? _('Mark') : _('Marks') }}
 						</div>
 					</div>
 					<div
@@ -126,7 +126,7 @@
 					></div>
 					<div v-if="questionDetails.data.type == 'Choices'" v-for="index in 4">
 						<label
-							v-if="questionDetails.data[`option_${index}`]"
+							v-if="questionDetails.data[option_${index}]"
 							class="flex items-center bg-surface-gray-3 rounded-md p-3 mt-4 w-full cursor-pointer focus:border-blue-600"
 						>
 							<input
@@ -166,16 +166,16 @@
 							</div>
 							<span
 								class="ml-2 text-ink-gray-9"
-								v-html="questionDetails.data[`option_${index}`]"
+								v-html="questionDetails.data[option_${index}]"
 							>
 							</span>
 						</label>
 						<div
-							v-if="questionDetails.data[`explanation_${index}`]"
+							v-if="questionDetails.data[explanation_${index}]"
 							class="mt-2 text-xs text-ink-gray-7"
 							v-show="showAnswers.length"
 						>
-							{{ questionDetails.data[`explanation_${index}`] }}
+							{{ questionDetails.data[explanation_${index}] }}
 						</div>
 					</div>
 					<div v-else-if="questionDetails.data.type == 'User Input'">
@@ -408,7 +408,7 @@ const formatTimer = (seconds) => {
 		.toString()
 		.padStart(2, '0')
 	const secs = (seconds % 60).toString().padStart(2, '0')
-	return hrs != '00' ? `${hrs}:${mins}:${secs}` : `${mins}:${secs}`
+	return hrs != '00' ? ${hrs}:${mins}:${secs} : ${mins}:${secs}
 }
 
 const timerProgress = computed(() => {
@@ -518,7 +518,7 @@ const getAnswers = () => {
 	if (type == 'Choices') {
 		selectedOptions.forEach((value, index) => {
 			if (selectedOptions[index])
-				answers.push(questionDetails.data[`option_${index + 1}`])
+				answers.push(questionDetails.data[option_${index + 1}])
 		})
 	} else {
 		answers.push(possibleAnswer.value)
@@ -668,6 +668,9 @@ const markLessonProgress = () => {
 			course: pathname[3],
 			chapter_number: lessonIndex[0],
 			lesson_number: lessonIndex[1],
+		}).then(() => {
+			// Notify Lesson.vue that quiz is complete — enable Next button
+			document.dispatchEvent(new CustomEvent('lms:quiz-completed'))
 		})
 	}
 }
