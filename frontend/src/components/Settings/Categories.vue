@@ -9,9 +9,9 @@
 					{{ __(description) }}
 				</div>
 			</div>
-			<div class="flex items-center space-x-5">
+			<div class="flex items-center gap-x-5">
 				<div
-					class="flex items-center space-x-1 text-ink-amber-3 border border-outline-amber-1 bg-surface-amber-1 rounded-lg px-2 py-1"
+					class="flex items-center gap-x-1 text-ink-amber-3 border border-outline-amber-1 bg-surface-amber-1 rounded-lg px-2 py-1"
 					v-if="saving"
 				>
 					<LoadingIndicator class="size-2" />
@@ -29,10 +29,7 @@
 			</div>
 		</div>
 
-		<div
-			v-if="showForm"
-			class="flex items-center justify-between my-4 space-x-2"
-		>
+		<div v-if="showForm" class="flex items-center justify-between my-4 gap-x-2">
 			<FormControl
 				ref="categoryInput"
 				v-model="category"
@@ -47,6 +44,7 @@
 		<div class="overflow-y-auto">
 			<div class="divide-y divide-outline-gray-modals space-y-2">
 				<div
+					v-if="categories.data?.length"
 					v-for="(cat, index) in categories.data"
 					:key="cat.name"
 					class="pt-2"
@@ -78,6 +76,12 @@
 						@keyup.enter="saveChanges(cat.name, editedValue)"
 					/>
 				</div>
+				<EmptyStateLayout
+					v-else
+					name="Categories"
+					:description="__('Add one to get started.')"
+					:icon="Network"
+				/>
 			</div>
 		</div>
 	</div>
@@ -91,9 +95,10 @@ import {
 	createResource,
 	toast,
 } from 'frappe-ui'
-import { Plus, Trash2, X } from 'lucide-vue-next'
+import { Plus, Trash2, X, Network } from 'lucide-vue-next'
 import { ref } from 'vue'
 import { cleanError } from '@/utils'
+import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 
 const showForm = ref(false)
 const category = ref(null)

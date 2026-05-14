@@ -59,7 +59,7 @@
 					class="h-[120px] flex items-center justify-center bg-surface-gray-1 border border-dashed border-outline-gray-3 rounded-md"
 				>
 					<div
-						class="w-fit bg-surface-white border rounded-md p-2 flex items-center justify-between items-center space-x-4 mx-5"
+						class="w-fit bg-surface-white border rounded-md p-2 flex items-center justify-between gap-x-4 mx-5"
 					>
 						<div class="space-y-2">
 							<div class="font-medium leading-5 text-ink-gray-9">

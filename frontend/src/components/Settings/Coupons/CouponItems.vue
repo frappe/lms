@@ -1,7 +1,7 @@
 <template>
 	<div>
 		<div class="relative overflow-x-auto border rounded-md">
-			<table class="w-full text-sm text-left text-ink-gray-5">
+			<table class="w-full text-sm text-start text-ink-gray-5">
 				<thead class="text-xs text-ink-gray-7 uppercase bg-surface-gray-2">
 					<tr>
 						<td scope="col" class="px-6 py-2">

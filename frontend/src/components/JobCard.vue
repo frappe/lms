@@ -2,7 +2,7 @@
 	<div
 		class="flex flex-col border rounded-md p-3 h-full hover:border-outline-gray-3"
 	>
-		<div class="flex space-x-4 mb-4">
+		<div class="flex gap-x-4 mb-4">
 			<div class="flex flex-col space-y-2 flex-1 break-all">
 				<div class="text-lg font-semibold text-ink-gray-9">
 					{{ job.company_name }}
@@ -10,7 +10,7 @@
 				<span class="font-medium text-ink-gray-7 leading-5">
 					{{ job.job_title }}
 				</span>
-				<div class="flex items-center space-x-1 text-sm text-ink-gray-7">
+				<div class="flex items-center gap-x-1 text-sm text-ink-gray-7">
 					<MapPin class="size-3" />
 					<span>
 						{{ job.location }}{{ job.country ? `, ${job.country}` : '' }}
@@ -18,7 +18,7 @@
 				</div>
 				<div
 					v-if="job.applicants"
-					class="flex items-center space-x-1 text-sm text-ink-gray-7"
+					class="flex items-center gap-x-1 text-sm text-ink-gray-7"
 				>
 					<User class="size-3" />
 					<span>
@@ -29,7 +29,7 @@
 			</div>
 			<!-- <img :src="job.company_logo" alt="Company Logo" class="size-8  rounded-full object-contain  bg-white" /> -->
 		</div>
-		<div class="space-x-2 mt-auto">
+		<div class="flex gap-x-2 items-center mt-auto">
 			<Badge>
 				{{ job.type }}
 			</Badge>

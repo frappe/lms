@@ -9,14 +9,14 @@ describe("Course Creation", () => {
 
 		// Create a course
 		cy.get("button").contains("Create").click();
-		cy.get("span").contains("New Course").click();
+		cy.contains('[role="menuitem"]', "New Course").click();
 		cy.wait(500);
 
 		cy.get("label").contains("Title").type("Test Course");
 		cy.get("label")
 			.contains("Short Introduction")
 			.type("Test Course Short Introduction to test the UI");
-		cy.get("div[contenteditable=true").invoke(
+		cy.get("div.ProseMirror").invoke(
 			"text",
 			"Test Course Description. I need a very big description to test the UI. This is a very big description. It contains more than once sentence. Its meant to be this long as this is a UI test. Its unbearably long and I'm not sure why I'm typing this much. I'm just going to keep typing until I feel like its long enough. I think its long enough now. I'm going to stop typing now."
 		);
@@ -61,7 +61,7 @@ describe("Course Creation", () => {
 		});
 
 		cy.button("Save").last().click();
-
+		cy.closeOnboardingModal();
 		// Edit Course Details
 		cy.wait(500);
 		cy.get("label")
@@ -153,7 +153,7 @@ describe("Course Creation", () => {
 		cy.wait(500);
 		cy.get("[data-dismissable-layer]").within(() => {
 			cy.get("label").contains("Title").type("Test Discussion");
-			cy.get("div[contenteditable=true]").invoke(
+			cy.get("div.ProseMirror").invoke(
 				"text",
 				"This is a test discussion. This will check if the UI is working properly."
 			);
@@ -163,7 +163,7 @@ describe("Course Creation", () => {
 		// View Discussion
 		cy.wait(500);
 		cy.get("div").contains("Test Discussion").click();
-		cy.get("div[contenteditable=true").invoke(
+		cy.get("div.ProseMirror").invoke(
 			"text",
 			"This is a test comment. This will check if the UI is working properly."
 		);
@@ -179,7 +179,7 @@ describe("Course Creation", () => {
 			cy.get("svg.lucide.lucide-ellipsis-icon").click();
 		});
 		cy.get("div[role=menu]").within(() => {
-			cy.get("span").contains("Delete").click();
+			cy.contains('[role="menuitem"]', "Delete").click();
 		});
 		cy.get("span").contains("Delete").click();
 		cy.wait(500);

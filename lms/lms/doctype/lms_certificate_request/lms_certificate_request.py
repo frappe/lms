@@ -131,7 +131,7 @@ class LMSCertificateRequest(Document):
 
 			args = {
 				"course": self.course_title,
-				"timezone": self.timezone if self.batch_name else "",
+				"timezone": self.timezone,
 				"date": format_date(self.date, "medium"),
 				"member_name": self.member_name,
 				"start_time": format_time(self.start_time, "short"),

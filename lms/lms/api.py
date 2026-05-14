@@ -231,15 +231,38 @@ def get_job_details(job: str):
 	)
 
 
+def sanitize_job_filters(filters, or_filters):
+	ALLOWED_FILTERS = ("status", "type", "work_mode", "country")
+	ALLOWED_OR_FILTERS = ("job_title", "company_name", "location")
+
+	filters = {f: v for f, v in (filters or {}).items() if f in ALLOWED_FILTERS}
+	or_filters = {f: v for f, v in (or_filters or {}).items() if f in ALLOWED_OR_FILTERS}
+
+	if filters.get("status") == "Closed" and "Moderator" not in frappe.get_roles():
+		filters["owner"] = frappe.session.user
+
+	return filters, or_filters
+
+
 @frappe.whitelist(allow_guest=True)
-def get_job_opportunities(filters: dict = None, orFilters: dict = None):
-	if not filters:
-		filters = {}
+def get_job_opportunities(
+	filters: dict = None,
+	or_filters: dict = None,
+	start: int = 0,
+	page_length: int = 40,
+	limit_start: int = None,
+	limit_page_length: int = None,
+):
+	if limit_page_length is not None:
+		page_length = cint(limit_page_length)
+	if limit_start is not None:
+		start = cint(limit_start)
+	filters, or_filters = sanitize_job_filters(filters, or_filters)
 
 	jobs = frappe.get_all(
 		"Job Opportunity",
 		filters=filters,
-		or_filters=orFilters,
+		or_filters=or_filters,
 		fields=[
 			"job_title",
 			"location",
@@ -252,6 +275,8 @@ def get_job_opportunities(filters: dict = None, orFilters: dict = None):
 			"creation",
 			"description",
 		],
+		start=start,
+		page_length=page_length,
 		order_by="creation desc",
 	)
 
@@ -259,6 +284,12 @@ def get_job_opportunities(filters: dict = None, orFilters: dict = None):
 		job.description = frappe.utils.strip_html_tags(job.description)
 		job.applicants = frappe.db.count("LMS Job Application", {"job": job.name})
 	return jobs
+
+
+@frappe.whitelist(allow_guest=True)
+def get_job_opportunities_count(filters: dict = None, or_filters: dict = None):
+	filters, or_filters = sanitize_job_filters(filters, or_filters)
+	return frappe.db.count("Job Opportunity", filters, or_filters)
 
 
 @frappe.whitelist(allow_guest=True)
@@ -344,11 +375,20 @@ def get_evaluator_details(evaluator: str):
 
 
 @frappe.whitelist()
-def get_certified_participants(filters: dict = None, start: int = 0, page_length: int = 100):
+def get_certified_participants(
+	filters: dict = None,
+	start: int = 0,
+	page_length: int = 40,
+	limit_start: int = None,
+	limit_page_length: int = None,
+):
+	if limit_page_length is not None:
+		page_length = cint(limit_page_length)
+	if limit_start is not None:
+		start = cint(limit_start)
 	query = get_certification_query(filters)
 	query = query.orderby("issue_date", order=frappe.qb.desc).offset(start).limit(page_length)
 	participants = query.run(as_dict=True)
-
 	for participant in participants:
 		details = get_certified_participant_details(participant.member)
 		participant.update(details)
@@ -361,7 +401,7 @@ def get_certified_participant_details(member: str):
 	details = frappe.db.get_value(
 		"User",
 		member,
-		["full_name", "user_image", "username", "country", "headline", "open_to"],
+		["full_name", "user_image", "username", "creation", "headline", "open_to"],
 		as_dict=1,
 	)
 	details["certificate_count"] = count
@@ -374,12 +414,12 @@ def get_certification_query(filters: dict = None):
 
 	query = (
 		frappe.qb.from_(Certificate)
-		.select(Certificate.member, Certificate.issue_date)
-		.distinct()
+		.select(Certificate.member, fn.Max(Certificate.issue_date).as_("issue_date"))
 		.join(User)
 		.on(Certificate.member == User.name)
 		.where(Certificate.published == 1)
 		.where(User.enabled == 1)
+		.groupby(Certificate.member)
 	)
 
 	if filters:

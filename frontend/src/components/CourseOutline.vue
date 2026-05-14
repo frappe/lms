@@ -2,7 +2,7 @@
 	<div class="">
 		<div
 			v-if="title && (outline.data?.length || allowEdit)"
-			class="flex items-center justify-between space-x-2 mb-4 px-2"
+			class="flex items-center justify-between gap-x-2 mb-4 px-2"
 			:class="{
 				'sticky top-0 z-10 bg-surface-white border-b px-3 py-2.5 sm:px-5':
 					allowEdit,
@@ -46,20 +46,20 @@
 							>
 								<ChevronRight
 									:class="{
-										'rotate-90 transform duration-200': open,
-										'duration-200': !open,
+										'rotate-90': open,
+										'rtl:rotate-180': !open,
 										hidden: chapter.is_scorm_package,
 										open: index == 1,
 									}"
-									class="h-4 w-4 text-ink-gray-9 stroke-1"
+									class="h-4 w-4 text-ink-gray-9 stroke-1 transform duration-200"
 								/>
 								<div
-									class="text-base text-left text-ink-gray-9 font-medium leading-5 ml-2"
+									class="text-base text-start text-ink-gray-9 font-medium leading-5 ms-2"
 									@click="redirectToChapter(chapter)"
 								>
 									{{ chapter.title }}
 								</div>
-								<div class="flex ml-auto space-x-4">
+								<div class="flex ms-auto gap-x-4">
 									<Tooltip :text="__('Edit Chapter')" placement="bottom">
 										<FilePenLine
 											v-if="allowEdit"
@@ -94,7 +94,7 @@
 								>
 									<template #item="{ element: lesson }">
 										<div
-											class="outline-lesson pl-8 py-2 pr-4 text-ink-gray-9"
+											class="outline-lesson ps-8 py-2 pe-4 text-ink-gray-9"
 											:class="
 												isActiveLesson(lesson.number) ? 'bg-surface-gray-3' : ''
 											"
@@ -112,23 +112,23 @@
 												<div class="flex items-center text-sm leading-5 group">
 													<MonitorPlay
 														v-if="lesson.icon === 'icon-youtube'"
-														class="h-4 w-4 stroke-1 mr-2"
+														class="h-4 w-4 stroke-1 me-2"
 													/>
 													<HelpCircle
 														v-else-if="lesson.icon === 'icon-quiz'"
-														class="h-4 w-4 stroke-1 mr-2"
+														class="h-4 w-4 stroke-1 me-2"
 													/>
 													<NotebookPen
 														v-else-if="lesson.icon === 'icon-assignment'"
-														class="h-4 w-4 stroke-1 mr-2"
+														class="h-4 w-4 stroke-1 me-2"
 													/>
 													<SquareCode
 														v-else-if="lesson.icon === 'icon-code'"
-														class="h-4 w-4 stroke-1 mr-2"
+														class="h-4 w-4 stroke-1 me-2"
 													/>
 													<FileText
 														v-else-if="lesson.icon === 'icon-list'"
-														class="h-4 w-4 text-ink-gray-9 stroke-1 mr-2"
+														class="h-4 w-4 text-ink-gray-9 stroke-1 me-2"
 													/>
 													{{ lesson.title }}
 													<Trash2
@@ -136,18 +136,18 @@
 														@click.prevent="
 															trashLesson(lesson.name, chapter.name)
 														"
-														class="h-4 w-4 text-ink-red-3 ml-auto invisible group-hover:visible"
+														class="h-4 w-4 text-ink-red-3 ms-auto invisible group-hover:visible"
 													/>
 													<Check
 														v-if="lesson.is_complete"
-														class="h-4 w-4 text-green-700 ml-2"
+														class="h-4 w-4 text-green-700 ms-2"
 													/>
 												</div>
 											</router-link>
 										</div>
 									</template>
 								</Draggable>
-								<div v-if="allowEdit" class="flex mt-2 mb-4 pl-8">
+								<div v-if="allowEdit" class="flex mt-2 mb-4 ps-8">
 									<router-link
 										v-if="!chapter.is_scorm_package"
 										:to="{
@@ -334,7 +334,8 @@ const trashLesson = (lessonName, chapterName) => {
 }
 
 const openChapterDetail = (index) => {
-	return index == route.params.chapterNumber || index == 1
+	const activeChapter = route.params.chapterNumber
+	return activeChapter ? index == activeChapter : index == 1
 }
 
 const openChapterModal = (chapter = null) => {

@@ -69,7 +69,7 @@
 			</ol>
 		</div>
 
-		<div v-if="quiz.data.duration" class="flex flex-col space-x-1 my-4">
+		<div v-if="quiz.data.duration" class="flex flex-col gap-x-1 my-4 px-2">
 			<div class="mb-2">
 				<span class="text-ink-gray-9"> {{ __('Time') }}: </span>
 				<span class="font-semibold text-ink-gray-9">
@@ -84,7 +84,7 @@
 				<div class="font-semibold text-lg text-ink-gray-9">
 					{{ quiz.data.title }}
 				</div>
-				<div class="flex items-center justify-center space-x-2 mt-4">
+				<div class="flex items-center justify-center gap-x-2 mt-4">
 					<Button
 						v-if="
 							!quiz.data.max_attempts ||
@@ -179,7 +179,7 @@
 								</div>
 							</div>
 							<span
-								class="ml-2 text-ink-gray-9"
+								class="ms-2 text-ink-gray-9"
 								v-html="questionDetails.data[`option_${index}`]"
 							>
 							</span>
@@ -202,12 +202,12 @@
 						<div v-if="showAnswers.length">
 							<Badge v-if="showAnswers[0]" :label="__('Correct')" theme="green">
 								<template #prefix>
-									<CheckCircle class="w-4 h-4 text-ink-green-2 mr-1" />
+									<CheckCircle class="w-4 h-4 text-ink-green-2 me-1" />
 								</template>
 							</Badge>
 							<Badge v-else theme="red" :label="__('Incorrect')">
 								<template #prefix>
-									<XCircle class="w-4 h-4 text-ink-red-3 mr-1" />
+									<XCircle class="w-4 h-4 text-ink-red-3 me-1" />
 								</template>
 							</Badge>
 						</div>
@@ -231,7 +231,7 @@
 						/>
 						<div
 							v-if="!quiz.data.show_answers"
-							class="flex items-center space-x-2"
+							class="flex items-center gap-x-2"
 						>
 							<Button
 								@click="switchQuestion(activeQuestion - 1)"
@@ -279,7 +279,7 @@
 								!showAnswers.length &&
 								questionDetails.data.type != 'Open Ended'
 							"
-							class="ml-auto"
+							class="ms-auto"
 							@click="checkAnswer()"
 						>
 							<span>
@@ -291,7 +291,7 @@
 								activeQuestion != questions.length && quiz.data.show_answers
 							"
 							@click="nextQuestion()"
-							class="ml-auto"
+							class="ms-auto"
 						>
 							<span>
 								{{ __('Next') }}
@@ -301,7 +301,7 @@
 							variant="solid"
 							v-else
 							@click="handleSubmitClick()"
-							class="ml-auto"
+							class="ms-auto"
 						>
 							<span>
 								{{ __('Submit') }}
@@ -314,7 +314,7 @@
 				<div class="font-semibold">
 					{{ __('Questions marked for review') }}
 				</div>
-				<div class="flex items-center space-x-2 mt-2">
+				<div class="flex items-center gap-x-2 mt-2">
 					<div
 						v-for="index in reviewQuestions"
 						@click="switchQuestion(index)"
@@ -350,7 +350,7 @@
 					)
 				}}
 			</div>
-			<div class="space-x-2">
+			<div class="flex gap-x-2">
 				<Button
 					@click="resetQuiz()"
 					class="mt-2"
@@ -512,7 +512,7 @@ const handlePageHide = () => {
 	if (activeQuestion.value > 0 && !quizSubmission.data) {
 		const params = new URLSearchParams({
 			quiz: quiz.data.name,
-			results: localStorage.getItem(quiz.data.title),
+			results: localStorage.getItem(quiz.data.title) || '[]',
 		})
 
 		navigator.sendBeacon(
@@ -648,7 +648,7 @@ const quizSubmission = createResource({
 	makeParams(values) {
 		return {
 			quiz: quiz.data.name,
-			results: localStorage.getItem(quiz.data.title),
+			results: localStorage.getItem(quiz.data.title) || '[]',
 		}
 	},
 })
@@ -767,6 +767,7 @@ const checkAnswer = () => {
 	createResource({
 		url: 'lms.lms.doctype.lms_quiz.lms_quiz.check_answer',
 		params: {
+			quiz: quiz.data.name,
 			question: currentQuestion.value,
 			question_type: questionDetails.data.type,
 			answers: JSON.stringify(answers),
@@ -832,7 +833,9 @@ const resetQuestion = () => {
 
 const submitQuiz = () => {
 	if (!quiz.data.show_answers) {
-		if (questionDetails.data.type == 'Open Ended') addToLocalStorage()
+		if (questionDetails.data.type == 'Open Ended' || getAnswers().length) {
+			addToLocalStorage()
+		}
 		setTimeout(() => {
 			createSubmission()
 		}, 500)

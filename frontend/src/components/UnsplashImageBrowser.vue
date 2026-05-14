@@ -5,12 +5,12 @@
 		</template>
 		<template #body>
 			<div
-				class="absolute left-1/2 mt-3 max-w-sm -translate-x-1/2 transform rounded-lg bg-surface-white px-4 sm:px-0 lg:max-w-3xl"
+				class="absolute start-1/2 mt-3 max-w-sm -translate-x-1/2 transform rounded-lg bg-surface-white px-4 sm:px-0 lg:max-w-3xl"
 			>
 				<div
 					class="overflow-hidden rounded-lg p-3 shadow-2xl ring-1 ring-black ring-opacity-5"
 				>
-					<div class="flex items-center space-x-2">
+					<div class="flex items-center gap-x-2">
 						<div class="flex-1">
 							<TextInput
 								type="text"

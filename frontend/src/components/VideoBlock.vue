@@ -8,7 +8,7 @@
 				)
 			}}
 
-			<div v-for="(quiz, index) in quizzes" class="pl-3 mt-1">
+			<div v-for="(quiz, index) in quizzes" class="ps-3 mt-1">
 				<span>
 					{{ index + 1 }}. <span class="font-semibold"> {{ quiz.quiz }} </span>
 				</span>
@@ -36,7 +36,7 @@
 				@click="playVideo"
 			>
 				<div
-					class="rounded-full p-4 pl-4.5"
+					class="rounded-full p-4 ps-4.5"
 					style="
 						background: radial-gradient(
 							circle,
@@ -49,7 +49,7 @@
 				</div>
 			</div>
 			<div
-				class="flex items-center space-x-2 py-2 px-1 text-ink-white bg-gradient-to-b from-transparent to-black/75 absolute bottom-0 left-0 right-0 mx-auto rounded-md"
+				class="flex items-center gap-x-2 py-2 px-1 text-ink-white bg-gradient-to-b from-transparent to-black/75 absolute bottom-0 start-0 end-0 mx-auto rounded-md"
 				:class="{
 					'invisible group-hover:visible': playing,
 				}"
@@ -76,7 +76,7 @@
 						class="duration-slider h-1"
 					/>
 					<!-- QUIZ MARKERS -->
-					<div class="absolute top-0 left-0 w-full h-full pointer-events-none">
+					<div class="absolute top-0 start-0 w-full h-full pointer-events-none">
 						<div
 							v-for="(quiz, index) in quizzes"
 							:key="index"
@@ -336,7 +336,7 @@ const toggleFullscreen = () => {
 const getQuizMarkerStyle = (time) => {
 	const percentage = ((time - 5) / Math.ceil(duration.value)) * 100
 	return {
-		left: `${percentage}%`,
+		insetInlineStart: `${percentage}%`,
 	}
 }
 

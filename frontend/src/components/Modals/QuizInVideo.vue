@@ -44,14 +44,14 @@
 						}"
 					>
 						<ListHeader
-							class="mb-2 grid items-center space-x-4 rounded bg-surface-gray-2 p-2"
+							class="mb-2 grid items-center gap-x-4 rounded bg-surface-gray-2 p-2"
 						>
 							<ListHeaderItem :item="item" v-for="item in columns">
 								<template #prefix="{ item }">
 									<component
 										v-if="item.icon"
 										:is="item.icon"
-										class="h-4 w-4 stroke-1.5 ml-4"
+										class="h-4 w-4 stroke-1.5 ms-4"
 									/>
 								</template>
 							</ListHeaderItem>

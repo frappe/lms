@@ -10,11 +10,11 @@
 				<div class="text-2xl font-semibold leading-6 text-ink-gray-9">
 					{{ __('Edit Profile') }}
 				</div>
-				<div class="space-x-2">
+				<div class="flex items-center gap-x-2">
 					<Badge v-if="isDirty" theme="orange">
 						{{ __('Not Saved') }}
 					</Badge>
-					<div class="pb-5 float-right">
+					<div class="pb-5 float-end">
 						<Button variant="solid" @click="saveProfile()">
 							{{ __('Save') }}
 						</Button>

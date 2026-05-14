@@ -51,7 +51,7 @@
 					</FileUploader>
 				</div>
 				<div v-else class="flex items-center">
-					<div class="border rounded-md p-2 mr-2">
+					<div class="border rounded-md p-2 me-2">
 						<FileText class="h-5 w-5 stroke-1.5 text-ink-gray-7" />
 					</div>
 					<div class="flex flex-col">

@@ -6,7 +6,7 @@
 
 		<div
 			v-if="readOnlyMode"
-			class="flex items-center space-x-2 text-sm text-ink-gray-7 bg-surface-gray-1 px-3 py-2 rounded-md w-full text-center"
+			class="flex items-center gap-x-2 text-sm text-ink-gray-7 bg-surface-gray-1 px-3 py-2 rounded-md w-full text-center"
 		>
 			<CircleAlert class="size-4 stroke-1.5" />
 			<span>
@@ -139,7 +139,7 @@
 					v-if="evaluator.data?.calendar && evaluator.data?.is_authorized"
 					class="flex items-center bg-surface-green-2 text-green-900 text-sm p-1 rounded-md mb-4 w-fit"
 				>
-					<Check class="h-4 w-4 stroke-1.5 mr-2" />
+					<Check class="h-4 w-4 stroke-1.5 me-2" />
 					{{ __('Your calendar is set.') }}
 				</div>
 				<Button @click="() => authorizeCalendar.submit()">

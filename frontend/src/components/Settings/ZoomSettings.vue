@@ -9,7 +9,7 @@
 					{{ __(description || '') }}
 				</div>
 			</div>
-			<div class="flex items-center space-x-5">
+			<div class="flex items-center gap-x-5">
 				<Button @click="openForm('new')">
 					<template #prefix>
 						<Plus class="h-3 w-3 stroke-1.5" />
@@ -31,7 +31,7 @@
 				}"
 			>
 				<ListHeader
-					class="mb-2 grid items-center space-x-4 rounded bg-surface-gray-2 p-2"
+					class="mb-2 grid items-center gap-x-4 rounded bg-surface-gray-2 p-2"
 				>
 					<ListHeaderItem :item="item" v-for="item in columns">
 						<template #prefix="{ item }">
@@ -88,6 +88,12 @@
 				</ListSelectBanner>
 			</ListView>
 		</div>
+		<EmptyStateLayout
+			v-else
+			name="Zoom Settings"
+			:description="__('Add one to get started.')"
+			:icon="Video"
+		/>
 	</div>
 	<ZoomAccountModal
 		v-if="showForm"
@@ -113,9 +119,10 @@ import {
 	toast,
 } from 'frappe-ui'
 import { computed, onMounted, ref } from 'vue'
-import { Plus, Trash2 } from 'lucide-vue-next'
+import { Plus, Trash2, Video } from 'lucide-vue-next'
 import { cleanError } from '@/utils'
 import ZoomAccountModal from '@/components/Modals/ZoomAccountModal.vue'
+import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 
 const showForm = ref(false)
 const currentAccount = ref<string | null>(null)

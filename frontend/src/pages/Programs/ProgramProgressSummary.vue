@@ -8,7 +8,7 @@
 	>
 		<template #body-content>
 			<div class="text-base">
-				<div class="flex items-center justify-between space-x-4 mb-4">
+				<div class="flex items-center justify-between gap-x-4 mb-4">
 					<NumberChart
 						class="border rounded-md w-full"
 						:config="{

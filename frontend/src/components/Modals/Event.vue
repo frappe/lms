@@ -14,7 +14,7 @@
 
 					<div class="flex flex-col space-y-4 text-sm text-ink-gray-8">
 						<Tooltip :text="__('Email ID')">
-							<div class="flex items-center space-x-2 w-fit">
+							<div class="flex items-center gap-x-2 w-fit">
 								<User class="h-4 w-4 stroke-1.5" />
 								<span>
 									{{ event.member }}
@@ -23,7 +23,7 @@
 						</Tooltip>
 						<Tooltip :text="__('Course')">
 							<div
-								class="flex space-x-2 w-fit cursor-pointer"
+								class="flex gap-x-2 w-fit cursor-pointer"
 								@click="openLink('course', event.course)"
 							>
 								<BookOpen class="h-4 w-4 stroke-1.5" />
@@ -34,7 +34,7 @@
 						</Tooltip>
 						<Tooltip v-if="event.batch_title" :text="__('Batch')">
 							<div
-								class="flex space-x-2 w-fit cursor-pointer"
+								class="flex gap-x-2 w-fit cursor-pointer"
 								@click="openLink('batch', event.batch_name)"
 							>
 								<Users class="h-4 w-4 stroke-1.5" />
@@ -44,7 +44,7 @@
 							</div>
 						</Tooltip>
 						<Tooltip :text="__('Date')">
-							<div class="flex items-center space-x-2 w-fit">
+							<div class="flex items-center gap-x-2 w-fit">
 								<Calendar class="h-4 w-4 stroke-1.5" />
 								<span>
 									{{ dayjs(event.date).format('DD MMM YYYY') }}
@@ -52,7 +52,7 @@
 							</div>
 						</Tooltip>
 						<Tooltip :text="__('Time')">
-							<div class="flex items-center space-x-2 w-fit">
+							<div class="flex items-center gap-x-2 w-fit">
 								<Clock class="h-4 w-4 stroke-1.5" />
 								<span>
 									{{ formatTime(event.start_time) }} -
@@ -61,7 +61,7 @@
 							</div>
 						</Tooltip>
 					</div>
-					<div class="flex items-center space-x-2 mt-auto">
+					<div class="flex items-center gap-x-2 mt-auto">
 						<Button
 							v-if="certificate.name"
 							@click="openCertificate(certificate)"
@@ -86,7 +86,7 @@
 						</Button>
 					</div>
 				</div>
-				<Tabs :tabs="tabs" as="div" v-model="tabIndex" class="border-l w-1/2">
+				<Tabs :tabs="tabs" as="div" v-model="tabIndex" class="border-s w-1/2">
 					<template #tab-panel="{ tab }">
 						<div
 							v-if="tab.label == 'Evaluation'"

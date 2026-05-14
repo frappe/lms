@@ -9,7 +9,7 @@
 					<div class="flex items-center justify-between mb-2">
 						<div class="flex items-center">
 							<Avatar :label="comm.sender_full_name" size="lg" />
-							<div class="ml-2 text-ink-gray-7">
+							<div class="ms-2 text-ink-gray-7">
 								{{ comm.sender_full_name }}
 							</div>
 						</div>

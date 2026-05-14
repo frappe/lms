@@ -1,6 +1,6 @@
 <template>
 	<div class="flex flex-col text-base h-full">
-		<div class="flex items-center space-x-2 mb-8 -ml-1.5">
+		<div class="flex items-center gap-x-2 mb-8 -ms-1.5">
 			<ChevronLeft
 				class="size-5 stroke-1.5 text-ink-gray-7 cursor-pointer"
 				@click="emit('updateStep', 'list')"
@@ -74,7 +74,7 @@
 				<CouponItems ref="couponItems" :data="data" :coupons="coupons" />
 			</div>
 		</div>
-		<div class="mt-auto space-x-2 ml-auto">
+		<div class="mt-auto flex gap-x-2 items-center ms-auto">
 			<Button variant="solid" @click="saveCoupon()">
 				{{ __('Save') }}
 			</Button>

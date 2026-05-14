@@ -5,7 +5,7 @@
 		<Breadcrumbs :items="breadcrumbs" />
 	</header>
 	<div v-if="program.data" class="pt-5 px-5 pb-10 mx-auto">
-		<div class="flex items-center space-x-2 mb-5">
+		<div class="flex items-center gap-x-2 mb-5">
 			<div class="text-lg font-semibold text-ink-gray-9">
 				{{ program.data.name }}
 			</div>
