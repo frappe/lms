@@ -47,6 +47,7 @@
    "fieldtype": "Link",
    "in_list_view": 1,
    "in_standard_filter": 1,
+   "read_only": 1,
    "label": "Member",
    "options": "User"
   },
@@ -117,7 +118,7 @@
  "in_create": 1,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-02-25 12:36:40.110346",
+ "modified": "2026-05-13 10:33:14.489663",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Quiz Submission",
@@ -136,7 +137,6 @@
    "write": 1
   },
   {
-   "create": 1,
    "email": 1,
    "export": 1,
    "if_owner": 1,
@@ -144,8 +144,7 @@
    "read": 1,
    "report": 1,
    "role": "LMS Student",
-   "share": 1,
-   "write": 1
+   "share": 1
   }
  ],
  "row_format": "Dynamic",

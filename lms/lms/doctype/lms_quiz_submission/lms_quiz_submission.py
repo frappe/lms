@@ -23,7 +23,7 @@ class LMSQuizSubmission(Document):
 			return
 
 		current_user_submission_count = frappe.db.count(
-			self.doctype, filters={"quiz": self.quiz, "member": frappe.session.user}
+			self.doctype, filters={"quiz": self.quiz, "member": self.member}
 		)
 		if current_user_submission_count >= max_attempts:
 			frappe.throw(
