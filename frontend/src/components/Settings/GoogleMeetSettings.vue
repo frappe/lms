@@ -88,6 +88,13 @@
 				</ListSelectBanner>
 			</ListView>
 		</div>
+		<EmptyStateLayout
+			v-else
+			name="Google Meet Settings"
+			:description="__('Add one to get started.')"
+			:icon="Presentation"
+			width="lg"
+		/>
 	</div>
 	<GoogleMeetAccountModal
 		v-model="showForm"
@@ -113,10 +120,11 @@ import {
 	toast,
 } from 'frappe-ui'
 import { computed, inject, onMounted, ref } from 'vue'
-import { Plus, Trash2 } from 'lucide-vue-next'
+import { Plus, Presentation, Trash2 } from 'lucide-vue-next'
 import { cleanError } from '@/utils'
 import { User } from '@/components/Settings/types'
 import GoogleMeetAccountModal from '@/components/Settings/GoogleMeetAccountModal.vue'
+import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 
 const user = inject<User | null>('$user')
 const showForm = ref(false)

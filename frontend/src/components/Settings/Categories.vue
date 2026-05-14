@@ -47,6 +47,7 @@
 		<div class="overflow-y-auto">
 			<div class="divide-y divide-outline-gray-modals space-y-2">
 				<div
+					v-if="categories.data?.length"
 					v-for="(cat, index) in categories.data"
 					:key="cat.name"
 					class="pt-2"
@@ -78,6 +79,12 @@
 						@keyup.enter="saveChanges(cat.name, editedValue)"
 					/>
 				</div>
+				<EmptyStateLayout
+					v-else
+					name="Categories"
+					:description="__('Add one to get started.')"
+					:icon="Network"
+				/>
 			</div>
 		</div>
 	</div>
@@ -91,9 +98,10 @@ import {
 	createResource,
 	toast,
 } from 'frappe-ui'
-import { Plus, Trash2, X } from 'lucide-vue-next'
+import { Plus, Trash2, X, Network } from 'lucide-vue-next'
 import { ref } from 'vue'
 import { cleanError } from '@/utils'
+import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 
 const showForm = ref(false)
 const category = ref(null)

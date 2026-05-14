@@ -109,12 +109,11 @@
 				</router-link>
 			</template>
 		</div>
-		<EmptyState v-else type="Certified Members" />
-		<div
-			v-if="!participants.list.loading && participants.hasNextPage"
-			class="flex justify-center mt-5"
-		>
-			<Button @click="participants.next()">
+		<div v-else class="h-[40vh] lg:h-[53vh] px-5">
+			<EmptyStateLayout name="Certified Members" />
+		</div>
+		<div class="flex items-center justify-end gap-x-3 border-t pt-3 px-5">
+			<Button v-if="participants.hasNextPage" @click="participants.next()">
 				{{ __('Load More') }}
 			</Button>
 		</div>
@@ -135,7 +134,7 @@ import { computed, inject, onMounted, ref } from 'vue'
 import { GraduationCap } from 'lucide-vue-next'
 import { sessionStore } from '../stores/session'
 import { useRouter } from 'vue-router'
-import EmptyState from '@/components/EmptyState.vue'
+import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 import UserAvatar from '@/components/UserAvatar.vue'
 
 const filters = ref({})

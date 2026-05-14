@@ -46,7 +46,7 @@
 		</div>
 	</div>
 	<StudentPrograms v-else-if="isStudent" />
-	<EmptyState v-else type="Programs" />
+	<EmptyStateLayout v-else name="Programs" />
 	<ProgramForm
 		v-model="showForm"
 		:programName="currentProgram"
@@ -59,7 +59,7 @@ import { computed, inject, onMounted, ref } from 'vue'
 import { BookOpen, Plus, User } from 'lucide-vue-next'
 import { sessionStore } from '@/stores/session'
 import ProgramForm from '@/pages/Programs/ProgramForm.vue'
-import EmptyState from '@/components/EmptyState.vue'
+import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 import StudentPrograms from '@/pages/Programs/StudentPrograms.vue'
 
 const { brand } = sessionStore()

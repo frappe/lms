@@ -110,7 +110,19 @@
 					</router-link>
 				</div>
 			</div>
-			<EmptyState v-else type="Job Openings" />
+			<div v-else class="h-[32vh] lg:h-[50vh] px-5">
+				<EmptyStateLayout name="Job Openings" />
+			</div>
+			<div class="flex items-center justify-end gap-x-3 border-t pt-3 px-5">
+				<Button v-if="jobs.hasNextPage" @click="jobs.next()">
+					{{ __('Load More') }}
+				</Button>
+				<div v-if="jobs.hasNextPage" class="h-8 border-s"></div>
+				<div class="text-ink-gray-5">
+					{{ jobs.data?.length }} {{ __('of') }}
+					{{ jobCount.data ?? 0 }}
+				</div>
+			</div>
 		</div>
 	</div>
 </template>
@@ -130,7 +142,7 @@ import { useSettings } from '@/stores/settings'
 import { inject, computed, ref, onMounted, watch } from 'vue'
 import JobCard from '@/components/JobCard.vue'
 import Link from '@/components/Controls/Link.vue'
-import EmptyState from '@/components/EmptyState.vue'
+import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 
 const user = inject('$user')
 const jobType = ref(null)
