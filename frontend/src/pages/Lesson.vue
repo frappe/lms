@@ -686,9 +686,13 @@ watch(
 	async (data) => {
 		setupLesson(data)
 		startTimer()
-		getPlyrSource()
+		await getPlyrSource()
 		updateNotes()
-		if (data.icon == 'icon-youtube') clearInterval(timerInterval)
+		const hasVideoListener =
+			plyrSources.value.length > 0 || !!document.querySelector('video')
+		if (data.icon == 'icon-youtube' && hasVideoListener) {
+			clearInterval(timerInterval)
+		}
 	}
 )
 
