@@ -512,7 +512,7 @@ const handlePageHide = () => {
 	if (activeQuestion.value > 0 && !quizSubmission.data) {
 		const params = new URLSearchParams({
 			quiz: quiz.data.name,
-			results: localStorage.getItem(quiz.data.title),
+			results: localStorage.getItem(quiz.data.title) || '[]',
 		})
 
 		navigator.sendBeacon(
@@ -648,7 +648,7 @@ const quizSubmission = createResource({
 	makeParams(values) {
 		return {
 			quiz: quiz.data.name,
-			results: localStorage.getItem(quiz.data.title),
+			results: localStorage.getItem(quiz.data.title) || '[]',
 		}
 	},
 })
@@ -767,6 +767,7 @@ const checkAnswer = () => {
 	createResource({
 		url: 'lms.lms.doctype.lms_quiz.lms_quiz.check_answer',
 		params: {
+			quiz: quiz.data.name,
 			question: currentQuestion.value,
 			question_type: questionDetails.data.type,
 			answers: JSON.stringify(answers),
@@ -832,7 +833,9 @@ const resetQuestion = () => {
 
 const submitQuiz = () => {
 	if (!quiz.data.show_answers) {
-		if (questionDetails.data.type == 'Open Ended') addToLocalStorage()
+		if (questionDetails.data.type == 'Open Ended' || getAnswers().length) {
+			addToLocalStorage()
+		}
 		setTimeout(() => {
 			createSubmission()
 		}, 500)
