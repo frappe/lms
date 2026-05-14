@@ -98,25 +98,32 @@ def save_progress(lesson: str, course: str, scorm_details: dict = None):
 		scorm_details = frappe._dict(**scorm_details)
 
 	if not progress_already_exists and quiz_completed and assignment_completed and not scorm_details:
-		frappe.get_doc(
-			{
-				"doctype": "LMS Course Progress",
-				"lesson": lesson,
-				"status": "Complete",
-				"member": frappe.session.user,
-			}
-		).save(ignore_permissions=True)
+		try:
+			frappe.get_doc(
+				{
+					"doctype": "LMS Course Progress",
+					"lesson": lesson,
+					"status": "Complete",
+					"member": frappe.session.user,
+				}
+			).save(ignore_permissions=True)
+		except frappe.UniqueValidationError:
+			# concurrent request created the progress doc
+			pass
 	elif scorm_details and not lesson_already_completed and not progress_already_exists:
 		# Create new SCORM progress
-		frappe.get_doc(
-			{
-				"doctype": "LMS Course Progress",
-				"lesson": lesson,
-				"status": "Complete" if scorm_details.is_complete else "Partially Complete",
-				"member": frappe.session.user,
-				"scorm_content": "" if scorm_details.is_complete else scorm_details.scorm_content,
-			}
-		).save(ignore_permissions=True)
+		try:
+			frappe.get_doc(
+				{
+					"doctype": "LMS Course Progress",
+					"lesson": lesson,
+					"status": "Complete" if scorm_details.is_complete else "Partially Complete",
+					"member": frappe.session.user,
+					"scorm_content": "" if scorm_details.is_complete else scorm_details.scorm_content,
+				}
+			).save(ignore_permissions=True)
+		except frappe.UniqueValidationError:
+			pass
 	elif scorm_details and not lesson_already_completed and progress_already_exists:
 		# Update Existing SCORM Progress
 		frappe.db.set_value(
