@@ -990,11 +990,17 @@ onBeforeUnmount(() => {
 
 const checkIfDiscussionsAllowed = () => {
 	hasQuiz.value = false
-	JSON.parse(lesson.data?.content)?.blocks?.forEach((block) => {
-		if (block.type === 'quiz') {
-			hasQuiz.value = true
+	if (lesson.data?.content) {
+		try {
+			JSON.parse(lesson.data.content)?.blocks?.forEach((block) => {
+				if (block.type === 'quiz') {
+					hasQuiz.value = true
+				}
+			})
+		} catch (e) {
+			/* malformed or non-JSON content — skip block scan */
 		}
-	})
+	}
 
 	if (
 		!hasQuiz.value &&
