@@ -72,7 +72,7 @@
 					<Button
 						v-if="
 							!quiz.data.max_attempts ||
-							attempts.data?.length < quiz.data.max_attempts
+							(attempts.data?.length || 0) < quiz.data.max_attempts
 						"
 						variant="solid"
 						@click="startQuiz"
@@ -88,7 +88,7 @@
 				<div
 					v-if="
 						quiz.data.max_attempts &&
-						attempts.data?.length >= quiz.data.max_attempts
+						(attempts.data?.length || 0) >= quiz.data.max_attempts
 					"
 					class="leading-5 text-ink-gray-7"
 				>
