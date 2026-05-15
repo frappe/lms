@@ -78,7 +78,7 @@
 						@click="startQuiz"
 					>
 						<span>
-							{{ inVideo ? _('Start the Quiz') : _('Start') }}
+							{{ inVideo ? __('Start the Quiz') : __('Start') }}
 						</span>
 					</Button>
 					<Button v-if="inVideo" @click="props.backToVideo()">
@@ -117,7 +117,7 @@
 						</div>
 						<div class="text-ink-gray-9 text-sm font-semibold item-left">
 							{{ question.marks }}
-							{{ question.marks == 1 ? _('Mark') : _('Marks') }}
+							{{ question.marks == 1 ? __('Mark') : __('Marks') }}
 						</div>
 					</div>
 					<div
