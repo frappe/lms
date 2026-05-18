@@ -146,7 +146,11 @@ onMounted(() => {
 const renderEditor = (holder) => {
 	return new EditorJS({
 		holder: holder,
-		tools: getEditorTools(true),
+		tools: getEditorTools({
+			private: false,
+			doctype: 'LMS Course',
+			docname: props.courseName,
+		}),
 		defaultBlock: 'markdown',
 		i18n: {
 			direction: document.documentElement.dir === 'rtl' ? 'rtl' : 'ltr',

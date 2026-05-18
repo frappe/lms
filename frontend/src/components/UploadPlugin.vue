@@ -2,6 +2,7 @@
 	<FileUploader
 		:fileTypes="['image/*', 'video/*', 'audio/*', '.pdf']"
 		:validateFile="validateFile"
+		:uploadArgs="uploadArgs"
 		@success="(data) => addFile(data)"
 		ref="fileUploader"
 		class="hide"
@@ -18,6 +19,10 @@ const props = defineProps({
 	onFileUploaded: {
 		type: Function,
 		required: true,
+	},
+	uploadArgs: {
+		type: Object,
+		default: () => ({ private: false }),
 	},
 })
 

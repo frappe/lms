@@ -8,6 +8,7 @@
 			v-if="!modelValue"
 			:fileTypes="[fileType]"
 			:validateFile="(file: File) => validateFile(file, true, type)"
+			:uploadArgs="{ private: false }"
 			@success="(file: File) => saveFile(file)"
 			@failure="onUploadFailure"
 		>

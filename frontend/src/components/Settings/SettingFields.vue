@@ -49,6 +49,7 @@
 								v-if="!data[field.name]"
 								:fileTypes="['image/*']"
 								:validateFile="validateFile"
+								:uploadArgs="{ private: false }"
 								@success="(file) => (data[field.name] = file.file_url)"
 							>
 								<template

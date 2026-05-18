@@ -19,7 +19,10 @@
 								:debounce="300"
 							/>
 						</div>
-						<FileUploader @success="(file) => $emit('select', file.file_url)">
+						<FileUploader
+							:uploadArgs="{ private: false }"
+							@success="(file) => $emit('select', file.file_url)"
+						>
 							<template
 								v-slot="{ file, progress, uploading, openFileSelector }"
 							>

@@ -37,6 +37,7 @@
 						v-if="!chapter.scorm_package"
 						:fileTypes="['.zip']"
 						:validateFile="validateFile"
+						:uploadArgs="{ private: true }"
 						@success="(file) => (chapter.scorm_package = file)"
 					>
 						<template v-slot="{ file, progress, uploading, openFileSelector }">
