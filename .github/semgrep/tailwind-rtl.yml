@@ -1,4 +1,4 @@
-# Local run: semgrep scan --config .github/semgrep/tailwind-rtl.yml --metrics off .
+# Local run: semgrep scan --config .github/semgrep/tailwind-rtl.yml
 rules:
     - id: tailwind-physical-class
       message: |
@@ -6,17 +6,41 @@ rules:
       languages: [generic]
       severity: WARNING
       paths: { include: ["*.vue"] }
-      pattern-regex: |
-          (?x)
-          (?:^|[\s'"`{(\[,]) !?(?:[a-z][a-z0-9-]*:)*-?
-          (?:
-              (?:scroll-)?[mp][lr]-(?:auto|px|full|\d+(?:[./]\d+)?|\[[^\]]+\])
-            | (?:left|right)-(?:auto|px|full|\d+(?:[./]\d+)?|\[[^\]]+\])
-            | text-(?:left|right)
-            | float-(?:left|right)
-            | clear-(?:left|right)
-            | (?:border|rounded)-[lr](?:-[A-Za-z0-9\[\]./#%_-]+)?
-            | rounded-(?:tl|tr|bl|br)(?:-[A-Za-z0-9\[\]./#%_-]+)?
-            | space-x-(?:auto|px|reverse|\d+(?:[./]\d+)?|\[[^\]]+\])
-          )
-          !? (?=$|[\s'"`})\],>;])
+      patterns:
+          - pattern-either:
+                - pattern-regex: |
+                      (?x)
+                      (?:^|[\s"'`(\[{,])
+                      !?
+                      (?:[^\s"':]+:)*
+                      -?
+                      (?:
+                          (?:scroll-)?[mp][lr]-(?:auto|px|full|\d+(?:[./]\d+)?|\[[^\]]+\])
+                        | (?:left|right)-(?:auto|px|full|\d+(?:[./]\d+)?|\[[^\]]+\])
+                        | (?:text|float|clear)-(?:left|right)
+                        | (?:border|rounded)-[lr](?:-[A-Za-z0-9\[\]./#%_-]+)?
+                        | rounded-(?:tl|tr|bl|br)(?:-[A-Za-z0-9\[\]./#%_-]+)?
+                      )
+                      !?
+                      (?=$|[\s'"`})\],>;])
+          - pattern-not-regex: '\b(?:rtl|ltr):'
+
+    - id: tailwind-space-x-needs-reverse-or-gap
+      message: |
+          RTL: `space-x-*` does not flip in RTL. add `rtl:space-x-reverse` or `gap-x-* ms-*`
+      languages: [generic]
+      severity: WARNING
+      paths: { include: ["*.vue"] }
+      patterns:
+          - pattern-regex: 'class\s*[:=]\s*"[^"]*\bspace-x-\S+[^"]*"'
+          - pattern-not-regex: '\brtl:space-x-reverse\b'
+
+    - id: tailwind-divide-x-needs-reverse
+      message: |
+          RTL: `divide-x-*` does not flip in RTL, sdd `rtl:divide-x-reverse`.
+      languages: [generic]
+      severity: WARNING
+      paths: { include: ["*.vue"] }
+      patterns:
+          - pattern-regex: 'class\s*[:=]\s*"[^"]*\bdivide-x(?:-\S+)?[^"]*"'
+          - pattern-not-regex: '\brtl:divide-x-reverse\b'
