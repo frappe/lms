@@ -231,6 +231,31 @@ def get_job_details(job: str):
 	)
 
 
+@frappe.whitelist()
+def get_application_users(user_names: list | str):
+	# temp function workaround:reverting once upstream restores dotted-field JOINs in `frappe.client.get_list`
+	if isinstance(user_names, str):
+		user_names = json.loads(user_names)
+	if not user_names:
+		return []
+
+	visible = frappe.get_list(
+		"LMS Job Application",
+		filters={"user": ["in", user_names]},
+		fields=["user"],
+		pluck="user",
+	)
+	visible_user_names = list(set(visible))
+	if not visible_user_names:
+		return []
+
+	return frappe.get_all(
+		"User",
+		filters={"name": ["in", visible_user_names]},
+		fields=["name", "user_image", "full_name", "email"],
+	)
+
+
 def sanitize_job_filters(filters, or_filters):
 	ALLOWED_FILTERS = ("status", "type", "work_mode", "country")
 	ALLOWED_OR_FILTERS = ("job_title", "company_name", "location")
