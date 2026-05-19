@@ -24,7 +24,8 @@ class TestLMSAPI(BaseTestUtils):
 		filters = {"category": "Utility Course"}
 		certified_participants = get_certified_participants(filters=filters)
 		self.assertEqual(len(certified_participants), 1)
-		self.assertEqual(certified_participants[0].member, self.student1.email)
+		self.assertEqual(certified_participants[0].full_name, self.student1.full_name)
+		self.assertNotIn("member", certified_participants[0])
 
 		filters = {"category": "Nonexistent Category"}
 		certified_participants_no_match = get_certified_participants(filters=filters)

@@ -392,6 +392,7 @@ def get_certified_participants(
 	for participant in participants:
 		details = get_certified_participant_details(participant.member)
 		participant.update(details)
+		participant.pop("member", None)
 
 	return participants
 
