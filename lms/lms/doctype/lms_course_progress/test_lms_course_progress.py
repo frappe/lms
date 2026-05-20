@@ -1,6 +1,8 @@
 # Copyright (c) 2021, FOSS United and Contributors
 # See license.txt
 
+import frappe
+
 from lms.lms.test_helpers import BaseTestUtils
 
 
@@ -37,3 +39,28 @@ class TestLMSCourseProgress(BaseTestUtils):
 
 		self.enrollment.reload()
 		self.assertEqual(self.enrollment.progress, 100)
+
+	def test_duplicate_progress_is_rejected(self):
+		"""Duplicate progress row for the same (member, lesson) not allowed"""
+		self._create_lesson_progress(self.student.email, self.course.name, self.lessons[0].name)
+
+		lms_course_progress = frappe.new_doc("LMS Course Progress")
+		lms_course_progress.update(
+			{
+				"member": self.student.email,
+				"course": self.course.name,
+				"lesson": self.lessons[0].name,
+				"status": "Complete",
+			}
+		)
+		with self.assertRaises(frappe.UniqueValidationError):
+			lms_course_progress.insert(ignore_permissions=True)
+
+		count = frappe.db.count(
+			"LMS Course Progress",
+			{"member": self.student.email, "lesson": self.lessons[0].name},
+		)
+		self.assertEqual(count, 1)
+
+		self.enrollment.reload()
+		self.assertEqual(self.enrollment.progress, 25)

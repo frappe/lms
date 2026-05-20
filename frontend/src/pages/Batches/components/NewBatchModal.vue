@@ -120,7 +120,7 @@ import { Button, Dialog, FormControl, TextEditor, toast } from 'frappe-ui'
 import { useOnboarding, useTelemetry } from 'frappe-ui/frappe'
 import { computed, inject, onMounted, onBeforeUnmount, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { sanitizeHTML, createLMSCategory } from '@/utils'
+import { sanitizeHTML, createLMSCategory, cleanError } from '@/utils'
 import MultiSelect from '@/components/Controls/MultiSelect.vue'
 import Link from '@/components/Controls/Link.vue'
 import NewMemberModal from '@/components/Modals/NewMemberModal.vue'
@@ -214,7 +214,8 @@ const saveBatch = (close: () => void = () => {}) => {
 				}
 			},
 			onError(err: any) {
-				toast.error(cleanError(err.messages?.[0]))
+				const message = err?.messages?.[0]
+				toast.error(message ? cleanError(message) : __('Error creating batch'))
 				console.error(err)
 			},
 		}

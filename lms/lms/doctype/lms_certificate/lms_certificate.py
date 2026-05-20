@@ -148,7 +148,7 @@ class LMSCertificate(Document):
 
 
 def has_website_permission(doc, ptype, user, verbose=False):
-	if ptype in ["read", "print"]:
+	if ptype in ["read", "print"] and doc.published:
 		return True
 	if doc.member == user and ptype == "create":
 		return True

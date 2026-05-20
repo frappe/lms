@@ -1,7 +1,7 @@
 <template>
 	<div class="relative flex h-screen flex-col">
 		<div
-			class="flex flex-1 flex-col overflow-hidden pb-10"
+			class="flex flex-1 flex-col overflow-y-auto pb-10"
 			id="scrollContainer"
 		>
 			<slot />
