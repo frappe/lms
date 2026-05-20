@@ -209,20 +209,26 @@ const props = defineProps({
 
 const applications = createListResource({
 	doctype: 'LMS Job Application',
-	fields: [
-		'name',
-		'user.user_image as user_image',
-		'user.full_name as full_name',
-		'user.email as email',
-		'creation',
-		'resume',
-		'job.job_title as job_title',
-	],
+	fields: ['name', 'user', 'creation', 'resume', 'job_title'],
 	filters: {
 		job: props.job,
 	},
 	auto: true,
 })
+
+const users = createResource({
+	url: 'lms.lms.api.get_application_users',
+	makeParams: () => ({
+		user_names: (applications.data || []).map((a) => a.user),
+	}),
+})
+
+watch(
+	() => applications.data,
+	(rows) => {
+		if (rows?.length) users.submit()
+	}
+)
 
 const totalApplications = createResource({
 	url: 'frappe.client.get_count',
@@ -354,11 +360,17 @@ const applicationColumns = computed(() => {
 
 const applicantRows = computed(() => {
 	if (!applications.data) return []
-	return applications.data.map((application) => ({
-		...application,
-		full_name: application.full_name,
-		applied_on: dayjs(application.creation).format('DD MMM YYYY'),
-	}))
+	const userMap = Object.fromEntries((users.data || []).map((u) => [u.name, u]))
+	return applications.data.map((application) => {
+		const user = userMap[application.user] || {}
+		return {
+			...application,
+			user_image: user.user_image,
+			full_name: user.full_name,
+			email: user.email,
+			applied_on: dayjs(application.creation).format('DD MMM YYYY'),
+		}
+	})
 })
 
 usePageMeta(() => {
