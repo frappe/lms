@@ -462,12 +462,7 @@ const getSidebarItems = (forMobile = false) => {
 					label: 'Courses',
 					icon: 'BookOpen',
 					to: 'Courses',
-					activeFor: [
-						'Courses',
-						'CourseDetail',
-						'Lesson',
-						'LessonForm',
-					],
+					activeFor: ['Courses', 'CourseDetail', 'Lesson'],
 				},
 				{
 					label: 'Programs',

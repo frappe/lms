@@ -1,6 +1,7 @@
 <template>
 	<div v-if="lesson.data" class="">
 		<header
+			v-if="!embedded"
 			class="sticky top-0 z-10 flex items-center justify-between border-b bg-surface-white px-3 py-2.5 sm:px-5"
 		>
 			<Breadcrumbs class="h-7" :items="breadcrumbs" />
@@ -27,22 +28,6 @@
 					</span>
 				</Button>
 
-				<router-link
-					v-if="allowEdit()"
-					:to="{
-						name: 'LessonForm',
-						params: {
-							courseName: courseName,
-							chapterNumber: props.chapterNumber,
-							lessonNumber: props.lessonNumber,
-						},
-					}"
-				>
-					<Button>
-						{{ __('Edit') }}
-					</Button>
-				</router-link>
-
 				<Button v-if="lesson.data.next" @click="switchLesson('next')">
 					<template #suffix>
 						<ChevronRight class="w-4 h-4 stroke-1" />
@@ -65,7 +50,13 @@
 				</router-link>
 			</div>
 		</header>
-		<div class="grid md:grid-cols-[70%,30%] h-[94vh]">
+		<div
+			:class="
+				embedded
+					? 'grid grid-cols-1 h-full'
+					: 'grid md:grid-cols-[70%,30%] h-[94vh]'
+			"
+		>
 			<div v-if="lesson.data.no_preview" class="border-e">
 				<div class="shadow rounded-md w-3/4 mt-10 mx-auto text-center p-4">
 					<div class="flex items-center justify-center mt-4 gap-x-2">
@@ -162,22 +153,6 @@
 										{{ __('Previous') }}
 									</span>
 								</Button>
-
-								<router-link
-									v-if="allowEdit()"
-									:to="{
-										name: 'LessonForm',
-										params: {
-											courseName: courseName,
-											chapterNumber: props.chapterNumber,
-											lessonNumber: props.lessonNumber,
-										},
-									}"
-								>
-									<Button>
-										{{ __('Edit') }}
-									</Button>
-								</router-link>
 
 								<Button v-if="lesson.data.next" @click="switchLesson('next')">
 									<template #suffix>
@@ -292,28 +267,14 @@
 					</div>
 				</div>
 			</div>
-			<div class="sticky top-10">
-				<div class="bg-surface-menu-bar p-5 border-b">
-					<div class="text-lg font-semibold text-ink-gray-9">
-						{{ lesson.data.course_title }}
-					</div>
-					<div
-						v-if="user && lesson.data.membership"
-						class="text-sm mt-4 mb-2 text-ink-gray-5"
-					>
-						{{ Math.ceil(lessonProgress) }}% {{ __('completed') }}
-					</div>
-
-					<ProgressBar
-						v-if="user && lesson.data.membership"
-						:progress="lessonProgress"
-					/>
-				</div>
-				<CourseOutline
+			<div v-if="!embedded" class="sticky top-10 h-[94vh]">
+				<StudentLessonSidebar
 					:courseName="courseName"
-					:key="chapterNumber"
-					:getProgress="lesson.data.membership ? true : false"
+					:courseTitle="lesson.data.course_title"
+					:progress="lessonProgress"
+					:selectedLessonNumber="`${chapterNumber}-${lessonNumber}`"
 					:completedLesson="completedLesson"
+					:withProgress="lesson.data.membership ? true : false"
 				/>
 			</div>
 		</div>
@@ -381,6 +342,7 @@ import Discussions from '@/components/Discussions.vue'
 import CertificationLinks from '@/components/CertificationLinks.vue'
 import VideoStatistics from '@/components/Modals/VideoStatistics.vue'
 import CourseOutline from '@/components/CourseOutline.vue'
+import StudentLessonSidebar from '@/components/StudentLessonSidebar.vue'
 import UserAvatar from '@/components/UserAvatar.vue'
 import Notes from '@/components/Notes/Notes.vue'
 import InlineLessonMenu from '@/components/Notes/InlineLessonMenu.vue'
@@ -423,15 +385,37 @@ const props = defineProps({
 		type: String,
 		required: true,
 	},
+	embedded: {
+		type: Boolean,
+		default: false,
+	},
+})
+
+const emit = defineEmits([
+	'select-lesson',
+	'lesson-completed',
+	'progress-updated',
+])
+
+// Exposed for the parent so the CourseEditor preview can render the same
+// Prev / Next / Zen-mode controls as the student header but place them in
+// the page-level LayoutHeader instead of inside the lesson body.
+defineExpose({
+	switchLesson: (direction) => switchLesson(direction),
+	goFullScreen: () => goFullScreen(),
+	canGoZen: () => canGoZen(),
+	hasPrev: computed(() => Boolean(lesson.data?.prev)),
+	hasNext: computed(() => Boolean(lesson.data?.next)),
 })
 
 onMounted(() => {
 	startTimer()
-	sidebarStore.isSidebarCollapsed = true
+	if (!props.embedded) sidebarStore.isSidebarCollapsed = true
 	document.addEventListener('fullscreenchange', attachFullscreenEvent)
 	socket.on('update_lesson_progress', (data) => {
 		if (data.course === props.courseName) {
 			lessonProgress.value = data.progress
+			emit('progress-updated', data.progress)
 		}
 	})
 })
@@ -450,7 +434,7 @@ const attachFullscreenEvent = () => {
 
 onBeforeUnmount(() => {
 	document.removeEventListener('fullscreenchange', attachFullscreenEvent)
-	sidebarStore.isSidebarCollapsed = false
+	if (!props.embedded) sidebarStore.isSidebarCollapsed = false
 	trackVideoWatchDuration()
 })
 
@@ -526,17 +510,37 @@ const renderEditor = (holder, content) => {
 	})
 }
 
+// Video-ended fires markProgress + trackVideoWatchDuration in parallel,
+// and trackVideoWatchDuration's getPlyrSourceDetails calls markProgress
+// again. Without an in-flight guard the two save_progress requests race
+// and the second one fails with TimestampMismatchError on LMS Enrollment.
+let progressSubmitting = false
 const markProgress = () => {
-	if (user.data && lesson.data && !lesson.data.progress) {
-		progress.submit(
-			{},
-			{
-				onError(err) {
-					console.error(err)
-				},
-			}
-		)
-	}
+	if (progressSubmitting) return
+	// Only enrolled students record progress; a moderator previewing has no
+	// membership row so save_progress would no-op server-side but still
+	// flip the in-memory `completedLesson` and show a green tick that
+	// vanishes on refresh.
+	if (
+		!user.data ||
+		!lesson.data ||
+		!lesson.data.membership ||
+		lesson.data.progress
+	)
+		return
+	progressSubmitting = true
+	progress.submit(
+		{},
+		{
+			onSuccess() {
+				progressSubmitting = false
+			},
+			onError(err) {
+				progressSubmitting = false
+				console.error(err)
+			},
+		}
+	)
 }
 
 const progress = createResource({
@@ -549,7 +553,13 @@ const progress = createResource({
 	},
 	onSuccess(data) {
 		lessonProgress.value = data
-		completedLesson.value = lesson.data?.name
+		const name = lesson.data?.name
+		completedLesson.value = name
+		// Tell the parent (CourseEditor preview) so it can flip the
+		// sidebar's green tick and update the percentage without waiting
+		// for a refresh of the course resource.
+		if (name) emit('lesson-completed', name)
+		emit('progress-updated', data)
 	},
 })
 
@@ -597,12 +607,20 @@ const switchLesson = (direction) => {
 			? lesson.data.prev.split('.')
 			: lesson.data.next.split('.')
 
+	const [chapterNumber, lessonNumber] = lessonIndex
+	// In the embedded editor preview, navigate the parent's selection so the
+	// pane swaps in place instead of routing away to /lesson/...
+	if (props.embedded) {
+		emit('select-lesson', { chapterNumber, lessonNumber })
+		return
+	}
+
 	router.push({
 		name: 'Lesson',
 		params: {
 			courseName: props.courseName,
-			chapterNumber: lessonIndex[0],
-			lessonNumber: lessonIndex[1],
+			chapterNumber,
+			lessonNumber,
 		},
 	})
 }
@@ -637,7 +655,7 @@ const resetLessonState = (newChapterNumber, newLessonNumber) => {
 }
 
 const trackVideoWatchDuration = () => {
-	if (!lesson.data.membership) return
+	if (!lesson.data?.membership) return
 	let videoDetails = getVideoDetails()
 	videoDetails = videoDetails.concat(getPlyrSourceDetails())
 	call('lms.lms.api.track_video_watch_duration', {
@@ -820,11 +838,6 @@ const isAdmin = computed(() => {
 	let isInstructor = lesson.data?.instructors?.includes(user.data?.name)
 	return user.data?.is_moderator || isInstructor
 })
-
-const allowEdit = () => {
-	if (window.read_only_mode) return false
-	return isAdmin.value
-}
 
 const allowInstructorContent = () => {
 	if (window.read_only_mode) return false

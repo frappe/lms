@@ -1,113 +1,54 @@
 <template>
-	<div class="">
-		<div class="grid md:grid-cols-[75%,25%] h-screen">
-			<div class="border-e">
-				<header
-					class="sticky top-0 z-10 flex flex-col md:flex-row md:items-center justify-between border-b overflow-hidden bg-surface-white px-3 py-2.5 sm:px-5"
+	<div class="py-5">
+		<div class="mt-0">
+			<div class="w-5/6 mx-auto pt-4">
+				<div
+					class="flex justify-between cursor-pointer"
+					@click="
+						() => {
+							openInstructorEditor = !openInstructorEditor
+						}
+					"
 				>
-					<Breadcrumbs class="text-ellipsis" :items="breadcrumbs" />
-					<Button
-						variant="solid"
-						@click="saveLesson({ showSuccessMessage: true })"
-						class="mt-3 md:mt-0"
-					>
-						{{ __('Save') }}
-					</Button>
-				</header>
-				<div class="py-5">
-					<div class="grid grid-cols-2 gap-5 w-5/6 mx-auto">
-						<FormControl
-							v-model="lesson.title"
-							:label="__('Title')"
-							class="mb-4"
-							:required="true"
-							autocomplete="off"
-						/>
-						<Switch
-							v-model="lesson.include_in_preview"
-							:label="__('Include in Preview')"
-							:description="
-								__(
-									'If enabled, the lesson will also be accessible to users who are not enrolled in the course.'
-								)
-							"
-						/>
-					</div>
-					<div class="border-t mt-4">
-						<div class="w-5/6 mx-auto pt-4">
-							<div
-								class="flex justify-between cursor-pointer"
-								@click="
-									() => {
-										openInstructorEditor = !openInstructorEditor
-									}
-								"
-							>
-								<label class="block font-medium text-ink-gray-5 mb-1">
-									{{ __('Instructor Notes') }}
-								</label>
-								<ChevronRight
-									class="stroke-2 h-5 w-5 text-ink-gray-5 transform duration-200"
-									:class="{
-										'rotate-90': openInstructorEditor,
-										'rtl:rotate-180': !openInstructorEditor,
-									}"
-								/>
-							</div>
-							<div
-								v-show="openInstructorEditor"
-								id="instructor-notes"
-								class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2 prose-sm max-w-none !whitespace-normal py-3"
-							></div>
-						</div>
-					</div>
-					<div class="border-t mt-4">
-						<div class="w-5/6 mx-auto pt-4">
-							<label class="block font-medium text-ink-gray-5 mb-1">
-								{{ __('Content') }}
-							</label>
-							<div
-								id="content"
-								class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2 prose-sm max-w-none !whitespace-normal py-3"
-							></div>
-						</div>
-					</div>
+					<label class="block font-medium text-ink-gray-5 mb-1">
+						{{ __('Instructor Notes') }}
+					</label>
+					<ChevronRight
+						class="stroke-2 h-5 w-5 text-ink-gray-5 transform duration-200"
+						:class="{
+							'rotate-90': openInstructorEditor,
+							'rtl:rotate-180': !openInstructorEditor,
+						}"
+					/>
 				</div>
+				<div
+					v-show="openInstructorEditor"
+					id="instructor-notes"
+					class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2 prose-sm max-w-none !whitespace-normal py-3"
+				></div>
 			</div>
-			<div class="">
-				<div class="sticky top-0 p-5">
-					<LessonHelp />
-				</div>
+		</div>
+		<div class="border-t mt-4">
+			<div class="w-5/6 mx-auto pt-4">
+				<label class="block font-medium text-ink-gray-5 mb-1">
+					{{ __('Content') }}
+				</label>
+				<div
+					id="content"
+					class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2 prose-sm max-w-none !whitespace-normal py-3"
+				></div>
 			</div>
 		</div>
 	</div>
 </template>
 <script setup>
-import {
-	Breadcrumbs,
-	Button,
-	createResource,
-	FormControl,
-	Switch,
-	usePageMeta,
-	toast,
-} from 'frappe-ui'
-import {
-	computed,
-	reactive,
-	onMounted,
-	inject,
-	ref,
-	onBeforeUnmount,
-} from 'vue'
-import { sessionStore } from '../stores/session'
+import { createResource, toast } from 'frappe-ui'
+import { reactive, onMounted, inject, ref, onBeforeUnmount } from 'vue'
 import EditorJS from '@editorjs/editorjs'
-import LessonHelp from '@/components/LessonHelp.vue'
 import { ChevronRight } from 'lucide-vue-next'
 import { getEditorTools, enablePlyr, sanitizeEditorJs } from '@/utils'
 import { useOnboarding, useTelemetry } from 'frappe-ui/frappe'
 
-const { brand } = sessionStore()
 const editor = ref(null)
 const instructorEditor = ref(null)
 const user = inject('$user')
@@ -132,6 +73,16 @@ const props = defineProps({
 	},
 })
 
+const isDirty = ref(false)
+function markDirty() {
+	if (lessonDetails.data?.lesson) isDirty.value = true
+}
+
+defineExpose({
+	saveLesson: () => saveLesson({ showSuccessMessage: true }),
+	isDirty,
+})
+
 onMounted(() => {
 	if (!user.data?.is_moderator && !user.data?.is_instructor) {
 		window.location.href = '/login'
@@ -153,6 +104,7 @@ const renderEditor = (holder) => {
 		},
 		onChange: async (api, event) => {
 			enablePlyr()
+			markDirty()
 		},
 	})
 }
@@ -184,6 +136,8 @@ const lessonDetails = createResource({
 			addLessonContent(data)
 			addInstructorNotes(data)
 			enableAutoSave()
+			// Initial population isn't user input.
+			isDirty.value = false
 		}
 	},
 })
@@ -432,6 +386,7 @@ const createNewLesson = () => {
 
 							capture('lesson_created')
 							toast.success(__('Lesson created successfully'))
+							isDirty.value = false
 							lessonDetails.reload()
 						},
 					}
@@ -457,6 +412,7 @@ const editCurrentLesson = () => {
 				showSuccessMessage
 					? toast.success(__('Lesson updated successfully'))
 					: ''
+				isDirty.value = false
 			},
 			onError(err) {
 				toast.error(err.message)
@@ -473,60 +429,6 @@ const validateLesson = () => {
 		return 'Content is required'
 	}
 }
-
-const breadcrumbs = computed(() => {
-	let crumbs = [
-		{
-			label: __('Courses'),
-			route: { name: 'Courses' },
-		},
-		{
-			label: lessonDetails.data?.course_title,
-			route: {
-				name: 'CourseDetail',
-				params: { courseName: props.courseName },
-				hash: '#settings',
-			},
-		},
-	]
-
-	if (lessonDetails?.data?.lesson) {
-		crumbs.push({
-			label: lessonDetails.data.lesson.title,
-			route: {
-				name: 'Lesson',
-				params: {
-					courseName: props.courseName,
-					chapterNumber: props.chapterNumber,
-					lessonNumber: props.lessonNumber,
-				},
-			},
-		})
-	}
-	crumbs.push({
-		label: lessonDetails?.data?.lesson
-			? __('Edit Lesson')
-			: __('Create Lesson'),
-		route: {
-			name: 'LessonForm',
-			params: {
-				courseName: props.courseName,
-				chapterNumber: props.chapterNumber,
-				lessonNumber: props.lessonNumber,
-			},
-		},
-	})
-	return crumbs
-})
-
-usePageMeta(() => {
-	return {
-		title: lessonDetails?.data?.lesson
-			? lessonDetails.data.lesson.title
-			: __('New Lesson'),
-		icon: brand.favicon,
-	}
-})
 </script>
 <style>
 .embed-tool__caption,
