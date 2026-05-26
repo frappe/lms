@@ -71,7 +71,7 @@
 					<Tooltip :text="__('Average Rating')">
 						<span class="flex items-center">
 							<Star class="h-4 w-4 stroke-1.5 me-1" />
-							{{ course.rating }}
+							{{ formatRating(course.rating) }}
 						</span>
 					</Tooltip>
 				</div>
@@ -136,7 +136,7 @@
 import { Award, BookOpen, GraduationCap, Star, Users } from 'lucide-vue-next'
 import { sessionStore } from '@/stores/session'
 import { Tooltip } from 'frappe-ui'
-import { formatAmount } from '@/utils'
+import { formatAmount, formatRating } from '@/utils'
 import { theme } from '@/utils/theme'
 import { computed, watch } from 'vue'
 import CourseInstructors from '@/components/CourseInstructors.vue'

@@ -20,17 +20,16 @@
 	</div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { createResource } from 'frappe-ui'
 import { watch } from 'vue'
 import CourseCard from '@/components/CourseCard.vue'
+import type { LMSCourse } from '@/types/lms/LMSCourse'
+import type { Resource } from '@/types/api'
 
-const props = defineProps({
-	courseName: {
-		type: String,
-		required: true,
-	},
-})
+const props = defineProps<{
+	courseName: string
+}>()
 
 const relatedCourses = createResource({
 	url: 'lms.lms.utils.get_related_courses',
@@ -41,7 +40,7 @@ const relatedCourses = createResource({
 		}
 	},
 	auto: true,
-})
+}) as Resource<LMSCourse[] | null>
 
 watch(
 	() => props.courseName,
