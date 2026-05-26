@@ -1,5 +1,6 @@
 <template>
-	<div class="p-5">
+	<SkeletonLoader v-if="!course.data" variant="course-page" />
+	<div v-else class="p-5">
 		<div class="flex justify-between w-full gap-x-5">
 			<div class="md:w-2/3">
 				<div class="text-3xl font-semibold text-ink-gray-9">
@@ -95,6 +96,7 @@ import CourseReviews from '@/components/CourseReviews.vue'
 import UserAvatar from '@/components/UserAvatar.vue'
 import CourseInstructors from '@/components/CourseInstructors.vue'
 import RelatedCourses from '@/components/RelatedCourses.vue'
+import SkeletonLoader from '@/components/SkeletonLoader.vue'
 
 const props = defineProps<{
 	course: any

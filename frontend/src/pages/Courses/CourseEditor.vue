@@ -1,14 +1,13 @@
 <template>
-	<SkeletonLoader
-		v-if="outline.loading && !outline.data"
-		variant="editor"
-		class="flex-1 min-h-0"
-	/>
-	<div v-else class="grid grid-cols-1 md:grid-cols-[70%,30%] flex-1 min-h-0">
+	<div class="grid grid-cols-1 md:grid-cols-[70%,30%] flex-1 min-h-0">
 		<div class="flex flex-col overflow-hidden">
-			<div class="flex-1 min-h-0 overflow-y-auto">
+			<div class="overflow-y-auto">
+				<SkeletonLoader
+					v-if="outline.loading && !outline.data"
+					variant="editor-content"
+				/>
 				<div
-					v-if="!selected"
+					v-else-if="!selected"
 					class="flex flex-col items-center justify-center h-full text-ink-gray-5 text-sm gap-2 px-6 text-center"
 				>
 					<BookOpen class="size-8 stroke-1.5" />
@@ -23,7 +22,6 @@
 					:courseName="props.course.data.name"
 					:chapterNumber="selected.chapterNumber"
 					:lessonNumber="selected.lessonNumber"
-					:embedded="true"
 				/>
 				<Lesson
 					v-else
@@ -35,13 +33,18 @@
 					:embedded="true"
 					@select-lesson="onSelectLesson"
 					@lesson-completed="onLessonCompleted"
+					@progress-updated="onProgressUpdated"
 				/>
 			</div>
 		</div>
 
 		<aside class="border-s overflow-y-auto">
+			<SkeletonLoader
+				v-if="outline.loading && !outline.data"
+				variant="editor-sidebar"
+			/>
 			<StudentLessonSidebar
-				v-if="mode === 'preview' && props.course?.data"
+				v-else-if="mode === 'preview' && props.course?.data"
 				:courseName="props.course.data.name"
 				:courseTitle="props.course.data.title"
 				:progress="progressPercent"
@@ -52,9 +55,11 @@
 			/>
 			<CourseOutline
 				v-else-if="props.course?.data"
+				ref="courseOutlineRef"
 				:courseName="props.course.data.name"
 				:title="__('Chapters')"
 				:allowEdit="true"
+				:hideHeader="true"
 				:inlineSelect="true"
 				:selectedLessonNumber="selected?.number"
 				@select-lesson="onSelectLesson"
@@ -170,7 +175,11 @@ const outline = createResource({
 			progress: false,
 		}
 	},
-	auto: true,
+	// auto:false — the resource fires from the course-name watcher below once
+	// the parent's course.data resolves. Auto-firing on mount would call the
+	// endpoint with course=undefined when CourseEditor mounts before the
+	// parent's course resource has loaded.
+	auto: false,
 })
 
 // Drive initial selection from outline.data instead of the resource
@@ -204,7 +213,10 @@ watch(() => outline.data, pickInitialLesson, { immediate: true })
 
 watch(
 	() => props.course?.data?.name,
-	() => outline.reload()
+	(name) => {
+		if (name) outline.fetch()
+	},
+	{ immediate: true }
 )
 
 // React to a deep-link change while the editor tab is already open.
@@ -231,8 +243,13 @@ watch(mode, (next) => {
 	syncModeToUrl(next)
 })
 
+// Live progress posted up from the embedded Lesson preview after a
+// save_progress success or a realtime `update_lesson_progress` event.
+// Prefer it over the stale `course.data.membership.progress` snapshot,
+// which is fetched once and never refreshed in this view.
+const liveProgress = ref(null)
 const progressPercent = computed(() => {
-	const p = props.course?.data?.membership?.progress
+	const p = liveProgress.value ?? props.course?.data?.membership?.progress
 	return p ? Math.ceil(p) : 0
 })
 
@@ -245,6 +262,9 @@ const lessonViewRef = ref(null)
 const completedLesson = ref(null)
 function onLessonCompleted(name) {
 	completedLesson.value = name
+}
+function onProgressUpdated(value) {
+	if (typeof value === 'number') liveProgress.value = value
 }
 
 function saveSelectedLesson() {
@@ -283,6 +303,11 @@ function previewZen() {
 	lessonViewRef.value?.goFullScreen?.()
 }
 
+const courseOutlineRef = ref(null)
+function openAddChapter() {
+	courseOutlineRef.value?.openChapterModal?.(null)
+}
+
 defineExpose({
 	saveSelectedLesson,
 	isDirty,
@@ -292,5 +317,6 @@ defineExpose({
 	previewPrev,
 	previewNext,
 	previewZen,
+	openAddChapter,
 })
 </script>

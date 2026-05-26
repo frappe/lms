@@ -1,10 +1,9 @@
 <template>
-	<SkeletonLoader v-if="!course.data" variant="course-page" />
-	<div v-else>
-		<LayoutHeader>
+	<div class="flex h-full flex-col">
+		<LayoutHeader :isLoading="!course.data">
 			<template #left-header>
 				<Breadcrumbs class="h-7" :items="breadcrumbs" />
-				<Badge v-if="course.data.published" theme="green">
+				<Badge v-if="course.data?.published" theme="green">
 					{{ __('Published') }}
 				</Badge>
 			</template>
@@ -90,35 +89,58 @@
 				</template>
 				<Button
 					v-if="user.data?.is_moderator"
-					:variant="course.data.published ? 'subtle' : 'solid'"
-					:theme="course.data.published ? 'red' : 'gray'"
+					:variant="course.data?.published ? 'subtle' : 'solid'"
+					:theme="course.data?.published ? 'red' : 'gray'"
 					:loading="publishToggle.loading"
 					@click="togglePublishCourse"
 				>
-					{{ course.data.published ? __('Unpublish') : __('Publish') }}
+					{{ course.data?.published ? __('Unpublish') : __('Publish') }}
 				</Button>
 			</template>
 		</LayoutHeader>
 
-		<CourseOverview v-if="!isAdmin" :course="course" />
-		<div v-else>
+		<div v-if="!isAdmin" class="flex-1 min-h-0">
+			<CourseOverview :course="course" />
+		</div>
+		<div v-else class="relative flex flex-1 min-h-0 flex-col">
 			<Tabs :tabs="tabs" v-model="tabIndex">
 				<template #tab-panel="{ tab }">
-					<CourseEditor
-						v-if="tab.component === CourseEditor"
-						ref="courseEditorRef"
-						:course="course"
-						v-model:selected="editorSelected"
-						v-model:mode="editorMode"
-					/>
-					<CourseForm
-						v-else-if="tab.component === CourseForm"
-						ref="courseFormRef"
-						:course="course"
-					/>
-					<component v-else :is="tab.component" :course="course" />
+					<template v-if="course.data">
+						<CourseEditor
+							v-if="tab.component === CourseEditor"
+							ref="courseEditorRef"
+							:course="course"
+							v-model:selected="editorSelected"
+							v-model:mode="editorMode"
+						/>
+						<CourseForm
+							v-else-if="tab.component === CourseForm"
+							ref="courseFormRef"
+							:course="course"
+						/>
+						<component v-else :is="tab.component" :course="course" />
+					</template>
 				</template>
 			</Tabs>
+			<div
+				v-if="tabIndex === 2 && course.data && editorMode === 'edit'"
+				class="pointer-events-none absolute inset-x-0 top-0 z-10 hidden md:flex"
+			>
+				<div class="w-[70%]" />
+				<div
+					class="pointer-events-auto flex w-[30%] items-center justify-between gap-x-2 border-s border-b bg-surface-white p-1 px-5"
+				>
+					<div class="py-2.5 font-medium text-base text-ink-gray-9">
+						{{ __('Chapters') }}
+					</div>
+					<Button size="sm" @click="courseEditorRef?.openAddChapter()">
+						<template #prefix>
+							<Plus class="size-4 stroke-1.5" />
+						</template>
+						{{ __('Add') }}
+					</Button>
+				</div>
+			</div>
 		</div>
 	</div>
 </template>
@@ -138,10 +160,9 @@ import {
 	toast,
 	usePageMeta,
 } from 'frappe-ui'
-import { ChevronLeft, ChevronRight, Eye, Focus, X } from 'lucide-vue-next'
+import { ChevronLeft, ChevronRight, Eye, Focus, Plus, X } from 'lucide-vue-next'
 import { sessionStore } from '@/stores/session'
 import LayoutHeader from '@/components/Layouts/LayoutHeader.vue'
-import SkeletonLoader from '@/components/SkeletonLoader.vue'
 import CourseOverview from '@/pages/Courses/CourseOverview.vue'
 import CourseDashboard from '@/pages/Courses/CourseDashboard.vue'
 import CourseEditor from '@/pages/Courses/CourseEditor.vue'
@@ -203,6 +224,7 @@ type CourseEditorApi = {
 	previewPrev: () => void
 	previewNext: () => void
 	previewZen: () => void
+	openAddChapter: () => void
 }
 const courseEditorRef = ref<CourseEditorApi | null>(null)
 
@@ -273,7 +295,7 @@ const course = createResource({
 		}
 	},
 	auto: true,
-}) as Resource<CourseDetails | undefined>
+}) as Resource<CourseDetails | null>
 
 const tabs = ref<TabDef[]>([
 	{
@@ -348,3 +370,21 @@ usePageMeta(() => {
 	}
 })
 </script>
+
+<style scoped>
+/* frappe-ui Tabs: TabsContent has no flex-1, so when the active panel's
+   content is intrinsically tall (Course editor with many lessons), the
+   flex-col layout shrinks the TabsList strip. Pin it so the strip keeps
+   its content height. */
+:deep([role='tablist']) {
+	flex-shrink: 0;
+}
+
+/* frappe-ui TabsContent is `flex flex-col` with no flex-1, so the active
+   panel collapses to its content height and the editor's `flex-1 min-h-0`
+   grid has no space to fill. Stretch the active panel to fill TabsRoot. */
+:deep([role='tabpanel'][data-state='active']) {
+	flex: 1 1 0%;
+	min-height: 0;
+}
+</style>
