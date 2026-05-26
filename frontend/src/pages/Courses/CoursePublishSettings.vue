@@ -142,10 +142,17 @@ import NewMemberModal from '@/components/Modals/NewMemberModal.vue'
 import type { CourseFormContext, Resource } from '@/types/api'
 
 const { resource, markDirty } = inject<CourseFormContext>('courseForm')!
+const dayjs = inject('$dayjs') as typeof import('dayjs')
 
 const doc = computed(() => resource.doc)
 const evaluatorLinkRef = ref<{ reload: () => void } | null>(null)
 const showMemberModal = ref<boolean>(false)
+
+const publishedOnLabel = computed<string>(() =>
+	doc.value?.published_on
+		? dayjs(doc.value.published_on).format('DD MMM YYYY')
+		: ''
+)
 
 const selfEnrollment = computed<boolean>({
 	get: () => !resource.doc?.disable_self_learning,
