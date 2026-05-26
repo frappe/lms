@@ -184,7 +184,7 @@ def process_results(results: list, quiz_details: dict):
 
 
 def verify_answer(question: str, answer: list):
-	question_details = get_question_details(question)
+	question_details = get_question_grading_fields(question)
 	correct = False
 
 	if question_details.multiple:
@@ -295,7 +295,7 @@ def check_answer(quiz: str, question: str, question_type: str, answers: str):
 		return check_input_answers(question, answers[0])
 
 
-def get_question_details(question: str):
+def get_question_grading_fields(question: str):
 	fields = ["multiple"]
 	for num in range(1, 5):
 		fields.append(f"option_{cstr(num)}")
@@ -307,7 +307,7 @@ def get_question_details(question: str):
 
 def check_choice_answers(question: str, answers: list):
 	is_correct = []
-	question_details = get_question_details(question)
+	question_details = get_question_grading_fields(question)
 
 	for num in range(1, 5):
 		if question_details[f"option_{num}"] in answers:

@@ -1370,17 +1370,29 @@ def get_country_code():
 
 
 @frappe.whitelist()
-def get_question_details(question: str) -> dict:
+def get_quiz_with_questions(quiz: str) -> dict:
+	"""Return the quiz doc plus every question's details in a single round trip."""
 	if not has_lms_role():
-		frappe.throw(_("You are not authorized to view the question details."))
+		frappe.throw(_("You are not authorized to view this quiz."))
 
-	fields = ["question", "type", "multiple"]
-	for i in range(1, 5):
-		fields.append(f"option_{i}")
-		fields.append(f"explanation_{i}")
+	quiz_doc = frappe.get_doc("LMS Quiz", quiz).as_dict()
 
-	question_details = frappe.db.get_value("LMS Question", question, fields, as_dict=1)
-	return question_details
+	question_names = [row.get("question") for row in quiz_doc.get("questions") or [] if row.get("question")]
+	questions_by_name = {}
+	if question_names:
+		fields = ["name", "question", "type", "multiple"]
+		for i in range(1, 5):
+			fields.append(f"option_{i}")
+			fields.append(f"explanation_{i}")
+		rows = frappe.get_all(
+			"LMS Question",
+			filters=[["name", "in", question_names]],
+			fields=fields,
+			ignore_permissions=True,
+		)
+		questions_by_name = {row["name"]: row for row in rows}
+
+	return {"quiz": quiz_doc, "questions_by_name": questions_by_name}
 
 
 @frappe.whitelist(allow_guest=True)
