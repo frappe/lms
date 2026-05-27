@@ -73,6 +73,20 @@ class CourseLesson(Document):
 				)
 
 
+def apply_enforcement_flags(quiz_done: bool, assignment_done: bool, settings: dict) -> tuple[bool, bool]:
+	"""Return (quiz_completed, assignment_completed) accounting for enforcement toggles.
+
+	If an enforcement flag is missing from `settings`, treat it as enabled (1) so the
+	legacy always-on gating remains the safe default.
+	"""
+	enforce_quiz = settings.get("enforce_quiz_completion", 1)
+	enforce_assignment = settings.get("enforce_assignment_completion", 1)
+	return (
+		True if not enforce_quiz else quiz_done,
+		True if not enforce_assignment else assignment_done,
+	)
+
+
 @frappe.whitelist()
 def save_progress(lesson: str, course: str, scorm_details: dict = None):
 	"""
@@ -91,8 +105,25 @@ def save_progress(lesson: str, course: str, scorm_details: dict = None):
 		{"lesson": lesson, "member": frappe.session.user, "status": "Complete"},
 	)
 
-	quiz_completed = get_quiz_progress(lesson)
-	assignment_completed = get_assignment_progress(lesson)
+	try:
+		settings = (
+			frappe.get_cached_value(
+				"LMS Settings",
+				None,
+				["enforce_quiz_completion", "enforce_assignment_completion"],
+				as_dict=True,
+			)
+			or {}
+		)
+	except Exception:
+		# Pre-migrate sites won't have these columns yet. Fall back to {} so
+		# apply_enforcement_flags treats both as enforced (legacy behavior).
+		settings = {}
+	quiz_completed, assignment_completed = apply_enforcement_flags(
+		quiz_done=get_quiz_progress(lesson),
+		assignment_done=get_assignment_progress(lesson),
+		settings=settings,
+	)
 
 	if scorm_details:
 		scorm_details = frappe._dict(**scorm_details)
