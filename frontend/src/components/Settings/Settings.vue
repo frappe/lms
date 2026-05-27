@@ -270,6 +270,64 @@ const tabsStructure = computed(() => {
 					],
 				},
 				{
+					label: 'Course Progress',
+					icon: 'Activity',
+					description:
+						'Control how lessons are marked complete: dwell time and enforcement toggles for video, quiz, and assignment.',
+					sections: [
+						{
+							label: 'Dwell Time',
+							columns: [
+								{
+									fields: [
+										{
+											label: 'Lesson dwell time (seconds)',
+											name: 'lesson_dwell_time',
+											type: 'number',
+											description:
+												'Seconds a learner must stay on a lesson before it auto-marks complete.',
+										},
+									],
+								},
+							],
+						},
+						{
+							label: 'Enforcement',
+							columns: [
+								{
+									fields: [
+										{
+											label: 'Enforce video completion',
+											name: 'enforce_video_completion',
+											type: 'checkbox',
+											description:
+												'When enabled, lessons that contain a video can only be marked complete by playing the video to the end. If the video fails to load, the dwell timer is used as a fallback.',
+										},
+										{
+											label: 'Enforce assignment completion',
+											name: 'enforce_assignment_completion',
+											type: 'checkbox',
+											description:
+												'When enabled, lessons with an assignment cannot be marked complete until the assignment is submitted.',
+										},
+									],
+								},
+								{
+									fields: [
+										{
+											label: 'Enforce quiz completion',
+											name: 'enforce_quiz_completion',
+											type: 'checkbox',
+											description:
+												'When enabled, lessons with a quiz cannot be marked complete until the quiz is submitted.',
+										},
+									],
+								},
+							],
+						},
+					],
+				},
+				{
 					label: 'Badges',
 					description:
 						'Create badges and assign them to students to acknowledge their achievements',

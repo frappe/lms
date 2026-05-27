@@ -1422,6 +1422,10 @@ def get_lms_settings():
 		"disable_pwa",
 		"allow_job_posting",
 		"demo_data_present",
+		"lesson_dwell_time",
+		"enforce_video_completion",
+		"enforce_quiz_completion",
+		"enforce_assignment_completion",
 	]
 
 	settings = frappe._dict()
