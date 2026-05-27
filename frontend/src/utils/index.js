@@ -452,6 +452,14 @@ const getSidebarItems = () => {
 						return userResource?.data
 					},
 				},
+				{
+					label: 'My Results',
+					icon: 'BarChart2',
+					to: 'EdukrutResults',
+					condition: () => {
+						return userResource?.data?.is_student
+					},
+				},
 			],
 		},
 		{

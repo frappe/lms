@@ -274,6 +274,8 @@ const navigateToPage = (log) => {
 				assignmentID: link[3],
 			},
 		})
+	} else {
+		window.location.href = log.link
 	}
 }
 

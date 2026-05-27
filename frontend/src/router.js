@@ -225,6 +225,17 @@ const routes = [
 		props: true,
 	},
 	{
+		path: '/my-results',
+		name: 'EdukrutResults',
+		component: () => import('@/pages/EdukrutResults.vue'),
+	},
+	{
+		path: '/my-results/:resultName',
+		name: 'EdukrutResult',
+		component: () => import('@/pages/EdukrutResult.vue'),
+		props: true,
+	},
+	{
 		path: '/search',
 		name: 'Search',
 		component: () => import('@/pages/Search/Search.vue'),
