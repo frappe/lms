@@ -40,7 +40,9 @@
 					v-model="account.member"
 					:label="__('Member')"
 					doctype="Course Evaluator"
-					:onCreate="(value: string, close: () => void) => openSettings('Members', close)"
+					:onCreate="
+						(value: string, close: () => void) => openSettings('Members', close)
+					"
 					:required="true"
 				/>
 				<Link
@@ -54,7 +56,8 @@
 	</Dialog>
 </template>
 <script setup lang="ts">
-import { call, Dialog, FormControl, Switch, toast } from 'frappe-ui'
+import { call, Dialog, FormControl, toast } from 'frappe-ui'
+import Switch from '@/components/Controls/Switch.vue'
 import { inject, reactive, watch } from 'vue'
 import { User } from '@/components/Settings/types'
 import { openSettings, cleanError } from '@/utils'

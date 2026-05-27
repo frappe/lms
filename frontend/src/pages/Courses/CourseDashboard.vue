@@ -208,7 +208,9 @@
 						</div>
 						<Select
 							:options="lessonProgressSortingOptions"
-							@update:modelValue="(value: string) => updateLessonProgress(value)"
+							@update:modelValue="
+								(value: string) => updateLessonProgress(value)
+							"
 							:placeholder="__('Sort by')"
 							class="!w-32"
 						/>
@@ -273,9 +275,9 @@ import {
 	ListRows,
 	ListRow,
 	ListRowItem,
-	Select,
 	Tooltip,
 } from 'frappe-ui'
+import Select from '@/components/Controls/Select.vue'
 import { computed, inject, ref, watch } from 'vue'
 import type dayjsType from 'dayjs'
 import { Plus, Star } from 'lucide-vue-next'

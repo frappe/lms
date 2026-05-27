@@ -134,7 +134,8 @@
 </template>
 
 <script setup lang="ts">
-import { Switch, FormControl, createResource } from 'frappe-ui'
+import { FormControl, createResource } from 'frappe-ui'
+import Switch from '@/components/Controls/Switch.vue'
 import { computed, inject, ref } from 'vue'
 import CollapsibleSection from '@/components/CollapsibleSection.vue'
 import Link from '@/components/Controls/Link.vue'

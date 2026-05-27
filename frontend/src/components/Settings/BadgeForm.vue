@@ -17,7 +17,9 @@
 						:required="true"
 					/>
 					<Autocomplete
-						@update:modelValue="(opt: any) => (badge.reference_doctype = opt.value)"
+						@update:modelValue="
+							(opt: any) => (badge.reference_doctype = opt.value)
+						"
 						:modelValue="badge.reference_doctype"
 						:options="referenceDoctypeOptions"
 						:required="true"
@@ -79,7 +81,8 @@
 	</Dialog>
 </template>
 <script setup lang="ts">
-import { Button, call, Dialog, FormControl, Switch, toast } from 'frappe-ui'
+import { Button, call, Dialog, FormControl, toast } from 'frappe-ui'
+import Switch from '@/components/Controls/Switch.vue'
 import { computed, ref, watch } from 'vue'
 import { cleanError } from '@/utils'
 import type { Badges, Badge } from '@/components/Settings/types'

@@ -141,10 +141,10 @@ import {
 	createListResource,
 	FormControl,
 	ListFooter,
-	Select,
 	usePageMeta,
 	Checkbox,
 } from 'frappe-ui'
+import Select from '@/components/Controls/Select.vue'
 import { computed, inject, onMounted, ref } from 'vue'
 import { GraduationCap, Calendar } from 'lucide-vue-next'
 import { sessionStore } from '../stores/session'

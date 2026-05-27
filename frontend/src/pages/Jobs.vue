@@ -150,7 +150,6 @@ import {
 	ListFooter,
 	TabButtons,
 	usePageMeta,
-	Select,
 } from 'frappe-ui'
 import { Plus, Search } from 'lucide-vue-next'
 import { sessionStore } from '@/stores/session'
@@ -158,6 +157,7 @@ import { useSettings } from '@/stores/settings'
 import { inject, computed, ref, onMounted, watch } from 'vue'
 import JobCard from '@/components/JobCard.vue'
 import Link from '@/components/Controls/Link.vue'
+import Select from '@/components/Controls/Select.vue'
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 import LayoutHeader from '@/components/Layouts/LayoutHeader.vue'
 

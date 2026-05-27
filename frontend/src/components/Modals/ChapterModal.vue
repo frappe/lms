@@ -80,9 +80,9 @@ import {
 	Dialog,
 	FileUploader,
 	FormControl,
-	Switch,
 	toast,
 } from 'frappe-ui'
+import Switch from '@/components/Controls/Switch.vue'
 import { reactive, watch, inject } from 'vue'
 import { getFileSize } from '@/utils/'
 import { FileText, X } from 'lucide-vue-next'

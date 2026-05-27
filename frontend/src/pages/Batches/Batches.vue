@@ -45,7 +45,7 @@
 			</Dropdown>
 		</template>
 	</LayoutHeader>
-	<div class="p-5 pb-10">
+	<div class="flex min-h-0 flex-1 flex-col p-5 pb-10">
 		<div
 			class="mb-5 flex flex-col justify-between space-y-4 lg:flex-row lg:items-center lg:space-y-0"
 		>
@@ -122,12 +122,12 @@ import {
 	createListResource,
 	Dropdown,
 	FormControl,
-	Select,
 	Tooltip,
 	TabButtons,
 	usePageMeta,
 	Checkbox,
 } from 'frappe-ui'
+import Select from '@/components/Controls/Select.vue'
 import { computed, inject, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { ChevronDown, Plus } from 'lucide-vue-next'

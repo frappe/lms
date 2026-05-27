@@ -82,7 +82,8 @@
 	</div>
 </template>
 <script setup lang="ts">
-import { Button, FormControl, toast, Switch } from 'frappe-ui'
+import { Button, FormControl, toast } from 'frappe-ui'
+import Switch from '@/components/Controls/Switch.vue'
 import { ref } from 'vue'
 import { ChevronLeft } from 'lucide-vue-next'
 import type { Coupon, Coupons } from './types'

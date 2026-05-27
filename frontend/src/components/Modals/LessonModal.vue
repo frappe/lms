@@ -29,14 +29,8 @@
 </template>
 
 <script setup lang="ts">
-import {
-	Dialog,
-	FormControl,
-	Switch,
-	Button,
-	createResource,
-	toast,
-} from 'frappe-ui'
+import { Dialog, FormControl, Button, createResource, toast } from 'frappe-ui'
+import Switch from '@/components/Controls/Switch.vue'
 import { computed, reactive, ref, watch } from 'vue'
 import { useTelemetry } from 'frappe-ui/frappe'
 

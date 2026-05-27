@@ -45,12 +45,12 @@
 				:rows="transactions.data"
 				row-key="name"
 				:options="{
-          showTooltip: false,
-          selectable: false,
-          onRowClick: (row: { [key: string]: any }) => {
-            openForm(row)
-          },
-        }"
+					showTooltip: false,
+					selectable: false,
+					onRowClick: (row: { [key: string]: any }) => {
+						openForm(row)
+					},
+				}"
 			>
 				<ListHeader
 					class="mb-2 grid items-center gap-x-4 rounded bg-surface-gray-2 p-2"
@@ -122,8 +122,8 @@ import {
 	ListRow,
 	ListRowItem,
 	FormControl,
-	Switch,
 } from 'frappe-ui'
+import Switch from '@/components/Controls/Switch.vue'
 import { computed, ref, watch } from 'vue'
 import { RefreshCw, Landmark } from 'lucide-vue-next'
 import Link from '@/components/Controls/Link.vue'
