@@ -1,0 +1,34 @@
+name: Frontend Tests
+
+on:
+  pull_request:
+  push:
+    branches: [main, develop, main-hotfix]
+
+jobs:
+  vitest:
+    name: Vitest
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          check-latest: true
+
+      - name: Cache yarn
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/yarn
+          key: ${{ runner.os }}-yarn-${{ hashFiles('frontend/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
+      - name: Install dependencies
+        working-directory: frontend
+        run: yarn install --frozen-lockfile
+
+      - name: Run vitest
+        working-directory: frontend
+        run: yarn test --run

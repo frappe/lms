@@ -373,6 +373,13 @@ import {
 } from '@/utils'
 import { sessionStore } from '@/stores/session'
 import { useSidebar } from '@/stores/sidebar'
+import { useSettings } from '@/stores/settings'
+import {
+	resolveDwellSeconds,
+	isVideoComplete,
+	shouldStartDwellTimer,
+	shouldAttachVideoFallback,
+} from '@/utils/lessonProgress'
 import EditorJS from '@editorjs/editorjs'
 import LessonContent from '@/components/LessonContent.vue'
 import CourseInstructors from '@/components/CourseInstructors.vue'
@@ -406,6 +413,7 @@ const plyrSources = ref([])
 const showInlineMenu = ref(false)
 const currentTab = ref(null)
 const completedLesson = ref(null)
+const settingsStore = useSettings()
 let timerInterval = null
 
 const tabs = ref([])
@@ -632,6 +640,8 @@ const resetLessonState = (newChapterNumber, newLessonNumber) => {
 		chapter: newChapterNumber,
 		lesson: newLessonNumber,
 	})
+	videoFallbackArmed = false
+	fallbackGeneration++
 	clearInterval(timerInterval)
 	timer.value = 0
 }
@@ -651,7 +661,7 @@ const getVideoDetails = () => {
 	const videos = document.querySelectorAll('video')
 	if (videos.length > 0) {
 		videos.forEach((video) => {
-			if (video.currentTime == video.duration) markProgress()
+			if (isVideoComplete(video.currentTime, video.duration)) markProgress()
 			details.push({
 				source: video.src,
 				watch_time: video.currentTime,
@@ -664,7 +674,7 @@ const getVideoDetails = () => {
 const getPlyrSourceDetails = () => {
 	let details = []
 	plyrSources.value.forEach((source) => {
-		if (source.currentTime == source.duration) markProgress()
+		if (isVideoComplete(source.currentTime, source.duration)) markProgress()
 		let src = cleanYouTubeUrl(source.source)
 		details.push({
 			source: src,
@@ -685,13 +695,47 @@ watch(
 	() => lesson.data,
 	async (data) => {
 		setupLesson(data)
+		// Settings drive dwell + enforcement; if they haven't resolved yet
+		// the timer reads undefined and falls back to 30s. Await the
+		// resource so the admin-configured dwell time wins from the first
+		// lesson load.
+		if (settingsStore.settings?.promise) {
+			try {
+				await settingsStore.settings.promise
+			} catch {}
+		}
 		startTimer()
 		await getPlyrSource()
 		updateNotes()
 		const hasVideoListener =
 			plyrSources.value.length > 0 || !!document.querySelector('video')
-		if (data.icon == 'icon-youtube' && hasVideoListener) {
+		const enforceVideo = Number(
+			settingsStore.settings?.data?.enforce_video_completion ?? 0
+		)
+		// When the lesson has video AND enforcement is on, suppress dwell so
+		// completion is gated on play-to-end. When enforcement is off, dwell
+		// runs for every lesson type — including YouTube/Plyr — so admins can
+		// set a short dwell to mark video lessons complete without a full
+		// playthrough.
+		if (!shouldStartDwellTimer({ hasVideo: hasVideoListener, enforceVideo })) {
 			clearInterval(timerInterval)
+		}
+		if (
+			shouldAttachVideoFallback({ hasVideo: hasVideoListener, enforceVideo })
+		) {
+			document.querySelectorAll('video').forEach((video) => {
+				if (video._lmsErrorAttached) return
+				video._lmsErrorAttached = true
+				const gen = fallbackGeneration
+				video.addEventListener(
+					'error',
+					() => {
+						if (gen !== fallbackGeneration) return
+						fallbackToDwellTimer('html5-video-error')
+					},
+					{ once: true }
+				)
+			})
 		}
 	}
 )
@@ -700,6 +744,34 @@ const getPlyrSource = async () => {
 	await nextTick()
 	if (plyrSources.value.length == 0) {
 		plyrSources.value = await enablePlyr()
+		const enforceVideo = Number(
+			settingsStore.settings?.data?.enforce_video_completion ?? 0
+		)
+		if (
+			shouldAttachVideoFallback({
+				hasVideo: plyrSources.value.length > 0,
+				enforceVideo,
+			})
+		) {
+			plyrSources.value.forEach((player) => {
+				let readyFired = false
+				const gen = fallbackGeneration
+				player.on('ready', () => {
+					readyFired = true
+				})
+				player.on('error', (event) => {
+					if (gen !== fallbackGeneration) return
+					fallbackToDwellTimer(
+						'plyr-error: ' + (event?.detail?.message || 'unknown')
+					)
+				})
+				setTimeout(() => {
+					if (!readyFired && gen === fallbackGeneration) {
+						fallbackToDwellTimer('plyr-no-ready-15s')
+					}
+				}, 15000)
+			})
+		}
 	}
 	updateVideoWatchDuration()
 }
@@ -774,11 +846,29 @@ const updateVideoTime = (video) => {
 	}
 }
 
+let videoFallbackArmed = false
+let fallbackGeneration = 0
+const fallbackToDwellTimer = (reason) => {
+	if (videoFallbackArmed) return
+	videoFallbackArmed = true
+	console.warn('[Lesson] video fallback engaged:', reason)
+	toast.warning(
+		__('Video failed to load — you can still mark this lesson as viewed.')
+	)
+	clearInterval(timerInterval)
+	timer.value = 0
+	startTimer()
+}
+
 const startTimer = () => {
 	if (!lesson.data?.membership) return
+	const dwell = resolveDwellSeconds(
+		settingsStore.settings?.data?.lesson_dwell_time
+	)
+	if (dwell === null) return
 	timerInterval = setInterval(() => {
 		timer.value++
-		if (timer.value == 30) {
+		if (timer.value >= dwell) {
 			clearInterval(timerInterval)
 			markProgress()
 		}

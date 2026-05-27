@@ -417,6 +417,7 @@ def get_certified_participants(
 	for participant in participants:
 		details = get_certified_participant_details(participant.member)
 		participant.update(details)
+		participant.pop("member", None)
 
 	return participants
 
@@ -1421,6 +1422,10 @@ def get_lms_settings():
 		"disable_pwa",
 		"allow_job_posting",
 		"demo_data_present",
+		"lesson_dwell_time",
+		"enforce_video_completion",
+		"enforce_quiz_completion",
+		"enforce_assignment_completion",
 	]
 
 	settings = frappe._dict()
