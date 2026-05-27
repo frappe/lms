@@ -31,6 +31,9 @@
 <script setup>
 import { Button, Badge, toast } from 'frappe-ui'
 import SettingFields from '@/components/Settings/SettingFields.vue'
+import { useSettings } from '@/stores/settings'
+
+const settingsStore = useSettings()
 
 const props = defineProps({
 	sections: {
@@ -54,6 +57,12 @@ const update = () => {
 	props.data.save.submit(
 		{},
 		{
+			onSuccess() {
+				// Bust the cached get_lms_settings response so consumers
+				// (Lesson.vue, sidebar, etc.) read fresh values without a
+				// full page reload.
+				settingsStore.settings.reload?.()
+			},
 			onError(err) {
 				toast.error(err.messages?.[0] || err)
 			},
