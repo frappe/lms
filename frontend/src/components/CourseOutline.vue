@@ -1,5 +1,5 @@
 <template>
-	<div class="p-3">
+	<div class="p-3 h-full">
 		<div
 			v-if="!hideHeader && title && (outline.data?.length || allowEdit)"
 			class="flex items-center justify-between gap-x-2 mb-4 px-2"
@@ -23,7 +23,7 @@
 		</div>
 		<div
 			v-if="allowEdit && outline.data && !outline.data.length"
-			class="flex flex-col items-center justify-center gap-3 px-6 py-16 text-center text-ink-gray-5"
+			class="flex flex-col items-center justify-center gap-3 px-6 py-16 text-center text-ink-gray-5 h-full"
 		>
 			<BookOpen class="size-8 stroke-1.5" />
 			<div class="text-sm">{{ __('No chapters yet') }}</div>

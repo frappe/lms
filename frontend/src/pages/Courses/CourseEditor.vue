@@ -1,14 +1,14 @@
 <template>
 	<div class="grid grid-cols-1 md:grid-cols-[70%,30%] flex-1 min-h-0">
 		<div class="flex flex-col overflow-hidden">
-			<div class="overflow-y-auto">
+			<div class="overflow-y-auto h-full">
 				<SkeletonLoader
 					v-if="outline.loading && !outline.data"
 					variant="editor-content"
 				/>
 				<div
 					v-else-if="!selected"
-					class="flex flex-col items-center justify-center h-full text-ink-gray-5 text-sm gap-2 px-6 text-center"
+					class="flex flex-col items-center justify-center h-full text-ink-gray-5"
 				>
 					<BookOpen class="size-8 stroke-1.5" />
 					<div>
