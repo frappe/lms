@@ -523,9 +523,7 @@ const handlePageHide = () => {
 
 const handleBeforeUnload = (event) => {
 	if (activeQuestion.value > 0 && !quizSubmission.data) {
-		if (attemptedQuestions.value.length) {
-			switchQuestion(activeQuestion.value)
-		}
+		recordCurrentAttempt()
 		event.preventDefault()
 		event.returnValue = ''
 	}
@@ -910,13 +908,19 @@ const markLessonProgress = () => {
 
 const handleSubmitClick = () => {
 	if (!quiz.data.show_answers) {
-		if (attemptedQuestions.value.length) {
-			switchQuestion(activeQuestion.value)
-		}
+		recordCurrentAttempt()
 		showSubmissionConfirmation.value = true
 	} else {
 		submitQuiz()
 	}
+}
+
+const recordCurrentAttempt = () => {
+	if (!getAnswers().length) return
+	if (!attemptedQuestions.value.includes(activeQuestion.value)) {
+		attemptedQuestions.value.push(activeQuestion.value)
+	}
+	addToLocalStorage()
 }
 
 const paginationWindow = computed(() => {
