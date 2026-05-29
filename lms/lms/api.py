@@ -2394,14 +2394,22 @@ def clear_demo_data():
 
 
 @frappe.whitelist()
-def search_users_by_role(txt: str = "", roles: str | list | None = None, page_length: int = 10):
-	"""Returns users with `roles` in search_link format"""
+def search_users_by_role(
+	txt: str = "",
+	roles: str | list | None = None,
+	page_length: int = 10,
+	names: str | list | None = None,
+):
+	"""Returns users with `roles` in search_link format. `names` skips the txt match and returns those users directly."""
 	frappe.only_for(["Moderator", "Course Creator", "Batch Evaluator"])
 	if not roles:
 		return []
 
 	if isinstance(roles, str):
 		roles = json.loads(roles)
+
+	if isinstance(names, str):
+		names = json.loads(names)
 
 	invalid_roles = set(roles) - set(LMS_ROLES)
 	if invalid_roles:
@@ -2417,24 +2425,38 @@ def search_users_by_role(txt: str = "", roles: str | list | None = None, page_le
 	if not users_with_roles:
 		return []
 
-	results = frappe.get_all(
-		"User",
-		filters=[
-			["name", "in", users_with_roles],
-			["name", "not in", ["Administrator", "Guest"]],
-			["enabled", "=", 1],
-		],
-		or_filters=[
+	filters = [
+		["name", "in", users_with_roles],
+		["name", "not in", ["Administrator", "Guest"]],
+		["enabled", "=", 1],
+	]
+	or_filters = None
+	limit = cint(page_length)
+	if names:
+		filters.append(["name", "in", names])
+		limit = len(names)
+	else:
+		or_filters = [
 			["full_name", "like", f"%{txt}%"],
 			["name", "like", f"%{txt}%"],
-		],
-		fields=["name", "full_name"],
-		limit_page_length=cint(page_length),
+		]
+
+	results = frappe.get_all(
+		"User",
+		filters=filters,
+		or_filters=or_filters,
+		fields=["name", "full_name", "user_image"],
+		limit_page_length=limit,
 		order_by="full_name asc",
 	)
 
 	return [
-		{"value": r.name, "description": r.full_name or r.name, "label": r.full_name or r.name}
+		{
+			"value": r.name,
+			"description": r.full_name or r.name,
+			"label": r.full_name or r.name,
+			"user_image": r.user_image,
+		}
 		for r in results
 	]
 

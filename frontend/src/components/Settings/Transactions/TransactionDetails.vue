@@ -175,7 +175,7 @@
 	</div>
 </template>
 <script setup lang="ts">
-import { Button, FormControl, Switch, toast } from 'frappe-ui'
+import { Button, FormControl, toast } from 'frappe-ui'
 import { useRouter } from 'vue-router'
 import { computed, ref, watch } from 'vue'
 import { ChevronLeft } from 'lucide-vue-next'

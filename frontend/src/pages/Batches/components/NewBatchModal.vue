@@ -8,7 +8,7 @@
 	>
 		<template #body-content>
 			<div class="text-base">
-				<div class="grid grid-cols-3 gap-5">
+				<div class="grid grid-cols-1 md:grid-cols-3 gap-5">
 					<FormControl
 						v-model="batch.title"
 						:label="__('Title')"
@@ -39,12 +39,18 @@
 						type="time"
 						:required="true"
 					/>
-					<FormControl
-						v-model="batch.timezone"
-						:label="__('Timezone')"
-						:required="true"
-						autocomplete="off"
-					/>
+					<div>
+						<label class="block text-sm text-ink-gray-5 mb-1.5">
+							{{ __('Timezone') }}
+							<span class="text-ink-red-3">*</span>
+						</label>
+						<Combobox
+							v-model="batch.timezone"
+							:options="timezoneOptions"
+							:placeholder="__('Select timezone')"
+							class="w-full"
+						/>
+					</div>
 					<Link
 						v-model="batch.category"
 						doctype="LMS Category"
@@ -57,13 +63,16 @@
 						type="number"
 						:required="false"
 					/>
-					<FormControl
-						v-model="batch.medium"
-						type="select"
-						:options="mediumOptions"
-						:label="__('Medium')"
-						class="mb-4"
-					/>
+					<div>
+						<label class="block text-sm text-ink-gray-5 mb-2">
+							{{ __('Medium') }}
+						</label>
+						<Select
+							v-model="batch.medium"
+							:options="mediumOptions"
+							class="w-full"
+						/>
+					</div>
 				</div>
 
 				<div class="space-y-5 border-t mt-5 pt-5">
@@ -116,13 +125,22 @@
 	/>
 </template>
 <script setup lang="ts">
-import { Button, Dialog, FormControl, TextEditor, toast } from 'frappe-ui'
+import {
+	Button,
+	Combobox,
+	Dialog,
+	FormControl,
+	TextEditor,
+	createResource,
+	toast,
+} from 'frappe-ui'
 import { useOnboarding, useTelemetry } from 'frappe-ui/frappe'
 import { computed, inject, onMounted, onBeforeUnmount, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { sanitizeHTML, createLMSCategory, cleanError } from '@/utils'
 import MultiSelect from '@/components/Controls/MultiSelect.vue'
 import Link from '@/components/Controls/Link.vue'
+import Select from '@/components/Controls/Select.vue'
 import NewMemberModal from '@/components/Modals/NewMemberModal.vue'
 
 const show = defineModel<boolean>({ required: true, default: false })
@@ -246,6 +264,16 @@ onBeforeUnmount(() => {
 		data: batch.value,
 	})
 })
+
+const timezoneResource = createResource({
+	url: 'frappe.geo.country_info.get_country_timezone_info',
+	auto: true,
+	transform: (data: any) => data.all_timezones,
+})
+
+const timezoneOptions = computed(() =>
+	(timezoneResource.data || []).map((tz: string) => ({ label: tz, value: tz }))
+)
 
 const mediumOptions = computed(() => {
 	return [

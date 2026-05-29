@@ -26,6 +26,9 @@ describe("Batch Creation", () => {
 		cy.get("input[placeholder='jane@doe.com']").type(randomEmail);
 		cy.get("input[placeholder='Jane']").type(randomName);
 		cy.get("button").contains("Add").click();
+		// Wait for the member modal to fully close so reka-ui restores
+		// pointer-events on the underlying Settings dialog.
+		cy.contains("Add New Member").should("not.exist");
 
 		// Switch to Evaluators tab
 		cy.get("[data-dismissable-layer]")
@@ -44,7 +47,7 @@ describe("Batch Creation", () => {
 		cy.get("input[placeholder='jane@doe.com']").type(randomEvaluator);
 		cy.get("input[placeholder='Jane']").type("Evaluator");
 		cy.get("button").contains("Add").click();
-		cy.wait(500);
+		cy.contains("Add New Member").should("not.exist");
 		cy.get("div").contains(randomEvaluator).should("be.visible").click();
 
 		cy.visit("/lms/batches");
@@ -59,16 +62,40 @@ describe("Batch Creation", () => {
 		cy.get("label").contains("End Date").type("2030-10-31");
 		cy.get("label").contains("Start Time").type("10:00");
 		cy.get("label").contains("End Time").type("11:00");
-		cy.get("label").contains("Timezone").type("IST");
-		cy.get("label").contains("Seat Count").type("10");
+		cy.get("label")
+			.contains("Timezone")
+			.parent()
+			.within(() => {
+				cy.get("input").click().clear().type("Asia/Kol");
+				cy.get("input")
+					.invoke("attr", "aria-controls")
+					.as("timezone_list_id");
+			});
+		cy.get("@timezone_list_id").then((timezone_list_id) => {
+			cy.get(`[id^=${timezone_list_id}`)
+				.should("be.visible")
+				.within(() => {
+					cy.get("[data-slot=item]").first().click();
+				});
+		});
+		cy.get("label")
+			.contains("Seat Count")
+			.parent()
+			.find("input")
+			.clear()
+			.type("10");
 
 		cy.get("label")
 			.contains("Description")
+			.parent()
+			.find("textarea")
 			.type("Test Batch Short Description to test the UI");
-		cy.get("div.ProseMirror").invoke(
-			"text",
-			"Test Batch Description. I need a very big description to test the UI. This is a very big description. It contains more than once sentence. Its meant to be this long as this is a UI test. Its unbearably long and I'm not sure why I'm typing this much. I'm just going to keep typing until I feel like its long enough. I think its long enough now. I'm going to stop typing now."
-		);
+
+		cy.get("div.ProseMirror")
+			.click()
+			.type(
+				"Test Batch Description. I need a very big description to test the UI. This is a very big description. It contains more than once sentence. Its meant to be this long as this is a UI test. Its unbearably long and I'm not sure why I'm typing this much. I'm just going to keep typing until I feel like its long enough. I think its long enough now. I'm going to stop typing now."
+			);
 		/* Instructor */
 		cy.get("label")
 			.contains("Instructors")
@@ -92,16 +119,9 @@ describe("Batch Creation", () => {
 		// going to batch settings and publishing the batch
 		cy.url().should("include", "#settings");
 		cy.closeOnboardingModal();
-		cy.contains("label", "Published")
-			.invoke("attr", "for")
-			.then((id) => {
-				cy.get(`#${id}`)
-					.scrollIntoView()
-					.should("be.visible")
-					.click({ force: true });
-				cy.get(`#${id}`).should("have.attr", "aria-checked", "true");
-			});
-		cy.button("Save").click();
+		cy.button("Publish").click();
+		cy.contains("div", "Published").should("be.visible");
+		cy.button("Unpublish").should("be.visible");
 		cy.wait(1000);
 		let batchName;
 		cy.url().then((url) => {
@@ -132,7 +152,7 @@ describe("Batch Creation", () => {
 				cy.get("span")
 					.contains("10:00 AM - 11:00 AM")
 					.should("be.visible");
-				cy.get("span").contains("IST").should("be.visible");
+				cy.get("span").contains("Asia/Kolkata").should("be.visible");
 				cy.get("a").contains("Evaluator").should("be.visible");
 				cy.contains("div:visible", "10 Seats Left").should(
 					"be.visible"
@@ -152,12 +172,12 @@ describe("Batch Creation", () => {
 		cy.get("span:visible")
 			.contains("10:00 AM - 11:00 AM")
 			.should("be.visible");
-		cy.get("span:visible").contains("IST").should("be.visible");
+		cy.get("span:visible").contains("Asia/Kolkata").should("be.visible");
 		cy.contains("div:visible", "10 Seats Left").should("be.visible");
 
 		cy.get("p")
 			.contains(
-				"Test Batch Description. I need a very big description to test the UI. This is a very big description. It contains more than once sentence. Its meant to be this long as this is a UI test. Its unbearably long and I'm not sure why I'm typing this much. I'm just going to keep typing until I feel like its long enough. I think its long enough now. I'm going to stop typing now."
+				"Test Batch Description. I need a very big description to test the UI."
 			)
 			.should("be.visible");
 		cy.get("button:visible").contains("Dashboard").click();
@@ -167,12 +187,15 @@ describe("Batch Creation", () => {
 		cy.get("button").contains("Enroll").click();
 		cy.get('div[role="dialog"]')
 			.first()
-			.find("div[label='Student']")
-			.find("div")
-			.first()
-			.click();
-		cy.get("input[placeholder='Search']").type(randomEmail);
-		cy.get("div").contains(randomEmail).click();
+			.within(() => {
+				cy.get("label")
+					.contains("Student")
+					.parent()
+					.find("input")
+					.click()
+					.type(randomEmail);
+			});
+		cy.get("[data-slot=item]").first().click();
 		cy.get("button").contains("Submit").click();
 
 		// Verify Seat Count

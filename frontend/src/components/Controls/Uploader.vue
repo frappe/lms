@@ -5,62 +5,61 @@
 			<span v-if="required" class="text-ink-red-3">*</span>
 		</div>
 		<FileUploader
-			v-if="!modelValue"
 			:fileTypes="[fileType]"
 			:validateFile="(file: File) => validateFile(file, true, type)"
-			@success="(file: File) => saveFile(file)"
+			@success="(file: { file_url: string }) => saveFile(file)"
 			@failure="onUploadFailure"
 		>
-			<template v-slot="{ file, progress, uploading, openFileSelector }">
-				<div class="flex items-center">
-					<div class="border rounded-md w-fit py-7 px-20">
+			<template v-slot="{ uploading, progress, openFileSelector }">
+				<div class="flex items-start gap-4">
+					<div
+						:class="[
+							'relative shrink-0 border rounded-md bg-surface-gray-2 grid place-items-center overflow-hidden',
+							previewBoxClasses,
+						]"
+					>
+						<template v-if="modelValue">
+							<img
+								v-if="type === 'image'"
+								:src="modelValue"
+								class="size-full object-cover"
+							/>
+							<video v-else controls class="size-full object-cover">
+								<source :src="modelValue" />
+								{{ __('Your browser does not support the video tag.') }}
+							</video>
+						</template>
 						<component
-							:is="props.type === 'image' ? Image : Video"
-							class="size-5 stroke-1 text-ink-gray-7"
+							v-else
+							:is="type === 'image' ? Image : Video"
+							class="size-5 stroke-1 text-ink-gray-5"
 						/>
 					</div>
-					<div class="ms-4">
+					<div class="flex items-center gap-2">
 						<Button @click="openFileSelector" :loading="uploading">
-							{{ uploading ? `${__('Uploading')} ${progress}%` : __('Upload') }}
+							{{
+								uploading
+									? `${__('Uploading')} ${progress}%`
+									: modelValue
+									? __('Replace')
+									: __('Upload')
+							}}
 						</Button>
-						<div class="mt-1 text-ink-gray-5 text-sm leading-5">
-							{{ __(description) }}
-						</div>
+						<Button
+							v-if="modelValue && !uploading"
+							variant="ghost"
+							theme="red"
+							@click="removeImage()"
+						>
+							{{ __('Remove') }}
+						</Button>
 					</div>
 				</div>
 			</template>
 		</FileUploader>
-		<div v-else class="mb-4">
-			<div class="flex items-center">
-				<img
-					v-if="type == 'image'"
-					:src="modelValue"
-					:class="[
-						'border object-cover',
-						shape === 'circle'
-							? 'w-20 h-20 rounded-full'
-							: 'w-44 h-auto min-h-20 max-h-32 rounded-md',
-					]"
-				/>
-				<video v-else controls class="border rounded-md w-44 h-auto">
-					<source :src="modelValue" />
-					{{ __('Your browser does not support the video tag.') }}
-				</video>
-				<div class="ms-4">
-					<Button @click="removeImage()">
-						{{ __('Remove') }}
-					</Button>
-					<div
-						v-if="description"
-						class="mt-2 text-ink-gray-5 text-sm leading-5"
-					>
-						{{ __(description) }}
-					</div>
-				</div>
-			</div>
-		</div>
 	</div>
 </template>
+
 <script setup lang="ts">
 import { validateFile } from '@/utils'
 import { Button, FileUploader, toast } from 'frappe-ui'
@@ -75,26 +74,27 @@ const props = withDefaults(
 	defineProps<{
 		modelValue: string | null
 		label?: string
-		description?: string
 		type?: 'image' | 'video'
 		required?: boolean
 		shape?: 'square' | 'circle'
 	}>(),
 	{
-		modelValue: '',
-		label: '',
-		description: '',
 		type: 'image',
 		required: true,
 		shape: 'square',
 	}
 )
 
-const fileType = computed(() => {
-	return props.type === 'image' ? 'image/*' : 'video/*'
+const fileType = computed<string>(() =>
+	props.type === 'image' ? 'image/*' : 'video/*'
+)
+
+const previewBoxClasses = computed<string>(() => {
+	if (props.shape === 'circle') return 'size-24 rounded-full'
+	return 'w-56 aspect-[750/422] rounded-md'
 })
 
-const saveFile = (file: any) => {
+const saveFile = (file: { file_url: string }) => {
 	emit('update:modelValue', file.file_url)
 }
 

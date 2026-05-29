@@ -249,7 +249,7 @@ const editProfile = () => {
 }
 
 const isSessionUser = () => {
-	return $user.data?.email === profile.data?.name
+	return $user.data?.name === profile.data?.name
 }
 
 const currentUserHasHigherAccess = () => {

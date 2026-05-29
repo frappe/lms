@@ -172,8 +172,8 @@ import {
 	ListSelectBanner,
 	toast,
 	usePageMeta,
-	Select,
 } from 'frappe-ui'
+import Select from '@/components/Controls/Select.vue'
 import { ClipboardList, Plus } from 'lucide-vue-next'
 import { sessionStore } from '@/stores/session'
 import { useRouter } from 'vue-router'

@@ -172,12 +172,12 @@ import {
 	Button,
 	FormControl,
 	createResource,
-	Switch,
 	Tabs,
 	Tooltip,
 	Textarea,
 	toast,
 } from 'frappe-ui'
+import Switch from '@/components/Controls/Switch.vue'
 import {
 	User,
 	Calendar,

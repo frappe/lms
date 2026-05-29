@@ -183,11 +183,14 @@ def save_progress(lesson: str, course: str, scorm_details: dict = None):
 	if not is_demo_course(course):
 		capture("course_progress", "lms")
 
-	# Had to get doc, as on_change doesn't trigger when you use set_value. The trigger is necessary for badge to get assigned.
+	# Two near-simultaneous save_progress requests (video-ended fires
+	# markProgress + trackVideoWatchDuration which also writes progress)
+	# used to race here — both .save()s called check_if_latest() and the
+	# second one threw TimestampMismatchError, swallowing whichever update
+	# arrived second. Update via db_set + an explicit on_change so the
+	# badge trigger still fires without entering the version guard.
 	enrollment = frappe.get_doc("LMS Enrollment", membership)
-	enrollment.progress = progress
-	enrollment.flags.ignore_version = True
-	enrollment.save()
+	enrollment.db_set("progress", progress, update_modified=False)
 	enrollment.run_method("on_change")
 
 	frappe.publish_realtime(
