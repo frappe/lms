@@ -8,6 +8,7 @@ from lms.lms.test_helpers import BaseTestUtils
 
 
 class TestLMSEnrollment(BaseTestUtils):
+<<<<<<< HEAD
 	@classmethod
 	def setUpClass(cls):
 		super().setUpClass()
@@ -72,13 +73,36 @@ class TestLMSEnrollment(BaseTestUtils):
 		student = self._new_student()
 		initial = frappe.db.get_value("LMS Course", self.course.name, "enrollments") or 0
 		self._create_enrollment(student.email, self.course.name)
+=======
+	def setUp(self):
+		super().setUp()
+		hash = frappe.generate_hash(length=6)
+		self.instructor = self._create_user(
+			f"instr-{hash}@example.com", "Instr", "Test", ["Course Creator", "Moderator"]
+		)
+		self.course = self._create_course(title=f"Test Course {hash}", instructor=self.instructor.email)
+		self.student = self._create_user(f"student-{hash}@example.com", "Student", "Test", ["LMS Student"])
+
+	def test_enrollment_count_increments_on_insert(self):
+		initial = frappe.db.get_value("LMS Course", self.course.name, "enrollments") or 0
+		self._create_enrollment(self.student.email, self.course.name)
+>>>>>>> fc31e79 (fix:  enrollment update)
 		after = frappe.db.get_value("LMS Course", self.course.name, "enrollments")
 		self.assertEqual(after, initial + 1)
 
 	def test_enrollment_count_decrements_on_delete(self):
+<<<<<<< HEAD
 		student = self._new_student()
 		enrollment = self._create_enrollment(student.email, self.course.name)
 		after_insert = frappe.db.get_value("LMS Course", self.course.name, "enrollments")
 		frappe.delete_doc("LMS Enrollment", enrollment.name, force=True)
+=======
+		enrollment = self._create_enrollment(self.student.email, self.course.name)
+		after_insert = frappe.db.get_value("LMS Course", self.course.name, "enrollments")
+		frappe.delete_doc("LMS Enrollment", enrollment.name, force=True)
+		self.cleanup_items = [
+			item for item in self.cleanup_items if item != ("LMS Enrollment", enrollment.name)
+		]
+>>>>>>> fc31e79 (fix:  enrollment update)
 		after_delete = frappe.db.get_value("LMS Course", self.course.name, "enrollments")
 		self.assertEqual(after_delete, after_insert - 1)
