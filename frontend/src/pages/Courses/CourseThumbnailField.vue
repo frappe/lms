@@ -109,9 +109,9 @@
 								</Button>
 							</template>
 						</FileUploader>
-						<span class="text-p-xs text-ink-gray-5">
-							{{ __('An image will replace the color.') }}
-						</span>
+						<p class="text-p-xs text-ink-gray-5">
+							{{ __('Upload an image to replace the color.') }}
+						</p>
 					</div>
 				</template>
 			</div>
