@@ -1,8 +1,6 @@
 <template>
-	<div class="flex flex-col gap-y-3">
-		<label class="block text-p-sm font-medium text-ink-gray-7">
-			{{ __('Course thumbnail') }}
-		</label>
+	<div class="flex flex-col gap-y-1.5">
+		<FormLabel :label="__('Course thumbnail')" />
 
 		<div class="flex items-start gap-5">
 			<button
@@ -68,7 +66,7 @@
 							{{ __('Remove') }}
 						</Button>
 					</div>
-					<p class="text-p-sm text-ink-gray-6">
+					<p class="text-p-xs text-ink-gray-5">
 						{{ __('Remove the image to pick a color instead.') }}
 					</p>
 				</template>
@@ -111,7 +109,7 @@
 								</Button>
 							</template>
 						</FileUploader>
-						<span class="text-p-sm text-ink-gray-6">
+						<span class="text-p-xs text-ink-gray-5">
 							{{ __('An image will replace the color.') }}
 						</span>
 					</div>
@@ -122,7 +120,13 @@
 </template>
 
 <script setup lang="ts">
-import { Button, FileUploader, createResource, toast } from 'frappe-ui'
+import {
+	Button,
+	FileUploader,
+	FormLabel,
+	createResource,
+	toast,
+} from 'frappe-ui'
 import { Image as ImageIcon, Trash2, Upload } from 'lucide-vue-next'
 import { computed, inject, ref, watch } from 'vue'
 import { getColor } from '@/utils'

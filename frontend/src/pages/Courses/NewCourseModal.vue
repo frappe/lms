@@ -81,13 +81,11 @@
 						:rows="4"
 					/>
 					<div class="space-y-1.5">
-						<label
-							:for="descriptionId"
-							class="block text-p-sm font-medium text-ink-gray-7"
-						>
-							{{ __('Course description') }}
-							<span class="text-ink-red-3">*</span>
-						</label>
+						<FormLabel
+							:label="__('Course description')"
+							:id="descriptionId"
+							:required="true"
+						/>
 						<TextEditor
 							:id="descriptionId"
 							:content="course.description"
@@ -121,6 +119,7 @@ import {
 	Button,
 	Dialog,
 	FormControl,
+	FormLabel,
 	TextEditor,
 	createResource,
 	toast,
