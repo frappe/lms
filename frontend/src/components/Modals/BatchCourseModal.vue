@@ -20,6 +20,7 @@
 				:label="__('Course')"
 				:required="true"
 				:filters="{ published: 1 }"
+				variant="outline"
 				:onCreate="
 					(value, close) => {
 						close()
@@ -34,6 +35,7 @@
 				doctype="Course Evaluator"
 				v-model="evaluator"
 				:label="__('Evaluator')"
+				variant="outline"
 				:onCreate="(value, close) => openSettings('Evaluators', close)"
 				class="mt-4"
 			/>
