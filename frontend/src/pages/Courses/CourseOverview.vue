@@ -89,6 +89,14 @@
 							variant="list"
 							:count="6"
 						/>
+						<div
+							v-else-if="!hasCourseContent"
+							class="flex items-center justify-center px-4 py-10 text-center"
+						>
+							<span class="text-sm text-ink-gray-5">
+								{{ __('Course Content coming soon!') }}
+							</span>
+						</div>
 						<CourseOutline
 							v-else
 							:courseName="course.data.name"
@@ -188,5 +196,14 @@ const outlineStats = computed(() => {
 		)
 	}
 	return parts.join(' · ')
+})
+
+const hasCourseContent = computed(() => {
+	const chapters = outline.data || []
+	const lessonCount = chapters.reduce(
+		(acc, c) => acc + (c.lessons?.length || 0),
+		0
+	)
+	return chapters.length > 0 && lessonCount > 0
 })
 </script>
