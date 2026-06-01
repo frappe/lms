@@ -137,7 +137,10 @@
 				</div>
 
 				<div class="px-5 pb-5 space-y-5 border-b mb-5">
-					<div class="grid grid-cols-2 gap-5">
+					<div class="text-base font-semibold text-ink-gray-9">
+						{{ __('Batch overview') }}
+					</div>
+					<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
 						<MultiLink
 							v-model="instructors"
 							doctype="User"
@@ -149,6 +152,26 @@
 							variant="outline"
 							:onCreate="() => (showMemberModal = true)"
 						/>
+						<Select
+							v-model="batchDetail.doc.medium"
+							:label="__('Medium')"
+							:options="mediumOptions"
+							variant="outline"
+							class="w-full"
+						/>
+						<Link
+							ref="emailTemplateLinkRef"
+							doctype="Email Template"
+							:label="__('Enrollment Confirmation Email Template')"
+							v-model="batchDetail.doc.confirmation_email_template"
+							variant="outline"
+							:onCreate="
+								(value, close) => {
+									if (close) close()
+									showEmailTemplateModal = true
+								}
+							"
+						/>
 						<FormControl
 							v-model="batchDetail.doc.description"
 							:label="__('Short Description')"
@@ -157,8 +180,15 @@
 							:placeholder="__('Short description of the batch')"
 							:required="true"
 							variant="outline"
+							class="md:col-span-2"
 						/>
 					</div>
+					<Uploader
+						v-model="batchDetail.doc.video_link"
+						:label="__('Preview Video')"
+						type="video"
+						:required="false"
+					/>
 					<div class="space-y-1.5">
 						<FormLabel
 							:label="__('Batch Details')"
@@ -177,39 +207,6 @@
 								editorClass="prose-sm max-w-none border-b border-x border-outline-gray-2 hover:border-outline-gray-3 hover:shadow-sm focus-within:border-outline-gray-4 focus-within:shadow-sm rounded-b-md py-1 px-2 min-h-[7rem] max-h-[16rem] overflow-y-scroll transition-colors"
 							/>
 						</div>
-					</div>
-				</div>
-
-				<div class="px-5 pb-5 space-y-5 border-b mb-5">
-					<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-						<div class="space-y-5">
-							<Select
-								v-model="batchDetail.doc.medium"
-								:label="__('Medium')"
-								:options="mediumOptions"
-								variant="outline"
-								class="w-full"
-							/>
-							<Link
-								ref="emailTemplateLinkRef"
-								doctype="Email Template"
-								:label="__('Enrollment Confirmation Email Template')"
-								v-model="batchDetail.doc.confirmation_email_template"
-								variant="outline"
-								:onCreate="
-									(value, close) => {
-										if (close) close()
-										showEmailTemplateModal = true
-									}
-								"
-							/>
-						</div>
-						<Uploader
-							v-model="batchDetail.doc.video_link"
-							:label="__('Preview Video')"
-							type="video"
-							:required="false"
-						/>
 					</div>
 				</div>
 
