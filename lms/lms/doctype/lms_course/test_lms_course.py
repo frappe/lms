@@ -53,3 +53,5 @@ class TestLMSCourse(BaseTestUtils):
 		self.cleanup_items.remove(("Lesson Reference", lesson_ref.name))
 		self.cleanup_items.remove(("Course Chapter", chapter.name))
 		self.cleanup_items.remove(("Course Lesson", lesson.name))
+
+#this is a test file for the lms_course doctype, which tests the creation and deletion of courses, chapters, lessons, enrollments, and progress records. It uses a BaseTestUtils class to create test data and asserts that the records are created and deleted as expected.
