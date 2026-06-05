@@ -9,15 +9,9 @@ from lms.lms.test_helpers import BaseTestUtils
 class TestLMSAssignmentSubmission(BaseTestUtils):
 	def setUp(self):
 		super().setUp()
-		self.student_a = self._create_user(
-			"rtv.student.a@example.com", "Student", "Alpha", ["LMS Student"]
-		)
-		self.student_b = self._create_user(
-			"rtv.student.b@example.com", "Student", "Bravo", ["LMS Student"]
-		)
-		self.moderator = self._create_user(
-			"rtv.moderator@example.com", "Mod", "Erator", ["Moderator"]
-		)
+		self.student_a = self._create_user("rtv.student.a@example.com", "Student", "Alpha", ["LMS Student"])
+		self.student_b = self._create_user("rtv.student.b@example.com", "Student", "Bravo", ["LMS Student"])
+		self.moderator = self._create_user("rtv.moderator@example.com", "Mod", "Erator", ["Moderator"])
 		self.assignment = self._create_assignment()
 
 	def tearDown(self):

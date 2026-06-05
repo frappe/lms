@@ -20,7 +20,7 @@
 			<template #footer>
 				<div
 					data-popover-footer-sticky
-					class="-m-1 border-t border-outline-gray-2 bg-surface-modal p-2"
+					class="-m-1 border-t border-outline-gray-2 bg-surface-modal p-2 mt-1"
 				>
 					<div v-if="creating" class="flex items-center gap-1">
 						<button
