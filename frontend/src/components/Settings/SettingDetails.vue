@@ -1,36 +1,26 @@
 <template>
-	<div class="flex flex-col h-full text-base overflow-y-hidden">
-		<div class="">
-			<div class="flex items-center justify-between mb-2">
-				<div class="flex flex-col space-y-2">
-					<div class="text-xl font-semibold leading-none text-ink-gray-9">
-						{{ __(label) }}
-					</div>
-					<div class="text-ink-gray-6 leading-5">
-						{{ __(description) }}
-					</div>
-				</div>
-				<div class="flex items-center gap-x-2">
-					<Badge
-						v-if="data.isDirty"
-						:label="__('Not Saved')"
-						variant="subtle"
-						theme="orange"
-					/>
-					<Button variant="solid" :loading="data.save.loading" @click="update">
-						{{ __('Update') }}
-					</Button>
-				</div>
-			</div>
-		</div>
-
+	<SettingsLayout :title="__(label)" :description="__(description)">
+		<template #title-badge>
+			<Badge
+				v-if="data.isDirty"
+				:label="__('Not Saved')"
+				variant="subtle"
+				theme="orange"
+			/>
+		</template>
+		<template #header-actions>
+			<Button variant="solid" :loading="data.save.loading" @click="update">
+				{{ __('Update') }}
+			</Button>
+		</template>
 		<SettingFields :sections="sections" :data="data.doc" />
-	</div>
+	</SettingsLayout>
 </template>
 
 <script setup>
 import { Button, Badge, toast } from 'frappe-ui'
 import SettingFields from '@/components/Settings/SettingFields.vue'
+import SettingsLayout from '@/components/Layouts/SettingsLayout.vue'
 
 const props = defineProps({
 	sections: {

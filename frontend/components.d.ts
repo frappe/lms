@@ -64,7 +64,7 @@ declare module 'vue' {
     ExplanationVideos: typeof import('./src/components/Modals/ExplanationVideos.vue')['default']
     FeedbackModal: typeof import('./src/components/Modals/FeedbackModal.vue')['default']
     FrappeCloudIcon: typeof import('./src/components/Icons/FrappeCloudIcon.vue')['default']
-    GoogleMeetAccountModal: typeof import('./src/components/Settings/GoogleMeetAccountModal.vue')['default']
+    GoogleMeetAccountForm: typeof import('./src/components/Settings/GoogleMeetAccountForm.vue')['default']
     GoogleMeetSettings: typeof import('./src/components/Settings/GoogleMeetSettings.vue')['default']
     IconPicker: typeof import('./src/components/Controls/IconPicker.vue')['default']
     IndicatorIcon: typeof import('./src/components/Icons/IndicatorIcon.vue')['default']
@@ -128,7 +128,7 @@ declare module 'vue' {
     UserDropdown: typeof import('./src/components/Sidebar/UserDropdown.vue')['default']
     VideoBlock: typeof import('./src/components/VideoBlock.vue')['default']
     VideoStatistics: typeof import('./src/components/Modals/VideoStatistics.vue')['default']
-    ZoomAccountModal: typeof import('./src/components/Modals/ZoomAccountModal.vue')['default']
+    ZoomAccountForm: typeof import('./src/components/Settings/ZoomAccountForm.vue')['default']
     ZoomSettings: typeof import('./src/components/Settings/ZoomSettings.vue')['default']
   }
 }

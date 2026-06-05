@@ -1,35 +1,29 @@
 <template>
-	<div class="flex flex-col h-full text-base">
-		<div class="flex items-center justify-between mb-10 -ms-1.5">
-			<div class="flex items-center gap-x-2">
-				<ChevronLeft
-					class="size-5 stroke-1.5 text-ink-gray-7 cursor-pointer"
-					@click="emit('updateStep', 'list')"
-				/>
-				<div class="text-xl font-semibold text-ink-gray-9">
-					{{ __('Transaction Details') }}
-				</div>
-			</div>
-			<div class="flex items-center gap-x-2">
-				<Button
-					v-if="
-						transactionData?.payment_for_document_type &&
-						transactionData?.payment_for_document
-					"
-					@click="openDetails()"
-				>
-					{{ __('Open the ') }}
-					{{
-						transactionData.payment_for_document_type == 'LMS Course'
-							? __('Course')
-							: __('Batch')
-					}}
-				</Button>
-				<Button variant="solid" @click="saveTransaction()">
-					{{ __('Save') }}
-				</Button>
-			</div>
-		</div>
+	<SettingsLayout
+		:title="__('Transaction Details')"
+		:description="__('Review and update the details of this payment.')"
+		:show-back="true"
+		@back="emit('updateStep', 'list')"
+	>
+		<template #header-actions>
+			<Button
+				v-if="
+					transactionData?.payment_for_document_type &&
+					transactionData?.payment_for_document
+				"
+				@click="openDetails()"
+			>
+				{{ __('Open the ') }}
+				{{
+					transactionData.payment_for_document_type == 'LMS Course'
+						? __('Course')
+						: __('Batch')
+				}}
+			</Button>
+			<Button variant="solid" @click="saveTransaction()">
+				{{ __('Save') }}
+			</Button>
+		</template>
 		<div v-if="transactionData" class="overflow-y-auto">
 			<div class="grid grid-cols-3 gap-5">
 				<FormControl
@@ -68,13 +62,12 @@
 					doctype="LMS Source"
 					:required="!!fieldMeta.source?.reqd"
 				/>
-				<FormControl
-					type="select"
+				<Select
 					:options="documentTypeOptions"
 					:label="__('Payment For Document Type')"
 					v-model="transactionData.payment_for_document_type"
-					doctype="DocType"
 					:required="!!fieldMeta.payment_for_document_type?.reqd"
+					class="w-full"
 				/>
 				<Link
 					v-if="transactionData.payment_for_document_type"
@@ -172,14 +165,15 @@
 				/>
 			</div>
 		</div>
-	</div>
+	</SettingsLayout>
 </template>
 <script setup lang="ts">
 import { Button, FormControl, toast } from 'frappe-ui'
 import { useRouter } from 'vue-router'
 import { computed, ref, watch } from 'vue'
-import { ChevronLeft } from 'lucide-vue-next'
 import Link from '@/components/Controls/Link.vue'
+import SettingsLayout from '@/components/Layouts/SettingsLayout.vue'
+import Select from '@/components/Controls/Select.vue'
 
 const router = useRouter()
 const transactionData = ref<{ [key: string]: any } | null>(null)
