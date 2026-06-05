@@ -8,7 +8,6 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
-    AddEvaluatorModal: typeof import('./src/components/Modals/AddEvaluatorModal.vue')['default']
     Apps: typeof import('./src/components/Sidebar/Apps.vue')['default']
     AppSidebar: typeof import('./src/components/Sidebar/AppSidebar.vue')['default']
     AssessmentModal: typeof import('./src/components/Modals/AssessmentModal.vue')['default']
@@ -59,7 +58,6 @@ declare module 'vue' {
     EmailTemplates: typeof import('./src/components/Settings/EmailTemplates.vue')['default']
     EmptyStateLayout: typeof import('./src/components/Layouts/EmptyStateLayout.vue')['default']
     EvaluationModal: typeof import('./src/components/Modals/EvaluationModal.vue')['default']
-    Evaluators: typeof import('./src/components/Settings/Evaluators.vue')['default']
     Event: typeof import('./src/components/Modals/Event.vue')['default']
     ExplanationVideos: typeof import('./src/components/Modals/ExplanationVideos.vue')['default']
     FeedbackModal: typeof import('./src/components/Modals/FeedbackModal.vue')['default']
