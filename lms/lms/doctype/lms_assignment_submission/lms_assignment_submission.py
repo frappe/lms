@@ -9,7 +9,6 @@ from frappe.utils import validate_url
 
 from lms.lms.utils import get_lms_route
 
-
 PRIVILEGED_ROLES = {"Moderator", "Course Creator", "Batch Evaluator", "System Manager"}
 
 
