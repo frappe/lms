@@ -96,20 +96,20 @@ describe("Batch Creation", () => {
 			.type(
 				"Test Batch Description. I need a very big description to test the UI. This is a very big description. It contains more than once sentence. Its meant to be this long as this is a UI test. Its unbearably long and I'm not sure why I'm typing this much. I'm just going to keep typing until I feel like its long enough. I think its long enough now. I'm going to stop typing now."
 			);
-		/* Instructor — MultiLink renders a button trigger; its search input
-		   and options live in a popover teleported to <body>. */
+		// Instructors — frappe-ui MultiSelect. Click the trigger button;
+		// the search input lives in a popover portalled to body, so we
+		// type it outside the field wrapper.
 		cy.get("label")
 			.contains("Instructors")
 			.parent()
-			.find("button[data-slot=trigger]")
+			.find("button")
+			.first()
 			.click();
-		cy.get("[data-slot=content] [data-slot=input]")
+		cy.get('[data-slot="content-body"] [data-slot="input"]')
 			.should("be.visible")
 			.type(randomEvaluator);
-		cy.get("[data-slot=content] [data-slot=item]")
-			.first()
-			.should("be.visible")
-			.click();
+		cy.wait(500);
+		cy.get('[data-slot="content-body"] [role="option"]').first().click();
 		// Close the popover so it doesn't overlay the Save button.
 		cy.get("body").type("{esc}");
 		cy.button("Save").click();
