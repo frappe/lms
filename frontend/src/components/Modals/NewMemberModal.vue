@@ -2,14 +2,14 @@
 	<Dialog
 		v-model="show"
 		:options="{
-			title: __('Add New Member'),
+			title: isEdit ? __('Edit Member') : __('Add New Member'),
 			size: 'lg',
 			actions: [
 				{
-					label: __('Add'),
+					label: isEdit ? __('Save') : __('Add'),
 					variant: 'solid',
 					loading: submitting,
-					onClick: ({ close }: any) => addMember(close),
+					onClick: ({ close }: any) => submit(close),
 				},
 			],
 		}"
@@ -21,10 +21,11 @@
 					:label="__('Email')"
 					placeholder="jane@doe.com"
 					type="email"
-					:required="true"
-					@keyup.enter="addMember()"
+					:required="!isEdit"
+					:disabled="isEdit"
+					@keyup.enter="submit()"
 				/>
-				<div class="flex items-center gap-3">
+				<div v-if="!isEdit" class="flex items-center gap-3">
 					<FormControl
 						v-model="member.first_name"
 						:label="__('First Name')"
@@ -75,7 +76,7 @@
 <script setup lang="ts">
 import { call, Dialog, FormControl, toast } from 'frappe-ui'
 import Switch from '@/components/Controls/Switch.vue'
-import { reactive, ref, watch } from 'vue'
+import { computed, reactive, ref, watch } from 'vue'
 import { cleanError } from '@/utils'
 
 const show = defineModel<boolean>({ default: false })
@@ -83,11 +84,15 @@ const submitting = ref(false)
 
 const props = defineProps<{
 	defaultRoles?: string[]
+	editMember?: { name: string; full_name?: string; roles?: string[] } | null
 }>()
 
 const emit = defineEmits<{
 	created: [user: any]
+	updated: []
 }>()
+
+const isEdit = computed(() => !!props.editMember)
 
 const ROLE_MAP: Record<string, string> = {
 	moderator: 'Moderator',
@@ -109,6 +114,8 @@ const roles = reactive({
 	lms_student: false,
 })
 
+const initialRoles = reactive({ ...roles })
+
 const resetForm = () => {
 	member.email = ''
 	member.first_name = ''
@@ -124,11 +131,27 @@ const applyDefaultRoles = () => {
 	roles.lms_student = props.defaultRoles?.includes('lms_student') ?? false
 }
 
-watch(show, (isOpen) => {
-	if (isOpen) {
-		resetForm()
+const loadMember = () => {
+	member.email = props.editMember?.name ?? ''
+	member.first_name = ''
+	member.last_name = ''
+	const current = props.editMember?.roles ?? []
+	for (const key of Object.keys(ROLE_MAP) as (keyof typeof roles)[]) {
+		roles[key] = current.includes(ROLE_MAP[key])
+		initialRoles[key] = roles[key]
 	}
+}
+
+watch(show, (isOpen) => {
+	if (!isOpen) return
+	if (isEdit.value) loadMember()
+	else resetForm()
 })
+
+const submit = (close?: () => void) => {
+	if (submitting.value) return
+	return isEdit.value ? saveRoles(close) : addMember(close)
+}
 
 const assignRoles = async (userEmail: string) => {
 	const selectedRoles = Object.entries(roles).filter(([_, checked]) => checked)
@@ -167,6 +190,31 @@ const addMember = async (close?: () => void) => {
 		close?.()
 	} catch (err: any) {
 		toast.error(cleanError(err.messages?.[0]) || __('Unable to add member'))
+	} finally {
+		submitting.value = false
+	}
+}
+
+const saveRoles = async (close?: () => void) => {
+	if (!props.editMember?.name) return
+
+	submitting.value = true
+	try {
+		for (const key of Object.keys(ROLE_MAP) as (keyof typeof roles)[]) {
+			if (roles[key] !== initialRoles[key]) {
+				await call('lms.lms.api.save_role', {
+					user: props.editMember.name,
+					role: ROLE_MAP[key],
+					value: roles[key] ? 1 : 0,
+				})
+			}
+		}
+
+		toast.success(__('Member updated'))
+		emit('updated')
+		close?.()
+	} catch (err: any) {
+		toast.error(cleanError(err.messages?.[0]) || __('Unable to update member'))
 	} finally {
 		submitting.value = false
 	}

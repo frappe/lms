@@ -697,6 +697,7 @@ def get_members(start: int = 0, search: str = None):
 		start=start,
 	)
 
+	lms_roles = ["Moderator", "Course Creator", "Batch Evaluator", "LMS Student"]
 	for member in members:
 		roles = frappe.get_all(
 			"Has Role",
@@ -706,14 +707,7 @@ def get_members(start: int = 0, search: str = None):
 			},
 			pluck="role",
 		)
-		if "Moderator" in roles:
-			member.role = "Moderator"
-		elif "Course Creator" in roles:
-			member.role = "Course Creator"
-		elif "Batch Evaluator" in roles:
-			member.role = "Batch Evaluator"
-		elif "LMS Student" in roles:
-			member.role = "LMS Student"
+		member.roles = [role for role in lms_roles if role in roles]
 
 	return members
 
@@ -1560,6 +1554,20 @@ def save_evaluator_role(user: str, value: int):
 		frappe.db.delete("Has Role", {"parent": user, "role": "Batch Evaluator"})
 		if frappe.db.exists("Course Evaluator", {"evaluator": user}):
 			frappe.db.delete("Course Evaluator", {"evaluator": user})
+	frappe.clear_cache(user=user)
+	return True
+
+
+@frappe.whitelist()
+def delete_member(user: str):
+	frappe.only_for("Moderator")
+	if not isinstance(user, str):
+		frappe.throw(_("user must be a string"))
+	if user in ("Administrator", "Guest", frappe.session.user):
+		frappe.throw(_("This user cannot be deleted."), frappe.PermissionError)
+	if not frappe.db.exists("User", user):
+		frappe.throw(_("User {0} does not exist.").format(user))
+	frappe.delete_doc("User", user, ignore_permissions=True)
 	frappe.clear_cache(user=user)
 	return True
 
