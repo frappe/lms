@@ -37,6 +37,7 @@ from lms.lms.utils import (
 	can_modify_course,
 	get_batch_details,
 	get_course_details,
+	get_evaluator,
 	get_field_meta,
 	get_instructors,
 	get_lms_route,
@@ -734,7 +735,6 @@ def save_evaluation_details(
 	end_time: str,
 	status: str,
 	batch_name: str = None,
-	evaluator: str = None,
 	rating: float = 0,
 	summary: str = None,
 ):
@@ -742,6 +742,14 @@ def save_evaluation_details(
 	Save evaluation details for a member against a course.
 	"""
 	frappe.only_for(["Batch Evaluator", "Moderator"])
+	assigned_evaluator = get_evaluator(course, batch_name)
+	if not has_moderator_role() and frappe.session.user != assigned_evaluator:
+		frappe.throw(
+			_("You are not the assigned evaluator for this course and batch."),
+			frappe.PermissionError,
+		)
+	evaluator = assigned_evaluator or frappe.session.user
+
 	evaluation = frappe.db.exists("LMS Certificate Evaluation", {"member": member, "course": course})
 
 	details = {
@@ -778,7 +786,6 @@ def save_certificate_details(
 	template: str,
 	course: str = None,
 	batch_name: str = None,
-	evaluator: str = None,
 	expiry_date: str = None,
 	published: bool = True,
 ):
@@ -786,6 +793,14 @@ def save_certificate_details(
 	Save certificate details for a member against a course.
 	"""
 	frappe.only_for(["Batch Evaluator", "Moderator"])
+	assigned_evaluator = get_evaluator(course, batch_name)
+	if not has_moderator_role() and frappe.session.user != assigned_evaluator:
+		frappe.throw(
+			_("You are not the assigned evaluator for this course and batch."),
+			frappe.PermissionError,
+		)
+	evaluator = assigned_evaluator or frappe.session.user
+
 	certificate = frappe.db.exists("LMS Certificate", {"member": member, "course": course})
 
 	details = {
