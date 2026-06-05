@@ -67,6 +67,7 @@ declare module 'vue' {
     GoogleMeetAccountForm: typeof import('./src/components/Settings/GoogleMeetAccountForm.vue')['default']
     GoogleMeetSettings: typeof import('./src/components/Settings/GoogleMeetSettings.vue')['default']
     IconPicker: typeof import('./src/components/Controls/IconPicker.vue')['default']
+    ImageUploader: typeof import('./src/components/Controls/ImageUploader.vue')['default']
     IndicatorIcon: typeof import('./src/components/Icons/IndicatorIcon.vue')['default']
     InlineLessonMenu: typeof import('./src/components/Notes/InlineLessonMenu.vue')['default']
     InstallPrompt: typeof import('./src/components/InstallPrompt.vue')['default']
