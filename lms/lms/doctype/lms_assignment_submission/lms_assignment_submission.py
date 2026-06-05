@@ -10,11 +10,25 @@ from frappe.utils import validate_url
 from lms.lms.utils import get_lms_route
 
 
+PRIVILEGED_ROLES = {"Moderator", "Course Creator", "Batch Evaluator", "System Manager"}
+
+
 class LMSAssignmentSubmission(Document):
 	def validate(self):
+		self.enforce_member_ownership()
 		self.validate_duplicates()
 		self.validate_url()
 		self.validate_status()
+
+	def enforce_member_ownership(self):
+		if PRIVILEGED_ROLES & set(frappe.get_roles()):
+			return
+		if self.member and self.member != frappe.session.user:
+			frappe.throw(
+				_("You can only submit assignments for your own account."),
+				frappe.PermissionError,
+			)
+		self.member = frappe.session.user
 
 	def on_update(self):
 		self.validate_private_attachments()
