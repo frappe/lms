@@ -96,23 +96,22 @@ describe("Batch Creation", () => {
 			.type(
 				"Test Batch Description. I need a very big description to test the UI. This is a very big description. It contains more than once sentence. Its meant to be this long as this is a UI test. Its unbearably long and I'm not sure why I'm typing this much. I'm just going to keep typing until I feel like its long enough. I think its long enough now. I'm going to stop typing now."
 			);
-		/* Instructor */
+		/* Instructor — MultiLink renders a button trigger; its search input
+		   and options live in a popover teleported to <body>. */
 		cy.get("label")
 			.contains("Instructors")
 			.parent()
-			.within(() => {
-				cy.get("input").click().clear().type(randomEvaluator);
-				cy.get("input")
-					.invoke("attr", "aria-controls")
-					.as("instructor_list_id");
-			});
-		cy.get("@instructor_list_id").then((instructor_list_id) => {
-			cy.get(`[id^=${instructor_list_id}`)
-				.should("be.visible")
-				.within(() => {
-					cy.get("[id^=headlessui-combobox-option-").first().click();
-				});
-		});
+			.find("button[data-slot=trigger]")
+			.click();
+		cy.get("[data-slot=content] [data-slot=input]")
+			.should("be.visible")
+			.type(randomEvaluator);
+		cy.get("[data-slot=content] [data-slot=item]")
+			.first()
+			.should("be.visible")
+			.click();
+		// Close the popover so it doesn't overlay the Save button.
+		cy.get("body").type("{esc}");
 		cy.button("Save").click();
 		cy.wait(1000);
 
