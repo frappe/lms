@@ -157,7 +157,7 @@
 										{{ row.name.split('(')[0] }}
 									</div>
 								</Tooltip>
-								<Tooltip :text="row.value">
+								<Tooltip :text="String(row.value)">
 									<div class="ms-auto">
 										{{
 											Math.round((row.value / course.data?.enrollments) * 100)
@@ -208,7 +208,9 @@
 						</div>
 						<Select
 							:options="lessonProgressSortingOptions"
-							@update:modelValue="(value: string) => updateLessonProgress(value)"
+							@update:modelValue="
+								(value: string) => updateLessonProgress(value)
+							"
 							:placeholder="__('Sort by')"
 							class="!w-32"
 						/>
@@ -228,7 +230,7 @@
 									{{ progress.title }}
 								</span>
 							</div>
-							<Tooltip :text="progress.completion_count">
+							<Tooltip :text="String(progress.completion_count)">
 								<div>
 									{{
 										Math.ceil(
@@ -273,9 +275,9 @@ import {
 	ListRows,
 	ListRow,
 	ListRowItem,
-	Select,
 	Tooltip,
 } from 'frappe-ui'
+import Select from '@/components/Controls/Select.vue'
 import { computed, inject, ref, watch } from 'vue'
 import type dayjsType from 'dayjs'
 import { Plus, Star } from 'lucide-vue-next'
@@ -286,15 +288,17 @@ import NumberChartGraph from '@/components/NumberChartGraph.vue'
 import ProgressBar from '@/components/ProgressBar.vue'
 import StudentCourseProgress from '@/pages/Courses/StudentCourseProgress.vue'
 
+import type { CourseDetails, Resource } from '@/types/api'
+
 const props = defineProps<{
-	course: any
+	course: Resource<CourseDetails | null>
 }>()
 
 const dayjs = inject<typeof dayjsType>('$dayjs')!
-const showEnrollmentModal = ref(false)
+const showEnrollmentModal = ref<boolean>(false)
 const searchFilter = ref<string | null>(null)
-const showProgressModal = ref(false)
-const currentStudent = ref<any>(null)
+const showProgressModal = ref<boolean>(false)
+const currentStudent = ref<Record<string, unknown> | null>(null)
 const theme = ref<'darkMode' | 'lightMode'>(
 	localStorage.getItem('theme') == 'dark' ? 'darkMode' : 'lightMode'
 )

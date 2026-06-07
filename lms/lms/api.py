@@ -37,6 +37,7 @@ from lms.lms.utils import (
 	can_modify_course,
 	get_batch_details,
 	get_course_details,
+	get_evaluator,
 	get_field_meta,
 	get_instructors,
 	get_lms_route,
@@ -696,6 +697,7 @@ def get_members(start: int = 0, search: str = None):
 		start=start,
 	)
 
+	lms_roles = ["Moderator", "Course Creator", "Batch Evaluator", "LMS Student"]
 	for member in members:
 		roles = frappe.get_all(
 			"Has Role",
@@ -705,14 +707,7 @@ def get_members(start: int = 0, search: str = None):
 			},
 			pluck="role",
 		)
-		if "Moderator" in roles:
-			member.role = "Moderator"
-		elif "Course Creator" in roles:
-			member.role = "Course Creator"
-		elif "Batch Evaluator" in roles:
-			member.role = "Batch Evaluator"
-		elif "LMS Student" in roles:
-			member.role = "LMS Student"
+		member.roles = [role for role in lms_roles if role in roles]
 
 	return members
 
@@ -734,7 +729,6 @@ def save_evaluation_details(
 	end_time: str,
 	status: str,
 	batch_name: str = None,
-	evaluator: str = None,
 	rating: float = 0,
 	summary: str = None,
 ):
@@ -742,6 +736,14 @@ def save_evaluation_details(
 	Save evaluation details for a member against a course.
 	"""
 	frappe.only_for(["Batch Evaluator", "Moderator"])
+	assigned_evaluator = get_evaluator(course, batch_name)
+	if not has_moderator_role() and frappe.session.user != assigned_evaluator:
+		frappe.throw(
+			_("You are not the assigned evaluator for this course and batch."),
+			frappe.PermissionError,
+		)
+	evaluator = assigned_evaluator or frappe.session.user
+
 	evaluation = frappe.db.exists("LMS Certificate Evaluation", {"member": member, "course": course})
 
 	details = {
@@ -778,7 +780,6 @@ def save_certificate_details(
 	template: str,
 	course: str = None,
 	batch_name: str = None,
-	evaluator: str = None,
 	expiry_date: str = None,
 	published: bool = True,
 ):
@@ -786,6 +787,14 @@ def save_certificate_details(
 	Save certificate details for a member against a course.
 	"""
 	frappe.only_for(["Batch Evaluator", "Moderator"])
+	assigned_evaluator = get_evaluator(course, batch_name)
+	if not has_moderator_role() and frappe.session.user != assigned_evaluator:
+		frappe.throw(
+			_("You are not the assigned evaluator for this course and batch."),
+			frappe.PermissionError,
+		)
+	evaluator = assigned_evaluator or frappe.session.user
+
 	certificate = frappe.db.exists("LMS Certificate", {"member": member, "course": course})
 
 	details = {
@@ -1034,6 +1043,13 @@ def give_discussions_permission():
 def upsert_chapter(
 	title: str, course: str, is_scorm_package: bool, scorm_package: dict = None, name: str = None
 ):
+	if not isinstance(title, str):
+		frappe.throw(_("title must be a string"))
+	if not isinstance(course, str):
+		frappe.throw(_("course must be a string"))
+	if name is not None and not isinstance(name, str):
+		frappe.throw(_("name must be a string"))
+
 	if not can_modify_course(course):
 		frappe.throw(_("You do not have permission to modify this chapter."), frappe.PermissionError)
 
@@ -1054,11 +1070,21 @@ def upsert_chapter(
 
 	if name:
 		chapter = frappe.get_doc("Course Chapter", name)
+		chapter.update(values)
+		chapter.save()
 	else:
 		chapter = frappe.new_doc("Course Chapter")
+		chapter.update(values)
+		chapter.save()
 
-	chapter.update(values)
-	chapter.save()
+		# Link the new chapter into the course outline. This was previously done
+		# client-side via frappe.client.insert (ChapterModal.vue), which did not
+		# reliably persist on CI — leaving get_outline_chapter() empty. Creating the
+		# Chapter Reference here keeps it atomic with the chapter and consistent
+		# across environments.
+		course_doc = frappe.get_doc("LMS Course", course)
+		course_doc.append("chapters", {"chapter": chapter.name})
+		course_doc.save()
 
 	if is_scorm_package and not len(chapter.lessons):
 		add_lesson(title, chapter.name, course, 1)
@@ -1422,6 +1448,10 @@ def get_lms_settings():
 		"disable_pwa",
 		"allow_job_posting",
 		"demo_data_present",
+		"lesson_dwell_time",
+		"enforce_video_completion",
+		"enforce_quiz_completion",
+		"enforce_assignment_completion",
 	]
 
 	settings = frappe._dict()
@@ -1541,6 +1571,20 @@ def save_evaluator_role(user: str, value: int):
 		frappe.db.delete("Has Role", {"parent": user, "role": "Batch Evaluator"})
 		if frappe.db.exists("Course Evaluator", {"evaluator": user}):
 			frappe.db.delete("Course Evaluator", {"evaluator": user})
+	frappe.clear_cache(user=user)
+	return True
+
+
+@frappe.whitelist()
+def delete_member(user: str):
+	frappe.only_for("Moderator")
+	if not isinstance(user, str):
+		frappe.throw(_("user must be a string"))
+	if user in ("Administrator", "Guest", frappe.session.user):
+		frappe.throw(_("This user cannot be deleted."), frappe.PermissionError)
+	if not frappe.db.exists("User", user):
+		frappe.throw(_("User {0} does not exist.").format(user))
+	frappe.delete_doc("User", user, ignore_permissions=True)
 	frappe.clear_cache(user=user)
 	return True
 
@@ -2390,14 +2434,22 @@ def clear_demo_data():
 
 
 @frappe.whitelist()
-def search_users_by_role(txt: str = "", roles: str | list | None = None, page_length: int = 10):
-	"""Returns users with `roles` in search_link format"""
+def search_users_by_role(
+	txt: str = "",
+	roles: str | list | None = None,
+	page_length: int = 10,
+	names: str | list | None = None,
+):
+	"""Returns users with `roles` in search_link format. `names` skips the txt match and returns those users directly."""
 	frappe.only_for(["Moderator", "Course Creator", "Batch Evaluator"])
 	if not roles:
 		return []
 
 	if isinstance(roles, str):
 		roles = json.loads(roles)
+
+	if isinstance(names, str):
+		names = json.loads(names)
 
 	invalid_roles = set(roles) - set(LMS_ROLES)
 	if invalid_roles:
@@ -2413,24 +2465,38 @@ def search_users_by_role(txt: str = "", roles: str | list | None = None, page_le
 	if not users_with_roles:
 		return []
 
-	results = frappe.get_all(
-		"User",
-		filters=[
-			["name", "in", users_with_roles],
-			["name", "not in", ["Administrator", "Guest"]],
-			["enabled", "=", 1],
-		],
-		or_filters=[
+	filters = [
+		["name", "in", users_with_roles],
+		["name", "not in", ["Administrator", "Guest"]],
+		["enabled", "=", 1],
+	]
+	or_filters = None
+	limit = cint(page_length)
+	if names:
+		filters.append(["name", "in", names])
+		limit = len(names)
+	else:
+		or_filters = [
 			["full_name", "like", f"%{txt}%"],
 			["name", "like", f"%{txt}%"],
-		],
-		fields=["name", "full_name"],
-		limit_page_length=cint(page_length),
+		]
+
+	results = frappe.get_all(
+		"User",
+		filters=filters,
+		or_filters=or_filters,
+		fields=["name", "full_name", "user_image"],
+		limit_page_length=limit,
 		order_by="full_name asc",
 	)
 
 	return [
-		{"value": r.name, "description": r.full_name or r.name, "label": r.full_name or r.name}
+		{
+			"value": r.name,
+			"description": r.full_name or r.name,
+			"label": r.full_name or r.name,
+			"user_image": r.user_image,
+		}
 		for r in results
 	]
 

@@ -76,7 +76,8 @@
 	</Dialog>
 </template>
 <script setup lang="ts">
-import { call, Dialog, FormControl, TextEditor, toast, Switch } from 'frappe-ui'
+import { call, Dialog, FormControl, TextEditor, toast } from 'frappe-ui'
+import Switch from '@/components/Controls/Switch.vue'
 import { reactive, watch } from 'vue'
 import { cleanError } from '@/utils'
 

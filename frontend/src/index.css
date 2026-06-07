@@ -1,2 +1,15 @@
 @import 'frappe-ui/style.css';
 @import './styles/codemirror.css';
+
+/*
+ * Pin a Combobox/MultiSelect footer to the bottom of its dropdown so footer
+ * actions stay reachable while options scroll. Opt-in via [data-popover-footer-sticky]
+ * on the slot's inner element so frappe-ui's `[data-slot="footer"]` wrapper picks it up.
+ * Unscoped because frappe-ui popovers portal to <body>.
+ */
+[data-slot='content-body']
+	[data-slot='footer']:has(> [data-popover-footer-sticky]) {
+	position: sticky;
+	bottom: -0.25rem;
+	z-index: 1;
+}
