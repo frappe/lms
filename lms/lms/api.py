@@ -1043,6 +1043,13 @@ def give_discussions_permission():
 def upsert_chapter(
 	title: str, course: str, is_scorm_package: bool, scorm_package: dict = None, name: str = None
 ):
+	if not isinstance(title, str):
+		frappe.throw(_("title must be a string"))
+	if not isinstance(course, str):
+		frappe.throw(_("course must be a string"))
+	if name is not None and not isinstance(name, str):
+		frappe.throw(_("name must be a string"))
+
 	if not can_modify_course(course):
 		frappe.throw(_("You do not have permission to modify this chapter."), frappe.PermissionError)
 
@@ -1063,11 +1070,21 @@ def upsert_chapter(
 
 	if name:
 		chapter = frappe.get_doc("Course Chapter", name)
+		chapter.update(values)
+		chapter.save()
 	else:
 		chapter = frappe.new_doc("Course Chapter")
+		chapter.update(values)
+		chapter.save()
 
-	chapter.update(values)
-	chapter.save()
+		# Link the new chapter into the course outline. This was previously done
+		# client-side via frappe.client.insert (ChapterModal.vue), which did not
+		# reliably persist on CI — leaving get_outline_chapter() empty. Creating the
+		# Chapter Reference here keeps it atomic with the chapter and consistent
+		# across environments.
+		course_doc = frappe.get_doc("LMS Course", course)
+		course_doc.append("chapters", {"chapter": chapter.name})
+		course_doc.save()
 
 	if is_scorm_package and not len(chapter.lessons):
 		add_lesson(title, chapter.name, course, 1)
