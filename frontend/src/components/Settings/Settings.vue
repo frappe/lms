@@ -39,11 +39,7 @@
 						v-bind="{
 							label: activeTab.label,
 							description: activeTab.description,
-							...(activeTab.label == 'Branding'
-								? { sections: activeTab.sections }
-								: {}),
 							...(activeTab.label == 'Members' ||
-							activeTab.label == 'Evaluators' ||
 							activeTab.label == 'Transactions'
 								? { 'onUpdate:show': (val) => (show = val), show }
 								: {}),
@@ -68,7 +64,6 @@ import { useSettings } from '@/stores/settings'
 import SettingDetails from '@/components/Settings/SettingDetails.vue'
 import SidebarLink from '@/components/Sidebar/SidebarLink.vue'
 import Members from '@/components/Settings/Members.vue'
-import Evaluators from '@/components/Settings/Evaluators.vue'
 import Categories from '@/components/Settings/Categories.vue'
 import EmailTemplates from '@/components/Settings/EmailTemplates.vue'
 import BrandSettings from '@/components/Settings/BrandSettings.vue'
@@ -101,6 +96,8 @@ const tabsStructure = computed(() => {
 				{
 					label: 'General',
 					icon: 'Wrench',
+					description:
+						'Configure system-wide defaults, notifications, and contact information',
 					sections: [
 						{
 							label: 'System Configurations',
@@ -153,6 +150,8 @@ const tabsStructure = computed(() => {
 											name: 'send_notification_for_published_courses',
 											type: 'select',
 											options: [' ', 'Email', 'In-app'],
+											description:
+												'Notify members when a new course is published.',
 										},
 									],
 								},
@@ -163,6 +162,8 @@ const tabsStructure = computed(() => {
 											name: 'send_notification_for_published_batches',
 											type: 'select',
 											options: [' ', 'Email', 'In-app'],
+											description:
+												'Notify members when a new batch is published.',
 										},
 									],
 								},
@@ -178,6 +179,8 @@ const tabsStructure = computed(() => {
 											name: 'batch_confirmation_template',
 											doctype: 'Email Template',
 											type: 'Link',
+											description:
+												'Email template sent to students upon batch enrollment confirmation.',
 										},
 									],
 								},
@@ -188,6 +191,8 @@ const tabsStructure = computed(() => {
 											name: 'certification_template',
 											doctype: 'Email Template',
 											type: 'Link',
+											description:
+												'Email template sent to students when they earn a certification.',
 										},
 									],
 								},
@@ -240,7 +245,7 @@ const tabsStructure = computed(() => {
 							],
 						},
 						{
-							label: '',
+							label: 'Integrations',
 							columns: [
 								{
 									fields: [
@@ -359,14 +364,6 @@ const tabsStructure = computed(() => {
 					icon: 'User',
 					template: markRaw(Members),
 				},
-				{
-					label: 'Evaluators',
-					description: '',
-					icon: 'UserCircle2',
-					description:
-						'Add new evaluators or check the slots of existing evaluators',
-					template: markRaw(Evaluators),
-				},
 			],
 		},
 		{
@@ -387,6 +384,8 @@ const tabsStructure = computed(() => {
 											name: 'default_currency',
 											type: 'Link',
 											doctype: 'Currency',
+											description:
+												'Default currency used for course and batch pricing.',
 										},
 										{
 											label: 'Show USD equivalent amount',
@@ -411,6 +410,8 @@ const tabsStructure = computed(() => {
 											name: 'payment_gateway',
 											type: 'Link',
 											doctype: 'Payment Gateway',
+											description:
+												'Payment gateway used to process course and batch purchases.',
 										},
 										{
 											label: 'Apply GST for India',
@@ -502,35 +503,6 @@ const tabsStructure = computed(() => {
 					description:
 						'Customize the brand name and logo to make the application your own',
 					template: markRaw(BrandSettings),
-					sections: [
-						{
-							columns: [
-								{
-									fields: [
-										{
-											label: 'Brand Name',
-											name: 'app_name',
-											type: 'text',
-										},
-										{
-											label: 'Logo',
-											name: 'banner_image',
-											type: 'Upload',
-											description:
-												'Appears in the top left corner of the application to represent your brand.',
-										},
-										{
-											label: 'Favicon',
-											name: 'favicon',
-											type: 'Upload',
-											description:
-												'Appears in the browser tab next to the page title to help users quickly identify the application.',
-										},
-									],
-								},
-							],
-						},
-					],
 				},
 				{
 					label: 'Sidebar',
@@ -545,21 +517,27 @@ const tabsStructure = computed(() => {
 											label: 'Courses',
 											name: 'courses',
 											type: 'checkbox',
+											description: 'Show the Courses link in the sidebar.',
 										},
 										{
 											label: 'Batches',
 											name: 'batches',
 											type: 'checkbox',
+											description: 'Show the Batches link in the sidebar.',
 										},
 										{
 											label: 'Programming Exercises',
 											name: 'programming_exercises',
 											type: 'checkbox',
+											description:
+												'Show the Programming Exercises link in the sidebar.',
 										},
 										{
 											label: 'Certifications',
 											name: 'certifications',
 											type: 'checkbox',
+											description:
+												'Show the Certifications link in the sidebar.',
 										},
 									],
 								},
@@ -569,16 +547,20 @@ const tabsStructure = computed(() => {
 											label: 'Jobs',
 											name: 'jobs',
 											type: 'checkbox',
+											description: 'Show the Jobs link in the sidebar.',
 										},
 										{
 											label: 'Statistics',
 											name: 'statistics',
 											type: 'checkbox',
+											description: 'Show the Statistics link in the sidebar.',
 										},
 										{
 											label: 'Notifications',
 											name: 'notifications',
 											type: 'checkbox',
+											description:
+												'Show the Notifications link in the sidebar.',
 										},
 									],
 								},
@@ -616,6 +598,8 @@ const tabsStructure = computed(() => {
 											type: 'Code',
 											mode: 'htmlmixed',
 											rows: 10,
+											description:
+												'Custom HTML shown on the signup page, e.g. for consent notices or terms of service.',
 										},
 									],
 								},
@@ -654,6 +638,8 @@ const tabsStructure = computed(() => {
 											name: 'meta_image',
 											type: 'Upload',
 											size: 'lg',
+											description:
+												'Default social-share image used when pages lack their own meta image.',
 										},
 									],
 								},

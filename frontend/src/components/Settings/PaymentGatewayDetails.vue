@@ -1,62 +1,59 @@
 <template>
-	<Dialog
-		v-model="show"
-		:options="{
-			size: '3xl',
-		}"
+	<SettingsLayout
+		:title="title"
+		:description="
+			__('Configure the credentials and options for this payment gateway.')
+		"
+		:show-back="true"
+		@back="emit('updateStep', 'list')"
 	>
-		<template #body-header>
-			<div class="text-lg font-semibold text-ink-gray-9">
-				{{
-					gatewayID === 'new'
-						? __('New Payment Gateway')
-						: __('Edit Payment Gateway')
-				}}
-			</div>
+		<template #header-actions>
+			<Button variant="solid" @click="save">
+				{{ __('Save') }}
+			</Button>
 		</template>
-		<template #body-content>
+		<SettingFields
+			v-if="gatewayID != 'new' && paymentGateway.data"
+			:sections="paymentGateway.data.sections"
+			:data="paymentGateway.data.data"
+		/>
+		<div v-else>
+			<div class="flex items-center justify-between gap-4 py-3">
+				<div class="flex flex-col">
+					<div class="text-p-base font-medium text-ink-gray-7">
+						{{ __('Select Payment Gateway') }}
+						<span class="text-ink-red-3">*</span>
+					</div>
+					<div class="text-p-sm text-ink-gray-5">
+						{{ __('Choose a payment provider to configure its credentials.') }}
+					</div>
+				</div>
+				<div class="shrink-0">
+					<Select
+						v-model="newGateway"
+						:options="allGatewayOptions"
+						:required="true"
+						class="w-48"
+					/>
+				</div>
+			</div>
 			<SettingFields
-				v-if="gatewayID != 'new' && paymentGateway.data"
-				:sections="paymentGateway.data.sections"
-				:data="paymentGateway.data.data"
+				v-if="newGateway"
+				:sections="newGatewayFields"
+				:data="newGatewayData"
 			/>
-			<div v-else class="mt-5">
-				<FormControl
-					v-model="newGateway"
-					:label="__('Select Payment Gateway')"
-					type="select"
-					:options="allGatewayOptions"
-					:required="true"
-				/>
-				<SettingFields
-					v-if="newGateway"
-					:sections="newGatewayFields"
-					:data="newGatewayData"
-				/>
-			</div>
-		</template>
-		<template #actions="{ close }">
-			<div class="pb-5 float-end">
-				<Button variant="solid" @click="saveSettings(close)">
-					{{ __('Save') }}
-				</Button>
-			</div>
-		</template>
-	</Dialog>
+		</div>
+	</SettingsLayout>
 </template>
 <script setup lang="ts">
-import {
-	Button,
-	call,
-	createListResource,
-	createResource,
-	Dialog,
-	FormControl,
-} from 'frappe-ui'
+import { Button, call, createListResource, createResource } from 'frappe-ui'
 import { computed, ref, watch } from 'vue'
 import SettingFields from '@/components/Settings/SettingFields.vue'
+import SettingsLayout from '@/components/Layouts/SettingsLayout.vue'
+import Select from '@/components/Controls/Select.vue'
 
-const show = defineModel<boolean>({ required: true, default: false })
+const emit = defineEmits<{ updateStep: ['list' | 'form'] }>()
+
 const paymentGateways = defineModel<any>('paymentGateways')
 const newGateway = ref(null)
 const newGatewayFields = ref<{ columns: { fields: any[] }[] }[]>([])
@@ -65,6 +62,12 @@ const newGatewayData = ref<Record<string, any>>({})
 const props = defineProps<{
 	gatewayID: string | null
 }>()
+
+const title = computed(() =>
+	props.gatewayID === 'new'
+		? __('New Payment Gateway')
+		: __('Edit Payment Gateway')
+)
 
 const paymentGateway = createResource({
 	url: 'lms.lms.api.get_payment_gateway_details',
@@ -116,7 +119,8 @@ watch(
 		} else if (props.gatewayID == 'new') {
 			allGateways.reload()
 		}
-	}
+	},
+	{ immediate: true }
 )
 
 const getNewGateway = () => {
@@ -135,22 +139,23 @@ watch(newGateway, () => {
 	})
 })
 
-const saveSettings = (close: () => void) => {
+const save = () => saveSettings()
+
+const saveSettings = () => {
 	if (props.gatewayID === 'new') {
-		saveNewGateway(close)
+		saveNewGateway()
 	} else {
 		saveExistingGateway(
 			paymentGateway.data.doctype,
-			paymentGateway.data.docname,
-			close
+			paymentGateway.data.docname
 		)
 	}
 }
 
-const saveNewGateway = (close: () => void) => {
+const saveNewGateway = () => {
 	let gatewayDoc = getNewGateway()
 	if (gatewayDoc.issingle) {
-		saveExistingGateway(gatewayDoc.name, gatewayDoc.name, close)
+		saveExistingGateway(gatewayDoc.name, gatewayDoc.name)
 	} else {
 		call('frappe.client.insert', {
 			doc: {
@@ -159,23 +164,19 @@ const saveNewGateway = (close: () => void) => {
 			},
 		}).then((data: any) => {
 			paymentGateways.value.reload()
-			close()
+			emit('updateStep', 'list')
 		})
 	}
 }
 
-const saveExistingGateway = (
-	doctype: string,
-	docname: string,
-	close: () => void
-) => {
+const saveExistingGateway = (doctype: string, docname: string) => {
 	call('frappe.client.set_value', {
 		doctype: doctype,
 		name: docname,
 		fieldname: getGatewayFields(),
 	}).then(() => {
 		paymentGateways.value?.reload()
-		close()
+		emit('updateStep', 'list')
 	})
 }
 

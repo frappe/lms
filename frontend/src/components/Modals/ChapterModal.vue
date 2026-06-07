@@ -127,21 +127,6 @@ const chapterResource = createResource({
 	},
 })
 
-const chapterReference = createResource({
-	url: 'frappe.client.insert',
-	makeParams(values: { name: string }) {
-		return {
-			doc: {
-				doctype: 'Chapter Reference',
-				chapter: values.name,
-				parent: props.course,
-				parenttype: 'LMS Course',
-				parentfield: 'chapters',
-			},
-		}
-	},
-})
-
 const errorMessage = (err: { messages?: string[] } | string): string =>
 	typeof err === 'string' ? err : err.messages?.[0] ?? 'Error'
 
@@ -152,24 +137,14 @@ const addChapter = async (close: () => void) => {
 			validate() {
 				return validateChapter()
 			},
-			onSuccess: (data: { name: string }) => {
+			onSuccess: () => {
 				if (user.data?.is_system_manager)
 					updateOnboardingStep('create_first_chapter')
 
 				capture('chapter_created')
-				chapterReference.submit(
-					{ name: data.name },
-					{
-						onSuccess() {
-							cleanChapter()
-							outline.value?.reload()
-							toast.success(__('Chapter added successfully'))
-						},
-						onError(err: { messages?: string[] } | string) {
-							toast.error(errorMessage(err))
-						},
-					}
-				)
+				cleanChapter()
+				outline.value?.reload()
+				toast.success(__('Chapter added successfully'))
 				close()
 			},
 			onError(err: { messages?: string[] } | string) {

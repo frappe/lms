@@ -8,7 +8,6 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
-    AddEvaluatorModal: typeof import('./src/components/Modals/AddEvaluatorModal.vue')['default']
     Apps: typeof import('./src/components/Sidebar/Apps.vue')['default']
     AppSidebar: typeof import('./src/components/Sidebar/AppSidebar.vue')['default']
     AssessmentModal: typeof import('./src/components/Modals/AssessmentModal.vue')['default']
@@ -59,14 +58,14 @@ declare module 'vue' {
     EmailTemplates: typeof import('./src/components/Settings/EmailTemplates.vue')['default']
     EmptyStateLayout: typeof import('./src/components/Layouts/EmptyStateLayout.vue')['default']
     EvaluationModal: typeof import('./src/components/Modals/EvaluationModal.vue')['default']
-    Evaluators: typeof import('./src/components/Settings/Evaluators.vue')['default']
     Event: typeof import('./src/components/Modals/Event.vue')['default']
     ExplanationVideos: typeof import('./src/components/Modals/ExplanationVideos.vue')['default']
     FeedbackModal: typeof import('./src/components/Modals/FeedbackModal.vue')['default']
     FrappeCloudIcon: typeof import('./src/components/Icons/FrappeCloudIcon.vue')['default']
-    GoogleMeetAccountModal: typeof import('./src/components/Settings/GoogleMeetAccountModal.vue')['default']
+    GoogleMeetAccountForm: typeof import('./src/components/Settings/GoogleMeetAccountForm.vue')['default']
     GoogleMeetSettings: typeof import('./src/components/Settings/GoogleMeetSettings.vue')['default']
     IconPicker: typeof import('./src/components/Controls/IconPicker.vue')['default']
+    ImageUploader: typeof import('./src/components/Controls/ImageUploader.vue')['default']
     IndicatorIcon: typeof import('./src/components/Icons/IndicatorIcon.vue')['default']
     InlineLessonMenu: typeof import('./src/components/Notes/InlineLessonMenu.vue')['default']
     InstallPrompt: typeof import('./src/components/InstallPrompt.vue')['default']
@@ -109,6 +108,7 @@ declare module 'vue' {
     SettingDetails: typeof import('./src/components/Settings/SettingDetails.vue')['default']
     SettingFields: typeof import('./src/components/Settings/SettingFields.vue')['default']
     Settings: typeof import('./src/components/Settings/Settings.vue')['default']
+    SettingsLayout: typeof import('./src/components/Layouts/SettingsLayout.vue')['default']
     SidebarLink: typeof import('./src/components/Sidebar/SidebarLink.vue')['default']
     SkeletonLoader: typeof import('./src/components/SkeletonLoader.vue')['default']
     StudentHeatmap: typeof import('./src/components/StudentHeatmap.vue')['default']
@@ -127,7 +127,7 @@ declare module 'vue' {
     UserDropdown: typeof import('./src/components/Sidebar/UserDropdown.vue')['default']
     VideoBlock: typeof import('./src/components/VideoBlock.vue')['default']
     VideoStatistics: typeof import('./src/components/Modals/VideoStatistics.vue')['default']
-    ZoomAccountModal: typeof import('./src/components/Modals/ZoomAccountModal.vue')['default']
+    ZoomAccountForm: typeof import('./src/components/Settings/ZoomAccountForm.vue')['default']
     ZoomSettings: typeof import('./src/components/Settings/ZoomSettings.vue')['default']
   }
 }

@@ -15,7 +15,7 @@
 				<slot name="icon">
 					<span class="grid h-5 w-6 flex-shrink-0 place-items-center">
 						<component
-							:is="icons[link.icon]"
+							:is="typeof link.icon === 'string' ? icons[link.icon] : link.icon"
 							class="h-4 w-4 stroke-1.5 text-ink-gray-8"
 						/>
 					</span>
