@@ -13,30 +13,36 @@ import { describe, expect, it, vi } from 'vitest'
 // stub the named exports SettingFields actually imports.
 vi.mock('frappe-ui', () => ({
 	FormControl: {
-		props: ['modelValue', 'label', 'type'],
+		props: ['modelValue', 'type'],
 		emits: ['update:modelValue'],
+		// The real SettingFields renders the label as a sibling <div>, not via a
+		// FormControl label prop, so number/text inputs are selected by type.
 		template: `
 			<input
-				:data-testid="label"
 				:type="type"
 				:value="modelValue"
 				@input="$emit('update:modelValue', $event.target.value)"
 			/>
 		`,
 	},
-	Switch: {
-		props: ['modelValue', 'label'],
+	Select: { props: ['modelValue', 'options'], template: '<select />' },
+	FileUploader: { template: '<div />' },
+	Button: { template: '<button />' },
+}))
+// Checkboxes use the project-local Switch (v-modeled on field.value), not the
+// frappe-ui one — mock it so toggling emits update:modelValue.
+vi.mock('@/components/Controls/Switch.vue', () => ({
+	default: {
+		props: ['modelValue'],
 		emits: ['update:modelValue'],
 		template: `
 			<button
-				:data-testid="label"
+				data-testid="switch"
 				:data-checked="modelValue ? 'true' : 'false'"
 				@click="$emit('update:modelValue', !modelValue)"
 			/>
 		`,
 	},
-	FileUploader: { template: '<div />' },
-	Button: { template: '<button />' },
 }))
 // Same for the project-local controls.
 vi.mock('@/components/Controls/Link.vue', () => ({
@@ -80,7 +86,7 @@ describe('SettingFields — number input persists to data', () => {
 		const wrapper = mountFields(sections, data)
 		await flushPromises()
 
-		const input = wrapper.get('[data-testid="Lesson dwell time"]')
+		const input = wrapper.get('input[type="number"]')
 		await input.setValue('1')
 
 		// FormControl is v-modeled on data[field.name], so typing must
@@ -124,11 +130,11 @@ describe('SettingFields — number input persists to data', () => {
 		await flushPromises()
 
 		// 1) User changes dwell time
-		await wrapper.get('[data-testid="Lesson dwell time"]').setValue('1')
+		await wrapper.get('input[type="number"]').setValue('1')
 		expect(data.lesson_dwell_time).toBe('1')
 
 		// 2) User toggles a checkbox afterwards
-		await wrapper.get('[data-testid="Enforce video"]').trigger('click')
+		await wrapper.get('[data-testid="switch"]').trigger('click')
 		await flushPromises()
 		await nextTick()
 
