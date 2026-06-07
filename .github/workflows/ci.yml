@@ -133,7 +133,7 @@ jobs:
           name: server-coverage
 
       - name: Upload coverage data to Codecov
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v6.0.2
         with:
           name: Server
           token: ${{ secrets.CODECOV_TOKEN }}
