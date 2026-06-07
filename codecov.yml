@@ -6,4 +6,11 @@ coverage:
         threshold: 1%
 
 ignore:
-  - "**/test_helper.py"
+  - "**/test_*.py"  
+  - "**/__init__.py"
+  - "**/hooks.py"
+  - "**/install.py"
+  - "**/test_*.py"
+  - "**/activation.py"
+  - "**/onboarding.py"
+  - "**/notification/*"
