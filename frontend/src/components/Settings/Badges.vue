@@ -1,102 +1,107 @@
 <template>
+	<template v-if="view === 'list'">
+		<SettingsLayout :title="label" :description="__(description)">
+			<template #header-actions>
+				<Button variant="solid" @click="openForm('new')">
+					<template #prefix>
+						<Plus class="h-4 w-4 stroke-1.5" />
+					</template>
+					{{ __('New') }}
+				</Button>
+			</template>
+			<div v-if="badges.data?.length">
+				<ListView
+					:columns="columns"
+					:rows="badges.data"
+					row-key="name"
+					:options="{
+						showTooltip: false,
+						selectable: false,
+					}"
+				>
+					<ListHeader
+						class="mb-2 grid items-center gap-x-4 rounded bg-surface-gray-2 p-2"
+					>
+						<ListHeaderItem
+							:item="item"
+							v-for="item in columns"
+							:key="item.key"
+						>
+							<template #prefix="{ item }">
+								<FeatherIcon
+									v-if="item.icon"
+									:name="item.icon"
+									class="h-4 w-4 stroke-1.5"
+								/>
+							</template>
+						</ListHeaderItem>
+					</ListHeader>
+					<ListRows>
+						<ListRow :row="row" v-for="row in badges.data" :key="row.name">
+							<template #default="{ column, item }">
+								<ListRowItem :item="row[column.key]" :align="column.align">
+									<div v-if="column.key == 'enabled'">
+										<Badge v-if="row[column.key]" theme="green">
+											{{ __('Enabled') }}
+										</Badge>
+										<Badge v-else theme="gray">
+											{{ __('Disabled') }}
+										</Badge>
+									</div>
+									<div v-else-if="column.key == 'reference_doctype'">
+										{{
+											doctypeLabel[
+												row[column.key] as keyof typeof doctypeLabel
+											] || row[column.key]
+										}}
+									</div>
+									<FormControl
+										v-else-if="column.key == 'grant_only_once'"
+										v-model="row[column.key]"
+										type="checkbox"
+										:disabled="true"
+									/>
+									<div
+										v-else-if="column.key != 'action'"
+										class="leading-5 text-sm"
+									>
+										{{ row[column.key] }}
+									</div>
+									<Dropdown
+										v-else
+										:options="getMoreOptions(row.name)"
+										:button="{
+											icon: 'more-horizontal',
+											onblur: (e: Event) => {
+												e.stopPropagation()
+											},
+										}"
+										placement="right"
+									/>
+								</ListRowItem>
+							</template>
+						</ListRow>
+					</ListRows>
+				</ListView>
+			</div>
+			<EmptyStateLayout
+				v-else
+				name="Badges"
+				:description="__('Add one to get started.')"
+				:icon="Award"
+			/>
+		</SettingsLayout>
+	</template>
+	<BadgeForm
+		v-else
+		:badgeName="selectedBadge"
+		v-model:badges="badges"
+		@updateStep="(step) => (view = step)"
+	/>
 	<BadgeAssignments
 		v-if="showAssignments"
 		v-model="showAssignments"
 		:badgeName="showAssignmentsFor"
-	/>
-	<div v-else class="flex flex-col min-h-0 text-base">
-		<div class="flex items-center justify-between mb-5">
-			<div class="flex flex-col space-y-2">
-				<div class="text-xl font-semibold text-ink-gray-9">
-					{{ label }}
-				</div>
-				<div class="text-ink-gray-6 leading-5">
-					{{ __(description) }}
-				</div>
-			</div>
-			<Button @click="openForm('new')">
-				<template #prefix>
-					<Plus class="h-3 w-3 stroke-1.5" />
-				</template>
-				{{ __('New') }}
-			</Button>
-		</div>
-		<div v-if="badges.data?.length" class="overflow-y-auto">
-			<ListView
-				:columns="columns"
-				:rows="badges.data"
-				row-key="name"
-				:options="{
-					showTooltip: false,
-					selectable: false,
-				}"
-			>
-				<ListHeader
-					class="mb-2 grid items-center gap-x-4 rounded bg-surface-gray-2 p-2"
-				>
-					<ListHeaderItem :item="item" v-for="item in columns" :key="item.key">
-						<template #prefix="{ item }">
-							<FeatherIcon
-								v-if="item.icon"
-								:name="item.icon"
-								class="h-4 w-4 stroke-1.5"
-							/>
-						</template>
-					</ListHeaderItem>
-				</ListHeader>
-				<ListRows>
-					<ListRow :row="row" v-for="row in badges.data" :key="row.name">
-						<template #default="{ column, item }">
-							<ListRowItem :item="row[column.key]" :align="column.align">
-								<div v-if="column.key == 'enabled'">
-									<Badge v-if="row[column.key]" theme="green">
-										{{ __('Enabled') }}
-									</Badge>
-									<Badge v-else theme="gray">
-										{{ __('Disabled') }}
-									</Badge>
-								</div>
-								<div v-else-if="column.key == 'reference_doctype'">
-									{{
-										doctypeLabel[
-											row[column.key] as keyof typeof doctypeLabel
-										] || row[column.key]
-									}}
-								</div>
-								<FormControl
-									v-else-if="column.key == 'grant_only_once'"
-									v-model="row[column.key]"
-									type="checkbox"
-									:disabled="true"
-								/>
-								<div
-									v-else-if="column.key != 'action'"
-									class="leading-5 text-sm"
-								>
-									{{ row[column.key] }}
-								</div>
-								<Dropdown
-									v-else
-									:options="getMoreOptions(row.name)"
-									:button="{
-										icon: 'more-horizontal',
-										onblur: (e: Event) => {
-											e.stopPropagation()
-										},
-									}"
-									placement="right"
-								/>
-							</ListRowItem>
-						</template>
-					</ListRow>
-				</ListRows>
-			</ListView>
-		</div>
-	</div>
-	<BadgeForm
-		v-model="showForm"
-		:badgeName="selectedBadge"
-		v-model:badges="badges"
 	/>
 </template>
 <script setup lang="ts">
@@ -116,12 +121,14 @@ import {
 	toast,
 } from 'frappe-ui'
 import { computed, ref } from 'vue'
-import { Plus } from 'lucide-vue-next'
+import { Award, Plus } from 'lucide-vue-next'
 import { cleanError } from '@/utils'
 import BadgeForm from '@/components/Settings/BadgeForm.vue'
 import BadgeAssignments from '@/components/Settings/BadgeAssignments.vue'
+import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
+import SettingsLayout from '@/components/Layouts/SettingsLayout.vue'
 
-const showForm = ref<boolean>(false)
+const view = ref<'list' | 'form'>('list')
 const selectedBadge = ref<string | null>(null)
 const showAssignments = ref<boolean>(false)
 const showAssignmentsFor = ref<string | null>(null)
@@ -179,7 +186,7 @@ const getMoreOptions = (badgeName: string) => {
 
 const openForm = (badgeName: string) => {
 	selectedBadge.value = badgeName
-	showForm.value = true
+	view.value = 'form'
 }
 
 const deleteBadge = (badgeName: string) => {

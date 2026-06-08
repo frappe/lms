@@ -24,6 +24,9 @@
     "url": "https://github.com/frappe/lms/issues"
   },
   "homepage": "https://github.com/frappe/lms#readme",
+  "engines": {
+    "node": ">=22"
+  },
   "devDependencies": {
     "@semantic-release/exec": "^7.1.0",
     "@semantic-release/git": "^10.0.1",

@@ -33,7 +33,9 @@ class LMSCourse(Document):
 		self.validate_card_gradient()
 
 	def validate_published(self):
-		if self.published and not self.published_on:
+		if not self.published:
+			return
+		if self.is_new() or self.has_value_changed("published") or not self.published_on:
 			self.published_on = today()
 
 	def validate_instructors(self):

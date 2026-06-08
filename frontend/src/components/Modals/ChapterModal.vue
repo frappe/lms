@@ -73,38 +73,42 @@
 		</template>
 	</Dialog>
 </template>
-<script setup>
+<script setup lang="ts">
 import {
 	Button,
 	createResource,
 	Dialog,
 	FileUploader,
 	FormControl,
-	Switch,
 	toast,
 } from 'frappe-ui'
+import Switch from '@/components/Controls/Switch.vue'
 import { reactive, watch, inject } from 'vue'
 import { getFileSize } from '@/utils/'
 import { FileText, X } from 'lucide-vue-next'
 import { useOnboarding, useTelemetry } from 'frappe-ui/frappe'
+import type { ChapterDetailInput, Resource, SessionUser } from '@/types/api'
 
-const show = defineModel()
-const outline = defineModel('outline')
-const user = inject('$user')
+type ScormPackage = { file_name: string; file_size: number } | null
+
+interface ChapterForm {
+	title: string
+	is_scorm_package: 0 | 1
+	scorm_package: ScormPackage
+}
+
+const show = defineModel<boolean>()
+const outline = defineModel<Resource<unknown> | undefined>('outline')
+const user = inject<SessionUser>('$user')!
 const { capture } = useTelemetry()
 const { updateOnboardingStep } = useOnboarding('learning')
 
-const props = defineProps({
-	course: {
-		type: String,
-		required: true,
-	},
-	chapterDetail: {
-		type: Object,
-	},
-})
+const props = defineProps<{
+	course: string
+	chapterDetail?: ChapterDetailInput | null
+}>()
 
-const chapter = reactive({
+const chapter = reactive<ChapterForm>({
 	title: '',
 	is_scorm_package: 0,
 	scorm_package: null,
@@ -112,7 +116,7 @@ const chapter = reactive({
 
 const chapterResource = createResource({
 	url: 'lms.lms.api.upsert_chapter',
-	makeParams(values) {
+	makeParams() {
 		return {
 			title: chapter.title,
 			course: props.course,
@@ -123,62 +127,41 @@ const chapterResource = createResource({
 	},
 })
 
-const chapterReference = createResource({
-	url: 'frappe.client.insert',
-	makeParams(values) {
-		return {
-			doc: {
-				doctype: 'Chapter Reference',
-				chapter: values.name,
-				parent: props.course,
-				parenttype: 'LMS Course',
-				parentfield: 'chapters',
-			},
-		}
-	},
-})
+const errorMessage = (err: { messages?: string[] } | string): string =>
+	typeof err === 'string' ? err : err.messages?.[0] ?? 'Error'
 
-const addChapter = async (close) => {
+const addChapter = async (close: () => void) => {
 	chapterResource.submit(
 		{},
 		{
 			validate() {
 				return validateChapter()
 			},
-			onSuccess: (data) => {
+			onSuccess: () => {
 				if (user.data?.is_system_manager)
 					updateOnboardingStep('create_first_chapter')
 
 				capture('chapter_created')
-				chapterReference.submit(
-					{ name: data.name },
-					{
-						onSuccess(data) {
-							cleanChapter()
-							outline.value.reload()
-							toast.success(__('Chapter added successfully'))
-						},
-						onError(err) {
-							toast.error(err.messages?.[0] || err)
-						},
-					}
-				)
+				cleanChapter()
+				outline.value?.reload()
+				toast.success(__('Chapter added successfully'))
 				close()
 			},
-			onError(err) {
-				toast.error(err.messages?.[0] || err)
+			onError(err: { messages?: string[] } | string) {
+				toast.error(errorMessage(err))
 			},
 		}
 	)
 }
 
-const validateChapter = () => {
+const validateChapter = (): string | undefined => {
 	if (!chapter.title) {
 		return __('Title is required')
 	}
 	if (chapter.is_scorm_package && !chapter.scorm_package) {
 		return __('Please upload a SCORM package')
 	}
+	return undefined
 }
 
 const cleanChapter = () => {
@@ -187,7 +170,7 @@ const cleanChapter = () => {
 	chapter.scorm_package = null
 }
 
-const editChapter = (close) => {
+const editChapter = (close: () => void) => {
 	chapterResource.submit(
 		{},
 		{
@@ -197,12 +180,12 @@ const editChapter = (close) => {
 				}
 			},
 			onSuccess() {
-				outline.value.reload()
+				outline.value?.reload()
 				toast.success(__('Chapter updated successfully'))
 				close()
 			},
-			onError(err) {
-				toast.error(err.messages?.[0] || err)
+			onError(err: { messages?: string[] } | string) {
+				toast.error(errorMessage(err))
 			},
 		}
 	)
@@ -211,16 +194,17 @@ const editChapter = (close) => {
 watch(
 	() => props.chapterDetail,
 	(newChapter) => {
-		chapter.title = newChapter?.title
-		chapter.is_scorm_package = newChapter?.is_scorm_package
-		chapter.scorm_package = newChapter?.scorm_package
+		chapter.title = newChapter?.title ?? ''
+		chapter.is_scorm_package = (newChapter?.is_scorm_package ?? 0) as 0 | 1
+		chapter.scorm_package = (newChapter?.scorm_package ?? null) as ScormPackage
 	}
 )
 
-const validateFile = (file) => {
-	let extension = file.name.split('.').pop().toLowerCase()
+const validateFile = (file: File): string | undefined => {
+	const extension = file.name.split('.').pop()?.toLowerCase()
 	if (extension !== 'zip') {
 		return __('Only zip files are allowed')
 	}
+	return undefined
 }
 </script>

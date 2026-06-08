@@ -30,6 +30,12 @@ use_parentheses = true
 ensure_newline_before_comments = true
 indent = "\t"
 
+[deploy.dependencies.apt]
+packages = [
+    "libxml2-dev",
+    "libxslt1-dev",
+]
+
 [tool.ruff]
 line-length = 110
 target-version = "py310"
@@ -66,7 +72,8 @@ indent-style = "tab"
 docstring-code-format = true
 
 [tool.bench.frappe-dependencies]
-frappe = "<=17.0.0-dev"
+frappe = ">=14.0.0,<=17.0.0-dev"
+payments = ">=0.0.1,<1.0.0"
 
 [tool.bench.assets]
 build_dir = "./frontend"

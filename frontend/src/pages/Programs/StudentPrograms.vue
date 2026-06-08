@@ -46,7 +46,10 @@
 						</div>
 					</div>
 				</div>
-				<EmptyState v-else :type="convertToTitleCase(category) + ' Programs'" />
+				<EmptyStateLayout
+					v-else
+					:name="convertToTitleCase(category) + ' Programs'"
+				/>
 				<!-- <div v-else class="col-span-3 text-center text-ink-gray-5">
                     {{ __('No programs found in this category.') }}
                 </div> -->
@@ -66,7 +69,7 @@ import { useRouter } from 'vue-router'
 import { convertToTitleCase } from '@/utils'
 import ProgressBar from '@/components/ProgressBar.vue'
 import ProgramEnrollment from '@/pages/Programs/ProgramEnrollment.vue'
-import EmptyState from '@/components/EmptyState.vue'
+import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 
 const currentTab = ref('enrolled')
 const router = useRouter()

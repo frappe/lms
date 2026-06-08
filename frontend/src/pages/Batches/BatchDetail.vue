@@ -3,34 +3,50 @@
 		<header
 			class="sticky top-0 z-10 border-b flex items-center justify-between bg-surface-white px-3 py-2.5 sm:px-5"
 		>
-			<Breadcrumbs :items="breadcrumbs" />
-			<div v-if="tabIndex == 5 && isAdmin" class="flex items-center gap-x-2">
-				<Badge v-if="childRef?.isDirty" theme="orange">
-					{{ __('Not Saved') }}
+			<div class="flex items-center gap-x-2">
+				<Breadcrumbs :items="breadcrumbs" />
+				<Badge v-if="batch.data?.published" theme="green">
+					{{ __('Published') }}
 				</Badge>
-				<Button @click="childRef.deleteBatch()">
-					<template #icon>
-						<Trash2 class="w-4 h-4 stroke-1.5" />
-					</template>
-				</Button>
-				<Button variant="solid" @click="childRef.submitBatch()">
-					{{ __('Save') }}
-				</Button>
 			</div>
-			<Dropdown
-				v-else-if="isAdmin && batchMenu.length"
-				:options="batchMenu"
-				placement="left"
-				side="left"
-			>
-				<template v-slot="{ open }">
-					<Button variant="ghost">
+			<div class="flex items-center gap-x-2">
+				<template v-if="tabIndex == 5 && isAdmin">
+					<Badge v-if="childRef?.isDirty" theme="orange">
+						{{ __('Not Saved') }}
+					</Badge>
+					<Button @click="childRef.deleteBatch()">
 						<template #icon>
-							<EllipsisVertical class="w-4 h-4 stroke-1.5" />
+							<Trash2 class="w-4 h-4 stroke-1.5" />
 						</template>
 					</Button>
+					<Button variant="solid" @click="childRef.submitBatch()">
+						{{ __('Save') }}
+					</Button>
 				</template>
-			</Dropdown>
+				<Dropdown
+					v-else-if="isAdmin && batchMenu.length"
+					:options="batchMenu"
+					placement="left"
+					side="left"
+				>
+					<template v-slot="{ open }">
+						<Button variant="ghost">
+							<template #icon>
+								<EllipsisVertical class="w-4 h-4 stroke-1.5" />
+							</template>
+						</Button>
+					</template>
+				</Dropdown>
+				<Button
+					v-if="isAdmin"
+					:variant="batch.data?.published ? 'subtle' : 'solid'"
+					:theme="batch.data?.published ? 'red' : 'gray'"
+					:loading="publishToggle.loading"
+					@click="togglePublishBatch"
+				>
+					{{ batch.data?.published ? __('Unpublish') : __('Publish') }}
+				</Button>
+			</div>
 		</header>
 		<div>
 			<BatchOverview v-if="!isAdmin && !isStudent" :batch="batch" />
@@ -96,6 +112,7 @@ import {
 	createResource,
 	Dropdown,
 	Tabs,
+	toast,
 	usePageMeta,
 } from 'frappe-ui'
 import { sessionStore } from '@/stores/session'
@@ -206,6 +223,31 @@ const canMakeAnnouncement = () => {
 	if (readOnlyMode) return false
 	if (!batch.data?.students?.length) return false
 	return user.data?.is_moderator || user.data?.is_evaluator
+}
+
+const publishToggle = createResource({
+	url: 'frappe.client.set_value',
+	makeParams() {
+		return {
+			doctype: 'LMS Batch',
+			name: batch.data?.name,
+			fieldname: 'published',
+			value: batch.data?.published ? 0 : 1,
+		}
+	},
+	onSuccess() {
+		toast.success(
+			batch.data?.published ? __('Batch unpublished') : __('Batch published')
+		)
+		batch.reload()
+	},
+	onError(err) {
+		toast.error(err.messages?.[0] || __('Could not update publish status'))
+	},
+})
+
+const togglePublishBatch = () => {
+	publishToggle.submit()
 }
 
 const batchMenu = computed(() => {

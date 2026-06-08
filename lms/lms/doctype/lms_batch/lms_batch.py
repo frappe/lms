@@ -27,6 +27,7 @@ from lms.lms.utils import (
 
 class LMSBatch(Document):
 	def validate(self):
+		self._validate_mandatory()
 		self.validate_seats_left()
 		self.validate_batch_end_date()
 		self.validate_batch_time()
@@ -43,7 +44,7 @@ class LMSBatch(Document):
 			frappe.enqueue(send_notification_for_published_batch, batch=self)
 
 	def autoname(self):
-		if not self.name:
+		if not self.name and self.title:
 			self.name = generate_slug(self.title, "LMS Batch")
 
 	def validate_batch_end_date(self):
@@ -249,9 +250,11 @@ def create_live_class(
 		"start_time": format_datetime(f"{date} {time}", "yyyy-MM-ddTHH:mm:ssZ"),
 		"duration": duration,
 		"agenda": description,
-		"private_meeting": True,
-		"auto_recording": "none" if auto_recording == "No Recording" else auto_recording.lower(),
 		"timezone": timezone,
+		"settings": {
+			"private_meeting": True,
+			"auto_recording": "none" if auto_recording == "No Recording" else auto_recording.lower(),
+		},
 	}
 	headers = {
 		"Authorization": "Bearer " + authenticate(zoom_account),

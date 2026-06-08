@@ -118,12 +118,6 @@ const routes = [
 		props: true,
 	},
 	{
-		path: '/courses/:courseName/learn/:chapterNumber-:lessonNumber/edit',
-		name: 'LessonForm',
-		component: () => import('@/pages/LessonForm.vue'),
-		props: true,
-	},
-	{
 		path: '/job-opening/:jobName/edit',
 		name: 'JobForm',
 		component: () => import('@/pages/JobForm.vue'),

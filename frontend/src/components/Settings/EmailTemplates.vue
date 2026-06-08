@@ -1,24 +1,19 @@
 <template>
-	<div class="flex flex-col min-h-0 text-base">
-		<div class="flex items-center justify-between mb-5">
-			<div class="flex flex-col space-y-2">
-				<div class="text-xl font-semibold text-ink-gray-9">
-					{{ label }}
-				</div>
-				<!-- <div class="text-xs text-ink-gray-5">
-					{{ __(description) }}
-				</div> -->
-			</div>
-			<div class="flex items-center gap-x-5">
-				<Button @click="openTemplateForm('new')">
-					<template #prefix>
-						<Plus class="h-3 w-3 stroke-1.5" />
-					</template>
-					{{ __('New') }}
-				</Button>
-			</div>
-		</div>
-		<div v-if="emailTemplates.data?.length" class="overflow-y-auto">
+	<SettingsLayout
+		:title="label"
+		:description="
+			__('Create and manage reusable email templates for your notifications.')
+		"
+	>
+		<template #header-actions>
+			<Button variant="solid" @click="openTemplateForm('new')">
+				<template #prefix>
+					<Plus class="h-4 w-4 stroke-1.5" />
+				</template>
+				{{ __('New') }}
+			</Button>
+		</template>
+		<div v-if="emailTemplates.data?.length">
 			<ListView
 				:columns="columns"
 				:rows="emailTemplates.data"
@@ -47,8 +42,12 @@
 				<ListRows>
 					<ListRow :row="row" v-for="row in emailTemplates.data">
 						<template #default="{ column, item }">
-							<ListRowItem :item="row[column.key]" :align="column.align">
-								<div class="leading-5 text-sm">
+							<ListRowItem
+								:item="row[column.key]"
+								:align="column.align"
+								class="min-w-0"
+							>
+								<div class="leading-5 text-sm truncate">
 									{{ row[column.key] }}
 								</div>
 							</ListRowItem>
@@ -70,7 +69,13 @@
 				</ListSelectBanner>
 			</ListView>
 		</div>
-	</div>
+		<EmptyStateLayout
+			v-else
+			name="Email Templates"
+			:description="__('Add one to get started.')"
+			:icon="MailPlus"
+		/>
+	</SettingsLayout>
 	<EmailTemplateModal
 		v-model="showForm"
 		v-model:emailTemplates="emailTemplates"
@@ -92,8 +97,10 @@ import {
 	toast,
 } from 'frappe-ui'
 import { computed, ref } from 'vue'
-import { Plus, Trash2 } from 'lucide-vue-next'
+import { Plus, Trash2, MailPlus } from 'lucide-vue-next'
 import EmailTemplateModal from '@/components/Modals/EmailTemplateModal.vue'
+import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
+import SettingsLayout from '@/components/Layouts/SettingsLayout.vue'
 
 const props = defineProps({
 	label: {
@@ -148,12 +155,12 @@ const columns = computed(() => {
 		{
 			label: 'Name',
 			key: 'name',
-			width: '20rem',
+			width: 1,
 		},
 		{
 			label: 'Subject',
 			key: 'subject',
-			width: '25rem',
+			width: 1,
 		},
 	]
 })

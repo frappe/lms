@@ -112,13 +112,24 @@ def quiz_renderer(quiz_name):
 		],
 		as_dict=True,
 	)
+	from lms.lms.doctype.lms_question.lms_question import (
+		QUESTION_CORRECTNESS_FIELDS,
+		QUESTION_EXPLANATION_FIELDS,
+		QUESTION_OPTION_FIELDS,
+		QUESTION_POSSIBILITY_FIELDS,
+	)
+
 	quiz.questions = []
-	fields = ["name", "question", "type", "multiple"]
-	for num in range(1, 5):
-		fields.append(f"option_{num}")
-		fields.append(f"is_correct_{num}")
-		fields.append(f"explanation_{num}")
-		fields.append(f"possibility_{num}")
+	fields = [
+		"name",
+		"question",
+		"type",
+		"multiple",
+		*QUESTION_OPTION_FIELDS,
+		*QUESTION_CORRECTNESS_FIELDS,
+		*QUESTION_EXPLANATION_FIELDS,
+		*QUESTION_POSSIBILITY_FIELDS,
+	]
 
 	questions = frappe.get_all(
 		"LMS Quiz Question",

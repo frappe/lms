@@ -1,57 +1,59 @@
 <template>
-	<header
-		class="sticky flex items-center justify-between top-0 z-10 border-b bg-surface-white px-3 py-2.5 sm:px-5"
-	>
-		<Breadcrumbs :items="breadcrumbs" />
-		<Dropdown
-			v-if="canCreateBatch()"
-			:options="[
-				{
-					label: __('New Batch'),
-					icon: 'users',
-					onClick() {
-						showBatchModal = true
+	<LayoutHeader>
+		<template #left-header>
+			<Breadcrumbs :items="breadcrumbs" />
+		</template>
+		<template #right-header>
+			<Dropdown
+				v-if="canCreateBatch()"
+				:options="[
+					{
+						label: __('New Batch'),
+						icon: 'users',
+						onClick() {
+							showBatchModal = true
+						},
 					},
-				},
-				{
-					label: __('Import Batch'),
-					icon: 'upload',
-					onClick() {
-						router.push({
-							name: 'NewDataImport',
-							params: { doctype: 'LMS Batch' },
-						})
+					{
+						label: __('Import Batch'),
+						icon: 'upload',
+						onClick() {
+							router.push({
+								name: 'NewDataImport',
+								params: { doctype: 'LMS Batch' },
+							})
+						},
 					},
-				},
-			]"
-		>
-			<template v-slot="{ open }">
-				<Button variant="solid">
-					<template #prefix>
-						<Plus class="h-4 w-4 stroke-1.5" />
-					</template>
-					{{ __('Create') }}
-					<template #suffix>
-						<ChevronDown
-							:class="[
-								'w-4 h-4 stroke-1.5 ms-1 transform transition-transform',
-								open ? 'rotate-180' : '',
-							]"
-						/>
-					</template>
-				</Button>
-			</template>
-		</Dropdown>
-	</header>
-	<div class="p-5 pb-10">
+				]"
+			>
+				<template v-slot="{ open }">
+					<Button variant="solid">
+						<template #prefix>
+							<Plus class="size-4 stroke-1.5" />
+						</template>
+						{{ __('Create') }}
+						<template #suffix>
+							<ChevronDown
+								:class="[
+									'ms-1 size-4 transform stroke-1.5 transition-transform',
+									open ? 'rotate-180' : '',
+								]"
+							/>
+						</template>
+					</Button>
+				</template>
+			</Dropdown>
+		</template>
+	</LayoutHeader>
+	<div class="flex min-h-0 flex-1 flex-col p-5 pb-10">
 		<div
-			class="flex flex-col lg:flex-row space-y-4 lg:space-y-0 lg:items-center justify-between mb-5"
+			class="mb-5 flex flex-col justify-between space-y-4 lg:flex-row lg:items-center lg:space-y-0"
 		>
-			<div class="text-lg text-ink-gray-9 font-semibold">
+			<div class="text-lg font-semibold text-ink-gray-9">
 				{{ __('All Batches') }}
 			</div>
 			<div
-				class="flex flex-col space-y-3 lg:space-y-0 lg:flex-row lg:items-center lg:gap-x-4"
+				class="flex flex-col space-y-3 lg:flex-row lg:items-center lg:gap-x-4 lg:space-y-0"
 			>
 				<TabButtons
 					v-if="user.data"
@@ -64,23 +66,20 @@
 						v-model="title"
 						:placeholder="__('Search by Title')"
 						type="text"
-						class="min-w-40 lg:min-w-0 lg:w-32 xl:w-40"
+						class="min-w-40"
 						@input="updateBatches()"
 					/>
-					<div class="min-w-40 lg:min-w-0 lg:w-32 xl:w-40">
-						<Select
-							v-if="categories.length"
-							v-model="currentCategory"
-							:options="categories"
-							:placeholder="__('Category')"
-							@update:modelValue="updateBatches()"
-						/>
-					</div>
+					<Select
+						v-if="categories.length"
+						v-model="currentCategory"
+						:options="categories"
+						:placeholder="__('Category')"
+						@update:modelValue="updateBatches()"
+					/>
 				</div>
 
 				<Tooltip :text="__('Only show batches that offer a certificate')">
-					<FormControl
-						type="checkbox"
+					<Checkbox
 						v-model="certification"
 						:label="__('Certification')"
 						@change="updateBatches()"
@@ -90,7 +89,7 @@
 		</div>
 		<div
 			v-if="batches.data?.length"
-			class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5"
+			class="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
 		>
 			<router-link
 				v-for="batch in batches.data"
@@ -99,11 +98,11 @@
 				<BatchCard :batch="batch" />
 			</router-link>
 		</div>
-		<EmptyState v-else-if="!batches.list.loading" type="Batches" />
+		<EmptyStateLayout v-else-if="!batches.list.loading" name="Batches" />
 
 		<div
 			v-if="!batches.list.loading && batches.hasNextPage"
-			class="flex justify-center mt-5"
+			class="mt-5 flex justify-center"
 		>
 			<Button @click="batches.next()">
 				{{ __('Load More') }}
@@ -123,17 +122,19 @@ import {
 	createListResource,
 	Dropdown,
 	FormControl,
-	Select,
 	Tooltip,
 	TabButtons,
 	usePageMeta,
+	Checkbox,
 } from 'frappe-ui'
+import Select from '@/components/Controls/Select.vue'
 import { computed, inject, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { ChevronDown, Plus } from 'lucide-vue-next'
 import { sessionStore } from '@/stores/session'
 import BatchCard from '@/pages/Batches/components/BatchCard.vue'
-import EmptyState from '@/components/EmptyState.vue'
+import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
+import LayoutHeader from '@/components/Layouts/LayoutHeader.vue'
 import NewBatchModal from '@/pages/Batches/components/NewBatchModal.vue'
 
 const user = inject('$user')

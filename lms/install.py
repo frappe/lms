@@ -1,4 +1,5 @@
 import frappe
+from frappe.permissions import add_permission, update_permission_property
 
 from lms.lms.api import give_discussions_permission
 
@@ -200,30 +201,22 @@ def give_event_permission():
 
 
 def create_role(doctype, role, permlevel, write=0, create=0):
-	if not frappe.db.exists("Custom DocPerm", {"parent": doctype, "role": role, "permlevel": permlevel}):
-		if not write and not create:
-			if role in ["Moderator", "System Manager"]:
-				write = 1
-			if role == "Moderator":
-				create = 1
-		doc = frappe.new_doc("Custom DocPerm")
-		doc.update(
-			{
-				"doctype": "Custom DocPerm",
-				"parent": doctype,
-				"role": role,
-				"read": 1,
-				"select": 1,
-				"write": write,
-				"create": create,
-				"permlevel": permlevel,
-			}
-		)
-		doc.save()
+	if frappe.db.exists("Custom DocPerm", {"parent": doctype, "role": role, "permlevel": permlevel}):
+		return
+
+	add_permission(doctype, role, permlevel)
+	update_permission_property(doctype, role, permlevel, "select", 1)
+
+	if role in ["Moderator", "System Manager"] or write == 1:
+		update_permission_property(doctype, role, permlevel, "write", 1)
+	if role == "Moderator" or create == 1:
+		update_permission_property(doctype, role, permlevel, "create", 1)
 
 
 def delete_lms_roles():
 	roles = ["Course Creator", "Moderator", "Batch Evaluator", "LMS Student"]
 	for role in roles:
 		if frappe.db.exists("Role", role):
+			frappe.db.delete("Has Role", {"role": role})
+			frappe.db.delete("Custom DocPerm", {"role": role})
 			frappe.db.delete("Role", role)

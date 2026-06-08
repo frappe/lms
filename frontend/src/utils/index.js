@@ -71,6 +71,12 @@ export function formatAmount(amount) {
 	return amount
 }
 
+export function formatRating(value) {
+	const n = Number(value)
+	if (!isFinite(n)) return ''
+	return (Math.round(n * 10) / 10).toString()
+}
+
 export function convertToTitleCase(str) {
 	if (!str) {
 		return ''
@@ -462,12 +468,7 @@ const getSidebarItems = (forMobile = false) => {
 					label: 'Courses',
 					icon: 'BookOpen',
 					to: 'Courses',
-					activeFor: [
-						'Courses',
-						'CourseDetail',
-						'Lesson',
-						'LessonForm',
-					],
+					activeFor: ['Courses', 'CourseDetail', 'Lesson'],
 				},
 				{
 					label: 'Programs',
@@ -704,6 +705,34 @@ export const escapeHTML = (text) => {
 		/[&<>"'`=]/g,
 		(char) => escape_html_mapping[char] || char
 	)
+}
+
+const sanitizeJSON = (node) => {
+	if (Array.isArray(node)) return node.map(sanitizeJSON)
+	if (node && typeof node === 'object') {
+		const temp = {}
+		for (const n in node) {
+			temp[n] = sanitizeJSON(node[n])
+		}
+		return temp
+	}
+	if (
+		typeof node === 'string' &&
+		(node.includes('<') || node.includes('>'))
+	) {
+		return DOMPurify.sanitize(node)
+	}
+	return node
+}
+
+export const sanitizeEditorJs = (data) => {
+	if (!data || !Array.isArray(data.blocks)) return data
+	for (const node of data.blocks) {
+		if (node && node.type !== 'code') {
+			node.data = sanitizeJSON(node.data)
+		}
+	}
+	return data
 }
 
 export const sanitizeHTML = (text) => {

@@ -1,9 +1,9 @@
 <template>
-	<header
-		class="sticky top-0 z-10 flex items-center justify-between border-b bg-surface-white px-3 py-2.5 sm:px-5"
-	>
-		<Breadcrumbs :items="breadcrumbs" />
-	</header>
+	<LayoutHeader>
+		<template #left-header>
+			<Breadcrumbs :items="breadcrumbs" />
+		</template>
+	</LayoutHeader>
 	<div v-if="submissions.data?.length" class="md:w-3/4 md:mx-auto py-5 mx-5">
 		<div class="text-xl font-semibold mb-5 text-ink-gray-9">
 			{{ submissions.data[0].quiz_title }}
@@ -40,7 +40,7 @@
 			</Button>
 		</div>
 	</div>
-	<EmptyState v-else type="Quiz Submissions" />
+	<EmptyStateLayout v-else name="Quiz Submissions" />
 </template>
 <script setup>
 import {
@@ -57,7 +57,8 @@ import {
 import { computed, onMounted, inject } from 'vue'
 import { sessionStore } from '../stores/session'
 import { useRouter } from 'vue-router'
-import EmptyState from '@/components/EmptyState.vue'
+import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
+import LayoutHeader from '@/components/Layouts/LayoutHeader.vue'
 
 const { brand } = sessionStore()
 const router = useRouter()
