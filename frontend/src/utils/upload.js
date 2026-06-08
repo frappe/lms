@@ -7,9 +7,10 @@ import { createDialog } from '@/utils/dialogs'
 import translationPlugin from '../translation'
 
 export class Upload {
-	constructor({ data, api, readOnly }) {
+	constructor({ data, api, config, readOnly }) {
 		this.data = data
 		this.readOnly = readOnly
+		this.config = config || {}
 	}
 
 	static get toolbox() {
@@ -81,6 +82,8 @@ export class Upload {
 
 	renderFileUploader() {
 		const app = createApp(UploadPlugin, {
+			docname: this.config.docname || null,
+			fieldname: this.config.fieldname || 'content',
 			onFileUploaded: (file) => {
 				this.data.file_url = file.file_url
 				this.data.file_type = file.file_type

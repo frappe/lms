@@ -117,7 +117,7 @@ export function htmlToText(html) {
 	return div.textContent || div.innerText || ''
 }
 
-export function getEditorTools() {
+export function getEditorTools(isInstructorEditor = false, uploadContext = {}) {
 	return {
 		header: {
 			class: Header,
@@ -132,7 +132,10 @@ export function getEditorTools() {
 				defaultStyle: 'ordered',
 			},
 		},
-		upload: Upload,
+		upload: {
+			class: Upload,
+			config: uploadContext,
+		},
 		table: {
 			class: Table,
 			inlineToolbar: true,
