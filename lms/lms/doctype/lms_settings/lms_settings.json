@@ -1,547 +1,587 @@
 {
- "actions": [],
- "creation": "2021-03-09 14:30:15.807410",
- "doctype": "DocType",
- "editable_grid": 1,
- "engine": "InnoDB",
- "field_order": [
-  "general_tab",
-  "allow_guest_access",
-  "prevent_skipping_videos",
-  "send_calendar_invite_for_evaluations",
-  "column_break_zdel",
-  "disable_pwa",
-  "default_home",
-  "persona_captured",
-  "demo_data_present",
-  "column_break_bjis",
-  "unsplash_access_key",
-  "livecode_url",
-  "notifications_section",
-  "send_notification_for_published_courses",
-  "column_break_dtns",
-  "send_notification_for_published_batches",
-  "section_break_szgq",
-  "show_day_view",
-  "column_break_2",
-  "show_dashboard",
-  "show_courses",
-  "show_students",
-  "show_assessments",
-  "show_live_class",
-  "show_discussions",
-  "show_emails",
-  "signup_settings_tab",
-  "signup_settings_section",
-  "column_break_9",
-  "user_category",
-  "disable_signup",
-  "custom_signup_content",
-  "sidebar_tab",
-  "items_in_sidebar_section",
-  "courses",
-  "batches",
-  "certified_members",
-  "certifications",
-  "programming_exercises",
-  "column_break_exdz",
-  "jobs",
-  "statistics",
-  "notifications",
-  "section_break_qlss",
-  "sidebar_items",
-  "mentor_request_section",
-  "mentor_request_creation",
-  "mentor_request_status_update",
-  "payment_settings_tab",
-  "payment_section",
-  "payment_gateway",
-  "default_currency",
-  "exception_country",
-  "column_break_cfcv",
-  "apply_gst",
-  "show_usd_equivalent",
-  "apply_rounding",
-  "send_payment_reminders_for_batch",
-  "send_payment_reminders_for_course",
-  "no_payments_app",
-  "payments_app_is_not_installed",
-  "email_templates_tab",
-  "certification_template",
-  "batch_confirmation_template",
-  "column_break_uwsp",
-  "payment_reminder_template",
-  "seo_tab",
-  "meta_description",
-  "meta_image",
-  "column_break_xijv",
-  "meta_keywords",
-  "contact_us_tab",
-  "contact_us_email",
-  "column_break_gcgv",
-  "contact_us_url",
-  "jobs_tab",
-  "allow_job_posting"
- ],
- "fields": [
-  {
-   "default": "https://falcon.frappe.io",
-   "fieldname": "livecode_url",
-   "fieldtype": "Data",
-   "label": "LiveCode URL"
-  },
-  {
-   "fieldname": "mentor_request_creation",
-   "fieldtype": "Link",
-   "label": "Mentor Request Creation Template",
-   "options": "Email Template"
-  },
-  {
-   "fieldname": "mentor_request_status_update",
-   "fieldtype": "Link",
-   "label": "Mentor Request Status Update Template",
-   "options": "Email Template"
-  },
-  {
-   "fieldname": "mentor_request_section",
-   "fieldtype": "Section Break",
-   "hidden": 1,
-   "label": "Mentor Request"
-  },
-  {
-   "fieldname": "column_break_2",
-   "fieldtype": "Column Break",
-   "label": "Show Tab in Batch"
-  },
-  {
-   "fieldname": "signup_settings_section",
-   "fieldtype": "Section Break"
-  },
-  {
-   "fieldname": "column_break_9",
-   "fieldtype": "Column Break"
-  },
-  {
-   "default": "0",
-   "fieldname": "user_category",
-   "fieldtype": "Check",
-   "label": "Identify User Category"
-  },
-  {
-   "default": "0",
-   "fieldname": "default_home",
-   "fieldtype": "Check",
-   "label": "Make LMS the default home"
-  },
-  {
-   "fieldname": "column_break_zdel",
-   "fieldtype": "Column Break"
-  },
-  {
-   "default": "0",
-   "fieldname": "send_calendar_invite_for_evaluations",
-   "fieldtype": "Check",
-   "label": "Send calendar invite for evaluations"
-  },
-  {
-   "fieldname": "section_break_szgq",
-   "fieldtype": "Section Break",
-   "hidden": 1,
-   "label": "Batch Settings"
-  },
-  {
-   "fieldname": "signup_settings_tab",
-   "fieldtype": "Tab Break",
-   "label": "Signup Settings"
-  },
-  {
-   "fieldname": "payment_section",
-   "fieldtype": "Section Break"
-  },
-  {
-   "fieldname": "default_currency",
-   "fieldtype": "Link",
-   "label": "Default Currency",
-   "options": "Currency"
-  },
-  {
-   "fieldname": "column_break_cfcv",
-   "fieldtype": "Column Break"
-  },
-  {
-   "default": "0",
-   "fieldname": "apply_gst",
-   "fieldtype": "Check",
-   "label": "Apply GST for India"
-  },
-  {
-   "default": "0",
-   "fieldname": "show_usd_equivalent",
-   "fieldtype": "Check",
-   "label": "Show USD Equivalent"
-  },
-  {
-   "depends_on": "show_usd_equivalent",
-   "fieldname": "exception_country",
-   "fieldtype": "Table MultiSelect",
-   "label": "Primary Countries",
-   "options": "Payment Country"
-  },
-  {
-   "default": "0",
-   "fieldname": "apply_rounding",
-   "fieldtype": "Check",
-   "label": "Apply Rounding on Equivalent"
-  },
-  {
-   "fieldname": "batch_confirmation_template",
-   "fieldtype": "Link",
-   "label": "Batch Confirmation Template",
-   "options": "Email Template"
-  },
-  {
-   "default": "1",
-   "fieldname": "show_courses",
-   "fieldtype": "Check",
-   "label": "Courses"
-  },
-  {
-   "default": "1",
-   "fieldname": "show_students",
-   "fieldtype": "Check",
-   "label": "Students"
-  },
-  {
-   "default": "1",
-   "fieldname": "show_assessments",
-   "fieldtype": "Check",
-   "label": "Assessments"
-  },
-  {
-   "default": "1",
-   "fieldname": "show_live_class",
-   "fieldtype": "Check",
-   "label": "Live Class"
-  },
-  {
-   "default": "1",
-   "fieldname": "show_discussions",
-   "fieldtype": "Check",
-   "label": "Discussions"
-  },
-  {
-   "default": "1",
-   "fieldname": "show_emails",
-   "fieldtype": "Check",
-   "label": "Emails"
-  },
-  {
-   "fieldname": "payment_settings_tab",
-   "fieldtype": "Tab Break",
-   "label": "Payment Settings"
-  },
-  {
-   "default": "1",
-   "fieldname": "show_dashboard",
-   "fieldtype": "Check",
-   "label": "Dashboard"
-  },
-  {
-   "fieldname": "certification_template",
-   "fieldtype": "Link",
-   "label": "Certificate Email Template",
-   "options": "Email Template"
-  },
-  {
-   "fieldname": "email_templates_tab",
-   "fieldtype": "Tab Break",
-   "label": "Email Templates"
-  },
-  {
-   "fieldname": "column_break_uwsp",
-   "fieldtype": "Column Break"
-  },
-  {
-   "default": "0",
-   "fieldname": "show_day_view",
-   "fieldtype": "Check",
-   "label": "Show day view in timetable"
-  },
-  {
-   "fieldname": "unsplash_access_key",
-   "fieldtype": "Data",
-   "label": "Unsplash Access Key"
-  },
-  {
-   "fieldname": "sidebar_tab",
-   "fieldtype": "Tab Break",
-   "label": "Sidebar"
-  },
-  {
-   "default": "1",
-   "fieldname": "courses",
-   "fieldtype": "Check",
-   "label": "Courses"
-  },
-  {
-   "default": "1",
-   "fieldname": "batches",
-   "fieldtype": "Check",
-   "label": "Batches"
-  },
-  {
-   "default": "1",
-   "fieldname": "jobs",
-   "fieldtype": "Check",
-   "label": "Jobs"
-  },
-  {
-   "default": "1",
-   "fieldname": "statistics",
-   "fieldtype": "Check",
-   "label": "Statistics"
-  },
-  {
-   "default": "1",
-   "fieldname": "notifications",
-   "fieldtype": "Check",
-   "label": "Notifications"
-  },
-  {
-   "fieldname": "items_in_sidebar_section",
-   "fieldtype": "Section Break",
-   "label": "Items in Sidebar"
-  },
-  {
-   "fieldname": "column_break_exdz",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "section_break_qlss",
-   "fieldtype": "Section Break"
-  },
-  {
-   "fieldname": "sidebar_items",
-   "fieldtype": "Table",
-   "label": "Sidebar Items",
-   "options": "LMS Sidebar Item"
-  },
-  {
-   "fieldname": "custom_signup_content",
-   "fieldtype": "HTML Editor",
-   "label": "Custom Signup Content"
-  },
-  {
-   "fieldname": "payment_gateway",
-   "fieldtype": "Data",
-   "label": "Payment Gateway"
-  },
-  {
-   "fieldname": "no_payments_app",
-   "fieldtype": "Section Break"
-  },
-  {
-   "fieldname": "payments_app_is_not_installed",
-   "fieldtype": "HTML",
-   "label": "Payments app is not installed"
-  },
-  {
-   "fieldname": "general_tab",
-   "fieldtype": "Tab Break",
-   "label": "General"
-  },
-  {
-   "default": "1",
-   "fieldname": "allow_guest_access",
-   "fieldtype": "Check",
-   "label": "Allow Guest Access"
-  },
-  {
-   "fieldname": "payment_reminder_template",
-   "fieldtype": "Link",
-   "label": "Payment Reminder Template",
-   "options": "Email Template"
-  },
-  {
-   "default": "1",
-   "fieldname": "disable_signup",
-   "fieldtype": "Check",
-   "label": "Disable Signup"
-  },
-  {
-   "fieldname": "seo_tab",
-   "fieldtype": "Tab Break",
-   "label": "SEO"
-  },
-  {
-   "description": "This description will be shown on lists and pages without meta description",
-   "fieldname": "meta_description",
-   "fieldtype": "Small Text",
-   "label": "Meta Description"
-  },
-  {
-   "description": "This image will be shown on lists and pages that don't have an image by default",
-   "fieldname": "meta_image",
-   "fieldtype": "Attach Image",
-   "label": "Meta Image"
-  },
-  {
-   "fieldname": "column_break_xijv",
-   "fieldtype": "Column Break"
-  },
-  {
-   "description": "Common keywords that will be used for all pages",
-   "fieldname": "meta_keywords",
-   "fieldtype": "Small Text",
-   "label": "Meta Keywords"
-  },
-  {
-   "default": "0",
-   "fieldname": "persona_captured",
-   "fieldtype": "Check",
-   "label": "Persona Captured",
-   "read_only": 1
-  },
-  {
-   "default": "0",
-   "fieldname": "certified_members",
-   "fieldtype": "Check",
-   "hidden": 1,
-   "label": "Certified Members"
-  },
-  {
-   "default": "0",
-   "fieldname": "prevent_skipping_videos",
-   "fieldtype": "Check",
-   "label": "Prevent Skipping Videos"
-  },
-  {
-   "fieldname": "column_break_bjis",
-   "fieldtype": "Column Break"
-  },
-  {
-   "default": "1",
-   "fieldname": "programming_exercises",
-   "fieldtype": "Check",
-   "label": "Programming Exercises"
-  },
-  {
-   "fieldname": "contact_us_tab",
-   "fieldtype": "Tab Break",
-   "label": "Contact Us"
-  },
-  {
-   "fieldname": "contact_us_email",
-   "fieldtype": "Data",
-   "label": "Contact Us Email"
-  },
-  {
-   "fieldname": "column_break_gcgv",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "contact_us_url",
-   "fieldtype": "Data",
-   "label": "Contact Us URL"
-  },
-  {
-   "default": "1",
-   "fieldname": "certifications",
-   "fieldtype": "Check",
-   "label": "Certifications"
-  },
-  {
-   "default": "0",
-   "fieldname": "disable_pwa",
-   "fieldtype": "Check",
-   "label": "Disable PWA"
-  },
-  {
-   "fieldname": "send_notification_for_published_courses",
-   "fieldtype": "Select",
-   "label": "Send Notification for Published Courses",
-   "options": "\nEmail\nIn-app"
-  },
-  {
-   "fieldname": "send_notification_for_published_batches",
-   "fieldtype": "Select",
-   "label": "Send Notification for Published Batches",
-   "options": "\nEmail\nIn-app"
-  },
-  {
-   "fieldname": "notifications_section",
-   "fieldtype": "Section Break",
-   "label": "Notifications"
-  },
-  {
-   "fieldname": "column_break_dtns",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "jobs_tab",
-   "fieldtype": "Tab Break",
-   "label": "Jobs"
-  },
-  {
-   "default": "1",
-   "fieldname": "allow_job_posting",
-   "fieldtype": "Check",
-   "label": "Allow Job Posting"
-  },
-  {
-   "default": "0",
-   "fieldname": "demo_data_present",
-   "fieldtype": "Check",
-   "label": "Demo Data Present",
-   "read_only": 1
-  },
-  {
-   "default": "0",
-   "fieldname": "send_payment_reminders_for_batch",
-   "fieldtype": "Check",
-   "label": "Send Payment Reminders for Batch"
-  },
-  {
-   "default": "0",
-   "fieldname": "send_payment_reminders_for_course",
-   "fieldtype": "Check",
-   "label": "Send Payment Reminders for Course"
-  }
- ],
- "grid_page_length": 50,
- "index_web_pages_for_search": 1,
- "issingle": 1,
- "links": [],
- "modified": "2026-03-19 11:31:14.951880",
- "modified_by": "Administrator",
- "module": "LMS",
- "name": "LMS Settings",
- "owner": "Administrator",
- "permissions": [
-  {
-   "create": 1,
-   "delete": 1,
-   "email": 1,
-   "print": 1,
-   "read": 1,
-   "role": "System Manager",
-   "share": 1,
-   "write": 1
-  },
-  {
-   "create": 1,
-   "delete": 1,
-   "email": 1,
-   "print": 1,
-   "read": 1,
-   "role": "Moderator",
-   "share": 1,
-   "write": 1
-  }
- ],
- "row_format": "Dynamic",
- "sort_field": "modified",
- "sort_order": "DESC",
- "states": [],
- "track_changes": 1
+	"actions": [],
+	"creation": "2021-03-09 14:30:15.807410",
+	"doctype": "DocType",
+	"editable_grid": 1,
+	"engine": "InnoDB",
+	"field_order": [
+		"general_tab",
+		"allow_guest_access",
+		"prevent_skipping_videos",
+		"send_calendar_invite_for_evaluations",
+		"column_break_zdel",
+		"disable_pwa",
+		"default_home",
+		"persona_captured",
+		"demo_data_present",
+		"column_break_bjis",
+		"unsplash_access_key",
+		"livecode_url",
+		"notifications_section",
+		"send_notification_for_published_courses",
+		"column_break_dtns",
+		"send_notification_for_published_batches",
+		"section_break_szgq",
+		"show_day_view",
+		"column_break_2",
+		"show_dashboard",
+		"show_courses",
+		"show_students",
+		"show_assessments",
+		"show_live_class",
+		"show_discussions",
+		"show_emails",
+		"course_progress_section",
+		"enforce_video_completion",
+		"enforce_quiz_completion",
+		"enforce_assignment_completion",
+		"column_break_cprg",
+		"lesson_dwell_time",
+		"signup_settings_tab",
+		"signup_settings_section",
+		"column_break_9",
+		"user_category",
+		"disable_signup",
+		"custom_signup_content",
+		"sidebar_tab",
+		"items_in_sidebar_section",
+		"courses",
+		"batches",
+		"certified_members",
+		"certifications",
+		"programming_exercises",
+		"column_break_exdz",
+		"jobs",
+		"statistics",
+		"notifications",
+		"section_break_qlss",
+		"sidebar_items",
+		"mentor_request_section",
+		"mentor_request_creation",
+		"mentor_request_status_update",
+		"payment_settings_tab",
+		"payment_section",
+		"payment_gateway",
+		"default_currency",
+		"exception_country",
+		"column_break_cfcv",
+		"apply_gst",
+		"show_usd_equivalent",
+		"apply_rounding",
+		"send_payment_reminders_for_batch",
+		"send_payment_reminders_for_course",
+		"no_payments_app",
+		"payments_app_is_not_installed",
+		"email_templates_tab",
+		"certification_template",
+		"batch_confirmation_template",
+		"column_break_uwsp",
+		"payment_reminder_template",
+		"seo_tab",
+		"meta_description",
+		"meta_image",
+		"column_break_xijv",
+		"meta_keywords",
+		"contact_us_tab",
+		"contact_us_email",
+		"column_break_gcgv",
+		"contact_us_url",
+		"jobs_tab",
+		"allow_job_posting"
+	],
+	"fields": [
+		{
+			"default": "https://falcon.frappe.io",
+			"fieldname": "livecode_url",
+			"fieldtype": "Data",
+			"label": "LiveCode URL"
+		},
+		{
+			"fieldname": "mentor_request_creation",
+			"fieldtype": "Link",
+			"label": "Mentor Request Creation Template",
+			"options": "Email Template"
+		},
+		{
+			"fieldname": "mentor_request_status_update",
+			"fieldtype": "Link",
+			"label": "Mentor Request Status Update Template",
+			"options": "Email Template"
+		},
+		{
+			"fieldname": "mentor_request_section",
+			"fieldtype": "Section Break",
+			"hidden": 1,
+			"label": "Mentor Request"
+		},
+		{
+			"fieldname": "column_break_2",
+			"fieldtype": "Column Break",
+			"label": "Show Tab in Batch"
+		},
+		{
+			"fieldname": "signup_settings_section",
+			"fieldtype": "Section Break"
+		},
+		{
+			"fieldname": "column_break_9",
+			"fieldtype": "Column Break"
+		},
+		{
+			"default": "0",
+			"fieldname": "user_category",
+			"fieldtype": "Check",
+			"label": "Identify User Category"
+		},
+		{
+			"default": "0",
+			"fieldname": "default_home",
+			"fieldtype": "Check",
+			"label": "Make LMS the default home"
+		},
+		{
+			"fieldname": "column_break_zdel",
+			"fieldtype": "Column Break"
+		},
+		{
+			"default": "0",
+			"fieldname": "send_calendar_invite_for_evaluations",
+			"fieldtype": "Check",
+			"label": "Send calendar invite for evaluations"
+		},
+		{
+			"fieldname": "section_break_szgq",
+			"fieldtype": "Section Break",
+			"hidden": 1,
+			"label": "Batch Settings"
+		},
+		{
+			"fieldname": "signup_settings_tab",
+			"fieldtype": "Tab Break",
+			"label": "Signup Settings"
+		},
+		{
+			"fieldname": "payment_section",
+			"fieldtype": "Section Break"
+		},
+		{
+			"fieldname": "default_currency",
+			"fieldtype": "Link",
+			"label": "Default Currency",
+			"options": "Currency"
+		},
+		{
+			"fieldname": "column_break_cfcv",
+			"fieldtype": "Column Break"
+		},
+		{
+			"default": "0",
+			"fieldname": "apply_gst",
+			"fieldtype": "Check",
+			"label": "Apply GST for India"
+		},
+		{
+			"default": "0",
+			"fieldname": "show_usd_equivalent",
+			"fieldtype": "Check",
+			"label": "Show USD Equivalent"
+		},
+		{
+			"depends_on": "show_usd_equivalent",
+			"fieldname": "exception_country",
+			"fieldtype": "Table MultiSelect",
+			"label": "Primary Countries",
+			"options": "Payment Country"
+		},
+		{
+			"default": "0",
+			"fieldname": "apply_rounding",
+			"fieldtype": "Check",
+			"label": "Apply Rounding on Equivalent"
+		},
+		{
+			"fieldname": "batch_confirmation_template",
+			"fieldtype": "Link",
+			"label": "Batch Confirmation Template",
+			"options": "Email Template"
+		},
+		{
+			"default": "1",
+			"fieldname": "show_courses",
+			"fieldtype": "Check",
+			"label": "Courses"
+		},
+		{
+			"default": "1",
+			"fieldname": "show_students",
+			"fieldtype": "Check",
+			"label": "Students"
+		},
+		{
+			"default": "1",
+			"fieldname": "show_assessments",
+			"fieldtype": "Check",
+			"label": "Assessments"
+		},
+		{
+			"default": "1",
+			"fieldname": "show_live_class",
+			"fieldtype": "Check",
+			"label": "Live Class"
+		},
+		{
+			"default": "1",
+			"fieldname": "show_discussions",
+			"fieldtype": "Check",
+			"label": "Discussions"
+		},
+		{
+			"default": "1",
+			"fieldname": "show_emails",
+			"fieldtype": "Check",
+			"label": "Emails"
+		},
+		{
+			"fieldname": "payment_settings_tab",
+			"fieldtype": "Tab Break",
+			"label": "Payment Settings"
+		},
+		{
+			"default": "1",
+			"fieldname": "show_dashboard",
+			"fieldtype": "Check",
+			"label": "Dashboard"
+		},
+		{
+			"fieldname": "certification_template",
+			"fieldtype": "Link",
+			"label": "Certificate Email Template",
+			"options": "Email Template"
+		},
+		{
+			"fieldname": "email_templates_tab",
+			"fieldtype": "Tab Break",
+			"label": "Email Templates"
+		},
+		{
+			"fieldname": "column_break_uwsp",
+			"fieldtype": "Column Break"
+		},
+		{
+			"default": "0",
+			"fieldname": "show_day_view",
+			"fieldtype": "Check",
+			"label": "Show day view in timetable"
+		},
+		{
+			"fieldname": "unsplash_access_key",
+			"fieldtype": "Data",
+			"label": "Unsplash Access Key"
+		},
+		{
+			"fieldname": "sidebar_tab",
+			"fieldtype": "Tab Break",
+			"label": "Sidebar"
+		},
+		{
+			"default": "1",
+			"fieldname": "courses",
+			"fieldtype": "Check",
+			"label": "Courses"
+		},
+		{
+			"default": "1",
+			"fieldname": "batches",
+			"fieldtype": "Check",
+			"label": "Batches"
+		},
+		{
+			"default": "1",
+			"fieldname": "jobs",
+			"fieldtype": "Check",
+			"label": "Jobs"
+		},
+		{
+			"default": "1",
+			"fieldname": "statistics",
+			"fieldtype": "Check",
+			"label": "Statistics"
+		},
+		{
+			"default": "1",
+			"fieldname": "notifications",
+			"fieldtype": "Check",
+			"label": "Notifications"
+		},
+		{
+			"fieldname": "items_in_sidebar_section",
+			"fieldtype": "Section Break",
+			"label": "Items in Sidebar"
+		},
+		{
+			"fieldname": "column_break_exdz",
+			"fieldtype": "Column Break"
+		},
+		{
+			"fieldname": "section_break_qlss",
+			"fieldtype": "Section Break"
+		},
+		{
+			"fieldname": "sidebar_items",
+			"fieldtype": "Table",
+			"label": "Sidebar Items",
+			"options": "LMS Sidebar Item"
+		},
+		{
+			"fieldname": "custom_signup_content",
+			"fieldtype": "HTML Editor",
+			"label": "Custom Signup Content"
+		},
+		{
+			"fieldname": "payment_gateway",
+			"fieldtype": "Data",
+			"label": "Payment Gateway"
+		},
+		{
+			"fieldname": "no_payments_app",
+			"fieldtype": "Section Break"
+		},
+		{
+			"fieldname": "payments_app_is_not_installed",
+			"fieldtype": "HTML",
+			"label": "Payments app is not installed"
+		},
+		{
+			"fieldname": "general_tab",
+			"fieldtype": "Tab Break",
+			"label": "General"
+		},
+		{
+			"default": "1",
+			"fieldname": "allow_guest_access",
+			"fieldtype": "Check",
+			"label": "Allow Guest Access"
+		},
+		{
+			"fieldname": "payment_reminder_template",
+			"fieldtype": "Link",
+			"label": "Payment Reminder Template",
+			"options": "Email Template"
+		},
+		{
+			"default": "1",
+			"fieldname": "disable_signup",
+			"fieldtype": "Check",
+			"label": "Disable Signup"
+		},
+		{
+			"fieldname": "seo_tab",
+			"fieldtype": "Tab Break",
+			"label": "SEO"
+		},
+		{
+			"description": "This description will be shown on lists and pages without meta description",
+			"fieldname": "meta_description",
+			"fieldtype": "Small Text",
+			"label": "Meta Description"
+		},
+		{
+			"description": "This image will be shown on lists and pages that don't have an image by default",
+			"fieldname": "meta_image",
+			"fieldtype": "Attach Image",
+			"label": "Meta Image"
+		},
+		{
+			"fieldname": "column_break_xijv",
+			"fieldtype": "Column Break"
+		},
+		{
+			"description": "Common keywords that will be used for all pages",
+			"fieldname": "meta_keywords",
+			"fieldtype": "Small Text",
+			"label": "Meta Keywords"
+		},
+		{
+			"default": "0",
+			"fieldname": "persona_captured",
+			"fieldtype": "Check",
+			"label": "Persona Captured",
+			"read_only": 1
+		},
+		{
+			"default": "0",
+			"fieldname": "certified_members",
+			"fieldtype": "Check",
+			"hidden": 1,
+			"label": "Certified Members"
+		},
+		{
+			"default": "0",
+			"fieldname": "prevent_skipping_videos",
+			"fieldtype": "Check",
+			"label": "Prevent Skipping Videos"
+		},
+		{
+			"fieldname": "column_break_bjis",
+			"fieldtype": "Column Break"
+		},
+		{
+			"default": "1",
+			"fieldname": "programming_exercises",
+			"fieldtype": "Check",
+			"label": "Programming Exercises"
+		},
+		{
+			"fieldname": "contact_us_tab",
+			"fieldtype": "Tab Break",
+			"label": "Contact Us"
+		},
+		{
+			"fieldname": "contact_us_email",
+			"fieldtype": "Data",
+			"label": "Contact Us Email"
+		},
+		{
+			"fieldname": "column_break_gcgv",
+			"fieldtype": "Column Break"
+		},
+		{
+			"fieldname": "contact_us_url",
+			"fieldtype": "Data",
+			"label": "Contact Us URL"
+		},
+		{
+			"default": "1",
+			"fieldname": "certifications",
+			"fieldtype": "Check",
+			"label": "Certifications"
+		},
+		{
+			"default": "0",
+			"fieldname": "disable_pwa",
+			"fieldtype": "Check",
+			"label": "Disable PWA"
+		},
+		{
+			"fieldname": "send_notification_for_published_courses",
+			"fieldtype": "Select",
+			"label": "Send Notification for Published Courses",
+			"options": "\nEmail\nIn-app"
+		},
+		{
+			"fieldname": "send_notification_for_published_batches",
+			"fieldtype": "Select",
+			"label": "Send Notification for Published Batches",
+			"options": "\nEmail\nIn-app"
+		},
+		{
+			"fieldname": "notifications_section",
+			"fieldtype": "Section Break",
+			"label": "Notifications"
+		},
+		{
+			"fieldname": "column_break_dtns",
+			"fieldtype": "Column Break"
+		},
+		{
+			"fieldname": "jobs_tab",
+			"fieldtype": "Tab Break",
+			"label": "Jobs"
+		},
+		{
+			"default": "1",
+			"fieldname": "allow_job_posting",
+			"fieldtype": "Check",
+			"label": "Allow Job Posting"
+		},
+		{
+			"default": "0",
+			"fieldname": "demo_data_present",
+			"fieldtype": "Check",
+			"label": "Demo Data Present",
+			"read_only": 1
+		},
+		{
+			"default": "0",
+			"fieldname": "send_payment_reminders_for_batch",
+			"fieldtype": "Check",
+			"label": "Send Payment Reminders for Batch"
+		},
+		{
+			"default": "0",
+			"fieldname": "send_payment_reminders_for_course",
+			"fieldtype": "Check",
+			"label": "Send Payment Reminders for Course"
+		},
+		{
+			"fieldname": "course_progress_section",
+			"fieldtype": "Tab Break",
+			"label": "Course Progress"
+		},
+		{
+			"default": "30",
+			"fieldname": "lesson_dwell_time",
+			"fieldtype": "Int",
+			"label": "Lesson Dwell Time (seconds)",
+			"non_negative": 1
+		},
+		{
+			"fieldname": "column_break_cprg",
+			"fieldtype": "Column Break"
+		},
+		{
+			"default": "1",
+			"fieldname": "enforce_video_completion",
+			"fieldtype": "Check",
+			"label": "Enforce Video Completion"
+		},
+		{
+			"default": "1",
+			"fieldname": "enforce_quiz_completion",
+			"fieldtype": "Check",
+			"label": "Enforce Quiz Completion"
+		},
+		{
+			"default": "1",
+			"fieldname": "enforce_assignment_completion",
+			"fieldtype": "Check",
+			"label": "Enforce Assignment Completion"
+		}
+	],
+	"grid_page_length": 50,
+	"index_web_pages_for_search": 1,
+	"issingle": 1,
+	"links": [],
+	"modified": "2026-06-05 20:49:15.000000",
+	"modified_by": "Administrator",
+	"module": "LMS",
+	"name": "LMS Settings",
+	"owner": "Administrator",
+	"permissions": [
+		{
+			"create": 1,
+			"delete": 1,
+			"email": 1,
+			"print": 1,
+			"read": 1,
+			"role": "System Manager",
+			"share": 1,
+			"write": 1
+		},
+		{
+			"create": 1,
+			"delete": 1,
+			"email": 1,
+			"print": 1,
+			"read": 1,
+			"role": "Moderator",
+			"share": 1,
+			"write": 1
+		}
+	],
+	"row_format": "Dynamic",
+	"sort_field": "modified",
+	"sort_order": "DESC",
+	"states": [],
+	"track_changes": 1
 }

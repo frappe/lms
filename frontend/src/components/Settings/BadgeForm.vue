@@ -1,91 +1,100 @@
 <template>
-	<Dialog
-		v-model="show"
-		:options="{
-			title: badge ? __('Edit Badge') : __('Create a new Badge'),
-			size: '3xl',
-		}"
+	<SettingsLayout
+		:title="title"
+		:description="
+			__('Define a badge and the criteria for awarding it to learners.')
+		"
+		:show-back="true"
+		@back="emit('updateStep', 'list')"
 	>
-		<template #body-content>
-			<div class="grid grid-cols-2 gap-x-5">
-				<div class="space-y-4">
-					<Switch size="sm" v-model="badge.enabled" :label="__('Enabled')" />
-					<FormControl
-						v-model="badge.title"
-						:label="__('Title')"
-						type="text"
-						:required="true"
-					/>
-					<Autocomplete
-						@update:modelValue="(opt: any) => (badge.reference_doctype = opt.value)"
-						:modelValue="badge.reference_doctype"
-						:options="referenceDoctypeOptions"
-						:required="true"
-						:label="__('Assign For')"
-					/>
-					<FormControl
-						v-model="badge.description"
-						:label="__('Description')"
-						:required="true"
-						type="textarea"
-					/>
-					<Uploader
-						v-model="badge.image"
-						label="Badge Image"
-						description="An image that represents the badge."
-					/>
-				</div>
+		<template #header-actions>
+			<Button variant="solid" @click="save">{{ __('Save') }}</Button>
+		</template>
+		<div class="grid grid-cols-2 gap-x-5">
+			<div class="space-y-4">
+				<Switch
+					size="sm"
+					v-model="badge.enabled"
+					:label="__('Enabled')"
+					:description="__('Allow this badge to be awarded to learners.')"
+				/>
+				<FormControl
+					v-model="badge.title"
+					:label="__('Title')"
+					type="text"
+					:required="true"
+					:placeholder="__('e.g. Course Champion')"
+				/>
+				<Autocomplete
+					@update:modelValue="
+						(opt: any) => (badge.reference_doctype = opt.value)
+					"
+					:modelValue="badge.reference_doctype"
+					:options="referenceDoctypeOptions"
+					:required="true"
+					:label="__('Assign For')"
+				/>
+				<FormControl
+					v-model="badge.description"
+					:label="__('Description')"
+					:required="true"
+					type="textarea"
+					:placeholder="__('What is this badge awarded for?')"
+				/>
+				<Uploader
+					v-model="badge.image"
+					label="Badge Image"
+					description="An image that represents the badge."
+				/>
+			</div>
 
-				<div class="space-y-4">
-					<Switch
-						size="sm"
-						v-model="badge.grant_only_once"
-						:label="__('Grant Only Once')"
-						:description="__('Each user can only receive this badge one time.')"
-					/>
-					<FormControl
-						v-model="badge.event"
-						:label="__('Event')"
-						type="select"
-						:options="eventOptions"
-						:required="true"
-					/>
-					<FormControl
-						v-model="badge.user_field"
-						:label="__('Assign To')"
-						type="select"
-						:options="userFieldOptions"
-						:required="true"
-					/>
-					<CodeEditor
-						v-model="badge.condition"
-						:label="__('Condition')"
-						type="JavaScript"
-						:required="true"
-						:showBorder="true"
-						height="82px"
-					/>
-				</div>
-				<div class="space-y-4"></div>
+			<div class="space-y-4">
+				<Switch
+					size="sm"
+					v-model="badge.grant_only_once"
+					:label="__('Grant Only Once')"
+					:description="__('Each user can only receive this badge one time.')"
+				/>
+				<Select
+					v-model="badge.event"
+					:label="__('Event')"
+					:options="eventOptions"
+					:required="true"
+					class="w-full"
+				/>
+				<Select
+					v-model="badge.user_field"
+					:label="__('Assign To')"
+					:options="userFieldOptions"
+					:required="true"
+					class="w-full"
+				/>
+				<CodeEditor
+					v-model="badge.condition"
+					:label="__('Condition')"
+					type="JavaScript"
+					:required="true"
+					:showBorder="true"
+					height="82px"
+				/>
 			</div>
-		</template>
-		<template #actions="{ close }">
-			<div class="pb-5 float-end">
-				<Button variant="solid" @click="saveBadge(close)">
-					{{ __('Save') }}
-				</Button>
-			</div>
-		</template>
-	</Dialog>
+			<div class="space-y-4"></div>
+		</div>
+	</SettingsLayout>
 </template>
 <script setup lang="ts">
-import { Button, call, Dialog, FormControl, Switch, toast } from 'frappe-ui'
+import { Button, call, FormControl, toast } from 'frappe-ui'
+import Switch from '@/components/Controls/Switch.vue'
 import { computed, ref, watch } from 'vue'
 import { cleanError } from '@/utils'
 import type { Badges, Badge } from '@/components/Settings/types'
 import Autocomplete from '@/components/Controls/Autocomplete.vue'
 import CodeEditor from '@/components/Controls/CodeEditor.vue'
 import Uploader from '@/components/Controls/Uploader.vue'
+import SettingsLayout from '@/components/Layouts/SettingsLayout.vue'
+import Select from '@/components/Controls/Select.vue'
+
+const emit = defineEmits<{ updateStep: ['list' | 'form'] }>()
 
 const defaultBadge = {
 	name: '',
@@ -100,13 +109,18 @@ const defaultBadge = {
 	user_field: 'member',
 	field_to_check: '',
 }
-const show = defineModel<boolean>({ required: true, default: false })
 const badges = defineModel<Badges>('badges')
 const badge = ref<Badge>(defaultBadge)
 
 const props = defineProps<{
 	badgeName: string | null
 }>()
+
+const title = computed(() =>
+	props.badgeName && props.badgeName !== 'new'
+		? __('Edit Badge')
+		: __('Create a new Badge')
+)
 
 watch(
 	() => props.badgeName,
@@ -123,19 +137,21 @@ watch(
 	}
 )
 
-const saveBadge = (close: () => void) => {
+const save = () => saveBadge()
+
+const saveBadge = () => {
 	if (props.badgeName == 'new') {
-		createBadge(close)
+		createBadge()
 	} else {
-		updateBadge(close)
+		updateBadge()
 	}
 }
 
-const updateBadge = async (close: () => void) => {
+const updateBadge = async () => {
 	if (props.badgeName != badge.value?.title) {
 		await renameDoc()
 	}
-	setValue(close)
+	setValue()
 }
 
 const renameDoc = async () => {
@@ -146,7 +162,7 @@ const renameDoc = async () => {
 	})
 }
 
-const setValue = (close: () => void) => {
+const setValue = () => {
 	badges.value?.setValue.submit(
 		{
 			...badge.value,
@@ -155,18 +171,18 @@ const setValue = (close: () => void) => {
 		{
 			onSuccess() {
 				badges.value?.reload()
-				close()
+				emit('updateStep', 'list')
 				toast.success(__('Badge updated successfully'))
 			},
 			onError(err: any) {
-				close()
+				emit('updateStep', 'list')
 				toast.error(cleanError(err.messages[0]) || err)
 			},
 		}
 	)
 }
 
-const createBadge = (close: () => void) => {
+const createBadge = () => {
 	badges.value?.insert.submit(
 		{
 			...badge.value,
@@ -175,11 +191,11 @@ const createBadge = (close: () => void) => {
 		{
 			onSuccess() {
 				badges.value?.reload()
-				close()
+				emit('updateStep', 'list')
 				toast.success(__('Badge created successfully'))
 			},
 			onError(err) {
-				close()
+				emit('updateStep', 'list')
 				toast.error(cleanError(err.messages[0]) || __('Error creating badge'))
 			},
 		}

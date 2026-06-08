@@ -52,35 +52,35 @@
 		</router-link>
 	</div>
 </template>
-<script setup>
+<script setup lang="ts">
 import { Button, createResource } from 'frappe-ui'
 import { inject } from 'vue'
 import { GraduationCap } from 'lucide-vue-next'
+import type { CertificationInfo, Resource, SessionUser } from '@/types/api'
 
-const user = inject('$user')
+const user = inject<SessionUser>('$user')!
 
-const props = defineProps({
-	courseName: {
-		type: String,
-		required: true,
-	},
-})
+const props = defineProps<{
+	courseName: string
+}>()
 
 const certification = createResource({
 	url: 'lms.lms.api.get_certification_details',
-	makeParams(values) {
+	makeParams() {
 		return {
 			course: props.courseName,
 		}
 	},
 	auto: user.data ? true : false,
-})
+}) as Resource<CertificationInfo | null>
 
 const downloadCertificate = () => {
+	const cert = certification.data?.certificate
+	if (!cert) return
 	window.open(
 		`/api/method/frappe.utils.print_format.download_pdf?doctype=LMS+Certificate&name=${
-			certification.data.certificate.name
-		}&format=${encodeURIComponent(certification.data.certificate.template)}`
+			cert.name
+		}&format=${encodeURIComponent(cert.template)}`
 	)
 }
 </script>

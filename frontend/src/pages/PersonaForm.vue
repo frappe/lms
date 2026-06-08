@@ -50,7 +50,8 @@
 </template>
 <script setup>
 import LMSLogo from '@/components/Icons/LMSLogo.vue'
-import { Button, call, Select, usePageMeta } from 'frappe-ui'
+import { Button, call, usePageMeta } from 'frappe-ui'
+import Select from '@/components/Controls/Select.vue'
 import { computed, inject, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { sessionStore } from '@/stores/session'

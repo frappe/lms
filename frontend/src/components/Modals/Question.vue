@@ -120,10 +120,10 @@ import {
 	FormControl,
 	TextEditor,
 	createResource,
-	Switch,
 	Button,
 	toast,
 } from 'frappe-ui'
+import Switch from '@/components/Controls/Switch.vue'
 import { watch, reactive, ref, inject } from 'vue'
 import Link from '@/components/Controls/Link.vue'
 import { useOnboarding } from 'frappe-ui/frappe'
