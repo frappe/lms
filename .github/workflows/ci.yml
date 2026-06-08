@@ -4,27 +4,34 @@ on:
     branches:
       - main
       - develop
-      - main-hotfix
-  pull_request: {}
+  pull_request:
+    branches:
+      - main
+      - develop
+
 jobs:
   tests:
     name: Server Tests
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
+
     services:
       redis-cache:
         image: redis:alpine
         ports:
           - 13000:6379
+
       redis-queue:
         image: redis:alpine
         ports:
           - 11000:6379
+
       redis-socketio:
         image: redis:alpine
         ports:
           - 12000:6379
+
       mariadb:
         image: anandology/mariadb-utf8mb4:10.3
         ports:
@@ -33,80 +40,100 @@ jobs:
           MYSQL_ROOT_PASSWORD: root
         options: --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=2s --health-retries=3
     steps:
-    - uses: actions/checkout@v2
-    - name: setup python
-      uses: actions/setup-python@v6
-      with:
-        python-version: '3.14'
-    - name: setup node
-      uses: actions/setup-node@v6
-      with:
-        node-version: '24'
-        check-latest: true
-    - name: setup cache for bench
-      uses: actions/cache@v4
-      with:
-        path: ~/bench-cache
-        key: ${{ runner.os }}
-    - name: install bench
-      run: |
-        pip3 install frappe-bench
-        which bench
-    - name: bench init
-      run: |
-        if [ -d ~/bench-cache/bench.tgz ]
-        then
-           (cd && tar xzf ~/bench-cache/bench.tgz)
-        else
-          bench init ~/frappe-bench --skip-redis-config-generation --skip-assets --python "$(which python)"
-          mkdir -p ~/bench-cache
-          (cd && tar czf ~/bench-cache/bench.tgz frappe-bench)
-        fi
-    - name: add payments app to bench
-      working-directory: /home/runner/frappe-bench
-      run: bench get-app https://github.com/frappe/payments
-    - name: add lms app to bench
-      working-directory: /home/runner/frappe-bench
-      run: bench get-app lms $GITHUB_WORKSPACE
-    - name: create bench site
-      working-directory: /home/runner/frappe-bench
-      run: bench new-site --mariadb-root-password root --admin-password admin frappe.local
-    - name: install lms app
-      working-directory: /home/runner/frappe-bench
-      run: bench --site frappe.local install-app lms
-    - name: setup requirements
-      working-directory: /home/runner/frappe-bench
-      run: bench setup requirements --dev
-    - name: block endpoints
-      working-directory: /home/runner/frappe-bench
-      run: bench --site frappe.local set-config block_endpoints 1
-    - name: allow tests
-      working-directory: /home/runner/frappe-bench
-      run: bench --site frappe.local set-config allow_tests true
-    - name: bench build
-      working-directory: /home/runner/frappe-bench
-      run: bench --site frappe.local build
-    - name: run tests
-      working-directory: /home/runner/frappe-bench
-      run: bench --site frappe.local run-tests --app lms --coverage
-    - name: Upload coverage data
-      uses: actions/upload-artifact@v4
-      with:
-        path: /home/runner/frappe-bench/sites/coverage.xml
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.14"
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+          check-latest: true
+
+      - name: Setup cache for Bench
+        uses: actions/cache@v4
+        with:
+          path: ~/bench-cache
+          key: ${{ runner.os }}-bench
+
+      - name: Install Bench
+        run: |
+          pip3 install frappe-bench
+          which bench
+
+      - name: Initialize Bench
+        run: |
+          if [ -f ~/bench-cache/bench.tgz ]
+          then
+            (cd && tar xzf ~/bench-cache/bench.tgz)
+          else
+            bench init ~/frappe-bench --skip-redis-config-generation --skip-assets --python "$(which python)"
+            mkdir -p ~/bench-cache
+            (cd && tar czf ~/bench-cache/bench.tgz frappe-bench)
+          fi
+
+      - name: Add payments app to Bench
+        working-directory: /home/runner/frappe-bench
+        run: bench get-app https://github.com/frappe/payments
+
+      - name: Add LMS app to Bench
+        working-directory: /home/runner/frappe-bench
+        run: bench get-app lms $GITHUB_WORKSPACE
+
+      - name: Create Bench site
+        working-directory: /home/runner/frappe-bench
+        run: bench new-site --mariadb-root-password root --admin-password admin frappe.local
+
+      - name: Install LMS app
+        working-directory: /home/runner/frappe-bench
+        run: bench --site frappe.local install-app lms
+
+      - name: Setup requirements
+        working-directory: /home/runner/frappe-bench
+        run: bench setup requirements --dev
+
+      - name: Block endpoints
+        working-directory: /home/runner/frappe-bench
+        run: bench --site frappe.local set-config block_endpoints 1
+
+      - name: Allow tests
+        working-directory: /home/runner/frappe-bench
+        run: bench --site frappe.local set-config allow_tests true
+
+      - name: Build assets
+        working-directory: /home/runner/frappe-bench
+        run: bench --site frappe.local build
+
+      - name: Run unit tests
+        working-directory: /home/runner/frappe-bench
+        run: bench --site frappe.local run-tests --app lms --coverage
+
+      - name: Upload coverage artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: server-coverage
+          path: /home/runner/frappe-bench/sites/coverage.xml
 
   coverage:
     name: Coverage Wrap Up
     needs: tests
     runs-on: ubuntu-latest
+
     steps:
-      - name: Clone
+      - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Download artifacts
+      - name: Download coverage artifact
         uses: actions/download-artifact@v4
+        with:
+          name: server-coverage
 
-      - name: Upload coverage data
-        uses: codecov/codecov-action@v5
+      - name: Upload coverage data to Codecov
+        uses: codecov/codecov-action@v6.0.2
         with:
           name: Server
           token: ${{ secrets.CODECOV_TOKEN }}
