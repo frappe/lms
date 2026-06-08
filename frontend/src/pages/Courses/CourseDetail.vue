@@ -146,7 +146,7 @@
 </template>
 <script setup lang="ts">
 import { computed, inject, markRaw, onMounted, ref, watch } from 'vue'
-import type { ComputedRef, Ref } from 'vue'
+import type { Component, ComputedRef, Ref } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import type { RouteLocationNormalizedLoadedGeneric, Router } from 'vue-router'
 import {
@@ -160,7 +160,18 @@ import {
 	toast,
 	usePageMeta,
 } from 'frappe-ui'
-import { ChevronLeft, ChevronRight, Eye, Focus, Plus, X } from 'lucide-vue-next'
+import {
+	BookOpen,
+	ChevronLeft,
+	ChevronRight,
+	Eye,
+	Focus,
+	List,
+	Plus,
+	Settings2,
+	TrendingUp,
+	X,
+} from 'lucide-vue-next'
 import { sessionStore } from '@/stores/session'
 import LayoutHeader from '@/components/Layouts/LayoutHeader.vue'
 import CourseOverview from '@/pages/Courses/CourseOverview.vue'
@@ -178,7 +189,7 @@ type Brand = { name?: string; logo?: string; favicon?: string }
 interface TabDef {
 	label: string
 	component: ReturnType<typeof markRaw>
-	icon: string
+	icon: Component
 }
 
 const { brand } = sessionStore() as { brand: Brand }
@@ -301,22 +312,22 @@ const tabs = ref<TabDef[]>([
 	{
 		label: __('Overview'),
 		component: markRaw(CourseOverview),
-		icon: 'lucide-list',
+		icon: markRaw(List),
 	},
 	{
 		label: __('Dashboard'),
 		component: markRaw(CourseDashboard),
-		icon: 'lucide-trending-up',
+		icon: markRaw(TrendingUp),
 	},
 	{
 		label: __('Course editor'),
 		component: markRaw(CourseEditor),
-		icon: 'lucide-book-open',
+		icon: markRaw(BookOpen),
 	},
 	{
 		label: __('Settings'),
 		component: markRaw(CourseForm),
-		icon: 'lucide-settings-2',
+		icon: markRaw(Settings2),
 	},
 ])
 
