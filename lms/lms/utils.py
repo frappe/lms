@@ -1,6 +1,7 @@
 import hashlib
 import json
 import re
+from urllib.parse import quote
 
 import frappe
 import requests
@@ -258,6 +259,17 @@ def get_lesson_icon(body: str, content: str):
 			return "icon-quiz"
 
 	return "icon-list"
+
+
+def rewrite_private_media(content: str) -> str:
+	if not content:
+		return content
+	endpoint = "/api/method/lms.lms.doctype.course_lesson.course_lesson.serve_resource?file_url="
+	return re.sub(
+		r"/private/files/([^\"'\\]+)",
+		lambda m: endpoint + quote(m.group(0)),
+		content,
+	)
 
 
 def get_instructors(doctype: str, docname: str):
@@ -1201,7 +1213,11 @@ def get_lesson(course: str, chapter: int, lesson: int) -> dict:
 		as_dict=1,
 	)
 
-	if not lesson_details.include_in_preview and not membership and not can_modify_course(course):
+	# Local import: permissions imports from utils at module load, so importing it
+	# at the top of utils would create a cycle.
+	from lms.lms.permissions import can_access_lesson
+
+	if not can_access_lesson(lesson_name):
 		return {
 			"no_preview": 1,
 			"title": lesson_details.title,
@@ -1227,6 +1243,13 @@ def get_lesson(course: str, chapter: int, lesson: int) -> dict:
 	lesson_details.paid_certificate = course_info.paid_certificate
 	lesson_details.disable_self_learning = course_info.disable_self_learning
 	lesson_details.videos = get_video_details(lesson_name)
+
+	# Rewrite for EVERYONE, not just guests: native /private/files/ needs a Course
+	# Lesson read role-perm that students/guests lack, so all private media is routed
+	# through the access-gated serve_resource endpoint.
+	lesson_details.content = rewrite_private_media(lesson_details.content)
+	lesson_details.instructor_content = rewrite_private_media(lesson_details.instructor_content)
+
 	return lesson_details
 
 
