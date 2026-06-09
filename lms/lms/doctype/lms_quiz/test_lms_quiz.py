@@ -242,7 +242,7 @@ class TestLMSQuiz(unittest.TestCase):
         quiz.show_answers = 0
         quiz.save()
 
-        # Error: Pregunta huérfana (No en el Quiz)
+        # Error: Pregunta huérfana (No en el Quiz) lanza PermissionError
         self.assertRaises(frappe.PermissionError, check_answer, quiz.name, q_perm, "Choices", json.dumps(["Option 1"]))
 
         # Relacionar pregunta usando el ORM Correctamente
@@ -254,9 +254,8 @@ class TestLMSQuiz(unittest.TestCase):
         res = check_answer(quiz.name, q_perm, "Choices", json.dumps(["Option 1"]))
         self.assertTrue(len(res) > 0)
 
-        # Un usuario estudiante sin permisos falla por la configuración `show_answers=0`
-        frappe.get_doc({"doctype": "User", "email": "test@example.com", "first_name": "Test"}).insert(ignore_if_duplicate=True)
-        frappe.set_user("test@example.com")
+        # Usar "Guest" garantizando que no se trata de un usuario con permisos de Manager almacenados en caché
+        frappe.set_user("Guest")
         self.assertRaises(frappe.PermissionError, check_answer, quiz.name, q_perm, "Choices", json.dumps(["Option 1"]))
 
         frappe.set_user("Administrator") # Restaurar el usuario al predeterminado
