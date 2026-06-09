@@ -16,11 +16,28 @@ from lms.lms.doctype.lms_quiz.lms_quiz import (
     check_choice_answers
 )
 
+def _create_mock_question(q_title, q_type="Choices"):
+    """Helper function para crear LMS Questions reales requeridas por el validador de links de Frappe"""
+    question = frappe.new_doc("LMS Question")
+    question.question = q_title
+    question.type = q_type
+    
+    if q_type == "Choices":
+        question.option_1 = "Option 1"
+        question.is_correct_1 = 1
+        question.option_2 = "Option 2"
+    elif q_type == "User Input":
+        question.possibility_1 = "Correct Answer"
+        
+    question.save(ignore_permissions=True)
+    return question.name
+
 
 class TestLMSQuiz(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
-        frappe.get_doc({"doctype": "LMS Quiz", "title": "Test Quiz", "passing_percentage": 90}).save()
+        if not frappe.db.exists("LMS Quiz", "test-quiz"):
+            frappe.get_doc({"doctype": "LMS Quiz", "title": "Test Quiz", "passing_percentage": 90}).save()
 
     def test_with_multiple_options(self):
         question = frappe.new_doc("LMS Question")
@@ -54,17 +71,26 @@ class TestLMSQuiz(unittest.TestCase):
     def test_validate_duplicate_questions(self):
         quiz = frappe.new_doc("LMS Quiz")
         quiz.title = "Duplicate Questions Quiz"
-        quiz.append("questions", {"question": "Q1", "marks": 10})
-        quiz.append("questions", {"question": "Q1", "marks": 10})
+        quiz.passing_percentage = 50
+        
+        q_name = _create_mock_question("Q_Dup_1")
+        
+        quiz.append("questions", {"question": q_name, "marks": 10})
+        quiz.append("questions", {"question": q_name, "marks": 10})
         self.assertRaises(frappe.ValidationError, quiz.save)
 
     def test_validate_limit(self):
         quiz = frappe.new_doc("LMS Quiz")
         quiz.title = "Limit Quiz"
+        quiz.passing_percentage = 50
         quiz.shuffle_questions = 1
         quiz.limit_questions_to = 5
-        quiz.append("questions", {"question": "Q1", "marks": 10})
-        quiz.append("questions", {"question": "Q2", "marks": 10})
+
+        q1 = _create_mock_question("Q_limit_1")
+        q2 = _create_mock_question("Q_limit_2")
+
+        quiz.append("questions", {"question": q1, "marks": 10})
+        quiz.append("questions", {"question": q2, "marks": 10})
         # Límite excede el número de preguntas reales
         self.assertRaises(frappe.ValidationError, quiz.save)
 
@@ -84,12 +110,18 @@ class TestLMSQuiz(unittest.TestCase):
     def test_calculate_total_marks(self):
         quiz = frappe.new_doc("LMS Quiz")
         quiz.title = "Marks Quiz"
+        quiz.passing_percentage = 50
         quiz.save()
+        
+        # Test default
         self.assertEqual(quiz.total_marks, 0)
         self.assertEqual(quiz.passing_percentage, 100)
 
-        quiz.append("questions", {"question": "Q_marks_1", "marks": 10})
-        quiz.append("questions", {"question": "Q_marks_2", "marks": 10})
+        q1 = _create_mock_question("Q_marks_1")
+        q2 = _create_mock_question("Q_marks_2")
+
+        quiz.append("questions", {"question": q1, "marks": 10})
+        quiz.append("questions", {"question": q2, "marks": 10})
         quiz.save()
         self.assertEqual(quiz.total_marks, 20)
 
@@ -102,12 +134,18 @@ class TestLMSQuiz(unittest.TestCase):
     def test_validate_open_ended_questions(self):
         quiz = frappe.new_doc("LMS Quiz")
         quiz.title = "Open Ended Quiz"
-        quiz.append("questions", {"question": "Q_oe_1", "type": "Open Ended", "marks": 10})
-        quiz.append("questions", {"question": "Q_oe_2", "type": "Choices", "marks": 10})
+        quiz.passing_percentage = 50
+
+        q_oe = _create_mock_question("Q_oe_1", "Open Ended")
+        q_ch = _create_mock_question("Q_oe_2", "Choices")
+
+        quiz.append("questions", {"question": q_oe, "marks": 10})
+        quiz.append("questions", {"question": q_ch, "marks": 10})
+        
         # Mezclar Open Ended con Choices lanza ValidationError
         self.assertRaises(frappe.ValidationError, quiz.save)
 
-        quiz.questions.pop()
+        quiz.questions.pop() # Quitar Choices
         quiz.show_answers = 1
         quiz.save()
         # Para puramente Open Ended, show_answers se fuerza a 0
@@ -116,6 +154,7 @@ class TestLMSQuiz(unittest.TestCase):
     def test_autoname(self):
         quiz = frappe.new_doc("LMS Quiz")
         quiz.title = "Autoname Quiz Test"
+        quiz.passing_percentage = 60
         quiz.save()
         self.assertTrue(quiz.name.startswith("autoname-quiz-test"))
 
@@ -124,30 +163,19 @@ class TestLMSQuiz(unittest.TestCase):
         self.assertEqual(set_total_marks(questions), 35)
 
     def test_check_input_answers(self):
-        question = frappe.new_doc("LMS Question")
-        question.question = "Test Input Fuzzy Q"
-        question.type = "User Input"
-        question.possibility_1 = "Correct Answer"
-        question.save()
+        question_name = _create_mock_question("Test Input Fuzzy Q", "User Input")
 
         # Coincidencia exacta
-        self.assertEqual(check_input_answers(question.name, "Correct Answer"), 1)
+        self.assertEqual(check_input_answers(question_name, "Correct Answer"), 1)
         # Coincidencia parcial (Fuzzy Token Sort Ratio > 85%)
-        self.assertEqual(check_input_answers(question.name, "Corret Answer"), 1)
+        self.assertEqual(check_input_answers(question_name, "Corret Answer"), 1)
         # Sin coincidencia (Fuzzy Ratio < 85%)
-        self.assertEqual(check_input_answers(question.name, "Totally Wrong"), 0)
+        self.assertEqual(check_input_answers(question_name, "Totally Wrong"), 0)
 
     def test_verify_answer(self):
-        q_single = frappe.new_doc("LMS Question")
-        q_single.question = "Single Choice Q"
-        q_single.type = "Choices"
-        q_single.option_1 = "Option A"
-        q_single.is_correct_1 = 1
-        q_single.option_2 = "Option B"
-        q_single.save()
-
-        self.assertTrue(verify_answer(q_single.name, ["Option A"]))
-        self.assertFalse(verify_answer(q_single.name, ["Option B"]))
+        q_single = _create_mock_question("Single Choice Q Test")
+        self.assertTrue(verify_answer(q_single, ["Option 1"]))
+        self.assertFalse(verify_answer(q_single, ["Option 2"]))
 
         q_multi = frappe.new_doc("LMS Question")
         q_multi.question = "Multi Choice Q"
@@ -157,7 +185,7 @@ class TestLMSQuiz(unittest.TestCase):
         q_multi.option_2 = "Option B"
         q_multi.is_correct_2 = 1
         q_multi.option_3 = "Option C"
-        q_multi.save() # autoname debe cambiar multiple a 1 automáticamente por las 2 opciones
+        q_multi.save() 
 
         # Match exacto múltiple
         self.assertTrue(verify_answer(q_multi.name, ["Option A", "Option B"]))
@@ -206,34 +234,30 @@ class TestLMSQuiz(unittest.TestCase):
         self.assertIn(get_corrupted_image_msg(), res3)
 
     def test_check_answer_api(self):
+        q_perm = _create_mock_question("Perm Check Q")
+        
         quiz = frappe.new_doc("LMS Quiz")
         quiz.title = "Permission API Quiz"
+        quiz.passing_percentage = 50
         quiz.show_answers = 0
         quiz.save()
 
-        q_perm = frappe.new_doc("LMS Question")
-        q_perm.question = "Perm Check Q"
-        q_perm.type = "Choices"
-        q_perm.option_1 = "A"
-        q_perm.is_correct_1 = 1
-        q_perm.option_2 = "B"
-        q_perm.save()
-
         # Error: Pregunta huérfana (No en el Quiz)
-        self.assertRaises(frappe.PermissionError, check_answer, quiz.name, q_perm.name, "Choices", json.dumps(["A"]))
+        self.assertRaises(frappe.PermissionError, check_answer, quiz.name, q_perm, "Choices", json.dumps(["Option 1"]))
 
-        # Relacionar pregunta manualmente
-        frappe.db.sql("INSERT INTO `tabLMS Quiz Question` (parent, parenttype, question) VALUES (%s, 'LMS Quiz', %s)", (quiz.name, q_perm.name))
+        # Relacionar pregunta usando el ORM Correctamente
+        quiz.append("questions", {"question": q_perm, "marks": 10})
+        quiz.save()
 
         # Admin sobrepasa el chequeo de live answers `show_answers=0`
         frappe.set_user("Administrator")
-        res = check_answer(quiz.name, q_perm.name, "Choices", json.dumps(["A"]))
+        res = check_answer(quiz.name, q_perm, "Choices", json.dumps(["Option 1"]))
         self.assertTrue(len(res) > 0)
 
         # Un usuario estudiante sin permisos falla por la configuración `show_answers=0`
         frappe.get_doc({"doctype": "User", "email": "test@example.com", "first_name": "Test"}).insert(ignore_if_duplicate=True)
         frappe.set_user("test@example.com")
-        self.assertRaises(frappe.PermissionError, check_answer, quiz.name, q_perm.name, "Choices", json.dumps(["A"]))
+        self.assertRaises(frappe.PermissionError, check_answer, quiz.name, q_perm, "Choices", json.dumps(["Option 1"]))
 
         frappe.set_user("Administrator") # Restaurar el usuario al predeterminado
 
@@ -249,6 +273,8 @@ class TestLMSQuiz(unittest.TestCase):
         submission = frappe.new_doc("LMS Quiz Submission")
         submission.quiz = quiz.name
         submission.member = "Administrator"
+        submission.percentage = 100
+        submission.passing_percentage = 90
         submission.save(ignore_permissions=True)
 
         last_sub = quiz.get_last_submission_details()
