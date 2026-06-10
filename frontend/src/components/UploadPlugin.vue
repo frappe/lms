@@ -1,6 +1,7 @@
 <template>
 	<FileUploader
 		:fileTypes="['image/*', 'video/*', 'audio/*', '.pdf']"
+		:uploadArgs="uploadArgs"
 		:validateFile="validateFile"
 		@success="(data) => addFile(data)"
 		ref="fileUploader"
@@ -9,7 +10,7 @@
 </template>
 <script setup>
 import { FileUploader } from 'frappe-ui'
-import { onMounted, ref, nextTick } from 'vue'
+import { onMounted, ref, nextTick, computed } from 'vue'
 
 const fileUploader = ref(null)
 const emit = defineEmits(['fileUploaded'])
@@ -19,7 +20,22 @@ const props = defineProps({
 		type: Function,
 		required: true,
 	},
+	docname: {
+		type: String,
+		default: null,
+	},
+	fieldname: {
+		type: String,
+		default: 'content',
+	},
 })
+
+const uploadArgs = computed(() => ({
+	private: true,
+	doctype: 'Course Lesson',
+	docname: props.docname,
+	fieldname: props.fieldname,
+}))
 
 onMounted(async () => {
 	await nextTick()
