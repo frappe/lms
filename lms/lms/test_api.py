@@ -177,3 +177,103 @@ class TestLMSAPI(BaseTestUtils):
 			"John#Doe$", allow_spaces=True, max_length=50, replacement_char=None, escape_html_content=True
 		)
 		self.assertEqual(result, "JohnDoe")
+
+	def test_get_user_info_guest(self):
+		frappe.set_user("Guest")
+		from lms.lms.api import get_user_info
+		user_info = get_user_info()
+		self.assertIsNone(user_info)
+		frappe.set_user("Administrator") 
+
+	def test_get_user_info_student(self):
+		frappe.set_user(self.student1.email)
+		from lms.lms.api import get_user_info
+		user_info = get_user_info()
+		
+		self.assertIsNotNone(user_info)
+		self.assertEqual(user_info.email, self.student1.email)
+		self.assertFalse(user_info.is_instructor)
+		self.assertFalse(user_info.is_moderator)
+		self.assertFalse(user_info.is_evaluator)
+		self.assertTrue(user_info.is_student)
+		frappe.set_user("Administrator")
+
+	def test_get_translations_execution(self):
+		from lms.lms.api import get_translations
+		
+		frappe.set_user(self.student1.email)
+		translations_user = get_translations()
+		self.assertIsInstance(translations_user, dict)
+		
+		frappe.set_user("Guest")
+		translations_guest = get_translations()
+		self.assertIsInstance(translations_guest, dict)
+		
+		frappe.set_user("Administrator")
+
+	def test_validate_billing_access_structure(self):
+		from lms.lms.api import validate_billing_access
+		frappe.set_user(self.student1.email)
+	
+		result = validate_billing_access(billing_type="course", name=self.course.name)
+		
+		self.assertIn("access", result)
+		self.assertIn("message", result)
+		self.assertIn("address", result)
+		self.assertIn("billing_field_meta", result)
+		self.assertIsInstance(result["billing_field_meta"], dict)
+		
+		frappe.set_user("Administrator")
+		
+	def test_get_payment_field_meta(self):
+		from lms.lms.api import get_payment_field_meta
+		meta = get_payment_field_meta()
+		self.assertIsInstance(meta, dict)
+		self.assertIn("member", meta)
+		self.assertIn("amount", meta)
+
+	def test_verify_billing_access_guest(self):
+		from lms.lms.api import verify_billing_access
+		frappe.set_user("Guest")
+		access, message = verify_billing_access("LMS Course", "Cualquier Curso", "course")
+		self.assertFalse(access)
+		self.assertEqual(message, "Please login to continue with payment.")
+		frappe.set_user("Administrator")
+
+	def test_verify_billing_access_invalid_type(self):
+		from lms.lms.api import verify_billing_access
+		frappe.set_user(self.student1.email)
+		access, message = verify_billing_access("LMS Course", self.course.name, "hacker_module")
+		self.assertFalse(access)
+		self.assertEqual(message, "Module is incorrect.")
+		frappe.set_user("Administrator")
+
+	def test_get_application_users_empty(self):
+		from lms.lms.api import get_application_users
+		self.assertEqual(get_application_users([]), [])
+		self.assertEqual(get_application_users("[]"), [])
+
+	def test_sanitize_job_filters_cleaning(self):
+		from lms.lms.api import sanitize_job_filters
+		
+		raw_filters = {"status": "Open", "invalid_hacker_key": "Drop Table", "country": "Peru"}
+		raw_or_filters = {"job_title": "Developer", "malicious_or": "Admin"}
+		
+		clean_filters, clean_or_filters = sanitize_job_filters(raw_filters, raw_or_filters)
+		
+		self.assertIn("status", clean_filters)
+		self.assertIn("country", clean_filters)
+		self.assertIn("job_title", clean_or_filters)
+		
+		self.assertNotIn("invalid_hacker_key", clean_filters)
+		self.assertNotIn("malicious_or", clean_or_filters)
+
+	def test_sanitize_job_filters_closed_permissions(self):
+		from lms.lms.api import sanitize_job_filters
+		frappe.set_user(self.student1.email) 
+		
+		filters = {"status": "Closed"}
+		clean_filters, _ = sanitize_job_filters(filters, None)
+		
+		self.assertEqual(clean_filters.get("owner"), self.student1.email)
+		frappe.set_user("Administrator")
