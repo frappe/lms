@@ -3,14 +3,14 @@
 		<div class="mt-0">
 			<div class="w-5/6 mx-auto pt-4">
 				<div
-					class="flex justify-between cursor-pointer"
+					class="flex items-center gap-1 w-fit cursor-pointer mb-1"
 					@click="
 						() => {
 							openInstructorEditor = !openInstructorEditor
 						}
 					"
 				>
-					<label class="block font-medium text-ink-gray-5 mb-1">
+					<label class="block font-medium text-ink-gray-5 cursor-pointer">
 						{{ __('Instructor Notes') }}
 					</label>
 					<ChevronRight
@@ -43,7 +43,14 @@
 </template>
 <script setup>
 import { createResource, toast } from 'frappe-ui'
-import { reactive, onMounted, inject, ref, onBeforeUnmount } from 'vue'
+import {
+	reactive,
+	onMounted,
+	inject,
+	ref,
+	onBeforeUnmount,
+	computed,
+} from 'vue'
 import EditorJS from '@editorjs/editorjs'
 import { ChevronRight } from 'lucide-vue-next'
 import { getEditorTools, enablePlyr, sanitizeEditorJs } from '@/utils'

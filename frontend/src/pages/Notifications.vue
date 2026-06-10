@@ -141,23 +141,14 @@
 				</div>
 			</div>
 		</div>
-		<div v-else class="flex flex-col items-center justify-center mt-60">
-			<Bell class="size-10 mx-auto stroke-1 text-ink-gray-5" />
-			<p class="text-lg font-semibold text-ink-gray-7 mb-2.5">
-				{{
-					activeTab === 'Unread'
-						? __('No unread notifications')
-						: __('No read notifications')
-				}}
-			</p>
-			<p class="text-p-base w-full md:w-2/5 text-center text-ink-gray-7">
-				{{
-					activeTab === 'Unread'
-						? __("You're all caught up! Check back later for updates.")
-						: __('Notifications you have read will appear here.')
-				}}
-			</p>
-		</div>
+		<EmptyStateLayout
+			v-else
+			name="Notifications"
+			:title="emptyTitle"
+			:description="emptyDescription"
+			:icon="Bell"
+			width="lg"
+		/>
 	</div>
 </template>
 <script setup>
@@ -177,6 +168,7 @@ import { useRouter } from 'vue-router'
 import { Bell, Calendar, Clock, X } from 'lucide-vue-next'
 import { formatTime } from '@/utils/'
 import LayoutHeader from '@/components/Layouts/LayoutHeader.vue'
+import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 
 const { brand } = sessionStore()
 const dayjs = inject('$dayjs')
@@ -198,6 +190,18 @@ const notifications = computed(() => {
 		? unReadNotifications.data
 		: readNotifications.data
 })
+
+const emptyTitle = computed(() =>
+	activeTab.value === 'Unread'
+		? __('No unread notifications')
+		: __('No read notifications')
+)
+
+const emptyDescription = computed(() =>
+	activeTab.value === 'Unread'
+		? __("You're all caught up! Check back later for updates.")
+		: __('Notifications you have read will appear here.')
+)
 
 const unReadNotifications = createListResource({
 	doctype: 'Notification Log',

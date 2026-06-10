@@ -43,7 +43,7 @@
 				<div class="mt-10">
 					<FormControl
 						v-model="searchFilter"
-						:placeholder="__('Search by Member')"
+						:placeholder="__('Search')"
 						class="mb-4"
 					/>
 					<ListView

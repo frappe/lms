@@ -45,7 +45,7 @@
 			<div class="flex flex-col gap-3 sm:gap-5 md:flex-row">
 				<FormControl
 					v-model="titleFilter"
-					:placeholder="__('Search by Title')"
+					:placeholder="__('Search')"
 					@input="updateList"
 				/>
 				<Select

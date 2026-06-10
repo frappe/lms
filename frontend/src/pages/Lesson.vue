@@ -13,7 +13,11 @@
 						</template>
 					</Button>
 				</Tooltip>
-				<Button v-if="isAdmin" @click="showVideoStats()">
+				<Button
+					v-if="isAdmin && lessonHasVideo"
+					:tooltip="__('Video Statistics')"
+					@click="showVideoStats()"
+				>
 					<template #icon>
 						<TrendingUp class="size-4 stroke-1.5" />
 					</template>
@@ -416,9 +420,18 @@ defineExpose({
 	hasNext: computed(() => Boolean(lesson.data?.next)),
 })
 
+let collapsedByLesson = false
+const isCourseAdmin = () =>
+	Boolean(user.data?.is_moderator || user.data?.is_instructor)
+
 onMounted(() => {
 	startTimer()
-	if (!props.embedded) sidebarStore.isSidebarCollapsed = true
+	// Keep the app sidebar open for admins/instructors so they can navigate
+	// while reviewing; only collapse it for students to maximise reading space.
+	if (!props.embedded && !isCourseAdmin()) {
+		sidebarStore.isSidebarCollapsed = true
+		collapsedByLesson = true
+	}
 	document.addEventListener('fullscreenchange', attachFullscreenEvent)
 	socket.on('update_lesson_progress', (data) => {
 		if (data.course === props.courseName) {
@@ -442,7 +455,8 @@ const attachFullscreenEvent = () => {
 
 onBeforeUnmount(() => {
 	document.removeEventListener('fullscreenchange', attachFullscreenEvent)
-	if (!props.embedded) sidebarStore.isSidebarCollapsed = false
+	if (!props.embedded && collapsedByLesson)
+		sidebarStore.isSidebarCollapsed = false
 	trackVideoWatchDuration()
 })
 
@@ -927,6 +941,33 @@ const checkIfDiscussionsAllowed = () => {
 const isAdmin = computed(() => {
 	let isInstructor = lesson.data?.instructors?.includes(user.data?.name)
 	return user.data?.is_moderator || isInstructor
+})
+
+// The video-statistics button only makes sense when the lesson actually has a
+// video; showing it for text-only lessons opened an empty modal and logged a
+// console error.
+const lessonHasVideo = computed(() => {
+	const data = lesson.data
+	if (!data) return false
+	if (data.youtube) return true
+	if (data.videos?.length) return true
+	if (data.body && /\{\{ (YouTubeVideo|Video)\(/.test(data.body)) return true
+	if (data.content) {
+		try {
+			const blocks = JSON.parse(data.content)?.blocks || []
+			return blocks.some(
+				(block) =>
+					block.type === 'embed' ||
+					(block.type === 'upload' &&
+						['mp4', 'webm', 'mov', 'mkv', 'm4v'].includes(
+							block.data?.file_type
+						))
+			)
+		} catch {
+			return false
+		}
+	}
+	return false
 })
 
 const allowInstructorContent = () => {
