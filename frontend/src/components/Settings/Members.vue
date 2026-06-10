@@ -176,12 +176,7 @@ const roleOptions = [
 	{ label: __('Evaluator'), value: 'Batch Evaluator' },
 ]
 
-const displayedMembers = computed(() =>
-	memberList.value.filter(
-		(member) =>
-			currentRole.value === 'All' || member.roles?.includes(currentRole.value)
-	)
-)
+const displayedMembers = computed(() => memberList.value)
 const memberList = ref<Member[]>([])
 const hasNextPage = ref(false)
 const showNewMember = ref(false)
@@ -210,6 +205,7 @@ const members = createResource({
 		return {
 			search: search.value,
 			start: start.value,
+			role: currentRole.value,
 		}
 	},
 	onSuccess(data: Member[]) {
@@ -242,7 +238,7 @@ const onMemberCreated = (data: any) => {
 	refreshMembers()
 }
 
-watch(search, () => {
+watch([search, currentRole], () => {
 	refreshMembers()
 })
 

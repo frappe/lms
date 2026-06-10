@@ -679,10 +679,26 @@ def update_chapter_index(chapter: str, course: str, idx: int):
 
 
 @frappe.whitelist()
-def get_members(start: int = 0, search: str = None):
+def get_members(start: int = 0, search: str = None, role: str = "All"):
 	frappe.only_for(["Moderator"])
-	filters = {"enabled": 1, "name": ["not in", ["Administrator", "Guest"]]}
+
+	lms_roles = ["Moderator", "Course Creator", "Batch Evaluator", "LMS Student"]
+	if not isinstance(role, str) or role not in (["All"] + lms_roles):
+		frappe.throw(_("Invalid role filter."), frappe.ValidationError)
+	if search is not None and not isinstance(search, str):
+		frappe.throw(_("Invalid search query."), frappe.ValidationError)
+
+	filters = [
+		["enabled", "=", 1],
+		["name", "not in", ["Administrator", "Guest"]],
+	]
 	or_filters = {}
+
+	if role != "All":
+		role_users = frappe.get_all("Has Role", {"role": role, "parenttype": "User"}, pluck="parent")
+		if not role_users:
+			return []
+		filters.append(["name", "in", role_users])
 
 	if search:
 		or_filters["full_name"] = ["like", f"%{search}%"]
@@ -697,7 +713,6 @@ def get_members(start: int = 0, search: str = None):
 		start=start,
 	)
 
-	lms_roles = ["Moderator", "Course Creator", "Batch Evaluator", "LMS Student"]
 	for member in members:
 		roles = frappe.get_all(
 			"Has Role",
