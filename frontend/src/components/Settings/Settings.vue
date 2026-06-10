@@ -31,7 +31,7 @@
 				<div
 					v-if="activeTab && data.doc"
 					:key="activeTab.label"
-					class="flex flex-1 flex-col p-8 bg-surface-modal overflow-x-auto overflow-y-auto"
+					class="flex flex-1 flex-col bg-surface-modal overflow-hidden"
 				>
 					<component
 						v-if="activeTab.template"

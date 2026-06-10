@@ -1,5 +1,5 @@
 <template>
-	<div class="overflow-y-auto">
+	<div>
 		<template v-for="(section, index) in sections" :key="index">
 			<!-- Divider only between topics (sections), never between fields -->
 			<div v-if="index > 0" class="h-px border-t border-outline-gray-modals" />
