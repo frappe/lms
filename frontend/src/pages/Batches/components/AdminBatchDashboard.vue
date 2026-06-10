@@ -33,7 +33,7 @@
 					<div class="flex items-center gap-x-2">
 						<FormControl
 							v-model="searchFilter"
-							:placeholder="__('Search by name')"
+							:placeholder="__('Search')"
 							type="text"
 						/>
 						<Button @click="showEnrollmentModal = true">

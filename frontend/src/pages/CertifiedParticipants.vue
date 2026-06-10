@@ -25,7 +25,7 @@
 				<div class="flex items-center gap-x-4">
 					<FormControl
 						v-model="nameFilter"
-						:placeholder="__('Search by Name')"
+						:placeholder="__('Search')"
 						type="text"
 						class="min-w-40 lg:w-32 lg:min-w-0 xl:w-40"
 						@input="updateParticipants()"

@@ -33,7 +33,7 @@
 				<FormControl
 					type="text"
 					v-model="titleFilter"
-					:placeholder="__('Search by Title')"
+					:placeholder="__('Search')"
 				/>
 				<Select
 					v-model="typeFilter"
