@@ -3,7 +3,7 @@
 		class="sticky top-0 z-10 flex items-center justify-between border-b bg-surface-white px-3 py-2.5 sm:px-5"
 	>
 		<Breadcrumbs v-if="submissionDetails.doc" :items="breadcrumbs" />
-		<div class="flex gap-2 items-center">
+		<div v-if="isInstructor" class="flex gap-2 items-center">
 			<Badge
 				v-if="submissionDetails.isDirty"
 				:label="__('Not Saved')"
@@ -52,16 +52,42 @@
 				v-for="(row, index) in submissionDetails.doc.result"
 				class="py-5 px-10 space-y-4"
 			>
-				<div class="text-ink-gray-9">
-					<span class="font-semibold"> {{ __('Question') }}: </span>
-					<span class="leading-5" v-html="row.question"> </span>
+				<div class="flex items-start justify-between gap-3">
+					<div class="text-ink-gray-9">
+						<span class="font-semibold">
+							{{ __('Question {0}', [index + 1]) }}:
+						</span>
+						<span class="leading-5" v-html="row.question"> </span>
+					</div>
+					<Badge
+						:label="
+							row.is_correct
+								? __('Correct')
+								: row.marks > 0
+									? __('Partial')
+									: __('Incorrect')
+						"
+						:theme="
+							row.is_correct
+								? 'green'
+								: row.marks > 0
+									? 'orange'
+									: 'red'
+						"
+						variant="subtle"
+						class="shrink-0"
+					/>
 				</div>
 				<div class="text-ink-gray-9">
 					<span class="font-semibold"> {{ __('Answer') }}: </span>
 					<span class="leading-5" v-html="row.answer"></span>
 				</div>
 				<div class="grid grid-cols-2 gap-5">
-					<FormControl v-model="row.marks" :label="__('Marks')" />
+					<FormControl
+						v-model="row.marks"
+						:label="__('Marks')"
+						:disabled="!isInstructor"
+					/>
 					<FormControl
 						v-model="row.marks_out_of"
 						:label="__('Marks out of')"
@@ -82,7 +108,7 @@ import {
 	usePageMeta,
 	toast,
 } from 'frappe-ui'
-import { computed, onBeforeUnmount, onMounted, inject } from 'vue'
+import { computed, onBeforeUnmount, onMounted, inject, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { sessionStore } from '@/stores/session'
 
@@ -90,10 +116,11 @@ const { brand } = sessionStore()
 const router = useRouter()
 const user = inject('$user')
 
-onMounted(() => {
-	if (!user.data?.is_instructor && !user.data?.is_moderator)
-		router.push({ name: 'Courses' })
+const isInstructor = computed(
+	() => user.data?.is_instructor || user.data?.is_moderator
+)
 
+onMounted(() => {
 	window.addEventListener('keydown', keyboardShortcut)
 })
 
@@ -105,7 +132,8 @@ const keyboardShortcut = (e) => {
 	if (
 		e.key === 's' &&
 		(e.ctrlKey || e.metaKey) &&
-		!e.target.classList.contains('ProseMirror')
+		!e.target.classList.contains('ProseMirror') &&
+		isInstructor.value
 	) {
 		saveSubmission()
 		e.preventDefault()
@@ -123,21 +151,45 @@ const submissionDetails = createDocumentResource({
 	doctype: 'LMS Quiz Submission',
 	name: props.submission,
 	auto: true,
+	onError() {
+		router.push({ name: 'Courses' })
+	},
 })
 
+watch(
+	() => [submissionDetails.doc, user.data],
+	([doc, userData]) => {
+		if (!doc || !userData) return
+		if (!isInstructor.value && doc.member !== userData.name) {
+			router.push({ name: 'Courses' })
+		}
+	},
+	{ immediate: true }
+)
+
 const breadcrumbs = computed(() => {
-	return [
-		{
-			label: __('Quiz Submissions'),
-			route: {
-				name: 'QuizSubmissionList',
-				params: {
-					quizID: submissionDetails.doc.quiz,
+	if (isInstructor.value) {
+		return [
+			{
+				label: __('Quiz Submissions'),
+				route: {
+					name: 'QuizSubmissionList',
+					params: {
+						quizID: submissionDetails.doc.quiz,
+					},
 				},
 			},
-		},
+			{
+				label: submissionDetails.doc.quiz_title,
+			},
+		]
+	}
+	return [
 		{
 			label: submissionDetails.doc.quiz_title,
+		},
+		{
+			label: `${submissionDetails.doc.score}/${submissionDetails.doc.score_out_of} (${submissionDetails.doc.percentage}%)`,
 		},
 	]
 })
