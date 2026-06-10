@@ -1,6 +1,6 @@
 <template>
 	<div class="flex flex-col h-full min-h-0 text-base">
-		<header class="flex items-start justify-between mb-5">
+		<header class="flex items-start justify-between p-8">
 			<div class="flex flex-col gap-1 max-w-3xl">
 				<!-- Back button sits in the left gutter, vertically centered on the
 				     title line (Helpdesk pattern) so it reads as part of the heading
@@ -31,9 +31,15 @@
 			</div>
 		</header>
 
-		<slot name="header-bottom" />
+		<div v-if="$slots['header-bottom']" class="px-8">
+			<slot name="header-bottom" />
+		</div>
 
-		<div class="flex-1 min-h-0 overflow-y-auto">
+		<!-- Scroll container owns the horizontal padding so focus rings on
+		     controls aren't clipped at the scroll edge (CRM SettingsLayoutBase
+		     pattern). overflow-y:auto forces overflow-x to clip, so flush
+		     controls need this breathing room. -->
+		<div class="flex-1 min-h-0 overflow-y-auto px-8 pb-8">
 			<slot />
 		</div>
 	</div>
