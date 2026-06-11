@@ -744,3 +744,192 @@ class TestLMSAPILessonAndMembers(BaseTestUtils):
 		mock_chapter.update.assert_called_once()
 		mock_chapter.save.assert_called_once()
 		self.assertEqual(res, mock_chapter)
+
+	@patch("lms.lms.api.zipfile.ZipFile")
+	@patch("lms.lms.api.os.path.realpath")
+	@patch("lms.lms.api.frappe.get_site_path")
+	@patch("lms.lms.api.frappe.get_doc")
+	def test_extract_package(self, mock_get_doc, mock_get_site_path, mock_realpath, mock_zipfile):
+		from lms.lms.api import extract_package
+		
+		mock_package = MagicMock()
+		mock_package.get_full_path.return_value = "/fake/zip.zip"
+		mock_get_doc.return_value = mock_package
+		
+		mock_get_site_path.side_effect = ["/fake/public/scorm", "/fake/public/scorm/Course/Chap"]
+		mock_realpath.side_effect = lambda x: x
+		
+		mock_zip_instance = MagicMock()
+		mock_zip_instance.namelist.return_value = ["clean_file.html"]
+		mock_zipfile.return_value.__enter__.return_value = mock_zip_instance
+		
+		res = extract_package("Course", "Chap", frappe._dict({"name": "test"}))
+		self.assertEqual(res, "/fake/public/scorm/Course/Chap")
+		
+		mock_realpath.side_effect = ["/fake/public/scorm", "/evil/path"]
+		with self.assertRaises(Exception):
+			extract_package("Course", "Chap", frappe._dict({"name": "test"}))
+
+	@patch("lms.lms.api.zipfile.ZipFile")
+	def test_check_for_malicious_code(self, mock_zipfile):
+		from lms.lms.api import check_for_malicious_code
+		
+		mock_zip_instance = MagicMock()
+		mock_zip_instance.namelist.return_value = ["test.html"]
+		mock_file = MagicMock()
+		mock_file.read.return_value = b"<html>clean</html>"
+		mock_zip_instance.open.return_value.__enter__.return_value = mock_file
+		mock_zipfile.return_value.__enter__.return_value = mock_zip_instance
+		
+		check_for_malicious_code("/fake/path.zip")
+		
+		mock_file.read.return_value = b"<html><script src='http://evil.com'></script></html>"
+		with self.assertRaises(Exception):
+			check_for_malicious_code("/fake/path.zip")
+
+	@patch("lms.lms.api.os.walk")
+	def test_get_manifest_file(self, mock_walk):
+		from lms.lms.api import get_manifest_file
+		
+		mock_walk.return_value = [("/fake/path", [], ["imsmanifest.xml"])]
+		res = get_manifest_file("/fake/path")
+		self.assertEqual(res, "/fake/path/imsmanifest.xml")
+
+	@patch("lms.lms.api.parseString")
+	@patch("builtins.open")
+	@patch("lms.lms.api.get_manifest_file")
+	def test_get_launch_file(self, mock_get_manifest, mock_open, mock_parseString):
+		from lms.lms.api import get_launch_file
+		
+		mock_get_manifest.return_value = "/fake/path/imsmanifest.xml"
+		
+		# Configuramos la simulación de lectura del archivo XML por dentro de la función
+		mock_open.return_value.__enter__.return_value.read.return_value = "<xml></xml>"
+		
+		mock_dom = MagicMock()
+		mock_res = MagicMock()
+		mock_res.getAttribute.side_effect = lambda x: "sco" if x in ["adlcp:scormtype", "adlcp:scormType"] else "index.html"
+		mock_dom.getElementsByTagName.return_value = [mock_res]
+		mock_parseString.return_value = mock_dom
+		
+		res = get_launch_file("/fake/path")
+		self.assertEqual(res, "/fake/path/index.html")
+
+	@patch("lms.lms.api.frappe.new_doc")
+	def test_add_lesson(self, mock_new_doc):
+		from lms.lms.api import add_lesson
+		
+		mock_doc = MagicMock()
+		mock_doc.name = "New Lesson"
+		mock_new_doc.return_value = mock_doc
+		
+		add_lesson("Title", "Chap", "Course", 1)
+		self.assertEqual(mock_doc.insert.call_count, 2)
+
+	@patch("lms.lms.api.shutil.rmtree")
+	@patch("lms.lms.api.os.path.exists")
+	@patch("lms.lms.api.frappe.get_site_path")
+	def test_delete_scorm_package(self, mock_get_site, mock_exists, mock_rmtree):
+		from lms.lms.api import delete_scorm_package
+		mock_get_site.return_value = "/fake/site/path"
+		mock_exists.return_value = True
+		delete_scorm_package("/scorm1")
+		mock_rmtree.assert_called_once_with("/fake/site/path")
+
+	@patch("lms.lms.api.save_progress")
+	@patch("lms.lms.api.frappe.get_value")
+	def test_mark_lesson_progress(self, mock_get_value, mock_save_progress):
+		from lms.lms.api import mark_lesson_progress
+		mock_get_value.side_effect = ["Chapter 1", "Lesson 1"]
+		mark_lesson_progress("Course 1", 1, 1)
+		mock_save_progress.assert_called_once_with("Lesson 1", "Course 1")
+
+	@patch("lms.lms.api.prepare_heatmap_data")
+	@patch("lms.lms.api.count_dates")
+	@patch("lms.lms.api.fetch_activity_data")
+	@patch("lms.lms.api.initialize_date_count")
+	@patch("lms.lms.api.calculate_date_ranges")
+	@patch("lms.lms.api.has_course_instructor_role")
+	@patch("lms.lms.api.has_moderator_role")
+	@patch("lms.lms.api.has_evaluator_role")
+	def test_get_heatmap_data(self, mock_evaluator, mock_moderator, mock_instructor, mock_calc, mock_init, mock_fetch, mock_count, mock_prep):
+		from lms.lms.api import get_heatmap_data
+		mock_evaluator.return_value = False
+		mock_moderator.return_value = False
+		mock_instructor.return_value = False
+		with self.assertRaises(frappe.PermissionError):
+			get_heatmap_data("test_user")
+		mock_instructor.return_value = True
+		mock_calc.return_value = ("base", "start", 10, [])
+		mock_init.return_value = {}
+		mock_fetch.return_value = ([], [], [])
+		mock_prep.return_value = ([], [], 0, 0)
+		res = get_heatmap_data("test_user")
+		self.assertIn("heatmap_data", res)
+
+	@patch("lms.lms.api.add_days")
+	@patch("lms.lms.api.get_datetime")
+	@patch("lms.lms.api.now")
+	@patch("lms.lms.api.format_date")
+	def test_calculate_date_ranges(self, mock_format, mock_now, mock_get_datetime, mock_add_days):
+		from lms.lms.api import calculate_date_ranges
+		mock_format.return_value = "2026-06-10"
+		mock_now.return_value = "now"
+		mock_dt = MagicMock()
+		mock_dt.strftime.return_value = "3"
+		mock_get_datetime.return_value = mock_dt
+		mock_add_days.return_value = "mock_date"
+		res = calculate_date_ranges(10)
+		self.assertEqual(len(res), 4)
+
+	@patch("lms.lms.api.format_date")
+	def test_initialize_and_count_dates(self, mock_format):
+		from lms.lms.api import initialize_date_count, count_dates
+		mock_format.side_effect = lambda x, y: x
+		dates = ["2026-06-10", "2026-06-11"]
+		date_count = initialize_date_count(dates)
+		self.assertEqual(date_count["2026-06-10"], 0)
+		mock_entry = MagicMock()
+		mock_entry.creation = "2026-06-10"
+		count_dates([mock_entry], date_count)
+		self.assertEqual(date_count["2026-06-10"], 1)
+
+	@patch("lms.lms.api.date_diff")
+	def test_get_week_difference(self, mock_diff):
+		from lms.lms.api import get_week_difference
+		mock_diff.return_value = 14
+		self.assertEqual(get_week_difference("start", "end"), 2)
+
+	def test_is_mention(self):
+		from lms.lms.api import is_mention
+		mock_notif = frappe._dict({"type": "Mention", "subject": "Test"})
+		self.assertTrue(is_mention(mock_notif))
+		mock_notif.type = "Alert"
+		mock_notif.subject = "user mentioned you in a comment"
+		self.assertTrue(is_mention(mock_notif))
+		mock_notif.subject = "New comment"
+		self.assertFalse(is_mention(mock_notif))
+
+	@patch("lms.lms.api.frappe.db.get_value")
+	def test_update_user_details(self, mock_get_value):
+		from lms.lms.api import update_user_details
+		mock_get_value.return_value = {"full_name": "Test", "user_image": "img"}
+		notif = frappe._dict({"document_details": None, "from_user": "user1", "type": "Alert", "subject": "Test"})
+		res = update_user_details(notif)
+		self.assertEqual(res["from_user_details"]["full_name"], "Test")
+		notif.document_details = {"instructors": ["Inst1"]}
+		res = update_user_details(notif)
+		self.assertEqual(res["from_user_details"], "Inst1")
+
+	@patch("lms.lms.api.update_user_details")
+	@patch("lms.lms.api.update_document_details")
+	@patch("lms.lms.api.frappe.get_all")
+	def test_get_notifications(self, mock_get_all, mock_upd_doc, mock_upd_user):
+		from lms.lms.api import get_notifications
+		frappe.set_user("user1")
+		mock_get_all.return_value = [frappe._dict({"name": "Notif1"})]
+		mock_upd_doc.side_effect = lambda x: x
+		mock_upd_user.side_effect = lambda x: x
+		res = get_notifications()
+		self.assertEqual(len(res), 1)
+		self.assertEqual(res[0].name, "Notif1")
