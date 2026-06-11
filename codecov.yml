@@ -41,6 +41,7 @@ ignore:
   - "lms/plugins.py"
   - "lms/command_palette.py"
   - "lms/payments.py"
+  - "lms/lms/payments.py"
   - "lms/lms/doctype/lms_payment/lms_payment.py"
   - "lms/page_renderers.py"
   - "lms/lms/doctype/lms_program/lms_program.py"
