@@ -1272,3 +1272,234 @@ class TestLMSAPILessonAndMembers(BaseTestUtils):
 		self.assertEqual(res["status"], 200)
 		self.assertEqual(res["content"]["name"], "My App")
 		self.assertEqual(res["content"]["icons"][0]["src"], "/banner.png")
+
+	@patch("lms.lms.api.has_lms_role")
+	@patch("lms.lms.api.frappe.get_roles")
+	@patch("lms.lms.api.frappe.db.get_value")
+	def test_get_profile_details(self, mock_get_value, mock_get_roles, mock_has_lms_role):
+		from lms.lms.api import get_profile_details
+		mock_get_value.return_value = frappe._dict({"name": "user1"})
+		mock_get_roles.return_value = ["LMS Student"]
+		
+		mock_has_lms_role.return_value = False
+		with self.assertRaises(frappe.PermissionError):
+			get_profile_details("user1")
+			
+		mock_has_lms_role.return_value = True
+		res = get_profile_details("user1")
+		self.assertEqual(res.roles, ["LMS Student"])
+
+	@patch("lms.lms.api.calculate_current_streak")
+	@patch("lms.lms.api.calculate_streaks")
+	@patch("lms.lms.api.fetch_activity_dates")
+	def test_get_streak_info(self, mock_fetch, mock_calc_streaks, mock_calc_current):
+		from lms.lms.api import get_streak_info
+		mock_fetch.return_value = []
+		mock_calc_streaks.return_value = (5, 10)
+		mock_calc_current.return_value = 5
+		
+		res = get_streak_info()
+		self.assertEqual(res["current_streak"], 5)
+		self.assertEqual(res["longest_streak"], 10)
+
+	@patch("lms.lms.api.frappe.get_all")
+	def test_fetch_activity_dates(self, mock_get_all):
+		from lms.lms.api import fetch_activity_dates
+		import datetime
+		
+		mock_date = MagicMock()
+		mock_date.date.return_value = datetime.date(2026, 6, 10)
+		mock_get_all.return_value = [mock_date]
+		
+		res = fetch_activity_dates("user1")
+		self.assertEqual(len(res), 1)
+
+	def test_calculate_streaks(self):
+		from lms.lms.api import calculate_streaks
+		import datetime
+		
+		d1 = datetime.date(2026, 6, 8)
+		d2 = datetime.date(2026, 6, 9)
+		d3 = datetime.date(2026, 6, 10)
+		d4 = datetime.date(2026, 6, 13)
+		
+		streak, longest = calculate_streaks([d1, d2, d3])
+		self.assertEqual(streak, 3)
+		self.assertEqual(longest, 3)
+		
+		s2, l2 = calculate_streaks([d1, d2, d4])
+		self.assertEqual(l2, 2)
+
+	@patch("lms.lms.api.getdate")
+	def test_calculate_current_streak(self, mock_getdate):
+		from lms.lms.api import calculate_current_streak
+		import datetime
+		
+		today = datetime.date(2026, 6, 10)
+		mock_getdate.return_value = today
+		
+		self.assertEqual(calculate_current_streak([], 5), 0)
+		self.assertEqual(calculate_current_streak([today], 5), 5)
+		self.assertEqual(calculate_current_streak([datetime.date(2026, 6, 8)], 5), 0)
+
+	@patch("lms.lms.api.frappe.db.get_value")
+	@patch("lms.lms.api.frappe.get_all")
+	def test_get_my_live_classes(self, mock_get_all, mock_get_value):
+		from lms.lms.api import get_my_live_classes
+		frappe.set_user("user1")
+		
+		mock_get_all.side_effect = [
+			["Batch 1"],
+			[frappe._dict({"name": "Class 1", "course": "C1"})]
+		]
+		mock_get_value.return_value = "Course 1 Title"
+		
+		res = get_my_live_classes()
+		self.assertEqual(len(res), 1)
+		self.assertEqual(res[0].course_title, "Course 1 Title")
+
+	@patch("lms.lms.api.get_course_details")
+	@patch("lms.lms.api.frappe.qb", new_callable=MagicMock)
+	@patch("lms.lms.api.frappe.get_roles")
+	def test_get_created_courses(self, mock_get_roles, mock_qb, mock_get_details):
+		from lms.lms.api import get_created_courses
+		frappe.set_user("user1")
+		
+		mock_get_roles.return_value = ["Moderator"]
+		
+		mock_qb.DocType.return_value = MagicMock()
+		
+		mock_base_query = MagicMock()
+		mock_qb.from_.return_value.join.return_value.on.return_value.select.return_value.orderby.return_value.limit.return_value = mock_base_query
+		
+		mock_base_query.where.return_value.run.return_value = []
+		mock_base_query.run.return_value = [{"name": "Course 1"}]
+		
+		mock_get_details.return_value = {"name": "Course 1"}
+		
+		res = get_created_courses()
+		self.assertEqual(len(res), 1)
+		self.assertEqual(res[0]["name"], "Course 1")
+
+	@patch("lms.lms.api.get_batch_details")
+	@patch("lms.lms.api.getdate")
+	@patch("lms.lms.api.frappe.qb", new_callable=MagicMock)
+	def test_get_created_batches(self, mock_qb, mock_getdate, mock_get_details):
+		from lms.lms.api import get_created_batches
+		
+		# Simulamos la tabla
+		mock_table = MagicMock()
+		mock_qb.DocType.return_value = mock_table
+		
+		# Parcheamos el comportamiento del operador >= para evitar el TypeError
+		mock_table.start_date.__ge__ = MagicMock(return_value=True)
+		mock_table.date.__ge__ = MagicMock(return_value=True)
+		
+		mock_query = MagicMock()
+		mock_qb.from_.return_value.join.return_value.on.return_value.select.return_value.where.return_value.where.return_value.orderby.return_value.limit.return_value = mock_query
+		
+		mock_query.run.return_value = [{"name": "Batch 1"}]
+		mock_get_details.return_value = {"name": "Batch 1"}
+		
+		res = get_created_batches()
+		self.assertEqual(len(res), 1)
+		self.assertEqual(res[0]["name"], "Batch 1")
+
+	@patch("lms.lms.api.getdate")
+	@patch("lms.lms.api.frappe.qb", new_callable=MagicMock)
+	def test_get_admin_live_classes(self, mock_qb, mock_getdate):
+		from lms.lms.api import get_admin_live_classes
+		
+		mock_table = MagicMock()
+		mock_qb.DocType.return_value = mock_table
+		
+		# Parcheamos el comportamiento del operador >= para evitar el TypeError
+		mock_table.date.__ge__ = MagicMock(return_value=True)
+		
+		mock_query = MagicMock()
+		mock_qb.from_.return_value.join.return_value.on.return_value.select.return_value.where.return_value.where.return_value.orderby.return_value.limit.return_value = mock_query
+		
+		mock_query.run.return_value = [{"name": "Class 1"}]
+		
+		res = get_admin_live_classes()
+		self.assertEqual(len(res), 1)
+		self.assertEqual(res[0]["name"], "Class 1")
+
+	@patch("lms.lms.api.frappe.db.get_value")
+	@patch("lms.lms.api.getdate")
+	@patch("lms.lms.api.frappe.get_all")
+	def test_get_admin_evals(self, mock_get_all, mock_getdate, mock_get_value):
+		from lms.lms.api import get_admin_evals
+		
+		mock_get_all.return_value = [frappe._dict({"name": "Eval 1", "course": "C1"})]
+		mock_get_value.return_value = "Course Title"
+		
+		res = get_admin_evals()
+		self.assertEqual(len(res), 1)
+		self.assertEqual(res[0].course_title, "Course Title")
+
+	@patch("lms.lms.api.get_course_details")
+	@patch("lms.lms.api.get_popular_courses")
+	@patch("lms.lms.api.get_featured_home_courses")
+	@patch("lms.lms.api.get_my_latest_courses")
+	def test_get_my_courses(self, mock_latest, mock_featured, mock_popular, mock_details):
+		from lms.lms.api import get_my_courses
+		
+		mock_details.side_effect = lambda x: {"name": x}
+		
+		mock_latest.return_value = ["Course 1"]
+		res = get_my_courses()
+		self.assertEqual(res[0]["name"], "Course 1")
+		
+		mock_latest.return_value = []
+		mock_featured.return_value = ["Course 2"]
+		res2 = get_my_courses()
+		self.assertEqual(res2[0]["name"], "Course 2")
+		
+		mock_featured.return_value = []
+		mock_popular.return_value = ["Course 3"]
+		res3 = get_my_courses()
+		self.assertEqual(res3[0]["name"], "Course 3")
+
+	@patch("lms.lms.api.frappe.get_all")
+	def test_course_fetchers(self, mock_get_all):
+		from lms.lms.api import get_my_latest_courses, get_featured_home_courses, get_popular_courses
+		
+		mock_get_all.return_value = ["Course X"]
+		self.assertEqual(get_my_latest_courses(), ["Course X"])
+		self.assertEqual(get_featured_home_courses(), ["Course X"])
+		self.assertEqual(get_popular_courses(), ["Course X"])
+
+	@patch("lms.lms.api.get_batch_details")
+	@patch("lms.lms.api.get_upcoming_batches")
+	@patch("lms.lms.api.get_my_latest_batches")
+	def test_get_my_batches(self, mock_latest, mock_upcoming, mock_details):
+		from lms.lms.api import get_my_batches
+		
+		mock_details.side_effect = lambda x: {"name": x}
+		
+		mock_latest.return_value = ["Batch 1"]
+		res = get_my_batches()
+		self.assertEqual(res[0]["name"], "Batch 1")
+		
+		mock_latest.return_value = []
+		mock_upcoming.return_value = ["Batch 2"]
+		res2 = get_my_batches()
+		self.assertEqual(res2[0]["name"], "Batch 2")
+
+	@patch("lms.lms.api.getdate")
+	@patch("lms.lms.api.frappe.get_all")
+	def test_batch_fetchers(self, mock_get_all, mock_getdate):
+		from lms.lms.api import get_my_latest_batches, get_upcoming_batches
+		
+		mock_get_all.return_value = ["Batch X"]
+		self.assertEqual(get_my_latest_batches(), ["Batch X"])
+		self.assertEqual(get_upcoming_batches(), ["Batch X"])
+
+	@patch("lms.lms.api.frappe.db.delete")
+	def test_delete_programming_exercise(self, mock_delete):
+		from lms.lms.api import delete_programming_exercise
+		frappe.set_user("Administrator")
+		
+		delete_programming_exercise("Ex1")
+		self.assertEqual(mock_delete.call_count, 2)
