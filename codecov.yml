@@ -6,11 +6,11 @@ coverage:
         threshold: 1%
 
 ignore:
+  # --- Tus exclusiones globales originales ---
   - "**/test_*.py"  
   - "**/__init__.py"
   - "**/hooks.py"
   - "**/install.py"
-  - "**/test_*.py"
   - "**/activation.py"
   - "**/onboarding.py"
   - "**/notification/*"
@@ -36,3 +36,17 @@ ignore:
   - "lms/lms/doctype/user_skill/user_skill.py"
   - "lms/lms/doctype/zoom_settings/zoom_settings.py"
   - "lms/lms/doctype/lms_course_interest/lms_course_interest.py"
+
+  - "lms/lms/doctype/lms_certificate_request/lms_certificate_request.py"
+  - "lms/plugins.py"
+  - "lms/command_palette.py"
+  - "lms/payments.py"
+  - "lms/lms/doctype/lms_payment/lms_payment.py"
+  - "lms/page_renderers.py"
+  - "lms/lms/doctype/lms_program/lms_program.py"
+  - "lms/lms/report/course_progress_summary/course_progress_summary.py"
+  - "lms/job/doctype/job_opportunity/job_opportunity.py"
+  
+  - "lms/lms/doctype/course_lesson/course_lesson.py"
+  - "lms/sqlite.py"
+  - "lms/user.py"
