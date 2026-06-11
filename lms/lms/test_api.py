@@ -1846,3 +1846,99 @@ class TestLMSAPILessonAndMembers(BaseTestUtils):
 		mock_doc.update.assert_called_once()
 		mock_doc.insert.assert_called_once()
 		mock_update_index.assert_called_once_with(["L1", "L2", "L3"], "Chap2")
+	
+
+	@patch("lms.lms.api.frappe.get_all")
+	def test_get_members(self, mock_get_all):
+		from lms.lms.api import get_members
+
+		frappe.set_user("Administrator")
+
+		# Simulamos un usuario retornado por la consulta principal
+		member_obj = frappe._dict({
+			"name": "user1",
+			"full_name": "User One"
+		})
+
+		def side_effect_func(doctype, filters=None, fields=None, pluck=None, **kwargs):
+			if doctype == "User":
+				return [member_obj]
+			if doctype == "Has Role":
+				return ["LMS Student"]
+			return []
+
+		mock_get_all.side_effect = side_effect_func
+
+		# Ejecutamos el método
+		res = get_members(0, "User")
+
+		# Validación flexible: cubre implementaciones que usan
+		# "role" (string) o "roles" (lista)
+		if "role" in res[0]:
+			self.assertEqual(res[0].role, "LMS Student")
+		elif "roles" in res[0]:
+			self.assertIn("LMS Student", res[0].roles)
+		else:
+			self.fail("La API no asignó role ni roles al miembro.")
+
+	def test_prepare_heatmap_data(self):
+		from lms.lms.api import prepare_heatmap_data
+		
+		# Fecha inicial y conteo de actividades
+		start_date = "2026-06-01"
+		date_count = {"2026-06-01": 5, "2026-06-02": 3}
+		
+		heatmap, labels, total, weeks = prepare_heatmap_data(start_date, 7, date_count)
+		
+		# Validaciones
+		self.assertEqual(total, 8)
+		# Verificamos que Jun esté en las etiquetas
+		self.assertIn("Jun", labels)
+		# Verificamos que los datos se hayan mapeado al día correcto
+		# 2026-06-01 es lunes (Mon)
+		mon_data = next(day["data"] for day in heatmap if day["name"] == "Mon")
+		self.assertEqual(mon_data[0]["count"], 5)
+
+	@patch("lms.lms.api.now")
+	@patch("lms.lms.api.date_diff")
+	@patch("lms.lms.api.frappe.db.count")
+	@patch("lms.lms.api.frappe.get_cached_value")
+	@patch("lms.lms.api.frappe.db.exists")
+	def test_verify_billing_access_batch_edge_cases(self, mock_exists, mock_get_cached, mock_count, mock_date_diff, mock_now):
+		from lms.lms.api import verify_billing_access
+		
+		# Forzamos que el retorno de date_diff sea un número real (ej. 1 o -1)
+		mock_date_diff.return_value = 10
+		mock_exists.return_value = True 
+		
+		# Escenario: Lote vendido
+		mock_get_cached.side_effect = [5, "2099-01-01"] 
+		mock_count.return_value = 10 
+		acc, msg = verify_billing_access("LMS Batch", "B_FULL", "batch")
+		self.assertFalse(acc)
+		self.assertEqual(msg, "Batch is sold out.")
+
+		# Escenario: Lote con fecha pasada (forzamos date_diff < 0)
+		mock_get_cached.side_effect = [10, "2020-01-01"] 
+		mock_count.return_value = 2
+		mock_date_diff.return_value = -1 
+		acc, msg = verify_billing_access("LMS Batch", "B_OLD", "batch")
+		self.assertFalse(acc)
+		self.assertEqual(msg, "Batch has already started.")
+
+	def test_get_progress_distribution_zero_division(self):
+		from lms.lms.api import get_progress_distribution
+		# Probando el caso de lista vacía explícitamente
+		res = get_progress_distribution([])
+		for bucket in res:
+			self.assertEqual(bucket["value"], 0)
+
+	@patch("lms.lms.api.frappe.get_all")
+	def test_search_users_by_role_empty_cases(self, mock_get_all):
+		from lms.lms.api import search_users_by_role
+		frappe.set_user("Administrator")
+		
+		# Probando cuando no existen usuarios con ese rol
+		mock_get_all.return_value = []
+		res = search_users_by_role(roles='["Moderator"]')
+		self.assertEqual(res, [])
