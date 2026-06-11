@@ -933,3 +933,342 @@ class TestLMSAPILessonAndMembers(BaseTestUtils):
 		res = get_notifications()
 		self.assertEqual(len(res), 1)
 		self.assertEqual(res[0].name, "Notif1")
+
+	@patch("lms.lms.api.get_instructors")
+	@patch("lms.lms.api.frappe.db.get_value")
+	def test_update_document_details(self, mock_get_value, mock_get_instructors):
+		from lms.lms.api import update_document_details
+		notif_course = frappe._dict({"document_type": "LMS Course", "document_name": "Course 1"})
+		mock_get_value.return_value = {"title": "Test Course"}
+		mock_get_instructors.return_value = ["Inst1"]
+		res_course = update_document_details(notif_course)
+		self.assertEqual(res_course.document_details["title"], "Test Course")
+		self.assertEqual(res_course.document_details["instructors"], ["Inst1"])
+
+		notif_batch = frappe._dict({"document_type": "LMS Batch", "document_name": "Batch 1"})
+		res_batch = update_document_details(notif_batch)
+		self.assertTrue("instructors" in res_batch.document_details)
+
+	@patch("lms.lms.api.frappe.get_cached_value")
+	def test_get_lms_settings(self, mock_get_cached):
+		from lms.lms.api import get_lms_settings
+		mock_get_cached.return_value = 1
+		res = get_lms_settings()
+		self.assertEqual(res["allow_guest_access"], 1)
+		self.assertEqual(res["enforce_video_completion"], 1)
+
+	@patch("lms.lms.api.frappe.delete_doc")
+	@patch("lms.lms.api.frappe.get_all")
+	@patch("lms.lms.api.frappe.db.get_value")
+	@patch("lms.lms.api.frappe.db.set_value")
+	@patch("lms.lms.api.frappe.db.exists")
+	def test_cancel_evaluation(self, mock_exists, mock_set_value, mock_get_value, mock_get_all, mock_delete):
+		from lms.lms.api import cancel_evaluation
+		frappe.set_user("user1")
+		
+		eval_dict = frappe._dict({"member": "user2"})
+		with self.assertRaises(frappe.PermissionError):
+			cancel_evaluation(eval_dict)
+			
+		eval_dict.member = "user1"
+		eval_dict.name = "Eval1"
+		mock_exists.return_value = False
+		with self.assertRaises(frappe.PermissionError):
+			cancel_evaluation(eval_dict)
+			
+		mock_exists.return_value = True
+		mock_date = MagicMock()
+		mock_date.format.return_value = "2026-06-10"
+		eval_dict.date = mock_date
+		eval_dict.member_name = "User One"
+		mock_get_all.return_value = [frappe._dict({"parent": "Event1", "name": "Part1"})]
+		mock_get_value.side_effect = [
+			frappe._dict({"starts_on": "2026-06-10 10:00:00", "subject": "Eval for User One"}),
+			"Comm1"
+		]
+		
+		cancel_evaluation(eval_dict)
+		self.assertEqual(mock_delete.call_count, 3)
+
+	@patch("lms.lms.api.frappe.db.get_value")
+	@patch("lms.lms.api.frappe.db.exists")
+	def test_get_certification_details(self, mock_exists, mock_get_value):
+		from lms.lms.api import get_certification_details
+		frappe.set_user("user1")
+		mock_exists.return_value = True
+		mock_get_value.side_effect = [{"name": "Enroll1"}, "Paid Cert", {"name": "Cert1"}]
+		res = get_certification_details("Course 1")
+		self.assertEqual(res["membership"]["name"], "Enroll1")
+		self.assertEqual(res["paid_certificate"], "Paid Cert")
+
+	@patch("lms.lms.api.frappe.clear_cache")
+	@patch("lms.lms.api.frappe.db.delete")
+	@patch("lms.lms.api.frappe.new_doc")
+	@patch("lms.lms.api.frappe.db.exists")
+	@patch("lms.lms.api.save_evaluator_role")
+	@patch("lms.lms.api.LMS_ROLES", ["Moderator", "Batch Evaluator", "LMS Student"])
+	def test_save_role(self, mock_save_evaluator, mock_exists, mock_new_doc, mock_delete, mock_clear_cache):
+		from lms.lms.api import save_role
+		frappe.set_user("Administrator")
+		
+		with self.assertRaises(frappe.PermissionError):
+			save_role("user1", "Admin", 1)
+			
+		save_role("user1", "Batch Evaluator", 1)
+		mock_save_evaluator.assert_called_once()
+		
+		mock_exists.return_value = False
+		mock_doc = MagicMock()
+		mock_new_doc.return_value = mock_doc
+		save_role("user1", "Moderator", 1)
+		mock_doc.save.assert_called_once()
+		
+		save_role("user1", "LMS Student", 0)
+		mock_delete.assert_called_once()
+
+	@patch("lms.lms.api.frappe.db.set_single_value")
+	@patch("lms.lms.api.frappe.integrations.utils.make_post_request")
+	@patch("lms.lms.api.json.dumps")
+	@patch("lms.lms.api.frappe.parse_json")
+	def test_capture_user_persona(self, mock_parse, mock_dumps, mock_post, mock_set_single):
+		from lms.lms.api import capture_user_persona
+		frappe.set_user("Administrator")
+		mock_parse.return_value = {"data": "test"}
+		mock_dumps.return_value = '{"data": "test"}'
+		mock_post.return_value = {"message": {"name": "success"}}
+		
+		res = capture_user_persona('{"data": "test"}')
+		
+		mock_set_single.assert_called_once_with("LMS Settings", "persona_captured", True)
+		self.assertEqual(res["message"]["name"], "success")
+
+	@patch("lms.lms.api.frappe.get_all")
+	@patch("lms.lms.api.frappe.db.exists")
+	def test_get_meta_info(self, mock_exists, mock_get_all):
+		from lms.lms.api import get_meta_info
+		
+		mock_exists.return_value = False
+		self.assertEqual(get_meta_info("courses", "course1"), [])
+		
+		mock_exists.return_value = True
+		mock_get_all.return_value = [{"name": "tag1"}]
+		self.assertEqual(get_meta_info("courses", "course1")[0]["name"], "tag1")
+
+	@patch("lms.lms.api.create_meta_tag")
+	@patch("lms.lms.api.create_meta")
+	@patch("lms.lms.api.frappe.db.set_value")
+	@patch("lms.lms.api.frappe.db.delete")
+	@patch("lms.lms.api.frappe.db.exists")
+	@patch("lms.lms.api.validate_meta_tags")
+	@patch("lms.lms.api.validate_meta_data_permissions")
+	def test_update_meta_info(self, mock_val_perm, mock_val_tags, mock_exists, mock_delete, mock_set_value, mock_create_meta, mock_create_tag):
+		from lms.lms.api import update_meta_info
+		frappe.set_user("Administrator")
+		
+		tags = [
+			{"key": "k1", "value": "v1"},
+			{"key": "k2", "value": ""},
+			{"key": "k3", "value": "v3"},
+			{"key": "k4", "value": "v4"}
+		]
+		mock_exists.side_effect = ["Tag1", "Tag2", False, False, False, True]
+		
+		update_meta_info("courses", "c1", tags)
+		
+		mock_set_value.assert_called_once_with("Website Meta Tag", "Tag1", "value", "v1")
+		mock_delete.assert_called_once_with("Website Meta Tag", "Tag2")
+		mock_create_meta.assert_called_once()
+		mock_create_tag.assert_called_once()
+
+	@patch("lms.lms.api.frappe.utils.strip_html_tags")
+	def test_validate_meta_tags(self, mock_strip):
+		from lms.lms.api import validate_meta_tags
+		
+		with self.assertRaises(Exception):
+			validate_meta_tags("not a list")
+			
+		mock_strip.return_value = "clean"
+		tags = [{"value": "<b>bold</b>"}]
+		validate_meta_tags(tags)
+		self.assertEqual(tags[0]["value"], "clean")
+
+	@patch("lms.lms.api.frappe.new_doc")
+	def test_create_meta_functions(self, mock_new_doc):
+		from lms.lms.api import create_meta, create_meta_tag
+		
+		mock_doc = MagicMock()
+		mock_new_doc.return_value = mock_doc
+		
+		create_meta("parent", {"key": "v"})
+		mock_doc.insert.assert_called_once()
+		
+		mock_doc.reset_mock()
+		
+		create_meta_tag({"key": "v"})
+		mock_doc.insert.assert_called_once()
+
+	@patch("lms.lms.api.frappe.get_roles")
+	def test_validate_meta_data_permissions(self, mock_get_roles):
+		from lms.lms.api import validate_meta_data_permissions
+		
+		mock_get_roles.return_value = ["LMS Student"]
+		with self.assertRaises(Exception):
+			validate_meta_data_permissions("courses")
+		with self.assertRaises(Exception):
+			validate_meta_data_permissions("batches")
+			
+		mock_get_roles.return_value = ["Course Creator"]
+		validate_meta_data_permissions("courses")
+		
+		mock_get_roles.return_value = ["Batch Evaluator"]
+		validate_meta_data_permissions("batches")
+
+	@patch("lms.lms.api.update_exercise_submission")
+	@patch("lms.lms.api.make_new_exercise_submission")
+	def test_create_programming_exercise_submission(self, mock_new_sub, mock_update_sub):
+		from lms.lms.api import create_programming_exercise_submission
+		frappe.set_user("Administrator")
+		
+		create_programming_exercise_submission("Ex1", "new", "print('hi')", [])
+		mock_new_sub.assert_called_once()
+		
+		create_programming_exercise_submission("Ex1", "Sub1", "print('hi')", [])
+		mock_update_sub.assert_called_once()
+
+	@patch("lms.lms.api.get_exercise_status")
+	@patch("lms.lms.api.frappe.new_doc")
+	def test_make_new_exercise_submission(self, mock_new_doc, mock_get_status):
+		from lms.lms.api import make_new_exercise_submission
+		
+		mock_doc = MagicMock()
+		mock_doc.name = "NewSub"
+		mock_new_doc.return_value = mock_doc
+		mock_get_status.return_value = "Passed"
+		
+		res = make_new_exercise_submission("Ex1", "code", [{"input": "1"}])
+		
+		mock_doc.append.assert_called_once()
+		mock_doc.insert.assert_called_once()
+		self.assertEqual(res, "NewSub")
+
+	@patch("lms.lms.api.frappe.db.set_value")
+	@patch("lms.lms.api.get_exercise_status")
+	@patch("lms.lms.api.update_test_cases")
+	@patch("lms.lms.api.frappe.db.get_value")
+	def test_update_exercise_submission(self, mock_get_value, mock_update_tc, mock_get_status, mock_set_value):
+		from lms.lms.api import update_exercise_submission
+		frappe.set_user("user1")
+		
+		mock_get_value.return_value = "user2"
+		with self.assertRaises(frappe.PermissionError):
+			update_exercise_submission("Sub1", "code", [])
+			
+		mock_get_value.return_value = "user1"
+		mock_get_status.return_value = "Passed"
+		update_exercise_submission("Sub1", "code", [])
+		
+		mock_update_tc.assert_called_once()
+		mock_set_value.assert_called_once_with("LMS Programming Exercise Submission", "Sub1", {"status": "Passed", "code": "code"})
+
+	def test_get_exercise_status(self):
+		from lms.lms.api import get_exercise_status
+		self.assertEqual(get_exercise_status([]), "Failed")
+		self.assertEqual(get_exercise_status([{"status": "Passed"}, {"status": "Passed"}]), "Passed")
+		self.assertEqual(get_exercise_status([{"status": "Passed"}, {"status": "Failed"}]), "Failed")
+
+	@patch("lms.lms.api.frappe.new_doc")
+	@patch("lms.lms.api.frappe.db.delete")
+	def test_update_test_cases(self, mock_delete, mock_new_doc):
+		from lms.lms.api import update_test_cases
+		mock_doc = MagicMock()
+		mock_new_doc.return_value = mock_doc
+		
+		update_test_cases([{"input": "1"}], "Sub1")
+		
+		mock_delete.assert_called_once_with("LMS Test Case Submission", {"parent": "Sub1"})
+		mock_doc.insert.assert_called_once()
+
+	@patch("lms.lms.api.track_new_watch_time")
+	@patch("lms.lms.api.frappe.db.set_value")
+	@patch("lms.lms.api.frappe.db.get_value")
+	def test_track_video_watch_duration(self, mock_get_value, mock_set_value, mock_track_new):
+		from lms.lms.api import track_video_watch_duration
+		frappe.set_user("user1")
+		
+		# Escenario 1: El tiempo nuevo es mayor, se actualiza el registro
+		mock_get_value.return_value = frappe._dict({"name": "Rec1", "watch_time": 10})
+		track_video_watch_duration("Less1", [{"source": "v1", "watch_time": 20}])
+		mock_set_value.assert_called_once()
+		
+		# Escenario 2: El tiempo nuevo es menor, se ignora (Pasamos la lista directamente)
+		mock_set_value.reset_mock()
+		track_video_watch_duration("Less1", [{"source": "v1", "watch_time": 5}])
+		mock_set_value.assert_not_called()
+		
+		# Escenario 3: No existe registro, se crea uno nuevo
+		mock_get_value.return_value = None
+		track_video_watch_duration("Less1", [{"source": "v1", "watch_time": 20}])
+		mock_track_new.assert_called_once()
+
+	@patch("lms.lms.api.frappe.new_doc")
+	def test_track_new_watch_time(self, mock_new_doc):
+		from lms.lms.api import track_new_watch_time
+		mock_doc = MagicMock()
+		mock_new_doc.return_value = mock_doc
+		
+		track_new_watch_time("Less1", {"source": "v1", "watch_time": 10})
+		mock_doc.save.assert_called_once()
+
+	@patch("lms.lms.api.get_progress_distribution")
+	@patch("lms.lms.api.get_average_course_progress")
+	@patch("lms.lms.api.frappe.get_all")
+	@patch("lms.lms.api.can_modify_course")
+	def test_get_course_progress_distribution(self, mock_can_modify, mock_get_all, mock_get_avg, mock_get_dist):
+		from lms.lms.api import get_course_progress_distribution
+		
+		mock_can_modify.return_value = False
+		with self.assertRaises(frappe.PermissionError):
+			get_course_progress_distribution("C1")
+			
+		mock_can_modify.return_value = True
+		mock_get_all.return_value = [10, 50, 100]
+		mock_get_avg.return_value = 53.33
+		mock_get_dist.return_value = [{"name": "Advanced", "value": 1}]
+		
+		res = get_course_progress_distribution("C1")
+		self.assertEqual(res["average_progress"], 53.33)
+		self.assertTrue(len(res["progress_distribution"]) > 0)
+
+	@patch("lms.lms.api.flt")
+	@patch("lms.lms.api.frappe.get_system_settings")
+	def test_get_average_course_progress(self, mock_get_settings, mock_flt):
+		from lms.lms.api import get_average_course_progress
+		self.assertEqual(get_average_course_progress([]), 0)
+		
+		mock_flt.side_effect = lambda x, y: x
+		self.assertEqual(get_average_course_progress([10, 20, 30]), 20)
+
+	def test_get_progress_distribution(self):
+		from lms.lms.api import get_progress_distribution
+		res = get_progress_distribution([10, 40, 70, 100])
+		self.assertEqual(res[0]["value"], 1)
+		self.assertEqual(res[1]["value"], 1)
+		self.assertEqual(res[2]["value"], 1)
+		self.assertEqual(res[3]["value"], 1)
+
+	@patch("lms.lms.api.Response")
+	@patch("lms.lms.api.get_lms_route")
+	@patch("lms.lms.api.frappe.db.get_single_value")
+	def test_get_pwa_manifest(self, mock_get_single, mock_get_route, mock_response):
+		from lms.lms.api import get_pwa_manifest
+		import json  # Importamos la librería aquí adentro para resolver la simulación
+		
+		mock_get_single.side_effect = ["My App", "/banner.png"]
+		mock_get_route.return_value = "/lms"
+		mock_response.side_effect = lambda x, status, content_type: {"status": status, "content": json.loads(x)}
+		
+		res = get_pwa_manifest()
+		
+		self.assertEqual(res["status"], 200)
+		self.assertEqual(res["content"]["name"], "My App")
+		self.assertEqual(res["content"]["icons"][0]["src"], "/banner.png")
