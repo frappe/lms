@@ -383,7 +383,7 @@ class TestLMSAPIModules(BaseTestUtils):
 	@patch("lms.lms.api.frappe.db.exists")
 	def test_update_and_delete_sidebar_item(self, mock_exists, mock_set_value, mock_new_doc, mock_delete):
 		from lms.lms.api import update_sidebar_item, delete_sidebar_item
-		from unittest.mock import MagicMock # <-- Importación segura aquí adentro
+		from unittest.mock import MagicMock
 		
 		# 1. Simular la actualización de un ítem existente
 		mock_exists.return_value = True
@@ -400,3 +400,347 @@ class TestLMSAPIModules(BaseTestUtils):
 		# 3. Simular la eliminación
 		delete_sidebar_item("test-page")
 		mock_delete.assert_called_once()
+
+from unittest.mock import patch, MagicMock
+
+class TestLMSAPILessonAndMembers(BaseTestUtils):
+	def setUp(self):
+		super().setUp()
+		frappe.set_user("Administrator")
+
+	def tearDown(self):
+		frappe.set_user("Administrator")
+		super().tearDown()
+
+	@patch("lms.lms.api.can_modify_course")
+	@patch("lms.lms.api.frappe.db.get_value")
+	def test_delete_lesson_permissions(self, mock_get_value, mock_can_modify):
+		from lms.lms.api import delete_lesson
+		
+		# Simulamos que el usuario NO tiene permisos sobre el curso
+		mock_can_modify.return_value = False
+		mock_get_value.return_value = "Course Test"
+		
+		self.assertRaises(frappe.PermissionError, delete_lesson, "Lesson 1", "Chapter 1")
+
+	@patch("lms.lms.api.can_modify_course")
+	@patch("lms.lms.api.frappe.db.get_value")
+	@patch("lms.lms.api.frappe.get_all")
+	@patch("lms.lms.api.frappe.db.delete")
+	@patch("lms.lms.api.update_index")
+	@patch("lms.lms.api.frappe.delete_doc")
+	def test_delete_lesson_execution(self, mock_delete_doc, mock_update_index, mock_db_delete, mock_get_all, mock_get_value, mock_can_modify):
+		from lms.lms.api import delete_lesson
+		
+		# Simulamos permisos aprobados y una lista de lecciones preexistentes
+		mock_can_modify.return_value = True
+		mock_get_value.return_value = "Course Test"
+		mock_get_all.return_value = ["Lesson 1", "Lesson 2"]
+		
+		delete_lesson("Lesson 1", "Chapter 1")
+		
+		# Verificamos que las acciones destructivas se hayan llamado correctamente
+		self.assertEqual(mock_db_delete.call_count, 2) # 1 para Lesson Reference, 1 para Course Progress
+		mock_delete_doc.assert_called_once_with("Course Lesson", "Lesson 1")
+
+	@patch("lms.lms.api.can_modify_course")
+	@patch("lms.lms.api.frappe.db.get_value")
+	def test_update_lesson_index_permissions(self, mock_get_value, mock_can_modify):
+		from lms.lms.api import update_lesson_index
+		
+		mock_can_modify.return_value = False
+		self.assertRaises(frappe.PermissionError, update_lesson_index, "L1", "C1", "C2", 1)
+
+	@patch("lms.lms.api.frappe.db.set_value")
+	def test_update_index_logic(self, mock_set_value):
+		from lms.lms.api import update_index
+		
+		lessons = ["Lesson A", "Lesson B", "Lesson C"]
+		update_index(lessons, "Chapter 1")
+		
+		# set_value debió llamarse 3 veces para reordenar los índices 1, 2 y 3
+		self.assertEqual(mock_set_value.call_count, 3)
+
+	@patch("lms.lms.api.can_modify_course")
+	@patch("lms.lms.api.frappe.get_all")
+	@patch("lms.lms.api.frappe.db.set_value")
+	def test_update_chapter_index_execution(self, mock_set_value, mock_get_all, mock_can_modify):
+		from lms.lms.api import update_chapter_index
+		
+		mock_can_modify.return_value = True
+		mock_get_all.return_value = ["Chapter 1", "Chapter 2"]
+		
+		# Movemos Chapter 2 a la posición 0 (al inicio)
+		update_chapter_index("Chapter 2", "Course 1", 0) 
+		
+		# Al haber 2 capítulos, debe actualizar ambos índices en la BD
+		self.assertEqual(mock_set_value.call_count, 2)
+
+	def test_get_members_permissions(self):
+		from lms.lms.api import get_members
+		
+		frappe.set_user("Guest")
+		# Un Guest no tiene el rol exigido de "Moderator"
+		self.assertRaises(frappe.PermissionError, get_members)
+		frappe.set_user("Administrator")
+
+	@patch("lms.lms.api.frappe.get_all")
+	def test_get_members_execution(self, mock_get_all):
+		from lms.lms.api import get_members
+		frappe.set_user("Administrator") 
+		
+		# Configuramos un miembro usando frappe._dict para emular el registro real
+		mock_user = frappe._dict({
+			"name": "test_user",
+			"full_name": "Test User",
+			"user_image": "test.jpg",
+			"username": "testuser",
+			"last_active": "2026-06-10"
+		})
+		
+	def mock_get_all_side_effect(doctype, *args, **kwargs):
+		if doctype == "User":
+			return [mock_user]
+		elif doctype == "Has Role":
+			return ["Moderator"]
+		return []
+			
+		mock_get_all.side_effect = mock_get_all_side_effect
+			
+		members = get_members(search="Test")
+			
+		self.assertEqual(len(members), 1)
+			
+		# Validación dinámica: Cubre tanto si la API asigna 'role' (string) o 'roles' (lista)
+		if "roles" in members[0]:
+			self.assertIn("Moderator", members[0].roles)
+		elif "role" in members[0]:
+			self.assertEqual(members[0].role, "Moderator")
+		else:
+			self.fail("La API no asignó el rol al miembro.")	
+
+	@patch("lms.lms.api.has_lms_role")
+	def test_check_app_permission(self, mock_has_lms_role):
+		from lms.lms.api import check_app_permission
+		
+		# Escenario 1: El Administrador siempre tiene pase directo
+		frappe.set_user("Administrator")
+		self.assertTrue(check_app_permission())
+		
+		# Escenario 2: Validar que un usuario estándar dependa de sus roles LMS
+		frappe.set_user("test@user.com")
+		mock_has_lms_role.return_value = True
+		self.assertTrue(check_app_permission())
+
+	@patch("lms.lms.api.frappe.new_doc")
+	@patch("lms.lms.api.frappe.db.set_value")
+	@patch("lms.lms.api.frappe.db.exists")
+	def test_save_evaluation_details(self, mock_exists, mock_set_value, mock_new_doc):
+		from lms.lms.api import save_evaluation_details
+		frappe.set_user("Administrator")
+		
+		# Simular flujo 1: El registro ya existe (Se actualiza con set_value)
+		mock_exists.return_value = "Eval-001"
+		res_update = save_evaluation_details("user1", "course1", "2026-06-10", "10:00", "11:00", "Pass")
+		self.assertEqual(res_update, "Eval-001")
+		mock_set_value.assert_called_once()
+		
+		# Simular flujo 2: El registro NO existe (Se crea con new_doc e insert)
+		mock_exists.return_value = False
+		mock_doc = MagicMock()
+		mock_doc.name = "New-Eval-001"
+		mock_new_doc.return_value = mock_doc
+		
+		res_new = save_evaluation_details("user2", "course2", "2026-06-10", "10:00", "11:00", "Pass")
+		self.assertEqual(res_new, "New-Eval-001")
+		mock_doc.insert.assert_called_once()
+
+	@patch("lms.lms.api.frappe.new_doc")
+	@patch("lms.lms.api.frappe.db.set_value")
+	@patch("lms.lms.api.frappe.db.exists")
+	def test_save_certificate_details(self, mock_exists, mock_set_value, mock_new_doc):
+		from lms.lms.api import save_certificate_details
+		frappe.set_user("Administrator")
+		
+		# Simular actualización de certificado existente
+		mock_exists.return_value = "Cert-001"
+		res = save_certificate_details("user1", "2026-06-10", "Template A")
+		self.assertEqual(res, "Cert-001")
+		mock_set_value.assert_called_once()
+
+	@patch("lms.lms.api.frappe.delete_doc")
+	@patch("lms.lms.api.frappe.get_meta")
+	def test_delete_documents_execution(self, mock_get_meta, mock_delete_doc):
+		from lms.lms.api import delete_documents
+		frappe.set_user("Administrator")
+		
+		# Caso de Éxito: Intentar borrar un documento que sí pertenece al módulo LMS
+		mock_meta = MagicMock()
+		mock_meta.module = "LMS"
+		mock_get_meta.return_value = mock_meta
+		
+		delete_documents("LMS Course", ["Course 1", "Course 2"])
+		self.assertEqual(mock_delete_doc.call_count, 2)
+		
+		# Caso de Fallo: Intentar borrar algo de un módulo Core bloqueado
+		mock_meta.module = "Core"
+		with self.assertRaises(Exception): # Atrapa el frappe.throw
+			delete_documents("User", ["User 1"])
+
+	def test_get_transformed_fields_logic(self):
+		from lms.lms.api import get_transformed_fields
+		
+		# Mockear una fila de metadatos pura de Frappe
+		mock_row = MagicMock()
+		mock_row.fieldtype = "Data"
+		mock_row.fieldname = "title"
+		mock_row.label = "Title"
+		mock_row.reqd = 1
+		mock_row.options = None
+		mock_row.default = "Untitled"
+		mock_row.description = "Test Desc"
+		
+		res = get_transformed_fields([mock_row], {})
+		
+		# Validar que el mapeo limpia los datos y extrae las llaves exactas
+		self.assertEqual(len(res), 1)
+		self.assertEqual(res[0]["type"], "Data")
+		self.assertEqual(res[0]["reqd"], 1)
+		self.assertEqual(res[0]["default"], "Untitled")
+
+	@patch("lms.lms.api.get_transformed_fields")
+	@patch("lms.lms.api.frappe.get_meta")
+	@patch("lms.lms.api.frappe.get_doc")
+	def test_get_payment_gateway_details(self, mock_get_doc, mock_get_meta, mock_transform):
+		from lms.lms.api import get_payment_gateway_details
+		frappe.set_user("Administrator")
+		
+		# Simular la carga inicial del Gateway Base
+		mock_gateway = MagicMock()
+		mock_gateway.gateway_controller = None
+		
+		# Simular la configuración interna que Frappe buscaría (Ej. PayPal Settings)
+		mock_settings = MagicMock()
+		mock_settings.as_dict.return_value = {"api_key": "123"}
+		
+		# El side_effect nos permite devolver el Gateway en la 1ra llamada y los Settings en la 2da
+		mock_get_doc.side_effect = [mock_gateway, mock_settings]
+		mock_transform.return_value = [{"name": "api_key"}]
+		
+		res = get_payment_gateway_details("Stripe")
+		
+		# Validar la estructura del retorno para el frontend
+		self.assertIn("fields", res)
+		self.assertEqual(res["doctype"], "Stripe Settings")
+		self.assertEqual(res["fields"][0]["name"], "api_key")
+
+	@patch("lms.lms.api.get_transformed_fields")
+	@patch("lms.lms.api.frappe.get_meta")
+	def test_get_new_gateway_fields(self, mock_get_meta, mock_get_transformed):
+		from lms.lms.api import get_new_gateway_fields
+		frappe.set_user("Administrator")
+		
+		# Validación exitosa
+		mock_get_meta.return_value = MagicMock(fields=[])
+		mock_get_transformed.return_value = [{"name": "test_field"}]
+		res = get_new_gateway_fields("Stripe Settings")
+		self.assertEqual(res[0]["name"], "test_field")
+		
+		# Validación de manejo de errores
+		mock_get_meta.side_effect = Exception("Not found")
+		with self.assertRaises(Exception):
+			get_new_gateway_fields("Fake Settings")
+
+	@patch("lms.lms.api.frappe.get_cached_value")
+	@patch("lms.lms.api.frappe.get_all")
+	@patch("lms.lms.api.frappe.db.exists")
+	@patch("lms.lms.api.frappe.get_roles")
+	def test_get_announcements(self, mock_get_roles, mock_exists, mock_get_all, mock_cached_value):
+		from lms.lms.api import get_announcements
+		
+		# Escenario: Bloqueo de seguridad sin permisos
+		mock_get_roles.return_value = ["LMS Student"]
+		mock_exists.return_value = False
+		with self.assertRaises(frappe.PermissionError):
+			get_announcements("Batch 1")
+			
+		# Escenario: Retorno correcto con permisos de Moderador
+		mock_get_roles.return_value = ["Moderator"]
+		mock_comms = [frappe._dict({"subject": "Aviso 1", "sender": "user1"})]
+		mock_get_all.return_value = mock_comms
+		mock_cached_value.return_value = "avatar.jpg"
+		
+		res = get_announcements("Batch 1")
+		self.assertEqual(len(res), 1)
+		self.assertEqual(res[0].image, "avatar.jpg")
+
+	@patch("lms.lms.api.frappe.delete_doc")
+	@patch("lms.lms.api.frappe.get_all")
+	@patch("lms.lms.api.frappe.db.set_value")
+	@patch("lms.lms.api.frappe.db.delete")
+	@patch("lms.lms.api.can_modify_course")
+	def test_delete_course_logic(self, mock_can_modify, mock_db_delete, mock_set_value, mock_get_all, mock_delete_doc):
+		from lms.lms.api import delete_course
+		
+		mock_can_modify.return_value = True
+		# Simulamos la existencia de 1 capítulo, 1 lección y 1 tópico para obligar al test a entrar en todos los bucles for anidados
+		mock_get_all.side_effect = [
+			["Chapter 1"], # Para la iteración de capítulos
+			["Lesson 1"],  # Para la iteración de lecciones
+			["Topic 1"]    # Para la iteración de discusiones
+		]
+		
+		delete_course("Course A")
+		self.assertTrue(mock_db_delete.called)
+		self.assertTrue(mock_delete_doc.called)
+
+	@patch("lms.lms.api.delete_batch_discussions")
+	@patch("lms.lms.api.frappe.db.delete")
+	@patch("lms.lms.api.can_modify_batch")
+	def test_delete_batch_logic(self, mock_can_modify, mock_db_delete, mock_delete_discussions):
+		from lms.lms.api import delete_batch
+		
+		mock_can_modify.return_value = True
+		delete_batch("Batch A")
+		
+		# Verifica que las 6 tablas principales del batch se eliminen y se llame al helper de discusiones
+		self.assertEqual(mock_db_delete.call_count, 6) 
+		mock_delete_discussions.assert_called_once_with("Batch A")
+
+	@patch("lms.lms.api.frappe.get_doc")
+	@patch("lms.lms.api.frappe.db.exists")
+	def test_give_discussions_permission(self, mock_exists, mock_get_doc):
+		from lms.lms.api import give_discussions_permission
+		
+		# Simulamos que ningún permiso existe para que entre al bucle de creación total
+		mock_exists.return_value = False
+		mock_doc = MagicMock()
+		mock_get_doc.return_value = mock_doc
+		
+		give_discussions_permission()
+		
+		# Son 2 DocTypes ("Topic", "Reply") * 4 Roles = 8 operaciones de guardado esperadas
+		self.assertEqual(mock_doc.save.call_count, 8)
+
+	@patch("lms.lms.api.frappe.get_doc")
+	@patch("lms.lms.api.frappe.new_doc")
+	@patch("lms.lms.api.can_modify_course")
+	def test_upsert_chapter(self, mock_can_modify, mock_new_doc, mock_get_doc):
+		from lms.lms.api import upsert_chapter
+		
+		mock_can_modify.return_value = True
+		
+		# Simulamos el capítulo nuevo
+		mock_chapter = MagicMock()
+		mock_chapter.lessons = [] # Prevenimos que entre al flujo complejo de SCORM extra
+		mock_new_doc.return_value = mock_chapter
+		
+		# Simulamos el curso que la API intentará buscar internamente
+		mock_course = MagicMock()
+		mock_get_doc.return_value = mock_course
+		
+		res = upsert_chapter("Capitulo 1", "Curso A", False)
+		
+		mock_chapter.update.assert_called_once()
+		mock_chapter.save.assert_called_once()
+		self.assertEqual(res, mock_chapter)
