@@ -1860,8 +1860,21 @@ def get_discussion_topics(doctype: str, docname: str, single_thread: bool = Fals
 		order_by="creation desc",
 	)
 
+	reply_counts = {}
+	if topics:
+		for row in frappe.get_all(
+			"Discussion Reply",
+			filters={"topic": ["in", [topic.name for topic in topics]]},
+			fields=["topic", "count(name) as count"],
+			group_by="topic",
+		):
+			reply_counts[row.topic] = row.count
+
 	for topic in topics:
 		topic.user = frappe.db.get_value("User", topic.owner, ["full_name", "user_image"], as_dict=True)
+		# The topic's first reply is the question body itself, so the number of
+		# answers is one less than the total reply count.
+		topic.reply_count = max(reply_counts.get(topic.name, 0) - 1, 0)
 
 	return topics
 

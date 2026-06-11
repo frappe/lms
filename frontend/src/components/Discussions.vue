@@ -33,6 +33,15 @@
 						<span class="text-sm ms-3">
 							{{ timeAgo(topic.creation) }}
 						</span>
+						<span class="flex items-center gap-1 text-sm ms-3">
+							<span class="lucide-message-square size-3.5" />
+							{{
+								(topic.reply_count === 1
+									? __('{0} reply')
+									: __('{0} replies')
+								).format(topic.reply_count || 0)
+							}}
+						</span>
 					</div>
 				</div>
 			</div>
@@ -67,6 +76,7 @@
 		:doctype="props.doctype"
 		:docname="props.docname"
 		v-model:reloadTopics="topics"
+		@created="openCreatedTopic"
 	/>
 </template>
 <script setup>
@@ -154,6 +164,13 @@ const showReplies = (topic) => {
 
 const openTopicModal = () => {
 	showTopicModal.value = true
+}
+
+// After a new question is posted, jump straight into its thread instead of
+// leaving the user on the list.
+const openCreatedTopic = (topicName) => {
+	const topic = topics.data?.find((t) => t.name === topicName)
+	if (topic) showReplies(topic)
 }
 
 onUnmounted(() => {
