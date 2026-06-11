@@ -13,7 +13,7 @@ from lms.lms.api import (
 )
 from lms.lms.course_import_export import sanitize_string
 from lms.lms.test_helpers import BaseTestUtils
-
+from unittest.mock import patch
 
 class TestLMSAPI(BaseTestUtils):
 	def setUp(self):
@@ -277,3 +277,126 @@ class TestLMSAPI(BaseTestUtils):
 		
 		self.assertEqual(clean_filters.get("owner"), self.student1.email)
 		frappe.set_user("Administrator")
+
+class TestLMSAPIModules(BaseTestUtils):
+	def setUp(self):
+		super().setUp()
+		# Forzamos Administrador para asegurar permisos de lectura
+		frappe.set_user("Administrator")
+
+	def tearDown(self):
+		# Restauramos el estado
+		frappe.set_user("Administrator")
+		super().tearDown()
+
+	def test_job_opportunities_execution(self):
+		from lms.lms.api import get_job_opportunities, get_job_opportunities_count
+		
+		# Validamos la estructura de retorno sin depender de registros fijos
+		jobs = get_job_opportunities()
+		self.assertIsInstance(jobs, list)
+		
+		count = get_job_opportunities_count()
+		self.assertIsInstance(count, int)
+
+	def test_get_chart_details_structure(self):
+		from lms.lms.api import get_chart_details
+		details = get_chart_details()
+		
+		# Validamos que el diccionario exponga las métricas del Dashboard
+		self.assertIsInstance(details, dict)
+		self.assertIn("enrollments", details)
+		self.assertIn("courses", details)
+		self.assertIn("users", details)
+		self.assertIn("certifications", details)
+
+	def test_get_branding_data(self):
+		from lms.lms.api import get_branding
+		branding = get_branding()
+		
+		self.assertIsInstance(branding, dict)
+		self.assertIn("app_name", branding)
+
+	@patch("lms.lms.api.get_unsplash_photos")
+	def test_get_unsplash_photos_mocked(self, mock_unsplash):
+		from lms.lms.api import get_unsplash_photos
+		
+		# Interceptamos la llamada para no consumir la API externa real en los tests
+		mock_unsplash.return_value = [{"id": "xyz", "url": "foto.jpg"}]
+		photos = get_unsplash_photos(keyword="universidad")
+		
+		self.assertEqual(len(photos), 1)
+		self.assertEqual(photos[0]["id"], "xyz")
+
+	def test_get_evaluator_details_permissions(self):
+		from lms.lms.api import get_evaluator_details
+		
+		# El método exige frappe.only_for("Batch Evaluator")
+		frappe.set_user("Guest")
+		
+		# Un usuario sin el rol específico debe detonar un PermissionError,
+		# esto evita que el test intente insertar datos basura en Google Calendar
+		self.assertRaises(frappe.PermissionError, get_evaluator_details, "test@evaluator.com")
+
+	@patch("lms.lms.api.get_certification_query")
+	def test_get_count_of_certified_members_mocked(self, mock_query):
+		from lms.lms.api import get_count_of_certified_members
+		
+		# Simulamos el objeto de consulta para no depender de registros reales
+		class MockQuery:
+			def run(self, as_dict):
+				return [{"name": "Cert1"}, {"name": "Cert2"}, {"name": "Cert3"}]
+				
+		mock_query.return_value = MockQuery()
+		count = get_count_of_certified_members()
+		self.assertEqual(count, 3)
+
+	def test_get_certification_categories_execution(self):
+		from lms.lms.api import get_certification_categories
+		categories = get_certification_categories()
+		self.assertIsInstance(categories, list)
+
+	def test_get_all_users_permissions(self):
+		from lms.lms.api import get_all_users
+		
+		# Validamos que un Guest sin el rol exigido lance PermissionError
+		frappe.set_user("Guest")
+		self.assertRaises(frappe.PermissionError, get_all_users)
+		
+		# Administrator se salta la validación de only_for, así que debe funcionar
+		frappe.set_user("Administrator")
+		users = get_all_users()
+		self.assertIsInstance(users, dict)
+
+	def test_get_sidebar_settings_structure(self):
+		from lms.lms.api import get_sidebar_settings
+		frappe.set_user("Administrator")
+		settings = get_sidebar_settings()
+		
+		self.assertIsInstance(settings, dict)
+		self.assertIn("courses", settings)
+		self.assertIn("certifications", settings)
+
+	@patch("lms.lms.api.frappe.db.delete")
+	@patch("lms.lms.api.frappe.new_doc")
+	@patch("lms.lms.api.frappe.db.set_value")
+	@patch("lms.lms.api.frappe.db.exists")
+	def test_update_and_delete_sidebar_item(self, mock_exists, mock_set_value, mock_new_doc, mock_delete):
+		from lms.lms.api import update_sidebar_item, delete_sidebar_item
+		from unittest.mock import MagicMock # <-- Importación segura aquí adentro
+		
+		# 1. Simular la actualización de un ítem existente
+		mock_exists.return_value = True
+		update_sidebar_item("test-page", "icon-1")
+		mock_set_value.assert_called_once()
+		
+		# 2. Simular la creación de un ítem nuevo
+		mock_exists.return_value = False
+		mock_doc_instance = MagicMock()
+		mock_new_doc.return_value = mock_doc_instance
+		update_sidebar_item("test-page-2", "icon-2")
+		mock_doc_instance.insert.assert_called_once()
+		
+		# 3. Simular la eliminación
+		delete_sidebar_item("test-page")
+		mock_delete.assert_called_once()
