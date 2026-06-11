@@ -1126,6 +1126,12 @@ def extract_package(course: str, title: str, scorm_package: dict):
 	if not os.path.realpath(extract_path).startswith(scorm_root + os.sep):
 		frappe.throw(_("Invalid course or chapter name"))
 
+	# Clear any previously extracted package so a re-uploaded package does not
+	# leave stale files behind (the old manifest/launch file would otherwise
+	# still be served). extract_path is confirmed to live under scorm_root above.
+	if os.path.exists(extract_path):
+		shutil.rmtree(extract_path)
+
 	with zipfile.ZipFile(zip_path, "r") as zf:
 		dest = os.path.realpath(extract_path)
 		for name in zf.namelist():
