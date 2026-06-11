@@ -1503,3 +1503,98 @@ class TestLMSAPILessonAndMembers(BaseTestUtils):
 		
 		delete_programming_exercise("Ex1")
 		self.assertEqual(mock_delete.call_count, 2)
+
+	@patch("lms.lms.api.frappe.qb", new_callable=MagicMock)
+	@patch("lms.lms.api.frappe.get_roles")
+	def test_get_lesson_completion_stats(self, mock_get_roles, mock_qb):
+		from lms.lms.api import get_lesson_completion_stats
+		
+		mock_get_roles.return_value = ["LMS Student"]
+		# Corrección: frappe.throw por defecto lanza ValidationError si no se especifica el tipo
+		with self.assertRaises(frappe.ValidationError):
+			get_lesson_completion_stats("Course 1")
+			
+		mock_get_roles.return_value = ["Moderator"]
+		
+		mock_table = MagicMock()
+		mock_qb.DocType.return_value = mock_table
+		
+		mock_chain = MagicMock()
+		mock_qb.from_.return_value = mock_chain
+		mock_chain.join.return_value = mock_chain
+		mock_chain.on.return_value = mock_chain
+		mock_chain.left_join.return_value = mock_chain
+		mock_chain.select.return_value = mock_chain
+		mock_chain.where.return_value = mock_chain
+		mock_chain.groupby.return_value = mock_chain
+		mock_chain.orderby.return_value = mock_chain
+		
+		mock_chain.run.return_value = [{"lesson_name": "L1", "completion_count": 10}]
+		
+		res = get_lesson_completion_stats("Course 1")
+		self.assertEqual(res[0]["completion_count"], 10)
+
+	@patch("lms.lms.api.has_lms_role")
+	@patch("lms.lms.api.frappe.get_all")
+	def test_get_badges(self, mock_get_all, mock_has_lms_role):
+		from lms.lms.api import get_badges
+		
+		mock_has_lms_role.return_value = False
+		with self.assertRaises(frappe.PermissionError):
+			get_badges("user1")
+			
+		mock_has_lms_role.return_value = True
+		mock_get_all.return_value = [{"badge": "Gold"}]
+		res = get_badges("user1")
+		self.assertEqual(res[0]["badge"], "Gold")
+
+	@patch("lms.lms.api.frappe.db.set_single_value")
+	@patch("lms.lms.api.frappe.delete_doc")
+	@patch("lms.lms.api.delete_course")
+	@patch("lms.lms.api.frappe.get_all")
+	@patch("lms.lms.api.frappe.db.delete")
+	@patch("lms.lms.api.frappe.db.exists")
+	def test_clear_demo_data(self, mock_exists, mock_delete, mock_get_all, mock_del_course, mock_del_doc, mock_set_single):
+		from lms.lms.api import clear_demo_data
+		frappe.set_user("Administrator")
+		
+		mock_exists.side_effect = [True, True, False, True, True]
+		mock_get_all.return_value = ["DemoCourse1"]
+		
+		clear_demo_data()
+		
+		mock_delete.assert_called_once()
+		mock_del_course.assert_called_once_with("DemoCourse1")
+		self.assertEqual(mock_del_doc.call_count, 3)
+		mock_set_single.assert_called_once_with("LMS Settings", "demo_data_present", False)
+
+	@patch("lms.lms.api.LMS_ROLES", ["Moderator", "Course Creator"])
+	@patch("lms.lms.api.frappe.get_all")
+	def test_search_users_by_role(self, mock_get_all):
+		from lms.lms.api import search_users_by_role
+		import json
+		frappe.set_user("Administrator")
+		
+		self.assertEqual(search_users_by_role(), [])
+		
+		with self.assertRaises(Exception):
+			search_users_by_role(roles='["Invalid Role"]')
+			
+		mock_get_all.return_value = []
+		self.assertEqual(search_users_by_role(roles='["Moderator"]'), [])
+		
+		mock_get_all.side_effect = [
+			["user1", "user2"],
+			[frappe._dict({"name": "user1", "full_name": "User One", "user_image": "img"})]
+		]
+		
+		res = search_users_by_role(txt="One", roles='["Moderator"]')
+		self.assertEqual(len(res), 1)
+		self.assertEqual(res[0]["value"], "user1")
+		
+		mock_get_all.side_effect = [
+			["user3"],
+			[frappe._dict({"name": "user3", "full_name": "User Three", "user_image": ""})]
+		]
+		res_names = search_users_by_role(names='["user3"]', roles=["Course Creator"])
+		self.assertEqual(res_names[0]["label"], "User Three")
