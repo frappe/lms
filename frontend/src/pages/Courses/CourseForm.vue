@@ -153,7 +153,28 @@ const updateCourseData = (): void => {
 	}
 }
 
-const submitCourse = (): void => updateCourse()
+const validatePricing = (): string | null => {
+	const doc = courseResource.doc
+	if (!doc) return null
+	if (!doc.paid_course && !doc.paid_certificate) return null
+	const subject = doc.paid_course ? __('paid courses') : __('paid certificates')
+	if (!doc.currency) {
+		return __('Currency is required for {0}.').format(subject)
+	}
+	if (!(Number(doc.course_price) > 0)) {
+		return __('Price must be a positive number for {0}.').format(subject)
+	}
+	return null
+}
+
+const submitCourse = (): void => {
+	const error = validatePricing()
+	if (error) {
+		toast.error(error)
+		return
+	}
+	updateCourse()
+}
 
 const updateCourse = (): void => {
 	courseResource.setValue.submit(

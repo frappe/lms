@@ -43,12 +43,16 @@
 						:filters="{ enabled: 1 }"
 						:placeholder="__('Select currency')"
 						variant="outline"
+						:required="true"
 						@update:modelValue="markDirty()"
 					/>
 					<FormControl
 						v-model="doc.course_price"
+						type="number"
+						min="0"
 						:label="__('Course price')"
 						variant="outline"
+						:required="true"
 						@input="markDirty()"
 					/>
 					<div class="border-t -mx-5" />
@@ -93,12 +97,16 @@
 							:filters="{ enabled: 1 }"
 							:placeholder="__('Select currency')"
 							variant="outline"
+							:required="true"
 							@update:modelValue="markDirty()"
 						/>
 						<FormControl
 							v-model="doc.course_price"
+							type="number"
+							min="0"
 							:label="__('Certificate price')"
 							variant="outline"
+							:required="true"
 							@input="markDirty()"
 						/>
 						<Link
