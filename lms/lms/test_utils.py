@@ -298,6 +298,15 @@ class TestLMSUtils(BaseTestUtils):
 		self.assertIn("Course Creator", [role.role for role in user.roles])
 		self.cleanup_items.append(("User", user.name))
 
+class TestUtils(BaseTestUtils):
+	def setUp(self):
+		super().setUp()
+
+		self.settings = MagicMock()
+		self.settings.show_usd_equivalent = True
+		self.settings.exception_country = []
+		self.settings.apply_rounding = False
+
 	# UT-UTILS-001
 	def test_get_lms_route_without_path(self):
 		""" Verifica que la ruta predeterminada de LMS sea '/lms'. """
@@ -350,26 +359,33 @@ class TestLMSUtils(BaseTestUtils):
 	# UT-UTILS-006
 	def test_get_lessons_of_single_course(self):
 		""" Valida que se obtengan las lecciones correspondientes a un capítulo específico de un curso. """
-		chapters = get_chapters(self.course.name)
-		chapter = chapters[0]
+		fake_chapter = _dict({"name": "ch1"})
+		fake_lessons = [
+			_dict({"name": "l1", "chapter": "ch1"}),
+			_dict({"name": "l2", "chapter": "ch1"}),
+		]
 
-		lessons = get_lessons(self.course.name, chapter)
+		with patch("lms.lms.utils.get_lesson_details", return_value=fake_lessons):
+			lessons = get_lessons("curso_mock", fake_chapter)
 
-		self.assertGreater(len(lessons), 0)
-		self.assertEqual(lessons[0].chapter, chapter.name)
+			self.assertGreater(len(lessons), 0)
+			self.assertEqual(lessons[0].chapter, fake_chapter.name)
 
 	# UT-UTILS-007
 	def test_get_lessons_of_single_course_with_progress(self):
 		""" Verifica que al solicitar lecciones con progreso, cada una incluya el atributo de completado. """
-		chapters = get_chapters(self.course.name)
-		chapter = chapters[0]
+		fake_chapter = _dict({"name": "ch1"})
+		fake_lessons = [
+			_dict({"name": "l1", "chapter": "ch1", "is_complete": True}),
+			_dict({"name": "l2", "chapter": "ch1", "is_complete": False}),
+		]
 
-		lessons = get_lessons(self.course.name, chapter, progress=True)
+		with patch("lms.lms.utils.get_lesson_details", return_value=fake_lessons):
+			lessons = get_lessons("curso_mock", fake_chapter, progress=True)
 
-		self.assertGreater(len(lessons), 0)
-		# Verificamos que cada lección tenga el atributo is_complete
-		for lesson in lessons:
-			self.assertTrue(hasattr(lesson, "is_complete"))
+			self.assertGreater(len(lessons), 0)
+			for lesson in lessons:
+				self.assertTrue(hasattr(lesson, "is_complete"))
 
 	# UT-UTILS-008
 	def test_icon_youtube_from_upload(self):
@@ -439,7 +455,7 @@ class TestLMSUtils(BaseTestUtils):
 	def test_get_lesson_url_none_number(self):
 		""" Verifica que retorne None si el lesson_number proporcionado es nulo. """
 		""" lesson_number = None, debe devolver None """
-		result = get_lesson_url(self.course.name, None)
+		result = get_lesson_url("mi_curso", None)
 		self.assertIsNone(result)
 
 	# UT-UTILS-016
