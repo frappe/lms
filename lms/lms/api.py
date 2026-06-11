@@ -1071,7 +1071,9 @@ def upsert_chapter(
 	values = frappe._dict({"title": title, "course": course, "is_scorm_package": is_scorm_package})
 
 	if is_scorm_package:
-		scorm_package = frappe._dict(scorm_package)
+		scorm_package = frappe._dict(scorm_package or {})
+		if not scorm_package.get("name"):
+			frappe.throw(_("Please attach a SCORM package before saving this chapter."))
 		extract_path = extract_package(course, title, scorm_package)
 
 		values.update(
@@ -1589,7 +1591,14 @@ def save_evaluator_role(user: str, value: int):
 		if not frappe.db.exists("Course Evaluator", {"evaluator": user}):
 			doc = frappe.new_doc("Course Evaluator")
 			doc.evaluator = user
-			doc.save(ignore_permissions=True)
+			frappe.db.savepoint("save_evaluator")
+			try:
+				doc.save(ignore_permissions=True)
+			except frappe.DuplicateEntryError:
+				# A concurrent request already created this evaluator. The
+				# primary key (autoname field:evaluator) guarantees uniqueness,
+				# so the row we wanted exists — nothing more to do.
+				frappe.db.rollback(save_point="save_evaluator")
 	else:
 		frappe.db.delete("Has Role", {"parent": user, "role": "Batch Evaluator"})
 		if frappe.db.exists("Course Evaluator", {"evaluator": user}):
