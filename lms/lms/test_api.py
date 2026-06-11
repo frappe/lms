@@ -1598,3 +1598,251 @@ class TestLMSAPILessonAndMembers(BaseTestUtils):
 		]
 		res_names = search_users_by_role(names='["user3"]', roles=["Course Creator"])
 		self.assertEqual(res_names[0]["label"], "User Three")
+
+	@patch("lms.lms.api.now")
+	@patch("lms.lms.api.date_diff")
+	@patch("lms.lms.api.frappe.db.count")
+	@patch("lms.lms.api.frappe.get_cached_value")
+	@patch("lms.lms.api.frappe.db.exists")
+	def test_verify_billing_access(self, mock_exists, mock_get_cached, mock_count, mock_date_diff, mock_now):
+		from lms.lms.api import verify_billing_access
+		
+		frappe.set_user("Guest")
+		acc, msg = verify_billing_access("LMS Course", "C1", "course")
+		self.assertFalse(acc)
+		
+		frappe.set_user("test@user.com")
+		
+		acc, msg = verify_billing_access("LMS Course", "C1", "invalid")
+		self.assertFalse(acc)
+		
+		mock_exists.return_value = False
+		acc, msg = verify_billing_access("LMS Course", "C1", "course")
+		self.assertFalse(acc)
+		
+		mock_exists.side_effect = [True, True]
+		acc, msg = verify_billing_access("LMS Course", "C1", "course")
+		self.assertFalse(acc)
+		
+		mock_exists.side_effect = [True, True]
+		acc, msg = verify_billing_access("LMS Course", "C1", "certificate")
+		self.assertFalse(acc)
+		
+		mock_exists.side_effect = [True, True]
+		acc, msg = verify_billing_access("LMS Batch", "B1", "batch")
+		self.assertFalse(acc)
+		
+		mock_exists.side_effect = [True, False]
+		mock_get_cached.side_effect = [10, "2026-06-20"]
+		mock_count.return_value = 10
+		acc, msg = verify_billing_access("LMS Batch", "B1", "batch")
+		self.assertFalse(acc)
+		
+		mock_exists.side_effect = [True, False]
+		mock_get_cached.side_effect = [10, "2026-06-01"]
+		mock_count.return_value = 5
+		mock_date_diff.return_value = -1
+		acc, msg = verify_billing_access("LMS Batch", "B1", "batch")
+		self.assertFalse(acc)
+		
+		mock_exists.side_effect = [True, False]
+		mock_get_cached.side_effect = [10, "2026-06-20"]
+		mock_count.return_value = 5
+		mock_date_diff.return_value = 10
+		acc, msg = verify_billing_access("LMS Batch", "B1", "batch")
+		self.assertTrue(acc)
+
+	@patch("lms.lms.api.now")
+	@patch("lms.lms.api.date_diff")
+	@patch("lms.lms.api.frappe.db.count")
+	@patch("lms.lms.api.frappe.get_cached_value")
+	@patch("lms.lms.api.frappe.db.exists")
+	def test_verify_billing_access(self, mock_exists, mock_get_cached, mock_count, mock_date_diff, mock_now):
+		from lms.lms.api import verify_billing_access
+		
+		mock_count.return_value = 0
+		mock_date_diff.return_value = 10
+		
+		def get_cached_side_effect(doctype, name, field):
+			if field == "seat_count": return 10
+			if field == "start_date": return "2026-06-20"
+			return None
+			
+		mock_get_cached.side_effect = get_cached_side_effect
+		
+		frappe.set_user("Guest")
+		acc, msg = verify_billing_access("LMS Course", "C1", "course")
+		self.assertFalse(acc)
+		
+		frappe.set_user("test@user.com")
+		
+		acc, msg = verify_billing_access("LMS Course", "C1", "invalid")
+		self.assertFalse(acc)
+		
+		mock_exists.side_effect = [False]
+		acc, msg = verify_billing_access("LMS Course", "C1", "course")
+		self.assertFalse(acc)
+		
+		mock_exists.side_effect = [True, True]
+		acc, msg = verify_billing_access("LMS Course", "C1", "course")
+		self.assertFalse(acc)
+		
+		mock_exists.side_effect = [True, True]
+		acc, msg = verify_billing_access("LMS Course", "C1", "certificate")
+		self.assertFalse(acc)
+		
+		mock_exists.side_effect = [True, True]
+		acc, msg = verify_billing_access("LMS Batch", "B1", "batch")
+		self.assertFalse(acc)
+		
+		mock_exists.side_effect = [True, False]
+		mock_count.return_value = 10
+		acc, msg = verify_billing_access("LMS Batch", "B1", "batch")
+		self.assertFalse(acc)
+		
+		mock_exists.side_effect = [True, False]
+		mock_count.return_value = 5
+		mock_date_diff.return_value = -1
+		acc, msg = verify_billing_access("LMS Batch", "B1", "batch")
+		self.assertFalse(acc)
+		
+		mock_exists.side_effect = [True, False]
+		mock_count.return_value = 5
+		mock_date_diff.return_value = 10
+		acc, msg = verify_billing_access("LMS Batch", "B1", "batch")
+		self.assertTrue(acc)
+
+	@patch("lms.lms.api.frappe.get_all")
+	@patch("lms.lms.api.frappe.get_list")
+	def test_get_application_users(self, mock_get_list, mock_get_all):
+		from lms.lms.api import get_application_users
+		import json
+		
+		self.assertEqual(get_application_users([]), [])
+		self.assertEqual(get_application_users("[]"), [])
+		
+		mock_get_list.return_value = []
+		self.assertEqual(get_application_users(["user1"]), [])
+		
+		mock_get_list.return_value = ["user1", "user1", "user2"]
+		mock_get_all.return_value = [{"name": "user1"}, {"name": "user2"}]
+		
+		res = get_application_users('["user1", "user2"]')
+		self.assertEqual(len(res), 2)
+		mock_get_all.assert_called_once()
+
+	@patch("builtins.print")
+	@patch("lms.lms.api.frappe.get_doc")
+	@patch("lms.lms.api.frappe.new_doc")
+	@patch("lms.lms.api.frappe.db.get_value")
+	@patch("lms.lms.api.frappe.db.exists")
+	def test_get_evaluator_details(self, mock_exists, mock_get_value, mock_new_doc, mock_get_doc, mock_print):
+		from lms.lms.api import get_evaluator_details
+		frappe.set_user("Administrator")
+		
+		mock_exists.side_effect = [False, False]
+		
+		mock_cal = MagicMock()
+		mock_cal.name = "Cal1"
+		mock_cal.authorization_code = "Auth1"
+		
+		mock_eval = MagicMock()
+		mock_slot = MagicMock()
+		mock_slot.start_time = "10:00"
+		mock_slot.end_time = "11:00"
+		mock_eval.schedule = [mock_slot]
+		mock_eval.as_dict.return_value = {"evaluator": "user1"}
+		
+		mock_new_doc.side_effect = [mock_cal, mock_eval]
+		
+		res = get_evaluator_details("user1")
+		self.assertEqual(res["calendar"], "Cal1")
+		self.assertEqual(res["slots"]["evaluator"], "user1")
+		self.assertEqual(mock_new_doc.call_count, 2)
+		mock_print.assert_called_once_with("10:00", "11:00")
+		
+		mock_exists.side_effect = [True, True]
+		mock_get_value.return_value = frappe._dict({"name": "Cal2", "authorization_code": "Auth2"})
+		mock_get_doc.return_value = mock_eval
+		
+		res2 = get_evaluator_details("user2")
+		self.assertEqual(res2["calendar"], "Cal2")
+		self.assertEqual(res2["is_authorised"], "Auth2")
+		mock_get_doc.assert_called_once_with("Course Evaluator", "user2")
+
+	@patch("lms.lms.api.frappe.get_all")
+	def test_get_certification_categories(self, mock_get_all):
+		from lms.lms.api import get_certification_categories
+		
+		mock_get_all.return_value = [
+			frappe._dict({"course_title": "Course 1", "batch_title": None}),
+			frappe._dict({"course_title": None, "batch_title": "Batch 1"}),
+			frappe._dict({"course_title": None, "batch_title": None}),
+			frappe._dict({"course_title": "Course 1", "batch_title": None}),
+		]
+		
+		res = get_certification_categories()
+		self.assertEqual(len(res), 2)
+		self.assertEqual(res[0]["value"], "Course 1")
+		self.assertEqual(res[1]["value"], "Batch 1")
+
+	@patch("lms.lms.api.update_target_chapter")
+	@patch("lms.lms.api.update_source_chapter")
+	@patch("lms.lms.api.can_modify_course")
+	@patch("lms.lms.api.frappe.db.get_value")
+	def test_update_lesson_index(self, mock_get_value, mock_can_modify, mock_update_source, mock_update_target):
+		from lms.lms.api import update_lesson_index
+		
+		mock_get_value.return_value = "Course 1"
+		mock_can_modify.return_value = False
+		
+		with self.assertRaises(frappe.PermissionError):
+			update_lesson_index("L1", "Chap1", "Chap2", 1)
+			
+		mock_can_modify.return_value = True
+		
+		update_lesson_index("L1", "Chap1", "Chap2", 1)
+		mock_update_source.assert_called_once_with("L1", "Chap1", 1, False)
+		mock_update_target.assert_called_once_with("L1", "Chap2", 1)
+		
+		mock_update_source.reset_mock()
+		mock_update_target.reset_mock()
+		
+		update_lesson_index("L1", "Chap1", "Chap1", 2)
+		mock_update_source.assert_called_once_with("L1", "Chap1", 2, True)
+		mock_update_target.assert_not_called()
+
+	@patch("lms.lms.api.update_index")
+	@patch("lms.lms.api.frappe.db.delete")
+	@patch("lms.lms.api.frappe.get_all")
+	def test_update_source_chapter(self, mock_get_all, mock_delete, mock_update_index):
+		from lms.lms.api import update_source_chapter
+		
+		mock_get_all.return_value = ["L1", "L2", "L3"]
+		update_source_chapter("L2", "Chap1", 1, False)
+		mock_delete.assert_called_once_with("Lesson Reference", {"parent": "Chap1", "lesson": "L2"})
+		mock_update_index.assert_called_once_with(["L1", "L3"], "Chap1")
+		
+		mock_delete.reset_mock()
+		mock_update_index.reset_mock()
+		
+		mock_get_all.return_value = ["L1", "L2", "L3"]
+		update_source_chapter("L2", "Chap1", 2, True)
+		mock_delete.assert_not_called()
+		mock_update_index.assert_called_once_with(["L1", "L3", "L2"], "Chap1")
+
+	@patch("lms.lms.api.update_index")
+	@patch("lms.lms.api.frappe.new_doc")
+	@patch("lms.lms.api.frappe.get_all")
+	def test_update_target_chapter(self, mock_get_all, mock_new_doc, mock_update_index):
+		from lms.lms.api import update_target_chapter
+		
+		mock_get_all.return_value = ["L1", "L3"]
+		mock_doc = MagicMock()
+		mock_new_doc.return_value = mock_doc
+		
+		update_target_chapter("L2", "Chap2", 1)
+		
+		mock_doc.update.assert_called_once()
+		mock_doc.insert.assert_called_once()
+		mock_update_index.assert_called_once_with(["L1", "L2", "L3"], "Chap2")
