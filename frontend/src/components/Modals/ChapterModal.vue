@@ -172,9 +172,7 @@ const editChapter = (close: () => void) => {
 		{},
 		{
 			validate() {
-				if (!chapter.title) {
-					return 'Title is required'
-				}
+				return validateChapter()
 			},
 			onSuccess() {
 				emit('updated')

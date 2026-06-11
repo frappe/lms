@@ -226,7 +226,6 @@ function addLesson() {
 function redirectToChapter() {
 	if (!props.chapter.is_scorm_package) return
 	;(event as Event | undefined)?.preventDefault()
-	if (props.allowEdit) return
 	if (!user.data) {
 		toast.success(__('Please enroll for this course to view this lesson'))
 		return
