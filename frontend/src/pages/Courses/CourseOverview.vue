@@ -12,6 +12,19 @@
 					<div
 						class="flex flex-wrap items-center gap-x-3 gap-y-2 text-ink-gray-7"
 					>
+						<template v-if="course.data.category">
+							<router-link
+								:to="{
+									name: 'Courses',
+									query: { category: course.data.category },
+								}"
+								class="flex items-center gap-1.5 font-medium hover:text-ink-gray-9"
+							>
+								<span class="lucide-tag size-4" />
+								<span>{{ course.data.category }}</span>
+							</router-link>
+							<span class="lucide-dot size-5 text-ink-gray-7" />
+						</template>
 						<template v-if="Number(course.data.rating) > 0">
 							<div class="flex items-center gap-1">
 								<span
