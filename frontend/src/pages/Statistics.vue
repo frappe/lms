@@ -116,7 +116,7 @@
 						}"
 					/>
 				</div>
-				<div class="border rounded-md">
+				<div v-if="hasCompletions" class="border rounded-md">
 					<DonutChart
 						v-if="courseCompletion.data"
 						:config="{
@@ -218,6 +218,13 @@ const courseCompletion = createResource({
 	url: 'lms.lms.utils.get_course_completion_data',
 	auto: true,
 	cache: ['courseCompletion'],
+})
+
+// A donut with zero completions conveys nothing — hide it until at least one
+// learner has completed a course.
+const hasCompletions = computed(() => {
+	const completed = courseCompletion.data?.find((d) => d.label === 'Completed')
+	return (completed?.value || 0) > 0
 })
 
 usePageMeta(() => {
