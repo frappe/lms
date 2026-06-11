@@ -26,8 +26,16 @@ class CourseLesson(Document):
 	def after_insert(self):
 		self.validate_progress_recalculation()
 
+	def on_trash(self):
+		self.delete_linked_notes()
+
 	def after_delete(self):
 		self.validate_progress_recalculation()
+
+	def delete_linked_notes(self):
+		notes = frappe.get_all("LMS Lesson Note", filters={"lesson": self.name}, pluck="name")
+		for note in notes:
+			frappe.delete_doc("LMS Lesson Note", note, ignore_permissions=True)
 
 	def validate(self):
 		self.content = sanitize_editorjs(self.content)
