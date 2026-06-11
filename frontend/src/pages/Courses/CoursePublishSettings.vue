@@ -122,6 +122,26 @@
 						/>
 					</template>
 				</template>
+
+				<div
+					v-if="doc?.enable_certification || doc?.paid_certificate"
+					class="flex flex-wrap items-center gap-1 text-p-sm text-ink-gray-6"
+				>
+					<span>
+						{{
+							__(
+								'Certificates render from a Print Format. Build or customize templates from the desk.'
+							)
+						}}
+					</span>
+					<button
+						type="button"
+						class="font-medium text-ink-gray-8 underline"
+						@click="openPrintFormats"
+					>
+						{{ __('Manage templates') }}
+					</button>
+				</div>
 			</div>
 		</CollapsibleSection>
 	</div>
@@ -191,6 +211,10 @@ const timezoneOptions = computed<{ label: string; value: string }[]>(() =>
 
 function openEvaluatorModal() {
 	showMemberModal.value = true
+}
+
+function openPrintFormats() {
+	window.open('/app/print-format?doc_type=LMS Certificate', '_blank')
 }
 
 function onEvaluatorCreated(created: { name: string }) {
