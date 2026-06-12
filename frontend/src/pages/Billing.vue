@@ -358,7 +358,13 @@ const generatePaymentLink = () => {
 			},
 			onSuccess(data) {
 				capture('checkout_initiated', { type: props.type })
-				window.location.href = data
+				if (typeof data === 'string') {
+					window.location.href = data
+				} else {
+					toast.error(
+						__('Unexpected response from payment gateway. Please try again.')
+					)
+				}
 			},
 			onError(err) {
 				toast.error(err.messages?.[0] || err)
