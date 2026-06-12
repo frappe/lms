@@ -1,24 +1,21 @@
 <template>
 	<Dialog
-		v-model="show"
-		:options="{
-			title:
-				templateID == 'new'
-					? __('New Email Template')
-					: __('Edit Email Template'),
-			size: 'lg',
-			actions: [
-				{
-					label: __('Save'),
-					variant: 'solid',
-					onClick: ({ close }) => {
-						saveTemplate(close)
-					},
+		v-model:open="show"
+		:title="
+			templateID == 'new' ? __('New Email Template') : __('Edit Email Template')
+		"
+		size="lg"
+		:actions="[
+			{
+				label: __('Save'),
+				variant: 'solid',
+				onClick: ({ close }) => {
+					saveTemplate(close)
 				},
-			],
-		}"
+			},
+		]"
 	>
-		<template #body-content>
+		<template #default>
 			<div class="space-y-4">
 				<FormControl
 					:label="__('Name')"

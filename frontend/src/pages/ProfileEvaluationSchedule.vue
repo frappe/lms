@@ -22,13 +22,13 @@
 								@click="decrement()"
 								variant="ghost"
 								class="h-4 w-4"
-								icon="chevron-left"
+								icon="lucide-chevron-left"
 							/>
 							<Button
 								@click="increment()"
 								variant="ghost"
 								class="h-4 w-4"
-								icon="chevron-right"
+								icon="lucide-chevron-right"
 							/>
 						</div>
 					</div>

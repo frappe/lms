@@ -1,18 +1,16 @@
 <template>
 	<Dialog
-		:options="{
-			title: singularize(props.title),
-			size: '2xl',
-			actions: [
-				{
-					label: 'Post',
-					variant: 'solid',
-					onClick: (close) => submitTopic(close),
-				},
-			],
-		}"
+		:title="singularize(props.title)"
+		size="2xl"
+		:actions="[
+			{
+				label: 'Post',
+				variant: 'solid',
+				onClick: ({ close }) => submitTopic(close),
+			},
+		]"
 	>
-		<template #body-content>
+		<template #default>
 			<div class="flex flex-col gap-4">
 				<div>
 					<FormControl v-model="topic.title" :label="__('Title')" type="text" />

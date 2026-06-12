@@ -133,12 +133,7 @@
 		:saveQuizzes="saveQuizzes"
 		:duration="duration"
 	/>
-	<Dialog
-		v-model="showQuizLoader"
-		:options="{
-			size: 'sm',
-		}"
-	>
+	<Dialog v-model:open="showQuizLoader" size="sm">
 		<template #body>
 			<div class="flex flex-col space-y-2 p-5 text-base leading-5">
 				<span class="font-semibold">

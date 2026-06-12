@@ -1,9 +1,9 @@
 <template>
-	<Dialog v-model="showDialog">
-		<template #body-title>
+	<Dialog v-model:open="showDialog">
+		<template #title>
 			<h2 class="text-xl-bold">{{ __('Install Frappe Learning') }}</h2>
 		</template>
-		<template #body-content>
+		<template #default>
 			<p>
 				{{
 					__(

@@ -1,11 +1,6 @@
 <template>
-	<Dialog
-		v-model="show"
-		:options="{
-			title: __('Import Course from ZIP'),
-		}"
-	>
-		<template #body-content>
+	<Dialog v-model:open="show" title="Import Course from ZIP">
+		<template #default>
 			<div class="text-p-base">
 				<div
 					v-if="!zip"

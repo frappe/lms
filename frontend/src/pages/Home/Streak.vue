@@ -1,11 +1,6 @@
 <template>
-	<Dialog
-		v-model="show"
-		:options="{
-			title: __('Learning Consistency'),
-		}"
-	>
-		<template #body-content>
+	<Dialog v-model:open="show" :title="__('Learning Consistency')">
+		<template #default>
 			<div class="text-base">
 				<div class="text-center">
 					<div class="text-[30px]">🔥</div>

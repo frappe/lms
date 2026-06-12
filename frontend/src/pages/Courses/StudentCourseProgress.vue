@@ -1,12 +1,10 @@
 <template>
 	<Dialog
-		v-model="show"
-		:options="{
-			title: __('Student Progress'),
-			size: hasAssessmentData ? '4xl' : 'xl',
-		}"
+		v-model:open="show"
+		title="Student Progress"
+		:size="hasAssessmentData ? '4xl' : 'xl'"
 	>
-		<template #body-content>
+		<template #default>
 			<div class="text-base text-ink-gray-9 max-h-[70vh] overflow-y-auto">
 				<div class="flex justify-between mb-5 px-2">
 					<div class="flex items-center gap-x-2">

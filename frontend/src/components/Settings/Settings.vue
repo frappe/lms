@@ -1,5 +1,5 @@
 <template>
-	<Dialog v-model="show" :options="{ size: '5xl' }">
+	<Dialog v-model:open="show" size="5xl">
 		<template #body>
 			<div class="flex h-[calc(100vh_-_8rem)]">
 				<div

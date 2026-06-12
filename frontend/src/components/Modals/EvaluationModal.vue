@@ -1,19 +1,17 @@
 <template>
 	<Dialog
-		v-model="show"
-		:options="{
-			title: __('Schedule your evaluation'),
-			size: 'xl',
-			actions: [
-				{
-					label: __('Submit'),
-					variant: 'solid',
-					onClick: (close) => submitEvaluation(close),
-				},
-			],
-		}"
+		v-model:open="show"
+		:title="__('Schedule your evaluation')"
+		size="xl"
+		:actions="[
+			{
+				label: __('Submit'),
+				variant: 'solid',
+				onClick: ({ close }) => submitEvaluation(close),
+			},
+		]"
 	>
-		<template #body-content>
+		<template #default>
 			<div class="flex flex-col gap-4 text-base max-h-[60vh]">
 				<FormControl
 					v-model="evaluation.course"

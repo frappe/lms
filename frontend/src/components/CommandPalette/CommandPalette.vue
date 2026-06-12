@@ -1,5 +1,5 @@
 <template>
-	<Dialog v-model="show" :options="{ size: '2xl' }">
+	<Dialog v-model:open="show" size="2xl">
 		<template #body>
 			<div class="text-base">
 				<div class="flex items-center gap-x-2 ps-4.5 border-b">

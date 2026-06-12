@@ -1,12 +1,6 @@
 <template>
-	<Dialog
-		v-model="show"
-		:options="{
-			size: '4xl',
-			title: title,
-		}"
-	>
-		<template #body-content>
+	<Dialog v-model:open="show" size="4xl" :title="title">
+		<template #default>
 			<div>
 				<VideoBlock :file="file" />
 			</div>

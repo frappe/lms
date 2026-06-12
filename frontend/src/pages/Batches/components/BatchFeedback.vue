@@ -42,7 +42,7 @@
 							v-for="key in ratingKeys"
 							v-model="feedback[key]"
 							:label="__(convertToTitleCase(key))"
-							:readonly="readOnly"
+							:disabled="readOnly"
 						/>
 					</div>
 					<FormControl
@@ -65,7 +65,7 @@
 					v-for="key in ratingKeys"
 					v-model="average[key]"
 					:label="__(convertToTitleCase(key))"
-					:readonly="true"
+					:disabled="true"
 				/>
 			</div>
 		</div>

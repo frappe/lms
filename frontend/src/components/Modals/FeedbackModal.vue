@@ -1,10 +1,5 @@
 <template>
-	<Dialog
-		v-model="show"
-		:options="{
-			size: '5xl',
-		}"
-	>
+	<Dialog v-model:open="show" size="5xl">
 		<template #body>
 			<div class="p-5 min-h-[300px]">
 				<div class="text-xl-semibold text-ink-gray-9 mb-4">
@@ -53,7 +48,7 @@
 										</div>
 									</template>
 									<div v-if="ratingKeys.includes(column.key)">
-										<Rating v-model="row[column.key]" :readonly="true" />
+										<Rating v-model="row[column.key]" :disabled="true" />
 									</div>
 									<div v-else class="leading-5">
 										{{ row[column.key] }}

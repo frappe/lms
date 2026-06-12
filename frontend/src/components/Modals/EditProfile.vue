@@ -1,10 +1,5 @@
 <template>
-	<Dialog
-		v-model="show"
-		:options="{
-			size: '3xl',
-		}"
-	>
+	<Dialog v-model:open="show" size="3xl">
 		<template #body-header>
 			<div class="flex items-center justify-between mb-5">
 				<div class="text-4xl-semibold leading-6 text-ink-gray-9">
@@ -22,7 +17,7 @@
 				</div>
 			</div>
 		</template>
-		<template #body-content>
+		<template #default>
 			<div class="text-base">
 				<div class="grid grid-cols-2 gap-10">
 					<div class="space-y-4">

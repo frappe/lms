@@ -115,22 +115,20 @@
 		</ListFooter>
 	</div>
 	<Dialog
-		v-model="showForm"
-		:options="{
-			title: __('Create a Quiz'),
-			size: 'sm',
-			actions: [
-				{
-					label: __('Save'),
-					variant: 'solid',
-					onClick({ close }) {
-						insertQuiz(close)
-					},
+		v-model:open="showForm"
+		:title="__('Create a Quiz')"
+		size="sm"
+		:actions="[
+			{
+				label: __('Save'),
+				variant: 'solid',
+				onClick({ close }) {
+					insertQuiz(close)
 				},
-			],
-		}"
+			},
+		]"
 	>
-		<template #body-content>
+		<template #default>
 			<FormControl
 				v-model="title"
 				:label="__('Title')"

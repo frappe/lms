@@ -389,23 +389,21 @@
 		</div>
 	</div>
 	<Dialog
-		v-model="showSubmissionConfirmation"
-		:options="{
-			title: __('Are you sure you want to submit the quiz?'),
-			actions: [
-				{
-					size: 'sm',
-					label: __('Submit'),
-					variant: 'solid',
-					onClick() {
-						submitQuiz()
-						showSubmissionConfirmation = false
-					},
+		v-model:open="showSubmissionConfirmation"
+		:title="__('Are you sure you want to submit the quiz?')"
+		:actions="[
+			{
+				size: 'sm',
+				label: __('Submit'),
+				variant: 'solid',
+				onClick() {
+					submitQuiz()
+					showSubmissionConfirmation = false
 				},
-			],
-		}"
+			},
+		]"
 	>
-		<template #body-content>
+		<template #default>
 			<div class="border border-outline-elevation-2 rounded-lg text-base">
 				<div class="divide-y divide-outline-elevation-2">
 					<div class="grid grid-cols-2 divide-x divide-outline-elevation-2">

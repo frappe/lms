@@ -1,19 +1,17 @@
 <template>
 	<Dialog
-		v-model="show"
-		:options="{
-			title: __('Add a course to the batch'),
-			size: 'lg',
-			actions: [
-				{
-					label: __('Submit'),
-					variant: 'solid',
-					onClick: (close) => addCourse(close),
-				},
-			],
-		}"
+		v-model:open="show"
+		:title="__('Add a course to the batch')"
+		size="lg"
+		:actions="[
+			{
+				label: __('Submit'),
+				variant: 'solid',
+				onClick: ({ close }) => addCourse(close),
+			},
+		]"
 	>
-		<template #body-content>
+		<template #default>
 			<Link
 				doctype="LMS Course"
 				v-model="course"

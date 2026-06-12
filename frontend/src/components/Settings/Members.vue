@@ -101,30 +101,28 @@
 	/>
 
 	<Dialog
-		v-model="showDeleteDialog"
-		:options="{
-			title: memberToDelete
-				? __('Delete {0}?').format(memberToDelete.full_name)
-				: '',
-			message: __(
-				'This permanently deletes the user account and cannot be undone.'
-			),
-			size: 'sm',
-			actions: [
-				{
-					label: __('Delete'),
-					theme: 'red',
-					variant: 'solid',
-					onClick: confirmDelete,
+		v-model:open="showDeleteDialog"
+		:title="
+			memberToDelete ? __('Delete {0}?').format(memberToDelete.full_name) : ''
+		"
+		:message="
+			__('This permanently deletes the user account and cannot be undone.')
+		"
+		size="sm"
+		:actions="[
+			{
+				label: __('Delete'),
+				theme: 'red',
+				variant: 'solid',
+				onClick: confirmDelete,
+			},
+			{
+				label: __('Cancel'),
+				onClick: () => {
+					showDeleteDialog = false
 				},
-				{
-					label: __('Cancel'),
-					onClick: () => {
-						showDeleteDialog = false
-					},
-				},
-			],
-		}"
+			},
+		]"
 	/>
 </template>
 <script setup lang="ts">

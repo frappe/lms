@@ -1,10 +1,5 @@
 <template>
-	<Dialog
-		v-model="show"
-		:options="{
-			size: 'lg',
-		}"
-	>
+	<Dialog v-model:open="show" size="lg">
 		<template #body>
 			<div class="p-5 text-base">
 				<div class="text-xl-semibold text-ink-gray-9 mb-5">

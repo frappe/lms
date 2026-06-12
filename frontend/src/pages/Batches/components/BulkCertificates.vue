@@ -1,21 +1,19 @@
 <template>
 	<Dialog
-		v-model="show"
-		:options="{
-			title: __('Generate Certificates'),
-			size: 'lg',
-			actions: [
-				{
-					label: 'Create',
-					variant: 'solid',
-					onClick: ({ close }) => {
-						generateCertificates(close)
-					},
+		v-model:open="show"
+		title="Generate Certificates"
+		size="lg"
+		:actions="[
+			{
+				label: 'Create',
+				variant: 'solid',
+				onClick: ({ close }) => {
+					generateCertificates(close)
 				},
-			],
-		}"
+			},
+		]"
 	>
-		<template #body-content>
+		<template #default>
 			<div class="space-y-4">
 				<Link
 					v-model="details.evaluator"

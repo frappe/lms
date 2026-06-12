@@ -1,22 +1,20 @@
 <template>
 	<Dialog
-		v-model="show"
+		v-model:open="show"
 		class="text-base"
-		:options="{
-			title: __('Apply for this job'),
-			size: 'lg',
-			actions: [
-				{
-					label: 'Submit',
-					variant: 'solid',
-					onClick: (close) => {
-						submitResume(close)
-					},
+		title="Apply for this job"
+		size="lg"
+		:actions="[
+			{
+				label: 'Submit',
+				variant: 'solid',
+				onClick: ({ close }) => {
+					submitResume(close)
 				},
-			],
-		}"
+			},
+		]"
 	>
-		<template #body-content>
+		<template #default>
 			<div class="flex flex-col gap-4 text-base">
 				<p class="text-ink-gray-9">
 					{{

@@ -1,12 +1,6 @@
 <template>
-	<Dialog
-		v-model="show"
-		:options="{
-			title: __('Add quiz to this video'),
-			size: '2xl',
-		}"
-	>
-		<template #body-content>
+	<Dialog v-model:open="show" :title="__('Add quiz to this video')" size="2xl">
+		<template #default>
 			<div class="text-base">
 				<div class="flex items-end gap-4">
 					<FormControl

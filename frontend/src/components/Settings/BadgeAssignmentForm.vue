@@ -1,24 +1,23 @@
 <template>
 	<Dialog
-		v-model="show"
-		:options="{
-			title:
-				props.badgeAssignmentID === 'new'
-					? __('Assign a Badge')
-					: __('Edit Badge Assignment'),
-			size: 'sm',
-			actions: [
-				{
-					label: __('Save'),
-					variant: 'solid',
-					onClick: ({ close }) => {
-						saveBadgeAssignment(close)
-					},
+		v-model:open="show"
+		:title="
+			props.badgeAssignmentID === 'new'
+				? __('Assign a Badge')
+				: __('Edit Badge Assignment')
+		"
+		size="sm"
+		:actions="[
+			{
+				label: __('Save'),
+				variant: 'solid',
+				onClick: ({ close }) => {
+					saveBadgeAssignment(close)
 				},
-			],
-		}"
+			},
+		]"
 	>
-		<template #body-content>
+		<template #default>
 			<div class="space-y-4">
 				<Link
 					doctype="User"

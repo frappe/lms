@@ -1,20 +1,18 @@
 <template>
 	<Dialog
-		v-model="show"
-		:options="{
-			title: isEdit ? __('Edit Member') : __('Add New Member'),
-			size: 'lg',
-			actions: [
-				{
-					label: isEdit ? __('Save') : __('Add'),
-					variant: 'solid',
-					loading: submitting,
-					onClick: ({ close }: any) => submit(close),
-				},
-			],
-		}"
+		v-model:open="show"
+		:title="isEdit ? __('Edit Member') : __('Add New Member')"
+		size="lg"
+		:actions="[
+			{
+				label: isEdit ? __('Save') : __('Add'),
+				variant: 'solid',
+				loading: submitting,
+				onClick: ({ close }: any) => submit(close),
+			},
+		]"
 	>
-		<template #body-content>
+		<template #default>
 			<div class="space-y-4">
 				<FormControl
 					v-model="member.email"

@@ -1,10 +1,8 @@
 <template>
 	<Dialog
-		v-model="show"
-		:options="{
-			size: 'xl',
-			title: studentDetails.data?.full_name || __('Student Details'),
-		}"
+		v-model:open="show"
+		size="xl"
+		:title="studentDetails.data?.full_name || __('Student Details')"
 	>
 		<template #body>
 			<div

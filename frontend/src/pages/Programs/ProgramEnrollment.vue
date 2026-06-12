@@ -1,16 +1,11 @@
 <template>
-	<Dialog
-		v-model="show"
-		:options="{
-			size: '2xl',
-		}"
-	>
-		<template #body-title>
+	<Dialog v-model:open="show" size="2xl">
+		<template #title>
 			<div v-if="program.data" class="text-3xl-semibold text-ink-gray-9">
 				{{ __('Enrollment for Program {0}').format(program.data?.name) }}
 			</div>
 		</template>
-		<template #body-content>
+		<template #default>
 			<div v-if="program.data" class="text-base text-ink-gray-9">
 				<div class="bg-surface-blue-2 text-ink-blue-6 p-2 rounded-md leading-5">
 					<span>

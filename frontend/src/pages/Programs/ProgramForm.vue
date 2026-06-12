@@ -1,11 +1,6 @@
 <template>
-	<Dialog
-		v-model="show"
-		:options="{
-			size: '2xl',
-		}"
-	>
-		<template #body-title>
+	<Dialog v-model:open="show" size="2xl">
+		<template #title>
 			<div class="flex items-center justify-between gap-x-2 text-base w-full">
 				<div class="text-3xl-semibold text-ink-gray-9">
 					{{
@@ -17,7 +12,7 @@
 				</Badge>
 			</div>
 		</template>
-		<template #body-content>
+		<template #default>
 			<div class="text-base">
 				<div class="grid grid-cols-1 md:grid-cols-2 gap-5 pb-5">
 					<FormControl
@@ -169,25 +164,24 @@
 				</div>
 			</div>
 			<Dialog
-				v-model="showFormDialog"
-				:options="{
-					title:
-						currentForm == 'course'
-							? __('Add Course to Program')
-							: __('Enroll Member to Program'),
-					actions: [
-						{
-							label: __('Add'),
-							variant: 'solid',
-							onClick: ({ close }: { close: () => void }) =>
-								currentForm == 'course'
-									? addCourse(close)
-									: addMember(close),
-						},
-					],
-				}"
+				v-model:open="showFormDialog"
+				:title="
+					currentForm == 'course'
+						? __('Add Course to Program')
+						: __('Enroll Member to Program')
+				"
+				:actions="[
+					{
+						label: __('Add'),
+						variant: 'solid',
+						onClick: ({ close }: { close: () => void }) =>
+							currentForm == 'course'
+								? addCourse(close)
+								: addMember(close),
+					},
+				]"
 			>
-				<template #body-content>
+				<template #default>
 					<div @click.stop>
 						<Link
 							v-if="currentForm == 'course'"

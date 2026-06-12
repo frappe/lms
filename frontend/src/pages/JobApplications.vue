@@ -118,20 +118,18 @@
 		</div>
 
 		<Dialog
-			v-model="showEmailModal"
-			:options="{
-				title: __('Send Email to {0}').format(selectedApplicant?.full_name),
-				size: 'lg',
-				actions: [
-					{
-						label: __('Send'),
-						variant: 'solid',
-						onClick: (close) => sendEmail(close),
-					},
-				],
-			}"
+			v-model:open="showEmailModal"
+			:title="__('Send Email to {0}').format(selectedApplicant?.full_name)"
+			size="lg"
+			:actions="[
+				{
+					label: __('Send'),
+					variant: 'solid',
+					onClick: ({ close }) => sendEmail(close),
+				},
+			]"
 		>
-			<template #body-content>
+			<template #default>
 				<div class="space-y-4">
 					<FormControl
 						v-model="emailForm.subject"

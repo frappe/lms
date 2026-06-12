@@ -7,14 +7,14 @@
 					v-model="doc.upcoming"
 					:label="__('Upcoming')"
 					:description="__('Not yet open for enrollment.')"
-					@change="markDirty()"
+					@update:modelValue="markDirty()"
 				/>
 				<Switch
 					size="sm"
 					v-model="doc.featured"
 					:label="__('Featured')"
 					:description="__('Highlight on the homepage.')"
-					@change="markDirty()"
+					@update:modelValue="markDirty()"
 				/>
 				<Switch
 					size="sm"
@@ -59,7 +59,7 @@
 						:description="
 							__('Issue a free certificate when learners complete the course.')
 						"
-						@change="markDirty()"
+						@update:modelValue="markDirty()"
 					/>
 				</template>
 
@@ -72,7 +72,7 @@
 						:description="
 							__('Issue a free certificate when learners complete the course.')
 						"
-						@change="markDirty()"
+						@update:modelValue="markDirty()"
 					/>
 					<Switch
 						size="sm"
