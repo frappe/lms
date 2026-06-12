@@ -4,7 +4,7 @@
 			<div class="flex items-center justify-center gap-x-2">
 				<LMSLogo class="size-7" />
 				<span
-					class="select-none text-xl font-semibold tracking-tight text-gray-900"
+					class="select-none text-3xl-semibold tracking-tight text-gray-900"
 				>
 					Learning
 				</span>

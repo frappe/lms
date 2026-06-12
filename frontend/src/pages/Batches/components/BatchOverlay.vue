@@ -33,7 +33,7 @@
 			/>
 			<div
 				v-if="batch.data.amount"
-				class="text-lg font-semibold mb-5 text-ink-gray-9"
+				class="text-xl-semibold mb-5 text-ink-gray-9"
 			>
 				{{ formatNumberIntoCurrency(batch.data.amount, batch.data.currency) }}
 			</div>

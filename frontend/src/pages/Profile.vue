@@ -2,7 +2,7 @@
 	<NoPermission v-if="!$user.data" />
 	<div v-else-if="profile.data">
 		<header
-			class="sticky group top-0 z-10 flex flex-col md:flex-row md:items-center justify-between border-b bg-surface-white px-3 py-2.5 sm:px-5"
+			class="sticky group top-0 z-10 flex flex-col md:flex-row md:items-center justify-between border-b bg-surface-base px-3 py-2.5 sm:px-5"
 		>
 			<Breadcrumbs class="h-7" :items="breadcrumbs" />
 			<Button v-if="isSessionUser()" class="invisible group-hover:visible">
@@ -58,7 +58,7 @@
 						/>
 						<div
 							v-else
-							class="flex items-center justify-center h-[100px] w-[100px] rounded-full border-4 border-white bg-surface-gray-2 text-3xl font-semibold text-ink-gray-7"
+							class="flex items-center justify-center h-[100px] w-[100px] rounded-full border-4 border-white bg-surface-gray-2 text-5xl-semibold text-ink-gray-7"
 						>
 							{{ profile.data.full_name.charAt(0).toUpperCase() }}
 						</div>
@@ -72,7 +72,7 @@
 							placement="right"
 						>
 							<div
-								class="absolute bottom-3 end-1 p-0.5 bg-surface-white rounded-full"
+								class="absolute bottom-3 end-1 p-0.5 bg-surface-base rounded-full"
 							>
 								<div
 									class="rounded-full w-fit"
@@ -82,14 +82,14 @@
 											: 'bg-purple-500'
 									"
 								>
-									<BadgeCheckIcon class="text-ink-white size-5" />
+									<BadgeCheckIcon class="text-ink-base size-5" />
 								</div>
 							</div>
 						</Tooltip>
 					</div>
 				</div>
 				<div class="ms-6 mt-5">
-					<h2 class="text-3xl font-semibold text-ink-gray-9">
+					<h2 class="text-5xl-semibold text-ink-gray-9">
 						{{ profile.data.full_name }}
 					</h2>
 					<div class="text-base text-ink-gray-7 mt-1">

@@ -3,7 +3,7 @@
 		class="flex flex-col border hover:border-outline-gray-3 rounded-md p-4 h-full"
 		style="min-height: 150px"
 	>
-		<div class="text-lg leading-5 font-semibold mb-2 text-ink-gray-9">
+		<div class="text-xl-semibold leading-5 mb-2 text-ink-gray-9">
 			{{ batch.title }}
 		</div>
 		<Badge

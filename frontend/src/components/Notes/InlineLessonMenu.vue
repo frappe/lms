@@ -8,7 +8,7 @@
 		}"
 	>
 		<div class="space-y-2 py-2">
-			<div class="text-xs text-ink-gray-5 font-medium px-3">
+			<div class="text-xs-medium text-ink-gray-5 px-3">
 				{{ __('Highlight') }}
 			</div>
 			<div class="">

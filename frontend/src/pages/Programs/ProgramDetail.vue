@@ -1,12 +1,12 @@
 <template>
 	<header
-		class="sticky top-0 z-10 flex items-center justify-between border-b bg-surface-white px-3 py-2.5 sm:px-5"
+		class="sticky top-0 z-10 flex items-center justify-between border-b bg-surface-base px-3 py-2.5 sm:px-5"
 	>
 		<Breadcrumbs :items="breadcrumbs" />
 	</header>
 	<div v-if="program.data" class="pt-5 px-5 pb-10 mx-auto">
 		<div class="flex items-center gap-x-2 mb-5">
-			<div class="text-lg font-semibold text-ink-gray-9">
+			<div class="text-xl-semibold text-ink-gray-9">
 				{{ program.data.name }}
 			</div>
 
@@ -44,7 +44,7 @@
 				/>
 				<div
 					v-if="!course.eligible && program.data.enforce_course_order"
-					class="absolute inset-0 flex flex-col items-center justify-center space-y-2 text-ink-white rounded-md invisible group-hover:visible"
+					class="absolute inset-0 flex flex-col items-center justify-center space-y-2 text-ink-base rounded-md invisible group-hover:visible"
 					:style="{
 						background: 'radial-gradient(circle, darkgray 0%, lightgray 100%)',
 					}"

@@ -6,7 +6,7 @@
 	</LayoutHeader>
 	<div class="p-6">
 		<div class="flex items-center justify-between gap-x-32 mb-5">
-			<div class="text-lg font-semibold text-ink-gray-9">
+			<div class="text-xl-semibold text-ink-gray-9">
 				{{
 					submissions.data?.length
 						? __('{0} Submissions').format(submissions.data.length)

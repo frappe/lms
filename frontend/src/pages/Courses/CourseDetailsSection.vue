@@ -1,6 +1,6 @@
 <template>
 	<section class="space-y-5">
-		<div class="text-base font-semibold text-ink-gray-9">
+		<div class="text-base-semibold text-ink-gray-9">
 			{{ __('Course details') }}
 		</div>
 		<div class="grid grid-cols-2 gap-5">
@@ -37,7 +37,7 @@
 						<button
 							type="button"
 							:class="[
-								'relative inline-flex w-full min-h-7 items-center gap-2 rounded border border-outline-gray-2 bg-surface-white px-2 text-left text-base text-ink-gray-8 outline-none transition-colors hover:border-outline-gray-3 hover:shadow-sm focus:border-outline-gray-4 focus:shadow-sm focus-visible:ring-2 ring-outline-gray-3',
+								'relative inline-flex w-full min-h-7 items-center gap-2 rounded border border-outline-gray-2 bg-surface-base px-2 text-left text-base text-ink-gray-8 outline-none transition-colors hover:border-outline-gray-3 hover:shadow-sm focus:border-outline-gray-4 focus:shadow-sm focus-visible:ring-2 ring-outline-gray-3',
 								open && 'border-outline-gray-4 shadow-sm ring-2',
 							]"
 							@click="toggleOpen"

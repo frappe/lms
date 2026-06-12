@@ -1,6 +1,6 @@
 <template>
 	<div class="mt-7">
-		<h2 class="mb-3 text-lg font-semibold text-ink-gray-9">
+		<h2 class="mb-3 text-xl-semibold text-ink-gray-9">
 			{{ __('Settings') }}
 		</h2>
 		<div

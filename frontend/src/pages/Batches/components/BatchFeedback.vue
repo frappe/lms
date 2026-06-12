@@ -2,7 +2,7 @@
 	<div>
 		<div class="flex justify-between mb-5">
 			<div class="space-y-1">
-				<div class="text-lg text-ink-gray-9 font-semibold">
+				<div class="text-xl-semibold text-ink-gray-9">
 					{{ __('Feedback') }}
 				</div>
 				<div

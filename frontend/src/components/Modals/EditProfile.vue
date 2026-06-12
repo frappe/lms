@@ -7,7 +7,7 @@
 	>
 		<template #body-header>
 			<div class="flex items-center justify-between mb-5">
-				<div class="text-2xl font-semibold leading-6 text-ink-gray-9">
+				<div class="text-4xl-semibold leading-6 text-ink-gray-9">
 					{{ __('Edit Profile') }}
 				</div>
 				<div class="flex items-center gap-x-2">

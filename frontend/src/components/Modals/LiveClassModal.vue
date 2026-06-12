@@ -55,7 +55,7 @@
 						<div class="space-y-1.5">
 							<label class="block text-ink-gray-5 text-xs" for="batchTimezone">
 								{{ __('Timezone') }}
-								<span class="text-ink-red-3">*</span>
+								<span class="text-ink-red-6">*</span>
 							</label>
 							<Autocomplete
 								@update:modelValue="(opt) => (liveClass.timezone = opt.value)"

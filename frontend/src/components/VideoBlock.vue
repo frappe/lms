@@ -49,7 +49,7 @@
 				</div>
 			</div>
 			<div
-				class="flex items-center gap-x-2 py-2 px-1 text-ink-white bg-gradient-to-b from-transparent to-black/75 absolute bottom-0 start-0 end-0 mx-auto rounded-md"
+				class="flex items-center gap-x-2 py-2 px-1 text-ink-base bg-gradient-to-b from-transparent to-black/75 absolute bottom-0 start-0 end-0 mx-auto rounded-md"
 				:class="{
 					'invisible group-hover:visible': playing,
 				}"
@@ -61,7 +61,7 @@
 							@click="playVideo"
 							class="size-4 text-ink-gray-9"
 						/>
-						<Pause v-else @click="pauseVideo" class="size-5 text-ink-white" />
+						<Pause v-else @click="pauseVideo" class="size-5 text-ink-base" />
 					</template>
 				</Button>
 
@@ -86,7 +86,7 @@
 					</div>
 				</div>
 
-				<span class="text-sm font-medium">
+				<span class="text-sm-medium">
 					{{ formatSeconds(currentTime) }} / {{ formatSeconds(duration) }}
 				</span>
 
@@ -100,8 +100,8 @@
 					class="hover:bg-transparent"
 				>
 					<template #icon>
-						<Volume2 v-if="!muted" class="size-5 text-ink-white" />
-						<VolumeX v-else class="size-5 text-ink-white" />
+						<Volume2 v-if="!muted" class="size-5 text-ink-base" />
+						<VolumeX v-else class="size-5 text-ink-base" />
 					</template>
 				</Button>
 				<Button
@@ -110,7 +110,7 @@
 					class="hover:bg-transparent"
 				>
 					<template #icon>
-						<Maximize class="size-5 text-ink-white" />
+						<Maximize class="size-5 text-ink-base" />
 					</template>
 				</Button>
 			</div>

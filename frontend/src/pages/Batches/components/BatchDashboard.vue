@@ -3,7 +3,7 @@
 		<div class="grid grid-cols-1 lg:grid-cols-[2fr,1fr] gap-5">
 			<div class="p-5">
 				<div class="mb-8 space-y-2">
-					<div class="text-lg text-ink-gray-9 font-semibold">
+					<div class="text-xl-semibold text-ink-gray-9">
 						{{ __('Curriculum') }}
 					</div>
 					<div class="text-ink-gray-7">

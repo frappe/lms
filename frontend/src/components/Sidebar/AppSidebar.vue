@@ -1,6 +1,6 @@
 <template>
 	<div
-		class="flex h-full flex-col justify-between transition-all duration-300 ease-in-out border-e bg-surface-menu-bar overflow-x-hidden"
+		class="flex h-full flex-col justify-between transition-all duration-300 ease-in-out border-e bg-surface-sidebar overflow-x-hidden"
 		:class="sidebarStore.isSidebarCollapsed ? 'w-14' : 'w-56'"
 	>
 		<div
@@ -12,7 +12,7 @@
 				<div v-for="link in sidebarLinks" class="mx-2 my-2.5">
 					<div
 						v-if="!link.hideLabel"
-						class="mb-2 mt-3 flex cursor-pointer gap-1.5 px-1 text-base font-medium text-ink-gray-5 transition-all duration-300 ease-in-out"
+						class="mb-2 mt-3 flex cursor-pointer gap-1.5 px-1 text-base-medium text-ink-gray-5 transition-all duration-300 ease-in-out"
 					>
 						<span>{{ __(link.label) }}</span>
 					</div>
@@ -85,7 +85,7 @@
 		<div class="m-2 flex flex-col gap-1">
 			<div
 				v-if="readOnlyMode && !sidebarStore.isSidebarCollapsed"
-				class="z-10 m-2 bg-surface-modal py-2.5 px-3 text-xs text-ink-gray-7 leading-5 rounded-md"
+				class="z-10 m-2 bg-surface-elevation-2 py-2.5 px-3 text-xs text-ink-gray-7 leading-5 rounded-md"
 			>
 				{{
 					__(
@@ -97,7 +97,7 @@
 				v-if="
 					isStudent && !profileIsComplete && !sidebarStore.isSidebarCollapsed
 				"
-				class="flex flex-col gap-3 text-ink-gray-9 py-2.5 px-3 bg-surface-white shadow-sm rounded-md"
+				class="flex flex-col gap-3 text-ink-gray-9 py-2.5 px-3 bg-surface-base shadow-sm rounded-md"
 			>
 				<div class="flex flex-col text-p-sm gap-1">
 					<div class="inline-flex gap-1">
@@ -171,7 +171,7 @@
 						/>
 						<template #body>
 							<div
-								class="max-w-[30ch] rounded bg-surface-gray-7 px-2 py-1 text-center text-p-xs text-ink-white shadow-xl"
+								class="max-w-[30ch] rounded bg-surface-gray-10 px-2 py-1 text-center text-p-xs text-ink-base shadow-xl"
 							>
 								{{
 									__(

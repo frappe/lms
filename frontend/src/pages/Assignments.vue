@@ -26,7 +26,7 @@
 		<div
 			class="mx-5 mb-5 flex flex-col justify-between gap-y-4 sm:flex-row sm:items-center"
 		>
-			<div class="text-lg font-semibold text-ink-gray-9">
+			<div class="text-xl-semibold text-ink-gray-9">
 				{{ __('{0} Assignments').format(assignments.data?.length) }}
 			</div>
 			<div class="flex flex-col gap-3 sm:flex-row md:gap-5">
@@ -59,7 +59,7 @@
 			class="flex-1 px-5"
 		>
 			<ListHeader
-				class="mb-2 grid items-center rounded-none border-b bg-surface-white p-2"
+				class="mb-2 grid items-center rounded-none border-b bg-surface-base p-2"
 			>
 				<ListHeaderItem :item="item" v-for="item in assignmentColumns">
 					<template #prefix="{ item }">

@@ -22,7 +22,7 @@
 		<div class="grid grid-cols-[2fr_1fr] gap-5 items-start">
 			<div class="border rounded-lg py-3 px-4">
 				<div class="flex items-center justify-between mb-3">
-					<div class="text-lg text-ink-gray-9 font-semibold">
+					<div class="text-xl-semibold text-ink-gray-9">
 						{{ __('Students') }}
 					</div>
 					<div class="flex items-center gap-x-2">
@@ -53,7 +53,7 @@
 						}"
 					>
 						<ListHeader
-							class="mb-2 grid items-center gap-x-4 rounded bg-surface-white border-b rounded-none p-2"
+							class="mb-2 grid items-center gap-x-4 rounded bg-surface-base border-b rounded-none p-2"
 						>
 							<ListHeaderItem
 								:item="item"
@@ -216,7 +216,7 @@
 						/>
 					</div>
 					<div
-						class="divide-y max-h-[40vh] divide-outline-gray-modals text-ink-gray-7 overflow-y-auto"
+						class="divide-y max-h-[40vh] divide-outline-elevation-2 text-ink-gray-7 overflow-y-auto"
 					>
 						<div
 							v-for="progress in lessonProgress.data"

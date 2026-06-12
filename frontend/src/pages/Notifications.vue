@@ -132,7 +132,7 @@
 									:image="instructor.user_image"
 									:label="instructor.full_name"
 								/>
-								<span class="font-medium text-sm text-ink-gray-9">
+								<span class="text-sm-medium text-ink-gray-9">
 									{{ instructor.full_name }}
 								</span>
 							</div>

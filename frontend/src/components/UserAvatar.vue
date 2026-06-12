@@ -10,14 +10,14 @@
 		<template v-if="user.open_to === 'Work'" #indicator>
 			<Tooltip :text="__('Open to Work')" placement="right">
 				<div class="rounded-full bg-surface-green-3 w-fit">
-					<BadgeCheckIcon :class="'text-ink-white ' + checkSize" />
+					<BadgeCheckIcon :class="'text-ink-base ' + checkSize" />
 				</div>
 			</Tooltip>
 		</template>
 		<template v-else-if="user.open_to === 'Hiring'" #indicator>
 			<Tooltip :text="__('Hiring')" placement="right">
 				<div class="rounded-full bg-purple-500 w-fit">
-					<BadgeCheckIcon :class="'text-ink-white ' + checkSize" />
+					<BadgeCheckIcon :class="'text-ink-base ' + checkSize" />
 				</div>
 			</Tooltip>
 		</template>

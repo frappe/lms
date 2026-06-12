@@ -36,7 +36,7 @@
 					</div>
 					<div
 						v-else-if="uploading"
-						class="w-fit bg-surface-white border rounded-md p-2 my-4"
+						class="w-fit bg-surface-base border rounded-md p-2 my-4"
 					>
 						<div class="space-y-2">
 							<div class="font-medium">
@@ -48,7 +48,7 @@
 						</div>
 						<div class="w-full bg-surface-gray-1 h-1 rounded-full mt-3">
 							<div
-								class="bg-surface-gray-7 h-1 rounded-full transition-all duration-500 ease-in-out"
+								class="bg-surface-gray-10 h-1 rounded-full transition-all duration-500 ease-in-out"
 								:style="`width: ${uploadProgress}%`"
 							></div>
 						</div>
@@ -59,7 +59,7 @@
 					class="h-[120px] flex items-center justify-center bg-surface-gray-1 border border-dashed border-outline-gray-3 rounded-md"
 				>
 					<div
-						class="w-fit bg-surface-white border rounded-md p-2 flex items-center justify-between gap-x-4 mx-5"
+						class="w-fit bg-surface-base border rounded-md p-2 flex items-center justify-between gap-x-4 mx-5"
 					>
 						<div class="space-y-2">
 							<div class="font-medium leading-5 text-ink-gray-9">
@@ -70,7 +70,7 @@
 							</div>
 						</div>
 						<Trash2
-							class="size-4 stroke-1.5 text-ink-red-3 cursor-pointer"
+							class="size-4 stroke-1.5 text-ink-red-6 cursor-pointer"
 							@click="deleteFile"
 						/>
 					</div>

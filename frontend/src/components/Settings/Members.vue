@@ -26,7 +26,7 @@
 		</template>
 		<div class="pb-4">
 			<div>
-				<ul class="divide-y divide-outline-gray-modals">
+				<ul class="divide-y divide-outline-elevation-2">
 					<li
 						v-for="member in displayedMembers"
 						class="flex items-center justify-between py-2 cursor-pointer"

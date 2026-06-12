@@ -3,7 +3,7 @@
 		<div class="mt-10 space-y-10">
 			<UpcomingEvaluations :forHome="true" />
 			<div v-if="myLiveClasses.data?.length">
-				<div class="font-semibold text-lg mb-3 text-ink-gray-9">
+				<div class="text-xl-semibold mb-3 text-ink-gray-9">
 					{{ __('Upcoming Live Classes') }}
 				</div>
 				<div class="grid grid-cols-1 md:grid-cols-4 gap-5">
@@ -59,7 +59,7 @@
 								:text="__('This class has ended')"
 								placement="right"
 							>
-								<div class="flex items-center gap-x-2 text-ink-amber-3 w-fit">
+								<div class="flex items-center gap-x-2 text-ink-amber-6 w-fit">
 									<Info class="w-4 h-4 stroke-1.5" />
 									<span>
 										{{ __('Ended') }}
@@ -74,7 +74,7 @@
 
 		<div v-if="myCourses.data?.length" class="mt-10">
 			<div class="flex items-center justify-between mb-3">
-				<span class="font-semibold text-lg text-ink-gray-9">
+				<span class="text-xl-semibold text-ink-gray-9">
 					{{
 						myCourses.data[0].membership
 							? __('My Courses')
@@ -106,7 +106,7 @@
 
 		<div v-if="myBatches.data?.length" class="mt-10">
 			<div class="flex items-center justify-between mb-3">
-				<span class="font-semibold text-lg text-ink-gray-9">
+				<span class="text-xl-semibold text-ink-gray-9">
 					{{
 						myBatches.data?.[0].students?.includes(user.data?.name)
 							? __('My Batches')

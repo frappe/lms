@@ -2,7 +2,7 @@
 	<div>
 		<template v-for="(section, index) in sections" :key="index">
 			<!-- Divider only between topics (sections), never between fields -->
-			<div v-if="index > 0" class="h-px border-t border-outline-gray-modals" />
+			<div v-if="index > 0" class="h-px border-t border-outline-elevation-2" />
 			<div
 				v-if="section.label"
 				class="text-p-md font-semibold text-ink-gray-9 mb-1"
@@ -21,7 +21,7 @@
 					<!-- Upload: full-width block (label/description sit above) -->
 					<div v-if="field.type == 'Upload'" class="py-3">
 						<div class="space-y-1 mb-2">
-							<div class="text-p-base font-medium text-ink-gray-7">
+							<div class="text-p-base-medium text-ink-gray-7">
 								{{ __(field.label) }}
 							</div>
 							<div class="text-p-sm text-ink-gray-5">
@@ -49,7 +49,7 @@
 						<div v-else>
 							<div class="flex items-center text-sm gap-x-2">
 								<div
-									class="flex items-center justify-center rounded border border-outline-gray-modals bg-surface-gray-2"
+									class="flex items-center justify-center rounded border border-outline-elevation-2 bg-surface-gray-2"
 									:class="field.size == 'lg' ? 'px-5 py-5' : 'px-20 py-8'"
 								>
 									<img
@@ -65,7 +65,7 @@
 								</div>
 								<X
 									@click="data[field.name] = null"
-									class="border text-ink-gray-7 border-outline-gray-modals rounded-md cursor-pointer stroke-1.5 w-5 h-5 p-1 ms-4"
+									class="border text-ink-gray-7 border-outline-elevation-2 rounded-md cursor-pointer stroke-1.5 w-5 h-5 p-1 ms-4"
 								/>
 							</div>
 						</div>
@@ -88,7 +88,7 @@
 					<!-- Textarea: full-width block (label/description above, like CRM) -->
 					<div v-else-if="field.type == 'textarea'" class="py-3">
 						<div class="space-y-1 mb-2">
-							<div class="text-p-base font-medium text-ink-gray-7">
+							<div class="text-p-base-medium text-ink-gray-7">
 								{{ __(field.label) }}
 							</div>
 							<div v-if="field.description" class="text-p-sm text-ink-gray-5">
@@ -107,7 +107,7 @@
 					<!-- Normal field: label + description on the left, control on the right (CRM layout) -->
 					<div v-else class="flex items-center justify-between gap-4 py-3">
 						<div class="flex flex-col">
-							<div class="text-p-base font-medium text-ink-gray-7">
+							<div class="text-p-base-medium text-ink-gray-7">
 								{{ __(field.label) }}
 							</div>
 							<div v-if="field.description" class="text-p-sm text-ink-gray-5">

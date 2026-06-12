@@ -16,7 +16,7 @@
 				@click="redirectToChapter"
 			>
 				<div
-					class="truncate text-base font-medium leading-5 text-ink-gray-9"
+					class="truncate text-base-medium leading-5 text-ink-gray-9"
 					:title="chapter.title"
 				>
 					{{ chapter.title }}
@@ -42,7 +42,7 @@
 					<span
 						v-if="allowEdit"
 						@click.prevent="emit('delete-chapter', chapter.name)"
-						class="lucide-trash-2 size-4 text-ink-red-3 invisible group-hover:visible"
+						class="lucide-trash-2 size-4 text-ink-red-6 invisible group-hover:visible"
 					/>
 				</Tooltip>
 			</div>
@@ -107,7 +107,7 @@
 												chapter: chapter.name,
 											})
 										"
-										class="h-4 w-4 text-ink-red-3 invisible group-hover:visible"
+										class="h-4 w-4 text-ink-red-6 invisible group-hover:visible"
 									/>
 								</div>
 								<Check

@@ -7,7 +7,7 @@
 	>
 		<template #body>
 			<div class="p-5 min-h-[300px]">
-				<div class="text-lg text-ink-gray-9 font-semibold mb-4">
+				<div class="text-xl-semibold text-ink-gray-9 mb-4">
 					{{ __('Training Feedback') }}
 				</div>
 				<ListView
@@ -22,7 +22,7 @@
 					class="border rounded-lg py-2 px-3"
 				>
 					<ListHeader
-						class="mb-2 grid items-center rounded bg-surface-white border-b rounded-none !px-0"
+						class="mb-2 grid items-center rounded bg-surface-base border-b rounded-none !px-0"
 					>
 						<ListHeaderItem :item="item" v-for="item in feedbackColumns">
 							<template #prefix="{ item }">

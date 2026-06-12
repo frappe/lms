@@ -18,7 +18,7 @@
 					<Avatar :image="studentDetails.data.user_image" size="3xl" />
 					<div class="space-y-1">
 						<div class="flex items-center gap-x-2">
-							<div class="text-xl font-semibold text-ink-gray-9">
+							<div class="text-3xl-semibold text-ink-gray-9">
 								{{ studentDetails.data.full_name }}
 							</div>
 							<Badge
@@ -43,7 +43,7 @@
 						:columns="assessmentColumns"
 						:rows="studentDetails.data.assessments"
 						row-key="title"
-						class="border border-outline-gray-modals rounded-lg"
+						class="border border-outline-elevation-2 rounded-lg"
 						:options="{
 							selectable: false,
 							showTooltip: false,
@@ -85,7 +85,7 @@
 						:columns="courseColumns"
 						:rows="studentDetails.data.courses"
 						row-key="title"
-						class="border border-outline-gray-modals rounded-lg"
+						class="border border-outline-elevation-2 rounded-lg"
 						:options="{
 							selectable: false,
 							showTooltip: false,

@@ -17,7 +17,7 @@
 		</LayoutHeader>
 		<div class="mx-auto pt-5 p-4">
 			<div class="flex items-center justify-between mb-5">
-				<div class="text-lg font-semibold text-ink-gray-9 mb-4 md:mb-0">
+				<div class="text-xl-semibold text-ink-gray-9 mb-4 md:mb-0">
 					{{ totalApplications.data }}
 					{{
 						totalApplications.data === 1
@@ -44,7 +44,7 @@
 					class="h-[79vh] border-b"
 				>
 					<ListHeader
-						class="mb-2 grid items-center rounded bg-surface-white border-b rounded-none p-2"
+						class="mb-2 grid items-center rounded bg-surface-base border-b rounded-none p-2"
 					>
 						<ListHeaderItem
 							:item="item"
@@ -153,7 +153,7 @@
 							@change="(val) => (emailForm.message = val)"
 							:editable="true"
 							:fixedMenu="true"
-							editorClass="prose-sm max-w-none border-b border-x border-outline-gray-modals bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[7rem]"
+							editorClass="prose-sm max-w-none border-b border-x border-outline-elevation-2 bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[7rem]"
 						/>
 					</div>
 				</div>

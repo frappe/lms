@@ -17,7 +17,7 @@
 		</template>
 		<template #body>
 			<div
-				class="grid grid-cols-3 justify-between mx-3 p-2 rounded-lg bg-surface-modal shadow-2xl ring-1 ring-black ring-opacity-5"
+				class="grid grid-cols-3 justify-between mx-3 p-2 rounded-lg bg-surface-elevation-2 shadow-2xl ring-1 ring-black ring-opacity-5"
 			>
 				<div key="name" class="py-1 px-2 hover:bg-surface-gray-2 rounded">
 					<router-link

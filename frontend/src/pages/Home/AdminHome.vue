@@ -2,7 +2,7 @@
 	<div>
 		<div class="mt-10 space-y-10">
 			<div v-if="evals?.data?.length">
-				<div class="font-semibold text-lg text-ink-gray-9 mb-3">
+				<div class="text-xl-semibold text-ink-gray-9 mb-3">
 					{{ __('Upcoming Evaluations') }}
 				</div>
 				<div class="grid grid-cols-1 md:grid-cols-4 gap-5">
@@ -11,7 +11,7 @@
 						class="border hover:border-outline-gray-3 rounded-md p-3 flex flex-col h-full cursor-pointer"
 						@click="redirectToProfile()"
 					>
-						<div class="font-semibold text-ink-gray-9 text-lg leading-5 mb-3">
+						<div class="text-ink-gray-9 text-xl-semibold leading-5 mb-3">
 							{{ evaluation.course_title }}
 						</div>
 						<div class="text-ink-gray-7">
@@ -38,7 +38,7 @@
 				</div>
 			</div>
 			<div v-if="liveClasses?.data?.length">
-				<div class="font-semibold text-lg text-ink-gray-9 mb-3">
+				<div class="text-xl-semibold text-ink-gray-9 mb-3">
 					{{ __('Upcoming Live Classes') }}
 				</div>
 				<div class="grid grid-cols-1 md:grid-cols-4 gap-5">
@@ -46,7 +46,7 @@
 						v-for="cls in liveClasses?.data"
 						class="border hover:border-outline-gray-3 rounded-md p-3"
 					>
-						<div class="font-semibold text-ink-gray-9 text-lg leading-5 mb-1">
+						<div class="text-ink-gray-9 text-xl-semibold leading-5 mb-1">
 							{{ cls.title }}
 						</div>
 						<div class="text-ink-gray-7 leading-5 mb-4">
@@ -94,7 +94,7 @@
 								:text="__('This class has ended')"
 								placement="right"
 							>
-								<div class="flex items-center gap-x-2 text-ink-amber-3 w-fit">
+								<div class="flex items-center gap-x-2 text-ink-amber-6 w-fit">
 									<Info class="w-4 h-4 stroke-1.5" />
 									<span>
 										{{ __('Ended') }}
@@ -109,7 +109,7 @@
 
 		<div v-if="createdCourses.data?.length" class="mt-10">
 			<div class="flex items-center justify-between mb-3">
-				<span class="font-semibold text-lg text-ink-gray-9">
+				<span class="text-xl-semibold text-ink-gray-9">
 					{{ __('Courses Created') }}
 				</span>
 				<router-link
@@ -137,7 +137,7 @@
 
 		<div v-if="createdBatches.data?.length" class="mt-10">
 			<div class="flex items-center justify-between mb-3">
-				<span class="font-semibold text-lg text-ink-gray-9">
+				<span class="text-xl-semibold text-ink-gray-9">
 					{{ __('Upcoming Batches') }}
 				</span>
 				<router-link
@@ -168,7 +168,7 @@
 			class="flex flex-col items-center justify-center mt-60"
 		>
 			<GraduationCap class="size-10 mx-auto stroke-1 text-ink-gray-5" />
-			<div class="text-lg font-semibold text-ink-gray-7 mb-1.5">
+			<div class="text-xl-semibold text-ink-gray-7 mb-1.5">
 				{{ __('No courses created') }}
 			</div>
 			<div

@@ -1,7 +1,7 @@
 <template>
 	<div
 		v-if="course.title"
-		class="flex flex-col h-full rounded-md overflow-auto text-ink-gray-9 bg-surface-cards"
+		class="flex flex-col h-full rounded-md overflow-auto text-ink-gray-9 bg-surface-elevation-1"
 		style="min-height: 350px"
 	>
 		<div
@@ -18,7 +18,7 @@
 			<!-- <div class="flex items-center flex-wrap relative top-4 px-2 w-fit">
 				<div
 					v-if="course.featured"
-					class="flex items-center gap-x-1 text-xs text-ink-amber-3 bg-surface-white border border-outline-amber-1 px-2 py-0.5 rounded-md me-1 mb-1"
+					class="flex items-center gap-x-1 text-xs text-ink-amber-6 bg-surface-base border border-outline-amber-1 px-2 py-0.5 rounded-md me-1 mb-1"
 				>
 					<Star class="size-3 stroke-2" />
 					<span>
@@ -28,7 +28,7 @@
 				<div
 					v-if="course.tags"
 					v-for="tag in course.tags?.split(', ')"
-					class="text-xs border bg-surface-white text-ink-gray-9 px-2 py-0.5 rounded-md mb-1 me-1"
+					class="text-xs border bg-surface-base text-ink-gray-9 px-2 py-0.5 rounded-md mb-1 me-1"
 				>
 					{{ tag }}
 				</div>
@@ -38,10 +38,10 @@
 				class="flex items-center justify-center text-white flex-1 font-extrabold my-auto px-5 text-center leading-6 h-full"
 				:class="
 					course.title.length > 32
-						? 'text-lg'
-						: course.title.length > 20
 						? 'text-xl'
-						: 'text-2xl'
+						: course.title.length > 20
+						? 'text-3xl'
+						: 'text-4xl'
 				"
 			>
 				{{ course.title }}
@@ -77,14 +77,14 @@
 				</div>
 
 				<Tooltip v-if="course.featured" :text="__('Featured')">
-					<Award class="size-4 stroke-2 text-ink-amber-3" />
+					<Award class="size-4 stroke-2 text-ink-amber-6" />
 				</Tooltip>
 			</div>
 
 			<div
 				v-if="course.image"
 				class="font-semibold leading-6"
-				:class="course.title.length > 32 ? 'text-lg' : 'text-xl'"
+				:class="course.title.length > 32 ? 'text-xl' : 'text-3xl'"
 			>
 				{{ course.title }}
 			</div>

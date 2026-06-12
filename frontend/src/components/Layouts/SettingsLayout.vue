@@ -14,7 +14,7 @@
 						class="shrink-0"
 						@click="emit('back')"
 					/>
-					<h2 class="text-p-xl font-semibold text-ink-gray-9">
+					<h2 class="text-p-3xl-semibold text-ink-gray-9">
 						{{ title }}
 					</h2>
 					<slot name="title-badge" />

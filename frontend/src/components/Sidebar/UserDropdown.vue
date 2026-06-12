@@ -8,7 +8,7 @@
 						isCollapsed
 							? 'px-0 w-auto'
 							: open
-							? 'bg-surface-white shadow-sm px-2 w-52'
+							? 'bg-surface-base shadow-sm px-2 w-52'
 							: 'hover:bg-surface-gray-3 px-2 w-52'
 					"
 				>
@@ -26,7 +26,7 @@
 								: 'opacity-100 ms-2 w-auto'
 						"
 					>
-						<div class="text-base font-medium text-ink-gray-9 leading-none">
+						<div class="text-base-medium text-ink-gray-9 leading-none">
 							<span
 								v-if="
 									branding.data?.app_name && branding.data?.app_name != 'Frappe'

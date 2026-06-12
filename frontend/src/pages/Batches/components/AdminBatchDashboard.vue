@@ -27,7 +27,7 @@
 		<div class="grid grid-cols-1 lg:grid-cols-[3fr_2fr] gap-5 items-start">
 			<div class="border rounded-lg py-3 px-4 order-2 lg:order-1">
 				<div class="flex items-center justify-between gap-x-2 mb-3">
-					<div class="text-lg text-ink-gray-9 font-semibold">
+					<div class="text-xl-semibold text-ink-gray-9">
 						{{ __('Students') }}
 					</div>
 					<div class="flex items-center gap-x-2">
@@ -62,7 +62,7 @@
 						}"
 					>
 						<ListHeader
-							class="mb-2 grid items-center gap-x-4 rounded bg-surface-white border-b rounded-none p-2"
+							class="mb-2 grid items-center gap-x-4 rounded bg-surface-base border-b rounded-none p-2"
 						>
 							<ListHeaderItem
 								:item="item"

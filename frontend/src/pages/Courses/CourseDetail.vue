@@ -128,9 +128,9 @@
 			>
 				<div class="w-[70%]" />
 				<div
-					class="pointer-events-auto flex w-[30%] items-center justify-between gap-x-2 border-s border-b bg-surface-white p-1 px-5"
+					class="pointer-events-auto flex w-[30%] items-center justify-between gap-x-2 border-s border-b bg-surface-base p-1 px-5"
 				>
-					<div class="py-2.5 font-medium text-base text-ink-gray-9">
+					<div class="py-2.5 text-base-medium text-ink-gray-9">
 						{{ __('Chapters') }}
 					</div>
 					<Button size="sm" @click="courseEditorRef?.openAddChapter()">

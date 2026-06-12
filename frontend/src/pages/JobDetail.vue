@@ -1,7 +1,7 @@
 <template>
 	<div class="">
 		<header
-			class="sticky top-0 z-10 flex items-center justify-between border-b bg-surface-white px-3 py-2.5 sm:px-5"
+			class="sticky top-0 z-10 flex items-center justify-between border-b bg-surface-base px-3 py-2.5 sm:px-5"
 		>
 			<Breadcrumbs
 				class="h-7"
@@ -87,10 +87,10 @@
 							@click="redirectToWebsite(job.data.company_website)"
 						/>
 						<div class="">
-							<div class="text-2xl text-ink-gray-9 font-semibold mb-1">
+							<div class="text-4xl-semibold text-ink-gray-9 mb-1">
 								{{ job.data.job_title }}
 							</div>
-							<div class="text-sm text-ink-gray-5 font-semibold">
+							<div class="text-sm-semibold text-ink-gray-5">
 								{{ job.data.company_name }} - {{ job.data.location }},
 								{{ job.data.country }}
 							</div>

@@ -22,7 +22,7 @@
 				@input="changeCurrentTime"
 				class="duration-slider w-full h-1"
 			/>
-			<span class="text-xs text-ink-gray-9 font-medium">
+			<span class="text-xs-medium text-ink-gray-9">
 				{{ formatTime(currentTime) }} / {{ formatTime(duration) }}
 			</span>
 			<Button variant="ghost" @click="toggleMute">

@@ -1,7 +1,7 @@
 <template>
 	<div v-if="!forHome || (forHome && upcoming_evals.data?.length)">
 		<div class="flex items-center justify-between mb-4">
-			<div class="text-lg text-ink-gray-9 font-semibold">
+			<div class="text-xl-semibold text-ink-gray-9">
 				{{ __('Upcoming Evaluations') }}
 			</div>
 			<Button v-if="canScheduleEvals" @click="openEvalModal">
@@ -10,7 +10,7 @@
 		</div>
 		<div
 			v-if="endDate && !endDateHasPassed"
-			class="text-sm leading-5 bg-surface-amber-1 text-ink-amber-3 p-2 rounded-md mb-4"
+			class="text-sm leading-5 bg-surface-amber-1 text-ink-amber-6 p-2 rounded-md mb-4"
 		>
 			{{ __('The last day to schedule your evaluations is ') }}
 			<span class="font-medium">
@@ -20,7 +20,7 @@
 		</div>
 		<div
 			v-else-if="endDateHasPassed"
-			class="text-sm leading-5 bg-surface-red-1 text-ink-red-3 p-2 rounded-md mb-4"
+			class="text-sm leading-5 bg-surface-red-1 text-ink-red-6 p-2 rounded-md mb-4"
 		>
 			{{
 				__(

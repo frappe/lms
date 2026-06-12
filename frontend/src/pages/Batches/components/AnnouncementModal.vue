@@ -30,7 +30,7 @@
 				<div class="mb-4">
 					<div class="mb-1.5 text-sm text-ink-gray-5">
 						{{ __('Announcement') }}
-						<span class="text-ink-red-3">*</span>
+						<span class="text-ink-red-6">*</span>
 					</div>
 					<TextEditor
 						:fixedMenu="true"

@@ -7,7 +7,7 @@
 	>
 		<template #body>
 			<div class="p-5 space-y-5">
-				<div class="text-lg font-semibold text-ink-gray-9 mb-5">
+				<div class="text-xl-semibold text-ink-gray-9 mb-5">
 					{{ __(props.title) }}
 				</div>
 				<Switch
@@ -28,7 +28,7 @@
 							@change="(val) => (question.question = val)"
 							:editable="true"
 							:fixedMenu="true"
-							editorClass="prose-sm max-w-none border-b border-x border-outline-gray-modals bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[7rem]"
+							editorClass="prose-sm max-w-none border-b border-x border-outline-elevation-2 bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[7rem]"
 						/>
 					</div>
 					<div class="grid grid-cols-2 gap-8 mt-4">
@@ -48,13 +48,13 @@
 					</div>
 					<div
 						v-if="question.type == 'Choices'"
-						class="text-base font-semibold text-ink-gray-9 mb-5 mt-10"
+						class="text-base-semibold text-ink-gray-9 mb-5 mt-10"
 					>
 						{{ __('Options') }}
 					</div>
 					<div
 						v-else-if="question.type == 'User Input'"
-						class="text-base font-semibold text-ink-gray-9 mb-5 mt-5"
+						class="text-base-semibold text-ink-gray-9 mb-5 mt-5"
 					>
 						{{ __('Possibilities') }}
 					</div>

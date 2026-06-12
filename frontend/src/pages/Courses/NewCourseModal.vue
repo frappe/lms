@@ -46,7 +46,7 @@
 								/>
 								<span
 									v-if="overflowCount > 0"
-									class="z-10 grid size-5 place-items-center rounded-full bg-surface-gray-3 text-xs font-medium text-ink-gray-7"
+									class="z-10 grid size-5 place-items-center rounded-full bg-surface-gray-3 text-xs-medium text-ink-gray-7"
 								>
 									+{{ overflowCount }}
 								</span>
@@ -92,7 +92,7 @@
 							@change="(val: string) => (course.description = val)"
 							:editable="true"
 							:fixedMenu="true"
-							editorClass="prose-sm max-w-none border-b border-x border-outline-gray-modals bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[10rem] max-h-[17rem] overflow-auto"
+							editorClass="prose-sm max-w-none border-b border-x border-outline-elevation-2 bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[10rem] max-h-[17rem] overflow-auto"
 						/>
 					</div>
 				</div>

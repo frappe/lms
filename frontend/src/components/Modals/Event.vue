@@ -8,7 +8,7 @@
 		<template #body>
 			<div class="flex text-base">
 				<div class="flex flex-col w-1/2 p-5">
-					<div class="text-lg font-semibold mb-4">
+					<div class="text-xl-semibold mb-4">
 						{{ event.title }}
 					</div>
 

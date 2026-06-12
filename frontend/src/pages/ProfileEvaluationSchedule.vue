@@ -14,7 +14,7 @@
 			>
 				<template #header="{ currentMonthYear, decrement, increment }">
 					<div class="mb-2 flex justify-between">
-						<span class="text-lg text-ink-gray-9 font-semibold">
+						<span class="text-xl-semibold text-ink-gray-9">
 							{{ currentMonthYear }}
 						</span>
 						<div class="flex gap-x-1">

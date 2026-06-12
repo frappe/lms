@@ -3,10 +3,10 @@
 		<div class="flex items-center justify-between gap-3 mb-8">
 			<div class="flex items-center gap-2">
 				<Star class="size-5 text-yellow-500 fill-yellow-500" />
-				<span class="text-2xl font-semibold text-ink-gray-9">
+				<span class="text-4xl-semibold text-ink-gray-9">
 					{{ avg_rating ? formatRating(avg_rating) : '0' }}
 				</span>
-				<span class="text-lg text-ink-gray-7">
+				<span class="text-xl text-ink-gray-7">
 					{{ __('course rating') }} &amp;
 					{{ reviews.data?.length || 0 }}
 					{{
@@ -46,7 +46,7 @@
 								name: 'Profile',
 								params: { username: review.owner_details.username },
 							}"
-							class="text-lg font-medium text-ink-gray-9 truncate"
+							class="text-xl-medium text-ink-gray-9 truncate"
 						>
 							{{ review.owner_details.full_name }}
 						</router-link>

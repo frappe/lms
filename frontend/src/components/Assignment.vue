@@ -8,7 +8,7 @@
 			class="border-e p-5 overflow-y-auto h-[calc(100vh-3.2rem)]"
 			:class="{ 'h-full': !showTitle }"
 		>
-			<div v-if="showTitle" class="text-lg font-semibold mb-5 text-ink-gray-9">
+			<div v-if="showTitle" class="text-xl-semibold mb-5 text-ink-gray-9">
 				<div v-if="submissionName === 'new'">
 					{{ __('Submission by') }} {{ user.data?.full_name }}
 				</div>
@@ -57,7 +57,7 @@
 						!['Pass', 'Fail'].includes(submissionResource.doc?.status) &&
 						submissionResource.doc?.owner == user.data?.name
 					"
-					class="bg-surface-blue-2 text-ink-blue-2 p-3 rounded-md leading-5 text-sm"
+					class="bg-surface-blue-2 text-ink-blue-5 p-3 rounded-md leading-5 text-sm"
 				>
 					{{ __("You've successfully submitted the assignment.") }}
 					{{
@@ -145,7 +145,7 @@
 						:uploadArgs="{
 							private: true,
 						}"
-						editorClass="prose-sm max-w-none border-b border-x border-outline-gray-modals bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[7rem]"
+						editorClass="prose-sm max-w-none border-b border-x border-outline-elevation-2 bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[7rem]"
 					/>
 				</div>
 
@@ -194,7 +194,7 @@
 							:uploadArgs="{
 								private: true,
 							}"
-							editorClass="prose-sm max-w-none border-b border-x border-outline-gray-modals bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[7rem]"
+							editorClass="prose-sm max-w-none border-b border-x border-outline-elevation-2 bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[7rem]"
 						/>
 					</div>
 				</div>

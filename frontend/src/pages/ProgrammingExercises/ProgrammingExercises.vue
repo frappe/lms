@@ -39,7 +39,7 @@
 		<div
 			class="mb-5 flex flex-col justify-between gap-y-4 px-5 sm:flex-row sm:items-center"
 		>
-			<div class="text-lg font-semibold text-ink-gray-9">
+			<div class="text-xl-semibold text-ink-gray-9">
 				{{ __('{0} Exercises').format(exercises.data?.length) }}
 			</div>
 			<div class="flex flex-col gap-3 sm:gap-5 md:flex-row">
@@ -74,7 +74,7 @@
 			class="flex-1 overflow-y-auto px-5"
 		>
 			<ListHeader
-				class="mb-2 grid items-center rounded-none border-b bg-surface-white p-2"
+				class="mb-2 grid items-center rounded-none border-b bg-surface-base p-2"
 			>
 				<ListHeaderItem :item="item" v-for="item in columns">
 					<template #prefix="{ item }">

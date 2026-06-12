@@ -10,7 +10,7 @@
 			</template>
 			{{ __('New {0}').format(singularize(title)) }}
 		</Button>
-		<div class="text-xl font-semibold text-ink-gray-9">
+		<div class="text-3xl-semibold text-ink-gray-9">
 			{{ __(title) }}
 		</div>
 	</div>
@@ -23,7 +23,7 @@
 			>
 				<UserAvatar :user="topic.user" size="2xl" class="me-4" />
 				<div>
-					<div class="text-lg font-semibold mb-1 text-ink-gray-7">
+					<div class="text-xl-semibold mb-1 text-ink-gray-7">
 						{{ topic.title }}
 					</div>
 					<div class="flex items-center text-ink-gray-5">

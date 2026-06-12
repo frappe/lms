@@ -3,10 +3,10 @@
 		<div class="text-xs text-ink-gray-5 mb-2">
 			{{ label }}
 		</div>
-		<div class="overflow-visible border border-outline-gray-modals rounded-md">
+		<div class="overflow-visible border border-outline-elevation-2 rounded-md">
 			<div class="overflow-x-auto">
 				<div
-					class="grid items-center gap-x-4 p-2 border-b border-outline-gray-modals"
+					class="grid items-center gap-x-4 p-2 border-b border-outline-elevation-2"
 					:style="{ gridTemplateColumns: getGridTemplateColumns() }"
 				>
 					<div
@@ -47,7 +47,7 @@
 						<div
 							v-if="menuOpenIndex === rowIndex"
 							ref="menuRef"
-							class="absolute end-0 w-32 z-50 bg-surface-modal border border-outline-gray-modals rounded-md shadow-sm"
+							class="absolute end-0 w-32 z-50 bg-surface-elevation-2 border border-outline-elevation-2 rounded-md shadow-sm"
 							:class="
 								rowIndex == (rows?.length ?? 0) - 1
 									? 'bottom-full mb-1'
@@ -56,7 +56,7 @@
 						>
 							<button
 								@click="deleteRow(rowIndex)"
-								class="flex items-center gap-x-2 w-full text-start px-3 py-2 text-sm text-ink-red-3"
+								class="flex items-center gap-x-2 w-full text-start px-3 py-2 text-sm text-ink-red-6"
 							>
 								<Trash2 class="size-4 stroke-1.5" />
 								<span>

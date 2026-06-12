@@ -35,7 +35,7 @@
 				<div>
 					<label class="text-xs text-ink-gray-5 mb-1">
 						{{ __('Issued On') }}
-						<span class="text-ink-red-3">*</span>
+						<span class="text-ink-red-6">*</span>
 					</label>
 					<DatePicker
 						v-model="badgeAssignment.issued_on"

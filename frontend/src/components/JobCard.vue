@@ -4,7 +4,7 @@
 	>
 		<div class="flex gap-x-4 mb-4">
 			<div class="flex flex-col space-y-2 flex-1 break-all">
-				<div class="text-lg font-semibold text-ink-gray-9">
+				<div class="text-xl-semibold text-ink-gray-9">
 					{{ job.company_name }}
 				</div>
 				<span class="font-medium text-ink-gray-7 leading-5">

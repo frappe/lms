@@ -4,7 +4,7 @@
 	>
 		<component :is="icon" class="size-7.5 stroke-1 text-ink-gray-5" />
 		<div class="flex flex-col items-center gap-1" :class="widthClass">
-			<span class="text-lg font-medium text-ink-gray-8 text-center">
+			<span class="text-xl-medium text-ink-gray-8 text-center">
 				{{ computedTitle }}
 			</span>
 			<span class="text-center text-p-base text-ink-gray-6">

@@ -3,7 +3,7 @@
 		<template #header-actions>
 			<div
 				v-if="saving"
-				class="flex items-center gap-x-1 text-ink-amber-3 border border-outline-amber-1 bg-surface-amber-1 rounded-lg px-2 py-1"
+				class="flex items-center gap-x-1 text-ink-amber-6 border border-outline-amber-1 bg-surface-amber-1 rounded-lg px-2 py-1"
 			>
 				<LoadingIndicator class="size-2" />
 				<span class="text-xs">{{ __('saving...') }}</span>
@@ -34,7 +34,7 @@
 			</div>
 		</template>
 
-		<div class="divide-y divide-outline-gray-modals space-y-2">
+		<div class="divide-y divide-outline-elevation-2 space-y-2">
 			<div
 				v-if="categories.data?.length"
 				v-for="(cat, index) in categories.data"
@@ -55,7 +55,7 @@
 						@click="deleteCategory(cat.name)"
 					>
 						<template #icon>
-							<Trash2 class="size-4 stroke-1.5 text-ink-red-4" />
+							<Trash2 class="size-4 stroke-1.5 text-ink-red-8" />
 						</template>
 					</Button>
 				</div>

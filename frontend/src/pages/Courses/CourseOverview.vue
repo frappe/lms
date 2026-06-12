@@ -6,7 +6,7 @@
 		>
 			<div class="md:w-2/3 space-y-10 min-w-0">
 				<section class="space-y-4">
-					<h1 class="text-3xl font-semibold text-ink-gray-9">
+					<h1 class="text-5xl-semibold text-ink-gray-9">
 						{{ course.data.title }}
 					</h1>
 					<div
@@ -76,7 +76,7 @@
 
 				<section>
 					<div class="flex items-baseline justify-between gap-4 mb-4">
-						<h2 class="text-2xl font-semibold text-ink-gray-9">
+						<h2 class="text-4xl-semibold text-ink-gray-9">
 							{{ __('Course content') }}
 						</h2>
 						<div class="text-base text-ink-gray-5">
@@ -107,7 +107,7 @@
 				</section>
 
 				<section v-if="course.data.description" class="space-y-3">
-					<h2 class="text-2xl font-semibold text-ink-gray-9">
+					<h2 class="text-4xl-semibold text-ink-gray-9">
 						{{ __('About this course') }}
 					</h2>
 					<div

@@ -6,7 +6,7 @@
 			class="rounded-t-md min-h-56 w-full"
 		/>
 		<div class="p-5">
-			<div class="text-2xl font-semibold text-ink-gray-9 mb-4">
+			<div class="text-4xl-semibold text-ink-gray-9 mb-4">
 				{{ priceLabel }}
 			</div>
 			<div v-if="!readOnlyMode">

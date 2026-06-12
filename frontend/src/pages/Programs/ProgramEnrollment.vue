@@ -6,13 +6,13 @@
 		}"
 	>
 		<template #body-title>
-			<div v-if="program.data" class="text-xl font-semibold text-ink-gray-9">
+			<div v-if="program.data" class="text-3xl-semibold text-ink-gray-9">
 				{{ __('Enrollment for Program {0}').format(program.data?.name) }}
 			</div>
 		</template>
 		<template #body-content>
 			<div v-if="program.data" class="text-base text-ink-gray-9">
-				<div class="bg-surface-blue-2 text-ink-blue-3 p-2 rounded-md leading-5">
+				<div class="bg-surface-blue-2 text-ink-blue-6 p-2 rounded-md leading-5">
 					<span>
 						{{
 							__('This program consists of {0} courses').format(
@@ -40,7 +40,7 @@
 				</div>
 
 				<div class="mt-5">
-					<div class="text-sm font-semibold text-ink-gray-5">
+					<div class="text-sm-semibold text-ink-gray-5">
 						{{ __('Courses in this Program') }}
 					</div>
 					<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">

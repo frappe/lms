@@ -2,7 +2,7 @@
 	<div class="p-5">
 		<div
 			v-if="isAdmin() && !hasProviderAccount()"
-			class="flex lg:items-center gap-x-2 mb-5 bg-surface-amber-1 px-3 py-2 rounded-lg text-ink-amber-3"
+			class="flex lg:items-center gap-x-2 mb-5 bg-surface-amber-1 px-3 py-2 rounded-lg text-ink-amber-6"
 		>
 			<AlertCircle class="size-7 md:size-4 stroke-1.5" />
 			<span class="leading-5">
@@ -15,7 +15,7 @@
 		</div>
 
 		<div class="flex items-center justify-between">
-			<div class="text-lg font-semibold text-ink-gray-9">
+			<div class="text-xl-semibold text-ink-gray-9">
 				{{ __('Live Class') }}
 			</div>
 			<Button v-if="canCreateClass()" @click="openLiveClassModal">
@@ -91,7 +91,7 @@
 						:text="__('This class has ended')"
 						placement="right"
 					>
-						<div class="flex items-center gap-x-2 text-ink-amber-3 w-fit">
+						<div class="flex items-center gap-x-2 text-ink-amber-6 w-fit">
 							<Info class="w-4 h-4 stroke-1.5" />
 							<span>
 								{{ __('Ended') }}

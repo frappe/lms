@@ -1,7 +1,7 @@
 <template>
 	<div class="flex flex-col h-full">
 		<div class="bg-surface-gray-1 px-5 py-5 border-b">
-			<div class="text-lg font-semibold text-ink-gray-9 leading-snug">
+			<div class="text-xl-semibold text-ink-gray-9 leading-snug">
 				{{ courseTitle }}
 			</div>
 			<div class="mt-4 flex items-center gap-2 text-sm text-ink-gray-7">
@@ -29,7 +29,7 @@
 					class="w-full flex items-center justify-between rounded px-3 py-2 hover:bg-surface-gray-2 text-left"
 				>
 					<div
-						class="flex items-center gap-2 text-sm font-medium text-ink-gray-9 min-w-0"
+						class="flex items-center gap-2 text-sm-medium text-ink-gray-9 min-w-0"
 					>
 						<ChevronDown
 							class="size-4 stroke-1.5 shrink-0 transition-transform"

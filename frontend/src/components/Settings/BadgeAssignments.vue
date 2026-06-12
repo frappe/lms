@@ -74,7 +74,7 @@
 		</div>
 		<div v-else class="flex flex-col items-center justify-center mt-44">
 			<GraduationCap class="size-10 mx-auto stroke-1 text-ink-gray-5" />
-			<div class="text-lg font-semibold text-ink-gray-7 mb-2.5">
+			<div class="text-xl-semibold text-ink-gray-7 mb-2.5">
 				{{ __('No Assignments') }}
 			</div>
 			<div

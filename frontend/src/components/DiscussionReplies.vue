@@ -6,7 +6,7 @@
 					<ChevronLeft class="w-5 h-5 stroke-1.5 text-ink-gray-7" />
 				</template>
 			</Button>
-			<span class="text-lg font-semibold ms-2 text-ink-gray-9">
+			<span class="text-xl-semibold ms-2 text-ink-gray-9">
 				{{ topic.title }}
 			</span>
 		</div>

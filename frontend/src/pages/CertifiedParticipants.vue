@@ -16,7 +16,7 @@
 	</LayoutHeader>
 	<div class="mx-auto flex min-h-0 w-full flex-1 flex-col">
 		<div class="mb-5 flex flex-col justify-between px-5 pt-5 md:flex-row">
-			<div class="mb-4 text-lg font-semibold text-ink-gray-9 md:mb-0">
+			<div class="mb-4 text-xl-semibold text-ink-gray-9 md:mb-0">
 				{{ memberCount }} {{ __('Certified Members') }}
 			</div>
 			<div

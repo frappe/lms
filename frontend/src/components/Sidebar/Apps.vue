@@ -17,7 +17,7 @@
 		</template>
 		<template #body>
 			<div
-				class="grid grid-cols-3 justify-between mx-3 p-2 rounded-lg bg-surface-modal shadow-2xl ring-1 ring-black ring-opacity-5"
+				class="grid grid-cols-3 justify-between mx-3 p-2 rounded-lg bg-surface-elevation-2 shadow-2xl ring-1 ring-black ring-opacity-5"
 			>
 				<div v-for="app in apps.data" key="name">
 					<a

@@ -5,7 +5,7 @@
 				<div
 					class="flex w-52 shrink-0 flex-col bg-surface-gray-2 p-2 overflow-y-auto"
 				>
-					<h1 class="mb-3 px-2 pt-2 text-lg font-semibold text-ink-gray-9">
+					<h1 class="mb-3 px-2 pt-2 text-xl-semibold text-ink-gray-9">
 						{{ __('Settings') }}
 					</h1>
 					<div class="space-y-5">
@@ -31,7 +31,7 @@
 				<div
 					v-if="activeTab && data.doc"
 					:key="activeTab.label"
-					class="flex flex-1 flex-col bg-surface-modal overflow-hidden"
+					class="flex flex-1 flex-col bg-surface-elevation-2 overflow-hidden"
 				>
 					<component
 						v-if="activeTab.template"
