@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Learning VERSION\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
-"POT-Creation-Date: 2026-06-05 16:48+0000\n"
-"PO-Revision-Date: 2026-06-05 16:48+0000\n"
+"POT-Creation-Date: 2026-06-12 16:58+0000\n"
+"PO-Revision-Date: 2026-06-12 16:58+0000\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: jannat@frappe.io\n"
 "MIME-Version: 1.0\n"
@@ -128,7 +128,7 @@ msgstr ""
 
 #. Label of the account_id (Data) field in DocType 'LMS Zoom Settings'
 #. Label of the account_id (Data) field in DocType 'Zoom Settings'
-#: frontend/src/components/Modals/ZoomAccountModal.vue:60
+#: frontend/src/components/Settings/ZoomAccountForm.vue:51
 #: lms/lms/doctype/lms_zoom_settings/lms_zoom_settings.json
 #: lms/lms/doctype/zoom_settings/zoom_settings.json
 msgid "Account ID"
@@ -136,10 +136,10 @@ msgstr ""
 
 #. Label of the account_name (Data) field in DocType 'LMS Google Meet Settings'
 #. Label of the account_name (Data) field in DocType 'LMS Zoom Settings'
-#: frontend/src/components/Modals/ZoomAccountModal.vue:33
-#: frontend/src/components/Settings/GoogleMeetAccountModal.vue:35
-#: frontend/src/components/Settings/GoogleMeetSettings.vue:198
-#: frontend/src/components/Settings/ZoomSettings.vue:187
+#: frontend/src/components/Settings/GoogleMeetAccountForm.vue:26
+#: frontend/src/components/Settings/GoogleMeetSettings.vue:192
+#: frontend/src/components/Settings/ZoomAccountForm.vue:24
+#: frontend/src/components/Settings/ZoomSettings.vue:182
 #: lms/lms/doctype/lms_google_meet_settings/lms_google_meet_settings.json
 #: lms/lms/doctype/lms_zoom_settings/lms_zoom_settings.json
 msgid "Account Name"
@@ -149,11 +149,11 @@ msgstr ""
 msgid "Achievements"
 msgstr ""
 
-#: frontend/src/components/Settings/GoogleMeetAccountModal.vue:28
+#: frontend/src/components/Settings/GoogleMeetAccountForm.vue:19
 msgid "Activate this Google Meet account for scheduling meetings."
 msgstr ""
 
-#: frontend/src/components/Modals/ZoomAccountModal.vue:26
+#: frontend/src/components/Settings/ZoomAccountForm.vue:18
 msgid "Activate this Zoom account for scheduling meetings."
 msgstr ""
 
@@ -162,10 +162,9 @@ msgid "Active Members"
 msgstr ""
 
 #: frontend/src/components/CourseOutline.vue:21
-#: frontend/src/components/Modals/AddEvaluatorModal.vue:9
 #: frontend/src/components/Modals/NewMemberModal.vue:9
 #: frontend/src/components/Modals/QuizInVideo.vue:29
-#: frontend/src/components/Settings/Categories.vue:40
+#: frontend/src/components/Settings/Categories.vue:32
 #: frontend/src/pages/Batches/components/Assessments.vue:11
 #: frontend/src/pages/Batches/components/BatchCourses.vue:11
 #: frontend/src/pages/Batches/components/LiveClass.vue:26
@@ -185,10 +184,6 @@ msgstr ""
 msgid "Add Course to Program"
 msgstr ""
 
-#: frontend/src/components/Modals/AddEvaluatorModal.vue:5
-msgid "Add Existing User as Evaluator"
-msgstr ""
-
 #: frontend/src/components/ChapterRow.vue:124
 msgid "Add Lesson"
 msgstr ""
@@ -206,7 +201,7 @@ msgid "Add Quiz to Video"
 msgstr ""
 
 #: frontend/src/components/Controls/ChildTable.vue:77
-#: frontend/src/components/Settings/Coupons/CouponItems.vue:55
+#: frontend/src/components/Settings/Coupons/CouponItems.vue:59
 msgid "Add Row"
 msgstr ""
 
@@ -216,10 +211,6 @@ msgstr ""
 
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseForm.vue:40
 msgid "Add Test Case"
-msgstr ""
-
-#: frontend/src/components/Settings/Transactions/TransactionList.vue:16
-msgid "Add Transaction"
 msgstr ""
 
 #: lms/templates/onboarding_header.html:26
@@ -274,15 +265,14 @@ msgstr ""
 msgid "Add new question"
 msgstr ""
 
-#: frontend/src/components/Settings/Badges.vue:98
-#: frontend/src/components/Settings/Categories.vue:82
-#: frontend/src/components/Settings/Coupons/CouponList.vue:84
-#: frontend/src/components/Settings/EmailTemplates.vue:76
-#: frontend/src/components/Settings/Evaluators.vue:116
-#: frontend/src/components/Settings/GoogleMeetSettings.vue:94
-#: frontend/src/components/Settings/PaymentGateways.vue:83
-#: frontend/src/components/Settings/Transactions/TransactionList.vue:109
-#: frontend/src/components/Settings/ZoomSettings.vue:94
+#: frontend/src/components/Settings/Badges.vue:90
+#: frontend/src/components/Settings/Categories.vue:74
+#: frontend/src/components/Settings/Coupons/CouponList.vue:75
+#: frontend/src/components/Settings/EmailTemplates.vue:75
+#: frontend/src/components/Settings/GoogleMeetSettings.vue:85
+#: frontend/src/components/Settings/PaymentGateways.vue:78
+#: frontend/src/components/Settings/Transactions/TransactionList.vue:101
+#: frontend/src/components/Settings/ZoomSettings.vue:88
 msgid "Add one to get started."
 msgstr ""
 
@@ -316,7 +306,7 @@ msgid "Add your first lesson"
 msgstr ""
 
 #. Label of the address (Link) field in DocType 'LMS Payment'
-#: frontend/src/components/Settings/Transactions/TransactionDetails.vue:148
+#: frontend/src/components/Settings/Transactions/TransactionDetails.vue:141
 #: frontend/src/pages/Billing.vue:109
 #: lms/lms/doctype/lms_payment/lms_payment.json
 msgid "Address"
@@ -340,6 +330,7 @@ msgstr ""
 msgid "Administrator"
 msgstr ""
 
+#: frontend/src/components/Settings/Members.vue:172
 #: frontend/src/pages/Batches/Batches.vue:315
 msgid "All"
 msgstr ""
@@ -381,7 +372,11 @@ msgstr ""
 msgid "Allow accessing future dates"
 msgstr ""
 
-#: frontend/src/components/Settings/Coupons/CouponDetails.vue:18
+#: frontend/src/components/Settings/BadgeForm.vue:19
+msgid "Allow this badge to be awarded to learners."
+msgstr ""
+
+#: frontend/src/components/Settings/Coupons/CouponDetails.vue:24
 msgid "Allow this coupon to be used for discounts."
 msgstr ""
 
@@ -409,8 +404,8 @@ msgstr ""
 #. Label of the amount (Currency) field in DocType 'LMS Batch'
 #. Label of the course_price (Currency) field in DocType 'LMS Course'
 #. Label of the amount (Currency) field in DocType 'LMS Payment'
-#: frontend/src/components/Settings/Transactions/TransactionDetails.vue:99
-#: frontend/src/components/Settings/Transactions/TransactionList.vue:196
+#: frontend/src/components/Settings/Transactions/TransactionDetails.vue:92
+#: frontend/src/components/Settings/Transactions/TransactionList.vue:189
 #: frontend/src/pages/Batches/BatchForm.vue:108
 #: lms/lms/doctype/lms_batch/lms_batch.json
 #: lms/lms/doctype/lms_course/lms_course.json
@@ -438,7 +433,7 @@ msgid "Amount and currency are required for paid courses."
 msgstr ""
 
 #. Label of the amount_with_gst (Currency) field in DocType 'LMS Payment'
-#: frontend/src/components/Settings/Transactions/TransactionDetails.vue:105
+#: frontend/src/components/Settings/Transactions/TransactionDetails.vue:98
 #: lms/lms/doctype/lms_payment/lms_payment.json
 msgid "Amount with GST"
 msgstr ""
@@ -468,7 +463,15 @@ msgstr ""
 msgid "Answer"
 msgstr ""
 
-#: frontend/src/components/Settings/Coupons/CouponDetails.vue:72
+#: frontend/src/components/Settings/BrandSettings.vue:63
+msgid "Appears in the left sidebar. Recommended size is 32x32 px in PNG or SVG"
+msgstr ""
+
+#: frontend/src/components/Settings/BrandSettings.vue:97
+msgid "Appears next to the title in your browser tab. Recommended size is 32x32 px in PNG or ICO"
+msgstr ""
+
+#: frontend/src/components/Settings/Coupons/CouponDetails.vue:79
 msgid "Applicable For"
 msgstr ""
 
@@ -554,7 +557,7 @@ msgstr ""
 msgid "As a part of this batch's curriculum you will have to complete the following courses and assessments."
 msgstr ""
 
-#: frontend/src/pages/Lesson.vue:264
+#: frontend/src/pages/Lesson.vue:268
 msgid "Ask a question to get help from the community."
 msgstr ""
 
@@ -598,11 +601,11 @@ msgstr ""
 msgid "Assign"
 msgstr ""
 
-#: frontend/src/components/Settings/BadgeForm.vue:26
+#: frontend/src/components/Settings/BadgeForm.vue:35
 msgid "Assign For"
 msgstr ""
 
-#: frontend/src/components/Settings/BadgeForm.vue:57
+#: frontend/src/components/Settings/BadgeForm.vue:67
 msgid "Assign To"
 msgstr ""
 
@@ -637,7 +640,7 @@ msgstr ""
 msgid "Assignment Progress"
 msgstr ""
 
-#: frontend/src/components/Settings/BadgeForm.vue:198
+#: frontend/src/components/Settings/BadgeForm.vue:211
 #: frontend/src/components/Settings/Badges.vue:211
 msgid "Assignment Submission"
 msgstr ""
@@ -758,7 +761,7 @@ msgstr ""
 msgid "Average Watch Time (mins)"
 msgstr ""
 
-#: frontend/src/pages/Lesson.vue:48 frontend/src/pages/Lesson.vue:174
+#: frontend/src/pages/Lesson.vue:52 frontend/src/pages/Lesson.vue:178
 msgid "Back to Course"
 msgstr ""
 
@@ -792,11 +795,11 @@ msgstr ""
 msgid "Badge assignment updated successfully"
 msgstr ""
 
-#: frontend/src/components/Settings/BadgeAssignments.vue:173
+#: frontend/src/components/Settings/BadgeAssignments.vue:165
 msgid "Badge assignments deleted successfully"
 msgstr ""
 
-#: frontend/src/components/Settings/BadgeForm.vue:182
+#: frontend/src/components/Settings/BadgeForm.vue:195
 msgid "Badge created successfully"
 msgstr ""
 
@@ -804,7 +807,7 @@ msgstr ""
 msgid "Badge deleted successfully"
 msgstr ""
 
-#: frontend/src/components/Settings/BadgeForm.vue:162
+#: frontend/src/components/Settings/BadgeForm.vue:175
 msgid "Badge updated successfully"
 msgstr ""
 
@@ -822,10 +825,10 @@ msgstr ""
 #. Label of the batch_name (Link) field in DocType 'LMS Certificate Request'
 #. Label of the batch_name (Link) field in DocType 'LMS Live Class'
 #: frontend/src/components/Modals/Event.vue:35
-#: frontend/src/components/Settings/BadgeForm.vue:195
+#: frontend/src/components/Settings/BadgeForm.vue:208
 #: frontend/src/components/Settings/Badges.vue:207
-#: frontend/src/components/Settings/Transactions/TransactionDetails.vue:25
-#: frontend/src/components/Settings/Transactions/TransactionDetails.vue:290
+#: frontend/src/components/Settings/Transactions/TransactionDetails.vue:20
+#: frontend/src/components/Settings/Transactions/TransactionDetails.vue:284
 #: frontend/src/pages/Search/Search.vue:235
 #: lms/lms/doctype/lms_batch_enrollment/lms_batch_enrollment.json
 #: lms/lms/doctype/lms_batch_feedback/lms_batch_feedback.json
@@ -863,7 +866,7 @@ msgstr ""
 msgid "Batch End Date"
 msgstr ""
 
-#: frontend/src/components/Settings/BadgeForm.vue:204
+#: frontend/src/components/Settings/BadgeForm.vue:217
 #: frontend/src/components/Settings/Badges.vue:209
 msgid "Batch Enrollment"
 msgstr ""
@@ -999,15 +1002,15 @@ msgstr ""
 
 #. Label of the billing_details_section (Section Break) field in DocType 'LMS
 #. Payment'
-#: frontend/src/components/Settings/Transactions/TransactionDetails.vue:144
+#: frontend/src/components/Settings/Transactions/TransactionDetails.vue:137
 #: frontend/src/pages/Billing.vue:8 frontend/src/pages/Billing.vue:474
 #: lms/lms/doctype/lms_payment/lms_payment.json
 msgid "Billing Details"
 msgstr ""
 
 #. Label of the billing_name (Data) field in DocType 'LMS Payment'
-#: frontend/src/components/Settings/Transactions/TransactionDetails.vue:61
-#: frontend/src/components/Settings/Transactions/TransactionList.vue:190
+#: frontend/src/components/Settings/Transactions/TransactionDetails.vue:55
+#: frontend/src/components/Settings/Transactions/TransactionList.vue:183
 #: frontend/src/pages/Billing.vue:115
 #: lms/lms/doctype/lms_payment/lms_payment.json
 msgid "Billing Name"
@@ -1043,6 +1046,18 @@ msgstr ""
 msgid "Branch"
 msgstr ""
 
+#: frontend/src/components/Settings/BrandSettings.vue:60
+msgid "Brand Logo"
+msgstr ""
+
+#: frontend/src/components/Settings/BrandSettings.vue:22
+msgid "Brand Name"
+msgstr ""
+
+#: frontend/src/components/Settings/BrandSettings.vue:3
+msgid "Brand Settings"
+msgstr ""
+
 #: frontend/src/pages/ProfileRoles.vue:28
 msgid "Build and manage courses, chapters, and lessons"
 msgstr ""
@@ -1070,6 +1085,7 @@ msgid "CGPA/4"
 msgstr ""
 
 #: frontend/src/components/Controls/Link.vue:28
+#: frontend/src/components/Settings/Members.vue:121
 #: frontend/src/components/UpcomingEvaluations.vue:48
 #: frontend/src/components/UpcomingEvaluations.vue:210
 msgid "Cancel"
@@ -1080,7 +1096,7 @@ msgstr ""
 msgid "Cancelled"
 msgstr ""
 
-#: lms/lms/api.py:2431
+#: lms/lms/api.py:2479
 msgid "Cannot search for roles: {0}"
 msgstr ""
 
@@ -1111,23 +1127,23 @@ msgstr ""
 msgid "Category"
 msgstr ""
 
-#: frontend/src/components/Settings/Categories.vue:36
+#: frontend/src/components/Settings/Categories.vue:28
 msgid "Category Name"
 msgstr ""
 
-#: frontend/src/components/Settings/Categories.vue:138
+#: frontend/src/components/Settings/Categories.vue:130
 msgid "Category added successfully"
 msgstr ""
 
-#: frontend/src/utils/index.js:868
+#: frontend/src/utils/index.js:871
 msgid "Category created successfully"
 msgstr ""
 
-#: frontend/src/components/Settings/Categories.vue:198
+#: frontend/src/components/Settings/Categories.vue:190
 msgid "Category deleted successfully"
 msgstr ""
 
-#: frontend/src/components/Settings/Categories.vue:178
+#: frontend/src/components/Settings/Categories.vue:170
 msgid "Category updated successfully"
 msgstr ""
 
@@ -1241,6 +1257,7 @@ msgstr ""
 msgid "Certified Participants"
 msgstr ""
 
+#: frontend/src/components/Controls/ImageUploader.vue:14
 #: lms/templates/assignment.html:13
 msgid "Change"
 msgstr ""
@@ -1265,7 +1282,7 @@ msgstr ""
 msgid "Chapter Reference"
 msgstr ""
 
-#: frontend/src/components/Modals/ChapterModal.vue:166
+#: frontend/src/components/Modals/ChapterModal.vue:147
 msgid "Chapter added successfully"
 msgstr ""
 
@@ -1277,7 +1294,7 @@ msgstr ""
 msgid "Chapter moved successfully"
 msgstr ""
 
-#: frontend/src/components/Modals/ChapterModal.vue:209
+#: frontend/src/components/Modals/ChapterModal.vue:184
 msgid "Chapter updated successfully"
 msgstr ""
 
@@ -1340,6 +1357,10 @@ msgstr ""
 msgid "Choices"
 msgstr ""
 
+#: frontend/src/components/Settings/PaymentGatewayDetails.vue:28
+msgid "Choose a payment provider to configure its credentials."
+msgstr ""
+
 #: frontend/src/components/Quiz.vue:888
 msgid "Choose all answers that apply"
 msgstr ""
@@ -1390,7 +1411,7 @@ msgstr ""
 
 #. Label of the client_id (Data) field in DocType 'LMS Zoom Settings'
 #. Label of the client_id (Data) field in DocType 'Zoom Settings'
-#: frontend/src/components/Modals/ZoomAccountModal.vue:39
+#: frontend/src/components/Settings/ZoomAccountForm.vue:30
 #: lms/lms/doctype/lms_zoom_settings/lms_zoom_settings.json
 #: lms/lms/doctype/zoom_settings/zoom_settings.json
 msgid "Client ID"
@@ -1398,13 +1419,13 @@ msgstr ""
 
 #. Label of the client_secret (Password) field in DocType 'LMS Zoom Settings'
 #. Label of the client_secret (Password) field in DocType 'Zoom Settings'
-#: frontend/src/components/Modals/ZoomAccountModal.vue:54
+#: frontend/src/components/Settings/ZoomAccountForm.vue:45
 #: lms/lms/doctype/lms_zoom_settings/lms_zoom_settings.json
 #: lms/lms/doctype/zoom_settings/zoom_settings.json
 msgid "Client Secret"
 msgstr ""
 
-#: frontend/src/components/Settings/Categories.vue:27
+#: frontend/src/components/Settings/Categories.vue:16
 msgid "Close"
 msgstr ""
 
@@ -1428,7 +1449,7 @@ msgstr ""
 #. Label of the code (Data) field in DocType 'LMS Coupon'
 #. Label of the code (Code) field in DocType 'LMS Programming Exercise
 #. Submission'
-#: frontend/src/components/Settings/Coupons/CouponList.vue:167
+#: frontend/src/components/Settings/Coupons/CouponList.vue:159
 #: lms/lms/doctype/lms_coupon/lms_coupon.json
 #: lms/lms/doctype/lms_programming_exercise_submission/lms_programming_exercise_submission.json
 msgid "Code"
@@ -1483,7 +1504,7 @@ msgstr ""
 msgid "Common keywords that will be used for all pages"
 msgstr ""
 
-#: frontend/src/pages/Lesson.vue:1047
+#: frontend/src/pages/Lesson.vue:1088
 msgid "Community"
 msgstr ""
 
@@ -1595,7 +1616,7 @@ msgid "Completion certificate"
 msgstr ""
 
 #. Label of the condition (Code) field in DocType 'LMS Badge'
-#: frontend/src/components/Settings/BadgeForm.vue:64
+#: frontend/src/components/Settings/BadgeForm.vue:74
 #: lms/lms/doctype/lms_badge/lms_badge.json
 msgid "Condition"
 msgstr ""
@@ -1627,6 +1648,14 @@ msgstr ""
 
 #: frontend/src/components/Sidebar/Configuration.vue:12
 msgid "Configuration"
+msgstr ""
+
+#: frontend/src/components/Settings/PaymentGatewayDetails.vue:5
+msgid "Configure the credentials and options for this payment gateway."
+msgstr ""
+
+#: frontend/src/components/Settings/BrandSettings.vue:4
+msgid "Configure your Brand Name, Logo, and Favicon"
 msgstr ""
 
 #: frontend/src/components/Sidebar/UserDropdown.vue:194
@@ -1669,6 +1698,14 @@ msgstr ""
 msgid "Congratulations on getting certified!"
 msgstr ""
 
+#: frontend/src/components/Settings/GoogleMeetAccountForm.vue:5
+msgid "Connect a Google Meet account to schedule and host live classes."
+msgstr ""
+
+#: frontend/src/components/Settings/ZoomAccountForm.vue:5
+msgid "Connect a Zoom account to schedule and host live classes."
+msgstr ""
+
 #. Label of the contact_us_tab (Tab Break) field in DocType 'LMS Settings'
 #: frontend/src/components/ContactUsEmail.vue:5
 #: lms/lms/doctype/lms_settings/lms_settings.json
@@ -1689,7 +1726,7 @@ msgstr ""
 msgid "Contact the Administrator to enroll for this course"
 msgstr ""
 
-#: frontend/src/pages/Lesson.vue:88
+#: frontend/src/pages/Lesson.vue:92
 msgid "Contact the Administrator to enroll for this course."
 msgstr ""
 
@@ -1753,26 +1790,26 @@ msgid "Coupon"
 msgstr ""
 
 #. Label of the coupon_code (Data) field in DocType 'LMS Payment'
-#: frontend/src/components/Settings/Coupons/CouponDetails.vue:24
-#: frontend/src/components/Settings/Transactions/TransactionDetails.vue:118
-#: frontend/src/components/Settings/Transactions/TransactionDetails.vue:124
+#: frontend/src/components/Settings/Coupons/CouponDetails.vue:30
+#: frontend/src/components/Settings/Transactions/TransactionDetails.vue:111
+#: frontend/src/components/Settings/Transactions/TransactionDetails.vue:117
 #: lms/lms/doctype/lms_payment/lms_payment.json
 msgid "Coupon Code"
 msgstr ""
 
-#: frontend/src/components/Settings/Transactions/TransactionDetails.vue:113
+#: frontend/src/components/Settings/Transactions/TransactionDetails.vue:106
 msgid "Coupon Details"
 msgstr ""
 
-#: frontend/src/components/Settings/Coupons/CouponDetails.vue:134
+#: frontend/src/components/Settings/Coupons/CouponDetails.vue:137
 msgid "Coupon created successfully"
 msgstr ""
 
-#: frontend/src/components/Settings/Coupons/CouponList.vue:158
+#: frontend/src/components/Settings/Coupons/CouponList.vue:150
 msgid "Coupon deleted successfully"
 msgstr ""
 
-#: frontend/src/components/Settings/Coupons/CouponList.vue:145
+#: frontend/src/components/Settings/Coupons/CouponList.vue:137
 msgid "Coupon(s) deleted successfully"
 msgstr ""
 
@@ -1801,10 +1838,10 @@ msgstr ""
 #: frontend/src/components/Modals/BatchCourseModal.vue:20
 #: frontend/src/components/Modals/EvaluationModal.vue:21
 #: frontend/src/components/Modals/Event.vue:24
-#: frontend/src/components/Settings/BadgeForm.vue:194
+#: frontend/src/components/Settings/BadgeForm.vue:207
 #: frontend/src/components/Settings/Badges.vue:206
-#: frontend/src/components/Settings/Transactions/TransactionDetails.vue:24
-#: frontend/src/components/Settings/Transactions/TransactionDetails.vue:286
+#: frontend/src/components/Settings/Transactions/TransactionDetails.vue:19
+#: frontend/src/components/Settings/Transactions/TransactionDetails.vue:280
 #: frontend/src/pages/Batches/components/BatchDashboard.vue:129
 #: frontend/src/pages/Batches/components/BulkCertificates.vue:38
 #: frontend/src/pages/Programs/ProgramForm.vue:196
@@ -1861,7 +1898,7 @@ msgid "Course Count"
 msgstr ""
 
 #. Name of a role
-#: frontend/src/components/Modals/NewMemberModal.vue:55
+#: frontend/src/components/Modals/NewMemberModal.vue:56
 #: frontend/src/pages/ProfileRoles.vue:27
 #: lms/lms/doctype/course_chapter/course_chapter.json
 #: lms/lms/doctype/course_evaluator/course_evaluator.json
@@ -1896,7 +1933,7 @@ msgstr ""
 msgid "Course Description"
 msgstr ""
 
-#: frontend/src/components/Settings/BadgeForm.vue:203
+#: frontend/src/components/Settings/BadgeForm.vue:216
 #: frontend/src/components/Settings/Badges.vue:208
 msgid "Course Enrollment"
 msgstr ""
@@ -1928,7 +1965,7 @@ msgstr ""
 msgid "Course Name"
 msgstr ""
 
-#. Label of the course_progress_section (Section Break) field in DocType 'LMS
+#. Label of the course_progress_section (Tab Break) field in DocType 'LMS
 #. Settings'
 #: frontend/src/pages/Courses/StudentCourseProgress.vue:32
 #: lms/lms/doctype/lms_settings/lms_settings.json
@@ -1968,7 +2005,7 @@ msgstr ""
 msgid "Course Title"
 msgstr ""
 
-#: frontend/src/components/Modals/BatchCourseModal.vue:85
+#: frontend/src/components/Modals/BatchCourseModal.vue:82
 msgid "Course added to batch successfully"
 msgstr ""
 
@@ -2057,8 +2094,8 @@ msgstr ""
 #: frontend/src/pages/Batches/components/BatchOverlay.vue:45
 #: frontend/src/pages/Courses/CourseCertification.vue:127
 #: frontend/src/pages/Courses/CourseDetail.vue:367
-#: frontend/src/pages/Courses/Courses.vue:374
-#: frontend/src/pages/Courses/Courses.vue:381 frontend/src/pages/Lesson.vue:592
+#: frontend/src/pages/Courses/Courses.vue:370
+#: frontend/src/pages/Courses/Courses.vue:377 frontend/src/pages/Lesson.vue:606
 #: frontend/src/pages/Programs/ProgramForm.vue:49
 #: frontend/src/pages/Programs/Programs.vue:41
 #: frontend/src/pages/SCORMChapter.vue:234
@@ -2154,12 +2191,16 @@ msgstr ""
 msgid "Create a live class"
 msgstr ""
 
-#: frontend/src/components/Settings/BadgeForm.vue:5
+#: frontend/src/components/Settings/BadgeForm.vue:122
 msgid "Create a new Badge"
 msgstr ""
 
 #: frontend/src/components/Modals/AssignmentForm.vue:13
 msgid "Create an Assignment"
+msgstr ""
+
+#: frontend/src/components/Settings/EmailTemplates.vue:5
+msgid "Create and manage reusable email templates for your notifications."
 msgstr ""
 
 #: frontend/src/components/CourseOutline.vue:34
@@ -2178,7 +2219,7 @@ msgstr ""
 msgid "Create your first quiz"
 msgstr ""
 
-#: frontend/src/pages/Courses/Courses.vue:335
+#: frontend/src/pages/Courses/Courses.vue:331
 msgid "Created"
 msgstr ""
 
@@ -2193,7 +2234,7 @@ msgstr ""
 #. Label of the currency (Link) field in DocType 'LMS Batch'
 #. Label of the currency (Link) field in DocType 'LMS Course'
 #. Label of the currency (Link) field in DocType 'LMS Payment'
-#: frontend/src/components/Settings/Transactions/TransactionDetails.vue:93
+#: frontend/src/components/Settings/Transactions/TransactionDetails.vue:86
 #: frontend/src/pages/Batches/BatchForm.vue:116
 #: frontend/src/pages/Courses/CoursePublishSettings.vue:42
 #: frontend/src/pages/Courses/CoursePublishSettings.vue:92
@@ -2310,6 +2351,10 @@ msgstr ""
 msgid "Default Currency"
 msgstr ""
 
+#: frontend/src/components/Settings/BadgeForm.vue:5
+msgid "Define a badge and the criteria for awarding it to learners."
+msgstr ""
+
 #. Label of the degree_type (Data) field in DocType 'Education Detail'
 #: lms/lms/doctype/education_detail/education_detail.json
 msgid "Degree Type"
@@ -2320,7 +2365,8 @@ msgstr ""
 #: frontend/src/components/CourseOutline.vue:346
 #: frontend/src/components/DiscussionReplies.vue:41
 #: frontend/src/components/Settings/Badges.vue:178
-#: frontend/src/components/Settings/Coupons/CouponList.vue:137
+#: frontend/src/components/Settings/Coupons/CouponList.vue:129
+#: frontend/src/components/Settings/Members.vue:115
 #: frontend/src/pages/Batches/BatchForm.vue:506
 #: frontend/src/pages/Courses/CourseForm.vue:211
 #: frontend/src/pages/Courses/CourseForm.vue:230
@@ -2347,12 +2393,20 @@ msgstr ""
 msgid "Delete this chapter?"
 msgstr ""
 
-#: frontend/src/components/Settings/Coupons/CouponList.vue:131
+#: frontend/src/components/Settings/Coupons/CouponList.vue:123
 msgid "Delete this coupon?"
 msgstr ""
 
 #: frontend/src/components/CourseOutline.vue:320
 msgid "Delete this lesson?"
+msgstr ""
+
+#: frontend/src/components/Settings/Members.vue:293
+msgid "Delete user"
+msgstr ""
+
+#: frontend/src/components/Settings/Members.vue:107
+msgid "Delete {0}?"
 msgstr ""
 
 #: frontend/src/pages/Courses/CourseForm.vue:206
@@ -2375,7 +2429,7 @@ msgstr ""
 msgid "Deleting this lesson will permanently remove it from the course. This action cannot be undone. Are you sure you want to continue?"
 msgstr ""
 
-#: lms/lms/api.py:837
+#: lms/lms/api.py:846
 msgid "Deletion not allowed for {0}"
 msgstr ""
 
@@ -2397,7 +2451,7 @@ msgstr ""
 #. Label of the description (Text) field in DocType 'LMS Live Class'
 #. Label of the description (Small Text) field in DocType 'Work Experience'
 #: frontend/src/components/Modals/LiveClassModal.vue:79
-#: frontend/src/components/Settings/BadgeForm.vue:30
+#: frontend/src/components/Settings/BadgeForm.vue:39
 #: frontend/src/pages/Batches/components/NewBatchModal.vue:84
 #: frontend/src/pages/JobForm.vue:45
 #: lms/job/doctype/job_opportunity/job_opportunity.json
@@ -2444,11 +2498,11 @@ msgstr ""
 msgid "Disable Signup"
 msgstr ""
 
-#: frontend/src/components/Settings/Badges.vue:56
-#: frontend/src/components/Settings/Coupons/CouponList.vue:46
-#: frontend/src/components/Settings/GoogleMeetSettings.vue:66
-#: frontend/src/components/Settings/PaymentGateways.vue:55
-#: frontend/src/components/Settings/ZoomSettings.vue:66
+#: frontend/src/components/Settings/Badges.vue:48
+#: frontend/src/components/Settings/Coupons/CouponList.vue:38
+#: frontend/src/components/Settings/GoogleMeetSettings.vue:57
+#: frontend/src/components/Settings/PaymentGateways.vue:50
+#: frontend/src/components/Settings/ZoomSettings.vue:60
 msgid "Disabled"
 msgstr ""
 
@@ -2457,24 +2511,24 @@ msgstr ""
 msgid "Discard"
 msgstr ""
 
-#: frontend/src/components/Settings/Coupons/CouponList.vue:173
+#: frontend/src/components/Settings/Coupons/CouponList.vue:165
 #: frontend/src/pages/Billing.vue:41
 msgid "Discount"
 msgstr ""
 
 #. Label of the discount_amount (Currency) field in DocType 'LMS Payment'
-#: frontend/src/components/Settings/Coupons/CouponDetails.vue:54
-#: frontend/src/components/Settings/Transactions/TransactionDetails.vue:130
+#: frontend/src/components/Settings/Coupons/CouponDetails.vue:61
+#: frontend/src/components/Settings/Transactions/TransactionDetails.vue:123
 #: lms/lms/doctype/lms_payment/lms_payment.json
 msgid "Discount Amount"
 msgstr ""
 
-#: frontend/src/components/Settings/Coupons/CouponDetails.vue:47
+#: frontend/src/components/Settings/Coupons/CouponDetails.vue:54
 msgid "Discount Percentage"
 msgstr ""
 
 #. Label of the discount_type (Select) field in DocType 'LMS Coupon'
-#: frontend/src/components/Settings/Coupons/CouponDetails.vue:31
+#: frontend/src/components/Settings/Coupons/CouponDetails.vue:38
 #: lms/lms/doctype/lms_coupon/lms_coupon.json
 msgid "Discount Type"
 msgstr ""
@@ -2542,7 +2596,7 @@ msgstr ""
 msgid "Duration (in minutes)"
 msgstr ""
 
-#: frontend/src/components/Settings/BadgeForm.vue:46
+#: frontend/src/components/Settings/BadgeForm.vue:56
 msgid "Each user can only receive this badge one time."
 msgstr ""
 
@@ -2557,7 +2611,7 @@ msgstr ""
 msgid "Edit Assignment"
 msgstr ""
 
-#: frontend/src/components/Settings/BadgeForm.vue:5
+#: frontend/src/components/Settings/BadgeForm.vue:121
 msgid "Edit Badge"
 msgstr ""
 
@@ -2570,7 +2624,7 @@ msgstr ""
 msgid "Edit Chapter"
 msgstr ""
 
-#: frontend/src/components/Settings/Coupons/CouponDetails.vue:9
+#: frontend/src/components/Settings/Coupons/CouponDetails.vue:3
 msgid "Edit Coupon"
 msgstr ""
 
@@ -2578,11 +2632,15 @@ msgstr ""
 msgid "Edit Email Template"
 msgstr ""
 
-#: frontend/src/components/Settings/GoogleMeetAccountModal.vue:8
+#: frontend/src/components/Settings/GoogleMeetAccountForm.vue:105
 msgid "Edit Google Meet Account"
 msgstr ""
 
-#: frontend/src/components/Settings/PaymentGatewayDetails.vue:13
+#: frontend/src/components/Modals/NewMemberModal.vue:5
+msgid "Edit Member"
+msgstr ""
+
+#: frontend/src/components/Settings/PaymentGatewayDetails.vue:69
 msgid "Edit Payment Gateway"
 msgstr ""
 
@@ -2603,13 +2661,17 @@ msgstr ""
 msgid "Edit Question"
 msgstr ""
 
-#: frontend/src/components/Modals/ZoomAccountModal.vue:6
+#: frontend/src/components/Settings/ZoomAccountForm.vue:114
 msgid "Edit Zoom Account"
 msgstr ""
 
 #: frontend/src/components/ChapterRow.vue:97
 #: frontend/src/components/Modals/LessonModal.vue:72
 msgid "Edit lesson"
+msgstr ""
+
+#: frontend/src/components/Settings/Members.vue:289
+msgid "Edit member"
 msgstr ""
 
 #. Label of the education (Table) field in DocType 'User'
@@ -2664,7 +2726,7 @@ msgstr ""
 msgid "Email Templates deleted successfully"
 msgstr ""
 
-#: frontend/src/components/Modals/NewMemberModal.vue:147
+#: frontend/src/components/Modals/NewMemberModal.vue:170
 msgid "Email is required"
 msgstr ""
 
@@ -2713,16 +2775,16 @@ msgstr ""
 #. Label of the enabled (Check) field in DocType 'LMS Coupon'
 #. Label of the enabled (Check) field in DocType 'LMS Google Meet Settings'
 #. Label of the enabled (Check) field in DocType 'LMS Zoom Settings'
-#: frontend/src/components/Modals/ZoomAccountModal.vue:24
-#: frontend/src/components/Settings/BadgeForm.vue:12
-#: frontend/src/components/Settings/Badges.vue:53
-#: frontend/src/components/Settings/Coupons/CouponDetails.vue:17
-#: frontend/src/components/Settings/Coupons/CouponList.vue:43
-#: frontend/src/components/Settings/Coupons/CouponList.vue:200
-#: frontend/src/components/Settings/GoogleMeetAccountModal.vue:26
-#: frontend/src/components/Settings/GoogleMeetSettings.vue:63
-#: frontend/src/components/Settings/PaymentGateways.vue:52
-#: frontend/src/components/Settings/ZoomSettings.vue:63
+#: frontend/src/components/Settings/BadgeForm.vue:18
+#: frontend/src/components/Settings/Badges.vue:45
+#: frontend/src/components/Settings/Coupons/CouponDetails.vue:23
+#: frontend/src/components/Settings/Coupons/CouponList.vue:35
+#: frontend/src/components/Settings/Coupons/CouponList.vue:192
+#: frontend/src/components/Settings/GoogleMeetAccountForm.vue:17
+#: frontend/src/components/Settings/GoogleMeetSettings.vue:54
+#: frontend/src/components/Settings/PaymentGateways.vue:47
+#: frontend/src/components/Settings/ZoomAccountForm.vue:17
+#: frontend/src/components/Settings/ZoomSettings.vue:57
 #: lms/lms/doctype/lms_badge/lms_badge.json
 #: lms/lms/doctype/lms_coupon/lms_coupon.json
 #: lms/lms/doctype/lms_google_meet_settings/lms_google_meet_settings.json
@@ -2818,7 +2880,7 @@ msgstr ""
 #: frontend/src/pages/Batches/Batches.vue:329
 #: frontend/src/pages/Batches/components/AdminBatchDashboard.vue:5
 #: frontend/src/pages/Courses/CourseDashboard.vue:5
-#: frontend/src/pages/Courses/Courses.vue:338
+#: frontend/src/pages/Courses/Courses.vue:334
 #: frontend/src/pages/Programs/StudentPrograms.vue:99
 msgid "Enrolled"
 msgstr ""
@@ -2873,6 +2935,10 @@ msgstr ""
 msgid "Enrollments"
 msgstr ""
 
+#: frontend/src/components/Settings/BrandSettings.vue:32
+msgid "Enter Brand Name"
+msgstr ""
+
 #: lms/lms/doctype/lms_settings/lms_settings.py:27
 msgid "Enter Client Id and Client Secret in Google Settings to send calendar invites for evaluations."
 msgstr ""
@@ -2897,15 +2963,15 @@ msgstr ""
 msgid "Error Uploading File"
 msgstr ""
 
-#: frontend/src/components/Settings/GoogleMeetAccountModal.vue:157
+#: frontend/src/components/Settings/GoogleMeetAccountForm.vue:156
 msgid "Error creating Google Meet Account"
 msgstr ""
 
-#: frontend/src/components/Modals/ZoomAccountModal.vue:171
+#: frontend/src/components/Settings/ZoomAccountForm.vue:168
 msgid "Error creating Zoom Account"
 msgstr ""
 
-#: frontend/src/components/Settings/BadgeForm.vue:186
+#: frontend/src/components/Settings/BadgeForm.vue:199
 msgid "Error creating badge"
 msgstr ""
 
@@ -2925,7 +2991,7 @@ msgstr ""
 msgid "Error creating quiz: {0}"
 msgstr ""
 
-#: frontend/src/components/Settings/GoogleMeetSettings.vue:185
+#: frontend/src/components/Settings/GoogleMeetSettings.vue:179
 msgid "Error deleting Google Meet Account"
 msgstr ""
 
@@ -2937,7 +3003,7 @@ msgstr ""
 msgid "Error deleting email templates"
 msgstr ""
 
-#: frontend/src/components/Settings/PaymentGateways.vue:153
+#: frontend/src/components/Settings/PaymentGateways.vue:150
 msgid "Error deleting payment gateways"
 msgstr ""
 
@@ -2945,11 +3011,11 @@ msgstr ""
 msgid "Error downloading file"
 msgstr ""
 
-#: frontend/src/components/Settings/GoogleMeetAccountModal.vue:197
+#: frontend/src/components/Settings/GoogleMeetAccountForm.vue:196
 msgid "Error updating Google Meet Account"
 msgstr ""
 
-#: frontend/src/components/Modals/ZoomAccountModal.vue:209
+#: frontend/src/components/Settings/ZoomAccountForm.vue:206
 msgid "Error updating Zoom Account"
 msgstr ""
 
@@ -3018,7 +3084,8 @@ msgstr ""
 #. Label of the evaluator (Link) field in DocType 'LMS Certificate Request'
 #. Label of the evaluator (Link) field in DocType 'LMS Course'
 #: frontend/src/components/Modals/BatchCourseModal.vue:37
-#: frontend/src/components/Modals/NewMemberModal.vue:60
+#: frontend/src/components/Modals/NewMemberModal.vue:61
+#: frontend/src/components/Settings/Members.vue:176
 #: frontend/src/pages/Batches/components/BulkCertificates.vue:22
 #: frontend/src/pages/Courses/CoursePublishSettings.vue:108
 #: frontend/src/pages/ProfileRoles.vue:34
@@ -3049,21 +3116,13 @@ msgstr ""
 msgid "Evaluator Schedule"
 msgstr ""
 
-#: frontend/src/components/Modals/AddEvaluatorModal.vue:56
-msgid "Evaluator added successfully"
-msgstr ""
-
-#: frontend/src/components/Settings/Evaluators.vue:206
-msgid "Evaluator deleted successfully"
-msgstr ""
-
 #: lms/lms/doctype/lms_course/lms_course.py:79
 msgid "Evaluator is required for paid certificates."
 msgstr ""
 
 #. Label of the event (Select) field in DocType 'LMS Badge'
 #. Label of the event (Link) field in DocType 'LMS Live Class'
-#: frontend/src/components/Settings/BadgeForm.vue:50
+#: frontend/src/components/Settings/BadgeForm.vue:60
 #: lms/lms/doctype/lms_badge/lms_badge.json
 #: lms/lms/doctype/lms_live_class/lms_live_class.json
 msgid "Event"
@@ -3086,10 +3145,6 @@ msgstr ""
 msgid "Exercise deleted successfully"
 msgstr ""
 
-#: frontend/src/components/Settings/Evaluators.vue:25
-msgid "Existing User"
-msgstr ""
-
 #: frontend/src/components/Sidebar/AppSidebar.vue:213
 msgid "Expand"
 msgstr ""
@@ -3109,8 +3164,8 @@ msgid "Expiration Date"
 msgstr ""
 
 #. Label of the expires_on (Date) field in DocType 'LMS Coupon'
-#: frontend/src/components/Settings/Coupons/CouponDetails.vue:39
-#: frontend/src/components/Settings/Coupons/CouponList.vue:180
+#: frontend/src/components/Settings/Coupons/CouponDetails.vue:46
+#: frontend/src/components/Settings/Coupons/CouponList.vue:172
 #: lms/lms/doctype/lms_coupon/lms_coupon.json
 msgid "Expires On"
 msgstr ""
@@ -3199,8 +3254,12 @@ msgstr ""
 msgid "Failed to update badge assignment: "
 msgstr ""
 
-#: frontend/src/utils/index.js:932
+#: frontend/src/utils/index.js:935
 msgid "Failed to update meta tags {0}"
+msgstr ""
+
+#: frontend/src/components/Settings/BrandSettings.vue:94
+msgid "Favicon"
 msgstr ""
 
 #. Label of the featured (Check) field in DocType 'LMS Course'
@@ -3250,7 +3309,7 @@ msgstr ""
 msgid "Filter assignments by course"
 msgstr ""
 
-#: frontend/src/components/Settings/Transactions/TransactionList.vue:23
+#: frontend/src/components/Settings/Transactions/TransactionList.vue:15
 msgid "Filter by Billing Name"
 msgstr ""
 
@@ -3258,7 +3317,7 @@ msgstr ""
 msgid "Filter by Exercise"
 msgstr ""
 
-#: frontend/src/components/Settings/Transactions/TransactionList.vue:28
+#: frontend/src/components/Settings/Transactions/TransactionList.vue:20
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmissions.vue:29
 msgid "Filter by Member"
 msgstr ""
@@ -3269,7 +3328,7 @@ msgstr ""
 
 #: frontend/src/components/Modals/EditProfile.vue:39
 #: frontend/src/components/Modals/EditProfile.vue:148
-#: frontend/src/components/Modals/NewMemberModal.vue:30
+#: frontend/src/components/Modals/NewMemberModal.vue:31
 msgid "First Name"
 msgstr ""
 
@@ -3386,12 +3445,12 @@ msgid "GST Number"
 msgstr ""
 
 #. Label of the gstin (Data) field in DocType 'LMS Payment'
-#: frontend/src/components/Settings/Transactions/TransactionDetails.vue:154
+#: frontend/src/components/Settings/Transactions/TransactionDetails.vue:147
 #: lms/lms/doctype/lms_payment/lms_payment.json
 msgid "GSTIN"
 msgstr ""
 
-#: frontend/src/components/Settings/PaymentGateways.vue:161
+#: frontend/src/components/Settings/PaymentGateways.vue:158
 msgid "Gateway"
 msgstr ""
 
@@ -3447,9 +3506,13 @@ msgstr ""
 msgid "Go"
 msgstr ""
 
+#: frontend/src/components/Layouts/SettingsLayout.vue:12
+msgid "Go back"
+msgstr ""
+
 #. Label of the google_calendar (Link) field in DocType 'LMS Google Meet
 #. Settings'
-#: frontend/src/components/Settings/GoogleMeetAccountModal.vue:50
+#: frontend/src/components/Settings/GoogleMeetAccountForm.vue:41
 #: lms/lms/doctype/lms_google_meet_settings/lms_google_meet_settings.json
 msgid "Google Calendar"
 msgstr ""
@@ -3471,15 +3534,15 @@ msgstr ""
 msgid "Google Meet Account"
 msgstr ""
 
-#: frontend/src/components/Settings/GoogleMeetAccountModal.vue:150
+#: frontend/src/components/Settings/GoogleMeetAccountForm.vue:149
 msgid "Google Meet Account created successfully"
 msgstr ""
 
-#: frontend/src/components/Settings/GoogleMeetSettings.vue:180
+#: frontend/src/components/Settings/GoogleMeetSettings.vue:174
 msgid "Google Meet Account deleted successfully"
 msgstr ""
 
-#: frontend/src/components/Settings/GoogleMeetAccountModal.vue:190
+#: frontend/src/components/Settings/GoogleMeetAccountForm.vue:189
 msgid "Google Meet Account updated successfully"
 msgstr ""
 
@@ -3509,7 +3572,7 @@ msgstr ""
 msgid "Grading"
 msgstr ""
 
-#: frontend/src/components/Settings/BadgeForm.vue:45
+#: frontend/src/components/Settings/BadgeForm.vue:55
 #: frontend/src/components/Settings/Badges.vue:242
 msgid "Grant Only Once"
 msgstr ""
@@ -3751,11 +3814,11 @@ msgstr ""
 msgid "Import Course from ZIP"
 msgstr ""
 
-#: frontend/src/pages/Courses/Courses.vue:353
+#: frontend/src/pages/Courses/Courses.vue:349
 msgid "Import via Data Import Tool"
 msgstr ""
 
-#: frontend/src/pages/Courses/Courses.vue:363
+#: frontend/src/pages/Courses/Courses.vue:359
 msgid "Import via ZIP"
 msgstr ""
 
@@ -3830,6 +3893,7 @@ msgid "Institution Name"
 msgstr ""
 
 #. Label of the instructor (Link) field in DocType 'Course Instructor'
+#: frontend/src/components/Settings/Members.vue:174
 #: lms/lms/doctype/course_instructor/course_instructor.json
 msgid "Instructor"
 msgstr ""
@@ -3841,7 +3905,7 @@ msgstr ""
 
 #. Label of the instructor_notes (Markdown Editor) field in DocType 'Course
 #. Lesson'
-#: frontend/src/pages/Lesson.vue:208 frontend/src/pages/LessonForm.vue:14
+#: frontend/src/pages/Lesson.vue:212 frontend/src/pages/LessonForm.vue:14
 #: lms/lms/doctype/course_lesson/course_lesson.json
 msgid "Instructor Notes"
 msgstr ""
@@ -3877,11 +3941,11 @@ msgstr ""
 msgid "Introduction"
 msgstr ""
 
-#: lms/lms/doctype/course_lesson/course_lesson.py:51
+#: lms/lms/doctype/course_lesson/course_lesson.py:59
 msgid "Invalid Quiz ID"
 msgstr ""
 
-#: lms/lms/doctype/course_lesson/course_lesson.py:65
+#: lms/lms/doctype/course_lesson/course_lesson.py:73
 msgid "Invalid Quiz ID in content"
 msgstr ""
 
@@ -3893,16 +3957,28 @@ msgstr ""
 msgid "Invalid course ZIP: Missing course.json"
 msgstr ""
 
-#: lms/lms/api.py:1091
+#: lms/lms/api.py:1125
 msgid "Invalid course or chapter name"
 msgstr ""
 
-#: lms/lms/api.py:840
+#: lms/lms/api.py:849
 msgid "Invalid document name"
 msgstr ""
 
-#: lms/lms/api.py:1098
+#: lms/lms/doctype/course_lesson/course_lesson.py:158
+msgid "Invalid file path"
+msgstr ""
+
+#: lms/lms/api.py:1132
 msgid "Invalid file path in package"
+msgstr ""
+
+#: lms/lms/api.py:687
+msgid "Invalid role filter."
+msgstr ""
+
+#: lms/lms/api.py:689
+msgid "Invalid search query."
 msgstr ""
 
 #: frontend/src/components/Sidebar/AppSidebar.vue:519
@@ -3957,7 +4033,7 @@ msgstr ""
 
 #. Label of the issued_on (Date) field in DocType 'LMS Badge Assignment'
 #: frontend/src/components/Settings/BadgeAssignmentForm.vue:37
-#: frontend/src/components/Settings/BadgeAssignments.vue:185
+#: frontend/src/components/Settings/BadgeAssignments.vue:177
 #: frontend/src/pages/Courses/CourseCertification.vue:27
 #: lms/lms/doctype/lms_badge_assignment/lms_badge_assignment.json
 msgid "Issued On"
@@ -4355,7 +4431,7 @@ msgstr ""
 
 #: frontend/src/components/Modals/EditProfile.vue:44
 #: frontend/src/components/Modals/EditProfile.vue:149
-#: frontend/src/components/Modals/NewMemberModal.vue:37
+#: frontend/src/components/Modals/NewMemberModal.vue:38
 msgid "Last Name"
 msgstr ""
 
@@ -4439,7 +4515,7 @@ msgstr ""
 msgid "Lesson created"
 msgstr ""
 
-#: frontend/src/pages/LessonForm.vue:388
+#: frontend/src/pages/LessonForm.vue:405
 msgid "Lesson created successfully"
 msgstr ""
 
@@ -4455,7 +4531,7 @@ msgstr ""
 msgid "Lesson updated"
 msgstr ""
 
-#: frontend/src/pages/LessonForm.vue:413
+#: frontend/src/pages/LessonForm.vue:430
 msgid "Lesson updated successfully"
 msgstr ""
 
@@ -4508,10 +4584,6 @@ msgstr ""
 msgid "LinkedIn ID"
 msgstr ""
 
-#: frontend/src/pages/Courses/Courses.vue:318
-msgid "Live"
-msgstr ""
-
 #. Label of the live_class (Link) field in DocType 'LMS Live Class Participant'
 #. Label of the show_live_class (Check) field in DocType 'LMS Settings'
 #: frontend/src/pages/Batches/components/LiveClass.vue:19
@@ -4529,9 +4601,8 @@ msgstr ""
 msgid "LiveCode URL"
 msgstr ""
 
-#: frontend/src/components/Settings/Evaluators.vue:110
-#: frontend/src/components/Settings/Members.vue:79
-#: frontend/src/components/Settings/Transactions/TransactionList.vue:102
+#: frontend/src/components/Settings/Members.vue:90
+#: frontend/src/components/Settings/Transactions/TransactionList.vue:94
 #: frontend/src/pages/Assignments.vue:122
 #: frontend/src/pages/Batches/Batches.vue:108
 #: frontend/src/pages/Batches/components/AdminBatchDashboard.vue:119
@@ -4567,7 +4638,7 @@ msgid "Location Preference"
 msgstr ""
 
 #: frontend/src/components/NoPermission.vue:26
-#: frontend/src/components/QuizBlock.vue:9 frontend/src/pages/Lesson.vue:94
+#: frontend/src/components/QuizBlock.vue:9 frontend/src/pages/Lesson.vue:98
 msgid "Login"
 msgstr ""
 
@@ -4731,14 +4802,14 @@ msgstr ""
 #. Label of the member (Link) field in DocType 'LMS Zoom Settings'
 #: frontend/src/components/Modals/LiveClassAttendance.vue:14
 #: frontend/src/components/Modals/VideoStatistics.vue:36
-#: frontend/src/components/Modals/ZoomAccountModal.vue:45
 #: frontend/src/components/Settings/BadgeAssignmentForm.vue:26
-#: frontend/src/components/Settings/BadgeAssignments.vue:179
-#: frontend/src/components/Settings/BadgeForm.vue:215
-#: frontend/src/components/Settings/GoogleMeetAccountModal.vue:41
-#: frontend/src/components/Settings/GoogleMeetSettings.vue:193
-#: frontend/src/components/Settings/Transactions/TransactionDetails.vue:55
-#: frontend/src/components/Settings/ZoomSettings.vue:182
+#: frontend/src/components/Settings/BadgeAssignments.vue:171
+#: frontend/src/components/Settings/BadgeForm.vue:228
+#: frontend/src/components/Settings/GoogleMeetAccountForm.vue:32
+#: frontend/src/components/Settings/GoogleMeetSettings.vue:187
+#: frontend/src/components/Settings/Transactions/TransactionDetails.vue:49
+#: frontend/src/components/Settings/ZoomAccountForm.vue:36
+#: frontend/src/components/Settings/ZoomSettings.vue:177
 #: frontend/src/pages/AssignmentSubmissionList.vue:14
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmissions.vue:273
 #: frontend/src/pages/Programs/ProgramProgressSummary.vue:126
@@ -4767,7 +4838,7 @@ msgid "Member"
 msgstr ""
 
 #. Label of the member_consent (Check) field in DocType 'LMS Payment'
-#: frontend/src/components/Settings/Transactions/TransactionDetails.vue:46
+#: frontend/src/components/Settings/Transactions/TransactionDetails.vue:40
 #: lms/lms/doctype/lms_payment/lms_payment.json
 msgid "Member Consent"
 msgstr ""
@@ -4863,7 +4934,7 @@ msgstr ""
 msgid "Member Username"
 msgstr ""
 
-#: frontend/src/components/Modals/NewMemberModal.vue:164
+#: frontend/src/components/Modals/NewMemberModal.vue:187
 msgid "Member added successfully"
 msgstr ""
 
@@ -4881,6 +4952,10 @@ msgstr ""
 
 #: lms/lms/doctype/lms_badge_assignment/lms_badge_assignment.py:66
 msgid "Member does not meet the criteria for the badge {0}."
+msgstr ""
+
+#: frontend/src/components/Modals/NewMemberModal.vue:213
+msgid "Member updated"
 msgstr ""
 
 #: lms/lms/doctype/lms_program/lms_program.py:32
@@ -4968,7 +5043,7 @@ msgstr ""
 msgid "Meta keywords"
 msgstr ""
 
-#: lms/lms/api.py:1637
+#: lms/lms/api.py:1685
 msgid "Meta tags should be a list."
 msgstr ""
 
@@ -4982,7 +5057,8 @@ msgid "Minimum two options are required for multiple choice questions."
 msgstr ""
 
 #. Name of a role
-#: frontend/src/components/Modals/NewMemberModal.vue:65
+#: frontend/src/components/Modals/NewMemberModal.vue:66
+#: frontend/src/components/Settings/Members.vue:175
 #: frontend/src/pages/ProfileRoles.vue:41
 #: lms/lms/doctype/course_chapter/course_chapter.json
 #: lms/lms/doctype/course_evaluator/course_evaluator.json
@@ -5087,17 +5163,16 @@ msgid "Name"
 msgstr ""
 
 #. Option for the 'Event' (Select) field in DocType 'LMS Badge'
-#: frontend/src/components/Settings/BadgeAssignments.vue:21
-#: frontend/src/components/Settings/Badges.vue:21
-#: frontend/src/components/Settings/Categories.vue:27
-#: frontend/src/components/Settings/Coupons/CouponList.vue:16
-#: frontend/src/components/Settings/EmailTemplates.vue:17
-#: frontend/src/components/Settings/Evaluators.vue:38
-#: frontend/src/components/Settings/GoogleMeetSettings.vue:17
-#: frontend/src/components/Settings/Members.vue:17
-#: frontend/src/components/Settings/PaymentGateways.vue:16
-#: frontend/src/components/Settings/ZoomSettings.vue:17
-#: frontend/src/pages/Courses/Courses.vue:322
+#: frontend/src/components/Settings/BadgeAssignments.vue:12
+#: frontend/src/components/Settings/Badges.vue:9
+#: frontend/src/components/Settings/Categories.vue:16
+#: frontend/src/components/Settings/Coupons/CouponList.vue:8
+#: frontend/src/components/Settings/EmailTemplates.vue:13
+#: frontend/src/components/Settings/GoogleMeetSettings.vue:9
+#: frontend/src/components/Settings/Members.vue:8
+#: frontend/src/components/Settings/PaymentGateways.vue:12
+#: frontend/src/components/Settings/Transactions/TransactionList.vue:8
+#: frontend/src/components/Settings/ZoomSettings.vue:12
 #: lms/lms/doctype/lms_badge/lms_badge.json
 msgid "New"
 msgstr ""
@@ -5108,11 +5183,11 @@ msgstr ""
 msgid "New Batch"
 msgstr ""
 
-#: frontend/src/components/Settings/Coupons/CouponDetails.vue:9
+#: frontend/src/components/Settings/Coupons/CouponDetails.vue:3
 msgid "New Coupon"
 msgstr ""
 
-#: frontend/src/pages/Courses/Courses.vue:346
+#: frontend/src/pages/Courses/Courses.vue:342
 #: frontend/src/pages/Courses/NewCourseModal.vue:5
 #: frontend/src/pages/Notifications.vue:91 lms/www/_lms.py:102
 msgid "New Course"
@@ -5122,11 +5197,7 @@ msgstr ""
 msgid "New Email Template"
 msgstr ""
 
-#: frontend/src/components/Settings/Evaluators.vue:18
-msgid "New Evaluator"
-msgstr ""
-
-#: frontend/src/components/Settings/GoogleMeetAccountModal.vue:7
+#: frontend/src/components/Settings/GoogleMeetAccountForm.vue:104
 msgid "New Google Meet Account"
 msgstr ""
 
@@ -5138,7 +5209,7 @@ msgstr ""
 msgid "New Job Applicant"
 msgstr ""
 
-#: frontend/src/components/Settings/PaymentGatewayDetails.vue:12
+#: frontend/src/components/Settings/PaymentGatewayDetails.vue:68
 msgid "New Payment Gateway"
 msgstr ""
 
@@ -5150,11 +5221,11 @@ msgstr ""
 msgid "New Sign Up"
 msgstr ""
 
-#: frontend/src/components/Modals/ZoomAccountModal.vue:6
+#: frontend/src/components/Settings/ZoomAccountForm.vue:114
 msgid "New Zoom Account"
 msgstr ""
 
-#: lms/lms/utils.py:459
+#: lms/lms/utils.py:471
 msgid "New comment in batch {0}"
 msgstr ""
 
@@ -5162,7 +5233,7 @@ msgstr ""
 msgid "New lesson"
 msgstr ""
 
-#: lms/lms/utils.py:450
+#: lms/lms/utils.py:462
 msgid "New reply on the topic {0} in course {1}"
 msgstr ""
 
@@ -5173,7 +5244,7 @@ msgstr ""
 
 #: frontend/src/components/Quiz.vue:297
 #: frontend/src/pages/Courses/CourseDetail.vue:76
-#: frontend/src/pages/Lesson.vue:36 frontend/src/pages/Lesson.vue:162
+#: frontend/src/pages/Lesson.vue:40 frontend/src/pages/Lesson.vue:166
 msgid "Next"
 msgstr ""
 
@@ -5181,7 +5252,7 @@ msgstr ""
 msgid "No Assessments"
 msgstr ""
 
-#: frontend/src/components/Settings/BadgeAssignments.vue:87
+#: frontend/src/components/Settings/BadgeAssignments.vue:78
 msgid "No Assignments"
 msgstr ""
 
@@ -5231,7 +5302,7 @@ msgstr ""
 msgid "No chapters yet"
 msgstr ""
 
-#: frontend/src/components/Settings/Coupons/CouponList.vue:127
+#: frontend/src/components/Settings/Coupons/CouponList.vue:119
 msgid "No coupons selected for deletion"
 msgstr ""
 
@@ -5285,7 +5356,7 @@ msgstr ""
 msgid "No quizzes added yet."
 msgstr ""
 
-#: frontend/src/pages/Notifications.vue:150
+#: frontend/src/pages/Notifications.vue:197
 msgid "No read notifications"
 msgstr ""
 
@@ -5315,7 +5386,7 @@ msgstr ""
 msgid "No thumbnail"
 msgstr ""
 
-#: frontend/src/pages/Notifications.vue:149
+#: frontend/src/pages/Notifications.vue:196
 msgid "No unread notifications"
 msgstr ""
 
@@ -5358,8 +5429,7 @@ msgstr ""
 
 #: frontend/src/components/Assignment.vue:36
 #: frontend/src/components/Modals/EditProfile.vue:15
-#: frontend/src/components/Settings/BrandSettings.vue:16
-#: frontend/src/components/Settings/SettingDetails.vue:16
+#: frontend/src/components/Settings/SettingDetails.vue:6
 #: frontend/src/pages/Batches/BatchDetail.vue:15
 #: frontend/src/pages/Courses/CourseDetail.vue:13
 #: frontend/src/pages/Courses/CourseDetail.vue:37
@@ -5379,7 +5449,7 @@ msgstr ""
 msgid "Note"
 msgstr ""
 
-#: frontend/src/pages/Lesson.vue:1036
+#: frontend/src/pages/Lesson.vue:1077
 msgid "Notes"
 msgstr ""
 
@@ -5397,7 +5467,7 @@ msgstr ""
 msgid "Notifications"
 msgstr ""
 
-#: frontend/src/pages/Notifications.vue:157
+#: frontend/src/pages/Notifications.vue:203
 msgid "Notifications you have read will appear here."
 msgstr ""
 
@@ -5463,15 +5533,15 @@ msgstr ""
 msgid "Online"
 msgstr ""
 
-#: frontend/src/utils/index.js:658
+#: frontend/src/utils/index.js:661
 msgid "Only PDF files are allowed."
 msgstr ""
 
-#: frontend/src/utils/index.js:664
+#: frontend/src/utils/index.js:667
 msgid "Only ZIP files are allowed."
 msgstr ""
 
-#: frontend/src/utils/index.js:661
+#: frontend/src/utils/index.js:664
 msgid "Only document file of type .doc or .docx are allowed."
 msgstr ""
 
@@ -5491,11 +5561,11 @@ msgstr ""
 msgid "Only show courses that offer a certificate"
 msgstr ""
 
-#: frontend/src/components/Modals/ChapterModal.vue:231
+#: frontend/src/components/Modals/ChapterModal.vue:206
 msgid "Only zip files are allowed"
 msgstr ""
 
-#: frontend/src/utils/index.js:669
+#: frontend/src/utils/index.js:672
 msgid "Only {0} file is allowed."
 msgstr ""
 
@@ -5522,7 +5592,7 @@ msgstr ""
 msgid "Open Ended"
 msgstr ""
 
-#: frontend/src/components/Settings/Transactions/TransactionDetails.vue:21
+#: frontend/src/components/Settings/Transactions/TransactionDetails.vue:16
 msgid "Open the "
 msgstr ""
 
@@ -5574,7 +5644,7 @@ msgid "Orange"
 msgstr ""
 
 #. Label of the order_id (Data) field in DocType 'LMS Payment'
-#: frontend/src/components/Settings/Transactions/TransactionDetails.vue:169
+#: frontend/src/components/Settings/Transactions/TransactionDetails.vue:162
 #: lms/lms/doctype/lms_payment/lms_payment.json
 msgid "Order ID"
 msgstr ""
@@ -5585,7 +5655,7 @@ msgid "Organization"
 msgstr ""
 
 #. Label of the original_amount (Currency) field in DocType 'LMS Payment'
-#: frontend/src/components/Settings/Transactions/TransactionDetails.vue:136
+#: frontend/src/components/Settings/Transactions/TransactionDetails.vue:129
 #: frontend/src/pages/Billing.vue:34
 #: lms/lms/doctype/lms_payment/lms_payment.json
 msgid "Original Amount"
@@ -5622,13 +5692,13 @@ msgstr ""
 msgid "Overview"
 msgstr ""
 
-#: frontend/src/components/Settings/BadgeForm.vue:216
+#: frontend/src/components/Settings/BadgeForm.vue:229
 #: lms/lms/doctype/lms_badge/lms_badge.js:37
 msgid "Owner"
 msgstr ""
 
 #. Label of the pan (Data) field in DocType 'LMS Payment'
-#: frontend/src/components/Settings/Transactions/TransactionDetails.vue:159
+#: frontend/src/components/Settings/Transactions/TransactionDetails.vue:152
 #: lms/lms/doctype/lms_payment/lms_payment.json
 msgid "PAN"
 msgstr ""
@@ -5735,20 +5805,20 @@ msgstr ""
 
 #. Label of the payment_details_section (Section Break) field in DocType 'LMS
 #. Payment'
-#: frontend/src/components/Settings/Transactions/TransactionDetails.vue:89
+#: frontend/src/components/Settings/Transactions/TransactionDetails.vue:82
 #: lms/lms/doctype/lms_payment/lms_payment.json
 msgid "Payment Details"
 msgstr ""
 
-#: frontend/src/components/Settings/Transactions/TransactionDetails.vue:41
+#: frontend/src/components/Settings/Transactions/TransactionDetails.vue:35
 msgid "Payment For Certificate"
 msgstr ""
 
-#: frontend/src/components/Settings/Transactions/TransactionDetails.vue:81
+#: frontend/src/components/Settings/Transactions/TransactionDetails.vue:74
 msgid "Payment For Document"
 msgstr ""
 
-#: frontend/src/components/Settings/Transactions/TransactionDetails.vue:74
+#: frontend/src/components/Settings/Transactions/TransactionDetails.vue:67
 msgid "Payment For Document Type"
 msgstr ""
 
@@ -5758,15 +5828,15 @@ msgid "Payment Gateway"
 msgstr ""
 
 #. Label of the payment_id (Data) field in DocType 'LMS Payment'
-#: frontend/src/components/Settings/Transactions/TransactionDetails.vue:164
+#: frontend/src/components/Settings/Transactions/TransactionDetails.vue:157
 #: lms/lms/doctype/lms_payment/lms_payment.json
 msgid "Payment ID"
 msgstr ""
 
 #. Label of the payment_received (Check) field in DocType 'LMS Payment'
-#: frontend/src/components/Settings/Transactions/TransactionDetails.vue:36
-#: frontend/src/components/Settings/Transactions/TransactionList.vue:33
-#: frontend/src/components/Settings/Transactions/TransactionList.vue:203
+#: frontend/src/components/Settings/Transactions/TransactionDetails.vue:30
+#: frontend/src/components/Settings/Transactions/TransactionList.vue:25
+#: frontend/src/components/Settings/Transactions/TransactionList.vue:196
 #: lms/lms/doctype/lms_payment/lms_payment.json
 msgid "Payment Received"
 msgstr ""
@@ -5788,8 +5858,8 @@ msgid "Payment for "
 msgstr ""
 
 #. Label of the payment_for_certificate (Check) field in DocType 'LMS Payment'
-#: frontend/src/components/Settings/Transactions/TransactionList.vue:38
-#: frontend/src/components/Settings/Transactions/TransactionList.vue:210
+#: frontend/src/components/Settings/Transactions/TransactionList.vue:30
+#: frontend/src/components/Settings/Transactions/TransactionList.vue:203
 #: lms/lms/doctype/lms_payment/lms_payment.json
 msgid "Payment for Certificate"
 msgstr ""
@@ -5806,7 +5876,7 @@ msgstr ""
 msgid "Payment for Document Type"
 msgstr ""
 
-#: frontend/src/components/Settings/PaymentGateways.vue:148
+#: frontend/src/components/Settings/PaymentGateways.vue:145
 msgid "Payment gateways deleted successfully"
 msgstr ""
 
@@ -5959,11 +6029,11 @@ msgstr ""
 msgid "Please login to continue with payment."
 msgstr ""
 
-#: lms/lms/utils.py:2244
+#: lms/lms/utils.py:2267
 msgid "Please login to view program details."
 msgstr ""
 
-#: lms/lms/utils.py:2209
+#: lms/lms/utils.py:2232
 msgid "Please login to view programs."
 msgstr ""
 
@@ -6056,10 +6126,6 @@ msgstr ""
 msgid "Please select a timezone."
 msgstr ""
 
-#: frontend/src/components/Modals/AddEvaluatorModal.vue:45
-msgid "Please select a user"
-msgstr ""
-
 #: frontend/src/components/Quiz.vue:765
 msgid "Please select an option"
 msgstr ""
@@ -6068,7 +6134,7 @@ msgstr ""
 msgid "Please take appropriate action at {0}"
 msgstr ""
 
-#: frontend/src/components/Modals/ChapterModal.vue:187
+#: frontend/src/components/Modals/ChapterModal.vue:162
 msgid "Please upload a SCORM package"
 msgstr ""
 
@@ -6169,7 +6235,7 @@ msgid "Preview Video"
 msgstr ""
 
 #: frontend/src/pages/Courses/CourseDetail.vue:67
-#: frontend/src/pages/Lesson.vue:27 frontend/src/pages/Lesson.vue:153
+#: frontend/src/pages/Lesson.vue:31 frontend/src/pages/Lesson.vue:157
 msgid "Previous"
 msgstr ""
 
@@ -6259,7 +6325,7 @@ msgstr ""
 msgid "Programming Exercise Progress"
 msgstr ""
 
-#: frontend/src/components/Settings/BadgeForm.vue:200
+#: frontend/src/components/Settings/BadgeForm.vue:213
 #: frontend/src/components/Settings/Badges.vue:212
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmission.vue:436
 msgid "Programming Exercise Submission"
@@ -6349,6 +6415,7 @@ msgstr ""
 #: frontend/src/pages/Batches/BatchDetail.vue:9
 #: frontend/src/pages/Batches/components/BulkCertificates.vue:51
 #: frontend/src/pages/Courses/CourseDetail.vue:7
+#: frontend/src/pages/Courses/Courses.vue:318
 #: frontend/src/pages/Programs/ProgramForm.vue:33
 #: frontend/src/pages/Programs/StudentPrograms.vue:103
 #: lms/lms/doctype/lms_batch/lms_batch.json
@@ -6466,7 +6533,7 @@ msgid "Quiz Progress"
 msgstr ""
 
 #. Label of a Link in the Learning Workspace
-#: frontend/src/components/Settings/BadgeForm.vue:197
+#: frontend/src/components/Settings/BadgeForm.vue:210
 #: frontend/src/components/Settings/Badges.vue:210
 #: frontend/src/pages/QuizPage.vue:57 lms/lms/workspace/learning/learning.json
 msgid "Quiz Submission"
@@ -6553,12 +6620,12 @@ msgid "Red"
 msgstr ""
 
 #. Label of the redemption_count (Int) field in DocType 'LMS Coupon'
-#: frontend/src/components/Settings/Coupons/CouponList.vue:193
+#: frontend/src/components/Settings/Coupons/CouponList.vue:185
 #: lms/lms/doctype/lms_coupon/lms_coupon.json
 msgid "Redemption Count"
 msgstr ""
 
-#: frontend/src/components/Settings/Coupons/CouponDetails.vue:65
+#: frontend/src/components/Settings/Coupons/CouponDetails.vue:72
 msgid "Redemptions Count"
 msgstr ""
 
@@ -6616,6 +6683,7 @@ msgstr ""
 msgid "Remote"
 msgstr ""
 
+#: frontend/src/components/Controls/ImageUploader.vue:21
 #: frontend/src/components/Controls/Uploader.vue:54
 #: frontend/src/pages/Courses/CourseThumbnailField.vue:66
 msgid "Remove"
@@ -6623,6 +6691,10 @@ msgstr ""
 
 #: frontend/src/components/Notes/InlineLessonMenu.vue:49
 msgid "Remove Highlight"
+msgstr ""
+
+#: frontend/src/components/Settings/Coupons/CouponItems.vue:41
+msgid "Remove row"
 msgstr ""
 
 #: frontend/src/pages/Courses/CourseThumbnailField.vue:16
@@ -6683,6 +6755,10 @@ msgstr ""
 msgid "Review"
 msgstr ""
 
+#: frontend/src/components/Settings/Transactions/TransactionDetails.vue:4
+msgid "Review and update the details of this payment."
+msgstr ""
+
 #. Label of the role (Select) field in DocType 'LMS Enrollment'
 #: lms/lms/doctype/lms_enrollment/lms_enrollment.json
 msgid "Role"
@@ -6697,7 +6773,7 @@ msgstr ""
 msgid "Role updated successfully"
 msgstr ""
 
-#: frontend/src/components/Modals/NewMemberModal.vue:45
+#: frontend/src/components/Modals/NewMemberModal.vue:46
 #: frontend/src/components/Sidebar/AppSidebar.vue:646
 #: frontend/src/pages/Profile.vue:272
 msgid "Roles"
@@ -6769,7 +6845,7 @@ msgstr ""
 msgid "SEO"
 msgstr ""
 
-#: frontend/src/utils/index.js:686
+#: frontend/src/utils/index.js:689
 msgid "SVG contains potentially unsafe content."
 msgstr ""
 
@@ -6791,14 +6867,15 @@ msgstr ""
 #: frontend/src/components/Modals/Event.vue:121
 #: frontend/src/components/Modals/Event.vue:160
 #: frontend/src/components/Modals/LessonModal.vue:25
+#: frontend/src/components/Modals/NewMemberModal.vue:9
 #: frontend/src/components/Modals/Question.vue:110
-#: frontend/src/components/Modals/ZoomAccountModal.vue:10
 #: frontend/src/components/Settings/BadgeAssignmentForm.vue:12
-#: frontend/src/components/Settings/BadgeForm.vue:77
-#: frontend/src/components/Settings/Coupons/CouponDetails.vue:79
-#: frontend/src/components/Settings/GoogleMeetAccountModal.vue:12
-#: frontend/src/components/Settings/PaymentGatewayDetails.vue:41
-#: frontend/src/components/Settings/Transactions/TransactionDetails.vue:29
+#: frontend/src/components/Settings/BadgeForm.vue:11
+#: frontend/src/components/Settings/Coupons/CouponDetails.vue:14
+#: frontend/src/components/Settings/GoogleMeetAccountForm.vue:11
+#: frontend/src/components/Settings/PaymentGatewayDetails.vue:12
+#: frontend/src/components/Settings/Transactions/TransactionDetails.vue:24
+#: frontend/src/components/Settings/ZoomAccountForm.vue:11
 #: frontend/src/pages/Batches/BatchDetail.vue:23
 #: frontend/src/pages/Batches/components/NewBatchModal.vue:127
 #: frontend/src/pages/Courses/CourseDetail.vue:30
@@ -6851,32 +6928,22 @@ msgstr ""
 msgid "Score Out Of"
 msgstr ""
 
-#: frontend/src/components/Settings/Evaluators.vue:57
-#: frontend/src/components/Settings/Members.vue:25
+#: frontend/src/components/Settings/Members.vue:15
+#: frontend/src/pages/Assignments.vue:36
+#: frontend/src/pages/Batches/Batches.vue:67
+#: frontend/src/pages/Batches/components/AdminBatchDashboard.vue:36
+#: frontend/src/pages/CertifiedParticipants.vue:28
+#: frontend/src/pages/Courses/CourseDashboard.vue:31
 #: frontend/src/pages/Courses/Courses.vue:47 frontend/src/pages/Jobs.vue:60
+#: frontend/src/pages/ProgrammingExercises/ProgrammingExercises.vue:48
+#: frontend/src/pages/Programs/ProgramProgressSummary.vue:46
 #: frontend/src/pages/Search/Search.vue:5
 #: frontend/src/pages/Search/Search.vue:250
 msgid "Search"
 msgstr ""
 
 #: frontend/src/components/Modals/VideoStatistics.vue:20
-#: frontend/src/pages/Programs/ProgramProgressSummary.vue:46
 msgid "Search by Member"
-msgstr ""
-
-#: frontend/src/pages/CertifiedParticipants.vue:28
-msgid "Search by Name"
-msgstr ""
-
-#: frontend/src/pages/Assignments.vue:36
-#: frontend/src/pages/Batches/Batches.vue:67
-#: frontend/src/pages/ProgrammingExercises/ProgrammingExercises.vue:48
-msgid "Search by Title"
-msgstr ""
-
-#: frontend/src/pages/Batches/components/AdminBatchDashboard.vue:36
-#: frontend/src/pages/Courses/CourseDashboard.vue:31
-msgid "Search by name"
 msgstr ""
 
 #: frontend/src/components/CommandPalette/CommandPalette.vue:135
@@ -6912,12 +6979,6 @@ msgstr ""
 msgid "Seats Left"
 msgstr ""
 
-#. Description of the 'Lesson Dwell Time (seconds)' (Int) field in DocType 'LMS
-#. Settings'
-#: lms/lms/doctype/lms_settings/lms_settings.json
-msgid "Seconds a learner must stay on a text-only lesson before it auto-marks complete. Default 30."
-msgstr ""
-
 #: frontend/src/pages/Home/AdminHome.vue:122
 #: frontend/src/pages/Home/AdminHome.vue:150
 #: frontend/src/pages/Home/StudentHome.vue:91
@@ -6937,12 +6998,8 @@ msgstr ""
 msgid "Select Date"
 msgstr ""
 
-#: frontend/src/components/Settings/PaymentGatewayDetails.vue:26
+#: frontend/src/components/Settings/PaymentGatewayDetails.vue:24
 msgid "Select Payment Gateway"
-msgstr ""
-
-#: frontend/src/components/Modals/AddEvaluatorModal.vue:18
-msgid "Select User"
 msgstr ""
 
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseModal.vue:23
@@ -7073,6 +7130,14 @@ msgstr ""
 
 #: frontend/src/components/Controls/ColorSwatches.vue:13
 msgid "Set Color"
+msgstr ""
+
+#: frontend/src/components/Settings/Coupons/CouponDetails.vue:5
+msgid "Set the discount, validity, and the courses or batches this coupon applies to."
+msgstr ""
+
+#: frontend/src/components/Settings/BrandSettings.vue:25
+msgid "Set the name of your brand. Appears in the left sidebar."
 msgstr ""
 
 #: lms/templates/emails/community_course_membership.html:1
@@ -7248,7 +7313,7 @@ msgstr ""
 #. Label of the source (Link) field in DocType 'LMS Payment'
 #. Label of the source (Data) field in DocType 'LMS Source'
 #. Label of the source (Data) field in DocType 'LMS Video Watch Duration'
-#: frontend/src/components/Settings/Transactions/TransactionDetails.vue:66
+#: frontend/src/components/Settings/Transactions/TransactionDetails.vue:60
 #: lms/lms/doctype/lms_batch_enrollment/lms_batch_enrollment.json
 #: lms/lms/doctype/lms_payment/lms_payment.json
 #: lms/lms/doctype/lms_source/lms_source.json
@@ -7280,7 +7345,7 @@ msgstr ""
 msgid "Start Date:"
 msgstr ""
 
-#: frontend/src/pages/Lesson.vue:80 frontend/src/pages/SCORMChapter.vue:31
+#: frontend/src/pages/Lesson.vue:84 frontend/src/pages/SCORMChapter.vue:31
 #: lms/templates/emails/lms_course_interest.html:9
 msgid "Start Learning"
 msgstr ""
@@ -7344,8 +7409,8 @@ msgstr ""
 #. Label of the status (Select) field in DocType 'LMS Test Case Submission'
 #: frontend/src/components/Modals/Event.vue:105
 #: frontend/src/components/Settings/Badges.vue:235
-#: frontend/src/components/Settings/GoogleMeetSettings.vue:203
-#: frontend/src/components/Settings/ZoomSettings.vue:192
+#: frontend/src/components/Settings/GoogleMeetSettings.vue:197
+#: frontend/src/components/Settings/ZoomSettings.vue:187
 #: frontend/src/pages/AssignmentSubmissionList.vue:19
 #: frontend/src/pages/JobForm.vue:61
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmissions.vue:285
@@ -7371,8 +7436,9 @@ msgstr ""
 
 #. Option for the 'User Category' (Select) field in DocType 'User'
 #. Option for the 'Member Type' (Select) field in DocType 'LMS Enrollment'
-#: frontend/src/components/Modals/NewMemberModal.vue:50
+#: frontend/src/components/Modals/NewMemberModal.vue:51
 #: frontend/src/components/Modals/StudentModal.vue:22
+#: frontend/src/components/Settings/Members.vue:173
 #: frontend/src/pages/Courses/CourseEnrollmentModal.vue:18
 #: frontend/src/pages/ProfileRoles.vue:18 lms/fixtures/custom_field.json
 #: lms/lms/doctype/lms_enrollment/lms_enrollment.json
@@ -7488,7 +7554,7 @@ msgstr ""
 msgid "Supports YouTube and Vimeo."
 msgstr ""
 
-#: lms/lms/api.py:1124
+#: lms/lms/api.py:1158
 msgid "Suspicious pattern found in {0}: {1}"
 msgstr ""
 
@@ -7636,7 +7702,7 @@ msgstr ""
 msgid "The Google Meet account does not have a Google Calendar configured. Please set up a Google Calendar first."
 msgstr ""
 
-#: lms/lms/utils.py:2480
+#: lms/lms/utils.py:2503
 msgid "The batch does not exist."
 msgstr ""
 
@@ -7644,7 +7710,7 @@ msgstr ""
 msgid "The batch you have enrolled for is starting tomorrow. Please be prepared and be on time for the session."
 msgstr ""
 
-#: lms/lms/utils.py:1959
+#: lms/lms/utils.py:1982
 msgid "The coupon code '{0}' is invalid."
 msgstr ""
 
@@ -7668,7 +7734,7 @@ msgstr ""
 msgid "The last day to schedule your evaluations is "
 msgstr ""
 
-#: lms/lms/utils.py:2464
+#: lms/lms/utils.py:2487
 msgid "The lesson does not exist."
 msgstr ""
 
@@ -7684,7 +7750,7 @@ msgstr ""
 msgid "The slot is already booked by another participant."
 msgstr ""
 
-#: lms/lms/utils.py:1657 lms/lms/utils.py:2161
+#: lms/lms/utils.py:1680 lms/lms/utils.py:2184
 msgid "The specified batch does not exist."
 msgstr ""
 
@@ -7731,7 +7797,7 @@ msgstr ""
 msgid "These tags help search engines describe and rank your course in results."
 msgstr ""
 
-#: frontend/src/components/Settings/BadgeAssignments.vue:92
+#: frontend/src/components/Settings/BadgeAssignments.vue:83
 msgid "This badge has not been assigned to any students yet"
 msgstr ""
 
@@ -7750,15 +7816,15 @@ msgstr ""
 msgid "This class has ended"
 msgstr ""
 
-#: lms/lms/utils.py:1988
+#: lms/lms/utils.py:2011
 msgid "This coupon has expired."
 msgstr ""
 
-#: lms/lms/utils.py:1991
+#: lms/lms/utils.py:2014
 msgid "This coupon has reached its maximum usage limit."
 msgstr ""
 
-#: lms/lms/utils.py:2000
+#: lms/lms/utils.py:2023
 msgid "This coupon is not applicable to this {0}."
 msgstr ""
 
@@ -7766,7 +7832,7 @@ msgstr ""
 msgid "This course includes:"
 msgstr ""
 
-#: lms/lms/utils.py:1919
+#: lms/lms/utils.py:1942
 msgid "This course is free."
 msgstr ""
 
@@ -7782,16 +7848,20 @@ msgstr ""
 msgid "This image will be shown on lists and pages that don't have an image by default"
 msgstr ""
 
-#: frontend/src/pages/Lesson.vue:65
+#: frontend/src/pages/Lesson.vue:69
 msgid "This lesson is locked"
 msgstr ""
 
-#: frontend/src/pages/Lesson.vue:70
+#: frontend/src/pages/Lesson.vue:74
 msgid "This lesson is not available for preview. Please enroll in the course to access it."
 msgstr ""
 
 #: lms/lms/widgets/NoPreviewModal.html:16
 msgid "This lesson is not available for preview. Please join the course to access it."
+msgstr ""
+
+#: frontend/src/components/Settings/Members.vue:109
+msgid "This permanently deletes the user account and cannot be undone."
 msgstr ""
 
 #: frontend/src/pages/Programs/ProgramEnrollment.vue:18
@@ -7807,11 +7877,15 @@ msgstr ""
 msgid "This site is being updated. You will not be able to make any changes. Full access will be restored shortly."
 msgstr ""
 
+#: lms/lms/api.py:1607
+msgid "This user cannot be deleted."
+msgstr ""
+
 #: frontend/src/components/VideoBlock.vue:5
 msgid "This video contains {0} {1}:"
 msgstr ""
 
-#: frontend/src/components/Settings/Coupons/CouponList.vue:132
+#: frontend/src/components/Settings/Coupons/CouponList.vue:124
 msgid "This will permanently delete the coupon and the code will no longer be valid."
 msgstr ""
 
@@ -7922,7 +7996,7 @@ msgstr ""
 #: frontend/src/components/Modals/DiscussionModal.vue:18
 #: frontend/src/components/Modals/LessonModal.vue:7
 #: frontend/src/components/Modals/LiveClassModal.vue:23
-#: frontend/src/components/Settings/BadgeForm.vue:15
+#: frontend/src/components/Settings/BadgeForm.vue:23
 #: frontend/src/pages/Assignments.vue:265
 #: frontend/src/pages/Batches/BatchForm.vue:13
 #: frontend/src/pages/Batches/components/NewBatchModal.vue:14
@@ -7954,7 +8028,7 @@ msgstr ""
 msgid "Title cannot be empty."
 msgstr ""
 
-#: frontend/src/components/Modals/ChapterModal.vue:184
+#: frontend/src/components/Modals/ChapterModal.vue:159
 #: frontend/src/components/Modals/LessonModal.vue:145
 msgid "Title is required"
 msgstr ""
@@ -7970,7 +8044,7 @@ msgstr ""
 msgid "To Date"
 msgstr ""
 
-#: lms/lms/utils.py:1933
+#: lms/lms/utils.py:1956
 msgid "To join this batch, please contact the Administrator."
 msgstr ""
 
@@ -8013,15 +8087,15 @@ msgstr ""
 msgid "Training employees in my company"
 msgstr ""
 
-#: frontend/src/components/Settings/Transactions/TransactionDetails.vue:10
+#: frontend/src/components/Settings/Transactions/TransactionDetails.vue:3
 msgid "Transaction Details"
 msgstr ""
 
-#: frontend/src/components/Settings/Transactions/TransactionDetails.vue:213
+#: frontend/src/components/Settings/Transactions/TransactionDetails.vue:207
 msgid "Transaction created successfully"
 msgstr ""
 
-#: frontend/src/components/Settings/Transactions/TransactionDetails.vue:227
+#: frontend/src/components/Settings/Transactions/TransactionDetails.vue:221
 msgid "Transaction updated successfully"
 msgstr ""
 
@@ -8102,16 +8176,16 @@ msgstr ""
 msgid "UUID"
 msgstr ""
 
-#: frontend/src/components/Modals/AddEvaluatorModal.vue:60
-msgid "Unable to add evaluator"
-msgstr ""
-
-#: frontend/src/components/Modals/NewMemberModal.vue:169
+#: frontend/src/components/Modals/NewMemberModal.vue:192
 msgid "Unable to add member"
 msgstr ""
 
-#: frontend/src/utils/index.js:873
+#: frontend/src/utils/index.js:876
 msgid "Unable to create category"
+msgstr ""
+
+#: frontend/src/components/Modals/NewMemberModal.vue:217
+msgid "Unable to update member"
 msgstr ""
 
 #: frontend/src/components/Quiz.vue:429
@@ -8143,7 +8217,7 @@ msgid "Unpublish"
 msgstr ""
 
 #: frontend/src/pages/Batches/Batches.vue:327
-#: frontend/src/pages/Courses/Courses.vue:336
+#: frontend/src/pages/Courses/Courses.vue:332
 msgid "Unpublished"
 msgstr ""
 
@@ -8170,7 +8244,7 @@ msgstr ""
 #. Label of the upcoming (Check) field in DocType 'LMS Course'
 #: frontend/src/pages/Batches/Batches.vue:325
 #: frontend/src/pages/Courses/CoursePublishSettings.vue:8
-#: frontend/src/pages/Courses/Courses.vue:326
+#: frontend/src/pages/Courses/Courses.vue:322
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json
 #: lms/lms/doctype/lms_course/lms_course.json
 msgid "Upcoming"
@@ -8190,8 +8264,8 @@ msgstr ""
 msgid "Upcoming Live Classes"
 msgstr ""
 
-#: frontend/src/components/Settings/BrandSettings.vue:25
-#: frontend/src/components/Settings/SettingDetails.vue:21
+#: frontend/src/components/Settings/BrandSettings.vue:13
+#: frontend/src/components/Settings/SettingDetails.vue:13
 msgid "Update"
 msgstr ""
 
@@ -8205,6 +8279,7 @@ msgstr ""
 msgid "Updated On"
 msgstr ""
 
+#: frontend/src/components/Controls/ImageUploader.vue:15
 #: frontend/src/components/Controls/Uploader.vue:45
 msgid "Upload"
 msgstr ""
@@ -8236,12 +8311,13 @@ msgid "Uploading"
 msgstr ""
 
 #: frontend/src/components/Assignment.vue:95
+#: frontend/src/components/Controls/ImageUploader.vue:12
 msgid "Uploading {0}%"
 msgstr ""
 
 #. Label of the usage_limit (Int) field in DocType 'LMS Coupon'
-#: frontend/src/components/Settings/Coupons/CouponDetails.vue:59
-#: frontend/src/components/Settings/Coupons/CouponList.vue:186
+#: frontend/src/components/Settings/Coupons/CouponDetails.vue:66
+#: frontend/src/components/Settings/Coupons/CouponList.vue:178
 #: lms/lms/doctype/lms_coupon/lms_coupon.json
 msgid "Usage Limit"
 msgstr ""
@@ -8260,7 +8336,7 @@ msgstr ""
 
 #. Label of the user (Link) field in DocType 'LMS Job Application'
 #. Label of the user (Link) field in DocType 'LMS Course Interest'
-#: frontend/src/components/Settings/BadgeForm.vue:196
+#: frontend/src/components/Settings/BadgeForm.vue:209
 #: lms/job/doctype/lms_job_application/lms_job_application.json
 #: lms/lms/doctype/lms_course_interest/lms_course_interest.json
 msgid "User"
@@ -8293,8 +8369,16 @@ msgstr ""
 msgid "User Skill"
 msgstr ""
 
-#: lms/lms/api.py:1881
+#: frontend/src/components/Settings/Members.vue:280
+msgid "User deleted"
+msgstr ""
+
+#: lms/lms/api.py:1929
 msgid "User does not have permission to access this user's profile details."
+msgstr ""
+
+#: lms/lms/api.py:1609
+msgid "User {0} does not exist."
 msgstr ""
 
 #: lms/job/doctype/job_opportunity/job_opportunity.py:41
@@ -8336,10 +8420,11 @@ msgid "Video Embed Link"
 msgstr ""
 
 #: frontend/src/components/Modals/VideoStatistics.vue:6
+#: frontend/src/pages/Lesson.vue:18
 msgid "Video Statistics"
 msgstr ""
 
-#: frontend/src/pages/Lesson.vue:874
+#: frontend/src/pages/Lesson.vue:888
 msgid "Video failed to load — you can still mark this lesson as viewed."
 msgstr ""
 
@@ -8441,30 +8526,16 @@ msgstr ""
 msgid "What best describes your role?"
 msgstr ""
 
+#: frontend/src/components/Settings/BadgeForm.vue:42
+msgid "What is this badge awarded for?"
+msgstr ""
+
 #: frontend/src/pages/PersonaForm.vue:21
 msgid "What is your use case for Frappe Learning?"
 msgstr ""
 
 #: lms/templates/courses_under_review.html:15
 msgid "When a course gets submitted for review, it will be listed here."
-msgstr ""
-
-#. Description of the 'Enforce Video Completion' (Check) field in DocType 'LMS
-#. Settings'
-#: lms/lms/doctype/lms_settings/lms_settings.json
-msgid "When enabled, lessons that contain a video can only be marked complete by playing the video to the end. If the video fails to load, the dwell timer is used as a fallback."
-msgstr ""
-
-#. Description of the 'Enforce Quiz Completion' (Check) field in DocType 'LMS
-#. Settings'
-#: lms/lms/doctype/lms_settings/lms_settings.json
-msgid "When enabled, lessons with a quiz cannot be marked complete until the quiz is submitted."
-msgstr ""
-
-#. Description of the 'Enforce Assignment Completion' (Check) field in DocType
-#. 'LMS Settings'
-#: lms/lms/doctype/lms_settings/lms_settings.json
-msgid "When enabled, lessons with an assignment cannot be marked complete until the assignment is submitted."
 msgstr ""
 
 #: frontend/src/pages/Billing.vue:162
@@ -8535,31 +8606,31 @@ msgstr ""
 msgid "You are already enrolled for this course."
 msgstr ""
 
-#: lms/lms/utils.py:1453
+#: lms/lms/utils.py:1476
 msgid "You are not authorized to view the assessments of this batch."
 msgstr ""
 
-#: lms/lms/utils.py:1655
+#: lms/lms/utils.py:1678
 msgid "You are not authorized to view the chart data of this batch."
 msgstr ""
 
-#: lms/lms/utils.py:2251
+#: lms/lms/utils.py:2274
 msgid "You are not authorized to view the details of this program."
 msgstr ""
 
-#: lms/lms/utils.py:1865
+#: lms/lms/utils.py:1888
 msgid "You are not authorized to view the discussion replies for this topic."
 msgstr ""
 
-#: lms/lms/utils.py:1818
+#: lms/lms/utils.py:1841
 msgid "You are not authorized to view the discussion topics for this item."
 msgstr ""
 
-#: lms/lms/utils.py:1564
+#: lms/lms/utils.py:1587
 msgid "You are not authorized to view the students of this batch."
 msgstr ""
 
-#: lms/lms/utils.py:1404
+#: lms/lms/utils.py:1427
 msgid "You are not authorized to view this quiz."
 msgstr ""
 
@@ -8575,7 +8646,7 @@ msgstr ""
 msgid "You are not permitted to access this page."
 msgstr ""
 
-#: lms/lms/api.py:748 lms/lms/api.py:799
+#: lms/lms/api.py:757 lms/lms/api.py:808
 msgid "You are not the assigned evaluator for this course and batch."
 msgstr ""
 
@@ -8616,7 +8687,7 @@ msgstr ""
 msgid "You cannot enroll in an unpublished course."
 msgstr ""
 
-#: lms/lms/utils.py:2312
+#: lms/lms/utils.py:2335
 msgid "You cannot enroll in an unpublished program."
 msgstr ""
 
@@ -8632,35 +8703,35 @@ msgstr ""
 msgid "You cannot schedule evaluations for past slots."
 msgstr ""
 
-#: lms/lms/utils.py:2492
+#: lms/lms/utils.py:2515
 msgid "You do not have access to this batch."
 msgstr ""
 
-#: lms/lms/utils.py:2475
+#: lms/lms/utils.py:2498
 msgid "You do not have access to this course."
 msgstr ""
 
-#: lms/lms/api.py:935 lms/lms/doctype/lms_batch/lms_batch.py:368
+#: lms/lms/api.py:944 lms/lms/doctype/lms_batch/lms_batch.py:368
 msgid "You do not have permission to access announcements for this batch."
 msgstr ""
 
-#: lms/lms/api.py:2380
+#: lms/lms/api.py:2428
 msgid "You do not have permission to access badges."
 msgstr ""
 
-#: lms/lms/api.py:1236
+#: lms/lms/api.py:1270
 msgid "You do not have permission to access heatmap data."
 msgstr ""
 
-#: lms/lms/api.py:2219
+#: lms/lms/api.py:2267
 msgid "You do not have permission to access lesson completion stats."
 msgstr ""
 
-#: lms/lms/api.py:2259
+#: lms/lms/api.py:2307
 msgid "You do not have permission to access this course's assessment data."
 msgstr ""
 
-#: lms/lms/api.py:1782
+#: lms/lms/api.py:1830
 msgid "You do not have permission to access this course's progress data."
 msgstr ""
 
@@ -8668,7 +8739,7 @@ msgstr ""
 msgid "You do not have permission to access this page."
 msgstr ""
 
-#: lms/lms/api.py:1457 lms/lms/api.py:1466
+#: lms/lms/api.py:1491 lms/lms/api.py:1500
 msgid "You do not have permission to cancel this evaluation."
 msgstr ""
 
@@ -8676,15 +8747,15 @@ msgstr ""
 msgid "You do not have permission to create a live class."
 msgstr ""
 
-#: lms/lms/api.py:1005
+#: lms/lms/api.py:1014
 msgid "You do not have permission to delete this batch."
 msgstr ""
 
-#: lms/lms/api.py:1190
+#: lms/lms/api.py:1224
 msgid "You do not have permission to delete this chapter."
 msgstr ""
 
-#: lms/lms/api.py:965
+#: lms/lms/api.py:974
 msgid "You do not have permission to delete this course."
 msgstr ""
 
@@ -8692,11 +8763,11 @@ msgstr ""
 msgid "You do not have permission to delete this lesson."
 msgstr ""
 
-#: lms/lms/api.py:2482
+#: lms/lms/api.py:2530
 msgid "You do not have permission to export this course."
 msgstr ""
 
-#: lms/lms/api.py:663 lms/lms/api.py:1053
+#: lms/lms/api.py:663 lms/lms/api.py:1069
 msgid "You do not have permission to modify this chapter."
 msgstr ""
 
@@ -8704,7 +8775,7 @@ msgstr ""
 msgid "You do not have permission to modify this lesson."
 msgstr ""
 
-#: lms/lms/api.py:1526
+#: lms/lms/api.py:1560
 msgid "You do not have permission to modify this role."
 msgstr ""
 
@@ -8716,11 +8787,11 @@ msgstr ""
 msgid "You do not have permission to set up calendar events for this evaluation."
 msgstr ""
 
-#: lms/lms/api.py:1665 lms/lms/api.py:1669
+#: lms/lms/api.py:1713 lms/lms/api.py:1717
 msgid "You do not have permission to update meta tags."
 msgstr ""
 
-#: lms/lms/api.py:1706
+#: lms/lms/api.py:1754
 msgid "You do not have permission to update this submission."
 msgstr ""
 
@@ -8830,7 +8901,7 @@ msgstr ""
 msgid "You will have to get {0}% correct answers in order to pass the quiz."
 msgstr ""
 
-#: frontend/src/pages/Notifications.vue:156
+#: frontend/src/pages/Notifications.vue:202
 msgid "You're all caught up! Check back later for updates."
 msgstr ""
 
@@ -8931,11 +9002,11 @@ msgstr ""
 msgid "Zoom Account"
 msgstr ""
 
-#: frontend/src/components/Modals/ZoomAccountModal.vue:166
+#: frontend/src/components/Settings/ZoomAccountForm.vue:163
 msgid "Zoom Account created successfully"
 msgstr ""
 
-#: frontend/src/components/Modals/ZoomAccountModal.vue:204
+#: frontend/src/components/Settings/ZoomAccountForm.vue:201
 msgid "Zoom Account updated successfully"
 msgstr ""
 
@@ -8944,7 +9015,7 @@ msgstr ""
 msgid "Zoom Settings"
 msgstr ""
 
-#: frontend/src/components/Settings/ZoomSettings.vue:167
+#: frontend/src/components/Settings/ZoomSettings.vue:162
 msgid "Zoom account deleted successfully"
 msgstr ""
 
@@ -8995,7 +9066,7 @@ msgstr ""
 
 #: frontend/src/components/CourseCard.vue:102
 #: frontend/src/pages/Courses/StudentCourseProgress.vue:29
-#: frontend/src/pages/Lesson.vue:134
+#: frontend/src/pages/Lesson.vue:138
 #: frontend/src/pages/Programs/ProgramDetail.vue:14
 #: frontend/src/pages/Programs/StudentPrograms.vue:44
 msgid "completed"
@@ -9003,6 +9074,10 @@ msgstr ""
 
 #: frontend/src/pages/Programs/StudentPrograms.vue:29
 msgid "course"
+msgstr ""
+
+#: lms/lms/api.py:1064
+msgid "course must be a string"
 msgstr ""
 
 #: frontend/src/components/CourseReviews.vue:10
@@ -9029,6 +9104,14 @@ msgstr ""
 msgid "days ago"
 msgstr ""
 
+#: frontend/src/components/Settings/BadgeForm.vue:26
+msgid "e.g. Course Champion"
+msgstr ""
+
+#: frontend/src/components/Settings/Coupons/CouponDetails.vue:32
+msgid "e.g. WELCOME10"
+msgstr ""
+
 #: frontend/src/pages/Courses/CourseOverviewSection.vue:10
 msgid "e.g. https://www.youtube.com/video"
 msgstr ""
@@ -9043,6 +9126,10 @@ msgstr ""
 
 #: frontend/src/pages/Home/Home.vue:135 frontend/src/pages/Home/Home.vue:158
 msgid "evaluations"
+msgstr ""
+
+#: lms/lms/doctype/course_lesson/course_lesson.py:150
+msgid "file_url must be a string"
 msgstr ""
 
 #: lms/templates/emails/mentor_request_status_update_email.html:4
@@ -9106,6 +9193,10 @@ msgstr ""
 msgid "months ago"
 msgstr ""
 
+#: lms/lms/api.py:1066
+msgid "name must be a string"
+msgstr ""
+
 #: frontend/src/pages/Assignments.vue:128
 #: frontend/src/pages/CertifiedParticipants.vue:128
 #: frontend/src/pages/JobApplications.vue:109 frontend/src/pages/Jobs.vue:134
@@ -9126,7 +9217,7 @@ msgstr ""
 msgid "rating"
 msgstr ""
 
-#: frontend/src/components/Settings/Categories.vue:19
+#: frontend/src/components/Settings/Categories.vue:9
 msgid "saving..."
 msgstr ""
 
@@ -9147,6 +9238,10 @@ msgstr ""
 msgid "that might interest you!"
 msgstr ""
 
+#: lms/lms/api.py:1062
+msgid "title must be a string"
+msgstr ""
+
 #: frontend/src/components/CommandPalette/CommandPalette.vue:59
 msgid "to close"
 msgstr ""
@@ -9161,6 +9256,10 @@ msgstr ""
 
 #: frontend/src/pages/Batches/components/BatchFeedback.vue:33
 msgid "to view your feedback."
+msgstr ""
+
+#: lms/lms/api.py:1605
+msgid "user must be a string"
 msgstr ""
 
 #: frontend/src/components/CourseReviews.vue:14
@@ -9191,7 +9290,7 @@ msgstr ""
 msgid "{0} Quizzes"
 msgstr ""
 
-#: lms/lms/api.py:856 lms/lms/api.py:864
+#: lms/lms/api.py:865 lms/lms/api.py:873
 msgid "{0} Settings not found"
 msgstr ""
 
@@ -9235,7 +9334,7 @@ msgstr ""
 msgid "{0} is your evaluator"
 msgstr ""
 
-#: lms/lms/utils.py:552
+#: lms/lms/utils.py:564
 msgid "{0} mentioned you in a comment"
 msgstr ""
 
@@ -9243,11 +9342,11 @@ msgstr ""
 msgid "{0} mentioned you in a comment in your batch."
 msgstr ""
 
-#: lms/lms/utils.py:505 lms/lms/utils.py:511
+#: lms/lms/utils.py:517 lms/lms/utils.py:523
 msgid "{0} mentioned you in a comment in {1}"
 msgstr ""
 
-#: lms/lms/api.py:918
+#: lms/lms/api.py:927
 msgid "{0} not found"
 msgstr ""
 
