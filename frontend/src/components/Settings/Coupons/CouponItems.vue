@@ -1,8 +1,12 @@
 <template>
 	<div>
-		<div class="relative overflow-x-auto border rounded-md">
+		<div
+			class="relative overflow-x-auto border border-outline-gray-2 rounded-md"
+		>
 			<table class="w-full text-sm text-start text-ink-gray-5">
-				<thead class="text-xs text-ink-gray-7 uppercase bg-surface-gray-2">
+				<thead
+					class="text-xs text-ink-gray-7 uppercase bg-surface-gray-2 border-b border-outline-gray-2"
+				>
 					<tr>
 						<td scope="col" class="px-6 py-2">
 							{{ __('Document Type') }}
@@ -16,7 +20,7 @@
 				<tbody>
 					<tr
 						v-for="row in rows"
-						class="bg-white dark:bg-gray-800 dark:border-gray-700 border-gray-200"
+						class="bg-surface-white border-b border-outline-gray-2 last:border-b-0"
 					>
 						<td class="px-6 py-2">
 							<Select
@@ -32,7 +36,7 @@
 							<Link
 								:doctype="row.reference_doctype"
 								v-model="row.reference_name"
-								class="bg-white w-full"
+								class="bg-surface-white w-full"
 							/>
 						</td>
 						<td class="px-6 py-2">

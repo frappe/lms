@@ -73,9 +73,7 @@
 			}"
 			class="flex-1 overflow-y-auto px-5"
 		>
-			<ListHeader
-				class="mb-2 grid items-center rounded-none border-b bg-surface-base p-2"
-			>
+			<ListHeader class="mb-2 grid items-center rounded bg-surface-gray-2 p-2">
 				<ListHeaderItem :item="item" v-for="item in columns">
 					<template #prefix="{ item }">
 						<FeatherIcon :name="item.icon?.toString()" class="h-4 w-4" />

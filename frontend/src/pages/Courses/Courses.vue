@@ -55,6 +55,7 @@
 						:options="categories"
 						:placeholder="__('Category')"
 						@update:modelValue="updateCourses()"
+						class="w-full"
 					/>
 				</div>
 

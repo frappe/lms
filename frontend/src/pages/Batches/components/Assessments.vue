@@ -24,7 +24,7 @@
 				}"
 			>
 				<ListHeader
-					class="mb-2 grid items-center gap-x-4 rounded-none rounded-t bg-surface-gray-2 p-2"
+					class="mb-2 grid items-center gap-x-4 rounded-t-lg bg-surface-gray-2 p-2"
 				>
 					<ListHeaderItem :item="item" v-for="item in getAssessmentColumns()">
 					</ListHeaderItem>
@@ -33,7 +33,7 @@
 					<ListRow
 						:row="row"
 						v-for="row in assessments.data"
-						class="!rounded-none"
+						class="!rounded-none last:!rounded-b-lg"
 					>
 						<template #default="{ column, item }">
 							<ListRowItem :item="row[column.key]" :align="column.align">

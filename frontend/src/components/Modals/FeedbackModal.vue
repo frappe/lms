@@ -17,7 +17,7 @@
 					class="border rounded-lg py-2 px-3"
 				>
 					<ListHeader
-						class="mb-2 grid items-center rounded bg-surface-base border-b rounded-none !px-0"
+						class="mb-2 grid items-center rounded bg-surface-gray-2 !px-0"
 					>
 						<ListHeaderItem :item="item" v-for="item in feedbackColumns">
 							<template #prefix="{ item }">

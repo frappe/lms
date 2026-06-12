@@ -44,7 +44,7 @@
 					class="h-[79vh] border-b"
 				>
 					<ListHeader
-						class="mb-2 grid items-center rounded bg-surface-white border-b rounded-none p-2"
+						class="mb-2 grid items-center rounded bg-surface-gray-2 p-2"
 					>
 						<ListHeaderItem
 							:item="item"
