@@ -61,7 +61,7 @@
 							resizeColumn: true,
 							showTooltip: false,
 						}"
-						:rowKey="programName === 'new' ? 'course' : 'name'"
+						:rowKey="'course'"
 					>
 						<ListHeader
 							class="mb-2 grid items-center gap-x-4 rounded bg-surface-gray-2 p-2"
@@ -71,7 +71,7 @@
 						<ListRows>
 							<Draggable
 								:list="program.program_courses"
-								:item-key="programName === 'new' ? 'course' : 'name'"
+								:item-key="'course'"
 								group="items"
 								@end="updateOrder"
 								class="cursor-move"
@@ -135,7 +135,7 @@
 							selectable: true,
 							resizeColumn: true,
 						}"
-						:rowKey="programName === 'new' ? 'member' : 'name'"
+						:rowKey="'member'"
 					>
 						<ListHeader
 							class="mb-2 grid items-center gap-x-4 rounded bg-surface-gray-2 p-2"
@@ -297,7 +297,7 @@ const setProgramData = () => {
 	programs.value?.data.forEach((p: Program) => {
 		if (p.name === props.programName) {
 			isNew = false
-			program.value = { ...p }
+			program.value = { program_courses: [], program_members: [], ...p }
 		}
 	})
 
