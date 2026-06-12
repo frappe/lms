@@ -3,7 +3,7 @@
 		<template #body>
 			<div class="text-base">
 				<div class="flex items-center gap-x-2 ps-4.5 border-b">
-					<Search class="size-4 text-ink-gray-4" />
+					<span class="lucide-search size-4 text-ink-gray-4" />
 					<input
 						ref="inputRef"
 						type="text"
@@ -35,19 +35,19 @@
 					class="flex items-center gap-x-5 w-full border-t py-2 text-sm text-ink-gray-7 px-4.5"
 				>
 					<div class="flex items-center gap-x-2">
-						<MoveUp
-							class="size-5 stroke-1.5 bg-surface-gray-2 p-1 rounded-sm"
+						<span
+							class="lucide-move-up size-5 bg-surface-gray-2 p-1 rounded-sm"
 						/>
-						<MoveDown
-							class="size-5 stroke-1.5 bg-surface-gray-2 p-1 rounded-sm"
+						<span
+							class="lucide-move-down size-5 bg-surface-gray-2 p-1 rounded-sm"
 						/>
 						<span>
 							{{ __('to navigate') }}
 						</span>
 					</div>
 					<div class="flex items-center gap-x-2">
-						<CornerDownLeft
-							class="size-5 stroke-1.5 bg-surface-gray-2 p-1 rounded-sm"
+						<span
+							class="lucide-corner-down-left size-5 bg-surface-gray-2 p-1 rounded-sm"
 						/>
 						<span>
 							{{ __('to select') }}
@@ -68,16 +68,7 @@
 import { createResource, debounce, Dialog } from 'frappe-ui'
 import { nextTick, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import {
-	BookOpen,
-	Briefcase,
-	CornerDownLeft,
-	FileSearch,
-	MoveUp,
-	MoveDown,
-	Search,
-	Users,
-} from 'lucide-vue-next'
+import { BookOpen, Briefcase, FileSearch, Search, Users } from 'lucide-vue-next'
 import CommandPaletteGroup from './CommandPaletteGroup.vue'
 
 const show = defineModel<boolean>({ required: true, default: false })

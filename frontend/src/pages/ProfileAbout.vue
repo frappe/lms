@@ -48,7 +48,7 @@
 								class="flex items-end bg-surface-gray-2 p-2 text-xs-semibold rounded-full absolute end-0 bottom-0"
 							>
 								<span>
-									<X class="w-3 h-3" />
+									<span class="lucide-x size-3" />
 								</span>
 								{{ badge.count }}
 							</div>
@@ -121,7 +121,7 @@
 <script setup>
 import { inject } from 'vue'
 import { createResource, Popover, Button } from 'frappe-ui'
-import { X, LinkedinIcon, Twitter } from 'lucide-vue-next'
+import { LinkedinIcon, Twitter } from 'lucide-vue-next'
 import { sessionStore } from '@/stores/session'
 import { decodeEntities } from '@/utils'
 import DOMPurify from 'dompurify'

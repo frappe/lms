@@ -20,7 +20,7 @@
 			>
 				<Button variant="solid">
 					<template #prefix>
-						<Plus class="size-4 stroke-1.5" />
+						<span class="lucide-plus size-4" />
 					</template>
 					{{ __('Create') }}
 				</Button>
@@ -32,7 +32,7 @@
 			class="mx-auto mb-2 flex w-full flex-col justify-between space-y-4 p-5 lg:flex-row lg:items-center lg:space-y-0"
 		>
 			<div class="flex items-center justify-between">
-				<div class="text-xl-semibold text-ink-gray-9 md:mb-0">
+				<div class="text-lg font-semibold text-ink-gray-9 md:mb-0">
 					{{ __('{0} {1} Jobs').format(jobCount.data ?? 0, activeTab) }}
 				</div>
 				<TabButtons
@@ -63,7 +63,7 @@
 						@input="updateJobs"
 					>
 						<template #prefix>
-							<Search class="size-4 stroke-1.5 text-ink-gray-5" name="search" />
+							<span class="lucide-search size-4 text-ink-gray-5" />
 						</template>
 					</FormControl>
 					<Link
@@ -151,7 +151,6 @@ import {
 	TabButtons,
 	usePageMeta,
 } from 'frappe-ui'
-import { Plus, Search } from 'lucide-vue-next'
 import { sessionStore } from '@/stores/session'
 import { useSettings } from '@/stores/settings'
 import { inject, computed, ref, onMounted, watch } from 'vue'

@@ -1,6 +1,6 @@
 <template>
 	<div class="mt-7 mb-20">
-		<h2 class="mb-4 text-xl-semibold text-ink-gray-9">
+		<h2 class="mb-4 text-lg font-semibold text-ink-gray-9">
 			{{ __('My availability') }}
 		</h2>
 
@@ -8,7 +8,7 @@
 			v-if="readOnlyMode"
 			class="flex items-center gap-x-2 text-sm text-ink-gray-7 bg-surface-gray-1 px-3 py-2 rounded-md w-full text-center"
 		>
-			<CircleAlert class="size-4 stroke-1.5" />
+			<span class="lucide-circle-alert size-4" />
 			<span>
 				{{
 					__(
@@ -57,10 +57,10 @@
 						@focusout.stop="update(slot.name, 'end_time', slot.end_time)"
 						:disabled="!isSessionUser()"
 					/>
-					<X
+					<span
 						v-if="isSessionUser()"
+						class="lucide-x size-6 text-red-900 rounded-md cursor-pointer p-1 bg-surface-red-2 hidden group-hover:block"
 						@click="deleteRow(slot.name)"
-						class="w-6 h-auto stroke-1.5 text-red-900 rounded-md cursor-pointer p-1 bg-surface-red-2 hidden group-hover:block"
 					/>
 				</div>
 
@@ -91,13 +91,13 @@
 
 				<Button v-if="isSessionUser()" @click="showSlotsTemplate = 1">
 					<template #prefix>
-						<Plus class="w-4 h-4 stroke-1.5 text-ink-gray-7" />
+						<span class="lucide-plus size-4 text-ink-gray-7" />
 					</template>
 					{{ __('Add Slot') }}
 				</Button>
 			</div>
 			<div class="my-10">
-				<h2 class="mb-4 text-xl-semibold text-ink-gray-9">
+				<h2 class="mb-4 text-lg font-semibold text-ink-gray-9">
 					{{ __('I am unavailable') }}
 				</h2>
 				<div class="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -132,14 +132,14 @@
 				</div>
 			</div>
 			<div v-if="isSessionUser()">
-				<h2 class="mb-4 text-xl-semibold text-ink-gray-9">
+				<h2 class="mb-4 text-lg font-semibold text-ink-gray-9">
 					{{ __('My calendar') }}
 				</h2>
 				<div
 					v-if="evaluator.data?.calendar && evaluator.data?.is_authorized"
 					class="flex items-center bg-surface-green-2 text-green-900 text-sm p-1 rounded-md mb-4 w-fit"
 				>
-					<Check class="h-4 w-4 stroke-1.5 me-2" />
+					<span class="lucide-check size-4 me-2" />
 					{{ __('Your calendar is set.') }}
 				</div>
 				<Button @click="() => authorizeCalendar.submit()">
@@ -153,7 +153,6 @@
 import { createResource, FormControl, Button, Badge, toast } from 'frappe-ui'
 import { computed, reactive, ref, onMounted, inject, watch } from 'vue'
 import { convertToTitleCase } from '@/utils'
-import { Plus, X, Check, CircleAlert } from 'lucide-vue-next'
 
 const user = inject('$user')
 const readOnlyMode = window.read_only_mode

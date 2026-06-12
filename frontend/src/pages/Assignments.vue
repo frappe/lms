@@ -15,7 +15,7 @@
 				"
 			>
 				<template #prefix>
-					<Plus class="size-4 stroke-1.5" />
+					<span class="lucide-plus size-4" />
 				</template>
 				{{ __('Create') }}
 			</Button>
@@ -98,7 +98,7 @@
 							variant="ghost"
 							@click="deleteAssignment(selections, unselectAll)"
 						>
-							<FeatherIcon name="trash-2" class="h-4 w-4 stroke-1.5" />
+							<span class="lucide-trash-2 h-4 w-4" />
 						</Button>
 					</div>
 				</template>
@@ -160,7 +160,6 @@ import {
 } from 'frappe-ui'
 import Select from '@/components/Controls/Select.vue'
 import { computed, inject, onMounted, ref, watch } from 'vue'
-import { Plus } from 'lucide-vue-next'
 import { useRouter, useRoute } from 'vue-router'
 import { sessionStore } from '../stores/session'
 import AssignmentForm from '@/components/Modals/AssignmentForm.vue'

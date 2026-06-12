@@ -3,7 +3,7 @@
 		<div v-if="!singleThread" class="flex items-center mb-5">
 			<Button variant="outline" @click="showTopics = true">
 				<template #icon>
-					<ChevronLeft class="w-5 h-5 stroke-1.5 text-ink-gray-7" />
+					<span class="lucide-chevron-left size-5 text-ink-gray-7" />
 				</template>
 			</Button>
 			<span class="text-xl-semibold ms-2 text-ink-gray-9">
@@ -46,7 +46,7 @@
 						]"
 					>
 						<template v-slot="{ open }">
-							<MoreHorizontal class="w-4 h-4 stroke-1.5 cursor-pointer" />
+							<span class="lucide-more-horizontal size-4 cursor-pointer" />
 						</template>
 					</Dropdown>
 					<div v-if="reply.editable">
@@ -103,7 +103,6 @@ import {
 } from 'frappe-ui'
 import { timeAgo } from '@/utils'
 import UserAvatar from '@/components/UserAvatar.vue'
-import { ChevronLeft, MoreHorizontal } from 'lucide-vue-next'
 import { ref, inject, onMounted, onUnmounted } from 'vue'
 import { useTelemetry } from 'frappe-ui/frappe'
 

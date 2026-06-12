@@ -52,7 +52,7 @@
 				<div v-if="course.lessons">
 					<Tooltip :text="__('Lessons')">
 						<span class="flex items-center">
-							<BookOpen class="h-4 w-4 stroke-1.5 me-1" />
+							<span class="lucide-book-open size-4 me-1" />
 							{{ course.lessons }}
 						</span>
 					</Tooltip>
@@ -61,7 +61,7 @@
 				<div v-if="course.enrollments">
 					<Tooltip :text="__('Enrolled Students')">
 						<span class="flex items-center">
-							<Users class="h-4 w-4 stroke-1.5 me-1" />
+							<span class="lucide-users size-4 me-1" />
 							{{ formatAmount(course.enrollments) }}
 						</span>
 					</Tooltip>
@@ -70,14 +70,14 @@
 				<div v-if="course.rating">
 					<Tooltip :text="__('Average Rating')">
 						<span class="flex items-center">
-							<Star class="h-4 w-4 stroke-1.5 me-1" />
+							<span class="lucide-star size-4 me-1" />
 							{{ formatRating(course.rating) }}
 						</span>
 					</Tooltip>
 				</div>
 
 				<Tooltip v-if="course.featured" :text="__('Featured')">
-					<Award class="size-4 stroke-2 text-ink-amber-6" />
+					<span class="lucide-award size-4 text-ink-amber-6" />
 				</Tooltip>
 			</div>
 
@@ -125,7 +125,7 @@
 						v-if="course.paid_certificate || course.enable_certification"
 						:text="__('Get Certified')"
 					>
-						<GraduationCap class="size-5 stroke-1.5 text-ink-gray-7" />
+						<span class="lucide-graduation-cap size-5 text-ink-gray-7" />
 					</Tooltip>
 				</div>
 			</div>
@@ -133,7 +133,6 @@
 	</div>
 </template>
 <script setup>
-import { Award, BookOpen, GraduationCap, Star, Users } from 'lucide-vue-next'
 import { sessionStore } from '@/stores/session'
 import { Tooltip } from 'frappe-ui'
 import { formatAmount, formatRating } from '@/utils'

@@ -40,8 +40,8 @@
 							</slot>
 						</span>
 					</span>
-					<ChevronDown
-						class="size-4 shrink-0 text-ink-gray-4 transition-transform duration-200"
+					<span
+						class="lucide-chevron-down size-4 shrink-0 text-ink-gray-4 transition-transform duration-200"
 						:class="open && 'rotate-180'"
 					/>
 				</button>
@@ -73,7 +73,7 @@
 							@click="handleCreate"
 						>
 							<template #prefix>
-								<Plus class="size-4 stroke-1.5" />
+								<span class="lucide-plus size-4" />
 							</template>
 							{{ __(createLabel) }}
 						</Button>
@@ -87,7 +87,6 @@
 <script setup lang="ts">
 import { Button, FormLabel, MultiSelect, createResource } from 'frappe-ui'
 import { useDebounceFn } from '@vueuse/core'
-import { ChevronDown, Plus } from 'lucide-vue-next'
 import { computed, ref } from 'vue'
 import type { Resource } from '@/types/api'
 

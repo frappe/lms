@@ -1,20 +1,20 @@
 <template>
 	<header
 		v-if="!fromLesson"
-		class="sticky flex items-center justify-between top-0 z-10 border-b bg-surface-base px-3 py-2.5 sm:px-5"
+		class="sticky flex items-center justify-between top-0 z-10 border-b bg-surface-white px-3 py-2.5 sm:px-5"
 	>
 		<Breadcrumbs :items="breadcrumbs" />
 	</header>
 	<div
 		v-if="falconError"
-		class="flex items-center justify-between p-3 text-sm bg-surface-amber-1 text-ink-amber-6"
+		class="flex items-center justify-between p-3 text-sm bg-surface-amber-1 text-ink-amber-3"
 	>
 		<span>
 			{{ falconError }}
 		</span>
 		<Button v-if="user.data?.is_moderator" @click="openSettings('General')">
 			<template #prefix>
-				<Settings class="size-4 stroke-1.5" />
+				<span class="lucide-settings size-4" />
 			</template>
 			{{ __('Settings') }}
 		</Button>
@@ -54,7 +54,7 @@
 						class="text-ink-gray-9"
 					>
 						<template #prefix>
-							<Play class="size-3" />
+							<span class="lucide-play size-3" />
 						</template>
 						{{ running ? __('Running') : __('Run') }}
 					</Button>
@@ -74,7 +74,7 @@
 					<textarea
 						v-if="error"
 						v-model="errorMessage"
-						class="font-mono text-ink-red-6 bg-surface-gray-1 border-none text-sm h-32 leading-6"
+						class="font-mono text-ink-red-3 bg-surface-gray-1 border-none text-sm h-32 leading-6"
 						readonly
 					/>
 				</div>
@@ -82,7 +82,7 @@
 			</div>
 
 			<div ref="testCaseSection" class="p-5">
-				<span class="text-xl-semibold text-ink-gray-9">
+				<span class="text-lg font-semibold text-ink-gray-9">
 					{{ __('Test Cases') }}
 				</span>
 				<div v-if="testCases.length" class="divide-y mt-5">
@@ -99,17 +99,17 @@
 								class="font-semibold ms-2 me-1"
 								:class="
 									testCase.status === 'Passed'
-										? 'text-ink-green-6'
-										: 'text-ink-red-6'
+										? 'text-ink-green-3'
+										: 'text-ink-red-3'
 								"
 							>
 								{{ testCase.status }}
 							</span>
 							<!-- <span v-if="testCase.status === 'Passed'">
-								<Check class="size-4 text-ink-green-6" />
+								<Check class="size-4 text-ink-green-3" />
 							</span>
 							<span v-else>
-								<X class="size-4 text-ink-red-6" />
+								<X class="size-4 text-ink-red-3" />
 							</span> -->
 						</div>
 						<div class="flex items-center justify-between w-[60%]">
@@ -156,7 +156,6 @@ import {
 	usePageMeta,
 } from 'frappe-ui'
 import { computed, inject, onMounted, ref, watch } from 'vue'
-import { Play, X, Check, Settings } from 'lucide-vue-next'
 import { sessionStore } from '@/stores/session'
 import { useRouter } from 'vue-router'
 import { openSettings } from '@/utils'

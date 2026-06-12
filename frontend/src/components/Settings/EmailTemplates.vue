@@ -8,7 +8,7 @@
 		<template #header-actions>
 			<Button variant="solid" @click="openTemplateForm('new')">
 				<template #prefix>
-					<Plus class="h-4 w-4 stroke-1.5" />
+					<span class="lucide-plus h-4 w-4" />
 				</template>
 				{{ __('New') }}
 			</Button>
@@ -62,7 +62,7 @@
 								variant="ghost"
 								@click="removeTemplate(selections, unselectAll)"
 							>
-								<Trash2 class="h-4 w-4 stroke-1.5" />
+								<span class="lucide-trash-2 h-4 w-4" />
 							</Button>
 						</div>
 					</template>
@@ -73,7 +73,7 @@
 			v-else
 			name="Email Templates"
 			:description="__('Add one to get started.')"
-			:icon="MailPlus"
+			icon="lucide-mail-plus"
 		/>
 	</SettingsLayout>
 	<EmailTemplateModal
@@ -97,7 +97,6 @@ import {
 	toast,
 } from 'frappe-ui'
 import { computed, ref } from 'vue'
-import { Plus, Trash2, MailPlus } from 'lucide-vue-next'
 import EmailTemplateModal from '@/components/Modals/EmailTemplateModal.vue'
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 import SettingsLayout from '@/components/Layouts/SettingsLayout.vue'

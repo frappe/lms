@@ -13,8 +13,8 @@
 					<label class="block font-medium text-ink-gray-5 cursor-pointer">
 						{{ __('Instructor Notes') }}
 					</label>
-					<ChevronRight
-						class="stroke-2 h-5 w-5 text-ink-gray-5 transform duration-200"
+					<span
+						class="lucide-chevron-right size-5 text-ink-gray-5 transform duration-200"
 						:class="{
 							'rotate-90': openInstructorEditor,
 							'rtl:rotate-180': !openInstructorEditor,
@@ -52,7 +52,6 @@ import {
 	computed,
 } from 'vue'
 import EditorJS from '@editorjs/editorjs'
-import { ChevronRight } from 'lucide-vue-next'
 import { getEditorTools, enablePlyr, sanitizeEditorJs } from '@/utils'
 import { useOnboarding, useTelemetry } from 'frappe-ui/frappe'
 

@@ -6,7 +6,7 @@
 			</div>
 			<Button v-if="isAdmin()" @click="openCourseModal()">
 				<template #prefix>
-					<Plus class="h-4 w-4" />
+					<span class="lucide-plus h-4 w-4" />
 				</template>
 				{{ __('Add') }}
 			</Button>
@@ -50,7 +50,7 @@
 								variant="ghost"
 								@click="removeCourses(selections, unselectAll)"
 							>
-								<Trash2 class="h-4 w-4 stroke-1.5" />
+								<span class="lucide-trash-2 h-4 w-4" />
 							</Button>
 						</div>
 					</template>
@@ -82,7 +82,6 @@ import {
 	ListRowItem,
 	toast,
 } from 'frappe-ui'
-import { Plus, Trash2 } from 'lucide-vue-next'
 const readOnlyMode = window.read_only_mode
 
 const showCourseModal = ref(false)

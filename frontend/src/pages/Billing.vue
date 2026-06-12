@@ -86,7 +86,7 @@
 								variant="outline"
 							>
 								<template #icon>
-									<X class="size-4 stroke-1.5" />
+									<span class="lucide-x size-4" />
 								</template>
 							</Button>
 						</div>
@@ -248,7 +248,6 @@ import { reactive, inject, onMounted, computed, ref, watch } from 'vue'
 import { sessionStore } from '../stores/session'
 import Link from '@/components/Controls/Link.vue'
 import NotPermitted from '@/components/NotPermitted.vue'
-import { X } from 'lucide-vue-next'
 import { useTelemetry } from 'frappe-ui/frappe'
 import { getLmsRoute } from '@/utils/basePath'
 

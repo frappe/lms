@@ -34,7 +34,7 @@
 				@click="addToNotes()"
 				class="flex items-center gap-x-2 hover:bg-surface-gray-2 cursor-pointer rounded-b-md py-2 px-3"
 			>
-				<NotepadText class="size-3 stroke-1.5" />
+				<span class="lucide-notepad-text size-3" />
 				<span>
 					{{ __('Add to Notes') }}
 				</span>
@@ -44,7 +44,7 @@
 				@click="deleteHighlight"
 				class="flex items-center gap-x-2 hover:bg-surface-gray-2 cursor-pointer rounded-b-md py-2 px-3"
 			>
-				<Trash2 class="size-3 stroke-1.5" />
+				<span class="lucide-trash-2 size-3" />
 				<span>
 					{{ __('Remove Highlight') }}
 				</span>
@@ -54,7 +54,6 @@
 </template>
 <script setup lang="ts">
 import { computed, inject, ref, watch } from 'vue'
-import { NotepadText, Trash2 } from 'lucide-vue-next'
 import type { Note, Notes } from '@/components/Notes/types'
 import { blockQuotesClick, getColor, highlightText } from '@/utils'
 

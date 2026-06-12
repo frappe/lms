@@ -41,7 +41,7 @@
 				v-if="batch.data.courses.length"
 				class="flex items-center mb-3 text-ink-gray-7"
 			>
-				<BookOpen class="h-4 w-4 stroke-1.5 me-2" />
+				<span class="lucide-book-open h-4 w-4 me-2" />
 				<span> {{ batch.data.courses.length }} {{ __('Courses') }} </span>
 			</div>
 			<DateRange
@@ -50,14 +50,14 @@
 				class="mb-3"
 			/>
 			<div class="flex items-center mb-3 text-ink-gray-7">
-				<Clock class="h-4 w-4 stroke-1.5 me-2" />
+				<span class="lucide-clock h-4 w-4 me-2" />
 				<span dir="ltr">
 					{{ formatTime(batch.data.start_time) }} -
 					{{ formatTime(batch.data.end_time) }}
 				</span>
 			</div>
 			<div v-if="batch.data.timezone" class="flex items-center text-ink-gray-7">
-				<Globe class="h-4 w-4 stroke-1.5 me-2" />
+				<span class="lucide-globe h-4 w-4 me-2" />
 				<span>
 					{{ batch.data.timezone }}
 				</span>
@@ -80,7 +80,7 @@
 				>
 					<Button class="w-full mt-4" variant="solid">
 						<template #prefix>
-							<CreditCard class="size-4 stroke-1.5" />
+							<span class="lucide-credit-card size-4" />
 						</template>
 						<span>
 							{{ __('Register Now') }}
@@ -98,7 +98,7 @@
 					@click="enrollInBatch()"
 				>
 					<template #prefix>
-						<GraduationCap class="size-4 stroke-1.5" />
+						<span class="lucide-graduation-cap size-4" />
 					</template>
 					{{ __('Enroll Now') }}
 				</Button>
@@ -109,16 +109,6 @@
 <script setup>
 import { inject, computed } from 'vue'
 import { Badge, Button, createResource, toast } from 'frappe-ui'
-import {
-	BookOpen,
-	Clock,
-	CreditCard,
-	Globe,
-	GraduationCap,
-	LogIn,
-	Pencil,
-	Settings,
-} from 'lucide-vue-next'
 import { formatNumberIntoCurrency, formatTime } from '@/utils'
 import DateRange from '@/components/Common/DateRange.vue'
 import { useRouter } from 'vue-router'

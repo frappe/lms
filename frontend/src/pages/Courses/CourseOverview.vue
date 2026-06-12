@@ -14,7 +14,9 @@
 					>
 						<template v-if="Number(course.data.rating) > 0">
 							<div class="flex items-center gap-1">
-								<Star class="size-4 text-yellow-500 fill-yellow-500" />
+								<span
+									class="lucide-star size-4 text-yellow-500 fill-yellow-500"
+								/>
 								<span class="font-medium text-ink-gray-9">{{
 									formatRating(course.data.rating)
 								}}</span>
@@ -26,7 +28,7 @@
 						</template>
 						<template v-if="course.data.enrollments">
 							<div class="flex items-center gap-1.5">
-								<UsersRound class="size-4 stroke-1.5" />
+								<span class="lucide-users-round size-4" />
 								<span
 									>{{ formatAmount(course.data.enrollments) }}
 									{{ __('Students') }}</span
@@ -138,7 +140,6 @@
 <script setup lang="ts">
 import { computed, inject } from 'vue'
 import { createResource, Badge } from 'frappe-ui'
-import { Star, UsersRound } from 'lucide-vue-next'
 import { formatAmount, formatRating } from '@/utils/'
 import type { SessionUser } from '@/types/api'
 import CourseCardOverlay from '@/components/CourseCardOverlay.vue'

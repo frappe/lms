@@ -23,14 +23,14 @@
 
 						<div class="flex items-center gap-x-5 text-sm text-ink-gray-7">
 							<div class="flex items-center gap-x-1">
-								<BookOpen class="size-3 stroke-1.5" />
+								<span class="lucide-book-open size-3" />
 								<span>
 									{{ program.course_count }}
 									{{ program.course_count == 1 ? __('course') : __('courses') }}
 								</span>
 							</div>
 							<div class="flex items-center gap-x-1">
-								<User class="size-4 stroke-1.5" />
+								<span class="lucide-user size-4" />
 								<span>
 									{{ program.member_count || 0 }}
 									{{ program.member_count == 1 ? __('member') : __('members') }}
@@ -64,7 +64,7 @@
 <script setup lang="ts">
 import { createResource, TabButtons } from 'frappe-ui'
 import { computed, ref } from 'vue'
-import { BookOpen, User } from 'lucide-vue-next'
+
 import { useRouter } from 'vue-router'
 import { convertToTitleCase } from '@/utils'
 import ProgressBar from '@/components/ProgressBar.vue'

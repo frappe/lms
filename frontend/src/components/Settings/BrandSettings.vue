@@ -54,7 +54,7 @@
 							alt="Logo"
 							class="size-8 rounded"
 						/>
-						<ImageIcon v-else class="size-5 text-ink-gray-4" />
+						<span v-else class="lucide-image size-5 text-ink-gray-4" />
 					</div>
 					<div class="flex flex-1 flex-col gap-1">
 						<span class="text-base-medium">{{ __('Brand Logo') }}</span>
@@ -88,7 +88,7 @@
 							alt="Favicon"
 							class="size-8 rounded"
 						/>
-						<ImageIcon v-else class="size-5 text-ink-gray-4" />
+						<span v-else class="lucide-image size-5 text-ink-gray-4" />
 					</div>
 					<div class="flex flex-1 flex-col gap-1">
 						<span class="text-base-medium">{{ __('Favicon') }}</span>
@@ -114,7 +114,6 @@
 </template>
 <script setup>
 import { createResource, Button, FormControl } from 'frappe-ui'
-import { Image as ImageIcon } from 'lucide-vue-next'
 import SettingsLayout from '@/components/Layouts/SettingsLayout.vue'
 import ImageUploader from '@/components/Controls/ImageUploader.vue'
 import { ref } from 'vue'

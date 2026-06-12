@@ -46,7 +46,7 @@
 								:options="[
 									{
 										label: __('Cancel'),
-										icon: Ban,
+										icon: 'lucide-ban',
 										onClick() {
 											cancelEvaluation(evl)
 										},
@@ -58,26 +58,26 @@
 								<template v-slot="{ open }">
 									<Button variant="ghost">
 										<template #icon>
-											<EllipsisVertical class="w-4 h-4 stroke-1.5" />
+											<span class="lucide-ellipsis-vertical w-4 h-4" />
 										</template>
 									</Button>
 								</template>
 							</Dropdown>
 						</div>
 						<div class="flex items-center mb-2">
-							<Calendar class="w-4 h-4 stroke-1.5" />
+							<span class="lucide-calendar w-4 h-4" />
 							<span class="ms-2">
 								{{ dayjs(evl.date).format('DD MMMM YYYY') }}
 							</span>
 						</div>
 						<div class="flex items-center mb-2">
-							<Clock class="w-4 h-4 stroke-1.5" />
+							<span class="lucide-clock w-4 h-4" />
 							<span class="ms-2">
 								{{ formatTime(evl.start_time) }}
 							</span>
 						</div>
 						<div class="flex items-center">
-							<GraduationCap class="w-4 h-4 stroke-1.5" />
+							<span class="lucide-graduation-cap w-4 h-4" />
 							<span class="ms-2">
 								{{ evl.evaluator_name }}
 							</span>
@@ -88,7 +88,7 @@
 						>
 							<Button @click="openEvalCall(evl)" class="w-full">
 								<template #prefix>
-									<HeadsetIcon class="w-4 h-4 stroke-1.5" />
+									<span class="lucide-headset w-4 h-4" />
 								</template>
 								{{ __('Join Call') }}
 							</Button>
@@ -110,14 +110,6 @@
 	/>
 </template>
 <script setup>
-import {
-	Ban,
-	Calendar,
-	Clock,
-	GraduationCap,
-	HeadsetIcon,
-	EllipsisVertical,
-} from 'lucide-vue-next'
 import { inject, ref, getCurrentInstance, computed } from 'vue'
 import { formatTime } from '@/utils'
 import { Button, createListResource, call, Dropdown, toast } from 'frappe-ui'

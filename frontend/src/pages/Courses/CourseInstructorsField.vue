@@ -30,7 +30,7 @@
 					+{{ overflowCount }}
 				</span>
 			</div>
-			<Users v-else class="size-4 stroke-1.5 text-ink-gray-5" />
+			<span v-else class="lucide-users size-4 text-ink-gray-5" />
 		</template>
 		<template #item-prefix="{ item }">
 			<Avatar :image="item.image" :label="item.label" size="sm" />
@@ -51,7 +51,6 @@
 
 <script setup lang="ts">
 import { Avatar, createResource } from 'frappe-ui'
-import { Users } from 'lucide-vue-next'
 import { computed, inject, ref, watch } from 'vue'
 import MultiLink from '@/components/Controls/MultiLink.vue'
 import NewMemberModal from '@/components/Modals/NewMemberModal.vue'

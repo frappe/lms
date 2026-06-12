@@ -107,17 +107,17 @@
 							>
 								<div class="flex items-center">
 									<div class="border rounded-md p-2 me-2">
-										<FileText class="h-5 w-5 stroke-1.5" />
+										<span class="lucide-file-text h-5 w-5" />
 									</div>
 									<span>
 										{{ attachment.split('/').pop() }}
 									</span>
 								</div>
 							</a>
-							<X
+							<span
 								v-if="canModifyAssignment"
 								@click="removeSubmission()"
-								class="bg-surface-gray-3 rounded-md cursor-pointer stroke-1.5 w-5 h-5 p-1 ms-4"
+								class="lucide-x bg-surface-gray-3 rounded-md cursor-pointer w-5 h-5 p-1 ms-4"
 							/>
 						</div>
 					</div>
@@ -215,7 +215,6 @@ import {
 	toast,
 } from 'frappe-ui'
 import { computed, inject, onMounted, onBeforeUnmount, ref, watch } from 'vue'
-import { FileText, X } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
 import { validateFile } from '@/utils'
 

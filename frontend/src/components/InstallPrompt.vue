@@ -14,7 +14,7 @@
 		</template>
 		<template #actions>
 			<Button variant="solid" class="w-full py-5" @click="install">
-				<template #prefix><FeatherIcon name="download" class="w-4" /></template>
+				<template #prefix><span class="lucide-download size-4" /></template>
 				{{ __('Install') }}
 			</Button>
 		</template>
@@ -32,9 +32,8 @@
 						{{ __('Install Frappe Learning') }}
 					</span>
 					<span class="inline-flex items-baseline">
-						<FeatherIcon
-							name="x"
-							class="ms-auto h-4 w-4 text-gray-700"
+						<span
+							class="lucide-x ms-auto size-4 text-gray-700"
 							@click="iosInstallMessage = false"
 						/>
 					</span>
@@ -50,7 +49,7 @@
 						</span>
 						<span class="inline-flex items-start whitespace-nowrap">
 							<span>{{ __('Tap') }}&nbsp;</span>
-							<FeatherIcon name="share" class="h-4 w-4 text-blue-600" />
+							<span class="lucide-share size-4 text-blue-600" />
 							<span>&nbsp;{{ __("and then 'Add to Home Screen'") }}</span>
 						</span>
 					</span>
@@ -62,7 +61,7 @@
 
 <script setup>
 import { ref } from 'vue'
-import { Button, Dialog, FeatherIcon, Popover } from 'frappe-ui'
+import { Button, Dialog, Popover } from 'frappe-ui'
 
 const deferredPrompt = ref(null)
 const showDialog = ref(false)

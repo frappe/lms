@@ -7,7 +7,7 @@
 			<router-link :to="{ name: 'Courses', query: { certification: true } }">
 				<Button>
 					<template #prefix>
-						<GraduationCap class="size-4 stroke-1.5" />
+						<span class="lucide-graduation-cap size-4" />
 					</template>
 					{{ __('Get Certified') }}
 				</Button>
@@ -83,7 +83,7 @@
 					</div>
 					<div class="mt-auto space-y-2 text-ink-gray-7">
 						<div class="flex items-center gap-x-1">
-							<GraduationCap class="me-1 h-4 w-4 stroke-1.5" />
+							<span class="lucide-graduation-cap me-1 h-4 w-4" />
 							<span>
 								{{ participant.certificate_count }}
 								{{
@@ -94,7 +94,7 @@
 							</span>
 						</div>
 						<div class="flex items-center gap-x-1">
-							<Calendar class="me-1 h-4 w-4 stroke-1.5" />
+							<span class="lucide-calendar me-1 h-4 w-4" />
 							<span>{{
 								dayjs(participant.issue_date).format('DD MMM YYYY')
 							}}</span>
@@ -146,7 +146,6 @@ import {
 } from 'frappe-ui'
 import Select from '@/components/Controls/Select.vue'
 import { computed, inject, onMounted, ref } from 'vue'
-import { GraduationCap, Calendar } from 'lucide-vue-next'
 import { sessionStore } from '../stores/session'
 import { useRouter } from 'vue-router'
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'

@@ -6,7 +6,7 @@
 			</div>
 			<Button v-if="canAddAssessments()" @click="showModal = true">
 				<template #prefix>
-					<Plus class="h-4 w-4" />
+					<span class="lucide-plus h-4 w-4" />
 				</template>
 				{{ __('Add') }}
 			</Button>
@@ -62,7 +62,7 @@
 								variant="ghost"
 								@click="removeAssessments(selections, unselectAll)"
 							>
-								<Trash2 class="h-4 w-4 stroke-1.5" />
+								<span class="lucide-trash-2 h-4 w-4" />
 							</Button>
 						</div>
 					</template>
@@ -94,7 +94,6 @@ import {
 } from 'frappe-ui'
 import { inject, ref } from 'vue'
 import AssessmentModal from '@/components/Modals/AssessmentModal.vue'
-import { Plus, Trash2 } from 'lucide-vue-next'
 
 const user = inject('$user')
 const showModal = ref(false)

@@ -42,7 +42,7 @@
 							]"
 							@click="toggleOpen"
 						>
-							<Tag class="size-4 shrink-0 stroke-1.5 text-ink-gray-5" />
+							<span class="lucide-tag size-4 shrink-0 text-ink-gray-5" />
 							<span
 								class="min-w-0 flex-1 truncate"
 								:class="!selectedOptions.length && 'text-ink-gray-4'"
@@ -52,8 +52,8 @@
 								}}</template>
 								<template v-else>{{ __('Add tag') }}</template>
 							</span>
-							<ChevronDown
-								class="size-4 shrink-0 text-ink-gray-4 transition-transform duration-200"
+							<span
+								class="lucide-chevron-down size-4 shrink-0 text-ink-gray-4 transition-transform duration-200"
 								:class="open && 'rotate-180'"
 							/>
 						</button>
@@ -78,7 +78,6 @@
 
 <script setup lang="ts">
 import { FormControl, FormLabel, MultiSelect } from 'frappe-ui'
-import { ChevronDown, Tag } from 'lucide-vue-next'
 import { computed, inject, ref } from 'vue'
 import { createLMSCategory } from '@/utils'
 import Link from '@/components/Controls/Link.vue'

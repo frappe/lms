@@ -40,7 +40,7 @@
 										{{ placeholder || '' }}
 									</span>
 								</div>
-								<ChevronDown class="h-4 w-4 stroke-1.5" />
+								<span class="lucide-chevron-down h-4 w-4" />
 							</button>
 						</div>
 					</slot>
@@ -68,7 +68,7 @@
 									class="absolute end-1.5 inline-flex h-7 w-7 items-center justify-center"
 									@click="selectedValue = null"
 								>
-									<X class="h-4 w-4 stroke-1.5 text-ink-gray-7" />
+									<span class="lucide-x h-4 w-4 text-ink-gray-7" />
 								</button>
 							</div>
 							<ComboboxOptions
@@ -158,7 +158,6 @@ import {
 	ComboboxOption,
 } from '@headlessui/vue'
 import { Popover } from 'frappe-ui'
-import { ChevronDown, X } from 'lucide-vue-next'
 import { ref, computed, useAttrs, useSlots, watch, nextTick } from 'vue'
 
 const props = defineProps({

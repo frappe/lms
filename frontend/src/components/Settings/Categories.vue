@@ -10,8 +10,8 @@
 			</div>
 			<Button variant="solid" @click="() => showCategoryForm()">
 				<template #prefix>
-					<Plus v-if="!showForm" class="h-4 w-4 stroke-1.5" />
-					<X v-else class="h-4 w-4 stroke-1.5" />
+					<span v-if="!showForm" class="lucide-plus h-4 w-4" />
+					<span v-else class="lucide-x h-4 w-4" />
 				</template>
 				{{ showForm ? __('Close') : __('New') }}
 			</Button>
@@ -55,7 +55,7 @@
 						@click="deleteCategory(cat.name)"
 					>
 						<template #icon>
-							<Trash2 class="size-4 stroke-1.5 text-ink-red-8" />
+							<span class="lucide-trash-2 size-4 text-ink-red-8" />
 						</template>
 					</Button>
 				</div>
@@ -72,7 +72,7 @@
 				v-else
 				name="Categories"
 				:description="__('Add one to get started.')"
-				:icon="Network"
+				icon="lucide-network"
 			/>
 		</div>
 	</SettingsLayout>
@@ -86,7 +86,6 @@ import {
 	createResource,
 	toast,
 } from 'frappe-ui'
-import { Plus, Trash2, X, Network } from 'lucide-vue-next'
 import { ref } from 'vue'
 import { cleanError } from '@/utils'
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'

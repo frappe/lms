@@ -1,8 +1,8 @@
 <template>
-	<Dialog v-model:open="show" size="4xl">
-		<template #title>
+	<Dialog v-model="show" :options="{ size: '4xl' }">
+		<template #body-title>
 			<div class="flex items-center gap-x-2">
-				<div class="text-3xl-semibold text-ink-gray-9">
+				<div class="text-xl font-semibold text-ink-gray-9">
 					{{
 						props.exerciseID === 'new'
 							? __('Create Programming Exercise')
@@ -14,7 +14,7 @@
 				</Badge>
 			</div>
 		</template>
-		<template #default>
+		<template #body-content>
 			<div class="grid grid-cols-2 gap-10">
 				<div class="space-y-4">
 					<FormControl
@@ -44,14 +44,14 @@
 					<div>
 						<div class="text-xs text-ink-gray-5 mb-2">
 							{{ __('Problem Statement') }}
-							<span class="text-ink-red-6">*</span>
+							<span class="text-ink-red-3">*</span>
 						</div>
 						<TextEditor
 							:content="exercise.problem_statement"
 							@change="(val: string) => (exercise.problem_statement = val)"
 							:editable="true"
 							:fixedMenu="true"
-							editorClass="prose-sm max-w-none border-b border-x border-outline-elevation-2 bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[10rem] max-h-[21rem] overflow-y-auto"
+							editorClass="prose-sm max-w-none border-b border-x border-outline-gray-modals bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[10rem] max-h-[21rem] overflow-y-auto"
 						/>
 					</div>
 				</div>
@@ -66,7 +66,7 @@
 					theme="red"
 				>
 					<template #prefix>
-						<Trash2 class="size-4 stroke-1.5" />
+						<span class="lucide-trash-2 size-4" />
 					</template>
 					{{ __('Delete') }}
 				</Button>
@@ -82,7 +82,7 @@
 				>
 					<Button>
 						<template #prefix>
-							<Play class="size-4 stroke-1.5" />
+							<span class="lucide-play size-4" />
 						</template>
 						{{ __('Test this Exercise') }}
 					</Button>
@@ -98,7 +98,7 @@
 				>
 					<Button>
 						<template #prefix>
-							<ClipboardList class="size-4 stroke-1.5" />
+							<span class="lucide-clipboard-list size-4" />
 						</template>
 						{{ __('Check Submission') }}
 					</Button>
@@ -127,7 +127,6 @@ import {
 	ProgrammingExercises,
 	TestCase,
 } from '@/types/programming-exercise'
-import { ClipboardList, Play, Trash2 } from 'lucide-vue-next'
 import ChildTable from '@/components/Controls/ChildTable.vue'
 
 const show = defineModel()

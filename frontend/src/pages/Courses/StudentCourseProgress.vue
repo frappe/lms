@@ -59,10 +59,10 @@
 								v-if="getLessonStatus(progress) == 'Complete'"
 								:text="__('Complete')"
 							>
-								<Check class="text-ink-green-6 size-4" />
+								<span class="lucide-check text-ink-green-6 size-4" />
 							</Tooltip>
 							<Tooltip v-else :text="__('Pending')">
-								<Minus class="text-ink-amber-5 size-4" />
+								<span class="lucide-minus text-ink-amber-5 size-4" />
 							</Tooltip>
 							<!-- <Badge :theme="getLessonStatusTheme(progress)">
 								{{ getLessonStatus(progress) }}
@@ -160,7 +160,6 @@ import {
 } from 'frappe-ui'
 import ProgressBar from '@/components/ProgressBar.vue'
 import { computed } from 'vue'
-import { Check, Minus } from 'lucide-vue-next'
 
 const show = defineModel<boolean>({ required: true, default: false })
 

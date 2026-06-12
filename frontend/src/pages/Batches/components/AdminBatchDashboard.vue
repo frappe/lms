@@ -38,7 +38,7 @@
 						/>
 						<Button @click="showEnrollmentModal = true">
 							<template #prefix>
-								<Plus class="size-4 stroke-1.5" />
+								<span class="lucide-plus size-4" />
 							</template>
 							{{ __('Enroll') }}
 						</Button>
@@ -187,7 +187,6 @@ import {
 import { computed, inject, ref, watch } from 'vue'
 import type dayjsType from 'dayjs'
 import { formatAmount } from '@/utils'
-import { Plus } from 'lucide-vue-next'
 import BatchFeedback from '@/pages/Batches/components/BatchFeedback.vue'
 import BatchStudentProgress from '@/pages/Batches/components/BatchStudentProgress.vue'
 import NumberChartGraph from '@/components/NumberChartGraph.vue'

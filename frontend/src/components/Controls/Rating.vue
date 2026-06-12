@@ -9,8 +9,8 @@
 				@mouseover="hoveredRating = index"
 				@mouseleave="hoveredRating = 0"
 			>
-				<Star
-					class="fill-gray-400 text-gray-50 stroke-1 me-1 cursor-pointer"
+				<span
+					class="lucide-star fill-gray-400 text-gray-50 me-1 cursor-pointer"
 					:class="iconClasses(index)"
 					@click="markRating(index)"
 				/>
@@ -20,7 +20,6 @@
 </template>
 
 <script setup>
-import { Star } from 'lucide-vue-next'
 import { ref, watch } from 'vue'
 
 const props = defineProps({

@@ -10,7 +10,7 @@
 				variant="solid"
 			>
 				<template #prefix>
-					<Plus class="size-4 stroke-1.5" />
+					<span class="lucide-plus size-4" />
 				</template>
 				{{ __('Create') }}
 			</Button>
@@ -35,14 +35,14 @@
 					{{ program.name }}
 				</div>
 				<div class="flex items-center gap-x-2 text-ink-gray-7">
-					<BookOpen class="h-4 w-4 stroke-1.5" />
+					<span class="lucide-book-open size-4" />
 					<span>
 						{{ program.course_count }}
 						{{ program.course_count == 1 ? __('Course') : __('Courses') }}
 					</span>
 				</div>
 				<div class="flex items-center gap-x-2 text-ink-gray-7">
-					<User class="h-4 w-4 stroke-1.5" />
+					<span class="lucide-user size-4" />
 					<span>
 						{{ program.member_count || 0 }}
 						{{ program.member_count == 1 ? __('member') : __('members') }}
@@ -62,7 +62,7 @@
 <script setup>
 import { Breadcrumbs, Button, usePageMeta, createListResource } from 'frappe-ui'
 import { computed, inject, onMounted, ref } from 'vue'
-import { BookOpen, Plus, User } from 'lucide-vue-next'
+
 import { sessionStore } from '@/stores/session'
 import ProgramForm from '@/pages/Programs/ProgramForm.vue'
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'

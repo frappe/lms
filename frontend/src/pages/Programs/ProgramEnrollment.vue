@@ -56,14 +56,14 @@
 							>
 								<Tooltip :text="__('Lessons')">
 									<span class="flex items-center gap-x-1">
-										<BookOpen class="size-3 stroke-1.5" />
+										<span class="lucide-book-open size-3" />
 										<span> {{ course.lessons }} {{ __('lessons') }} </span>
 									</span>
 								</Tooltip>
 
 								<Tooltip :text="__('Enrolled Students')">
 									<span class="flex items-center gap-x-1">
-										<User class="size-3 stroke-1.5" />
+										<span class="lucide-user size-3" />
 										<span> {{ course.enrollments }} {{ __('students') }} </span>
 									</span>
 								</Tooltip>
@@ -101,7 +101,7 @@
 <script setup lang="ts">
 import { Button, call, createResource, Dialog, toast, Tooltip } from 'frappe-ui'
 import { inject, watch } from 'vue'
-import { BookOpen, Star, User } from 'lucide-vue-next'
+
 import { useRouter } from 'vue-router'
 import CourseInstructors from '@/components/CourseInstructors.vue'
 

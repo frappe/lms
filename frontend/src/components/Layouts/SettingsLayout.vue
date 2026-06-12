@@ -10,7 +10,7 @@
 						v-if="showBack"
 						variant="ghost"
 						:aria-label="__('Go back')"
-						:icon="ChevronLeft"
+						icon="lucide-chevron-left"
 						class="shrink-0"
 						@click="emit('back')"
 					/>
@@ -47,7 +47,6 @@
 
 <script setup lang="ts">
 import { Button } from 'frappe-ui'
-import { ChevronLeft } from 'lucide-vue-next'
 
 defineProps<{
 	title: string

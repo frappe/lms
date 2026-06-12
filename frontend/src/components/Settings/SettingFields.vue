@@ -63,9 +63,9 @@
 										{{ data[field.name].split('/').pop() }}
 									</span>
 								</div>
-								<X
+								<span
 									@click="data[field.name] = null"
-									class="border text-ink-gray-7 border-outline-elevation-2 rounded-md cursor-pointer stroke-1.5 w-5 h-5 p-1 ms-4"
+									class="lucide-x border text-ink-gray-7 border-outline-elevation-2 rounded-md cursor-pointer w-5 h-5 p-1 ms-4"
 								/>
 							</div>
 						</div>
@@ -156,7 +156,6 @@ import { FormControl, FileUploader, Button, Select } from 'frappe-ui'
 import Switch from '@/components/Controls/Switch.vue'
 import { onMounted, watch } from 'vue'
 import { validateFile } from '@/utils'
-import { X } from 'lucide-vue-next'
 import Link from '@/components/Controls/Link.vue'
 import CodeEditor from '@/components/Controls/CodeEditor.vue'
 

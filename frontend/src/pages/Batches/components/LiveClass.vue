@@ -4,7 +4,7 @@
 			v-if="isAdmin() && !hasProviderAccount()"
 			class="flex lg:items-center gap-x-2 mb-5 bg-surface-amber-1 px-3 py-2 rounded-lg text-ink-amber-6"
 		>
-			<AlertCircle class="size-7 md:size-4 stroke-1.5" />
+			<span class="lucide-alert-circle size-7 md:size-4" />
 			<span class="leading-5">
 				{{
 					__(
@@ -20,7 +20,7 @@
 			</div>
 			<Button v-if="canCreateClass()" @click="openLiveClassModal">
 				<template #prefix>
-					<Plus class="h-4 w-4" />
+					<span class="lucide-plus h-4 w-4" />
 				</template>
 				<span>
 					{{ __('Add') }}
@@ -51,13 +51,13 @@
 				</div>
 				<div class="mt-auto space-y-3">
 					<div class="flex items-center gap-x-2">
-						<Calendar class="w-4 h-4 stroke-1.5" />
+						<span class="lucide-calendar w-4 h-4" />
 						<span>
 							{{ dayjs(cls.date).format('DD MMMM YYYY') }}
 						</span>
 					</div>
 					<div class="flex items-center gap-x-2">
-						<Clock class="w-4 h-4 stroke-1.5" />
+						<span class="lucide-clock w-4 h-4" />
 						<span>
 							{{ dayjs(getClassStart(cls)).format('hh:mm A') }} -
 							{{ dayjs(getClassEnd(cls)).format('hh:mm A') }}
@@ -74,7 +74,7 @@
 							class="cursor-pointer inline-flex items-center justify-center gap-2 transition-colors focus:outline-none text-ink-gray-8 bg-surface-gray-2 hover:bg-surface-gray-3 active:bg-surface-gray-4 focus-visible:ring focus-visible:ring-outline-gray-3 h-7 text-base px-2 rounded"
 							:class="cls.join_url ? 'w-full' : 'w-1/2'"
 						>
-							<Monitor class="h-4 w-4 stroke-1.5" />
+							<span class="lucide-monitor h-4 w-4" />
 							{{ __('Start') }}
 						</a>
 						<a
@@ -82,7 +82,7 @@
 							target="_blank"
 							class="w-full cursor-pointer inline-flex items-center justify-center gap-2 transition-colors focus:outline-none text-ink-gray-8 bg-surface-gray-2 hover:bg-surface-gray-3 active:bg-surface-gray-4 focus-visible:ring focus-visible:ring-outline-gray-3 h-7 text-base px-2 rounded"
 						>
-							<Video class="h-4 w-4 stroke-1.5" />
+							<span class="lucide-video h-4 w-4" />
 							{{ __('Join') }}
 						</a>
 					</div>
@@ -92,7 +92,7 @@
 						placement="right"
 					>
 						<div class="flex items-center gap-x-2 text-ink-amber-6 w-fit">
-							<Info class="w-4 h-4 stroke-1.5" />
+							<span class="lucide-info w-4 h-4" />
 							<span>
 								{{ __('Ended') }}
 							</span>
@@ -124,15 +124,6 @@
 </template>
 <script setup>
 import { createListResource, Button, Tooltip } from 'frappe-ui'
-import {
-	Plus,
-	Clock,
-	Calendar,
-	Video,
-	Monitor,
-	Info,
-	AlertCircle,
-} from 'lucide-vue-next'
 import { inject, ref } from 'vue'
 import { formatTime } from '@/utils/'
 import LiveClassModal from '@/components/Modals/LiveClassModal.vue'

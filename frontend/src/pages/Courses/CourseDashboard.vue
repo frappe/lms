@@ -14,7 +14,7 @@
 				:value="course.data?.rating || 0"
 			>
 				<template #prefix>
-					<Star class="size-5 text-transparent fill-amber-500" />
+					<span class="lucide-star size-5 text-transparent fill-amber-500" />
 				</template>
 			</NumberChartGraph>
 			<NumberChartGraph :title="__('Lessons')" :value="course.data?.lessons" />
@@ -33,7 +33,7 @@
 						/>
 						<Button @click="showEnrollmentModal = true">
 							<template #prefix>
-								<Plus class="size-4 stroke-1.5" />
+								<span class="lucide-plus size-4" />
 							</template>
 							{{ __('Enroll') }}
 						</Button>
@@ -280,7 +280,6 @@ import {
 import Select from '@/components/Controls/Select.vue'
 import { computed, inject, ref, watch } from 'vue'
 import type dayjsType from 'dayjs'
-import { Plus, Star } from 'lucide-vue-next'
 import { formatAmount } from '@/utils'
 import colors from '@/utils/frappe-ui-colors.json'
 import CourseEnrollmentModal from '@/pages/Courses/CourseEnrollmentModal.vue'

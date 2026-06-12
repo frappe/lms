@@ -18,7 +18,7 @@
 						@click.stop="removeValue(value)"
 					>
 						<span>{{ value }}</span>
-						<X class="size-3.5 stroke-1.5 shrink-0" />
+						<span class="lucide-x size-3.5 shrink-0" />
 					</button>
 					<ComboboxInput
 						ref="search"
@@ -89,7 +89,7 @@
 							@click="attrs.onCreate()"
 						>
 							<template #prefix>
-								<Plus class="h-4 w-4 stroke-1.5" />
+								<span class="lucide-plus size-4" />
 							</template>
 						</Button>
 					</div>
@@ -110,7 +110,6 @@ import {
 import { createResource, Button, toast } from 'frappe-ui'
 import { ref, computed, useAttrs, watch } from 'vue'
 import { watchDebounced } from '@vueuse/core'
-import { X, Plus } from 'lucide-vue-next'
 import type { Resource } from '@/types/api'
 
 interface SelectOption {

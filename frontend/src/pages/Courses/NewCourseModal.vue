@@ -45,7 +45,7 @@
 									+{{ overflowCount }}
 								</span>
 							</div>
-							<Users v-else class="size-4 stroke-1.5 text-ink-gray-5" />
+							<span v-else class="lucide-users size-4 text-ink-gray-5" />
 						</template>
 						<template #item-prefix="{ item }">
 							<Avatar :image="item.image" :label="item.label" size="sm" />
@@ -119,7 +119,6 @@ import {
 	toast,
 } from 'frappe-ui'
 import { useOnboarding, useTelemetry } from 'frappe-ui/frappe'
-import { Users } from 'lucide-vue-next'
 import {
 	computed,
 	inject,

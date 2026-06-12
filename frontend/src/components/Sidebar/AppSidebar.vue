@@ -40,8 +40,8 @@
 						class="flex items-center text-ink-gray-5 my-1"
 					>
 						<span class="grid h-5 w-6 flex-shrink-0 place-items-center">
-							<ChevronRight
-								class="h-4 w-4 stroke-1.5 text-ink-gray-9 transition-all duration-300 ease-in-out"
+							<span
+								class="lucide-chevron-right h-4 w-4 text-ink-gray-9 transition-all duration-300 ease-in-out"
 								:class="{
 									'rotate-90': !sidebarStore.isWebpagesCollapsed,
 									'rtl:rotate-180': sidebarStore.isWebpagesCollapsed,
@@ -58,7 +58,7 @@
 						@click="openPageModal()"
 					>
 						<template #icon>
-							<Plus class="h-4 w-4 text-ink-gray-7 stroke-1.5" />
+							<span class="lucide-plus h-4 w-4 text-ink-gray-7" />
 						</template>
 					</Button>
 				</div>
@@ -101,7 +101,7 @@
 			>
 				<div class="flex flex-col text-p-sm gap-1">
 					<div class="inline-flex gap-1">
-						<User class="h-4 my-0.5 shrink-0" />
+						<span class="lucide-user h-4 my-0.5 shrink-0" />
 						<div class="font-medium">
 							{{ __('Complete your profile') }}
 						</div>
@@ -120,7 +120,7 @@
 				>
 					<Button :label="__('My Profile')" class="w-full">
 						<template #prefix>
-							<ChevronsRight class="h-4 w-4 text-ink-gray-7 stroke-1.5" />
+							<span class="lucide-chevrons-right h-4 w-4 text-ink-gray-7" />
 						</template>
 					</Button>
 				</router-link>
@@ -140,7 +140,7 @@
 					}"
 					class="flex items-center justify-center"
 				>
-					<User class="size-4 stroke-1.5 text-ink-gray-7 cursor-pointer" />
+					<span class="lucide-user size-4 text-ink-gray-7 cursor-pointer" />
 				</router-link>
 			</Tooltip>
 			<TrialBanner
@@ -166,8 +166,8 @@
 					:class="sidebarStore.isSidebarCollapsed ? 'flex-col' : 'flex-row'"
 				>
 					<Tooltip v-if="readOnlyMode && sidebarStore.isSidebarCollapsed">
-						<CircleAlert
-							class="size-4 stroke-1.5 text-ink-gray-7 cursor-pointer"
+						<span
+							class="lucide-circle-alert size-4 text-ink-gray-7 cursor-pointer"
 						/>
 						<template #body>
 							<div
@@ -185,14 +185,14 @@
 						v-if="showAppointmentIcon"
 						:text="__('Book a free onboarding session with the Frappe team')"
 					>
-						<Phone
-							class="size-4 stroke-1.5 text-ink-gray-7 cursor-pointer"
+						<span
+							class="lucide-phone size-4 text-ink-gray-7 cursor-pointer"
 							@click="redirectToAppointmentScreen()"
 						/>
 					</Tooltip>
 					<Tooltip v-if="showOnboarding" :text="__('Help')">
-						<CircleHelp
-							class="size-4 stroke-1.5 text-ink-gray-7 cursor-pointer"
+						<span
+							class="lucide-circle-help size-4 text-ink-gray-7 cursor-pointer"
 							@click="
 								() => {
 									showHelpModal = minimize ? true : !showHelpModal
@@ -202,8 +202,8 @@
 						/>
 					</Tooltip>
 					<Tooltip :text="__('Powered by Frappe Learning')">
-						<Zap
-							class="size-4 stroke-1.5 text-ink-gray-7 cursor-pointer"
+						<span
+							class="lucide-zap size-4 text-ink-gray-7 cursor-pointer"
 							@click="redirectToWebsite()"
 						/>
 					</Tooltip>
@@ -276,19 +276,12 @@ import {
 } from 'vue'
 import {
 	BookOpen,
-	CircleAlert,
-	ChevronRight,
-	ChevronsRight,
 	CircleHelp,
 	FolderTree,
 	FileText,
-	Phone,
-	Plus,
-	User,
 	UserPlus,
 	Users,
 	BookText,
-	Zap,
 } from 'lucide-vue-next'
 import {
 	TrialBanner,

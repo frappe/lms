@@ -17,7 +17,7 @@
 		</LayoutHeader>
 		<div class="mx-auto pt-5 p-4">
 			<div class="flex items-center justify-between mb-5">
-				<div class="text-xl-semibold text-ink-gray-9 mb-4 md:mb-0">
+				<div class="text-lg font-semibold text-ink-gray-9 mb-4 md:mb-0">
 					{{ totalApplications.data }}
 					{{
 						totalApplications.data === 1
@@ -27,7 +27,7 @@
 				</div>
 				<FormControl v-model="search" type="text" placeholder="Search">
 					<template #prefix>
-						<FeatherIcon name="search" class="size-4 text-ink-gray-5" />
+						<span class="lucide-search size-4 text-ink-gray-5" />
 					</template>
 				</FormControl>
 			</div>
@@ -44,7 +44,7 @@
 					class="h-[79vh] border-b"
 				>
 					<ListHeader
-						class="mb-2 grid items-center rounded bg-surface-base border-b rounded-none p-2"
+						class="mb-2 grid items-center rounded bg-surface-white border-b rounded-none p-2"
 					>
 						<ListHeaderItem
 							:item="item"
@@ -83,7 +83,7 @@
 								<div v-else-if="column.key === 'actions'">
 									<Dropdown :options="getActionOptions(row)">
 										<Button variant="ghost">
-											<FeatherIcon name="more-horizontal" class="w-4 h-4" />
+											<span class="lucide-more-horizontal size-4" />
 										</Button>
 									</Dropdown>
 								</div>
@@ -118,18 +118,20 @@
 		</div>
 
 		<Dialog
-			v-model:open="showEmailModal"
-			:title="__('Send Email to {0}').format(selectedApplicant?.full_name)"
-			size="lg"
-			:actions="[
-				{
-					label: __('Send'),
-					variant: 'solid',
-					onClick: ({ close }) => sendEmail(close),
-				},
-			]"
+			v-model="showEmailModal"
+			:options="{
+				title: __('Send Email to {0}').format(selectedApplicant?.full_name),
+				size: 'lg',
+				actions: [
+					{
+						label: __('Send'),
+						variant: 'solid',
+						onClick: (close) => sendEmail(close),
+					},
+				],
+			}"
 		>
-			<template #default>
+			<template #body-content>
 				<div class="space-y-4">
 					<FormControl
 						v-model="emailForm.subject"
@@ -151,7 +153,7 @@
 							@change="(val) => (emailForm.message = val)"
 							:editable="true"
 							:fixedMenu="true"
-							editorClass="prose-sm max-w-none border-b border-x border-outline-elevation-2 bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[7rem]"
+							editorClass="prose-sm max-w-none border-b border-x border-outline-gray-modals bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[7rem]"
 						/>
 					</div>
 				</div>

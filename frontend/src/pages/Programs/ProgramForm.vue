@@ -45,7 +45,7 @@
 						</div>
 						<Button @click="openForm('course')">
 							<template #prefix>
-								<Plus class="h-4 w-4 stroke-1.5" />
+								<span class="lucide-plus size-4" />
 							</template>
 							<span>
 								{{ __('Add') }}
@@ -88,7 +88,7 @@
 										variant="ghost"
 										@click="remove(selections, unselectAll, 'courses')"
 									>
-										<Trash2 class="h-4 w-4 stroke-1.5" />
+										<span class="lucide-trash-2 size-4" />
 									</Button>
 								</div>
 							</template>
@@ -115,13 +115,13 @@
 								"
 							>
 								<template #prefix>
-									<TrendingUp class="size-4 stroke-1.5" />
+									<span class="lucide-trending-up size-4" />
 								</template>
 								{{ __('Progress Summary') }}
 							</Button>
 							<Button @click="openForm('member')">
 								<template #prefix>
-									<Plus class="h-4 w-4 stroke-1.5" />
+									<span class="lucide-plus size-4" />
 								</template>
 								{{ __('Add') }}
 							</Button>
@@ -152,7 +152,7 @@
 										variant="ghost"
 										@click="remove(selections, unselectAll, 'members')"
 									>
-										<Trash2 class="h-4 w-4 stroke-1.5" />
+										<span class="lucide-trash-2 size-4" />
 									</Button>
 								</div>
 							</template>
@@ -219,7 +219,7 @@
 					theme="red"
 				>
 					<template #prefix>
-						<Trash2 class="size-4 stroke-1.5" />
+						<span class="lucide-trash-2 size-4" />
 					</template>
 					{{ __('Delete') }}
 				</Button>
@@ -246,7 +246,7 @@ import {
 	toast,
 } from 'frappe-ui'
 import { computed, ref, watch, getCurrentInstance } from 'vue'
-import { Plus, Trash2, TrendingUp } from 'lucide-vue-next'
+
 import { Programs, Program } from '@/types/programs'
 import { sanitizeHTML, openSettings } from '@/utils'
 import Link from '@/components/Controls/Link.vue'

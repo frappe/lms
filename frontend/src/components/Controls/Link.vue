@@ -28,7 +28,7 @@
 							:aria-label="__('Cancel')"
 							@click="creating = false"
 						>
-							<ArrowLeft class="size-4 stroke-1.5" />
+							<span class="lucide-arrow-left size-4" />
 						</button>
 						<FormControl
 							v-model="newItemName"
@@ -64,7 +64,7 @@
 							@click="handleCreate"
 						>
 							<template #prefix>
-								<Plus class="size-4 stroke-1.5" />
+								<span class="lucide-plus size-4" />
 							</template>
 							{{ __('Create New') }}
 						</Button>
@@ -78,7 +78,6 @@
 <script setup lang="ts">
 import { Combobox, Button, FormControl, createResource } from 'frappe-ui'
 import { useDebounceFn, watchDebounced } from '@vueuse/core'
-import { ArrowLeft, Plus } from 'lucide-vue-next'
 import { useAttrs, computed, ref } from 'vue'
 import { useSettings } from '@/stores/settings'
 import type { Resource } from '@/types/api'

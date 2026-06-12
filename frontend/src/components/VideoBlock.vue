@@ -61,7 +61,11 @@
 							@click="playVideo"
 							class="size-4 text-ink-gray-9"
 						/>
-						<Pause v-else @click="pauseVideo" class="size-5 text-ink-base" />
+						<span
+							class="lucide-pause size-5 text-ink-base"
+							v-else
+							@click="pauseVideo"
+						/>
 					</template>
 				</Button>
 
@@ -100,8 +104,8 @@
 					class="hover:bg-transparent"
 				>
 					<template #icon>
-						<Volume2 v-if="!muted" class="size-5 text-ink-base" />
-						<VolumeX v-else class="size-5 text-ink-base" />
+						<span class="lucide-volume-2 size-5 text-ink-base" v-if="!muted" />
+						<span class="lucide-volume-x size-5 text-ink-base" v-else />
 					</template>
 				</Button>
 				<Button
@@ -110,7 +114,7 @@
 					class="hover:bg-transparent"
 				>
 					<template #icon>
-						<Maximize class="size-5 text-ink-base" />
+						<span class="lucide-maximize size-5 text-ink-base" />
 					</template>
 				</Button>
 			</div>
@@ -152,7 +156,6 @@
 </template>
 <script setup>
 import { ref, onMounted, computed, watch, onBeforeUnmount } from 'vue'
-import { Pause, Maximize, Volume2, VolumeX } from 'lucide-vue-next'
 import { Button, Dialog, Dropdown } from 'frappe-ui'
 import { formatSeconds, formatTimestamp } from '@/utils'
 import { useSettings } from '@/stores/settings'

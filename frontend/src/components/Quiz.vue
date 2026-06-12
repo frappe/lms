@@ -163,19 +163,19 @@
 								v-for="(answer, idx) in showAnswers"
 							>
 								<div v-if="index - 1 == idx">
-									<CheckCircle
+									<span
 										v-if="answer == 1"
-										class="w-4 h-4 text-ink-green-5"
+										class="lucide-check-circle w-4 h-4 text-ink-green-5"
 									/>
-									<MinusCircle
+									<span
 										v-else-if="answer == 2"
-										class="w-4 h-4 text-ink-green-5"
+										class="lucide-minus-circle w-4 h-4 text-ink-green-5"
 									/>
-									<XCircle
+									<span
 										v-else-if="answer == 0"
-										class="w-4 h-4 text-ink-red-6"
+										class="lucide-x-circle w-4 h-4 text-ink-red-6"
 									/>
-									<MinusCircle v-else class="w-4 h-4" />
+									<span v-else class="lucide-minus-circle w-4 h-4" />
 								</div>
 							</div>
 							<span
@@ -202,12 +202,14 @@
 						<div v-if="showAnswers.length">
 							<Badge v-if="showAnswers[0]" :label="__('Correct')" theme="green">
 								<template #prefix>
-									<CheckCircle class="w-4 h-4 text-ink-green-5 me-1" />
+									<span
+										class="lucide-check-circle w-4 h-4 text-ink-green-5 me-1"
+									/>
 								</template>
 							</Badge>
 							<Badge v-else theme="red" :label="__('Incorrect')">
 								<template #prefix>
-									<XCircle class="w-4 h-4 text-ink-red-6 me-1" />
+									<span class="lucide-x-circle w-4 h-4 text-ink-red-6 me-1" />
 								</template>
 							</Badge>
 						</div>
@@ -239,7 +241,7 @@
 								class="rounded-full"
 							>
 								<template #icon>
-									<ChevronLeft class="size-4 stroke-1.5" />
+									<span class="lucide-chevron-left size-4" />
 								</template>
 							</Button>
 							<span
@@ -269,7 +271,7 @@
 								class="rounded-full"
 							>
 								<template #icon>
-									<ChevronRight class="size-4 stroke-1.5" />
+									<span class="lucide-chevron-right size-4" />
 								</template>
 							</Button>
 						</div>
@@ -457,13 +459,6 @@ import {
 	ref,
 	watch,
 } from 'vue'
-import {
-	CheckCircle,
-	ChevronLeft,
-	ChevronRight,
-	XCircle,
-	MinusCircle,
-} from 'lucide-vue-next'
 import { timeAgo } from '@/utils'
 import ProgressBar from '@/components/ProgressBar.vue'
 

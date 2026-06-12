@@ -23,7 +23,7 @@
 					)
 				"
 			>
-				<Info class="size-3 cursor-pointer" />
+				<span class="lucide-info size-3 cursor-pointer" />
 			</Tooltip>
 		</div>
 		<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mb-5">
@@ -49,7 +49,7 @@
 						background: 'radial-gradient(circle, darkgray 0%, lightgray 100%)',
 					}"
 				>
-					<LockKeyhole class="size-5" />
+					<span class="lucide-lock-keyhole size-5" />
 					<span class="font-medium text-center leading-5 px-10">
 						{{ __('Please complete the previous course to unlock this one.') }}
 					</span>
@@ -69,7 +69,7 @@ import {
 	usePageMeta,
 } from 'frappe-ui'
 import { sessionStore } from '@/stores/session'
-import { LockKeyhole, Info } from 'lucide-vue-next'
+
 import { useRouter } from 'vue-router'
 import CourseCard from '@/components/CourseCard.vue'
 

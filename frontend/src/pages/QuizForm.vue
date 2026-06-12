@@ -18,7 +18,7 @@
 			>
 				<Button>
 					<template #prefix>
-						<ListChecks class="size-4 stroke-1.5" />
+						<span class="lucide-list-checks size-4" />
 					</template>
 					{{ __('Test Quiz') }}
 				</Button>
@@ -34,7 +34,7 @@
 			>
 				<Button>
 					<template #prefix>
-						<ClipboardList class="size-4 stroke-1.5" />
+						<span class="lucide-clipboard-list size-4" />
 					</template>
 					{{ __('Check Submissions') }}
 				</Button>
@@ -140,7 +140,7 @@
 				</div>
 				<Button v-if="!readOnlyMode" @click="openQuestionModal()">
 					<template #prefix>
-						<Plus class="w-4 h-4" />
+						<span class="lucide-plus size-4" />
 					</template>
 					{{ __('New Question') }}
 				</Button>
@@ -186,7 +186,7 @@
 								variant="ghost"
 								@click="deleteQuestions(selections, unselectAll)"
 							>
-								<Trash2 class="h-4 w-4 stroke-1.5" />
+								<span class="lucide-trash-2 size-4" />
 							</Button>
 						</div>
 					</template>
@@ -233,7 +233,7 @@ import {
 	onBeforeUnmount,
 } from 'vue'
 import { sessionStore } from '../stores/session'
-import { ClipboardList, ListChecks, Plus, Trash2 } from 'lucide-vue-next'
+
 import { useRouter } from 'vue-router'
 import { sanitizeHTML } from '@/utils'
 import Question from '@/components/Modals/Question.vue'

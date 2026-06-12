@@ -26,7 +26,7 @@
 					<div class="space-y-5">
 						<div v-for="row in slots.data" class="space-y-2">
 							<div class="flex items-center text-ink-gray-7 gap-x-2">
-								<Calendar class="size-3" />
+								<span class="lucide-calendar size-3" />
 								<div class="text-ink-gray-9">
 									{{ dayjs(row.date).format('DD MMMM YYYY') }}
 								</div>
@@ -66,7 +66,6 @@
 <script setup>
 import { call, createResource, Dialog, FormControl, toast } from 'frappe-ui'
 import { ref, watch, inject } from 'vue'
-import { Calendar } from 'lucide-vue-next'
 import { formatTime } from '@/utils/'
 
 const dayjs = inject('$dayjs')

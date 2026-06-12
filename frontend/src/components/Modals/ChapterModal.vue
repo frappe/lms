@@ -50,7 +50,7 @@
 					<div v-else class="">
 						<div class="flex items-center">
 							<div class="border rounded-md p-2 me-2">
-								<FileText class="h-5 w-5 stroke-1.5 text-ink-gray-7" />
+								<span class="lucide-file-text h-5 w-5 text-ink-gray-7" />
 							</div>
 							<div class="flex flex-col">
 								<span class="text-ink-gray-9">
@@ -60,9 +60,9 @@
 									{{ getFileSize(chapter.scorm_package.file_size) }}
 								</span>
 							</div>
-							<X
+							<span
 								@click="() => (chapter.scorm_package = null)"
-								class="bg-surface-gray-3 rounded-md cursor-pointer stroke-1.5 w-5 h-5 p-1 ms-4"
+								class="lucide-x bg-surface-gray-3 rounded-md cursor-pointer w-5 h-5 p-1 ms-4"
 							/>
 						</div>
 					</div>
@@ -83,7 +83,6 @@ import {
 import Switch from '@/components/Controls/Switch.vue'
 import { reactive, watch, inject } from 'vue'
 import { getFileSize } from '@/utils/'
-import { FileText, X } from 'lucide-vue-next'
 import { useOnboarding, useTelemetry } from 'frappe-ui/frappe'
 import type { ChapterDetailInput, Resource, SessionUser } from '@/types/api'
 

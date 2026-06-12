@@ -42,7 +42,7 @@
 								@click="removeRow(row)"
 							>
 								<template #icon>
-									<X class="size-4 stroke-1.5" />
+									<span class="lucide-x size-4" />
 								</template>
 							</Button>
 						</td>
@@ -54,7 +54,7 @@
 		<div class="mt-4">
 			<Button @click="addRow()">
 				<template #prefix>
-					<Plus class="size-4 stroke-1.5" />
+					<span class="lucide-plus size-4" />
 				</template>
 				{{ __('Add Row') }}
 			</Button>
@@ -65,7 +65,6 @@
 import type { ApplicableItem, Coupon, Coupons } from './types'
 import { ref, watch } from 'vue'
 import { Button, createListResource } from 'frappe-ui'
-import { Plus, X } from 'lucide-vue-next'
 import Link from '@/components/Controls/Link.vue'
 import Select from '@/components/Controls/Select.vue'
 

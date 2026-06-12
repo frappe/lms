@@ -7,12 +7,12 @@
 				]"
 			>
 				<div class="flex gap-2">
-					<Wrench class="size-4 stroke-1.5" />
+					<span class="lucide-wrench size-4" />
 					<span class="whitespace-nowrap">
 						{{ __('Configuration') }}
 					</span>
 				</div>
-				<ChevronRight class="h-4 w-4 stroke-1.5" />
+				<span class="lucide-chevron-right h-4 w-4" />
 			</button>
 		</template>
 		<template #body>
@@ -29,8 +29,8 @@
 						}"
 					>
 						<div class="flex flex-col items-center space-y-1">
-							<ArrowDownToLine
-								class="size-9 text-ink-gray-7 p-2 bg-surface-gray-2 rounded-md"
+							<span
+								class="lucide-arrow-down-to-line size-9 text-ink-gray-7 p-2 bg-surface-gray-2 rounded-md"
 							/>
 							<div class="text-sm text-ink-gray-7">
 								{{ __('Import') }}
@@ -44,5 +44,4 @@
 </template>
 <script setup lang="ts">
 import { Popover } from 'frappe-ui'
-import { ArrowDownToLine, Wrench, ChevronRight } from 'lucide-vue-next'
 </script>

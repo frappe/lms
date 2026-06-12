@@ -9,7 +9,7 @@
 				<Tooltip v-if="canGoZen()" :text="__('Zen Mode')">
 					<Button @click="goFullScreen()">
 						<template #icon>
-							<Focus class="w-4 h-4 stroke-2" />
+							<span class="lucide-focus size-4" />
 						</template>
 					</Button>
 				</Tooltip>
@@ -19,13 +19,13 @@
 					@click="showVideoStats()"
 				>
 					<template #icon>
-						<TrendingUp class="size-4 stroke-1.5" />
+						<span class="lucide-trending-up size-4" />
 					</template>
 				</Button>
 				<CertificationLinks :courseName="courseName" />
 				<Button v-if="lesson.data.prev" @click="switchLesson('prev')">
 					<template #prefix>
-						<ChevronLeft class="w-4 h-4 stroke-1" />
+						<span class="lucide-chevron-left size-4" />
 					</template>
 					<span>
 						{{ __('Previous') }}
@@ -34,7 +34,7 @@
 
 				<Button v-if="lesson.data.next" @click="switchLesson('next')">
 					<template #suffix>
-						<ChevronRight class="w-4 h-4 stroke-1" />
+						<span class="lucide-chevron-right size-4" />
 					</template>
 					<span>
 						{{ __('Next') }}
@@ -64,7 +64,7 @@
 			<div v-if="lesson.data.no_preview" class="border-e">
 				<div class="shadow rounded-md w-3/4 mt-10 mx-auto text-center p-4">
 					<div class="flex items-center justify-center mt-4 gap-x-2">
-						<LockKeyholeIcon class="size-4 stroke-2 text-ink-gray-5" />
+						<span class="lucide-lock-keyhole size-4 text-ink-gray-5" />
 						<div class="text-xl-semibold text-ink-gray-7">
 							{{ __('This lesson is locked') }}
 						</div>
@@ -93,7 +93,7 @@
 					</Badge>
 					<Button v-else @click="redirectToLogin()">
 						<template #prefix>
-							<LogIn class="w-4 h-4 stroke-1" />
+							<span class="lucide-log-in size-4" />
 						</template>
 						{{ __('Login') }}
 					</Button>
@@ -130,7 +130,7 @@
 										{{ lesson.data.chapter_title }} -
 										{{ lesson.data.course_title }}
 									</span>
-									<Info class="size-3" />
+									<span class="lucide-info size-3" />
 									<div
 										class="hidden group-hover:block rounded bg-gray-900 px-2 py-1 text-xs text-white shadow-xl absolute start-0 top-full mt-2"
 									>
@@ -146,12 +146,12 @@
 							>
 								<Button @click="showDiscussionsInZenMode()">
 									<template #icon>
-										<MessageCircleQuestion class="w-4 h-4 stroke-1.5" />
+										<span class="lucide-message-circle-question size-4" />
 									</template>
 								</Button>
 								<Button v-if="lesson.data.prev" @click="switchLesson('prev')">
 									<template #prefix>
-										<ChevronLeft class="w-4 h-4 stroke-1" />
+										<span class="lucide-chevron-left size-4" />
 									</template>
 									<span>
 										{{ __('Previous') }}
@@ -160,7 +160,7 @@
 
 								<Button v-if="lesson.data.next" @click="switchLesson('next')">
 									<template #suffix>
-										<ChevronRight class="w-4 h-4 stroke-1" />
+										<span class="lucide-chevron-right size-4" />
 									</template>
 									<span>
 										{{ __('Next') }}
@@ -320,16 +320,6 @@ import {
 	nextTick,
 } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import {
-	ChevronLeft,
-	ChevronRight,
-	LockKeyholeIcon,
-	LogIn,
-	Focus,
-	Info,
-	MessageCircleQuestion,
-	TrendingUp,
-} from 'lucide-vue-next'
 import {
 	getEditorTools,
 	enablePlyr,

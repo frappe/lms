@@ -7,8 +7,8 @@
 			<Breadcrumbs class="h-7" :items="breadcrumbs" />
 			<Button v-if="isSessionUser()" class="invisible group-hover:visible">
 				<template #icon>
-					<RefreshCcw
-						class="w-4 h-4 stroke-1.5 text-ink-gray-7"
+					<span
+						class="lucide-refresh-ccw size-4 text-ink-gray-7"
 						@click="reloadUser()"
 					/>
 				</template>
@@ -39,7 +39,7 @@
 							@click="togglePopover()"
 						>
 							<template #prefix>
-								<Edit class="w-4 h-4 stroke-1.5 text-ink-gray-7" />
+								<span class="lucide-edit size-4 text-ink-gray-7" />
 							</template>
 							{{ __('Edit') }}
 						</Button>
@@ -82,7 +82,7 @@
 											: 'bg-purple-500'
 									"
 								>
-									<BadgeCheckIcon class="text-ink-base size-5" />
+									<span class="lucide-badge-check text-ink-base size-5" />
 								</div>
 							</div>
 						</Tooltip>
@@ -119,7 +119,7 @@
 					@click="editProfile()"
 				>
 					<template #prefix>
-						<Edit class="w-4 h-4 stroke-1.5 text-ink-gray-7" />
+						<span class="lucide-edit size-4 text-ink-gray-7" />
 					</template>
 					{{ __('Edit Profile') }}
 				</Button>
@@ -154,14 +154,7 @@ import {
 } from 'frappe-ui'
 import { computed, inject, watch, ref, onMounted, watchEffect } from 'vue'
 import { sessionStore } from '@/stores/session'
-import {
-	BadgeCheckIcon,
-	Edit,
-	Github,
-	Linkedin,
-	RefreshCcw,
-	Twitter,
-} from 'lucide-vue-next'
+import { Github, Linkedin, Twitter } from 'lucide-vue-next'
 import { useRoute, useRouter } from 'vue-router'
 import { convertToTitleCase } from '@/utils'
 import UserAvatar from '@/components/UserAvatar.vue'

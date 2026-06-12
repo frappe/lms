@@ -6,7 +6,7 @@
 	</LayoutHeader>
 	<div class="p-6">
 		<div class="flex items-center justify-between gap-x-32 mb-5">
-			<div class="text-xl-semibold text-ink-gray-9">
+			<div class="text-lg font-semibold text-ink-gray-9">
 				{{
 					submissions.data?.length
 						? __('{0} Submissions').format(submissions.data.length)
@@ -118,7 +118,7 @@
 							variant="ghost"
 							@click="deleteExercises(selections, unselectAll)"
 						>
-							<Trash2 class="h-4 w-4 stroke-1.5" />
+							<span class="lucide-trash-2 size-4" />
 						</Button>
 					</div>
 				</template>
@@ -161,7 +161,6 @@ import type {
 import { computed, inject, onMounted, ref, watch } from 'vue'
 import { sessionStore } from '@/stores/session'
 import { useRouter } from 'vue-router'
-import { Trash2 } from 'lucide-vue-next'
 import Link from '@/components/Controls/Link.vue'
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 import LayoutHeader from '@/components/Layouts/LayoutHeader.vue'

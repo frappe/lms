@@ -6,7 +6,7 @@
 		<template #right-header>
 			<Button v-if="!readOnlyMode" variant="solid" @click="showForm = true">
 				<template #prefix>
-					<Plus class="size-4 stroke-1.5" />
+					<span class="lucide-plus size-4" />
 				</template>
 				{{ __('Create') }}
 			</Button>
@@ -22,7 +22,7 @@
 			</div>
 			<FormControl v-model="search" type="text" placeholder="Search">
 				<template #prefix>
-					<FeatherIcon name="search" class="size-4 text-ink-gray-5" />
+					<span class="lucide-search size-4 text-ink-gray-5" />
 				</template>
 			</FormControl>
 		</div>
@@ -80,7 +80,7 @@
 							variant="ghost"
 							@click="deleteQuiz(selections, unselectAll)"
 						>
-							<FeatherIcon name="trash-2" class="h-4 w-4 stroke-1.5" />
+							<span class="lucide-trash-2 size-4" />
 						</Button>
 					</div>
 				</template>
@@ -162,7 +162,7 @@ import {
 } from 'frappe-ui'
 import { useRouter, useRoute } from 'vue-router'
 import { computed, inject, onMounted, ref, watch } from 'vue'
-import { Plus } from 'lucide-vue-next'
+
 import { sessionStore } from '@/stores/session'
 import { sanitizeHTML } from '@/utils'
 import { useTelemetry } from 'frappe-ui/frappe'

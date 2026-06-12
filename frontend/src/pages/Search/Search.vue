@@ -16,7 +16,7 @@
 				@keydown.enter="() => submit()"
 			>
 				<template #prefix>
-					<Search class="w-4 text-ink-gray-5" />
+					<span class="lucide-search size-4 text-ink-gray-5" />
 				</template>
 				<template #suffix>
 					<div class="flex items-center">
@@ -25,7 +25,7 @@
 							@click="clearSearch"
 							class="p-1 size-6 grid place-content-center focus:outline-none focus:ring focus:ring-outline-gray-3 rounded"
 						>
-							<X class="w-4 text-ink-gray-7" />
+							<span class="lucide-x size-4 text-ink-gray-7" />
 						</button>
 					</div>
 				</template>
@@ -118,7 +118,7 @@ import {
 	usePageMeta,
 } from 'frappe-ui'
 import { inject, onMounted, ref, watch } from 'vue'
-import { Search, X } from 'lucide-vue-next'
+
 import { sessionStore } from '@/stores/session'
 import { useRouter, useRoute } from 'vue-router'
 
