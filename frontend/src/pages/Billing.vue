@@ -246,6 +246,7 @@ import {
 } from 'frappe-ui'
 import { reactive, inject, onMounted, computed, ref, watch } from 'vue'
 import { sessionStore } from '../stores/session'
+import { useSettings } from '@/stores/settings'
 import Link from '@/components/Controls/Link.vue'
 import NotPermitted from '@/components/NotPermitted.vue'
 import { X } from 'lucide-vue-next'
@@ -256,11 +257,14 @@ const user = inject('$user')
 const { brand } = sessionStore()
 const showConsentWarning = ref(false)
 const { capture } = useTelemetry()
+const settings = useSettings()
 
 onMounted(() => {
-	const script = document.createElement('script')
-	script.src = `https://checkout.razorpay.com/v1/checkout.js`
-	document.body.appendChild(script)
+	if (settings.data?.payment_gateway === 'Razorpay') {
+		const script = document.createElement('script')
+		script.src = `https://checkout.razorpay.com/v1/checkout.js`
+		document.body.appendChild(script)
+	}
 	if (user.data?.name) {
 		access.submit()
 	}
