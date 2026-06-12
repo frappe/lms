@@ -1,4 +1,5 @@
 import frappe
+from frappe import _
 
 from lms.lms.utils import (
 	complete_enrollment,
@@ -33,6 +34,11 @@ def get_payment_link(
 	country: str | None = None,
 ):
 	payment_gateway = get_payment_gateway()
+	if not payment_gateway:
+		frappe.throw(
+			_("No payment gateway is configured. Please contact the administrator."),
+			frappe.ValidationError,
+		)
 	address = frappe._dict(address)
 	redirect_to = get_redirect_url(doctype, docname, payment_for_certificate)
 
@@ -66,7 +72,15 @@ def get_payment_link(
 		complete_enrollment(payment.name, doctype, docname)
 		return redirect_to
 
-	controller = get_controller(payment_gateway)
+	try:
+		controller = get_controller(payment_gateway)
+	except frappe.DoesNotExistError:
+		frappe.throw(
+			_("Payment gateway '{0}' is not properly configured. Please contact the administrator.").format(
+				payment_gateway
+			),
+			frappe.ValidationError,
+		)
 
 	payment_details = {
 		"amount": total_amount,
