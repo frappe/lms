@@ -11,6 +11,13 @@ from frappe.utils.telemetry import capture
 
 
 class LMSCertificate(Document):
+	@staticmethod
+	def on_doctype_update():
+		frappe.db.sql_ddl(
+			"""CREATE UNIQUE INDEX IF NOT EXISTS unique_member_course
+			ON `tabLMS Certificate` (member, course)"""
+		)
+
 	def validate(self):
 		self.validate_criteria()
 		self.validate_duplicate_certificate()
@@ -164,15 +171,23 @@ def is_certified(course):
 
 @frappe.whitelist()
 def create_certificate(course: str):
+	# Acquire row-level lock to serialize concurrent requests for the same user+course.
+	# If a row exists, FOR UPDATE blocks other transactions until this one completes.
+	frappe.db.sql(
+		"SELECT name FROM `tabLMS Certificate` WHERE member=%s AND course=%s FOR UPDATE",
+		(frappe.session.user, course),
+	)
+
 	certificate = is_certified(course)
 	if certificate:
 		return frappe.db.get_value(
 			"LMS Certificate", certificate, ["name", "course", "template"], as_dict=True
 		)
 
-	else:
-		validate_certification_eligibility(course)
-		default_certificate_template = get_default_certificate_template()
+	validate_certification_eligibility(course)
+	default_certificate_template = get_default_certificate_template()
+
+	try:
 		certificate = frappe.get_doc(
 			{
 				"doctype": "LMS Certificate",
@@ -184,6 +199,13 @@ def create_certificate(course: str):
 		)
 		certificate.save(ignore_permissions=True)
 		return certificate
+	except frappe.DuplicateEntryError:
+		frappe.clear_last_message()
+		certificate_name = is_certified(course)
+		if certificate_name:
+			return frappe.db.get_value(
+				"LMS Certificate", certificate_name, ["name", "course", "template"], as_dict=True
+			)
 
 
 def get_default_certificate_template():

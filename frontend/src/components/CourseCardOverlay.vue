@@ -77,18 +77,20 @@
 						{{ __('Enroll Now') }}
 					</span>
 				</Button>
-				<Button
-					v-if="canGetCertificate"
-					@click="fetchCertificate()"
-					variant="subtle"
-					class="w-full mt-2"
-					size="md"
-				>
-					<template #prefix>
-						<GraduationCap class="size-4 stroke-1.5" />
-					</template>
-					{{ __('Get Certificate') }}
-				</Button>
+			<Button
+				v-if="canGetCertificate"
+				@click="fetchCertificate()"
+				:disabled="certificate.loading"
+				:loading="certificate.loading"
+				variant="subtle"
+				class="w-full mt-2"
+				size="md"
+			>
+				<template #prefix>
+					<GraduationCap class="size-4 stroke-1.5" />
+				</template>
+				{{ __('Get Certificate') }}
+			</Button>
 			</div>
 			<section v-if="hasCourseStats" class="space-y-3">
 				<div class="text-base text-ink-gray-9 mb-1">
@@ -280,6 +282,7 @@ const certificate = createResource({
 }) as Resource<{ name: string; template: string } | null>
 
 const fetchCertificate = () => {
+	if (certificate.loading) return
 	certificate.submit({
 		course: props.course.data?.name,
 		member: user.data?.name,
