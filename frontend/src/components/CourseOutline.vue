@@ -66,7 +66,6 @@
 							"
 							@move-lesson="updateOutline"
 							@add-lesson="openLessonModalForAdd"
-							@edit-lesson="openLessonModalForEdit"
 						/>
 					</div>
 				</template>
@@ -89,7 +88,6 @@
 		:lessonIdx="lessonContext.lessonIdx"
 		:lessonDetail="lessonContext.lessonDetail"
 		@created="onLessonCreated"
-		@updated="onLessonUpdated"
 	/>
 </template>
 
@@ -169,23 +167,6 @@ function openLessonModalForAdd(payload: {
 	showLessonModal.value = true
 }
 
-function openLessonModalForEdit(payload: {
-	chapter: OutlineChapter
-	lesson: OutlineLesson
-}) {
-	lessonContext.value = {
-		chapterName: payload.chapter.name,
-		chapterIdx: payload.chapter.idx,
-		lessonIdx: Number(payload.lesson.number.split('-')[1]) || 1,
-		lessonDetail: {
-			name: payload.lesson.name,
-			title: payload.lesson.title,
-			include_in_preview: payload.lesson.include_in_preview,
-		},
-	}
-	showLessonModal.value = true
-}
-
 function onLessonCreated(created: { name: string; number: string }) {
 	outline.reload()
 	const ctx = lessonContext.value
@@ -207,10 +188,6 @@ function onLessonCreated(created: { name: string; number: string }) {
 			},
 		})
 	}
-}
-
-function onLessonUpdated(_payload: { name: string }) {
-	outline.reload()
 }
 
 const props = withDefaults(

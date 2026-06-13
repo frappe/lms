@@ -95,12 +95,6 @@
 								/>
 								{{ lesson.title }}
 								<div v-if="allowEdit" class="ms-auto flex items-center gap-2">
-									<Tooltip :text="__('Edit lesson')" placement="bottom">
-										<span
-											@click.prevent="emit('edit-lesson', { chapter, lesson })"
-											class="lucide-file-pen-line h-4 w-4 text-ink-gray-9 invisible group-hover:visible"
-										/>
-									</Tooltip>
 									<span
 										@click.prevent="
 											emit('delete-lesson', {
@@ -170,7 +164,6 @@ const emit = defineEmits<{
 	'delete-lesson': [{ lesson: string; chapter: string }]
 	'move-lesson': [DraggableEvent]
 	'add-lesson': [{ chapter: OutlineChapter; lessonIdx: number }]
-	'edit-lesson': [{ chapter: OutlineChapter; lesson: OutlineLesson }]
 }>()
 
 const route = useRoute()
