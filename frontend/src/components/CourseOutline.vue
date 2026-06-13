@@ -66,7 +66,6 @@
 							"
 							@move-lesson="updateOutline"
 							@add-lesson="openLessonModalForAdd"
-							@edit-lesson="openLessonModalForEdit"
 						/>
 					</div>
 				</template>
@@ -76,9 +75,10 @@
 	<ChapterModal
 		v-if="user.data"
 		v-model="showChapterModal"
-		v-model:outline="outline"
 		:course="courseName"
 		:chapterDetail="currentChapter"
+		@created="outline.reload()"
+		@updated="outline.reload()"
 	/>
 	<LessonModal
 		v-if="user.data && lessonContext"
@@ -88,7 +88,6 @@
 		:lessonIdx="lessonContext.lessonIdx"
 		:lessonDetail="lessonContext.lessonDetail"
 		@created="onLessonCreated"
-		@updated="onLessonUpdated"
 	/>
 </template>
 
@@ -168,23 +167,6 @@ function openLessonModalForAdd(payload: {
 	showLessonModal.value = true
 }
 
-function openLessonModalForEdit(payload: {
-	chapter: OutlineChapter
-	lesson: OutlineLesson
-}) {
-	lessonContext.value = {
-		chapterName: payload.chapter.name,
-		chapterIdx: payload.chapter.idx,
-		lessonIdx: Number(payload.lesson.number.split('-')[1]) || 1,
-		lessonDetail: {
-			name: payload.lesson.name,
-			title: payload.lesson.title,
-			include_in_preview: payload.lesson.include_in_preview,
-		},
-	}
-	showLessonModal.value = true
-}
-
 function onLessonCreated(created: { name: string; number: string }) {
 	outline.reload()
 	const ctx = lessonContext.value
@@ -206,10 +188,6 @@ function onLessonCreated(created: { name: string; number: string }) {
 			},
 		})
 	}
-}
-
-function onLessonUpdated(_payload: { name: string }) {
-	outline.reload()
 }
 
 const props = withDefaults(
@@ -290,6 +268,7 @@ const updateLessonIndex = createResource({
 		return values
 	},
 	onSuccess() {
+		outline.reload()
 		toast.success(__('Lesson moved successfully'))
 	},
 })
@@ -300,6 +279,7 @@ const updateChapterIndex = createResource({
 		return values
 	},
 	onSuccess() {
+		outline.reload()
 		toast.success(__('Chapter moved successfully'))
 	},
 })

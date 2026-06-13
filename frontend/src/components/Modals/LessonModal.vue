@@ -9,15 +9,6 @@
 					autocomplete="off"
 					@keyup.enter="submit"
 				/>
-				<Switch
-					v-model="lesson.include_in_preview"
-					:label="__('Include in Preview')"
-					:description="
-						__(
-							'If enabled, the lesson will also be accessible to users who are not enrolled in the course.'
-						)
-					"
-				/>
 			</div>
 		</template>
 		<template #actions>
@@ -30,7 +21,6 @@
 
 <script setup lang="ts">
 import { Dialog, FormControl, Button, createResource, toast } from 'frappe-ui'
-import Switch from '@/components/Controls/Switch.vue'
 import { computed, reactive, ref, watch } from 'vue'
 import { useTelemetry } from 'frappe-ui/frappe'
 
@@ -77,12 +67,11 @@ const fetchLesson = createResource({
 	makeParams: () => ({
 		doctype: 'Course Lesson',
 		filters: { name: props.lessonDetail?.name },
-		fieldname: ['title', 'include_in_preview'],
+		fieldname: ['title'],
 	}),
-	onSuccess(data: { title?: string; include_in_preview?: 0 | 1 } | undefined) {
+	onSuccess(data: { title?: string } | undefined) {
 		if (!data) return
 		if (data.title != null) lesson.title = data.title
-		lesson.include_in_preview = data.include_in_preview ? 1 : 0
 	},
 })
 
@@ -91,9 +80,7 @@ watch(
 	([open, detail]) => {
 		if (!open) return
 		lesson.title = detail?.title ?? ''
-		lesson.include_in_preview = detail?.include_in_preview ? 1 : 0
-		// Outline rows don't carry include_in_preview — hydrate from the doc
-		// so the toggle reflects current state instead of always off.
+		// Refresh the title from the doc in case the outline row is stale.
 		if (detail?.name) fetchLesson.reload()
 	},
 	{ immediate: true }
@@ -136,7 +123,6 @@ const updateLesson = createResource({
 		name: props.lessonDetail?.name,
 		fieldname: {
 			title: lesson.title,
-			include_in_preview: lesson.include_in_preview,
 		},
 	}),
 })
