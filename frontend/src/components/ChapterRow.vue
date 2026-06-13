@@ -7,6 +7,7 @@
 					'rtl:rotate-180': !open,
 					hidden: chapter.is_scorm_package,
 					open: index == 1,
+					'self-start mt-0.5': inlineSelect,
 				}"
 				class="lucide-chevron-right size-4 text-ink-gray-9 stroke-1 transform duration-200"
 			/>
