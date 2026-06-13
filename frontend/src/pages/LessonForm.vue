@@ -15,9 +15,7 @@
 							)
 						"
 					>
-						<span
-							class="lucide-help-circle size-4 shrink-0 text-ink-gray-5"
-						/>
+						<span class="lucide-help-circle size-4 shrink-0 text-ink-gray-5" />
 					</Tooltip>
 				</div>
 			</div>
@@ -207,7 +205,7 @@ const lessonDetails = createResource({
 						// Blinking caret ready in the lesson body on open.
 						editor.value?.focus()
 					})
-				},
+				}
 			)
 		}
 	},
@@ -219,7 +217,7 @@ const addLessonContent = (data) => {
 	return editor.value.isReady().then(() => {
 		if (data.lesson.content) {
 			return editor.value.render(
-				sanitizeEditorJs(JSON.parse(data.lesson.content)),
+				sanitizeEditorJs(JSON.parse(data.lesson.content))
 			)
 		} else if (data.lesson.body) {
 			let blocks = convertToJSON(data.lesson)
@@ -234,7 +232,7 @@ const addInstructorNotes = (data) => {
 	return instructorEditor.value.isReady().then(() => {
 		if (data.lesson.instructor_content) {
 			return instructorEditor.value.render(
-				sanitizeEditorJs(JSON.parse(data.lesson.instructor_content)),
+				sanitizeEditorJs(JSON.parse(data.lesson.instructor_content))
 			)
 		} else if (data.lesson.instructor_notes) {
 			let blocks = convertToJSON(data.lesson)
@@ -465,13 +463,13 @@ const createNewLesson = () => {
 							emit('saved', { isNew: true })
 							lessonDetails.reload()
 						},
-					},
+					}
 				)
 			},
 			onError(err) {
 				toast.error(err.messages?.[0] || err)
 			},
-		},
+		}
 	)
 }
 
@@ -496,7 +494,7 @@ const editCurrentLesson = () => {
 			onError(err) {
 				toast.error(err.message)
 			},
-		},
+		}
 	)
 }
 
