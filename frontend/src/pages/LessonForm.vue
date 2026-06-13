@@ -4,17 +4,21 @@
 			<!-- Include-in-preview control row -->
 			<div class="flex items-center gap-3">
 				<Switch v-model="lesson.include_in_preview" @change="markDirty" />
-				<div class="flex items-baseline gap-1.5">
+				<div class="flex items-center gap-1.5">
 					<span class="text-p-base font-medium text-ink-gray-8">
 						{{ __('Include in preview') }}
 					</span>
-					<span class="text-p-sm text-ink-gray-5">
-						{{
-							lesson.include_in_preview
-								? __('Anyone can preview')
-								: __('Enrolled students only')
-						}}
-					</span>
+					<Tooltip
+						:text="
+							__(
+								'When on, anyone can preview this lesson without enrolling. Otherwise it is visible only to enrolled students.'
+							)
+						"
+					>
+						<span
+							class="lucide-help-circle size-4 shrink-0 text-ink-gray-5"
+						/>
+					</Tooltip>
 				</div>
 			</div>
 
@@ -68,7 +72,7 @@
 	</div>
 </template>
 <script setup>
-import { Badge, Switch, createResource, toast } from 'frappe-ui'
+import { Badge, Switch, createResource, toast, Tooltip } from 'frappe-ui'
 import {
 	reactive,
 	onMounted,
@@ -80,7 +84,7 @@ import {
 import { ChevronRight, NotebookPen } from 'lucide-vue-next'
 import { useDebounceFn } from '@vueuse/core'
 import { enablePlyr, sanitizeEditorJs } from '@/utils'
-import { hasInstructorContent, hasEditorContent } from '@/utils/lessonForm'
+import { hasEditorContent } from '@/utils/lessonForm'
 import BlockEditor from '@/components/BlockEditor.vue'
 import { useOnboarding, useTelemetry } from 'frappe-ui/frappe'
 
@@ -203,7 +207,7 @@ const lessonDetails = createResource({
 						// Blinking caret ready in the lesson body on open.
 						editor.value?.focus()
 					})
-				}
+				},
 			)
 		}
 	},
@@ -215,7 +219,7 @@ const addLessonContent = (data) => {
 	return editor.value.isReady().then(() => {
 		if (data.lesson.content) {
 			return editor.value.render(
-				sanitizeEditorJs(JSON.parse(data.lesson.content))
+				sanitizeEditorJs(JSON.parse(data.lesson.content)),
 			)
 		} else if (data.lesson.body) {
 			let blocks = convertToJSON(data.lesson)
@@ -230,7 +234,7 @@ const addInstructorNotes = (data) => {
 	return instructorEditor.value.isReady().then(() => {
 		if (data.lesson.instructor_content) {
 			return instructorEditor.value.render(
-				sanitizeEditorJs(JSON.parse(data.lesson.instructor_content))
+				sanitizeEditorJs(JSON.parse(data.lesson.instructor_content)),
 			)
 		} else if (data.lesson.instructor_notes) {
 			let blocks = convertToJSON(data.lesson)
@@ -461,13 +465,13 @@ const createNewLesson = () => {
 							emit('saved', { isNew: true })
 							lessonDetails.reload()
 						},
-					}
+					},
 				)
 			},
 			onError(err) {
 				toast.error(err.messages?.[0] || err)
 			},
-		}
+		},
 	)
 }
 
@@ -492,7 +496,7 @@ const editCurrentLesson = () => {
 			onError(err) {
 				toast.error(err.message)
 			},
-		}
+		},
 	)
 }
 
