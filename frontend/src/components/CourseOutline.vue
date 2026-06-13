@@ -76,9 +76,10 @@
 	<ChapterModal
 		v-if="user.data"
 		v-model="showChapterModal"
-		v-model:outline="outline"
 		:course="courseName"
 		:chapterDetail="currentChapter"
+		@created="outline.reload()"
+		@updated="outline.reload()"
 	/>
 	<LessonModal
 		v-if="user.data && lessonContext"
@@ -290,6 +291,7 @@ const updateLessonIndex = createResource({
 		return values
 	},
 	onSuccess() {
+		outline.reload()
 		toast.success(__('Lesson moved successfully'))
 	},
 })
@@ -300,6 +302,7 @@ const updateChapterIndex = createResource({
 		return values
 	},
 	onSuccess() {
+		outline.reload()
 		toast.success(__('Chapter moved successfully'))
 	},
 })
