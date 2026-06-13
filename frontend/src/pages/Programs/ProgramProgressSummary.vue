@@ -1,12 +1,10 @@
 <template>
 	<Dialog
-		v-model="show"
-		:options="{
-			title: __('Progress Summary for {0}').format(programName),
-			size: '2xl',
-		}"
+		v-model:open="show"
+		:title="__('Progress Summary for {0}').format(programName)"
+		size="2xl"
 	>
-		<template #body-content>
+		<template #default>
 			<div class="text-base">
 				<div class="flex items-center justify-between gap-x-4 mb-4">
 					<NumberChart

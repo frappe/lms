@@ -7,7 +7,7 @@
 		<template #header-actions>
 			<Button variant="solid" @click="openForm('new')">
 				<template #prefix>
-					<Plus class="h-4 w-4 stroke-1.5" />
+					<span class="lucide-plus h-4 w-4" />
 				</template>
 				{{ __('New') }}
 			</Button>
@@ -75,7 +75,7 @@
 								variant="ghost"
 								@click="removeAccount(selections, unselectAll)"
 							>
-								<Trash2 class="h-4 w-4 stroke-1.5" />
+								<span class="lucide-trash-2 h-4 w-4" />
 							</Button>
 						</div>
 					</template>
@@ -86,7 +86,7 @@
 			v-else
 			name="Zoom Settings"
 			:description="__('Add one to get started.')"
-			:icon="Video"
+			icon="lucide-video"
 		/>
 	</SettingsLayout>
 	<ZoomAccountForm
@@ -113,7 +113,6 @@ import {
 	toast,
 } from 'frappe-ui'
 import { computed, onMounted, ref } from 'vue'
-import { Plus, Trash2, Video } from 'lucide-vue-next'
 import { cleanError } from '@/utils'
 import ZoomAccountForm from '@/components/Settings/ZoomAccountForm.vue'
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'

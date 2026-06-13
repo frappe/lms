@@ -1,6 +1,6 @@
 <template>
-	<Dialog v-model="show" :options="{ title: dialogTitle, size: 'lg' }">
-		<template #body-content>
+	<Dialog v-model:open="show" :title="dialogTitle" size="lg">
+		<template #default>
 			<div class="space-y-4">
 				<FormControl
 					v-model="lesson.title"

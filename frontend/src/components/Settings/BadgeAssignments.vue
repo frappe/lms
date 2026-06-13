@@ -7,7 +7,7 @@
 		<template #header-actions>
 			<Button @click="openForm('new')">
 				<template #prefix>
-					<Plus class="size-4 stroke-1.5" />
+					<span class="lucide-plus size-4" />
 				</template>
 				{{ __('New') }}
 			</Button>
@@ -65,7 +65,7 @@
 								variant="ghost"
 								@click="deleteBadgeAssignment(selections, unselectAll)"
 							>
-								<Trash2 class="h-4 w-4 stroke-1.5" />
+								<span class="lucide-trash-2 h-4 w-4" />
 							</Button>
 						</div>
 					</template>
@@ -73,8 +73,8 @@
 			</ListView>
 		</div>
 		<div v-else class="flex flex-col items-center justify-center mt-44">
-			<GraduationCap class="size-10 mx-auto stroke-1 text-ink-gray-5" />
-			<div class="text-lg font-semibold text-ink-gray-7 mb-2.5">
+			<span class="lucide-graduation-cap size-10 mx-auto text-ink-gray-5" />
+			<div class="text-xl-semibold text-ink-gray-7 mb-2.5">
 				{{ __('No Assignments') }}
 			</div>
 			<div
@@ -106,7 +106,6 @@ import {
 	ListSelectBanner,
 	toast,
 } from 'frappe-ui'
-import { GraduationCap, Plus, Trash2 } from 'lucide-vue-next'
 import { computed, inject, ref } from 'vue'
 import type { BadgeAssignment } from '@/components/Settings/types'
 import BadgeAssignmentForm from '@/components/Settings/BadgeAssignmentForm.vue'

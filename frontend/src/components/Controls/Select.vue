@@ -2,7 +2,7 @@
 	<div>
 		<label v-if="label" class="block mb-1.5" :class="labelClasses">
 			{{ label }}
-			<span v-if="required" class="text-ink-red-3">*</span>
+			<span v-if="required" class="text-ink-red-6">*</span>
 		</label>
 		<Select
 			v-bind="$attrs"

@@ -1,7 +1,7 @@
 <template>
 	<div class="py-5 px-5 w-full lg:w-3/4 lg:px-0 mx-auto">
 		<div class="flex items-center justify-between mb-5">
-			<div class="text-lg text-ink-gray-9 font-semibold">
+			<div class="text-xl-semibold text-ink-gray-9">
 				{{ __('All Programs') }}
 			</div>
 			<TabButtons v-model="currentTab" :buttons="tabs" class="w-fit" />
@@ -17,20 +17,20 @@
 						@click="openDetails(program.name, category)"
 						class="border rounded-md p-3 hover:border-outline-gray-3 cursor-pointer"
 					>
-						<div class="text-lg font-semibold text-ink-gray-9 mb-2">
+						<div class="text-xl-semibold text-ink-gray-9 mb-2">
 							{{ program.name }}
 						</div>
 
 						<div class="flex items-center gap-x-5 text-sm text-ink-gray-7">
 							<div class="flex items-center gap-x-1">
-								<BookOpen class="size-3 stroke-1.5" />
+								<span class="lucide-book-open size-3" />
 								<span>
 									{{ program.course_count }}
 									{{ program.course_count == 1 ? __('course') : __('courses') }}
 								</span>
 							</div>
 							<div class="flex items-center gap-x-1">
-								<User class="size-4 stroke-1.5" />
+								<span class="lucide-user size-4" />
 								<span>
 									{{ program.member_count || 0 }}
 									{{ program.member_count == 1 ? __('member') : __('members') }}
@@ -64,7 +64,7 @@
 <script setup lang="ts">
 import { createResource, TabButtons } from 'frappe-ui'
 import { computed, ref } from 'vue'
-import { BookOpen, User } from 'lucide-vue-next'
+
 import { useRouter } from 'vue-router'
 import { convertToTitleCase } from '@/utils'
 import ProgressBar from '@/components/ProgressBar.vue'

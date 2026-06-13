@@ -2,7 +2,7 @@
 	<div>
 		<div class="flex justify-between mb-5">
 			<div class="space-y-1">
-				<div class="text-lg text-ink-gray-9 font-semibold">
+				<div class="text-xl-semibold text-ink-gray-9">
 					{{ __('Feedback') }}
 				</div>
 				<div
@@ -42,7 +42,7 @@
 							v-for="key in ratingKeys"
 							v-model="feedback[key]"
 							:label="__(convertToTitleCase(key))"
-							:readonly="readOnly"
+							:disabled="readOnly"
 						/>
 					</div>
 					<FormControl
@@ -65,7 +65,7 @@
 					v-for="key in ratingKeys"
 					v-model="average[key]"
 					:label="__(convertToTitleCase(key))"
-					:readonly="true"
+					:disabled="true"
 				/>
 			</div>
 		</div>

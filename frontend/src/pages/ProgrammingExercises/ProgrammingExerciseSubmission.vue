@@ -14,7 +14,7 @@
 		</span>
 		<Button v-if="user.data?.is_moderator" @click="openSettings('General')">
 			<template #prefix>
-				<Settings class="size-4 stroke-1.5" />
+				<span class="lucide-settings size-4" />
 			</template>
 			{{ __('Settings') }}
 		</Button>
@@ -54,7 +54,7 @@
 						class="text-ink-gray-9"
 					>
 						<template #prefix>
-							<Play class="size-3" />
+							<span class="lucide-play size-3" />
 						</template>
 						{{ running ? __('Running') : __('Run') }}
 					</Button>
@@ -156,7 +156,6 @@ import {
 	usePageMeta,
 } from 'frappe-ui'
 import { computed, inject, onMounted, ref, watch } from 'vue'
-import { Play, X, Check, Settings } from 'lucide-vue-next'
 import { sessionStore } from '@/stores/session'
 import { useRouter } from 'vue-router'
 import { openSettings } from '@/utils'

@@ -4,19 +4,19 @@
 			v-if="!hideHeader && title && (outline.data?.length || allowEdit)"
 			class="flex items-center justify-between gap-x-2 mb-4 px-2"
 			:class="{
-				'sticky top-0 z-10 bg-surface-white border-b px-3 py-2.5 sm:px-5':
+				'sticky top-0 z-10 bg-surface-base border-b px-3 py-2.5 sm:px-5':
 					allowEdit,
 			}"
 		>
 			<div
-				class="font-semibold text-lg leading-5 text-ink-gray-9"
+				class="text-xl-semibold leading-5 text-ink-gray-9"
 				:class="{ 'font-medium text-p-base': allowEdit }"
 			>
 				{{ __(title) }}
 			</div>
 			<Button size="sm" v-if="allowEdit" @click="openChapterModal()">
 				<template #prefix>
-					<Plus class="size-4 stroke-1.5" />
+					<span class="lucide-plus size-4" />
 				</template>
 				{{ __('Add') }}
 			</Button>
@@ -25,11 +25,11 @@
 			v-if="allowEdit && outline.data && !outline.data.length"
 			class="flex flex-col items-center justify-center gap-3 px-6 py-16 text-center text-ink-gray-5 h-full"
 		>
-			<BookOpen class="size-8 stroke-1.5" />
+			<span class="lucide-book-open size-8" />
 			<div class="text-sm">{{ __('No chapters yet') }}</div>
 			<Button @click="openChapterModal()">
 				<template #prefix>
-					<Plus class="size-4 stroke-1.5" />
+					<span class="lucide-plus size-4" />
 				</template>
 				{{ __('Create chapter') }}
 			</Button>
@@ -97,7 +97,7 @@ import { Button, createResource, toast } from 'frappe-ui'
 import { inject, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import Draggable from 'vuedraggable'
-import { BookOpen, Plus } from 'lucide-vue-next'
+
 import ChapterModal from '@/components/Modals/ChapterModal.vue'
 import LessonModal from '@/components/Modals/LessonModal.vue'
 import ChapterRow from '@/components/ChapterRow.vue'

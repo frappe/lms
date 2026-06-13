@@ -10,7 +10,7 @@
 					v-else-if="!selected"
 					class="flex flex-col items-center justify-center h-full text-ink-gray-5"
 				>
-					<BookOpen class="size-8 stroke-1.5" />
+					<span class="lucide-book-open size-8" />
 					<div>
 						{{ __('Select a lesson on the right to start editing.') }}
 					</div>
@@ -72,7 +72,6 @@
 import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { createResource } from 'frappe-ui'
-import { BookOpen } from 'lucide-vue-next'
 import CourseOutline from '@/components/CourseOutline.vue'
 import StudentLessonSidebar from '@/components/StudentLessonSidebar.vue'
 import SkeletonLoader from '@/components/SkeletonLoader.vue'

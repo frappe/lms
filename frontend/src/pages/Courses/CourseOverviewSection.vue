@@ -1,6 +1,6 @@
 <template>
 	<section class="space-y-5 border-t pt-6">
-		<div class="text-base font-semibold text-ink-gray-9">
+		<div class="text-base-semibold text-ink-gray-9">
 			{{ __('Course overview') }}
 		</div>
 		<FormControl
@@ -49,7 +49,7 @@
 
 	<section class="space-y-5 border-t pt-6">
 		<div>
-			<div class="text-base font-semibold text-ink-gray-9">
+			<div class="text-base-semibold text-ink-gray-9">
 				{{ __('Meta Tags') }}
 			</div>
 			<div class="mt-1 text-p-sm text-ink-gray-6">

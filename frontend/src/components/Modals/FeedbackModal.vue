@@ -1,13 +1,8 @@
 <template>
-	<Dialog
-		v-model="show"
-		:options="{
-			size: '5xl',
-		}"
-	>
+	<Dialog v-model:open="show" size="5xl">
 		<template #body>
 			<div class="p-5 min-h-[300px]">
-				<div class="text-lg text-ink-gray-9 font-semibold mb-4">
+				<div class="text-xl-semibold text-ink-gray-9 mb-4">
 					{{ __('Training Feedback') }}
 				</div>
 				<ListView
@@ -22,7 +17,7 @@
 					class="border rounded-lg py-2 px-3"
 				>
 					<ListHeader
-						class="mb-2 grid items-center rounded bg-surface-white border-b rounded-none !px-0"
+						class="mb-2 grid items-center rounded bg-surface-gray-2 !px-0"
 					>
 						<ListHeaderItem :item="item" v-for="item in feedbackColumns">
 							<template #prefix="{ item }">
@@ -53,7 +48,7 @@
 										</div>
 									</template>
 									<div v-if="ratingKeys.includes(column.key)">
-										<Rating v-model="row[column.key]" :readonly="true" />
+										<Rating v-model="row[column.key]" :disabled="true" />
 									</div>
 									<div v-else class="leading-5">
 										{{ row[column.key] }}

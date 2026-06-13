@@ -66,7 +66,7 @@
 					theme="red"
 				>
 					<template #prefix>
-						<Trash2 class="size-4 stroke-1.5" />
+						<span class="lucide-trash-2 size-4" />
 					</template>
 					{{ __('Delete') }}
 				</Button>
@@ -82,7 +82,7 @@
 				>
 					<Button>
 						<template #prefix>
-							<Play class="size-4 stroke-1.5" />
+							<span class="lucide-play size-4" />
 						</template>
 						{{ __('Test this Exercise') }}
 					</Button>
@@ -98,7 +98,7 @@
 				>
 					<Button>
 						<template #prefix>
-							<ClipboardList class="size-4 stroke-1.5" />
+							<span class="lucide-clipboard-list size-4" />
 						</template>
 						{{ __('Check Submission') }}
 					</Button>
@@ -127,7 +127,6 @@ import {
 	ProgrammingExercises,
 	TestCase,
 } from '@/types/programming-exercise'
-import { ClipboardList, Play, Trash2 } from 'lucide-vue-next'
 import ChildTable from '@/components/Controls/ChildTable.vue'
 
 const show = defineModel()

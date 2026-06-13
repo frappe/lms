@@ -15,7 +15,7 @@
 				"
 			>
 				<template #prefix>
-					<Plus class="size-4 stroke-1.5" />
+					<span class="lucide-plus size-4" />
 				</template>
 				{{ __('Create') }}
 			</Button>
@@ -26,7 +26,7 @@
 		<div
 			class="mx-5 mb-5 flex flex-col justify-between gap-y-4 sm:flex-row sm:items-center"
 		>
-			<div class="text-lg font-semibold text-ink-gray-9">
+			<div class="text-xl-semibold text-ink-gray-9">
 				{{ __('{0} Assignments').format(assignments.data?.length) }}
 			</div>
 			<div class="flex flex-col gap-3 sm:flex-row md:gap-5">
@@ -58,9 +58,7 @@
 			}"
 			class="flex-1 px-5"
 		>
-			<ListHeader
-				class="mb-2 grid items-center rounded-none border-b bg-surface-white p-2"
-			>
+			<ListHeader class="mb-2 grid items-center rounded bg-surface-gray-2 p-2">
 				<ListHeaderItem :item="item" v-for="item in assignmentColumns">
 					<template #prefix="{ item }">
 						<FeatherIcon :name="item.icon?.toString()" class="h-4 w-4" />
@@ -98,7 +96,7 @@
 							variant="ghost"
 							@click="deleteAssignment(selections, unselectAll)"
 						>
-							<FeatherIcon name="trash-2" class="h-4 w-4 stroke-1.5" />
+							<span class="lucide-trash-2 h-4 w-4" />
 						</Button>
 					</div>
 				</template>
@@ -160,7 +158,6 @@ import {
 } from 'frappe-ui'
 import Select from '@/components/Controls/Select.vue'
 import { computed, inject, onMounted, ref, watch } from 'vue'
-import { Plus } from 'lucide-vue-next'
 import { useRouter, useRoute } from 'vue-router'
 import { sessionStore } from '../stores/session'
 import AssignmentForm from '@/components/Modals/AssignmentForm.vue'

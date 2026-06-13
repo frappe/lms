@@ -49,7 +49,7 @@ export class Quiz {
 			this.wrapper.innerHTML = `<iframe src="${quizPath}" class="w-full h-[700px]"></iframe>`
 			return
 		}
-		this.wrapper.innerHTML = `<div class='border rounded-md p-4 text-center bg-surface-menu-bar mb-4'>
+		this.wrapper.innerHTML = `<div class='border rounded-md p-4 text-center bg-surface-sidebar mb-4'>
             <span class="font-medium">
                 Quiz: ${quiz}
             </span>

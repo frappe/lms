@@ -2,7 +2,7 @@
 	<div>
 		<label v-if="attrs.label" class="block mb-1.5" :class="labelClasses">
 			{{ attrs.label }}
-			<span v-if="attrs.required" class="text-ink-red-3">*</span>
+			<span v-if="attrs.required" class="text-ink-red-6">*</span>
 		</label>
 		<Combobox
 			:modelValue="value"
@@ -20,7 +20,7 @@
 			<template #footer>
 				<div
 					data-popover-footer-sticky
-					class="-m-1 border-t border-outline-gray-2 bg-surface-modal p-2 mt-1"
+					class="-m-1 border-t border-outline-gray-2 bg-surface-elevation-2 p-2 mt-1"
 				>
 					<div v-if="creating" class="flex items-center gap-1">
 						<button
@@ -28,7 +28,7 @@
 							:aria-label="__('Cancel')"
 							@click="creating = false"
 						>
-							<ArrowLeft class="size-4 stroke-1.5" />
+							<span class="lucide-arrow-left size-4" />
 						</button>
 						<FormControl
 							v-model="newItemName"
@@ -64,7 +64,7 @@
 							@click="handleCreate"
 						>
 							<template #prefix>
-								<Plus class="size-4 stroke-1.5" />
+								<span class="lucide-plus size-4" />
 							</template>
 							{{ __('Create New') }}
 						</Button>
@@ -78,7 +78,6 @@
 <script setup lang="ts">
 import { Combobox, Button, FormControl, createResource } from 'frappe-ui'
 import { useDebounceFn, watchDebounced } from '@vueuse/core'
-import { ArrowLeft, Plus } from 'lucide-vue-next'
 import { useAttrs, computed, ref } from 'vue'
 import { useSettings } from '@/stores/settings'
 import type { Resource } from '@/types/api'

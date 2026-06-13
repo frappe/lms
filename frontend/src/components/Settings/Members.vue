@@ -3,7 +3,7 @@
 		<template #header-actions>
 			<Button variant="solid" @click="openNewMember">
 				<template #prefix>
-					<Plus class="h-4 w-4 stroke-1.5" />
+					<span class="lucide-plus h-4 w-4" />
 				</template>
 				{{ __('New') }}
 			</Button>
@@ -18,7 +18,7 @@
 					class="w-1/3"
 				>
 					<template #prefix>
-						<Search class="size-4 stroke-1.5 text-ink-gray-5" />
+						<span class="lucide-search size-4 text-ink-gray-5" />
 					</template>
 				</FormControl>
 				<Select v-model="currentRole" class="w-40" :options="roleOptions" />
@@ -26,7 +26,7 @@
 		</template>
 		<div class="pb-4">
 			<div>
-				<ul class="divide-y divide-outline-gray-modals">
+				<ul class="divide-y divide-outline-elevation-2">
 					<li
 						v-for="member in displayedMembers"
 						class="flex items-center justify-between py-2 cursor-pointer"
@@ -59,7 +59,7 @@
 								:key="role"
 								class="flex items-center text-ink-gray-9 gap-x-1 bg-surface-gray-2 px-2 py-1.5 rounded-md"
 							>
-								<Shield class="size-4 stroke-1.5" />
+								<span class="lucide-shield size-4" />
 								<span class="text-sm">
 									{{ getRole(role) }}
 								</span>
@@ -72,7 +72,9 @@
 							>
 								<Button variant="ghost" class="!px-1.5">
 									<template #icon>
-										<MoreHorizontal class="size-4 stroke-1.5 text-ink-gray-7" />
+										<span
+											class="lucide-more-horizontal size-4 text-ink-gray-7"
+										/>
 									</template>
 								</Button>
 							</Dropdown>
@@ -85,7 +87,7 @@
 				>
 					<Button @click="members.reload()">
 						<template #prefix>
-							<RefreshCw class="h-3 w-3 stroke-1.5" />
+							<span class="lucide-refresh-cw h-3 w-3" />
 						</template>
 						{{ __('Load More') }}
 					</Button>
@@ -101,30 +103,28 @@
 	/>
 
 	<Dialog
-		v-model="showDeleteDialog"
-		:options="{
-			title: memberToDelete
-				? __('Delete {0}?').format(memberToDelete.full_name)
-				: '',
-			message: __(
-				'This permanently deletes the user account and cannot be undone.'
-			),
-			size: 'sm',
-			actions: [
-				{
-					label: __('Delete'),
-					theme: 'red',
-					variant: 'solid',
-					onClick: confirmDelete,
+		v-model:open="showDeleteDialog"
+		:title="
+			memberToDelete ? __('Delete {0}?').format(memberToDelete.full_name) : ''
+		"
+		:message="
+			__('This permanently deletes the user account and cannot be undone.')
+		"
+		size="sm"
+		:actions="[
+			{
+				label: __('Delete'),
+				theme: 'red',
+				variant: 'solid',
+				onClick: confirmDelete,
+			},
+			{
+				label: __('Cancel'),
+				onClick: () => {
+					showDeleteDialog = false
 				},
-				{
-					label: __('Cancel'),
-					onClick: () => {
-						showDeleteDialog = false
-					},
-				},
-			],
-		}"
+			},
+		]"
 	/>
 </template>
 <script setup lang="ts">
@@ -141,13 +141,6 @@ import {
 } from 'frappe-ui'
 import { useRouter } from 'vue-router'
 import { ref, computed, watch, inject } from 'vue'
-import {
-	MoreHorizontal,
-	RefreshCw,
-	Plus,
-	Search,
-	Shield,
-} from 'lucide-vue-next'
 import { useOnboarding, useTelemetry } from 'frappe-ui/frappe'
 import type { User } from '@/components/Settings/types'
 import NewMemberModal from '@/components/Modals/NewMemberModal.vue'

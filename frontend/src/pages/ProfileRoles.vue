@@ -7,7 +7,7 @@
 			v-if="readOnlyMode"
 			class="flex items-center gap-x-2 text-sm text-ink-gray-7 bg-surface-gray-1 px-3 py-2 rounded-md w-full text-center"
 		>
-			<CircleAlert class="size-4 stroke-1.5" />
+			<span class="lucide-circle-alert size-4" />
 			<span>
 				{{ __('You cannot change the roles in read-only mode.') }}
 			</span>
@@ -51,7 +51,6 @@ import { call, createResource, toast } from 'frappe-ui'
 import Switch from '@/components/Controls/Switch.vue'
 import { ref, watch } from 'vue'
 import { convertToTitleCase } from '@/utils'
-import { CircleAlert } from 'lucide-vue-next'
 
 const moderator = ref(false)
 const course_creator = ref(false)

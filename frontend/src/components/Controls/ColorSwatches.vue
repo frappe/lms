@@ -29,16 +29,16 @@
 										: {}
 								"
 							>
-								<Palette
+								<span
 									v-if="!modelValue"
-									class="size-4 stroke-1.5 text-ink-gray-5"
+									class="lucide-palette size-4 text-ink-gray-5"
 								/>
 							</div>
 						</template>
 						<template #suffix>
 							<Button variant="ghost">
-								<X
-									class="size-3 text-ink-gray-5"
+								<span
+									class="lucide-x size-3 text-ink-gray-5"
 									@click="emit('update:modelValue', null)"
 								/>
 							</Button>
@@ -47,7 +47,7 @@
 				</div>
 			</template>
 			<template #body="{ close }">
-				<div class="rounded-lg bg-surface-white p-3 border w-fit mt-2">
+				<div class="rounded-lg bg-surface-base p-3 border w-fit mt-2">
 					<div class="text-xs text-ink-gray-5 mb-1.5">
 						{{ __('Swatches') }}
 					</div>
@@ -79,7 +79,6 @@
 <script setup lang="ts">
 import { Button, FormControl, Popover } from 'frappe-ui'
 import { computed } from 'vue'
-import { Palette, X } from 'lucide-vue-next'
 import { getColor } from '@/utils'
 
 const emit = defineEmits(['update:modelValue', 'change'])

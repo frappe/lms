@@ -1,24 +1,23 @@
 <template>
 	<Dialog
-		v-model="show"
-		:options="{
-			title:
-				type == 'quiz'
-					? __('Add a quiz to your lesson')
-					: __('Add an assignment to your lesson'),
-			size: 'xl',
-			actions: [
-				{
-					label: __('Save'),
-					variant: 'solid',
-					onClick: () => {
-						addAssessment()
-					},
+		v-model:open="show"
+		:title="
+			type == 'quiz'
+				? __('Add a quiz to your lesson')
+				: __('Add an assignment to your lesson')
+		"
+		size="xl"
+		:actions="[
+			{
+				label: __('Save'),
+				variant: 'solid',
+				onClick: () => {
+					addAssessment()
 				},
-			],
-		}"
+			},
+		]"
 	>
-		<template #body-content>
+		<template #default>
 			<div class="">
 				<div>
 					<Link

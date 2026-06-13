@@ -40,14 +40,14 @@
 				>
 					<Button>
 						<template #prefix>
-							<Pencil class="h-4 w-4 stroke-1.5" />
+							<span class="lucide-pencil size-4" />
 						</template>
 						{{ __('Edit') }}
 					</Button>
 				</router-link>
 				<Button @click="redirectToWebsite(job.data?.company_website)">
 					<template #prefix>
-						<SquareArrowOutUpRight class="h-4 w-4 stroke-1.5" />
+						<span class="lucide-square-arrow-out-up-right size-4" />
 					</template>
 					{{ __('Visit Website') }}
 				</Button>
@@ -57,13 +57,13 @@
 					@click="openApplicationModal()"
 				>
 					<template #prefix>
-						<SendHorizonal class="h-4 w-4" />
+						<span class="lucide-send-horizonal size-4" />
 					</template>
 					{{ __('Apply') }}
 				</Button>
 				<Badge v-else variant="subtle" theme="green" size="lg">
 					<template #prefix>
-						<Check class="h-4 w-4" />
+						<span class="lucide-check size-4" />
 					</template>
 					{{ __('You have applied') }}
 				</Badge>
@@ -100,25 +100,27 @@
 					<div class="flex items-center gap-x-2">
 						<Badge size="lg">
 							<template #prefix>
-								<CalendarDays class="size-3 stroke-2 text-ink-gray-7" />
+								<span class="lucide-calendar-days size-3 text-ink-gray-7" />
 							</template>
 							{{ dayjs(job.data.creation).fromNow() }}
 						</Badge>
 						<Badge size="lg">
 							<template #prefix>
-								<ClipboardType class="size-3 stroke-2 text-ink-gray-7" />
+								<span class="lucide-clipboard-type size-3 text-ink-gray-7" />
 							</template>
 							{{ job.data.type }}
 						</Badge>
 						<Badge v-if="job.data?.work_mode" size="lg">
 							<template #prefix>
-								<BriefcaseBusiness class="size-3 stroke-2 text-ink-gray-7" />
+								<span
+									class="lucide-briefcase-business size-3 text-ink-gray-7"
+								/>
 							</template>
 							{{ job.data.work_mode }}
 						</Badge>
 						<Badge v-if="applicationCount.data" size="lg">
 							<template #prefix>
-								<SquareUserRound class="size-3 stroke-2 text-ink-gray-7" />
+								<span class="lucide-square-user-round size-3 text-ink-gray-7" />
 							</template>
 							{{ applicationCount.data }}
 							{{
@@ -131,7 +133,7 @@
 				<div class="flex items-center justify-between">
 					<div class="bg-surface-gray-2 h-px m-1 w-1/2"></div>
 					<div>
-						<FileText class="size-3 stroke-1 text-ink-gray-5" />
+						<span class="lucide-file-text size-3 text-ink-gray-5" />
 					</div>
 					<div class="bg-surface-gray-2 h-px m-1 w-1/2"></div>
 				</div>
@@ -160,18 +162,6 @@ import {
 import { inject, ref, computed, watch, nextTick } from 'vue'
 import { sessionStore } from '../stores/session'
 import JobApplicationModal from '@/components/Modals/JobApplicationModal.vue'
-import {
-	Check,
-	SendHorizonal,
-	Pencil,
-	CalendarDays,
-	SquareUserRound,
-	SquareArrowOutUpRight,
-	FileText,
-	ClipboardType,
-	BriefcaseBusiness,
-	Users,
-} from 'lucide-vue-next'
 
 const user = inject('$user')
 const dayjs = inject('$dayjs')

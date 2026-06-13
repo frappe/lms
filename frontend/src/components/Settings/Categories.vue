@@ -3,15 +3,15 @@
 		<template #header-actions>
 			<div
 				v-if="saving"
-				class="flex items-center gap-x-1 text-ink-amber-3 border border-outline-amber-1 bg-surface-amber-1 rounded-lg px-2 py-1"
+				class="flex items-center gap-x-1 text-ink-amber-6 border border-outline-amber-1 bg-surface-amber-1 rounded-lg px-2 py-1"
 			>
 				<LoadingIndicator class="size-2" />
 				<span class="text-xs">{{ __('saving...') }}</span>
 			</div>
 			<Button variant="solid" @click="() => showCategoryForm()">
 				<template #prefix>
-					<Plus v-if="!showForm" class="h-4 w-4 stroke-1.5" />
-					<X v-else class="h-4 w-4 stroke-1.5" />
+					<span v-if="!showForm" class="lucide-plus h-4 w-4" />
+					<span v-else class="lucide-x h-4 w-4" />
 				</template>
 				{{ showForm ? __('Close') : __('New') }}
 			</Button>
@@ -34,7 +34,7 @@
 			</div>
 		</template>
 
-		<div class="divide-y divide-outline-gray-modals space-y-2">
+		<div class="divide-y divide-outline-elevation-2 space-y-2">
 			<div
 				v-if="categories.data?.length"
 				v-for="(cat, index) in categories.data"
@@ -55,7 +55,7 @@
 						@click="deleteCategory(cat.name)"
 					>
 						<template #icon>
-							<Trash2 class="size-4 stroke-1.5 text-ink-red-4" />
+							<span class="lucide-trash-2 size-4 text-ink-red-8" />
 						</template>
 					</Button>
 				</div>
@@ -72,7 +72,7 @@
 				v-else
 				name="Categories"
 				:description="__('Add one to get started.')"
-				:icon="Network"
+				icon="lucide-network"
 			/>
 		</div>
 	</SettingsLayout>
@@ -86,7 +86,6 @@ import {
 	createResource,
 	toast,
 } from 'frappe-ui'
-import { Plus, Trash2, X, Network } from 'lucide-vue-next'
 import { ref } from 'vue'
 import { cleanError } from '@/utils'
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'

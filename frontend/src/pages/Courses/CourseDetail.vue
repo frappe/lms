@@ -53,7 +53,7 @@
 						<Tooltip v-if="courseEditorRef?.canGoZen" :text="__('Zen Mode')">
 							<Button @click="courseEditorRef?.previewZen()">
 								<template #icon>
-									<Focus class="size-4 stroke-2" />
+									<span class="lucide-focus size-4" />
 								</template>
 							</Button>
 						</Tooltip>
@@ -62,7 +62,7 @@
 							@click="courseEditorRef?.previewPrev()"
 						>
 							<template #prefix>
-								<ChevronLeft class="size-4 stroke-1.5" />
+								<span class="lucide-chevron-left size-4" />
 							</template>
 							{{ __('Previous') }}
 						</Button>
@@ -71,7 +71,7 @@
 							@click="courseEditorRef?.previewNext()"
 						>
 							<template #suffix>
-								<ChevronRight class="size-4 stroke-1.5" />
+								<span class="lucide-chevron-right size-4" />
 							</template>
 							{{ __('Next') }}
 						</Button>
@@ -81,8 +81,8 @@
 						@click="editorMode = editorMode === 'preview' ? 'edit' : 'preview'"
 					>
 						<template #prefix>
-							<X v-if="editorMode === 'preview'" class="size-4 stroke-1.5" />
-							<Eye v-else class="size-4 stroke-1.5" />
+							<span v-if="editorMode === 'preview'" class="lucide-x size-4" />
+							<span v-else class="lucide-eye size-4" />
 						</template>
 						{{ editorMode === 'preview' ? __('Close preview') : __('Preview') }}
 					</Button>
@@ -128,14 +128,14 @@
 			>
 				<div class="w-[70%]" />
 				<div
-					class="pointer-events-auto flex w-[30%] items-center justify-between gap-x-2 border-s border-b bg-surface-white p-1 px-5"
+					class="pointer-events-auto flex w-[30%] items-center justify-between gap-x-2 border-s border-b bg-surface-base p-1 px-5"
 				>
-					<div class="py-2.5 font-medium text-base text-ink-gray-9">
+					<div class="py-2.5 text-base-medium text-ink-gray-9">
 						{{ __('Chapters') }}
 					</div>
 					<Button size="sm" @click="courseEditorRef?.openAddChapter()">
 						<template #prefix>
-							<Plus class="size-4 stroke-1.5" />
+							<span class="lucide-plus size-4" />
 						</template>
 						{{ __('Add') }}
 					</Button>
@@ -160,18 +160,6 @@ import {
 	toast,
 	usePageMeta,
 } from 'frappe-ui'
-import {
-	BookOpen,
-	ChevronLeft,
-	ChevronRight,
-	Eye,
-	Focus,
-	List,
-	Plus,
-	Settings2,
-	TrendingUp,
-	X,
-} from 'lucide-vue-next'
 import { sessionStore } from '@/stores/session'
 import LayoutHeader from '@/components/Layouts/LayoutHeader.vue'
 import CourseOverview from '@/pages/Courses/CourseOverview.vue'
@@ -189,7 +177,7 @@ type Brand = { name?: string; logo?: string; favicon?: string }
 interface TabDef {
 	label: string
 	component: ReturnType<typeof markRaw>
-	icon: Component
+	icon: string
 }
 
 const { brand } = sessionStore() as { brand: Brand }
@@ -312,22 +300,22 @@ const tabs = ref<TabDef[]>([
 	{
 		label: __('Overview'),
 		component: markRaw(CourseOverview),
-		icon: markRaw(List),
+		icon: 'lucide-list',
 	},
 	{
 		label: __('Dashboard'),
 		component: markRaw(CourseDashboard),
-		icon: markRaw(TrendingUp),
+		icon: 'lucide-trending-up',
 	},
 	{
 		label: __('Course editor'),
 		component: markRaw(CourseEditor),
-		icon: markRaw(BookOpen),
+		icon: 'lucide-book-open',
 	},
 	{
 		label: __('Settings'),
 		component: markRaw(CourseForm),
-		icon: markRaw(Settings2),
+		icon: 'lucide-settings-2',
 	},
 ])
 

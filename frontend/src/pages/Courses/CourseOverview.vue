@@ -6,7 +6,7 @@
 		>
 			<div class="md:w-2/3 space-y-10 min-w-0">
 				<section class="space-y-4">
-					<h1 class="text-3xl font-semibold text-ink-gray-9">
+					<h1 class="text-5xl-semibold text-ink-gray-9">
 						{{ course.data.title }}
 					</h1>
 					<div
@@ -14,7 +14,9 @@
 					>
 						<template v-if="Number(course.data.rating) > 0">
 							<div class="flex items-center gap-1">
-								<Star class="size-4 text-yellow-500 fill-yellow-500" />
+								<span
+									class="lucide-star size-4 text-yellow-500 fill-yellow-500"
+								/>
 								<span class="font-medium text-ink-gray-9">{{
 									formatRating(course.data.rating)
 								}}</span>
@@ -26,7 +28,7 @@
 						</template>
 						<template v-if="course.data.enrollments">
 							<div class="flex items-center gap-1.5">
-								<UsersRound class="size-4 stroke-1.5" />
+								<span class="lucide-users-round size-4" />
 								<span
 									>{{ formatAmount(course.data.enrollments) }}
 									{{ __('Students') }}</span
@@ -76,7 +78,7 @@
 
 				<section>
 					<div class="flex items-baseline justify-between gap-4 mb-4">
-						<h2 class="text-2xl font-semibold text-ink-gray-9">
+						<h2 class="text-4xl-semibold text-ink-gray-9">
 							{{ __('Course content') }}
 						</h2>
 						<div class="text-base text-ink-gray-5">
@@ -107,7 +109,7 @@
 				</section>
 
 				<section v-if="course.data.description" class="space-y-3">
-					<h2 class="text-2xl font-semibold text-ink-gray-9">
+					<h2 class="text-4xl-semibold text-ink-gray-9">
 						{{ __('About this course') }}
 					</h2>
 					<div
@@ -138,7 +140,6 @@
 <script setup lang="ts">
 import { computed, inject } from 'vue'
 import { createResource, Badge } from 'frappe-ui'
-import { Star, UsersRound } from 'lucide-vue-next'
 import { formatAmount, formatRating } from '@/utils/'
 import type { SessionUser } from '@/types/api'
 import CourseCardOverlay from '@/components/CourseCardOverlay.vue'
