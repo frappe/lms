@@ -6,7 +6,6 @@ from frappe import _
 from frappe.model.document import Document
 from frappe.utils import ceil
 
-
 class LMSEnrollment(Document):
 	def before_insert(self):
 		self.validate_duplicate_enrollment()
@@ -19,7 +18,10 @@ class LMSEnrollment(Document):
 			self.owner = self.member
 
 	def on_update(self):
+		from lms.lms.doctype.lms_course.lms_course import update_course_statistics
+
 		update_program_progress(self.member)
+		update_course_statistics()
 
 	def validate_duplicate_enrollment(self):
 		existing_enrollment = frappe.db.exists(
