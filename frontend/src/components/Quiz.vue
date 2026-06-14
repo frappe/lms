@@ -385,6 +385,12 @@
 					selectable: false,
 					showTooltip: false,
 					emptyState: { title: __('No Quiz submissions found') },
+					onRowClick: (row) => {
+						router.push({
+							name: 'QuizSubmission',
+							params: { submission: row.name },
+						})
+					},
 				}"
 			>
 			</ListView>
@@ -450,6 +456,7 @@ import {
 	FormControl,
 	toast,
 } from 'frappe-ui'
+import { useRouter } from 'vue-router'
 import {
 	computed,
 	inject,
@@ -463,6 +470,7 @@ import { timeAgo } from '@/utils'
 import ProgressBar from '@/components/ProgressBar.vue'
 
 const user = inject('$user')
+const router = useRouter()
 const activeQuestion = ref(0)
 const currentQuestion = ref('')
 const selectedOptions = ref([0, 0, 0, 0])
