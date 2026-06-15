@@ -64,7 +64,7 @@
 <script setup lang="ts">
 import type { ApplicableItem, Coupon, Coupons } from './types'
 import { ref, watch } from 'vue'
-import { Button, createListResource } from 'frappe-ui'
+import { Button, call, createListResource } from 'frappe-ui'
 import { Plus, X } from 'lucide-vue-next'
 import Link from '@/components/Controls/Link.vue'
 import Select from '@/components/Controls/Select.vue'
@@ -123,7 +123,27 @@ watch(
 	{ immediate: true }
 )
 
-const saveItems = (parent = null) => {
+const saveItems = async (parentName: string | null = null) => {
+	const name = parentName || props.data?.name
+	const newRows = rows.value.filter((row) => !row.name && row.reference_name)
+
+	if (name && newRows.length > 0) {
+		for (const row of newRows) {
+			await call('frappe.client.insert', {
+				doc: {
+					doctype: 'LMS Coupon Item',
+					reference_doctype: row.reference_doctype,
+					reference_name: row.reference_name,
+					parent: name,
+					parenttype: 'LMS Coupon',
+					parentfield: 'applicable_items',
+				},
+			})
+		}
+		applicableItems.reload()
+		props.coupons.reload()
+	}
+
 	return rows.value
 }
 

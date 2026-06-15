@@ -114,10 +114,15 @@ const editCoupon = () => {
 			...props.data,
 		},
 		{
-			onSuccess(data: Coupon) {
+			async onSuccess(data: Coupon) {
 				if (couponItems.value) {
-					couponItems.value.saveItems()
+					await couponItems.value.saveItems()
 				}
+				toast.success(__('Coupon updated successfully'))
+			},
+			onError(err: any) {
+				toast.error(err.messages?.[0] || err.message || err)
+				console.error(err)
 			},
 		}
 	)
