@@ -78,7 +78,7 @@
 <script setup lang="ts">
 import { Combobox, Button, FormControl, createResource } from 'frappe-ui'
 import { useDebounceFn, watchDebounced } from '@vueuse/core'
-import { useAttrs, computed, ref } from 'vue'
+import { useAttrs, computed, ref, watch } from 'vue'
 import { useSettings } from '@/stores/settings'
 import type { Resource } from '@/types/api'
 
@@ -127,26 +127,67 @@ const value = computed<string>(() =>
 	valuePropPassed.value ? (attrs.value as string) : props.modelValue
 )
 
+const searchTransform = (data: LinkOption[]): LinkOption[] =>
+	data.map((o) => {
+		const label = o.label || o.value
+		// Drop the description when it just repeats the label.
+		const hasDescription = o.description && o.description !== label
+		return hasDescription
+			? { label, value: o.value, description: o.description }
+			: { label, value: o.value }
+	})
+
 const options = createResource({
 	url: 'frappe.desk.search.search_link',
 	method: 'POST',
 	auto: false,
-	transform: (data: LinkOption[]) =>
-		data.map((o) => {
-			const label = o.label || o.value
-			// Drop the description when it just repeats the label.
-			const hasDescription = o.description && o.description !== label
-			return hasDescription
-				? { label, value: o.value, description: o.description }
-				: { label, value: o.value }
-		}),
+	transform: searchTransform,
 }) as Resource<LinkOption[] | null>
+
+// A preselected value arrives as a raw docname. Resolve its title (the link's
+// label) so the control shows e.g. the course title instead of "abce1234".
+const currentLabel = ref<string>('')
+let resolvedFor = ''
+
+const titleResource = createResource({
+	url: 'frappe.desk.search.search_link',
+	method: 'POST',
+	auto: false,
+	transform: searchTransform,
+	onSuccess(data: LinkOption[]) {
+		const match = (data || []).find((o) => o.value === resolvedFor)
+		if (match) currentLabel.value = match.label
+	},
+}) as Resource<LinkOption[] | null>
+
+watch(
+	value,
+	(v) => {
+		if (!v) {
+			currentLabel.value = ''
+			resolvedFor = ''
+			return
+		}
+		// Skip if the value is already known (just picked, or already resolved).
+		if (v === resolvedFor || options.data?.some((o) => o.value === v)) return
+		resolvedFor = v
+		titleResource.update({
+			params: {
+				txt: v,
+				doctype: props.doctype,
+				filters: JSON.stringify(props.filters),
+			},
+		})
+		titleResource.reload()
+	},
+	{ immediate: true }
+)
 
 const resolvedOptions = computed<LinkOption[]>(() => {
 	const list = options.data || []
 	const current = value.value
 	if (current && !list.some((o) => o.value === current)) {
-		return [{ label: current, value: current }, ...list]
+		return [{ label: currentLabel.value || current, value: current }, ...list]
 	}
 	return list
 })

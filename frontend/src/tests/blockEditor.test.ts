@@ -1,0 +1,79 @@
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { mount, VueWrapper } from '@vue/test-utils'
+import Paragraph from '@editorjs/paragraph'
+import BlockEditor from '@/components/BlockEditor.vue'
+
+vi.mock('@/utils', () => ({
+	getEditorTools: () => ({ paragraph: Paragraph }),
+	enablePlyr: () => {},
+}))
+
+declare global {
+	interface Window {
+		__: (text: string) => string
+	}
+}
+window.__ = (text: string) => text
+window.matchMedia ??= (() => ({
+	matches: false,
+	addEventListener: () => {},
+	removeEventListener: () => {},
+})) as unknown as typeof window.matchMedia
+
+type BlockEditorApi = {
+	isReady: () => Promise<void>
+	render: (data: object) => Promise<void>
+	save: () => Promise<{ blocks: { data: { text: string } }[] }>
+	focus: (atEnd?: boolean) => void
+}
+
+const TWO_BLOCKS = {
+	blocks: [
+		{ type: 'paragraph', data: { text: 'first' } },
+		{ type: 'paragraph', data: { text: 'second' } },
+	],
+}
+
+describe('BlockEditor', () => {
+	let wrapper: VueWrapper
+	let editorApi: BlockEditorApi
+
+	beforeEach(async () => {
+		wrapper = mount(BlockEditor, { attachTo: document.body })
+		editorApi = wrapper.vm as unknown as BlockEditorApi
+		await editorApi.isReady()
+		await editorApi.render(TWO_BLOCKS)
+		await new Promise((r) => setTimeout(r, 50))
+	})
+
+	afterEach(() => {
+		wrapper.unmount()
+		document.body.innerHTML = ''
+	})
+
+	it('renders the native EditorJS toolbar (+ add and the ⋮⋮ settings menu)', () => {
+		expect(document.querySelector('.ce-toolbar__plus')).not.toBeNull()
+		expect(
+			document.querySelector('.ce-toolbar__settings-btn')
+		).not.toBeNull()
+	})
+
+	it('does not inject the old custom Notion-style handle or menu', () => {
+		expect(document.querySelector('.bn-drag-handle')).toBeNull()
+		expect(document.querySelector('.bn-block-menu')).toBeNull()
+	})
+
+	it('makes the native settings button draggable (editorjs-drag-drop)', () => {
+		const settings = document.querySelector('.ce-toolbar__settings-btn')
+		expect(settings?.getAttribute('draggable')).toBe('true')
+	})
+
+	it('round-trips block content through render() and save()', async () => {
+		const out = await editorApi.save()
+		expect(out.blocks.map((b) => b.data.text)).toEqual(['first', 'second'])
+	})
+
+	it('exposes a focus() method that places the caret without throwing', () => {
+		expect(() => editorApi.focus()).not.toThrow()
+	})
+})

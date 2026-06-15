@@ -19,7 +19,8 @@
 				</thead>
 				<tbody>
 					<tr
-						v-for="row in rows"
+						v-for="(row, index) in items"
+						:key="row.name ?? index"
 						class="bg-surface-white border-b border-outline-gray-2 last:border-b-0"
 					>
 						<td class="px-6 py-2">
@@ -43,7 +44,7 @@
 							<Button
 								variant="ghost"
 								:aria-label="__('Remove row')"
-								@click="removeRow(row)"
+								@click="removeRow(index)"
 							>
 								<template #icon>
 									<span class="lucide-x size-4" />
@@ -66,83 +67,26 @@
 	</div>
 </template>
 <script setup lang="ts">
-import type { ApplicableItem, Coupon, Coupons } from './types'
-import { ref, watch } from 'vue'
-import { Button, createListResource } from 'frappe-ui'
+import type { ApplicableItem } from './types'
+import { Button } from 'frappe-ui'
 import Link from '@/components/Controls/Link.vue'
 import Select from '@/components/Controls/Select.vue'
 
-const rows = ref<
-	{
-		reference_doctype: string
-		reference_name: string | null
-		name: string | null
-	}[]
->([])
-
+// Controlled child-table editor: we mutate the parent doc's `applicable_items`
+// array in place. The parent persists the whole doc in a single save, so Frappe
+// diffs the rows (insert/update/delete) server-side — no per-row API calls here.
 const props = defineProps<{
-	data: Coupon
-	coupons: Coupons
+	items: ApplicableItem[]
 }>()
 
-const applicableItems = createListResource({
-	doctype: 'LMS Coupon Item',
-	fields: [
-		'reference_doctype',
-		'reference_name',
-		'name',
-		'parent',
-		'parenttype',
-		'parentfield',
-	],
-	parent: 'LMS Coupon',
-	onSuccess(data: ApplicableItem[]) {
-		rows.value = data
-	},
-})
-
 const addRow = () => {
-	rows.value.push({
+	props.items.push({
 		reference_doctype: 'LMS Course',
 		reference_name: null,
-		name: null,
-	})
+	} as unknown as ApplicableItem)
 }
 
-watch(
-	() => props.data,
-	() => {
-		if (props.data?.name) {
-			applicableItems.update({
-				filters: {
-					parent: props.data.name,
-				},
-			})
-			applicableItems.reload()
-		} else {
-			addRow()
-		}
-	},
-	{ immediate: true }
-)
-
-const saveItems = (parent = null) => {
-	return rows.value
+const removeRow = (index: number) => {
+	props.items.splice(index, 1)
 }
-
-const removeRow = (rowToRemove: any) => {
-	rows.value = rows.value.filter((row) => row !== rowToRemove)
-	if (rowToRemove.name) {
-		applicableItems.delete.submit(rowToRemove.name, {
-			onSuccess() {
-				props.coupons.reload()
-				applicableItems.reload()
-			},
-		})
-	}
-}
-
-defineExpose({
-	saveItems,
-})
 </script>

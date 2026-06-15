@@ -84,7 +84,7 @@ import Switch from '@/components/Controls/Switch.vue'
 import { reactive, watch, inject } from 'vue'
 import { getFileSize } from '@/utils/'
 import { useOnboarding, useTelemetry } from 'frappe-ui/frappe'
-import type { ChapterDetailInput, Resource, SessionUser } from '@/types/api'
+import type { ChapterDetailInput, SessionUser } from '@/types/api'
 
 type ScormPackage = { file_name: string; file_size: number } | null
 
@@ -95,7 +95,7 @@ interface ChapterForm {
 }
 
 const show = defineModel<boolean>()
-const outline = defineModel<Resource<unknown> | undefined>('outline')
+const emit = defineEmits<{ created: []; updated: [] }>()
 const user = inject<SessionUser>('$user')!
 const { capture } = useTelemetry()
 const { updateOnboardingStep } = useOnboarding('learning')
@@ -140,7 +140,7 @@ const addChapter = async (close: () => void) => {
 
 				capture('chapter_created')
 				cleanChapter()
-				outline.value?.reload()
+				emit('created')
 				toast.success(__('Chapter added successfully'))
 				close()
 			},
@@ -177,7 +177,7 @@ const editChapter = (close: () => void) => {
 				}
 			},
 			onSuccess() {
-				outline.value?.reload()
+				emit('updated')
 				toast.success(__('Chapter updated successfully'))
 				close()
 			},

@@ -32,24 +32,9 @@
 					</Tooltip>
 				</template>
 				<template v-if="tabIndex === 2 && editorSelected">
-					<template v-if="editorMode === 'edit'">
-						<Badge v-if="courseEditorRef?.isDirty" theme="orange">
-							{{ __('Not Saved') }}
-						</Badge>
-						<Tooltip
-							:text="courseEditorRef?.isDirty ? '' : __('No changes to save')"
-							:hoverDelay="0.1"
-						>
-							<Button
-								variant="solid"
-								:disabled="!courseEditorRef?.isDirty"
-								@click="courseEditorRef?.saveSelectedLesson()"
-							>
-								{{ __('Save') }}
-							</Button>
-						</Tooltip>
-					</template>
-					<template v-else-if="editorMode === 'preview'">
+					<!-- Edit mode autosaves continuously, so there is no Save
+					     button or dirty badge here. -->
+					<template v-if="editorMode === 'preview'">
 						<Tooltip v-if="courseEditorRef?.canGoZen" :text="__('Zen Mode')">
 							<Button @click="courseEditorRef?.previewZen()">
 								<template #icon>
