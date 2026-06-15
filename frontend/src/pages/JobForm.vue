@@ -1,7 +1,7 @@
 <template>
 	<div class="">
 		<header
-			class="sticky top-0 z-10 flex items-center justify-between border-b bg-surface-white px-3 py-2.5 sm:px-5"
+			class="sticky top-0 z-10 flex items-center justify-between border-b bg-surface-base px-3 py-2.5 sm:px-5"
 		>
 			<Breadcrumbs :items="breadcrumbs" />
 			<div class="flex items-center gap-x-2">
@@ -43,14 +43,14 @@
 					<div>
 						<label class="block text-ink-gray-5 text-xs mb-1">
 							{{ __('Description') }}
-							<span class="text-ink-red-3">*</span>
+							<span class="text-ink-red-6">*</span>
 						</label>
 						<TextEditor
 							:content="job.description"
 							@change="(val) => (job.description = val)"
 							:editable="true"
 							:fixedMenu="true"
-							editorClass="prose-sm max-w-none border-b border-x border-outline-gray-modals bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[20rem] max-h-[70vh] overflow-y-auto mb-4"
+							editorClass="prose-sm max-w-none border-b border-x border-outline-elevation-2 bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[20rem] max-h-[70vh] overflow-y-auto mb-4"
 						/>
 					</div>
 				</div>

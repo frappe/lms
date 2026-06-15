@@ -6,7 +6,7 @@
 		<template #right-header>
 			<Button v-if="!readOnlyMode" variant="solid" @click="showForm = true">
 				<template #prefix>
-					<Plus class="size-4 stroke-1.5" />
+					<span class="lucide-plus size-4" />
 				</template>
 				{{ __('Create') }}
 			</Button>
@@ -17,12 +17,12 @@
 		<div
 			class="mx-5 mb-5 flex flex-col justify-between gap-y-4 sm:flex-row sm:items-center"
 		>
-			<div class="text-lg font-semibold text-ink-gray-9">
+			<div class="text-xl-semibold text-ink-gray-9">
 				{{ __('{0} Quizzes').format(quizzes.data?.length) }}
 			</div>
 			<FormControl v-model="search" type="text" placeholder="Search">
 				<template #prefix>
-					<FeatherIcon name="search" class="size-4 text-ink-gray-5" />
+					<span class="lucide-search size-4 text-ink-gray-5" />
 				</template>
 			</FormControl>
 		</div>
@@ -34,9 +34,7 @@
 			:options="{ showTooltip: false, selectable: true }"
 			class="flex-1 overflow-y-auto px-5"
 		>
-			<ListHeader
-				class="mb-2 grid items-center rounded-none border-b bg-surface-white p-2"
-			>
+			<ListHeader class="mb-2 grid items-center rounded bg-surface-gray-2 p-2">
 				<ListHeaderItem :item="item" v-for="item in quizColumns">
 					<template #prefix="{ item }">
 						<FeatherIcon :name="item.icon?.toString()" class="h-4 w-4" />
@@ -80,7 +78,7 @@
 							variant="ghost"
 							@click="deleteQuiz(selections, unselectAll)"
 						>
-							<FeatherIcon name="trash-2" class="h-4 w-4 stroke-1.5" />
+							<span class="lucide-trash-2 size-4" />
 						</Button>
 					</div>
 				</template>
@@ -115,22 +113,20 @@
 		</ListFooter>
 	</div>
 	<Dialog
-		v-model="showForm"
-		:options="{
-			title: __('Create a Quiz'),
-			size: 'sm',
-			actions: [
-				{
-					label: __('Save'),
-					variant: 'solid',
-					onClick({ close }) {
-						insertQuiz(close)
-					},
+		v-model:open="showForm"
+		:title="__('Create a Quiz')"
+		size="sm"
+		:actions="[
+			{
+				label: __('Save'),
+				variant: 'solid',
+				onClick({ close }) {
+					insertQuiz(close)
 				},
-			],
-		}"
+			},
+		]"
 	>
-		<template #body-content>
+		<template #default>
 			<FormControl
 				v-model="title"
 				:label="__('Title')"
@@ -164,7 +160,7 @@ import {
 } from 'frappe-ui'
 import { useRouter, useRoute } from 'vue-router'
 import { computed, inject, onMounted, ref, watch } from 'vue'
-import { Plus } from 'lucide-vue-next'
+
 import { sessionStore } from '@/stores/session'
 import { sanitizeHTML } from '@/utils'
 import { useTelemetry } from 'frappe-ui/frappe'

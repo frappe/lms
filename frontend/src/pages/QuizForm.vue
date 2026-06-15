@@ -1,6 +1,6 @@
 <template>
 	<header
-		class="sticky top-0 z-10 flex items-center justify-between border-b bg-surface-white px-3 py-2.5 sm:px-5"
+		class="sticky top-0 z-10 flex items-center justify-between border-b bg-surface-base px-3 py-2.5 sm:px-5"
 	>
 		<Breadcrumbs :items="breadcrumbs" />
 		<div v-if="!readOnlyMode" class="flex items-center gap-x-2">
@@ -18,7 +18,7 @@
 			>
 				<Button>
 					<template #prefix>
-						<ListChecks class="size-4 stroke-1.5" />
+						<span class="lucide-list-checks size-4" />
 					</template>
 					{{ __('Test Quiz') }}
 				</Button>
@@ -34,7 +34,7 @@
 			>
 				<Button>
 					<template #prefix>
-						<ClipboardList class="size-4 stroke-1.5" />
+						<span class="lucide-clipboard-list size-4" />
 					</template>
 					{{ __('Check Submissions') }}
 				</Button>
@@ -46,7 +46,7 @@
 	</header>
 	<div v-if="quizDetails.doc" class="py-5">
 		<div class="px-20 pb-5 space-y-5 border-b mb-5">
-			<div class="text-lg text-ink-gray-9 font-semibold mb-4">
+			<div class="text-xl-semibold text-ink-gray-9 mb-4">
 				{{ __('Details') }}
 			</div>
 			<div class="grid grid-cols-2 gap-5">
@@ -82,7 +82,7 @@
 			</div>
 		</div>
 		<div class="px-20 pb-5 space-y-5 border-b mb-5">
-			<div class="text-lg text-ink-gray-9 font-semibold mb-4">
+			<div class="text-xl-semibold text-ink-gray-9 mb-4">
 				{{ __('Settings') }}
 			</div>
 			<div class="grid grid-cols-3 gap-5">
@@ -135,12 +135,12 @@
 
 		<div class="px-20 pb-5 space-y-5 mb-5">
 			<div class="flex items-center justify-between mb-4">
-				<div class="text-lg font-semibold text-ink-gray-9">
+				<div class="text-xl-semibold text-ink-gray-9">
 					{{ __('Questions') }}
 				</div>
 				<Button v-if="!readOnlyMode" @click="openQuestionModal()">
 					<template #prefix>
-						<Plus class="w-4 h-4" />
+						<span class="lucide-plus size-4" />
 					</template>
 					{{ __('New Question') }}
 				</Button>
@@ -186,7 +186,7 @@
 								variant="ghost"
 								@click="deleteQuestions(selections, unselectAll)"
 							>
-								<Trash2 class="h-4 w-4 stroke-1.5" />
+								<span class="lucide-trash-2 size-4" />
 							</Button>
 						</div>
 					</template>
@@ -233,7 +233,7 @@ import {
 	onBeforeUnmount,
 } from 'vue'
 import { sessionStore } from '../stores/session'
-import { ClipboardList, ListChecks, Plus, Trash2 } from 'lucide-vue-next'
+
 import { useRouter } from 'vue-router'
 import { sanitizeHTML } from '@/utils'
 import Question from '@/components/Modals/Question.vue'

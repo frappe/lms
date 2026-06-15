@@ -49,7 +49,7 @@
 				</div>
 			</div>
 			<div
-				class="flex items-center gap-x-2 py-2 px-1 text-ink-white bg-gradient-to-b from-transparent to-black/75 absolute bottom-0 start-0 end-0 mx-auto rounded-md"
+				class="flex items-center gap-x-2 py-2 px-1 text-ink-base bg-gradient-to-b from-transparent to-black/75 absolute bottom-0 start-0 end-0 mx-auto rounded-md"
 				:class="{
 					'invisible group-hover:visible': playing,
 				}"
@@ -61,7 +61,11 @@
 							@click="playVideo"
 							class="size-4 text-ink-gray-9"
 						/>
-						<Pause v-else @click="pauseVideo" class="size-5 text-ink-white" />
+						<span
+							class="lucide-pause size-5 text-ink-base"
+							v-else
+							@click="pauseVideo"
+						/>
 					</template>
 				</Button>
 
@@ -86,7 +90,7 @@
 					</div>
 				</div>
 
-				<span class="text-sm font-medium">
+				<span class="text-sm-medium">
 					{{ formatSeconds(currentTime) }} / {{ formatSeconds(duration) }}
 				</span>
 
@@ -100,8 +104,8 @@
 					class="hover:bg-transparent"
 				>
 					<template #icon>
-						<Volume2 v-if="!muted" class="size-5 text-ink-white" />
-						<VolumeX v-else class="size-5 text-ink-white" />
+						<span class="lucide-volume-2 size-5 text-ink-base" v-if="!muted" />
+						<span class="lucide-volume-x size-5 text-ink-base" v-else />
 					</template>
 				</Button>
 				<Button
@@ -110,7 +114,7 @@
 					class="hover:bg-transparent"
 				>
 					<template #icon>
-						<Maximize class="size-5 text-ink-white" />
+						<span class="lucide-maximize size-5 text-ink-base" />
 					</template>
 				</Button>
 			</div>
@@ -133,12 +137,7 @@
 		:saveQuizzes="saveQuizzes"
 		:duration="duration"
 	/>
-	<Dialog
-		v-model="showQuizLoader"
-		:options="{
-			size: 'sm',
-		}"
-	>
+	<Dialog v-model:open="showQuizLoader" size="sm">
 		<template #body>
 			<div class="flex flex-col space-y-2 p-5 text-base leading-5">
 				<span class="font-semibold">
@@ -157,7 +156,6 @@
 </template>
 <script setup>
 import { ref, onMounted, computed, watch, onBeforeUnmount } from 'vue'
-import { Pause, Maximize, Volume2, VolumeX } from 'lucide-vue-next'
 import { Button, Dialog, Dropdown } from 'frappe-ui'
 import { formatSeconds, formatTimestamp } from '@/utils'
 import { useSettings } from '@/stores/settings'

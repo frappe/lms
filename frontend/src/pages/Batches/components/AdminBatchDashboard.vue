@@ -27,7 +27,7 @@
 		<div class="grid grid-cols-1 lg:grid-cols-[3fr_2fr] gap-5 items-start">
 			<div class="border rounded-lg py-3 px-4 order-2 lg:order-1">
 				<div class="flex items-center justify-between gap-x-2 mb-3">
-					<div class="text-lg text-ink-gray-9 font-semibold">
+					<div class="text-xl-semibold text-ink-gray-9">
 						{{ __('Students') }}
 					</div>
 					<div class="flex items-center gap-x-2">
@@ -38,7 +38,7 @@
 						/>
 						<Button @click="showEnrollmentModal = true">
 							<template #prefix>
-								<Plus class="size-4 stroke-1.5" />
+								<span class="lucide-plus size-4" />
 							</template>
 							{{ __('Enroll') }}
 						</Button>
@@ -62,7 +62,7 @@
 						}"
 					>
 						<ListHeader
-							class="mb-2 grid items-center gap-x-4 rounded bg-surface-white border-b rounded-none p-2"
+							class="mb-2 grid items-center gap-x-4 rounded bg-surface-gray-2 p-2"
 						>
 							<ListHeaderItem
 								:item="item"
@@ -187,7 +187,6 @@ import {
 import { computed, inject, ref, watch } from 'vue'
 import type dayjsType from 'dayjs'
 import { formatAmount } from '@/utils'
-import { Plus } from 'lucide-vue-next'
 import BatchFeedback from '@/pages/Batches/components/BatchFeedback.vue'
 import BatchStudentProgress from '@/pages/Batches/components/BatchStudentProgress.vue'
 import NumberChartGraph from '@/components/NumberChartGraph.vue'

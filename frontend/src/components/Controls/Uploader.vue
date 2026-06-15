@@ -2,7 +2,7 @@
 	<div class="mb-4">
 		<div v-if="label" class="text-xs text-ink-gray-5 mb-2">
 			{{ __(label) }}
-			<span v-if="required" class="text-ink-red-3">*</span>
+			<span v-if="required" class="text-ink-red-6">*</span>
 		</div>
 		<FileUploader
 			:fileTypes="[fileType]"

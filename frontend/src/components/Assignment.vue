@@ -8,7 +8,7 @@
 			class="border-e p-5 overflow-y-auto h-[calc(100vh-3.2rem)]"
 			:class="{ 'h-full': !showTitle }"
 		>
-			<div v-if="showTitle" class="text-lg font-semibold mb-5 text-ink-gray-9">
+			<div v-if="showTitle" class="text-xl-semibold mb-5 text-ink-gray-9">
 				<div v-if="submissionName === 'new'">
 					{{ __('Submission by') }} {{ user.data?.full_name }}
 				</div>
@@ -57,7 +57,7 @@
 						!['Pass', 'Fail'].includes(submissionResource.doc?.status) &&
 						submissionResource.doc?.owner == user.data?.name
 					"
-					class="bg-surface-blue-2 text-ink-blue-2 p-3 rounded-md leading-5 text-sm"
+					class="bg-surface-blue-2 text-ink-blue-5 p-3 rounded-md leading-5 text-sm"
 				>
 					{{ __("You've successfully submitted the assignment.") }}
 					{{
@@ -107,17 +107,17 @@
 							>
 								<div class="flex items-center">
 									<div class="border rounded-md p-2 me-2">
-										<FileText class="h-5 w-5 stroke-1.5" />
+										<span class="lucide-file-text h-5 w-5" />
 									</div>
 									<span>
 										{{ attachment.split('/').pop() }}
 									</span>
 								</div>
 							</a>
-							<X
+							<span
 								v-if="canModifyAssignment"
 								@click="removeSubmission()"
-								class="bg-surface-gray-3 rounded-md cursor-pointer stroke-1.5 w-5 h-5 p-1 ms-4"
+								class="lucide-x bg-surface-gray-3 rounded-md cursor-pointer w-5 h-5 p-1 ms-4"
 							/>
 						</div>
 					</div>
@@ -145,7 +145,7 @@
 						:uploadArgs="{
 							private: true,
 						}"
-						editorClass="prose-sm max-w-none border-b border-x border-outline-gray-modals bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[7rem]"
+						editorClass="prose-sm max-w-none border-b border-x border-outline-elevation-2 bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[7rem]"
 					/>
 				</div>
 
@@ -194,7 +194,7 @@
 							:uploadArgs="{
 								private: true,
 							}"
-							editorClass="prose-sm max-w-none border-b border-x border-outline-gray-modals bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[7rem]"
+							editorClass="prose-sm max-w-none border-b border-x border-outline-elevation-2 bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[7rem]"
 						/>
 					</div>
 				</div>
@@ -215,7 +215,6 @@ import {
 	toast,
 } from 'frappe-ui'
 import { computed, inject, onMounted, onBeforeUnmount, ref, watch } from 'vue'
-import { FileText, X } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
 import { validateFile } from '@/utils'
 

@@ -29,13 +29,13 @@
 				<template v-slot="{ open }">
 					<Button variant="solid">
 						<template #prefix>
-							<Plus class="size-4 stroke-1.5" />
+							<span class="lucide-plus size-4" />
 						</template>
 						{{ __('Create') }}
 						<template #suffix>
-							<ChevronDown
+							<span
 								:class="[
-									'ms-1 size-4 transform stroke-1.5 transition-transform',
+									'lucide-chevron-down ms-1 size-4 transform transition-transform',
 									open ? 'rotate-180' : '',
 								]"
 							/>
@@ -49,7 +49,7 @@
 		<div
 			class="mb-5 flex flex-col justify-between space-y-4 lg:flex-row lg:items-center lg:space-y-0"
 		>
-			<div class="text-lg font-semibold text-ink-gray-9">
+			<div class="text-xl-semibold text-ink-gray-9">
 				{{ __('All Batches') }}
 			</div>
 			<div
@@ -130,7 +130,6 @@ import {
 import Select from '@/components/Controls/Select.vue'
 import { computed, inject, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { ChevronDown, Plus } from 'lucide-vue-next'
 import { sessionStore } from '@/stores/session'
 import BatchCard from '@/pages/Batches/components/BatchCard.vue'
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'

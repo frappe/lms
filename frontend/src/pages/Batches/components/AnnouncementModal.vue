@@ -1,19 +1,17 @@
 <template>
 	<Dialog
-		v-model="show"
-		:options="{
-			title: __('Make an Announcement'),
-			size: 'xl',
-			actions: [
-				{
-					label: 'Submit',
-					variant: 'solid',
-					onClick: (close) => makeAnnouncement(close),
-				},
-			],
-		}"
+		v-model:open="show"
+		title="Make an Announcement"
+		size="xl"
+		:actions="[
+			{
+				label: 'Submit',
+				variant: 'solid',
+				onClick: ({ close }) => makeAnnouncement(close),
+			},
+		]"
 	>
-		<template #body-content>
+		<template #default>
 			<div class="flex flex-col gap-4">
 				<FormControl
 					:label="__('Subject')"
@@ -30,7 +28,7 @@
 				<div class="mb-4">
 					<div class="mb-1.5 text-sm text-ink-gray-5">
 						{{ __('Announcement') }}
-						<span class="text-ink-red-3">*</span>
+						<span class="text-ink-red-6">*</span>
 					</div>
 					<TextEditor
 						:fixedMenu="true"

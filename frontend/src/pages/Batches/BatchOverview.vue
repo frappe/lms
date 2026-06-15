@@ -2,7 +2,7 @@
 	<div class="m-5 pb-10">
 		<div class="flex justify-between w-full">
 			<div class="md:w-2/3">
-				<div class="text-3xl font-semibold text-ink-gray-9">
+				<div class="text-5xl-semibold text-ink-gray-9">
 					{{ batch.data.title }}
 				</div>
 				<div class="my-3 leading-6 text-ink-gray-7">
@@ -34,7 +34,7 @@
 		</div>
 		<div v-if="courses.data?.length">
 			<div class="flex items-center mt-10">
-				<div class="text-2xl font-semibold text-ink-gray-9">
+				<div class="text-4xl-semibold text-ink-gray-9">
 					{{ __('Courses') }}
 				</div>
 			</div>

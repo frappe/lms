@@ -5,7 +5,7 @@
 		</template>
 	</LayoutHeader>
 	<div v-if="submissions.data?.length" class="md:w-3/4 md:mx-auto py-5 mx-5">
-		<div class="text-xl font-semibold mb-5 text-ink-gray-9">
+		<div class="text-3xl-semibold mb-5 text-ink-gray-9">
 			{{ submissions.data[0].quiz_title }}
 		</div>
 		<ListView

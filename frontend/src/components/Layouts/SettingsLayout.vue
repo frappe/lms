@@ -10,11 +10,11 @@
 						v-if="showBack"
 						variant="ghost"
 						:aria-label="__('Go back')"
-						:icon="ChevronLeft"
+						icon="lucide-chevron-left"
 						class="shrink-0"
 						@click="emit('back')"
 					/>
-					<h2 class="text-p-xl font-semibold text-ink-gray-9">
+					<h2 class="text-p-3xl-semibold text-ink-gray-9">
 						{{ title }}
 					</h2>
 					<slot name="title-badge" />
@@ -47,7 +47,6 @@
 
 <script setup lang="ts">
 import { Button } from 'frappe-ui'
-import { ChevronLeft } from 'lucide-vue-next'
 
 defineProps<{
 	title: string

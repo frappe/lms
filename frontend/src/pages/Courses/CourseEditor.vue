@@ -10,7 +10,7 @@
 					v-else-if="!selected"
 					class="flex flex-col items-center justify-center h-full text-ink-gray-5"
 				>
-					<BookOpen class="size-8 stroke-1.5" />
+					<span class="lucide-book-open size-8" />
 					<div>
 						{{ __('Select a lesson on the right to start editing.') }}
 					</div>
@@ -22,6 +22,7 @@
 					:courseName="props.course.data.name"
 					:chapterNumber="selected.chapterNumber"
 					:lessonNumber="selected.lessonNumber"
+					@saved="onLessonSaved"
 				/>
 				<Lesson
 					v-else
@@ -69,10 +70,10 @@
 </template>
 
 <script setup>
-import { computed, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { createResource } from 'frappe-ui'
-import { BookOpen } from 'lucide-vue-next'
+import { useSidebar } from '@/stores/sidebar'
 import CourseOutline from '@/components/CourseOutline.vue'
 import StudentLessonSidebar from '@/components/StudentLessonSidebar.vue'
 import SkeletonLoader from '@/components/SkeletonLoader.vue'
@@ -87,6 +88,17 @@ const selected = defineModel('selected', { default: null })
 const mode = defineModel('mode', { default: 'edit' })
 const route = useRoute()
 const router = useRouter()
+
+// Collapse the app sidebar while the lesson editor is open to give the
+// editing surface room, then restore it on leaving the tab. Mirrors the
+// student-facing Lesson.vue pattern.
+const sidebarStore = useSidebar()
+onMounted(() => {
+	sidebarStore.isSidebarCollapsed = true
+})
+onBeforeUnmount(() => {
+	sidebarStore.isSidebarCollapsed = false
+})
 
 // Keep ?editLesson + ?lessonMode in sync with what's selected so a refresh,
 // tab-switch round-trip, or shared URL lands on the same lesson in the same
@@ -157,6 +169,25 @@ function setSelectedFromNumber(number) {
 	syncSelectedToUrl(number)
 }
 
+// Reflect an autosaved lesson title/preview-flag in the shared outline
+// resource. `outline` here is the same cached instance CourseOutline renders,
+// so mutating it in place updates the sidebar with no extra request. A brand
+// new lesson needs a reload to pull in its outline row.
+function onLessonSaved({ name, title, include_in_preview, isNew }) {
+	if (isNew) {
+		outline.reload()
+		return
+	}
+	for (const chapter of outline.data ?? []) {
+		const lesson = chapter.lessons?.find((l) => l.name === name)
+		if (lesson) {
+			lesson.title = title
+			lesson.include_in_preview = include_in_preview ? 1 : 0
+			break
+		}
+	}
+}
+
 function onSelectLesson({ chapterNumber, lessonNumber }) {
 	const number = `${chapterNumber}-${lessonNumber}`
 	selected.value = { chapterNumber, lessonNumber, number, title: '' }
@@ -210,6 +241,29 @@ function pickInitialLesson() {
 }
 
 watch(() => outline.data, pickInitialLesson, { immediate: true })
+
+// When the selected lesson disappears from the outline (e.g. it was just
+// deleted), drop back to the empty "choose a lesson" state instead of
+// editing a lesson that no longer exists.
+watch(
+	() => outline.data,
+	(chapters) => {
+		if (
+			selected.value?.number &&
+			chapters &&
+			!lessonExists(chapters, selected.value.number)
+		) {
+			selected.value = null
+			if (route.query.editLesson) {
+				const { editLesson, ...rest } = route.query
+				router.replace({
+					query: rest,
+					hash: route.hash || '#course editor',
+				})
+			}
+		}
+	}
+)
 
 watch(
 	() => props.course?.data?.name,

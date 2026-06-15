@@ -7,6 +7,7 @@
 					'rtl:rotate-180': !open,
 					hidden: chapter.is_scorm_package,
 					open: index == 1,
+					'self-start mt-0.5': inlineSelect,
 				}"
 				class="lucide-chevron-right size-4 text-ink-gray-9 stroke-1 transform duration-200"
 			/>
@@ -16,7 +17,7 @@
 				@click="redirectToChapter"
 			>
 				<div
-					class="truncate text-base font-medium leading-5 text-ink-gray-9"
+					class="truncate text-base-medium leading-5 text-ink-gray-9"
 					:title="chapter.title"
 				>
 					{{ chapter.title }}
@@ -42,7 +43,7 @@
 					<span
 						v-if="allowEdit"
 						@click.prevent="emit('delete-chapter', chapter.name)"
-						class="lucide-trash-2 size-4 text-ink-red-3 invisible group-hover:visible"
+						class="lucide-trash-2 size-4 text-ink-red-6 invisible group-hover:visible"
 					/>
 				</Tooltip>
 			</div>
@@ -72,47 +73,41 @@
 							@click="onLessonClick(lesson)"
 						>
 							<div class="flex items-center text-sm leading-5 group">
-								<MonitorPlay
+								<span
 									v-if="lesson.icon === 'icon-youtube'"
-									class="h-4 w-4 stroke-1 me-2"
+									class="lucide-monitor-play h-4 w-4 me-2"
 								/>
-								<HelpCircle
+								<span
 									v-else-if="lesson.icon === 'icon-quiz'"
-									class="h-4 w-4 stroke-1 me-2"
+									class="lucide-help-circle h-4 w-4 me-2"
 								/>
-								<NotebookPen
+								<span
 									v-else-if="lesson.icon === 'icon-assignment'"
-									class="h-4 w-4 stroke-1 me-2"
+									class="lucide-notebook-pen h-4 w-4 me-2"
 								/>
-								<SquareCode
+								<span
 									v-else-if="lesson.icon === 'icon-code'"
-									class="h-4 w-4 stroke-1 me-2"
+									class="lucide-square-code h-4 w-4 me-2"
 								/>
-								<FileText
+								<span
 									v-else-if="lesson.icon === 'icon-list'"
-									class="h-4 w-4 text-ink-gray-9 stroke-1 me-2"
+									class="lucide-file-text h-4 w-4 text-ink-gray-9 me-2"
 								/>
 								{{ lesson.title }}
 								<div v-if="allowEdit" class="ms-auto flex items-center gap-2">
-									<Tooltip :text="__('Edit lesson')" placement="bottom">
-										<FilePenLine
-											@click.prevent="emit('edit-lesson', { chapter, lesson })"
-											class="h-4 w-4 text-ink-gray-9 invisible group-hover:visible"
-										/>
-									</Tooltip>
-									<Trash2
+									<span
 										@click.prevent="
 											emit('delete-lesson', {
 												lesson: lesson.name,
 												chapter: chapter.name,
 											})
 										"
-										class="h-4 w-4 text-ink-red-3 invisible group-hover:visible"
+										class="lucide-trash-2 h-4 w-4 text-ink-red-6 invisible group-hover:visible"
 									/>
 								</div>
-								<Check
+								<span
 									v-if="lesson.is_complete"
-									class="h-4 w-4 text-green-700 ms-2"
+									class="lucide-check h-4 w-4 text-green-700 ms-2"
 								/>
 							</div>
 						</component>
@@ -133,16 +128,6 @@ import { Button, Tooltip, toast } from 'frappe-ui'
 import { computed, inject } from 'vue'
 import Draggable from 'vuedraggable'
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
-import {
-	Check,
-	FilePenLine,
-	FileText,
-	HelpCircle,
-	MonitorPlay,
-	NotebookPen,
-	SquareCode,
-	Trash2,
-} from 'lucide-vue-next'
 import { useRoute, useRouter } from 'vue-router'
 import type { RouteLocationRaw } from 'vue-router'
 import type { OutlineChapter, OutlineLesson, SessionUser } from '@/types/api'
@@ -179,7 +164,6 @@ const emit = defineEmits<{
 	'delete-lesson': [{ lesson: string; chapter: string }]
 	'move-lesson': [DraggableEvent]
 	'add-lesson': [{ chapter: OutlineChapter; lessonIdx: number }]
-	'edit-lesson': [{ chapter: OutlineChapter; lesson: OutlineLesson }]
 }>()
 
 const route = useRoute()

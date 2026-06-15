@@ -1,21 +1,19 @@
 <template>
 	<Dialog
-		v-model="show"
-		:options="{
-			title: __('Add a programming exercise to your lesson'),
-			size: 'xl',
-			actions: [
-				{
-					label: __('Save'),
-					variant: 'solid',
-					onClick: () => {
-						saveExercise()
-					},
+		v-model:open="show"
+		:title="__('Add a programming exercise to your lesson')"
+		size="xl"
+		:actions="[
+			{
+				label: __('Save'),
+				variant: 'solid',
+				onClick: () => {
+					saveExercise()
 				},
-			],
-		}"
+			},
+		]"
 	>
-		<template #body-content>
+		<template #default>
 			<div class="text-base">
 				<Link
 					v-model="exercise"

@@ -3,7 +3,7 @@
 		<template #header-actions>
 			<Button variant="solid" @click="openForm()">
 				<template #prefix>
-					<Plus class="h-4 w-4 stroke-1.5" />
+					<span class="lucide-plus h-4 w-4" />
 				</template>
 				{{ __('New') }}
 			</Button>
@@ -63,7 +63,7 @@
 							variant="ghost"
 							@click="confirmDeletion(selections, unselectAll)"
 						>
-							<Trash2 class="h-4 w-4 stroke-1.5" />
+							<span class="lucide-trash-2 h-4 w-4" />
 						</Button>
 					</div>
 				</template>
@@ -73,7 +73,7 @@
 			v-else
 			name="Coupons"
 			:description="__('Add one to get started.')"
-			:icon="Ticket"
+			icon="lucide-ticket"
 		/>
 	</SettingsLayout>
 </template>
@@ -83,7 +83,6 @@ import {
 	Button,
 	call,
 	createListResource,
-	FeatherIcon,
 	ListView,
 	ListHeader,
 	ListHeaderItem,
@@ -94,7 +93,6 @@ import {
 	toast,
 } from 'frappe-ui'
 import { computed, getCurrentInstance, inject, ref } from 'vue'
-import { Plus, Trash2, Ticket } from 'lucide-vue-next'
 import type { Coupon, Coupons } from './types'
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 import SettingsLayout from '@/components/Layouts/SettingsLayout.vue'

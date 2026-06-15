@@ -1,7 +1,7 @@
 <template>
 	<div class="space-y-5 text-ink-gray-9">
 		<div class="space-y-2">
-			<div class="flex items-center text-sm font-medium gap-x-2">
+			<div class="flex items-center text-sm-medium gap-x-2">
 				<span>
 					{{ __('What are Instructor Notes?') }}
 				</span>
@@ -17,13 +17,13 @@
 
 		<div class="space-y-2" v-for="(item, key) in contentMap" :key="key">
 			<div
-				class="flex items-center text-sm font-medium gap-x-2 cursor-pointer"
+				class="flex items-center text-sm-medium gap-x-2 cursor-pointer"
 				@click="openHelpDialog(key)"
 			>
 				<span>
 					{{ __(item.title) }}
 				</span>
-				<Info class="w-3 h-3 text-ink-gray-7" />
+				<span class="lucide-info w-3 h-3 text-ink-gray-7" />
 			</div>
 			<div class="text-xs text-ink-gray-5 mb-1 leading-5">
 				{{ __(item.description) }}
@@ -33,7 +33,6 @@
 	<ExplanationVideos v-model="showExplanation" :title="title" :type="type" />
 </template>
 <script setup>
-import { Info } from 'lucide-vue-next'
 import { ref } from 'vue'
 import ExplanationVideos from '@/components/Modals/ExplanationVideos.vue'
 

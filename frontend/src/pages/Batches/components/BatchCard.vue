@@ -3,7 +3,7 @@
 		class="flex flex-col border hover:border-outline-gray-3 rounded-md p-4 h-full"
 		style="min-height: 150px"
 	>
-		<div class="text-lg leading-5 font-semibold mb-2 text-ink-gray-9">
+		<div class="text-xl-semibold leading-5 mb-2 text-ink-gray-9">
 			{{ batch.title }}
 		</div>
 		<Badge
@@ -39,7 +39,7 @@
 				class="text-sm text-ink-gray-7"
 			/>
 			<div class="flex items-center text-sm text-ink-gray-7">
-				<Clock class="h-4 w-4 stroke-1.5 me-2 text-ink-gray-7" />
+				<span class="lucide-clock h-4 w-4 me-2 text-ink-gray-7" />
 				<span dir="ltr">
 					{{ formatTime(batch.start_time) }} - {{ formatTime(batch.end_time) }}
 				</span>
@@ -48,7 +48,7 @@
 				v-if="batch.timezone"
 				class="flex items-center text-sm text-ink-gray-7"
 			>
-				<Globe class="h-4 w-4 stroke-1.5 me-2 text-ink-gray-5" />
+				<span class="lucide-globe h-4 w-4 me-2 text-ink-gray-5" />
 				<span>
 					{{ batch.timezone }}
 				</span>
@@ -74,7 +74,6 @@
 <script setup>
 import { Badge } from 'frappe-ui'
 import { formatTime } from '@/utils'
-import { Clock, Globe } from 'lucide-vue-next'
 import DateRange from '@/components/Common/DateRange.vue'
 import CourseInstructors from '@/components/CourseInstructors.vue'
 import UserAvatar from '@/components/UserAvatar.vue'

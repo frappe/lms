@@ -7,7 +7,7 @@
 		<template #header-actions>
 			<Button variant="solid" @click="openForm('new')">
 				<template #prefix>
-					<Plus class="h-4 w-4 stroke-1.5" />
+					<span class="lucide-plus h-4 w-4" />
 				</template>
 				{{ __('New') }}
 			</Button>
@@ -65,7 +65,7 @@
 								variant="ghost"
 								@click="removeAccount(selections, unselectAll)"
 							>
-								<Trash2 class="h-4 w-4 stroke-1.5" />
+								<span class="lucide-trash-2 h-4 w-4" />
 							</Button>
 						</div>
 					</template>
@@ -76,7 +76,7 @@
 			v-else
 			name="Payment Gateways"
 			:description="__('Add one to get started.')"
-			:icon="DollarSign"
+			icon="lucide-dollar-sign"
 		/>
 	</SettingsLayout>
 	<PaymentGatewayDetails
@@ -103,7 +103,6 @@ import {
 	toast,
 } from 'frappe-ui'
 import { computed, ref } from 'vue'
-import { Plus, Trash2, DollarSign } from 'lucide-vue-next'
 import PaymentGatewayDetails from '@/components/Settings/PaymentGatewayDetails.vue'
 import { cleanError } from '@/utils'
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'

@@ -1,24 +1,21 @@
 <template>
 	<Dialog
-		v-model="show"
-		:options="{
-			title:
-				templateID == 'new'
-					? __('New Email Template')
-					: __('Edit Email Template'),
-			size: 'lg',
-			actions: [
-				{
-					label: __('Save'),
-					variant: 'solid',
-					onClick: ({ close }) => {
-						saveTemplate(close)
-					},
+		v-model:open="show"
+		:title="
+			templateID == 'new' ? __('New Email Template') : __('Edit Email Template')
+		"
+		size="lg"
+		:actions="[
+			{
+				label: __('Save'),
+				variant: 'solid',
+				onClick: ({ close }) => {
+					saveTemplate(close)
 				},
-			],
-		}"
+			},
+		]"
 	>
-		<template #body-content>
+		<template #default>
 			<div class="space-y-4">
 				<FormControl
 					:label="__('Name')"
@@ -56,7 +53,7 @@
 				<div v-else>
 					<div class="text-xs text-ink-gray-5 mb-2">
 						{{ __('Content') }}
-						<span class="text-ink-red-3">*</span>
+						<span class="text-ink-red-6">*</span>
 					</div>
 					<TextEditor
 						:content="template.response"
@@ -68,7 +65,7 @@
 								'Dear {{ member_name }},\n\nYou have been enrolled in our upcoming batch {{ batch_name }}.\n\nThanks,\nFrappe Learning'
 							)
 						"
-						editorClass="prose-sm max-w-none border-b border-x border-outline-gray-modals bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[7rem] max-h-[18rem] overflow-y-auto"
+						editorClass="prose-sm max-w-none border-b border-x border-outline-elevation-2 bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[7rem] max-h-[18rem] overflow-y-auto"
 					/>
 				</div>
 			</div>

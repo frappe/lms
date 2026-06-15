@@ -1,7 +1,7 @@
 <template>
 	<div v-if="!forHome || (forHome && upcoming_evals.data?.length)">
 		<div class="flex items-center justify-between mb-4">
-			<div class="text-lg text-ink-gray-9 font-semibold">
+			<div class="text-xl-semibold text-ink-gray-9">
 				{{ __('Upcoming Evaluations') }}
 			</div>
 			<Button v-if="canScheduleEvals" @click="openEvalModal">
@@ -10,7 +10,7 @@
 		</div>
 		<div
 			v-if="endDate && !endDateHasPassed"
-			class="text-sm leading-5 bg-surface-amber-1 text-ink-amber-3 p-2 rounded-md mb-4"
+			class="text-sm leading-5 bg-surface-amber-1 text-ink-amber-6 p-2 rounded-md mb-4"
 		>
 			{{ __('The last day to schedule your evaluations is ') }}
 			<span class="font-medium">
@@ -20,7 +20,7 @@
 		</div>
 		<div
 			v-else-if="endDateHasPassed"
-			class="text-sm leading-5 bg-surface-red-1 text-ink-red-3 p-2 rounded-md mb-4"
+			class="text-sm leading-5 bg-surface-red-1 text-ink-red-6 p-2 rounded-md mb-4"
 		>
 			{{
 				__(
@@ -46,7 +46,7 @@
 								:options="[
 									{
 										label: __('Cancel'),
-										icon: Ban,
+										icon: 'lucide-ban',
 										onClick() {
 											cancelEvaluation(evl)
 										},
@@ -58,26 +58,26 @@
 								<template v-slot="{ open }">
 									<Button variant="ghost">
 										<template #icon>
-											<EllipsisVertical class="w-4 h-4 stroke-1.5" />
+											<span class="lucide-ellipsis-vertical w-4 h-4" />
 										</template>
 									</Button>
 								</template>
 							</Dropdown>
 						</div>
 						<div class="flex items-center mb-2">
-							<Calendar class="w-4 h-4 stroke-1.5" />
+							<span class="lucide-calendar w-4 h-4" />
 							<span class="ms-2">
 								{{ dayjs(evl.date).format('DD MMMM YYYY') }}
 							</span>
 						</div>
 						<div class="flex items-center mb-2">
-							<Clock class="w-4 h-4 stroke-1.5" />
+							<span class="lucide-clock w-4 h-4" />
 							<span class="ms-2">
 								{{ formatTime(evl.start_time) }}
 							</span>
 						</div>
 						<div class="flex items-center">
-							<GraduationCap class="w-4 h-4 stroke-1.5" />
+							<span class="lucide-graduation-cap w-4 h-4" />
 							<span class="ms-2">
 								{{ evl.evaluator_name }}
 							</span>
@@ -88,7 +88,7 @@
 						>
 							<Button @click="openEvalCall(evl)" class="w-full">
 								<template #prefix>
-									<HeadsetIcon class="w-4 h-4 stroke-1.5" />
+									<span class="lucide-headset w-4 h-4" />
 								</template>
 								{{ __('Join Call') }}
 							</Button>
@@ -110,14 +110,6 @@
 	/>
 </template>
 <script setup>
-import {
-	Ban,
-	Calendar,
-	Clock,
-	GraduationCap,
-	HeadsetIcon,
-	EllipsisVertical,
-} from 'lucide-vue-next'
 import { inject, ref, getCurrentInstance, computed } from 'vue'
 import { formatTime } from '@/utils'
 import { Button, createListResource, call, Dropdown, toast } from 'frappe-ui'

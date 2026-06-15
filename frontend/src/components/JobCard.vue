@@ -4,14 +4,14 @@
 	>
 		<div class="flex gap-x-4 mb-4">
 			<div class="flex flex-col space-y-2 flex-1 break-all">
-				<div class="text-lg font-semibold text-ink-gray-9">
+				<div class="text-xl-semibold text-ink-gray-9">
 					{{ job.company_name }}
 				</div>
 				<span class="font-medium text-ink-gray-7 leading-5">
 					{{ job.job_title }}
 				</span>
 				<div class="flex items-center gap-x-1 text-sm text-ink-gray-7">
-					<MapPin class="size-3" />
+					<span class="lucide-map-pin size-3" />
 					<span>
 						{{ job.location }}{{ job.country ? `, ${job.country}` : '' }}
 					</span>
@@ -20,7 +20,7 @@
 					v-if="job.applicants"
 					class="flex items-center gap-x-1 text-sm text-ink-gray-7"
 				>
-					<User class="size-3" />
+					<span class="lucide-user size-3" />
 					<span>
 						{{ job.applicants }}
 						{{ job.applicants > 1 ? __('applicants') : __('applicant') }}
@@ -49,7 +49,6 @@
 <script setup>
 import { inject } from 'vue'
 import { Badge } from 'frappe-ui'
-import { MapPin, User } from 'lucide-vue-next'
 
 const dayjs = inject('$dayjs')
 const props = defineProps({

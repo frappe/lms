@@ -1,19 +1,17 @@
 <template>
 	<Dialog
-		v-model="show"
-		:options="{
-			title: __('Create a Live Class'),
-			size: 'xl',
-			actions: [
-				{
-					label: 'Submit',
-					variant: 'solid',
-					onClick: ({ close }) => submitLiveClass(close),
-				},
-			],
-		}"
+		v-model:open="show"
+		:title="__('Create a Live Class')"
+		size="xl"
+		:actions="[
+			{
+				label: 'Submit',
+				variant: 'solid',
+				onClick: ({ close }) => submitLiveClass(close),
+			},
+		]"
 	>
-		<template #body-content>
+		<template #default>
 			<div class="flex flex-col gap-4">
 				<div class="grid grid-cols-2 gap-4">
 					<div class="space-y-4">
@@ -55,7 +53,7 @@
 						<div class="space-y-1.5">
 							<label class="block text-ink-gray-5 text-xs" for="batchTimezone">
 								{{ __('Timezone') }}
-								<span class="text-ink-red-3">*</span>
+								<span class="text-ink-red-6">*</span>
 							</label>
 							<Autocomplete
 								@update:modelValue="(opt) => (liveClass.timezone = opt.value)"

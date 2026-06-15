@@ -1,7 +1,7 @@
 <template>
 	<div v-if="batch.data" class="">
 		<header
-			class="sticky top-0 z-10 border-b flex items-center justify-between bg-surface-white px-3 py-2.5 sm:px-5"
+			class="sticky top-0 z-10 border-b flex items-center justify-between bg-surface-base px-3 py-2.5 sm:px-5"
 		>
 			<div class="flex items-center gap-x-2">
 				<Breadcrumbs :items="breadcrumbs" />
@@ -16,7 +16,7 @@
 					</Badge>
 					<Button @click="childRef.deleteBatch()">
 						<template #icon>
-							<Trash2 class="w-4 h-4 stroke-1.5" />
+							<span class="lucide-trash-2 w-4 h-4" />
 						</template>
 					</Button>
 					<Button variant="solid" @click="childRef.submitBatch()">
@@ -32,7 +32,7 @@
 					<template v-slot="{ open }">
 						<Button variant="ghost">
 							<template #icon>
-								<EllipsisVertical class="w-4 h-4 stroke-1.5" />
+								<span class="lucide-ellipsis-vertical w-4 h-4" />
 							</template>
 						</Button>
 					</template>
@@ -93,14 +93,12 @@
 <script setup>
 import {
 	ClipboardPen,
-	EllipsisVertical,
 	Laptop,
 	List,
 	Mail,
 	MessageCircle,
 	SendIcon,
 	Settings2,
-	Trash2,
 	TrendingUp,
 } from 'lucide-vue-next'
 import { computed, inject, markRaw, ref, watch } from 'vue'
