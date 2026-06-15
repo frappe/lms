@@ -48,7 +48,11 @@
 						type="text"
 						class="w-full"
 						@input="updateCourses()"
-					/>
+					>
+						<template #prefix>
+							<span class="lucide-search size-4 text-ink-gray-5" />
+						</template>
+					</FormControl>
 					<Select
 						v-if="categories.length"
 						v-model="currentCategory"

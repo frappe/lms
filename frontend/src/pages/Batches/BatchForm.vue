@@ -38,21 +38,26 @@
 							variant="outline"
 						/>
 
-						<FormControl
-							v-model="batchDetail.doc.start_time"
-							:label="__('Session Start Time')"
-							type="time"
-							:required="true"
-							variant="outline"
-						/>
-						<FormControl
-							v-model="batchDetail.doc.end_time"
-							:label="__('Session End Time')"
-							type="time"
-							:required="true"
-							variant="outline"
-						/>
+						<!-- beta.7's TimePicker (FormControl type="time") ignores the
+						     `label` prop, so render FormLabel explicitly like Timezone
+						     below — otherwise these fields show only the placeholder. -->
 						<div class="space-y-1.5">
+							<FormLabel :label="__('Session Start Time')" :required="true" />
+							<FormControl
+								v-model="batchDetail.doc.start_time"
+								type="time"
+								variant="outline"
+							/>
+						</div>
+						<div class="space-y-1.5">
+							<FormLabel :label="__('Session End Time')" :required="true" />
+							<FormControl
+								v-model="batchDetail.doc.end_time"
+								type="time"
+								variant="outline"
+							/>
+						</div>
+						<div class="flex flex-col gap-1.5">
 							<FormLabel :label="__('Timezone')" :required="true" />
 							<Combobox
 								v-model="batchDetail.doc.timezone"

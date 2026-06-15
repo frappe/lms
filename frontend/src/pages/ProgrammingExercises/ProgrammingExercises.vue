@@ -47,7 +47,11 @@
 					v-model="titleFilter"
 					:placeholder="__('Search')"
 					@input="updateList"
-				/>
+				>
+					<template #prefix>
+						<span class="lucide-search size-4 text-ink-gray-5" />
+					</template>
+				</FormControl>
 				<Select
 					v-model="languageFilter"
 					:options="languages"

@@ -29,7 +29,11 @@
 						type="text"
 						class="min-w-40 lg:w-32 lg:min-w-0 xl:w-40"
 						@input="updateParticipants()"
-					/>
+					>
+						<template #prefix>
+							<span class="lucide-search size-4 text-ink-gray-5" />
+						</template>
+					</FormControl>
 					<Select
 						v-if="categories.data?.length"
 						v-model="currentCategory"

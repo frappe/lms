@@ -1,8 +1,6 @@
 <template>
-	<div>
-		<div class="text-xs text-ink-gray-5 mb-1">
-			{{ __(label) }}
-		</div>
+	<div class="space-y-1.5">
+		<FormLabel :label="__(label)" />
 		<Popover placement="bottom" class="!block">
 			<template #target="{ togglePopover, isOpen }">
 				<div class="space-y-2">
@@ -77,7 +75,7 @@
 	</div>
 </template>
 <script setup lang="ts">
-import { Button, FormControl, Popover } from 'frappe-ui'
+import { Button, FormControl, FormLabel, Popover } from 'frappe-ui'
 import { computed } from 'vue'
 import { getColor } from '@/utils'
 

@@ -1,8 +1,6 @@
 <template>
-	<div>
-		<div class="text-xs text-ink-gray-5 mb-2">
-			{{ label }}
-		</div>
+	<div class="space-y-1.5">
+		<FormLabel :label="label" />
 		<div class="overflow-visible border border-outline-elevation-2 rounded-md">
 			<div class="overflow-x-auto">
 				<div
@@ -82,7 +80,7 @@
 
 <script setup lang="ts">
 import { nextTick, ref, watch } from 'vue'
-import { Button } from 'frappe-ui'
+import { Button, FormLabel } from 'frappe-ui'
 import { onClickOutside } from '@vueuse/core'
 
 const rows = defineModel<Record<string, string>[]>()

@@ -1,9 +1,6 @@
 <template>
-	<div>
-		<label v-if="label" class="block mb-1.5" :class="labelClasses">
-			{{ label }}
-			<span v-if="required" class="text-ink-red-6">*</span>
-		</label>
+	<div class="space-y-1.5">
+		<FormLabel v-if="label" :label="label" :required="required" />
 		<Select
 			v-bind="$attrs"
 			:modelValue="modelValue"
@@ -25,8 +22,7 @@
 </template>
 
 <script setup lang="ts">
-import { Select } from 'frappe-ui'
-import { computed } from 'vue'
+import { FormLabel, Select } from 'frappe-ui'
 import type { SelectOption, SelectOptionValue } from 'frappe-ui'
 
 defineOptions({ inheritAttrs: false })
@@ -53,9 +49,4 @@ const props = withDefaults(
 const emit = defineEmits<{
 	(e: 'update:modelValue', value: SelectOptionValue | undefined): void
 }>()
-
-const labelClasses = computed<string[]>(() => {
-	const sizeMap: Record<string, string> = { sm: 'text-xs', md: 'text-base' }
-	return [sizeMap[props.size || 'sm'], 'text-ink-gray-5']
-})
 </script>

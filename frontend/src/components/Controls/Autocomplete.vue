@@ -1,9 +1,6 @@
 <template>
-	<div>
-		<div v-if="label" class="text-xs text-ink-gray-5 mb-1">
-			{{ __(label) }}
-			<span class="text-ink-red-6" v-if="attrs.required">*</span>
-		</div>
+	<div class="space-y-1.5">
+		<FormLabel v-if="label" :label="__(label)" :required="attrs.required" />
 		<Combobox
 			v-model="selectedValue"
 			nullable
@@ -157,7 +154,7 @@ import {
 	ComboboxOptions,
 	ComboboxOption,
 } from '@headlessui/vue'
-import { Popover } from 'frappe-ui'
+import { FormLabel, Popover } from 'frappe-ui'
 import { ref, computed, useAttrs, useSlots, watch, nextTick } from 'vue'
 
 const props = defineProps({

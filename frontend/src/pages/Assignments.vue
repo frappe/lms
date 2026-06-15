@@ -34,7 +34,11 @@
 					type="text"
 					v-model="titleFilter"
 					:placeholder="__('Search')"
-				/>
+				>
+					<template #prefix>
+						<span class="lucide-search size-4 text-ink-gray-5" />
+					</template>
+				</FormControl>
 				<Select
 					v-model="typeFilter"
 					:options="assignmentTypes"

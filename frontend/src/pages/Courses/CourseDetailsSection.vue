@@ -24,7 +24,9 @@
 			/>
 			<CourseInstructorsField />
 			<div class="space-y-1.5">
-				<FormLabel :label="__('Tags')" />
+				<label class="block text-p-sm-medium text-ink-gray-7">
+					{{ __('Tags') }}
+				</label>
 				<MultiSelect
 					v-model="tagsArray"
 					:options="tagOptions"
@@ -77,7 +79,7 @@
 </template>
 
 <script setup lang="ts">
-import { FormControl, FormLabel, MultiSelect } from 'frappe-ui'
+import { FormControl, MultiSelect } from 'frappe-ui'
 import { computed, inject, ref } from 'vue'
 import { createLMSCategory } from '@/utils'
 import Link from '@/components/Controls/Link.vue'

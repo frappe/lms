@@ -43,7 +43,11 @@
 						v-model="searchFilter"
 						:placeholder="__('Search')"
 						class="mb-4"
-					/>
+					>
+						<template #prefix>
+							<span class="lucide-search size-4 text-ink-gray-5" />
+						</template>
+					</FormControl>
 					<ListView
 						v-if="progressList.length"
 						:columns="progressColumns"

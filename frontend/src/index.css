@@ -3,6 +3,18 @@
 @import './styles/blockEditor.css';
 
 /*
+ * Match frappe-ui's standalone FormLabel to the internal InputLabel style.
+ * In frappe-ui beta.7, FormLabel uses text-xs/text-ink-gray-5 while
+ * InputLabel (inside FormControl/TextInput/Select/etc.) uses
+ * text-p-sm-medium text-ink-gray-7. This keeps standalone labels visually
+ * consistent with native form fields. Also normalizes a few inline <label>
+ * elements that duplicate the old FormLabel classes.
+ */
+label.block:not([data-slot='label']) {
+	@apply text-p-sm-medium text-ink-gray-7;
+}
+
+/*
  * Pin a Combobox/MultiSelect footer to the bottom of its dropdown so footer
  * actions stay reachable while options scroll. Opt-in via [data-popover-footer-sticky]
  * on the slot's inner element so frappe-ui's `[data-slot="footer"]` wrapper picks it up.

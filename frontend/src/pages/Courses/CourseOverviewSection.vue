@@ -12,11 +12,13 @@
 			@input="markDirty()"
 		/>
 		<div class="space-y-1.5">
-			<FormLabel
-				:label="__('Course Description')"
-				:id="descriptionId"
-				:required="true"
-			/>
+			<label
+				:for="descriptionId"
+				class="block text-p-sm-medium text-ink-gray-7"
+			>
+				{{ __('Course Description') }}
+				<span class="text-ink-red-6">*</span>
+			</label>
 			<div
 				class="rounded-t-lg rounded-b-md outline-none transition-[box-shadow] duration-150 ease-[cubic-bezier(0.23,1,0.32,1)] focus-within:ring-2 ring-outline-gray-3"
 			>
@@ -82,7 +84,7 @@
 </template>
 
 <script setup lang="ts">
-import { TextEditor, FormControl, FormLabel } from 'frappe-ui'
+import { TextEditor, FormControl } from 'frappe-ui'
 import { computed, inject, useId } from 'vue'
 import { useRouter } from 'vue-router'
 import MultiLink from '@/components/Controls/MultiLink.vue'

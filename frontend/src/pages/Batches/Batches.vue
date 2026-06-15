@@ -68,7 +68,11 @@
 						type="text"
 						class="min-w-40"
 						@input="updateBatches()"
-					/>
+					>
+						<template #prefix>
+							<span class="lucide-search size-4 text-ink-gray-5" />
+						</template>
+					</FormControl>
 					<Select
 						v-if="categories.length"
 						v-model="currentCategory"
