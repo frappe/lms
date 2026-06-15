@@ -55,11 +55,10 @@
 								{{ __('Timezone') }}
 								<span class="text-ink-red-6">*</span>
 							</label>
-							<Autocomplete
-								@update:modelValue="(opt) => (liveClass.timezone = opt.value)"
+							<Combobox
 								:modelValue="liveClass.timezone"
 								:options="getTimezoneOptions()"
-								:required="true"
+								@update:modelValue="(opt) => (liveClass.timezone = opt.value)"
 							/>
 						</div>
 						<FormControl
@@ -81,10 +80,16 @@
 	</Dialog>
 </template>
 <script setup>
-import { Dialog, createResource, Tooltip, FormControl, toast } from 'frappe-ui'
+import {
+	Combobox,
+	Dialog,
+	createResource,
+	Tooltip,
+	FormControl,
+	toast,
+} from 'frappe-ui'
 import { reactive, inject, onMounted } from 'vue'
 import { getTimezones, getUserTimezone } from '@/utils/'
-import Autocomplete from '@/components/Controls/Autocomplete.vue'
 
 const liveClasses = defineModel('reloadLiveClasses')
 const show = defineModel()
