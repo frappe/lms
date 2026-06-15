@@ -15,7 +15,8 @@
 				</thead>
 				<tbody>
 					<tr
-						v-for="row in rows"
+						v-for="(row, index) in items"
+						:key="row.name ?? index"
 						class="bg-white dark:bg-gray-800 dark:border-gray-700 border-gray-200"
 					>
 						<td class="px-6 py-2">
@@ -39,7 +40,7 @@
 							<Button
 								variant="ghost"
 								:aria-label="__('Remove row')"
-								@click="removeRow(row)"
+								@click="removeRow(index)"
 							>
 								<template #icon>
 									<X class="size-4 stroke-1.5" />
@@ -62,104 +63,27 @@
 	</div>
 </template>
 <script setup lang="ts">
-import type { ApplicableItem, Coupon, Coupons } from './types'
-import { ref, watch } from 'vue'
-import { Button, call, createListResource } from 'frappe-ui'
+import type { ApplicableItem } from './types'
+import { Button } from 'frappe-ui'
 import { Plus, X } from 'lucide-vue-next'
 import Link from '@/components/Controls/Link.vue'
 import Select from '@/components/Controls/Select.vue'
 
-const rows = ref<
-	{
-		reference_doctype: string
-		reference_name: string | null
-		name: string | null
-	}[]
->([])
-
+// Controlled child-table editor: we mutate the parent doc's `applicable_items`
+// array in place. The parent persists the whole doc in a single save, so Frappe
+// diffs the rows (insert/update/delete) server-side — no per-row API calls here.
 const props = defineProps<{
-	data: Coupon
-	coupons: Coupons
+	items: ApplicableItem[]
 }>()
 
-const applicableItems = createListResource({
-	doctype: 'LMS Coupon Item',
-	fields: [
-		'reference_doctype',
-		'reference_name',
-		'name',
-		'parent',
-		'parenttype',
-		'parentfield',
-	],
-	parent: 'LMS Coupon',
-	onSuccess(data: ApplicableItem[]) {
-		rows.value = data
-	},
-})
-
 const addRow = () => {
-	rows.value.push({
+	props.items.push({
 		reference_doctype: 'LMS Course',
 		reference_name: null,
-		name: null,
-	})
+	} as unknown as ApplicableItem)
 }
 
-watch(
-	() => props.data,
-	() => {
-		if (props.data?.name) {
-			applicableItems.update({
-				filters: {
-					parent: props.data.name,
-				},
-			})
-			applicableItems.reload()
-		} else {
-			addRow()
-		}
-	},
-	{ immediate: true }
-)
-
-const saveItems = async (parentName: string | null = null) => {
-	const name = parentName || props.data?.name
-	const newRows = rows.value.filter((row) => !row.name && row.reference_name)
-
-	if (name && newRows.length > 0) {
-		for (const row of newRows) {
-			await call('frappe.client.insert', {
-				doc: {
-					doctype: 'LMS Coupon Item',
-					reference_doctype: row.reference_doctype,
-					reference_name: row.reference_name,
-					parent: name,
-					parenttype: 'LMS Coupon',
-					parentfield: 'applicable_items',
-				},
-			})
-		}
-		applicableItems.reload()
-		props.coupons.reload()
-	}
-
-	return rows.value
+const removeRow = (index: number) => {
+	props.items.splice(index, 1)
 }
-
-const removeRow = (rowToRemove: any) => {
-	rows.value = rows.value.filter((row) => row !== rowToRemove)
-	if (rowToRemove.name) {
-		applicableItems.delete.submit(rowToRemove.name, {
-			onSuccess() {
-				props.coupons.reload()
-				applicableItems.reload()
-			},
-		})
-	}
-}
-
-defineExpose({
-	saveItems,
-})
 </script>
