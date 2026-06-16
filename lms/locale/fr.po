@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2026-06-12 16:58+0000\n"
-"PO-Revision-Date: 2026-06-14 17:17\n"
+"PO-Revision-Date: 2026-06-16 18:53\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: French\n"
 "MIME-Version: 1.0\n"
@@ -7132,7 +7132,7 @@ msgstr ""
 
 #: frontend/src/components/Controls/ColorSwatches.vue:13
 msgid "Set Color"
-msgstr "Définir la couleur"
+msgstr ""
 
 #: frontend/src/components/Settings/Coupons/CouponDetails.vue:5
 msgid "Set the discount, validity, and the courses or batches this coupon applies to."
