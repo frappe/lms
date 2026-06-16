@@ -38,6 +38,7 @@ import { singularize } from '@/utils'
 import { useTelemetry } from 'frappe-ui/frappe'
 
 const topics = defineModel('reloadTopics')
+const emit = defineEmits(['created'])
 const { capture } = useTelemetry()
 
 const props = defineProps({
@@ -97,7 +98,9 @@ const createReply = (topicName, close) => {
 		.then((data) => {
 			topic.title = ''
 			topic.reply = ''
-			topics.value.reload()
+			Promise.resolve(topics.value.reload()).then(() =>
+				emit('created', topicName)
+			)
 			capture('discussion_topic_created')
 			close()
 		})

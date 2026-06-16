@@ -1,8 +1,6 @@
 <template>
 	<div class="space-y-1.5">
-		<label class="block text-xs text-ink-gray-5">
-			{{ label }}
-		</label>
+		<FormLabel :label="label" />
 		<div class="w-full">
 			<Popover>
 				<template #target="{ togglePopover }">
@@ -52,7 +50,7 @@
 	</div>
 </template>
 <script setup>
-import { FormControl, Popover } from 'frappe-ui'
+import { FormControl, FormLabel, Popover } from 'frappe-ui'
 import * as icons from 'lucide-vue-next'
 import { ref, computed, onMounted, nextTick } from 'vue'
 

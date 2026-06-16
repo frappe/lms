@@ -30,7 +30,11 @@
 							v-model="searchFilter"
 							:placeholder="__('Search')"
 							type="text"
-						/>
+						>
+							<template #prefix>
+								<span class="lucide-search size-4 text-ink-gray-5" />
+							</template>
+						</FormControl>
 						<Button @click="showEnrollmentModal = true">
 							<template #prefix>
 								<span class="lucide-plus size-4" />

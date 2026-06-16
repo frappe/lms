@@ -82,7 +82,7 @@ class LMSCourse(Document):
 			frappe.throw(_("Timezone is required for paid certificates."))
 
 	def validate_amount_and_currency(self):
-		if self.paid_course and (cint(self.course_price) < 0 or not self.currency):
+		if self.paid_course and (cint(self.course_price) <= 0 or not self.currency):
 			frappe.throw(_("Amount and currency are required for paid courses."))
 
 		if self.paid_certificate and (cint(self.course_price) <= 0 or not self.currency):

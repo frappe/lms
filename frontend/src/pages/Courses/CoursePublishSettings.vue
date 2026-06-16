@@ -43,12 +43,16 @@
 						:filters="{ enabled: 1 }"
 						:placeholder="__('Select currency')"
 						variant="outline"
+						:required="true"
 						@update:modelValue="markDirty()"
 					/>
 					<FormControl
 						v-model="doc.course_price"
+						type="number"
+						min="0"
 						:label="__('Course price')"
 						variant="outline"
+						:required="true"
 						@input="markDirty()"
 					/>
 					<div class="border-t -mx-5" />
@@ -93,12 +97,16 @@
 							:filters="{ enabled: 1 }"
 							:placeholder="__('Select currency')"
 							variant="outline"
+							:required="true"
 							@update:modelValue="markDirty()"
 						/>
 						<FormControl
 							v-model="doc.course_price"
+							type="number"
+							min="0"
 							:label="__('Certificate price')"
 							variant="outline"
+							:required="true"
 							@input="markDirty()"
 						/>
 						<Link
@@ -122,6 +130,26 @@
 						/>
 					</template>
 				</template>
+
+				<div
+					v-if="doc?.enable_certification || doc?.paid_certificate"
+					class="flex flex-wrap items-center gap-1 text-p-sm text-ink-gray-6"
+				>
+					<span>
+						{{
+							__(
+								'Certificates render from a Print Format. Build or customize templates from the desk.'
+							)
+						}}
+					</span>
+					<button
+						type="button"
+						class="font-medium text-ink-gray-8 underline"
+						@click="openPrintFormats"
+					>
+						{{ __('Manage templates') }}
+					</button>
+				</div>
 			</div>
 		</CollapsibleSection>
 	</div>
@@ -191,6 +219,10 @@ const timezoneOptions = computed<{ label: string; value: string }[]>(() =>
 
 function openEvaluatorModal() {
 	showMemberModal.value = true
+}
+
+function openPrintFormats() {
+	window.open('/app/print-format?doc_type=LMS Certificate', '_blank')
 }
 
 function onEvaluatorCreated(created: { name: string }) {

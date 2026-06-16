@@ -25,14 +25,13 @@
 					:required="true"
 					:placeholder="__('e.g. Course Champion')"
 				/>
-				<Autocomplete
+				<Combobox
+					:modelValue="badge.reference_doctype"
+					:options="referenceDoctypeOptions"
+					:label="__('Assign For')"
 					@update:modelValue="
 						(opt: any) => (badge.reference_doctype = opt.value)
 					"
-					:modelValue="badge.reference_doctype"
-					:options="referenceDoctypeOptions"
-					:required="true"
-					:label="__('Assign For')"
 				/>
 				<FormControl
 					v-model="badge.description"
@@ -83,12 +82,11 @@
 	</SettingsLayout>
 </template>
 <script setup lang="ts">
-import { Button, call, FormControl, toast } from 'frappe-ui'
+import { Combobox, Button, call, FormControl, toast } from 'frappe-ui'
 import Switch from '@/components/Controls/Switch.vue'
 import { computed, ref, watch } from 'vue'
 import { cleanError } from '@/utils'
 import type { Badges, Badge } from '@/components/Settings/types'
-import Autocomplete from '@/components/Controls/Autocomplete.vue'
 import CodeEditor from '@/components/Controls/CodeEditor.vue'
 import Uploader from '@/components/Controls/Uploader.vue'
 import SettingsLayout from '@/components/Layouts/SettingsLayout.vue'

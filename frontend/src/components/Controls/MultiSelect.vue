@@ -1,9 +1,6 @@
 <template>
-	<div>
-		<label v-if="label" class="block mb-1" :class="labelClasses">
-			{{ label }}
-			<span v-if="required" class="text-ink-red-6">*</span>
-		</label>
+	<div class="space-y-1.5">
+		<FormLabel v-if="label" :label="label" :required="required" />
 		<Combobox v-model="selectedValue" nullable v-slot="{ open }">
 			<div class="relative w-full">
 				<div
@@ -107,7 +104,7 @@ import {
 	ComboboxOptions,
 	ComboboxOption,
 } from '@headlessui/vue'
-import { createResource, Button, toast } from 'frappe-ui'
+import { createResource, Button, FormLabel, toast } from 'frappe-ui'
 import { ref, computed, useAttrs, watch } from 'vue'
 import { watchDebounced } from '@vueuse/core'
 import type { Resource } from '@/types/api'
@@ -229,9 +226,4 @@ function addValue(value: string) {
 function removeValue(value: string) {
 	values.value = (values.value || []).filter((v) => v !== value)
 }
-
-const labelClasses = computed<(string | undefined)[]>(() => {
-	const sizeMap: Record<string, string> = { sm: 'text-xs', md: 'text-base' }
-	return [sizeMap[props.size || 'sm'], 'text-ink-gray-5']
-})
 </script>

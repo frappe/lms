@@ -425,6 +425,10 @@ function saveLesson() {
 		instructorEditor.value.save().then((outputData) => {
 			outputData = removeEmptyBlocks(outputData)
 			lesson.instructor_content = JSON.stringify(outputData)
+			// instructor_content is now the source of truth; clear the legacy
+			// instructor_notes field so removed notes don't reappear on the
+			// lesson page via the fallback render path.
+			lesson.instructor_notes = ''
 			if (lessonDetails.data?.lesson) {
 				editCurrentLesson()
 			} else {

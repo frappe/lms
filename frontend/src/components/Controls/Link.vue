@@ -1,9 +1,11 @@
 <template>
 	<div>
-		<label v-if="attrs.label" class="block mb-1.5" :class="labelClasses">
-			{{ attrs.label }}
-			<span v-if="attrs.required" class="text-ink-red-6">*</span>
-		</label>
+		<FormLabel
+			v-if="attrs.label"
+			:label="attrs.label"
+			:required="attrs.required"
+			class="mb-1.5"
+		/>
 		<Combobox
 			:modelValue="value"
 			:options="resolvedOptions"
@@ -76,7 +78,13 @@
 </template>
 
 <script setup lang="ts">
-import { Combobox, Button, FormControl, createResource } from 'frappe-ui'
+import {
+	Combobox,
+	Button,
+	FormControl,
+	FormLabel,
+	createResource,
+} from 'frappe-ui'
 import { useDebounceFn, watchDebounced } from '@vueuse/core'
 import { useAttrs, computed, ref, watch } from 'vue'
 import { useSettings } from '@/stores/settings'
@@ -113,11 +121,6 @@ const emit = defineEmits<{
 
 const attrs = useAttrs()
 const valuePropPassed = computed<boolean>(() => 'value' in attrs)
-
-const labelClasses = computed<(string | undefined)[]>(() => {
-	const sizeMap: Record<string, string> = { sm: 'text-xs', md: 'text-base' }
-	return [sizeMap[(attrs.size as string) || 'sm'], 'text-ink-gray-5']
-})
 
 const creating = ref<boolean>(false)
 const newItemName = ref<string>('')

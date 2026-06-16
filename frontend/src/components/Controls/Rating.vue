@@ -1,8 +1,6 @@
 <template>
-	<div class="space-y-1">
-		<label class="block text-xs text-ink-gray-5" v-if="props.label">
-			{{ props.label }}
-		</label>
+	<div class="space-y-1.5">
+		<FormLabel v-if="props.label" :label="props.label" />
 		<div class="flex text-center">
 			<div
 				v-for="index in 5"
@@ -21,6 +19,7 @@
 
 <script setup>
 import { ref, watch } from 'vue'
+import { FormLabel } from 'frappe-ui'
 
 const props = defineProps({
 	id: {

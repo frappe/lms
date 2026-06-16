@@ -152,24 +152,23 @@ const replies = createResource({
 })
 
 const fetchMentionUsers = () => {
-	if (user.data?.is_student) {
-		renderEditor.value = true
-	} else {
-		allUsers.reload(
-			{},
-			{
-				onSuccess(data) {
-					mentionUsers.value = Object.values(data).map((user) => {
-						return {
-							value: user.name,
-							label: user.full_name,
-						}
-					})
-					renderEditor.value = true
-				},
-			}
-		)
-	}
+	// Render the editor right away; mentions are reactive and populate once the
+	// user list resolves, so we no longer block the editor on that fetch.
+	renderEditor.value = true
+	if (user.data?.is_student) return
+	allUsers.reload(
+		{},
+		{
+			onSuccess(data) {
+				mentionUsers.value = Object.values(data).map((user) => {
+					return {
+						value: user.name,
+						label: user.full_name,
+					}
+				})
+			},
+		}
+	)
 }
 
 const postReply = () => {

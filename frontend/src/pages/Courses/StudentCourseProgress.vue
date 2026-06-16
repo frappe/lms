@@ -36,12 +36,12 @@
 				<div class="grid gap-5" :class="hasAssessmentData ? 'grid-cols-2' : ''">
 					<div
 						v-if="lessons.data"
-						class="border border-outline-elevation-2 rounded-lg px-3 pt-3 max-h-[60vh] overflow-y-auto"
+						class="border border-outline-elevation-2 rounded-lg px-3 max-h-[60vh] overflow-y-auto"
 					>
-						<div>
-							<div class="text-ink-gray-5 mb-5">
-								{{ __('Lesson Progress') }}
-							</div>
+						<div
+							class="sticky top-0 z-10 bg-surface-white py-3 text-ink-gray-5"
+						>
+							{{ __('Lesson Progress') }}
 						</div>
 						<div
 							v-for="progress in lessons.data"
