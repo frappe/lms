@@ -17,7 +17,7 @@
 			@update:modelValue="onSelect"
 			@update:query="onQuery"
 			@update:open="onOpen"
-			class="w-full"
+			class="w-full focus-within:border-outline-gray-4 focus-within:bg-surface-base focus-within:shadow-sm focus-within:outline-none data-[state=open]:border-outline-gray-4 data-[state=open]:bg-surface-base data-[state=open]:shadow-sm data-[state=open]:outline-none"
 		>
 			<template #footer>
 				<div
