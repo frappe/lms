@@ -29,7 +29,7 @@
 					class="w-full flex items-center justify-between rounded px-3 py-2 hover:bg-surface-gray-2 text-left"
 				>
 					<div
-						class="flex items-center gap-2 text-sm-medium text-ink-gray-9 min-w-0"
+						class="flex items-center gap-2 text-base-medium leading-5 text-ink-gray-9 min-w-0"
 					>
 						<ChevronDown
 							class="size-4 stroke-1.5 shrink-0 transition-transform"
@@ -39,7 +39,7 @@
 					</div>
 					<span
 						v-if="chapter.lessons?.length"
-						class="text-xs text-ink-gray-5 shrink-0"
+						class="text-sm text-ink-gray-5 shrink-0"
 					>
 						{{ chapter.lessons.length }}
 					</span>
@@ -61,7 +61,7 @@
 										},
 								  }
 						"
-						class="flex items-center gap-3 rounded ps-9 pe-3 py-2 text-sm text-ink-gray-8 hover:bg-surface-gray-2"
+						class="flex items-center gap-3 rounded ps-9 pe-3 py-2 text-sm leading-5 text-ink-gray-8 hover:bg-surface-gray-2"
 						:class="[
 							inlineSelect ? 'cursor-pointer' : '',
 							isActive(lesson.number)
