@@ -102,16 +102,38 @@
 							{{ __('Add Option') }}
 						</Button>
 					</div>
-					<div
-						v-else-if="question.type == 'User Input'"
-						class="grid grid-cols-2 gap-x-8 gap-y-4 py-2"
-					>
-						<div v-for="n in 4">
-							<FormControl
-								:label="__('Possibility') + ' ' + n"
-								v-model="question[`possibility_${n}`]"
-								:required="n == 1 ? true : false"
-							/>
+					<div v-else-if="question.type == 'User Input'">
+						<div class="grid grid-cols-2 gap-x-8 gap-y-4 py-2">
+							<div
+								v-for="n in visiblePossibilityCount"
+								:key="n"
+								class="flex items-end gap-2"
+							>
+								<FormControl
+									class="flex-1"
+									:label="__('Possibility') + ' ' + n"
+									v-model="question[`possibility_${n}`]"
+									:required="n == 1 ? true : false"
+								/>
+								<Button
+									v-if="visiblePossibilityCount > 1"
+									variant="ghost"
+									@click="removePossibility(n)"
+								>
+									<span class="lucide-trash-2 size-4" />
+								</Button>
+							</div>
+						</div>
+						<div class="mt-4">
+							<Button
+								v-if="visiblePossibilityCount < MAX_OPTIONS"
+								@click="addPossibility()"
+							>
+								<template #prefix>
+									<span class="lucide-plus size-4" />
+								</template>
+								{{ __('Add Possibility') }}
+							</Button>
 						</div>
 					</div>
 				</div>
@@ -170,6 +192,7 @@ const question = reactive({
 
 const MAX_OPTIONS = 10
 const visibleOptionCount = ref(2)
+const visiblePossibilityCount = ref(1)
 
 const populateFields = () => {
 	let fields = ['option', 'is_correct', 'explanation', 'possibility']
@@ -218,6 +241,12 @@ const questionData = createResource({
 				data[`option_${i + 1}`] ? i + 1 : 0
 			)
 		)
+		visiblePossibilityCount.value = Math.max(
+			1,
+			...Array.from({ length: MAX_OPTIONS }, (_, i) =>
+				data[`possibility_${i + 1}`] ? i + 1 : 0
+			)
+		)
 		question.marks = props.questionDetail.marks
 	},
 })
@@ -234,6 +263,7 @@ watch(show, () => {
 			existingQuestion.marks = 1
 			chooseFromExisting.value = false
 			visibleOptionCount.value = 2
+			visiblePossibilityCount.value = 1
 			populateFields()
 		}
 
@@ -267,6 +297,20 @@ const questionCreation = createResource({
 		}
 	},
 })
+
+const addPossibility = () => {
+	if (visiblePossibilityCount.value < MAX_OPTIONS)
+		visiblePossibilityCount.value++
+}
+
+const removePossibility = (pos) => {
+	if (visiblePossibilityCount.value <= 1) return
+	for (let n = pos; n < visiblePossibilityCount.value; n++) {
+		question[`possibility_${n}`] = question[`possibility_${n + 1}`]
+	}
+	question[`possibility_${visiblePossibilityCount.value}`] = null
+	visiblePossibilityCount.value--
+}
 
 const addOption = () => {
 	if (visibleOptionCount.value < MAX_OPTIONS) visibleOptionCount.value++
