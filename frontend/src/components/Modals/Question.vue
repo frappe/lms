@@ -57,9 +57,25 @@
 						v-if="question.type == 'Choices'"
 						class="grid grid-cols-2 gap-x-8 gap-y-4"
 					>
-						<div v-for="n in 4" class="space-y-4 py-2">
+						<div
+							v-for="n in visibleOptionCount"
+							:key="n"
+							class="space-y-4 py-2"
+						>
+							<div class="flex items-center justify-between">
+								<label class="block text-p-sm-medium text-ink-gray-7">
+									{{ __('Option') + ' ' + n }}
+								</label>
+								<Button
+									v-if="visibleOptionCount > 2"
+									variant="ghost"
+									size="sm"
+									@click="removeOption(n)"
+								>
+									<span class="lucide-trash-2 size-4" />
+								</Button>
+							</div>
 							<FormControl
-								:label="__('Option') + ' ' + n"
 								v-model="question[`option_${n}`]"
 								:required="n <= 2 ? true : false"
 							/>
@@ -74,6 +90,17 @@
 								v-model="question[`is_correct_${n}`]"
 							/>
 						</div>
+					</div>
+					<div v-if="question.type == 'Choices'" class="mt-4">
+						<Button
+							v-if="visibleOptionCount < MAX_OPTIONS"
+							@click="addOption()"
+						>
+							<template #prefix>
+								<span class="lucide-plus size-4" />
+							</template>
+							{{ __('Add Option') }}
+						</Button>
 					</div>
 					<div
 						v-else-if="question.type == 'User Input'"
@@ -141,13 +168,14 @@ const question = reactive({
 	marks: 1,
 })
 
+const MAX_OPTIONS = 10
+const visibleOptionCount = ref(2)
+
 const populateFields = () => {
 	let fields = ['option', 'is_correct', 'explanation', 'possibility']
-	let counter = 1
 	fields.forEach((field) => {
-		while (counter <= 4) {
+		for (let counter = 1; counter <= MAX_OPTIONS; counter++) {
 			question[`${field}_${counter}`] = field === 'is_correct' ? false : null
-			counter++
 		}
 	})
 }
@@ -175,17 +203,21 @@ const questionData = createResource({
 	},
 	auto: false,
 	onSuccess(data) {
-		let counter = 1
 		editMode.value = true
 		Object.keys(data).forEach((key) => {
 			if (Object.hasOwn(question, key)) question[key] = data[key]
 		})
-		while (counter <= 4) {
+		for (let counter = 1; counter <= MAX_OPTIONS; counter++) {
 			question[`is_correct_${counter}`] = data[`is_correct_${counter}`]
 				? true
 				: false
-			counter++
 		}
+		visibleOptionCount.value = Math.max(
+			2,
+			...Array.from({ length: MAX_OPTIONS }, (_, i) =>
+				data[`option_${i + 1}`] ? i + 1 : 0
+			)
+		)
 		question.marks = props.questionDetail.marks
 	},
 })
@@ -201,6 +233,7 @@ watch(show, () => {
 			existingQuestion.question = ''
 			existingQuestion.marks = 1
 			chooseFromExisting.value = false
+			visibleOptionCount.value = 2
 			populateFields()
 		}
 
@@ -234,6 +267,24 @@ const questionCreation = createResource({
 		}
 	},
 })
+
+const addOption = () => {
+	if (visibleOptionCount.value < MAX_OPTIONS) visibleOptionCount.value++
+}
+
+const removeOption = (pos) => {
+	if (visibleOptionCount.value <= 2) return
+	for (let n = pos; n < visibleOptionCount.value; n++) {
+		question[`option_${n}`] = question[`option_${n + 1}`]
+		question[`is_correct_${n}`] = question[`is_correct_${n + 1}`]
+		question[`explanation_${n}`] = question[`explanation_${n + 1}`]
+	}
+	const last = visibleOptionCount.value
+	question[`option_${last}`] = null
+	question[`is_correct_${last}`] = false
+	question[`explanation_${last}`] = null
+	visibleOptionCount.value--
+}
 
 const submitQuestion = () => {
 	if (props.questionDetail?.question) updateQuestion()
