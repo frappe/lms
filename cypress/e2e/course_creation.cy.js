@@ -73,11 +73,12 @@ describe("Course Creation", () => {
 		// Configure settings
 		cy.get("button, [role=tab]").contains("Settings").click();
 
-		// Embed video
+		// Preview video — the redesigned field has a URL input (plus a hidden
+		// file input), so target the YouTube URL input by its placeholder.
 		cy.get("label")
-			.contains("Embed (preview video)")
+			.contains("Preview video")
 			.parent()
-			.find("input")
+			.find('input[placeholder="Paste a YouTube link"]')
 			.type("https://www.youtube.com/embed/-LPmw2Znl2c");
 
 		// Tags
@@ -117,24 +118,26 @@ describe("Course Creation", () => {
 	it("adds chapter and lesson, then verifies course outline", () => {
 		cy.login();
 
-		// Wait on the chapter write (batch_creation pattern) so we don't add a
-		// lesson before the Course Chapter + Chapter Reference are persisted.
-		cy.intercept("POST", "**/lms.lms.api.upsert_chapter").as(
-			"upsertChapter"
-		);
-
 		cy.visit(`/lms/courses/${courseSlug}`);
 		cy.closeOnboardingModal();
 
 		// Open Course editor tab
 		cy.get("button, [role=tab]").contains("Course editor").click();
 
+		// The onboarding help modal re-appears after the first course is created
+		// (its "create_first_course" step completes) and covers the editor
+		// toolbar — dismiss it again before adding a chapter.
+		cy.closeOnboardingModal();
+
 		// Add a chapter. In the editor the chapter button is the "Add" button in
 		// the CourseDetail toolbar (CourseEditor hides CourseOutline's own
 		// header), present whenever the editor is in edit mode — unlike the
 		// load-dependent "Create chapter" empty-state button.
 		cy.contains("button", "Add", { timeout: 20000 }).click();
+		// Scope to the chapter dialog by its title so the onboarding "Getting
+		// started" panel (also a dismissable layer) can't hijack the interaction.
 		cy.get("[data-dismissable-layer]")
+			.last()
 			.should("be.visible")
 			.within(() => {
 				cy.get("label")
@@ -145,12 +148,18 @@ describe("Course Creation", () => {
 				cy.button("Create").click();
 			});
 
-		// Wait for the chapter write to complete before adding a lesson.
-		cy.wait("@upsertChapter", { timeout: 15000 });
+		// Wait for the chapter to land in the outline (more robust than waiting on
+		// the network call) before adding a lesson.
+		cy.contains("Test Chapter", { timeout: 15000 }).should("exist");
+
+		// The onboarding help modal re-expands when the chapter step completes —
+		// dismiss it before adding a lesson so it can't hijack the lesson modal.
+		cy.closeOnboardingModal();
 
 		// Create lesson
 		cy.button("Add Lesson", { timeout: 10000 }).click();
 		cy.get("[data-dismissable-layer]")
+			.last()
 			.should("be.visible")
 			.within(() => {
 				cy.get("label")
