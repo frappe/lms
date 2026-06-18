@@ -1,23 +1,8 @@
 <template>
 	<div class="border-2 rounded-md min-w-80 max-w-sm">
-		<iframe
-			v-if="videoPreview.type === 'youtube'"
-			:src="videoPreview.src"
-			class="rounded-t-md min-h-56 w-full"
-		/>
-		<video
-			v-else-if="videoPreview.type === 'file' && !videoError"
-			:src="videoPreview.src"
-			controls
-			class="rounded-t-md min-h-56 w-full bg-black object-contain"
-			@error="videoError = true"
-		/>
-		<img
-			v-else-if="
-				videoPreview.type === 'file' && videoError && course.data?.image
-			"
-			:src="course.data.image"
-			class="rounded-t-md min-h-56 w-full object-cover"
+		<VideoPreview
+			:video-link="course.data?.video_link"
+			:fallback-image="course.data?.image"
 		/>
 		<div class="p-5">
 			<div class="text-4xl-semibold text-ink-gray-9 mb-4">
@@ -158,11 +143,11 @@
 	</div>
 </template>
 <script setup lang="ts">
-import { computed, inject, ref } from 'vue'
+import { computed, inject } from 'vue'
 import { Badge, Button, call, createResource, toast } from 'frappe-ui'
 import { useRouter } from 'vue-router'
 import CertificationLinks from '@/components/CertificationLinks.vue'
-import { getVideoPreview } from '@/utils/video'
+import VideoPreview from '@/components/VideoPreview.vue'
 import { useTelemetry } from 'frappe-ui/frappe'
 import type {
 	CourseDetails,
@@ -183,15 +168,6 @@ const props = withDefaults(
 	}>(),
 	{}
 )
-
-// video_link may be a bare id (legacy), a full/share YouTube URL, or an
-// uploaded file path — resolve to a renderable preview (iframe vs <video>).
-const videoPreview = computed(() =>
-	getVideoPreview(props.course.data?.video_link)
-)
-// An uploaded file (e.g. .MOV/H.265) may not decode in the browser; fall back to
-// the course thumbnail instead of showing the native "no supported format" box.
-const videoError = ref<boolean>(false)
 
 function enrollStudent() {
 	if (!user.data) {
