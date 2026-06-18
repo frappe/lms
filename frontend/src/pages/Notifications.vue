@@ -69,9 +69,10 @@
 					<iframe
 						v-if="
 							log.document_type == 'LMS Course' &&
-							log.document_details.video_link
+							getVideoPreview(log.document_details.video_link).type ===
+								'youtube'
 						"
-						:src="`https://www.youtube.com/embed/${log.document_details.video_link}`"
+						:src="getVideoPreview(log.document_details.video_link).src"
 						class="rounded-s-md w-72"
 					/>
 					<video
@@ -167,6 +168,7 @@ import { sessionStore } from '../stores/session'
 import { computed, inject, ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { formatTime } from '@/utils/'
+import { getVideoPreview } from '@/utils/video'
 import LayoutHeader from '@/components/Layouts/LayoutHeader.vue'
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 
