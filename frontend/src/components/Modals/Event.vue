@@ -117,7 +117,7 @@
 							</Button>
 						</div>
 						<div v-else class="flex flex-col space-y-4 p-5">
-							<Switch
+							<BooleanSwitch
 								size="sm"
 								v-model="certificate.published"
 								:label="__('Published')"
@@ -171,11 +171,11 @@ import {
 	Tooltip,
 	Textarea,
 	toast,
+	Rating,
 } from 'frappe-ui'
-import Switch from '@/components/Controls/Switch.vue'
+import BooleanSwitch from '@/components/Controls/BooleanSwitch.vue'
 import { inject, reactive, watch, ref, computed } from 'vue'
 import { formatTime } from '@/utils'
-import Rating from '@/components/Controls/Rating.vue'
 import Link from '@/components/Controls/Link.vue'
 
 const show = defineModel()

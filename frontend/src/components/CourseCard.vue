@@ -70,7 +70,9 @@
 				<div v-if="course.rating">
 					<Tooltip :text="__('Average Rating')">
 						<span class="flex items-center">
-							<span class="lucide-star size-4 me-1" />
+							<LucideStar
+								class="size-4 me-1 text-transparent fill-yellow-500"
+							/>
 							{{ formatRating(course.rating) }}
 						</span>
 					</Tooltip>

@@ -2,7 +2,7 @@
 	<div v-if="reviews.data?.length || membership" class="mt-12">
 		<div class="flex items-center justify-between gap-3 mb-8">
 			<div class="flex items-center gap-2">
-				<span class="lucide-star size-5 text-yellow-500 fill-yellow-500" />
+				<LucideStar class="size-5 text-transparent fill-yellow-500" />
 				<span class="text-4xl-semibold text-ink-gray-9">
 					{{ avg_rating ? formatRating(avg_rating) : '0' }}
 				</span>
@@ -55,10 +55,10 @@
 						</span>
 					</div>
 					<div class="flex gap-1 mt-2">
-						<span
+						<LucideStar
 							v-for="i in 5"
 							:key="i"
-							class="lucide-star size-4 text-transparent"
+							class="size-4 text-transparent"
 							:class="
 								i <= Math.ceil(review.rating)
 									? 'fill-yellow-500'
