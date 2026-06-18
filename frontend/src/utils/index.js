@@ -21,8 +21,6 @@ import dayjs from '@/utils/dayjs'
 import Embed from '@editorjs/embed'
 import SimpleImage from '@editorjs/simple-image'
 import Table from '@editorjs/table'
-import Plyr from 'plyr'
-import 'plyr/dist/plyr.css'
 import DOMPurify from 'dompurify'
 
 const readOnlyMode = window.read_only_mode
@@ -805,85 +803,10 @@ export const canCreateCourse = () => {
 	)
 }
 
-export const enablePlyr = async () => {
-	await wait(500)
-
-	const players = []
-	const videoElements = document.getElementsByClassName('video-player')
-
-	if (videoElements.length === 0) return players
-
-	Array.from(videoElements).forEach((video) => {
-		setupPlyrForVideo(video, players)
-	})
-
-	return players
-}
-
-const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
-
-const setupPlyrForVideo = (video, players) => {
-	const src = video.getAttribute('src')
-
-	if (src) {
-		const videoID = extractYouTubeId(src)
-		video.setAttribute('data-plyr-embed-id', videoID)
-	}
-
-	let controls = [
-		'play-large',
-		'play',
-		'progress',
-		'current-time',
-		'mute',
-		'volume',
-		'fullscreen',
-	]
-
-	const player = new Plyr(video, {
-		youtube: { noCookie: true },
-		controls: controls,
-		listeners: {
-			seek: function customSeekBehavior(e) {
-				const current_time = player.currentTime
-				const newTime = getTargetTime(player, e)
-				if (
-					useSettings().settings.data?.prevent_skipping_videos &&
-					parseFloat(newTime) > current_time
-				) {
-					e.preventDefault()
-					player.currentTime = current_time
-					return false
-				}
-			},
-		},
-	})
-
-	players.push(player)
-}
-
-const getTargetTime = (plyr, input) => {
-	if (
-		typeof input === 'object' &&
-		(input.type === 'input' || input.type === 'change')
-	) {
-		return (input.target.value / input.target.max) * plyr.duration
-	} else {
-		return Number(input)
-	}
-}
-
-const extractYouTubeId = (url) => {
-	try {
-		const parsedUrl = new URL(url)
-		return (
-			parsedUrl.searchParams.get('v') ||
-			parsedUrl.pathname.split('/').pop()
-		)
-	} catch {
-		return url.split('/').pop()
-	}
-}
+// Plyr setup lives in ./plyr (a lean module that only pulls in Plyr + the
+// settings store) so it stays importable/testable without index.js's heavy
+// EditorJS/frappe-ui import chain. Re-exported here for existing callers.
+export { enablePlyr } from './plyr'
 
 export const createLMSCategory = (name) => {
 	return call('frappe.client.insert', {
