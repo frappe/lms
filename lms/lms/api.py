@@ -1489,6 +1489,8 @@ def get_lms_settings():
 	for field in allowed_fields:
 		settings[field] = frappe.get_cached_value("LMS Settings", None, field)
 
+	settings["is_payments_app_installed"] = "payments" in frappe.get_installed_apps()
+
 	return settings
 
 

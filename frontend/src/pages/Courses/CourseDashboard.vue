@@ -164,7 +164,11 @@
 								<Tooltip :text="String(row.value)">
 									<div class="ms-auto">
 										{{
-											Math.round((row.value / course.data?.enrollments) * 100)
+											course.data?.enrollments
+												? Math.round(
+														(row.value / course.data.enrollments) * 100
+												  )
+												: 0
 										}}%
 									</div>
 								</Tooltip>
@@ -237,10 +241,13 @@
 							<Tooltip :text="String(progress.completion_count)">
 								<div>
 									{{
-										Math.ceil(
-											(progress.completion_count / course.data?.enrollments) *
-												100
-										)
+										course.data?.enrollments
+											? Math.ceil(
+													(progress.completion_count /
+														course.data.enrollments) *
+														100
+											  )
+											: 0
 									}}%
 								</div>
 							</Tooltip>
