@@ -3,6 +3,17 @@
 @import './styles/blockEditor.css';
 
 /*
+ * This frappe-ui build resolves --surface-sidebar to transparent white
+ * (#ffffff00) in dark mode, so the sidebar (and other bg-surface-sidebar users)
+ * lose their surface and blend into the base. Newer apps (CRM) use a dedicated
+ * --surface-menu-bar token, which doesn't exist here — so point the sidebar
+ * token at gray-1 instead: a real distinct panel that mirrors its light value.
+ */
+[data-theme='dark'] {
+	--surface-sidebar: var(--surface-gray-1);
+}
+
+/*
  * Match frappe-ui's standalone FormLabel to the internal InputLabel style.
  * In frappe-ui beta.7, FormLabel uses text-xs/text-ink-gray-5 while
  * InputLabel (inside FormControl/TextInput/Select/etc.) uses
@@ -12,6 +23,20 @@
  */
 label.block:not([data-slot='label']) {
 	@apply text-p-sm-medium text-ink-gray-7;
+}
+
+/*
+ * frappe-ui's Switch (beta.7) renders its description in an `mt-1` block below
+ * a row whose height is set by the label's `leading-normal` line-box, leaving a
+ * loose gap between a switch's label and its description. Tighten the label
+ * line-height and the description offset so label + description read as one
+ * group. Scoped to our wrapper (Controls/BooleanSwitch.vue) via the `lms-switch` class.
+ */
+.lms-switch [data-slot='label'] {
+	@apply leading-tight;
+}
+.lms-switch > div:has(> [data-slot='description']) {
+	@apply mt-0.5;
 }
 
 /*
