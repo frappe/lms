@@ -8,7 +8,7 @@
 		<FormLabel v-if="label" :label="label" />
 		<div
 			ref="editor"
-			class="h-auto flex-1 overflow-hidden overscroll-none !rounded border border-outline-gray-2 bg-surface-gray-2 dark:bg-gray-900"
+			class="h-auto flex-1 overflow-hidden overscroll-none !rounded border border-outline-gray-2 bg-surface-gray-2 transition-colors hover:border-outline-gray-3 focus-within:border-outline-gray-4 focus-within:shadow-sm dark:bg-gray-900"
 		/>
 		<span
 			class="mt-1 text-xs text-ink-gray-5"

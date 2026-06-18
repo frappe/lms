@@ -31,7 +31,7 @@
 					:required="true"
 					:placeholder="__('Your enrollment in {{ batch_name }} is confirmed')"
 				/>
-				<Switch
+				<BooleanSwitch
 					size="sm"
 					:description="__('Use HTML content for the email response')"
 					:label="__('Use HTML')"
@@ -51,7 +51,7 @@
 					"
 				/>
 				<div v-else>
-					<div class="text-xs text-ink-gray-5 mb-2">
+					<div class="text-p-sm-medium text-ink-gray-7 mb-1.5">
 						{{ __('Content') }}
 						<span class="text-ink-red-6">*</span>
 					</div>
@@ -74,7 +74,7 @@
 </template>
 <script setup lang="ts">
 import { call, Dialog, FormControl, TextEditor, toast } from 'frappe-ui'
-import Switch from '@/components/Controls/Switch.vue'
+import BooleanSwitch from '@/components/Controls/BooleanSwitch.vue'
 import { reactive, watch } from 'vue'
 import { cleanError } from '@/utils'
 

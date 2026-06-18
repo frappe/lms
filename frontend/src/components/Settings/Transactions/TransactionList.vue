@@ -115,7 +115,7 @@ import {
 	ListRowItem,
 	FormControl,
 } from 'frappe-ui'
-import Switch from '@/components/Controls/Switch.vue'
+import BooleanSwitch from '@/components/Controls/BooleanSwitch.vue'
 import { computed, ref, watch } from 'vue'
 import Link from '@/components/Controls/Link.vue'
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'

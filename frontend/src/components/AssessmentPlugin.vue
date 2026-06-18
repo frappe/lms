@@ -48,7 +48,7 @@
 							:label="__('Select an Assignment')"
 							:onCreate="(value, close) => redirectToForm()"
 						/>
-						<Switch
+						<BooleanSwitch
 							size="sm"
 							:description="__('Only show assignments from the current course')"
 							:label="__('Filter assignments by course')"
@@ -62,7 +62,7 @@
 </template>
 <script setup>
 import { Dialog } from 'frappe-ui'
-import Switch from '@/components/Controls/Switch.vue'
+import BooleanSwitch from '@/components/Controls/BooleanSwitch.vue'
 import { nextTick, onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { getLmsRoute } from '@/utils/basePath'

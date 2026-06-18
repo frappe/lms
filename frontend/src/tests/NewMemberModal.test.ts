@@ -61,7 +61,7 @@ vi.mock('frappe-ui', () => ({
 	},
 }))
 
-vi.mock('@/components/Controls/Switch.vue', () => ({
+vi.mock('@/components/Controls/BooleanSwitch.vue', () => ({
 	default: {
 		props: ['modelValue', 'label', 'size'],
 		emits: ['update:modelValue'],

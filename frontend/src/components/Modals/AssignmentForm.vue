@@ -29,7 +29,7 @@
 						placeholder=" "
 					/>
 					<div>
-						<div class="text-xs text-ink-gray-5 mb-2">
+						<div class="text-p-sm-medium text-ink-gray-7 mb-1.5">
 							{{ __('Question') }}
 							<span class="text-ink-red-6">*</span>
 						</div>

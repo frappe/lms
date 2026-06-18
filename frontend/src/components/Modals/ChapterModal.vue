@@ -20,7 +20,7 @@
 					:required="true"
 					autocomplete="off"
 				/>
-				<Switch
+				<BooleanSwitch
 					size="sm"
 					:label="__('SCORM Package')"
 					:description="
@@ -80,7 +80,7 @@ import {
 	FormControl,
 	toast,
 } from 'frappe-ui'
-import Switch from '@/components/Controls/Switch.vue'
+import BooleanSwitch from '@/components/Controls/BooleanSwitch.vue'
 import { reactive, watch, inject } from 'vue'
 import { getFileSize } from '@/utils/'
 import { useOnboarding, useTelemetry } from 'frappe-ui/frappe'

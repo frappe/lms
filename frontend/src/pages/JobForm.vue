@@ -41,7 +41,7 @@
 						/>
 					</div>
 					<div>
-						<label class="block text-ink-gray-5 text-xs mb-1">
+						<label class="block text-p-sm-medium text-ink-gray-7 mb-1.5">
 							{{ __('Description') }}
 							<span class="text-ink-red-6">*</span>
 						</label>

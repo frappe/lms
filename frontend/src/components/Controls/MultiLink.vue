@@ -130,16 +130,16 @@ const popoverOpen = ref<boolean>(false)
 let loaded = false
 
 const triggerBaseClasses =
-	'relative inline-flex items-center gap-2 text-left text-ink-gray-7 outline-none transition-[background-color,border-color,box-shadow] duration-150 focus-visible:ring-2 data-[state=open]:ring-2 ring-outline-gray-3'
+	'relative inline-flex items-center gap-2 text-left text-ink-gray-7 outline-none transition-[background-color,border-color,box-shadow] duration-150'
 
 const triggerVariantClasses: Record<
 	NonNullable<typeof props.variant>,
 	string
 > = {
 	subtle:
-		'border border-[--surface-gray-2] bg-surface-gray-2 hover:border-outline-elevation-2 hover:bg-surface-gray-3',
+		'border border-[--surface-gray-2] bg-surface-gray-2 hover:border-outline-elevation-2 hover:bg-surface-gray-3 focus-visible:bg-surface-base focus-visible:border-outline-gray-4 focus-visible:shadow-sm data-[state=open]:bg-surface-base data-[state=open]:border-outline-gray-4 data-[state=open]:shadow-sm',
 	outline:
-		'border border-outline-gray-2 bg-surface-base hover:border-outline-gray-3',
+		'border border-outline-gray-2 bg-surface-base hover:border-outline-gray-3 hover:shadow-sm focus-visible:border-outline-gray-4 focus-visible:shadow-sm data-[state=open]:border-outline-gray-4 data-[state=open]:shadow-sm',
 	ghost:
 		'border border-transparent bg-transparent hover:bg-surface-gray-3 focus-within:bg-surface-gray-3',
 }

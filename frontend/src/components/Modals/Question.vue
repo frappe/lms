@@ -5,7 +5,7 @@
 				<div class="text-xl-semibold text-ink-gray-9 mb-5">
 					{{ __(props.title) }}
 				</div>
-				<Switch
+				<BooleanSwitch
 					v-if="!editMode"
 					size="sm"
 					:label="__('Choose an existing question')"
@@ -15,7 +15,7 @@
 				/>
 				<div v-if="!chooseFromExisting || editMode">
 					<div>
-						<label class="block text-xs text-ink-gray-5 mb-1">
+						<label class="block text-p-sm-medium text-ink-gray-7 mb-1.5">
 							{{ __('Question') }}
 						</label>
 						<TextEditor
@@ -67,7 +67,7 @@
 								:label="__('Explanation')"
 								v-model="question[`explanation_${n}`]"
 							/>
-							<Switch
+							<BooleanSwitch
 								size="sm"
 								:label="__('Correct Answer')"
 								:description="__('Mark this option as a correct answer.')"
@@ -118,7 +118,7 @@ import {
 	Button,
 	toast,
 } from 'frappe-ui'
-import Switch from '@/components/Controls/Switch.vue'
+import BooleanSwitch from '@/components/Controls/BooleanSwitch.vue'
 import { watch, reactive, ref, inject } from 'vue'
 import Link from '@/components/Controls/Link.vue'
 import { useOnboarding } from 'frappe-ui/frappe'

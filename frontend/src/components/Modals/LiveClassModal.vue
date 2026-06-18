@@ -51,7 +51,10 @@
 						</Tooltip>
 
 						<div class="space-y-1.5">
-							<label class="block text-ink-gray-5 text-xs" for="batchTimezone">
+							<label
+								class="block text-p-sm-medium text-ink-gray-7"
+								for="batchTimezone"
+							>
 								{{ __('Timezone') }}
 								<span class="text-ink-red-6">*</span>
 							</label>
