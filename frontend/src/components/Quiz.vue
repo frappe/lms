@@ -142,7 +142,10 @@
 						class="text-ink-gray-9 font-semibold mt-2 leading-5"
 						v-html="questionDetails.data.question"
 					></div>
-					<div v-if="questionDetails.data.type == 'Choices'" v-for="index in 4">
+					<div
+						v-if="questionDetails.data.type == 'Choices'"
+						v-for="index in MAX_OPTIONS"
+					>
 						<label
 							v-if="questionDetails.data[`option_${index}`]"
 							class="flex items-center bg-surface-gray-3 rounded-md p-3 mt-4 w-full cursor-pointer focus:border-blue-600"
@@ -472,7 +475,8 @@ import ProgressBar from '@/components/ProgressBar.vue'
 const user = inject('$user')
 const activeQuestion = ref(0)
 const currentQuestion = ref('')
-const selectedOptions = ref([0, 0, 0, 0])
+const MAX_OPTIONS = 10
+const selectedOptions = ref(Array(MAX_OPTIONS).fill(0))
 const showAnswers = reactive([])
 const questions = ref([])
 const attemptedQuestions = ref([])
@@ -705,7 +709,7 @@ const loadSavedAnswers = () => {
 			if (localAnswers.length) {
 				if (questionDetails.data.type == 'Choices') {
 					localAnswers.forEach((answer) => {
-						for (let i = 1; i <= 4; i++) {
+						for (let i = 1; i <= MAX_OPTIONS; i++) {
 							if (questionDetails.data[`option_${i}`] == answer) {
 								selectedOptions.value[i - 1] = 1
 							}
@@ -739,7 +743,7 @@ const markAnswer = (index) => {
 		selectedOptions.value.splice(
 			0,
 			selectedOptions.value.length,
-			...[0, 0, 0, 0]
+			...Array(MAX_OPTIONS).fill(0)
 		)
 	selectedOptions.value[index - 1] = selectedOptions.value[index - 1] ? 0 : 1
 }
@@ -831,7 +835,11 @@ const resetQuestion = () => {
 	// limit_questions_to.
 	if (activeQuestion.value == questions.value.length) return
 	activeQuestion.value = activeQuestion.value + 1
-	selectedOptions.value.splice(0, selectedOptions.value.length, ...[0, 0, 0, 0])
+	selectedOptions.value.splice(
+		0,
+		selectedOptions.value.length,
+		...Array(MAX_OPTIONS).fill(0)
+	)
 	showAnswers.length = 0
 	possibleAnswer.value = null
 }
@@ -874,7 +882,11 @@ const createSubmission = () => {
 
 const resetQuiz = () => {
 	activeQuestion.value = 0
-	selectedOptions.value.splice(0, selectedOptions.value.length, ...[0, 0, 0, 0])
+	selectedOptions.value.splice(
+		0,
+		selectedOptions.value.length,
+		...Array(MAX_OPTIONS).fill(0)
+	)
 	showAnswers.length = 0
 	possibleAnswer.value = null
 	attemptedQuestions.value = []
