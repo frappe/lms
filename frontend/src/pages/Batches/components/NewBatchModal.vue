@@ -105,7 +105,7 @@
 							:required="true"
 						/>
 						<div
-							class="rounded-t-lg rounded-b-md outline-none transition-[box-shadow] duration-150 ease-[cubic-bezier(0.23,1,0.32,1)] focus-within:ring-2 ring-outline-gray-3"
+							class="rounded-t-lg rounded-b-md outline-none transition-[box-shadow] duration-150 ease-[cubic-bezier(0.23,1,0.32,1)]"
 						>
 							<TextEditor
 								:id="batchDetailsId"
@@ -122,7 +122,11 @@
 		</template>
 		<template #actions="{ close }">
 			<div class="text-end">
-				<Button variant="solid" @click="saveBatch(close)">
+				<Button
+					variant="solid"
+					:loading="batches.insert.loading"
+					@click="saveBatch(close)"
+				>
 					{{ __('Save') }}
 				</Button>
 			</div>

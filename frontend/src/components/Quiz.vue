@@ -1,5 +1,11 @@
 <template>
-	<div v-if="quiz.data">
+	<div
+		v-if="quiz.loading && !quiz.data"
+		class="flex items-center justify-center py-12"
+	>
+		<LoadingIndicator class="size-4 text-ink-gray-5" />
+	</div>
+	<div v-else-if="quiz.data">
 		<div
 			class="bg-surface-blue-2 text-ink-blue-6 space-y-2 p-3 mb-4 rounded-lg leading-5"
 		>
@@ -445,6 +451,7 @@ import {
 	Checkbox,
 	createResource,
 	Dialog,
+	LoadingIndicator,
 	ListView,
 	TextEditor,
 	FormControl,
