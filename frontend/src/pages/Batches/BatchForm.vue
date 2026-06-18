@@ -83,7 +83,7 @@
 						{{ __('Enrollment & Certification') }}
 					</div>
 					<div class="grid grid-cols-1 md:grid-cols-2 gap-5 items-start">
-						<Switch
+						<BooleanSwitch
 							size="sm"
 							v-model="batchDetail.doc.allow_self_enrollment"
 							:label="__('Allow Self Enrollment')"
@@ -91,14 +91,14 @@
 								__('Allow users to enroll in this batch on their own.')
 							"
 						/>
-						<Switch
+						<BooleanSwitch
 							size="sm"
 							v-model="batchDetail.doc.certification"
 							:label="__('Certification')"
 							:description="__('Issue certificates to batch participants.')"
 						/>
 						<div class="space-y-4">
-							<Switch
+							<BooleanSwitch
 								size="sm"
 								v-model="batchDetail.doc.paid_batch"
 								:label="__('Paid Batch')"
@@ -124,7 +124,7 @@
 							</div>
 						</div>
 						<div class="space-y-4">
-							<Switch
+							<BooleanSwitch
 								size="sm"
 								v-model="batchDetail.doc.evaluation"
 								:label="__('Evaluation')"
@@ -188,11 +188,9 @@
 							class="md:col-span-2"
 						/>
 					</div>
-					<Uploader
+					<VideoPreviewField
 						v-model="batchDetail.doc.video_link"
 						:label="__('Preview Video')"
-						type="video"
-						:required="false"
 					/>
 					<div class="space-y-1.5">
 						<FormLabel
@@ -201,7 +199,7 @@
 							:required="true"
 						/>
 						<div
-							class="rounded-t-lg rounded-b-md outline-none transition-[box-shadow] duration-150 ease-[cubic-bezier(0.23,1,0.32,1)] focus-within:ring-2 ring-outline-gray-3"
+							class="rounded-t-lg rounded-b-md outline-none transition-[box-shadow] duration-150 ease-[cubic-bezier(0.23,1,0.32,1)]"
 						>
 							<TextEditor
 								:id="batchDetailsId"
@@ -330,7 +328,7 @@ import {
 	call,
 	createListResource,
 } from 'frappe-ui'
-import Switch from '@/components/Controls/Switch.vue'
+import BooleanSwitch from '@/components/Controls/BooleanSwitch.vue'
 import {
 	createLMSCategory,
 	getMetaInfo,
@@ -340,6 +338,7 @@ import {
 import { useRouter } from 'vue-router'
 import { useTelemetry } from 'frappe-ui/frappe'
 import Uploader from '@/components/Controls/Uploader.vue'
+import VideoPreviewField from '@/components/Controls/VideoPreviewField.vue'
 import MultiLink from '@/components/Controls/MultiLink.vue'
 import Link from '@/components/Controls/Link.vue'
 import Select from '@/components/Controls/Select.vue'

@@ -39,8 +39,8 @@
 						<button
 							type="button"
 							:class="[
-								'relative inline-flex w-full min-h-7 items-center gap-2 rounded border border-outline-gray-2 bg-surface-base px-2 text-left text-base text-ink-gray-8 outline-none transition-colors hover:border-outline-gray-3 hover:shadow-sm focus:border-outline-gray-4 focus:shadow-sm focus-visible:ring-2 ring-outline-gray-3',
-								open && 'border-outline-gray-4 shadow-sm ring-2',
+								'relative inline-flex w-full min-h-7 items-center gap-2 rounded border border-outline-gray-2 bg-surface-base px-2 text-left text-base text-ink-gray-8 outline-none transition-colors hover:border-outline-gray-3 hover:shadow-sm focus:border-outline-gray-4 focus:shadow-sm',
+								open && 'border-outline-gray-4 shadow-sm',
 							]"
 							@click="toggleOpen"
 						>
@@ -74,7 +74,14 @@
 				@change="markDirty()"
 			/>
 		</div>
-		<CourseThumbnailField />
+		<div class="grid gap-5 lg:grid-cols-2">
+			<CourseThumbnailField />
+			<VideoPreviewField
+				:modelValue="doc.video_link"
+				:label="__('Preview video')"
+				@update:modelValue="setVideoLink"
+			/>
+		</div>
 	</section>
 </template>
 
@@ -85,6 +92,7 @@ import { createLMSCategory } from '@/utils'
 import Link from '@/components/Controls/Link.vue'
 import CourseInstructorsField from '@/pages/Courses/CourseInstructorsField.vue'
 import CourseThumbnailField from '@/pages/Courses/CourseThumbnailField.vue'
+import VideoPreviewField from '@/components/Controls/VideoPreviewField.vue'
 import type { CourseFormContext } from '@/types/api'
 
 interface TagOption {
@@ -124,6 +132,12 @@ const tagOptions = computed<TagOption[]>(() => {
 })
 
 const tagsSelectedLabels = computed<string>(() => tagsArray.value.join(', '))
+
+function setVideoLink(value: string) {
+	if (!resource.doc) return
+	resource.doc.video_link = value
+	markDirty()
+}
 
 function createCategory(name: string, done?: () => void) {
 	if (!name) return
