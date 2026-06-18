@@ -84,7 +84,9 @@
 				<CourseCard :course="course" />
 			</router-link>
 		</div>
-		<EmptyStateLayout v-else-if="!courses.list.loading" name="Courses" />
+		<div v-else-if="!courses.list.loading" class="flex-1">
+			<EmptyStateLayout name="Courses" icon="lucide-book-open" />
+		</div>
 		<div
 			v-if="!courses.list.loading && courses.hasNextPage"
 			class="flex justify-center mt-5"

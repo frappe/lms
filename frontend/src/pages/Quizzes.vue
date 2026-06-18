@@ -18,7 +18,7 @@
 			class="mx-5 mb-5 flex flex-col justify-between gap-y-4 sm:flex-row sm:items-center"
 		>
 			<div class="text-xl-semibold text-ink-gray-9">
-				{{ __('{0} Quizzes').format(quizzes.data?.length) }}
+				{{ __('{0} Quizzes').format(totalQuizzes.data || 0) }}
 			</div>
 			<FormControl v-model="search" type="text" placeholder="Search">
 				<template #prefix>
@@ -26,8 +26,14 @@
 				</template>
 			</FormControl>
 		</div>
+		<div
+			v-if="quizzes.loading && !quizzes.data"
+			class="flex flex-1 items-center justify-center px-5"
+		>
+			<LoadingIndicator class="size-5 text-ink-gray-5" />
+		</div>
 		<ListView
-			v-if="quizzes.data?.length"
+			v-else-if="quizzes.data?.length"
 			:columns="quizColumns"
 			:rows="quizzes.data"
 			row-key="name"
@@ -84,8 +90,8 @@
 				</template>
 			</ListSelectBanner>
 		</ListView>
-		<div v-else class="flex flex-1 items-center justify-center px-5">
-			<EmptyStateLayout name="Quizzes" />
+		<div v-else class="flex-1">
+			<EmptyStateLayout name="Quizzes" icon="lucide-circle-help" />
 		</div>
 		<ListFooter
 			v-model="pageLength"
@@ -154,6 +160,7 @@ import {
 	ListHeaderItem,
 	ListFooter,
 	ListSelectBanner,
+	LoadingIndicator,
 	toast,
 	usePageMeta,
 	Checkbox,

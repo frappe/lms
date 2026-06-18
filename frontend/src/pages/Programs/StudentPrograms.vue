@@ -46,10 +46,12 @@
 						</div>
 					</div>
 				</div>
-				<EmptyStateLayout
-					v-else
-					:name="convertToTitleCase(category) + ' Programs'"
-				/>
+				<div v-else class="flex-1">
+					<EmptyStateLayout
+						:name="convertToTitleCase(category) + ' Programs'"
+						icon="lucide-graduation-cap"
+					/>
+				</div>
 				<!-- <div v-else class="col-span-3 text-center text-ink-gray-5">
                     {{ __('No programs found in this category.') }}
                 </div> -->

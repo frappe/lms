@@ -141,14 +141,15 @@
 				</div>
 			</div>
 		</div>
-		<EmptyStateLayout
-			v-else
-			name="Notifications"
-			:title="emptyTitle"
-			:description="emptyDescription"
-			:icon="Bell"
-			width="lg"
-		/>
+		<div v-else class="flex-1">
+			<EmptyStateLayout
+				name="Notifications"
+				:title="emptyTitle"
+				:description="emptyDescription"
+				icon="lucide-bell"
+				width="lg"
+			/>
+		</div>
 	</div>
 </template>
 <script setup>
@@ -165,7 +166,6 @@ import {
 import { sessionStore } from '../stores/session'
 import { computed, inject, ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { Bell } from 'lucide-vue-next'
 import { formatTime } from '@/utils/'
 import LayoutHeader from '@/components/Layouts/LayoutHeader.vue'
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'

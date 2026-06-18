@@ -27,7 +27,7 @@
 			class="mx-5 mb-5 flex flex-col justify-between gap-y-4 sm:flex-row sm:items-center"
 		>
 			<div class="text-xl-semibold text-ink-gray-9">
-				{{ __('{0} Assignments').format(assignments.data?.length) }}
+				{{ __('{0} Assignments').format(totalAssignments.data || 0) }}
 			</div>
 			<div class="flex flex-col gap-3 sm:flex-row md:gap-5">
 				<FormControl
@@ -107,7 +107,7 @@
 			</ListSelectBanner>
 		</ListView>
 		<div v-else class="flex-1">
-			<EmptyStateLayout name="Assignments" />
+			<EmptyStateLayout name="Assignments" icon="lucide-clipboard-list" />
 		</div>
 		<ListFooter
 			v-model="pageLength"

@@ -18,10 +18,7 @@
 		</template>
 
 		<template #header-bottom>
-			<div
-				v-if="showForm"
-				class="flex items-center justify-between my-4 gap-x-2"
-			>
+			<div v-if="showForm" class="flex items-center justify-between gap-x-2">
 				<FormControl
 					ref="categoryInput"
 					v-model="category"
@@ -34,13 +31,11 @@
 			</div>
 		</template>
 
-		<div class="divide-y divide-outline-elevation-2 space-y-2">
-			<div
-				v-if="categories.data?.length"
-				v-for="(cat, index) in categories.data"
-				:key="cat.name"
-				class="pt-2"
-			>
+		<div
+			class="divide-y divide-outline-elevation-2"
+			v-if="categories.data?.length"
+		>
+			<div v-for="(cat, index) in categories.data" :key="cat.name" class="pt-2">
 				<div
 					v-if="editing?.name !== cat.name"
 					class="flex items-center justify-between group text-sm text-ink-gray-9"
@@ -68,13 +63,13 @@
 					@keyup.enter="saveChanges(cat.name, editedValue)"
 				/>
 			</div>
-			<EmptyStateLayout
-				v-else
-				name="Categories"
-				:description="__('Add one to get started.')"
-				icon="lucide-network"
-			/>
 		</div>
+		<EmptyStateLayout
+			v-else
+			name="Categories"
+			:description="__('Add one to get started.')"
+			icon="lucide-network"
+		/>
 	</SettingsLayout>
 </template>
 <script setup>
