@@ -52,11 +52,11 @@
 	</div>
 	<div
 		v-else-if="quizDetails.doc"
-		class="grid grid-cols-[70%,30%] gap-5 px-5 py-5"
+		class="grid min-h-0 flex-1 grid-cols-[7fr,3fr]"
 	>
 		<!-- LEFT: Questions -->
-		<div class="space-y-5">
-			<div class="flex items-center justify-between mb-4">
+		<div class="flex min-h-0 flex-col">
+			<div class="flex items-center justify-between px-5 pt-5 mb-4">
 				<div class="text-xl-semibold text-ink-gray-9">
 					{{ __('Questions') }}
 				</div>
@@ -69,6 +69,7 @@
 			</div>
 			<ListView
 				v-if="questions.length"
+				class="flex-1 overflow-y-auto px-5"
 				:columns="questionColumns"
 				:rows="questions"
 				row-key="name"
@@ -114,13 +115,34 @@
 					</template>
 				</ListSelectBanner>
 			</ListView>
-			<div v-else class="text-ink-gray-6 text-sm">
-				{{ __('No questions added yet') }}
-			</div>
+			<EmptyStateLayout
+				v-else
+				class="flex-1"
+				name="Questions"
+				:title="__('No questions added yet')"
+				:description="__('Add a question to get started.')"
+				icon="lucide-circle-help"
+			/>
+			<ListFooter
+				v-model="pageLength"
+				class="border-t px-3 py-2 sm:px-5"
+				:options="{
+					rowCount: questions.length,
+					totalCount: questions.length,
+				}"
+			>
+				<template #right>
+					<div class="flex items-center gap-1 text-base text-ink-gray-5">
+						<div>{{ questions.length }}</div>
+						<div>{{ __('of') }}</div>
+						<div>{{ questions.length }}</div>
+					</div>
+				</template>
+			</ListFooter>
 		</div>
 
 		<!-- RIGHT: Details + Settings -->
-		<div class="space-y-8 border-l pl-5">
+		<div class="space-y-8 overflow-y-auto border-l p-5">
 			<div class="space-y-5">
 				<div class="text-ink-gray-9 font-semibold">{{ __('Details') }}</div>
 				<FormControl
@@ -212,6 +234,7 @@ import {
 	ListRow,
 	ListRowItem,
 	ListSelectBanner,
+	ListFooter,
 	Button,
 	usePageMeta,
 	toast,
@@ -235,8 +258,10 @@ import { sessionStore } from '../stores/session'
 import { useRouter } from 'vue-router'
 import { sanitizeHTML } from '@/utils'
 import Question from '@/components/Modals/Question.vue'
+import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 
 const { brand } = sessionStore()
+const pageLength = ref(20)
 const showQuestionModal = ref(false)
 const currentQuestion = reactive({
 	question: '',
