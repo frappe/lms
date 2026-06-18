@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2026-06-12 16:58+0000\n"
-"PO-Revision-Date: 2026-06-17 19:11\n"
+"PO-Revision-Date: 2026-06-18 19:53\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Bosnian\n"
 "MIME-Version: 1.0\n"
@@ -5518,7 +5518,7 @@ msgstr "Na licu mjesta"
 
 #: frontend/src/pages/PersonaForm.vue:123
 msgid "Onboarding and educating my users/community"
-msgstr "Uvođenje i Obrzovanje korisnika/zajednice"
+msgstr "Uvođenje i Obrazovanje korisnika/zajednice"
 
 #: lms/templates/emails/certification.html:16
 msgid "Once again, congratulations on this significant accomplishment."
@@ -9229,7 +9229,7 @@ msgstr "sekcija"
 
 #: frontend/src/pages/Courses/CourseOverview.vue:189
 msgid "sections"
-msgstr "sekcija"
+msgstr "sekcije"
 
 #: frontend/src/pages/Programs/ProgramEnrollment.vue:72
 msgid "students"
