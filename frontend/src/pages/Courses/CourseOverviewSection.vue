@@ -32,11 +32,11 @@
 		<MultiLink
 			v-model="relatedCourses"
 			doctype="LMS Course"
-			:filters="{ name: ['!=', resource.doc?.name] }"
+			:filters="{ name: ['!=', resource.doc?.name], published: 1 }"
 			:label="__('Related Courses')"
 			:placeholder="__('Select related courses')"
+			:emptyText="__('No other published courses available')"
 			variant="outline"
-			:onCreate="goToCreateCourse"
 			@update:modelValue="markDirty()"
 		/>
 	</section>
@@ -78,18 +78,11 @@
 <script setup lang="ts">
 import { TextEditor, FormControl } from 'frappe-ui'
 import { computed, inject, useId } from 'vue'
-import { useRouter } from 'vue-router'
 import MultiLink from '@/components/Controls/MultiLink.vue'
 import type { CourseFormContext } from '@/types/api'
 
 const { resource, relatedCourses, meta, markDirty } =
 	inject<CourseFormContext>('courseForm')!
-const router = useRouter()
 const doc = computed(() => resource.doc)
 const descriptionId = useId()
-
-function goToCreateCourse(close: () => void) {
-	close()
-	router.push({ name: 'Courses', query: { newCourse: '1' } })
-}
 </script>

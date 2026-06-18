@@ -2475,7 +2475,12 @@ def get_related_courses(course: str) -> list:
 	related_courses = frappe.get_all("Related Courses", {"parent": course}, order_by="idx", pluck="course")
 
 	for related_course in related_courses:
-		related_course_details.append(get_course_details(related_course))
+		# get_course_details returns {} for courses the viewer can't see (e.g. a
+		# related course that was unpublished after being tagged); skip those so
+		# the frontend doesn't render a blank card.
+		details = get_course_details(related_course)
+		if details:
+			related_course_details.append(details)
 	return related_course_details
 
 
