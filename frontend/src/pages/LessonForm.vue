@@ -53,6 +53,11 @@ const editor = ref(null)
 const instructorEditor = ref(null)
 const user = inject('$user')
 const openInstructorEditor = ref(false)
+const contentUploadContext = { docname: null, fieldname: 'content' }
+const instructorUploadContext = {
+	docname: null,
+	fieldname: 'instructor_content',
+}
 const { capture } = useTelemetry()
 const { updateOnboardingStep } = useOnboarding('learning')
 let autoSaveInterval
@@ -88,21 +93,24 @@ onMounted(() => {
 		window.location.href = '/login'
 	}
 	capture('lesson_form_opened')
-	editor.value = renderEditor('content')
-	instructorEditor.value = renderEditor('instructor-notes')
+	editor.value = renderEditor('content', contentUploadContext)
+	instructorEditor.value = renderEditor(
+		'instructor-notes',
+		instructorUploadContext
+	)
 	window.addEventListener('keydown', keyboardShortcut)
 	enablePlyr()
 })
 
-const renderEditor = (holder) => {
+const renderEditor = (holder, uploadContext = {}) => {
 	return new EditorJS({
 		holder: holder,
-		tools: getEditorTools(true),
+		tools: getEditorTools(false, uploadContext),
 		defaultBlock: 'markdown',
 		i18n: {
 			direction: document.documentElement.dir === 'rtl' ? 'rtl' : 'ltr',
 		},
-		onChange: async (api, event) => {
+		onChange: async () => {
 			enablePlyr()
 			markDirty()
 		},
@@ -133,6 +141,8 @@ const lessonDetails = createResource({
 			lesson.include_in_preview = data?.lesson?.include_in_preview
 				? true
 				: false
+			contentUploadContext.docname = data.lesson.name
+			instructorUploadContext.docname = data.lesson.name
 			addLessonContent(data)
 			addInstructorNotes(data)
 			enableAutoSave()
