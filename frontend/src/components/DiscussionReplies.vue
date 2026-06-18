@@ -1,6 +1,6 @@
 <template>
 	<div class="mt-6">
-		<div v-if="!singleThread" class="flex items-center mb-5">
+		<div v-if="!singleThread" class="flex items-center mb-5 md:hidden">
 			<Button variant="outline" @click="showTopics = true">
 				<template #icon>
 					<span class="lucide-chevron-left size-5 text-ink-gray-7" />
@@ -9,6 +9,12 @@
 			<span class="text-xl-semibold ms-2 text-ink-gray-9">
 				{{ topic.title }}
 			</span>
+		</div>
+		<div
+			v-if="!singleThread"
+			class="hidden md:block text-xl-semibold mb-5 text-ink-gray-9"
+		>
+			{{ topic.title }}
 		</div>
 
 		<div v-for="(reply, index) in replies.data">

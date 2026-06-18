@@ -44,7 +44,7 @@
 						doc_type: 'LMS Certificate',
 					}"
 				/>
-				<Switch
+				<BooleanSwitch
 					size="sm"
 					:label="__('Published')"
 					:description="
@@ -61,7 +61,7 @@
 <script setup>
 import { inject, reactive } from 'vue'
 import { createResource, Dialog, FormControl, toast } from 'frappe-ui'
-import Switch from '@/components/Controls/Switch.vue'
+import BooleanSwitch from '@/components/Controls/BooleanSwitch.vue'
 import Link from '@/components/Controls/Link.vue'
 
 const show = defineModel()

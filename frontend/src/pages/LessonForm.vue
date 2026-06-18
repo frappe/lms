@@ -2,21 +2,25 @@
 	<div class="py-10">
 		<div class="mx-10 space-y-6 px-20">
 			<!-- Include-in-preview control row -->
-			<div class="flex items-center gap-3">
-				<Switch v-model="lesson.include_in_preview" @change="markDirty" />
-				<div class="flex items-center gap-1.5">
-					<span class="text-p-base font-medium text-ink-gray-8">
-						{{ __('Include in preview') }}
-					</span>
-					<Tooltip
-						:text="
-							__(
-								'When on, anyone can preview this lesson without enrolling. Otherwise it is visible only to enrolled students.'
-							)
-						"
-					>
-						<span class="lucide-help-circle size-4 shrink-0 text-ink-gray-5" />
-					</Tooltip>
+			<div class="flex items-center justify-between gap-3">
+				<div class="flex items-center gap-3">
+					<Switch v-model="lesson.include_in_preview" @change="markDirty" />
+					<div class="flex items-center gap-1.5">
+						<span class="text-p-base font-medium text-ink-gray-8">
+							{{ __('Include in preview') }}
+						</span>
+						<Tooltip
+							:text="
+								__(
+									'When on, anyone can preview this lesson without enrolling. Otherwise it is visible only to enrolled students.'
+								)
+							"
+						>
+							<span
+								class="lucide-help-circle size-4 shrink-0 text-ink-gray-5"
+							/>
+						</Tooltip>
+					</div>
 				</div>
 			</div>
 
@@ -70,9 +74,17 @@
 	</div>
 </template>
 <script setup>
-import { Badge, Switch, createResource, toast, Tooltip } from 'frappe-ui'
+import {
+	Badge,
+	Button,
+	Switch,
+	createResource,
+	toast,
+	Tooltip,
+} from 'frappe-ui'
 import {
 	reactive,
+	computed,
 	onMounted,
 	inject,
 	ref,
@@ -83,6 +95,7 @@ import { ChevronRight, NotebookPen } from 'lucide-vue-next'
 import { useDebounceFn } from '@vueuse/core'
 import { enablePlyr, sanitizeEditorJs } from '@/utils'
 import { hasEditorContent } from '@/utils/lessonForm'
+import { hasVideoContent } from '@/utils/video'
 import BlockEditor from '@/components/BlockEditor.vue'
 import { useOnboarding, useTelemetry } from 'frappe-ui/frappe'
 
@@ -157,6 +170,9 @@ function markDirty() {
 defineExpose({
 	saveLesson,
 	isDirty,
+	lessonHasVideo: () => lessonHasVideo.value,
+	lessonName: () => lessonDetails.data?.lesson?.name,
+	lessonTitle: () => lesson.title,
 })
 
 onMounted(() => {
@@ -175,6 +191,8 @@ const lesson = reactive({
 	instructor_notes: '',
 	content: '',
 })
+
+const lessonHasVideo = computed(() => hasVideoContent(lesson))
 
 const lessonDetails = createResource({
 	url: 'lms.lms.utils.get_lesson_creation_details',
@@ -303,28 +321,31 @@ const lessonReference = createResource({
 
 const convertToJSON = (lessonData) => {
 	let blocks = []
-	if (lessonData.youtube) {
-		let youtubeID = lessonData.youtube.split('/').pop()
+	// A lesson can carry the same video in BOTH the `youtube` field and a
+	// `{{ YouTubeVideo }}` body macro. Without de-duping we'd emit two embed
+	// blocks for one video — the symptom being a stuck preloader above a second
+	// player. Key on the video id so each video renders exactly once.
+	const seenYoutube = new Set()
+	const youtubeKey = (url) => url.split('/').pop().split('?')[0]
+	const pushYoutube = (embedUrl) => {
+		const key = youtubeKey(embedUrl)
+		if (seenYoutube.has(key)) return
+		seenYoutube.add(key)
 		blocks.push({
 			type: 'embed',
-			data: {
-				service: 'youtube',
-				embed: `https://www.youtube.com/embed/${youtubeID}`,
-			},
+			data: { service: 'youtube', embed: embedUrl },
 		})
+	}
+	if (lessonData.youtube) {
+		let youtubeID = lessonData.youtube.split('/').pop()
+		pushYoutube(`https://www.youtube.com/embed/${youtubeID}`)
 	}
 	lessonData.body.split('\n').forEach((block) => {
 		if (block.includes('{{ YouTubeVideo')) {
 			let youtubeID = block.match(/\(["']([^"']+?)["']\)/)[1]
 			if (!youtubeID.includes('https://'))
 				youtubeID = `https://www.youtube.com/embed/${youtubeID}`
-			blocks.push({
-				type: 'embed',
-				data: {
-					service: 'youtube',
-					embed: youtubeID,
-				},
-			})
+			pushYoutube(youtubeID)
 		} else if (block.includes('{{ Quiz')) {
 			let quiz = block.match(/\(["']([^"']+?)["']\)/)[1]
 			blocks.push({

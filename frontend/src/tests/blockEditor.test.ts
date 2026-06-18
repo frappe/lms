@@ -4,7 +4,9 @@ import Paragraph from '@editorjs/paragraph'
 import BlockEditor from '@/components/BlockEditor.vue'
 
 vi.mock('@/utils', () => ({
-	getEditorTools: () => ({ paragraph: Paragraph }),
+	// 'markdown' is the editor's defaultBlock and what the trailing-block
+	// affordance inserts; alias it to Paragraph so the test editor can create it.
+	getEditorTools: () => ({ paragraph: Paragraph, markdown: Paragraph }),
 	enablePlyr: () => {},
 }))
 

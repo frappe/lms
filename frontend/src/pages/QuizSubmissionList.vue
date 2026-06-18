@@ -40,7 +40,9 @@
 			</Button>
 		</div>
 	</div>
-	<EmptyStateLayout v-else name="Quiz Submissions" />
+	<div v-else class="flex-1">
+		<EmptyStateLayout name="Quiz Submissions" icon="lucide-file-check" />
+	</div>
 </template>
 <script setup>
 import {

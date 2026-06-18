@@ -34,33 +34,23 @@
 				<template v-if="tabIndex === 2 && editorSelected">
 					<!-- Edit mode autosaves continuously, so there is no Save
 					     button or dirty badge here. -->
-					<template v-if="editorMode === 'preview'">
-						<Tooltip v-if="courseEditorRef?.canGoZen" :text="__('Zen Mode')">
-							<Button @click="courseEditorRef?.previewZen()">
-								<template #icon>
-									<span class="lucide-focus size-4" />
-								</template>
-							</Button>
-						</Tooltip>
-						<Button
-							v-if="courseEditorRef?.hasPrev"
-							@click="courseEditorRef?.previewPrev()"
-						>
-							<template #prefix>
-								<span class="lucide-chevron-left size-4" />
+					<Tooltip
+						v-if="courseEditorRef?.lessonHasVideo"
+						:text="__('Video Statistics')"
+					>
+						<Button variant="ghost" @click="courseEditorRef?.openVideoStats()">
+							<template #icon>
+								<span class="lucide-trending-up size-4" />
 							</template>
-							{{ __('Previous') }}
 						</Button>
-						<Button
-							v-if="courseEditorRef?.hasNext"
-							@click="courseEditorRef?.previewNext()"
-						>
-							<template #suffix>
-								<span class="lucide-chevron-right size-4" />
+					</Tooltip>
+					<Tooltip :text="__('How to edit a lesson')">
+						<Button variant="ghost" @click="showLessonHelp = true">
+							<template #icon>
+								<span class="lucide-info size-4" />
 							</template>
-							{{ __('Next') }}
 						</Button>
-					</template>
+					</Tooltip>
 					<Button
 						variant="outline"
 						@click="editorMode = editorMode === 'preview' ? 'edit' : 'preview'"
@@ -74,7 +64,7 @@
 				</template>
 				<Button
 					v-if="user.data?.is_moderator"
-					:variant="course.data?.published ? 'subtle' : 'solid'"
+					:variant="course.data?.published ? 'outline' : 'solid'"
 					:theme="course.data?.published ? 'red' : 'gray'"
 					:loading="publishToggle.loading"
 					@click="togglePublishCourse"
@@ -83,6 +73,7 @@
 				</Button>
 			</template>
 		</LayoutHeader>
+		<LessonHelp v-model="showLessonHelp" />
 
 		<div v-if="!isAdmin" class="flex-1 min-h-0">
 			<CourseOverview :course="course" />
@@ -131,7 +122,7 @@
 </template>
 <script setup lang="ts">
 import { computed, inject, markRaw, onMounted, ref, watch } from 'vue'
-import type { Component, ComputedRef, Ref } from 'vue'
+import type { ComputedRef, Ref } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import type { RouteLocationNormalizedLoadedGeneric, Router } from 'vue-router'
 import {
@@ -151,6 +142,7 @@ import CourseOverview from '@/pages/Courses/CourseOverview.vue'
 import CourseDashboard from '@/pages/Courses/CourseDashboard.vue'
 import CourseEditor from '@/pages/Courses/CourseEditor.vue'
 import CourseForm from '@/pages/Courses/CourseForm.vue'
+import LessonHelp from '@/components/LessonHelp.vue'
 import type {
 	CourseDetails,
 	CourseInstructorInfo,
@@ -180,6 +172,7 @@ interface EditorSelection {
 
 const editorSelected = ref<EditorSelection | null>(null)
 const editorMode = ref<'edit' | 'preview'>('edit')
+const showLessonHelp = ref(false)
 
 // Settings tab (CourseForm) exposes the API the LayoutHeader actions need.
 type CourseMenuItem = {
@@ -205,9 +198,11 @@ type CourseEditorApi = {
 	hasPrev: ComputedRef<boolean>
 	hasNext: ComputedRef<boolean>
 	canGoZen: ComputedRef<boolean>
+	lessonHasVideo: ComputedRef<boolean>
 	previewPrev: () => void
 	previewNext: () => void
 	previewZen: () => void
+	openVideoStats: () => void
 	openAddChapter: () => void
 }
 const courseEditorRef = ref<CourseEditorApi | null>(null)

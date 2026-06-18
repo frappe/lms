@@ -102,7 +102,9 @@
 				<BatchCard :batch="batch" />
 			</router-link>
 		</div>
-		<EmptyStateLayout v-else-if="!batches.list.loading" name="Batches" />
+		<div v-else-if="!batches.list.loading" class="flex-1">
+			<EmptyStateLayout name="Batches" icon="lucide-users" />
+		</div>
 
 		<div
 			v-if="!batches.list.loading && batches.hasNextPage"

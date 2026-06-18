@@ -32,7 +32,7 @@
 					:required="true"
 				/>
 				<div>
-					<label class="text-xs text-ink-gray-5 mb-1">
+					<label class="text-p-sm-medium text-ink-gray-7 mb-1.5">
 						{{ __('Issued On') }}
 						<span class="text-ink-red-6">*</span>
 					</label>

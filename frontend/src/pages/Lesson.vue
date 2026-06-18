@@ -6,7 +6,7 @@
 		>
 			<Breadcrumbs class="h-7" :items="breadcrumbs" />
 			<div class="flex items-center gap-x-2">
-				<Tooltip v-if="canGoZen()" :text="__('Zen Mode')">
+				<Tooltip v-if="canGoZen() && isAdmin" :text="__('Zen Mode')">
 					<Button @click="goFullScreen()">
 						<template #icon>
 							<span class="lucide-focus size-4" />
@@ -23,35 +23,6 @@
 					</template>
 				</Button>
 				<CertificationLinks :courseName="courseName" />
-				<Button v-if="lesson.data.prev" @click="switchLesson('prev')">
-					<template #prefix>
-						<span class="lucide-chevron-left size-4" />
-					</template>
-					<span>
-						{{ __('Previous') }}
-					</span>
-				</Button>
-
-				<Button v-if="lesson.data.next" @click="switchLesson('next')">
-					<template #suffix>
-						<span class="lucide-chevron-right size-4" />
-					</template>
-					<span>
-						{{ __('Next') }}
-					</span>
-				</Button>
-
-				<router-link
-					v-else
-					:to="{
-						name: 'CourseDetail',
-						params: { courseName: courseName },
-					}"
-				>
-					<Button>
-						{{ __('Back to Course') }}
-					</Button>
-				</router-link>
 			</div>
 		</header>
 		<div
@@ -124,7 +95,7 @@
 
 								<div
 									v-if="zenModeEnabled"
-									class="relative flex items-center gap-x-2 text-sm mt-1 text-ink-gray-7 group w-fit mt-2"
+									class="relative flex items-center gap-x-2 text-sm text-ink-gray-7 group w-fit mt-2"
 								>
 									<span>
 										{{ lesson.data.chapter_title }} -
@@ -138,6 +109,59 @@
 										{{ __('completed') }}
 									</div>
 								</div>
+							</div>
+
+							<div
+								v-if="!zenModeEnabled"
+								class="flex items-center gap-x-2 mt-2 md:mt-0"
+							>
+								<router-link
+									v-if="isAdmin && !embedded"
+									:to="{
+										name: 'CourseDetail',
+										params: { courseName: courseName },
+										hash: '#course editor',
+										query: {
+											editLesson: `${chapterNumber}-${lessonNumber}`,
+											lessonMode: 'edit',
+										},
+									}"
+								>
+									<Button>
+										<template #prefix>
+											<span class="lucide-pencil size-4" />
+										</template>
+										{{ __('Edit') }}
+									</Button>
+								</router-link>
+								<Tooltip v-else-if="canGoZen()" :text="__('Zen Mode')">
+									<Button @click="goFullScreen()">
+										<template #icon>
+											<span class="lucide-focus size-4" />
+										</template>
+									</Button>
+								</Tooltip>
+								<Button v-if="lesson.data.prev" @click="switchLesson('prev')">
+									<template #prefix>
+										<span class="lucide-chevron-left size-4" />
+									</template>
+									<span>{{ __('Previous') }}</span>
+								</Button>
+								<Button v-if="lesson.data.next" @click="switchLesson('next')">
+									<template #suffix>
+										<span class="lucide-chevron-right size-4" />
+									</template>
+									<span>{{ __('Next') }}</span>
+								</Button>
+								<router-link
+									v-else
+									:to="{
+										name: 'CourseDetail',
+										params: { courseName: courseName },
+									}"
+								>
+									<Button>{{ __('Back to Course') }}</Button>
+								</router-link>
 							</div>
 
 							<div
@@ -342,6 +366,7 @@ import ProgressBar from '@/components/ProgressBar.vue'
 import Discussions from '@/components/Discussions.vue'
 import CertificationLinks from '@/components/CertificationLinks.vue'
 import VideoStatistics from '@/components/Modals/VideoStatistics.vue'
+import { hasVideoContent } from '@/utils/video'
 import CourseOutline from '@/components/CourseOutline.vue'
 import StudentLessonSidebar from '@/components/StudentLessonSidebar.vue'
 import UserAvatar from '@/components/UserAvatar.vue'
@@ -408,6 +433,10 @@ defineExpose({
 	canGoZen: () => canGoZen(),
 	hasPrev: computed(() => Boolean(lesson.data?.prev)),
 	hasNext: computed(() => Boolean(lesson.data?.next)),
+	lessonHasVideo: () => lessonHasVideo.value,
+	showVideoStats: () => showVideoStats(),
+	lessonName: () => lesson.data?.name,
+	lessonTitle: () => lesson.data?.title,
 })
 
 let collapsedByLesson = false
@@ -871,11 +900,17 @@ const updateVideoTime = (video) => {
 let videoFallbackArmed = false
 let fallbackGeneration = 0
 const fallbackToDwellTimer = (reason) => {
+	// The dwell fallback only matters for an enrolled student tracking progress.
+	// Don't surface the "mark as viewed" toast in the course editor preview or to
+	// non-enrolled viewers (admins/instructors reviewing the lesson).
+	if (props.embedded || !lesson.data?.membership) return
 	if (videoFallbackArmed) return
 	videoFallbackArmed = true
 	console.warn('[Lesson] video fallback engaged:', reason)
 	toast.warning(
-		__('Video failed to load — you can still mark this lesson as viewed.')
+		__(
+			'Video failed to load — this lesson will still be marked complete after you spend some time on it.'
+		)
 	)
 	clearInterval(timerInterval)
 	timer.value = 0
@@ -936,29 +971,7 @@ const isAdmin = computed(() => {
 // The video-statistics button only makes sense when the lesson actually has a
 // video; showing it for text-only lessons opened an empty modal and logged a
 // console error.
-const lessonHasVideo = computed(() => {
-	const data = lesson.data
-	if (!data) return false
-	if (data.youtube) return true
-	if (data.videos?.length) return true
-	if (data.body && /\{\{ (YouTubeVideo|Video)\(/.test(data.body)) return true
-	if (data.content) {
-		try {
-			const blocks = JSON.parse(data.content)?.blocks || []
-			return blocks.some(
-				(block) =>
-					block.type === 'embed' ||
-					(block.type === 'upload' &&
-						['mp4', 'webm', 'mov', 'mkv', 'm4v'].includes(
-							block.data?.file_type
-						))
-			)
-		} catch {
-			return false
-		}
-	}
-	return false
-})
+const lessonHasVideo = computed(() => hasVideoContent(lesson.data))
 
 const allowInstructorContent = () => {
 	if (window.read_only_mode) return false

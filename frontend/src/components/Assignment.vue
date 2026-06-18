@@ -123,7 +123,7 @@
 					</div>
 				</div>
 				<div v-else-if="assignment.data.type == 'URL'">
-					<div class="text-xs text-ink-gray-5 mb-1">
+					<div class="text-p-sm-medium text-ink-gray-7 mb-1.5">
 						{{ __('Enter a URL') }}
 					</div>
 					<FormControl
@@ -178,7 +178,7 @@
 						:options="submissionStatusOptions"
 					/>
 					<div>
-						<div class="text-sm text-ink-gray-5 mb-1">
+						<div class="text-p-sm-medium text-ink-gray-7 mb-1.5">
 							{{ __('Comments') }}
 						</div>
 						<TextEditor

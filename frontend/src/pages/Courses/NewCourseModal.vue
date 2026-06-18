@@ -94,7 +94,11 @@
 		</template>
 		<template #actions="{ close }">
 			<div class="text-end">
-				<Button variant="solid" @click="saveCourse(close)">
+				<Button
+					variant="solid"
+					:loading="courses.insert.loading"
+					@click="saveCourse(close)"
+				>
 					{{ __('Save') }}
 				</Button>
 			</div>

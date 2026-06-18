@@ -40,7 +40,7 @@
 			class="mb-5 flex flex-col justify-between gap-y-4 px-5 sm:flex-row sm:items-center"
 		>
 			<div class="text-xl-semibold text-ink-gray-9">
-				{{ __('{0} Exercises').format(exercises.data?.length) }}
+				{{ __('{0} Exercises').format(totalExercises.data || 0) }}
 			</div>
 			<div class="flex flex-col gap-3 sm:gap-5 md:flex-row">
 				<FormControl
@@ -118,8 +118,8 @@
 				</template>
 			</ListSelectBanner>
 		</ListView>
-		<div v-else class="flex flex-1 items-center justify-center px-5">
-			<EmptyStateLayout name="Programming Exercises" />
+		<div v-else class="flex-1">
+			<EmptyStateLayout name="Programming Exercises" icon="lucide-code" />
 		</div>
 		<ListFooter
 			v-model="pageLength"

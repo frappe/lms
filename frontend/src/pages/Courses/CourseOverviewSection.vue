@@ -3,14 +3,6 @@
 		<div class="text-base-semibold text-ink-gray-9">
 			{{ __('Course overview') }}
 		</div>
-		<FormControl
-			v-model="doc.video_link"
-			:label="__('Embed (preview video)')"
-			:description="__('Supports YouTube and Vimeo.')"
-			:placeholder="__('e.g. https://www.youtube.com/video')"
-			variant="outline"
-			@input="markDirty()"
-		/>
 		<div class="space-y-1.5">
 			<label
 				:for="descriptionId"
@@ -20,7 +12,7 @@
 				<span class="text-ink-red-6">*</span>
 			</label>
 			<div
-				class="rounded-t-lg rounded-b-md outline-none transition-[box-shadow] duration-150 ease-[cubic-bezier(0.23,1,0.32,1)] focus-within:ring-2 ring-outline-gray-3"
+				class="rounded-t-lg rounded-b-md outline-none transition-[box-shadow] duration-150 ease-[cubic-bezier(0.23,1,0.32,1)]"
 			>
 				<TextEditor
 					:id="descriptionId"

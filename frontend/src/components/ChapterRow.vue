@@ -64,7 +64,11 @@
 				<template #item="{ element: lesson }">
 					<div
 						class="outline-lesson ps-8 py-2 pe-4 text-ink-gray-9"
-						:class="isActiveLesson(lesson.number) ? 'bg-surface-gray-3' : ''"
+						:class="
+							isActiveLesson(lesson.number)
+								? 'bg-surface-gray-3 rounded-md'
+								: ''
+						"
 					>
 						<component
 							:is="inlineSelect ? 'div' : 'router-link'"

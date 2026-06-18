@@ -124,7 +124,12 @@
 				</template>
 			</ListSelectBanner>
 		</ListView>
-		<EmptyStateLayout v-else name="Programming Exercise Submissions" />
+		<div v-else class="flex-1">
+			<EmptyStateLayout
+				name="Programming Exercise Submissions"
+				icon="lucide-file-code"
+			/>
+		</div>
 		<div
 			v-if="submissions.data && submissions.hasNextPage"
 			class="flex justify-center my-5"

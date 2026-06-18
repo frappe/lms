@@ -1,10 +1,8 @@
 <template>
 	<div v-if="batch.data" class="border-2 rounded-md lg:w-72">
-		<video
-			v-if="batch.data.video_link"
-			:src="batch.data.video_link"
-			controls
-			class="rounded-t-md w-full"
+		<VideoPreview
+			:video-link="batch.data.video_link"
+			:fallback-image="batch.data.image"
 		/>
 		<div class="p-5">
 			<Badge
@@ -111,6 +109,7 @@ import { inject, computed } from 'vue'
 import { Badge, Button, createResource, toast } from 'frappe-ui'
 import { formatNumberIntoCurrency, formatTime } from '@/utils'
 import DateRange from '@/components/Common/DateRange.vue'
+import VideoPreview from '@/components/VideoPreview.vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()

@@ -107,8 +107,8 @@
 				</div>
 			</div>
 		</div>
-		<div v-else class="flex min-h-0 flex-1 items-center justify-center px-5">
-			<EmptyStateLayout name="Certified Members" />
+		<div v-else class="flex-1">
+			<EmptyStateLayout name="Certified Members" icon="lucide-badge-check" />
 		</div>
 		<ListFooter
 			v-model="pageLength"

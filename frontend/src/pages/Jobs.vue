@@ -109,8 +109,8 @@
 				</router-link>
 			</div>
 		</div>
-		<div v-else class="flex flex-1 items-center justify-center px-5">
-			<EmptyStateLayout name="Job Openings" />
+		<div v-else class="flex-1">
+			<EmptyStateLayout name="Job Openings" icon="lucide-briefcase" />
 		</div>
 		<ListFooter
 			v-model="pageLength"

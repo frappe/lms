@@ -42,6 +42,26 @@
 	max-width: none;
 }
 
+/* Block gutter affordances — the "+" (add) and "⋮⋮" (drag/settings) buttons
+   shown when hovering a block. Use Espresso grays: subtle at rest (gray-4),
+   darkening to gray-8 on hover, so they read as quiet handles until used. */
+.bn-editor .ce-toolbar__plus,
+.bn-editor .ce-toolbar__settings-btn {
+	color: var(--ink-gray-4);
+}
+.bn-editor .ce-toolbar__plus:hover,
+.bn-editor .ce-toolbar__settings-btn:hover {
+	color: var(--ink-gray-8);
+	background-color: var(--surface-gray-2);
+}
+
+/* Roomy click zone below the last block: hovering it surfaces the toolbar on
+   the last block, and a click there creates a fresh block (handled in
+   BlockEditor.vue). */
+.bn-editor .codex-editor__redactor {
+	padding-bottom: 120px;
+}
+
 .codeBoxHolder {
 	display: flex;
 	flex-direction: column;
@@ -147,7 +167,7 @@ iframe {
 }
 
 .tc-popover {
-	--color-background: var(--surface-white);
+	--color-background: var(--surface-base);
 	--color-border: var(--outline-gray-2);
 }
 
@@ -184,6 +204,28 @@ iframe {
 	border-radius: 8px;
 }
 
+/* Map EditorJS's popover/menu palette (the +/⋮⋮ block menus) onto frappe-ui
+   (Espresso) tokens so they follow the app theme — including dark mode — instead
+   of EditorJS's hardcoded light colours (white bg, black text, #eff2f5 hover). */
+.ce-popover {
+	--color-background: var(--surface-base);
+	--color-text-primary: var(--ink-gray-9);
+	--color-text-secondary: var(--ink-gray-5);
+	--color-border: var(--outline-gray-2);
+	--color-border-icon: var(--outline-gray-2);
+	--color-border-icon-disabled: var(--outline-gray-1);
+	--color-background-item-hover: var(--surface-gray-3);
+	--color-background-item-focus: var(--surface-gray-2);
+	--color-shadow: rgba(0, 0, 0, 0.12);
+}
+/* These default to a hardcoded #fff that doesn't flip in dark mode. */
+.ce-popover-item__icon {
+	background: var(--surface-base);
+}
+.ce-popover__nothing-found-message {
+	color: var(--ink-gray-5);
+}
+
 .ce-popover__container {
 	border-radius: 12px;
 	padding: 8px;
@@ -200,19 +242,23 @@ iframe {
 
 .cdx-search-field {
 	border: none;
+	background: var(--surface-gray-2);
 }
 
 .cdx-search-field__input {
 	font-weight: 400;
 	font-size: 13px;
+	color: var(--ink-gray-9);
 }
 
+.cdx-search-field__input::placeholder,
 .cdx-search-field__input::before {
 	font-weight: 400;
+	color: var(--ink-gray-5);
 }
 
 .cdx-search-field__input:focus {
-	--tw-ring-color: theme('colors.gray.100');
+	--tw-ring-color: var(--outline-gray-3);
 }
 
 .ce-popover-item__title {
@@ -237,6 +283,7 @@ iframe {
 .cdx-search-field__icon svg {
 	width: 15px;
 	height: 15px;
+	color: var(--ink-gray-5);
 }
 
 .cdx-search-field__icon {
@@ -259,7 +306,7 @@ iframe {
 .ce-inline-toolbar {
 	border: 1px solid var(--outline-gray-2);
 	border-radius: 8px;
-	background: var(--surface-white);
+	background: var(--surface-modal);
 	box-shadow: 0 8px 24px -6px rgba(0, 0, 0, 0.2);
 	color: var(--ink-gray-7);
 }
@@ -319,7 +366,7 @@ iframe {
 .ce-conversion-toolbar {
 	border: 1px solid var(--outline-gray-2);
 	border-radius: 8px;
-	background: var(--surface-white);
+	background: var(--surface-modal);
 	box-shadow: 0 8px 24px -6px rgba(0, 0, 0, 0.2);
 }
 
@@ -335,7 +382,7 @@ iframe {
 .ce-conversion-tool__icon {
 	border: 1px solid var(--outline-gray-2);
 	border-radius: 6px;
-	background: var(--surface-white);
+	background: var(--surface-modal);
 }
 
 /* Color tool action panel (text color + highlight), shown under the buttons. */

@@ -289,6 +289,7 @@ const tabsStructure = computed(() => {
 											label: 'Lesson dwell time (seconds)',
 											name: 'lesson_dwell_time',
 											type: 'number',
+											min: 1,
 											description:
 												'Seconds a learner must stay on a lesson before it auto-marks complete.',
 										},

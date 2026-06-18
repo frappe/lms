@@ -66,7 +66,7 @@
 							doctype="Language"
 						/>
 						<div>
-							<div class="mb-1.5 text-sm text-ink-gray-5">
+							<div class="mb-1.5 text-p-sm-medium text-ink-gray-7">
 								{{ __('Bio') }}
 							</div>
 							<TextEditor

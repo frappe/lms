@@ -115,7 +115,7 @@
 							</div>
 						</div>
 						<div class="shrink-0">
-							<Switch
+							<BooleanSwitch
 								v-if="field.type == 'checkbox'"
 								size="sm"
 								v-model="field.value"
@@ -141,6 +141,7 @@
 								:rows="field.rows"
 								:options="field.options"
 								:required="field.reqd"
+								:min="field.min"
 								class="w-48"
 								:placeholder="field.placeholder || __(field.label)"
 							/>
@@ -153,7 +154,7 @@
 </template>
 <script setup>
 import { FormControl, FileUploader, Button, Select } from 'frappe-ui'
-import Switch from '@/components/Controls/Switch.vue'
+import BooleanSwitch from '@/components/Controls/BooleanSwitch.vue'
 import { onMounted, watch } from 'vue'
 import { validateFile } from '@/utils'
 import Link from '@/components/Controls/Link.vue'

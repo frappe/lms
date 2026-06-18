@@ -52,7 +52,9 @@
 		</div>
 	</div>
 	<StudentPrograms v-else-if="isStudent" />
-	<EmptyStateLayout v-else name="Programs" />
+	<div v-else class="flex-1">
+		<EmptyStateLayout name="Programs" icon="lucide-graduation-cap" />
+	</div>
 	<ProgramForm
 		v-model="showForm"
 		:programName="currentProgram"

@@ -44,7 +44,13 @@
 			</Button>
 		</div>
 	</header>
-	<div v-if="quizDetails.doc" class="py-5">
+	<div
+		v-if="quizDetails.loading && !quizDetails.doc"
+		class="flex items-center justify-center py-20"
+	>
+		<LoadingIndicator class="size-5 text-ink-gray-5" />
+	</div>
+	<div v-else-if="quizDetails.doc" class="py-5">
 		<div class="px-20 pb-5 space-y-5 border-b mb-5">
 			<div class="text-xl-semibold text-ink-gray-9 mb-4">
 				{{ __('Details') }}
@@ -87,7 +93,7 @@
 			</div>
 			<div class="grid grid-cols-3 gap-5">
 				<div class="flex flex-col space-y-10">
-					<Switch
+					<BooleanSwitch
 						v-model="quizDetails.doc.show_answers"
 						size="sm"
 						:label="__('Show Answers')"
@@ -95,7 +101,7 @@
 							__('Display correct answers after each question is attempted.')
 						"
 					/>
-					<Switch
+					<BooleanSwitch
 						v-model="quizDetails.doc.show_submission_history"
 						size="sm"
 						:label="__('Show Submission History')"
@@ -103,7 +109,7 @@
 					/>
 				</div>
 				<div class="flex flex-col space-y-5">
-					<Switch
+					<BooleanSwitch
 						v-model="quizDetails.doc.shuffle_questions"
 						size="sm"
 						:label="__('Shuffle Questions')"
@@ -118,7 +124,7 @@
 					/>
 				</div>
 				<div class="flex flex-col space-y-5">
-					<Switch
+					<BooleanSwitch
 						v-model="quizDetails.doc.enable_negative_marking"
 						size="sm"
 						:label="__('Enable Negative Marking')"
@@ -222,8 +228,9 @@ import {
 	toast,
 	createDocumentResource,
 	Badge,
+	LoadingIndicator,
 } from 'frappe-ui'
-import Switch from '@/components/Controls/Switch.vue'
+import BooleanSwitch from '@/components/Controls/BooleanSwitch.vue'
 import {
 	computed,
 	reactive,
@@ -231,7 +238,9 @@ import {
 	onMounted,
 	inject,
 	onBeforeUnmount,
+	watch,
 } from 'vue'
+import { useDebounceFn } from '@vueuse/core'
 import { sessionStore } from '../stores/session'
 
 import { useRouter } from 'vue-router'
@@ -289,7 +298,21 @@ const validateTitle = () => {
 	quizDetails.doc.title = sanitizeHTML(quizDetails.doc.title.trim())
 }
 
-const submitQuiz = () => {
+// Debounced silent autosave: a burst of edits collapses into a single save
+// shortly after the user pauses. `quizDetails.isDirty` is tracked by the
+// document resource, so loading the quiz doesn't arm it — only real edits do.
+const autoSave = useDebounceFn(() => {
+	if (quizDetails.isDirty) submitQuiz({ silent: true })
+}, 1000)
+
+watch(
+	() => quizDetails.isDirty,
+	(dirty) => {
+		if (dirty) autoSave()
+	}
+)
+
+const submitQuiz = (opts = {}) => {
 	validateTitle()
 	quizDetails.setValue.submit(
 		{
@@ -299,10 +322,12 @@ const submitQuiz = () => {
 		{
 			onSuccess(data) {
 				quizDetails.doc.total_marks = data.total_marks
-				toast.success(__('Quiz updated successfully'))
+				if (!opts.silent) toast.success(__('Quiz updated successfully'))
 			},
 			onError(err) {
-				toast.error(err.messages?.[0] || err)
+				// Autosave failures stay quiet; the orange "unsaved" badge remains
+				// so the change isn't silently lost.
+				if (!opts.silent) toast.error(err.messages?.[0] || err)
 			},
 		}
 	)

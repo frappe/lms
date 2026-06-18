@@ -17,7 +17,7 @@
 
 		<div v-if="doc" class="space-y-4">
 			<div>
-				<Switch
+				<BooleanSwitch
 					size="sm"
 					v-model="doc.enabled"
 					:label="__('Enabled')"
@@ -85,7 +85,7 @@
 </template>
 <script setup lang="ts">
 import { Button, FormControl, toast, createDocumentResource } from 'frappe-ui'
-import Switch from '@/components/Controls/Switch.vue'
+import BooleanSwitch from '@/components/Controls/BooleanSwitch.vue'
 import { computed, reactive } from 'vue'
 import type { Coupon, Coupons } from './types'
 import CouponItems from '@/components/Settings/Coupons/CouponItems.vue'

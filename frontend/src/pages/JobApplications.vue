@@ -111,10 +111,9 @@
 					</div>
 				</div>
 			</div>
-			<EmptyStateLayout
-				v-else-if="!applications.loading"
-				name="Job Applications"
-			/>
+			<div v-else-if="!applications.loading" class="flex-1">
+				<EmptyStateLayout name="Job Applications" icon="lucide-briefcase" />
+			</div>
 		</div>
 
 		<Dialog

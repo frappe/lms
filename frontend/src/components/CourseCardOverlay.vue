@@ -1,9 +1,8 @@
 <template>
 	<div class="border-2 rounded-md min-w-80 max-w-sm">
-		<iframe
-			v-if="course.data?.video_link"
-			:src="video_link"
-			class="rounded-t-md min-h-56 w-full"
+		<VideoPreview
+			:video-link="course.data?.video_link"
+			:fallback-image="course.data?.image"
 		/>
 		<div class="p-5">
 			<div class="text-4xl-semibold text-ink-gray-9 mb-4">
@@ -148,6 +147,7 @@ import { computed, inject } from 'vue'
 import { Badge, Button, call, createResource, toast } from 'frappe-ui'
 import { useRouter } from 'vue-router'
 import CertificationLinks from '@/components/CertificationLinks.vue'
+import VideoPreview from '@/components/VideoPreview.vue'
 import { useTelemetry } from 'frappe-ui/frappe'
 import type {
 	CourseDetails,
@@ -168,11 +168,6 @@ const props = withDefaults(
 	}>(),
 	{}
 )
-
-const video_link = computed<string | undefined>(() => {
-	const link = props.course.data?.video_link
-	return link ? 'https://www.youtube.com/embed/' + link : undefined
-})
 
 function enrollStudent() {
 	if (!user.data) {

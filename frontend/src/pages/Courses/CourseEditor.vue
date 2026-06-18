@@ -66,6 +66,11 @@
 				@select-lesson="onSelectLesson"
 			/>
 		</aside>
+		<VideoStatistics
+			v-model="showStats"
+			:lessonName="statsLessonName"
+			:lessonTitle="statsLessonTitle"
+		/>
 	</div>
 </template>
 
@@ -79,6 +84,7 @@ import StudentLessonSidebar from '@/components/StudentLessonSidebar.vue'
 import SkeletonLoader from '@/components/SkeletonLoader.vue'
 import LessonForm from '@/pages/LessonForm.vue'
 import Lesson from '@/pages/Lesson.vue'
+import VideoStatistics from '@/components/Modals/VideoStatistics.vue'
 
 const props = defineProps({
 	course: { type: Object, required: true },
@@ -356,6 +362,21 @@ function previewNext() {
 function previewZen() {
 	lessonViewRef.value?.goFullScreen?.()
 }
+// The active lesson component differs by mode: the editor form when editing,
+// the embedded lesson view when previewing. Both expose lessonHasVideo/name/
+// title, so the Video Statistics affordance works the same in either mode.
+const activeLessonRef = computed(() =>
+	mode.value === 'edit' ? lessonFormRef.value : lessonViewRef.value
+)
+const lessonHasVideo = computed(() =>
+	Boolean(activeLessonRef.value?.lessonHasVideo?.())
+)
+const showStats = ref(false)
+const statsLessonName = computed(() => activeLessonRef.value?.lessonName?.())
+const statsLessonTitle = computed(() => activeLessonRef.value?.lessonTitle?.())
+function openVideoStats() {
+	showStats.value = true
+}
 
 const courseOutlineRef = ref(null)
 function openAddChapter() {
@@ -368,9 +389,11 @@ defineExpose({
 	hasPrev,
 	hasNext,
 	canGoZen,
+	lessonHasVideo,
 	previewPrev,
 	previewNext,
 	previewZen,
+	openVideoStats,
 	openAddChapter,
 })
 </script>
