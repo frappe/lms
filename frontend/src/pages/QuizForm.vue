@@ -39,9 +39,6 @@
 					{{ __('Check Submissions') }}
 				</Button>
 			</router-link>
-			<Button variant="solid" @click="submitQuiz()">
-				{{ __('Save') }}
-			</Button>
 		</div>
 	</header>
 	<div
@@ -300,6 +297,9 @@ const keyboardShortcut = (e) => {
 
 onBeforeUnmount(() => {
 	window.removeEventListener('keydown', keyboardShortcut)
+	// Flush a pending edit that the debounce hasn't fired yet, so navigating
+	// away immediately after a change can't drop it.
+	if (quizDetails.isDirty) submitQuiz({ silent: true })
 })
 
 const quizDetails = createDocumentResource({
