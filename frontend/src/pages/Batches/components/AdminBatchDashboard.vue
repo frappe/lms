@@ -103,6 +103,20 @@
 										>
 											{{ Math.ceil(row[column.key]) }}%
 										</div>
+										<div
+											v-else-if="column.key == 'remove'"
+											class="flex justify-end"
+										>
+											<Button
+												variant="ghost"
+												:tooltip="__('Remove student from batch')"
+												@click.stop="promptRemoveStudent(row)"
+											>
+												<template #icon>
+													<Trash2 class="size-4 text-ink-red-3" />
+												</template>
+											</Button>
+										</div>
 										<div v-else>
 											{{ row[column.key].toString() }}
 										</div>
@@ -168,12 +182,36 @@
 		:student="currentStudent"
 		:batch="batch?.data?.name"
 	/>
+	<Dialog
+		v-model="showRemoveDialog"
+		:options="{
+			title: __('Remove Student'),
+			message: __(
+				'Remove {0} from this batch? This also revokes the course access the batch granted them.'
+			).format(studentToRemove?.member_name || studentToRemove?.member || ''),
+			size: 'sm',
+			actions: [
+				{
+					label: __('Remove'),
+					variant: 'solid',
+					theme: 'red',
+					onClick: confirmRemoveStudent,
+				},
+				{
+					label: __('Cancel'),
+					onClick: closeRemoveDialog,
+				},
+			],
+		}"
+	/>
 </template>
 <script setup lang="ts">
 import {
 	AxisChart,
+	call,
 	createResource,
 	createListResource,
+	Dialog,
 	FormControl,
 	ListView,
 	ListHeader,
@@ -183,11 +221,12 @@ import {
 	ListRowItem,
 	Avatar,
 	Button,
+	toast,
 } from 'frappe-ui'
 import { computed, inject, ref, watch } from 'vue'
 import type dayjsType from 'dayjs'
 import { formatAmount } from '@/utils'
-import { Plus } from 'lucide-vue-next'
+import { Plus, Trash2 } from 'lucide-vue-next'
 import BatchFeedback from '@/pages/Batches/components/BatchFeedback.vue'
 import BatchStudentProgress from '@/pages/Batches/components/BatchStudentProgress.vue'
 import NumberChartGraph from '@/components/NumberChartGraph.vue'
@@ -266,8 +305,43 @@ const studentColumns = computed(() => {
 			key: 'creation',
 			align: 'right',
 		},
+		{
+			label: '',
+			key: 'remove',
+			align: 'right',
+			width: '60px',
+		},
 	]
 })
+
+const showRemoveDialog = ref(false)
+const studentToRemove = ref<any>(null)
+
+function promptRemoveStudent(row: any) {
+	studentToRemove.value = row
+	showRemoveDialog.value = true
+}
+
+function closeRemoveDialog() {
+	showRemoveDialog.value = false
+}
+
+function confirmRemoveStudent() {
+	const row = studentToRemove.value
+	if (!row) return
+	return call('ecological_society.batch.remove_student_from_batch', {
+		batch: props.batch?.data?.name,
+		member: row.member,
+	})
+		.then(() => {
+			toast.success(__('Student removed from batch'))
+			showRemoveDialog.value = false
+			students.reload()
+		})
+		.catch((e: any) => {
+			toast.error(e?.messages?.[0] || __('Could not remove student'))
+		})
+}
 
 const showProgressChart = computed(
 	() =>

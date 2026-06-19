@@ -27,14 +27,14 @@
 							v-model="batchDetail.doc.start_date"
 							:label="__('Batch Start Date')"
 							type="date"
-							:required="true"
+							:required="false"
 							variant="outline"
 						/>
 						<FormControl
 							v-model="batchDetail.doc.end_date"
 							:label="__('Batch End Date')"
 							type="date"
-							:required="true"
+							:required="false"
 							variant="outline"
 						/>
 
@@ -42,14 +42,14 @@
 							v-model="batchDetail.doc.start_time"
 							:label="__('Session Start Time')"
 							type="time"
-							:required="true"
+							:required="false"
 							variant="outline"
 						/>
 						<FormControl
 							v-model="batchDetail.doc.end_time"
 							:label="__('Session End Time')"
 							type="time"
-							:required="true"
+							:required="false"
 							variant="outline"
 						/>
 						<div class="space-y-1.5">
