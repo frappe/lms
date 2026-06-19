@@ -103,6 +103,21 @@
 										>
 											{{ Math.ceil(row[column.key]) }}%
 										</div>
+										<div
+											v-else-if="column.key == 'actions'"
+											class="flex justify-end w-full"
+										>
+											<Button
+												theme="red"
+												variant="ghost"
+												:label="__('Remove')"
+												@click.stop="confirmRemove(row)"
+											>
+												<template #prefix>
+													<Trash2 class="size-4 stroke-1.5" />
+												</template>
+											</Button>
+										</div>
 										<div v-else>
 											{{ row[column.key].toString() }}
 										</div>
@@ -187,9 +202,6 @@
 											},
 											scale: false,
 										},
-										legend: {
-											show: false,
-										},
 										data: chartDetails.data?.progress_distribution || [],
 									},
 								],
@@ -209,7 +221,8 @@
 						<Select
 							:options="lessonProgressSortingOptions"
 							@update:modelValue="
-								(value: string) => updateLessonProgress(value)
+								(value: SelectOptionValue | undefined) =>
+									updateLessonProgress(String(value))
 							"
 							:placeholder="__('Sort by')"
 							class="!w-32"
@@ -266,7 +279,6 @@ import {
 	Button,
 	createListResource,
 	createResource,
-	Dropdown,
 	ECharts,
 	FormControl,
 	ListView,
@@ -276,11 +288,15 @@ import {
 	ListRow,
 	ListRowItem,
 	Tooltip,
+	call,
+	toast,
 } from 'frappe-ui'
+import type { SelectOptionValue } from 'frappe-ui'
 import Select from '@/components/Controls/Select.vue'
 import { computed, inject, ref, watch } from 'vue'
 import type dayjsType from 'dayjs'
-import { Plus, Star } from 'lucide-vue-next'
+import { Plus, Star, Trash2 } from 'lucide-vue-next'
+import { createDialog } from '@/utils/dialogs'
 import { formatAmount } from '@/utils'
 import colors from '@/utils/frappe-ui-colors.json'
 import CourseEnrollmentModal from '@/pages/Courses/CourseEnrollmentModal.vue'
@@ -294,6 +310,7 @@ const props = defineProps<{
 	course: Resource<CourseDetails | null>
 }>()
 
+const __ = ((window as any).__ as ((text: string) => string)) || ((text: string) => text)
 const dayjs = inject<typeof dayjsType>('$dayjs')!
 const showEnrollmentModal = ref<boolean>(false)
 const searchFilter = ref<string | null>(null)
@@ -404,8 +421,52 @@ const progressColumns = computed(() => {
 			key: 'creation',
 			align: 'right',
 		},
+		{
+			label: '',
+			key: 'actions',
+			align: 'right',
+			width: '10%',
+		},
 	]
 })
+
+// Remove a wrongly-enrolled learner from THIS course only (keeps their other
+// courses and their user account). Backed by the moderator-only whitelisted
+// method ecological_society.students.remove_member_from_course.
+const confirmRemove = (row: Record<string, any>) => {
+	createDialog({
+		title: __('Remove Learner from Course'),
+		message: __(
+			'Remove {0} from this course? This deletes their enrollment, progress, quiz submissions and certificates for this course only. Other courses and their account are kept.'
+		).format(row.member_name || row.member),
+		actions: [
+			{
+				label: __('Remove'),
+				theme: 'red',
+				variant: 'solid',
+				onClick(close: () => void) {
+					call('ecological_society.students.remove_member_from_course', {
+						course: props.course.data?.name,
+						member: row.member,
+					})
+						.then(() => {
+							progressList.reload()
+							toast.success(
+								__('{0} removed from the course.').format(
+									row.member_name || row.member
+								)
+							)
+						})
+						.catch((err: any) => {
+							toast.error(__(err.messages?.[0] || err))
+							console.error(err)
+						})
+					close()
+				},
+			},
+		],
+	})
+}
 
 const lessonProgressSortingOptions = [
 	{
