@@ -37,20 +37,14 @@
 						/>
 						<span class="truncate">{{ chapter.title }}</span>
 					</div>
-					<span
-						v-if="chapter.lessons?.length"
-						class="text-xs text-ink-gray-5 shrink-0"
-					>
-						{{ chapter.lessons.length }}
-					</span>
 				</DisclosureButton>
 				<DisclosurePanel>
 					<component
-						:is="inlineSelect ? 'div' : 'router-link'"
+						:is="inlineSelect || lesson.is_locked ? 'div' : 'router-link'"
 						v-for="lesson in chapter.lessons || []"
 						:key="lesson.name"
 						:to="
-							inlineSelect
+							inlineSelect || lesson.is_locked
 								? undefined
 								: {
 										name: 'Lesson',
@@ -64,12 +58,16 @@
 						class="flex items-center gap-3 rounded ps-9 pe-3 py-2 text-sm text-ink-gray-8 hover:bg-surface-gray-2"
 						:class="[
 							inlineSelect ? 'cursor-pointer' : '',
+							lesson.is_locked
+								? 'opacity-60 cursor-not-allowed hover:bg-transparent'
+								: '',
 							isActive(lesson.number)
 								? 'bg-surface-gray-2 text-ink-gray-9'
 								: '',
 						]"
 						@click="
-							inlineSelect &&
+							!lesson.is_locked &&
+								inlineSelect &&
 								emit('select-lesson', {
 									chapterNumber: lesson.number.split('-')[0],
 									lessonNumber: lesson.number.split('-')[1],
@@ -81,8 +79,12 @@
 							class="size-4 stroke-1.5 shrink-0 text-ink-gray-7"
 						/>
 						<span class="truncate flex-1">{{ lesson.title }}</span>
+						<LockKeyhole
+							v-if="lesson.is_locked"
+							class="size-4 stroke-1.5 shrink-0 text-ink-gray-5"
+						/>
 						<CircleCheck
-							v-if="lesson.is_complete"
+							v-else-if="lesson.is_complete"
 							class="size-4 stroke-1.5 shrink-0 text-green-700 fill-none"
 						/>
 						<Circle v-else class="size-4 stroke-1.5 shrink-0 text-ink-gray-4" />

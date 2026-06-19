@@ -109,26 +109,16 @@
 					<span>{{ __('On demand course video') }}</span>
 				</div>
 				<div
-					v-if="course.data?.lessons"
+					v-if="course.data?.chapters?.length"
 					class="flex items-center gap-3 text-ink-gray-8"
 				>
 					<BookOpen class="size-4 stroke-1.5 shrink-0 text-ink-gray-7" />
 					<span>
-						{{ course.data?.lessons }}
-						{{ course.data?.lessons === 1 ? __('Lesson') : __('Lessons') }}
-					</span>
-				</div>
-				<div
-					v-if="(course.data?.quiz_count || 0) > 0"
-					class="flex items-center gap-3 text-ink-gray-8"
-				>
-					<HelpCircle class="size-4 stroke-1.5 shrink-0 text-ink-gray-7" />
-					<span>
-						{{ course.data?.quiz_count }}
+						{{ course.data?.chapters?.length }}
 						{{
-							course.data?.quiz_count === 1
-								? __('Quiz topic')
-								: __('Quiz topics')
+							course.data?.chapters?.length === 1
+								? __('Chapter')
+								: __('Chapters')
 						}}
 					</span>
 				</div>
@@ -150,7 +140,6 @@ import {
 	BookText,
 	CreditCard,
 	GraduationCap,
-	HelpCircle,
 	MonitorPlay,
 	Users,
 } from 'lucide-vue-next'

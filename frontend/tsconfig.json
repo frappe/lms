@@ -10,10 +10,12 @@
     "isolatedModules": true,
     "esModuleInterop": true,
     "lib": ["ESNext", "DOM"],
-    "types": ["./globals"],
+    "types": [],
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["src/*"],
+      "frappe-ui": ["node_modules/frappe-ui/src/index.ts"],
+      "frappe-ui/frappe": ["node_modules/frappe-ui/frappe/index.d.ts"]
     }
   },
   "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue", "src/*.d.ts"],

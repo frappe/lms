@@ -434,9 +434,8 @@ const attachFullscreenEvent = () => {
 		allowDiscussions.value = false
 	} else {
 		zenModeEnabled.value = false
-		if (!hasQuiz.value) {
-			allowDiscussions.value = true
-		}
+		// Ecological Society: keep Q&A discussions available on quiz lessons too
+		allowDiscussions.value = true
 	}
 }
 
@@ -495,11 +494,8 @@ const checkQuiz = () => {
 	if (!editor.value && lesson.body) {
 		const quizRegex = /\{\{ Quiz\(".*"\) \}\}/
 		hasQuiz.value = quizRegex.test(lesson.body)
-		if (!hasQuiz.value && !zenModeEnabled) {
-			allowDiscussions.value = true
-		} else {
-			allowDiscussions.value = false
-		}
+		// Ecological Society: keep Q&A discussions available on quiz lessons too
+		allowDiscussions.value = !zenModeEnabled.value
 	}
 }
 
@@ -911,8 +907,9 @@ const checkIfDiscussionsAllowed = () => {
 		}
 	}
 
+	// Ecological Society: keep Q&A discussions available on quiz lessons too
+	// (membership / moderator / instructor still required; hidden in zen mode).
 	if (
-		!hasQuiz.value &&
 		!zenModeEnabled.value &&
 		(lesson.data?.membership ||
 			user.data?.is_moderator ||

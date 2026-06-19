@@ -21,14 +21,6 @@
 				>
 					{{ chapter.title }}
 				</div>
-				<div
-					v-if="!chapter.is_scorm_package && chapter.lessons?.length"
-					class="text-ink-gray-5 shrink-0"
-					:class="inlineSelect ? 'mt-0.5 text-xs leading-4' : 'text-sm'"
-				>
-					{{ chapter.lessons.length }}
-					{{ chapter.lessons.length === 1 ? __('lesson') : __('lessons') }}
-				</div>
 			</div>
 			<div class="flex ms-auto gap-x-4 shrink-0">
 				<Tooltip :text="__('Edit Chapter')" placement="bottom">
@@ -66,10 +58,17 @@
 						:class="isActiveLesson(lesson.number) ? 'bg-surface-gray-3' : ''"
 					>
 						<component
-							:is="inlineSelect ? 'div' : 'router-link'"
-							:to="inlineSelect ? undefined : lessonRoute(lesson)"
-							:class="inlineSelect ? 'cursor-pointer' : ''"
-							@click="onLessonClick(lesson)"
+							:is="inlineSelect || lesson.is_locked ? 'div' : 'router-link'"
+							:to="
+								inlineSelect || lesson.is_locked
+									? undefined
+									: lessonRoute(lesson)
+							"
+							:class="[
+								inlineSelect ? 'cursor-pointer' : '',
+								lesson.is_locked ? 'cursor-not-allowed opacity-60' : '',
+							]"
+							@click="!lesson.is_locked && onLessonClick(lesson)"
 						>
 							<div class="flex items-center text-sm leading-5 group">
 								<MonitorPlay
@@ -110,8 +109,12 @@
 										class="h-4 w-4 text-ink-red-3 invisible group-hover:visible"
 									/>
 								</div>
+								<LockKeyhole
+									v-if="lesson.is_locked"
+									class="h-4 w-4 text-ink-gray-5 ms-auto"
+								/>
 								<Check
-									v-if="lesson.is_complete"
+									v-else-if="lesson.is_complete"
 									class="h-4 w-4 text-green-700 ms-2"
 								/>
 							</div>
@@ -138,6 +141,7 @@ import {
 	FilePenLine,
 	FileText,
 	HelpCircle,
+	LockKeyhole,
 	MonitorPlay,
 	NotebookPen,
 	SquareCode,

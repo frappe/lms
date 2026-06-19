@@ -7,8 +7,9 @@
 		</div>
 
 		<template v-if="instructors.length === 1">
-			<router-link
-				:to="profileLink(instructors[0])"
+			<component
+				:is="instructors[0].username ? 'router-link' : 'div'"
+				:to="instructors[0].username ? profileLink(instructors[0]) : undefined"
 				class="flex items-center gap-3"
 			>
 				<UserAvatar :user="instructors[0]" size="2xl" />
@@ -17,7 +18,7 @@
 						{{ instructors[0].full_name }}
 					</div>
 				</div>
-			</router-link>
+			</component>
 			<div
 				v-if="hasBio(instructors[0].bio)"
 				v-html="renderBio(instructors[0].bio)"

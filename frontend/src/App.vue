@@ -10,7 +10,7 @@
 <script setup>
 import { FrappeUIProvider } from 'frappe-ui'
 import { Dialogs } from '@/utils/dialogs'
-import { computed, onUnmounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useScreenSize } from './utils/composables'
 import { useSettings } from '@/stores/settings'
 import { useRouter } from 'vue-router'
@@ -43,7 +43,22 @@ const Layout = computed(() => {
 	return DesktopLayout
 })
 
+// Disable right-click on course content pages (deterrent against casual
+// copying of lesson material). Scoped to the student-facing content routes so
+// authoring/admin pages keep the native context menu.
+const RIGHT_CLICK_BLOCKED_ROUTES = ['Lesson', 'CourseDetail', 'SCORMChapter']
+const blockContextMenu = (e) => {
+	if (RIGHT_CLICK_BLOCKED_ROUTES.includes(router.currentRoute.value.name)) {
+		e.preventDefault()
+	}
+}
+
+onMounted(() => {
+	document.addEventListener('contextmenu', blockContextMenu)
+})
+
 onUnmounted(() => {
 	noSidebar.value = false
+	document.removeEventListener('contextmenu', blockContextMenu)
 })
 </script>

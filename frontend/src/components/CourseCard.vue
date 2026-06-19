@@ -49,11 +49,11 @@
 		</div>
 		<div class="flex flex-col flex-auto p-4 border-x-2 border-b-2 rounded-b-md">
 			<div class="flex items-center justify-between mb-2">
-				<div v-if="course.lessons">
-					<Tooltip :text="__('Lessons')">
+				<div v-if="course.chapters">
+					<Tooltip :text="__('Chapters')">
 						<span class="flex items-center">
 							<BookOpen class="h-4 w-4 stroke-1.5 me-1" />
-							{{ course.lessons }}
+							{{ course.chapters }}
 						</span>
 					</Tooltip>
 				</div>

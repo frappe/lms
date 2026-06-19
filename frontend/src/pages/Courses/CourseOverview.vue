@@ -74,6 +74,16 @@
 					</div>
 				</section>
 
+				<section v-if="course.data.description" class="space-y-3">
+					<h2 class="text-2xl font-semibold text-ink-gray-9">
+						{{ __('About this course') }}
+					</h2>
+					<div
+						v-html="course.data.description"
+						class="ProseMirror prose prose-sm max-w-none !whitespace-normal prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2"
+					/>
+				</section>
+
 				<section>
 					<div class="flex items-baseline justify-between gap-4 mb-4">
 						<h2 class="text-2xl font-semibold text-ink-gray-9">
@@ -104,16 +114,6 @@
 							:editorLinks="isCourseAdmin"
 						/>
 					</div>
-				</section>
-
-				<section v-if="course.data.description" class="space-y-3">
-					<h2 class="text-2xl font-semibold text-ink-gray-9">
-						{{ __('About this course') }}
-					</h2>
-					<div
-						v-html="course.data.description"
-						class="ProseMirror prose prose-sm max-w-none !whitespace-normal prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2"
-					/>
 				</section>
 
 				<CourseReviews
@@ -178,24 +178,10 @@ const outline = createResource({
 
 const outlineStats = computed(() => {
 	const chapters = outline.data || []
-	const lessonCount = chapters.reduce(
-		(acc, c) => acc + (c.lessons?.length || 0),
-		0
-	)
-	const parts: string[] = []
-	if (chapters.length) {
-		parts.push(
-			`${chapters.length} ${
-				chapters.length === 1 ? __('section') : __('sections')
-			}`
-		)
-	}
-	if (lessonCount) {
-		parts.push(
-			`${lessonCount} ${lessonCount === 1 ? __('lesson') : __('lessons')}`
-		)
-	}
-	return parts.join(' · ')
+	if (!chapters.length) return ''
+	return `${chapters.length} ${
+		chapters.length === 1 ? __('chapter') : __('chapters')
+	}`
 })
 
 const hasCourseContent = computed(() => {
