@@ -6,6 +6,7 @@
 			v-model:open="popoverOpen"
 			:options="mergedOptions"
 			:placeholder="placeholder"
+			:emptyText="emptyText"
 			:variant="variant"
 			@update:open="onOpen"
 			@update:query="onQuery"
@@ -113,6 +114,7 @@ const props = withDefaults(
 		variant?: 'subtle' | 'outline' | 'ghost'
 		onCreate?: (close: CloseFn) => void
 		createLabel?: string
+		emptyText?: string
 	}>(),
 	{
 		filters: () => ({}),
@@ -121,6 +123,7 @@ const props = withDefaults(
 		extraOptions: () => [],
 		variant: 'subtle',
 		createLabel: 'Create New',
+		emptyText: 'No results',
 	}
 )
 

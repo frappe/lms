@@ -49,6 +49,13 @@ export class Quiz {
 			this.quizApp = createApp(QuizBlock, { quiz })
 			this.quizApp.use(translationPlugin)
 			this.quizApp.provide('$user', userResource)
+			// Contain quiz render/runtime errors to this mount. Inline (unlike
+			// the old iframe) the quiz shares the lesson's render tree, so an
+			// uncaught error here would otherwise propagate through EditorJS and
+			// blank the whole lesson.
+			this.quizApp.config.errorHandler = (err) => {
+				console.error('[lms] in-lesson quiz failed to render', err)
+			}
 			this.quizApp.mount(this.wrapper)
 			return
 		}

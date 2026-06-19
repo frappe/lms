@@ -63,6 +63,16 @@
 					</Button>
 				</template>
 				<Button
+					v-if="tabIndex === 1 && course.data"
+					variant="outline"
+					@click="courseDashboardRef?.openEnrollModal()"
+				>
+					<template #prefix>
+						<span class="lucide-plus size-4" />
+					</template>
+					{{ __('Enroll') }}
+				</Button>
+				<Button
 					v-if="user.data?.is_moderator"
 					:variant="course.data?.published ? 'outline' : 'solid'"
 					:theme="course.data?.published ? 'red' : 'gray'"
@@ -92,6 +102,11 @@
 						<CourseForm
 							v-else-if="tab.component === CourseForm"
 							ref="courseFormRef"
+							:course="course"
+						/>
+						<CourseDashboard
+							v-else-if="tab.component === CourseDashboard"
+							ref="courseDashboardRef"
 							:course="course"
 						/>
 						<component v-else :is="tab.component" :course="course" />
@@ -206,6 +221,7 @@ type CourseEditorApi = {
 	openAddChapter: () => void
 }
 const courseEditorRef = ref<CourseEditorApi | null>(null)
+const courseDashboardRef = ref<{ openEnrollModal: () => void } | null>(null)
 
 const publishToggle = createResource({
 	url: 'frappe.client.set_value',

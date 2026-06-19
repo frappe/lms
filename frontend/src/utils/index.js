@@ -479,7 +479,7 @@ const getSidebarItems = (forMobile = false) => {
 				{
 					label: 'Notifications',
 					icon: 'Bell',
-					to: 'Notifications',
+					panel: 'notifications',
 					condition: () => {
 						return !forMobile && userResource?.data
 					},

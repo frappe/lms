@@ -7,13 +7,13 @@ from frappe.model.document import Document
 
 from lms.lms.utils import has_course_instructor_role, has_moderator_role
 
-# Each LMS Question carries up to 4 option/correctness/explanation/possibility
+# Each LMS Question carries up to 10 option/correctness/explanation/possibility
 # columns. Keep these lists as the single source of truth so any future change
 # to cardinality touches one place.
-QUESTION_OPTION_FIELDS = [f"option_{i}" for i in range(1, 5)]
-QUESTION_CORRECTNESS_FIELDS = [f"is_correct_{i}" for i in range(1, 5)]
-QUESTION_EXPLANATION_FIELDS = [f"explanation_{i}" for i in range(1, 5)]
-QUESTION_POSSIBILITY_FIELDS = [f"possibility_{i}" for i in range(1, 5)]
+QUESTION_OPTION_FIELDS = [f"option_{i}" for i in range(1, 11)]
+QUESTION_CORRECTNESS_FIELDS = [f"is_correct_{i}" for i in range(1, 11)]
+QUESTION_EXPLANATION_FIELDS = [f"explanation_{i}" for i in range(1, 11)]
+QUESTION_POSSIBILITY_FIELDS = [f"possibility_{i}" for i in range(1, 11)]
 
 
 class LMSQuestion(Document):

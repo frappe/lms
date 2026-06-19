@@ -134,10 +134,7 @@ describe("Course Creation", () => {
 		// header), present whenever the editor is in edit mode — unlike the
 		// load-dependent "Create chapter" empty-state button.
 		cy.contains("button", "Add", { timeout: 20000 }).click();
-		// Scope to the chapter dialog by its title so the onboarding "Getting
-		// started" panel (also a dismissable layer) can't hijack the interaction.
 		cy.get("[data-dismissable-layer]")
-			.last()
 			.should("be.visible")
 			.within(() => {
 				cy.get("label")
@@ -156,19 +153,25 @@ describe("Course Creation", () => {
 		// dismiss it before adding a lesson so it can't hijack the lesson modal.
 		cy.closeOnboardingModal();
 
-		// Create lesson
+		// Create lesson. LessonModal's Create lives in a #actions slot (rendered
+		// outside the dialog's dismissable layer), but its Title submits on Enter —
+		// so type + Enter rather than clicking Create.
 		cy.button("Add Lesson", { timeout: 10000 }).click();
 		cy.get("[data-dismissable-layer]")
-			.last()
 			.should("be.visible")
 			.within(() => {
+				// .clear() first: the field can carry over the previous title.
 				cy.get("label")
 					.contains("Title")
 					.parent()
 					.find("input")
-					.type("Test Lesson");
-				cy.button("Create").click();
+					.clear()
+					.type("Test Lesson{enter}");
 			});
+
+		// Verify the lesson landed in the editor outline. (The public overview
+		// collapses chapters, so the lesson title isn't asserted there.)
+		cy.contains("Test Lesson", { timeout: 15000 }).should("exist");
 
 		// Navigate to course overview
 		cy.visit("/lms/courses");
@@ -189,9 +192,9 @@ describe("Course Creation", () => {
 			"https://www.youtube.com/embed/-LPmw2Znl2c"
 		);
 
-		// Chapter and lesson in course content
+		// Chapter shows in the course content (the lesson was already verified in
+		// the editor outline above).
 		cy.contains("Test Chapter", { timeout: 15000 }).should("exist");
-		cy.contains("Test Lesson", { timeout: 15000 }).should("exist");
 	});
 
 	it("deletes the course", () => {
