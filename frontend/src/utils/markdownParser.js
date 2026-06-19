@@ -1,6 +1,6 @@
 import { CodeXml } from 'lucide-vue-next'
 import { createApp, h } from 'vue'
-import { escapeHTML } from '@/utils'
+import { escapeHTML, getEditorTools } from '@/utils'
 
 export class Markdown {
 	constructor({ data, api, readOnly, config }) {
@@ -86,6 +86,17 @@ export class Markdown {
 			return
 		}
 
+		const embedBlocks = this._parsePastedEmbedBlocks(pastedText)
+		if (embedBlocks.length) {
+			event.preventDefault()
+			event.stopPropagation()
+			event.stopImmediatePropagation()
+
+			embedBlocks.push({ type: 'markdown', data: { text: '' } })
+			this._insertBlocks(embedBlocks, { focusLastBlock: true })
+			return
+		}
+
 		if (pastedText && this._looksLikeMarkdown(pastedText)) {
 			event.preventDefault()
 			event.stopPropagation()
@@ -106,7 +117,7 @@ export class Markdown {
 		return markdownPatterns.some((pattern) => pattern.test(text))
 	}
 
-	async _insertBlocks(blocks) {
+	async _insertBlocks(blocks, options = {}) {
 		if (blocks.length === 0) return
 
 		const currentIndex = this.api.blocks.getCurrentBlockIndex()
@@ -131,8 +142,12 @@ export class Markdown {
 			// original block may already be gone
 		}
 
+		const focusIndex = options.focusLastBlock
+			? currentIndex + blocks.length - 1
+			: currentIndex
+
 		setTimeout(() => {
-			this.api.caret.setToBlock(currentIndex, 'end')
+			this.api.caret.setToBlock(focusIndex, 'end')
 		}, 100)
 	}
 
@@ -371,12 +386,18 @@ export class Markdown {
 				style: 'ordered',
 				items: [{ content: '' }],
 			})
-		} else if (this._isEmbed(text) && event.key === 'Enter') {
-			event.preventDefault()
-			this.wrapper.textContent = ''
-			this._convertBlock('embed', { source: text })
 		} else if (event.key === 'Enter') {
-			setTimeout(() => this._checkMarkdownAfterEnter(), 0)
+			const embedData = this._resolveEmbedService(text.trim())
+			if (embedData) {
+				event.preventDefault()
+				this.wrapper.textContent = ''
+				this._insertBlocks(
+					[{ type: 'embed', data: embedData }, { type: 'markdown', data: { text: '' } }],
+					{ focusLastBlock: true }
+				)
+			} else {
+				setTimeout(() => this._checkMarkdownAfterEnter(), 0)
+			}
 		}
 	}
 
@@ -396,7 +417,16 @@ export class Markdown {
 
 		if (!currentBlock) return
 
-		await this.api.blocks.convert(currentBlock.id, type, data)
+		try {
+			await this.api.blocks.convert(currentBlock.id, type, data)
+		} catch {
+			await this.api.blocks.insert(type, data, {}, currentIndex, false)
+			try {
+				await this.api.blocks.delete(currentIndex + 1)
+			} catch (e) {
+				// original block may already be gone
+			}
+		}
 
 		setTimeout(() => {
 			const newIndex = this.api.blocks.getCurrentBlockIndex()
@@ -438,8 +468,53 @@ export class Markdown {
 		return { alt: '', url: '' }
 	}
 
-	_isEmbed(text) {
-		return /^https?:\/\/.+/.test(text.trim())
+	_parsePastedEmbedBlocks(text) {
+		if (!text) return []
+
+		const lines = text
+			.split(/\r?\n/)
+			.map((line) => line.trim())
+			.filter(Boolean)
+
+		if (!lines.length) return []
+
+		const blocks = []
+		for (const line of lines) {
+			const match = line.match(/^<?(https?:\/\/[^\s<>]+)>?$/)
+			if (!match) return []
+
+			const embedData = this._resolveEmbedService(match[1])
+			if (!embedData) return []
+
+			blocks.push({ type: 'embed', data: embedData })
+		}
+
+		return blocks
+	}
+
+	_resolveEmbedService(url) {
+		const services = getEditorTools().embed?.config?.services || {}
+
+		for (const [name, config] of Object.entries(services)) {
+			if (typeof config === 'boolean' || !config.regex) continue
+
+			const match = config.regex.exec(url)
+			if (!match) continue
+
+			const groups = match.slice(1)
+			const idFn = config.id || ((parts) => parts.shift())
+			const remoteId = idFn(groups)
+
+			return {
+				service: name,
+				source: url,
+				embed: config.embedUrl.replace(/<%= remote_id %>/g, remoteId),
+				width: config.width,
+				height: config.height,
+			}
+		}
+
+		return null
 	}
 
 	_parsePastedHTMLToBlocks(html) {
