@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2026-06-12 16:58+0000\n"
-"PO-Revision-Date: 2026-06-14 18:53\n"
+"PO-Revision-Date: 2026-06-19 20:26\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Swedish\n"
 "MIME-Version: 1.0\n"
@@ -2758,7 +2758,7 @@ msgstr "Aktivera"
 
 #: lms/lms/doctype/lms_settings/lms_settings.py:22
 msgid "Enable Google API in Google Settings to send calendar invites for evaluations."
-msgstr "Aktivera Google API i Google Inställningar för att skicka kalenderinbjudningar för utvärderingar."
+msgstr "Aktivera Google API i Google Inställningar för att skicka kalender inbjudningar för utvärderingar."
 
 #. Label of the enable_negative_marking (Check) field in DocType 'LMS Quiz'
 #: frontend/src/pages/QuizForm.vue:124 lms/lms/doctype/lms_quiz/lms_quiz.json
@@ -8259,7 +8259,7 @@ msgstr "Kommande Grupper"
 #: frontend/src/components/UpcomingEvaluations.vue:5
 #: frontend/src/pages/Home/AdminHome.vue:6 lms/templates/upcoming_evals.html:3
 msgid "Upcoming Evaluations"
-msgstr "Kommande utvärderingar"
+msgstr "Kommande Utvärderingar"
 
 #: frontend/src/pages/Home/AdminHome.vue:42
 #: frontend/src/pages/Home/StudentHome.vue:7
