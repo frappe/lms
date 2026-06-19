@@ -134,11 +134,7 @@ describe("Course Creation", () => {
 		// header), present whenever the editor is in edit mode — unlike the
 		// load-dependent "Create chapter" empty-state button.
 		cy.contains("button", "Add", { timeout: 20000 }).click();
-		// Target the dialog that has the Title field — the onboarding "Getting
-		// started" panel is also a dismissable layer, but it has no Title input,
-		// so this can't accidentally scope to it (unlike .last()).
 		cy.get("[data-dismissable-layer]")
-			.filter(':has(label:contains("Title"))')
 			.should("be.visible")
 			.within(() => {
 				cy.get("label")
@@ -162,7 +158,6 @@ describe("Course Creation", () => {
 		// so type + Enter rather than clicking Create.
 		cy.button("Add Lesson", { timeout: 10000 }).click();
 		cy.get("[data-dismissable-layer]")
-			.filter(':has(label:contains("Title"))')
 			.should("be.visible")
 			.within(() => {
 				// .clear() first: the field can carry over the previous title.
