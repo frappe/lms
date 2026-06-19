@@ -1,6 +1,7 @@
 <template>
 	<button
 		v-if="link && !link.onlyMobile"
+		:data-notifications-trigger="link.panel === 'notifications' ? '' : null"
 		class="flex w-full h-7 cursor-pointer items-center rounded text-ink-gray-8 duration-300 ease-in-out focus:outline-none focus:transition-none focus-visible:rounded focus-visible:ring-2 focus-visible:ring-outline-gray-3"
 		:class="
 			isActive ? 'bg-surface-elevation-3 shadow-sm' : 'hover:bg-surface-gray-2'
@@ -67,6 +68,7 @@ import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import ContactUsEmail from '@/components/ContactUsEmail.vue'
 import * as icons from 'lucide-vue-next'
+import { toggleNotifications } from '@/stores/notifications'
 
 const router = useRouter()
 const emit = defineEmits(['openModal', 'deletePage'])
@@ -92,6 +94,10 @@ const props = defineProps({
 })
 
 function handleClick() {
+	if (props.link.panel === 'notifications') {
+		toggleNotifications()
+		return
+	}
 	if (router.hasRoute(props.link.to)) {
 		router.push({ name: props.link.to })
 	} else if (props.link.to?.includes('@')) {

@@ -1389,83 +1389,35 @@ def get_week_difference(start_date: str, current_date: str) -> int:
 @frappe.whitelist()
 def get_notifications(filters: dict = None):
 	filters = frappe._dict(filters or {})
-	filters.for_user = frappe.session.user
+	# Always scoped to the session user — no IDOR surface. Only an optional
+	# read flag from the client is honoured.
+	query_filters = {"for_user": frappe.session.user}
+	if "read" in filters:
+		query_filters["read"] = 1 if filters.read else 0
+
 	notifications = frappe.get_all(
 		"Notification Log",
-		filters,
-		[
-			"subject",
-			"from_user",
-			"link",
-			"read",
-			"name",
-			"creation",
-			"document_type",
-			"document_name",
-			"type",
-			"email_content",
-		],
+		filters=query_filters,
+		fields=["name", "subject", "from_user", "link", "read", "creation", "type"],
 		order_by="creation desc",
+		limit_page_length=50,
 	)
 
+	# Batch-fetch sender details in a single query instead of one per row.
+	sender_names = list({n.from_user for n in notifications if n.from_user})
+	senders = {}
+	if sender_names:
+		for sender in frappe.get_all(
+			"User",
+			filters={"name": ["in", sender_names]},
+			fields=["name", "full_name", "user_image"],
+		):
+			senders[sender.name] = sender
+
 	for notification in notifications:
-		notification = update_document_details(notification)
-		notification = update_user_details(notification)
+		notification["from_user_details"] = senders.get(notification.from_user, {})
 
 	return notifications
-
-
-def update_user_details(notification: dict) -> dict:
-	if (
-		notification.document_details
-		and len(notification.document_details.get("instructors", []))
-		and not is_mention(notification)
-	):
-		from_user_details = notification.document_details["instructors"][0]
-	else:
-		from_user_details = frappe.db.get_value(
-			"User", notification.from_user, ["full_name", "user_image"], as_dict=1
-		)
-	notification["from_user_details"] = from_user_details
-	return notification
-
-
-def is_mention(notification: dict) -> bool:
-	if notification.type == "Mention":
-		return True
-	if "mentioned you" in notification.subject.lower():
-		return True
-	return False
-
-
-def update_document_details(notification: dict) -> dict:
-	if notification.document_type == "LMS Course":
-		details = frappe.db.get_value(
-			"LMS Course", notification.document_name, ["title", "video_link", "short_introduction"], as_dict=1
-		)
-		instructors = get_instructors("LMS Course", notification.document_name)
-		details["instructors"] = instructors
-		notification["document_details"] = details
-
-	elif notification.document_type == "LMS Batch":
-		details = frappe.db.get_value(
-			"LMS Batch",
-			notification.document_name,
-			[
-				"title",
-				"description as short_introduction",
-				"video_link",
-				"start_date",
-				"end_date",
-				"start_time",
-				"timezone",
-			],
-			as_dict=1,
-		)
-		instructors = get_instructors("LMS Batch", notification.document_name)
-		details["instructors"] = instructors
-		notification["document_details"] = details
-	return notification
 
 
 @frappe.whitelist(allow_guest=True)

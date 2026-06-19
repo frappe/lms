@@ -65,6 +65,7 @@ import { sessionStore } from '@/stores/session'
 import { useSettings } from '@/stores/settings'
 import { usersStore } from '@/stores/user'
 import * as icons from 'lucide-vue-next'
+import { toggleNotifications } from '@/stores/notifications'
 
 const { logout, user } = sessionStore()
 let { isLoggedIn } = sessionStore()
@@ -207,7 +208,10 @@ let isActive = (tab) => {
 }
 
 const handleClick = (tab) => {
-	if (tab.label == 'Log in') window.location.href = '/login'
+	if (tab.label == 'Notifications') {
+		toggleNotifications()
+		toggleMenu()
+	} else if (tab.label == 'Log in') window.location.href = '/login'
 	else if (tab.label == 'Log out')
 		logout.submit().then(() => {
 			isLoggedIn = false
