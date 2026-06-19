@@ -19,7 +19,21 @@
 			</NumberChartGraph>
 			<NumberChartGraph :title="__('Lessons')" :value="course.data?.lessons" />
 		</div>
-		<div class="grid grid-cols-[2fr_1fr] gap-5 items-start">
+		<div
+			v-if="showStudentsEmptyState"
+			class="flex min-h-[70vh] flex-col items-center justify-center gap-3 px-4 text-center"
+		>
+			<span class="lucide-users size-7.5 text-ink-gray-5" />
+			<div class="flex flex-col items-center gap-1">
+				<span class="text-xl-medium text-ink-gray-8">
+					{{ __('No students enrolled yet') }}
+				</span>
+				<span class="text-p-base text-ink-gray-6">
+					{{ __('Enroll students to track their progress here.') }}
+				</span>
+			</div>
+		</div>
+		<div v-else class="grid grid-cols-[2fr_1fr] gap-5 items-start">
 			<div class="border rounded-lg py-3 px-4">
 				<div class="flex items-center justify-between mb-3">
 					<div class="text-xl-semibold text-ink-gray-9">
@@ -35,19 +49,11 @@
 								<span class="lucide-search size-4 text-ink-gray-5" />
 							</template>
 						</FormControl>
-						<Button @click="showEnrollmentModal = true">
-							<template #prefix>
-								<span class="lucide-plus size-4" />
-							</template>
-							{{ __('Enroll') }}
-						</Button>
 					</div>
 				</div>
-				<div
-					v-if="progressList.loading || progressList.data?.length"
-					class="max-h-[63vh] overflow-y-auto"
-				>
+				<div class="max-h-[63vh] overflow-y-auto">
 					<ListView
+						v-if="progressList.loading || progressList.data?.length"
 						:columns="progressColumns"
 						:rows="progressList.data"
 						rowKey="name"
@@ -66,8 +72,10 @@
 							>
 							</ListHeaderItem>
 						</ListHeader>
-						<ListRows v-for="row in progressList.data" class="max-h-[500px]">
+						<ListRows>
 							<ListRow
+								v-for="row in progressList.data"
+								:key="row.name"
 								:row="row"
 								@click="
 									() => {
@@ -103,7 +111,7 @@
 										</div>
 										<div
 											v-else-if="column.key == 'progress'"
-											class="text-xs !mx-0 w-5"
+											class="text-xs !mx-0 w-10 text-right shrink-0"
 										>
 											{{ Math.ceil(row[column.key]) }}%
 										</div>
@@ -115,6 +123,14 @@
 							</ListRow>
 						</ListRows>
 					</ListView>
+					<div v-else class="min-h-[200px]">
+						<EmptyStateLayout
+							name="Students"
+							icon="lucide-users"
+							:title="__('No students match your search')"
+							:description="__('Try a different name.')"
+						/>
+					</div>
 					<div
 						v-if="progressList.data && progressList.hasNextPage"
 						class="flex justify-center my-3"
@@ -294,6 +310,7 @@ import type dayjsType from 'dayjs'
 import { formatAmount } from '@/utils'
 import colors from '@/utils/frappe-ui-colors.json'
 import CourseEnrollmentModal from '@/pages/Courses/CourseEnrollmentModal.vue'
+import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 import NumberChartGraph from '@/components/NumberChartGraph.vue'
 import ProgressBar from '@/components/ProgressBar.vue'
 import StudentCourseProgress from '@/pages/Courses/StudentCourseProgress.vue'
@@ -307,6 +324,13 @@ const props = defineProps<{
 const dayjs = inject<typeof dayjsType>('$dayjs')!
 const showEnrollmentModal = ref<boolean>(false)
 const searchFilter = ref<string | null>(null)
+
+function openEnrollModal() {
+	showEnrollmentModal.value = true
+}
+
+defineExpose({ openEnrollModal })
+
 const showProgressModal = ref<boolean>(false)
 const currentStudent = ref<Record<string, unknown> | null>(null)
 const theme = ref<'darkMode' | 'lightMode'>(
@@ -387,6 +411,11 @@ const averageCompletionRate = computed(() => {
 	let value = Math.ceil(chartDetails.data?.average_progress) || 0
 	return value + '%'
 })
+
+const showStudentsEmptyState = computed(
+	() =>
+		!progressList.loading && !progressList.data?.length && !searchFilter.value
+)
 
 const progressColors = computed(() => {
 	let colorList = []

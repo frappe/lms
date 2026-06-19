@@ -38,8 +38,28 @@
 					</template>
 				</Dropdown>
 				<Button
+					v-if="tabIndex === 1 && isAdmin"
+					variant="outline"
+					@click="childRef?.openEnrollModal?.()"
+				>
+					<template #prefix>
+						<span class="lucide-plus size-4" />
+					</template>
+					{{ __('Enroll') }}
+				</Button>
+				<Button
+					v-if="currentTabLabel === 'Announcements' && canMakeAnnouncement()"
+					variant="solid"
+					@click="openAnnouncementModal"
+				>
+					<template #prefix>
+						<span class="lucide-send size-4" />
+					</template>
+					{{ __('Make Announcement') }}
+				</Button>
+				<Button
 					v-if="isAdmin"
-					:variant="batch.data?.published ? 'subtle' : 'solid'"
+					variant="outline"
 					:theme="batch.data?.published ? 'red' : 'gray'"
 					:loading="publishToggle.loading"
 					@click="togglePublishBatch"
@@ -248,11 +268,13 @@ const togglePublishBatch = () => {
 	publishToggle.submit()
 }
 
+// Announcements moved to a dedicated, tab-scoped header button; the "..." menu
+// only carries batch-wide admin actions now (and hides itself when empty).
 const batchMenu = computed(() => {
-	if (!batch.data?.certification && !canMakeAnnouncement()) {
+	if (!batch.data?.certification) {
 		return []
 	}
-	let options = [
+	return [
 		{
 			label: __('Generate Certificates'),
 			onClick() {
@@ -260,15 +282,7 @@ const batchMenu = computed(() => {
 			},
 			condition: () => batch.data?.certification,
 		},
-		{
-			label: __('Make an Announcement'),
-			onClick() {
-				openAnnouncementModal()
-			},
-			condition: () => canMakeAnnouncement(),
-		},
 	]
-	return options
 })
 
 const breadcrumbs = computed(() => {
