@@ -182,6 +182,7 @@ interface EditorSelection {
 	chapterNumber: string
 	lessonNumber: string
 	number: string
+	chapterTitle?: string
 	title?: string
 }
 
@@ -347,12 +348,22 @@ const isAdmin = computed<boolean>(() => {
 const breadcrumbs = computed(() => {
 	const crumbs: {
 		label: string
-		route: { name: string; params?: Record<string, string> }
+		route?: { name: string; params?: Record<string, string> }
 	}[] = [{ label: __('Courses'), route: { name: 'Courses' } }]
 	if (course.data) {
 		crumbs.push({
 			label: course.data.title,
 			route: { name: 'CourseDetail', params: { courseName: course.data.name } },
+		})
+	}
+	if (tabIndex.value === 2 && editorSelected.value?.chapterTitle) {
+		crumbs.push({
+			label: editorSelected.value.chapterTitle,
+		})
+	}
+	if (tabIndex.value === 2 && editorSelected.value?.title) {
+		crumbs.push({
+			label: editorSelected.value.title,
 		})
 	}
 	return crumbs

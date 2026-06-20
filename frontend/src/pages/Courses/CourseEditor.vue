@@ -166,13 +166,35 @@ function storeLesson(courseName, number) {
 function setSelectedFromNumber(number) {
 	const [chapterNumber, lessonNumber] = number.split('-')
 	if (!chapterNumber || !lessonNumber) return
+	const lessonMeta = getLessonMeta(number)
 	selected.value = {
 		chapterNumber,
 		lessonNumber,
 		number,
-		title: '',
+		chapterTitle: lessonMeta?.chapterTitle,
+		title: lessonMeta?.lessonTitle || '',
 	}
 	syncSelectedToUrl(number)
+}
+
+function getLessonMeta(number) {
+	const [chapterNumber] = number.split('-')
+	for (const chapter of outline.data ?? []) {
+		const lesson = chapter.lessons?.find((item) => item.number === number)
+		if (lesson) {
+			return {
+				chapterTitle: chapter.title,
+				lessonTitle: lesson.title,
+			}
+		}
+		if (String(chapter.idx) === chapterNumber) {
+			return {
+				chapterTitle: chapter.title,
+				lessonTitle: '',
+			}
+		}
+	}
+	return null
 }
 
 // Reflect an autosaved lesson title/preview-flag in the shared outline
@@ -189,6 +211,13 @@ function onLessonSaved({ name, title, include_in_preview, isNew }) {
 		if (lesson) {
 			lesson.title = title
 			lesson.include_in_preview = include_in_preview ? 1 : 0
+			if (selected.value?.number === lesson.number) {
+				selected.value = {
+					...selected.value,
+					title,
+					chapterTitle: chapter.title,
+				}
+			}
 			break
 		}
 	}
@@ -196,7 +225,14 @@ function onLessonSaved({ name, title, include_in_preview, isNew }) {
 
 function onSelectLesson({ chapterNumber, lessonNumber }) {
 	const number = `${chapterNumber}-${lessonNumber}`
-	selected.value = { chapterNumber, lessonNumber, number, title: '' }
+	const lessonMeta = getLessonMeta(number)
+	selected.value = {
+		chapterNumber,
+		lessonNumber,
+		number,
+		chapterTitle: lessonMeta?.chapterTitle,
+		title: lessonMeta?.lessonTitle || '',
+	}
 	if (props.course?.data?.name) {
 		storeLesson(props.course.data.name, number)
 	}
