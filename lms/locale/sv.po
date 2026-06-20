@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2026-06-12 16:58+0000\n"
-"PO-Revision-Date: 2026-06-19 20:26\n"
+"PO-Revision-Date: 2026-06-20 20:21\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Swedish\n"
 "MIME-Version: 1.0\n"
@@ -743,25 +743,25 @@ msgstr "Tillgängliga Tider"
 
 #: frontend/src/pages/Courses/CourseDashboard.vue:9
 msgid "Average Completion Rate"
-msgstr "Medel Slutförande Grad"
+msgstr "Slutförande Grad Medelvärde"
 
 #: frontend/src/pages/Batches/components/BatchFeedback.vue:12
 msgid "Average Feedback Received"
-msgstr "Medel Återkoppling Mottagen"
+msgstr "Återkoppling Mottagen Medelvärde"
 
 #: frontend/src/pages/Programs/ProgramProgressSummary.vue:22
 msgid "Average Progress %"
-msgstr "Medel Framsteg %"
+msgstr "% Framsteg Medelvärde"
 
 #: frontend/src/components/CourseCard.vue:71
 #: frontend/src/pages/Courses/CourseDashboard.vue:13
 #: frontend/src/pages/Programs/ProgramEnrollment.vue:76
 msgid "Average Rating"
-msgstr "Medel Betyg"
+msgstr "Bedömning Medelvärde"
 
 #: frontend/src/components/Modals/VideoStatistics.vue:77
 msgid "Average Watch Time (mins)"
-msgstr "Medel Visningstid (minuter)"
+msgstr "Visningstid Medelvärde (minuter)"
 
 #: frontend/src/pages/Lesson.vue:52 frontend/src/pages/Lesson.vue:178
 msgid "Back to Course"
@@ -3203,7 +3203,7 @@ msgstr "Utforska mer"
 
 #: frontend/src/pages/Courses/CourseForm.vue:225
 msgid "Export"
-msgstr "Export"
+msgstr "Exportera"
 
 #. Option for the 'Status' (Select) field in DocType 'LMS Assignment
 #. Submission'
