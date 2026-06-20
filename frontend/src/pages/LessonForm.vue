@@ -89,6 +89,7 @@ onMounted(() => {
 	}
 	capture('lesson_form_opened')
 	editor.value = renderEditor('content')
+	window.__lmsEditor = editor.value
 	instructorEditor.value = renderEditor('instructor-notes')
 	window.addEventListener('keydown', keyboardShortcut)
 	enablePlyr()
