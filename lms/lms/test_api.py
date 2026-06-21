@@ -4,12 +4,14 @@ import re
 import zipfile
 
 import frappe
+from frappe.utils import flt
 
 from lms.lms.api import (
 	export_course_as_zip,
 	get_certified_participants,
 	get_course_assessment_progress,
 	import_course_from_zip,
+	track_video_watch_duration,
 )
 from lms.lms.course_import_export import sanitize_string
 from lms.lms.test_helpers import BaseTestUtils
@@ -177,3 +179,56 @@ class TestLMSAPI(BaseTestUtils):
 			"John#Doe$", allow_spaces=True, max_length=50, replacement_char=None, escape_html_content=True
 		)
 		self.assertEqual(result, "JohnDoe")
+
+
+class TestTrackVideoWatchDuration(BaseTestUtils):
+	def setUp(self):
+		super().setUp()
+		self.instructor = self._create_user(
+			"frappe@example.com", "Frappe", "Admin", ["Course Creator", "Moderator"]
+		)
+		self.student = self._create_user("student1@example.com", "Ashley", "Smith", ["LMS Student"])
+		self.course = self._create_course()
+		self.chapter = self._create_chapter("Chapter 1", self.course.name)
+		self.lesson = self._create_lesson("Lesson 1", self.chapter.name, self.course.name)
+		self._original_user = frappe.session.user
+		frappe.set_user(self.student.email)
+
+	def tearDown(self):
+		frappe.set_user(self._original_user)
+		frappe.db.delete("LMS Video Watch Duration", {"member": self.student.email})
+		super().tearDown()
+
+	def _watch_rows(self, source=None):
+		filters = {"lesson": self.lesson.name, "member": self.student.email}
+		if source:
+			filters["source"] = source
+		return frappe.get_all("LMS Video Watch Duration", filters=filters, fields=["name", "watch_time"])
+
+	def test_creates_row_when_none_exists(self):
+		track_video_watch_duration(self.lesson.name, [{"source": "a.mp4", "watch_time": 12}])
+		rows = self._watch_rows("a.mp4")
+		self.assertEqual(len(rows), 1)
+		self.assertEqual(flt(rows[0].watch_time), 12)
+
+	def test_updates_only_when_greater(self):
+		track_video_watch_duration(self.lesson.name, [{"source": "a.mp4", "watch_time": 10}])
+		track_video_watch_duration(self.lesson.name, [{"source": "a.mp4", "watch_time": 5}])
+		self.assertEqual(flt(self._watch_rows("a.mp4")[0].watch_time), 10)
+		track_video_watch_duration(self.lesson.name, [{"source": "a.mp4", "watch_time": 20}])
+		self.assertEqual(flt(self._watch_rows("a.mp4")[0].watch_time), 20)
+
+	def test_no_duplicate_on_repeat(self):
+		track_video_watch_duration(self.lesson.name, [{"source": "a.mp4", "watch_time": 10}])
+		track_video_watch_duration(self.lesson.name, [{"source": "a.mp4", "watch_time": 15}])
+		self.assertEqual(len(self._watch_rows("a.mp4")), 1)
+
+	def test_tracks_multiple_videos(self):
+		track_video_watch_duration(
+			self.lesson.name,
+			[
+				{"source": "a.mp4", "watch_time": 3},
+				{"source": "b.mp4", "watch_time": 7},
+			],
+		)
+		self.assertEqual(len(self._watch_rows()), 2)
