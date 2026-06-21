@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2026-06-12 16:58+0000\n"
-"PO-Revision-Date: 2026-06-18 19:52\n"
+"PO-Revision-Date: 2026-06-21 20:20\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Croatian\n"
 "MIME-Version: 1.0\n"
@@ -3598,7 +3598,7 @@ msgstr "Zeleno"
 
 #: frontend/src/pages/PersonaForm.vue:99
 msgid "HR / L&D Professional"
-msgstr "Osoblje / Učenje & Razvoj Profesionalac"
+msgstr "Stručnjak Osoblja / Učenje & Razvoj"
 
 #: lms/templates/signup-form.html:56
 msgid "Have an account? Login"
@@ -8087,7 +8087,7 @@ msgstr "Povratna Informacija Obuke"
 
 #: frontend/src/pages/PersonaForm.vue:119
 msgid "Training employees in my company"
-msgstr "Obuka zaposlenika u tvrtki"
+msgstr "Obuka osoblja u tvrtki"
 
 #: frontend/src/components/Settings/Transactions/TransactionDetails.vue:3
 msgid "Transaction Details"
