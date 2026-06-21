@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2026-06-12 16:58+0000\n"
-"PO-Revision-Date: 2026-06-14 17:17\n"
+"PO-Revision-Date: 2026-06-21 20:20\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Spanish\n"
 "MIME-Version: 1.0\n"
@@ -8404,7 +8404,7 @@ msgstr "Respuesta del usuario"
 
 #: lms/templates/signup-form.html:83
 msgid "Valid email and name required"
-msgstr "Se requiere un correo electrónico y un nombre válidos"
+msgstr ""
 
 #. Label of the value (Rating) field in DocType 'LMS Batch Feedback'
 #: lms/lms/doctype/lms_batch_feedback/lms_batch_feedback.json
