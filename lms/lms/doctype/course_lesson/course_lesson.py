@@ -2,14 +2,22 @@
 # For license information, please see license.txt
 
 import json
+from urllib.parse import unquote
 
 import frappe
 from frappe import _
 from frappe.model.document import Document
 from frappe.realtime import get_website_room
+from frappe.utils.response import send_private_file
 from frappe.utils.telemetry import capture
 
-from lms.lms.utils import get_course_progress, is_demo_course, recalculate_course_progress, sanitize_editorjs
+from lms.lms.permissions import INSTRUCTOR_FIELDS, can_access_lesson
+from lms.lms.utils import (
+	get_course_progress,
+	is_demo_course,
+	recalculate_course_progress,
+	sanitize_editorjs,
+)
 
 from ...md import find_macros
 
@@ -71,6 +79,113 @@ class CourseLesson(Document):
 						"lesson": self.name,
 					},
 				)
+
+
+def has_permission(doc, ptype="read", user=None):
+	user = user or frappe.session.user
+	if ptype not in ("read", "select", "print"):
+		# Authoring (create/write/delete): mirror sibling LMS hooks — Moderators
+		# and Course Creators manage lessons; otherwise fall back to per-course
+		# instructor/moderator via the rule.
+		roles = frappe.get_roles(user)
+		if "Moderator" in roles or "Course Creator" in roles:
+			return True
+		return can_access_lesson(doc.name, instructor_only=True, user=user)
+	# Read/select/print: the security gate — enrollment / preview / instructor only.
+	# Deliberately NOT widened to all Course Creators, to preserve the media-access
+	# boundary (matches the original get_lesson gate).
+	return can_access_lesson(doc.name, user=user)
+
+
+# Lesson content fields a student may reach vs. instructor-only fields (gated harder).
+STUDENT_CONTENT_FIELDS = ("content", "body")
+
+
+def _like_escape(value: str) -> str:
+	"""Escape LIKE wildcards so a file_url containing % or _ matches literally."""
+	return value.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
+
+
+def _resolve_lesson_references(file_url: str) -> list[tuple[str, bool]]:
+	"""Every (lesson, instructor_only) pair that references file_url.
+
+	Two sources, unioned:
+	- File attachments (fast path) — gives the exact attached_to_field.
+	- A search of the lesson content fields (the source of truth: uploaded files
+	  are frequently private-but-unattached, and pre-existing/seeded files always are).
+	An empty/unknown attachment field is treated as instructor-only (fail-closed).
+	"""
+	refs: list[tuple[str, bool]] = []
+
+	for r in frappe.db.get_all(
+		"File",
+		filters={"file_url": file_url, "is_private": 1, "attached_to_doctype": "Course Lesson"},
+		fields=["attached_to_name", "attached_to_field"],
+	):
+		if r.attached_to_name:
+			refs.append(
+				(r.attached_to_name, r.attached_to_field in INSTRUCTOR_FIELDS or not r.attached_to_field)
+			)
+
+	pattern = f"%{_like_escape(file_url)}%"
+	fields = [(f, False) for f in STUDENT_CONTENT_FIELDS] + [(f, True) for f in INSTRUCTOR_FIELDS]
+	for field, instructor_only in fields:
+		for row in frappe.db.get_all("Course Lesson", filters={field: ["like", pattern]}, fields=["name"]):
+			refs.append((row.name, instructor_only))
+
+	return refs
+
+
+@frappe.whitelist(allow_guest=True)
+def serve_resource(file_url: str):
+	"""Access-gated streaming of private lesson media for all users.
+
+	Native /private/files/ needs a Course Lesson read role-perm that LMS students and
+	guests don't hold, and it hard-refuses Guest — so ALL private lesson media is served
+	here instead (get_lesson rewrites embedded URLs to this endpoint for every user).
+	The owning lesson is resolved from the lesson content (source of truth) and from any
+	File attachment, then gated by the same can_access_lesson rule.
+	"""
+	if not isinstance(file_url, str):
+		frappe.throw(_("file_url must be a string"))
+
+	# URLs are percent-encoded in transit; decode before matching the File row / lesson
+	# content (which store the decoded path) and before the traversal check, so encoded
+	# spaces (%20) resolve and encoded traversal (%2e%2e) is still caught.
+	file_url = unquote(file_url)
+
+	if ".." in file_url:
+		frappe.throw(_("Invalid file path"))
+
+	file_row = frappe.db.get_value("File", {"file_url": file_url, "is_private": 1}, "file_name", as_dict=True)
+	if not file_row:
+		_deny(file_url, "no matching private file")
+		raise frappe.PermissionError
+
+	references = _resolve_lesson_references(file_url)
+	if not references:
+		_deny(file_url, "file not referenced by any lesson")
+		raise frappe.PermissionError
+
+	# Serve if the caller may reach the bytes through ANY referencing lesson.
+	if not any(
+		can_access_lesson(lesson, instructor_only=instructor_only) for lesson, instructor_only in references
+	):
+		_deny(file_url, "can_access_lesson denied for all references")
+		raise frappe.PermissionError
+
+	# send_private_file expects a path relative to the site's private/ dir.
+	relative_path = file_url.split("/private", 1)[1] if "/private" in file_url else file_url
+	return send_private_file(relative_path, filename=file_row.file_name)
+
+
+def _deny(file_url, reason):
+	frappe.logger("lms.security").warning(
+		"Lesson resource access denied: user=%s file_url=%s reason=%s",
+		frappe.session.user,
+		file_url,
+		reason,
+	)
 
 
 def apply_enforcement_flags(quiz_done: bool, assignment_done: bool, settings: dict) -> tuple[bool, bool]:

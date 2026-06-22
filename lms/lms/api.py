@@ -679,10 +679,26 @@ def update_chapter_index(chapter: str, course: str, idx: int):
 
 
 @frappe.whitelist()
-def get_members(start: int = 0, search: str = None):
+def get_members(start: int = 0, search: str = None, role: str = "All"):
 	frappe.only_for(["Moderator"])
-	filters = {"enabled": 1, "name": ["not in", ["Administrator", "Guest"]]}
+
+	lms_roles = ["Moderator", "Course Creator", "Batch Evaluator", "LMS Student"]
+	if not isinstance(role, str) or role not in (["All"] + lms_roles):
+		frappe.throw(_("Invalid role filter."), frappe.ValidationError)
+	if search is not None and not isinstance(search, str):
+		frappe.throw(_("Invalid search query."), frappe.ValidationError)
+
+	filters = [
+		["enabled", "=", 1],
+		["name", "not in", ["Administrator", "Guest"]],
+	]
 	or_filters = {}
+
+	if role != "All":
+		role_users = frappe.get_all("Has Role", {"role": role, "parenttype": "User"}, pluck="parent")
+		if not role_users:
+			return []
+		filters.append(["name", "in", role_users])
 
 	if search:
 		or_filters["full_name"] = ["like", f"%{search}%"]
@@ -697,7 +713,6 @@ def get_members(start: int = 0, search: str = None):
 		start=start,
 	)
 
-	lms_roles = ["Moderator", "Course Creator", "Batch Evaluator", "LMS Student"]
 	for member in members:
 		roles = frappe.get_all(
 			"Has Role",
@@ -1062,9 +1077,9 @@ def upsert_chapter(
 		values.update(
 			{
 				"scorm_package": scorm_package.name,
-				"scorm_package_path": extract_path.split("public")[1],
-				"manifest_file": get_manifest_file(extract_path).split("public")[1],
-				"launch_file": get_launch_file(extract_path).split("public")[1],
+				"scorm_package_path": _scorm_url(extract_path),
+				"manifest_file": _scorm_url(get_manifest_file(extract_path)),
+				"launch_file": _scorm_url(get_launch_file(extract_path)),
 			}
 		)
 
@@ -1092,11 +1107,19 @@ def upsert_chapter(
 	return chapter
 
 
+def _scorm_url(abs_path: str) -> str:
+	"""Map an extracted SCORM disk path under <site>/private/scorm/... to the
+	location-independent "/scorm/<course>/<title>/..." URL stored on Course Chapter.
+	Keeps the same URL shape legacy (public) chapters already have, so no DB change."""
+	rel = os.path.relpath(abs_path, frappe.get_site_path("private"))
+	return "/" + rel.replace(os.sep, "/")
+
+
 def extract_package(course: str, title: str, scorm_package: dict):
 	package = frappe.get_doc("File", scorm_package.name)
 	zip_path = package.get_full_path()
-	scorm_root = os.path.realpath(frappe.get_site_path("public", "scorm"))
-	extract_path = frappe.get_site_path("public", "scorm", course, title)
+	scorm_root = os.path.realpath(frappe.get_site_path("private", "scorm"))
+	extract_path = frappe.get_site_path("private", "scorm", course, title)
 
 	if not os.path.realpath(extract_path).startswith(scorm_root + os.sep):
 		frappe.throw(_("Invalid course or chapter name"))
