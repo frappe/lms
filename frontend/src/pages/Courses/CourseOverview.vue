@@ -38,18 +38,6 @@
 							v-if="course.data.instructors?.length"
 							class="flex items-center"
 						>
-							<span
-								class="h-6 me-1"
-								:class="{
-									'avatar-group overlap': course.data.instructors.length > 1,
-								}"
-							>
-								<UserAvatar
-									v-for="instructor in course.data.instructors"
-									:key="instructor.name"
-									:user="instructor"
-								/>
-							</span>
 							<CourseInstructors :instructors="course.data.instructors" />
 						</div>
 					</div>

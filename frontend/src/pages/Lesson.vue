@@ -178,17 +178,6 @@
 						</div>
 
 						<div v-if="!zenModeEnabled" class="flex items-center mt-4 md:mt-2">
-							<span
-								class="h-6 me-1"
-								:class="{
-									'avatar-group overlap': lesson.data.instructors?.length > 1,
-								}"
-							>
-								<UserAvatar
-									v-for="instructor in lesson.data.instructors"
-									:user="instructor"
-								/>
-							</span>
 							<CourseInstructors
 								v-if="lesson.data?.instructors"
 								:instructors="lesson.data.instructors"

@@ -103,16 +103,7 @@
 			</div>
 
 			<div class="flex items-center justify-between mt-auto">
-				<div class="flex avatar-group overlap">
-					<div
-						class="h-6 me-1"
-						:class="{ 'avatar-group overlap': course.instructors.length > 1 }"
-					>
-						<UserAvatar
-							v-for="instructor in course.instructors"
-							:user="instructor"
-						/>
-					</div>
+				<div class="flex items-center">
 					<CourseInstructors :instructors="course.instructors" />
 				</div>
 
