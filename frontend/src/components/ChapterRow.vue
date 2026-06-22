@@ -175,7 +175,19 @@ const router = useRouter()
 const user = inject<SessionUser>('$user')!
 
 const defaultOpen = computed<boolean>(() => {
-	const active = route.params.chapterNumber
+	// Which chapter is expanded on (re)mount. The student lesson view carries
+	// the active lesson in route params; the in-page editor carries it in
+	// ?editLesson ("<chapter>-<lesson>") — which survives navigating away and
+	// back — with selectedLessonNumber as a fallback. Default to the first
+	// chapter only when nothing is active.
+	const editChapter =
+		typeof route.query.editLesson === 'string'
+			? route.query.editLesson.split('-')[0]
+			: ''
+	const active =
+		route.params.chapterNumber ||
+		editChapter ||
+		props.selectedLessonNumber.split('-')[0]
 	return active ? props.chapter.idx == Number(active) : props.chapter.idx == 1
 })
 
