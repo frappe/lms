@@ -21,6 +21,22 @@ class LMSEnrollment(Document):
 	def on_update(self):
 		update_program_progress(self.member)
 
+	def after_insert(self):
+		self.update_course_enrollments()
+
+	def on_trash(self):
+		self.update_course_enrollments(is_deleted=True)
+
+	def update_course_enrollments(self, is_deleted=False):
+		try:
+			enrollments = frappe.db.count("LMS Enrollment", {"course": self.course, "member_type": "Student"})
+			if is_deleted:
+				enrollments = max(0, enrollments - 1)
+			frappe.db.set_value("LMS Course", self.course, "enrollments", enrollments, update_modified=False)
+			frappe.clear_document_cache("LMS Course", self.course)
+		except Exception:
+			pass
+
 	def validate_duplicate_enrollment(self):
 		existing_enrollment = frappe.db.exists(
 			"LMS Enrollment",

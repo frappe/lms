@@ -390,6 +390,17 @@ watch([searchFilter], () => {
 	progressList.reload()
 })
 
+watch(
+	() => progressList.data,
+	(newData, oldData) => {
+		if (oldData) {
+			props.course.reload()
+			chartDetails.reload()
+			lessonProgress.reload()
+		}
+	}
+)
+
 const averageCompletionRate = computed(() => {
 	let value = Math.ceil(chartDetails.data?.average_progress) || 0
 	return value + '%'
