@@ -43,7 +43,7 @@ export class Upload {
 		return this.wrapper
 	}
 
-	renderFile(file) {
+	async renderFile(file) {
 		if (this.isVideo(file.file_type)) {
 			const app = createApp(VideoBlock, {
 				file: file.file_url,
@@ -65,11 +65,11 @@ export class Upload {
 			app.mount(this.wrapper)
 			return
 		} else if (file.file_type == 'PDF') {
-			this.wrapper.innerHTML = `<iframe src="${
-				window.location.origin
-			}${encodeURI(
-				file.file_url
-			)}" width='100%' height='700px' class="mb-4" type="application/pdf"></iframe>`
+			const PDFViewer = (await import('@/components/PDFViewer.vue')).default
+			const app = createApp(PDFViewer, {
+				src: `${window.location.origin}${encodeURI(file.file_url)}`,
+			})
+			app.mount(this.wrapper)
 			return
 		} else {
 			this.wrapper.innerHTML = `<img class="mb-4" src=${encodeURI(
