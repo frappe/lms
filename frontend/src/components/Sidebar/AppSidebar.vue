@@ -149,11 +149,6 @@
 				"
 				:isSidebarCollapsed="sidebarStore.isSidebarCollapsed"
 			/>
-			<GettingStartedBanner
-				v-if="showOnboarding && !isOnboardingStepsCompleted"
-				:isSidebarCollapsed="sidebarStore.isSidebarCollapsed"
-				appName="learning"
-			/>
 
 			<div
 				class="flex items-center mt-4"
@@ -181,26 +176,7 @@
 							</div>
 						</template>
 					</Tooltip>
-					<Tooltip
-						v-if="showAppointmentIcon"
-						:text="__('Book a free onboarding session with the Frappe team')"
-					>
-						<Phone
-							class="size-4 stroke-1.5 text-ink-gray-7 cursor-pointer"
-							@click="redirectToAppointmentScreen()"
-						/>
-					</Tooltip>
-					<Tooltip v-if="showOnboarding" :text="__('Help')">
-						<CircleHelp
-							class="size-4 stroke-1.5 text-ink-gray-7 cursor-pointer"
-							@click="
-								() => {
-									showHelpModal = minimize ? true : !showHelpModal
-									minimize = !showHelpModal
-								}
-							"
-						/>
-					</Tooltip>
+
 					<Tooltip :text="__('Powered by Frappe Learning')">
 						<Zap
 							class="size-4 stroke-1.5 text-ink-gray-7 cursor-pointer"
@@ -226,24 +202,7 @@
 				</Tooltip>
 			</div>
 		</div>
-		<HelpModal
-			data-testid="onboarding-help-modal"
-			v-if="showOnboarding && showHelpModal"
-			v-model="showHelpModal"
-			v-model:articles="articles"
-			appName="learning"
-			title="Frappe Learning"
-			:logo="LMSLogo"
-			:afterSkip="(step) => capture('onboarding_step_skipped_' + step)"
-			:afterSkipAll="() => capture('onboarding_steps_skipped')"
-			:afterReset="(step) => capture('onboarding_step_reset_' + step)"
-			:afterResetAll="() => capture('onboarding_steps_reset')"
-			docsLink="https://docs.frappe.io/learning"
-		/>
-		<IntermediateStepModal
-			v-model="showIntermediateModal"
-			:currentStep="currentStep"
-		/>
+
 	</div>
 	<CommandPalette v-model="settingsStore.isCommandPaletteOpen" />
 	<PageModal
@@ -648,12 +607,7 @@ const articles = ref([
 ])
 
 const setUpOnboarding = () => {
-	if (userResource.data?.is_system_manager) {
-		onboardingDetails = useOnboarding('learning')
-		onboardingDetails.setUp(steps)
-		isOnboardingStepsCompleted = onboardingDetails.isOnboardingStepsCompleted
-		showOnboarding.value = true
-	}
+	// Onboarding/Getting Started disabled
 }
 
 watch(userResource, async () => {
