@@ -2,9 +2,21 @@
 # See license.txt
 
 # import frappe
+import base64
+import re
 import unittest
 
 import frappe
+from frappe.exceptions import ValidationError
+
+from lms.lms.doctype.lms_quiz.lms_quiz import _save_file
+
+# 1x1 transparent PNG, used to assert that genuine images are still accepted.
+ONE_PIXEL_PNG = base64.b64decode(
+	"iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+M8AAAMBAQDJ/pLvAAAAAElFTkSuQmCC"
+)
+# Same matcher process_results() uses to feed data: URIs to _save_file().
+IMAGE_DATA_URI_PATTERN = r'<img[^>]*src\s*=\s*["\'](?=data:)(.*?)["\']'
 
 
 class TestLMSQuiz(unittest.TestCase):
@@ -82,3 +94,36 @@ class TestLMSQuiz(unittest.TestCase):
 	def tearDownClass(cls) -> None:
 		frappe.db.delete("LMS Quiz", "test-quiz")
 		frappe.db.delete("LMS Question")
+
+
+class TestQuizAnswerImageUpload(unittest.TestCase):
+	"""Open-ended quiz answers may embed inline images as data: URIs that get
+	written to the public /files/ directory. Only image types are allowed: an
+	active-document extension (.xhtml, .js, ...) would be served inline and
+	enable stored XSS on the LMS origin.
+	"""
+
+	def save_answer_image(self, mime_type, filename, content=b"image-bytes"):
+		encoded = base64.b64encode(content).decode()
+		answer = f'<img src="data:{mime_type};filename={filename},{encoded}">'
+		return re.sub(IMAGE_DATA_URI_PATTERN, _save_file, answer)
+
+	def test_rejects_active_document_extension(self):
+		with self.assertRaises(ValidationError):
+			self.save_answer_image("application/xhtml+xml", "attack.xhtml", b"<script>alert(1)</script>")
+
+	def test_rejects_non_image_mime_type(self):
+		with self.assertRaises(ValidationError):
+			self.save_answer_image("text/javascript", "attack.js", b"alert(1)")
+
+	def test_rejects_image_mime_with_active_document_extension(self):
+		with self.assertRaises(ValidationError):
+			self.save_answer_image("image/png", "spoof.xhtml")
+
+	def test_accepts_genuine_image(self):
+		rendered = self.save_answer_image("image/png", "answer.png", ONE_PIXEL_PNG)
+		self.assertIn("/files/", rendered)
+
+	def tearDown(self):
+		for name in frappe.get_all("File", {"file_name": "answer.png"}, pluck="name"):
+			frappe.delete_doc("File", name, force=True, ignore_permissions=True)

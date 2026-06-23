@@ -139,7 +139,7 @@
 				</div>
 
 				<p
-					v-html="job.data.description"
+					v-html="sanitizeRichHTML(job.data.description)"
 					class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2 prose-sm max-w-none !whitespace-normal mt-12"
 				></p>
 			</div>
@@ -152,6 +152,7 @@
 	</div>
 </template>
 <script setup>
+import { sanitizeRichHTML } from '@/utils/sanitizeRichHTML'
 import {
 	Badge,
 	Button,
