@@ -1,6 +1,6 @@
 import { CodeXml } from 'lucide-vue-next'
 import { createApp, h } from 'vue'
-import { escapeHTML } from '@/utils'
+import { escapeHTML } from '@/utils/format'
 
 export class Markdown {
 	constructor({ data, api, readOnly, config }) {

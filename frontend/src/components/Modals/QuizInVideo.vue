@@ -106,7 +106,7 @@ import {
 	toast,
 } from 'frappe-ui'
 import { computed, reactive, ref, watch } from 'vue'
-import { formatTimestamp } from '@/utils'
+import { formatTimestamp } from '@/utils/format'
 import Link from '@/components/Controls/Link.vue'
 
 type Quiz = {
