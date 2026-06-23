@@ -10,7 +10,7 @@ import frappe
 from frappe import _, safe_decode
 from frappe.core.doctype.file.utils import get_random_filename
 from frappe.model.document import Document
-from frappe.utils import cint, comma_and
+from frappe.utils import cint, comma_and, escape_html
 from frappe.utils.file_manager import safe_b64decode
 from frappe.utils.html_utils import sanitize_html
 from fuzzywuzzy import fuzz
@@ -247,7 +247,7 @@ def _save_file(match: re.Match) -> str:
 		filename = get_random_filename(content_type=mtype)
 
 	if os.path.splitext(filename)[1].lower() not in ALLOWED_DATAURL_IMAGE_EXTENSIONS:
-		frappe.throw(_("File type of {0} is not allowed in quiz answers.").format(filename))
+		frappe.throw(_("File type of {0} is not allowed in quiz answers.").format(escape_html(filename)))
 
 	_file = frappe.get_doc(
 		{
