@@ -122,11 +122,7 @@ import {
 	TextEditor,
 	toast,
 } from 'frappe-ui'
-import {
-	ProgrammingExercise,
-	ProgrammingExercises,
-	TestCase,
-} from '@/types/programming-exercise'
+import { ProgrammingExercise, ProgrammingExercises, TestCase } from './types'
 import ChildTable from '@/components/Controls/ChildTable.vue'
 
 const show = defineModel()
