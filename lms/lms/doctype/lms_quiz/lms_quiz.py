@@ -2,6 +2,7 @@
 # For license information, please see license.txt
 
 import json
+import os
 import re
 from binascii import Error as BinasciiError
 
@@ -22,6 +23,12 @@ from lms.lms.doctype.lms_question.lms_question import (
 from lms.lms.utils import (
 	generate_slug,
 )
+
+# Quiz answers may embed inline images as data: URIs. Only raster image types are
+# permitted — a data: URI with an active-document extension (.xhtml, .xsl, .html,
+# .js, …) would otherwise be written to the public /files/ dir and served inline,
+# enabling stored XSS on the LMS origin. SVG is excluded (script-bearing).
+ALLOWED_DATAURL_IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".gif", ".webp", ".avif", ".bmp"}
 
 
 class LMSQuiz(Document):
@@ -214,6 +221,9 @@ def _save_file(match: re.Match) -> str:
 	headers, content = data.split(",")
 	mtype = headers.split(";", 1)[0]
 
+	if not mtype.lower().startswith("image/"):
+		frappe.throw(_("Only image data is allowed in quiz answers."))
+
 	if isinstance(content, str):
 		content = content.encode("utf-8")
 	if b"," in content:
@@ -231,6 +241,9 @@ def _save_file(match: re.Match) -> str:
 
 	else:
 		filename = get_random_filename(content_type=mtype)
+
+	if os.path.splitext(filename)[1].lower() not in ALLOWED_DATAURL_IMAGE_EXTENSIONS:
+		frappe.throw(_("File type of {0} is not allowed in quiz answers.").format(filename))
 
 	_file = frappe.get_doc(
 		{
