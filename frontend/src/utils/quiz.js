@@ -4,6 +4,7 @@ import { createApp, h } from 'vue'
 import { usersStore } from '../stores/user'
 import translationPlugin from '../translation'
 import { CircleHelp } from 'lucide-vue-next'
+import router from '@/router'
 
 export class Quiz {
 	constructor({ data, api, readOnly }) {
@@ -85,6 +86,7 @@ export class Quiz {
 			},
 		})
 		app.use(translationPlugin)
+		app.use(router)
 		app.mount(this.wrapper)
 	}
 

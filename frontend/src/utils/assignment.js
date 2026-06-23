@@ -4,10 +4,9 @@ import AssessmentPlugin from '@/components/AssessmentPlugin.vue'
 import translationPlugin from '../translation'
 import { usersStore } from '@/stores/user'
 import { call } from 'frappe-ui'
-import { useRouter } from 'vue-router'
+import router from '@/router'
 import { getLmsRoute } from '@/utils/basePath'
 
-const router = useRouter()
 export class Assignment {
 	constructor({ data, api, readOnly }) {
 		this.data = data
