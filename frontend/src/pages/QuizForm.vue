@@ -91,7 +91,7 @@
 							<div
 								v-if="column.key == 'question_detail'"
 								class="text-xs truncate h-4"
-								v-html="item"
+								v-html="sanitizeRichHTML(item)"
 							></div>
 							<div v-else class="text-xs">
 								{{ item }}
@@ -254,6 +254,7 @@ import { sessionStore } from '../stores/session'
 
 import { useRouter } from 'vue-router'
 import { sanitizeHTML } from '@/utils'
+import { sanitizeRichHTML } from '@/utils/sanitizeRichHTML'
 import Question from '@/components/Modals/Question.vue'
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 
