@@ -235,3 +235,20 @@ def update_course_statistics():
 			course.name,
 			{"lessons": lessons, "enrollments": enrollments, "rating": avg_rating},
 		)
+
+
+def update_course_enrollments(course):
+	enrollments = frappe.db.count(
+		"LMS Enrollment",
+		{
+			"course": course,
+			"member_type": "Student",
+		},
+	)
+
+	frappe.db.set_value(
+		"LMS Course",
+		course,
+		"enrollments",
+		enrollments,
+	)

@@ -18,10 +18,12 @@ class LMSEnrollment(Document):
 			self.owner = self.member
 
 	def on_update(self):
-		from lms.lms.doctype.lms_course.lms_course import update_course_statistics
+		from lms.lms.doctype.lms_course.lms_course import update_course_enrollments
 
 		update_program_progress(self.member)
-		update_course_statistics()
+		
+		if self.member_type == "Student":
+			update_course_enrollments(self.course)
 
 	def validate_duplicate_enrollment(self):
 		existing_enrollment = frappe.db.exists(
