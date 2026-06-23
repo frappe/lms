@@ -1,5 +1,4 @@
 import { call, toast } from 'frappe-ui'
-import { useTimeAgo } from '@vueuse/core'
 import colorsJSON from '@/utils/frappe-ui-colors.json'
 import { Quiz } from '@/utils/quiz'
 import { Program } from '@/utils/program'
@@ -25,9 +24,16 @@ import DOMPurify from 'dompurify'
 
 const readOnlyMode = window.read_only_mode
 
-export function timeAgo(date) {
-	return useTimeAgo(date).value
-}
+// Pure formatting helpers live in a leaf module to avoid a barrel import cycle
+// (index.js -> editor tools -> components -> '@/utils'). Re-exported here so
+// existing '@/utils' consumers keep working; cycle-prone consumers import them
+// from '@/utils/format' directly.
+export {
+	timeAgo,
+	formatSeconds,
+	escapeHTML,
+	formatTimestamp,
+} from '@/utils/format'
 
 export function formatTime(timeString) {
 	if (!timeString) return ''
@@ -39,12 +45,6 @@ export function formatTime(timeString) {
 		hour12: true,
 	}).format(dummyDate)
 	return formattedTime
-}
-
-export const formatSeconds = (time) => {
-	const minutes = Math.floor(time / 60)
-	const seconds = Math.floor(time % 60)
-	return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`
 }
 
 export function formatNumber(number) {
@@ -717,22 +717,6 @@ export const validateFile = async (
 	return null
 }
 
-export const escapeHTML = (text) => {
-	if (!text) return ''
-	let escape_html_mapping = {
-		'<': '&lt;',
-		'>': '&gt;',
-		'"': '&quot;',
-		"'": '&#39;',
-		'`': '&#x60;',
-	}
-
-	return String(text).replace(
-		/[&<>"'`=]/g,
-		(char) => escape_html_mapping[char] || char
-	)
-}
-
 const sanitizeJSON = (node) => {
 	if (Array.isArray(node)) return node.map(sanitizeJSON)
 	if (node && typeof node === 'object') {
@@ -887,14 +871,6 @@ export const updateMetaInfo = (type, route, meta) => {
 		toast.error(__('Failed to update meta tags {0}').format(error))
 		console.error(error)
 	})
-}
-
-export const formatTimestamp = (seconds) => {
-	const date = new Date(seconds * 1000)
-	const hours = String(date.getUTCHours()).padStart(2, '0')
-	const minutes = String(date.getUTCMinutes()).padStart(2, '0')
-	const secs = String(date.getUTCSeconds()).padStart(2, '0')
-	return hours > 0 ? `${hours}:${minutes}:${secs}` : `${minutes}:${secs}`
 }
 
 const getRootNode = (selector = '#editor') => {

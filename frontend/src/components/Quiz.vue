@@ -482,7 +482,7 @@ import {
 	ref,
 	watch,
 } from 'vue'
-import { timeAgo } from '@/utils'
+import { timeAgo } from '@/utils/format'
 import ProgressBar from '@/components/ProgressBar.vue'
 
 const user = inject('$user')

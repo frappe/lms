@@ -74,7 +74,7 @@ import {
 	ListView,
 	NumberChart,
 } from 'frappe-ui'
-import type { ProgramMember } from '@/types'
+import type { ProgramMember } from './types'
 import { computed, ref, watch } from 'vue'
 import { getColor } from '@/utils'
 
