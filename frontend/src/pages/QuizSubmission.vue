@@ -10,9 +10,11 @@
 				variant="subtle"
 				theme="orange"
 			/>
-			<Button variant="solid" @click="saveSubmission()">
-				{{ __('Save') }}
-			</Button>
+			<ShortcutTooltip :label="__('Save')" combo="Mod+S">
+				<Button variant="solid" @click="saveSubmission()">
+					{{ __('Save') }}
+				</Button>
+			</ShortcutTooltip>
 		</div>
 	</header>
 	<div v-if="submissionDetails.doc" class="w-2/3 border-x mx-auto py-5">
@@ -84,7 +86,12 @@ import {
 	usePageMeta,
 	toast,
 } from 'frappe-ui'
-import { computed, onBeforeUnmount, onMounted, inject } from 'vue'
+import { computed, onMounted, inject } from 'vue'
+import ShortcutTooltip from '@/components/ShortcutTooltip.vue'
+import {
+	useKeyboardShortcuts,
+	saveShortcut,
+} from '@/composables/useKeyboardShortcuts'
 import { useRouter } from 'vue-router'
 import { sessionStore } from '@/stores/session'
 
@@ -95,24 +102,17 @@ const user = inject('$user')
 onMounted(() => {
 	if (!user.data?.is_instructor && !user.data?.is_moderator)
 		router.push({ name: 'Courses' })
-
-	window.addEventListener('keydown', keyboardShortcut)
 })
 
-onBeforeUnmount(() => {
-	window.removeEventListener('keydown', keyboardShortcut)
+useKeyboardShortcuts({
+	ignoreTyping: false,
+	shortcuts: [
+		{
+			...saveShortcut(() => saveSubmission()),
+			guard: (e) => !e.target?.classList?.contains('ProseMirror'),
+		},
+	],
 })
-
-const keyboardShortcut = (e) => {
-	if (
-		e.key === 's' &&
-		(e.ctrlKey || e.metaKey) &&
-		!e.target.classList.contains('ProseMirror')
-	) {
-		saveSubmission()
-		e.preventDefault()
-	}
-}
 
 const props = defineProps({
 	submission: {

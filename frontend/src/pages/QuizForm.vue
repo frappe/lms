@@ -16,7 +16,7 @@
 					},
 				}"
 			>
-				<Button>
+				<Button variant="outline">
 					<template #prefix>
 						<span class="lucide-list-checks size-4" />
 					</template>
@@ -32,13 +32,22 @@
 					},
 				}"
 			>
-				<Button>
+				<Button variant="outline">
 					<template #prefix>
 						<span class="lucide-clipboard-list size-4" />
 					</template>
 					{{ __('Check Submissions') }}
 				</Button>
 			</router-link>
+			<Tooltip v-if="quizDetails.doc?.name" :text="__('Delete quiz')">
+				<Button
+					icon="lucide-trash-2"
+					:label="__('Delete quiz')"
+					theme="red"
+					variant="outline"
+					@click="deleteQuiz"
+				/>
+			</Tooltip>
 		</div>
 	</header>
 	<div
@@ -145,26 +154,46 @@
 				<FormControl
 					v-model="quizDetails.doc.title"
 					:label="__('Title')"
+					variant="outline"
 					:required="true"
+					autofocus
 				/>
 				<FormControl
 					type="number"
 					v-model="quizDetails.doc.max_attempts"
 					:label="__('Maximum Attempts')"
+					variant="outline"
 				/>
 				<FormControl
 					type="number"
 					v-model="quizDetails.doc.duration"
 					:label="__('Duration (in minutes)')"
+					variant="outline"
 				/>
 				<FormControl
 					v-model="quizDetails.doc.total_marks"
-					:label="__('Total Marks')"
+					variant="outline"
 					disabled
-				/>
+				>
+					<template #label>
+						<div class="flex items-center gap-1.5">
+							<span>{{ __('Total Marks') }}</span>
+							<Tooltip
+								:text="
+									__(`Auto-filled based on the sum of all questions' marks.`)
+								"
+							>
+								<span
+									class="lucide-help-circle size-4 shrink-0 text-ink-gray-5"
+								/>
+							</Tooltip>
+						</div>
+					</template>
+				</FormControl>
 				<FormControl
 					v-model="quizDetails.doc.passing_percentage"
 					:label="__('Passing Percentage')"
+					variant="outline"
 					:required="true"
 				/>
 			</div>
@@ -196,6 +225,7 @@
 					v-if="quizDetails.doc.shuffle_questions"
 					v-model="quizDetails.doc.limit_questions_to"
 					:label="__('Limit Questions To')"
+					variant="outline"
 				/>
 				<BooleanSwitch
 					v-model="quizDetails.doc.enable_negative_marking"
@@ -207,6 +237,7 @@
 					v-if="quizDetails.doc.enable_negative_marking"
 					v-model="quizDetails.doc.marks_to_cut"
 					:label="__('Marks to Deduct')"
+					variant="outline"
 				/>
 			</div>
 		</div>
@@ -238,6 +269,7 @@ import {
 	createDocumentResource,
 	Badge,
 	LoadingIndicator,
+	Tooltip,
 } from 'frappe-ui'
 import BooleanSwitch from '@/components/Controls/BooleanSwitch.vue'
 import {
@@ -248,8 +280,13 @@ import {
 	inject,
 	onBeforeUnmount,
 	watch,
+	getCurrentInstance,
 } from 'vue'
 import { useDebounceFn } from '@vueuse/core'
+import {
+	useKeyboardShortcuts,
+	saveShortcut,
+} from '@/composables/useKeyboardShortcuts'
 import { sessionStore } from '../stores/session'
 
 import { useRouter } from 'vue-router'
@@ -269,6 +306,35 @@ const currentQuestion = reactive({
 const user = inject('$user')
 const router = useRouter()
 const readOnlyMode = window.read_only_mode
+const { $dialog } = getCurrentInstance().appContext.config.globalProperties
+
+const deleteQuiz = () => {
+	$dialog({
+		title: __('Delete this quiz?'),
+		message: __(
+			'Deleting this quiz permanently removes it and its submissions. This action cannot be undone. Are you sure you want to continue?'
+		),
+		actions: [
+			{
+				label: __('Delete'),
+				theme: 'red',
+				variant: 'solid',
+				onClick({ close }) {
+					quizDetails.delete
+						.submit()
+						.then(() => {
+							toast.success(__('Quiz deleted successfully'))
+							router.push({ name: 'Quizzes' })
+						})
+						.catch((err) => {
+							toast.error(err.messages?.[0] || __('Could not delete the quiz'))
+						})
+					close()
+				},
+			},
+		],
+	})
+}
 
 const props = defineProps({
 	quizID: {
@@ -286,18 +352,15 @@ onMounted(() => {
 		router.push({ name: 'Courses' })
 	}
 	quizDetails.reload()
-	window.addEventListener('keydown', keyboardShortcut)
 })
 
-const keyboardShortcut = (e) => {
-	if (e.key === 's' && (e.ctrlKey || e.metaKey)) {
-		submitQuiz()
-		e.preventDefault()
-	}
-}
+// ignoreTyping: false so Cmd/Ctrl+S saves even while the cursor is in a field.
+useKeyboardShortcuts({
+	ignoreTyping: false,
+	shortcuts: [saveShortcut(() => submitQuiz())],
+})
 
 onBeforeUnmount(() => {
-	window.removeEventListener('keydown', keyboardShortcut)
 	// Flush a pending edit that the debounce hasn't fired yet, so navigating
 	// away immediately after a change can't drop it.
 	if (quizDetails.isDirty) submitQuiz({ silent: true })
@@ -328,6 +391,9 @@ watch(
 )
 
 const submitQuiz = (opts = {}) => {
+	// Nothing to save once the quiz has been deleted (doc is null) — guard so the
+	// autosave watcher and the onBeforeUnmount flush can't throw or re-insert it.
+	if (!quizDetails.doc) return
 	validateTitle()
 	quizDetails.setValue.submit(
 		{
@@ -423,7 +489,7 @@ const deleteQuestions = (selections, unselectAll) => {
 }
 
 const breadcrumbs = computed(() => {
-	let crumbs = [
+	const crumbs = [
 		{
 			label: __('Quizzes'),
 			route: {
@@ -432,10 +498,12 @@ const breadcrumbs = computed(() => {
 		},
 	]
 
-	crumbs.push({
-		label: quizDetails.doc?.title,
-		route: { name: 'QuizForm', params: { quizID: props.quizID } },
-	})
+	if (quizDetails.doc?.title) {
+		crumbs.push({
+			label: quizDetails.doc.title,
+			route: { name: 'QuizForm', params: { quizID: props.quizID } },
+		})
+	}
 	return crumbs
 })
 

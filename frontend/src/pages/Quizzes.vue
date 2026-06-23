@@ -4,7 +4,7 @@
 			<Breadcrumbs :items="breadcrumbs" />
 		</template>
 		<template #right-header>
-			<Button v-if="!readOnlyMode" variant="solid" @click="showForm = true">
+			<Button v-if="!readOnlyMode" variant="solid" @click="createQuiz">
 				<template #prefix>
 					<span class="lucide-plus size-4" />
 				</template>
@@ -118,30 +118,6 @@
 			</template>
 		</ListFooter>
 	</div>
-	<Dialog
-		v-model:open="showForm"
-		:title="__('Create a Quiz')"
-		size="sm"
-		:actions="[
-			{
-				label: __('Save'),
-				variant: 'solid',
-				onClick({ close }) {
-					insertQuiz(close)
-				},
-			},
-		]"
-	>
-		<template #default>
-			<FormControl
-				v-model="title"
-				:label="__('Title')"
-				type="text"
-				autocomplete="off"
-				@keydown.enter="insertQuiz(() => (showForm = false))"
-			/>
-		</template>
-	</Dialog>
 </template>
 <script setup>
 import {
@@ -149,7 +125,6 @@ import {
 	Button,
 	createListResource,
 	createResource,
-	Dialog,
 	FeatherIcon,
 	FormControl,
 	ListView,
@@ -165,11 +140,10 @@ import {
 	usePageMeta,
 	Checkbox,
 } from 'frappe-ui'
-import { useRouter, useRoute } from 'vue-router'
+import { useRouter } from 'vue-router'
 import { computed, inject, onMounted, ref, watch } from 'vue'
 
 import { sessionStore } from '@/stores/session'
-import { sanitizeHTML } from '@/utils'
 import { useTelemetry } from 'frappe-ui/frappe'
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 import LayoutHeader from '@/components/Layouts/LayoutHeader.vue'
@@ -179,12 +153,9 @@ const { capture } = useTelemetry()
 const user = inject('$user')
 const dayjs = inject('$dayjs')
 const router = useRouter()
-const route = useRoute()
 const search = ref('')
 const readOnlyMode = window.read_only_mode
 const quizFilters = ref({})
-const showForm = ref(false)
-const title = ref('')
 
 onMounted(() => {
 	if (
@@ -193,9 +164,6 @@ onMounted(() => {
 		!user.data?.is_evaluator
 	) {
 		router.push({ name: 'Courses' })
-	}
-	if (route.query.new === 'true') {
-		showForm.value = true
 	}
 })
 
@@ -258,21 +226,13 @@ const totalQuizzes = createResource({
 	},
 })
 
-const validateTitle = () => {
-	title.value = sanitizeHTML(title.value.trim())
-}
-
-const insertQuiz = (close) => {
-	validateTitle()
+const createQuiz = () => {
 	quizzes.insert.submit(
 		{
-			title: title.value,
+			title: __('Untitled Quiz'),
 		},
 		{
 			onSuccess(data) {
-				toast.success(__('Quiz created successfully'))
-				close()
-				title.value = ''
 				capture('quiz_created')
 				router.push({
 					name: 'QuizForm',
