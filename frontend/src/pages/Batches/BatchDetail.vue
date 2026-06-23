@@ -19,9 +19,11 @@
 							<span class="lucide-trash-2 w-4 h-4" />
 						</template>
 					</Button>
-					<Button variant="solid" @click="childRef.submitBatch()">
-						{{ __('Save') }}
-					</Button>
+					<ShortcutTooltip :label="__('Save')" combo="Mod+S">
+						<Button variant="solid" @click="childRef.submitBatch()">
+							{{ __('Save') }}
+						</Button>
+					</ShortcutTooltip>
 				</template>
 				<Dropdown
 					v-else-if="isAdmin && batchMenu.length"
@@ -47,16 +49,25 @@
 					</template>
 					{{ __('Enroll') }}
 				</Button>
-				<Button
-					v-if="currentTabLabel === 'Announcements' && canMakeAnnouncement()"
-					variant="solid"
-					@click="openAnnouncementModal"
+				<Tooltip
+					v-if="currentTabLabel === 'Announcements' && isAdmin && !readOnlyMode"
+					:text="
+						batch.data?.students?.length
+							? ''
+							: __('Add students to the batch to make an announcement')
+					"
 				>
-					<template #prefix>
-						<span class="lucide-send size-4" />
-					</template>
-					{{ __('Make Announcement') }}
-				</Button>
+					<Button
+						variant="outline"
+						:disabled="!batch.data?.students?.length"
+						@click="openAnnouncementModal"
+					>
+						<template #prefix>
+							<span class="lucide-send size-4" />
+						</template>
+						{{ __('Make Announcement') }}
+					</Button>
+				</Tooltip>
 				<Button
 					v-if="isAdmin"
 					variant="outline"
@@ -117,7 +128,6 @@ import {
 	List,
 	Mail,
 	MessageCircle,
-	SendIcon,
 	Settings2,
 	TrendingUp,
 } from 'lucide-vue-next'
@@ -130,6 +140,7 @@ import {
 	createResource,
 	Dropdown,
 	Tabs,
+	Tooltip,
 	toast,
 	usePageMeta,
 } from 'frappe-ui'
@@ -143,6 +154,7 @@ import AnnouncementModal from '@/pages/Batches/components/AnnouncementModal.vue'
 import BatchForm from '@/pages/Batches/BatchForm.vue'
 import BulkCertificates from '@/pages/Batches/components/BulkCertificates.vue'
 import Discussions from '@/components/Discussions.vue'
+import ShortcutTooltip from '@/components/ShortcutTooltip.vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -233,14 +245,10 @@ const isStudent = computed(() => {
 	return batch.data?.students?.includes(user.data?.name)
 })
 
+const currentTabLabel = computed(() => tabs.value[tabIndex.value]?.label)
+
 const openAnnouncementModal = () => {
 	showAnnouncementModal.value = true
-}
-
-const canMakeAnnouncement = () => {
-	if (readOnlyMode) return false
-	if (!batch.data?.students?.length) return false
-	return user.data?.is_moderator || user.data?.is_evaluator
 }
 
 const publishToggle = createResource({
