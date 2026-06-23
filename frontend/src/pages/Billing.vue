@@ -71,7 +71,7 @@
 								@keydown.enter="applyCouponCode"
 								placeholder="COUPON2025"
 								autocomplete="off"
-								class="flex-1 [&_input]:bg-white"
+								class="flex-1 [&_input]:bg-surface-base"
 							/>
 							<Button
 								v-if="!orderSummary.data.discount_amount"

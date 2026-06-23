@@ -25,7 +25,7 @@
 				@ended="videoEnded"
 				@click="togglePlay"
 				oncontextmenu="return false"
-				class="rounded-md border border-gray-100 cursor-pointer"
+				class="rounded-md border border-outline-gray-1 cursor-pointer"
 				ref="videoRef"
 				:src="fileURL"
 				:type="type"
