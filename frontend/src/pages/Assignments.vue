@@ -46,8 +46,14 @@
 				/>
 			</div>
 		</div>
+		<SkeletonLoader
+			v-if="assignments.list.loading && !assignments.data"
+			variant="list"
+			:count="8"
+			class="px-5"
+		/>
 		<ListView
-			v-if="assignments.data?.length"
+			v-else-if="assignments.data?.length"
 			:columns="assignmentColumns"
 			:rows="assignments.data"
 			row-key="name"
@@ -165,6 +171,7 @@ import { computed, inject, onMounted, ref, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { sessionStore } from '../stores/session'
 import AssignmentForm from '@/components/Modals/AssignmentForm.vue'
+import SkeletonLoader from '@/components/SkeletonLoader.vue'
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 import LayoutHeader from '@/components/Layouts/LayoutHeader.vue'
 

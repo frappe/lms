@@ -11,6 +11,7 @@ from lms.lms.utils import (
 	get_average_rating,
 	get_batch_details,
 	get_chapters,
+	get_course_categories,
 	get_course_details,
 	get_evaluator,
 	get_instructors,
@@ -158,6 +159,63 @@ class TestLMSUtils(BaseTestUtils):
 		self.assertEqual(batch_details.evaluation_end_date, getdate(self.batch.evaluation_end_date))
 		self.assertEqual(len(batch_details.instructors), len(self.batch.instructors))
 		self.assertEqual(len(batch_details.students), 2)
+
+	def test_get_course_categories_includes_used_category(self):
+		categories = get_course_categories()
+		labels = [category["label"] for category in categories]
+		self.assertIn(self.course.category, labels)
+
+	def test_get_course_categories_has_clear_option(self):
+		categories = get_course_categories()
+		self.assertEqual(categories[0], {"label": "", "value": None})
+
+	def test_get_course_categories_is_independent_of_active_filter(self):
+		other = self._create_user("creator2@example.com", "Cat", "Two", ["Course Creator"])
+		if not frappe.db.exists("LMS Category", "Marketing"):
+			frappe.get_doc({"doctype": "LMS Category", "category": "Marketing"}).insert(
+				ignore_permissions=True
+			)
+			self.cleanup_items.append(("LMS Category", "Marketing"))
+
+		second = frappe.new_doc("LMS Course")
+		second.update(
+			{
+				"title": "Second Utility Course",
+				"short_introduction": "Another course",
+				"description": "Second course description.",
+				"category": "Marketing",
+				"published": 1,
+				"instructors": [{"instructor": other.email}],
+			}
+		)
+		second.save()
+		self.cleanup_items.append(("LMS Course", second.name))
+
+		labels = [category["label"] for category in get_course_categories()]
+		self.assertIn("Business", labels)
+		self.assertIn("Marketing", labels)
+
+	def test_get_course_categories_excludes_unpublished(self):
+		if not frappe.db.exists("LMS Category", "Hidden"):
+			frappe.get_doc({"doctype": "LMS Category", "category": "Hidden"}).insert(ignore_permissions=True)
+			self.cleanup_items.append(("LMS Category", "Hidden"))
+
+		draft = frappe.new_doc("LMS Course")
+		draft.update(
+			{
+				"title": "Draft Utility Course",
+				"short_introduction": "Draft",
+				"description": "Draft description.",
+				"category": "Hidden",
+				"published": 0,
+				"instructors": [{"instructor": "frappe@example.com"}],
+			}
+		)
+		draft.save()
+		self.cleanup_items.append(("LMS Course", draft.name))
+
+		labels = [category["label"] for category in get_course_categories()]
+		self.assertNotIn("Hidden", labels)
 
 	def test_create_user(self):
 		user = create_user(

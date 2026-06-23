@@ -61,8 +61,14 @@
 			</div>
 		</div>
 
+		<SkeletonLoader
+			v-if="exercises.list.loading && !exercises.data"
+			variant="list"
+			:count="8"
+			class="px-5"
+		/>
 		<ListView
-			v-if="exercises.data?.length"
+			v-else-if="exercises.data?.length"
 			:columns="columns"
 			:rows="exercises.data"
 			row-key="name"
@@ -180,6 +186,7 @@ import Select from '@/components/Controls/Select.vue'
 import { sessionStore } from '@/stores/session'
 import { useRouter } from 'vue-router'
 import ProgrammingExerciseForm from '@/pages/ProgrammingExercises/ProgrammingExerciseForm.vue'
+import SkeletonLoader from '@/components/SkeletonLoader.vue'
 import LayoutHeader from '@/components/Layouts/LayoutHeader.vue'
 
 const readOnlyMode = window.read_only_mode

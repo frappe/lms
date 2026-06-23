@@ -34,10 +34,10 @@
 							<span class="lucide-search size-4 text-ink-gray-5" />
 						</template>
 					</FormControl>
-					<Select
+					<ClearableCombobox
 						v-if="categories.data?.length"
 						v-model="currentCategory"
-						:options="categories.data"
+						:options="categories.data.filter((c) => c.value)"
 						:placeholder="__('Category')"
 						@update:modelValue="updateParticipants()"
 					/>
@@ -56,8 +56,14 @@
 				</div>
 			</div>
 		</div>
+		<SkeletonLoader
+			v-if="participants.list.loading && !participants.data"
+			variant="cards"
+			:count="8"
+			class="flex-1 px-5 pb-5"
+		/>
 		<div
-			v-if="participants.data?.length"
+			v-else-if="participants.data?.length"
 			class="flex-1 overflow-y-auto px-5 pb-5"
 		>
 			<div class="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-4">
@@ -148,11 +154,12 @@ import {
 	usePageMeta,
 	Checkbox,
 } from 'frappe-ui'
-import Select from '@/components/Controls/Select.vue'
+import ClearableCombobox from '@/components/Controls/ClearableCombobox.vue'
 import { computed, inject, onMounted, ref } from 'vue'
 import { sessionStore } from '../stores/session'
 import { useRouter } from 'vue-router'
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
+import SkeletonLoader from '@/components/SkeletonLoader.vue'
 import UserAvatar from '@/components/UserAvatar.vue'
 import LayoutHeader from '@/components/Layouts/LayoutHeader.vue'
 
