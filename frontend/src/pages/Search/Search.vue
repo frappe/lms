@@ -72,7 +72,7 @@
 							<div class="flex items-center">
 								<div
 									class="font-medium text-ink-gray-9"
-									v-html="result.title"
+									v-html="sanitizeRichHTML(result.title)"
 								></div>
 								<div class="text-sm text-ink-gray-5 ms-2">
 									{{ getDocTypeTitle(result.doctype) }}
@@ -98,7 +98,7 @@
 							</div>
 							<div
 								class="leading-5 text-ink-gray-7"
-								v-html="result.content"
+								v-html="sanitizeRichHTML(result.content)"
 							></div>
 						</div>
 					</div>
@@ -108,6 +108,7 @@
 	</div>
 </template>
 <script setup lang="ts">
+import { sanitizeRichHTML } from '@/utils/sanitizeRichHTML'
 import {
 	Avatar,
 	Breadcrumbs,

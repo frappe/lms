@@ -795,6 +795,10 @@ export const sanitizeHTML = (text) => {
 	return text
 }
 
+// Re-exported from a lean module so it stays testable without index.js's heavy
+// frappe-ui/EditorJS import chain (same pattern as ./plyr below).
+export { sanitizeRichHTML } from './sanitizeRichHTML'
+
 export const canCreateCourse = () => {
 	const { userResource } = usersStore()
 	return (

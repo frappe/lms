@@ -42,11 +42,12 @@
 		</div>
 		<!-- <div
 			class="description text-ink-gray-9 text-sm"
-			v-html="job.description"
+			v-html="sanitizeRichHTML(job.description)"
 		></div> -->
 	</div>
 </template>
 <script setup>
+import { sanitizeRichHTML } from '@/utils/sanitizeRichHTML'
 import { inject } from 'vue'
 import { Badge } from 'frappe-ui'
 

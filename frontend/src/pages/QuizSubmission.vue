@@ -54,11 +54,12 @@
 			>
 				<div class="text-ink-gray-9">
 					<span class="font-semibold"> {{ __('Question') }}: </span>
-					<span class="leading-5" v-html="row.question"> </span>
+					<span class="leading-5" v-html="sanitizeRichHTML(row.question)">
+					</span>
 				</div>
 				<div class="text-ink-gray-9">
 					<span class="font-semibold"> {{ __('Answer') }}: </span>
-					<span class="leading-5" v-html="row.answer"></span>
+					<span class="leading-5" v-html="sanitizeRichHTML(row.answer)"></span>
 				</div>
 				<div class="grid grid-cols-2 gap-5">
 					<FormControl v-model="row.marks" :label="__('Marks')" />
@@ -73,6 +74,7 @@
 	</div>
 </template>
 <script setup>
+import { sanitizeRichHTML } from '@/utils/sanitizeRichHTML'
 import {
 	createDocumentResource,
 	Breadcrumbs,
