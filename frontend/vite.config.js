@@ -69,7 +69,6 @@ export default defineConfig(async ({ mode }) => {
 		},
 		optimizeDeps: {
 			include: [
-				'feather-icons',
 				'tailwind.config.js',
 				'interactjs',
 				'highlight.js',
