@@ -12,6 +12,7 @@ from frappe.core.doctype.file.utils import get_random_filename
 from frappe.model.document import Document
 from frappe.utils import cint, comma_and
 from frappe.utils.file_manager import safe_b64decode
+from frappe.utils.html_utils import sanitize_html
 from fuzzywuzzy import fuzz
 
 from lms.lms.doctype.course_lesson.course_lesson import save_progress
@@ -182,9 +183,12 @@ def process_results(results: list, quiz_details: dict):
 		else:
 			is_open_ended = True
 			result["is_correct"] = 0
-			result["answer"] = re.sub(
-				r'<img[^>]*src\s*=\s*["\'](?=data:)(.*?)["\']', _save_file, result["answer"][0]
-			)
+			answer = re.sub(r'<img[^>]*src\s*=\s*["\'](?=data:)(.*?)["\']', _save_file, result["answer"][0])
+			# Defense-in-depth: the answer is later rendered in the instructor's
+			# privileged grading view (QuizSubmission.vue). The frontend already
+			# wraps it in sanitizeRichHTML, but a student-controlled answer must
+			# not be stored as live HTML that other surfaces could render raw.
+			result["answer"] = sanitize_html(answer, always_sanitize=True)
 
 	return {
 		"results": results,
