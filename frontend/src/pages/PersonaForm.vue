@@ -10,7 +10,7 @@
 				</span>
 			</div>
 			<div
-				class="flex flex-col gap-5 bg-surface-modal py-8 sm:mt-6 sm:w-96 sm:rounded-lg sm:px-8 sm:shadow-xl"
+				class="flex flex-col gap-5 bg-surface-elevation-2 py-8 sm:mt-6 sm:w-96 sm:rounded-lg sm:px-8 sm:shadow-xl"
 			>
 				<h1 class="font-medium text-center">
 					{{ __('Help us understand your needs') }}

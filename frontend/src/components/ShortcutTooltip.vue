@@ -2,7 +2,7 @@
 	<Tooltip v-if="!disabled">
 		<template #body>
 			<div
-				class="rounded bg-surface-gray-7 py-1.5 px-2 text-xs text-ink-white shadow-xl"
+				class="rounded bg-surface-gray-10 py-1.5 px-2 text-xs text-ink-base shadow-xl"
 			>
 				<span class="flex items-center gap-1.5">
 					<span>{{ label }}</span>

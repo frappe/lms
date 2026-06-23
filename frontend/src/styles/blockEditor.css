@@ -318,7 +318,7 @@ iframe {
 .ce-inline-toolbar {
 	border: 1px solid var(--outline-gray-2);
 	border-radius: 8px;
-	background: var(--surface-modal);
+	background: var(--surface-elevation-2);
 	box-shadow: 0 8px 24px -6px rgba(0, 0, 0, 0.2);
 	color: var(--ink-gray-7);
 }
@@ -378,7 +378,7 @@ iframe {
 .ce-conversion-toolbar {
 	border: 1px solid var(--outline-gray-2);
 	border-radius: 8px;
-	background: var(--surface-modal);
+	background: var(--surface-elevation-2);
 	box-shadow: 0 8px 24px -6px rgba(0, 0, 0, 0.2);
 }
 
@@ -394,7 +394,7 @@ iframe {
 .ce-conversion-tool__icon {
 	border: 1px solid var(--outline-gray-2);
 	border-radius: 6px;
-	background: var(--surface-modal);
+	background: var(--surface-elevation-2);
 }
 
 /* Color tool action panel (text color + highlight), shown under the buttons. */
