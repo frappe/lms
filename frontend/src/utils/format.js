@@ -13,16 +13,18 @@ export const formatSeconds = (time) => {
 export const escapeHTML = (text) => {
 	if (!text) return ''
 	let escape_html_mapping = {
+		'&': '&amp;',
 		'<': '&lt;',
 		'>': '&gt;',
 		'"': '&quot;',
 		"'": '&#39;',
 		'`': '&#x60;',
+		'=': '&#x3D;',
 	}
 
 	return String(text).replace(
 		/[&<>"'`=]/g,
-		(char) => escape_html_mapping[char] || char
+		(char) => escape_html_mapping[char]
 	)
 }
 
