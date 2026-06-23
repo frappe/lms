@@ -98,6 +98,10 @@ import { hasEditorContent } from '@/utils/lessonForm'
 import { hasVideoContent } from '@/utils/video'
 import BlockEditor from '@/components/BlockEditor.vue'
 import { useOnboarding, useTelemetry } from 'frappe-ui/frappe'
+import {
+	useKeyboardShortcuts,
+	saveShortcut,
+} from '@/composables/useKeyboardShortcuts'
 
 const editor = ref(null)
 const instructorEditor = ref(null)
@@ -180,8 +184,19 @@ onMounted(() => {
 		window.location.href = '/login'
 	}
 	capture('lesson_form_opened')
-	window.addEventListener('keydown', keyboardShortcut)
 	enablePlyr()
+})
+
+// ignoreTyping: false so Cmd/Ctrl+S saves from the title field, but the guard
+// keeps the rich-text editor's own behaviour intact (matches the prior handler).
+useKeyboardShortcuts({
+	ignoreTyping: false,
+	shortcuts: [
+		{
+			...saveShortcut(() => saveLesson()),
+			guard: (e) => !e.target?.classList?.contains('ProseMirror'),
+		},
+	],
 })
 
 const lesson = reactive({
@@ -261,21 +276,9 @@ const addInstructorNotes = (data) => {
 	})
 }
 
-const keyboardShortcut = (e) => {
-	if (
-		e.key === 's' &&
-		(e.ctrlKey || e.metaKey) &&
-		!e.target.classList.contains('ProseMirror')
-	) {
-		saveLesson()
-		e.preventDefault()
-	}
-}
-
 onBeforeUnmount(() => {
 	// Best-effort flush of any unsaved edits before the editors are destroyed.
 	if (isDirty.value) saveLesson()
-	window.removeEventListener('keydown', keyboardShortcut)
 })
 
 const newLessonResource = createResource({

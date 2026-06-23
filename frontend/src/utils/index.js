@@ -16,6 +16,10 @@ import { Underline } from '@/utils/inline/Underline'
 import { Strikethrough } from '@/utils/inline/Strikethrough'
 import { AlignLeft, AlignCenter, AlignRight } from '@/utils/inline/TextAlign'
 import { Color } from '@/utils/inline/Color'
+import {
+	clipboardTunes,
+	clipboardTuneNames,
+} from '@/utils/blockTunes/clipboardTunes'
 import dayjs from '@/utils/dayjs'
 import Embed from '@editorjs/embed'
 import SimpleImage from '@editorjs/simple-image'
@@ -188,6 +192,9 @@ export function getEditorTools(isInstructorEditor = false, uploadContext = {}) {
 		alignCenter: AlignCenter,
 		alignRight: AlignRight,
 		color: Color,
+		copyBlock: clipboardTunes.copyBlock,
+		cutBlock: clipboardTunes.cutBlock,
+		pasteBlock: clipboardTunes.pasteBlock,
 		embed: {
 			class: Embed,
 			inlineToolbar: false,
@@ -277,6 +284,12 @@ export function getEditorTools(isInstructorEditor = false, uploadContext = {}) {
 			},
 		},
 	}
+}
+
+// Block tunes added to every block's settings menu (alongside the native
+// Move up/down + Delete). Pass to EditorJS's global `tunes` config.
+export function getEditorTunes() {
+	return [...clipboardTuneNames]
 }
 
 export function getTimezones() {
@@ -471,7 +484,8 @@ const getSidebarItems = (forMobile = false) => {
 				{
 					label: 'Search',
 					icon: 'Search',
-					to: 'Search',
+					action: 'commandPalette',
+					shortcut: 'Mod+K',
 					condition: () => {
 						return !forMobile && userResource?.data
 					},

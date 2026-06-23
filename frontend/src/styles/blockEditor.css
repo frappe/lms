@@ -301,6 +301,18 @@ iframe {
 	--plyr-video-control-background-hover: transparent;
 }
 
+/* Inline-tool tooltip (codex-tooltip, e.g. "Bold  Ctrl+B"). EditorJS hardcodes
+   a dark #1d202b bubble with #cdd1e0 text that ignores the theme; retokenise it
+   to frappe-ui's Tooltip surface (bg-surface-gray-10 + text-ink-base — see
+   node_modules/frappe-ui/src/components/Tooltip/TooltipBubble.vue). */
+.ct:before,
+.ct:after {
+	background-color: var(--surface-gray-10) !important;
+}
+.ct__content {
+	color: var(--ink-base);
+}
+
 /* ── Inline toolbar (text-selection popover) ──────────────────────────────
    automad's look, retokenised to the app's Espresso design tokens. */
 .ce-inline-toolbar {
