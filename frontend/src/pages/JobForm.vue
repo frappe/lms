@@ -8,9 +8,11 @@
 				<Badge v-if="isDirty" theme="orange">
 					{{ __('Not Saved') }}
 				</Badge>
-				<Button variant="solid" @click="saveJob()">
-					{{ __('Save') }}
-				</Button>
+				<ShortcutTooltip :label="__('Save')" combo="Mod+S">
+					<Button variant="solid" @click="saveJob()">
+						{{ __('Save') }}
+					</Button>
+				</ShortcutTooltip>
 			</div>
 		</header>
 		<div class="">
@@ -124,19 +126,16 @@ import {
 	usePageMeta,
 	toast,
 } from 'frappe-ui'
-import {
-	computed,
-	inject,
-	onMounted,
-	onBeforeUnmount,
-	reactive,
-	ref,
-	watch,
-} from 'vue'
+import { computed, inject, onMounted, reactive, ref, watch } from 'vue'
 import { sessionStore } from '@/stores/session'
 import { useRouter } from 'vue-router'
 import { sanitizeHTML } from '@/utils'
 import Uploader from '@/components/Controls/Uploader.vue'
+import ShortcutTooltip from '@/components/ShortcutTooltip.vue'
+import {
+	useKeyboardShortcuts,
+	saveShortcut,
+} from '@/composables/useKeyboardShortcuts'
 
 const user = inject('$user')
 const router = useRouter()
@@ -159,7 +158,11 @@ onMounted(() => {
 	}
 
 	if (props.jobName != 'new') jobDetails.reload()
-	window.addEventListener('keydown', keyboardShortcut)
+})
+
+useKeyboardShortcuts({
+	ignoreTyping: false,
+	shortcuts: [saveShortcut(() => saveJob())],
 })
 
 const job = reactive({
@@ -275,17 +278,6 @@ const validateJobFields = () => {
 		}
 	})
 }
-
-const keyboardShortcut = (e) => {
-	if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 's') {
-		e.preventDefault()
-		saveJob()
-	}
-}
-
-onBeforeUnmount(() => {
-	window.removeEventListener('keydown', keyboardShortcut)
-})
 
 const jobTypes = computed(() => {
 	return [

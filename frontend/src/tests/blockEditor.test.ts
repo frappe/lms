@@ -7,6 +7,9 @@ vi.mock('@/utils', () => ({
 	// 'markdown' is the editor's defaultBlock and what the trailing-block
 	// affordance inserts; alias it to Paragraph so the test editor can create it.
 	getEditorTools: () => ({ paragraph: Paragraph, markdown: Paragraph }),
+	// No tune tools are registered above, so return no tunes — EditorJS would
+	// otherwise fail resolving the clipboard tune names against missing tools.
+	getEditorTunes: () => [],
 	enablePlyr: () => {},
 }))
 

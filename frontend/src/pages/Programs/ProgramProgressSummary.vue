@@ -58,7 +58,7 @@
 							showTooltip: false,
 						}"
 					/>
-					<div v-else class="text-center text-gray-500">
+					<div v-else class="text-center text-ink-gray-5">
 						{{ __('No members found.') }}
 					</div>
 				</div>

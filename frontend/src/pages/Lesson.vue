@@ -13,15 +13,6 @@
 						</template>
 					</Button>
 				</Tooltip>
-				<Button
-					v-if="isAdmin && lessonHasVideo"
-					:tooltip="__('Video Statistics')"
-					@click="showVideoStats()"
-				>
-					<template #icon>
-						<span class="lucide-trending-up size-4" />
-					</template>
-				</Button>
 				<CertificationLinks :courseName="courseName" />
 			</div>
 		</header>
@@ -103,7 +94,7 @@
 									</span>
 									<span class="lucide-info size-3" />
 									<div
-										class="hidden group-hover:block rounded bg-gray-900 px-2 py-1 text-xs text-white shadow-xl absolute start-0 top-full mt-2"
+										class="hidden group-hover:block rounded bg-surface-gray-10 px-2 py-1 text-xs text-ink-base shadow-xl absolute start-0 top-full mt-2"
 									>
 										{{ Math.ceil(lesson.data.membership.progress) }}%
 										{{ __('completed') }}

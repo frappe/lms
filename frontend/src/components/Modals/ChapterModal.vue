@@ -49,11 +49,14 @@
 					</FileUploader>
 					<div v-else class="">
 						<div class="flex items-center">
-							<div class="border rounded-md p-2 me-2">
+							<div class="border rounded-md p-2 me-2 shrink-0">
 								<span class="lucide-file-text h-5 w-5 text-ink-gray-7" />
 							</div>
-							<div class="flex flex-col">
-								<span class="text-ink-gray-9">
+							<div class="flex min-w-0 flex-1 flex-col">
+								<span
+									class="truncate text-ink-gray-9"
+									:title="chapter.scorm_package.file_name"
+								>
 									{{ chapter.scorm_package.file_name }}
 								</span>
 								<span class="text-sm text-ink-gray-4 mt-1">
@@ -62,7 +65,7 @@
 							</div>
 							<span
 								@click="() => (chapter.scorm_package = null)"
-								class="lucide-x bg-surface-gray-3 rounded-md cursor-pointer w-5 h-5 p-1 ms-4"
+								class="lucide-x bg-surface-gray-3 rounded-md cursor-pointer w-5 h-5 p-1 ms-4 shrink-0"
 							/>
 						</div>
 					</div>

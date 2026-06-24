@@ -21,7 +21,7 @@
 					<tr
 						v-for="(row, index) in items"
 						:key="row.name ?? index"
-						class="bg-surface-white border-b border-outline-gray-2 last:border-b-0"
+						class="bg-surface-base border-b border-outline-gray-2 last:border-b-0"
 					>
 						<td class="px-6 py-2">
 							<Select
@@ -37,7 +37,7 @@
 							<Link
 								:doctype="row.reference_doctype"
 								v-model="row.reference_name"
-								class="bg-surface-white w-full"
+								class="bg-surface-base w-full"
 							/>
 						</td>
 						<td class="px-6 py-2">

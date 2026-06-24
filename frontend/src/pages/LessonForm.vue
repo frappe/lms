@@ -94,10 +94,14 @@ import {
 import { ChevronRight, NotebookPen } from 'lucide-vue-next'
 import { useDebounceFn } from '@vueuse/core'
 import { enablePlyr, sanitizeEditorJs } from '@/utils'
-import { hasEditorContent } from '@/utils/lessonForm'
+import { hasEditorContent, shouldSkipLessonSave } from '@/utils/lessonForm'
 import { hasVideoContent } from '@/utils/video'
 import BlockEditor from '@/components/BlockEditor.vue'
 import { useOnboarding, useTelemetry } from 'frappe-ui/frappe'
+import {
+	useKeyboardShortcuts,
+	saveShortcut,
+} from '@/composables/useKeyboardShortcuts'
 
 const editor = ref(null)
 const instructorEditor = ref(null)
@@ -180,8 +184,19 @@ onMounted(() => {
 		window.location.href = '/login'
 	}
 	capture('lesson_form_opened')
-	window.addEventListener('keydown', keyboardShortcut)
 	enablePlyr()
+})
+
+// ignoreTyping: false so Cmd/Ctrl+S saves from the title field, but the guard
+// keeps the rich-text editor's own behaviour intact (matches the prior handler).
+useKeyboardShortcuts({
+	ignoreTyping: false,
+	shortcuts: [
+		{
+			...saveShortcut(() => saveLesson()),
+			guard: (e) => !e.target?.classList?.contains('ProseMirror'),
+		},
+	],
 })
 
 const lesson = reactive({
@@ -261,21 +276,9 @@ const addInstructorNotes = (data) => {
 	})
 }
 
-const keyboardShortcut = (e) => {
-	if (
-		e.key === 's' &&
-		(e.ctrlKey || e.metaKey) &&
-		!e.target.classList.contains('ProseMirror')
-	) {
-		saveLesson()
-		e.preventDefault()
-	}
-}
-
 onBeforeUnmount(() => {
 	// Best-effort flush of any unsaved edits before the editors are destroyed.
 	if (isDirty.value) saveLesson()
-	window.removeEventListener('keydown', keyboardShortcut)
 })
 
 const newLessonResource = createResource({
@@ -436,13 +439,15 @@ function saveLesson() {
 	if (!editor.value || !instructorEditor.value) return
 	editor.value.save().then((outputData) => {
 		outputData = removeEmptyBlocks(outputData)
-		// Guard against wiping a lesson: a transient/empty editor (hot-reload
-		// remount, render race, mid lesson-switch) serialises to just an empty
-		// paragraph. Refuse to overwrite stored content with a blank doc. A
-		// genuinely new lesson with real content still has blocks, so this only
-		// blocks blank saves — which validateLesson would reject anyway.
-		if (!hasEditorContent(outputData)) return
-		lesson.content = JSON.stringify(outputData)
+		const bodyHasContent = hasEditorContent(outputData)
+		if (shouldSkipLessonSave(lesson.title, bodyHasContent)) return
+		// Only overwrite stored content when the body has real content. A
+		// transient/empty editor (hot-reload remount, render race, mid
+		// lesson-switch) serialises to just an empty paragraph and must not wipe
+		// what's saved.
+		if (bodyHasContent) {
+			lesson.content = JSON.stringify(outputData)
+		}
 		instructorEditor.value.save().then((outputData) => {
 			outputData = removeEmptyBlocks(outputData)
 			lesson.instructor_content = JSON.stringify(outputData)
@@ -526,9 +531,6 @@ const editCurrentLesson = () => {
 const validateLesson = () => {
 	if (!lesson.title) {
 		return 'Title is required'
-	}
-	if (!lesson.content) {
-		return 'Content is required'
 	}
 }
 </script>

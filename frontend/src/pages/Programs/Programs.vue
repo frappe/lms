@@ -16,16 +16,41 @@
 			</Button>
 		</template>
 	</LayoutHeader>
-	<div v-if="programs.data?.length && !isStudent" class="p-5">
-		<div class="text-xl-semibold text-ink-gray-9 mb-5">
-			{{
-				__('{0} {1}').format(
-					programs.data.length,
-					programs.data.length == 1 ? __('Program') : __('Programs')
-				)
-			}}
+	<StudentPrograms v-if="isStudent" />
+	<div v-else class="flex min-h-0 flex-1 flex-col p-5 pb-10">
+		<div
+			class="mb-5 flex flex-col justify-between space-y-4 lg:flex-row lg:items-center lg:space-y-0"
+		>
+			<div class="text-xl-semibold text-ink-gray-9">
+				{{ __('All Programs') }}
+			</div>
+			<div
+				class="flex flex-col space-y-3 lg:flex-row lg:items-center lg:gap-x-4 lg:space-y-0"
+			>
+				<TabButtons :buttons="programTabs" v-model="currentTab" class="w-fit" />
+
+				<FormControl
+					v-model="title"
+					:placeholder="__('Search')"
+					type="text"
+					class="w-full lg:w-40"
+					@input="updatePrograms()"
+				>
+					<template #prefix>
+						<span class="lucide-search size-4 text-ink-gray-5" />
+					</template>
+				</FormControl>
+			</div>
 		</div>
-		<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+		<SkeletonLoader
+			v-if="programs.list.loading && !programs.data"
+			variant="cards"
+			:count="8"
+		/>
+		<div
+			v-else-if="programs.data?.length"
+			class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5"
+		>
 			<div
 				v-for="program in programs.data"
 				@click="openForm(program.name)"
@@ -50,10 +75,9 @@
 				</div>
 			</div>
 		</div>
-	</div>
-	<StudentPrograms v-else-if="isStudent" />
-	<div v-else class="flex-1">
-		<EmptyStateLayout name="Programs" icon="lucide-graduation-cap" />
+		<div v-else class="flex-1">
+			<EmptyStateLayout name="Programs" icon="lucide-graduation-cap" />
+		</div>
 	</div>
 	<ProgramForm
 		v-model="showForm"
@@ -62,11 +86,19 @@
 	/>
 </template>
 <script setup>
-import { Breadcrumbs, Button, usePageMeta, createListResource } from 'frappe-ui'
-import { computed, inject, onMounted, ref } from 'vue'
+import {
+	Breadcrumbs,
+	Button,
+	FormControl,
+	TabButtons,
+	usePageMeta,
+	createListResource,
+} from 'frappe-ui'
+import { computed, inject, onMounted, ref, watch } from 'vue'
 
 import { sessionStore } from '@/stores/session'
 import ProgramForm from '@/pages/Programs/ProgramForm.vue'
+import SkeletonLoader from '@/components/SkeletonLoader.vue'
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 import LayoutHeader from '@/components/Layouts/LayoutHeader.vue'
 import StudentPrograms from '@/pages/Programs/StudentPrograms.vue'
@@ -76,13 +108,17 @@ const user = inject('$user')
 const showForm = ref(false)
 const currentProgram = ref(null)
 const readOnlyMode = window.read_only_mode
+const title = ref('')
+const currentTab = ref('published')
+const filters = ref({})
 
 onMounted(() => {
 	if (!user.data) {
 		window.location.href = '/login'
 	}
 	if (user.data?.is_moderator || user.data?.is_instructor) {
-		programs.reload()
+		setFiltersFromQuery()
+		updatePrograms()
 	}
 })
 
@@ -99,6 +135,71 @@ const programs = createListResource({
 	],
 	auto: false,
 	orderBy: 'creation desc',
+})
+
+const setFiltersFromQuery = () => {
+	let queries = new URLSearchParams(location.search)
+	title.value = queries.get('title') || ''
+}
+
+const updatePrograms = () => {
+	updateFilters()
+	programs.update({
+		filters: filters.value,
+	})
+	programs.reload()
+}
+
+const updateFilters = () => {
+	updateTitleFilter()
+	updateTabFilter()
+	setQueryParams()
+}
+
+const updateTitleFilter = () => {
+	if (title.value) {
+		filters.value['title'] = ['like', `%${title.value}%`]
+	} else {
+		delete filters.value['title']
+	}
+}
+
+const updateTabFilter = () => {
+	if (currentTab.value == 'unpublished') {
+		filters.value['published'] = 0
+	} else {
+		filters.value['published'] = 1
+	}
+}
+
+const setQueryParams = () => {
+	let queries = new URLSearchParams(location.search)
+	if (title.value) {
+		queries.set('title', title.value)
+	} else {
+		queries.delete('title')
+	}
+
+	let queryString = ''
+	if (queries.toString()) {
+		queryString = `?${queries.toString()}`
+	}
+	history.replaceState({}, '', `${location.pathname}${queryString}`)
+}
+
+const programTabs = computed(() => [
+	{
+		label: __('Published'),
+		value: 'published',
+	},
+	{
+		label: __('Unpublished'),
+		value: 'unpublished',
+	},
+])
+
+watch(currentTab, () => {
+	updatePrograms()
 })
 
 const canCreateProgram = () => {

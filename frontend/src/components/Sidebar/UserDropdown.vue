@@ -263,3 +263,16 @@ const clearDemoData = () => {
 		})
 }
 </script>
+
+<style>
+/*
+ * frappe-ui's Dropdown content has no height bound, so a tall moderator menu
+ * overflows the viewport and the boundary row (e.g. "Toggle Theme") is clipped.
+ * reka exposes the room it has via --reka-popper-available-height; cap the menu
+ * to it and scroll the overflow. Portaled to body, so this rule is global.
+ */
+.dropdown-content {
+	max-height: var(--reka-popper-available-height);
+	overflow-y: auto;
+}
+</style>

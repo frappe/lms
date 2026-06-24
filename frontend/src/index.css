@@ -6,7 +6,7 @@
  * This frappe-ui build resolves --surface-sidebar to transparent white
  * (#ffffff00) in dark mode, so the sidebar (and other bg-surface-sidebar users)
  * lose their surface and blend into the base. Newer apps (CRM) use a dedicated
- * --surface-menu-bar token, which doesn't exist here — so point the sidebar
+ * --surface-sidebar token, which doesn't exist here — so point the sidebar
  * token at gray-1 instead: a real distinct panel that mirrors its light value.
  */
 [data-theme='dark'] {
