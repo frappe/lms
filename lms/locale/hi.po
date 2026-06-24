@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2026-06-19 16:48+0000\n"
-"PO-Revision-Date: 2026-06-22 20:16\n"
+"PO-Revision-Date: 2026-06-24 20:40\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Hindi\n"
 "MIME-Version: 1.0\n"
@@ -9284,7 +9284,7 @@ msgstr ""
 
 #: frontend/src/components/CourseCardOverlay.vue:101
 msgid "enrolled"
-msgstr ""
+msgstr "नामांकित"
 
 #: frontend/src/pages/Home/Home.vue:135 frontend/src/pages/Home/Home.vue:158
 msgid "evaluation"
