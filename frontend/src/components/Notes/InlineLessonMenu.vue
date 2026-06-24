@@ -1,6 +1,6 @@
 <template>
 	<div
-		class="text-sm absolute bg-white border rounded-md z-10 w-44"
+		class="text-sm absolute bg-surface-elevation-2 border rounded-md z-10 w-44"
 		:style="{
 			display: top > 0 ? 'block' : 'none',
 			top: top + 'px',

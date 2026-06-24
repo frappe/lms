@@ -42,13 +42,15 @@
 						>
 							{{ submissionResource.doc?.status }}
 						</Badge>
-						<Button
+						<ShortcutTooltip
 							v-if="canModifyAssignment || canGradeSubmission"
-							variant="solid"
-							@click="submitAssignment()"
+							:label="__('Save')"
+							combo="Mod+S"
 						>
-							{{ __('Save') }}
-						</Button>
+							<Button variant="solid" @click="submitAssignment()">
+								{{ __('Save') }}
+							</Button>
+						</ShortcutTooltip>
 					</div>
 				</div>
 				<div
@@ -215,7 +217,12 @@ import {
 	TextEditor,
 	toast,
 } from 'frappe-ui'
-import { computed, inject, onMounted, onBeforeUnmount, ref, watch } from 'vue'
+import { computed, inject, ref, watch } from 'vue'
+import ShortcutTooltip from '@/components/ShortcutTooltip.vue'
+import {
+	useKeyboardShortcuts,
+	saveShortcut,
+} from '@/composables/useKeyboardShortcuts'
 import { useRouter } from 'vue-router'
 import { validateFile } from '@/utils'
 
@@ -241,19 +248,9 @@ const props = defineProps({
 	},
 })
 
-onMounted(() => {
-	window.addEventListener('keydown', keyboardShortcut)
-})
-
-const keyboardShortcut = (e) => {
-	if (e.key === 's' && (e.ctrlKey || e.metaKey)) {
-		submitAssignment()
-		e.preventDefault()
-	}
-}
-
-onBeforeUnmount(() => {
-	window.removeEventListener('keydown', keyboardShortcut)
+useKeyboardShortcuts({
+	ignoreTyping: false,
+	shortcuts: [saveShortcut(() => submitAssignment())],
 })
 
 const assignment = createResource({

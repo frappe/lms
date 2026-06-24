@@ -73,10 +73,10 @@
 							<span class="lucide-search size-4 text-ink-gray-5" />
 						</template>
 					</FormControl>
-					<Select
+					<ClearableCombobox
 						v-if="categories.length"
 						v-model="currentCategory"
-						:options="categories"
+						:options="categories.filter((c) => c.value)"
 						:placeholder="__('Category')"
 						@update:modelValue="updateBatches()"
 					/>
@@ -91,8 +91,13 @@
 				</Tooltip>
 			</div>
 		</div>
+		<SkeletonLoader
+			v-if="batches.list.loading && !batches.data"
+			variant="cards"
+			:count="8"
+		/>
 		<div
-			v-if="batches.data?.length"
+			v-else-if="batches.data?.length"
 			class="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
 		>
 			<router-link
@@ -133,11 +138,12 @@ import {
 	usePageMeta,
 	Checkbox,
 } from 'frappe-ui'
-import Select from '@/components/Controls/Select.vue'
+import ClearableCombobox from '@/components/Controls/ClearableCombobox.vue'
 import { computed, inject, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { sessionStore } from '@/stores/session'
 import BatchCard from '@/pages/Batches/components/BatchCard.vue'
+import SkeletonLoader from '@/components/SkeletonLoader.vue'
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 import LayoutHeader from '@/components/Layouts/LayoutHeader.vue'
 import NewBatchModal from '@/pages/Batches/components/NewBatchModal.vue'

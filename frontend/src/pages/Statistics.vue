@@ -5,7 +5,13 @@
 		>
 			<Breadcrumbs class="h-7" :items="breadcrumbs" />
 		</header>
-		<div v-if="chartDetails.data" class="p-5">
+		<div
+			v-if="chartDetails.loading && !chartDetails.data"
+			class="flex flex-1 items-center justify-center p-5"
+		>
+			<LoadingIndicator class="size-5 text-ink-gray-5" />
+		</div>
+		<div v-else-if="chartDetails.data" class="p-5">
 			<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
 				<Tooltip :text="__('Published Courses')">
 					<NumberChart
@@ -138,6 +144,7 @@ import {
 	Breadcrumbs,
 	createResource,
 	DonutChart,
+	LoadingIndicator,
 	NumberChart,
 	Tooltip,
 	usePageMeta,

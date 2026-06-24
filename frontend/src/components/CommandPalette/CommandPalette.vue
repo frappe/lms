@@ -68,7 +68,7 @@
 import { createResource, debounce, Dialog } from 'frappe-ui'
 import { nextTick, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { BookOpen, Briefcase, FileSearch, Search, Users } from 'lucide-vue-next'
+import { BookOpen, Briefcase, Users } from 'lucide-vue-next'
 import CommandPaletteGroup from './CommandPaletteGroup.vue'
 
 const show = defineModel<boolean>({ required: true, default: false })
@@ -115,35 +115,9 @@ const generateSearchResults = () => {
 	})
 }
 
-const appendSearchPage = () => {
-	let searchPage: { title: string; items: Array<any> } = {
-		title: '',
-		items: [],
-	}
-	searchPage.title = __('Jump to')
-	searchPage.items = [
-		{
-			title: __('Search for ') + `"${query.value}"`,
-			route: {
-				name: 'Search',
-				query: {
-					q: query.value,
-				},
-			},
-			icon: FileSearch,
-			isActive: true,
-		},
-	]
-	searchResults.value = [searchPage]
-}
-
-watch(
-	query,
-	() => {
-		appendSearchPage()
-	},
-	{ immediate: true }
-)
+watch(query, () => {
+	searchResults.value = []
+})
 
 watch(show, () => {
 	if (!show.value) {
@@ -220,20 +194,12 @@ const jumpToOptions = ref([
 		title: __('Jump to'),
 		items: [
 			{
-				title: 'Advanced Search',
-				icon: Search,
-				route: {
-					name: 'Search',
-				},
-				isActive: true,
-			},
-			{
 				title: 'Courses',
 				icon: BookOpen,
 				route: {
 					name: 'Courses',
 				},
-				isActive: false,
+				isActive: true,
 			},
 			{
 				title: 'Batches',

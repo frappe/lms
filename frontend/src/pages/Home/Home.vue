@@ -24,8 +24,14 @@
 			</div>
 		</div>
 
+		<div
+			v-if="isHomeLoading"
+			class="flex flex-1 items-center justify-center py-20"
+		>
+			<LoadingIndicator class="size-5 text-ink-gray-5" />
+		</div>
 		<AdminHome
-			v-if="isAdmin && currentTab === 'instructor'"
+			v-else-if="isAdmin && currentTab === 'instructor'"
 			:liveClasses="adminLiveClasses"
 			:evals="adminEvals"
 		/>
@@ -38,7 +44,7 @@
 </template>
 <script setup lang="ts">
 import { computed, inject, onMounted, ref } from 'vue'
-import { call, createResource, usePageMeta } from 'frappe-ui'
+import { call, createResource, LoadingIndicator, usePageMeta } from 'frappe-ui'
 import { sessionStore } from '@/stores/session'
 import { useRouter } from 'vue-router'
 import StudentHome from '@/pages/Home/StudentHome.vue'
@@ -71,6 +77,16 @@ const isAdmin = computed(() => {
 		user.data?.is_instructor ||
 		user.data?.is_evaluator
 	)
+})
+
+const isHomeLoading = computed(() => {
+	if (isAdmin.value) {
+		return (
+			(adminLiveClasses.loading && !adminLiveClasses.data) ||
+			(adminEvals.loading && !adminEvals.data)
+		)
+	}
+	return myLiveClasses.loading && !myLiveClasses.data
 })
 
 const isPersonaCaptured = async () => {

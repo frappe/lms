@@ -39,7 +39,7 @@
 				<TabButtons
 					v-model="activeTab"
 					:buttons="tabs"
-					class="w-fit px-4 py-1"
+					class="tab-buttons w-full px-4 py-1"
 				/>
 				<div class="flex h-full overflow-hidden">
 					<div
@@ -169,3 +169,21 @@ const navigateToPage = (log) => {
 	}
 }
 </script>
+<style scoped>
+/* Stretch frappe-ui TabButtons to full width with two evenly split tabs that
+   each fill (and highlight) their half. DOM: RadioGroupRoot(.tab-buttons) >
+   flex container div > button[data-slot=tab-button] > Pill.
+   Pattern from Helpdesk: desk/src/components/ticket-agent/TicketSidebar.vue */
+:deep(.tab-buttons > div) {
+	display: flex;
+	width: 100%;
+}
+:deep(.tab-buttons [data-slot='tab-button']) {
+	flex: 1 1 0%;
+}
+:deep(.tab-buttons [data-slot='tab-button'] > *) {
+	display: flex;
+	width: 100%;
+	justify-content: center;
+}
+</style>

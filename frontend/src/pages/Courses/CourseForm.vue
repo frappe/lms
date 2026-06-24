@@ -22,7 +22,6 @@ import {
 	getCurrentInstance,
 	inject,
 	nextTick,
-	onBeforeUnmount,
 	onMounted,
 	provide,
 	reactive,
@@ -32,6 +31,11 @@ import {
 import { useDebounceFn } from '@vueuse/core'
 import { useRouter } from 'vue-router'
 import { getMetaInfo, updateMetaInfo } from '@/utils'
+import { validateCourse } from '@/utils/courseForm'
+import {
+	useKeyboardShortcuts,
+	saveShortcut,
+} from '@/composables/useKeyboardShortcuts'
 import { exportCourseAsZip } from '@/utils/exportCourse'
 import SkeletonLoader from '@/components/SkeletonLoader.vue'
 import CourseDetailsSection from '@/pages/Courses/CourseDetailsSection.vue'
@@ -93,11 +97,32 @@ const courseResource = createDocumentResource({
 // field updates don't arm autosave (mirrors the lesson editor's load guard).
 let applyingServerData = false
 
+// Tracks the last validation error surfaced to the user so a repeated autosave
+// attempt with the same unmet requirement doesn't re-toast on every keystroke.
+let lastAutoSaveError: string | null = null
+
+const validateForm = (): string | null =>
+	validateCourse({
+		doc: courseResource.doc ?? null,
+		instructors: instructors.value,
+	})
+
 // Debounced so a burst of edits collapses into a single save shortly after the
-// user pauses. Pricing validation errors are surfaced only on an explicit Save,
-// so a half-typed price doesn't trigger a silent autosave or spam error toasts.
+// user pauses. When a mandatory field is empty or the price is invalid, the
+// autosave can't succeed — surface the reason once and keep the "Not Saved"
+// badge (isDirty stays true) so the change isn't silently lost.
 const autoSave = useDebounceFn((): void => {
-	if (isDirty.value && !validatePricing()) updateCourse({ silent: true })
+	if (!isDirty.value) return
+	const error = validateForm()
+	if (error) {
+		if (error !== lastAutoSaveError) {
+			toast.error(error)
+			lastAutoSaveError = error
+		}
+		return
+	}
+	lastAutoSaveError = null
+	updateCourse({ silent: true })
 }, 1000)
 
 const markDirty = (): void => {
@@ -119,12 +144,9 @@ onMounted(() => {
 	if (!user.data?.is_moderator && !user.data?.is_instructor) {
 		router.push({ name: 'Courses' })
 	}
-	window.addEventListener('keydown', keyboardShortcut)
 })
 
-onBeforeUnmount(() => {
-	window.removeEventListener('keydown', keyboardShortcut)
-})
+useKeyboardShortcuts({ shortcuts: [saveShortcut(() => submitCourse())] })
 
 watch(
 	() => courseResource.doc,
@@ -172,26 +194,14 @@ const updateCourseData = (): void => {
 	}
 }
 
-const validatePricing = (): string | null => {
-	const doc = courseResource.doc
-	if (!doc) return null
-	if (!doc.paid_course && !doc.paid_certificate) return null
-	const subject = doc.paid_course ? __('paid courses') : __('paid certificates')
-	if (!doc.currency) {
-		return __('Currency is required for {0}.').format(subject)
-	}
-	if (!(Number(doc.course_price) > 0)) {
-		return __('Price must be a positive number for {0}.').format(subject)
-	}
-	return null
-}
-
 const submitCourse = (): void => {
-	const error = validatePricing()
+	const error = validateForm()
 	if (error) {
 		toast.error(error)
+		lastAutoSaveError = error
 		return
 	}
+	lastAutoSaveError = null
 	updateCourse()
 }
 
@@ -229,17 +239,6 @@ const updateCourse = (opts: { silent?: boolean } = {}): void => {
 	)
 }
 
-const keyboardShortcut = (e: KeyboardEvent): void => {
-	if (
-		e.key === 's' &&
-		(e.ctrlKey || e.metaKey) &&
-		!(e.target as HTMLElement | null)?.classList.contains('ProseMirror')
-	) {
-		submitCourse()
-		e.preventDefault()
-	}
-}
-
 const deleteCourse = createResource({
 	url: 'lms.lms.api.delete_course',
 	makeParams() {
@@ -247,7 +246,8 @@ const deleteCourse = createResource({
 	},
 	onSuccess() {
 		toast.success(__('Course deleted successfully'))
-		router.push({ name: 'Courses' })
+		// Land on the creator's "Created" courses — pick another course to edit.
+		router.push({ name: 'Courses', query: { tab: 'created' } })
 	},
 }) as Resource<unknown>
 

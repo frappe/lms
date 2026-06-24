@@ -28,17 +28,17 @@
 				<div
 					class="mb-1 flex flex-row items-center justify-between px-3 text-center"
 				>
-					<span class="text-base-bold text-gray-900">
+					<span class="text-base-bold text-ink-gray-9">
 						{{ __('Install Frappe Learning') }}
 					</span>
 					<span class="inline-flex items-baseline">
 						<span
-							class="lucide-x ms-auto size-4 text-gray-700"
+							class="lucide-x ms-auto size-4 text-ink-gray-7"
 							@click="iosInstallMessage = false"
 						/>
 					</span>
 				</div>
-				<div class="px-3 text-xs text-gray-800">
+				<div class="px-3 text-xs text-ink-gray-8">
 					<span class="flex flex-col gap-2">
 						<span class="leading-5">
 							{{

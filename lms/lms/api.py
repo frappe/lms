@@ -590,7 +590,27 @@ def delete_lesson(lesson: str, chapter: str):
 	update_index(lessons, chapter)
 
 	frappe.db.delete("LMS Course Progress", {"lesson": lesson})
+	frappe.db.delete("LMS Video Watch Duration", {"lesson": lesson})
 	frappe.delete_doc("Course Lesson", lesson)
+
+
+@frappe.whitelist()
+def create_lesson(chapter: str) -> str:
+	"""Create a draft "Untitled lesson" appended to the chapter, atomically.
+
+	Delegates to add_lesson(), which inserts the Course Lesson and its Lesson
+	Reference in this single request — if the reference insert fails the whole
+	request rolls back, so no lesson is orphaned without a chapter pointing at
+	it. Returns the new lesson's docname.
+	"""
+	course = frappe.db.get_value("Course Chapter", chapter, "course")
+	if not course:
+		frappe.throw(_("Invalid chapter."))
+	if not can_modify_course(course):
+		frappe.throw(_("You do not have permission to add a lesson."), frappe.PermissionError)
+
+	idx = frappe.db.count("Lesson Reference", {"parent": chapter}) + 1
+	return add_lesson(_("Untitled lesson"), chapter, course, idx)
 
 
 @frappe.whitelist()
@@ -1223,6 +1243,8 @@ def add_lesson(title: str, chapter: str, course: str, idx: int):
 		}
 	)
 	lesson_reference.insert()
+
+	return lesson.name
 
 
 @frappe.whitelist()

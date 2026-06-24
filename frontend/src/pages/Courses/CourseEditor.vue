@@ -85,6 +85,11 @@ import SkeletonLoader from '@/components/SkeletonLoader.vue'
 import LessonForm from '@/pages/LessonForm.vue'
 import Lesson from '@/pages/Lesson.vue'
 import VideoStatistics from '@/components/Modals/VideoStatistics.vue'
+import {
+	findLessonNameByNumber,
+	lessonExistsByNumber,
+	isSelectionStale,
+} from '@/utils/courseOutline'
 
 const props = defineProps({
 	course: { type: Object, required: true },
@@ -135,12 +140,6 @@ function syncModeToUrl(newMode) {
 
 const STORAGE_KEY = 'lms-course-editor-last-lesson'
 
-function lessonExists(chapters, number) {
-	return !!(
-		number && chapters?.some((c) => c.lessons?.some((l) => l.number === number))
-	)
-}
-
 function getStoredLesson(courseName) {
 	try {
 		const raw = localStorage.getItem(STORAGE_KEY)
@@ -170,6 +169,7 @@ function setSelectedFromNumber(number) {
 		chapterNumber,
 		lessonNumber,
 		number,
+		name: findLessonNameByNumber(outline.data, number),
 		title: '',
 	}
 	syncSelectedToUrl(number)
@@ -196,7 +196,13 @@ function onLessonSaved({ name, title, include_in_preview, isNew }) {
 
 function onSelectLesson({ chapterNumber, lessonNumber }) {
 	const number = `${chapterNumber}-${lessonNumber}`
-	selected.value = { chapterNumber, lessonNumber, number, title: '' }
+	selected.value = {
+		chapterNumber,
+		lessonNumber,
+		number,
+		name: findLessonNameByNumber(outline.data, number),
+		title: '',
+	}
 	if (props.course?.data?.name) {
 		storeLesson(props.course.data.name, number)
 	}
@@ -236,7 +242,7 @@ function pickInitialLesson() {
 	if (selected.value) return
 	const courseName = props.course?.data?.name
 	const stored = courseName ? getStoredLesson(courseName) : null
-	if (lessonExists(chapters, stored)) {
+	if (lessonExistsByNumber(chapters, stored)) {
 		setSelectedFromNumber(stored)
 		return
 	}
@@ -254,11 +260,7 @@ watch(() => outline.data, pickInitialLesson, { immediate: true })
 watch(
 	() => outline.data,
 	(chapters) => {
-		if (
-			selected.value?.number &&
-			chapters &&
-			!lessonExists(chapters, selected.value.number)
-		) {
+		if (isSelectionStale(selected.value, chapters)) {
 			selected.value = null
 			if (route.query.editLesson) {
 				const { editLesson, ...rest } = route.query

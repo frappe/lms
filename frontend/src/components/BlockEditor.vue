@@ -9,7 +9,8 @@
 import { onBeforeUnmount, onMounted, ref } from 'vue'
 import EditorJS from '@editorjs/editorjs'
 import DragDrop from 'editorjs-drag-drop'
-import { enablePlyr, getEditorTools } from '@/utils'
+import { enablePlyr, getEditorTools, getEditorTunes } from '@/utils'
+import { handleBlockClipboardShortcut } from '@/utils/blockTunes/clipboardTunes'
 
 const props = defineProps({
 	uploadContext: {
@@ -73,10 +74,18 @@ function ensureTrailingBlock() {
 	}
 }
 
+// Cut/Copy/Paste on a block selection, without stealing the browser's native
+// text clipboard. Capture phase so we decide before EditorJS sees the key.
+function handleClipboardKeydown(e) {
+	if (!editor) return
+	handleBlockClipboardShortcut(editor, e)
+}
+
 onMounted(() => {
 	editor = new EditorJS({
 		holder: holderRef.value,
 		tools: getEditorTools(false, props.uploadContext),
+		tunes: getEditorTunes(),
 		defaultBlock: 'markdown',
 		i18n: {
 			direction: document.documentElement.dir === 'rtl' ? 'rtl' : 'ltr',
@@ -87,6 +96,7 @@ onMounted(() => {
 			// that settings button a drag handle so blocks reorder by dragging.
 			new DragDrop(editor)
 			holderRef.value?.addEventListener('click', handleBelowLastBlockClick)
+			holderRef.value?.addEventListener('keydown', handleClipboardKeydown, true)
 		},
 		onChange: async () => {
 			enablePlyr()
@@ -100,6 +110,7 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
 	holderRef.value?.removeEventListener('click', handleBelowLastBlockClick)
+	holderRef.value?.removeEventListener('keydown', handleClipboardKeydown, true)
 	const instance = editor
 	editor = null
 	instance?.isReady.then(() => instance.destroy()).catch(() => {})

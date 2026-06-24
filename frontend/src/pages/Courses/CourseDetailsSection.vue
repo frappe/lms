@@ -74,7 +74,7 @@
 				@change="markDirty()"
 			/>
 		</div>
-		<div class="grid gap-5 lg:grid-cols-2">
+		<div class="grid gap-5 grid-cols-1 xl:grid-cols-2">
 			<CourseThumbnailField />
 			<VideoPreviewField
 				:modelValue="doc.video_link"

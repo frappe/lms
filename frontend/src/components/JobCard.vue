@@ -27,7 +27,7 @@
 					</span>
 				</div>
 			</div>
-			<!-- <img :src="job.company_logo" alt="Company Logo" class="size-8  rounded-full object-contain  bg-white" /> -->
+			<!-- <img :src="job.company_logo" alt="Company Logo" class="size-8  rounded-full object-contain  bg-surface-base" /> -->
 		</div>
 		<div class="flex gap-x-2 items-center mt-auto">
 			<Badge>

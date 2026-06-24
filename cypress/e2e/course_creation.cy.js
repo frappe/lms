@@ -150,28 +150,41 @@ describe("Course Creation", () => {
 		cy.contains("Test Chapter", { timeout: 15000 }).should("exist");
 
 		// The onboarding help modal re-expands when the chapter step completes —
-		// dismiss it before adding a lesson so it can't hijack the lesson modal.
+		// dismiss it before adding a lesson so it can't hijack the editor.
 		cy.closeOnboardingModal();
 
-		// Create lesson. LessonModal's Create lives in a #actions slot (rendered
-		// outside the dialog's dismissable layer), but its Title submits on Enter —
-		// so type + Enter rather than clicking Create.
+		// Create lesson. "Add Lesson" creates an "Untitled lesson" and opens it in
+		// the editor; the title is edited inline on the lesson itself and the
+		// debounced autosave persists it (no modal).
 		cy.button("Add Lesson", { timeout: 10000 }).click();
-		cy.get("[data-dismissable-layer]")
-			.should("be.visible")
-			.within(() => {
-				// .clear() first: the field can carry over the previous title.
-				cy.get("label")
-					.contains("Title")
-					.parent()
-					.find("input")
-					.clear()
-					.type("Test Lesson{enter}");
-			});
+		cy.get("textarea.lesson-title", { timeout: 15000 })
+			.should("have.value", "Untitled lesson")
+			.clear()
+			.type("Test Lesson");
 
-		// Verify the lesson landed in the editor outline. (The public overview
-		// collapses chapters, so the lesson title isn't asserted there.)
+		// Verify the autosaved title landed in the editor outline. (The public
+		// overview collapses chapters, so the lesson title isn't asserted there.)
 		cy.contains("Test Lesson", { timeout: 15000 }).should("exist");
+
+		// Regression: deleting the lesson that's open in the editor must drop back
+		// to the empty "choose a lesson" state, not keep showing the deleted
+		// lesson. Add a throwaway lesson (it opens in the editor), delete it, and
+		// assert the editor cleared. "Test Lesson" stays for the overview below.
+		cy.button("Add Lesson", { timeout: 10000 }).click();
+		cy.get("textarea.lesson-title", { timeout: 15000 }).should(
+			"have.value",
+			"Untitled lesson"
+		);
+		cy.contains(".outline-lesson", "Untitled lesson")
+			.find(".lucide-trash-2")
+			.click({ force: true });
+		cy.contains("Delete this lesson?");
+		cy.get("[data-dismissable-layer]").contains("button", "Delete").click();
+		cy.contains("Lesson deleted successfully");
+		cy.contains("Select a lesson on the right to start editing.").should(
+			"be.visible"
+		);
+		cy.contains(".outline-lesson", "Untitled lesson").should("not.exist");
 
 		// Navigate to course overview
 		cy.visit("/lms/courses");

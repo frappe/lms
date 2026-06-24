@@ -33,7 +33,7 @@
 				<button
 					v-if="modelValue && !isUploadedVideo"
 					type="button"
-					class="absolute end-1 top-1 grid size-6 place-items-center rounded bg-surface-white/90 shadow"
+					class="absolute end-1 top-1 grid size-6 place-items-center rounded bg-surface-base/90 shadow"
 					@click="update('')"
 				>
 					<span class="lucide-x size-4 text-ink-gray-7" />

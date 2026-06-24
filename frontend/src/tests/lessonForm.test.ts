@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest'
-import { hasInstructorContent, hasEditorContent } from '@/utils/lessonForm'
+import {
+	hasInstructorContent,
+	hasEditorContent,
+	shouldSkipLessonSave,
+} from '@/utils/lessonForm'
 
 // Regression guard: a transient/empty editor (hot-reload remount, render race,
 // mid lesson-switch) must NOT be allowed to overwrite a saved lesson. saveLesson
@@ -87,5 +91,26 @@ describe('hasInstructorContent', () => {
 
 	it('returns false for malformed JSON', () => {
 		expect(hasInstructorContent('{not json', null)).toBe(false)
+	})
+})
+
+// A freshly created lesson opens with the title "Untitled lesson" and an empty
+// body; autosaving its title must work (content is optional). Only a fully
+// empty lesson is skipped, so autosave doesn't error on the required title.
+describe('shouldSkipLessonSave', () => {
+	it('saves a title-only lesson (empty body)', () => {
+		expect(shouldSkipLessonSave('My Lesson', false)).toBe(false)
+	})
+
+	it('saves when the body has content even if the title is blank', () => {
+		expect(shouldSkipLessonSave('', true)).toBe(false)
+		expect(shouldSkipLessonSave('   ', true)).toBe(false)
+	})
+
+	it('skips only when both title and body are empty', () => {
+		expect(shouldSkipLessonSave('', false)).toBe(true)
+		expect(shouldSkipLessonSave('   ', false)).toBe(true)
+		expect(shouldSkipLessonSave(null, false)).toBe(true)
+		expect(shouldSkipLessonSave(undefined, false)).toBe(true)
 	})
 })

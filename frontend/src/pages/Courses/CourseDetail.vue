@@ -19,23 +19,25 @@
 						align="end"
 					/>
 					<Tooltip
-						:text="courseFormRef.isDirty ? '' : __('No changes to save')"
+						v-if="!courseFormRef.isDirty"
+						:text="__('No changes to save')"
 						:hoverDelay="0.1"
 					>
-						<Button
-							variant="solid"
-							:disabled="!courseFormRef.isDirty"
-							@click="courseFormRef.submitCourse()"
-						>
+						<Button variant="solid" :disabled="true">
 							{{ __('Save') }}
 						</Button>
 					</Tooltip>
+					<ShortcutTooltip v-else :label="__('Save')" combo="Mod+S">
+						<Button variant="solid" @click="courseFormRef.submitCourse()">
+							{{ __('Save') }}
+						</Button>
+					</ShortcutTooltip>
 				</template>
 				<template v-if="tabIndex === 2 && editorSelected">
 					<!-- Edit mode autosaves continuously, so there is no Save
 					     button or dirty badge here. -->
 					<Tooltip
-						v-if="courseEditorRef?.lessonHasVideo"
+						v-if="courseEditorRef?.lessonHasVideo && editorMode !== 'preview'"
 						:text="__('Video Statistics')"
 					>
 						<Button variant="ghost" @click="courseEditorRef?.openVideoStats()">
@@ -44,7 +46,10 @@
 							</template>
 						</Button>
 					</Tooltip>
-					<Tooltip :text="__('How to edit a lesson')">
+					<Tooltip
+						v-if="editorMode !== 'preview'"
+						:text="__('How to edit a lesson')"
+					>
 						<Button variant="ghost" @click="showLessonHelp = true">
 							<template #icon>
 								<span class="lucide-info size-4" />
@@ -59,7 +64,11 @@
 							<span v-if="editorMode === 'preview'" class="lucide-x size-4" />
 							<span v-else class="lucide-eye size-4" />
 						</template>
-						{{ editorMode === 'preview' ? __('Close preview') : __('Preview') }}
+						{{
+							editorMode === 'preview'
+								? __('Close student view')
+								: __('Student View')
+						}}
 					</Button>
 				</template>
 				<Button
@@ -158,6 +167,7 @@ import CourseDashboard from '@/pages/Courses/CourseDashboard.vue'
 import CourseEditor from '@/pages/Courses/CourseEditor.vue'
 import CourseForm from '@/pages/Courses/CourseForm.vue'
 import LessonHelp from '@/components/LessonHelp.vue'
+import ShortcutTooltip from '@/components/ShortcutTooltip.vue'
 import type {
 	CourseDetails,
 	CourseInstructorInfo,

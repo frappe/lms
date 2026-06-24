@@ -152,7 +152,7 @@ const extensions = computed(() => {
 		maxRenderedOptions: 10,
 		closeOnBlur: false,
 		icons: false,
-		optionClass: () => 'flex h-7 !px-2 items-center rounded !text-gray-600',
+		optionClass: () => 'flex h-7 !px-2 items-center rounded !text-ink-gray-6',
 	}
 	baseExtensions.push(autocompletion(autocompletionOptions))
 	return baseExtensions
