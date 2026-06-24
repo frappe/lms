@@ -8,11 +8,13 @@
 		@back="emit('updateStep', 'list')"
 	>
 		<template #header-actions>
-			<Button variant="solid" @click="save">{{ __('Save') }}</Button>
+			<Button variant="solid" :loading="saving" @click="save">{{
+				__('Save')
+			}}</Button>
 		</template>
 		<div class="grid grid-cols-2 gap-x-5">
 			<div class="space-y-4">
-				<Switch
+				<BooleanSwitch
 					size="sm"
 					v-model="badge.enabled"
 					:label="__('Enabled')"
@@ -25,14 +27,13 @@
 					:required="true"
 					:placeholder="__('e.g. Course Champion')"
 				/>
-				<Autocomplete
+				<Combobox
+					:modelValue="badge.reference_doctype"
+					:options="referenceDoctypeOptions"
+					:label="__('Assign For')"
 					@update:modelValue="
 						(opt: any) => (badge.reference_doctype = opt.value)
 					"
-					:modelValue="badge.reference_doctype"
-					:options="referenceDoctypeOptions"
-					:required="true"
-					:label="__('Assign For')"
 				/>
 				<FormControl
 					v-model="badge.description"
@@ -49,7 +50,7 @@
 			</div>
 
 			<div class="space-y-4">
-				<Switch
+				<BooleanSwitch
 					size="sm"
 					v-model="badge.grant_only_once"
 					:label="__('Grant Only Once')"
@@ -83,12 +84,11 @@
 	</SettingsLayout>
 </template>
 <script setup lang="ts">
-import { Button, call, FormControl, toast } from 'frappe-ui'
-import Switch from '@/components/Controls/Switch.vue'
+import { Combobox, Button, call, FormControl, toast } from 'frappe-ui'
+import BooleanSwitch from '@/components/Controls/BooleanSwitch.vue'
 import { computed, ref, watch } from 'vue'
 import { cleanError } from '@/utils'
 import type { Badges, Badge } from '@/components/Settings/types'
-import Autocomplete from '@/components/Controls/Autocomplete.vue'
 import CodeEditor from '@/components/Controls/CodeEditor.vue'
 import Uploader from '@/components/Controls/Uploader.vue'
 import SettingsLayout from '@/components/Layouts/SettingsLayout.vue'
@@ -137,13 +137,19 @@ watch(
 	}
 )
 
+const saving = ref<boolean>(false)
 const save = () => saveBadge()
 
-const saveBadge = () => {
-	if (props.badgeName == 'new') {
-		createBadge()
-	} else {
-		updateBadge()
+const saveBadge = async () => {
+	saving.value = true
+	try {
+		if (props.badgeName == 'new') {
+			createBadge()
+		} else {
+			await updateBadge()
+		}
+	} catch {
+		saving.value = false
 	}
 }
 
@@ -170,11 +176,13 @@ const setValue = () => {
 		},
 		{
 			onSuccess() {
+				saving.value = false
 				badges.value?.reload()
 				emit('updateStep', 'list')
 				toast.success(__('Badge updated successfully'))
 			},
 			onError(err: any) {
+				saving.value = false
 				emit('updateStep', 'list')
 				toast.error(cleanError(err.messages[0]) || err)
 			},
@@ -190,11 +198,13 @@ const createBadge = () => {
 		},
 		{
 			onSuccess() {
+				saving.value = false
 				badges.value?.reload()
 				emit('updateStep', 'list')
 				toast.success(__('Badge created successfully'))
 			},
 			onError(err) {
+				saving.value = false
 				emit('updateStep', 'list')
 				toast.error(cleanError(err.messages[0]) || __('Error creating badge'))
 			},

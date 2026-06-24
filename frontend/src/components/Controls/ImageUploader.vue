@@ -6,7 +6,7 @@
 		<template #default="{ progress, uploading, openFileSelector }">
 			<div class="flex items-end space-x-1 rtl:space-x-reverse">
 				<Button
-					:iconLeft="uploading ? 'cloud-upload' : ImageUpIcon"
+					:iconLeft="uploading ? 'cloud-upload' : 'lucide-image-up'"
 					:label="
 						uploading
 							? __('Uploading {0}%', [progress])
@@ -26,7 +26,6 @@
 	</FileUploader>
 </template>
 <script setup>
-import { ImageUp as ImageUpIcon } from 'lucide-vue-next'
 import { FileUploader, Button } from 'frappe-ui'
 
 defineProps({

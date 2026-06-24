@@ -19,13 +19,13 @@
 						</div>
 						<div class="mt-auto space-y-4 text-ink-gray-7">
 							<div class="flex items-center gap-x-2">
-								<Calendar class="w-4 h-4 stroke-1.5" />
+								<span class="lucide-calendar size-4" />
 								<span>
 									{{ dayjs(cls.date).format('DD MMMM YYYY') }}
 								</span>
 							</div>
 							<div class="flex items-center gap-x-2">
-								<Clock class="w-4 h-4 stroke-1.5" />
+								<span class="lucide-clock size-4" />
 								<span>
 									{{ formatTime(cls.time) }} -
 									{{ dayjs(getClassEnd(cls)).format('HH:mm A') }}
@@ -42,7 +42,7 @@
 									class="cursor-pointer inline-flex items-center justify-center gap-2 transition-colors focus:outline-none text-ink-gray-8 bg-surface-gray-2 hover:bg-surface-gray-3 active:bg-surface-gray-4 focus-visible:ring focus-visible:ring-outline-gray-3 h-7 text-base px-2 rounded"
 									:class="cls.join_url ? 'w-full' : 'w-1/2'"
 								>
-									<Monitor class="h-4 w-4 stroke-1.5" />
+									<span class="lucide-monitor size-4" />
 									{{ __('Start') }}
 								</a>
 								<a
@@ -50,7 +50,7 @@
 									target="_blank"
 									class="w-full cursor-pointer inline-flex items-center justify-center gap-2 transition-colors focus:outline-none text-ink-gray-8 bg-surface-gray-2 hover:bg-surface-gray-3 active:bg-surface-gray-4 focus-visible:ring focus-visible:ring-outline-gray-3 h-7 text-base px-2 rounded"
 								>
-									<Video class="h-4 w-4 stroke-1.5" />
+									<span class="lucide-video size-4" />
 									{{ __('Join') }}
 								</a>
 							</div>
@@ -60,7 +60,7 @@
 								placement="right"
 							>
 								<div class="flex items-center gap-x-2 text-ink-amber-3 w-fit">
-									<Info class="w-4 h-4 stroke-1.5" />
+									<span class="lucide-info size-4" />
 									<span>
 										{{ __('Ended') }}
 									</span>
@@ -90,7 +90,7 @@
 						<span>
 							{{ __('See all') }}
 						</span>
-						<MoveRight class="size-3 stroke-1.5 rtl:rotate-180" />
+						<span class="lucide-move-right size-3 rtl:rotate-180" />
 					</span>
 				</router-link>
 			</div>
@@ -122,7 +122,7 @@
 						<span>
 							{{ __('See all') }}
 						</span>
-						<MoveRight class="size-3 stroke-1.5 rtl:rotate-180" />
+						<span class="lucide-move-right size-3 rtl:rotate-180" />
 					</span>
 				</router-link>
 			</div>
@@ -141,14 +141,6 @@
 import { inject } from 'vue'
 import { createResource, Tooltip } from 'frappe-ui'
 import { formatTime } from '@/utils'
-import {
-	Calendar,
-	Clock,
-	Info,
-	Monitor,
-	MoveRight,
-	Video,
-} from 'lucide-vue-next'
 import CourseCard from '@/components/CourseCard.vue'
 import BatchCard from '@/pages/Batches/components/BatchCard.vue'
 import UpcomingEvaluations from '@/components/UpcomingEvaluations.vue'

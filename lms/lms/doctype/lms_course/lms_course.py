@@ -51,10 +51,12 @@ class LMSCourse(Document):
 			).save(ignore_permissions=True)
 
 	def validate_video_link(self):
-		if self.video_link and "watch?v=" in self.video_link:
-			self.video_link = self.video_link.split("watch?v=")[-1]
-		elif self.video_link and "/" in self.video_link:
-			self.video_link = self.video_link.split("/")[-1]
+		# Store video_link exactly as entered — a YouTube/Vimeo link or an uploaded
+		# file path. The frontend normalizes links for rendering (it handles full
+		# URLs and bare ids alike), so there's no need to strip URLs down to a bare
+		# id here. Stripping was lossy: it mangled uploaded /files paths and turned
+		# some YouTube urls into ids that don't round-trip cleanly.
+		return
 
 	def validate_status(self):
 		if self.published:
@@ -82,7 +84,7 @@ class LMSCourse(Document):
 			frappe.throw(_("Timezone is required for paid certificates."))
 
 	def validate_amount_and_currency(self):
-		if self.paid_course and (cint(self.course_price) < 0 or not self.currency):
+		if self.paid_course and (cint(self.course_price) <= 0 or not self.currency):
 			frappe.throw(_("Amount and currency are required for paid courses."))
 
 		if self.paid_certificate and (cint(self.course_price) <= 0 or not self.currency):

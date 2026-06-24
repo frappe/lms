@@ -1,6 +1,6 @@
 <template>
 	<div class="w-[90%] lg:w-[75%] mx-auto mt-5">
-		<div class="text-ink-gray-9 font-semibold text-lg mb-5">
+		<div class="text-ink-gray-9 text-xl-semibold mb-5">
 			{{ __('Announcements') }}
 		</div>
 		<div v-if="communications.data?.length">
@@ -18,8 +18,8 @@
 						</div>
 					</div>
 					<div
-						class="prose prose-sm bg-surface-menu-bar !min-w-full px-4 py-2 rounded-md"
-						v-html="comm.content"
+						class="prose prose-sm bg-surface-sidebar !min-w-full px-4 py-2 rounded-md"
+						v-html="sanitizeRichHTML(comm.content)"
 					></div>
 				</div>
 			</div>
@@ -30,6 +30,7 @@
 	</div>
 </template>
 <script setup>
+import { sanitizeRichHTML } from '@/utils/sanitizeRichHTML'
 import { createResource, Avatar } from 'frappe-ui'
 import { timeAgo } from '@/utils'
 

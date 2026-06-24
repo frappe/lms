@@ -1,6 +1,6 @@
 <template>
 	<div class="mt-7 mb-10">
-		<h2 class="mb-3 text-lg font-semibold text-ink-gray-9">
+		<h2 class="mb-3 text-xl-semibold text-ink-gray-9">
 			{{ __('Certificates') }}
 		</h2>
 		<div
@@ -10,13 +10,13 @@
 			<div
 				v-for="certificate in certificates.data"
 				:key="certificate.name"
-				class="flex flex-col bg-surface-white border rounded-lg p-3 cursor-pointer hover:bg-surface-menu-bar"
+				class="flex flex-col bg-surface-base border rounded-lg p-3 cursor-pointer hover:bg-surface-sidebar"
 				@click="openCertificate(certificate)"
 			>
 				<div class="font-medium leading-5 mb-2 text-ink-gray-9">
 					{{ certificate.course_title || certificate.batch_title }}
 				</div>
-				<div class="text-sm text-ink-gray-7 font-medium mt-auto">
+				<div class="text-sm-medium text-ink-gray-7 mt-auto">
 					<span> {{ __('Issued on') }}: </span>
 					{{ dayjs(certificate.issue_date).format('DD MMM YYYY') }}
 				</div>

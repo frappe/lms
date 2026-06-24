@@ -1,7 +1,7 @@
 <template>
 	<header
 		v-if="!fromLesson"
-		class="sticky flex items-center justify-between top-0 z-10 border-b bg-surface-white px-3 py-2.5 sm:px-5"
+		class="sticky flex items-center justify-between top-0 z-10 border-b bg-surface-base px-3 py-2.5 sm:px-5"
 	>
 		<Breadcrumbs :items="breadcrumbs" />
 	</header>
@@ -14,7 +14,7 @@
 		</span>
 		<Button v-if="user.data?.is_moderator" @click="openSettings('General')">
 			<template #prefix>
-				<Settings class="size-4 stroke-1.5" />
+				<span class="lucide-settings size-4" />
 			</template>
 			{{ __('Settings') }}
 		</Button>
@@ -25,7 +25,7 @@
 				{{ __('Problem Statement') }}
 			</div>
 			<div
-				v-html="exercise.doc?.problem_statement"
+				v-html="sanitizeRichHTML(exercise.doc?.problem_statement)"
 				class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2 prose-sm max-w-none !whitespace-normal"
 			></div>
 		</div>
@@ -54,7 +54,7 @@
 						class="text-ink-gray-9"
 					>
 						<template #prefix>
-							<Play class="size-3" />
+							<span class="lucide-play size-3" />
 						</template>
 						{{ running ? __('Running') : __('Run') }}
 					</Button>
@@ -146,6 +146,7 @@
 	</div>
 </template>
 <script setup lang="ts">
+import { sanitizeRichHTML } from '@/utils/sanitizeRichHTML'
 import {
 	Badge,
 	Breadcrumbs,
@@ -156,7 +157,6 @@ import {
 	usePageMeta,
 } from 'frappe-ui'
 import { computed, inject, onMounted, ref, watch } from 'vue'
-import { Play, X, Check, Settings } from 'lucide-vue-next'
 import { sessionStore } from '@/stores/session'
 import { useRouter } from 'vue-router'
 import { openSettings } from '@/utils'

@@ -20,7 +20,7 @@
 			>
 				<Button variant="solid">
 					<template #prefix>
-						<Plus class="size-4 stroke-1.5" />
+						<span class="lucide-plus size-4" />
 					</template>
 					{{ __('Create') }}
 				</Button>
@@ -63,7 +63,7 @@
 						@input="updateJobs"
 					>
 						<template #prefix>
-							<Search class="size-4 stroke-1.5 text-ink-gray-5" name="search" />
+							<span class="lucide-search size-4 text-ink-gray-5" />
 						</template>
 					</FormControl>
 					<Link
@@ -92,8 +92,14 @@
 				</div>
 			</div>
 		</div>
+		<SkeletonLoader
+			v-if="jobs.list.loading && !jobs.data"
+			variant="cards"
+			:count="8"
+			class="mx-auto w-full flex-1 p-5 pt-0"
+		/>
 		<div
-			v-if="jobs.data?.length"
+			v-else-if="jobs.data?.length"
 			class="mx-auto w-full flex-1 overflow-y-auto p-5 pt-0"
 		>
 			<div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -109,8 +115,8 @@
 				</router-link>
 			</div>
 		</div>
-		<div v-else class="flex flex-1 items-center justify-center px-5">
-			<EmptyStateLayout name="Job Openings" />
+		<div v-else-if="!jobs.list.loading" class="flex-1">
+			<EmptyStateLayout name="Job Openings" icon="lucide-briefcase" />
 		</div>
 		<ListFooter
 			v-model="pageLength"
@@ -151,11 +157,11 @@ import {
 	TabButtons,
 	usePageMeta,
 } from 'frappe-ui'
-import { Plus, Search } from 'lucide-vue-next'
 import { sessionStore } from '@/stores/session'
 import { useSettings } from '@/stores/settings'
 import { inject, computed, ref, onMounted, watch } from 'vue'
 import JobCard from '@/components/JobCard.vue'
+import SkeletonLoader from '@/components/SkeletonLoader.vue'
 import Link from '@/components/Controls/Link.vue'
 import Select from '@/components/Controls/Select.vue'
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'

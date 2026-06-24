@@ -1,6 +1,6 @@
 <template>
 	<div v-if="heatmap.data">
-		<div class="text-lg font-semibold mb-2 text-ink-gray-9">
+		<div class="text-xl-semibold mb-2 text-ink-gray-9">
 			{{ heatmap.data.total_activities }}
 			{{
 				heatmap.data.total_activities > 1 ? __('activities') : __('activity')
@@ -117,7 +117,7 @@ const chartOptions = computed(() => {
 		},
 		tooltip: {
 			custom: ({ series, seriesIndex, dataPointIndex, w }) => {
-				return `<div class="text-xs bg-surface-gray-7 text-ink-white font-medium p-1">
+				return `<div class="text-xs-medium bg-surface-gray-10 text-ink-base p-1">
 					<div class="text-center">${heatmap.data.heatmap_data[seriesIndex].data[dataPointIndex].label}</div>
 				</div>`
 			},

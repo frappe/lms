@@ -1,0 +1,424 @@
+/* Shared EditorJS chrome (toolbar, popover, codebox, plyr, embeds) used by
+ * every BlockEditor instance. Global on purpose: EditorJS renders outside
+ * Vue's scope-attribute reach. */
+
+.embed-tool__caption,
+.cdx-simple-image__caption {
+	display: none;
+}
+
+/* Colors use frappe-ui (Espresso) design tokens, so the editor follows the
+   app's light/dark theme automatically ([data-theme='dark'] flips them). */
+.ce-block__content {
+	max-width: none;
+}
+
+/* Block selection — neutralise EditorJS's native blue selection fill
+   (.ce-block--selected{background:#e1f2ff}) everywhere, since RectangleSelection
+   also fires in the readonly reader view where a block highlight makes no sense,
+   then re-apply a theme-gray fill only inside .bn-editor (the editing root).
+   Outline (not border) so there is no layout shift. */
+.ce-block--selected .ce-block__content {
+	background: transparent !important;
+}
+.bn-editor .ce-block--selected .ce-block__content {
+	background: var(--surface-gray-2) !important;
+	outline: 1px dotted var(--outline-gray-3);
+	border-radius: 6px;
+}
+
+.ce-toolbar__actions,
+.codex-editor--narrow .ce-toolbar__actions {
+	right: auto;
+	left: auto;
+	inset-inline-end: 100%;
+}
+
+.codex-editor--narrow .codex-editor__redactor {
+	margin-inline: 0;
+}
+
+.ce-toolbar__content {
+	max-width: none;
+}
+
+/* Block gutter affordances — the "+" (add) and "⋮⋮" (drag/settings) buttons
+   shown when hovering a block. Use Espresso grays: subtle at rest (gray-4),
+   darkening to gray-8 on hover, so they read as quiet handles until used. */
+.bn-editor .ce-toolbar__plus,
+.bn-editor .ce-toolbar__settings-btn {
+	color: var(--ink-gray-4);
+}
+.bn-editor .ce-toolbar__plus:hover,
+.bn-editor .ce-toolbar__settings-btn:hover {
+	color: var(--ink-gray-8);
+	background-color: var(--surface-gray-2);
+}
+
+/* Roomy click zone below the last block: hovering it surfaces the toolbar on
+   the last block, and a click there creates a fresh block (handled in
+   BlockEditor.vue). */
+.bn-editor .codex-editor__redactor {
+	padding-bottom: 120px;
+}
+
+.codeBoxHolder {
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-start;
+	align-items: flex-start;
+}
+
+.codeBoxTextArea {
+	width: 100%;
+	min-height: 30px;
+	padding: 10px;
+	border-radius: 2px 2px 2px 0;
+	border: none !important;
+	outline: none !important;
+	font: 14px monospace;
+	line-height: 1.7;
+}
+
+.codeBoxSelectDiv {
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-start;
+	align-items: flex-start;
+	position: relative;
+}
+
+.codeBoxSelectInput {
+	border-radius: 0 0 20px 2px;
+	padding: 2px 26px;
+	padding-top: 0;
+	padding-inline-end: 0;
+	text-align: start;
+	cursor: pointer;
+	border: none !important;
+	outline: none !important;
+}
+
+.codeBoxSelectDropIcon {
+	position: absolute !important;
+	inset-inline-start: 10px !important;
+	bottom: 0 !important;
+	width: unset !important;
+	height: unset !important;
+	font-size: 16px !important;
+}
+
+.codeBoxSelectPreview {
+	display: none;
+	flex-direction: column;
+	justify-content: flex-start;
+	align-items: flex-start;
+	border-radius: 2px;
+	box-shadow: 0 3px 15px -3px rgba(13, 20, 33, 0.13);
+	position: absolute;
+	top: 100%;
+	margin: 5px 0;
+	max-height: 30vh;
+	overflow-x: hidden;
+	overflow-y: auto;
+	z-index: 10000;
+}
+
+.codeBoxSelectItem {
+	width: 100%;
+	padding: 5px 20px;
+	margin: 0;
+	cursor: pointer;
+}
+
+.codeBoxSelectedItem {
+	background-color: var(--surface-blue-2) !important;
+}
+
+.codeBoxShow {
+	display: flex !important;
+}
+
+.dark {
+	color: #abb2bf;
+	background-color: #282c34;
+}
+
+.light {
+	color: #383a42;
+	background-color: #fafafa;
+}
+
+.prose :where(pre):not(:where([class~='not-prose'], [class~='not-prose'] *)) {
+	overflow-x: unset;
+}
+
+iframe {
+	border: none !important;
+}
+
+/* Bridge @editorjs/table's own CSS variables onto our design tokens (automad's
+   pattern) so the table grid, toolbox and popover follow the app theme without
+   per-rule overrides. */
+.tc-wrap {
+	--color-background: var(--surface-gray-2);
+	--color-text-secondary: var(--ink-gray-5);
+	--color-border: var(--outline-gray-2);
+}
+
+.tc-popover {
+	--color-background: var(--surface-base);
+	--color-border: var(--outline-gray-2);
+}
+
+.tc-table {
+	border-inline-start: 1px solid var(--outline-gray-2);
+}
+
+.ce-toolbox__button[data-tool='markdown'] {
+	display: none !important;
+}
+
+.ce-popover-item[data-item-name='markdown'] {
+	display: none !important;
+}
+
+.plyr__volume input[type='range'] {
+	display: none;
+}
+
+.plyr__control--overlaid {
+	background: radial-gradient(
+		circle,
+		rgba(0, 0, 0, 0.4) 0%,
+		rgba(0, 0, 0, 0.5) 50%
+	);
+}
+
+.plyr__control:hover {
+	background: none;
+}
+
+.plyr--video {
+	border: 1px solid var(--outline-gray-2);
+	border-radius: 8px;
+}
+
+/* Map EditorJS's popover/menu palette (the +/⋮⋮ block menus) onto frappe-ui
+   (Espresso) tokens so they follow the app theme — including dark mode — instead
+   of EditorJS's hardcoded light colours (white bg, black text, #eff2f5 hover). */
+.ce-popover {
+	--color-background: var(--surface-base);
+	--color-text-primary: var(--ink-gray-9);
+	--color-text-secondary: var(--ink-gray-5);
+	--color-border: var(--outline-gray-2);
+	--color-border-icon: var(--outline-gray-2);
+	--color-border-icon-disabled: var(--outline-gray-1);
+	--color-background-item-hover: var(--surface-gray-3);
+	--color-background-item-focus: var(--surface-gray-2);
+	--color-shadow: rgba(0, 0, 0, 0.12);
+}
+/* These default to a hardcoded #fff that doesn't flip in dark mode. */
+.ce-popover-item__icon {
+	background: var(--surface-base);
+}
+.ce-popover__nothing-found-message {
+	color: var(--ink-gray-5);
+}
+
+.ce-popover__container {
+	border-radius: 12px;
+	padding: 8px;
+}
+
+.ce-popover,
+.codex-editor--narrow .ce-toolbox .ce-popover,
+.codex-editor--narrow .ce-toolbar__actions .ce-popover {
+	border-radius: 12px;
+	right: auto;
+	left: auto;
+	inset-inline-start: 0;
+}
+
+.cdx-search-field {
+	border: none;
+	background: var(--surface-gray-2);
+}
+
+.cdx-search-field__input {
+	font-weight: 400;
+	font-size: 13px;
+	color: var(--ink-gray-9);
+}
+
+.cdx-search-field__input::placeholder,
+.cdx-search-field__input::before {
+	font-weight: 400;
+	color: var(--ink-gray-5);
+}
+
+.cdx-search-field__input:focus {
+	--tw-ring-color: var(--outline-gray-3);
+}
+
+.ce-popover-item__title {
+	font-size: 13px;
+	font-weight: 400;
+}
+
+.ce-popover-item__icon svg {
+	width: 15px;
+	height: 15px;
+}
+
+.ce-popover-item__icon {
+	margin-right: unset;
+	margin-inline-end: 10px;
+}
+
+.ce-popover--opened {
+	max-height: unset !important;
+}
+
+.cdx-search-field__icon svg {
+	width: 15px;
+	height: 15px;
+	color: var(--ink-gray-5);
+}
+
+.cdx-search-field__icon {
+	margin-inline-end: 5px;
+}
+
+.cdx-block.embed-tool {
+	position: relative;
+	display: inline-block;
+	width: 100%;
+}
+
+:root {
+	--plyr-range-fill-background: white;
+	--plyr-video-control-background-hover: transparent;
+}
+
+/* Inline-tool tooltip (codex-tooltip, e.g. "Bold  Ctrl+B"). EditorJS hardcodes
+   a dark #1d202b bubble with #cdd1e0 text that ignores the theme; retokenise it
+   to frappe-ui's Tooltip surface (bg-surface-gray-10 + text-ink-base — see
+   node_modules/frappe-ui/src/components/Tooltip/TooltipBubble.vue). */
+.ct:before,
+.ct:after {
+	background-color: var(--surface-gray-10) !important;
+}
+.ct__content {
+	color: var(--ink-base);
+}
+
+/* ── Inline toolbar (text-selection popover) ──────────────────────────────
+   automad's look, retokenised to the app's Espresso design tokens. */
+.ce-inline-toolbar {
+	border: 1px solid var(--outline-gray-2);
+	border-radius: 8px;
+	background: var(--surface-elevation-2);
+	box-shadow: 0 8px 24px -6px rgba(0, 0, 0, 0.2);
+	color: var(--ink-gray-7);
+}
+
+.ce-inline-tool {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 30px;
+	height: 30px;
+	margin: 2px;
+	padding: 0;
+	border-radius: 6px;
+	color: var(--ink-gray-7);
+	transition:
+		background-color 0.12s ease,
+		color 0.12s ease;
+}
+
+.ce-inline-tool svg {
+	width: 17px;
+	height: 17px;
+}
+
+.ce-inline-tool:hover,
+.ce-inline-tool--focused {
+	background: var(--surface-gray-3);
+	color: var(--ink-gray-8);
+}
+
+.ce-inline-tool--active {
+	background: var(--surface-gray-4);
+	color: var(--ink-gray-9);
+}
+
+/* Divider between the text-align group and the formatting tools (bold is the
+   first formatting tool after the three align buttons). */
+.ce-inline-tool--bold {
+	margin-inline-start: 6px;
+	border-inline-start: 1px solid var(--outline-gray-2);
+	border-start-start-radius: 0;
+	border-end-start-radius: 0;
+	padding-inline-start: 6px;
+	width: 36px;
+}
+
+/* Convert-to dropdown toggle + conversion popover. */
+.ce-inline-toolbar__dropdown {
+	border-inline-end: 1px solid var(--outline-gray-2);
+	color: var(--ink-gray-7);
+}
+
+.ce-inline-toolbar__dropdown:hover {
+	background: var(--surface-gray-3);
+}
+
+.ce-conversion-toolbar {
+	border: 1px solid var(--outline-gray-2);
+	border-radius: 8px;
+	background: var(--surface-elevation-2);
+	box-shadow: 0 8px 24px -6px rgba(0, 0, 0, 0.2);
+}
+
+.ce-conversion-tool {
+	color: var(--ink-gray-7);
+}
+
+.ce-conversion-tool:hover,
+.ce-conversion-tool--focused {
+	background: var(--surface-gray-3);
+}
+
+.ce-conversion-tool__icon {
+	border: 1px solid var(--outline-gray-2);
+	border-radius: 6px;
+	background: var(--surface-elevation-2);
+}
+
+/* Color tool action panel (text color + highlight), shown under the buttons. */
+.lms-inline-color__panel {
+	display: flex;
+	gap: 10px;
+	padding: 8px 10px;
+	border-top: 1px solid var(--outline-gray-2);
+}
+
+.lms-inline-color__field {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	font-size: 11px;
+	color: var(--ink-gray-6);
+}
+
+.lms-inline-color__field input[type='color'] {
+	width: 64px;
+	height: 24px;
+	padding: 0;
+	border: 1px solid var(--outline-gray-2);
+	border-radius: 6px;
+	background: none;
+	cursor: pointer;
+}

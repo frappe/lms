@@ -1,58 +1,132 @@
 <template>
-	<div class="py-5">
-		<div class="mt-0">
-			<div class="w-5/6 mx-auto pt-4">
-				<div
-					class="flex justify-between cursor-pointer"
-					@click="
-						() => {
-							openInstructorEditor = !openInstructorEditor
-						}
-					"
-				>
-					<label class="block font-medium text-ink-gray-5 mb-1">
-						{{ __('Instructor Notes') }}
-					</label>
-					<ChevronRight
-						class="stroke-2 h-5 w-5 text-ink-gray-5 transform duration-200"
-						:class="{
-							'rotate-90': openInstructorEditor,
-							'rtl:rotate-180': !openInstructorEditor,
-						}"
-					/>
+	<div class="py-10">
+		<div class="mx-10 space-y-6 px-20">
+			<!-- Include-in-preview control row -->
+			<div class="flex items-center justify-between gap-3">
+				<div class="flex items-center gap-3">
+					<Switch v-model="lesson.include_in_preview" @change="markDirty" />
+					<div class="flex items-center gap-1.5">
+						<span class="text-p-base font-medium text-ink-gray-8">
+							{{ __('Include in preview') }}
+						</span>
+						<Tooltip
+							:text="
+								__(
+									'When on, anyone can preview this lesson without enrolling. Otherwise it is visible only to enrolled students.'
+								)
+							"
+						>
+							<span
+								class="lucide-help-circle size-4 shrink-0 text-ink-gray-5"
+							/>
+						</Tooltip>
+					</div>
 				</div>
-				<div
-					v-show="openInstructorEditor"
-					id="instructor-notes"
-					class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2 prose-sm max-w-none !whitespace-normal py-3"
-				></div>
 			</div>
-		</div>
-		<div class="border-t mt-4">
-			<div class="w-5/6 mx-auto pt-4">
-				<label class="block font-medium text-ink-gray-5 mb-1">
-					{{ __('Content') }}
-				</label>
-				<div
-					id="content"
-					class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2 prose-sm max-w-none !whitespace-normal py-3"
-				></div>
-			</div>
+
+			<!-- Inline-editable lesson title -->
+			<textarea
+				ref="titleRef"
+				v-model="lesson.title"
+				:placeholder="__('Lesson title')"
+				rows="1"
+				class="lesson-title w-full resize-none overflow-hidden border-0 bg-transparent p-0 text-3xl font-bold leading-tight text-ink-gray-9 placeholder:text-ink-gray-4 focus:outline-none focus:ring-0"
+				@input="onTitleInput"
+			/>
+
+			<!-- Instructor notes card (native disclosure) -->
+			<details
+				class="instructor-notes rounded-lg border border-outline-gray-2"
+				@toggle="onInstructorNotesToggle"
+			>
+				<summary
+					class="flex w-full cursor-pointer items-center gap-2 px-4 py-3 text-start"
+				>
+					<NotebookPen class="size-4 stroke-1.5 text-ink-gray-7" />
+					<span class="text-p-base font-medium text-ink-gray-8">
+						{{ __('Instructor notes') }}
+					</span>
+					<Badge
+						variant="subtle"
+						theme="gray"
+						size="sm"
+						:label="__('private')"
+					/>
+					<ChevronRight
+						class="instructor-notes-chevron ms-auto size-4 stroke-2 text-ink-gray-5"
+					/>
+				</summary>
+				<BlockEditor
+					ref="instructorEditor"
+					class="instructor-notes-editor border-t border-outline-gray-2 py-3"
+					:uploadContext="instructorUploadContext"
+					@change="markDirty"
+				/>
+			</details>
+
+			<!-- Lesson content -->
+			<BlockEditor
+				ref="editor"
+				:uploadContext="contentUploadContext"
+				@change="markDirty"
+			/>
 		</div>
 	</div>
 </template>
 <script setup>
-import { createResource, toast } from 'frappe-ui'
-import { reactive, onMounted, inject, ref, onBeforeUnmount } from 'vue'
-import EditorJS from '@editorjs/editorjs'
-import { ChevronRight } from 'lucide-vue-next'
-import { getEditorTools, enablePlyr, sanitizeEditorJs } from '@/utils'
+import {
+	Badge,
+	Button,
+	Switch,
+	createResource,
+	toast,
+	Tooltip,
+} from 'frappe-ui'
+import {
+	reactive,
+	computed,
+	onMounted,
+	inject,
+	ref,
+	nextTick,
+	onBeforeUnmount,
+} from 'vue'
+import { ChevronRight, NotebookPen } from 'lucide-vue-next'
+import { useDebounceFn } from '@vueuse/core'
+import { enablePlyr, sanitizeEditorJs } from '@/utils'
+import { hasEditorContent, shouldSkipLessonSave } from '@/utils/lessonForm'
+import { hasVideoContent } from '@/utils/video'
+import BlockEditor from '@/components/BlockEditor.vue'
 import { useOnboarding, useTelemetry } from 'frappe-ui/frappe'
+import {
+	useKeyboardShortcuts,
+	saveShortcut,
+} from '@/composables/useKeyboardShortcuts'
 
 const editor = ref(null)
 const instructorEditor = ref(null)
 const user = inject('$user')
-const openInstructorEditor = ref(false)
+const titleRef = ref(null)
+
+function onTitleInput() {
+	autoGrowTitle()
+	markDirty()
+}
+
+// Put the caret in the instructor-notes editor when the card is opened, so it's
+// ready to type. EditorJS can't focus while the <details> is collapsed
+// (display: none), so this has to wait for the open toggle.
+function onInstructorNotesToggle(event) {
+	if (event.target.open) instructorEditor.value?.focus()
+}
+
+function autoGrowTitle() {
+	const el = titleRef.value
+	if (!el) return
+	el.style.height = 'auto'
+	el.style.height = `${el.scrollHeight}px`
+}
+
 const contentUploadContext = { docname: null, fieldname: 'content' }
 const instructorUploadContext = {
 	docname: null,
@@ -60,8 +134,13 @@ const instructorUploadContext = {
 }
 const { capture } = useTelemetry()
 const { updateOnboardingStep } = useOnboarding('learning')
-let autoSaveInterval
-let showSuccessMessage = false
+
+const emit = defineEmits(['saved'])
+
+// Set true only once the initial content has finished rendering, so the
+// onChange events EditorJS fires during programmatic render() don't trigger a
+// spurious autosave on load.
+let initialLoadComplete = false
 
 const props = defineProps({
 	courseName: {
@@ -79,13 +158,25 @@ const props = defineProps({
 })
 
 const isDirty = ref(false)
+
+// Debounced so a burst of keystrokes collapses into a single save shortly
+// after the user pauses.
+const autoSave = useDebounceFn(() => {
+	if (isDirty.value) saveLesson()
+}, 800)
+
 function markDirty() {
-	if (lessonDetails.data?.lesson) isDirty.value = true
+	if (!lessonDetails.data?.lesson || !initialLoadComplete) return
+	isDirty.value = true
+	autoSave()
 }
 
 defineExpose({
-	saveLesson: () => saveLesson({ showSuccessMessage: true }),
+	saveLesson,
 	isDirty,
+	lessonHasVideo: () => lessonHasVideo.value,
+	lessonName: () => lessonDetails.data?.lesson?.name,
+	lessonTitle: () => lesson.title,
 })
 
 onMounted(() => {
@@ -93,29 +184,20 @@ onMounted(() => {
 		window.location.href = '/login'
 	}
 	capture('lesson_form_opened')
-	editor.value = renderEditor('content', contentUploadContext)
-	instructorEditor.value = renderEditor(
-		'instructor-notes',
-		instructorUploadContext
-	)
-	window.addEventListener('keydown', keyboardShortcut)
 	enablePlyr()
 })
 
-const renderEditor = (holder, uploadContext = {}) => {
-	return new EditorJS({
-		holder: holder,
-		tools: getEditorTools(false, uploadContext),
-		defaultBlock: 'markdown',
-		i18n: {
-			direction: document.documentElement.dir === 'rtl' ? 'rtl' : 'ltr',
+// ignoreTyping: false so Cmd/Ctrl+S saves from the title field, but the guard
+// keeps the rich-text editor's own behaviour intact (matches the prior handler).
+useKeyboardShortcuts({
+	ignoreTyping: false,
+	shortcuts: [
+		{
+			...saveShortcut(() => saveLesson()),
+			guard: (e) => !e.target?.classList?.contains('ProseMirror'),
 		},
-		onChange: async () => {
-			enablePlyr()
-			markDirty()
-		},
-	})
-}
+	],
+})
 
 const lesson = reactive({
 	title: '',
@@ -124,6 +206,8 @@ const lesson = reactive({
 	instructor_notes: '',
 	content: '',
 })
+
+const lessonHasVideo = computed(() => hasVideoContent(lesson))
 
 const lessonDetails = createResource({
 	url: 'lms.lms.utils.get_lesson_creation_details',
@@ -143,22 +227,34 @@ const lessonDetails = createResource({
 				: false
 			contentUploadContext.docname = data.lesson.name
 			instructorUploadContext.docname = data.lesson.name
-			addLessonContent(data)
-			addInstructorNotes(data)
-			enableAutoSave()
-			// Initial population isn't user input.
-			isDirty.value = false
+			nextTick(autoGrowTitle)
+			Promise.all([addLessonContent(data), addInstructorNotes(data)]).then(
+				() => {
+					nextTick(() => {
+						// Initial population isn't user input; only arm autosave
+						// once the editors have rendered the loaded content.
+						isDirty.value = false
+						initialLoadComplete = true
+						// Blinking caret ready in the lesson body on open.
+						editor.value?.focus()
+					})
+				}
+			)
 		}
 	},
 })
 
 const addLessonContent = (data) => {
-	editor.value.isReady.then(() => {
+	// Return the render promise so callers (autosave arming, autofocus) wait for
+	// the blocks to actually be in the DOM, not just for render() to be called.
+	return editor.value.isReady().then(() => {
 		if (data.lesson.content) {
-			editor.value.render(sanitizeEditorJs(JSON.parse(data.lesson.content)))
+			return editor.value.render(
+				sanitizeEditorJs(JSON.parse(data.lesson.content))
+			)
 		} else if (data.lesson.body) {
 			let blocks = convertToJSON(data.lesson)
-			editor.value.render({
+			return editor.value.render({
 				blocks: blocks,
 			})
 		}
@@ -166,40 +262,23 @@ const addLessonContent = (data) => {
 }
 
 const addInstructorNotes = (data) => {
-	instructorEditor.value.isReady.then(() => {
+	return instructorEditor.value.isReady().then(() => {
 		if (data.lesson.instructor_content) {
-			instructorEditor.value.render(
+			return instructorEditor.value.render(
 				sanitizeEditorJs(JSON.parse(data.lesson.instructor_content))
 			)
 		} else if (data.lesson.instructor_notes) {
 			let blocks = convertToJSON(data.lesson)
-			instructorEditor.value.render({
+			return instructorEditor.value.render({
 				blocks: blocks,
 			})
 		}
 	})
 }
 
-const enableAutoSave = () => {
-	autoSaveInterval = setInterval(() => {
-		saveLesson({ showSuccessMessage: false })
-	}, 10000)
-}
-
-const keyboardShortcut = (e) => {
-	if (
-		e.key === 's' &&
-		(e.ctrlKey || e.metaKey) &&
-		!e.target.classList.contains('ProseMirror')
-	) {
-		saveLesson({ showSuccessMessage: true })
-		e.preventDefault()
-	}
-}
-
 onBeforeUnmount(() => {
-	clearInterval(autoSaveInterval)
-	window.removeEventListener('keydown', keyboardShortcut)
+	// Best-effort flush of any unsaved edits before the editors are destroyed.
+	if (isDirty.value) saveLesson()
 })
 
 const newLessonResource = createResource({
@@ -245,28 +324,31 @@ const lessonReference = createResource({
 
 const convertToJSON = (lessonData) => {
 	let blocks = []
-	if (lessonData.youtube) {
-		let youtubeID = lessonData.youtube.split('/').pop()
+	// A lesson can carry the same video in BOTH the `youtube` field and a
+	// `{{ YouTubeVideo }}` body macro. Without de-duping we'd emit two embed
+	// blocks for one video — the symptom being a stuck preloader above a second
+	// player. Key on the video id so each video renders exactly once.
+	const seenYoutube = new Set()
+	const youtubeKey = (url) => url.split('/').pop().split('?')[0]
+	const pushYoutube = (embedUrl) => {
+		const key = youtubeKey(embedUrl)
+		if (seenYoutube.has(key)) return
+		seenYoutube.add(key)
 		blocks.push({
 			type: 'embed',
-			data: {
-				service: 'youtube',
-				embed: `https://www.youtube.com/embed/${youtubeID}`,
-			},
+			data: { service: 'youtube', embed: embedUrl },
 		})
+	}
+	if (lessonData.youtube) {
+		let youtubeID = lessonData.youtube.split('/').pop()
+		pushYoutube(`https://www.youtube.com/embed/${youtubeID}`)
 	}
 	lessonData.body.split('\n').forEach((block) => {
 		if (block.includes('{{ YouTubeVideo')) {
 			let youtubeID = block.match(/\(["']([^"']+?)["']\)/)[1]
 			if (!youtubeID.includes('https://'))
 				youtubeID = `https://www.youtube.com/embed/${youtubeID}`
-			blocks.push({
-				type: 'embed',
-				data: {
-					service: 'youtube',
-					embed: youtubeID,
-				},
-			})
+			pushYoutube(youtubeID)
 		} else if (block.includes('{{ Quiz')) {
 			let quiz = block.match(/\(["']([^"']+?)["']\)/)[1]
 			blocks.push({
@@ -351,17 +433,28 @@ const convertToJSON = (lessonData) => {
 	return blocks
 }
 
-const saveLesson = (e) => {
-	showSuccessMessage = false
-	if (typeof e != 'undefined' && e.showSuccessMessage) {
-		showSuccessMessage = true
-	}
+function saveLesson() {
+	// The debounced autosave can fire as the component tears down; bail if the
+	// editors are already gone.
+	if (!editor.value || !instructorEditor.value) return
 	editor.value.save().then((outputData) => {
 		outputData = removeEmptyBlocks(outputData)
-		lesson.content = JSON.stringify(outputData)
+		const bodyHasContent = hasEditorContent(outputData)
+		if (shouldSkipLessonSave(lesson.title, bodyHasContent)) return
+		// Only overwrite stored content when the body has real content. A
+		// transient/empty editor (hot-reload remount, render race, mid
+		// lesson-switch) serialises to just an empty paragraph and must not wipe
+		// what's saved.
+		if (bodyHasContent) {
+			lesson.content = JSON.stringify(outputData)
+		}
 		instructorEditor.value.save().then((outputData) => {
 			outputData = removeEmptyBlocks(outputData)
 			lesson.instructor_content = JSON.stringify(outputData)
+			// instructor_content is now the source of truth; clear the legacy
+			// instructor_notes field so removed notes don't reappear on the
+			// lesson page via the fallback render path.
+			lesson.instructor_notes = ''
 			if (lessonDetails.data?.lesson) {
 				editCurrentLesson()
 			} else {
@@ -397,6 +490,7 @@ const createNewLesson = () => {
 							capture('lesson_created')
 							toast.success(__('Lesson created successfully'))
 							isDirty.value = false
+							emit('saved', { isNew: true })
 							lessonDetails.reload()
 						},
 					}
@@ -419,10 +513,13 @@ const editCurrentLesson = () => {
 				return validateLesson()
 			},
 			onSuccess() {
-				showSuccessMessage
-					? toast.success(__('Lesson updated successfully'))
-					: ''
 				isDirty.value = false
+				emit('saved', {
+					name: lessonDetails.data.lesson.name,
+					title: lesson.title,
+					include_in_preview: lesson.include_in_preview,
+					isNew: false,
+				})
 			},
 			onError(err) {
 				toast.error(err.message)
@@ -435,234 +532,41 @@ const validateLesson = () => {
 	if (!lesson.title) {
 		return 'Title is required'
 	}
-	if (!lesson.content) {
-		return 'Content is required'
-	}
 }
 </script>
 <style>
-.embed-tool__caption,
-.cdx-simple-image__caption {
+/* Native <details> disclosure: drop the default marker triangle and drive the
+   chevron rotation off the [open] state instead of a JS toggle. */
+.instructor-notes > summary {
+	list-style: none;
+}
+.instructor-notes > summary::-webkit-details-marker {
 	display: none;
 }
-
-.ce-block__content {
-	max-width: none;
+.instructor-notes-chevron {
+	transition: transform 200ms;
+}
+.instructor-notes[open] .instructor-notes-chevron {
+	transform: rotate(90deg);
+}
+[dir='rtl'] .instructor-notes:not([open]) .instructor-notes-chevron {
+	transform: rotate(180deg);
 }
 
-.ce-toolbar__actions,
-.codex-editor--narrow .ce-toolbar__actions {
-	right: auto;
-	left: auto;
-	inset-inline-end: 100%;
+/* Indent the instructor-notes editor so EditorJS's block controls (the +
+   add button and drag handle, which live in the left gutter and span ~70px)
+   sit fully inside the bordered card instead of spilling into the page
+   margin. Scoped so the full-width content editor is unaffected. */
+.instructor-notes-editor .ce-block__content,
+.instructor-notes-editor .ce-toolbar__content {
+	margin-inline-start: 4.5rem;
 }
 
-.codex-editor--narrow .codex-editor__redactor {
-	margin-inline: 0;
-}
-
-.ce-toolbar__content {
-	max-width: none;
-}
-
-.codeBoxHolder {
-	display: flex;
-	flex-direction: column;
-	justify-content: flex-start;
-	align-items: flex-start;
-}
-
-.codeBoxTextArea {
-	width: 100%;
-	min-height: 30px;
-	padding: 10px;
-	border-radius: 2px 2px 2px 0;
-	border: none !important;
-	outline: none !important;
-	font: 14px monospace;
-}
-
-.codeBoxSelectDiv {
-	display: flex;
-	flex-direction: column;
-	justify-content: flex-start;
-	align-items: flex-start;
-	position: relative;
-}
-
-.codeBoxSelectInput {
-	border-radius: 0 0 20px 2px;
-	padding: 2px 26px;
-	padding-top: 0;
-	padding-inline-end: 0;
-	text-align: start;
-	cursor: pointer;
-	border: none !important;
-	outline: none !important;
-}
-
-.codeBoxSelectDropIcon {
-	position: absolute !important;
-	inset-inline-start: 10px !important;
-	bottom: 0 !important;
-	width: unset !important;
-	height: unset !important;
-	font-size: 16px !important;
-}
-
-.codeBoxSelectPreview {
-	display: none;
-	flex-direction: column;
-	justify-content: flex-start;
-	align-items: flex-start;
-	border-radius: 2px;
-	box-shadow: 0 3px 15px -3px rgba(13, 20, 33, 0.13);
-	position: absolute;
-	top: 100%;
-	margin: 5px 0;
-	max-height: 30vh;
-	overflow-x: hidden;
-	overflow-y: auto;
-	z-index: 10000;
-}
-
-.codeBoxSelectItem {
-	width: 100%;
-	padding: 5px 20px;
-	margin: 0;
-	cursor: pointer;
-}
-
-.codeBoxSelectedItem {
-	background-color: lightblue !important;
-}
-
-.codeBoxShow {
-	display: flex !important;
-}
-
-.dark {
-	color: #abb2bf;
-	background-color: #282c34;
-}
-
-.light {
-	color: #383a42;
-	background-color: #fafafa;
-}
-
-.codeBoxTextArea {
-	line-height: 1.7;
-}
-
-.prose :where(pre):not(:where([class~='not-prose'], [class~='not-prose'] *)) {
-	overflow-x: unset;
-}
-
-iframe {
-	border: none !important;
-}
-
-.tc-table {
-	border-inline-start: 1px solid #e8e8eb;
-}
-
-.ce-toolbox__button[data-tool='markdown'] {
-	display: none !important;
-}
-
-.ce-popover-item[data-item-name='markdown'] {
-	display: none !important;
-}
-
-.plyr__volume input[type='range'] {
-	display: none;
-}
-
-.plyr__control--overlaid {
-	background: radial-gradient(
-		circle,
-		rgba(0, 0, 0, 0.4) 0%,
-		rgba(0, 0, 0, 0.5) 50%
-	);
-}
-
-.plyr__control:hover {
-	background: none;
-}
-
-.plyr--video {
-	border: 1px solid theme('colors.gray.200');
-	border-radius: 8px;
-}
-
-.ce-popover__container {
-	border-radius: 12px;
-	padding: 8px;
-}
-
-.ce-popover,
-.codex-editor--narrow .ce-toolbox .ce-popover,
-.codex-editor--narrow .ce-toolbar__actions .ce-popover {
-	border-radius: 12px;
-	right: auto;
-	left: auto;
-	inset-inline-start: 0;
-}
-
-.cdx-search-field {
-	border: none;
-}
-
-.cdx-search-field__input {
-	font-weight: 400;
-	font-size: 13px;
-}
-
-.cdx-search-field__input::before {
-	font-weight: 400;
-}
-
-.cdx-search-field__input:focus {
-	--tw-ring-color: theme('colors.gray.100');
-}
-
-.ce-popover-item__title {
-	font-size: 13px;
-	font-weight: 400;
-}
-
-.ce-popover-item__icon svg {
-	width: 15px;
-	height: 15px;
-}
-
-.ce-popover-item__icon {
-	margin-right: unset;
-	margin-inline-end: 10px;
-}
-
-.ce-popover--opened {
-	max-height: unset !important;
-}
-
-.cdx-search-field__icon svg {
-	width: 15px;
-	height: 15px;
-}
-
-.cdx-search-field__icon {
-	margin-inline-end: 5px;
-}
-
-.cdx-block.embed-tool {
-	position: relative;
-	display: inline-block;
-	width: 100%;
-}
-
-:root {
-	--plyr-range-fill-background: white;
-	--plyr-video-control-background-hover: transparent;
+/* Both editors are .codex-editor siblings with z-index: 1, so the content
+   editor (later in the DOM) paints over the instructor editor's popovers —
+   the popover's z-index: 4 is trapped inside its editor's stacking context.
+   Lift the instructor editor one level so its + menu renders on top. */
+.instructor-notes-editor .codex-editor {
+	z-index: 2;
 }
 </style>

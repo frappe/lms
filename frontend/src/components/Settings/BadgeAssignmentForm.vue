@@ -1,24 +1,23 @@
 <template>
 	<Dialog
-		v-model="show"
-		:options="{
-			title:
-				props.badgeAssignmentID === 'new'
-					? __('Assign a Badge')
-					: __('Edit Badge Assignment'),
-			size: 'sm',
-			actions: [
-				{
-					label: __('Save'),
-					variant: 'solid',
-					onClick: ({ close }) => {
-						saveBadgeAssignment(close)
-					},
+		v-model:open="show"
+		:title="
+			props.badgeAssignmentID === 'new'
+				? __('Assign a Badge')
+				: __('Edit Badge Assignment')
+		"
+		size="sm"
+		:actions="[
+			{
+				label: __('Save'),
+				variant: 'solid',
+				onClick: ({ close }) => {
+					saveBadgeAssignment(close)
 				},
-			],
-		}"
+			},
+		]"
 	>
-		<template #body-content>
+		<template #default>
 			<div class="space-y-4">
 				<Link
 					doctype="User"
@@ -33,9 +32,9 @@
 					:required="true"
 				/>
 				<div>
-					<label class="text-xs text-ink-gray-5 mb-1">
+					<label class="text-p-sm-medium text-ink-gray-7 mb-1.5">
 						{{ __('Issued On') }}
-						<span class="text-ink-red-3">*</span>
+						<span class="text-ink-red-6">*</span>
 					</label>
 					<DatePicker
 						v-model="badgeAssignment.issued_on"

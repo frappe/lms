@@ -8,6 +8,7 @@
 	/>
 	<CouponDetails
 		v-else-if="step == 'details'"
+		:key="data?.name || 'new'"
 		:coupons="coupons"
 		:data="data"
 		@updateStep="updateStep"

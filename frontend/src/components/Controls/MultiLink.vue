@@ -6,6 +6,7 @@
 			v-model:open="popoverOpen"
 			:options="mergedOptions"
 			:placeholder="placeholder"
+			:emptyText="emptyText"
 			:variant="variant"
 			@update:open="onOpen"
 			@update:query="onQuery"
@@ -40,8 +41,8 @@
 							</slot>
 						</span>
 					</span>
-					<ChevronDown
-						class="size-4 shrink-0 text-ink-gray-4 transition-transform duration-200"
+					<span
+						class="lucide-chevron-down size-4 shrink-0 text-ink-gray-4 transition-transform duration-200"
 						:class="open && 'rotate-180'"
 					/>
 				</button>
@@ -73,7 +74,7 @@
 							@click="handleCreate"
 						>
 							<template #prefix>
-								<Plus class="size-4 stroke-1.5" />
+								<span class="lucide-plus size-4" />
 							</template>
 							{{ __(createLabel) }}
 						</Button>
@@ -87,7 +88,6 @@
 <script setup lang="ts">
 import { Button, FormLabel, MultiSelect, createResource } from 'frappe-ui'
 import { useDebounceFn } from '@vueuse/core'
-import { ChevronDown, Plus } from 'lucide-vue-next'
 import { computed, ref } from 'vue'
 import type { Resource } from '@/types/api'
 
@@ -114,6 +114,7 @@ const props = withDefaults(
 		variant?: 'subtle' | 'outline' | 'ghost'
 		onCreate?: (close: CloseFn) => void
 		createLabel?: string
+		emptyText?: string
 	}>(),
 	{
 		filters: () => ({}),
@@ -122,6 +123,7 @@ const props = withDefaults(
 		extraOptions: () => [],
 		variant: 'subtle',
 		createLabel: 'Create New',
+		emptyText: 'No results',
 	}
 )
 
@@ -131,16 +133,16 @@ const popoverOpen = ref<boolean>(false)
 let loaded = false
 
 const triggerBaseClasses =
-	'relative inline-flex items-center gap-2 text-left text-ink-gray-7 outline-none transition-[background-color,border-color,box-shadow] duration-150 focus-visible:ring-2 data-[state=open]:ring-2 ring-outline-gray-3'
+	'relative inline-flex items-center gap-2 text-left text-ink-gray-7 outline-none transition-[background-color,border-color,box-shadow] duration-150'
 
 const triggerVariantClasses: Record<
 	NonNullable<typeof props.variant>,
 	string
 > = {
 	subtle:
-		'border border-[--surface-gray-2] bg-surface-gray-2 hover:border-outline-gray-modals hover:bg-surface-gray-3',
+		'border border-[--surface-gray-2] bg-surface-gray-2 hover:border-outline-elevation-2 hover:bg-surface-gray-3 focus-visible:bg-surface-base focus-visible:border-outline-gray-4 focus-visible:shadow-sm data-[state=open]:bg-surface-base data-[state=open]:border-outline-gray-4 data-[state=open]:shadow-sm',
 	outline:
-		'border border-outline-gray-2 bg-surface-white hover:border-outline-gray-3',
+		'border border-outline-gray-2 bg-surface-base hover:border-outline-gray-3 hover:shadow-sm focus-visible:border-outline-gray-4 focus-visible:shadow-sm data-[state=open]:border-outline-gray-4 data-[state=open]:shadow-sm',
 	ghost:
 		'border border-transparent bg-transparent hover:bg-surface-gray-3 focus-within:bg-surface-gray-3',
 }

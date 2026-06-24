@@ -9,7 +9,7 @@
  "doctype": "Dashboard Chart",
  "document_type": "User",
  "dynamic_filters_json": "[]",
- "filters_json": "[[\"User\",\"enabled\",\"=\",1]]",
+ "filters_json": "[[\"User\",\"enabled\",\"=\",1],[\"User\",\"name\",\"not in\",[\"Administrator\",\"Guest\"]]]",
  "group_by_type": "Count",
  "idx": 5,
  "is_public": 1,

@@ -1,12 +1,6 @@
 <template>
-	<Dialog
-		v-model="show"
-		:options="{
-			size: '4xl',
-			title: __('Video Statistics'),
-		}"
-	>
-		<template #body-content>
+	<Dialog v-model:open="show" size="4xl" :title="__('Video Statistics')">
+		<template #default>
 			<div class="text-base">
 				<div class="flex items-center justify-between">
 					<TabButtons
