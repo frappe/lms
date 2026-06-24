@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2026-06-19 16:48+0000\n"
-"PO-Revision-Date: 2026-06-22 20:15\n"
+"PO-Revision-Date: 2026-06-24 20:40\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: French\n"
 "MIME-Version: 1.0\n"
@@ -2749,7 +2749,7 @@ msgstr ""
 
 #: frontend/src/components/Modals/NewMemberModal.vue:168
 msgid "Email is required"
-msgstr ""
+msgstr "L'Email est requis"
 
 #: frontend/src/components/ContactUsEmail.vue:51
 #: frontend/src/pages/JobApplications.vue:300
@@ -5661,7 +5661,7 @@ msgstr ""
 #: frontend/src/components/Modals/Question.vue:67
 #: lms/lms/doctype/lms_option/lms_option.json
 msgid "Option"
-msgstr ""
+msgstr "Option"
 
 #. Label of the option_1 (Small Text) field in DocType 'LMS Question'
 #: lms/lms/doctype/lms_question/lms_question.json
@@ -5686,7 +5686,7 @@ msgstr ""
 #. Label of the option_4 (Small Text) field in DocType 'LMS Question'
 #: lms/lms/doctype/lms_question/lms_question.json
 msgid "Option 4"
-msgstr ""
+msgstr "Option-4"
 
 #. Label of the option_5 (Small Text) field in DocType 'LMS Question'
 #: lms/lms/doctype/lms_question/lms_question.json
