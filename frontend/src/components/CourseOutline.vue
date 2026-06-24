@@ -272,34 +272,13 @@ function renameChapter(payload: { chapter: OutlineChapter; title: string }) {
 const errorMessage = (err: { messages?: string[] } | string): string =>
 	typeof err === 'string' ? err : err.messages?.[0] ?? 'Error'
 
-const insertLesson = createResource({
-	url: 'frappe.client.insert',
+// Inserts the Course Lesson and its chapter reference in one request, so a
+// failure on either rolls back atomically — no orphaned lesson. Returns the
+// new lesson's docname.
+const addLesson = createResource({
+	url: 'lms.lms.api.create_lesson',
 	makeParams(values: { chapter: string }) {
-		return {
-			doc: {
-				doctype: 'Course Lesson',
-				course: props.courseName,
-				chapter: values.chapter,
-				title: __('Untitled lesson'),
-				include_in_preview: 0,
-			},
-		}
-	},
-})
-
-const insertLessonReference = createResource({
-	url: 'frappe.client.insert',
-	makeParams(values: { lesson: string; chapter: string; idx: number }) {
-		return {
-			doc: {
-				doctype: 'Lesson Reference',
-				parent: values.chapter,
-				parenttype: 'Course Chapter',
-				parentfield: 'lessons',
-				lesson: values.lesson,
-				idx: values.idx,
-			},
-		}
+		return { chapter: values.chapter }
 	},
 })
 
@@ -310,32 +289,17 @@ function createLessonInline(payload: {
 	lessonIdx: number
 }) {
 	creatingLessonChapter.value = payload.chapter.name
-	insertLesson.submit(
+	addLesson.submit(
 		{ chapter: payload.chapter.name },
 		{
-			onSuccess(lesson: { name: string }) {
-				insertLessonReference.submit(
-					{
-						lesson: lesson.name,
-						chapter: payload.chapter.name,
-						idx: payload.lessonIdx,
-					},
-					{
-						onSuccess() {
-							creatingLessonChapter.value = ''
-							outline.reload().then(() => {
-								const created = (outline.data ?? [])
-									.flatMap((c) => c.lessons ?? [])
-									.find((l) => l.name === lesson.name)
-								if (created) navigateToLesson(created)
-							})
-						},
-						onError(err: { messages?: string[] } | string) {
-							creatingLessonChapter.value = ''
-							toast.error(errorMessage(err))
-						},
-					}
-				)
+			onSuccess(lessonName: string) {
+				creatingLessonChapter.value = ''
+				outline.reload().then(() => {
+					const created = (outline.data ?? [])
+						.flatMap((c) => c.lessons ?? [])
+						.find((l) => l.name === lessonName)
+					if (created) navigateToLesson(created)
+				})
 			},
 			onError(err: { messages?: string[] } | string) {
 				creatingLessonChapter.value = ''
