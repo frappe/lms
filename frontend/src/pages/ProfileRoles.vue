@@ -7,13 +7,13 @@
 			v-if="readOnlyMode"
 			class="flex items-center gap-x-2 text-sm text-ink-gray-7 bg-surface-gray-1 px-3 py-2 rounded-md w-full text-center"
 		>
-			<CircleAlert class="size-4 stroke-1.5" />
+			<span class="lucide-circle-alert size-4" />
 			<span>
 				{{ __('You cannot change the roles in read-only mode.') }}
 			</span>
 		</div>
 		<div v-else class="grid grid-cols-1 lg:grid-cols-2 gap-5 mt-5">
-			<Switch
+			<BooleanSwitch
 				size="sm"
 				:label="__('Student')"
 				:description="
@@ -22,21 +22,21 @@
 				v-model="lms_student"
 				@update:modelValue="saveRole('lms_student')"
 			/>
-			<Switch
+			<BooleanSwitch
 				size="sm"
 				:label="__('Course Creator')"
 				:description="__('Build and manage courses, chapters, and lessons')"
 				v-model="course_creator"
 				@update:modelValue="saveRole('course_creator')"
 			/>
-			<Switch
+			<BooleanSwitch
 				size="sm"
 				:label="__('Evaluator')"
 				:description="__('Manage batches, review and grade submissions')"
 				v-model="batch_evaluator"
 				@update:modelValue="saveRole('batch_evaluator')"
 			/>
-			<Switch
+			<BooleanSwitch
 				size="sm"
 				:label="__('Moderator')"
 				:description="__('Oversee all users, content, and system settings')"
@@ -48,10 +48,9 @@
 </template>
 <script setup>
 import { call, createResource, toast } from 'frappe-ui'
-import Switch from '@/components/Controls/Switch.vue'
+import BooleanSwitch from '@/components/Controls/BooleanSwitch.vue'
 import { ref, watch } from 'vue'
 import { convertToTitleCase } from '@/utils'
-import { CircleAlert } from 'lucide-vue-next'
 
 const moderator = ref(false)
 const course_creator = ref(false)

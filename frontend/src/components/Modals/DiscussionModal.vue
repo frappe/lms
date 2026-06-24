@@ -1,24 +1,22 @@
 <template>
 	<Dialog
-		:options="{
-			title: singularize(props.title),
-			size: '2xl',
-			actions: [
-				{
-					label: 'Post',
-					variant: 'solid',
-					onClick: (close) => submitTopic(close),
-				},
-			],
-		}"
+		:title="singularize(props.title)"
+		size="2xl"
+		:actions="[
+			{
+				label: 'Post',
+				variant: 'solid',
+				onClick: ({ close }) => submitTopic(close),
+			},
+		]"
 	>
-		<template #body-content>
+		<template #default>
 			<div class="flex flex-col gap-4">
 				<div>
 					<FormControl v-model="topic.title" :label="__('Title')" type="text" />
 				</div>
 				<div>
-					<div class="mb-1.5 text-sm text-ink-gray-5">
+					<div class="mb-1.5 text-p-sm-medium text-ink-gray-7">
 						{{ __('Details') }}
 					</div>
 					<TextEditor
@@ -26,7 +24,7 @@
 						@change="(val) => (topic.reply = val)"
 						:editable="true"
 						:fixedMenu="true"
-						editorClass="prose-sm max-w-none border-b border-x border-outline-gray-modals bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[7rem]"
+						editorClass="prose-sm max-w-none border-b border-x border-outline-elevation-2 bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[7rem]"
 					/>
 				</div>
 			</div>
@@ -40,6 +38,7 @@ import { singularize } from '@/utils'
 import { useTelemetry } from 'frappe-ui/frappe'
 
 const topics = defineModel('reloadTopics')
+const emit = defineEmits(['created'])
 const { capture } = useTelemetry()
 
 const props = defineProps({
@@ -99,7 +98,9 @@ const createReply = (topicName, close) => {
 		.then((data) => {
 			topic.title = ''
 			topic.reply = ''
-			topics.value.reload()
+			Promise.resolve(topics.value.reload()).then(() =>
+				emit('created', topicName)
+			)
 			capture('discussion_topic_created')
 			close()
 		})

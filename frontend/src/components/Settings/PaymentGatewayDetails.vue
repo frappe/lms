@@ -20,9 +20,9 @@
 		<div v-else>
 			<div class="flex items-center justify-between gap-4 py-3">
 				<div class="flex flex-col">
-					<div class="text-p-base font-medium text-ink-gray-7">
+					<div class="text-p-base-medium text-ink-gray-7">
 						{{ __('Select Payment Gateway') }}
-						<span class="text-ink-red-3">*</span>
+						<span class="text-ink-red-6">*</span>
 					</div>
 					<div class="text-p-sm text-ink-gray-5">
 						{{ __('Choose a payment provider to configure its credentials.') }}

@@ -21,6 +21,7 @@ import {
 	computed,
 	getCurrentInstance,
 	inject,
+	nextTick,
 	onBeforeUnmount,
 	onMounted,
 	provide,
@@ -28,6 +29,7 @@ import {
 	ref,
 	watch,
 } from 'vue'
+import { useDebounceFn } from '@vueuse/core'
 import { useRouter } from 'vue-router'
 import { getMetaInfo, updateMetaInfo } from '@/utils'
 import { exportCourseAsZip } from '@/utils/exportCourse'
@@ -87,8 +89,21 @@ const courseResource = createDocumentResource({
 	auto: true,
 }) as Resource<LMSCourse | null>
 
+// Set while the form is being populated from a server fetch so the resulting
+// field updates don't arm autosave (mirrors the lesson editor's load guard).
+let applyingServerData = false
+
+// Debounced so a burst of edits collapses into a single save shortly after the
+// user pauses. Pricing validation errors are surfaced only on an explicit Save,
+// so a half-typed price doesn't trigger a silent autosave or spam error toasts.
+const autoSave = useDebounceFn((): void => {
+	if (isDirty.value && !validatePricing()) updateCourse({ silent: true })
+}, 1000)
+
 const markDirty = (): void => {
+	if (applyingServerData) return
 	isDirty.value = true
+	autoSave()
 }
 
 const courseFormContext: CourseFormContext = {
@@ -117,9 +132,13 @@ watch(
 		// A failed/empty fetch still fires this watch; the body assumes a
 		// loaded doc.
 		if (!courseResource.doc) return
+		applyingServerData = true
 		getMetaInfo('courses', courseResource.doc?.name, meta)
 		updateCourseData()
 		checkPermission()
+		nextTick(() => {
+			applyingServerData = false
+		})
 	}
 )
 
@@ -153,25 +172,57 @@ const updateCourseData = (): void => {
 	}
 }
 
-const submitCourse = (): void => updateCourse()
+const validatePricing = (): string | null => {
+	const doc = courseResource.doc
+	if (!doc) return null
+	if (!doc.paid_course && !doc.paid_certificate) return null
+	const subject = doc.paid_course ? __('paid courses') : __('paid certificates')
+	if (!doc.currency) {
+		return __('Currency is required for {0}.').format(subject)
+	}
+	if (!(Number(doc.course_price) > 0)) {
+		return __('Price must be a positive number for {0}.').format(subject)
+	}
+	return null
+}
 
-const updateCourse = (): void => {
+const submitCourse = (): void => {
+	const error = validatePricing()
+	if (error) {
+		toast.error(error)
+		return
+	}
+	updateCourse()
+}
+
+const updateCourse = (opts: { silent?: boolean } = {}): void => {
+	// Drop `modified` from the payload: this form does an intentional whole-doc
+	// last-write-wins save, and sending a stale `modified` trips Frappe's
+	// timestamp guard when the course was touched elsewhere (publish toggle,
+	// lesson-editor autosave) since the form loaded.
+	const docFields: Record<string, unknown> = { ...courseResource.doc }
+	delete docFields.modified
 	courseResource.setValue.submit(
 		{
-			...courseResource.doc,
+			...docFields,
 			instructors: instructors.value.map((i) => ({ instructor: i })),
 			related_courses: related_courses.value.map((c) => ({ course: c })),
 		},
 		{
 			onSuccess() {
 				updateMetaInfo('courses', courseResource.doc?.name, meta)
-				toast.success(__('Course updated successfully'))
+				if (!opts.silent) toast.success(__('Course updated successfully'))
 				isDirty.value = false
 				courseResource.reload()
+				// Refresh the shared course resource so sibling tabs (Overview,
+				// Dashboard) reflect the saved changes without a page reload.
+				props.course.reload()
 			},
 			onError(err: { messages?: string[] } | string) {
 				const msg = typeof err === 'string' ? err : err.messages?.[0] ?? 'Error'
-				toast.error(msg)
+				// Autosave failures stay quiet; the orange "unsaved" badge remains
+				// (isDirty is untouched) so the change isn't silently lost.
+				if (!opts.silent) toast.error(msg)
 				console.error(err)
 			},
 		}

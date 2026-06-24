@@ -27,7 +27,7 @@
 				</div>
 				<FormControl v-model="search" type="text" placeholder="Search">
 					<template #prefix>
-						<FeatherIcon name="search" class="size-4 text-ink-gray-5" />
+						<span class="lucide-search size-4 text-ink-gray-5" />
 					</template>
 				</FormControl>
 			</div>
@@ -44,7 +44,7 @@
 					class="h-[79vh] border-b"
 				>
 					<ListHeader
-						class="mb-2 grid items-center rounded bg-surface-white border-b rounded-none p-2"
+						class="mb-2 grid items-center rounded bg-surface-gray-2 p-2"
 					>
 						<ListHeaderItem
 							:item="item"
@@ -83,7 +83,7 @@
 								<div v-else-if="column.key === 'actions'">
 									<Dropdown :options="getActionOptions(row)">
 										<Button variant="ghost">
-											<FeatherIcon name="more-horizontal" class="w-4 h-4" />
+											<span class="lucide-more-horizontal size-4" />
 										</Button>
 									</Dropdown>
 								</div>
@@ -111,10 +111,9 @@
 					</div>
 				</div>
 			</div>
-			<EmptyStateLayout
-				v-else-if="!applications.loading"
-				name="Job Applications"
-			/>
+			<div v-else-if="!applications.loading" class="flex-1">
+				<EmptyStateLayout name="Job Applications" icon="lucide-briefcase" />
+			</div>
 		</div>
 
 		<Dialog

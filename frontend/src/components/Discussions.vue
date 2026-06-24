@@ -6,42 +6,71 @@
 			@click="openTopicModal()"
 		>
 			<template #prefix>
-				<Plus class="size-4" />
+				<span class="lucide-plus size-4" />
 			</template>
 			{{ __('New {0}').format(singularize(title)) }}
 		</Button>
-		<div class="text-xl font-semibold text-ink-gray-9">
+		<div class="text-3xl-semibold text-ink-gray-9">
 			{{ __(title) }}
 		</div>
 	</div>
-	<div v-if="topics.data?.length && !singleThread">
-		<div v-if="showTopics" v-for="(topic, index) in topics.data">
+	<div
+		v-if="topics.data?.length && !singleThread"
+		class="mt-2 md:flex md:gap-5"
+	>
+		<!-- Master: topic list (always visible at md+; hidden on mobile while a
+		     topic thread is open) -->
+		<div
+			class="md:w-2/5 md:shrink-0 md:max-h-[60vh] md:overflow-y-auto md:border-e md:pe-5"
+			:class="{ 'hidden md:block': currentTopic }"
+		>
 			<div
+				v-for="(topic, index) in topics.data"
+				:key="topic.name"
+				data-testid="topic-row"
 				@click="showReplies(topic)"
-				class="flex items-center cursor-pointer py-5 w-full"
-				:class="{ 'border-b': index + 1 != topics.data.length }"
+				class="flex items-center cursor-pointer py-4 px-2 rounded-md w-full"
+				:class="[
+					{ 'border-b': index + 1 != topics.data.length },
+					currentTopic?.name === topic.name ? 'bg-surface-gray-2' : '',
+				]"
 			>
-				<UserAvatar :user="topic.user" size="2xl" class="me-4" />
-				<div>
-					<div class="text-lg font-semibold mb-1 text-ink-gray-7">
+				<UserAvatar :user="topic.user" size="xl" class="me-3" />
+				<div class="min-w-0">
+					<div class="text-base-semibold mb-1 text-ink-gray-7 truncate">
 						{{ topic.title }}
 					</div>
 					<div class="flex items-center text-ink-gray-5">
-						<span>
-							{{ topic.user.full_name }}
-						</span>
-						<span class="text-sm ms-3">
+						<span class="text-sm">
 							{{ timeAgo(topic.creation) }}
+						</span>
+						<span class="flex items-center gap-1 text-sm ms-3">
+							<span class="lucide-message-square size-3.5" />
+							{{
+								(topic.reply_count === 1
+									? __('{0} reply')
+									: __('{0} replies')
+								).format(topic.reply_count || 0)
+							}}
 						</span>
 					</div>
 				</div>
 			</div>
 		</div>
-		<div v-else>
+		<!-- Detail: selected topic's thread -->
+		<div class="flex-1 min-w-0">
 			<DiscussionReplies
+				v-if="currentTopic"
+				:key="currentTopic.name"
 				:topic="currentTopic"
 				v-model:showTopics="showTopics"
 			/>
+			<div
+				v-else
+				class="hidden md:flex h-full items-center justify-center py-10 text-ink-gray-4"
+			>
+				{{ __('Select a question to view the thread') }}
+			</div>
 		</div>
 	</div>
 	<div v-else-if="singleThread && topics.data">
@@ -51,7 +80,7 @@
 		v-else
 		class="flex flex-col items-center justify-center border-2 border-dashed mt-5 py-8 rounded-md"
 	>
-		<MessageSquareText class="w-7 h-7 text-ink-gray-4 stroke-1.5 me-2" />
+		<span class="lucide-message-square-text size-7 text-ink-gray-4 me-2" />
 		<div class="mt-2">
 			<div v-if="emptyStateTitle" class="font-medium mb-2">
 				{{ __(emptyStateTitle) }}
@@ -67,16 +96,16 @@
 		:doctype="props.doctype"
 		:docname="props.docname"
 		v-model:reloadTopics="topics"
+		@created="openCreatedTopic"
 	/>
 </template>
 <script setup>
 import { createResource, Button } from 'frappe-ui'
 import UserAvatar from '@/components/UserAvatar.vue'
 import { singularize, timeAgo } from '@/utils'
-import { ref, onMounted, inject, onUnmounted } from 'vue'
+import { ref, watch, onMounted, inject, onUnmounted } from 'vue'
 import DiscussionReplies from '@/components/DiscussionReplies.vue'
 import DiscussionModal from '@/components/Modals/DiscussionModal.vue'
-import { MessageSquareText, Plus } from 'lucide-vue-next'
 import { getScrollContainer } from '@/utils/scrollContainer'
 
 const showTopics = ref(true)
@@ -153,8 +182,21 @@ const showReplies = (topic) => {
 	currentTopic.value = topic
 }
 
+// DiscussionReplies' back button (shown only on mobile) sets showTopics = true;
+// treat that as "deselect" so the master list returns on small screens.
+watch(showTopics, (visible) => {
+	if (visible) currentTopic.value = null
+})
+
 const openTopicModal = () => {
 	showTopicModal.value = true
+}
+
+// After a new question is posted, jump straight into its thread instead of
+// leaving the user on the list.
+const openCreatedTopic = (topicName) => {
+	const topic = topics.data?.find((t) => t.name === topicName)
+	if (topic) showReplies(topic)
 }
 
 onUnmounted(() => {

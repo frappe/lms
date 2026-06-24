@@ -73,11 +73,12 @@ describe("Course Creation", () => {
 		// Configure settings
 		cy.get("button, [role=tab]").contains("Settings").click();
 
-		// Embed video
+		// Preview video — the redesigned field has a URL input (plus a hidden
+		// file input), so target the YouTube URL input by its placeholder.
 		cy.get("label")
-			.contains("Embed (preview video)")
+			.contains("Preview video")
 			.parent()
-			.find("input")
+			.find('input[placeholder="Paste a YouTube link"]')
 			.type("https://www.youtube.com/embed/-LPmw2Znl2c");
 
 		// Tags
@@ -117,17 +118,16 @@ describe("Course Creation", () => {
 	it("adds chapter and lesson, then verifies course outline", () => {
 		cy.login();
 
-		// Wait on the chapter write (batch_creation pattern) so we don't add a
-		// lesson before the Course Chapter + Chapter Reference are persisted.
-		cy.intercept("POST", "**/lms.lms.api.upsert_chapter").as(
-			"upsertChapter"
-		);
-
 		cy.visit(`/lms/courses/${courseSlug}`);
 		cy.closeOnboardingModal();
 
 		// Open Course editor tab
 		cy.get("button, [role=tab]").contains("Course editor").click();
+
+		// The onboarding help modal re-appears after the first course is created
+		// (its "create_first_course" step completes) and covers the editor
+		// toolbar — dismiss it again before adding a chapter.
+		cy.closeOnboardingModal();
 
 		// Add a chapter. In the editor the chapter button is the "Add" button in
 		// the CourseDetail toolbar (CourseEditor hides CourseOutline's own
@@ -145,21 +145,33 @@ describe("Course Creation", () => {
 				cy.button("Create").click();
 			});
 
-		// Wait for the chapter write to complete before adding a lesson.
-		cy.wait("@upsertChapter", { timeout: 15000 });
+		// Wait for the chapter to land in the outline (more robust than waiting on
+		// the network call) before adding a lesson.
+		cy.contains("Test Chapter", { timeout: 15000 }).should("exist");
 
-		// Create lesson
+		// The onboarding help modal re-expands when the chapter step completes —
+		// dismiss it before adding a lesson so it can't hijack the lesson modal.
+		cy.closeOnboardingModal();
+
+		// Create lesson. LessonModal's Create lives in a #actions slot (rendered
+		// outside the dialog's dismissable layer), but its Title submits on Enter —
+		// so type + Enter rather than clicking Create.
 		cy.button("Add Lesson", { timeout: 10000 }).click();
 		cy.get("[data-dismissable-layer]")
 			.should("be.visible")
 			.within(() => {
+				// .clear() first: the field can carry over the previous title.
 				cy.get("label")
 					.contains("Title")
 					.parent()
 					.find("input")
-					.type("Test Lesson");
-				cy.button("Create").click();
+					.clear()
+					.type("Test Lesson{enter}");
 			});
+
+		// Verify the lesson landed in the editor outline. (The public overview
+		// collapses chapters, so the lesson title isn't asserted there.)
+		cy.contains("Test Lesson", { timeout: 15000 }).should("exist");
 
 		// Navigate to course overview
 		cy.visit("/lms/courses");
@@ -180,9 +192,9 @@ describe("Course Creation", () => {
 			"https://www.youtube.com/embed/-LPmw2Znl2c"
 		);
 
-		// Chapter and lesson in course content
+		// Chapter shows in the course content (the lesson was already verified in
+		// the editor outline above).
 		cy.contains("Test Chapter", { timeout: 15000 }).should("exist");
-		cy.contains("Test Lesson", { timeout: 15000 }).should("exist");
 	});
 
 	it("deletes the course", () => {

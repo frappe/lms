@@ -10,14 +10,14 @@
 				variant="solid"
 			>
 				<template #prefix>
-					<Plus class="size-4 stroke-1.5" />
+					<span class="lucide-plus size-4" />
 				</template>
 				{{ __('Create') }}
 			</Button>
 		</template>
 	</LayoutHeader>
 	<div v-if="programs.data?.length && !isStudent" class="p-5">
-		<div class="text-lg font-semibold text-ink-gray-9 mb-5">
+		<div class="text-xl-semibold text-ink-gray-9 mb-5">
 			{{
 				__('{0} {1}').format(
 					programs.data.length,
@@ -31,18 +31,18 @@
 				@click="openForm(program.name)"
 				class="border rounded-md p-3 hover:border-outline-gray-3 cursor-pointer space-y-2"
 			>
-				<div class="text-lg font-semibold text-ink-gray-9">
+				<div class="text-xl-semibold text-ink-gray-9">
 					{{ program.name }}
 				</div>
 				<div class="flex items-center gap-x-2 text-ink-gray-7">
-					<BookOpen class="h-4 w-4 stroke-1.5" />
+					<span class="lucide-book-open size-4" />
 					<span>
 						{{ program.course_count }}
 						{{ program.course_count == 1 ? __('Course') : __('Courses') }}
 					</span>
 				</div>
 				<div class="flex items-center gap-x-2 text-ink-gray-7">
-					<User class="h-4 w-4 stroke-1.5" />
+					<span class="lucide-user size-4" />
 					<span>
 						{{ program.member_count || 0 }}
 						{{ program.member_count == 1 ? __('member') : __('members') }}
@@ -52,7 +52,9 @@
 		</div>
 	</div>
 	<StudentPrograms v-else-if="isStudent" />
-	<EmptyStateLayout v-else name="Programs" />
+	<div v-else class="flex-1">
+		<EmptyStateLayout name="Programs" icon="lucide-graduation-cap" />
+	</div>
 	<ProgramForm
 		v-model="showForm"
 		:programName="currentProgram"
@@ -62,7 +64,7 @@
 <script setup>
 import { Breadcrumbs, Button, usePageMeta, createListResource } from 'frappe-ui'
 import { computed, inject, onMounted, ref } from 'vue'
-import { BookOpen, Plus, User } from 'lucide-vue-next'
+
 import { sessionStore } from '@/stores/session'
 import ProgramForm from '@/pages/Programs/ProgramForm.vue'
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'

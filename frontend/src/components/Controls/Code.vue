@@ -1,8 +1,6 @@
 <template>
 	<div class="flex w-full flex-col gap-1.5">
-		<div v-if="label" class="text-xs text-ink-gray-5">
-			{{ __(label) }}
-		</div>
+		<FormLabel v-if="label" :label="__(label)" />
 		<codemirror
 			v-model="code"
 			:extensions="extensions"
@@ -28,7 +26,7 @@
 
 <script setup lang="ts">
 import { onMounted, ref, computed, watch } from 'vue'
-import { Button } from 'frappe-ui'
+import { Button, FormLabel } from 'frappe-ui'
 import { Codemirror } from 'vue-codemirror'
 import { autocompletion, closeBrackets } from '@codemirror/autocomplete'
 import { LanguageSupport } from '@codemirror/language'

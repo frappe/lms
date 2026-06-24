@@ -42,7 +42,7 @@
 				</div>
 				<div>
 					<div>
-						<div class="text-xs text-ink-gray-5 mb-2">
+						<div class="text-p-sm-medium text-ink-gray-7 mb-1.5">
 							{{ __('Problem Statement') }}
 							<span class="text-ink-red-3">*</span>
 						</div>
@@ -66,7 +66,7 @@
 					theme="red"
 				>
 					<template #prefix>
-						<Trash2 class="size-4 stroke-1.5" />
+						<span class="lucide-trash-2 size-4" />
 					</template>
 					{{ __('Delete') }}
 				</Button>
@@ -82,7 +82,7 @@
 				>
 					<Button>
 						<template #prefix>
-							<Play class="size-4 stroke-1.5" />
+							<span class="lucide-play size-4" />
 						</template>
 						{{ __('Test this Exercise') }}
 					</Button>
@@ -98,7 +98,7 @@
 				>
 					<Button>
 						<template #prefix>
-							<ClipboardList class="size-4 stroke-1.5" />
+							<span class="lucide-clipboard-list size-4" />
 						</template>
 						{{ __('Check Submission') }}
 					</Button>
@@ -122,12 +122,7 @@ import {
 	TextEditor,
 	toast,
 } from 'frappe-ui'
-import {
-	ProgrammingExercise,
-	ProgrammingExercises,
-	TestCase,
-} from '@/types/programming-exercise'
-import { ClipboardList, Play, Trash2 } from 'lucide-vue-next'
+import { ProgrammingExercise, ProgrammingExercises, TestCase } from './types'
 import ChildTable from '@/components/Controls/ChildTable.vue'
 
 const show = defineModel()

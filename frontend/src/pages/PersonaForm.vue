@@ -4,7 +4,7 @@
 			<div class="flex items-center justify-center gap-x-2">
 				<LMSLogo class="size-7" />
 				<span
-					class="select-none text-xl font-semibold tracking-tight text-gray-900"
+					class="select-none text-3xl-semibold tracking-tight text-gray-900"
 				>
 					Learning
 				</span>
@@ -20,14 +20,22 @@
 					<div class="text-sm text-gray-700">
 						{{ __('What is your use case for Frappe Learning?') }}
 					</div>
-					<Select v-model="persona.useCase" :options="useCaseOptions" />
+					<Select
+						v-model="persona.useCase"
+						:options="useCaseOptions"
+						class="w-full"
+					/>
 				</div>
 
 				<div class="flex flex-col gap-2">
 					<div class="text-sm text-gray-700">
 						{{ __('What best describes your role?') }}
 					</div>
-					<Select v-model="persona.role" :options="roleOptions" />
+					<Select
+						v-model="persona.role"
+						:options="roleOptions"
+						class="w-full"
+					/>
 				</div>
 
 				<Button

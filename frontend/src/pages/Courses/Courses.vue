@@ -13,13 +13,13 @@
 				<template v-slot="{ open }">
 					<Button variant="solid">
 						<template #prefix>
-							<Plus class="size-4 stroke-1.5" />
+							<span class="lucide-plus size-4" />
 						</template>
 						{{ __('Create') }}
 						<template #suffix>
-							<ChevronDown
+							<span
 								:class="[
-									'ms-1 size-4 transform stroke-1.5 transition-transform',
+									'lucide-chevron-down ms-1 size-4 transform transition-transform',
 									open ? 'rotate-180' : '',
 								]"
 							/>
@@ -33,7 +33,7 @@
 		<div
 			class="mb-5 flex flex-col justify-between space-y-4 lg:flex-row lg:items-center lg:space-y-0"
 		>
-			<div class="text-lg font-semibold text-ink-gray-9">
+			<div class="text-xl-semibold text-ink-gray-9">
 				{{ __('All Courses') }}
 			</div>
 			<div
@@ -48,13 +48,18 @@
 						type="text"
 						class="w-full"
 						@input="updateCourses()"
-					/>
+					>
+						<template #prefix>
+							<span class="lucide-search size-4 text-ink-gray-5" />
+						</template>
+					</FormControl>
 					<Select
 						v-if="categories.length"
 						v-model="currentCategory"
 						:options="categories"
 						:placeholder="__('Category')"
 						@update:modelValue="updateCourses()"
+						class="w-full"
 					/>
 				</div>
 
@@ -79,7 +84,9 @@
 				<CourseCard :course="course" />
 			</router-link>
 		</div>
-		<EmptyStateLayout v-else-if="!courses.list.loading" name="Courses" />
+		<div v-else-if="!courses.list.loading" class="flex-1">
+			<EmptyStateLayout name="Courses" icon="lucide-book-open" />
+		</div>
 		<div
 			v-if="!courses.list.loading && courses.hasNextPage"
 			class="flex justify-center mt-5"
@@ -114,7 +121,6 @@ import {
 } from 'frappe-ui'
 import Select from '@/components/Controls/Select.vue'
 import { computed, inject, onMounted, ref, watch } from 'vue'
-import { ChevronDown, Plus } from 'lucide-vue-next'
 import { sessionStore } from '@/stores/session'
 import { canCreateCourse } from '@/utils'
 import CourseCard from '@/components/CourseCard.vue'
@@ -315,12 +321,8 @@ watch(currentTab, () => {
 const courseTabs = computed(() => {
 	let tabs = [
 		{
-			label: __('Live'),
+			label: __('Published'),
 			value: 'live',
-		},
-		{
-			label: __('New'),
-			value: 'new',
 		},
 		{
 			label: __('Upcoming'),

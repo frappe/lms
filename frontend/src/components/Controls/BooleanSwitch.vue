@@ -1,5 +1,6 @@
 <template>
 	<FUISwitch
+		class="lms-switch"
 		:model-value="!!modelValue"
 		@update:model-value="onUpdate"
 		v-bind="$attrs"

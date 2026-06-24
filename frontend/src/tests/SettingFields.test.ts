@@ -29,9 +29,9 @@ vi.mock('frappe-ui', () => ({
 	FileUploader: { template: '<div />' },
 	Button: { template: '<button />' },
 }))
-// Checkboxes use the project-local Switch (v-modeled on field.value), not the
-// frappe-ui one — mock it so toggling emits update:modelValue.
-vi.mock('@/components/Controls/Switch.vue', () => ({
+// Checkboxes use the project-local BooleanSwitch (v-modeled on field.value), not
+// the frappe-ui one — mock it so toggling emits update:modelValue.
+vi.mock('@/components/Controls/BooleanSwitch.vue', () => ({
 	default: {
 		props: ['modelValue'],
 		emits: ['update:modelValue'],

@@ -3,7 +3,7 @@
 		<template #header-actions>
 			<Button variant="solid" @click="emit('updateStep', 'new', null)">
 				<template #prefix>
-					<FeatherIcon name="plus" class="h-4 w-4 stroke-1.5" />
+					<span class="lucide-plus h-4 w-4" />
 				</template>
 				{{ __('New') }}
 			</Button>
@@ -89,7 +89,7 @@
 			>
 				<Button @click="transactions.next()">
 					<template #prefix>
-						<RefreshCw class="h-3 w-3 stroke-1.5" />
+						<span class="lucide-refresh-cw h-3 w-3" />
 					</template>
 					{{ __('Load More') }}
 				</Button>
@@ -99,7 +99,7 @@
 			v-else
 			name="Transactions"
 			:description="__('Add one to get started.')"
-			:icon="Landmark"
+			icon="lucide-landmark"
 		/>
 	</SettingsLayout>
 </template>
@@ -115,9 +115,8 @@ import {
 	ListRowItem,
 	FormControl,
 } from 'frappe-ui'
-import Switch from '@/components/Controls/Switch.vue'
+import BooleanSwitch from '@/components/Controls/BooleanSwitch.vue'
 import { computed, ref, watch } from 'vue'
-import { RefreshCw, Landmark } from 'lucide-vue-next'
 import Link from '@/components/Controls/Link.vue'
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 import SettingsLayout from '@/components/Layouts/SettingsLayout.vue'

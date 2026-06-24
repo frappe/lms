@@ -16,7 +16,7 @@
 						:is="item.icon"
 						class="size-4 stroke-1.5 text-ink-gray-6"
 					/>
-					<div v-html="item.title"></div>
+					<div v-html="sanitizeRichHTML(item.title)"></div>
 				</div>
 				<div v-if="item.modified" class="text-ink-gray-5">
 					{{ dayjs.unix(item.modified).fromNow(true) }}
@@ -27,6 +27,7 @@
 </template>
 <script lang="ts" setup>
 import { inject } from 'vue'
+import { sanitizeRichHTML } from '@/utils/sanitizeRichHTML'
 
 const dayjs = inject<any>('$dayjs')
 const emit = defineEmits(['navigateTo'])

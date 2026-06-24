@@ -29,13 +29,13 @@
 				<template v-slot="{ open }">
 					<Button variant="solid">
 						<template #prefix>
-							<Plus class="size-4 stroke-1.5" />
+							<span class="lucide-plus size-4" />
 						</template>
 						{{ __('Create') }}
 						<template #suffix>
-							<ChevronDown
+							<span
 								:class="[
-									'ms-1 size-4 transform stroke-1.5 transition-transform',
+									'lucide-chevron-down ms-1 size-4 transform transition-transform',
 									open ? 'rotate-180' : '',
 								]"
 							/>
@@ -49,7 +49,7 @@
 		<div
 			class="mb-5 flex flex-col justify-between space-y-4 lg:flex-row lg:items-center lg:space-y-0"
 		>
-			<div class="text-lg font-semibold text-ink-gray-9">
+			<div class="text-xl-semibold text-ink-gray-9">
 				{{ __('All Batches') }}
 			</div>
 			<div
@@ -64,11 +64,15 @@
 				<div class="grid grid-cols-2 gap-2">
 					<FormControl
 						v-model="title"
-						:placeholder="__('Search by Title')"
+						:placeholder="__('Search')"
 						type="text"
 						class="min-w-40"
 						@input="updateBatches()"
-					/>
+					>
+						<template #prefix>
+							<span class="lucide-search size-4 text-ink-gray-5" />
+						</template>
+					</FormControl>
 					<Select
 						v-if="categories.length"
 						v-model="currentCategory"
@@ -98,7 +102,9 @@
 				<BatchCard :batch="batch" />
 			</router-link>
 		</div>
-		<EmptyStateLayout v-else-if="!batches.list.loading" name="Batches" />
+		<div v-else-if="!batches.list.loading" class="flex-1">
+			<EmptyStateLayout name="Batches" icon="lucide-users" />
+		</div>
 
 		<div
 			v-if="!batches.list.loading && batches.hasNextPage"
@@ -130,7 +136,6 @@ import {
 import Select from '@/components/Controls/Select.vue'
 import { computed, inject, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { ChevronDown, Plus } from 'lucide-vue-next'
 import { sessionStore } from '@/stores/session'
 import BatchCard from '@/pages/Batches/components/BatchCard.vue'
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'

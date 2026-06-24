@@ -1,6 +1,6 @@
 <template>
 	<header
-		class="sticky top-0 z-10 flex items-center justify-between border-b bg-surface-white px-3 py-2.5 sm:px-5"
+		class="sticky top-0 z-10 flex items-center justify-between border-b bg-surface-base px-3 py-2.5 sm:px-5"
 	>
 		<Breadcrumbs :items="breadcrumbs" />
 		<div v-if="!readOnlyMode" class="flex items-center gap-x-2">
@@ -18,7 +18,7 @@
 			>
 				<Button>
 					<template #prefix>
-						<ListChecks class="size-4 stroke-1.5" />
+						<span class="lucide-list-checks size-4" />
 					</template>
 					{{ __('Test Quiz') }}
 				</Button>
@@ -34,119 +34,39 @@
 			>
 				<Button>
 					<template #prefix>
-						<ClipboardList class="size-4 stroke-1.5" />
+						<span class="lucide-clipboard-list size-4" />
 					</template>
 					{{ __('Check Submissions') }}
 				</Button>
 			</router-link>
-			<Button variant="solid" @click="submitQuiz()">
-				{{ __('Save') }}
-			</Button>
 		</div>
 	</header>
-	<div v-if="quizDetails.doc" class="py-5">
-		<div class="px-20 pb-5 space-y-5 border-b mb-5">
-			<div class="text-lg text-ink-gray-9 font-semibold mb-4">
-				{{ __('Details') }}
-			</div>
-			<div class="grid grid-cols-2 gap-5">
-				<div class="space-y-5">
-					<FormControl
-						v-model="quizDetails.doc.title"
-						:label="__('Title')"
-						:required="true"
-					/>
-					<FormControl
-						type="number"
-						v-model="quizDetails.doc.max_attempts"
-						:label="__('Maximum Attempts')"
-					/>
-					<FormControl
-						type="number"
-						v-model="quizDetails.doc.duration"
-						:label="__('Duration (in minutes)')"
-					/>
-				</div>
-				<div class="space-y-5">
-					<FormControl
-						v-model="quizDetails.doc.total_marks"
-						:label="__('Total Marks')"
-						disabled
-					/>
-					<FormControl
-						v-model="quizDetails.doc.passing_percentage"
-						:label="__('Passing Percentage')"
-						:required="true"
-					/>
-				</div>
-			</div>
-		</div>
-		<div class="px-20 pb-5 space-y-5 border-b mb-5">
-			<div class="text-lg text-ink-gray-9 font-semibold mb-4">
-				{{ __('Settings') }}
-			</div>
-			<div class="grid grid-cols-3 gap-5">
-				<div class="flex flex-col space-y-10">
-					<Switch
-						v-model="quizDetails.doc.show_answers"
-						size="sm"
-						:label="__('Show Answers')"
-						:description="
-							__('Display correct answers after each question is attempted.')
-						"
-					/>
-					<Switch
-						v-model="quizDetails.doc.show_submission_history"
-						size="sm"
-						:label="__('Show Submission History')"
-						:description="__('Allow users to view their past quiz attempts.')"
-					/>
-				</div>
-				<div class="flex flex-col space-y-5">
-					<Switch
-						v-model="quizDetails.doc.shuffle_questions"
-						size="sm"
-						:label="__('Shuffle Questions')"
-						:description="
-							__('Randomize the order of questions for each attempt.')
-						"
-					/>
-					<FormControl
-						v-if="quizDetails.doc.shuffle_questions"
-						v-model="quizDetails.doc.limit_questions_to"
-						:label="__('Limit Questions To')"
-					/>
-				</div>
-				<div class="flex flex-col space-y-5">
-					<Switch
-						v-model="quizDetails.doc.enable_negative_marking"
-						size="sm"
-						:label="__('Enable Negative Marking')"
-						:description="__('Deduct marks for incorrect answers.')"
-					/>
-					<FormControl
-						v-if="quizDetails.doc.enable_negative_marking"
-						v-model="quizDetails.doc.marks_to_cut"
-						:label="__('Marks to Deduct')"
-					/>
-				</div>
-			</div>
-		</div>
-
-		<div class="px-20 pb-5 space-y-5 mb-5">
-			<div class="flex items-center justify-between mb-4">
-				<div class="text-lg font-semibold text-ink-gray-9">
+	<div
+		v-if="quizDetails.loading && !quizDetails.doc"
+		class="flex items-center justify-center py-20"
+	>
+		<LoadingIndicator class="size-5 text-ink-gray-5" />
+	</div>
+	<div
+		v-else-if="quizDetails.doc"
+		class="grid min-h-0 flex-1 grid-cols-[7fr,3fr]"
+	>
+		<!-- LEFT: Questions -->
+		<div class="flex min-h-0 flex-col">
+			<div class="flex items-center justify-between px-5 pt-5 mb-4">
+				<div class="text-xl-semibold text-ink-gray-9">
 					{{ __('Questions') }}
 				</div>
 				<Button v-if="!readOnlyMode" @click="openQuestionModal()">
 					<template #prefix>
-						<Plus class="w-4 h-4" />
+						<span class="lucide-plus size-4" />
 					</template>
 					{{ __('New Question') }}
 				</Button>
 			</div>
 			<ListView
 				v-if="questions.length"
+				class="flex-1 overflow-y-auto px-5"
 				:columns="questionColumns"
 				:rows="questions"
 				row-key="name"
@@ -171,7 +91,7 @@
 							<div
 								v-if="column.key == 'question_detail'"
 								class="text-xs truncate h-4"
-								v-html="item"
+								v-html="sanitizeRichHTML(item)"
 							></div>
 							<div v-else class="text-xs">
 								{{ item }}
@@ -186,14 +106,108 @@
 								variant="ghost"
 								@click="deleteQuestions(selections, unselectAll)"
 							>
-								<Trash2 class="h-4 w-4 stroke-1.5" />
+								<span class="lucide-trash-2 size-4" />
 							</Button>
 						</div>
 					</template>
 				</ListSelectBanner>
 			</ListView>
-			<div v-else class="text-ink-gray-6 text-sm">
-				{{ __('No questions added yet') }}
+			<EmptyStateLayout
+				v-else
+				class="flex-1"
+				name="Questions"
+				:title="__('No questions added yet')"
+				:description="__('Add a question to get started.')"
+				icon="lucide-circle-help"
+			/>
+			<ListFooter
+				v-model="pageLength"
+				class="border-t px-3 py-2 sm:px-5"
+				:options="{
+					rowCount: questions.length,
+					totalCount: questions.length,
+				}"
+			>
+				<template #right>
+					<div class="flex items-center gap-1 text-base text-ink-gray-5">
+						<div>{{ questions.length }}</div>
+						<div>{{ __('of') }}</div>
+						<div>{{ questions.length }}</div>
+					</div>
+				</template>
+			</ListFooter>
+		</div>
+
+		<!-- RIGHT: Details + Settings -->
+		<div class="space-y-8 overflow-y-auto border-l p-5">
+			<div class="space-y-5">
+				<div class="text-ink-gray-9 font-semibold">{{ __('Details') }}</div>
+				<FormControl
+					v-model="quizDetails.doc.title"
+					:label="__('Title')"
+					:required="true"
+				/>
+				<FormControl
+					type="number"
+					v-model="quizDetails.doc.max_attempts"
+					:label="__('Maximum Attempts')"
+				/>
+				<FormControl
+					type="number"
+					v-model="quizDetails.doc.duration"
+					:label="__('Duration (in minutes)')"
+				/>
+				<FormControl
+					v-model="quizDetails.doc.total_marks"
+					:label="__('Total Marks')"
+					disabled
+				/>
+				<FormControl
+					v-model="quizDetails.doc.passing_percentage"
+					:label="__('Passing Percentage')"
+					:required="true"
+				/>
+			</div>
+			<div class="space-y-5">
+				<div class="text-ink-gray-9 font-semibold">{{ __('Settings') }}</div>
+				<BooleanSwitch
+					v-model="quizDetails.doc.show_answers"
+					size="sm"
+					:label="__('Show Answers')"
+					:description="
+						__('Display correct answers after each question is attempted.')
+					"
+				/>
+				<BooleanSwitch
+					v-model="quizDetails.doc.show_submission_history"
+					size="sm"
+					:label="__('Show Submission History')"
+					:description="__('Allow users to view their past quiz attempts.')"
+				/>
+				<BooleanSwitch
+					v-model="quizDetails.doc.shuffle_questions"
+					size="sm"
+					:label="__('Shuffle Questions')"
+					:description="
+						__('Randomize the order of questions for each attempt.')
+					"
+				/>
+				<FormControl
+					v-if="quizDetails.doc.shuffle_questions"
+					v-model="quizDetails.doc.limit_questions_to"
+					:label="__('Limit Questions To')"
+				/>
+				<BooleanSwitch
+					v-model="quizDetails.doc.enable_negative_marking"
+					size="sm"
+					:label="__('Enable Negative Marking')"
+					:description="__('Deduct marks for incorrect answers.')"
+				/>
+				<FormControl
+					v-if="quizDetails.doc.enable_negative_marking"
+					v-model="quizDetails.doc.marks_to_cut"
+					:label="__('Marks to Deduct')"
+				/>
 			</div>
 		</div>
 	</div>
@@ -217,13 +231,15 @@ import {
 	ListRow,
 	ListRowItem,
 	ListSelectBanner,
+	ListFooter,
 	Button,
 	usePageMeta,
 	toast,
 	createDocumentResource,
 	Badge,
+	LoadingIndicator,
 } from 'frappe-ui'
-import Switch from '@/components/Controls/Switch.vue'
+import BooleanSwitch from '@/components/Controls/BooleanSwitch.vue'
 import {
 	computed,
 	reactive,
@@ -231,14 +247,19 @@ import {
 	onMounted,
 	inject,
 	onBeforeUnmount,
+	watch,
 } from 'vue'
+import { useDebounceFn } from '@vueuse/core'
 import { sessionStore } from '../stores/session'
-import { ClipboardList, ListChecks, Plus, Trash2 } from 'lucide-vue-next'
+
 import { useRouter } from 'vue-router'
 import { sanitizeHTML } from '@/utils'
+import { sanitizeRichHTML } from '@/utils/sanitizeRichHTML'
 import Question from '@/components/Modals/Question.vue'
+import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 
 const { brand } = sessionStore()
+const pageLength = ref(20)
 const showQuestionModal = ref(false)
 const currentQuestion = reactive({
 	question: '',
@@ -277,6 +298,9 @@ const keyboardShortcut = (e) => {
 
 onBeforeUnmount(() => {
 	window.removeEventListener('keydown', keyboardShortcut)
+	// Flush a pending edit that the debounce hasn't fired yet, so navigating
+	// away immediately after a change can't drop it.
+	if (quizDetails.isDirty) submitQuiz({ silent: true })
 })
 
 const quizDetails = createDocumentResource({
@@ -289,7 +313,21 @@ const validateTitle = () => {
 	quizDetails.doc.title = sanitizeHTML(quizDetails.doc.title.trim())
 }
 
-const submitQuiz = () => {
+// Debounced silent autosave: a burst of edits collapses into a single save
+// shortly after the user pauses. `quizDetails.isDirty` is tracked by the
+// document resource, so loading the quiz doesn't arm it — only real edits do.
+const autoSave = useDebounceFn(() => {
+	if (quizDetails.isDirty) submitQuiz({ silent: true })
+}, 1000)
+
+watch(
+	() => quizDetails.isDirty,
+	(dirty) => {
+		if (dirty) autoSave()
+	}
+)
+
+const submitQuiz = (opts = {}) => {
 	validateTitle()
 	quizDetails.setValue.submit(
 		{
@@ -299,10 +337,12 @@ const submitQuiz = () => {
 		{
 			onSuccess(data) {
 				quizDetails.doc.total_marks = data.total_marks
-				toast.success(__('Quiz updated successfully'))
+				if (!opts.silent) toast.success(__('Quiz updated successfully'))
 			},
 			onError(err) {
-				toast.error(err.messages?.[0] || err)
+				// Autosave failures stay quiet; the orange "unsaved" badge remains
+				// so the change isn't silently lost.
+				if (!opts.silent) toast.error(err.messages?.[0] || err)
 			},
 		}
 	)

@@ -4,7 +4,7 @@
 			<template #header-actions>
 				<Button variant="solid" @click="openForm('new')">
 					<template #prefix>
-						<Plus class="h-4 w-4 stroke-1.5" />
+						<span class="lucide-plus h-4 w-4" />
 					</template>
 					{{ __('New') }}
 				</Button>
@@ -88,7 +88,7 @@
 				v-else
 				name="Badges"
 				:description="__('Add one to get started.')"
-				:icon="Award"
+				icon="lucide-award"
 			/>
 		</SettingsLayout>
 	</template>
@@ -121,7 +121,6 @@ import {
 	toast,
 } from 'frappe-ui'
 import { computed, ref } from 'vue'
-import { Award, Plus } from 'lucide-vue-next'
 import { cleanError } from '@/utils'
 import BadgeForm from '@/components/Settings/BadgeForm.vue'
 import BadgeAssignments from '@/components/Settings/BadgeAssignments.vue'

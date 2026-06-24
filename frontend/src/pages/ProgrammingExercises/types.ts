@@ -1,4 +1,4 @@
-interface ProgrammingExercise {
+export interface ProgrammingExercise {
     name: string;
     title: string;
     language: 'Python' | 'JavaScript';
@@ -7,7 +7,7 @@ interface ProgrammingExercise {
     test_cases: [TestCase];
 }
 
-interface TestCase {
+export interface TestCase {
     name: string;
     input: string;
     expected_output: string;
@@ -21,7 +21,7 @@ type Filters = {
     status?: string
 }
 
-type ProgrammingExercises = {
+export type ProgrammingExercises = {
 	data: ProgrammingExercise[]
 	reload: () => void
 	hasNextPage: boolean

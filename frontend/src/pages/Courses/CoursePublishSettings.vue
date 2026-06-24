@@ -2,21 +2,21 @@
 	<div class="">
 		<CollapsibleSection :label="__('Visibility')">
 			<div class="flex flex-col gap-y-4">
-				<Switch
+				<BooleanSwitch
 					size="sm"
 					v-model="doc.upcoming"
 					:label="__('Upcoming')"
 					:description="__('Not yet open for enrollment.')"
-					@change="markDirty()"
+					@update:modelValue="markDirty()"
 				/>
-				<Switch
+				<BooleanSwitch
 					size="sm"
 					v-model="doc.featured"
 					:label="__('Featured')"
 					:description="__('Highlight on the homepage.')"
-					@change="markDirty()"
+					@update:modelValue="markDirty()"
 				/>
-				<Switch
+				<BooleanSwitch
 					size="sm"
 					v-model="selfEnrollment"
 					:label="__('Self enrollment')"
@@ -27,7 +27,7 @@
 
 		<CollapsibleSection :label="__('Pricing and certification')">
 			<div class="flex flex-col gap-y-4">
-				<Switch
+				<BooleanSwitch
 					size="sm"
 					:modelValue="Boolean(doc?.paid_course)"
 					:label="__('Paid course')"
@@ -43,38 +43,42 @@
 						:filters="{ enabled: 1 }"
 						:placeholder="__('Select currency')"
 						variant="outline"
+						:required="true"
 						@update:modelValue="markDirty()"
 					/>
 					<FormControl
 						v-model="doc.course_price"
+						type="number"
+						min="0"
 						:label="__('Course price')"
 						variant="outline"
+						:required="true"
 						@input="markDirty()"
 					/>
 					<div class="border-t -mx-5" />
-					<Switch
+					<BooleanSwitch
 						size="sm"
 						v-model="doc.enable_certification"
 						:label="__('Completion certificate')"
 						:description="
 							__('Issue a free certificate when learners complete the course.')
 						"
-						@change="markDirty()"
+						@update:modelValue="markDirty()"
 					/>
 				</template>
 
 				<template v-else>
 					<div class="border-t -mx-5" />
-					<Switch
+					<BooleanSwitch
 						size="sm"
 						v-model="doc.enable_certification"
 						:label="__('Completion certificate')"
 						:description="
 							__('Issue a free certificate when learners complete the course.')
 						"
-						@change="markDirty()"
+						@update:modelValue="markDirty()"
 					/>
-					<Switch
+					<BooleanSwitch
 						size="sm"
 						:modelValue="doc.paid_certificate"
 						:label="__('Paid certificate')"
@@ -93,12 +97,16 @@
 							:filters="{ enabled: 1 }"
 							:placeholder="__('Select currency')"
 							variant="outline"
+							:required="true"
 							@update:modelValue="markDirty()"
 						/>
 						<FormControl
 							v-model="doc.course_price"
+							type="number"
+							min="0"
 							:label="__('Certificate price')"
 							variant="outline"
+							:required="true"
 							@input="markDirty()"
 						/>
 						<Link
@@ -122,6 +130,26 @@
 						/>
 					</template>
 				</template>
+
+				<div
+					v-if="doc?.enable_certification || doc?.paid_certificate"
+					class="flex flex-wrap items-center gap-1 text-p-sm text-ink-gray-6"
+				>
+					<span>
+						{{
+							__(
+								'Certificates render from a Print Format. Build or customize templates from the desk.'
+							)
+						}}
+					</span>
+					<button
+						type="button"
+						class="font-medium text-ink-gray-8 underline"
+						@click="openPrintFormats"
+					>
+						{{ __('Manage templates') }}
+					</button>
+				</div>
 			</div>
 		</CollapsibleSection>
 	</div>
@@ -131,23 +159,59 @@
 		:defaultRoles="['batch_evaluator']"
 		@created="onEvaluatorCreated"
 	/>
+
+	<Dialog
+		v-model:open="showPaymentsAppModal"
+		:title="__('Payments app required')"
+		:actions="[
+			{
+				label: __('Get the Payments app'),
+				variant: 'solid',
+				onClick: ({ close }: any) => {
+					openPaymentsApp()
+					close()
+				},
+			},
+		]"
+	>
+		<template #default>
+			<p class="text-p-base text-ink-gray-7">
+				{{
+					__(
+						'Selling a paid course or certificate needs the Payments app. Install it from the Frappe Marketplace, then turn on pricing here.'
+					)
+				}}
+			</p>
+		</template>
+	</Dialog>
 </template>
 
 <script setup lang="ts">
-import { FormControl, createResource } from 'frappe-ui'
-import Switch from '@/components/Controls/Switch.vue'
+import { Dialog, FormControl, createResource } from 'frappe-ui'
+import BooleanSwitch from '@/components/Controls/BooleanSwitch.vue'
 import { computed, inject, ref } from 'vue'
 import CollapsibleSection from '@/components/CollapsibleSection.vue'
 import Link from '@/components/Controls/Link.vue'
 import NewMemberModal from '@/components/Modals/NewMemberModal.vue'
+import { useSettings } from '@/stores/settings'
 import type { CourseFormContext, Resource } from '@/types/api'
 
 const { resource, markDirty } = inject<CourseFormContext>('courseForm')!
 const dayjs = inject('$dayjs') as typeof import('dayjs')
 
+const settingsStore = useSettings()
+// Only block when we positively know the app is missing; if settings haven't
+// loaded yet, let it through (the backend validation is the hard guard).
+const paymentsAppMissing = computed<boolean>(
+	() =>
+		!!settingsStore.settings.data &&
+		!settingsStore.settings.data.is_payments_app_installed
+)
+
 const doc = computed(() => resource.doc)
 const evaluatorLinkRef = ref<{ reload: () => void } | null>(null)
 const showMemberModal = ref<boolean>(false)
+const showPaymentsAppModal = ref<boolean>(false)
 
 const publishedOnLabel = computed<string>(() =>
 	doc.value?.published_on
@@ -166,6 +230,10 @@ const selfEnrollment = computed<boolean>({
 
 function setPaidCourse(val: boolean) {
 	if (!resource.doc) return
+	if (val && paymentsAppMissing.value) {
+		showPaymentsAppModal.value = true
+		return
+	}
 	resource.doc.paid_course = val ? 1 : 0
 	// A paid course is already monetized — the paid-certificate flow only
 	// applies to free courses, so clear it when switching to paid.
@@ -175,8 +243,16 @@ function setPaidCourse(val: boolean) {
 
 function setPaidCertificate(val: boolean) {
 	if (!resource.doc) return
+	if (val && paymentsAppMissing.value) {
+		showPaymentsAppModal.value = true
+		return
+	}
 	resource.doc.paid_certificate = val ? 1 : 0
 	markDirty()
+}
+
+function openPaymentsApp() {
+	window.open('https://frappecloud.com/marketplace/apps/payments', '_blank')
 }
 
 const timezoneResource = createResource({
@@ -191,6 +267,10 @@ const timezoneOptions = computed<{ label: string; value: string }[]>(() =>
 
 function openEvaluatorModal() {
 	showMemberModal.value = true
+}
+
+function openPrintFormats() {
+	window.open('/app/print-format?doc_type=LMS Certificate', '_blank')
 }
 
 function onEvaluatorCreated(created: { name: string }) {

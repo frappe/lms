@@ -1,12 +1,6 @@
 <template>
-	<Dialog
-		v-model="show"
-		:options="{
-			title: __('Contact Us'),
-			size: 'md',
-		}"
-	>
-		<template #body-content>
+	<Dialog v-model:open="show" :title="__('Contact Us')" size="md">
+		<template #default>
 			<div class="flex flex-col gap-4">
 				<FormControl
 					v-model="subject"
@@ -15,9 +9,9 @@
 					:required="true"
 				/>
 				<div>
-					<div class="mb-1.5 text-sm text-ink-gray-5">
+					<div class="mb-1.5 text-p-sm-medium text-ink-gray-7">
 						{{ __('Message') }}
-						<span class="text-ink-red-3">*</span>
+						<span class="text-ink-red-6">*</span>
 					</div>
 					<TextEditor
 						:fixedMenu="true"

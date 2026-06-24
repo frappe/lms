@@ -7,7 +7,7 @@
 			<router-link :to="{ name: 'Courses', query: { certification: true } }">
 				<Button>
 					<template #prefix>
-						<GraduationCap class="size-4 stroke-1.5" />
+						<span class="lucide-graduation-cap size-4" />
 					</template>
 					{{ __('Get Certified') }}
 				</Button>
@@ -16,7 +16,7 @@
 	</LayoutHeader>
 	<div class="mx-auto flex min-h-0 w-full flex-1 flex-col">
 		<div class="mb-5 flex flex-col justify-between px-5 pt-5 md:flex-row">
-			<div class="mb-4 text-lg font-semibold text-ink-gray-9 md:mb-0">
+			<div class="mb-4 text-xl-semibold text-ink-gray-9 md:mb-0">
 				{{ memberCount }} {{ __('Certified Members') }}
 			</div>
 			<div
@@ -25,11 +25,15 @@
 				<div class="flex items-center gap-x-4">
 					<FormControl
 						v-model="nameFilter"
-						:placeholder="__('Search by Name')"
+						:placeholder="__('Search')"
 						type="text"
 						class="min-w-40 lg:w-32 lg:min-w-0 xl:w-40"
 						@input="updateParticipants()"
-					/>
+					>
+						<template #prefix>
+							<span class="lucide-search size-4 text-ink-gray-5" />
+						</template>
+					</FormControl>
 					<Select
 						v-if="categories.data?.length"
 						v-model="currentCategory"
@@ -83,7 +87,7 @@
 					</div>
 					<div class="mt-auto space-y-2 text-ink-gray-7">
 						<div class="flex items-center gap-x-1">
-							<GraduationCap class="me-1 h-4 w-4 stroke-1.5" />
+							<span class="lucide-graduation-cap me-1 h-4 w-4" />
 							<span>
 								{{ participant.certificate_count }}
 								{{
@@ -94,7 +98,7 @@
 							</span>
 						</div>
 						<div class="flex items-center gap-x-1">
-							<Calendar class="me-1 h-4 w-4 stroke-1.5" />
+							<span class="lucide-calendar me-1 h-4 w-4" />
 							<span>{{
 								dayjs(participant.issue_date).format('DD MMM YYYY')
 							}}</span>
@@ -103,8 +107,8 @@
 				</div>
 			</div>
 		</div>
-		<div v-else class="flex min-h-0 flex-1 items-center justify-center px-5">
-			<EmptyStateLayout name="Certified Members" />
+		<div v-else class="flex-1">
+			<EmptyStateLayout name="Certified Members" icon="lucide-badge-check" />
 		</div>
 		<ListFooter
 			v-model="pageLength"
@@ -146,7 +150,6 @@ import {
 } from 'frappe-ui'
 import Select from '@/components/Controls/Select.vue'
 import { computed, inject, onMounted, ref } from 'vue'
-import { GraduationCap, Calendar } from 'lucide-vue-next'
 import { sessionStore } from '../stores/session'
 import { useRouter } from 'vue-router'
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'

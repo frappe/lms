@@ -10,7 +10,7 @@
 		<div class="relative z-20">
 			<!-- Dropdown menu -->
 			<div
-				class="fixed bottom-16 end-2 w-[80%] space-y-4 rounded-md bg-surface-white p-5 text-base shadow-md"
+				class="fixed bottom-16 end-2 w-[80%] space-y-4 rounded-md bg-surface-base p-5 text-base shadow-md"
 				v-if="showMenu"
 				ref="menu"
 			>
@@ -31,7 +31,7 @@
 			<!-- Fixed menu -->
 			<div
 				v-if="sidebarSettings.data"
-				class="standalone:pb-4 fixed bottom-0 start-0 z-10 flex w-full items-center justify-around border-t border-outline-gray-2 bg-surface-white"
+				class="standalone:pb-4 fixed bottom-0 start-0 z-10 flex w-full items-center justify-around border-t border-outline-gray-2 bg-surface-base"
 			>
 				<button
 					v-for="tab in sidebarLinks"
@@ -65,6 +65,7 @@ import { sessionStore } from '@/stores/session'
 import { useSettings } from '@/stores/settings'
 import { usersStore } from '@/stores/user'
 import * as icons from 'lucide-vue-next'
+import { toggleNotifications } from '@/stores/notifications'
 
 const { logout, user } = sessionStore()
 let { isLoggedIn } = sessionStore()
@@ -207,7 +208,10 @@ let isActive = (tab) => {
 }
 
 const handleClick = (tab) => {
-	if (tab.label == 'Log in') window.location.href = '/login'
+	if (tab.label == 'Notifications') {
+		toggleNotifications()
+		toggleMenu()
+	} else if (tab.label == 'Log in') window.location.href = '/login'
 	else if (tab.label == 'Log out')
 		logout.submit().then(() => {
 			isLoggedIn = false

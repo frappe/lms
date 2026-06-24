@@ -1,7 +1,13 @@
 <template>
-	<div v-if="quiz.data">
+	<div
+		v-if="quiz.loading && !quiz.data"
+		class="flex items-center justify-center py-12"
+	>
+		<LoadingIndicator class="size-4 text-ink-gray-5" />
+	</div>
+	<div v-else-if="quiz.data">
 		<div
-			class="bg-surface-blue-2 text-ink-blue-3 space-y-2 p-3 mb-4 rounded-lg leading-5"
+			class="bg-surface-blue-2 text-ink-blue-6 space-y-2 p-3 mb-4 rounded-lg leading-5"
 		>
 			<div class="font-medium">
 				{{
@@ -81,38 +87,48 @@
 
 		<div v-if="activeQuestion == 0">
 			<div class="border text-center p-20 rounded-md">
-				<div class="font-semibold text-lg text-ink-gray-9">
+				<div class="text-xl-semibold text-ink-gray-9">
 					{{ quiz.data.title }}
 				</div>
-				<div class="flex items-center justify-center gap-x-2 mt-4">
-					<Button
+				<template v-if="questions.length">
+					<div class="flex items-center justify-center gap-x-2 mt-4">
+						<Button
+							v-if="
+								!quiz.data.max_attempts ||
+								attempts.data?.length < quiz.data.max_attempts
+							"
+							variant="solid"
+							@click="startQuiz"
+						>
+							<span>
+								{{ inVideo ? __('Start the Quiz') : __('Start') }}
+							</span>
+						</Button>
+						<Button v-if="inVideo" @click="props.backToVideo()">
+							{{ __('Resume Video') }}
+						</Button>
+					</div>
+					<div
 						v-if="
-							!quiz.data.max_attempts ||
-							attempts.data?.length < quiz.data.max_attempts
+							quiz.data.max_attempts &&
+							attempts.data?.length >= quiz.data.max_attempts
 						"
-						variant="solid"
-						@click="startQuiz"
+						class="leading-5 text-ink-gray-7"
 					>
-						<span>
-							{{ inVideo ? __('Start the Quiz') : __('Start') }}
-						</span>
-					</Button>
-					<Button v-if="inVideo" @click="props.backToVideo()">
-						{{ __('Resume Video') }}
-					</Button>
-				</div>
-				<div
-					v-if="
-						quiz.data.max_attempts &&
-						attempts.data?.length >= quiz.data.max_attempts
-					"
-					class="leading-5 text-ink-gray-7"
-				>
-					{{
-						__(
-							'You have already exceeded the maximum number of attempts allowed for this quiz.'
-						)
-					}}
+						{{
+							__(
+								'You have already exceeded the maximum number of attempts allowed for this quiz.'
+							)
+						}}
+					</div>
+				</template>
+				<div v-else class="mt-4 leading-5 text-ink-gray-7">
+					{{ __('This quiz has no questions available yet.') }}
+					<div v-if="inVideo" class="flex justify-center mt-3">
+						<Button @click="props.backToVideo()">
+							{{ __('Resume Video') }}
+						</Button>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -127,16 +143,19 @@
 							{{ __('Question {0}').format(activeQuestion) }} -
 							{{ getInstructions(questionDetails.data) }}
 						</div>
-						<div class="text-ink-gray-9 text-sm font-semibold item-left">
+						<div class="text-ink-gray-9 text-sm-semibold item-left">
 							{{ question.marks }}
 							{{ question.marks == 1 ? __('Mark') : __('Marks') }}
 						</div>
 					</div>
 					<div
 						class="text-ink-gray-9 font-semibold mt-2 leading-5"
-						v-html="questionDetails.data.question"
+						v-html="sanitizeRichHTML(questionDetails.data.question)"
 					></div>
-					<div v-if="questionDetails.data.type == 'Choices'" v-for="index in 4">
+					<div
+						v-if="questionDetails.data.type == 'Choices'"
+						v-for="index in MAX_OPTIONS"
+					>
 						<label
 							v-if="questionDetails.data[`option_${index}`]"
 							class="flex items-center bg-surface-gray-3 rounded-md p-3 mt-4 w-full cursor-pointer focus:border-blue-600"
@@ -145,7 +164,7 @@
 								v-if="!showAnswers.length && !questionDetails.data.multiple"
 								type="radio"
 								:name="encodeURIComponent(questionDetails.data.question)"
-								class="w-3.5 h-3.5 text-ink-gray-9 focus:ring-outline-gray-modals"
+								class="w-3.5 h-3.5 text-ink-gray-9 focus:ring-outline-elevation-2"
 								@change="markAnswer(index)"
 								:checked="selectedOptions[index - 1]"
 							/>
@@ -154,7 +173,7 @@
 								v-else-if="!showAnswers.length && questionDetails.data.multiple"
 								type="checkbox"
 								:name="encodeURIComponent(questionDetails.data.question)"
-								class="w-3.5 h-3.5 text-ink-gray-9 rounded-sm focus:ring-outline-gray-modals"
+								class="w-3.5 h-3.5 text-ink-gray-9 rounded-sm focus:ring-outline-elevation-2"
 								@change="markAnswer(index)"
 								:checked="selectedOptions[index - 1]"
 							/>
@@ -163,24 +182,26 @@
 								v-for="(answer, idx) in showAnswers"
 							>
 								<div v-if="index - 1 == idx">
-									<CheckCircle
+									<span
 										v-if="answer == 1"
-										class="w-4 h-4 text-ink-green-2"
+										class="lucide-check-circle w-4 h-4 text-ink-green-5"
 									/>
-									<MinusCircle
+									<span
 										v-else-if="answer == 2"
-										class="w-4 h-4 text-ink-green-2"
+										class="lucide-minus-circle w-4 h-4 text-ink-green-5"
 									/>
-									<XCircle
+									<span
 										v-else-if="answer == 0"
-										class="w-4 h-4 text-ink-red-3"
+										class="lucide-x-circle w-4 h-4 text-ink-red-6"
 									/>
-									<MinusCircle v-else class="w-4 h-4" />
+									<span v-else class="lucide-minus-circle w-4 h-4" />
 								</div>
 							</div>
 							<span
 								class="ms-2 text-ink-gray-9"
-								v-html="questionDetails.data[`option_${index}`]"
+								v-html="
+									sanitizeRichHTML(questionDetails.data[`option_${index}`])
+								"
 							>
 							</span>
 						</label>
@@ -202,12 +223,14 @@
 						<div v-if="showAnswers.length">
 							<Badge v-if="showAnswers[0]" :label="__('Correct')" theme="green">
 								<template #prefix>
-									<CheckCircle class="w-4 h-4 text-ink-green-2 me-1" />
+									<span
+										class="lucide-check-circle w-4 h-4 text-ink-green-5 me-1"
+									/>
 								</template>
 							</Badge>
 							<Badge v-else theme="red" :label="__('Incorrect')">
 								<template #prefix>
-									<XCircle class="w-4 h-4 text-ink-red-3 me-1" />
+									<span class="lucide-x-circle w-4 h-4 text-ink-red-6 me-1" />
 								</template>
 							</Badge>
 						</div>
@@ -219,7 +242,7 @@
 							@change="(val) => (possibleAnswer = val)"
 							:editable="true"
 							:fixedMenu="true"
-							editorClass="prose-sm max-w-none border-b border-x border-outline-gray-modals bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[7rem]"
+							editorClass="prose-sm max-w-none border-b border-x border-outline-elevation-2 bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[7rem]"
 						/>
 					</div>
 					<div class="flex items-center justify-between mt-8">
@@ -239,7 +262,7 @@
 								class="rounded-full"
 							>
 								<template #icon>
-									<ChevronLeft class="size-4 stroke-1.5" />
+									<span class="lucide-chevron-left size-4" />
 								</template>
 							</Button>
 							<span
@@ -248,10 +271,10 @@
 								class="w-6 h-6 rounded-full flex items-center justify-center text-sm"
 								:class="{
 									'cursor-pointer': item !== '...',
-									'bg-surface-gray-4 border border-outline-gray-5 font-medium':
+									'bg-surface-gray-4 border border-outline-gray-7 font-medium':
 										activeQuestion == item,
 									'text-ink-gray-5': item === '...',
-									'bg-surface-blue-3 text-ink-white':
+									'bg-surface-blue-3 text-ink-base':
 										attemptedQuestions.includes(item) && activeQuestion != item,
 									'bg-surface-gray-3 text-ink-gray-6':
 										activeQuestion != item &&
@@ -269,7 +292,7 @@
 								class="rounded-full"
 							>
 								<template #icon>
-									<ChevronRight class="size-4 stroke-1.5" />
+									<span class="lucide-chevron-right size-4" />
 								</template>
 							</Button>
 						</div>
@@ -326,7 +349,7 @@
 			</div>
 		</div>
 		<div v-else class="border rounded-lg p-20 space-y-2 text-center">
-			<div class="text-lg font-semibold text-ink-gray-9">
+			<div class="text-xl-semibold text-ink-gray-9">
 				{{ __('Quiz Summary') }}
 			</div>
 			<div
@@ -389,26 +412,24 @@
 		</div>
 	</div>
 	<Dialog
-		v-model="showSubmissionConfirmation"
-		:options="{
-			title: __('Are you sure you want to submit the quiz?'),
-			actions: [
-				{
-					size: 'sm',
-					label: __('Submit'),
-					variant: 'solid',
-					onClick() {
-						submitQuiz()
-						showSubmissionConfirmation = false
-					},
+		v-model:open="showSubmissionConfirmation"
+		:title="__('Are you sure you want to submit the quiz?')"
+		:actions="[
+			{
+				size: 'sm',
+				label: __('Submit'),
+				variant: 'solid',
+				onClick() {
+					submitQuiz()
+					showSubmissionConfirmation = false
 				},
-			],
-		}"
+			},
+		]"
 	>
-		<template #body-content>
-			<div class="border border-outline-gray-modals rounded-lg text-base">
-				<div class="divide-y divide-outline-gray-modals">
-					<div class="grid grid-cols-2 divide-x divide-outline-gray-modals">
+		<template #default>
+			<div class="border border-outline-elevation-2 rounded-lg text-base">
+				<div class="divide-y divide-outline-elevation-2">
+					<div class="grid grid-cols-2 divide-x divide-outline-elevation-2">
 						<div class="p-2">
 							{{ __('Total Questions') }}
 						</div>
@@ -416,7 +437,7 @@
 							{{ questions.length }}
 						</div>
 					</div>
-					<div class="grid grid-cols-2 divide-x divide-outline-gray-modals">
+					<div class="grid grid-cols-2 divide-x divide-outline-elevation-2">
 						<div class="p-2">
 							{{ __('Attempted Questions') }}
 						</div>
@@ -424,7 +445,7 @@
 							{{ attemptedQuestions.length }}
 						</div>
 					</div>
-					<div class="grid grid-cols-2 divide-x divide-outline-gray-modals">
+					<div class="grid grid-cols-2 divide-x divide-outline-elevation-2">
 						<div class="p-2">
 							{{ __('Unattempted Questions') }}
 						</div>
@@ -438,6 +459,7 @@
 	</Dialog>
 </template>
 <script setup>
+import { sanitizeRichHTML } from '@/utils/sanitizeRichHTML'
 import {
 	Badge,
 	Button,
@@ -445,6 +467,7 @@ import {
 	Checkbox,
 	createResource,
 	Dialog,
+	LoadingIndicator,
 	ListView,
 	TextEditor,
 	FormControl,
@@ -459,20 +482,14 @@ import {
 	ref,
 	watch,
 } from 'vue'
-import {
-	CheckCircle,
-	ChevronLeft,
-	ChevronRight,
-	XCircle,
-	MinusCircle,
-} from 'lucide-vue-next'
-import { timeAgo } from '@/utils'
+import { timeAgo } from '@/utils/format'
 import ProgressBar from '@/components/ProgressBar.vue'
 
 const user = inject('$user')
 const activeQuestion = ref(0)
 const currentQuestion = ref('')
-const selectedOptions = ref([0, 0, 0, 0])
+const MAX_OPTIONS = 10
+const selectedOptions = ref(Array(MAX_OPTIONS).fill(0))
 const showAnswers = reactive([])
 const questions = ref([])
 const attemptedQuestions = ref([])
@@ -559,14 +576,22 @@ const quiz = createResource({
 const populateQuestions = () => {
 	const data = quiz.data
 	const rawQuestions = Array.isArray(data?.questions) ? data.questions : []
+	// Drop rows whose linked question no longer resolves (e.g. the question
+	// was deleted while still referenced by the quiz). Keeping a phantom row
+	// lets questionDetails.data go null mid-quiz and crash getAnswers and the
+	// unload handlers — which, since the quiz now mounts inline in the lesson,
+	// blanks the whole lesson view.
+	const resolvable = rawQuestions.filter(
+		(row) => row?.question && questionsByName.value[row.question]
+	)
 	if (data?.shuffle_questions) {
-		let next = shuffleArray([...rawQuestions])
+		let next = shuffleArray([...resolvable])
 		if (data.limit_questions_to) {
 			next = next.slice(0, data.limit_questions_to)
 		}
 		questions.value = next
 	} else {
-		questions.value = rawQuestions
+		questions.value = resolvable
 	}
 }
 
@@ -705,7 +730,7 @@ const loadSavedAnswers = () => {
 			if (localAnswers.length) {
 				if (questionDetails.data.type == 'Choices') {
 					localAnswers.forEach((answer) => {
-						for (let i = 1; i <= 4; i++) {
+						for (let i = 1; i <= MAX_OPTIONS; i++) {
 							if (questionDetails.data[`option_${i}`] == answer) {
 								selectedOptions.value[i - 1] = 1
 							}
@@ -739,13 +764,14 @@ const markAnswer = (index) => {
 		selectedOptions.value.splice(
 			0,
 			selectedOptions.value.length,
-			...[0, 0, 0, 0]
+			...Array(MAX_OPTIONS).fill(0)
 		)
 	selectedOptions.value[index - 1] = selectedOptions.value[index - 1] ? 0 : 1
 }
 
 const getAnswers = () => {
 	let answers = []
+	if (!questionDetails.data) return answers
 	const type = questionDetails.data.type
 	if (type == 'Choices') {
 		selectedOptions.value.forEach((value, index) => {
@@ -831,14 +857,18 @@ const resetQuestion = () => {
 	// limit_questions_to.
 	if (activeQuestion.value == questions.value.length) return
 	activeQuestion.value = activeQuestion.value + 1
-	selectedOptions.value.splice(0, selectedOptions.value.length, ...[0, 0, 0, 0])
+	selectedOptions.value.splice(
+		0,
+		selectedOptions.value.length,
+		...Array(MAX_OPTIONS).fill(0)
+	)
 	showAnswers.length = 0
 	possibleAnswer.value = null
 }
 
 const submitQuiz = () => {
 	if (!quiz.data.show_answers) {
-		if (questionDetails.data.type == 'Open Ended' || getAnswers().length) {
+		if (questionDetails.data?.type == 'Open Ended' || getAnswers().length) {
 			addToLocalStorage()
 		}
 		setTimeout(() => {
@@ -874,7 +904,11 @@ const createSubmission = () => {
 
 const resetQuiz = () => {
 	activeQuestion.value = 0
-	selectedOptions.value.splice(0, selectedOptions.value.length, ...[0, 0, 0, 0])
+	selectedOptions.value.splice(
+		0,
+		selectedOptions.value.length,
+		...Array(MAX_OPTIONS).fill(0)
+	)
 	showAnswers.length = 0
 	possibleAnswer.value = null
 	attemptedQuestions.value = []

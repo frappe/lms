@@ -1860,8 +1860,21 @@ def get_discussion_topics(doctype: str, docname: str, single_thread: bool = Fals
 		order_by="creation desc",
 	)
 
+	reply_counts = {}
+	if topics:
+		for row in frappe.get_all(
+			"Discussion Reply",
+			filters={"topic": ["in", [topic.name for topic in topics]]},
+			fields=["topic", "count(name) as count"],
+			group_by="topic",
+		):
+			reply_counts[row.topic] = row.count
+
 	for topic in topics:
 		topic.user = frappe.db.get_value("User", topic.owner, ["full_name", "user_image"], as_dict=True)
+		# The topic's first reply is the question body itself, so the number of
+		# answers is one less than the total reply count.
+		topic.reply_count = max(reply_counts.get(topic.name, 0) - 1, 0)
 
 	return topics
 
@@ -2462,7 +2475,12 @@ def get_related_courses(course: str) -> list:
 	related_courses = frappe.get_all("Related Courses", {"parent": course}, order_by="idx", pluck="course")
 
 	for related_course in related_courses:
-		related_course_details.append(get_course_details(related_course))
+		# get_course_details returns {} for courses the viewer can't see (e.g. a
+		# related course that was unpublished after being tagged); skip those so
+		# the frontend doesn't render a blank card.
+		details = get_course_details(related_course)
+		if details:
+			related_course_details.append(details)
 	return related_course_details
 
 

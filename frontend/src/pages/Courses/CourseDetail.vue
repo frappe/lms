@@ -32,64 +32,49 @@
 					</Tooltip>
 				</template>
 				<template v-if="tabIndex === 2 && editorSelected">
-					<template v-if="editorMode === 'edit'">
-						<Badge v-if="courseEditorRef?.isDirty" theme="orange">
-							{{ __('Not Saved') }}
-						</Badge>
-						<Tooltip
-							:text="courseEditorRef?.isDirty ? '' : __('No changes to save')"
-							:hoverDelay="0.1"
-						>
-							<Button
-								variant="solid"
-								:disabled="!courseEditorRef?.isDirty"
-								@click="courseEditorRef?.saveSelectedLesson()"
-							>
-								{{ __('Save') }}
-							</Button>
-						</Tooltip>
-					</template>
-					<template v-else-if="editorMode === 'preview'">
-						<Tooltip v-if="courseEditorRef?.canGoZen" :text="__('Zen Mode')">
-							<Button @click="courseEditorRef?.previewZen()">
-								<template #icon>
-									<Focus class="size-4 stroke-2" />
-								</template>
-							</Button>
-						</Tooltip>
-						<Button
-							v-if="courseEditorRef?.hasPrev"
-							@click="courseEditorRef?.previewPrev()"
-						>
-							<template #prefix>
-								<ChevronLeft class="size-4 stroke-1.5" />
+					<!-- Edit mode autosaves continuously, so there is no Save
+					     button or dirty badge here. -->
+					<Tooltip
+						v-if="courseEditorRef?.lessonHasVideo"
+						:text="__('Video Statistics')"
+					>
+						<Button variant="ghost" @click="courseEditorRef?.openVideoStats()">
+							<template #icon>
+								<span class="lucide-trending-up size-4" />
 							</template>
-							{{ __('Previous') }}
 						</Button>
-						<Button
-							v-if="courseEditorRef?.hasNext"
-							@click="courseEditorRef?.previewNext()"
-						>
-							<template #suffix>
-								<ChevronRight class="size-4 stroke-1.5" />
+					</Tooltip>
+					<Tooltip :text="__('How to edit a lesson')">
+						<Button variant="ghost" @click="showLessonHelp = true">
+							<template #icon>
+								<span class="lucide-info size-4" />
 							</template>
-							{{ __('Next') }}
 						</Button>
-					</template>
+					</Tooltip>
 					<Button
 						variant="outline"
 						@click="editorMode = editorMode === 'preview' ? 'edit' : 'preview'"
 					>
 						<template #prefix>
-							<X v-if="editorMode === 'preview'" class="size-4 stroke-1.5" />
-							<Eye v-else class="size-4 stroke-1.5" />
+							<span v-if="editorMode === 'preview'" class="lucide-x size-4" />
+							<span v-else class="lucide-eye size-4" />
 						</template>
 						{{ editorMode === 'preview' ? __('Close preview') : __('Preview') }}
 					</Button>
 				</template>
 				<Button
+					v-if="tabIndex === 1 && course.data"
+					variant="outline"
+					@click="courseDashboardRef?.openEnrollModal()"
+				>
+					<template #prefix>
+						<span class="lucide-plus size-4" />
+					</template>
+					{{ __('Enroll') }}
+				</Button>
+				<Button
 					v-if="user.data?.is_moderator"
-					:variant="course.data?.published ? 'subtle' : 'solid'"
+					:variant="course.data?.published ? 'outline' : 'solid'"
 					:theme="course.data?.published ? 'red' : 'gray'"
 					:loading="publishToggle.loading"
 					@click="togglePublishCourse"
@@ -98,6 +83,7 @@
 				</Button>
 			</template>
 		</LayoutHeader>
+		<LessonHelp v-model="showLessonHelp" />
 
 		<div v-if="!isAdmin" class="flex-1 min-h-0">
 			<CourseOverview :course="course" />
@@ -118,6 +104,11 @@
 							ref="courseFormRef"
 							:course="course"
 						/>
+						<CourseDashboard
+							v-else-if="tab.component === CourseDashboard"
+							ref="courseDashboardRef"
+							:course="course"
+						/>
 						<component v-else :is="tab.component" :course="course" />
 					</template>
 				</template>
@@ -128,14 +119,14 @@
 			>
 				<div class="w-[70%]" />
 				<div
-					class="pointer-events-auto flex w-[30%] items-center justify-between gap-x-2 border-s border-b bg-surface-white p-1 px-5"
+					class="pointer-events-auto flex w-[30%] items-center justify-between gap-x-2 border-s border-b bg-surface-base p-1 px-5"
 				>
-					<div class="py-2.5 font-medium text-base text-ink-gray-9">
+					<div class="py-2.5 text-base-medium text-ink-gray-9">
 						{{ __('Chapters') }}
 					</div>
 					<Button size="sm" @click="courseEditorRef?.openAddChapter()">
 						<template #prefix>
-							<Plus class="size-4 stroke-1.5" />
+							<span class="lucide-plus size-4" />
 						</template>
 						{{ __('Add') }}
 					</Button>
@@ -146,7 +137,7 @@
 </template>
 <script setup lang="ts">
 import { computed, inject, markRaw, onMounted, ref, watch } from 'vue'
-import type { Component, ComputedRef, Ref } from 'vue'
+import type { ComputedRef, Ref } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import type { RouteLocationNormalizedLoadedGeneric, Router } from 'vue-router'
 import {
@@ -160,24 +151,13 @@ import {
 	toast,
 	usePageMeta,
 } from 'frappe-ui'
-import {
-	BookOpen,
-	ChevronLeft,
-	ChevronRight,
-	Eye,
-	Focus,
-	List,
-	Plus,
-	Settings2,
-	TrendingUp,
-	X,
-} from 'lucide-vue-next'
 import { sessionStore } from '@/stores/session'
 import LayoutHeader from '@/components/Layouts/LayoutHeader.vue'
 import CourseOverview from '@/pages/Courses/CourseOverview.vue'
 import CourseDashboard from '@/pages/Courses/CourseDashboard.vue'
 import CourseEditor from '@/pages/Courses/CourseEditor.vue'
 import CourseForm from '@/pages/Courses/CourseForm.vue'
+import LessonHelp from '@/components/LessonHelp.vue'
 import type {
 	CourseDetails,
 	CourseInstructorInfo,
@@ -189,7 +169,7 @@ type Brand = { name?: string; logo?: string; favicon?: string }
 interface TabDef {
 	label: string
 	component: ReturnType<typeof markRaw>
-	icon: Component
+	icon: string
 }
 
 const { brand } = sessionStore() as { brand: Brand }
@@ -207,6 +187,7 @@ interface EditorSelection {
 
 const editorSelected = ref<EditorSelection | null>(null)
 const editorMode = ref<'edit' | 'preview'>('edit')
+const showLessonHelp = ref(false)
 
 // Settings tab (CourseForm) exposes the API the LayoutHeader actions need.
 type CourseMenuItem = {
@@ -232,12 +213,15 @@ type CourseEditorApi = {
 	hasPrev: ComputedRef<boolean>
 	hasNext: ComputedRef<boolean>
 	canGoZen: ComputedRef<boolean>
+	lessonHasVideo: ComputedRef<boolean>
 	previewPrev: () => void
 	previewNext: () => void
 	previewZen: () => void
+	openVideoStats: () => void
 	openAddChapter: () => void
 }
 const courseEditorRef = ref<CourseEditorApi | null>(null)
+const courseDashboardRef = ref<{ openEnrollModal: () => void } | null>(null)
 
 const publishToggle = createResource({
 	url: 'frappe.client.set_value',
@@ -312,22 +296,22 @@ const tabs = ref<TabDef[]>([
 	{
 		label: __('Overview'),
 		component: markRaw(CourseOverview),
-		icon: markRaw(List),
+		icon: 'lucide-list',
 	},
 	{
 		label: __('Dashboard'),
 		component: markRaw(CourseDashboard),
-		icon: markRaw(TrendingUp),
+		icon: 'lucide-trending-up',
 	},
 	{
 		label: __('Course editor'),
 		component: markRaw(CourseEditor),
-		icon: markRaw(BookOpen),
+		icon: 'lucide-book-open',
 	},
 	{
 		label: __('Settings'),
 		component: markRaw(CourseForm),
-		icon: markRaw(Settings2),
+		icon: 'lucide-settings-2',
 	},
 ])
 

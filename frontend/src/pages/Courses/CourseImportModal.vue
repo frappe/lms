@@ -1,11 +1,6 @@
 <template>
-	<Dialog
-		v-model="show"
-		:options="{
-			title: __('Import Course from ZIP'),
-		}"
-	>
-		<template #body-content>
+	<Dialog v-model:open="show" title="Import Course from ZIP">
+		<template #default>
 			<div class="text-p-base">
 				<div
 					v-if="!zip"
@@ -14,8 +9,8 @@
 					class="h-[120px] flex flex-col items-center justify-center bg-surface-gray-1 border border-dashed border-outline-gray-3 rounded-md"
 				>
 					<div v-if="!uploading" class="w-4/5 text-center">
-						<UploadCloud
-							class="size-6 stroke-1.5 text-ink-gray-6 mx-auto mb-2.5"
+						<span
+							class="lucide-upload-cloud size-6 text-ink-gray-6 mx-auto mb-2.5"
 						/>
 						<input
 							ref="fileInput"
@@ -36,7 +31,7 @@
 					</div>
 					<div
 						v-else-if="uploading"
-						class="w-fit bg-surface-white border rounded-md p-2 my-4"
+						class="w-fit bg-surface-base border rounded-md p-2 my-4"
 					>
 						<div class="space-y-2">
 							<div class="font-medium">
@@ -48,7 +43,7 @@
 						</div>
 						<div class="w-full bg-surface-gray-1 h-1 rounded-full mt-3">
 							<div
-								class="bg-surface-gray-7 h-1 rounded-full transition-all duration-500 ease-in-out"
+								class="bg-surface-gray-10 h-1 rounded-full transition-all duration-500 ease-in-out"
 								:style="`width: ${uploadProgress}%`"
 							></div>
 						</div>
@@ -59,7 +54,7 @@
 					class="h-[120px] flex items-center justify-center bg-surface-gray-1 border border-dashed border-outline-gray-3 rounded-md"
 				>
 					<div
-						class="w-fit bg-surface-white border rounded-md p-2 flex items-center justify-between gap-x-4 mx-5"
+						class="w-fit bg-surface-base border rounded-md p-2 flex items-center justify-between gap-x-4 mx-5"
 					>
 						<div class="space-y-2">
 							<div class="font-medium leading-5 text-ink-gray-9">
@@ -69,8 +64,8 @@
 								{{ convertToMB(zip.file_size) }}
 							</div>
 						</div>
-						<Trash2
-							class="size-4 stroke-1.5 text-ink-red-3 cursor-pointer"
+						<span
+							class="lucide-trash-2 size-4 text-ink-red-6 cursor-pointer"
 							@click="deleteFile"
 						/>
 					</div>
@@ -89,7 +84,6 @@
 <script setup lang="ts">
 import { Button, call, Dialog, FileUploadHandler, toast } from 'frappe-ui'
 import { computed, ref } from 'vue'
-import { Trash2, UploadCloud } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
 
 const fileInput = ref<HTMLInputElement | null>(null)

@@ -129,11 +129,6 @@ const routes = [
 		component: () => import('@/pages/CertifiedParticipants.vue'),
 	},
 	{
-		path: '/notifications',
-		name: 'Notifications',
-		component: () => import('@/pages/Notifications.vue'),
-	},
-	{
 		path: '/quizzes',
 		name: 'Quizzes',
 		component: () => import('@/pages/Quizzes.vue'),

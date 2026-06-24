@@ -4,10 +4,7 @@ import { createApp, h } from 'vue'
 import { usersStore } from '../stores/user'
 import translationPlugin from '../translation'
 import { CircleHelp } from 'lucide-vue-next'
-import { getLmsRoute } from '@/utils/basePath'
-import { useRouter } from 'vue-router'
-
-const router = useRouter()
+import router from '@/router'
 
 export class Quiz {
 	constructor({ data, api, readOnly }) {
@@ -45,16 +42,36 @@ export class Quiz {
 
 	renderQuiz(quiz) {
 		if (this.readOnly) {
-			const quizPath = getLmsRoute(`quiz/${quiz}?fromLesson=1`)
-			this.wrapper.innerHTML = `<iframe src="${quizPath}" class="w-full h-[700px]"></iframe>`
+			// Mount the quiz inline instead of loading the whole SPA in an iframe
+			// (which flashed the app shell/sidebar before the quiz appeared). It's
+			// a standalone mount — EditorJS blocks live outside the app's Vue tree —
+			// so give it translation and the shared $user the quiz component needs.
+			const { userResource } = usersStore()
+			this.quizApp = createApp(QuizBlock, { quiz })
+			this.quizApp.use(translationPlugin)
+			this.quizApp.provide('$user', userResource)
+			// Contain quiz render/runtime errors to this mount. Inline (unlike
+			// the old iframe) the quiz shares the lesson's render tree, so an
+			// uncaught error here would otherwise propagate through EditorJS and
+			// blank the whole lesson.
+			this.quizApp.config.errorHandler = (err) => {
+				console.error('[lms] in-lesson quiz failed to render', err)
+			}
+			this.quizApp.mount(this.wrapper)
 			return
 		}
-		this.wrapper.innerHTML = `<div class='border rounded-md p-4 text-center bg-surface-menu-bar mb-4'>
+		this.wrapper.innerHTML = `<div class='border rounded-md p-4 text-center bg-surface-sidebar mb-4'>
             <span class="font-medium">
                 Quiz: ${quiz}
             </span>
         </div>`
 		return
+	}
+
+	// Tear down the inline quiz app when EditorJS removes the block so the mount
+	// doesn't leak after the lesson view is destroyed.
+	destroy() {
+		this.quizApp?.unmount()
 	}
 
 	renderQuizModal() {
@@ -69,6 +86,7 @@ export class Quiz {
 			},
 		})
 		app.use(translationPlugin)
+		app.use(router)
 		app.mount(this.wrapper)
 	}
 
