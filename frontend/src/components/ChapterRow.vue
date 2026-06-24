@@ -83,19 +83,7 @@
 								: ''
 						"
 					>
-						<Input
-							v-if="editingLessonName === lesson.name"
-							ref="lessonInput"
-							v-model="lessonNameValue"
-							:placeholder="__('Lesson name')"
-							class="w-full"
-							@click.stop.prevent
-							@keydown.enter="commitLessonName(lesson)"
-							@keydown.esc="cancelLessonName(lesson)"
-							@blur="commitLessonName(lesson)"
-						/>
 						<component
-							v-else
 							:is="inlineSelect ? 'div' : 'router-link'"
 							:to="inlineSelect ? undefined : lessonRoute(lesson)"
 							:class="inlineSelect ? 'cursor-pointer' : ''"
@@ -180,7 +168,6 @@ const props = withDefaults(
 		inlineSelect?: boolean
 		editorLinks?: boolean
 		selectedLessonNumber?: string
-		editingLessonName?: string
 		creatingLesson?: boolean
 	}>(),
 	{
@@ -188,7 +175,6 @@ const props = withDefaults(
 		inlineSelect: false,
 		editorLinks: false,
 		selectedLessonNumber: '',
-		editingLessonName: '',
 		creatingLesson: false,
 	}
 )
@@ -202,8 +188,6 @@ const emit = defineEmits<{
 	'delete-lesson': [{ lesson: string; chapter: string }]
 	'move-lesson': [DraggableEvent]
 	'create-lesson': [{ chapter: OutlineChapter; lessonIdx: number }]
-	'rename-lesson': [{ lesson: OutlineLesson; title: string }]
-	'cancel-lesson': [{ lesson: OutlineLesson }]
 }>()
 
 const route = useRoute()
@@ -217,24 +201,6 @@ const renameInput = ref<{ $el: HTMLElement } | null>(null)
 // Tell the parent outline to lock chapter dragging while a name is being edited,
 // so a stray drag can't fire mid-rename.
 watch(isRenaming, (renaming) => emit('renaming-change', renaming))
-
-const lessonNameValue = ref<string>('')
-const lessonInput = ref<{ $el: HTMLElement } | null>(null)
-
-// When the parent marks a lesson in this chapter as being named inline, seed an
-// empty field and drop the cursor in.
-watch(
-	() => props.editingLessonName,
-	(name) => {
-		if (!name) return
-		const inThisChapter = props.chapter.lessons?.some((l) => l.name === name)
-		if (!inThisChapter) return
-		lessonNameValue.value = ''
-		nextTick(() => {
-			lessonInput.value?.$el.querySelector('input')?.focus()
-		})
-	}
-)
 
 function startRename(): void {
 	renameValue.value = props.chapter.title
@@ -320,21 +286,6 @@ function addLesson() {
 		chapter: props.chapter,
 		lessonIdx: (props.chapter.lessons?.length ?? 0) + 1,
 	})
-}
-
-function commitLessonName(lesson: OutlineLesson): void {
-	if (props.editingLessonName !== lesson.name) return
-	const title = lessonNameValue.value.trim()
-	if (!title) {
-		emit('cancel-lesson', { lesson })
-		return
-	}
-	emit('rename-lesson', { lesson, title })
-}
-
-function cancelLessonName(lesson: OutlineLesson): void {
-	if (props.editingLessonName !== lesson.name) return
-	emit('cancel-lesson', { lesson })
 }
 
 function redirectToChapter() {

@@ -57,7 +57,6 @@
 							:inlineSelect="inlineSelect"
 							:editorLinks="editorLinks"
 							:selectedLessonNumber="selectedLessonNumber"
-							:editingLessonName="editingLessonName"
 							:creatingLesson="creatingLessonChapter === chapter.name"
 							@select-lesson="(payload) => emit('select-lesson', payload)"
 							@edit-chapter="openChapterModal"
@@ -70,8 +69,6 @@
 							"
 							@move-lesson="updateOutline"
 							@create-lesson="createLessonInline"
-							@rename-lesson="renameLesson"
-							@cancel-lesson="cancelLesson"
 						/>
 					</div>
 				</template>
@@ -140,7 +137,6 @@ const emit = defineEmits<{
 
 // The lesson currently being named inline (its docname), and the chapter whose
 // "Add Lesson" button is mid-create (for the button spinner).
-const editingLessonName = ref<string>('')
 const creatingLessonChapter = ref<string>('')
 
 const props = withDefaults(
@@ -307,19 +303,8 @@ const insertLessonReference = createResource({
 	},
 })
 
-const setLessonTitle = createResource({
-	url: 'frappe.client.set_value',
-	makeParams(values: { lesson: string; title: string }) {
-		return {
-			doctype: 'Course Lesson',
-			name: values.lesson,
-			fieldname: { title: values.title },
-		}
-	},
-})
-
-// Notion/Gameplan style: create the lesson immediately, then drop the user into
-// an inline name field. Escape / an empty name removes the just-created lesson.
+// Create the lesson immediately as "Untitled lesson", then open it in the
+// editor so the title is edited inline on the lesson itself.
 function createLessonInline(payload: {
 	chapter: OutlineChapter
 	lessonIdx: number
@@ -339,7 +324,10 @@ function createLessonInline(payload: {
 						onSuccess() {
 							creatingLessonChapter.value = ''
 							outline.reload().then(() => {
-								editingLessonName.value = lesson.name
+								const created = (outline.data ?? [])
+									.flatMap((c) => c.lessons ?? [])
+									.find((l) => l.name === lesson.name)
+								if (created) navigateToLesson(created)
 							})
 						},
 						onError(err: { messages?: string[] } | string) {
@@ -355,51 +343,6 @@ function createLessonInline(payload: {
 			},
 		}
 	)
-}
-
-function renameLesson(payload: { lesson: OutlineLesson; title: string }) {
-	editingLessonName.value = ''
-	setLessonTitle.submit(
-		{ lesson: payload.lesson.name, title: payload.title },
-		{
-			onSuccess() {
-				outline.reload()
-				toast.success(__('Lesson created'))
-				navigateToLesson(payload.lesson)
-			},
-			onError(err: { messages?: string[] } | string) {
-				outline.reload()
-				toast.error(errorMessage(err))
-			},
-		}
-	)
-}
-
-// Quietly discard an unnamed lesson the user backed out of — no "deleted" toast,
-// because from the user's perspective it was never created.
-const discardLesson = createResource({
-	url: 'lms.lms.api.delete_lesson',
-	makeParams(values: { lesson: string; chapter: string }) {
-		return values
-	},
-	onSuccess() {
-		outline.reload()
-	},
-})
-
-function cancelLesson(payload: { lesson: OutlineLesson }) {
-	editingLessonName.value = ''
-	discardLesson.submit({
-		lesson: payload.lesson.name,
-		chapter: findChapterNameForLesson(payload.lesson.name),
-	})
-}
-
-function findChapterNameForLesson(lessonName: string): string {
-	for (const chapter of outline.data ?? []) {
-		if (chapter.lessons?.some((l) => l.name === lessonName)) return chapter.name
-	}
-	return ''
 }
 
 function navigateToLesson(lesson: OutlineLesson) {
