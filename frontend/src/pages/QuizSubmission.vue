@@ -139,7 +139,7 @@ const breadcrumbs = computed(() => {
 			},
 		},
 		{
-			label: submissionDetails.doc.quiz_title,
+			label: submissionDetails.doc.member_name || submissionDetails.doc.name,
 		},
 	]
 })
