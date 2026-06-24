@@ -33,3 +33,7 @@ export function createDialog(options) {
 	dialogs.value.push(dialog)
 	dialog.show = true
 }
+
+export function isDialogOpen() {
+	return dialogs.value.some((dialog) => dialog.show)
+}

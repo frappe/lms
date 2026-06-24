@@ -4,7 +4,7 @@
 			<template #header-actions>
 				<Button variant="solid" @click="openForm('new')">
 					<template #prefix>
-						<Plus class="h-4 w-4 stroke-1.5" />
+						<span class="lucide-plus h-4 w-4" />
 					</template>
 					{{ __('New') }}
 				</Button>
@@ -72,7 +72,7 @@
 									variant="ghost"
 									@click="removeAccount(selections, unselectAll)"
 								>
-									<Trash2 class="h-4 w-4 stroke-1.5" />
+									<span class="lucide-trash-2 h-4 w-4" />
 								</Button>
 							</div>
 						</template>
@@ -83,7 +83,7 @@
 				v-else
 				name="Google Meet Settings"
 				:description="__('Add one to get started.')"
-				:icon="Presentation"
+				icon="lucide-presentation"
 				width="lg"
 			/>
 		</SettingsLayout>
@@ -113,7 +113,6 @@ import {
 	toast,
 } from 'frappe-ui'
 import { computed, inject, onMounted, ref } from 'vue'
-import { Plus, Presentation, Trash2 } from 'lucide-vue-next'
 import { cleanError } from '@/utils'
 import { User } from '@/components/Settings/types'
 import GoogleMeetAccountForm from '@/components/Settings/GoogleMeetAccountForm.vue'

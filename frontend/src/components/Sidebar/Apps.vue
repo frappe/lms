@@ -7,17 +7,17 @@
 				]"
 			>
 				<div class="flex gap-2">
-					<LayoutGrid class="size-4 stroke-1.5" />
+					<span class="lucide-layout-grid size-4" />
 					<span class="whitespace-nowrap">
 						{{ __('Apps') }}
 					</span>
 				</div>
-				<ChevronRight class="h-4 w-4 stroke-1.5" />
+				<span class="lucide-chevron-right h-4 w-4" />
 			</button>
 		</template>
 		<template #body>
 			<div
-				class="grid grid-cols-3 justify-between mx-3 p-2 rounded-lg bg-surface-modal shadow-2xl ring-1 ring-black ring-opacity-5"
+				class="grid grid-cols-3 justify-between mx-3 p-2 rounded-lg bg-surface-elevation-2 shadow-2xl ring-1 ring-black ring-opacity-5"
 			>
 				<div v-for="app in apps.data" key="name">
 					<a
@@ -36,7 +36,6 @@
 </template>
 <script setup>
 import { Popover, createResource } from 'frappe-ui'
-import { LayoutGrid, ChevronRight } from 'lucide-vue-next'
 
 const apps = createResource({
 	url: 'frappe.apps.get_apps',

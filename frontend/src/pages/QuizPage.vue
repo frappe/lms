@@ -1,7 +1,7 @@
 <template>
 	<header
 		v-if="!fromLesson"
-		class="sticky top-0 z-10 flex items-center justify-between border-b bg-surface-white px-3 py-2.5 sm:px-5"
+		class="sticky top-0 z-10 flex items-center justify-between border-b bg-surface-base px-3 py-2.5 sm:px-5"
 	>
 		<Breadcrumbs :items="breadcrumbs" />
 	</header>
@@ -54,7 +54,17 @@ const title = createResource({
 })
 
 const breadcrumbs = computed(() => {
-	return [{ label: __('Quiz Submission') }, { label: title.data?.title }]
+	return [
+		{
+			label: __('Quizzes'),
+			route: { name: 'Quizzes' },
+		},
+		{
+			label: title.data?.title,
+			route: { name: 'QuizForm', params: { quizID: props.quizID } },
+		},
+		{ label: __('Test Quiz') },
+	]
 })
 
 usePageMeta(() => {

@@ -4,7 +4,7 @@ import unittest
 
 import frappe
 
-from .widgets import Widget, Widgets
+from lms.widgets import Widget, Widgets
 
 
 class TestWidgets(unittest.TestCase):

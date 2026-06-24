@@ -1,21 +1,19 @@
 <template>
 	<div
-		class="editor flex flex-col gap-1"
+		class="editor flex flex-col gap-1.5"
 		:style="{
 			height: height,
 		}"
 	>
-		<span class="text-xs text-ink-gray-7 mb-1" v-if="label">
-			{{ label }}
-		</span>
+		<FormLabel v-if="label" :label="label" />
 		<div
 			ref="editor"
-			class="h-auto flex-1 overflow-hidden overscroll-none !rounded border border-outline-gray-2 bg-surface-gray-2 dark:bg-gray-900"
+			class="h-auto flex-1 overflow-hidden overscroll-none !rounded border border-outline-gray-2 bg-surface-gray-2 transition-colors hover:border-outline-gray-3 focus-within:border-outline-gray-4 focus-within:shadow-sm dark:bg-gray-900"
 		/>
 		<span
 			class="mt-1 text-xs text-ink-gray-5"
 			v-show="description"
-			v-html="description"
+			v-html="sanitizeRichHTML(description)"
 		></span>
 		<Button
 			v-if="showSaveButton"
@@ -32,7 +30,8 @@ import 'ace-builds/src-min-noconflict/ext-searchbox'
 import 'ace-builds/src-min-noconflict/theme-chrome'
 import 'ace-builds/src-min-noconflict/theme-twilight'
 import { PropType, onMounted, ref, watch } from 'vue'
-import { Button } from 'frappe-ui'
+import { Button, FormLabel } from 'frappe-ui'
+import { sanitizeRichHTML } from '@/utils/sanitizeRichHTML'
 
 const isDark = ref(false)
 

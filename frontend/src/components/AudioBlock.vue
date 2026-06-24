@@ -9,8 +9,8 @@
 		<div class="flex items-center gap-x-2 shadow rounded-lg p-1 w-1/2">
 			<Button variant="ghost" @click="togglePlay">
 				<template #icon>
-					<Play v-if="!isPlaying" class="w-4 h-4 text-ink-gray-9" />
-					<Pause v-else class="w-4 h-4 text-ink-gray-9" />
+					<span v-if="!isPlaying" class="lucide-play w-4 h-4 text-ink-gray-9" />
+					<span v-else class="lucide-pause w-4 h-4 text-ink-gray-9" />
 				</template>
 			</Button>
 			<input
@@ -22,13 +22,16 @@
 				@input="changeCurrentTime"
 				class="duration-slider w-full h-1"
 			/>
-			<span class="text-xs text-ink-gray-9 font-medium">
+			<span class="text-xs-medium text-ink-gray-9">
 				{{ formatTime(currentTime) }} / {{ formatTime(duration) }}
 			</span>
 			<Button variant="ghost" @click="toggleMute">
 				<template #icon>
-					<Volume2 v-if="!isMuted" class="w-4 h-4 text-ink-gray-9" />
-					<VolumeX v-else class="w-4 h-4 text-ink-gray-9" />
+					<span
+						v-if="!isMuted"
+						class="lucide-volume-2 w-4 h-4 text-ink-gray-9"
+					/>
+					<span v-else class="lucide-volume-x w-4 h-4 text-ink-gray-9" />
 				</template>
 			</Button>
 		</div>
@@ -37,7 +40,6 @@
 
 <script setup>
 import { ref, onMounted, watch } from 'vue'
-import { Play, Pause, Volume2, VolumeX } from 'lucide-vue-next'
 import { Button } from 'frappe-ui'
 
 const isPlaying = ref(false)

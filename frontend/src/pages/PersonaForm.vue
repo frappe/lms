@@ -1,33 +1,41 @@
 <template>
-	<div class="flex h-screen overflow-hidden sm:bg-gray-50">
+	<div class="flex h-screen overflow-hidden sm:bg-surface-gray-1">
 		<div class="relative h-full mx-auto sm:w-max pt-40">
 			<div class="flex items-center justify-center gap-x-2">
 				<LMSLogo class="size-7" />
 				<span
-					class="select-none text-xl font-semibold tracking-tight text-gray-900"
+					class="select-none text-3xl-semibold tracking-tight text-ink-gray-9"
 				>
 					Learning
 				</span>
 			</div>
 			<div
-				class="flex flex-col gap-5 bg-white py-8 sm:mt-6 sm:w-96 sm:rounded-lg sm:px-8 sm:shadow-xl"
+				class="flex flex-col gap-5 bg-surface-elevation-2 py-8 sm:mt-6 sm:w-96 sm:rounded-lg sm:px-8 sm:shadow-xl"
 			>
 				<h1 class="font-medium text-center">
 					{{ __('Help us understand your needs') }}
 				</h1>
 
 				<div class="flex flex-col gap-2">
-					<div class="text-sm text-gray-700">
+					<div class="text-sm text-ink-gray-7">
 						{{ __('What is your use case for Frappe Learning?') }}
 					</div>
-					<Select v-model="persona.useCase" :options="useCaseOptions" />
+					<Select
+						v-model="persona.useCase"
+						:options="useCaseOptions"
+						class="w-full"
+					/>
 				</div>
 
 				<div class="flex flex-col gap-2">
-					<div class="text-sm text-gray-700">
+					<div class="text-sm text-ink-gray-7">
 						{{ __('What best describes your role?') }}
 					</div>
-					<Select v-model="persona.role" :options="roleOptions" />
+					<Select
+						v-model="persona.role"
+						:options="roleOptions"
+						class="w-full"
+					/>
 				</div>
 
 				<Button

@@ -1,12 +1,6 @@
 <template>
-	<Dialog
-		v-model="show"
-		:options="{
-			title: __('Add quiz to this video'),
-			size: '2xl',
-		}"
-	>
-		<template #body-content>
+	<Dialog v-model:open="show" :title="__('Add quiz to this video')" size="2xl">
+		<template #default>
 			<div class="text-base">
 				<div class="flex items-end gap-4">
 					<FormControl
@@ -24,7 +18,7 @@
 					/>
 					<Button @click="addQuiz()" variant="solid">
 						<template #prefix>
-							<Plus class="w-4 h-4 stroke-1.5" />
+							<span class="lucide-plus w-4 h-4" />
 						</template>
 						{{ __('Add') }}
 					</Button>
@@ -82,7 +76,7 @@
 										variant="ghost"
 										@click="removeQuiz(selections, unselectAll)"
 									>
-										<Trash2 class="h-4 w-4 stroke-1.5" />
+										<span class="lucide-trash-2 h-4 w-4" />
 									</Button>
 								</div>
 							</template>
@@ -112,8 +106,7 @@ import {
 	toast,
 } from 'frappe-ui'
 import { computed, reactive, ref, watch } from 'vue'
-import { Plus, Trash2 } from 'lucide-vue-next'
-import { formatTimestamp } from '@/utils'
+import { formatTimestamp } from '@/utils/format'
 import Link from '@/components/Controls/Link.vue'
 
 type Quiz = {

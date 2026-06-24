@@ -6,15 +6,28 @@
 		>
 			<div class="md:w-2/3 space-y-10 min-w-0">
 				<section class="space-y-4">
-					<h1 class="text-3xl font-semibold text-ink-gray-9">
+					<h1 class="text-5xl-semibold text-ink-gray-9">
 						{{ course.data.title }}
 					</h1>
 					<div
 						class="flex flex-wrap items-center gap-x-3 gap-y-2 text-ink-gray-7"
 					>
+						<template v-if="course.data.category">
+							<router-link
+								:to="{
+									name: 'Courses',
+									query: { category: course.data.category },
+								}"
+								class="flex items-center gap-1.5 font-medium hover:text-ink-gray-9"
+							>
+								<span class="lucide-tag size-4" />
+								<span>{{ course.data.category }}</span>
+							</router-link>
+							<span class="lucide-dot size-5 text-ink-gray-7" />
+						</template>
 						<template v-if="Number(course.data.rating) > 0">
 							<div class="flex items-center gap-1">
-								<Star class="size-4 text-yellow-500 fill-yellow-500" />
+								<LucideStar class="size-4 text-transparent fill-yellow-500" />
 								<span class="font-medium text-ink-gray-9">{{
 									formatRating(course.data.rating)
 								}}</span>
@@ -26,7 +39,7 @@
 						</template>
 						<template v-if="course.data.enrollments">
 							<div class="flex items-center gap-1.5">
-								<UsersRound class="size-4 stroke-1.5" />
+								<span class="lucide-users-round size-4" />
 								<span
 									>{{ formatAmount(course.data.enrollments) }}
 									{{ __('Students') }}</span
@@ -76,7 +89,7 @@
 
 				<section>
 					<div class="flex items-baseline justify-between gap-4 mb-4">
-						<h2 class="text-2xl font-semibold text-ink-gray-9">
+						<h2 class="text-4xl-semibold text-ink-gray-9">
 							{{ __('Course content') }}
 						</h2>
 						<div class="text-base text-ink-gray-5">
@@ -107,11 +120,11 @@
 				</section>
 
 				<section v-if="course.data.description" class="space-y-3">
-					<h2 class="text-2xl font-semibold text-ink-gray-9">
+					<h2 class="text-4xl-semibold text-ink-gray-9">
 						{{ __('About this course') }}
 					</h2>
 					<div
-						v-html="course.data.description"
+						v-html="sanitizeRichHTML(course.data.description)"
 						class="ProseMirror prose prose-sm max-w-none !whitespace-normal prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2"
 					/>
 				</section>
@@ -136,9 +149,9 @@
 </template>
 
 <script setup lang="ts">
+import { sanitizeRichHTML } from '@/utils/sanitizeRichHTML'
 import { computed, inject } from 'vue'
 import { createResource, Badge } from 'frappe-ui'
-import { Star, UsersRound } from 'lucide-vue-next'
 import { formatAmount, formatRating } from '@/utils/'
 import type { SessionUser } from '@/types/api'
 import CourseCardOverlay from '@/components/CourseCardOverlay.vue'

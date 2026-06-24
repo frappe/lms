@@ -13,13 +13,13 @@
 				<template v-slot="{ open }">
 					<Button variant="solid">
 						<template #prefix>
-							<Plus class="size-4 stroke-1.5" />
+							<span class="lucide-plus size-4" />
 						</template>
 						{{ __('Create') }}
 						<template #suffix>
-							<ChevronDown
+							<span
 								:class="[
-									'ms-1 size-4 transform stroke-1.5 transition-transform',
+									'lucide-chevron-down ms-1 size-4 transform transition-transform',
 									open ? 'rotate-180' : '',
 								]"
 							/>
@@ -33,30 +33,34 @@
 		<div
 			class="mb-5 flex flex-col justify-between space-y-4 lg:flex-row lg:items-center lg:space-y-0"
 		>
-			<div class="text-lg font-semibold text-ink-gray-9">
+			<div class="text-xl-semibold text-ink-gray-9">
 				{{ __('All Courses') }}
 			</div>
 			<div
-				class="flex flex-col space-y-3 lg:flex-row lg:items-center lg:gap-x-4 lg:space-y-0"
+				class="flex flex-col space-y-4 lg:flex-row lg:items-center lg:gap-x-4 lg:space-y-0"
 			>
 				<TabButtons :buttons="courseTabs" v-model="currentTab" class="w-fit" />
 
-				<div class="grid grid-cols-2 gap-2">
-					<FormControl
-						v-model="title"
-						:placeholder="__('Search')"
-						type="text"
-						class="w-full"
-						@input="updateCourses()"
-					/>
-					<Select
-						v-if="categories.length"
-						v-model="currentCategory"
-						:options="categories"
-						:placeholder="__('Category')"
-						@update:modelValue="updateCourses()"
-					/>
-				</div>
+				<FormControl
+					v-model="title"
+					:placeholder="__('Search')"
+					type="text"
+					class="w-full lg:w-40"
+					@input="updateCourses()"
+				>
+					<template #prefix>
+						<span class="lucide-search size-4 text-ink-gray-5" />
+					</template>
+				</FormControl>
+
+				<ClearableCombobox
+					v-if="categories.data?.length"
+					v-model="currentCategory"
+					:options="categories.data.filter((c) => c.value)"
+					:placeholder="__('Category')"
+					@update:modelValue="updateCourses()"
+					class="w-full lg:w-40"
+				/>
 
 				<Tooltip :text="__('Only show courses that offer a certificate')">
 					<FormControl
@@ -68,8 +72,13 @@
 				</Tooltip>
 			</div>
 		</div>
+		<SkeletonLoader
+			v-if="courses.list.loading && !courses.data"
+			variant="cards"
+			:count="8"
+		/>
 		<div
-			v-if="courses.data?.length"
+			v-else-if="courses.data?.length"
 			class="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4"
 		>
 			<router-link
@@ -79,7 +88,9 @@
 				<CourseCard :course="course" />
 			</router-link>
 		</div>
-		<EmptyStateLayout v-else-if="!courses.list.loading" name="Courses" />
+		<div v-else-if="!courses.list.loading" class="flex-1">
+			<EmptyStateLayout name="Courses" icon="lucide-book-open" />
+		</div>
 		<div
 			v-if="!courses.list.loading && courses.hasNextPage"
 			class="flex justify-center mt-5"
@@ -112,12 +123,12 @@ import {
 	Tooltip,
 	usePageMeta,
 } from 'frappe-ui'
-import Select from '@/components/Controls/Select.vue'
+import ClearableCombobox from '@/components/Controls/ClearableCombobox.vue'
 import { computed, inject, onMounted, ref, watch } from 'vue'
-import { ChevronDown, Plus } from 'lucide-vue-next'
 import { sessionStore } from '@/stores/session'
 import { canCreateCourse } from '@/utils'
 import CourseCard from '@/components/CourseCard.vue'
+import SkeletonLoader from '@/components/SkeletonLoader.vue'
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 import LayoutHeader from '@/components/Layouts/LayoutHeader.vue'
 import { useRouter } from 'vue-router'
@@ -128,12 +139,6 @@ const user = inject('$user')
 const dayjs = inject('$dayjs')
 const start = ref(0)
 const pageLength = ref(30)
-const categories = ref([
-	{
-		label: '',
-		value: null,
-	},
-])
 const currentCategory = ref(null)
 const title = ref('')
 const certification = ref(false)
@@ -156,6 +161,8 @@ const setFiltersFromQuery = () => {
 	title.value = queries.get('title') || ''
 	currentCategory.value = queries.get('category') || null
 	certification.value = queries.get('certification') || false
+	const tab = queries.get('tab')
+	if (tab) currentTab.value = tab
 	if (queries.get('newCourse') == '1') {
 		showCourseModal.value = true
 	}
@@ -169,15 +176,12 @@ const courses = createListResource({
 	start: start.value,
 })
 
-const setCategories = (data) => {
-	let allCategories = data.map((course) => course.category)
-	allCategories = allCategories.filter(
-		(category, index) => allCategories.indexOf(category) === index && category
-	)
-	if (categories.value.length <= allCategories.length) {
-		updateCategories(data)
-	}
-}
+const categories = createListResource({
+	doctype: 'LMS Category',
+	url: 'lms.lms.utils.get_course_categories',
+	cache: ['course_categories'],
+	auto: true,
+})
 
 const getCourseCount = () => {
 	if (!user.data) return
@@ -194,9 +198,7 @@ const updateCourses = () => {
 	courses.update({
 		filters: filters.value,
 	})
-	courses.reload().then((data) => {
-		setCategories(data)
-	})
+	courses.reload()
 }
 
 const updateFilters = () => {
@@ -295,19 +297,6 @@ const setQueryParams = () => {
 	history.replaceState({}, '', `${location.pathname}${queryString}`)
 }
 
-const updateCategories = (data) => {
-	data.forEach((course) => {
-		if (
-			course.category &&
-			!categories.value.find((category) => category.value === course.category)
-		)
-			categories.value.push({
-				label: course.category,
-				value: course.category,
-			})
-	})
-}
-
 watch(currentTab, () => {
 	updateCourses()
 })
@@ -315,12 +304,8 @@ watch(currentTab, () => {
 const courseTabs = computed(() => {
 	let tabs = [
 		{
-			label: __('Live'),
+			label: __('Published'),
 			value: 'live',
-		},
-		{
-			label: __('New'),
-			value: 'new',
 		},
 		{
 			label: __('Upcoming'),

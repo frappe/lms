@@ -1,20 +1,18 @@
 <template>
 	<Dialog
-		v-model="show"
-		:options="{
-			title: isEdit ? __('Edit Member') : __('Add New Member'),
-			size: 'lg',
-			actions: [
-				{
-					label: isEdit ? __('Save') : __('Add'),
-					variant: 'solid',
-					loading: submitting,
-					onClick: ({ close }: any) => submit(close),
-				},
-			],
-		}"
+		v-model:open="show"
+		:title="isEdit ? __('Edit Member') : __('Add New Member')"
+		size="lg"
+		:actions="[
+			{
+				label: isEdit ? __('Save') : __('Add'),
+				variant: 'solid',
+				loading: submitting,
+				onClick: ({ close }: any) => submit(close),
+			},
+		]"
 	>
-		<template #body-content>
+		<template #default>
 			<div class="space-y-4">
 				<FormControl
 					v-model="member.email"
@@ -42,26 +40,26 @@
 					/>
 				</div>
 				<div class="flex flex-col gap-2">
-					<div class="text-sm text-ink-gray-5">
+					<div class="text-p-sm-medium text-ink-gray-7">
 						{{ __('Roles') }}
 					</div>
 					<div class="grid md:grid-cols-2 gap-x-6 gap-y-3">
-						<Switch
+						<BooleanSwitch
 							size="sm"
 							:label="__('Student')"
 							v-model="roles.lms_student"
 						/>
-						<Switch
+						<BooleanSwitch
 							size="sm"
 							:label="__('Course Creator')"
 							v-model="roles.course_creator"
 						/>
-						<Switch
+						<BooleanSwitch
 							size="sm"
 							:label="__('Evaluator')"
 							v-model="roles.batch_evaluator"
 						/>
-						<Switch
+						<BooleanSwitch
 							size="sm"
 							:label="__('Moderator')"
 							v-model="roles.moderator"
@@ -75,7 +73,7 @@
 
 <script setup lang="ts">
 import { call, Dialog, FormControl, toast } from 'frappe-ui'
-import Switch from '@/components/Controls/Switch.vue'
+import BooleanSwitch from '@/components/Controls/BooleanSwitch.vue'
 import { computed, reactive, ref, watch } from 'vue'
 import { cleanError } from '@/utils'
 

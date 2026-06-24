@@ -5,7 +5,7 @@
 		</div>
 		<div class="flex items-center gap-x-2">
 			<slot name="prefix" />
-			<div class="font-semibold text-ink-gray-9 text-2xl">
+			<div class="text-ink-gray-9 text-4xl-semibold">
 				{{ value }}
 			</div>
 			<slot name="suffix" />

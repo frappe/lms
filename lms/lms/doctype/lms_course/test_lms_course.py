@@ -22,6 +22,22 @@ class TestLMSCourse(BaseTestUtils):
 		self.assertEqual(course.title, course_name)
 		self.assertTrue(frappe.db.exists("LMS Course", course.name))
 
+	def test_video_link_stored_as_entered(self):
+		course = self._create_course(f"Test Course {frappe.generate_hash()}")
+
+		# video_link is stored verbatim — no stripping. The frontend normalizes
+		# both full URLs and uploaded file paths for rendering.
+		for link in (
+			"https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+			"https://www.youtube.com/embed/-LPmw2Znl2c",
+			"https://youtu.be/dQw4w9WgXcQ",
+			"/files/VID-20200313-WA0046.mp4",
+			"/private/files/intro.mp4",
+		):
+			course.video_link = link
+			course.save()
+			self.assertEqual(course.video_link, link)
+
 	def test_delete_course(self):
 		course = self._create_course(f"Test Course {frappe.generate_hash()}")
 		chapter = self._create_chapter(f"Test Chapter {frappe.generate_hash()}", course.name)

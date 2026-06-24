@@ -2,6 +2,7 @@
 # For license information, please see license.txt
 
 import json
+import os
 import re
 from binascii import Error as BinasciiError
 
@@ -9,8 +10,9 @@ import frappe
 from frappe import _, safe_decode
 from frappe.core.doctype.file.utils import get_random_filename
 from frappe.model.document import Document
-from frappe.utils import cint, comma_and
+from frappe.utils import cint, comma_and, escape_html
 from frappe.utils.file_manager import safe_b64decode
+from frappe.utils.html_utils import sanitize_html
 from fuzzywuzzy import fuzz
 
 from lms.lms.doctype.course_lesson.course_lesson import save_progress
@@ -22,6 +24,12 @@ from lms.lms.doctype.lms_question.lms_question import (
 from lms.lms.utils import (
 	generate_slug,
 )
+
+# Quiz answers may embed inline images as data: URIs. Only raster image types are
+# permitted — a data: URI with an active-document extension (.xhtml, .xsl, .html,
+# .js, …) would otherwise be written to the public /files/ dir and served inline,
+# enabling stored XSS on the LMS origin. SVG is excluded (script-bearing).
+ALLOWED_DATAURL_IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".gif", ".webp", ".avif", ".bmp"}
 
 
 class LMSQuiz(Document):
@@ -175,9 +183,12 @@ def process_results(results: list, quiz_details: dict):
 		else:
 			is_open_ended = True
 			result["is_correct"] = 0
-			result["answer"] = re.sub(
-				r'<img[^>]*src\s*=\s*["\'](?=data:)(.*?)["\']', _save_file, result["answer"][0]
-			)
+			answer = re.sub(r'<img[^>]*src\s*=\s*["\'](?=data:)(.*?)["\']', _save_file, result["answer"][0])
+			# Defense-in-depth: the answer is later rendered in the instructor's
+			# privileged grading view (QuizSubmission.vue). The frontend already
+			# wraps it in sanitizeRichHTML, but a student-controlled answer must
+			# not be stored as live HTML that other surfaces could render raw.
+			result["answer"] = sanitize_html(answer, always_sanitize=True)
 
 	return {
 		"results": results,
@@ -214,6 +225,9 @@ def _save_file(match: re.Match) -> str:
 	headers, content = data.split(",")
 	mtype = headers.split(";", 1)[0]
 
+	if not mtype.lower().startswith("image/"):
+		frappe.throw(_("Only image data is allowed in quiz answers."))
+
 	if isinstance(content, str):
 		content = content.encode("utf-8")
 	if b"," in content:
@@ -231,6 +245,9 @@ def _save_file(match: re.Match) -> str:
 
 	else:
 		filename = get_random_filename(content_type=mtype)
+
+	if os.path.splitext(filename)[1].lower() not in ALLOWED_DATAURL_IMAGE_EXTENSIONS:
+		frappe.throw(_("File type of {0} is not allowed in quiz answers.").format(escape_html(filename)))
 
 	_file = frappe.get_doc(
 		{

@@ -118,13 +118,18 @@
 							variant="ghost"
 							@click="deleteExercises(selections, unselectAll)"
 						>
-							<Trash2 class="h-4 w-4 stroke-1.5" />
+							<span class="lucide-trash-2 size-4" />
 						</Button>
 					</div>
 				</template>
 			</ListSelectBanner>
 		</ListView>
-		<EmptyStateLayout v-else name="Programming Exercise Submissions" />
+		<div v-else class="flex-1">
+			<EmptyStateLayout
+				name="Programming Exercise Submissions"
+				icon="lucide-file-code"
+			/>
+		</div>
 		<div
 			v-if="submissions.data && submissions.hasNextPage"
 			class="flex justify-center my-5"
@@ -161,7 +166,6 @@ import type {
 import { computed, inject, onMounted, ref, watch } from 'vue'
 import { sessionStore } from '@/stores/session'
 import { useRouter } from 'vue-router'
-import { Trash2 } from 'lucide-vue-next'
 import Link from '@/components/Controls/Link.vue'
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 import LayoutHeader from '@/components/Layouts/LayoutHeader.vue'

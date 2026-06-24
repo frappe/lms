@@ -197,8 +197,8 @@ def embed_renderer(details):
 		height = "600"
 
 	return f"""
-	<iframe width={width} height={height}
-		src={src}
+	<iframe width="{width}" height="{height}"
+		src="{quote(src, safe='/:?=&#')}"
 		title="Embedded Content"
 		frameborder="0"
 		style="border-radius: var(--border-radius-lg)"

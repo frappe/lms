@@ -1,19 +1,17 @@
 <template>
 	<Dialog
-		v-model="show"
-		:options="{
-			title: __('Schedule your evaluation'),
-			size: 'xl',
-			actions: [
-				{
-					label: __('Submit'),
-					variant: 'solid',
-					onClick: (close) => submitEvaluation(close),
-				},
-			],
-		}"
+		v-model:open="show"
+		:title="__('Schedule your evaluation')"
+		size="xl"
+		:actions="[
+			{
+				label: __('Submit'),
+				variant: 'solid',
+				onClick: ({ close }) => submitEvaluation(close),
+			},
+		]"
 	>
-		<template #body-content>
+		<template #default>
 			<div class="flex flex-col gap-4 text-base max-h-[60vh]">
 				<FormControl
 					v-model="evaluation.course"
@@ -28,7 +26,7 @@
 					<div class="space-y-5">
 						<div v-for="row in slots.data" class="space-y-2">
 							<div class="flex items-center text-ink-gray-7 gap-x-2">
-								<Calendar class="size-3" />
+								<span class="lucide-calendar size-3" />
 								<div class="text-ink-gray-9">
 									{{ dayjs(row.date).format('DD MMMM YYYY') }}
 								</div>
@@ -58,7 +56,7 @@
 				<div v-else-if="!evaluation.course" class="text-ink-gray-7">
 					{{ __('Please select a course to view available slots.') }}
 				</div>
-				<div v-else class="text-ink-red-3">
+				<div v-else class="text-ink-red-6">
 					{{ __('No slots available for the selected course.') }}
 				</div>
 			</div>
@@ -68,7 +66,6 @@
 <script setup>
 import { call, createResource, Dialog, FormControl, toast } from 'frappe-ui'
 import { ref, watch, inject } from 'vue'
-import { Calendar } from 'lucide-vue-next'
 import { formatTime } from '@/utils/'
 
 const dayjs = inject('$dayjs')

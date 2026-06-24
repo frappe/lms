@@ -1,16 +1,11 @@
 <template>
-	<Dialog
-		v-model="show"
-		:options="{
-			size: '3xl',
-		}"
-	>
+	<Dialog v-model:open="show" size="3xl">
 		<template #body>
 			<div class="p-5 space-y-5">
-				<div class="text-lg font-semibold text-ink-gray-9 mb-5">
+				<div class="text-xl-semibold text-ink-gray-9 mb-5">
 					{{ __(props.title) }}
 				</div>
-				<Switch
+				<BooleanSwitch
 					v-if="!editMode"
 					size="sm"
 					:label="__('Choose an existing question')"
@@ -20,7 +15,7 @@
 				/>
 				<div v-if="!chooseFromExisting || editMode">
 					<div>
-						<label class="block text-xs text-ink-gray-5 mb-1">
+						<label class="block text-p-sm-medium text-ink-gray-7 mb-1.5">
 							{{ __('Question') }}
 						</label>
 						<TextEditor
@@ -28,7 +23,7 @@
 							@change="(val) => (question.question = val)"
 							:editable="true"
 							:fixedMenu="true"
-							editorClass="prose-sm max-w-none border-b border-x border-outline-gray-modals bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[7rem]"
+							editorClass="prose-sm max-w-none border-b border-x border-outline-elevation-2 bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[7rem]"
 						/>
 					</div>
 					<div class="grid grid-cols-2 gap-8 mt-4">
@@ -48,13 +43,13 @@
 					</div>
 					<div
 						v-if="question.type == 'Choices'"
-						class="text-base font-semibold text-ink-gray-9 mb-5 mt-10"
+						class="text-base-semibold text-ink-gray-9 mb-5 mt-10"
 					>
 						{{ __('Options') }}
 					</div>
 					<div
 						v-else-if="question.type == 'User Input'"
-						class="text-base font-semibold text-ink-gray-9 mb-5 mt-5"
+						class="text-base-semibold text-ink-gray-9 mb-5 mt-5"
 					>
 						{{ __('Possibilities') }}
 					</div>
@@ -62,9 +57,25 @@
 						v-if="question.type == 'Choices'"
 						class="grid grid-cols-2 gap-x-8 gap-y-4"
 					>
-						<div v-for="n in 4" class="space-y-4 py-2">
+						<div
+							v-for="n in visibleOptionCount"
+							:key="n"
+							class="space-y-4 py-2"
+						>
+							<div class="flex items-center justify-between">
+								<label class="block text-p-sm-medium text-ink-gray-7">
+									{{ __('Option') + ' ' + n }}
+								</label>
+								<Button
+									v-if="visibleOptionCount > 2"
+									variant="ghost"
+									size="sm"
+									@click="removeOption(n)"
+								>
+									<span class="lucide-trash-2 size-4" />
+								</Button>
+							</div>
 							<FormControl
-								:label="__('Option') + ' ' + n"
 								v-model="question[`option_${n}`]"
 								:required="n <= 2 ? true : false"
 							/>
@@ -72,7 +83,7 @@
 								:label="__('Explanation')"
 								v-model="question[`explanation_${n}`]"
 							/>
-							<Switch
+							<BooleanSwitch
 								size="sm"
 								:label="__('Correct Answer')"
 								:description="__('Mark this option as a correct answer.')"
@@ -80,16 +91,49 @@
 							/>
 						</div>
 					</div>
-					<div
-						v-else-if="question.type == 'User Input'"
-						class="grid grid-cols-2 gap-x-8 gap-y-4 py-2"
-					>
-						<div v-for="n in 4">
-							<FormControl
-								:label="__('Possibility') + ' ' + n"
-								v-model="question[`possibility_${n}`]"
-								:required="n == 1 ? true : false"
-							/>
+					<div v-if="question.type == 'Choices'" class="mt-4">
+						<Button
+							v-if="visibleOptionCount < MAX_OPTIONS"
+							@click="addOption()"
+						>
+							<template #prefix>
+								<span class="lucide-plus size-4" />
+							</template>
+							{{ __('Add Option') }}
+						</Button>
+					</div>
+					<div v-else-if="question.type == 'User Input'">
+						<div class="grid grid-cols-2 gap-x-8 gap-y-4 py-2">
+							<div
+								v-for="n in visiblePossibilityCount"
+								:key="n"
+								class="flex items-end gap-2"
+							>
+								<FormControl
+									class="flex-1"
+									:label="__('Possibility') + ' ' + n"
+									v-model="question[`possibility_${n}`]"
+									:required="n == 1 ? true : false"
+								/>
+								<Button
+									v-if="visiblePossibilityCount > 1"
+									variant="ghost"
+									@click="removePossibility(n)"
+								>
+									<span class="lucide-trash-2 size-4" />
+								</Button>
+							</div>
+						</div>
+						<div class="mt-4">
+							<Button
+								v-if="visiblePossibilityCount < MAX_OPTIONS"
+								@click="addPossibility()"
+							>
+								<template #prefix>
+									<span class="lucide-plus size-4" />
+								</template>
+								{{ __('Add Possibility') }}
+							</Button>
 						</div>
 					</div>
 				</div>
@@ -123,7 +167,7 @@ import {
 	Button,
 	toast,
 } from 'frappe-ui'
-import Switch from '@/components/Controls/Switch.vue'
+import BooleanSwitch from '@/components/Controls/BooleanSwitch.vue'
 import { watch, reactive, ref, inject } from 'vue'
 import Link from '@/components/Controls/Link.vue'
 import { useOnboarding } from 'frappe-ui/frappe'
@@ -146,13 +190,15 @@ const question = reactive({
 	marks: 1,
 })
 
+const MAX_OPTIONS = 10
+const visibleOptionCount = ref(2)
+const visiblePossibilityCount = ref(1)
+
 const populateFields = () => {
 	let fields = ['option', 'is_correct', 'explanation', 'possibility']
-	let counter = 1
 	fields.forEach((field) => {
-		while (counter <= 4) {
+		for (let counter = 1; counter <= MAX_OPTIONS; counter++) {
 			question[`${field}_${counter}`] = field === 'is_correct' ? false : null
-			counter++
 		}
 	})
 }
@@ -180,17 +226,27 @@ const questionData = createResource({
 	},
 	auto: false,
 	onSuccess(data) {
-		let counter = 1
 		editMode.value = true
 		Object.keys(data).forEach((key) => {
 			if (Object.hasOwn(question, key)) question[key] = data[key]
 		})
-		while (counter <= 4) {
+		for (let counter = 1; counter <= MAX_OPTIONS; counter++) {
 			question[`is_correct_${counter}`] = data[`is_correct_${counter}`]
 				? true
 				: false
-			counter++
 		}
+		visibleOptionCount.value = Math.max(
+			2,
+			...Array.from({ length: MAX_OPTIONS }, (_, i) =>
+				data[`option_${i + 1}`] ? i + 1 : 0
+			)
+		)
+		visiblePossibilityCount.value = Math.max(
+			1,
+			...Array.from({ length: MAX_OPTIONS }, (_, i) =>
+				data[`possibility_${i + 1}`] ? i + 1 : 0
+			)
+		)
 		question.marks = props.questionDetail.marks
 	},
 })
@@ -206,6 +262,8 @@ watch(show, () => {
 			existingQuestion.question = ''
 			existingQuestion.marks = 1
 			chooseFromExisting.value = false
+			visibleOptionCount.value = 2
+			visiblePossibilityCount.value = 1
 			populateFields()
 		}
 
@@ -239,6 +297,38 @@ const questionCreation = createResource({
 		}
 	},
 })
+
+const addPossibility = () => {
+	if (visiblePossibilityCount.value < MAX_OPTIONS)
+		visiblePossibilityCount.value++
+}
+
+const removePossibility = (pos) => {
+	if (visiblePossibilityCount.value <= 1) return
+	for (let n = pos; n < visiblePossibilityCount.value; n++) {
+		question[`possibility_${n}`] = question[`possibility_${n + 1}`]
+	}
+	question[`possibility_${visiblePossibilityCount.value}`] = null
+	visiblePossibilityCount.value--
+}
+
+const addOption = () => {
+	if (visibleOptionCount.value < MAX_OPTIONS) visibleOptionCount.value++
+}
+
+const removeOption = (pos) => {
+	if (visibleOptionCount.value <= 2) return
+	for (let n = pos; n < visibleOptionCount.value; n++) {
+		question[`option_${n}`] = question[`option_${n + 1}`]
+		question[`is_correct_${n}`] = question[`is_correct_${n + 1}`]
+		question[`explanation_${n}`] = question[`explanation_${n + 1}`]
+	}
+	const last = visibleOptionCount.value
+	question[`option_${last}`] = null
+	question[`is_correct_${last}`] = false
+	question[`explanation_${last}`] = null
+	visibleOptionCount.value--
+}
 
 const submitQuestion = () => {
 	if (props.questionDetail?.question) updateQuestion()

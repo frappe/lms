@@ -8,7 +8,7 @@
 						isCollapsed
 							? 'px-0 w-auto'
 							: open
-							? 'bg-surface-white shadow-sm px-2 w-52'
+							? 'bg-surface-base shadow-sm px-2 w-52'
 							: 'hover:bg-surface-gray-3 px-2 w-52'
 					"
 				>
@@ -26,7 +26,7 @@
 								: 'opacity-100 ms-2 w-auto'
 						"
 					>
-						<div class="text-base font-medium text-ink-gray-9 leading-none">
+						<div class="text-base-medium text-ink-gray-9 leading-none">
 							<span
 								v-if="
 									branding.data?.app_name && branding.data?.app_name != 'Frappe'
@@ -51,7 +51,7 @@
 								: 'opacity-100 ms-2 w-auto'
 						"
 					>
-						<ChevronDown class="h-4 w-4 text-ink-gray-7" />
+						<span class="lucide-chevron-down h-4 w-4 text-ink-gray-7" />
 					</div>
 				</button>
 			</template>
@@ -78,16 +78,7 @@ import Configuration from '@/components/Sidebar/Configuration.vue'
 import FrappeCloudIcon from '@/components/Icons/FrappeCloudIcon.vue'
 import LMSLogo from '@/components/Icons/LMSLogo.vue'
 import SettingsModal from '@/components/Settings/Settings.vue'
-import {
-	ChevronDown,
-	LogIn,
-	LogOut,
-	Moon,
-	User,
-	Settings,
-	Sun,
-	Trash2,
-} from 'lucide-vue-next'
+import { Moon, Sun } from 'lucide-vue-next'
 
 const router = useRouter()
 const { logout, branding } = sessionStore()
@@ -124,7 +115,7 @@ const userDropdownOptions = computed(() => {
 			group: '',
 			items: [
 				{
-					icon: User,
+					icon: 'lucide-user',
 					label: 'My Profile',
 					onClick: () => {
 						router.push(`/user/${userResource.data?.username}`)
@@ -152,7 +143,7 @@ const userDropdownOptions = computed(() => {
 					},
 				},
 				{
-					icon: Settings,
+					icon: 'lucide-settings',
 					label: 'Settings',
 					onClick: () => {
 						settingsStore.isSettingsOpen = true
@@ -169,7 +160,7 @@ const userDropdownOptions = computed(() => {
 				},
 				{
 					label: 'Clear Demo Data',
-					icon: Trash2,
+					icon: 'lucide-trash-2',
 					onClick: () => {
 						clearDemoDataConfirmation()
 					},
@@ -209,7 +200,7 @@ const userDropdownOptions = computed(() => {
 					},
 				},
 				{
-					icon: LogOut,
+					icon: 'lucide-log-out',
 					label: 'Log out',
 					onClick: () => {
 						logout.submit().then(() => {
@@ -221,7 +212,7 @@ const userDropdownOptions = computed(() => {
 					},
 				},
 				{
-					icon: LogIn,
+					icon: 'lucide-log-in',
 					label: 'Log in',
 					onClick: () => {
 						window.location.href = '/login'
@@ -272,3 +263,16 @@ const clearDemoData = () => {
 		})
 }
 </script>
+
+<style>
+/*
+ * frappe-ui's Dropdown content has no height bound, so a tall moderator menu
+ * overflows the viewport and the boundary row (e.g. "Toggle Theme") is clipped.
+ * reka exposes the room it has via --reka-popper-available-height; cap the menu
+ * to it and scroll the overflow. Portaled to body, so this rule is global.
+ */
+.dropdown-content {
+	max-height: var(--reka-popper-available-height);
+	overflow-y: auto;
+}
+</style>
