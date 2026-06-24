@@ -47,3 +47,15 @@ export function hasInstructorContent(
 		return false
 	}
 }
+
+/**
+ * Autosave is a no-op when a lesson is entirely empty — no title and no body.
+ * Content on its own is optional, so a title-only lesson still saves; skipping
+ * the empty case avoids erroring on the required-title validation.
+ */
+export function shouldSkipLessonSave(
+	title: string | null | undefined,
+	hasBodyContent: boolean
+): boolean {
+	return !title?.trim() && !hasBodyContent
+}

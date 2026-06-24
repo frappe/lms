@@ -85,6 +85,11 @@ import SkeletonLoader from '@/components/SkeletonLoader.vue'
 import LessonForm from '@/pages/LessonForm.vue'
 import Lesson from '@/pages/Lesson.vue'
 import VideoStatistics from '@/components/Modals/VideoStatistics.vue'
+import {
+	findLessonNameByNumber,
+	lessonExistsByNumber,
+	isSelectionStale,
+} from '@/utils/courseOutline'
 
 const props = defineProps({
 	course: { type: Object, required: true },
@@ -135,23 +140,6 @@ function syncModeToUrl(newMode) {
 
 const STORAGE_KEY = 'lms-course-editor-last-lesson'
 
-function lessonExists(chapters, number) {
-	return !!(
-		number && chapters?.some((c) => c.lessons?.some((l) => l.number === number))
-	)
-}
-
-// Resolve a lesson's stable docname from its positional number, so selection
-// can be tracked by identity — `number` shifts when lessons are reordered or
-// deleted, the name doesn't.
-function lessonNameByNumber(number) {
-	for (const c of outline.data ?? []) {
-		const lesson = c.lessons?.find((l) => l.number === number)
-		if (lesson) return lesson.name
-	}
-	return null
-}
-
 function getStoredLesson(courseName) {
 	try {
 		const raw = localStorage.getItem(STORAGE_KEY)
@@ -181,7 +169,7 @@ function setSelectedFromNumber(number) {
 		chapterNumber,
 		lessonNumber,
 		number,
-		name: lessonNameByNumber(number),
+		name: findLessonNameByNumber(outline.data, number),
 		title: '',
 	}
 	syncSelectedToUrl(number)
@@ -212,7 +200,7 @@ function onSelectLesson({ chapterNumber, lessonNumber }) {
 		chapterNumber,
 		lessonNumber,
 		number,
-		name: lessonNameByNumber(number),
+		name: findLessonNameByNumber(outline.data, number),
 		title: '',
 	}
 	if (props.course?.data?.name) {
@@ -254,7 +242,7 @@ function pickInitialLesson() {
 	if (selected.value) return
 	const courseName = props.course?.data?.name
 	const stored = courseName ? getStoredLesson(courseName) : null
-	if (lessonExists(chapters, stored)) {
+	if (lessonExistsByNumber(chapters, stored)) {
 		setSelectedFromNumber(stored)
 		return
 	}
@@ -272,14 +260,7 @@ watch(() => outline.data, pickInitialLesson, { immediate: true })
 watch(
 	() => outline.data,
 	(chapters) => {
-		const sel = selected.value
-		if (!sel || !chapters) return
-		// Track by stable name when we have it (number shifts on delete/reorder),
-		// falling back to the positional number otherwise.
-		const gone = sel.name
-			? !chapters.some((c) => c.lessons?.some((l) => l.name === sel.name))
-			: !lessonExists(chapters, sel.number)
-		if (gone) {
+		if (isSelectionStale(selected.value, chapters)) {
 			selected.value = null
 			if (route.query.editLesson) {
 				const { editLesson, ...rest } = route.query

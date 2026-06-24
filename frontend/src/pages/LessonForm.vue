@@ -94,7 +94,7 @@ import {
 import { ChevronRight, NotebookPen } from 'lucide-vue-next'
 import { useDebounceFn } from '@vueuse/core'
 import { enablePlyr, sanitizeEditorJs } from '@/utils'
-import { hasEditorContent } from '@/utils/lessonForm'
+import { hasEditorContent, shouldSkipLessonSave } from '@/utils/lessonForm'
 import { hasVideoContent } from '@/utils/video'
 import BlockEditor from '@/components/BlockEditor.vue'
 import { useOnboarding, useTelemetry } from 'frappe-ui/frappe'
@@ -440,10 +440,7 @@ function saveLesson() {
 	editor.value.save().then((outputData) => {
 		outputData = removeEmptyBlocks(outputData)
 		const bodyHasContent = hasEditorContent(outputData)
-		// Nothing to persist when the lesson is entirely empty (no title and no
-		// body) — skip the autosave rather than erroring. Content on its own is
-		// optional, so a title-only lesson still saves.
-		if (!lesson.title?.trim() && !bodyHasContent) return
+		if (shouldSkipLessonSave(lesson.title, bodyHasContent)) return
 		// Only overwrite stored content when the body has real content. A
 		// transient/empty editor (hot-reload remount, render race, mid
 		// lesson-switch) serialises to just an empty paragraph and must not wipe
