@@ -141,6 +141,17 @@ function lessonExists(chapters, number) {
 	)
 }
 
+// Resolve a lesson's stable docname from its positional number, so selection
+// can be tracked by identity — `number` shifts when lessons are reordered or
+// deleted, the name doesn't.
+function lessonNameByNumber(number) {
+	for (const c of outline.data ?? []) {
+		const lesson = c.lessons?.find((l) => l.number === number)
+		if (lesson) return lesson.name
+	}
+	return null
+}
+
 function getStoredLesson(courseName) {
 	try {
 		const raw = localStorage.getItem(STORAGE_KEY)
@@ -170,6 +181,7 @@ function setSelectedFromNumber(number) {
 		chapterNumber,
 		lessonNumber,
 		number,
+		name: lessonNameByNumber(number),
 		title: '',
 	}
 	syncSelectedToUrl(number)
@@ -196,7 +208,13 @@ function onLessonSaved({ name, title, include_in_preview, isNew }) {
 
 function onSelectLesson({ chapterNumber, lessonNumber }) {
 	const number = `${chapterNumber}-${lessonNumber}`
-	selected.value = { chapterNumber, lessonNumber, number, title: '' }
+	selected.value = {
+		chapterNumber,
+		lessonNumber,
+		number,
+		name: lessonNameByNumber(number),
+		title: '',
+	}
 	if (props.course?.data?.name) {
 		storeLesson(props.course.data.name, number)
 	}
@@ -254,11 +272,14 @@ watch(() => outline.data, pickInitialLesson, { immediate: true })
 watch(
 	() => outline.data,
 	(chapters) => {
-		if (
-			selected.value?.number &&
-			chapters &&
-			!lessonExists(chapters, selected.value.number)
-		) {
+		const sel = selected.value
+		if (!sel || !chapters) return
+		// Track by stable name when we have it (number shifts on delete/reorder),
+		// falling back to the positional number otherwise.
+		const gone = sel.name
+			? !chapters.some((c) => c.lessons?.some((l) => l.name === sel.name))
+			: !lessonExists(chapters, sel.number)
+		if (gone) {
 			selected.value = null
 			if (route.query.editLesson) {
 				const { editLesson, ...rest } = route.query
