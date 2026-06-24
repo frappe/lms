@@ -811,12 +811,16 @@ def get_course_categories() -> list:
 	if not guest_access_allowed():
 		return []
 
+	# Distinct category strings are inherently bounded (one per category, not per
+	# course), so the full set is intended; limit_page_length=0 makes the
+	# "no page cap" explicit rather than relying on get_all's default.
 	rows = frappe.get_all(
 		"LMS Course",
 		filters={"published": 1, "category": ["is", "set"]},
 		pluck="category",
 		distinct=True,
 		order_by="category asc",
+		limit_page_length=0,
 	)
 
 	options = [{"label": "", "value": None}]

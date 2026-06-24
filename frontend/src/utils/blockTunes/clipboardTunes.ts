@@ -31,7 +31,12 @@ interface CopiedBlock {
 
 let blockClipboard: CopiedBlock | null = null
 
-const isMac = /Mac|iPhone|iPad/.test(navigator.platform)
+// navigator.platform is deprecated; prefer User-Agent Client Hints, falling
+// back to the UA string where they're unavailable.
+const platformHint =
+	(navigator as Navigator & { userAgentData?: { platform?: string } })
+		.userAgentData?.platform ?? navigator.userAgent
+const isMac = /(Mac|iPhone|iPad)/i.test(platformHint)
 
 // Beautified for display only, mirroring EditorJS's own shortcut formatting.
 function shortcutLabel(key: string): string {
@@ -136,6 +141,10 @@ class PasteTune implements BlockTune {
 			title: __('Paste'),
 			secondaryLabel: shortcutLabel('V'),
 			name: 'paste-block',
+			// render() is called by BlockSettings.open() every time the block's
+			// tunes menu opens, so this re-reads the current clipboard each time —
+			// the item enables once a block has been copied. pasteBlock() also
+			// guards on an empty clipboard.
 			isDisabled: blockClipboard === null,
 			onActivate: (): void => {
 				pasteBlock(this.api)
