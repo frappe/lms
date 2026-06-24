@@ -439,13 +439,18 @@ function saveLesson() {
 	if (!editor.value || !instructorEditor.value) return
 	editor.value.save().then((outputData) => {
 		outputData = removeEmptyBlocks(outputData)
-		// Guard against wiping a lesson: a transient/empty editor (hot-reload
-		// remount, render race, mid lesson-switch) serialises to just an empty
-		// paragraph. Refuse to overwrite stored content with a blank doc. A
-		// genuinely new lesson with real content still has blocks, so this only
-		// blocks blank saves — which validateLesson would reject anyway.
-		if (!hasEditorContent(outputData)) return
-		lesson.content = JSON.stringify(outputData)
+		const bodyHasContent = hasEditorContent(outputData)
+		// Nothing to persist when the lesson is entirely empty (no title and no
+		// body) — skip the autosave rather than erroring. Content on its own is
+		// optional, so a title-only lesson still saves.
+		if (!lesson.title?.trim() && !bodyHasContent) return
+		// Only overwrite stored content when the body has real content. A
+		// transient/empty editor (hot-reload remount, render race, mid
+		// lesson-switch) serialises to just an empty paragraph and must not wipe
+		// what's saved.
+		if (bodyHasContent) {
+			lesson.content = JSON.stringify(outputData)
+		}
 		instructorEditor.value.save().then((outputData) => {
 			outputData = removeEmptyBlocks(outputData)
 			lesson.instructor_content = JSON.stringify(outputData)
@@ -529,9 +534,6 @@ const editCurrentLesson = () => {
 const validateLesson = () => {
 	if (!lesson.title) {
 		return 'Title is required'
-	}
-	if (!lesson.content) {
-		return 'Content is required'
 	}
 }
 </script>
