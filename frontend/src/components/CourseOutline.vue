@@ -4,19 +4,19 @@
 			v-if="!hideHeader && title && (outline.data?.length || allowEdit)"
 			class="flex items-center justify-between gap-x-2 mb-4 px-2"
 			:class="{
-				'sticky top-0 z-10 bg-surface-white border-b px-3 py-2.5 sm:px-5':
+				'sticky top-0 z-10 bg-surface-base border-b px-3 py-2.5 sm:px-5':
 					allowEdit,
 			}"
 		>
 			<div
-				class="font-semibold text-lg leading-5 text-ink-gray-9"
+				class="text-xl-semibold leading-5 text-ink-gray-9"
 				:class="{ 'font-medium text-p-base': allowEdit }"
 			>
 				{{ __(title) }}
 			</div>
 			<Button size="sm" v-if="allowEdit" @click="openChapterModal()">
 				<template #prefix>
-					<Plus class="size-4 stroke-1.5" />
+					<span class="lucide-plus size-4" />
 				</template>
 				{{ __('Add') }}
 			</Button>
@@ -25,11 +25,11 @@
 			v-if="allowEdit && outline.data && !outline.data.length"
 			class="flex flex-col items-center justify-center gap-3 px-6 py-16 text-center text-ink-gray-5 h-full"
 		>
-			<BookOpen class="size-8 stroke-1.5" />
+			<span class="lucide-book-open size-8" />
 			<div class="text-sm">{{ __('No chapters yet') }}</div>
 			<Button @click="openChapterModal()">
 				<template #prefix>
-					<Plus class="size-4 stroke-1.5" />
+					<span class="lucide-plus size-4" />
 				</template>
 				{{ __('Create chapter') }}
 			</Button>
@@ -42,7 +42,7 @@
 		>
 			<Draggable
 				:list="outline.data"
-				:disabled="!allowEdit"
+				:disabled="!allowEdit || chapterRenaming"
 				item-key="name"
 				group="chapters"
 				@end="updateChapterOrder"
@@ -57,16 +57,18 @@
 							:inlineSelect="inlineSelect"
 							:editorLinks="editorLinks"
 							:selectedLessonNumber="selectedLessonNumber"
+							:creatingLesson="creatingLessonChapter === chapter.name"
 							@select-lesson="(payload) => emit('select-lesson', payload)"
 							@edit-chapter="openChapterModal"
+							@rename-chapter="renameChapter"
+							@renaming-change="(v) => (chapterRenaming = v)"
 							@delete-chapter="trashChapter"
 							@delete-lesson="
 								({ lesson, chapter: chapterName }) =>
 									trashLesson(lesson, chapterName)
 							"
 							@move-lesson="updateOutline"
-							@add-lesson="openLessonModalForAdd"
-							@edit-lesson="openLessonModalForEdit"
+							@create-lesson="createLessonInline"
 						/>
 					</div>
 				</template>
@@ -76,19 +78,10 @@
 	<ChapterModal
 		v-if="user.data"
 		v-model="showChapterModal"
-		v-model:outline="outline"
 		:course="courseName"
 		:chapterDetail="currentChapter"
-	/>
-	<LessonModal
-		v-if="user.data && lessonContext"
-		v-model:show="showLessonModal"
-		:course="courseName"
-		:chapterName="lessonContext.chapterName"
-		:lessonIdx="lessonContext.lessonIdx"
-		:lessonDetail="lessonContext.lessonDetail"
-		@created="onLessonCreated"
-		@updated="onLessonUpdated"
+		@created="outline.reload()"
+		@updated="outline.reload()"
 	/>
 </template>
 
@@ -97,9 +90,8 @@ import { Button, createResource, toast } from 'frappe-ui'
 import { inject, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import Draggable from 'vuedraggable'
-import { BookOpen, Plus } from 'lucide-vue-next'
+
 import ChapterModal from '@/components/Modals/ChapterModal.vue'
-import LessonModal from '@/components/Modals/LessonModal.vue'
 import ChapterRow from '@/components/ChapterRow.vue'
 import type {
 	OutlineChapter,
@@ -132,6 +124,8 @@ const user = inject<SessionUser>('$user')!
 const router = useRouter()
 const showChapterModal = ref<boolean>(false)
 const currentChapter = ref<OutlineChapter | null>(null)
+// True while a ChapterRow is in inline-rename mode — locks chapter drag.
+const chapterRenaming = ref<boolean>(false)
 const { $dialog } = getCurrentInstance()!.appContext.config
 	.globalProperties as {
 	$dialog: DialogFn
@@ -141,76 +135,9 @@ const emit = defineEmits<{
 	'select-lesson': [{ chapterNumber: string; lessonNumber: string }]
 }>()
 
-interface LessonModalContext {
-	chapterName: string
-	chapterIdx: number
-	lessonIdx: number
-	lessonDetail: {
-		name?: string
-		title?: string
-		include_in_preview?: boolean | 0 | 1
-	} | null
-}
-
-const showLessonModal = ref<boolean>(false)
-const lessonContext = ref<LessonModalContext | null>(null)
-
-function openLessonModalForAdd(payload: {
-	chapter: OutlineChapter
-	lessonIdx: number
-}) {
-	lessonContext.value = {
-		chapterName: payload.chapter.name,
-		chapterIdx: payload.chapter.idx,
-		lessonIdx: payload.lessonIdx,
-		lessonDetail: null,
-	}
-	showLessonModal.value = true
-}
-
-function openLessonModalForEdit(payload: {
-	chapter: OutlineChapter
-	lesson: OutlineLesson
-}) {
-	lessonContext.value = {
-		chapterName: payload.chapter.name,
-		chapterIdx: payload.chapter.idx,
-		lessonIdx: Number(payload.lesson.number.split('-')[1]) || 1,
-		lessonDetail: {
-			name: payload.lesson.name,
-			title: payload.lesson.title,
-			include_in_preview: payload.lesson.include_in_preview,
-		},
-	}
-	showLessonModal.value = true
-}
-
-function onLessonCreated(created: { name: string; number: string }) {
-	outline.reload()
-	const ctx = lessonContext.value
-	if (!ctx) return
-	const chapterNumber = String(ctx.chapterIdx)
-	const lessonNumber = created.number
-	if (props.inlineSelect) {
-		emit('select-lesson', { chapterNumber, lessonNumber })
-		return
-	}
-	if (props.editorLinks) {
-		router.push({
-			name: 'CourseDetail',
-			params: { courseName: props.courseName },
-			hash: '#course editor',
-			query: {
-				editLesson: `${chapterNumber}-${lessonNumber}`,
-				lessonMode: 'edit',
-			},
-		})
-	}
-}
-
-function onLessonUpdated(_payload: { name: string }) {
-	outline.reload()
-}
+// The lesson currently being named inline (its docname), and the chapter whose
+// "Add Lesson" button is mid-create (for the button spinner).
+const creatingLessonChapter = ref<string>('')
 
 const props = withDefaults(
 	defineProps<{
@@ -290,6 +217,7 @@ const updateLessonIndex = createResource({
 		return values
 	},
 	onSuccess() {
+		outline.reload()
 		toast.success(__('Lesson moved successfully'))
 	},
 })
@@ -300,6 +228,7 @@ const updateChapterIndex = createResource({
 		return values
 	},
 	onSuccess() {
+		outline.reload()
 		toast.success(__('Chapter moved successfully'))
 	},
 })
@@ -314,6 +243,87 @@ const deleteChapter = createResource({
 		toast.success(__('Chapter deleted successfully'))
 	},
 })
+
+const renameChapterResource = createResource({
+	url: 'lms.lms.api.upsert_chapter',
+	makeParams(values: { chapter: OutlineChapter; title: string }) {
+		return {
+			name: values.chapter.name,
+			title: values.title,
+			course: props.courseName,
+			is_scorm_package: values.chapter.is_scorm_package ?? 0,
+			scorm_package: values.chapter.scorm_package ?? null,
+		}
+	},
+	onSuccess() {
+		outline.reload()
+		toast.success(__('Chapter renamed successfully'))
+	},
+	onError(err: { messages?: string[] } | string) {
+		outline.reload()
+		toast.error(typeof err === 'string' ? err : err.messages?.[0] ?? 'Error')
+	},
+})
+
+function renameChapter(payload: { chapter: OutlineChapter; title: string }) {
+	renameChapterResource.submit(payload)
+}
+
+const errorMessage = (err: { messages?: string[] } | string): string =>
+	typeof err === 'string' ? err : err.messages?.[0] ?? 'Error'
+
+// Inserts the Course Lesson and its chapter reference in one request, so a
+// failure on either rolls back atomically — no orphaned lesson. Returns the
+// new lesson's docname.
+const addLesson = createResource({
+	url: 'lms.lms.api.create_lesson',
+	makeParams(values: { chapter: string }) {
+		return { chapter: values.chapter }
+	},
+})
+
+// Create the lesson immediately as "Untitled lesson", then open it in the
+// editor so the title is edited inline on the lesson itself.
+function createLessonInline(payload: {
+	chapter: OutlineChapter
+	lessonIdx: number
+}) {
+	creatingLessonChapter.value = payload.chapter.name
+	addLesson.submit(
+		{ chapter: payload.chapter.name },
+		{
+			onSuccess(lessonName: string) {
+				creatingLessonChapter.value = ''
+				outline.reload().then(() => {
+					const created = (outline.data ?? [])
+						.flatMap((c) => c.lessons ?? [])
+						.find((l) => l.name === lessonName)
+					if (created) navigateToLesson(created)
+				})
+			},
+			onError(err: { messages?: string[] } | string) {
+				creatingLessonChapter.value = ''
+				toast.error(errorMessage(err))
+			},
+		}
+	)
+}
+
+function navigateToLesson(lesson: OutlineLesson) {
+	const [chapterNumber, lessonNumber] = lesson.number.split('-')
+	if (props.inlineSelect) {
+		emit('select-lesson', { chapterNumber, lessonNumber })
+		return
+	}
+	if (props.editorLinks) {
+		router.push({
+			name: 'CourseDetail',
+			params: { courseName: props.courseName },
+			hash: '#course editor',
+			query: { editLesson: lesson.number, lessonMode: 'edit' },
+		})
+	}
+}
 
 function trashLesson(lessonName: string, chapterName: string) {
 	$dialog({

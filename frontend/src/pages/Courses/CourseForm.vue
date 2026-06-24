@@ -21,15 +21,21 @@ import {
 	computed,
 	getCurrentInstance,
 	inject,
-	onBeforeUnmount,
+	nextTick,
 	onMounted,
 	provide,
 	reactive,
 	ref,
 	watch,
 } from 'vue'
+import { useDebounceFn } from '@vueuse/core'
 import { useRouter } from 'vue-router'
 import { getMetaInfo, updateMetaInfo } from '@/utils'
+import { validateCourse } from '@/utils/courseForm'
+import {
+	useKeyboardShortcuts,
+	saveShortcut,
+} from '@/composables/useKeyboardShortcuts'
 import { exportCourseAsZip } from '@/utils/exportCourse'
 import SkeletonLoader from '@/components/SkeletonLoader.vue'
 import CourseDetailsSection from '@/pages/Courses/CourseDetailsSection.vue'
@@ -87,8 +93,42 @@ const courseResource = createDocumentResource({
 	auto: true,
 }) as Resource<LMSCourse | null>
 
+// Set while the form is being populated from a server fetch so the resulting
+// field updates don't arm autosave (mirrors the lesson editor's load guard).
+let applyingServerData = false
+
+// Tracks the last validation error surfaced to the user so a repeated autosave
+// attempt with the same unmet requirement doesn't re-toast on every keystroke.
+let lastAutoSaveError: string | null = null
+
+const validateForm = (): string | null =>
+	validateCourse({
+		doc: courseResource.doc ?? null,
+		instructors: instructors.value,
+	})
+
+// Debounced so a burst of edits collapses into a single save shortly after the
+// user pauses. When a mandatory field is empty or the price is invalid, the
+// autosave can't succeed — surface the reason once and keep the "Not Saved"
+// badge (isDirty stays true) so the change isn't silently lost.
+const autoSave = useDebounceFn((): void => {
+	if (!isDirty.value) return
+	const error = validateForm()
+	if (error) {
+		if (error !== lastAutoSaveError) {
+			toast.error(error)
+			lastAutoSaveError = error
+		}
+		return
+	}
+	lastAutoSaveError = null
+	updateCourse({ silent: true })
+}, 1000)
+
 const markDirty = (): void => {
+	if (applyingServerData) return
 	isDirty.value = true
+	autoSave()
 }
 
 const courseFormContext: CourseFormContext = {
@@ -104,12 +144,9 @@ onMounted(() => {
 	if (!user.data?.is_moderator && !user.data?.is_instructor) {
 		router.push({ name: 'Courses' })
 	}
-	window.addEventListener('keydown', keyboardShortcut)
 })
 
-onBeforeUnmount(() => {
-	window.removeEventListener('keydown', keyboardShortcut)
-})
+useKeyboardShortcuts({ shortcuts: [saveShortcut(() => submitCourse())] })
 
 watch(
 	() => courseResource.doc,
@@ -117,9 +154,13 @@ watch(
 		// A failed/empty fetch still fires this watch; the body assumes a
 		// loaded doc.
 		if (!courseResource.doc) return
+		applyingServerData = true
 		getMetaInfo('courses', courseResource.doc?.name, meta)
 		updateCourseData()
 		checkPermission()
+		nextTick(() => {
+			applyingServerData = false
+		})
 	}
 )
 
@@ -153,40 +194,49 @@ const updateCourseData = (): void => {
 	}
 }
 
-const submitCourse = (): void => updateCourse()
+const submitCourse = (): void => {
+	const error = validateForm()
+	if (error) {
+		toast.error(error)
+		lastAutoSaveError = error
+		return
+	}
+	lastAutoSaveError = null
+	updateCourse()
+}
 
-const updateCourse = (): void => {
+const updateCourse = (opts: { silent?: boolean } = {}): void => {
+	// Drop `modified` from the payload: this form does an intentional whole-doc
+	// last-write-wins save, and sending a stale `modified` trips Frappe's
+	// timestamp guard when the course was touched elsewhere (publish toggle,
+	// lesson-editor autosave) since the form loaded.
+	const docFields: Record<string, unknown> = { ...courseResource.doc }
+	delete docFields.modified
 	courseResource.setValue.submit(
 		{
-			...courseResource.doc,
+			...docFields,
 			instructors: instructors.value.map((i) => ({ instructor: i })),
 			related_courses: related_courses.value.map((c) => ({ course: c })),
 		},
 		{
 			onSuccess() {
 				updateMetaInfo('courses', courseResource.doc?.name, meta)
-				toast.success(__('Course updated successfully'))
+				if (!opts.silent) toast.success(__('Course updated successfully'))
 				isDirty.value = false
 				courseResource.reload()
+				// Refresh the shared course resource so sibling tabs (Overview,
+				// Dashboard) reflect the saved changes without a page reload.
+				props.course.reload()
 			},
 			onError(err: { messages?: string[] } | string) {
 				const msg = typeof err === 'string' ? err : err.messages?.[0] ?? 'Error'
-				toast.error(msg)
+				// Autosave failures stay quiet; the orange "unsaved" badge remains
+				// (isDirty is untouched) so the change isn't silently lost.
+				if (!opts.silent) toast.error(msg)
 				console.error(err)
 			},
 		}
 	)
-}
-
-const keyboardShortcut = (e: KeyboardEvent): void => {
-	if (
-		e.key === 's' &&
-		(e.ctrlKey || e.metaKey) &&
-		!(e.target as HTMLElement | null)?.classList.contains('ProseMirror')
-	) {
-		submitCourse()
-		e.preventDefault()
-	}
 }
 
 const deleteCourse = createResource({
@@ -196,7 +246,8 @@ const deleteCourse = createResource({
 	},
 	onSuccess() {
 		toast.success(__('Course deleted successfully'))
-		router.push({ name: 'Courses' })
+		// Land on the creator's "Created" courses — pick another course to edit.
+		router.push({ name: 'Courses', query: { tab: 'created' } })
 	},
 }) as Resource<unknown>
 

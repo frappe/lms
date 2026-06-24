@@ -1,20 +1,18 @@
 <template>
 	<Dialog
-		v-model="show"
-		:options="{
-			title: chapterDetail ? __('Edit Chapter') : __('Add Chapter'),
-			size: 'lg',
-			actions: [
-				{
-					label: chapterDetail ? __('Edit') : __('Create'),
-					variant: 'solid',
-					onClick: (close) =>
-						chapterDetail ? editChapter(close) : addChapter(close),
-				},
-			],
-		}"
+		v-model:open="show"
+		:title="chapterDetail ? __('Edit Chapter') : __('Add Chapter')"
+		size="lg"
+		:actions="[
+			{
+				label: chapterDetail ? __('Edit') : __('Create'),
+				variant: 'solid',
+				onClick: ({ close }) =>
+					chapterDetail ? editChapter(close) : addChapter(close),
+			},
+		]"
 	>
-		<template #body-content>
+		<template #default>
 			<div class="space-y-4 text-base">
 				<FormControl
 					label="Title"
@@ -22,7 +20,7 @@
 					:required="true"
 					autocomplete="off"
 				/>
-				<Switch
+				<BooleanSwitch
 					size="sm"
 					:label="__('SCORM Package')"
 					:description="
@@ -51,20 +49,23 @@
 					</FileUploader>
 					<div v-else class="">
 						<div class="flex items-center">
-							<div class="border rounded-md p-2 me-2">
-								<FileText class="h-5 w-5 stroke-1.5 text-ink-gray-7" />
+							<div class="border rounded-md p-2 me-2 shrink-0">
+								<span class="lucide-file-text h-5 w-5 text-ink-gray-7" />
 							</div>
-							<div class="flex flex-col">
-								<span class="text-ink-gray-9">
+							<div class="flex min-w-0 flex-1 flex-col">
+								<span
+									class="truncate text-ink-gray-9"
+									:title="chapter.scorm_package.file_name"
+								>
 									{{ chapter.scorm_package.file_name }}
 								</span>
 								<span class="text-sm text-ink-gray-4 mt-1">
 									{{ getFileSize(chapter.scorm_package.file_size) }}
 								</span>
 							</div>
-							<X
+							<span
 								@click="() => (chapter.scorm_package = null)"
-								class="bg-surface-gray-3 rounded-md cursor-pointer stroke-1.5 w-5 h-5 p-1 ms-4"
+								class="lucide-x bg-surface-gray-3 rounded-md cursor-pointer w-5 h-5 p-1 ms-4 shrink-0"
 							/>
 						</div>
 					</div>
@@ -82,12 +83,11 @@ import {
 	FormControl,
 	toast,
 } from 'frappe-ui'
-import Switch from '@/components/Controls/Switch.vue'
+import BooleanSwitch from '@/components/Controls/BooleanSwitch.vue'
 import { reactive, watch, inject } from 'vue'
 import { getFileSize } from '@/utils/'
-import { FileText, X } from 'lucide-vue-next'
 import { useOnboarding, useTelemetry } from 'frappe-ui/frappe'
-import type { ChapterDetailInput, Resource, SessionUser } from '@/types/api'
+import type { ChapterDetailInput, SessionUser } from '@/types/api'
 
 type ScormPackage = { file_name: string; file_size: number } | null
 
@@ -98,7 +98,7 @@ interface ChapterForm {
 }
 
 const show = defineModel<boolean>()
-const outline = defineModel<Resource<unknown> | undefined>('outline')
+const emit = defineEmits<{ created: []; updated: [] }>()
 const user = inject<SessionUser>('$user')!
 const { capture } = useTelemetry()
 const { updateOnboardingStep } = useOnboarding('learning')
@@ -143,7 +143,7 @@ const addChapter = async (close: () => void) => {
 
 				capture('chapter_created')
 				cleanChapter()
-				outline.value?.reload()
+				emit('created')
 				toast.success(__('Chapter added successfully'))
 				close()
 			},
@@ -175,12 +175,10 @@ const editChapter = (close: () => void) => {
 		{},
 		{
 			validate() {
-				if (!chapter.title) {
-					return 'Title is required'
-				}
+				return validateChapter()
 			},
 			onSuccess() {
-				outline.value?.reload()
+				emit('updated')
 				toast.success(__('Chapter updated successfully'))
 				close()
 			},

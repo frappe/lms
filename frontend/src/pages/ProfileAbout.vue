@@ -1,6 +1,6 @@
 <template>
 	<div class="mt-7 mb-10">
-		<h2 class="mb-3 text-lg font-semibold text-ink-gray-9">
+		<h2 class="mb-3 text-xl-semibold text-ink-gray-9">
 			{{ __('About') }}
 		</h2>
 		<div
@@ -30,7 +30,7 @@
 		</div>
 	</div>
 	<div class="mt-7 mb-10" v-if="badges.data?.length">
-		<h2 class="mb-3 text-lg font-semibold text-ink-gray-9">
+		<h2 class="mb-3 text-xl-semibold text-ink-gray-9">
 			{{ __('Achievements') }}
 		</h2>
 		<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
@@ -45,10 +45,10 @@
 							/>
 							<div
 								v-if="badge.count > 1"
-								class="flex items-end bg-surface-gray-2 p-2 text-xs font-semibold rounded-full absolute end-0 bottom-0"
+								class="flex items-end bg-surface-gray-2 p-2 text-xs-semibold rounded-full absolute end-0 bottom-0"
 							>
 								<span>
-									<X class="w-3 h-3" />
+									<span class="lucide-x size-3" />
 								</span>
 								{{ badge.count }}
 							</div>
@@ -64,14 +64,14 @@
 								/>
 							</div>
 							<div class="p-5">
-								<div class="text-2xl font-semibold mb-2">
+								<div class="text-4xl-semibold mb-2">
 									{{ badge.badge }}
 								</div>
 								<div class="leading-5 mb-4">
 									{{ badge.badge_description }}
 								</div>
 								<div class="flex flex-col">
-									<span class="text-xs text-ink-gray-7 font-medium mb-1">
+									<span class="text-xs-medium text-ink-gray-7 mb-1">
 										{{ __('Issued on') }}:
 									</span>
 									{{ dayjs(badge.issued_on).format('DD MMM YYYY') }}
@@ -80,7 +80,7 @@
 									v-if="user.data?.name == profile.data?.name"
 									class="flex flex-col mt-4"
 								>
-									<span class="text-xs text-ink-gray-7 font-medium mb-1">
+									<span class="text-xs-medium text-ink-gray-7 mb-1">
 										{{ __('Share on') }}:
 									</span>
 									<div class="flex items-center gap-x-2">
@@ -121,7 +121,7 @@
 <script setup>
 import { inject } from 'vue'
 import { createResource, Popover, Button } from 'frappe-ui'
-import { X, LinkedinIcon, Twitter } from 'lucide-vue-next'
+import { LinkedinIcon, Twitter } from 'lucide-vue-next'
 import { sessionStore } from '@/stores/session'
 import { decodeEntities } from '@/utils'
 import DOMPurify from 'dompurify'

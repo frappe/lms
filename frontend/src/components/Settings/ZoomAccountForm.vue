@@ -11,7 +11,7 @@
 			<Button variant="solid" @click="save">{{ __('Save') }}</Button>
 		</template>
 		<div class="mb-4">
-			<Switch
+			<BooleanSwitch
 				size="sm"
 				v-model="account.enabled"
 				:label="__('Enabled')"
@@ -57,7 +57,7 @@
 </template>
 <script setup lang="ts">
 import { Button, FormControl, call, toast } from 'frappe-ui'
-import Switch from '@/components/Controls/Switch.vue'
+import BooleanSwitch from '@/components/Controls/BooleanSwitch.vue'
 import { computed, inject, reactive, watch } from 'vue'
 import { User } from '@/components/Settings/types'
 import { openSettings, cleanError } from '@/utils'

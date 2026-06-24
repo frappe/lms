@@ -1,14 +1,8 @@
 <template>
-	<Dialog
-		v-model="show"
-		:options="{
-			title: __('New Course'),
-			size: '3xl',
-		}"
-	>
-		<template #body-content>
+	<Dialog v-model:open="show" title="New Course" size="3xl">
+		<template #default>
 			<div class="text-base">
-				<div class="grid grid-cols-2 gap-5 border-b mb-5">
+				<div class="grid grid-cols-2 gap-5 border-b pb-5 mb-5">
 					<FormControl
 						v-model="course.title"
 						:label="__('Title')"
@@ -46,12 +40,12 @@
 								/>
 								<span
 									v-if="overflowCount > 0"
-									class="z-10 grid size-5 place-items-center rounded-full bg-surface-gray-3 text-xs font-medium text-ink-gray-7"
+									class="z-10 grid size-5 place-items-center rounded-full bg-surface-gray-3 text-xs-medium text-ink-gray-7"
 								>
 									+{{ overflowCount }}
 								</span>
 							</div>
-							<Users v-else class="size-4 stroke-1.5 text-ink-gray-5" />
+							<span v-else class="lucide-users size-4 text-ink-gray-5" />
 						</template>
 						<template #item-prefix="{ item }">
 							<Avatar :image="item.image" :label="item.label" size="sm" />
@@ -92,7 +86,7 @@
 							@change="(val: string) => (course.description = val)"
 							:editable="true"
 							:fixedMenu="true"
-							editorClass="prose-sm max-w-none border-b border-x border-outline-gray-modals bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[10rem] max-h-[17rem] overflow-auto"
+							editorClass="prose-sm max-w-none border-b border-x border-outline-elevation-2 bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[10rem] max-h-[17rem] overflow-auto"
 						/>
 					</div>
 				</div>
@@ -100,7 +94,11 @@
 		</template>
 		<template #actions="{ close }">
 			<div class="text-end">
-				<Button variant="solid" @click="saveCourse(close)">
+				<Button
+					variant="solid"
+					:loading="courses.insert.loading"
+					@click="saveCourse(close)"
+				>
 					{{ __('Save') }}
 				</Button>
 			</div>
@@ -125,7 +123,6 @@ import {
 	toast,
 } from 'frappe-ui'
 import { useOnboarding, useTelemetry } from 'frappe-ui/frappe'
-import { Users } from 'lucide-vue-next'
 import {
 	computed,
 	inject,

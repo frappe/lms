@@ -63,7 +63,7 @@ export class CodeBox {
 
 	static get toolbox() {
 		const app = createApp({
-			render: () => h(Code, { size: 18, strokeWidth: 1.5, color: 'black' }),
+			render: () => h(Code, { size: 18, strokeWidth: 1.5, color: 'currentColor' }),
 		});
 
 		const div = document.createElement('div');

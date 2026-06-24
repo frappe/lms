@@ -88,7 +88,7 @@ export class Program {
             },
             fieldname: "title"
         }).then((data: { title: string }) => {
-            this.wrapper.innerHTML = `<div class='border rounded-md p-4 text-center bg-surface-menu-bar mb-4'>
+            this.wrapper.innerHTML = `<div class='border rounded-md p-4 text-center bg-surface-sidebar mb-4'>
                 <span class="font-medium">
                     Programming Exercise: ${data.title}
                 </span>

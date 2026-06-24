@@ -1,14 +1,12 @@
 <template>
 	<div class="space-y-1.5">
-		<label class="block text-xs text-ink-gray-5">
-			{{ label }}
-		</label>
+		<FormLabel :label="label" />
 		<div class="w-full">
 			<Popover>
 				<template #target="{ togglePopover }">
 					<button
 						@click="openPopover(togglePopover)"
-						class="flex w-full items-center gap-x-2 focus:outline-none bg-surface-gray-2 rounded h-7 py-1.5 px-2 hover:bg-surface-gray-3 focus:bg-surface-white border border-gray-100 hover:border-outline-gray-modals focus:border-outline-gray-4"
+						class="flex w-full items-center gap-x-2 focus:outline-none transition-colors border border-[--surface-gray-2] bg-surface-gray-2 rounded h-7 py-1.5 px-2 hover:border-outline-elevation-2 hover:bg-surface-gray-3 focus:bg-surface-base focus:border-outline-gray-4 focus:shadow-sm focus:ring-0"
 					>
 						<component
 							v-if="selectedIcon"
@@ -52,7 +50,7 @@
 	</div>
 </template>
 <script setup>
-import { FormControl, Popover } from 'frappe-ui'
+import { FormControl, FormLabel, Popover } from 'frappe-ui'
 import * as icons from 'lucide-vue-next'
 import { ref, computed, onMounted, nextTick } from 'vue'
 

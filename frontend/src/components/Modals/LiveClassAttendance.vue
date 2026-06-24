@@ -1,14 +1,12 @@
 <template>
 	<Dialog
-		v-model="show"
-		:options="{
-			title: __('Attendance for Class - {0}').format(live_class?.title),
-			size: '4xl',
-		}"
+		v-model:open="show"
+		:title="__('Attendance for Class - {0}').format(live_class?.title)"
+		size="4xl"
 	>
-		<template #body-content>
+		<template #default>
 			<div
-				class="grid grid-cols-2 gap-12 text-sm font-semibold text-ink-gray-5 pb-2"
+				class="grid grid-cols-2 gap-12 text-sm-semibold text-ink-gray-5 pb-2"
 			>
 				<div>
 					{{ __('Member') }}

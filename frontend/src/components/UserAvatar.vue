@@ -10,14 +10,20 @@
 		<template v-if="user.open_to === 'Work'" #indicator>
 			<Tooltip :text="__('Open to Work')" placement="right">
 				<div class="rounded-full bg-surface-green-3 w-fit">
-					<BadgeCheckIcon :class="'text-ink-white ' + checkSize" />
+					<span
+						class="lucide-badge-check"
+						:class="'text-ink-base ' + checkSize"
+					/>
 				</div>
 			</Tooltip>
 		</template>
 		<template v-else-if="user.open_to === 'Hiring'" #indicator>
 			<Tooltip :text="__('Hiring')" placement="right">
 				<div class="rounded-full bg-purple-500 w-fit">
-					<BadgeCheckIcon :class="'text-ink-white ' + checkSize" />
+					<span
+						class="lucide-badge-check"
+						:class="'text-ink-base ' + checkSize"
+					/>
 				</div>
 			</Tooltip>
 		</template>
@@ -25,7 +31,6 @@
 </template>
 <script setup lang="ts">
 import { Avatar, Tooltip } from 'frappe-ui'
-import { BadgeCheckIcon } from 'lucide-vue-next'
 import { computed } from 'vue'
 import type { UserInfo } from '@/types/api'
 

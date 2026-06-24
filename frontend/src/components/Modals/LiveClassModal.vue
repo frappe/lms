@@ -1,19 +1,17 @@
 <template>
 	<Dialog
-		v-model="show"
-		:options="{
-			title: __('Create a Live Class'),
-			size: 'xl',
-			actions: [
-				{
-					label: 'Submit',
-					variant: 'solid',
-					onClick: ({ close }) => submitLiveClass(close),
-				},
-			],
-		}"
+		v-model:open="show"
+		:title="__('Create a Live Class')"
+		size="xl"
+		:actions="[
+			{
+				label: 'Submit',
+				variant: 'solid',
+				onClick: ({ close }) => submitLiveClass(close),
+			},
+		]"
 	>
-		<template #body-content>
+		<template #default>
 			<div class="flex flex-col gap-4">
 				<div class="grid grid-cols-2 gap-4">
 					<div class="space-y-4">
@@ -53,15 +51,17 @@
 						</Tooltip>
 
 						<div class="space-y-1.5">
-							<label class="block text-ink-gray-5 text-xs" for="batchTimezone">
+							<label
+								class="block text-p-sm-medium text-ink-gray-7"
+								for="batchTimezone"
+							>
 								{{ __('Timezone') }}
-								<span class="text-ink-red-3">*</span>
+								<span class="text-ink-red-6">*</span>
 							</label>
-							<Autocomplete
-								@update:modelValue="(opt) => (liveClass.timezone = opt.value)"
+							<Combobox
 								:modelValue="liveClass.timezone"
 								:options="getTimezoneOptions()"
-								:required="true"
+								@update:modelValue="(opt) => (liveClass.timezone = opt.value)"
 							/>
 						</div>
 						<FormControl
@@ -83,10 +83,16 @@
 	</Dialog>
 </template>
 <script setup>
-import { Dialog, createResource, Tooltip, FormControl, toast } from 'frappe-ui'
+import {
+	Combobox,
+	Dialog,
+	createResource,
+	Tooltip,
+	FormControl,
+	toast,
+} from 'frappe-ui'
 import { reactive, inject, onMounted } from 'vue'
 import { getTimezones, getUserTimezone } from '@/utils/'
-import Autocomplete from '@/components/Controls/Autocomplete.vue'
 
 const liveClasses = defineModel('reloadLiveClasses')
 const show = defineModel()

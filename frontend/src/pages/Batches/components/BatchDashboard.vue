@@ -3,7 +3,7 @@
 		<div class="grid grid-cols-1 lg:grid-cols-[2fr,1fr] gap-5">
 			<div class="p-5">
 				<div class="mb-8 space-y-2">
-					<div class="text-lg text-ink-gray-9 font-semibold">
+					<div class="text-xl-semibold text-ink-gray-9">
 						{{ __('Curriculum') }}
 					</div>
 					<div class="text-ink-gray-7">
@@ -35,14 +35,14 @@
 							}"
 						>
 							<ListHeader
-								class="mb-2 grid items-center gap-x-4 rounded-none rounded-t bg-surface-gray-2 p-2"
+								class="mb-2 grid items-center gap-x-4 rounded-t-lg bg-surface-gray-2 p-2"
 							>
 							</ListHeader>
 							<ListRows>
 								<ListRow
 									:row="row"
 									v-for="row in batch.data?.courses"
-									class="!rounded-none text-sm"
+									class="!rounded-none last:!rounded-b-lg text-sm"
 								>
 									<template #default="{ column, item }">
 										<ListRowItem :item="row[column.key]" :align="column.align">

@@ -26,11 +26,7 @@ describe('SettingsLayout', () => {
 		const h2 = wrapper.get('h2')
 		expect(h2.text()).toBe('Categories')
 		expect(h2.classes()).toEqual(
-			expect.arrayContaining([
-				'text-p-xl',
-				'font-semibold',
-				'text-ink-gray-9',
-			])
+			expect.arrayContaining(['text-p-3xl-semibold', 'text-ink-gray-9'])
 		)
 	})
 

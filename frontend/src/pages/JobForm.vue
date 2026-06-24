@@ -1,16 +1,18 @@
 <template>
 	<div class="">
 		<header
-			class="sticky top-0 z-10 flex items-center justify-between border-b bg-surface-white px-3 py-2.5 sm:px-5"
+			class="sticky top-0 z-10 flex items-center justify-between border-b bg-surface-base px-3 py-2.5 sm:px-5"
 		>
 			<Breadcrumbs :items="breadcrumbs" />
 			<div class="flex items-center gap-x-2">
 				<Badge v-if="isDirty" theme="orange">
 					{{ __('Not Saved') }}
 				</Badge>
-				<Button variant="solid" @click="saveJob()">
-					{{ __('Save') }}
-				</Button>
+				<ShortcutTooltip :label="__('Save')" combo="Mod+S">
+					<Button variant="solid" @click="saveJob()">
+						{{ __('Save') }}
+					</Button>
+				</ShortcutTooltip>
 			</div>
 		</header>
 		<div class="">
@@ -41,16 +43,16 @@
 						/>
 					</div>
 					<div>
-						<label class="block text-ink-gray-5 text-xs mb-1">
+						<label class="block text-p-sm-medium text-ink-gray-7 mb-1.5">
 							{{ __('Description') }}
-							<span class="text-ink-red-3">*</span>
+							<span class="text-ink-red-6">*</span>
 						</label>
 						<TextEditor
 							:content="job.description"
 							@change="(val) => (job.description = val)"
 							:editable="true"
 							:fixedMenu="true"
-							editorClass="prose-sm max-w-none border-b border-x border-outline-gray-modals bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[20rem] max-h-[70vh] overflow-y-auto mb-4"
+							editorClass="prose-sm max-w-none border-b border-x border-outline-elevation-2 bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[20rem] max-h-[70vh] overflow-y-auto mb-4"
 						/>
 					</div>
 				</div>
@@ -124,19 +126,16 @@ import {
 	usePageMeta,
 	toast,
 } from 'frappe-ui'
-import {
-	computed,
-	inject,
-	onMounted,
-	onBeforeUnmount,
-	reactive,
-	ref,
-	watch,
-} from 'vue'
+import { computed, inject, onMounted, reactive, ref, watch } from 'vue'
 import { sessionStore } from '@/stores/session'
 import { useRouter } from 'vue-router'
 import { sanitizeHTML } from '@/utils'
 import Uploader from '@/components/Controls/Uploader.vue'
+import ShortcutTooltip from '@/components/ShortcutTooltip.vue'
+import {
+	useKeyboardShortcuts,
+	saveShortcut,
+} from '@/composables/useKeyboardShortcuts'
 
 const user = inject('$user')
 const router = useRouter()
@@ -159,7 +158,11 @@ onMounted(() => {
 	}
 
 	if (props.jobName != 'new') jobDetails.reload()
-	window.addEventListener('keydown', keyboardShortcut)
+})
+
+useKeyboardShortcuts({
+	ignoreTyping: false,
+	shortcuts: [saveShortcut(() => saveJob())],
 })
 
 const job = reactive({
@@ -275,17 +278,6 @@ const validateJobFields = () => {
 		}
 	})
 }
-
-const keyboardShortcut = (e) => {
-	if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 's') {
-		e.preventDefault()
-		saveJob()
-	}
-}
-
-onBeforeUnmount(() => {
-	window.removeEventListener('keydown', keyboardShortcut)
-})
 
 const jobTypes = computed(() => {
 	return [

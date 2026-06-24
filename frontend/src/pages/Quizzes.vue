@@ -4,9 +4,9 @@
 			<Breadcrumbs :items="breadcrumbs" />
 		</template>
 		<template #right-header>
-			<Button v-if="!readOnlyMode" variant="solid" @click="showForm = true">
+			<Button v-if="!readOnlyMode" variant="solid" @click="createQuiz">
 				<template #prefix>
-					<Plus class="size-4 stroke-1.5" />
+					<span class="lucide-plus size-4" />
 				</template>
 				{{ __('Create') }}
 			</Button>
@@ -17,26 +17,30 @@
 		<div
 			class="mx-5 mb-5 flex flex-col justify-between gap-y-4 sm:flex-row sm:items-center"
 		>
-			<div class="text-lg font-semibold text-ink-gray-9">
-				{{ __('{0} Quizzes').format(quizzes.data?.length) }}
+			<div class="text-xl-semibold text-ink-gray-9">
+				{{ __('{0} Quizzes').format(totalQuizzes.data || 0) }}
 			</div>
 			<FormControl v-model="search" type="text" placeholder="Search">
 				<template #prefix>
-					<FeatherIcon name="search" class="size-4 text-ink-gray-5" />
+					<span class="lucide-search size-4 text-ink-gray-5" />
 				</template>
 			</FormControl>
 		</div>
+		<div
+			v-if="quizzes.loading && !quizzes.data"
+			class="flex flex-1 items-center justify-center px-5"
+		>
+			<LoadingIndicator class="size-5 text-ink-gray-5" />
+		</div>
 		<ListView
-			v-if="quizzes.data?.length"
+			v-else-if="quizzes.data?.length"
 			:columns="quizColumns"
 			:rows="quizzes.data"
 			row-key="name"
 			:options="{ showTooltip: false, selectable: true }"
 			class="flex-1 overflow-y-auto px-5"
 		>
-			<ListHeader
-				class="mb-2 grid items-center rounded-none border-b bg-surface-white p-2"
-			>
+			<ListHeader class="mb-2 grid items-center rounded bg-surface-gray-2 p-2">
 				<ListHeaderItem :item="item" v-for="item in quizColumns">
 					<template #prefix="{ item }">
 						<FeatherIcon :name="item.icon?.toString()" class="h-4 w-4" />
@@ -80,14 +84,14 @@
 							variant="ghost"
 							@click="deleteQuiz(selections, unselectAll)"
 						>
-							<FeatherIcon name="trash-2" class="h-4 w-4 stroke-1.5" />
+							<span class="lucide-trash-2 size-4" />
 						</Button>
 					</div>
 				</template>
 			</ListSelectBanner>
 		</ListView>
-		<div v-else class="flex flex-1 items-center justify-center px-5">
-			<EmptyStateLayout name="Quizzes" />
+		<div v-else class="flex-1">
+			<EmptyStateLayout name="Quizzes" icon="lucide-circle-help" />
 		</div>
 		<ListFooter
 			v-model="pageLength"
@@ -114,32 +118,6 @@
 			</template>
 		</ListFooter>
 	</div>
-	<Dialog
-		v-model="showForm"
-		:options="{
-			title: __('Create a Quiz'),
-			size: 'sm',
-			actions: [
-				{
-					label: __('Save'),
-					variant: 'solid',
-					onClick({ close }) {
-						insertQuiz(close)
-					},
-				},
-			],
-		}"
-	>
-		<template #body-content>
-			<FormControl
-				v-model="title"
-				:label="__('Title')"
-				type="text"
-				autocomplete="off"
-				@keydown.enter="insertQuiz(() => (showForm = false))"
-			/>
-		</template>
-	</Dialog>
 </template>
 <script setup>
 import {
@@ -147,7 +125,6 @@ import {
 	Button,
 	createListResource,
 	createResource,
-	Dialog,
 	FeatherIcon,
 	FormControl,
 	ListView,
@@ -158,15 +135,15 @@ import {
 	ListHeaderItem,
 	ListFooter,
 	ListSelectBanner,
+	LoadingIndicator,
 	toast,
 	usePageMeta,
 	Checkbox,
 } from 'frappe-ui'
-import { useRouter, useRoute } from 'vue-router'
+import { useRouter } from 'vue-router'
 import { computed, inject, onMounted, ref, watch } from 'vue'
-import { Plus } from 'lucide-vue-next'
+
 import { sessionStore } from '@/stores/session'
-import { sanitizeHTML } from '@/utils'
 import { useTelemetry } from 'frappe-ui/frappe'
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 import LayoutHeader from '@/components/Layouts/LayoutHeader.vue'
@@ -176,12 +153,9 @@ const { capture } = useTelemetry()
 const user = inject('$user')
 const dayjs = inject('$dayjs')
 const router = useRouter()
-const route = useRoute()
 const search = ref('')
 const readOnlyMode = window.read_only_mode
 const quizFilters = ref({})
-const showForm = ref(false)
-const title = ref('')
 
 onMounted(() => {
 	if (
@@ -190,9 +164,6 @@ onMounted(() => {
 		!user.data?.is_evaluator
 	) {
 		router.push({ name: 'Courses' })
-	}
-	if (route.query.new === 'true') {
-		showForm.value = true
 	}
 })
 
@@ -255,21 +226,13 @@ const totalQuizzes = createResource({
 	},
 })
 
-const validateTitle = () => {
-	title.value = sanitizeHTML(title.value.trim())
-}
-
-const insertQuiz = (close) => {
-	validateTitle()
+const createQuiz = () => {
 	quizzes.insert.submit(
 		{
-			title: title.value,
+			title: __('Untitled Quiz'),
 		},
 		{
 			onSuccess(data) {
-				toast.success(__('Quiz created successfully'))
-				close()
-				title.value = ''
 				capture('quiz_created')
 				router.push({
 					name: 'QuizForm',

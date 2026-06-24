@@ -1,6 +1,8 @@
 <template>
 	<div class="flex flex-col gap-y-1.5">
-		<FormLabel :label="__('Course thumbnail')" />
+		<label class="block text-p-sm-medium text-ink-gray-7">
+			{{ __('Course thumbnail') }}
+		</label>
 
 		<div class="flex items-start gap-5">
 			<button
@@ -28,7 +30,7 @@
 					v-else-if="!doc.card_gradient"
 					class="flex flex-col items-center gap-1 text-ink-gray-5"
 				>
-					<ImageIcon class="size-5 stroke-1.5" />
+					<span class="lucide-image size-5" />
 					<span class="text-xs">{{ __('No thumbnail') }}</span>
 				</div>
 			</button>
@@ -53,7 +55,7 @@
 							<template #default="{ openFileSelector, uploading }">
 								<Button :loading="uploading" @click="openFileSelector">
 									<template #prefix>
-										<Upload class="size-4 stroke-1.5" />
+										<span class="lucide-upload size-4" />
 									</template>
 									{{ uploading ? __('Uploading') : __('Replace') }}
 								</Button>
@@ -61,7 +63,7 @@
 						</FileUploader>
 						<Button variant="ghost" theme="red" @click="removeImage">
 							<template #prefix>
-								<Trash2 class="size-4 stroke-1.5" />
+								<span class="lucide-trash-2 size-4" />
 							</template>
 							{{ __('Remove') }}
 						</Button>
@@ -103,7 +105,7 @@
 							<template #default="{ openFileSelector, uploading }">
 								<Button :loading="uploading" @click="openFileSelector">
 									<template #prefix>
-										<Upload class="size-4 stroke-1.5" />
+										<span class="lucide-upload size-4" />
 									</template>
 									{{ uploading ? __('Uploading') : __('Upload image instead') }}
 								</Button>
@@ -120,14 +122,7 @@
 </template>
 
 <script setup lang="ts">
-import {
-	Button,
-	FileUploader,
-	FormLabel,
-	createResource,
-	toast,
-} from 'frappe-ui'
-import { Image as ImageIcon, Trash2, Upload } from 'lucide-vue-next'
+import { Button, FileUploader, createResource, toast } from 'frappe-ui'
 import { computed, inject, ref, watch } from 'vue'
 import { getColor } from '@/utils'
 import type { CourseFormContext, Resource } from '@/types/api'

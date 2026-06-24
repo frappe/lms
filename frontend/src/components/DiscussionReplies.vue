@@ -1,14 +1,20 @@
 <template>
 	<div class="mt-6">
-		<div v-if="!singleThread" class="flex items-center mb-5">
+		<div v-if="!singleThread" class="flex items-center mb-5 md:hidden">
 			<Button variant="outline" @click="showTopics = true">
 				<template #icon>
-					<ChevronLeft class="w-5 h-5 stroke-1.5 text-ink-gray-7" />
+					<span class="lucide-chevron-left size-5 text-ink-gray-7" />
 				</template>
 			</Button>
-			<span class="text-lg font-semibold ms-2 text-ink-gray-9">
+			<span class="text-xl-semibold ms-2 text-ink-gray-9">
 				{{ topic.title }}
 			</span>
+		</div>
+		<div
+			v-if="!singleThread"
+			class="hidden md:block text-xl-semibold mb-5 text-ink-gray-9"
+		>
+			{{ topic.title }}
 		</div>
 
 		<div v-for="(reply, index) in replies.data">
@@ -46,7 +52,7 @@
 						]"
 					>
 						<template v-slot="{ open }">
-							<MoreHorizontal class="w-4 h-4 stroke-1.5 cursor-pointer" />
+							<span class="lucide-more-horizontal size-4 cursor-pointer" />
 						</template>
 					</Dropdown>
 					<div v-if="reply.editable">
@@ -103,7 +109,6 @@ import {
 } from 'frappe-ui'
 import { timeAgo } from '@/utils'
 import UserAvatar from '@/components/UserAvatar.vue'
-import { ChevronLeft, MoreHorizontal } from 'lucide-vue-next'
 import { ref, inject, onMounted, onUnmounted } from 'vue'
 import { useTelemetry } from 'frappe-ui/frappe'
 
@@ -153,24 +158,23 @@ const replies = createResource({
 })
 
 const fetchMentionUsers = () => {
-	if (user.data?.is_student) {
-		renderEditor.value = true
-	} else {
-		allUsers.reload(
-			{},
-			{
-				onSuccess(data) {
-					mentionUsers.value = Object.values(data).map((user) => {
-						return {
-							value: user.name,
-							label: user.full_name,
-						}
-					})
-					renderEditor.value = true
-				},
-			}
-		)
-	}
+	// Render the editor right away; mentions are reactive and populate once the
+	// user list resolves, so we no longer block the editor on that fetch.
+	renderEditor.value = true
+	if (user.data?.is_student) return
+	allUsers.reload(
+		{},
+		{
+			onSuccess(data) {
+				mentionUsers.value = Object.values(data).map((user) => {
+					return {
+						value: user.name,
+						label: user.full_name,
+					}
+				})
+			},
+		}
+	)
 }
 
 const postReply = () => {

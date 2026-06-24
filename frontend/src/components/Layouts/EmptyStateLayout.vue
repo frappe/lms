@@ -1,21 +1,22 @@
 <template>
-	<div
-		class="flex min-h-[60vh] w-full flex-col items-center justify-center gap-3 px-4"
-	>
-		<component :is="icon" class="size-7.5 stroke-1 text-ink-gray-5" />
-		<div class="flex flex-col items-center gap-1" :class="widthClass">
-			<span class="text-lg font-medium text-ink-gray-8 text-center">
-				{{ computedTitle }}
-			</span>
-			<span class="text-center text-p-base text-ink-gray-6">
-				{{ computedDescription }}
-			</span>
+	<div class="relative flex h-full w-full justify-center">
+		<div
+			class="absolute left-1/2 top-[35%] flex -translate-x-1/2 flex-col items-center gap-3 px-4"
+			:class="widthClass"
+		>
+			<span class="size-7.5 text-ink-gray-5" :class="icon" />
+			<div class="flex flex-col items-center gap-1">
+				<span class="text-xl-medium text-center text-ink-gray-8">
+					{{ computedTitle }}
+				</span>
+				<span class="text-center text-p-base text-ink-gray-6">
+					{{ computedDescription }}
+				</span>
+			</div>
 		</div>
 	</div>
 </template>
 <script setup lang="ts">
-import { GraduationCap } from 'lucide-vue-next'
-import type { Component } from 'vue'
 import { computed } from 'vue'
 
 const props = withDefaults(
@@ -23,11 +24,11 @@ const props = withDefaults(
 		name: string
 		title?: string
 		description?: string
-		icon?: Component
+		icon?: string
 		width?: 'sm' | 'md' | 'lg'
 	}>(),
 	{
-		icon: () => GraduationCap,
+		icon: 'lucide-graduation-cap',
 		width: 'md',
 	}
 )

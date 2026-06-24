@@ -6,7 +6,7 @@
 			</div>
 			<Button v-if="isAdmin()" @click="openCourseModal()">
 				<template #prefix>
-					<Plus class="h-4 w-4" />
+					<span class="lucide-plus h-4 w-4" />
 				</template>
 				{{ __('Add') }}
 			</Button>
@@ -27,13 +27,17 @@
 				}"
 			>
 				<ListHeader
-					class="mb-2 grid items-center gap-x-4 rounded-none rounded-t bg-surface-gray-2 p-2"
+					class="mb-2 grid items-center gap-x-4 rounded-t-lg bg-surface-gray-2 p-2"
 				>
 					<ListHeaderItem :item="item" v-for="item in getCoursesColumns()">
 					</ListHeaderItem>
 				</ListHeader>
 				<ListRows>
-					<ListRow :row="row" v-for="row in courses.data" class="!rounded-none">
+					<ListRow
+						:row="row"
+						v-for="row in courses.data"
+						class="!rounded-none last:!rounded-b-lg"
+					>
 						<template #default="{ column, item }">
 							<ListRowItem :item="row[column.key]" :align="column.align">
 								<div>
@@ -50,7 +54,7 @@
 								variant="ghost"
 								@click="removeCourses(selections, unselectAll)"
 							>
-								<Trash2 class="h-4 w-4 stroke-1.5" />
+								<span class="lucide-trash-2 h-4 w-4" />
 							</Button>
 						</div>
 					</template>
@@ -82,7 +86,6 @@ import {
 	ListRowItem,
 	toast,
 } from 'frappe-ui'
-import { Plus, Trash2 } from 'lucide-vue-next'
 const readOnlyMode = window.read_only_mode
 
 const showCourseModal = ref(false)

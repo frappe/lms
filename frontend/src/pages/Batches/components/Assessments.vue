@@ -6,7 +6,7 @@
 			</div>
 			<Button v-if="canAddAssessments()" @click="showModal = true">
 				<template #prefix>
-					<Plus class="h-4 w-4" />
+					<span class="lucide-plus h-4 w-4" />
 				</template>
 				{{ __('Add') }}
 			</Button>
@@ -24,7 +24,7 @@
 				}"
 			>
 				<ListHeader
-					class="mb-2 grid items-center gap-x-4 rounded-none rounded-t bg-surface-gray-2 p-2"
+					class="mb-2 grid items-center gap-x-4 rounded-t-lg bg-surface-gray-2 p-2"
 				>
 					<ListHeaderItem :item="item" v-for="item in getAssessmentColumns()">
 					</ListHeaderItem>
@@ -33,7 +33,7 @@
 					<ListRow
 						:row="row"
 						v-for="row in assessments.data"
-						class="!rounded-none"
+						class="!rounded-none last:!rounded-b-lg"
 					>
 						<template #default="{ column, item }">
 							<ListRowItem :item="row[column.key]" :align="column.align">
@@ -62,7 +62,7 @@
 								variant="ghost"
 								@click="removeAssessments(selections, unselectAll)"
 							>
-								<Trash2 class="h-4 w-4 stroke-1.5" />
+								<span class="lucide-trash-2 h-4 w-4" />
 							</Button>
 						</div>
 					</template>
@@ -94,7 +94,6 @@ import {
 } from 'frappe-ui'
 import { inject, ref } from 'vue'
 import AssessmentModal from '@/components/Modals/AssessmentModal.vue'
-import { Plus, Trash2 } from 'lucide-vue-next'
 
 const user = inject('$user')
 const showModal = ref(false)
