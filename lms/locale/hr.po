@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2026-06-19 16:48+0000\n"
-"PO-Revision-Date: 2026-06-22 20:16\n"
+"PO-Revision-Date: 2026-06-23 20:42\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Croatian\n"
 "MIME-Version: 1.0\n"
@@ -196,11 +196,11 @@ msgstr "Dodaj Novog Člana"
 
 #: frontend/src/components/Modals/Question.vue:102
 msgid "Add Option"
-msgstr ""
+msgstr "Dodaj Opciju"
 
 #: frontend/src/components/Modals/Question.vue:135
 msgid "Add Possibility"
-msgstr ""
+msgstr "Dodaj Mogućnost"
 
 #: frontend/src/pages/QuizForm.vue:219
 msgid "Add Question"
@@ -253,7 +253,7 @@ msgstr "Dodajte vježbu programiranja u lekciju"
 
 #: frontend/src/pages/QuizForm.vue:120
 msgid "Add a question to get started."
-msgstr ""
+msgstr "Dodaj pitanje da biste započeli."
 
 #: frontend/src/components/AssessmentPlugin.vue:6
 msgid "Add a quiz to your lesson"
@@ -1198,7 +1198,7 @@ msgstr "Certifikati su uspješno generirani"
 
 #: frontend/src/pages/Courses/CoursePublishSettings.vue:140
 msgid "Certificates render from a Print Format. Build or customize templates from the desk."
-msgstr ""
+msgstr "Certifikati se izrađuju iz formata za ispis. Izradite ili prilagodite predloške sa radne površine."
 
 #. Label of the certification (Table) field in DocType 'User'
 #. Name of a DocType
@@ -1824,7 +1824,7 @@ msgstr "Kupon uspješno izbrisan"
 
 #: frontend/src/components/Settings/Coupons/CouponDetails.vue:156
 msgid "Coupon updated successfully"
-msgstr ""
+msgstr "Kupon uspješno ažuriran"
 
 #: frontend/src/components/Settings/Coupons/CouponList.vue:135
 msgid "Coupon(s) deleted successfully"
@@ -2263,7 +2263,7 @@ msgstr "Valuta"
 
 #: frontend/src/pages/Courses/CourseForm.vue:181
 msgid "Currency is required for {0}."
-msgstr ""
+msgstr "Valuta je obavezna za {0}."
 
 #. Label of the current_lesson (Link) field in DocType 'LMS Enrollment'
 #: lms/lms/doctype/lms_enrollment/lms_enrollment.json
@@ -2897,7 +2897,7 @@ msgstr "Besplatan Upis"
 #: frontend/src/pages/Batches/components/AdminBatchDashboard.vue:132
 #: frontend/src/pages/Courses/CourseDashboard.vue:32
 msgid "Enroll students to track their progress here."
-msgstr ""
+msgstr "Upišite učenike kako biste pratili njihov napredak ovdje."
 
 #: frontend/src/pages/Batches/Batches.vue:334
 #: frontend/src/pages/Batches/components/AdminBatchDashboard.vue:5
@@ -3512,7 +3512,7 @@ msgstr "Započni"
 
 #: frontend/src/pages/Courses/CoursePublishSettings.vue:168
 msgid "Get the Payments app"
-msgstr ""
+msgstr "Preuzmite aplikaciju Plaćanja"
 
 #: frontend/src/components/InstallPrompt.vue:9
 msgid "Get the app on your device for easy access & a better experience!"
@@ -3736,7 +3736,7 @@ msgstr "Domaćin"
 #: frontend/src/components/LessonHelp.vue:2
 #: frontend/src/pages/Courses/CourseDetail.vue:47
 msgid "How to edit a lesson"
-msgstr ""
+msgstr "Kako urediti lekciju"
 
 #. Option for the 'Work Mode' (Select) field in DocType 'Job Opportunity'
 #: frontend/src/pages/JobForm.vue:302 frontend/src/pages/Jobs.vue:334
@@ -3874,7 +3874,7 @@ msgstr "Uključi u Pregled"
 
 #: frontend/src/pages/LessonForm.vue:10
 msgid "Include in preview"
-msgstr ""
+msgstr "Uključi u pregled"
 
 #. Option for the 'Status' (Select) field in DocType 'LMS Course Progress'
 #: lms/lms/doctype/lms_course_progress/lms_course_progress.json
@@ -3940,7 +3940,7 @@ msgstr "Instruktor Napomene"
 
 #: frontend/src/pages/LessonForm.vue:47
 msgid "Instructor notes"
-msgstr ""
+msgstr "Bilješke Instruktora"
 
 #. Label of the instructors (Table MultiSelect) field in DocType 'LMS Batch'
 #. Label of the instructors (Rating) field in DocType 'LMS Batch Feedback'
@@ -4529,7 +4529,7 @@ msgstr "Vrijeme zadržavanja na lekciji (sekunde)"
 
 #: lms/lms/doctype/lms_settings/lms_settings.py:19
 msgid "Lesson Dwell Time must be at least 1 second."
-msgstr ""
+msgstr "Vrijeme zadržavanja na lekciji mora biti najmanje 1 sekunda."
 
 #: frontend/src/pages/Courses/CourseDashboard.vue:451
 msgid "Lesson Index"
@@ -4567,7 +4567,7 @@ msgstr "Lekcija je uspješno premještena"
 
 #: frontend/src/pages/LessonForm.vue:31
 msgid "Lesson title"
-msgstr ""
+msgstr "Naslov lekcije"
 
 #: frontend/src/components/Modals/LessonModal.vue:148
 msgid "Lesson updated"
@@ -4702,7 +4702,7 @@ msgstr "Radujemo se vašem upisu!"
 
 #: frontend/src/pages/Batches/BatchDetail.vue:58
 msgid "Make Announcement"
-msgstr ""
+msgstr "Objavi Priopćenje"
 
 #. Label of the default_home (Check) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
@@ -4723,7 +4723,7 @@ msgstr "Upravljaj grupama, pregledima i ocjenjivanju predanih radova"
 
 #: frontend/src/pages/Courses/CoursePublishSettings.vue:150
 msgid "Manage templates"
-msgstr ""
+msgstr "Upravljaj predlošcima"
 
 #: frontend/src/pages/Home/Home.vue:154
 msgid "Manage your courses and batches at a glance"
@@ -5381,7 +5381,7 @@ msgstr "Nisu pronađeni članovi."
 
 #: frontend/src/pages/Courses/CourseOverviewSection.vue:38
 msgid "No other published courses available"
-msgstr ""
+msgstr "Nema drugih objavljenih tečajeva"
 
 #: frontend/src/pages/Programs/StudentPrograms.vue:56
 msgid "No programs found in this category."
@@ -5416,7 +5416,7 @@ msgstr "Nema dostupne statistike za ovaj video."
 #: frontend/src/pages/Batches/components/AdminBatchDashboard.vue:127
 #: frontend/src/pages/Courses/CourseDashboard.vue:29
 msgid "No students enrolled yet"
-msgstr ""
+msgstr "Još nema upisanih studenata"
 
 #: frontend/src/pages/Batches/components/AnnouncementModal.vue:93
 msgid "No students in this batch"
@@ -5425,7 +5425,7 @@ msgstr "Nema učenika u ovoj grupi"
 #: frontend/src/pages/Batches/components/AdminBatchDashboard.vue:126
 #: frontend/src/pages/Courses/CourseDashboard.vue:130
 msgid "No students match your search"
-msgstr ""
+msgstr "Nema studenata koji odgovaraju vašoj pretrazi"
 
 #: frontend/src/pages/AssignmentSubmissionList.vue:67
 msgid "No submissions"
@@ -5870,11 +5870,11 @@ msgstr "Lozinka"
 
 #: frontend/src/components/Controls/VideoPreviewField.vue:85
 msgid "Paste a YouTube link"
-msgstr ""
+msgstr "Umetnite YouTube poveznicu"
 
 #: frontend/src/components/Controls/VideoPreviewField.vue:107
 msgid "Paste a YouTube link, or upload a video file (MP4, WebM, or OGG) to show a preview on the course page."
-msgstr ""
+msgstr "Umetnite YouTube poveznicu ili prenesite videozapis (MP4, WebM ili OGG) kako biste prikazali pregled na stranici tečaja."
 
 #. Label of the payment (Link) field in DocType 'LMS Batch Enrollment'
 #. Label of the payment (Link) field in DocType 'LMS Enrollment'
@@ -5979,7 +5979,7 @@ msgstr "Aplikacija plaćanja nije instalirana"
 
 #: frontend/src/pages/Courses/CoursePublishSettings.vue:165
 msgid "Payments app required"
-msgstr ""
+msgstr "Aplikacija Plaćanja je obavezna"
 
 #. Option for the 'Status' (Select) field in DocType 'LMS Certificate
 #. Evaluation'
@@ -6038,7 +6038,7 @@ msgstr "Zamoli administratora da potvrdi vašu registraciju"
 
 #: lms/lms/api.py:1076
 msgid "Please attach a SCORM package before saving this chapter."
-msgstr ""
+msgstr "Priložite SCORM paket prije spremanja ovog poglavlja."
 
 #: lms/lms/user.py:75
 msgid "Please check your email for verification"
@@ -6235,7 +6235,7 @@ msgstr "Učitaj SCORM Paket"
 
 #: frontend/src/components/Controls/VideoPreviewField.vue:156
 msgid "Please upload an MP4, WebM, or OGG video — formats like .MOV can't be played in the browser."
-msgstr ""
+msgstr "Prenesite video u formatu MP4, WebM ili OGG — formati poput .MOV se ne mogu reproducirati u pregledniku."
 
 #. Option for the 'Grade Type' (Select) field in DocType 'Education Detail'
 #: lms/lms/doctype/education_detail/education_detail.json
@@ -6365,7 +6365,7 @@ msgstr "Pregledaj Video"
 
 #: frontend/src/pages/Courses/CourseDetailsSection.vue:81
 msgid "Preview video"
-msgstr ""
+msgstr "Pregled videa"
 
 #: frontend/src/pages/Lesson.vue:148 frontend/src/pages/Lesson.vue:181
 msgid "Previous"
@@ -6373,7 +6373,7 @@ msgstr "Prethodna"
 
 #: frontend/src/pages/Courses/CourseForm.vue:184
 msgid "Price must be a positive number for {0}."
-msgstr ""
+msgstr "Cijena mora biti pozitivan broj za {0}."
 
 #. Label of the pricing_tab (Tab Break) field in DocType 'LMS Batch'
 #: lms/lms/doctype/lms_batch/lms_batch.json
@@ -7030,7 +7030,7 @@ msgstr "Spremi"
 
 #: frontend/src/components/Controls/VideoPreviewField.vue:29
 msgid "Saved — this format can't be previewed here."
-msgstr ""
+msgstr "Spremljeno — ovaj format nije moguće pregledati ovdje."
 
 #. Label of the schedule (Table) field in DocType 'Course Evaluator'
 #: frontend/src/components/UpcomingEvaluations.vue:8
@@ -7157,7 +7157,7 @@ msgstr "Odaberi Pitanje"
 
 #: frontend/src/components/Discussions.vue:72
 msgid "Select a question to view the thread"
-msgstr ""
+msgstr "Odaberite pitanje za pregled teme"
 
 #: frontend/src/components/AssessmentPlugin.vue:27
 msgid "Select a quiz"
@@ -7212,7 +7212,7 @@ msgstr "Prodajte certifikat ocijenjen od strane evaluatora uz ovaj besplatni te�
 
 #: frontend/src/pages/Courses/CoursePublishSettings.vue:180
 msgid "Selling a paid course or certificate needs the Payments app. Install it from the Frappe Marketplace, then turn on pricing here."
-msgstr ""
+msgstr "Za prodaju plaćenog tečaja ili certifikata obaveyna je aplikacija za plaćanja. Instalirajte je s Frappe Marketplacea, a zatim ovdje uključite određivanje cijena."
 
 #: frontend/src/pages/PersonaForm.vue:127
 msgid "Selling courses and earning income"
@@ -8015,7 +8015,7 @@ msgstr "Ovaj kviz se sastoji od {0} pitanja."
 
 #: frontend/src/components/Quiz.vue:126
 msgid "This quiz has no questions available yet."
-msgstr ""
+msgstr "Ovaj kviz još nema dostupnih pitanja."
 
 #: frontend/src/components/Sidebar/AppSidebar.vue:91
 #: frontend/src/components/Sidebar/AppSidebar.vue:177
@@ -8032,7 +8032,7 @@ msgstr "Ovaj video sadrži {0} {1}:"
 
 #: frontend/src/components/Controls/VideoPreviewField.vue:161
 msgid "This video's codec can't be played in browsers (e.g. HEVC/H.265). Please upload an H.264 MP4 or a WebM."
-msgstr ""
+msgstr "Kodek ovog videa ne može se reproducirati u preglednicima (npr. HEVC/H.265). Prenesite H.264 MP4 ili WebM datoteku."
 
 #: frontend/src/components/Settings/Coupons/CouponList.vue:122
 msgid "This will permanently delete the coupon and the code will no longer be valid."
@@ -8260,7 +8260,7 @@ msgstr "Pokušaj ponovo"
 #: frontend/src/pages/Batches/components/AdminBatchDashboard.vue:131
 #: frontend/src/pages/Courses/CourseDashboard.vue:131
 msgid "Try a different name."
-msgstr ""
+msgstr "Pokušajte s drugim imenom."
 
 #. Option for the 'Day' (Select) field in DocType 'Evaluator Schedule'
 #. Option for the 'Day' (Select) field in DocType 'LMS Certificate Request'
@@ -8464,11 +8464,11 @@ msgstr "Učitaj sliku umjesto toga"
 
 #: frontend/src/components/Controls/VideoPreviewField.vue:97
 msgid "Upload video"
-msgstr ""
+msgstr "Prenesi video"
 
 #: frontend/src/components/Controls/VideoPreviewField.vue:73
 msgid "Uploaded video — students see it on the course page. Remove it to use a YouTube link instead."
-msgstr ""
+msgstr "Preneseni videozapis — studenti ga vide na stranici tečaja. Uklonite ga da biste umjesto toga koristili YouTube poveznicu."
 
 #: frontend/src/components/Controls/Uploader.vue:39
 #: frontend/src/pages/Courses/CourseThumbnailField.vue:60
@@ -8593,7 +8593,7 @@ msgstr "Video Statistika"
 
 #: frontend/src/pages/Lesson.vue:911
 msgid "Video failed to load — this lesson will still be marked complete after you spend some time on it."
-msgstr ""
+msgstr "Video se nije uspio učitati — ova će lekcija i dalje biti označena kao dovršena nakon što na nju provedete neko vrijeme."
 
 #: frontend/src/pages/JobDetail.vue:31
 msgid "View Applications"
@@ -8703,7 +8703,7 @@ msgstr "Kada se tečaj pošalje na pregled, biće naveden ovdje."
 
 #: frontend/src/pages/LessonForm.vue:14
 msgid "When on, anyone can preview this lesson without enrolling. Otherwise it is visible only to enrolled students."
-msgstr ""
+msgstr "Kad je aktivno, svatko može pregledati ovu lekciju bez upisa. Inače je vidljiva samo upisanim studentima."
 
 #: frontend/src/pages/Billing.vue:162
 msgid "Where did you hear about us?"
@@ -9093,7 +9093,7 @@ msgstr "YouTube video će se pojaviti na vrhu lekcije."
 
 #: frontend/src/components/Controls/VideoPreviewField.vue:104
 msgid "YouTube link added — students see it embedded on the course page. Clear the field to upload a file instead."
-msgstr ""
+msgstr "Dodana je poveznica na YouTube — studenti je vide ugrađenu na stranici tečaja. Obrišite polje za prijenos datoteke."
 
 #: lms/www/new-sign-up.html:56
 msgid "Your Account has been successfully created!"
@@ -9377,11 +9377,11 @@ msgstr "ostalo"
 
 #: frontend/src/pages/Courses/CourseForm.vue:179
 msgid "paid certificates"
-msgstr ""
+msgstr "plaćeni certifikati"
 
 #: frontend/src/pages/Courses/CourseForm.vue:179
 msgid "paid courses"
-msgstr ""
+msgstr "plaćeni tečajevi"
 
 #: frontend/src/pages/LessonForm.vue:53
 msgid "private"
@@ -9530,11 +9530,11 @@ msgstr "{0} nije pronađen"
 
 #: frontend/src/components/Discussions.vue:52
 msgid "{0} replies"
-msgstr ""
+msgstr "{0} odgovora"
 
 #: frontend/src/components/Discussions.vue:51
 msgid "{0} reply"
-msgstr ""
+msgstr "{0} odgovor"
 
 #: frontend/src/pages/Jobs.vue:36
 msgid "{0} {1} Jobs"

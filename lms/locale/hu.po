@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2026-06-19 16:48+0000\n"
-"PO-Revision-Date: 2026-06-22 20:16\n"
+"PO-Revision-Date: 2026-06-24 20:40\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Hungarian\n"
 "MIME-Version: 1.0\n"
@@ -4007,7 +4007,7 @@ msgstr ""
 
 #: lms/lms/api.py:689
 msgid "Invalid search query."
-msgstr ""
+msgstr "Érvénytelen keresési lekérdezés."
 
 #: frontend/src/components/Sidebar/AppSidebar.vue:512
 msgid "Invite your team and students"
@@ -5895,7 +5895,7 @@ msgstr ""
 #: frontend/src/components/Settings/Transactions/TransactionDetails.vue:82
 #: lms/lms/doctype/lms_payment/lms_payment.json
 msgid "Payment Details"
-msgstr ""
+msgstr "Fizetési részletek"
 
 #: frontend/src/components/Settings/Transactions/TransactionDetails.vue:35
 msgid "Payment For Certificate"
@@ -9331,7 +9331,7 @@ msgstr ""
 
 #: frontend/src/pages/Search/Search.vue:38
 msgid "match"
-msgstr ""
+msgstr "egyezés"
 
 #: frontend/src/pages/Search/Search.vue:38
 msgid "matches"

@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2026-06-19 16:48+0000\n"
-"PO-Revision-Date: 2026-06-22 20:16\n"
+"PO-Revision-Date: 2026-06-25 20:45\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Swedish\n"
 "MIME-Version: 1.0\n"
@@ -196,11 +196,11 @@ msgstr "Lägg till ny Medlem"
 
 #: frontend/src/components/Modals/Question.vue:102
 msgid "Add Option"
-msgstr ""
+msgstr "Lägg till Alternativ"
 
 #: frontend/src/components/Modals/Question.vue:135
 msgid "Add Possibility"
-msgstr ""
+msgstr "Lägg till Möjlighet"
 
 #: frontend/src/pages/QuizForm.vue:219
 msgid "Add Question"
@@ -253,7 +253,7 @@ msgstr "Lägg till programmeringsövning i lektion"
 
 #: frontend/src/pages/QuizForm.vue:120
 msgid "Add a question to get started."
-msgstr ""
+msgstr "Lägg till en fråga för att komma igång."
 
 #: frontend/src/components/AssessmentPlugin.vue:6
 msgid "Add a quiz to your lesson"
@@ -1198,7 +1198,7 @@ msgstr "Certifikat genererade"
 
 #: frontend/src/pages/Courses/CoursePublishSettings.vue:140
 msgid "Certificates render from a Print Format. Build or customize templates from the desk."
-msgstr ""
+msgstr "Certifikat skapas från utskrift format. Skapa eller anpassa mallar från skrivbordet."
 
 #. Label of the certification (Table) field in DocType 'User'
 #. Name of a DocType
@@ -1824,7 +1824,7 @@ msgstr "Kupong borttagen"
 
 #: frontend/src/components/Settings/Coupons/CouponDetails.vue:156
 msgid "Coupon updated successfully"
-msgstr ""
+msgstr "Kupong uppdaterad"
 
 #: frontend/src/components/Settings/Coupons/CouponList.vue:135
 msgid "Coupon(s) deleted successfully"
@@ -2263,7 +2263,7 @@ msgstr "Valuta"
 
 #: frontend/src/pages/Courses/CourseForm.vue:181
 msgid "Currency is required for {0}."
-msgstr ""
+msgstr "Valuta erfordras för {0}."
 
 #. Label of the current_lesson (Link) field in DocType 'LMS Enrollment'
 #: lms/lms/doctype/lms_enrollment/lms_enrollment.json
@@ -2897,7 +2897,7 @@ msgstr "Registrera Gratis"
 #: frontend/src/pages/Batches/components/AdminBatchDashboard.vue:132
 #: frontend/src/pages/Courses/CourseDashboard.vue:32
 msgid "Enroll students to track their progress here."
-msgstr ""
+msgstr "Registrera elever för att följa deras framsteg här."
 
 #: frontend/src/pages/Batches/Batches.vue:334
 #: frontend/src/pages/Batches/components/AdminBatchDashboard.vue:5
@@ -3512,7 +3512,7 @@ msgstr "Genvägar"
 
 #: frontend/src/pages/Courses/CoursePublishSettings.vue:168
 msgid "Get the Payments app"
-msgstr ""
+msgstr "Hämta Betalning App"
 
 #: frontend/src/components/InstallPrompt.vue:9
 msgid "Get the app on your device for easy access & a better experience!"
@@ -3736,7 +3736,7 @@ msgstr "Värd"
 #: frontend/src/components/LessonHelp.vue:2
 #: frontend/src/pages/Courses/CourseDetail.vue:47
 msgid "How to edit a lesson"
-msgstr ""
+msgstr "Hur redigeras en lektion"
 
 #. Option for the 'Work Mode' (Select) field in DocType 'Job Opportunity'
 #: frontend/src/pages/JobForm.vue:302 frontend/src/pages/Jobs.vue:334
@@ -3874,7 +3874,7 @@ msgstr "Inkludera i Förhandsgranskning"
 
 #: frontend/src/pages/LessonForm.vue:10
 msgid "Include in preview"
-msgstr ""
+msgstr "Inkludera i Förhandsgranskning"
 
 #. Option for the 'Status' (Select) field in DocType 'LMS Course Progress'
 #: lms/lms/doctype/lms_course_progress/lms_course_progress.json
@@ -3940,7 +3940,7 @@ msgstr "Lärare Anteckningar"
 
 #: frontend/src/pages/LessonForm.vue:47
 msgid "Instructor notes"
-msgstr ""
+msgstr "Lärare anteckningar"
 
 #. Label of the instructors (Table MultiSelect) field in DocType 'LMS Batch'
 #. Label of the instructors (Rating) field in DocType 'LMS Batch Feedback'
@@ -4529,7 +4529,7 @@ msgstr "Lektion Uppehåll Tid (sekunder)"
 
 #: lms/lms/doctype/lms_settings/lms_settings.py:19
 msgid "Lesson Dwell Time must be at least 1 second."
-msgstr ""
+msgstr "Lektion uppehållstid måste vara minst 1 sekund."
 
 #: frontend/src/pages/Courses/CourseDashboard.vue:451
 msgid "Lesson Index"
@@ -4567,7 +4567,7 @@ msgstr "Lektion flyttad"
 
 #: frontend/src/pages/LessonForm.vue:31
 msgid "Lesson title"
-msgstr ""
+msgstr "Lektion Benämning"
 
 #: frontend/src/components/Modals/LessonModal.vue:148
 msgid "Lesson updated"
@@ -4702,7 +4702,7 @@ msgstr "Ser fram emot att se dig registrerad!"
 
 #: frontend/src/pages/Batches/BatchDetail.vue:58
 msgid "Make Announcement"
-msgstr ""
+msgstr "Skapa Tillkännagivande"
 
 #. Label of the default_home (Check) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
@@ -4723,7 +4723,7 @@ msgstr "Hantera grupper, granska och betygsätta inlämningar"
 
 #: frontend/src/pages/Courses/CoursePublishSettings.vue:150
 msgid "Manage templates"
-msgstr ""
+msgstr "Hantera mallar"
 
 #: frontend/src/pages/Home/Home.vue:154
 msgid "Manage your courses and batches at a glance"
@@ -5381,7 +5381,7 @@ msgstr "Inga medlemmar hittades."
 
 #: frontend/src/pages/Courses/CourseOverviewSection.vue:38
 msgid "No other published courses available"
-msgstr ""
+msgstr "Inga andra publicerade kurser tillgängliga"
 
 #: frontend/src/pages/Programs/StudentPrograms.vue:56
 msgid "No programs found in this category."
@@ -5416,7 +5416,7 @@ msgstr "Ingen statistik tillgänglig för denna video."
 #: frontend/src/pages/Batches/components/AdminBatchDashboard.vue:127
 #: frontend/src/pages/Courses/CourseDashboard.vue:29
 msgid "No students enrolled yet"
-msgstr ""
+msgstr "Inga studenter inskrivna ännu"
 
 #: frontend/src/pages/Batches/components/AnnouncementModal.vue:93
 msgid "No students in this batch"
@@ -5425,7 +5425,7 @@ msgstr "Inga studenter i denna grupp"
 #: frontend/src/pages/Batches/components/AdminBatchDashboard.vue:126
 #: frontend/src/pages/Courses/CourseDashboard.vue:130
 msgid "No students match your search"
-msgstr ""
+msgstr "Inga studenter stämmer överens med din sökning"
 
 #: frontend/src/pages/AssignmentSubmissionList.vue:67
 msgid "No submissions"
@@ -5870,11 +5870,11 @@ msgstr "Lösenord"
 
 #: frontend/src/components/Controls/VideoPreviewField.vue:85
 msgid "Paste a YouTube link"
-msgstr ""
+msgstr "Klistra in YouTube länk"
 
 #: frontend/src/components/Controls/VideoPreviewField.vue:107
 msgid "Paste a YouTube link, or upload a video file (MP4, WebM, or OGG) to show a preview on the course page."
-msgstr ""
+msgstr "Klistra in YouTube länk eller ladda upp videofil (MP4, WebM eller OGG) för att visa förhandsvisning på kurs sidan."
 
 #. Label of the payment (Link) field in DocType 'LMS Batch Enrollment'
 #. Label of the payment (Link) field in DocType 'LMS Enrollment'
@@ -5979,7 +5979,7 @@ msgstr "Betalning App är inte installerad"
 
 #: frontend/src/pages/Courses/CoursePublishSettings.vue:165
 msgid "Payments app required"
-msgstr ""
+msgstr "Betalning app erfordras"
 
 #. Option for the 'Status' (Select) field in DocType 'LMS Certificate
 #. Evaluation'
@@ -6038,7 +6038,7 @@ msgstr "Be Administratör att verifiera din registrering"
 
 #: lms/lms/api.py:1076
 msgid "Please attach a SCORM package before saving this chapter."
-msgstr ""
+msgstr "Bifoga ett SCORM paket innan detta kapitel sparas."
 
 #: lms/lms/user.py:75
 msgid "Please check your email for verification"
@@ -6235,7 +6235,7 @@ msgstr "Ladda upp SCORM App"
 
 #: frontend/src/components/Controls/VideoPreviewField.vue:156
 msgid "Please upload an MP4, WebM, or OGG video — formats like .MOV can't be played in the browser."
-msgstr ""
+msgstr "Ladda upp MP4, WebM eller OGG video – format som .MOV kan inte spelas upp i webbläsare."
 
 #. Option for the 'Grade Type' (Select) field in DocType 'Education Detail'
 #: lms/lms/doctype/education_detail/education_detail.json
@@ -6365,7 +6365,7 @@ msgstr "Förhandsgranska Video"
 
 #: frontend/src/pages/Courses/CourseDetailsSection.vue:81
 msgid "Preview video"
-msgstr ""
+msgstr "Förhandsvisa video"
 
 #: frontend/src/pages/Lesson.vue:148 frontend/src/pages/Lesson.vue:181
 msgid "Previous"
@@ -6373,7 +6373,7 @@ msgstr "Föregående"
 
 #: frontend/src/pages/Courses/CourseForm.vue:184
 msgid "Price must be a positive number for {0}."
-msgstr ""
+msgstr "Pris måste vara positivt tal för {0}."
 
 #. Label of the pricing_tab (Tab Break) field in DocType 'LMS Batch'
 #: lms/lms/doctype/lms_batch/lms_batch.json
@@ -7030,7 +7030,7 @@ msgstr "Spara"
 
 #: frontend/src/components/Controls/VideoPreviewField.vue:29
 msgid "Saved — this format can't be previewed here."
-msgstr ""
+msgstr "Sparat — det går inte att förhandsvisa detta format här."
 
 #. Label of the schedule (Table) field in DocType 'Course Evaluator'
 #: frontend/src/components/UpcomingEvaluations.vue:8
@@ -7157,7 +7157,7 @@ msgstr "Välj fråga"
 
 #: frontend/src/components/Discussions.vue:72
 msgid "Select a question to view the thread"
-msgstr ""
+msgstr "Välj fråga för att visa träd"
 
 #: frontend/src/components/AssessmentPlugin.vue:27
 msgid "Select a quiz"
@@ -7212,7 +7212,7 @@ msgstr "Sälj utvärderare betygsatt certifikat tillsammans med denna kostnadsfr
 
 #: frontend/src/pages/Courses/CoursePublishSettings.vue:180
 msgid "Selling a paid course or certificate needs the Payments app. Install it from the Frappe Marketplace, then turn on pricing here."
-msgstr ""
+msgstr "För att sälja betald kurs eller certifikat erfordras Betalning app. Installera app från Frappe Marketplace och aktivera sedan här."
 
 #: frontend/src/pages/PersonaForm.vue:127
 msgid "Selling courses and earning income"
@@ -8015,7 +8015,7 @@ msgstr "Denna frågesport består av {0} frågor."
 
 #: frontend/src/components/Quiz.vue:126
 msgid "This quiz has no questions available yet."
-msgstr ""
+msgstr "Det finns ännu inga frågor i detta frågesport."
 
 #: frontend/src/components/Sidebar/AppSidebar.vue:91
 #: frontend/src/components/Sidebar/AppSidebar.vue:177
@@ -8032,7 +8032,7 @@ msgstr "Denna video innehåller {0} {1}:"
 
 #: frontend/src/components/Controls/VideoPreviewField.vue:161
 msgid "This video's codec can't be played in browsers (e.g. HEVC/H.265). Please upload an H.264 MP4 or a WebM."
-msgstr ""
+msgstr "Detta video format kan inte spelas upp i webbläsare (t.ex. HEVC/H.265). Kadda upp en H.264 MP4 eller WebM -fil."
 
 #: frontend/src/components/Settings/Coupons/CouponList.vue:122
 msgid "This will permanently delete the coupon and the code will no longer be valid."
@@ -8260,7 +8260,7 @@ msgstr "Försök igen"
 #: frontend/src/pages/Batches/components/AdminBatchDashboard.vue:131
 #: frontend/src/pages/Courses/CourseDashboard.vue:131
 msgid "Try a different name."
-msgstr ""
+msgstr "Försök med annat namn."
 
 #. Option for the 'Day' (Select) field in DocType 'Evaluator Schedule'
 #. Option for the 'Day' (Select) field in DocType 'LMS Certificate Request'
@@ -8464,11 +8464,11 @@ msgstr "Ladda upp bild istället"
 
 #: frontend/src/components/Controls/VideoPreviewField.vue:97
 msgid "Upload video"
-msgstr ""
+msgstr "Ladda upp video"
 
 #: frontend/src/components/Controls/VideoPreviewField.vue:73
 msgid "Uploaded video — students see it on the course page. Remove it to use a YouTube link instead."
-msgstr ""
+msgstr "Uppladdad video – studenter ser den på kurs sida. Ta den bort för att använda YouTube länk istället."
 
 #: frontend/src/components/Controls/Uploader.vue:39
 #: frontend/src/pages/Courses/CourseThumbnailField.vue:60
@@ -8568,7 +8568,7 @@ msgstr "Användarens svar"
 
 #: lms/templates/signup-form.html:83
 msgid "Valid email and name required"
-msgstr "Giltig e-post och namn erfodras"
+msgstr "Giltig e-post och namn erfordras"
 
 #. Label of the value (Rating) field in DocType 'LMS Batch Feedback'
 #: lms/lms/doctype/lms_batch_feedback/lms_batch_feedback.json
@@ -8593,7 +8593,7 @@ msgstr "Videostatistik"
 
 #: frontend/src/pages/Lesson.vue:911
 msgid "Video failed to load — this lesson will still be marked complete after you spend some time on it."
-msgstr ""
+msgstr "Video kunde inte laddas — denna lektion kommer fortfarande att anges som komplett när du ägnat lite tid på den."
 
 #: frontend/src/pages/JobDetail.vue:31
 msgid "View Applications"
@@ -8703,7 +8703,7 @@ msgstr "När kurs lämnas in för granskning kommer den att listas här."
 
 #: frontend/src/pages/LessonForm.vue:14
 msgid "When on, anyone can preview this lesson without enrolling. Otherwise it is visible only to enrolled students."
-msgstr ""
+msgstr "När aktiverad kan all förhandsvisa denna lektion utan att behöva anmäla sig. I övrigt är den endast synlig för anmälda studenter."
 
 #: frontend/src/pages/Billing.vue:162
 msgid "Where did you hear about us?"
@@ -9093,7 +9093,7 @@ msgstr "YouTube Video visas överst i lektion."
 
 #: frontend/src/components/Controls/VideoPreviewField.vue:104
 msgid "YouTube link added — students see it embedded on the course page. Clear the field to upload a file instead."
-msgstr ""
+msgstr "YouTube länk tillagd — studenter ser den inbäddad på kurs sida. Rensa fält för att ladda upp fil istället."
 
 #: lms/www/new-sign-up.html:56
 msgid "Your Account has been successfully created!"
@@ -9377,11 +9377,11 @@ msgstr "övrigt"
 
 #: frontend/src/pages/Courses/CourseForm.vue:179
 msgid "paid certificates"
-msgstr ""
+msgstr "betalda certifikat"
 
 #: frontend/src/pages/Courses/CourseForm.vue:179
 msgid "paid courses"
-msgstr ""
+msgstr "betalda kurser"
 
 #: frontend/src/pages/LessonForm.vue:53
 msgid "private"
@@ -9530,11 +9530,11 @@ msgstr "{0} hittades inte"
 
 #: frontend/src/components/Discussions.vue:52
 msgid "{0} replies"
-msgstr ""
+msgstr "{0} svar"
 
 #: frontend/src/components/Discussions.vue:51
 msgid "{0} reply"
-msgstr ""
+msgstr "{0} svar"
 
 #: frontend/src/pages/Jobs.vue:36
 msgid "{0} {1} Jobs"
