@@ -8,7 +8,7 @@
 				class="text-p-md font-semibold text-ink-gray-9 mb-1"
 				:class="{ 'mt-5': index > 0 }"
 			>
-				{{ section.label }}
+				{{ __(section.label) }}
 			</div>
 			<template
 				v-for="(column, columnIndex) in section.columns"
@@ -40,7 +40,7 @@
 								<div class="">
 									<Button @click="openFileSelector" :loading="uploading">
 										{{
-											uploading ? `Uploading ${progress}%` : 'Upload an image'
+											uploading ? `${__('Uploading')} ${progress}%` : __('Upload an image')
 										}}
 									</Button>
 								</div>
@@ -76,7 +76,7 @@
 						<CodeEditor
 							:label="__(field.label)"
 							type="HTML"
-							description="The HTML you add here will be shown on your sign up page."
+							:description="__('The HTML you add here will be shown on your sign up page.')"
 							v-model="data[field.name]"
 							height="250px"
 							class="shrink-0"

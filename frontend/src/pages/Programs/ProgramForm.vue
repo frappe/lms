@@ -598,7 +598,7 @@ const memberColumns = computed(() => {
 			align: 'left',
 		},
 		{
-			label: 'Full Name',
+			label: __('Full Name'),
 			key: 'full_name',
 			width: 3,
 			align: 'left',

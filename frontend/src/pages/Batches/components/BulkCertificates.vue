@@ -1,7 +1,7 @@
 <template>
 	<Dialog
 		v-model:open="show"
-		title="Generate Certificates"
+		:title="__('Generate Certificates')"
 		size="lg"
 		:actions="[
 			{
