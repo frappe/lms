@@ -75,7 +75,7 @@ import GoogleMeetSettings from '@/components/Settings/GoogleMeetSettings.vue'
 import Badges from '@/components/Settings/Badges.vue'
 
 const show = defineModel()
-const doctype = ref(__('LMS Settings'))
+const doctype = ref('LMS Settings')
 const activeTab = ref(null)
 const settingsStore = useSettings()
 
