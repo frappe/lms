@@ -91,6 +91,11 @@ onMounted(() => {
 			direction: document.documentElement.dir === 'rtl' ? 'rtl' : 'ltr',
 		},
 		onReady: () => {
+			// onReady can fire after the component unmounted (fast nav / deleting
+			// the open lesson) — by then onBeforeUnmount has nulled `editor`. Bail
+			// so we don't call `new DragDrop(null)`, whose constructor reads
+			// editor.configuration and throws.
+			if (!editor) return
 			// Native EditorJS block menu (the ⋮⋮ settings button → Convert to
 			// H1/H2/…, Move up/down, Delete) plus editorjs-drag-drop, which makes
 			// that settings button a drag handle so blocks reorder by dragging.
@@ -117,12 +122,16 @@ onBeforeUnmount(() => {
 })
 
 defineExpose({
-	isReady: () => editor.isReady,
+	// All editor-instance access below is null-guarded: a debounced parent
+	// autosave can call these after onBeforeUnmount has nulled `editor`.
+	isReady: () => editor?.isReady ?? Promise.resolve(),
 	render: async (data) => {
+		if (!editor) return
 		await editor.render(data)
 		ensureTrailingBlock()
 	},
 	save: async () => {
+		if (!editor) return null
 		const data = await editor.save()
 		// Drop the synthetic trailing empty block so it's never persisted.
 		if (

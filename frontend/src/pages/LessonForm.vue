@@ -110,7 +110,7 @@ const titleRef = ref(null)
 
 function onTitleInput() {
 	autoGrowTitle()
-	markDirty()
+	markDirty({ fromTitle: true })
 }
 
 // Put the caret in the instructor-notes editor when the card is opened, so it's
@@ -158,15 +158,26 @@ const props = defineProps({
 })
 
 const isDirty = ref(false)
+// Set once the component is tearing down, so an in-flight debounced autosave that
+// only resolves during teardown doesn't persist a stale (possibly deleted)
+// lesson — only the explicit unmount flush may persist then.
+let isUnmounting = false
 
 // Debounced so a burst of keystrokes collapses into a single save shortly
-// after the user pauses.
+// after the user pauses. Gate on a still-loaded lesson: if it was deleted while
+// the debounce was pending, saveLesson would hit its createNewLesson branch and
+// resurrect the just-deleted lesson.
 const autoSave = useDebounceFn(() => {
-	if (isDirty.value) saveLesson()
+	if (isDirty.value && lessonDetails.data?.lesson) saveLesson()
 }, 800)
 
-function markDirty() {
-	if (!lessonDetails.data?.lesson || !initialLoadComplete) return
+function markDirty({ fromTitle = false } = {}) {
+	if (!lessonDetails.data?.lesson) return
+	// The editor fires onChange during programmatic render() too, so gate those
+	// on initialLoadComplete to avoid a spurious autosave on load. Title @input
+	// is always real user input (a programmatic v-model set doesn't fire it), so
+	// it arms autosave even before the editors finish their initial render.
+	if (!fromTitle && !initialLoadComplete) return
 	isDirty.value = true
 	autoSave()
 }
@@ -245,9 +256,14 @@ const lessonDetails = createResource({
 })
 
 const addLessonContent = (data) => {
+	// The editor component can unmount mid-load (fast nav / lesson delete), so
+	// guard both the entry and inside the isReady().then() — the ref can go null
+	// between them, and render() on null throws.
+	if (!editor.value) return Promise.resolve()
 	// Return the render promise so callers (autosave arming, autofocus) wait for
 	// the blocks to actually be in the DOM, not just for render() to be called.
 	return editor.value.isReady().then(() => {
+		if (!editor.value) return
 		if (data.lesson.content) {
 			return editor.value.render(
 				sanitizeEditorJs(JSON.parse(data.lesson.content))
@@ -262,7 +278,9 @@ const addLessonContent = (data) => {
 }
 
 const addInstructorNotes = (data) => {
+	if (!instructorEditor.value) return Promise.resolve()
 	return instructorEditor.value.isReady().then(() => {
+		if (!instructorEditor.value) return
 		if (data.lesson.instructor_content) {
 			return instructorEditor.value.render(
 				sanitizeEditorJs(JSON.parse(data.lesson.instructor_content))
@@ -277,8 +295,12 @@ const addInstructorNotes = (data) => {
 }
 
 onBeforeUnmount(() => {
+	isUnmounting = true
 	// Best-effort flush of any unsaved edits before the editors are destroyed.
-	if (isDirty.value) saveLesson()
+	// Only when the lesson still exists — flushing after a delete would resurrect
+	// it via saveLesson's createNewLesson branch. flush:true so this explicit
+	// flush isn't suppressed by the in-flight-autosave teardown guard.
+	if (isDirty.value && lessonDetails.data?.lesson) saveLesson({ flush: true })
 })
 
 const newLessonResource = createResource({
@@ -433,14 +455,71 @@ const convertToJSON = (lessonData) => {
 	return blocks
 }
 
-function saveLesson() {
-	// The debounced autosave can fire as the component tears down; bail if the
-	// editors are already gone.
-	if (!editor.value || !instructorEditor.value) return
+// Whether the already-stored (serialised) lesson body has real content. Used
+// when the live body editor is unavailable so a title-only edit can still be
+// persisted without re-serialising — or wiping — the body.
+const storedContentHasBody = () => {
+	if (!lesson.content) return false
+	try {
+		return hasEditorContent(JSON.parse(lesson.content))
+	} catch {
+		return false
+	}
+}
+
+function saveLesson({ flush = false } = {}) {
+	const persistLesson = () => {
+		// During teardown, only the explicit unmount flush may persist. A
+		// debounced autosave that was already in flight when the lesson was
+		// deleted/left must not write a stale (possibly deleted) document.
+		if (isUnmounting && !flush) return
+		if (lessonDetails.data?.lesson) {
+			editCurrentLesson()
+		} else {
+			createNewLesson()
+		}
+	}
+	// Fold in the instructor notes when that editor is still alive. If it has
+	// already torn down (dirty unmount), keep the stored instructor_content and
+	// still persist the staged title/body — don't drop the edit.
+	const saveInstructorThenPersist = () => {
+		if (!instructorEditor.value) {
+			persistLesson()
+			return
+		}
+		instructorEditor.value.save().then((instructorData) => {
+			if (instructorData) {
+				instructorData = removeEmptyBlocks(instructorData)
+				lesson.instructor_content = JSON.stringify(instructorData)
+				// instructor_content is now the source of truth; clear the legacy
+				// instructor_notes field so removed notes don't reappear on the
+				// lesson page via the fallback render path.
+				lesson.instructor_notes = ''
+			}
+			persistLesson()
+		})
+	}
+	const finalize = (bodyHasContent) => {
+		// Skip only when there's nothing worth saving — no title and no body.
+		if (shouldSkipLessonSave(lesson.title, bodyHasContent)) return
+		saveInstructorThenPersist()
+	}
+
+	// If the body editor is gone (torn down mid-flush), we can't re-serialise the
+	// body — but a staged title edit must still persist. Fall back to the stored
+	// content for the skip check and leave lesson.content untouched.
+	if (!editor.value) {
+		finalize(storedContentHasBody())
+		return
+	}
 	editor.value.save().then((outputData) => {
+		// save() resolves null if the editor tore down between the guard and here.
+		if (!outputData) {
+			finalize(storedContentHasBody())
+			return
+		}
 		outputData = removeEmptyBlocks(outputData)
 		const bodyHasContent = hasEditorContent(outputData)
-		if (shouldSkipLessonSave(lesson.title, bodyHasContent)) return
 		// Only overwrite stored content when the body has real content. A
 		// transient/empty editor (hot-reload remount, render race, mid
 		// lesson-switch) serialises to just an empty paragraph and must not wipe
@@ -448,19 +527,7 @@ function saveLesson() {
 		if (bodyHasContent) {
 			lesson.content = JSON.stringify(outputData)
 		}
-		instructorEditor.value.save().then((outputData) => {
-			outputData = removeEmptyBlocks(outputData)
-			lesson.instructor_content = JSON.stringify(outputData)
-			// instructor_content is now the source of truth; clear the legacy
-			// instructor_notes field so removed notes don't reappear on the
-			// lesson page via the fallback render path.
-			lesson.instructor_notes = ''
-			if (lessonDetails.data?.lesson) {
-				editCurrentLesson()
-			} else {
-				createNewLesson()
-			}
-		})
+		finalize(bodyHasContent)
 	})
 }
 

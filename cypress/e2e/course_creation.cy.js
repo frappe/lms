@@ -143,12 +143,21 @@ describe("Course Creation", () => {
 		// toolbar — dismiss it again before adding a chapter.
 		cy.closeOnboardingModal();
 
-		// Add a chapter. In the editor the chapter button is the "Add" button in
-		// the CourseDetail toolbar (CourseEditor hides CourseOutline's own
-		// header), present whenever the editor is in edit mode — unlike the
-		// load-dependent "Create chapter" empty-state button.
-		cy.contains("button", "Add", { timeout: 20000 }).click();
+		// The chapter "Add" button in the CourseDetail toolbar appears as soon as
+		// the editor enters edit mode, but it delegates to CourseOutline
+		// (openChapterModal), which isn't mounted until the outline resource
+		// resolves. Clicking "Add" during the loading skeleton silently no-ops, so
+		// first wait for the loaded outline — the "No chapters yet" empty state
+		// only renders once outline.data has resolved and CourseOutline is mounted.
+		cy.contains("No chapters yet", { timeout: 20000 }).should("be.visible");
+
+		// Add a chapter via the toolbar "Add" button (CourseEditor hides
+		// CourseOutline's own header).
+		cy.contains("button", "Add").click();
+		// Scope to the chapter dialog by its Title field — the onboarding "Getting
+		// started" panel is also a dismissable layer, but it has no Title input.
 		cy.get("[data-dismissable-layer]")
+			.filter(':has(label:contains("Title"))')
 			.should("be.visible")
 			.within(() => {
 				cy.get("label")

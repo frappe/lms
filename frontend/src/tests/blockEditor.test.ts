@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { mount, VueWrapper } from '@vue/test-utils'
+import { mount, type VueWrapper } from '@vue/test-utils'
 import Paragraph from '@editorjs/paragraph'
 import BlockEditor from '@/components/BlockEditor.vue'
 
@@ -28,7 +28,7 @@ window.matchMedia ??= (() => ({
 type BlockEditorApi = {
 	isReady: () => Promise<void>
 	render: (data: object) => Promise<void>
-	save: () => Promise<{ blocks: { data: { text: string } }[] }>
+	save: () => Promise<{ blocks: { data: { text: string } }[] } | null>
 	focus: (atEnd?: boolean) => void
 }
 
@@ -52,7 +52,11 @@ describe('BlockEditor', () => {
 	})
 
 	afterEach(() => {
-		wrapper.unmount()
+		try {
+			wrapper.unmount()
+		} catch {
+			// a test may have unmounted already (teardown-guard case)
+		}
 		document.body.innerHTML = ''
 	})
 
@@ -79,6 +83,17 @@ describe('BlockEditor', () => {
 	})
 
 	it('exposes a focus() method that places the caret without throwing', () => {
+		expect(() => editorApi.focus()).not.toThrow()
+	})
+
+	it('null-guards exposed methods after unmount (teardown autosave)', async () => {
+		wrapper.unmount()
+		// A debounced parent autosave (LessonForm.saveLesson) can call these
+		// after onBeforeUnmount has nulled the editor instance. They must no-op
+		// instead of throwing "Cannot read properties of null (reading 'save')".
+		await expect(editorApi.save()).resolves.toBeNull()
+		await expect(editorApi.render(TWO_BLOCKS)).resolves.toBeUndefined()
+		await expect(editorApi.isReady()).resolves.toBeUndefined()
 		expect(() => editorApi.focus()).not.toThrow()
 	})
 })
