@@ -188,6 +188,11 @@ function markDirty({ fromTitle = false } = {}) {
 	// it arms autosave even before the editors finish their initial render.
 	if (!fromTitle && !initialLoadComplete) return
 	isDirty.value = true
+	// An editor change carries new block data — capture it into the local lesson
+	// now, while the editor is alive, so an unmount flush whose save() rejects
+	// mid-destroy still persists this edit rather than stale content. A title edit
+	// carries no block data, so there's nothing to serialise there.
+	if (!fromTitle) captureEditors()
 	autoSave()
 }
 
@@ -478,51 +483,79 @@ const storedContentHasBody = () => {
 	}
 }
 
+// .catch(() => null): an editor whose EditorJS instance is being destroyed
+// mid-save can reject. Without this Promise.all would reject and the whole
+// persist — including the stored-content fallback and the staged title — is
+// skipped, silently dropping the edit on navigation. A rejected save degrades to
+// "editor unavailable" (null), so the lesson is still written from whatever was
+// last captured.
+const serialise = (ed) =>
+	ed ? Promise.resolve(ed.save()).catch(() => null) : Promise.resolve(null)
+
+// Fold freshly-serialised editor output into the local lesson, applying the same
+// guards the persist path needs, and return whether the body (fresh or stored)
+// has real content. Shared by the persist path and the on-change capture so
+// lesson.content / instructor_content stay current even before a persist runs —
+// which is what lets a teardown flush whose save() rejects still write the latest
+// edits instead of stale initial-load content.
+const foldEditorData = (bodyData, notesData) => {
+	// Body: if the editor was gone (torn down mid-flush) or resolved null, we
+	// can't re-serialise it — fall back to the stored content for the skip check
+	// and leave lesson.content untouched so a staged title edit still persists.
+	// Otherwise only overwrite stored content when the body has real content: a
+	// transient/empty editor (hot-reload remount, render race, mid lesson-switch)
+	// serialises to just an empty paragraph and must not wipe what's saved.
+	let bodyHasContent = storedContentHasBody()
+	if (bodyData) {
+		bodyData = removeEmptyBlocks(bodyData)
+		bodyHasContent = hasEditorContent(bodyData)
+		if (bodyHasContent) lesson.content = JSON.stringify(bodyData)
+	}
+
+	// Instructor notes: fold in only once the editor has loaded its saved notes
+	// (initialLoadComplete). A capture/autosave can fire before then (a title
+	// @input arms autosave ahead of the editors finishing render), at which point
+	// notesEditor.save() returns its empty default — folding that would wipe an
+	// existing lesson's stored notes. Before load, and when the editor has torn
+	// down (notesData null), keep the stored instructor_content.
+	if (initialLoadComplete && notesData) {
+		notesData = removeEmptyBlocks(notesData)
+		lesson.instructor_content = JSON.stringify(notesData)
+		// instructor_content is now the source of truth; clear the legacy
+		// instructor_notes field so removed notes don't reappear on the lesson
+		// page via the fallback render path.
+		lesson.instructor_notes = ''
+	}
+
+	return bodyHasContent
+}
+
+// Serialise the live editors into the local lesson without persisting. Runs on
+// every editor @change, while the editors are still alive (no teardown race), so
+// a later unmount flush whose save() rejects mid-destroy still has the latest
+// content folded in. Without this, a rejected teardown save falls back to the
+// stale initial-load content, and the persist below reports success while
+// dropping the user's most recent edits.
+const captureEditors = async () => {
+	if (lessonDeleted) return
+	const [bodyData, notesData] = await Promise.all([
+		serialise(editor.value),
+		serialise(instructorEditor.value),
+	])
+	foldEditorData(bodyData, notesData)
+}
+
 function saveLesson({ flush = false } = {}) {
 	// Capture both editors and kick off their serialisation up front, while both
 	// are still alive. During an unmount flush Vue destroys the child editors
 	// right after this returns, so the old body-then-instructor chain ran the
 	// instructor save() against an already-null editor and silently dropped the
 	// notes. Serialise concurrently so a dirty unmount captures both.
-	// .catch(() => null): an editor whose EditorJS instance is being destroyed
-	// mid-save can reject. Without this Promise.all would reject and the whole
-	// persist — including the stored-content fallback below and the staged title —
-	// is skipped, silently dropping the edit on navigation. A rejected save
-	// degrades to "editor unavailable" (null), so the lesson is still written.
-	const serialise = (ed) =>
-		ed ? Promise.resolve(ed.save()).catch(() => null) : Promise.resolve(null)
 	const bodyPromise = serialise(editor.value)
 	const notesPromise = serialise(instructorEditor.value)
 
 	Promise.all([bodyPromise, notesPromise]).then(([bodyData, notesData]) => {
-		// Body: if the editor was gone (torn down mid-flush) or resolved null, we
-		// can't re-serialise it — fall back to the stored content for the skip
-		// check and leave lesson.content untouched so a staged title edit still
-		// persists. Otherwise only overwrite stored content when the body has real
-		// content: a transient/empty editor (hot-reload remount, render race, mid
-		// lesson-switch) serialises to just an empty paragraph and must not wipe
-		// what's saved.
-		let bodyHasContent = storedContentHasBody()
-		if (bodyData) {
-			bodyData = removeEmptyBlocks(bodyData)
-			bodyHasContent = hasEditorContent(bodyData)
-			if (bodyHasContent) lesson.content = JSON.stringify(bodyData)
-		}
-
-		// Instructor notes: fold in only once the editor has loaded its saved
-		// notes (initialLoadComplete). A title-only autosave can fire before then
-		// (a title @input arms autosave ahead of the editors finishing render), at
-		// which point notesEditor.save() returns its empty default — folding that
-		// would wipe an existing lesson's stored notes. Before load, and when the
-		// editor has torn down (notesData null), keep the stored instructor_content.
-		if (initialLoadComplete && notesData) {
-			notesData = removeEmptyBlocks(notesData)
-			lesson.instructor_content = JSON.stringify(notesData)
-			// instructor_content is now the source of truth; clear the legacy
-			// instructor_notes field so removed notes don't reappear on the
-			// lesson page via the fallback render path.
-			lesson.instructor_notes = ''
-		}
+		const bodyHasContent = foldEditorData(bodyData, notesData)
 
 		// Skip only when there's nothing worth saving — no title and no body.
 		if (shouldSkipLessonSave(lesson.title, bodyHasContent)) return

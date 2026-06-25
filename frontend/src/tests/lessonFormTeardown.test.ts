@@ -16,6 +16,8 @@ const editorState = vi.hoisted(() => ({
 	// When true, the body editor's save() rejects — modelling an EditorJS instance
 	// being destroyed mid-save during teardown.
 	rejectBodySave: false,
+	// Same, for the instructor-notes editor.
+	rejectNotesSave: false,
 }))
 
 vi.mock('frappe-ui', async () => {
@@ -76,6 +78,12 @@ vi.mock('@/components/BlockEditor.vue', async () => {
 						if (field === 'content' && editorState.rejectBodySave) {
 							throw new Error('editor torn down mid-save')
 						}
+						if (
+							field === 'instructor_content' &&
+							editorState.rejectNotesSave
+						) {
+							throw new Error('editor torn down mid-save')
+						}
 						return alive ? (editorState.saveData[field] ?? null) : null
 					},
 				})
@@ -108,6 +116,7 @@ vi.mock('@/utils', () => ({
 vi.mock('@/utils/video', () => ({ hasVideoContent: () => false }))
 
 import LessonForm from '@/pages/LessonForm.vue'
+import BlockEditorStub from '@/components/BlockEditor.vue'
 
 const LESSON_NAME = 'LESSON-1'
 const paragraph = (text: string) => ({
@@ -167,6 +176,16 @@ async function editTitle(wrapper: VueWrapper, title: string) {
 	await wrapper.find('textarea.lesson-title').setValue(title)
 }
 
+// Fire a @change from a specific BlockEditor (body vs instructor), modelling an
+// edit inside that editor while it is still alive.
+async function editEditor(wrapper: VueWrapper, fieldname: string) {
+	const editor = wrapper
+		.findAllComponents(BlockEditorStub)
+		.find((c) => (c.props('uploadContext') as any)?.fieldname === fieldname)
+	editor!.vm.$emit('change')
+	await flushPromises()
+}
+
 describe('LessonForm teardown autosave', () => {
 	let wrapper: VueWrapper
 
@@ -175,6 +194,7 @@ describe('LessonForm teardown autosave', () => {
 		editorState.saveData = {}
 		editorState.holdInstructorReady = false
 		editorState.rejectBodySave = false
+		editorState.rejectNotesSave = false
 	})
 
 	afterEach(() => {
@@ -221,6 +241,57 @@ describe('LessonForm teardown autosave', () => {
 		const editLesson = findResource('frappe.client.set_value')
 		expect(editLesson.submit).toHaveBeenCalledTimes(1)
 		expect(editLesson.lastParams.fieldname.title).toBe('Edited title')
+	})
+
+	it('persists the latest body edit captured before teardown even when the body save rejects', async () => {
+		// Lesson opens with stored body content.
+		wrapper = await mountLoaded({
+			content: JSON.stringify(paragraph('Old body')),
+		})
+
+		// User edits the body; the @change captures the new content into the local
+		// lesson while the editor is still alive (no teardown race yet).
+		editorState.saveData.content = paragraph('New body')
+		await editEditor(wrapper, 'content')
+
+		// Now the editor is torn down and its save() rejects on the unmount flush.
+		// The freshly-captured "New body" must win — not the stale stored content,
+		// and not a silently-dropped edit behind a successful-looking save.
+		editorState.rejectBodySave = true
+		wrapper.unmount()
+		await flushPromises()
+
+		const editLesson = findResource('frappe.client.set_value')
+		expect(editLesson.submit).toHaveBeenCalledTimes(1)
+		expect(editLesson.lastParams.fieldname.content).toContain('New body')
+		expect(editLesson.lastParams.fieldname.content).not.toContain('Old body')
+	})
+
+	it('persists the latest instructor-note edit captured before teardown even when its save rejects', async () => {
+		wrapper = await mountLoaded({
+			content: JSON.stringify(paragraph('Body text')),
+			instructor_content: JSON.stringify(paragraph('Old note')),
+		})
+
+		// Edit the instructor note; captured while the editor is alive.
+		editorState.saveData.content = paragraph('Body text')
+		editorState.saveData.instructor_content = paragraph('New note')
+		await editEditor(wrapper, 'instructor_content')
+
+		// The instructor editor's save() rejects on the unmount flush (its EditorJS
+		// instance is being destroyed). The captured note must still be persisted.
+		editorState.rejectNotesSave = true
+		wrapper.unmount()
+		await flushPromises()
+
+		const editLesson = findResource('frappe.client.set_value')
+		expect(editLesson.submit).toHaveBeenCalledTimes(1)
+		expect(editLesson.lastParams.fieldname.instructor_content).toContain(
+			'New note'
+		)
+		expect(editLesson.lastParams.fieldname.instructor_content).not.toContain(
+			'Old note'
+		)
 	})
 
 	it('does not wipe stored instructor notes on a title-only flush before the notes finish loading', async () => {
