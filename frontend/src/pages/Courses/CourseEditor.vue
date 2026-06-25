@@ -64,6 +64,8 @@
 				:inlineSelect="true"
 				:selectedLessonNumber="selected?.number"
 				@select-lesson="onSelectLesson"
+				@lesson-deleted="onLessonDeleted"
+				@chapter-deleted="onChapterDeleted"
 			/>
 		</aside>
 		<VideoStatistics
@@ -89,6 +91,7 @@ import {
 	findLessonNameByNumber,
 	lessonExistsByNumber,
 	isSelectionStale,
+	isLessonInChapter,
 } from '@/utils/courseOutline'
 
 const props = defineProps({
@@ -191,6 +194,26 @@ function onLessonSaved({ name, title, include_in_preview, isNew }) {
 			lesson.include_in_preview = include_in_preview ? 1 : 0
 			break
 		}
+	}
+}
+
+// The outline reports a specific lesson/chapter delete. If the lesson open in the
+// editor is the one removed, tell the form before the stale-selection watcher
+// unmounts it, so its teardown flush doesn't set_value the now-deleted document.
+// Keyed by docname (not a generic "selection went stale" signal, which is also
+// true on a course switch or transient outline) and applied synchronously here,
+// so it can't be mis-bound to whichever reload happens to land next.
+function onLessonDeleted({ lesson }) {
+	if (lessonFormRef.value?.lessonName?.() === lesson) {
+		lessonFormRef.value?.markDeleted?.()
+	}
+}
+function onChapterDeleted({ chapter }) {
+	// Deleting a chapter takes its lessons too. Resolve membership against the
+	// still-current outline (the delete's reload hasn't applied yet).
+	const openLesson = lessonFormRef.value?.lessonName?.()
+	if (openLesson && isLessonInChapter(outline.data, chapter, openLesson)) {
+		lessonFormRef.value?.markDeleted?.()
 	}
 }
 
