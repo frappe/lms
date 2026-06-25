@@ -33,7 +33,7 @@
 				:hoverDelay="1.5"
 			>
 				<span
-					class="flex-shrink-0 text-sm duration-300 ease-in-out"
+					class="min-w-0 truncate text-sm duration-300 ease-in-out"
 					:class="
 						isCollapsed
 							? 'ms-0 w-0 overflow-hidden opacity-0'
