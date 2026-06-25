@@ -2,6 +2,20 @@ describe("Course Creation", () => {
 	const courseTitle = "Test Course";
 	const courseSlug = "test-course";
 
+	// Start from a clean slate so leftover chapters/lessons from an earlier
+	// (possibly failed) run don't accumulate duplicate "Untitled lesson" rows in
+	// the outline and break the rename/delete assertions. Best-effort: the course
+	// may not exist yet, and a link-protected delete is ignored.
+	before(() => {
+		cy.login();
+		cy.request({
+			url: "/api/method/frappe.client.delete",
+			method: "POST",
+			body: { doctype: "LMS Course", name: courseSlug },
+			failOnStatusCode: false,
+		});
+	});
+
 	it("creates a new course with settings", () => {
 		cy.login();
 		cy.visit("/lms/courses");
@@ -157,14 +171,21 @@ describe("Course Creation", () => {
 		// the editor; the title is edited inline on the lesson itself and the
 		// debounced autosave persists it (no modal).
 		cy.button("Add Lesson", { timeout: 10000 }).click();
+		// "Add Lesson" prefills the title with "Untitled lesson", so clear it by
+		// selecting all + backspace (a plain .clear() doesn't reliably overwrite
+		// the prefilled default) before typing the real title.
 		cy.get("textarea.lesson-title", { timeout: 15000 })
 			.should("have.value", "Untitled lesson")
-			.clear()
+			.type("{selectall}{backspace}")
 			.type("Test Lesson");
 
-		// Verify the autosaved title landed in the editor outline. (The public
-		// overview collapses chapters, so the lesson title isn't asserted there.)
-		cy.contains("Test Lesson", { timeout: 15000 }).should("exist");
+		// The title edit arms a debounced autosave; once it persists, CourseEditor
+		// reflects the new title in the shared outline. Assert against the outline
+		// row specifically (deterministic via Cypress retry) so the later delete
+		// targets the throwaway "Untitled lesson", not this renamed one.
+		cy.contains(".outline-lesson", "Test Lesson", {
+			timeout: 15000,
+		}).should("exist");
 
 		// Regression: deleting the lesson that's open in the editor must drop back
 		// to the empty "choose a lesson" state, not keep showing the deleted
@@ -186,10 +207,11 @@ describe("Course Creation", () => {
 		);
 		cy.contains(".outline-lesson", "Untitled lesson").should("not.exist");
 
-		// Navigate to course overview
-		cy.visit("/lms/courses");
+		// Navigate to course overview. Visit the detail page directly (same as the
+		// delete test) rather than clicking through the course list — the list's
+		// tab/filter rendering is a separate concern and made this flaky.
+		cy.visit(`/lms/courses/${courseSlug}`);
 		cy.closeOnboardingModal();
-		cy.contains("a", courseTitle).click();
 
 		// Verify overview content
 		cy.url({ timeout: 10000 }).should(
