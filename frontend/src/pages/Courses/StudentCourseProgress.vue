@@ -38,9 +38,7 @@
 						v-if="lessons.data"
 						class="border border-outline-elevation-2 rounded-lg px-3 max-h-[60vh] overflow-y-auto"
 					>
-						<div
-							class="sticky top-0 z-10 bg-surface-base py-3 text-ink-gray-5"
-						>
+						<div class="sticky top-0 z-10 bg-surface-base py-3 text-ink-gray-5">
 							{{ __('Lesson Progress') }}
 						</div>
 						<div
