@@ -147,8 +147,9 @@ describe("Course Creation", () => {
 		// the editor enters edit mode, but it delegates to CourseOutline
 		// (openChapterModal), which isn't mounted until the outline resource
 		// resolves. Clicking "Add" during the loading skeleton silently no-ops, so
-		// first wait for the loaded outline — the "No chapters yet" empty state
-		// only renders once outline.data has resolved and CourseOutline is mounted.
+		// first wait for the loaded outline — the "No chapters yet" empty state is
+		// rendered by CourseOutline itself, so its visibility proves the component
+		// (and its chapter modal) is mounted.
 		cy.contains("No chapters yet", { timeout: 20000 }).should("be.visible");
 
 		// Add a chapter via the toolbar "Add" button (CourseEditor hides

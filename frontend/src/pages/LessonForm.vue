@@ -162,16 +162,25 @@ const isDirty = ref(false)
 // only resolves during teardown doesn't persist a stale (possibly deleted)
 // lesson — only the explicit unmount flush may persist then.
 let isUnmounting = false
+// Set when the open lesson is deleted elsewhere: CourseEditor's stale-selection
+// watcher calls markDeleted() before this form unmounts. Suppresses every
+// autosave/flush path so we never set_value a document that no longer exists.
+let lessonDeleted = false
+function markDeleted() {
+	lessonDeleted = true
+}
 
 // Debounced so a burst of keystrokes collapses into a single save shortly
-// after the user pauses. Gate on a still-loaded lesson: if it was deleted while
-// the debounce was pending, saveLesson would hit its createNewLesson branch and
-// resurrect the just-deleted lesson.
+// after the user pauses. Gate on a still-loaded, undeleted lesson: if it was
+// deleted while the debounce was pending, saveLesson would write to the gone
+// document (or hit createNewLesson and resurrect it).
 const autoSave = useDebounceFn(() => {
+	if (lessonDeleted) return
 	if (isDirty.value && lessonDetails.data?.lesson) saveLesson()
 }, 800)
 
 function markDirty({ fromTitle = false } = {}) {
+	if (lessonDeleted) return
 	if (!lessonDetails.data?.lesson) return
 	// The editor fires onChange during programmatic render() too, so gate those
 	// on initialLoadComplete to avoid a spurious autosave on load. Title @input
@@ -184,6 +193,7 @@ function markDirty({ fromTitle = false } = {}) {
 
 defineExpose({
 	saveLesson,
+	markDeleted,
 	isDirty,
 	lessonHasVideo: () => lessonHasVideo.value,
 	lessonName: () => lessonDetails.data?.lesson?.name,
@@ -297,9 +307,10 @@ const addInstructorNotes = (data) => {
 onBeforeUnmount(() => {
 	isUnmounting = true
 	// Best-effort flush of any unsaved edits before the editors are destroyed.
-	// Only when the lesson still exists — flushing after a delete would resurrect
-	// it via saveLesson's createNewLesson branch. flush:true so this explicit
+	// Skip when the lesson was deleted — flushing would set_value a gone document
+	// (or resurrect it via createNewLesson). flush:true so a genuine navigate-away
 	// flush isn't suppressed by the in-flight-autosave teardown guard.
+	if (lessonDeleted) return
 	if (isDirty.value && lessonDetails.data?.lesson) saveLesson({ flush: true })
 })
 
@@ -468,66 +479,64 @@ const storedContentHasBody = () => {
 }
 
 function saveLesson({ flush = false } = {}) {
-	const persistLesson = () => {
-		// During teardown, only the explicit unmount flush may persist. A
-		// debounced autosave that was already in flight when the lesson was
-		// deleted/left must not write a stale (possibly deleted) document.
+	// Capture both editors and kick off their serialisation up front, while both
+	// are still alive. During an unmount flush Vue destroys the child editors
+	// right after this returns, so the old body-then-instructor chain ran the
+	// instructor save() against an already-null editor and silently dropped the
+	// notes. Serialise concurrently so a dirty unmount captures both.
+	// .catch(() => null): an editor whose EditorJS instance is being destroyed
+	// mid-save can reject. Without this Promise.all would reject and the whole
+	// persist — including the stored-content fallback below and the staged title —
+	// is skipped, silently dropping the edit on navigation. A rejected save
+	// degrades to "editor unavailable" (null), so the lesson is still written.
+	const serialise = (ed) =>
+		ed ? Promise.resolve(ed.save()).catch(() => null) : Promise.resolve(null)
+	const bodyPromise = serialise(editor.value)
+	const notesPromise = serialise(instructorEditor.value)
+
+	Promise.all([bodyPromise, notesPromise]).then(([bodyData, notesData]) => {
+		// Body: if the editor was gone (torn down mid-flush) or resolved null, we
+		// can't re-serialise it — fall back to the stored content for the skip
+		// check and leave lesson.content untouched so a staged title edit still
+		// persists. Otherwise only overwrite stored content when the body has real
+		// content: a transient/empty editor (hot-reload remount, render race, mid
+		// lesson-switch) serialises to just an empty paragraph and must not wipe
+		// what's saved.
+		let bodyHasContent = storedContentHasBody()
+		if (bodyData) {
+			bodyData = removeEmptyBlocks(bodyData)
+			bodyHasContent = hasEditorContent(bodyData)
+			if (bodyHasContent) lesson.content = JSON.stringify(bodyData)
+		}
+
+		// Instructor notes: fold in only once the editor has loaded its saved
+		// notes (initialLoadComplete). A title-only autosave can fire before then
+		// (a title @input arms autosave ahead of the editors finishing render), at
+		// which point notesEditor.save() returns its empty default — folding that
+		// would wipe an existing lesson's stored notes. Before load, and when the
+		// editor has torn down (notesData null), keep the stored instructor_content.
+		if (initialLoadComplete && notesData) {
+			notesData = removeEmptyBlocks(notesData)
+			lesson.instructor_content = JSON.stringify(notesData)
+			// instructor_content is now the source of truth; clear the legacy
+			// instructor_notes field so removed notes don't reappear on the
+			// lesson page via the fallback render path.
+			lesson.instructor_notes = ''
+		}
+
+		// Skip only when there's nothing worth saving — no title and no body.
+		if (shouldSkipLessonSave(lesson.title, bodyHasContent)) return
+
+		// During teardown, only the explicit unmount flush may persist. A debounced
+		// autosave already in flight when the lesson was deleted/left must not write
+		// a stale (possibly deleted) document.
 		if (isUnmounting && !flush) return
+		if (lessonDeleted) return
 		if (lessonDetails.data?.lesson) {
 			editCurrentLesson()
 		} else {
 			createNewLesson()
 		}
-	}
-	// Fold in the instructor notes when that editor is still alive. If it has
-	// already torn down (dirty unmount), keep the stored instructor_content and
-	// still persist the staged title/body — don't drop the edit.
-	const saveInstructorThenPersist = () => {
-		if (!instructorEditor.value) {
-			persistLesson()
-			return
-		}
-		instructorEditor.value.save().then((instructorData) => {
-			if (instructorData) {
-				instructorData = removeEmptyBlocks(instructorData)
-				lesson.instructor_content = JSON.stringify(instructorData)
-				// instructor_content is now the source of truth; clear the legacy
-				// instructor_notes field so removed notes don't reappear on the
-				// lesson page via the fallback render path.
-				lesson.instructor_notes = ''
-			}
-			persistLesson()
-		})
-	}
-	const finalize = (bodyHasContent) => {
-		// Skip only when there's nothing worth saving — no title and no body.
-		if (shouldSkipLessonSave(lesson.title, bodyHasContent)) return
-		saveInstructorThenPersist()
-	}
-
-	// If the body editor is gone (torn down mid-flush), we can't re-serialise the
-	// body — but a staged title edit must still persist. Fall back to the stored
-	// content for the skip check and leave lesson.content untouched.
-	if (!editor.value) {
-		finalize(storedContentHasBody())
-		return
-	}
-	editor.value.save().then((outputData) => {
-		// save() resolves null if the editor tore down between the guard and here.
-		if (!outputData) {
-			finalize(storedContentHasBody())
-			return
-		}
-		outputData = removeEmptyBlocks(outputData)
-		const bodyHasContent = hasEditorContent(outputData)
-		// Only overwrite stored content when the body has real content. A
-		// transient/empty editor (hot-reload remount, render race, mid
-		// lesson-switch) serialises to just an empty paragraph and must not wipe
-		// what's saved.
-		if (bodyHasContent) {
-			lesson.content = JSON.stringify(outputData)
-		}
-		finalize(bodyHasContent)
 	})
 }
 
