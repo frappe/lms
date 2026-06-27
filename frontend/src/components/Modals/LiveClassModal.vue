@@ -137,7 +137,7 @@ const getTimezoneOptions = () => {
 const getRecordingOptions = () => {
 	return [
 		{
-			label: 'No Recording',
+			label: __('No Recording'),
 			value: 'No Recording',
 		},
 		{

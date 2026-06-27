@@ -1,5 +1,5 @@
 <template>
-	<Dialog v-model:open="show" title="New Batch" size="3xl">
+	<Dialog v-model:open="show" :title="__('New Batch')" size="3xl">
 		<template #default>
 			<div class="text-base">
 				<div class="grid grid-cols-1 md:grid-cols-3 gap-5">

@@ -51,3 +51,16 @@ label.block:not([data-slot='label']) {
 	bottom: -0.25rem;
 	z-index: 1;
 }
+
+/*
+ * Arabic font: IBM Plex Sans Arabic for RTL layouts.
+ * Overrides the default Inter/InterVar which has no Arabic glyphs.
+ */
+html[dir='rtl'] * {
+	font-family: 'IBM Plex Sans Arabic', 'Noto Sans Arabic', 'Segoe UI', Tahoma, sans-serif !important;
+}
+html[dir='rtl'] code,
+html[dir='rtl'] pre,
+html[dir='rtl'] .monospace {
+	font-family: 'Courier New', monospace !important;
+}

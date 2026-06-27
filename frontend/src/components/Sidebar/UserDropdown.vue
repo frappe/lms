@@ -116,7 +116,7 @@ const userDropdownOptions = computed(() => {
 			items: [
 				{
 					icon: 'lucide-user',
-					label: 'My Profile',
+					label: __('My Profile'),
 					onClick: () => {
 						router.push(`/user/${userResource.data?.username}`)
 					},
@@ -126,7 +126,7 @@ const userDropdownOptions = computed(() => {
 				},
 				{
 					icon: theme.value === 'light' ? Moon : Sun,
-					label: 'Toggle Theme',
+					label: __('Toggle Theme'),
 					onClick: () => {
 						toggleTheme()
 					},
@@ -159,7 +159,7 @@ const userDropdownOptions = computed(() => {
 					},
 				},
 				{
-					label: 'Clear Demo Data',
+					label: __('Clear Demo Data'),
 					icon: 'lucide-trash-2',
 					onClick: () => {
 						clearDemoDataConfirmation()
@@ -173,7 +173,7 @@ const userDropdownOptions = computed(() => {
 				},
 				{
 					icon: FrappeCloudIcon,
-					label: 'Login to Frappe Cloud',
+					label: __('Login to Frappe Cloud'),
 					onClick: () => {
 						$dialog({
 							title: __('Login to Frappe Cloud?'),
@@ -213,7 +213,7 @@ const userDropdownOptions = computed(() => {
 				},
 				{
 					icon: 'lucide-log-in',
-					label: 'Log in',
+					label: __('Log in'),
 					onClick: () => {
 						window.location.href = '/login'
 					},

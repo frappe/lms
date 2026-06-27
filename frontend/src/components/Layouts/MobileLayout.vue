@@ -121,7 +121,7 @@ const addOtherLinks = () => {
 		addLink('Profile', 'UserRound')
 		addLink('Log out', 'LogOut')
 	} else {
-		addLink('Log in', 'LogIn')
+		addLink(__('Log in'), 'LogIn')
 	}
 }
 
@@ -163,7 +163,7 @@ const addAssignments = () => {
 }
 
 const addProgrammingExercises = () => {
-	addLink('Programming Exercises', 'Code', 'ProgrammingExercises')
+	addLink(__('Programming Exercises'), 'Code', 'ProgrammingExercises')
 }
 
 const addPrograms = async () => {
