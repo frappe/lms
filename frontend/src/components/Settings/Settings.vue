@@ -275,7 +275,7 @@ const tabsStructure = computed(() => {
 					],
 				},
 				{
-					label: __('Course Progress'),
+					label: 'Course Progress',
 					icon: 'Activity',
 					description:
 						'Control how lessons are marked complete: dwell time and enforcement toggles for video, quiz, and assignment.',
@@ -347,7 +347,7 @@ const tabsStructure = computed(() => {
 					template: markRaw(Categories),
 				},
 				{
-					label: __('Email Templates'),
+					label: 'Email Templates',
 					description: __('Manage the email templates for your learning system'),
 					icon: 'MailPlus',
 					template: markRaw(EmailTemplates),
@@ -486,7 +486,7 @@ const tabsStructure = computed(() => {
 					template: markRaw(ZoomSettings),
 				},
 				{
-					label: __('Google Meet'),
+					label: 'Google Meet',
 					description:
 						__('Manage Google Meet accounts to conduct live classes from batches'),
 					icon: 'Presentation',
