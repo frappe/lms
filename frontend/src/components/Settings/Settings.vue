@@ -512,7 +512,7 @@ const tabsStructure = computed(() => {
 			items: [
 				{
 					label: 'Branding',
-					icon: 'Blocks',
+					icon: 'Palette',
 					description:
 						'Customize the brand name and logo to make the application your own',
 					template: markRaw(BrandSettings),
