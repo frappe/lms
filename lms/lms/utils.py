@@ -22,7 +22,6 @@ from frappe.utils import (
 	get_fullname,
 	getdate,
 	nowtime,
-	pretty_date,
 	rounded,
 	validate_email_address,
 )
@@ -315,7 +314,6 @@ def get_reviews(course: str):
 		review.owner_details = frappe.db.get_value(
 			"User", review.owner, ["username", "full_name", "user_image"], as_dict=True
 		)
-		review.creation = pretty_date(review.creation)
 
 	return reviews
 
@@ -981,6 +979,10 @@ def get_course_details(course: str):
 		fields,
 		as_dict=1,
 	)
+	# A moderator can_modify any course, so the early return above is skipped even
+	# for a course that no longer exists (e.g. just deleted). Bail before deref.
+	if not course_details:
+		return {}
 
 	course_details.instructors = get_instructors("LMS Course", course_details.name)
 	course_details.membership = membership
