@@ -126,7 +126,7 @@
 		</ListView>
 		<div v-else class="flex-1">
 			<EmptyStateLayout
-				name="Programming Exercise Submissions"
+				:name="__('Programming Exercise Submissions')"
 				icon="lucide-file-code"
 			/>
 		</div>

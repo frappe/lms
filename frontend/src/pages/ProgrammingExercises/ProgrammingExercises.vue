@@ -125,7 +125,7 @@
 			</ListSelectBanner>
 		</ListView>
 		<div v-else class="flex-1">
-			<EmptyStateLayout name="Programming Exercises" icon="lucide-code" />
+			<EmptyStateLayout :name="__('Programming Exercises')" icon="lucide-code" />
 		</div>
 		<ListFooter
 			v-model="pageLength"
