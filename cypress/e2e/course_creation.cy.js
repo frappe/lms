@@ -181,6 +181,13 @@ describe("Course Creation", () => {
 		// the editor; the title is edited inline on the lesson itself and the
 		// debounced autosave persists it (no modal).
 		cy.button("Add Lesson", { timeout: 10000 }).click();
+		// Wait for the rename's debounced autosave to actually persist before
+		// moving on. The optimistic outline title is updated in memory, but a slow
+		// outline reload on a loaded CI runner can land late and clobber it back to
+		// "Untitled" — so gate on the real set_value request, not just the DOM.
+		cy.intercept("POST", "**/api/method/frappe.client.set_value").as(
+			"renameLesson"
+		);
 		// "Add Lesson" prefills the title with "Untitled lesson", so clear it by
 		// selecting all + backspace (a plain .clear() doesn't reliably overwrite
 		// the prefilled default) before typing the real title.
@@ -188,11 +195,9 @@ describe("Course Creation", () => {
 			.should("have.value", "Untitled lesson")
 			.type("{selectall}{backspace}")
 			.type("Test Lesson");
+		cy.wait("@renameLesson", { timeout: 15000 });
 
-		// The title edit arms a debounced autosave; once it persists, CourseEditor
-		// reflects the new title in the shared outline. Assert against the outline
-		// row specifically (deterministic via Cypress retry) so the later delete
-		// targets the throwaway "Untitled lesson", not this renamed one.
+		// Once persisted, CourseEditor reflects the new title in the shared outline.
 		cy.contains(".outline-lesson", "Test Lesson", {
 			timeout: 15000,
 		}).should("exist");
@@ -206,7 +211,11 @@ describe("Course Creation", () => {
 			"have.value",
 			"Untitled lesson"
 		);
-		cy.contains(".outline-lesson", "Untitled lesson")
+		// Delete the throwaway by position (the last row, just added) rather than by
+		// "Untitled lesson" text: under a slow reload both rows can momentarily read
+		// "Untitled", and matching by text could hit the renamed lesson instead.
+		cy.get(".outline-lesson")
+			.last()
 			.find(".lucide-trash-2")
 			.click({ force: true });
 		cy.contains("Delete this lesson?");
@@ -215,7 +224,9 @@ describe("Course Creation", () => {
 		cy.contains("Select a lesson on the right to start editing.").should(
 			"be.visible"
 		);
+		// The renamed lesson must survive and the throwaway must be gone.
 		cy.contains(".outline-lesson", "Untitled lesson").should("not.exist");
+		cy.contains(".outline-lesson", "Test Lesson").should("exist");
 
 		// Navigate to course overview. Visit the detail page directly (same as the
 		// delete test) rather than clicking through the course list — the list's
