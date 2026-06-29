@@ -22,7 +22,6 @@ from frappe.utils import (
 	get_fullname,
 	getdate,
 	nowtime,
-	pretty_date,
 	rounded,
 	validate_email_address,
 )
@@ -315,7 +314,6 @@ def get_reviews(course: str):
 		review.owner_details = frappe.db.get_value(
 			"User", review.owner, ["username", "full_name", "user_image"], as_dict=True
 		)
-		review.creation = pretty_date(review.creation)
 
 	return reviews
 
