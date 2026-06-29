@@ -66,6 +66,7 @@ import SidebarLink from '@/components/Sidebar/SidebarLink.vue'
 import Members from '@/components/Settings/Members.vue'
 import Categories from '@/components/Settings/Categories.vue'
 import EmailTemplates from '@/components/Settings/EmailTemplates.vue'
+import EmailConfig from '@/components/Settings/EmailAccount/EmailConfig.vue'
 import BrandSettings from '@/components/Settings/BrandSettings.vue'
 import PaymentGateways from '@/components/Settings/PaymentGateways.vue'
 import Coupons from '@/components/Settings/Coupons/Coupons.vue'
@@ -346,8 +347,19 @@ const tabsStructure = computed(() => {
 					icon: 'Network',
 					template: markRaw(Categories),
 				},
+			],
+		},
+		{
+			label: 'Email',
+			items: [
 				{
-					label: 'Email Templates',
+					label: 'Accounts',
+					description: 'Manage email accounts for incoming and outgoing mail',
+					icon: 'Mail',
+					template: markRaw(EmailConfig),
+				},
+				{
+					label: 'Templates',
 					description: 'Manage the email templates for your learning system',
 					icon: 'MailPlus',
 					template: markRaw(EmailTemplates),

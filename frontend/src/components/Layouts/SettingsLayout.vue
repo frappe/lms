@@ -35,11 +35,11 @@
 			<slot name="header-bottom" />
 		</div>
 
-		<!-- Scroll container owns the horizontal padding so focus rings on
-		     controls aren't clipped at the scroll edge (CRM SettingsLayoutBase
-		     pattern). overflow-y:auto forces overflow-x to clip, so flush
-		     controls need this breathing room. -->
-		<div class="flex-1 min-h-0 overflow-y-auto px-8 pb-8">
+		<!-- Scroll container owns the padding so rings on flush controls (and
+		     the top edge of the first child) aren't clipped at the scroll edge
+		     (CRM SettingsLayoutBase pattern). overflow-y:auto forces overflow-x
+		     to clip, so flush controls need this breathing room. -->
+		<div class="flex-1 min-h-0 overflow-y-auto px-8 pb-8 pt-1">
 			<slot />
 		</div>
 	</div>
