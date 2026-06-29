@@ -65,7 +65,7 @@ import SettingDetails from '@/components/Settings/SettingDetails.vue'
 import SidebarLink from '@/components/Sidebar/SidebarLink.vue'
 import Members from '@/components/Settings/Members.vue'
 import Categories from '@/components/Settings/Categories.vue'
-import EmailTemplates from '@/components/Settings/EmailTemplates.vue'
+import EmailTemplatePage from '@/components/Settings/EmailTemplate/EmailTemplatePage.vue'
 import EmailConfig from '@/components/Settings/EmailAccount/EmailConfig.vue'
 import BrandSettings from '@/components/Settings/BrandSettings.vue'
 import PaymentGateways from '@/components/Settings/PaymentGateways.vue'
@@ -362,7 +362,7 @@ const tabsStructure = computed(() => {
 					label: 'Templates',
 					description: 'Manage the email templates for your learning system',
 					icon: 'MailPlus',
-					template: markRaw(EmailTemplates),
+					template: markRaw(EmailTemplatePage),
 				},
 			],
 		},
