@@ -1,7 +1,6 @@
 <template>
 	<div class="py-10">
 		<div class="mx-10 space-y-6 px-20">
-			<!-- Include-in-preview control row -->
 			<div class="flex items-center justify-between gap-3">
 				<div class="flex items-center gap-3">
 					<Switch v-model="lesson.include_in_preview" @change="markDirty" />
@@ -24,7 +23,6 @@
 				</div>
 			</div>
 
-			<!-- Inline-editable lesson title -->
 			<textarea
 				ref="titleRef"
 				v-model="lesson.title"
@@ -34,7 +32,6 @@
 				@input="onTitleInput"
 			/>
 
-			<!-- Instructor notes card (native disclosure) -->
 			<details
 				class="instructor-notes rounded-lg border border-outline-gray-2"
 				@toggle="onInstructorNotesToggle"
@@ -64,7 +61,6 @@
 				/>
 			</details>
 
-			<!-- Lesson content -->
 			<BlockEditor
 				ref="editor"
 				:uploadContext="contentUploadContext"
@@ -113,9 +109,7 @@ function onTitleInput() {
 	markDirty({ fromTitle: true })
 }
 
-// Put the caret in the instructor-notes editor when the card is opened, so it's
-// ready to type. EditorJS can't focus while the <details> is collapsed
-// (display: none), so this has to wait for the open toggle.
+// EditorJS can't focus while the card is collapsed (display:none).
 function onInstructorNotesToggle(event) {
 	if (event.target.open) instructorEditor.value?.focus()
 }
@@ -137,9 +131,7 @@ const { updateOnboardingStep } = useOnboarding('learning')
 
 const emit = defineEmits(['saved'])
 
-// Set true only once the initial content has finished rendering, so the
-// onChange events EditorJS fires during programmatic render() don't trigger a
-// spurious autosave on load.
+// True after initial render, so render()'s onChange doesn't autosave.
 let initialLoadComplete = false
 
 const props = defineProps({
@@ -158,22 +150,12 @@ const props = defineProps({
 })
 
 const isDirty = ref(false)
-// Set once the component is tearing down, so an in-flight debounced autosave that
-// only resolves during teardown doesn't persist a stale (possibly deleted)
-// lesson — only the explicit unmount flush may persist then.
 let isUnmounting = false
-// Set when the open lesson is deleted elsewhere: CourseEditor's stale-selection
-// watcher calls markDeleted() before this form unmounts. Suppresses every
-// autosave/flush path so we never set_value a document that no longer exists.
 let lessonDeleted = false
 function markDeleted() {
 	lessonDeleted = true
 }
 
-// Debounced so a burst of keystrokes collapses into a single save shortly
-// after the user pauses. Gate on a still-loaded, undeleted lesson: if it was
-// deleted while the debounce was pending, saveLesson would write to the gone
-// document (or hit createNewLesson and resurrect it).
 const autoSave = useDebounceFn(() => {
 	if (lessonDeleted) return
 	if (isDirty.value && lessonDetails.data?.lesson) saveLesson()
@@ -182,16 +164,10 @@ const autoSave = useDebounceFn(() => {
 function markDirty({ fromTitle = false } = {}) {
 	if (lessonDeleted) return
 	if (!lessonDetails.data?.lesson) return
-	// The editor fires onChange during programmatic render() too, so gate those
-	// on initialLoadComplete to avoid a spurious autosave on load. Title @input
-	// is always real user input (a programmatic v-model set doesn't fire it), so
-	// it arms autosave even before the editors finish their initial render.
+	// render() fires onChange; gate non-title saves until loaded.
 	if (!fromTitle && !initialLoadComplete) return
 	isDirty.value = true
-	// An editor change carries new block data — capture it into the local lesson
-	// now, while the editor is alive, so an unmount flush whose save() rejects
-	// mid-destroy still persists this edit rather than stale content. A title edit
-	// carries no block data, so there's nothing to serialise there.
+	// Capture block data now so a later flush persists latest, not stale.
 	if (!fromTitle) captureEditors()
 	autoSave()
 }
@@ -213,8 +189,7 @@ onMounted(() => {
 	enablePlyr()
 })
 
-// ignoreTyping: false so Cmd/Ctrl+S saves from the title field, but the guard
-// keeps the rich-text editor's own behaviour intact (matches the prior handler).
+// ignoreTyping:false enables Ctrl+S in title; guard spares ProseMirror.
 useKeyboardShortcuts({
 	ignoreTyping: false,
 	shortcuts: [
@@ -257,11 +232,10 @@ const lessonDetails = createResource({
 			Promise.all([addLessonContent(data), addInstructorNotes(data)]).then(
 				() => {
 					nextTick(() => {
-						// Initial population isn't user input; only arm autosave
-						// once the editors have rendered the loaded content.
+						// Loaded content isn't user input; arm autosave after render.
 						isDirty.value = false
 						initialLoadComplete = true
-						// Blinking caret ready in the lesson body on open.
+						// Focus the body on open.
 						editor.value?.focus()
 					})
 				}
@@ -271,12 +245,9 @@ const lessonDetails = createResource({
 })
 
 const addLessonContent = (data) => {
-	// The editor component can unmount mid-load (fast nav / lesson delete), so
-	// guard both the entry and inside the isReady().then() — the ref can go null
-	// between them, and render() on null throws.
+	// Editor can unmount mid-load; render() on a null ref throws.
 	if (!editor.value) return Promise.resolve()
-	// Return the render promise so callers (autosave arming, autofocus) wait for
-	// the blocks to actually be in the DOM, not just for render() to be called.
+	// Return render promise so callers wait for blocks in DOM.
 	return editor.value.isReady().then(() => {
 		if (!editor.value) return
 		if (data.lesson.content) {
@@ -311,10 +282,7 @@ const addInstructorNotes = (data) => {
 
 onBeforeUnmount(() => {
 	isUnmounting = true
-	// Best-effort flush of any unsaved edits before the editors are destroyed.
-	// Skip when the lesson was deleted — flushing would set_value a gone document
-	// (or resurrect it via createNewLesson). flush:true so a genuine navigate-away
-	// flush isn't suppressed by the in-flight-autosave teardown guard.
+	// Flush unsaved edits before teardown; skip if deleted.
 	if (lessonDeleted) return
 	if (isDirty.value && lessonDetails.data?.lesson) saveLesson({ flush: true })
 })
@@ -362,10 +330,7 @@ const lessonReference = createResource({
 
 const convertToJSON = (lessonData) => {
 	let blocks = []
-	// A lesson can carry the same video in BOTH the `youtube` field and a
-	// `{{ YouTubeVideo }}` body macro. Without de-duping we'd emit two embed
-	// blocks for one video — the symptom being a stuck preloader above a second
-	// player. Key on the video id so each video renders exactly once.
+	// Dedupe a video shared by the youtube field and body macro.
 	const seenYoutube = new Set()
 	const youtubeKey = (url) => url.split('/').pop().split('?')[0]
 	const pushYoutube = (embedUrl) => {
@@ -471,9 +436,7 @@ const convertToJSON = (lessonData) => {
 	return blocks
 }
 
-// Whether the already-stored (serialised) lesson body has real content. Used
-// when the live body editor is unavailable so a title-only edit can still be
-// persisted without re-serialising — or wiping — the body.
+// Stored body has real content? Lets title-only edits skip re-serialising.
 const storedContentHasBody = () => {
 	if (!lesson.content) return false
 	try {
@@ -483,28 +446,13 @@ const storedContentHasBody = () => {
 	}
 }
 
-// .catch(() => null): an editor whose EditorJS instance is being destroyed
-// mid-save can reject. Without this Promise.all would reject and the whole
-// persist — including the stored-content fallback and the staged title — is
-// skipped, silently dropping the edit on navigation. A rejected save degrades to
-// "editor unavailable" (null), so the lesson is still written from whatever was
-// last captured.
+// Editor destroyed mid-save can reject; degrade to null so persist still runs.
 const serialise = (ed) =>
 	ed ? Promise.resolve(ed.save()).catch(() => null) : Promise.resolve(null)
 
-// Fold freshly-serialised editor output into the local lesson, applying the same
-// guards the persist path needs, and return whether the body (fresh or stored)
-// has real content. Shared by the persist path and the on-change capture so
-// lesson.content / instructor_content stay current even before a persist runs —
-// which is what lets a teardown flush whose save() rejects still write the latest
-// edits instead of stale initial-load content.
+// Fold serialised editor output into lesson; return whether body has content.
 const foldEditorData = (bodyData, notesData) => {
-	// Body: if the editor was gone (torn down mid-flush) or resolved null, we
-	// can't re-serialise it — fall back to the stored content for the skip check
-	// and leave lesson.content untouched so a staged title edit still persists.
-	// Otherwise only overwrite stored content when the body has real content: a
-	// transient/empty editor (hot-reload remount, render race, mid lesson-switch)
-	// serialises to just an empty paragraph and must not wipe what's saved.
+	// Editor gone or empty: keep stored content so we don't wipe the body.
 	let bodyHasContent = storedContentHasBody()
 	if (bodyData) {
 		bodyData = removeEmptyBlocks(bodyData)
@@ -512,30 +460,18 @@ const foldEditorData = (bodyData, notesData) => {
 		if (bodyHasContent) lesson.content = JSON.stringify(bodyData)
 	}
 
-	// Instructor notes: fold in only once the editor has loaded its saved notes
-	// (initialLoadComplete). A capture/autosave can fire before then (a title
-	// @input arms autosave ahead of the editors finishing render), at which point
-	// notesEditor.save() returns its empty default — folding that would wipe an
-	// existing lesson's stored notes. Before load, and when the editor has torn
-	// down (notesData null), keep the stored instructor_content.
+	// Fold notes only after load, else the empty default wipes stored notes.
 	if (initialLoadComplete && notesData) {
 		notesData = removeEmptyBlocks(notesData)
 		lesson.instructor_content = JSON.stringify(notesData)
-		// instructor_content is now the source of truth; clear the legacy
-		// instructor_notes field so removed notes don't reappear on the lesson
-		// page via the fallback render path.
+		// Clear legacy field so removed notes don't reappear via fallback.
 		lesson.instructor_notes = ''
 	}
 
 	return bodyHasContent
 }
 
-// Serialise the live editors into the local lesson without persisting. Runs on
-// every editor @change, while the editors are still alive (no teardown race), so
-// a later unmount flush whose save() rejects mid-destroy still has the latest
-// content folded in. Without this, a rejected teardown save falls back to the
-// stale initial-load content, and the persist below reports success while
-// dropping the user's most recent edits.
+// Serialise live editors into lesson on @change, before any teardown race.
 const captureEditors = async () => {
 	if (lessonDeleted) return
 	const [bodyData, notesData] = await Promise.all([
@@ -546,23 +482,17 @@ const captureEditors = async () => {
 }
 
 function saveLesson({ flush = false } = {}) {
-	// Capture both editors and kick off their serialisation up front, while both
-	// are still alive. During an unmount flush Vue destroys the child editors
-	// right after this returns, so the old body-then-instructor chain ran the
-	// instructor save() against an already-null editor and silently dropped the
-	// notes. Serialise concurrently so a dirty unmount captures both.
+	// Serialise both editors concurrently before unmount destroys them.
 	const bodyPromise = serialise(editor.value)
 	const notesPromise = serialise(instructorEditor.value)
 
 	Promise.all([bodyPromise, notesPromise]).then(([bodyData, notesData]) => {
 		const bodyHasContent = foldEditorData(bodyData, notesData)
 
-		// Skip only when there's nothing worth saving — no title and no body.
+		// Skip when there's nothing to save — no title, no body.
 		if (shouldSkipLessonSave(lesson.title, bodyHasContent)) return
 
-		// During teardown, only the explicit unmount flush may persist. A debounced
-		// autosave already in flight when the lesson was deleted/left must not write
-		// a stale (possibly deleted) document.
+		// During teardown only an explicit flush may persist.
 		if (isUnmounting && !flush) return
 		if (lessonDeleted) return
 		if (lessonDetails.data?.lesson) {
@@ -613,28 +543,31 @@ const createNewLesson = () => {
 }
 
 const editCurrentLesson = () => {
-	editLesson.submit(
-		{
-			lesson: lessonDetails.data.lesson.name,
-		},
-		{
-			validate() {
-				return validateLesson()
+	// Catch the re-thrown rejection: a save racing a delete 404s harmlessly.
+	editLesson
+		.submit(
+			{
+				lesson: lessonDetails.data.lesson.name,
 			},
-			onSuccess() {
-				isDirty.value = false
-				emit('saved', {
-					name: lessonDetails.data.lesson.name,
-					title: lesson.title,
-					include_in_preview: lesson.include_in_preview,
-					isNew: false,
-				})
-			},
-			onError(err) {
-				toast.error(err.message)
-			},
-		}
-	)
+			{
+				validate() {
+					return validateLesson()
+				},
+				onSuccess() {
+					isDirty.value = false
+					emit('saved', {
+						name: lessonDetails.data.lesson.name,
+						title: lesson.title,
+						include_in_preview: lesson.include_in_preview,
+						isNew: false,
+					})
+				},
+			}
+		)
+		.catch((err) => {
+			if (lessonDeleted) return
+			toast.error(err.messages?.[0] || err.message || err)
+		})
 }
 
 const validateLesson = () => {
@@ -644,8 +577,7 @@ const validateLesson = () => {
 }
 </script>
 <style>
-/* Native <details> disclosure: drop the default marker triangle and drive the
-   chevron rotation off the [open] state instead of a JS toggle. */
+/* Drop the default disclosure marker; rotate chevron via [open]. */
 .instructor-notes > summary {
 	list-style: none;
 }
@@ -662,19 +594,13 @@ const validateLesson = () => {
 	transform: rotate(180deg);
 }
 
-/* Indent the instructor-notes editor so EditorJS's block controls (the +
-   add button and drag handle, which live in the left gutter and span ~70px)
-   sit fully inside the bordered card instead of spilling into the page
-   margin. Scoped so the full-width content editor is unaffected. */
+/* Indent so EditorJS's left-gutter controls stay inside the card. */
 .instructor-notes-editor .ce-block__content,
 .instructor-notes-editor .ce-toolbar__content {
 	margin-inline-start: 4.5rem;
 }
 
-/* Both editors are .codex-editor siblings with z-index: 1, so the content
-   editor (later in the DOM) paints over the instructor editor's popovers —
-   the popover's z-index: 4 is trapped inside its editor's stacking context.
-   Lift the instructor editor one level so its + menu renders on top. */
+/* Lift instructor editor so its + menu paints above the content editor. */
 .instructor-notes-editor .codex-editor {
 	z-index: 2;
 }
