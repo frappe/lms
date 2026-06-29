@@ -235,8 +235,15 @@ const lessonDetails = createResource({
 						// Loaded content isn't user input; arm autosave after render.
 						isDirty.value = false
 						initialLoadComplete = true
-						// Focus the body on open.
-						editor.value?.focus()
+						// A freshly created lesson opens empty as "Untitled lesson" —
+						// focus the title so it can be named (and so the block editor
+						// doesn't grab the caret out from under the title). Existing
+						// lessons focus the body for content editing.
+						if (!data.lesson.content && !data.lesson.body) {
+							titleRef.value?.focus()
+						} else {
+							editor.value?.focus()
+						}
 					})
 				}
 			)

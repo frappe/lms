@@ -2,10 +2,6 @@ describe("Course Creation", () => {
 	const courseTitle = "Test Course";
 	const courseSlug = "test-course";
 
-	// Start from a clean slate so leftover chapters/lessons from an earlier
-	// (possibly failed) run don't accumulate duplicate "Untitled lesson" rows in
-	// the outline and break the rename/delete assertions. Best-effort: the course
-	// may not exist yet, and a link-protected delete is ignored.
 	before(() => {
 		cy.login();
 		cy.request({
@@ -129,34 +125,23 @@ describe("Course Creation", () => {
 			.should("exist");
 	});
 
-	it("adds chapter and lesson, then verifies course outline", () => {
+	it("adds a chapter and a lesson", () => {
 		cy.login();
-
+		cy.intercept(
+			"POST",
+			"**/api/method/lms.lms.utils.get_course_outline"
+		).as("outline");
 		cy.visit(`/lms/courses/${courseSlug}`);
 		cy.closeOnboardingModal();
-
-		// Open Course editor tab
 		cy.get("button, [role=tab]").contains("Course editor").click();
-
-		// The onboarding help modal re-appears after the first course is created
-		// (its "create_first_course" step completes) and covers the editor
-		// toolbar — dismiss it again before adding a chapter.
 		cy.closeOnboardingModal();
-
-		// The chapter "Add" button in the CourseDetail toolbar appears as soon as
-		// the editor enters edit mode, but it delegates to CourseOutline
-		// (openChapterModal), which isn't mounted until the outline resource
-		// resolves. Clicking "Add" during the loading skeleton silently no-ops, so
-		// first wait for the loaded outline — the "No chapters yet" empty state is
-		// rendered by CourseOutline itself, so its visibility proves the component
-		// (and its chapter modal) is mounted.
-		cy.contains("No chapters yet", { timeout: 20000 }).should("be.visible");
+		cy.wait("@outline", { timeout: 20000 });
 
 		// Add a chapter via the toolbar "Add" button (CourseEditor hides
-		// CourseOutline's own header).
+		// CourseOutline's own header). Scope to the chapter dialog by its Title field
+		// — the onboarding "Getting started" panel is also a dismissable layer, but it
+		// has no Title input.
 		cy.contains("button", "Add").click();
-		// Scope to the chapter dialog by its Title field — the onboarding "Getting
-		// started" panel is also a dismissable layer, but it has no Title input.
 		cy.get("[data-dismissable-layer]")
 			.filter(':has(label:contains("Title"))')
 			.should("be.visible")
@@ -168,52 +153,39 @@ describe("Course Creation", () => {
 					.type("Test Chapter");
 				cy.button("Create").click();
 			});
-
-		// Wait for the chapter to land in the outline (more robust than waiting on
-		// the network call) before adding a lesson.
 		cy.contains("Test Chapter", { timeout: 15000 }).should("exist");
 
 		// The onboarding help modal re-expands when the chapter step completes —
 		// dismiss it before adding a lesson so it can't hijack the editor.
 		cy.closeOnboardingModal();
 
-		// Create lesson. "Add Lesson" creates an "Untitled lesson" and opens it in
-		// the editor; the title is edited inline on the lesson itself and the
-		// debounced autosave persists it (no modal).
-		cy.button("Add Lesson", { timeout: 10000 }).click();
-		// Wait for the rename's debounced autosave to actually persist before
-		// moving on. The optimistic outline title is updated in memory, but a slow
-		// outline reload on a loaded CI runner can land late and clobber it back to
-		// "Untitled" — so gate on the real set_value request, not just the DOM.
+		// "Add Lesson" creates an "Untitled lesson" and opens it in the editor with
+		// the title field focused (LessonForm focuses the title — not the block
+		// editor — for a new, empty lesson, so our keystrokes land in the title).
+		// Rename it inline; the debounced autosave persists via frappe.client.set_value.
 		cy.intercept("POST", "**/api/method/frappe.client.set_value").as(
 			"renameLesson"
 		);
-		// "Add Lesson" prefills the title with "Untitled lesson", so clear it by
-		// selecting all + backspace (a plain .clear() doesn't reliably overwrite
-		// the prefilled default) before typing the real title.
+		cy.button("Add Lesson", { timeout: 10000 }).click();
 		cy.get("textarea.lesson-title", { timeout: 15000 })
 			.should("have.value", "Untitled lesson")
-			.type("{selectall}{backspace}")
-			.type("Test Lesson");
+			.clear()
+			.should("have.value", "")
+			.type("Test Lesson")
+			.should("have.value", "Test Lesson");
 		cy.wait("@renameLesson", { timeout: 15000 });
-
-		// Once persisted, CourseEditor reflects the new title in the shared outline.
 		cy.contains(".outline-lesson", "Test Lesson", {
 			timeout: 15000,
 		}).should("exist");
 
-		// Regression: deleting the lesson that's open in the editor must drop back
-		// to the empty "choose a lesson" state, not keep showing the deleted
-		// lesson. Add a throwaway lesson (it opens in the editor), delete it, and
-		// assert the editor cleared. "Test Lesson" stays for the overview below.
+		// Regression: deleting the lesson open in the editor must drop back to the
+		// empty "choose a lesson" state. Add a throwaway lesson, delete it (the last
+		// row, just added), and assert the editor cleared and "Test Lesson" survived.
 		cy.button("Add Lesson", { timeout: 10000 }).click();
 		cy.get("textarea.lesson-title", { timeout: 15000 }).should(
 			"have.value",
 			"Untitled lesson"
 		);
-		// Delete the throwaway by position (the last row, just added) rather than by
-		// "Untitled lesson" text: under a slow reload both rows can momentarily read
-		// "Untitled", and matching by text could hit the renamed lesson instead.
 		cy.get(".outline-lesson")
 			.last()
 			.find(".lucide-trash-2")
@@ -224,17 +196,15 @@ describe("Course Creation", () => {
 		cy.contains("Select a lesson on the right to start editing.").should(
 			"be.visible"
 		);
-		// The renamed lesson must survive and the throwaway must be gone.
-		cy.contains(".outline-lesson", "Untitled lesson").should("not.exist");
+		cy.get(".outline-lesson").should("have.length", 1);
 		cy.contains(".outline-lesson", "Test Lesson").should("exist");
+	});
 
-		// Navigate to course overview. Visit the detail page directly (same as the
-		// delete test) rather than clicking through the course list — the list's
-		// tab/filter rendering is a separate concern and made this flaky.
+	it("verifies the course overview", () => {
+		cy.login();
 		cy.visit(`/lms/courses/${courseSlug}`);
 		cy.closeOnboardingModal();
 
-		// Verify overview content
 		cy.url({ timeout: 10000 }).should(
 			"include",
 			`/lms/courses/${courseSlug}`
@@ -247,9 +217,8 @@ describe("Course Creation", () => {
 			"src",
 			"https://www.youtube.com/embed/-LPmw2Znl2c"
 		);
-
-		// Chapter shows in the course content (the lesson was already verified in
-		// the editor outline above).
+		// Chapter shows in the course content (the lesson was verified in the editor
+		// outline in the previous test).
 		cy.contains("Test Chapter", { timeout: 15000 }).should("exist");
 	});
 
