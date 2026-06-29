@@ -72,7 +72,7 @@ import Coupons from '@/components/Settings/Coupons/Coupons.vue'
 import Transactions from '@/components/Settings/Transactions/Transactions.vue'
 import ZoomSettings from '@/components/Settings/ZoomSettings.vue'
 import GoogleMeetSettings from '@/components/Settings/GoogleMeetSettings.vue'
-import Badges from '@/components/Settings/Badges.vue'
+import Badges from '@/components/Settings/Badges/Badges.vue'
 
 const show = defineModel()
 const doctype = ref('LMS Settings')
