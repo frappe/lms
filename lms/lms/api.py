@@ -591,6 +591,18 @@ def delete_lesson(lesson: str, chapter: str):
 
 	frappe.db.delete("LMS Course Progress", {"lesson": lesson})
 	frappe.db.delete("LMS Video Watch Duration", {"lesson": lesson})
+
+	# Discussion topics link to the lesson, so delete_doc raises LinkExistsError
+	# unless they (and their replies) are removed first.
+	topics = frappe.get_all(
+		"Discussion Topic",
+		{"reference_doctype": "Course Lesson", "reference_docname": lesson},
+		pluck="name",
+	)
+	for topic in topics:
+		frappe.db.delete("Discussion Reply", {"topic": topic})
+		frappe.db.delete("Discussion Topic", topic)
+
 	frappe.delete_doc("Course Lesson", lesson)
 
 
@@ -1261,6 +1273,21 @@ def delete_chapter(chapter: str):
 		delete_scorm_package(chapterInfo.scorm_package_path)
 
 	course = frappe.db.get_value("Chapter Reference", {"chapter": chapter}, "parent")
+
+	# Clean up per-lesson dependants before the raw lesson delete below, which
+	# would otherwise leave discussions/progress orphaned at the deleted lessons.
+	lessons = frappe.get_all("Course Lesson", {"chapter": chapter}, pluck="name")
+	for lesson in lessons:
+		topics = frappe.get_all(
+			"Discussion Topic",
+			{"reference_doctype": "Course Lesson", "reference_docname": lesson},
+			pluck="name",
+		)
+		for topic in topics:
+			frappe.db.delete("Discussion Reply", {"topic": topic})
+			frappe.db.delete("Discussion Topic", topic)
+		frappe.db.delete("LMS Course Progress", {"lesson": lesson})
+		frappe.db.delete("LMS Video Watch Duration", {"lesson": lesson})
 
 	frappe.db.delete("Chapter Reference", {"chapter": chapter})
 	frappe.db.delete("Lesson Reference", {"parent": chapter})
