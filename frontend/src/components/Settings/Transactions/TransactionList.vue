@@ -75,7 +75,7 @@
 								<div v-else-if="column.key == 'amount'">
 									{{ getCurrencySymbol(row['currency']) }} {{ row[column.key] }}
 								</div>
-								<div v-else class="leading-5 text-sm">
+								<div v-else class="truncate text-sm leading-5">
 									{{ row[column.key] }}
 								</div>
 							</ListRowItem>
@@ -182,27 +182,27 @@ const columns = computed(() => {
 			label: __('Billing Name'),
 			icon: 'user',
 			key: 'billing_name',
-			width: '30%',
+			width: 3,
 		},
 		{
 			label: __('Amount'),
 			icon: 'dollar-sign',
 			key: 'amount',
-			width: '20%',
+			width: 2,
 			align: 'right',
 		},
 		{
 			label: __('Payment Received'),
 			icon: 'check-circle',
 			key: 'payment_received',
-			width: '25%',
+			width: 2.5,
 			align: 'center',
 		},
 		{
 			label: __('Payment for Certificate'),
 			icon: 'award',
 			key: 'payment_for_certificate',
-			width: '25%',
+			width: 2.5,
 			align: 'center',
 		},
 	]
