@@ -468,8 +468,12 @@ def send_batch_start_reminder():
 
 
 def send_mail(batch, student):
-	subject = _("Your batch {0} is starting tomorrow").format(batch.title)
-	template = "batch_start_reminder" if batch.show_live_class else "batch_start_reminder_recorded"
+	if batch.show_live_class:
+		subject = _("Your batch {0} is starting tomorrow").format(batch.title)
+		template = "batch_start_reminder"
+	else:
+		subject = _("You're enrolled in {0} – start whenever you're ready").format(batch.title)
+		template = "batch_start_reminder_recorded"
 
 	args = {
 		"student_name": student.member_name,
