@@ -1003,3 +1003,7 @@ export const getColor = (color, shade) => {
 		localStorage.getItem('theme') == 'light' ? 'lightMode' : 'darkMode'
 	return colorsJSON[theme][color][shade]
 }
+
+export function validateEmail(email) {
+	return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email || '').trim())
+}
