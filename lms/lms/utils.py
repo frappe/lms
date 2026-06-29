@@ -979,6 +979,10 @@ def get_course_details(course: str):
 		fields,
 		as_dict=1,
 	)
+	# A moderator can_modify any course, so the early return above is skipped even
+	# for a course that no longer exists (e.g. just deleted). Bail before deref.
+	if not course_details:
+		return {}
 
 	course_details.instructors = get_instructors("LMS Course", course_details.name)
 	course_details.membership = membership
