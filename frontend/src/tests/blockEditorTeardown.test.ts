@@ -31,10 +31,6 @@ vi.mock('@/utils', () => ({
 	enablePlyr: () => {},
 }))
 
-vi.mock('@/utils/blockTunes/clipboardTunes', () => ({
-	handleBlockClipboardShortcut: () => {},
-}))
-
 import BlockEditor from '@/components/BlockEditor.vue'
 
 describe('BlockEditor onReady teardown race', () => {
