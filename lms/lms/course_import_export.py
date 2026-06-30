@@ -13,6 +13,7 @@ from frappe.utils import escape_html, validate_email_address
 from frappe.utils.file_manager import is_safe_path
 
 from lms.lms.utils import create_user as create_lms_user
+from lms.lms.utils import get_editorjs_blocks
 
 
 def export_course_zip(course_name):
@@ -84,8 +85,7 @@ def get_exercise_test_cases(doc):
 
 def get_assessments_from_lesson(lesson):
 	assessments, questions, test_cases = [], [], []
-	content = json.loads(lesson.content) if lesson.content else {}
-	for block in content.get("blocks", []):
+	for block in get_editorjs_blocks(lesson.content):
 		if block.get("type") not in ("quiz", "assignment", "program"):
 			continue
 		doc = get_assessment_from_block(block)
@@ -136,8 +136,7 @@ def get_course_assets(course, lessons, instructors, evaluator):
 	if course.image:
 		assets.append(course.image)
 	for lesson in lessons:
-		content = json.loads(lesson.content) if lesson.content else {}
-		for block in content.get("blocks", []):
+		for block in get_editorjs_blocks(lesson.content):
 			if block.get("type") == "upload":
 				url = block.get("data", {}).get("file_url")
 				assets.append(url)
@@ -574,8 +573,13 @@ def get_assessment_title(zip_file, assessment_name, assessment_type):
 
 def replace_assessment_names(zip_file, content):
 	assessment_types = ["quiz", "assignment", "program"]
-	content = json.loads(content)
-	for block in content.get("blocks", []):
+	try:
+		content = json.loads(content)
+	except (TypeError, ValueError):
+		return content
+	if not isinstance(content, dict):
+		return json.dumps(content)
+	for block in content.get("blocks") or []:
 		if block.get("type") in assessment_types:
 			data_field = "exercise" if block.get("type") == "program" else block.get("type")
 			assessment_name = block.get("data", {}).get(data_field)
@@ -588,8 +592,13 @@ def replace_assessment_names(zip_file, content):
 
 
 def replace_assets(content):
-	content = json.loads(content)
-	for block in content.get("blocks", []):
+	try:
+		content = json.loads(content)
+	except (TypeError, ValueError):
+		return
+	if not isinstance(content, dict):
+		return
+	for block in content.get("blocks") or []:
 		if block.get("type") == "upload":
 			asset_url = block.get("data", {}).get("file_url")
 			if asset_url:

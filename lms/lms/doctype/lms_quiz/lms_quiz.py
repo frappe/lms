@@ -113,9 +113,19 @@ def set_total_marks(questions: list) -> int:
 	return marks
 
 
+def _parse_json_arg(raw, label):
+	"""Parse a client-supplied JSON-string argument, raising a clean error (not a 500)."""
+	try:
+		return json.loads(raw)
+	except (TypeError, ValueError):
+		frappe.throw(_("Invalid {0} submitted.").format(label), frappe.ValidationError)
+
+
 @frappe.whitelist()
 def submit_quiz(quiz: str, results: str | None = None):
-	results = json.loads(results) if results else []
+	results = _parse_json_arg(results, _("quiz results")) if results else []
+	if not isinstance(results, list):
+		frappe.throw(_("Invalid quiz results submitted."), frappe.ValidationError)
 
 	quiz_details = frappe.db.get_value(
 		"LMS Quiz",
@@ -311,7 +321,7 @@ def check_answer(quiz: str, question: str, question_type: str, answers: str):
 			frappe.PermissionError,
 		)
 
-	answers = answers and json.loads(answers)
+	answers = _parse_json_arg(answers, _("answers")) if answers else answers
 	if question_type == "Choices":
 		return check_choice_answers(question, answers)
 	else:

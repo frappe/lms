@@ -2,7 +2,6 @@
 # For license information, please see license.txt
 
 import inspect
-import json
 from functools import cache
 from urllib.parse import unquote
 
@@ -16,28 +15,13 @@ from frappe.utils.telemetry import capture
 from lms.lms.permissions import INSTRUCTOR_FIELDS, can_access_lesson
 from lms.lms.utils import (
 	get_course_progress,
+	get_editorjs_blocks,
 	is_demo_course,
 	recalculate_course_progress,
 	sanitize_editorjs,
 )
 
 from ...md import find_macros
-
-
-def get_editorjs_blocks(content):
-	"""Return the EditorJS block list for `content`, or [] if it isn't EditorJS JSON.
-
-	The content field can legitimately hold non-JSON (e.g. a lesson edited from the
-	Desk form, whose raw textarea has no EditorJS editor). Mirror sanitize_editorjs:
-	fail soft instead of raising, so a stray URL/text can't 500 save or progress.
-	"""
-	try:
-		data = json.loads(content)
-	except (TypeError, ValueError):
-		return []
-	if not isinstance(data, dict):
-		return []
-	return data.get("blocks") or []
 
 
 class CourseLesson(Document):

@@ -127,3 +127,25 @@ class TestQuizAnswerImageUpload(unittest.TestCase):
 	def tearDown(self):
 		for name in frappe.get_all("File", {"file_name": "answer.png"}, pluck="name"):
 			frappe.delete_doc("File", name, force=True, ignore_permissions=True)
+
+
+from lms.lms.doctype.lms_quiz.lms_quiz import _parse_json_arg  # noqa: E402
+
+
+class TestQuizSubmissionInputValidation(unittest.TestCase):
+	"""submit_quiz / check_answer json.loads the client-sent answers payload. A malformed
+	payload used to surface as a raw 500 (JSONDecodeError); it now raises a clean
+	validation error. Fixture-free.
+	"""
+
+	def test_valid_json_is_parsed(self):
+		self.assertEqual(_parse_json_arg("[1, 2]", "answers"), [1, 2])
+		self.assertEqual(_parse_json_arg('{"a": 1}', "answers"), {"a": 1})
+
+	def test_malformed_json_is_rejected(self):
+		# Under a real request this is frappe.ValidationError; bare it raises too — the
+		# contract is "reject, don't 500/parse-as-None".
+		for raw in ("not json", "{bad}", "", "[1,"):
+			with self.subTest(raw=raw):
+				with self.assertRaises(Exception):
+					_parse_json_arg(raw, "answers")
