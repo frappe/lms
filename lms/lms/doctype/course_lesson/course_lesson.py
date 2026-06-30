@@ -24,6 +24,22 @@ from lms.lms.utils import (
 from ...md import find_macros
 
 
+def get_editorjs_blocks(content):
+	"""Return the EditorJS block list for `content`, or [] if it isn't EditorJS JSON.
+
+	The content field can legitimately hold non-JSON (e.g. a lesson edited from the
+	Desk form, whose raw textarea has no EditorJS editor). Mirror sanitize_editorjs:
+	fail soft instead of raising, so a stray URL/text can't 500 save or progress.
+	"""
+	try:
+		data = json.loads(content)
+	except (TypeError, ValueError):
+		return []
+	if not isinstance(data, dict):
+		return []
+	return data.get("blocks") or []
+
+
 class CourseLesson(Document):
 	def after_insert(self):
 		self.validate_progress_recalculation()
@@ -70,8 +86,7 @@ class CourseLesson(Document):
 			self.save_lesson_details_in_quiz(self.instructor_content)
 
 	def save_lesson_details_in_quiz(self, content):
-		content = json.loads(content)
-		for block in content.get("blocks"):
+		for block in get_editorjs_blocks(content):
 			if block.get("type") == "quiz":
 				quiz = block.get("data").get("quiz")
 				if not frappe.db.exists("LMS Quiz", quiz):
@@ -390,9 +405,7 @@ def get_quiz_progress(lesson):
 	quizzes = []
 
 	if lesson_details.content:
-		content = json.loads(lesson_details.content)
-
-		for block in content.get("blocks"):
+		for block in get_editorjs_blocks(lesson_details.content):
 			if block.get("type") == "quiz":
 				quizzes.append(block.get("data").get("quiz"))
 			if block.get("type") == "upload":
@@ -424,9 +437,7 @@ def get_assignment_progress(lesson):
 	assignments = []
 
 	if lesson_details.content:
-		content = json.loads(lesson_details.content)
-
-		for block in content.get("blocks"):
+		for block in get_editorjs_blocks(lesson_details.content):
 			if block.get("type") == "assignment":
 				assignments.append(block.get("data").get("assignment"))
 

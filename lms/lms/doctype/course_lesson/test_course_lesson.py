@@ -1,7 +1,65 @@
 # Copyright (c) 2021, FOSS United and Contributors
 # See license.txt
 
+import json
 import unittest
+
+# One sample URL per embed service registered in the LMS EditorJS editor.
+# Source of truth: frontend/src/utils/index.js → getEditorTools() → embed.config.services.
+# Keep this in sync with that list when a service is added/removed.
+EMBED_SERVICE_URLS = {
+	"youtube": "https://www.youtube.com/watch?v=htpg8CuD1Ec",
+	"vimeo": "https://vimeo.com/123456789",
+	"cloudflareStream": "https://customer-f33zs165nr7gyfy4.cloudflarestream.com/"
+	+ "0d8e1b2c3a4f5d6e7c8b9a0f1e2d3c4b/watch",
+	"bunnyStream": "https://iframe.mediadelivery.net/play/12345/abc-def-123",
+	"codepen": "https://codepen.io/team/codepen/pen/PNaGbb",
+	"aparat": "https://www.aparat.com/v/AbCdE",
+	"github": "https://gist.github.com/octocat/6cad326836d38bd3a7ae",
+	"slides": "https://docs.google.com/presentation/d/1A2B3C4D5E/pub",
+	"drive": "https://drive.google.com/file/d/1A2B3C4D5E/view",
+	"docsPublic": "https://docs.google.com/document/d/1A2B3C4D5E/edit",
+	"sheetsPublic": "https://docs.google.com/spreadsheets/d/1A2B3C4D5E/edit",
+	"slidesPublic": "https://docs.google.com/presentation/d/1A2B3C4D5E/edit",
+	"codesandbox": "https://codesandbox.io/s/new",
+}
+
+
+def _embed_block(service, source):
+	"""An EditorJS `embed` block as the editor persists it (type + data only matter here)."""
+	return {
+		"type": "embed",
+		"data": {
+			"service": service,
+			"source": source,
+			"embed": source,
+			"width": 580,
+			"height": 320,
+			"caption": "",
+		},
+	}
+
+
+# One sample of every non-embed block type the LMS editor can produce.
+# Source of truth: the same getEditorTools() tools map.
+NON_EMBED_BLOCKS = {
+	"header": {"type": "header", "data": {"text": "Intro", "level": 2}},
+	"paragraph": {"type": "paragraph", "data": {"text": "Hello"}},
+	"markdown": {"type": "markdown", "data": {"text": "# Hello"}},
+	"list": {"type": "list", "data": {"style": "ordered", "items": ["a", "b"]}},
+	"table": {"type": "table", "data": {"content": [["a", "b"], ["c", "d"]]}},
+	"image": {"type": "image", "data": {"url": "/files/x.png"}},
+	"codeBox": {"type": "codeBox", "data": {"code": "x = 1", "language": "python"}},
+	"upload": {"type": "upload", "data": {"file": {"url": "/files/x.mp4"}, "quizzes": []}},
+	"program": {"type": "program", "data": {"program": "PROG-0001"}},
+	"quiz": {"type": "quiz", "data": {"quiz": "QUIZ-0001"}},
+	"assignment": {"type": "assignment", "data": {"assignment": "ASSIGN-0001"}},
+}
+
+
+def _content(*blocks):
+	"""Wrap blocks in the EditorJS save() envelope that the `content` field stores."""
+	return json.dumps({"time": 0, "version": "2.30.0", "blocks": list(blocks)})
 
 
 class TestApplyEnforcementFlags(unittest.TestCase):
@@ -171,3 +229,122 @@ class TestServePrivateFileVersionSafe(unittest.TestCase):
 
 		self.assertEqual(self._run(new_stub), "sent")
 		self.assertEqual(calls, [("/files/x.pdf", "nice.pdf")])
+
+
+class TestGetEditorjsBlocks(unittest.TestCase):
+	"""get_editorjs_blocks underpins save_lesson_details_in_quiz, get_quiz_progress and
+	get_assignment_progress. Before it existed those did a bare json.loads(content) which
+	500'd when `content` wasn't EditorJS JSON — e.g. a raw video URL pasted into the Desk
+	Course Lesson form (the original bug: JSONDecodeError in on_update).
+	"""
+
+	def setUp(self):
+		from lms.lms.doctype.course_lesson.course_lesson import get_editorjs_blocks
+
+		self.fn = get_editorjs_blocks
+
+	# --- The regression: non-EditorJS content must not raise -------------------
+
+	def test_raw_youtube_url_as_content_returns_empty(self):
+		"""Exact repro from the reported traceback: a YouTube URL in the content field."""
+		self.assertEqual(self.fn("https://www.youtube.com/watch?v=htpg8CuD1Ec"), [])
+
+	def test_non_json_inputs_return_empty(self):
+		for raw in ("", "   ", "plain text", "https://vimeo.com/123", "<p>html</p>"):
+			with self.subTest(raw=raw):
+				self.assertEqual(self.fn(raw), [])
+
+	def test_non_string_inputs_return_empty(self):
+		for raw in (None, 123, [], {}):
+			with self.subTest(raw=raw):
+				self.assertEqual(self.fn(raw), [])
+
+	def test_json_but_not_an_object_returns_empty(self):
+		# Valid JSON that isn't an EditorJS envelope (a list, a bare string/number).
+		for raw in ("[]", '["a", "b"]', '"a string"', "42", "null"):
+			with self.subTest(raw=raw):
+				self.assertEqual(self.fn(raw), [])
+
+	def test_object_without_or_with_null_blocks_returns_empty(self):
+		for raw in ("{}", '{"version": "2.30.0"}', '{"blocks": null}', '{"blocks": []}'):
+			with self.subTest(raw=raw):
+				self.assertEqual(self.fn(raw), [])
+
+	# --- Every block / embed the editor can produce parses cleanly -------------
+
+	def test_every_non_embed_block_type_parses(self):
+		for name, block in NON_EMBED_BLOCKS.items():
+			with self.subTest(block=name):
+				blocks = self.fn(_content(block))
+				self.assertEqual(len(blocks), 1)
+				self.assertEqual(blocks[0]["type"], block["type"])
+
+	def test_every_embed_service_parses(self):
+		for service, url in EMBED_SERVICE_URLS.items():
+			with self.subTest(service=service):
+				blocks = self.fn(_content(_embed_block(service, url)))
+				self.assertEqual(len(blocks), 1)
+				self.assertEqual(blocks[0]["type"], "embed")
+				self.assertEqual(blocks[0]["data"]["service"], service)
+
+	def test_mixed_document_preserves_order_and_count(self):
+		blocks = [
+			NON_EMBED_BLOCKS["header"],
+			_embed_block("youtube", EMBED_SERVICE_URLS["youtube"]),
+			NON_EMBED_BLOCKS["paragraph"],
+			_embed_block("vimeo", EMBED_SERVICE_URLS["vimeo"]),
+			NON_EMBED_BLOCKS["quiz"],
+		]
+		parsed = self.fn(_content(*blocks))
+		self.assertEqual([b["type"] for b in parsed], [b["type"] for b in blocks])
+
+
+class TestLessonBlockExtraction(unittest.TestCase):
+	"""The block-type filtering that save_lesson_details_in_quiz / get_quiz_progress /
+	get_assignment_progress run on top of get_editorjs_blocks. Pure (no DB): asserts which
+	blocks surface a quiz/assignment id and, crucially, that embeds surface neither — so a
+	lesson made entirely of video embeds never reaches the DB-lookup branches.
+	"""
+
+	def setUp(self):
+		from lms.lms.doctype.course_lesson.course_lesson import get_editorjs_blocks
+
+		self.fn = get_editorjs_blocks
+
+	def _quiz_ids(self, content):
+		ids = []
+		for block in self.fn(content):
+			if block.get("type") == "quiz":
+				ids.append(block["data"].get("quiz"))
+			if block.get("type") == "upload":
+				for row in block["data"].get("quizzes") or []:
+					ids.append(row.get("quiz"))
+		return ids
+
+	def _assignment_ids(self, content):
+		return [b["data"].get("assignment") for b in self.fn(content) if b.get("type") == "assignment"]
+
+	def test_quiz_block_yields_quiz_id(self):
+		self.assertEqual(self._quiz_ids(_content(NON_EMBED_BLOCKS["quiz"])), ["QUIZ-0001"])
+
+	def test_upload_block_yields_inline_quiz_ids(self):
+		upload = {
+			"type": "upload",
+			"data": {"file": {"url": "/files/x.mp4"}, "quizzes": [{"quiz": "QUIZ-9"}]},
+		}
+		self.assertEqual(self._quiz_ids(_content(upload)), ["QUIZ-9"])
+
+	def test_assignment_block_yields_assignment_id(self):
+		self.assertEqual(self._assignment_ids(_content(NON_EMBED_BLOCKS["assignment"])), ["ASSIGN-0001"])
+
+	def test_embeds_surface_no_quiz_or_assignment(self):
+		for service, url in EMBED_SERVICE_URLS.items():
+			with self.subTest(service=service):
+				content = _content(_embed_block(service, url))
+				self.assertEqual(self._quiz_ids(content), [])
+				self.assertEqual(self._assignment_ids(content), [])
+
+	def test_raw_url_content_surfaces_nothing(self):
+		# The reported crash case: extraction yields nothing instead of raising.
+		self.assertEqual(self._quiz_ids("https://www.youtube.com/watch?v=htpg8CuD1Ec"), [])
+		self.assertEqual(self._assignment_ids("https://www.youtube.com/watch?v=htpg8CuD1Ec"), [])
