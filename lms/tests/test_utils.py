@@ -280,3 +280,64 @@ class TestLMSUtils(BaseTestUtils):
 		self.assertEqual(user.full_name, "John Michael Doe")
 		self.assertIn("Course Creator", [role.role for role in user.roles])
 		self.cleanup_items.append(("User", user.name))
+
+
+# Fixture-free (no DB) coverage for the lesson-content EditorJS-JSON guard.
+# The content field can hold non-JSON (e.g. a lesson edited from the Desk form,
+# whose raw textarea has no EditorJS editor). Every reader must fail soft.
+import unittest  # noqa: E402
+
+from lms.lms.utils import get_editorjs_blocks, get_lesson_icon  # noqa: E402
+
+
+def _content(*blocks):
+	return frappe.as_json({"blocks": list(blocks)})
+
+
+class TestGetEditorjsBlocks(unittest.TestCase):
+	def test_non_json_content_returns_empty(self):
+		# Exact repro from the reported bug: a raw video URL in the content field.
+		for raw in ("https://www.youtube.com/watch?v=htpg8CuD1Ec", "", "plain", "<p>x</p>"):
+			with self.subTest(raw=raw):
+				self.assertEqual(get_editorjs_blocks(raw), [])
+
+	def test_non_string_or_non_object_returns_empty(self):
+		for raw in (None, 123, "[]", '["a"]', "null", "{}", '{"blocks": null}'):
+			with self.subTest(raw=raw):
+				self.assertEqual(get_editorjs_blocks(raw), [])
+
+	def test_valid_editorjs_returns_blocks(self):
+		blocks = get_editorjs_blocks(_content({"type": "header", "data": {"text": "Hi"}}))
+		self.assertEqual(len(blocks), 1)
+		self.assertEqual(blocks[0]["type"], "header")
+
+
+class TestGetLessonIcon(unittest.TestCase):
+	"""get_lesson_icon builds the course-outline icons; before the guard a single
+	lesson with non-JSON content 500'd the whole lesson list for every viewer.
+	"""
+
+	def test_non_json_content_falls_back_without_raising(self):
+		# Must NOT raise; with no recognisable blocks it falls through to the list icon.
+		self.assertEqual(get_lesson_icon("", "https://youtu.be/x"), "icon-list")
+
+	def test_video_embed_icon(self):
+		for service in ("youtube", "vimeo", "cloudflareStream", "bunnyStream"):
+			with self.subTest(service=service):
+				content = _content({"type": "embed", "data": {"service": service}})
+				self.assertEqual(get_lesson_icon("", content), "icon-youtube")
+
+	def test_video_upload_icon(self):
+		content = _content({"type": "upload", "data": {"file_type": "mp4"}})
+		self.assertEqual(get_lesson_icon("", content), "icon-youtube")
+
+	def test_quiz_assignment_program_icons(self):
+		cases = {
+			"quiz": "icon-quiz",
+			"assignment": "icon-assignment",
+			"program": "icon-code",
+		}
+		for block_type, icon in cases.items():
+			with self.subTest(block_type=block_type):
+				content = _content({"type": block_type, "data": {}})
+				self.assertEqual(get_lesson_icon("", content), icon)

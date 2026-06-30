@@ -222,9 +222,7 @@ def get_lesson_details(chapter: dict, progress: bool = False):
 
 def get_lesson_icon(body: str, content: str):
 	if content:
-		content = json.loads(content)
-
-		for block in content.get("blocks"):
+		for block in get_editorjs_blocks(content):
 			if block.get("type") == "upload" and block.get("data").get("file_type").lower() in [
 				"mp4",
 				"webm",
@@ -2633,6 +2631,24 @@ def sanitize_editorjs(raw):
 	except (TypeError, ValueError):
 		return raw
 	return json.dumps(sanitize_json(data), separators=(",", ":"))
+
+
+def get_editorjs_blocks(content):
+	"""Return the EditorJS block list for `content`, or [] if it isn't EditorJS JSON.
+
+	The lesson content field can legitimately hold non-JSON (e.g. a lesson edited from
+	the Desk form, whose raw textarea has no EditorJS editor). Every reader of lesson
+	content must go through this so a stray URL/text can't 500 a save, the course
+	outline, the assessment list, or progress tracking. Mirrors sanitize_editorjs:
+	fail soft instead of raising.
+	"""
+	try:
+		data = json.loads(content)
+	except (TypeError, ValueError):
+		return []
+	if not isinstance(data, dict):
+		return []
+	return data.get("blocks") or []
 
 
 def sanitize_json(node):

@@ -232,3 +232,59 @@ class TestTrackVideoWatchDuration(BaseTestUtils):
 			],
 		)
 		self.assertEqual(len(self._watch_rows()), 2)
+
+
+import unittest  # noqa: E402
+
+from lms.lms.api import get_assessment_from_lesson  # noqa: E402
+
+
+class TestGetAssessmentFromLesson(unittest.TestCase):
+	"""get_assessment_from_lesson scans every lesson's content for assessment blocks.
+	Before the EditorJS-JSON guard, one lesson with non-JSON content (e.g. a raw URL
+	pasted into the Desk form) 500'd the whole course's assessment list. DB calls are
+	monkeypatched so this stays a fixture-free unit test.
+	"""
+
+	def setUp(self):
+		self._orig_get_all = frappe.get_all
+
+	def tearDown(self):
+		frappe.get_all = self._orig_get_all
+
+	def _patch_lessons(self, lessons):
+		frappe.get_all = lambda *a, **k: [frappe._dict(lesson) for lesson in lessons]
+
+	def test_non_json_lesson_does_not_raise(self):
+		self._patch_lessons(
+			[
+				{"name": "L1", "title": "Intro", "content": "https://youtu.be/x"},
+				{"name": "L2", "title": "Empty", "content": None},
+			]
+		)
+		self.assertEqual(get_assessment_from_lesson("c1", "quiz"), [])
+
+	def test_quiz_blocks_collected_across_lessons(self):
+		self._patch_lessons(
+			[
+				{"name": "L1", "title": "Bad", "content": "not json"},
+				{
+					"name": "L2",
+					"title": "Good",
+					"content": frappe.as_json({"blocks": [{"type": "quiz", "data": {"quiz": "Q1"}}]}),
+				},
+			]
+		)
+		self.assertEqual(get_assessment_from_lesson("c1", "quiz"), ["Q1"])
+
+	def test_program_uses_exercise_data_field(self):
+		self._patch_lessons(
+			[
+				{
+					"name": "L1",
+					"title": "Prog",
+					"content": frappe.as_json({"blocks": [{"type": "program", "data": {"exercise": "EX1"}}]}),
+				}
+			]
+		)
+		self.assertEqual(get_assessment_from_lesson("c1", "program"), ["EX1"])
