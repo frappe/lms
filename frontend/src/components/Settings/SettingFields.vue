@@ -53,14 +53,14 @@
 									:class="field.size == 'lg' ? 'px-5 py-5' : 'px-20 py-8'"
 								>
 									<img
-										:src="data[field.name]"
+										:src="fileUrl(data[field.name])"
 										class="rounded"
 										:class="field.size == 'lg' ? 'w-36' : 'size-6'"
 									/>
 								</div>
 								<div class="flex flex-col flex-wrap">
 									<span class="break-all text-ink-gray-9">
-										{{ data[field.name].split('/').pop() }}
+										{{ fileName(data[field.name]) }}
 									</span>
 								</div>
 								<span
@@ -170,6 +170,18 @@ const props = defineProps({
 		required: true,
 	},
 })
+
+// Attach fields arrive from the backend as a {file_name, file_url} object, but
+// become a plain file_url string after a fresh upload. Handle both shapes.
+const fileUrl = (value) =>
+	value && typeof value === 'object' ? value.file_url : value
+
+const fileName = (value) => {
+	const url = fileUrl(value)
+	return value && typeof value === 'object' && value.file_name
+		? value.file_name
+		: (url || '').split('/').pop()
+}
 
 const resolveInitialValue = (field, dataValue) => {
 	if (dataValue !== null && dataValue !== undefined && dataValue !== '') {

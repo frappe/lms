@@ -44,3 +44,19 @@ export function isSelectionStale(
 		? !lessonExistsByName(chapters, selected.name)
 		: !lessonExistsByNumber(chapters, selected.number ?? '')
 }
+
+/**
+ * Whether `lessonName` lives in the chapter `chapterName`. Used when a chapter is
+ * deleted to decide whether the open lesson went with it — resolved against the
+ * still-current outline (the delete's reload hasn't landed yet) so the editor can
+ * suppress that lesson's teardown flush before it writes to the deleted document.
+ */
+export function isLessonInChapter(
+	chapters: Chapters,
+	chapterName: string,
+	lessonName: string | null | undefined
+): boolean {
+	if (!lessonName) return false
+	const chapter = chapters?.find((c) => c.name === chapterName)
+	return !!chapter?.lessons?.some((l) => l.name === lessonName)
+}

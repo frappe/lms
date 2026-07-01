@@ -21,15 +21,28 @@ from frappe.utils import (
 
 from lms.lms.utils import get_evaluator
 
+PRIVILEGED_ROLES = {"Moderator", "Course Creator", "Batch Evaluator", "System Manager"}
+
 
 class LMSCertificateRequest(Document):
 	def validate(self):
+		self.enforce_member_ownership()
 		self.set_evaluator()
 		self.validate_unavailability()
 		self.validate_slot()
 		self.validate_if_existing_requests()
 		self.validate_evaluation_end_date()
 		self.validate_timezone()
+
+	def enforce_member_ownership(self):
+		if PRIVILEGED_ROLES & set(frappe.get_roles()):
+			return
+		if self.member and self.member != frappe.session.user:
+			frappe.throw(
+				_("You cannot book an evaluation for another user."),
+				frappe.PermissionError,
+			)
+		self.member = frappe.session.user
 
 	def after_insert(self):
 		self.send_notification()

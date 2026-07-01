@@ -4,6 +4,7 @@ import {
 	lessonExistsByNumber,
 	lessonExistsByName,
 	isSelectionStale,
+	isLessonInChapter,
 } from '@/utils/courseOutline'
 
 // Two lessons in one chapter. `number` is positional ("chapterIdx-lessonIdx")
@@ -84,5 +85,32 @@ describe('isSelectionStale (delete clears the editor)', () => {
 	it('is never stale with no selection or no outline', () => {
 		expect(isSelectionStale(null, outline)).toBe(false)
 		expect(isSelectionStale({ name: 'LESSON-A' }, null)).toBe(false)
+	})
+})
+
+describe('isLessonInChapter (chapter delete takes its lessons)', () => {
+	it('is true when the lesson belongs to the named chapter', () => {
+		expect(isLessonInChapter(outline, 'CH-1', 'LESSON-B')).toBe(true)
+	})
+
+	it('is false when the lesson is in a different chapter', () => {
+		const twoChapters = [
+			...outline,
+			{
+				name: 'CH-2',
+				title: 'Chapter 2',
+				idx: 2,
+				lessons: [{ name: 'LESSON-C', title: 'Outro', number: '2-1' }],
+			},
+		]
+		expect(isLessonInChapter(twoChapters, 'CH-2', 'LESSON-A')).toBe(false)
+		expect(isLessonInChapter(twoChapters, 'CH-2', 'LESSON-C')).toBe(true)
+	})
+
+	it('is false for an unknown chapter, missing lesson, or empty outline', () => {
+		expect(isLessonInChapter(outline, 'CH-9', 'LESSON-A')).toBe(false)
+		expect(isLessonInChapter(outline, 'CH-1', null)).toBe(false)
+		expect(isLessonInChapter(outline, 'CH-1', undefined)).toBe(false)
+		expect(isLessonInChapter(null, 'CH-1', 'LESSON-A')).toBe(false)
 	})
 })

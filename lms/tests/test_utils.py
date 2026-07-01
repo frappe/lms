@@ -1,6 +1,8 @@
 # Copyright (c) 2021, FOSS United and Contributors
 # See license.txt
 
+from datetime import datetime
+
 import frappe
 from frappe.utils import getdate, to_timedelta
 
@@ -76,6 +78,47 @@ class TestLMSUtils(BaseTestUtils):
 	def test_get_reviews(self):
 		reviews = get_reviews(self.course.name)
 		self.assertEqual(len(reviews), 2)
+
+	def test_get_reviews_creation_is_datetime(self):
+		# Regression guard: get_reviews must return the raw `creation` datetime,
+		# not a pretty_date() string. The frontend computes the relative age from
+		# this value, so a prettified string made every review render as "Today".
+		reviews = get_reviews(self.course.name)
+		for review in reviews:
+			self.assertIsInstance(review.creation, datetime)
+
+	def test_get_reviews_scales_rating_to_display_range(self):
+		# stored 0–1 fractions are returned on the 0–5 display scale (× out_of_ratings)
+		ratings_by_owner = {review.owner: review.rating for review in get_reviews(self.course.name)}
+		self.assertEqual(ratings_by_owner[self.student1.email], 4.0)  # stored 0.8
+		self.assertEqual(ratings_by_owner[self.student2.email], 5.0)  # stored 1.0
+
+	def test_get_reviews_includes_owner_details(self):
+		review = next(r for r in get_reviews(self.course.name) if r.owner == self.student1.email)
+		self.assertIsNotNone(review.owner_details)
+		self.assertEqual(review.owner_details.full_name, self.student1.full_name)
+
+	def test_get_reviews_ordered_newest_first(self):
+		# student2's review is added after student1's; order_by creation desc
+		reviews = get_reviews(self.course.name)
+		self.assertEqual(reviews[0].owner, self.student2.email)
+		self.assertEqual(reviews[1].owner, self.student1.email)
+
+	def test_get_average_rating_none_without_reviews(self):
+		course = frappe.new_doc("LMS Course")
+		course.update(
+			{
+				"title": "Unrated Course",
+				"short_introduction": "No reviews yet",
+				"description": "A course with no reviews.",
+				"category": self.course.category,
+				"published": 1,
+				"instructors": [{"instructor": "frappe@example.com"}],
+			}
+		)
+		course.save()
+		self.cleanup_items.append(("LMS Course", course.name))
+		self.assertIsNone(get_average_rating(course.name))
 
 	def test_get_lesson_index(self):
 		lessons = get_lessons(self.course.name)

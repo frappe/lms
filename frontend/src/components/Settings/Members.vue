@@ -25,7 +25,7 @@
 			</div>
 		</template>
 		<div class="pb-4">
-			<div>
+			<div v-if="displayedMembers.length">
 				<ul class="divide-y divide-outline-elevation-2">
 					<li
 						v-for="member in displayedMembers"
@@ -93,6 +93,12 @@
 					</Button>
 				</div>
 			</div>
+			<EmptyStateLayout
+				v-else
+				name="Members"
+				:description="__('Add one to get started.')"
+				icon="lucide-user"
+			/>
 		</div>
 	</SettingsLayout>
 	<NewMemberModal
@@ -145,6 +151,7 @@ import { useOnboarding, useTelemetry } from 'frappe-ui/frappe'
 import type { User } from '@/components/Settings/types'
 import NewMemberModal from '@/components/Modals/NewMemberModal.vue'
 import SettingsLayout from '@/components/Layouts/SettingsLayout.vue'
+import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 import { cleanError } from '@/utils'
 
 type Member = {

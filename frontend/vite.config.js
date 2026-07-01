@@ -66,6 +66,14 @@ export default defineConfig(async ({ mode }) => {
 			alias: {
 				'@': path.resolve(__dirname, 'src'),
 			},
+			// Force one copy of prosemirror; duplicate copies break tiptap's
+			// instanceof checks and crash the list buttons.
+			dedupe: [
+				'prosemirror-model',
+				'prosemirror-state',
+				'prosemirror-view',
+				'prosemirror-transform',
+			],
 		},
 		optimizeDeps: {
 			include: [

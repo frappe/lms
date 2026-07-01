@@ -2,36 +2,20 @@
 @import './styles/codemirror.css';
 @import './styles/blockEditor.css';
 
-/*
- * This frappe-ui build resolves --surface-sidebar to transparent white
- * (#ffffff00) in dark mode, so the sidebar (and other bg-surface-sidebar users)
- * lose their surface and blend into the base. Newer apps (CRM) use a dedicated
- * --surface-sidebar token, which doesn't exist here — so point the sidebar
- * token at gray-1 instead: a real distinct panel that mirrors its light value.
- */
+/* This build makes --surface-sidebar transparent in dark mode; point it at
+   gray-1 so the sidebar keeps a visible surface. */
 [data-theme='dark'] {
 	--surface-sidebar: var(--surface-gray-1);
 }
 
-/*
- * Match frappe-ui's standalone FormLabel to the internal InputLabel style.
- * In frappe-ui beta.7, FormLabel uses text-xs/text-ink-gray-5 while
- * InputLabel (inside FormControl/TextInput/Select/etc.) uses
- * text-p-sm-medium text-ink-gray-7. This keeps standalone labels visually
- * consistent with native form fields. Also normalizes a few inline <label>
- * elements that duplicate the old FormLabel classes.
- */
+/* frappe-ui beta.7 FormLabel differs from InputLabel; match standalone labels
+   (and stray inline <label>s) to the field-label style. */
 label.block:not([data-slot='label']) {
 	@apply text-p-sm-medium text-ink-gray-7;
 }
 
-/*
- * frappe-ui's Switch (beta.7) renders its description in an `mt-1` block below
- * a row whose height is set by the label's `leading-normal` line-box, leaving a
- * loose gap between a switch's label and its description. Tighten the label
- * line-height and the description offset so label + description read as one
- * group. Scoped to our wrapper (Controls/BooleanSwitch.vue) via the `lms-switch` class.
- */
+/* frappe-ui beta.7 Switch leaves a loose label/description gap; tighten it so
+   they read as one group (scoped to our lms-switch wrapper). */
 .lms-switch [data-slot='label'] {
 	@apply leading-tight;
 }
@@ -39,15 +23,17 @@ label.block:not([data-slot='label']) {
 	@apply mt-0.5;
 }
 
-/*
- * Pin a Combobox/MultiSelect footer to the bottom of its dropdown so footer
- * actions stay reachable while options scroll. Opt-in via [data-popover-footer-sticky]
- * on the slot's inner element so frappe-ui's `[data-slot="footer"]` wrapper picks it up.
- * Unscoped because frappe-ui popovers portal to <body>.
- */
+/* Pin a Combobox/MultiSelect dropdown footer so its actions stay reachable while
+   options scroll. Unscoped since frappe-ui popovers portal to <body>. */
 [data-slot='content-body']
 	[data-slot='footer']:has(> [data-popover-footer-sticky]) {
 	position: sticky;
 	bottom: -0.25rem;
 	z-index: 1;
+}
+
+/* frappe-ui's --ink-gray-2 bullets are near-invisible; use --ink-gray-4 (as the
+   ordered-list counters do) so markers stay legible. */
+.prose {
+	--tw-prose-bullets: var(--ink-gray-4);
 }

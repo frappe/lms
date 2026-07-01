@@ -133,6 +133,11 @@ const { $dialog } = getCurrentInstance()!.appContext.config
 
 const emit = defineEmits<{
 	'select-lesson': [{ chapterNumber: string; lessonNumber: string }]
+	// Keyed delete signals so the parent can match the open lesson precisely. The
+	// name is carried per emit (no shared slot), so concurrent deletes can't name
+	// the wrong doc and an unrelated reload can't consume the signal.
+	'lesson-deleted': [{ lesson: string }]
+	'chapter-deleted': [{ chapter: string }]
 }>()
 
 // The lesson currently being named inline (its docname), and the chapter whose
@@ -337,7 +342,13 @@ function trashLesson(lessonName: string, chapterName: string) {
 				theme: 'red',
 				variant: 'solid',
 				onClick(close) {
-					deleteLesson.submit({ lesson: lessonName, chapter: chapterName })
+					// Per-call onSuccess closes over this lessonName, so the editor is
+					// told exactly which lesson went — no shared slot to drift on
+					// concurrent deletes. Runs alongside the resource-level reload.
+					deleteLesson.submit(
+						{ lesson: lessonName, chapter: chapterName },
+						{ onSuccess: () => emit('lesson-deleted', { lesson: lessonName }) }
+					)
 					close()
 				},
 			},
@@ -357,7 +368,13 @@ function trashChapter(chapterName: string) {
 				theme: 'red',
 				variant: 'solid',
 				onClick(close) {
-					deleteChapter.submit({ chapter: chapterName })
+					deleteChapter.submit(
+						{ chapter: chapterName },
+						{
+							onSuccess: () =>
+								emit('chapter-deleted', { chapter: chapterName }),
+						}
+					)
 					close()
 				},
 			},
