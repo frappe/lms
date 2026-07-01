@@ -60,7 +60,7 @@
 								</div>
 								<div class="flex flex-col flex-wrap">
 									<span class="break-all text-ink-gray-9">
-										{{ data[field.name].split('/').pop() }}
+										{{ typeof data[field.name] === 'string' ? data[field.name].split('/').pop() : (data[field.name]?.file_name || '') }}
 									</span>
 								</div>
 								<span
