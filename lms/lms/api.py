@@ -4,6 +4,7 @@ import json
 import os
 import re
 import shutil
+import stat
 import xml.etree.ElementTree as ET
 import zipfile
 from datetime import timedelta
@@ -592,8 +593,7 @@ def delete_lesson(lesson: str, chapter: str):
 	frappe.db.delete("LMS Course Progress", {"lesson": lesson})
 	frappe.db.delete("LMS Video Watch Duration", {"lesson": lesson})
 
-	# Discussion topics link to the lesson, so delete_doc raises LinkExistsError
-	# unless they (and their replies) are removed first.
+	# Discussion topics link to the lesson, so remove them (and their replies) first, else delete_doc raises LinkExistsError.
 	topics = frappe.get_all(
 		"Discussion Topic",
 		{"reference_doctype": "Course Lesson", "reference_docname": lesson},
@@ -608,13 +608,7 @@ def delete_lesson(lesson: str, chapter: str):
 
 @frappe.whitelist()
 def create_lesson(chapter: str) -> str:
-	"""Create a draft "Untitled lesson" appended to the chapter, atomically.
-
-	Delegates to add_lesson(), which inserts the Course Lesson and its Lesson
-	Reference in this single request — if the reference insert fails the whole
-	request rolls back, so no lesson is orphaned without a chapter pointing at
-	it. Returns the new lesson's docname.
-	"""
+	"""Create a draft "Untitled lesson" appended to the chapter, atomically via add_lesson() (inserts the Course Lesson + its Lesson Reference in one request that rolls back together; returns the new docname)."""
 	course = frappe.db.get_value("Course Chapter", chapter, "course")
 	if not course:
 		frappe.throw(_("Invalid chapter."))
@@ -1126,11 +1120,7 @@ def upsert_chapter(
 		chapter.update(values)
 		chapter.save()
 
-		# Link the new chapter into the course outline. This was previously done
-		# client-side via frappe.client.insert (ChapterModal.vue), which did not
-		# reliably persist on CI — leaving get_outline_chapter() empty. Creating the
-		# Chapter Reference here keeps it atomic with the chapter and consistent
-		# across environments.
+		# Link the new chapter into the outline here (was client-side frappe.client.insert in ChapterModal.vue, which didn't reliably persist on CI); keeps the Chapter Reference atomic with the chapter.
 		course_doc = frappe.get_doc("LMS Course", course)
 		course_doc.append("chapters", {"chapter": chapter.name})
 		course_doc.save()
@@ -1142,32 +1132,44 @@ def upsert_chapter(
 
 
 def _scorm_url(abs_path: str) -> str:
-	"""Map an extracted SCORM disk path under <site>/private/scorm/... to the
-	location-independent "/scorm/<course>/<title>/..." URL stored on Course Chapter.
-	Keeps the same URL shape legacy (public) chapters already have, so no DB change."""
+	"""Map an extracted SCORM disk path (<site>/private/scorm/...) to the location-independent "/scorm/<course>/<title>/..." URL stored on Course Chapter — same shape legacy public chapters have, so no DB change."""
 	rel = os.path.relpath(abs_path, frappe.get_site_path("private"))
 	return "/" + rel.replace(os.sep, "/")
+
+
+def _scorm_extract_path(course: str, title: str) -> str:
+	"""Resolve the SCORM extraction dir, contained to this course's directory (an attacker-controlled chapter title must not traverse out → cross-course overwrite / same-origin stored XSS)."""
+	scorm_root = os.path.realpath(frappe.get_site_path("private", "scorm"))
+	course_root = os.path.realpath(frappe.get_site_path("private", "scorm", course))
+
+	# The course segment must resolve strictly inside the scorm root, never the root itself (empty/"." course).
+	if not course_root.startswith(scorm_root + os.sep):
+		frappe.throw(_("Invalid course or chapter name"))
+
+	# Must resolve strictly inside the course dir — a title of "."/""/"sub/.." collapses to course_root, whose rmtree would wipe every chapter.
+	extract_path = os.path.realpath(os.path.join(course_root, title))
+	if not extract_path.startswith(course_root + os.sep):
+		frappe.throw(_("Invalid course or chapter name"))
+
+	return extract_path
 
 
 def extract_package(course: str, title: str, scorm_package: dict):
 	package = frappe.get_doc("File", scorm_package.name)
 	zip_path = package.get_full_path()
-	scorm_root = os.path.realpath(frappe.get_site_path("private", "scorm"))
-	extract_path = frappe.get_site_path("private", "scorm", course, title)
+	extract_path = _scorm_extract_path(course, title)
 
-	if not os.path.realpath(extract_path).startswith(scorm_root + os.sep):
-		frappe.throw(_("Invalid course or chapter name"))
-
-	# Clear any previously extracted package so a re-uploaded package does not
-	# leave stale files behind (the old manifest/launch file would otherwise
-	# still be served). extract_path is confirmed to live under scorm_root above.
+	# Clear any previously extracted package so a re-upload doesn't leave stale files served (path confirmed under the course dir above).
 	if os.path.exists(extract_path):
 		shutil.rmtree(extract_path)
 
 	with zipfile.ZipFile(zip_path, "r") as zf:
 		dest = os.path.realpath(extract_path)
-		for name in zf.namelist():
-			target = os.path.realpath(os.path.join(extract_path, name))
+		for info in zf.infolist():
+			# Reject symlink entries outright: a symlink + a path through it could escape the course dir once materialised.
+			if stat.S_ISLNK(info.external_attr >> 16):
+				frappe.throw(_("Invalid file path in package"))
+			target = os.path.realpath(os.path.join(extract_path, info.filename))
 			if not target.startswith(dest + os.sep) and target != dest:
 				frappe.throw(_("Invalid file path in package"))
 		zf.extractall(extract_path)
@@ -1274,8 +1276,7 @@ def delete_chapter(chapter: str):
 
 	course = frappe.db.get_value("Chapter Reference", {"chapter": chapter}, "parent")
 
-	# Clean up per-lesson dependants before the raw lesson delete below, which
-	# would otherwise leave discussions/progress orphaned at the deleted lessons.
+	# Clean up per-lesson dependants before the raw lesson delete below, else discussions/progress orphan at the deleted lessons.
 	lessons = frappe.get_all("Course Lesson", {"chapter": chapter}, pluck="name")
 	for lesson in lessons:
 		topics = frappe.get_all(
@@ -1438,8 +1439,7 @@ def get_week_difference(start_date: str, current_date: str) -> int:
 @frappe.whitelist()
 def get_notifications(filters: dict = None):
 	filters = frappe._dict(filters or {})
-	# Always scoped to the session user — no IDOR surface. Only an optional
-	# read flag from the client is honoured.
+	# Always scoped to the session user — no IDOR surface; only an optional read flag from the client is honoured.
 	query_filters = {"for_user": frappe.session.user}
 	if "read" in filters:
 		query_filters["read"] = 1 if filters.read else 0
@@ -1604,9 +1604,7 @@ def save_evaluator_role(user: str, value: int):
 			try:
 				doc.save(ignore_permissions=True)
 			except frappe.DuplicateEntryError:
-				# A concurrent request already created this evaluator. The
-				# primary key (autoname field:evaluator) guarantees uniqueness,
-				# so the row we wanted exists — nothing more to do.
+				# A concurrent request already created this evaluator; the primary key (autoname field:evaluator) guarantees uniqueness, so the row exists — nothing more to do.
 				frappe.db.rollback(save_point="save_evaluator")
 	else:
 		frappe.db.delete("Has Role", {"parent": user, "role": "Batch Evaluator"})
