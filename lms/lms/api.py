@@ -376,27 +376,39 @@ def get_unsplash_photos(keyword: str = None):
 def get_evaluator_details(evaluator: str):
 	frappe.only_for("Batch Evaluator")
 
-	if not frappe.db.exists("Google Calendar", {"user": evaluator}):
-		calendar = frappe.new_doc("Google Calendar")
-		calendar.update({"user": evaluator, "calendar_name": evaluator})
-		calendar.insert()
-	else:
+	if frappe.db.exists("Google Calendar", {"user": evaluator}):
 		calendar = frappe.db.get_value(
 			"Google Calendar", {"user": evaluator}, ["name", "authorization_code"], as_dict=1
 		)
+	else:
+		# Batch Evaluators are portal users without create permission on Google
+		# Calendar (only System Manager / Desk User have it), so provision the
+		# evaluator's own calendar on their behalf via ignore_permissions. This is
+		# best-effort: creation requires Google OAuth configured in Google Settings,
+		# so a missing config (ValidationError) or permission gap must not block the
+		# availability (slots) UI, the primary purpose. Any other error is
+		# unexpected and left to propagate.
+		try:
+			calendar = frappe.new_doc("Google Calendar")
+			calendar.update({"user": evaluator, "calendar_name": evaluator})
+			calendar.insert(ignore_permissions=True)
+		except (frappe.ValidationError, frappe.PermissionError):
+			frappe.clear_last_message()
+			calendar = None
 
 	if frappe.db.exists("Course Evaluator", {"evaluator": evaluator}):
 		doc = frappe.get_doc("Course Evaluator", evaluator)
 	else:
+		# Batch Evaluator already has create permission on Course Evaluator, so use
+		# a normal permission-checked insert here (no ignore_permissions).
 		doc = frappe.new_doc("Course Evaluator")
 		doc.evaluator = evaluator
 		doc.insert()
-	for slot in doc.schedule:
-		print(slot.start_time, slot.end_time)
+
 	return {
 		"slots": doc.as_dict(),
-		"calendar": calendar.name,
-		"is_authorised": calendar.authorization_code,
+		"calendar": calendar.name if calendar else None,
+		"is_authorised": calendar.authorization_code if calendar else None,
 	}
 
 

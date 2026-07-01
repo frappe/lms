@@ -42,19 +42,19 @@
 						type="select"
 						:options="days"
 						v-model="slot.day"
-						@focusout.stop="update(slot.name, 'day', slot.day)"
+						@update:modelValue="update(slot.name, 'day', $event)"
 						:disabled="!isSessionUser()"
 					/>
 					<FormControl
 						type="time"
 						v-model="slot.start_time"
-						@focusout.stop="update(slot.name, 'start_time', slot.start_time)"
+						@update:modelValue="update(slot.name, 'start_time', $event)"
 						:disabled="!isSessionUser()"
 					/>
 					<FormControl
 						type="time"
 						v-model="slot.end_time"
-						@focusout.stop="update(slot.name, 'end_time', slot.end_time)"
+						@update:modelValue="update(slot.name, 'end_time', $event)"
 						:disabled="!isSessionUser()"
 					/>
 					<span
@@ -72,19 +72,19 @@
 						type="select"
 						:options="days"
 						v-model="newSlot.day"
-						@focusout.stop="add()"
+						@update:modelValue="add()"
 						:disabled="!isSessionUser()"
 					/>
 					<FormControl
 						type="time"
 						v-model="newSlot.start_time"
-						@focusout.stop="add()"
+						@update:modelValue="add()"
 						:disabled="!isSessionUser()"
 					/>
 					<FormControl
 						type="time"
 						v-model="newSlot.end_time"
-						@focusout.stop="add()"
+						@update:modelValue="add()"
 						:disabled="!isSessionUser()"
 					/>
 				</div>
@@ -221,7 +221,6 @@ const formatTime = (time) => {
 const createSlot = createResource({
 	url: 'frappe.client.insert',
 	makeParams(values) {
-		console.log(evaluator.data)
 		return {
 			doc: {
 				doctype: 'Evaluator Schedule',
@@ -317,6 +316,9 @@ const update = (name, field, value) => {
 
 const add = () => {
 	if (!newSlot.day || !newSlot.start_time || !newSlot.end_time) {
+		return
+	}
+	if (createSlot.loading) {
 		return
 	}
 	createSlot.submit()
