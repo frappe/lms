@@ -1,141 +1,172 @@
 <template>
-	<div class="flex h-screen overflow-hidden sm:bg-surface-gray-1">
-		<div class="relative h-full mx-auto sm:w-max pt-40">
-			<div class="flex items-center justify-center gap-x-2">
-				<LMSLogo class="size-7" />
-				<span
-					class="select-none text-3xl-semibold tracking-tight text-ink-gray-9"
-				>
-					Learning
-				</span>
-			</div>
-			<div
-				class="flex flex-col gap-5 bg-surface-elevation-2 py-8 sm:mt-6 sm:w-96 sm:rounded-lg sm:px-8 sm:shadow-xl"
-			>
-				<h1 class="font-medium text-center">
-					{{ __('Help us understand your needs') }}
-				</h1>
-
-				<div class="flex flex-col gap-2">
-					<div class="text-sm text-ink-gray-7">
-						{{ __('What is your use case for Frappe Learning?') }}
-					</div>
-					<Select
-						v-model="persona.useCase"
-						:options="useCaseOptions"
-						class="w-full"
-					/>
+	<div
+		class="relative flex min-h-screen flex-col overflow-y-auto transition-opacity duration-300 ease-out"
+		:class="leaving ? 'opacity-0' : 'opacity-100'"
+	>
+		<div class="flex flex-1 flex-col justify-center px-4 py-10">
+			<div class="mb-10 flex flex-col items-center text-center">
+				<div class="flex items-center gap-x-2">
+					<LMSLogo class="size-7" />
+					<span
+						class="select-none text-3xl-semibold tracking-tight text-ink-gray-9"
+					>
+						{{ __('Learning') }}
+					</span>
 				</div>
-
-				<div class="flex flex-col gap-2">
-					<div class="text-sm text-ink-gray-7">
-						{{ __('What best describes your role?') }}
-					</div>
-					<Select
-						v-model="persona.role"
-						:options="roleOptions"
-						class="w-full"
-					/>
-				</div>
-
-				<Button
-					variant="solid"
-					class="self-center"
-					:disabled="!persona.role || !persona.useCase"
-					@click="submitPersona()"
-				>
-					{{ __('Submit and Continue') }}
-				</Button>
+				<p class="mt-3 text-p-base text-ink-gray-6">
+					{{
+						__(
+							'Answer a few quick questions so we can set Frappe Learning up for you'
+						)
+					}}
+				</p>
 			</div>
-			<button
-				class="text-center absolute bottom-0 end-0 start-0 text-sm py-4"
-				@click="skipPersonaForm()"
-			>
-				{{ __('Skip') }}
-			</button>
+
+			<Questionnaire
+				:questions="questions"
+				accent="black"
+				:labels="labels"
+				:show-skip="false"
+				@submit="submitPersona"
+			/>
 		</div>
+
+		<button
+			type="button"
+			class="absolute inset-x-0 bottom-0 py-4 text-center text-sm text-ink-gray-5 transition-colors hover:text-ink-gray-7"
+			@click="skipPersonaForm"
+		>
+			{{ __('Skip for now') }}
+		</button>
 	</div>
 </template>
+
 <script setup>
 import LMSLogo from '@/components/Icons/LMSLogo.vue'
-import { Button, call, usePageMeta } from 'frappe-ui'
-import Select from '@/components/Controls/Select.vue'
-import { computed, inject, reactive } from 'vue'
+import Questionnaire from '@/components/Questionnaire.vue'
+import { call, usePageMeta } from 'frappe-ui'
+import { useTelemetry } from 'frappe-ui/frappe'
+import { computed, inject, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { sessionStore } from '@/stores/session'
 
 const user = inject('$user')
 const router = useRouter()
 const { brand } = sessionStore()
+const { capture } = useTelemetry()
+const leaving = ref(false)
+const FADE_MS = 300
 
-const persona = reactive({
-	role: null,
-	useCase: null,
-})
-
-const submitPersona = () => {
-	let responses = {
-		site: user.data?.sitename,
-		role: persona.role,
-		use_case: persona.useCase,
+const leaveHome = async (persist) => {
+	leaving.value = true
+	const fade = new Promise((resolve) => setTimeout(resolve, FADE_MS))
+	try {
+		await Promise.all([persist, fade])
+	} catch (e) {
+		await fade
 	}
-	call('lms.lms.api.capture_user_persona', {
-		responses: JSON.stringify(responses),
-	}).then(() => {
-		router.push({
-			name: 'Home',
+	router.push({ name: 'Home' })
+}
+
+const submitPersona = (answers) => {
+	capture('onboarding_persona', answers)
+	const responses = JSON.stringify({ site: user.data?.sitename, ...answers })
+	// External analytics call; fire without blocking the transition.
+	call('lms.lms.api.capture_user_persona', { responses })
+	// Persist the flag ourselves so a reload can't reopen the form.
+	leaveHome(
+		call('frappe.client.set_value', {
+			doctype: 'LMS Settings',
+			name: 'LMS Settings',
+			fieldname: 'persona_captured',
+			value: 1,
 		})
-	})
+	)
 }
 
 const skipPersonaForm = () => {
-	call('frappe.client.set_value', {
-		doctype: 'LMS Settings',
-		name: 'LMS Settings',
-		fieldname: 'persona_captured',
-		value: 1,
-	}).then(() => {
-		router.push({
-			name: 'Home',
+	leaveHome(
+		call('frappe.client.set_value', {
+			doctype: 'LMS Settings',
+			name: 'LMS Settings',
+			fieldname: 'persona_captured',
+			value: 1,
 		})
-	})
+	)
 }
 
-const roleOptions = computed(() => [
-	{ label: __('Trainer / Instructor'), value: 'Trainer / Instructor' },
-	{ label: __('Freelancer / Consultant'), value: 'Freelancer / Consultant' },
-	{ label: __('HR / L&D Professional'), value: 'HR / L&D Professional' },
-	{
-		label: __('School / University Admin'),
-		value: 'School / University Admin',
-	},
-	{ label: __('Software Developer'), value: 'Software Developer' },
-	{ label: __('Community Manager'), value: 'Community Manager' },
-	{
-		label: __('Business Owner / Team Lead'),
-		value: 'Business Owner / Team Lead',
-	},
-	{ label: __('Other'), value: 'Other' },
-])
+const labels = computed(() => ({
+	progress: (n, total) => __('Question {0} of {1}').format(n, total),
+	complete: (pct) => __('{0}% complete').format(pct),
+	back: __('Back'),
+	skip: __('Skip for now'),
+}))
 
-const useCaseOptions = computed(() => [
+const questions = computed(() => [
 	{
-		label: __('Teaching students in a school/university'),
-		value: 'Teaching students in a school/university',
+		key: 'usage_context',
+		title: __('Where will you be using Frappe Learning?'),
+		options: [
+			{ label: __('School'), value: 'School' },
+			{
+				label: __('College or University'),
+				value: 'College or University',
+			},
+			{
+				label: __('Coaching or Training Institute'),
+				value: 'Coaching or Training Institute',
+			},
+			{
+				label: __('Company or Workplace'),
+				value: 'Company or Workplace',
+			},
+			{ label: __('Customer Academy'), value: 'Customer Academy' },
+			{ label: __('Personal Business'), value: 'Personal Business' },
+			{
+				label: __('Non-profit or Government'),
+				value: 'Non-profit or Government',
+			},
+			{ label: __('Other'), value: 'Other' },
+		],
 	},
 	{
-		label: __('Training employees in my company'),
-		value: 'Training employees in my company',
+		key: 'first_milestone',
+		title: __("What's the first milestone you'd like to achieve?"),
+		options: [
+			{
+				label: __('Publish my first course'),
+				value: 'Publish my first course',
+			},
+			{
+				label: __('Onboard my existing learners'),
+				value: 'Onboard my existing learners',
+			},
+			{
+				label: __('Award my first certificate'),
+				value: 'Award my first certificate',
+			},
+			{ label: __('Launch a paid course'), value: 'Launch a paid course' },
+			{ label: __('Just exploring'), value: 'Just exploring' },
+		],
 	},
 	{
-		label: __('Onboarding and educating my users/community'),
-		value: 'Onboarding and educating my users/community',
+		key: 'current_tool',
+		title: __('What are you using today to manage learning?'),
+		options: [
+			{ label: __('Moodle'), value: 'Moodle' },
+			{ label: __('Google Classroom'), value: 'Google Classroom' },
+			{ label: __('Canvas'), value: 'Canvas' },
+			{ label: __('Thinkific'), value: 'Thinkific' },
+			{ label: __('Teachable'), value: 'Teachable' },
+			{ label: __('Kajabi'), value: 'Kajabi' },
+			{ label: __('TalentLMS'), value: 'TalentLMS' },
+			{ label: __('Google Drive'), value: 'Google Drive' },
+			{ label: __('Notion'), value: 'Notion' },
+			{ label: __('Spreadsheets'), value: 'Spreadsheets' },
+			{ label: __('No LMS yet'), value: 'No LMS yet' },
+			{ label: __('Other'), value: 'Other' },
+		],
 	},
-	{
-		label: __('Selling courses and earning income'),
-		value: 'Selling courses and earning income',
-	},
-	{ label: __('Other'), value: 'Other' },
 ])
 
 usePageMeta(() => {
