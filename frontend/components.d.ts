@@ -84,6 +84,12 @@ declare module 'vue' {
     LiveClassAttendance: typeof import('./src/components/Modals/LiveClassAttendance.vue')['default']
     LiveClassModal: typeof import('./src/components/Modals/LiveClassModal.vue')['default']
     LMSLogo: typeof import('./src/components/Icons/LMSLogo.vue')['default']
+<<<<<<< HEAD
+=======
+    LucideChevronLeft: typeof import('~icons/lucide/chevron-left')['default']
+    LucideChevronRight: typeof import('~icons/lucide/chevron-right')['default']
+    LucidePlus: typeof import('~icons/lucide/plus')['default']
+>>>>>>> acfe7e5e (feat(persona): redesign persona as questionnaire stepper)
     LucideStar: typeof import('~icons/lucide/star')['default']
     Members: typeof import('./src/components/Settings/Members.vue')['default']
     MobileLayout: typeof import('./src/components/Layouts/MobileLayout.vue')['default']
@@ -102,6 +108,7 @@ declare module 'vue' {
     Play: typeof import('./src/components/Icons/Play.vue')['default']
     ProgressBar: typeof import('./src/components/ProgressBar.vue')['default']
     Question: typeof import('./src/components/Modals/Question.vue')['default']
+    Questionnaire: typeof import('./src/components/Questionnaire.vue')['default']
     Quiz: typeof import('./src/components/Quiz.vue')['default']
     QuizBlock: typeof import('./src/components/QuizBlock.vue')['default']
     QuizInVideo: typeof import('./src/components/Modals/QuizInVideo.vue')['default']
