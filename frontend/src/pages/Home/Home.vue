@@ -46,14 +46,12 @@
 import { computed, inject, onMounted, ref } from 'vue'
 import { call, createResource, LoadingIndicator, usePageMeta } from 'frappe-ui'
 import { sessionStore } from '@/stores/session'
-import { useRouter } from 'vue-router'
 import StudentHome from '@/pages/Home/StudentHome.vue'
 import AdminHome from '@/pages/Home/AdminHome.vue'
 import Streak from '@/pages/Home/Streak.vue'
 
 const user = inject<any>('$user')
 const { brand } = sessionStore()
-const router = useRouter()
 const evalCount = ref(0)
 const currentTab = ref<'student' | 'instructor'>('student')
 const showStreakModal = ref(false)
@@ -89,32 +87,7 @@ const isHomeLoading = computed(() => {
 	return myLiveClasses.loading && !myLiveClasses.data
 })
 
-const isPersonaCaptured = async () => {
-	let persona = await call('frappe.client.get_single_value', {
-		doctype: 'LMS Settings',
-		field: 'persona_captured',
-	})
-	return persona
-}
-
-const identifyUserPersona = async () => {
-	if (user.data?.is_system_manager && !user.data?.developer_mode) {
-		let personaCaptured = await isPersonaCaptured()
-		if (personaCaptured) return
-		let courseCount = await call('frappe.client.get_count', {
-			doctype: 'LMS Course',
-			filters: {
-				title: ['not like', '%A guide to Frappe Learning%'],
-			},
-		})
-		if (!courseCount) {
-			router.push({ name: 'PersonaForm' })
-		}
-	}
-}
-
 onMounted(() => {
-	identifyUserPersona()
 	if (isAdmin.value) {
 		currentTab.value = 'instructor'
 	} else {
