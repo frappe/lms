@@ -108,7 +108,7 @@ import {
 } from 'frappe-ui'
 import { computed, inject, ref } from 'vue'
 import type { BadgeAssignment } from '@/components/Settings/types'
-import BadgeAssignmentForm from '@/components/Settings/BadgeAssignmentForm.vue'
+import BadgeAssignmentForm from '@/components/Settings/Badges/BadgeAssignmentForm.vue'
 import SettingsLayout from '@/components/Layouts/SettingsLayout.vue'
 
 const show = defineModel<boolean>()

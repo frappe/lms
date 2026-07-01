@@ -122,8 +122,8 @@ import {
 } from 'frappe-ui'
 import { computed, ref } from 'vue'
 import { cleanError } from '@/utils'
-import BadgeForm from '@/components/Settings/BadgeForm.vue'
-import BadgeAssignments from '@/components/Settings/BadgeAssignments.vue'
+import BadgeForm from '@/components/Settings/Badges/BadgeForm.vue'
+import BadgeAssignments from '@/components/Settings/Badges/BadgeAssignments.vue'
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 import SettingsLayout from '@/components/Layouts/SettingsLayout.vue'
 

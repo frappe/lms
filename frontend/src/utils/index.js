@@ -477,6 +477,7 @@ const getSidebarItems = (forMobile = false) => {
 					label: 'Home',
 					icon: 'Home',
 					to: 'Home',
+					activeFor: ['Home'],
 					condition: () => {
 						return userResource?.data
 					},
@@ -1002,4 +1003,8 @@ export const getColor = (color, shade) => {
 	let theme =
 		localStorage.getItem('theme') == 'light' ? 'lightMode' : 'darkMode'
 	return colorsJSON[theme][color][shade]
+}
+
+export function validateEmail(email) {
+	return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email || '').trim())
 }
