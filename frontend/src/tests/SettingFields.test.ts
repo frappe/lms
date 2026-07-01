@@ -146,6 +146,66 @@ describe('SettingFields — number input persists to data', () => {
 	})
 })
 
+describe('SettingFields — Upload field renders both object and string values', () => {
+	const uploadSections = () =>
+		reactive([
+			{
+				columns: [
+					{
+						fields: [
+							{
+								label: 'Brand image',
+								name: 'brand_image',
+								type: 'Upload',
+							},
+						],
+					},
+				],
+			},
+		])
+
+	// Regression: the backend (get_payment_gateway_details -> get_file_info)
+	// hands back an Attach value as a {file_name, file_url} object, but the
+	// template used to call data[field.name].split('/') on it, throwing
+	// "split is not a function" and blanking the whole settings dialog.
+	it('does not throw when the value is a {file_name, file_url} object', async () => {
+		const data = reactive({
+			brand_image: {
+				file_name: 'logo.png',
+				file_url: '/files/logo.png',
+				file_size: 1234,
+			},
+		})
+		const wrapper = mountFields(uploadSections(), data)
+		await flushPromises()
+
+		// Shows the file name from the object...
+		expect(wrapper.text()).toContain('logo.png')
+		// ...and the <img> src is the object's file_url, not [object Object].
+		expect(wrapper.get('img').attributes('src')).toBe('/files/logo.png')
+	})
+
+	it('falls back to the URL basename when the value is a plain string', async () => {
+		// A fresh upload sets data[field.name] = file.file_url (a string).
+		const data = reactive({ brand_image: '/files/fresh-upload.png' })
+		const wrapper = mountFields(uploadSections(), data)
+		await flushPromises()
+
+		expect(wrapper.text()).toContain('fresh-upload.png')
+		expect(wrapper.get('img').attributes('src')).toBe(
+			'/files/fresh-upload.png'
+		)
+	})
+
+	it('renders the uploader (no image) when the value is empty', async () => {
+		const data = reactive<Record<string, unknown>>({ brand_image: '' })
+		const wrapper = mountFields(uploadSections(), data)
+		await flushPromises()
+
+		expect(wrapper.find('img').exists()).toBe(false)
+	})
+})
+
 describe('SettingFields — defaults surface in the input when data is empty', () => {
 	it('uses field.default when data[field.name] is undefined', async () => {
 		const sections = reactive([
