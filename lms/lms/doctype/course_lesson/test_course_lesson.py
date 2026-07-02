@@ -135,3 +135,39 @@ class TestApplyEnforcementFlagsEdgeCases(unittest.TestCase):
 			self.fn(assignment_done=False, quiz_done=True, settings=settings),
 			(True, False),
 		)
+
+
+class TestServePrivateFileVersionSafe(unittest.TestCase):
+	"""serve_resource must not pass `filename=` to a Frappe whose send_private_file
+	predates that kwarg (LMS supports frappe>=14). Regression for the student-view 500:
+	TypeError: send_private_file() got an unexpected keyword argument 'filename'."""
+
+	def _run(self, stub):
+		from lms.lms.doctype.course_lesson import course_lesson
+
+		original = course_lesson.send_private_file
+		course_lesson.send_private_file = stub
+		try:
+			return course_lesson._serve_private_file("/files/x.pdf", "nice.pdf")
+		finally:
+			course_lesson.send_private_file = original
+
+	def test_old_frappe_without_filename_kwarg(self):
+		calls = []
+
+		def old_stub(path):  # pre-filename Frappe: only accepts the path
+			calls.append((path,))
+			return "sent"
+
+		self.assertEqual(self._run(old_stub), "sent")
+		self.assertEqual(calls, [("/files/x.pdf",)])
+
+	def test_new_frappe_passes_filename(self):
+		calls = []
+
+		def new_stub(path, filename=None):
+			calls.append((path, filename))
+			return "sent"
+
+		self.assertEqual(self._run(new_stub), "sent")
+		self.assertEqual(calls, [("/files/x.pdf", "nice.pdf")])

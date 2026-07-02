@@ -1,7 +1,9 @@
 # Copyright (c) 2021, FOSS United and contributors
 # For license information, please see license.txt
 
+import inspect
 import json
+from functools import cache
 from urllib.parse import unquote
 
 import frappe
@@ -184,7 +186,28 @@ def serve_resource(file_url: str):
 
 	# send_private_file expects a path relative to the site's private/ dir.
 	relative_path = file_url.split("/private", 1)[1] if "/private" in file_url else file_url
-	return send_private_file(relative_path, filename=file_row.file_name)
+	return _serve_private_file(relative_path, file_row.file_name)
+
+
+@cache
+def _accepts_filename(func) -> bool:
+	"""Whether `func` takes a `filename` kwarg. Memoized per function object, so the
+	signature is introspected once per Frappe build (and again for a test's stub)."""
+	return "filename" in inspect.signature(func).parameters
+
+
+def _serve_private_file(relative_path: str, filename: str):
+	"""Version-safe call into Frappe's send_private_file.
+
+	The `filename` kwarg (nicer download name + content-type) was added only in recent
+	Frappe; LMS supports frappe>=14 where it may be absent. Passing it there raises
+	`TypeError: unexpected keyword argument 'filename'`. Fall back to the path-only form
+	(send_private_file derives the name from the path basename, which keeps the .pdf
+	extension so inline viewing still works).
+	"""
+	if _accepts_filename(send_private_file):
+		return send_private_file(relative_path, filename=filename)
+	return send_private_file(relative_path)
 
 
 def _deny(file_url, reason):
