@@ -2,6 +2,39 @@ import { CodeXml } from 'lucide-vue-next'
 import { createApp, h } from 'vue'
 import { escapeHTML } from '@/utils/format'
 
+// Inline tags we keep when pasting rich HTML, normalized to the same tags the
+// editor's own inline tools emit. Everything else (span/font/div wrappers,
+// colors, styles) is dropped while its text is preserved. The stored content is
+// still run through DOMPurify (render) and Frappe sanitize_html (save), so this
+// map is a whitelist, not the only line of defense.
+const INLINE_TAG_MAP = {
+	B: 'b',
+	STRONG: 'b',
+	I: 'i',
+	EM: 'i',
+	U: 'u',
+	S: 's',
+	STRIKE: 's',
+	DEL: 's',
+	MARK: 'mark',
+	CODE: 'code',
+	SUP: 'sup',
+	SUB: 'sub',
+	A: 'a',
+}
+
+// Inline elements that, when they appear at the top level, should become a
+// single paragraph rather than being recursed into as a container.
+const INLINE_TAGS = new Set([
+	...Object.keys(INLINE_TAG_MAP),
+	'SPAN',
+	'FONT',
+	'SMALL',
+	'ABBR',
+	'LABEL',
+	'BR',
+])
+
 export class Markdown {
 	constructor({ data, api, readOnly, config }) {
 		this.api = api
@@ -69,9 +102,16 @@ export class Markdown {
 		const clipboardData = event.clipboardData || window.clipboardData
 		if (!clipboardData) return
 
+		// Internal EditorJS block copy/paste carries its own payload — let
+		// EditorJS handle it so cross-block moves keep working.
+		if (clipboardData.getData('application/x-editor-js')) return
+
 		const pastedText = clipboardData.getData('text/plain')
 		const pastedHTML = clipboardData.getData('text/html')
-		const hasHTMLTags = (s) => /<(pre|h[1-6]|ul|ol)[\s>]/i.test(s)
+		const hasHTMLTags = (s) =>
+			/<(pre|h[1-6]|ul|ol|table|img|blockquote|figure|p|div|section|article)[\s>]/i.test(
+				s
+			)
 
 		const html =
 			(pastedText && hasHTMLTags(pastedText) && pastedText) ||
@@ -445,12 +485,13 @@ export class Markdown {
 	_parsePastedHTMLToBlocks(html) {
 		const doc = new DOMParser().parseFromString(html, 'text/html')
 		const blocks = []
+		const push = (block) => block && blocks.push(block)
 
-		const walk = (node) => {
+		const handle = (node) => {
 			if (node.nodeType === Node.TEXT_NODE) {
-				const text = node.textContent.trim()
+				const text = node.textContent.replace(/�\u00a0/g, ' ').trim()
 				if (text)
-					blocks.push({
+					push({
 						type: 'paragraph',
 						data: { text: escapeHTML(text) },
 					})
@@ -462,7 +503,7 @@ export class Markdown {
 			const tag = node.tagName
 
 			if (tag === 'PRE') {
-				blocks.push({
+				push({
 					type: 'codeBox',
 					data: {
 						code: escapeHTML(node.textContent),
@@ -470,41 +511,174 @@ export class Markdown {
 					},
 				})
 			} else if (/^H[1-6]$/.test(tag)) {
-				blocks.push({
-					type: 'header',
-					data: {
-						text: escapeHTML(node.textContent.trim()),
-						level: +tag[1],
-					},
-				})
-			} else if (tag === 'UL' || tag === 'OL') {
-				const items = [...node.querySelectorAll(':scope > li')].map(
-					(li) => ({
-						content: escapeHTML(li.textContent.trim()),
-						items: [],
+				if (this._hasText(node))
+					push({
+						type: 'header',
+						data: {
+							text: this._inline(node.childNodes),
+							level: +tag[1],
+						},
 					})
-				)
-				blocks.push({
+			} else if (tag === 'UL' || tag === 'OL') {
+				push({
 					type: 'list',
 					data: {
 						style: tag === 'UL' ? 'unordered' : 'ordered',
-						items,
+						items: this._parseListItems(node),
 					},
 				})
+			} else if (tag === 'TABLE') {
+				push(this._parseTable(node))
+			} else if (tag === 'IMG') {
+				push(this._imageBlock(node))
+			} else if (tag === 'P' || tag === 'BLOCKQUOTE') {
+				if (this._hasText(node))
+					push({
+						type: 'paragraph',
+						data: { text: this._inline(node.childNodes) },
+					})
+				this._emitImages(node, push)
+			} else if (INLINE_TAGS.has(tag)) {
+				if (this._hasText(node))
+					push({
+						type: 'paragraph',
+						data: { text: this._inline([node]) },
+					})
 			} else if (node.childNodes.length) {
-				for (const child of node.childNodes) walk(child)
+				// FIGURE / DIV / SECTION / ARTICLE and other containers.
+				for (const child of node.childNodes) handle(child)
 			} else {
 				const text = node.textContent.trim()
 				if (text)
-					blocks.push({
+					push({
 						type: 'paragraph',
 						data: { text: escapeHTML(text) },
 					})
 			}
 		}
 
-		for (const child of doc.body.childNodes) walk(child)
+		for (const child of doc.body.childNodes) handle(child)
 		return blocks
+	}
+
+	// True when a node carries visible text (nbsp-aware).
+	_hasText(node) {
+		return node.textContent.replace(/�\u00a0/g, ' ').trim().length > 0
+	}
+
+	// Serialize a set of nodes to a whitelisted inline-HTML string. Unknown
+	// wrappers keep their text but lose the tag; unsafe links/text are escaped.
+	_inline(nodes) {
+		let out = ''
+		for (const child of nodes) {
+			if (child.nodeType === Node.TEXT_NODE) {
+				out += escapeHTML(child.textContent)
+				continue
+			}
+			if (child.nodeType !== Node.ELEMENT_NODE) continue
+
+			const tag = child.tagName
+			if (tag === 'BR') {
+				out += '<br>'
+				continue
+			}
+			if (tag === 'IMG') continue // images become their own blocks
+
+			const mapped = INLINE_TAG_MAP[tag]
+			const inner = this._inline(child.childNodes)
+
+			if (mapped === 'a') {
+				const href = this._safeHref(child.getAttribute('href'))
+				out += href
+					? `<a href="${escapeHTML(href)}">${inner}</a>`
+					: inner
+			} else if (mapped) {
+				const cls = mapped === 'code' ? ' class="inline-code"' : ''
+				out += `<${mapped}${cls}>${inner}</${mapped}>`
+			} else {
+				out += inner
+			}
+		}
+		return out
+	}
+
+	_parseListItems(listNode) {
+		return [...listNode.querySelectorAll(':scope > li')].map((li) => {
+			const nested = li.querySelector(':scope > ul, :scope > ol')
+			// Content is the item's own inline text, excluding any nested list.
+			const clone = li.cloneNode(true)
+			clone
+				.querySelectorAll(':scope > ul, :scope > ol')
+				.forEach((n) => n.remove())
+			return {
+				content: this._inline(clone.childNodes),
+				items: nested ? this._parseListItems(nested) : [],
+			}
+		})
+	}
+
+	_parseTable(tableNode) {
+		// Scope to this table's own rows/cells; querySelectorAll would descend
+		// into nested tables and duplicate their rows/text into the parent.
+		const rows = [
+			...tableNode.querySelectorAll(
+				':scope > tr, :scope > thead > tr, :scope > tbody > tr, :scope > tfoot > tr'
+			),
+		]
+		if (!rows.length) return null
+
+		const content = rows.map((tr) =>
+			[...tr.querySelectorAll(':scope > th, :scope > td')].map((cell) =>
+				this._inline(cell.childNodes)
+			)
+		)
+		if (!content.length || !content[0].length) return null
+
+		return {
+			type: 'table',
+			data: {
+				withHeadings: rows[0].querySelector(':scope > th') != null,
+				content,
+			},
+		}
+	}
+
+	_imageBlock(imgNode) {
+		const url = this._safeSrc(imgNode.getAttribute('src'))
+		if (!url) return null
+		return {
+			type: 'image',
+			data: {
+				url,
+				caption: escapeHTML(imgNode.getAttribute('alt') || ''),
+			},
+		}
+	}
+
+	// Pull standalone images out of a text container into their own blocks.
+	_emitImages(node, push) {
+		node.querySelectorAll('img').forEach((img) =>
+			push(this._imageBlock(img))
+		)
+	}
+
+	_safeHref(href) {
+		if (!href) return ''
+		const h = href.trim()
+		if (/^(https?:|mailto:|tel:)/i.test(h)) return h
+		if (/^\/\//.test(h)) return '' // protocol-relative → cross-origin
+		if (/^(\/|#|\.)/.test(h)) return h // same-site path / anchor
+		return ''
+	}
+
+	_safeSrc(src) {
+		if (!src) return ''
+		const s = src.trim()
+		if (/^https?:\/\//i.test(s)) return s
+		if (/^data:image\//i.test(s)) return s // embedded base64 images
+		if (/^\/\//.test(s)) return '' // protocol-relative → cross-origin
+		if (/^\//.test(s)) return s // site-relative
+		return ''
 	}
 }
 
