@@ -29,15 +29,10 @@ class CourseLesson(Document):
 		self.validate_progress_recalculation()
 
 	def on_trash(self):
-		self.delete_linked_notes()
+		cleanup_lesson_backreferences(self.name)
 
 	def after_delete(self):
 		self.validate_progress_recalculation()
-
-	def delete_linked_notes(self):
-		notes = frappe.get_all("LMS Lesson Note", filters={"lesson": self.name}, pluck="name")
-		for note in notes:
-			frappe.delete_doc("LMS Lesson Note", note, ignore_permissions=True)
 
 	def validate(self):
 		self.content = sanitize_editorjs(self.content)
@@ -89,6 +84,20 @@ class CourseLesson(Document):
 						"lesson": self.name,
 					},
 				)
+
+
+def cleanup_lesson_backreferences(lesson: str):
+	"""Clear other docs' references to `lesson` so its deletion isn't blocked by
+	LinkExistsError (delete_doc paths: delete_lesson, delete_course, desk) or silently
+	orphaned (delete_chapter's raw db.delete). Notes are meaningless without the lesson
+	and are deleted; data-bearing docs (quiz + its submissions, enrollment progress,
+	graded work) are only unlinked."""
+	for note in frappe.get_all("LMS Lesson Note", {"lesson": lesson}, pluck="name"):
+		frappe.delete_doc("LMS Lesson Note", note, ignore_permissions=True)
+
+	frappe.db.set_value("LMS Quiz", {"lesson": lesson}, "lesson", None)
+	frappe.db.set_value("LMS Enrollment", {"current_lesson": lesson}, "current_lesson", None)
+	frappe.db.set_value("LMS Assignment Submission", {"lesson": lesson}, "lesson", None)
 
 
 def has_permission(doc, ptype="read", user=None):
