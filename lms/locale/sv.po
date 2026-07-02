@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2026-06-26 16:39+0000\n"
-"PO-Revision-Date: 2026-06-30 21:27\n"
+"PO-Revision-Date: 2026-07-02 21:56\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Swedish\n"
 "MIME-Version: 1.0\n"
@@ -8730,7 +8730,7 @@ msgstr "När kurs lämnas in för granskning kommer den att listas här."
 
 #: frontend/src/pages/LessonForm.vue:14
 msgid "When on, anyone can preview this lesson without enrolling. Otherwise it is visible only to enrolled students."
-msgstr "När aktiverad kan all förhandsvisa denna lektion utan att behöva anmäla sig. I övrigt är den endast synlig för anmälda studenter."
+msgstr "När aktiverad kan alla förhandsvisa denna lektion utan att behöva anmäla sig. I övrigt är den endast synlig för anmälda studenter."
 
 #: frontend/src/pages/Billing.vue:162
 msgid "Where did you hear about us?"
