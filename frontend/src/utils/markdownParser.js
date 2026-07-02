@@ -618,11 +618,17 @@ export class Markdown {
 	}
 
 	_parseTable(tableNode) {
-		const rows = [...tableNode.querySelectorAll('tr')]
+		// Scope to this table's own rows/cells; querySelectorAll would descend
+		// into nested tables and duplicate their rows/text into the parent.
+		const rows = [
+			...tableNode.querySelectorAll(
+				':scope > tr, :scope > thead > tr, :scope > tbody > tr, :scope > tfoot > tr'
+			),
+		]
 		if (!rows.length) return null
 
 		const content = rows.map((tr) =>
-			[...tr.querySelectorAll('th, td')].map((cell) =>
+			[...tr.querySelectorAll(':scope > th, :scope > td')].map((cell) =>
 				this._inline(cell.childNodes)
 			)
 		)
@@ -631,7 +637,7 @@ export class Markdown {
 		return {
 			type: 'table',
 			data: {
-				withHeadings: rows[0].querySelector('th') != null,
+				withHeadings: rows[0].querySelector(':scope > th') != null,
 				content,
 			},
 		}
@@ -660,7 +666,8 @@ export class Markdown {
 		if (!href) return ''
 		const h = href.trim()
 		if (/^(https?:|mailto:|tel:)/i.test(h)) return h
-		if (/^(\/|#|\.)/.test(h)) return h // relative / anchor
+		if (/^\/\//.test(h)) return '' // protocol-relative → cross-origin
+		if (/^(\/|#|\.)/.test(h)) return h // same-site path / anchor
 		return ''
 	}
 
@@ -669,6 +676,7 @@ export class Markdown {
 		const s = src.trim()
 		if (/^https?:\/\//i.test(s)) return s
 		if (/^data:image\//i.test(s)) return s // embedded base64 images
+		if (/^\/\//.test(s)) return '' // protocol-relative → cross-origin
 		if (/^\//.test(s)) return s // site-relative
 		return ''
 	}

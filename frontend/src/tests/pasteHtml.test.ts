@@ -58,6 +58,15 @@ describe('_parsePastedHTMLToBlocks — inline formatting', () => {
 		expect(bad[0].data.text).not.toContain('javascript')
 	})
 
+	it('drops protocol-relative links but keeps a same-site path', () => {
+		const evil = parse('<p><a href="//evil.com/x">x</a></p>')
+		expect(evil[0].data.text).toBe('x')
+		expect(evil[0].data.text).not.toContain('evil.com')
+
+		const local = parse('<p><a href="/courses/1">c</a></p>')
+		expect(local[0].data.text).toBe('<a href="/courses/1">c</a>')
+	})
+
 	it('strips presentational wrappers (span/font/color) but keeps their text', () => {
 		const blocks = parse(
 			'<p><span style="color:red">red</span> <font color="blue">blue</font></p>'
@@ -119,9 +128,34 @@ describe('_parsePastedHTMLToBlocks — block structure', () => {
 		expect(data[0].data.url).toBe('data:image/png;base64,AAAA')
 	})
 
-	it('drops images with unsafe src schemes', () => {
-		const blocks = parse('<p><img src="javascript:alert(1)"></p>')
-		expect(blocks.filter((b) => b.type === 'image')).toHaveLength(0)
+	it('drops images with unsafe or protocol-relative src', () => {
+		expect(
+			parse('<p><img src="javascript:alert(1)"></p>').filter(
+				(b) => b.type === 'image'
+			)
+		).toHaveLength(0)
+		expect(
+			parse('<p><img src="//evil.com/x.png"></p>').filter(
+				(b) => b.type === 'image'
+			)
+		).toHaveLength(0)
+	})
+
+	it('does not duplicate rows or text from a nested table', () => {
+		const blocks = parse(
+			'<table><tr><td>outer<table><tr><td>inner</td></tr></table></td><td>B</td></tr></table>'
+		)
+		const tables = blocks.filter((b) => b.type === 'table')
+		expect(tables).toHaveLength(1)
+		// Only the outer table's single row, with its two direct cells.
+		expect(tables[0].data.content).toHaveLength(1)
+		expect(tables[0].data.content[0]).toHaveLength(2)
+		expect(tables[0].data.content[0][1]).toBe('B')
+		// The inner text appears once (folded into the parent cell), not as an
+		// extra row.
+		const innerCount = (tables[0].data.content[0][0].match(/inner/g) || [])
+			.length
+		expect(innerCount).toBe(1)
 	})
 
 	it('recurses through wrapper divs/sections and preserves order', () => {
