@@ -3,6 +3,7 @@
 
 import inspect
 import json
+from functools import cache
 from urllib.parse import unquote
 
 import frappe
@@ -188,6 +189,13 @@ def serve_resource(file_url: str):
 	return _serve_private_file(relative_path, file_row.file_name)
 
 
+@cache
+def _accepts_filename(func) -> bool:
+	"""Whether `func` takes a `filename` kwarg. Memoized per function object, so the
+	signature is introspected once per Frappe build (and again for a test's stub)."""
+	return "filename" in inspect.signature(func).parameters
+
+
 def _serve_private_file(relative_path: str, filename: str):
 	"""Version-safe call into Frappe's send_private_file.
 
@@ -197,7 +205,7 @@ def _serve_private_file(relative_path: str, filename: str):
 	(send_private_file derives the name from the path basename, which keeps the .pdf
 	extension so inline viewing still works).
 	"""
-	if "filename" in inspect.signature(send_private_file).parameters:
+	if _accepts_filename(send_private_file):
 		return send_private_file(relative_path, filename=filename)
 	return send_private_file(relative_path)
 
