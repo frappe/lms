@@ -16,14 +16,14 @@
 				:class="inlineSelect ? '' : 'flex items-baseline justify-between gap-3'"
 				@click="redirectToChapter"
 			>
-				<Input
+				<TextInput
 					v-if="isRenaming"
 					ref="renameInput"
 					v-model="renameValue"
 					class="w-full"
 					@click.stop.prevent
-					@keydown.enter="commitRename"
-					@keydown.esc="cancelRename"
+					@keydown.enter.stop.prevent="commitRename"
+					@keydown.esc.stop.prevent="cancelRename"
 					@blur="commitRename"
 				/>
 				<div
@@ -144,7 +144,7 @@
 </template>
 
 <script setup lang="ts">
-import { Button, Input, Tooltip, toast } from 'frappe-ui'
+import { Button, TextInput, Tooltip, toast } from 'frappe-ui'
 import { computed, inject, nextTick, ref, watch } from 'vue'
 import Draggable from 'vuedraggable'
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
