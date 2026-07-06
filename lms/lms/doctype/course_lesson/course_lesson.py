@@ -2,7 +2,6 @@
 # For license information, please see license.txt
 
 import inspect
-import json
 from functools import cache
 from urllib.parse import unquote
 
@@ -16,6 +15,7 @@ from frappe.utils.telemetry import capture
 from lms.lms.permissions import INSTRUCTOR_FIELDS, can_access_lesson
 from lms.lms.utils import (
 	get_course_progress,
+	get_editorjs_blocks,
 	is_demo_course,
 	recalculate_course_progress,
 	sanitize_editorjs,
@@ -70,10 +70,9 @@ class CourseLesson(Document):
 			self.save_lesson_details_in_quiz(self.instructor_content)
 
 	def save_lesson_details_in_quiz(self, content):
-		content = json.loads(content)
-		for block in content.get("blocks"):
+		for block in get_editorjs_blocks(content):
 			if block.get("type") == "quiz":
-				quiz = block.get("data").get("quiz")
+				quiz = (block.get("data") or {}).get("quiz")
 				if not frappe.db.exists("LMS Quiz", quiz):
 					frappe.throw(_("Invalid Quiz ID in content"))
 				frappe.db.set_value(
@@ -390,16 +389,16 @@ def get_quiz_progress(lesson):
 	quizzes = []
 
 	if lesson_details.content:
-		content = json.loads(lesson_details.content)
-
-		for block in content.get("blocks"):
+		for block in get_editorjs_blocks(lesson_details.content):
+			data = block.get("data") or {}
 			if block.get("type") == "quiz":
-				quizzes.append(block.get("data").get("quiz"))
+				quizzes.append(data.get("quiz"))
 			if block.get("type") == "upload":
-				quizzes_in_video = block.get("data").get("quizzes")
-				if quizzes_in_video and len(quizzes_in_video) > 0:
+				quizzes_in_video = data.get("quizzes")
+				if isinstance(quizzes_in_video, list):
 					for row in quizzes_in_video:
-						quizzes.append(row.get("quiz"))
+						if isinstance(row, dict):
+							quizzes.append(row.get("quiz"))
 
 	elif lesson_details.body:
 		macros = find_macros(lesson_details.body)
@@ -424,11 +423,9 @@ def get_assignment_progress(lesson):
 	assignments = []
 
 	if lesson_details.content:
-		content = json.loads(lesson_details.content)
-
-		for block in content.get("blocks"):
+		for block in get_editorjs_blocks(lesson_details.content):
 			if block.get("type") == "assignment":
-				assignments.append(block.get("data").get("assignment"))
+				assignments.append((block.get("data") or {}).get("assignment"))
 
 	elif lesson_details.body:
 		macros = find_macros(lesson_details.body)

@@ -41,6 +41,7 @@ from lms.lms.utils import (
 	can_modify_course,
 	get_batch_details,
 	get_course_details,
+	get_editorjs_blocks,
 	get_evaluator,
 	get_field_meta,
 	get_instructors,
@@ -2457,11 +2458,10 @@ def get_assessment_from_lesson(course: str, assessment_type: str):
 
 	for lesson in lessons:
 		if lesson.content:
-			content = json.loads(lesson.content)
-			for block in content.get("blocks", []):
+			for block in get_editorjs_blocks(lesson.content):
 				if block.get("type") == assessment_type:
 					data_field = "exercise" if assessment_type == "program" else assessment_type
-					assessment_name = block.get("data", {}).get(data_field)
+					assessment_name = (block.get("data") or {}).get(data_field)
 					assessments.append(assessment_name)
 
 	return assessments
