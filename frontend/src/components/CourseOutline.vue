@@ -209,6 +209,11 @@ const deleteLesson = createResource({
 		outline.reload()
 		toast.success(__('Lesson deleted successfully'))
 	},
+	onError(err: { messages?: string[] } | string) {
+		toast.error(
+			typeof err === 'string' ? err : err.messages?.[0] ?? __('Error')
+		)
+	},
 })
 
 const updateLessonIndex = createResource({
@@ -246,6 +251,11 @@ const deleteChapter = createResource({
 	onSuccess() {
 		outline.reload()
 		toast.success(__('Chapter deleted successfully'))
+	},
+	onError(err: { messages?: string[] } | string) {
+		toast.error(
+			typeof err === 'string' ? err : err.messages?.[0] ?? __('Error')
+		)
 	},
 })
 
