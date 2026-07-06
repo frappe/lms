@@ -4,9 +4,17 @@ from frappe.utils import nowdate
 
 @frappe.whitelist()
 def search_sqlite(query: str):
-	from lms.sqlite import LearningSearch, LearningSearchIndexMissingError
+	# Method name kept for frontend compatibility; the backend is selectable.
+	from lms.sqlite import LearningSearchIndexMissingError
 
-	search = LearningSearch()
+	if frappe.db.get_single_value("LMS Settings", "search_backend") == "RediSearch":
+		from lms.redisearch import LearningRediSearch
+
+		search = LearningRediSearch()
+	else:
+		from lms.sqlite import LearningSearch
+
+		search = LearningSearch()
 
 	try:
 		result = search.search(query)

@@ -76,7 +76,10 @@ after_sync = "lms.install.after_sync"
 before_uninstall = "lms.install.before_uninstall"
 setup_wizard_complete = "lms.demo.demo_data.create_demo_data"
 after_migrate = [
-	"lms.sqlite.build_index_in_background",
+	# The SQLite index is (re)built by frappe core's global orchestration
+	# (get_search_classes); we no longer enqueue it here to avoid a double build.
+	# This entry only (re)builds the RediSearch index when that backend is on.
+	"lms.redisearch.build_index_in_background",
 ]
 
 # Desk Notifications
@@ -129,13 +132,30 @@ doc_events = {
 		"validate": "lms.lms.user.validate_username_duplicates",
 		"before_insert": "lms.lms.user.add_lms_student_role",
 	},
+	# RediSearch index (inert unless LMS Settings.search_backend = RediSearch)
+	"LMS Course": {
+		"on_update": "lms.redisearch.update_index",
+		"on_trash": "lms.redisearch.delete_index",
+	},
+	"LMS Batch": {
+		"on_update": "lms.redisearch.update_index",
+		"on_trash": "lms.redisearch.delete_index",
+	},
+	"Job Opportunity": {
+		"on_update": "lms.redisearch.update_index",
+		"on_trash": "lms.redisearch.delete_index",
+	},
+	"Course Instructor": {
+		"on_update": "lms.redisearch.update_index",
+		"on_trash": "lms.redisearch.delete_index",
+	},
 }
 
 # Scheduled Tasks
 # ---------------
 scheduler_events = {
 	"all": [
-		"lms.sqlite.build_index_in_background",
+		"lms.redisearch.build_index_if_enabled",
 	],
 	"hourly": [
 		"lms.lms.doctype.lms_certificate_request.lms_certificate_request.schedule_evals",

@@ -130,6 +130,17 @@ class LearningSearch(SQLiteSearch):
 		except Exception as e:
 			frappe.throw(e)
 
+	def is_search_enabled(self):
+		"""Disable the SQLite index while the RediSearch backend is selected.
+
+		Returning False makes the core's global doc_events and schedulers skip
+		this class, so no SQLite index is built or updated when the operator has
+		switched LMS search to RediSearch.
+		"""
+		return (
+			frappe.db.get_single_value("LMS Settings", "search_backend") != "RediSearch"
+		)
+
 	def get_search_filters(self):
 		return {}
 
