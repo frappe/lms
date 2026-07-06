@@ -311,6 +311,35 @@ class TestGetEditorjsBlocks(unittest.TestCase):
 		self.assertEqual(len(blocks), 1)
 		self.assertEqual(blocks[0]["type"], "header")
 
+	def test_non_dict_blocks_are_filtered_out(self):
+		# Valid JSON envelope, but the blocks list holds junk. Readers call block.get(...),
+		# so anything that isn't a dict must be dropped rather than reaching them.
+		content = frappe.as_json(
+			{"blocks": ["a string", None, 42, ["nested"], {"type": "header", "data": {}}]}
+		)
+		blocks = get_editorjs_blocks(content)
+		self.assertEqual([b["type"] for b in blocks], ["header"])
+
+	def test_blocks_with_non_dict_data_are_filtered_out(self):
+		# The block is a dict but its `data` is present and not a dict; readers do
+		# block.get("data", {}).get(...) / block["data"][...], so these must be dropped.
+		# null counts as present-but-non-dict (a `.get("data", {})` guard wouldn't catch it).
+		# Only a block with a dict data or no data key at all survives.
+		content = frappe.as_json(
+			{
+				"blocks": [
+					{"type": "quiz", "data": "x"},
+					{"type": "quiz", "data": ["a"]},
+					{"type": "quiz", "data": 5},
+					{"type": "quiz", "data": None},
+					{"type": "header"},
+					{"type": "paragraph", "data": {"text": "ok"}},
+				]
+			}
+		)
+		blocks = get_editorjs_blocks(content)
+		self.assertEqual([b["type"] for b in blocks], ["header", "paragraph"])
+
 
 class TestGetLessonIcon(unittest.TestCase):
 	"""get_lesson_icon builds the course-outline icons; before the guard a single
@@ -341,3 +370,16 @@ class TestGetLessonIcon(unittest.TestCase):
 			with self.subTest(block_type=block_type):
 				content = _content({"type": block_type, "data": {}})
 				self.assertEqual(get_lesson_icon("", content), icon)
+
+	def test_malformed_blocks_do_not_raise(self):
+		# Valid JSON whose upload/embed blocks are missing `data` or the field the reader
+		# reaches for. Each must fall through to the list icon, never AttributeError.
+		for block in (
+			{"type": "upload"},
+			{"type": "upload", "data": {}},
+			{"type": "upload", "data": {"file_type": None}},
+			{"type": "embed"},
+			{"type": "embed", "data": {}},
+		):
+			with self.subTest(block=block):
+				self.assertEqual(get_lesson_icon("", _content(block)), "icon-list")

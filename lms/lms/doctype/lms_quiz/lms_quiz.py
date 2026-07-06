@@ -121,11 +121,26 @@ def _parse_json_arg(raw, label):
 		frappe.throw(_("Invalid {0} submitted.").format(label), frappe.ValidationError)
 
 
+def _validate_quiz_results(results):
+	"""Coarse shape check before process_results reads result["question_name"] / ["answer"].
+	Rejects genuinely malformed items (non-dict, no question_name, or an answer that isn't a
+	list) with a clean validation error. A blank/null answer element is NOT rejected here — the
+	UI legitimately emits answer=[null] for a skipped open-ended question; process_results
+	normalises those to "" so a student can still submit a partially-answered quiz."""
+	for result in results:
+		if not (isinstance(result, dict) and result.get("question_name")):
+			frappe.throw(_("Invalid quiz results submitted."), frappe.ValidationError)
+		answer = result.get("answer")
+		if answer is not None and not isinstance(answer, list):
+			frappe.throw(_("Invalid quiz results submitted."), frappe.ValidationError)
+
+
 @frappe.whitelist()
 def submit_quiz(quiz: str, results: str | None = None):
 	results = _parse_json_arg(results, _("quiz results")) if results else []
 	if not isinstance(results, list):
 		frappe.throw(_("Invalid quiz results submitted."), frappe.ValidationError)
+	_validate_quiz_results(results)
 
 	quiz_details = frappe.db.get_value(
 		"LMS Quiz",
@@ -141,6 +156,8 @@ def submit_quiz(quiz: str, results: str | None = None):
 		],
 		as_dict=1,
 	)
+	if not quiz_details:
+		frappe.throw(_("Invalid quiz."), frappe.ValidationError)
 
 	data = process_results(results, quiz_details)
 	is_open_ended = data["is_open_ended"]
@@ -174,6 +191,15 @@ def process_results(results: list, quiz_details: dict):
 			["question", "marks", "question_detail", "type"],
 			as_dict=1,
 		)
+		# The question must belong to this quiz. A stale/forged submission can name a row
+		# that no longer resolves for quiz_details; reject cleanly instead of NoneType-500ing.
+		if not question_details:
+			frappe.throw(_("Invalid quiz results submitted."), frappe.ValidationError)
+
+		# Normalise the answer to a non-empty list of strings so re.sub/join/[0] below can't
+		# choke on a null/empty element (the UI sends [null] for a skipped open-ended answer).
+		result["answer"] = [a if isinstance(a, str) else "" for a in (result.get("answer") or [])] or [""]
+
 		result["question_name"] = question_details.question
 		result["question"] = question_details.question_detail
 		result["marks_out_of"] = question_details.marks
@@ -321,11 +347,17 @@ def check_answer(quiz: str, question: str, question_type: str, answers: str):
 			frappe.PermissionError,
 		)
 
-	answers = _parse_json_arg(answers, _("answers")) if answers else answers
+	answers = _parse_json_arg(answers, _("answers")) if answers else []
+	if not isinstance(answers, list):
+		frappe.throw(_("Invalid answers submitted."), frappe.ValidationError)
+
 	if question_type == "Choices":
 		return check_choice_answers(question, answers)
-	else:
-		return check_input_answers(question, answers[0])
+
+	# A blank input answer (empty list, or the [null] the UI emits for an untouched field)
+	# scores as incorrect — coerce to "" so answers[0] can't IndexError / feed None onward.
+	answer = answers[0] if answers else ""
+	return check_input_answers(question, answer if isinstance(answer, str) else "")
 
 
 def get_question_details(question: str):
