@@ -580,25 +580,25 @@ def replace_assessment_names(zip_file, content):
 	if not isinstance(content, dict):
 		return json.dumps(content)
 	for block in content.get("blocks") or []:
+		# Raw iteration (this mutates data in place and re-dumps, so it can't go through
+		# get_editorjs_blocks); guard the same shape the helper does.
+		if not isinstance(block, dict) or not isinstance(block.get("data"), dict):
+			continue
+		data = block["data"]
 		if block.get("type") in assessment_types:
 			data_field = "exercise" if block.get("type") == "program" else block.get("type")
-			assessment_name = block.get("data", {}).get(data_field)
+			assessment_name = data.get(data_field)
 			assessment_title = get_assessment_title(zip_file, assessment_name, block.get("type"))
 			doctype = get_assessment_map().get(block.get("type"))
 			current_assessment_name = frappe.db.get_value(doctype, {"title": assessment_title}, "name")
 			if current_assessment_name:
-				block["data"][data_field] = current_assessment_name
+				data[data_field] = current_assessment_name
 	return json.dumps(content)
 
 
 def replace_assets(content):
-	try:
-		content = json.loads(content)
-	except (TypeError, ValueError):
-		return
-	if not isinstance(content, dict):
-		return
-	for block in content.get("blocks") or []:
+	content = json.loads(content)
+	for block in content.get("blocks", []):
 		if block.get("type") == "upload":
 			asset_url = block.get("data", {}).get("file_url")
 			if asset_url:

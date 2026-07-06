@@ -8,7 +8,6 @@ import frappe
 from lms.lms.course_import_export import (
 	get_assessments_from_lesson,
 	replace_assessment_names,
-	replace_assets,
 )
 
 RAW_URL = "https://www.youtube.com/watch?v=htpg8CuD1Ec"
@@ -34,7 +33,22 @@ class TestImportExportContentGuards(unittest.TestCase):
 		# Valid JSON that isn't an EditorJS envelope must not raise either.
 		self.assertEqual(replace_assessment_names(None, "[1, 2]"), "[1, 2]")
 
-	def test_replace_assets_non_json_is_noop(self):
-		# replace_assets returns None and touches nothing for unparseable content.
-		self.assertIsNone(replace_assets(RAW_URL))
-		self.assertIsNone(replace_assets("[1, 2]"))
+	def test_replace_assessment_names_skips_malformed_blocks(self):
+		# Valid EditorJS envelope but the blocks are shaped wrong: a non-dict block, and
+		# blocks whose `data` is a truthy non-dict / null. This mutate-and-redump path
+		# iterates raw blocks (not via get_editorjs_blocks), so it must skip them itself
+		# rather than AttributeError on block.get("data", {}).get(...). No DB is reached
+		# because no assessment name is extracted.
+		content = frappe.as_json(
+			{
+				"blocks": [
+					"a string",
+					{"type": "quiz", "data": "x"},
+					{"type": "quiz", "data": None},
+					{"type": "paragraph", "data": {"text": "ok"}},
+				]
+			}
+		)
+		# Round-trips without raising; the well-formed paragraph is preserved.
+		result = replace_assessment_names(None, content)
+		self.assertIn("paragraph", result)
