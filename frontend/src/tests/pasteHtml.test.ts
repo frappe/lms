@@ -116,6 +116,19 @@ describe('_parsePastedHTMLToBlocks — block structure', () => {
 		expect(blocks[1].data.caption).toBe('cat')
 	})
 
+	it('drops image-only list items instead of leaving blank bullets', () => {
+		const blocks = parse(
+			'<ul><li><img src="https://cdn.x/a.png"></li><li>text</li></ul>'
+		)
+		expect(blocks.map((b) => b.type)).toEqual(['list', 'image'])
+		expect(blocks[0].data.items.map((i) => i.content)).toEqual(['text'])
+
+		const imageOnly = parse(
+			'<ul><li><img src="https://cdn.x/a.png"></li></ul>'
+		)
+		expect(imageOnly.map((b) => b.type)).toEqual(['image'])
+	})
+
 	it('converts a table (with th header row) to a table block', () => {
 		const blocks = parse(
 			'<table><tr><th>A</th><th>B</th></tr><tr><td>1</td><td>2</td></tr></table>'
