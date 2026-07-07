@@ -129,6 +129,26 @@ describe('_parsePastedHTMLToBlocks — block structure', () => {
 		expect(imageOnly.map((b) => b.type)).toEqual(['image'])
 	})
 
+	it('hoists nested items when an unordered image-only item has children', () => {
+		const blocks = parse(
+			'<ul><li><img src="https://cdn.x/a.png"><ul><li>nested</li></ul></li></ul>'
+		)
+		expect(blocks.map((b) => b.type)).toEqual(['list', 'image'])
+		expect(blocks[0].data.items).toEqual([{ content: 'nested', items: [] }])
+	})
+
+	it('keeps image-only items in ordered lists so steps are not renumbered', () => {
+		const blocks = parse(
+			'<ol><li>Step 1</li><li><img src="https://cdn.x/a.png"></li><li>Step 3</li></ol>'
+		)
+		expect(blocks.map((b) => b.type)).toEqual(['list', 'image'])
+		expect(blocks[0].data.items.map((i) => i.content)).toEqual([
+			'Step 1',
+			'',
+			'Step 3',
+		])
+	})
+
 	it('converts a table (with th header row) to a table block', () => {
 		const blocks = parse(
 			'<table><tr><th>A</th><th>B</th></tr><tr><td>1</td><td>2</td></tr></table>'
