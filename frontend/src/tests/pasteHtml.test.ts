@@ -103,6 +103,19 @@ describe('_parsePastedHTMLToBlocks — block structure', () => {
 		expect(second.content).toBe('two')
 	})
 
+	it('emits images inside list items as image blocks after the list', () => {
+		const blocks = parse(
+			'<ul><li>one <img src="https://cdn.x/i.png" alt="cat"></li><li>two</li></ul>'
+		)
+		expect(blocks.map((b) => b.type)).toEqual(['list', 'image'])
+		expect(blocks[0].data.items.map((i) => i.content)).toEqual([
+			'one ',
+			'two',
+		])
+		expect(blocks[1].data.url).toBe('https://cdn.x/i.png')
+		expect(blocks[1].data.caption).toBe('cat')
+	})
+
 	it('converts a table (with th header row) to a table block', () => {
 		const blocks = parse(
 			'<table><tr><th>A</th><th>B</th></tr><tr><td>1</td><td>2</td></tr></table>'
