@@ -527,6 +527,7 @@ export class Markdown {
 						items: this._parseListItems(node),
 					},
 				})
+				this._emitImages(node, push)
 			} else if (tag === 'TABLE') {
 				push(this._parseTable(node))
 			} else if (tag === 'IMG') {
