@@ -520,13 +520,15 @@ export class Markdown {
 						},
 					})
 			} else if (tag === 'UL' || tag === 'OL') {
-				push({
-					type: 'list',
-					data: {
-						style: tag === 'UL' ? 'unordered' : 'ordered',
-						items: this._parseListItems(node),
-					},
-				})
+				const items = this._parseListItems(node)
+				if (items.length)
+					push({
+						type: 'list',
+						data: {
+							style: tag === 'UL' ? 'unordered' : 'ordered',
+							items,
+						},
+					})
 				this._emitImages(node, push)
 			} else if (tag === 'TABLE') {
 				push(this._parseTable(node))
@@ -604,18 +606,24 @@ export class Markdown {
 	}
 
 	_parseListItems(listNode) {
-		return [...listNode.querySelectorAll(':scope > li')].map((li) => {
-			const nested = li.querySelector(':scope > ul, :scope > ol')
-			// Content is the item's own inline text, excluding any nested list.
-			const clone = li.cloneNode(true)
-			clone
-				.querySelectorAll(':scope > ul, :scope > ol')
-				.forEach((n) => n.remove())
-			return {
-				content: this._inline(clone.childNodes),
-				items: nested ? this._parseListItems(nested) : [],
-			}
-		})
+		return (
+			[...listNode.querySelectorAll(':scope > li')]
+				.map((li) => {
+					const nested = li.querySelector(':scope > ul, :scope > ol')
+					// Content is the item's own inline text, excluding any nested list.
+					const clone = li.cloneNode(true)
+					clone
+						.querySelectorAll(':scope > ul, :scope > ol')
+						.forEach((n) => n.remove())
+					return {
+						content: this._inline(clone.childNodes),
+						items: nested ? this._parseListItems(nested) : [],
+					}
+				})
+				// Image-only items serialize to '' (images are emitted as their
+				// own blocks) — drop them so they don't render as blank bullets.
+				.filter((item) => item.content.trim() || item.items.length)
+		)
 	}
 
 	_parseTable(tableNode) {
