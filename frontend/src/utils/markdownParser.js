@@ -606,24 +606,25 @@ export class Markdown {
 	}
 
 	_parseListItems(listNode) {
-		return (
-			[...listNode.querySelectorAll(':scope > li')]
-				.map((li) => {
-					const nested = li.querySelector(':scope > ul, :scope > ol')
-					// Content is the item's own inline text, excluding any nested list.
-					const clone = li.cloneNode(true)
-					clone
-						.querySelectorAll(':scope > ul, :scope > ol')
-						.forEach((n) => n.remove())
-					return {
-						content: this._inline(clone.childNodes),
-						items: nested ? this._parseListItems(nested) : [],
-					}
-				})
-				// Image-only items serialize to '' (images are emitted as their
-				// own blocks) — drop them so they don't render as blank bullets.
-				.filter((item) => item.content.trim() || item.items.length)
-		)
+		const ordered = listNode.tagName === 'OL'
+		return [...listNode.querySelectorAll(':scope > li')].flatMap((li) => {
+			const nested = li.querySelector(':scope > ul, :scope > ol')
+			// Content is the item's own inline text, excluding any nested list.
+			const clone = li.cloneNode(true)
+			clone
+				.querySelectorAll(':scope > ul, :scope > ol')
+				.forEach((n) => n.remove())
+			const item = {
+				content: this._inline(clone.childNodes),
+				items: nested ? this._parseListItems(nested) : [],
+			}
+			// Image-only items serialize to '' (images are emitted as their own
+			// blocks). In ordered lists keep the blank item so later steps keep
+			// their numbers; in unordered lists hoist any nested items and drop
+			// the blank bullet.
+			if (item.content.trim() || ordered) return [item]
+			return item.items
+		})
 	}
 
 	_parseTable(tableNode) {
