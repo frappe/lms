@@ -31,13 +31,17 @@ from frappe.utils.response import Response
 from pypika import functions as fn
 
 from lms.lms.course_import_export import export_course_zip, import_course_zip
-from lms.lms.doctype.course_lesson.course_lesson import save_progress
+from lms.lms.doctype.course_lesson.course_lesson import (
+	cleanup_lesson_backreferences,
+	save_progress,
+)
 from lms.lms.utils import (
 	LMS_ROLES,
 	can_modify_batch,
 	can_modify_course,
 	get_batch_details,
 	get_course_details,
+	get_editorjs_blocks,
 	get_evaluator,
 	get_field_meta,
 	get_instructors,
@@ -1013,11 +1017,23 @@ def delete_course(course: str):
 
 	frappe.db.delete("LMS Enrollment", {"course": course})
 	frappe.db.delete("LMS Course Progress", {"course": course})
+	frappe.db.delete("LMS Video Watch Duration", {"course": course})
 	frappe.db.delete("LMS Certificate", {"course": course})
+	frappe.db.delete("LMS Certificate Request", {"course": course})
+	frappe.db.delete("LMS Certificate Evaluation", {"course": course})
+	frappe.db.delete("LMS Course Interest", {"course": course})
+	frappe.db.delete("LMS Course Mentor Mapping", {"course": course})
 	frappe.db.delete("Batch Course", {"course": course})
 	frappe.db.delete("LMS Course Review", {"course": course})
+	# This course may appear in another parent's child table (another course's related
+	# list, a program's course list); remove those rows so the delete isn't blocked.
+	frappe.db.delete("Related Courses", {"course": course})
+	frappe.db.delete("LMS Program Course", {"course": course})
+	# Preserve authored assessments and graded work — unlink from the course/lesson rather than delete.
 	frappe.db.set_value("LMS Quiz", {"course": course}, {"course": None, "lesson": None})
 	frappe.db.set_value("LMS Quiz Submission", {"course": course}, "course", None)
+	frappe.db.set_value("LMS Assignment Submission", {"course": course}, {"course": None, "lesson": None})
+	frappe.db.set_value("LMS Assignment", {"course": course}, "course", None)
 
 	chapters = frappe.get_all("Course Chapter", {"course": course}, pluck="name")
 	frappe.db.delete("Chapter Reference", {"parent": course})
@@ -1301,6 +1317,8 @@ def delete_chapter(chapter: str):
 			frappe.db.delete("Discussion Topic", topic)
 		frappe.db.delete("LMS Course Progress", {"lesson": lesson})
 		frappe.db.delete("LMS Video Watch Duration", {"lesson": lesson})
+		# Raw db.delete below skips the controller's on_trash, so unlink back-references here.
+		cleanup_lesson_backreferences(lesson)
 
 	frappe.db.delete("Chapter Reference", {"chapter": chapter})
 	frappe.db.delete("Lesson Reference", {"parent": chapter})
@@ -2440,11 +2458,10 @@ def get_assessment_from_lesson(course: str, assessment_type: str):
 
 	for lesson in lessons:
 		if lesson.content:
-			content = json.loads(lesson.content)
-			for block in content.get("blocks", []):
+			for block in get_editorjs_blocks(lesson.content):
 				if block.get("type") == assessment_type:
 					data_field = "exercise" if assessment_type == "program" else assessment_type
-					assessment_name = block.get("data", {}).get(data_field)
+					assessment_name = (block.get("data") or {}).get(data_field)
 					assessments.append(assessment_name)
 
 	return assessments

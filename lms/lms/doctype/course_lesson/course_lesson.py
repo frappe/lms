@@ -1,7 +1,8 @@
 # Copyright (c) 2021, FOSS United and contributors
 # For license information, please see license.txt
 
-import json
+import inspect
+from functools import cache
 from urllib.parse import unquote
 
 import frappe
@@ -14,6 +15,7 @@ from frappe.utils.telemetry import capture
 from lms.lms.permissions import INSTRUCTOR_FIELDS, can_access_lesson
 from lms.lms.utils import (
 	get_course_progress,
+	get_editorjs_blocks,
 	is_demo_course,
 	recalculate_course_progress,
 	sanitize_editorjs,
@@ -27,15 +29,10 @@ class CourseLesson(Document):
 		self.validate_progress_recalculation()
 
 	def on_trash(self):
-		self.delete_linked_notes()
+		cleanup_lesson_backreferences(self.name)
 
 	def after_delete(self):
 		self.validate_progress_recalculation()
-
-	def delete_linked_notes(self):
-		notes = frappe.get_all("LMS Lesson Note", filters={"lesson": self.name}, pluck="name")
-		for note in notes:
-			frappe.delete_doc("LMS Lesson Note", note, ignore_permissions=True)
 
 	def validate(self):
 		self.content = sanitize_editorjs(self.content)
@@ -73,10 +70,9 @@ class CourseLesson(Document):
 			self.save_lesson_details_in_quiz(self.instructor_content)
 
 	def save_lesson_details_in_quiz(self, content):
-		content = json.loads(content)
-		for block in content.get("blocks"):
+		for block in get_editorjs_blocks(content):
 			if block.get("type") == "quiz":
-				quiz = block.get("data").get("quiz")
+				quiz = (block.get("data") or {}).get("quiz")
 				if not frappe.db.exists("LMS Quiz", quiz):
 					frappe.throw(_("Invalid Quiz ID in content"))
 				frappe.db.set_value(
@@ -87,6 +83,20 @@ class CourseLesson(Document):
 						"lesson": self.name,
 					},
 				)
+
+
+def cleanup_lesson_backreferences(lesson: str):
+	"""Clear other docs' references to `lesson` so its deletion isn't blocked by
+	LinkExistsError (delete_doc paths: delete_lesson, delete_course, desk) or silently
+	orphaned (delete_chapter's raw db.delete). Notes are meaningless without the lesson
+	and are deleted; data-bearing docs (quiz + its submissions, enrollment progress,
+	graded work) are only unlinked."""
+	for note in frappe.get_all("LMS Lesson Note", {"lesson": lesson}, pluck="name"):
+		frappe.delete_doc("LMS Lesson Note", note, ignore_permissions=True)
+
+	frappe.db.set_value("LMS Quiz", {"lesson": lesson}, "lesson", None)
+	frappe.db.set_value("LMS Enrollment", {"current_lesson": lesson}, "current_lesson", None)
+	frappe.db.set_value("LMS Assignment Submission", {"lesson": lesson}, "lesson", None)
 
 
 def has_permission(doc, ptype="read", user=None):
@@ -184,7 +194,28 @@ def serve_resource(file_url: str):
 
 	# send_private_file expects a path relative to the site's private/ dir.
 	relative_path = file_url.split("/private", 1)[1] if "/private" in file_url else file_url
-	return send_private_file(relative_path, filename=file_row.file_name)
+	return _serve_private_file(relative_path, file_row.file_name)
+
+
+@cache
+def _accepts_filename(func) -> bool:
+	"""Whether `func` takes a `filename` kwarg. Memoized per function object, so the
+	signature is introspected once per Frappe build (and again for a test's stub)."""
+	return "filename" in inspect.signature(func).parameters
+
+
+def _serve_private_file(relative_path: str, filename: str):
+	"""Version-safe call into Frappe's send_private_file.
+
+	The `filename` kwarg (nicer download name + content-type) was added only in recent
+	Frappe; LMS supports frappe>=14 where it may be absent. Passing it there raises
+	`TypeError: unexpected keyword argument 'filename'`. Fall back to the path-only form
+	(send_private_file derives the name from the path basename, which keeps the .pdf
+	extension so inline viewing still works).
+	"""
+	if _accepts_filename(send_private_file):
+		return send_private_file(relative_path, filename=filename)
+	return send_private_file(relative_path)
 
 
 def _deny(file_url, reason):
@@ -358,16 +389,16 @@ def get_quiz_progress(lesson):
 	quizzes = []
 
 	if lesson_details.content:
-		content = json.loads(lesson_details.content)
-
-		for block in content.get("blocks"):
+		for block in get_editorjs_blocks(lesson_details.content):
+			data = block.get("data") or {}
 			if block.get("type") == "quiz":
-				quizzes.append(block.get("data").get("quiz"))
+				quizzes.append(data.get("quiz"))
 			if block.get("type") == "upload":
-				quizzes_in_video = block.get("data").get("quizzes")
-				if quizzes_in_video and len(quizzes_in_video) > 0:
+				quizzes_in_video = data.get("quizzes")
+				if isinstance(quizzes_in_video, list):
 					for row in quizzes_in_video:
-						quizzes.append(row.get("quiz"))
+						if isinstance(row, dict):
+							quizzes.append(row.get("quiz"))
 
 	elif lesson_details.body:
 		macros = find_macros(lesson_details.body)
@@ -392,11 +423,9 @@ def get_assignment_progress(lesson):
 	assignments = []
 
 	if lesson_details.content:
-		content = json.loads(lesson_details.content)
-
-		for block in content.get("blocks"):
+		for block in get_editorjs_blocks(lesson_details.content):
 			if block.get("type") == "assignment":
-				assignments.append(block.get("data").get("assignment"))
+				assignments.append((block.get("data") or {}).get("assignment"))
 
 	elif lesson_details.body:
 		macros = find_macros(lesson_details.body)
