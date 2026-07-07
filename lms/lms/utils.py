@@ -222,10 +222,9 @@ def get_lesson_details(chapter: dict, progress: bool = False):
 
 def get_lesson_icon(body: str, content: str):
 	if content:
-		content = json.loads(content)
-
-		for block in content.get("blocks"):
-			if block.get("type") == "upload" and block.get("data").get("file_type").lower() in [
+		for block in get_editorjs_blocks(content):
+			data = block.get("data") or {}
+			if block.get("type") == "upload" and (data.get("file_type") or "").lower() in [
 				"mp4",
 				"webm",
 				"ogg",
@@ -233,7 +232,7 @@ def get_lesson_icon(body: str, content: str):
 			]:
 				return "icon-youtube"
 
-			if block.get("type") == "embed" and block.get("data").get("service") in [
+			if block.get("type") == "embed" and data.get("service") in [
 				"youtube",
 				"vimeo",
 				"cloudflareStream",
@@ -919,13 +918,7 @@ def get_course_content_stats(course: str) -> dict:
 		lesson_rows = frappe.get_all("Lesson Reference", {"parent": chapter.name}, ["lesson"])
 		for row in lesson_rows:
 			content = frappe.db.get_value("Course Lesson", row.lesson, "content")
-			if not content:
-				continue
-			try:
-				blocks = (json.loads(content) or {}).get("blocks") or []
-			except (ValueError, TypeError):
-				continue
-			for block in blocks:
+			for block in get_editorjs_blocks(content):
 				if block.get("type") == "quiz":
 					quiz_count += 1
 
@@ -2633,6 +2626,39 @@ def sanitize_editorjs(raw):
 	except (TypeError, ValueError):
 		return raw
 	return json.dumps(sanitize_json(data), separators=(",", ":"))
+
+
+def get_editorjs_blocks(content):
+	"""Return the EditorJS block list for `content`, or [] if it isn't EditorJS JSON.
+
+	The lesson content field can legitimately hold non-JSON (e.g. a lesson edited from
+	the Desk form, whose raw textarea has no EditorJS editor). Every reader of lesson
+	content must go through this so a stray URL/text can't 500 a save, the course
+	outline, the assessment list, or progress tracking. Mirrors sanitize_editorjs:
+	fail soft instead of raising.
+	"""
+	try:
+		data = json.loads(content)
+	except (TypeError, ValueError):
+		return []
+	if not isinstance(data, dict):
+		return []
+	blocks = data.get("blocks")
+	if not isinstance(blocks, list):
+		return []
+	# Keep only blocks a reader can safely reach block["data"][...] on: the block must be a
+	# dict, and `data` (if present) must be a dict. A present-but-non-dict data — null, str,
+	# list ({"type": "quiz", "data": "x"}) — is dropped; note a plain `.get("data", {})` guard
+	# wouldn't save the null case. Hand-authored/partial content must not AttributeError a
+	# save, the outline, or progress tracking.
+	valid_blocks = []
+	for block in blocks:
+		if not isinstance(block, dict):
+			continue
+		if "data" in block and not isinstance(block["data"], dict):
+			continue
+		valid_blocks.append(block)
+	return valid_blocks
 
 
 def sanitize_json(node):
