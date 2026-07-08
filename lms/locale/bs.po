@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2026-07-03 16:31+0000\n"
-"PO-Revision-Date: 2026-07-06 08:42\n"
+"PO-Revision-Date: 2026-07-08 09:04\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Bosnian\n"
 "MIME-Version: 1.0\n"
@@ -492,7 +492,7 @@ msgstr "Odgovori"
 
 #: frontend/src/pages/PersonaForm.vue:18
 msgid "Answer a few quick questions so we can set Frappe Learning up for you"
-msgstr ""
+msgstr "Odgovorite na nekoliko brzih pitanja kako bismo mogli postaviti Obrayovanje za vas"
 
 #: frontend/src/components/Settings/BrandSettings.vue:63
 msgid "Appears in the left sidebar. Recommended size is 32x32 px in PNG or SVG"
@@ -790,7 +790,7 @@ msgstr "Prosječno vrijeme gledanja (minute)"
 
 #: frontend/src/pages/PersonaForm.vue:145
 msgid "Award my first certificate"
-msgstr ""
+msgstr "Dodijeli prvi certifikat"
 
 #: frontend/src/pages/PersonaForm.vue:101
 msgid "Back"
@@ -802,7 +802,7 @@ msgstr "Povratak na Kurs"
 
 #: frontend/src/components/Questionnaire.vue:145
 msgid "Back to previous question"
-msgstr ""
+msgstr "Nazad na prethodno pitanje"
 
 #. Label of the badge (Link) field in DocType 'LMS Badge Assignment'
 #: frontend/src/components/Settings/Badges/BadgeAssignmentForm.vue:31
@@ -1505,7 +1505,7 @@ msgstr "Cloud"
 
 #: frontend/src/pages/PersonaForm.vue:116
 msgid "Coaching or Training Institute"
-msgstr ""
+msgstr "Institut za Trening ili Obuku"
 
 #. Label of the code (Data) field in DocType 'LMS Coupon'
 #. Label of the code (Code) field in DocType 'LMS Programming Exercise
@@ -1532,7 +1532,7 @@ msgstr "Ime Koledža"
 
 #: frontend/src/pages/PersonaForm.vue:112
 msgid "College or University"
-msgstr ""
+msgstr "Fakultet ili Univerzitet"
 
 #. Label of the card_gradient (Select) field in DocType 'LMS Course'
 #. Label of the color (Select) field in DocType 'LMS Lesson Note'
@@ -1624,7 +1624,7 @@ msgstr "Web stranica Poduzeća"
 
 #: frontend/src/pages/PersonaForm.vue:120
 msgid "Company or Workplace"
-msgstr ""
+msgstr "Poduzeće ili Radno Mjesto"
 
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmission.vue:72
 msgid "Compiler Message"
@@ -2277,7 +2277,7 @@ msgstr "Kreiraj novu Značku"
 
 #: frontend/src/components/Settings/EmailTemplate/EmailTemplateAdd.vue:5
 msgid "Create a reusable email template for your notifications."
-msgstr ""
+msgstr "Izradi predložak e-pošte za višekratnu upotrebu za vaša obavještenja."
 
 #: frontend/src/components/Modals/AssignmentForm.vue:8
 msgid "Create an Assignment"
@@ -2363,7 +2363,7 @@ msgstr "Prilagođeni sadržaj za Prijavu"
 
 #: frontend/src/pages/PersonaForm.vue:123
 msgid "Customer Academy"
-msgstr ""
+msgstr "Korisnička Akademija"
 
 #. Label of the customisations_tab (Tab Break) field in DocType 'LMS Batch'
 #: lms/lms/doctype/lms_batch/lms_batch.json
@@ -2818,7 +2818,7 @@ msgstr "Uredi račun e-pošte"
 
 #: frontend/src/components/Settings/EmailTemplate/EmailTemplateEdit.vue:4
 msgid "Edit your reusable email template."
-msgstr ""
+msgstr "Uredi predložak e-pošte za višekratnu upotrebu."
 
 #. Label of the education (Table) field in DocType 'User'
 #: lms/fixtures/custom_field.json
@@ -2848,7 +2848,7 @@ msgstr "E-pošta"
 
 #: frontend/src/components/Settings/EmailAccount/EmailAccountList.vue:234
 msgid "Email Account deleted successfully"
-msgstr ""
+msgstr "E-mail račun uspješno izbrisan"
 
 #: frontend/src/components/Settings/EmailAccount/EmailAccountList.vue:3
 msgid "Email Accounts"
@@ -2871,7 +2871,7 @@ msgstr "Šablon e-pošte uspješno je kreiran"
 
 #: frontend/src/components/Settings/EmailTemplate/EmailTemplateList.vue:197
 msgid "Email Template deleted successfully"
-msgstr ""
+msgstr "Predložak e-pošte uspješno izbrisan"
 
 #: frontend/src/components/Modals/EmailTemplateModal.vue:147
 #: frontend/src/components/Settings/EmailTemplate/EmailTemplateEdit.vue:152
@@ -2902,7 +2902,7 @@ msgstr "E-pošta je uspješno poslana"
 
 #: lms/lms/email_account.py:65
 msgid "Email service {0} is not supported"
-msgstr ""
+msgstr "Usluga e-pošte {0} nije podržana"
 
 #. Label of the show_emails (Check) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
@@ -3179,11 +3179,11 @@ msgstr "Greška pri brisanju značke"
 
 #: frontend/src/components/Settings/EmailAccount/EmailAccountList.vue:238
 msgid "Error deleting email account"
-msgstr ""
+msgstr "Greška prilikom brisanja računa e-pošte"
 
 #: frontend/src/components/Settings/EmailTemplate/EmailTemplateList.vue:201
 msgid "Error deleting email template"
-msgstr ""
+msgstr "Greška pri brisanju predloška e-pošte"
 
 #: frontend/src/components/Settings/PaymentGateways.vue:149
 msgid "Error deleting payment gateways"
@@ -3719,7 +3719,7 @@ msgstr "Google Kalendar"
 
 #: frontend/src/pages/PersonaForm.vue:157
 msgid "Google Classroom"
-msgstr ""
+msgstr "Google Classroom"
 
 #: frontend/src/pages/PersonaForm.vue:163
 msgid "Google Drive"
@@ -4347,11 +4347,11 @@ msgstr "Idi na"
 
 #: frontend/src/pages/PersonaForm.vue:149
 msgid "Just exploring"
-msgstr ""
+msgstr "Samo istražujem"
 
 #: frontend/src/pages/PersonaForm.vue:161
 msgid "Kajabi"
-msgstr ""
+msgstr "Kajabi"
 
 #: frontend/src/pages/Home/Streak.vue:13
 msgid "Keep going,"
@@ -4660,7 +4660,7 @@ msgstr "Pokreni Datoteku"
 
 #: frontend/src/pages/PersonaForm.vue:148
 msgid "Launch a paid course"
-msgstr ""
+msgstr "Pokreni plaćeni kurs"
 
 #. Name of a Workspace
 #. Title of a Workspace Sidebar
@@ -5360,7 +5360,7 @@ msgstr "Monetizacija"
 
 #: frontend/src/pages/PersonaForm.vue:156
 msgid "Moodle"
-msgstr ""
+msgstr "Moodle"
 
 #: frontend/src/components/Sidebar/AppSidebar.vue:52
 msgid "More"
@@ -5494,7 +5494,7 @@ msgstr "Sljedeća"
 
 #: frontend/src/components/Questionnaire.vue:146
 msgid "Next question"
-msgstr ""
+msgstr "Sljedeće pitanje"
 
 #: lms/templates/assessments.html:58
 msgid "No Assessments"
@@ -5506,7 +5506,7 @@ msgstr "Nema Zadataka"
 
 #: frontend/src/pages/PersonaForm.vue:166
 msgid "No LMS yet"
-msgstr ""
+msgstr "Još nema Obrazovne Platforme"
 
 #: lms/templates/notifications.html:26
 msgid "No Notifications"
@@ -5668,7 +5668,7 @@ msgstr "Nije pronađeno {0}"
 
 #: frontend/src/pages/PersonaForm.vue:126
 msgid "Non-profit or Government"
-msgstr ""
+msgstr "Neprofitna ili Vladina Organizacija"
 
 #: lms/lms/user.py:29
 msgid "Not Allowed"
@@ -5749,7 +5749,7 @@ msgstr "Obavijesti me kada bude dostupno"
 
 #: frontend/src/pages/PersonaForm.vue:164
 msgid "Notion"
-msgstr ""
+msgstr "Pojam"
 
 #: frontend/src/pages/Batches/components/AdminBatchDashboard.vue:161
 msgid "Number of Students"
@@ -5792,7 +5792,7 @@ msgstr "Na licu mjesta"
 
 #: frontend/src/pages/PersonaForm.vue:141
 msgid "Onboard my existing learners"
-msgstr ""
+msgstr "Introdukcija postojećih učenika"
 
 #: lms/templates/emails/certification.html:16
 msgid "Once again, congratulations on this significant accomplishment."
@@ -6252,7 +6252,7 @@ msgstr "Persona Uhvaćena"
 
 #: frontend/src/pages/PersonaForm.vue:124
 msgid "Personal Business"
-msgstr ""
+msgstr "Lični Posao"
 
 #: frontend/src/pages/Billing.vue:154
 msgid "Phone Number"
@@ -6759,7 +6759,7 @@ msgstr "Objavi"
 
 #: frontend/src/pages/PersonaForm.vue:137
 msgid "Publish my first course"
-msgstr ""
+msgstr "Objavi prvi kurs"
 
 #. Label of the published (Check) field in DocType 'LMS Certificate'
 #: lms/lms/doctype/lms_certificate/lms_certificate.json
@@ -7288,7 +7288,7 @@ msgstr "Raspoređeni Protok"
 
 #: frontend/src/pages/PersonaForm.vue:110
 msgid "School"
-msgstr ""
+msgstr "Škola"
 
 #. Label of the score (Int) field in DocType 'LMS Quiz Submission'
 #: frontend/src/pages/Courses/StudentCourseProgress.vue:81
@@ -7661,7 +7661,7 @@ msgstr "Preskoči"
 #: frontend/src/components/Questionnaire.vue:147
 #: frontend/src/pages/PersonaForm.vue:39 frontend/src/pages/PersonaForm.vue:102
 msgid "Skip for now"
-msgstr ""
+msgstr "Preskoči za sada"
 
 #: lms/lms/doctype/course_evaluator/course_evaluator.py:62
 msgid "Slot Times are overlapping for some schedules."
@@ -7702,7 +7702,7 @@ msgstr "Izvor"
 
 #: frontend/src/pages/PersonaForm.vue:165
 msgid "Spreadsheets"
-msgstr ""
+msgstr "Proračunske Tabele"
 
 #. Option for the 'Member Type' (Select) field in DocType 'LMS Enrollment'
 #: lms/lms/doctype/lms_enrollment/lms_enrollment.json
@@ -7999,7 +7999,7 @@ msgstr "Oznake"
 
 #: frontend/src/pages/PersonaForm.vue:162
 msgid "TalentLMS"
-msgstr ""
+msgstr "TalentLMS"
 
 #: frontend/src/components/InstallPrompt.vue:51
 msgid "Tap"
@@ -8015,7 +8015,7 @@ msgstr "Predaje tim od {0}"
 
 #: frontend/src/pages/PersonaForm.vue:160
 msgid "Teachable"
-msgstr ""
+msgstr "Spreman za učenje"
 
 #. Option for the 'Color' (Select) field in DocType 'LMS Course'
 #: lms/lms/doctype/lms_course/lms_course.json
@@ -8118,7 +8118,7 @@ msgstr "Instruktor je ostavio komentar na vaš zadatak {0}"
 
 #: lms/templates/emails/batch_start_reminder_recorded.html:13
 msgid "The last day to schedule your evaluation is {0}."
-msgstr ""
+msgstr "Posljednji dan za zakazivanje evaluacije je {0}."
 
 #: frontend/src/components/UpcomingEvaluations.vue:15
 msgid "The last day to schedule your evaluations is "
@@ -8189,7 +8189,7 @@ msgstr "Ove oznake pomažu pretraživačima da opišu i rangiraju vaš kurs u re
 
 #: frontend/src/pages/PersonaForm.vue:159
 msgid "Thinkific"
-msgstr ""
+msgstr "Thinkific"
 
 #: frontend/src/components/Settings/Badges/BadgeAssignments.vue:83
 msgid "This badge has not been assigned to any students yet"
@@ -8256,11 +8256,11 @@ msgstr "Ova lekcija nije dostupna za pregled. Pridruži se kursu da biste mu pri
 
 #: frontend/src/components/Settings/EmailAccount/EmailAccountList.vue:103
 msgid "This permanently deletes the email account and cannot be undone."
-msgstr ""
+msgstr "Ovo trajno briše račun e-pošte i ne može se poništiti."
 
 #: frontend/src/components/Settings/EmailTemplate/EmailTemplateList.vue:85
 msgid "This permanently deletes the email template and cannot be undone."
-msgstr ""
+msgstr "Ovo trajno briše predložak e-pošte i ne može se poništiti."
 
 #: frontend/src/components/Settings/Members.vue:117
 msgid "This permanently deletes the user account and cannot be undone."
@@ -8694,7 +8694,7 @@ msgstr "Ažuriraj Lozinku"
 
 #: frontend/src/components/Settings/EmailTemplate/EmailTemplateEdit.vue:10
 msgid "Update Template"
-msgstr ""
+msgstr "Ažuriraj Predložak"
 
 #: frontend/src/pages/Assignments.vue:286
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExercises.vue:335
@@ -8960,7 +8960,7 @@ msgstr "Dobrodošli u {0}!"
 
 #: frontend/src/pages/PersonaForm.vue:154
 msgid "What are you using today to manage learning?"
-msgstr ""
+msgstr "Šta danas koristite za upravljanje obrazovanjem?"
 
 #: frontend/src/components/Settings/Badges/BadgeForm.vue:43
 msgid "What is this badge awarded for?"
@@ -8968,7 +8968,7 @@ msgstr "Za šta se dodjeljuje ova značka?"
 
 #: frontend/src/pages/PersonaForm.vue:134
 msgid "What's the first milestone you'd like to achieve?"
-msgstr ""
+msgstr "Koji je prvi korak koji biste željeli postići?"
 
 #: lms/templates/courses_under_review.html:15
 msgid "When a course gets submitted for review, it will be listed here."
@@ -8980,7 +8980,7 @@ msgstr "Kada je aktivirano, svako može pregledati ovu lekciju bez registracije.
 
 #: lms/templates/emails/batch_start_reminder_recorded.html:11
 msgid "When you feel ready, you can schedule an evaluation to get certified."
-msgstr ""
+msgstr "Kada budete spremni, možete zakazati evaluaciju kako biste dobili certifikat."
 
 #: frontend/src/pages/Billing.vue:162
 msgid "Where did you hear about us?"
@@ -8988,7 +8988,7 @@ msgstr "Gdje ste čuli za nas?"
 
 #: frontend/src/pages/PersonaForm.vue:108
 msgid "Where will you be using Frappe Learning?"
-msgstr ""
+msgstr "Gdje ćete koristiti Frappe Learning?"
 
 #: lms/templates/emails/certification.html:10
 msgid "With this certification, you can now showcase your updated skills and share your achievement with your colleagues and on LinkedIn. To access your certificate, please click on the link provided below. Make sure you are logged in to the portal."
@@ -9125,7 +9125,7 @@ msgstr "Možete otpremiti samo {0} datoteka"
 
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.py:42
 msgid "You cannot book an evaluation for another user."
-msgstr ""
+msgstr "Ne možete zakazati evaluaciju za drugog korisnika."
 
 #: frontend/src/pages/ProfileEvaluator.vue:14
 msgid "You cannot change the availability when the site is being updated."
@@ -9363,11 +9363,11 @@ msgstr "Sve ste saznali! Provjerite kasnije za novosti."
 
 #: lms/templates/emails/batch_start_reminder_recorded.html:6
 msgid "You're enrolled and all set! The course content is ready, so you can start learning right away and go at your own pace."
-msgstr ""
+msgstr "Upisani ste i spremni ste! Sadržaj kursa je spreman, tako da možete odmah početi učiti svojim tempom."
 
 #: lms/lms/doctype/lms_batch/lms_batch.py:475
 msgid "You're enrolled in {0} – start whenever you're ready"
-msgstr ""
+msgstr "Upisani ste u {0} – počnite kad god budete spremni"
 
 #: lms/templates/emails/mentor_request_creation_email.html:4
 msgid "You've applied to become a mentor for this course. Your request is currently under review."
@@ -9559,7 +9559,7 @@ msgstr "kursevi"
 
 #: lms/lms/email_account.py:60
 msgid "data must be an object"
-msgstr ""
+msgstr "podatak mora biti objekat"
 
 #: frontend/src/components/CourseReviews.vue:187
 msgid "day ago"
@@ -9698,7 +9698,7 @@ msgstr "sekcije"
 
 #: lms/lms/email_account.py:63
 msgid "service must be a string"
-msgstr ""
+msgstr "usluga mora biti niz znakova"
 
 #: frontend/src/pages/Programs/ProgramEnrollment.vue:67
 msgid "students"
@@ -9819,7 +9819,7 @@ msgstr "{0} vas je spomenuo u komentaru u {1}"
 
 #: lms/lms/email_account.py:69
 msgid "{0} must be a string"
-msgstr ""
+msgstr "{0} mora biti niz znakova"
 
 #: lms/lms/api.py:968
 msgid "{0} not found"
@@ -9841,7 +9841,7 @@ msgstr "{0} {1} Poslovi"
 #: frontend/src/pages/PersonaForm.vue:100
 #, python-format
 msgid "{0}% complete"
-msgstr ""
+msgstr "{0}% završeno"
 
 #. Count format of shortcut in the Learning Workspace
 #: lms/lms/workspace/learning/learning.json
