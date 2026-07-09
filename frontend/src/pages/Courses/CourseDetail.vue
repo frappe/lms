@@ -95,7 +95,8 @@
 		<LessonHelp v-model="showLessonHelp" />
 
 		<div v-if="!isAdmin" class="flex-1 min-h-0">
-			<CourseOverview :course="course" />
+			<CourseOverview v-if="course.data" :course="course" />
+			<SkeletonLoader v-else variant="course-page" />
 		</div>
 		<div v-else class="relative flex flex-1 min-h-0 flex-col">
 			<Tabs :tabs="tabs" v-model="tabIndex">
@@ -163,6 +164,7 @@ import {
 import { sessionStore } from '@/stores/session'
 import LayoutHeader from '@/components/Layouts/LayoutHeader.vue'
 import CourseOverview from '@/pages/Courses/CourseOverview.vue'
+import SkeletonLoader from '@/components/SkeletonLoader.vue'
 import CourseDashboard from '@/pages/Courses/CourseDashboard.vue'
 import CourseEditor from '@/pages/Courses/CourseEditor.vue'
 import CourseForm from '@/pages/Courses/CourseForm.vue'
