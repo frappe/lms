@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2026-07-03 16:31+0000\n"
-"PO-Revision-Date: 2026-07-08 09:04\n"
+"PO-Revision-Date: 2026-07-09 09:48\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Bosnian\n"
 "MIME-Version: 1.0\n"
@@ -492,7 +492,7 @@ msgstr "Odgovori"
 
 #: frontend/src/pages/PersonaForm.vue:18
 msgid "Answer a few quick questions so we can set Frappe Learning up for you"
-msgstr "Odgovorite na nekoliko brzih pitanja kako bismo mogli postaviti Obrayovanje za vas"
+msgstr "Odgovorite na nekoliko brzih pitanja kako bismo mogli postaviti Obrazovanje za vas"
 
 #: frontend/src/components/Settings/BrandSettings.vue:63
 msgid "Appears in the left sidebar. Recommended size is 32x32 px in PNG or SVG"
