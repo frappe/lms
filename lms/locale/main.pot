@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Learning VERSION\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
-"POT-Creation-Date: 2026-07-03 16:31+0000\n"
-"PO-Revision-Date: 2026-07-03 16:31+0000\n"
+"POT-Creation-Date: 2026-07-10 17:42+0000\n"
+"PO-Revision-Date: 2026-07-10 17:42+0000\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: jannat@frappe.io\n"
 "MIME-Version: 1.0\n"
@@ -174,7 +174,7 @@ msgstr ""
 #: frontend/src/pages/Batches/components/Assessments.vue:11
 #: frontend/src/pages/Batches/components/BatchCourses.vue:11
 #: frontend/src/pages/Batches/components/LiveClass.vue:26
-#: frontend/src/pages/Courses/CourseDetail.vue:140
+#: frontend/src/pages/Courses/CourseDetail.vue:141
 #: frontend/src/pages/Programs/ProgramForm.vue:51
 #: frontend/src/pages/Programs/ProgramForm.vue:126
 #: frontend/src/pages/Programs/ProgramForm.vue:175
@@ -989,11 +989,11 @@ msgstr ""
 msgid "Batch end date cannot be before the batch start date"
 msgstr ""
 
-#: lms/lms/api.py:198
+#: lms/lms/api.py:199
 msgid "Batch has already started."
 msgstr ""
 
-#: lms/lms/api.py:193
+#: lms/lms/api.py:194
 msgid "Batch is sold out."
 msgstr ""
 
@@ -1349,7 +1349,7 @@ msgid "Chapter updated successfully"
 msgstr ""
 
 #. Label of the chapters (Table) field in DocType 'LMS Course'
-#: frontend/src/pages/Courses/CourseDetail.vue:134
+#: frontend/src/pages/Courses/CourseDetail.vue:135
 #: frontend/src/pages/Courses/CourseEditor.vue:61
 #: lms/lms/doctype/lms_course/lms_course.json
 msgid "Chapters"
@@ -1838,7 +1838,7 @@ msgstr ""
 msgid "Correct Answer"
 msgstr ""
 
-#: lms/lms/course_import_export.py:196
+#: lms/lms/course_import_export.py:195
 msgid "Could not create the course ZIP file. Please try again later. Error: {0}"
 msgstr ""
 
@@ -1847,7 +1847,7 @@ msgid "Could not delete the quiz"
 msgstr ""
 
 #: frontend/src/pages/Batches/BatchDetail.vue:271
-#: frontend/src/pages/Courses/CourseDetail.vue:256
+#: frontend/src/pages/Courses/CourseDetail.vue:258
 msgid "Could not update publish status"
 msgstr ""
 
@@ -2121,7 +2121,7 @@ msgstr ""
 msgid "Course details"
 msgstr ""
 
-#: frontend/src/pages/Courses/CourseDetail.vue:317
+#: frontend/src/pages/Courses/CourseDetail.vue:319
 msgid "Course editor"
 msgstr ""
 
@@ -2137,7 +2137,7 @@ msgstr ""
 msgid "Course price"
 msgstr ""
 
-#: frontend/src/pages/Courses/CourseDetail.vue:248
+#: frontend/src/pages/Courses/CourseDetail.vue:250
 msgid "Course published"
 msgstr ""
 
@@ -2147,7 +2147,7 @@ msgstr ""
 msgid "Course thumbnail"
 msgstr ""
 
-#: frontend/src/pages/Courses/CourseDetail.vue:248
+#: frontend/src/pages/Courses/CourseDetail.vue:250
 msgid "Course unpublished"
 msgstr ""
 
@@ -2173,7 +2173,7 @@ msgstr ""
 #: frontend/src/pages/Batches/components/BatchDashboard.vue:20
 #: frontend/src/pages/Batches/components/BatchOverlay.vue:43
 #: frontend/src/pages/Courses/CourseCertification.vue:127
-#: frontend/src/pages/Courses/CourseDetail.vue:361
+#: frontend/src/pages/Courses/CourseDetail.vue:363
 #: frontend/src/pages/Courses/Courses.vue:359
 #: frontend/src/pages/Courses/Courses.vue:366 frontend/src/pages/Lesson.vue:616
 #: frontend/src/pages/Programs/ProgramForm.vue:44
@@ -2374,7 +2374,7 @@ msgid "Cyan"
 msgstr ""
 
 #. Label of the show_dashboard (Check) field in DocType 'LMS Settings'
-#: frontend/src/pages/Courses/CourseDetail.vue:312
+#: frontend/src/pages/Courses/CourseDetail.vue:314
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Dashboard"
 msgstr ""
@@ -2549,7 +2549,7 @@ msgstr ""
 msgid "Deleting this quiz permanently removes it and its submissions. This action cannot be undone. Are you sure you want to continue?"
 msgstr ""
 
-#: lms/lms/api.py:887
+#: lms/lms/api.py:888
 msgid "Deletion not allowed for {0}"
 msgstr ""
 
@@ -3187,7 +3187,7 @@ msgstr ""
 msgid "Error deleting payment gateways"
 msgstr ""
 
-#: lms/lms/course_import_export.py:298
+#: lms/lms/course_import_export.py:297
 msgid "Error downloading file"
 msgstr ""
 
@@ -3491,11 +3491,11 @@ msgstr ""
 msgid "File Type"
 msgstr ""
 
-#: lms/lms/course_import_export.py:286
+#: lms/lms/course_import_export.py:285
 msgid "File not found"
 msgstr ""
 
-#: lms/lms/doctype/lms_quiz/lms_quiz.py:250
+#: lms/lms/doctype/lms_quiz/lms_quiz.py:286
 msgid "File type of {0} is not allowed in quiz answers."
 msgstr ""
 
@@ -3997,7 +3997,7 @@ msgstr ""
 msgid "Image search powered by"
 msgstr ""
 
-#: lms/lms/doctype/lms_quiz/lms_quiz.py:269
+#: lms/lms/doctype/lms_quiz/lms_quiz.py:305
 msgid "Image: Corrupted Data Stream"
 msgstr ""
 
@@ -4145,44 +4145,63 @@ msgstr ""
 msgid "Invalid Quiz ID"
 msgstr ""
 
-#: lms/lms/doctype/course_lesson/course_lesson.py:78
+#: lms/lms/doctype/course_lesson/course_lesson.py:77
 msgid "Invalid Quiz ID in content"
 msgstr ""
 
-#: lms/lms/course_import_export.py:771
+#: lms/lms/course_import_export.py:780
 msgid "Invalid ZIP file"
 msgstr ""
 
-#: lms/lms/api.py:629
+#: lms/lms/doctype/lms_quiz/lms_quiz.py:352
+msgid "Invalid answers submitted."
+msgstr ""
+
+#: lms/lms/api.py:630
 msgid "Invalid chapter."
 msgstr ""
 
-#: lms/lms/course_import_export.py:339
+#: lms/lms/course_import_export.py:338
 msgid "Invalid course ZIP: Missing course.json"
 msgstr ""
 
-#: lms/lms/api.py:1174 lms/lms/api.py:1179
+#: lms/lms/api.py:1175 lms/lms/api.py:1180
 msgid "Invalid course or chapter name"
 msgstr ""
 
-#: lms/lms/api.py:890
+#: lms/lms/api.py:891
 msgid "Invalid document name"
 msgstr ""
 
-#: lms/lms/doctype/course_lesson/course_lesson.py:177
+#: lms/lms/doctype/course_lesson/course_lesson.py:176
 msgid "Invalid file path"
 msgstr ""
 
-#: lms/lms/api.py:1198 lms/lms/api.py:1201
+#: lms/lms/api.py:1199 lms/lms/api.py:1202
 msgid "Invalid file path in package"
 msgstr ""
 
-#: lms/lms/api.py:728
+#: lms/lms/doctype/lms_quiz/lms_quiz.py:132
+#: lms/lms/doctype/lms_quiz/lms_quiz.py:135
+#: lms/lms/doctype/lms_quiz/lms_quiz.py:142
+#: lms/lms/doctype/lms_quiz/lms_quiz.py:197
+msgid "Invalid quiz results submitted."
+msgstr ""
+
+#: lms/lms/doctype/lms_quiz/lms_quiz.py:160
+msgid "Invalid quiz."
+msgstr ""
+
+#: lms/lms/api.py:729
 msgid "Invalid role filter."
 msgstr ""
 
-#: lms/lms/api.py:730
+#: lms/lms/api.py:731
 msgid "Invalid search query."
+msgstr ""
+
+#: lms/lms/doctype/lms_quiz/lms_quiz.py:121
+msgid "Invalid {0} submitted."
 msgstr ""
 
 #: frontend/src/components/Sidebar/AppSidebar.vue:512
@@ -4817,7 +4836,7 @@ msgstr ""
 msgid "Live Class"
 msgstr ""
 
-#: lms/lms/doctype/lms_quiz/lms_quiz.py:310
+#: lms/lms/doctype/lms_quiz/lms_quiz.py:346
 msgid "Live answer checking is not enabled for this quiz."
 msgstr ""
 
@@ -5276,7 +5295,7 @@ msgstr ""
 msgid "Meta keywords"
 msgstr ""
 
-#: lms/lms/api.py:1730
+#: lms/lms/api.py:1731
 msgid "Meta tags should be a list."
 msgstr ""
 
@@ -5337,11 +5356,11 @@ msgstr ""
 msgid "Modified By"
 msgstr ""
 
-#: lms/lms/api.py:175
+#: lms/lms/api.py:176
 msgid "Module Name is incorrect or does not exist."
 msgstr ""
 
-#: lms/lms/api.py:171
+#: lms/lms/api.py:172
 msgid "Module is incorrect."
 msgstr ""
 
@@ -5468,7 +5487,7 @@ msgstr ""
 msgid "New Zoom Account"
 msgstr ""
 
-#: lms/lms/utils.py:469
+#: lms/lms/utils.py:468
 msgid "New comment in batch {0}"
 msgstr ""
 
@@ -5476,7 +5495,7 @@ msgstr ""
 msgid "New lesson"
 msgstr ""
 
-#: lms/lms/utils.py:460
+#: lms/lms/utils.py:459
 msgid "New reply on the topic {0} in course {1}"
 msgstr ""
 
@@ -5823,7 +5842,7 @@ msgstr ""
 msgid "Only files of type {0} will be accepted."
 msgstr ""
 
-#: lms/lms/doctype/lms_quiz/lms_quiz.py:229
+#: lms/lms/doctype/lms_quiz/lms_quiz.py:265
 msgid "Only image data is allowed in quiz answers."
 msgstr ""
 
@@ -5996,7 +6015,7 @@ msgstr ""
 msgid "Oversee all users, content, and system settings"
 msgstr ""
 
-#: frontend/src/pages/Courses/CourseDetail.vue:307
+#: frontend/src/pages/Courses/CourseDetail.vue:309
 msgid "Overview"
 msgstr ""
 
@@ -6269,7 +6288,7 @@ msgstr ""
 msgid "Please ask your administrator to verify your sign-up"
 msgstr ""
 
-#: lms/lms/api.py:1129
+#: lms/lms/api.py:1130
 msgid "Please attach a SCORM package before saving this chapter."
 msgstr ""
 
@@ -6353,15 +6372,15 @@ msgstr ""
 msgid "Please login to access the quiz."
 msgstr ""
 
-#: lms/lms/api.py:167
+#: lms/lms/api.py:168
 msgid "Please login to continue with payment."
 msgstr ""
 
-#: lms/lms/utils.py:2307
+#: lms/lms/utils.py:2300
 msgid "Please login to view program details."
 msgstr ""
 
-#: lms/lms/utils.py:2272
+#: lms/lms/utils.py:2265
 msgid "Please login to view programs."
 msgstr ""
 
@@ -6844,7 +6863,7 @@ msgstr ""
 msgid "Question added successfully"
 msgstr ""
 
-#: lms/lms/doctype/lms_quiz/lms_quiz.py:306
+#: lms/lms/doctype/lms_quiz/lms_quiz.py:342
 msgid "Question not found in this quiz."
 msgstr ""
 
@@ -7526,7 +7545,7 @@ msgstr ""
 
 #: frontend/src/components/Settings/Settings.vue:9
 #: frontend/src/components/Sidebar/AppSidebar.vue:637
-#: frontend/src/pages/Courses/CourseDetail.vue:322
+#: frontend/src/pages/Courses/CourseDetail.vue:324
 #: frontend/src/pages/ProfileRoles.vue:4
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmission.vue:19
 #: frontend/src/pages/QuizForm.vue:201
@@ -7934,7 +7953,7 @@ msgstr ""
 msgid "Sunday"
 msgstr ""
 
-#: lms/lms/api.py:1227
+#: lms/lms/api.py:1228
 msgid "Suspicious pattern found in {0}: {1}"
 msgstr ""
 
@@ -8086,7 +8105,7 @@ msgstr ""
 msgid "The Google Meet account does not have a Google Calendar configured. Please set up a Google Calendar first."
 msgstr ""
 
-#: lms/lms/utils.py:2548
+#: lms/lms/utils.py:2541
 msgid "The batch does not exist."
 msgstr ""
 
@@ -8094,7 +8113,7 @@ msgstr ""
 msgid "The batch you have enrolled for is starting tomorrow. Please be prepared and be on time for the session."
 msgstr ""
 
-#: lms/lms/utils.py:2022
+#: lms/lms/utils.py:2015
 msgid "The coupon code '{0}' is invalid."
 msgstr ""
 
@@ -8122,7 +8141,7 @@ msgstr ""
 msgid "The last day to schedule your evaluations is "
 msgstr ""
 
-#: lms/lms/utils.py:2532
+#: lms/lms/utils.py:2525
 msgid "The lesson does not exist."
 msgstr ""
 
@@ -8138,7 +8157,7 @@ msgstr ""
 msgid "The slot is already booked by another participant."
 msgstr ""
 
-#: lms/lms/utils.py:1707 lms/lms/utils.py:2224
+#: lms/lms/utils.py:1700 lms/lms/utils.py:2217
 msgid "The specified batch does not exist."
 msgstr ""
 
@@ -8208,15 +8227,15 @@ msgstr ""
 msgid "This class has ended"
 msgstr ""
 
-#: lms/lms/utils.py:2051
+#: lms/lms/utils.py:2044
 msgid "This coupon has expired."
 msgstr ""
 
-#: lms/lms/utils.py:2054
+#: lms/lms/utils.py:2047
 msgid "This coupon has reached its maximum usage limit."
 msgstr ""
 
-#: lms/lms/utils.py:2063
+#: lms/lms/utils.py:2056
 msgid "This coupon is not applicable to this {0}."
 msgstr ""
 
@@ -8224,7 +8243,7 @@ msgstr ""
 msgid "This course includes:"
 msgstr ""
 
-#: lms/lms/utils.py:1982
+#: lms/lms/utils.py:1975
 msgid "This course is free."
 msgstr ""
 
@@ -8281,7 +8300,7 @@ msgstr ""
 msgid "This site is being updated. You will not be able to make any changes. Full access will be restored shortly."
 msgstr ""
 
-#: lms/lms/api.py:1652
+#: lms/lms/api.py:1653
 msgid "This user cannot be deleted."
 msgstr ""
 
@@ -8451,7 +8470,7 @@ msgstr ""
 msgid "To Date"
 msgstr ""
 
-#: lms/lms/utils.py:1996
+#: lms/lms/utils.py:1989
 msgid "To join this batch, please contact the Administrator."
 msgstr ""
 
@@ -8626,7 +8645,7 @@ msgstr ""
 msgid "Unpublished"
 msgstr ""
 
-#: lms/lms/course_import_export.py:774
+#: lms/lms/course_import_export.py:783
 msgid "Unsafe file path detected"
 msgstr ""
 
@@ -8649,7 +8668,7 @@ msgstr ""
 msgid "Untitled Quiz"
 msgstr ""
 
-#: lms/lms/api.py:634
+#: lms/lms/api.py:635
 msgid "Untitled lesson"
 msgstr ""
 
@@ -8810,11 +8829,11 @@ msgstr ""
 msgid "User deleted"
 msgstr ""
 
-#: lms/lms/api.py:1974
+#: lms/lms/api.py:1975
 msgid "User does not have permission to access this user's profile details."
 msgstr ""
 
-#: lms/lms/api.py:1654
+#: lms/lms/api.py:1655
 msgid "User {0} does not exist."
 msgstr ""
 
@@ -9044,39 +9063,39 @@ msgstr ""
 msgid "You are already certified for this course. Click on the card below to open your certificate."
 msgstr ""
 
-#: lms/lms/api.py:187
+#: lms/lms/api.py:188
 msgid "You are already enrolled for this batch."
 msgstr ""
 
-#: lms/lms/api.py:181
+#: lms/lms/api.py:182
 msgid "You are already enrolled for this course."
 msgstr ""
 
-#: lms/lms/utils.py:1503
+#: lms/lms/utils.py:1496
 msgid "You are not authorized to view the assessments of this batch."
 msgstr ""
 
-#: lms/lms/utils.py:1705
+#: lms/lms/utils.py:1698
 msgid "You are not authorized to view the chart data of this batch."
 msgstr ""
 
-#: lms/lms/utils.py:2314
+#: lms/lms/utils.py:2307
 msgid "You are not authorized to view the details of this program."
 msgstr ""
 
-#: lms/lms/utils.py:1928
+#: lms/lms/utils.py:1921
 msgid "You are not authorized to view the discussion replies for this topic."
 msgstr ""
 
-#: lms/lms/utils.py:1868
+#: lms/lms/utils.py:1861
 msgid "You are not authorized to view the discussion topics for this item."
 msgstr ""
 
-#: lms/lms/utils.py:1614
+#: lms/lms/utils.py:1607
 msgid "You are not authorized to view the students of this batch."
 msgstr ""
 
-#: lms/lms/utils.py:1454
+#: lms/lms/utils.py:1447
 msgid "You are not authorized to view this quiz."
 msgstr ""
 
@@ -9092,7 +9111,7 @@ msgstr ""
 msgid "You are not permitted to access this page."
 msgstr ""
 
-#: lms/lms/api.py:798 lms/lms/api.py:849
+#: lms/lms/api.py:799 lms/lms/api.py:850
 msgid "You are not the assigned evaluator for this course and batch."
 msgstr ""
 
@@ -9137,7 +9156,7 @@ msgstr ""
 msgid "You cannot enroll in an unpublished course."
 msgstr ""
 
-#: lms/lms/utils.py:2375
+#: lms/lms/utils.py:2368
 msgid "You cannot enroll in an unpublished program."
 msgstr ""
 
@@ -9153,15 +9172,15 @@ msgstr ""
 msgid "You cannot schedule evaluations for past slots."
 msgstr ""
 
-#: lms/lms/utils.py:2560
+#: lms/lms/utils.py:2553
 msgid "You do not have access to this batch."
 msgstr ""
 
-#: lms/lms/utils.py:2543
+#: lms/lms/utils.py:2536
 msgid "You do not have access to this course."
 msgstr ""
 
-#: lms/lms/api.py:985 lms/lms/doctype/lms_batch/lms_batch.py:368
+#: lms/lms/api.py:986 lms/lms/doctype/lms_batch/lms_batch.py:368
 msgid "You do not have permission to access announcements for this batch."
 msgstr ""
 
@@ -9169,19 +9188,19 @@ msgstr ""
 msgid "You do not have permission to access badges."
 msgstr ""
 
-#: lms/lms/api.py:1357
+#: lms/lms/api.py:1358
 msgid "You do not have permission to access heatmap data."
 msgstr ""
 
-#: lms/lms/api.py:2312
+#: lms/lms/api.py:2313
 msgid "You do not have permission to access lesson completion stats."
 msgstr ""
 
-#: lms/lms/api.py:2352
+#: lms/lms/api.py:2353
 msgid "You do not have permission to access this course's assessment data."
 msgstr ""
 
-#: lms/lms/api.py:1875
+#: lms/lms/api.py:1876
 msgid "You do not have permission to access this course's progress data."
 msgstr ""
 
@@ -9189,11 +9208,11 @@ msgstr ""
 msgid "You do not have permission to access this page."
 msgstr ""
 
-#: lms/lms/api.py:631
+#: lms/lms/api.py:632
 msgid "You do not have permission to add a lesson."
 msgstr ""
 
-#: lms/lms/api.py:1531 lms/lms/api.py:1540
+#: lms/lms/api.py:1532 lms/lms/api.py:1541
 msgid "You do not have permission to cancel this evaluation."
 msgstr ""
 
@@ -9201,19 +9220,19 @@ msgstr ""
 msgid "You do not have permission to create a live class."
 msgstr ""
 
-#: lms/lms/api.py:1067
+#: lms/lms/api.py:1068
 msgid "You do not have permission to delete this batch."
 msgstr ""
 
-#: lms/lms/api.py:1295
+#: lms/lms/api.py:1296
 msgid "You do not have permission to delete this chapter."
 msgstr ""
 
-#: lms/lms/api.py:1015
+#: lms/lms/api.py:1016
 msgid "You do not have permission to delete this course."
 msgstr ""
 
-#: lms/lms/api.py:596
+#: lms/lms/api.py:597
 msgid "You do not have permission to delete this lesson."
 msgstr ""
 
@@ -9221,15 +9240,15 @@ msgstr ""
 msgid "You do not have permission to export this course."
 msgstr ""
 
-#: lms/lms/api.py:704 lms/lms/api.py:1122
+#: lms/lms/api.py:705 lms/lms/api.py:1123
 msgid "You do not have permission to modify this chapter."
 msgstr ""
 
-#: lms/lms/api.py:641
+#: lms/lms/api.py:642
 msgid "You do not have permission to modify this lesson."
 msgstr ""
 
-#: lms/lms/api.py:1600
+#: lms/lms/api.py:1601
 msgid "You do not have permission to modify this role."
 msgstr ""
 
@@ -9241,11 +9260,11 @@ msgstr ""
 msgid "You do not have permission to set up calendar events for this evaluation."
 msgstr ""
 
-#: lms/lms/api.py:1758 lms/lms/api.py:1762
+#: lms/lms/api.py:1759 lms/lms/api.py:1763
 msgid "You do not have permission to update meta tags."
 msgstr ""
 
-#: lms/lms/api.py:1799
+#: lms/lms/api.py:1800
 msgid "You do not have permission to update this submission."
 msgstr ""
 
@@ -9270,7 +9289,7 @@ msgstr ""
 msgid "You have already exceeded the maximum number of attempts allowed for this quiz."
 msgstr ""
 
-#: lms/lms/api.py:211
+#: lms/lms/api.py:212
 msgid "You have already purchased the certificate for this course."
 msgstr ""
 
@@ -9503,6 +9522,10 @@ msgstr ""
 msgid "and then 'Add to Home Screen'"
 msgstr ""
 
+#: lms/lms/doctype/lms_quiz/lms_quiz.py:350
+msgid "answers"
+msgstr ""
+
 #: frontend/src/components/JobCard.vue:26 frontend/src/pages/JobDetail.vue:127
 msgid "applicant"
 msgstr ""
@@ -9543,7 +9566,7 @@ msgstr ""
 msgid "course"
 msgstr ""
 
-#: lms/lms/api.py:1117
+#: lms/lms/api.py:1118
 msgid "course must be a string"
 msgstr ""
 
@@ -9595,7 +9618,7 @@ msgstr ""
 msgid "evaluations"
 msgstr ""
 
-#: lms/lms/doctype/course_lesson/course_lesson.py:169
+#: lms/lms/doctype/course_lesson/course_lesson.py:168
 msgid "file_url must be a string"
 msgstr ""
 
@@ -9654,7 +9677,7 @@ msgstr ""
 msgid "months ago"
 msgstr ""
 
-#: lms/lms/api.py:1119
+#: lms/lms/api.py:1120
 msgid "name must be a string"
 msgstr ""
 
@@ -9676,6 +9699,10 @@ msgstr ""
 
 #: frontend/src/pages/QuizForm.vue:442
 msgid "question_detail"
+msgstr ""
+
+#: lms/lms/doctype/lms_quiz/lms_quiz.py:140
+msgid "quiz results"
 msgstr ""
 
 #: frontend/src/pages/Programs/ProgramEnrollment.vue:75
@@ -9707,7 +9734,7 @@ msgstr ""
 msgid "that might interest you!"
 msgstr ""
 
-#: lms/lms/api.py:1115
+#: lms/lms/api.py:1116
 msgid "title must be a string"
 msgstr ""
 
@@ -9727,7 +9754,7 @@ msgstr ""
 msgid "to view your feedback."
 msgstr ""
 
-#: lms/lms/api.py:1650
+#: lms/lms/api.py:1651
 msgid "user must be a string"
 msgstr ""
 
@@ -9759,7 +9786,7 @@ msgstr ""
 msgid "{0} Quizzes"
 msgstr ""
 
-#: lms/lms/api.py:906 lms/lms/api.py:914
+#: lms/lms/api.py:907 lms/lms/api.py:915
 msgid "{0} Settings not found"
 msgstr ""
 
@@ -9803,7 +9830,7 @@ msgstr ""
 msgid "{0} is your evaluator"
 msgstr ""
 
-#: lms/lms/utils.py:562
+#: lms/lms/utils.py:561
 msgid "{0} mentioned you in a comment"
 msgstr ""
 
@@ -9811,7 +9838,7 @@ msgstr ""
 msgid "{0} mentioned you in a comment in your batch."
 msgstr ""
 
-#: lms/lms/utils.py:515 lms/lms/utils.py:521
+#: lms/lms/utils.py:514 lms/lms/utils.py:520
 msgid "{0} mentioned you in a comment in {1}"
 msgstr ""
 
@@ -9819,7 +9846,7 @@ msgstr ""
 msgid "{0} must be a string"
 msgstr ""
 
-#: lms/lms/api.py:968
+#: lms/lms/api.py:969
 msgid "{0} not found"
 msgstr ""
 
