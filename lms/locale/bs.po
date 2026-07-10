@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2026-07-03 16:31+0000\n"
-"PO-Revision-Date: 2026-07-09 09:48\n"
+"PO-Revision-Date: 2026-07-10 10:02\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Bosnian\n"
 "MIME-Version: 1.0\n"
@@ -2507,7 +2507,7 @@ msgstr "Izbriši ovo Poglavlje?"
 
 #: frontend/src/components/Settings/Coupons/CouponList.vue:121
 msgid "Delete this coupon?"
-msgstr "Izbrišii ovaj kupon?"
+msgstr "Izbriši ovaj kupon?"
 
 #: frontend/src/components/CourseOutline.vue:345
 msgid "Delete this lesson?"
@@ -2848,7 +2848,7 @@ msgstr "E-pošta"
 
 #: frontend/src/components/Settings/EmailAccount/EmailAccountList.vue:234
 msgid "Email Account deleted successfully"
-msgstr "E-mail račun uspješno izbrisan"
+msgstr "Račun e-pošte uspješno izbrisan"
 
 #: frontend/src/components/Settings/EmailAccount/EmailAccountList.vue:3
 msgid "Email Accounts"
@@ -2912,7 +2912,7 @@ msgstr "E-pošta"
 #. Option for the 'User Category' (Select) field in DocType 'User'
 #: lms/fixtures/custom_field.json lms/templates/signup-form.html:25
 msgid "Employee"
-msgstr "Personal"
+msgstr "Osoblje"
 
 #. Label of the enable (Check) field in DocType 'Zoom Settings'
 #: lms/lms/doctype/zoom_settings/zoom_settings.json
@@ -3932,7 +3932,7 @@ msgstr "Ja sam nedostupan/nedostupna"
 
 #: frontend/src/pages/Billing.vue:185
 msgid "I consent to my personal information being stored for invoicing"
-msgstr "Saglasan/saglasna sam da se moji lični podaci čuvaju za potrebe fakturisanja"
+msgstr "Saglasan/na sam da se moji lični podaci čuvaju za potrebe fakturisanja"
 
 #: frontend/src/pages/QuizForm.vue:436
 msgid "ID"
@@ -6223,7 +6223,7 @@ msgstr "Na Čekanju"
 
 #: frontend/src/pages/Profile.vue:296
 msgid "People"
-msgstr "Personal"
+msgstr "Osoblje"
 
 #. Option for the 'Discount Type' (Select) field in DocType 'LMS Coupon'
 #. Label of the percentage (Int) field in DocType 'LMS Quiz Submission'
