@@ -556,10 +556,8 @@ const quiz = createResource({
 	makeParams() {
 		return { quiz: props.quizName }
 	},
-	// Cache key intentionally distinct from the old frappe.client.get cache
-	// — the response shape changed (now { quiz, questions_by_name }), and a
-	// stale entry would break the transform.
-	cache: ['quiz_with_questions', props.quizName],
+	// Keep this resource instance-local: its callbacks update component-local
+	// question and timer state on every mount.
 	auto: true,
 	transform(data) {
 		const quizDoc = data?.quiz || {}
