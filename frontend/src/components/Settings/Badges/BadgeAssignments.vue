@@ -1,80 +1,72 @@
 <template>
 	<SettingsLayout
 		:title="props.badgeName || ''"
+		:description="
+			__('See who has earned this badge and award it to more learners.')
+		"
 		:show-back="true"
 		@back="show = false"
 	>
 		<template #header-actions>
-			<Button @click="openForm('new')">
+			<Button variant="solid" @click="openForm('new')">
 				<template #prefix>
 					<span class="lucide-plus size-4" />
 				</template>
 				{{ __('New') }}
 			</Button>
 		</template>
-		<div v-if="assignments.data?.length">
-			<ListView
-				:rows="assignments.data"
-				:columns="columns"
-				rowKey="name"
-				:options="{
-                    showTooltip: false,
-                    onRowClick: (row: BadgeAssignment) => {
-						openForm(row.name)
-					},
-                }"
-			>
-				<ListHeader
-					class="mb-2 grid items-center gap-x-4 rounded bg-surface-gray-2 p-2"
-				>
-					<ListHeaderItem :item="item" v-for="item in columns">
-						<template #prefix="{ item }">
-							<FeatherIcon
-								v-if="item.icon"
-								:name="item.icon"
-								class="h-4 w-4 stroke-1.5"
-							/>
-						</template>
-					</ListHeaderItem>
-				</ListHeader>
-				<ListRows>
-					<ListRow :row="row" v-for="row in assignments.data">
-						<template #default="{ column, item }">
-							<ListRowItem :item="row[column.key]" :align="column.align">
-								<template #prefix>
-									<div v-if="column.key == 'member_name'">
-										<Avatar
-											class="flex items-center"
-											:image="row['member_image']"
-											:label="item"
-											size="sm"
-										/>
-									</div>
-								</template>
-								<div class="leading-5 text-sm">
-									{{ row[column.key] }}
-								</div>
-							</ListRowItem>
-						</template>
-					</ListRow>
-				</ListRows>
-				<ListSelectBanner>
-					<template #actions="{ unselectAll, selections }">
-						<div class="flex gap-2">
-							<Button
-								variant="ghost"
-								@click="deleteBadgeAssignment(selections, unselectAll)"
-							>
-								<span class="lucide-trash-2 h-4 w-4" />
-							</Button>
+		<List
+			v-if="assignments.data?.length"
+			:columns="columns"
+			class="list-row-px-3"
+		>
+			<ListHeader>
+				<ListHeaderCell>{{ __('Member') }}</ListHeaderCell>
+				<ListHeaderCell>{{ __('Issued On') }}</ListHeaderCell>
+				<ListHeaderCell />
+			</ListHeader>
+			<ListRows :items="assignments.data" row-key="name" v-slot="{ item: row }">
+				<ListRow class="py-2.5" @click="openForm(row.name)">
+					<ListCell class="gap-2">
+						<Avatar
+							:image="row.member_image"
+							:label="row.member_name"
+							size="lg"
+							class="shrink-0"
+						/>
+						<div class="flex min-w-0 flex-col">
+							<span class="truncate text-p-base-medium text-ink-gray-8">
+								{{ row.member_name }}
+							</span>
+							<span class="truncate text-p-sm text-ink-gray-5">
+								{{ row.member }}
+							</span>
 						</div>
-					</template>
-				</ListSelectBanner>
-			</ListView>
-		</div>
+					</ListCell>
+					<ListCell class="text-p-base text-ink-gray-6">
+						<span class="truncate">
+							{{ row.issued_on }}
+						</span>
+					</ListCell>
+					<ListCell class="justify-end" @click.stop>
+						<Dropdown
+							:options="[
+								{
+									label: __('Delete'),
+									icon: 'lucide-trash-2',
+									onClick: () => deleteBadgeAssignment(row.name),
+								},
+							]"
+							:button="{ icon: 'lucide-more-horizontal', variant: 'ghost' }"
+							placement="right"
+						/>
+					</ListCell>
+				</ListRow>
+			</ListRows>
+		</List>
 		<div v-else class="flex flex-col items-center justify-center mt-44">
 			<span class="lucide-graduation-cap size-10 mx-auto text-ink-gray-5" />
-			<div class="text-xl-semibold text-ink-gray-7 mb-2.5">
+			<div class="text-lg-semibold text-ink-gray-7 mb-2.5">
 				{{ __('No Assignments') }}
 			</div>
 			<div
@@ -92,21 +84,16 @@
 	</SettingsLayout>
 </template>
 <script setup lang="ts">
+import { Avatar, Button, Dropdown, createListResource, toast } from 'frappe-ui'
 import {
-	Avatar,
-	Button,
-	createListResource,
-	FeatherIcon,
-	ListView,
+	List,
+	ListCell,
 	ListHeader,
-	ListHeaderItem,
-	ListRows,
+	ListHeaderCell,
 	ListRow,
-	ListRowItem,
-	ListSelectBanner,
-	toast,
-} from 'frappe-ui'
-import { computed, inject, ref } from 'vue'
+	ListRows,
+} from 'frappe-ui/list'
+import { inject, ref } from 'vue'
 import type { BadgeAssignment } from '@/components/Settings/types'
 import BadgeAssignmentForm from '@/components/Settings/Badges/BadgeAssignmentForm.vue'
 import SettingsLayout from '@/components/Layouts/SettingsLayout.vue'
@@ -148,36 +135,16 @@ const assignments = createListResource({
 	auto: true,
 })
 
+// Grid track sizes shared by the header and every row (--list-columns).
+const columns = ['minmax(0, 1fr)', '8rem', '2.25rem']
+
 const openForm = (assignmentID: string) => {
 	currentAssignmentID.value = assignmentID
 	showForm.value = true
 }
 
-const deleteBadgeAssignment = (
-	selections: Set<string>,
-	unselectAll: () => void
-) => {
-	Array.from(selections).forEach(async (assignment: string) => {
-		await assignments.delete.submit(assignment)
-	})
-	unselectAll()
-	toast.success(__('Badge assignments deleted successfully'))
+const deleteBadgeAssignment = async (assignment: string) => {
+	await assignments.delete.submit(assignment)
+	toast.success(__('Badge assignment deleted successfully'))
 }
-
-const columns = computed(() => {
-	return [
-		{
-			label: __('Member'),
-			key: 'member_name',
-			icon: 'user',
-			width: '60%',
-		},
-		{
-			label: __('Issued On'),
-			key: 'issued_on',
-			icon: 'calendar',
-			align: 'center',
-		},
-	]
-})
 </script>

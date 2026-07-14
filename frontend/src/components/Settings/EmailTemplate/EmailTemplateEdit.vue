@@ -40,7 +40,6 @@
 				type="textarea"
 				:label="__('Content')"
 				:required="true"
-				:rows="10"
 				:placeholder="htmlPlaceholder"
 			/>
 			<div v-else>

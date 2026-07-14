@@ -145,7 +145,7 @@ describe('EmailTemplateAdd — duplicate', () => {
 		})
 		expect(w.find('[data-testid="btn-Duplicate"]').exists()).toBe(true)
 		expect(
-			(w.get('[data-testid="field-Name"]').element as HTMLInputElement).value,
+			(w.get('[data-testid="field-Name"]').element as HTMLInputElement).value
 		).toBe('Welcome - Copy')
 		await clickCreate(w, 'Duplicate')
 		expect(lastInsert.value._payload.name).toBe('Welcome - Copy')
