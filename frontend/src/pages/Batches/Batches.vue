@@ -57,7 +57,7 @@
 			>
 				<TabButtons
 					v-if="user.data"
-					:buttons="batchTabs"
+					:options="batchTabs"
 					v-model="currentTab"
 					class="w-fit"
 				/>

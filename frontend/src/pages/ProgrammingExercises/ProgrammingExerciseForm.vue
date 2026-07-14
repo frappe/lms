@@ -1,8 +1,8 @@
 <template>
-	<Dialog v-model="show" :options="{ size: '4xl' }">
-		<template #body-title>
+	<Dialog v-model="show" size="4xl">
+		<template #title>
 			<div class="flex items-center gap-x-2">
-				<div class="text-xl font-semibold text-ink-gray-9">
+				<div class="text-lg font-semibold text-ink-gray-9">
 					{{
 						props.exerciseID === 'new'
 							? __('Create Programming Exercise')
@@ -14,7 +14,7 @@
 				</Badge>
 			</div>
 		</template>
-		<template #body-content>
+		<template #default>
 			<div class="grid grid-cols-2 gap-10">
 				<div class="space-y-4">
 					<FormControl

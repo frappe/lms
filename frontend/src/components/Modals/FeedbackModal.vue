@@ -1,8 +1,8 @@
 <template>
-	<Dialog v-model:open="show" size="5xl">
-		<template #body>
+	<Dialog v-model:open="show" size="5xl" bare>
+		<template #default>
 			<div class="p-5 min-h-[300px]">
-				<div class="text-xl-semibold text-ink-gray-9 mb-4">
+				<div class="text-lg-semibold text-ink-gray-9 mb-4">
 					{{ __('Training Feedback') }}
 				</div>
 				<ListView

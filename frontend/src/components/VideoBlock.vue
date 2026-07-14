@@ -137,8 +137,8 @@
 		:saveQuizzes="saveQuizzes"
 		:duration="duration"
 	/>
-	<Dialog v-model:open="showQuizLoader" size="sm">
-		<template #body>
+	<Dialog v-model:open="showQuizLoader" size="sm" bare>
+		<template #default>
 			<div class="flex flex-col space-y-2 p-5 text-base leading-5">
 				<span class="font-semibold">
 					{{ __('Time for a Quiz') }}

@@ -10,7 +10,13 @@ export let Dialogs = {
 			return h(
 				Dialog,
 				{
-					options: dialog,
+					// Read each field here (not by spreading `dialog`) so the render
+					// stays reactive to it.
+					title: dialog.title,
+					size: dialog.size,
+					icon: dialog.icon,
+					position: dialog.position,
+					actions: dialog.actions,
 					modelValue: dialog.show,
 					'onUpdate:modelValue': (val) => (dialog.show = val),
 				},

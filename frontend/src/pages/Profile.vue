@@ -128,7 +128,7 @@
 			<div class="mb-4 mt-10">
 				<TabButtons
 					class="inline-block"
-					:buttons="getTabButtons()"
+					:options="getTabButtons()"
 					v-model="activeTab"
 				/>
 			</div>

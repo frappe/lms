@@ -20,8 +20,8 @@
 		</template>
 	</Dialog>
 
-	<Popover :show="iosInstallMessage" placement="top-start">
-		<template #body>
+	<Popover :open="iosInstallMessage" side="top" align="start" bare>
+		<template #default>
 			<div
 				class="fixed top-[20rem] translate-x-1/3 z-20 flex flex-col gap-3 rounded bg-surface-base py-5 drop-shadow-xl"
 			>

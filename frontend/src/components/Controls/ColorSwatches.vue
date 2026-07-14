@@ -1,15 +1,15 @@
 <template>
 	<div class="space-y-1.5">
 		<FormLabel :label="__(label)" />
-		<Popover placement="bottom" class="!block">
-			<template #target="{ togglePopover, isOpen }">
+		<Popover side="bottom" class="!block">
+			<template #trigger="{ toggle, isOpen }">
 				<div class="space-y-2">
 					<FormControl
 						type="text"
 						autocomplete="off"
 						class="w-full"
 						:placeholder="__('Set Color')"
-						@focus="togglePopover"
+						@focus="toggle"
 						:modelValue="modelValue"
 						@update:modelValue="(val: string) => emit('update:modelValue', val)"
 					>

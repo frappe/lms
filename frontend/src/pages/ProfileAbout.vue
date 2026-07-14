@@ -30,13 +30,13 @@
 		</div>
 	</div>
 	<div class="mt-7 mb-10" v-if="badges.data?.length">
-		<h2 class="mb-3 text-xl-semibold text-ink-gray-9">
+		<h2 class="mb-3 text-lg-semibold text-ink-gray-9">
 			{{ __('Achievements') }}
 		</h2>
 		<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
 			<div v-for="badge in badges.data">
-				<Popover trigger="hover" :leaveDelay="Number(0.01)">
-					<template #target>
+				<HoverCard :leave-delay="0.01">
+					<template #trigger>
 						<div class="relative">
 							<img
 								:src="badge.badge_image"
@@ -54,7 +54,7 @@
 							</div>
 						</div>
 					</template>
-					<template #body-main>
+					<template #default>
 						<div class="w-[250px] text-base">
 							<div class="bg-surface-gray-2 rounded-t-md py-5">
 								<img
@@ -113,14 +113,14 @@
 							</div>
 						</div>
 					</template>
-				</Popover>
+				</HoverCard>
 			</div>
 		</div>
 	</div>
 </template>
 <script setup>
 import { inject } from 'vue'
-import { createResource, Popover, Button } from 'frappe-ui'
+import { createResource, HoverCard, Button } from 'frappe-ui'
 import { LinkedinIcon, Twitter } from 'lucide-vue-next'
 import { sessionStore } from '@/stores/session'
 import { decodeEntities } from '@/utils'

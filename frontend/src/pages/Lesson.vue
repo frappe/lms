@@ -263,7 +263,7 @@
 					>
 						<TabButtons
 							v-if="tabs.length > 1"
-							:buttons="tabs"
+							:options="tabs"
 							v-model="currentTab"
 							class="w-fit mb-10"
 						/>

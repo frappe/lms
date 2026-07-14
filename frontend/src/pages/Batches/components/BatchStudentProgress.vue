@@ -3,8 +3,9 @@
 		v-model:open="show"
 		size="xl"
 		:title="studentDetails.data?.full_name || __('Student Details')"
+		bare
 	>
-		<template #body>
+		<template #default>
 			<div
 				v-if="studentDetails.loading && !studentDetails.data"
 				class="flex items-center justify-center py-12"

@@ -1,8 +1,8 @@
 <template>
-	<Dialog v-model:open="show" size="3xl">
-		<template #body>
+	<Dialog v-model:open="show" size="3xl" bare>
+		<template #default>
 			<div class="p-5 space-y-5">
-				<div class="text-xl-semibold text-ink-gray-9 mb-5">
+				<div class="text-lg-semibold text-ink-gray-9 mb-5">
 					{{ __(props.title) }}
 				</div>
 				<BooleanSwitch

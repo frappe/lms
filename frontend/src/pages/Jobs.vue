@@ -32,13 +32,13 @@
 			class="mx-auto mb-2 flex w-full flex-col justify-between space-y-4 p-5 lg:flex-row lg:items-center lg:space-y-0"
 		>
 			<div class="flex items-center justify-between">
-				<div class="text-lg font-semibold text-ink-gray-9 md:mb-0">
+				<div class="text-md font-semibold text-ink-gray-9 md:mb-0">
 					{{ __('{0} {1} Jobs').format(jobCount.data ?? 0, activeTab) }}
 				</div>
 				<TabButtons
 					v-if="tabs.length > 1"
 					v-model="activeTab"
-					:buttons="tabs"
+					:options="tabs"
 					class="lg:hidden"
 					@change="updateJobs"
 				/>
@@ -50,7 +50,7 @@
 				<TabButtons
 					v-if="tabs.length > 1"
 					v-model="activeTab"
-					:buttons="tabs"
+					:options="tabs"
 					class="hidden lg:block"
 					@change="updateJobs"
 				/>

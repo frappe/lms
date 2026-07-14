@@ -1,8 +1,8 @@
 <template>
-	<Dialog v-model:open="show" size="lg">
-		<template #body>
+	<Dialog v-model:open="show" size="lg" bare>
+		<template #default>
 			<div class="p-5 text-base">
-				<div class="text-xl-semibold text-ink-gray-9 mb-5">
+				<div class="text-lg-semibold text-ink-gray-9 mb-5">
 					{{
 						assignmentID === 'new'
 							? __('Create an Assignment')

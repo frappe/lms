@@ -1,8 +1,8 @@
 <template>
 	<Dialog v-model:open="show" size="3xl">
-		<template #body-header>
+		<template #title>
 			<div class="flex items-center justify-between mb-5">
-				<div class="text-4xl-semibold leading-6 text-ink-gray-9">
+				<div class="text-3xl-semibold leading-6 text-ink-gray-9">
 					{{ __('Edit Profile') }}
 				</div>
 				<div class="flex items-center gap-x-2">

@@ -38,7 +38,7 @@
 				</div>
 				<TabButtons
 					v-model="activeTab"
-					:buttons="tabs"
+					:options="tabs"
 					class="tab-buttons w-full px-4 py-1"
 				/>
 				<div class="flex h-full overflow-hidden">
