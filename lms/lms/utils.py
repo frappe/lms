@@ -29,7 +29,10 @@ from frappe.utils.html_utils import sanitize_html
 from pypika import Case
 from pypika import functions as fn
 
-from lms.lms.doctype.lms_enrollment.lms_enrollment import update_program_progress
+from lms.lms.doctype.lms_enrollment.lms_enrollment import (
+	update_enrollment,
+	update_program_progress,
+)
 from lms.lms.md import find_macros
 
 RE_SLUG_NOTALLOWED = re.compile("[^a-z0-9]+")
@@ -2601,8 +2604,15 @@ def recalculate_course_progress(course: str, member: str):
 		},
 		"name",
 	)
-	frappe.db.set_value("LMS Enrollment", membership, "progress", progress)
-	update_program_progress(member)
+	if not membership:
+		# No enrollment to write, but the member's programs still need rolling up.
+		update_program_progress(member)
+		return
+
+	# A raw set_value here fired no doc events at all, so On Update webhooks and
+	# DocType Event scripts never ran. update_enrollment() writes outside the version
+	# guard but dispatches the save events; on_update rolls up program progress.
+	update_enrollment(membership, {"progress": progress})
 
 
 def get_field_meta(doctype, fieldnames):
