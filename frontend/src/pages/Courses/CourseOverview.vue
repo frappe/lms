@@ -150,7 +150,7 @@
 
 <script setup lang="ts">
 import { sanitizeRichHTML } from '@/utils/sanitizeRichHTML'
-import { computed, inject } from 'vue'
+import { computed, inject, watch } from 'vue'
 import { createResource, Badge } from 'frappe-ui'
 import { formatAmount, formatRating } from '@/utils/'
 import type { SessionUser } from '@/types/api'
@@ -182,12 +182,19 @@ const isCourseAdmin = computed<boolean>(
 
 const outline = createResource({
 	url: 'lms.lms.utils.get_course_outline',
-	cache: ['course_outline', props.course.data?.name],
 	makeParams() {
 		return { course: props.course.data?.name, progress: false }
 	},
-	auto: true,
+	auto: false,
 }) as Resource<OutlineChapter[]>
+
+watch(
+	() => props.course.data?.name,
+	(name) => {
+		if (name) outline.fetch()
+	},
+	{ immediate: true }
+)
 
 const outlineStats = computed(() => {
 	const chapters = outline.data || []
