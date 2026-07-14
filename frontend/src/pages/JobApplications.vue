@@ -52,10 +52,10 @@
 							:key="item.key"
 						>
 							<template #prefix="{ item }">
-								<FeatherIcon
+								<span
 									v-if="item.icon"
-									:name="item.icon?.toString()"
-									class="h-4 w-4"
+									:class="[item.icon, 'h-4 w-4']"
+									aria-hidden="true"
 								/>
 							</template>
 						</ListHeaderItem>
@@ -313,13 +313,13 @@ const getActionOptions = (row) => {
 	if (row.resume) {
 		options.push({
 			label: __('View Resume'),
-			icon: 'download',
+			icon: 'lucide-download',
 			onClick: () => downloadResume(row.resume),
 		})
 	}
 	options.push({
 		label: __('Send Email'),
-		icon: 'mail',
+		icon: 'lucide-mail',
 		onClick: () => openEmailModal(row),
 	})
 	return options
@@ -331,19 +331,19 @@ const applicationColumns = computed(() => {
 			label: __('Full Name'),
 			key: 'full_name',
 			width: 3,
-			icon: 'user',
+			icon: 'lucide-user',
 		},
 		{
 			label: __('Email'),
 			key: 'email',
 			width: 3,
-			icon: 'at-sign',
+			icon: 'lucide-at-sign',
 		},
 		{
 			label: __('Applied On'),
 			key: 'applied_on',
 			width: 2,
-			icon: 'calendar',
+			icon: 'lucide-calendar',
 		},
 		{
 			label: '',

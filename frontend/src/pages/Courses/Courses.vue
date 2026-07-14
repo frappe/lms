@@ -329,14 +329,14 @@ const courseMenu = computed(() => {
 	return [
 		{
 			label: __('New Course'),
-			icon: 'book-open',
+			icon: 'lucide-book-open',
 			onClick() {
 				showCourseModal.value = true
 			},
 		},
 		{
 			label: __('Import via Data Import Tool'),
-			icon: 'upload',
+			icon: 'lucide-upload',
 			onClick() {
 				router.push({
 					name: 'NewDataImport',
@@ -346,7 +346,7 @@ const courseMenu = computed(() => {
 		},
 		{
 			label: __('Import via ZIP'),
-			icon: 'folder-plus',
+			icon: 'lucide-folder-plus',
 			onClick() {
 				showCourseImportModal.value = true
 			},

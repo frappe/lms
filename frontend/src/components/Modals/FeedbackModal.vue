@@ -21,7 +21,7 @@
 					>
 						<ListHeaderItem :item="item" v-for="item in feedbackColumns">
 							<template #prefix="{ item }">
-								<FeatherIcon :name="item.icon?.toString()" class="h-4 w-4" />
+								<span :class="[item.icon, 'h-4 w-4']" aria-hidden="true" />
 							</template>
 						</ListHeaderItem>
 					</ListHeader>
@@ -66,7 +66,6 @@
 import {
 	Dialog,
 	Avatar,
-	FeatherIcon,
 	ListView,
 	ListHeader,
 	ListHeaderItem,
@@ -94,35 +93,35 @@ const feedbackColumns = computed(() => {
 			key: 'member_name',
 			width: '10rem',
 			align: 'left',
-			icon: 'user',
+			icon: 'lucide-user',
 		},
 		{
 			label: 'Feedback',
 			key: 'feedback',
 			width: '15rem',
 			align: 'left',
-			icon: 'message-square',
+			icon: 'lucide-message-square',
 		},
 		{
 			label: 'Content',
 			key: 'content',
 			width: '10rem',
 			align: 'center',
-			icon: 'book',
+			icon: 'lucide-book',
 		},
 		{
 			label: 'Instructors',
 			key: 'instructors',
 			width: '10rem',
 			align: 'center',
-			icon: 'users',
+			icon: 'lucide-users',
 		},
 		{
 			label: 'Value',
 			key: 'value',
 			width: '10rem',
 			align: 'center',
-			icon: 'dollar-sign',
+			icon: 'lucide-dollar-sign',
 		},
 	]
 })

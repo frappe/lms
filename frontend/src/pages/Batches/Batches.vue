@@ -9,14 +9,14 @@
 				:options="[
 					{
 						label: __('New Batch'),
-						icon: 'users',
+						icon: 'lucide-users',
 						onClick() {
 							showBatchModal = true
 						},
 					},
 					{
 						label: __('Import Batch'),
-						icon: 'upload',
+						icon: 'lucide-upload',
 						onClick() {
 							router.push({
 								name: 'NewDataImport',
