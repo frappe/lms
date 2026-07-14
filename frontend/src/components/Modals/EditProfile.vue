@@ -1,8 +1,8 @@
 <template>
 	<Dialog v-model:open="show" size="3xl">
-		<template #body-header>
+		<template #title>
 			<div class="flex items-center justify-between mb-5">
-				<div class="text-4xl-semibold leading-6 text-ink-gray-9">
+				<div class="text-3xl-semibold leading-6 text-ink-gray-9">
 					{{ __('Edit Profile') }}
 				</div>
 				<div class="flex items-center gap-x-2">
@@ -69,11 +69,10 @@
 							<div class="mb-1.5 text-p-sm-medium text-ink-gray-7">
 								{{ __('Bio') }}
 							</div>
-							<TextEditor
+							<RichTextEditor
 								:fixedMenu="true"
 								@change="(val) => (profile.bio = val)"
 								:content="profile.bio"
-								:rows="15"
 								editorClass="prose-sm py-2 px-2 min-h-[280px] border-outline-gray-2 hover:border-outline-gray-3 rounded-b-md bg-surface-gray-3"
 							/>
 						</div>
@@ -90,12 +89,12 @@ import {
 	createResource,
 	Dialog,
 	FormControl,
-	TextEditor,
 	toast,
 } from 'frappe-ui'
 import { ref, reactive, watch } from 'vue'
 import { sanitizeHTML } from '@/utils'
 import Link from '@/components/Controls/Link.vue'
+import RichTextEditor from '@/components/RichTextEditor.vue'
 
 const show = defineModel()
 const reloadProfile = defineModel('reloadProfile')

@@ -82,7 +82,7 @@
 			</div>
 
 			<div ref="testCaseSection" class="p-5">
-				<span class="text-lg font-semibold text-ink-gray-9">
+				<span class="text-md font-semibold text-ink-gray-9">
 					{{ __('Test Cases') }}
 				</span>
 				<div v-if="testCases.length" class="divide-y mt-5">

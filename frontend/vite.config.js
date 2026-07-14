@@ -79,7 +79,6 @@ export default defineConfig(async ({ mode }) => {
 			include: [
 				'feather-icons',
 				'tailwind.config.js',
-				'interactjs',
 				'highlight.js',
 				'plyr',
 			],

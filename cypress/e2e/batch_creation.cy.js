@@ -2,17 +2,17 @@ describe("Batch Creation", () => {
 	const dateNow = Date.now();
 	const randomEvaluator = `evaluator${dateNow}@example.com`;
 
-	it("creates an evaluator via Members settings", () => {
+	it("creates an evaluator via Users settings", () => {
 		cy.login();
 		cy.visit("/lms/batches");
 		cy.closeOnboardingModal();
 
-		// Open Settings → Members
+		// Open Settings → Users
 		cy.get("span").contains("Learning").click();
 		cy.contains('[role="menuitem"]', "Settings").click();
 		cy.get("[data-dismissable-layer]")
 			.find("button")
-			.contains("Members")
+			.contains("Users")
 			.click();
 
 		// Create evaluator via New button
@@ -80,12 +80,12 @@ describe("Batch Creation", () => {
 
 		// The Enrol dialog's Student field is a User link that searches existing
 		// users, so the student must exist before we can enrol them. Create it
-		// via Members settings (mirrors the evaluator setup, without a role).
+		// via Users settings (mirrors the evaluator setup, without a role).
 		cy.get("span").contains("Learning").click();
 		cy.contains('[role="menuitem"]', "Settings").click();
 		cy.get("[data-dismissable-layer]")
 			.find("button")
-			.contains("Members")
+			.contains("Users")
 			.click();
 		cy.intercept("POST", "/api/method/frappe.client.insert").as(
 			"studentInsert"

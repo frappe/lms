@@ -8,7 +8,7 @@
 			class="border-e p-5 overflow-y-auto h-[calc(100vh-3.2rem)]"
 			:class="{ 'h-full': !showTitle }"
 		>
-			<div v-if="showTitle" class="text-xl-semibold mb-5 text-ink-gray-9">
+			<div v-if="showTitle" class="text-lg-semibold mb-5 text-ink-gray-9">
 				<div v-if="submissionName === 'new'">
 					{{ __('Submission by') }} {{ user.data?.full_name }}
 				</div>
@@ -128,22 +128,17 @@
 					<div class="text-p-sm-medium text-ink-gray-7 mb-1.5">
 						{{ __('Enter a URL') }}
 					</div>
-					<FormControl
-						v-model="answer"
-						type="text"
-						:readonly="!canModifyAssignment"
-					/>
+					<FormControl v-model="answer" type="text" />
 				</div>
 				<div v-else>
 					<div class="text-sm mb-2 text-ink-gray-7">
 						{{ __('Write your answer here') }}
 					</div>
-					<TextEditor
+					<RichTextEditor
 						:content="answer"
 						@change="(val) => (answer = val)"
 						:editable="true"
 						:fixedMenu="true"
-						:readonly="!canModifyAssignment"
 						:uploadArgs="{
 							private: true,
 						}"
@@ -183,7 +178,7 @@
 						<div class="text-p-sm-medium text-ink-gray-7 mb-1.5">
 							{{ __('Comments') }}
 						</div>
-						<TextEditor
+						<RichTextEditor
 							:content="comments"
 							@change="
 								(val) => {
@@ -214,7 +209,6 @@ import {
 	createDocumentResource,
 	FileUploader,
 	FormControl,
-	TextEditor,
 	toast,
 } from 'frappe-ui'
 import { computed, inject, ref, watch } from 'vue'
@@ -225,6 +219,7 @@ import {
 } from '@/composables/useKeyboardShortcuts'
 import { useRouter } from 'vue-router'
 import { validateFile } from '@/utils'
+import RichTextEditor from '@/components/RichTextEditor.vue'
 
 const answer = ref(null)
 const attachment = ref(null)

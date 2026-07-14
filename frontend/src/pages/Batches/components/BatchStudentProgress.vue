@@ -3,8 +3,9 @@
 		v-model:open="show"
 		size="xl"
 		:title="studentDetails.data?.full_name || __('Student Details')"
+		bare
 	>
-		<template #body>
+		<template #default>
 			<div
 				v-if="studentDetails.loading && !studentDetails.data"
 				class="flex items-center justify-center py-12"
@@ -16,7 +17,7 @@
 					<Avatar :image="studentDetails.data.user_image" size="3xl" />
 					<div class="space-y-1">
 						<div class="flex items-center gap-x-2">
-							<div class="text-3xl-semibold text-ink-gray-9">
+							<div class="text-2xl-semibold text-ink-gray-9">
 								{{ studentDetails.data.full_name }}
 							</div>
 							<Badge
@@ -47,7 +48,7 @@
 							showTooltip: false,
 							onRowClick: (row: any) => {
 								redirectToAssessment(row)
-							}
+							},
 						}"
 					>
 						<ListHeader
@@ -89,7 +90,7 @@
 							showTooltip: false,
 							onRowClick: (row: any) => {
 								redirectToCourse(row)
-							}
+							},
 						}"
 					>
 						<ListHeader

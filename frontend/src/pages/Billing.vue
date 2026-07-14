@@ -105,7 +105,7 @@
 
 				<div class="flex-1 lg:me-10">
 					<div class="mb-5">
-						<div class="text-xl-semibold text-ink-gray-9">
+						<div class="text-lg-semibold text-ink-gray-9">
 							{{ __('Address') }}
 						</div>
 					</div>

@@ -26,7 +26,7 @@
 		<div
 			class="mx-5 mb-5 flex flex-col justify-between gap-y-4 sm:flex-row sm:items-center"
 		>
-			<div class="text-xl-semibold text-ink-gray-9">
+			<div class="text-lg-semibold text-ink-gray-9">
 				{{ __('{0} Assignments').format(totalAssignments.data || 0) }}
 			</div>
 			<div class="flex flex-col gap-3 sm:flex-row md:gap-5">
@@ -71,7 +71,7 @@
 			<ListHeader class="mb-2 grid items-center rounded bg-surface-gray-2 p-2">
 				<ListHeaderItem :item="item" v-for="item in assignmentColumns">
 					<template #prefix="{ item }">
-						<FeatherIcon :name="item.icon?.toString()" class="h-4 w-4" />
+						<span :class="[item.icon, 'h-4 w-4']" aria-hidden="true" />
 					</template>
 				</ListHeaderItem>
 			</ListHeader>
@@ -160,7 +160,6 @@ import {
 	ListRowItem,
 	ListFooter,
 	ListSelectBanner,
-	FeatherIcon,
 	toast,
 	usePageMeta,
 	FormControl,
@@ -273,21 +272,21 @@ const assignmentColumns = computed(() => {
 			label: __('Title'),
 			key: 'title',
 			width: 1,
-			icon: 'file-text',
+			icon: 'lucide-file-text',
 		},
 		{
 			label: __('Type'),
 			key: 'type',
 			width: 1,
 			align: 'left',
-			icon: 'tag',
+			icon: 'lucide-tag',
 		},
 		{
 			label: __('Updated On'),
 			key: 'modified',
 			width: 1,
 			align: 'right',
-			icon: 'clock',
+			icon: 'lucide-clock',
 		},
 	]
 })

@@ -29,11 +29,11 @@
 						categoryColumn: 'category',
 						valueColumn: 'count',
 						colors: [
-							getColor('red', 400),
-							getColor('amber', 400),
-							getColor('pink', 400),
-							getColor('blue', 400),
-							getColor('green', 400),
+							'var(--red-400)',
+							'var(--amber-400)',
+							'var(--pink-400)',
+							'var(--blue-400)',
+							'var(--green-400)',
 						],
 					}"
 				/>
@@ -76,7 +76,6 @@ import {
 } from 'frappe-ui'
 import type { ProgramMember } from './types'
 import { computed, ref, watch } from 'vue'
-import { getColor } from '@/utils'
 
 const show = defineModel<boolean>({ default: false })
 const searchFilter = ref<string | null>(null)

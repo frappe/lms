@@ -1,6 +1,6 @@
 <template>
-	<Dialog v-model:open="show" size="2xl">
-		<template #body>
+	<Dialog v-model:open="show" size="2xl" bare>
+		<template #default>
 			<div class="text-base">
 				<div class="flex items-center gap-x-2 ps-4.5 border-b">
 					<span class="lucide-search size-4 text-ink-gray-4" />

@@ -8,7 +8,7 @@
 				<div class="flex items-center gap-x-2">
 					<LMSLogo class="size-7" />
 					<span
-						class="select-none text-3xl-semibold tracking-tight text-ink-gray-9"
+						class="select-none text-2xl-semibold tracking-tight text-ink-gray-9"
 					>
 						{{ __('Learning') }}
 					</span>

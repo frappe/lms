@@ -1,6 +1,6 @@
 <template>
-	<Popover placement="right-start" trigger="hover" class="flex w-full">
-		<template #target="{ togglePopover }">
+	<HoverCard side="right" align="start" class="flex w-full">
+		<template #trigger>
 			<button
 				:class="[
 					'group w-full flex h-7 items-center justify-between rounded px-2 text-base text-ink-gray-7 hover:bg-surface-gray-2',
@@ -15,10 +15,8 @@
 				<span class="lucide-chevron-right h-4 w-4" />
 			</button>
 		</template>
-		<template #body>
-			<div
-				class="grid grid-cols-3 justify-between mx-3 p-2 rounded-lg bg-surface-elevation-2 shadow-2xl ring-1 ring-black ring-opacity-5"
-			>
+		<template #default>
+			<div class="grid grid-cols-3 justify-between">
 				<button
 					key="name"
 					class="py-1 px-2 hover:bg-surface-gray-2 rounded"
@@ -35,10 +33,10 @@
 				</button>
 			</div>
 		</template>
-	</Popover>
+	</HoverCard>
 </template>
 <script setup lang="ts">
-import { Popover } from 'frappe-ui'
+import { HoverCard } from 'frappe-ui'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()

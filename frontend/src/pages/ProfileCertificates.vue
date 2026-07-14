@@ -1,6 +1,6 @@
 <template>
 	<div class="mt-7 mb-10">
-		<h2 class="mb-3 text-xl-semibold text-ink-gray-9">
+		<h2 class="mb-3 text-lg-semibold text-ink-gray-9">
 			{{ __('Certificates') }}
 		</h2>
 		<div

@@ -9,14 +9,14 @@
 				:options="[
 					{
 						label: __('New Batch'),
-						icon: 'users',
+						icon: 'lucide-users',
 						onClick() {
 							showBatchModal = true
 						},
 					},
 					{
 						label: __('Import Batch'),
-						icon: 'upload',
+						icon: 'lucide-upload',
 						onClick() {
 							router.push({
 								name: 'NewDataImport',
@@ -49,7 +49,7 @@
 		<div
 			class="mb-5 flex flex-col justify-between space-y-4 lg:flex-row lg:items-center lg:space-y-0"
 		>
-			<div class="text-xl-semibold text-ink-gray-9">
+			<div class="text-lg-semibold text-ink-gray-9">
 				{{ __('All Batches') }}
 			</div>
 			<div
@@ -57,7 +57,7 @@
 			>
 				<TabButtons
 					v-if="user.data"
-					:buttons="batchTabs"
+					:options="batchTabs"
 					v-model="currentTab"
 					class="w-fit"
 				/>

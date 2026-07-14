@@ -9,81 +9,51 @@
 					{{ __('New') }}
 				</Button>
 			</template>
-			<div v-if="badges.data?.length">
-				<ListView
-					:columns="columns"
-					:rows="badges.data"
-					row-key="name"
-					:options="{
-						showTooltip: false,
-						selectable: false,
-					}"
-				>
-					<ListHeader
-						class="mb-2 grid items-center gap-x-4 rounded bg-surface-gray-2 p-2"
-					>
-						<ListHeaderItem
-							:item="item"
-							v-for="item in columns"
-							:key="item.key"
-						>
-							<template #prefix="{ item }">
-								<FeatherIcon
-									v-if="item.icon"
-									:name="item.icon"
-									class="h-4 w-4 stroke-1.5"
-								/>
-							</template>
-						</ListHeaderItem>
-					</ListHeader>
-					<ListRows>
-						<ListRow :row="row" v-for="row in badges.data" :key="row.name">
-							<template #default="{ column, item }">
-								<ListRowItem :item="row[column.key]" :align="column.align">
-									<div v-if="column.key == 'enabled'">
-										<Badge v-if="row[column.key]" theme="green">
-											{{ __('Enabled') }}
-										</Badge>
-										<Badge v-else theme="gray">
-											{{ __('Disabled') }}
-										</Badge>
-									</div>
-									<div v-else-if="column.key == 'reference_doctype'">
-										{{
-											doctypeLabel[
-												row[column.key] as keyof typeof doctypeLabel
-											] || row[column.key]
-										}}
-									</div>
-									<FormControl
-										v-else-if="column.key == 'grant_only_once'"
-										v-model="row[column.key]"
-										type="checkbox"
-										:disabled="true"
-									/>
-									<div
-										v-else-if="column.key != 'action'"
-										class="leading-5 text-sm"
-									>
-										{{ row[column.key] }}
-									</div>
-									<Dropdown
-										v-else
-										:options="getMoreOptions(row.name)"
-										:button="{
-											icon: 'more-horizontal',
-											onblur: (e: Event) => {
-												e.stopPropagation()
-											},
-										}"
-										placement="right"
-									/>
-								</ListRowItem>
-							</template>
-						</ListRow>
-					</ListRows>
-				</ListView>
-			</div>
+			<List v-if="badges.data?.length" :columns="columns" class="list-row-px-3">
+				<ListHeader>
+					<ListHeaderCell>{{ __('Badge') }}</ListHeaderCell>
+					<ListHeaderCell>{{ __('Awarded For') }}</ListHeaderCell>
+					<ListHeaderCell>{{ __('Grant') }}</ListHeaderCell>
+					<ListHeaderCell>{{ __('Status') }}</ListHeaderCell>
+					<ListHeaderCell />
+				</ListHeader>
+				<ListRows :items="badges.data" row-key="name" v-slot="{ item: row }">
+					<ListRow class="py-3" @click="openForm(row.name)">
+						<ListCell class="gap-2">
+							<span class="lucide-award size-4 shrink-0 text-ink-gray-5" />
+							<span class="truncate text-p-base-medium text-ink-gray-8">
+								{{ row.title }}
+							</span>
+						</ListCell>
+						<ListCell class="text-p-base text-ink-gray-6">
+							<span class="truncate">
+								{{
+									doctypeLabel[
+										row.reference_doctype as keyof typeof doctypeLabel
+									] || row.reference_doctype
+								}}
+							</span>
+						</ListCell>
+						<ListCell class="text-p-base text-ink-gray-6">
+							<span class="truncate">
+								{{ row.grant_only_once ? __('Once') : __('Every time') }}
+							</span>
+						</ListCell>
+						<ListCell>
+							<Badge :theme="row.enabled ? 'green' : 'gray'">
+								{{ row.enabled ? __('Enabled') : __('Disabled') }}
+							</Badge>
+						</ListCell>
+						<ListCell class="justify-end" @click.stop>
+							<Dropdown
+								:options="getMoreOptions(row.name)"
+								:button="{ icon: 'lucide-more-horizontal', variant: 'ghost' }"
+								placement="right"
+							/>
+						</ListCell>
+					</ListRow>
+				</ListRows>
+			</List>
 			<EmptyStateLayout
 				v-else
 				name="Badges"
@@ -105,21 +75,15 @@
 	/>
 </template>
 <script setup lang="ts">
+import { Badge, Button, Dropdown, createListResource, toast } from 'frappe-ui'
 import {
-	Badge,
-	Button,
-	createListResource,
-	Dropdown,
-	FeatherIcon,
-	FormControl,
-	ListView,
+	List,
+	ListCell,
 	ListHeader,
-	ListHeaderItem,
-	ListRows,
+	ListHeaderCell,
 	ListRow,
-	ListRowItem,
-	toast,
-} from 'frappe-ui'
+	ListRows,
+} from 'frappe-ui/list'
 import { computed, ref } from 'vue'
 import { cleanError } from '@/utils'
 import BadgeForm from '@/components/Settings/Badges/BadgeForm.vue'
@@ -156,18 +120,27 @@ const badges = createListResource({
 	auto: true,
 })
 
+// Grid track sizes shared by the header and every row (--list-columns).
+const columns = [
+	'minmax(0, 1.3fr)',
+	'minmax(0, 1fr)',
+	'7rem',
+	'6.5rem',
+	'2.25rem',
+]
+
 const getMoreOptions = (badgeName: string) => {
 	return [
 		{
 			label: __('Edit'),
-			icon: 'edit',
+			icon: 'lucide-edit',
 			onClick() {
 				openForm(badgeName)
 			},
 		},
 		{
 			label: __('Assignments'),
-			icon: 'download',
+			icon: 'lucide-download',
 			onClick() {
 				showAssignmentsFor.value = badgeName
 				showAssignments.value = true
@@ -175,7 +148,7 @@ const getMoreOptions = (badgeName: string) => {
 		},
 		{
 			label: __('Delete'),
-			icon: 'trash-2',
+			icon: 'lucide-trash-2',
 			onClick() {
 				deleteBadge(badgeName)
 			},
@@ -212,42 +185,5 @@ const doctypeLabel = computed(() => {
 			'Programming Exercise Submission'
 		),
 	}
-})
-
-const columns = computed(() => {
-	return [
-		{
-			label: __('Badge'),
-			key: 'title',
-			icon: 'award',
-			align: 'left',
-			width: '25%',
-		},
-		{
-			label: __('Assigned For'),
-			key: 'reference_doctype',
-			icon: 'info',
-			align: 'left',
-			width: '35%',
-		},
-		{
-			label: __('Status'),
-			key: 'enabled',
-			icon: 'check-square',
-			align: 'left',
-			width: '15%',
-		},
-		{
-			label: __('Grant Only Once'),
-			key: 'grant_only_once',
-			icon: 'check',
-			align: 'center',
-			width: '20%',
-		},
-		{
-			key: 'action',
-			align: 'right',
-		},
-	]
 })
 </script>

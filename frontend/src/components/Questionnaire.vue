@@ -29,7 +29,7 @@
 					tabindex="-1"
 					class="mt-6 mx-0 min-w-0 border-0 p-0 focus:outline-none"
 				>
-					<legend class="p-0 text-xl font-semibold text-ink-gray-9">
+					<legend class="p-0 text-lg font-semibold text-ink-gray-9">
 						{{ question.title }}
 					</legend>
 					<div class="mt-5 flex flex-wrap gap-2.5">

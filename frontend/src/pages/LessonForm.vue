@@ -28,7 +28,7 @@
 				v-model="lesson.title"
 				:placeholder="__('Lesson title')"
 				rows="1"
-				class="lesson-title w-full resize-none overflow-hidden border-0 bg-transparent p-0 text-3xl font-bold leading-tight text-ink-gray-9 placeholder:text-ink-gray-4 focus:outline-none focus:ring-0"
+				class="lesson-title w-full resize-none overflow-hidden border-0 bg-transparent p-0 text-2xl font-bold leading-tight text-ink-gray-9 placeholder:text-ink-gray-4 focus:outline-none focus:ring-0"
 				@input="onTitleInput"
 			/>
 

@@ -2,7 +2,7 @@
 	<Dialog v-model:open="show" size="2xl">
 		<template #title>
 			<div class="flex items-center justify-between gap-x-2 text-base w-full">
-				<div class="text-3xl-semibold text-ink-gray-9">
+				<div class="text-2xl-semibold text-ink-gray-9">
 					{{
 						programName === 'new' ? __('Create Program') : __('Edit Program')
 					}}
@@ -40,7 +40,7 @@
 
 				<div class="pb-5">
 					<div class="flex items-center justify-between mt-5 mb-4">
-						<div class="text-xl-semibold text-ink-gray-9">
+						<div class="text-lg-semibold text-ink-gray-9">
 							{{ __('Courses') }}
 						</div>
 						<Button @click="openForm('course')">
@@ -101,7 +101,7 @@
 
 				<div>
 					<div class="flex items-center justify-between mt-5 mb-4">
-						<div class="text-xl-semibold text-ink-gray-9">
+						<div class="text-lg-semibold text-ink-gray-9">
 							{{ __('Members') }}
 						</div>
 
@@ -175,9 +175,7 @@
 						label: __('Add'),
 						variant: 'solid',
 						onClick: ({ close }: { close: () => void }) =>
-							currentForm == 'course'
-								? addCourse(close)
-								: addMember(close),
+							currentForm == 'course' ? addCourse(close) : addMember(close),
 					},
 				]"
 			>
@@ -198,7 +196,10 @@
 								ignore_user_type: 1,
 							}"
 							:label="__('Program Member')"
-							:onCreate="(value: string, close: () => void) => openSettings('Members', close)"
+							:onCreate="
+								(value: string, close: () => void) =>
+									openSettings('Members', close)
+							"
 						/>
 					</div>
 				</template>

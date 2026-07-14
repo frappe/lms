@@ -18,7 +18,7 @@
 		>
 			<div class="flex h-full flex-col text-ink-gray-9">
 				<div class="flex justify-between items-center">
-					<div class="text-lg font-medium text-ink-gray-8 px-4 pt-[15px] pb-3">
+					<div class="text-md font-medium text-ink-gray-8 px-4 pt-[15px] pb-3">
 						{{ __('Notifications') }}
 					</div>
 					<div class="flex gap-1 mr-3">
@@ -38,7 +38,7 @@
 				</div>
 				<TabButtons
 					v-model="activeTab"
-					:buttons="tabs"
+					:options="tabs"
 					class="tab-buttons w-full px-4 py-1"
 				/>
 				<div class="flex h-full overflow-hidden">

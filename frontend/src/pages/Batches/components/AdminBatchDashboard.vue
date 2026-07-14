@@ -28,7 +28,7 @@
 		>
 			<span class="lucide-users size-7.5 text-ink-gray-5" />
 			<div class="flex flex-col items-center gap-1">
-				<span class="text-xl-medium text-ink-gray-8">
+				<span class="text-lg-medium text-ink-gray-8">
 					{{ __('No students enrolled yet') }}
 				</span>
 				<span class="text-p-base text-ink-gray-6">
@@ -42,7 +42,7 @@
 		>
 			<div class="border rounded-lg py-3 px-4 order-2 lg:order-1">
 				<div class="flex items-center justify-between gap-x-2 mb-3">
-					<div class="text-xl-semibold text-ink-gray-9">
+					<div class="text-lg-semibold text-ink-gray-9">
 						{{ __('Students') }}
 					</div>
 					<div class="flex items-center gap-x-2">

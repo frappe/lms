@@ -49,9 +49,13 @@ export interface EmailAccount {
 export interface EmailTemplate {
 	name: string
 	subject?: string
+	reference_doctype?: string
 	use_html?: boolean | number
 	response?: string
 	response_html?: string
 }
 
-export type EmailTemplateStep = 'template-list' | 'template-new' | 'template-edit'
+export type EmailTemplateStep =
+	| 'template-list'
+	| 'template-new'
+	| 'template-edit'
