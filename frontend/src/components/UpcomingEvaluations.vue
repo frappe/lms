@@ -1,7 +1,7 @@
 <template>
 	<div v-if="!forHome || (forHome && upcoming_evals.data?.length)">
 		<div class="flex items-center justify-between mb-4">
-			<div class="text-xl-semibold text-ink-gray-9">
+			<div class="text-lg-semibold text-ink-gray-9">
 				{{ __('Upcoming Evaluations') }}
 			</div>
 			<Button v-if="canScheduleEvals" @click="openEvalModal">

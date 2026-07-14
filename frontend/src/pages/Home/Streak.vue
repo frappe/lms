@@ -15,7 +15,7 @@
 							}}
 							{{ __(' you are on a') }}
 						</div>
-						<div class="text-3xl-semibold text-ink-gray-9">
+						<div class="text-2xl-semibold text-ink-gray-9">
 							{{ streakInfo.data?.current_streak }} {{ __('day streak') }}
 						</div>
 					</div>
@@ -28,7 +28,7 @@
 						<div class="text-ink-gray-6">
 							{{ __('Current Streak') }}
 						</div>
-						<div class="text-xl-semibold text-ink-gray-9">
+						<div class="text-lg-semibold text-ink-gray-9">
 							{{ streakInfo.data?.current_streak }} {{ __('days') }}
 						</div>
 					</div>
@@ -36,7 +36,7 @@
 						<div class="text-ink-gray-6">
 							{{ __('Longest Streak') }}
 						</div>
-						<div class="text-xl-semibold text-ink-gray-9">
+						<div class="text-lg-semibold text-ink-gray-9">
 							{{ streakInfo.data?.longest_streak }} {{ __('days') }}
 						</div>
 					</div>

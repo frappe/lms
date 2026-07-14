@@ -63,7 +63,7 @@
 			class="text-center p-5 text-ink-gray-5 mt-52 w-3/4 md:w-1/2 mx-auto space-y-2"
 		>
 			<span class="lucide-pencil size-8 mx-auto text-ink-gray-4" />
-			<div class="text-3xl-medium">
+			<div class="text-2xl-medium">
 				{{ __('No submissions') }}
 			</div>
 			<div class="leading-5">

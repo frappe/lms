@@ -58,7 +58,7 @@
 						/>
 						<div
 							v-else
-							class="flex items-center justify-center h-[100px] w-[100px] rounded-full border-4 border-white bg-surface-gray-2 text-5xl-semibold text-ink-gray-7"
+							class="flex items-center justify-center h-[100px] w-[100px] rounded-full border-4 border-white bg-surface-gray-2 text-4xl-semibold text-ink-gray-7"
 						>
 							{{ profile.data.full_name.charAt(0).toUpperCase() }}
 						</div>
@@ -89,7 +89,7 @@
 					</div>
 				</div>
 				<div class="ms-6 mt-5">
-					<h2 class="text-5xl-semibold text-ink-gray-9">
+					<h2 class="text-4xl-semibold text-ink-gray-9">
 						{{ profile.data.full_name }}
 					</h2>
 					<div class="text-base text-ink-gray-7 mt-1">

@@ -1,6 +1,6 @@
 <template>
 	<div class="mt-7 mb-10">
-		<h2 class="mb-3 text-xl-semibold text-ink-gray-9">
+		<h2 class="mb-3 text-lg-semibold text-ink-gray-9">
 			{{ __('About') }}
 		</h2>
 		<div
@@ -64,7 +64,7 @@
 								/>
 							</div>
 							<div class="p-5">
-								<div class="text-4xl-semibold mb-2">
+								<div class="text-3xl-semibold mb-2">
 									{{ badge.badge }}
 								</div>
 								<div class="leading-5 mb-4">

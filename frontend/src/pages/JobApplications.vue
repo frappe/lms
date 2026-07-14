@@ -17,7 +17,7 @@
 		</LayoutHeader>
 		<div class="mx-auto pt-5 p-4">
 			<div class="flex items-center justify-between mb-5">
-				<div class="text-lg font-semibold text-ink-gray-9 mb-4 md:mb-0">
+				<div class="text-md font-semibold text-ink-gray-9 mb-4 md:mb-0">
 					{{ totalApplications.data }}
 					{{
 						totalApplications.data === 1

@@ -27,7 +27,7 @@
 				<div class="shadow rounded-md w-3/4 mt-10 mx-auto text-center p-4">
 					<div class="flex items-center justify-center mt-4 gap-x-2">
 						<span class="lucide-lock-keyhole size-4 text-ink-gray-5" />
-						<div class="text-xl-semibold text-ink-gray-7">
+						<div class="text-lg-semibold text-ink-gray-7">
 							{{ __('This lesson is locked') }}
 						</div>
 					</div>
@@ -80,7 +80,7 @@
 							class="flex flex-col space-y-3 md:space-y-0 md:flex-row md:items-center justify-between"
 						>
 							<div class="flex flex-col">
-								<div class="text-5xl-semibold text-ink-gray-9">
+								<div class="text-4xl-semibold text-ink-gray-9">
 									{{ lesson.data.title }}
 								</div>
 

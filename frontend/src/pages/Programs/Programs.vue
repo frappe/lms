@@ -56,7 +56,7 @@
 				@click="openForm(program.name)"
 				class="border rounded-md p-3 hover:border-outline-gray-3 cursor-pointer space-y-2"
 			>
-				<div class="text-xl-semibold text-ink-gray-9">
+				<div class="text-lg-semibold text-ink-gray-9">
 					{{ program.name }}
 				</div>
 				<div class="flex items-center gap-x-2 text-ink-gray-7">

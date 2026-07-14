@@ -181,7 +181,6 @@
 							v-model="batchDetail.doc.description"
 							:label="__('Short Description')"
 							type="textarea"
-							:rows="4"
 							:placeholder="__('Short description of the batch')"
 							:required="true"
 							variant="outline"
@@ -261,14 +260,12 @@
 							v-model="meta.description"
 							:label="__('Meta Description')"
 							type="textarea"
-							:rows="4"
 							variant="outline"
 						/>
 						<FormControl
 							v-model="meta.keywords"
 							:label="__('Meta Keywords')"
 							type="textarea"
-							:rows="4"
 							:placeholder="__('Comma separated keywords')"
 							variant="outline"
 						/>

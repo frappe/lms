@@ -17,7 +17,7 @@
 		<div
 			class="mx-5 mb-5 flex flex-col justify-between gap-y-4 sm:flex-row sm:items-center"
 		>
-			<div class="text-xl-semibold text-ink-gray-9">
+			<div class="text-lg-semibold text-ink-gray-9">
 				{{ __('{0} Quizzes').format(totalQuizzes.data || 0) }}
 			</div>
 			<FormControl v-model="search" type="text" placeholder="Search">

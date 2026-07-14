@@ -72,7 +72,6 @@
 						:label="__('Short introduction')"
 						type="textarea"
 						:required="true"
-						:rows="4"
 					/>
 					<div class="space-y-1.5">
 						<FormLabel

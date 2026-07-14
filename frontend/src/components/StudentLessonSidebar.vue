@@ -1,7 +1,7 @@
 <template>
 	<div class="flex flex-col h-full">
 		<div class="bg-surface-gray-1 px-5 py-5 border-b">
-			<div class="text-xl-semibold text-ink-gray-9 leading-snug">
+			<div class="text-lg-semibold text-ink-gray-9 leading-snug">
 				{{ courseTitle }}
 			</div>
 			<div class="mt-4 flex items-center gap-2 text-sm text-ink-gray-7">

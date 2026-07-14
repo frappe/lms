@@ -8,7 +8,7 @@
 			class="border-e p-5 overflow-y-auto h-[calc(100vh-3.2rem)]"
 			:class="{ 'h-full': !showTitle }"
 		>
-			<div v-if="showTitle" class="text-xl-semibold mb-5 text-ink-gray-9">
+			<div v-if="showTitle" class="text-lg-semibold mb-5 text-ink-gray-9">
 				<div v-if="submissionName === 'new'">
 					{{ __('Submission by') }} {{ user.data?.full_name }}
 				</div>

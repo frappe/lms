@@ -6,13 +6,13 @@
 					<span class="lucide-chevron-left size-5 text-ink-gray-7" />
 				</template>
 			</Button>
-			<span class="text-xl-semibold ms-2 text-ink-gray-9">
+			<span class="text-lg-semibold ms-2 text-ink-gray-9">
 				{{ topic.title }}
 			</span>
 		</div>
 		<div
 			v-if="!singleThread"
-			class="hidden md:block text-xl-semibold mb-5 text-ink-gray-9"
+			class="hidden md:block text-lg-semibold mb-5 text-ink-gray-9"
 		>
 			{{ topic.title }}
 		</div>

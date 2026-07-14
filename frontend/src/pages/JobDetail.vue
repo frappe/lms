@@ -87,7 +87,7 @@
 							@click="redirectToWebsite(job.data.company_website)"
 						/>
 						<div class="">
-							<div class="text-2xl text-ink-gray-9 font-semibold mb-1">
+							<div class="text-xl text-ink-gray-9 font-semibold mb-1">
 								{{ job.data.job_title }}
 							</div>
 							<div class="text-sm text-ink-gray-5 font-semibold">

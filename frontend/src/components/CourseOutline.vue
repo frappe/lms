@@ -9,7 +9,7 @@
 			}"
 		>
 			<div
-				class="text-xl-semibold leading-5 text-ink-gray-9"
+				class="text-lg-semibold leading-5 text-ink-gray-9"
 				:class="{ 'font-medium text-p-base': allowEdit }"
 			>
 				{{ __(title) }}

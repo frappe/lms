@@ -15,7 +15,7 @@
 		</div>
 
 		<div class="flex items-center justify-between">
-			<div class="text-xl-semibold text-ink-gray-9">
+			<div class="text-lg-semibold text-ink-gray-9">
 				{{ __('Live Class') }}
 			</div>
 			<Button v-if="canCreateClass()" @click="openLiveClassModal">

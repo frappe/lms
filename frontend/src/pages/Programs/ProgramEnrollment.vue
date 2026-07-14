@@ -1,7 +1,7 @@
 <template>
 	<Dialog v-model:open="show" size="2xl">
 		<template #title>
-			<div v-if="program.data" class="text-3xl-semibold text-ink-gray-9">
+			<div v-if="program.data" class="text-2xl-semibold text-ink-gray-9">
 				{{ __('Enrollment for Program {0}').format(program.data?.name) }}
 			</div>
 		</template>

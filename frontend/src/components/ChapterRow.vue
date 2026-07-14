@@ -196,7 +196,7 @@ const user = inject<SessionUser>('$user')!
 
 const isRenaming = ref<boolean>(false)
 const renameValue = ref<string>('')
-const renameInput = ref<{ $el: HTMLElement } | null>(null)
+const renameInput = ref<{ el: HTMLInputElement } | null>(null)
 
 // Tell the parent outline to lock chapter dragging while a name is being edited,
 // so a stray drag can't fire mid-rename.
@@ -206,7 +206,7 @@ function startRename(): void {
 	renameValue.value = props.chapter.title
 	isRenaming.value = true
 	nextTick(() => {
-		renameInput.value?.$el.querySelector('input')?.focus()
+		renameInput.value?.el?.focus()
 	})
 }
 

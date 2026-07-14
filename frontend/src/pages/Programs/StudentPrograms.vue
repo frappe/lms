@@ -17,7 +17,7 @@
 						@click="openDetails(program.name, category)"
 						class="border rounded-md p-3 hover:border-outline-gray-3 cursor-pointer"
 					>
-						<div class="text-xl-semibold text-ink-gray-9 mb-2">
+						<div class="text-lg-semibold text-ink-gray-9 mb-2">
 							{{ program.name }}
 						</div>
 

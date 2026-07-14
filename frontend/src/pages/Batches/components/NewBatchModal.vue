@@ -83,7 +83,6 @@
 							:label="__('Description')"
 							type="textarea"
 							:required="true"
-							:rows="4"
 							variant="outline"
 						/>
 						<MultiLink
