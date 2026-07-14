@@ -216,7 +216,10 @@ def verify_billing_access(doctype, name, billing_type):
 
 @frappe.whitelist(allow_guest=True)
 def get_job_details(job: str):
-	return frappe.db.get_value(
+	if not isinstance(job, str):
+		frappe.throw(_("Job must be a string."))
+
+	job_details = frappe.db.get_value(
 		"Job Opportunity",
 		job,
 		[
@@ -235,6 +238,11 @@ def get_job_details(job: str):
 		],
 		as_dict=1,
 	)
+
+	if job_details:
+		job_details.applicants = frappe.db.count("LMS Job Application", {"job": job})
+
+	return job_details
 
 
 @frappe.whitelist()
