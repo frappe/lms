@@ -160,16 +160,15 @@
 								<div
 									class="size-2 rounded"
 									:style="{
-										backgroundColor: getColor(
+										backgroundColor: `var(--${
 											row.name.startsWith('Just')
 												? 'red'
 												: row.name.startsWith('In')
 												? 'amber'
 												: row.name.startsWith('Adv')
 												? 'blue'
-												: 'green',
-											400
-										),
+												: 'green'
+										}-400)`,
 									}"
 								></div>
 								<Tooltip :text="row.name.split('(')[1].replace(')', '')">
@@ -308,7 +307,6 @@ import Select from '@/components/Controls/Select.vue'
 import { computed, inject, ref, watch } from 'vue'
 import type dayjsType from 'dayjs'
 import { formatAmount } from '@/utils'
-import { getColor } from '@/utils'
 import CourseEnrollmentModal from '@/pages/Courses/CourseEnrollmentModal.vue'
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 import NumberChartGraph from '@/components/NumberChartGraph.vue'
@@ -414,9 +412,9 @@ const showStudentsEmptyState = computed(
 		!progressList.loading && !progressList.data?.length && !searchFilter.value
 )
 
-const progressColors = computed(() => {
-	return ['red', 'amber', 'blue', 'green'].map((color) => getColor(color, 400))
-})
+const progressColors = computed(() =>
+	['red', 'amber', 'blue', 'green'].map((color) => `var(--${color}-400)`)
+)
 
 const progressColumns = computed(() => {
 	return [

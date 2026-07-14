@@ -143,7 +143,6 @@ import { computed, watch } from 'vue'
 import CourseInstructors from '@/components/CourseInstructors.vue'
 import UserAvatar from '@/components/UserAvatar.vue'
 import ProgressBar from '@/components/ProgressBar.vue'
-import { getColor } from '@/utils'
 
 const { user } = sessionStore()
 
@@ -155,13 +154,8 @@ const props = defineProps({
 })
 
 const gradientColor = computed(() => {
-	let themeMode = theme.value === 'dark' ? 'darkMode' : 'lightMode'
 	let color = props.course.card_gradient?.toLowerCase() || 'blue'
-	return `linear-gradient(to top right, black, ${getColor(
-		color,
-		400,
-		themeMode
-	)})`
+	return `linear-gradient(to top right, black, var(--${color}-400))`
 })
 </script>
 <style>

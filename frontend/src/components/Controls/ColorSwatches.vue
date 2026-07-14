@@ -19,10 +19,7 @@
 								:style="
 									modelValue
 										? {
-												backgroundColor: getColor(
-													modelValue.toLowerCase(),
-													400
-												),
+												backgroundColor: `var(--${modelValue.toLowerCase()}-400)`,
 										  }
 										: {}
 								"
@@ -55,7 +52,7 @@
 							:key="color"
 							class="size-5 rounded-full cursor-pointer"
 							:style="{
-								backgroundColor: getColor(color.toLowerCase(), 400),
+								backgroundColor: `var(--${color.toLowerCase()}-400)`,
 							}"
 							@click="
 								(e) => {
@@ -77,7 +74,6 @@
 <script setup lang="ts">
 import { Button, FormControl, FormLabel, Popover } from 'frappe-ui'
 import { computed } from 'vue'
-import { getColor } from '@/utils'
 
 const emit = defineEmits(['update:modelValue', 'change'])
 
