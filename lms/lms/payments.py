@@ -1,4 +1,5 @@
 import frappe
+from frappe import _
 
 from lms.lms.utils import (
 	complete_enrollment,
@@ -6,21 +7,42 @@ from lms.lms.utils import (
 	get_order_summary,
 )
 
+GATEWAY_NOT_CONFIGURED_TITLE = "Payment Gateway Not Configured"
+
 
 def get_payment_gateway():
 	return frappe.db.get_single_value("LMS Settings", "payment_gateway")
 
 
 def get_controller(payment_gateway):
-	if "payments" in frappe.get_installed_apps():
-		from payments.utils import get_payment_gateway_controller
+	validate_payment_gateway(payment_gateway)
 
-		return get_payment_gateway_controller(payment_gateway)
+	from payments.utils import get_payment_gateway_controller
+
+	return get_payment_gateway_controller(payment_gateway)
 
 
-def validate_currency(payment_gateway, currency):
-	controller = get_controller(payment_gateway)
-	controller().validate_transaction_currency(currency)
+def validate_payment_gateway(payment_gateway):
+	"""Fail with an actionable message instead of a permission error from the payments app."""
+	if "payments" not in frappe.get_installed_apps():
+		frappe.throw(
+			_("The Payments app is not installed. Please contact the administrator."),
+			title=_(GATEWAY_NOT_CONFIGURED_TITLE),
+		)
+
+	if not payment_gateway:
+		frappe.throw(
+			_("No payment gateway is configured. Please contact the administrator."),
+			title=_(GATEWAY_NOT_CONFIGURED_TITLE),
+		)
+
+	if not frappe.db.exists("Payment Gateway", payment_gateway):
+		frappe.throw(
+			_("The configured payment gateway {0} does not exist. Please contact the administrator.").format(
+				frappe.bold(payment_gateway)
+			),
+			title=_(GATEWAY_NOT_CONFIGURED_TITLE),
+		)
 
 
 @frappe.whitelist()
@@ -47,6 +69,11 @@ def get_payment_link(
 	coupon = details.get("coupon")
 	total_amount = amount_with_gst if amount_with_gst else amount
 
+	# Resolve the controller before writing anything: get_controller validates the
+	# gateway and fails with an actionable message, so a misconfigured gateway
+	# doesn't leave an orphan Address / LMS Payment row behind.
+	controller = get_controller(payment_gateway) if total_amount > 0 else None
+
 	payment = record_payment(
 		address,
 		doctype,
@@ -65,8 +92,6 @@ def get_payment_link(
 		frappe.db.set_value("LMS Payment", payment.name, "payment_received", 1)
 		complete_enrollment(payment.name, doctype, docname)
 		return redirect_to
-
-	controller = get_controller(payment_gateway)
 
 	payment_details = {
 		"amount": total_amount,
