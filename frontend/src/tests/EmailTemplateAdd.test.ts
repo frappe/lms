@@ -44,7 +44,10 @@ vi.mock('frappe-ui', () => ({
 		emits: ['update:modelValue'],
 		template: `<button :data-testid="'switch-' + label" @click="$emit('update:modelValue', !modelValue)" />`,
 	},
-	TextEditor: {
+}))
+
+vi.mock('@/components/RichTextEditor.vue', () => ({
+	default: {
 		props: ['content'],
 		emits: ['change'],
 		template: `<textarea data-testid="editor" :value="content" @input="$emit('change', $event.target.value)" />`,

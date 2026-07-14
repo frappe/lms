@@ -119,6 +119,7 @@ declare module 'vue' {
     QuizInVideo: typeof import('./src/components/Modals/QuizInVideo.vue')['default']
     RelatedCourses: typeof import('./src/components/RelatedCourses.vue')['default']
     ReviewModal: typeof import('./src/components/Modals/ReviewModal.vue')['default']
+    RichTextEditor: typeof import('./src/components/RichTextEditor.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     Select: typeof import('./src/components/Controls/Select.vue')['default']

@@ -80,7 +80,7 @@
 							:id="descriptionId"
 							:required="true"
 						/>
-						<TextEditor
+						<RichTextEditor
 							:id="descriptionId"
 							:content="course.description"
 							@change="(val: string) => (course.description = val)"
@@ -118,7 +118,6 @@ import {
 	Dialog,
 	FormControl,
 	FormLabel,
-	TextEditor,
 	createResource,
 	toast,
 } from 'frappe-ui'
@@ -139,6 +138,7 @@ import Uploader from '@/components/Controls/Uploader.vue'
 import NewMemberModal from '@/components/Modals/NewMemberModal.vue'
 import { cleanError, sanitizeHTML, createLMSCategory } from '@/utils'
 import type { Resource } from '@/types/api'
+import RichTextEditor from '@/components/RichTextEditor.vue'
 
 interface InstructorOption {
 	label: string

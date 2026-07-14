@@ -14,7 +14,7 @@
 			<div
 				class="rounded-t-lg rounded-b-md outline-none transition-[box-shadow] duration-150 ease-[cubic-bezier(0.23,1,0.32,1)]"
 			>
-				<TextEditor
+				<RichTextEditor
 					:id="descriptionId"
 					:content="doc.description"
 					@change="
@@ -76,10 +76,11 @@
 </template>
 
 <script setup lang="ts">
-import { TextEditor, FormControl } from 'frappe-ui'
+import { FormControl } from 'frappe-ui'
 import { computed, inject, useId } from 'vue'
 import MultiLink from '@/components/Controls/MultiLink.vue'
 import type { CourseFormContext } from '@/types/api'
+import RichTextEditor from '@/components/RichTextEditor.vue'
 
 const { resource, relatedCourses, meta, markDirty } =
 	inject<CourseFormContext>('courseForm')!

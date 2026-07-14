@@ -147,7 +147,7 @@
 						<div class="text-sm text-ink-gray-5 mb-1">
 							{{ __('Message') }}
 						</div>
-						<TextEditor
+						<RichTextEditor
 							:content="emailForm.message"
 							@change="(val) => (emailForm.message = val)"
 							:editable="true"
@@ -169,9 +169,7 @@ import {
 	call,
 	Dialog,
 	Dropdown,
-	FeatherIcon,
 	FormControl,
-	TextEditor,
 	ListView,
 	ListHeader,
 	ListHeaderItem,
@@ -187,6 +185,7 @@ import { computed, inject, ref, reactive, watch } from 'vue'
 import { sessionStore } from '../stores/session'
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 import LayoutHeader from '@/components/Layouts/LayoutHeader.vue'
+import RichTextEditor from '@/components/RichTextEditor.vue'
 
 const dayjs = inject('$dayjs')
 const { brand } = sessionStore()

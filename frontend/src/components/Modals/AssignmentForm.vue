@@ -33,7 +33,7 @@
 							{{ __('Question') }}
 							<span class="text-ink-red-6">*</span>
 						</div>
-						<TextEditor
+						<RichTextEditor
 							:content="assignment.question"
 							@change="(val) => (assignment.question = val)"
 							:editable="true"
@@ -65,10 +65,11 @@
 	</Dialog>
 </template>
 <script setup lang="ts">
-import { Button, Dialog, FormControl, TextEditor, toast } from 'frappe-ui'
+import { Button, Dialog, FormControl, toast } from 'frappe-ui'
 import { computed, reactive, watch } from 'vue'
 import { sanitizeHTML } from '@/utils'
 import Link from '@/components/Controls/Link.vue'
+import RichTextEditor from '@/components/RichTextEditor.vue'
 
 const show = defineModel()
 const assignments = defineModel<Assignments>('assignments')

@@ -13,7 +13,7 @@
 						{{ __('Message') }}
 						<span class="text-ink-red-6">*</span>
 					</div>
-					<TextEditor
+					<RichTextEditor
 						:fixedMenu="true"
 						@change="(val) => (message = val)"
 						editorClass="prose-sm py-2 px-2 min-h-[200px] border-outline-gray-2 hover:border-outline-gray-3 rounded-b-md bg-surface-gray-3"
@@ -31,9 +31,10 @@
 	</Dialog>
 </template>
 <script setup lang="ts">
-import { Button, call, Dialog, FormControl, TextEditor, toast } from 'frappe-ui'
+import { Button, call, Dialog, FormControl, toast } from 'frappe-ui'
 import { ref } from 'vue'
 import { useSettings } from '@/stores/settings'
+import RichTextEditor from '@/components/RichTextEditor.vue'
 
 const show = defineModel<boolean>({ required: true, default: false })
 const subject = ref('')

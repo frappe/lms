@@ -201,7 +201,7 @@
 						<div
 							class="rounded-t-lg rounded-b-md outline-none transition-[box-shadow] duration-150 ease-[cubic-bezier(0.23,1,0.32,1)]"
 						>
-							<TextEditor
+							<RichTextEditor
 								:id="batchDetailsId"
 								:content="batchDetail.doc.batch_details"
 								@change="(val: string) => updateBatchDetails(val)"
@@ -320,7 +320,6 @@ import {
 	Combobox,
 	FormControl,
 	FormLabel,
-	TextEditor,
 	createDocumentResource,
 	createResource,
 	toast,
@@ -353,6 +352,7 @@ import EmailTemplateModal from '@/components/Modals/EmailTemplateModal.vue'
 import type { LMSBatch } from '@/types/lms/LMSBatch'
 import type { CourseInstructor } from '@/types/lms/CourseInstructor'
 import type { Resource, BatchDetails, SessionUser } from '@/types/api'
+import RichTextEditor from '@/components/RichTextEditor.vue'
 
 interface DialogAction {
 	label: string

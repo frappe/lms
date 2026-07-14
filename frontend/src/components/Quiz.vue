@@ -236,7 +236,7 @@
 						</div>
 					</div>
 					<div v-else>
-						<TextEditor
+						<RichTextEditor
 							class="mt-4"
 							:content="possibleAnswer"
 							@change="(val) => (possibleAnswer = val)"
@@ -469,7 +469,6 @@ import {
 	Dialog,
 	LoadingIndicator,
 	ListView,
-	TextEditor,
 	FormControl,
 	toast,
 } from 'frappe-ui'
@@ -484,6 +483,7 @@ import {
 } from 'vue'
 import { timeAgo } from '@/utils/format'
 import ProgressBar from '@/components/ProgressBar.vue'
+import RichTextEditor from '@/components/RichTextEditor.vue'
 
 const user = inject('$user')
 const activeQuestion = ref(0)

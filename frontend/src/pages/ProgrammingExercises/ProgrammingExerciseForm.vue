@@ -46,7 +46,7 @@
 							{{ __('Problem Statement') }}
 							<span class="text-ink-red-3">*</span>
 						</div>
-						<TextEditor
+						<RichTextEditor
 							:content="exercise.problem_statement"
 							@change="(val: string) => (exercise.problem_statement = val)"
 							:editable="true"
@@ -119,11 +119,11 @@ import {
 	createListResource,
 	Dialog,
 	FormControl,
-	TextEditor,
 	toast,
 } from 'frappe-ui'
 import { ProgrammingExercise, ProgrammingExercises, TestCase } from './types'
 import ChildTable from '@/components/Controls/ChildTable.vue'
+import RichTextEditor from '@/components/RichTextEditor.vue'
 
 const show = defineModel()
 const exercises = defineModel<ProgrammingExercises>('exercises')

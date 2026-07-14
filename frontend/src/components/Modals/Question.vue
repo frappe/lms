@@ -18,7 +18,7 @@
 						<label class="block text-p-sm-medium text-ink-gray-7 mb-1.5">
 							{{ __('Question') }}
 						</label>
-						<TextEditor
+						<RichTextEditor
 							:content="question.question"
 							@change="(val) => (question.question = val)"
 							:editable="true"
@@ -159,18 +159,12 @@
 	</Dialog>
 </template>
 <script setup>
-import {
-	Dialog,
-	FormControl,
-	TextEditor,
-	createResource,
-	Button,
-	toast,
-} from 'frappe-ui'
+import { Dialog, FormControl, createResource, Button, toast } from 'frappe-ui'
 import BooleanSwitch from '@/components/Controls/BooleanSwitch.vue'
 import { watch, reactive, ref, inject } from 'vue'
 import Link from '@/components/Controls/Link.vue'
 import { useOnboarding } from 'frappe-ui/frappe'
+import RichTextEditor from '@/components/RichTextEditor.vue'
 
 const show = defineModel()
 const quiz = defineModel('quiz')
