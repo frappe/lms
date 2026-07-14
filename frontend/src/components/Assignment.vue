@@ -47,7 +47,11 @@
 							:label="__('Save')"
 							combo="Mod+S"
 						>
-							<Button variant="solid" @click="submitAssignment()">
+							<Button
+								variant="solid"
+								:loading="isSubmitting"
+								@click="submitAssignment()"
+							>
 								{{ __('Save') }}
 							</Button>
 						</ShortcutTooltip>
@@ -284,7 +288,12 @@ watch(submissionResource, () => {
 	}
 })
 
+const isSubmitting = ref(false)
+
 const submitAssignment = () => {
+	if (isSubmitting.value) return
+	isSubmitting.value = true
+
 	if (props.submissionName != 'new') {
 		updateSubmission()
 	} else {
@@ -312,6 +321,7 @@ const addNewSubmission = () => {
 		toast.error(
 			__('Please provide an answer or upload a file before submitting.')
 		)
+		isSubmitting.value = false
 		return
 	}
 	call('frappe.client.insert', {
@@ -336,6 +346,9 @@ const addNewSubmission = () => {
 			toast.error(err.messages?.[0] || err)
 			console.error(err)
 		})
+		.finally(() => {
+			isSubmitting.value = false
+		})
 }
 
 const updateSubmission = () => {
@@ -355,9 +368,11 @@ const updateSubmission = () => {
 		{
 			onSuccess(data) {
 				isDirty.value = false
+				isSubmitting.value = false
 				toast.success(__('Changes saved successfully'))
 			},
 			onError(err) {
+				isSubmitting.value = false
 				toast.error(err.messages?.[0] || err)
 				console.error(err)
 			},
