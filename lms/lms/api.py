@@ -216,7 +216,10 @@ def verify_billing_access(doctype, name, billing_type):
 
 @frappe.whitelist(allow_guest=True)
 def get_job_details(job: str):
-	return frappe.db.get_value(
+	if not isinstance(job, str):
+		frappe.throw(_("Job must be a string."))
+
+	job_details = frappe.db.get_value(
 		"Job Opportunity",
 		job,
 		[
@@ -234,6 +237,33 @@ def get_job_details(job: str):
 			"owner",
 		],
 		as_dict=1,
+	)
+
+	if job_details:
+		job_details.applicants = frappe.db.count("LMS Job Application", {"job": job})
+
+	return job_details
+
+
+@frappe.whitelist(allow_guest=True)
+def get_own_assignment_submission(assignment: str):
+	"""Name of the current user's submission for an assignment, if any.
+
+	Mirrors the uniqueness rule enforced in LMS Assignment Submission.validate_duplicates,
+	which keys on `member`. A permission-filtered lookup (frappe.client.get_value) keys on
+	`owner` for students, so a submission created on the student's behalf reads back as
+	absent and the client tries to insert a duplicate.
+
+	Guest-allowed because the read-only assignment view renders on public lessons; a guest
+	owns no submission, so this returns None and the client routes to a new submission.
+	"""
+	if not isinstance(assignment, str):
+		frappe.throw(_("Assignment must be a string."))
+
+	return frappe.db.get_value(
+		"LMS Assignment Submission",
+		{"assignment": assignment, "member": frappe.session.user},
+		"name",
 	)
 
 

@@ -21,7 +21,7 @@
 				class="flex items-center gap-x-2"
 			>
 				<router-link
-					v-if="canManageJob && applicationCount.data > 0"
+					v-if="canManageJob && applicantCount > 0"
 					:to="{
 						name: 'JobApplications',
 						params: { job: job.data?.name },
@@ -118,14 +118,12 @@
 							</template>
 							{{ job.data.work_mode }}
 						</Badge>
-						<Badge v-if="applicationCount.data" size="lg">
+						<Badge v-if="applicantCount" size="lg">
 							<template #prefix>
 								<span class="lucide-square-user-round size-3 text-ink-gray-7" />
 							</template>
-							{{ applicationCount.data }}
-							{{
-								applicationCount.data == 1 ? __('applicant') : __('applicants')
-							}}
+							{{ applicantCount }}
+							{{ applicantCount == 1 ? __('applicant') : __('applicants') }}
 						</Badge>
 					</div>
 				</div>
@@ -199,24 +197,13 @@ const jobApplication = createResource({
 	},
 })
 
-const applicationCount = createResource({
-	url: 'frappe.client.get_count',
-	makeParams() {
-		return {
-			doctype: 'LMS Job Application',
-			filters: {
-				job: job.data?.name,
-			},
-		}
-	},
-})
+const applicantCount = computed(() => job.data?.applicants || 0)
 
 const stopWatch = watch(
 	() => [job.data?.name, user.data?.name],
 	([jobName, userName]) => {
 		if (jobName && userName) {
 			jobApplication.submit()
-			applicationCount.submit()
 			nextTick(() => stopWatch())
 		}
 	},

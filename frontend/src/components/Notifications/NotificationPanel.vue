@@ -156,11 +156,7 @@ const navigateToPage = (log) => {
 	if (link[2] == 'courses') {
 		router.push({ name: 'CourseDetail', params: { courseName: link[3] } })
 	} else if (link.includes('batches')) {
-		if (link.includes('details')) {
-			router.push({ name: 'BatchDetail', params: { batchName: link.pop() } })
-		} else {
-			router.push({ name: 'Batch', params: { batchName: link.pop() } })
-		}
+		router.push({ name: 'BatchDetail', params: { batchName: link.pop() } })
 	} else if (link.includes('assignment-submission')) {
 		router.push({
 			name: 'AssignmentSubmission',

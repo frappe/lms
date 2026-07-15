@@ -6,6 +6,8 @@
 		:placeholder="placeholder"
 		:upload-function="uploadFile"
 		format="html"
+		@focus="hasFocus = true"
+		@blur="hasFocus = false"
 	>
 		<template #default>
 			<EditorFixedMenu
@@ -128,10 +130,12 @@ function uploadFile(file: File) {
 }
 
 const html = ref(props.content ?? '')
+const hasFocus = ref(false)
 
 watch(
 	() => props.content,
 	(value) => {
+		if (hasFocus.value) return
 		if ((value ?? '') !== html.value) html.value = value ?? ''
 	}
 )

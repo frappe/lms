@@ -53,10 +53,12 @@ class LMSAssignmentSubmission(Document):
 			"LMS Assignment Submission",
 			{"assignment": self.assignment, "member": self.member, "name": ["!=", self.name]},
 		):
-			lesson_title = frappe.db.get_value("Course Lesson", self.lesson, "title")
-			frappe.throw(
-				_("Assignment for Lesson {0} by {1} already exists.").format(lesson_title, self.member_name)
+			title = (
+				frappe.db.get_value("Course Lesson", self.lesson, "title")
+				if self.lesson
+				else frappe.db.get_value("LMS Assignment", self.assignment, "title")
 			)
+			frappe.throw(_("A submission for {0} by {1} already exists.").format(title, self.member_name))
 
 	def validate_url(self):
 		if self.type == "URL" and not validate_url(self.answer, True, ["http", "https"]):

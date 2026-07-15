@@ -7,6 +7,7 @@
 			class="mb-1.5"
 		/>
 		<Combobox
+			:open="isOpen"
 			:modelValue="value"
 			:options="resolvedOptions"
 			:placeholder="attrs.placeholder as string"
@@ -124,6 +125,7 @@ const valuePropPassed = computed<boolean>(() => 'value' in attrs)
 
 const creating = ref<boolean>(false)
 const newItemName = ref<string>('')
+const isOpen = ref<boolean>(false)
 let loaded = false
 
 const value = computed<string>(() =>
@@ -208,6 +210,7 @@ function reload(txt: string = ''): void {
 }
 
 function onOpen(open: boolean): void {
+	isOpen.value = open
 	if (open && !loaded) reload('')
 }
 
@@ -238,6 +241,8 @@ function handleCreate(): void {
 		creating.value = true
 		return
 	}
+	// Close the dropdown so it doesn't stack on top of the modal onCreate opens.
+	isOpen.value = false
 	props.onCreate?.(null)
 }
 

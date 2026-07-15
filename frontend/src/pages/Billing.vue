@@ -257,9 +257,6 @@ const showConsentWarning = ref(false)
 const { capture } = useTelemetry()
 
 onMounted(() => {
-	const script = document.createElement('script')
-	script.src = `https://checkout.razorpay.com/v1/checkout.js`
-	document.body.appendChild(script)
 	if (user.data?.name) {
 		access.submit()
 	}
@@ -356,6 +353,12 @@ const generatePaymentLink = () => {
 				return validateAddress()
 			},
 			onSuccess(data) {
+				if (typeof data !== 'string' || !data) {
+					toast.error(
+						__('Could not start the payment. Please contact the administrator.')
+					)
+					return
+				}
 				capture('checkout_initiated', { type: props.type })
 				window.location.href = data
 			},

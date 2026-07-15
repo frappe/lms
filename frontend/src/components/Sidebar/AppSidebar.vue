@@ -539,13 +539,13 @@ const steps = reactive([
 			let batch = await getFirstBatch()
 			if (batch) {
 				router.push({
-					name: 'Batch',
+					name: 'BatchDetail',
 					params: {
 						batchName: batch,
 					},
 				})
 			} else {
-				router.push({ name: 'Batch' })
+				router.push({ name: 'Batches' })
 			}
 		},
 	},
@@ -560,14 +560,14 @@ const steps = reactive([
 			let batch = await getFirstBatch()
 			if (batch) {
 				router.push({
-					name: 'Batch',
+					name: 'BatchDetail',
 					params: {
 						batchName: batch,
 					},
 					hash: '#courses',
 				})
 			} else {
-				router.push({ name: 'Batch' })
+				router.push({ name: 'Batches' })
 			}
 		},
 	},
