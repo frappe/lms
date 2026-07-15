@@ -37,6 +37,8 @@ from lms.lms.md import find_macros
 
 RE_SLUG_NOTALLOWED = re.compile("[^a-z0-9]+")
 LMS_ROLES = ["Moderator", "Course Creator", "Batch Evaluator", "LMS Student"]
+# Roles that bypass per-record LMS authorization checks (course/batch staff + admins).
+PRIVILEGED_ROLES = {"Moderator", "Course Creator", "Batch Evaluator", "System Manager"}
 
 
 def get_lms_path():
@@ -1238,15 +1240,24 @@ def get_lesson(course: str, chapter: int, lesson: int) -> dict:
 
 	# Local import: permissions imports from utils at module load, so importing it
 	# at the top of utils would create a cycle.
-	from lms.lms.permissions import can_access_lesson
+	from lms.lms.permissions import resolve_lesson_access
 
-	if not can_access_lesson(lesson_name):
+	# Resolve instructor status (governs instructor-only field visibility) and overall
+	# access in one pass, so the instructor check isn't computed twice.
+	is_instructor, can_access = resolve_lesson_access(lesson_name)
+	if not can_access:
 		return {
 			"no_preview": 1,
 			"title": lesson_details.title,
 			"course_title": course_info.title,
 			"disable_self_learning": course_info.disable_self_learning,
 		}
+
+	# instructor_content / instructor_notes are instructor-only (permissions.INSTRUCTOR_FIELDS).
+	# Never leak them to students or preview guests, who also pass the gate above.
+	if not is_instructor:
+		lesson_details.instructor_content = None
+		lesson_details.instructor_notes = None
 
 	if frappe.session.user == "Guest":
 		progress = 0
@@ -1445,9 +1456,16 @@ def get_quiz_with_questions(quiz: str) -> dict:
 		QUESTION_EXPLANATION_FIELDS,
 		QUESTION_OPTION_FIELDS,
 	)
+	from lms.lms.permissions import can_access_quiz
 
-	if not has_lms_role():
-		frappe.throw(_("You are not authorized to view this quiz."))
+	if not isinstance(quiz, str):
+		frappe.throw(_("Quiz must be a string."))
+
+	if not can_access_quiz(quiz):
+		frappe.logger("lms.security").warning(
+			"Quiz access denied: user=%s quiz=%s", frappe.session.user, quiz
+		)
+		frappe.throw(_("You are not authorized to view this quiz."), frappe.PermissionError)
 
 	quiz_doc = frappe.get_doc("LMS Quiz", quiz).as_dict()
 
