@@ -121,11 +121,12 @@ function autoGrowTitle() {
 	el.style.height = `${el.scrollHeight}px`
 }
 
-const contentUploadContext = { docname: null, fieldname: 'content' }
-const instructorUploadContext = {
+// reactive so the upload block picks up `docname` once the lesson is saved.
+const contentUploadContext = reactive({ docname: null, fieldname: 'content' })
+const instructorUploadContext = reactive({
 	docname: null,
 	fieldname: 'instructor_content',
-}
+})
 const { capture } = useTelemetry()
 const { updateOnboardingStep } = useOnboarding('learning')
 

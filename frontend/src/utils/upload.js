@@ -82,8 +82,7 @@ export class Upload {
 
 	renderFileUploader() {
 		const app = createApp(UploadPlugin, {
-			docname: this.config.docname || null,
-			fieldname: this.config.fieldname || 'content',
+			uploadContext: this.config,
 			onFileUploaded: (file) => {
 				this.data.file_url = file.file_url
 				this.data.file_type = file.file_type
