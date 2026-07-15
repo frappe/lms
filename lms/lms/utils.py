@@ -1460,9 +1460,16 @@ def get_quiz_with_questions(quiz: str) -> dict:
 		QUESTION_EXPLANATION_FIELDS,
 		QUESTION_OPTION_FIELDS,
 	)
+	from lms.lms.permissions import can_access_quiz
 
-	if not has_lms_role():
-		frappe.throw(_("You are not authorized to view this quiz."))
+	if not isinstance(quiz, str):
+		frappe.throw(_("Quiz must be a string."))
+
+	if not can_access_quiz(quiz):
+		frappe.logger("lms.security").warning(
+			"Quiz access denied: user=%s quiz=%s", frappe.session.user, quiz
+		)
+		frappe.throw(_("You are not authorized to view this quiz."), frappe.PermissionError)
 
 	quiz_doc = frappe.get_doc("LMS Quiz", quiz).as_dict()
 
