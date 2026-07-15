@@ -17,20 +17,23 @@ from lms.lms.utils import can_modify_course, get_membership, guest_access_allowe
 INSTRUCTOR_FIELDS = {"instructor_content", "instructor_notes"}
 
 
-def can_access_lesson(lesson: str, *, instructor_only: bool = False, user: str | None = None) -> bool:
-	"""Single source of truth for who may read a lesson's resources.
+def resolve_lesson_access(lesson: str, *, user: str | None = None) -> tuple[bool, bool]:
+	"""Return ``(is_instructor, can_access)`` for a lesson, computed in a single pass.
 
-	- instructors / moderators (can_modify_course) → all media (incl. instructor files)
-	- instructor_only=True → only the above; enrolled students denied
-	- else (student media): enrolled member OR (published course AND include_in_preview
-	  AND guest access allowed)
+	- ``is_instructor``: can author the lesson's course → all media, incl. instructor files.
+	- ``can_access``: ``is_instructor`` OR enrolled member OR (published course AND
+	  include_in_preview AND guest access allowed).
+
+	Callers needing only one flag should use :func:`can_access_lesson`; this exists so a
+	caller needing both (e.g. get_lesson, which decides instructor-field visibility on top
+	of the access gate) resolves the instructor check once instead of twice.
 	"""
 	if not isinstance(lesson, str) or not lesson:
-		return False
+		return False, False
 
 	lesson_row = frappe.db.get_value("Course Lesson", lesson, ["course", "include_in_preview"], as_dict=True)
 	if not lesson_row:
-		return False
+		return False, False
 
 	original_user = frappe.session.user
 	user = user or original_user
@@ -38,11 +41,9 @@ def can_access_lesson(lesson: str, *, instructor_only: bool = False, user: str |
 		# can_modify_course / get_membership / guest_access_allowed read session.user.
 		frappe.session.user = user
 		if can_modify_course(lesson_row.course):
-			return True
-		if instructor_only:
-			return False
+			return True, True
 		if get_membership(lesson_row.course, user):
-			return True
+			return False, True
 		# Preview is for prospective students of a LIVE course. Require the course to be
 		# published so draft lessons don't leak via this gate (matches get_course_details,
 		# which already hides unpublished courses from non-authors). Instructors/members
@@ -52,10 +53,22 @@ def can_access_lesson(lesson: str, *, instructor_only: bool = False, user: str |
 			and frappe.db.get_value("LMS Course", lesson_row.course, "published")
 			and guest_access_allowed()
 		):
-			return True
-		return False
+			return False, True
+		return False, False
 	finally:
 		frappe.session.user = original_user
+
+
+def can_access_lesson(lesson: str, *, instructor_only: bool = False, user: str | None = None) -> bool:
+	"""Single source of truth for who may read a lesson's resources.
+
+	- instructors / moderators (can_modify_course) → all media (incl. instructor files)
+	- instructor_only=True → only the above; enrolled students denied
+	- else (student media): enrolled member OR (published course AND include_in_preview
+	  AND guest access allowed)
+	"""
+	is_instructor, can_access = resolve_lesson_access(lesson, user=user)
+	return is_instructor if instructor_only else can_access
 
 
 def file_has_permission(doc, ptype="read", user=None):

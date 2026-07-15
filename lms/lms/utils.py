@@ -1244,15 +1244,24 @@ def get_lesson(course: str, chapter: int, lesson: int) -> dict:
 
 	# Local import: permissions imports from utils at module load, so importing it
 	# at the top of utils would create a cycle.
-	from lms.lms.permissions import can_access_lesson
+	from lms.lms.permissions import resolve_lesson_access
 
-	if not can_access_lesson(lesson_name):
+	# Resolve instructor status (governs instructor-only field visibility) and overall
+	# access in one pass, so the instructor check isn't computed twice.
+	is_instructor, can_access = resolve_lesson_access(lesson_name)
+	if not can_access:
 		return {
 			"no_preview": 1,
 			"title": lesson_details.title,
 			"course_title": course_info.title,
 			"disable_self_learning": course_info.disable_self_learning,
 		}
+
+	# instructor_content / instructor_notes are instructor-only (permissions.INSTRUCTOR_FIELDS).
+	# Never leak them to students or preview guests, who also pass the gate above.
+	if not is_instructor:
+		lesson_details.instructor_content = None
+		lesson_details.instructor_notes = None
 
 	if frappe.session.user == "Guest":
 		progress = 0
