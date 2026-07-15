@@ -167,6 +167,32 @@ const questions = computed(() => [
 			{ label: __('Other'), value: 'Other' },
 		],
 	},
+	{
+		key: 'discovery_source',
+		title: __('How did you hear about Frappe Learning?'),
+		options: [
+			{
+				label: __('Search engine (Google, etc.)'),
+				value: 'Search engine',
+			},
+			{ label: __('GitHub'), value: 'GitHub' },
+			{
+				label: __('Already using Frappe / ERPNext'),
+				value: 'Already using Frappe / ERPNext',
+			},
+			{
+				label: __('Frappe Cloud Marketplace'),
+				value: 'Frappe Cloud Marketplace',
+			},
+			{ label: __('Social media'), value: 'Social media' },
+			{ label: __('Friend or colleague'), value: 'Friend or colleague' },
+			{
+				label: __('AI assistant (ChatGPT, etc.)'),
+				value: 'AI assistant',
+			},
+			{ label: __('Other'), value: 'Other' },
+		],
+	},
 ])
 
 usePageMeta(() => {
