@@ -7,9 +7,7 @@ from frappe.desk.doctype.notification_log.notification_log import make_notificat
 from frappe.model.document import Document
 from frappe.utils import validate_url
 
-from lms.lms.utils import get_lms_route
-
-PRIVILEGED_ROLES = {"Moderator", "Course Creator", "Batch Evaluator", "System Manager"}
+from lms.lms.utils import PRIVILEGED_ROLES, get_lms_route
 
 
 class LMSAssignmentSubmission(Document):

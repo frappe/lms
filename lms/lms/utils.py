@@ -34,6 +34,8 @@ from lms.lms.md import find_macros
 
 RE_SLUG_NOTALLOWED = re.compile("[^a-z0-9]+")
 LMS_ROLES = ["Moderator", "Course Creator", "Batch Evaluator", "LMS Student"]
+# Roles that bypass per-record LMS authorization checks (course/batch staff + admins).
+PRIVILEGED_ROLES = {"Moderator", "Course Creator", "Batch Evaluator", "System Manager"}
 
 
 def get_lms_path():
