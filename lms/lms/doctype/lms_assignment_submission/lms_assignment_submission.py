@@ -13,9 +13,27 @@ from lms.lms.utils import PRIVILEGED_ROLES, get_lms_route
 class LMSAssignmentSubmission(Document):
 	def validate(self):
 		self.enforce_member_ownership()
+		self.enforce_grading_permission()
 		self.validate_duplicates()
 		self.validate_url()
 		self.validate_status()
+
+	def enforce_grading_permission(self):
+		"""Only evaluators/instructors may set the grading fields.
+
+		Prevents a student from grading their own submission (e.g. flipping status from
+		"Not Graded" to "Pass" via frappe.client.set_value). On create the grading fields
+		are reset to their defaults; on update they are reverted to the stored values.
+		"""
+		if PRIVILEGED_ROLES & set(frappe.get_roles()):
+			return
+
+		# Revert grading fields to their stored values on update, or to safe defaults on
+		# create / when no baseline is available (fail closed, never fail open).
+		previous = None if self.is_new() else self.get_doc_before_save()
+		defaults = {"status": "Not Graded", "comments": None, "evaluator": None}
+		for field, default in defaults.items():
+			setattr(self, field, previous.get(field) if previous else default)
 
 	def enforce_member_ownership(self):
 		if PRIVILEGED_ROLES & set(frappe.get_roles()):
@@ -45,10 +63,13 @@ class LMSAssignmentSubmission(Document):
 			frappe.throw(_("Please enter a valid URL."))
 
 	def validate_status(self):
-		if not self.is_new():
-			doc_before_save = self.get_doc_before_save()
-			if doc_before_save.status != self.status or doc_before_save.comments != self.comments:
-				self.trigger_update_notification()
+		if self.is_new():
+			return
+		doc_before_save = self.get_doc_before_save()
+		if not doc_before_save:
+			return
+		if doc_before_save.status != self.status or doc_before_save.comments != self.comments:
+			self.trigger_update_notification()
 
 	def validate_private_attachments(self):
 		if self.type == "Text":
