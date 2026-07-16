@@ -1,12 +1,12 @@
 <template>
-	<div class="relative flex h-full w-full justify-center">
+	<div class="relative flex h-full min-h-64 w-full grow justify-center">
 		<div
 			class="absolute left-1/2 top-[35%] flex -translate-x-1/2 flex-col items-center gap-3 px-4"
 			:class="widthClass"
 		>
 			<span class="size-7.5 text-ink-gray-5" :class="icon" />
 			<div class="flex flex-col items-center gap-1">
-				<span class="text-xl-medium text-center text-ink-gray-8">
+				<span class="text-lg-medium text-center text-ink-gray-8">
 					{{ computedTitle }}
 				</span>
 				<span class="text-center text-p-base text-ink-gray-6">

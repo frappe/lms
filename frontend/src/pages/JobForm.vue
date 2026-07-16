@@ -47,7 +47,7 @@
 							{{ __('Description') }}
 							<span class="text-ink-red-6">*</span>
 						</label>
-						<TextEditor
+						<RichTextEditor
 							:content="job.description"
 							@change="(val) => (job.description = val)"
 							:editable="true"
@@ -122,7 +122,6 @@ import {
 	FormControl,
 	createDocumentResource,
 	Button,
-	TextEditor,
 	usePageMeta,
 	toast,
 } from 'frappe-ui'
@@ -136,6 +135,7 @@ import {
 	useKeyboardShortcuts,
 	saveShortcut,
 } from '@/composables/useKeyboardShortcuts'
+import RichTextEditor from '@/components/RichTextEditor.vue'
 
 const user = inject('$user')
 const router = useRouter()

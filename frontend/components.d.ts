@@ -11,6 +11,7 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    AddressModal: typeof import('./src/components/Settings/Transactions/AddressModal.vue')['default']
     Apps: typeof import('./src/components/Sidebar/Apps.vue')['default']
     AppSidebar: typeof import('./src/components/Sidebar/AppSidebar.vue')['default']
     AssessmentModal: typeof import('./src/components/Modals/AssessmentModal.vue')['default']
@@ -32,7 +33,6 @@ declare module 'vue' {
     ChapterRow: typeof import('./src/components/ChapterRow.vue')['default']
     ChildTable: typeof import('./src/components/Controls/ChildTable.vue')['default']
     ClearableCombobox: typeof import('./src/components/Controls/ClearableCombobox.vue')['default']
-    Code: typeof import('./src/components/Controls/Code.vue')['default']
     CodeEditor: typeof import('./src/components/Controls/CodeEditor.vue')['default']
     CollapseSidebar: typeof import('./src/components/Icons/CollapseSidebar.vue')['default']
     CollapsibleSection: typeof import('./src/components/CollapsibleSection.vue')['default']
@@ -59,6 +59,7 @@ declare module 'vue' {
     Discussions: typeof import('./src/components/Discussions.vue')['default']
     EditCoverImage: typeof import('./src/components/Modals/EditCoverImage.vue')['default']
     EditProfile: typeof import('./src/components/Modals/EditProfile.vue')['default']
+    EmailAccountCard: typeof import('./src/components/Settings/EmailAccount/EmailAccountCard.vue')['default']
     EmailAccountList: typeof import('./src/components/Settings/EmailAccount/EmailAccountList.vue')['default']
     EmailAdd: typeof import('./src/components/Settings/EmailAccount/EmailAdd.vue')['default']
     EmailConfig: typeof import('./src/components/Settings/EmailAccount/EmailConfig.vue')['default']
@@ -119,6 +120,7 @@ declare module 'vue' {
     QuizInVideo: typeof import('./src/components/Modals/QuizInVideo.vue')['default']
     RelatedCourses: typeof import('./src/components/RelatedCourses.vue')['default']
     ReviewModal: typeof import('./src/components/Modals/ReviewModal.vue')['default']
+    RichTextEditor: typeof import('./src/components/RichTextEditor.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     Select: typeof import('./src/components/Controls/Select.vue')['default']
@@ -129,7 +131,6 @@ declare module 'vue' {
     ShortcutTooltip: typeof import('./src/components/ShortcutTooltip.vue')['default']
     SidebarLink: typeof import('./src/components/Sidebar/SidebarLink.vue')['default']
     SkeletonLoader: typeof import('./src/components/SkeletonLoader.vue')['default']
-    StudentHeatmap: typeof import('./src/components/StudentHeatmap.vue')['default']
     StudentLessonSidebar: typeof import('./src/components/StudentLessonSidebar.vue')['default']
     StudentModal: typeof import('./src/components/Modals/StudentModal.vue')['default']
     Tags: typeof import('./src/components/Tags.vue')['default']

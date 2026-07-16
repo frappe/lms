@@ -1,6 +1,60 @@
 import { Code } from "lucide-vue-next"
 import { h, createApp } from "vue"
+// `lib/core` registers no languages, so every highlight call was a no-op; the
+// full build fixes that but bundles ~190 languages. Register only the ones the
+// picker offers (COMMON_LANGUAGES below) under their picker key, so bare-class
+// detection matches and apache/nginx/toml/http — which `lib/common` omits —
+// still highlight, without the long-tail bloat.
 import hljs from 'highlight.js/lib/core';
+import apache from 'highlight.js/lib/languages/apache';
+import bash from 'highlight.js/lib/languages/bash';
+import csharp from 'highlight.js/lib/languages/csharp';
+import cpp from 'highlight.js/lib/languages/cpp';
+import css from 'highlight.js/lib/languages/css';
+import coffeescript from 'highlight.js/lib/languages/coffeescript';
+import diff from 'highlight.js/lib/languages/diff';
+import go from 'highlight.js/lib/languages/go';
+import xml from 'highlight.js/lib/languages/xml';
+import http from 'highlight.js/lib/languages/http';
+import json from 'highlight.js/lib/languages/json';
+import java from 'highlight.js/lib/languages/java';
+import javascript from 'highlight.js/lib/languages/javascript';
+import kotlin from 'highlight.js/lib/languages/kotlin';
+import less from 'highlight.js/lib/languages/less';
+import lua from 'highlight.js/lib/languages/lua';
+import makefile from 'highlight.js/lib/languages/makefile';
+import markdown from 'highlight.js/lib/languages/markdown';
+import nginx from 'highlight.js/lib/languages/nginx';
+import objectivec from 'highlight.js/lib/languages/objectivec';
+import php from 'highlight.js/lib/languages/php';
+import perl from 'highlight.js/lib/languages/perl';
+import properties from 'highlight.js/lib/languages/properties';
+import python from 'highlight.js/lib/languages/python';
+import ruby from 'highlight.js/lib/languages/ruby';
+import rust from 'highlight.js/lib/languages/rust';
+import scss from 'highlight.js/lib/languages/scss';
+import sql from 'highlight.js/lib/languages/sql';
+import shell from 'highlight.js/lib/languages/shell';
+import swift from 'highlight.js/lib/languages/swift';
+import ini from 'highlight.js/lib/languages/ini';
+import typescript from 'highlight.js/lib/languages/typescript';
+import yaml from 'highlight.js/lib/languages/yaml';
+import plaintext from 'highlight.js/lib/languages/plaintext';
+
+// Register under canonical hljs names. Each module also declares its own aliases
+// (csharp -> `cs`, xml -> `html`, ini -> `toml`), so the picker keys used as the
+// block's class still resolve, and grammars that embed a sublanguage by its
+// canonical name (e.g. a ```xml markdown fence) find it too. `none` stays
+// unregistered so it falls through to hljs auto-detection.
+const HLJS_LANGUAGES: Record<string, any> = {
+	apache, bash, csharp, cpp, css, coffeescript, diff, go, xml, http,
+	json, java, javascript, kotlin, less, lua, makefile, markdown, nginx,
+	objectivec, php, perl, properties, python, ruby, rust, scss, sql, shell,
+	swift, ini, typescript, yaml, plaintext,
+};
+for (const [name, language] of Object.entries(HLJS_LANGUAGES)) {
+	hljs.registerLanguage(name, language);
+}
 
 
 const DEFAULT_THEMES = ['light', 'dark'];
@@ -91,17 +145,32 @@ export class CodeBox {
 		this.codeArea.setAttribute('class', `codeBoxTextArea ${this.config.useDefaultTheme} ${this.data.language}`);
 		this.codeArea.setAttribute('contenteditable', 'true');
 		this.codeArea.innerHTML = this.data.code;
-		this.api.listeners.on(this.codeArea, 'blur', event => this._highlightCodeArea(event), false);
 		this.api.listeners.on(this.codeArea, 'paste', event => this._handleCodeAreaPaste(event), false);
+
+		if (!this.readOnly) {
+			// `this.data.code` is the canonical un-highlighted source. Keep editing on
+			// clean source (focus strips display markup, input re-captures it) so
+			// save() never serializes hljs spans back into the stored code.
+			this.api.listeners.on(this.codeArea, 'focus', () => this._syncFromSource(), false);
+			this.api.listeners.on(this.codeArea, 'input', () => this._captureSource(), false);
+			this.api.listeners.on(this.codeArea, 'blur', event => this._onBlur(event), false);
+		}
 
 		codeAreaHolder.appendChild(this.codeArea);
 		!this.readOnly && codeAreaHolder.appendChild(languageSelect);
+
+		// Highlight saved blocks on load only in read-only (student) view. In edit
+		// mode the block is contenteditable, so highlighting is applied on blur /
+		// language change as display-only markup that save() never reads.
+		if (this.readOnly && this.data.code) this._highlightCodeArea();
 
 		return codeAreaHolder;
 	}
 
 	save(blockContent) {
-		return Object.assign(this.data, { code: this.codeArea.innerHTML, theme: this._getThemeURLFromConfig() });
+		// Return the canonical source, never the highlighted DOM. `this.data.code`
+		// is kept in sync by _captureSource on every edit and on blur.
+		return Object.assign(this.data, { theme: this._getThemeURLFromConfig() });
 	}
 
 	validate(savedData) {
@@ -111,7 +180,9 @@ export class CodeBox {
 
 	destroy() {
 		this.api.listeners.off(window, 'click', this._closeAllLanguageSelects, true);
-		this.api.listeners.off(this.codeArea, 'blur', event => this._highlightCodeArea(event), false);
+		this.api.listeners.off(this.codeArea, 'focus', () => this._syncFromSource(), false);
+		this.api.listeners.off(this.codeArea, 'input', () => this._captureSource(), false);
+		this.api.listeners.off(this.codeArea, 'blur', event => this._onBlur(event), false);
 		this.api.listeners.off(this.codeArea, 'paste', event => this._handleCodeAreaPaste(event), false);
 		this.api.listeners.off(this.selectInput, 'click', event => this._handleSelectInputClick(event), false);
 	}
@@ -150,8 +221,72 @@ export class CodeBox {
 		return selectHolder;
 	}
 
-	_highlightCodeArea(event) {
-		hljs.highlightBlock(this.codeArea);
+	_captureSource() {
+		// Canonical source is the un-highlighted innerHTML. Editing always happens on
+		// clean source (see _syncFromSource), so this never captures hljs markup.
+		this.data.code = this.codeArea.innerHTML;
+	}
+
+	_syncFromSource() {
+		// On focus, drop any display-only highlight markup so both the edit surface
+		// and the innerHTML that _captureSource reads stay on clean source. Preserve
+		// the caret across the rewrite so clicking into a highlighted block doesn't
+		// jump the cursor to the start.
+		if (this.codeArea.innerHTML === this.data.code) return;
+		const offset = this._getCaretOffset();
+		this.codeArea.innerHTML = this.data.code;
+		this._setCaretOffset(offset);
+	}
+
+	_getCaretOffset(): number | null {
+		const selection = window.getSelection();
+		if (!selection || selection.rangeCount === 0) return null;
+		const range = selection.getRangeAt(0);
+		if (!this.codeArea.contains(range.endContainer)) return null;
+		// Character count from the block's start to the caret. Highlight spans add
+		// no characters, so this offset maps cleanly onto the un-highlighted source.
+		const preCaret = range.cloneRange();
+		preCaret.selectNodeContents(this.codeArea);
+		preCaret.setEnd(range.endContainer, range.endOffset);
+		return preCaret.toString().length;
+	}
+
+	_setCaretOffset(offset: number | null) {
+		if (offset == null) return;
+		const selection = window.getSelection();
+		if (!selection) return;
+		const walker = document.createTreeWalker(this.codeArea, NodeFilter.SHOW_TEXT);
+		let remaining = offset;
+		for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+			const length = node.textContent?.length ?? 0;
+			if (remaining <= length) {
+				const range = document.createRange();
+				range.setStart(node, remaining);
+				range.collapse(true);
+				selection.removeAllRanges();
+				selection.addRange(range);
+				return;
+			}
+			remaining -= length;
+		}
+		// Offset past the end (e.g. empty block): place the caret at the end.
+		const range = document.createRange();
+		range.selectNodeContents(this.codeArea);
+		range.collapse(false);
+		selection.removeAllRanges();
+		selection.addRange(range);
+	}
+
+	_onBlur(event) {
+		this._captureSource();
+		this._highlightCodeArea(event);
+	}
+
+	_highlightCodeArea(event?) {
+		// hljs skips elements it has already highlighted; saved blocks are
+		// re-highlighted on every render and after every edit.
+		this.codeArea.removeAttribute('data-highlighted');
+		hljs.highlightElement(this.codeArea);
 	}
 
 	_handleCodeAreaPaste(event) {
@@ -168,8 +303,8 @@ export class CodeBox {
 		this.codeArea.removeAttribute('class');
 		this.data.language = language[0];
 		this.codeArea.setAttribute('class', `codeBoxTextArea ${this.config.useDefaultTheme} ${this.data.language}`);
-	
-		hljs.highlightElement(this.codeArea);
+
+		this._highlightCodeArea();
 	}
 
 	_closeAllLanguageSelects() {

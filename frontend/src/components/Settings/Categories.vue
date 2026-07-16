@@ -35,12 +35,15 @@
 			class="divide-y divide-outline-elevation-2"
 			v-if="categories.data?.length"
 		>
-			<div v-for="(cat, index) in categories.data" :key="cat.name" class="pt-2">
+			<div v-for="(cat, index) in categories.data" :key="cat.name">
 				<div
 					v-if="editing?.name !== cat.name"
-					class="flex items-center justify-between group text-sm text-ink-gray-9"
+					class="group flex min-h-11 items-center justify-between gap-2 py-2"
 				>
-					<div class="text-ink-gray-9" @dblclick="allowEdit(cat, index)">
+					<div
+						class="text-p-base text-ink-gray-8"
+						@dblclick="allowEdit(cat, index)"
+					>
 						{{ cat.category }}
 					</div>
 					<Button
@@ -54,14 +57,15 @@
 						</template>
 					</Button>
 				</div>
-				<FormControl
-					v-else
-					:ref="(el) => (editInputRef[index] = el)"
-					v-model="editedValue"
-					type="text"
-					class="w-full"
-					@keyup.enter="saveChanges(cat.name, editedValue)"
-				/>
+				<div v-else class="flex min-h-11 items-center py-2">
+					<FormControl
+						:ref="(el) => (editInputRef[index] = el)"
+						v-model="editedValue"
+						type="text"
+						class="w-full"
+						@keyup.enter="saveChanges(cat.name, editedValue)"
+					/>
+				</div>
 			</div>
 		</div>
 		<EmptyStateLayout

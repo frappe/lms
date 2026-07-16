@@ -19,9 +19,7 @@ from frappe.utils import (
 	nowtime,
 )
 
-from lms.lms.utils import get_evaluator
-
-PRIVILEGED_ROLES = {"Moderator", "Course Creator", "Batch Evaluator", "System Manager"}
+from lms.lms.utils import PRIVILEGED_ROLES, get_evaluator
 
 
 class LMSCertificateRequest(Document):

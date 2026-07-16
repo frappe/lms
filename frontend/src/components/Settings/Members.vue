@@ -24,82 +24,70 @@
 				<Select v-model="currentRole" class="w-40" :options="roleOptions" />
 			</div>
 		</template>
-		<div class="pb-4">
-			<div v-if="displayedMembers.length">
-				<ul class="divide-y divide-outline-elevation-2">
-					<li
-						v-for="member in displayedMembers"
-						class="flex items-center justify-between py-2 cursor-pointer"
-					>
-						<div
-							@click="openProfile(member.username)"
-							class="flex items-center gap-x-3 min-w-0 flex-1"
-						>
+		<div v-if="displayedMembers.length">
+			<List class="list-row-px-3">
+				<ListRows
+					:items="displayedMembers"
+					row-key="name"
+					v-slot="{ item: member }"
+				>
+					<ListRow class="py-2.5" @click="openProfile(member.username)">
+						<ListCell>
 							<Avatar
 								:image="member.user_image"
 								:label="member.full_name"
 								size="xl"
 								class="shrink-0"
 							/>
-							<div class="min-w-0 space-y-1">
-								<div class="truncate text-ink-gray-9">
+						</ListCell>
+						<ListCell>
+							<!-- Own flex column: ListCell's items-center would otherwise
+							     center these horizontally once the cell is flex-col. -->
+							<div class="flex min-w-0 flex-col">
+								<span class="truncate text-p-base text-ink-gray-8">
 									{{ member.full_name }}
-								</div>
-								<div class="truncate text-sm text-ink-gray-7">
+								</span>
+								<span class="truncate text-p-sm text-ink-gray-5">
 									{{ member.name }}
-								</div>
+								</span>
 							</div>
-						</div>
-						<div
-							v-if="badgeRoles(member.roles).length"
-							class="flex shrink-0 items-center gap-1 ms-3"
-						>
+						</ListCell>
+						<ListCell class="gap-2" @click.stop>
 							<span
 								v-for="role in badgeRoles(member.roles)"
 								:key="role"
-								class="flex items-center text-ink-gray-9 gap-x-1 bg-surface-gray-2 px-2 py-1.5 rounded-md"
+								class="flex items-center gap-x-1 rounded-md bg-surface-gray-2 px-2 py-1 text-ink-gray-8"
 							>
-								<span class="lucide-shield size-4" />
-								<span class="text-sm">
-									{{ getRole(role) }}
-								</span>
+								<span class="lucide-shield size-3.5" />
+								<span class="text-sm leading-5">{{ getRole(role) }}</span>
 							</span>
-						</div>
-						<div class="shrink-0 ms-2" @click.stop>
 							<Dropdown
 								:options="getMemberMenuOptions(member)"
+								:button="{ icon: 'lucide-more-horizontal', variant: 'ghost' }"
 								placement="right"
-							>
-								<Button variant="ghost" class="!px-1.5">
-									<template #icon>
-										<span
-											class="lucide-more-horizontal size-4 text-ink-gray-7"
-										/>
-									</template>
-								</Button>
-							</Dropdown>
-						</div>
-					</li>
-				</ul>
-				<div
-					v-if="memberList.length && hasNextPage"
-					class="flex justify-center mt-4"
-				>
-					<Button @click="members.reload()">
-						<template #prefix>
-							<span class="lucide-refresh-cw h-3 w-3" />
-						</template>
-						{{ __('Load More') }}
-					</Button>
-				</div>
+							/>
+						</ListCell>
+					</ListRow>
+				</ListRows>
+			</List>
+			<div
+				v-if="memberList.length && hasNextPage"
+				class="flex justify-center mt-4"
+			>
+				<Button @click="members.reload()">
+					<template #prefix>
+						<span class="lucide-refresh-cw h-3 w-3" />
+					</template>
+					{{ __('Load More') }}
+				</Button>
 			</div>
-			<EmptyStateLayout
-				v-else
-				name="Members"
-				:description="__('Add one to get started.')"
-				icon="lucide-user"
-			/>
 		</div>
+		<EmptyStateLayout
+			v-else
+			name="Users"
+			:description="__('Add one to get started.')"
+			icon="lucide-user"
+		/>
 	</SettingsLayout>
 	<NewMemberModal
 		v-model="showNewMember"
@@ -145,6 +133,7 @@ import {
 	Select,
 	toast,
 } from 'frappe-ui'
+import { List, ListCell, ListRow, ListRows } from 'frappe-ui/list'
 import { useRouter } from 'vue-router'
 import { ref, computed, watch, inject } from 'vue'
 import { useOnboarding, useTelemetry } from 'frappe-ui/frappe'

@@ -20,7 +20,7 @@
 					<span
 						class="size-3 rounded-full"
 						:style="{
-							backgroundColor: getColor(color.toLowerCase(), 400),
+							backgroundColor: `var(--${color.toLowerCase()}-400)`,
 						}"
 					></span>
 					<span>
@@ -55,7 +55,7 @@
 <script setup lang="ts">
 import { computed, inject, ref, watch } from 'vue'
 import type { Note, Notes } from '@/components/Notes/types'
-import { blockQuotesClick, getColor, highlightText } from '@/utils'
+import { blockQuotesClick, highlightText } from '@/utils'
 
 const user = inject<any>('$user')
 const show = defineModel()

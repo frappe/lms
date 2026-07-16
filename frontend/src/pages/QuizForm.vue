@@ -63,7 +63,7 @@
 		<!-- LEFT: Questions -->
 		<div class="flex min-h-0 flex-col">
 			<div class="flex items-center justify-between px-5 pt-5 mb-4">
-				<div class="text-xl-semibold text-ink-gray-9">
+				<div class="text-lg-semibold text-ink-gray-9">
 					{{ __('Questions') }}
 				</div>
 				<Button v-if="!readOnlyMode" @click="openQuestionModal()">
