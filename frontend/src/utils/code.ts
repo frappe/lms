@@ -1,10 +1,7 @@
 import { Code } from "lucide-vue-next"
 import { h, createApp } from "vue"
-// `lib/core` registers no languages, so every highlight call was a no-op; the
-// full build fixes that but bundles ~190 languages. Register only the ones the
-// picker offers (COMMON_LANGUAGES below) under their picker key, so bare-class
-// detection matches and apache/nginx/toml/http — which `lib/common` omits —
-// still highlight, without the long-tail bloat.
+import { HTML_ESCAPE_MAP } from "@/utils/format"
+// lib/core registers no languages; register just the picker's set to avoid bundling all ~190.
 import hljs from 'highlight.js/lib/core';
 import apache from 'highlight.js/lib/languages/apache';
 import bash from 'highlight.js/lib/languages/bash';
@@ -41,11 +38,7 @@ import typescript from 'highlight.js/lib/languages/typescript';
 import yaml from 'highlight.js/lib/languages/yaml';
 import plaintext from 'highlight.js/lib/languages/plaintext';
 
-// Register under canonical hljs names. Each module also declares its own aliases
-// (csharp -> `cs`, xml -> `html`, ini -> `toml`), so the picker keys used as the
-// block's class still resolve, and grammars that embed a sublanguage by its
-// canonical name (e.g. a ```xml markdown fence) find it too. `none` stays
-// unregistered so it falls through to hljs auto-detection.
+// Canonical names; each module's aliases (cs, html, toml) resolve the picker keys too.
 const HLJS_LANGUAGES: Record<string, any> = {
 	apache, bash, csharp, cpp, css, coffeescript, diff, go, xml, http,
 	json, java, javascript, kotlin, less, lua, makefile, markdown, nginx,
@@ -57,23 +50,144 @@ for (const [name, language] of Object.entries(HLJS_LANGUAGES)) {
 }
 
 
+// Atom One Dark, self-hosted and scoped tightly to out-specify frappe-ui's .ProseMirror .hljs-* rules.
+const CODEBOX_THEME_CSS = `
+.codeBoxHolder { max-width: 100%; }
+.codeBoxHolder .codeBoxTextArea { overflow-x: auto; max-width: 100%; }
+.codeBoxHolder .codeBoxTextArea.dark.hljs { color: #abb2bf; background: #282c34; }
+.codeBoxHolder .codeBoxTextArea.dark { caret-color: #abb2bf; }
+.codeBoxHolder .codeBoxTextArea.dark .hljs-comment,
+.codeBoxHolder .codeBoxTextArea.dark .hljs-quote { color: #5c6370; font-style: italic; }
+.codeBoxHolder .codeBoxTextArea.dark .hljs-doctag,
+.codeBoxHolder .codeBoxTextArea.dark .hljs-keyword,
+.codeBoxHolder .codeBoxTextArea.dark .hljs-formula { color: #c678dd; }
+.codeBoxHolder .codeBoxTextArea.dark .hljs-section,
+.codeBoxHolder .codeBoxTextArea.dark .hljs-name,
+.codeBoxHolder .codeBoxTextArea.dark .hljs-selector-tag,
+.codeBoxHolder .codeBoxTextArea.dark .hljs-deletion,
+.codeBoxHolder .codeBoxTextArea.dark .hljs-subst { color: #e06c75; }
+.codeBoxHolder .codeBoxTextArea.dark .hljs-literal { color: #56b6c2; }
+.codeBoxHolder .codeBoxTextArea.dark .hljs-string,
+.codeBoxHolder .codeBoxTextArea.dark .hljs-regexp,
+.codeBoxHolder .codeBoxTextArea.dark .hljs-addition,
+.codeBoxHolder .codeBoxTextArea.dark .hljs-attribute,
+.codeBoxHolder .codeBoxTextArea.dark .hljs-meta .hljs-string { color: #98c379; }
+.codeBoxHolder .codeBoxTextArea.dark .hljs-attr,
+.codeBoxHolder .codeBoxTextArea.dark .hljs-variable,
+.codeBoxHolder .codeBoxTextArea.dark .hljs-template-variable,
+.codeBoxHolder .codeBoxTextArea.dark .hljs-type,
+.codeBoxHolder .codeBoxTextArea.dark .hljs-selector-class,
+.codeBoxHolder .codeBoxTextArea.dark .hljs-selector-attr,
+.codeBoxHolder .codeBoxTextArea.dark .hljs-selector-pseudo,
+.codeBoxHolder .codeBoxTextArea.dark .hljs-number { color: #d19a66; }
+.codeBoxHolder .codeBoxTextArea.dark .hljs-symbol,
+.codeBoxHolder .codeBoxTextArea.dark .hljs-bullet,
+.codeBoxHolder .codeBoxTextArea.dark .hljs-link,
+.codeBoxHolder .codeBoxTextArea.dark .hljs-meta,
+.codeBoxHolder .codeBoxTextArea.dark .hljs-selector-id,
+.codeBoxHolder .codeBoxTextArea.dark .hljs-title { color: #61aeee; }
+.codeBoxHolder .codeBoxTextArea.dark .hljs-built_in,
+.codeBoxHolder .codeBoxTextArea.dark .hljs-title.class_,
+.codeBoxHolder .codeBoxTextArea.dark .hljs-class .hljs-title { color: #e6c07b; }
+.codeBoxHolder .codeBoxTextArea.dark .hljs-emphasis { font-style: italic; }
+.codeBoxHolder .codeBoxTextArea.dark .hljs-strong { font-weight: bold; }
+.codeBoxHolder .codeBoxTextArea.dark .hljs-link { text-decoration: underline; }
+`;
+
+// Convert legacy contenteditable HTML to plain text: block tags -> line breaks,
+// <br> -> \n, inline tags stripped. DOMParser is inert (no scripts/loads).
+const LEGACY_BLOCK_TAGS = new Set([
+	'DIV', 'P', 'LI', 'UL', 'OL', 'PRE', 'BLOCKQUOTE', 'TABLE', 'TR', 'TD', 'TH',
+	'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'SECTION', 'ARTICLE',
+]);
+
+function legacyHTMLToPlainText(html: string): string {
+	const doc = new DOMParser().parseFromString(html, 'text/html');
+	let text = '';
+	// A trailing \n from a block boundary is trimmed; an explicit <br> is kept.
+	let endsOnBlockBreak = false;
+	const walk = (node: Node) => {
+		for (const child of Array.from(node.childNodes)) {
+			if (child.nodeType === Node.TEXT_NODE) {
+				if (child.textContent) {
+					text += child.textContent;
+					endsOnBlockBreak = false;
+				}
+				continue;
+			}
+			if (child.nodeType !== Node.ELEMENT_NODE) continue;
+			const tag = (child as Element).tagName;
+			if (tag === 'BR') {
+				text += '\n';
+				endsOnBlockBreak = false;
+				continue;
+			}
+			const isBlock = LEGACY_BLOCK_TAGS.has(tag);
+			if (isBlock && text && !text.endsWith('\n')) text += '\n';
+			walk(child);
+			if (isBlock && text && !text.endsWith('\n')) {
+				text += '\n';
+				endsOnBlockBreak = true;
+			}
+		}
+	};
+	walk(doc.body);
+	return endsOnBlockBreak ? text.replace(/\n$/, '') : text;
+}
+
+// nh3 sanitizes the lesson content field on save, mangling raw < > &. Keep stored
+// code entity-escaped (nh3 preserves entities) and decode on load. New format:'text'
+// data must be escaped with escapeForStorage only.
+function escapeForStorage(text: string): string {
+	return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+// Reverses escapeHTML (derived from HTML_ESCAPE_MAP so they can't drift), plus numeric
+// synonyms. Broader than escapeForStorage on purpose: covers legacy escapeHTML-built data.
+const STORAGE_ENTITIES: Record<string, string> = {
+	...Object.fromEntries(
+		Object.entries(HTML_ESCAPE_MAP as Record<string, string>)
+			.map(([char, entity]) => [entity.toLowerCase(), char])
+	),
+	'&#34;': '"', '&#x22;': '"',
+	'&#x27;': "'",
+	'&#96;': '`',
+	'&#61;': '=',
+};
+const STORAGE_ENTITY_RE = new RegExp(`(?:${Object.keys(STORAGE_ENTITIES).join('|')})`, 'gi');
+
+function decodeFromStorage(stored: string): string {
+	// Leftmost-first: "&amp;lt;" -> "&lt;", never double-decoded.
+	return stored.replace(STORAGE_ENTITY_RE, (entity) =>
+		STORAGE_ENTITIES[entity.toLowerCase()] ?? entity);
+}
+
+// Honor a language only if hljs has the grammar; the raw value is stored so a
+// later registration can pick it up.
+function resolveCodeBoxLanguage(language: unknown): string {
+	return language && typeof language === 'string' && hljs.getLanguage(language)
+		? language
+		: 'plaintext';
+}
+
 const DEFAULT_THEMES = ['light', 'dark'];
 const COMMON_LANGUAGES = {
-	none: 'Auto-detect', apache: 'Apache', bash: 'Bash', cs: 'C#', cpp: 'C++', css: 'CSS', coffeescript: 'CoffeeScript', diff: 'Diff',
+	plaintext: 'Plaintext', apache: 'Apache', bash: 'Bash', cs: 'C#', cpp: 'C++', css: 'CSS', coffeescript: 'CoffeeScript', diff: 'Diff',
 	go: 'Go', html: 'HTML, XML', http: 'HTTP', json: 'JSON', java: 'Java', javascript: 'JavaScript', kotlin: 'Kotlin',
 	less: 'Less', lua: 'Lua', makefile: 'Makefile', markdown: 'Markdown', nginx: 'Nginx', objectivec: 'Objective-C',
 	php: 'PHP', perl: 'Perl', properties: 'Properties', python: 'Python', ruby: 'Ruby', rust: 'Rust', scss: 'SCSS',
 	sql: 'SQL', shell: 'Shell Session', swift: 'Swift', toml: 'TOML, also INI', typescript: 'TypeScript', yaml: 'YAML',
-	plaintext: 'Plaintext'
 };
 
 export class CodeBox {
 	api: any;
 	config: { themeName: any; themeURL: any; useDefaultTheme: any; };
 	readOnly: boolean;
-	data: { code: any; language: any; theme: any; };
+	data: { code: string; format: 'text'; language: string; theme: string; };
+	highlighted = false;
 	highlightScriptID: string;
 	highlightCSSID: string;
+	highlightCSSLinkID: string;
 	codeArea: HTMLDivElement;
 	selectInput: HTMLInputElement;
 	selectDropIcon: HTMLElement;
@@ -87,13 +201,16 @@ export class CodeBox {
 			useDefaultTheme: (config.useDefaultTheme && typeof config.useDefaultTheme === 'string'
 				&& DEFAULT_THEMES.includes(config.useDefaultTheme.toLowerCase())) ? config.useDefaultTheme : 'dark',
 		};
+		const rawCode = data.code && typeof data.code === 'string' ? data.code : '';
 		this.data = {
-			code: data.code && typeof data.code === 'string' ? data.code : '',
-			language: data.language && typeof data.language === 'string' ? data.language : 'Auto-detect',
+			code: data.format === 'text' ? decodeFromStorage(rawCode) : legacyHTMLToPlainText(rawCode),
+			format: 'text',
+			language: data.language && typeof data.language === 'string' ? data.language : 'plaintext',
 			theme: data.theme && typeof data.theme === 'string' ? data.theme : this._getThemeURLFromConfig(),
 		};
 		this.highlightScriptID = 'highlightJSScriptElement';
 		this.highlightCSSID = 'highlightJSCSSElement';
+		this.highlightCSSLinkID = 'highlightJSCSSLinkElement';
 		this.codeArea = document.createElement('div');
 		this.selectInput = document.createElement('input');
 		this.selectDropIcon = document.createElement('i');
@@ -110,6 +227,7 @@ export class CodeBox {
 	static get sanitize() {
 		return {
 			code: true,
+			format: false,
 			language: false,
 			theme: false,
 		}
@@ -143,14 +261,13 @@ export class CodeBox {
 
 		codeAreaHolder.setAttribute('class', 'codeBoxHolder');
 		this.codeArea.setAttribute('class', `codeBoxTextArea ${this.config.useDefaultTheme} ${this.data.language}`);
-		this.codeArea.setAttribute('contenteditable', 'true');
-		this.codeArea.innerHTML = this.data.code;
-		this.api.listeners.on(this.codeArea, 'paste', event => this._handleCodeAreaPaste(event), false);
+		this.codeArea.textContent = this.data.code;
 
 		if (!this.readOnly) {
-			// `this.data.code` is the canonical un-highlighted source. Keep editing on
-			// clean source (focus strips display markup, input re-captures it) so
-			// save() never serializes hljs spans back into the stored code.
+			// plaintext-only strips rich formatting; editing works on plain source so
+			// save() never stores hljs spans. Paste handler covers engines lacking it.
+			this.codeArea.setAttribute('contenteditable', 'plaintext-only');
+			this.api.listeners.on(this.codeArea, 'paste', event => this._handleCodeAreaPaste(event), false);
 			this.api.listeners.on(this.codeArea, 'focus', () => this._syncFromSource(), false);
 			this.api.listeners.on(this.codeArea, 'input', () => this._captureSource(), false);
 			this.api.listeners.on(this.codeArea, 'blur', event => this._onBlur(event), false);
@@ -159,18 +276,18 @@ export class CodeBox {
 		codeAreaHolder.appendChild(this.codeArea);
 		!this.readOnly && codeAreaHolder.appendChild(languageSelect);
 
-		// Highlight saved blocks on load only in read-only (student) view. In edit
-		// mode the block is contenteditable, so highlighting is applied on blur /
-		// language change as display-only markup that save() never reads.
-		if (this.readOnly && this.data.code) this._highlightCodeArea();
+		// Highlight on load in both modes; edit mode strips it back on focus.
+		if (this.data.code) this._highlightCodeArea();
 
 		return codeAreaHolder;
 	}
 
 	save(blockContent) {
-		// Return the canonical source, never the highlighted DOM. `this.data.code`
-		// is kept in sync by _captureSource on every edit and on blur.
-		return Object.assign(this.data, { theme: this._getThemeURLFromConfig() });
+		// Canonical plain source, entity-escaped for storage — never the highlighted DOM.
+		return Object.assign({}, this.data, {
+			code: escapeForStorage(this.data.code),
+			theme: this._getThemeURLFromConfig(),
+		});
 	}
 
 	validate(savedData) {
@@ -199,7 +316,8 @@ export class CodeBox {
 		this.selectInput.setAttribute('class', `codeBoxSelectInput ${this.config.useDefaultTheme}`);
 		this.selectInput.setAttribute('type', 'text');
 		this.selectInput.setAttribute('readonly', 'true');
-		this.selectInput.value = this.data.language;
+		this.selectInput.value =
+			(COMMON_LANGUAGES as Record<string, string>)[this.data.language] ?? this.data.language;
 		this.api.listeners.on(this.selectInput, 'click', event => this._handleSelectInputClick(event), false);
 
 		selectPreview.setAttribute('class', 'codeBoxSelectPreview');
@@ -222,19 +340,16 @@ export class CodeBox {
 	}
 
 	_captureSource() {
-		// Canonical source is the un-highlighted innerHTML. Editing always happens on
-		// clean source (see _syncFromSource), so this never captures hljs markup.
-		this.data.code = this.codeArea.innerHTML;
+		// innerText keeps rendered line breaks; textContent is the jsdom fallback.
+		this.data.code = this.codeArea.innerText ?? this.codeArea.textContent ?? '';
 	}
 
 	_syncFromSource() {
-		// On focus, drop any display-only highlight markup so both the edit surface
-		// and the innerHTML that _captureSource reads stay on clean source. Preserve
-		// the caret across the rewrite so clicking into a highlighted block doesn't
-		// jump the cursor to the start.
-		if (this.codeArea.innerHTML === this.data.code) return;
+		// On focus, strip highlight markup and restore the caret.
+		if (!this.highlighted) return;
 		const offset = this._getCaretOffset();
-		this.codeArea.innerHTML = this.data.code;
+		this.codeArea.textContent = this.data.code;
+		this.highlighted = false;
 		this._setCaretOffset(offset);
 	}
 
@@ -243,8 +358,7 @@ export class CodeBox {
 		if (!selection || selection.rangeCount === 0) return null;
 		const range = selection.getRangeAt(0);
 		if (!this.codeArea.contains(range.endContainer)) return null;
-		// Character count from the block's start to the caret. Highlight spans add
-		// no characters, so this offset maps cleanly onto the un-highlighted source.
+		// Highlight spans add no characters, so the char offset maps onto plain source.
 		const preCaret = range.cloneRange();
 		preCaret.selectNodeContents(this.codeArea);
 		preCaret.setEnd(range.endContainer, range.endOffset);
@@ -269,7 +383,7 @@ export class CodeBox {
 			}
 			remaining -= length;
 		}
-		// Offset past the end (e.g. empty block): place the caret at the end.
+		// Past the end: caret to end.
 		const range = document.createRange();
 		range.selectNodeContents(this.codeArea);
 		range.collapse(false);
@@ -283,14 +397,41 @@ export class CodeBox {
 	}
 
 	_highlightCodeArea(event?) {
-		// hljs skips elements it has already highlighted; saved blocks are
-		// re-highlighted on every render and after every edit.
-		this.codeArea.removeAttribute('data-highlighted');
-		hljs.highlightElement(this.codeArea);
+		// Highlight by the chosen language only; hljs.highlight escapes the source.
+		const result = hljs.highlight(this.data.code, { language: resolveCodeBoxLanguage(this.data.language) });
+		this.codeArea.innerHTML = result.value;
+		this.codeArea.classList.add('hljs');
+		this.highlighted = true;
 	}
 
 	_handleCodeAreaPaste(event) {
+		// Insert the plain-text payload only — no outside styling.
+		event.preventDefault();
 		event.stopPropagation();
+		const text = event.clipboardData?.getData('text/plain') ?? '';
+		if (text) {
+			// execCommand preserves native undo where supported.
+			const inserted = typeof document.execCommand === 'function'
+				&& document.execCommand('insertText', false, text);
+			if (!inserted) this._insertTextAtCaret(text);
+		}
+		this._captureSource();
+	}
+
+	_insertTextAtCaret(text: string) {
+		const selection = window.getSelection();
+		const range = selection && selection.rangeCount > 0 ? selection.getRangeAt(0) : null;
+		if (!selection || !range || !this.codeArea.contains(range.startContainer)) {
+			this.codeArea.appendChild(document.createTextNode(text));
+			return;
+		}
+		range.deleteContents();
+		const node = document.createTextNode(text);
+		range.insertNode(node);
+		range.setStartAfter(node);
+		range.collapse(true);
+		selection.removeAllRanges();
+		selection.addRange(range);
 	}
 
 	_handleSelectInputClick(event) {
@@ -313,18 +454,32 @@ export class CodeBox {
 	}
 
 	_injectHighlightJSCSSElement() {
-		const highlightJSCSSElement = document.querySelector(`#${this.highlightCSSID}`);
-		let highlightJSCSSURL = this._getThemeURLFromConfig();
-		if (!highlightJSCSSElement) {
-			const link = document.createElement('link');
-			const head = document.querySelector('head');
-			link.setAttribute('rel', 'stylesheet');
-			link.setAttribute('href', highlightJSCSSURL);
-			link.setAttribute('id', this.highlightCSSID);
+		const head = document.querySelector('head');
 
-			if (head) head.appendChild(link);
+		// Default theme is a bundled <style>; custom themes get a separate <link> id
+		// so instances with different configs don't evict each other.
+		if (!this.config.themeName && !this.config.themeURL) {
+			const existing = document.querySelector(`#${this.highlightCSSID}`);
+			if (existing?.tagName === 'STYLE') return;
+			existing?.remove(); // stale <link> from the old CDN theme
+			const style = document.createElement('style');
+			style.setAttribute('id', this.highlightCSSID);
+			style.textContent = CODEBOX_THEME_CSS;
+			if (head) head.appendChild(style);
+			return;
 		}
-		else highlightJSCSSElement.setAttribute('href', highlightJSCSSURL);
+
+		const highlightJSCSSURL = this._getThemeURLFromConfig();
+		const existingLink = document.querySelector(`#${this.highlightCSSLinkID}`);
+		if (existingLink?.tagName === 'LINK') {
+			existingLink.setAttribute('href', highlightJSCSSURL);
+			return;
+		}
+		const link = document.createElement('link');
+		link.setAttribute('rel', 'stylesheet');
+		link.setAttribute('href', highlightJSCSSURL);
+		link.setAttribute('id', this.highlightCSSLinkID);
+		if (head) head.appendChild(link);
 	}
 
 	_getThemeURLFromConfig() {
