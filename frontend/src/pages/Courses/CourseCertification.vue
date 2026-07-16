@@ -6,7 +6,7 @@
 	</header>
 	<div class="p-5">
 		<div v-if="certificate.data && Object.keys(certificate.data).length">
-			<div class="text-xl-semibold text-ink-gray-9 mb-1">
+			<div class="text-lg-semibold text-ink-gray-9 mb-1">
 				{{ __('Certification') }}
 			</div>
 			<div class="text-ink-gray-9 text-sm">

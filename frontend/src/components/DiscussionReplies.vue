@@ -6,13 +6,13 @@
 					<span class="lucide-chevron-left size-5 text-ink-gray-7" />
 				</template>
 			</Button>
-			<span class="text-xl-semibold ms-2 text-ink-gray-9">
+			<span class="text-lg-semibold ms-2 text-ink-gray-9">
 				{{ topic.title }}
 			</span>
 		</div>
 		<div
 			v-if="!singleThread"
-			class="hidden md:block text-xl-semibold mb-5 text-ink-gray-9"
+			class="hidden md:block text-lg-semibold mb-5 text-ink-gray-9"
 		>
 			{{ topic.title }}
 		</div>
@@ -64,7 +64,7 @@
 						</Button>
 					</div>
 				</div>
-				<TextEditor
+				<RichTextEditor
 					:content="reply.reply"
 					@change="(val) => (reply.reply = val)"
 					:editable="reply.editable || false"
@@ -78,7 +78,7 @@
 			</div>
 		</div>
 
-		<TextEditor
+		<RichTextEditor
 			v-if="renderEditor && !readOnlyMode"
 			class="mt-5"
 			:content="newReply"
@@ -99,18 +99,12 @@
 	</div>
 </template>
 <script setup>
-import {
-	call,
-	createResource,
-	TextEditor,
-	Button,
-	Dropdown,
-	toast,
-} from 'frappe-ui'
+import { call, createResource, Button, Dropdown, toast } from 'frappe-ui'
 import { timeAgo } from '@/utils'
 import UserAvatar from '@/components/UserAvatar.vue'
 import { ref, inject, onMounted, onUnmounted } from 'vue'
 import { useTelemetry } from 'frappe-ui/frappe'
+import RichTextEditor from '@/components/RichTextEditor.vue'
 
 const showTopics = defineModel('showTopics')
 const newReply = ref('')

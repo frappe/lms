@@ -6,7 +6,7 @@
 	</LayoutHeader>
 	<div class="p-6">
 		<div class="flex items-center justify-between gap-x-32 mb-5">
-			<div class="text-lg font-semibold text-ink-gray-9">
+			<div class="text-md font-semibold text-ink-gray-9">
 				{{
 					submissions.data?.length
 						? __('{0} Submissions').format(submissions.data.length)
@@ -62,7 +62,7 @@
 					:key="item.key"
 				>
 					<template #prefix="{ item }">
-						<FeatherIcon :name="item.icon?.toString()" class="h-4 w-4" />
+						<span :class="[item.icon, 'h-4 w-4']" aria-hidden="true" />
 					</template>
 				</ListHeaderItem>
 			</ListHeader>
@@ -147,7 +147,6 @@ import {
 	Breadcrumbs,
 	Button,
 	createListResource,
-	FeatherIcon,
 	FormControl,
 	ListView,
 	ListHeader,
@@ -277,25 +276,25 @@ const submissionColumns = computed(() => {
 			label: __('Member'),
 			key: 'member_name',
 			width: '30%',
-			icon: 'user',
+			icon: 'lucide-user',
 		},
 		{
 			label: __('Exercise'),
 			key: 'exercise_title',
 			width: '30%',
-			icon: 'code',
+			icon: 'lucide-code',
 		},
 		{
 			label: __('Status'),
 			key: 'status',
 			width: '20%',
-			icon: 'check-circle',
+			icon: 'lucide-check-circle',
 		},
 		{
 			label: __('Modified'),
 			key: 'modified',
 			width: '15%',
-			icon: 'clock',
+			icon: 'lucide-clock',
 			align: 'right',
 		},
 	]

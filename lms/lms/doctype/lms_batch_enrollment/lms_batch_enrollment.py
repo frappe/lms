@@ -92,6 +92,9 @@ class LMSBatchEnrollment(Document):
 
 		for live_class in live_classes:
 			if live_class.event:
+				# Scoped bypass: adds only self.member to events of this batch's own live
+				# classes. A self-enrolling student has no create permission on Event
+				# Participants; the authorization boundary is enrollment creation itself.
 				frappe.get_doc(
 					{
 						"doctype": "Event Participants",
@@ -102,7 +105,7 @@ class LMSBatchEnrollment(Document):
 						"parenttype": "Event",
 						"parentfield": "event_participants",
 					}
-				).save()
+				).save(ignore_permissions=True)
 
 
 @frappe.whitelist()

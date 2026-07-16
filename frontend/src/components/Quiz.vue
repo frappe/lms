@@ -87,7 +87,7 @@
 
 		<div v-if="activeQuestion == 0">
 			<div class="border text-center p-20 rounded-md">
-				<div class="text-xl-semibold text-ink-gray-9">
+				<div class="text-lg-semibold text-ink-gray-9">
 					{{ quiz.data.title }}
 				</div>
 				<template v-if="questions.length">
@@ -236,7 +236,7 @@
 						</div>
 					</div>
 					<div v-else>
-						<TextEditor
+						<RichTextEditor
 							class="mt-4"
 							:content="possibleAnswer"
 							@change="(val) => (possibleAnswer = val)"
@@ -349,7 +349,7 @@
 			</div>
 		</div>
 		<div v-else class="border rounded-lg p-20 space-y-2 text-center">
-			<div class="text-xl-semibold text-ink-gray-9">
+			<div class="text-lg-semibold text-ink-gray-9">
 				{{ __('Quiz Summary') }}
 			</div>
 			<div
@@ -469,7 +469,6 @@ import {
 	Dialog,
 	LoadingIndicator,
 	ListView,
-	TextEditor,
 	FormControl,
 	toast,
 } from 'frappe-ui'
@@ -484,6 +483,7 @@ import {
 } from 'vue'
 import { timeAgo } from '@/utils/format'
 import ProgressBar from '@/components/ProgressBar.vue'
+import RichTextEditor from '@/components/RichTextEditor.vue'
 
 const user = inject('$user')
 const activeQuestion = ref(0)

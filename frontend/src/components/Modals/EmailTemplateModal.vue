@@ -43,7 +43,6 @@
 					v-model="template.response_html"
 					type="textarea"
 					:required="true"
-					:rows="10"
 					:placeholder="
 						__(
 							'<p>Dear {{ member_name }},</p>\n\n<p>You have been enrolled in our upcoming batch {{ batch_name }}.</p>\n\n<p>Thanks,</p>\n<p>Frappe Learning</p>'
@@ -55,7 +54,7 @@
 						{{ __('Content') }}
 						<span class="text-ink-red-6">*</span>
 					</div>
-					<TextEditor
+					<RichTextEditor
 						:content="template.response"
 						@change="(val) => (template.response = val)"
 						:editable="true"
@@ -73,10 +72,11 @@
 	</Dialog>
 </template>
 <script setup lang="ts">
-import { call, Dialog, FormControl, TextEditor, toast } from 'frappe-ui'
+import { call, Dialog, FormControl, toast } from 'frappe-ui'
 import BooleanSwitch from '@/components/Controls/BooleanSwitch.vue'
 import { reactive, watch } from 'vue'
 import { cleanError } from '@/utils'
+import RichTextEditor from '@/components/RichTextEditor.vue'
 
 const props = defineProps({
 	templateID: {

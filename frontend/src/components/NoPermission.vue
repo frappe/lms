@@ -1,7 +1,7 @@
 <template>
 	<div class="bg-surface-base w-full h-full">
 		<div class="w-fit mx-auto mt-56 text-center p-4">
-			<div class="text-5xl-semibold text-ink-gray-5 pb-4 mb-2 border-b">
+			<div class="text-4xl-semibold text-ink-gray-5 pb-4 mb-2 border-b">
 				{{ __('Not Permitted') }}
 			</div>
 			<div v-if="user.data" class="px-5 py-3">

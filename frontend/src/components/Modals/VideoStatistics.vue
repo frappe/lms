@@ -5,7 +5,7 @@
 				<div class="flex items-center justify-between">
 					<TabButtons
 						v-if="tabs.length > 1"
-						:buttons="tabs"
+						:options="tabs"
 						v-model="currentTab"
 						class="w-fit"
 					/>

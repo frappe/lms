@@ -3,9 +3,9 @@
 		<FormLabel :label="label" />
 		<div class="w-full">
 			<Popover>
-				<template #target="{ togglePopover }">
+				<template #trigger="{ toggle }">
 					<button
-						@click="openPopover(togglePopover)"
+						@click="openPopover(toggle)"
 						class="flex w-full items-center gap-x-2 focus:outline-none transition-colors border border-[--surface-gray-2] bg-surface-gray-2 rounded h-7 py-1.5 px-2 hover:border-outline-elevation-2 hover:bg-surface-gray-3 focus:bg-surface-base focus:border-outline-gray-4 focus:shadow-sm focus:ring-0"
 					>
 						<component
@@ -26,7 +26,7 @@
 						</span>
 					</button>
 				</template>
-				<template #body-main="{ close, isOpen }" class="w-full">
+				<template #default="{ close, isOpen }" class="w-full">
 					<div class="p-3 max-h-56 overflow-auto w-full">
 						<FormControl
 							ref="search"

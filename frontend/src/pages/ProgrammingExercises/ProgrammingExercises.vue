@@ -39,7 +39,7 @@
 		<div
 			class="mb-5 flex flex-col justify-between gap-y-4 px-5 sm:flex-row sm:items-center"
 		>
-			<div class="text-xl-semibold text-ink-gray-9">
+			<div class="text-lg-semibold text-ink-gray-9">
 				{{ __('{0} Exercises').format(totalExercises.data || 0) }}
 			</div>
 			<div class="flex flex-col gap-3 sm:gap-5 md:flex-row">
@@ -86,7 +86,7 @@
 			<ListHeader class="mb-2 grid items-center rounded bg-surface-gray-2 p-2">
 				<ListHeaderItem :item="item" v-for="item in columns">
 					<template #prefix="{ item }">
-						<FeatherIcon :name="item.icon?.toString()" class="h-4 w-4" />
+						<span :class="[item.icon, 'h-4 w-4']" aria-hidden="true" />
 					</template>
 				</ListHeaderItem>
 			</ListHeader>
@@ -168,7 +168,6 @@ import {
 	call,
 	createResource,
 	createListResource,
-	FeatherIcon,
 	FormControl,
 	ListView,
 	ListHeader,
@@ -322,20 +321,20 @@ const columns = computed(() => {
 			label: __('Title'),
 			key: 'title',
 			width: 1,
-			icon: 'file-text',
+			icon: 'lucide-file-text',
 		},
 		{
 			label: __('Language'),
 			key: 'language',
 			width: 1,
 			align: 'left',
-			icon: 'code',
+			icon: 'lucide-code',
 		},
 		{
 			label: __('Updated On'),
 			key: 'modified',
 			width: 1,
-			icon: 'clock',
+			icon: 'lucide-clock',
 			align: 'right',
 		},
 	]

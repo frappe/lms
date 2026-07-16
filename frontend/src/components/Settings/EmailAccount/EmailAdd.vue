@@ -63,6 +63,7 @@
 							/>
 						</div>
 					</div>
+					<div class="h-px border-t border-outline-elevation-2" />
 					<div class="flex flex-col gap-4">
 						<Switch
 							v-for="field in incomingOutgoingFields"
