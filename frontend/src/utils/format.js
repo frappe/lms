@@ -10,22 +10,20 @@ export const formatSeconds = (time) => {
 	return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`
 }
 
+// Single source of truth; decoders derive their inverse from this map.
+export const HTML_ESCAPE_MAP = {
+	'&': '&amp;',
+	'<': '&lt;',
+	'>': '&gt;',
+	'"': '&quot;',
+	"'": '&#39;',
+	'`': '&#x60;',
+	'=': '&#x3D;',
+}
+
 export const escapeHTML = (text) => {
 	if (!text) return ''
-	let escape_html_mapping = {
-		'&': '&amp;',
-		'<': '&lt;',
-		'>': '&gt;',
-		'"': '&quot;',
-		"'": '&#39;',
-		'`': '&#x60;',
-		'=': '&#x3D;',
-	}
-
-	return String(text).replace(
-		/[&<>"'`=]/g,
-		(char) => escape_html_mapping[char]
-	)
+	return String(text).replace(/[&<>"'`=]/g, (char) => HTML_ESCAPE_MAP[char])
 }
 
 export const formatTimestamp = (seconds) => {
