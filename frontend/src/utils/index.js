@@ -809,6 +809,7 @@ const setupPlyrForVideo = (video, players) => {
 		'current-time',
 		'mute',
 		'volume',
+		'settings',
 		'fullscreen',
 	]
 
