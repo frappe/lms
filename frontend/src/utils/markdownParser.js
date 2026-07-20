@@ -2,6 +2,13 @@ import { CodeXml } from 'lucide-vue-next'
 import { createApp, h } from 'vue'
 import { escapeHTML } from '@/utils/format'
 
+// Language-class hints on pasted code (hljs/Prism/SyntaxHighlighter). Anchored to
+// a class-token boundary so 'language-' matches only as its own class.
+const CODE_LANGUAGE_PATTERNS = [
+	/(?:^|\s)(?:language|lang)-([\w+#-]+)/i,
+	/(?:^|\s)brush:\s*([\w+#-]+)/i,
+]
+
 // Inline tags we keep when pasting rich HTML, normalized to the same tags the
 // editor's own inline tools emit. Everything else (span/font/div wrappers,
 // colors, styles) is dropped while its text is preserved. The stored content is
@@ -507,7 +514,7 @@ export class Markdown {
 					type: 'codeBox',
 					data: {
 						code: escapeHTML(node.textContent),
-						language: 'Auto-detect',
+						language: this._codeLanguageFrom(node),
 					},
 				})
 			} else if (/^H[1-6]$/.test(tag)) {
@@ -562,6 +569,19 @@ export class Markdown {
 
 		for (const child of doc.body.childNodes) handle(child)
 		return blocks
+	}
+
+	// Inner <code> carries the most specific hint, so check it before the <pre>.
+	_codeLanguageFrom(pre) {
+		for (const el of [pre.querySelector('code'), pre]) {
+			const className =
+				typeof el?.className === 'string' ? el.className : ''
+			for (const pattern of CODE_LANGUAGE_PATTERNS) {
+				const match = className.match(pattern)
+				if (match) return match[1]
+			}
+		}
+		return 'plaintext'
 	}
 
 	// True when a node carries visible text (nbsp-aware).
