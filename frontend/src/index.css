@@ -1,4 +1,5 @@
 @import 'frappe-ui/style.css';
+@import 'frappe-ui/list-style.css';
 @import './styles/blockEditor.css';
 
 /* This build makes --surface-sidebar transparent in dark mode; point it at
