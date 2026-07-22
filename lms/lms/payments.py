@@ -69,6 +69,14 @@ def get_payment_link(
 	coupon = details.get("coupon")
 	total_amount = amount_with_gst if amount_with_gst else amount
 
+	# Checkout is reachable from a stale tab or the back button. Paying again for
+	# access the learner already has would charge them twice, count another
+	# coupon redemption, and grant nothing. The billing details they typed are
+	# still worth keeping.
+	if already_has_access(doctype, docname, payment_for_certificate):
+		save_address(address)
+		return redirect_to
+
 	# Resolve the controller before writing anything: get_controller validates the
 	# gateway and fails with an actionable message, so a misconfigured gateway
 	# doesn't leave an orphan Address / LMS Payment row behind.
@@ -111,6 +119,22 @@ def get_payment_link(
 	url = controller.get_payment_url(**payment_details)
 
 	return url
+
+
+def already_has_access(doctype: str, docname: str, payment_for_certificate: int) -> bool:
+	member = frappe.session.user
+
+	if int(payment_for_certificate):
+		return bool(
+			frappe.db.get_value(
+				"LMS Enrollment", {"member": member, "course": docname}, "purchased_certificate"
+			)
+		)
+
+	if doctype == "LMS Course":
+		return bool(frappe.db.exists("LMS Enrollment", {"member": member, "course": docname}))
+
+	return bool(frappe.db.exists("LMS Batch Enrollment", {"member": member, "batch": docname}))
 
 
 def create_order(payment_gateway: str, payment_details: dict, controller: object):
