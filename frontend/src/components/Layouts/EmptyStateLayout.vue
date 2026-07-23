@@ -13,6 +13,7 @@
 					{{ computedDescription }}
 				</span>
 			</div>
+			<slot />
 		</div>
 	</div>
 </template>
