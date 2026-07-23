@@ -74,6 +74,7 @@ import {
 	Badge,
 	Button,
 	Switch,
+	call,
 	createResource,
 	toast,
 	Tooltip,
@@ -443,7 +444,7 @@ const createNewLesson = () => {
 	)
 }
 
-const editCurrentLesson = () => {
+const editCurrentLesson = (isRetry = false) => {
 	// Catch the re-thrown rejection: a save racing a delete 404s harmlessly.
 	editLesson
 		.submit(
@@ -467,9 +468,36 @@ const editCurrentLesson = () => {
 		)
 		.catch((err) => {
 			if (lessonDeleted) return
+			// The daily untitled-lesson rename can move the docname under an open
+			// editor; re-resolve it by index and retry once (a plain reload would
+			// drop the unsaved edits we're saving).
+			if (!isRetry && err?.exc_type === 'DoesNotExistError') {
+				resolveLessonName().then((name) => {
+					if (name) editCurrentLesson(true)
+					else toast.error(err.messages?.[0] || err.message || err)
+				})
+				return
+			}
 			toast.error(err.messages?.[0] || err.message || err)
 		})
 }
+
+const resolveLessonName = () =>
+	call('lms.lms.utils.get_lesson_creation_details', {
+		course: props.courseName,
+		chapter: props.chapterNumber,
+		lesson: props.lessonNumber,
+	})
+		.then((data) => {
+			const name = data?.lesson?.name
+			if (name) {
+				lessonDetails.data.lesson.name = name
+				contentUploadContext.docname = name
+				instructorUploadContext.docname = name
+			}
+			return name || null
+		})
+		.catch(() => null)
 
 const validateLesson = () => {
 	if (!lesson.title) {
