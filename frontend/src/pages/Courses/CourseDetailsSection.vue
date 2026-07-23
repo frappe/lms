@@ -93,7 +93,7 @@ import Link from '@/components/Controls/Link.vue'
 import CourseInstructorsField from '@/pages/Courses/CourseInstructorsField.vue'
 import CourseThumbnailField from '@/pages/Courses/CourseThumbnailField.vue'
 import VideoPreviewField from '@/components/Controls/VideoPreviewField.vue'
-import type { CourseFormContext } from '@/types/api'
+import type { CourseFormContext } from '@/types'
 
 interface TagOption {
 	label: string

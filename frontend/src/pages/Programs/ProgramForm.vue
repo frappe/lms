@@ -248,7 +248,7 @@ import {
 } from 'frappe-ui'
 import { computed, ref, watch, getCurrentInstance } from 'vue'
 
-import { Programs, Program } from './types'
+import { Programs, Program } from '@/types'
 import { sanitizeHTML, openSettings } from '@/utils'
 import Link from '@/components/Controls/Link.vue'
 import Draggable from 'vuedraggable'

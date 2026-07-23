@@ -46,7 +46,7 @@ import { Button, createListResource } from 'frappe-ui'
 import EmailAccountCard from './EmailAccountCard.vue'
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 import SettingsLayout from '@/components/Layouts/SettingsLayout.vue'
-import type { EmailAccount } from '@/types/email'
+import type { EmailAccount } from '@/types'
 
 const emit = defineEmits(['update:step'])
 

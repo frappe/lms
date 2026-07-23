@@ -15,7 +15,7 @@ import { Ref, ref } from 'vue'
 import EmailAdd from './EmailAdd.vue'
 import EmailAccountList from './EmailAccountList.vue'
 import EmailEdit from './EmailEdit.vue'
-import type { EmailAccount, EmailStep } from '@/types/email'
+import type { EmailAccount, EmailStep } from '@/types'
 
 const step: Ref<EmailStep> = ref('email-list')
 const accountData = ref<EmailAccount | null>(null)

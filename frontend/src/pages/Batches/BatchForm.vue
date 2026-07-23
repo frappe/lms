@@ -348,7 +348,7 @@ import NewMemberModal from '@/components/Modals/NewMemberModal.vue'
 import EmailTemplateModal from '@/components/Modals/EmailTemplateModal.vue'
 import type { LMSBatch } from '@/types/lms/LMSBatch'
 import type { CourseInstructor } from '@/types/lms/CourseInstructor'
-import type { Resource, BatchDetails, SessionUser } from '@/types/api'
+import type { Resource, BatchDetails, SessionUser } from '@/types'
 import RichTextEditor from '@/components/RichTextEditor.vue'
 
 interface DialogAction {

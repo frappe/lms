@@ -50,7 +50,7 @@ import type {
 	CourseFormMeta,
 	Resource,
 	SessionUser,
-} from '@/types/api'
+} from '@/types'
 
 interface DialogAction {
 	label: string

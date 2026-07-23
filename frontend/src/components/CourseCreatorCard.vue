@@ -82,7 +82,7 @@ import { computed, ref, watch } from 'vue'
 import DOMPurify from 'dompurify'
 import UserAvatar from '@/components/UserAvatar.vue'
 import { decodeEntities, htmlToText } from '@/utils'
-import type { CourseInstructorInfo } from '@/types/api'
+import type { CourseInstructorInfo } from '@/types'
 
 const props = defineProps<{
 	instructors: CourseInstructorInfo[]

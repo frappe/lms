@@ -89,7 +89,7 @@ import {
 import { useDebounceFn, watchDebounced } from '@vueuse/core'
 import { useAttrs, computed, ref, watch } from 'vue'
 import { useSettings } from '@/stores/settings'
-import type { Resource } from '@/types/api'
+import type { Resource } from '@/types'
 
 type ComboboxSize = 'sm' | 'md' | 'lg' | 'xl'
 type ComboboxVariant = 'subtle' | 'outline' | 'ghost'

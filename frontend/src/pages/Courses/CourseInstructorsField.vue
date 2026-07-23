@@ -54,7 +54,7 @@ import { Avatar, createResource } from 'frappe-ui'
 import { computed, inject, ref, watch } from 'vue'
 import MultiLink from '@/components/Controls/MultiLink.vue'
 import NewMemberModal from '@/components/Modals/NewMemberModal.vue'
-import type { CourseFormContext, Resource } from '@/types/api'
+import type { CourseFormContext, Resource } from '@/types'
 
 interface InstructorOption {
 	label: string

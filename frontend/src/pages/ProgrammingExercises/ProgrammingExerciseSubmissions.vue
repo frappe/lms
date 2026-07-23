@@ -158,10 +158,7 @@ import {
 	usePageMeta,
 	toast,
 } from 'frappe-ui'
-import type {
-	ProgrammingExerciseSubmission,
-	Filters,
-} from '@/pages/ProgrammingExercises/types'
+import type { ProgrammingExerciseSubmission, Filters } from '@/types'
 import { computed, inject, onMounted, ref, watch } from 'vue'
 import { sessionStore } from '@/stores/session'
 import { useRouter } from 'vue-router'

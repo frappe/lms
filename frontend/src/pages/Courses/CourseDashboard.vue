@@ -313,7 +313,7 @@ import NumberChartGraph from '@/components/NumberChartGraph.vue'
 import ProgressBar from '@/components/ProgressBar.vue'
 import StudentCourseProgress from '@/pages/Courses/StudentCourseProgress.vue'
 
-import type { CourseDetails, Resource } from '@/types/api'
+import type { CourseDetails, Resource } from '@/types'
 
 const props = defineProps<{
 	course: Resource<CourseDetails | null>

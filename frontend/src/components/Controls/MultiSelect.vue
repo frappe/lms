@@ -107,7 +107,7 @@ import {
 import { createResource, Button, FormLabel, toast } from 'frappe-ui'
 import { ref, computed, useAttrs, watch } from 'vue'
 import { watchDebounced } from '@vueuse/core'
-import type { Resource } from '@/types/api'
+import type { Resource } from '@/types'
 
 interface SelectOption {
 	label: string
