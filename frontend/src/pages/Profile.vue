@@ -131,6 +131,7 @@
 			<router-view :profile="profile" :key="profile.data?.name" />
 		</div>
 	</div>
+	<NotFound v-else-if="(profile.fetched || profile.error) && !profile.data" />
 	<EditProfile
 		v-model="showProfileModal"
 		v-model:reloadProfile="profile"
@@ -155,6 +156,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { convertToTitleCase } from '@/utils'
 import UserAvatar from '@/components/UserAvatar.vue'
 import NoPermission from '@/components/NoPermission.vue'
+import NotFound from '@/pages/NotFound.vue'
 import EditProfile from '@/components/Modals/EditProfile.vue'
 import EditCoverImage from '@/components/Modals/EditCoverImage.vue'
 

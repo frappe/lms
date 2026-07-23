@@ -1978,6 +1978,10 @@ def get_pwa_manifest():
 
 @frappe.whitelist()
 def get_profile_details(username: str):
+	if not has_lms_role():
+		frappe.throw(
+			_("User does not have permission to access this user's profile details."), frappe.PermissionError
+		)
 	details = frappe.db.get_value(
 		"User",
 		{"username": username},
@@ -1999,12 +2003,9 @@ def get_profile_details(username: str):
 		],
 		as_dict=True,
 	)
-	roles = frappe.get_roles(details.name)
-	if not has_lms_role():
-		frappe.throw(
-			_("User does not have permission to access this user's profile details."), frappe.PermissionError
-		)
-	details.roles = roles
+	if not details:
+		frappe.throw(_("User {0} not found").format(username), frappe.DoesNotExistError)
+	details.roles = frappe.get_roles(details.name)
 	return details
 
 
