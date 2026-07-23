@@ -69,7 +69,7 @@ import { toggleNotifications } from '@/stores/notifications'
 
 const { logout, user } = sessionStore()
 let { isLoggedIn } = sessionStore()
-const { sidebarSettings } = useSettings()
+const { sidebarSettings, loadSidebarSettings } = useSettings()
 const router = useRouter()
 let { userResource } = usersStore()
 const sidebarLinks = ref([])
@@ -137,21 +137,18 @@ const addLink = (label, icon, to = '') => {
 const updateSidebarLinks = () => {
 	sidebarLinks.value = getSidebarLinks(true)
 	destructureSidebarLinks()
-	sidebarSettings.reload(
-		{},
-		{
-			onSuccess: async (data) => {
-				filterLinksToShow(data)
-				await addPrograms()
-				if (isModerator.value || isInstructor.value) {
-					addQuizzes()
-					addAssignments()
-					addProgrammingExercises()
-				}
-				addOtherLinks()
-			},
+	loadSidebarSettings().then(async () => {
+		const data = sidebarSettings.data
+		if (!data) return
+		filterLinksToShow(data)
+		await addPrograms()
+		if (isModerator.value || isInstructor.value) {
+			addQuizzes()
+			addAssignments()
+			addProgrammingExercises()
 		}
-	)
+		addOtherLinks()
+	})
 }
 
 const addQuizzes = () => {
@@ -193,6 +190,8 @@ watch(
 	},
 	{ immediate: true }
 )
+
+watch(() => sidebarSettings.data, updateSidebarLinks, { deep: true })
 
 const checkIfCanAddProgram = async () => {
 	if (!userResource.data) return false
