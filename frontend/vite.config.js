@@ -73,6 +73,8 @@ export default defineConfig(async ({ mode }) => {
 				'prosemirror-state',
 				'prosemirror-view',
 				'prosemirror-transform',
+				'vue',
+				'frappe-ui',
 			],
 		},
 		optimizeDeps: {
