@@ -32,12 +32,8 @@
 				<EditCoverImage
 					@select="(imageUrl) => coverImage.submit({ url: imageUrl })"
 				>
-					<template v-slot="{ togglePopover }">
-						<Button
-							v-if="!readOnlyMode"
-							variant="outline"
-							@click="togglePopover()"
-						>
+					<template #default>
+						<Button v-if="!readOnlyMode" variant="outline">
 							<template #prefix>
 								<span class="lucide-edit size-4 text-ink-gray-7" />
 							</template>
