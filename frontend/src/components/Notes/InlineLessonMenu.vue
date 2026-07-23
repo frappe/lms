@@ -54,7 +54,7 @@
 </template>
 <script setup lang="ts">
 import { computed, inject, ref, watch } from 'vue'
-import type { Note, Notes } from '@/components/Notes/types'
+import type { Note, Notes } from '@/types'
 import { blockQuotesClick, highlightText } from '@/utils'
 
 const user = inject<any>('$user')

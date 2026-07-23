@@ -21,7 +21,7 @@ import { Ref, ref } from 'vue'
 import EmailTemplateList from './EmailTemplateList.vue'
 import EmailTemplateAdd from './EmailTemplateAdd.vue'
 import EmailTemplateEdit from './EmailTemplateEdit.vue'
-import type { EmailTemplate, EmailTemplateStep } from '@/types/email'
+import type { EmailTemplate, EmailTemplateStep } from '@/types'
 
 defineProps<{
 	label: string

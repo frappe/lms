@@ -97,7 +97,7 @@ import {
 } from 'frappe-ui/list'
 import { computed, inject, onMounted, ref } from 'vue'
 import { cleanError } from '@/utils'
-import { User } from '@/components/Settings/types'
+import { User } from '@/types'
 import GoogleMeetAccountForm from '@/components/Settings/GoogleMeetAccountForm.vue'
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 import SettingsLayout from '@/components/Layouts/SettingsLayout.vue'

@@ -126,7 +126,7 @@ import { computed, ref } from 'vue'
 import { cleanError } from '@/utils'
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 import SettingsLayout from '@/components/Layouts/SettingsLayout.vue'
-import type { EmailTemplate, EmailTemplateStep } from '@/types/email'
+import type { EmailTemplate, EmailTemplateStep } from '@/types'
 
 defineProps<{
 	label: string

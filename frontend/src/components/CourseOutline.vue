@@ -98,7 +98,7 @@ import type {
 	OutlineLesson,
 	Resource,
 	SessionUser,
-} from '@/types/api'
+} from '@/types'
 
 interface DraggableEvent {
 	item: { __draggable_context: { element: OutlineChapter | OutlineLesson } }

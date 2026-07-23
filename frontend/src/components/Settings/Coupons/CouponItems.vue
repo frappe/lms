@@ -67,14 +67,13 @@
 	</div>
 </template>
 <script setup lang="ts">
-import type { ApplicableItem } from './types'
+import type { ApplicableItem } from '@/types'
 import { Button } from 'frappe-ui'
 import Link from '@/components/Controls/Link.vue'
 import Select from '@/components/Controls/Select.vue'
 
-// Controlled child-table editor: we mutate the parent doc's `applicable_items`
-// array in place. The parent persists the whole doc in a single save, so Frappe
-// diffs the rows (insert/update/delete) server-side — no per-row API calls here.
+// Mutates the parent doc's `applicable_items` in place; the parent saves the whole
+// doc, so Frappe diffs rows server-side — no per-row API calls here.
 const props = defineProps<{
 	items: ApplicableItem[]
 }>()

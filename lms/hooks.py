@@ -286,3 +286,11 @@ add_to_apps_screen = [
 sqlite_search = ["lms.sqlite.LearningSearch"]
 auth_hooks = ["lms.auth.authenticate"]
 require_type_annotated_api_methods = True
+
+# === Raven membership provider ===
+# Hook contract + admin setup: ../raven-membership-provider.md
+# TODO: that page is an interim capture — publish it at docs.frappe.io/learning
+# (specs/extensibility.md: "A hook isn't shipped until the docs exist") and delete it.
+# LMS contributes its rule types + evaluator to the standalone `raven_integration`
+# app via the `raven_membership_providers` hook. See lms/raven_provider.py.
+raven_membership_providers = ["lms.raven_provider.get_provider"]

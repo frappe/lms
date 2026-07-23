@@ -150,7 +150,7 @@ import Draggable from 'vuedraggable'
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import { useRoute, useRouter } from 'vue-router'
 import type { RouteLocationRaw } from 'vue-router'
-import type { OutlineChapter, OutlineLesson, SessionUser } from '@/types/api'
+import type { OutlineChapter, OutlineLesson, SessionUser } from '@/types'
 
 interface DraggableEvent {
 	item: { __draggable_context: { element: OutlineChapter | OutlineLesson } }

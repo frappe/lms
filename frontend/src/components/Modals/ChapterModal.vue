@@ -87,7 +87,7 @@ import BooleanSwitch from '@/components/Controls/BooleanSwitch.vue'
 import { reactive, watch, inject } from 'vue'
 import { getFileSize } from '@/utils/'
 import { useOnboarding, useTelemetry } from 'frappe-ui/frappe'
-import type { ChapterDetailInput, SessionUser } from '@/types/api'
+import type { ChapterDetailInput, SessionUser } from '@/types'
 
 type ScormPackage = { file_name: string; file_size: number } | null
 

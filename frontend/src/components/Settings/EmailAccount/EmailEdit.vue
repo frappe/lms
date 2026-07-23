@@ -85,7 +85,7 @@
 
 <script setup lang="ts">
 import SettingsLayout from '@/components/Layouts/SettingsLayout.vue'
-import { EmailAccount, EmailStep } from '@/types/email'
+import { EmailAccount, EmailStep } from '@/types'
 import {
 	Button,
 	Dialog,

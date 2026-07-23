@@ -175,7 +175,7 @@ import type {
 	CourseInstructorInfo,
 	Resource,
 	SessionUser,
-} from '@/types/api'
+} from '@/types'
 
 type Brand = { name?: string; logo?: string; favicon?: string }
 interface TabDef {

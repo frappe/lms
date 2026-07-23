@@ -84,7 +84,7 @@ import {
 	ListRows,
 } from 'frappe-ui/list'
 import { getCurrentInstance, inject } from 'vue'
-import type { Coupon, Coupons } from './types'
+import type { Coupon, Coupons } from '@/types'
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 import SettingsLayout from '@/components/Layouts/SettingsLayout.vue'
 

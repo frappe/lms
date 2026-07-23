@@ -124,7 +124,7 @@
 <script setup lang="ts">
 import { Button, FileUploader, createResource, toast } from 'frappe-ui'
 import { computed, inject, ref, watch } from 'vue'
-import type { CourseFormContext, Resource } from '@/types/api'
+import type { CourseFormContext, Resource } from '@/types'
 
 const { resource, markDirty } = inject<CourseFormContext>('courseForm')!
 
