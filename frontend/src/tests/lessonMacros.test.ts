@@ -74,6 +74,66 @@ describe('convertBodyToBlocks — malformed macros never crash the editor', () =
 	})
 })
 
+// Bug 3: header detection used `block.includes('#')`, so any prose line
+// containing a '#' anywhere (e.g. "Great for C# developers") became a header
+// with every '#' stripped, mangling the body. Only a leading '#' run is a header.
+describe('convertBodyToBlocks — header detection is leading-only', () => {
+	it('keeps prose with an inline # as a paragraph, verbatim', () => {
+		expect(convertBodyToBlocks({ body: 'Great for C# developers' })).toEqual([
+			{ type: 'paragraph', data: { text: 'Great for C# developers' } },
+		])
+	})
+
+	it('treats a leading # run as a header and strips only that run', () => {
+		expect(convertBodyToBlocks({ body: '## Notes on C# and F#' })).toEqual([
+			{ type: 'header', data: { text: 'Notes on C# and F#', level: 2 } },
+		])
+	})
+
+	it('derives level from the leading run, not the total # count', () => {
+		const [block] = convertBodyToBlocks({ body: '# One # inline' })
+		expect(block).toEqual({
+			type: 'header',
+			data: { text: 'One # inline', level: 1 },
+		})
+	})
+})
+
+// Bug 4: a `youtube` field holding a full "watch?v=ID" URL was reduced with
+// split('/').pop(), yielding "watch?v=ID" and a broken /embed/watch?v=ID src.
+describe('convertBodyToBlocks — youtube field URL forms', () => {
+	it.each([
+		['https://www.youtube.com/watch?v=abc123', 'abc123'],
+		['https://youtu.be/abc123', 'abc123'],
+		['https://www.youtube.com/embed/abc123', 'abc123'],
+		['abc123', 'abc123'],
+	])('embeds %s as the ID %s', (youtube, id) => {
+		const blocks = convertBodyToBlocks({ body: '', youtube })
+		expect(blocks[0]).toEqual({
+			type: 'embed',
+			data: {
+				service: 'youtube',
+				embed: `https://www.youtube.com/embed/${id}`,
+			},
+		})
+	})
+})
+
+// Bug 5: file_type came from url.split('.').pop() without stripping the query
+// string, so "/files/clip.mp4?v=2" produced "mp4?v=2" and failed isVideo().
+describe('convertBodyToBlocks — media file_type ignores query strings', () => {
+	it('strips a query string before deriving the extension', () => {
+		const blocks = convertBodyToBlocks({
+			body: [
+				`{{ Video("/files/clip.mp4?v=2") }}`,
+				`{{ Audio("/files/a.mp3#t=3") }}`,
+			].join('\n'),
+		})
+		expect(blocks[0].data.file_type).toBe('mp4')
+		expect(blocks[1].data.file_type).toBe('mp3')
+	})
+})
+
 // Bug 2: getId() (via getMacroArg) ran `.match(...)[1]` unguarded. A malformed
 // macro made .match() return null, and null[1] threw — taking down the whole
 // lesson render instead of just skipping the bad block.
