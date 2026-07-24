@@ -34,13 +34,7 @@
 			</video>
 		</div>
 		<div v-else-if="block.includes('{{ PDF')">
-			<iframe
-				:src="getPDFSource(block)"
-				width="100%"
-				height="700px"
-				frameborder="0"
-				allowfullscreen
-			></iframe>
+			<PdfBlock :file="getId(block)" />
 		</div>
 		<div v-else-if="block.includes('{{ Audio')">
 			<audio width="100%" controls controlsList="nodownload">
@@ -65,9 +59,11 @@
 </template>
 <script setup>
 import Quiz from '@/components/QuizBlock.vue'
+import PdfBlock from '@/components/PdfBlock.vue'
 import MarkdownIt from 'markdown-it'
 import DOMPurify from 'dompurify'
 import { useScreenSize } from '@/utils/composables'
+import { getMacroArg } from '@/utils/lessonMacros'
 
 const screenSize = useScreenSize()
 
@@ -100,11 +96,9 @@ const getYouTubeVideoSource = (block) => {
 	return `https://www.youtube.com/embed/${block}`
 }
 
-const getPDFSource = (block) => {
-	return `${getId(block)}#toolbar=0`
-}
-
 const getId = (block) => {
-	return block.match(/\(["']([^"']+?)["']\)/)[1]
+	// Guard the match: a malformed `{{ PDF() }}` / unbalanced-quote macro yields
+	// null, and the old unguarded [1] threw and killed the whole lesson render.
+	return getMacroArg(block) ?? ''
 }
 </script>
