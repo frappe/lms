@@ -91,6 +91,7 @@ import { ChevronRight, NotebookPen } from 'lucide-vue-next'
 import { useDebounceFn } from '@vueuse/core'
 import { enablePlyr, sanitizeEditorJs } from '@/utils'
 import { hasEditorContent, shouldSkipLessonSave } from '@/utils/lessonForm'
+import { convertBodyToBlocks as convertToJSON } from '@/utils/lessonMacros'
 import { hasVideoContent } from '@/utils/video'
 import BlockEditor from '@/components/BlockEditor.vue'
 import { useOnboarding, useTelemetry } from 'frappe-ui/frappe'
@@ -335,114 +336,6 @@ const lessonReference = createResource({
 		}
 	},
 })
-
-const convertToJSON = (lessonData) => {
-	let blocks = []
-	// Dedupe a video shared by the youtube field and body macro.
-	const seenYoutube = new Set()
-	const youtubeKey = (url) => url.split('/').pop().split('?')[0]
-	const pushYoutube = (embedUrl) => {
-		const key = youtubeKey(embedUrl)
-		if (seenYoutube.has(key)) return
-		seenYoutube.add(key)
-		blocks.push({
-			type: 'embed',
-			data: { service: 'youtube', embed: embedUrl },
-		})
-	}
-	if (lessonData.youtube) {
-		let youtubeID = lessonData.youtube.split('/').pop()
-		pushYoutube(`https://www.youtube.com/embed/${youtubeID}`)
-	}
-	lessonData.body.split('\n').forEach((block) => {
-		if (block.includes('{{ YouTubeVideo')) {
-			let youtubeID = block.match(/\(["']([^"']+?)["']\)/)[1]
-			if (!youtubeID.includes('https://'))
-				youtubeID = `https://www.youtube.com/embed/${youtubeID}`
-			pushYoutube(youtubeID)
-		} else if (block.includes('{{ Quiz')) {
-			let quiz = block.match(/\(["']([^"']+?)["']\)/)[1]
-			blocks.push({
-				type: 'quiz',
-				data: {
-					quiz: quiz,
-				},
-			})
-		} else if (block.includes('{{ Video')) {
-			let video = block.match(/\(["']([^"']+?)["']\)/)[1]
-			blocks.push({
-				type: 'upload',
-				data: {
-					file_url: video,
-					file_type: video.split('.').pop(),
-				},
-			})
-		} else if (block.includes('{{ Audio')) {
-			let audio = block.match(/\(["']([^"']+?)["']\)/)[1]
-			blocks.push({
-				type: 'upload',
-				data: {
-					file_url: audio,
-					file_type: audio.split('.').pop(),
-				},
-			})
-		} else if (block.includes('{{ PDF')) {
-			let pdf = block.match(/\(["']([^"']+?)["']\)/)[1]
-			blocks.push({
-				type: 'upload',
-				data: {
-					file_url: pdf,
-					file_type: 'pdf',
-				},
-			})
-		} else if (block.includes('{{ Embed')) {
-			let embed = block.match(/\(["']([^"']+?)["']\)/)[1]
-			blocks.push({
-				type: 'embed',
-				data: {
-					service: embed.split('|||')[0],
-					embed: embed.split('|||')[1],
-				},
-			})
-		} else if (block.includes('![]')) {
-			let image = block.match(/\((.*?)\)/)[1]
-			blocks.push({
-				type: 'upload',
-				data: {
-					file_url: image,
-					file_type: 'image',
-				},
-			})
-		} else if (block.includes('#')) {
-			let level = (block.match(/#/g) || []).length
-			blocks.push({
-				type: 'header',
-				data: {
-					text: block.replace(/#/g, '').trim(),
-					level: level,
-				},
-			})
-		} else {
-			blocks.push({
-				type: 'paragraph',
-				data: {
-					text: block,
-				},
-			})
-		}
-	})
-
-	if (lessonData.quizId) {
-		blocks.push({
-			type: 'quiz',
-			data: {
-				quiz: lessonData.quizId,
-			},
-		})
-	}
-
-	return blocks
-}
 
 // Stored body has real content? Lets title-only edits skip re-serialising.
 const storedContentHasBody = () => {
