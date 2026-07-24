@@ -71,6 +71,7 @@
 								title: 'Signups',
 							},
 							series: [{ name: 'signups', type: 'line', showDataPoints: true }],
+							...(chartColors ? { colors: chartColors } : {}),
 						}"
 					/>
 				</div>
@@ -93,6 +94,7 @@
 							series: [
 								{ name: 'enrollments', type: 'line', showDataPoints: true },
 							],
+							...(chartColors ? { colors: chartColors } : {}),
 						}"
 					/>
 				</div>
@@ -119,6 +121,7 @@
 									showDataPoints: true,
 								},
 							],
+							...(chartColors ? { colors: chartColors } : {}),
 						}"
 					/>
 				</div>
@@ -131,6 +134,7 @@
 							subtitle: 'Course Completion',
 							categoryColumn: 'label',
 							valueColumn: 'value',
+							...(chartColors ? { colors: chartColors } : {}),
 						}"
 					/>
 				</div>
@@ -151,8 +155,11 @@ import {
 } from 'frappe-ui'
 import { computed } from 'vue'
 import { sessionStore } from '../stores/session'
+import { getChartColors } from '@/utils/chartColors'
 
 const { brand } = sessionStore()
+
+const chartColors = getChartColors()
 
 const breadcrumbs = computed(() => {
 	return [

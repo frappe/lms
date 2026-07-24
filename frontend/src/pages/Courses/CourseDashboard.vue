@@ -155,20 +155,13 @@
 						<div class="flex flex-col space-y-4 flex-1 text-sm">
 							<div
 								class="flex items-center text-ink-gray-7"
-								v-for="row in chartDetails.data?.progress_distribution"
+								v-for="(row, index) in chartDetails.data?.progress_distribution"
 							>
 								<div
 									class="size-2 rounded"
 									:style="{
-										backgroundColor: `var(--${
-											row.name.startsWith('Just')
-												? 'red'
-												: row.name.startsWith('In')
-												? 'amber'
-												: row.name.startsWith('Adv')
-												? 'blue'
-												: 'green'
-										}-400)`,
+										backgroundColor:
+											progressColors[index % progressColors.length],
 									}"
 								></div>
 								<Tooltip :text="row.name.split('(')[1].replace(')', '')">
@@ -307,6 +300,7 @@ import Select from '@/components/Controls/Select.vue'
 import { computed, inject, ref, watch } from 'vue'
 import type dayjsType from 'dayjs'
 import { formatAmount } from '@/utils'
+import { getChartColors } from '@/utils/chartColors'
 import CourseEnrollmentModal from '@/pages/Courses/CourseEnrollmentModal.vue'
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 import NumberChartGraph from '@/components/NumberChartGraph.vue'
@@ -412,8 +406,10 @@ const showStudentsEmptyState = computed(
 		!progressList.loading && !progressList.data?.length && !searchFilter.value
 )
 
-const progressColors = computed(() =>
-	['red', 'amber', 'blue', 'green'].map((color) => `var(--${color}-400)`)
+const progressColors = computed(
+	() =>
+		getChartColors(4) ??
+		['red', 'amber', 'blue', 'green'].map((color) => `var(--${color}-400)`)
 )
 
 const progressColumns = computed(() => {
