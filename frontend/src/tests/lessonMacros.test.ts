@@ -20,9 +20,10 @@ describe('convertBodyToBlocks — PDF macro casing', () => {
 
 	it('keeps other upload macros on their existing lowercase file_type', () => {
 		const blocks = convertBodyToBlocks({
-			body: [`{{ Video("/files/intro.mp4") }}`, `{{ Audio("/files/a.mp3") }}`].join(
-				'\n'
-			),
+			body: [
+				`{{ Video("/files/intro.mp4") }}`,
+				`{{ Audio("/files/a.mp3") }}`,
+			].join('\n'),
 		})
 		expect(blocks[0].data.file_type).toBe('mp4')
 		expect(blocks[1].data.file_type).toBe('mp3')
@@ -32,6 +33,44 @@ describe('convertBodyToBlocks — PDF macro casing', () => {
 		expect(convertBodyToBlocks({ body: 'hello world' })).toEqual([
 			{ type: 'paragraph', data: { text: 'hello world' } },
 		])
+	})
+})
+
+// Regression: a stored lesson with a malformed macro (empty parens / unbalanced
+// quotes) used to hit an unguarded `.match(...)[1]` in every macro branch and
+// throw, crashing the lesson editor on open. Every branch now routes through
+// getMacroArg and must degrade to an empty arg instead of throwing.
+describe('convertBodyToBlocks — malformed macros never crash the editor', () => {
+	const malformed = [
+		'{{ Video() }}',
+		'{{ Audio() }}',
+		'{{ PDF() }}',
+		'{{ Quiz() }}',
+		'{{ Embed() }}',
+		'{{ YouTubeVideo() }}',
+		'![]', // image macro with no parens
+		`{{ PDF("unterminated }}`,
+	]
+
+	it.each(malformed)('does not throw on %s', (line) => {
+		expect(() => convertBodyToBlocks({ body: line })).not.toThrow()
+	})
+
+	it('does not throw when a bad macro is mixed with good content', () => {
+		const body = [
+			'# Heading',
+			'{{ Video() }}',
+			'{{ PDF("/files/ok.pdf") }}',
+			'plain text',
+		].join('\n')
+		let blocks: ReturnType<typeof convertBodyToBlocks> = []
+		expect(() => (blocks = convertBodyToBlocks({ body }))).not.toThrow()
+		// the well-formed PDF still resolves correctly alongside the bad macro
+		expect(
+			blocks.some(
+				(b) => b.type === 'upload' && b.data.file_url === '/files/ok.pdf',
+			),
+		).toBe(true)
 	})
 })
 

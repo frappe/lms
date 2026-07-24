@@ -30,6 +30,10 @@ export function getMacroArg(block: string): string | null {
  * Frappe's File.set_file_type() and the `== 'PDF'` check in utils/upload.js;
  * the previous lowercase 'pdf' fell through to the image branch and rendered
  * legacy PDF lessons as a broken image on every browser.
+ *
+ * Every macro branch pulls its argument through getMacroArg (guarded) rather
+ * than an unchecked `.match(...)[1]`: a stored lesson with a malformed macro
+ * (empty parens, unbalanced quotes) must not throw and crash the editor on open.
  */
 export function convertBodyToBlocks(lessonData: LessonBodyData): EditorBlock[] {
 	let blocks: EditorBlock[] = []
@@ -51,12 +55,12 @@ export function convertBodyToBlocks(lessonData: LessonBodyData): EditorBlock[] {
 	}
 	lessonData.body.split('\n').forEach((block) => {
 		if (block.includes('{{ YouTubeVideo')) {
-			let youtubeID = block.match(/\(["']([^"']+?)["']\)/)![1]
+			let youtubeID = getMacroArg(block) ?? ''
 			if (!youtubeID.includes('https://'))
 				youtubeID = `https://www.youtube.com/embed/${youtubeID}`
 			pushYoutube(youtubeID)
 		} else if (block.includes('{{ Quiz')) {
-			let quiz = block.match(/\(["']([^"']+?)["']\)/)![1]
+			let quiz = getMacroArg(block) ?? ''
 			blocks.push({
 				type: 'quiz',
 				data: {
@@ -64,7 +68,7 @@ export function convertBodyToBlocks(lessonData: LessonBodyData): EditorBlock[] {
 				},
 			})
 		} else if (block.includes('{{ Video')) {
-			let video = block.match(/\(["']([^"']+?)["']\)/)![1]
+			let video = getMacroArg(block) ?? ''
 			blocks.push({
 				type: 'upload',
 				data: {
@@ -73,7 +77,7 @@ export function convertBodyToBlocks(lessonData: LessonBodyData): EditorBlock[] {
 				},
 			})
 		} else if (block.includes('{{ Audio')) {
-			let audio = block.match(/\(["']([^"']+?)["']\)/)![1]
+			let audio = getMacroArg(block) ?? ''
 			blocks.push({
 				type: 'upload',
 				data: {
@@ -82,7 +86,7 @@ export function convertBodyToBlocks(lessonData: LessonBodyData): EditorBlock[] {
 				},
 			})
 		} else if (block.includes('{{ PDF')) {
-			let pdf = block.match(/\(["']([^"']+?)["']\)/)![1]
+			let pdf = getMacroArg(block) ?? ''
 			blocks.push({
 				type: 'upload',
 				data: {
@@ -91,7 +95,7 @@ export function convertBodyToBlocks(lessonData: LessonBodyData): EditorBlock[] {
 				},
 			})
 		} else if (block.includes('{{ Embed')) {
-			let embed = block.match(/\(["']([^"']+?)["']\)/)![1]
+			let embed = getMacroArg(block) ?? ''
 			blocks.push({
 				type: 'embed',
 				data: {
@@ -100,7 +104,7 @@ export function convertBodyToBlocks(lessonData: LessonBodyData): EditorBlock[] {
 				},
 			})
 		} else if (block.includes('![]')) {
-			let image = block.match(/\((.*?)\)/)![1]
+			let image = block.match(/\((.*?)\)/)?.[1] ?? ''
 			blocks.push({
 				type: 'upload',
 				data: {
