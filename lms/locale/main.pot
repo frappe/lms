@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Learning VERSION\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
-"POT-Creation-Date: 2026-07-17 17:03+0000\n"
-"PO-Revision-Date: 2026-07-17 17:03+0000\n"
+"POT-Creation-Date: 2026-07-24 17:22+0000\n"
+"PO-Revision-Date: 2026-07-24 17:22+0000\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: jannat@frappe.io\n"
 "MIME-Version: 1.0\n"
@@ -286,6 +286,10 @@ msgstr ""
 msgid "Add courses to your batch"
 msgstr ""
 
+#: frontend/src/components/Settings/Raven/MassRemovalConfirmDialog.vue:70
+msgid "Add members?"
+msgstr ""
+
 #: frontend/src/components/Modals/Question.vue:205
 msgid "Add new question"
 msgstr ""
@@ -298,6 +302,8 @@ msgstr ""
 #: frontend/src/components/Settings/GoogleMeetSettings.vue:68
 #: frontend/src/components/Settings/Members.vue:88
 #: frontend/src/components/Settings/PaymentGateways.vue:60
+#: frontend/src/components/Settings/Raven/ChannelsView.vue:31
+#: frontend/src/components/Settings/Raven/WorkspaceList.vue:13
 #: frontend/src/components/Settings/Transactions/TransactionList.vue:88
 #: frontend/src/components/Settings/ZoomSettings.vue:71
 msgid "Add one to get started."
@@ -309,6 +315,11 @@ msgstr ""
 
 #: frontend/src/components/Modals/QuizInVideo.vue:2
 msgid "Add quiz to this video"
+msgstr ""
+
+#: frontend/src/components/Settings/Raven/RulesPanel.vue:87
+#: frontend/src/components/Settings/Raven/RulesPanel.vue:161
+msgid "Add rule"
 msgstr ""
 
 #: frontend/src/pages/Batches/BatchDetail.vue:57
@@ -338,6 +349,14 @@ msgstr ""
 
 #: frontend/src/components/Sidebar/AppSidebar.vue:481
 msgid "Add your first lesson"
+msgstr ""
+
+#: frontend/src/components/Settings/Raven/MassRemovalConfirmDialog.vue:94
+msgid "Add {0} members"
+msgstr ""
+
+#: frontend/src/components/Settings/Raven/MassRemovalConfirmDialog.vue:90
+msgid "Add {0}, remove {1}"
 msgstr ""
 
 #. Label of the address (Link) field in DocType 'LMS Payment'
@@ -853,7 +872,7 @@ msgstr ""
 msgid "Badge assigned successfully"
 msgstr ""
 
-#: frontend/src/components/Settings/Badges/BadgeAssignmentForm.vue:130
+#: frontend/src/components/Settings/Badges/BadgeAssignmentForm.vue:127
 msgid "Badge assignment created successfully"
 msgstr ""
 
@@ -861,7 +880,7 @@ msgstr ""
 msgid "Badge assignment deleted successfully"
 msgstr ""
 
-#: frontend/src/components/Settings/Badges/BadgeAssignmentForm.vue:111
+#: frontend/src/components/Settings/Badges/BadgeAssignmentForm.vue:108
 msgid "Badge assignment updated successfully"
 msgstr ""
 
@@ -1157,6 +1176,8 @@ msgstr ""
 #: frontend/src/components/Settings/EmailAccount/EmailEdit.vue:77
 #: frontend/src/components/Settings/EmailTemplate/EmailTemplateList.vue:99
 #: frontend/src/components/Settings/Members.vue:116
+#: frontend/src/components/Settings/Raven/DeleteConfirmDialog.vue:46
+#: frontend/src/components/Settings/Raven/MassRemovalConfirmDialog.vue:10
 #: frontend/src/components/UpcomingEvaluations.vue:48
 #: frontend/src/components/UpcomingEvaluations.vue:202
 msgid "Cancel"
@@ -1342,8 +1363,34 @@ msgstr ""
 msgid "Change"
 msgstr ""
 
+#: frontend/src/components/Settings/Raven/MassRemovalConfirmDialog.vue:69
+msgid "Change who is a member?"
+msgstr ""
+
+#: frontend/src/components/Settings/Raven/RulesPanel.vue:73
+msgid "Changes are not being saved while a saved rule needs fixing. Resolve the rule below to resume saving."
+msgstr ""
+
 #: frontend/src/components/Assignment.vue:372
 msgid "Changes saved successfully"
+msgstr ""
+
+#: frontend/src/components/Settings/Raven/ChannelsView.vue:53
+#: frontend/src/components/Settings/Raven/MappingRules.vue:307
+msgid "Channel members are the workspace members who also match these rules."
+msgstr ""
+
+#: frontend/src/components/Settings/Raven/ChannelsView.vue:49
+msgid "Channel rules"
+msgstr ""
+
+#: frontend/src/components/Settings/Raven/MappingRules.vue:293
+msgid "Channel rules · #{0}"
+msgstr ""
+
+#: frontend/src/components/Settings/Raven/ChannelsView.vue:29
+#: frontend/src/components/Settings/Raven/WorkspaceList.vue:93
+msgid "Channels"
 msgstr ""
 
 #. Label of the chapter (Link) field in DocType 'Chapter Reference'
@@ -1485,8 +1532,8 @@ msgstr ""
 #: frontend/src/components/Controls/ClearableCombobox.vue:14
 #: frontend/src/components/Controls/Link.vue:57
 #: frontend/src/components/Controls/Link.vue:60
-#: frontend/src/components/Controls/MultiLink.vue:64
-#: frontend/src/components/Controls/MultiLink.vue:67
+#: frontend/src/components/Controls/MultiLink.vue:66
+#: frontend/src/components/Controls/MultiLink.vue:69
 msgid "Clear"
 msgstr ""
 
@@ -1804,6 +1851,10 @@ msgstr ""
 msgid "Congratulations on getting certified!"
 msgstr ""
 
+#: frontend/src/components/Settings/Raven/RavenSettings.vue:56
+msgid "Connect Raven to Frappe Learning"
+msgstr ""
+
 #: frontend/src/components/Settings/GoogleMeetAccountForm.vue:5
 msgid "Connect a Google Meet account to schedule and host live classes."
 msgstr ""
@@ -1881,12 +1932,20 @@ msgstr ""
 msgid "Correct Answer"
 msgstr ""
 
+#: frontend/src/components/Settings/Raven/MappingRules.vue:202
+msgid "Could not check who this change affects"
+msgstr ""
+
 #: lms/lms/course_import_export.py:195
 msgid "Could not create the course ZIP file. Please try again later. Error: {0}"
 msgstr ""
 
 #: frontend/src/pages/QuizForm.vue:330
 msgid "Could not delete the quiz"
+msgstr ""
+
+#: frontend/src/components/Settings/Raven/RavenSettings.vue:124
+msgid "Could not enable the integration"
 msgstr ""
 
 #: frontend/src/pages/Billing.vue:358
@@ -1930,7 +1989,7 @@ msgstr ""
 msgid "Coupon Details"
 msgstr ""
 
-#: frontend/src/components/Settings/Coupons/CouponDetails.vue:148
+#: frontend/src/components/Settings/Coupons/CouponDetails.vue:147
 msgid "Coupon created successfully"
 msgstr ""
 
@@ -1938,7 +1997,7 @@ msgstr ""
 msgid "Coupon deleted successfully"
 msgstr ""
 
-#: frontend/src/components/Settings/Coupons/CouponDetails.vue:156
+#: frontend/src/components/Settings/Coupons/CouponDetails.vue:155
 msgid "Coupon updated successfully"
 msgstr ""
 
@@ -2334,8 +2393,16 @@ msgstr ""
 msgid "Create and manage reusable email templates for your notifications."
 msgstr ""
 
+#: frontend/src/components/Settings/Raven/ChannelsView.vue:17
+msgid "Create channel"
+msgstr ""
+
 #: frontend/src/components/CourseOutline.vue:34
 msgid "Create chapter"
+msgstr ""
+
+#: frontend/src/components/Settings/Raven/RavenSettings.vue:23
+msgid "Create workspace"
 msgstr ""
 
 #: frontend/src/components/Sidebar/AppSidebar.vue:523
@@ -2525,6 +2592,7 @@ msgstr ""
 #: frontend/src/components/Settings/GoogleMeetSettings.vue:53
 #: frontend/src/components/Settings/Members.vue:110
 #: frontend/src/components/Settings/PaymentGateways.vue:45
+#: frontend/src/components/Settings/Raven/DeleteConfirmDialog.vue:50
 #: frontend/src/components/Settings/ZoomSettings.vue:56
 #: frontend/src/pages/Batches/BatchForm.vue:560
 #: frontend/src/pages/Courses/CourseForm.vue:267
@@ -2576,6 +2644,7 @@ msgstr ""
 #: frontend/src/components/Settings/EmailAccount/EmailEdit.vue:63
 #: frontend/src/components/Settings/EmailTemplate/EmailTemplateList.vue:86
 #: frontend/src/components/Settings/Members.vue:102
+#: frontend/src/components/Settings/Raven/DeleteConfirmDialog.vue:5
 msgid "Delete {0}?"
 msgstr ""
 
@@ -2657,6 +2726,10 @@ msgstr ""
 msgid "Device"
 msgstr ""
 
+#: frontend/src/components/Settings/Raven/RulesPanel.vue:496
+msgid "Disable"
+msgstr ""
+
 #. Label of the disable_pwa (Check) field in DocType 'LMS Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
 msgid "Disable PWA"
@@ -2677,6 +2750,10 @@ msgstr ""
 #: frontend/src/components/Settings/GoogleMeetSettings.vue:46
 #: frontend/src/components/Settings/ZoomSettings.vue:49
 msgid "Disabled"
+msgstr ""
+
+#: frontend/src/components/Settings/Raven/RulesPanel.vue:41
+msgid "Disabled rules are left out of All (AND), so this matches more people than the rules below suggest. Enable or remove them to narrow it."
 msgstr ""
 
 #: frontend/src/components/DiscussionReplies.vue:63
@@ -2968,6 +3045,8 @@ msgid "Employee"
 msgstr ""
 
 #. Label of the enable (Check) field in DocType 'Zoom Settings'
+#: frontend/src/components/Settings/Raven/RavenSettings.vue:71
+#: frontend/src/components/Settings/Raven/RulesPanel.vue:496
 #: lms/lms/doctype/zoom_settings/zoom_settings.json
 msgid "Enable"
 msgstr ""
@@ -2983,6 +3062,14 @@ msgstr ""
 
 #: frontend/src/pages/Batches/BatchForm.vue:131
 msgid "Enable evaluations for batch participants."
+msgstr ""
+
+#: frontend/src/components/Settings/Raven/RulesPanel.vue:139
+msgid "Enable it to edit"
+msgstr ""
+
+#: frontend/src/components/Settings/Raven/RavenSettings.vue:60
+msgid "Enable the integration to sync workspace and channel membership from your students and staff."
 msgstr ""
 
 #: frontend/src/components/Modals/ChapterModal.vue:27
@@ -3240,6 +3327,10 @@ msgstr ""
 msgid "Error downloading file"
 msgstr ""
 
+#: frontend/src/components/Settings/Raven/MappingRules.vue:103
+msgid "Error saving rules"
+msgstr ""
+
 #: frontend/src/components/Settings/GoogleMeetAccountForm.vue:196
 msgid "Error updating Google Meet Account"
 msgstr ""
@@ -3251,6 +3342,10 @@ msgstr ""
 #: frontend/src/components/Modals/EmailTemplateModal.vue:152
 #: frontend/src/components/Settings/EmailTemplate/EmailTemplateEdit.vue:155
 msgid "Error updating email template"
+msgstr ""
+
+#: frontend/src/components/Settings/Raven/MappingRules.vue:115
+msgid "Error updating rule status"
 msgstr ""
 
 #: frontend/src/pages/Courses/CourseThumbnailField.vue:241
@@ -3364,7 +3459,7 @@ msgstr ""
 
 #. Label of the exercise (Link) field in DocType 'LMS Programming Exercise
 #. Submission'
-#: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmissions.vue:282
+#: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmissions.vue:279
 #: lms/lms/doctype/lms_programming_exercise_submission/lms_programming_exercise_submission.json
 msgid "Exercise"
 msgstr ""
@@ -3466,7 +3561,7 @@ msgstr ""
 msgid "Failed to assign badge"
 msgstr ""
 
-#: frontend/src/components/Settings/Badges/BadgeAssignmentForm.vue:135
+#: frontend/src/components/Settings/Badges/BadgeAssignmentForm.vue:132
 msgid "Failed to create badge assignment: "
 msgstr ""
 
@@ -3494,7 +3589,7 @@ msgstr ""
 msgid "Failed to submit. Please try again. {0}"
 msgstr ""
 
-#: frontend/src/components/Settings/Badges/BadgeAssignmentForm.vue:116
+#: frontend/src/components/Settings/Badges/BadgeAssignmentForm.vue:113
 msgid "Failed to update badge assignment: "
 msgstr ""
 
@@ -3571,6 +3666,14 @@ msgstr ""
 
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmissions.vue:41
 msgid "Filter by Status"
+msgstr ""
+
+#: frontend/src/components/Settings/Raven/RulesPanel.vue:157
+msgid "Finish the rule above first"
+msgstr ""
+
+#: frontend/src/components/Settings/Raven/RulesPanel.vue:283
+msgid "Finish this rule — pick what it should match to save it."
 msgstr ""
 
 #: frontend/src/components/Modals/EditProfile.vue:34
@@ -3735,6 +3838,10 @@ msgstr ""
 #: frontend/src/components/CourseCard.vue:128
 #: frontend/src/pages/CertifiedParticipants.vue:12
 msgid "Get Certified"
+msgstr ""
+
+#: frontend/src/components/Settings/Raven/RavenNotInstalledBanner.vue:21
+msgid "Get Raven"
 msgstr ""
 
 #: lms/templates/onboarding_header.html:8
@@ -4156,6 +4263,14 @@ msgstr ""
 #: frontend/src/components/InstallPrompt.vue:4
 #: frontend/src/components/InstallPrompt.vue:32
 msgid "Install Frappe Learning"
+msgstr ""
+
+#: frontend/src/components/Settings/Raven/RavenNotInstalledBanner.vue:46
+msgid "Install the Raven app to sync workspace and channel membership."
+msgstr ""
+
+#: frontend/src/components/Settings/Raven/RavenNotInstalledBanner.vue:47
+msgid "Install the raven_integration app to manage Raven membership from Learning."
 msgstr ""
 
 #. Label of the institution_name (Data) field in DocType 'Education Detail'
@@ -4727,8 +4842,14 @@ msgid "LMS Zoom Settings"
 msgstr ""
 
 #. Label of the label (Data) field in DocType 'LMS Timetable Legend'
+#: frontend/src/components/Settings/Raven/MappingListTable.vue:37
+#: frontend/src/components/Settings/Raven/RulesPanel.vue:110
 #: lms/lms/doctype/lms_timetable_legend/lms_timetable_legend.json
 msgid "Label"
+msgstr ""
+
+#: frontend/src/components/Settings/Raven/RulesPanel.vue:109
+msgid "Label — e.g. Cohort cap"
 msgstr ""
 
 #. Label of the language (Select) field in DocType 'LMS Programming Exercise'
@@ -4837,7 +4958,7 @@ msgstr ""
 msgid "Lesson created"
 msgstr ""
 
-#: frontend/src/pages/LessonForm.vue:538
+#: frontend/src/pages/LessonForm.vue:431
 msgid "Lesson created successfully"
 msgstr ""
 
@@ -4894,6 +5015,11 @@ msgstr ""
 
 #: lms/lms/doctype/lms_quiz/lms_quiz.py:53
 msgid "Limit cannot be greater than or equal to the number of questions in the quiz."
+msgstr ""
+
+#: frontend/src/components/Settings/Raven/MappingListTable.vue:134
+#: frontend/src/components/Settings/Raven/MappingListTable.vue:140
+msgid "Link"
 msgstr ""
 
 #: frontend/src/pages/ProfileAbout.vue:96
@@ -5017,6 +5143,10 @@ msgstr ""
 msgid "Manage your email accounts and configure incoming and outgoing settings."
 msgstr ""
 
+#: frontend/src/components/Settings/Raven/RulesPanel.vue:427
+msgid "Managed by"
+msgstr ""
+
 #. Option for the 'User Category' (Select) field in DocType 'User'
 #: lms/fixtures/custom_field.json lms/templates/signup-form.html:24
 msgid "Manager (Sales/Marketing/Customer)"
@@ -5076,6 +5206,10 @@ msgstr ""
 
 #: frontend/src/pages/QuizForm.vue:239
 msgid "Marks to Deduct"
+msgstr ""
+
+#: frontend/src/components/Settings/Raven/RulesPanel.vue:284
+msgid "Matches another rule above — not saved. Change the type or criteria to keep it."
 msgstr ""
 
 #. Label of the max_attempts (Int) field in DocType 'LMS Quiz'
@@ -5139,7 +5273,7 @@ msgstr ""
 #: frontend/src/components/Settings/Transactions/TransactionDetails.vue:49
 #: frontend/src/components/Settings/ZoomAccountForm.vue:36
 #: frontend/src/pages/AssignmentSubmissionList.vue:14
-#: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmissions.vue:276
+#: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmissions.vue:273
 #: frontend/src/pages/Programs/ProgramProgressSummary.vue:127
 #: frontend/src/pages/QuizSubmission.vue:33
 #: frontend/src/pages/QuizSubmissionList.vue:94
@@ -5424,7 +5558,7 @@ msgstr ""
 msgid "Moderator"
 msgstr ""
 
-#: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmissions.vue:294
+#: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmissions.vue:291
 msgid "Modified"
 msgstr ""
 
@@ -5499,6 +5633,10 @@ msgstr ""
 #: frontend/src/components/Settings/EmailTemplate/EmailTemplateAdd.vue:121
 #: frontend/src/components/Settings/EmailTemplate/EmailTemplateEdit.vue:121
 msgid "Name is required"
+msgstr ""
+
+#: frontend/src/components/Settings/Raven/RulesPanel.vue:281
+msgid "Name this rule — it is not saved until it has one."
 msgstr ""
 
 #. Option for the 'Event' (Select) field in DocType 'LMS Badge'
@@ -5620,6 +5758,14 @@ msgstr ""
 
 #: lms/templates/upcoming_evals.html:43
 msgid "No Upcoming Evaluations"
+msgstr ""
+
+#: frontend/src/components/Settings/Raven/MappingRules.vue:317
+msgid "No active rules — membership is not being synced, so this workspace stays as it is."
+msgstr ""
+
+#: frontend/src/components/Settings/Raven/MappingRules.vue:320
+msgid "No active rules — this channel is not being synced. Add a rule to scope its membership."
 msgstr ""
 
 #: frontend/src/pages/Batches/components/Announcements.vue:28
@@ -5967,6 +6113,10 @@ msgstr ""
 #: lms/lms/doctype/lms_question/lms_question.json
 #: lms/lms/doctype/lms_quiz_question/lms_quiz_question.json
 msgid "Open Ended"
+msgstr ""
+
+#: lms/plugins.py:203
+msgid "Open PDF in a new tab"
 msgstr ""
 
 #: frontend/src/pages/PersonaForm.vue:115
@@ -6795,7 +6945,7 @@ msgid "Programming Exercise Submission"
 msgstr ""
 
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmission.vue:427
-#: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmissions.vue:306
+#: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmissions.vue:303
 msgid "Programming Exercise Submissions"
 msgstr ""
 
@@ -6812,7 +6962,7 @@ msgid "Programming Exercise updated successfully"
 msgstr ""
 
 #. Label of the programming_exercises (Check) field in DocType 'LMS Settings'
-#: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmissions.vue:316
+#: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmissions.vue:313
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExercises.vue:345
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExercises.vue:353
 #: lms/lms/doctype/lms_settings/lms_settings.json
@@ -7084,6 +7234,14 @@ msgstr ""
 msgid "Rating cannot be 0"
 msgstr ""
 
+#: frontend/src/components/Settings/Raven/RavenNotInstalledBanner.vue:41
+msgid "Raven Integration is not installed"
+msgstr ""
+
+#: frontend/src/components/Settings/Raven/RavenNotInstalledBanner.vue:40
+msgid "Raven is not installed"
+msgstr ""
+
 #. Option for the 'Color' (Select) field in DocType 'LMS Course'
 #. Option for the 'Color' (Select) field in DocType 'LMS Lesson Note'
 #: lms/lms/doctype/lms_course/lms_course.json
@@ -7161,12 +7319,17 @@ msgstr ""
 #: frontend/src/components/Controls/ImageUploader.vue:21
 #: frontend/src/components/Controls/Uploader.vue:51
 #: frontend/src/components/Controls/VideoPreviewField.vue:68
+#: frontend/src/components/Settings/Raven/RulesPanel.vue:503
 #: frontend/src/pages/Courses/CourseThumbnailField.vue:68
 msgid "Remove"
 msgstr ""
 
 #: frontend/src/components/Notes/InlineLessonMenu.vue:49
 msgid "Remove Highlight"
+msgstr ""
+
+#: frontend/src/components/Settings/Raven/MassRemovalConfirmDialog.vue:71
+msgid "Remove members?"
 msgstr ""
 
 #: frontend/src/components/Settings/Coupons/CouponItems.vue:46
@@ -7176,6 +7339,14 @@ msgstr ""
 #: frontend/src/pages/Courses/CourseThumbnailField.vue:18
 #: frontend/src/pages/Courses/CourseThumbnailField.vue:72
 msgid "Remove the image to pick a color instead."
+msgstr ""
+
+#: frontend/src/components/Settings/Raven/MassRemovalConfirmDialog.vue:95
+msgid "Remove {0} members"
+msgstr ""
+
+#: frontend/src/components/Settings/Raven/MappingListTable.vue:75
+msgid "Rename"
 msgstr ""
 
 #: frontend/src/components/Controls/Uploader.vue:41
@@ -7282,6 +7453,20 @@ msgstr ""
 msgid "Rows {0} have the duplicate questions."
 msgstr ""
 
+#: frontend/src/components/Settings/Raven/RulesPanel.vue:122
+msgid "Rule actions"
+msgstr ""
+
+#: frontend/src/components/Settings/Raven/RuleEditor.vue:6
+#: frontend/src/components/Settings/Raven/RuleEditor.vue:14
+#: frontend/src/components/Settings/Raven/RuleEditor.vue:15
+msgid "Rule type"
+msgstr ""
+
+#: frontend/src/components/Settings/Raven/RulesPanel.vue:57
+msgid "Rule types could not be loaded, so rule changes are not being saved. Reload the page to try again."
+msgstr ""
+
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmission.vue:59
 msgid "Run"
 msgstr ""
@@ -7369,6 +7554,10 @@ msgstr ""
 #: frontend/src/pages/QuizSubmission.vue:15
 #: lms/job/web_form/job_opportunity/job_opportunity.json
 msgid "Save"
+msgstr ""
+
+#: frontend/src/components/Settings/Raven/MappingListTable.vue:45
+msgid "Save label"
 msgstr ""
 
 #: frontend/src/components/Controls/VideoPreviewField.vue:29
@@ -7498,6 +7687,10 @@ msgstr ""
 msgid "Select a Programming Exercise"
 msgstr ""
 
+#: frontend/src/components/Settings/Raven/ChannelsView.vue:61
+msgid "Select a channel to view its rules."
+msgstr ""
+
 #: frontend/src/pages/Courses/CourseEditor.vue:15
 msgid "Select a lesson on the right to start editing."
 msgstr ""
@@ -7512,6 +7705,10 @@ msgstr ""
 
 #: frontend/src/components/AssessmentPlugin.vue:27
 msgid "Select a quiz"
+msgstr ""
+
+#: frontend/src/components/Settings/Raven/WorkspaceList.vue:42
+msgid "Select a workspace to view its rules."
 msgstr ""
 
 #: frontend/src/components/AssessmentPlugin.vue:40
@@ -7838,6 +8035,10 @@ msgstr ""
 msgid "Staff"
 msgstr ""
 
+#: frontend/src/components/Settings/Raven/MappingListTable.vue:68
+msgid "Stale"
+msgstr ""
+
 #: frontend/src/components/Quiz.vue:104
 #: frontend/src/pages/Batches/components/LiveClass.vue:78
 #: frontend/src/pages/Home/AdminHome.vue:81
@@ -7928,7 +8129,7 @@ msgstr ""
 #: frontend/src/components/Settings/ZoomSettings.vue:22
 #: frontend/src/pages/AssignmentSubmissionList.vue:19
 #: frontend/src/pages/JobForm.vue:63
-#: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmissions.vue:288
+#: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmissions.vue:285
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 #: lms/job/web_form/job_opportunity/job_opportunity.json
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.json
@@ -8028,7 +8229,7 @@ msgstr ""
 msgid "Submissions"
 msgstr ""
 
-#: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmissions.vue:262
+#: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmissions.vue:259
 msgid "Submissions deleted successfully"
 msgstr ""
 
@@ -8274,6 +8475,10 @@ msgstr ""
 msgid "The lesson does not exist."
 msgstr ""
 
+#: frontend/src/components/Settings/Raven/MappingListTable.vue:291
+msgid "The linked Raven record no longer exists, so this mapping has stopped syncing members."
+msgstr ""
+
 #: lms/lms/doctype/lms_batch/lms_batch.py:149
 msgid "The selected Google Meet account does not have a Google Calendar configured."
 msgstr ""
@@ -8376,6 +8581,18 @@ msgstr ""
 msgid "This course is free."
 msgstr ""
 
+#: frontend/src/components/Settings/Raven/ChannelsView.vue:83
+msgid "This deletes the channel mapping and its membership rules, and stops syncing members. This action cannot be undone."
+msgstr ""
+
+#: frontend/src/components/Settings/Raven/WorkspaceList.vue:64
+msgid "This deletes the workspace mapping and its membership rules, and stops syncing members. This action cannot be undone."
+msgstr ""
+
+#: frontend/src/components/Settings/Raven/DeleteConfirmDialog.vue:8
+msgid "This deletes the {0} mapping and its membership rules, and stops syncing members. This cannot be undone."
+msgstr ""
+
 #. Description of the 'Meta Description' (Small Text) field in DocType 'LMS
 #. Settings'
 #: lms/lms/doctype/lms_settings/lms_settings.json
@@ -8428,6 +8645,10 @@ msgstr ""
 msgid "This quiz has no questions available yet."
 msgstr ""
 
+#: frontend/src/components/Settings/Raven/RulesPanel.vue:277
+msgid "This rule type is no longer offered — pick another one to resume saving."
+msgstr ""
+
 #: frontend/src/components/Sidebar/AppSidebar.vue:91
 #: frontend/src/components/Sidebar/AppSidebar.vue:177
 msgid "This site is being updated. You will not be able to make any changes. Full access will be restored shortly."
@@ -8445,8 +8666,20 @@ msgstr ""
 msgid "This video's codec can't be played in browsers (e.g. HEVC/H.265). Please upload an H.264 MP4 or a WebM."
 msgstr ""
 
+#: frontend/src/components/Settings/Raven/MassRemovalConfirmDialog.vue:76
+msgid "This will add {0} members to {1} and remove {2}. The removals cannot be undone — cancel to keep the current membership."
+msgstr ""
+
+#: frontend/src/components/Settings/Raven/MassRemovalConfirmDialog.vue:80
+msgid "This will add {0} members to {1}. Cancel to keep the current membership."
+msgstr ""
+
 #: frontend/src/components/Settings/Coupons/CouponList.vue:119
 msgid "This will permanently delete the coupon and the code will no longer be valid."
+msgstr ""
+
+#: frontend/src/components/Settings/Raven/MassRemovalConfirmDialog.vue:83
+msgid "This will remove {0} members from {1}. This cannot be undone."
 msgstr ""
 
 #. Option for the 'Day' (Select) field in DocType 'Evaluator Schedule'
@@ -8801,6 +9034,10 @@ msgstr ""
 msgid "Unstructured Role"
 msgstr ""
 
+#: frontend/src/components/Settings/Raven/RuleEditor.vue:124
+msgid "Unsupported field type"
+msgstr ""
+
 #: frontend/src/pages/Quizzes.vue:231
 msgid "Untitled Quiz"
 msgstr ""
@@ -8992,6 +9229,11 @@ msgstr ""
 msgid "Users Response"
 msgstr ""
 
+#: frontend/src/components/Settings/Raven/MappingRules.vue:304
+#: frontend/src/components/Settings/Raven/WorkspaceList.vue:34
+msgid "Users who match these rules are kept in sync as members of this Raven workspace."
+msgstr ""
+
 #: lms/templates/signup-form.html:83
 msgid "Valid email and name required"
 msgstr ""
@@ -9173,6 +9415,18 @@ msgstr ""
 #: frontend/src/pages/JobForm.vue:39 frontend/src/pages/Jobs.vue:89
 #: lms/job/doctype/job_opportunity/job_opportunity.json
 msgid "Work Mode"
+msgstr ""
+
+#: frontend/src/components/Settings/Raven/WorkspaceList.vue:30
+msgid "Workspace rules"
+msgstr ""
+
+#: frontend/src/components/Settings/Raven/MappingRules.vue:292
+msgid "Workspace rules · {0}"
+msgstr ""
+
+#: frontend/src/components/Settings/Raven/WorkspaceList.vue:11
+msgid "Workspaces"
 msgstr ""
 
 #: frontend/src/components/CourseReviews.vue:20
@@ -9493,6 +9747,10 @@ msgstr ""
 msgid "You must be enrolled in the course to submit a review"
 msgstr ""
 
+#: frontend/src/components/Settings/Raven/RavenSettings.vue:38
+msgid "You need the System Manager role to manage the Raven integration."
+msgstr ""
+
 #: lms/lms/doctype/lms_enrollment/lms_enrollment.py:80
 msgid "You need to complete the payment for this course before enrolling."
 msgstr ""
@@ -9770,11 +10028,11 @@ msgstr ""
 msgid "jane@example.com"
 msgstr ""
 
-#: frontend/src/pages/Courses/CourseOverview.vue:215
+#: frontend/src/pages/Courses/CourseOverview.vue:219
 msgid "lesson"
 msgstr ""
 
-#: frontend/src/pages/Courses/CourseOverview.vue:215
+#: frontend/src/pages/Courses/CourseOverview.vue:219
 #: frontend/src/pages/Programs/ProgramEnrollment.vue:60
 msgid "lessons"
 msgstr ""
@@ -9845,11 +10103,11 @@ msgstr ""
 msgid "saving..."
 msgstr ""
 
-#: frontend/src/pages/Courses/CourseOverview.vue:209
+#: frontend/src/pages/Courses/CourseOverview.vue:213
 msgid "section"
 msgstr ""
 
-#: frontend/src/pages/Courses/CourseOverview.vue:209
+#: frontend/src/pages/Courses/CourseOverview.vue:213
 msgid "sections"
 msgstr ""
 
@@ -9960,6 +10218,10 @@ msgstr ""
 
 #: lms/lms/notification/certificate_request_reminder/certificate_request_reminder.html:5
 msgid "{0} is your evaluator"
+msgstr ""
+
+#: frontend/src/components/Settings/Raven/MappingRules.vue:299
+msgid "{0} members"
 msgstr ""
 
 #: lms/lms/utils.py:566
