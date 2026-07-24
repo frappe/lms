@@ -31,6 +31,7 @@
     "lucide-static": "1.17.0",
     "lucide-vue-next": "0.383.0",
     "markdown-it": "14.0.0",
+    "pdfjs-dist": "4.10.38",
     "pinia": "2.0.33",
     "plyr": "3.7.8",
     "socket.io-client": "4.7.2",
@@ -49,6 +50,7 @@
     "unplugin-auto-import": "^20.3.0",
     "vite": "5.0.11",
     "vite-plugin-pwa": "^1.2.0",
+    "vite-plugin-static-copy": "^1.0.6",
     "vitest": "^4.1.7"
   }
 }

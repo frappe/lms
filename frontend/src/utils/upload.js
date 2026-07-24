@@ -1,5 +1,6 @@
 import AudioBlock from '@/components/AudioBlock.vue'
 import VideoBlock from '@/components/VideoBlock.vue'
+import PdfBlock from '@/components/PdfBlock.vue'
 import UploadPlugin from '@/components/UploadPlugin.vue'
 import { h, createApp } from 'vue'
 import { Upload as UploadIcon } from 'lucide-vue-next'
@@ -66,11 +67,14 @@ export class Upload {
 			app.mount(this.wrapper)
 			return
 		} else if (file.file_type == 'PDF') {
-			this.wrapper.innerHTML = `<iframe src="${
-				window.location.origin
-			}${encodeURI(
-				file.file_url
-			)}" width='100%' height='700px' class="mb-4" type="application/pdf"></iframe>`
+			// iOS Safari (all WebKit browsers) refuses to scroll a PDF in an
+			// <iframe>, so render it inline via pdf.js. mount()/unmount() is tracked
+			// so destroy() can tear the pdf.js worker + render tasks down.
+			this.app = createApp(PdfBlock, {
+				file: file.file_url,
+			})
+			this.app.use(translationPlugin)
+			this.app.mount(this.wrapper)
 			return
 		} else {
 			this.wrapper.innerHTML = `<img class="mb-4" src=${encodeURI(
@@ -105,6 +109,16 @@ export class Upload {
 			file_url: this.data.file_url,
 			file_type: this.data.file_type,
 			quizzes: this.data.quizzes || [],
+		}
+	}
+
+	// EditorJS calls destroy() when a block is removed or the editor is torn down.
+	// Unmounting the PdfBlock app fires its onBeforeUnmount, which cancels render
+	// tasks, destroys the document, and releases the shared pdf.js worker.
+	destroy() {
+		if (this.app) {
+			this.app.unmount()
+			this.app = null
 		}
 	}
 
