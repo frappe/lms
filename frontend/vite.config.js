@@ -2,6 +2,7 @@ import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import path from 'path'
 import { VitePWA } from 'vite-plugin-pwa'
+import { viteStaticCopy } from 'vite-plugin-static-copy'
 
 export default defineConfig(async ({ mode }) => {
 	const isDev = mode === 'development'
@@ -43,6 +44,22 @@ export default defineConfig(async ({ mode }) => {
 					],
 				},
 				manifest: false,
+			}),
+			// pdf.js needs cMaps (JPEG2000/JBIG2 + CJK) and standard_fonts (non-embedded
+			// fonts) as sibling assets, or those PDFs render blank and look like a pdf.js
+			// bug. Copy them under pdfjs/; PdfBlock.vue points cMapUrl/standardFontDataUrl
+			// at `${BASE_URL}pdfjs/...`. Served in dev too (static-copy dev middleware).
+			viteStaticCopy({
+				targets: [
+					{
+						src: 'node_modules/pdfjs-dist/cmaps/*',
+						dest: 'pdfjs/cmaps',
+					},
+					{
+						src: 'node_modules/pdfjs-dist/standard_fonts/*',
+						dest: 'pdfjs/standard_fonts',
+					},
+				],
 			}),
 		],
 		server: {
