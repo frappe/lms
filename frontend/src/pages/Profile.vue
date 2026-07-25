@@ -32,12 +32,8 @@
 				<EditCoverImage
 					@select="(imageUrl) => coverImage.submit({ url: imageUrl })"
 				>
-					<template v-slot="{ togglePopover }">
-						<Button
-							v-if="!readOnlyMode"
-							variant="outline"
-							@click="togglePopover()"
-						>
+					<template #default>
+						<Button v-if="!readOnlyMode" variant="outline">
 							<template #prefix>
 								<span class="lucide-edit size-4 text-ink-gray-7" />
 							</template>
@@ -135,6 +131,7 @@
 			<router-view :profile="profile" :key="profile.data?.name" />
 		</div>
 	</div>
+	<NotFound v-else-if="(profile.fetched || profile.error) && !profile.data" />
 	<EditProfile
 		v-model="showProfileModal"
 		v-model:reloadProfile="profile"
@@ -159,6 +156,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { convertToTitleCase } from '@/utils'
 import UserAvatar from '@/components/UserAvatar.vue'
 import NoPermission from '@/components/NoPermission.vue'
+import NotFound from '@/pages/NotFound.vue'
 import EditProfile from '@/components/Modals/EditProfile.vue'
 import EditCoverImage from '@/components/Modals/EditCoverImage.vue'
 

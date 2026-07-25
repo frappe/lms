@@ -23,6 +23,27 @@ export function getMacroArg(block: string): string | null {
 }
 
 /**
+ * Extract a YouTube video ID from a stored `youtube` field, which may hold a
+ * bare ID, a `watch?v=ID` URL, a `youtu.be/ID` short link, or an `/embed/ID`
+ * URL. A naive `split('/').pop()` turns `watch?v=ID` into `watch?v=ID` and
+ * produces a broken embed, so pull the `v=` param first.
+ */
+export function extractYoutubeID(url: string): string {
+	const watchMatch = url.match(/[?&]v=([^&]+)/)
+	if (watchMatch) return watchMatch[1]
+	return url.split('/').pop()!.split(/[?#]/)[0]
+}
+
+/**
+ * Derive a file extension from a media URL, stripping any query string or
+ * fragment first: `/files/clip.mp4?v=2` -> `mp4`, not `mp4?v=2` (which would
+ * fail the isVideo/isAudio extension checks in utils/upload.js).
+ */
+export function fileExtension(url: string): string {
+	return url.split(/[?#]/)[0].split('.').pop() ?? ''
+}
+
+/**
  * Convert a lesson's legacy markdown/macro `body` into EditorJS blocks.
  *
  * Moved out of LessonForm.vue so the macro-to-block mapping is unit-testable.
@@ -50,7 +71,7 @@ export function convertBodyToBlocks(lessonData: LessonBodyData): EditorBlock[] {
 		})
 	}
 	if (lessonData.youtube) {
-		let youtubeID = lessonData.youtube.split('/').pop()
+		let youtubeID = extractYoutubeID(lessonData.youtube)
 		pushYoutube(`https://www.youtube.com/embed/${youtubeID}`)
 	}
 	lessonData.body.split('\n').forEach((block) => {
@@ -73,7 +94,7 @@ export function convertBodyToBlocks(lessonData: LessonBodyData): EditorBlock[] {
 				type: 'upload',
 				data: {
 					file_url: video,
-					file_type: video.split('.').pop(),
+					file_type: fileExtension(video),
 				},
 			})
 		} else if (block.includes('{{ Audio')) {
@@ -82,7 +103,7 @@ export function convertBodyToBlocks(lessonData: LessonBodyData): EditorBlock[] {
 				type: 'upload',
 				data: {
 					file_url: audio,
-					file_type: audio.split('.').pop(),
+					file_type: fileExtension(audio),
 				},
 			})
 		} else if (block.includes('{{ PDF')) {
@@ -112,12 +133,12 @@ export function convertBodyToBlocks(lessonData: LessonBodyData): EditorBlock[] {
 					file_type: 'image',
 				},
 			})
-		} else if (block.includes('#')) {
-			let level = (block.match(/#/g) || []).length
+		} else if (/^#+/.test(block)) {
+			let level = block.match(/^#+/)![0].length
 			blocks.push({
 				type: 'header',
 				data: {
-					text: block.replace(/#/g, '').trim(),
+					text: block.replace(/^#+/, '').trim(),
 					level: level,
 				},
 			})
