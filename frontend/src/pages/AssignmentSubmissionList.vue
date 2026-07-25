@@ -17,6 +17,7 @@
 				type="select"
 				:options="statusOptions"
 				:placeholder="__('Status')"
+				:aria-label="__('Status')"
 			/>
 		</div>
 		<ListView
@@ -28,11 +29,16 @@
 			<ListHeader
 				class="mb-2 grid items-center gap-x-4 rounded bg-surface-gray-2 p-2"
 			>
-				<ListHeaderItem :item="item" v-for="item in submissionColumns" />
+				<ListHeaderItem
+					:item="item"
+					v-for="item in submissionColumns"
+					:key="item.key"
+				/>
 			</ListHeader>
 			<ListRows>
 				<router-link
 					v-for="row in submissions.data"
+					:key="row.name"
 					:to="{
 						name: 'AssignmentSubmission',
 						params: {

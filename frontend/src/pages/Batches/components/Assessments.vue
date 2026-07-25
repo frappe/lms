@@ -1,9 +1,9 @@
 <template>
 	<div>
 		<div class="flex items-center justify-between mb-4">
-			<div class="text-ink-gray-9 font-semibold">
+			<h2 class="text-ink-gray-9 font-semibold">
 				{{ __('Assessments') }}
-			</div>
+			</h2>
 			<Button v-if="canAddAssessments()" @click="showModal = true">
 				<template #prefix>
 					<span class="lucide-plus h-4 w-4" />
@@ -26,13 +26,18 @@
 				<ListHeader
 					class="mb-2 grid items-center gap-x-4 rounded-t-lg bg-surface-gray-2 p-2"
 				>
-					<ListHeaderItem :item="item" v-for="item in getAssessmentColumns()">
+					<ListHeaderItem
+						:item="item"
+						v-for="item in getAssessmentColumns()"
+						:key="item.key"
+					>
 					</ListHeaderItem>
 				</ListHeader>
 				<ListRows>
 					<ListRow
 						:row="row"
 						v-for="row in assessments.data"
+						:key="row.name"
 						class="!rounded-none last:!rounded-b-lg"
 					>
 						<template #default="{ column, item }">
@@ -60,6 +65,7 @@
 						<div class="flex gap-2">
 							<Button
 								variant="ghost"
+								:label="__('Delete')"
 								@click="removeAssessments(selections, unselectAll)"
 							>
 								<span class="lucide-trash-2 h-4 w-4" />

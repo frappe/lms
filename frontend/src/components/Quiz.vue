@@ -133,7 +133,7 @@
 			</div>
 		</div>
 		<div v-else-if="!quizSubmission.data">
-			<div v-for="(question, qtidx) in questions">
+			<div v-for="(question, qtidx) in questions" :key="question.name">
 				<div
 					v-if="qtidx == activeQuestion - 1 && questionDetails.data"
 					class="border rounded-lg p-5"
@@ -155,6 +155,7 @@
 					<div
 						v-if="questionDetails.data.type == 'Choices'"
 						v-for="index in MAX_OPTIONS"
+						:key="index"
 					>
 						<label
 							v-if="questionDetails.data[`option_${index}`]"
@@ -180,6 +181,7 @@
 							<div
 								v-else-if="quiz.data.show_answers"
 								v-for="(answer, idx) in showAnswers"
+								:key="idx"
 							>
 								<div v-if="index - 1 == idx">
 									<span
@@ -257,6 +259,7 @@
 							class="flex items-center gap-x-2"
 						>
 							<Button
+								:label="__('Previous question')"
 								@click="switchQuestion(activeQuestion - 1)"
 								:disabled="activeQuestion == 1"
 								class="rounded-full"
@@ -265,9 +268,11 @@
 									<span class="lucide-chevron-left size-4" />
 								</template>
 							</Button>
-							<span
-								v-for="item in paginationWindow"
-								:key="item"
+							<component
+								:is="item === '...' ? 'span' : 'button'"
+								v-for="(item, pidx) in paginationWindow"
+								:key="pidx"
+								:type="item === '...' ? null : 'button'"
 								class="w-6 h-6 rounded-full flex items-center justify-center text-sm"
 								:class="{
 									'cursor-pointer': item !== '...',
@@ -284,9 +289,10 @@
 								@click="item !== '...' && switchQuestion(item)"
 							>
 								{{ item }}
-							</span>
+							</component>
 
 							<Button
+								:label="__('Next question')"
 								@click="switchQuestion(activeQuestion + 1)"
 								:disabled="activeQuestion == questions.length"
 								class="rounded-full"
@@ -338,13 +344,15 @@
 					{{ __('Questions marked for review') }}
 				</div>
 				<div class="flex items-center gap-x-2 mt-2">
-					<div
+					<button
 						v-for="index in reviewQuestions"
+						:key="index"
+						type="button"
 						@click="switchQuestion(index)"
 						class="w-6 h-6 rounded-full flex items-center justify-center text-sm cursor-pointer bg-surface-gray-3"
 					>
 						{{ index }}
-					</div>
+					</button>
 				</div>
 			</div>
 		</div>

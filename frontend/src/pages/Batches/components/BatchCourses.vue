@@ -29,13 +29,18 @@
 				<ListHeader
 					class="mb-2 grid items-center gap-x-4 rounded-t-lg bg-surface-gray-2 p-2"
 				>
-					<ListHeaderItem :item="item" v-for="item in getCoursesColumns()">
+					<ListHeaderItem
+						:item="item"
+						v-for="item in getCoursesColumns()"
+						:key="item.key"
+					>
 					</ListHeaderItem>
 				</ListHeader>
 				<ListRows>
 					<ListRow
 						:row="row"
 						v-for="row in courses.data"
+						:key="row.name"
 						class="!rounded-none last:!rounded-b-lg"
 					>
 						<template #default="{ column, item }">
@@ -52,6 +57,7 @@
 						<div class="flex gap-2">
 							<Button
 								variant="ghost"
+								:label="__('Delete selected courses')"
 								@click="removeCourses(selections, unselectAll)"
 							>
 								<span class="lucide-trash-2 h-4 w-4" />

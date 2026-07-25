@@ -80,16 +80,22 @@
 			<div class="p-4">
 				<div class="space-y-5 mb-12">
 					<div class="flex">
-						<img
-							:src="job.data.company_logo"
-							class="size-10 rounded-lg object-contain cursor-pointer me-4"
-							:alt="job.data.company_name"
-							@click="redirectToWebsite(job.data.company_website)"
-						/>
+						<a
+							:href="job.data.company_website"
+							target="_blank"
+							rel="noopener noreferrer"
+							class="me-4"
+						>
+							<img
+								:src="job.data.company_logo"
+								class="size-10 rounded-lg object-contain cursor-pointer"
+								:alt="job.data.company_name"
+							/>
+						</a>
 						<div class="">
-							<div class="text-xl text-ink-gray-9 font-semibold mb-1">
+							<h1 class="text-xl text-ink-gray-9 font-semibold mb-1">
 								{{ job.data.job_title }}
-							</div>
+							</h1>
 							<div class="text-sm text-ink-gray-5 font-semibold">
 								{{ job.data.company_name }} - {{ job.data.location }},
 								{{ job.data.country }}

@@ -55,7 +55,10 @@
 							class="mb-2 grid items-center gap-x-4 rounded-t-lg bg-surface-gray-2 p-2"
 						>
 						</ListHeader>
-						<ListRows v-for="row in studentDetails.data.assessments">
+						<ListRows
+							v-for="(row, index) in studentDetails.data.assessments"
+							:key="index"
+						>
 							<ListRow :row="row" class="!rounded-none last:!rounded-b-lg">
 								<template #default="{ column, item }">
 									<ListRowItem
@@ -97,7 +100,10 @@
 							class="mb-2 grid items-center gap-x-4 rounded-t-lg bg-surface-gray-2 p-2"
 						>
 						</ListHeader>
-						<ListRows v-for="row in studentDetails.data.courses">
+						<ListRows
+							v-for="row in studentDetails.data.courses"
+							:key="row.course"
+						>
 							<ListRow :row="row" class="!rounded-none last:!rounded-b-lg">
 								<template #default="{ column, item }">
 									<ListRowItem

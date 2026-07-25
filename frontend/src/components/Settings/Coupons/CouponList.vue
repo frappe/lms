@@ -58,7 +58,11 @@
 									onClick: () => confirmDeletion(row.name),
 								},
 							]"
-							:button="{ icon: 'lucide-more-horizontal', variant: 'ghost' }"
+							:button="{
+								icon: 'lucide-more-horizontal',
+								variant: 'ghost',
+								label: __('Coupon actions'),
+							}"
 							placement="right"
 						/>
 					</ListCell>

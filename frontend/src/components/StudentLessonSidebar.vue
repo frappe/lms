@@ -18,78 +18,84 @@
 			</div>
 		</div>
 
-		<div class="flex-1 overflow-y-auto px-2 py-3">
-			<Disclosure
-				v-for="chapter in outline.data || []"
-				:key="chapter.name"
-				v-slot="{ open }"
-				:defaultOpen="chapterDefaultOpen(chapter)"
-			>
-				<DisclosureButton
-					class="w-full flex items-center justify-between rounded px-3 py-2 hover:bg-surface-gray-2 text-left"
+		<ul class="flex-1 overflow-y-auto px-2 py-3 list-none">
+			<li v-for="chapter in outline.data || []" :key="chapter.name">
+				<Disclosure
+					v-slot="{ open }"
+					:defaultOpen="chapterDefaultOpen(chapter)"
 				>
-					<div
-						class="flex items-center gap-2 text-base-medium leading-5 text-ink-gray-9 min-w-0"
+					<DisclosureButton
+						class="w-full flex items-center justify-between rounded px-3 py-2 hover:bg-surface-gray-2 text-start"
 					>
-						<ChevronDown
-							class="size-4 stroke-1.5 shrink-0 transition-transform"
-							:class="{ '-rotate-90': !open }"
-						/>
-						<span class="truncate">{{ chapter.title }}</span>
-					</div>
-					<span
-						v-if="chapter.lessons?.length"
-						class="text-sm text-ink-gray-5 shrink-0"
-					>
-						{{ chapter.lessons.length }}
-					</span>
-				</DisclosureButton>
-				<DisclosurePanel>
-					<component
-						:is="inlineSelect ? 'div' : 'router-link'"
-						v-for="lesson in chapter.lessons || []"
-						:key="lesson.name"
-						:to="
-							inlineSelect
-								? undefined
-								: {
-										name: 'Lesson',
-										params: {
-											courseName,
-											chapterNumber: lesson.number.split('-')[0],
-											lessonNumber: lesson.number.split('-')[1],
-										},
-								  }
-						"
-						class="flex items-center gap-3 rounded ps-9 pe-3 py-2 text-sm leading-5 text-ink-gray-8 hover:bg-surface-gray-2"
-						:class="[
-							inlineSelect ? 'cursor-pointer' : '',
-							isActive(lesson.number)
-								? 'bg-surface-gray-2 text-ink-gray-9'
-								: '',
-						]"
-						@click="
-							inlineSelect &&
-								emit('select-lesson', {
-									chapterNumber: lesson.number.split('-')[0],
-									lessonNumber: lesson.number.split('-')[1],
-								})
-						"
-					>
-						<component
-							:is="iconFor(lesson.icon)"
-							class="size-4 stroke-1.5 shrink-0 text-ink-gray-7"
-						/>
-						<span class="truncate flex-1">{{ lesson.title }}</span>
-						<CircleCheck
-							v-if="lesson.is_complete"
-							class="size-4 stroke-1.5 shrink-0 text-green-700 fill-none"
-						/>
-						<Circle v-else class="size-4 stroke-1.5 shrink-0 text-ink-gray-4" />
-					</component>
-				</DisclosurePanel>
-			</Disclosure>
-		</div>
+						<div
+							class="flex items-center gap-2 text-base-medium leading-5 text-ink-gray-9 min-w-0"
+						>
+							<ChevronDown
+								class="size-4 stroke-1.5 shrink-0 transition-transform"
+								:class="{ '-rotate-90': !open }"
+							/>
+							<span class="truncate">{{ chapter.title }}</span>
+						</div>
+						<span
+							v-if="chapter.lessons?.length"
+							class="text-sm text-ink-gray-5 shrink-0"
+						>
+							{{ chapter.lessons.length }}
+						</span>
+					</DisclosureButton>
+					<DisclosurePanel>
+						<ul class="list-none">
+							<li v-for="lesson in chapter.lessons || []" :key="lesson.name">
+								<component
+									:is="inlineSelect ? 'button' : 'router-link'"
+									:type="inlineSelect ? 'button' : undefined"
+									:to="
+										inlineSelect
+											? undefined
+											: {
+													name: 'Lesson',
+													params: {
+														courseName,
+														chapterNumber: lesson.number.split('-')[0],
+														lessonNumber: lesson.number.split('-')[1],
+													},
+											  }
+									"
+									class="flex w-full items-center gap-3 rounded ps-9 pe-3 py-2 text-start text-sm leading-5 text-ink-gray-8 hover:bg-surface-gray-2"
+									:class="[
+										inlineSelect ? 'cursor-pointer' : '',
+										isActive(lesson.number)
+											? 'bg-surface-gray-2 text-ink-gray-9'
+											: '',
+									]"
+									@click="
+										inlineSelect &&
+											emit('select-lesson', {
+												chapterNumber: lesson.number.split('-')[0],
+												lessonNumber: lesson.number.split('-')[1],
+											})
+									"
+								>
+									<component
+										:is="iconFor(lesson.icon)"
+										class="size-4 stroke-1.5 shrink-0 text-ink-gray-7"
+									/>
+									<span class="truncate flex-1">{{ lesson.title }}</span>
+									<CircleCheck
+										v-if="lesson.is_complete"
+										class="size-4 stroke-1.5 shrink-0 text-green-700 fill-none"
+									/>
+									<Circle
+										v-else
+										class="size-4 stroke-1.5 shrink-0 text-ink-gray-4"
+									/>
+								</component>
+							</li>
+						</ul>
+					</DisclosurePanel>
+				</Disclosure>
+			</li>
+		</ul>
 	</div>
 </template>
 

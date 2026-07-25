@@ -36,30 +36,42 @@
 				<div
 					v-if="evaluator.data"
 					v-for="slot in evaluator.data.slots.schedule"
+					:key="slot.name"
 					class="grid grid-cols-3 md:grid-cols-4 gap-4 mb-4 group"
 				>
 					<FormControl
 						type="select"
 						:options="days"
 						v-model="slot.day"
+						:aria-label="__('Day')"
 						@update:modelValue="update(slot.name, 'day', $event)"
 						:disabled="!isSessionUser()"
 					/>
+					<label :for="`start-time-${slot.name}`" class="sr-only">
+						{{ __('Start Time') }}
+					</label>
 					<FormControl
 						type="time"
+						:id="`start-time-${slot.name}`"
 						v-model="slot.start_time"
 						@update:modelValue="update(slot.name, 'start_time', $event)"
 						:disabled="!isSessionUser()"
 					/>
+					<label :for="`end-time-${slot.name}`" class="sr-only">
+						{{ __('End Time') }}
+					</label>
 					<FormControl
 						type="time"
+						:id="`end-time-${slot.name}`"
 						v-model="slot.end_time"
 						@update:modelValue="update(slot.name, 'end_time', $event)"
 						:disabled="!isSessionUser()"
 					/>
-					<span
+					<button
 						v-if="isSessionUser()"
-						class="lucide-x size-6 text-red-900 rounded-md cursor-pointer p-1 bg-surface-red-2 hidden group-hover:block"
+						type="button"
+						:aria-label="__('Delete slot')"
+						class="lucide-x size-6 text-red-900 rounded-md cursor-pointer p-1 bg-surface-red-2 sr-only group-hover:not-sr-only focus:not-sr-only"
 						@click="deleteRow(slot.name)"
 					/>
 				</div>
@@ -72,17 +84,26 @@
 						type="select"
 						:options="days"
 						v-model="newSlot.day"
+						:aria-label="__('Day')"
 						@update:modelValue="add()"
 						:disabled="!isSessionUser()"
 					/>
+					<label for="new-slot-start-time" class="sr-only">
+						{{ __('Start Time') }}
+					</label>
 					<FormControl
 						type="time"
+						id="new-slot-start-time"
 						v-model="newSlot.start_time"
 						@update:modelValue="add()"
 						:disabled="!isSessionUser()"
 					/>
+					<label for="new-slot-end-time" class="sr-only">
+						{{ __('End Time') }}
+					</label>
 					<FormControl
 						type="time"
+						id="new-slot-end-time"
 						v-model="newSlot.end_time"
 						@update:modelValue="add()"
 						:disabled="!isSessionUser()"

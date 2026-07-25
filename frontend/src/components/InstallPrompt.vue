@@ -32,7 +32,9 @@
 						{{ __('Install Frappe Learning') }}
 					</span>
 					<span class="inline-flex items-baseline">
-						<span
+						<button
+							type="button"
+							:aria-label="__('Close')"
 							class="lucide-x ms-auto size-4 text-ink-gray-7"
 							@click="iosInstallMessage = false"
 						/>

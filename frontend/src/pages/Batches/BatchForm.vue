@@ -3,9 +3,9 @@
 		<div class="grid grid-cols-1 lg:grid-cols-[3fr,2fr]">
 			<div v-if="batchDetail.doc" class="py-5 lg:h-[88vh] lg:overflow-y-auto">
 				<div class="px-5 pb-5 space-y-5 border-b mb-5">
-					<div class="text-base-semibold text-ink-gray-9">
+					<h2 class="text-base-semibold text-ink-gray-9">
 						{{ __('Details') }}
-					</div>
+					</h2>
 
 					<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
 						<FormControl
@@ -79,9 +79,9 @@
 				</div>
 
 				<div class="px-5 pb-5 space-y-5 border-b mb-5">
-					<div class="text-base-semibold text-ink-gray-9">
+					<h2 class="text-base-semibold text-ink-gray-9">
 						{{ __('Enrollment & Certification') }}
-					</div>
+					</h2>
 					<div class="grid grid-cols-1 md:grid-cols-2 gap-5 items-start">
 						<BooleanSwitch
 							size="sm"
@@ -142,9 +142,9 @@
 				</div>
 
 				<div class="px-5 pb-5 space-y-5 border-b mb-5">
-					<div class="text-base-semibold text-ink-gray-9">
+					<h2 class="text-base-semibold text-ink-gray-9">
 						{{ __('Batch overview') }}
-					</div>
+					</h2>
 					<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
 						<MultiLink
 							v-model="instructors"
@@ -213,9 +213,9 @@
 				</div>
 
 				<div class="px-5 pb-5 space-y-5 border-b mb-5">
-					<div class="text-base-semibold text-ink-gray-9">
+					<h2 class="text-base-semibold text-ink-gray-9">
 						{{ __('Conferencing') }}
-					</div>
+					</h2>
 					<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
 						<Select
 							v-model="batchDetail.doc.conferencing_provider"
@@ -252,9 +252,9 @@
 				</div>
 
 				<div class="px-5 pb-5 space-y-5">
-					<div class="text-base-semibold text-ink-gray-9">
+					<h2 class="text-base-semibold text-ink-gray-9">
 						{{ __('Meta Tags') }}
-					</div>
+					</h2>
 					<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
 						<FormControl
 							v-model="meta.description"

@@ -7,7 +7,7 @@
 			<Breadcrumbs class="h-7" :items="breadcrumbs" />
 			<div class="flex items-center gap-x-2">
 				<Tooltip v-if="canGoZen() && isAdmin" :text="__('Zen Mode')">
-					<Button @click="goFullScreen()">
+					<Button @click="goFullScreen()" :label="__('Zen Mode')">
 						<template #icon>
 							<span class="lucide-focus size-4" />
 						</template>
@@ -80,9 +80,9 @@
 							class="flex flex-col space-y-3 md:space-y-0 md:flex-row md:items-center justify-between"
 						>
 							<div class="flex flex-col">
-								<div class="text-4xl-semibold text-ink-gray-9">
+								<h1 class="text-4xl-semibold text-ink-gray-9">
 									{{ lesson.data.title }}
-								</div>
+								</h1>
 
 								<div
 									v-if="zenModeEnabled"
@@ -126,7 +126,7 @@
 									</Button>
 								</router-link>
 								<Tooltip v-else-if="canGoZen()" :text="__('Zen Mode')">
-									<Button @click="goFullScreen()">
+									<Button @click="goFullScreen()" :label="__('Zen Mode')">
 										<template #icon>
 											<span class="lucide-focus size-4" />
 										</template>
@@ -159,7 +159,10 @@
 								v-if="zenModeEnabled"
 								class="flex items-center gap-x-2 mt-2 md:mt-0"
 							>
-								<Button @click="showDiscussionsInZenMode()">
+								<Button
+									@click="showDiscussionsInZenMode()"
+									:label="__('Toggle discussions')"
+								>
 									<template #icon>
 										<span class="lucide-message-circle-question size-4" />
 									</template>
@@ -205,6 +208,7 @@
 							>
 								<UserAvatar
 									v-for="instructor in lesson.data.instructors"
+									:key="instructor.name ?? instructor"
 									:user="instructor"
 								/>
 							</span>
@@ -223,9 +227,9 @@
 							"
 							class="bg-surface-gray-2 p-3 rounded-md mt-6"
 						>
-							<div class="text-ink-gray-5 font-medium">
+							<h2 class="text-ink-gray-5 font-medium">
 								{{ __('Instructor Notes') }}
-							</div>
+							</h2>
 							<div
 								id="instructor-content"
 								class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2 prose-sm max-w-none !whitespace-normal"

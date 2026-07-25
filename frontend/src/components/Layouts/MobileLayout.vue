@@ -20,7 +20,7 @@
 			<div
 				id="mobileMoreMenu"
 				class="fixed bottom-16 end-2 w-[80%] space-y-4 rounded-md bg-surface-base p-5 text-base shadow-md"
-				v-if="showMenu"
+				v-show="showMenu"
 				ref="menu"
 			>
 				<button

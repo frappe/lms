@@ -2,6 +2,7 @@
 	<iframe
 		v-if="videoPreview.type === 'youtube'"
 		:src="videoPreview.src"
+		:title="__('Video preview')"
 		class="min-h-56 w-full rounded-t-md"
 		allowfullscreen
 	/>
@@ -15,6 +16,7 @@
 	<img
 		v-else-if="videoPreview.type === 'file' && videoError && fallbackImage"
 		:src="fallbackImage"
+		:alt="__('Video preview')"
 		class="min-h-56 w-full rounded-t-md object-cover"
 	/>
 </template>

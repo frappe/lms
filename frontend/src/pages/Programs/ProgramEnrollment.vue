@@ -41,6 +41,7 @@
 					<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
 						<div
 							v-for="course in program.data.courses"
+							:key="course.name"
 							class="flex flex-col border border-outline-gray-2 p-2 rounded-md h-full"
 						>
 							<div class="font-semibold text-ink-gray-9 leading-5 mb-2">
