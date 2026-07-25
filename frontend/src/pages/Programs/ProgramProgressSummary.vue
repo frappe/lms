@@ -28,13 +28,7 @@
 						title: __('Progress Distribution'),
 						categoryColumn: 'category',
 						valueColumn: 'count',
-						colors: [
-							'var(--red-400)',
-							'var(--amber-400)',
-							'var(--pink-400)',
-							'var(--blue-400)',
-							'var(--green-400)',
-						],
+						colors: chartColors,
 					}"
 				/>
 
@@ -75,10 +69,18 @@ import {
 	NumberChart,
 } from 'frappe-ui'
 import type { ProgramMember } from '@/types'
+import { getChartColors } from '@/utils/chartColors'
 import { computed, ref, watch } from 'vue'
 
 const show = defineModel<boolean>({ default: false })
 const searchFilter = ref<string | null>(null)
+const chartColors = getChartColors() ?? [
+	'var(--red-400)',
+	'var(--amber-400)',
+	'var(--pink-400)',
+	'var(--blue-400)',
+	'var(--green-400)',
+]
 
 const props = defineProps<{
 	programName: string

@@ -169,6 +169,7 @@
 								type: 'bar',
 							},
 						],
+						...(chartColors ? { colors: chartColors } : {}),
 					}"
 				/>
 
@@ -209,6 +210,7 @@ import {
 import { computed, inject, ref, watch } from 'vue'
 import type dayjsType from 'dayjs'
 import { formatAmount } from '@/utils'
+import { getChartColors } from '@/utils/chartColors'
 import BatchFeedback from '@/pages/Batches/components/BatchFeedback.vue'
 import BatchStudentProgress from '@/pages/Batches/components/BatchStudentProgress.vue'
 import NumberChartGraph from '@/components/NumberChartGraph.vue'
@@ -220,6 +222,7 @@ const searchFilter = ref<string | null>(null)
 const showEnrollmentModal = ref<boolean>(false)
 const showProgressModal = ref<boolean>(false)
 const currentStudent = ref<any>(null)
+const chartColors = getChartColors()
 
 function openEnrollModal() {
 	showEnrollmentModal.value = true
