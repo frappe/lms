@@ -14,7 +14,7 @@
 	>
 		<iframe
 			:src="chapter.doc.launch_file"
-			class="w-full h-[calc(100vh-3.00rem)]"
+			class="w-full h-[calc(100dvh-3.00rem)]"
 		/>
 	</div>
 	<div v-else-if="!enrollment.data?.length">
@@ -44,7 +44,7 @@ import {
 	createResource,
 	usePageMeta,
 } from 'frappe-ui'
-import { computed, inject, onBeforeMount, ref } from 'vue'
+import { computed, inject, onBeforeMount, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useSidebar } from '@/stores/sidebar'
 import { sessionStore } from '../stores/session'
 
@@ -53,6 +53,21 @@ const sidebarStore = useSidebar()
 const user = inject('$user')
 const readyToRender = ref(false)
 const isSuccessfullyCompleted = ref(false)
+
+let scormRotateHandled = false
+const handleScormRotate = () => {
+	if (scormRotateHandled) return
+	scormRotateHandled = true
+	setTimeout(() => {
+		window.location.reload()
+	}, 500)
+}
+onMounted(() => {
+	window.addEventListener('orientationchange', handleScormRotate)
+})
+onBeforeUnmount(() => {
+	window.removeEventListener('orientationchange', handleScormRotate)
+})
 
 // If courseRestartOnFailure is true, student has to restart the whole course if failed.
 // Otherwise, student could retake the final quiz portion.
