@@ -24,6 +24,7 @@
 					type="text"
 					:debounce="300"
 					class="w-1/3"
+					:aria-label="__('Search Template')"
 					:placeholder="__('Search Template')"
 				>
 					<template #prefix>
@@ -65,7 +66,11 @@
 					<ListCell class="justify-end" @click.stop>
 						<Dropdown
 							:options="getMoreOptions(row)"
-							:button="{ icon: 'lucide-more-horizontal', variant: 'ghost' }"
+							:button="{
+								icon: 'lucide-more-horizontal',
+								variant: 'ghost',
+								label: __('Template actions'),
+							}"
 							placement="right"
 						/>
 					</ListCell>

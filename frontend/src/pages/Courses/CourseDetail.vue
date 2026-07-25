@@ -14,7 +14,11 @@
 					</Badge>
 					<Dropdown
 						:options="courseFormRef.courseMenu"
-						:button="{ icon: 'lucide-ellipsis', variant: 'ghost' }"
+						:button="{
+							icon: 'lucide-ellipsis',
+							variant: 'ghost',
+							label: __('Course options'),
+						}"
 						side="bottom"
 						align="end"
 					/>
@@ -40,7 +44,11 @@
 						v-if="courseEditorRef?.lessonHasVideo && editorMode !== 'preview'"
 						:text="__('Video Statistics')"
 					>
-						<Button variant="ghost" @click="courseEditorRef?.openVideoStats()">
+						<Button
+							variant="ghost"
+							:label="__('Video Statistics')"
+							@click="courseEditorRef?.openVideoStats()"
+						>
 							<template #icon>
 								<span class="lucide-trending-up size-4" />
 							</template>
@@ -50,7 +58,11 @@
 						v-if="editorMode !== 'preview'"
 						:text="__('How to edit a lesson')"
 					>
-						<Button variant="ghost" @click="showLessonHelp = true">
+						<Button
+							variant="ghost"
+							:label="__('How to edit a lesson')"
+							@click="showLessonHelp = true"
+						>
 							<template #icon>
 								<span class="lucide-info size-4" />
 							</template>

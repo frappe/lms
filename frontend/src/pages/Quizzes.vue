@@ -17,10 +17,15 @@
 		<div
 			class="mx-5 mb-5 flex flex-col justify-between gap-y-4 sm:flex-row sm:items-center"
 		>
-			<div class="text-lg-semibold text-ink-gray-9">
+			<h1 class="text-lg-semibold text-ink-gray-9">
 				{{ __('{0} Quizzes').format(totalQuizzes.data || 0) }}
-			</div>
-			<FormControl v-model="search" type="text" placeholder="Search">
+			</h1>
+			<FormControl
+				v-model="search"
+				type="text"
+				placeholder="Search"
+				:aria-label="__('Search')"
+			>
 				<template #prefix>
 					<span class="lucide-search size-4 text-ink-gray-5" />
 				</template>
@@ -41,7 +46,11 @@
 			class="flex-1 overflow-y-auto px-5"
 		>
 			<ListHeader class="mb-2 grid items-center rounded bg-surface-gray-2 p-2">
-				<ListHeaderItem :item="item" v-for="item in quizColumns">
+				<ListHeaderItem
+					:item="item"
+					v-for="item in quizColumns"
+					:key="item.key"
+				>
 					<template #prefix="{ item }">
 						<span :class="[item.icon, 'h-4 w-4']" aria-hidden="true" />
 					</template>
@@ -50,6 +59,7 @@
 			<ListRows>
 				<router-link
 					v-for="row in quizzes.data"
+					:key="row.name"
 					:to="{
 						name: 'QuizForm',
 						params: {
@@ -82,6 +92,7 @@
 					<div class="flex gap-2">
 						<Button
 							variant="ghost"
+							:label="__('Delete')"
 							@click="deleteQuiz(selections, unselectAll)"
 						>
 							<span class="lucide-trash-2 size-4" />
@@ -241,7 +252,7 @@ const createQuiz = () => {
 				})
 			},
 			onError(error) {
-				toast.error(__('Error creating quiz: {0}', error.message))
+				toast.error(__('Error creating quiz: {0}').format(error.message))
 			},
 		}
 	)

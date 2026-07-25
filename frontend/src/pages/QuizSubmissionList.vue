@@ -5,9 +5,9 @@
 		</template>
 	</LayoutHeader>
 	<div v-if="submissions.data?.length" class="md:w-3/4 md:mx-auto py-5 mx-5">
-		<div class="text-2xl-semibold mb-5 text-ink-gray-9">
+		<h1 class="text-2xl-semibold mb-5 text-ink-gray-9">
 			{{ submissions.data[0].quiz_title }}
-		</div>
+		</h1>
 		<ListView
 			:columns="quizColumns"
 			:rows="submissions.data"
@@ -17,12 +17,17 @@
 			<ListHeader
 				class="mb-2 grid items-center gap-x-4 rounded bg-surface-gray-2 p-2"
 			>
-				<ListHeaderItem :item="item" v-for="item in quizColumns">
+				<ListHeaderItem
+					:item="item"
+					v-for="item in quizColumns"
+					:key="item.key"
+				>
 				</ListHeaderItem>
 			</ListHeader>
 			<ListRows>
 				<router-link
 					v-for="row in submissions.data"
+					:key="row.name"
 					:to="{
 						name: 'QuizSubmission',
 						params: {

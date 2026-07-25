@@ -26,14 +26,15 @@
 		<div
 			class="mx-5 mb-5 flex flex-col justify-between gap-y-4 sm:flex-row sm:items-center"
 		>
-			<div class="text-lg-semibold text-ink-gray-9">
+			<h1 class="text-lg-semibold text-ink-gray-9">
 				{{ __('{0} Assignments').format(totalAssignments.data || 0) }}
-			</div>
+			</h1>
 			<div class="flex flex-col gap-3 sm:flex-row md:gap-5">
 				<FormControl
 					type="text"
 					v-model="titleFilter"
 					:placeholder="__('Search')"
+					:aria-label="__('Search')"
 				>
 					<template #prefix>
 						<span class="lucide-search size-4 text-ink-gray-5" />
@@ -69,7 +70,11 @@
 			class="flex-1 px-5"
 		>
 			<ListHeader class="mb-2 grid items-center rounded bg-surface-gray-2 p-2">
-				<ListHeaderItem :item="item" v-for="item in assignmentColumns">
+				<ListHeaderItem
+					:item="item"
+					v-for="item in assignmentColumns"
+					:key="item.key"
+				>
 					<template #prefix="{ item }">
 						<span :class="[item.icon, 'h-4 w-4']" aria-hidden="true" />
 					</template>
@@ -78,6 +83,7 @@
 			<ListRows>
 				<ListRow
 					v-for="row in assignments.data"
+					:key="row.name"
 					:row="row"
 					class="hover:bg-surface-gray-2"
 				>
@@ -104,6 +110,7 @@
 					<div class="flex gap-2">
 						<Button
 							variant="ghost"
+							:label="__('Delete')"
 							@click="deleteAssignment(selections, unselectAll)"
 						>
 							<span class="lucide-trash-2 h-4 w-4" />

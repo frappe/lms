@@ -31,15 +31,16 @@
 			</div>
 		</template>
 
-		<div
-			class="divide-y divide-outline-elevation-2"
+		<ul
+			class="divide-y divide-outline-elevation-2 list-none"
 			v-if="categories.data?.length"
 		>
-			<div v-for="(cat, index) in categories.data" :key="cat.name">
+			<li v-for="(cat, index) in categories.data" :key="cat.name">
 				<div
 					v-if="editing?.name !== cat.name"
 					class="group flex min-h-11 items-center justify-between gap-2 py-2"
 				>
+					<!-- TODO(a11y): double-click-to-edit is not keyboard-accessible; needs a focusable edit affordance without changing the current layout. -->
 					<div
 						class="text-p-base text-ink-gray-8"
 						@dblclick="allowEdit(cat, index)"
@@ -49,6 +50,7 @@
 					<Button
 						variant="ghost"
 						theme="red"
+						:label="__('Delete category')"
 						class="invisible group-hover:visible"
 						@click="deleteCategory(cat.name)"
 					>
@@ -66,8 +68,8 @@
 						@keyup.enter="saveChanges(cat.name, editedValue)"
 					/>
 				</div>
-			</div>
-		</div>
+			</li>
+		</ul>
 		<EmptyStateLayout
 			v-else
 			name="Categories"

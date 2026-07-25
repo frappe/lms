@@ -12,9 +12,11 @@
 				{{ __('Highlight') }}
 			</div>
 			<div class="">
-				<div
+				<button
 					v-for="color in colors"
-					class="flex items-center gap-x-2 px-3 py-2 cursor-pointer hover:bg-surface-gray-2"
+					:key="color"
+					type="button"
+					class="w-full flex items-center gap-x-2 px-3 py-2 cursor-pointer hover:bg-surface-gray-2"
 					@click="saveHighLight(color)"
 				>
 					<span
@@ -26,29 +28,31 @@
 					<span>
 						{{ __(color) }}
 					</span>
-				</div>
+				</button>
 			</div>
 		</div>
 		<div class="border-t">
-			<div
+			<button
+				type="button"
 				@click="addToNotes()"
-				class="flex items-center gap-x-2 hover:bg-surface-gray-2 cursor-pointer rounded-b-md py-2 px-3"
+				class="w-full flex items-center gap-x-2 hover:bg-surface-gray-2 cursor-pointer rounded-b-md py-2 px-3"
 			>
 				<span class="lucide-notepad-text size-3" />
 				<span>
 					{{ __('Add to Notes') }}
 				</span>
-			</div>
-			<div
+			</button>
+			<button
 				v-if="highlightExists()"
+				type="button"
 				@click="deleteHighlight"
-				class="flex items-center gap-x-2 hover:bg-surface-gray-2 cursor-pointer rounded-b-md py-2 px-3"
+				class="w-full flex items-center gap-x-2 hover:bg-surface-gray-2 cursor-pointer rounded-b-md py-2 px-3"
 			>
 				<span class="lucide-trash-2 size-3" />
 				<span>
 					{{ __('Remove Highlight') }}
 				</span>
-			</div>
+			</button>
 		</div>
 	</div>
 </template>

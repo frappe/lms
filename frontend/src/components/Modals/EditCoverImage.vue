@@ -14,6 +14,7 @@
 						<TextInput
 							type="text"
 							placeholder="search by keyword"
+							:aria-label="__('Search images by keyword')"
 							v-model="search"
 							:debounce="300"
 							class="flex-1"
@@ -48,6 +49,7 @@
 									image.urls.raw +
 									'&w=200&h=50&fit=crop&crop=entropy,faces,focalpoint'
 								"
+								:alt="__('Cover image option')"
 							/>
 						</button>
 					</div>
