@@ -11,6 +11,7 @@ import Paragraph from '@editorjs/paragraph'
 import { CodeBox } from '@/utils/code'
 import NestedList from '@editorjs/nested-list'
 import InlineCode from '@editorjs/inline-code'
+import { Bold } from '@/utils/inline/Bold'
 import { Underline } from '@/utils/inline/Underline'
 import { Strikethrough } from '@/utils/inline/Strikethrough'
 import { AlignLeft, AlignCenter, AlignRight } from '@/utils/inline/TextAlign'
@@ -189,6 +190,11 @@ export function getEditorTools(isInstructorEditor = false, uploadContext = {}) {
 		inlineCode: {
 			class: InlineCode,
 			shortcut: 'CMD+SHIFT+M',
+		},
+		// Overrides EditorJS's execCommand-based Bold, which can't bold a
+		// heading (see utils/inline/Bold.ts).
+		bold: {
+			class: Bold,
 		},
 		underline: Underline,
 		strikeThrough: Strikethrough,
