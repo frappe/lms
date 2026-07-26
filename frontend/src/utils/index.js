@@ -141,6 +141,11 @@ export function getEditorTools(isInstructorEditor = false, uploadContext = {}) {
 	return {
 		header: {
 			class: Header,
+			// Without this key EditorJS leaves tool.inlineTools empty, so the
+			// inline toolbar never opens on a heading and Ctrl+B falls through
+			// to the browser's execCommand (which writes a font-weight span the
+			// sanitizer then strips). Headings take the same toolbar as text.
+			inlineToolbar: INLINE_TOOLBAR_ORDER,
 			config: {
 				placeholder: 'Header',
 			},
