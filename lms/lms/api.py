@@ -399,12 +399,24 @@ def get_branding():
 
 @frappe.whitelist()
 def get_unsplash_photos(keyword: str = None):
+	if keyword is not None and not isinstance(keyword, str):
+		frappe.throw(_("Keyword must be a string."))
+
 	from lms.unsplash import get_by_keyword, get_list
 
 	if keyword:
 		return get_by_keyword(keyword)
 
-	return frappe.cache().get_value("unsplash_photos", generator=get_list)
+	# Cache only a non-empty result. get_value(generator=...) would store the
+	# empty list an unconfigured site returns, so adding the access key later
+	# would keep serving nothing until someone cleared the cache by hand.
+	photos = frappe.cache().get_value("unsplash_photos")
+	if not photos:
+		photos = get_list()
+		if photos:
+			frappe.cache().set_value("unsplash_photos", photos)
+
+	return photos
 
 
 @frappe.whitelist()
