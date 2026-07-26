@@ -5,12 +5,14 @@
 			class="sticky group top-0 z-10 flex flex-col md:flex-row md:items-center justify-between border-b bg-surface-base px-3 py-2.5 sm:px-5"
 		>
 			<Breadcrumbs class="h-7" :items="breadcrumbs" />
-			<Button v-if="isSessionUser()" class="invisible group-hover:visible">
+			<Button
+				v-if="isSessionUser()"
+				class="invisible group-hover:visible"
+				:label="__('Refresh session')"
+				@click="reloadUser()"
+			>
 				<template #icon>
-					<span
-						class="lucide-refresh-ccw size-4 text-ink-gray-7"
-						@click="reloadUser()"
-					/>
+					<span class="lucide-refresh-ccw size-4 text-ink-gray-7" />
 				</template>
 			</Button>
 		</header>
@@ -18,6 +20,7 @@
 			<img
 				v-if="profile.data.cover_image"
 				:src="profile.data.cover_image"
+				alt=""
 				class="h-[130px] w-full object-cover object-center"
 			/>
 			<div
@@ -50,6 +53,7 @@
 						<img
 							v-if="profile.data.user_image"
 							:src="profile.data.user_image"
+							:alt="profile.data.full_name"
 							class="object-cover h-[100px] w-[100px] rounded-full border-4 border-white object-cover"
 						/>
 						<div
@@ -85,28 +89,40 @@
 					</div>
 				</div>
 				<div class="ms-6 mt-5">
-					<h2 class="text-4xl-semibold text-ink-gray-9">
+					<h1 class="text-4xl-semibold text-ink-gray-9">
 						{{ profile.data.full_name }}
-					</h2>
+					</h1>
 					<div class="text-base text-ink-gray-7 mt-1">
 						{{ profile.data.headline }}
 					</div>
 					<div class="flex items-center gap-x-4 mt-2">
-						<Twitter
+						<a
 							v-if="profile.data.twitter"
-							class="size-4 text-ink-gray-5 cursor-pointer"
-							@click="navigateTo(profile.data.twitter)"
-						/>
-						<Linkedin
+							:href="profile.data.twitter"
+							target="_blank"
+							rel="noopener noreferrer"
+							:aria-label="__('Twitter')"
+						>
+							<Twitter class="size-4 text-ink-gray-5 cursor-pointer" />
+						</a>
+						<a
 							v-if="profile.data.linkedin"
-							class="size-4 text-ink-gray-5 cursor-pointer"
-							@click="navigateTo(profile.data.linkedin)"
-						/>
-						<Github
+							:href="profile.data.linkedin"
+							target="_blank"
+							rel="noopener noreferrer"
+							:aria-label="__('LinkedIn')"
+						>
+							<Linkedin class="size-4 text-ink-gray-5 cursor-pointer" />
+						</a>
+						<a
 							v-if="profile.data.github"
-							class="size-4 text-ink-gray-5 cursor-pointer"
-							@click="navigateTo(profile.data.github)"
-						/>
+							:href="profile.data.github"
+							target="_blank"
+							rel="noopener noreferrer"
+							:aria-label="__('GitHub')"
+						>
+							<Github class="size-4 text-ink-gray-5 cursor-pointer" />
+						</a>
 					</div>
 				</div>
 				<Button

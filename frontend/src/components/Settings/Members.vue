@@ -13,6 +13,7 @@
 				<FormControl
 					v-model="search"
 					:placeholder="__('Search')"
+					:aria-label="__('Search members')"
 					type="text"
 					:debounce="300"
 					class="w-1/3"
@@ -21,7 +22,12 @@
 						<span class="lucide-search size-4 text-ink-gray-5" />
 					</template>
 				</FormControl>
-				<Select v-model="currentRole" class="w-40" :options="roleOptions" />
+				<Select
+					v-model="currentRole"
+					class="w-40"
+					:aria-label="__('Filter by role')"
+					:options="roleOptions"
+				/>
 			</div>
 		</template>
 		<div v-if="displayedMembers.length">
@@ -63,7 +69,11 @@
 							</span>
 							<Dropdown
 								:options="getMemberMenuOptions(member)"
-								:button="{ icon: 'lucide-more-horizontal', variant: 'ghost' }"
+								:button="{
+									icon: 'lucide-more-horizontal',
+									variant: 'ghost',
+									label: __('Member actions'),
+								}"
 								placement="right"
 							/>
 						</ListCell>

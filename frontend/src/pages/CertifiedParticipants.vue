@@ -16,9 +16,9 @@
 	</LayoutHeader>
 	<div class="mx-auto flex min-h-0 w-full flex-1 flex-col">
 		<div class="mb-5 flex flex-col justify-between px-5 pt-5 md:flex-row">
-			<div class="mb-4 text-lg-semibold text-ink-gray-9 md:mb-0">
+			<h1 class="mb-4 text-lg-semibold text-ink-gray-9 md:mb-0">
 				{{ memberCount }} {{ __('Certified Members') }}
-			</div>
+			</h1>
 			<div
 				class="flex flex-col space-y-4 md:flex-row md:items-center md:gap-x-4 md:space-y-0"
 			>
@@ -26,6 +26,7 @@
 					<FormControl
 						v-model="nameFilter"
 						:placeholder="__('Search')"
+						:aria-label="__('Search')"
 						type="text"
 						class="min-w-40 lg:w-32 lg:min-w-0 xl:w-40"
 						@input="updateParticipants()"
@@ -67,14 +68,16 @@
 			class="flex-1 overflow-y-auto px-5 pb-5"
 		>
 			<div class="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-4">
-				<div
-					v-for="participant in participants.data"
-					class="flex cursor-pointer flex-col rounded-lg border p-3 text-ink-gray-9 hover:border-outline-gray-3"
-					@click="
-						router.push({
-							name: 'ProfileAbout',
-							params: { username: participant.username },
-						})
+				<component
+					:is="participant.username ? 'router-link' : 'div'"
+					v-for="(participant, index) in participants.data"
+					:key="participant.username || index"
+					:to="profileRoute(participant.username, 'ProfileAbout')"
+					class="flex flex-col rounded-lg border p-3 text-ink-gray-9"
+					:class="
+						participant.username
+							? 'cursor-pointer hover:border-outline-gray-3'
+							: ''
 					"
 				>
 					<div class="flex items-center gap-x-4">
@@ -110,7 +113,7 @@
 							}}</span>
 						</div>
 					</div>
-				</div>
+				</component>
 			</div>
 		</div>
 		<div v-else class="flex-1">
@@ -162,6 +165,7 @@ import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 import SkeletonLoader from '@/components/SkeletonLoader.vue'
 import UserAvatar from '@/components/UserAvatar.vue'
 import LayoutHeader from '@/components/Layouts/LayoutHeader.vue'
+import { profileRoute } from '@/utils/routes'
 
 const filters = ref({})
 const currentCategory = ref('')

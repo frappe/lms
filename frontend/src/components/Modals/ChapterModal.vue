@@ -63,7 +63,9 @@
 									{{ getFileSize(chapter.scorm_package.file_size) }}
 								</span>
 							</div>
-							<span
+							<button
+								type="button"
+								:aria-label="__('Remove file')"
 								@click="() => (chapter.scorm_package = null)"
 								class="lucide-x bg-surface-gray-3 rounded-md cursor-pointer w-5 h-5 p-1 ms-4 shrink-0"
 							/>

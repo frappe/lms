@@ -2,10 +2,13 @@ import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
 import VideoPreview from '@/components/VideoPreview.vue'
 
+const global = { mocks: { __: (s: string) => s } }
+
 describe('VideoPreview', () => {
 	it('renders a YouTube iframe (not a <video>) for a youtube link', () => {
 		const w = mount(VideoPreview, {
 			props: { videoLink: 'https://youtu.be/O7FIiYsVy3U?si=22FPigXQedh7jAlz' },
+			global,
 		})
 		const iframe = w.find('iframe')
 		expect(iframe.exists()).toBe(true)
@@ -16,7 +19,10 @@ describe('VideoPreview', () => {
 	})
 
 	it('renders a <video> for an uploaded file path', () => {
-		const w = mount(VideoPreview, { props: { videoLink: '/files/intro.mp4' } })
+		const w = mount(VideoPreview, {
+			props: { videoLink: '/files/intro.mp4' },
+			global,
+		})
 		const video = w.find('video')
 		expect(video.exists()).toBe(true)
 		expect(video.attributes('src')).toBe('/files/intro.mp4')
@@ -25,7 +31,11 @@ describe('VideoPreview', () => {
 
 	it('falls back to the image when the file video errors', async () => {
 		const w = mount(VideoPreview, {
-			props: { videoLink: '/files/intro.mov', fallbackImage: '/files/thumb.jpg' },
+			props: {
+				videoLink: '/files/intro.mov',
+				fallbackImage: '/files/thumb.jpg',
+			},
+			global,
 		})
 		await w.find('video').trigger('error')
 		expect(w.find('video').exists()).toBe(false)
@@ -35,7 +45,10 @@ describe('VideoPreview', () => {
 	})
 
 	it('renders nothing without a link', () => {
-		const w = mount(VideoPreview, { props: { videoLink: null } })
+		const w = mount(VideoPreview, {
+			props: { videoLink: null },
+			global,
+		})
 		expect(w.find('iframe').exists()).toBe(false)
 		expect(w.find('video').exists()).toBe(false)
 		expect(w.find('img').exists()).toBe(false)

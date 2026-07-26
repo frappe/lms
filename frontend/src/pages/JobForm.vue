@@ -18,9 +18,9 @@
 		<div class="">
 			<div class="grid grid-cols-[70%,30%] gap-5 px-5">
 				<div class="space-y-5 pt-5">
-					<div class="text-ink-gray-9 font-semibold">
+					<h2 class="text-ink-gray-9 font-semibold">
 						{{ __('Job Details') }}
-					</div>
+					</h2>
 					<div class="grid grid-cols-3 gap-5">
 						<FormControl
 							v-model="job.job_title"
@@ -67,9 +67,9 @@
 						/>
 					</div>
 					<div class="p-5 space-y-5 border-b">
-						<div class="text-ink-gray-9 font-semibold">
+						<h2 class="text-ink-gray-9 font-semibold">
 							{{ __('Location') }}
-						</div>
+						</h2>
 						<FormControl
 							v-model="job.location"
 							:label="__('City')"
@@ -83,9 +83,9 @@
 						/>
 					</div>
 					<div class="p-5 space-y-5">
-						<div class="text-ink-gray-9 font-semibold">
+						<h2 class="text-ink-gray-9 font-semibold">
 							{{ __('Company Details') }}
-						</div>
+						</h2>
 						<FormControl
 							v-model="job.company_name"
 							:label="__('Company Name')"

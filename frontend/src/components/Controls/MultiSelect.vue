@@ -21,6 +21,7 @@
 						ref="search"
 						class="flex-1 min-w-[4rem] border-none outline-none bg-transparent p-0 text-base focus:ring-0"
 						type="text"
+						:aria-label="label || __('Search')"
 						:placeholder="!values?.length ? __('Search...') : ''"
 						@change="
 							(e) => {

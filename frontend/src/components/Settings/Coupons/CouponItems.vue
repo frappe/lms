@@ -7,6 +7,7 @@
 				<thead
 					class="text-xs text-ink-gray-7 uppercase bg-surface-gray-2 border-b border-outline-gray-2"
 				>
+					<!-- TODO(a11y): header cells use <td>; switching to <th scope="col"> would add UA bold/center styling (visual change), so deferred. -->
 					<tr>
 						<td scope="col" class="px-6 py-2">
 							{{ __('Document Type') }}

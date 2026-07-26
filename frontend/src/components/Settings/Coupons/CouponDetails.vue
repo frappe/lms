@@ -75,9 +75,9 @@
 				/>
 			</div>
 			<div class="pt-4">
-				<div class="font-semibold text-ink-gray-9 mb-3">
+				<h2 class="font-semibold text-ink-gray-9 mb-3">
 					{{ __('Applicable For') }}
-				</div>
+				</h2>
 				<CouponItems :items="doc.applicable_items" />
 			</div>
 		</div>

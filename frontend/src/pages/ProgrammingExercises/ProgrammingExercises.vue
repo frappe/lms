@@ -39,9 +39,9 @@
 		<div
 			class="mb-5 flex flex-col justify-between gap-y-4 px-5 sm:flex-row sm:items-center"
 		>
-			<div class="text-lg-semibold text-ink-gray-9">
+			<h1 class="text-lg-semibold text-ink-gray-9">
 				{{ __('{0} Exercises').format(totalExercises.data || 0) }}
-			</div>
+			</h1>
 			<div class="flex flex-col gap-3 sm:gap-5 md:flex-row">
 				<FormControl
 					v-model="titleFilter"
@@ -84,7 +84,7 @@
 			class="flex-1 overflow-y-auto px-5"
 		>
 			<ListHeader class="mb-2 grid items-center rounded bg-surface-gray-2 p-2">
-				<ListHeaderItem :item="item" v-for="item in columns">
+				<ListHeaderItem :item="item" v-for="item in columns" :key="item.key">
 					<template #prefix="{ item }">
 						<span :class="[item.icon, 'h-4 w-4']" aria-hidden="true" />
 					</template>
@@ -94,6 +94,7 @@
 				<ListRow
 					:row="row"
 					v-for="row in exercises.data"
+					:key="row.name"
 					class="hover:bg-surface-gray-1"
 				>
 					<template #default="{ column, item }">
@@ -116,6 +117,7 @@
 					<div class="flex gap-2">
 						<Button
 							variant="ghost"
+							:label="__('Delete')"
 							@click="showDeleteConfirmation(selections, unselectAll)"
 						>
 							<span class="lucide-trash-2 size-4" />

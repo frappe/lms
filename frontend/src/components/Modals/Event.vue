@@ -17,26 +17,30 @@
 							</div>
 						</Tooltip>
 						<Tooltip :text="__('Course')">
-							<div
+							<a
+								:href="`/lms/courses/${event.course}`"
+								target="_blank"
+								rel="noopener noreferrer"
 								class="flex gap-x-2 w-fit cursor-pointer"
-								@click="openLink('course', event.course)"
 							>
 								<span class="lucide-book-open h-4 w-4" />
 								<span>
 									{{ event.course_title }}
 								</span>
-							</div>
+							</a>
 						</Tooltip>
 						<Tooltip v-if="event.batch_title" :text="__('Batch')">
-							<div
+							<a
+								:href="`/lms/batches/${event.batch_name}#students`"
+								target="_blank"
+								rel="noopener noreferrer"
 								class="flex gap-x-2 w-fit cursor-pointer"
-								@click="openLink('batch', event.batch_name)"
 							>
 								<span class="lucide-users h-4 w-4" />
 								<span>
 									{{ event.batch_title }}
 								</span>
-							</div>
+							</a>
 						</Tooltip>
 						<Tooltip :text="__('Date')">
 							<div class="flex items-center gap-x-2 w-fit">
@@ -367,16 +371,6 @@ const openCertificate = (certificate) => {
 			certificate.name
 		}&format=${encodeURIComponent(certificate.template)}`
 	)
-}
-
-const openLink = (type, name) => {
-	let url = ''
-	if (type === 'course') {
-		url = `/lms/courses/${name}`
-	} else if (type === 'batch') {
-		url = `/lms/batches/${name}#students`
-	}
-	window.open(url, '_blank')
 }
 
 const statusOptions = computed(() => {

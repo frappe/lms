@@ -49,9 +49,9 @@
 		<div
 			class="mb-5 flex flex-col justify-between space-y-4 lg:flex-row lg:items-center lg:space-y-0"
 		>
-			<div class="text-lg-semibold text-ink-gray-9">
+			<h1 class="text-lg-semibold text-ink-gray-9">
 				{{ __('All Batches') }}
-			</div>
+			</h1>
 			<div
 				class="flex flex-col space-y-3 lg:flex-row lg:items-center lg:gap-x-4 lg:space-y-0"
 			>
@@ -65,6 +65,7 @@
 					<FormControl
 						v-model="title"
 						:placeholder="__('Search')"
+						:aria-label="__('Search')"
 						type="text"
 						class="min-w-40"
 						@input="updateBatches()"
@@ -102,6 +103,7 @@
 		>
 			<router-link
 				v-for="batch in batches.data"
+				:key="batch.name"
 				:to="{ name: 'BatchDetail', params: { batchName: batch.name } }"
 			>
 				<BatchCard :batch="batch" />

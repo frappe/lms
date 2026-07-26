@@ -18,9 +18,9 @@
 		</div>
 	</header>
 	<div v-if="submissionDetails.doc" class="w-2/3 border-x mx-auto py-5">
-		<div class="text-2xl-semibold px-10 text-ink-gray-9 mb-5">
+		<h1 class="text-2xl-semibold px-10 text-ink-gray-9 mb-5">
 			{{ submissionDetails.doc.member_name }}
-		</div>
+		</h1>
 		<div class="space-y-4 border-b pb-5 px-10">
 			<div class="grid grid-cols-2 gap-5">
 				<FormControl
@@ -52,6 +52,7 @@
 		<div class="divide-y">
 			<div
 				v-for="(row, index) in submissionDetails.doc.result"
+				:key="row.name"
 				class="py-5 px-10 space-y-4"
 			>
 				<div class="text-ink-gray-9">
