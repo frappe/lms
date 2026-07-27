@@ -5,7 +5,7 @@ cd ~ || exit
 echo "Setting Up Bench..."
 
 pip install frappe-bench
-bench -v init frappe-bench --skip-assets --python "$(which python)"
+bench -v init frappe-bench --frappe-branch version-15 --skip-assets --python "$(which python)"
 cd ./frappe-bench || exit
 
 bench -v setup requirements

@@ -1,14 +1,54 @@
+import ast
 import unittest
+from pathlib import Path
 
 import frappe
 from frappe.utils import getdate
 
 from lms.lms.doctype.lms_course.test_lms_course import new_course, new_user
 
-from .utils import get_evaluation_details, slugify
+from .utils import get_evaluation_details, is_onboarding_complete, slugify
 
 
 class TestUtils(unittest.TestCase):
+	def test_razorpay_is_not_imported_at_module_level(self):
+		"""This module is loaded by the User override on every session."""
+		tree = ast.parse(Path(__file__).with_name("utils.py").read_text())
+		imported = []
+		for node in tree.body:
+			if isinstance(node, ast.Import):
+				imported += [alias.name.split(".")[0] for alias in node.names]
+			elif isinstance(node, ast.ImportFrom) and node.module:
+				imported.append(node.module.split(".")[0])
+
+		self.assertNotIn("razorpay", imported)
+
+	def test_onboarding_status_does_not_write_while_rendering(self):
+		"""Templates call this during page render, where writes raise PermissionError."""
+		frappe.db.set_single_value("LMS Settings", "is_onboarding_complete", 0)
+		course = new_course("Test Onboarding Status")
+		chapter = frappe.get_doc(
+			{"doctype": "Course Chapter", "title": "Chapter", "course": course.name}
+		).insert()
+		frappe.get_doc(
+			{
+				"doctype": "Course Lesson",
+				"title": "Lesson",
+				"chapter": chapter.name,
+				"course": course.name,
+				"body": "Lesson body",
+			}
+		).insert()
+
+		frappe.local.flags.in_render_safe_exec = True
+		try:
+			status = is_onboarding_complete()
+		finally:
+			frappe.local.flags.in_render_safe_exec = False
+
+		self.assertTrue(status["course_created"])
+		self.assertTrue(status["is_onboarded"])
+
 	def test_simple(self):
 		self.assertEqual(slugify("hello-world"), "hello-world")
 		self.assertEqual(slugify("Hello World"), "hello-world")
