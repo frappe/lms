@@ -122,7 +122,8 @@ watch(
 				account.google_calendar = acc.google_calendar
 			}
 		}
-	}
+	},
+	{ immediate: true }
 )
 
 const save = () => saveAccount()
