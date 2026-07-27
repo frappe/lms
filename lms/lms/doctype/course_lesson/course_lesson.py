@@ -149,10 +149,21 @@ def _resolve_lesson_references(file_url: str) -> list[tuple[str, bool]]:
 				(r.attached_to_name, r.attached_to_field in INSTRUCTOR_FIELDS or not r.attached_to_field)
 			)
 
+	# Run the content search through a bound-parameter query with an explicit ESCAPE
+	# rather than frappe.db.get_all(..., ["like", ...]): the query builder re-escapes the
+	# backslashes _like_escape adds, so any file_url containing "_" or "%" (e.g.
+	# Module_1_Introduction.pdf) silently matches nothing — denying enrolled students and
+	# preview guests their own lesson media. `field` is drawn only from the trusted
+	# STUDENT_CONTENT_FIELDS / INSTRUCTOR_FIELDS constants below (never user input).
 	pattern = f"%{_like_escape(file_url)}%"
 	fields = [(f, False) for f in STUDENT_CONTENT_FIELDS] + [(f, True) for f in INSTRUCTOR_FIELDS]
 	for field, instructor_only in fields:
-		for row in frappe.db.get_all("Course Lesson", filters={field: ["like", pattern]}, fields=["name"]):
+		rows = frappe.db.sql(
+			f"select name from `tabCourse Lesson` where `{field}` like %(pattern)s escape '\\\\'",
+			{"pattern": pattern},
+			as_dict=True,
+		)
+		for row in rows:
 			refs.append((row.name, instructor_only))
 
 	return refs
