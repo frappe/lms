@@ -138,7 +138,11 @@ const INLINE_TOOLBAR_ORDER = [
 	'color',
 ]
 
-export function getEditorTools(isInstructorEditor = false, uploadContext = {}) {
+export function getEditorTools(
+	isInstructorEditor = false,
+	uploadContext = {},
+	{ studentView = false } = {}
+) {
 	return {
 		header: {
 			class: Header,
@@ -167,7 +171,13 @@ export function getEditorTools(isInstructorEditor = false, uploadContext = {}) {
 			inlineToolbar: INLINE_TOOLBAR_ORDER,
 		},
 		quiz: Quiz,
-		assignment: Assignment,
+		// The submission renders in an iframe — a separate app instance — so
+		// provide/inject can't reach it. Pass Student View through the tool
+		// config and on into the iframe URL.
+		assignment: {
+			class: Assignment,
+			config: { studentView },
+		},
 		program: Program,
 		markdown: {
 			class: Markdown,
