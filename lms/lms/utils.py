@@ -2,7 +2,6 @@ import re
 import string
 import frappe
 import json
-import razorpay
 import requests
 from frappe import _
 from frappe.desk.doctype.dashboard_chart.dashboard_chart import get_result
@@ -1034,6 +1033,10 @@ def save_address(address):
 
 
 def get_client():
+	# Imported lazily: this module is pulled in by the User override on every
+	# session, so a broken razorpay install must not take down the whole site.
+	import razorpay
+
 	settings = frappe.get_single("LMS Settings")
 	razorpay_key = settings.razorpay_key
 	razorpay_secret = settings.get_password("razorpay_secret", raise_exception=True)

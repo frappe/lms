@@ -1,4 +1,6 @@
+import ast
 import unittest
+from pathlib import Path
 
 import frappe
 from frappe.utils import getdate
@@ -9,6 +11,18 @@ from .utils import get_evaluation_details, slugify
 
 
 class TestUtils(unittest.TestCase):
+	def test_razorpay_is_not_imported_at_module_level(self):
+		"""This module is loaded by the User override on every session."""
+		tree = ast.parse(Path(__file__).with_name("utils.py").read_text())
+		imported = []
+		for node in tree.body:
+			if isinstance(node, ast.Import):
+				imported += [alias.name.split(".")[0] for alias in node.names]
+			elif isinstance(node, ast.ImportFrom) and node.module:
+				imported.append(node.module.split(".")[0])
+
+		self.assertNotIn("razorpay", imported)
+
 	def test_simple(self):
 		self.assertEqual(slugify("hello-world"), "hello-world")
 		self.assertEqual(slugify("Hello World"), "hello-world")
