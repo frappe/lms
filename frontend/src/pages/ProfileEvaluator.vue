@@ -101,16 +101,19 @@
 					{{ __('I am unavailable') }}
 				</h2>
 				<div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+					<!-- `@update:modelValue`, not `@blur`: the date control renders as a
+					     popover, so a native listener bound as a fallthrough attr is not
+					     reliably reached. -->
 					<FormControl
 						type="date"
 						:label="__('From')"
 						v-model="from"
 						:disabled="!isSessionUser()"
-						@blur="
-							() => {
+						@update:modelValue="
+							(value) => {
 								updateUnavailability.submit({
 									field: 'unavailable_from',
-									value: from,
+									value,
 								})
 							}
 						"
@@ -120,11 +123,11 @@
 						:label="__('To')"
 						v-model="to"
 						:disabled="!isSessionUser()"
-						@blur="
-							() => {
+						@update:modelValue="
+							(value) => {
 								updateUnavailability.submit({
 									field: 'unavailable_to',
-									value: to,
+									value,
 								})
 							}
 						"
@@ -218,17 +221,16 @@ const formatTime = (time) => {
 	return `${hour.padStart(2, '0')}:${minute.padStart(2, '0')}`
 }
 
+// Availability goes through lms.lms.api rather than frappe.client.*: the raw
+// framework endpoints fall back to Course Evaluator's role permissions, which
+// grant blanket write to Moderator, Batch Evaluator and Course Creator with no
+// owner condition, so anyone holding one could edit anyone else's calendar.
 const createSlot = createResource({
-	url: 'frappe.client.insert',
+	url: 'lms.lms.api.add_evaluator_slot',
 	makeParams(values) {
 		return {
-			doc: {
-				doctype: 'Evaluator Schedule',
-				parent: evaluator.data?.slots.name,
-				parentfield: 'schedule',
-				parenttype: 'Course Evaluator',
-				...newSlot,
-			},
+			evaluator: props.profile.data?.name,
+			...newSlot,
 		}
 	},
 	onSuccess() {
@@ -245,11 +247,11 @@ const createSlot = createResource({
 })
 
 const updateSlot = createResource({
-	url: 'frappe.client.set_value',
+	url: 'lms.lms.api.update_evaluator_slot',
 	makeParams(values) {
 		return {
-			doctype: 'Evaluator Schedule',
-			name: values.name,
+			evaluator: props.profile.data?.name,
+			slot: values.name,
 			fieldname: values.field,
 			value: values.value,
 		}
@@ -263,11 +265,11 @@ const updateSlot = createResource({
 })
 
 const deleteSlot = createResource({
-	url: 'frappe.client.delete',
+	url: 'lms.lms.api.delete_evaluator_slot',
 	makeParams(values) {
 		return {
-			doctype: 'Evaluator Schedule',
-			name: values.name,
+			evaluator: props.profile.data?.name,
+			slot: values.name,
 		}
 	},
 	onSuccess() {
@@ -280,11 +282,10 @@ const deleteSlot = createResource({
 })
 
 const updateUnavailability = createResource({
-	url: 'frappe.client.set_value',
+	url: 'lms.lms.api.set_evaluator_unavailability',
 	makeParams(values) {
 		return {
-			doctype: 'Course Evaluator',
-			name: evaluator.data?.slots.name,
+			evaluator: props.profile.data?.name,
 			fieldname: values.field,
 			value: values.value,
 		}
