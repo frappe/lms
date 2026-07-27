@@ -841,8 +841,10 @@ def is_onboarding_complete():
 	chapter_created = frappe.db.a_row_exists("Course Chapter")
 	lesson_created = frappe.db.a_row_exists("Course Lesson")
 
-	if course_created and chapter_created and lesson_created:
-		frappe.db.set_single_value("LMS Settings", "is_onboarding_complete", 1)
+	# Only ever called while rendering a template, where writes raise
+	# PermissionError, so derive the status instead of persisting it. The Skip
+	# action on the onboarding header still stores it.
+	onboarding_status = bool(course_created and chapter_created and lesson_created)
 
 	return {
 		"is_onboarded": onboarding_status,

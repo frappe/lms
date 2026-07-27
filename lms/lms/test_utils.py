@@ -7,7 +7,7 @@ from frappe.utils import getdate
 
 from lms.lms.doctype.lms_course.test_lms_course import new_course, new_user
 
-from .utils import get_evaluation_details, slugify
+from .utils import get_evaluation_details, is_onboarding_complete, slugify
 
 
 class TestUtils(unittest.TestCase):
@@ -22,6 +22,32 @@ class TestUtils(unittest.TestCase):
 				imported.append(node.module.split(".")[0])
 
 		self.assertNotIn("razorpay", imported)
+
+	def test_onboarding_status_does_not_write_while_rendering(self):
+		"""Templates call this during page render, where writes raise PermissionError."""
+		frappe.db.set_single_value("LMS Settings", "is_onboarding_complete", 0)
+		course = new_course("Test Onboarding Status")
+		chapter = frappe.get_doc(
+			{"doctype": "Course Chapter", "title": "Chapter", "course": course.name}
+		).insert()
+		frappe.get_doc(
+			{
+				"doctype": "Course Lesson",
+				"title": "Lesson",
+				"chapter": chapter.name,
+				"course": course.name,
+				"body": "Lesson body",
+			}
+		).insert()
+
+		frappe.local.flags.in_render_safe_exec = True
+		try:
+			status = is_onboarding_complete()
+		finally:
+			frappe.local.flags.in_render_safe_exec = False
+
+		self.assertTrue(status["course_created"])
+		self.assertTrue(status["is_onboarded"])
 
 	def test_simple(self):
 		self.assertEqual(slugify("hello-world"), "hello-world")
