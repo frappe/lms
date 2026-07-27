@@ -25,7 +25,8 @@ class TestServeResourceUnderscoreFilename(BaseTestUtils, FrappeAPITestCase):
 	through frappe.db.get_all(..., ["like", ...]), which re-escaped the backslashes — so
 	any file_url with "_" (e.g. Module_1_Introduction.pdf) matched no lesson. Enrolled
 	students and preview guests were denied their own media (403), and a private-but-
-	unattached file was denied for everyone including Administrator.
+	unattached file was denied for everyone including Administrator. The search now
+	matches the url as a literal substring (LOCATE), so no escaping is involved.
 	"""
 
 	def setUp(self):
@@ -91,9 +92,23 @@ class TestServeResourceUnderscoreFilename(BaseTestUtils, FrappeAPITestCase):
 			msg="content-field search must resolve a student-accessible reference for an underscore filename",
 		)
 
+	def test_underscore_is_not_a_wildcard(self):
+		"""The "_" must be matched literally, not as a single-character LIKE wildcard: a
+		lesson embedding a url the searched one matches only wildcard-wise must not
+		resolve as student-accessible content."""
+		other_url = self.file_url.replace("_", "Z")
+		self.lesson.content = json.dumps(
+			{"blocks": [{"type": "upload", "data": {"file_url": other_url, "file_type": "PDF"}}]}
+		)
+		self.lesson.save(ignore_permissions=True)
+		frappe.db.commit()
+
+		self.assertIn((self.lesson.name, False), _resolve_lesson_references(other_url))
+		self.assertNotIn((self.lesson.name, False), _resolve_lesson_references(self.file_url))
+
 	def test_content_search_matches_percent_filename(self):
-		"""_like_escape escapes % on a separate path from _; a filename with a literal %
-		must resolve too (and the % must stay literal, not act as a LIKE wildcard)."""
+		"""A filename with a literal % must resolve too, and the % must stay literal
+		rather than acting as a multi-character wildcard."""
 		pct_url = "/private/files/report50%final.pdf"
 		self.lesson.content = json.dumps(
 			{"blocks": [{"type": "upload", "data": {"file_url": pct_url, "file_type": "PDF"}}]}
