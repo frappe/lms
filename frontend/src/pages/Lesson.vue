@@ -368,8 +368,10 @@ import UserAvatar from '@/components/UserAvatar.vue'
 import Notes from '@/components/Notes/Notes.vue'
 import InlineLessonMenu from '@/components/Notes/InlineLessonMenu.vue'
 import { getLmsRoute } from '@/utils/basePath'
+import { useStudentView } from '@/composables/useStudentView'
 
 const user = inject('$user')
+const isStudentView = useStudentView()
 const socket = inject('$socket')
 const router = useRouter()
 const route = useRoute()
@@ -536,7 +538,7 @@ const renderEditor = (holder, content) => {
 		document.getElementById(holder).innerHTML = ''
 	return new EditorJS({
 		holder: holder,
-		tools: getEditorTools(),
+		tools: getEditorTools(false, {}, { studentView: isStudentView.value }),
 		data: sanitizeEditorJs(JSON.parse(content)),
 		readOnly: true,
 		defaultBlock: 'embed',
