@@ -107,18 +107,38 @@ def get_payment_link(
 		"payment": payment.name,
 	}
 
-	create_order(payment_gateway, payment_details, controller)
-	url = controller.get_payment_url(**payment_details)
+	# The controller creates the order itself when no `order_id` is supplied
+	# (see RazorpaySettings.get_payment_url). Pre-creating one here made the
+	# gateway skip that branch and left two Integration Requests per attempt —
+	# one in paise without an `order_id`, one in rupees with it — which
+	# update_payment_record's "creation desc, limit 1" lookup can resolve to the
+	# wrong row.
+	return controller.get_payment_url(**payment_details)
 
-	return url
 
-
+<<<<<<< HEAD
 def create_order(payment_gateway: str, payment_details: dict, controller: object):
 	if payment_gateway != "Razorpay":
 		return
 
 	order = controller.create_order(**payment_details)
 	payment_details.update({"order_id": order.get("id")})
+=======
+def already_has_access(doctype: str, docname: str, payment_for_certificate: int) -> bool:
+	member = frappe.session.user
+
+	if int(payment_for_certificate):
+		return bool(
+			frappe.db.get_value(
+				"LMS Enrollment", {"member": member, "course": docname}, "purchased_certificate"
+			)
+		)
+
+	if doctype == "LMS Course":
+		return bool(frappe.db.exists("LMS Enrollment", {"member": member, "course": docname}))
+
+	return bool(frappe.db.exists("LMS Batch Enrollment", {"member": member, "batch": docname}))
+>>>>>>> 4e9a37a6 (fix(payments): stop LMS creating the Razorpay order itself)
 
 
 def get_amount_with_gst(amount: float, gst_amount: float) -> float:
