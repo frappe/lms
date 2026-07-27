@@ -421,7 +421,11 @@ def get_unsplash_photos(keyword: str = None):
 
 @frappe.whitelist()
 def get_evaluator_details(evaluator: str):
-	frappe.only_for("Batch Evaluator")
+	# Profile.vue shows the Slots and Schedule tabs to evaluators *and*
+	# moderators, so gating on Batch Evaluator alone rendered the tabs and then
+	# 403'd the request behind them.
+	frappe.only_for(["Batch Evaluator", "Moderator"])
+	evaluator = validate_evaluator_name(evaluator)
 
 	if frappe.db.exists("Google Calendar", {"user": evaluator}):
 		calendar = frappe.db.get_value(
@@ -457,6 +461,123 @@ def get_evaluator_details(evaluator: str):
 		"calendar": calendar.name if calendar else None,
 		"is_authorised": calendar.authorization_code if calendar else None,
 	}
+
+
+EVALUATOR_SLOT_FIELDS = {"day", "start_time", "end_time"}
+EVALUATOR_UNAVAILABILITY_FIELDS = {"unavailable_from", "unavailable_to"}
+EVALUATOR_SLOT_DAYS = {
+	"Monday",
+	"Tuesday",
+	"Wednesday",
+	"Thursday",
+	"Friday",
+	"Saturday",
+	"Sunday",
+}
+
+
+def validate_evaluator_name(evaluator: str) -> str:
+	if not isinstance(evaluator, str) or not evaluator.strip():
+		frappe.throw(_("Evaluator is required."))
+	return evaluator.strip()
+
+
+def enforce_evaluator_ownership(evaluator: str) -> str:
+	"""You may edit your own availability; a Moderator may edit anyone's.
+
+	The Course Evaluator doctype grants blanket write to Moderator, Batch
+	Evaluator and Course Creator with no owner condition, so without this the
+	raw framework endpoints let any of them edit any evaluator's calendar.
+	"""
+	evaluator = validate_evaluator_name(evaluator)
+
+	if evaluator == frappe.session.user:
+		return evaluator
+
+	if "Moderator" in frappe.get_roles():
+		return evaluator
+
+	frappe.throw(_("You can only change your own availability."), frappe.PermissionError)
+
+
+def get_owned_evaluator_doc(evaluator: str):
+	evaluator = enforce_evaluator_ownership(evaluator)
+
+	if not frappe.db.exists("Course Evaluator", evaluator):
+		frappe.throw(_("Evaluator {0} not found").format(evaluator), frappe.DoesNotExistError)
+
+	return frappe.get_doc("Course Evaluator", evaluator)
+
+
+def get_owned_slot(doc, slot: str | int):
+	"""Resolve a slot *within* the caller's own schedule.
+
+	Looking the row up by name alone would let a valid actor point a write at
+	someone else's row; the slot has to belong to the evaluator they passed.
+	Evaluator Schedule rows are autoincrement-named, so the identifier arrives
+	as a number from JSON — compare as strings rather than trusting the type.
+	"""
+	if slot is None or not str(slot).strip():
+		frappe.throw(_("Slot is required."))
+
+	for row in doc.schedule:
+		if str(row.name) == str(slot).strip():
+			return row
+
+	frappe.throw(_("That slot does not belong to this evaluator."), frappe.PermissionError)
+
+
+@frappe.whitelist()
+def add_evaluator_slot(evaluator: str, day: str, start_time: str, end_time: str):
+	doc = get_owned_evaluator_doc(evaluator)
+
+	if day not in EVALUATOR_SLOT_DAYS:
+		frappe.throw(_("{0} is not a valid day.").format(day))
+
+	if not start_time or not end_time:
+		frappe.throw(_("Start time and end time are required."))
+
+	doc.append("schedule", {"day": day, "start_time": start_time, "end_time": end_time})
+	doc.save(ignore_permissions=True)
+	return doc.schedule[-1].name
+
+
+@frappe.whitelist()
+def update_evaluator_slot(evaluator: str, slot: str | int, fieldname: str, value: str):
+	doc = get_owned_evaluator_doc(evaluator)
+	row = get_owned_slot(doc, slot)
+
+	if fieldname not in EVALUATOR_SLOT_FIELDS:
+		frappe.throw(_("{0} cannot be changed.").format(fieldname))
+
+	if fieldname == "day" and value not in EVALUATOR_SLOT_DAYS:
+		frappe.throw(_("{0} is not a valid day.").format(value))
+
+	if not value:
+		frappe.throw(_("A value is required."))
+
+	row.set(fieldname, value)
+	doc.save(ignore_permissions=True)
+
+
+@frappe.whitelist()
+def delete_evaluator_slot(evaluator: str, slot: str | int):
+	doc = get_owned_evaluator_doc(evaluator)
+	row = get_owned_slot(doc, slot)
+
+	doc.remove(row)
+	doc.save(ignore_permissions=True)
+
+
+@frappe.whitelist()
+def set_evaluator_unavailability(evaluator: str, fieldname: str, value: str | None = None):
+	doc = get_owned_evaluator_doc(evaluator)
+
+	if fieldname not in EVALUATOR_UNAVAILABILITY_FIELDS:
+		frappe.throw(_("{0} cannot be changed.").format(fieldname))
+
+	doc.set(fieldname, value or None)
+	doc.save(ignore_permissions=True)
 
 
 @frappe.whitelist()
@@ -1998,13 +2119,9 @@ def get_pwa_manifest():
 
 @frappe.whitelist()
 def get_profile_details(username: str):
-	if not isinstance(username, str):
-		frappe.throw(_("Username must be a string."))
-
-	if not has_lms_role():
-		frappe.throw(
-			_("User does not have permission to access this user's profile details."), frappe.PermissionError
-		)
+	if not isinstance(username, str) or not username.strip():
+		frappe.throw(_("Username is required."))
+	username = username.strip()
 
 	details = frappe.db.get_value(
 		"User",
@@ -2027,11 +2144,23 @@ def get_profile_details(username: str):
 		],
 		as_dict=True,
 	)
+	# Every user created through the LMS picks up `LMS Student` from the
+	# before_insert hook, but users made in Desk, by Data Import or by another
+	# app do not — they must still be able to open their own profile. Viewing
+	# anyone else's still requires an LMS role, and that refusal comes before
+	# the not-found check so a caller without one can't use the difference
+	# between the two errors to enumerate usernames.
+	is_own_profile = bool(details) and details.name == frappe.session.user
+	if not is_own_profile and not has_lms_role():
+		frappe.throw(
+			_("User does not have permission to access this user's profile details."), frappe.PermissionError
+		)
+
 	if not details:
 		frappe.throw(_("User {0} not found").format(username), frappe.DoesNotExistError)
 
 	roles = frappe.get_roles(details.name)
-	if details.name != frappe.session.user and not has_moderator_role():
+	if not is_own_profile and not has_moderator_role():
 		roles = [role for role in roles if role in LMS_ROLES]
 	details.roles = roles
 	return details
