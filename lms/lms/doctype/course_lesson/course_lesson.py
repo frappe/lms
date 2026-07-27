@@ -8,6 +8,7 @@ from urllib.parse import unquote
 import frappe
 from frappe import _
 from frappe.model.document import Document
+from frappe.query_builder.functions import Locate
 from frappe.realtime import get_website_room
 from frappe.utils.response import send_private_file
 from frappe.utils.telemetry import capture
@@ -123,11 +124,6 @@ def has_permission(doc, ptype="read", user=None):
 STUDENT_CONTENT_FIELDS = ("content", "body")
 
 
-def _like_escape(value: str) -> str:
-	"""Escape LIKE wildcards so a file_url containing % or _ matches literally."""
-	return value.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
-
-
 def _resolve_lesson_references(file_url: str) -> list[tuple[str, bool]]:
 	"""Every (lesson, instructor_only) pair that references file_url.
 
@@ -149,11 +145,23 @@ def _resolve_lesson_references(file_url: str) -> list[tuple[str, bool]]:
 				(r.attached_to_name, r.attached_to_field in INSTRUCTOR_FIELDS or not r.attached_to_field)
 			)
 
-	pattern = f"%{_like_escape(file_url)}%"
+	# Match the url as a literal substring via LOCATE (the query builder maps it to
+	# STRPOS/INSTR per dialect) instead of a LIKE pattern: LIKE needs %/_ escaped, and
+	# frappe.db.get_all(..., ["like", ...]) re-escapes the backslashes of an already
+	# escaped pattern — so any file_url containing "_" or "%" (e.g.
+	# Module_1_Introduction.pdf) silently matched nothing, denying enrolled students and
+	# preview guests their own lesson media.
+	lesson = frappe.qb.DocType("Course Lesson")
 	fields = [(f, False) for f in STUDENT_CONTENT_FIELDS] + [(f, True) for f in INSTRUCTOR_FIELDS]
 	for field, instructor_only in fields:
-		for row in frappe.db.get_all("Course Lesson", filters={field: ["like", pattern]}, fields=["name"]):
-			refs.append((row.name, instructor_only))
+		names = (
+			frappe.qb.from_(lesson)
+			.select(lesson.name)
+			.where(Locate(file_url, lesson[field]) > 0)
+			.run(pluck=True)
+		)
+		for name in names:
+			refs.append((name, instructor_only))
 
 	return refs
 
