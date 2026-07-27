@@ -14,7 +14,8 @@ dependencies = [
     "beautifulsoup4~=4.12.2",
     "lxml~=4.9.3",
     "cairocffi~=1.6.1",
-    "razorpay~=1.4.1"
+    # razorpay < 2 imports pkg_resources at module level, which setuptools >= 82 no longer ships
+    "razorpay>=2.0.0,<3"
 ]
 
 [build-system]
