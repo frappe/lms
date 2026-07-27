@@ -137,6 +137,9 @@ def _validate_quiz_results(results):
 
 @frappe.whitelist()
 def submit_quiz(quiz: str, results: str | None = None):
+	if not isinstance(quiz, str):
+		frappe.throw(_("Invalid quiz."), frappe.ValidationError)
+
 	results = _parse_json_arg(results, _("quiz results")) if results else []
 	if not isinstance(results, list):
 		frappe.throw(_("Invalid quiz results submitted."), frappe.ValidationError)
@@ -158,6 +161,11 @@ def submit_quiz(quiz: str, results: str | None = None):
 	)
 	if not quiz_details:
 		frappe.throw(_("Invalid quiz."), frappe.ValidationError)
+
+	from lms.lms.permissions import can_access_quiz
+
+	if not can_access_quiz(quiz):
+		frappe.throw(_("You are not authorized to submit this quiz."), frappe.PermissionError)
 
 	data = process_results(results, quiz_details)
 	is_open_ended = data["is_open_ended"]

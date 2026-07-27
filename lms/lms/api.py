@@ -1867,6 +1867,14 @@ def track_video_watch_duration(lesson: str, videos: list):
 	"""
 	Track the watch duration of videos in a lesson.
 	"""
+	from lms.lms.permissions import can_access_lesson
+
+	if not isinstance(lesson, str):
+		frappe.throw(_("Lesson must be a string."))
+
+	if not can_access_lesson(lesson):
+		frappe.throw(_("You do not have access to this lesson."), frappe.PermissionError)
+
 	if not isinstance(videos, list):
 		videos = json.loads(videos)
 
@@ -1978,10 +1986,14 @@ def get_pwa_manifest():
 
 @frappe.whitelist()
 def get_profile_details(username: str):
+	if not isinstance(username, str):
+		frappe.throw(_("Username must be a string."))
+
 	if not has_lms_role():
 		frappe.throw(
 			_("User does not have permission to access this user's profile details."), frappe.PermissionError
 		)
+
 	details = frappe.db.get_value(
 		"User",
 		{"username": username},
@@ -2005,7 +2017,11 @@ def get_profile_details(username: str):
 	)
 	if not details:
 		frappe.throw(_("User {0} not found").format(username), frappe.DoesNotExistError)
-	details.roles = frappe.get_roles(details.name)
+
+	roles = frappe.get_roles(details.name)
+	if details.name != frappe.session.user and not has_moderator_role():
+		roles = [role for role in roles if role in LMS_ROLES]
+	details.roles = roles
 	return details
 
 
