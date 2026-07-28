@@ -178,7 +178,12 @@ export function getEditorTools(
 			class: Assignment,
 			config: { studentView },
 		},
-		program: Program,
+		// Renders its submission in an iframe too, so Student View travels the
+		// same way it does for assignments.
+		program: {
+			class: Program,
+			config: { studentView },
+		},
 		markdown: {
 			class: Markdown,
 			inlineToolbar: INLINE_TOOLBAR_ORDER,

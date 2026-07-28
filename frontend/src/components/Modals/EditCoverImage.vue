@@ -58,7 +58,7 @@
 					     grid is empty by default. Say so instead of showing a blank
 					     box that reads as a broken picker. -->
 					<div
-						v-else-if="!images.loading"
+						v-else-if="hasFetched && !images.loading"
 						class="mt-2 w-[25.5rem] rounded border border-dashed p-4 text-center text-sm text-ink-gray-5"
 					>
 						<template v-if="search">
@@ -111,6 +111,13 @@ const images = createResource({
 })
 
 const hasImages = computed(() => images.data?.length > 0)
+
+// `auto: true` calls the *debounced* fetch, so `loading` stays false for the
+// whole debounce window. Keying the empty state off `loading` alone told a
+// correctly configured site its Unsplash key was missing for those 500ms.
+const hasFetched = computed(
+	() => images.data !== null && images.data !== undefined
+)
 
 watch(
 	() => search.value,
