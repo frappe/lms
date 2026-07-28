@@ -427,40 +427,55 @@ def get_evaluator_details(evaluator: str):
 	frappe.only_for(["Batch Evaluator", "Moderator"])
 	evaluator = validate_evaluator_name(evaluator)
 
-	if frappe.db.exists("Google Calendar", {"user": evaluator}):
-		calendar = frappe.db.get_value(
-			"Google Calendar", {"user": evaluator}, ["name", "authorization_code"], as_dict=1
-		)
-	else:
-		# Batch Evaluators are portal users without create permission on Google
-		# Calendar (only System Manager / Desk User have it), so provision the
-		# evaluator's own calendar on their behalf via ignore_permissions. This is
-		# best-effort: creation requires Google OAuth configured in Google Settings,
-		# so a missing config (ValidationError) or permission gap must not block the
-		# availability (slots) UI, the primary purpose. Any other error is
-		# unexpected and left to propagate.
-		try:
-			calendar = frappe.new_doc("Google Calendar")
-			calendar.update({"user": evaluator, "calendar_name": evaluator})
-			calendar.insert(ignore_permissions=True)
-		except (frappe.ValidationError, frappe.PermissionError):
-			frappe.clear_last_message()
-			calendar = None
-
+	# Reading must not write. Saving a Course Evaluator runs
+	# CourseEvaluator.validate_evaluator_role, which *grants* the target the
+	# Batch Evaluator role — and this endpoint is reached with whatever user the
+	# profile page is showing. The Slots tab renders for any profile holding
+	# Moderator, so opening a moderator's profile used to escalate them. The
+	# record is now created on the first write instead (see
+	# get_owned_evaluator_doc), where granting the role is a deliberate act.
 	if frappe.db.exists("Course Evaluator", {"evaluator": evaluator}):
 		doc = frappe.get_doc("Course Evaluator", evaluator)
 	else:
-		# Batch Evaluator already has create permission on Course Evaluator, so use
-		# a normal permission-checked insert here (no ignore_permissions).
 		doc = frappe.new_doc("Course Evaluator")
 		doc.evaluator = evaluator
-		doc.insert()
+
+	calendar = get_evaluator_calendar(evaluator)
 
 	return {
 		"slots": doc.as_dict(),
 		"calendar": calendar.name if calendar else None,
 		"is_authorised": calendar.authorization_code if calendar else None,
 	}
+
+
+def get_evaluator_calendar(evaluator: str):
+	"""The calendar block only renders on your own profile, so only your own
+	calendar is ever provisioned — looking at someone else's availability must
+	not create documents in their name."""
+	if frappe.db.exists("Google Calendar", {"user": evaluator}):
+		return frappe.db.get_value(
+			"Google Calendar", {"user": evaluator}, ["name", "authorization_code"], as_dict=1
+		)
+
+	if evaluator != frappe.session.user:
+		return None
+
+	# Batch Evaluators are portal users without create permission on Google
+	# Calendar (only System Manager / Desk User have it), so provision the
+	# evaluator's own calendar on their behalf via ignore_permissions. This is
+	# best-effort: creation requires Google OAuth configured in Google Settings,
+	# so a missing config (ValidationError) or permission gap must not block the
+	# availability (slots) UI, the primary purpose. Any other error is
+	# unexpected and left to propagate.
+	try:
+		calendar = frappe.new_doc("Google Calendar")
+		calendar.update({"user": evaluator, "calendar_name": evaluator})
+		calendar.insert(ignore_permissions=True)
+		return calendar
+	except (frappe.ValidationError, frappe.PermissionError):
+		frappe.clear_last_message()
+		return None
 
 
 EVALUATOR_SLOT_FIELDS = {"day", "start_time", "end_time"}
@@ -501,10 +516,23 @@ def enforce_evaluator_ownership(evaluator: str) -> str:
 
 
 def get_owned_evaluator_doc(evaluator: str):
+	"""Resolve the caller's (or, for a Moderator, the target's) availability,
+	creating it on first write.
+
+	Creation lives here rather than in get_evaluator_details because saving a
+	Course Evaluator grants the target the Batch Evaluator role: that belongs to
+	an explicit "add a slot" action, not to opening a profile.
+	"""
 	evaluator = enforce_evaluator_ownership(evaluator)
 
-	if not frappe.db.exists("Course Evaluator", evaluator):
+	if not frappe.db.exists("User", evaluator):
 		frappe.throw(_("Evaluator {0} not found").format(evaluator), frappe.DoesNotExistError)
+
+	if not frappe.db.exists("Course Evaluator", evaluator):
+		doc = frappe.new_doc("Course Evaluator")
+		doc.evaluator = evaluator
+		doc.insert(ignore_permissions=True)
+		return doc
 
 	return frappe.get_doc("Course Evaluator", evaluator)
 
