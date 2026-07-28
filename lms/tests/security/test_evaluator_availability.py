@@ -3,6 +3,7 @@ import frappe
 from lms.lms.api import (
 	add_evaluator_slot,
 	delete_evaluator_slot,
+	ensure_evaluator_calendar,
 	get_evaluator_details,
 	set_evaluator_unavailability,
 	update_evaluator_slot,
@@ -302,6 +303,135 @@ class TestEvaluatorAvailability(BaseTestUtils):
 
 		doc = frappe.get_doc("Course Evaluator", self.plain_moderator.email)
 		self.assertEqual([row.day for row in doc.schedule], ["Monday"])
+
+	def test_creating_the_record_actually_grants_the_role(self):
+		"""`User.add_roles` saves the whole User doc, which a portal Moderator
+		may not write — so the grant silently never landed and the evaluator
+		could not open their own schedule."""
+		self._reset_target(self.plain_moderator.email)
+		frappe.session.user = self.moderator.email
+
+		add_evaluator_slot(self.plain_moderator.email, "Monday", "09:00:00", "10:00:00")
+
+		self.assertTrue(
+			frappe.db.exists("Has Role", {"parent": self.plain_moderator.email, "role": "Batch Evaluator"}),
+			"the Course Evaluator was created without granting Batch Evaluator",
+		)
+
+	# --- the caller must be an evaluator in the first place ---------------
+
+	def test_a_student_cannot_make_themselves_an_evaluator(self):
+		"""Ownership alone is not a gate: naming yourself passes it, and the
+		first write provisions a Course Evaluator with ignore_permissions —
+		which grants Batch Evaluator. The caller needs the role already."""
+		self._reset_target(self.student.email)
+		frappe.session.user = self.student.email
+
+		with self.assertRaises(frappe.PermissionError):
+			add_evaluator_slot(self.student.email, "Monday", "09:00:00", "10:00:00")
+
+		self.assertFalse(frappe.db.exists("Course Evaluator", self.student.email))
+		self.assertFalse(
+			frappe.db.exists("Has Role", {"parent": self.student.email, "role": "Batch Evaluator"})
+		)
+
+	def test_a_course_creator_cannot_make_themselves_an_evaluator(self):
+		frappe.session.user = self.course_creator.email
+
+		with self.assertRaises(frappe.PermissionError):
+			add_evaluator_slot(self.course_creator.email, "Monday", "09:00:00", "10:00:00")
+
+	def test_a_student_cannot_read_their_own_availability_either(self):
+		frappe.session.user = self.student.email
+
+		with self.assertRaises(frappe.PermissionError):
+			get_evaluator_details(self.student.email)
+
+	# --- reads are owner-gated too ----------------------------------------
+
+	def test_an_evaluator_cannot_read_another_evaluators_schedule(self):
+		"""`only_for` is a role gate, not an owner gate — every Batch Evaluator
+		could read every other one's schedule, unavailability and calendar."""
+		frappe.session.user = self.evaluator.email
+
+		with self.assertRaises(frappe.PermissionError):
+			get_evaluator_details(self.other_evaluator.email)
+
+	def test_a_moderator_can_still_read_anyones_schedule(self):
+		frappe.session.user = self.moderator.email
+
+		details = get_evaluator_details(self.evaluator.email)
+
+		self.assertEqual([row["day"] for row in details["slots"]["schedule"]], ["Monday"])
+
+	# --- no record means no write ------------------------------------------
+
+	def test_unavailability_on_a_missing_record_is_refused_not_created(self):
+		"""A no-op unavailability write used to create the record — and grant
+		the role — for someone who had never been an evaluator."""
+		self._reset_target(self.plain_moderator.email)
+		frappe.session.user = self.moderator.email
+
+		with self.assertRaises(frappe.DoesNotExistError):
+			set_evaluator_unavailability(self.plain_moderator.email, "unavailable_from", None)
+
+		self.assertFalse(frappe.db.exists("Course Evaluator", self.plain_moderator.email))
+
+	def test_deleting_a_slot_on_a_missing_record_creates_nothing(self):
+		self._reset_target(self.plain_moderator.email)
+		frappe.session.user = self.moderator.email
+
+		with self.assertRaises(frappe.DoesNotExistError):
+			delete_evaluator_slot(self.plain_moderator.email, 1)
+
+		self.assertFalse(frappe.db.exists("Course Evaluator", self.plain_moderator.email))
+
+	# --- value validation ---------------------------------------------------
+
+	def test_a_malformed_time_is_a_validation_error_not_a_500(self):
+		frappe.session.user = self.evaluator.email
+
+		for bad in ("25:99", "not-a-time", "", None, 7):
+			with self.assertRaises((frappe.ValidationError, frappe.exceptions.FrappeTypeError)):
+				add_evaluator_slot(self.evaluator.email, "Monday", bad, "10:00:00")
+
+	def test_a_malformed_time_on_update_is_a_validation_error(self):
+		frappe.session.user = self.evaluator.email
+		slot = self._slot_of(self.schedule)
+
+		with self.assertRaises(frappe.ValidationError):
+			update_evaluator_slot(self.evaluator.email, slot, "start_time", "25:99")
+
+	def test_a_malformed_unavailability_date_is_a_validation_error(self):
+		frappe.session.user = self.evaluator.email
+
+		with self.assertRaises(frappe.ValidationError):
+			set_evaluator_unavailability(self.evaluator.email, "unavailable_from", "garbage")
+
+	def test_clearing_unavailability_is_still_allowed(self):
+		frappe.session.user = self.evaluator.email
+
+		set_evaluator_unavailability(self.evaluator.email, "unavailable_from", None)
+
+		self.assertIsNone(frappe.db.get_value("Course Evaluator", self.evaluator.email, "unavailable_from"))
+
+	# --- calendar provisioning ---------------------------------------------
+
+	def test_reading_details_does_not_create_a_google_calendar(self):
+		"""Provisioning moved to ensure_evaluator_calendar: a GET of the profile
+		page must not write a Google Calendar document either."""
+		frappe.db.delete("Google Calendar", {"user": self.evaluator.email})
+		frappe.session.user = self.evaluator.email
+
+		get_evaluator_details(self.evaluator.email)
+
+		self.assertFalse(frappe.db.exists("Google Calendar", {"user": self.evaluator.email}))
+
+	def test_a_student_cannot_provision_a_calendar(self):
+		frappe.session.user = self.student.email
+
+		with self.assertRaises(frappe.PermissionError):
+			ensure_evaluator_calendar()
 
 	def test_a_write_for_an_unknown_user_is_still_refused(self):
 		frappe.session.user = self.moderator.email

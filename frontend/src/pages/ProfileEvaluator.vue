@@ -145,7 +145,7 @@
 					<span class="lucide-check size-4 me-2" />
 					{{ __('Your calendar is set.') }}
 				</div>
-				<Button @click="() => authorizeCalendar.submit()">
+				<Button @click="startCalendarAuthorization">
 					{{ __('Authorize Google Calendar Access') }}
 				</Button>
 			</div>
@@ -329,18 +329,36 @@ const deleteRow = (name) => {
 	deleteSlot.submit({ name })
 }
 
+// The calendar record is created here rather than by the page load: reading a
+// profile must not write documents in that user's name.
+const ensureCalendar = createResource({
+	url: 'lms.lms.api.ensure_evaluator_calendar',
+	onError(err) {
+		toast.error(err.messages?.[0] || err)
+	},
+})
+
 const authorizeCalendar = createResource({
 	url: 'frappe.integrations.doctype.google_calendar.google_calendar.authorize_access',
-	makeParams() {
+	makeParams(values) {
 		return {
-			g_calendar: evaluator.data?.calendar,
+			g_calendar: values.calendar,
 			reauthorize: 1,
 		}
 	},
 	onSuccess(data) {
 		window.open(data.url)
 	},
+	onError(err) {
+		toast.error(err.messages?.[0] || err)
+	},
 })
+
+const startCalendarAuthorization = async () => {
+	const calendar = evaluator.data?.calendar || (await ensureCalendar.submit())
+	if (!calendar) return
+	authorizeCalendar.submit({ calendar })
+}
 
 const days = computed(() => {
 	return [
