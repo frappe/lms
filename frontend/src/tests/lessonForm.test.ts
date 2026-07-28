@@ -3,6 +3,7 @@ import {
 	hasInstructorContent,
 	hasEditorContent,
 	shouldSkipLessonSave,
+	toSingleLineTitle,
 } from '@/utils/lessonForm'
 
 // Regression guard: a transient/empty editor (hot-reload remount, render race,
@@ -112,5 +113,32 @@ describe('shouldSkipLessonSave', () => {
 		expect(shouldSkipLessonSave('   ', false)).toBe(true)
 		expect(shouldSkipLessonSave(null, false)).toBe(true)
 		expect(shouldSkipLessonSave(undefined, false)).toBe(true)
+	})
+})
+
+describe('toSingleLineTitle', () => {
+	it('collapses a line break into a single space', () => {
+		expect(toSingleLineTitle('Assignment\nsjksjla')).toBe('Assignment sjksjla')
+	})
+
+	it('collapses CRLF and runs of blank lines', () => {
+		expect(toSingleLineTitle('One\r\nTwo')).toBe('One Two')
+		expect(toSingleLineTitle('One\n\n\nTwo')).toBe('One Two')
+	})
+
+	it('does not leave double spaces around a break', () => {
+		expect(toSingleLineTitle('One \n Two')).toBe('One Two')
+	})
+
+	it('leaves a single-line title untouched', () => {
+		expect(toSingleLineTitle('A perfectly ordinary title')).toBe(
+			'A perfectly ordinary title'
+		)
+	})
+
+	it('returns an empty string for no title', () => {
+		expect(toSingleLineTitle('')).toBe('')
+		expect(toSingleLineTitle(null)).toBe('')
+		expect(toSingleLineTitle(undefined)).toBe('')
 	})
 })

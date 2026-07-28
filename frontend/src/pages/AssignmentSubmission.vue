@@ -18,10 +18,20 @@ import { Breadcrumbs, createResource, usePageMeta } from 'frappe-ui'
 import { computed, inject, onMounted, ref } from 'vue'
 import { sessionStore } from '../stores/session'
 import Assignment from '@/components/Assignment.vue'
+import { provideStudentView } from '@/composables/useStudentView'
 
 const user = inject('$user')
 const fromLesson = ref(false)
 const { brand } = sessionStore()
+
+// Rendered in an iframe from the lesson preview, so provide/inject can't reach
+// this app instance — Student View arrives as a query param instead. Without
+// this the Grading panel shows up inside the preview and a moderator who
+// submits the assignment there can grade themselves.
+const studentView = ref(
+	new URLSearchParams(window.location.search).get('studentView') === '1'
+)
+provideStudentView(user, () => studentView.value)
 
 const props = defineProps({
 	assignmentID: {
