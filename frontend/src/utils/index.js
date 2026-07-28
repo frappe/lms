@@ -6,7 +6,7 @@ import { Upload } from '@/utils/upload'
 import { Markdown } from '@/utils/markdownParser'
 import { useSettings } from '@/stores/settings'
 import { usersStore } from '@/stores/user'
-import Header from '@editorjs/header'
+import { Heading } from '@/utils/heading'
 import Paragraph from '@editorjs/paragraph'
 import { CodeBox } from '@/utils/code'
 import NestedList from '@editorjs/nested-list'
@@ -145,7 +145,7 @@ export function getEditorTools(
 ) {
 	return {
 		header: {
-			class: Header,
+			class: Heading,
 			// Without this key EditorJS leaves tool.inlineTools empty, so the
 			// inline toolbar never opens on a heading and Ctrl+B falls through
 			// to the browser's execCommand (which writes a font-weight span the
