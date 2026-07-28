@@ -1,6 +1,7 @@
 import importlib.util
 import sys
 import time
+import types
 
 import frappe
 from frappe.tests import UnitTestCase
@@ -758,3 +759,57 @@ class TestRulePerformance(FrappeTestCase):
 			f"default_evaluator took {elapsed * 1000:.1f}ms — exceeds {self._THRESHOLD_SEC * 1000:.0f}ms "
 			f"threshold. Check that lms.patches.v2_0.add_batch_enrollment_index has run.",
 		)
+
+
+class TestGetRavenSetup(UnitTestCase):
+	"""Settings > Raven asks LMS, not raven_integration, whether raven_integration is
+	there — a method of an uninstalled app raises AppNotInstalledError, and the panel
+	that exists to say "install it" cannot render off an exception. Schema-free, so
+	UnitTestCase.
+	"""
+
+	def setUp(self):
+		self._installed = frappe.get_installed_apps
+
+	def tearDown(self):
+		frappe.get_installed_apps = self._installed
+		sys.modules.pop("raven_integration.api", None)
+
+	def _patch_apps(self, apps):
+		frappe.get_installed_apps = lambda *a, **k: apps
+
+	def test_reports_missing_apps_without_importing_them(self):
+		self._patch_apps(["frappe", "lms"])
+		blocked = ("raven_integration", "raven_integration.api")
+		saved = {name: sys.modules.get(name) for name in blocked}
+		# A None entry makes the import machinery raise ImportError, exactly as an
+		# uninstalled app does — so the test fails loudly if the delegation runs.
+		for name in blocked:
+			sys.modules[name] = None
+		try:
+			state = raven_provider.get_raven_setup()
+		finally:
+			for name, original in saved.items():
+				if original is None:
+					sys.modules.pop(name, None)
+				else:
+					sys.modules[name] = original
+
+		self.assertEqual(state, {"raven": False, "raven_integration": False, "enabled": False})
+
+	def test_reports_raven_missing_on_its_own(self):
+		self._patch_apps(["frappe", "lms", "raven_integration"])
+		state = raven_provider.get_raven_setup()
+		self.assertFalse(state["raven"])
+		self.assertTrue(state["raven_integration"])
+		self.assertFalse(state["enabled"])
+
+	def test_delegates_once_both_apps_are_installed(self):
+		self._patch_apps(["frappe", "lms", "raven", "raven_integration"])
+		stub = types.ModuleType("raven_integration.api")
+		stub.is_setup = lambda: {"raven": True, "raven_integration": True, "enabled": True}
+		sys.modules["raven_integration.api"] = stub
+
+		state = raven_provider.get_raven_setup()
+
+		self.assertTrue(state["enabled"])

@@ -129,6 +129,35 @@ def get_provider() -> dict:
 	}
 
 
+@frappe.whitelist()
+def get_raven_setup() -> dict:
+	"""Setup state behind Settings > Raven: are both apps installed, and is the
+	integration enabled?
+
+	The panel cannot ask raven_integration this directly. Frappe answers a method of
+	an app that is not installed with AppNotInstalledError, and frappe-ui prints the
+	server traceback and rethrows it before any `onError` runs — an error no caller
+	can quiet, on a screen whose whole job is to say "install the app". So LMS
+	answers the install half itself and delegates the rest only when it can be
+	served.
+
+	System Manager only, matching `raven_integration.api.is_setup`: the reply
+	enumerates installed apps.
+	"""
+	frappe.only_for("System Manager")
+	apps = frappe.get_installed_apps()
+	state = {
+		"raven": "raven" in apps,
+		"raven_integration": "raven_integration" in apps,
+		"enabled": False,
+	}
+	if state["raven"] and state["raven_integration"]:
+		from raven_integration.api import is_setup
+
+		state.update(is_setup())
+	return state
+
+
 def _as_list(value: str | list | None) -> list[str]:
 	"""Coerce a rule's course/batch field into a flat list of names (JSON list, JSON string, or a legacy list of ``{"course"/"batch": name}`` dicts)."""
 	if not value:
