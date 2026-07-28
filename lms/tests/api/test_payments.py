@@ -61,7 +61,13 @@ class TestPaymentLink(BaseTestUtils):
 		self.original_gateway = frappe.db.get_single_value("LMS Settings", "payment_gateway")
 		frappe.db.set_single_value("LMS Settings", "payment_gateway", "Razorpay")
 
-		self.course = self._create_course(title="Paid Payments Course")
+		hash = frappe.generate_hash(length=6)
+		self.instructor = self._create_user(
+			f"payinstr-{hash}@example.com", "Ina", "Instructor", ["Course Creator"]
+		)
+		self.course = self._create_course(
+			title=f"Paid Payments Course {hash}", instructor=self.instructor.email
+		)
 		self.course.db_set({"paid_course": 1, "course_price": 500, "currency": "INR"}, update_modified=False)
 
 	def tearDown(self):
