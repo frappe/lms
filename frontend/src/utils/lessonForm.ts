@@ -59,3 +59,14 @@ export function shouldSkipLessonSave(
 ): boolean {
 	return !title?.trim() && !hasBodyContent
 }
+
+/**
+ * A lesson title is one line. The field is a `<textarea>` so a long title can
+ * wrap and grow, but Enter is refused — and a title pasted (or already stored)
+ * with breaks in it collapses to spaces rather than rendering as two lines the
+ * outline and breadcrumbs then show as one.
+ */
+export function toSingleLineTitle(title: string | null | undefined): string {
+	if (!title) return ''
+	return title.replace(/\s*[\r\n]+\s*/g, ' ')
+}
