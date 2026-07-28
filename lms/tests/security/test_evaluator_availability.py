@@ -3,6 +3,7 @@ import frappe
 from lms.lms.api import (
 	add_evaluator_slot,
 	delete_evaluator_slot,
+	get_evaluator_details,
 	set_evaluator_unavailability,
 	update_evaluator_slot,
 )
@@ -29,7 +30,12 @@ class TestEvaluatorAvailability(BaseTestUtils):
 		"other_evaluator": ("availability-eval2@example.com", ["Batch Evaluator", "LMS Student"]),
 		"course_creator": ("availability-cc@example.com", ["Course Creator"]),
 		"moderator": ("availability-mod@example.com", ["Moderator"]),
+		# A Moderator with no Batch Evaluator role: the Slots tab renders for
+		# them, so they are the reachable target of a read-that-writes.
+		"plain_moderator": ("availability-mod2@example.com", ["Moderator"]),
 		"student": ("availability-stu@example.com", ["LMS Student"]),
+		# Holds the role but has never saved a slot, so no Course Evaluator row.
+		"fresh_evaluator": ("availability-eval3@example.com", ["Batch Evaluator"]),
 	}
 
 	@classmethod
@@ -55,6 +61,13 @@ class TestEvaluatorAvailability(BaseTestUtils):
 					for role in roles:
 						user.append("roles", {"role": role})
 					user.insert(ignore_permissions=True)
+				else:
+					# Reused across runs, and a test may have stripped a role to
+					# set up its own state — put the fixture's roles back.
+					user = frappe.get_doc("User", email)
+					missing = [r for r in roles if r not in {d.role for d in user.roles}]
+					if missing:
+						user.add_roles(*missing)
 				setattr(cls, attr, frappe._dict(email=email))
 		finally:
 			frappe.flags.in_import = original_in_import
@@ -204,3 +217,94 @@ class TestEvaluatorAvailability(BaseTestUtils):
 		frappe.session.user = self.evaluator.email
 		with self.assertRaises(frappe.ValidationError):
 			add_evaluator_slot(self.evaluator.email, "Noonday", "09:00:00", "10:00:00")
+
+	# --- reading must not write ------------------------------------------
+
+	def _reset_target(self, evaluator, drop_role=True):
+		"""A pre-fix run leaves the record — and the granted role — behind.
+
+		`drop_role` stays off for a fixture that is *meant* to hold Batch
+		Evaluator: stripping it would make the caller fail `only_for`.
+		"""
+		if frappe.db.exists("Course Evaluator", evaluator):
+			frappe.delete_doc("Course Evaluator", evaluator, force=True, ignore_permissions=True)
+		if drop_role:
+			frappe.db.delete("Has Role", {"parent": evaluator, "role": "Batch Evaluator"})
+		frappe.clear_cache(user=evaluator)
+
+	def test_reading_details_does_not_create_a_record_for_the_target(self):
+		"""`get_evaluator_details` used to insert a Course Evaluator for whoever
+		it was asked about. The Slots tab renders for any profile holding
+		Moderator, and the resource fires on mount — before the client-side
+		redirect — so opening another moderator's profile wrote to their name."""
+		self._reset_target(self.plain_moderator.email)
+		frappe.session.user = self.moderator.email
+
+		get_evaluator_details(self.plain_moderator.email)
+
+		self.assertFalse(
+			frappe.db.exists("Course Evaluator", self.plain_moderator.email),
+			"reading availability created a Course Evaluator",
+		)
+
+	def test_reading_details_does_not_grant_the_target_the_evaluator_role(self):
+		"""Saving a Course Evaluator runs validate_evaluator_role, which adds
+		`Batch Evaluator` to the target. The grant only lands when the *caller*
+		may write User docs — a portal Moderator's role write is silently
+		dropped — so an admin-level reader is what made this an escalation."""
+		self._reset_target(self.plain_moderator.email)
+		frappe.session.user = "Administrator"
+
+		get_evaluator_details(self.plain_moderator.email)
+
+		frappe.clear_cache(user=self.plain_moderator.email)
+		self.assertFalse(
+			frappe.db.exists("Has Role", {"parent": self.plain_moderator.email, "role": "Batch Evaluator"}),
+			"reading availability granted Batch Evaluator",
+		)
+
+	def test_reading_details_of_a_new_evaluator_returns_an_empty_schedule(self):
+		"""The UI iterates `slots.schedule` unguarded, so the empty case still
+		has to come back shaped like a Course Evaluator."""
+		self._reset_target(self.plain_moderator.email)
+		frappe.session.user = self.moderator.email
+
+		details = get_evaluator_details(self.plain_moderator.email)
+
+		self.assertEqual(details["slots"]["schedule"], [])
+		self.assertIsNone(details["slots"]["unavailable_from"])
+		self.assertIsNone(details["slots"]["unavailable_to"])
+
+	def test_reading_your_own_details_still_does_not_write(self):
+		"""A Batch Evaluator who has never set a slot has no Course Evaluator
+		record; opening their own Slots tab must not conjure one either."""
+		self._reset_target(self.fresh_evaluator.email, drop_role=False)
+		frappe.session.user = self.fresh_evaluator.email
+
+		get_evaluator_details(self.fresh_evaluator.email)
+
+		self.assertFalse(frappe.db.exists("Course Evaluator", self.fresh_evaluator.email))
+
+	def test_existing_availability_still_reads_back(self):
+		frappe.session.user = self.evaluator.email
+
+		details = get_evaluator_details(self.evaluator.email)
+
+		self.assertEqual([row["day"] for row in details["slots"]["schedule"]], ["Monday"])
+
+	def test_adding_a_slot_creates_the_evaluator_record_on_demand(self):
+		"""Creation moves to the write path, so an evaluator with no record yet
+		can still be given slots — it just takes a deliberate write."""
+		self._reset_target(self.plain_moderator.email)
+		frappe.session.user = self.moderator.email
+
+		add_evaluator_slot(self.plain_moderator.email, "Monday", "09:00:00", "10:00:00")
+
+		doc = frappe.get_doc("Course Evaluator", self.plain_moderator.email)
+		self.assertEqual([row.day for row in doc.schedule], ["Monday"])
+
+	def test_a_write_for_an_unknown_user_is_still_refused(self):
+		frappe.session.user = self.moderator.email
+
+		with self.assertRaises(frappe.DoesNotExistError):
+			add_evaluator_slot("no-such-user@example.com", "Monday", "09:00:00", "10:00:00")
