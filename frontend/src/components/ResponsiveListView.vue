@@ -161,7 +161,11 @@ const { isMobile } = useScreenSize()
 // the grid sizes to its widest column and the list scrolls sideways on any
 // screen narrower than the sum of its columns; a list page should narrow its
 // columns instead, which is what the minmax tracks below make possible.
-const SCROLLING_BODY_CLASS = 'min-h-0 flex-1 !w-full overflow-y-auto pb-5'
+//
+// It never scrolls on its own. The list page's body owns the one scroll box, so
+// the filters above these rows travel with them; a box here would hold those
+// filters still and, on a phone, leave the page itself with no scroll range.
+const PAGE_BODY_CLASS = '!w-full pb-5'
 
 // frappe-ui sizes the selection banner for a desk (596px), which is wider than
 // a phone; unpinning that lets it wrap inside the viewport instead.
@@ -169,7 +173,7 @@ const MOBILE_BANNER_CLASS =
 	'!min-w-0 max-w-[calc(100vw-2rem)] flex-wrap gap-y-2'
 
 const layoutClass = computed(() =>
-	props.pageScroll ? SCROLLING_BODY_CLASS : '!w-full'
+	props.pageScroll ? PAGE_BODY_CLASS : '!w-full'
 )
 
 /**

@@ -28,14 +28,11 @@
 			v-if="loading && !rows.length"
 			:variant="skeletonVariant"
 			:count="8"
-			class="min-h-0 flex-1 overflow-y-auto px-5 pb-5"
+			class="px-5 pb-5"
 		/>
 		<!-- The cards own the scroll box at every width, which is what leaves the
 		     header above and the footer below them both in place. -->
-		<div
-			v-else-if="rows.length && layout === 'grid'"
-			class="min-h-0 flex-1 overflow-y-auto px-5 pb-5"
-		>
+		<div v-else-if="rows.length && layout === 'grid'" class="px-5 pb-5">
 			<div
 				class="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4"
 			>
