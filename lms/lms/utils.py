@@ -23,6 +23,7 @@ from frappe.utils import (
 	getdate,
 	nowtime,
 	rounded,
+	to_timedelta,
 	validate_email_address,
 )
 from frappe.utils.html_utils import sanitize_html
@@ -790,9 +791,9 @@ def resolve_page_length(limit_page_length=None) -> int:
 	return min(max(page_length, 1), MAX_PAGE_LENGTH)
 
 
-@frappe.whitelist(allow_guest=True)
+@frappe.whitelist(allow_guest=True)  # nosemgrep: frappe-semgrep-rules.rules.security.guest-whitelisted-method
 @rate_limit(limit=500, seconds=60 * 60)
-def get_courses(filters: dict = None, start: int = 0, limit_page_length=None) -> list:
+def get_courses(filters: dict = None, start: int = 0, limit_page_length: int | str = None) -> list:
 	"""Returns the list of courses."""
 
 	if not guest_access_allowed():
@@ -803,22 +804,80 @@ def get_courses(filters: dict = None, start: int = 0, limit_page_length=None) ->
 
 	filters, or_filters, show_featured = update_course_filters(filters)
 	fields = get_course_fields()
+	page_length = resolve_page_length(limit_page_length)
+	start = cint(start)
 
-	courses = frappe.get_all(
-		"LMS Course",
-		filters=filters,
-		fields=fields,
-		or_filters=or_filters,
-		order_by="enrollments desc",
-		start=start,
-		page_length=resolve_page_length(limit_page_length),
+	# Featured courses lead the list, and the query below excludes them, so the
+	# two together are one sequence the caller pages through. Slicing has to
+	# treat it that way: prepending them to a full page returned a page longer
+	# than the one asked for, and since the caller advances `start` by the size
+	# it asked for, the next page then repeated whatever the extras pushed past
+	# the end.
+	# Read only as far as the window: `len(featured)` below is the offset the rest
+	# of the sequence starts at, and it is only needed when the window runs past
+	# the featured rows — which is exactly when this read returned all of them.
+	featured = (
+		get_featured_courses(filters.copy(), or_filters, fields, start + page_length) if show_featured else []
 	)
-	if show_featured and start == 0:
-		courses = get_featured_courses(filters, or_filters, fields) + courses
+	courses = featured[start : start + page_length]
+	remaining = page_length - len(courses)
+
+	if remaining > 0:
+		courses = courses + frappe.get_all(
+			"LMS Course",
+			filters=filters,
+			fields=fields,
+			or_filters=or_filters,
+			order_by="enrollments desc",
+			start=max(start - len(featured), 0),
+			page_length=remaining,
+		)
 
 	courses = get_enrollment_details(courses)
 	courses = get_course_card_details(courses)
 	return courses
+
+
+@frappe.whitelist(allow_guest=True)  # nosemgrep: frappe-semgrep-rules.rules.security.guest-whitelisted-method
+@rate_limit(limit=500, seconds=60 * 60)
+def get_course_count(filters: dict = None) -> int:
+	"""How many courses the same filters `get_courses` takes actually match.
+
+	The list footer cannot ask `frappe.client.get_count` for this: the tabs
+	filter on `enrolled`, `created` and `live`, which are not fields, and the
+	title search is an or_filter. Both only exist once `update_course_filters`
+	has resolved them.
+	"""
+	if not guest_access_allowed():
+		return 0
+
+	if not filters:
+		filters = {}
+
+	filters, or_filters, show_featured = update_course_filters(filters)
+	total = count_matching("LMS Course", filters, or_filters)
+	if show_featured:
+		# `update_course_filters` narrowed the query to featured=0 for the live
+		# tab, so the featured rows it leads with are counted separately.
+		total += count_matching("LMS Course", {**filters, "featured": 1}, or_filters)
+	return total
+
+
+def count_matching(doctype: str, filters: dict | list, or_filters: dict = None) -> int:
+	"""Row count for filters that include or_filters, which db.count cannot take."""
+	rows = frappe.get_all(doctype, filters=filters, or_filters=or_filters, fields=[{"COUNT": "*"}])
+	return cint(next(iter(rows[0].values()))) if rows else 0
+
+
+def as_filter_conditions(filters: dict) -> list:
+	"""The same filters as a list of conditions, which can hold two per field."""
+	conditions = []
+	for field, value in filters.items():
+		if isinstance(value, list | tuple):
+			conditions.append([field, value[0], value[1]])
+		else:
+			conditions.append([field, "=", value])
+	return conditions
 
 
 @frappe.whitelist(allow_guest=True)
@@ -919,7 +978,7 @@ def get_enrollment_details(courses: list) -> list:
 	return courses
 
 
-def get_featured_courses(filters: dict, or_filters: dict, fields: list) -> list:
+def get_featured_courses(filters: dict, or_filters: dict, fields: list, page_length: int) -> list:
 	filters.update({"featured": 1})
 	featured_courses = frappe.get_all(
 		"LMS Course",
@@ -927,6 +986,7 @@ def get_featured_courses(filters: dict, or_filters: dict, fields: list) -> list:
 		fields=fields,
 		or_filters=or_filters,
 		order_by="enrollments desc",
+		page_length=page_length,
 	)
 	return featured_courses
 
@@ -2540,13 +2600,13 @@ def validate_program_enrollment(program: str):
 		frappe.throw(_("You cannot enroll in an unpublished program."))
 
 
-@frappe.whitelist(allow_guest=True)
+@frappe.whitelist(allow_guest=True)  # nosemgrep: frappe-semgrep-rules.rules.security.guest-whitelisted-method
 @rate_limit(limit=500, seconds=60 * 60)
 def get_batches(
 	filters: dict = None,
 	start: int = 0,
 	order_by: str = "start_date",
-	limit_page_length=None,
+	limit_page_length: int | str = None,
 ):
 	if not guest_access_allowed():
 		return []
@@ -2554,12 +2614,7 @@ def get_batches(
 	if not filters:
 		filters = {}
 
-	if filters.get("enrolled"):
-		enrolled_batches = frappe.get_all(
-			"LMS Batch Enrollment", {"member": frappe.session.user}, pluck="batch"
-		)
-		filters.update({"name": ["in", enrolled_batches]})
-		del filters["enrolled"]
+	update_batch_filters(filters)
 
 	batches = frappe.get_all(
 		"LMS Batch",
@@ -2591,22 +2646,82 @@ def get_batches(
 	return batches
 
 
+def update_batch_filters(filters: dict) -> None:
+	"""Turns the pseudo-filters the batch list offers into real ones, in place."""
+	if filters.get("enrolled"):
+		enrolled_batches = frappe.get_all(
+			"LMS Batch Enrollment", {"member": frappe.session.user}, pluck="batch"
+		)
+		filters.update({"name": ["in", enrolled_batches]})
+		del filters["enrolled"]
+
+
+@frappe.whitelist(allow_guest=True)  # nosemgrep: frappe-semgrep-rules.rules.security.guest-whitelisted-method
+@rate_limit(limit=500, seconds=60 * 60)
+def get_batch_count(filters: dict = None) -> int:
+	"""How many batches the same filters `get_batches` takes actually match.
+
+	The list footer cannot ask `frappe.client.get_count` for this: the Upcoming
+	and Archived tabs turn on the time of day, and the query only settles the
+	date, so `filter_batches_based_on_start_time` decides the rest in Python.
+
+	Counted as two COUNTs rather than by fetching the rows and repeating that
+	pass over them: the endpoint is open to guests, so the work it does must not
+	grow with the number of batches on the site.
+	"""
+	if not guest_access_allowed():
+		return 0
+
+	if not filters:
+		filters = {}
+
+	update_batch_filters(filters)
+	total = count_matching("LMS Batch", filters)
+
+	batch_type = get_batch_type(filters)
+	if batch_type:
+		total -= count_batches_the_clock_decides(filters, batch_type)
+
+	return total
+
+
+def count_batches_the_clock_decides(filters: dict, batch_type: str) -> int:
+	"""How many matching batches `filter_batches_based_on_start_time` drops.
+
+	Only today's are ever in question — every other date the query has already
+	settled. Upcoming drops the ones already under way; Archived, the ones still
+	to come. Both conditions are added rather than replacing the caller's date
+	filter, so a tab asking for `start_date > today` still counts nothing today.
+	"""
+	started = "<" if batch_type == "upcoming" else ">="
+	conditions = as_filter_conditions(filters) + [
+		["start_date", "=", getdate()],
+		["start_time", started, nowtime()],
+	]
+	return count_matching("LMS Batch", conditions)
+
+
+def has_started_today(batch) -> bool:
+	"""Whether a batch dated today has already begun.
+
+	Compared as times rather than as strings. `start_time` comes back from the
+	database as a timedelta, and `str()` renders a single-digit hour without a
+	leading zero — so "9:00:00" sorted above "14:30:00" and a batch that began
+	at nine that morning still counted as upcoming at half past two.
+	"""
+	if getdate(batch.start_date) != getdate():
+		return False
+	return to_timedelta(str(batch.start_time)) < to_timedelta(nowtime())
+
+
 def filter_batches_based_on_start_time(batches: list, filters: dict) -> list:
 	batchType = get_batch_type(filters)
 	if batchType == "upcoming":
-		batches_to_remove = [
-			batch
-			for batch in batches
-			if getdate(batch.start_date) == getdate() and str(batch.start_time) < nowtime()
-		]
-		batches = [batch for batch in batches if batch not in batches_to_remove]
+		batches = [batch for batch in batches if not has_started_today(batch)]
 	elif batchType == "archived":
-		batches_to_remove = [
-			batch
-			for batch in batches
-			if getdate(batch.start_date) == getdate() and str(batch.start_time) >= nowtime()
+		batches = [
+			batch for batch in batches if getdate(batch.start_date) != getdate() or has_started_today(batch)
 		]
-		batches = [batch for batch in batches if batch not in batches_to_remove]
 	return batches
 
 

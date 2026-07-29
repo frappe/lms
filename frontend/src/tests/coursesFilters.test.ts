@@ -64,15 +64,26 @@ function makeCoursesResource() {
 	return { resource, requests }
 }
 
-const { coursesResource, requests, mobile } = vi.hoisted(() => ({
+const { coursesResource, requests, mobile, countAborts } = vi.hoisted(() => ({
 	coursesResource: { current: null as any },
 	requests: { current: [] as any[] },
 	mobile: { value: false },
+	countAborts: { value: 0 },
 }))
 
 vi.mock('frappe-ui', () => ({
 	call: vi.fn(() => Promise.resolve(0)),
 	usePageMeta: vi.fn(),
+	// The footer's total. It is aborted and resubmitted alongside the list, so
+	// the counter below is what proves the two stay in step.
+	createResource: () =>
+		reactive({
+			data: 0,
+			abort: () => {
+				countAborts.value += 1
+			},
+			submit: vi.fn(),
+		}),
 	createListResource: (options: { url: string }) => {
 		if (options.url.includes('get_course_categories')) {
 			return reactive({ data: [], list: { loading: false }, reload: vi.fn() })
@@ -180,6 +191,7 @@ const checkedTab = (wrapper: any) =>
 
 beforeEach(() => {
 	mobile.value = false
+	countAborts.value = 0
 	window.history.replaceState({}, '', '/lms/courses')
 	const fake = makeCoursesResource()
 	coursesResource.current = fake.resource
@@ -211,6 +223,19 @@ describe('Courses list filters', () => {
 
 		expect(checkedTab(wrapper)).toBe('tab-unpublished')
 		expect(cards(wrapper)).toBe(0)
+	})
+
+	// The footer's total comes from its own endpoint, because the tabs filter on
+	// `enrolled`, `created` and `live`, which are not fields. It has to be
+	// re-asked on every filter change, and cancelled first for the same reason
+	// the list is: nothing orders the responses.
+	it('re-asks for the total whenever the filters change, cancelling the last', async () => {
+		const wrapper = await mountCourses({ data: { ...MODERATOR } })
+		expect(countAborts.value).toBe(1)
+
+		await wrapper.find('[data-testid="tab-unpublished"]').trigger('click')
+		await nextTick()
+		expect(countAborts.value).toBe(2)
 	})
 
 	it('keeps the selected tab when the user resource resolves again', async () => {
