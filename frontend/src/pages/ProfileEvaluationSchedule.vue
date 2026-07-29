@@ -1,6 +1,6 @@
 <template>
 	<div class="mt-7 mb-20">
-		<div class="flex h-screen flex-col overflow-hidden">
+		<div class="flex h-dvh flex-col overflow-hidden">
 			<Calendar
 				v-if="evaluations.data?.length"
 				:config="{

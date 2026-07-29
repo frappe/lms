@@ -8,7 +8,7 @@
 			{{ __('Skip to main content') }}
 		</a>
 		<div class="h-full flex-1">
-			<div class="flex h-screen text-base bg-surface-base">
+			<div class="flex h-dvh text-base bg-surface-base">
 				<main
 					class="w-full overflow-auto focus:outline-none"
 					id="scrollContainer"
