@@ -141,10 +141,13 @@ def get_raven_setup() -> dict:
 	answers the install half itself and delegates the rest only when it can be
 	served.
 
-	System Manager only, matching `raven_integration.api.is_setup`: the reply
-	enumerates installed apps.
+	Managers only, matching `raven_integration.api.is_setup`: the reply enumerates
+	installed apps. The role list is derived from the same
+	`raven_integration_manager_roles` hook that widens the gate on that side, so the
+	two cannot drift — and it is read from the hook rather than imported from
+	raven_integration, which is the app this function exists to work without.
 	"""
-	frappe.only_for("System Manager")
+	frappe.only_for(["System Manager", *(frappe.get_hooks("raven_integration_manager_roles") or [])])
 	apps = frappe.get_installed_apps()
 	state = {
 		"raven": "raven" in apps,

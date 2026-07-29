@@ -813,3 +813,27 @@ class TestGetRavenSetup(UnitTestCase):
 		state = raven_provider.get_raven_setup()
 
 		self.assertTrue(state["enabled"])
+
+	def test_gate_follows_the_manager_roles_hook(self):
+		"""The Settings modal is open to Moderators, so this must be too — and the role
+		list has to come from the hook, or it drifts from raven_integration's own gate.
+		"""
+		self._patch_apps(["frappe", "lms"])
+		real_only_for = frappe.only_for
+		real_get_hooks = frappe.get_hooks
+		seen = []
+
+		def fake_hooks(hook=None, *args, **kwargs):
+			if hook == "raven_integration_manager_roles":
+				return ["Moderator"]
+			return real_get_hooks(hook, *args, **kwargs)
+
+		frappe.only_for = lambda roles, *a, **k: seen.append(roles)
+		frappe.get_hooks = fake_hooks
+		try:
+			raven_provider.get_raven_setup()
+		finally:
+			frappe.only_for = real_only_for
+			frappe.get_hooks = real_get_hooks
+
+		self.assertEqual(seen, [["System Manager", "Moderator"]])
