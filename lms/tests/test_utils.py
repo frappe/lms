@@ -4,11 +4,14 @@
 from datetime import datetime
 
 import frappe
+from frappe.tests import UnitTestCase
 from frappe.utils import getdate, to_timedelta
 
 from lms.lms.doctype.lms_certificate.lms_certificate import is_certified
 from lms.lms.test_helpers import BaseTestUtils
 from lms.lms.utils import (
+	DEFAULT_PAGE_LENGTH,
+	MAX_PAGE_LENGTH,
 	create_user,
 	get_average_rating,
 	get_batch_details,
@@ -28,6 +31,7 @@ from lms.lms.utils import (
 	has_moderator_role,
 	has_student_role,
 	is_instructor,
+	resolve_page_length,
 	slugify,
 )
 
@@ -383,3 +387,39 @@ class TestGetLessonIcon(unittest.TestCase):
 		):
 			with self.subTest(block=block):
 				self.assertEqual(get_lesson_icon("", _content(block)), "icon-list")
+
+
+class TestResolvePageLength(UnitTestCase):
+	"""
+	`createListResource` sends `limit_page_length` and then advances `start` by
+	the same number. An endpoint that ignores it returns a page of a different
+	size, so the next page either repeats rows or skips them. These endpoints
+	are open to guests, so the value is also bounded.
+	"""
+
+	def test_client_page_size_is_honoured(self):
+		self.assertEqual(resolve_page_length(60), 60)
+
+	def test_missing_page_size_falls_back_to_the_default(self):
+		for empty in (None, "", 0):
+			with self.subTest(value=empty):
+				self.assertEqual(resolve_page_length(empty), DEFAULT_PAGE_LENGTH)
+
+	def test_numeric_strings_are_accepted(self):
+		self.assertEqual(resolve_page_length("60"), 60)
+
+	def test_unparseable_values_fall_back_rather_than_raise(self):
+		for junk in ("abc", "12; DROP TABLE", [], {}):
+			with self.subTest(value=junk):
+				self.assertEqual(resolve_page_length(junk), DEFAULT_PAGE_LENGTH)
+
+	def test_a_guest_cannot_ask_for_the_whole_table(self):
+		self.assertEqual(resolve_page_length(10_000), MAX_PAGE_LENGTH)
+
+	def test_boundaries(self):
+		self.assertEqual(resolve_page_length(1), 1)
+		self.assertEqual(resolve_page_length(MAX_PAGE_LENGTH), MAX_PAGE_LENGTH)
+		self.assertEqual(resolve_page_length(MAX_PAGE_LENGTH + 1), MAX_PAGE_LENGTH)
+
+	def test_negative_page_size_never_reaches_the_query(self):
+		self.assertEqual(resolve_page_length(-5), 1)

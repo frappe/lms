@@ -774,9 +774,25 @@ def guest_access_allowed():
 	return True
 
 
+DEFAULT_PAGE_LENGTH = 24
+MAX_PAGE_LENGTH = 120
+
+
+def resolve_page_length(limit_page_length=None) -> int:
+	"""How many rows a list endpoint returns for a client-supplied page size.
+
+	`createListResource` sends `limit_page_length` and advances `start` by the
+	same number, so an endpoint that ignores it hands back a page of a different
+	size and the next page repeats rows. Bounded because these endpoints are
+	open to guests and an unbounded page size is a cheap way to ask for a table.
+	"""
+	page_length = cint(limit_page_length) or DEFAULT_PAGE_LENGTH
+	return min(max(page_length, 1), MAX_PAGE_LENGTH)
+
+
 @frappe.whitelist(allow_guest=True)
 @rate_limit(limit=500, seconds=60 * 60)
-def get_courses(filters: dict = None, start: int = 0) -> list:
+def get_courses(filters: dict = None, start: int = 0, limit_page_length=None) -> list:
 	"""Returns the list of courses."""
 
 	if not guest_access_allowed():
@@ -795,7 +811,7 @@ def get_courses(filters: dict = None, start: int = 0) -> list:
 		or_filters=or_filters,
 		order_by="enrollments desc",
 		start=start,
-		page_length=30,
+		page_length=resolve_page_length(limit_page_length),
 	)
 	if show_featured and start == 0:
 		courses = get_featured_courses(filters, or_filters, fields) + courses
@@ -2526,7 +2542,12 @@ def validate_program_enrollment(program: str):
 
 @frappe.whitelist(allow_guest=True)
 @rate_limit(limit=500, seconds=60 * 60)
-def get_batches(filters: dict = None, start: int = 0, order_by: str = "start_date"):
+def get_batches(
+	filters: dict = None,
+	start: int = 0,
+	order_by: str = "start_date",
+	limit_page_length=None,
+):
 	if not guest_access_allowed():
 		return []
 
@@ -2562,7 +2583,7 @@ def get_batches(filters: dict = None, start: int = 0, order_by: str = "start_dat
 		],
 		order_by=order_by,
 		start=start,
-		page_length=20,
+		page_length=resolve_page_length(limit_page_length),
 	)
 
 	batches = filter_batches_based_on_start_time(batches, filters)
