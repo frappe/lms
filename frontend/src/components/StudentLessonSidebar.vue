@@ -59,6 +59,7 @@
 														chapterNumber: lesson.number.split('-')[0],
 														lessonNumber: lesson.number.split('-')[1],
 													},
+													query: studentViewQuery,
 											  }
 									"
 									class="flex w-full items-center gap-3 rounded ps-9 pe-3 py-2 text-start text-sm leading-5 text-ink-gray-8 hover:bg-surface-gray-2"
@@ -101,6 +102,7 @@
 
 <script setup>
 import { computed, watch, watchEffect } from 'vue'
+import { useRoute } from 'vue-router'
 import { createResource } from 'frappe-ui'
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import {
@@ -127,6 +129,13 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['select-lesson'])
+
+// Keep ?studentView=1 across lesson hops, or a moderator previewing the course
+// silently reverts to their own identity on the first sidebar click.
+const route = useRoute()
+const studentViewQuery = computed(() =>
+	route.query.studentView === '1' ? { studentView: 1 } : undefined
+)
 
 const outline = createResource({
 	url: 'lms.lms.utils.get_course_outline',

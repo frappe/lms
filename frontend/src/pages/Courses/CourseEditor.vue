@@ -16,25 +16,13 @@
 					</div>
 				</div>
 				<LessonForm
-					v-else-if="mode === 'edit'"
+					v-else
 					ref="lessonFormRef"
 					:key="`edit-${selected.number}`"
 					:courseName="props.course.data.name"
 					:chapterNumber="selected.chapterNumber"
 					:lessonNumber="selected.lessonNumber"
 					@saved="onLessonSaved"
-				/>
-				<Lesson
-					v-else
-					ref="lessonViewRef"
-					:key="`preview-${selected.number}`"
-					:courseName="props.course.data.name"
-					:chapterNumber="selected.chapterNumber"
-					:lessonNumber="selected.lessonNumber"
-					:embedded="true"
-					@select-lesson="onSelectLesson"
-					@lesson-completed="onLessonCompleted"
-					@progress-updated="onProgressUpdated"
 				/>
 			</div>
 		</div>
@@ -43,16 +31,6 @@
 			<SkeletonLoader
 				v-if="outline.loading && !outline.data"
 				variant="editor-sidebar"
-			/>
-			<StudentLessonSidebar
-				v-else-if="mode === 'preview' && props.course?.data"
-				:courseName="props.course.data.name"
-				:courseTitle="props.course.data.title"
-				:progress="progressPercent"
-				:selectedLessonNumber="selected?.number"
-				:completedLesson="completedLesson"
-				:inlineSelect="true"
-				@select-lesson="onSelectLesson"
 			/>
 			<CourseOutline
 				v-else-if="props.course?.data"
@@ -77,16 +55,13 @@
 </template>
 
 <script setup>
-import { computed, inject, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { createResource } from 'frappe-ui'
 import { useSidebar } from '@/stores/sidebar'
-import { provideStudentView } from '@/composables/useStudentView'
 import CourseOutline from '@/components/CourseOutline.vue'
-import StudentLessonSidebar from '@/components/StudentLessonSidebar.vue'
 import SkeletonLoader from '@/components/SkeletonLoader.vue'
 import LessonForm from '@/pages/LessonForm.vue'
-import Lesson from '@/pages/Lesson.vue'
 import VideoStatistics from '@/components/Modals/VideoStatistics.vue'
 import {
 	findLessonNameByNumber,
@@ -100,17 +75,8 @@ const props = defineProps({
 })
 
 const selected = defineModel('selected', { default: null })
-const mode = defineModel('mode', { default: 'edit' })
 const route = useRoute()
 const router = useRouter()
-
-// Student View swaps in the real Lesson.vue but the components below it still
-// injected the real `$user`, so instructor affordances (grading, instructor
-// notes, zen mode) stayed visible. Shadow `$user` for this subtree while the
-// preview is on. The provide is unconditional; the value tracks `mode`, so
-// leaving preview restores the real flags without a remount.
-const realUser = inject('$user')
-provideStudentView(realUser, () => mode.value === 'preview')
 
 // Collapse the app sidebar while the lesson editor is open to give the
 // editing surface room, then restore it on leaving the tab. Mirrors the
@@ -123,29 +89,15 @@ onBeforeUnmount(() => {
 	sidebarStore.isSidebarCollapsed = false
 })
 
-// Keep ?editLesson + ?lessonMode in sync with what's selected so a refresh,
-// tab-switch round-trip, or shared URL lands on the same lesson in the same
-// mode. Guard against route-watcher → selected-watcher loops by comparing
-// values before replacing.
+// Keep ?editLesson in sync with what's selected so a refresh, tab-switch
+// round-trip, or shared URL lands on the same lesson. Guard against
+// route-watcher → selected-watcher loops by comparing values before
+// replacing.
 function syncSelectedToUrl(number) {
 	if (!number) return
-	const nextLessonMode = mode.value
-	if (
-		route.query.editLesson === number &&
-		route.query.lessonMode === nextLessonMode
-	)
-		return
+	if (route.query.editLesson === number) return
 	router.replace({
-		query: { ...route.query, editLesson: number, lessonMode: nextLessonMode },
-		hash: route.hash || '#course editor',
-	})
-}
-
-function syncModeToUrl(newMode) {
-	if (!selected.value || !newMode) return
-	if (route.query.lessonMode === newMode) return
-	router.replace({
-		query: { ...route.query, lessonMode: newMode },
+		query: { ...route.query, editLesson: number },
 		hash: route.hash || '#course editor',
 	})
 }
@@ -315,8 +267,7 @@ watch(
 
 // React to a deep-link change while the editor tab is already open.
 // Trust the query — a non-existent number means "new lesson", which
-// LessonForm renders in create mode. Mode is its own param so clicking
-// a lesson in preview keeps the user in preview.
+// LessonForm renders in create mode.
 watch(
 	() => route.query.editLesson,
 	(number) => {
@@ -325,41 +276,41 @@ watch(
 	}
 )
 
+// ?lessonMode is a dead param: student view used to be a mode of this editor
+// and is now the lesson route. Send an old `preview` link to that route once
+// a lesson number is resolvable, and strip any other value so it can't linger
+// in the query that syncSelectedToUrl copies forward. One-shot — a redirect
+// unmounts us, and the strip must not re-fire on its own replace.
+let legacyLessonModeHandled = false
 watch(
-	() => route.query.lessonMode,
-	(next) => {
-		if (next === 'edit' || next === 'preview') mode.value = next
+	[
+		() => route.query.lessonMode,
+		() => selected.value?.number,
+		() => props.course?.data?.name,
+	],
+	([lessonMode, selectedNumber, courseName]) => {
+		if (legacyLessonModeHandled || !lessonMode) return
+		if (lessonMode !== 'preview') {
+			legacyLessonModeHandled = true
+			const { lessonMode: _dropped, ...query } = route.query
+			router.replace({ query, hash: route.hash || '#course editor' })
+			return
+		}
+		const number = route.query.editLesson || selectedNumber
+		if (!courseName || !number) return
+		const [chapterNumber, lessonNumber] = String(number).split('-')
+		if (!chapterNumber || !lessonNumber) return
+		legacyLessonModeHandled = true
+		router.replace({
+			name: 'Lesson',
+			params: { courseName, chapterNumber, lessonNumber },
+			query: { studentView: 1 },
+		})
 	},
 	{ immediate: true }
 )
 
-watch(mode, (next) => {
-	syncModeToUrl(next)
-})
-
-// Live progress posted up from the embedded Lesson preview after a
-// save_progress success or a realtime `update_lesson_progress` event.
-// Prefer it over the stale `course.data.membership.progress` snapshot,
-// which is fetched once and never refreshed in this view.
-const liveProgress = ref(null)
-const progressPercent = computed(() => {
-	const p = liveProgress.value ?? props.course?.data?.membership?.progress
-	return p ? Math.ceil(p) : 0
-})
-
 const lessonFormRef = ref(null)
-const lessonViewRef = ref(null)
-
-// Lesson name that the embedded preview just marked complete — passed to
-// StudentLessonSidebar so its green tick flips immediately instead of
-// only after a refetch of the outline.
-const completedLesson = ref(null)
-function onLessonCompleted(name) {
-	completedLesson.value = name
-}
-function onProgressUpdated(value) {
-	if (typeof value === 'number') liveProgress.value = value
-}
 
 function saveSelectedLesson() {
 	lessonFormRef.value?.saveLesson?.()
@@ -367,47 +318,12 @@ function saveSelectedLesson() {
 
 const isDirty = computed(() => Boolean(lessonFormRef.value?.isDirty))
 
-// Preview-mode header controls, surfaced up to CourseDetail's top bar so
-// the moderator gets the same Prev / Next / Zen affordances students do.
-// hasPrev/hasNext are derived from the outline (already loaded) instead of
-// the embedded Lesson child — otherwise the buttons flicker out on every
-// navigation while the child remounts and refetches.
-const flatLessonNumbers = computed(() =>
-	(outline.data ?? []).flatMap((c) => c.lessons?.map((l) => l.number) ?? [])
-)
-const selectedIndex = computed(() =>
-	selected.value?.number
-		? flatLessonNumbers.value.indexOf(selected.value.number)
-		: -1
-)
-const hasPrev = computed(() => selectedIndex.value > 0)
-const hasNext = computed(
-	() =>
-		selectedIndex.value >= 0 &&
-		selectedIndex.value < flatLessonNumbers.value.length - 1
-)
-const canGoZen = computed(() => Boolean(lessonViewRef.value?.canGoZen?.()))
-function previewPrev() {
-	lessonViewRef.value?.switchLesson?.('prev')
-}
-function previewNext() {
-	lessonViewRef.value?.switchLesson?.('next')
-}
-function previewZen() {
-	lessonViewRef.value?.goFullScreen?.()
-}
-// The active lesson component differs by mode: the editor form when editing,
-// the embedded lesson view when previewing. Both expose lessonHasVideo/name/
-// title, so the Video Statistics affordance works the same in either mode.
-const activeLessonRef = computed(() =>
-	mode.value === 'edit' ? lessonFormRef.value : lessonViewRef.value
-)
 const lessonHasVideo = computed(() =>
-	Boolean(activeLessonRef.value?.lessonHasVideo?.())
+	Boolean(lessonFormRef.value?.lessonHasVideo?.())
 )
 const showStats = ref(false)
-const statsLessonName = computed(() => activeLessonRef.value?.lessonName?.())
-const statsLessonTitle = computed(() => activeLessonRef.value?.lessonTitle?.())
+const statsLessonName = computed(() => lessonFormRef.value?.lessonName?.())
+const statsLessonTitle = computed(() => lessonFormRef.value?.lessonTitle?.())
 function openVideoStats() {
 	showStats.value = true
 }
@@ -420,13 +336,7 @@ function openAddChapter() {
 defineExpose({
 	saveSelectedLesson,
 	isDirty,
-	hasPrev,
-	hasNext,
-	canGoZen,
 	lessonHasVideo,
-	previewPrev,
-	previewNext,
-	previewZen,
 	openVideoStats,
 	openAddChapter,
 })
