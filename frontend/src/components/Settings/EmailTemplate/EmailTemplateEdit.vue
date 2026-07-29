@@ -74,7 +74,7 @@ import {
 } from 'frappe-ui'
 import { reactive, ref } from 'vue'
 import { cleanError } from '@/utils'
-import type { EmailTemplate, EmailTemplateStep } from '@/types/email'
+import type { EmailTemplate, EmailTemplateStep } from '@/types'
 import RichTextEditor from '@/components/RichTextEditor.vue'
 
 interface P {

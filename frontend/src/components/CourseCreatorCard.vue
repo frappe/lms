@@ -54,6 +54,7 @@
 							v-for="(instructor, idx) in visiblePeers"
 							:key="instructor.username || instructor.name || idx"
 							type="button"
+							:aria-label="instructor.full_name"
 							class="rounded-full hover:-translate-y-0.5 transition -ms-1.5 first:ms-0"
 							@click="focusInstructor(instructor)"
 						>
@@ -62,6 +63,7 @@
 						<button
 							v-if="hiddenPeerCount > 0"
 							type="button"
+							:aria-label="__('Show more instructors')"
 							class="-ms-1.5 flex items-center justify-center size-6 rounded-full bg-surface-gray-3 text-xs-medium text-ink-gray-7 hover:bg-surface-gray-4 transition"
 							@click="expanded = true"
 						>
@@ -82,7 +84,7 @@ import { computed, ref, watch } from 'vue'
 import DOMPurify from 'dompurify'
 import UserAvatar from '@/components/UserAvatar.vue'
 import { decodeEntities, htmlToText } from '@/utils'
-import type { CourseInstructorInfo } from '@/types/api'
+import type { CourseInstructorInfo } from '@/types'
 
 const props = defineProps<{
 	instructors: CourseInstructorInfo[]

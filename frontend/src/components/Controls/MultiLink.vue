@@ -19,8 +19,10 @@
 						triggerBaseClasses,
 						triggerVariantClasses[variant],
 						'min-h-7 rounded px-2 w-full justify-between text-base',
+						disabled && 'cursor-not-allowed opacity-60',
 					]"
 					:data-state="open ? 'open' : 'closed'"
+					:disabled="disabled"
 					@click="toggleOpen"
 				>
 					<span class="flex min-w-0 flex-1 items-center gap-2">
@@ -88,8 +90,8 @@
 <script setup lang="ts">
 import { Button, FormLabel, MultiSelect, createResource } from 'frappe-ui'
 import { useDebounceFn } from '@vueuse/core'
-import { computed, ref } from 'vue'
-import type { Resource } from '@/types/api'
+import { computed, ref, watch } from 'vue'
+import type { Resource } from '@/types'
 
 interface SelectOption {
 	label: string
@@ -111,6 +113,7 @@ const props = withDefaults(
 		label?: string
 		placeholder?: string
 		required?: boolean
+		disabled?: boolean
 		variant?: 'subtle' | 'outline' | 'ghost'
 		onCreate?: (close: CloseFn) => void
 		createLabel?: string
@@ -156,19 +159,21 @@ function buildParams(txt: string) {
 	}
 }
 
+function toOptions(data: Record<string, unknown>[]): SelectOption[] {
+	if (props.transform) return props.transform(data)
+	return data.map((o) => ({
+		label:
+			(o.label as string) || (o.value as string) || (o.name as string) || '',
+		value: (o.value as string) || (o.name as string) || '',
+		description: (o.description as string) || undefined,
+	}))
+}
+
 const options = createResource({
 	url: props.url,
 	method: 'POST',
 	auto: false,
-	transform: (data: Record<string, unknown>[]): SelectOption[] => {
-		if (props.transform) return props.transform(data)
-		return data.map((o) => ({
-			label:
-				(o.label as string) || (o.value as string) || (o.name as string) || '',
-			value: (o.value as string) || (o.name as string) || '',
-			description: (o.description as string) || undefined,
-		}))
-	},
+	transform: toOptions,
 }) as Resource<SelectOption[] | null>
 
 function reload(txt: string = '') {
@@ -199,6 +204,28 @@ function handleCreate() {
 	props.onCreate?.(closePopover)
 }
 
+// Saved values need labels before the dropdown is ever opened: the search
+// endpoint only returns query hits, so resolve them by name up front.
+const resolved = ref<Map<string, SelectOption>>(new Map())
+
+// Values this control has asked the endpoint to resolve. Anything else in the
+// response is a search hit, not a resolution, and must not be treated as one.
+const requested = new Set<string>()
+
+const titleLookup = createResource({
+	url: props.url,
+	method: 'POST',
+	auto: false,
+	transform: toOptions,
+	onSuccess: (rows: SelectOption[]) => {
+		const next = new Map(resolved.value)
+		for (const o of rows) {
+			if (o.value && requested.has(o.value)) next.set(o.value, o)
+		}
+		resolved.value = next
+	},
+}) as Resource<SelectOption[] | null>
+
 const mergedOptions = computed<SelectOption[]>(() => {
 	const seen = new Set<string>()
 	const out: SelectOption[] = []
@@ -212,8 +239,61 @@ const mergedOptions = computed<SelectOption[]>(() => {
 		seen.add(o.value)
 		out.push(o)
 	}
+	for (const o of resolved.value.values()) {
+		if (seen.has(o.value)) continue
+		seen.add(o.value)
+		out.push(o)
+	}
+	// Last resort so a selection is never invisible: show the raw docname
+	// for values the endpoint could not resolve.
+	if (!titleLookup.loading) {
+		for (const v of value.value) {
+			if (seen.has(v)) continue
+			seen.add(v)
+			out.push({ label: v, value: v })
+		}
+	}
 	return out
 })
+
+function resolveMissing(vals: string[]): void {
+	const known = new Set<string>([
+		...(options.data || []).map((o) => o.value),
+		...props.extraOptions.map((o) => o.value),
+		...resolved.value.keys(),
+	])
+	// Only fire for names we have never asked about; a name that was requested
+	// but never came back (deleted/inaccessible doc) must not re-trigger a lookup
+	// on every value change.
+	const fresh = (vals || []).filter(
+		(v) => v && !known.has(v) && !requested.has(v)
+	)
+	if (!fresh.length) return
+	fresh.forEach((v) => requested.add(v))
+	// Resolve everything still outstanding, not just the fresh names, so a
+	// superseded in-flight request never drops names asked for earlier.
+	const outstanding = [...requested].filter((v) => !resolved.value.has(v))
+	titleLookup.update({
+		params: {
+			...buildParams(''),
+			// Search endpoints spell "give me these exact docnames" differently and
+			// Frappe drops kwargs a method does not declare, so send both spellings:
+			// `filters` is honoured by frappe.desk.search.search_link, `names` by
+			// lms.lms.api.search_users_by_role. Sending only `filters` degenerates
+			// into an empty-txt search on the latter, which returns arbitrary rows.
+			//
+			// Resolution pins exact docnames, so props.filters is deliberately NOT
+			// spread in: a caller filter like `published: 1` would wrongly drop a
+			// selected value that no longer matches, leaving it labelled by docname.
+			filters: JSON.stringify({ name: ['in', outstanding] }),
+			names: JSON.stringify(outstanding),
+			page_length: outstanding.length,
+		},
+	})
+	titleLookup.reload()
+}
+
+watch(value, (vals) => resolveMissing(vals || []), { immediate: true })
 
 const optionByValue = computed<Map<string, SelectOption>>(() => {
 	const map = new Map<string, SelectOption>()

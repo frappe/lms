@@ -77,7 +77,7 @@
 import { FormControl } from 'frappe-ui'
 import { computed, inject, useId } from 'vue'
 import MultiLink from '@/components/Controls/MultiLink.vue'
-import type { CourseFormContext } from '@/types/api'
+import type { CourseFormContext } from '@/types'
 import RichTextEditor from '@/components/RichTextEditor.vue'
 
 const { resource, relatedCourses, meta, markDirty } =

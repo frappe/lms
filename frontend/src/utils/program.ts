@@ -14,10 +14,16 @@ export class Program {
     readOnly: boolean;
     wrapper: HTMLDivElement;
 
-    constructor({ data, api, readOnly }: { data: any; api: any; readOnly: boolean }) {
+    studentView: boolean;
+
+    constructor({ data, api, readOnly, config }: { data: any; api: any; readOnly: boolean; config?: { studentView?: boolean } }) {
         this.data = data;
         this.api = api;
         this.readOnly = readOnly;
+        // The submission renders in an iframe — its own Vue app — so the
+        // preview's provide/inject can't reach it. Same mechanism as the
+        // assignment tool: the flag travels in the URL.
+        this.studentView = Boolean(config?.studentView)
     }
 
     static get toolbox() {
@@ -74,8 +80,9 @@ export class Program {
                 fieldname: ['name'],
             }).then((data: { name: string }) => {
                 let submission = data.name || 'new'
+                const studentView = this.studentView ? '&studentView=1' : ''
                 const submissionPath = getLmsRoute(
-                    `programming-exercises/${exercise}/submission/${submission}?fromLesson=1`
+                    `programming-exercises/${exercise}/submission/${submission}?fromLesson=1${studentView}`
                 )
                 this.wrapper.innerHTML = `<iframe src="${submissionPath}" class="w-full h-[900px] border rounded-md"></iframe>`
             })

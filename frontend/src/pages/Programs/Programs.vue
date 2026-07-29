@@ -21,9 +21,9 @@
 		<div
 			class="mb-5 flex flex-col justify-between space-y-4 lg:flex-row lg:items-center lg:space-y-0"
 		>
-			<div class="text-lg-semibold text-ink-gray-9">
+			<h1 class="text-lg-semibold text-ink-gray-9">
 				{{ __('All Programs') }}
-			</div>
+			</h1>
 			<div
 				class="flex flex-col space-y-3 lg:flex-row lg:items-center lg:gap-x-4 lg:space-y-0"
 			>
@@ -51,10 +51,12 @@
 			v-else-if="programs.data?.length"
 			class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5"
 		>
-			<div
+			<button
+				type="button"
 				v-for="program in programs.data"
+				:key="program.name"
 				@click="openForm(program.name)"
-				class="border rounded-md p-3 hover:border-outline-gray-3 cursor-pointer space-y-2"
+				class="block w-full border rounded-md p-3 hover:border-outline-gray-3 cursor-pointer space-y-2 text-start"
 			>
 				<div class="text-lg-semibold text-ink-gray-9">
 					{{ program.name }}
@@ -73,7 +75,7 @@
 						{{ program.member_count == 1 ? __('member') : __('members') }}
 					</span>
 				</div>
-			</div>
+			</button>
 		</div>
 		<div v-else class="flex-1">
 			<EmptyStateLayout name="Programs" icon="lucide-graduation-cap" />

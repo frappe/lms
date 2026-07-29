@@ -27,7 +27,7 @@
 <script setup lang="ts">
 import { Dialog, FormControl, createResource, toast, Rating } from 'frappe-ui'
 import { reactive } from 'vue'
-import type { Resource } from '@/types/api'
+import type { Resource } from '@/types'
 
 const show = defineModel<boolean>()
 const reviews = defineModel<Resource<unknown> | undefined>('reloadReviews')

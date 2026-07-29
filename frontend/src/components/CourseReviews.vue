@@ -110,7 +110,7 @@ import type {
 	Membership,
 	Resource,
 	SessionUser,
-} from '@/types/api'
+} from '@/types'
 
 const user = inject<SessionUser>('$user')!
 const dayjs = inject<typeof dayjsType>('$dayjs')!

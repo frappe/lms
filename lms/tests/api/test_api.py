@@ -191,6 +191,8 @@ class TestTrackVideoWatchDuration(BaseTestUtils):
 		self.course = self._create_course()
 		self.chapter = self._create_chapter("Chapter 1", self.course.name)
 		self.lesson = self._create_lesson("Lesson 1", self.chapter.name, self.course.name)
+		# track_video_watch_duration now requires lesson access; the student must be enrolled.
+		self._create_enrollment(self.student.email, self.course.name)
 		self._original_user = frappe.session.user
 		frappe.set_user(self.student.email)
 

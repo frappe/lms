@@ -67,6 +67,7 @@
 							<FormControl
 								v-model="appliedCoupon"
 								:disabled="orderSummary.data.discount_amount > 0"
+								:aria-label="__('Coupon Code')"
 								@input="appliedCoupon = $event.target.value.toUpperCase()"
 								@keydown.enter="applyCouponCode"
 								placeholder="COUPON2025"
@@ -82,6 +83,7 @@
 							</Button>
 							<Button
 								v-if="orderSummary.data.discount_amount"
+								:label="__('Remove coupon')"
 								@click="removeCoupon"
 								variant="outline"
 							>
@@ -105,9 +107,9 @@
 
 				<div class="flex-1 lg:me-10">
 					<div class="mb-5">
-						<div class="text-lg-semibold text-ink-gray-9">
+						<h2 class="text-lg-semibold text-ink-gray-9">
 							{{ __('Address') }}
-						</div>
+						</h2>
 					</div>
 					<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
 						<div class="space-y-4">

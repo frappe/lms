@@ -5,7 +5,7 @@ import LogoSendgrid from '@/assets/images/sendgrid.png'
 import LogoSparkpost from '@/assets/images/sparkpost.webp'
 import LogoYahoo from '@/assets/images/yahoo.png'
 import LogoYandex from '@/assets/images/yandex.png'
-import type { EmailService, RenderField } from '@/types/email'
+import type { EmailService, RenderField } from '@/types'
 import { validateEmail } from '@/utils'
 
 declare global {

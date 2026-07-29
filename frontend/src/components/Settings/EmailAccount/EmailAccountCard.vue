@@ -22,7 +22,7 @@ import { Badge } from 'frappe-ui'
 import { computed } from 'vue'
 import EmailProviderIcon from './EmailProviderIcon.vue'
 import { emailIcon } from './emailConfig'
-import type { EmailAccount } from '@/types/email'
+import type { EmailAccount } from '@/types'
 
 const props = defineProps<{ emailAccount: EmailAccount }>()
 

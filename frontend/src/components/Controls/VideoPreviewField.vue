@@ -8,6 +8,7 @@
 				<iframe
 					v-if="preview.type === 'youtube'"
 					:src="preview.src"
+					:title="__('Video preview')"
 					class="size-full"
 					frameborder="0"
 					allow="accelerometer; encrypted-media; picture-in-picture"
@@ -33,6 +34,7 @@
 				<button
 					v-if="modelValue && !isUploadedVideo"
 					type="button"
+					:aria-label="__('Remove video')"
 					class="absolute end-1 top-1 grid size-6 place-items-center rounded bg-surface-base/90 shadow"
 					@click="update('')"
 				>
@@ -82,6 +84,7 @@
 				<FormControl
 					type="text"
 					v-model="urlInput"
+					:aria-label="__('YouTube link')"
 					:placeholder="__('Paste a YouTube link')"
 					variant="outline"
 				/>

@@ -14,6 +14,7 @@
 	>
 		<iframe
 			:src="chapter.doc.launch_file"
+			:title="chapter.doc?.title || __('Lesson content')"
 			class="w-full h-[calc(100vh-3.00rem)]"
 		/>
 	</div>

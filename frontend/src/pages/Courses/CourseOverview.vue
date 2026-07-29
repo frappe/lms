@@ -153,7 +153,12 @@ import { sanitizeRichHTML } from '@/utils/sanitizeRichHTML'
 import { computed, inject, watch } from 'vue'
 import { createResource, Badge } from 'frappe-ui'
 import { formatAmount, formatRating } from '@/utils/'
-import type { SessionUser } from '@/types/api'
+import type {
+	CourseDetails,
+	OutlineChapter,
+	Resource,
+	SessionUser,
+} from '@/types'
 import CourseCardOverlay from '@/components/CourseCardOverlay.vue'
 import CourseOutline from '@/components/CourseOutline.vue'
 import SkeletonLoader from '@/components/SkeletonLoader.vue'
@@ -162,7 +167,6 @@ import CourseInstructors from '@/components/CourseInstructors.vue'
 import CourseCreatorCard from '@/components/CourseCreatorCard.vue'
 import UserAvatar from '@/components/UserAvatar.vue'
 import RelatedCourses from '@/components/RelatedCourses.vue'
-import type { CourseDetails, OutlineChapter, Resource } from '@/types/api'
 
 const props = defineProps<{
 	course: Resource<CourseDetails | null>

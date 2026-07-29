@@ -63,9 +63,9 @@
 		<!-- LEFT: Questions -->
 		<div class="flex min-h-0 flex-col">
 			<div class="flex items-center justify-between px-5 pt-5 mb-4">
-				<div class="text-lg-semibold text-ink-gray-9">
+				<h2 class="text-lg-semibold text-ink-gray-9">
 					{{ __('Questions') }}
-				</div>
+				</h2>
 				<Button v-if="!readOnlyMode" @click="openQuestionModal()">
 					<template #prefix>
 						<span class="lucide-plus size-4" />
@@ -86,13 +86,18 @@
 				<ListHeader
 					class="mb-2 grid items-center gap-x-4 rounded bg-surface-gray-2 p-2"
 				>
-					<ListHeaderItem :item="item" v-for="item in questionColumns" />
+					<ListHeaderItem
+						:item="item"
+						v-for="item in questionColumns"
+						:key="item.key"
+					/>
 				</ListHeader>
 				<ListRows>
 					<ListRow
 						:row="row"
 						v-slot="{ idx, column, item }"
 						v-for="row in questions"
+						:key="row.name"
 						@click="openQuestionModal(row)"
 						class="cursor-pointer"
 					>
@@ -113,6 +118,7 @@
 						<div class="flex gap-2">
 							<Button
 								variant="ghost"
+								:label="__('Delete')"
 								@click="deleteQuestions(selections, unselectAll)"
 							>
 								<span class="lucide-trash-2 size-4" />
@@ -150,7 +156,7 @@
 		<!-- RIGHT: Details + Settings -->
 		<div class="space-y-8 overflow-y-auto border-l p-5">
 			<div class="space-y-5">
-				<div class="text-ink-gray-9 font-semibold">{{ __('Details') }}</div>
+				<h2 class="text-ink-gray-9 font-semibold">{{ __('Details') }}</h2>
 				<FormControl
 					v-model="quizDetails.doc.title"
 					:label="__('Title')"
@@ -198,7 +204,7 @@
 				/>
 			</div>
 			<div class="space-y-5">
-				<div class="text-ink-gray-9 font-semibold">{{ __('Settings') }}</div>
+				<h2 class="text-ink-gray-9 font-semibold">{{ __('Settings') }}</h2>
 				<BooleanSwitch
 					v-model="quizDetails.doc.show_answers"
 					size="sm"

@@ -15,6 +15,7 @@
 							<TextInput
 								type="text"
 								placeholder="search by keyword"
+								:aria-label="__('Search by keyword')"
 								v-model="search"
 								:debounce="300"
 							/>
@@ -45,6 +46,7 @@
 									image.urls.raw +
 									'&w=200&h=50&fit=crop&crop=entropy,faces,focalpoint'
 								"
+								:alt="__('Unsplash photo')"
 							/>
 						</Button>
 					</div>
