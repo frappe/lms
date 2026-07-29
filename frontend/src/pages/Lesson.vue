@@ -545,6 +545,14 @@ const renderEditor = (holder, content) => {
 		i18n: {
 			direction: document.documentElement.dir === 'rtl' ? 'rtl' : 'ltr',
 		},
+		onReady() {
+			const root = document.getElementById(holder)
+			if (!root) return
+			root.querySelectorAll('a').forEach((a) => {
+				a.setAttribute('target', '_blank')
+				a.setAttribute('rel', 'noopener noreferrer')
+			})
+		},
 	})
 }
 
