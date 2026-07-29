@@ -64,9 +64,9 @@
 import Quiz from '@/components/QuizBlock.vue'
 import PdfBlock from '@/components/PdfBlock.vue'
 import MarkdownIt from 'markdown-it'
-import DOMPurify from 'dompurify'
 import { useScreenSize } from '@/utils/composables'
 import { getMacroArg } from '@/utils/lessonMacros'
+import { sanitizeRichHTML } from '@/utils/sanitizeRichHTML'
 
 const screenSize = useScreenSize()
 
@@ -75,7 +75,11 @@ const markdown = new MarkdownIt({
 	linkify: true,
 })
 
-const renderSafe = (block) => DOMPurify.sanitize(markdown.render(block))
+// Route markdown output through the shared sanitizer so the anchor-target
+// hook (open in new tab) and form-tag blocklist are applied uniformly with
+// the rest of the LMS render pipelines. Keeps one source of truth for what
+// counts as safe user-authored HTML.
+const renderSafe = (block) => sanitizeRichHTML(markdown.render(block))
 
 const props = defineProps({
 	content: {
