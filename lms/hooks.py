@@ -295,3 +295,9 @@ require_type_annotated_api_methods = True
 # LMS contributes its rule types + evaluator to the standalone `raven_integration`
 # app via the `raven_membership_providers` hook. See lms/raven_provider.py.
 raven_membership_providers = ["lms.raven_provider.get_provider"]
+
+# Settings > Integrations > Raven sits inside the Settings modal, which is open to
+# any Moderator, so the endpoints behind it have to be too. raven_integration gates
+# on System Manager plus whatever this hook names, and grants the named roles the
+# permissions its own doctypes need on install/migrate.
+raven_integration_manager_roles = ["Moderator"]
