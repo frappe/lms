@@ -590,6 +590,7 @@ const breadcrumbs = computed(() => {
 				chapterNumber: props.chapterNumber,
 				lessonNumber: props.lessonNumber,
 			},
+			query: studentViewQuery.value,
 		},
 	})
 	return crumbs
@@ -610,6 +611,7 @@ const switchLesson = (direction) => {
 			chapterNumber,
 			lessonNumber,
 		},
+		query: studentViewQuery.value,
 	})
 }
 
@@ -914,6 +916,13 @@ const isAdmin = computed(() => {
 	let isInstructor = lesson.data?.instructors?.includes(user.data?.name)
 	return user.data?.is_moderator || isInstructor
 })
+
+// Student view is a mode, not a destination: every hop that stays on a lesson
+// has to carry the flag, or Prev / Next / the sidebar silently drops the
+// moderator back into their own identity mid-course.
+const studentViewQuery = computed(() =>
+	isStudentView.value ? { studentView: 1 } : undefined
+)
 
 // Reads the real user, not the student-view shadow, so the way back to the
 // editor survives ?studentView=1.
