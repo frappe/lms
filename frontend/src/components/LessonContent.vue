@@ -65,11 +65,8 @@ import Quiz from '@/components/QuizBlock.vue'
 import PdfBlock from '@/components/PdfBlock.vue'
 import MarkdownIt from 'markdown-it'
 import { useScreenSize } from '@/utils/composables'
-<<<<<<< Updated upstream
 import { getMacroArg } from '@/utils/lessonMacros'
-=======
 import { sanitizeRichHTML } from '@/utils/sanitizeRichHTML'
->>>>>>> Stashed changes
 
 const screenSize = useScreenSize()
 
