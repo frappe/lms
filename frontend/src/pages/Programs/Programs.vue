@@ -1,9 +1,29 @@
 <template>
-	<LayoutHeader>
-		<template #left-header>
-			<Breadcrumbs :items="breadcrumbs" />
-		</template>
-		<template #right-header>
+	<!-- A student sees their own enrolled/published split, which is not a
+	     filtered list page, so it keeps its own chrome. -->
+	<template v-if="isStudent">
+		<LayoutHeader>
+			<template #left-header>
+				<Breadcrumbs :items="breadcrumbs" />
+			</template>
+		</LayoutHeader>
+		<StudentPrograms />
+	</template>
+
+	<ListPage
+		v-else
+		:breadcrumbs="breadcrumbs"
+		:title="__('All Programs')"
+		:rows="programs.data || []"
+		:total-count="programCount"
+		:loading="programs.list.loading"
+		:has-next-page="programs.hasNextPage"
+		v-model:page-length="pageLength"
+		empty-name="Programs"
+		empty-icon="lucide-graduation-cap"
+		@load-more="programs.next()"
+	>
+		<template #actions>
 			<Button
 				v-if="canCreateProgram()"
 				@click="openForm('new')"
@@ -15,72 +35,53 @@
 				{{ __('Create') }}
 			</Button>
 		</template>
-	</LayoutHeader>
-	<StudentPrograms v-if="isStudent" />
-	<div v-else class="flex min-h-0 flex-1 flex-col p-5 pb-10">
-		<div
-			class="mb-5 flex flex-col justify-between space-y-4 lg:flex-row lg:items-center lg:space-y-0"
-		>
-			<h1 class="text-lg-semibold text-ink-gray-9">
-				{{ __('All Programs') }}
-			</h1>
-			<div
-				class="flex flex-col space-y-3 lg:flex-row lg:items-center lg:gap-x-4 lg:space-y-0"
-			>
-				<TabButtons :options="programTabs" v-model="currentTab" class="w-fit" />
 
-				<FormControl
-					v-model="title"
-					:placeholder="__('Search')"
-					type="text"
-					class="w-full lg:w-40"
-					@input="updatePrograms()"
-				>
-					<template #prefix>
-						<span class="lucide-search size-4 text-ink-gray-5" />
-					</template>
-				</FormControl>
-			</div>
-		</div>
-		<SkeletonLoader
-			v-if="programs.list.loading && !programs.data"
-			variant="cards"
-			:count="8"
-		/>
-		<div
-			v-else-if="programs.data?.length"
-			class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5"
-		>
+		<template #tabs>
+			<TabButtons :options="programTabs" v-model="currentTab" class="w-fit" />
+		</template>
+
+		<template #filters>
+			<FormControl
+				v-model="title"
+				:placeholder="__('Search')"
+				:aria-label="__('Search')"
+				type="text"
+				class="w-full lg:w-40"
+				@input="debouncedUpdatePrograms()"
+			>
+				<template #prefix>
+					<span class="lucide-search size-4 text-ink-gray-5" />
+				</template>
+			</FormControl>
+		</template>
+
+		<template #card="{ row }">
 			<button
 				type="button"
-				v-for="program in programs.data"
-				:key="program.name"
-				@click="openForm(program.name)"
-				class="block w-full border rounded-md p-3 hover:border-outline-gray-3 cursor-pointer space-y-2 text-start"
+				@click="openForm(row.name)"
+				class="block w-full cursor-pointer space-y-2 rounded-md border p-3 text-start hover:border-outline-gray-3"
 			>
 				<div class="text-lg-semibold text-ink-gray-9">
-					{{ program.name }}
+					{{ row.name }}
 				</div>
 				<div class="flex items-center gap-x-2 text-ink-gray-7">
 					<span class="lucide-book-open size-4" />
 					<span>
-						{{ program.course_count }}
-						{{ program.course_count == 1 ? __('Course') : __('Courses') }}
+						{{ row.course_count }}
+						{{ row.course_count == 1 ? __('Course') : __('Courses') }}
 					</span>
 				</div>
 				<div class="flex items-center gap-x-2 text-ink-gray-7">
 					<span class="lucide-user size-4" />
 					<span>
-						{{ program.member_count || 0 }}
-						{{ program.member_count == 1 ? __('member') : __('members') }}
+						{{ row.member_count || 0 }}
+						{{ row.member_count == 1 ? __('member') : __('members') }}
 					</span>
 				</div>
 			</button>
-		</div>
-		<div v-else class="flex-1">
-			<EmptyStateLayout name="Programs" icon="lucide-graduation-cap" />
-		</div>
-	</div>
+		</template>
+	</ListPage>
+
 	<ProgramForm
 		v-model="showForm"
 		:programName="currentProgram"
@@ -91,18 +92,19 @@
 import {
 	Breadcrumbs,
 	Button,
+	createResource,
 	FormControl,
 	TabButtons,
 	usePageMeta,
 	createListResource,
 } from 'frappe-ui'
 import { computed, inject, onMounted, ref, watch } from 'vue'
+import { useDebounceFn } from '@vueuse/core'
 
 import { sessionStore } from '@/stores/session'
 import ProgramForm from '@/pages/Programs/ProgramForm.vue'
-import SkeletonLoader from '@/components/SkeletonLoader.vue'
-import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 import LayoutHeader from '@/components/Layouts/LayoutHeader.vue'
+import ListPage from '@/components/Layouts/ListPage.vue'
 import StudentPrograms from '@/pages/Programs/StudentPrograms.vue'
 
 const { brand } = sessionStore()
@@ -137,6 +139,18 @@ const programs = createListResource({
 	],
 	auto: false,
 	orderBy: 'creation desc',
+	pageLength: 24,
+})
+
+const pageLength = computed({
+	get: () => programs.pageLength,
+	set: (value) => {
+		// reload() ignores the new size while start > 0: it refetches rows 0..N
+		// of the pages already loaded and then restores start. Resetting start
+		// makes the chosen size the size that is actually requested.
+		programs.update({ pageLength: value, start: 0 })
+		programs.reload()
+	},
 })
 
 const setFiltersFromQuery = () => {
@@ -150,6 +164,34 @@ const updatePrograms = () => {
 		filters: filters.value,
 	})
 	programs.reload()
+	getProgramCount()
+}
+
+// @input fires on every keystroke, so an undebounced search costs one list
+// fetch and one count fetch per character typed.
+const debouncedUpdatePrograms = useDebounceFn(updatePrograms, 300)
+
+// LMS Program is a plain doctype filtered by plain fields, so the footer can
+// say how many programs the filters actually match.
+const programCountResource = createResource({
+	url: 'frappe.client.get_count',
+	makeParams: () => ({
+		doctype: 'LMS Program',
+		filters: filters.value,
+	}),
+	onError: (error) => {
+		console.error(error)
+	},
+})
+
+const programCount = computed(() => programCountResource.data || 0)
+
+const getProgramCount = () => {
+	// Same sequencing hazard as the list: nothing orders the responses, so a
+	// slow count for filters the user has left would overwrite the current
+	// total. An aborted fetch is swallowed and never assigns data.
+	programCountResource.abort()
+	programCountResource.submit()
 }
 
 const updateFilters = () => {
