@@ -41,7 +41,7 @@
 					<!-- Edit mode autosaves continuously, so there is no Save
 					     button or dirty badge here. -->
 					<Tooltip
-						v-if="courseEditorRef?.lessonHasVideo && editorMode !== 'preview'"
+						v-if="courseEditorRef?.lessonHasVideo"
 						:text="__('Video Statistics')"
 					>
 						<Button
@@ -54,10 +54,7 @@
 							</template>
 						</Button>
 					</Tooltip>
-					<Tooltip
-						v-if="editorMode !== 'preview'"
-						:text="__('How to edit a lesson')"
-					>
+					<Tooltip :text="__('How to edit a lesson')">
 						<Button
 							variant="ghost"
 							:label="__('How to edit a lesson')"
@@ -68,20 +65,24 @@
 							</template>
 						</Button>
 					</Tooltip>
-					<Button
-						variant="outline"
-						@click="editorMode = editorMode === 'preview' ? 'edit' : 'preview'"
+					<router-link
+						:to="{
+							name: 'Lesson',
+							params: {
+								courseName: props.courseName,
+								chapterNumber: editorSelected.chapterNumber,
+								lessonNumber: editorSelected.lessonNumber,
+							},
+							query: { studentView: 1 },
+						}"
 					>
-						<template #prefix>
-							<span v-if="editorMode === 'preview'" class="lucide-x size-4" />
-							<span v-else class="lucide-eye size-4" />
-						</template>
-						{{
-							editorMode === 'preview'
-								? __('Close student view')
-								: __('Student View')
-						}}
-					</Button>
+						<Button variant="outline">
+							<template #prefix>
+								<span class="lucide-eye size-4" />
+							</template>
+							{{ __('Student View') }}
+						</Button>
+					</router-link>
 				</template>
 				<Button
 					v-if="tabIndex === 1 && course.data"
@@ -119,7 +120,6 @@
 							ref="courseEditorRef"
 							:course="course"
 							v-model:selected="editorSelected"
-							v-model:mode="editorMode"
 						/>
 						<CourseForm
 							v-else-if="tab.component === CourseForm"
@@ -136,7 +136,7 @@
 				</template>
 			</Tabs>
 			<div
-				v-if="tabIndex === 2 && course.data && editorMode === 'edit'"
+				v-if="tabIndex === 2 && course.data"
 				class="pointer-events-none absolute inset-x-0 top-0 z-10 hidden md:flex"
 			>
 				<div class="w-[70%]" />
@@ -210,7 +210,6 @@ interface EditorSelection {
 }
 
 const editorSelected = ref<EditorSelection | null>(null)
-const editorMode = ref<'edit' | 'preview'>('edit')
 const showLessonHelp = ref(false)
 
 // Settings tab (CourseForm) exposes the API the LayoutHeader actions need.
@@ -234,13 +233,7 @@ const courseFormRef = ref<CourseFormApi | null>(null)
 type CourseEditorApi = {
 	saveSelectedLesson: () => void
 	isDirty: ComputedRef<boolean>
-	hasPrev: ComputedRef<boolean>
-	hasNext: ComputedRef<boolean>
-	canGoZen: ComputedRef<boolean>
 	lessonHasVideo: ComputedRef<boolean>
-	previewPrev: () => void
-	previewNext: () => void
-	previewZen: () => void
 	openVideoStats: () => void
 	openAddChapter: () => void
 }
