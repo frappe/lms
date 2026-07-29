@@ -23,13 +23,16 @@
 				</div>
 			</div>
 
+			<!-- `block`: a textarea is inline-block by default, so it sits on the
+			     parent's line box and carries its descender — 5px of space under
+			     the title that belongs to no rule and no gap. -->
 			<textarea
 				ref="titleRef"
 				v-model="lesson.title"
 				:placeholder="__('Lesson title')"
 				:aria-label="__('Lesson title')"
 				rows="1"
-				class="lesson-title w-full resize-none overflow-hidden border-0 bg-transparent p-0 text-2xl font-bold leading-tight text-ink-gray-9 placeholder:text-ink-gray-4 focus:outline-none focus:ring-0"
+				class="lesson-title block w-full resize-none overflow-hidden border-0 bg-transparent p-0 text-2xl font-bold leading-tight text-ink-gray-9 placeholder:text-ink-gray-4 focus:outline-none focus:ring-0"
 				@input="onTitleInput"
 				@keydown.enter="onTitleEnter"
 			/>
