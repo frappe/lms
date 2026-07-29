@@ -283,8 +283,12 @@ watch(
 // unmounts us, and the strip must not re-fire on its own replace.
 let legacyLessonModeHandled = false
 watch(
-	[() => route.query.lessonMode, () => selected.value?.number],
-	([lessonMode, selectedNumber]) => {
+	[
+		() => route.query.lessonMode,
+		() => selected.value?.number,
+		() => props.course?.data?.name,
+	],
+	([lessonMode, selectedNumber, courseName]) => {
 		if (legacyLessonModeHandled || !lessonMode) return
 		if (lessonMode !== 'preview') {
 			legacyLessonModeHandled = true
@@ -292,7 +296,6 @@ watch(
 			router.replace({ query, hash: route.hash || '#course editor' })
 			return
 		}
-		const courseName = props.course?.data?.name
 		const number = route.query.editLesson || selectedNumber
 		if (!courseName || !number) return
 		const [chapterNumber, lessonNumber] = String(number).split('-')

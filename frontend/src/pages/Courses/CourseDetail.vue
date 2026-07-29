@@ -95,7 +95,7 @@
 					{{ __('Enroll') }}
 				</Button>
 				<Button
-					v-if="user.data?.is_moderator"
+					v-if="tabIndex === 3 && user.data?.is_moderator"
 					:variant="course.data?.published ? 'outline' : 'solid'"
 					:theme="course.data?.published ? 'red' : 'gray'"
 					:loading="publishToggle.loading"

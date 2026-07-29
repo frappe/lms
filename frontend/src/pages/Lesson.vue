@@ -5,13 +5,6 @@
 		>
 			<Breadcrumbs class="h-7" :items="breadcrumbs" />
 			<div class="flex items-center gap-x-2">
-				<Tooltip v-if="canGoZen() && isAdmin" :text="__('Zen Mode')">
-					<Button @click="goFullScreen()" :label="__('Zen Mode')">
-						<template #icon>
-							<span class="lucide-focus size-4" />
-						</template>
-					</Button>
-				</Tooltip>
 				<CertificationLinks :courseName="courseName" />
 				<router-link
 					v-if="canEditLesson"
@@ -22,11 +15,11 @@
 						query: { editLesson: `${chapterNumber}-${lessonNumber}` },
 					}"
 				>
-					<Button>
+					<Button variant="outline">
 						<template #prefix>
 							<span class="lucide-pencil size-4" />
 						</template>
-						{{ __('Editor view') }}
+						{{ __('Editor View') }}
 					</Button>
 				</router-link>
 			</div>

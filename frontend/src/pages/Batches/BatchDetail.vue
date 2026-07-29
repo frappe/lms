@@ -73,7 +73,7 @@
 					</Button>
 				</Tooltip>
 				<Button
-					v-if="isAdmin"
+					v-if="isAdmin && currentTabLabel === 'Settings'"
 					variant="outline"
 					:theme="batch.data?.published ? 'red' : 'gray'"
 					:loading="publishToggle.loading"
