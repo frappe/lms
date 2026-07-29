@@ -35,6 +35,7 @@
 							</div>
 							<div
 								v-for="row in currentTabData"
+								:key="row.name"
 								class="hover:bg-surface-gray-1 cursor-pointer rounded-md py-1 px-2"
 							>
 								<router-link

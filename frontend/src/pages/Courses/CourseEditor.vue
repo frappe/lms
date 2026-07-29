@@ -77,10 +77,11 @@
 </template>
 
 <script setup>
-import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, inject, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { createResource } from 'frappe-ui'
 import { useSidebar } from '@/stores/sidebar'
+import { provideStudentView } from '@/composables/useStudentView'
 import CourseOutline from '@/components/CourseOutline.vue'
 import StudentLessonSidebar from '@/components/StudentLessonSidebar.vue'
 import SkeletonLoader from '@/components/SkeletonLoader.vue'
@@ -102,6 +103,14 @@ const selected = defineModel('selected', { default: null })
 const mode = defineModel('mode', { default: 'edit' })
 const route = useRoute()
 const router = useRouter()
+
+// Student View swaps in the real Lesson.vue but the components below it still
+// injected the real `$user`, so instructor affordances (grading, instructor
+// notes, zen mode) stayed visible. Shadow `$user` for this subtree while the
+// preview is on. The provide is unconditional; the value tracks `mode`, so
+// leaving preview restores the real flags without a remount.
+const realUser = inject('$user')
+provideStudentView(realUser, () => mode.value === 'preview')
 
 // Collapse the app sidebar while the lesson editor is open to give the
 // editing surface room, then restore it on leaving the tab. Mirrors the

@@ -9,7 +9,7 @@
 					:iconLeft="uploading ? 'cloud-upload' : 'lucide-image-up'"
 					:label="
 						uploading
-							? __('Uploading {0}%', [progress])
+							? __('Uploading {0}%').format(progress)
 							: image_url
 							? __('Change')
 							: __('Upload')

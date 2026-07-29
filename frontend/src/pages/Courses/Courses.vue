@@ -33,9 +33,9 @@
 		<div
 			class="mb-5 flex flex-col justify-between space-y-4 lg:flex-row lg:items-center lg:space-y-0"
 		>
-			<div class="text-lg-semibold text-ink-gray-9">
+			<h1 class="text-lg-semibold text-ink-gray-9">
 				{{ __('All Courses') }}
-			</div>
+			</h1>
 			<div
 				class="flex flex-col space-y-4 lg:flex-row lg:items-center lg:gap-x-4 lg:space-y-0"
 			>
@@ -83,6 +83,7 @@
 		>
 			<router-link
 				v-for="course in courses.data"
+				:key="course.name"
 				:to="{ name: 'CourseDetail', params: { courseName: course.name } }"
 			>
 				<CourseCard :course="course" />

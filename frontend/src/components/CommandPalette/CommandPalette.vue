@@ -138,6 +138,9 @@ const addKeyboardShortcuts = () => {
 		} else if (e.key === 'ArrowDown' && show.value) {
 			shortcutForArrowKey(1)
 		} else if (e.key === 'Enter' && show.value) {
+			// A focused result button fires its own click; let that be the
+			// single navigation instead of racing this handler.
+			if ((e.target as HTMLElement)?.closest?.('[data-palette-item]')) return
 			shortcutForEnter()
 		} else if (e.key === 'Escape' && show.value) {
 			show.value = false

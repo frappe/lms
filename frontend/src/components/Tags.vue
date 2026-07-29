@@ -7,15 +7,22 @@
 			{{ tags }}
 			<div
 				v-for="tag in tags?.split(', ')"
+				:key="tag"
 				class="flex items-center bg-surface-gray-2 p-2 rounded-md me-2"
 			>
 				{{ tag }}
-				<span
+				<button
+					type="button"
+					:aria-label="__('Remove tag')"
 					class="lucide-x w-3 h-3 ms-2 cursor-pointer"
 					@click="removeTag(tag)"
 				/>
 			</div>
-			<FormControl v-model="newTag" @keyup.enter="updateTags()" />
+			<FormControl
+				v-model="newTag"
+				:aria-label="__('Add tag')"
+				@keyup.enter="updateTags()"
+			/>
 		</div>
 	</div>
 </template>

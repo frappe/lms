@@ -74,6 +74,7 @@
 								<div class="flex gap-2">
 									<Button
 										variant="ghost"
+										:label="__('Remove quiz')"
 										@click="removeQuiz(selections, unselectAll)"
 									>
 										<span class="lucide-trash-2 h-4 w-4" />

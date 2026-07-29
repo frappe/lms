@@ -3,17 +3,19 @@
 		<iframe
 			class="youtube-video"
 			:src="getYouTubeVideoSource(youtube.split('/').pop())"
+			:title="__('YouTube video')"
 			width="100%"
 			:height="screenSize.width < 640 ? 200 : 400"
 			frameborder="0"
 			allowfullscreen
 		></iframe>
 	</div>
-	<div v-for="block in content?.split('\n\n')">
+	<div v-for="(block, index) in content?.split('\n\n')" :key="index">
 		<div v-if="block.includes('{{ YouTubeVideo')">
 			<iframe
 				class="youtube-video"
 				:src="getYouTubeVideoSource(block)"
+				:title="__('YouTube video')"
 				width="100%"
 				:height="screenSize.width < 640 ? 200 : 400"
 				frameborder="0"
@@ -46,6 +48,7 @@
 				width="100%"
 				height="400"
 				:src="getId(block)"
+				:title="__('Embedded content')"
 				frameborder="0"
 				allowfullscreen
 			>

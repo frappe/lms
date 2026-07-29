@@ -27,7 +27,7 @@ import { createResource } from 'frappe-ui'
 import { watch } from 'vue'
 import CourseCard from '@/components/CourseCard.vue'
 import type { LMSCourse } from '@/types/lms/LMSCourse'
-import type { Resource } from '@/types/api'
+import type { Resource } from '@/types'
 
 const props = defineProps<{
 	courseName: string

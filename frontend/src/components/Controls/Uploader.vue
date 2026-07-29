@@ -19,6 +19,7 @@
 							<img
 								v-if="type === 'image'"
 								:src="modelValue"
+								:alt="label ? __(label) : __('Uploaded image preview')"
 								class="size-full object-cover"
 							/>
 							<video v-else controls class="size-full object-cover">

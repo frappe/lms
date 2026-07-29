@@ -18,14 +18,34 @@ class CourseEvaluator(Document):
 		self.validate_unavailability()
 
 	def on_trash(self):
-		roles = frappe.get_roles(self.evaluator)
-		if "Batch Evaluator" in roles:
-			frappe.get_doc("User", self.evaluator).remove_roles("Batch Evaluator")
+		# Direct row delete, not User.remove_roles: see validate_evaluator_role.
+		frappe.db.delete("Has Role", {"parent": self.evaluator, "role": "Batch Evaluator"})
+		frappe.clear_cache(user=self.evaluator)
 
 	def validate_evaluator_role(self):
-		roles = frappe.get_roles(self.evaluator)
-		if "Batch Evaluator" not in roles:
-			frappe.get_doc("User", self.evaluator).add_roles("Batch Evaluator")
+		"""Being a Course Evaluator *is* holding the Batch Evaluator role.
+
+		Written as a Has Role row rather than `User.add_roles`, which saves the
+		whole User document: whenever the session user cannot write User docs —
+		every portal Moderator, since LMS only grants them list access — the save
+		is dropped and the role silently never lands, leaving an evaluator who
+		cannot open their own schedule. lms.lms.api.save_evaluator_role writes
+		the row directly for the same reason.
+		"""
+		if frappe.db.exists("Has Role", {"parent": self.evaluator, "role": "Batch Evaluator"}):
+			return
+
+		role = frappe.new_doc("Has Role")
+		role.update(
+			{
+				"parent": self.evaluator,
+				"parenttype": "User",
+				"parentfield": "roles",
+				"role": "Batch Evaluator",
+			}
+		)
+		role.insert(ignore_permissions=True)
+		frappe.clear_cache(user=self.evaluator)
 
 	def validate_unavailability(self):
 		if (

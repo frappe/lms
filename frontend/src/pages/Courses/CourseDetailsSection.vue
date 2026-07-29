@@ -38,8 +38,9 @@
 					<template #trigger="{ open, toggleOpen, selectedOptions }">
 						<button
 							type="button"
+							:aria-expanded="open"
 							:class="[
-								'relative inline-flex w-full min-h-7 items-center gap-2 rounded border border-outline-gray-2 bg-surface-base px-2 text-left text-base text-ink-gray-8 outline-none transition-colors hover:border-outline-gray-3 hover:shadow-sm focus:border-outline-gray-4 focus:shadow-sm',
+								'relative inline-flex w-full min-h-7 items-center gap-2 rounded border border-outline-gray-2 bg-surface-base px-2 text-start text-base text-ink-gray-8 outline-none transition-colors hover:border-outline-gray-3 hover:shadow-sm focus:border-outline-gray-4 focus:shadow-sm',
 								open && 'border-outline-gray-4 shadow-sm',
 							]"
 							@click="toggleOpen"
@@ -93,7 +94,7 @@ import Link from '@/components/Controls/Link.vue'
 import CourseInstructorsField from '@/pages/Courses/CourseInstructorsField.vue'
 import CourseThumbnailField from '@/pages/Courses/CourseThumbnailField.vue'
 import VideoPreviewField from '@/components/Controls/VideoPreviewField.vue'
-import type { CourseFormContext } from '@/types/api'
+import type { CourseFormContext } from '@/types'
 
 interface TagOption {
 	label: string

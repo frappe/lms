@@ -34,7 +34,7 @@
 			{{ __('Achievements') }}
 		</h2>
 		<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-			<div v-for="badge in badges.data">
+			<div v-for="badge in badges.data" :key="badge.badge">
 				<HoverCard :leave-delay="0.01">
 					<template #trigger>
 						<div class="relative">

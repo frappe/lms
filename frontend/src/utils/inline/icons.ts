@@ -3,6 +3,7 @@
  * (set via innerHTML), so the Vue components from lucide-vue-next can't be used;
  * lucide-static is the same icon set shipped as plain SVG files.
  */
+import boldIcon from 'lucide-static/icons/bold.svg?raw'
 import underlineIcon from 'lucide-static/icons/underline.svg?raw'
 import strikethroughIcon from 'lucide-static/icons/strikethrough.svg?raw'
 import alignLeftIcon from 'lucide-static/icons/align-left.svg?raw'
@@ -11,6 +12,7 @@ import alignRightIcon from 'lucide-static/icons/align-right.svg?raw'
 import paintBucketIcon from 'lucide-static/icons/paint-bucket.svg?raw'
 
 export {
+	boldIcon,
 	underlineIcon,
 	strikethroughIcon,
 	alignLeftIcon,

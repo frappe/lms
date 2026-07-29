@@ -112,6 +112,7 @@
 					>
 						<UserAvatar
 							v-for="instructor in course.instructors"
+							:key="instructor.username || instructor.name"
 							:user="instructor"
 						/>
 					</div>

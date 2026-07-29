@@ -13,6 +13,7 @@
 				<FormControl
 					v-model="search"
 					:placeholder="__('Search')"
+					:aria-label="__('Search members')"
 					type="text"
 					:debounce="300"
 					class="w-1/3"
@@ -21,7 +22,12 @@
 						<span class="lucide-search size-4 text-ink-gray-5" />
 					</template>
 				</FormControl>
-				<Select v-model="currentRole" class="w-40" :options="roleOptions" />
+				<Select
+					v-model="currentRole"
+					class="w-40"
+					:aria-label="__('Filter by role')"
+					:options="roleOptions"
+				/>
 			</div>
 		</template>
 		<div v-if="displayedMembers.length">
@@ -63,7 +69,11 @@
 							</span>
 							<Dropdown
 								:options="getMemberMenuOptions(member)"
-								:button="{ icon: 'lucide-more-horizontal', variant: 'ghost' }"
+								:button="{
+									icon: 'lucide-more-horizontal',
+									variant: 'ghost',
+									label: __('Member actions'),
+								}"
 								placement="right"
 							/>
 						</ListCell>
@@ -137,7 +147,7 @@ import { List, ListCell, ListRow, ListRows } from 'frappe-ui/list'
 import { useRouter } from 'vue-router'
 import { ref, computed, watch, inject } from 'vue'
 import { useOnboarding, useTelemetry } from 'frappe-ui/frappe'
-import type { User } from '@/components/Settings/types'
+import type { User } from '@/types'
 import NewMemberModal from '@/components/Modals/NewMemberModal.vue'
 import SettingsLayout from '@/components/Layouts/SettingsLayout.vue'
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
