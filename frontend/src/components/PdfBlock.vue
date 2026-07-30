@@ -11,12 +11,9 @@
 				>
 					<ChevronLeft :size="18" :stroke-width="1.5" />
 				</button>
-				<span class="pdf-page-indicator">
-					<template v-if="numPages"
-						>{{ currentPage }} / {{ numPages }}</template
-					>
-					<template v-else>—</template>
-				</span>
+				<span class="pdf-page-indicator">{{
+					numPages ? currentPage + ' / ' + numPages : '—'
+				}}</span>
 				<button
 					type="button"
 					class="pdf-btn"
@@ -139,6 +136,7 @@ let canvasEls = []
 let renderTasks = [] // active RenderTask per page index
 let rendered = [] // bool per page index
 let rafId = null
+let task = null // in-flight PDFDocumentLoadingTask
 
 // --- shared, ref-counted worker (multi-instance safe; terminated on last unmount) ---
 // A leaked pdf.js worker is worse than a leaked <audio>, so we always release it.
@@ -160,16 +158,27 @@ async function load() {
 		// fold ~144kB gzip of pdf.js into the main entry that every LMS page pays.
 		pdfjsLib = await import('pdfjs-dist/legacy/build/pdf.mjs')
 		if (disposed) return
-		if (sharedWorker) pdfjsLib.GlobalWorkerOptions.workerPort = sharedWorker
+		// Wrap the raw port in our own PDFWorker and pass it explicitly. Via
+		// GlobalWorkerOptions.workerPort, pdf.js hands each loading task
+		// ownership of the shared worker, so one viewer's pdfDoc.destroy()
+		// tears down the port-level message handler every *sibling* viewer is
+		// still listening on — their getDocument() then never settles and the
+		// spinner runs forever. Passing `worker` keeps ownership here.
+		if (sharedWorker && !sharedPdfWorker) {
+			sharedPdfWorker = new pdfjsLib.PDFWorker({ port: sharedWorker })
+		}
 
 		const base = import.meta.env.BASE_URL || '/'
 		const loadingTask = pdfjsLib.getDocument({
 			url: props.file,
+			worker: sharedPdfWorker || undefined,
 			cMapUrl: `${base}pdfjs/cmaps/`,
 			cMapPacked: true,
 			standardFontDataUrl: `${base}pdfjs/standard_fonts/`,
 		})
+		task = loadingTask
 		pdfDoc = await loadingTask.promise
+		task = null
 		if (disposed) return
 		numPages.value = pdfDoc.numPages
 
@@ -222,10 +231,14 @@ function releaseWorker() {
 	if (!heldWorker) return
 	heldWorker = false
 	sharedWorkerRefs = Math.max(0, sharedWorkerRefs - 1)
-	if (sharedWorkerRefs === 0 && sharedWorker) {
-		sharedWorker.terminate()
+	// Not guarded on the per-instance `pdfjsLib`: an instance that unmounts
+	// before its dynamic import resolves would otherwise strand a terminated
+	// worker in module scope.
+	if (sharedWorkerRefs === 0) {
+		sharedPdfWorker?.destroy()
+		sharedPdfWorker = null
+		sharedWorker?.terminate()
 		sharedWorker = null
-		if (pdfjsLib) pdfjsLib.GlobalWorkerOptions.workerPort = null
 	}
 }
 
@@ -375,10 +388,13 @@ onBeforeUnmount(() => {
 	renderTasks = []
 	try {
 		pdfDoc?.destroy()
+		// A load that never resolved leaves pdfDoc null, so cancel the task too.
+		task?.destroy()
 	} catch (e) {
 		/* noop */
 	}
 	pdfDoc = null
+	task = null
 	releaseWorker()
 })
 
@@ -389,6 +405,9 @@ defineExpose({ fitWidth, goToPage })
 // Module-scoped so every PdfBlock instance shares one pdf.js worker.
 let sharedWorker = null
 let sharedWorkerRefs = 0
+// The pdf.js-side wrapper for `sharedWorker`. Owned here, never by a loading
+// task, so one document's destroy() can't tear it out from under another's.
+let sharedPdfWorker = null
 </script>
 
 <style scoped>
