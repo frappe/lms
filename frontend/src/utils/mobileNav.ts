@@ -27,6 +27,9 @@ export const PRIMARY_LABELS: readonly string[] = [
 // guest bar holding nothing but the More button until the settings call
 // resolved — and sometimes it never did. Static list mirrors CRM's
 // `components/Mobile/MobileSidebar.vue`.
+//
+// Static is the starting set, not the final one: `pickPrimaryTabs` still hides
+// any of these the admin has switched off, once the settings actually arrive.
 export const GUEST_TABS: readonly NavLink[] = [
 	{
 		label: 'Courses',
@@ -136,11 +139,47 @@ export function hasMoreTab(isSignedIn: boolean): boolean {
 	return isSignedIn
 }
 
+// What `get_sidebar_settings` can hand back, and what each shape means.
+export type SidebarVisibility = Record<string, unknown> | unknown[] | null
+
+// `get_sidebar_settings` returns a bare `[]` — a list, where the settled case
+// is an object — when the caller is a guest and guest access is off. That is an
+// answer, not a silence: nothing in the app is browsable at all, so it must not
+// be read as "no flags matched, keep everything".
+export function isGuestAccessRevoked(visibility?: SidebarVisibility): boolean {
+	return Array.isArray(visibility)
+}
+
+// Otherwise the flags are keyed by the lowercased, underscored label — the same
+// convention MobileLayout's `filterLinksToShow` uses to drop a link from the
+// sheet. A label the settings say nothing about always stays, and so does
+// everything while `visibility` is still unresolved: an empty bar is worse than
+// one showing a destination for a moment.
+export function isLinkEnabled(
+	label: string,
+	visibility?: SidebarVisibility
+): boolean {
+	if (!visibility || isGuestAccessRevoked(visibility)) return true
+	const key = label.toLowerCase().split(' ').join('_')
+	if (!(key in visibility)) return true
+	return Boolean(parseInt(String((visibility as Record<string, unknown>)[key])))
+}
+
 export function pickPrimaryTabs(
 	sidebarLinks: readonly NavLink[],
-	isSignedIn: boolean
+	isSignedIn: boolean,
+	// Signed-in tabs are matched against `sidebarLinks`, which the caller has
+	// already filtered; only the guest set needs this.
+	visibility?: SidebarVisibility
 ): NavLink[] {
-	if (!isSignedIn) return [...GUEST_TABS]
+	if (!isSignedIn) {
+		// Guest access withdrawn: every in-app destination goes. Only Log in
+		// survives, because it leaves the SPA for Frappe's own /login and is the
+		// one thing such a visitor can still do.
+		if (isGuestAccessRevoked(visibility))
+			return GUEST_TABS.filter((tab) => !tab.to)
+		return GUEST_TABS.filter((tab) => isLinkEnabled(tab.label, visibility))
+	}
 
 	const picked: NavLink[] = []
 	for (const label of PRIMARY_LABELS) {

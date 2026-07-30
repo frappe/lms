@@ -175,7 +175,7 @@ const isInstructor = ref(false)
 const isSignedIn = Boolean(user)
 const showMoreTab = hasMoreTab(isSignedIn)
 const primaryTabs = computed(() =>
-	pickPrimaryTabs(sidebarLinks.value, isSignedIn)
+	pickPrimaryTabs(sidebarLinks.value, isSignedIn, sidebarSettings.data)
 )
 
 const menuSections = computed(() =>

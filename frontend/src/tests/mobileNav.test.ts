@@ -87,6 +87,67 @@ describe('pickPrimaryTabs for a signed-out visitor', () => {
 		)
 	})
 
+	it('hides a destination the admin has switched off', () => {
+		// Greptile P1 on #2630: the guest bar was hardcoded, so a visitor could
+		// see and open Batches or Jobs after LMS Settings had turned them off.
+		const visibility = { courses: 1, batches: 0, jobs: 0, statistics: 1 }
+		expect(pickPrimaryTabs([], false, visibility).map((t) => t.label)).toEqual([
+			'Courses',
+			'Statistics',
+			'Log in',
+		])
+	})
+
+	it('keeps every tab while the settings are still unresolved', () => {
+		// An empty bar is worse than one showing a destination for a moment, so
+		// nothing is hidden until the call actually answers.
+		for (const unresolved of [undefined, null]) {
+			expect(
+				pickPrimaryTabs([], false, unresolved).map((t) => t.label)
+			).toEqual(guestLabels)
+		}
+	})
+
+	it('keeps a tab the settings say nothing about', () => {
+		// Log in has no flag either way, and an object with no keys is still a
+		// settled answer about the seven items it does not mention.
+		expect(pickPrimaryTabs([], false, {}).map((t) => t.label)).toEqual(
+			guestLabels
+		)
+		expect(
+			pickPrimaryTabs([], false, { courses: 0 }).map((t) => t.label)
+		).toContain('Log in')
+	})
+
+	it('leaves only Log in when guest access is switched off', () => {
+		// `get_sidebar_settings` returns a bare `[]` — a list, not an object —
+		// to a guest when allow_guest_access is off. Read as "no flags matched"
+		// that kept every destination on the bar for a visitor who may not open
+		// a single one of them.
+		expect(pickPrimaryTabs([], false, []).map((t) => t.label)).toEqual([
+			'Log in',
+		])
+	})
+
+	it('does not confuse an empty object with an empty array', () => {
+		// The two shapes mean opposite things: `{}` is a settled answer that
+		// mentions nothing, `[]` is guest access withdrawn.
+		expect(pickPrimaryTabs([], false, {})).not.toEqual(
+			pickPrimaryTabs([], false, [])
+		)
+	})
+
+	it('reads the flag however the endpoint spells it', () => {
+		// `lms_settings.get(item)` hands back an int, but the resource has been
+		// seen carrying strings; both mean the same thing.
+		expect(
+			pickPrimaryTabs([], false, { jobs: '0' }).map((t) => t.label)
+		).not.toContain('Jobs')
+		expect(
+			pickPrimaryTabs([], false, { jobs: '1' }).map((t) => t.label)
+		).toContain('Jobs')
+	})
+
 	it('gives every tab an icon, and a route unless it leaves the SPA', () => {
 		const tabs = pickPrimaryTabs([], false)
 		expect(tabs.every((t) => t.icon)).toBe(true)
