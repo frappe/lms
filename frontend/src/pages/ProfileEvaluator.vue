@@ -1,8 +1,15 @@
 <template>
 	<div class="mt-7 mb-20">
-		<h2 class="mb-4 text-md font-semibold text-ink-gray-9">
-			{{ __('My availability') }}
-		</h2>
+		<div class="mb-4">
+			<h2 class="text-md font-semibold text-ink-gray-9">
+				{{ __('My availability') }}
+			</h2>
+			<!-- These slots are stored as bare wall-clock times and read as system
+			     time everywhere downstream, so the editor has to name the clock. -->
+			<p v-if="evaluator.data?.timezone" class="text-sm text-ink-gray-6">
+				{{ __('Times are in {0}').format(evaluator.data.timezone) }}
+			</p>
+		</div>
 
 		<div
 			v-if="readOnlyMode"

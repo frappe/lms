@@ -24,6 +24,7 @@ from frappe.utils import (
 	flt,
 	format_date,
 	get_datetime,
+	get_system_timezone,
 	get_time,
 	getdate,
 	now,
@@ -40,6 +41,7 @@ from lms.lms.utils import (
 	LMS_ROLES,
 	can_modify_batch,
 	can_modify_course,
+	format_timezone,
 	get_batch_details,
 	get_course_details,
 	get_editorjs_blocks,
@@ -445,6 +447,9 @@ def get_evaluator_details(evaluator: str):
 		"slots": doc.as_dict(),
 		"calendar": calendar.name if calendar else None,
 		"is_authorized": calendar.authorization_code if calendar else None,
+		# Evaluator Schedule holds bare wall-clock times and the whole booking
+		# pipeline reads them as system time, so the editor has to say so.
+		"timezone": format_timezone(get_system_timezone()),
 	}
 
 
@@ -2463,6 +2468,7 @@ def get_admin_evals():
 			"name",
 			"date",
 			"start_time",
+			"timezone",
 			"course",
 			"evaluator",
 			"google_meet_link",
