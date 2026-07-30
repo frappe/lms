@@ -5,6 +5,7 @@ import UploadPlugin from '@/components/UploadPlugin.vue'
 import { h, createApp } from 'vue'
 import { Upload as UploadIcon } from 'lucide-vue-next'
 import { createDialog } from '@/utils/dialogs'
+import { usesWebkitPdfViewer } from '@/utils/pdfViewer'
 import translationPlugin from '../translation'
 
 export class Upload {
@@ -67,9 +68,18 @@ export class Upload {
 			app.mount(this.wrapper)
 			return
 		} else if (file.file_type == 'PDF') {
-			// iOS Safari (all WebKit browsers) refuses to scroll a PDF in an
-			// <iframe>, so render it inline via pdf.js. mount()/unmount() is tracked
-			// so destroy() can tear the pdf.js worker + render tasks down.
+			// WebKit refuses to scroll a PDF in an <iframe>, so it gets the inline
+			// pdf.js viewer. mount()/unmount() is tracked so destroy() can tear the
+			// pdf.js worker + render tasks down. Everywhere else keeps the native
+			// plugin. See utils/pdfViewer.
+			if (!usesWebkitPdfViewer()) {
+				this.wrapper.innerHTML = `<iframe src="${
+					window.location.origin
+				}${encodeURI(
+					file.file_url
+				)}" width='100%' height='700px' class="mb-4" type="application/pdf"></iframe>`
+				return
+			}
 			this.app = createApp(PdfBlock, {
 				file: file.file_url,
 			})

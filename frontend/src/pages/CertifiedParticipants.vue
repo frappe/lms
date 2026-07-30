@@ -1,9 +1,17 @@
 <template>
-	<LayoutHeader>
-		<template #left-header>
-			<Breadcrumbs :items="breadcrumbs" />
-		</template>
-		<template #right-header>
+	<ListPage
+		:breadcrumbs="breadcrumbs"
+		:rows="rows"
+		:total-count="memberCount"
+		:loading="participants.list.loading"
+		:has-next-page="participants.hasNextPage"
+		row-key="key"
+		v-model:page-length="pageLength"
+		empty-name="Certified Members"
+		empty-icon="lucide-badge-check"
+		@load-more="participants.next()"
+	>
+		<template #actions>
 			<router-link :to="{ name: 'Courses', query: { certification: true } }">
 				<Button>
 					<template #prefix>
@@ -13,158 +21,108 @@
 				</Button>
 			</router-link>
 		</template>
-	</LayoutHeader>
-	<div class="mx-auto flex min-h-0 w-full flex-1 flex-col">
-		<div class="mb-5 flex flex-col justify-between px-5 pt-5 md:flex-row">
-			<h1 class="mb-4 text-lg-semibold text-ink-gray-9 md:mb-0">
-				{{ memberCount }} {{ __('Certified Members') }}
-			</h1>
-			<div
-				class="flex flex-col space-y-4 md:flex-row md:items-center md:gap-x-4 md:space-y-0"
+
+		<template #title>
+			{{ memberCount }} {{ __('Certified Members') }}
+		</template>
+
+		<template #filters>
+			<FormControl
+				v-model="nameFilter"
+				:placeholder="__('Search')"
+				:aria-label="__('Search')"
+				type="text"
+				class="w-full sm:min-w-40 lg:w-32 lg:min-w-0 xl:w-40"
+				@input="updateParticipants()"
+			>
+				<template #prefix>
+					<span class="lucide-search size-4 text-ink-gray-5" />
+				</template>
+			</FormControl>
+			<ClearableCombobox
+				v-if="categories.data?.length"
+				v-model="currentCategory"
+				:options="categories.data.filter((c) => c.value)"
+				:placeholder="__('Category')"
+				class="w-full sm:w-auto"
+				@update:modelValue="updateParticipants()"
+			/>
+		</template>
+
+		<template #toggles>
+			<ToggleFilter
+				:modelValue="openToWork"
+				:label="__('Open to Work')"
+				theme="green"
+				@update:modelValue="setOpenToWork"
+			/>
+			<ToggleFilter
+				:modelValue="hiring"
+				:label="__('Hiring')"
+				theme="blue"
+				@update:modelValue="setHiring"
+			/>
+		</template>
+
+		<template #card="{ row }">
+			<component
+				:is="row.username ? 'router-link' : 'div'"
+				:to="profileRoute(row.username, 'ProfileAbout')"
+				class="flex flex-col rounded-lg border p-3 text-ink-gray-9"
+				:class="
+					row.username ? 'cursor-pointer hover:border-outline-gray-3' : ''
+				"
 			>
 				<div class="flex items-center gap-x-4">
-					<FormControl
-						v-model="nameFilter"
-						:placeholder="__('Search')"
-						:aria-label="__('Search')"
-						type="text"
-						class="min-w-40 lg:w-32 lg:min-w-0 xl:w-40"
-						@input="updateParticipants()"
-					>
-						<template #prefix>
-							<span class="lucide-search size-4 text-ink-gray-5" />
-						</template>
-					</FormControl>
-					<ClearableCombobox
-						v-if="categories.data?.length"
-						v-model="currentCategory"
-						:options="categories.data.filter((c) => c.value)"
-						:placeholder="__('Category')"
-						@update:modelValue="updateParticipants()"
-					/>
-				</div>
-				<div class="flex items-center gap-x-4">
-					<Checkbox
-						v-model="openToWork"
-						:label="__('Open to Work')"
-						@change="updateParticipants()"
-					/>
-					<Checkbox
-						v-model="hiring"
-						:label="__('Hiring')"
-						@change="updateParticipants()"
-					/>
-				</div>
-			</div>
-		</div>
-		<SkeletonLoader
-			v-if="participants.list.loading && !participants.data"
-			variant="cards"
-			:count="8"
-			class="flex-1 px-5 pb-5"
-		/>
-		<div
-			v-else-if="participants.data?.length"
-			class="flex-1 overflow-y-auto px-5 pb-5"
-		>
-			<div class="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-4">
-				<component
-					:is="participant.username ? 'router-link' : 'div'"
-					v-for="(participant, index) in participants.data"
-					:key="participant.username || index"
-					:to="profileRoute(participant.username, 'ProfileAbout')"
-					class="flex flex-col rounded-lg border p-3 text-ink-gray-9"
-					:class="
-						participant.username
-							? 'cursor-pointer hover:border-outline-gray-3'
-							: ''
-					"
-				>
-					<div class="flex items-center gap-x-4">
-						<UserAvatar :user="participant" size="2xl" />
-						<div class="flex flex-col">
-							<div class="line-clamp-1 font-semibold">
-								{{ participant.full_name }}
-							</div>
-							<div class="mb-4 line-clamp-1 text-sm leading-5">
-								{{
-									participant.headline ||
-									'Joined ' + dayjs(participant.creation).fromNow()
-								}}
-							</div>
+					<UserAvatar :user="row" size="2xl" />
+					<div class="flex flex-col">
+						<div class="line-clamp-1 font-semibold">
+							{{ row.full_name }}
+						</div>
+						<div class="mb-4 line-clamp-1 text-sm leading-5">
+							{{ row.headline || 'Joined ' + dayjs(row.creation).fromNow() }}
 						</div>
 					</div>
-					<div class="mt-auto space-y-2 text-ink-gray-7">
-						<div class="flex items-center gap-x-1">
-							<span class="lucide-graduation-cap me-1 h-4 w-4" />
-							<span>
-								{{ participant.certificate_count }}
-								{{
-									participant.certificate_count > 1
-										? __('certificates')
-										: __('certificate')
-								}}
-							</span>
-						</div>
-						<div class="flex items-center gap-x-1">
-							<span class="lucide-calendar me-1 h-4 w-4" />
-							<span>{{
-								dayjs(participant.issue_date).format('DD MMM YYYY')
-							}}</span>
-						</div>
+				</div>
+				<div class="mt-auto space-y-2 text-ink-gray-7">
+					<div>
+						<Badge size="lg">
+							<template #prefix>
+								<span class="lucide-graduation-cap size-3" />
+							</template>
+							{{ row.certificate_count }}
+							{{
+								row.certificate_count > 1
+									? __('certificates')
+									: __('certificate')
+							}}
+						</Badge>
 					</div>
-				</component>
-			</div>
-		</div>
-		<div v-else class="flex-1">
-			<EmptyStateLayout name="Certified Members" icon="lucide-badge-check" />
-		</div>
-		<ListFooter
-			v-model="pageLength"
-			class="border-t px-3 py-2 sm:px-5"
-			:options="{
-				rowCount: participants.data?.length,
-				totalCount: memberCount,
-				pageLengthOptions: [40, 80, 160],
-			}"
-		>
-			<template #right>
-				<div class="flex items-center">
-					<Button
-						v-if="participants.hasNextPage"
-						:label="__('Load More')"
-						@click="participants.next()"
-					/>
-					<div v-if="participants.hasNextPage" class="mx-3 h-[80%] border-l" />
-					<div class="flex items-center gap-1 text-base text-ink-gray-5">
-						<div>{{ participants.data?.length || 0 }}</div>
-						<div>{{ __('of') }}</div>
-						<div>{{ memberCount || 0 }}</div>
+					<div class="flex items-center gap-x-1">
+						<span class="lucide-calendar me-1 h-4 w-4" />
+						<span>{{ dayjs(row.issue_date).format('DD MMM YYYY') }}</span>
 					</div>
 				</div>
-			</template>
-		</ListFooter>
-	</div>
+			</component>
+		</template>
+	</ListPage>
 </template>
 <script setup>
 import {
-	Breadcrumbs,
+	Badge,
 	Button,
 	call,
 	createListResource,
 	FormControl,
-	ListFooter,
 	usePageMeta,
-	Checkbox,
 } from 'frappe-ui'
 import ClearableCombobox from '@/components/Controls/ClearableCombobox.vue'
+import ToggleFilter from '@/components/Controls/ToggleFilter.vue'
 import { computed, inject, onMounted, ref } from 'vue'
 import { sessionStore } from '../stores/session'
 import { useRouter } from 'vue-router'
-import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
-import SkeletonLoader from '@/components/SkeletonLoader.vue'
 import UserAvatar from '@/components/UserAvatar.vue'
-import LayoutHeader from '@/components/Layouts/LayoutHeader.vue'
+import ListPage from '@/components/Layouts/ListPage.vue'
 import { profileRoute } from '@/utils/routes'
 
 const filters = ref({})
@@ -191,14 +149,27 @@ const participants = createListResource({
 	doctype: 'LMS Certificate',
 	url: 'lms.lms.api.get_certified_participants',
 	start: 0,
-	pageLength: 40,
+	pageLength: 24,
 	cache: ['certified_participants'],
 })
+
+// get_certified_participants pops `member`, so no row carries a `name` and
+// ListPage's default row key would be "undefined" for every card. `username` is
+// unique on User, but Frappe leaves it blank when it collides, so fall back to
+// the position to keep the keys distinct.
+const rows = computed(() =>
+	(participants.data || []).map((participant, index) => ({
+		...participant,
+		key: participant.username ? `u:${participant.username}` : `i:${index}`,
+	}))
+)
 
 const pageLength = computed({
 	get: () => participants.pageLength,
 	set: (value) => {
-		participants.update({ pageLength: value })
+		// reload() keeps the already-loaded row count when start > 0, so the new
+		// page size would be ignored after a Load More unless paging resets too.
+		participants.update({ pageLength: value, start: 0 })
 		participants.reload()
 	},
 })
@@ -209,6 +180,16 @@ const getMemberCount = () => {
 	}).then((data) => {
 		memberCount.value = data
 	})
+}
+
+const setOpenToWork = (value) => {
+	openToWork.value = value
+	updateParticipants()
+}
+
+const setHiring = (value) => {
+	hiring.value = value
+	updateParticipants()
 }
 
 const categories = createListResource({
@@ -284,7 +265,9 @@ const setFiltersFromQuery = () => {
 	let queries = new URLSearchParams(location.search)
 	nameFilter.value = queries.get('name') || ''
 	currentCategory.value = queries.get('category') || ''
-	openToWork.value = queries.get('open-to-opportunities') === 'true'
+	// Read the key setQueryParams writes; `open-to-opportunities` was never
+	// written, so the filter could not survive a reload.
+	openToWork.value = queries.get('open-to-work') === 'true'
 	hiring.value = queries.get('hiring') === 'true'
 }
 
@@ -302,13 +285,3 @@ usePageMeta(() => {
 	}
 })
 </script>
-<style>
-.headline {
-	display: -webkit-box;
-	-webkit-line-clamp: 1;
-	-webkit-box-orient: vertical;
-	text-overflow: ellipsis;
-	width: 100%;
-	overflow: hidden;
-}
-</style>

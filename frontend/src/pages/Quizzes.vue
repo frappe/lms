@@ -1,9 +1,20 @@
 <template>
-	<LayoutHeader>
-		<template #left-header>
-			<Breadcrumbs :items="breadcrumbs" />
-		</template>
-		<template #right-header>
+	<ListPage
+		:breadcrumbs="breadcrumbs"
+		:title="__('{0} Quizzes').format(totalQuizzes.data || 0)"
+		layout="list"
+		:columns="quizColumns"
+		:rows="quizzes.data || []"
+		:list-options="listOptions"
+		:total-count="totalQuizzes.data ?? 0"
+		:loading="quizzes.list.loading"
+		:has-next-page="quizzes.hasNextPage"
+		v-model:page-length="pageLength"
+		empty-name="Quizzes"
+		empty-icon="lucide-circle-help"
+		@load-more="quizzes.next()"
+	>
+		<template #actions>
 			<Button v-if="!readOnlyMode" variant="solid" @click="createQuiz">
 				<template #prefix>
 					<span class="lucide-plus size-4" />
@@ -11,152 +22,59 @@
 				{{ __('Create') }}
 			</Button>
 		</template>
-	</LayoutHeader>
 
-	<div class="flex min-h-0 flex-1 flex-col pt-5">
-		<div
-			class="mx-5 mb-5 flex flex-col justify-between gap-y-4 sm:flex-row sm:items-center"
-		>
-			<h1 class="text-lg-semibold text-ink-gray-9">
-				{{ __('{0} Quizzes').format(totalQuizzes.data || 0) }}
-			</h1>
+		<template #filters>
 			<FormControl
 				v-model="search"
 				type="text"
-				placeholder="Search"
+				:placeholder="__('Search')"
 				:aria-label="__('Search')"
 			>
 				<template #prefix>
 					<span class="lucide-search size-4 text-ink-gray-5" />
 				</template>
 			</FormControl>
-		</div>
-		<div
-			v-if="quizzes.loading && !quizzes.data"
-			class="flex flex-1 items-center justify-center px-5"
-		>
-			<LoadingIndicator class="size-5 text-ink-gray-5" />
-		</div>
-		<ListView
-			v-else-if="quizzes.data?.length"
-			:columns="quizColumns"
-			:rows="quizzes.data"
-			row-key="name"
-			:options="{ showTooltip: false, selectable: true }"
-			class="flex-1 overflow-y-auto px-5"
-		>
-			<ListHeader class="mb-2 grid items-center rounded bg-surface-gray-2 p-2">
-				<ListHeaderItem
-					:item="item"
-					v-for="item in quizColumns"
-					:key="item.key"
-				>
-					<template #prefix="{ item }">
-						<span :class="[item.icon, 'h-4 w-4']" aria-hidden="true" />
-					</template>
-				</ListHeaderItem>
-			</ListHeader>
-			<ListRows>
-				<router-link
-					v-for="row in quizzes.data"
-					:key="row.name"
-					:to="{
-						name: 'QuizForm',
-						params: {
-							quizID: row.name,
-						},
-					}"
-				>
-					<ListRow :row="row" class="hover:bg-surface-gray-2">
-						<template #default="{ column, item }">
-							<ListRowItem :item="row[column.key]" :align="column.align">
-								<div v-if="column.key == 'show_answers'">
-									<Checkbox v-model="row[column.key]" :disabled="true" />
-								</div>
-								<div
-									v-else-if="column.key == 'modified'"
-									class="text-sm text-ink-gray-5"
-								>
-									{{ row[column.key] }}
-								</div>
-								<div v-else>
-									{{ row[column.key] }}
-								</div>
-							</ListRowItem>
-						</template>
-					</ListRow>
-				</router-link>
-			</ListRows>
-			<ListSelectBanner class="bottom-50">
-				<template #actions="{ unselectAll, selections }">
-					<div class="flex gap-2">
-						<Button
-							variant="ghost"
-							:label="__('Delete')"
-							@click="deleteQuiz(selections, unselectAll)"
-						>
-							<span class="lucide-trash-2 size-4" />
-						</Button>
-					</div>
-				</template>
-			</ListSelectBanner>
-		</ListView>
-		<div v-else class="flex-1">
-			<EmptyStateLayout name="Quizzes" icon="lucide-circle-help" />
-		</div>
-		<ListFooter
-			v-model="pageLength"
-			class="border-t px-3 py-2 sm:px-5"
-			:options="{
-				rowCount: quizzes.data?.length,
-				totalCount: totalQuizzes.data,
-			}"
-		>
-			<template #right>
-				<div class="flex items-center">
-					<Button
-						v-if="quizzes.hasNextPage"
-						:label="__('Load More')"
-						@click="quizzes.next()"
-					/>
-					<div v-if="quizzes.hasNextPage" class="mx-3 h-[80%] border-l" />
-					<div class="flex items-center gap-1 text-base text-ink-gray-5">
-						<div>{{ quizzes.data?.length || 0 }}</div>
-						<div>{{ __('of') }}</div>
-						<div>{{ totalQuizzes.data || 0 }}</div>
-					</div>
-				</div>
-			</template>
-		</ListFooter>
-	</div>
+		</template>
+
+		<template #cell="{ column, row, value }">
+			<Checkbox
+				v-if="column.key == 'show_answers'"
+				:modelValue="Boolean(value)"
+				:disabled="true"
+			/>
+			<div v-else-if="column.key == 'modified'" class="text-sm text-ink-gray-5">
+				{{ value }}
+			</div>
+			<div v-else>{{ value }}</div>
+		</template>
+
+		<template #selection-actions="{ unselectAll, selections }">
+			<Button
+				variant="ghost"
+				:label="__('Delete')"
+				@click="deleteQuiz(selections, unselectAll)"
+			>
+				<span class="lucide-trash-2 size-4" />
+			</Button>
+		</template>
+	</ListPage>
 </template>
 <script setup>
 import {
-	Breadcrumbs,
 	Button,
+	Checkbox,
 	createListResource,
 	createResource,
 	FormControl,
-	ListView,
-	ListRows,
-	ListRow,
-	ListRowItem,
-	ListHeader,
-	ListHeaderItem,
-	ListFooter,
-	ListSelectBanner,
-	LoadingIndicator,
 	toast,
 	usePageMeta,
-	Checkbox,
 } from 'frappe-ui'
+import ListPage from '@/components/Layouts/ListPage.vue'
 import { useRouter } from 'vue-router'
 import { computed, inject, onMounted, ref, watch } from 'vue'
 
 import { sessionStore } from '@/stores/session'
 import { useTelemetry } from 'frappe-ui/frappe'
-import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
-import LayoutHeader from '@/components/Layouts/LayoutHeader.vue'
 
 const { brand } = sessionStore()
 const { capture } = useTelemetry()
@@ -204,6 +122,7 @@ const quizzes = createListResource({
 	auto: true,
 	cache: ['quizzes', user.data?.name],
 	orderBy: 'modified desc',
+	pageLength: 24,
 	transform(data) {
 		return data.map((quiz) => {
 			return {
@@ -217,10 +136,21 @@ const quizzes = createListResource({
 const pageLength = computed({
 	get: () => quizzes.pageLength,
 	set: (value) => {
-		quizzes.update({ pageLength: value })
+		// reload() ignores a new pageLength while start > 0: it refetches the
+		// already loaded rows instead, so paging must be reset for it to apply.
+		quizzes.update({ pageLength: value, start: 0 })
 		quizzes.reload()
 	},
 })
+
+const listOptions = computed(() => ({
+	showTooltip: false,
+	selectable: true,
+	getRowRoute: (row) => ({
+		name: 'QuizForm',
+		params: { quizID: row.name },
+	}),
+}))
 
 const totalQuizzes = createResource({
 	url: 'frappe.client.get_count',

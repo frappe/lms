@@ -1,12 +1,12 @@
 /**
- * Tests for Student View — the lesson-editor preview that shows a course as a
- * learner sees it.
+ * Tests for Student View — `?studentView=1` on the lesson route, which shows a
+ * course as a learner sees it.
  *
- * The preview swapped in the real Lesson.vue but every component under it kept
- * injecting the real `$user`, whose `is_moderator` / `is_instructor` /
+ * The lesson page renders the same components for everyone, and each of them
+ * injects the real `$user`, whose `is_moderator` / `is_instructor` /
  * `is_evaluator` flags stay true. The visible consequence was Assignment.vue's
- * Grading panel: a moderator who submitted the assignment inside the preview
- * was immediately offered the Grade select and could grade themselves.
+ * Grading panel: a moderator who submitted the assignment in student view was
+ * immediately offered the Grade select and could grade themselves.
  */
 import { describe, expect, it, vi, beforeEach } from 'vitest'
 import { defineComponent, h, inject, ref } from 'vue'
@@ -143,5 +143,108 @@ describe('provideStudentView', () => {
 		})
 
 		expect(wrapper.get('[data-testid="student-view"]').text()).toBe('false')
+	})
+})
+
+/**
+ * Lesson.vue now owns the shadow itself: it injects the app-wide `$user`,
+ * calls provideStudentView on that, and binds the returned `mockedUser`. This
+ * models that arrangement, including the "Editor view" gate reading the real
+ * user through its own inject.
+ */
+const LessonStandIn = defineComponent({
+	props: { studentViewQuery: { type: String, default: undefined } },
+	setup(props) {
+		const realUser = inject<{ data?: Record<string, unknown> }>('$user')!
+		const { isStudentView, mockedUser } = provideStudentView(
+			realUser,
+			() => props.studentViewQuery === '1'
+		)
+		const user = mockedUser
+		// The real user, not the shadow — this is what gates "Editor view".
+		const ownInjected = inject<{ data?: Record<string, unknown> }>('$user')
+		const selfInjectedFlag = useStudentView()
+		return () =>
+			h('div', [
+				h(
+					'span',
+					{ 'data-testid': 'own-can-edit' },
+					String(Boolean(ownInjected?.data?.is_moderator))
+				),
+				h(
+					'span',
+					{ 'data-testid': 'own-real-user' },
+					String(Boolean(realUser.data?.is_moderator))
+				),
+				h(
+					'span',
+					{ 'data-testid': 'own-shadowed-user' },
+					String(Boolean(user.data?.is_moderator))
+				),
+				h(
+					'span',
+					{ 'data-testid': 'own-student-view' },
+					String(isStudentView.value)
+				),
+				h(
+					'span',
+					{ 'data-testid': 'own-self-injected' },
+					String(selfInjectedFlag.value)
+				),
+				h(GradingProbe),
+			])
+	},
+})
+
+function mountLesson(studentViewQuery?: string) {
+	return mount(LessonStandIn, {
+		props: { studentViewQuery },
+		global: { provide: { $user: { data: { ...MODERATOR } } } },
+	})
+}
+
+describe('a component that provides Student View to itself', () => {
+	it('shadows $user for its children when the query flag is on', () => {
+		const wrapper = mountLesson('1')
+
+		expect(wrapper.get('[data-testid="can-grade"]').text()).toBe('false')
+		expect(wrapper.get('[data-testid="student-view"]').text()).toBe('true')
+	})
+
+	it('leaves its children on the real $user when the flag is off', () => {
+		const wrapper = mountLesson(undefined)
+
+		expect(wrapper.get('[data-testid="can-grade"]').text()).toBe('true')
+		expect(wrapper.get('[data-testid="student-view"]').text()).toBe('false')
+	})
+
+	it('still injects the real $user itself, so the way back stays visible', () => {
+		const wrapper = mountLesson('1')
+
+		expect(wrapper.get('[data-testid="own-can-edit"]').text()).toBe('true')
+		expect(wrapper.get('[data-testid="own-real-user"]').text()).toBe('true')
+		expect(wrapper.get('[data-testid="own-shadowed-user"]').text()).toBe(
+			'false'
+		)
+	})
+
+	it('cannot read its own flag back through useStudentView', () => {
+		const wrapper = mountLesson('1')
+
+		expect(wrapper.get('[data-testid="own-student-view"]').text()).toBe('true')
+		expect(wrapper.get('[data-testid="own-self-injected"]').text()).toBe(
+			'false'
+		)
+	})
+
+	it('flips the shadow when the query changes, without a remount', async () => {
+		const wrapper = mountLesson(undefined)
+		expect(wrapper.get('[data-testid="can-grade"]').text()).toBe('true')
+
+		await wrapper.setProps({ studentViewQuery: '1' })
+		expect(wrapper.get('[data-testid="can-grade"]').text()).toBe('false')
+
+		await wrapper.setProps({ studentViewQuery: undefined })
+		expect(wrapper.get('[data-testid="can-grade"]').text()).toBe('true')
 	})
 })
