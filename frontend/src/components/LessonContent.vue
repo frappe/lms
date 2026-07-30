@@ -10,7 +10,14 @@
 			allowfullscreen
 		></iframe>
 	</div>
-	<div v-for="(block, index) in content?.split('\n\n')" :key="index">
+	<!-- Keyed on the block text, not just the index: position N of the outgoing
+	     lesson and position N of the incoming one share an index, so Vue reuses
+	     the instance and hands a <PdfBlock> a new `file` — which it only reads
+	     once, at setup. Including the text forces a fresh instance. -->
+	<div
+		v-for="(block, index) in content?.split('\n\n')"
+		:key="`${index}:${block}`"
+	>
 		<div v-if="block.includes('{{ YouTubeVideo')">
 			<iframe
 				class="youtube-video"
@@ -36,7 +43,16 @@
 			</video>
 		</div>
 		<div v-else-if="block.includes('{{ PDF')">
-			<PdfBlock :file="getId(block)" />
+			<PdfBlock v-if="inlinePdf" :file="getId(block)" />
+			<iframe
+				v-else
+				:src="getId(block)"
+				:title="__('PDF document')"
+				width="100%"
+				height="700px"
+				class="mb-4"
+				type="application/pdf"
+			></iframe>
 		</div>
 		<div v-else-if="block.includes('{{ Audio')">
 			<audio width="100%" controls controlsList="nodownload">
@@ -67,8 +83,14 @@ import MarkdownIt from 'markdown-it'
 import DOMPurify from 'dompurify'
 import { useScreenSize } from '@/utils/composables'
 import { getMacroArg } from '@/utils/lessonMacros'
+<<<<<<< HEAD
+=======
+import { sanitizeRichHTML } from '@/utils/sanitizeRichHTML'
+import { usesWebkitPdfViewer } from '@/utils/pdfViewer'
+>>>>>>> 4ba15215 (fix(lessons): serve the inline PDF viewer only on WebKit)
 
 const screenSize = useScreenSize()
+const inlinePdf = usesWebkitPdfViewer()
 
 const markdown = new MarkdownIt({
 	html: true,
