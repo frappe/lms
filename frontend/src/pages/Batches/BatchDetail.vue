@@ -12,6 +12,18 @@
 			<Badge v-if="tab?.key === 'settings' && instance?.isDirty" theme="orange">
 				{{ __('Not Saved') }}
 			</Badge>
+			<!-- Publishing is the one action on this page you reach for often
+			     enough that burying it costs more than the header width it
+			     takes. It matches CourseDetail, which kept its own; the menu
+			     entry below is what a phone gets instead. -->
+			<Button
+				v-if="tab?.key === 'settings' && isAdmin && !isMobile"
+				:variant="batch.data?.published ? 'outline' : 'solid'"
+				:theme="batch.data?.published ? 'red' : 'gray'"
+				@click="togglePublishBatch"
+			>
+				{{ batch.data?.published ? __('Unpublish') : __('Publish') }}
+			</Button>
 			<Dropdown
 				v-if="isAdmin && batchMenu(tab).length"
 				:options="batchMenu(tab)"
@@ -100,7 +112,7 @@
 	/>
 </template>
 <script setup>
-import { computed, inject, markRaw, ref, useTemplateRef } from 'vue'
+import { computed, inject, markRaw, ref, useTemplateRef, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import {
 	Badge,
@@ -112,6 +124,7 @@ import {
 	usePageMeta,
 } from 'frappe-ui'
 import { sessionStore } from '@/stores/session'
+import { useScreenSize } from '@/utils/composables'
 import AdminBatchDashboard from '@/pages/Batches/components/AdminBatchDashboard.vue'
 import StudentBatchDashboard from '@/pages/Batches/components/BatchDashboard.vue'
 import BatchOverview from '@/pages/Batches/BatchOverview.vue'
@@ -128,6 +141,7 @@ import TabbedDetailPage from '@/components/Layouts/TabbedDetailPage.vue'
 
 const router = useRouter()
 const { brand } = sessionStore()
+const { isMobile } = useScreenSize()
 const user = inject('$user')
 const page = useTemplateRef('page')
 const openCertificateDialog = ref(false)
@@ -143,10 +157,9 @@ const props = defineProps({
 
 const batch = createResource({
 	url: 'lms.lms.utils.get_batch_details',
-	cache: ['batch', props.batchName],
-	params: {
+	makeParams: () => ({
 		batch: props.batchName,
-	},
+	}),
 	auto: true,
 	onSuccess: (data) => {
 		if (!data) {
@@ -154,6 +167,17 @@ const batch = createResource({
 		}
 	},
 })
+
+// The router reuses this component when you go straight from one batch to
+// another — the command palette does exactly that — so setup does not run a
+// second time. Without this the page would keep showing the batch you
+// arrived on. The `cache` key is gone for the same reason: it was read once at
+// setup, so a reload would have written the new batch into the old one's
+// entry.
+watch(
+	() => props.batchName,
+	() => batch.reload()
+)
 
 const isAdmin = computed(() => {
 	return user.data?.is_moderator || user.data?.is_evaluator
@@ -261,11 +285,15 @@ const batchMenu = (tab) => {
 		})
 	}
 	if (tab?.key !== 'settings') return options
-	options.push({
-		label: batch.data?.published ? __('Unpublish batch') : __('Publish batch'),
-		icon: batch.data?.published ? 'lucide-globe-lock' : 'lucide-globe',
-		onClick: togglePublishBatch,
-	})
+	if (isMobile.value) {
+		options.push({
+			label: batch.data?.published
+				? __('Unpublish batch')
+				: __('Publish batch'),
+			icon: batch.data?.published ? 'lucide-globe-lock' : 'lucide-globe',
+			onClick: togglePublishBatch,
+		})
+	}
 	options.push({
 		label: __('Delete batch'),
 		icon: 'lucide-trash-2',

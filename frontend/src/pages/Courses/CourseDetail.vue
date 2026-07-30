@@ -361,9 +361,11 @@ const props = defineProps<{
 	courseName: string
 }>()
 
+// No `cache` key: it would be read once at setup, so the reload below — this
+// component is reused when you jump straight from one course to another — would
+// file the new course's data under the course you arrived on.
 const course = createResource({
 	url: 'lms.lms.utils.get_course_details',
-	cache: ['course', props.courseName],
 	makeParams() {
 		return {
 			course: props.courseName,
