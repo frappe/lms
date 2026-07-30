@@ -1,7 +1,23 @@
 <template>
-	<div class="py-10">
-		<div class="mx-10 space-y-6 px-20">
-			<div class="flex items-center justify-between gap-3">
+	<div class="py-6 sm:py-10">
+		<!-- `mx-10 px-20` left a 390px phone a 150px content well, so the lesson
+		     title wrapped to four lines. It never overflowed, which is why sweeps
+		     passed it. -->
+		<div class="mx-0 space-y-6 px-4 sm:mx-10 sm:px-20">
+			<!-- A full-width settings row costs a phone more than it earns, so the
+			     lesson's settings collapse behind a chip and open in a sheet. The
+			     desk keeps them inline where there is room. -->
+			<button
+				v-if="isMobile"
+				type="button"
+				class="inline-flex h-9 items-center gap-1.5 rounded-full border border-outline-gray-2 px-3.5 text-p-sm-medium text-ink-gray-7 hover:bg-surface-gray-2"
+				@click="showLessonDetails = true"
+			>
+				<span class="lucide-pencil size-3.5" />
+				{{ __('Lesson details') }}
+			</button>
+
+			<div v-else class="flex items-center justify-between gap-3">
 				<div class="flex items-center gap-3">
 					<Switch v-model="lesson.include_in_preview" @change="markDirty" />
 					<div class="flex items-center gap-1.5">
@@ -22,6 +38,30 @@
 					</div>
 				</div>
 			</div>
+
+			<BottomSheet v-model="showLessonDetails" :title="__('Lesson details')">
+				<div class="px-3 pb-2">
+					<div class="flex items-start justify-between gap-4 py-3">
+						<div class="min-w-0">
+							<div class="text-p-base font-medium text-ink-gray-8">
+								{{ __('Include in preview') }}
+							</div>
+							<p class="mt-0.5 text-p-sm text-ink-gray-5">
+								{{
+									__(
+										'When on, anyone can preview this lesson without enrolling. Otherwise it is visible only to enrolled students.'
+									)
+								}}
+							</p>
+						</div>
+						<Switch
+							v-model="lesson.include_in_preview"
+							class="shrink-0"
+							@change="markDirty"
+						/>
+					</div>
+				</div>
+			</BottomSheet>
 
 			<!-- `block`: a textarea is inline-block by default, so it sits on the
 			     parent's line box and carries its descender — 5px of space under
@@ -104,11 +144,16 @@ import {
 import { convertBodyToBlocks as convertToJSON } from '@/utils/lessonMacros'
 import { hasVideoContent } from '@/utils/video'
 import BlockEditor from '@/components/BlockEditor.vue'
+import BottomSheet from '@/components/BottomSheet.vue'
+import { useScreenSize } from '@/utils/composables'
 import { useOnboarding, useTelemetry } from 'frappe-ui/frappe'
 import {
 	useKeyboardShortcuts,
 	saveShortcut,
 } from '@/composables/useKeyboardShortcuts'
+
+const { isMobile } = useScreenSize()
+const showLessonDetails = ref(false)
 
 const editor = ref(null)
 const instructorEditor = ref(null)
