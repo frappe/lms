@@ -48,11 +48,11 @@
 							<span class="lucide-search size-4 text-ink-gray-5" />
 						</template>
 					</FormControl>
-					<ListView
-						v-if="progressList.length"
+					<ResponsiveListView
+						v-if="progressRows.length"
 						:columns="progressColumns"
-						:rows="progressList"
-						rowKey="name"
+						:rows="progressRows"
+						row-key="name"
 						:options="{
 							selectable: false,
 							showTooltip: false,
@@ -67,15 +67,10 @@
 	</Dialog>
 </template>
 <script setup lang="ts">
-import {
-	Dialog,
-	DonutChart,
-	FormControl,
-	ListView,
-	NumberChart,
-} from 'frappe-ui'
-import type { ProgramMember } from '@/types'
+import { Dialog, DonutChart, FormControl, NumberChart } from 'frappe-ui'
+import type { ListRow, ProgramMember } from '@/types'
 import { computed, ref, watch } from 'vue'
+import ResponsiveListView from '@/components/ResponsiveListView.vue'
 
 const show = defineModel<boolean>({ default: false })
 const searchFilter = ref<string | null>(null)
@@ -86,6 +81,10 @@ const props = defineProps<{
 }>()
 
 const progressList = ref<ProgramMember[]>(props.programMembers || [])
+
+const progressRows = computed<ListRow[]>(() =>
+	progressList.value.map((member) => ({ ...member }))
+)
 
 const progressDistribution = computed(() => {
 	const categories = ['0-20%', '20-40%', '40-60%', '60-80%', '80-100%']

@@ -1,118 +1,92 @@
 <template>
-	<div v-if="batch.data" class="">
-		<header
-			class="sticky top-0 z-10 border-b flex items-center justify-between bg-surface-base px-3 py-2.5 sm:px-5"
-		>
-			<div class="flex items-center gap-x-2">
-				<Breadcrumbs :items="breadcrumbs" />
-				<Badge v-if="batch.data?.published" theme="green">
-					{{ __('Published') }}
-				</Badge>
-			</div>
-			<div class="flex items-center gap-x-2">
-				<template v-if="tabIndex == 5 && isAdmin">
-					<Badge v-if="childRef?.isDirty" theme="orange">
-						{{ __('Not Saved') }}
-					</Badge>
-					<Button :label="__('Delete batch')" @click="childRef.deleteBatch()">
-						<template #icon>
-							<span class="lucide-trash-2 w-4 h-4" />
-						</template>
-					</Button>
-					<ShortcutTooltip :label="__('Save')" combo="Mod+S">
-						<Button variant="solid" @click="childRef.submitBatch()">
-							{{ __('Save') }}
-						</Button>
-					</ShortcutTooltip>
-				</template>
-				<Dropdown
-					v-else-if="isAdmin && batchMenu.length"
-					:options="batchMenu"
-					placement="left"
-					side="left"
-				>
-					<template v-slot="{ open }">
-						<Button
-							variant="ghost"
-							:label="__('Batch options')"
-							:aria-expanded="open"
-						>
-							<template #icon>
-								<span class="lucide-ellipsis-vertical w-4 h-4" />
-							</template>
-						</Button>
-					</template>
-				</Dropdown>
-				<Button
-					v-if="tabIndex === 1 && isAdmin"
-					variant="outline"
-					@click="childRef?.openEnrollModal?.()"
-				>
-					<template #prefix>
-						<span class="lucide-plus size-4" />
-					</template>
-					{{ __('Enroll') }}
-				</Button>
-				<Tooltip
-					v-if="currentTabLabel === 'Announcements' && isAdmin && !readOnlyMode"
-					:text="
-						batch.data?.students?.length
-							? ''
-							: __('Add students to the batch to make an announcement')
-					"
-				>
+	<TabbedDetailPage
+		ref="page"
+		:tabs="tabs"
+		:breadcrumbs="breadcrumbs"
+		:published="Boolean(batch.data?.published)"
+		:loading="!batch.data"
+		:doc="batch"
+		doc-prop="batch"
+	>
+		<template #actions="{ tab, instance }">
+			<Badge v-if="tab?.key === 'settings' && instance?.isDirty" theme="orange">
+				{{ __('Not Saved') }}
+			</Badge>
+			<Dropdown
+				v-if="isAdmin && batchMenu(tab).length"
+				:options="batchMenu(tab)"
+				placement="left"
+				side="left"
+			>
+				<template v-slot="{ open }">
 					<Button
-						variant="outline"
-						:disabled="!batch.data?.students?.length"
-						@click="openAnnouncementModal"
+						variant="ghost"
+						:label="__('Batch options')"
+						:aria-expanded="open"
 					>
-						<template #prefix>
-							<span class="lucide-send size-4" />
+						<template #icon>
+							<span class="lucide-ellipsis-vertical w-4 h-4" />
 						</template>
-						{{ __('Make Announcement') }}
 					</Button>
-				</Tooltip>
-				<Button
-					v-if="isAdmin && currentTabLabel === 'Settings'"
-					variant="outline"
-					:theme="batch.data?.published ? 'red' : 'gray'"
-					:loading="publishToggle.loading"
-					@click="togglePublishBatch"
+				</template>
+			</Dropdown>
+			<HeaderButton
+				v-if="tab?.key === 'dashboard' && isAdmin"
+				:label="__('Enroll')"
+				icon="lucide-plus"
+				@click="instance?.openEnrollModal?.()"
+			/>
+			<template v-if="tab?.key === 'announcements' && isAdmin && !readOnlyMode">
+				<Tooltip
+					v-if="!batch.data?.students?.length"
+					:text="__('Add students to the batch to make an announcement')"
 				>
-					{{ batch.data?.published ? __('Unpublish') : __('Publish') }}
-				</Button>
-			</div>
-		</header>
-		<div>
-			<BatchOverview v-if="!isAdmin && !isStudent" :batch="batch" />
-			<div v-else>
-				<Tabs :tabs="tabs" v-model="tabIndex">
-					<template #tab-panel="{ tab }">
-						<div
-							v-if="tab.label == 'Discussions'"
-							class="w-[90%] lg:w-[75%] mx-auto mt-5"
-						>
-							<Discussions
-								doctype="LMS Batch"
-								:docname="batch.data.name"
-								:title="__('Discussions')"
-								:key="batch.data.name"
-								:singleThread="true"
-								:scrollToBottom="false"
-							/>
-						</div>
+					<HeaderButton
+						:label="__('Make Announcement')"
+						icon="lucide-send"
+						disabled
+					/>
+				</Tooltip>
+				<HeaderButton
+					v-else
+					:label="__('Make Announcement')"
+					icon="lucide-send"
+					@click="openAnnouncementModal"
+				/>
+			</template>
+			<ShortcutTooltip
+				v-if="tab?.key === 'settings' && isAdmin"
+				:label="__('Save')"
+				combo="Mod+S"
+			>
+				<HeaderButton
+					:label="__('Save')"
+					icon="lucide-save"
+					variant="solid"
+					@click="instance?.submitBatch()"
+				/>
+			</ShortcutTooltip>
+		</template>
 
-						<component
-							v-else
-							:is="tab.component"
-							:batch="batch"
-							ref="childRef"
-						/>
-					</template>
-				</Tabs>
+		<template #solo>
+			<BatchOverview v-if="batch.data" :batch="batch" />
+			<SkeletonLoader v-else variant="course-page" />
+		</template>
+
+		<template #tab-body-discussions>
+			<div class="w-[90%] lg:w-[75%] mx-auto mt-5">
+				<Discussions
+					doctype="LMS Batch"
+					:docname="batch.data.name"
+					:title="__('Discussions')"
+					:key="batch.data.name"
+					:singleThread="true"
+					:scrollToBottom="false"
+				/>
 			</div>
-		</div>
-	</div>
+		</template>
+	</TabbedDetailPage>
+
 	<BulkCertificates
 		v-if="batch.data"
 		v-model="openCertificateDialog"
@@ -126,24 +100,13 @@
 	/>
 </template>
 <script setup>
-import {
-	ClipboardPen,
-	Laptop,
-	List,
-	Mail,
-	MessageCircle,
-	Settings2,
-	TrendingUp,
-} from 'lucide-vue-next'
-import { computed, inject, markRaw, ref, watch } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
+import { computed, inject, markRaw, ref, useTemplateRef } from 'vue'
+import { useRouter } from 'vue-router'
 import {
 	Badge,
-	Breadcrumbs,
 	Button,
 	createResource,
 	Dropdown,
-	Tabs,
 	Tooltip,
 	toast,
 	usePageMeta,
@@ -158,15 +121,15 @@ import AnnouncementModal from '@/pages/Batches/components/AnnouncementModal.vue'
 import BatchForm from '@/pages/Batches/BatchForm.vue'
 import BulkCertificates from '@/pages/Batches/components/BulkCertificates.vue'
 import Discussions from '@/components/Discussions.vue'
+import HeaderButton from '@/components/HeaderButton.vue'
 import ShortcutTooltip from '@/components/ShortcutTooltip.vue'
+import SkeletonLoader from '@/components/SkeletonLoader.vue'
+import TabbedDetailPage from '@/components/Layouts/TabbedDetailPage.vue'
 
 const router = useRouter()
-const route = useRoute()
 const { brand } = sessionStore()
 const user = inject('$user')
-const childRef = ref(null)
-const tabIndex = ref(0)
-const tabs = ref([])
+const page = useTemplateRef('page')
 const openCertificateDialog = ref(false)
 const showAnnouncementModal = ref(false)
 const readOnlyMode = window.read_only_mode
@@ -176,24 +139,6 @@ const props = defineProps({
 		type: String,
 		required: true,
 	},
-})
-
-const updateTabIndex = () => {
-	const hash = route.hash
-	if (hash) {
-		tabs.value.forEach((tab, index) => {
-			if (tab.label?.toLowerCase() === hash.replace('#', '')) {
-				tabIndex.value = index
-			}
-		})
-	}
-}
-
-watch(tabIndex, () => {
-	const tab = tabs.value[tabIndex.value]
-	if (tab.label != route.hash.replace('#', '')) {
-		router.push({ ...route, hash: `#${tab.label.toLowerCase()}` })
-	}
 })
 
 const batch = createResource({
@@ -210,46 +155,70 @@ const batch = createResource({
 	},
 })
 
-watch(batch, () => {
-	updateTabs()
-	updateTabIndex()
-})
-
-const updateTabs = () => {
-	addToTabs('Overview', markRaw(BatchOverview), List)
-	if (!user.data) return
-	if (isAdmin.value) {
-		addToTabs('Dashboard', markRaw(AdminBatchDashboard), TrendingUp)
-	} else if (isStudent.value) {
-		addToTabs('Dashboard', markRaw(StudentBatchDashboard), ClipboardPen)
-	}
-	addToTabs('Classes', markRaw(LiveClass), Laptop)
-	addToTabs('Announcements', markRaw(Announcements), Mail)
-	addToTabs('Discussions', markRaw(Discussions), MessageCircle)
-	if (isAdmin.value) {
-		addToTabs('Settings', markRaw(BatchForm), Settings2)
-	}
-}
-
-const addToTabs = (label, component, icon) => {
-	if (!tabs.value.some((tab) => tab.label === label)) {
-		tabs.value.push({
-			label,
-			component,
-			icon,
-		})
-	}
-}
-
 const isAdmin = computed(() => {
 	return user.data?.is_moderator || user.data?.is_evaluator
 })
 
 const isStudent = computed(() => {
-	return batch.data?.students?.includes(user.data?.name)
+	return Boolean(batch.data?.students?.includes(user.data?.name))
 })
 
-const currentTabLabel = computed(() => tabs.value[tabIndex.value]?.label)
+const tabs = computed(() => {
+	const enrolled = isAdmin.value || isStudent.value
+	return [
+		{
+			key: 'overview',
+			label: __('Overview'),
+			component: markRaw(BatchOverview),
+			icon: 'lucide-list',
+			when: enrolled,
+			flow: true,
+		},
+		{
+			key: 'dashboard',
+			label: __('Dashboard'),
+			component: markRaw(AdminBatchDashboard),
+			icon: 'lucide-trending-up',
+			when: isAdmin.value,
+		},
+		{
+			key: 'dashboard',
+			label: __('Dashboard'),
+			component: markRaw(StudentBatchDashboard),
+			icon: 'lucide-clipboard-pen',
+			when: !isAdmin.value && isStudent.value,
+		},
+		{
+			key: 'classes',
+			label: __('Classes'),
+			component: markRaw(LiveClass),
+			icon: 'lucide-laptop',
+			when: enrolled,
+		},
+		{
+			key: 'announcements',
+			label: __('Announcements'),
+			component: markRaw(Announcements),
+			icon: 'lucide-mail',
+			when: enrolled,
+		},
+		{
+			key: 'discussions',
+			label: __('Discussions'),
+			component: markRaw(Discussions),
+			icon: 'lucide-message-circle',
+			when: enrolled,
+		},
+		{
+			key: 'settings',
+			label: __('Settings'),
+			component: markRaw(BatchForm),
+			icon: 'lucide-settings-2',
+			when: isAdmin.value,
+			flow: true,
+		},
+	]
+})
 
 const openAnnouncementModal = () => {
 	showAnnouncementModal.value = true
@@ -280,29 +249,40 @@ const togglePublishBatch = () => {
 	publishToggle.submit()
 }
 
-// Announcements moved to a dedicated, tab-scoped header button; the "..." menu
-// only carries batch-wide admin actions now (and hides itself when empty).
-const batchMenu = computed(() => {
-	if (!batch.data?.certification) {
-		return []
-	}
-	return [
-		{
+const batchMenu = (tab) => {
+	const options = []
+	if (batch.data?.certification) {
+		options.push({
 			label: __('Generate Certificates'),
-			onClick() {
+			icon: 'lucide-award',
+			onClick: () => {
 				openCertificateDialog.value = true
 			},
-			condition: () => batch.data?.certification,
-		},
-	]
-})
+		})
+	}
+	if (tab?.key !== 'settings') return options
+	options.push({
+		label: batch.data?.published ? __('Unpublish batch') : __('Publish batch'),
+		icon: batch.data?.published ? 'lucide-globe-lock' : 'lucide-globe',
+		onClick: togglePublishBatch,
+	})
+	options.push({
+		label: __('Delete batch'),
+		icon: 'lucide-trash-2',
+		theme: 'red',
+		onClick: () => page.value?.instanceFor('settings')?.deleteBatch(),
+	})
+	return options
+}
 
 const breadcrumbs = computed(() => {
-	let crumbs = [{ label: __('Batches'), route: { name: 'Batches' } }]
-	crumbs.push({
-		label: batch?.data?.title,
-		route: { name: 'BatchDetail', params: { batchName: batch?.data?.name } },
-	})
+	const crumbs = [{ label: __('Batches'), route: { name: 'Batches' } }]
+	if (batch.data) {
+		crumbs.push({
+			label: batch.data.title,
+			route: { name: 'BatchDetail', params: { batchName: batch.data.name } },
+		})
+	}
 	return crumbs
 })
 
