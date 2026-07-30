@@ -57,7 +57,12 @@
 			<div v-if="batch.data.timezone" class="flex items-center text-ink-gray-7">
 				<span class="lucide-globe h-4 w-4 me-2" />
 				<span>
-					{{ batch.data.timezone }}
+					{{
+						formatTimezone(
+							batch.data.timezone,
+							nextOccurrence(batch.data.start_date, batch.data.end_date)
+						)
+					}}
 				</span>
 			</div>
 
@@ -108,6 +113,7 @@
 import { inject, computed } from 'vue'
 import { Badge, Button, createResource, toast } from 'frappe-ui'
 import { formatNumberIntoCurrency, formatTime } from '@/utils'
+import { formatTimezone, nextOccurrence } from '@/utils/timezone'
 import DateRange from '@/components/Common/DateRange.vue'
 import VideoPreview from '@/components/VideoPreview.vue'
 
