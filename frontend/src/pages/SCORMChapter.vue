@@ -1,9 +1,5 @@
 <template>
-	<header
-		class="sticky top-0 z-10 flex items-center justify-between border-b bg-surface-base px-3 py-2.5 sm:px-5"
-	>
-		<Breadcrumbs class="h-7" :items="breadcrumbs" />
-	</header>
+	<PageHeader :breadcrumbs="breadcrumbs" />
 	<div
 		v-if="
 			readyToRender &&
@@ -37,7 +33,6 @@
 </template>
 <script setup>
 import {
-	Breadcrumbs,
 	Button,
 	call,
 	createDocumentResource,
@@ -46,6 +41,7 @@ import {
 	usePageMeta,
 } from 'frappe-ui'
 import { computed, inject, onBeforeMount, ref } from 'vue'
+import PageHeader from '@/components/Layouts/PageHeader.vue'
 import { useSidebar } from '@/stores/sidebar'
 import { sessionStore } from '../stores/session'
 

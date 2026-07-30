@@ -1,17 +1,7 @@
 <template>
-	<div class="">
-		<header
-			class="sticky top-0 z-10 flex items-center justify-between border-b bg-surface-base px-3 py-2.5 sm:px-5"
-		>
-			<Breadcrumbs
-				class="h-7"
-				:items="[{ label: __('Billing Details'), route: { name: 'Billing' } }]"
-			/>
-		</header>
-		<div
-			v-if="access.data?.access && orderSummary.data"
-			class="pt-5 pb-10 mx-5"
-		>
+	<PageHeader :breadcrumbs="breadcrumbs" />
+	<PageBody :title="__('Billing Details')">
+		<div v-if="access.data?.access && orderSummary.data" class="px-5 pb-10">
 			<div class="flex flex-col lg:flex-row justify-between">
 				<div class="flex flex-col lg:order-last mb-10 lg:mt-10 lg:w-1/4">
 					<div class="h-fit bg-surface-gray-2 rounded-md p-5 space-y-4">
@@ -243,7 +233,7 @@
 				)}`"
 			/>
 		</div>
-	</div>
+	</PageBody>
 </template>
 <script setup>
 import {
@@ -251,12 +241,13 @@ import {
 	Combobox,
 	createResource,
 	FormControl,
-	Breadcrumbs,
 	usePageMeta,
 	toast,
 	call,
 } from 'frappe-ui'
 import { reactive, inject, onMounted, computed, ref, watch } from 'vue'
+import PageHeader from '@/components/Layouts/PageHeader.vue'
+import PageBody from '@/components/Layouts/PageBody.vue'
 import { sessionStore } from '../stores/session'
 import Link from '@/components/Controls/Link.vue'
 import NotPermitted from '@/components/NotPermitted.vue'
@@ -266,6 +257,10 @@ import {
 	INDIAN_STATE_OPTIONS,
 	canonicalIndianState,
 } from '@/utils/indianStates'
+
+const breadcrumbs = [
+	{ label: __('Billing Details'), route: { name: 'Billing' } },
+]
 
 const user = inject('$user')
 const { brand } = sessionStore()
