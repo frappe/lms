@@ -12,7 +12,7 @@
 			@update:query="onQuery"
 			@update:modelValue="onChange"
 		>
-			<template #trigger="{ open, toggleOpen, selectedOptions, displayValue }">
+			<template #trigger="{ open, setOpen, selectedOptions }">
 				<button
 					type="button"
 					:class="[
@@ -23,7 +23,7 @@
 					]"
 					:data-state="open ? 'open' : 'closed'"
 					:disabled="disabled"
-					@click="toggleOpen"
+					@click="setOpen(!open)"
 				>
 					<span class="flex min-w-0 flex-1 items-center gap-2">
 						<slot name="prefix" :selected="selectedOptions" />
@@ -33,7 +33,7 @@
 						>
 							<slot
 								name="summary"
-								:summary="displayValue || placeholder"
+								:summary="triggerLabel(selectedOptions) || placeholder"
 								:selected="selectedOptions"
 							>
 								<template v-if="selectedOptions.length">{{
@@ -55,7 +55,7 @@
 			<template v-if="$slots['item-label']" #item-label="slotProps">
 				<slot name="item-label" v-bind="slotProps" />
 			</template>
-			<template #footer="{ clearAll }">
+			<template #footer="{ clear }">
 				<slot name="footer" :close="closePopover">
 					<div
 						class="flex items-center justify-between gap-2 border-t border-outline-gray-1 px-2 py-1.5 mt-1"
@@ -64,7 +64,7 @@
 							variant="ghost"
 							size="sm"
 							:aria-label="__('Clear')"
-							@click="clearAll"
+							@click="clear"
 						>
 							{{ __('Clear') }}
 						</Button>
@@ -304,6 +304,9 @@ const optionByValue = computed<Map<string, SelectOption>>(() => {
 function defaultSummary(selected: { label: string }[]) {
 	return selected.map((o) => o.label).join(', ')
 }
+
+const triggerLabel = (options: { label: string }[]) =>
+	options.map((option) => option.label).join(', ')
 
 defineExpose({ reload, options, optionByValue })
 </script>
