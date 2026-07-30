@@ -2,7 +2,7 @@
  * The list-page component family.
  *
  * Every list page in the app declares what it filters and what a row looks
- * like; ListPage / ListPageHeader / ToggleFilter / ResponsiveListView own how
+ * like; ListPage / PageBody / ToggleFilter / ResponsiveListView own how
  * that reads at each breakpoint. The invariants worth pinning down are the ones
  * a page can no longer see for itself: that a phone leaves the scrolling to the
  * page rather than a box inside it, that the footer holds the bottom edge while
@@ -116,7 +116,7 @@ async function mountListPage(props: Record<string, unknown> = {}, slots = {}) {
 	return wrapper
 }
 
-// Two things legitimately pin: LayoutHeader's own `<header>`, and the footer,
+// Two things legitimately pin: PageHeader's own `<header>`, and the footer,
 // which holds the bottom edge so the page size and Load More stay put. What
 // must never come back is a pinned strip *above* the rows — that was the
 // filters re-pinned at a measured offset, and any drift between the
@@ -191,10 +191,10 @@ describe('ListPage', () => {
 	})
 })
 
-describe('ListPageHeader', () => {
+describe('PageBody', () => {
 	// On a desk the header holds because it sits outside the box that scrolls
 	// the rows. On a phone the page is the scroller and it travels with it —
-	// it must not try to pin itself there. LayoutHeader is already `sticky
+	// it must not try to pin itself there. PageHeader is already `sticky
 	// top-0` in that scroller, so a second one lands underneath it, and the
 	// offset that would clear it is the app header's own content height: the
 	// measured offset that drifted and opened a band the last time.

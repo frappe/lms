@@ -1,28 +1,17 @@
 <template>
 	<!-- A list page, declared. The page says what it filters and what a row
-	     looks like; everything below owns how that reads at each breakpoint.
+	     looks like; PageHeader and PageBody own how that reads at each breakpoint.
 	     Shaped after helpdesk's ListViewBuilder.vue, which likewise takes the
 	     columns, the row options and the footer counts as configuration. -->
-	<LayoutHeader>
-		<template #left-header>
-			<Breadcrumbs :items="breadcrumbs" />
-		</template>
-		<template #right-header>
+	<PageHeader :breadcrumbs="breadcrumbs">
+		<template #actions>
 			<slot name="actions" />
 		</template>
-	</LayoutHeader>
+	</PageHeader>
 
-	<ListPageBody>
-		<ListPageHeader :title="title">
-			<template v-if="$slots.title" #title><slot name="title" /></template>
-			<template v-if="$slots.tabs" #tabs><slot name="tabs" /></template>
-			<template v-if="$slots.filters" #filters
-				><slot name="filters"
-			/></template>
-			<template v-if="$slots.toggles" #toggles
-				><slot name="toggles"
-			/></template>
-		</ListPageHeader>
+	<PageBody :title="title">
+		<template v-if="$slots.name" #name><slot name="name" /></template>
+		<template v-if="$slots.filters" #filters><slot name="filters" /></template>
 
 		<SkeletonLoader
 			v-if="loading && !rows.length"
@@ -72,7 +61,7 @@
 		<template #footer>
 			<ListFooter
 				v-model="pageLength"
-				class="border-t px-3 py-2 sm:px-5"
+				class="border-t px-5 py-2"
 				:options="{
 					rowCount: rows.length,
 					totalCount,
@@ -101,16 +90,15 @@
 				</template>
 			</ListFooter>
 		</template>
-	</ListPageBody>
+	</PageBody>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { Breadcrumbs, Button, ListFooter } from 'frappe-ui'
+import { Button, ListFooter } from 'frappe-ui'
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
-import LayoutHeader from '@/components/Layouts/LayoutHeader.vue'
-import ListPageBody from '@/components/Layouts/ListPageBody.vue'
-import ListPageHeader from '@/components/Layouts/ListPageHeader.vue'
+import PageHeader from '@/components/Layouts/PageHeader.vue'
+import PageBody from '@/components/Layouts/PageBody.vue'
 import ResponsiveListView from '@/components/ResponsiveListView.vue'
 import SkeletonLoader from '@/components/SkeletonLoader.vue'
 import type {

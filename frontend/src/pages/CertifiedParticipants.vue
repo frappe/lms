@@ -22,9 +22,7 @@
 			</router-link>
 		</template>
 
-		<template #title>
-			{{ memberCount }} {{ __('Certified Members') }}
-		</template>
+		<template #name> {{ memberCount }} {{ __('Certified Members') }} </template>
 
 		<template #filters>
 			<FormControl
@@ -32,7 +30,6 @@
 				:placeholder="__('Search')"
 				:aria-label="__('Search')"
 				type="text"
-				class="w-full sm:min-w-40 lg:w-32 lg:min-w-0 xl:w-40"
 				@input="updateParticipants()"
 			>
 				<template #prefix>
@@ -44,12 +41,8 @@
 				v-model="currentCategory"
 				:options="categories.data.filter((c) => c.value)"
 				:placeholder="__('Category')"
-				class="w-full sm:w-auto"
 				@update:modelValue="updateParticipants()"
 			/>
-		</template>
-
-		<template #toggles>
 			<ToggleFilter
 				:modelValue="openToWork"
 				:label="__('Open to Work')"

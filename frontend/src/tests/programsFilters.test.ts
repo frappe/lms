@@ -114,7 +114,7 @@ vi.mock('@/stores/session', () => ({ sessionStore: () => ({ brand: {} }) }))
 const stub = (template: string) => ({ default: { template } })
 vi.mock('@/pages/Programs/ProgramForm.vue', () => stub('<div />'))
 vi.mock('@/pages/Programs/StudentPrograms.vue', () => stub('<div />'))
-vi.mock('@/components/Layouts/LayoutHeader.vue', () => stub('<header />'))
+vi.mock('@/components/Layouts/PageHeader.vue', () => stub('<header />'))
 
 // Stands in for the whole page shell, so this file stays about list state. The
 // loading prop is surfaced so the flash-of-empty-state fix can be asserted.

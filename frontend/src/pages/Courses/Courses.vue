@@ -37,17 +37,17 @@
 			</Dropdown>
 		</template>
 
-		<template #tabs>
-			<TabButtons :options="courseTabs" v-model="currentTab" class="w-fit" />
-		</template>
-
 		<template #filters>
+			<TabButtons
+				:options="courseTabs"
+				v-model="currentTab"
+				class="!w-fit shrink-0"
+			/>
 			<FormControl
 				v-model="title"
 				:placeholder="__('Search')"
 				:aria-label="__('Search')"
 				type="text"
-				class="w-full sm:min-w-40 lg:w-32 lg:min-w-0 xl:w-40"
 				@input="updateCourses()"
 			>
 				<template #prefix>
@@ -60,11 +60,7 @@
 				:options="categories.data.filter((c) => c.value)"
 				:placeholder="__('Category')"
 				@update:modelValue="updateCourses()"
-				class="w-full sm:w-auto"
 			/>
-		</template>
-
-		<template #toggles>
 			<ToggleFilter
 				:modelValue="certification"
 				:label="__('Certification')"
