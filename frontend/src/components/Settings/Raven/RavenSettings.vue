@@ -99,8 +99,11 @@ defineProps<{ label: string; description: string }>()
 // state, else they get the "not set up" card telling them to fix what they can't.
 const notPermitted = ref(false)
 
+// LMS, not raven_integration: calling a method of an app that is not installed
+// raises AppNotInstalledError, and frappe-ui dumps the server traceback and
+// rethrows before onError runs. See lms.raven_provider.get_raven_setup.
 const setup = createResource<RavenSetupState>({
-	url: 'raven_integration.api.is_setup',
+	url: 'lms.raven_provider.get_raven_setup',
 	auto: true,
 	onError(err: { exc_type?: string }) {
 		notPermitted.value = err?.exc_type === 'PermissionError'
