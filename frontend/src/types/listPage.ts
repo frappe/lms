@@ -19,6 +19,7 @@ export interface ListColumn {
 	align?: string
 	/** A `lucide-*` class, shown beside the desk column header. */
 	icon?: string
+	kind?: 'data' | 'actions'
 }
 
 export type ListRow = Record<string, unknown>

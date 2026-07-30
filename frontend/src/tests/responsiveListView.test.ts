@@ -216,9 +216,10 @@ async function selectFirstRow(wrapper: VueWrapper) {
 
 function clickCard(wrapper: VueWrapper, index: number) {
 	const event = new MouseEvent('click', { bubbles: true, cancelable: true })
-	// The card is the last child of its row; a checkbox, when there is one,
-	// sits beside it rather than inside it.
-	wrapper.findAll('li')[index].element.lastElementChild!.dispatchEvent(event)
+	wrapper
+		.findAll('li')
+		[index].element.querySelector('[data-list-card]')!
+		.dispatchEvent(event)
 	return event
 }
 
@@ -404,11 +405,19 @@ describe('ResponsiveListView card scrolling', () => {
 		const clipped = wrapper.find('[data-testid="listview"]').element
 		expect(clipped.className).toContain('overflow-y-hidden')
 
-		for (let el = list.parentElement; el && el !== clipped; el = el.parentElement) {
+		for (
+			let el = list.parentElement;
+			el && el !== clipped;
+			el = el.parentElement
+		) {
 			expect(el.className.includes(SCROLLS)).toBe(false)
 		}
 		// And nothing may bound their height either, or the clip bites instead.
-		for (let el = list.parentElement; el && el !== clipped; el = el.parentElement) {
+		for (
+			let el = list.parentElement;
+			el && el !== clipped;
+			el = el.parentElement
+		) {
 			expect(el.className.includes('min-h-0')).toBe(false)
 		}
 	})

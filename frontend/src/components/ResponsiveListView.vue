@@ -41,53 +41,67 @@
 				<li
 					v-for="row in rows"
 					:key="String(row[rowKey])"
-					class="flex items-start rounded-lg border border-outline-gray-1 bg-surface-base"
+					class="rounded-lg border border-outline-gray-1 bg-surface-base"
 					:class="isRowInteractive ? 'hover:bg-surface-gray-1' : ''"
 				>
-					<!-- Outside the card element on purpose: the card may be a link or a
-					     button, and a checkbox nested in either is not operable. -->
-					<div v-if="selectionEnabled" class="p-3 pe-0">
-						<Checkbox
-							size="md"
-							:model-value="isRowSelected(row)"
-							:aria-label="selectionLabel(row)"
-							@update:model-value="setRowSelected(row, $event)"
-						/>
-					</div>
-					<component
-						:is="cardTag"
-						v-bind="cardBindings(row)"
-						class="block min-w-0 flex-1 p-3 text-start"
-						@click="onCardClick(row, $event)"
-					>
-						<div class="text-p-base-medium text-ink-gray-9">
-							<slot
-								name="cell"
-								:column="titleColumn"
-								:row="row"
-								:value="row[titleColumn.key]"
-							>
-								{{ row[titleColumn.key] }}
-							</slot>
+					<div class="flex items-start">
+						<div v-if="selectionEnabled" class="p-3 pe-0">
+							<Checkbox
+								size="md"
+								:model-value="isRowSelected(row)"
+								:aria-label="selectionLabel(row)"
+								@update:model-value="setRowSelected(row, $event)"
+							/>
 						</div>
-						<div
-							v-for="column in detailColumns"
-							:key="column.key"
-							class="mt-1 flex items-baseline gap-2 text-p-sm text-ink-gray-5"
+						<component
+							:is="cardTag"
+							v-bind="cardBindings(row)"
+							data-list-card
+							class="block min-w-0 flex-1 p-3 text-start"
+							@click="onCardClick(row, $event)"
 						>
-							<span class="shrink-0">{{ column.label }}</span>
-							<span class="min-w-0 flex-1 text-ink-gray-7">
+							<div class="text-p-base-medium text-ink-gray-9">
 								<slot
 									name="cell"
-									:column="column"
+									:column="titleColumn"
 									:row="row"
-									:value="row[column.key]"
+									:value="row[titleColumn.key]"
 								>
-									{{ row[column.key] }}
+									{{ row[titleColumn.key] }}
 								</slot>
-							</span>
-						</div>
-					</component>
+							</div>
+							<div
+								v-for="column in detailColumns"
+								:key="column.key"
+								class="mt-1 flex items-baseline gap-2 text-p-sm text-ink-gray-5"
+							>
+								<span class="shrink-0">{{ column.label }}</span>
+								<span class="min-w-0 flex-1 text-ink-gray-7">
+									<slot
+										name="cell"
+										:column="column"
+										:row="row"
+										:value="row[column.key]"
+									>
+										{{ row[column.key] }}
+									</slot>
+								</span>
+							</div>
+						</component>
+					</div>
+					<div
+						v-if="actionColumns.length"
+						class="flex items-center justify-end gap-2 border-t border-outline-gray-1 px-3 py-2"
+					>
+						<template v-for="column in actionColumns" :key="column.key">
+							<slot
+								name="cell"
+								:column="column"
+								:row="row"
+								:value="row[column.key]"
+							/>
+						</template>
+					</div>
 				</li>
 			</ul>
 
@@ -214,7 +228,17 @@ const titleColumn = computed<ListColumn>(() => {
 })
 
 const detailColumns = computed(() =>
-	props.columns.filter((column) => column.key !== titleColumn.value.key)
+	props.columns.filter(
+		(column) =>
+			column.key !== titleColumn.value.key && column.kind !== 'actions'
+	)
+)
+
+const actionColumns = computed(() =>
+	props.columns.filter(
+		(column) =>
+			column.key !== titleColumn.value.key && column.kind === 'actions'
+	)
 )
 
 const listView = ref<ListViewSelection | null>(null)
