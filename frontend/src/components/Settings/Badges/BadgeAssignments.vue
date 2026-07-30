@@ -94,7 +94,7 @@ import {
 	ListRows,
 } from 'frappe-ui/list'
 import { inject, ref } from 'vue'
-import type { BadgeAssignment } from '@/components/Settings/types'
+import type { BadgeAssignment } from '@/types'
 import BadgeAssignmentForm from '@/components/Settings/Badges/BadgeAssignmentForm.vue'
 import SettingsLayout from '@/components/Layouts/SettingsLayout.vue'
 

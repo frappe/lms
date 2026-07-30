@@ -120,8 +120,10 @@
 									</span>
 								</div>
 							</a>
-							<span
+							<button
 								v-if="canModifyAssignment"
+								type="button"
+								:aria-label="__('Remove submission')"
 								@click="removeSubmission()"
 								class="lucide-x bg-surface-gray-3 rounded-md cursor-pointer w-5 h-5 p-1 ms-4"
 							/>
@@ -132,7 +134,11 @@
 					<div class="text-p-sm-medium text-ink-gray-7 mb-1.5">
 						{{ __('Enter a URL') }}
 					</div>
-					<FormControl v-model="answer" type="text" />
+					<FormControl
+						v-model="answer"
+						type="text"
+						:aria-label="__('Enter a URL')"
+					/>
 				</div>
 				<div v-else>
 					<div class="text-sm mb-2 text-ink-gray-7">

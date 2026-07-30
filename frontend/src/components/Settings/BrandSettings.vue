@@ -29,6 +29,7 @@
 					<FormControl
 						type="text"
 						size="md"
+						:aria-label="__('Brand Name')"
 						:placeholder="__('Enter Brand Name')"
 						:modelValue="branding.data.app_name"
 						@input="

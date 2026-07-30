@@ -66,7 +66,11 @@
 						<ListHeader
 							class="mb-2 grid items-center gap-x-4 rounded bg-surface-gray-2 p-2"
 						>
-							<ListHeaderItem :item="item" v-for="item in courseColumns" />
+							<ListHeaderItem
+								:item="item"
+								v-for="item in courseColumns"
+								:key="item.key"
+							/>
 						</ListHeader>
 						<ListRows>
 							<Draggable
@@ -86,6 +90,7 @@
 								<div class="flex gap-2">
 									<Button
 										variant="ghost"
+										:label="__('Delete')"
 										@click="remove(selections, unselectAll, 'courses')"
 									>
 										<span class="lucide-trash-2 size-4" />
@@ -140,16 +145,25 @@
 						<ListHeader
 							class="mb-2 grid items-center gap-x-4 rounded bg-surface-gray-2 p-2"
 						>
-							<ListHeaderItem :item="item" v-for="item in memberColumns" />
+							<ListHeaderItem
+								:item="item"
+								v-for="item in memberColumns"
+								:key="item.key"
+							/>
 						</ListHeader>
 						<ListRows>
-							<ListRow :row="row" v-for="row in program.program_members" />
+							<ListRow
+								:row="row"
+								v-for="row in program.program_members"
+								:key="row.member"
+							/>
 						</ListRows>
 						<ListSelectBanner>
 							<template #actions="{ unselectAll, selections }">
 								<div class="flex gap-2">
 									<Button
 										variant="ghost"
+										:label="__('Delete')"
 										@click="remove(selections, unselectAll, 'members')"
 									>
 										<span class="lucide-trash-2 size-4" />
@@ -248,7 +262,7 @@ import {
 } from 'frappe-ui'
 import { computed, ref, watch, getCurrentInstance } from 'vue'
 
-import { Programs, Program } from './types'
+import { Programs, Program } from '@/types'
 import { sanitizeHTML, openSettings } from '@/utils'
 import Link from '@/components/Controls/Link.vue'
 import Draggable from 'vuedraggable'

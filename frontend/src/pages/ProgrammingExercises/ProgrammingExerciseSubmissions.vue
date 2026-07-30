@@ -6,13 +6,13 @@
 	</LayoutHeader>
 	<div class="p-6">
 		<div class="flex items-center justify-between gap-x-32 mb-5">
-			<div class="text-md font-semibold text-ink-gray-9">
+			<h1 class="text-md font-semibold text-ink-gray-9">
 				{{
 					submissions.data?.length
 						? __('{0} Submissions').format(submissions.data.length)
 						: __('No Submissions')
 				}}
-			</div>
+			</h1>
 			<div
 				v-if="submissions.data?.length || filters"
 				class="grid grid-cols-3 gap-5"
@@ -69,6 +69,7 @@
 			<ListRows>
 				<router-link
 					v-for="row in submissions.data"
+					:key="row.name"
 					:to="{
 						name: 'ProgrammingExerciseSubmission',
 						params: {
@@ -116,6 +117,7 @@
 					<div class="flex gap-2">
 						<Button
 							variant="ghost"
+							:label="__('Delete')"
 							@click="deleteExercises(selections, unselectAll)"
 						>
 							<span class="lucide-trash-2 size-4" />
@@ -158,10 +160,7 @@ import {
 	usePageMeta,
 	toast,
 } from 'frappe-ui'
-import type {
-	ProgrammingExerciseSubmission,
-	Filters,
-} from '@/pages/ProgrammingExercises/types'
+import type { ProgrammingExerciseSubmission, Filters } from '@/types'
 import { computed, inject, onMounted, ref, watch } from 'vue'
 import { sessionStore } from '@/stores/session'
 import { useRouter } from 'vue-router'

@@ -67,6 +67,7 @@
 							<FormControl
 								v-model="appliedCoupon"
 								:disabled="orderSummary.data.discount_amount > 0"
+								:aria-label="__('Coupon Code')"
 								@input="appliedCoupon = $event.target.value.toUpperCase()"
 								@keydown.enter="applyCouponCode"
 								placeholder="COUPON2025"
@@ -82,6 +83,7 @@
 							</Button>
 							<Button
 								v-if="orderSummary.data.discount_amount"
+								:label="__('Remove coupon')"
 								@click="removeCoupon"
 								variant="outline"
 							>
@@ -105,9 +107,9 @@
 
 				<div class="flex-1 lg:me-10">
 					<div class="mb-5">
-						<div class="text-lg-semibold text-ink-gray-9">
+						<h2 class="text-lg-semibold text-ink-gray-9">
 							{{ __('Address') }}
-						</div>
+						</h2>
 					</div>
 					<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
 						<div class="space-y-4">
@@ -131,7 +133,16 @@
 								v-model="billingDetails.city"
 								:required="!!fieldMeta.city?.reqd"
 							/>
+							<Combobox
+								v-if="billingDetails.country == 'India'"
+								:label="__('State/Province')"
+								v-model="billingDetails.state"
+								:options="INDIAN_STATE_OPTIONS"
+								:placeholder="__('Select a state')"
+								:required="!!fieldMeta.state?.reqd"
+							/>
 							<FormControl
+								v-else
 								:label="__('State/Province')"
 								v-model="billingDetails.state"
 								:required="!!fieldMeta.state?.reqd"
@@ -237,6 +248,7 @@
 <script setup>
 import {
 	Button,
+	Combobox,
 	createResource,
 	FormControl,
 	Breadcrumbs,
@@ -250,6 +262,10 @@ import Link from '@/components/Controls/Link.vue'
 import NotPermitted from '@/components/NotPermitted.vue'
 import { useTelemetry } from 'frappe-ui/frappe'
 import { getLmsRoute } from '@/utils/basePath'
+import {
+	INDIAN_STATE_OPTIONS,
+	canonicalIndianState,
+} from '@/utils/indianStates'
 
 const user = inject('$user')
 const { brand } = sessionStore()
@@ -321,6 +337,16 @@ const setBillingDetails = (data) => {
 	billingDetails.source = data?.source || getDefault('source')
 	billingDetails.gstin = data?.gstin || getDefault('gstin')
 	billingDetails.pan = data?.pan || getDefault('pan')
+	normalizeState()
+}
+
+// Addresses saved before the dropdown existed hold free text ("GUJARAT"), which
+// matches no option and would look unselected. Anything unrecognised is left
+// alone so validation can report it.
+const normalizeState = () => {
+	if (billingDetails.country != 'India') return
+	const canonical = canonicalIndianState(billingDetails.state)
+	if (canonical) billingDetails.state = canonical
 }
 
 const paymentLink = createResource({
@@ -363,7 +389,7 @@ const generatePaymentLink = () => {
 				window.location.href = data
 			},
 			onError(err) {
-				toast.error(err.messages?.[0] || err)
+				showError(err)
 			},
 		}
 	)
@@ -410,54 +436,26 @@ const validateAddress = () => {
 	if (billingDetails.gstin && !billingDetails.pan)
 		return 'Please enter a valid pan number.'
 
-	if (billingDetails.country == 'India' && !billingDetails.state)
-		return 'Please enter a valid state with correct spelling and the first letter capitalized.'
+	if (billingDetails.country != 'India') return
 
-	const states = [
-		'Andhra Pradesh',
-		'Arunachal Pradesh',
-		'Assam',
-		'Bihar',
-		'Chhattisgarh',
-		'Delhi',
-		'Goa',
-		'Gujarat',
-		'Haryana',
-		'Himachal Pradesh',
-		'Jammu and Kashmir',
-		'Jharkhand',
-		'Karnataka',
-		'Kerala',
-		'Madhya Pradesh',
-		'Maharashtra',
-		'Manipur',
-		'Meghalaya',
-		'Mizoram',
-		'Nagaland',
-		'Odisha',
-		'Punjab',
-		'Rajasthan',
-		'Sikkim',
-		'Tamil Nadu',
-		'Telangana',
-		'Tripura',
-		'Uttar Pradesh',
-		'Uttarakhand',
-		'West Bengal',
-	]
-	if (
-		billingDetails.country == 'India' &&
-		!states.includes(billingDetails.state)
-	)
-		return 'Please enter a valid state with correct spelling and the first letter capitalized.'
+	if (!billingDetails.state) return __('Please select your state.')
+
+	// The dropdown only ever yields canonical names; this catches an older
+	// free-text address that no spelling of ours can resolve.
+	const canonical = canonicalIndianState(billingDetails.state)
+	if (!canonical) return __('Please select your state from the list.')
+	billingDetails.state = canonical
 }
 
+// A validation failure arrives as an Error; handing that to toast.error renders
+// an empty toast, which is why a rejected checkout looked like a dead button.
 const showError = (err) => {
-	toast.error(err.messages?.[0] || err)
+	toast.error(err.messages?.[0] || err.message || err)
 }
 
 const changeCurrency = (country) => {
 	billingDetails.country = country
+	normalizeState()
 	orderSummary.reload()
 }
 

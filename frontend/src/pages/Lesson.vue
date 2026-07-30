@@ -1,28 +1,30 @@
 <template>
 	<div v-if="lesson.data" class="">
 		<header
-			v-if="!embedded"
 			class="sticky top-0 z-10 flex items-center justify-between border-b bg-surface-base px-3 py-2.5 sm:px-5"
 		>
 			<Breadcrumbs class="h-7" :items="breadcrumbs" />
 			<div class="flex items-center gap-x-2">
-				<Tooltip v-if="canGoZen() && isAdmin" :text="__('Zen Mode')">
-					<Button @click="goFullScreen()">
-						<template #icon>
-							<span class="lucide-focus size-4" />
-						</template>
-					</Button>
-				</Tooltip>
 				<CertificationLinks :courseName="courseName" />
+				<router-link
+					v-if="canEditLesson"
+					:to="{
+						name: 'CourseDetail',
+						params: { courseName: courseName },
+						hash: '#course editor',
+						query: { editLesson: `${chapterNumber}-${lessonNumber}` },
+					}"
+				>
+					<Button variant="outline">
+						<template #prefix>
+							<span class="lucide-pencil size-4" />
+						</template>
+						{{ __('Editor View') }}
+					</Button>
+				</router-link>
 			</div>
 		</header>
-		<div
-			:class="
-				embedded
-					? 'grid grid-cols-1 h-full'
-					: 'grid md:grid-cols-[70%,30%] h-[94vh]'
-			"
-		>
+		<div class="grid md:grid-cols-[70%,30%] h-[94vh]">
 			<div v-if="lesson.data.no_preview" class="border-e">
 				<div class="shadow rounded-md w-3/4 mt-10 mx-auto text-center p-4">
 					<div class="flex items-center justify-center mt-4 gap-x-2">
@@ -80,9 +82,9 @@
 							class="flex flex-col space-y-3 md:space-y-0 md:flex-row md:items-center justify-between"
 						>
 							<div class="flex flex-col">
-								<div class="text-4xl-semibold text-ink-gray-9">
+								<h1 class="text-4xl-semibold text-ink-gray-9">
 									{{ lesson.data.title }}
-								</div>
+								</h1>
 
 								<div
 									v-if="zenModeEnabled"
@@ -106,27 +108,8 @@
 								v-if="!zenModeEnabled"
 								class="flex items-center gap-x-2 mt-2 md:mt-0"
 							>
-								<router-link
-									v-if="isAdmin && !embedded"
-									:to="{
-										name: 'CourseDetail',
-										params: { courseName: courseName },
-										hash: '#course editor',
-										query: {
-											editLesson: `${chapterNumber}-${lessonNumber}`,
-											lessonMode: 'edit',
-										},
-									}"
-								>
-									<Button>
-										<template #prefix>
-											<span class="lucide-pencil size-4" />
-										</template>
-										{{ __('Edit') }}
-									</Button>
-								</router-link>
-								<Tooltip v-else-if="canGoZen()" :text="__('Zen Mode')">
-									<Button @click="goFullScreen()">
+								<Tooltip v-if="canGoZen()" :text="__('Zen Mode')">
+									<Button @click="goFullScreen()" :label="__('Zen Mode')">
 										<template #icon>
 											<span class="lucide-focus size-4" />
 										</template>
@@ -159,7 +142,10 @@
 								v-if="zenModeEnabled"
 								class="flex items-center gap-x-2 mt-2 md:mt-0"
 							>
-								<Button @click="showDiscussionsInZenMode()">
+								<Button
+									@click="showDiscussionsInZenMode()"
+									:label="__('Toggle discussions')"
+								>
 									<template #icon>
 										<span class="lucide-message-circle-question size-4" />
 									</template>
@@ -205,6 +191,7 @@
 							>
 								<UserAvatar
 									v-for="instructor in lesson.data.instructors"
+									:key="instructor.name ?? instructor"
 									:user="instructor"
 								/>
 							</span>
@@ -223,9 +210,9 @@
 							"
 							class="bg-surface-gray-2 p-3 rounded-md mt-6"
 						>
-							<div class="text-ink-gray-5 font-medium">
+							<h2 class="text-ink-gray-5 font-medium">
 								{{ __('Instructor Notes') }}
-							</div>
+							</h2>
 							<div
 								id="instructor-content"
 								class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2 prose-sm max-w-none !whitespace-normal"
@@ -286,7 +273,7 @@
 					</div>
 				</div>
 			</div>
-			<div v-if="!embedded" class="sticky top-10 h-[94vh]">
+			<div class="sticky top-10 h-[94vh]">
 				<StudentLessonSidebar
 					:courseName="courseName"
 					:courseTitle="lesson.data.course_title"
@@ -304,12 +291,6 @@
 		:lesson="lesson.data?.name"
 		v-model:notes="notes"
 		@updateNotes="updateNotes"
-	/>
-	<VideoStatistics
-		v-if="isAdmin"
-		v-model="showStatsDialog"
-		:lessonName="lesson.data?.name"
-		:lessonTitle="lesson.data?.title"
 	/>
 </template>
 <script setup>
@@ -356,26 +337,33 @@ import CourseInstructors from '@/components/CourseInstructors.vue'
 import ProgressBar from '@/components/ProgressBar.vue'
 import Discussions from '@/components/Discussions.vue'
 import CertificationLinks from '@/components/CertificationLinks.vue'
-import VideoStatistics from '@/components/Modals/VideoStatistics.vue'
-import { hasVideoContent } from '@/utils/video'
 import CourseOutline from '@/components/CourseOutline.vue'
 import StudentLessonSidebar from '@/components/StudentLessonSidebar.vue'
 import UserAvatar from '@/components/UserAvatar.vue'
 import Notes from '@/components/Notes/Notes.vue'
 import InlineLessonMenu from '@/components/Notes/InlineLessonMenu.vue'
 import { getLmsRoute } from '@/utils/basePath'
+import { provideStudentView } from '@/composables/useStudentView'
 
-const user = inject('$user')
-const socket = inject('$socket')
 const router = useRouter()
 const route = useRoute()
+const realUser = inject('$user')
+// A component's own provide() is invisible to its own inject(), so read the
+// handles provideStudentView returns rather than calling useStudentView().
+const { isStudentView, mockedUser } = provideStudentView(
+	realUser,
+	() => route.query.studentView === '1'
+)
+// Shadows every user.data read below and in every child, so the page renders
+// exactly what a student sees.
+const user = mockedUser
+const socket = inject('$socket')
 const allowDiscussions = ref(false)
 const editor = ref(null)
 const instructorEditor = ref(null)
 const lessonProgress = ref(0)
 const lessonContainer = ref(null)
 const zenModeEnabled = ref(false)
-const showStatsDialog = ref(false)
 const hasQuiz = ref(false)
 const discussionsContainer = ref(null)
 const timer = ref(0)
@@ -403,31 +391,6 @@ const props = defineProps({
 		type: String,
 		required: true,
 	},
-	embedded: {
-		type: Boolean,
-		default: false,
-	},
-})
-
-const emit = defineEmits([
-	'select-lesson',
-	'lesson-completed',
-	'progress-updated',
-])
-
-// Exposed for the parent so the CourseEditor preview can render the same
-// Prev / Next / Zen-mode controls as the student header but place them in
-// the page-level LayoutHeader instead of inside the lesson body.
-defineExpose({
-	switchLesson: (direction) => switchLesson(direction),
-	goFullScreen: () => goFullScreen(),
-	canGoZen: () => canGoZen(),
-	hasPrev: computed(() => Boolean(lesson.data?.prev)),
-	hasNext: computed(() => Boolean(lesson.data?.next)),
-	lessonHasVideo: () => lessonHasVideo.value,
-	showVideoStats: () => showVideoStats(),
-	lessonName: () => lesson.data?.name,
-	lessonTitle: () => lesson.data?.title,
 })
 
 let collapsedByLesson = false
@@ -438,7 +401,7 @@ onMounted(() => {
 	startTimer()
 	// Keep the app sidebar open for admins/instructors so they can navigate
 	// while reviewing; only collapse it for students to maximise reading space.
-	if (!props.embedded && !isCourseAdmin()) {
+	if (!isCourseAdmin()) {
 		sidebarStore.isSidebarCollapsed = true
 		collapsedByLesson = true
 	}
@@ -446,7 +409,6 @@ onMounted(() => {
 	socket.on('update_lesson_progress', (data) => {
 		if (data.course === props.courseName) {
 			lessonProgress.value = data.progress
-			emit('progress-updated', data.progress)
 		}
 	})
 })
@@ -465,8 +427,7 @@ const attachFullscreenEvent = () => {
 
 onBeforeUnmount(() => {
 	document.removeEventListener('fullscreenchange', attachFullscreenEvent)
-	if (!props.embedded && collapsedByLesson)
-		sidebarStore.isSidebarCollapsed = false
+	if (collapsedByLesson) sidebarStore.isSidebarCollapsed = false
 	trackVideoWatchDuration()
 })
 
@@ -532,12 +493,20 @@ const renderEditor = (holder, content) => {
 		document.getElementById(holder).innerHTML = ''
 	return new EditorJS({
 		holder: holder,
-		tools: getEditorTools(),
+		tools: getEditorTools(false, {}, { studentView: isStudentView.value }),
 		data: sanitizeEditorJs(JSON.parse(content)),
 		readOnly: true,
 		defaultBlock: 'embed',
 		i18n: {
 			direction: document.documentElement.dir === 'rtl' ? 'rtl' : 'ltr',
+		},
+		onReady() {
+			const root = document.getElementById(holder)
+			if (!root) return
+			root.querySelectorAll('a').forEach((a) => {
+				a.setAttribute('target', '_blank')
+				a.setAttribute('rel', 'noopener noreferrer')
+			})
 		},
 	})
 }
@@ -585,13 +554,7 @@ const progress = createResource({
 	},
 	onSuccess(data) {
 		lessonProgress.value = data
-		const name = lesson.data?.name
-		completedLesson.value = name
-		// Tell the parent (CourseEditor preview) so it can flip the
-		// sidebar's green tick and update the percentage without waiting
-		// for a refresh of the course resource.
-		if (name) emit('lesson-completed', name)
-		emit('progress-updated', data)
+		completedLesson.value = lesson.data?.name
 	},
 })
 
@@ -627,6 +590,7 @@ const breadcrumbs = computed(() => {
 				chapterNumber: props.chapterNumber,
 				lessonNumber: props.lessonNumber,
 			},
+			query: studentViewQuery.value,
 		},
 	})
 	return crumbs
@@ -640,13 +604,6 @@ const switchLesson = (direction) => {
 			: lesson.data.next.split('.')
 
 	const [chapterNumber, lessonNumber] = lessonIndex
-	// In the embedded editor preview, navigate the parent's selection so the
-	// pane swaps in place instead of routing away to /lesson/...
-	if (props.embedded) {
-		emit('select-lesson', { chapterNumber, lessonNumber })
-		return
-	}
-
 	router.push({
 		name: 'Lesson',
 		params: {
@@ -654,6 +611,7 @@ const switchLesson = (direction) => {
 			chapterNumber,
 			lessonNumber,
 		},
+		query: studentViewQuery.value,
 	})
 }
 
@@ -892,9 +850,9 @@ let videoFallbackArmed = false
 let fallbackGeneration = 0
 const fallbackToDwellTimer = (reason) => {
 	// The dwell fallback only matters for an enrolled student tracking progress.
-	// Don't surface the "mark as viewed" toast in the course editor preview or to
+	// Don't surface the "mark as viewed" toast in student view or to
 	// non-enrolled viewers (admins/instructors reviewing the lesson).
-	if (props.embedded || !lesson.data?.membership) return
+	if (isStudentView.value || !lesson.data?.membership) return
 	if (videoFallbackArmed) return
 	videoFallbackArmed = true
 	console.warn('[Lesson] video fallback engaged:', reason)
@@ -959,10 +917,19 @@ const isAdmin = computed(() => {
 	return user.data?.is_moderator || isInstructor
 })
 
-// The video-statistics button only makes sense when the lesson actually has a
-// video; showing it for text-only lessons opened an empty modal and logged a
-// console error.
-const lessonHasVideo = computed(() => hasVideoContent(lesson.data))
+// Student view is a mode, not a destination: every hop that stays on a lesson
+// has to carry the flag, or Prev / Next / the sidebar silently drops the
+// moderator back into their own identity mid-course.
+const studentViewQuery = computed(() =>
+	isStudentView.value ? { studentView: 1 } : undefined
+)
+
+// Reads the real user, not the student-view shadow, so the way back to the
+// editor survives ?studentView=1.
+const canEditLesson = computed(() => {
+	const isInstructor = lesson.data?.instructors?.includes(realUser.data?.name)
+	return realUser.data?.is_moderator || isInstructor
+})
 
 const allowInstructorContent = () => {
 	if (window.read_only_mode) return false
@@ -1004,10 +971,6 @@ const toggleInlineMenu = async () => {
 	if (selection.toString()) {
 		showInlineMenu.value = true
 	}
-}
-
-const showVideoStats = () => {
-	showStatsDialog.value = true
 }
 
 const canGoZen = () => {

@@ -1,3 +1,5 @@
+import time
+
 import frappe
 from frappe import _
 from frappe.model.naming import append_number_if_name_exists
@@ -46,29 +48,40 @@ def sign_up(email: str, full_name: str, verify_terms: bool, user_category: str):
 				http_status_code=429,
 			)
 
-	user = frappe.get_doc(
-		{
-			"doctype": "User",
-			"email": email,
-			"first_name": escape_html(full_name),
-			"verify_terms": verify_terms,
-			"user_category": user_category,
-			"country": "",
-			"enabled": 1,
-			"new_password": random_string(10),
-			"user_type": "Website User",
-		}
-	)
-	user.flags.ignore_permissions = True
-	user.flags.ignore_password_policy = True
-	user.insert()
-
-	# set default signup role as per Portal Settings
 	default_role = frappe.db.get_single_value("Portal Settings", "default_role")
-	if default_role:
-		user.add_roles(default_role)
 
-	user.add_roles("LMS Student")
+	# Concurrent signups deadlock on User insert (Frappe doesn't retry 1213); retry, and append roles pre-insert to keep it to one transaction.
+	for attempt in range(3):
+		try:
+			user = frappe.get_doc(
+				{
+					"doctype": "User",
+					"email": email,
+					"first_name": escape_html(full_name),
+					"verify_terms": verify_terms,
+					"user_category": user_category,
+					"country": "",
+					"enabled": 1,
+					"new_password": random_string(10),
+					"user_type": "Website User",
+				}
+			)
+			user.flags.ignore_permissions = True
+			user.flags.ignore_password_policy = True
+			if default_role:
+				user.append_roles(default_role)
+			user.insert()
+			break
+		except frappe.DuplicateEntryError:
+			# A concurrent signup for the same email won the race; treat as already registered.
+			frappe.db.rollback()
+			return 0, _("Already Registered")
+		except frappe.QueryDeadlockError:
+			frappe.db.rollback()
+			if attempt == 2:
+				raise
+			time.sleep(0.1 * (attempt + 1))
+
 	set_country_from_ip(None, user.name)
 
 	if user.flags.email_sent:

@@ -136,7 +136,7 @@ import MultiLink from '@/components/Controls/MultiLink.vue'
 import Uploader from '@/components/Controls/Uploader.vue'
 import NewMemberModal from '@/components/Modals/NewMemberModal.vue'
 import { cleanError, sanitizeHTML, createLMSCategory } from '@/utils'
-import type { Resource } from '@/types/api'
+import type { Resource } from '@/types'
 import RichTextEditor from '@/components/RichTextEditor.vue'
 
 interface InstructorOption {

@@ -48,10 +48,7 @@
 </template>
 <script setup lang="ts">
 import { Dialog, DatePicker, toast } from 'frappe-ui'
-import type {
-	BadgeAssignments,
-	BadgeAssignment,
-} from '@/components/Settings/types'
+import type { BadgeAssignments, BadgeAssignment } from '@/types'
 import { ref, watch } from 'vue'
 import { cleanError } from '@/utils'
 import Link from '@/components/Controls/Link.vue'

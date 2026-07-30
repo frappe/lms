@@ -42,13 +42,14 @@
 		>
 			<div class="border rounded-lg py-3 px-4 order-2 lg:order-1">
 				<div class="flex items-center justify-between gap-x-2 mb-3">
-					<div class="text-lg-semibold text-ink-gray-9">
+					<h2 class="text-lg-semibold text-ink-gray-9">
 						{{ __('Students') }}
-					</div>
+					</h2>
 					<div class="flex items-center gap-x-2">
 						<FormControl
 							v-model="searchFilter"
 							:placeholder="__('Search')"
+							:aria-label="__('Search')"
 							type="text"
 						>
 							<template #prefix>

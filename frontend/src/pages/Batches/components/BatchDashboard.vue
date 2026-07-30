@@ -42,6 +42,7 @@
 								<ListRow
 									:row="row"
 									v-for="row in batch.data?.courses"
+									:key="row.name"
 									class="!rounded-none last:!rounded-b-lg text-sm"
 								>
 									<template #default="{ column, item }">

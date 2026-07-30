@@ -2138,19 +2138,100 @@ def publish_notifications(doc: Document, method: str):
 
 
 def update_payment_record(doctype: str, docname: str):
+	data = get_payment_callback_data(doctype, docname)
+
+	if not data or not data.get("payment"):
+		return
+
+	serialize_callbacks_without_the_constraint()
+
+	if payment_already_recorded(data):
+		return
+
+	try:
+		update_payment_details(data)
+	except Exception as e:
+		if not frappe.db.is_unique_key_violation(e):
+			raise
+		# Another callback for the same gateway payment reached this first and is
+		# crediting a different LMS Payment row. LMS Payment.payment_id is unique
+		# precisely so that only one of them can.
+		return
+
+	complete_enrollment(data.payment, doctype, docname)
+
+
+def get_payment_callback_data(doctype: str, docname: str) -> dict | None:
+	"""The payload of the callback being handled, which is the only thing that
+	says which payment the money arrived for.
+
+	Only some gateways publish it, so fall back to the document's latest request.
+	That fallback picks the wrong payment when a learner has an unpaid checkout
+	open, which is why payment_already_recorded double-checks the gateway's own
+	payment id before anything is credited."""
+	data = frappe.flags.data
+
+	if data and data.get("payment"):
+		return frappe._dict(data)
+
 	request = get_integration_requests(doctype, docname)
 
-	if len(request):
-		data = request[0].data
-		data = frappe._dict(json.loads(data))
+	if not request:
+		return None
 
-		update_payment_details(data)
-		complete_enrollment(data.payment, doctype, docname)
+	return frappe._dict(json.loads(request[0].data))
+
+
+def serialize_callbacks_without_the_constraint():
+	"""A site carrying duplicate payment ids cannot take the unique constraint on
+	LMS Payment.payment_id, and without it two callbacks for one gateway payment
+	can be credited to different rows, which never lock each other.
+
+	Take one lock every callback contends for instead. The DocType row of the
+	table missing its constraint is an arbitrary choice, but it always exists and
+	nothing else writes it outside a migrate. Payment callbacks then queue
+	site-wide, which is coarse — and is why it only happens while the constraint
+	is missing — but it puts them back in line, so the second one sees the first
+	payment recorded."""
+	# Imported here: lms_payment imports get_lms_route from this module.
+	from lms.lms.doctype.lms_payment.lms_payment import has_unique_payment_id
+
+	if has_unique_payment_id():
+		return
+
+	frappe.db.get_value("DocType", "LMS Payment", "name", for_update=True)
+
+
+def payment_already_recorded(data: dict) -> bool:
+	"""A gateway retries a callback it never got an answer to. The money arrived
+	once, so the enrollment and the coupon redemption stay as they are.
+
+	for_update holds the payment row until this transaction ends, so two retries
+	arriving together cannot both read it as unrecorded and both credit it."""
+	if frappe.db.get_value("LMS Payment", data.payment, "payment_received", for_update=True):
+		return True
+
+	payment_id = data.get(get_payment_id(data))
+
+	if not payment_id:
+		return False
+
+	# Only sees callbacks that have already committed. Two arriving together are
+	# kept apart by the unique constraint on payment_id, which is what makes
+	# update_payment_details fail for whichever one loses.
+	return bool(frappe.db.exists("LMS Payment", {"payment_id": payment_id}))
 
 
 def complete_enrollment(payment_name: str, doctype: str, docname: str):
 	payment_doc = get_payment_doc(payment_name)
-	update_coupon_redemption(payment_doc)
+
+	if not payment_doc:
+		frappe.log_error(
+			title="Payment record missing while completing enrollment",
+			message=f"LMS Payment {payment_name} was not found for {doctype} {docname}.",
+			defer_insert=True,
+		)
+		frappe.throw(_("We could not find your payment record. Please contact the administrator."))
 
 	if payment_doc.payment_for_certificate:
 		update_certificate_purchase(docname, payment_name)
@@ -2158,6 +2239,10 @@ def complete_enrollment(payment_name: str, doctype: str, docname: str):
 		enroll_in_course(docname, payment_name)
 	else:
 		enroll_in_batch(docname, payment_name)
+
+	# Counted last: it locks the coupon row until the request commits, and
+	# enrolling is the slower half of this transaction.
+	update_coupon_redemption(payment_doc)
 
 
 def get_integration_requests(doctype: str, docname: str):
@@ -2176,7 +2261,10 @@ def get_integration_requests(doctype: str, docname: str):
 
 def get_payment_doc(payment_name: str) -> dict:
 	return frappe.db.get_value(
-		"LMS Payment", payment_name, ["name", "coupon", "payment_for_certificate"], as_dict=True
+		"LMS Payment",
+		payment_name,
+		["name", "coupon", "payment_for_certificate", "amount", "amount_with_gst"],
+		as_dict=True,
 	)
 
 
@@ -2206,15 +2294,57 @@ def get_payment_id(data: dict) -> str:
 
 
 def update_coupon_redemption(payment_doc: dict):
-	if payment_doc.coupon:
-		redemption_count = frappe.db.get_value("LMS Coupon", payment_doc.coupon, "redemption_count") or 0
+	"""Count one redemption against the coupon a completed payment used.
 
-		frappe.db.set_value(
-			"LMS Coupon",
-			payment_doc.coupon,
-			"redemption_count",
-			redemption_count + 1,
-		)
+	Reached once per payment: payment_already_recorded turns a replayed callback
+	away before it gets here."""
+	if not payment_doc or not payment_doc.coupon:
+		return
+
+	# for_update locks the coupon row until this transaction ends, so the read
+	# below and the write that follows cannot interleave with another redemption
+	# and lose one of the two increments.
+	coupon = frappe.db.get_value(
+		"LMS Coupon",
+		payment_doc.coupon,
+		["usage_limit", "redemption_count"],
+		as_dict=True,
+		for_update=True,
+	)
+
+	if not coupon:
+		return
+
+	redemption_count = cint(coupon.redemption_count) + 1
+	usage_limit = cint(coupon.usage_limit)
+
+	if usage_limit and redemption_count > usage_limit:
+		handle_usage_limit_overshoot(payment_doc, redemption_count, usage_limit)
+
+	frappe.db.set_value("LMS Coupon", payment_doc.coupon, "redemption_count", redemption_count)
+
+
+def handle_usage_limit_overshoot(payment_doc: dict, redemption_count: int, usage_limit: int):
+	"""The usage limit is enforced before payment, so reaching it here means a
+	redemption slipped through the window between that check and this payment
+	completing. A fully discounted order has taken no money yet, so the limit is
+	still enforceable there. Otherwise the learner has already paid: record the
+	redemption regardless and surface the overshoot to the operator."""
+	if not get_payment_total(payment_doc):
+		frappe.throw(_("This coupon has reached its maximum usage limit."))
+
+	# defer_insert keeps the Error Log write out of this transaction, so a
+	# failure to log cannot roll back an enrollment the learner paid for.
+	frappe.log_error(
+		title="Coupon redeemed beyond its usage limit",
+		message=f"Coupon {payment_doc.coupon} has {redemption_count} redemptions "
+		f"against a usage limit of {usage_limit}.",
+		defer_insert=True,
+	)
+
+
+def get_payment_total(payment_doc: dict) -> float:
+	return flt(payment_doc.amount_with_gst) or flt(payment_doc.amount)
 
 
 def enroll_in_course(course: str, payment_name: str):
@@ -2270,6 +2400,11 @@ def create_enrollment(batch: str, payment_doc: dict = None):
 
 
 def update_certificate_purchase(course: str, payment_name: str):
+	# The purchase is recorded on the enrollment, so a learner who bought
+	# certification without enrolling first would otherwise pay for nothing:
+	# set_value with filters updates no rows and reports no error.
+	enroll_in_course(course, payment_name)
+
 	frappe.db.set_value(
 		"LMS Enrollment",
 		{"member": frappe.session.user, "course": course},

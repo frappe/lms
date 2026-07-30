@@ -21,6 +21,9 @@
 import { Button, Badge, toast } from 'frappe-ui'
 import SettingFields from '@/components/Settings/SettingFields.vue'
 import SettingsLayout from '@/components/Layouts/SettingsLayout.vue'
+import { useSettings } from '@/stores/settings'
+
+const settingsStore = useSettings()
 
 const props = defineProps({
 	sections: {
@@ -44,6 +47,9 @@ const update = () => {
 	props.data.save.submit(
 		{},
 		{
+			onSuccess() {
+				settingsStore.loadSidebarSettings(true)
+			},
 			onError(err) {
 				toast.error(err.messages?.[0] || err)
 			},

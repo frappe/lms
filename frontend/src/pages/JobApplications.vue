@@ -17,15 +17,20 @@
 		</LayoutHeader>
 		<div class="mx-auto pt-5 p-4">
 			<div class="flex items-center justify-between mb-5">
-				<div class="text-md font-semibold text-ink-gray-9 mb-4 md:mb-0">
+				<h1 class="text-md font-semibold text-ink-gray-9 mb-4 md:mb-0">
 					{{ totalApplications.data }}
 					{{
 						totalApplications.data === 1
 							? __('Application')
 							: __('Applications')
 					}}
-				</div>
-				<FormControl v-model="search" type="text" placeholder="Search">
+				</h1>
+				<FormControl
+					v-model="search"
+					type="text"
+					placeholder="Search"
+					:aria-label="__('Search applications')"
+				>
 					<template #prefix>
 						<span class="lucide-search size-4 text-ink-gray-5" />
 					</template>
@@ -65,6 +70,7 @@
 							:row="row"
 							v-slot="{ column, item }"
 							v-for="row in applicantRows"
+							:key="row.name"
 							class="cursor-pointer"
 						>
 							<ListRowItem :item="item">
@@ -82,7 +88,7 @@
 								</div>
 								<div v-else-if="column.key === 'actions'">
 									<Dropdown :options="getActionOptions(row)">
-										<Button variant="ghost">
+										<Button variant="ghost" :label="__('More actions')">
 											<span class="lucide-more-horizontal size-4" />
 										</Button>
 									</Dropdown>

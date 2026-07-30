@@ -16,6 +16,7 @@
 					type="text"
 					:debounce="300"
 					class="w-1/3"
+					:aria-label="__('Search')"
 					:placeholder="__('Search')"
 				>
 					<template #prefix>

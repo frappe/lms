@@ -6,9 +6,9 @@
 	</header>
 	<div v-if="program.data" class="pt-5 px-5 pb-10 mx-auto">
 		<div class="flex items-center gap-x-2 mb-5">
-			<div class="text-lg-semibold text-ink-gray-9">
+			<h1 class="text-lg-semibold text-ink-gray-9">
 				{{ program.data.name }}
-			</div>
+			</h1>
 
 			<Badge :theme="program.data.progress < 100 ? 'orange' : 'green'">
 				{{ program.data.progress }}% {{ __('completed') }}

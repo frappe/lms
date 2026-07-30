@@ -3,6 +3,16 @@
 
 import json
 import unittest
+from unittest.mock import patch
+
+import frappe
+from frappe.utils import add_to_date, now_datetime
+
+from lms.lms.doctype.course_lesson.course_lesson import (
+	UNTITLED_LESSON_TITLE,
+	rename_settled_untitled_lessons,
+)
+from lms.lms.test_helpers import BaseTestUtils
 
 # One sample URL per embed service registered in the LMS EditorJS editor.
 # Source of truth: frontend/src/utils/index.js → getEditorTools() → embed.config.services.
@@ -348,3 +358,84 @@ class TestLessonBlockExtraction(unittest.TestCase):
 		# The reported crash case: extraction yields nothing instead of raising.
 		self.assertEqual(self._quiz_ids("https://www.youtube.com/watch?v=htpg8CuD1Ec"), [])
 		self.assertEqual(self._assignment_ids("https://www.youtube.com/watch?v=htpg8CuD1Ec"), [])
+
+
+class TestRenameSettledUntitledLessons(BaseTestUtils):
+	def setUp(self):
+		super().setUp()
+		# _create_course() defaults instructor="frappe@example.com"; create it so the
+		# course's instructor Link resolves on a fresh DB (mirrors TestLMSCourse.setUp).
+		self.instructor = self._create_user(
+			"frappe@example.com", "Frappe", "Admin", ["Moderator", "Course Creator"]
+		)
+		self.course = self._create_course(title="Rename Untitled Course")
+		self.chapter = self._create_chapter("Rename Chapter", self.course.name)
+
+	def tearDown(self):
+		frappe.set_user("Administrator")
+		super().tearDown()
+
+	def _make_untitled_lesson(self):
+		lesson = self._create_lesson(UNTITLED_LESSON_TITLE, self.chapter.name, self.course.name)
+		self.assertTrue(lesson.name.endswith(f" {UNTITLED_LESSON_TITLE}"))
+		return lesson
+
+	def _retitle(self, lesson, title):
+		frappe.db.set_value("Course Lesson", lesson.name, "title", title, update_modified=False)
+
+	def _age_modified(self, name, days):
+		frappe.db.set_value(
+			"Course Lesson", name, "modified", add_to_date(now_datetime(), days=days), update_modified=False
+		)
+
+	def test_settled_lesson_is_renamed(self):
+		lesson = self._make_untitled_lesson()
+		prefix = lesson.name.split(" ", 1)[0]
+		self._retitle(lesson, "Real Title")
+		self._age_modified(lesson.name, days=-2)
+
+		rename_settled_untitled_lessons()
+
+		expected = f"{prefix} Real Title"
+		self.assertFalse(frappe.db.exists("Course Lesson", lesson.name))
+		self.assertTrue(frappe.db.exists("Course Lesson", expected))
+		self.cleanup_items.append(("Course Lesson", expected))
+
+	def test_recently_modified_lesson_is_not_renamed(self):
+		lesson = self._make_untitled_lesson()
+		self._retitle(lesson, "Fresh Edit")
+
+		rename_settled_untitled_lessons()
+
+		self.assertTrue(frappe.db.exists("Course Lesson", lesson.name))
+
+	def test_still_untitled_lesson_is_not_renamed(self):
+		lesson = self._make_untitled_lesson()
+		self._age_modified(lesson.name, days=-2)
+
+		rename_settled_untitled_lessons()
+
+		self.assertTrue(frappe.db.exists("Course Lesson", lesson.name))
+
+	def test_translated_placeholder_lesson_is_renamed(self):
+		translated = "Titre provisoire"
+		lang = "fr"
+		user = self._create_user("french-author@example.com", "French", "Author", ["LMS Student"])
+		frappe.db.set_value("User", user.name, "language", lang)
+
+		lesson = self._create_lesson(translated, self.chapter.name, self.course.name)
+		self.assertTrue(lesson.name.endswith(f" {translated}"))
+		prefix = lesson.name.split(" ", 1)[0]
+		self._retitle(lesson, "Titre Réel")
+		self._age_modified(lesson.name, days=-2)
+
+		def fake_translations(target_lang):
+			return {UNTITLED_LESSON_TITLE: translated} if target_lang == lang else {}
+
+		with patch("frappe.translate.get_all_translations", side_effect=fake_translations):
+			rename_settled_untitled_lessons()
+
+		expected = f"{prefix} Titre Réel"
+		self.assertFalse(frappe.db.exists("Course Lesson", lesson.name))
+		self.assertTrue(frappe.db.exists("Course Lesson", expected))
+		self.cleanup_items.append(("Course Lesson", expected))

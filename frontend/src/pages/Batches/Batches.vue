@@ -1,9 +1,16 @@
 <template>
-	<LayoutHeader>
-		<template #left-header>
-			<Breadcrumbs :items="breadcrumbs" />
-		</template>
-		<template #right-header>
+	<ListPage
+		:breadcrumbs="breadcrumbs"
+		:title="__('All Batches')"
+		:rows="batches.data || []"
+		:loading="batches.list.loading"
+		:has-next-page="batches.hasNextPage"
+		v-model:page-length="pageLength"
+		empty-name="Batches"
+		empty-icon="lucide-users"
+		@load-more="batches.next()"
+	>
+		<template #actions>
 			<Dropdown
 				v-if="canCreateBatch()"
 				:options="[
@@ -44,82 +51,58 @@
 				</template>
 			</Dropdown>
 		</template>
-	</LayoutHeader>
-	<div class="flex min-h-0 flex-1 flex-col p-5 pb-10">
-		<div
-			class="mb-5 flex flex-col justify-between space-y-4 lg:flex-row lg:items-center lg:space-y-0"
-		>
-			<div class="text-lg-semibold text-ink-gray-9">
-				{{ __('All Batches') }}
-			</div>
-			<div
-				class="flex flex-col space-y-3 lg:flex-row lg:items-center lg:gap-x-4 lg:space-y-0"
-			>
-				<TabButtons
-					v-if="user.data"
-					:options="batchTabs"
-					v-model="currentTab"
-					class="w-fit"
-				/>
-				<div class="grid grid-cols-2 gap-2">
-					<FormControl
-						v-model="title"
-						:placeholder="__('Search')"
-						type="text"
-						class="min-w-40"
-						@input="updateBatches()"
-					>
-						<template #prefix>
-							<span class="lucide-search size-4 text-ink-gray-5" />
-						</template>
-					</FormControl>
-					<ClearableCombobox
-						v-if="categories.length"
-						v-model="currentCategory"
-						:options="categories.filter((c) => c.value)"
-						:placeholder="__('Category')"
-						@update:modelValue="updateBatches()"
-					/>
-				</div>
 
-				<Tooltip :text="__('Only show batches that offer a certificate')">
-					<Checkbox
-						v-model="certification"
-						:label="__('Certification')"
-						@change="updateBatches()"
-					/>
-				</Tooltip>
-			</div>
-		</div>
-		<SkeletonLoader
-			v-if="batches.list.loading && !batches.data"
-			variant="cards"
-			:count="8"
-		/>
-		<div
-			v-else-if="batches.data?.length"
-			class="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
-		>
+		<template #tabs>
+			<TabButtons
+				v-if="user.data"
+				:options="batchTabs"
+				v-model="currentTab"
+				class="w-fit"
+			/>
+		</template>
+
+		<template #filters>
+			<FormControl
+				v-model="title"
+				:placeholder="__('Search')"
+				:aria-label="__('Search')"
+				type="text"
+				class="w-full sm:min-w-40"
+				@input="updateBatches()"
+			>
+				<template #prefix>
+					<span class="lucide-search size-4 text-ink-gray-5" />
+				</template>
+			</FormControl>
+			<ClearableCombobox
+				v-if="categories.length"
+				v-model="currentCategory"
+				:options="categories.filter((c) => c.value)"
+				:placeholder="__('Category')"
+				class="w-full sm:w-auto"
+				@update:modelValue="updateBatches()"
+			/>
+		</template>
+
+		<template #toggles>
+			<ToggleFilter
+				:modelValue="certification"
+				:label="__('Certification')"
+				:mobileLabel="__('Certification available')"
+				:tooltip="__('Only show batches that offer a certificate')"
+				@update:modelValue="setCertification"
+			/>
+		</template>
+
+		<template #card="{ row }">
 			<router-link
-				v-for="batch in batches.data"
-				:to="{ name: 'BatchDetail', params: { batchName: batch.name } }"
+				:to="{ name: 'BatchDetail', params: { batchName: row.name } }"
 			>
-				<BatchCard :batch="batch" />
+				<BatchCard :batch="row" />
 			</router-link>
-		</div>
-		<div v-else-if="!batches.list.loading" class="flex-1">
-			<EmptyStateLayout name="Batches" icon="lucide-users" />
-		</div>
+		</template>
+	</ListPage>
 
-		<div
-			v-if="!batches.list.loading && batches.hasNextPage"
-			class="mt-5 flex justify-center"
-		>
-			<Button @click="batches.next()">
-				{{ __('Load More') }}
-			</Button>
-		</div>
-	</div>
 	<NewBatchModal
 		v-if="showBatchModal"
 		v-model="showBatchModal"
@@ -128,31 +111,26 @@
 </template>
 <script setup>
 import {
-	Breadcrumbs,
 	Button,
 	createListResource,
 	Dropdown,
 	FormControl,
-	Tooltip,
 	TabButtons,
 	usePageMeta,
-	Checkbox,
 } from 'frappe-ui'
 import ClearableCombobox from '@/components/Controls/ClearableCombobox.vue'
+import ToggleFilter from '@/components/Controls/ToggleFilter.vue'
 import { computed, inject, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { sessionStore } from '@/stores/session'
 import BatchCard from '@/pages/Batches/components/BatchCard.vue'
-import SkeletonLoader from '@/components/SkeletonLoader.vue'
-import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
-import LayoutHeader from '@/components/Layouts/LayoutHeader.vue'
+import ListPage from '@/components/Layouts/ListPage.vue'
 import NewBatchModal from '@/pages/Batches/components/NewBatchModal.vue'
 
 const user = inject('$user')
 const dayjs = inject('$dayjs')
 const { brand } = sessionStore()
 const start = ref(0)
-const pageLength = ref(20)
 const categories = ref([])
 const currentCategory = ref(null)
 const title = ref('')
@@ -180,16 +158,32 @@ const setFiltersFromQuery = () => {
 	let queries = new URLSearchParams(location.search)
 	title.value = queries.get('title') || ''
 	currentCategory.value = queries.get('category') || null
-	certification.value = queries.get('certification') || false
+	// `|| false` would keep the raw string, so ?certification=false read as on.
+	certification.value = queries.get('certification') === 'true'
 }
 
 const batches = createListResource({
 	doctype: 'LMS Batch',
 	url: 'lms.lms.utils.get_batches',
 	cache: ['batches', user.data?.name],
-	pageLength: pageLength.value,
+	pageLength: 24,
 	start: start.value,
 })
+
+const pageLength = computed({
+	get: () => batches.pageLength,
+	set: (value) => {
+		// reload() ignores pageLength while start > 0 and refetches the rows
+		// already loaded, so a size change after Load More would do nothing.
+		batches.update({ pageLength: value, start: 0 })
+		batches.reload()
+	},
+})
+
+const setCertification = (value) => {
+	certification.value = value
+	updateBatches()
+}
 
 const setCategories = (data) => {
 	let allCategories = data.map((batch) => batch.category)

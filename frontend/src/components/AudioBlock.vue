@@ -7,7 +7,11 @@
 			<source :src="encodeURI(file)" type="audio/mp3" />
 		</audio>
 		<div class="flex items-center gap-x-2 shadow rounded-lg p-1 w-1/2">
-			<Button variant="ghost" @click="togglePlay">
+			<Button
+				variant="ghost"
+				:label="isPlaying ? __('Pause') : __('Play')"
+				@click="togglePlay"
+			>
 				<template #icon>
 					<span v-if="!isPlaying" class="lucide-play w-4 h-4 text-ink-gray-9" />
 					<span v-else class="lucide-pause w-4 h-4 text-ink-gray-9" />
@@ -20,12 +24,17 @@
 				step="0.1"
 				v-model="currentTime"
 				@input="changeCurrentTime"
+				:aria-label="__('Seek')"
 				class="duration-slider w-full h-1"
 			/>
 			<span class="text-xs-medium text-ink-gray-9">
 				{{ formatTime(currentTime) }} / {{ formatTime(duration) }}
 			</span>
-			<Button variant="ghost" @click="toggleMute">
+			<Button
+				variant="ghost"
+				:label="isMuted ? __('Unmute') : __('Mute')"
+				@click="toggleMute"
+			>
 				<template #icon>
 					<span
 						v-if="!isMuted"

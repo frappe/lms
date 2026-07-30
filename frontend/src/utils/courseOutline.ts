@@ -1,4 +1,4 @@
-import type { OutlineChapter } from '@/types/api'
+import type { OutlineChapter } from '@/types'
 
 type Chapters = OutlineChapter[] | null | undefined
 

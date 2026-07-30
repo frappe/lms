@@ -3,17 +3,26 @@
 		<iframe
 			class="youtube-video"
 			:src="getYouTubeVideoSource(youtube.split('/').pop())"
+			:title="__('YouTube video')"
 			width="100%"
 			:height="screenSize.width < 640 ? 200 : 400"
 			frameborder="0"
 			allowfullscreen
 		></iframe>
 	</div>
-	<div v-for="block in content?.split('\n\n')">
+	<!-- Keyed on the block text, not just the index: position N of the outgoing
+	     lesson and position N of the incoming one share an index, so Vue reuses
+	     the instance and hands a <PdfBlock> a new `file` — which it only reads
+	     once, at setup. Including the text forces a fresh instance. -->
+	<div
+		v-for="(block, index) in content?.split('\n\n')"
+		:key="`${index}:${block}`"
+	>
 		<div v-if="block.includes('{{ YouTubeVideo')">
 			<iframe
 				class="youtube-video"
 				:src="getYouTubeVideoSource(block)"
+				:title="__('YouTube video')"
 				width="100%"
 				:height="screenSize.width < 640 ? 200 : 400"
 				frameborder="0"
@@ -34,7 +43,16 @@
 			</video>
 		</div>
 		<div v-else-if="block.includes('{{ PDF')">
-			<PdfBlock :file="getId(block)" />
+			<PdfBlock v-if="inlinePdf" :file="getId(block)" />
+			<iframe
+				v-else
+				:src="getId(block)"
+				:title="__('PDF document')"
+				width="100%"
+				height="700px"
+				class="mb-4"
+				type="application/pdf"
+			></iframe>
 		</div>
 		<div v-else-if="block.includes('{{ Audio')">
 			<audio width="100%" controls controlsList="nodownload">
@@ -46,6 +64,7 @@
 				width="100%"
 				height="400"
 				:src="getId(block)"
+				:title="__('Embedded content')"
 				frameborder="0"
 				allowfullscreen
 			>
@@ -61,18 +80,24 @@
 import Quiz from '@/components/QuizBlock.vue'
 import PdfBlock from '@/components/PdfBlock.vue'
 import MarkdownIt from 'markdown-it'
-import DOMPurify from 'dompurify'
 import { useScreenSize } from '@/utils/composables'
 import { getMacroArg } from '@/utils/lessonMacros'
+import { sanitizeRichHTML } from '@/utils/sanitizeRichHTML'
+import { usesWebkitPdfViewer } from '@/utils/pdfViewer'
 
 const screenSize = useScreenSize()
+const inlinePdf = usesWebkitPdfViewer()
 
 const markdown = new MarkdownIt({
 	html: true,
 	linkify: true,
 })
 
-const renderSafe = (block) => DOMPurify.sanitize(markdown.render(block))
+// Route markdown output through the shared sanitizer so the anchor-target
+// hook (open in new tab) and form-tag blocklist are applied uniformly with
+// the rest of the LMS render pipelines. Keeps one source of truth for what
+// counts as safe user-authored HTML.
+const renderSafe = (block) => sanitizeRichHTML(markdown.render(block))
 
 const props = defineProps({
 	content: {

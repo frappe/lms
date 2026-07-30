@@ -9,6 +9,14 @@ def after_install():
 	give_discussions_permission()
 	give_user_list_permission()
 	give_event_permission()
+	ensure_batch_enrollment_index()
+
+
+def ensure_batch_enrollment_index():
+	"""Add the composite (batch, member) index on fresh installs, which skip the patch that adds it; idempotent."""
+	if not frappe.db.table_exists("LMS Batch Enrollment"):
+		return
+	frappe.db.add_index("LMS Batch Enrollment", ["batch", "member"])
 
 
 def after_sync():
