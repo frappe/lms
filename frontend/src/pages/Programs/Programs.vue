@@ -16,7 +16,7 @@
 		:title="__('All Programs')"
 		:rows="programs.data || []"
 		:total-count="programCount"
-		:loading="programs.list.loading"
+		:loading="programs.list.loading || reloading"
 		:has-next-page="programs.hasNextPage"
 		v-model:page-length="pageLength"
 		empty-name="Programs"
@@ -142,6 +142,20 @@ const programs = createListResource({
 	pageLength: 24,
 })
 
+// `list.loading` goes false mid-request: the aborted fetch's tail resolves
+// after the new reload() has started and clears the flag for it, so the empty
+// state flashes until the reload lands.
+const reloading = ref(false)
+
+const reloadPrograms = async () => {
+	reloading.value = true
+	try {
+		await programs.reload()
+	} finally {
+		reloading.value = false
+	}
+}
+
 const pageLength = computed({
 	get: () => programs.pageLength,
 	set: (value) => {
@@ -149,7 +163,7 @@ const pageLength = computed({
 		// of the pages already loaded and then restores start. Resetting start
 		// makes the chosen size the size that is actually requested.
 		programs.update({ pageLength: value, start: 0 })
-		programs.reload()
+		reloadPrograms()
 	},
 })
 
@@ -160,10 +174,15 @@ const setFiltersFromQuery = () => {
 
 const updatePrograms = () => {
 	updateFilters()
+	// createResource keeps no request sequence: every response assigns `data`,
+	// so a slow fetch for filters the user has already left repaints the list
+	// with the wrong programs seconds later. Cancel it first — an aborted fetch
+	// is swallowed and never reaches the list.
+	programs.list.abort()
 	programs.update({
 		filters: filters.value,
 	})
-	programs.reload()
+	reloadPrograms()
 	getProgramCount()
 }
 

@@ -4,6 +4,7 @@
 		:title="__('All Courses')"
 		:rows="courses.data || []"
 		:loading="courses.list.loading || reloading"
+		:total-count="courseCount"
 		:has-next-page="courses.hasNextPage"
 		v-model:page-length="pageLength"
 		empty-name="Courses"
@@ -97,6 +98,7 @@
 import {
 	Button,
 	createListResource,
+	createResource,
 	Dropdown,
 	FormControl,
 	TabButtons,
@@ -157,6 +159,27 @@ const courses = createListResource({
 	start: start.value,
 })
 
+// The tabs filter on `enrolled`, `created` and `live`, which are not fields,
+// so `frappe.client.get_count` cannot answer this — only the endpoint that
+// resolves them can. Without it the footer can say how many rows it has but
+// not how many there are.
+const courseCountResource = createResource({
+	url: 'lms.lms.utils.get_course_count',
+	makeParams: () => ({ filters: filters.value }),
+	onError: (error) => {
+		console.error(error)
+	},
+})
+
+const courseCount = computed(() => courseCountResource.data ?? null)
+
+const getCourseCount = () => {
+	// Same sequencing hazard as the list: nothing orders the responses, so a
+	// slow count for filters the user has left would overwrite the current one.
+	courseCountResource.abort()
+	courseCountResource.submit()
+}
+
 // `list.loading` goes false mid-request: the aborted fetch's tail resolves
 // after the new reload() has started and clears the flag for it, so the empty
 // state flashes until the reload lands.
@@ -199,6 +222,7 @@ const updateCourses = () => {
 		filters: filters.value,
 	})
 	reloadCourses()
+	getCourseCount()
 }
 
 const updateFilters = () => {

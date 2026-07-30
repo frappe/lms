@@ -137,9 +137,17 @@
 				</Button>
 			</div>
 
+			<!-- On a phone the strip spans the row, so the pills have to grow
+			     with it or the grey track shows through past the last tab.
+			     `grow` shares the slack out instead of forcing equal columns,
+			     which would truncate the longer labels at 390px. -->
 			<div class="mb-4 mt-10">
 				<TabButtons
-					class="inline-block"
+					:class="
+						isMobile
+							? 'flex w-full [&>div]:w-full [&_button]:min-w-0 [&_button]:grow [&_button>span]:w-full'
+							: 'inline-block'
+					"
 					:options="getTabButtons()"
 					v-model="activeTab"
 				/>
@@ -170,6 +178,7 @@ import { sessionStore } from '@/stores/session'
 import { Github, Linkedin, Twitter } from 'lucide-vue-next'
 import { useRoute, useRouter } from 'vue-router'
 import { convertToTitleCase } from '@/utils'
+import { useScreenSize } from '@/utils/composables'
 import UserAvatar from '@/components/UserAvatar.vue'
 import NoPermission from '@/components/NoPermission.vue'
 import NotFound from '@/pages/NotFound.vue'
@@ -183,6 +192,7 @@ const router = useRouter()
 const activeTab = ref('')
 const showProfileModal = ref(false)
 const readOnlyMode = window.read_only_mode
+const { isMobile } = useScreenSize()
 
 const props = defineProps({
 	username: {

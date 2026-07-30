@@ -4,6 +4,7 @@
 		:title="__('All Batches')"
 		:rows="batches.data || []"
 		:loading="batches.list.loading"
+		:total-count="batchCount"
 		:has-next-page="batches.hasNextPage"
 		v-model:page-length="pageLength"
 		empty-name="Batches"
@@ -113,6 +114,7 @@
 import {
 	Button,
 	createListResource,
+	createResource,
 	Dropdown,
 	FormControl,
 	TabButtons,
@@ -195,6 +197,19 @@ const setCategories = (data) => {
 	}
 }
 
+// Upcoming and Archived are settled against the current time in Python rather
+// than in the query, and `enrolled` is not a field, so only the endpoint that
+// resolves both can say how many batches a tab really holds.
+const batchCountResource = createResource({
+	url: 'lms.lms.utils.get_batch_count',
+	makeParams: () => ({ filters: filters.value }),
+	onError: (error) => {
+		console.error(error)
+	},
+})
+
+const batchCount = computed(() => batchCountResource.data ?? null)
+
 const updateBatches = () => {
 	updateFilters()
 	batches.update({
@@ -204,6 +219,10 @@ const updateBatches = () => {
 	batches.reload().then((data) => {
 		setCategories(data)
 	})
+	// Nothing orders the responses, so a slow count for a tab the user has
+	// left would overwrite the current one.
+	batchCountResource.abort()
+	batchCountResource.submit()
 }
 
 const updateFilters = () => {

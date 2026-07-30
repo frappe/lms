@@ -2,11 +2,19 @@
 	<!-- The title + filters strip every list page repeats. Spacing and
 	     breakpoints live here so a fix lands on all of them at once.
 
-	     This block does not scroll: it and the app header above it stay put at
-	     every width, and only the rows behind them move. Nothing here may grow
-	     past its content, or it eats the space the rows scroll in. -->
+	     It scrolls with the rows, at every width, and is never pinned: it
+	     belongs to the list rather than to the page chrome, and holding it still
+	     spends a third of a phone screen on controls the reader has already
+	     used. Only the app header above and the footer below stay put.
+
+	     Pinning it here would also be the old bug back: LayoutHeader is `sticky
+	     top-0` in the same scroller, so a second `sticky top-0` lands underneath
+	     it and loses its first 49px, and the offset that would clear it is the
+	     app header's own content height — the measurement that drifted and
+	     opened a band. It gets a rule on a phone instead, where it runs the full
+	     width and the rows begin straight under it. -->
 	<div
-		class="shrink-0 mb-5 flex flex-col justify-between px-5 pt-5 md:flex-row"
+		class="mb-5 flex shrink-0 flex-col justify-between border-b px-5 pb-4 pt-5 sm:border-b-0 sm:pb-0 md:flex-row"
 	>
 		<h1 class="text-lg-semibold text-ink-gray-9 mb-4 md:mb-0">
 			<slot name="title">{{ title }}</slot>

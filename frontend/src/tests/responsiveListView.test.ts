@@ -79,7 +79,17 @@ vi.mock('frappe-ui', async () => {
 			expose({ selections, toggleRow, toggleAllRows })
 			return {}
 		},
-		template: '<div data-testid="listview" v-bind="$attrs"><slot /></div>',
+		// Both wrappers are copied verbatim from frappe-ui's ListView.vue, class
+		// lists included. The inner one is the reason the cards need a scroll box
+		// of their own: it clips them, and the class a caller passes lands on it
+		// rather than replacing anything.
+		template: `<div class="relative flex w-full flex-1 flex-col overflow-x-auto">
+			<div
+				class="flex w-max min-w-full flex-col overflow-y-hidden"
+				data-testid="listview"
+				v-bind="$attrs"
+			><slot /></div>
+		</div>`,
 	})
 
 	const ListSelectBanner = defineComponent({
@@ -362,5 +372,54 @@ describe('ResponsiveListView without selection', () => {
 		expect(wrapper.find('[data-testid="list-rows"]').exists()).toBe(true)
 		expect(wrapper.find('ul').exists()).toBe(false)
 		expect(wrapper.find('[data-testid="row-checkbox"]').exists()).toBe(false)
+	})
+})
+
+/**
+ * frappe-ui hands its rows a box it has already clipped (`overflow-y-hidden`),
+ * and supplies the scrolling itself in ListRows. The card shape replaces
+ * ListRows, so it has to supply that scrolling too — without it the cards past
+ * the first screenful are painted and unreachable, which is what a phone with
+ * 24 quizzes on it actually showed. jsdom has no layout to measure, so what is
+ * pinned here is the structure that produces it; the measurement lives in the
+ * handover.
+ */
+describe('ResponsiveListView card scrolling', () => {
+	const SCROLLS = 'overflow-y-auto'
+
+	// The cards must not scroll inside anything of their own. The page body owns
+	// the single scroll box, and on a phone even that is released so the page
+	// itself scrolls — a box here would take the page's scroll range away, and a
+	// browser only retracts its URL bar when the root scroller moves.
+	//
+	// It is worth stating because frappe-ui makes it easy to get wrong twice
+	// over: the box it hands these rows is `overflow-y-hidden`, and it supplies
+	// the scrolling in ListRows, which the card shape replaces. Give the cards
+	// nothing and they are clipped; give them a scroller and the page is.
+	it('never scrolls the cards inside a box of their own', async () => {
+		mobile.value = true
+		const { wrapper } = await mountList(routedOptions)
+
+		const list = wrapper.find('ul').element
+		const clipped = wrapper.find('[data-testid="listview"]').element
+		expect(clipped.className).toContain('overflow-y-hidden')
+
+		for (let el = list.parentElement; el && el !== clipped; el = el.parentElement) {
+			expect(el.className.includes(SCROLLS)).toBe(false)
+		}
+		// And nothing may bound their height either, or the clip bites instead.
+		for (let el = list.parentElement; el && el !== clipped; el = el.parentElement) {
+			expect(el.className.includes('min-h-0')).toBe(false)
+		}
+	})
+
+	it('leaves the selection banner outside the rows, so it does not scroll away', async () => {
+		mobile.value = true
+		const { wrapper } = await mountList(routedOptions)
+		await selectFirstRow(wrapper)
+
+		const banner = wrapper.find('[data-testid="select-banner"]').element
+		const list = wrapper.find('ul').element
+		expect(banner.contains(list)).toBe(false)
 	})
 })

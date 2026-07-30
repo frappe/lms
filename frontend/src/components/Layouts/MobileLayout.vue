@@ -1,5 +1,8 @@
 <template>
-	<div class="relative flex h-screen flex-col">
+	<!-- h-dvh, not h-screen: 100vh is the URL-bar-retracted viewport, so the tab
+	     bar sits below the visible area on a phone. Nothing above main scrolls,
+	     so the browser never retracts the bar to give that band back. -->
+	<div class="relative flex h-dvh flex-col">
 		<a
 			href="#scrollContainer"
 			@click.prevent="skipToContent('scrollContainer')"
@@ -7,51 +10,87 @@
 		>
 			{{ __('Skip to main content') }}
 		</a>
+		<!-- min-h-0 lets this flex child actually shrink so its own overflow
+		     scrolls. The tab bar below is a sibling in normal flow, not fixed, so
+		     main simply ends where the bar begins — padding can't do that job
+		     here, because Chromium drops a flex column's bottom padding from the
+		     scrollable area and the last row stays hidden under the bar. -->
 		<main
-			class="flex flex-1 flex-col overflow-y-auto pb-10 focus:outline-none"
+			class="flex min-h-0 flex-1 flex-col overflow-y-auto focus:outline-none"
 			id="scrollContainer"
 			tabindex="-1"
 		>
 			<slot />
 		</main>
 
-		<div class="relative z-20">
-			<!-- Dropdown menu -->
-			<div
-				id="mobileMoreMenu"
-				class="fixed bottom-16 end-2 w-[80%] space-y-4 rounded-md bg-surface-base p-5 text-base shadow-md"
-				v-show="showMenu"
-				ref="menu"
-			>
-				<button
-					v-for="link in otherLinks"
-					:key="link.label"
-					type="button"
-					class="flex w-full cursor-pointer items-center gap-x-2"
-					@click="handleClick(link)"
-				>
-					<component
-						:is="icons[link.icon]"
-						class="h-4 w-4 stroke-1.5 text-ink-gray-5"
-					/>
-					<div>{{ link.label }}</div>
-				</button>
-			</div>
+		<div class="relative z-20 shrink-0">
+			<!-- More: the overflow destinations, grouped into sections. No header:
+			     the sheet opens from a button that already says what it is, and
+			     the sections name themselves. -->
+			<BottomSheet v-if="showMoreTab" v-model="showMenu">
+				<div class="px-3">
+					<template v-for="section in menuSections" :key="section.title">
+						<div
+							class="px-2 pb-1 pt-3 text-p-xs font-medium uppercase tracking-wide text-ink-gray-5"
+						>
+							{{ __(section.title) }}
+						</div>
+						<button
+							v-for="item in section.items"
+							:key="item.label"
+							type="button"
+							class="flex w-full items-center gap-3 rounded-lg px-2 py-2.5 text-start hover:bg-surface-gray-2 active:bg-surface-gray-3"
+							@click="handleClick(item)"
+						>
+							<span
+								class="flex size-9 shrink-0 items-center justify-center rounded-lg bg-surface-gray-2"
+							>
+								<component
+									:is="icons[item.icon]"
+									class="size-4 stroke-1.5 text-ink-gray-7"
+								/>
+							</span>
+							<span class="min-w-0 flex-1">
+								<span
+									class="block truncate text-p-base font-medium text-ink-gray-8"
+								>
+									{{ __(item.label) }}
+								</span>
+								<span
+									v-if="subtitleFor(item.label)"
+									class="block truncate text-p-sm text-ink-gray-5"
+								>
+									{{ __(subtitleFor(item.label)) }}
+								</span>
+							</span>
+							<span
+								class="lucide-chevron-right size-4 shrink-0 text-ink-gray-4"
+							/>
+						</button>
+					</template>
+					<!-- Reachable only before the admin-configured links land, or if
+					     every destination is already on the bar. -->
+					<div
+						v-if="!menuSections.length"
+						class="py-10 text-center text-p-sm text-ink-gray-5"
+					>
+						{{ __('Nothing else here') }}
+					</div>
+				</div>
+			</BottomSheet>
 
-			<!-- Fixed menu -->
+			<!-- Bottom bar: a few primary tabs + More -->
 			<nav
-				v-if="sidebarSettings.data"
+				v-if="!showMoreTab || sidebarSettings.data"
 				:aria-label="__('Primary')"
-				class="standalone:pb-4 fixed bottom-0 start-0 z-10 flex w-full items-center justify-around border-t border-outline-gray-2 bg-surface-base"
+				class="standalone:pb-4 z-10 flex w-full items-stretch border-t border-outline-gray-2 bg-surface-base"
 			>
 				<button
-					v-for="tab in sidebarLinks"
+					v-for="tab in primaryTabs"
 					:key="tab.label"
 					type="button"
-					:aria-label="__(tab.label)"
 					:aria-current="isActive(tab) ? 'page' : undefined"
-					:class="isVisible(tab) ? 'block' : 'hidden'"
-					class="flex flex-col items-center justify-center py-3 transition active:scale-95"
+					class="flex min-w-0 flex-1 flex-col items-center justify-center gap-0.5 px-1 py-2 transition active:scale-95"
 					@click="handleClick(tab)"
 				>
 					<component
@@ -59,21 +98,43 @@
 						class="h-6 w-6 stroke-1.5"
 						:class="[isActive(tab) ? 'text-ink-gray-9' : 'text-ink-gray-5']"
 					/>
+					<span
+						class="max-w-full truncate text-p-xs"
+						:class="[
+							isActive(tab) ? 'font-medium text-ink-gray-9' : 'text-ink-gray-5',
+						]"
+					>
+						{{ __(tabLabel(tab.label)) }}
+					</span>
 				</button>
 				<button
+					v-if="showMoreTab"
 					type="button"
-					:aria-label="__('More')"
 					:aria-expanded="showMenu"
-					aria-controls="mobileMoreMenu"
+					aria-haspopup="dialog"
+					class="flex min-w-0 flex-1 flex-col items-center justify-center gap-0.5 px-1 py-2 transition active:scale-95"
 					@click="toggleMenu"
 				>
 					<component
-						:is="icons['List']"
-						class="h-6 w-6 stroke-1.5 text-ink-gray-5"
+						:is="icons['Ellipsis']"
+						class="h-6 w-6 stroke-1.5"
+						:class="[showMenu ? 'text-ink-gray-9' : 'text-ink-gray-5']"
 					/>
+					<span
+						class="max-w-full truncate text-p-xs"
+						:class="[
+							showMenu ? 'font-medium text-ink-gray-9' : 'text-ink-gray-5',
+						]"
+					>
+						{{ __('More') }}
+					</span>
 				</button>
 			</nav>
 		</div>
+
+		<!-- Mounted here as well as in the desk sidebar's UserDropdown: only one
+		     layout is alive at a time, so this never double-mounts. -->
+		<SettingsModal v-if="isModerator" v-model="settingsStore.isSettingsOpen" />
 	</div>
 </template>
 <script setup>
@@ -81,40 +142,49 @@ import { skipToContent } from '@/utils/a11y'
 import { getSidebarLinks } from '@/utils'
 import { useRouter } from 'vue-router'
 import { call } from 'frappe-ui'
-import { ref, watch } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { sessionStore } from '@/stores/session'
 import { useSettings } from '@/stores/settings'
 import { usersStore } from '@/stores/user'
 import * as icons from 'lucide-vue-next'
 import { toggleNotifications } from '@/stores/notifications'
+import BottomSheet from '@/components/BottomSheet.vue'
+import SettingsModal from '@/components/Settings/Settings.vue'
+import {
+	buildMenuSections,
+	hasMoreTab,
+	pickPrimaryTabs,
+	subtitleFor,
+	tabLabel,
+} from '@/utils/mobileNav'
 
 const { logout, user } = sessionStore()
 let { isLoggedIn } = sessionStore()
-const { sidebarSettings, loadSidebarSettings } = useSettings()
+const settingsStore = useSettings()
+const { sidebarSettings, loadSidebarSettings } = settingsStore
 const router = useRouter()
 let { userResource } = usersStore()
 const sidebarLinks = ref([])
 const otherLinks = ref([])
 const showMenu = ref(false)
-const menu = ref(null)
 const isModerator = ref(false)
 const isInstructor = ref(false)
 
-const handleOutsideClick = (e) => {
-	if (menu.value && !menu.value.contains(e.target)) {
-		showMenu.value = false
-	}
-}
+// `user` comes from the session cookie synchronously, so the bar is settled
+// before the first paint; a signed-out visitor gets a static five, no More.
+const isSignedIn = Boolean(user)
+const showMoreTab = hasMoreTab(isSignedIn)
+const primaryTabs = computed(() =>
+	pickPrimaryTabs(sidebarLinks.value, isSignedIn, sidebarSettings.data)
+)
 
-watch(showMenu, (val) => {
-	if (val) {
-		setTimeout(() => {
-			document.addEventListener('click', handleOutsideClick)
-		}, 0)
-	} else {
-		document.removeEventListener('click', handleOutsideClick)
-	}
-})
+const menuSections = computed(() =>
+	buildMenuSections(
+		sidebarLinks.value,
+		otherLinks.value,
+		primaryTabs.value.map((tab) => tab.label)
+	)
+)
 
 const destructureSidebarLinks = () => {
 	let links = []
@@ -140,6 +210,10 @@ const addOtherLinks = () => {
 	if (user) {
 		addLink('Notifications', 'Bell', 'Notifications')
 		addLink('Profile', 'UserRound')
+		// The desk sidebar's UserDropdown is the only other way in, and it
+		// isn't rendered on a phone — without this, a moderator on mobile has
+		// no route to Settings at all.
+		if (isModerator.value) addLink('Settings', 'Settings')
 		addLink('Log out', 'LogOut')
 	} else {
 		addLink('Log in', 'LogIn')
@@ -230,7 +304,8 @@ let isActive = (tab) => {
 const handleClick = (tab) => {
 	if (tab.label == 'Notifications') {
 		toggleNotifications()
-		toggleMenu()
+	} else if (tab.label == 'Settings') {
+		settingsStore.isSettingsOpen = true
 	} else if (tab.label == 'Log in') window.location.href = '/login'
 	else if (tab.label == 'Log out')
 		logout.submit().then(() => {
@@ -244,12 +319,7 @@ const handleClick = (tab) => {
 			},
 		})
 	else router.push({ name: tab.to })
-}
-
-const isVisible = (tab) => {
-	if (tab.label == 'Log in') return !isLoggedIn
-	else if (tab.label == 'Log out') return isLoggedIn
-	else return true
+	showMenu.value = false
 }
 
 const toggleMenu = () => {

@@ -1,5 +1,5 @@
 <template>
-	<div class="flex h-screen w-screen">
+	<div class="flex h-dvh w-screen">
 		<a
 			href="#main-content"
 			@click.prevent="skipToContent('main-content')"

@@ -26,6 +26,7 @@ declare module 'vue' {
     BatchCourseModal: typeof import('./src/components/Modals/BatchCourseModal.vue')['default']
     BlockEditor: typeof import('./src/components/BlockEditor.vue')['default']
     BooleanSwitch: typeof import('./src/components/Controls/BooleanSwitch.vue')['default']
+    BottomSheet: typeof import('./src/components/BottomSheet.vue')['default']
     BrandSettings: typeof import('./src/components/Settings/BrandSettings.vue')['default']
     Categories: typeof import('./src/components/Settings/Categories.vue')['default']
     CertificationLinks: typeof import('./src/components/CertificationLinks.vue')['default']

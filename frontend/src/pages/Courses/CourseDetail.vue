@@ -1,11 +1,28 @@
 <template>
-	<div class="flex h-full flex-col">
+	<div
+		class="flex flex-col"
+		:class="flowsWithPage ? 'min-h-full shrink-0' : 'h-full'"
+	>
 		<LayoutHeader :isLoading="!course.data">
 			<template #left-header>
-				<Breadcrumbs class="h-7" :items="breadcrumbs" />
-				<Badge v-if="course.data?.published" theme="green">
-					{{ __('Published') }}
-				</Badge>
+				<!-- Breadcrumbs plus a badge do not fit 390px beside the actions, so
+				     a phone gets a single back-link carrying the course title. -->
+				<router-link
+					v-if="isMobile"
+					:to="{ name: 'Courses' }"
+					class="flex min-w-0 items-center gap-1 text-ink-gray-9"
+				>
+					<span class="lucide-chevron-left size-4 shrink-0" />
+					<span class="truncate text-p-base-medium">
+						{{ course.data?.title }}
+					</span>
+				</router-link>
+				<template v-else>
+					<Breadcrumbs class="h-7" :items="breadcrumbs" />
+					<Badge v-if="course.data?.published" theme="green">
+						{{ __('Published') }}
+					</Badge>
+				</template>
 			</template>
 			<template #right-header>
 				<template v-if="tabIndex === 3 && courseFormRef">
@@ -13,7 +30,7 @@
 						{{ __('Not Saved') }}
 					</Badge>
 					<Dropdown
-						:options="courseFormRef.courseMenu"
+						:options="courseOptions"
 						:button="{
 							icon: 'lucide-ellipsis',
 							variant: 'ghost',
@@ -27,13 +44,23 @@
 						:text="__('No changes to save')"
 						:hoverDelay="0.1"
 					>
-						<Button variant="solid" :disabled="true">
-							{{ __('Save') }}
+						<Button
+							variant="solid"
+							:disabled="true"
+							:class="isMobile ? '!size-9' : ''"
+						>
+							<span v-if="isMobile" class="lucide-save size-4" />
+							<span v-else>{{ __('Save') }}</span>
 						</Button>
 					</Tooltip>
 					<ShortcutTooltip v-else :label="__('Save')" combo="Mod+S">
-						<Button variant="solid" @click="courseFormRef.submitCourse()">
-							{{ __('Save') }}
+						<Button
+							variant="solid"
+							:class="isMobile ? '!size-9' : ''"
+							@click="courseFormRef.submitCourse()"
+						>
+							<span v-if="isMobile" class="lucide-save size-4" />
+							<span v-else>{{ __('Save') }}</span>
 						</Button>
 					</ShortcutTooltip>
 				</template>
@@ -47,6 +74,7 @@
 						<Button
 							variant="ghost"
 							:label="__('Video Statistics')"
+							:class="isMobile ? '!size-9' : ''"
 							@click="courseEditorRef?.openVideoStats()"
 						>
 							<template #icon>
@@ -54,7 +82,9 @@
 							</template>
 						</Button>
 					</Tooltip>
-					<Tooltip :text="__('How to edit a lesson')">
+					<!-- The help affordance is the first thing to go at 390px: the
+					     lesson stepper and Student View earn the space instead. -->
+					<Tooltip v-if="!isMobile" :text="__('How to edit a lesson')">
 						<Button
 							variant="ghost"
 							:label="__('How to edit a lesson')"
@@ -76,7 +106,15 @@
 							query: { studentView: 1 },
 						}"
 					>
-						<Button variant="outline">
+						<!-- Mobile: the label goes, the hit area stays thumb-sized. -->
+						<Tooltip v-if="isMobile" :text="__('Student View')">
+							<Button variant="outline" class="!size-9">
+								<template #icon>
+									<span class="lucide-eye size-4" />
+								</template>
+							</Button>
+						</Tooltip>
+						<Button v-else variant="outline">
 							<template #prefix>
 								<span class="lucide-eye size-4" />
 							</template>
@@ -85,7 +123,18 @@
 					</router-link>
 				</template>
 				<Button
-					v-if="tabIndex === 1 && course.data"
+					v-if="tabIndex === 1 && course.data && isMobile"
+					variant="outline"
+					class="!size-9"
+					:tooltip="__('Enroll')"
+					@click="courseDashboardRef?.openEnrollModal()"
+				>
+					<template #icon>
+						<span class="lucide-plus size-4" />
+					</template>
+				</Button>
+				<Button
+					v-else-if="tabIndex === 1 && course.data"
 					variant="outline"
 					@click="courseDashboardRef?.openEnrollModal()"
 				>
@@ -94,8 +143,12 @@
 					</template>
 					{{ __('Enroll') }}
 				</Button>
+				<!-- On a phone the publish toggle moves into the ... menu beside it,
+				     where it keeps a written label: an icon-only globe gives no hint
+				     that it publishes the course, and a labelled button does not fit
+				     beside Save and the rest at 390px. -->
 				<Button
-					v-if="tabIndex === 3 && user.data?.is_moderator"
+					v-if="tabIndex === 3 && user.data?.is_moderator && !isMobile"
 					:variant="course.data?.published ? 'outline' : 'solid'"
 					:theme="course.data?.published ? 'red' : 'gray'"
 					:loading="publishToggle.loading"
@@ -111,16 +164,82 @@
 			<CourseOverview v-if="course.data" :course="course" />
 			<SkeletonLoader v-else variant="course-page" />
 		</div>
-		<div v-else class="relative flex flex-1 min-h-0 flex-col">
-			<Tabs :tabs="tabs" v-model="tabIndex">
+		<div
+			v-else
+			class="relative flex flex-1 flex-col"
+			:class="{ 'min-h-0': !flowsWithPage }"
+		>
+			<Tabs
+				:tabs="tabs"
+				v-model="tabIndex"
+				class="course-tabs"
+				:class="{ 'page-flow': flowsWithPage }"
+			>
+				<!-- Mobile: drop the per-tab icon and shorten the editor label so
+				     all four tabs fit the viewport without horizontal scroll. -->
+				<template #tab-item="{ tab }">
+					<button
+						class="flex items-center gap-1.5 whitespace-nowrap py-2.5 text-p-base text-ink-gray-5 duration-300 ease-in-out hover:text-ink-gray-9 data-[state=active]:text-ink-gray-9"
+					>
+						<span
+							v-if="
+								!isMobile &&
+								typeof tab.icon === 'string' &&
+								tab.icon.startsWith('lucide-')
+							"
+							class="size-4"
+							:class="tab.icon"
+						/>
+						{{ tabDisplayLabel(tab.label) }}
+					</button>
+				</template>
 				<template #tab-panel="{ tab }">
 					<template v-if="course.data">
-						<CourseEditor
-							v-if="tab.component === CourseEditor"
-							ref="courseEditorRef"
-							:course="course"
-							v-model:selected="editorSelected"
-						/>
+						<template v-if="tab.component === CourseEditor">
+							<!-- Mobile editor: which lesson you are on, and prev/next.
+							     No completion bar — this is the authoring view, where a
+							     learner's progress means nothing. -->
+							<div
+								v-if="isMobile && editorSelected"
+								class="flex items-center gap-2 border-b bg-surface-base px-3 py-2"
+							>
+								<Button
+									variant="subtle"
+									class="!size-9"
+									:label="__('Previous lesson')"
+									:disabled="!courseEditorRef?.hasPrev"
+									@click="courseEditorRef?.goPrev()"
+								>
+									<template #icon>
+										<span class="lucide-chevron-left size-4" />
+									</template>
+								</Button>
+								<div
+									class="min-w-0 flex-1 text-center text-p-xs font-medium tabular-nums text-ink-gray-5"
+								>
+									<span v-if="courseEditorRef?.lessonTotal">
+										{{ courseEditorRef?.lessonIndex }} /
+										{{ courseEditorRef?.lessonTotal }}
+									</span>
+								</div>
+								<Button
+									variant="subtle"
+									class="!size-9"
+									:label="__('Next lesson')"
+									:disabled="!courseEditorRef?.hasNext"
+									@click="courseEditorRef?.goNext()"
+								>
+									<template #icon>
+										<span class="lucide-chevron-right size-4" />
+									</template>
+								</Button>
+							</div>
+							<CourseEditor
+								ref="courseEditorRef"
+								:course="course"
+								v-model:selected="editorSelected"
+							/>
+						</template>
 						<CourseForm
 							v-else-if="tab.component === CourseForm"
 							ref="courseFormRef"
@@ -135,6 +254,25 @@
 					</template>
 				</template>
 			</Tabs>
+
+			<!-- Chapters as a floating pill rather than a header icon: on a phone
+			     the outline is the control you reach for most while editing, and
+			     the bottom-right corner is where a thumb already is. Uses the
+			     ordinary outline Button so it carries espresso's surface, border
+			     and ink tokens instead of an ad-hoc dark fill. -->
+			<Button
+				v-if="isMobile && tabIndex === 2"
+				variant="outline"
+				size="md"
+				class="absolute bottom-4 end-4 z-10 !h-11 !rounded-full !px-4 !shadow-lg"
+				@click="courseEditorRef?.openChapters()"
+			>
+				<template #prefix>
+					<span class="lucide-layers size-4" />
+				</template>
+				{{ __('Chapters') }}
+			</Button>
+
 			<div
 				v-if="tabIndex === 2 && course.data"
 				class="pointer-events-none absolute inset-x-0 top-0 z-10 hidden md:flex"
@@ -174,6 +312,7 @@ import {
 	usePageMeta,
 } from 'frappe-ui'
 import { sessionStore } from '@/stores/session'
+import { useScreenSize } from '@/utils/composables'
 import LayoutHeader from '@/components/Layouts/LayoutHeader.vue'
 import CourseOverview from '@/pages/Courses/CourseOverview.vue'
 import SkeletonLoader from '@/components/SkeletonLoader.vue'
@@ -201,6 +340,7 @@ const router: Router = useRouter()
 const route: RouteLocationNormalizedLoadedGeneric = useRoute()
 const user = inject<SessionUser>('$user')!
 const tabIndex: Ref<number> = ref(0)
+const { isMobile } = useScreenSize()
 
 interface EditorSelection {
 	chapterNumber: string
@@ -236,6 +376,13 @@ type CourseEditorApi = {
 	lessonHasVideo: ComputedRef<boolean>
 	openVideoStats: () => void
 	openAddChapter: () => void
+	lessonIndex: ComputedRef<number>
+	lessonTotal: ComputedRef<number>
+	hasPrev: ComputedRef<boolean>
+	hasNext: ComputedRef<boolean>
+	goPrev: () => void
+	goNext: () => void
+	openChapters: () => void
 }
 const courseEditorRef = ref<CourseEditorApi | null>(null)
 const courseDashboardRef = ref<{ openEnrollModal: () => void } | null>(null)
@@ -264,6 +411,23 @@ const publishToggle = createResource({
 		toast.error(msg)
 	},
 }) as Resource<unknown>
+
+// On a phone the publish toggle joins the ... menu, where it keeps a written
+// label — an icon-only globe gave no hint that it publishes the course.
+const courseOptions = computed<CourseMenuItem[]>(() => {
+	const menu = courseFormRef.value?.courseMenu ?? []
+	if (!isMobile.value || !user.data?.is_moderator) return menu
+	return [
+		{
+			label: course.data?.published
+				? __('Unpublish course')
+				: __('Publish course'),
+			icon: course.data?.published ? 'lucide-globe-lock' : 'lucide-globe',
+			onClick: () => togglePublishCourse(),
+		},
+		...menu,
+	]
+})
 
 function togglePublishCourse() {
 	publishToggle.submit()
@@ -332,6 +496,21 @@ const tabs = ref<TabDef[]>([
 	},
 ])
 
+// Overview and Settings are ordinary documents: on a phone they flow with the
+// page so MobileLayout's #scrollContainer stays the only scroller. The editor
+// is excluded — its `flex-1 min-h-0` grid needs a bounded panel to fill — and
+// so is the dashboard, which renders as it does today.
+function tabDisplayLabel(label: string): string {
+	if (isMobile.value && label === __('Course editor')) return __('Editor')
+	return label
+}
+
+const flowsWithPage = computed<boolean>(() => {
+	if (!isMobile.value) return false
+	const active = tabs.value[tabIndex.value]?.component
+	return active === CourseOverview || active === CourseForm
+})
+
 watch(
 	() => props.courseName,
 	() => {
@@ -398,5 +577,29 @@ usePageMeta(() => {
 :deep([role='tabpanel'][data-state='active']) {
 	flex: 1 1 0%;
 	min-height: 0;
+}
+
+/* ...except on the tabs that flow with the page: there the panel must size to
+   its content and let the overflow reach MobileLayout's #scrollContainer, so
+   both TabsRoot's `overflow-hidden` and TabsContent's `overflow-auto` are
+   released too. Without all three the panel stays a nested scroll box and the
+   page itself has no scroll range, which is what pins the URL bar open. */
+.course-tabs.page-flow {
+	overflow: visible;
+}
+
+.course-tabs.page-flow :deep([role='tabpanel'][data-state='active']) {
+	flex: none;
+	min-height: auto;
+	overflow: visible;
+}
+
+/* Mobile: tighten the tablist gap/padding so all four tabs fit the viewport
+   without horizontal scroll. */
+@media (max-width: 639px) {
+	.course-tabs :deep([role='tablist']) {
+		gap: 1rem;
+		padding-inline: 0.75rem;
+	}
 }
 </style>
