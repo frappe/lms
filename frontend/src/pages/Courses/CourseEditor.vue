@@ -27,7 +27,7 @@
 			</div>
 		</div>
 
-		<aside class="border-s overflow-y-auto">
+		<aside v-if="!isMobile" class="border-s overflow-y-auto">
 			<SkeletonLoader
 				v-if="outline.loading && !outline.data"
 				variant="editor-sidebar"
@@ -46,6 +46,35 @@
 				@chapter-deleted="onChapterDeleted"
 			/>
 		</aside>
+
+		<!-- Mobile: there is no room for a 30% aside, so the outline opens from
+		     the Chapters pill into a sheet instead. -->
+		<BottomSheet v-if="isMobile" v-model="showChapters">
+			<template #header>
+				<div class="text-p-lg-semibold text-ink-gray-9">
+					{{ __('Chapters') }}
+				</div>
+				<Button :label="__('Add chapter')" @click="openAddChapter">
+					<template #icon>
+						<span class="lucide-plus size-4" />
+					</template>
+				</Button>
+			</template>
+			<CourseOutline
+				v-if="props.course?.data"
+				ref="courseOutlineRef"
+				:courseName="props.course.data.name"
+				:title="__('Chapters')"
+				:allowEdit="true"
+				:hideHeader="true"
+				:inlineSelect="true"
+				:selectedLessonNumber="selected?.number"
+				@select-lesson="onSelectLesson"
+				@lesson-deleted="onLessonDeleted"
+				@chapter-deleted="onChapterDeleted"
+			/>
+		</BottomSheet>
+
 		<VideoStatistics
 			v-model="showStats"
 			:lessonName="statsLessonName"
@@ -57,9 +86,11 @@
 <script setup>
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { createResource } from 'frappe-ui'
+import { Button, createResource } from 'frappe-ui'
 import { useSidebar } from '@/stores/sidebar'
+import { useScreenSize } from '@/utils/composables'
 import CourseOutline from '@/components/CourseOutline.vue'
+import BottomSheet from '@/components/BottomSheet.vue'
 import SkeletonLoader from '@/components/SkeletonLoader.vue'
 import LessonForm from '@/pages/LessonForm.vue'
 import VideoStatistics from '@/components/Modals/VideoStatistics.vue'
@@ -77,6 +108,8 @@ const props = defineProps({
 const selected = defineModel('selected', { default: null })
 const route = useRoute()
 const router = useRouter()
+const { isMobile } = useScreenSize()
+const showChapters = ref(false)
 
 // Collapse the app sidebar while the lesson editor is open to give the
 // editing surface room, then restore it on leaving the tab. Mirrors the
@@ -191,6 +224,8 @@ function onSelectLesson({ chapterNumber, lessonNumber }) {
 		storeLesson(props.course.data.name, number)
 	}
 	syncSelectedToUrl(number)
+	// On mobile the outline lives in a sheet; dismiss it once a lesson is picked.
+	showChapters.value = false
 }
 
 const outline = createResource({
@@ -318,6 +353,44 @@ function saveSelectedLesson() {
 
 const isDirty = computed(() => Boolean(lessonFormRef.value?.isDirty))
 
+// The phone's lesson stepper. Derived from the outline, which is already
+// loaded, rather than from the LessonForm child — otherwise the buttons
+// flicker out on every hop while the child remounts and refetches.
+const flatLessonNumbers = computed(() =>
+	(outline.data ?? []).flatMap((c) => c.lessons?.map((l) => l.number) ?? [])
+)
+const selectedIndex = computed(() =>
+	selected.value?.number
+		? flatLessonNumbers.value.indexOf(selected.value.number)
+		: -1
+)
+const hasPrev = computed(() => selectedIndex.value > 0)
+const hasNext = computed(
+	() =>
+		selectedIndex.value >= 0 &&
+		selectedIndex.value < flatLessonNumbers.value.length - 1
+)
+const lessonTotal = computed(() => flatLessonNumbers.value.length)
+const lessonIndex = computed(() =>
+	selectedIndex.value >= 0 ? selectedIndex.value + 1 : 0
+)
+
+function selectByNumber(number) {
+	const [chapterNumber, lessonNumber] = number.split('-')
+	onSelectLesson({ chapterNumber, lessonNumber })
+}
+function goPrev() {
+	if (hasPrev.value)
+		selectByNumber(flatLessonNumbers.value[selectedIndex.value - 1])
+}
+function goNext() {
+	if (hasNext.value)
+		selectByNumber(flatLessonNumbers.value[selectedIndex.value + 1])
+}
+function openChapters() {
+	showChapters.value = true
+}
+
 const lessonHasVideo = computed(() =>
 	Boolean(lessonFormRef.value?.lessonHasVideo?.())
 )
@@ -339,5 +412,12 @@ defineExpose({
 	lessonHasVideo,
 	openVideoStats,
 	openAddChapter,
+	lessonIndex,
+	lessonTotal,
+	hasPrev,
+	hasNext,
+	goPrev,
+	goNext,
+	openChapters,
 })
 </script>
