@@ -16,6 +16,10 @@
 				"message": "chore(release): Bumped to Version ${nextRelease.version}"
 			}
 		],
-		"@semantic-release/github"
+		[
+			"@semantic-release/github", {
+				"successComment": false
+			}
+		]
 	]
 }

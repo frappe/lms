@@ -27,18 +27,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          repository: frappe/frappe
-          path: apps/frappe
-          ref: ${{ github.ref_name }}
-
-      - uses: actions/checkout@v4
-        with:
           path: apps/lms
 
       - name: Create bench structure
         run: |
           mkdir -p sites
-          printf "frappe\nlms\n" > sites/apps.txt
           # frontend/src/socket imports socketio_port from this file at build time
           echo '{"socketio_port": 9000}' > sites/common_site_config.json
 
@@ -46,23 +39,11 @@ jobs:
         with:
           node-version: 24
           cache: yarn
-          cache-dependency-path: apps/frappe/yarn.lock
-
-      - name: Install frappe JS dependencies
-        working-directory: apps/frappe
-        run: yarn install --frozen-lockfile
+          cache-dependency-path: apps/lms/yarn.lock
 
       - name: Install lms JS dependencies
         working-directory: apps/lms
         run: yarn install --frozen-lockfile
-
-      - name: Link node_modules into public/
-        working-directory: apps/frappe
-        run: ln -s "$PWD/node_modules" frappe/public/node_modules
-
-      - name: Build frappe bundles (production)
-        working-directory: apps/frappe
-        run: yarn run production
 
       - name: Build lms SPA
         working-directory: apps/lms
