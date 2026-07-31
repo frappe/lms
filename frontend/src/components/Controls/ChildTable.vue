@@ -1,6 +1,6 @@
 <template>
 	<div class="space-y-1.5">
-		<FormLabel :label="label" />
+		<InputLabel v-if="label" :id="labelId" :label="label" />
 		<div class="overflow-visible border border-outline-elevation-2 rounded-md">
 			<div class="overflow-x-auto">
 				<div
@@ -83,8 +83,9 @@
 
 <script setup lang="ts">
 import { nextTick, ref, watch } from 'vue'
-import { Button, FormLabel } from 'frappe-ui'
+import { Button } from 'frappe-ui'
 import { onClickOutside } from '@vueuse/core'
+import { InputLabel, useInputLabeling } from '@/components/Form/labeling'
 
 const rows = defineModel<Record<string, string>[]>()
 const menuRef = ref(null)
@@ -113,6 +114,7 @@ const props = withDefaults(
 )
 
 const columns = ref(props.columns)
+const { labelId } = useInputLabeling(props)
 
 watch(rows, () => {
 	if (rows.value && rows.value.length < 1) {
