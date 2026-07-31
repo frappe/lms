@@ -1,21 +1,17 @@
 <template>
 	<NoPermission v-if="!$user.data" />
 	<div v-else-if="profile.data">
-		<header
-			class="sticky group top-0 z-10 flex flex-col md:flex-row md:items-center justify-between border-b bg-surface-base px-3 py-2.5 sm:px-5"
-		>
-			<Breadcrumbs class="h-7" :items="breadcrumbs" />
-			<Button
-				v-if="isSessionUser()"
-				class="invisible group-hover:visible"
-				:label="__('Refresh session')"
-				@click="reloadUser()"
-			>
-				<template #icon>
-					<span class="lucide-refresh-ccw size-4 text-ink-gray-7" />
-				</template>
-			</Button>
-		</header>
+		<PageHeader :breadcrumbs="breadcrumbs">
+			<template #actions>
+				<HeaderButton
+					v-if="isSessionUser()"
+					variant="ghost"
+					:label="__('Refresh session')"
+					icon="lucide-refresh-ccw"
+					@click="reloadUser()"
+				/>
+			</template>
+		</PageHeader>
 		<div class="group relative h-[130px] w-full">
 			<img
 				v-if="profile.data.cover_image"
@@ -164,7 +160,6 @@
 </template>
 <script setup>
 import {
-	Breadcrumbs,
 	Button,
 	call,
 	createResource,
@@ -174,6 +169,8 @@ import {
 	usePageMeta,
 } from 'frappe-ui'
 import { computed, inject, watch, ref, onMounted, watchEffect } from 'vue'
+import PageHeader from '@/components/Layouts/PageHeader.vue'
+import HeaderButton from '@/components/HeaderButton.vue'
 import { sessionStore } from '@/stores/session'
 import { Github, Linkedin, Twitter } from 'lucide-vue-next'
 import { useRoute, useRouter } from 'vue-router'

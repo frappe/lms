@@ -12,60 +12,23 @@
 			</Button>
 		</div>
 		<div v-if="courses.data?.length" class="text-sm">
-			<ListView
-				:columns="getCoursesColumns()"
+			<ResponsiveListView
+				:columns="courseColumns"
 				:rows="courses.data"
 				row-key="name"
-				class="border rounded-lg"
-				:options="{
-					showTooltip: false,
-					selectable: user.data?.is_student ? false : true,
-					getRowRoute: (row) => ({
-						name: 'CourseDetail',
-						params: { courseName: row.name },
-					}),
-				}"
+				class="sm:border sm:rounded-lg"
+				:options="listOptions"
 			>
-				<ListHeader
-					class="mb-2 grid items-center gap-x-4 rounded-t-lg bg-surface-gray-2 p-2"
-				>
-					<ListHeaderItem
-						:item="item"
-						v-for="item in getCoursesColumns()"
-						:key="item.key"
+				<template #selection-actions="{ unselectAll, selections }">
+					<Button
+						variant="ghost"
+						:label="__('Delete selected courses')"
+						@click="removeCourses(selections, unselectAll)"
 					>
-					</ListHeaderItem>
-				</ListHeader>
-				<ListRows>
-					<ListRow
-						:row="row"
-						v-for="row in courses.data"
-						:key="row.name"
-						class="!rounded-none last:!rounded-b-lg"
-					>
-						<template #default="{ column, item }">
-							<ListRowItem :item="row[column.key]" :align="column.align">
-								<div>
-									{{ row[column.key] }}
-								</div>
-							</ListRowItem>
-						</template>
-					</ListRow>
-				</ListRows>
-				<ListSelectBanner class="!min-w-0">
-					<template #actions="{ unselectAll, selections }">
-						<div class="flex gap-2">
-							<Button
-								variant="ghost"
-								:label="__('Delete selected courses')"
-								@click="removeCourses(selections, unselectAll)"
-							>
-								<span class="lucide-trash-2 h-4 w-4" />
-							</Button>
-						</div>
-					</template>
-				</ListSelectBanner>
-			</ListView>
+						<span class="lucide-trash-2 h-4 w-4" />
+					</Button>
+				</template>
+			</ResponsiveListView>
 		</div>
 		<div v-else class="text-ink-gray-7">
 			{{ __('No courses added to this batch') }}
@@ -78,20 +41,10 @@
 	</div>
 </template>
 <script setup>
-import { ref, inject, nextTick } from 'vue'
+import { computed, ref, inject } from 'vue'
 import BatchCourseModal from '@/components/Modals/BatchCourseModal.vue'
-import {
-	createListResource,
-	Button,
-	ListHeader,
-	ListHeaderItem,
-	ListSelectBanner,
-	ListRow,
-	ListRows,
-	ListView,
-	ListRowItem,
-	toast,
-} from 'frappe-ui'
+import ResponsiveListView from '@/components/ResponsiveListView.vue'
+import { createListResource, Button, toast } from 'frappe-ui'
 const readOnlyMode = window.read_only_mode
 
 const showCourseModal = ref(false)
@@ -120,19 +73,26 @@ const openCourseModal = () => {
 	showCourseModal.value = true
 }
 
-const getCoursesColumns = () => {
-	return [
-		{
-			label: 'Title',
-			key: 'title',
-		},
-		{
-			label: 'Evaluator',
-			key: 'evaluator',
-			width: '10rem',
-		},
-	]
-}
+const courseColumns = [
+	{
+		label: __('Title'),
+		key: 'title',
+	},
+	{
+		label: __('Evaluator'),
+		key: 'evaluator',
+		width: '10rem',
+	},
+]
+
+const listOptions = computed(() => ({
+	showTooltip: false,
+	selectable: user.data?.is_student ? false : true,
+	getRowRoute: (row) => ({
+		name: 'CourseDetail',
+		params: { courseName: row.course },
+	}),
+}))
 
 const removeCourses = async (selections, unselectAll) => {
 	for (const course of selections) {

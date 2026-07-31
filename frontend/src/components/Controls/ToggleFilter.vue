@@ -4,7 +4,7 @@
 	     pressable chip on a phone. Which control that is stops being the page's
 	     business. Mirrors helpdesk's QuickFilterField.vue, which likewise picks
 	     the control from the filter's declaration. -->
-	<Tooltip v-if="!isMobile" :text="tooltip">
+	<Tooltip v-if="!isMobile" :text="tooltip" class="!w-fit shrink-0">
 		<Checkbox
 			:modelValue="modelValue"
 			:label="label"
@@ -18,6 +18,7 @@
 		v-else
 		:active="modelValue"
 		:theme="theme"
+		class="!w-fit shrink-0"
 		@click="set(!modelValue)"
 	>
 		{{ mobileLabel || label }}

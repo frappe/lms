@@ -1,10 +1,5 @@
 <template>
-	<header
-		v-if="!fromLesson"
-		class="sticky top-0 z-10 flex items-center justify-between border-b bg-surface-base px-3 py-2.5 sm:px-5"
-	>
-		<Breadcrumbs :items="breadcrumbs" />
-	</header>
+	<PageHeader v-if="!fromLesson" :breadcrumbs="breadcrumbs" />
 	<div
 		class="md:w-7/12 md:mx-auto mx-4 py-10"
 		:class="{ 'pt-4 md:w-full': fromLesson }"
@@ -14,7 +9,8 @@
 </template>
 <script setup>
 import Quiz from '@/components/Quiz.vue'
-import { createResource, Breadcrumbs, usePageMeta } from 'frappe-ui'
+import { createResource, usePageMeta } from 'frappe-ui'
+import PageHeader from '@/components/Layouts/PageHeader.vue'
 import { computed, inject, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { sessionStore } from '../stores/session'

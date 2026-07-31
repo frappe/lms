@@ -1,10 +1,16 @@
 <template>
 	<div class="flex flex-col h-full">
 		<div class="bg-surface-gray-1 px-5 py-5 border-b">
-			<div class="text-lg-semibold text-ink-gray-9 leading-snug">
+			<div
+				v-if="!hideHeader"
+				class="text-lg-semibold text-ink-gray-9 leading-snug"
+			>
 				{{ courseTitle }}
 			</div>
-			<div class="mt-4 flex items-center gap-2 text-sm text-ink-gray-7">
+			<div
+				class="flex items-center gap-2 text-sm text-ink-gray-7"
+				:class="{ 'mt-4': !hideHeader }"
+			>
 				<Cloud class="size-4 stroke-1.5" />
 				<span>{{ __('Completed') }} {{ displayedProgress }}%</span>
 			</div>
@@ -70,11 +76,10 @@
 											: '',
 									]"
 									@click="
-										inlineSelect &&
-											emit('select-lesson', {
-												chapterNumber: lesson.number.split('-')[0],
-												lessonNumber: lesson.number.split('-')[1],
-											})
+										emit('select-lesson', {
+											chapterNumber: lesson.number.split('-')[0],
+											lessonNumber: lesson.number.split('-')[1],
+										})
 									"
 								>
 									<component
@@ -126,6 +131,7 @@ const props = defineProps({
 	completedLesson: { type: String, default: null },
 	inlineSelect: { type: Boolean, default: false },
 	withProgress: { type: Boolean, default: true },
+	hideHeader: { type: Boolean, default: false },
 })
 
 const emit = defineEmits(['select-lesson'])

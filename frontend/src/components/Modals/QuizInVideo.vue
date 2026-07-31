@@ -28,61 +28,33 @@
 					<div class="font-medium mb-4">
 						{{ __('Quizzes in this video') }}
 					</div>
-					<ListView
+					<ResponsiveListView
 						v-if="allQuizzes.length"
 						:columns="columns"
 						:rows="allQuizzes"
 						row-key="quiz"
 						:options="{
 							showTooltip: false,
+							selectable: true,
 						}"
 					>
-						<ListHeader
-							class="mb-2 grid items-center gap-x-4 rounded bg-surface-gray-2 p-2"
-						>
-							<ListHeaderItem :item="item" v-for="item in columns">
-								<template #prefix="{ item }">
-									<component
-										v-if="item.icon"
-										:is="item.icon"
-										class="h-4 w-4 stroke-1.5 ms-4"
-									/>
-								</template>
-							</ListHeaderItem>
-						</ListHeader>
+						<template #cell="{ column, value }">
+							<div v-if="column.key == 'time'" class="leading-5 text-sm">
+								{{ formatTimestamp(value) }}
+							</div>
+							<div v-else class="leading-5 text-sm">{{ value }}</div>
+						</template>
 
-						<ListRows>
-							<ListRow :row="row" v-for="row in allQuizzes">
-								<template #default="{ column, item }">
-									<ListRowItem
-										:item="row[column.key as keyof Quiz]"
-										:align="column.align"
-									>
-										<div v-if="column.key == 'time'" class="leading-5 text-sm">
-											{{ formatTimestamp(row[column.key as keyof Quiz]) }}
-										</div>
-										<div v-else class="leading-5 text-sm">
-											{{ row[column.key as keyof Quiz] }}
-										</div>
-									</ListRowItem>
-								</template>
-							</ListRow>
-						</ListRows>
-
-						<ListSelectBanner>
-							<template #actions="{ unselectAll, selections }">
-								<div class="flex gap-2">
-									<Button
-										variant="ghost"
-										:label="__('Remove quiz')"
-										@click="removeQuiz(selections, unselectAll)"
-									>
-										<span class="lucide-trash-2 h-4 w-4" />
-									</Button>
-								</div>
-							</template>
-						</ListSelectBanner>
-					</ListView>
+						<template #selection-actions="{ unselectAll, selections }">
+							<Button
+								variant="ghost"
+								:label="__('Remove quiz')"
+								@click="removeQuiz(selections, unselectAll)"
+							>
+								<span class="lucide-trash-2 h-4 w-4" />
+							</Button>
+						</template>
+					</ResponsiveListView>
 
 					<div v-else class="text-ink-gray-5 italic text-xs">
 						{{ __('No quizzes added yet.') }}
@@ -93,22 +65,11 @@
 	</Dialog>
 </template>
 <script setup lang="ts">
-import {
-	Dialog,
-	Button,
-	FormControl,
-	ListView,
-	ListHeader,
-	ListHeaderItem,
-	ListRows,
-	ListRow,
-	ListRowItem,
-	ListSelectBanner,
-	toast,
-} from 'frappe-ui'
+import { Dialog, Button, FormControl, toast } from 'frappe-ui'
 import { computed, reactive, ref, watch } from 'vue'
 import { formatTimestamp } from '@/utils/format'
 import Link from '@/components/Controls/Link.vue'
+import ResponsiveListView from '@/components/ResponsiveListView.vue'
 
 type Quiz = {
 	time: string

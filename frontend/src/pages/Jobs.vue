@@ -32,23 +32,19 @@
 			</router-link>
 		</template>
 
-		<template #tabs>
+		<template #filters>
 			<TabButtons
 				v-if="tabs.length > 1"
 				v-model="activeTab"
 				:options="tabs"
-				class="w-fit"
+				class="!w-fit shrink-0"
 				@change="updateJobs"
 			/>
-		</template>
-
-		<template #filters>
 			<FormControl
 				type="text"
 				:placeholder="__('Search')"
 				:aria-label="__('Search jobs')"
 				v-model="searchQuery"
-				class="w-full"
 				@input="updateJobs"
 			>
 				<template #prefix>
@@ -60,19 +56,16 @@
 				doctype="Country"
 				v-model="country"
 				:placeholder="__('Country')"
-				class="w-full"
 			/>
 			<Select
 				v-model="jobType"
 				:options="jobTypes"
-				class="w-full"
 				:placeholder="__('Type')"
 				@update:modelValue="updateJobs"
 			/>
 			<Select
 				v-model="workMode"
 				:options="workModes"
-				class="w-full"
 				:placeholder="__('Work Mode')"
 				@update:modelValue="updateJobs"
 			/>

@@ -90,7 +90,7 @@
 					:key="tab.label"
 					type="button"
 					:aria-current="isActive(tab) ? 'page' : undefined"
-					class="flex min-w-0 flex-1 flex-col items-center justify-center gap-0.5 px-1 py-2 transition active:scale-95"
+					class="flex min-w-0 flex-1 flex-col items-center justify-center gap-0.5 px-1 py-2"
 					@click="handleClick(tab)"
 				>
 					<component
@@ -112,7 +112,7 @@
 					type="button"
 					:aria-expanded="showMenu"
 					aria-haspopup="dialog"
-					class="flex min-w-0 flex-1 flex-col items-center justify-center gap-0.5 px-1 py-2 transition active:scale-95"
+					class="flex min-w-0 flex-1 flex-col items-center justify-center gap-0.5 px-1 py-2"
 					@click="toggleMenu"
 				>
 					<component
@@ -143,6 +143,7 @@ import { getSidebarLinks } from '@/utils'
 import { useRouter } from 'vue-router'
 import { call } from 'frappe-ui'
 import { ref, computed, watch } from 'vue'
+import { storeToRefs } from 'pinia'
 import { sessionStore } from '@/stores/session'
 import { useSettings } from '@/stores/settings'
 import { usersStore } from '@/stores/user'
@@ -158,8 +159,8 @@ import {
 	tabLabel,
 } from '@/utils/mobileNav'
 
-const { logout, user } = sessionStore()
-let { isLoggedIn } = sessionStore()
+const { logout } = sessionStore()
+const { isLoggedIn } = storeToRefs(sessionStore())
 const settingsStore = useSettings()
 const { sidebarSettings, loadSidebarSettings } = settingsStore
 const router = useRouter()
@@ -170,12 +171,12 @@ const showMenu = ref(false)
 const isModerator = ref(false)
 const isInstructor = ref(false)
 
-// `user` comes from the session cookie synchronously, so the bar is settled
-// before the first paint; a signed-out visitor gets a static five, no More.
-const isSignedIn = Boolean(user)
-const showMoreTab = hasMoreTab(isSignedIn)
+const isSignedIn = computed(
+	() => isLoggedIn.value || Boolean(userResource.data)
+)
+const showMoreTab = computed(() => hasMoreTab(isSignedIn.value))
 const primaryTabs = computed(() =>
-	pickPrimaryTabs(sidebarLinks.value, isSignedIn, sidebarSettings.data)
+	pickPrimaryTabs(sidebarLinks.value, isSignedIn.value, sidebarSettings.data)
 )
 
 const menuSections = computed(() =>
@@ -207,7 +208,7 @@ const filterLinksToShow = (data) => {
 }
 
 const addOtherLinks = () => {
-	if (user) {
+	if (isSignedIn.value) {
 		addLink('Notifications', 'Bell', 'Notifications')
 		addLink('Profile', 'UserRound')
 		// The desk sidebar's UserDropdown is the only other way in, and it
@@ -297,8 +298,14 @@ const checkIfCanAddProgram = async () => {
 	return programs.enrolled.length > 0 || programs.published.length > 0
 }
 
+// Against the whole matched chain, not just the leaf name: Profile is a parent
+// route that redirects to ProfileAbout, so the leaf never equals 'Profile' and
+// the tab could never light up.
 let isActive = (tab) => {
-	return tab.activeFor?.includes(router.currentRoute.value.name)
+	if (!tab.activeFor?.length) return false
+	return router.currentRoute.value.matched.some((route) =>
+		tab.activeFor.includes(route.name)
+	)
 }
 
 const handleClick = (tab) => {
@@ -307,10 +314,11 @@ const handleClick = (tab) => {
 	} else if (tab.label == 'Settings') {
 		settingsStore.isSettingsOpen = true
 	} else if (tab.label == 'Log in') window.location.href = '/login'
-	else if (tab.label == 'Log out')
-		logout.submit().then(() => {
-			isLoggedIn = false
-		})
+	// `isLoggedIn` is a computed off the session user, so the store settles it
+	// when logout clears that user. Assigning to it here was a hard build error
+	// once it became a storeToRefs const — esbuild refuses to write a const, and
+	// the dev server would not start at all.
+	else if (tab.label == 'Log out') logout.submit()
 	else if (tab.label == 'Profile')
 		router.push({
 			name: 'Profile',

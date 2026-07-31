@@ -53,22 +53,18 @@
 			</Dropdown>
 		</template>
 
-		<template #tabs>
+		<template #filters>
 			<TabButtons
 				v-if="user.data"
 				:options="batchTabs"
 				v-model="currentTab"
-				class="w-fit"
+				class="!w-fit shrink-0"
 			/>
-		</template>
-
-		<template #filters>
 			<FormControl
 				v-model="title"
 				:placeholder="__('Search')"
 				:aria-label="__('Search')"
 				type="text"
-				class="w-full sm:min-w-40"
 				@input="updateBatches()"
 			>
 				<template #prefix>
@@ -80,12 +76,8 @@
 				v-model="currentCategory"
 				:options="categories.filter((c) => c.value)"
 				:placeholder="__('Category')"
-				class="w-full sm:w-auto"
 				@update:modelValue="updateBatches()"
 			/>
-		</template>
-
-		<template #toggles>
 			<ToggleFilter
 				:modelValue="certification"
 				:label="__('Certification')"

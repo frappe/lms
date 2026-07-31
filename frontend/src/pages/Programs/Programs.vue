@@ -2,11 +2,7 @@
 	<!-- A student sees their own enrolled/published split, which is not a
 	     filtered list page, so it keeps its own chrome. -->
 	<template v-if="isStudent">
-		<LayoutHeader>
-			<template #left-header>
-				<Breadcrumbs :items="breadcrumbs" />
-			</template>
-		</LayoutHeader>
+		<PageHeader :breadcrumbs="breadcrumbs" />
 		<StudentPrograms />
 	</template>
 
@@ -36,17 +32,17 @@
 			</Button>
 		</template>
 
-		<template #tabs>
-			<TabButtons :options="programTabs" v-model="currentTab" class="w-fit" />
-		</template>
-
 		<template #filters>
+			<TabButtons
+				:options="programTabs"
+				v-model="currentTab"
+				class="!w-fit shrink-0"
+			/>
 			<FormControl
 				v-model="title"
 				:placeholder="__('Search')"
 				:aria-label="__('Search')"
 				type="text"
-				class="w-full lg:w-40"
 				@input="debouncedUpdatePrograms()"
 			>
 				<template #prefix>
@@ -90,7 +86,6 @@
 </template>
 <script setup>
 import {
-	Breadcrumbs,
 	Button,
 	createResource,
 	FormControl,
@@ -103,7 +98,7 @@ import { useDebounceFn } from '@vueuse/core'
 
 import { sessionStore } from '@/stores/session'
 import ProgramForm from '@/pages/Programs/ProgramForm.vue'
-import LayoutHeader from '@/components/Layouts/LayoutHeader.vue'
+import PageHeader from '@/components/Layouts/PageHeader.vue'
 import ListPage from '@/components/Layouts/ListPage.vue'
 import StudentPrograms from '@/pages/Programs/StudentPrograms.vue'
 

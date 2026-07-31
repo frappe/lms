@@ -1,10 +1,7 @@
 <template>
 	<div v-if="lesson.data" class="">
-		<header
-			class="sticky top-0 z-10 flex items-center justify-between border-b bg-surface-base px-3 py-2.5 sm:px-5"
-		>
-			<Breadcrumbs class="h-7" :items="breadcrumbs" />
-			<div class="flex items-center gap-x-2">
+		<PageHeader :breadcrumbs="breadcrumbs">
+			<template #actions>
 				<CertificationLinks :courseName="courseName" />
 				<router-link
 					v-if="canEditLesson"
@@ -15,17 +12,46 @@
 						query: { editLesson: `${chapterNumber}-${lessonNumber}` },
 					}"
 				>
-					<Button variant="outline">
-						<template #prefix>
-							<span class="lucide-pencil size-4" />
-						</template>
-						{{ __('Editor View') }}
-					</Button>
+					<HeaderButton :label="__('Editor View')" icon="lucide-pencil" />
 				</router-link>
+			</template>
+		</PageHeader>
+
+		<div
+			v-if="isMobile && lessonTotal"
+			class="flex items-center gap-2 border-b bg-surface-base px-3 py-2"
+		>
+			<Button
+				variant="subtle"
+				class="!size-9"
+				:label="__('Previous lesson')"
+				:disabled="!hasPrev"
+				@click="goPrev()"
+			>
+				<template #icon>
+					<span class="lucide-chevron-left size-4" />
+				</template>
+			</Button>
+			<div
+				class="min-w-0 flex-1 text-center text-p-xs font-medium tabular-nums text-ink-gray-5"
+			>
+				{{ lessonIndex }} / {{ lessonTotal }}
 			</div>
-		</header>
-		<div class="grid md:grid-cols-[70%,30%] h-[94vh]">
-			<div v-if="lesson.data.no_preview" class="border-e">
+			<Button
+				variant="subtle"
+				class="!size-9"
+				:label="__('Next lesson')"
+				:disabled="!hasNext"
+				@click="goNext()"
+			>
+				<template #icon>
+					<span class="lucide-chevron-right size-4" />
+				</template>
+			</Button>
+		</div>
+
+		<div class="grid md:grid-cols-[70%,30%] sm:h-[94vh]">
+			<div v-if="lesson.data.no_preview" class="sm:border-e">
 				<div class="shadow rounded-md w-3/4 mt-10 mx-auto text-center p-4">
 					<div class="flex items-center justify-center mt-4 gap-x-2">
 						<span class="lucide-lock-keyhole size-4 text-ink-gray-5" />
@@ -66,13 +92,13 @@
 			<div
 				v-else
 				ref="lessonContainer"
-				class="bg-surface-base"
+				class="bg-surface-base min-w-0"
 				:class="{
 					'overflow-y-auto': zenModeEnabled,
 				}"
 			>
 				<div
-					class="border-e pt-5 pb-10 h-full"
+					class="sm:border-e pt-5 pb-10 h-full"
 					:class="{
 						'w-full md:w-3/5 mx-auto border-none !pt-10': zenModeEnabled,
 					}"
@@ -105,7 +131,7 @@
 							</div>
 
 							<div
-								v-if="!zenModeEnabled"
+								v-if="!zenModeEnabled && !isMobile"
 								class="flex items-center gap-x-2 mt-2 md:mt-0"
 							>
 								<Tooltip v-if="canGoZen()" :text="__('Zen Mode')">
@@ -273,17 +299,48 @@
 					</div>
 				</div>
 			</div>
-			<div class="sticky top-10 h-[94vh]">
+			<aside v-if="!isMobile" class="sticky top-10 h-[94vh]">
 				<StudentLessonSidebar
 					:courseName="courseName"
 					:courseTitle="lesson.data.course_title"
 					:progress="lessonProgress"
 					:selectedLessonNumber="`${chapterNumber}-${lessonNumber}`"
 					:completedLesson="completedLesson"
-					:withProgress="lesson.data.membership ? true : false"
 				/>
-			</div>
+			</aside>
 		</div>
+
+		<div
+			v-if="isMobile"
+			class="pointer-events-none sticky bottom-4 z-10 flex justify-end px-4"
+		>
+			<Button
+				variant="outline"
+				class="pointer-events-auto !h-11 !rounded-full !px-4 !shadow-lg"
+				@click="showChapters = true"
+			>
+				<template #prefix>
+					<span class="lucide-layers size-4" />
+				</template>
+				{{ __('Chapters') }}
+			</Button>
+		</div>
+
+		<BottomSheet v-if="isMobile" v-model="showChapters">
+			<template #header>
+				<div class="min-w-0 truncate text-p-lg-semibold text-ink-gray-9">
+					{{ lesson.data.course_title }}
+				</div>
+			</template>
+			<StudentLessonSidebar
+				:courseName="courseName"
+				:progress="lessonProgress"
+				:selectedLessonNumber="`${chapterNumber}-${lessonNumber}`"
+				:completedLesson="completedLesson"
+				:hideHeader="true"
+				@select-lesson="showChapters = false"
+			/>
+		</BottomSheet>
 	</div>
 	<InlineLessonMenu
 		v-if="lesson.data?.name"
@@ -296,7 +353,6 @@
 <script setup>
 import {
 	Badge,
-	Breadcrumbs,
 	Button,
 	call,
 	createListResource,
@@ -325,6 +381,7 @@ import {
 import { sessionStore } from '@/stores/session'
 import { useSidebar } from '@/stores/sidebar'
 import { useSettings } from '@/stores/settings'
+import { useScreenSize } from '@/utils/composables'
 import {
 	resolveDwellSeconds,
 	isVideoComplete,
@@ -339,6 +396,9 @@ import Discussions from '@/components/Discussions.vue'
 import CertificationLinks from '@/components/CertificationLinks.vue'
 import CourseOutline from '@/components/CourseOutline.vue'
 import StudentLessonSidebar from '@/components/StudentLessonSidebar.vue'
+import BottomSheet from '@/components/BottomSheet.vue'
+import PageHeader from '@/components/Layouts/PageHeader.vue'
+import HeaderButton from '@/components/HeaderButton.vue'
 import UserAvatar from '@/components/UserAvatar.vue'
 import Notes from '@/components/Notes/Notes.vue'
 import InlineLessonMenu from '@/components/Notes/InlineLessonMenu.vue'
@@ -374,6 +434,8 @@ const showInlineMenu = ref(false)
 const currentTab = ref(null)
 const completedLesson = ref(null)
 const settingsStore = useSettings()
+const { isMobile } = useScreenSize()
+const showChapters = ref(false)
 let timerInterval = null
 
 const tabs = ref([])
@@ -596,14 +658,71 @@ const breadcrumbs = computed(() => {
 	return crumbs
 })
 
+const outline = createResource({
+	url: 'lms.lms.utils.get_course_outline',
+	cache: ['course_outline_student', props.courseName, 'progress'],
+	makeParams() {
+		return {
+			course: props.courseName,
+			progress: true,
+		}
+	},
+	auto: false,
+})
+outline.fetch()
+
+watch(
+	() => props.courseName,
+	() => outline.reload()
+)
+
+const lessonNumbers = computed(() =>
+	(outline.data ?? []).flatMap((c) => c.lessons?.map((l) => l.number) ?? [])
+)
+const currentIndex = computed(() =>
+	lessonNumbers.value.indexOf(`${props.chapterNumber}-${props.lessonNumber}`)
+)
+const lessonTotal = computed(() => lessonNumbers.value.length)
+const lessonIndex = computed(() =>
+	currentIndex.value >= 0 ? currentIndex.value + 1 : 0
+)
+const hasPrev = computed(() => currentIndex.value > 0)
+const hasNext = computed(
+	() => currentIndex.value >= 0 && currentIndex.value < lessonTotal.value - 1
+)
+
+const goToLessonNumber = (number) => {
+	trackVideoWatchDuration()
+	const [chapterNumber, lessonNumber] = number.split('-')
+	router.push({
+		name: 'Lesson',
+		params: {
+			courseName: props.courseName,
+			chapterNumber,
+			lessonNumber,
+		},
+		query: studentViewQuery.value,
+	})
+}
+
+const goPrev = () => {
+	if (hasPrev.value)
+		goToLessonNumber(lessonNumbers.value[currentIndex.value - 1])
+}
+
+const goNext = () => {
+	if (hasNext.value)
+		goToLessonNumber(lessonNumbers.value[currentIndex.value + 1])
+}
+
 const switchLesson = (direction) => {
 	trackVideoWatchDuration()
-	let lessonIndex =
+	let target =
 		direction === 'prev'
 			? lesson.data.prev.split('.')
 			: lesson.data.next.split('.')
 
-	const [chapterNumber, lessonNumber] = lessonIndex
+	const [chapterNumber, lessonNumber] = target
 	router.push({
 		name: 'Lesson',
 		params: {
