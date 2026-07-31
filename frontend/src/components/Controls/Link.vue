@@ -1,11 +1,5 @@
 <template>
 	<div :class="attrs.class as any" :style="attrs.style as any">
-		<FormLabel
-			v-if="attrs.label"
-			:label="attrs.label"
-			:required="attrs.required"
-			class="mb-1.5"
-		/>
 		<Combobox
 			:open="isOpen"
 			:modelValue="value"
@@ -16,10 +10,14 @@
 			:aria-label="attrs['aria-label'] as string"
 			:variant="attrs.variant as ComboboxVariant"
 			:loading="options.loading"
+			:label="attrs.label ? __(attrs.label as string) : undefined"
+			:required="attrs.required as boolean"
+			:description="description"
+			:error="attrs.error as string"
 			@update:modelValue="onSelect"
 			@update:query="onQuery"
 			@update:open="onOpen"
-			class="w-full focus-within:border-outline-gray-4 focus-within:bg-surface-base focus-within:shadow-sm focus-within:outline-none data-[state=open]:border-outline-gray-4 data-[state=open]:bg-surface-base data-[state=open]:shadow-sm data-[state=open]:outline-none"
+			class="w-full"
 		>
 			<template #footer>
 				<div
@@ -80,13 +78,7 @@
 </template>
 
 <script setup lang="ts">
-import {
-	Combobox,
-	Button,
-	FormControl,
-	FormLabel,
-	createResource,
-} from 'frappe-ui'
+import { Combobox, Button, FormControl, createResource } from 'frappe-ui'
 import type { ComboboxOptionValue } from 'frappe-ui'
 import { useDebounceFn, watchDebounced } from '@vueuse/core'
 import { useAttrs, computed, ref, watch } from 'vue'
@@ -266,3 +258,30 @@ function submitCreate(): void {
 
 defineExpose({ reload })
 </script>
+
+<style scoped>
+/*
+ * frappe-ui's Combobox trigger carries `focus-within:focus-ring` /
+ * `data-[state=open]:focus-ring` UNCONDITIONALLY (triggerBaseClassesFocusWithin
+ * in node_modules/frappe-ui/src/components/shared/selection/utils.ts:75-76 —
+ * Link never sets a button trigger or #trigger slot, so this always applies),
+ * which paints an outline ring on focus/open. This project's field convention
+ * is border+shadow with NO ring on fields — `focus-visible:ring` is reserved
+ * for buttons/nav (see frappe-ui-beta7-field-focus-states). These rules exist
+ * to CANCEL frappe-ui's ring and restore that field convention on the
+ * trigger — they are NOT redundant with frappe-ui's own styling, so do not
+ * delete them thinking they duplicate it.
+ *
+ * Written as a scoped :deep() selector on [data-slot="trigger"], not as a
+ * plain `class` on <Combobox>, because Combobox routes a caller's `class` to
+ * its LabelingWrapper (not the trigger) once a label is present — see
+ * `hasLabeling` in node_modules/frappe-ui/src/components/Combobox/Combobox.vue.
+ * Nearly every <Link> caller passes a label, so a plain class here would
+ * silently stop reaching the trigger. Targeting the data-slot instead makes
+ * it independent of that labeled/unlabeled routing.
+ */
+:deep([data-slot='trigger']:focus-within),
+:deep([data-slot='trigger'][data-state='open']) {
+	@apply border-outline-gray-4 bg-surface-base shadow-sm outline-none;
+}
+</style>
