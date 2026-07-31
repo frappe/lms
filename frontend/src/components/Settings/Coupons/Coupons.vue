@@ -19,7 +19,7 @@ import { ref } from 'vue'
 import { createListResource } from 'frappe-ui'
 import CouponList from '@/components/Settings/Coupons/CouponList.vue'
 import CouponDetails from '@/components/Settings/Coupons/CouponDetails.vue'
-import type { Coupon } from './types'
+import type { Coupon } from '@/types'
 
 const step = ref('list')
 const data = ref<Coupon | null>(null)

@@ -277,3 +277,51 @@ describe('_onNativePaste — routing', () => {
 		expect(block._insertMarkdownAsBlocks).not.toHaveBeenCalled()
 	})
 })
+
+describe('pasted code block language detection', () => {
+	it('reads language- class from an inner <code>', () => {
+		const blocks = parse('<pre><code class="language-python">x = 1</code></pre>')
+		expect(blocks[0].type).toBe('codeBox')
+		expect(blocks[0].data.language).toBe('python')
+	})
+
+	it('reads language- class from the <pre> itself (Prism markup)', () => {
+		const blocks = parse('<pre class="language-javascript"><code>let x</code></pre>')
+		expect(blocks[0].data.language).toBe('javascript')
+	})
+
+	it('reads lang- and brush: variants', () => {
+		expect(
+			parse('<pre><code class="lang-ruby">x</code></pre>')[0].data.language
+		).toBe('ruby')
+		expect(
+			parse('<pre class="brush: php">x</pre>')[0].data.language
+		).toBe('php')
+	})
+
+	it('falls back to plaintext when no language class is present', () => {
+		expect(parse('<pre>plain</pre>')[0].data.language).toBe('plaintext')
+	})
+})
+
+describe('pasted code language detection edge cases', () => {
+	it('ignores language- as a substring of an unrelated class', () => {
+		expect(
+			parse('<pre class="prism-language-toolbar">x</pre>')[0].data.language
+		).toBe('plaintext')
+	})
+
+	it('prefers the inner <code> language over a generic <pre> class', () => {
+		const blocks = parse(
+			'<pre class="language-markup"><code class="language-python">x = 1</code></pre>'
+		)
+		expect(blocks[0].data.language).toBe('python')
+	})
+
+	it('still reads a language- class on the <pre> when the inner <code> has none', () => {
+		expect(
+			parse('<pre class="language-javascript"><code>x</code></pre>')[0].data
+				.language
+		).toBe('javascript')
+	})
+})

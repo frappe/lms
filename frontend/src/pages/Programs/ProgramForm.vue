@@ -66,7 +66,11 @@
 						<ListHeader
 							class="mb-2 grid items-center gap-x-4 rounded bg-surface-gray-2 p-2"
 						>
-							<ListHeaderItem :item="item" v-for="item in courseColumns" />
+							<ListHeaderItem
+								:item="item"
+								v-for="item in courseColumns"
+								:key="item.key"
+							/>
 						</ListHeader>
 						<ListRows>
 							<Draggable
@@ -86,6 +90,7 @@
 								<div class="flex gap-2">
 									<Button
 										variant="ghost"
+										:label="__('Delete')"
 										@click="remove(selections, unselectAll, 'courses')"
 									>
 										<span class="lucide-trash-2 size-4" />
@@ -127,37 +132,23 @@
 							</Button>
 						</div>
 					</div>
-					<ListView
+					<ResponsiveListView
 						v-if="program.program_members?.length > 0"
 						:columns="memberColumns"
 						:rows="program.program_members"
-						:options="{
-							selectable: true,
-							resizeColumn: true,
-						}"
-						:rowKey="'member'"
+						row-key="member"
+						:options="{ selectable: true }"
 					>
-						<ListHeader
-							class="mb-2 grid items-center gap-x-4 rounded bg-surface-gray-2 p-2"
-						>
-							<ListHeaderItem :item="item" v-for="item in memberColumns" />
-						</ListHeader>
-						<ListRows>
-							<ListRow :row="row" v-for="row in program.program_members" />
-						</ListRows>
-						<ListSelectBanner>
-							<template #actions="{ unselectAll, selections }">
-								<div class="flex gap-2">
-									<Button
-										variant="ghost"
-										@click="remove(selections, unselectAll, 'members')"
-									>
-										<span class="lucide-trash-2 size-4" />
-									</Button>
-								</div>
-							</template>
-						</ListSelectBanner>
-					</ListView>
+						<template #selection-actions="{ unselectAll, selections }">
+							<Button
+								variant="ghost"
+								:label="__('Delete')"
+								@click="remove(selections, unselectAll, 'members')"
+							>
+								<span class="lucide-trash-2 size-4" />
+							</Button>
+						</template>
+					</ResponsiveListView>
 					<div v-else class="text-ink-gray-7">
 						{{ __('No members added yet.') }}
 					</div>
@@ -248,9 +239,10 @@ import {
 } from 'frappe-ui'
 import { computed, ref, watch, getCurrentInstance } from 'vue'
 
-import { Programs, Program } from './types'
+import { Programs, Program } from '@/types'
 import { sanitizeHTML, openSettings } from '@/utils'
 import Link from '@/components/Controls/Link.vue'
+import ResponsiveListView from '@/components/ResponsiveListView.vue'
 import Draggable from 'vuedraggable'
 import ProgramProgressSummary from '@/pages/Programs/ProgramProgressSummary.vue'
 

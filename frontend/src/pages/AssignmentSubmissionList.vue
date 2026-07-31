@@ -1,11 +1,27 @@
 <template>
-	<LayoutHeader>
-		<template #left-header>
-			<Breadcrumbs :items="breadcrumbs" />
-		</template>
-	</LayoutHeader>
-	<div class="md:w-3/4 md:mx-auto py-5 mx-5">
-		<div class="grid grid-cols-3 gap-5 mb-5">
+	<ListPage
+		:breadcrumbs="breadcrumbs"
+		:title="__('Assignment Submissions')"
+		layout="list"
+		:columns="submissionColumns"
+		:rows="submissions.data || []"
+		:loading="submissions.loading"
+		:has-next-page="submissions.hasNextPage"
+		:list-options="{
+			getRowRoute: (row) => ({
+				name: 'AssignmentSubmission',
+				params: {
+					assignmentID: row.assignment,
+					submissionName: row.name,
+				},
+			}),
+		}"
+		v-model:page-length="pageLength"
+		empty-name="Assignment Submissions"
+		empty-icon="lucide-pencil"
+		@load-more="submissions.next()"
+	>
+		<template #filters>
 			<Link
 				doctype="LMS Assignment"
 				v-model="assignmentID"
@@ -17,80 +33,25 @@
 				type="select"
 				:options="statusOptions"
 				:placeholder="__('Status')"
+				:aria-label="__('Status')"
 			/>
-		</div>
-		<ListView
-			v-if="submissions.loading || submissions.data?.length"
-			:columns="submissionColumns"
-			:rows="submissions.data"
-			rowKey="name"
-		>
-			<ListHeader
-				class="mb-2 grid items-center gap-x-4 rounded bg-surface-gray-2 p-2"
-			>
-				<ListHeaderItem :item="item" v-for="item in submissionColumns" />
-			</ListHeader>
-			<ListRows>
-				<router-link
-					v-for="row in submissions.data"
-					:to="{
-						name: 'AssignmentSubmission',
-						params: {
-							assignmentID: row.assignment,
-							submissionName: row.name,
-						},
-					}"
-				>
-					<ListRow :row="row">
-						<template #default="{ column, item }">
-							<ListRowItem :item="row[column.key]" :align="column.align">
-								<div v-if="column.key == 'status'">
-									<Badge :theme="getStatusTheme(row[column.key])">
-										{{ row[column.key] }}
-									</Badge>
-								</div>
-								<div v-else>
-									{{ row[column.key] }}
-								</div>
-							</ListRowItem>
-						</template>
-					</ListRow>
-				</router-link>
-			</ListRows>
-		</ListView>
-		<div
-			v-else
-			class="text-center p-5 text-ink-gray-5 mt-52 w-3/4 md:w-1/2 mx-auto space-y-2"
-		>
-			<span class="lucide-pencil size-8 mx-auto text-ink-gray-4" />
-			<div class="text-2xl-medium">
-				{{ __('No submissions') }}
-			</div>
-			<div class="leading-5">
-				{{ __('There are no submissions for this assignment.') }}
-			</div>
-		</div>
-	</div>
+		</template>
+
+		<template #cell="{ column, value }">
+			<Badge v-if="column.key == 'status'" :theme="getStatusTheme(value)">
+				{{ value }}
+			</Badge>
+			<div v-else>{{ value }}</div>
+		</template>
+	</ListPage>
 </template>
 <script setup>
-import {
-	Badge,
-	Breadcrumbs,
-	createListResource,
-	FormControl,
-	ListView,
-	ListHeader,
-	ListHeaderItem,
-	ListRows,
-	ListRow,
-	ListRowItem,
-	usePageMeta,
-} from 'frappe-ui'
+import { Badge, createListResource, FormControl, usePageMeta } from 'frappe-ui'
 import { computed, inject, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { sessionStore } from '../stores/session'
 import Link from '@/components/Controls/Link.vue'
-import LayoutHeader from '@/components/Layouts/LayoutHeader.vue'
+import ListPage from '@/components/Layouts/ListPage.vue'
 
 const user = inject('$user')
 const dayjs = inject('$dayjs')
@@ -99,6 +60,7 @@ const router = useRouter()
 const assignmentID = ref('')
 const member = ref('')
 const status = ref('')
+const pageLength = ref(24)
 
 onMounted(() => {
 	if (!user.data?.is_instructor && !user.data?.is_moderator) {
@@ -135,6 +97,7 @@ const submissions = createListResource({
 		'status',
 	],
 	orderBy: 'creation desc',
+	pageLength: 24,
 	transform(data) {
 		return data.map((row) => {
 			return {
@@ -143,6 +106,11 @@ const submissions = createListResource({
 			}
 		})
 	},
+})
+
+watch(pageLength, (value) => {
+	submissions.pageLength = value
+	submissions.reload()
 })
 
 watch([assignmentID, member, status], () => {
@@ -209,11 +177,12 @@ const getStatusTheme = (status) => {
 	}
 }
 
+// A parent crumb is what the phone header turns into a back link, so a
+// single-crumb trail would leave this page with no way out but the tab bar.
 const breadcrumbs = computed(() => {
 	return [
-		{
-			label: 'Assignment Submissions',
-		},
+		{ label: __('Assignments'), route: { name: 'Assignments' } },
+		{ label: __('Submissions') },
 	]
 })
 

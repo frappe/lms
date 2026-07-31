@@ -73,6 +73,7 @@ import Transactions from '@/components/Settings/Transactions/Transactions.vue'
 import ZoomSettings from '@/components/Settings/ZoomSettings.vue'
 import GoogleMeetSettings from '@/components/Settings/GoogleMeetSettings.vue'
 import Badges from '@/components/Settings/Badges/Badges.vue'
+import RavenSettings from '@/components/Settings/Raven/RavenSettings.vue'
 
 const show = defineModel()
 const doctype = ref('LMS Settings')
@@ -502,6 +503,19 @@ const tabsStructure = computed(() => {
 						'Manage Google Meet accounts to conduct live classes from batches',
 					icon: 'lucide-presentation',
 					template: markRaw(GoogleMeetSettings),
+				},
+			],
+		},
+		{
+			label: 'Integrations',
+			hideLabel: false,
+			items: [
+				{
+					label: 'Raven',
+					description:
+						'Automatically sync Raven workspace and channel membership from your students and staff',
+					icon: 'lucide-messages-square',
+					template: markRaw(RavenSettings),
 				},
 			],
 		},

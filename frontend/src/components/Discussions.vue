@@ -20,43 +20,44 @@
 	>
 		<!-- Master: topic list (always visible at md+; hidden on mobile while a
 		     topic thread is open) -->
-		<div
-			class="md:w-2/5 md:shrink-0 md:max-h-[60vh] md:overflow-y-auto md:border-e md:pe-5"
+		<ul
+			class="md:w-2/5 md:shrink-0 md:max-h-[60vh] md:overflow-y-auto md:border-e md:pe-5 list-none"
 			:class="{ 'hidden md:block': currentTopic }"
 		>
-			<div
-				v-for="(topic, index) in topics.data"
-				:key="topic.name"
-				data-testid="topic-row"
-				@click="showReplies(topic)"
-				class="flex items-center cursor-pointer py-4 px-2 rounded-md w-full"
-				:class="[
-					{ 'border-b': index + 1 != topics.data.length },
-					currentTopic?.name === topic.name ? 'bg-surface-gray-2' : '',
-				]"
-			>
-				<UserAvatar :user="topic.user" size="xl" class="me-3" />
-				<div class="min-w-0">
-					<div class="text-base-semibold mb-1 text-ink-gray-7 truncate">
-						{{ topic.title }}
+			<li v-for="(topic, index) in topics.data" :key="topic.name">
+				<button
+					type="button"
+					data-testid="topic-row"
+					@click="showReplies(topic)"
+					class="flex items-center cursor-pointer py-4 px-2 rounded-md w-full text-start"
+					:class="[
+						{ 'border-b': index + 1 != topics.data.length },
+						currentTopic?.name === topic.name ? 'bg-surface-gray-2' : '',
+					]"
+				>
+					<UserAvatar :user="topic.user" size="xl" class="me-3" />
+					<div class="min-w-0">
+						<div class="text-base-semibold mb-1 text-ink-gray-7 truncate">
+							{{ topic.title }}
+						</div>
+						<div class="flex items-center text-ink-gray-5">
+							<span class="text-sm">
+								{{ timeAgo(topic.creation) }}
+							</span>
+							<span class="flex items-center gap-1 text-sm ms-3">
+								<span class="lucide-message-square size-3.5" />
+								{{
+									(topic.reply_count === 1
+										? __('{0} reply')
+										: __('{0} replies')
+									).format(topic.reply_count || 0)
+								}}
+							</span>
+						</div>
 					</div>
-					<div class="flex items-center text-ink-gray-5">
-						<span class="text-sm">
-							{{ timeAgo(topic.creation) }}
-						</span>
-						<span class="flex items-center gap-1 text-sm ms-3">
-							<span class="lucide-message-square size-3.5" />
-							{{
-								(topic.reply_count === 1
-									? __('{0} reply')
-									: __('{0} replies')
-								).format(topic.reply_count || 0)
-							}}
-						</span>
-					</div>
-				</div>
-			</div>
-		</div>
+				</button>
+			</li>
+		</ul>
 		<!-- Detail: selected topic's thread -->
 		<div class="flex-1 min-w-0">
 			<DiscussionReplies

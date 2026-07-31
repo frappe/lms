@@ -3,7 +3,12 @@
 		class="flex size-8 cursor-pointer items-center justify-center rounded-xl bg-surface-gray-2 hover:bg-surface-gray-3"
 		:class="{ 'ring-2 ring-outline-gray-4': selected }"
 	>
-		<img v-if="logo" :src="logo" class="size-4" />
+		<img
+			v-if="logo"
+			:src="logo"
+			:alt="__('{0} icon').format(serviceName || __('Email provider'))"
+			class="size-4"
+		/>
 		<LucideMail v-else class="size-4 text-ink-gray-7" />
 	</div>
 	<p v-if="serviceName" class="mt-2 text-center text-xs text-ink-gray-6">

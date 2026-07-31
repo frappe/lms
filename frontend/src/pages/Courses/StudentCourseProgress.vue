@@ -41,31 +41,34 @@
 						<div class="sticky top-0 z-10 bg-surface-base py-3 text-ink-gray-5">
 							{{ __('Lesson Progress') }}
 						</div>
-						<div
-							v-for="progress in lessons.data"
-							class="flex justify-between text-sm py-2 my-1"
-						>
-							<div class="">
-								<span class="me-3 text-xs">
-									{{ progress.chapter_idx }}.{{ progress.idx }}
-								</span>
-								<span>
-									{{ progress.title }}
-								</span>
-							</div>
-							<Tooltip
-								v-if="getLessonStatus(progress) == 'Complete'"
-								:text="__('Complete')"
+						<ul class="list-none">
+							<li
+								v-for="progress in lessons.data"
+								:key="progress.lesson_name"
+								class="flex justify-between text-sm py-2 my-1"
 							>
-								<span class="lucide-check text-ink-green-6 size-4" />
-							</Tooltip>
-							<Tooltip v-else :text="__('Pending')">
-								<span class="lucide-minus text-ink-amber-5 size-4" />
-							</Tooltip>
-							<!-- <Badge :theme="getLessonStatusTheme(progress)">
-								{{ getLessonStatus(progress) }}
-							</Badge> -->
-						</div>
+								<div class="">
+									<span class="me-3 text-xs">
+										{{ progress.chapter_idx }}.{{ progress.idx }}
+									</span>
+									<span>
+										{{ progress.title }}
+									</span>
+								</div>
+								<Tooltip
+									v-if="getLessonStatus(progress) == 'Complete'"
+									:text="__('Complete')"
+								>
+									<span class="lucide-check text-ink-green-6 size-4" />
+								</Tooltip>
+								<Tooltip v-else :text="__('Pending')">
+									<span class="lucide-minus text-ink-amber-5 size-4" />
+								</Tooltip>
+								<!-- <Badge :theme="getLessonStatusTheme(progress)">
+									{{ getLessonStatus(progress) }}
+								</Badge> -->
+							</li>
+						</ul>
 					</div>
 
 					<div class="space-y-3">
@@ -85,7 +88,8 @@
 								</div>
 							</div>
 							<div
-								v-for="quiz in assessmentProgress.data.quizzes"
+								v-for="(quiz, index) in assessmentProgress.data.quizzes"
+								:key="`${quiz.quiz}-${index}`"
 								class="grid grid-cols-4 gap-15 text-sm py-1 my-1"
 							>
 								<div class="col-span-2 leading-5">
@@ -107,17 +111,21 @@
 									{{ __('Assignment Progress') }}
 								</div>
 							</div>
-							<div
-								v-for="assignment in assessmentProgress.data.assignments"
-								class="flex justify-between text-sm py-2 my-1"
-							>
-								<div>
-									{{ assignment.assignment_title }}
-								</div>
-								<Badge :theme="getAssessmentStatusTheme(assignment.status)">
-									{{ assignment.status }}
-								</Badge>
-							</div>
+							<ul class="list-none">
+								<li
+									v-for="(assignment, index) in assessmentProgress.data
+										.assignments"
+									:key="`${assignment.assignment}-${index}`"
+									class="flex justify-between text-sm py-2 my-1"
+								>
+									<div>
+										{{ assignment.assignment_title }}
+									</div>
+									<Badge :theme="getAssessmentStatusTheme(assignment.status)">
+										{{ assignment.status }}
+									</Badge>
+								</li>
+							</ul>
 						</div>
 
 						<div
@@ -129,17 +137,20 @@
 									{{ __('Programming Exercise Progress') }}
 								</div>
 							</div>
-							<div
-								v-for="exercise in assessmentProgress.data.exercises"
-								class="flex justify-between text-sm py-2 my-1"
-							>
-								<div>
-									{{ exercise.exercise_title }}
-								</div>
-								<Badge :theme="getAssessmentStatusTheme(exercise.status)">
-									{{ exercise.status }}
-								</Badge>
-							</div>
+							<ul class="list-none">
+								<li
+									v-for="(exercise, index) in assessmentProgress.data.exercises"
+									:key="`${exercise.exercise}-${index}`"
+									class="flex justify-between text-sm py-2 my-1"
+								>
+									<div>
+										{{ exercise.exercise_title }}
+									</div>
+									<Badge :theme="getAssessmentStatusTheme(exercise.status)">
+										{{ exercise.status }}
+									</Badge>
+								</li>
+							</ul>
 						</div>
 					</div>
 				</div>

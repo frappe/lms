@@ -1,173 +1,95 @@
 <template>
-	<LayoutHeader>
-		<template #left-header>
-			<Breadcrumbs :items="breadcrumbs" />
-		</template>
-	</LayoutHeader>
-	<div class="p-6">
-		<div class="flex items-center justify-between gap-x-32 mb-5">
-			<div class="text-md font-semibold text-ink-gray-9">
-				{{
-					submissions.data?.length
-						? __('{0} Submissions').format(submissions.data.length)
-						: __('No Submissions')
-				}}
-			</div>
-			<div
-				v-if="submissions.data?.length || filters"
-				class="grid grid-cols-3 gap-5"
-			>
-				<Link
-					doctype="LMS Programming Exercise"
-					v-model="filters.exercise"
-					:placeholder="__('Filter by Exercise')"
-					class="w-40"
-				/>
-				<Link
-					doctype="User"
-					v-model="filters.member"
-					:placeholder="__('Filter by Member')"
-					:readonly="isStudent"
-					class="w-40"
-				/>
-				<FormControl
-					v-model="filters.status"
-					type="select"
-					:options="[
-						{},
-						{ label: __('Passed'), value: 'Passed' },
-						{ label: __('Failed'), value: 'Failed' },
-					]"
-					:placeholder="__('Filter by Status')"
-					class="w-40"
-				/>
-			</div>
-		</div>
-		<ListView
-			v-if="submissions.loading || submissions.data?.length"
-			:columns="submissionColumns"
-			:rows="submissions.data"
-			rowKey="name"
-			:options="{
-				selectable: true,
-				showTooltip: false,
-			}"
-		>
-			<ListHeader
-				class="mb-2 grid items-center gap-x-4 rounded bg-surface-gray-2 p-2"
-			>
-				<ListHeaderItem
-					:item="item"
-					v-for="item in submissionColumns"
-					:key="item.key"
-				>
-					<template #prefix="{ item }">
-						<span :class="[item.icon, 'h-4 w-4']" aria-hidden="true" />
-					</template>
-				</ListHeaderItem>
-			</ListHeader>
-			<ListRows>
-				<router-link
-					v-for="row in submissions.data"
-					:to="{
-						name: 'ProgrammingExerciseSubmission',
-						params: {
-							exerciseID: row.exercise,
-							submissionID: row.name,
-						},
-					}"
-				>
-					<ListRow :row="row" class="hover:bg-surface-gray-1">
-						<template #default="{ column, item }">
-							<ListRowItem :item="row[column.key]" :align="column.align">
-								<template #prefix>
-									<div v-if="column.key == 'member_name'">
-										<Avatar
-											class="flex items-center"
-											:image="row['member_image']"
-											:label="item"
-											size="sm"
-										/>
-									</div>
-								</template>
-								<div v-if="column.key == 'status'">
-									<Badge
-										:theme="row[column.key] === 'Passed' ? 'green' : 'red'"
-									>
-										{{ row[column.key] }}
-									</Badge>
-								</div>
-								<div
-									v-else-if="column.key == 'modified'"
-									class="text-sm text-ink-gray-5"
-								>
-									{{ row[column.key] }}
-								</div>
-								<div v-else>
-									{{ row[column.key] }}
-								</div>
-							</ListRowItem>
-						</template>
-					</ListRow>
-				</router-link>
-			</ListRows>
-			<ListSelectBanner>
-				<template #actions="{ unselectAll, selections }">
-					<div class="flex gap-2">
-						<Button
-							variant="ghost"
-							@click="deleteExercises(selections, unselectAll)"
-						>
-							<span class="lucide-trash-2 size-4" />
-						</Button>
-					</div>
-				</template>
-			</ListSelectBanner>
-		</ListView>
-		<div v-else class="flex-1">
-			<EmptyStateLayout
-				name="Programming Exercise Submissions"
-				icon="lucide-file-code"
+	<ListPage
+		:breadcrumbs="breadcrumbs"
+		:title="__('Submissions')"
+		layout="list"
+		:columns="submissionColumns"
+		:rows="submissions.data || []"
+		:loading="submissions.loading"
+		:has-next-page="submissions.hasNextPage"
+		:list-options="listOptions"
+		v-model:page-length="pageLength"
+		empty-name="Programming Exercise Submissions"
+		empty-icon="lucide-file-code"
+		@load-more="submissions.next()"
+	>
+		<template #filters>
+			<Link
+				doctype="LMS Programming Exercise"
+				v-model="filters.exercise"
+				:placeholder="__('Filter by Exercise')"
 			/>
-		</div>
-		<div
-			v-if="submissions.data && submissions.hasNextPage"
-			class="flex justify-center my-5"
-		>
-			<Button @click="submissions.next()">
-				{{ __('Load More') }}
+			<Link
+				doctype="User"
+				v-model="filters.member"
+				:placeholder="__('Filter by Member')"
+				:readonly="isStudent"
+			/>
+			<FormControl
+				v-model="filters.status"
+				type="select"
+				:options="[
+					{},
+					{ label: __('Passed'), value: 'Passed' },
+					{ label: __('Failed'), value: 'Failed' },
+				]"
+				:placeholder="__('Filter by Status')"
+			/>
+		</template>
+
+		<template #cell="{ column, row, value }">
+			<div v-if="column.key == 'member_name'" class="flex items-center gap-2">
+				<Avatar
+					:image="row.member_image as string"
+					:label="value as string"
+					size="sm"
+				/>
+				<span class="truncate">{{ value }}</span>
+			</div>
+			<Badge
+				v-else-if="column.key == 'status'"
+				:theme="value === 'Passed' ? 'green' : 'red'"
+			>
+				{{ value }}
+			</Badge>
+			<div v-else-if="column.key == 'modified'" class="text-sm text-ink-gray-5">
+				{{ value }}
+			</div>
+			<div v-else>{{ value }}</div>
+		</template>
+
+		<template #selection-actions="{ unselectAll, selections }">
+			<Button
+				variant="ghost"
+				:label="__('Delete')"
+				@click="deleteExercises(selections, unselectAll)"
+			>
+				<span class="lucide-trash-2 size-4" />
 			</Button>
-		</div>
-	</div>
+		</template>
+	</ListPage>
 </template>
 <script setup lang="ts">
 import {
 	Avatar,
 	Badge,
-	Breadcrumbs,
 	Button,
 	createListResource,
 	FormControl,
-	ListView,
-	ListHeader,
-	ListHeaderItem,
-	ListRows,
-	ListRow,
-	ListRowItem,
-	ListSelectBanner,
 	usePageMeta,
 	toast,
 } from 'frappe-ui'
 import type {
 	ProgrammingExerciseSubmission,
 	Filters,
-} from '@/pages/ProgrammingExercises/types'
+	ListRow,
+	ListViewOptions,
+} from '@/types'
 import { computed, inject, onMounted, ref, watch } from 'vue'
 import { sessionStore } from '@/stores/session'
 import { useRouter } from 'vue-router'
 import Link from '@/components/Controls/Link.vue'
-import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
-import LayoutHeader from '@/components/Layouts/LayoutHeader.vue'
+import ListPage from '@/components/Layouts/ListPage.vue'
 
 const { brand } = sessionStore()
 const dayjs = inject('$dayjs') as any
@@ -179,6 +101,7 @@ const filters = ref<Filters>({
 	status: '',
 })
 const router = useRouter()
+const pageLength = ref<number>(24)
 
 onMounted(() => {
 	setFiltersFromRoute()
@@ -215,6 +138,7 @@ const submissions = createListResource({
 		'modified',
 	],
 	orderBy: 'modified desc',
+	pageLength: 24,
 	transform(data: ProgrammingExercise[]) {
 		return data.map((submission: ProgrammingExerciseSubmission) => {
 			return {
@@ -254,6 +178,11 @@ watch(filters.value, () => {
 	submissions.reload()
 })
 
+watch(pageLength, (value: number) => {
+	submissions.pageLength = value
+	submissions.reload()
+})
+
 const deleteExercises = (selections: Set<string>, unselectAll: () => void) => {
 	Array.from(selections).forEach(async (submission: string) => {
 		await submissions.delete.submit(submission)
@@ -269,6 +198,18 @@ const isStudent = computed(() => {
 		!user.data?.is_evaluator
 	)
 })
+
+const listOptions: ListViewOptions = {
+	selectable: true,
+	showTooltip: false,
+	getRowRoute: (row: ListRow) => ({
+		name: 'ProgrammingExerciseSubmission',
+		params: {
+			exerciseID: String(row.exercise),
+			submissionID: String(row.name),
+		},
+	}),
+}
 
 const submissionColumns = computed(() => {
 	return [
@@ -303,11 +244,10 @@ const submissionColumns = computed(() => {
 const breadcrumbs = computed(() => {
 	return [
 		{
-			label: __('Programming Exercise Submissions'),
-			route: {
-				name: 'ProgrammingExerciseSubmissions',
-			},
+			label: __('Programming Exercises'),
+			route: { name: 'ProgrammingExercises' },
 		},
+		{ label: __('Submissions') },
 	]
 })
 

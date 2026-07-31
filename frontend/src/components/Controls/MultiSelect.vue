@@ -21,6 +21,7 @@
 						ref="search"
 						class="flex-1 min-w-[4rem] border-none outline-none bg-transparent p-0 text-base focus:ring-0"
 						type="text"
+						:aria-label="label || __('Search')"
 						:placeholder="!values?.length ? __('Search...') : ''"
 						@change="
 							(e) => {
@@ -107,7 +108,7 @@ import {
 import { createResource, Button, FormLabel, toast } from 'frappe-ui'
 import { ref, computed, useAttrs, watch } from 'vue'
 import { watchDebounced } from '@vueuse/core'
-import type { Resource } from '@/types/api'
+import type { Resource } from '@/types'
 
 interface SelectOption {
 	label: string

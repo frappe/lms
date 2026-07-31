@@ -7,9 +7,10 @@ import router from '@/router'
 import { getLmsRoute } from '@/utils/basePath'
 
 export class Assignment {
-	constructor({ data, api, readOnly }) {
+	constructor({ data, api, readOnly, config }) {
 		this.data = data
 		this.readOnly = readOnly
+		this.studentView = Boolean(config?.studentView)
 	}
 
 	static get toolbox() {
@@ -44,10 +45,13 @@ export class Assignment {
 	renderAssignment(assignment) {
 		if (this.readOnly) {
 			const renderSubmission = (submission) => {
+				// The iframe is its own app instance, so Student View has to
+				// travel in the URL rather than through provide/inject.
+				const studentView = this.studentView ? '&studentView=1' : ''
 				const submissionPath = getLmsRoute(
 					`assignment-submission/${assignment}/${
 						submission || 'new'
-					}?fromLesson=1`
+					}?fromLesson=1${studentView}`
 				)
 				this.wrapper.innerHTML = `<iframe src="${submissionPath}" class="w-full h-[500px]"></iframe>`
 			}

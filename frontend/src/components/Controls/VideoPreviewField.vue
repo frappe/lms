@@ -1,13 +1,14 @@
 <template>
 	<div class="space-y-1.5">
 		<FormLabel v-if="label" :label="__(label)" :required="required" />
-		<div class="flex items-start gap-4">
+		<div class="flex flex-col gap-4 sm:flex-row sm:items-start">
 			<div
-				class="relative aspect-[750/422] w-56 shrink-0 grid place-items-center overflow-hidden rounded-lg border border-outline-gray-2 bg-surface-gray-2"
+				class="relative aspect-[750/422] w-full shrink-0 grid place-items-center overflow-hidden rounded-lg border border-outline-gray-2 bg-surface-gray-2 sm:w-56"
 			>
 				<iframe
 					v-if="preview.type === 'youtube'"
 					:src="preview.src"
+					:title="__('Video preview')"
 					class="size-full"
 					frameborder="0"
 					allow="accelerometer; encrypted-media; picture-in-picture"
@@ -33,6 +34,7 @@
 				<button
 					v-if="modelValue && !isUploadedVideo"
 					type="button"
+					:aria-label="__('Remove video')"
 					class="absolute end-1 top-1 grid size-6 place-items-center rounded bg-surface-base/90 shadow"
 					@click="update('')"
 				>
@@ -41,7 +43,7 @@
 			</div>
 
 			<!-- Uploaded video: thumbnail-style controls (no raw filename in an input). -->
-			<div v-if="isUploadedVideo" class="flex-1 space-y-2">
+			<div v-if="isUploadedVideo" class="min-w-0 space-y-2 sm:flex-1">
 				<div class="text-p-sm-medium text-ink-gray-7 truncate">
 					{{ fileName }}
 				</div>
@@ -78,10 +80,11 @@
 			</div>
 
 			<!-- Empty or YouTube link: URL input + upload. -->
-			<div v-else class="flex-1 space-y-2">
+			<div v-else class="min-w-0 space-y-2 sm:flex-1">
 				<FormControl
 					type="text"
 					v-model="urlInput"
+					:aria-label="__('YouTube link')"
 					:placeholder="__('Paste a YouTube link')"
 					variant="outline"
 				/>

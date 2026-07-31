@@ -29,8 +29,8 @@ vi.mock('frappe-ui', () => ({
 	FileUploader: { template: '<div />' },
 	Button: { template: '<button />' },
 }))
-// Checkboxes use the project-local BooleanSwitch (v-modeled on field.value), not
-// the frappe-ui one — mock it so toggling emits update:modelValue.
+// Checkboxes use the project-local BooleanSwitch (v-modeled on data[field.name],
+// the persisted source of truth) — mock it so toggling emits update:modelValue.
 vi.mock('@/components/Controls/BooleanSwitch.vue', () => ({
 	default: {
 		props: ['modelValue'],
@@ -206,8 +206,8 @@ describe('SettingFields — Upload field renders both object and string values',
 	})
 })
 
-describe('SettingFields — defaults surface in the input when data is empty', () => {
-	it('uses field.default when data[field.name] is undefined', async () => {
+describe('SettingFields — checkbox defaults seed the persisted doc when empty', () => {
+	it('does not seed non-checkbox defaults into data (parity: numbers bind data directly)', async () => {
 		const sections = reactive([
 			{
 				columns: [
@@ -229,14 +229,12 @@ describe('SettingFields — defaults surface in the input when data is empty', (
 		await flushPromises()
 		await nextTick()
 
-		// After onMounted runs, field.value should be the default;
-		// the watcher (on the next mutation) is checkbox-only, but the
-		// resolveInitialValue helper sets field.value at mount time.
-		const field = sections[0].columns[0].fields[0] as any
-		expect(field.value).toBe(30)
+		// Number/text/select fields bind data[field.name] directly and are never
+		// seeded — matching prior behavior where an empty doc showed an empty input.
+		expect(data.lesson_dwell_time).toBeUndefined()
 	})
 
-	it('checkbox default of 1 maps to true', async () => {
+	it('checkbox default of 1 seeds data[field.name] = 1 (renders on)', async () => {
 		const sections = reactive([
 			{
 				columns: [
@@ -257,11 +255,13 @@ describe('SettingFields — defaults surface in the input when data is empty', (
 		const wrapper = mountFields(sections, data)
 		await flushPromises()
 
-		const field = sections[0].columns[0].fields[0] as any
-		expect(field.value).toBe(true)
+		expect(data.enforce_quiz_completion).toBe(1)
+		expect(wrapper.get('[data-testid="switch"]').attributes('data-checked')).toBe(
+			'true'
+		)
 	})
 
-	it('checkbox default of 0 maps to false', async () => {
+	it('checkbox default of 0 seeds data[field.name] = 0 (renders off)', async () => {
 		const sections = reactive([
 			{
 				columns: [
@@ -282,7 +282,34 @@ describe('SettingFields — defaults surface in the input when data is empty', (
 		const wrapper = mountFields(sections, data)
 		await flushPromises()
 
-		const field = sections[0].columns[0].fields[0] as any
-		expect(field.value).toBe(false)
+		expect(data.enforce_video_completion).toBe(0)
+		expect(wrapper.get('[data-testid="switch"]').attributes('data-checked')).toBe(
+			'false'
+		)
+	})
+
+	it('does not overwrite a saved checkbox value with its default', async () => {
+		const sections = reactive([
+			{
+				columns: [
+					{
+						fields: [
+							{
+								label: 'Enforce quiz',
+								name: 'enforce_quiz_completion',
+								type: 'checkbox',
+								default: 1,
+							},
+						],
+					},
+				],
+			},
+		])
+		// Saved as off; the default (1) must not flip it back on.
+		const data = reactive<Record<string, unknown>>({ enforce_quiz_completion: 0 })
+		const wrapper = mountFields(sections, data)
+		await flushPromises()
+
+		expect(data.enforce_quiz_completion).toBe(0)
 	})
 })

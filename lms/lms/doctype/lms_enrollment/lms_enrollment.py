@@ -15,6 +15,21 @@ class LMSEnrollment(Document):
 		self.validate_course_enrollment_eligibility()
 		self.validate_owner()
 
+	def validate(self):
+		self.enforce_server_managed_fields()
+
+	def enforce_server_managed_fields(self):
+		"""Revert progress / purchased_certificate to their server-set values for non-staff."""
+		from lms.lms.utils import PRIVILEGED_ROLES
+
+		if PRIVILEGED_ROLES & set(frappe.get_roles()):
+			return
+
+		previous = None if self.is_new() else self.get_doc_before_save()
+		defaults = {"progress": 0, "purchased_certificate": 0}
+		for field, default in defaults.items():
+			setattr(self, field, previous.get(field) if previous else default)
+
 	def validate_owner(self):
 		"""Makes the member as the owner of the document so that users can update their progress"""
 		if self.owner != self.member:

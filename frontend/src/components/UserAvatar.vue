@@ -32,7 +32,7 @@
 <script setup lang="ts">
 import { Avatar, Tooltip } from 'frappe-ui'
 import { computed } from 'vue'
-import type { UserInfo } from '@/types/api'
+import type { UserInfo } from '@/types'
 
 const props = defineProps<{
 	user?: UserInfo | null

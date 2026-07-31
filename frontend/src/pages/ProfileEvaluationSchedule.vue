@@ -1,6 +1,6 @@
 <template>
 	<div class="mt-7 mb-20">
-		<div class="flex h-screen flex-col overflow-hidden">
+		<div class="flex h-dvh flex-col overflow-hidden">
 			<Calendar
 				v-if="evaluations.data?.length"
 				:config="{
@@ -23,12 +23,14 @@
 								variant="ghost"
 								class="h-4 w-4"
 								icon="lucide-chevron-left"
+								:label="__('Previous')"
 							/>
 							<Button
 								@click="increment()"
 								variant="ghost"
 								class="h-4 w-4"
 								icon="lucide-chevron-right"
+								:label="__('Next')"
 							/>
 						</div>
 					</div>

@@ -1,10 +1,10 @@
 <template>
 	<div class="w-[90%] lg:w-[75%] mx-auto mt-5">
-		<div class="text-ink-gray-9 text-lg-semibold mb-5">
+		<h2 class="text-ink-gray-9 text-lg-semibold mb-5">
 			{{ __('Announcements') }}
-		</div>
-		<div v-if="communications.data?.length">
-			<div v-for="comm in communications.data">
+		</h2>
+		<ul v-if="communications.data?.length" class="list-none">
+			<li v-for="comm in communications.data" :key="comm.name">
 				<div class="mb-8">
 					<div class="flex items-center justify-between mb-2">
 						<div class="flex items-center">
@@ -22,8 +22,8 @@
 						v-html="sanitizeRichHTML(comm.content)"
 					></div>
 				</div>
-			</div>
-		</div>
+			</li>
+		</ul>
 		<div v-else class="text-ink-gray-7 leading-5">
 			{{ __('No announcements have been made yet for this batch') }}
 		</div>

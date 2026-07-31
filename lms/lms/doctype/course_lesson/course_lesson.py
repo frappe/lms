@@ -8,7 +8,9 @@ from urllib.parse import unquote
 import frappe
 from frappe import _
 from frappe.model.document import Document
+from frappe.query_builder.functions import Locate
 from frappe.realtime import get_website_room
+from frappe.utils import add_to_date, now_datetime
 from frappe.utils.response import send_private_file
 from frappe.utils.telemetry import capture
 
@@ -123,11 +125,6 @@ def has_permission(doc, ptype="read", user=None):
 STUDENT_CONTENT_FIELDS = ("content", "body")
 
 
-def _like_escape(value: str) -> str:
-	"""Escape LIKE wildcards so a file_url containing % or _ matches literally."""
-	return value.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
-
-
 def _resolve_lesson_references(file_url: str) -> list[tuple[str, bool]]:
 	"""Every (lesson, instructor_only) pair that references file_url.
 
@@ -149,11 +146,23 @@ def _resolve_lesson_references(file_url: str) -> list[tuple[str, bool]]:
 				(r.attached_to_name, r.attached_to_field in INSTRUCTOR_FIELDS or not r.attached_to_field)
 			)
 
-	pattern = f"%{_like_escape(file_url)}%"
+	# Match the url as a literal substring via LOCATE (the query builder maps it to
+	# STRPOS/INSTR per dialect) instead of a LIKE pattern: LIKE needs %/_ escaped, and
+	# frappe.db.get_all(..., ["like", ...]) re-escapes the backslashes of an already
+	# escaped pattern — so any file_url containing "_" or "%" (e.g.
+	# Module_1_Introduction.pdf) silently matched nothing, denying enrolled students and
+	# preview guests their own lesson media.
+	lesson = frappe.qb.DocType("Course Lesson")
 	fields = [(f, False) for f in STUDENT_CONTENT_FIELDS] + [(f, True) for f in INSTRUCTOR_FIELDS]
 	for field, instructor_only in fields:
-		for row in frappe.db.get_all("Course Lesson", filters={field: ["like", pattern]}, fields=["name"]):
-			refs.append((row.name, instructor_only))
+		names = (
+			frappe.qb.from_(lesson)
+			.select(lesson.name)
+			.where(Locate(file_url, lesson[field]) > 0)
+			.run(pluck=True)
+		)
+		for name in names:
+			refs.append((name, instructor_only))
 
 	return refs
 
@@ -416,6 +425,69 @@ def get_quiz_progress(lesson):
 		):
 			return False
 	return True
+
+
+UNTITLED_LESSON_TITLE = "Untitled lesson"
+RENAME_BATCH_LIMIT = 500
+
+
+def _untitled_placeholders():
+	"""Placeholder titles in every language a lesson could have been created in."""
+	placeholders = {UNTITLED_LESSON_TITLE}
+	langs = set(frappe.db.get_all("User", pluck="language", distinct=True))
+	langs.add(frappe.db.get_default("lang"))
+	for lang in (lang for lang in langs if lang):
+		translated = frappe.translate.get_all_translations(lang).get(UNTITLED_LESSON_TITLE)
+		if translated:
+			placeholders.add(translated)
+	return list(placeholders)
+
+
+def rename_settled_untitled_lessons():
+	"""Rename settled 'NNNN Untitled lesson' docnames to their real title (daily).
+
+	TODO(docs): document this maintenance job at docs.frappe.io/learning.
+	"""
+	placeholders = _untitled_placeholders()
+	day_ago = add_to_date(now_datetime(), days=-1)
+	lessons = frappe.get_all(
+		"Course Lesson",
+		or_filters=[["name", "like", f"% {p}"] for p in placeholders],
+		filters={"modified": ("<", day_ago)},
+		fields=["name", "title"],
+		order_by="modified asc",
+		limit=RENAME_BATCH_LIMIT,
+	)
+	for lesson in lessons:
+		prefix, _sep, title_part = lesson.name.partition(" ")
+		if title_part not in placeholders:
+			continue
+		new_title = (lesson.title or "").strip()
+		if not new_title or new_title in placeholders:
+			continue
+		new_name = f"{prefix} {new_title}"[:140]
+		if new_name == lesson.name:
+			continue
+		try:
+			frappe.rename_doc(
+				"Course Lesson",
+				lesson.name,
+				new_name,
+				force=True,
+				rebuild_search=False,
+				show_alert=False,
+			)
+			frappe.db.commit()
+		except Exception:
+			frappe.db.rollback()
+			frappe.logger("lms").warning(
+				f"Failed to rename settled untitled lesson {lesson.name}", exc_info=True
+			)
+
+	if len(lessons) == RENAME_BATCH_LIMIT:
+		frappe.logger("lms").info(
+			"rename_settled_untitled_lessons hit the per-run cap; remaining lessons handled next run"
+		)
 
 
 def get_assignment_progress(lesson):

@@ -19,8 +19,11 @@
 			</Button>
 		</template>
 
-		<div v-if="!emailAccounts.loading && emailAccounts.data?.length">
-			<div v-for="(account, i) in emailAccounts.data" :key="account.name">
+		<ul
+			v-if="!emailAccounts.loading && emailAccounts.data?.length"
+			class="list-none"
+		>
+			<li v-for="(account, i) in emailAccounts.data" :key="account.name">
 				<EmailAccountCard
 					:email-account="account"
 					@click="emit('update:step', 'email-edit', { ...account })"
@@ -29,8 +32,8 @@
 					v-if="emailAccounts.data.length !== i + 1"
 					class="mx-2 h-px border-t border-outline-elevation-2"
 				/>
-			</div>
-		</div>
+			</li>
+		</ul>
 
 		<EmptyStateLayout
 			v-else
@@ -46,7 +49,7 @@ import { Button, createListResource } from 'frappe-ui'
 import EmailAccountCard from './EmailAccountCard.vue'
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 import SettingsLayout from '@/components/Layouts/SettingsLayout.vue'
-import type { EmailAccount } from '@/types/email'
+import type { EmailAccount } from '@/types'
 
 const emit = defineEmits(['update:step'])
 

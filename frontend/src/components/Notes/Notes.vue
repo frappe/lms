@@ -16,7 +16,7 @@
 <script setup lang="ts">
 import { useDebounceFn } from '@vueuse/core'
 import { inject, ref, onMounted, watch } from 'vue'
-import type { Note, Notes } from '@/components/Notes/types'
+import type { Note, Notes } from '@/types'
 import { blockQuotesClick } from '@/utils/'
 import RichTextEditor from '@/components/RichTextEditor.vue'
 

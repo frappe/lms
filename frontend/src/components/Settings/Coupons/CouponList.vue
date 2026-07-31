@@ -58,7 +58,11 @@
 									onClick: () => confirmDeletion(row.name),
 								},
 							]"
-							:button="{ icon: 'lucide-more-horizontal', variant: 'ghost' }"
+							:button="{
+								icon: 'lucide-more-horizontal',
+								variant: 'ghost',
+								label: __('Coupon actions'),
+							}"
 							placement="right"
 						/>
 					</ListCell>
@@ -84,7 +88,7 @@ import {
 	ListRows,
 } from 'frappe-ui/list'
 import { getCurrentInstance, inject } from 'vue'
-import type { Coupon, Coupons } from './types'
+import type { Coupon, Coupons } from '@/types'
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 import SettingsLayout from '@/components/Layouts/SettingsLayout.vue'
 

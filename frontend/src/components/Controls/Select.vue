@@ -2,6 +2,7 @@
 	<div class="space-y-1.5">
 		<FormLabel v-if="label" :label="label" :required="required" />
 		<Select
+			class="w-full"
 			v-bind="$attrs"
 			:modelValue="modelValue"
 			:options="options"

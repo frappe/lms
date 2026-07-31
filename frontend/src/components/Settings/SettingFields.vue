@@ -65,7 +65,9 @@
 										{{ fileName(data[field.name]) }}
 									</span>
 								</div>
-								<span
+								<button
+									type="button"
+									:aria-label="__('Remove image')"
 									@click="data[field.name] = null"
 									class="lucide-x border text-ink-gray-7 border-outline-elevation-2 rounded-md cursor-pointer w-5 h-5 p-1 ms-4"
 								/>
@@ -102,6 +104,7 @@
 							:rows="field.rows || 3"
 							v-model="data[field.name]"
 							:required="field.reqd"
+							:aria-label="__(field.label)"
 							:placeholder="field.placeholder || __(field.label)"
 						/>
 					</div>
@@ -119,19 +122,21 @@
 							<BooleanSwitch
 								v-if="field.type == 'checkbox'"
 								size="sm"
-								v-model="field.value"
+								v-model="data[field.name]"
 							/>
 							<Link
 								v-else-if="field.type == 'Link'"
 								v-model="data[field.name]"
 								:doctype="field.doctype"
 								:required="field.reqd"
+								:aria-label="__(field.label)"
 								class="w-48"
 							/>
 							<Select
 								v-else-if="field.type == 'select'"
 								v-model="data[field.name]"
 								:options="field.options"
+								:aria-label="__(field.label)"
 								class="w-48"
 							/>
 							<FormControl
@@ -144,6 +149,7 @@
 								:required="field.reqd"
 								:min="field.min"
 								class="w-48"
+								:aria-label="__(field.label)"
 								:placeholder="field.placeholder || __(field.label)"
 							/>
 						</div>
@@ -184,20 +190,9 @@ const fileName = (value) => {
 		: (url || '').split('/').pop()
 }
 
-const resolveInitialValue = (field, dataValue) => {
-	if (dataValue !== null && dataValue !== undefined && dataValue !== '') {
-		return field.type === 'checkbox' ? !!dataValue : dataValue
-	}
-	if (field.default !== undefined) {
-		return field.type === 'checkbox' ? !!field.default : field.default
-	}
-	return field.type === 'checkbox' ? false : ''
-}
-
-// Seed from the doc reactively, not just onMounted: the panel can mount before
-// the settings doc has loaded, in which case every checkbox would read false —
-// and the sync watcher below would then write that false straight back into the
-// doc, silently turning settings off.
+// Seed each checkbox's default into the doc when it loads empty, without
+// overwriting an already-saved value. Watches props.data because the panel can
+// mount before the settings doc has loaded.
 watch(
 	() => props.data,
 	(data) => {
@@ -205,28 +200,15 @@ watch(
 		props.sections.forEach((section) => {
 			section.columns.forEach((column) => {
 				column.fields.forEach((field) => {
-					field.value = resolveInitialValue(field, data[field.name])
-				})
-			})
-		})
-	},
-	{ immediate: true }
-)
-
-watch(
-	() => props.sections,
-	(newSections) => {
-		newSections.forEach((section) => {
-			section.columns.forEach((column) => {
-				column.fields.forEach((field) => {
 					if (field.type !== 'checkbox') return
-					if (props.data[field.name] != field.value) {
-						props.data[field.name] = field.value
+					const current = data[field.name]
+					if (current === null || current === undefined || current === '') {
+						data[field.name] = field.default ? 1 : 0
 					}
 				})
 			})
 		})
 	},
-	{ deep: true }
+	{ immediate: true }
 )
 </script>

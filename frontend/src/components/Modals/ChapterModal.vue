@@ -63,7 +63,9 @@
 									{{ getFileSize(chapter.scorm_package.file_size) }}
 								</span>
 							</div>
-							<span
+							<button
+								type="button"
+								:aria-label="__('Remove file')"
 								@click="() => (chapter.scorm_package = null)"
 								class="lucide-x bg-surface-gray-3 rounded-md cursor-pointer w-5 h-5 p-1 ms-4 shrink-0"
 							/>
@@ -87,7 +89,7 @@ import BooleanSwitch from '@/components/Controls/BooleanSwitch.vue'
 import { reactive, watch, inject } from 'vue'
 import { getFileSize } from '@/utils/'
 import { useOnboarding, useTelemetry } from 'frappe-ui/frappe'
-import type { ChapterDetailInput, SessionUser } from '@/types/api'
+import type { ChapterDetailInput, SessionUser } from '@/types'
 
 type ScormPackage = { file_name: string; file_size: number } | null
 
