@@ -179,7 +179,7 @@ def group_slots_by_display_date(all_slots, timezone):
 	groups = {}
 	for slot in all_slots:
 		display_date, display_start = convert_from_system_timezone(slot.date, slot.start_time, timezone)
-		_, display_end = convert_from_system_timezone(slot.date, slot.end_time, timezone)
+		display_end_date, display_end = convert_from_system_timezone(slot.date, slot.end_time, timezone)
 		date_str = display_date.strftime("%Y-%m-%d")
 
 		if date_str not in groups:
@@ -201,6 +201,12 @@ def group_slots_by_display_date(all_slots, timezone):
 				"end_time": slot.end_time,
 				"display_start_time": display_start.strftime("%H:%M:%S"),
 				"display_end_time": display_end.strftime("%H:%M:%S"),
+				# A slot that sits inside one system day can straddle midnight once
+				# converted — 17:00-19:00 Asia/Kolkata is 23:30-01:30 in
+				# Pacific/Auckland. Without this the picker would render
+				# "23:30 - 01:30" under one date and say nothing about which day the
+				# slot ends on.
+				"display_end_date": display_end_date.strftime("%Y-%m-%d"),
 			}
 		)
 

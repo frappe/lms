@@ -160,6 +160,27 @@ class TestSlotGrouping(UnitTestCase):
 		labels = [row["display_timezone_label"] for row in groups]
 		self.assertEqual(labels, ["America/Santiago (GMT-4:00)", "America/Santiago (GMT-3:00)"])
 
+	def test_end_carries_its_own_display_date_when_it_crosses_midnight(self, _system_timezone):
+		# 17:00-19:00 Asia/Kolkata is 23:30-01:30 in Pacific/Auckland: the slot sits
+		# inside one system day but straddles midnight once converted, so the end
+		# needs its own date or the picker cannot say which day it finishes on.
+		groups = group_slots_by_display_date(
+			[self._slot("2026-08-03", "17:00:00", "19:00:00", "Monday")], "Pacific/Auckland"
+		)
+		self.assertEqual(groups[0]["display_date"], "2026-08-03")
+
+		slot = groups[0]["slots"][0]
+		self.assertEqual(slot["display_start_time"], "23:30:00")
+		self.assertEqual(slot["display_end_time"], "01:30:00")
+		self.assertEqual(slot["display_end_date"], "2026-08-04")
+
+	def test_end_date_matches_the_group_when_it_does_not_cross_midnight(self, _system_timezone):
+		groups = group_slots_by_display_date(
+			[self._slot("2026-08-03", "09:00:00", "10:00:00", "Monday")], "America/Los_Angeles"
+		)
+		slot = groups[0]["slots"][0]
+		self.assertEqual(slot["display_end_date"], groups[0]["display_date"])
+
 	def test_legacy_free_text_zone_labels_without_converting(self, _system_timezone):
 		groups = group_slots_by_display_date(
 			[self._slot("2026-08-03", "10:00:00", "12:00:00", "Monday")], "IST (GMT+5:30)"

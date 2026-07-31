@@ -59,6 +59,8 @@
 									type="button"
 									class="text-base text-center border rounded-md text-ink-gray-8 p-2 cursor-pointer text-ink-gray-7 hover:bg-surface-gray-2 hover:border-outline-gray-3"
 									@click="saveSlot(slot)"
+									:title="slotLabel(slot, row)"
+									:aria-label="slotLabel(slot, row)"
 									:class="{
 										'border-outline-gray-4 text-ink-gray-9':
 											evaluation.date == slot.date &&
@@ -67,6 +69,12 @@
 								>
 									{{ formatTime(slot.display_start_time) }} -
 									{{ formatTime(slot.display_end_time) }}
+									<sup
+										v-if="endsOnAnotherDay(slot, row)"
+										class="text-ink-gray-5 ms-0.5"
+									>
+										+1
+									</sup>
 								</button>
 							</div>
 						</div>
@@ -182,6 +190,24 @@ watch(
 const scheduleTimezone = computed(
 	() => slots.data?.[0]?.display_timezone_label ?? ''
 )
+
+/* Conversion can push a slot's end past midnight while its start stays on the
+   rendered day — 17:00-19:00 Asia/Kolkata is 23:30-01:30 in Pacific/Auckland.
+   "23:30 - 01:30" alone would not say which day it ends on. */
+const endsOnAnotherDay = (slot, row) =>
+	Boolean(slot.display_end_date) && slot.display_end_date !== row.display_date
+
+const slotLabel = (slot, row) => {
+	const start = formatTime(slot.display_start_time)
+	const end = formatTime(slot.display_end_time)
+	if (!endsOnAnotherDay(slot, row)) return `${start} - ${end}`
+
+	return __('{0} until {1} on {2}').format(
+		start,
+		end,
+		dayjs(slot.display_end_date).format('DD MMMM YYYY')
+	)
+}
 
 /* Displayed times are converted; the booking submits the system values the slot
    was stored with. Both live on the slot, not the day: converting can move a

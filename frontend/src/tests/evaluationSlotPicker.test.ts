@@ -75,6 +75,7 @@ const SCHEDULE = [
 				end_time: '23:30:00',
 				display_start_time: '10:30:00',
 				display_end_time: '11:00:00',
+				display_end_date: '2026-08-02',
 			},
 			{
 				date: '2026-08-03',
@@ -83,6 +84,7 @@ const SCHEDULE = [
 				end_time: '10:00:00',
 				display_start_time: '20:30:00',
 				display_end_time: '21:30:00',
+				display_end_date: '2026-08-02',
 			},
 		],
 	},
@@ -175,6 +177,39 @@ describe('evaluation slot picker', () => {
 			start_time: '09:00:00',
 			end_time: '10:00:00',
 		})
+	})
+
+	it('marks a slot whose converted end falls on the next day', async () => {
+		// 17:00-19:00 Asia/Kolkata is 23:30-01:30 in Pacific/Auckland: one system
+		// day, two display days. "23:30 - 01:30" alone would not say which.
+		const wrapper = await mountPicker([
+			{
+				...SCHEDULE[0],
+				slots: [
+					{
+						date: '2026-08-03',
+						day: 'Monday',
+						start_time: '17:00:00',
+						end_time: '19:00:00',
+						display_start_time: '23:30:00',
+						display_end_time: '01:30:00',
+						display_end_date: '2026-08-03',
+					},
+				],
+			},
+		])
+
+		const button = wrapper.find('.grid button')
+		expect(button.find('sup').exists()).toBe(true)
+		expect(button.attributes('aria-label')).toContain('2026-08-03')
+	})
+
+	it('does not mark a slot that ends on the day it is rendered under', async () => {
+		const wrapper = await mountPicker()
+		const buttons = wrapper.findAll('.grid button')
+
+		expect(buttons.every((b) => !b.find('sup').exists())).toBe(true)
+		expect(buttons[0].attributes('aria-label')).toBe('10:30 - 11:00')
 	})
 
 	it('repeats the zone on days whose offset differs from the header', async () => {
