@@ -186,7 +186,10 @@ function onOpen(open: boolean) {
 	if (open && !loaded) reload()
 }
 
-const onQuery = useDebounceFn((txt: string) => reload(txt || ''), 300)
+const onQuery = useDebounceFn(
+	(txt: unknown) => reload((txt as string) || ''),
+	300
+)
 
 const emit = defineEmits<{
 	(e: 'change', value: string[]): void

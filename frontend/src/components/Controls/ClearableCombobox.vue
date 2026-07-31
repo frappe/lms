@@ -5,7 +5,9 @@
 			:modelValue="modelValue"
 			:options="options"
 			:placeholder="placeholder"
-			@update:modelValue="(value) => emit('update:modelValue', value || null)"
+			@update:modelValue="
+				(value) => emit('update:modelValue', value ? String(value) : null)
+			"
 		>
 			<!-- Clearable variant (frappe-ui docs): an inline clear button via #suffix,
 			falling back to the chevron when nothing is selected. -->

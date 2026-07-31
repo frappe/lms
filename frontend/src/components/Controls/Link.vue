@@ -87,6 +87,7 @@ import {
 	FormLabel,
 	createResource,
 } from 'frappe-ui'
+import type { ComboboxOptionValue } from 'frappe-ui'
 import { useDebounceFn, watchDebounced } from '@vueuse/core'
 import { useAttrs, computed, ref, watch } from 'vue'
 import { useSettings } from '@/stores/settings'
@@ -212,12 +213,12 @@ function reload(txt: string = ''): void {
 	options.reload()
 }
 
-function onOpen(open: boolean): void {
-	isOpen.value = open
-	if (open && !loaded) reload('')
+function onOpen(open: unknown): void {
+	isOpen.value = open as boolean
+	if (isOpen.value && !loaded) reload('')
 }
 
-const onQuery = useDebounceFn((txt: string) => reload(txt), 300)
+const onQuery = useDebounceFn((txt: unknown) => reload(txt as string), 300)
 
 // Settings drawer (UserDropdown) is where users add Categories, Course
 // Evaluators, etc. — refresh options once it closes so newly-created
@@ -231,8 +232,12 @@ watchDebounced(
 	{ debounce: 200 }
 )
 
-function onSelect(val: string | null): void {
-	emit(valuePropPassed.value ? 'change' : 'update:modelValue', val ?? '')
+function onSelect(val: unknown): void {
+	const selected = val as ComboboxOptionValue | null
+	emit(
+		valuePropPassed.value ? 'change' : 'update:modelValue',
+		selected == null ? '' : String(selected)
+	)
 }
 
 function clearValue(): void {
