@@ -1,6 +1,12 @@
 <template>
 	<div class="space-y-1.5">
-		<FormLabel v-if="label" :label="__(label)" :required="required" />
+		<InputLabel
+			v-if="label"
+			:id="labelId"
+			:for-id="inputId"
+			:label="label ? __(label) : undefined"
+			:required="required"
+		/>
 		<FileUploader
 			:fileTypes="[fileType]"
 			:validateFile="(file: File) => validateFile(file, true, type)"
@@ -34,7 +40,11 @@
 						/>
 					</div>
 					<div class="flex items-center gap-2">
-						<Button @click="openFileSelector" :loading="uploading">
+						<Button
+							:id="inputId"
+							@click="openFileSelector"
+							:loading="uploading"
+						>
 							{{
 								uploading
 									? `${__('Uploading')} ${progress}%`
@@ -55,12 +65,24 @@
 				</div>
 			</template>
 		</FileUploader>
+		<InputDescription
+			v-if="showDescription"
+			:id="descriptionId"
+			:description="description ? __(description) : undefined"
+		/>
+		<InputError v-if="hasError" :id="errorMessageId" :lines="errorLines" />
 	</div>
 </template>
 
 <script setup lang="ts">
 import { validateFile } from '@/utils'
-import { Button, FileUploader, FormLabel, toast } from 'frappe-ui'
+import { Button, FileUploader, toast } from 'frappe-ui'
+import {
+	InputDescription,
+	InputError,
+	InputLabel,
+	useInputLabeling,
+} from '@/components/Form/labeling'
 import { Image, Video } from 'lucide-vue-next'
 import { computed } from 'vue'
 
@@ -75,6 +97,8 @@ const props = withDefaults(
 		type?: 'image' | 'video'
 		required?: boolean
 		shape?: 'square' | 'circle'
+		description?: string
+		error?: string
 	}>(),
 	{
 		type: 'image',
@@ -82,6 +106,16 @@ const props = withDefaults(
 		shape: 'square',
 	}
 )
+
+const {
+	inputId,
+	labelId,
+	descriptionId,
+	errorMessageId,
+	hasError,
+	errorLines,
+	showDescription,
+} = useInputLabeling(props)
 
 const fileType = computed<string>(() =>
 	props.type === 'image' ? 'image/*' : 'video/*'

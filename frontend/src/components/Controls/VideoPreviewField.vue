@@ -1,6 +1,12 @@
 <template>
 	<div class="space-y-1.5">
-		<FormLabel v-if="label" :label="__(label)" :required="required" />
+		<InputLabel
+			v-if="label"
+			:id="labelId"
+			:for-id="inputId"
+			:label="label ? __(label) : undefined"
+			:required="required"
+		/>
 		<div class="flex flex-col gap-4 sm:flex-row sm:items-start">
 			<div
 				class="relative aspect-[750/422] w-full shrink-0 grid place-items-center overflow-hidden rounded-lg border border-outline-gray-2 bg-surface-gray-2 sm:w-56"
@@ -55,7 +61,11 @@
 						@failure="onUploadFailure"
 					>
 						<template #default="{ openFileSelector, uploading, progress }">
-							<Button :loading="uploading" @click="openFileSelector">
+							<Button
+								:id="inputId"
+								:loading="uploading"
+								@click="openFileSelector"
+							>
 								<template #prefix>
 									<span class="lucide-upload size-4" />
 								</template>
@@ -82,6 +92,7 @@
 			<!-- Empty or YouTube link: URL input + upload. -->
 			<div v-else class="min-w-0 space-y-2 sm:flex-1">
 				<FormControl
+					:id="inputId"
 					type="text"
 					v-model="urlInput"
 					:aria-label="__('YouTube link')"
@@ -114,11 +125,23 @@
 				</p>
 			</div>
 		</div>
+		<InputDescription
+			v-if="showDescription"
+			:id="descriptionId"
+			:description="description ? __(description) : undefined"
+		/>
+		<InputError v-if="hasError" :id="errorMessageId" :lines="errorLines" />
 	</div>
 </template>
 
 <script setup lang="ts">
-import { Button, FileUploader, FormControl, FormLabel, toast } from 'frappe-ui'
+import { Button, FileUploader, FormControl, toast } from 'frappe-ui'
+import {
+	InputDescription,
+	InputError,
+	InputLabel,
+	useInputLabeling,
+} from '@/components/Form/labeling'
 import { computed, ref, watch } from 'vue'
 import { getVideoPreview, getYouTubeId } from '@/utils/video'
 
@@ -180,7 +203,19 @@ const props = defineProps<{
 	modelValue?: string
 	label?: string
 	required?: boolean
+	description?: string
+	error?: string
 }>()
+
+const {
+	inputId,
+	labelId,
+	descriptionId,
+	errorMessageId,
+	hasError,
+	errorLines,
+	showDescription,
+} = useInputLabeling(props)
 
 const emit = defineEmits<{
 	(e: 'update:modelValue', value: string): void
