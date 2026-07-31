@@ -18,7 +18,7 @@
 				:placeholder="__('Select category')"
 				:inlineCreate="true"
 				inlineCreatePlaceholder="Category name"
-				:onCreate="createCategory"
+				:onCreate="onCreateCategory"
 				variant="outline"
 				@update:modelValue="markDirty()"
 			/>
@@ -90,6 +90,7 @@
 import { FormControl, MultiSelect } from 'frappe-ui'
 import { computed, inject, ref } from 'vue'
 import { createLMSCategory } from '@/utils'
+import { createHandler } from '@/pages/Courses/createHandler'
 import Link from '@/components/Controls/Link.vue'
 import CourseInstructorsField from '@/pages/Courses/CourseInstructorsField.vue'
 import CourseThumbnailField from '@/pages/Courses/CourseThumbnailField.vue'
@@ -148,5 +149,9 @@ function createCategory(name: string, done?: () => void) {
 		done?.()
 		markDirty()
 	})
+}
+
+function onCreateCategory(value: string | null, done?: () => void) {
+	createHandler(value, done, (name) => createCategory(name, done))
 }
 </script>
