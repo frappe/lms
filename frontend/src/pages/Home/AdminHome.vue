@@ -34,6 +34,12 @@
 									{{ formatTime(evaluation.start_time) }}
 								</span>
 							</div>
+							<div v-if="evaluation.timezone" class="flex items-center mb-3">
+								<span class="lucide-globe size-4" />
+								<span class="ms-2">
+									{{ formatTimezone(evaluation.timezone, evaluation.date) }}
+								</span>
+							</div>
 							<div class="flex items-center">
 								<span class="lucide-graduation-cap size-4" />
 								<span class="ms-2">
@@ -208,6 +214,7 @@
 import { Button, createResource, Tooltip } from 'frappe-ui'
 import { inject } from 'vue'
 import { formatTime } from '@/utils'
+import { formatTimezone } from '@/utils/timezone'
 import { profileRoute } from '@/utils/routes'
 import CourseCard from '@/components/CourseCard.vue'
 import BatchCard from '@/pages/Batches/components/BatchCard.vue'

@@ -76,6 +76,12 @@
 								{{ formatTime(evl.start_time) }}
 							</span>
 						</div>
+						<div v-if="evl.timezone" class="flex items-center mb-2">
+							<span class="lucide-globe w-4 h-4" />
+							<span class="ms-2">
+								{{ formatTimezone(evl.timezone, evl.date) }}
+							</span>
+						</div>
 						<div class="flex items-center">
 							<span class="lucide-graduation-cap w-4 h-4" />
 							<span class="ms-2">
@@ -112,6 +118,7 @@
 <script setup>
 import { inject, ref, getCurrentInstance, computed } from 'vue'
 import { formatTime } from '@/utils'
+import { formatTimezone } from '@/utils/timezone'
 import { Button, createListResource, call, Dropdown, toast } from 'frappe-ui'
 import EvaluationModal from '@/components/Modals/EvaluationModal.vue'
 
@@ -155,6 +162,7 @@ const upcoming_evals = createListResource({
 		'name',
 		'date',
 		'start_time',
+		'timezone',
 		'evaluator_name',
 		'course_title',
 		'member',

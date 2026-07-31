@@ -1,7 +1,9 @@
 import hashlib
 import json
 import re
+from datetime import datetime
 from urllib.parse import quote
+from zoneinfo import ZoneInfo
 
 import frappe
 import requests
@@ -20,6 +22,8 @@ from frappe.utils import (
 	get_datetime,
 	get_frappe_version,
 	get_fullname,
+	get_system_timezone,
+	get_time,
 	getdate,
 	nowtime,
 	rounded,
@@ -701,6 +705,90 @@ def get_evaluator(course: str, batch: str = None):
 	else:
 		evaluator = frappe.db.get_value("LMS Course", course, "evaluator")
 	return evaluator
+
+
+def get_zone(timezone: str) -> ZoneInfo | None:
+	"""None for anything that is not an IANA zone name.
+
+	Every timezone in LMS is a free-text `Data` field. New records hold a name
+	picked from `get_country_timezone_info` ("Asia/Kolkata"), older rows predate
+	that control and can hold anything ("IST (GMT+5:30)").
+	"""
+	if not timezone:
+		return None
+
+	try:
+		return ZoneInfo(timezone)
+	except (KeyError, ValueError):
+		return None
+
+
+def get_evaluation_display_timezone(course: str = None, batch: str = None) -> str:
+	"""The zone evaluation slots are *shown* in. Never the zone they are stored in.
+
+	Slots are authored and stored in the system timezone — `nowtime()`
+	comparisons and the naive datetime handed to Google Calendar all depend on
+	that. The batch declares the zone its cohort works in, so that is what a
+	learner books against; a direct-evaluation course has no batch, and falls
+	back to its own timezone, which is mandatory for a paid certificate.
+	"""
+	if batch:
+		timezone = frappe.db.get_value("LMS Batch", batch, "timezone")
+		if timezone:
+			return timezone
+
+	if course:
+		# Only when paid_certificate is set: the field `depends_on` it, so an
+		# unset course can be carrying a stale value from a toggle.
+		settings = frappe.db.get_value("LMS Course", course, ["paid_certificate", "timezone"], as_dict=True)
+		if settings and settings.paid_certificate and settings.timezone:
+			return settings.timezone
+
+	return get_system_timezone()
+
+
+def convert_from_system_timezone(date, time, timezone: str) -> tuple:
+	"""Move a system-time wall clock into `timezone`. Returns (date, time).
+
+	The date comes back because conversion rolls over: an evaluator's Monday
+	09:00 in Asia/Kolkata is Sunday 20:30 in America/Los_Angeles.
+
+	A zone name we cannot resolve is legacy free text with no offset to convert
+	against, so the wall clock is returned untouched — labelled, not moved.
+	"""
+	zone = get_zone(timezone)
+	system = get_zone(get_system_timezone())
+	if not zone or not system or zone.key == system.key:
+		return getdate(date), get_time(time)
+
+	moment = datetime.combine(getdate(date), get_time(time), tzinfo=system).astimezone(zone)
+	return moment.date(), moment.time()
+
+
+def format_timezone(timezone: str, at=None) -> str:
+	""" "Asia/Kolkata" -> "Asia/Kolkata (GMT+5:30)".
+
+	`at` is the instant to read the offset at — a date, a datetime, or None for
+	now. It matters because the offset shifts across DST, and the slot picker
+	spans 60 days.
+
+	Mirrors frontend/src/utils/timezone.ts so an email reads the same as the
+	screen it was booked from. Values that are not IANA zone names are echoed:
+	they already read as a timezone to a human, and there is no safe way to
+	parse them back into one.
+	"""
+	if not timezone:
+		return ""
+
+	zone = get_zone(timezone)
+	if not zone:
+		return timezone
+
+	moment = get_datetime(at).replace(tzinfo=zone) if at else datetime.now(zone)
+	total_minutes = int(moment.utcoffset().total_seconds() // 60)
+	hours, minutes = divmod(abs(total_minutes), 60)
+	sign = "+" if total_minutes >= 0 else "-"
+	return f"{timezone} (GMT{sign}{hours}:{minutes:02d})"
 
 
 def check_multicurrency(amount: float, currency: str, country: str = None, amount_usd: float = None):

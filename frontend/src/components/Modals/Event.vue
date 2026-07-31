@@ -59,6 +59,14 @@
 								</span>
 							</div>
 						</Tooltip>
+						<Tooltip v-if="event.timezone" :text="__('Timezone')">
+							<div class="flex items-center gap-x-2 w-fit">
+								<span class="lucide-globe h-4 w-4" />
+								<span>
+									{{ formatTimezone(event.timezone, event.date) }}
+								</span>
+							</div>
+						</Tooltip>
 					</div>
 					<div class="flex items-center gap-x-2 mt-auto">
 						<Button
@@ -180,6 +188,7 @@ import {
 import BooleanSwitch from '@/components/Controls/BooleanSwitch.vue'
 import { inject, reactive, watch, ref, computed } from 'vue'
 import { formatTime } from '@/utils'
+import { formatTimezone } from '@/utils/timezone'
 import Link from '@/components/Controls/Link.vue'
 
 const show = defineModel()

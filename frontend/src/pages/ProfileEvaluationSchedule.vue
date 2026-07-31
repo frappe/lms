@@ -75,6 +75,7 @@ const evaluations = createListResource({
 		'date',
 		'start_time',
 		'end_time',
+		'timezone',
 		'google_meet_link',
 	],
 	auto: true,
