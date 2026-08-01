@@ -109,9 +109,10 @@ class LMSBatchEnrollment(Document):
 
 
 @frappe.whitelist()
-def send_confirmation_email(doc: Document):
+def send_confirmation_email(doc: Document | str):
 	if isinstance(doc, str):
-		doc = frappe._dict(json.loads(doc))
+		name = frappe.parse_json(doc).get("name")
+		doc = frappe.get_doc("LMS Batch Enrollment", name)
 
 	roles = frappe.get_roles()
 	is_admin = "Moderator" in roles or "Batch Evaluator" in roles
