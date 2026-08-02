@@ -9,11 +9,9 @@
 					<Badge v-if="isDirty" theme="orange">
 						{{ __('Not Saved') }}
 					</Badge>
-					<div class="pb-5 float-end">
-						<Button variant="solid" @click="saveProfile()">
-							{{ __('Save') }}
-						</Button>
-					</div>
+					<Button variant="solid" @click="saveProfile()">
+						{{ __('Save') }}
+					</Button>
 				</div>
 			</div>
 		</template>
