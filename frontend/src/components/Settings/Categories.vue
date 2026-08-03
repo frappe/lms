@@ -1,5 +1,21 @@
 <template>
-	<SettingsLayout :title="label" :description="__(description)">
+	<SettingsList
+		:title="label"
+		:description="__(description)"
+		:columns="columns"
+		:rows="list.rows"
+		:loading="list.loading"
+		:has-next-page="list.hasNextPage"
+		v-model:search="list.search"
+		searchable
+		:search-label="__('Search categories')"
+		:new-label="showForm ? __('Close') : __('New')"
+		empty-name="Categories"
+		empty-icon="lucide-network"
+		@new="showCategoryForm()"
+		@load-more="list.loadMore()"
+		@row-click="promptRename"
+	>
 		<template #header-actions>
 			<div
 				v-if="saving"
@@ -8,17 +24,10 @@
 				<LoadingIndicator class="size-2" />
 				<span class="text-xs">{{ __('saving...') }}</span>
 			</div>
-			<Button variant="solid" @click="() => showCategoryForm()">
-				<template #prefix>
-					<span v-if="!showForm" class="lucide-plus h-4 w-4" />
-					<span v-else class="lucide-x h-4 w-4" />
-				</template>
-				{{ showForm ? __('Close') : __('New') }}
-			</Button>
 		</template>
 
 		<template #header-bottom>
-			<div v-if="showForm" class="flex items-center justify-between gap-x-2">
+			<div v-if="showForm" class="flex flex-1 items-center justify-end gap-x-2">
 				<FormControl
 					ref="categoryInput"
 					v-model="category"
@@ -31,59 +40,7 @@
 				</Button>
 			</div>
 		</template>
-
-		<List
-			v-if="categories.data?.length"
-			:columns="columns"
-			class="list-row-px-3 [--list-row-height:3.5rem]"
-		>
-			<ListHeader>
-				<ListHeaderCell>{{ __('Category') }}</ListHeaderCell>
-				<ListHeaderCell>{{ __('Created') }}</ListHeaderCell>
-				<ListHeaderCell />
-			</ListHeader>
-			<ListRows :items="categories.data" row-key="name" v-slot="{ item: row }">
-				<!-- Clicking the row opens the editor, so the ... menu carries only
-				     delete. A row without a handler also renders flush, while the
-				     header keeps the list-row-px-3 inset, so the columns drift. -->
-				<ListRow @click="promptRename(row)">
-					<ListCell>
-						<span class="truncate text-p-base text-ink-gray-8">
-							{{ row.category }}
-						</span>
-					</ListCell>
-					<ListCell class="text-p-base text-ink-gray-6">
-						<span class="truncate">
-							{{ dayjs(row.creation).format('DD MMM YYYY') }}
-						</span>
-					</ListCell>
-					<ListCell @click.stop>
-						<Dropdown
-							:options="[
-								{
-									label: __('Delete'),
-									icon: 'lucide-trash-2',
-									onClick: () => confirmDeletion(row),
-								},
-							]"
-							:button="{
-								icon: 'lucide-more-horizontal',
-								variant: 'ghost',
-								label: __('Category actions'),
-							}"
-							placement="right"
-						/>
-					</ListCell>
-				</ListRow>
-			</ListRows>
-		</List>
-		<EmptyStateLayout
-			v-else
-			name="Categories"
-			:description="__('Add one to get started')"
-			icon="lucide-network"
-		/>
-	</SettingsLayout>
+	</SettingsList>
 
 	<Dialog
 		v-model="renameOpen"
@@ -100,81 +57,113 @@
 		/>
 	</Dialog>
 </template>
-<script setup>
+<script setup lang="ts">
 import {
 	Button,
 	Dialog,
-	Dropdown,
 	FormControl,
 	LoadingIndicator,
 	call,
-	createListResource,
 	createResource,
 	toast,
 } from 'frappe-ui'
-import {
-	List,
-	ListCell,
-	ListHeader,
-	ListHeaderCell,
-	ListRow,
-	ListRows,
-} from 'frappe-ui/list'
 import { nextTick, ref } from 'vue'
 import { cleanError } from '@/utils'
 import { createDialog } from '@/utils/dialogs'
 import dayjs from '@/utils/dayjs'
-import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
-import SettingsLayout from '@/components/Layouts/SettingsLayout.vue'
+import SettingsList from '@/components/Layouts/SettingsList.vue'
+import { useSettingsListResource } from '@/composables/useSettingsListResource'
+import type { SettingsListColumn, SettingsListRow } from '@/types'
 
 const showForm = ref(false)
-const category = ref(null)
-const categoryInput = ref(null)
+const category = ref<string | null>(null)
+const categoryInput = ref<any>(null)
 const saving = ref(false)
-const editing = ref(null)
+const editing = ref<string | null>(null)
 const editedValue = ref('')
 const renameOpen = ref(false)
-const renameInput = ref(null)
+const renameInput = ref<any>(null)
 
-const props = defineProps({
-	label: {
-		type: String,
-		required: true,
-	},
-	description: {
-		type: String,
-		default: '',
-	},
-})
+withDefaults(
+	defineProps<{
+		label: string
+		description?: string
+	}>(),
+	{ description: '' }
+)
 
-// Grid track sizes shared by the header and every row (--list-columns).
-const columns = ['minmax(0, 1fr)', '12rem', '2.25rem']
-
-const categories = createListResource({
+const list = useSettingsListResource({
 	doctype: 'LMS Category',
 	fields: ['name', 'category', 'creation'],
+	searchFields: ['category'],
 	orderBy: 'creation desc',
-	auto: true,
 })
 
-const focusInput = (el) => {
+const confirmDeletion = (row: SettingsListRow) => {
+	createDialog({
+		title: __('Delete this category?'),
+		message: __(
+			'This will unlink this category from all courses and batches using it, and then delete it. This cannot be undone.'
+		),
+		actions: [
+			{
+				label: __('Delete'),
+				theme: 'red',
+				variant: 'solid',
+				onClick({ close }: { close: () => void }) {
+					deleteCategory(row.name, close)
+				},
+			},
+		],
+	})
+}
+
+const columns: SettingsListColumn[] = [
+	{
+		key: 'category',
+		label: __('Category'),
+		type: 'stacked',
+		primary: (row) => row.category,
+	},
+	{
+		key: 'creation',
+		label: __('Created'),
+		type: 'text',
+		width: '12rem',
+		value: (row) => dayjs(row.creation).format('DD MMM YYYY'),
+	},
+	{
+		key: 'actions',
+		type: 'actions',
+		ariaLabel: (row) => __('Actions for {0}').format(row.category),
+		options: (row) => [
+			{
+				label: __('Delete'),
+				icon: 'lucide-trash-2',
+				onClick: () => confirmDeletion(row),
+			},
+		],
+	},
+]
+
+const focusInput = (el: any) => {
 	nextTick(() => el?.$el?.querySelector('input')?.focus())
 }
 
 const addCategory = () => {
 	if (!category.value) return
-	categories.insert.submit(
+	list.resource.insert.submit(
 		{
 			category: category.value,
 		},
 		{
 			onSuccess() {
-				categories.reload()
+				list.reload()
 				category.value = null
 				showForm.value = false
 				toast.success(__('Category added successfully'))
 			},
-			onError(err) {
+			onError(err: any) {
 				toast.error(__(cleanError(err.messages[0]) || 'Unable to add category'))
 			},
 		}
@@ -188,7 +177,7 @@ const showCategoryForm = () => {
 
 const updateCategory = createResource({
 	url: 'frappe.client.rename_doc',
-	makeParams(values) {
+	makeParams(values: { name: string; category: string }) {
 		return {
 			doctype: 'LMS Category',
 			old_name: values.name,
@@ -197,7 +186,7 @@ const updateCategory = createResource({
 	},
 })
 
-const promptRename = (row) => {
+const promptRename = (row: SettingsListRow) => {
 	editing.value = row.name
 	editedValue.value = row.category
 	renameOpen.value = true
@@ -213,7 +202,7 @@ const cancelEdit = () => {
 const renameActions = [
 	{
 		label: __('Save'),
-		variant: 'solid',
+		variant: 'solid' as const,
 		onClick: () => saveChanges(),
 	},
 ]
@@ -234,11 +223,11 @@ const saveChanges = () => {
 		{
 			onSuccess() {
 				saving.value = false
-				categories.reload()
+				list.reload()
 				cancelEdit()
 				toast.success(__('Category updated successfully'))
 			},
-			onError(err) {
+			onError(err: any) {
 				saving.value = false
 				cancelEdit()
 				toast.error(
@@ -249,36 +238,17 @@ const saveChanges = () => {
 	)
 }
 
-const confirmDeletion = (row) => {
-	createDialog({
-		title: __('Delete this category?'),
-		message: __(
-			'This will unlink this category from all courses and batches using it, and then delete it. This cannot be undone.'
-		),
-		actions: [
-			{
-				label: __('Delete'),
-				theme: 'red',
-				variant: 'solid',
-				onClick({ close }) {
-					deleteCategory(row.name, close)
-				},
-			},
-		],
-	})
-}
-
-// Category is a Link target on both LMS Course and LMS Batch, so the server
-// clears those references before deleting; a plain delete raises LinkExistsError.
-const deleteCategory = (name, close) => {
+// LMS Category is a Link target on Course and Batch, so the server unlinks
+// before deleting; a plain delete raises LinkExistsError.
+const deleteCategory = (name: string, close: () => void) => {
 	saving.value = true
 	call('lms.lms.api.delete_category', { category: name })
 		.then(() => {
-			categories.reload()
+			list.reload()
 			if (typeof close === 'function') close()
 			toast.success(__('Category deleted successfully'))
 		})
-		.catch((err) => {
+		.catch((err: any) => {
 			toast.error(
 				__(cleanError(err.messages?.[0] || err) || 'Unable to delete category')
 			)

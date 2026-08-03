@@ -1,7 +1,7 @@
 <template>
 	<TransactionDetails
 		v-if="step == 'new'"
-		:transactions="transactions"
+		:transactions="list.resource"
 		:data="data"
 		:fieldMeta="fieldMeta.data || {}"
 		v-model:show="show"
@@ -11,12 +11,12 @@
 		v-else-if="step === 'list'"
 		:label="props.label"
 		:description="props.description"
-		:transactions="transactions"
+		:list="list"
 		@updateStep="updateStep"
 	/>
 	<TransactionDetails
 		v-else-if="step == 'details'"
-		:transactions="transactions"
+		:transactions="list.resource"
 		:data="data"
 		:fieldMeta="fieldMeta.data || {}"
 		v-model:show="show"
@@ -25,7 +25,8 @@
 </template>
 <script setup lang="ts">
 import { ref } from 'vue'
-import { createListResource, createResource } from 'frappe-ui'
+import { createResource } from 'frappe-ui'
+import { useSettingsListResource } from '@/composables/useSettingsListResource'
 import TransactionList from '@/components/Settings/Transactions/TransactionList.vue'
 import TransactionDetails from '@/components/Settings/Transactions/TransactionDetails.vue'
 
@@ -52,7 +53,7 @@ const fieldMeta = createResource({
 	auto: true,
 })
 
-const transactions = createListResource({
+const list = useSettingsListResource({
 	doctype: 'LMS Payment',
 	fields: [
 		'name',
@@ -76,7 +77,7 @@ const transactions = createListResource({
 		'pan',
 		'address',
 	],
-	auto: true,
+	searchFields: ['billing_name', 'member'],
 	orderBy: 'modified desc',
 })
 </script>

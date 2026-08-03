@@ -86,6 +86,16 @@ const allGateways = createListResource({
 	fields: ['name', 'issingle'],
 })
 
+// Which gateways already exist has to come from its own unfiltered, unpaged
+// query. Reading it off the list panel's resource meant a search term or the
+// 13-row page hid a configured gateway, and offering it again overwrites its
+// credentials.
+const configuredGateways = createListResource({
+	doctype: 'Payment Gateway',
+	fields: ['name'],
+	pageLength: 0,
+})
+
 const gatewayFields = createResource({
 	url: 'lms.lms.api.get_new_gateway_fields',
 	makeParams(values: any) {
@@ -113,6 +123,7 @@ watch(
 			paymentGateway.reload()
 		} else if (props.gatewayID == 'new') {
 			allGateways.reload()
+			configuredGateways.reload()
 		}
 	},
 	{ immediate: true }
@@ -194,7 +205,7 @@ const allGatewayOptions = computed(() => {
 	gatewayList.forEach((gateway: any) => {
 		let gatewayName = gateway.split(' ')[0]
 		let existingGateways =
-			paymentGateways.value?.data?.map((pg: any) => pg.name) || []
+			configuredGateways.data?.map((pg: any) => pg.name) || []
 		if (
 			!options.includes(gatewayName) &&
 			!existingGateways.includes(gatewayName)
