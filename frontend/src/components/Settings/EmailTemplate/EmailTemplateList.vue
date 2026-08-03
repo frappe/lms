@@ -37,7 +37,7 @@
 		<List
 			v-if="filteredTemplates.length"
 			:columns="columns"
-			class="list-row-px-3"
+			class="list-row-px-3 [--list-row-height:3.5rem]"
 		>
 			<ListHeader>
 				<ListHeaderCell>{{ __('Template Name') }}</ListHeaderCell>
@@ -48,10 +48,7 @@
 				row-key="name"
 				v-slot="{ item: row }"
 			>
-				<ListRow
-					class="py-2.5"
-					@click="emit('update:step', 'template-edit', { ...row })"
-				>
+				<ListRow @click="emit('update:step', 'template-edit', { ...row })">
 					<!-- Name over subject, like CRM's template rows. -->
 					<ListCell>
 						<div class="flex min-w-0 flex-col">

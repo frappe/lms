@@ -32,7 +32,7 @@
 		</template>
 
 		<div v-if="transactions.data?.length">
-			<List :columns="columns" class="list-row-px-3">
+			<List :columns="columns" class="list-row-px-3 [--list-row-height:3.5rem]">
 				<ListHeader>
 					<ListHeaderCell>{{ __('Billing Name') }}</ListHeaderCell>
 					<ListHeaderCell>
@@ -45,7 +45,7 @@
 					row-key="name"
 					v-slot="{ item: row }"
 				>
-					<ListRow class="py-3" @click="openForm(row)">
+					<ListRow @click="openForm(row)">
 						<ListCell class="gap-2">
 							<span class="lucide-user size-4 shrink-0 text-ink-gray-5" />
 							<div class="flex min-w-0 flex-col">

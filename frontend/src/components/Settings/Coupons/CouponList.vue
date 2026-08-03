@@ -9,7 +9,11 @@
 			</Button>
 		</template>
 
-		<List v-if="coupons.data?.length" :columns="columns" class="list-row-px-3">
+		<List
+			v-if="coupons.data?.length"
+			:columns="columns"
+			class="list-row-px-3 [--list-row-height:3.5rem]"
+		>
 			<ListHeader>
 				<ListHeaderCell>{{ __('Code') }}</ListHeaderCell>
 				<ListHeaderCell>{{ __('Discount') }}</ListHeaderCell>
@@ -19,7 +23,7 @@
 				<ListHeaderCell />
 			</ListHeader>
 			<ListRows :items="coupons.data" row-key="name" v-slot="{ item: row }">
-				<ListRow class="py-3" @click="openForm(row)">
+				<ListRow @click="openForm(row)">
 					<ListCell class="gap-2">
 						<span class="lucide-tag size-4 shrink-0 text-ink-gray-5" />
 						<span class="truncate text-p-base-medium text-ink-gray-8">

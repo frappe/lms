@@ -20,7 +20,7 @@
 		<div
 			:class="
 				rows.length
-					? '[--list-row-height:52px] max-h-[calc(2rem_+_8_*_var(--list-row-height))] shrink-0 overflow-y-auto'
+					? '[--list-row-height:3.5rem] max-h-[calc(2rem_+_8_*_var(--list-row-height))] shrink-0 overflow-y-auto'
 					: 'flex min-h-0 flex-1 flex-col'
 			"
 		>

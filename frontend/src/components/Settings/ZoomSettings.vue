@@ -15,7 +15,7 @@
 		<List
 			v-if="zoomAccounts.data?.length"
 			:columns="columns"
-			class="list-row-px-3"
+			class="list-row-px-3 [--list-row-height:3.5rem]"
 		>
 			<ListHeader>
 				<ListHeaderCell>{{ __('Account') }}</ListHeaderCell>
@@ -27,7 +27,7 @@
 				row-key="name"
 				v-slot="{ item: row }"
 			>
-				<ListRow class="py-2.5" @click="openForm(row.name)">
+				<ListRow @click="openForm(row.name)">
 					<ListCell class="gap-2">
 						<Avatar
 							:image="row.member_image"

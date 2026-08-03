@@ -1,5 +1,9 @@
 <template>
-	<List v-if="rows.length" :columns="tracks" class="list-row-px-3">
+	<List
+		v-if="rows.length"
+		:columns="tracks"
+		class="list-row-px-3 [--list-row-height:3.5rem]"
+	>
 		<ListHeader class="sticky top-0 z-10 bg-surface-elevation-1">
 			<ListHeaderCell v-for="column in list.columns" :key="column.key">
 				{{ column.label }}

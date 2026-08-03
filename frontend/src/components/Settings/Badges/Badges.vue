@@ -9,7 +9,11 @@
 					{{ __('New') }}
 				</Button>
 			</template>
-			<List v-if="badges.data?.length" :columns="columns" class="list-row-px-3">
+			<List
+				v-if="badges.data?.length"
+				:columns="columns"
+				class="list-row-px-3 [--list-row-height:3.5rem]"
+			>
 				<ListHeader>
 					<ListHeaderCell>{{ __('Badge') }}</ListHeaderCell>
 					<ListHeaderCell>{{ __('Awarded For') }}</ListHeaderCell>
@@ -18,7 +22,7 @@
 					<ListHeaderCell />
 				</ListHeader>
 				<ListRows :items="badges.data" row-key="name" v-slot="{ item: row }">
-					<ListRow class="py-3" @click="openForm(row.name)">
+					<ListRow @click="openForm(row.name)">
 						<ListCell class="gap-2">
 							<span class="lucide-award size-4 shrink-0 text-ink-gray-5" />
 							<span class="truncate text-p-base-medium text-ink-gray-8">

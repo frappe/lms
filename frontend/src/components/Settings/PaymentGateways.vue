@@ -15,7 +15,7 @@
 		<List
 			v-if="paymentGateways.data?.length"
 			:columns="columns"
-			class="list-row-px-3"
+			class="list-row-px-3 [--list-row-height:3.5rem]"
 		>
 			<ListHeader>
 				<ListHeaderCell>{{ __('Gateway') }}</ListHeaderCell>
@@ -26,7 +26,7 @@
 				row-key="name"
 				v-slot="{ item: row }"
 			>
-				<ListRow class="py-3" @click="openForm(row.name)">
+				<ListRow @click="openForm(row.name)">
 					<ListCell class="gap-2">
 						<span class="lucide-credit-card size-4 shrink-0 text-ink-gray-5" />
 						<div class="flex min-w-0 flex-col">

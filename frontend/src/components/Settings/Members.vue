@@ -31,13 +31,13 @@
 			</div>
 		</template>
 		<div v-if="displayedMembers.length">
-			<List class="list-row-px-3">
+			<List class="list-row-px-3 [--list-row-height:3.5rem]">
 				<ListRows
 					:items="displayedMembers"
 					row-key="name"
 					v-slot="{ item: member }"
 				>
-					<ListRow class="py-2.5" @click="openProfile(member.username)">
+					<ListRow @click="openProfile(member.username)">
 						<ListCell>
 							<Avatar
 								:image="member.user_image"
