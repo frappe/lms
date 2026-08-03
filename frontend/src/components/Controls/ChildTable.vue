@@ -1,6 +1,11 @@
 <template>
 	<div class="space-y-1.5">
-		<InputLabel v-if="label" :id="labelId" :label="label" />
+		<InputLabel
+			v-if="label"
+			:id="labelId"
+			:label="label"
+			:required="required"
+		/>
 		<div class="overflow-visible border border-outline-elevation-2 rounded-md">
 			<div class="overflow-x-auto">
 				<div
@@ -78,6 +83,12 @@
 				{{ __('Add Row') }}
 			</Button>
 		</div>
+		<InputDescription
+			v-if="showDescription"
+			:id="descriptionId"
+			:description="description"
+		/>
+		<InputError v-if="hasError" :id="errorMessageId" :lines="errorLines" />
 	</div>
 </template>
 
@@ -85,7 +96,12 @@
 import { nextTick, ref, watch } from 'vue'
 import { Button } from 'frappe-ui'
 import { onClickOutside } from '@vueuse/core'
-import { InputLabel, useInputLabeling } from '@/components/Form/labeling'
+import {
+	InputDescription,
+	InputError,
+	InputLabel,
+	useInputLabeling,
+} from '@/components/Form/labeling'
 
 const rows = defineModel<Record<string, string>[]>()
 const menuRef = ref(null)
@@ -107,6 +123,9 @@ const props = withDefaults(
 		modelValue?: Record<string, string>[]
 		columns?: string[]
 		label?: string
+		description?: string
+		error?: string
+		required?: boolean
 	}>(),
 	{
 		columns: () => [] as string[],
@@ -114,7 +133,14 @@ const props = withDefaults(
 )
 
 const columns = ref(props.columns)
-const { labelId } = useInputLabeling(props)
+const {
+	labelId,
+	descriptionId,
+	errorMessageId,
+	hasError,
+	errorLines,
+	showDescription,
+} = useInputLabeling(props)
 
 watch(rows, () => {
 	if (rows.value && rows.value.length < 1) {

@@ -5,6 +5,10 @@
 			:modelValue="modelValue"
 			:options="options"
 			:placeholder="placeholder"
+			:label="label"
+			:description="description"
+			:error="error"
+			:required="required"
 			@update:modelValue="
 				(value) => emit('update:modelValue', value ? String(value) : null)
 			"
@@ -47,6 +51,10 @@ defineProps<{
 	modelValue: string | null
 	options: ComboboxOption[]
 	placeholder?: string
+	label?: string
+	description?: string
+	error?: string
+	required?: boolean
 }>()
 
 const emit = defineEmits<{ 'update:modelValue': [string | null] }>()

@@ -10,10 +10,10 @@
 			:aria-label="attrs['aria-label'] as string"
 			:variant="attrs.variant as ComboboxVariant"
 			:loading="options.loading"
-			:label="attrs.label ? __(attrs.label as string) : undefined"
-			:required="attrs.required as boolean"
+			:label="label ? __(label) : undefined"
+			:required="required"
 			:description="description"
-			:error="attrs.error as string"
+			:error="error"
 			@update:modelValue="onSelect"
 			@update:query="onQuery"
 			@update:open="onOpen"
@@ -101,7 +101,10 @@ const props = withDefaults(
 		doctype: string
 		filters?: Record<string, unknown>
 		modelValue?: string
+		label?: string
 		description?: string
+		error?: string
+		required?: boolean
 		inlineCreate?: boolean
 		inlineCreatePlaceholder?: string
 		onCreate?: CreateHandler

@@ -101,6 +101,12 @@
 				</ComboboxOptions>
 			</div>
 		</Combobox>
+		<InputDescription
+			v-if="showDescription"
+			:id="descriptionId"
+			:description="description"
+		/>
+		<InputError v-if="hasError" :id="errorMessageId" :lines="errorLines" />
 	</div>
 </template>
 
@@ -116,7 +122,12 @@ import { createResource, Button, toast } from 'frappe-ui'
 import { ref, computed, useAttrs, watch } from 'vue'
 import { watchDebounced } from '@vueuse/core'
 import type { Resource } from '@/types'
-import { InputLabel, useInputLabeling } from '@/components/Form/labeling'
+import {
+	InputDescription,
+	InputError,
+	InputLabel,
+	useInputLabeling,
+} from '@/components/Form/labeling'
 
 interface SelectOption {
 	label: string
@@ -127,6 +138,8 @@ interface SelectOption {
 const props = withDefaults(
 	defineProps<{
 		label?: string
+		description?: string
+		error?: string
 		size?: string
 		doctype: string
 		filters?: Record<string, unknown> | unknown[]
@@ -146,7 +159,15 @@ const props = withDefaults(
 
 const values = defineModel<string[]>({ default: () => [] })
 const attrs = useAttrs()
-const { inputId, labelId } = useInputLabeling(props)
+const {
+	inputId,
+	labelId,
+	descriptionId,
+	errorMessageId,
+	hasError,
+	errorLines,
+	showDescription,
+} = useInputLabeling(props)
 const trigger = ref<{ $el: HTMLElement } | null>(null)
 const query = ref<string>('')
 const text = ref<string>('')
