@@ -434,7 +434,9 @@
 		<template #default>
 			<div class="border border-outline-elevation-2 rounded-lg text-base">
 				<div class="divide-y divide-outline-elevation-2">
-					<div class="grid grid-cols-2 divide-x divide-outline-elevation-2">
+					<div
+						class="grid grid-cols-2 divide-x rtl:divide-x-reverse divide-outline-elevation-2"
+					>
 						<div class="p-2">
 							{{ __('Total Questions') }}
 						</div>
@@ -442,7 +444,9 @@
 							{{ questions.length }}
 						</div>
 					</div>
-					<div class="grid grid-cols-2 divide-x divide-outline-elevation-2">
+					<div
+						class="grid grid-cols-2 divide-x rtl:divide-x-reverse divide-outline-elevation-2"
+					>
 						<div class="p-2">
 							{{ __('Attempted Questions') }}
 						</div>
@@ -450,7 +454,9 @@
 							{{ attemptedQuestions.length }}
 						</div>
 					</div>
-					<div class="grid grid-cols-2 divide-x divide-outline-elevation-2">
+					<div
+						class="grid grid-cols-2 divide-x rtl:divide-x-reverse divide-outline-elevation-2"
+					>
 						<div class="p-2">
 							{{ __('Unattempted Questions') }}
 						</div>

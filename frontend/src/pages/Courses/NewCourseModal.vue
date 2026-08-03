@@ -30,7 +30,10 @@
 						:onCreate="openMemberModal"
 					>
 						<template #prefix>
-							<div v-if="visibleAvatars.length" class="flex -space-x-1.5">
+							<div
+								v-if="visibleAvatars.length"
+								class="flex -space-x-1.5 rtl:space-x-reverse"
+							>
 								<Avatar
 									v-for="m in visibleAvatars"
 									:key="m.value"

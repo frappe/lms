@@ -4,7 +4,7 @@
 		<Button
 			v-if="current > 0"
 			variant="ghost"
-			class="self-start sm:absolute sm:right-full sm:top-12 sm:mr-4"
+			class="self-start sm:absolute sm:end-full sm:top-12 sm:me-4"
 			:aria-label="backLabel"
 			@click="back"
 		>

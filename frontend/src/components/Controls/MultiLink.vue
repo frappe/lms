@@ -30,7 +30,7 @@
 				<span class="flex min-w-0 flex-1 items-center gap-2">
 					<slot name="prefix" :selected="selectedOptions" />
 					<span
-						class="min-w-0 flex-1 truncate text-left"
+						class="min-w-0 flex-1 truncate text-start"
 						:class="!selectedOptions.length && 'text-ink-gray-4'"
 					>
 						<slot
@@ -139,7 +139,7 @@ const popoverOpen = ref<boolean>(false)
 let loaded = false
 
 const triggerBaseClasses =
-	'relative inline-flex items-center gap-2 text-left text-ink-gray-7 outline-none transition-[background-color,border-color,box-shadow] duration-150'
+	'relative inline-flex items-center gap-2 text-start text-ink-gray-7 outline-none transition-[background-color,border-color,box-shadow] duration-150'
 
 const triggerVariantClasses: Record<
 	NonNullable<typeof props.variant>,

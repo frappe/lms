@@ -53,7 +53,7 @@
 						:description="field.description"
 					/>
 				</div>
-				<ErrorMessage v-if="error" class="ml-1" :message="error" />
+				<ErrorMessage v-if="error" class="ms-1" :message="error" />
 			</div>
 		</div>
 	</SettingsLayout>

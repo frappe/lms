@@ -21,7 +21,7 @@
 					<div class="text-md font-medium text-ink-gray-8 px-4 pt-[15px] pb-3">
 						{{ __('Notifications') }}
 					</div>
-					<div class="flex gap-1 mr-3">
+					<div class="flex gap-1 me-3">
 						<Tooltip v-if="hasUnread" :text="__('Mark all as read')">
 							<Button variant="ghost" @click="markAllAsRead.submit">
 								<template #icon>
