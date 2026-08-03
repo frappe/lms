@@ -31,24 +31,26 @@
 			</div>
 		</template>
 		<div v-if="displayedMembers.length">
-			<List class="list-row-px-3 [--list-row-height:3.5rem]">
+			<!-- Two tracks, not the default feed template: the avatar belongs to
+			     the identity block (as in Settings > Accounts and CRM's Users),
+			     not to a media track of its own. -->
+			<List
+				:columns="['minmax(0,1fr)', 'auto']"
+				class="list-row-px-3 [--list-row-height:3.5rem]"
+			>
 				<ListRows
 					:items="displayedMembers"
 					row-key="name"
 					v-slot="{ item: member }"
 				>
 					<ListRow @click="openProfile(member.username)">
-						<ListCell>
+						<ListCell class="gap-2">
 							<Avatar
 								:image="member.user_image"
 								:label="member.full_name"
 								size="xl"
 								class="shrink-0"
 							/>
-						</ListCell>
-						<ListCell>
-							<!-- Own flex column: ListCell's items-center would otherwise
-							     center these horizontally once the cell is flex-col. -->
 							<div class="flex min-w-0 flex-col">
 								<span class="truncate text-p-base text-ink-gray-8">
 									{{ member.full_name }}
