@@ -14,6 +14,15 @@ label.block:not([data-slot='label']) {
 	@apply text-p-sm-medium text-ink-gray-7;
 }
 
+/* Switch rows follow CRM's settings row: a medium, darker label over the
+   text-p-sm/ink-gray-5 description frappe-ui already renders. Keyed off the
+   switch control rather than a wrapper class so a bare frappe-ui Switch is
+   styled the same as one routed through BooleanSwitch. Ref CRM
+   Settings/DashboardSettings.vue. */
+div:has(> [role='switch']) [data-slot='label'] {
+	@apply text-p-base-medium text-ink-gray-7;
+}
+
 /* frappe-ui beta.7 Switch leaves a loose label/description gap; tighten it so
    they read as one group (scoped to our lms-switch wrapper). */
 .lms-switch [data-slot='label'] {
