@@ -49,6 +49,7 @@
 						<FileUploader
 							ref="uploaderRef"
 							:fileTypes="['.jpg,.jpeg,.gif,.png']"
+							:uploadArgs="{ private: false }"
 							@success="(file) => onUploaded(file.file_url)"
 							@failure="onUploadFailure"
 						>
@@ -99,6 +100,7 @@
 						<FileUploader
 							ref="uploaderRef"
 							:fileTypes="['.jpg,.jpeg,.gif,.png']"
+							:uploadArgs="{ private: false }"
 							@success="(file) => onUploaded(file.file_url)"
 							@failure="onUploadFailure"
 						>
