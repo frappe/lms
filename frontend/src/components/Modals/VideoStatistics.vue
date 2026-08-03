@@ -131,7 +131,6 @@ const statistics = createListResource({
 		'source',
 		'watch_time',
 	],
-	cache: ['videoStatistics', props.lessonName],
 	onSuccess() {
 		currentTab.value = Object.keys(statisticsData.value)[0]
 	},

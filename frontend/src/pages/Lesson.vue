@@ -629,7 +629,6 @@ const notes = createListResource({
 		member: user.data?.name,
 	},
 	fields: ['name', 'color', 'highlighted_text', 'note'],
-	cache: ['notes', lesson.data?.name, user.data?.name],
 	onSuccess(data) {
 		data.forEach((note) => {
 			setTimeout(() => {
