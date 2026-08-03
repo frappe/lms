@@ -38,14 +38,14 @@ vi.mock('frappe-ui', () => ({
 		return res
 	},
 	Dialog: {
-		props: ['modelValue', 'options'],
+		props: ['modelValue', 'title', 'message', 'size', 'actions'],
 		emits: ['update:modelValue'],
 		template: `
 			<div>
-				<div data-testid="title">{{ options.title }}</div>
-				<div data-testid="message">{{ options.message }}</div>
+				<div data-testid="title">{{ title }}</div>
+				<div data-testid="message">{{ message }}</div>
 				<button
-					v-for="a in options.actions"
+					v-for="a in actions"
 					:key="a.label"
 					:data-testid="'action-' + a.theme"
 					@click="a.onClick()"

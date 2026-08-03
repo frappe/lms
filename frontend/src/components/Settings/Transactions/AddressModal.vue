@@ -1,19 +1,17 @@
 <template>
 	<Dialog
 		v-model="show"
-		:options="{
-			title: __('New Address'),
-			size: 'xl',
-			actions: [
-				{
-					label: __('Create'),
-					variant: 'solid',
-					onClick: ({ close }) => createAddress(close),
-				},
-			],
-		}"
+		:title="__('New Address')"
+		size="xl"
+		:actions="[
+			{
+				label: __('Create'),
+				variant: 'solid',
+				onClick: ({ close }) => createAddress(close),
+			},
+		]"
 	>
-		<template #body-content>
+		<template #default>
 			<div class="grid grid-cols-2 gap-5">
 				<FormControl
 					v-model="address.address_title"

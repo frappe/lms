@@ -1,23 +1,21 @@
 <template>
 	<Dialog
 		v-model="open"
-		:options="{
-			title,
-			message,
-			size: 'sm',
-			actions: [
-				{
-					label: __('Cancel'),
-					onClick: onCancel,
-				},
-				{
-					label: confirmLabel,
-					variant: 'solid',
-					theme: removedCount > 0 ? 'red' : 'gray',
-					onClick: onConfirm,
-				},
-			],
-		}"
+		:title="title"
+		:message="message"
+		size="sm"
+		:actions="[
+			{
+				label: __('Cancel'),
+				onClick: onCancel,
+			},
+			{
+				label: confirmLabel,
+				variant: 'solid',
+				theme: removedCount > 0 ? 'red' : 'gray',
+				onClick: onConfirm,
+			},
+		]"
 	/>
 </template>
 
