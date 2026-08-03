@@ -114,7 +114,8 @@
 									:disabled="!userIsEvaluator()"
 								/>
 							</div>
-							<Textarea
+							<FormControl
+								type="textarea"
 								v-model="evaluation.summary"
 								:label="__('Summary')"
 								:rows="7"
@@ -175,15 +176,14 @@
 </template>
 <script setup>
 import {
-	Dialog,
 	Button,
+	Dialog,
 	FormControl,
-	createResource,
+	Rating,
 	Tabs,
 	Tooltip,
-	Textarea,
+	createResource,
 	toast,
-	Rating,
 } from 'frappe-ui'
 import BooleanSwitch from '@/components/Controls/BooleanSwitch.vue'
 import { inject, reactive, watch, ref, computed } from 'vue'

@@ -31,7 +31,8 @@
 					:label="__('Badge')"
 					:required="true"
 				/>
-				<DatePicker
+				<FormControl
+					type="date"
 					v-model="badgeAssignment.issued_on"
 					:label="__('Issued On')"
 					:placeholder="__('Select Date')"
@@ -42,7 +43,7 @@
 	</Dialog>
 </template>
 <script setup lang="ts">
-import { Dialog, DatePicker, toast } from 'frappe-ui'
+import { Dialog, FormControl, toast } from 'frappe-ui'
 import type { BadgeAssignments, BadgeAssignment } from '@/types'
 import { ref, watch } from 'vue'
 import { cleanError } from '@/utils'
