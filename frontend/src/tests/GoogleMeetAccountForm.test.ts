@@ -33,10 +33,13 @@ vi.mock('frappe-ui/frappe', () => ({
 	useTelemetry: () => ({ capture: captureMock }),
 }))
 
+// Enabled lives in the layout header now, beside Save, so the stub has to
+// carry it for the form's seeding to stay observable.
 vi.mock('@/components/Layouts/SettingsLayout.vue', () => ({
 	default: {
-		props: ['title', 'description', 'showBack'],
-		template: `<div><h1 data-testid="title">{{ title }}</h1><slot name="header-actions" /><slot /></div>`,
+		props: ['title', 'description', 'showBack', 'enabled', 'unsaved'],
+		emits: ['update:enabled'],
+		template: `<div><h1 data-testid="title">{{ title }}</h1><button :data-testid="'switch-' + enabled" @click="$emit('update:enabled', !enabled)" /><slot name="header-actions" /><slot /></div>`,
 	},
 }))
 

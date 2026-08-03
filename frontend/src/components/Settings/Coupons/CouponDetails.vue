@@ -2,7 +2,9 @@
 	<SettingsLayout
 		:title="isNew ? __('New Coupon') : __('Edit Coupon')"
 		:show-back="true"
+		:enabled="doc ? Boolean(doc.enabled) : undefined"
 		@back="emit('updateStep', 'list')"
+		@update:enabled="(value) => doc && (doc.enabled = value)"
 	>
 		<template #header-actions>
 			<Button variant="solid" :disabled="!doc" @click="saveCoupon()">
@@ -11,14 +13,6 @@
 		</template>
 
 		<div v-if="doc" class="space-y-4">
-			<div>
-				<BooleanSwitch
-					size="sm"
-					v-model="doc.enabled"
-					:label="__('Enabled')"
-					:description="__('Allow this coupon to be used for discounts.')"
-				/>
-			</div>
 			<div class="grid grid-cols-2 gap-4">
 				<FormControl
 					v-model="doc.code"
@@ -80,7 +74,6 @@
 </template>
 <script setup lang="ts">
 import { Button, FormControl, toast, createDocumentResource } from 'frappe-ui'
-import BooleanSwitch from '@/components/Controls/BooleanSwitch.vue'
 import { computed, reactive } from 'vue'
 import type { Coupon, Coupons } from '@/types'
 import CouponItems from '@/components/Settings/Coupons/CouponItems.vue'
