@@ -24,7 +24,7 @@
 					<template #prefix>
 						<span :class="[item.icon, 'size-4 shrink-0 text-ink-gray-7']" />
 					</template>
-					<span class="text-p-sm text-ink-gray-8">{{ __(item.label) }}</span>
+					<span class="text-p-sm text-ink-gray-7">{{ __(item.label) }}</span>
 				</SettingsNavItem>
 			</SettingsNavGroup>
 		</SettingsSidebar>
