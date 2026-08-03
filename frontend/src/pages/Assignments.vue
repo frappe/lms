@@ -214,7 +214,7 @@ const assignmentColumns = computed(() => {
 			label: __('Updated On'),
 			key: 'modified',
 			width: 1,
-			align: 'right',
+			align: 'left',
 			icon: 'lucide-clock',
 		},
 	]

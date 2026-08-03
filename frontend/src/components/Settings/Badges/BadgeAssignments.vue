@@ -48,7 +48,7 @@
 							{{ row.issued_on }}
 						</span>
 					</ListCell>
-					<ListCell class="justify-end" @click.stop>
+					<ListCell @click.stop>
 						<Dropdown
 							:options="[
 								{

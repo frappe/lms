@@ -73,13 +73,13 @@ const quizColumns = computed(() => {
 			label: __('Score'),
 			key: 'score',
 			width: 1,
-			align: 'center',
+			align: 'left',
 		},
 		{
 			label: __('Percentage'),
 			key: 'percentage',
 			width: 1,
-			align: 'center',
+			align: 'left',
 		},
 	]
 })

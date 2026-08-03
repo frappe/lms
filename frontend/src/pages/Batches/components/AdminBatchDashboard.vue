@@ -255,7 +255,7 @@ const studentColumns = computed<ListColumn[]>(() => {
 		{
 			label: __('Enrolled On'),
 			key: 'creation',
-			align: 'right',
+			align: 'left',
 		},
 	]
 })

@@ -153,7 +153,7 @@ const submissionColumns = computed(() => {
 			label: 'Status',
 			key: 'status',
 			width: 1,
-			align: 'center',
+			align: 'left',
 		},
 	]
 })

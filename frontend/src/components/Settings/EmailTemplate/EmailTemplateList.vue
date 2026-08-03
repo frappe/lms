@@ -60,7 +60,7 @@
 							</span>
 						</div>
 					</ListCell>
-					<ListCell class="justify-end" @click.stop>
+					<ListCell @click.stop>
 						<Dropdown
 							:options="getMoreOptions(row)"
 							:button="{

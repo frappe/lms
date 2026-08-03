@@ -236,7 +236,7 @@ const submissionColumns = computed(() => {
 			key: 'modified',
 			width: '15%',
 			icon: 'lucide-clock',
-			align: 'right',
+			align: 'left',
 		},
 	]
 })

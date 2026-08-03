@@ -49,7 +49,7 @@
 							{{ row.enabled ? __('Enabled') : __('Disabled') }}
 						</Badge>
 					</ListCell>
-					<ListCell class="justify-end" @click.stop>
+					<ListCell @click.stop>
 						<Dropdown
 							:options="[
 								{

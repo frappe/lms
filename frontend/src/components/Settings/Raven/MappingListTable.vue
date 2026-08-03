@@ -134,7 +134,7 @@
 				</ListCell>
 				<!-- Stale rows' Recreate/Delete render here, not behind the label cell's old
 					 "Take action" select — same place and treatment as every other action. -->
-				<ListCell class="justify-end gap-1" @click.stop>
+				<ListCell class="gap-1" @click.stop>
 					<Tooltip v-if="isDulled(row)" :text="__('Link')">
 						<Button
 							variant="ghost"

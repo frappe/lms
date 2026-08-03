@@ -272,7 +272,7 @@ const columns = computed(() => {
 			key: 'modified',
 			width: 1,
 			icon: 'lucide-clock',
-			align: 'right',
+			align: 'left',
 		},
 	]
 })

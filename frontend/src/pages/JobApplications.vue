@@ -301,7 +301,7 @@ const applicationColumns = computed(() => {
 			label: '',
 			key: 'actions',
 			width: 1,
-			align: 'right',
+			align: 'left',
 			kind: 'actions',
 		},
 	]

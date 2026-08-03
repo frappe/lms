@@ -48,7 +48,7 @@
 								{{ row.enabled ? __('Enabled') : __('Disabled') }}
 							</Badge>
 						</ListCell>
-						<ListCell class="justify-end" @click.stop>
+						<ListCell @click.stop>
 							<Dropdown
 								:options="getMoreOptions(row.name)"
 								:button="{ icon: 'lucide-more-horizontal', variant: 'ghost' }"

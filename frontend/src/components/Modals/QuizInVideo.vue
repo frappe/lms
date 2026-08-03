@@ -173,7 +173,7 @@ const columns = computed(() => {
 		{
 			key: 'time',
 			label: __('Time in Video (minutes)'),
-			align: 'center',
+			align: 'left',
 		},
 	]
 })

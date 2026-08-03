@@ -130,7 +130,7 @@ const progressColumns = computed(() => {
 		{
 			label: __('Progress (%)'),
 			key: 'progress',
-			align: 'right',
+			align: 'left',
 		},
 	]
 })

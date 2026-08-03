@@ -154,12 +154,12 @@ const redirectToCourse = (row: any) => {
 
 const assessmentColumns: ListColumn[] = [
 	{ key: 'title', label: __('Assessment'), align: 'left', width: '60%' },
-	{ key: 'status', label: __('Percentage/Status'), align: 'right' },
+	{ key: 'status', label: __('Percentage/Status'), align: 'left' },
 ]
 
 const courseColumns: ListColumn[] = [
 	{ key: 'title', label: __('Course'), align: 'left', width: '70%' },
-	{ key: 'progress', label: __('Progress'), align: 'right' },
+	{ key: 'progress', label: __('Progress'), align: 'left' },
 ]
 
 const assessmentListOptions: ListViewOptions = {

@@ -1011,19 +1011,19 @@ const getSubmissionColumns = () => {
 		{
 			label: 'Score',
 			key: 'score',
-			align: 'center',
+			align: 'left',
 			width: 1,
 		},
 		{
 			label: 'Score out of',
 			key: 'score_out_of',
-			align: 'center',
+			align: 'left',
 			width: 1,
 		},
 		{
 			label: 'Percentage',
 			key: 'percentage',
-			align: 'center',
+			align: 'left',
 			width: 1,
 		},
 	]
