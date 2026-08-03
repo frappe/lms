@@ -44,11 +44,12 @@
 				:required="true"
 				:placeholder="htmlPlaceholder"
 			/>
-			<div v-else>
-				<div class="mb-1.5 text-p-sm-medium text-ink-gray-7">
-					{{ __('Content') }}
-					<span class="text-ink-red-6">*</span>
-				</div>
+			<div v-else class="space-y-1.5">
+				<InputLabel
+					:id="contentLabelId"
+					:label="__('Content')"
+					:required="true"
+				/>
 				<RichTextEditor
 					:content="template.response"
 					:editable="true"
@@ -73,10 +74,13 @@ import {
 	createListResource,
 	toast,
 } from 'frappe-ui'
-import { computed, reactive, ref } from 'vue'
+import { computed, reactive, ref, useId } from 'vue'
+import { InputLabel } from '@/components/Form/labeling'
 import { cleanError } from '@/utils'
 import type { EmailTemplate, EmailTemplateStep } from '@/types'
 import RichTextEditor from '@/components/RichTextEditor.vue'
+
+const contentLabelId = useId()
 
 interface P {
 	templateData?: EmailTemplate | null

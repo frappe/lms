@@ -8,11 +8,12 @@
 					type="text"
 					:required="true"
 				/>
-				<div>
-					<div class="mb-1.5 text-p-sm-medium text-ink-gray-7">
-						{{ __('Message') }}
-						<span class="text-ink-red-6">*</span>
-					</div>
+				<div class="space-y-1.5">
+					<InputLabel
+						:id="messageLabelId"
+						:label="__('Message')"
+						:required="true"
+					/>
 					<RichTextEditor
 						:fixedMenu="true"
 						@change="(val) => (message = val)"
@@ -32,9 +33,12 @@
 </template>
 <script setup lang="ts">
 import { Button, call, Dialog, FormControl, toast } from 'frappe-ui'
-import { ref } from 'vue'
+import { ref, useId } from 'vue'
+import { InputLabel } from '@/components/Form/labeling'
 import { useSettings } from '@/stores/settings'
 import RichTextEditor from '@/components/RichTextEditor.vue'
+
+const messageLabelId = useId()
 
 const show = defineModel<boolean>({ required: true, default: false })
 const subject = ref('')

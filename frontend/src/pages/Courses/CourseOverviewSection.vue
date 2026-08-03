@@ -4,13 +4,12 @@
 			{{ __('Course overview') }}
 		</div>
 		<div class="space-y-1.5">
-			<label
-				:for="descriptionId"
-				class="block text-p-sm-medium text-ink-gray-7"
-			>
-				{{ __('Course Description') }}
-				<span class="text-ink-red-6">*</span>
-			</label>
+			<InputLabel
+				:id="descriptionLabelId"
+				:for-id="descriptionId"
+				:label="__('Course Description')"
+				:required="true"
+			/>
 			<div
 				class="rounded-t-lg rounded-b-md outline-none transition-[box-shadow] duration-150 ease-[cubic-bezier(0.23,1,0.32,1)]"
 			>
@@ -79,9 +78,11 @@ import { computed, inject, useId } from 'vue'
 import MultiLink from '@/components/Controls/MultiLink.vue'
 import type { CourseFormContext } from '@/types'
 import RichTextEditor from '@/components/RichTextEditor.vue'
+import { InputLabel } from '@/components/Form/labeling'
 
 const { resource, relatedCourses, meta, markDirty } =
 	inject<CourseFormContext>('courseForm')!
 const doc = computed(() => resource.doc)
 const descriptionId = useId()
+const descriptionLabelId = useId()
 </script>

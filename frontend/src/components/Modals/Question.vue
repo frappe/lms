@@ -14,10 +14,8 @@
 					class="!p-0"
 				/>
 				<div v-if="!chooseFromExisting || editMode">
-					<div>
-						<label class="block text-p-sm-medium text-ink-gray-7 mb-1.5">
-							{{ __('Question') }}
-						</label>
+					<div class="space-y-1.5">
+						<InputLabel :id="questionLabelId" :label="__('Question')" />
 						<RichTextEditor
 							:content="question.question"
 							@change="(val) => (question.question = val)"
@@ -63,9 +61,10 @@
 							class="space-y-4 py-2"
 						>
 							<div class="flex items-center justify-between">
-								<label class="block text-p-sm-medium text-ink-gray-7">
-									{{ __('Option') + ' ' + n }}
-								</label>
+								<InputLabel
+									:id="`question-option-${n}-label`"
+									:label="__('Option') + ' ' + n"
+								/>
 								<Button
 									v-if="visibleOptionCount > 2"
 									variant="ghost"
@@ -163,13 +162,15 @@
 <script setup>
 import { Dialog, FormControl, createResource, Button, toast } from 'frappe-ui'
 import BooleanSwitch from '@/components/Controls/BooleanSwitch.vue'
-import { watch, reactive, ref, inject } from 'vue'
+import { watch, reactive, ref, inject, useId } from 'vue'
 import Link from '@/components/Controls/Link.vue'
+import { InputLabel } from '@/components/Form/labeling'
 import { useOnboarding } from 'frappe-ui/frappe'
 import RichTextEditor from '@/components/RichTextEditor.vue'
 
 const show = defineModel()
 const quiz = defineModel('quiz')
+const questionLabelId = useId()
 const chooseFromExisting = ref(false)
 const editMode = ref(false)
 const user = inject('$user')

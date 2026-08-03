@@ -25,11 +25,12 @@
 					v-model="announcement.replyTo"
 					:required="true"
 				/>
-				<div class="mb-4">
-					<div class="mb-1.5 text-p-sm-medium text-ink-gray-7">
-						{{ __('Announcement') }}
-						<span class="text-ink-red-6">*</span>
-					</div>
+				<div class="mb-4 space-y-1.5">
+					<InputLabel
+						:id="announcementLabelId"
+						:label="__('Announcement')"
+						:required="true"
+					/>
 					<RichTextEditor
 						:fixedMenu="true"
 						@change="(val) => (announcement.announcement = val)"
@@ -42,8 +43,11 @@
 </template>
 <script setup>
 import { Dialog, FormControl, createResource, toast } from 'frappe-ui'
-import { reactive } from 'vue'
+import { reactive, useId } from 'vue'
+import { InputLabel } from '@/components/Form/labeling'
 import RichTextEditor from '@/components/RichTextEditor.vue'
+
+const announcementLabelId = useId()
 
 const show = defineModel()
 

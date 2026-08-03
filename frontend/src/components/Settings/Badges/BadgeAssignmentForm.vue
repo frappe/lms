@@ -31,17 +31,12 @@
 					:label="__('Badge')"
 					:required="true"
 				/>
-				<div>
-					<label class="text-p-sm-medium text-ink-gray-7 mb-1.5">
-						{{ __('Issued On') }}
-						<span class="text-ink-red-6">*</span>
-					</label>
-					<DatePicker
-						v-model="badgeAssignment.issued_on"
-						:placeholder="__('Select Date')"
-						:required="true"
-					/>
-				</div>
+				<DatePicker
+					v-model="badgeAssignment.issued_on"
+					:label="__('Issued On')"
+					:placeholder="__('Select Date')"
+					:required="true"
+				/>
 			</div>
 		</template>
 	</Dialog>

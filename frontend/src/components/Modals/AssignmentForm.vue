@@ -28,11 +28,12 @@
 						doctype="LMS Course"
 						placeholder=" "
 					/>
-					<div>
-						<div class="text-p-sm-medium text-ink-gray-7 mb-1.5">
-							{{ __('Question') }}
-							<span class="text-ink-red-6">*</span>
-						</div>
+					<div class="space-y-1.5">
+						<InputLabel
+							:id="questionLabelId"
+							:label="__('Question')"
+							:required="true"
+						/>
 						<RichTextEditor
 							:content="assignment.question"
 							@change="(val) => (assignment.question = val)"
@@ -66,10 +67,13 @@
 </template>
 <script setup lang="ts">
 import { Button, Dialog, FormControl, toast } from 'frappe-ui'
-import { computed, reactive, watch } from 'vue'
+import { computed, reactive, watch, useId } from 'vue'
+import { InputLabel } from '@/components/Form/labeling'
 import { sanitizeHTML } from '@/utils'
 import Link from '@/components/Controls/Link.vue'
 import RichTextEditor from '@/components/RichTextEditor.vue'
+
+const questionLabelId = useId()
 
 const show = defineModel()
 const assignments = defineModel<Assignments>('assignments')
