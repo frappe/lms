@@ -1,7 +1,7 @@
 <template>
 	<Dialog v-model:open="show" size="3xl">
 		<template #title>
-			<div class="flex items-center justify-between mb-5">
+			<div class="flex items-center justify-between">
 				<div class="text-3xl-semibold leading-6 text-ink-gray-9">
 					{{ __('Edit Profile') }}
 				</div>
@@ -9,11 +9,9 @@
 					<Badge v-if="isDirty" theme="orange">
 						{{ __('Not Saved') }}
 					</Badge>
-					<div class="pb-5 float-end">
-						<Button variant="solid" @click="saveProfile()">
-							{{ __('Save') }}
-						</Button>
-					</div>
+					<Button variant="solid" @click="saveProfile()">
+						{{ __('Save') }}
+					</Button>
 				</div>
 			</div>
 		</template>
