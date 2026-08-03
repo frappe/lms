@@ -16,13 +16,16 @@ svg.lucide {
 
 /* Menu rows sit on the tight `text-base` scale (line-height 1.15) while the
    surfaces around them read on the paragraph scale. Bring them onto it, so a
-   dropdown label has the same rhythm as the sidebar label next to it. Rows grow
-   28px -> 33px, which is the point. Dropdown has no per-instance class hook
+   dropdown label has the same rhythm as the sidebar label next to it.
+   The paragraph scale already carries its own leading (14px/21px), so the row's
+   native `py-1.5` stacks on top of it and the row grows to 33px. Drop that
+   padding and the height falls back to the `min-h-7` floor: 28px rows, the
+   label still on the p-scale. Dropdown has no per-instance class hook
    (`menuClasses.content` is fixed), so the narrowest available scope is every
    menu; Select/Autocomplete option lists use the same row slot outside
    `.menu-content` and are deliberately left alone. */
 .menu-content [data-slot='item-list-row'] {
-	@apply text-p-base;
+	@apply text-p-base py-0;
 }
 
 /* This build makes --surface-sidebar transparent in dark mode; point it at
