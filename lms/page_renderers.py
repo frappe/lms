@@ -20,7 +20,7 @@ class SCORMRenderer(BaseRenderer):
 	# Disk roots tried, in order, to resolve SCORM bytes. New packages are extracted
 	# under private/scorm (gated: /private is always routed through Frappe, so this
 	# permission gate runs in production too). Legacy packages already extracted under
-	# public/scorm are still served as a fallback — but the standard bench nginx config
+	# public/scorm are still served as a fallback, but the standard bench nginx config
 	# serves public/ directly (try_files .../public/$uri @webserver), so for those legacy
 	# files this Python gate is BYPASSED in production, exactly as before. Such packages
 	# stay ungated in prod until re-uploaded (re-extraction lands them in private). New

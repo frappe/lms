@@ -1,5 +1,5 @@
 /**
- * Tests for GoogleMeetAccountForm.vue — the settings panel is mounted fresh
+ * Tests for GoogleMeetAccountForm.vue: the settings panel is mounted fresh
  * every time it is opened (GoogleMeetSettings toggles it with v-if/v-else), so
  * the form has to seed itself from the selected account on mount, not only when
  * `accountID` later changes.

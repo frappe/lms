@@ -34,11 +34,11 @@ export interface MappingColumn {
 export interface MappingRow {
 	/** Mapping docname; null until the row is adopted. */
 	name: string | null
-	/** Stable list/selection key — the Raven id (or `name` as a stale fallback). */
+	/** Stable list/selection key: the Raven id (or `name` as a stale fallback). */
 	key: string
 	/** False for a raw Raven record not yet adopted into a mapping. */
 	mapped: boolean
-	/** The Raven workspace/channel id this row points at — the adopt target. */
+	/** The Raven workspace/channel id this row points at: the adopt target. */
 	ravenId: string
 	label: string
 	type: string
@@ -83,7 +83,7 @@ export interface MappingList {
 	deleting: ComputedRef<boolean>
 	askDelete: (row: MappingRow) => void
 	confirmDelete: () => void
-	/** Gate for a combinator switch that moves anyone — bind to a confirm dialog. */
+	/** Gate for a combinator switch that moves anyone. Bind to a confirm dialog. */
 	combinatorConfirmOpen: Ref<boolean>
 	combinatorDiff: Ref<RuleDiff | null>
 	pendingCombinatorLabel: ComputedRef<string>
@@ -93,7 +93,7 @@ export interface MappingList {
 
 export interface MappingListOptions {
 	entity: MappingEntity
-	/** Parent workspace — required for `entity: 'channel'`, ignored otherwise. */
+	/** Parent workspace. Required for `entity: 'channel'`, ignored otherwise. */
 	workspace?: string
 }
 
@@ -153,7 +153,7 @@ export function useMappingList(options: MappingListOptions): MappingList {
 				recreate: __('Recreate workspace'),
 				recreated: __('Raven workspace recreated'),
 				recreateFailed: __('Could not recreate the Raven workspace'),
-			}
+		  }
 		: {
 				create: __('Could not create channel'),
 				rename: __('Could not rename channel'),
@@ -165,7 +165,7 @@ export function useMappingList(options: MappingListOptions): MappingList {
 				recreate: __('Recreate channel'),
 				recreated: __('Raven channel recreated'),
 				recreateFailed: __('Could not recreate the Raven channel'),
-			}
+		  }
 
 	const onError =
 		(fallback: string) =>
@@ -186,7 +186,7 @@ export function useMappingList(options: MappingListOptions): MappingList {
 	// survives a row being adopted (name flips null -> docname mid-edit).
 	const selectedKey = ref<string | null>(null)
 	const selectedRow = computed<MappingRow | null>(
-		() => rows.value.find((r) => r.key === selectedKey.value) ?? null,
+		() => rows.value.find((r) => r.key === selectedKey.value) ?? null
 	)
 	function selectRow(row: MappingRow): void {
 		if (selectedKey.value === row.key) return
@@ -208,7 +208,7 @@ export function useMappingList(options: MappingListOptions): MappingList {
 		createRecord.submit(isWorkspace ? {} : { workspace: options.workspace })
 	}
 
-	// An unmapped row is a raw Raven record; its first edit adopts it — create the
+	// An unmapped row is a raw Raven record; its first edit adopts it: create the
 	// mapping, flip the row in place, return the docname for the caller's edit.
 	function isDuplicate(err: unknown): boolean {
 		const e = err as { exc_type?: string; messages?: string[] } | null
@@ -227,8 +227,8 @@ export function useMappingList(options: MappingListOptions): MappingList {
 	})
 
 	function flipMapped(row: MappingRow, name: string): void {
-		// Mutate the resource record so `rows` re-derives as mapped without a reload
-		// — the rule-adopt path reloads only the detail, not this list.
+		// Mutate the resource record so `rows` re-derives as mapped without a
+		// reload. The rule-adopt path reloads only the detail, not this list.
 		const rec = row.record as MappingRecord & { name: string; mapped: boolean }
 		rec.name = name
 		rec.mapped = true
@@ -236,7 +236,7 @@ export function useMappingList(options: MappingListOptions): MappingList {
 
 	function resolveName(ravenId: string): string | null {
 		const rec = (records.data ?? []).find(
-			(r) => ravenIdOf(r) === ravenId && !!r.name,
+			(r) => ravenIdOf(r) === ravenId && !!r.name
 		)
 		return rec?.name ?? null
 	}
@@ -247,7 +247,7 @@ export function useMappingList(options: MappingListOptions): MappingList {
 			? { raven_workspace: row.ravenId }
 			: { workspace: options.workspace, raven_channel: row.ravenId }
 		// submit() resolves with the endpoint's data (the new docname) and never
-		// rejects — a failure is surfaced via linkRecord.error / its onError.
+		// rejects. A failure is surfaced via linkRecord.error / its onError.
 		const name = (await linkRecord.submit(params)) as string | null | undefined
 		if (name) {
 			flipMapped(row, name)
@@ -269,7 +269,7 @@ export function useMappingList(options: MappingListOptions): MappingList {
 	// row is still unmapped. Errors are already surfaced by linkRecord.onError.
 	async function runMapped(
 		row: MappingRow,
-		apply: (name: string) => void,
+		apply: (name: string) => void
 	): Promise<void> {
 		try {
 			apply(await ensureMapped(row))
@@ -340,7 +340,7 @@ export function useMappingList(options: MappingListOptions): MappingList {
 		}))
 	}
 
-	// Rule combinator (Any (OR) / All (AND)) — a row Dropdown, like the type one,
+	// Rule combinator (Any (OR) / All (AND)): a row Dropdown, like the type one,
 	// but a switch rewrites the whole membership either way, so it is previewed and
 	// confirmed instead of writing straight through.
 	const setCombinator = setField('combinator')
@@ -357,7 +357,7 @@ export function useMappingList(options: MappingListOptions): MappingList {
 		url: 'raven_integration.api.compute_rule_diff',
 		onSuccess(diff: RuleDiff) {
 			if (!pendingCombinator.value) return
-			// Confirm whenever the switch moves anyone — AND → OR admits people just
+			// Confirm whenever the switch moves anyone. AND → OR admits people just
 			// as OR → AND evicts them. A switch that moves nobody applies silently.
 			if (diff.added > 0 || diff.removed > 0) {
 				combinatorDiff.value = diff
@@ -454,7 +454,7 @@ export function useMappingList(options: MappingListOptions): MappingList {
 		if (toDelete.value?.name) deleteRecord.submit({ name: toDelete.value.name })
 	}
 
-	// Stale rows swap their inline controls for this menu — the only two ways out
+	// Stale rows swap their inline controls for this menu: the only two ways out
 	// of the state.
 	function takeActionMenu(row: MappingRow): DropdownOption[] {
 		return [

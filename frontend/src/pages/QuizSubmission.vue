@@ -135,7 +135,7 @@ const submissionDetails = createDocumentResource({
 	auto: true,
 })
 
-// The header renders before the doc lands — it used to be guarded by a `v-if`
+// The header renders before the doc lands. It used to be guarded by a `v-if`
 // on Breadcrumbs itself, and reading `.quiz` off an undefined doc threw during
 // render once the shared header took that guard away.
 const breadcrumbs = computed(() => {

@@ -1,6 +1,6 @@
 // PdfBlock.vue is still a plain-JS SFC (`<script setup>` with no `lang="ts"`),
 // so under `strict` it has no declaration and every TS test that imports it
-// trips TS7016. Declaring it as what it is — a Vue component — costs nothing at
+// trips TS7016. Declaring it as what it is (a Vue component) costs nothing at
 // runtime and keeps the type baseline from drifting.
 //
 // DELETE this file the moment PdfBlock.vue gains `lang="ts"`: a wildcard-free
@@ -14,7 +14,7 @@ declare module '@/components/PdfBlock.vue' {
 // Same situation for IconPicker.vue: it stays a plain-JS SFC on purpose,
 // because its icon-lookup code (`icons[selectedIcon]`, a reduce building an
 // object keyed by icon name) would need a real typing pass to convert
-// cleanly under `strict` — converting it just to silence TS7016 would trade
+// cleanly under `strict`; converting it just to silence TS7016 would trade
 // one tolerated error for several new ones. controlLabeling.test.ts (a .ts
 // file) imports it directly, which trips the same TS7016 as PdfBlock.vue did.
 //

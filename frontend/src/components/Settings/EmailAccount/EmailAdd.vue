@@ -160,7 +160,7 @@ function handleSelect(service: EmailService) {
 	state.service = service.name
 }
 
-// shared cached accounts list — reload it so the new account shows on return
+// shared cached accounts list; reload it so the new account shows on return
 const emailAccounts = createListResource({
 	doctype: 'Email Account',
 	cache: ['Email Accounts'],

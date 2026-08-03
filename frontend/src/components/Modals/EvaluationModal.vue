@@ -192,7 +192,7 @@ const scheduleTimezone = computed(
 )
 
 /* Conversion can push a slot's end past midnight while its start stays on the
-   rendered day — 17:00-19:00 Asia/Kolkata is 23:30-01:30 in Pacific/Auckland.
+   rendered day: 17:00-19:00 Asia/Kolkata is 23:30-01:30 in Pacific/Auckland.
    "23:30 - 01:30" alone would not say which day it ends on. */
 const endsOnAnotherDay = (slot, row) =>
 	Boolean(slot.display_end_date) && slot.display_end_date !== row.display_date

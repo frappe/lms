@@ -21,7 +21,7 @@ const fromLesson = ref(false)
 const { brand } = sessionStore()
 
 // Rendered in an iframe from the lesson preview, so provide/inject can't reach
-// this app instance — Student View arrives as a query param instead. Without
+// this app instance; Student View arrives as a query param instead. Without
 // this the Grading panel shows up inside the preview and a moderator who
 // submits the assignment there can grade themselves.
 const studentView = ref(

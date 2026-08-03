@@ -22,7 +22,7 @@ export const enablePlyr = async () => {
 const setupPlyrForVideo = (video, players) => {
 	// Guard against double-initialisation. enablePlyr() runs on several triggers
 	// (editor onChange, lesson render) and can race, so the same .video-player
-	// element may be processed more than once — a second Plyr stacks a duplicate
+	// element may be processed more than once; a second Plyr stacks a duplicate
 	// player and you see two sets of controls. Reuse the existing instance.
 	if (video.plyrInstance) {
 		players.push(video.plyrInstance)
@@ -37,7 +37,7 @@ const setupPlyrForVideo = (video, players) => {
 	}
 
 	// No 'play-large' (the big centre overlay): it duplicates the control-bar
-	// play/pause — the overlay persists while paused and the bar shows on hover,
+	// play/pause: the overlay persists while paused and the bar shows on hover,
 	// which reads as two pause buttons. The video stays click-to-play.
 	let controls = [
 		'play',

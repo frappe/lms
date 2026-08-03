@@ -44,7 +44,7 @@ export class Quiz {
 		if (this.readOnly) {
 			// Mount the quiz inline instead of loading the whole SPA in an iframe
 			// (which flashed the app shell/sidebar before the quiz appeared). It's
-			// a standalone mount — EditorJS blocks live outside the app's Vue tree —
+			// a standalone mount (EditorJS blocks live outside the app's Vue tree),
 			// so give it translation and the shared $user the quiz component needs.
 			const { userResource } = usersStore()
 			this.quizApp = createApp(QuizBlock, { quiz })

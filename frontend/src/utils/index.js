@@ -171,7 +171,7 @@ export function getEditorTools(
 			inlineToolbar: INLINE_TOOLBAR_ORDER,
 		},
 		quiz: Quiz,
-		// The submission renders in an iframe — a separate app instance — so
+		// The submission renders in an iframe (a separate app instance), so
 		// provide/inject can't reach it. Pass Student View through the tool
 		// config and on into the iframe URL.
 		assignment: {

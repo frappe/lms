@@ -348,7 +348,7 @@ const validateTitle = () => {
 
 // Debounced silent autosave: a burst of edits collapses into a single save
 // shortly after the user pauses. `quizDetails.isDirty` is tracked by the
-// document resource, so loading the quiz doesn't arm it — only real edits do.
+// document resource, so loading the quiz doesn't arm it; only real edits do.
 const autoSave = useDebounceFn(() => {
 	if (quizDetails.isDirty) submitQuiz({ silent: true })
 }, 1000)
@@ -361,7 +361,7 @@ watch(
 )
 
 const submitQuiz = (opts = {}) => {
-	// Nothing to save once the quiz has been deleted (doc is null) — guard so the
+	// Nothing to save once the quiz has been deleted (doc is null). Guard so the
 	// autosave watcher and the onBeforeUnmount flush can't throw or re-insert it.
 	if (!quizDetails.doc) return
 	validateTitle()

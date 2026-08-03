@@ -8,7 +8,7 @@ class TestUnsplashPhotos(BaseTestUtils):
 	"""Unsplash needs an access key that most sites never set. When it is
 	missing the request helper returns None, which used to reach
 	`data.get("results")` and 500 on every keyword search, and cache a null
-	list for the unfiltered call — so the cover-image picker rendered an
+	list for the unfiltered call, so the cover-image picker rendered an
 	empty grid with no explanation for every role."""
 
 	def setUp(self):

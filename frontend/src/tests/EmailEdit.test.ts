@@ -1,5 +1,5 @@
 /**
- * Tests for EmailEdit.vue — edit an existing email account.
+ * Tests for EmailEdit.vue: edit an existing email account.
  *
  * Focus: a no-op save (nothing changed) short-circuits to a toast with NO
  * network call, renaming routes through rename_doc, and spamming Update issues
@@ -124,7 +124,7 @@ beforeEach(() => {
 	listReload.mockReset()
 })
 
-describe('EmailEdit — no-op', () => {
+describe('EmailEdit: no-op', () => {
 	it('toasts "No changes made" and makes no call when nothing changed', async () => {
 		const w = mountEdit()
 		await clickUpdate(w)
@@ -134,7 +134,7 @@ describe('EmailEdit — no-op', () => {
 	})
 })
 
-describe('EmailEdit — rename', () => {
+describe('EmailEdit: rename', () => {
 	it('renames via rename_doc when only the name changed', async () => {
 		const w = mountEdit()
 		await w.get('[data-testid="field-email_account_name"]').setValue('Renamed')
@@ -153,7 +153,7 @@ describe('EmailEdit — rename', () => {
 	})
 })
 
-describe('EmailEdit — double-submit', () => {
+describe('EmailEdit: double-submit', () => {
 	it('spamming Update runs the save once', async () => {
 		const w = mountEdit()
 		// make it dirty so it actually saves

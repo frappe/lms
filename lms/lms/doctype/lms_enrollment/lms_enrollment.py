@@ -127,7 +127,7 @@ def batched_enrollment_updates():
 	"""Coalesce every enrollment write in this block into one write and one dispatch."""
 	# A lesson completion writes the enrollment twice: LMS Course Progress.on_update
 	# recalculates progress, then save_progress advances current_lesson. Dispatched
-	# separately that is two on_updates — two webhook deliveries per completion, where
+	# separately that is two on_updates: two webhook deliveries per completion, where
 	# the pre-regression .save() delivered one. Batching restores the single event.
 	if getattr(frappe.local, "lms_enrollment_batch", None) is not None:
 		yield

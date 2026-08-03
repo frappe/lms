@@ -110,7 +110,7 @@ const setup = createResource<RavenSetupState>({
 	},
 })
 
-// True while either app is missing or the integration is not yet enabled — those
+// True while either app is missing or the integration is not yet enabled. Those
 // states render a vertically-centered card.
 const needsSetup = computed(
 	(): boolean =>

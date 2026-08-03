@@ -99,7 +99,7 @@ const rule = computed({
 	set: (v: RavenMemberRule) => emit('update:modelValue', v),
 })
 
-// A rule is rendered from its own provider's declaration — a foreign rule is shown
+// A rule is rendered from its own provider's declaration; a foreign rule is shown
 // in its own vocabulary (read-only, the panel disables it) rather than in LMS terms.
 const ruleTypes = useProviderRuleTypes(
 	() => rule.value.provider ?? LMS_PROVIDER
@@ -134,7 +134,7 @@ function doctypeOf(field: RuleField): string {
 }
 
 // A declared default stands in for an absent value only where the backend does the
-// same — on an optional field. A `reqd` field the rule does not carry matches nobody,
+// same, on an optional field. A `reqd` field the rule does not carry matches nobody,
 // so it reads empty rather than complete, and the panel's warning has something to act on.
 function selectValue(field: RuleField): string {
 	const value = rule.value[field.fieldname]

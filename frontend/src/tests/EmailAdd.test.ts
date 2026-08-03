@@ -1,9 +1,9 @@
 /**
- * Tests for EmailAdd.vue — the "create an email account" form.
+ * Tests for EmailAdd.vue: the "create an email account" form.
  *
  * Focus: the payload sent to `create_email_account` is correct (canonical
  * service name + incoming/outgoing booleans, password vs Frappe-Mail api keys),
- * validation blocks the request, and — the important one — spamming the Create
+ * validation blocks the request, and (the important one) spamming the Create
  * button fires exactly ONE submit (no double insertion).
  */
 import { describe, expect, it, vi, beforeEach } from 'vitest'
@@ -143,7 +143,7 @@ beforeEach(() => {
 	listReload.mockReset()
 })
 
-describe('EmailAdd — payload', () => {
+describe('EmailAdd: payload', () => {
 	it('sends canonical service name, password, and incoming/outgoing defaults', async () => {
 		const w = mountAdd()
 		await selectProvider(w, 'GMail')
@@ -189,7 +189,7 @@ describe('EmailAdd — payload', () => {
 		await w.get('[data-testid="switch-Enable Incoming"]').trigger('click')
 		await clickCreate(w)
 		expect(
-			lastResource.value.submit.mock.calls[0][0].data.enable_incoming,
+			lastResource.value.submit.mock.calls[0][0].data.enable_incoming
 		).toBe(true)
 	})
 
@@ -212,7 +212,7 @@ describe('EmailAdd — payload', () => {
 	})
 })
 
-describe('EmailAdd — validation and double-submit', () => {
+describe('EmailAdd: validation and double-submit', () => {
 	it('does not submit when validateInputs returns an error', async () => {
 		validateReturn.value = 'Account name is required'
 		const w = mountAdd()
@@ -220,7 +220,7 @@ describe('EmailAdd — validation and double-submit', () => {
 		await clickCreate(w)
 		expect(lastResource.value.submit).not.toHaveBeenCalled()
 		expect(w.get('[data-testid="error"]').text()).toBe(
-			'Account name is required',
+			'Account name is required'
 		)
 	})
 

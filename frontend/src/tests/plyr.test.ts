@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
-// Mock the heavy Plyr dependency — the guard only cares that the constructor
+// Mock the heavy Plyr dependency: the guard only cares that the constructor
 // runs once per element, not what the player does. The settings store is mocked
 // too (the seek listener reads it); neither is exercised in this test.
 const plyrCtor = vi.hoisted(() =>

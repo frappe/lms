@@ -52,7 +52,7 @@ class TestProfileDetailsDisclosure(BaseTestUtils, FrappeAPITestCase):
 
 	def test_nonexistent_username_raises_does_not_exist_not_500(self):
 		# Both valid and invalid usernames must fail the same way for an unauthorized/absent
-		# target — no 200-vs-500 discrepancy to enumerate accounts with.
+		# target: no 200-vs-500 discrepancy to enumerate accounts with.
 		with self.assertRaises(frappe.DoesNotExistError):
 			self._call(self.student.email, f"nosuchuser-{frappe.generate_hash(length=8)}")
 

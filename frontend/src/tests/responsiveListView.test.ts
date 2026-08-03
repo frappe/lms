@@ -26,7 +26,7 @@ vi.mock('@/utils/composables', async () => {
 
 // The stubs below are trimmed copies of the frappe-ui components they stand in
 // for, kept faithful on the one thing under test: where the selection lives.
-// The real ones cannot be imported here — frappe-ui's ListView pulls in its
+// The real ones cannot be imported here: frappe-ui's ListView pulls in its
 // resources plugin, which does not resolve outside a Vite app build.
 vi.mock('frappe-ui', async () => {
 	const { computed, defineComponent, inject, provide, reactive, watch } =
@@ -379,7 +379,7 @@ describe('ResponsiveListView without selection', () => {
 /**
  * frappe-ui hands its rows a box it has already clipped (`overflow-y-hidden`),
  * and supplies the scrolling itself in ListRows. The card shape replaces
- * ListRows, so it has to supply that scrolling too — without it the cards past
+ * ListRows, so it has to supply that scrolling too. Without it the cards past
  * the first screenful are painted and unreachable, which is what a phone with
  * 24 quizzes on it actually showed. jsdom has no layout to measure, so what is
  * pinned here is the structure that produces it; the measurement lives in the
@@ -390,7 +390,7 @@ describe('ResponsiveListView card scrolling', () => {
 
 	// The cards must not scroll inside anything of their own. The page body owns
 	// the single scroll box, and on a phone even that is released so the page
-	// itself scrolls — a box here would take the page's scroll range away, and a
+	// itself scrolls; a box here would take the page's scroll range away, and a
 	// browser only retracts its URL bar when the root scroller moves.
 	//
 	// It is worth stating because frappe-ui makes it easy to get wrong twice

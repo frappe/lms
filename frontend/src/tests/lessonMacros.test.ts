@@ -5,7 +5,7 @@ import { convertBodyToBlocks, getMacroArg } from '@/utils/lessonMacros'
 // tagged file_type 'pdf' (lowercase). utils/upload.js renders on `== 'PDF'`
 // (uppercase, matching Frappe's File.set_file_type), so the block fell through
 // to the <img> branch and rendered as a broken image on EVERY browser.
-describe('convertBodyToBlocks — PDF macro casing', () => {
+describe('convertBodyToBlocks: PDF macro casing', () => {
 	it('tags a PDF macro block with uppercase file_type "PDF"', () => {
 		const blocks = convertBodyToBlocks({
 			body: `{{ PDF("/files/handbook.pdf") }}`,
@@ -40,7 +40,7 @@ describe('convertBodyToBlocks — PDF macro casing', () => {
 // quotes) used to hit an unguarded `.match(...)[1]` in every macro branch and
 // throw, crashing the lesson editor on open. Every branch now routes through
 // getMacroArg and must degrade to an empty arg instead of throwing.
-describe('convertBodyToBlocks — malformed macros never crash the editor', () => {
+describe('convertBodyToBlocks: malformed macros never crash the editor', () => {
 	const malformed = [
 		'{{ Video() }}',
 		'{{ Audio() }}',
@@ -68,8 +68,8 @@ describe('convertBodyToBlocks — malformed macros never crash the editor', () =
 		// the well-formed PDF still resolves correctly alongside the bad macro
 		expect(
 			blocks.some(
-				(b) => b.type === 'upload' && b.data.file_url === '/files/ok.pdf',
-			),
+				(b) => b.type === 'upload' && b.data.file_url === '/files/ok.pdf'
+			)
 		).toBe(true)
 	})
 })
@@ -77,7 +77,7 @@ describe('convertBodyToBlocks — malformed macros never crash the editor', () =
 // Bug 3: header detection used `block.includes('#')`, so any prose line
 // containing a '#' anywhere (e.g. "Great for C# developers") became a header
 // with every '#' stripped, mangling the body. Only a leading '#' run is a header.
-describe('convertBodyToBlocks — header detection is leading-only', () => {
+describe('convertBodyToBlocks: header detection is leading-only', () => {
 	it('keeps prose with an inline # as a paragraph, verbatim', () => {
 		expect(convertBodyToBlocks({ body: 'Great for C# developers' })).toEqual([
 			{ type: 'paragraph', data: { text: 'Great for C# developers' } },
@@ -101,7 +101,7 @@ describe('convertBodyToBlocks — header detection is leading-only', () => {
 
 // Bug 4: a `youtube` field holding a full "watch?v=ID" URL was reduced with
 // split('/').pop(), yielding "watch?v=ID" and a broken /embed/watch?v=ID src.
-describe('convertBodyToBlocks — youtube field URL forms', () => {
+describe('convertBodyToBlocks: youtube field URL forms', () => {
 	it.each([
 		['https://www.youtube.com/watch?v=abc123', 'abc123'],
 		['https://youtu.be/abc123', 'abc123'],
@@ -121,7 +121,7 @@ describe('convertBodyToBlocks — youtube field URL forms', () => {
 
 // Bug 5: file_type came from url.split('.').pop() without stripping the query
 // string, so "/files/clip.mp4?v=2" produced "mp4?v=2" and failed isVideo().
-describe('convertBodyToBlocks — media file_type ignores query strings', () => {
+describe('convertBodyToBlocks: media file_type ignores query strings', () => {
 	it('strips a query string before deriving the extension', () => {
 		const blocks = convertBodyToBlocks({
 			body: [
@@ -135,9 +135,9 @@ describe('convertBodyToBlocks — media file_type ignores query strings', () => 
 })
 
 // Bug 2: getId() (via getMacroArg) ran `.match(...)[1]` unguarded. A malformed
-// macro made .match() return null, and null[1] threw — taking down the whole
+// macro made .match() return null, and null[1] threw, taking down the whole
 // lesson render instead of just skipping the bad block.
-describe('getMacroArg — malformed-macro guard', () => {
+describe('getMacroArg: malformed-macro guard', () => {
 	it('extracts the quoted argument from a well-formed macro', () => {
 		expect(getMacroArg(`{{ PDF("/files/a.pdf") }}`)).toBe('/files/a.pdf')
 		expect(getMacroArg(`{{ PDF('/files/b.pdf') }}`)).toBe('/files/b.pdf')

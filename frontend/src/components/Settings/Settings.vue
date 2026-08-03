@@ -8,7 +8,7 @@
 				:label="group.hideLabel ? undefined : __(group.label)"
 			>
 				<!-- CRM's sidebar type: xs-medium group headings, sm item labels.
-				     Set on inner spans — the library's own text-base sits on the
+				     Set on inner spans: the library's own text-base sits on the
 				     wrapper and would otherwise win the cascade. -->
 				<template #label>
 					<span class="text-xs-medium text-ink-gray-5">

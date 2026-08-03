@@ -1,4 +1,4 @@
-// WebKit refuses to scroll a PDF inside an <iframe> — on iOS/iPadOS every
+// WebKit refuses to scroll a PDF inside an <iframe>, and on iOS/iPadOS every
 // browser is WebKit, so the lesson PDF shows page 1 or nothing. Those engines
 // get the inline pdf.js viewer (PdfBlock.vue); everywhere else keeps the native
 // <iframe> plugin, which is faster, has the browser's own toolbar, and doesn't

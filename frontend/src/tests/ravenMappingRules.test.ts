@@ -126,7 +126,7 @@ beforeEach(() => {
 	h.toast.error.mockReset()
 })
 
-describe('MappingRules — unmapped workspace adopts on first rule', () => {
+describe('MappingRules: unmapped workspace adopts on first rule', () => {
 	const adoptAndPersist = async (mappingName = 'RWM-new') => {
 		const ensureMapped = vi.fn(async () => mappingName)
 		const row = unmappedWorkspaceRow()
@@ -176,7 +176,7 @@ describe('MappingRules — unmapped workspace adopts on first rule', () => {
 
 	// ensureMapped can RECOVER a mapping another admin already created (link_*
 	// hits a DuplicateEntryError and resolves the existing docname). That mapping
-	// has rules and members, and update_* replaces the whole list — so the adopt
+	// has rules and members, and update_* replaces the whole list. The adopt
 	// path has to be previewed like any other membership change.
 	it('previews the adopted mapping before replacing its rules', async () => {
 		await adoptAndPersist('RWM-existing')
@@ -243,7 +243,7 @@ describe('MappingRules — unmapped workspace adopts on first rule', () => {
 	})
 })
 
-describe('MappingRules — a status change bypasses the rule save', () => {
+describe('MappingRules: a status change bypasses the rule save', () => {
 	const mountMapped = async () => {
 		h.detailData = {
 			name: 'RWM-1',
@@ -300,7 +300,7 @@ describe('MappingRules — a status change bypasses the rule save', () => {
 	})
 })
 
-describe('MappingRules — combinator switch refreshes the member count', () => {
+describe('MappingRules: combinator switch refreshes the member count', () => {
 	const detailFor = (combinator: string, count: number) => ({
 		name: 'RWM-1',
 		member_rules: [],
@@ -311,7 +311,7 @@ describe('MappingRules — combinator switch refreshes the member count', () => 
 	})
 
 	// The combinator dropdown lives in the sibling list composable; switching it
-	// reloads the list, which re-derives this row's `rule_combinator` — but the
+	// reloads the list, which re-derives this row's `rule_combinator`, but the
 	// member_count badge comes from the detail resource, which must refetch too.
 	it('refetches the detail when the row combinator changes under a loaded detail', async () => {
 		h.detailData = detailFor('Any (OR)', 3)
@@ -336,7 +336,7 @@ describe('MappingRules — combinator switch refreshes the member count', () => 
 		expect(panel.props('subtitle')).toBe('1 members')
 	})
 
-	// A row switch already reloads through the `name` watcher — the combinator
+	// A row switch already reloads through the `name` watcher. The combinator
 	// watcher must not fire a second, redundant fetch for the newly-selected row.
 	it('does not double-fetch when selecting a different row', async () => {
 		h.detailData = detailFor('Any (OR)', 3)
@@ -364,7 +364,7 @@ describe('MappingRules — combinator switch refreshes the member count', () => 
 	})
 })
 
-describe('MappingRules — mapped row keeps the diff flow', () => {
+describe('MappingRules: mapped row keeps the diff flow', () => {
 	it('fetches detail on mount and routes rule changes through compute_rule_diff', async () => {
 		h.detailData = {
 			name: 'RWM-1',
@@ -397,7 +397,7 @@ describe('MappingRules — mapped row keeps the diff flow', () => {
 	})
 
 	// `update_workspace` replaces the whole rule list, so a rule this app does not own
-	// has to come back out of the UI exactly as it went in — provider included.
+	// has to come back out of the UI exactly as it went in, provider included.
 	it('sends another provider rule back untouched when an LMS rule is saved', async () => {
 		const foreign = {
 			name: 'RMR-9',
@@ -486,7 +486,7 @@ describe('MappingRules — mapped row keeps the diff flow', () => {
 	})
 })
 
-describe('MappingRules — removing a rule confirms any member drop', () => {
+describe('MappingRules: removing a rule confirms any member drop', () => {
 	const withOneActiveRule = () => ({
 		name: 'RWM-1',
 		member_rules: [

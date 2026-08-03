@@ -39,7 +39,7 @@ const dialog = () =>
 		global: { config: { globalProperties: { __: (s: string) => s } } },
 	})
 
-describe('MassRemovalConfirmDialog — dismissal settles the caller', () => {
+describe('MassRemovalConfirmDialog: dismissal settles the caller', () => {
 	it('emits cancel when the dialog is dismissed without an action', async () => {
 		const wrapper = dialog()
 

@@ -163,7 +163,7 @@ import { provideStudentView } from '@/composables/useStudentView'
 const realUser = inject<any>('$user')
 
 // Rendered in an iframe from the lesson preview, so provide/inject can't reach
-// this app instance — Student View arrives as a query param instead, exactly as
+// this app instance; Student View arrives as a query param instead, exactly as
 // it does for assignment submissions. Unlike AssignmentSubmission, this page
 // reads the instructor flags in its *own* template (the settings button, the
 // view-someone-else's-submission branch), so it uses the masked user itself

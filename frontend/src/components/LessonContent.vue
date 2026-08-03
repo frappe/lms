@@ -12,7 +12,7 @@
 	</div>
 	<!-- Keyed on the block text, not just the index: position N of the outgoing
 	     lesson and position N of the incoming one share an index, so Vue reuses
-	     the instance and hands a <PdfBlock> a new `file` — which it only reads
+	     the instance and hands a <PdfBlock> a new `file`, which it only reads
 	     once, at setup. Including the text forces a fresh instance. -->
 	<div
 		v-for="(block, index) in content?.split('\n\n')"

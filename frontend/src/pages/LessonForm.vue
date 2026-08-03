@@ -64,7 +64,7 @@
 			</BottomSheet>
 
 			<!-- `block`: a textarea is inline-block by default, so it sits on the
-			     parent's line box and carries its descender — 5px of space under
+			     parent's line box and carries its descender: 5px of space under
 			     the title that belongs to no rule and no gap. -->
 			<textarea
 				ref="titleRef"
@@ -163,7 +163,7 @@ const titleRef = ref(null)
 // A lesson title is one line. The field stays a textarea so a long title wraps
 // and grows; only the explicit break is refused.
 function onTitleEnter(event) {
-	// Enter also confirms an IME candidate — never swallow that one.
+	// Enter also confirms an IME candidate. Never swallow that one.
 	if (event.isComposing) return
 	event.preventDefault()
 }
@@ -304,8 +304,8 @@ const lessonDetails = createResource({
 						// Loaded content isn't user input; arm autosave after render.
 						isDirty.value = false
 						initialLoadComplete = true
-						// A freshly created lesson opens empty as "Untitled lesson" —
-						// focus the title so it can be named (and so the block editor
+						// A freshly created lesson opens empty as "Untitled lesson".
+						// Focus the title so it can be named (and so the block editor
 						// doesn't grab the caret out from under the title). Existing
 						// lessons focus the body for content editing.
 						if (!data.lesson.content && !data.lesson.body) {
@@ -457,7 +457,7 @@ function saveLesson({ flush = false } = {}) {
 	Promise.all([bodyPromise, notesPromise]).then(([bodyData, notesData]) => {
 		const bodyHasContent = foldEditorData(bodyData, notesData)
 
-		// Skip when there's nothing to save — no title, no body.
+		// Skip when there's nothing to save: no title, no body.
 		if (shouldSkipLessonSave(lesson.title, bodyHasContent)) return
 
 		// During teardown only an explicit flush may persist.

@@ -166,7 +166,7 @@ const fields = computed(() => {
 const error = ref<string | undefined>()
 const loading = ref(false)
 
-// shared cached accounts list — reload it so edits/renames show on return
+// shared cached accounts list; reload it so edits/renames show on return
 const emailAccounts = createListResource({
 	doctype: 'Email Account',
 	cache: ['Email Accounts'],

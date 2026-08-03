@@ -1,5 +1,5 @@
 // Barrel for the hand-written type modules, so callers import from '@/types'.
-// The generated `lms/` doctype types stay on their own path — they are regenerated
+// The generated `lms/` doctype types stay on their own path; they are regenerated
 // wholesale and their names are not curated for collisions.
 export * from './api'
 export * from './coupons'

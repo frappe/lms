@@ -10,10 +10,10 @@ const created = vi.hoisted(() => ({ list: [] as any[] }))
 const editorState = vi.hoisted(() => ({
 	saveData: {} as Record<string, any>,
 	// When true, the instructor editor's isReady() never resolves, so the form's
-	// initial load never completes (initialLoadComplete stays false) — modelling a
+	// initial load never completes (initialLoadComplete stays false), modelling a
 	// title autosave that fires before the saved notes have rendered.
 	holdInstructorReady: false,
-	// When true, the body editor's save() rejects — modelling an EditorJS instance
+	// When true, the body editor's save() rejects, modelling an EditorJS instance
 	// being destroyed mid-save during teardown.
 	rejectBodySave: false,
 	// Same, for the instructor-notes editor.
@@ -52,7 +52,7 @@ vi.mock('frappe-ui', async () => {
 	}
 })
 
-// BlockEditor mock: faithful to the teardown contract — onBeforeUnmount nulls the
+// BlockEditor mock: faithful to the teardown contract. onBeforeUnmount nulls the
 // instance, after which save() returns null (matching the real null guard). save()
 // reads `editorState.saveData[fieldname]` so a test can stage "edited" content.
 vi.mock('@/components/BlockEditor.vue', async () => {
@@ -227,7 +227,7 @@ describe('LessonForm teardown autosave', () => {
 	it('still persists the lesson when an editor save rejects during teardown', async () => {
 		wrapper = await mountLoaded()
 		// The body editor's save() rejects (its EditorJS instance is being torn
-		// down). The title edit must still be written — not lost to a rejected
+		// down). The title edit must still be written, not lost to a rejected
 		// Promise.all.
 		editorState.rejectBodySave = true
 		await editTitle(wrapper, 'Edited title')
@@ -252,7 +252,7 @@ describe('LessonForm teardown autosave', () => {
 		await editEditor(wrapper, 'content')
 
 		// Now the editor is torn down and its save() rejects on the unmount flush.
-		// The freshly-captured "New body" must win — not the stale stored content,
+		// The freshly-captured "New body" must win, not the stale stored content,
 		// and not a silently-dropped edit behind a successful-looking save.
 		editorState.rejectBodySave = true
 		wrapper.unmount()
@@ -309,7 +309,7 @@ describe('LessonForm teardown autosave', () => {
 
 		const editLesson = findResource('frappe.client.set_value')
 		expect(editLesson.submit).toHaveBeenCalledTimes(1)
-		// The stored notes must survive — folding the empty default would wipe them.
+		// The stored notes must survive. Folding the empty default would wipe them.
 		expect(editLesson.lastParams.fieldname.instructor_content).toBe(
 			STORED_NOTES
 		)
@@ -335,7 +335,7 @@ describe('LessonForm teardown autosave', () => {
 		editorState.saveData.content = paragraph('Body text')
 		await editTitle(wrapper, 'Edited title')
 
-		// No deletion signal — a normal navigate-away must still persist the edit.
+		// No deletion signal. A normal navigate-away must still persist the edit.
 		wrapper.unmount()
 		await flushPromises()
 
@@ -346,7 +346,7 @@ describe('LessonForm teardown autosave', () => {
 })
 
 // The title is a <textarea> so a long title can wrap and the field can grow with
-// it — which also let Enter put a real newline in the title.
+// it, which also let Enter put a real newline in the title.
 describe('LessonForm title is single-line', () => {
 	let wrapper: VueWrapper
 

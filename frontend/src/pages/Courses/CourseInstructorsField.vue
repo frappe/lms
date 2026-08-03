@@ -90,7 +90,7 @@ function transformUsers(rows: Record<string, unknown>[]): InstructorOption[] {
 	}))
 }
 
-// Hydrate the chip labels/avatars for instructors saved on the doc — the
+// Hydrate the chip labels/avatars for instructors saved on the doc. The
 // search endpoint only returns query matches, so without this the chips
 // show raw user IDs (emails) after a page refresh.
 const resolvedDetails = ref<Map<string, InstructorOption>>(new Map())

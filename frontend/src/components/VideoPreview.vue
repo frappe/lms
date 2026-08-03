@@ -25,7 +25,7 @@ import { computed, ref, watch } from 'vue'
 import { getVideoPreview } from '@/utils/video'
 
 // Shared display for a course/batch preview video. A video_link can be a
-// YouTube link (render an embed iframe — NOT a <video>, which is what made batch
+// YouTube link (render an embed iframe, NOT a <video>, which is what made batch
 // cards fail), an uploaded file path (<video>), or unplayable (fall back to the
 // poster image). Used by CourseCardOverlay and BatchOverlay.
 const props = defineProps<{

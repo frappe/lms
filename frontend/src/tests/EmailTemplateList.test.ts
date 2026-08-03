@@ -1,5 +1,5 @@
 /**
- * Tests for EmailTemplateList.vue — the settings list of templates.
+ * Tests for EmailTemplateList.vue: the settings list of templates.
  *
  * Focus: Delete goes through a confirm Dialog before calling delete.submit,
  * and it deletes the row that was clicked (not the first row).

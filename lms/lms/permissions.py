@@ -5,7 +5,7 @@
 
 Centralizes the cross-doctype permission logic that the Course Lesson controller,
 the serve_resource endpoint, the SCORM renderer, and the File has_permission hook
-all rely on — mirroring the dedicated permissions module pattern used by frappe
+all rely on, mirroring the dedicated permissions module pattern used by frappe
 core (frappe/permissions.py), CRM (crm.permissions.*), and Raven (raven.permissions).
 """
 

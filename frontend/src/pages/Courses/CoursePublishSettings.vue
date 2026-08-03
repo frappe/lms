@@ -235,7 +235,7 @@ function setPaidCourse(val: boolean) {
 		return
 	}
 	resource.doc.paid_course = val ? 1 : 0
-	// A paid course is already monetized — the paid-certificate flow only
+	// A paid course is already monetized: the paid-certificate flow only
 	// applies to free courses, so clear it when switching to paid.
 	if (val) resource.doc.paid_certificate = 0
 	markDirty()

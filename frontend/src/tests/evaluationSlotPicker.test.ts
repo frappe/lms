@@ -1,5 +1,5 @@
 /**
- * Tests for EvaluationModal.vue — the evaluation slot picker.
+ * Tests for EvaluationModal.vue: the evaluation slot picker.
  *
  * Slots are stored in the system timezone and converted server-side into the
  * batch's zone for display. The picker therefore renders `display_*` and
@@ -8,7 +8,7 @@
  * calendar event at once.
  *
  * Conversion also moves slots between days, so one rendered day can hold slots
- * from two different stored dates — the date a booking submits has to come from
+ * from two different stored dates. The date a booking submits has to come from
  * the slot, never from the day it was rendered under.
  */
 import { describe, expect, it, vi, beforeEach } from 'vitest'
@@ -127,7 +127,7 @@ async function mountPicker(schedule = SCHEDULE) {
 }
 
 /** `__` returns a String carrying `.format`, as frappe-ui's does for messages
-    with placeholders — a plain string would make `.format` a TypeError. */
+    with placeholders; a plain string would make `.format` a TypeError. */
 function translate(message: string) {
 	const translated = new String(message) as any
 	translated.format = (...args: any[]) =>

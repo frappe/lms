@@ -31,7 +31,7 @@ describe("Course Creation", () => {
 					.find("input")
 					.type(courseTitle);
 
-				// Instructors — MultiSelect
+				// Instructors: MultiSelect
 				cy.get("label")
 					.contains("Instructors")
 					.parent()
@@ -83,7 +83,7 @@ describe("Course Creation", () => {
 		// Configure settings
 		cy.get("button, [role=tab]").contains("Settings").click();
 
-		// Preview video — the redesigned field has a URL input (plus a hidden
+		// Preview video: the redesigned field has a URL input (plus a hidden
 		// file input), so target the YouTube URL input by its placeholder.
 		cy.get("label")
 			.contains("Preview video")
@@ -138,9 +138,9 @@ describe("Course Creation", () => {
 		cy.wait("@outline", { timeout: 20000 });
 
 		// Add a chapter via the toolbar "Add" button (CourseEditor hides
-		// CourseOutline's own header). Scope to the chapter dialog by its Title field
-		// — the onboarding "Getting started" panel is also a dismissable layer, but it
-		// has no Title input.
+		// CourseOutline's own header). Scope to the chapter dialog by its Title
+		// field. The onboarding "Getting started" panel is also a dismissable
+		// layer, but it has no Title input.
 		cy.contains("button", "Add").click();
 		cy.get("[data-dismissable-layer]")
 			.filter(':has(label:contains("Title"))')
@@ -155,13 +155,13 @@ describe("Course Creation", () => {
 			});
 		cy.contains("Test Chapter", { timeout: 15000 }).should("exist");
 
-		// The onboarding help modal re-expands when the chapter step completes —
-		// dismiss it before adding a lesson so it can't hijack the editor.
+		// The onboarding help modal re-expands when the chapter step completes.
+		// Dismiss it before adding a lesson so it can't hijack the editor.
 		cy.closeOnboardingModal();
 
 		// "Add Lesson" creates an "Untitled lesson" and opens it in the editor with
-		// the title field focused (LessonForm focuses the title — not the block
-		// editor — for a new, empty lesson, so our keystrokes land in the title).
+		// the title field focused (LessonForm focuses the title, not the block
+		// editor, for a new, empty lesson, so our keystrokes land in the title).
 		// Rename it inline; the debounced autosave persists via frappe.client.set_value.
 		cy.intercept("POST", "**/api/method/frappe.client.set_value").as(
 			"renameLesson"

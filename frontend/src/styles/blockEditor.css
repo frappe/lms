@@ -13,7 +13,7 @@
 	max-width: none;
 }
 
-/* Block selection — neutralise EditorJS's native blue selection fill
+/* Block selection: neutralise EditorJS's native blue selection fill
    (.ce-block--selected{background:#e1f2ff}) everywhere, since RectangleSelection
    also fires in the readonly reader view where a block highlight makes no sense,
    then re-apply a theme-gray fill only inside .bn-editor (the editing root).
@@ -42,7 +42,7 @@
 	max-width: none;
 }
 
-/* Block gutter affordances — the "+" (add) and "⋮⋮" (drag/settings) buttons
+/* Block gutter affordances: the "+" (add) and "⋮⋮" (drag/settings) buttons
    shown when hovering a block. Use Espresso grays: subtle at rest (gray-4),
    darkening to gray-8 on hover, so they read as quiet handles until used. */
 .bn-editor .ce-toolbar__plus,
@@ -205,7 +205,7 @@ iframe {
 }
 
 /* Map EditorJS's popover/menu palette (the +/⋮⋮ block menus) onto frappe-ui
-   (Espresso) tokens so they follow the app theme — including dark mode — instead
+   (Espresso) tokens so they follow the app theme (including dark mode) instead
    of EditorJS's hardcoded light colours (white bg, black text, #eff2f5 hover). */
 .ce-popover {
 	--color-background: var(--surface-base);
@@ -303,7 +303,7 @@ iframe {
 
 /* Inline-tool tooltip (codex-tooltip, e.g. "Bold  Ctrl+B"). EditorJS hardcodes
    a dark #1d202b bubble with #cdd1e0 text that ignores the theme; retokenise it
-   to frappe-ui's Tooltip surface (bg-surface-gray-10 + text-ink-base — see
+   to frappe-ui's Tooltip surface (bg-surface-gray-10 + text-ink-base; see
    node_modules/frappe-ui/src/components/Tooltip/TooltipBubble.vue). */
 .ct:before,
 .ct:after {
@@ -333,9 +333,7 @@ iframe {
 	padding: 0;
 	border-radius: 6px;
 	color: var(--ink-gray-7);
-	transition:
-		background-color 0.12s ease,
-		color 0.12s ease;
+	transition: background-color 0.12s ease, color 0.12s ease;
 }
 
 .ce-inline-tool svg {

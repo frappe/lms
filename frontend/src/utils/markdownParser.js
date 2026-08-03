@@ -109,7 +109,7 @@ export class Markdown {
 		const clipboardData = event.clipboardData || window.clipboardData
 		if (!clipboardData) return
 
-		// Internal EditorJS block copy/paste carries its own payload — let
+		// Internal EditorJS block copy/paste carries its own payload, so let
 		// EditorJS handle it so cross-block moves keep working.
 		if (clipboardData.getData('application/x-editor-js')) return
 

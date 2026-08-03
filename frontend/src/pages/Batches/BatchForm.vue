@@ -428,7 +428,7 @@ let lastAutoSaveError: string | null = null
 
 // Debounced so a burst of edits collapses into a single save shortly after the
 // user pauses (mirrors CourseForm). When a mandatory field is empty or the
-// amount is invalid, the autosave can't succeed — surface the reason once and
+// amount is invalid, the autosave can't succeed. Surface the reason once and
 // keep the "Not Saved" badge (isDirty stays true) so the change isn't lost.
 const autoSave = useDebounceFn((): void => {
 	if (!isDirty.value) return

@@ -63,8 +63,8 @@
 			</div>
 		</div>
 
-		<!-- Either direction rewrites the membership — All (AND) evicts, Any (OR)
-			 admits — so any switch that moves someone is confirmed first. -->
+		<!-- Either direction rewrites the membership (All (AND) evicts, Any (OR)
+			 admits), so any switch that moves someone is confirmed first. -->
 		<MassRemovalConfirmDialog
 			v-model:open="list.combinatorConfirmOpen.value"
 			:removed-count="list.combinatorDiff.value?.removed ?? 0"

@@ -7,7 +7,7 @@ import { lucideIcons } from 'frappe-ui/vite'
 export default defineConfig({
 	// `import { X } from 'frappe-ui'` resolves the entire barrel (src/index.ts,
 	// ~30 component families incl. DatePicker/TextEditor/Charts/ListView), because
-	// frappe-ui here is an installed npm package, not a symlinked working copy —
+	// frappe-ui here is an installed npm package, not a symlinked working copy.
 	// frappe-ui/vite's `barrelImports` plugin only rewrites named imports to deep,
 	// single-component paths for a symlinked/working-copy install (`linkedOnly`
 	// defaults true); tried forcing `linkedOnly: false` to narrow this and it broke
@@ -17,10 +17,10 @@ export default defineConfig({
 	// intercept it. The default (`linkedOnly: true`) is a no-op for this same reason
 	// in reverse (skips rewriting), so it was left out entirely rather than added
 	// for no effect. Net effect: mounting ANY unmocked frappe-ui export currently
-	// evaluates the whole barrel's module graph — same as a real (non-linked) dev
+	// evaluates the whole barrel's module graph, same as a real (non-linked) dev
 	// server today, not a test-only gap. `lucideIcons` below exists because that
 	// full-barrel load reaches `DatePicker` -> `PickerShell.vue`, which imports the
-	// `~icons/lucide/chevron-down` virtual module (NOT Combobox's own chevron —
+	// `~icons/lucide/chevron-down` virtual module (NOT Combobox's own chevron;
 	// that's a plain `lucide-chevron-down` CSS class, no icon import involved).
 	// Registering `lucideIcons` also turns on `unplugin-auto-import` /
 	// `unplugin-vue-components`, which write to the tracked
@@ -32,7 +32,7 @@ export default defineConfig({
 		environment: 'jsdom',
 		globals: true,
 		include: ['src/tests/**/*.test.{ts,js}'],
-		// Nothing here is slow on its own — every one of these files passes in
+		// Nothing here is slow on its own. Every one of these files passes in
 		// well under a second when run alone. The default 5s is wall-clock
 		// though, and a full run mounts 60-odd suites in parallel, so a handful
 		// of mount-heavy tests lose the race on a loaded machine and fail with a

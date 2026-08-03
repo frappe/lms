@@ -11,7 +11,7 @@ import type { RavenMemberRule } from '@/types'
 // The panel reads the LMS provider declaration for `reqd` (incomplete rules) and for
 // the defaults a blank rule starts with.
 // `providers`/`loading` are swapped per test to stand in for a declaration that has
-// not landed (or never will) — see the "no declaration" describe.
+// not landed (or never will). See the "no declaration" describe.
 const decl = vi.hoisted(() => ({
 	loading: false,
 	providers: [
@@ -167,7 +167,7 @@ const menuOf = (w: ReturnType<typeof mountPanel>, index = 0) =>
 		.findAllComponents({ name: 'Dropdown' })
 		[index].props('options') as MenuOption[]
 
-describe('RulesPanel — a rule must be named to be saved', () => {
+describe('RulesPanel: a rule must be named to be saved', () => {
 	it('withholds a freshly added rule and asks for a name', async () => {
 		const w = mountPanel([])
 		await w.find('.flex.p-4').trigger('click') // empty-state "Add rule" box
@@ -206,7 +206,7 @@ describe('RulesPanel — a rule must be named to be saved', () => {
 	})
 })
 
-describe('RulesPanel — a persisted invalid rule blocks the save', () => {
+describe('RulesPanel: a persisted invalid rule blocks the save', () => {
 	it('emits nothing at all rather than dropping the saved rule', async () => {
 		const w = mountPanel([allEnrolled(), staffRule()])
 
@@ -276,7 +276,7 @@ describe('RulesPanel — a persisted invalid rule blocks the save', () => {
 	})
 })
 
-describe('RulesPanel — each invalid reason has its own warning', () => {
+describe('RulesPanel: each invalid reason has its own warning', () => {
 	it('asks for a name on an unnamed rule', async () => {
 		const w = mountPanel([])
 		await w.find('.flex.p-4').trigger('click')
@@ -299,7 +299,7 @@ describe('RulesPanel — each invalid reason has its own warning', () => {
 		const w = mountPanel([allEnrolled()])
 		await addButton(w).trigger('click')
 
-		// Same criteria as the saved rule, different label — labels are cosmetic, so
+		// Same criteria as the saved rule, different label. Labels are cosmetic, so
 		// the backend's duplicate check still rejects it.
 		const editors = w.findAllComponents({ name: 'RuleEditor' })
 		await editors[1].vm.$emit('update:modelValue', {
@@ -332,7 +332,7 @@ describe('RulesPanel — each invalid reason has its own warning', () => {
 	})
 })
 
-describe('RulesPanel — Add rule waits for the open card', () => {
+describe('RulesPanel: Add rule waits for the open card', () => {
 	it('disables Add rule while a card is invalid and re-enables it once named', async () => {
 		// A Staff rule, so the blank card added below is not also a duplicate of it.
 		const w = mountPanel([staffRule()])
@@ -356,7 +356,7 @@ describe('RulesPanel — Add rule waits for the open card', () => {
 	})
 })
 
-describe('RulesPanel — enable / disable a rule', () => {
+describe('RulesPanel: enable / disable a rule', () => {
 	// Adapted for D6: a saved rule's status no longer rides the full-list replace,
 	// so these assert `set-status` where they used to assert `persist`.
 	it('disabling a saved rule asks for a status change, not a rule save', async () => {
@@ -428,7 +428,7 @@ describe('RulesPanel — enable / disable a rule', () => {
 	})
 })
 
-describe('RulesPanel — a disabled rule is frozen', () => {
+describe('RulesPanel: a disabled rule is frozen', () => {
 	const card = (w: ReturnType<typeof mountPanel>, index = 0) =>
 		w.findAll('.rounded-lg')[index]
 	const editorOf = (w: ReturnType<typeof mountPanel>, index = 0) =>
@@ -497,9 +497,9 @@ describe('RulesPanel — a disabled rule is frozen', () => {
 	})
 })
 
-describe('RulesPanel — a rule from another provider is not ours to touch', () => {
-	// `update_*` replaces the whole rule list, so a foreign rule missing from — or
-	// rewritten in — the payload is silently corrupted or deleted.
+describe('RulesPanel: a rule from another provider is not ours to touch', () => {
+	// `update_*` replaces the whole rule list, so a foreign rule missing from (or
+	// rewritten in) the payload is silently corrupted or deleted.
 	const foreignRule = (): RavenMemberRule => ({
 		name: 'RMR-9',
 		provider: 'Acme',
@@ -531,7 +531,7 @@ describe('RulesPanel — a rule from another provider is not ours to touch', () 
 		expect(w.findAll('.rounded-lg')[1].classes()).toContain('opacity-60')
 	})
 
-	it('offers no actions on it — its own app is where it is edited', () => {
+	it('offers no actions on it: its own app is where it is edited', () => {
 		const w = mountPanel([allEnrolled(), foreignRule()])
 
 		expect(w.findAllComponents({ name: 'Dropdown' })).toHaveLength(1)
@@ -555,7 +555,7 @@ describe('RulesPanel — a rule from another provider is not ours to touch', () 
 	})
 })
 
-describe('RulesPanel — Disable is Any (OR) only', () => {
+describe('RulesPanel: Disable is Any (OR) only', () => {
 	const menuLabels = (w: ReturnType<typeof mount>) =>
 		(
 			w.findAllComponents({ name: 'Dropdown' })[0].props('options') as {
@@ -591,7 +591,7 @@ describe('RulesPanel — Disable is Any (OR) only', () => {
 	})
 })
 
-describe('RulesPanel — disabled rules under All (AND)', () => {
+describe('RulesPanel: disabled rules under All (AND)', () => {
 	const mountWith = (rules: RavenMemberRule[], combinator: string) =>
 		mount(RulesPanel, {
 			props: {
@@ -627,7 +627,7 @@ describe('RulesPanel — disabled rules under All (AND)', () => {
 	})
 })
 
-describe('RulesPanel — a refetch must not destroy unsaved work', () => {
+describe('RulesPanel: a refetch must not destroy unsaved work', () => {
 	// Every save round-trips: the parent reloads the mapping and hands down a fresh
 	// `rules` array. Rebuilding the draft from it wholesale threw away work in progress.
 	const editors = (w: ReturnType<typeof mountPanel>) =>
@@ -687,7 +687,7 @@ describe('RulesPanel — a refetch must not destroy unsaved work', () => {
 	})
 })
 
-describe('RulesPanel — nothing is committed without the rule declaration', () => {
+describe('RulesPanel: nothing is committed without the rule declaration', () => {
 	// `fieldsOf` returns [] for an undeclared type and `[].every()` is true, so a
 	// missing declaration used to mark every rule complete and save it unchecked.
 	const UNAVAILABLE = 'could not be loaded'
@@ -736,7 +736,7 @@ describe('RulesPanel — nothing is committed without the rule declaration', () 
 	})
 })
 
-describe('RulesPanel — a saved new rule is not re-added as a duplicate', () => {
+describe('RulesPanel: a saved new rule is not re-added as a duplicate', () => {
 	it('claims the just-saved row when it reloads with a docname', async () => {
 		const w = mountPanel([])
 		await w.find('.flex.p-4').trigger('click')
@@ -769,11 +769,13 @@ describe('RulesPanel — a saved new rule is not re-added as a duplicate', () =>
 	})
 })
 
-describe('RulesPanel — removing a rule flags the drop for confirmation', () => {
+describe('RulesPanel: removing a rule flags the drop for confirmation', () => {
 	it('emits the removal with fromRemoval so the parent can confirm', async () => {
 		const w = mountPanel([allEnrolled(), staffRule()])
 
-		menuOf(w, 0).find((o) => o.label === 'Remove')!.onClick()
+		menuOf(w, 0)
+			.find((o) => o.label === 'Remove')!
+			.onClick()
 		await w.vm.$nextTick()
 
 		const events = w.emitted('persist')!

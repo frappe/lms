@@ -67,7 +67,7 @@
 
 		<template #cell="{ column, value }">
 			<div v-if="column.key == 'modified'" class="text-sm text-ink-gray-5">
-				<!-- A cell value is `unknown` — a row is a bag of fields and only
+				<!-- A cell value is `unknown`: a row is a bag of fields and only
 				     the branch it lands in knows what one holds. -->
 				{{ dayjs(value as string).format('MMM D, YYYY') }}
 			</div>

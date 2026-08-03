@@ -833,7 +833,7 @@ watch(
 		)
 		// When the lesson has video AND enforcement is on, suppress dwell so
 		// completion is gated on play-to-end. When enforcement is off, dwell
-		// runs for every lesson type — including YouTube/Plyr — so admins can
+		// runs for every lesson type (including YouTube/Plyr), so admins can
 		// set a short dwell to mark video lessons complete without a full
 		// playthrough.
 		if (!shouldStartDwellTimer({ hasVideo: hasVideoListener, enforceVideo })) {
@@ -977,7 +977,7 @@ const fallbackToDwellTimer = (reason) => {
 	console.warn('[Lesson] video fallback engaged:', reason)
 	toast.warning(
 		__(
-			'Video failed to load — this lesson will still be marked complete after you spend some time on it.'
+			'Video failed to load. This lesson will still be marked complete after you spend some time on it.'
 		)
 	)
 	clearInterval(timerInterval)

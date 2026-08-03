@@ -7,7 +7,7 @@ from lms.plugins import embed_renderer, pdf_renderer
 
 class TestPdfRenderers(unittest.TestCase):
 	"""The server-rendered (non-SPA) PDF macros must stay usable on iOS Safari,
-	which won't scroll a PDF inside an <iframe> — so both renderers surface an
+	which won't scroll a PDF inside an <iframe>, so both renderers surface an
 	"Open PDF" link to the browser's native viewer alongside the inline frame."""
 
 	def test_pdf_renderer_has_open_link_and_iframe(self):

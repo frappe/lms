@@ -76,7 +76,7 @@ describe('pickPrimaryTabs for a signed-out visitor', () => {
 	it('shows the whole bar before any sidebar link has loaded', () => {
 		// Regression: the guest bar used to be matched out of `sidebarLinks`,
 		// which are admin-configured and arrive asynchronously. Until that
-		// resolved — and sometimes it never did — nothing matched and the bar
+		// resolved (and sometimes it never did) nothing matched and the bar
 		// rendered with the More button as its only entry.
 		expect(pickPrimaryTabs([], false).map((t) => t.label)).toEqual(guestLabels)
 	})
@@ -120,7 +120,7 @@ describe('pickPrimaryTabs for a signed-out visitor', () => {
 	})
 
 	it('leaves only Log in when guest access is switched off', () => {
-		// `get_sidebar_settings` returns a bare `[]` — a list, not an object —
+		// `get_sidebar_settings` returns a bare `[]` (a list, not an object)
 		// to a guest when allow_guest_access is off. Read as "no flags matched"
 		// that kept every destination on the bar for a visitor who may not open
 		// a single one of them.

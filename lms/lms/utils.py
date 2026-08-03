@@ -726,7 +726,7 @@ def get_zone(timezone: str) -> ZoneInfo | None:
 def get_evaluation_display_timezone(course: str = None, batch: str = None) -> str:
 	"""The zone evaluation slots are *shown* in. Never the zone they are stored in.
 
-	Slots are authored and stored in the system timezone — `nowtime()`
+	Slots are authored and stored in the system timezone. `nowtime()`
 	comparisons and the naive datetime handed to Google Calendar all depend on
 	that. The batch declares the zone its cohort works in, so that is what a
 	learner books against; a direct-evaluation course has no batch, and falls
@@ -754,7 +754,7 @@ def convert_from_system_timezone(date, time, timezone: str) -> tuple:
 	09:00 in Asia/Kolkata is Sunday 20:30 in America/Los_Angeles.
 
 	A zone name we cannot resolve is legacy free text with no offset to convert
-	against, so the wall clock is returned untouched — labelled, not moved.
+	against, so the wall clock is returned untouched: labelled, not moved.
 	"""
 	zone = get_zone(timezone)
 	system = get_zone(get_system_timezone())
@@ -768,7 +768,7 @@ def convert_from_system_timezone(date, time, timezone: str) -> tuple:
 def format_timezone(timezone: str, at=None) -> str:
 	""" "Asia/Kolkata" -> "Asia/Kolkata (GMT+5:30)".
 
-	`at` is the instant to read the offset at — a date, a datetime, or None for
+	`at` is the instant to read the offset at: a date, a datetime, or None for
 	now. It matters because the offset shifts across DST, and the slot picker
 	spans 60 days.
 
@@ -903,7 +903,7 @@ def get_courses(filters: dict = None, start: int = 0, limit_page_length: int | s
 	# the end.
 	# Read only as far as the window: `len(featured)` below is the offset the rest
 	# of the sequence starts at, and it is only needed when the window runs past
-	# the featured rows — which is exactly when this read returned all of them.
+	# the featured rows, which is exactly when this read returned all of them.
 	featured = (
 		get_featured_courses(filters.copy(), or_filters, fields, start + page_length) if show_featured else []
 	)
@@ -2354,8 +2354,8 @@ def serialize_callbacks_without_the_constraint():
 	Take one lock every callback contends for instead. The DocType row of the
 	table missing its constraint is an arbitrary choice, but it always exists and
 	nothing else writes it outside a migrate. Payment callbacks then queue
-	site-wide, which is coarse — and is why it only happens while the constraint
-	is missing — but it puts them back in line, so the second one sees the first
+	site-wide, which is coarse (and is why it only happens while the constraint
+	is missing), but it puts them back in line, so the second one sees the first
 	payment recorded."""
 	# Imported here: lms_payment imports get_lms_route from this module.
 	from lms.lms.doctype.lms_payment.lms_payment import has_unique_payment_id
@@ -2776,7 +2776,7 @@ def get_batch_count(filters: dict = None) -> int:
 def count_batches_the_clock_decides(filters: dict, batch_type: str) -> int:
 	"""How many matching batches `filter_batches_based_on_start_time` drops.
 
-	Only today's are ever in question — every other date the query has already
+	Only today's are ever in question. Every other date the query has already
 	settled. Upcoming drops the ones already under way; Archived, the ones still
 	to come. Both conditions are added rather than replacing the caller's date
 	filter, so a tab asking for `start_date > today` still counts nothing today.
@@ -2794,7 +2794,7 @@ def has_started_today(batch) -> bool:
 
 	Compared as times rather than as strings. `start_time` comes back from the
 	database as a timedelta, and `str()` renders a single-digit hour without a
-	leading zero — so "9:00:00" sorted above "14:30:00" and a batch that began
+	leading zero. That sorted "9:00:00" above "14:30:00", so a batch that began
 	at nine that morning still counted as upcoming at half past two.
 	"""
 	if getdate(batch.start_date) != getdate():
@@ -3034,8 +3034,8 @@ def get_editorjs_blocks(content):
 	if not isinstance(blocks, list):
 		return []
 	# Keep only blocks a reader can safely reach block["data"][...] on: the block must be a
-	# dict, and `data` (if present) must be a dict. A present-but-non-dict data — null, str,
-	# list ({"type": "quiz", "data": "x"}) — is dropped; note a plain `.get("data", {})` guard
+	# dict, and `data` (if present) must be a dict. A present-but-non-dict data (null, str,
+	# or a list like {"type": "quiz", "data": "x"}) is dropped; note a plain `.get("data", {})` guard
 	# wouldn't save the null case. Hand-authored/partial content must not AttributeError a
 	# save, the outline, or progress tracking.
 	valid_blocks = []

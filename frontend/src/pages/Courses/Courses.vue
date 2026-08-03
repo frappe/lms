@@ -156,7 +156,7 @@ const courses = createListResource({
 })
 
 // The tabs filter on `enrolled`, `created` and `live`, which are not fields,
-// so `frappe.client.get_count` cannot answer this — only the endpoint that
+// so `frappe.client.get_count` cannot answer this; only the endpoint that
 // resolves them can. Without it the footer can say how many rows it has but
 // not how many there are.
 const courseCountResource = createResource({
@@ -211,7 +211,7 @@ const updateCourses = () => {
 	updateFilters()
 	// createResource keeps no request sequence: every response assigns
 	// `data`, so a slow fetch for filters the user has already left repaints
-	// the list with the wrong courses seconds later. Cancel it first — an
+	// the list with the wrong courses seconds later. Cancel it first: an
 	// aborted fetch is swallowed and never reaches the list.
 	courses.list.abort()
 	courses.update({

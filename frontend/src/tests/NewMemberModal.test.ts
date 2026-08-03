@@ -1,9 +1,9 @@
 /**
- * Tests for NewMemberModal.vue — the single component reused for BOTH adding a
+ * Tests for NewMemberModal.vue: the single component reused for BOTH adding a
  * new member and editing an existing member's roles.
  *
  * The goal is to pin every branch: add vs edit, required-email, the role
- * allocation on add, and (most importantly) the role-DIFF on edit — only
+ * allocation on add, and (most importantly) the role-DIFF on edit: only
  * changed roles should hit `save_role`, with the correct value, and a no-op
  * edit should still succeed without any network calls.
  */
@@ -26,7 +26,7 @@ vi.mock('frappe-ui', () => ({
 	Dialog: {
 		// beta.7 Dialog contract: v-model:open (prop `open`), flat title/actions
 		// props, and the default slot for body content (#body-content is
-		// deprecated). Mirror that here — the old modelValue/options/body-content
+		// deprecated). Mirror that here. The old modelValue/options/body-content
 		// mock left `open` undefined, so the dialog rendered as <!--v-if-->.
 		props: ['open', 'title', 'actions'],
 		setup() {
@@ -113,7 +113,7 @@ beforeEach(() => {
 	closeMock.mockReset()
 })
 
-describe('NewMemberModal — add mode', () => {
+describe('NewMemberModal: add mode', () => {
 	it('shows add title/action, visible name fields, editable required email', async () => {
 		const w = mountModal()
 		await open(w)
@@ -138,9 +138,7 @@ describe('NewMemberModal — add mode', () => {
 		const w = mountModal()
 		await open(w)
 		callMock.mockResolvedValueOnce({ name: 'jane@doe.com' }) // insert
-		await w
-			.get('[data-testid="field-Email"]')
-			.setValue('jane@doe.com')
+		await w.get('[data-testid="field-Email"]').setValue('jane@doe.com')
 		await w.get('[data-testid="role-Moderator"]').trigger('click')
 		await clickAction(w, 'Add')
 
@@ -205,7 +203,7 @@ const editMember = (roles: string[] = []) => ({
 	roles,
 })
 
-describe('NewMemberModal — edit mode', () => {
+describe('NewMemberModal: edit mode', () => {
 	it('shows edit title/action, hides name fields, disables prefilled email', async () => {
 		const w = mountModal({ editMember: editMember(['Moderator']) })
 		await open(w)
@@ -333,7 +331,7 @@ describe('NewMemberModal — edit mode', () => {
 	})
 })
 
-describe('NewMemberModal — adversarial / state isolation', () => {
+describe('NewMemberModal: adversarial / state isolation', () => {
 	it('switching from edit back to add resets to a blank add form', async () => {
 		const w = mountModal({ editMember: editMember(['Moderator']) })
 		await open(w)

@@ -33,7 +33,7 @@
 				>
 					<span class="lucide-circle-check size-5 text-ink-green-600" />
 					<span class="text-xs text-ink-gray-5">
-						{{ __("Saved — this format can't be previewed here.") }}
+						{{ __("Saved. This format can't be previewed here.") }}
 					</span>
 				</div>
 				<span v-else class="lucide-video size-6 text-ink-gray-4" />
@@ -83,7 +83,7 @@
 				<p class="text-p-sm text-ink-gray-5">
 					{{
 						__(
-							'Uploaded video — students see it on the course page. Remove it to use a YouTube link instead.'
+							'Uploaded video. Students see it on the course page. Remove it to use a YouTube link instead.'
 						)
 					}}
 				</p>
@@ -116,7 +116,7 @@
 					{{
 						preview.type === 'youtube'
 							? __(
-									'YouTube link added — students see it embedded on the course page. Clear the field to upload a file instead.'
+									'YouTube link added. Students see it embedded on the course page. Clear the field to upload a file instead.'
 							  )
 							: __(
 									'Paste a YouTube link, or upload a video file (MP4, WebM, or OGG) to show a preview on the course page.'
@@ -145,12 +145,12 @@ import {
 import { computed, ref, watch } from 'vue'
 import { getVideoPreview, getYouTubeId } from '@/utils/video'
 
-// Only formats browsers can actually play — reject the rest at upload time so a
+// Only formats browsers can actually play. Reject the rest at upload time so a
 // course never ends up with an unplayable preview (e.g. .MOV/H.265).
 const PLAYABLE_VIDEO_TYPES = ['video/mp4', 'video/webm', 'video/ogg']
 const PLAYABLE_VIDEO_EXTS = ['mp4', 'webm', 'ogg', 'ogv']
 
-// Probe whether the browser can actually decode the file — extension/MIME isn't
+// Probe whether the browser can actually decode the file. Extension/MIME isn't
 // enough (e.g. an .mp4 may contain HEVC/H.265, which Chrome/Firefox can't play).
 function canBrowserPlay(file: File): Promise<boolean> {
 	return new Promise((resolve) => {
@@ -180,7 +180,7 @@ async function validatePlayableVideo(file: File): Promise<string | void> {
 	const mimeOk = !file.type || PLAYABLE_VIDEO_TYPES.includes(file.type)
 	if (!mimeOk || !PLAYABLE_VIDEO_EXTS.includes(ext)) {
 		return __(
-			"Please upload an MP4, WebM, or OGG video — formats like .MOV can't be played in the browser."
+			"Please upload an MP4, WebM, or OGG video. Formats like .MOV can't be played in the browser."
 		)
 	}
 	if (!(await canBrowserPlay(file))) {
@@ -225,7 +225,7 @@ const preview = computed(() => getVideoPreview(props.modelValue))
 
 // Whether the current value is an actually-uploaded video. Uploads are stored as
 // a /files/ (or /private/files/) path; anything else is a link. We key off the
-// path — NOT getVideoPreview's 'file' type — so a half-typed link (e.g. just "h")
+// path (NOT getVideoPreview's 'file' type), so a half-typed link (e.g. just "h")
 // doesn't momentarily classify as a file and swap the URL input out mid-keystroke.
 const isUploadedVideo = computed<boolean>(() => {
 	const v = props.modelValue || ''
@@ -247,7 +247,7 @@ const fileName = computed<string>(() => {
 })
 
 // Show a proper, full YouTube URL in the input even when the value is stored as
-// a bare id / share fragment (legacy). Storage is left untouched — only a bare
+// a bare id / share fragment (legacy). Storage is left untouched: only a bare
 // id (no scheme, no path) is expanded for display; full URLs and file paths
 // pass through, so typing a URL isn't rewritten under the cursor.
 const urlInput = computed<string>({

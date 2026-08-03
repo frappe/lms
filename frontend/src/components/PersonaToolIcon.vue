@@ -1,6 +1,6 @@
 <template>
 	<!-- Uniform white tile behind every mark so transparent logos stay visible
-	     in dark mode (literal white on purpose — it must not flip with theme). -->
+	     in dark mode (literal white on purpose; it must not flip with theme). -->
 	<span
 		class="inline-flex size-4 shrink-0 items-center justify-center rounded-[3px] bg-white"
 		aria-hidden="true"
@@ -14,7 +14,7 @@
 		/>
 
 		<!-- Non-brand options: neutral Lucide glyphs. Fixed gray, not an ink
-		     token — the tile stays white in dark mode, so the glyph must too. -->
+		     token: the tile stays white in dark mode, so the glyph must too. -->
 		<component :is="glyph" v-else-if="glyph" class="size-3.5 text-[#525252]" />
 
 		<!-- Unknown tool: neutral placeholder -->

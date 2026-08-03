@@ -1,5 +1,5 @@
 /**
- * The Raven rule adapter — the only place that knows LMS is the provider.
+ * The Raven rule adapter: the only place that knows LMS is the provider.
  * fromApiRule flattens the wire rule; toApiRule nests the fields back into config.
  */
 import { describe, expect, it } from 'vitest'
@@ -115,7 +115,7 @@ describe('raven ruleAdapter', () => {
 	})
 })
 
-describe('raven ruleAdapter — provider ownership', () => {
+describe('raven ruleAdapter: provider ownership', () => {
 	const foreign: ApiRule = {
 		name: 'RMR-9',
 		label: 'Widget owners',
@@ -133,7 +133,7 @@ describe('raven ruleAdapter — provider ownership', () => {
 	it('stamps LMS only on a rule that names no provider', () => {
 		expect(
 			toApiRule({ rule_type: 'All Enrolled Students', status: 'Active' })
-				.provider,
+				.provider
 		).toBe('LMS')
 	})
 
@@ -145,7 +145,7 @@ describe('raven ruleAdapter — provider ownership', () => {
 	it('sees a provider change as a membership change', () => {
 		const rule = fromApiRule(foreign)
 		expect(membershipSignature([rule])).not.toBe(
-			membershipSignature([{ ...rule, provider: 'LMS' }]),
+			membershipSignature([{ ...rule, provider: 'LMS' }])
 		)
 	})
 })
@@ -160,7 +160,7 @@ describe('membershipSignature', () => {
 		courses: ['C1'],
 	}
 
-	it('ignores label and name — a rename moves nobody', () => {
+	it('ignores label and name: a rename moves nobody', () => {
 		const renamed: RavenMemberRule = { ...rule, label: 'Renamed', name: 'r9' }
 		expect(membershipSignature([renamed])).toBe(membershipSignature([rule]))
 	})

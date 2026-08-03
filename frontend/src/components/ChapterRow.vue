@@ -226,8 +226,8 @@ function cancelRename(): void {
 const defaultOpen = computed<boolean>(() => {
 	// Which chapter is expanded on (re)mount. The student lesson view carries
 	// the active lesson in route params; the in-page editor carries it in
-	// ?editLesson ("<chapter>-<lesson>") — which survives navigating away and
-	// back — with selectedLessonNumber as a fallback. Default to the first
+	// ?editLesson ("<chapter>-<lesson>"), which survives navigating away and
+	// back, with selectedLessonNumber as a fallback. Default to the first
 	// chapter only when nothing is active.
 	const editChapter =
 		typeof route.query.editLesson === 'string'

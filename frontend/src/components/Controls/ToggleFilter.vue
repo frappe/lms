@@ -56,7 +56,7 @@ const { isMobile } = useScreenSize()
 // frappe-ui's Checkbox reports one click twice: onChange assigns its
 // defineModel and then re-emits update:modelValue (Checkbox.vue:76-77). Both
 // emits happen in the same tick, so `modelValue` has not round-tripped by the
-// second one and comparing against it alone lets the echo through — which
+// second one and comparing against it alone lets the echo through, which
 // costs the page a second list request. Remember what was just sent instead.
 let sent: boolean | null = null
 

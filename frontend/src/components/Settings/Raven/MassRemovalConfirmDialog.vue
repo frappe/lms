@@ -72,7 +72,7 @@ const title = computed<string>(() => {
 const message = computed<string>(() => {
 	if (bothWays.value)
 		return __(
-			'This will add {0} members to {1} and remove {2}. The removals cannot be undone — cancel to keep the current membership.'
+			'This will add {0} members to {1} and remove {2}. The removals cannot be undone. Cancel to keep the current membership.'
 		).format(props.addedCount, props.targetLabel, props.removedCount)
 	if (addOnly.value)
 		return __(
