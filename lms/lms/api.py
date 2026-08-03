@@ -2859,3 +2859,30 @@ def export_course_as_zip(course_name: str):
 def import_course_from_zip(zip_file_path: str):
 	frappe.only_for(["Moderator", "Course Creator"])
 	return import_course_zip(zip_file_path)
+
+
+@frappe.whitelist()
+def delete_category(category: str):
+	"""Unlink a category from every course and batch, then delete it.
+
+	LMS Course.category and LMS Batch.category are Link fields, so Frappe
+	refuses to delete a category that is still in use. Clearing the references
+	first keeps the two steps in one transaction.
+	"""
+	frappe.only_for("Moderator")
+
+	if not category or not isinstance(category, str):
+		frappe.throw(_("Category is required."))
+
+	if not frappe.db.exists("LMS Category", category):
+		frappe.throw(_("Category {0} does not exist.").format(category))
+
+	unlinked = {}
+	for doctype in ("LMS Course", "LMS Batch"):
+		names = frappe.get_all(doctype, filters={"category": category}, pluck="name")
+		for name in names:
+			frappe.db.set_value(doctype, name, "category", None)
+		unlinked[doctype] = len(names)
+
+	frappe.delete_doc("LMS Category", category)
+	return unlinked

@@ -24,6 +24,7 @@
 					v-model="category"
 					:placeholder="__('Category Name')"
 					class="flex-1"
+					@keyup.enter="addCategory()"
 				/>
 				<Button @click="addCategory()" variant="subtle">
 					{{ __('Add') }}
@@ -31,45 +32,53 @@
 			</div>
 		</template>
 
-		<ul
-			class="divide-y divide-outline-elevation-2 list-none"
+		<List
 			v-if="categories.data?.length"
+			:columns="columns"
+			class="list-row-px-3 [--list-row-height:3.5rem]"
 		>
-			<li v-for="(cat, index) in categories.data" :key="cat.name">
-				<div
-					v-if="editing?.name !== cat.name"
-					class="group flex min-h-11 items-center justify-between gap-2 py-2"
-				>
-					<!-- TODO(a11y): double-click-to-edit is not keyboard-accessible; needs a focusable edit affordance without changing the current layout. -->
-					<div
-						class="text-p-base text-ink-gray-8"
-						@dblclick="allowEdit(cat, index)"
-					>
-						{{ cat.category }}
-					</div>
-					<Button
-						variant="ghost"
-						theme="red"
-						:label="__('Delete category')"
-						class="invisible group-hover:visible"
-						@click="deleteCategory(cat.name)"
-					>
-						<template #icon>
-							<span class="lucide-trash-2 size-4 text-ink-red-8" />
-						</template>
-					</Button>
-				</div>
-				<div v-else class="flex min-h-11 items-center py-2">
-					<FormControl
-						:ref="(el) => (editInputRef[index] = el)"
-						v-model="editedValue"
-						type="text"
-						class="w-full"
-						@keyup.enter="saveChanges(cat.name, editedValue)"
-					/>
-				</div>
-			</li>
-		</ul>
+			<ListHeader>
+				<ListHeaderCell>{{ __('Category') }}</ListHeaderCell>
+				<ListHeaderCell>{{ __('Created') }}</ListHeaderCell>
+				<ListHeaderCell />
+			</ListHeader>
+			<ListRows :items="categories.data" row-key="name" v-slot="{ item: row }">
+				<ListRow>
+					<ListCell>
+						<span class="truncate text-p-base text-ink-gray-8">
+							{{ row.category }}
+						</span>
+					</ListCell>
+					<ListCell class="text-p-base text-ink-gray-6">
+						<span class="truncate">
+							{{ dayjs(row.creation).format('DD MMM YYYY') }}
+						</span>
+					</ListCell>
+					<ListCell @click.stop>
+						<Dropdown
+							:options="[
+								{
+									label: __('Edit'),
+									icon: 'lucide-pencil',
+									onClick: () => promptRename(row),
+								},
+								{
+									label: __('Delete'),
+									icon: 'lucide-trash-2',
+									onClick: () => confirmDeletion(row),
+								},
+							]"
+							:button="{
+								icon: 'lucide-more-horizontal',
+								variant: 'ghost',
+								label: __('Category actions'),
+							}"
+							placement="right"
+						/>
+					</ListCell>
+				</ListRow>
+			</ListRows>
+		</List>
 		<EmptyStateLayout
 			v-else
 			name="Categories"
@@ -77,18 +86,46 @@
 			icon="lucide-network"
 		/>
 	</SettingsLayout>
+
+	<Dialog
+		v-model="renameOpen"
+		:title="__('Edit category')"
+		size="sm"
+		:actions="renameActions"
+	>
+		<FormControl
+			ref="renameInput"
+			v-model="editedValue"
+			type="text"
+			:label="__('Name')"
+			@keyup.enter="saveChanges()"
+		/>
+	</Dialog>
 </template>
 <script setup>
 import {
 	Button,
+	Dialog,
+	Dropdown,
 	FormControl,
 	LoadingIndicator,
+	call,
 	createListResource,
 	createResource,
 	toast,
 } from 'frappe-ui'
-import { ref } from 'vue'
+import {
+	List,
+	ListCell,
+	ListHeader,
+	ListHeaderCell,
+	ListRow,
+	ListRows,
+} from 'frappe-ui/list'
+import { nextTick, ref } from 'vue'
 import { cleanError } from '@/utils'
+import { createDialog } from '@/utils/dialogs'
+import dayjs from '@/utils/dayjs'
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 import SettingsLayout from '@/components/Layouts/SettingsLayout.vue'
 
@@ -98,7 +135,8 @@ const categoryInput = ref(null)
 const saving = ref(false)
 const editing = ref(null)
 const editedValue = ref('')
-const editInputRef = ref([])
+const renameOpen = ref(false)
+const renameInput = ref(null)
 
 const props = defineProps({
 	label: {
@@ -111,19 +149,28 @@ const props = defineProps({
 	},
 })
 
+// Grid track sizes shared by the header and every row (--list-columns).
+const columns = ['minmax(0, 1fr)', '12rem', '2.25rem']
+
 const categories = createListResource({
 	doctype: 'LMS Category',
-	fields: ['name', 'category'],
+	fields: ['name', 'category', 'creation'],
+	orderBy: 'creation desc',
 	auto: true,
 })
 
+const focusInput = (el) => {
+	nextTick(() => el?.$el?.querySelector('input')?.focus())
+}
+
 const addCategory = () => {
+	if (!category.value) return
 	categories.insert.submit(
 		{
 			category: category.value,
 		},
 		{
-			onSuccess(data) {
+			onSuccess() {
 				categories.reload()
 				category.value = null
 				showForm.value = false
@@ -138,9 +185,7 @@ const addCategory = () => {
 
 const showCategoryForm = () => {
 	showForm.value = !showForm.value
-	setTimeout(() => {
-		categoryInput.value.$el.querySelector('input').focus()
-	}, 0)
+	if (showForm.value) focusInput(categoryInput.value)
 }
 
 const updateCategory = createResource({
@@ -154,7 +199,34 @@ const updateCategory = createResource({
 	},
 })
 
-const update = (name, value) => {
+const promptRename = (row) => {
+	editing.value = row.name
+	editedValue.value = row.category
+	renameOpen.value = true
+	focusInput(renameInput.value)
+}
+
+const cancelEdit = () => {
+	editing.value = null
+	editedValue.value = ''
+	renameOpen.value = false
+}
+
+const renameActions = [
+	{
+		label: __('Save'),
+		variant: 'solid',
+		onClick: () => saveChanges(),
+	},
+]
+
+const saveChanges = () => {
+	const name = editing.value
+	const value = editedValue.value?.trim()
+	if (!value || value === name) {
+		cancelEdit()
+		return
+	}
 	saving.value = true
 	updateCategory.submit(
 		{
@@ -165,14 +237,12 @@ const update = (name, value) => {
 			onSuccess() {
 				saving.value = false
 				categories.reload()
-				editing.value = null
-				editedValue.value = ''
+				cancelEdit()
 				toast.success(__('Category updated successfully'))
 			},
 			onError(err) {
 				saving.value = false
-				editing.value = null
-				editedValue.value = ''
+				cancelEdit()
 				toast.error(
 					__(cleanError(err.messages[0]) || 'Unable to update category')
 				)
@@ -181,33 +251,42 @@ const update = (name, value) => {
 	)
 }
 
-const deleteCategory = (name) => {
-	saving.value = true
-	categories.delete.submit(name, {
-		onSuccess() {
-			saving.value = false
-			categories.reload()
-			toast.success(__('Category deleted successfully'))
-		},
-		onError(err) {
-			saving.value = false
-			toast.error(
-				__(cleanError(err.messages[0]) || 'Unable to delete category')
-			)
-		},
+const confirmDeletion = (row) => {
+	createDialog({
+		title: __('Delete this category?'),
+		message: __(
+			'This will unlink this category from all courses and batches using it, and then delete it. This cannot be undone.'
+		),
+		actions: [
+			{
+				label: __('Delete'),
+				theme: 'red',
+				variant: 'solid',
+				onClick({ close }) {
+					deleteCategory(row.name, close)
+				},
+			},
+		],
 	})
 }
 
-const saveChanges = (name, value) => {
+// Category is a Link target on both LMS Course and LMS Batch, so the server
+// clears those references before deleting; a plain delete raises LinkExistsError.
+const deleteCategory = (name, close) => {
 	saving.value = true
-	update(name, value)
-}
-
-const allowEdit = (cat, index) => {
-	editing.value = cat
-	editedValue.value = cat.category
-	setTimeout(() => {
-		editInputRef.value[index].$el.querySelector('input').focus()
-	}, 0)
+	call('lms.lms.api.delete_category', { category: name })
+		.then(() => {
+			categories.reload()
+			if (typeof close === 'function') close()
+			toast.success(__('Category deleted successfully'))
+		})
+		.catch((err) => {
+			toast.error(
+				__(cleanError(err.messages?.[0] || err) || 'Unable to delete category')
+			)
+		})
+		.finally(() => {
+			saving.value = false
+		})
 }
 </script>

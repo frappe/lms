@@ -344,7 +344,7 @@ const tabsStructure = computed(() => {
 				},
 				{
 					label: 'Categories',
-					description: 'Double click to edit the category',
+					description: 'Group courses under a category',
 					icon: 'lucide-network',
 					template: markRaw(Categories),
 				},
