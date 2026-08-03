@@ -112,9 +112,9 @@ describe('GoogleMeetAccountForm', () => {
 	it('seeds the form with the selected account on mount', () => {
 		const { wrapper } = mountForm(ACCOUNT.name)
 
-		expect(wrapper.find('[data-testid="title"]').text()).toBe(
-			'Edit Google Meet Account'
-		)
+		// The header names the record, not the operation: `autoname:
+		// field:account_name` makes the doc name the account name.
+		expect(wrapper.find('[data-testid="title"]').text()).toBe(ACCOUNT.name)
 		expect(fieldValue(wrapper, 'Account Name')).toBe(ACCOUNT.name)
 		expect(fieldValue(wrapper, 'Member')).toBe(ACCOUNT.member)
 		expect(fieldValue(wrapper, 'Google Calendar')).toBe(ACCOUNT.google_calendar)

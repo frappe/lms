@@ -61,9 +61,7 @@ const props = defineProps<{
 }>()
 
 const title = computed(() =>
-	props.gatewayID === 'new'
-		? __('New Payment Gateway')
-		: __('Edit Payment Gateway')
+	props.gatewayID === 'new' ? __('New Payment Gateway') : props.gatewayID || ''
 )
 
 const paymentGateway = createResource({

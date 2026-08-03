@@ -1,6 +1,6 @@
 <template>
 	<SettingsLayout
-		:title="__('Transaction Details')"
+		:title="transactionData?.billing_name || __('Transaction Details')"
 		:show-back="true"
 		@back="emit('updateStep', 'list')"
 	>

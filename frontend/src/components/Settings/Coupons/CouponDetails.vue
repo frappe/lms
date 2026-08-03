@@ -1,6 +1,6 @@
 <template>
 	<SettingsLayout
-		:title="isNew ? __('New Coupon') : __('Edit Coupon')"
+		:title="isNew ? __('New Coupon') : doc?.code || __('Coupon')"
 		:show-back="true"
 		:enabled="doc ? Boolean(doc.enabled) : undefined"
 		@back="emit('updateStep', 'list')"

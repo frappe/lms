@@ -86,10 +86,11 @@ const props = defineProps({
 	},
 })
 
+// `autoname: field:account_name`, so the doc name is the account name.
 const title = computed(() =>
 	props.accountID === 'new'
 		? __('New Google Meet Account')
-		: __('Edit Google Meet Account')
+		: props.accountID || ''
 )
 
 watch(

@@ -99,8 +99,9 @@ const props = defineProps<{
 	accountID: string | null
 }>()
 
+// `autoname: field:account_name`, so the doc name is the account name.
 const title = computed(() =>
-	props.accountID === 'new' ? __('New Zoom Account') : __('Edit Zoom Account')
+	props.accountID === 'new' ? __('New Zoom Account') : props.accountID || ''
 )
 
 watch(

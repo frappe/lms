@@ -110,8 +110,8 @@ const props = defineProps<{
 
 const title = computed(() =>
 	props.badgeName && props.badgeName !== 'new'
-		? __('Edit Badge')
-		: __('Create a new Badge')
+		? badge.value?.title || props.badgeName
+		: __('New Badge')
 )
 
 watch(
