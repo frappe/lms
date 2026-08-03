@@ -78,7 +78,7 @@
 		<EmptyStateLayout
 			v-else
 			name="Email Templates"
-			:description="__('Add one to get started.')"
+			:description="__('Add one to get started')"
 			icon="lucide-mail-plus"
 		/>
 	</SettingsLayout>
@@ -168,11 +168,6 @@ const showDeleteDialog = ref(false)
 const templateToDelete = ref<string | null>(null)
 
 const getMoreOptions = (template: EmailTemplate) => [
-	{
-		label: __('Edit'),
-		icon: 'lucide-edit',
-		onClick: () => emit('update:step', 'template-edit', { ...template }),
-	},
 	{
 		label: __('Duplicate'),
 		icon: 'lucide-copy',

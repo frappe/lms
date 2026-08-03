@@ -60,7 +60,7 @@
 		<EmptyStateLayout
 			v-else
 			name="Payment Gateways"
-			:description="__('Add one to get started.')"
+			:description="__('Add one to get started')"
 			icon="lucide-dollar-sign"
 		/>
 	</SettingsLayout>

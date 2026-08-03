@@ -38,7 +38,7 @@
 		<EmptyStateLayout
 			v-else
 			name="Email Accounts"
-			:description="__('Add one to get started.')"
+			:description="__('Add one to get started')"
 			icon="lucide-mail"
 		/>
 	</SettingsLayout>

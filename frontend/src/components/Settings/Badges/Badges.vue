@@ -61,7 +61,7 @@
 			<EmptyStateLayout
 				v-else
 				name="Badges"
-				:description="__('Add one to get started.')"
+				:description="__('Add one to get started')"
 				icon="lucide-award"
 			/>
 		</SettingsLayout>
@@ -135,13 +135,6 @@ const columns = [
 
 const getMoreOptions = (badgeName: string) => {
 	return [
-		{
-			label: __('Edit'),
-			icon: 'lucide-edit',
-			onClick() {
-				openForm(badgeName)
-			},
-		},
 		{
 			label: __('Assignments'),
 			icon: 'lucide-download',

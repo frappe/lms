@@ -43,7 +43,10 @@
 				<ListHeaderCell />
 			</ListHeader>
 			<ListRows :items="categories.data" row-key="name" v-slot="{ item: row }">
-				<ListRow>
+				<!-- Clicking the row opens the editor, so the ... menu carries only
+				     delete. A row without a handler also renders flush, while the
+				     header keeps the list-row-px-3 inset, so the columns drift. -->
+				<ListRow @click="promptRename(row)">
 					<ListCell>
 						<span class="truncate text-p-base text-ink-gray-8">
 							{{ row.category }}
@@ -57,11 +60,6 @@
 					<ListCell @click.stop>
 						<Dropdown
 							:options="[
-								{
-									label: __('Edit'),
-									icon: 'lucide-pencil',
-									onClick: () => promptRename(row),
-								},
 								{
 									label: __('Delete'),
 									icon: 'lucide-trash-2',
@@ -82,7 +80,7 @@
 		<EmptyStateLayout
 			v-else
 			name="Categories"
-			:description="__('Add one to get started.')"
+			:description="__('Add one to get started')"
 			icon="lucide-network"
 		/>
 	</SettingsLayout>

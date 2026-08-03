@@ -25,7 +25,7 @@
 				:list="list"
 				:empty-name="__('Channels')"
 				empty-icon="lucide-hash"
-				:empty-description="__('Add one to get started.')"
+				:empty-description="__('Add one to get started')"
 				label-prefix="#"
 				label-class="font-mono"
 			/>

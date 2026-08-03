@@ -69,7 +69,7 @@
 			<EmptyStateLayout
 				v-else
 				name="Google Meet Settings"
-				:description="__('Add one to get started.')"
+				:description="__('Add one to get started')"
 				icon="lucide-presentation"
 				width="lg"
 			/>

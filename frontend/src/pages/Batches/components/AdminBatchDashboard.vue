@@ -32,7 +32,7 @@
 					{{ __('No students enrolled yet') }}
 				</span>
 				<span class="text-p-base text-ink-gray-6">
-					{{ __('Enroll students to track their progress here.') }}
+					{{ __('Enroll students to track their progress here') }}
 				</span>
 			</div>
 		</div>
@@ -95,8 +95,8 @@
 							"
 							:description="
 								searchFilter
-									? __('Try a different name.')
-									: __('Enroll students to track their progress here.')
+									? __('Try a different name')
+									: __('Enroll students to track their progress here')
 							"
 						/>
 					</div>

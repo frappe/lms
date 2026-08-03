@@ -19,7 +19,8 @@
 		>
 			<ListHeader>
 				<ListHeaderCell>{{ __('Account') }}</ListHeaderCell>
-				<ListHeaderCell>{{ __('Status') }}</ListHeaderCell>
+				<ListHeaderCell>{{ __('Member') }}</ListHeaderCell>
+				<ListHeaderCell>{{ __('Enabled') }}</ListHeaderCell>
 				<ListHeaderCell />
 			</ListHeader>
 			<ListRows
@@ -28,6 +29,16 @@
 				v-slot="{ item: row }"
 			>
 				<ListRow @click="openForm(row.name)">
+					<ListCell>
+						<div class="flex min-w-0 flex-col">
+							<span class="truncate text-p-base text-ink-gray-8">
+								{{ row.account_name || row.name }}
+							</span>
+							<span class="truncate text-p-sm text-ink-gray-5">
+								{{ row.account_id }}
+							</span>
+						</div>
+					</ListCell>
 					<ListCell class="gap-3">
 						<Avatar
 							:image="row.member_image"
@@ -35,19 +46,22 @@
 							size="lg"
 							class="shrink-0"
 						/>
-						<div class="flex min-w-0 flex-col">
-							<span class="truncate text-p-base text-ink-gray-8">
-								{{ row.member_name }}
-							</span>
-							<span class="truncate text-p-sm text-ink-gray-5">
-								{{ row.account_id }}
-							</span>
-						</div>
+						<span class="truncate text-p-base text-ink-gray-6">
+							{{ row.member_name }}
+						</span>
 					</ListCell>
-					<ListCell>
-						<Badge :theme="row.enabled ? 'green' : 'gray'">
-							{{ row.enabled ? __('Enabled') : __('Disabled') }}
-						</Badge>
+					<!-- Row state, so it writes on change: spec §5, as CRM's do. -->
+					<ListCell @click.stop>
+						<!-- `label` renders visible text next to the control; the name
+						     belongs in aria-label so the cell is just the switch. -->
+						<Switch
+							size="sm"
+							:model-value="Boolean(row.enabled)"
+							:aria-label="
+								__('Enable {0}').format(row.account_name || row.name)
+							"
+							@update:model-value="(value) => toggleEnabled(row, value)"
+						/>
 					</ListCell>
 					<ListCell @click.stop>
 						<Dropdown
@@ -72,7 +86,7 @@
 		<EmptyStateLayout
 			v-else
 			name="Zoom Settings"
-			:description="__('Add one to get started.')"
+			:description="__('Add one to get started')"
 			icon="lucide-video"
 		/>
 	</SettingsLayout>
@@ -87,8 +101,9 @@
 import {
 	Avatar,
 	Button,
-	Badge,
 	Dropdown,
+	Switch,
+	call,
 	createListResource,
 	toast,
 } from 'frappe-ui'
@@ -119,6 +134,7 @@ const zoomAccounts = createListResource({
 	fields: [
 		'name',
 		'enabled',
+		'account_name',
 		'member',
 		'member_name',
 		'member_image',
@@ -138,11 +154,28 @@ const fetchZoomAccounts = () => {
 }
 
 // Grid track sizes shared by the header and every row (--list-columns).
-const columns = ['minmax(0, 1fr)', '6.5rem', '2.25rem']
+const columns = ['minmax(0, 1fr)', 'minmax(0, 1fr)', '6.5rem', '2.25rem']
 
 const openForm = (accountID: string) => {
 	currentAccount.value = accountID
 	view.value = 'form'
+}
+
+const toggleEnabled = async (row: Record<string, any>, value: boolean) => {
+	// optimistic, so the switch does not lag a round trip
+	const previous = row.enabled
+	row.enabled = value ? 1 : 0
+	try {
+		await call('frappe.client.set_value', {
+			doctype: 'LMS Zoom Settings',
+			name: row.name,
+			fieldname: 'enabled',
+			value: row.enabled,
+		})
+	} catch (err: any) {
+		row.enabled = previous
+		toast.error(cleanError(err.messages?.[0] || err))
+	}
 }
 
 const removeAccount = (accountID: string) => {

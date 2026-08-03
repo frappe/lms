@@ -99,7 +99,7 @@
 				class="flex-1"
 				name="Questions"
 				:title="__('No questions added yet')"
-				:description="__('Add a question to get started.')"
+				:description="__('Add a question to get started')"
 				icon="lucide-circle-help"
 			/>
 			<ListFooter

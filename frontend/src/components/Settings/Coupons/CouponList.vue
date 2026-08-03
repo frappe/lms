@@ -75,7 +75,7 @@
 		<EmptyStateLayout
 			v-else
 			name="Coupons"
-			:description="__('Add one to get started.')"
+			:description="__('Add one to get started')"
 			icon="lucide-ticket"
 		/>
 	</SettingsLayout>

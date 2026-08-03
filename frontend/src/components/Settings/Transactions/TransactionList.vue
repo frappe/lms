@@ -85,7 +85,7 @@
 		<EmptyStateLayout
 			v-else
 			name="Transactions"
-			:description="__('Add one to get started.')"
+			:description="__('Add one to get started')"
 			icon="lucide-landmark"
 		/>
 	</SettingsLayout>

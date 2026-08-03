@@ -10,7 +10,7 @@
 			:list="list"
 			:empty-name="__('Workspaces')"
 			empty-icon="lucide-messages-square"
-			:empty-description="__('Add one to get started.')"
+			:empty-description="__('Add one to get started')"
 			:extra-row-options="workspaceRowOptions"
 		/>
 	</div>
