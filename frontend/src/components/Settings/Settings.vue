@@ -7,11 +7,12 @@
 				:key="group.label"
 				:label="group.hideLabel ? undefined : __(group.label)"
 			>
-				<!-- CRM's sidebar type: xs-medium group headings, sm item labels.
-				     Set on inner spans: the library's own text-base sits on the
-				     wrapper and would otherwise win the cascade. -->
+				<!-- CRM's sidebar type: xs-medium group headings, sm item labels, on
+				     the paragraph scale so the line-height matches the rest of the
+				     sidebar. Set on inner spans: the library's own text-base sits on
+				     the wrapper and would otherwise win the cascade. -->
 				<template #label>
-					<span class="text-xs-medium text-ink-gray-5">
+					<span class="text-p-xs-medium text-ink-gray-5">
 						{{ __(group.label) }}
 					</span>
 				</template>
@@ -23,7 +24,7 @@
 					<template #prefix>
 						<span :class="[item.icon, 'size-4 shrink-0 text-ink-gray-7']" />
 					</template>
-					<span class="text-sm text-ink-gray-8">{{ __(item.label) }}</span>
+					<span class="text-p-sm text-ink-gray-8">{{ __(item.label) }}</span>
 				</SettingsNavItem>
 			</SettingsNavGroup>
 		</SettingsSidebar>

@@ -2,8 +2,11 @@
 	<div class="p-2">
 		<Dropdown :options="userDropdownOptions">
 			<template v-slot="{ open, close }">
+				<!-- No `py-*` on the button: the name/user block is 40.5px on the
+				     paragraph scale, which overflows h-12's content box once
+				     padding takes 16px of it. `items-center` centres it in the 48px. -->
 				<button
-					class="flex h-12 py-2 items-center rounded-md duration-300 ease-in-out"
+					class="flex h-12 items-center rounded-md duration-300 ease-in-out"
 					:class="
 						isCollapsed
 							? 'px-0 w-auto'
@@ -26,7 +29,7 @@
 								: 'opacity-100 ms-2 w-auto'
 						"
 					>
-						<div class="text-base-medium text-ink-gray-9 leading-none">
+						<div class="text-p-base-medium text-ink-gray-9">
 							<span
 								v-if="
 									branding.data?.app_name && branding.data?.app_name != 'Frappe'
@@ -36,10 +39,7 @@
 							</span>
 							<span v-else> Learning </span>
 						</div>
-						<div
-							v-if="userResource.data"
-							class="mt-1 text-sm text-ink-gray-7 leading-none"
-						>
+						<div v-if="userResource.data" class="text-p-sm text-ink-gray-7">
 							{{ convertToTitleCase(userResource.data?.full_name) }}
 						</div>
 					</div>

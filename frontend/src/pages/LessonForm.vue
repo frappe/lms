@@ -95,7 +95,7 @@
 						:label="__('private')"
 					/>
 					<ChevronRight
-						class="instructor-notes-chevron ms-auto size-4 stroke-2 text-ink-gray-5"
+						class="instructor-notes-chevron ms-auto size-4 text-ink-gray-5"
 					/>
 				</summary>
 				<BlockEditor

@@ -36,7 +36,7 @@
 						<component
 							v-else
 							:is="type === 'image' ? Image : Video"
-							class="size-5 stroke-1 text-ink-gray-5"
+							class="size-5 text-ink-gray-5"
 						/>
 					</div>
 					<div class="flex items-center gap-2">
