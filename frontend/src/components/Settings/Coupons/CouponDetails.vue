@@ -99,9 +99,9 @@ const isNew = !props.data?.name
 // New coupons edit a local object; existing ones load as a full document (child
 // table + `modified`) so one save persists all of it and `modified` stays in sync.
 const localDoc = reactive<any>({
-	enabled: true,
-	discount_type: 'Percentage',
 	...props.data,
+	enabled: props.data?.enabled ?? true,
+	discount_type: props.data?.discount_type ?? 'Percentage',
 	applicable_items: props.data?.applicable_items?.length
 		? props.data.applicable_items
 		: [{ reference_doctype: 'LMS Course', reference_name: null }],
@@ -138,9 +138,9 @@ const saveCoupon = () => {
 
 	if (isNew) {
 		props.coupons.insert.submit(payload, {
-			onSuccess(data: Coupon) {
+			onSuccess(data: unknown) {
 				toast.success(__('Coupon created successfully'))
-				emit('updateStep', 'details', { ...data })
+				emit('updateStep', 'details', { ...(data as Coupon) })
 			},
 			...handlers,
 		})

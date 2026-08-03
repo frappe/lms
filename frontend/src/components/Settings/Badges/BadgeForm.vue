@@ -123,7 +123,7 @@ watch(
 	() => props.badgeName,
 	(val) => {
 		if (val != 'new') {
-			badges.value?.data.forEach((bdg: Badge) => {
+			badges.value?.data?.forEach((bdg: Badge) => {
 				if (bdg.name === val) {
 					badge.value = bdg
 				}
@@ -203,7 +203,7 @@ const createBadge = () => {
 			onError(err) {
 				saving.value = false
 				emit('updateStep', 'list')
-				toast.error(cleanError(err.messages[0]) || __('Error creating badge'))
+				toast.error(cleanError(err.messages?.[0]) || __('Error creating badge'))
 			},
 		}
 	)

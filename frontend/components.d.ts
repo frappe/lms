@@ -153,6 +153,7 @@ declare module 'vue' {
     SettingFields: typeof import('./src/components/Settings/SettingFields.vue')['default']
     Settings: typeof import('./src/components/Settings/Settings.vue')['default']
     SettingsLayout: typeof import('./src/components/Layouts/SettingsLayout.vue')['default']
+    SettingsList: typeof import('./src/components/Layouts/SettingsList.vue')['default']
     ShortcutTooltip: typeof import('./src/components/ShortcutTooltip.vue')['default']
     SidebarLink: typeof import('./src/components/Sidebar/SidebarLink.vue')['default']
     SkeletonLoader: typeof import('./src/components/SkeletonLoader.vue')['default']
