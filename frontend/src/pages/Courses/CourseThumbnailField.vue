@@ -52,7 +52,11 @@
 							@failure="onUploadFailure"
 						>
 							<template #default="{ openFileSelector, uploading }">
-								<Button :loading="uploading" @click="openFileSelector">
+								<Button
+									class="text-p-base-medium"
+									:loading="uploading"
+									@click="openFileSelector"
+								>
 									<template #prefix>
 										<span class="lucide-upload size-4" />
 									</template>

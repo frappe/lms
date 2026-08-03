@@ -9,6 +9,7 @@
 		width="lg"
 	>
 		<Button
+			class="text-p-base-medium"
 			:label="__('Back to Home')"
 			@click="router.push({ name: 'Home' })"
 		/>

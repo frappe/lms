@@ -81,7 +81,7 @@
 						},
 					}"
 				>
-					<Button>
+					<Button class="text-p-base-medium">
 						<template #prefix>
 							<span class="lucide-play size-4" />
 						</template>

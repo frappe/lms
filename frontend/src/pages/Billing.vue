@@ -203,7 +203,7 @@
 						<Button
 							variant="solid"
 							size="md"
-							class="ms-auto"
+							class="ms-auto text-p-base-medium"
 							@click="generatePaymentLink()"
 						>
 							{{

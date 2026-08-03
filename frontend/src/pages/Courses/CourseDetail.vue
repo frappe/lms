@@ -67,6 +67,7 @@
 				<Tooltip v-if="!isMobile" :text="__('How to edit a lesson')">
 					<Button
 						variant="ghost"
+						class="text-p-base-medium"
 						:label="__('How to edit a lesson')"
 						@click="showLessonHelp = true"
 					>

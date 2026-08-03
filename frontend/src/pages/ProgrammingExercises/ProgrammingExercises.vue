@@ -22,7 +22,7 @@
 					name: 'ProgrammingExerciseSubmissions',
 				}"
 			>
-				<Button>
+				<Button class="text-p-base-medium">
 					<template #prefix>
 						<span class="lucide-clipboard-list size-4" />
 					</template>

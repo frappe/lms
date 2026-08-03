@@ -10,6 +10,7 @@
 					transactionData?.payment_for_document_type &&
 					transactionData?.payment_for_document
 				"
+				class="text-p-base-medium"
 				@click="openDetails()"
 			>
 				{{ __('Open the ') }}

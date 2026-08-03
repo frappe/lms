@@ -98,13 +98,18 @@
 								attempts.data?.length < quiz.data.max_attempts
 							"
 							variant="solid"
+							class="text-p-base-medium"
 							@click="startQuiz"
 						>
 							<span>
 								{{ inVideo ? __('Start the Quiz') : __('Start') }}
 							</span>
 						</Button>
-						<Button v-if="inVideo" @click="props.backToVideo()">
+						<Button
+							v-if="inVideo"
+							class="text-p-base-medium"
+							@click="props.backToVideo()"
+						>
 							{{ __('Resume Video') }}
 						</Button>
 					</div>

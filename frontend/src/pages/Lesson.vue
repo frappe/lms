@@ -160,7 +160,9 @@
 										params: { courseName: courseName },
 									}"
 								>
-									<Button>{{ __('Back to Course') }}</Button>
+									<Button class="text-p-base-medium">{{
+										__('Back to Course')
+									}}</Button>
 								</router-link>
 							</div>
 
@@ -201,7 +203,7 @@
 										params: { courseName: courseName },
 									}"
 								>
-									<Button>
+									<Button class="text-p-base-medium">
 										{{ __('Back to Course') }}
 									</Button>
 								</router-link>
