@@ -42,6 +42,7 @@
 import { Dialog, toast } from 'frappe-ui'
 import { ref, inject } from 'vue'
 import Link from '@/components/Controls/Link.vue'
+import { resourceErrorMessage, submitResource } from '@/utils/resource'
 import { useOnboarding } from 'frappe-ui/frappe'
 import { useRouter } from 'vue-router'
 
@@ -60,8 +61,9 @@ const props = defineProps({
 	},
 })
 
-const addCourse = (close) => {
-	courses.value.insert.submit(
+const addCourse = (close) =>
+	submitResource(
+		courses.value.insert,
 		{
 			course: course.value,
 			evaluator: evaluator.value,
@@ -80,10 +82,8 @@ const addCourse = (close) => {
 				toast.success(__('Course added to batch successfully'))
 			},
 			onError(err) {
-				toast.error(err.messages?.[0] || err)
-				console.log(err)
+				toast.error(resourceErrorMessage(err))
 			},
 		}
 	)
-}
 </script>

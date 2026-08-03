@@ -66,7 +66,10 @@
 								>
 									{{ chapter.scorm_package.file_name }}
 								</span>
-								<span class="text-sm text-ink-gray-4 mt-1">
+								<span
+									v-if="chapter.scorm_package.file_size"
+									class="text-sm text-ink-gray-4 mt-1"
+								>
 									{{ getFileSize(chapter.scorm_package.file_size) }}
 								</span>
 							</div>
@@ -95,10 +98,21 @@ import {
 import BooleanSwitch from '@/components/Controls/BooleanSwitch.vue'
 import { reactive, watch, inject } from 'vue'
 import { getFileSize } from '@/utils/'
+import { resourceErrorMessage, submitResource } from '@/utils/resource'
 import { useOnboarding, useTelemetry } from 'frappe-ui/frappe'
 import type { ChapterDetailInput, SessionUser } from '@/types'
 
-type ScormPackage = { file_name: string; file_size: number } | null
+// build_outline only expands scorm_package into {name, file_name, file_size,
+// file_url} while the File row still exists; once it is deleted the raw
+// Course Chapter.scorm_package DOCNAME comes through instead. Both shapes have
+// to survive as far as makeParams, which must always post an object —
+// upsert_chapter does frappe._dict(scorm_package or {}) and a string there is a
+// ValueError, i.e. a 500 on renaming the chapter.
+type ScormPackage = {
+	name?: string
+	file_name?: string
+	file_size?: number
+} | null
 
 interface ChapterForm {
 	title: string
@@ -136,16 +150,12 @@ const chapterResource = createResource({
 	},
 })
 
-const errorMessage = (err: { messages?: string[] } | string): string =>
-	typeof err === 'string' ? err : err.messages?.[0] ?? 'Error'
-
-const addChapter = async (close: () => void) => {
-	chapterResource.submit(
+const addChapter = (close: () => void) =>
+	submitResource(
+		chapterResource,
 		{},
 		{
-			validate() {
-				return validateChapter()
-			},
+			validate: validateChapter,
 			onSuccess: () => {
 				if (user.data?.is_system_manager)
 					updateOnboardingStep('create_first_chapter')
@@ -156,12 +166,11 @@ const addChapter = async (close: () => void) => {
 				toast.success(__('Chapter added successfully'))
 				close()
 			},
-			onError(err: { messages?: string[] } | string) {
-				toast.error(errorMessage(err))
+			onError(err: unknown) {
+				toast.error(resourceErrorMessage(err))
 			},
 		}
 	)
-}
 
 const validateChapter = (): string | undefined => {
 	if (!chapter.title) {
@@ -179,23 +188,30 @@ const cleanChapter = () => {
 	chapter.scorm_package = null
 }
 
-const editChapter = (close: () => void) => {
-	chapterResource.submit(
+const editChapter = (close: () => void) =>
+	submitResource(
+		chapterResource,
 		{},
 		{
-			validate() {
-				return validateChapter()
-			},
+			validate: validateChapter,
 			onSuccess() {
 				emit('updated')
 				toast.success(__('Chapter updated successfully'))
 				close()
 			},
-			onError(err: { messages?: string[] } | string) {
-				toast.error(errorMessage(err))
+			onError(err: unknown) {
+				toast.error(resourceErrorMessage(err))
 			},
 		}
 	)
+
+// A bare docname is all that survives a deleted File; keep it as the name so
+// the submit still identifies the package, and show it in place of a filename
+// rather than rendering "undefined".
+const toScormPackage = (value: unknown): ScormPackage => {
+	if (!value) return null
+	if (typeof value === 'string') return { name: value, file_name: value }
+	return value as ScormPackage
 }
 
 watch(
@@ -203,7 +219,7 @@ watch(
 	(newChapter) => {
 		chapter.title = newChapter?.title ?? ''
 		chapter.is_scorm_package = (newChapter?.is_scorm_package ?? 0) as 0 | 1
-		chapter.scorm_package = (newChapter?.scorm_package ?? null) as ScormPackage
+		chapter.scorm_package = toScormPackage(newChapter?.scorm_package)
 	}
 )
 
