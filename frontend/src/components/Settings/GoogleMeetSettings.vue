@@ -25,7 +25,7 @@
 					v-slot="{ item: row }"
 				>
 					<ListRow @click="openForm(row.name)">
-						<ListCell class="gap-2.5">
+						<ListCell class="gap-3">
 							<Avatar
 								:image="row.member_image"
 								:label="row.member_name"
