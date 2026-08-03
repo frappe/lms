@@ -1,6 +1,7 @@
 <template>
 	<FileUploader
 		:file-types="image_type"
+		:uploadArgs="{ private: false }"
 		@success="(file) => emit('upload', file.file_url)"
 	>
 		<template #default="{ progress, uploading, openFileSelector }">
@@ -25,12 +26,22 @@
 		</template>
 	</FileUploader>
 </template>
-<script setup>
+<script setup lang="ts">
 import { FileUploader, Button } from 'frappe-ui'
 
-defineProps({
-	image_url: { type: String, default: '' },
-	image_type: { type: String, default: 'image/*' },
-})
-const emit = defineEmits(['upload', 'remove'])
+withDefaults(
+	defineProps<{
+		image_url?: string
+		image_type?: string
+	}>(),
+	{
+		image_url: '',
+		image_type: 'image/*',
+	}
+)
+
+const emit = defineEmits<{
+	upload: [url: string]
+	remove: []
+}>()
 </script>

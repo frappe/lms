@@ -33,6 +33,7 @@
 						<FileUploader
 							v-if="!data[field.name]"
 							:fileTypes="['image/*']"
+							:uploadArgs="{ private: !field.public }"
 							:validateFile="validateFile"
 							@success="(file) => (data[field.name] = file.file_url)"
 						>
@@ -174,6 +175,16 @@ import { watch } from 'vue'
 import { validateFile } from '@/utils'
 import Link from '@/components/Controls/Link.vue'
 import CodeEditor from '@/components/Controls/CodeEditor.vue'
+
+// The FileUploader above binds :uploadArgs="{ private: !field.public }", and it
+// is written inline deliberately. Privacy is the FIELD's decision, never this
+// component's: the backend maps every Attach / Attach Image field of a
+// third-party <Gateway> Settings doctype to type 'Upload' (api.py
+// get_transformed_fields), and those reach here via PaymentGatewayDetails —
+// merchant QR codes and KYC documents among them. Only a field that opts in with
+// `public: true` may be world-readable; everything else keeps frappe's private
+// default. Behind a helper the privacy ratchet in publicImageUploads.test.ts can
+// only see "computed" and would stop catching a flip to public.
 
 const props = defineProps({
 	sections: {

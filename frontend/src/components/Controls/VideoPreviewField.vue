@@ -56,6 +56,7 @@
 				<div class="flex items-center gap-2">
 					<FileUploader
 						:fileTypes="['video/mp4', 'video/webm', 'video/ogg']"
+						:uploadArgs="{ private: false }"
 						:validateFile="validatePlayableVideo"
 						@success="(file: { file_url: string }) => update(file.file_url)"
 						@failure="onUploadFailure"
@@ -101,6 +102,7 @@
 				/>
 				<FileUploader
 					:fileTypes="['video/*']"
+					:uploadArgs="{ private: false }"
 					@success="(file: { file_url: string }) => update(file.file_url)"
 				>
 					<template #default="{ openFileSelector, uploading, progress }">
