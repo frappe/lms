@@ -1,17 +1,19 @@
 <template>
 	<div class="mt-7 mb-10">
-		<h2 class="mb-3 text-xl-semibold text-ink-gray-9">
+		<h2 class="mb-3 text-lg-semibold text-ink-gray-9">
 			{{ __('Certificates') }}
 		</h2>
 		<div
 			v-if="certificates.data?.length"
 			class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
 		>
-			<div
+			<a
 				v-for="certificate in certificates.data"
 				:key="certificate.name"
+				:href="certificateUrl(certificate)"
+				target="_blank"
+				rel="noopener noreferrer"
 				class="flex flex-col bg-surface-base border rounded-lg p-3 cursor-pointer hover:bg-surface-sidebar"
-				@click="openCertificate(certificate)"
 			>
 				<div class="font-medium leading-5 mb-2 text-ink-gray-9">
 					{{ certificate.course_title || certificate.batch_title }}
@@ -20,7 +22,7 @@
 					<span> {{ __('Issued on') }}: </span>
 					{{ dayjs(certificate.issue_date).format('DD MMM YYYY') }}
 				</div>
-			</div>
+			</a>
 		</div>
 		<div v-else class="text-sm italic text-ink-gray-5">
 			{{ __('You have not received any certificates yet.') }}
@@ -54,11 +56,8 @@ const certificates = createListResource({
 	cache: ['certificates', props.profile.data?.name],
 })
 
-const openCertificate = (certificate) => {
-	window.open(
-		`/api/method/frappe.utils.print_format.download_pdf?doctype=LMS+Certificate&name=${
-			certificate.name
-		}&format=${encodeURIComponent(certificate.template)}`
-	)
-}
+const certificateUrl = (certificate) =>
+	`/api/method/frappe.utils.print_format.download_pdf?doctype=LMS+Certificate&name=${
+		certificate.name
+	}&format=${encodeURIComponent(certificate.template)}`
 </script>

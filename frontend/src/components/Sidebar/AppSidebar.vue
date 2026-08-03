@@ -310,7 +310,13 @@ const showPageModal = ref(false)
 const isModerator = ref(false)
 const isInstructor = ref(false)
 const pageToEdit = ref(null)
-const { sidebarSettings, activeTab, isSettingsOpen, programs } = useSettings()
+const {
+	sidebarSettings,
+	activeTab,
+	isSettingsOpen,
+	programs,
+	loadSidebarSettings,
+} = useSettings()
 const settingsStore = useSettings()
 const showOnboarding = ref(false)
 const showIntermediateModal = ref(false)
@@ -336,22 +342,19 @@ onMounted(() => {
 })
 
 const updateSidebarLinksVisibility = () => {
-	sidebarSettings.reload(
-		{},
-		{
-			onSuccess(data) {
-				Object.keys(data).forEach((key) => {
-					if (!parseInt(data[key])) {
-						sidebarLinks.value.forEach((link) => {
-							link.items = link.items.filter(
-								(item) => item.label.toLowerCase().split(' ').join('_') !== key
-							)
-						})
-					}
+	loadSidebarSettings().then(() => {
+		const data = sidebarSettings.data
+		if (!data) return
+		Object.keys(data).forEach((key) => {
+			if (!parseInt(data[key])) {
+				sidebarLinks.value.forEach((link) => {
+					link.items = link.items.filter(
+						(item) => item.label.toLowerCase().split(' ').join('_') !== key
+					)
 				})
-			},
-		}
-	)
+			}
+		})
+	})
 }
 
 const addKeyboardShortcut = () => {
@@ -410,7 +413,7 @@ const deletePage = (link) => {
 		doctype: 'LMS Sidebar Item',
 		documents: [link.name],
 	}).then(() => {
-		sidebarSettings.reload()
+		loadSidebarSettings(true)
 		toast.success(__('Page deleted successfully'))
 	})
 }
@@ -539,13 +542,13 @@ const steps = reactive([
 			let batch = await getFirstBatch()
 			if (batch) {
 				router.push({
-					name: 'Batch',
+					name: 'BatchDetail',
 					params: {
 						batchName: batch,
 					},
 				})
 			} else {
-				router.push({ name: 'Batch' })
+				router.push({ name: 'Batches' })
 			}
 		},
 	},
@@ -560,14 +563,14 @@ const steps = reactive([
 			let batch = await getFirstBatch()
 			if (batch) {
 				router.push({
-					name: 'Batch',
+					name: 'BatchDetail',
 					params: {
 						batchName: batch,
 					},
 					hash: '#courses',
 				})
 			} else {
-				router.push({ name: 'Batch' })
+				router.push({ name: 'Batches' })
 			}
 		},
 	},
@@ -663,6 +666,12 @@ watch(userResource, async () => {
 watch(settingsStore.settings, () => {
 	updateSidebarLinks()
 })
+
+watch(
+	() => sidebarSettings.data,
+	() => updateSidebarLinks(),
+	{ deep: true }
+)
 
 const updateSidebarLinks = () => {
 	sidebarLinks.value = getSidebarLinks()

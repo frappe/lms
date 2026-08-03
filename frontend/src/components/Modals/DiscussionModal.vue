@@ -19,7 +19,7 @@
 					<div class="mb-1.5 text-p-sm-medium text-ink-gray-7">
 						{{ __('Details') }}
 					</div>
-					<TextEditor
+					<RichTextEditor
 						:content="topic.reply"
 						@change="(val) => (topic.reply = val)"
 						:editable="true"
@@ -32,10 +32,11 @@
 	</Dialog>
 </template>
 <script setup>
-import { call, Dialog, FormControl, TextEditor, toast } from 'frappe-ui'
+import { call, Dialog, FormControl, toast } from 'frappe-ui'
 import { reactive } from 'vue'
 import { singularize } from '@/utils'
 import { useTelemetry } from 'frappe-ui/frappe'
+import RichTextEditor from '@/components/RichTextEditor.vue'
 
 const topics = defineModel('reloadTopics')
 const emit = defineEmits(['created'])

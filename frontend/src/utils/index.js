@@ -1,5 +1,4 @@
 import { call, toast } from 'frappe-ui'
-import colorsJSON from '@/utils/frappe-ui-colors.json'
 import { Quiz } from '@/utils/quiz'
 import { Program } from '@/utils/program'
 import { Assignment } from '@/utils/assignment'
@@ -7,11 +6,12 @@ import { Upload } from '@/utils/upload'
 import { Markdown } from '@/utils/markdownParser'
 import { useSettings } from '@/stores/settings'
 import { usersStore } from '@/stores/user'
-import Header from '@editorjs/header'
+import { Heading } from '@/utils/heading'
 import Paragraph from '@editorjs/paragraph'
 import { CodeBox } from '@/utils/code'
 import NestedList from '@editorjs/nested-list'
 import InlineCode from '@editorjs/inline-code'
+import { Bold } from '@/utils/inline/Bold'
 import { Underline } from '@/utils/inline/Underline'
 import { Strikethrough } from '@/utils/inline/Strikethrough'
 import { AlignLeft, AlignCenter, AlignRight } from '@/utils/inline/TextAlign'
@@ -138,10 +138,19 @@ const INLINE_TOOLBAR_ORDER = [
 	'color',
 ]
 
-export function getEditorTools(isInstructorEditor = false, uploadContext = {}) {
+export function getEditorTools(
+	isInstructorEditor = false,
+	uploadContext = {},
+	{ studentView = false } = {}
+) {
 	return {
 		header: {
-			class: Header,
+			class: Heading,
+			// Without this key EditorJS leaves tool.inlineTools empty, so the
+			// inline toolbar never opens on a heading and Ctrl+B falls through
+			// to the browser's execCommand (which writes a font-weight span the
+			// sanitizer then strips). Headings take the same toolbar as text.
+			inlineToolbar: INLINE_TOOLBAR_ORDER,
 			config: {
 				placeholder: 'Header',
 			},
@@ -162,8 +171,19 @@ export function getEditorTools(isInstructorEditor = false, uploadContext = {}) {
 			inlineToolbar: INLINE_TOOLBAR_ORDER,
 		},
 		quiz: Quiz,
-		assignment: Assignment,
-		program: Program,
+		// The submission renders in an iframe — a separate app instance — so
+		// provide/inject can't reach it. Pass Student View through the tool
+		// config and on into the iframe URL.
+		assignment: {
+			class: Assignment,
+			config: { studentView },
+		},
+		// Renders its submission in an iframe too, so Student View travels the
+		// same way it does for assignments.
+		program: {
+			class: Program,
+			config: { studentView },
+		},
 		markdown: {
 			class: Markdown,
 			inlineToolbar: INLINE_TOOLBAR_ORDER,
@@ -185,6 +205,11 @@ export function getEditorTools(isInstructorEditor = false, uploadContext = {}) {
 		inlineCode: {
 			class: InlineCode,
 			shortcut: 'CMD+SHIFT+M',
+		},
+		// Overrides EditorJS's execCommand-based Bold, which can't bold a
+		// heading (see utils/inline/Bold.ts).
+		bold: {
+			class: Bold,
 		},
 		underline: Underline,
 		strikeThrough: Strikethrough,
@@ -922,10 +947,10 @@ const createHighlightSpan = (color, name, scrollIntoView) => {
 	const span = document.createElement('span')
 	span.className = 'highlighted-text'
 	if (scrollIntoView) {
-		span.style.border = `2px solid ${getColor(color, 400)}`
+		span.style.border = `2px solid var(--${color}-400)`
 		span.style.borderRadius = '4px'
 	} else {
-		span.style.backgroundColor = getColor(color, 200)
+		span.style.backgroundColor = `var(--${color}-200)`
 	}
 	span.dataset.name = name
 	return span
@@ -997,12 +1022,6 @@ export const decodeEntities = (encodedString) => {
 	const textarea = document.createElement('textarea')
 	textarea.innerHTML = encodedString
 	return textarea.value
-}
-
-export const getColor = (color, shade) => {
-	let theme =
-		localStorage.getItem('theme') == 'light' ? 'lightMode' : 'darkMode'
-	return colorsJSON[theme][color][shade]
 }
 
 export function validateEmail(email) {

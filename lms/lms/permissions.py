@@ -11,10 +11,58 @@ core (frappe/permissions.py), CRM (crm.permissions.*), and Raven (raven.permissi
 
 import frappe
 
-from lms.lms.utils import can_modify_course, get_membership, guest_access_allowed
+from lms.lms.utils import (
+	can_modify_batch,
+	can_modify_course,
+	get_membership,
+	guest_access_allowed,
+	has_moderator_role,
+)
 
 # File fields that hold instructor-only lesson media (never served to students).
 INSTRUCTOR_FIELDS = {"instructor_content", "instructor_notes"}
+
+
+def resolve_lesson_access(lesson: str, *, user: str | None = None) -> tuple[bool, bool]:
+	"""Return ``(is_instructor, can_access)`` for a lesson, computed in a single pass.
+
+	- ``is_instructor``: can author the lesson's course → all media, incl. instructor files.
+	- ``can_access``: ``is_instructor`` OR enrolled member OR (published course AND
+	  include_in_preview AND guest access allowed).
+
+	Callers needing only one flag should use :func:`can_access_lesson`; this exists so a
+	caller needing both (e.g. get_lesson, which decides instructor-field visibility on top
+	of the access gate) resolves the instructor check once instead of twice.
+	"""
+	if not isinstance(lesson, str) or not lesson:
+		return False, False
+
+	lesson_row = frappe.db.get_value("Course Lesson", lesson, ["course", "include_in_preview"], as_dict=True)
+	if not lesson_row:
+		return False, False
+
+	original_user = frappe.session.user
+	user = user or original_user
+	try:
+		# can_modify_course / get_membership / guest_access_allowed read session.user.
+		frappe.session.user = user
+		if can_modify_course(lesson_row.course):
+			return True, True
+		if get_membership(lesson_row.course, user):
+			return False, True
+		# Preview is for prospective students of a LIVE course. Require the course to be
+		# published so draft lessons don't leak via this gate (matches get_course_details,
+		# which already hides unpublished courses from non-authors). Instructors/members
+		# are handled above, so unpublishing never locks them out.
+		if (
+			lesson_row.include_in_preview
+			and frappe.db.get_value("LMS Course", lesson_row.course, "published")
+			and guest_access_allowed()
+		):
+			return False, True
+		return False, False
+	finally:
+		frappe.session.user = original_user
 
 
 def can_access_lesson(lesson: str, *, instructor_only: bool = False, user: str | None = None) -> bool:
@@ -25,34 +73,63 @@ def can_access_lesson(lesson: str, *, instructor_only: bool = False, user: str |
 	- else (student media): enrolled member OR (published course AND include_in_preview
 	  AND guest access allowed)
 	"""
-	if not isinstance(lesson, str) or not lesson:
+	is_instructor, can_access = resolve_lesson_access(lesson, user=user)
+	return is_instructor if instructor_only else can_access
+
+
+def can_access_quiz(quiz: str, *, user: str | None = None) -> bool:
+	"""Single source of truth for who may read a quiz's questions/answers.
+
+	Access is granted to:
+	- global moderators and the quiz's own author (so an unlinked/newly-created quiz
+	  can still be edited before it is embedded anywhere),
+	- course authors / moderators of any course the quiz belongs to, plus enrolled
+	  members of that course,
+	- batch instructors / enrolled members of any batch whose assessment references it.
+
+	A quiz's owning course/lesson is read from LMS Quiz.course / LMS Quiz.lesson (set
+	automatically by Course Lesson.save_lesson_details_in_quiz when the quiz is embedded
+	in a lesson). Course Lesson.quiz_id is also honoured for lessons that set it manually.
+	"""
+	if not isinstance(quiz, str) or not quiz:
 		return False
 
-	lesson_row = frappe.db.get_value("Course Lesson", lesson, ["course", "include_in_preview"], as_dict=True)
-	if not lesson_row:
+	quiz_row = frappe.db.get_value("LMS Quiz", quiz, ["course", "owner"], as_dict=True)
+	if not quiz_row:
 		return False
 
 	original_user = frappe.session.user
 	user = user or original_user
 	try:
-		# can_modify_course / get_membership / guest_access_allowed read session.user.
+		# The can_modify_* / get_membership helpers read session.user.
 		frappe.session.user = user
-		if can_modify_course(lesson_row.course):
+
+		# Global admins and the quiz author may always reach it, even when unlinked.
+		if has_moderator_role(user) or quiz_row.owner == user:
 			return True
-		if instructor_only:
-			return False
-		if get_membership(lesson_row.course, user):
-			return True
-		# Preview is for prospective students of a LIVE course. Require the course to be
-		# published so draft lessons don't leak via this gate (matches get_course_details,
-		# which already hides unpublished courses from non-authors). Instructors/members
-		# are handled above, so unpublishing never locks them out.
-		if (
-			lesson_row.include_in_preview
-			and frappe.db.get_value("LMS Course", lesson_row.course, "published")
-			and guest_access_allowed()
-		):
-			return True
+
+		# Courses the quiz belongs to: the authoritative LMS Quiz.course link plus any
+		# lesson that references it via the manually-set quiz_id field.
+		courses = set()
+		if quiz_row.course:
+			courses.add(quiz_row.course)
+		courses.update(frappe.get_all("Course Lesson", filters={"quiz_id": quiz}, pluck="course"))
+		for course in courses:
+			if course and (can_modify_course(course) or get_membership(course, user)):
+				return True
+
+		assessment_batches = frappe.get_all(
+			"LMS Assessment",
+			filters={"assessment_type": "LMS Quiz", "assessment_name": quiz},
+			pluck="parent",
+		)
+		for batch in assessment_batches:
+			if batch and (
+				can_modify_batch(batch)
+				or frappe.db.exists("LMS Batch Enrollment", {"batch": batch, "member": user})
+			):
+				return True
+
 		return False
 	finally:
 		frappe.session.user = original_user

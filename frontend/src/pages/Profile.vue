@@ -1,23 +1,22 @@
 <template>
 	<NoPermission v-if="!$user.data" />
 	<div v-else-if="profile.data">
-		<header
-			class="sticky group top-0 z-10 flex flex-col md:flex-row md:items-center justify-between border-b bg-surface-base px-3 py-2.5 sm:px-5"
-		>
-			<Breadcrumbs class="h-7" :items="breadcrumbs" />
-			<Button v-if="isSessionUser()" class="invisible group-hover:visible">
-				<template #icon>
-					<span
-						class="lucide-refresh-ccw size-4 text-ink-gray-7"
-						@click="reloadUser()"
-					/>
-				</template>
-			</Button>
-		</header>
+		<PageHeader :breadcrumbs="breadcrumbs">
+			<template #actions>
+				<HeaderButton
+					v-if="isSessionUser()"
+					variant="ghost"
+					:label="__('Refresh session')"
+					icon="lucide-refresh-ccw"
+					@click="reloadUser()"
+				/>
+			</template>
+		</PageHeader>
 		<div class="group relative h-[130px] w-full">
 			<img
 				v-if="profile.data.cover_image"
 				:src="profile.data.cover_image"
+				alt=""
 				class="h-[130px] w-full object-cover object-center"
 			/>
 			<div
@@ -32,12 +31,8 @@
 				<EditCoverImage
 					@select="(imageUrl) => coverImage.submit({ url: imageUrl })"
 				>
-					<template v-slot="{ togglePopover }">
-						<Button
-							v-if="!readOnlyMode"
-							variant="outline"
-							@click="togglePopover()"
-						>
+					<template #default>
+						<Button v-if="!readOnlyMode" variant="outline">
 							<template #prefix>
 								<span class="lucide-edit size-4 text-ink-gray-7" />
 							</template>
@@ -54,11 +49,12 @@
 						<img
 							v-if="profile.data.user_image"
 							:src="profile.data.user_image"
+							:alt="profile.data.full_name"
 							class="object-cover h-[100px] w-[100px] rounded-full border-4 border-white object-cover"
 						/>
 						<div
 							v-else
-							class="flex items-center justify-center h-[100px] w-[100px] rounded-full border-4 border-white bg-surface-gray-2 text-5xl-semibold text-ink-gray-7"
+							class="flex items-center justify-center h-[100px] w-[100px] rounded-full border-4 border-white bg-surface-gray-2 text-4xl-semibold text-ink-gray-7"
 						>
 							{{ profile.data.full_name.charAt(0).toUpperCase() }}
 						</div>
@@ -89,28 +85,40 @@
 					</div>
 				</div>
 				<div class="ms-6 mt-5">
-					<h2 class="text-5xl-semibold text-ink-gray-9">
+					<h1 class="text-4xl-semibold text-ink-gray-9">
 						{{ profile.data.full_name }}
-					</h2>
+					</h1>
 					<div class="text-base text-ink-gray-7 mt-1">
 						{{ profile.data.headline }}
 					</div>
 					<div class="flex items-center gap-x-4 mt-2">
-						<Twitter
+						<a
 							v-if="profile.data.twitter"
-							class="size-4 text-ink-gray-5 cursor-pointer"
-							@click="navigateTo(profile.data.twitter)"
-						/>
-						<Linkedin
+							:href="profile.data.twitter"
+							target="_blank"
+							rel="noopener noreferrer"
+							:aria-label="__('Twitter')"
+						>
+							<Twitter class="size-4 text-ink-gray-5 cursor-pointer" />
+						</a>
+						<a
 							v-if="profile.data.linkedin"
-							class="size-4 text-ink-gray-5 cursor-pointer"
-							@click="navigateTo(profile.data.linkedin)"
-						/>
-						<Github
+							:href="profile.data.linkedin"
+							target="_blank"
+							rel="noopener noreferrer"
+							:aria-label="__('LinkedIn')"
+						>
+							<Linkedin class="size-4 text-ink-gray-5 cursor-pointer" />
+						</a>
+						<a
 							v-if="profile.data.github"
-							class="size-4 text-ink-gray-5 cursor-pointer"
-							@click="navigateTo(profile.data.github)"
-						/>
+							:href="profile.data.github"
+							target="_blank"
+							rel="noopener noreferrer"
+							:aria-label="__('GitHub')"
+						>
+							<Github class="size-4 text-ink-gray-5 cursor-pointer" />
+						</a>
 					</div>
 				</div>
 				<Button
@@ -125,16 +133,25 @@
 				</Button>
 			</div>
 
+			<!-- On a phone the strip spans the row, so the pills have to grow
+			     with it or the grey track shows through past the last tab.
+			     `grow` shares the slack out instead of forcing equal columns,
+			     which would truncate the longer labels at 390px. -->
 			<div class="mb-4 mt-10">
 				<TabButtons
-					class="inline-block"
-					:buttons="getTabButtons()"
+					:class="
+						isMobile
+							? 'flex w-full [&>div]:w-full [&_button]:min-w-0 [&_button]:grow [&_button>span]:w-full'
+							: 'inline-block'
+					"
+					:options="getTabButtons()"
 					v-model="activeTab"
 				/>
 			</div>
 			<router-view :profile="profile" :key="profile.data?.name" />
 		</div>
 	</div>
+	<NotFound v-else-if="(profile.fetched || profile.error) && !profile.data" />
 	<EditProfile
 		v-model="showProfileModal"
 		v-model:reloadProfile="profile"
@@ -143,7 +160,6 @@
 </template>
 <script setup>
 import {
-	Breadcrumbs,
 	Button,
 	call,
 	createResource,
@@ -153,12 +169,16 @@ import {
 	usePageMeta,
 } from 'frappe-ui'
 import { computed, inject, watch, ref, onMounted, watchEffect } from 'vue'
+import PageHeader from '@/components/Layouts/PageHeader.vue'
+import HeaderButton from '@/components/HeaderButton.vue'
 import { sessionStore } from '@/stores/session'
 import { Github, Linkedin, Twitter } from 'lucide-vue-next'
 import { useRoute, useRouter } from 'vue-router'
 import { convertToTitleCase } from '@/utils'
+import { useScreenSize } from '@/utils/composables'
 import UserAvatar from '@/components/UserAvatar.vue'
 import NoPermission from '@/components/NoPermission.vue'
+import NotFound from '@/pages/NotFound.vue'
 import EditProfile from '@/components/Modals/EditProfile.vue'
 import EditCoverImage from '@/components/Modals/EditCoverImage.vue'
 
@@ -169,6 +189,7 @@ const router = useRouter()
 const activeTab = ref('')
 const showProfileModal = ref(false)
 const readOnlyMode = window.read_only_mode
+const { isMobile } = useScreenSize()
 
 const props = defineProps({
 	username: {

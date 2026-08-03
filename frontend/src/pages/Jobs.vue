@@ -1,12 +1,17 @@
 <template>
-	<LayoutHeader>
-		<template #left-header>
-			<Breadcrumbs
-				class="h-7"
-				:items="[{ label: __('Jobs'), route: { name: 'Jobs' } }]"
-			/>
-		</template>
-		<template #right-header>
+	<ListPage
+		:breadcrumbs="breadcrumbs"
+		:title="__('{0} {1} Jobs').format(jobCount.data ?? 0, activeTab)"
+		:rows="jobs.data || []"
+		:total-count="jobCount.data ?? 0"
+		:loading="jobs.list.loading"
+		:has-next-page="jobs.hasNextPage"
+		v-model:page-length="pageLength"
+		empty-name="Job Openings"
+		empty-icon="lucide-briefcase"
+		@load-more="jobs.next()"
+	>
+		<template #actions>
 			<router-link
 				v-if="
 					user.data?.name && settings.data?.allow_job_posting && !readOnlyMode
@@ -26,134 +31,65 @@
 				</Button>
 			</router-link>
 		</template>
-	</LayoutHeader>
-	<div class="mx-auto flex min-h-0 w-full flex-1 flex-col">
-		<div
-			class="mx-auto mb-2 flex w-full flex-col justify-between space-y-4 p-5 lg:flex-row lg:items-center lg:space-y-0"
-		>
-			<div class="flex items-center justify-between">
-				<div class="text-lg font-semibold text-ink-gray-9 md:mb-0">
-					{{ __('{0} {1} Jobs').format(jobCount.data ?? 0, activeTab) }}
-				</div>
-				<TabButtons
-					v-if="tabs.length > 1"
-					v-model="activeTab"
-					:buttons="tabs"
-					class="lg:hidden"
-					@change="updateJobs"
-				/>
-			</div>
 
-			<div
-				class="flex flex-col space-y-4 md:flex-row md:items-center md:gap-x-4 md:space-y-0"
+		<template #filters>
+			<TabButtons
+				v-if="tabs.length > 1"
+				v-model="activeTab"
+				:options="tabs"
+				class="!w-fit shrink-0"
+				@change="updateJobs"
+			/>
+			<FormControl
+				type="text"
+				:placeholder="__('Search')"
+				:aria-label="__('Search jobs')"
+				v-model="searchQuery"
+				@input="updateJobs"
 			>
-				<TabButtons
-					v-if="tabs.length > 1"
-					v-model="activeTab"
-					:buttons="tabs"
-					class="hidden lg:block"
-					@change="updateJobs"
-				/>
-				<div class="flex items-center gap-x-4">
-					<FormControl
-						type="text"
-						:placeholder="__('Search')"
-						v-model="searchQuery"
-						class="w-full"
-						@input="updateJobs"
-					>
-						<template #prefix>
-							<span class="lucide-search size-4 text-ink-gray-5" />
-						</template>
-					</FormControl>
-					<Link
-						v-if="user.data"
-						doctype="Country"
-						v-model="country"
-						:placeholder="__('Country')"
-						class="w-full"
-					/>
-				</div>
-				<div class="flex gap-4">
-					<Select
-						v-model="jobType"
-						:options="jobTypes"
-						class="w-full"
-						:placeholder="__('Type')"
-						@update:modelValue="updateJobs"
-					/>
-					<Select
-						v-model="workMode"
-						:options="workModes"
-						class="w-full"
-						:placeholder="__('Work Mode')"
-						@update:modelValue="updateJobs"
-					/>
-				</div>
-			</div>
-		</div>
-		<SkeletonLoader
-			v-if="jobs.list.loading && !jobs.data"
-			variant="cards"
-			:count="8"
-			class="mx-auto w-full flex-1 p-5 pt-0"
-		/>
-		<div
-			v-else-if="jobs.data?.length"
-			class="mx-auto w-full flex-1 overflow-y-auto p-5 pt-0"
-		>
-			<div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-				<router-link
-					v-for="job in jobs.data"
-					:to="{
-						name: 'JobDetail',
-						params: { job: job.name },
-					}"
-					:key="job.name"
-				>
-					<JobCard :job="job" />
-				</router-link>
-			</div>
-		</div>
-		<div v-else-if="!jobs.list.loading" class="flex-1">
-			<EmptyStateLayout name="Job Openings" icon="lucide-briefcase" />
-		</div>
-		<ListFooter
-			v-model="pageLength"
-			class="border-t px-3 py-2 sm:px-5"
-			:options="{
-				rowCount: jobs.data?.length,
-				totalCount: jobCount.data ?? 0,
-				pageLengthOptions: [40, 80, 160],
-			}"
-		>
-			<template #right>
-				<div class="flex items-center">
-					<Button
-						v-if="jobs.hasNextPage"
-						:label="__('Load More')"
-						@click="jobs.next()"
-					/>
-					<div v-if="jobs.hasNextPage" class="mx-3 h-[80%] border-l" />
-					<div class="flex items-center gap-1 text-base text-ink-gray-5">
-						<div>{{ jobs.data?.length || 0 }}</div>
-						<div>{{ __('of') }}</div>
-						<div>{{ jobCount.data ?? 0 }}</div>
-					</div>
-				</div>
-			</template>
-		</ListFooter>
-	</div>
+				<template #prefix>
+					<span class="lucide-search size-4 text-ink-gray-5" />
+				</template>
+			</FormControl>
+			<Link
+				v-if="user.data"
+				doctype="Country"
+				v-model="country"
+				:placeholder="__('Country')"
+			/>
+			<Select
+				v-model="jobType"
+				:options="jobTypes"
+				:placeholder="__('Type')"
+				@update:modelValue="updateJobs"
+			/>
+			<Select
+				v-model="workMode"
+				:options="workModes"
+				:placeholder="__('Work Mode')"
+				@update:modelValue="updateJobs"
+			/>
+		</template>
+
+		<template #card="{ row }">
+			<router-link
+				:to="{
+					name: 'JobDetail',
+					params: { job: row.name },
+				}"
+			>
+				<JobCard :job="row" />
+			</router-link>
+		</template>
+	</ListPage>
 </template>
 <script setup>
 import {
 	Button,
-	Breadcrumbs,
 	call,
 	createListResource,
 	createResource,
 	FormControl,
-	ListFooter,
 	TabButtons,
 	usePageMeta,
 } from 'frappe-ui'
@@ -161,11 +97,9 @@ import { sessionStore } from '@/stores/session'
 import { useSettings } from '@/stores/settings'
 import { inject, computed, ref, onMounted, watch } from 'vue'
 import JobCard from '@/components/JobCard.vue'
-import SkeletonLoader from '@/components/SkeletonLoader.vue'
 import Link from '@/components/Controls/Link.vue'
 import Select from '@/components/Controls/Select.vue'
-import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
-import LayoutHeader from '@/components/Layouts/LayoutHeader.vue'
+import ListPage from '@/components/Layouts/ListPage.vue'
 
 const user = inject('$user')
 const jobType = ref(null)
@@ -235,13 +169,15 @@ const jobs = createListResource({
 	doctype: 'Job Opportunity',
 	start: 0,
 	cache: ['jobs'],
-	pageLength: 40,
+	pageLength: 24,
 })
 
 const pageLength = computed({
 	get: () => jobs.pageLength,
 	set: (value) => {
-		jobs.update({ pageLength: value })
+		// reload() ignores a new pageLength while start > 0: it refetches the
+		// already loaded rows instead, so paging must be reset for it to apply.
+		jobs.update({ pageLength: value, start: 0 })
 		jobs.reload()
 	},
 })
@@ -300,11 +236,11 @@ const updateCountryFilter = () => {
 	}
 }
 
-watch(activeTab, (val) => {
+watch(activeTab, () => {
 	updateJobs()
 })
 
-watch(country, (val) => {
+watch(country, () => {
 	updateJobs()
 })
 
@@ -342,6 +278,10 @@ const workModes = computed(() => {
 		{ label: __('Remote'), value: 'Remote' },
 	]
 })
+
+const breadcrumbs = computed(() => [
+	{ label: __('Jobs'), route: { name: 'Jobs' } },
+])
 
 usePageMeta(() => {
 	return {

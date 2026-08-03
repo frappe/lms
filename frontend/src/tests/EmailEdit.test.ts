@@ -35,11 +35,20 @@ vi.mock('frappe-ui', () => ({
 		emits: ['update:modelValue'],
 		template: `<button :data-testid="'switch-' + label" @click="$emit('update:modelValue', !modelValue)" />`,
 	},
+	Dialog: {
+		props: ['open', 'title', 'message', 'actions'],
+		template: `<div v-if="open" data-testid="dialog">
+			<button v-for="a in actions" :key="a.label" :data-testid="'dlg-' + a.label" @click="a.onClick()">{{ a.label }}</button>
+		</div>`,
+	},
 }))
 
 vi.mock('@/components/Layouts/SettingsLayout.vue', () => ({
 	default: { template: `<div><slot name="header-actions" /><slot /></div>` },
 }))
+
+// @/utils pulls in plyr, which touches window.matchMedia at import time.
+vi.mock('@/utils', () => ({ cleanError: (e: unknown) => e }))
 
 vi.mock('@/components/Settings/EmailAccount/emailConfig', () => {
 	const fixed = [
@@ -71,6 +80,11 @@ vi.mock('@/components/Settings/EmailAccount/emailConfig', () => {
 })
 
 vi.stubGlobal('__', (s: string) => s)
+// `String.prototype.format` is a frappe global used by the delete dialog title.
+// @ts-expect-error augmenting String for the test runtime
+String.prototype.format = function (...args: unknown[]) {
+	return this.replace(/\{(\d+)\}/g, (_m: string, i: number) => String(args[i]))
+}
 
 // An account whose values exactly match EmailEdit's state initialisation, so a
 // save with no edits is genuinely a no-op (isDirty === false).

@@ -3,7 +3,7 @@
 		class="flex flex-col border hover:border-outline-gray-3 rounded-md p-4 h-full"
 		style="min-height: 150px"
 	>
-		<div class="text-xl-semibold leading-5 mb-2 text-ink-gray-9">
+		<div class="text-lg-semibold leading-5 mb-2 text-ink-gray-9">
 			{{ batch.title }}
 		</div>
 		<Badge
@@ -50,7 +50,12 @@
 			>
 				<span class="lucide-globe h-4 w-4 me-2 text-ink-gray-5" />
 				<span>
-					{{ batch.timezone }}
+					{{
+						formatTimezone(
+							batch.timezone,
+							nextOccurrence(batch.start_date, batch.end_date)
+						)
+					}}
 				</span>
 			</div>
 		</div>
@@ -64,6 +69,7 @@
 			>
 				<UserAvatar
 					v-for="instructor in batch.instructors"
+					:key="instructor.name"
 					:user="instructor"
 				/>
 			</div>
@@ -74,6 +80,7 @@
 <script setup>
 import { Badge } from 'frappe-ui'
 import { formatTime } from '@/utils'
+import { formatTimezone, nextOccurrence } from '@/utils/timezone'
 import DateRange from '@/components/Common/DateRange.vue'
 import CourseInstructors from '@/components/CourseInstructors.vue'
 import UserAvatar from '@/components/UserAvatar.vue'

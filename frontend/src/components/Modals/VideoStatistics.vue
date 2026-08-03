@@ -5,7 +5,7 @@
 				<div class="flex items-center justify-between">
 					<TabButtons
 						v-if="tabs.length > 1"
-						:buttons="tabs"
+						:options="tabs"
 						v-model="currentTab"
 						class="w-fit"
 					/>
@@ -35,6 +35,7 @@
 							</div>
 							<div
 								v-for="row in currentTabData"
+								:key="row.name"
 								class="hover:bg-surface-gray-1 cursor-pointer rounded-md py-1 px-2"
 							>
 								<router-link

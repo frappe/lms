@@ -1,8 +1,8 @@
 <template>
-	<Dialog v-model="show" :options="{ size: '4xl' }">
-		<template #body-title>
+	<Dialog v-model="show" size="4xl">
+		<template #title>
 			<div class="flex items-center gap-x-2">
-				<div class="text-xl font-semibold text-ink-gray-9">
+				<div class="text-lg font-semibold text-ink-gray-9">
 					{{
 						props.exerciseID === 'new'
 							? __('Create Programming Exercise')
@@ -14,7 +14,7 @@
 				</Badge>
 			</div>
 		</template>
-		<template #body-content>
+		<template #default>
 			<div class="grid grid-cols-2 gap-10">
 				<div class="space-y-4">
 					<FormControl
@@ -46,7 +46,7 @@
 							{{ __('Problem Statement') }}
 							<span class="text-ink-red-3">*</span>
 						</div>
-						<TextEditor
+						<RichTextEditor
 							:content="exercise.problem_statement"
 							@change="(val: string) => (exercise.problem_statement = val)"
 							:editable="true"
@@ -119,11 +119,11 @@ import {
 	createListResource,
 	Dialog,
 	FormControl,
-	TextEditor,
 	toast,
 } from 'frappe-ui'
-import { ProgrammingExercise, ProgrammingExercises, TestCase } from './types'
+import { ProgrammingExercise, ProgrammingExercises, TestCase } from '@/types'
 import ChildTable from '@/components/Controls/ChildTable.vue'
+import RichTextEditor from '@/components/RichTextEditor.vue'
 
 const show = defineModel()
 const exercises = defineModel<ProgrammingExercises>('exercises')

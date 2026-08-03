@@ -1,6 +1,6 @@
 <template>
 	<div v-if="batch?.data" class="p-5">
-		<div class="grid grid-cols-2 md:grid-cols-4 gap-5 mb-8">
+		<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
 			<NumberChartGraph
 				:title="__('Enrolled')"
 				:value="formatAmount(batch.data?.students?.length) || 0"
@@ -24,11 +24,11 @@
 
 		<div
 			v-if="showStudentsEmptyState"
-			class="flex min-h-[70vh] flex-col items-center justify-center gap-3 px-4 text-center"
+			class="flex min-h-[30vh] sm:min-h-[70vh] flex-col items-center justify-center gap-3 px-4 text-center"
 		>
 			<span class="lucide-users size-7.5 text-ink-gray-5" />
 			<div class="flex flex-col items-center gap-1">
-				<span class="text-xl-medium text-ink-gray-8">
+				<span class="text-lg-medium text-ink-gray-8">
 					{{ __('No students enrolled yet') }}
 				</span>
 				<span class="text-p-base text-ink-gray-6">
@@ -42,13 +42,14 @@
 		>
 			<div class="border rounded-lg py-3 px-4 order-2 lg:order-1">
 				<div class="flex items-center justify-between gap-x-2 mb-3">
-					<div class="text-xl-semibold text-ink-gray-9">
+					<h2 class="text-lg-semibold text-ink-gray-9">
 						{{ __('Students') }}
-					</div>
+					</h2>
 					<div class="flex items-center gap-x-2">
 						<FormControl
 							v-model="searchFilter"
 							:placeholder="__('Search')"
+							:aria-label="__('Search')"
 							type="text"
 						>
 							<template #prefix>
@@ -57,66 +58,32 @@
 						</FormControl>
 					</div>
 				</div>
-				<div class="max-h-[63vh] overflow-y-auto">
-					<ListView
+				<div class="sm:max-h-[63vh] sm:overflow-y-auto">
+					<ResponsiveListView
 						v-if="students.loading || students.data?.length"
 						:columns="studentColumns"
-						:rows="students.data"
-						rowKey="name"
-						:options="{
-							selectable: false,
-							showTooltip: false,
-							onRowClick: (row: any) => {
-								currentStudent = row.member
-								showProgressModal = true
-							},
-						}"
+						:rows="students.data || []"
+						row-key="name"
+						:options="studentListOptions"
 					>
-						<ListHeader
-							class="mb-2 grid items-center gap-x-4 rounded bg-surface-gray-2 p-2"
-						>
-							<ListHeaderItem
-								:item="item"
-								v-for="item in studentColumns"
-								:key="item.key"
+						<template #cell="{ column, row, value }">
+							<span
+								v-if="column.key === 'member_name'"
+								class="flex items-center gap-2"
 							>
-							</ListHeaderItem>
-						</ListHeader>
-						<ListRows>
-							<ListRow v-for="row in students.data" :key="row.name" :row="row">
-								<template #default="{ column, item }">
-									<ListRowItem
-										:item="row[column.key]"
-										:align="column.align"
-										class="w-full"
-									>
-										<template #prefix>
-											<div v-if="column.key == 'member_name'">
-												<Avatar
-													class="flex items-center"
-													:image="row['member_image']"
-													:label="item"
-													size="sm"
-												/>
-											</div>
-										</template>
-										<div v-if="column.key == 'creation'">
-											{{ dayjs(row[column.key]).format('DD MMM YYYY') }}
-										</div>
-										<div
-											v-else-if="column.key == 'progress'"
-											class="text-xs !mx-0 w-5"
-										>
-											{{ Math.ceil(row[column.key]) }}%
-										</div>
-										<div v-else>
-											{{ row[column.key].toString() }}
-										</div>
-									</ListRowItem>
-								</template>
-							</ListRow>
-						</ListRows>
-					</ListView>
+								<Avatar
+									:image="row.member_image as string"
+									:label="String(value)"
+									size="sm"
+								/>
+								<span class="min-w-0 truncate">{{ value }}</span>
+							</span>
+							<span v-else-if="column.key === 'creation'">
+								{{ dayjs(value as string).format('DD MMM YYYY') }}
+							</span>
+							<span v-else>{{ value }}</span>
+						</template>
+					</ResponsiveListView>
 					<div v-else class="min-h-[200px]">
 						<EmptyStateLayout
 							name="Students"
@@ -197,12 +164,6 @@ import {
 	createResource,
 	createListResource,
 	FormControl,
-	ListView,
-	ListHeader,
-	ListHeaderItem,
-	ListRows,
-	ListRow,
-	ListRowItem,
 	Avatar,
 	Button,
 } from 'frappe-ui'
@@ -212,8 +173,10 @@ import { formatAmount } from '@/utils'
 import BatchFeedback from '@/pages/Batches/components/BatchFeedback.vue'
 import BatchStudentProgress from '@/pages/Batches/components/BatchStudentProgress.vue'
 import NumberChartGraph from '@/components/NumberChartGraph.vue'
+import ResponsiveListView from '@/components/ResponsiveListView.vue'
 import StudentModal from '@/components/Modals/StudentModal.vue'
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
+import type { ListColumn, ListRow, ListViewOptions } from '@/types'
 
 const dayjs = inject<typeof dayjsType>('$dayjs')!
 const searchFilter = ref<string | null>(null)
@@ -282,7 +245,7 @@ watch(searchFilter, () => {
 	students.reload()
 })
 
-const studentColumns = computed(() => {
+const studentColumns = computed<ListColumn[]>(() => {
 	return [
 		{
 			label: __('Name'),
@@ -296,6 +259,15 @@ const studentColumns = computed(() => {
 		},
 	]
 })
+
+const studentListOptions: ListViewOptions = {
+	selectable: false,
+	showTooltip: false,
+	onRowClick: (row: ListRow) => {
+		currentStudent.value = row.member
+		showProgressModal.value = true
+	},
+}
 
 const showProgressChart = computed(
 	() =>

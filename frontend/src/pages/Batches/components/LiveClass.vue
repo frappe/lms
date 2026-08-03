@@ -15,7 +15,7 @@
 		</div>
 
 		<div class="flex items-center justify-between">
-			<div class="text-xl-semibold text-ink-gray-9">
+			<div class="text-lg-semibold text-ink-gray-9">
 				{{ __('Live Class') }}
 			</div>
 			<Button v-if="canCreateClass()" @click="openLiveClassModal">
@@ -31,8 +31,13 @@
 			v-if="liveClasses.data?.length"
 			class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mt-5"
 		>
+			<!-- TODO(a11y): this card is click-activated (opens attendance modal)
+			     but contains nested Start/Join anchors, so it can't become a
+			     <button>. Needs a redesign (dedicated action button) to be
+			     keyboard-accessible; left as-is to avoid invalid nesting. -->
 			<div
 				v-for="cls in liveClasses.data"
+				:key="cls.name"
 				class="flex flex-col border rounded-md h-full text-ink-gray-7 hover:border-outline-gray-3 p-3"
 				:class="{
 					'cursor-pointer': isAdmin() && cls.attendees > 0,

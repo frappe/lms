@@ -1,9 +1,11 @@
 import AudioBlock from '@/components/AudioBlock.vue'
 import VideoBlock from '@/components/VideoBlock.vue'
+import PdfBlock from '@/components/PdfBlock.vue'
 import UploadPlugin from '@/components/UploadPlugin.vue'
 import { h, createApp } from 'vue'
 import { Upload as UploadIcon } from 'lucide-vue-next'
 import { createDialog } from '@/utils/dialogs'
+import { usesWebkitPdfViewer } from '@/utils/pdfViewer'
 import translationPlugin from '../translation'
 
 export class Upload {
@@ -66,11 +68,23 @@ export class Upload {
 			app.mount(this.wrapper)
 			return
 		} else if (file.file_type == 'PDF') {
-			this.wrapper.innerHTML = `<iframe src="${
-				window.location.origin
-			}${encodeURI(
-				file.file_url
-			)}" width='100%' height='700px' class="mb-4" type="application/pdf"></iframe>`
+			// WebKit refuses to scroll a PDF in an <iframe>, so it gets the inline
+			// pdf.js viewer. mount()/unmount() is tracked so destroy() can tear the
+			// pdf.js worker + render tasks down. Everywhere else keeps the native
+			// plugin. See utils/pdfViewer.
+			if (!usesWebkitPdfViewer()) {
+				this.wrapper.innerHTML = `<iframe src="${
+					window.location.origin
+				}${encodeURI(
+					file.file_url
+				)}" width='100%' height='700px' class="mb-4" type="application/pdf"></iframe>`
+				return
+			}
+			this.app = createApp(PdfBlock, {
+				file: file.file_url,
+			})
+			this.app.use(translationPlugin)
+			this.app.mount(this.wrapper)
 			return
 		} else {
 			this.wrapper.innerHTML = `<img class="mb-4" src=${encodeURI(
@@ -82,8 +96,7 @@ export class Upload {
 
 	renderFileUploader() {
 		const app = createApp(UploadPlugin, {
-			docname: this.config.docname || null,
-			fieldname: this.config.fieldname || 'content',
+			uploadContext: this.config,
 			onFileUploaded: (file) => {
 				this.data.file_url = file.file_url
 				this.data.file_type = file.file_type
@@ -106,6 +119,16 @@ export class Upload {
 			file_url: this.data.file_url,
 			file_type: this.data.file_type,
 			quizzes: this.data.quizzes || [],
+		}
+	}
+
+	// EditorJS calls destroy() when a block is removed or the editor is torn down.
+	// Unmounting the PdfBlock app fires its onBeforeUnmount, which cancels render
+	// tasks, destroys the document, and releases the shared pdf.js worker.
+	destroy() {
+		if (this.app) {
+			this.app.unmount()
+			this.app = null
 		}
 	}
 

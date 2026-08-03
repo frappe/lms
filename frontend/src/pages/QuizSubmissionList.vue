@@ -1,66 +1,32 @@
 <template>
-	<LayoutHeader>
-		<template #left-header>
-			<Breadcrumbs :items="breadcrumbs" />
-		</template>
-	</LayoutHeader>
-	<div v-if="submissions.data?.length" class="md:w-3/4 md:mx-auto py-5 mx-5">
-		<div class="text-3xl-semibold mb-5 text-ink-gray-9">
-			{{ submissions.data[0].quiz_title }}
-		</div>
-		<ListView
-			:columns="quizColumns"
-			:rows="submissions.data"
-			row-key="name"
-			:options="{ showTooltip: false, selectable: false }"
-		>
-			<ListHeader
-				class="mb-2 grid items-center gap-x-4 rounded bg-surface-gray-2 p-2"
-			>
-				<ListHeaderItem :item="item" v-for="item in quizColumns">
-				</ListHeaderItem>
-			</ListHeader>
-			<ListRows>
-				<router-link
-					v-for="row in submissions.data"
-					:to="{
-						name: 'QuizSubmission',
-						params: {
-							submission: row.name,
-						},
-					}"
-				>
-					<ListRow :row="row" />
-				</router-link>
-			</ListRows>
-		</ListView>
-		<div class="flex justify-center my-5">
-			<Button v-if="submissions.hasNextPage" @click="submissions.next()">
-				{{ __('Load More') }}
-			</Button>
-		</div>
-	</div>
-	<div v-else class="flex-1">
-		<EmptyStateLayout name="Quiz Submissions" icon="lucide-file-check" />
-	</div>
+	<ListPage
+		:breadcrumbs="breadcrumbs"
+		:title="quizTitle"
+		layout="list"
+		:columns="quizColumns"
+		:rows="submissions.data || []"
+		:loading="submissions.loading"
+		:has-next-page="submissions.hasNextPage"
+		:list-options="{
+			showTooltip: false,
+			selectable: false,
+			getRowRoute: (row) => ({
+				name: 'QuizSubmission',
+				params: { submission: row.name },
+			}),
+		}"
+		v-model:page-length="pageLength"
+		empty-name="Quiz Submissions"
+		empty-icon="lucide-file-check"
+		@load-more="submissions.next()"
+	/>
 </template>
 <script setup>
-import {
-	createListResource,
-	Breadcrumbs,
-	Button,
-	ListView,
-	ListRow,
-	ListRows,
-	ListHeader,
-	ListHeaderItem,
-	usePageMeta,
-} from 'frappe-ui'
-import { computed, onMounted, inject } from 'vue'
+import { createListResource, usePageMeta } from 'frappe-ui'
+import { computed, onMounted, inject, ref, watch } from 'vue'
 import { sessionStore } from '../stores/session'
 import { useRouter } from 'vue-router'
-import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
-import LayoutHeader from '@/components/Layouts/LayoutHeader.vue'
+import ListPage from '@/components/Layouts/ListPage.vue'
 
 const { brand } = sessionStore()
 const router = useRouter()
@@ -85,7 +51,15 @@ const submissions = createListResource({
 	},
 	fields: ['name', 'member_name', 'score', 'percentage', 'quiz_title'],
 	orderBy: 'creation desc',
+	pageLength: 24,
 	auto: true,
+})
+
+const pageLength = ref(24)
+
+watch(pageLength, (value) => {
+	submissions.pageLength = value
+	submissions.reload()
 })
 
 const quizColumns = computed(() => {
@@ -110,7 +84,7 @@ const quizColumns = computed(() => {
 	]
 })
 
-const quizTitle = computed(() => submissions.data?.[0]?.quiz_title)
+const quizTitle = computed(() => submissions.data?.[0]?.quiz_title || '')
 
 const breadcrumbs = computed(() => {
 	const crumbs = [

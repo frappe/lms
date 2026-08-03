@@ -3,9 +3,9 @@
 		<div class="grid grid-cols-1 lg:grid-cols-[3fr,2fr]">
 			<div v-if="batchDetail.doc" class="py-5 lg:h-[88vh] lg:overflow-y-auto">
 				<div class="px-5 pb-5 space-y-5 border-b mb-5">
-					<div class="text-base-semibold text-ink-gray-9">
+					<h2 class="text-base-semibold text-ink-gray-9">
 						{{ __('Details') }}
-					</div>
+					</h2>
 
 					<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
 						<FormControl
@@ -79,9 +79,9 @@
 				</div>
 
 				<div class="px-5 pb-5 space-y-5 border-b mb-5">
-					<div class="text-base-semibold text-ink-gray-9">
+					<h2 class="text-base-semibold text-ink-gray-9">
 						{{ __('Enrollment & Certification') }}
-					</div>
+					</h2>
 					<div class="grid grid-cols-1 md:grid-cols-2 gap-5 items-start">
 						<BooleanSwitch
 							size="sm"
@@ -142,9 +142,9 @@
 				</div>
 
 				<div class="px-5 pb-5 space-y-5 border-b mb-5">
-					<div class="text-base-semibold text-ink-gray-9">
+					<h2 class="text-base-semibold text-ink-gray-9">
 						{{ __('Batch overview') }}
-					</div>
+					</h2>
 					<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
 						<MultiLink
 							v-model="instructors"
@@ -181,7 +181,6 @@
 							v-model="batchDetail.doc.description"
 							:label="__('Short Description')"
 							type="textarea"
-							:rows="4"
 							:placeholder="__('Short description of the batch')"
 							:required="true"
 							variant="outline"
@@ -201,7 +200,7 @@
 						<div
 							class="rounded-t-lg rounded-b-md outline-none transition-[box-shadow] duration-150 ease-[cubic-bezier(0.23,1,0.32,1)]"
 						>
-							<TextEditor
+							<RichTextEditor
 								:id="batchDetailsId"
 								:content="batchDetail.doc.batch_details"
 								@change="(val: string) => updateBatchDetails(val)"
@@ -214,9 +213,9 @@
 				</div>
 
 				<div class="px-5 pb-5 space-y-5 border-b mb-5">
-					<div class="text-base-semibold text-ink-gray-9">
+					<h2 class="text-base-semibold text-ink-gray-9">
 						{{ __('Conferencing') }}
-					</div>
+					</h2>
 					<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
 						<Select
 							v-model="batchDetail.doc.conferencing_provider"
@@ -253,22 +252,20 @@
 				</div>
 
 				<div class="px-5 pb-5 space-y-5">
-					<div class="text-base-semibold text-ink-gray-9">
+					<h2 class="text-base-semibold text-ink-gray-9">
 						{{ __('Meta Tags') }}
-					</div>
+					</h2>
 					<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
 						<FormControl
 							v-model="meta.description"
 							:label="__('Meta Description')"
 							type="textarea"
-							:rows="4"
 							variant="outline"
 						/>
 						<FormControl
 							v-model="meta.keywords"
 							:label="__('Meta Keywords')"
 							type="textarea"
-							:rows="4"
 							:placeholder="__('Comma separated keywords')"
 							variant="outline"
 						/>
@@ -320,7 +317,6 @@ import {
 	Combobox,
 	FormControl,
 	FormLabel,
-	TextEditor,
 	createDocumentResource,
 	createResource,
 	toast,
@@ -352,7 +348,8 @@ import NewMemberModal from '@/components/Modals/NewMemberModal.vue'
 import EmailTemplateModal from '@/components/Modals/EmailTemplateModal.vue'
 import type { LMSBatch } from '@/types/lms/LMSBatch'
 import type { CourseInstructor } from '@/types/lms/CourseInstructor'
-import type { Resource, BatchDetails, SessionUser } from '@/types/api'
+import type { Resource, BatchDetails, SessionUser } from '@/types'
+import RichTextEditor from '@/components/RichTextEditor.vue'
 
 interface DialogAction {
 	label: string

@@ -18,9 +18,11 @@
 		<div class="flex flex-col gap-4">
 			<!-- email service provider selection -->
 			<div class="flex flex-wrap items-center gap-4">
-				<div
+				<button
 					v-for="s in services"
 					:key="s.name"
+					type="button"
+					:aria-pressed="selectedService?.name === s?.name"
 					class="flex w-[70px] flex-col items-center gap-1"
 					@click="handleSelect(s)"
 				>
@@ -29,7 +31,7 @@
 						:logo="s.icon"
 						:selected="selectedService?.name === s?.name"
 					/>
-				</div>
+				</button>
 			</div>
 			<div v-if="selectedService" class="flex flex-col gap-4">
 				<!-- email service provider info -->
@@ -39,9 +41,12 @@
 					<CircleAlert class="size-5 shrink-0" />
 					<div class="text-wrap text-p-xs">
 						{{ selectedService.info }}
-						<a :href="selectedService.link" target="_blank" class="underline">{{
-							__('here')
-						}}</a
+						<a
+							:href="selectedService.link"
+							target="_blank"
+							rel="noopener noreferrer"
+							class="underline"
+							>{{ __('here') }}</a
 						>.
 					</div>
 				</div>
@@ -63,6 +68,7 @@
 							/>
 						</div>
 					</div>
+					<div class="h-px border-t border-outline-elevation-2" />
 					<div class="flex flex-col gap-4">
 						<Switch
 							v-for="field in incomingOutgoingFields"
@@ -83,7 +89,7 @@
 <script setup lang="ts">
 import SettingsLayout from '@/components/Layouts/SettingsLayout.vue'
 import { useTelemetry } from 'frappe-ui/frappe'
-import { EmailAccount, EmailService, EmailStep } from '@/types/email'
+import { EmailAccount, EmailService, EmailStep } from '@/types'
 import {
 	Button,
 	ErrorMessage,

@@ -1,84 +1,55 @@
 <template>
-	<Dialog v-model:open="show" size="5xl">
-		<template #body>
+	<Dialog v-model:open="show" size="5xl" bare>
+		<template #default>
 			<div class="p-5 min-h-[300px]">
-				<div class="text-xl-semibold text-ink-gray-9 mb-4">
+				<div class="text-lg-semibold text-ink-gray-9 mb-4">
 					{{ __('Training Feedback') }}
 				</div>
-				<ListView
+				<ResponsiveListView
 					:columns="feedbackColumns"
-					:rows="feedbackList"
+					:rows="feedbackList as ListRow[]"
 					row-key="name"
-					:options="{
-						showTooltip: false,
-						rowHeight: 'h-16',
-						selectable: false,
-					}"
+					:options="listOptions"
 					class="border rounded-lg py-2 px-3"
 				>
-					<ListHeader
-						class="mb-2 grid items-center rounded bg-surface-gray-2 !px-0"
-					>
-						<ListHeaderItem :item="item" v-for="item in feedbackColumns">
-							<template #prefix="{ item }">
-								<FeatherIcon :name="item.icon?.toString()" class="h-4 w-4" />
-							</template>
-						</ListHeaderItem>
-					</ListHeader>
-					<ListRows>
-						<ListRow
-							:row="row"
-							v-for="row in feedbackList"
-							class="group feedback-list"
+					<template #cell="{ column, row, value }">
+						<div
+							v-if="column.key == 'member_name'"
+							class="flex items-center gap-2"
 						>
-							<template #default="{ column, item }">
-								<ListRowItem
-									:item="row[column.key]"
-									:align="column.align"
-									class="text-sm"
-								>
-									<template #prefix>
-										<div v-if="column.key == 'member_name'">
-											<Avatar
-												class="flex"
-												:image="row['member_image']"
-												:label="item"
-												size="xl"
-											/>
-										</div>
-									</template>
-									<div v-if="ratingKeys.includes(column.key)">
-										<Rating v-model="row[column.key]" :disabled="true" />
-									</div>
-									<div v-else class="leading-5">
-										{{ row[column.key] }}
-									</div>
-								</ListRowItem>
-							</template>
-						</ListRow>
-					</ListRows>
-				</ListView>
+							<Avatar
+								:image="row.member_image as string"
+								:label="value as string"
+								size="xl"
+							/>
+							<span class="truncate">{{ value }}</span>
+						</div>
+						<Rating
+							v-else-if="ratingKeys.includes(column.key)"
+							:modelValue="Number(value)"
+							:disabled="true"
+						/>
+						<div v-else class="text-sm leading-5">{{ value }}</div>
+					</template>
+				</ResponsiveListView>
 			</div>
 		</template>
 	</Dialog>
 </template>
 <script setup lang="ts">
-import {
-	Dialog,
-	Avatar,
-	FeatherIcon,
-	ListView,
-	ListHeader,
-	ListHeaderItem,
-	ListRows,
-	ListRow,
-	ListRowItem,
-	Rating,
-} from 'frappe-ui'
-import { reactive, computed } from 'vue'
+import { Dialog, Avatar, Rating } from 'frappe-ui'
+import { computed } from 'vue'
+import type { ListRow, ListViewOptions } from '@/types'
+import ResponsiveListView from '@/components/ResponsiveListView.vue'
 
 const show = defineModel()
 const ratingKeys = ['content', 'instructors', 'value']
+
+const listOptions = {
+	showTooltip: false,
+	rowHeight: 'h-16',
+	selectable: false,
+} as ListViewOptions
 
 const props = defineProps({
 	feedbackList: {
@@ -94,42 +65,36 @@ const feedbackColumns = computed(() => {
 			key: 'member_name',
 			width: '10rem',
 			align: 'left',
-			icon: 'user',
+			icon: 'lucide-user',
 		},
 		{
 			label: 'Feedback',
 			key: 'feedback',
 			width: '15rem',
 			align: 'left',
-			icon: 'message-square',
+			icon: 'lucide-message-square',
 		},
 		{
 			label: 'Content',
 			key: 'content',
 			width: '10rem',
 			align: 'center',
-			icon: 'book',
+			icon: 'lucide-book',
 		},
 		{
 			label: 'Instructors',
 			key: 'instructors',
 			width: '10rem',
 			align: 'center',
-			icon: 'users',
+			icon: 'lucide-users',
 		},
 		{
 			label: 'Value',
 			key: 'value',
 			width: '10rem',
 			align: 'center',
-			icon: 'dollar-sign',
+			icon: 'lucide-dollar-sign',
 		},
 	]
 })
 </script>
-<style>
-.feedback-list > button > div {
-	padding: 0.2rem 0;
-	margin-bottom: 0.2rem;
-}
-</style>

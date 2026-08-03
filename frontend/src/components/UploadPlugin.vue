@@ -20,22 +20,24 @@ const props = defineProps({
 		type: Function,
 		required: true,
 	},
-	docname: {
-		type: String,
-		default: null,
-	},
-	fieldname: {
-		type: String,
-		default: 'content',
+	uploadContext: {
+		type: Object,
+		default: () => ({}),
 	},
 })
 
-const uploadArgs = computed(() => ({
-	private: true,
-	doctype: 'Course Lesson',
-	docname: props.docname,
-	fieldname: props.fieldname,
-}))
+// Attach to the lesson only once it exists: a null docname with doctype set
+// makes the File doctype reject the upload.
+const uploadArgs = computed(() => {
+	const args = { private: true }
+	const docname = props.uploadContext?.docname
+	if (docname) {
+		args.doctype = 'Course Lesson'
+		args.docname = docname
+		args.fieldname = props.uploadContext?.fieldname || 'content'
+	}
+	return args
+})
 
 onMounted(async () => {
 	await nextTick()

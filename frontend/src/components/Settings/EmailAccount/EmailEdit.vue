@@ -7,6 +7,16 @@
 	>
 		<template #header-actions>
 			<Button
+				:label="__('Delete')"
+				theme="red"
+				variant="subtle"
+				@click="showDeleteDialog = true"
+			>
+				<template #prefix>
+					<span class="lucide-trash-2 size-4" />
+				</template>
+			</Button>
+			<Button
 				:label="__('Update Account')"
 				variant="solid"
 				:loading="loading"
@@ -32,6 +42,7 @@
 						/>
 					</div>
 				</div>
+				<div class="h-px border-t border-outline-elevation-2" />
 				<div class="flex flex-col gap-4">
 					<Switch
 						v-for="field in incomingOutgoingFields"
@@ -46,13 +57,38 @@
 			</div>
 		</div>
 	</SettingsLayout>
+
+	<Dialog
+		v-model:open="showDeleteDialog"
+		:title="__('Delete {0}?').format(props.accountData.email_account_name)"
+		:message="
+			__('This permanently deletes the email account and cannot be undone.')
+		"
+		size="sm"
+		:actions="[
+			{
+				label: __('Delete'),
+				theme: 'red',
+				variant: 'solid',
+				loading: deleting,
+				onClick: deleteAccount,
+			},
+			{
+				label: __('Cancel'),
+				onClick: () => {
+					showDeleteDialog = false
+				},
+			},
+		]"
+	/>
 </template>
 
 <script setup lang="ts">
 import SettingsLayout from '@/components/Layouts/SettingsLayout.vue'
-import { EmailAccount, EmailStep } from '@/types/email'
+import { EmailAccount, EmailStep } from '@/types'
 import {
 	Button,
+	Dialog,
 	ErrorMessage,
 	FormControl,
 	Switch,
@@ -60,6 +96,7 @@ import {
 	createListResource,
 	toast,
 } from 'frappe-ui'
+import { cleanError } from '@/utils'
 import { computed, reactive, ref, watch } from 'vue'
 import {
 	frappeMailFields,
@@ -134,6 +171,28 @@ const emailAccounts = createListResource({
 	doctype: 'Email Account',
 	cache: ['Email Accounts'],
 })
+
+const showDeleteDialog = ref(false)
+const deleting = ref(false)
+
+function deleteAccount() {
+	if (deleting.value) return
+	deleting.value = true
+	emailAccounts.delete.submit(props.accountData.email_account_name, {
+		onSuccess: () => {
+			deleting.value = false
+			showDeleteDialog.value = false
+			toast.success(__('Email Account deleted successfully'))
+			emit('update:step', 'email-list')
+		},
+		onError: (err: { messages?: string[] }) => {
+			deleting.value = false
+			toast.error(
+				cleanError(err.messages?.[0]) || __('Error deleting email account')
+			)
+		},
+	})
+}
 
 async function updateAccount() {
 	// guard against a double-submit from spamming the Update button

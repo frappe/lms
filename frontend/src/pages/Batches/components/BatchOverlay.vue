@@ -31,7 +31,7 @@
 			/>
 			<div
 				v-if="batch.data.amount"
-				class="text-xl-semibold mb-5 text-ink-gray-9"
+				class="text-lg-semibold mb-5 text-ink-gray-9"
 			>
 				{{ formatNumberIntoCurrency(batch.data.amount, batch.data.currency) }}
 			</div>
@@ -57,7 +57,12 @@
 			<div v-if="batch.data.timezone" class="flex items-center text-ink-gray-7">
 				<span class="lucide-globe h-4 w-4 me-2" />
 				<span>
-					{{ batch.data.timezone }}
+					{{
+						formatTimezone(
+							batch.data.timezone,
+							nextOccurrence(batch.data.start_date, batch.data.end_date)
+						)
+					}}
 				</span>
 			</div>
 
@@ -108,11 +113,10 @@
 import { inject, computed } from 'vue'
 import { Badge, Button, createResource, toast } from 'frappe-ui'
 import { formatNumberIntoCurrency, formatTime } from '@/utils'
+import { formatTimezone, nextOccurrence } from '@/utils/timezone'
 import DateRange from '@/components/Common/DateRange.vue'
 import VideoPreview from '@/components/VideoPreview.vue'
-import { useRouter } from 'vue-router'
 
-const router = useRouter()
 const user = inject('$user')
 const readOnlyMode = window.read_only_mode
 
@@ -135,18 +139,17 @@ const enroll = createResource({
 const enrollInBatch = () => {
 	if (!user.data) {
 		window.location.href = `/login?redirect-to=/batches/${props.batch.data.name}`
+		return
 	}
 	enroll.submit(
 		{},
 		{
 			onSuccess(data) {
 				toast.success(__('You have been enrolled in this batch'))
-				router.push({
-					name: 'Batch',
-					params: {
-						batchName: props.batch.data.name,
-					},
-				})
+				// BatchOverlay lives on the batch detail page, so navigating there is a
+				// no-op. Refetch the batch instead: once `students` includes the user,
+				// BatchDetail swaps the enroll view for the enrolled one reactively.
+				props.batch.reload()
 			},
 			onError(err) {
 				toast.error(__(err.messages?.[0] || err))

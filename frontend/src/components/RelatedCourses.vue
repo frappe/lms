@@ -1,7 +1,7 @@
 <template>
 	<div v-if="relatedCourses.data?.length" class="mt-10">
 		<div class="flex items-center justify-between mb-6">
-			<div class="text-4xl-semibold text-ink-gray-9">
+			<div class="text-3xl-semibold text-ink-gray-9">
 				{{ __('Related Courses') }}
 			</div>
 		</div>
@@ -27,7 +27,7 @@ import { createResource } from 'frappe-ui'
 import { watch } from 'vue'
 import CourseCard from '@/components/CourseCard.vue'
 import type { LMSCourse } from '@/types/lms/LMSCourse'
-import type { Resource } from '@/types/api'
+import type { Resource } from '@/types'
 
 const props = defineProps<{
 	courseName: string

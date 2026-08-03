@@ -1,10 +1,16 @@
 <template>
 	<div class="flex flex-col h-full">
 		<div class="bg-surface-gray-1 px-5 py-5 border-b">
-			<div class="text-xl-semibold text-ink-gray-9 leading-snug">
+			<div
+				v-if="!hideHeader"
+				class="text-lg-semibold text-ink-gray-9 leading-snug"
+			>
 				{{ courseTitle }}
 			</div>
-			<div class="mt-4 flex items-center gap-2 text-sm text-ink-gray-7">
+			<div
+				class="flex items-center gap-2 text-sm text-ink-gray-7"
+				:class="{ 'mt-4': !hideHeader }"
+			>
 				<Cloud class="size-4 stroke-1.5" />
 				<span>{{ __('Completed') }} {{ displayedProgress }}%</span>
 			</div>
@@ -18,83 +24,90 @@
 			</div>
 		</div>
 
-		<div class="flex-1 overflow-y-auto px-2 py-3">
-			<Disclosure
-				v-for="chapter in outline.data || []"
-				:key="chapter.name"
-				v-slot="{ open }"
-				:defaultOpen="chapterDefaultOpen(chapter)"
-			>
-				<DisclosureButton
-					class="w-full flex items-center justify-between rounded px-3 py-2 hover:bg-surface-gray-2 text-left"
+		<ul class="flex-1 overflow-y-auto px-2 py-3 list-none">
+			<li v-for="chapter in outline.data || []" :key="chapter.name">
+				<Disclosure
+					v-slot="{ open }"
+					:defaultOpen="chapterDefaultOpen(chapter)"
 				>
-					<div
-						class="flex items-center gap-2 text-base-medium leading-5 text-ink-gray-9 min-w-0"
+					<DisclosureButton
+						class="w-full flex items-center justify-between rounded px-3 py-2 hover:bg-surface-gray-2 text-start"
 					>
-						<ChevronDown
-							class="size-4 stroke-1.5 shrink-0 transition-transform"
-							:class="{ '-rotate-90': !open }"
-						/>
-						<span class="truncate">{{ chapter.title }}</span>
-					</div>
-					<span
-						v-if="chapter.lessons?.length"
-						class="text-sm text-ink-gray-5 shrink-0"
-					>
-						{{ chapter.lessons.length }}
-					</span>
-				</DisclosureButton>
-				<DisclosurePanel>
-					<component
-						:is="inlineSelect ? 'div' : 'router-link'"
-						v-for="lesson in chapter.lessons || []"
-						:key="lesson.name"
-						:to="
-							inlineSelect
-								? undefined
-								: {
-										name: 'Lesson',
-										params: {
-											courseName,
+						<div
+							class="flex items-center gap-2 text-base-medium leading-5 text-ink-gray-9 min-w-0"
+						>
+							<ChevronDown
+								class="size-4 stroke-1.5 shrink-0 transition-transform"
+								:class="{ '-rotate-90': !open }"
+							/>
+							<span class="truncate">{{ chapter.title }}</span>
+						</div>
+						<span
+							v-if="chapter.lessons?.length"
+							class="text-sm text-ink-gray-5 shrink-0"
+						>
+							{{ chapter.lessons.length }}
+						</span>
+					</DisclosureButton>
+					<DisclosurePanel>
+						<ul class="list-none">
+							<li v-for="lesson in chapter.lessons || []" :key="lesson.name">
+								<component
+									:is="inlineSelect ? 'button' : 'router-link'"
+									:type="inlineSelect ? 'button' : undefined"
+									:to="
+										inlineSelect
+											? undefined
+											: {
+													name: 'Lesson',
+													params: {
+														courseName,
+														chapterNumber: lesson.number.split('-')[0],
+														lessonNumber: lesson.number.split('-')[1],
+													},
+													query: studentViewQuery,
+											  }
+									"
+									class="flex w-full items-center gap-3 rounded ps-9 pe-3 py-2 text-start text-sm leading-5 text-ink-gray-8 hover:bg-surface-gray-2"
+									:class="[
+										inlineSelect ? 'cursor-pointer' : '',
+										isActive(lesson.number)
+											? 'bg-surface-gray-2 text-ink-gray-9'
+											: '',
+									]"
+									@click="
+										emit('select-lesson', {
 											chapterNumber: lesson.number.split('-')[0],
 											lessonNumber: lesson.number.split('-')[1],
-										},
-								  }
-						"
-						class="flex items-center gap-3 rounded ps-9 pe-3 py-2 text-sm leading-5 text-ink-gray-8 hover:bg-surface-gray-2"
-						:class="[
-							inlineSelect ? 'cursor-pointer' : '',
-							isActive(lesson.number)
-								? 'bg-surface-gray-2 text-ink-gray-9'
-								: '',
-						]"
-						@click="
-							inlineSelect &&
-								emit('select-lesson', {
-									chapterNumber: lesson.number.split('-')[0],
-									lessonNumber: lesson.number.split('-')[1],
-								})
-						"
-					>
-						<component
-							:is="iconFor(lesson.icon)"
-							class="size-4 stroke-1.5 shrink-0 text-ink-gray-7"
-						/>
-						<span class="truncate flex-1">{{ lesson.title }}</span>
-						<CircleCheck
-							v-if="lesson.is_complete"
-							class="size-4 stroke-1.5 shrink-0 text-green-700 fill-none"
-						/>
-						<Circle v-else class="size-4 stroke-1.5 shrink-0 text-ink-gray-4" />
-					</component>
-				</DisclosurePanel>
-			</Disclosure>
-		</div>
+										})
+									"
+								>
+									<component
+										:is="iconFor(lesson.icon)"
+										class="size-4 stroke-1.5 shrink-0 text-ink-gray-7"
+									/>
+									<span class="truncate flex-1">{{ lesson.title }}</span>
+									<CircleCheck
+										v-if="lesson.is_complete"
+										class="size-4 stroke-1.5 shrink-0 text-green-700 fill-none"
+									/>
+									<Circle
+										v-else
+										class="size-4 stroke-1.5 shrink-0 text-ink-gray-4"
+									/>
+								</component>
+							</li>
+						</ul>
+					</DisclosurePanel>
+				</Disclosure>
+			</li>
+		</ul>
 	</div>
 </template>
 
 <script setup>
 import { computed, watch, watchEffect } from 'vue'
+import { useRoute } from 'vue-router'
 import { createResource } from 'frappe-ui'
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import {
@@ -118,9 +131,17 @@ const props = defineProps({
 	completedLesson: { type: String, default: null },
 	inlineSelect: { type: Boolean, default: false },
 	withProgress: { type: Boolean, default: true },
+	hideHeader: { type: Boolean, default: false },
 })
 
 const emit = defineEmits(['select-lesson'])
+
+// Keep ?studentView=1 across lesson hops, or a moderator previewing the course
+// silently reverts to their own identity on the first sidebar click.
+const route = useRoute()
+const studentViewQuery = computed(() =>
+	route.query.studentView === '1' ? { studentView: 1 } : undefined
+)
 
 const outline = createResource({
 	url: 'lms.lms.utils.get_course_outline',

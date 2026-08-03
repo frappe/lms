@@ -1,15 +1,15 @@
 <template>
 	<div class="space-y-1.5">
 		<FormLabel :label="__(label)" />
-		<Popover placement="bottom" class="!block">
-			<template #target="{ togglePopover, isOpen }">
+		<Popover side="bottom" class="!block">
+			<template #trigger="{ toggle, isOpen }">
 				<div class="space-y-2">
 					<FormControl
 						type="text"
 						autocomplete="off"
 						class="w-full"
 						:placeholder="__('Set Color')"
-						@focus="togglePopover"
+						@focus="toggle"
 						:modelValue="modelValue"
 						@update:modelValue="(val: string) => emit('update:modelValue', val)"
 					>
@@ -19,10 +19,7 @@
 								:style="
 									modelValue
 										? {
-												backgroundColor: getColor(
-													modelValue.toLowerCase(),
-													400
-												),
+												backgroundColor: `var(--${modelValue.toLowerCase()}-400)`,
 										  }
 										: {}
 								"
@@ -34,11 +31,12 @@
 							</div>
 						</template>
 						<template #suffix>
-							<Button variant="ghost">
-								<span
-									class="lucide-x size-3 text-ink-gray-5"
-									@click="emit('update:modelValue', null)"
-								/>
+							<Button
+								variant="ghost"
+								:label="__('Clear color')"
+								@click="emit('update:modelValue', null)"
+							>
+								<span class="lucide-x size-3 text-ink-gray-5" />
 							</Button>
 						</template>
 					</FormControl>
@@ -50,12 +48,14 @@
 						{{ __('Swatches') }}
 					</div>
 					<div class="grid grid-cols-7 gap-2">
-						<div
+						<button
 							v-for="color in colors"
 							:key="color"
+							type="button"
+							:aria-label="color"
 							class="size-5 rounded-full cursor-pointer"
 							:style="{
-								backgroundColor: getColor(color.toLowerCase(), 400),
+								backgroundColor: `var(--${color.toLowerCase()}-400)`,
 							}"
 							@click="
 								(e) => {
@@ -64,7 +64,7 @@
 									emit('change', color)
 								}
 							"
-						></div>
+						></button>
 					</div>
 				</div>
 			</template>
@@ -77,7 +77,6 @@
 <script setup lang="ts">
 import { Button, FormControl, FormLabel, Popover } from 'frappe-ui'
 import { computed } from 'vue'
-import { getColor } from '@/utils'
 
 const emit = defineEmits(['update:modelValue', 'change'])
 

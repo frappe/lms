@@ -1,25 +1,31 @@
 <template>
-	<div class="w-full px-5 pt-5 pb-10">
+	<div class="w-full p-5">
 		<div class="space-y-2">
 			<div class="flex items-center justify-between">
-				<div class="text-3xl-bold text-ink-gray-9">
+				<h1 class="text-2xl-bold text-ink-gray-9">
 					{{ __('Hey') }}, {{ user.data?.full_name }} 👋
-				</div>
+				</h1>
 				<div>
-					<div
+					<button
 						v-if="!isAdmin"
+						type="button"
 						@click="showStreakModal = true"
+						:aria-label="
+							__('View learning streak: {0} days').format(
+								streakInfo.data?.current_streak || 0
+							)
+						"
 						class="bg-surface-amber-2 px-2 py-1 rounded-md cursor-pointer"
 					>
 						<span> 🔥 </span>
 						<span class="text-ink-gray-9">
 							{{ streakInfo.data?.current_streak }}
 						</span>
-					</div>
+					</button>
 				</div>
 			</div>
 
-			<div class="text-xl text-ink-gray-6 leading-6">
+			<div class="text-lg text-ink-gray-6 leading-6">
 				{{ subtitle }}
 			</div>
 		</div>

@@ -38,10 +38,10 @@
 				class="flex items-center justify-center text-white flex-1 font-extrabold my-auto px-5 text-center leading-6 h-full"
 				:class="
 					course.title.length > 32
-						? 'text-xl'
+						? 'text-lg'
 						: course.title.length > 20
-						? 'text-3xl'
-						: 'text-4xl'
+						? 'text-2xl'
+						: 'text-3xl'
 				"
 			>
 				{{ course.title }}
@@ -86,7 +86,7 @@
 			<div
 				v-if="course.image"
 				class="font-semibold leading-6"
-				:class="course.title.length > 32 ? 'text-xl' : 'text-3xl'"
+				:class="course.title.length > 32 ? 'text-lg' : 'text-2xl'"
 			>
 				{{ course.title }}
 			</div>
@@ -112,6 +112,7 @@
 					>
 						<UserAvatar
 							v-for="instructor in course.instructors"
+							:key="instructor.username || instructor.name"
 							:user="instructor"
 						/>
 					</div>
@@ -143,7 +144,6 @@ import { computed, watch } from 'vue'
 import CourseInstructors from '@/components/CourseInstructors.vue'
 import UserAvatar from '@/components/UserAvatar.vue'
 import ProgressBar from '@/components/ProgressBar.vue'
-import colors from '@/utils/frappe-ui-colors.json'
 
 const { user } = sessionStore()
 
@@ -155,10 +155,8 @@ const props = defineProps({
 })
 
 const gradientColor = computed(() => {
-	let themeMode = theme.value === 'dark' ? 'darkMode' : 'lightMode'
 	let color = props.course.card_gradient?.toLowerCase() || 'blue'
-	let colorMap = colors[themeMode][color]
-	return `linear-gradient(to top right, black, ${colorMap[400]})`
+	return `linear-gradient(to top right, black, var(--${color}-400))`
 })
 </script>
 <style>

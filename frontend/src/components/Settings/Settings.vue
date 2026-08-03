@@ -1,68 +1,67 @@
 <template>
-	<Dialog v-model:open="show" size="5xl">
-		<template #body>
-			<div class="flex h-[calc(100vh_-_8rem)]">
-				<div
-					class="flex w-52 shrink-0 flex-col bg-surface-gray-2 p-2 overflow-y-auto"
+	<SettingsDialog v-model="show" v-model:tab="activeTab" size="5xl">
+		<template #title>{{ __('Settings') }}</template>
+		<SettingsSidebar>
+			<SettingsNavGroup
+				v-for="group in tabs"
+				:key="group.label"
+				:label="group.hideLabel ? undefined : __(group.label)"
+			>
+				<!-- CRM's sidebar type: xs-medium group headings, sm item labels.
+				     Set on inner spans — the library's own text-base sits on the
+				     wrapper and would otherwise win the cascade. -->
+				<template #label>
+					<span class="text-xs-medium text-ink-gray-5">
+						{{ __(group.label) }}
+					</span>
+				</template>
+				<SettingsNavItem
+					v-for="item in group.items"
+					:key="item.label"
+					:value="item.label"
 				>
-					<h1 class="mb-3 px-2 pt-2 text-xl-semibold text-ink-gray-9">
-						{{ __('Settings') }}
-					</h1>
-					<div class="space-y-5">
-						<div v-for="tab in tabs" :key="tab.label">
-							<div
-								v-if="!tab.hideLabel"
-								class="mb-2 mt-3 flex cursor-pointer gap-1.5 px-1 text-base text-ink-gray-5 transition-all duration-300 ease-in-out"
-							>
-								<span>{{ __(tab.label) }}</span>
-							</div>
-							<nav class="space-y-1">
-								<div v-for="item in tab.items" @click="activeTab = item">
-									<SidebarLink
-										:link="item"
-										:key="item.label"
-										:activeTab="activeTab?.label"
-									/>
-								</div>
-							</nav>
-						</div>
-					</div>
-				</div>
-				<div
-					v-if="activeTab && data.doc"
-					:key="activeTab.label"
-					class="flex flex-1 flex-col bg-surface-elevation-2 overflow-hidden"
-				>
-					<component
-						v-if="activeTab.template"
-						:is="activeTab.template"
-						v-bind="{
-							label: activeTab.label,
-							description: activeTab.description,
-							...(activeTab.label == 'Members' ||
-							activeTab.label == 'Transactions'
-								? { 'onUpdate:show': (val) => (show = val), show }
-								: {}),
-						}"
-					/>
-					<SettingDetails
-						v-else
-						:sections="activeTab.sections"
-						:label="activeTab.label"
-						:description="activeTab.description"
-						:data="data"
-					/>
-				</div>
-			</div>
-		</template>
-	</Dialog>
+					<template #prefix>
+						<span :class="[item.icon, 'size-4 shrink-0 text-ink-gray-7']" />
+					</template>
+					<span class="text-sm text-ink-gray-8">{{ __(item.label) }}</span>
+				</SettingsNavItem>
+			</SettingsNavGroup>
+		</SettingsSidebar>
+		<SettingsContent v-if="data.doc">
+			<SettingsPanel
+				v-for="item in items"
+				:key="item.label"
+				:value="item.label"
+			>
+				<component
+					v-if="item.template"
+					:is="item.template"
+					v-bind="panelProps(item)"
+				/>
+				<SettingDetails
+					v-else
+					:sections="item.sections"
+					:label="item.label"
+					:description="item.description"
+					:data="data"
+				/>
+			</SettingsPanel>
+		</SettingsContent>
+	</SettingsDialog>
 </template>
 <script setup>
-import { Dialog, createDocumentResource } from 'frappe-ui'
+import {
+	SettingsContent,
+	SettingsDialog,
+	SettingsNavGroup,
+	SettingsNavItem,
+	SettingsPanel,
+	SettingsSidebar,
+	createDocumentResource,
+} from 'frappe-ui'
 import { computed, markRaw, ref, watch } from 'vue'
 import { useSettings } from '@/stores/settings'
 import SettingDetails from '@/components/Settings/SettingDetails.vue'
-import SidebarLink from '@/components/Sidebar/SidebarLink.vue'
 import Members from '@/components/Settings/Members.vue'
 import Categories from '@/components/Settings/Categories.vue'
 import EmailTemplatePage from '@/components/Settings/EmailTemplate/EmailTemplatePage.vue'
@@ -74,10 +73,11 @@ import Transactions from '@/components/Settings/Transactions/Transactions.vue'
 import ZoomSettings from '@/components/Settings/ZoomSettings.vue'
 import GoogleMeetSettings from '@/components/Settings/GoogleMeetSettings.vue'
 import Badges from '@/components/Settings/Badges/Badges.vue'
+import RavenSettings from '@/components/Settings/Raven/RavenSettings.vue'
 
 const show = defineModel()
 const doctype = ref('LMS Settings')
-const activeTab = ref(null)
+const activeTab = ref('')
 const settingsStore = useSettings()
 
 const data = createDocumentResource({
@@ -92,11 +92,11 @@ const tabsStructure = computed(() => {
 	return [
 		{
 			label: 'Configuration',
-			hideLabel: true,
+			hideLabel: false,
 			items: [
 				{
 					label: 'General',
-					icon: 'Wrench',
+					icon: 'lucide-wrench',
 					description:
 						'Configure system-wide defaults, notifications, and contact information',
 					sections: [
@@ -277,7 +277,7 @@ const tabsStructure = computed(() => {
 				},
 				{
 					label: 'Course Progress',
-					icon: 'Activity',
+					icon: 'lucide-activity',
 					description:
 						'Control how lessons are marked complete: dwell time and enforcement toggles for video, quiz, and assignment.',
 					sections: [
@@ -338,13 +338,13 @@ const tabsStructure = computed(() => {
 					label: 'Badges',
 					description:
 						'Create badges and assign them to students to acknowledge their achievements',
-					icon: 'Award',
+					icon: 'lucide-award',
 					template: markRaw(Badges),
 				},
 				{
 					label: 'Categories',
 					description: 'Double click to edit the category',
-					icon: 'Network',
+					icon: 'lucide-network',
 					template: markRaw(Categories),
 				},
 			],
@@ -355,26 +355,26 @@ const tabsStructure = computed(() => {
 				{
 					label: 'Accounts',
 					description: 'Manage email accounts for incoming and outgoing mail',
-					icon: 'Mail',
+					icon: 'lucide-mail',
 					template: markRaw(EmailConfig),
 				},
 				{
 					label: 'Templates',
 					description: 'Manage the email templates for your learning system',
-					icon: 'MailPlus',
+					icon: 'lucide-mail-plus',
 					template: markRaw(EmailTemplatePage),
 				},
 			],
 		},
 		{
-			label: 'Users',
+			label: 'User Management',
 			hideLabel: false,
 			items: [
 				{
-					label: 'Members',
+					label: 'Users',
 					description:
-						'Add new members or manage roles and permissions of existing members',
-					icon: 'User',
+						'Manage users by adding or inviting them, and assign roles to control their access and permissions',
+					icon: 'lucide-user',
 					template: markRaw(Members),
 				},
 			],
@@ -385,7 +385,7 @@ const tabsStructure = computed(() => {
 			items: [
 				{
 					label: 'Configuration',
-					icon: 'CreditCard',
+					icon: 'lucide-credit-card',
 					description: 'Manage all your payment related settings and defaults',
 					sections: [
 						{
@@ -468,19 +468,19 @@ const tabsStructure = computed(() => {
 				},
 				{
 					label: 'Gateways',
-					icon: 'DollarSign',
+					icon: 'lucide-dollar-sign',
 					template: markRaw(PaymentGateways),
 					description: 'Add and manage all your payment gateways',
 				},
 				{
 					label: 'Transactions',
-					icon: 'Landmark',
+					icon: 'lucide-landmark',
 					template: markRaw(Transactions),
 					description: 'View all your payment transactions',
 				},
 				{
 					label: 'Coupons',
-					icon: 'Ticket',
+					icon: 'lucide-ticket',
 					template: markRaw(Coupons),
 					description: 'Manage discount coupons for courses and batches',
 				},
@@ -494,15 +494,28 @@ const tabsStructure = computed(() => {
 					label: 'Zoom',
 					description:
 						'Manage zoom accounts to conduct live classes from batches',
-					icon: 'Video',
+					icon: 'lucide-video',
 					template: markRaw(ZoomSettings),
 				},
 				{
 					label: 'Google Meet',
 					description:
 						'Manage Google Meet accounts to conduct live classes from batches',
-					icon: 'Presentation',
+					icon: 'lucide-presentation',
 					template: markRaw(GoogleMeetSettings),
+				},
+			],
+		},
+		{
+			label: 'Integrations',
+			hideLabel: false,
+			items: [
+				{
+					label: 'Raven',
+					description:
+						'Automatically sync Raven workspace and channel membership from your students and staff',
+					icon: 'lucide-messages-square',
+					template: markRaw(RavenSettings),
 				},
 			],
 		},
@@ -512,14 +525,14 @@ const tabsStructure = computed(() => {
 			items: [
 				{
 					label: 'Branding',
-					icon: 'Palette',
+					icon: 'lucide-palette',
 					description:
 						'Customize the brand name and logo to make the application your own',
 					template: markRaw(BrandSettings),
 				},
 				{
 					label: 'Sidebar',
-					icon: 'PanelLeftIcon',
+					icon: 'lucide-panel-left',
 					description: 'Choose the items you want to show in the sidebar',
 					sections: [
 						{
@@ -583,7 +596,7 @@ const tabsStructure = computed(() => {
 				},
 				{
 					label: 'Signup',
-					icon: 'LogIn',
+					icon: 'lucide-log-in',
 					description:
 						'Manage the settings related to user signup and registration',
 					sections: [
@@ -622,7 +635,7 @@ const tabsStructure = computed(() => {
 				},
 				{
 					label: 'SEO',
-					icon: 'Search',
+					icon: 'lucide-search',
 					description:
 						'Manage the SEO settings to improve your website ranking on search engines',
 					sections: [
@@ -665,6 +678,17 @@ const tabsStructure = computed(() => {
 	]
 })
 
+const items = computed(() => tabs.value.flatMap((group) => group.items))
+
+// Members and Transactions own dialogs of their own and need to close Settings.
+const panelProps = (item) => ({
+	label: item.label,
+	description: item.description,
+	...(['Users', 'Transactions'].includes(item.label)
+		? { 'onUpdate:show': (val) => (show.value = val), show: show.value }
+		: {}),
+})
+
 const tabs = computed(() => {
 	return tabsStructure.value.map((tab) => {
 		return {
@@ -676,14 +700,14 @@ const tabs = computed(() => {
 	})
 })
 
-watch(show, async () => {
+watch(show, () => {
 	if (show.value) {
-		const currentTab = await tabs.value
-			.flatMap((tab) => tab.items)
-			.find((item) => item.label === settingsStore.activeTab)
-		activeTab.value = currentTab || tabs.value[0].items[0]
+		const stored = items.value.find(
+			(item) => item.label === settingsStore.activeTab
+		)
+		activeTab.value = (stored || items.value[0]).label
 	} else {
-		activeTab.value = null
+		activeTab.value = ''
 		settingsStore.isSettingsOpen = false
 	}
 })

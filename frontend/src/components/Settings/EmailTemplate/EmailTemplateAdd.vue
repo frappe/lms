@@ -42,7 +42,6 @@
 				type="textarea"
 				:label="__('Content')"
 				:required="true"
-				:rows="10"
 				:placeholder="htmlPlaceholder"
 			/>
 			<div v-else>
@@ -50,7 +49,7 @@
 					{{ __('Content') }}
 					<span class="text-ink-red-6">*</span>
 				</div>
-				<TextEditor
+				<RichTextEditor
 					:content="template.response"
 					:editable="true"
 					:fixed-menu="true"
@@ -71,13 +70,13 @@ import {
 	ErrorMessage,
 	FormControl,
 	Switch,
-	TextEditor,
 	createListResource,
 	toast,
 } from 'frappe-ui'
 import { computed, reactive, ref } from 'vue'
 import { cleanError } from '@/utils'
-import type { EmailTemplate, EmailTemplateStep } from '@/types/email'
+import type { EmailTemplate, EmailTemplateStep } from '@/types'
+import RichTextEditor from '@/components/RichTextEditor.vue'
 
 interface P {
 	templateData?: EmailTemplate | null

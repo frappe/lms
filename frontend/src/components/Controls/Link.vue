@@ -1,5 +1,5 @@
 <template>
-	<div>
+	<div :class="attrs.class as any" :style="attrs.style as any">
 		<FormLabel
 			v-if="attrs.label"
 			:label="attrs.label"
@@ -7,11 +7,13 @@
 			class="mb-1.5"
 		/>
 		<Combobox
+			:open="isOpen"
 			:modelValue="value"
 			:options="resolvedOptions"
 			:placeholder="attrs.placeholder as string"
 			:disabled="attrs.readonly as boolean"
 			:size="(attrs.size as ComboboxSize) || 'sm'"
+			:aria-label="attrs['aria-label'] as string"
 			:variant="attrs.variant as ComboboxVariant"
 			:loading="options.loading"
 			@update:modelValue="onSelect"
@@ -88,7 +90,7 @@ import {
 import { useDebounceFn, watchDebounced } from '@vueuse/core'
 import { useAttrs, computed, ref, watch } from 'vue'
 import { useSettings } from '@/stores/settings'
-import type { Resource } from '@/types/api'
+import type { Resource } from '@/types'
 
 type ComboboxSize = 'sm' | 'md' | 'lg' | 'xl'
 type ComboboxVariant = 'subtle' | 'outline' | 'ghost'
@@ -119,11 +121,14 @@ const emit = defineEmits<{
 	(e: 'change', value: string): void
 }>()
 
+defineOptions({ inheritAttrs: false })
+
 const attrs = useAttrs()
 const valuePropPassed = computed<boolean>(() => 'value' in attrs)
 
 const creating = ref<boolean>(false)
 const newItemName = ref<string>('')
+const isOpen = ref<boolean>(false)
 let loaded = false
 
 const value = computed<string>(() =>
@@ -208,6 +213,7 @@ function reload(txt: string = ''): void {
 }
 
 function onOpen(open: boolean): void {
+	isOpen.value = open
 	if (open && !loaded) reload('')
 }
 
@@ -238,6 +244,8 @@ function handleCreate(): void {
 		creating.value = true
 		return
 	}
+	// Close the dropdown so it doesn't stack on top of the modal onCreate opens.
+	isOpen.value = false
 	props.onCreate?.(null)
 }
 

@@ -61,7 +61,7 @@
 							<Combobox
 								:modelValue="liveClass.timezone"
 								:options="getTimezoneOptions()"
-								@update:modelValue="(opt) => (liveClass.timezone = opt.value)"
+								@update:modelValue="(value) => (liveClass.timezone = value)"
 							/>
 						</div>
 						<FormControl

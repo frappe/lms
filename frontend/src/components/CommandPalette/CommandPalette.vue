@@ -1,6 +1,6 @@
 <template>
-	<Dialog v-model:open="show" size="2xl">
-		<template #body>
+	<Dialog v-model:open="show" size="2xl" bare>
+		<template #default>
 			<div class="text-base">
 				<div class="flex items-center gap-x-2 ps-4.5 border-b">
 					<span class="lucide-search size-4 text-ink-gray-4" />
@@ -138,6 +138,9 @@ const addKeyboardShortcuts = () => {
 		} else if (e.key === 'ArrowDown' && show.value) {
 			shortcutForArrowKey(1)
 		} else if (e.key === 'Enter' && show.value) {
+			// A focused result button fires its own click; let that be the
+			// single navigation instead of racing this handler.
+			if ((e.target as HTMLElement)?.closest?.('[data-palette-item]')) return
 			shortcutForEnter()
 		} else if (e.key === 'Escape' && show.value) {
 			show.value = false

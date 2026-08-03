@@ -90,7 +90,7 @@
 			 slots in without a layout jump. -->
 		<div
 			v-else-if="variant === 'header'"
-			class="flex items-center justify-between border-b px-3 py-2.5 sm:px-5"
+			class="flex min-h-14 items-center justify-between border-b px-5 py-2.5 sm:min-h-0"
 		>
 			<div class="flex items-center gap-2">
 				<div class="h-4 w-16 rounded bg-surface-gray-2" />
@@ -98,8 +98,8 @@
 				<div class="h-4 w-40 rounded bg-surface-gray-3" />
 			</div>
 			<div class="flex items-center gap-2">
-				<div class="h-8 w-20 rounded bg-surface-gray-2" />
-				<div class="h-8 w-24 rounded bg-surface-gray-3" />
+				<div class="h-7 w-20 rounded bg-surface-gray-2" />
+				<div class="h-7 w-24 rounded bg-surface-gray-3" />
 			</div>
 		</div>
 
@@ -107,7 +107,7 @@
 			 a bottom border, matching the real Tabs strip's height. -->
 		<div
 			v-else-if="variant === 'tabs'"
-			class="flex items-center gap-1 border-b px-3 py-2 sm:px-5"
+			class="flex items-center gap-1 border-b px-5 py-2"
 		>
 			<div
 				v-for="i in count"

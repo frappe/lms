@@ -3,12 +3,13 @@
 		<div class="mt-10 space-y-10">
 			<UpcomingEvaluations :forHome="true" />
 			<div v-if="myLiveClasses.data?.length">
-				<div class="font-semibold text-lg mb-3 text-ink-gray-9">
+				<h2 class="font-semibold text-md mb-3 text-ink-gray-9">
 					{{ __('Upcoming Live Classes') }}
-				</div>
+				</h2>
 				<div class="grid grid-cols-1 md:grid-cols-4 gap-5">
 					<div
 						v-for="cls in myLiveClasses.data"
+						:key="cls.name"
 						class="border rounded-md hover:border-outline-gray-3 p-3"
 					>
 						<div class="font-semibold text-ink-gray-9 leading-5 mb-1">
@@ -74,13 +75,13 @@
 
 		<div v-if="myCourses.data?.length" class="mt-10">
 			<div class="flex items-center justify-between mb-3">
-				<span class="font-semibold text-lg text-ink-gray-9">
+				<h2 class="font-semibold text-md text-ink-gray-9">
 					{{
 						myCourses.data[0].membership
 							? __('My Courses')
 							: __('Our Popular Courses')
 					}}
-				</span>
+				</h2>
 				<router-link
 					:to="{
 						name: 'Courses',
@@ -97,6 +98,7 @@
 			<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
 				<router-link
 					v-for="course in myCourses.data"
+					:key="course.name"
 					:to="{ name: 'CourseDetail', params: { courseName: course.name } }"
 				>
 					<CourseCard :course="course" />
@@ -106,13 +108,13 @@
 
 		<div v-if="myBatches.data?.length" class="mt-10">
 			<div class="flex items-center justify-between mb-3">
-				<span class="font-semibold text-lg text-ink-gray-9">
+				<h2 class="font-semibold text-md text-ink-gray-9">
 					{{
 						myBatches.data?.[0].students?.includes(user.data?.name)
 							? __('My Batches')
 							: __('Our Upcoming Batches')
 					}}
-				</span>
+				</h2>
 				<router-link
 					:to="{
 						name: 'Batches',
@@ -129,6 +131,7 @@
 			<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
 				<router-link
 					v-for="batch in myBatches.data"
+					:key="batch.name"
 					:to="{ name: 'BatchDetail', params: { batchName: batch.name } }"
 				>
 					<BatchCard :batch="batch" />

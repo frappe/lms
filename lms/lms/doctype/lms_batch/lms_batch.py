@@ -13,6 +13,7 @@ from frappe.model.document import Document
 from frappe.utils import add_days, cint, format_datetime, get_time, nowdate
 
 from lms.lms.utils import (
+	format_timezone,
 	generate_slug,
 	get_assignment_details,
 	get_instructors,
@@ -191,7 +192,7 @@ def send_email_notification_for_published_batch(batch):
 		"end_date": batch.end_date,
 		"start_time": batch.start_time,
 		"medium": batch.medium,
-		"timezone": batch.timezone,
+		"timezone": format_timezone(batch.timezone, batch.start_date),
 		"instructors": instructors,
 		"batch_url": frappe.utils.get_url(get_lms_route(f"batches/{batch.name}")),
 	}

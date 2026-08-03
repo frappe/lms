@@ -5,7 +5,7 @@
 			:fallback-image="course.data?.image"
 		/>
 		<div class="p-5">
-			<div class="text-4xl-semibold text-ink-gray-9 mb-4">
+			<div class="text-3xl-semibold text-ink-gray-9 mb-4">
 				{{ priceLabel }}
 			</div>
 			<div v-if="!readOnlyMode">
@@ -154,7 +154,7 @@ import type {
 	CourseInstructorInfo,
 	Resource,
 	SessionUser,
-} from '@/types/api'
+} from '@/types'
 
 const router = useRouter()
 const user = inject<SessionUser>('$user')!

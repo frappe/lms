@@ -87,7 +87,7 @@ import ContactUsEmail from '@/components/ContactUsEmail.vue'
 import * as icons from 'lucide-vue-next'
 import { toggleNotifications } from '@/stores/notifications'
 import { useSettings } from '@/stores/settings'
-import type { SidebarLink } from '@/types/sidebar'
+import type { SidebarLink } from '@/types'
 
 const router = useRouter()
 const settingsStore = useSettings()

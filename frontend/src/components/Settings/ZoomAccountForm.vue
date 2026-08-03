@@ -59,7 +59,7 @@
 import { Button, FormControl, call, toast } from 'frappe-ui'
 import BooleanSwitch from '@/components/Controls/BooleanSwitch.vue'
 import { computed, inject, reactive, watch } from 'vue'
-import { User } from '@/components/Settings/types'
+import { User } from '@/types'
 import { openSettings, cleanError } from '@/utils'
 import Link from '@/components/Controls/Link.vue'
 import SettingsLayout from '@/components/Layouts/SettingsLayout.vue'

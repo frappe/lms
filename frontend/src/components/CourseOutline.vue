@@ -9,7 +9,7 @@
 			}"
 		>
 			<div
-				class="text-xl-semibold leading-5 text-ink-gray-9"
+				class="text-lg-semibold leading-5 text-ink-gray-9"
 				:class="{ 'font-medium text-p-base': allowEdit }"
 			>
 				{{ __(title) }}
@@ -98,7 +98,7 @@ import type {
 	OutlineLesson,
 	Resource,
 	SessionUser,
-} from '@/types/api'
+} from '@/types'
 
 interface DraggableEvent {
 	item: { __draggable_context: { element: OutlineChapter | OutlineLesson } }
@@ -335,7 +335,7 @@ function navigateToLesson(lesson: OutlineLesson) {
 			name: 'CourseDetail',
 			params: { courseName: props.courseName },
 			hash: '#course editor',
-			query: { editLesson: lesson.number, lessonMode: 'edit' },
+			query: { editLesson: lesson.number },
 		})
 	}
 }

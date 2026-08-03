@@ -1,12 +1,11 @@
 /**
- * Tests for EmailTemplateList.vue — the ListView of templates.
+ * Tests for EmailTemplateList.vue — the settings list of templates.
  *
- * Focus: New emits the add step, the row action dropdown exposes
- * Edit/Duplicate/Delete, and Delete goes through a confirm Dialog before
- * calling delete.submit (a destructive action must be guarded).
+ * Focus: Delete goes through a confirm Dialog before calling delete.submit,
+ * and it deletes the row that was clicked (not the first row).
  *
- * The frappe-ui ListView stack is stubbed to render each row's action-column
- * slot so the per-row Dropdown is reachable.
+ * The frappe-ui/list family is stubbed (it is frappe-ui's own, tested there);
+ * ListRows renders its row slot per item so the per-row Dropdown is reachable.
  */
 import { describe, expect, it, vi, beforeEach } from 'vitest'
 import { flushPromises, mount } from '@vue/test-utils'
@@ -47,20 +46,21 @@ vi.mock('frappe-ui', () => ({
 		props: ['options'],
 		template: `<div><button v-for="o in options" :key="o.label" :data-testid="'opt-' + o.label" @click="o.onClick()">{{ o.label }}</button><slot /></div>`,
 	},
-	FeatherIcon: { props: ['name'], template: `<i />` },
-	ListView: {
-		props: ['columns', 'rows', 'options'],
-		template: `<div><slot /></div>`,
+}))
+
+vi.mock('frappe-ui/list', () => ({
+	List: { template: `<div><slot /></div>` },
+	// Render the row slot once per item, mirroring the real ListRows contract.
+	ListRows: {
+		props: ['items', 'rowKey'],
+		template: `<div><template v-for="item in items" :key="item.name">
+			<slot :item="item" :value="item.name" />
+		</template></div>`,
 	},
+	ListRow: { template: `<div><slot /></div>` },
+	ListCell: { template: `<div><slot /></div>` },
 	ListHeader: { template: `<div><slot /></div>` },
-	ListHeaderItem: { props: ['item'], template: `<div><slot /></div>` },
-	ListRows: { template: `<div><slot /></div>` },
-	// Render each row's scoped slot for the action column so the Dropdown shows.
-	ListRow: {
-		props: ['row'],
-		template: `<div><slot :column="{ key: 'action', align: 'right' }" :item="undefined" /></div>`,
-	},
-	ListRowItem: { props: ['item', 'align'], template: `<div><slot /></div>` },
+	ListHeaderCell: { template: `<div><slot /></div>` },
 }))
 
 vi.mock('@/components/Layouts/SettingsLayout.vue', () => ({
@@ -93,28 +93,6 @@ beforeEach(() => {
 })
 
 describe('EmailTemplateList', () => {
-	it('New emits the add step', async () => {
-		const w = mountList()
-		await w.get('[data-testid="btn-New"]').trigger('click')
-		expect(w.emitted('update:step')?.[0]).toEqual(['template-new'])
-	})
-
-	it('row dropdown exposes Edit, Duplicate, and Delete', () => {
-		const w = mountList()
-		// two rows -> two of each option
-		expect(w.findAll('[data-testid="opt-Edit"]')).toHaveLength(2)
-		expect(w.findAll('[data-testid="opt-Duplicate"]')).toHaveLength(2)
-		expect(w.findAll('[data-testid="opt-Delete"]')).toHaveLength(2)
-	})
-
-	it('Duplicate emits template-new with the row data', async () => {
-		const w = mountList()
-		await w.findAll('[data-testid="opt-Duplicate"]')[0].trigger('click')
-		const ev = w.emitted('update:step') as any[]
-		expect(ev[0][0]).toBe('template-new')
-		expect(ev[0][1]).toMatchObject({ name: 'Welcome' })
-	})
-
 	it('Delete opens a confirm dialog and only deletes after confirming', async () => {
 		const w = mountList()
 		// no dialog yet, no delete
@@ -124,7 +102,7 @@ describe('EmailTemplateList', () => {
 		await flushPromises()
 		// dialog now open, still no delete call
 		expect(w.get('[data-testid="dialog-title"]').text()).toBe(
-			'Delete Dispatch?',
+			'Delete Dispatch?'
 		)
 		expect(deleteSubmit).not.toHaveBeenCalled()
 

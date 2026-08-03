@@ -1,7 +1,7 @@
 <template>
 	<div v-if="!forHome || (forHome && upcoming_evals.data?.length)">
 		<div class="flex items-center justify-between mb-4">
-			<div class="text-xl-semibold text-ink-gray-9">
+			<div class="text-lg-semibold text-ink-gray-9">
 				{{ __('Upcoming Evaluations') }}
 			</div>
 			<Button v-if="canScheduleEvals" @click="openEvalModal">
@@ -33,7 +33,7 @@
 				class="grid gap-4"
 				:class="forHome ? 'grid-cols-1 md:grid-cols-4' : 'grid-cols-1'"
 			>
-				<div v-for="evl in upcoming_evals.data">
+				<div v-for="evl in upcoming_evals.data" :key="evl.name">
 					<div
 						class="border hover:border-outline-gray-3 text-ink-gray-7 rounded-md p-3"
 					>
@@ -56,7 +56,7 @@
 								side="left"
 							>
 								<template v-slot="{ open }">
-									<Button variant="ghost">
+									<Button variant="ghost" :label="__('Options')">
 										<template #icon>
 											<span class="lucide-ellipsis-vertical w-4 h-4" />
 										</template>
@@ -74,6 +74,12 @@
 							<span class="lucide-clock w-4 h-4" />
 							<span class="ms-2">
 								{{ formatTime(evl.start_time) }}
+							</span>
+						</div>
+						<div v-if="evl.timezone" class="flex items-center mb-2">
+							<span class="lucide-globe w-4 h-4" />
+							<span class="ms-2">
+								{{ formatTimezone(evl.timezone, evl.date) }}
 							</span>
 						</div>
 						<div class="flex items-center">
@@ -112,6 +118,7 @@
 <script setup>
 import { inject, ref, getCurrentInstance, computed } from 'vue'
 import { formatTime } from '@/utils'
+import { formatTimezone } from '@/utils/timezone'
 import { Button, createListResource, call, Dropdown, toast } from 'frappe-ui'
 import EvaluationModal from '@/components/Modals/EvaluationModal.vue'
 
@@ -155,6 +162,7 @@ const upcoming_evals = createListResource({
 		'name',
 		'date',
 		'start_time',
+		'timezone',
 		'evaluator_name',
 		'course_title',
 		'member',

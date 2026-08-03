@@ -21,12 +21,13 @@
 						/>
 						<div class="leading-5 text-ink-gray-9">
 							{{ __('Drag and drop a ZIP file, or upload from your') }}
-							<span
+							<button
+								type="button"
 								@click="openFileSelector"
 								class="cursor-pointer font-semibold hover:underline"
 							>
 								{{ __('Device') }}
-							</span>
+							</button>
 						</div>
 					</div>
 					<div
@@ -64,8 +65,10 @@
 								{{ convertToMB(zip.file_size) }}
 							</div>
 						</div>
-						<span
+						<button
+							type="button"
 							class="lucide-trash-2 size-4 text-ink-red-6 cursor-pointer"
+							:aria-label="__('Remove file')"
 							@click="deleteFile"
 						/>
 					</div>

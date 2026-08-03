@@ -8,7 +8,11 @@
 				)
 			}}
 
-			<div v-for="(quiz, index) in quizzes" class="ps-3 mt-1">
+			<div
+				v-for="(quiz, index) in quizzes"
+				:key="`${quiz.quiz}-${index}`"
+				class="ps-3 mt-1"
+			>
 				<span>
 					{{ index + 1 }}. <span class="font-semibold"> {{ quiz.quiz }} </span>
 				</span>
@@ -30,8 +34,10 @@
 				:src="fileURL"
 				:type="type"
 			></video>
-			<div
+			<button
+				type="button"
 				v-if="!playing"
+				:aria-label="__('Play video')"
 				class="absolute inset-0 flex items-center justify-center cursor-pointer"
 				@click="playVideo"
 			>
@@ -47,25 +53,22 @@
 				>
 					<Play />
 				</div>
-			</div>
+			</button>
 			<div
 				class="flex items-center gap-x-2 py-2 px-1 text-ink-base bg-gradient-to-b from-transparent to-black/75 absolute bottom-0 start-0 end-0 mx-auto rounded-md"
 				:class="{
 					'invisible group-hover:visible': playing,
 				}"
 			>
-				<Button variant="ghost" class="hover:bg-transparent">
+				<Button
+					variant="ghost"
+					class="hover:bg-transparent"
+					:label="playing ? __('Pause') : __('Play')"
+					@click="togglePlay"
+				>
 					<template #icon>
-						<Play
-							v-if="!playing"
-							@click="playVideo"
-							class="size-4 text-ink-gray-9"
-						/>
-						<span
-							class="lucide-pause size-5 text-ink-base"
-							v-else
-							@click="pauseVideo"
-						/>
+						<Play v-if="!playing" class="size-4 text-ink-gray-9" />
+						<span v-else class="lucide-pause size-5 text-ink-base" />
 					</template>
 				</Button>
 
@@ -77,6 +80,7 @@
 						step="0.1"
 						v-model="currentTime"
 						@input="changeCurrentTime"
+						:aria-label="__('Seek')"
 						class="duration-slider h-1"
 					/>
 					<!-- QUIZ MARKERS -->
@@ -101,6 +105,7 @@
 				<Button
 					variant="ghost"
 					@click="toggleMute"
+					:label="muted ? __('Unmute') : __('Mute')"
 					class="hover:bg-transparent"
 				>
 					<template #icon>
@@ -111,6 +116,7 @@
 				<Button
 					variant="ghost"
 					@click="toggleFullscreen"
+					:label="__('Toggle fullscreen')"
 					class="hover:bg-transparent"
 				>
 					<template #icon>
@@ -125,8 +131,8 @@
 			:inVideo="true"
 			:backToVideo="resumeVideo"
 		/>
-		<div v-if="!readOnly" @click="showQuizModal = true">
-			<Button>
+		<div v-if="!readOnly">
+			<Button @click="showQuizModal = true">
 				{{ __('Add Quiz to Video') }}
 			</Button>
 		</div>
@@ -137,8 +143,8 @@
 		:saveQuizzes="saveQuizzes"
 		:duration="duration"
 	/>
-	<Dialog v-model:open="showQuizLoader" size="sm">
-		<template #body>
+	<Dialog v-model:open="showQuizLoader" size="sm" bare>
+		<template #default>
 			<div class="flex flex-col space-y-2 p-5 text-base leading-5">
 				<span class="font-semibold">
 					{{ __('Time for a Quiz') }}

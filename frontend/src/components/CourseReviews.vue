@@ -3,10 +3,10 @@
 		<div class="flex items-center justify-between gap-3 mb-8">
 			<div class="flex items-center gap-2">
 				<LucideStar class="size-5 text-transparent fill-yellow-500" />
-				<span class="text-4xl-semibold text-ink-gray-9">
+				<span class="text-3xl-semibold text-ink-gray-9">
 					{{ avg_rating ? formatRating(avg_rating) : '0' }}
 				</span>
-				<span class="text-xl text-ink-gray-7">
+				<span class="text-lg text-ink-gray-7">
 					{{ __('course rating') }} &amp;
 					{{ reviews.data?.length || 0 }}
 					{{
@@ -46,7 +46,7 @@
 								name: 'Profile',
 								params: { username: review.owner_details.username },
 							}"
-							class="text-xl-medium text-ink-gray-9 truncate"
+							class="text-lg-medium text-ink-gray-9 truncate"
 						>
 							{{ review.owner_details.full_name }}
 						</router-link>
@@ -110,7 +110,7 @@ import type {
 	Membership,
 	Resource,
 	SessionUser,
-} from '@/types/api'
+} from '@/types'
 
 const user = inject<SessionUser>('$user')!
 const dayjs = inject<typeof dayjsType>('$dayjs')!

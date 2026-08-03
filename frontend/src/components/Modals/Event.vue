@@ -1,9 +1,9 @@
 <template>
-	<Dialog v-model:open="show" size="2xl">
-		<template #body>
+	<Dialog v-model:open="show" size="2xl" bare>
+		<template #default>
 			<div class="flex text-base">
 				<div class="flex flex-col w-1/2 p-5">
-					<div class="text-xl-semibold mb-4">
+					<div class="text-lg-semibold mb-4">
 						{{ event.title }}
 					</div>
 
@@ -17,26 +17,30 @@
 							</div>
 						</Tooltip>
 						<Tooltip :text="__('Course')">
-							<div
+							<a
+								:href="`/lms/courses/${event.course}`"
+								target="_blank"
+								rel="noopener noreferrer"
 								class="flex gap-x-2 w-fit cursor-pointer"
-								@click="openLink('course', event.course)"
 							>
 								<span class="lucide-book-open h-4 w-4" />
 								<span>
 									{{ event.course_title }}
 								</span>
-							</div>
+							</a>
 						</Tooltip>
 						<Tooltip v-if="event.batch_title" :text="__('Batch')">
-							<div
+							<a
+								:href="`/lms/batches/${event.batch_name}#students`"
+								target="_blank"
+								rel="noopener noreferrer"
 								class="flex gap-x-2 w-fit cursor-pointer"
-								@click="openLink('batch', event.batch_name)"
 							>
 								<span class="lucide-users h-4 w-4" />
 								<span>
 									{{ event.batch_title }}
 								</span>
-							</div>
+							</a>
 						</Tooltip>
 						<Tooltip :text="__('Date')">
 							<div class="flex items-center gap-x-2 w-fit">
@@ -52,6 +56,14 @@
 								<span>
 									{{ formatTime(event.start_time) }} -
 									{{ formatTime(event.end_time) }}
+								</span>
+							</div>
+						</Tooltip>
+						<Tooltip v-if="event.timezone" :text="__('Timezone')">
+							<div class="flex items-center gap-x-2 w-fit">
+								<span class="lucide-globe h-4 w-4" />
+								<span>
+									{{ formatTimezone(event.timezone, event.date) }}
 								</span>
 							</div>
 						</Tooltip>
@@ -176,6 +188,7 @@ import {
 import BooleanSwitch from '@/components/Controls/BooleanSwitch.vue'
 import { inject, reactive, watch, ref, computed } from 'vue'
 import { formatTime } from '@/utils'
+import { formatTimezone } from '@/utils/timezone'
 import Link from '@/components/Controls/Link.vue'
 
 const show = defineModel()
@@ -367,16 +380,6 @@ const openCertificate = (certificate) => {
 			certificate.name
 		}&format=${encodeURIComponent(certificate.template)}`
 	)
-}
-
-const openLink = (type, name) => {
-	let url = ''
-	if (type === 'course') {
-		url = `/lms/courses/${name}`
-	} else if (type === 'batch') {
-		url = `/lms/batches/${name}#students`
-	}
-	window.open(url, '_blank')
 }
 
 const statusOptions = computed(() => {

@@ -17,58 +17,66 @@
 			</Button>
 		</template>
 
-		<div v-if="templates.data?.length">
-			<ListView
-				:columns="columns"
-				:rows="templates.data"
-				row-key="name"
-				:options="{
-					showTooltip: false,
-					selectable: false,
-					onRowClick: (row) => emit('update:step', 'template-edit', { ...row }),
-				}"
-			>
-				<ListHeader
-					class="mb-2 grid items-center gap-x-4 rounded bg-surface-gray-2 p-2"
+		<template #header-bottom>
+			<div class="flex items-center gap-2">
+				<FormControl
+					v-model="search"
+					type="text"
+					:debounce="300"
+					class="w-1/3"
+					:aria-label="__('Search Template')"
+					:placeholder="__('Search Template')"
 				>
-					<ListHeaderItem :item="item" v-for="item in columns" :key="item.key">
-						<template #prefix="{ item }">
-							<FeatherIcon
-								v-if="item.icon"
-								:name="item.icon"
-								class="h-4 w-4 stroke-1.5"
-							/>
-						</template>
-					</ListHeaderItem>
-				</ListHeader>
-				<ListRows>
-					<ListRow :row="row" v-for="row in templates.data" :key="row.name">
-						<template #default="{ column }">
-							<ListRowItem :item="row[column.key]" :align="column.align">
-								<div
-									v-if="column.key !== 'action'"
-									class="truncate text-sm leading-5"
-								>
-									{{ row[column.key] }}
-								</div>
-								<div v-else @click.stop>
-									<Dropdown
-										:options="getMoreOptions(row)"
-										:button="{
-											icon: 'more-horizontal',
-											onblur: (e: Event) => {
-												e.stopPropagation()
-											},
-										}"
-										placement="right"
-									/>
-								</div>
-							</ListRowItem>
-						</template>
-					</ListRow>
-				</ListRows>
-			</ListView>
-		</div>
+					<template #prefix>
+						<span class="lucide-search size-4 text-ink-gray-5" />
+					</template>
+				</FormControl>
+			</div>
+		</template>
+
+		<List
+			v-if="filteredTemplates.length"
+			:columns="columns"
+			class="list-row-px-3"
+		>
+			<ListHeader>
+				<ListHeaderCell>{{ __('Template Name') }}</ListHeaderCell>
+				<ListHeaderCell />
+			</ListHeader>
+			<ListRows
+				:items="filteredTemplates"
+				row-key="name"
+				v-slot="{ item: row }"
+			>
+				<ListRow
+					class="py-2.5"
+					@click="emit('update:step', 'template-edit', { ...row })"
+				>
+					<!-- Name over subject, like CRM's template rows. -->
+					<ListCell>
+						<div class="flex min-w-0 flex-col">
+							<span class="truncate text-p-base-medium text-ink-gray-8">
+								{{ row.name }}
+							</span>
+							<span class="truncate text-p-sm text-ink-gray-5">
+								{{ row.subject }}
+							</span>
+						</div>
+					</ListCell>
+					<ListCell class="justify-end" @click.stop>
+						<Dropdown
+							:options="getMoreOptions(row)"
+							:button="{
+								icon: 'lucide-more-horizontal',
+								variant: 'ghost',
+								label: __('Template actions'),
+							}"
+							placement="right"
+						/>
+					</ListCell>
+				</ListRow>
+			</ListRows>
+		</List>
 
 		<EmptyStateLayout
 			v-else
@@ -107,21 +115,23 @@ import {
 	Button,
 	Dialog,
 	Dropdown,
-	FeatherIcon,
-	ListView,
-	ListHeader,
-	ListHeaderItem,
-	ListRows,
-	ListRow,
-	ListRowItem,
+	FormControl,
 	createListResource,
 	toast,
 } from 'frappe-ui'
+import {
+	List,
+	ListCell,
+	ListHeader,
+	ListHeaderCell,
+	ListRow,
+	ListRows,
+} from 'frappe-ui/list'
 import { computed, ref } from 'vue'
 import { cleanError } from '@/utils'
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 import SettingsLayout from '@/components/Layouts/SettingsLayout.vue'
-import type { EmailTemplate, EmailTemplateStep } from '@/types/email'
+import type { EmailTemplate, EmailTemplateStep } from '@/types'
 
 defineProps<{
 	label: string
@@ -141,27 +151,21 @@ const templates = createListResource({
 	auto: true,
 })
 
-const columns = computed(() => [
-	{
-		label: __('Name'),
-		key: 'name',
-		icon: 'mail',
-		align: 'left',
-		width: 2,
-	},
-	{
-		label: __('Subject'),
-		key: 'subject',
-		icon: 'type',
-		align: 'left',
-		width: 3,
-	},
-	{
-		key: 'action',
-		align: 'right',
-		width: '52px',
-	},
-])
+const search = ref('')
+const filteredTemplates = computed(() => {
+	let list = (templates.data || []) as EmailTemplate[]
+	if (search.value) {
+		const term = search.value.toLowerCase()
+		list = list.filter(
+			(t) =>
+				t.name.toLowerCase().includes(term) ||
+				(t.subject || '').toLowerCase().includes(term)
+		)
+	}
+	return list
+})
+
+const columns = ['minmax(0, 1fr)', '2.25rem']
 
 const showDeleteDialog = ref(false)
 const templateToDelete = ref<string | null>(null)
@@ -169,17 +173,17 @@ const templateToDelete = ref<string | null>(null)
 const getMoreOptions = (template: EmailTemplate) => [
 	{
 		label: __('Edit'),
-		icon: 'edit',
+		icon: 'lucide-edit',
 		onClick: () => emit('update:step', 'template-edit', { ...template }),
 	},
 	{
 		label: __('Duplicate'),
-		icon: 'copy',
+		icon: 'lucide-copy',
 		onClick: () => emit('update:step', 'template-new', { ...template }),
 	},
 	{
 		label: __('Delete'),
-		icon: 'trash-2',
+		icon: 'lucide-trash-2',
 		onClick: () => openDeleteDialog(template.name),
 	},
 ]

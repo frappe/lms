@@ -1,55 +1,47 @@
 <template>
-	<header
-		class="sticky top-0 z-10 flex items-center justify-between border-b bg-surface-base px-3 py-2.5 sm:px-5"
-	>
-		<Breadcrumbs :items="breadcrumbs" />
-		<div v-if="!readOnlyMode" class="flex items-center gap-x-2">
-			<Badge v-if="quizDetails.isDirty" theme="orange">
-				{{ __('Not Saved') }}
-			</Badge>
-			<router-link
-				v-if="quizDetails.doc?.name"
-				:to="{
-					name: 'QuizPage',
-					params: {
-						quizID: quizDetails.doc.name,
-					},
-				}"
-			>
-				<Button variant="outline">
-					<template #prefix>
-						<span class="lucide-list-checks size-4" />
-					</template>
-					{{ __('Test Quiz') }}
-				</Button>
-			</router-link>
-			<router-link
-				v-if="quizDetails.doc?.name"
-				:to="{
-					name: 'QuizSubmissionList',
-					params: {
-						quizID: quizDetails.doc.name,
-					},
-				}"
-			>
-				<Button variant="outline">
-					<template #prefix>
-						<span class="lucide-clipboard-list size-4" />
-					</template>
-					{{ __('Check Submissions') }}
-				</Button>
-			</router-link>
-			<Tooltip v-if="quizDetails.doc?.name" :text="__('Delete quiz')">
-				<Button
-					icon="lucide-trash-2"
-					:label="__('Delete quiz')"
-					theme="red"
-					variant="outline"
-					@click="deleteQuiz"
-				/>
-			</Tooltip>
-		</div>
-	</header>
+	<PageHeader :breadcrumbs="breadcrumbs" :loading="quizDetails.loading">
+		<template #actions>
+			<template v-if="!readOnlyMode">
+				<Badge v-if="quizDetails.isDirty" theme="orange">
+					{{ __('Not Saved') }}
+				</Badge>
+				<router-link
+					v-if="quizDetails.doc?.name"
+					:to="{
+						name: 'QuizPage',
+						params: {
+							quizID: quizDetails.doc.name,
+						},
+					}"
+				>
+					<HeaderButton :label="__('Test Quiz')" icon="lucide-list-checks" />
+				</router-link>
+				<router-link
+					v-if="quizDetails.doc?.name"
+					:to="{
+						name: 'QuizSubmissionList',
+						params: {
+							quizID: quizDetails.doc.name,
+						},
+					}"
+				>
+					<HeaderButton
+						:label="__('Check Submissions')"
+						icon="lucide-clipboard-list"
+					/>
+				</router-link>
+				<Tooltip v-if="quizDetails.doc?.name" :text="__('Delete quiz')">
+					<Button
+						icon="lucide-trash-2"
+						:label="__('Delete quiz')"
+						theme="red"
+						variant="outline"
+						@click="deleteQuiz"
+					/>
+				</Tooltip>
+			</template>
+		</template>
+	</PageHeader>
 	<div
 		v-if="quizDetails.loading && !quizDetails.doc"
 		class="flex items-center justify-center py-20"
@@ -58,14 +50,14 @@
 	</div>
 	<div
 		v-else-if="quizDetails.doc"
-		class="grid min-h-0 flex-1 grid-cols-[7fr,3fr]"
+		class="grid flex-1 grid-cols-1 lg:min-h-0 lg:grid-cols-[7fr,3fr]"
 	>
 		<!-- LEFT: Questions -->
-		<div class="flex min-h-0 flex-col">
+		<div class="flex min-w-0 flex-col lg:min-h-0">
 			<div class="flex items-center justify-between px-5 pt-5 mb-4">
-				<div class="text-xl-semibold text-ink-gray-9">
+				<h2 class="text-lg-semibold text-ink-gray-9">
 					{{ __('Questions') }}
-				</div>
+				</h2>
 				<Button v-if="!readOnlyMode" @click="openQuestionModal()">
 					<template #prefix>
 						<span class="lucide-plus size-4" />
@@ -73,54 +65,35 @@
 					{{ __('New Question') }}
 				</Button>
 			</div>
-			<ListView
+			<ResponsiveListView
 				v-if="questions.length"
-				class="flex-1 overflow-y-auto px-5"
+				class="px-5 pb-4 lg:min-h-0 lg:flex-1 lg:overflow-y-auto lg:pb-0"
 				:columns="questionColumns"
 				:rows="questions"
 				row-key="name"
-				:options="{
-					showTooltip: false,
-				}"
+				title-key="question_detail"
+				:options="listOptions"
 			>
-				<ListHeader
-					class="mb-2 grid items-center gap-x-4 rounded bg-surface-gray-2 p-2"
-				>
-					<ListHeaderItem :item="item" v-for="item in questionColumns" />
-				</ListHeader>
-				<ListRows>
-					<ListRow
-						:row="row"
-						v-slot="{ idx, column, item }"
-						v-for="row in questions"
-						@click="openQuestionModal(row)"
-						class="cursor-pointer"
+				<template #cell="{ column, value }">
+					<div
+						v-if="column.key === 'question_detail'"
+						class="text-xs [&>*]:inline"
+						v-html="sanitizeRichHTML(value)"
+					></div>
+					<div v-else class="text-xs">
+						{{ value }}
+					</div>
+				</template>
+				<template #selection-actions="{ unselectAll, selections }">
+					<Button
+						variant="ghost"
+						:label="__('Delete')"
+						@click="deleteQuestions(selections, unselectAll)"
 					>
-						<ListRowItem :item="item">
-							<div
-								v-if="column.key == 'question_detail'"
-								class="text-xs truncate h-4"
-								v-html="sanitizeRichHTML(item)"
-							></div>
-							<div v-else class="text-xs">
-								{{ item }}
-							</div>
-						</ListRowItem>
-					</ListRow>
-				</ListRows>
-				<ListSelectBanner>
-					<template #actions="{ unselectAll, selections }">
-						<div class="flex gap-2">
-							<Button
-								variant="ghost"
-								@click="deleteQuestions(selections, unselectAll)"
-							>
-								<span class="lucide-trash-2 size-4" />
-							</Button>
-						</div>
-					</template>
-				</ListSelectBanner>
-			</ListView>
+						<span class="lucide-trash-2 size-4" />
+					</Button>
+				</template>
+			</ResponsiveListView>
 			<EmptyStateLayout
 				v-else
 				class="flex-1"
@@ -148,9 +121,11 @@
 		</div>
 
 		<!-- RIGHT: Details + Settings -->
-		<div class="space-y-8 overflow-y-auto border-l p-5">
+		<div
+			class="order-first min-w-0 space-y-8 border-b p-5 lg:order-none lg:overflow-y-auto lg:border-b-0 lg:border-s"
+		>
 			<div class="space-y-5">
-				<div class="text-ink-gray-9 font-semibold">{{ __('Details') }}</div>
+				<h2 class="text-ink-gray-9 font-semibold">{{ __('Details') }}</h2>
 				<FormControl
 					v-model="quizDetails.doc.title"
 					:label="__('Title')"
@@ -198,7 +173,7 @@
 				/>
 			</div>
 			<div class="space-y-5">
-				<div class="text-ink-gray-9 font-semibold">{{ __('Settings') }}</div>
+				<h2 class="text-ink-gray-9 font-semibold">{{ __('Settings') }}</h2>
 				<BooleanSwitch
 					v-model="quizDetails.doc.show_answers"
 					size="sm"
@@ -252,16 +227,8 @@
 </template>
 <script setup>
 import {
-	Breadcrumbs,
 	createResource,
 	FormControl,
-	ListView,
-	ListHeader,
-	ListHeaderItem,
-	ListRows,
-	ListRow,
-	ListRowItem,
-	ListSelectBanner,
 	ListFooter,
 	Button,
 	usePageMeta,
@@ -272,6 +239,8 @@ import {
 	Tooltip,
 } from 'frappe-ui'
 import BooleanSwitch from '@/components/Controls/BooleanSwitch.vue'
+import PageHeader from '@/components/Layouts/PageHeader.vue'
+import HeaderButton from '@/components/HeaderButton.vue'
 import {
 	computed,
 	reactive,
@@ -294,6 +263,7 @@ import { sanitizeHTML } from '@/utils'
 import { sanitizeRichHTML } from '@/utils/sanitizeRichHTML'
 import Question from '@/components/Modals/Question.vue'
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
+import ResponsiveListView from '@/components/ResponsiveListView.vue'
 
 const { brand } = sessionStore()
 const pageLength = ref(20)
@@ -435,19 +405,27 @@ const questionColumns = computed(() => {
 		{
 			label: __('ID'),
 			key: 'question',
-			width: '10rem',
+			width: 2,
 		},
 		{
 			label: __('Question'),
-			key: __('question_detail'),
-			width: '40rem',
+			key: 'question_detail',
+			width: 8,
 		},
 		{
 			label: __('Marks'),
 			key: 'marks',
-			width: '5rem',
+			width: 1,
 		},
 	]
+})
+
+const listOptions = computed(() => {
+	return {
+		showTooltip: false,
+		selectable: true,
+		onRowClick: openQuestionModal,
+	}
 })
 
 const openQuestionModal = (question = null) => {

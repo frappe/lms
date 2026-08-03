@@ -1,8 +1,8 @@
 <template>
-	<Dialog v-model:open="show" size="3xl">
-		<template #body>
+	<Dialog v-model:open="show" size="3xl" bare>
+		<template #default>
 			<div class="p-5 space-y-5">
-				<div class="text-xl-semibold text-ink-gray-9 mb-5">
+				<div class="text-lg-semibold text-ink-gray-9 mb-5">
 					{{ __(props.title) }}
 				</div>
 				<BooleanSwitch
@@ -18,7 +18,7 @@
 						<label class="block text-p-sm-medium text-ink-gray-7 mb-1.5">
 							{{ __('Question') }}
 						</label>
-						<TextEditor
+						<RichTextEditor
 							:content="question.question"
 							@change="(val) => (question.question = val)"
 							:editable="true"
@@ -70,6 +70,7 @@
 									v-if="visibleOptionCount > 2"
 									variant="ghost"
 									size="sm"
+									:label="__('Remove option')"
 									@click="removeOption(n)"
 								>
 									<span class="lucide-trash-2 size-4" />
@@ -118,6 +119,7 @@
 								<Button
 									v-if="visiblePossibilityCount > 1"
 									variant="ghost"
+									:label="__('Remove possibility')"
 									@click="removePossibility(n)"
 								>
 									<span class="lucide-trash-2 size-4" />
@@ -159,18 +161,12 @@
 	</Dialog>
 </template>
 <script setup>
-import {
-	Dialog,
-	FormControl,
-	TextEditor,
-	createResource,
-	Button,
-	toast,
-} from 'frappe-ui'
+import { Dialog, FormControl, createResource, Button, toast } from 'frappe-ui'
 import BooleanSwitch from '@/components/Controls/BooleanSwitch.vue'
 import { watch, reactive, ref, inject } from 'vue'
 import Link from '@/components/Controls/Link.vue'
 import { useOnboarding } from 'frappe-ui/frappe'
+import RichTextEditor from '@/components/RichTextEditor.vue'
 
 const show = defineModel()
 const quiz = defineModel('quiz')

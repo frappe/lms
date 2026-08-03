@@ -1,42 +1,40 @@
 <template>
-	<header
-		class="sticky top-0 z-10 flex items-center justify-between border-b bg-surface-base px-3 py-2.5 sm:px-5"
-	>
-		<Breadcrumbs class="h-7" :items="breadcrumbs" />
-	</header>
-	<div class="p-5">
-		<div v-if="certificate.data && Object.keys(certificate.data).length">
-			<div class="text-xl-semibold text-ink-gray-9 mb-1">
-				{{ __('Certification') }}
-			</div>
-			<div class="text-ink-gray-9 text-sm">
-				{{
-					__(
-						'You are already certified for this course. Click on the card below to open your certificate.'
-					)
-				}}
-			</div>
-			<div
-				class="border p-3 w-fit min-w-60 rounded-md space-y-2 hover:bg-surface-gray-1 cursor-pointer mt-5"
-				@click="openCertificate(certificate.data)"
-			>
-				<div class="text-ink-gray-9 font-semibold">
-					{{ courseTitle }}
+	<PageHeader :breadcrumbs="breadcrumbs" />
+	<PageBody :title="__('Certification')">
+		<div class="px-5 pb-5">
+			<div v-if="certificate.data && Object.keys(certificate.data).length">
+				<div class="text-ink-gray-9 text-sm">
+					{{
+						__(
+							'You are already certified for this course. Click on the card below to open your certificate.'
+						)
+					}}
 				</div>
-				<div class="text-sm-medium text-ink-gray-7">
-					{{ __('Issued On') }}:
-					{{ dayjs(certificate.data.issue_date).format('DD MMM YYYY') }}
-				</div>
+				<button
+					type="button"
+					class="border p-3 w-fit min-w-60 rounded-md space-y-2 hover:bg-surface-gray-1 cursor-pointer mt-5 text-start block"
+					@click="openCertificate(certificate.data)"
+				>
+					<div class="text-ink-gray-9 font-semibold">
+						{{ courseTitle }}
+					</div>
+					<div class="text-sm-medium text-ink-gray-7">
+						{{ __('Issued On') }}:
+						{{ dayjs(certificate.data.issue_date).format('DD MMM YYYY') }}
+					</div>
+				</button>
+			</div>
+			<div v-else>
+				<UpcomingEvaluations v-if="courses.length" :courses="courses" />
 			</div>
 		</div>
-		<div v-else>
-			<UpcomingEvaluations v-if="courses.length" :courses="courses" />
-		</div>
-	</div>
+	</PageBody>
 </template>
 <script setup>
 import { computed, inject, onMounted, ref } from 'vue'
-import { Breadcrumbs, call, createResource, usePageMeta } from 'frappe-ui'
+import PageHeader from '@/components/Layouts/PageHeader.vue'
+import PageBody from '@/components/Layouts/PageBody.vue'
+import { call, createResource, usePageMeta } from 'frappe-ui'
 import { useRouter } from 'vue-router'
 import { sessionStore } from '../../stores/session'
 import UpcomingEvaluations from '@/components/UpcomingEvaluations.vue'

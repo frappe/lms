@@ -1,6 +1,6 @@
 <template>
 	<div class="mt-7 mb-20">
-		<div class="flex h-screen flex-col overflow-hidden">
+		<div class="flex h-dvh flex-col overflow-hidden">
 			<Calendar
 				v-if="evaluations.data?.length"
 				:config="{
@@ -14,7 +14,7 @@
 			>
 				<template #header="{ currentMonthYear, decrement, increment }">
 					<div class="mb-2 flex justify-between">
-						<span class="text-xl-semibold text-ink-gray-9">
+						<span class="text-lg-semibold text-ink-gray-9">
 							{{ currentMonthYear }}
 						</span>
 						<div class="flex gap-x-1">
@@ -23,12 +23,14 @@
 								variant="ghost"
 								class="h-4 w-4"
 								icon="lucide-chevron-left"
+								:label="__('Previous')"
 							/>
 							<Button
 								@click="increment()"
 								variant="ghost"
 								class="h-4 w-4"
 								icon="lucide-chevron-right"
+								:label="__('Next')"
 							/>
 						</div>
 					</div>
@@ -73,6 +75,7 @@ const evaluations = createListResource({
 		'date',
 		'start_time',
 		'end_time',
+		'timezone',
 		'google_meet_link',
 	],
 	auto: true,

@@ -83,7 +83,6 @@
 							:label="__('Description')"
 							type="textarea"
 							:required="true"
-							:rows="4"
 							variant="outline"
 						/>
 						<MultiLink
@@ -107,7 +106,7 @@
 						<div
 							class="rounded-t-lg rounded-b-md outline-none transition-[box-shadow] duration-150 ease-[cubic-bezier(0.23,1,0.32,1)]"
 						>
-							<TextEditor
+							<RichTextEditor
 								:id="batchDetailsId"
 								:content="batch.batch_details"
 								@change="(val: string) => (batch.batch_details = val)"
@@ -145,7 +144,6 @@ import {
 	Dialog,
 	FormControl,
 	FormLabel,
-	TextEditor,
 	createResource,
 	toast,
 } from 'frappe-ui'
@@ -157,6 +155,7 @@ import MultiLink from '@/components/Controls/MultiLink.vue'
 import Link from '@/components/Controls/Link.vue'
 import Select from '@/components/Controls/Select.vue'
 import NewMemberModal from '@/components/Modals/NewMemberModal.vue'
+import RichTextEditor from '@/components/RichTextEditor.vue'
 
 const show = defineModel<boolean>({ required: true, default: false })
 const router = useRouter()

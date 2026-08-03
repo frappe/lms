@@ -55,7 +55,7 @@
 	</div>
 </template>
 <script setup lang="ts">
-import type { CourseInstructorInfo } from '@/types/api'
+import type { CourseInstructorInfo } from '@/types'
 
 defineProps<{
 	instructors: CourseInstructorInfo[]

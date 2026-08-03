@@ -2,16 +2,23 @@
 	<div>
 		<div class="mt-10 space-y-10">
 			<div v-if="evals?.data?.length">
-				<div class="text-xl-semibold text-ink-gray-9 mb-3">
+				<div class="text-lg-semibold text-ink-gray-9 mb-3">
 					{{ __('Upcoming Evaluations') }}
 				</div>
 				<div class="grid grid-cols-1 md:grid-cols-4 gap-5">
-					<div
+					<component
+						:is="user.data?.username ? 'router-link' : 'div'"
 						v-for="evaluation in evals?.data"
-						class="border hover:border-outline-gray-3 rounded-md p-3 flex flex-col h-full cursor-pointer"
-						@click="redirectToProfile()"
+						:key="evaluation.name"
+						:to="profileRoute(user.data?.username, 'ProfileEvaluationSchedule')"
+						class="border rounded-md p-3 flex flex-col h-full"
+						:class="
+							user.data?.username
+								? 'cursor-pointer hover:border-outline-gray-3'
+								: ''
+						"
 					>
-						<div class="text-ink-gray-9 text-xl-semibold leading-5 mb-3">
+						<div class="text-ink-gray-9 text-lg-semibold leading-5 mb-3">
 							{{ evaluation.course_title }}
 						</div>
 						<div class="text-ink-gray-7">
@@ -27,6 +34,12 @@
 									{{ formatTime(evaluation.start_time) }}
 								</span>
 							</div>
+							<div v-if="evaluation.timezone" class="flex items-center mb-3">
+								<span class="lucide-globe size-4" />
+								<span class="ms-2">
+									{{ formatTimezone(evaluation.timezone, evaluation.date) }}
+								</span>
+							</div>
 							<div class="flex items-center">
 								<span class="lucide-graduation-cap size-4" />
 								<span class="ms-2">
@@ -34,19 +47,20 @@
 								</span>
 							</div>
 						</div>
-					</div>
+					</component>
 				</div>
 			</div>
 			<div v-if="liveClasses?.data?.length">
-				<div class="text-xl-semibold text-ink-gray-9 mb-3">
+				<div class="text-lg-semibold text-ink-gray-9 mb-3">
 					{{ __('Upcoming Live Classes') }}
 				</div>
 				<div class="grid grid-cols-1 md:grid-cols-4 gap-5">
 					<div
 						v-for="cls in liveClasses?.data"
+						:key="cls.name"
 						class="border hover:border-outline-gray-3 rounded-md p-3"
 					>
-						<div class="text-ink-gray-9 text-xl-semibold leading-5 mb-1">
+						<div class="text-ink-gray-9 text-lg-semibold leading-5 mb-1">
 							{{ cls.title }}
 						</div>
 						<div class="text-ink-gray-7 leading-5 mb-4">
@@ -109,7 +123,7 @@
 
 		<div v-if="createdCourses.data?.length" class="mt-10">
 			<div class="flex items-center justify-between mb-3">
-				<span class="text-xl-semibold text-ink-gray-9">
+				<span class="text-lg-semibold text-ink-gray-9">
 					{{ __('Courses Created') }}
 				</span>
 				<router-link
@@ -128,6 +142,7 @@
 			<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
 				<router-link
 					v-for="course in createdCourses.data"
+					:key="course.name"
 					:to="{ name: 'CourseDetail', params: { courseName: course.name } }"
 				>
 					<CourseCard :course="course" />
@@ -137,7 +152,7 @@
 
 		<div v-if="createdBatches.data?.length" class="mt-10">
 			<div class="flex items-center justify-between mb-3">
-				<span class="text-xl-semibold text-ink-gray-9">
+				<span class="text-lg-semibold text-ink-gray-9">
 					{{ __('Upcoming Batches') }}
 				</span>
 				<router-link
@@ -156,6 +171,7 @@
 			<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
 				<router-link
 					v-for="batch in createdBatches.data"
+					:key="batch.name"
 					:to="{ name: 'BatchDetail', params: { batchName: batch.name } }"
 				>
 					<BatchCard :batch="batch" />
@@ -168,7 +184,7 @@
 			class="flex flex-col items-center justify-center mt-60"
 		>
 			<span class="lucide-graduation-cap size-10 mx-auto text-ink-gray-5" />
-			<div class="text-xl-semibold text-ink-gray-7 mb-1.5">
+			<div class="text-lg-semibold text-ink-gray-7 mb-1.5">
 				{{ __('No courses created') }}
 			</div>
 			<div
@@ -197,14 +213,14 @@
 <script setup lang="ts">
 import { Button, createResource, Tooltip } from 'frappe-ui'
 import { inject } from 'vue'
-import { useRouter } from 'vue-router'
 import { formatTime } from '@/utils'
+import { formatTimezone } from '@/utils/timezone'
+import { profileRoute } from '@/utils/routes'
 import CourseCard from '@/components/CourseCard.vue'
 import BatchCard from '@/pages/Batches/components/BatchCard.vue'
 
 const user = inject<any>('$user')
 const dayjs = inject<any>('$dayjs')
-const router = useRouter()
 
 const props = defineProps<{
 	liveClasses?: { data?: any[] }
@@ -245,12 +261,5 @@ const hasClassEnded = (cls: {
 	const classEnd = getClassEnd(cls)
 	const now = new Date()
 	return now > classEnd
-}
-
-const redirectToProfile = () => {
-	router.push({
-		name: 'ProfileEvaluationSchedule',
-		params: { username: user.data?.username },
-	})
 }
 </script>

@@ -1,6 +1,8 @@
 # Copyright (c) 2021, FOSS United and contributors
 # For license information, please see license.txt
 
+from contextlib import contextmanager
+
 import frappe
 from frappe import _
 from frappe.model.document import Document
@@ -12,6 +14,21 @@ class LMSEnrollment(Document):
 		self.validate_duplicate_enrollment()
 		self.validate_course_enrollment_eligibility()
 		self.validate_owner()
+
+	def validate(self):
+		self.enforce_server_managed_fields()
+
+	def enforce_server_managed_fields(self):
+		"""Revert progress / purchased_certificate to their server-set values for non-staff."""
+		from lms.lms.utils import PRIVILEGED_ROLES
+
+		if PRIVILEGED_ROLES & set(frappe.get_roles()):
+			return
+
+		previous = None if self.is_new() else self.get_doc_before_save()
+		defaults = {"progress": 0, "purchased_certificate": 0}
+		for field, default in defaults.items():
+			setattr(self, field, previous.get(field) if previous else default)
 
 	def validate_owner(self):
 		"""Makes the member as the owner of the document so that users can update their progress"""
@@ -93,6 +110,9 @@ def update_program_progress(member):
 	for program in programs:
 		total_progress = 0
 		courses = frappe.get_all("LMS Program Course", {"parent": program.parent}, pluck="course")
+		if not courses:
+			continue
+
 		for course in courses:
 			progress = frappe.db.get_value("LMS Enrollment", {"course": course, "member": member}, "progress")
 			progress = progress or 0
@@ -100,3 +120,73 @@ def update_program_progress(member):
 
 		average_progress = ceil(total_progress / len(courses))
 		frappe.db.set_value("LMS Program Member", program.name, "progress", average_progress)
+
+
+@contextmanager
+def batched_enrollment_updates():
+	"""Coalesce every enrollment write in this block into one write and one dispatch."""
+	# A lesson completion writes the enrollment twice: LMS Course Progress.on_update
+	# recalculates progress, then save_progress advances current_lesson. Dispatched
+	# separately that is two on_updates — two webhook deliveries per completion, where
+	# the pre-regression .save() delivered one. Batching restores the single event.
+	if getattr(frappe.local, "lms_enrollment_batch", None) is not None:
+		yield
+		return
+
+	frappe.local.lms_enrollment_batch = {}
+	try:
+		yield
+		batch = frappe.local.lms_enrollment_batch
+	finally:
+		frappe.local.lms_enrollment_batch = None
+
+	# One enrollment's on_update handler must not strand the rest of the batch unwritten.
+	failed = []
+	for name, values in batch.items():
+		try:
+			_write_enrollment(name, values)
+		except Exception:
+			frappe.log_error(title=f"Enrollment update failed: {name}")
+			failed.append(name)
+
+	if failed:
+		frappe.throw(_("Could not update enrollments: {0}").format(", ".join(failed)))
+
+
+def update_enrollment(name: str, values: dict):
+	"""Write enrollment fields, firing the save doc events a raw set_value would skip."""
+	batch = getattr(frappe.local, "lms_enrollment_batch", None)
+	if batch is not None:
+		batch.setdefault(name, {}).update(values)
+		return
+
+	_write_enrollment(name, values)
+
+
+def _write_enrollment(name: str, values: dict):
+	# Do not turn this back into enrollment.save(). Two near-simultaneous requests
+	# (video-ended fires markProgress + trackVideoWatchDuration, which also writes
+	# progress) raced there: both .save()s ran check_if_latest() and the second threw
+	# TimestampMismatchError, swallowing whichever write arrived second. A raw
+	# set_value skips that guard but fires no doc events at all, which is what
+	# silently broke On Update webhooks / DocType Event scripts. So: write raw, then
+	# dispatch on_update and on_change by hand, in the order .save() would.
+	enrollment = frappe.get_doc("LMS Enrollment", name)
+	for field in values:
+		if not enrollment.meta.get_field(field):
+			frappe.throw(_("{0} is not a field on LMS Enrollment").format(field))
+
+	changed = {field: value for field, value in values.items() if enrollment.get(field) != value}
+	if not changed:
+		return
+
+	# on_change handlers and Value Change notifications read doc_before_save. Rebuild
+	# the snapshot from the values we already hold: load_doc_before_save() re-reads the
+	# row FOR UPDATE (the lock this write exists to avoid), and a deepcopy would clone
+	# the process-cached DocMeta along with it.
+	enrollment._doc_before_save = frappe.get_doc(enrollment.as_dict())
+
+	frappe.db.set_value("LMS Enrollment", name, changed, update_modified=False)
+	enrollment.update(changed)
+	enrollment.run_method("on_update")
+	enrollment.run_method("on_change")

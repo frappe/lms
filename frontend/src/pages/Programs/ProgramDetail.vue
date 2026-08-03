@@ -1,73 +1,73 @@
 <template>
-	<header
-		class="sticky top-0 z-10 flex items-center justify-between border-b bg-surface-base px-3 py-2.5 sm:px-5"
-	>
-		<Breadcrumbs :items="breadcrumbs" />
-	</header>
-	<div v-if="program.data" class="pt-5 px-5 pb-10 mx-auto">
-		<div class="flex items-center gap-x-2 mb-5">
-			<div class="text-xl-semibold text-ink-gray-9">
-				{{ program.data.name }}
-			</div>
+	<PageHeader :breadcrumbs="breadcrumbs" />
+	<PageBody>
+		<template #name>
+			<span class="flex items-center gap-x-2">
+				{{ program.data?.name }}
 
-			<Badge :theme="program.data.progress < 100 ? 'orange' : 'green'">
-				{{ program.data.progress }}% {{ __('completed') }}
-			</Badge>
-
-			<Tooltip
-				v-if="program.data.enforce_course_order"
-				placement="right"
-				:text="
-					__(
-						'Courses must be completed in order. You can only start the next course after completing the previous one.'
-					)
-				"
-			>
-				<span class="lucide-info size-3 cursor-pointer" />
-			</Tooltip>
-		</div>
-		<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mb-5">
-			<div
-				v-for="course in program.data.courses"
-				:key="course.name"
-				class="relative group"
-				:class="
-					(course.eligible && program.data.enforce_course_order) ||
-					!program.data.enforce_course_order
-						? 'cursor-pointer'
-						: 'cursor-default'
-				"
-			>
-				<CourseCard
-					:course="course"
-					@click="openCourse(course, program.data.enforce_course_order)"
-				/>
-				<div
-					v-if="!course.eligible && program.data.enforce_course_order"
-					class="absolute inset-0 flex flex-col items-center justify-center space-y-2 text-ink-base rounded-md invisible group-hover:visible"
-					:style="{
-						background: 'radial-gradient(circle, darkgray 0%, lightgray 100%)',
-					}"
+				<Badge
+					v-if="program.data"
+					:theme="program.data.progress < 100 ? 'orange' : 'green'"
 				>
-					<span class="lucide-lock-keyhole size-5" />
-					<span class="font-medium text-center leading-5 px-10">
-						{{ __('Please complete the previous course to unlock this one.') }}
-					</span>
+					{{ program.data.progress }}% {{ __('completed') }}
+				</Badge>
+
+				<Tooltip
+					v-if="program.data?.enforce_course_order"
+					placement="right"
+					:text="
+						__(
+							'Courses must be completed in order. You can only start the next course after completing the previous one.'
+						)
+					"
+				>
+					<span class="lucide-info size-3 cursor-pointer" />
+				</Tooltip>
+			</span>
+		</template>
+
+		<div v-if="program.data" class="px-5 pb-10">
+			<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mb-5">
+				<div
+					v-for="course in program.data.courses"
+					:key="course.name"
+					class="relative group"
+					:class="
+						(course.eligible && program.data.enforce_course_order) ||
+						!program.data.enforce_course_order
+							? 'cursor-pointer'
+							: 'cursor-default'
+					"
+				>
+					<CourseCard
+						:course="course"
+						@click="openCourse(course, program.data.enforce_course_order)"
+					/>
+					<div
+						v-if="!course.eligible && program.data.enforce_course_order"
+						class="absolute inset-0 flex flex-col items-center justify-center space-y-2 text-ink-base rounded-md invisible group-hover:visible"
+						:style="{
+							background:
+								'radial-gradient(circle, darkgray 0%, lightgray 100%)',
+						}"
+					>
+						<span class="lucide-lock-keyhole size-5" />
+						<span class="font-medium text-center leading-5 px-10">
+							{{
+								__('Please complete the previous course to unlock this one.')
+							}}
+						</span>
+					</div>
 				</div>
 			</div>
 		</div>
-	</div>
+	</PageBody>
 </template>
 <script setup lang="ts">
 import { computed, inject, onMounted } from 'vue'
-import {
-	Badge,
-	Breadcrumbs,
-	call,
-	createResource,
-	Tooltip,
-	usePageMeta,
-} from 'frappe-ui'
+import PageHeader from '@/components/Layouts/PageHeader.vue'
+import PageBody from '@/components/Layouts/PageBody.vue'
+import { Badge, call, createResource, Tooltip, usePageMeta } from 'frappe-ui'
 import { sessionStore } from '@/stores/session'
 
 import { useRouter } from 'vue-router'

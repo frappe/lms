@@ -7,6 +7,7 @@
 				<thead
 					class="text-xs text-ink-gray-7 uppercase bg-surface-gray-2 border-b border-outline-gray-2"
 				>
+					<!-- TODO(a11y): header cells use <td>; switching to <th scope="col"> would add UA bold/center styling (visual change), so deferred. -->
 					<tr>
 						<td scope="col" class="px-6 py-2">
 							{{ __('Document Type') }}
@@ -67,14 +68,13 @@
 	</div>
 </template>
 <script setup lang="ts">
-import type { ApplicableItem } from './types'
+import type { ApplicableItem } from '@/types'
 import { Button } from 'frappe-ui'
 import Link from '@/components/Controls/Link.vue'
 import Select from '@/components/Controls/Select.vue'
 
-// Controlled child-table editor: we mutate the parent doc's `applicable_items`
-// array in place. The parent persists the whole doc in a single save, so Frappe
-// diffs the rows (insert/update/delete) server-side — no per-row API calls here.
+// Mutates the parent doc's `applicable_items` in place; the parent saves the whole
+// doc, so Frappe diffs rows server-side — no per-row API calls here.
 const props = defineProps<{
 	items: ApplicableItem[]
 }>()

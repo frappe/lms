@@ -72,7 +72,6 @@
 						:label="__('Short introduction')"
 						type="textarea"
 						:required="true"
-						:rows="4"
 					/>
 					<div class="space-y-1.5">
 						<FormLabel
@@ -80,7 +79,7 @@
 							:id="descriptionId"
 							:required="true"
 						/>
-						<TextEditor
+						<RichTextEditor
 							:id="descriptionId"
 							:content="course.description"
 							@change="(val: string) => (course.description = val)"
@@ -118,7 +117,6 @@ import {
 	Dialog,
 	FormControl,
 	FormLabel,
-	TextEditor,
 	createResource,
 	toast,
 } from 'frappe-ui'
@@ -138,7 +136,8 @@ import MultiLink from '@/components/Controls/MultiLink.vue'
 import Uploader from '@/components/Controls/Uploader.vue'
 import NewMemberModal from '@/components/Modals/NewMemberModal.vue'
 import { cleanError, sanitizeHTML, createLMSCategory } from '@/utils'
-import type { Resource } from '@/types/api'
+import type { Resource } from '@/types'
+import RichTextEditor from '@/components/RichTextEditor.vue'
 
 interface InstructorOption {
 	label: string

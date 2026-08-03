@@ -9,80 +9,68 @@
 			</Button>
 		</template>
 
-		<div class="flex items-center gap-x-5 mb-4">
-			<FormControl
-				v-model="billingName"
-				:placeholder="__('Filter by Billing Name')"
-			/>
-			<Link
-				v-model="member"
-				doctype="User"
-				:placeholder="__('Filter by Member')"
-			/>
-			<FormControl
-				v-model="paymentReceived"
-				type="checkbox"
-				:label="__('Payment Received')"
-			/>
-			<FormControl
-				v-model="paymentForCertificate"
-				type="checkbox"
-				:label="__('Payment for Certificate')"
-			/>
-		</div>
-
-		<div v-if="transactions.data?.length" class="overflow-y-auto">
-			<ListView
-				:columns="columns"
-				:rows="transactions.data"
-				row-key="name"
-				:options="{
-					showTooltip: false,
-					selectable: false,
-					onRowClick: (row: { [key: string]: any }) => {
-						openForm(row)
-					},
-				}"
-			>
-				<ListHeader
-					class="mb-2 grid items-center gap-x-4 rounded bg-surface-gray-2 p-2"
+		<template #header-bottom>
+			<div class="flex items-center justify-between gap-2">
+				<FormControl
+					v-model="search"
+					type="text"
+					:debounce="300"
+					class="w-1/3"
+					:aria-label="__('Search')"
+					:placeholder="__('Search')"
 				>
-					<ListHeaderItem :item="item" v-for="item in columns">
-						<template #prefix="{ item }">
-							<FeatherIcon
-								v-if="item.icon"
-								:name="item.icon"
-								class="h-4 w-4 stroke-1.5"
-							/>
-						</template>
-					</ListHeaderItem>
-				</ListHeader>
+					<template #prefix>
+						<span class="lucide-search size-4 text-ink-gray-5" />
+					</template>
+				</FormControl>
+				<Select
+					v-model="paymentType"
+					class="w-44"
+					:options="paymentTypeOptions"
+				/>
+			</div>
+		</template>
 
-				<ListRows>
-					<ListRow :row="row" v-for="row in transactions.data">
-						<template #default="{ column, item }">
-							<ListRowItem :item="row[column.key]" :align="column.align">
-								<FormControl
-									v-if="
-										['payment_received', 'payment_for_certificate'].includes(
-											column.key
-										)
-									"
-									type="checkbox"
-									v-model="row[column.key]"
-									:disabled="true"
-								/>
-								<div v-else-if="column.key == 'amount'">
-									{{ getCurrencySymbol(row['currency']) }} {{ row[column.key] }}
-								</div>
-								<div v-else class="truncate text-sm leading-5">
-									{{ row[column.key] }}
-								</div>
-							</ListRowItem>
-						</template>
+		<div v-if="transactions.data?.length">
+			<List :columns="columns" class="list-row-px-3">
+				<ListHeader>
+					<ListHeaderCell>{{ __('Billing Name') }}</ListHeaderCell>
+					<ListHeaderCell>
+						{{ __('Amount') }}
+					</ListHeaderCell>
+					<ListHeaderCell>{{ __('Status') }}</ListHeaderCell>
+				</ListHeader>
+				<ListRows
+					:items="transactions.data as Record<string, any>[]"
+					row-key="name"
+					v-slot="{ item: row }"
+				>
+					<ListRow class="py-3" @click="openForm(row)">
+						<ListCell class="gap-2">
+							<span class="lucide-user size-4 shrink-0 text-ink-gray-5" />
+							<div class="flex min-w-0 flex-col">
+								<span class="truncate text-p-base-medium text-ink-gray-8">
+									{{ row.billing_name }}
+								</span>
+								<span class="truncate text-p-sm text-ink-gray-5">
+									{{ row.member }}
+								</span>
+							</div>
+						</ListCell>
+						<ListCell class="text-p-base text-ink-gray-6">
+							{{ getCurrencySymbol(row.currency) }} {{ row.amount }}
+						</ListCell>
+						<ListCell class="gap-2">
+							<Badge v-if="row.payment_received" theme="green">
+								{{ __('Paid') }}
+							</Badge>
+							<Badge v-if="row.payment_for_certificate" theme="blue">
+								{{ __('Certificate') }}
+							</Badge>
+						</ListCell>
 					</ListRow>
 				</ListRows>
-			</ListView>
+			</List>
 			<div
 				v-if="transactions.data.length && transactions.hasNextPage"
 				class="flex justify-center mt-4"
@@ -104,28 +92,30 @@
 	</SettingsLayout>
 </template>
 <script setup lang="ts">
+import { Badge, Button, FormControl, Select } from 'frappe-ui'
 import {
-	Button,
-	ListView,
+	List,
+	ListCell,
 	ListHeader,
-	ListHeaderItem,
-	FeatherIcon,
-	ListRows,
+	ListHeaderCell,
 	ListRow,
-	ListRowItem,
-	FormControl,
-} from 'frappe-ui'
-import BooleanSwitch from '@/components/Controls/BooleanSwitch.vue'
-import { computed, ref, watch } from 'vue'
-import Link from '@/components/Controls/Link.vue'
+	ListRows,
+} from 'frappe-ui/list'
+import { ref, watch } from 'vue'
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 import SettingsLayout from '@/components/Layouts/SettingsLayout.vue'
 
-const billingName = ref(null)
-const paymentReceived = ref(false)
-const paymentForCertificate = ref(false)
-const member = ref(null)
+const search = ref('')
+const paymentType = ref('All')
 const emit = defineEmits(['updateStep'])
+
+const paymentTypeOptions = [
+	{ label: __('All Payments'), value: 'All' },
+	{ label: __('Paid'), value: 'Paid' },
+	{ label: __('Unpaid'), value: 'Unpaid' },
+	{ label: __('For Certificate'), value: 'Certificate' },
+	{ label: __('For Course'), value: 'Course' },
+]
 
 const props = defineProps<{
 	label: string
@@ -133,30 +123,42 @@ const props = defineProps<{
 	transactions: any
 }>()
 
+// One box searches both text fields, so the two clauses are OR'd server-side
+// (or_filters); the payment Select stays an AND filter alongside it.
+const paymentFilter = (type: string) => {
+	switch (type) {
+		case 'Paid':
+			return [['payment_received', '=', 1]]
+		case 'Unpaid':
+			return [['payment_received', '=', 0]]
+		case 'Certificate':
+			return [['payment_for_certificate', '=', 1]]
+		case 'Course':
+			return [['payment_for_certificate', '=', 0]]
+		default:
+			return []
+	}
+}
+
 watch(
-	[billingName, member, paymentReceived, paymentForCertificate],
-	([
-		newBillingName,
-		newMember,
-		newPaymentReceived,
-		newPaymentForCertificate,
-	]) => {
+	[search, paymentType],
+	([newSearch, newPaymentType]) => {
 		props.transactions.update({
-			filters: [
-				newBillingName ? [['billing_name', 'like', `%${newBillingName}%`]] : [],
-				newMember ? [['member', '=', newMember]] : [],
-				newPaymentReceived
-					? [['payment_received', '=', newPaymentReceived]]
-					: [],
-				newPaymentForCertificate
-					? [['payment_for_certificate', '=', newPaymentForCertificate]]
-					: [],
-			].flat(),
+			orFilters: newSearch
+				? [
+						['billing_name', 'like', `%${newSearch}%`],
+						['member', 'like', `%${newSearch}%`],
+				  ]
+				: [],
+			filters: paymentFilter(newPaymentType),
 		})
 		props.transactions.reload()
 	},
 	{ immediate: true }
 )
+
+// Grid track sizes shared by the header and every row (--list-columns).
+const columns = ['minmax(0, 1fr)', '8rem', '10rem']
 
 const openForm = (transaction: { [key: string]: any }) => {
 	emit('updateStep', 'details', { ...transaction })
@@ -175,36 +177,4 @@ const getCurrencySymbol = (currency: string) => {
 	}
 	return currencySymbols[currency] || currency
 }
-
-const columns = computed(() => {
-	return [
-		{
-			label: __('Billing Name'),
-			icon: 'user',
-			key: 'billing_name',
-			width: 3,
-		},
-		{
-			label: __('Amount'),
-			icon: 'dollar-sign',
-			key: 'amount',
-			width: 2,
-			align: 'right',
-		},
-		{
-			label: __('Payment Received'),
-			icon: 'check-circle',
-			key: 'payment_received',
-			width: 2.5,
-			align: 'center',
-		},
-		{
-			label: __('Payment for Certificate'),
-			icon: 'award',
-			key: 'payment_for_certificate',
-			width: 2.5,
-			align: 'center',
-		},
-	]
-})
 </script>

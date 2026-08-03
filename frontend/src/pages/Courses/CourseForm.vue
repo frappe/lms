@@ -4,12 +4,19 @@
 		variant="form"
 		class="flex-1 min-h-0"
 	/>
-	<div v-else class="grid grid-cols-1 md:grid-cols-[70%,30%] flex-1 min-h-0">
-		<div class="overflow-y-auto p-5 space-y-8">
+	<!-- Below `md` the two panes stack, so neither may keep its own scroll box:
+	     the aside's settings have to continue the same scroll the details
+	     started. Everything responsive here hangs off `md`, the width at which
+	     the columns actually split — a narrower cutoff would leave a band where
+	     the panes are stacked but still scroll independently. -->
+	<div v-else class="grid grid-cols-1 flex-1 md:min-h-0 md:grid-cols-[70%,30%]">
+		<div class="space-y-8 p-5 md:overflow-y-auto">
 			<CourseDetailsSection />
 			<CourseOverviewSection />
 		</div>
-		<aside class="border-s overflow-y-auto px-3">
+		<aside
+			class="border-t md:overflow-y-auto md:border-s md:border-t-0 md:px-3"
+		>
 			<CoursePublishSettings />
 		</aside>
 	</div>
@@ -50,7 +57,7 @@ import type {
 	CourseFormMeta,
 	Resource,
 	SessionUser,
-} from '@/types/api'
+} from '@/types'
 
 interface DialogAction {
 	label: string
