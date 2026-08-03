@@ -972,6 +972,10 @@ def update_chapter_index(chapter: str, course: str, idx: int):
 		frappe.db.set_value("Chapter Reference", {"chapter": chapter_name, "parent": course}, "idx", i + 1)
 
 
+# Matches SETTINGS_PAGE_LENGTH in the frontend, which pages `start` by this.
+MEMBERS_PAGE_LENGTH = 13
+
+
 @frappe.whitelist()
 def get_members(start: int = 0, search: str = None, role: str = "All"):
 	frappe.only_for(["Moderator"])
@@ -1003,7 +1007,7 @@ def get_members(start: int = 0, search: str = None, role: str = "All"):
 		filters=filters,
 		fields=["name", "full_name", "user_image", "username", "last_active"],
 		or_filters=or_filters,
-		page_length=20,
+		page_length=MEMBERS_PAGE_LENGTH,
 		start=start,
 	)
 
