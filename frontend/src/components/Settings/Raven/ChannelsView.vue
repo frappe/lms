@@ -1,9 +1,6 @@
 <template>
 	<SettingsLayout
 		:title="workspace.workspace_label"
-		:description="
-			__('Manage this workspace\'s channels and their membership rules.')
-		"
 		:show-back="true"
 		@back="emit('back')"
 	>

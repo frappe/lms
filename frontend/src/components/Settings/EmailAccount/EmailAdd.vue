@@ -1,9 +1,6 @@
 <template>
 	<SettingsLayout
 		:title="__('Setup Email')"
-		:description="
-			__('Choose the email service provider you want to configure.')
-		"
 		:show-back="true"
 		@back="emit('update:step', 'email-list')"
 	>

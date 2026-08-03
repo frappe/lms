@@ -15,7 +15,7 @@
 					<template #cell="{ column, row, value }">
 						<div
 							v-if="column.key == 'member_name'"
-							class="flex items-center gap-2"
+							class="flex items-center gap-3"
 						>
 							<Avatar
 								:image="row.member_image as string"

@@ -1,9 +1,6 @@
 <template>
 	<SettingsLayout
 		:title="title"
-		:description="
-			__('Connect a Zoom account to schedule and host live classes.')
-		"
 		:show-back="true"
 		@back="emit('updateStep', 'list')"
 	>

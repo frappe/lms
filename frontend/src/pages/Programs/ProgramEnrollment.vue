@@ -79,7 +79,7 @@
                                 </Tooltip> -->
 							</div>
 
-							<div class="flex items-center gap-x-1 mt-auto">
+							<div class="flex items-center gap-x-2.5 mt-auto">
 								<UserAvatar :user="course.instructors[0]" />
 								<span class="text-ink-gray-9">
 									{{ course.instructors[0].full_name }}

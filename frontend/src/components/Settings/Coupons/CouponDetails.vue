@@ -1,11 +1,6 @@
 <template>
 	<SettingsLayout
 		:title="isNew ? __('New Coupon') : __('Edit Coupon')"
-		:description="
-			__(
-				'Set the discount, validity, and the courses or batches this coupon applies to.'
-			)
-		"
 		:show-back="true"
 		@back="emit('updateStep', 'list')"
 	>

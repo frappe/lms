@@ -1,7 +1,6 @@
 <template>
 	<SettingsLayout
 		:title="__('Edit Email Template')"
-		:description="__('Edit your reusable email template.')"
 		:show-back="true"
 		@back="emit('update:step', 'template-list')"
 	>

@@ -25,7 +25,7 @@
 					<ListRow @click="openForm(row.name)">
 						<ListCell class="gap-2">
 							<span class="lucide-award size-4 shrink-0 text-ink-gray-5" />
-							<span class="truncate text-p-base-medium text-ink-gray-8">
+							<span class="truncate text-p-base text-ink-gray-8">
 								{{ row.title }}
 							</span>
 						</ListCell>

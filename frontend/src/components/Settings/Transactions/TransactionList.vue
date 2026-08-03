@@ -46,10 +46,9 @@
 					v-slot="{ item: row }"
 				>
 					<ListRow @click="openForm(row)">
-						<ListCell class="gap-2">
-							<span class="lucide-user size-4 shrink-0 text-ink-gray-5" />
+						<ListCell>
 							<div class="flex min-w-0 flex-col">
-								<span class="truncate text-p-base-medium text-ink-gray-8">
+								<span class="truncate text-p-base text-ink-gray-8">
 									{{ row.billing_name }}
 								</span>
 								<span class="truncate text-p-sm text-ink-gray-5">

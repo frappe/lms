@@ -1,9 +1,6 @@
 <template>
 	<SettingsLayout
 		:title="title"
-		:description="
-			__('Define a badge and the criteria for awarding it to learners.')
-		"
 		:show-back="true"
 		@back="emit('updateStep', 'list')"
 	>

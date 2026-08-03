@@ -1,7 +1,6 @@
 <template>
 	<SettingsLayout
 		:title="__('Edit Email')"
-		:description="__('Edit your email account')"
 		:show-back="true"
 		@back="emit('update:step', 'email-list')"
 	>

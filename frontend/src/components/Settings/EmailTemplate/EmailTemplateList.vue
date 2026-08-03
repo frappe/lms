@@ -52,7 +52,7 @@
 					<!-- Name over subject, like CRM's template rows. -->
 					<ListCell>
 						<div class="flex min-w-0 flex-col">
-							<span class="truncate text-p-base-medium text-ink-gray-8">
+							<span class="truncate text-p-base text-ink-gray-8">
 								{{ row.name }}
 							</span>
 							<span class="truncate text-p-sm text-ink-gray-5">

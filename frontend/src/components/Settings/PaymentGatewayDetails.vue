@@ -1,9 +1,6 @@
 <template>
 	<SettingsLayout
 		:title="title"
-		:description="
-			__('Configure the credentials and options for this payment gateway.')
-		"
 		:show-back="true"
 		@back="emit('updateStep', 'list')"
 	>

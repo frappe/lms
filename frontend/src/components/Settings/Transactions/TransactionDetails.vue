@@ -1,7 +1,6 @@
 <template>
 	<SettingsLayout
 		:title="__('Transaction Details')"
-		:description="__('Review and update the details of this payment.')"
 		:show-back="true"
 		@back="emit('updateStep', 'list')"
 	>

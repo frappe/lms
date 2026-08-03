@@ -44,7 +44,7 @@
 					v-slot="{ item: member }"
 				>
 					<ListRow @click="openProfile(member.username)">
-						<ListCell class="gap-2">
+						<ListCell class="gap-3">
 							<Avatar
 								:image="member.user_image"
 								:label="member.full_name"

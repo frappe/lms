@@ -1,9 +1,6 @@
 <template>
 	<SettingsLayout
 		:title="isDuplicate ? __('Duplicate Template') : __('New Email Template')"
-		:description="
-			__('Create a reusable email template for your notifications.')
-		"
 		:show-back="true"
 		@back="emit('update:step', 'template-list')"
 	>

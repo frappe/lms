@@ -13,7 +13,7 @@
 				<LoadingIndicator class="size-4" />
 			</div>
 			<div v-else-if="studentDetails.data" class="p-5 space-y-10 text-sm">
-				<div class="flex items-center gap-x-2">
+				<div class="flex items-center gap-x-4">
 					<Avatar :image="studentDetails.data.user_image" size="3xl" />
 					<div class="space-y-1">
 						<div class="flex items-center gap-x-2">

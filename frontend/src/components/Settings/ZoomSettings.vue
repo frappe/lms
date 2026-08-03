@@ -28,7 +28,7 @@
 				v-slot="{ item: row }"
 			>
 				<ListRow @click="openForm(row.name)">
-					<ListCell class="gap-2">
+					<ListCell class="gap-2.5">
 						<Avatar
 							:image="row.member_image"
 							:label="row.member_name"
@@ -36,7 +36,7 @@
 							class="shrink-0"
 						/>
 						<div class="flex min-w-0 flex-col">
-							<span class="truncate text-p-base-medium text-ink-gray-8">
+							<span class="truncate text-p-base text-ink-gray-8">
 								{{ row.member_name }}
 							</span>
 							<span class="truncate text-p-sm text-ink-gray-5">
