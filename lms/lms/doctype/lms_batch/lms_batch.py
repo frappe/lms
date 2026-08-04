@@ -39,6 +39,11 @@ from lms.lms.utils import (
 	update_payment_record,
 )
 
+# Bounds how long a Zoom call can hold the worker if the API stops responding.
+# Generous because these are admin actions (create a class, read attendance),
+# not page renders — a spurious timeout would break a working integration.
+ZOOM_REQUEST_TIMEOUT_SECONDS = 30
+
 
 class LMSBatch(Document):
 	def validate(self):
@@ -432,7 +437,10 @@ def create_live_class(
 		"content-type": "application/json",
 	}
 	response = requests.post(
-		"https://api.zoom.us/v2/users/me/meetings", headers=headers, data=json.dumps(payload)
+		"https://api.zoom.us/v2/users/me/meetings",
+		headers=headers,
+		data=json.dumps(payload),
+		timeout=ZOOM_REQUEST_TIMEOUT_SECONDS,
 	)
 
 	if response.status_code == 201:
@@ -474,7 +482,9 @@ def delete_zoom_meeting(meeting_id, headers):
 	it would go with it."""
 	try:
 		response = requests.delete(
-			f"https://api.zoom.us/v2/meetings/{meeting_id}", headers=headers, timeout=10
+			f"https://api.zoom.us/v2/meetings/{meeting_id}",
+			headers=headers,
+			timeout=ZOOM_REQUEST_TIMEOUT_SECONDS,
 		)
 		if response.ok:
 			return
@@ -562,7 +572,9 @@ def authenticate(zoom_account):
 			)
 		).decode()
 	}
-	response = requests.request("POST", authenticate_url, headers=headers)
+	response = requests.request(
+		"POST", authenticate_url, headers=headers, timeout=ZOOM_REQUEST_TIMEOUT_SECONDS
+	)
 	return response.json()["access_token"]
 
 

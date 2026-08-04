@@ -11,7 +11,7 @@ from frappe.query_builder import Bracket
 from frappe.utils import cint, format_date, format_time, get_datetime, now_datetime, nowdate
 from pypika.terms import LiteralValue
 
-from lms.lms.doctype.lms_batch.lms_batch import authenticate
+from lms.lms.doctype.lms_batch.lms_batch import ZOOM_REQUEST_TIMEOUT_SECONDS, authenticate
 from lms.lms.permissions import (
 	CONFERENCING_ACCOUNT_FIELDS,
 	authored_batch_condition,
@@ -542,7 +542,9 @@ def get_attendance(live_class):
 
 	encoded_uuid = requests.utils.quote(live_class.uuid, safe="")
 	response = requests.get(
-		f"https://api.zoom.us/v2/past_meetings/{encoded_uuid}/participants", headers=headers
+		f"https://api.zoom.us/v2/past_meetings/{encoded_uuid}/participants",
+		headers=headers,
+		timeout=ZOOM_REQUEST_TIMEOUT_SECONDS,
 	)
 
 	if response.status_code != 200:
