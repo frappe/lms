@@ -180,7 +180,7 @@ watch(
 )
 
 const isAdmin = computed(() => {
-	return user.data?.is_moderator || user.data?.is_evaluator
+	return Boolean(user.data?.is_moderator || user.data?.is_evaluator)
 })
 
 const isStudent = computed(() => {
