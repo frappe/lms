@@ -164,7 +164,20 @@ def record_payment(
 	address = frappe._dict(address)
 	address_name = save_address(address)
 
-	payment_doc = frappe.new_doc("LMS Payment")
+	payment_name = frappe.db.exists(
+		"LMS Payment",
+			{
+				"member": frappe.session.user,
+				"payment_for_document_type": doctype,
+				"payment_for_document": docname,
+				"payment_received": 0,
+			},
+		)
+	payment_doc = (
+		frappe.get_doc("LMS Payment", payment_name)
+		if payment_name
+		else frappe.new_doc("LMS Payment")
+	)
 	payment_doc.update(
 		{
 			"member": frappe.session.user,
