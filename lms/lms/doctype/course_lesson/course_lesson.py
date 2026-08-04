@@ -9,6 +9,7 @@ import frappe
 from frappe import _
 from frappe.model.document import Document
 from frappe.query_builder.functions import Locate
+from frappe.rate_limiter import rate_limit
 from frappe.realtime import get_website_room
 from frappe.utils import add_to_date, now_datetime
 from frappe.utils.response import send_private_file
@@ -167,7 +168,21 @@ def _resolve_lesson_references(file_url: str) -> list[tuple[str, bool]]:
 	return refs
 
 
+# One flat ceiling, deliberately. A per-audience limit does not work here:
+# rate_limit's bucket is keyed on the endpoint and the IP alone, so Guest and
+# signed-in traffic from one address share a single counter and a lower guest
+# threshold is simply applied to a count that authenticated users already drove
+# up — locking out the anonymous visitors it was supposed to protect.
+#
+# The number is high because this endpoint is charged per asset, not per action:
+# a lesson costs one request per embedded file plus one per video byte-range on
+# every seek, and a whole NAT'd or CDN-fronted school shares the IP. Exceeding it
+# is invisible — these URLs load as <img>/<video>, so a 429 renders as a broken
+# image with no toast. Enumeration is not held off by this number anyway:
+# can_access_lesson gates every hit and _deny() logs each refusal. The limit is
+# only a backstop against a runaway scanner.
 @frappe.whitelist(allow_guest=True)  # nosemgrep: frappe-semgrep-rules.rules.security.guest-whitelisted-method
+@rate_limit(limit=20000, seconds=60 * 60)
 def serve_resource(file_url: str):
 	"""Access-gated streaming of private lesson media for all users.
 
