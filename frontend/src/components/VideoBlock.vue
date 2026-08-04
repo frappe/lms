@@ -132,7 +132,7 @@
 			:backToVideo="resumeVideo"
 		/>
 		<div v-if="!readOnly">
-			<Button @click="showQuizModal = true">
+			<Button class="text-p-base-medium" @click="showQuizModal = true">
 				{{ __('Add Quiz to Video') }}
 			</Button>
 		</div>

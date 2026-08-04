@@ -169,7 +169,7 @@ const batch = createResource({
 })
 
 // The router reuses this component when you go straight from one batch to
-// another — the command palette does exactly that — so setup does not run a
+// another (the command palette does exactly that), so setup does not run a
 // second time. Without this the page would keep showing the batch you
 // arrived on. The `cache` key is gone for the same reason: it was read once at
 // setup, so a reload would have written the new batch into the old one's

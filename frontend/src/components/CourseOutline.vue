@@ -124,7 +124,7 @@ const user = inject<SessionUser>('$user')!
 const router = useRouter()
 const showChapterModal = ref<boolean>(false)
 const currentChapter = ref<OutlineChapter | null>(null)
-// True while a ChapterRow is in inline-rename mode — locks chapter drag.
+// True while a ChapterRow is in inline-rename mode; locks chapter drag.
 const chapterRenaming = ref<boolean>(false)
 const { $dialog } = getCurrentInstance()!.appContext.config
 	.globalProperties as {
@@ -288,7 +288,7 @@ const errorMessage = (err: { messages?: string[] } | string): string =>
 	typeof err === 'string' ? err : err.messages?.[0] ?? 'Error'
 
 // Inserts the Course Lesson and its chapter reference in one request, so a
-// failure on either rolls back atomically — no orphaned lesson. Returns the
+// failure on either rolls back atomically: no orphaned lesson. Returns the
 // new lesson's docname.
 const addLesson = createResource({
 	url: 'lms.lms.api.create_lesson',
@@ -353,7 +353,7 @@ function trashLesson(lessonName: string, chapterName: string) {
 				variant: 'solid',
 				onClick(close) {
 					// Per-call onSuccess closes over this lessonName, so the editor is
-					// told exactly which lesson went — no shared slot to drift on
+					// told exactly which lesson went: no shared slot to drift on
 					// concurrent deletes. Runs alongside the resource-level reload.
 					deleteLesson.submit(
 						{ lesson: lessonName, chapter: chapterName },

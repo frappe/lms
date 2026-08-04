@@ -21,7 +21,7 @@ describe('hasEditorContent (anti-wipe guard)', () => {
 	})
 
 	it('is false for the exact wipe payload: one empty default paragraph', () => {
-		// This is what a freshly remounted EditorJS serialises to — the state that
+		// This is what a freshly remounted EditorJS serialises to: the state that
 		// reduced real lessons to "1 block / ~109 chars".
 		expect(
 			hasEditorContent({ blocks: [{ type: 'paragraph', data: { text: '' } }] })

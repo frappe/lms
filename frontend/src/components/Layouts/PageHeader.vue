@@ -10,8 +10,8 @@
 			     `min-w-0` on the link and `truncate` on the text: without both, a
 			     long title pushes the actions off the end instead of shortening.
 
-			     The destination is the parent crumb's route, never `router.back()`
-			     — history-back drops a deep-linked or externally referred visitor
+			     The destination is the parent crumb's route, never `router.back()`.
+			     History-back drops a deep-linked or externally referred visitor
 			     outside the app entirely, and cannot name where it is going.
 
 			     `text-lg-medium` is the token frappe-ui's own Breadcrumbs uses, so

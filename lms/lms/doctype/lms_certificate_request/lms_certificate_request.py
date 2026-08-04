@@ -135,7 +135,7 @@ class LMSCertificateRequest(Document):
 					)
 
 	def validate_timezone(self):
-		"""The zone the stored wall clock is in — never the zone it is shown in.
+		"""The zone the stored wall clock is in, never the zone it is shown in.
 
 		date, start_time and end_time are system time: validate_if_existing_requests
 		and mark_eval_as_completed compare them against nowtime(), and create_event
@@ -154,7 +154,7 @@ class LMSCertificateRequest(Document):
 			template = "certificate_request_notification"
 
 			# The same instant the learner picked, rendered in the same zone the
-			# picker rendered it in — otherwise the email restates their booking
+			# picker rendered it in. Otherwise the email restates their booking
 			# in a clock they never saw.
 			timezone = get_evaluation_display_timezone(self.course, self.batch_name)
 			date, start_time = convert_from_system_timezone(self.date, self.start_time, timezone)

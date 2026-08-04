@@ -1,5 +1,5 @@
 /**
- * Tests for GoogleMeetAccountForm.vue — the settings panel is mounted fresh
+ * Tests for GoogleMeetAccountForm.vue: the settings panel is mounted fresh
  * every time it is opened (GoogleMeetSettings toggles it with v-if/v-else), so
  * the form has to seed itself from the selected account on mount, not only when
  * `accountID` later changes.
@@ -33,10 +33,13 @@ vi.mock('frappe-ui/frappe', () => ({
 	useTelemetry: () => ({ capture: captureMock }),
 }))
 
+// Enabled lives in the layout header now, beside Save, so the stub has to
+// carry it for the form's seeding to stay observable.
 vi.mock('@/components/Layouts/SettingsLayout.vue', () => ({
 	default: {
-		props: ['title', 'description', 'showBack'],
-		template: `<div><h1 data-testid="title">{{ title }}</h1><slot name="header-actions" /><slot /></div>`,
+		props: ['title', 'description', 'showBack', 'enabled', 'unsaved'],
+		emits: ['update:enabled'],
+		template: `<div><h1 data-testid="title">{{ title }}</h1><button :data-testid="'switch-' + enabled" @click="$emit('update:enabled', !enabled)" /><slot name="header-actions" /><slot /></div>`,
 	},
 }))
 
@@ -109,9 +112,9 @@ describe('GoogleMeetAccountForm', () => {
 	it('seeds the form with the selected account on mount', () => {
 		const { wrapper } = mountForm(ACCOUNT.name)
 
-		expect(wrapper.find('[data-testid="title"]').text()).toBe(
-			'Edit Google Meet Account'
-		)
+		// The header names the record, not the operation: `autoname:
+		// field:account_name` makes the doc name the account name.
+		expect(wrapper.find('[data-testid="title"]').text()).toBe(ACCOUNT.name)
 		expect(fieldValue(wrapper, 'Account Name')).toBe(ACCOUNT.name)
 		expect(fieldValue(wrapper, 'Member')).toBe(ACCOUNT.member)
 		expect(fieldValue(wrapper, 'Google Calendar')).toBe(ACCOUNT.google_calendar)

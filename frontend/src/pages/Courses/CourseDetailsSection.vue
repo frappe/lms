@@ -18,15 +18,13 @@
 				:placeholder="__('Select category')"
 				:inlineCreate="true"
 				inlineCreatePlaceholder="Category name"
-				:onCreate="createCategory"
+				:onCreate="onCreateCategory"
 				variant="outline"
 				@update:modelValue="markDirty()"
 			/>
 			<CourseInstructorsField />
 			<div class="space-y-1.5">
-				<label class="block text-p-sm-medium text-ink-gray-7">
-					{{ __('Tags') }}
-				</label>
+				<InputLabel :id="tagsLabelId" :label="__('Tags')" />
 				<MultiSelect
 					v-model="tagsArray"
 					:options="tagOptions"
@@ -35,7 +33,7 @@
 					class="w-full justify-between"
 					@update:query="tagQuery = $event"
 				>
-					<template #trigger="{ open, toggleOpen, selectedOptions }">
+					<template #trigger="{ open, selectedOptions }">
 						<button
 							type="button"
 							:aria-expanded="open"
@@ -43,7 +41,6 @@
 								'relative inline-flex w-full min-h-7 items-center gap-2 rounded border border-outline-gray-2 bg-surface-base px-2 text-start text-base text-ink-gray-8 outline-none transition-colors hover:border-outline-gray-3 hover:shadow-sm focus:border-outline-gray-4 focus:shadow-sm',
 								open && 'border-outline-gray-4 shadow-sm',
 							]"
-							@click="toggleOpen"
 						>
 							<span class="lucide-tag size-4 shrink-0 text-ink-gray-5" />
 							<span
@@ -88,19 +85,22 @@
 
 <script setup lang="ts">
 import { FormControl, MultiSelect } from 'frappe-ui'
-import { computed, inject, ref } from 'vue'
+import { computed, inject, ref, useId } from 'vue'
 import { createLMSCategory } from '@/utils'
+import { createHandler } from '@/pages/Courses/createHandler'
 import Link from '@/components/Controls/Link.vue'
 import CourseInstructorsField from '@/pages/Courses/CourseInstructorsField.vue'
 import CourseThumbnailField from '@/pages/Courses/CourseThumbnailField.vue'
 import VideoPreviewField from '@/components/Controls/VideoPreviewField.vue'
 import type { CourseFormContext } from '@/types'
+import { InputLabel } from '@/components/Form/labeling'
 
 interface TagOption {
 	label: string
 	value: string
 }
 
+const tagsLabelId = useId()
 const { resource, markDirty } = inject<CourseFormContext>('courseForm')!
 
 const doc = computed(() => resource.doc)
@@ -148,5 +148,9 @@ function createCategory(name: string, done?: () => void) {
 		done?.()
 		markDirty()
 	})
+}
+
+function onCreateCategory(value: string | null, done?: () => void) {
+	createHandler(value, done, (name) => createCategory(name, done))
 }
 </script>

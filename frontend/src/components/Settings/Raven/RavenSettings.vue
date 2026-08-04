@@ -31,7 +31,7 @@
 			class="relative flex h-full min-h-64 w-full grow justify-center"
 		>
 			<div
-				class="absolute left-1/2 top-[35%] flex w-4/12 -translate-x-1/2 flex-col items-center gap-3 px-4"
+				class="absolute inset-x-0 top-[35%] mx-auto flex w-4/12 flex-col items-center gap-3 px-4"
 			>
 				<p v-if="notPermitted" class="text-center text-p-base text-ink-gray-6">
 					{{
@@ -110,7 +110,7 @@ const setup = createResource<RavenSetupState>({
 	},
 })
 
-// True while either app is missing or the integration is not yet enabled — those
+// True while either app is missing or the integration is not yet enabled. Those
 // states render a vertically-centered card.
 const needsSetup = computed(
 	(): boolean =>

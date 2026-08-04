@@ -108,14 +108,14 @@ def cleanup_lesson_backreferences(lesson: str):
 def has_permission(doc, ptype="read", user=None):
 	user = user or frappe.session.user
 	if ptype not in ("read", "select", "print"):
-		# Authoring (create/write/delete): mirror sibling LMS hooks — Moderators
+		# Authoring (create/write/delete): mirror sibling LMS hooks. Moderators
 		# and Course Creators manage lessons; otherwise fall back to per-course
 		# instructor/moderator via the rule.
 		roles = frappe.get_roles(user)
 		if "Moderator" in roles or "Course Creator" in roles:
 			return True
 		return can_access_lesson(doc.name, instructor_only=True, user=user)
-	# Read/select/print: the security gate — enrollment / preview / instructor only.
+	# Read/select/print: the security gate. Enrollment / preview / instructor only.
 	# Deliberately NOT widened to all Course Creators, to preserve the media-access
 	# boundary (matches the original get_lesson gate).
 	return can_access_lesson(doc.name, user=user)
@@ -129,7 +129,7 @@ def _resolve_lesson_references(file_url: str) -> list[tuple[str, bool]]:
 	"""Every (lesson, instructor_only) pair that references file_url.
 
 	Two sources, unioned:
-	- File attachments (fast path) — gives the exact attached_to_field.
+	- File attachments (fast path). Gives the exact attached_to_field.
 	- A search of the lesson content fields (the source of truth: uploaded files
 	  are frequently private-but-unattached, and pre-existing/seeded files always are).
 	An empty/unknown attachment field is treated as instructor-only (fail-closed).
@@ -149,7 +149,7 @@ def _resolve_lesson_references(file_url: str) -> list[tuple[str, bool]]:
 	# Match the url as a literal substring via LOCATE (the query builder maps it to
 	# STRPOS/INSTR per dialect) instead of a LIKE pattern: LIKE needs %/_ escaped, and
 	# frappe.db.get_all(..., ["like", ...]) re-escapes the backslashes of an already
-	# escaped pattern — so any file_url containing "_" or "%" (e.g.
+	# escaped pattern, so any file_url containing "_" or "%" (e.g.
 	# Module_1_Introduction.pdf) silently matched nothing, denying enrolled students and
 	# preview guests their own lesson media.
 	lesson = frappe.qb.DocType("Course Lesson")
@@ -167,12 +167,12 @@ def _resolve_lesson_references(file_url: str) -> list[tuple[str, bool]]:
 	return refs
 
 
-@frappe.whitelist(allow_guest=True)
+@frappe.whitelist(allow_guest=True)  # nosemgrep: frappe-semgrep-rules.rules.security.guest-whitelisted-method
 def serve_resource(file_url: str):
 	"""Access-gated streaming of private lesson media for all users.
 
 	Native /private/files/ needs a Course Lesson read role-perm that LMS students and
-	guests don't hold, and it hard-refuses Guest — so ALL private lesson media is served
+	guests don't hold, and it hard-refuses Guest, so ALL private lesson media is served
 	here instead (get_lesson rewrites embedded URLs to this endpoint for every user).
 	The owning lesson is resolved from the lesson content (source of truth) and from any
 	File attachment, then gated by the same can_access_lesson rule.
@@ -259,7 +259,7 @@ def save_progress(lesson: str, course: str, scorm_details: dict = None):
 	"""
 	Note: Pass the argument scorm_details as a dict if it is SCORM related save_progress
 	"""
-	# The completion path writes the enrollment twice — LMS Course Progress.on_update
+	# The completion path writes the enrollment twice: LMS Course Progress.on_update
 	# recalculates progress, then this advances current_lesson. Batch them so the
 	# request emits a single on_update, as the pre-regression .save() did.
 	with batched_enrollment_updates():
@@ -352,7 +352,7 @@ def _save_progress(lesson: str, course: str, scorm_details: dict = None):
 		capture("course_progress", "lms")
 
 	# Completing the lesson advances the pointer; otherwise it parks on the one opened.
-	# Both fields go through update_enrollment() in one write — the raw set_values this
+	# Both fields go through update_enrollment() in one write. The raw set_values this
 	# replaces fired no on_update, which is the webhook regression being fixed.
 	update_enrollment(membership, {"current_lesson": next_lesson or lesson, "progress": progress})
 

@@ -39,9 +39,15 @@
 					>
 						<template v-slot="{ file, progress, uploading, openFileSelector }">
 							<div class="mb-4">
-								<Button @click="openFileSelector" :loading="uploading">
+								<Button
+									class="text-p-base-medium"
+									:loading="uploading"
+									@click="openFileSelector"
+								>
 									{{
-										uploading ? `Uploading ${progress}%` : 'Upload an ZIP file'
+										uploading
+											? __('Uploading {0}%').format(progress)
+											: __('Upload a ZIP file')
 									}}
 								</Button>
 							</div>

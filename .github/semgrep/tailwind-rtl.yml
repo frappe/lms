@@ -1,11 +1,19 @@
-# Local run: semgrep scan --config .github/semgrep/tailwind-rtl.yml
+# Local run: semgrep scan --error --config .github/semgrep/tailwind-rtl.yml
+#
+# `--error` is what makes findings fail; a bare `semgrep scan` exits 0 no matter
+# how many it reports. Class strings are not confined to templates, so .ts/.js
+# (shared `const cls = '...'`) and .css (`@apply`) are scanned too.
+#
+# Every rule here is ERROR. A rule may only carry a lower severity if a comment
+# beside it says why it is advisory; an RTL break is a bug in a supported
+# locale, not a style preference, so silence is not a reason to downgrade one.
 rules:
     - id: tailwind-physical-class
       message: |
           RTL: replace physical Tailwind class with logical equivalent.
       languages: [generic]
-      severity: WARNING
-      paths: { include: ["*.vue"] }
+      severity: ERROR
+      paths: { include: ["*.vue", "*.ts", "*.js", "*.css"] }
       patterns:
           - pattern-either:
                 - pattern-regex: |
@@ -29,8 +37,8 @@ rules:
       message: |
           RTL: `space-x-*` does not flip in RTL. add `rtl:space-x-reverse` or `gap-x-* ms-*`
       languages: [generic]
-      severity: WARNING
-      paths: { include: ["*.vue"] }
+      severity: ERROR
+      paths: { include: ["*.vue", "*.ts", "*.js", "*.css"] }
       patterns:
           - pattern-regex: 'class\s*[:=]\s*"[^"]*\bspace-x-\S+[^"]*"'
           - pattern-not-regex: '\brtl:space-x-reverse\b'
@@ -39,8 +47,8 @@ rules:
       message: |
           RTL: `divide-x-*` does not flip in RTL, sdd `rtl:divide-x-reverse`.
       languages: [generic]
-      severity: WARNING
-      paths: { include: ["*.vue"] }
+      severity: ERROR
+      paths: { include: ["*.vue", "*.ts", "*.js", "*.css"] }
       patterns:
           - pattern-regex: 'class\s*[:=]\s*"[^"]*\bdivide-x(?:-\S+)?[^"]*"'
           - pattern-not-regex: '\brtl:divide-x-reverse\b'

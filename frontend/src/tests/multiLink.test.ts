@@ -37,7 +37,7 @@ const USERS: Record<string, string> = {
 	'john@example.com': 'John Doe',
 }
 
-// Users the role search would hand back for an empty `txt` — none of them are
+// Users the role search would hand back for an empty `txt`. None of them are
 // the saved value, so seeing one of these means the by-name path was not used.
 const USER_DIRECTORY: Row[] = [
 	{ value: 'unrelated1@example.com', label: 'Unrelated One' },
@@ -56,12 +56,12 @@ const h = vi.hoisted(() => ({
 /**
  * Each endpoint is modelled on its real server-side signature. Frappe strips
  * kwargs a whitelisted method does not declare, so params the method has no
- * parameter for simply vanish — a fake that honours `filters.name in` for every
+ * parameter for simply vanish. A fake that honours `filters.name in` for every
  * url hides exactly the bug this file exists to catch.
  */
 function respond(url: string, params: Record<string, unknown>): Row[] {
 	if (url === SEARCH_USERS) {
-		// (txt, roles, page_length, names) — no `doctype`, no `filters`.
+		// (txt, roles, page_length, names): no `doctype`, no `filters`.
 		const names = params.names
 			? (JSON.parse(String(params.names)) as string[])
 			: null
@@ -75,7 +75,7 @@ function respond(url: string, params: Record<string, unknown>): Row[] {
 			(u) => !txt || u.label.toLowerCase().includes(txt)
 		).slice(0, Number(params.page_length ?? 10))
 	}
-	// frappe.desk.search.search_link — honours doctype + filters, ignores `names`.
+	// frappe.desk.search.search_link: honours doctype + filters, ignores `names`.
 	const filters = JSON.parse(String(params.filters ?? '{}')) as {
 		name?: [string, string[]]
 	}
@@ -153,7 +153,7 @@ function mountLink(
 		},
 		attachTo: document.body,
 		// The popover footer renders `__('Clear')`, which resolves through the instance
-		// context rather than globalThis — vi.stubGlobal alone does not reach it.
+		// context rather than globalThis. vi.stubGlobal alone does not reach it.
 		global: { mocks: { __: (s: string) => s } },
 	})
 }

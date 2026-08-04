@@ -18,8 +18,12 @@ describe('sanitizeRichHTML', () => {
 	})
 
 	it('strips script and event handlers (DOMPurify default)', () => {
-		expect(sanitizeRichHTML('<img src=x onerror=alert(1)>')).not.toMatch(/onerror/i)
-		expect(sanitizeRichHTML('<script>alert(1)</script>hi')).not.toMatch(/<script/i)
+		expect(sanitizeRichHTML('<img src=x onerror=alert(1)>')).not.toMatch(
+			/onerror/i
+		)
+		expect(sanitizeRichHTML('<script>alert(1)</script>hi')).not.toMatch(
+			/<script/i
+		)
 	})
 
 	it('preserves rich presentational HTML and styling classes', () => {
@@ -35,7 +39,7 @@ describe('sanitizeRichHTML', () => {
 		expect(out).toMatch(/<table>/)
 		expect(out).toMatch(/<th>A<\/th>/)
 		// The anchor now carries target/rel injected by the afterSanitizeAttributes
-		// hook — assert the href is preserved without pinning attribute order.
+		// hook. Assert the href is preserved without pinning attribute order.
 		expect(out).toMatch(/<a\s[^>]*href="https:\/\/docs\.frappe\.io\/learning"/)
 		expect(out).toMatch(/<img src="https:\/\/example\.test\/a\.png">/)
 	})
@@ -54,7 +58,7 @@ describe('sanitizeRichHTML', () => {
 		// Even if the source specifies target="_self" or a different rel,
 		// the hook normalises to _blank + noopener noreferrer.
 		const out = sanitizeRichHTML(
-			'<a href="https://example.test" target="_self" rel="nofollow">click</a>',
+			'<a href="https://example.test" target="_self" rel="nofollow">click</a>'
 		)
 		expect(out).toMatch(/target="_blank"/)
 		expect(out).toMatch(/rel="noopener noreferrer"/)

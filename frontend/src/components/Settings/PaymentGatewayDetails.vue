@@ -1,9 +1,6 @@
 <template>
 	<SettingsLayout
 		:title="title"
-		:description="
-			__('Configure the credentials and options for this payment gateway.')
-		"
 		:show-back="true"
 		@back="emit('updateStep', 'list')"
 	>
@@ -64,9 +61,7 @@ const props = defineProps<{
 }>()
 
 const title = computed(() =>
-	props.gatewayID === 'new'
-		? __('New Payment Gateway')
-		: __('Edit Payment Gateway')
+	props.gatewayID === 'new' ? __('New Payment Gateway') : props.gatewayID || ''
 )
 
 const paymentGateway = createResource({
@@ -89,6 +84,16 @@ const allGateways = createListResource({
 		module: 'Payment Gateways',
 	},
 	fields: ['name', 'issingle'],
+})
+
+// Which gateways already exist has to come from its own unfiltered, unpaged
+// query. Reading it off the list panel's resource meant a search term or the
+// 13-row page hid a configured gateway, and offering it again overwrites its
+// credentials.
+const configuredGateways = createListResource({
+	doctype: 'Payment Gateway',
+	fields: ['name'],
+	pageLength: 0,
 })
 
 const gatewayFields = createResource({
@@ -118,6 +123,7 @@ watch(
 			paymentGateway.reload()
 		} else if (props.gatewayID == 'new') {
 			allGateways.reload()
+			configuredGateways.reload()
 		}
 	},
 	{ immediate: true }
@@ -199,7 +205,7 @@ const allGatewayOptions = computed(() => {
 	gatewayList.forEach((gateway: any) => {
 		let gatewayName = gateway.split(' ')[0]
 		let existingGateways =
-			paymentGateways.value?.data?.map((pg: any) => pg.name) || []
+			configuredGateways.data?.map((pg: any) => pg.name) || []
 		if (
 			!options.includes(gatewayName) &&
 			!existingGateways.includes(gatewayName)

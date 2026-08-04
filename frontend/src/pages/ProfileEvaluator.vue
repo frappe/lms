@@ -173,7 +173,7 @@
 					<span class="lucide-check size-4 me-2" />
 					{{ __('Your calendar is set.') }}
 				</div>
-				<Button @click="startCalendarAuthorization">
+				<Button class="text-p-base-medium" @click="startCalendarAuthorization">
 					{{ __('Authorize Google Calendar Access') }}
 				</Button>
 			</div>

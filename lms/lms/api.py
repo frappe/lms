@@ -426,13 +426,13 @@ def get_unsplash_photos(keyword: str = None):
 def get_evaluator_details(evaluator: str):
 	# Same rule as the writes: your own, or anyone's if you are a Moderator. A
 	# role check alone let any Batch Evaluator read every other evaluator's
-	# schedule, unavailability and calendar — the profile page's redirect is
+	# schedule, unavailability and calendar. The profile page's redirect is
 	# client-side, so it stops nobody calling the endpoint directly.
 	evaluator = enforce_evaluator_access(evaluator)
 
 	# Reading must not write. Saving a Course Evaluator runs
 	# CourseEvaluator.validate_evaluator_role, which *grants* the target the
-	# Batch Evaluator role — and this endpoint is reached with whatever user the
+	# Batch Evaluator role. This endpoint is reached with whatever user the
 	# profile page is showing. The record is created on the first write instead
 	# (see get_owned_evaluator_doc), where it is a deliberate act.
 	if frappe.db.exists("Course Evaluator", {"evaluator": evaluator}):
@@ -468,7 +468,7 @@ def ensure_evaluator_calendar():
 
 	Batch Evaluators are portal users without create permission on Google
 	Calendar (only System Manager / Desk User have it), so it is provisioned on
-	their behalf — but only for themselves, and only when they ask for it by
+	their behalf, but only for themselves, and only when they ask for it by
 	starting the authorisation flow.
 	"""
 	frappe.only_for(EVALUATOR_ROLES)
@@ -534,7 +534,7 @@ def get_owned_evaluator_doc(evaluator: str, create: bool = False):
 	"""Resolve the caller's (or, for a Moderator, the target's) availability.
 
 	`create` is only ever set by the one endpoint that means "this person is an
-	evaluator now" — adding a slot — and only after that call's own arguments
+	evaluator now" (adding a slot), and only after that call's own arguments
 	have been validated. Editing, deleting or setting unavailability on a record
 	that does not exist is a mistake, not a reason to conjure one: saving a
 	Course Evaluator grants the Batch Evaluator role, so creating on those paths
@@ -602,7 +602,7 @@ def get_owned_slot(doc, slot: str | int):
 	Looking the row up by name alone would let a valid actor point a write at
 	someone else's row; the slot has to belong to the evaluator they passed.
 	Evaluator Schedule rows are autoincrement-named, so the identifier arrives
-	as a number from JSON — compare as strings rather than trusting the type.
+	as a number from JSON. Compare as strings rather than trusting the type.
 	"""
 	if slot is None or not str(slot).strip():
 		frappe.throw(_("Slot is required."))
@@ -972,6 +972,10 @@ def update_chapter_index(chapter: str, course: str, idx: int):
 		frappe.db.set_value("Chapter Reference", {"chapter": chapter_name, "parent": course}, "idx", i + 1)
 
 
+# Matches SETTINGS_PAGE_LENGTH in the frontend, which pages `start` by this.
+MEMBERS_PAGE_LENGTH = 13
+
+
 @frappe.whitelist()
 def get_members(start: int = 0, search: str = None, role: str = "All"):
 	frappe.only_for(["Moderator"])
@@ -1003,7 +1007,7 @@ def get_members(start: int = 0, search: str = None, role: str = "All"):
 		filters=filters,
 		fields=["name", "full_name", "user_image", "username", "last_active"],
 		or_filters=or_filters,
-		page_length=20,
+		page_length=MEMBERS_PAGE_LENGTH,
 		start=start,
 	)
 
@@ -1281,7 +1285,7 @@ def delete_course(course: str):
 	# list, a program's course list); remove those rows so the delete isn't blocked.
 	frappe.db.delete("Related Courses", {"course": course})
 	frappe.db.delete("LMS Program Course", {"course": course})
-	# Preserve authored assessments and graded work — unlink from the course/lesson rather than delete.
+	# Preserve authored assessments and graded work. Unlink from the course/lesson rather than delete.
 	frappe.db.set_value("LMS Quiz", {"course": course}, {"course": None, "lesson": None})
 	frappe.db.set_value("LMS Quiz Submission", {"course": course}, "course", None)
 	frappe.db.set_value("LMS Assignment Submission", {"course": course}, {"course": None, "lesson": None})
@@ -1412,7 +1416,7 @@ def upsert_chapter(
 
 
 def _scorm_url(abs_path: str) -> str:
-	"""Map an extracted SCORM disk path (<site>/private/scorm/...) to the location-independent "/scorm/<course>/<title>/..." URL stored on Course Chapter — same shape legacy public chapters have, so no DB change."""
+	"""Map an extracted SCORM disk path (<site>/private/scorm/...) to the location-independent "/scorm/<course>/<title>/..." URL stored on Course Chapter. Same shape legacy public chapters have, so no DB change."""
 	rel = os.path.relpath(abs_path, frappe.get_site_path("private"))
 	return "/" + rel.replace(os.sep, "/")
 
@@ -1426,7 +1430,7 @@ def _scorm_extract_path(course: str, title: str) -> str:
 	if not course_root.startswith(scorm_root + os.sep):
 		frappe.throw(_("Invalid course or chapter name"))
 
-	# Must resolve strictly inside the course dir — a title of "."/""/"sub/.." collapses to course_root, whose rmtree would wipe every chapter.
+	# Must resolve strictly inside the course dir. A title of "."/""/"sub/.." collapses to course_root, whose rmtree would wipe every chapter.
 	extract_path = os.path.realpath(os.path.join(course_root, title))
 	if not extract_path.startswith(course_root + os.sep):
 		frappe.throw(_("Invalid course or chapter name"))
@@ -1721,7 +1725,7 @@ def get_week_difference(start_date: str, current_date: str) -> int:
 @frappe.whitelist()
 def get_notifications(filters: dict = None):
 	filters = frappe._dict(filters or {})
-	# Always scoped to the session user — no IDOR surface; only an optional read flag from the client is honoured.
+	# Always scoped to the session user. No IDOR surface; only an optional read flag from the client is honoured.
 	query_filters = {"for_user": frappe.session.user}
 	if "read" in filters:
 		query_filters["read"] = 1 if filters.read else 0
@@ -1886,7 +1890,7 @@ def save_evaluator_role(user: str, value: int):
 			try:
 				doc.save(ignore_permissions=True)
 			except frappe.DuplicateEntryError:
-				# A concurrent request already created this evaluator; the primary key (autoname field:evaluator) guarantees uniqueness, so the row exists — nothing more to do.
+				# A concurrent request already created this evaluator; the primary key (autoname field:evaluator) guarantees uniqueness, so the row exists. Nothing more to do.
 				frappe.db.rollback(save_point="save_evaluator")
 	else:
 		frappe.db.delete("Has Role", {"parent": user, "role": "Batch Evaluator"})
@@ -2235,7 +2239,7 @@ def get_profile_details(username: str):
 	)
 	# Every user created through the LMS picks up `LMS Student` from the
 	# before_insert hook, but users made in Desk, by Data Import or by another
-	# app do not — they must still be able to open their own profile. Viewing
+	# app do not. They must still be able to open their own profile. Viewing
 	# anyone else's still requires an LMS role, and that refusal comes before
 	# the not-found check so a caller without one can't use the difference
 	# between the two errors to enumerate usernames.
@@ -2859,3 +2863,30 @@ def export_course_as_zip(course_name: str):
 def import_course_from_zip(zip_file_path: str):
 	frappe.only_for(["Moderator", "Course Creator"])
 	return import_course_zip(zip_file_path)
+
+
+@frappe.whitelist()
+def delete_category(category: str):
+	"""Unlink a category from every course and batch, then delete it.
+
+	LMS Course.category and LMS Batch.category are Link fields, so Frappe
+	refuses to delete a category that is still in use. Clearing the references
+	first keeps the two steps in one transaction.
+	"""
+	frappe.only_for("Moderator")
+
+	if not category or not isinstance(category, str):
+		frappe.throw(_("Category is required."))
+
+	if not frappe.db.exists("LMS Category", category):
+		frappe.throw(_("Category {0} does not exist.").format(category))
+
+	unlinked = {}
+	for doctype in ("LMS Course", "LMS Batch"):
+		names = frappe.get_all(doctype, filters={"category": category}, pluck="name")
+		for name in names:
+			frappe.db.set_value(doctype, name, "category", None)
+		unlinked[doctype] = len(names)
+
+	frappe.delete_doc("LMS Category", category)
+	return unlinked

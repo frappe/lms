@@ -1,29 +1,26 @@
 <template>
-	<div class="space-y-1.5">
-		<FormLabel v-if="label" :label="label" :required="required" />
-		<Select
-			class="w-full"
-			v-bind="$attrs"
-			:modelValue="modelValue"
-			:options="options"
-			:size="size"
-			:variant="variant"
-			:placeholder="placeholder"
-			:disabled="disabled"
-			:emptyText="emptyText"
-			:required="required"
-			@update:modelValue="
-				(val: SelectOptionValue | undefined) => emit('update:modelValue', val)
-			"
-		/>
-		<p v-if="description" class="mt-1 text-xs text-ink-gray-5">
-			{{ description }}
-		</p>
-	</div>
+	<Select
+		class="w-full"
+		v-bind="$attrs"
+		:modelValue="modelValue"
+		:options="options"
+		:size="size"
+		:variant="variant"
+		:placeholder="placeholder"
+		:disabled="disabled"
+		:emptyText="emptyText"
+		:required="required"
+		:label="label ? __(label) : undefined"
+		:description="description"
+		:error="error"
+		@update:modelValue="
+			(val: SelectOptionValue | undefined) => emit('update:modelValue', val)
+		"
+	/>
 </template>
 
 <script setup lang="ts">
-import { FormLabel, Select } from 'frappe-ui'
+import { Select } from 'frappe-ui'
 import type { SelectOption, SelectOptionValue } from 'frappe-ui'
 
 defineOptions({ inheritAttrs: false })
@@ -37,6 +34,7 @@ const props = withDefaults(
 		options?: SelectOption[]
 		label?: string
 		description?: string
+		error?: string
 		placeholder?: string
 		required?: boolean
 		disabled?: boolean

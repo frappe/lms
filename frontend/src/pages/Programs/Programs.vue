@@ -171,7 +171,7 @@ const updatePrograms = () => {
 	updateFilters()
 	// createResource keeps no request sequence: every response assigns `data`,
 	// so a slow fetch for filters the user has already left repaints the list
-	// with the wrong programs seconds later. Cancel it first — an aborted fetch
+	// with the wrong programs seconds later. Cancel it first: an aborted fetch
 	// is swallowed and never reaches the list.
 	programs.list.abort()
 	programs.update({

@@ -12,7 +12,7 @@
 		</a>
 		<!-- min-h-0 lets this flex child actually shrink so its own overflow
 		     scrolls. The tab bar below is a sibling in normal flow, not fixed, so
-		     main simply ends where the bar begins — padding can't do that job
+		     main simply ends where the bar begins; padding can't do that job
 		     here, because Chromium drops a flex column's bottom padding from the
 		     scrollable area and the last row stays hidden under the bar. -->
 		<main
@@ -212,7 +212,7 @@ const addOtherLinks = () => {
 		addLink('Notifications', 'Bell', 'Notifications')
 		addLink('Profile', 'UserRound')
 		// The desk sidebar's UserDropdown is the only other way in, and it
-		// isn't rendered on a phone — without this, a moderator on mobile has
+		// isn't rendered on a phone. Without this, a moderator on mobile has
 		// no route to Settings at all.
 		if (isModerator.value) addLink('Settings', 'Settings')
 		addLink('Log out', 'LogOut')
@@ -316,7 +316,7 @@ const handleClick = (tab) => {
 	} else if (tab.label == 'Log in') window.location.href = '/login'
 	// `isLoggedIn` is a computed off the session user, so the store settles it
 	// when logout clears that user. Assigning to it here was a hard build error
-	// once it became a storeToRefs const — esbuild refuses to write a const, and
+	// once it became a storeToRefs const: esbuild refuses to write a const, and
 	// the dev server would not start at all.
 	else if (tab.label == 'Log out') logout.submit()
 	else if (tab.label == 'Profile')

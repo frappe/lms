@@ -1,6 +1,12 @@
 <template>
 	<div class="space-y-1.5">
-		<FormLabel v-if="label" :label="label" :required="required" />
+		<InputLabel
+			v-if="label"
+			:id="labelId"
+			:for-id="inputId"
+			:label="label"
+			:required="required"
+		/>
 		<Combobox v-model="selectedValue" nullable v-slot="{ open }">
 			<div class="relative w-full">
 				<div
@@ -19,6 +25,7 @@
 					</button>
 					<ComboboxInput
 						ref="search"
+						:id="inputId"
 						class="flex-1 min-w-[4rem] border-none outline-none bg-transparent p-0 text-base focus:ring-0"
 						type="text"
 						:aria-label="label || __('Search')"
@@ -94,6 +101,12 @@
 				</ComboboxOptions>
 			</div>
 		</Combobox>
+		<InputDescription
+			v-if="showDescription"
+			:id="descriptionId"
+			:description="description"
+		/>
+		<InputError v-if="hasError" :id="errorMessageId" :lines="errorLines" />
 	</div>
 </template>
 
@@ -105,10 +118,16 @@ import {
 	ComboboxOptions,
 	ComboboxOption,
 } from '@headlessui/vue'
-import { createResource, Button, FormLabel, toast } from 'frappe-ui'
+import { createResource, Button, toast } from 'frappe-ui'
 import { ref, computed, useAttrs, watch } from 'vue'
 import { watchDebounced } from '@vueuse/core'
 import type { Resource } from '@/types'
+import {
+	InputDescription,
+	InputError,
+	InputLabel,
+	useInputLabeling,
+} from '@/components/Form/labeling'
 
 interface SelectOption {
 	label: string
@@ -119,6 +138,8 @@ interface SelectOption {
 const props = withDefaults(
 	defineProps<{
 		label?: string
+		description?: string
+		error?: string
 		size?: string
 		doctype: string
 		filters?: Record<string, unknown> | unknown[]
@@ -138,6 +159,15 @@ const props = withDefaults(
 
 const values = defineModel<string[]>({ default: () => [] })
 const attrs = useAttrs()
+const {
+	inputId,
+	labelId,
+	descriptionId,
+	errorMessageId,
+	hasError,
+	errorLines,
+	showDescription,
+} = useInputLabeling(props)
 const trigger = ref<{ $el: HTMLElement } | null>(null)
 const query = ref<string>('')
 const text = ref<string>('')

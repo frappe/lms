@@ -41,11 +41,12 @@
 					/>
 				</div>
 				<div>
-					<div>
-						<div class="text-p-sm-medium text-ink-gray-7 mb-1.5">
-							{{ __('Problem Statement') }}
-							<span class="text-ink-red-3">*</span>
-						</div>
+					<div class="space-y-1.5">
+						<InputLabel
+							:id="problemStatementLabelId"
+							:label="__('Problem Statement')"
+							:required="true"
+						/>
 						<RichTextEditor
 							:content="exercise.problem_statement"
 							@change="(val: string) => (exercise.problem_statement = val)"
@@ -80,7 +81,7 @@
 						},
 					}"
 				>
-					<Button>
+					<Button class="text-p-base-medium">
 						<template #prefix>
 							<span class="lucide-play size-4" />
 						</template>
@@ -111,7 +112,8 @@
 	</Dialog>
 </template>
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, ref, watch, useId } from 'vue'
+import { InputLabel } from '@/components/Form/labeling'
 import { sanitizeHTML } from '@/utils'
 import {
 	Badge,
@@ -124,6 +126,8 @@ import {
 import { ProgrammingExercise, ProgrammingExercises, TestCase } from '@/types'
 import ChildTable from '@/components/Controls/ChildTable.vue'
 import RichTextEditor from '@/components/RichTextEditor.vue'
+
+const problemStatementLabelId = useId()
 
 const show = defineModel()
 const exercises = defineModel<ProgrammingExercises>('exercises')

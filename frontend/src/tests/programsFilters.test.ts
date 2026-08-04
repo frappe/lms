@@ -24,7 +24,7 @@ interface FakeRequest {
  * Mirrors frappe-ui's list resource closely enough to expose ordering bugs:
  * responses are settled by hand, `abort()` cancels the fetch in flight, an
  * un-aborted response always wins, and `finish()` runs the request tail that
- * clears the shared `loading` flag — including an aborted request's tail.
+ * clears the shared `loading` flag, including an aborted request's tail.
  */
 function makeProgramsResource() {
 	const requests: FakeRequest[] = []

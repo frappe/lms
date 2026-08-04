@@ -1,6 +1,6 @@
 <template>
 	<!-- The shell under every page header: a name, a filter strip, the content
-	     and a footer. Four slots, nothing else — a page says what goes in them
+	     and a footer. Four slots, nothing else. A page says what goes in them
 	     and this owns how they read at each breakpoint, so a spacing fix lands
 	     on all of them at once.
 
@@ -11,7 +11,7 @@
 
 	     A phone must not do that. A scroll box nested inside the page means the
 	     page itself has no scroll range, and a browser only retracts its URL bar
-	     when the root scroller moves — so the bottom of the viewport stays
+	     when the root scroller moves, so the bottom of the viewport stays
 	     unreachable however far you swipe. Below `sm` this grows with its content
 	     instead and MobileLayout's #scrollContainer does the scrolling. -->
 	<div class="flex flex-1 flex-col sm:min-h-0">
@@ -25,7 +25,7 @@
 			     Pinning this would also be the old bug back: PageHeader is `sticky
 			     top-0` in the same scroller, so a second `sticky top-0` lands
 			     underneath it and loses its first 49px, and the offset that would
-			     clear it is the app header's own content height — the measurement
+			     clear it is the app header's own content height: the measurement
 			     that drifted and opened a band. It gets a rule on a phone instead,
 			     where it runs the full width and the content begins under it. -->
 			<div
@@ -38,8 +38,8 @@
 				<!-- Gap and width belong to the strip, not to the page: every filter
 				     is one column wide and they wrap rather than squeeze, so a page
 				     can drop in a search box, a dropdown and a toggle and get a row
-				     that lines up. A control with an intrinsic width — a segmented
-				     tab bar, a chip — opts out with `!w-fit`; the bang is needed
+				     that lines up. A control with an intrinsic width (a segmented
+				     tab bar, a chip) opts out with `!w-fit`; the bang is needed
 				     because a child selector always outranks a class on the child. -->
 				<div
 					v-if="$slots.filters"

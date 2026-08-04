@@ -45,7 +45,11 @@
 						},
 					}"
 				>
-					<Button variant="solid" size="md" class="w-full mb-8">
+					<Button
+						variant="solid"
+						size="md"
+						class="w-full mb-8 text-p-base-medium"
+					>
 						<template #prefix>
 							<span class="lucide-credit-card size-4" />
 						</template>

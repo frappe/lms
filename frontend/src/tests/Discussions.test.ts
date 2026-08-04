@@ -1,5 +1,5 @@
 /**
- * Discussions.vue — master-detail layout (issue #2045 item 14).
+ * Discussions.vue: master-detail layout (issue #2045 item 14).
  *
  * Key regression guard: selecting a topic must NOT hide the topic list (the old
  * behavior toggled `showTopics` and replaced the list with the thread). In the
@@ -44,8 +44,13 @@ vi.mock('@/components/DiscussionReplies.vue', () => ({
 vi.mock('@/components/Modals/DiscussionModal.vue', () => ({
 	default: { template: '<div />' },
 }))
-vi.mock('@/components/UserAvatar.vue', () => ({ default: { template: '<div />' } }))
-vi.mock('@/utils', () => ({ singularize: (s: string) => s, timeAgo: () => 'now' }))
+vi.mock('@/components/UserAvatar.vue', () => ({
+	default: { template: '<div />' },
+}))
+vi.mock('@/utils', () => ({
+	singularize: (s: string) => s,
+	timeAgo: () => 'now',
+}))
 vi.mock('@/utils/scrollContainer', () => ({
 	getScrollContainer: () => ({ scrollTop: 0, scrollHeight: 0 }),
 }))

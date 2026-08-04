@@ -1,104 +1,30 @@
 <template>
-	<SettingsLayout :title="__(label)" :description="__(description)">
-		<template #header-actions>
-			<Button variant="solid" @click="openNewMember">
-				<template #prefix>
-					<span class="lucide-plus h-4 w-4" />
-				</template>
-				{{ __('New') }}
-			</Button>
-		</template>
+	<SettingsList
+		:title="__(label)"
+		:description="__(description)"
+		:columns="columns"
+		:rows="memberList"
+		:loading="Boolean(members.loading)"
+		:has-next-page="hasNextPage"
+		v-model:search="search"
+		searchable
+		:search-label="__('Search members')"
+		empty-name="Users"
+		empty-icon="lucide-user"
+		@new="openNewMember"
+		@load-more="fetchMembers()"
+		@row-click="(member) => openProfile(member.username)"
+	>
 		<template #header-bottom>
-			<div class="flex items-center justify-between gap-2 mb-4">
-				<FormControl
-					v-model="search"
-					:placeholder="__('Search')"
-					:aria-label="__('Search members')"
-					type="text"
-					:debounce="300"
-					class="w-1/3"
-				>
-					<template #prefix>
-						<span class="lucide-search size-4 text-ink-gray-5" />
-					</template>
-				</FormControl>
-				<Select
-					v-model="currentRole"
-					class="w-40"
-					:aria-label="__('Filter by role')"
-					:options="roleOptions"
-				/>
-			</div>
+			<Select
+				v-model="currentRole"
+				class="w-40"
+				:aria-label="__('Filter by role')"
+				:options="roleOptions"
+			/>
 		</template>
-		<div v-if="displayedMembers.length">
-			<List class="list-row-px-3">
-				<ListRows
-					:items="displayedMembers"
-					row-key="name"
-					v-slot="{ item: member }"
-				>
-					<ListRow class="py-2.5" @click="openProfile(member.username)">
-						<ListCell>
-							<Avatar
-								:image="member.user_image"
-								:label="member.full_name"
-								size="xl"
-								class="shrink-0"
-							/>
-						</ListCell>
-						<ListCell>
-							<!-- Own flex column: ListCell's items-center would otherwise
-							     center these horizontally once the cell is flex-col. -->
-							<div class="flex min-w-0 flex-col">
-								<span class="truncate text-p-base text-ink-gray-8">
-									{{ member.full_name }}
-								</span>
-								<span class="truncate text-p-sm text-ink-gray-5">
-									{{ member.name }}
-								</span>
-							</div>
-						</ListCell>
-						<ListCell class="gap-2" @click.stop>
-							<span
-								v-for="role in badgeRoles(member.roles)"
-								:key="role"
-								class="flex items-center gap-x-1 rounded-md bg-surface-gray-2 px-2 py-1 text-ink-gray-8"
-							>
-								<span class="lucide-shield size-3.5" />
-								<span class="text-sm leading-5">{{ getRole(role) }}</span>
-							</span>
-							<Dropdown
-								:options="getMemberMenuOptions(member)"
-								:button="{
-									icon: 'lucide-more-horizontal',
-									variant: 'ghost',
-									label: __('Member actions'),
-								}"
-								placement="right"
-							/>
-						</ListCell>
-					</ListRow>
-				</ListRows>
-			</List>
-			<div
-				v-if="memberList.length && hasNextPage"
-				class="flex justify-center mt-4"
-			>
-				<Button @click="members.reload()">
-					<template #prefix>
-						<span class="lucide-refresh-cw h-3 w-3" />
-					</template>
-					{{ __('Load More') }}
-				</Button>
-			</div>
-		</div>
-		<EmptyStateLayout
-			v-else
-			name="Users"
-			:description="__('Add one to get started.')"
-			icon="lucide-user"
-		/>
-	</SettingsLayout>
+	</SettingsList>
+
 	<NewMemberModal
 		v-model="showNewMember"
 		:editMember="memberToEdit"
@@ -132,25 +58,14 @@
 	/>
 </template>
 <script setup lang="ts">
-import {
-	Avatar,
-	Button,
-	call,
-	createResource,
-	Dialog,
-	Dropdown,
-	FormControl,
-	Select,
-	toast,
-} from 'frappe-ui'
-import { List, ListCell, ListRow, ListRows } from 'frappe-ui/list'
+import { call, createResource, Dialog, Select, toast } from 'frappe-ui'
 import { useRouter } from 'vue-router'
-import { ref, computed, watch, inject } from 'vue'
+import { ref, watch, inject } from 'vue'
 import { useOnboarding, useTelemetry } from 'frappe-ui/frappe'
-import type { User } from '@/types'
+import type { SettingsListColumn, User } from '@/types'
+import { SETTINGS_PAGE_LENGTH } from '@/composables/useSettingsListResource'
 import NewMemberModal from '@/components/Modals/NewMemberModal.vue'
-import SettingsLayout from '@/components/Layouts/SettingsLayout.vue'
-import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
+import SettingsList from '@/components/Layouts/SettingsList.vue'
 import { cleanError } from '@/utils'
 
 type Member = {
@@ -175,7 +90,6 @@ const roleOptions = [
 	{ label: __('Evaluator'), value: 'Batch Evaluator' },
 ]
 
-const displayedMembers = computed(() => memberList.value)
 const memberList = ref<Member[]>([])
 const hasNextPage = ref(false)
 const showNewMember = ref(false)
@@ -187,7 +101,7 @@ const showDeleteDialog = ref(false)
 const memberToDelete = ref<Member | null>(null)
 const memberToEdit = ref<Member | null>(null)
 
-const props = defineProps({
+defineProps({
 	label: {
 		type: String,
 		required: true,
@@ -200,25 +114,51 @@ const props = defineProps({
 
 const members = createResource({
 	url: 'lms.lms.api.get_members',
-	makeParams: () => {
-		return {
-			search: search.value,
-			start: start.value,
-			role: currentRole.value,
-		}
-	},
-	onSuccess(data: Member[]) {
-		memberList.value = memberList.value.concat(data)
-		start.value = start.value + 20
-		hasNextPage.value = data.length === 20
-	},
-	auto: true,
+	makeParams: () => ({
+		search: search.value,
+		start: start.value,
+		role: currentRole.value,
+	}),
+	auto: false,
 })
 
+// createResource carries no request sequence and aborts nothing, so two calls
+// in flight both resolve and both append: a role change mid-request would show
+// one filter's page under another's, and over-advance `start` past rows nobody
+// ever saw. Each call takes a token and a superseded response is dropped.
+let requestToken = 0
+
+const fetchMembers = async () => {
+	const token = ++requestToken
+	const data = (await members.reload()) as Member[] | null
+	if (token !== requestToken || !data) return
+	memberList.value = memberList.value.concat(data)
+	// Paged by what the server actually returned, not by the constant. An
+	// exact-equality check hides Load More outright the moment the two
+	// disagree, and stepping `start` by the constant would then skip rows.
+	start.value = start.value + data.length
+	hasNextPage.value = data.length >= SETTINGS_PAGE_LENGTH
+}
+
+// The search goes to the server with start reset, so a match past the first
+// page is reachable without pressing Load More first.
 const refreshMembers = () => {
 	memberList.value = []
 	start.value = 0
-	members.reload()
+	return fetchMembers()
+}
+
+watch([search, currentRole], () => {
+	refreshMembers()
+})
+
+refreshMembers()
+
+const roleLabels: Record<string, string> = {
+	'LMS Student': __('Student'),
+	'Course Creator': __('Instructor'),
+	Moderator: __('Moderator'),
+	'Batch Evaluator': __('Evaluator'),
 }
 
 const openProfile = (username: string) => {
@@ -231,27 +171,10 @@ const openProfile = (username: string) => {
 	})
 }
 
-const onMemberCreated = (data: any) => {
+const onMemberCreated = () => {
 	if (user?.data?.is_system_manager) updateOnboardingStep('invite_students')
 	capture('user_added')
 	refreshMembers()
-}
-
-watch([search, currentRole], () => {
-	refreshMembers()
-})
-
-const badgeRoles = (roles?: string[]) =>
-	(roles || []).filter((role) => role !== 'LMS Student')
-
-const getRole = (role: string) => {
-	const map: Record<string, string> = {
-		'LMS Student': 'Student',
-		'Course Creator': 'Instructor',
-		Moderator: 'Moderator',
-		'Batch Evaluator': 'Evaluator',
-	}
-	return map[role]
 }
 
 const openEditMember = (member: Member) => {
@@ -269,6 +192,42 @@ const openDeleteDialog = (member: Member) => {
 	showDeleteDialog.value = true
 }
 
+const columns: SettingsListColumn[] = [
+	{
+		key: 'member',
+		label: __('User'),
+		type: 'stacked',
+		primary: (row) => row.full_name,
+		secondary: (row) => row.name,
+		avatar: (row) => ({ image: row.user_image, label: row.full_name }),
+	},
+	{
+		key: 'roles',
+		label: __('Roles'),
+		type: 'badge',
+		badges: (row) =>
+			((row.roles || []) as string[])
+				.filter((role) => roleLabels[role])
+				.map((role) => ({ label: roleLabels[role], theme: 'gray' as const })),
+	},
+	{
+		key: 'actions',
+		type: 'actions',
+		ariaLabel: (row) => __('Actions for {0}').format(row.full_name),
+		options: (row) => [
+			{
+				label: __('Edit member'),
+				onClick: () => openEditMember(row as Member),
+			},
+			{
+				label: __('Delete user'),
+				theme: 'red',
+				onClick: () => openDeleteDialog(row as Member),
+			},
+		],
+	},
+]
+
 const confirmDelete = async (close: () => void) => {
 	if (!memberToDelete.value) return
 	try {
@@ -282,16 +241,4 @@ const confirmDelete = async (close: () => void) => {
 	}
 	close?.()
 }
-
-const getMemberMenuOptions = (member: Member) => [
-	{
-		label: __('Edit member'),
-		onClick: () => openEditMember(member),
-	},
-	{
-		label: __('Delete user'),
-		theme: 'red',
-		onClick: () => openDeleteDialog(member),
-	},
-]
 </script>

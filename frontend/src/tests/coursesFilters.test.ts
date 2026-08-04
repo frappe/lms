@@ -2,14 +2,14 @@
  * Courses.vue filter state.
  *
  * Every filter control funnels into `updateCourses()`, which reloads one shared
- * list resource. frappe-ui's `createResource` keeps no request sequence — the
- * last response to arrive assigns `out.data` (resources.js:113) — so a slow
+ * list resource. frappe-ui's `createResource` keeps no request sequence, so the
+ * last response to arrive assigns `out.data` (resources.js:113). A slow
  * response from a filter the user has already left can repaint the list with
  * the wrong rows. That is the bug behind "Unpublished shows nothing, then a few
  * seconds later it is full of published courses".
  *
- * The page no longer picks its own filter controls — ListPage and ToggleFilter
- * do — so ListPage is stubbed here and the real ToggleFilter is kept, to prove
+ * The page no longer picks its own filter controls (ListPage and ToggleFilter
+ * do), so ListPage is stubbed here and the real ToggleFilter is kept, to prove
  * one click still reaches the resource exactly once.
  */
 import { describe, expect, it, vi, beforeEach } from 'vitest'

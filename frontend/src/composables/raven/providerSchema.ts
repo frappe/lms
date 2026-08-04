@@ -24,7 +24,7 @@ export function useProviderDeclarations() {
 
 /** The rule types a provider declares. Empty while the fetch is in flight or failed. */
 export function useProviderRuleTypes(
-	provider: () => string,
+	provider: () => string
 ): ComputedRef<ProviderRuleType[]> {
 	const providers = useProviderDeclarations()
 	return computed(() => {
@@ -36,15 +36,15 @@ export function useProviderRuleTypes(
 /** The fields a rule type declares, or none when the provider does not declare it. */
 export function fieldsOf(
 	ruleTypes: readonly ProviderRuleType[],
-	ruleType: string,
+	ruleType: string
 ): RuleField[] {
 	return ruleTypes.find((rt) => rt.type === ruleType)?.fields ?? []
 }
 
-/** Whether the declaration covers this rule type at all — false while it is unloaded. */
+/** Whether the declaration covers this rule type at all; false while it is unloaded. */
 export function isDeclaredRuleType(
 	ruleTypes: readonly ProviderRuleType[],
-	ruleType: string,
+	ruleType: string
 ): boolean {
 	return ruleTypes.some((rt) => rt.type === ruleType)
 }
@@ -57,23 +57,23 @@ function isFilled(value: RuleFieldValue | undefined): boolean {
 
 /**
  * True once every field the rule type declares `reqd` carries a value. An undeclared
- * rule type — including every type while the declaration is unloaded — is never
+ * rule type (including every type while the declaration is unloaded) is never
  * complete: `[].every()` would otherwise pass a rule nothing has validated.
  */
 export function hasRequiredFields(
 	ruleTypes: readonly ProviderRuleType[],
-	rule: RavenMemberRule,
+	rule: RavenMemberRule
 ): boolean {
 	if (!isDeclaredRuleType(ruleTypes, rule.rule_type)) return false
 	return fieldsOf(ruleTypes, rule.rule_type).every(
-		(field) => !field.reqd || isFilled(rule[field.fieldname]),
+		(field) => !field.reqd || isFilled(rule[field.fieldname])
 	)
 }
 
 /** Declared defaults for a rule type, seeded when a rule is created or retyped. */
 export function defaultsOf(
 	ruleTypes: readonly ProviderRuleType[],
-	ruleType: string,
+	ruleType: string
 ): Record<string, string> {
 	const defaults: Record<string, string> = {}
 	for (const field of fieldsOf(ruleTypes, ruleType)) {

@@ -45,7 +45,7 @@
 									}"
 								>
 									<div class="grid grid-cols-[70%,30%] items-center">
-										<div class="flex items-center gap-x-2">
+										<div class="flex items-center gap-x-3">
 											<Avatar
 												:image="row.member_image"
 												:label="row.member_name"

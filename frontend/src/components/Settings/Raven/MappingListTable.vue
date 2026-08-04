@@ -1,5 +1,9 @@
 <template>
-	<List v-if="rows.length" :columns="tracks" class="list-row-px-3">
+	<List
+		v-if="rows.length"
+		:columns="tracks"
+		class="list-row-px-3 [--list-row-height:3.5rem]"
+	>
 		<ListHeader class="sticky top-0 z-10 bg-surface-elevation-1">
 			<ListHeaderCell v-for="column in list.columns" :key="column.key">
 				{{ column.label }}
@@ -129,8 +133,8 @@
 					/>
 				</ListCell>
 				<!-- Stale rows' Recreate/Delete render here, not behind the label cell's old
-					 "Take action" select — same place and treatment as every other action. -->
-				<ListCell class="justify-end gap-1" @click.stop>
+					 "Take action" select: same place and treatment as every other action. -->
+				<ListCell class="gap-1" @click.stop>
 					<Tooltip v-if="isDulled(row)" :text="__('Link')">
 						<Button
 							variant="ghost"
@@ -247,7 +251,7 @@ const props = defineProps<{
 }>()
 
 // The composable's refs arrive inside a prop object, so they are not unwrapped
-// by the template — alias the ones the markup reads.
+// by the template. Alias the ones the markup reads.
 const rows = computed<MappingRow[]>(() => props.list.rows.value)
 const loading = computed<boolean>(() => props.list.loading.value)
 const selectedKey = computed<string | null>(() => props.list.selectedKey.value)
@@ -267,7 +271,7 @@ function isMuted(row: MappingRow): boolean {
 	return isDulled(row) || row.stale
 }
 
-// Dulled rows aren't selectable (nothing to show — they have no rules yet); the
+// Dulled rows aren't selectable (nothing to show, since they have no rules yet); the
 // only action is Link. Everything else selects the row as before.
 function onRowClick(row: MappingRow): void {
 	if (isDulled(row)) return
@@ -293,16 +297,16 @@ const staleHint = __(
 )
 
 // Healthy mappings get no Delete: delete_* is a plain doc.delete() and Enabled
-// already stops syncing. Stale rows keep it — Enabled is inert there.
+// already stops syncing. Stale rows keep it. Enabled is inert there.
 function rowOptions(row: MappingRow): DropdownOption[] {
-	// An unmapped row has no sub-page to jump to yet — it must be adopted (any
+	// An unmapped row has no sub-page to jump to yet. It must be adopted (any
 	// edit for a workspace) before it gains a "..." menu.
 	if (!row.mapped) return []
 	return props.extraRowOptions?.(row) ?? []
 }
 
 // A row with exactly one action renders it directly instead of behind a "..."
-// Dropdown — one fewer click, and a narrower actions column.
+// Dropdown: one fewer click, and a narrower actions column.
 function singleRowOption(row: MappingRow): DropdownOption | null {
 	const options = rowOptions(row)
 	return options.length === 1 ? options[0] : null

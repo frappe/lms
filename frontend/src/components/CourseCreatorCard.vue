@@ -7,7 +7,7 @@
 		<template v-if="instructors.length === 1">
 			<router-link
 				:to="profileLink(instructors[0])"
-				class="flex items-center gap-3"
+				class="flex items-center gap-4"
 			>
 				<UserAvatar :user="instructors[0]" size="2xl" />
 				<div class="min-w-0">
@@ -27,7 +27,7 @@
 			<router-link
 				v-if="focused"
 				:to="profileLink(focused)"
-				class="flex items-center gap-3"
+				class="flex items-center gap-4"
 			>
 				<UserAvatar :user="focused" size="2xl" />
 				<div class="min-w-0">

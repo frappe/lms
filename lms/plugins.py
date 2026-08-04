@@ -190,7 +190,7 @@ def _pdf_embed(src, width="100%", height="700px"):
 	"""Server-rendered PDF embed that stays usable on iOS.
 
 	iOS Safari (every iOS browser is WebKit) won't scroll a PDF inside an
-	<iframe> — it shows page 1 or nothing. There's no Vue here to mount the
+	<iframe>: it shows page 1 or nothing. There's no Vue here to mount the
 	pdf.js viewer (that's the SPA path), so we degrade gracefully: keep the
 	inline <iframe> for desktop and always surface an "Open PDF" link that hands
 	the file to the browser's native full-screen viewer, which scrolls on iOS.

@@ -1,5 +1,5 @@
 // Wire format of the raven_integration API, plus the rule shapes the settings UI
-// works in. Provider-agnostic only — a provider's own rule vocabulary stays in its
+// works in. Provider-agnostic only. A provider's own rule vocabulary stays in its
 // app and crosses as `RavenMemberRule.rule_type: string`, described at runtime by
 // the provider declaration (`raven_integration.api.list_providers`).
 //
@@ -18,7 +18,7 @@ export interface RavenWorkspace {
 	workspace_label: string
 	workspace_type: 'Public' | 'Private'
 	rule_combinator: RuleCombinator | null
-	/** Always present — the Raven workspace id, mapped or not; the adopt target. */
+	/** Always present: the Raven workspace id, mapped or not; the adopt target. */
 	raven_workspace: string
 	enabled: 0 | 1
 	/** The linked Raven workspace no longer exists; the mapping has stopped syncing. */
@@ -34,7 +34,7 @@ export interface RavenChannel {
 	workspace: string
 	channel_type: 'Public' | 'Private' | 'Open'
 	rule_combinator: RuleCombinator | null
-	/** Always present — the Raven channel id, mapped or not; the adopt target. */
+	/** Always present: the Raven channel id, mapped or not; the adopt target. */
 	raven_channel: string
 	enabled: 0 | 1
 	/** The linked Raven channel no longer exists; the mapping has stopped syncing. */
@@ -114,6 +114,6 @@ export interface RavenMemberRule {
 	status: RuleStatus
 	/** Read-only human description from the backend (rules table "Matches" column). */
 	matches?: string
-	/** The provider's declared fields, flat — nested back under `config` on the wire. */
+	/** The provider's declared fields, flat; nested back under `config` on the wire. */
 	[field: string]: RuleFieldValue | undefined
 }

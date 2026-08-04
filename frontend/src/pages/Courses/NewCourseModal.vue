@@ -30,7 +30,10 @@
 						:onCreate="openMemberModal"
 					>
 						<template #prefix>
-							<div v-if="visibleAvatars.length" class="flex -space-x-1.5">
+							<div
+								v-if="visibleAvatars.length"
+								class="flex -space-x-1.5 rtl:space-x-reverse"
+							>
 								<Avatar
 									v-for="m in visibleAvatars"
 									:key="m.value"
@@ -74,9 +77,10 @@
 						:required="true"
 					/>
 					<div class="space-y-1.5">
-						<FormLabel
+						<InputLabel
+							:id="descriptionLabelId"
+							:for-id="descriptionId"
 							:label="__('Course description')"
-							:id="descriptionId"
 							:required="true"
 						/>
 						<RichTextEditor
@@ -116,20 +120,11 @@ import {
 	Button,
 	Dialog,
 	FormControl,
-	FormLabel,
 	createResource,
 	toast,
 } from 'frappe-ui'
 import { useOnboarding, useTelemetry } from 'frappe-ui/frappe'
-import {
-	computed,
-	inject,
-	onBeforeUnmount,
-	onMounted,
-	ref,
-	useId,
-	watch,
-} from 'vue'
+import { computed, inject, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import Link from '@/components/Controls/Link.vue'
 import MultiLink from '@/components/Controls/MultiLink.vue'
@@ -138,6 +133,7 @@ import NewMemberModal from '@/components/Modals/NewMemberModal.vue'
 import { cleanError, sanitizeHTML, createLMSCategory } from '@/utils'
 import type { Resource } from '@/types'
 import RichTextEditor from '@/components/RichTextEditor.vue'
+import { InputLabel, useInputLabeling } from '@/components/Form/labeling'
 
 interface InstructorOption {
 	label: string
@@ -186,9 +182,10 @@ const course = ref<Course>({
 const INSTRUCTOR_ROLES = ['Course Creator', 'Batch Evaluator']
 const MAX_VISIBLE_AVATARS = 3
 const thumbnailGuidelines = __(
-	'Upload a 750×422 image (.jpg, .jpeg, .gif, or .png) — shown on the catalog card and lesson hero.'
+	'Upload a 750×422 image (.jpg, .jpeg, .gif, or .png). Shown on the catalog card and lesson hero.'
 )
-const descriptionId = useId()
+const { inputId: descriptionId, labelId: descriptionLabelId } =
+	useInputLabeling({})
 
 const instructorsRef = ref<{
 	optionByValue: Map<string, InstructorOption>

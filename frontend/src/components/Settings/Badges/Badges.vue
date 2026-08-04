@@ -1,71 +1,25 @@
 <template>
-	<template v-if="view === 'list'">
-		<SettingsLayout :title="label" :description="__(description)">
-			<template #header-actions>
-				<Button variant="solid" @click="openForm('new')">
-					<template #prefix>
-						<span class="lucide-plus h-4 w-4" />
-					</template>
-					{{ __('New') }}
-				</Button>
-			</template>
-			<List v-if="badges.data?.length" :columns="columns" class="list-row-px-3">
-				<ListHeader>
-					<ListHeaderCell>{{ __('Badge') }}</ListHeaderCell>
-					<ListHeaderCell>{{ __('Awarded For') }}</ListHeaderCell>
-					<ListHeaderCell>{{ __('Grant') }}</ListHeaderCell>
-					<ListHeaderCell>{{ __('Status') }}</ListHeaderCell>
-					<ListHeaderCell />
-				</ListHeader>
-				<ListRows :items="badges.data" row-key="name" v-slot="{ item: row }">
-					<ListRow class="py-3" @click="openForm(row.name)">
-						<ListCell class="gap-2">
-							<span class="lucide-award size-4 shrink-0 text-ink-gray-5" />
-							<span class="truncate text-p-base-medium text-ink-gray-8">
-								{{ row.title }}
-							</span>
-						</ListCell>
-						<ListCell class="text-p-base text-ink-gray-6">
-							<span class="truncate">
-								{{
-									doctypeLabel[
-										row.reference_doctype as keyof typeof doctypeLabel
-									] || row.reference_doctype
-								}}
-							</span>
-						</ListCell>
-						<ListCell class="text-p-base text-ink-gray-6">
-							<span class="truncate">
-								{{ row.grant_only_once ? __('Once') : __('Every time') }}
-							</span>
-						</ListCell>
-						<ListCell>
-							<Badge :theme="row.enabled ? 'green' : 'gray'">
-								{{ row.enabled ? __('Enabled') : __('Disabled') }}
-							</Badge>
-						</ListCell>
-						<ListCell class="justify-end" @click.stop>
-							<Dropdown
-								:options="getMoreOptions(row.name)"
-								:button="{ icon: 'lucide-more-horizontal', variant: 'ghost' }"
-								placement="right"
-							/>
-						</ListCell>
-					</ListRow>
-				</ListRows>
-			</List>
-			<EmptyStateLayout
-				v-else
-				name="Badges"
-				:description="__('Add one to get started.')"
-				icon="lucide-award"
-			/>
-		</SettingsLayout>
-	</template>
+	<SettingsList
+		v-if="view === 'list'"
+		:title="label"
+		:description="__(description)"
+		:columns="columns"
+		:rows="list.rows"
+		:loading="list.loading"
+		:has-next-page="list.hasNextPage"
+		v-model:search="list.search"
+		searchable
+		:search-label="__('Search badges')"
+		empty-name="Badges"
+		empty-icon="lucide-award"
+		@new="openForm('new')"
+		@load-more="list.loadMore()"
+		@row-click="(row) => openForm(row.name)"
+	/>
 	<BadgeForm
 		v-else
 		:badgeName="selectedBadge"
-		v-model:badges="badges"
+		v-model:badges="list.resource"
 		@updateStep="(step) => (view = step)"
 	/>
 	<BadgeAssignments
@@ -75,33 +29,26 @@
 	/>
 </template>
 <script setup lang="ts">
-import { Badge, Button, Dropdown, createListResource, toast } from 'frappe-ui'
-import {
-	List,
-	ListCell,
-	ListHeader,
-	ListHeaderCell,
-	ListRow,
-	ListRows,
-} from 'frappe-ui/list'
+import { toast } from 'frappe-ui'
 import { computed, ref } from 'vue'
 import { cleanError } from '@/utils'
 import BadgeForm from '@/components/Settings/Badges/BadgeForm.vue'
 import BadgeAssignments from '@/components/Settings/Badges/BadgeAssignments.vue'
-import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
-import SettingsLayout from '@/components/Layouts/SettingsLayout.vue'
+import SettingsList from '@/components/Layouts/SettingsList.vue'
+import { useSettingsListResource } from '@/composables/useSettingsListResource'
+import type { Badge, SettingsListColumn } from '@/types'
 
 const view = ref<'list' | 'form'>('list')
 const selectedBadge = ref<string | null>(null)
 const showAssignments = ref<boolean>(false)
 const showAssignmentsFor = ref<string | null>(null)
 
-const props = defineProps<{
+defineProps<{
 	label: string
 	description: string
 }>()
 
-const badges = createListResource({
+const list = useSettingsListResource<Badge>({
 	doctype: 'LMS Badge',
 	fields: [
 		'name',
@@ -116,62 +63,9 @@ const badges = createListResource({
 		'user_field',
 		'field_to_check',
 	],
-	order_by: 'creation desc',
-	auto: true,
+	searchFields: ['title', 'description'],
+	orderBy: 'creation desc',
 })
-
-// Grid track sizes shared by the header and every row (--list-columns).
-const columns = [
-	'minmax(0, 1.3fr)',
-	'minmax(0, 1fr)',
-	'7rem',
-	'6.5rem',
-	'2.25rem',
-]
-
-const getMoreOptions = (badgeName: string) => {
-	return [
-		{
-			label: __('Edit'),
-			icon: 'lucide-edit',
-			onClick() {
-				openForm(badgeName)
-			},
-		},
-		{
-			label: __('Assignments'),
-			icon: 'lucide-download',
-			onClick() {
-				showAssignmentsFor.value = badgeName
-				showAssignments.value = true
-			},
-		},
-		{
-			label: __('Delete'),
-			icon: 'lucide-trash-2',
-			onClick() {
-				deleteBadge(badgeName)
-			},
-		},
-	]
-}
-
-const openForm = (badgeName: string) => {
-	selectedBadge.value = badgeName
-	view.value = 'form'
-}
-
-const deleteBadge = (badgeName: string) => {
-	badges.delete
-		.submit(badgeName)
-		.then(() => {
-			badges.reload()
-			toast.success(__('Badge deleted successfully'))
-		})
-		.catch((err: any) => {
-			toast.error(cleanError(err.messages[0]) || __('Error deleting badge'))
-		})
-}
 
 const doctypeLabel = computed(() => {
 	return {
@@ -186,4 +80,78 @@ const doctypeLabel = computed(() => {
 		),
 	}
 })
+
+const deleteBadge = (badgeName: string) => {
+	list.remove(badgeName, {
+		onSuccess: () => toast.success(__('Badge deleted successfully')),
+		onError: (err) =>
+			toast.error(cleanError(err.messages?.[0]) || __('Error deleting badge')),
+	})
+}
+
+const getMoreOptions = (badgeName: string) => [
+	{
+		label: __('Assignments'),
+		icon: 'lucide-download',
+		onClick() {
+			showAssignmentsFor.value = badgeName
+			showAssignments.value = true
+		},
+	},
+	{
+		label: __('Delete'),
+		icon: 'lucide-trash-2',
+		onClick() {
+			deleteBadge(badgeName)
+		},
+	},
+]
+
+const columns: SettingsListColumn[] = [
+	{
+		key: 'title',
+		label: __('Badge'),
+		type: 'text',
+		width: 'minmax(0, 1.3fr)',
+		value: (row) => row.title,
+	},
+	{
+		key: 'reference_doctype',
+		label: __('Awarded For'),
+		type: 'text',
+		value: (row) =>
+			doctypeLabel.value[
+				row.reference_doctype as keyof typeof doctypeLabel.value
+			] || row.reference_doctype,
+	},
+	{
+		key: 'grant',
+		label: __('Grant'),
+		type: 'text',
+		width: '7rem',
+		value: (row) => (row.grant_only_once ? __('Once') : __('Every time')),
+	},
+	{
+		key: 'status',
+		label: __('Status'),
+		type: 'badge',
+		width: '6.5rem',
+		badges: (row) => [
+			row.enabled
+				? { label: __('Enabled'), theme: 'green' }
+				: { label: __('Disabled'), theme: 'gray' },
+		],
+	},
+	{
+		key: 'actions',
+		type: 'actions',
+		ariaLabel: (row) => __('Actions for {0}').format(row.title),
+		options: (row) => getMoreOptions(row.name),
+	},
+]
+
+const openForm = (badgeName: string) => {
+	selectedBadge.value = badgeName
+	view.value = 'form'
+}
 </script>

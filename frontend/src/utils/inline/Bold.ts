@@ -8,7 +8,7 @@ import { boldIcon } from './icons'
  * which the block sanitizer then drops. Wrapping the range in `<b>` ourselves
  * works the same in every block, heading or not.
  *
- * Registering it under the `bold` name overrides the internal tool — EditorJS
+ * Registering it under the `bold` name overrides the internal tool: EditorJS
  * merges user tools over `internalTools`. The name stays `bold` so the shared
  * inline-toolbar order and existing `<b>` content keep working.
  */

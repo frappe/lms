@@ -2,8 +2,11 @@
 	<div class="p-2">
 		<Dropdown :options="userDropdownOptions">
 			<template v-slot="{ open, close }">
+				<!-- No `py-*` on the button: the name/user block is 40.5px on the
+				     paragraph scale, which overflows h-12's content box once
+				     padding takes 16px of it. `items-center` centres it in the 48px. -->
 				<button
-					class="flex h-12 py-2 items-center rounded-md duration-300 ease-in-out"
+					class="flex h-12 items-center rounded-md duration-300 ease-in-out"
 					:class="
 						isCollapsed
 							? 'px-0 w-auto'
@@ -26,7 +29,7 @@
 								: 'opacity-100 ms-2 w-auto'
 						"
 					>
-						<div class="text-base-medium text-ink-gray-9 leading-none">
+						<div class="text-p-base-medium text-ink-gray-9">
 							<span
 								v-if="
 									branding.data?.app_name && branding.data?.app_name != 'Frappe'
@@ -36,10 +39,7 @@
 							</span>
 							<span v-else> Learning </span>
 						</div>
-						<div
-							v-if="userResource.data"
-							class="mt-1 text-sm text-ink-gray-7 leading-none"
-						>
+						<div v-if="userResource.data" class="text-p-sm text-ink-gray-7">
 							{{ convertToTitleCase(userResource.data?.full_name) }}
 						</div>
 					</div>
@@ -65,16 +65,14 @@
 
 <script setup>
 import { sessionStore } from '@/stores/session'
-import { call, Dropdown, toast } from 'frappe-ui'
+import { call, createResource, Dropdown, toast } from 'frappe-ui'
 import { useRouter } from 'vue-router'
 import { convertToTitleCase } from '@/utils'
 import { applyTheme, toggleTheme, theme } from '@/utils/theme'
 import { usersStore } from '@/stores/user'
 import { useSettings } from '@/stores/settings'
-import { markRaw, watch, ref, onMounted, computed } from 'vue'
+import { h, watch, ref, onMounted, computed } from 'vue'
 import { createDialog } from '@/utils/dialogs'
-import Apps from '@/components/Sidebar/Apps.vue'
-import Configuration from '@/components/Sidebar/Configuration.vue'
 import FrappeCloudIcon from '@/components/Icons/FrappeCloudIcon.vue'
 import LMSLogo from '@/components/Icons/LMSLogo.vue'
 import SettingsModal from '@/components/Settings/Settings.vue'
@@ -94,6 +92,46 @@ const props = defineProps({
 		type: Boolean,
 		default: false,
 	},
+})
+
+const apps = createResource({
+	url: 'frappe.apps.get_apps',
+	cache: 'apps',
+	auto: true,
+	transform: (data) => [deskApp(), ...siblingApps(data)],
+})
+
+function deskApp() {
+	return {
+		name: 'frappe',
+		logo: '/assets/lms/images/desk.png',
+		title: __('Desk'),
+		route: '/desk/learning',
+	}
+}
+
+function siblingApps(data) {
+	return data
+		.filter((app) => app.name !== 'lms')
+		.map((app) => ({
+			name: app.name,
+			logo: app.logo,
+			title: __(app.title),
+			route: app.route,
+		}))
+}
+
+const appMenuItems = computed(() => {
+	return (apps.data || []).map((app) => ({
+		label: app.title,
+		onClick: () => {
+			window.location.href = app.route
+		},
+		slots: {
+			prefix: () =>
+				h('img', { class: 'size-4 shrink-0 rounded', src: app.logo }),
+		},
+	}))
 })
 
 onMounted(() => {
@@ -132,7 +170,9 @@ const userDropdownOptions = computed(() => {
 					},
 				},
 				{
-					component: markRaw(Apps),
+					icon: 'lucide-layout-grid',
+					label: __('Apps'),
+					submenu: appMenuItems.value,
 					condition: () => {
 						let cookies = new URLSearchParams(
 							document.cookie.split('; ').join('&')
@@ -153,7 +193,20 @@ const userDropdownOptions = computed(() => {
 					},
 				},
 				{
-					component: markRaw(Configuration),
+					icon: 'lucide-wrench',
+					label: __('Configuration'),
+					submenu: [
+						{
+							icon: 'lucide-arrow-down-to-line',
+							label: __('Import'),
+							onClick: () => {
+								router.push({
+									name: 'DataImportList',
+									query: { step: 'list' },
+								})
+							},
+						},
+					],
 					condition: () => {
 						return userResource.data?.is_moderator
 					},

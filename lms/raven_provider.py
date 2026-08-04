@@ -136,7 +136,7 @@ def get_raven_setup() -> dict:
 
 	The panel cannot ask raven_integration this directly. Frappe answers a method of
 	an app that is not installed with AppNotInstalledError, and frappe-ui prints the
-	server traceback and rethrows it before any `onError` runs — an error no caller
+	server traceback and rethrows it before any `onError` runs: an error no caller
 	can quiet, on a screen whose whole job is to say "install the app". So LMS
 	answers the install half itself and delegates the rest only when it can be
 	served.
@@ -144,7 +144,7 @@ def get_raven_setup() -> dict:
 	Managers only, matching `raven_integration.api.is_setup`: the reply enumerates
 	installed apps. The role list is derived from the same
 	`raven_integration_manager_roles` hook that widens the gate on that side, so the
-	two cannot drift — and it is read from the hook rather than imported from
+	two cannot drift, and it is read from the hook rather than imported from
 	raven_integration, which is the app this function exists to work without.
 	"""
 	frappe.only_for(["System Manager", *(frappe.get_hooks("raven_integration_manager_roles") or [])])
@@ -199,7 +199,7 @@ def _payment_mode(rule: dict) -> str:
 
 
 # Both supported enrollment doctypes share `member` + `payment` columns. LMS
-# Payment is NOT submittable (no docstatus) — paid means payment_received = 1.
+# Payment is NOT submittable (no docstatus). Paid means payment_received = 1.
 _ENROLLMENT_DOCTYPES = {"LMS Enrollment", "LMS Batch Enrollment"}
 _SCOPE_COLUMNS = {"course", "batch"}
 
@@ -239,7 +239,7 @@ def _enrolled_members(
 			.distinct()
 			.where(enrollment.payment.isnotnull() & (enrollment.payment != ""))
 		)
-	else:  # Free — a dangling payment link matches neither Paid nor Free.
+	else:  # Free: a dangling payment link matches neither Paid nor Free.
 		query = (
 			frappe.qb.from_(enrollment)
 			.left_join(payment)
@@ -260,7 +260,7 @@ def _all_enrolled(rule: dict) -> set[str]:
 
 	LMS Batch Enrollment.validate_course_enrollment() mirrors a batch enrollment into
 	one LMS Enrollment per Batch Course row, so most batch students are visible in
-	LMS Enrollment alone — but not all:
+	LMS Enrollment alone, but not all:
 
 	  * a batch with no Batch Course rows (live-class / seminar batches) mirrors nothing;
 	  * courses added to a batch after a student enrolled are never backfilled;
@@ -291,13 +291,13 @@ def _students_of_courses(rule: dict) -> set[str]:
 #                      parent=course/batch name, parenttype='LMS Course'|'LMS Batch'.
 #                      user field: `instructor`.
 # Course Evaluator   : standalone doctype (autoname: field:evaluator).
-#                      NOT linked to a course — no course/batch scope is possible.
+#                      NOT linked to a course, so no course/batch scope is possible.
 #                      user field: `evaluator`.
 # LMS Course Mentor Mapping : has `course` (Link→LMS Course) and `mentor` (Link→User).
 #                      Scope by course is direct; scope by batch resolves through the
 #                      batch's Batch Course rows (there is no batch-level mentor).
 # LMS Batch          : has `instructors` (Table MultiSelect → Course Instructor) but
-#                      no evaluator field — no batch-level evaluator linkage to include.
+#                      no evaluator field, so no batch-level evaluator linkage to include.
 
 
 def _staff(rule: dict) -> set[str]:
@@ -329,7 +329,7 @@ def _mentor_users(scope_courses: list[str], scope_batches: list[str]) -> set[str
 	the courses it teaches, and the two scopes union.
 
 	A scope that was set but resolves to no courses (empty batch, deleted batch) returns
-	the empty set — it must never fall back to the unscoped "every mentor on the site"
+	the empty set. It must never fall back to the unscoped "every mentor on the site"
 	query, which is what an unfiltered frappe.get_all would do.
 	"""
 	if not scope_courses and not scope_batches:

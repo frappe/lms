@@ -2,7 +2,7 @@
  * Settings > Raven must not call into raven_integration to find out whether
  * raven_integration is installed. Frappe answers a method of an uninstalled app
  * with AppNotInstalledError (HTTP 417), and frappe-ui logs the whole server
- * traceback and rethrows before any `onError` can matter — an uncatchable console
+ * traceback and rethrows before any `onError` can matter: an uncatchable console
  * dump plus an unhandled rejection every time the panel opens. LMS answers the
  * install question instead (lms.raven_provider.get_raven_setup).
  */

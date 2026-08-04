@@ -98,13 +98,18 @@
 								attempts.data?.length < quiz.data.max_attempts
 							"
 							variant="solid"
+							class="text-p-base-medium"
 							@click="startQuiz"
 						>
 							<span>
 								{{ inVideo ? __('Start the Quiz') : __('Start') }}
 							</span>
 						</Button>
-						<Button v-if="inVideo" @click="props.backToVideo()">
+						<Button
+							v-if="inVideo"
+							class="text-p-base-medium"
+							@click="props.backToVideo()"
+						>
 							{{ __('Resume Video') }}
 						</Button>
 					</div>
@@ -434,7 +439,9 @@
 		<template #default>
 			<div class="border border-outline-elevation-2 rounded-lg text-base">
 				<div class="divide-y divide-outline-elevation-2">
-					<div class="grid grid-cols-2 divide-x divide-outline-elevation-2">
+					<div
+						class="grid grid-cols-2 divide-x rtl:divide-x-reverse divide-outline-elevation-2"
+					>
 						<div class="p-2">
 							{{ __('Total Questions') }}
 						</div>
@@ -442,7 +449,9 @@
 							{{ questions.length }}
 						</div>
 					</div>
-					<div class="grid grid-cols-2 divide-x divide-outline-elevation-2">
+					<div
+						class="grid grid-cols-2 divide-x rtl:divide-x-reverse divide-outline-elevation-2"
+					>
 						<div class="p-2">
 							{{ __('Attempted Questions') }}
 						</div>
@@ -450,7 +459,9 @@
 							{{ attemptedQuestions.length }}
 						</div>
 					</div>
-					<div class="grid grid-cols-2 divide-x divide-outline-elevation-2">
+					<div
+						class="grid grid-cols-2 divide-x rtl:divide-x-reverse divide-outline-elevation-2"
+					>
 						<div class="p-2">
 							{{ __('Unattempted Questions') }}
 						</div>
@@ -553,7 +564,7 @@ const handleBeforeUnload = (event) => {
 
 // Quiz doc + every question's content in one round trip. The lesson-side
 // quiz used to fetch the quiz, then fire one get_question_details per
-// question as the learner advanced — pulling them all up front lets the
+// question as the learner advanced. Pulling them all up front lets the
 // activeQuestion watcher read from a local map instead of round-tripping.
 const questionsByName = ref({})
 const quiz = createResource({
@@ -582,7 +593,7 @@ const populateQuestions = () => {
 	// Drop rows whose linked question no longer resolves (e.g. the question
 	// was deleted while still referenced by the quiz). Keeping a phantom row
 	// lets questionDetails.data go null mid-quiz and crash getAnswers and the
-	// unload handlers — which, since the quiz now mounts inline in the lesson,
+	// unload handlers, which, since the quiz now mounts inline in the lesson,
 	// blanks the whole lesson view.
 	const resolvable = rawQuestions.filter(
 		(row) => row?.question && questionsByName.value[row.question]
@@ -689,13 +700,13 @@ const quizSubmission = createResource({
 })
 
 // Mirror the previous createResource shape ({ data: ... }) so existing
-// template refs (questionDetails.data.option_X, etc.) keep working —
-// we just pull the row from the pre-fetched map instead of an API call.
+// template refs (questionDetails.data.option_X, etc.) keep working. We
+// just pull the row from the pre-fetched map instead of an API call.
 const questionDetails = reactive({ data: null })
 
 watch(activeQuestion, (value) => {
 	if (value <= 0) return
-	// Read from the local `questions` array — that's the shuffled / limited
+	// Read from the local `questions` array. That's the shuffled / limited
 	// copy populateQuestions built. `quiz.data.questions` is the raw,
 	// un-shuffled list and can be a different length when limit_questions_to
 	// is set.
@@ -855,7 +866,7 @@ const nextQuestion = () => {
 }
 
 const resetQuestion = () => {
-	// Compare against the local `questions` array — `quiz.data.questions` is
+	// Compare against the local `questions` array. `quiz.data.questions` is
 	// the raw list and can be longer than what populateQuestions trimmed via
 	// limit_questions_to.
 	if (activeQuestion.value == questions.value.length) return
@@ -1011,19 +1022,19 @@ const getSubmissionColumns = () => {
 		{
 			label: 'Score',
 			key: 'score',
-			align: 'center',
+			align: 'left',
 			width: 1,
 		},
 		{
 			label: 'Score out of',
 			key: 'score_out_of',
-			align: 'center',
+			align: 'left',
 			width: 1,
 		},
 		{
 			label: 'Percentage',
 			key: 'percentage',
-			align: 'center',
+			align: 'left',
 			width: 1,
 		},
 	]

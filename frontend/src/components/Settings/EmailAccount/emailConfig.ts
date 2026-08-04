@@ -15,7 +15,7 @@ declare global {
 }
 
 // `__` is a global set by the translation plugin at app init, but this module's
-// field arrays are built at import time — which can run before that. Resolve
+// field arrays are built at import time, which can run before that. Resolve
 // lazily and fall back to the raw string so importing this module never throws.
 const __ = (txt: string): string => (window.__ ? window.__(txt) : txt)
 
@@ -58,7 +58,7 @@ export const incomingOutgoingFields: RenderField[] = [
 		name: 'enable_outgoing',
 		type: 'checkbox',
 		description: __(
-			'If enabled, outgoing emails can be sent from this account.',
+			'If enabled, outgoing emails can be sent from this account.'
 		),
 	},
 	{
@@ -66,7 +66,7 @@ export const incomingOutgoingFields: RenderField[] = [
 		name: 'default_incoming',
 		type: 'checkbox',
 		description: __(
-			'If enabled, all replies to your company (eg: replies@yourcompany.com) will come to this account. Note: Only one account can be default incoming.',
+			'If enabled, all replies to your company (eg: replies@yourcompany.com) will come to this account. Note: Only one account can be default incoming.'
 		),
 	},
 	{
@@ -74,7 +74,7 @@ export const incomingOutgoingFields: RenderField[] = [
 		name: 'default_outgoing',
 		type: 'checkbox',
 		description: __(
-			'If enabled, all outgoing emails will be sent from this account. Note: Only one account can be default outgoing.',
+			'If enabled, all outgoing emails will be sent from this account. Note: Only one account can be default outgoing.'
 		),
 	},
 ]
@@ -170,7 +170,7 @@ export const services: EmailService[] = [
 		name: 'Frappe Mail',
 		icon: LogoFrappeMail,
 		info: __(
-			`Setting up Frappe Mail requires you to have an API key and API Secret of your email account. Read more`,
+			`Setting up Frappe Mail requires you to have an API key and API Secret of your email account. Read more`
 		),
 		link: 'https://github.com/frappe/mail',
 		custom: true,
@@ -190,7 +190,7 @@ export const emailIcon: Record<string, string> = {
 export function validateInputs(
 	state: EmailAccountFormState,
 	service: string,
-	allowMissingPassword = false,
+	allowMissingPassword = false
 ) {
 	if (!state.email_account_name) {
 		return __('Account name is required')

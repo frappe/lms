@@ -1,7 +1,7 @@
 <template>
 	<div class="relative flex h-full min-h-64 w-full grow justify-center">
 		<div
-			class="absolute left-1/2 top-[35%] flex -translate-x-1/2 flex-col items-center gap-3 px-4"
+			class="absolute inset-x-0 top-[35%] mx-auto flex flex-col items-center gap-3 px-4"
 			:class="widthClass"
 		>
 			<span class="size-7.5 text-ink-gray-5" :class="icon" />

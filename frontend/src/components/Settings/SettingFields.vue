@@ -39,10 +39,16 @@
 							<template
 								v-slot="{ file, progress, uploading, openFileSelector }"
 							>
-								<div class="">
-									<Button @click="openFileSelector" :loading="uploading">
+								<div>
+									<Button
+										class="text-p-base-medium"
+										:loading="uploading"
+										@click="openFileSelector"
+									>
 										{{
-											uploading ? `Uploading ${progress}%` : 'Upload an image'
+											uploading
+												? __('Uploading {0}%').format(progress)
+												: __('Upload an image')
 										}}
 									</Button>
 								</div>
@@ -89,15 +95,11 @@
 						</CodeEditor>
 					</div>
 
-					<!-- Textarea: full-width block (label/description above, like CRM) -->
+					<!-- Textarea: full-width block. Label leads, control follows, and
+					     the description reads as help text under the control. -->
 					<div v-else-if="field.type == 'textarea'" class="py-3">
-						<div class="space-y-1 mb-2">
-							<div class="text-p-base-medium text-ink-gray-7">
-								{{ __(field.label) }}
-							</div>
-							<div v-if="field.description" class="text-p-sm text-ink-gray-5">
-								{{ __(field.description) }}
-							</div>
+						<div class="text-p-base-medium text-ink-gray-7 mb-2">
+							{{ __(field.label) }}
 						</div>
 						<FormControl
 							type="textarea"
@@ -107,6 +109,12 @@
 							:aria-label="__(field.label)"
 							:placeholder="field.placeholder || __(field.label)"
 						/>
+						<div
+							v-if="field.description"
+							class="text-p-sm text-ink-gray-5 mt-2"
+						>
+							{{ __(field.description) }}
+						</div>
 					</div>
 
 					<div v-else class="flex items-center justify-between gap-4 py-3">

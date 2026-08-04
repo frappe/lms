@@ -38,35 +38,29 @@
 							variant="outline"
 						/>
 
-						<!-- beta.7's TimePicker (FormControl type="time") ignores the
-						     `label` prop, so render FormLabel explicitly like Timezone
-						     below — otherwise these fields show only the placeholder. -->
-						<div class="space-y-1.5">
-							<FormLabel :label="__('Session Start Time')" :required="true" />
-							<FormControl
-								v-model="batchDetail.doc.start_time"
-								type="time"
-								variant="outline"
-							/>
-						</div>
-						<div class="space-y-1.5">
-							<FormLabel :label="__('Session End Time')" :required="true" />
-							<FormControl
-								v-model="batchDetail.doc.end_time"
-								type="time"
-								variant="outline"
-							/>
-						</div>
-						<div class="flex flex-col gap-1.5">
-							<FormLabel :label="__('Timezone')" :required="true" />
-							<Combobox
-								v-model="batchDetail.doc.timezone"
-								:options="timezoneOptions"
-								:placeholder="__('Select timezone')"
-								variant="outline"
-								class="w-full"
-							/>
-						</div>
+						<FormControl
+							v-model="batchDetail.doc.start_time"
+							type="time"
+							:label="__('Session Start Time')"
+							:required="true"
+							variant="outline"
+						/>
+						<FormControl
+							v-model="batchDetail.doc.end_time"
+							type="time"
+							:label="__('Session End Time')"
+							:required="true"
+							variant="outline"
+						/>
+						<Combobox
+							v-model="batchDetail.doc.timezone"
+							:options="timezoneOptions"
+							:placeholder="__('Select timezone')"
+							:label="__('Timezone')"
+							:required="true"
+							variant="outline"
+							class="w-full"
+						/>
 
 						<FormControl
 							v-model="batchDetail.doc.seat_count"
@@ -192,9 +186,10 @@
 						:label="__('Preview Video')"
 					/>
 					<div class="space-y-1.5">
-						<FormLabel
+						<InputLabel
+							:id="batchDetailsLabelId"
+							:for-id="batchDetailsId"
 							:label="__('Batch Details')"
-							:id="batchDetailsId"
 							:required="true"
 						/>
 						<div
@@ -311,18 +306,17 @@ import {
 	toRaw,
 	watch,
 	nextTick,
-	useId,
 } from 'vue'
 import {
 	Combobox,
 	FormControl,
-	FormLabel,
 	createDocumentResource,
 	createResource,
 	toast,
 	call,
 	createListResource,
 } from 'frappe-ui'
+import { InputLabel, useInputLabeling } from '@/components/Form/labeling'
 import { useDebounceFn } from '@vueuse/core'
 import BooleanSwitch from '@/components/Controls/BooleanSwitch.vue'
 import {
@@ -376,7 +370,8 @@ const { $dialog } = app.appContext.config.globalProperties as {
 }
 const isDirty = ref<boolean>(false)
 const originalDoc = ref<LMSBatch | null>(null)
-const batchDetailsId = useId()
+const { inputId: batchDetailsId, labelId: batchDetailsLabelId } =
+	useInputLabeling({})
 const showMemberModal = ref<boolean>(false)
 const showEmailTemplateModal = ref<boolean>(false)
 const emailTemplateLinkRef = ref<{ reload: () => void } | null>(null)
@@ -433,7 +428,7 @@ let lastAutoSaveError: string | null = null
 
 // Debounced so a burst of edits collapses into a single save shortly after the
 // user pauses (mirrors CourseForm). When a mandatory field is empty or the
-// amount is invalid, the autosave can't succeed — surface the reason once and
+// amount is invalid, the autosave can't succeed. Surface the reason once and
 // keep the "Not Saved" badge (isDirty stays true) so the change isn't lost.
 const autoSave = useDebounceFn((): void => {
 	if (!isDirty.value) return

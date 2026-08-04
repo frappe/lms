@@ -7,7 +7,7 @@
 	<!-- Below `md` the two panes stack, so neither may keep its own scroll box:
 	     the aside's settings have to continue the same scroll the details
 	     started. Everything responsive here hangs off `md`, the width at which
-	     the columns actually split — a narrower cutoff would leave a band where
+	     the columns actually split; a narrower cutoff would leave a band where
 	     the panes are stacked but still scroll independently. -->
 	<div v-else class="grid grid-cols-1 flex-1 md:min-h-0 md:grid-cols-[70%,30%]">
 		<div class="space-y-8 p-5 md:overflow-y-auto">
@@ -116,7 +116,7 @@ const validateForm = (): string | null =>
 
 // Debounced so a burst of edits collapses into a single save shortly after the
 // user pauses. When a mandatory field is empty or the price is invalid, the
-// autosave can't succeed — surface the reason once and keep the "Not Saved"
+// autosave can't succeed. Surface the reason once and keep the "Not Saved"
 // badge (isDirty stays true) so the change isn't silently lost.
 const autoSave = useDebounceFn((): void => {
 	if (!isDirty.value) return
@@ -253,7 +253,7 @@ const deleteCourse = createResource({
 	},
 	onSuccess() {
 		toast.success(__('Course deleted successfully'))
-		// Land on the creator's "Created" courses — pick another course to edit.
+		// Land on the creator's "Created" courses. Pick another course to edit.
 		router.push({ name: 'Courses', query: { tab: 'created' } })
 	},
 	onError(err: { messages?: string[] } | string) {

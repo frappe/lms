@@ -32,7 +32,7 @@ function parse(html: string): Block[] {
 	return newBlock()._parsePastedHTMLToBlocks(html)
 }
 
-describe('_parsePastedHTMLToBlocks — inline formatting', () => {
+describe('_parsePastedHTMLToBlocks: inline formatting', () => {
 	it('preserves bold, italic and inline code inside a paragraph', () => {
 		const blocks = parse(
 			'<p>Plain <b>bold</b> and <i>italic</i> and <code>code()</code>.</p>'
@@ -82,7 +82,7 @@ describe('_parsePastedHTMLToBlocks — inline formatting', () => {
 	})
 })
 
-describe('_parsePastedHTMLToBlocks — block structure', () => {
+describe('_parsePastedHTMLToBlocks: block structure', () => {
 	it('maps h1..h6 to header blocks with the right level and inline text', () => {
 		const blocks = parse('<h2>Title <b>here</b></h2>')
 		expect(blocks[0]).toMatchObject({ type: 'header' })
@@ -108,10 +108,7 @@ describe('_parsePastedHTMLToBlocks — block structure', () => {
 			'<ul><li>one <img src="https://cdn.x/i.png" alt="cat"></li><li>two</li></ul>'
 		)
 		expect(blocks.map((b) => b.type)).toEqual(['list', 'image'])
-		expect(blocks[0].data.items.map((i) => i.content)).toEqual([
-			'one ',
-			'two',
-		])
+		expect(blocks[0].data.items.map((i) => i.content)).toEqual(['one ', 'two'])
 		expect(blocks[1].data.url).toBe('https://cdn.x/i.png')
 		expect(blocks[1].data.caption).toBe('cat')
 	})
@@ -123,9 +120,7 @@ describe('_parsePastedHTMLToBlocks — block structure', () => {
 		expect(blocks.map((b) => b.type)).toEqual(['list', 'image'])
 		expect(blocks[0].data.items.map((i) => i.content)).toEqual(['text'])
 
-		const imageOnly = parse(
-			'<ul><li><img src="https://cdn.x/a.png"></li></ul>'
-		)
+		const imageOnly = parse('<ul><li><img src="https://cdn.x/a.png"></li></ul>')
 		expect(imageOnly.map((b) => b.type)).toEqual(['image'])
 	})
 
@@ -225,7 +220,7 @@ describe('_parsePastedHTMLToBlocks — block structure', () => {
 	})
 })
 
-describe('_onNativePaste — routing', () => {
+describe('_onNativePaste: routing', () => {
 	function fakeEvent(data: Record<string, string>) {
 		return {
 			clipboardData: { getData: (t: string) => data[t] || '' },
@@ -280,13 +275,17 @@ describe('_onNativePaste — routing', () => {
 
 describe('pasted code block language detection', () => {
 	it('reads language- class from an inner <code>', () => {
-		const blocks = parse('<pre><code class="language-python">x = 1</code></pre>')
+		const blocks = parse(
+			'<pre><code class="language-python">x = 1</code></pre>'
+		)
 		expect(blocks[0].type).toBe('codeBox')
 		expect(blocks[0].data.language).toBe('python')
 	})
 
 	it('reads language- class from the <pre> itself (Prism markup)', () => {
-		const blocks = parse('<pre class="language-javascript"><code>let x</code></pre>')
+		const blocks = parse(
+			'<pre class="language-javascript"><code>let x</code></pre>'
+		)
 		expect(blocks[0].data.language).toBe('javascript')
 	})
 
@@ -294,9 +293,9 @@ describe('pasted code block language detection', () => {
 		expect(
 			parse('<pre><code class="lang-ruby">x</code></pre>')[0].data.language
 		).toBe('ruby')
-		expect(
-			parse('<pre class="brush: php">x</pre>')[0].data.language
-		).toBe('php')
+		expect(parse('<pre class="brush: php">x</pre>')[0].data.language).toBe(
+			'php'
+		)
 	})
 
 	it('falls back to plaintext when no language class is present', () => {

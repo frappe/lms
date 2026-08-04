@@ -297,7 +297,7 @@ router.beforeEach(async (to, from, next) => {
 				return next({ name: 'PersonaForm' })
 			}
 		} catch (_) {
-			// Fail open — a transient API error must not block navigation.
+			// Fail open: a transient API error must not block navigation.
 		}
 	}
 

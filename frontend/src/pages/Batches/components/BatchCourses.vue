@@ -22,6 +22,7 @@
 				<template #selection-actions="{ unselectAll, selections }">
 					<Button
 						variant="ghost"
+						class="text-p-base-medium"
 						:label="__('Delete selected courses')"
 						@click="removeCourses(selections, unselectAll)"
 					>

@@ -5,16 +5,24 @@
 			height: height,
 		}"
 	>
-		<FormLabel v-if="label" :label="label" />
+		<InputLabel
+			v-if="label"
+			:id="labelId"
+			:for-id="inputId"
+			:label="label ? __(label) : undefined"
+			:required="required"
+		/>
 		<div
+			:id="inputId"
 			ref="editor"
 			class="h-auto flex-1 overflow-hidden overscroll-none !rounded border border-outline-gray-2 bg-surface-gray-2 transition-colors hover:border-outline-gray-3 focus-within:border-outline-gray-4 focus-within:shadow-sm dark:bg-gray-900"
 		/>
-		<span
-			class="mt-1 text-xs text-ink-gray-5"
-			v-show="description"
-			v-html="sanitizeRichHTML(description)"
-		></span>
+		<InputDescription
+			v-if="showDescription"
+			:id="descriptionId"
+			:description="description"
+		/>
+		<InputError v-if="hasError" :id="errorMessageId" :lines="errorLines" />
 		<Button
 			v-if="showSaveButton"
 			@click="emit('save', aceEditor?.getValue())"
@@ -30,8 +38,13 @@ import 'ace-builds/src-min-noconflict/ext-searchbox'
 import 'ace-builds/src-min-noconflict/theme-chrome'
 import 'ace-builds/src-min-noconflict/theme-twilight'
 import { PropType, onMounted, ref, watch } from 'vue'
-import { Button, FormLabel } from 'frappe-ui'
-import { sanitizeRichHTML } from '@/utils/sanitizeRichHTML'
+import { Button } from 'frappe-ui'
+import {
+	InputDescription,
+	InputError,
+	InputLabel,
+	useInputLabeling,
+} from '@/components/Form/labeling'
 
 const isDark = ref(false)
 
@@ -71,7 +84,25 @@ const props = defineProps({
 		type: String,
 		default: '',
 	},
+	required: {
+		type: Boolean,
+		default: false,
+	},
+	error: {
+		type: [String, Object] as PropType<string | Error>,
+		default: undefined,
+	},
 })
+
+const {
+	inputId,
+	labelId,
+	descriptionId,
+	errorMessageId,
+	hasError,
+	errorLines,
+	showDescription,
+} = useInputLabeling(props)
 
 const emit = defineEmits(['save', 'update:modelValue'])
 const editor = ref<HTMLElement | null>(null)

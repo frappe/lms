@@ -61,4 +61,6 @@ jobs:
         run: semgrep ci --config ./frappe-semgrep-rules/rules
 
       - name: Run RTL Semgrep rules
-        run: semgrep scan --config ./.github/semgrep/tailwind-rtl.yml
+        # --error is required: a bare `semgrep scan` prints its findings and
+        # still exits 0, so without it this step could never fail.
+        run: semgrep scan --error --config ./.github/semgrep/tailwind-rtl.yml

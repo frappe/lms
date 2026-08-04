@@ -42,11 +42,12 @@
 							:required="true"
 						/>
 					</div>
-					<div>
-						<label class="block text-p-sm-medium text-ink-gray-7 mb-1.5">
-							{{ __('Description') }}
-							<span class="text-ink-red-6">*</span>
-						</label>
+					<div class="space-y-1.5">
+						<InputLabel
+							:id="descriptionLabelId"
+							:label="__('Description')"
+							:required="true"
+						/>
 						<RichTextEditor
 							:content="job.description"
 							@change="(val) => (job.description = val)"
@@ -123,7 +124,7 @@ import {
 	usePageMeta,
 	toast,
 } from 'frappe-ui'
-import { computed, inject, onMounted, reactive, ref, watch } from 'vue'
+import { computed, inject, onMounted, reactive, ref, useId, watch } from 'vue'
 import { sessionStore } from '@/stores/session'
 import { useRouter } from 'vue-router'
 import { sanitizeHTML } from '@/utils'
@@ -137,11 +138,13 @@ import {
 	saveShortcut,
 } from '@/composables/useKeyboardShortcuts'
 import RichTextEditor from '@/components/RichTextEditor.vue'
+import { InputLabel } from '@/components/Form/labeling'
 
 const user = inject('$user')
 const router = useRouter()
 const { brand } = sessionStore()
 const { isMobile } = useScreenSize()
+const descriptionLabelId = useId()
 const isDirty = ref(false)
 const originalJobData = ref(null)
 

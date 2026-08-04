@@ -13,7 +13,7 @@
 				<LoadingIndicator class="size-4" />
 			</div>
 			<div v-else-if="studentDetails.data" class="p-5 space-y-10 text-sm">
-				<div class="flex items-center gap-x-2">
+				<div class="flex items-center gap-x-4">
 					<Avatar :image="studentDetails.data.user_image" size="3xl" />
 					<div class="space-y-1">
 						<div class="flex items-center gap-x-2">
@@ -154,12 +154,12 @@ const redirectToCourse = (row: any) => {
 
 const assessmentColumns: ListColumn[] = [
 	{ key: 'title', label: __('Assessment'), align: 'left', width: '60%' },
-	{ key: 'status', label: __('Percentage/Status'), align: 'right' },
+	{ key: 'status', label: __('Percentage/Status'), align: 'left' },
 ]
 
 const courseColumns: ListColumn[] = [
 	{ key: 'title', label: __('Course'), align: 'left', width: '70%' },
-	{ key: 'progress', label: __('Progress'), align: 'right' },
+	{ key: 'progress', label: __('Progress'), align: 'left' },
 ]
 
 const assessmentListOptions: ListViewOptions = {

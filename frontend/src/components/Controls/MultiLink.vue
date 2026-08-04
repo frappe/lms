@@ -1,94 +1,95 @@
 <template>
-	<div class="space-y-1.5">
-		<FormLabel v-if="label" :label="label" :required="required" />
-		<MultiSelect
-			v-model="value"
-			v-model:open="popoverOpen"
-			:options="mergedOptions"
-			:placeholder="placeholder"
-			:emptyText="emptyText"
-			:variant="variant"
-			@update:open="onOpen"
-			@update:query="onQuery"
-			@update:modelValue="onChange"
-		>
-			<template #trigger="{ open, toggleOpen, selectedOptions, displayValue }">
-				<button
-					type="button"
-					:class="[
-						triggerBaseClasses,
-						triggerVariantClasses[variant],
-						'min-h-7 rounded px-2 w-full justify-between text-base',
-						disabled && 'cursor-not-allowed opacity-60',
-					]"
-					:data-state="open ? 'open' : 'closed'"
-					:disabled="disabled"
-					@click="toggleOpen"
-				>
-					<span class="flex min-w-0 flex-1 items-center gap-2">
-						<slot name="prefix" :selected="selectedOptions" />
-						<span
-							class="min-w-0 flex-1 truncate text-left"
-							:class="!selectedOptions.length && 'text-ink-gray-4'"
-						>
-							<slot
-								name="summary"
-								:summary="displayValue || placeholder"
-								:selected="selectedOptions"
-							>
-								<template v-if="selectedOptions.length">{{
-									defaultSummary(selectedOptions)
-								}}</template>
-								<template v-else>{{ placeholder }}</template>
-							</slot>
-						</span>
-					</span>
+	<MultiSelect
+		v-model="value"
+		v-model:open="popoverOpen"
+		:options="mergedOptions"
+		:placeholder="placeholder"
+		:emptyText="emptyText"
+		:variant="variant"
+		:label="label ? __(label) : undefined"
+		:description="description"
+		:error="error"
+		:required="required"
+		@update:open="onOpen"
+		@update:query="onQuery"
+		@update:modelValue="onChange"
+	>
+		<template #trigger="{ open, setOpen, selectedOptions }">
+			<button
+				type="button"
+				:class="[
+					triggerBaseClasses,
+					triggerVariantClasses[variant],
+					'min-h-7 rounded px-2 w-full justify-between text-base',
+					disabled && 'cursor-not-allowed opacity-60',
+				]"
+				:data-state="open ? 'open' : 'closed'"
+				:disabled="disabled"
+				@click="setOpen(!open)"
+			>
+				<span class="flex min-w-0 flex-1 items-center gap-2">
+					<slot name="prefix" :selected="selectedOptions" />
 					<span
-						class="lucide-chevron-down size-4 shrink-0 text-ink-gray-4 transition-transform duration-200"
-						:class="open && 'rotate-180'"
-					/>
-				</button>
-			</template>
-			<template v-if="$slots['item-prefix']" #item-prefix="slotProps">
-				<slot name="item-prefix" v-bind="slotProps" />
-			</template>
-			<template v-if="$slots['item-label']" #item-label="slotProps">
-				<slot name="item-label" v-bind="slotProps" />
-			</template>
-			<template #footer="{ clearAll }">
-				<slot name="footer" :close="closePopover">
-					<div
-						class="flex items-center justify-between gap-2 border-t border-outline-gray-1 px-2 py-1.5 mt-1"
+						class="min-w-0 flex-1 truncate text-start"
+						:class="!selectedOptions.length && 'text-ink-gray-4'"
 					>
-						<Button
-							variant="ghost"
-							size="sm"
-							:aria-label="__('Clear')"
-							@click="clearAll"
+						<slot
+							name="summary"
+							:summary="triggerLabel(selectedOptions) || placeholder"
+							:selected="selectedOptions"
 						>
-							{{ __('Clear') }}
-						</Button>
-						<Button
-							v-if="props.onCreate"
-							variant="ghost"
-							size="sm"
-							:aria-label="__(createLabel)"
-							@click="handleCreate"
-						>
-							<template #prefix>
-								<span class="lucide-plus size-4" />
-							</template>
-							{{ __(createLabel) }}
-						</Button>
-					</div>
-				</slot>
-			</template>
-		</MultiSelect>
-	</div>
+							<template v-if="selectedOptions.length">{{
+								defaultSummary(selectedOptions)
+							}}</template>
+							<template v-else>{{ placeholder }}</template>
+						</slot>
+					</span>
+				</span>
+				<span
+					class="lucide-chevron-down size-4 shrink-0 text-ink-gray-4 transition-transform duration-200"
+					:class="open && 'rotate-180'"
+				/>
+			</button>
+		</template>
+		<template v-if="$slots['item-prefix']" #item-prefix="slotProps">
+			<slot name="item-prefix" v-bind="slotProps" />
+		</template>
+		<template v-if="$slots['item-label']" #item-label="slotProps">
+			<slot name="item-label" v-bind="slotProps" />
+		</template>
+		<template #footer="{ clear }">
+			<slot name="footer" :close="closePopover">
+				<div
+					class="flex items-center justify-between gap-2 border-t border-outline-gray-1 px-2 py-1.5 mt-1"
+				>
+					<Button
+						variant="ghost"
+						size="sm"
+						:aria-label="__('Clear')"
+						@click="clear"
+					>
+						{{ __('Clear') }}
+					</Button>
+					<Button
+						v-if="props.onCreate"
+						variant="ghost"
+						size="sm"
+						:aria-label="__(createLabel)"
+						@click="handleCreate"
+					>
+						<template #prefix>
+							<span class="lucide-plus size-4" />
+						</template>
+						{{ __(createLabel) }}
+					</Button>
+				</div>
+			</slot>
+		</template>
+	</MultiSelect>
 </template>
 
 <script setup lang="ts">
-import { Button, FormLabel, MultiSelect, createResource } from 'frappe-ui'
+import { Button, MultiSelect, createResource } from 'frappe-ui'
 import { useDebounceFn } from '@vueuse/core'
 import { computed, ref, watch } from 'vue'
 import type { Resource } from '@/types'
@@ -111,6 +112,8 @@ const props = withDefaults(
 		transform?: (rows: Record<string, unknown>[]) => SelectOption[]
 		extraOptions?: SelectOption[]
 		label?: string
+		description?: string
+		error?: string
 		placeholder?: string
 		required?: boolean
 		disabled?: boolean
@@ -136,7 +139,7 @@ const popoverOpen = ref<boolean>(false)
 let loaded = false
 
 const triggerBaseClasses =
-	'relative inline-flex items-center gap-2 text-left text-ink-gray-7 outline-none transition-[background-color,border-color,box-shadow] duration-150'
+	'relative inline-flex items-center gap-2 text-start text-ink-gray-7 outline-none transition-[background-color,border-color,box-shadow] duration-150'
 
 const triggerVariantClasses: Record<
 	NonNullable<typeof props.variant>,
@@ -186,7 +189,10 @@ function onOpen(open: boolean) {
 	if (open && !loaded) reload()
 }
 
-const onQuery = useDebounceFn((txt: string) => reload(txt || ''), 300)
+const onQuery = useDebounceFn(
+	(txt: unknown) => reload((txt as string) || ''),
+	300
+)
 
 const emit = defineEmits<{
 	(e: 'change', value: string[]): void
@@ -304,6 +310,9 @@ const optionByValue = computed<Map<string, SelectOption>>(() => {
 function defaultSummary(selected: { label: string }[]) {
 	return selected.map((o) => o.label).join(', ')
 }
+
+const triggerLabel = (options: { label: string }[]) =>
+	options.map((option) => option.label).join(', ')
 
 defineExpose({ reload, options, optionByValue })
 </script>

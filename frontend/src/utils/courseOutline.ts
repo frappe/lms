@@ -13,15 +13,19 @@ export function findLessonNameByNumber(
 	return null
 }
 
-export function lessonExistsByNumber(chapters: Chapters, number: string): boolean {
+export function lessonExistsByNumber(
+	chapters: Chapters,
+	number: string
+): boolean {
 	return !!(
-		number &&
-		chapters?.some((c) => c.lessons?.some((l) => l.number === number))
+		number && chapters?.some((c) => c.lessons?.some((l) => l.number === number))
 	)
 }
 
 export function lessonExistsByName(chapters: Chapters, name: string): boolean {
-	return !!(name && chapters?.some((c) => c.lessons?.some((l) => l.name === name)))
+	return !!(
+		name && chapters?.some((c) => c.lessons?.some((l) => l.name === name))
+	)
 }
 
 export interface LessonSelection {
@@ -31,7 +35,7 @@ export interface LessonSelection {
 
 /**
  * A lesson selection is stale once the lesson it points at has left the outline
- * (e.g. it was deleted). Prefer the stable docname — the positional `number`
+ * (e.g. it was deleted). Prefer the stable docname: the positional `number`
  * shifts when lesson references resequence on delete/reorder, so it's only a
  * fallback when a name wasn't resolved.
  */
@@ -47,7 +51,7 @@ export function isSelectionStale(
 
 /**
  * Whether `lessonName` lives in the chapter `chapterName`. Used when a chapter is
- * deleted to decide whether the open lesson went with it — resolved against the
+ * deleted to decide whether the open lesson went with it, resolved against the
  * still-current outline (the delete's reload hasn't landed yet) so the editor can
  * suppress that lesson's teardown flush before it writes to the deleted document.
  */

@@ -9,7 +9,7 @@
 					open: index == 1,
 					'self-start mt-0.5': inlineSelect,
 				}"
-				class="lucide-chevron-right size-4 text-ink-gray-9 stroke-1 transform duration-200"
+				class="lucide-chevron-right size-4 text-ink-gray-9 transform duration-200"
 			/>
 			<div
 				class="ms-2 min-w-0 flex-1 text-start"
@@ -226,8 +226,8 @@ function cancelRename(): void {
 const defaultOpen = computed<boolean>(() => {
 	// Which chapter is expanded on (re)mount. The student lesson view carries
 	// the active lesson in route params; the in-page editor carries it in
-	// ?editLesson ("<chapter>-<lesson>") — which survives navigating away and
-	// back — with selectedLessonNumber as a fallback. Default to the first
+	// ?editLesson ("<chapter>-<lesson>"), which survives navigating away and
+	// back, with selectedLessonNumber as a fallback. Default to the first
 	// chapter only when nothing is active.
 	const editChapter =
 		typeof route.query.editLesson === 'string'

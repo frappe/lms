@@ -38,14 +38,14 @@ vi.mock('frappe-ui', () => ({
 		return res
 	},
 	Dialog: {
-		props: ['modelValue', 'options'],
+		props: ['modelValue', 'title', 'message', 'size', 'actions'],
 		emits: ['update:modelValue'],
 		template: `
 			<div>
-				<div data-testid="title">{{ options.title }}</div>
-				<div data-testid="message">{{ options.message }}</div>
+				<div data-testid="title">{{ title }}</div>
+				<div data-testid="message">{{ message }}</div>
 				<button
-					v-for="a in options.actions"
+					v-for="a in actions"
 					:key="a.label"
 					:data-testid="'action-' + a.theme"
 					@click="a.onClick()"
@@ -94,7 +94,7 @@ beforeEach(() => {
 	h.toast.error.mockReset()
 })
 
-describe('useMappingList — combinator confirm gate', () => {
+describe('useMappingList: combinator confirm gate', () => {
 	it('confirms an All (AND) → Any (OR) switch that only adds members', async () => {
 		const list = await switchTo('All (AND)')
 
@@ -177,7 +177,7 @@ describe('useMappingList — combinator confirm gate', () => {
 	})
 })
 
-describe('MassRemovalConfirmDialog — direction-aware copy', () => {
+describe('MassRemovalConfirmDialog: direction-aware copy', () => {
 	const dialog = (props: Record<string, unknown>) =>
 		mount(MassRemovalConfirmDialog, {
 			props: { open: true, targetLabel: 'Design HQ', ...props },
@@ -208,7 +208,7 @@ describe('MassRemovalConfirmDialog — direction-aware copy', () => {
 		const wrapper = dialog({ removedCount: 31 })
 
 		expect(wrapper.get('[data-testid="message"]').text()).toBe(
-			'This will remove 31 members from Design HQ. This cannot be undone.',
+			'This will remove 31 members from Design HQ. This cannot be undone.'
 		)
 		expect(wrapper.get('[data-testid="title"]').text()).toBe('Remove members?')
 	})

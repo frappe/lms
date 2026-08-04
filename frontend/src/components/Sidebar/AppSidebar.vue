@@ -12,7 +12,7 @@
 				<div v-for="link in sidebarLinks" class="mx-2 my-2.5">
 					<div
 						v-if="!link.hideLabel"
-						class="mb-2 mt-3 flex cursor-pointer gap-1.5 px-1 text-base-medium text-ink-gray-5 transition-all duration-300 ease-in-out"
+						class="mb-2 mt-3 flex cursor-pointer gap-1.5 px-1 text-p-base-medium text-ink-gray-5 transition-all duration-300 ease-in-out"
 					>
 						<span>{{ __(link.label) }}</span>
 					</div>
@@ -85,7 +85,7 @@
 		<div class="m-2 flex flex-col gap-1">
 			<div
 				v-if="readOnlyMode && !sidebarStore.isSidebarCollapsed"
-				class="z-10 m-2 bg-surface-elevation-2 py-2.5 px-3 text-xs text-ink-gray-7 leading-5 rounded-md"
+				class="z-10 m-2 bg-surface-elevation-2 py-2.5 px-3 text-p-xs text-ink-gray-7 rounded-md"
 			>
 				{{
 					__(
@@ -106,7 +106,7 @@
 							{{ __('Complete your profile') }}
 						</div>
 					</div>
-					<div class="text-ink-gray-7 leading-5">
+					<div class="text-ink-gray-7">
 						{{ __('Highlight what makes you unique and show your skills.') }}
 					</div>
 				</div>

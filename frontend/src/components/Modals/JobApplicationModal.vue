@@ -36,12 +36,18 @@
 					>
 						<template v-slot="{ file, progress, uploading, openFileSelector }">
 							<div class="">
-								<Button @click="openFileSelector" :loading="uploading">
+								<Button
+									class="text-p-base-medium"
+									:loading="uploading"
+									@click="openFileSelector"
+								>
 									<template #prefix>
 										<span class="lucide-upload size-4" />
 									</template>
 									{{
-										uploading ? `Uploading ${progress}%` : 'Upload your resume'
+										uploading
+											? __('Uploading {0}%').format(progress)
+											: __('Upload your resume')
 									}}
 								</Button>
 							</div>

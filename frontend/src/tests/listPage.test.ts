@@ -118,7 +118,7 @@ async function mountListPage(props: Record<string, unknown> = {}, slots = {}) {
 
 // Two things legitimately pin: PageHeader's own `<header>`, and the footer,
 // which holds the bottom edge so the page size and Load More stay put. What
-// must never come back is a pinned strip *above* the rows — that was the
+// must never come back is a pinned strip *above* the rows. That was the
 // filters re-pinned at a measured offset, and any drift between the
 // measurement and the app header's real height showed as a band of content
 // scrolling between the two.
@@ -193,7 +193,7 @@ describe('ListPage', () => {
 
 describe('PageBody', () => {
 	// On a desk the header holds because it sits outside the box that scrolls
-	// the rows. On a phone the page is the scroller and it travels with it —
+	// the rows. On a phone the page is the scroller and it travels with it, so
 	// it must not try to pin itself there. PageHeader is already `sticky
 	// top-0` in that scroller, so a second one lands underneath it, and the
 	// offset that would clear it is the app header's own content height: the
@@ -210,7 +210,7 @@ describe('PageBody', () => {
 			const classes = headerBlock(wrapper).className.split(/\s+/)
 
 			// It cannot be squeezed away by a long list, and it neither pins nor
-			// scrolls on its own — the three ways the old strip went wrong.
+			// scrolls on its own: the three ways the old strip went wrong.
 			expect(classes).toContain('shrink-0')
 			expect(classes).not.toContain('sticky')
 			expect(

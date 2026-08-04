@@ -91,11 +91,12 @@ export function useKeyboardShortcuts(
 	})
 
 	return {
-		stop: () => target?.removeEventListener('keydown', handler as EventListener),
+		stop: () =>
+			target?.removeEventListener('keydown', handler as EventListener),
 	}
 }
 
-// Ctrl+S (Cmd+S on mac) — the shared "save" combo every form uses.
+// Ctrl+S (Cmd+S on mac): the shared "save" combo every form uses.
 export function saveShortcut(action: ShortcutAction): ShortcutDef {
 	return {
 		match: (e) => (e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 's',

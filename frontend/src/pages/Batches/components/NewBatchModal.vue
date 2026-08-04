@@ -24,35 +24,29 @@
 						:required="true"
 						variant="outline"
 					/>
-					<!-- beta.7's TimePicker (FormControl type="time") ignores the
-					     `label` prop, so render FormLabel explicitly like Timezone
-					     below — otherwise these fields show only the placeholder. -->
-					<div class="space-y-1.5">
-						<FormLabel :label="__('Start Time')" :required="true" />
-						<FormControl
-							v-model="batch.start_time"
-							type="time"
-							variant="outline"
-						/>
-					</div>
-					<div class="space-y-1.5">
-						<FormLabel :label="__('End Time')" :required="true" />
-						<FormControl
-							v-model="batch.end_time"
-							type="time"
-							variant="outline"
-						/>
-					</div>
-					<div class="space-y-1.5">
-						<FormLabel :label="__('Timezone')" :required="true" />
-						<Combobox
-							v-model="batch.timezone"
-							:options="timezoneOptions"
-							:placeholder="__('Select timezone')"
-							variant="outline"
-							class="w-full"
-						/>
-					</div>
+					<FormControl
+						v-model="batch.start_time"
+						type="time"
+						:label="__('Start Time')"
+						:required="true"
+						variant="outline"
+					/>
+					<FormControl
+						v-model="batch.end_time"
+						type="time"
+						:label="__('End Time')"
+						:required="true"
+						variant="outline"
+					/>
+					<Combobox
+						v-model="batch.timezone"
+						:options="timezoneOptions"
+						:placeholder="__('Select timezone')"
+						:label="__('Timezone')"
+						:required="true"
+						variant="outline"
+						class="w-full"
+					/>
 					<Link
 						v-model="batch.category"
 						doctype="LMS Category"
@@ -98,9 +92,10 @@
 						/>
 					</div>
 					<div class="space-y-1.5">
-						<FormLabel
+						<InputLabel
+							:id="batchDetailsLabelId"
+							:for-id="batchDetailsId"
 							:label="__('Batch Details')"
-							:id="batchDetailsId"
 							:required="true"
 						/>
 						<div
@@ -143,12 +138,11 @@ import {
 	Combobox,
 	Dialog,
 	FormControl,
-	FormLabel,
 	createResource,
 	toast,
 } from 'frappe-ui'
 import { useOnboarding, useTelemetry } from 'frappe-ui/frappe'
-import { computed, inject, onMounted, onBeforeUnmount, ref, useId } from 'vue'
+import { computed, inject, onMounted, onBeforeUnmount, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { sanitizeHTML, createLMSCategory, cleanError } from '@/utils'
 import MultiLink from '@/components/Controls/MultiLink.vue'
@@ -156,6 +150,7 @@ import Link from '@/components/Controls/Link.vue'
 import Select from '@/components/Controls/Select.vue'
 import NewMemberModal from '@/components/Modals/NewMemberModal.vue'
 import RichTextEditor from '@/components/RichTextEditor.vue'
+import { InputLabel, useInputLabeling } from '@/components/Form/labeling'
 
 const show = defineModel<boolean>({ required: true, default: false })
 const router = useRouter()
@@ -163,7 +158,8 @@ const { capture } = useTelemetry()
 const { updateOnboardingStep } = useOnboarding('learning')
 const user = inject<any>('$user')
 const showMemberModal = ref(false)
-const batchDetailsId = useId()
+const { inputId: batchDetailsId, labelId: batchDetailsLabelId } =
+	useInputLabeling({})
 
 const props = defineProps<{
 	batches: any

@@ -1,21 +1,11 @@
 <template>
 	<SettingsLayout
-		:title="__('Edit Email')"
-		:description="__('Edit your email account')"
+		:title="state.email_account_name || __('Email Account')"
 		:show-back="true"
+		:unsaved="isDirty"
 		@back="emit('update:step', 'email-list')"
 	>
 		<template #header-actions>
-			<Button
-				:label="__('Delete')"
-				theme="red"
-				variant="subtle"
-				@click="showDeleteDialog = true"
-			>
-				<template #prefix>
-					<span class="lucide-trash-2 size-4" />
-				</template>
-			</Button>
 			<Button
 				:label="__('Update Account')"
 				variant="solid"
@@ -24,7 +14,6 @@
 			/>
 		</template>
 		<div class="flex flex-col gap-4">
-			<!-- fields -->
 			<div class="flex flex-col gap-4">
 				<div class="grid grid-cols-1 gap-4">
 					<div
@@ -53,34 +42,10 @@
 						:description="field.description"
 					/>
 				</div>
-				<ErrorMessage v-if="error" class="ml-1" :message="error" />
+				<ErrorMessage v-if="error" class="ms-1" :message="error" />
 			</div>
 		</div>
 	</SettingsLayout>
-
-	<Dialog
-		v-model:open="showDeleteDialog"
-		:title="__('Delete {0}?').format(props.accountData.email_account_name)"
-		:message="
-			__('This permanently deletes the email account and cannot be undone.')
-		"
-		size="sm"
-		:actions="[
-			{
-				label: __('Delete'),
-				theme: 'red',
-				variant: 'solid',
-				loading: deleting,
-				onClick: deleteAccount,
-			},
-			{
-				label: __('Cancel'),
-				onClick: () => {
-					showDeleteDialog = false
-				},
-			},
-		]"
-	/>
 </template>
 
 <script setup lang="ts">
@@ -88,7 +53,6 @@ import SettingsLayout from '@/components/Layouts/SettingsLayout.vue'
 import { EmailAccount, EmailStep } from '@/types'
 import {
 	Button,
-	Dialog,
 	ErrorMessage,
 	FormControl,
 	Switch,
@@ -96,7 +60,6 @@ import {
 	createListResource,
 	toast,
 } from 'frappe-ui'
-import { cleanError } from '@/utils'
 import { computed, reactive, ref, watch } from 'vue'
 import {
 	frappeMailFields,
@@ -166,33 +129,11 @@ const fields = computed(() => {
 const error = ref<string | undefined>()
 const loading = ref(false)
 
-// shared cached accounts list — reload it so edits/renames show on return
+// shared cached accounts list; reload it so edits/renames show on return
 const emailAccounts = createListResource({
 	doctype: 'Email Account',
 	cache: ['Email Accounts'],
 })
-
-const showDeleteDialog = ref(false)
-const deleting = ref(false)
-
-function deleteAccount() {
-	if (deleting.value) return
-	deleting.value = true
-	emailAccounts.delete.submit(props.accountData.email_account_name, {
-		onSuccess: () => {
-			deleting.value = false
-			showDeleteDialog.value = false
-			toast.success(__('Email Account deleted successfully'))
-			emit('update:step', 'email-list')
-		},
-		onError: (err: { messages?: string[] }) => {
-			deleting.value = false
-			toast.error(
-				cleanError(err.messages?.[0]) || __('Error deleting email account')
-			)
-		},
-	})
-}
 
 async function updateAccount() {
 	// guard against a double-submit from spamming the Update button
@@ -203,7 +144,7 @@ async function updateAccount() {
 	const nameChanged =
 		props.accountData.email_account_name !== state.email_account_name
 
-	if (!nameChanged && !isDirty.value) {
+	if (!isDirty.value) {
 		toast.info(__('No changes made'))
 		return
 	}
@@ -211,7 +152,7 @@ async function updateAccount() {
 	try {
 		loading.value = true
 		if (nameChanged) await callRenameDoc()
-		if (isDirty.value) await callSetValue(buildUpdatePayload())
+		if (fieldsDirty.value) await callSetValue(buildUpdatePayload())
 		emailAccounts.reload()
 		emit('update:step', 'email-list')
 		toast.success(__('Email account updated successfully'))
@@ -247,7 +188,9 @@ function buildUpdatePayload() {
 	}
 }
 
-const isDirty = computed(
+// A rename goes through rename_doc, not set_value, so the two are tracked
+// apart: fieldsDirty gates the write, isDirty drives the "Not saved" marker.
+const fieldsDirty = computed(
 	() =>
 		state.service !== props.accountData.service ||
 		state.email_id !== props.accountData.email_id ||
@@ -259,6 +202,12 @@ const isDirty = computed(
 		state.default_incoming !== props.accountData.default_incoming ||
 		state.default_outgoing !== props.accountData.default_outgoing ||
 		state.frappe_mail_site !== props.accountData.frappe_mail_site
+)
+
+const isDirty = computed(
+	() =>
+		fieldsDirty.value ||
+		state.email_account_name !== props.accountData.email_account_name
 )
 
 async function callRenameDoc() {

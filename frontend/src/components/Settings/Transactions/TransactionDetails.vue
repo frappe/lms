@@ -1,7 +1,6 @@
 <template>
 	<SettingsLayout
-		:title="__('Transaction Details')"
-		:description="__('Review and update the details of this payment.')"
+		:title="transactionData?.billing_name || __('Transaction Details')"
 		:show-back="true"
 		@back="emit('updateStep', 'list')"
 	>
@@ -11,6 +10,7 @@
 					transactionData?.payment_for_document_type &&
 					transactionData?.payment_for_document
 				"
+				class="text-p-base-medium"
 				@click="openDetails()"
 			>
 				{{ __('Open the ') }}

@@ -31,7 +31,7 @@
 					{{ __('No students enrolled yet') }}
 				</span>
 				<span class="text-p-base text-ink-gray-6">
-					{{ __('Enroll students to track their progress here.') }}
+					{{ __('Enroll students to track their progress here') }}
 				</span>
 			</div>
 		</div>
@@ -100,7 +100,7 @@
 							name="Students"
 							icon="lucide-users"
 							:title="__('No students match your search')"
-							:description="__('Try a different name.')"
+							:description="__('Try a different name')"
 						/>
 					</div>
 					<div
@@ -405,7 +405,7 @@ const progressColumns = computed<ListColumn[]>(() => {
 		{
 			label: __('Enrolled On'),
 			key: 'creation',
-			align: 'right',
+			align: 'left',
 		},
 	]
 })

@@ -50,7 +50,7 @@ function press(
 	return event
 }
 
-describe('Heading — single line', () => {
+describe('Heading: single line', () => {
 	it('refuses the Shift+Enter line break', () => {
 		const element = newHeading({ text: 'Title', level: 2 }).render()
 		expect(press(element, 'Enter', { shiftKey: true }).defaultPrevented).toBe(
@@ -111,7 +111,7 @@ describe('Heading — single line', () => {
 })
 
 // The behaviour this replaced, kept as a characterisation test: the stock tool
-// lets the break through, and the sanitizer then drops it on save — which is
+// lets the break through, and the sanitizer then drops it on save, which is
 // how a heading could look like two lines and reload as one glued word.
 describe('stock @editorjs/header', () => {
 	it('lets Shift+Enter through and keeps a stored break', () => {

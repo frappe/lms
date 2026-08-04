@@ -1,10 +1,8 @@
 <template>
 	<SettingsLayout
 		:title="title"
-		:description="
-			__('Define a badge and the criteria for awarding it to learners.')
-		"
 		:show-back="true"
+		v-model:enabled="badge.enabled"
 		@back="emit('updateStep', 'list')"
 	>
 		<template #header-actions>
@@ -14,12 +12,6 @@
 		</template>
 		<div class="grid grid-cols-2 gap-x-5">
 			<div class="space-y-4">
-				<BooleanSwitch
-					size="sm"
-					v-model="badge.enabled"
-					:label="__('Enabled')"
-					:description="__('Allow this badge to be awarded to learners.')"
-				/>
 				<FormControl
 					v-model="badge.title"
 					:label="__('Title')"
@@ -118,15 +110,15 @@ const props = defineProps<{
 
 const title = computed(() =>
 	props.badgeName && props.badgeName !== 'new'
-		? __('Edit Badge')
-		: __('Create a new Badge')
+		? badge.value?.title || props.badgeName
+		: __('New Badge')
 )
 
 watch(
 	() => props.badgeName,
 	(val) => {
 		if (val != 'new') {
-			badges.value?.data.forEach((bdg: Badge) => {
+			badges.value?.data?.forEach((bdg: Badge) => {
 				if (bdg.name === val) {
 					badge.value = bdg
 				}
@@ -206,7 +198,7 @@ const createBadge = () => {
 			onError(err) {
 				saving.value = false
 				emit('updateStep', 'list')
-				toast.error(cleanError(err.messages[0]) || __('Error creating badge'))
+				toast.error(cleanError(err.messages?.[0]) || __('Error creating badge'))
 			},
 		}
 	)

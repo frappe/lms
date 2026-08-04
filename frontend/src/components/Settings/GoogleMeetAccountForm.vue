@@ -1,25 +1,13 @@
 <template>
 	<SettingsLayout
 		:title="title"
-		:description="
-			__('Connect a Google Meet account to schedule and host live classes.')
-		"
 		:show-back="true"
+		v-model:enabled="account.enabled"
 		@back="emit('updateStep', 'list')"
 	>
 		<template #header-actions>
 			<Button variant="solid" @click="save">{{ __('Save') }}</Button>
 		</template>
-		<div class="mb-4">
-			<BooleanSwitch
-				size="sm"
-				v-model="account.enabled"
-				:label="__('Enabled')"
-				:description="
-					__('Activate this Google Meet account for scheduling meetings.')
-				"
-			/>
-		</div>
 		<div class="grid grid-cols-2 gap-5">
 			<FormControl
 				v-model="account.name"
@@ -47,7 +35,6 @@
 </template>
 <script setup lang="ts">
 import { Button, FormControl, call, toast } from 'frappe-ui'
-import BooleanSwitch from '@/components/Controls/BooleanSwitch.vue'
 import { computed, inject, reactive, watch } from 'vue'
 import { User } from '@/types'
 import { openSettings, cleanError } from '@/utils'
@@ -99,10 +86,11 @@ const props = defineProps({
 	},
 })
 
+// `autoname: field:account_name`, so the doc name is the account name.
 const title = computed(() =>
 	props.accountID === 'new'
 		? __('New Google Meet Account')
-		: __('Edit Google Meet Account')
+		: props.accountID || ''
 )
 
 watch(

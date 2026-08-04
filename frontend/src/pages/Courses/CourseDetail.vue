@@ -67,6 +67,7 @@
 				<Tooltip v-if="!isMobile" :text="__('How to edit a lesson')">
 					<Button
 						variant="ghost"
+						class="text-p-base-medium"
 						:label="__('How to edit a lesson')"
 						@click="showLessonHelp = true"
 					>
@@ -337,7 +338,7 @@ const publishToggle = createResource({
 }) as Resource<unknown>
 
 // On a phone the publish toggle joins the ... menu, where it keeps a written
-// label — an icon-only globe gave no hint that it publishes the course.
+// label. An icon-only globe gave no hint that it publishes the course.
 const courseOptions = computed<CourseMenuItem[]>(() => {
 	const menu = courseFormRef.value?.courseMenu ?? []
 	if (!isMobile.value || !user.data?.is_moderator) return menu
@@ -361,8 +362,8 @@ const props = defineProps<{
 	courseName: string
 }>()
 
-// No `cache` key: it would be read once at setup, so the reload below — this
-// component is reused when you jump straight from one course to another — would
+// No `cache` key: it would be read once at setup, so the reload below (this
+// component is reused when you jump straight from one course to another) would
 // file the new course's data under the course you arrived on.
 const course = createResource({
 	url: 'lms.lms.utils.get_course_details',
