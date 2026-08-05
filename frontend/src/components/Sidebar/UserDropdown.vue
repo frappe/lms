@@ -2,7 +2,7 @@
 	<div class="p-2">
 		<Dropdown :options="userDropdownOptions">
 			<template v-slot="{ open, close }">
-				<!-- No `py-*` on the button: the name/user block is 40.5px on the
+				<!-- No `py-*` on the button: the name/user block is 38.5px on the
 				     paragraph scale, which overflows h-12's content box once
 				     padding takes 16px of it. `items-center` centres it in the 48px. -->
 				<button
@@ -39,7 +39,10 @@
 							</span>
 							<span v-else> Learning </span>
 						</div>
-						<div v-if="userResource.data" class="text-p-sm text-ink-gray-7">
+						<div
+							v-if="userResource.data"
+							class="-mt-0.5 text-p-sm text-ink-gray-7"
+						>
 							{{ convertToTitleCase(userResource.data?.full_name) }}
 						</div>
 					</div>
