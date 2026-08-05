@@ -129,3 +129,4 @@ lms.patches.v2_0.restore_system_manager_perms #13-05-2026
 lms.patches.v2_0.set_course_progress_defaults #02-06-2026
 lms.patches.v2_0.add_video_watch_duration_index #18-06-2026
 lms.patches.v2_0.add_batch_enrollment_index #20-07-2026
+lms.patches.v2_0.make_public_images_public #05-08-2026
