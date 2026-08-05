@@ -1384,16 +1384,32 @@ def upsert_chapter(
 		scorm_package = frappe._dict(scorm_package or {})
 		if not scorm_package.get("name"):
 			frappe.throw(_("Please attach a SCORM package before saving this chapter."))
-		extract_path = extract_package(course, title, scorm_package)
+		if not isinstance(scorm_package.name, str):
+			frappe.throw(_("scorm_package name must be a string"))
 
-		values.update(
-			{
-				"scorm_package": scorm_package.name,
-				"scorm_package_path": _scorm_url(extract_path),
-				"manifest_file": _scorm_url(get_manifest_file(extract_path)),
-				"launch_file": _scorm_url(get_launch_file(extract_path)),
-			}
-		)
+		stored = _stored_scorm_values(name, scorm_package.name)
+		if stored:
+			# The File row was deleted out from under the chapter, but the package
+			# was already extracted to disk. Re-extracting is impossible and is not
+			# what a title edit asked for, so keep the extraction and let the save
+			# through — otherwise the chapter can never be renamed again.
+			#
+			# scorm_package itself is cleared rather than rewritten: it is a Link to
+			# File, and save() validates every non-empty Link unconditionally, so
+			# putting the missing name back would just trade this error for a
+			# LinkValidationError. The chapter stays playable off scorm_package_path.
+			values.update(stored)
+			values["scorm_package"] = None
+		else:
+			extract_path = extract_package(course, title, scorm_package)
+			values.update(
+				{
+					"scorm_package": scorm_package.name,
+					"scorm_package_path": _scorm_url(extract_path),
+					"manifest_file": _scorm_url(get_manifest_file(extract_path)),
+					"launch_file": _scorm_url(get_launch_file(extract_path)),
+				}
+			)
 
 	if name:
 		chapter = frappe.get_doc("Course Chapter", name)
@@ -1413,6 +1429,34 @@ def upsert_chapter(
 		add_lesson(title, chapter.name, course, 1)
 
 	return chapter
+
+
+def _stored_scorm_values(name: str | None, posted_package: str) -> dict | None:
+	"""The extraction already on `name`, when `posted_package` cannot be extracted.
+
+	Returns None — meaning "extract normally" — unless all three hold:
+
+	- this is an edit of an existing chapter,
+	- the File behind the posted package is gone, so extraction is impossible,
+	- and the caller posted the package the chapter already has.
+
+	That last condition is what keeps this to the rename case. Without it, a
+	creator replacing a package whose File row happened to be missing would get a
+	success response and a chapter still serving the old content.
+	"""
+	if not name or frappe.db.exists("File", posted_package):
+		return None
+	stored = frappe.db.get_value(
+		"Course Chapter",
+		name,
+		["scorm_package", "scorm_package_path", "manifest_file", "launch_file"],
+		as_dict=True,
+	)
+	if not stored or not stored.get("scorm_package_path"):
+		return None
+	if stored.get("scorm_package") != posted_package:
+		return None
+	return stored
 
 
 def _scorm_url(abs_path: str) -> str:
