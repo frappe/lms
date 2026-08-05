@@ -1,21 +1,19 @@
 <template>
 	<Dialog
-		v-model="show"
-		:options="{
-			title: __('Add web page to sidebar'),
-			size: 'lg',
-			actions: [
-				{
-					label: 'Add',
-					variant: 'solid',
-					onClick: (close) => {
-						addWebPage(close)
-					},
+		v-model:open="show"
+		:title="__('Add web page to sidebar')"
+		size="lg"
+		:actions="[
+			{
+				label: 'Add',
+				variant: 'solid',
+				onClick: ({ close }) => {
+					addWebPage(close)
 				},
-			],
-		}"
+			},
+		]"
 	>
-		<template #body-content>
+		<template #default>
 			<div class="text-base">
 				<Link
 					v-model="page.webpage"

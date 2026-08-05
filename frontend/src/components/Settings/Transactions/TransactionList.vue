@@ -1,218 +1,114 @@
 <template>
-	<div class="flex min-h-0 flex-col text-base">
-		<div class="flex items-center justify-between mb-5">
-			<div>
-				<div class="text-xl font-semibold mb-2 text-ink-gray-9">
-					{{ __(label) }}
-				</div>
-				<div class="text-ink-gray-6 leading-5">
-					{{ __(description) }}
-				</div>
-			</div>
-			<Button @click="emit('updateStep', 'new', null)">
-				<template #prefix>
-					<FeatherIcon name="plus" class="h-4 w-4 stroke-1.5" />
-				</template>
-				{{ __('Add Transaction') }}
-			</Button>
-		</div>
-
-		<div class="flex items-center gap-x-5 mb-4">
-			<FormControl
-				v-model="billingName"
-				:placeholder="__('Filter by Billing Name')"
+	<SettingsList
+		:title="__(label)"
+		:description="__(description)"
+		:columns="columns"
+		:rows="list.rows"
+		:loading="list.loading"
+		:has-next-page="list.hasNextPage"
+		v-model:search="list.search"
+		searchable
+		empty-name="Transactions"
+		empty-icon="lucide-landmark"
+		@new="emit('updateStep', 'new', null)"
+		@load-more="list.loadMore()"
+		@row-click="openForm"
+	>
+		<template #header-bottom>
+			<Select
+				v-model="paymentType"
+				class="w-44"
+				:aria-label="__('Filter by payment type')"
+				:options="paymentTypeOptions"
 			/>
-			<Link
-				v-model="member"
-				doctype="User"
-				:placeholder="__('Filter by Member')"
-			/>
-			<FormControl
-				v-model="paymentReceived"
-				type="checkbox"
-				:label="__('Payment Received')"
-			/>
-			<FormControl
-				v-model="paymentForCertificate"
-				type="checkbox"
-				:label="__('Payment for Certificate')"
-			/>
-		</div>
-
-		<div v-if="transactions.data?.length" class="overflow-y-auto">
-			<ListView
-				:columns="columns"
-				:rows="transactions.data"
-				row-key="name"
-				:options="{
-					showTooltip: false,
-					selectable: false,
-					onRowClick: (row: { [key: string]: any }) => {
-						openForm(row)
-					},
-				}"
-			>
-				<ListHeader
-					class="mb-2 grid items-center gap-x-4 rounded bg-surface-gray-2 p-2"
-				>
-					<ListHeaderItem :item="item" v-for="item in columns">
-						<template #prefix="{ item }">
-							<FeatherIcon
-								v-if="item.icon"
-								:name="item.icon"
-								class="h-4 w-4 stroke-1.5"
-							/>
-						</template>
-					</ListHeaderItem>
-				</ListHeader>
-
-				<ListRows>
-					<ListRow :row="row" v-for="row in transactions.data">
-						<template #default="{ column, item }">
-							<ListRowItem :item="row[column.key]" :align="column.align">
-								<FormControl
-									v-if="
-										['payment_received', 'payment_for_certificate'].includes(
-											column.key
-										)
-									"
-									type="checkbox"
-									v-model="row[column.key]"
-									:disabled="true"
-								/>
-								<div v-else-if="column.key == 'amount'">
-									{{ getCurrencySymbol(row['currency']) }} {{ row[column.key] }}
-								</div>
-								<div v-else class="leading-5 text-sm">
-									{{ row[column.key] }}
-								</div>
-							</ListRowItem>
-						</template>
-					</ListRow>
-				</ListRows>
-			</ListView>
-			<div
-				v-if="transactions.data.length && transactions.hasNextPage"
-				class="flex justify-center mt-4"
-			>
-				<Button @click="transactions.next()">
-					<template #prefix>
-						<RefreshCw class="h-3 w-3 stroke-1.5" />
-					</template>
-					{{ __('Load More') }}
-				</Button>
-			</div>
-		</div>
-		<EmptyStateLayout
-			v-else
-			name="Transactions"
-			:description="__('Add one to get started.')"
-			:icon="Landmark"
-		/>
-	</div>
+		</template>
+	</SettingsList>
 </template>
 <script setup lang="ts">
-import {
-	Button,
-	ListView,
-	ListHeader,
-	ListHeaderItem,
-	FeatherIcon,
-	ListRows,
-	ListRow,
-	ListRowItem,
-	FormControl,
-} from 'frappe-ui'
-import Switch from '@/components/Controls/Switch.vue'
-import { computed, ref, watch } from 'vue'
-import { RefreshCw, Landmark } from 'lucide-vue-next'
-import Link from '@/components/Controls/Link.vue'
-import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
+import { Select } from 'frappe-ui'
+import { ref, watch } from 'vue'
+import SettingsList from '@/components/Layouts/SettingsList.vue'
+import type { SettingsListSource } from '@/composables/useSettingsListResource'
+import type { SettingsListColumn, SettingsListRow } from '@/types'
 
-const billingName = ref(null)
-const paymentReceived = ref(false)
-const paymentForCertificate = ref(false)
-const member = ref(null)
+const paymentType = ref('All')
 const emit = defineEmits(['updateStep'])
+
+const paymentTypeOptions = [
+	{ label: __('All Payments'), value: 'All' },
+	{ label: __('Paid'), value: 'Paid' },
+	{ label: __('Unpaid'), value: 'Unpaid' },
+	{ label: __('For Certificate'), value: 'Certificate' },
+	{ label: __('For Course'), value: 'Course' },
+]
 
 const props = defineProps<{
 	label: string
 	description: string
-	transactions: any
+	list: SettingsListSource
 }>()
 
-watch(
-	[billingName, member, paymentReceived, paymentForCertificate],
-	([
-		newBillingName,
-		newMember,
-		newPaymentReceived,
-		newPaymentForCertificate,
-	]) => {
-		props.transactions.update({
-			filters: [
-				newBillingName ? [['billing_name', 'like', `%${newBillingName}%`]] : [],
-				newMember ? [['member', '=', newMember]] : [],
-				newPaymentReceived
-					? [['payment_received', '=', newPaymentReceived]]
-					: [],
-				newPaymentForCertificate
-					? [['payment_for_certificate', '=', newPaymentForCertificate]]
-					: [],
-			].flat(),
-		})
-		props.transactions.reload()
-	},
-	{ immediate: true }
-)
+const paymentFilter = (type: string) => {
+	switch (type) {
+		case 'Paid':
+			return [['payment_received', '=', 1]]
+		case 'Unpaid':
+			return [['payment_received', '=', 0]]
+		case 'Certificate':
+			return [['payment_for_certificate', '=', 1]]
+		case 'Course':
+			return [['payment_for_certificate', '=', 0]]
+		default:
+			return []
+	}
+}
 
-const openForm = (transaction: { [key: string]: any }) => {
+watch(paymentType, (type) => props.list.applyFilters(paymentFilter(type)))
+
+const currencySymbols: Record<string, string> = {
+	USD: '$',
+	EUR: '€',
+	GBP: '£',
+	INR: '₹',
+	AED: 'د.إ',
+	CHF: 'Fr',
+	JPY: '¥',
+	AUD: '$',
+}
+
+const columns: SettingsListColumn[] = [
+	{
+		key: 'billing_name',
+		label: __('Billing Name'),
+		type: 'stacked',
+		primary: (row) => row.billing_name,
+		secondary: (row) => row.member,
+	},
+	{
+		key: 'amount',
+		label: __('Amount'),
+		type: 'text',
+		width: '8rem',
+		value: (row) =>
+			`${currencySymbols[row.currency] || row.currency} ${row.amount}`,
+	},
+	{
+		key: 'status',
+		label: __('Status'),
+		type: 'badge',
+		width: '10rem',
+		badges: (row) => {
+			const badges = []
+			if (row.payment_received)
+				badges.push({ label: __('Paid'), theme: 'green' as const })
+			if (row.payment_for_certificate)
+				badges.push({ label: __('Certificate'), theme: 'blue' as const })
+			return badges
+		},
+	},
+]
+
+const openForm = (transaction: SettingsListRow) => {
 	emit('updateStep', 'details', { ...transaction })
 }
-
-const getCurrencySymbol = (currency: string) => {
-	const currencySymbols: Record<string, string> = {
-		USD: '$',
-		EUR: '€',
-		GBP: '£',
-		INR: '₹',
-		AED: 'د.إ',
-		CHF: 'Fr',
-		JPY: '¥',
-		AUD: '$',
-	}
-	return currencySymbols[currency] || currency
-}
-
-const columns = computed(() => {
-	return [
-		{
-			label: __('Billing Name'),
-			icon: 'user',
-			key: 'billing_name',
-			width: '30%',
-		},
-		{
-			label: __('Amount'),
-			icon: 'dollar-sign',
-			key: 'amount',
-			width: '20%',
-			align: 'right',
-		},
-		{
-			label: __('Payment Received'),
-			icon: 'check-circle',
-			key: 'payment_received',
-			width: '25%',
-			align: 'center',
-		},
-		{
-			label: __('Payment for Certificate'),
-			icon: 'award',
-			key: 'payment_for_certificate',
-			width: '25%',
-			align: 'center',
-		},
-	]
-})
 </script>

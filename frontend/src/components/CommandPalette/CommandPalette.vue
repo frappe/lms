@@ -1,13 +1,16 @@
 <template>
-	<Dialog v-model="show" :options="{ size: '2xl' }">
-		<template #body>
+	<Dialog v-model:open="show" size="2xl" bare>
+		<template #default>
+			<Dialog.Title as-child>
+				<h2 class="sr-only">{{ __('Command palette') }}</h2>
+			</Dialog.Title>
 			<div class="text-base">
 				<div class="flex items-center gap-x-2 ps-4.5 border-b">
-					<Search class="size-4 text-ink-gray-4" />
+					<span class="lucide-search size-4 text-ink-gray-4" />
 					<input
 						ref="inputRef"
 						type="text"
-						placeholder="Search"
+						:placeholder="__('Search')"
 						class="w-full border-none bg-transparent py-3 !ps-2 pe-4.5 text-base text-ink-gray-7 placeholder-ink-gray-4 focus:ring-0"
 						@input="onInput"
 						v-model="query"
@@ -35,26 +38,28 @@
 					class="flex items-center gap-x-5 w-full border-t py-2 text-sm text-ink-gray-7 px-4.5"
 				>
 					<div class="flex items-center gap-x-2">
-						<MoveUp
-							class="size-5 stroke-1.5 bg-surface-gray-2 p-1 rounded-sm"
-						/>
-						<MoveDown
-							class="size-5 stroke-1.5 bg-surface-gray-2 p-1 rounded-sm"
-						/>
+						<span :class="chipClass">
+							<span class="lucide-move-up size-3.5 text-ink-gray-7" />
+						</span>
+						<span :class="chipClass">
+							<span class="lucide-move-down size-3.5 text-ink-gray-7" />
+						</span>
 						<span>
 							{{ __('to navigate') }}
 						</span>
 					</div>
 					<div class="flex items-center gap-x-2">
-						<CornerDownLeft
-							class="size-5 stroke-1.5 bg-surface-gray-2 p-1 rounded-sm"
-						/>
+						<span :class="chipClass">
+							<span class="lucide-corner-down-left size-3.5 text-ink-gray-7" />
+						</span>
 						<span>
 							{{ __('to select') }}
 						</span>
 					</div>
 					<div class="flex items-center gap-x-2">
-						<span class="bg-surface-gray-2 p-1 rounded-sm"> esc </span>
+						<span :class="[chipClass, 'px-1.5 text-xs text-ink-gray-7']">
+							{{ __('esc') }}
+						</span>
 						<span>
 							{{ __('to close') }}
 						</span>
@@ -68,17 +73,11 @@
 import { createResource, debounce, Dialog } from 'frappe-ui'
 import { nextTick, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import {
-	BookOpen,
-	Briefcase,
-	CornerDownLeft,
-	FileSearch,
-	MoveUp,
-	MoveDown,
-	Search,
-	Users,
-} from 'lucide-vue-next'
+import { BookOpen, Briefcase, Users } from 'lucide-vue-next'
 import CommandPaletteGroup from './CommandPaletteGroup.vue'
+
+const chipClass =
+	'inline-flex size-5 shrink-0 items-center justify-center rounded-sm bg-surface-gray-2'
 
 const show = defineModel<boolean>({ required: true, default: false })
 const router = useRouter()
@@ -124,35 +123,9 @@ const generateSearchResults = () => {
 	})
 }
 
-const appendSearchPage = () => {
-	let searchPage: { title: string; items: Array<any> } = {
-		title: '',
-		items: [],
-	}
-	searchPage.title = __('Jump to')
-	searchPage.items = [
-		{
-			title: __('Search for ') + `"${query.value}"`,
-			route: {
-				name: 'Search',
-				query: {
-					q: query.value,
-				},
-			},
-			icon: FileSearch,
-			isActive: true,
-		},
-	]
-	searchResults.value = [searchPage]
-}
-
-watch(
-	query,
-	() => {
-		appendSearchPage()
-	},
-	{ immediate: true }
-)
+watch(query, () => {
+	searchResults.value = []
+})
 
 watch(show, () => {
 	if (!show.value) {
@@ -173,6 +146,9 @@ const addKeyboardShortcuts = () => {
 		} else if (e.key === 'ArrowDown' && show.value) {
 			shortcutForArrowKey(1)
 		} else if (e.key === 'Enter' && show.value) {
+			// A focused result button fires its own click; let that be the
+			// single navigation instead of racing this handler.
+			if ((e.target as HTMLElement)?.closest?.('[data-palette-item]')) return
 			shortcutForEnter()
 		} else if (e.key === 'Escape' && show.value) {
 			show.value = false
@@ -229,20 +205,12 @@ const jumpToOptions = ref([
 		title: __('Jump to'),
 		items: [
 			{
-				title: 'Advanced Search',
-				icon: Search,
-				route: {
-					name: 'Search',
-				},
-				isActive: true,
-			},
-			{
 				title: 'Courses',
 				icon: BookOpen,
 				route: {
 					name: 'Courses',
 				},
-				isActive: false,
+				isActive: true,
 			},
 			{
 				title: 'Batches',

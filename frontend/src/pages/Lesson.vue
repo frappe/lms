@@ -1,67 +1,61 @@
 <template>
 	<div v-if="lesson.data" class="">
-		<header
-			v-if="!embedded"
-			class="sticky top-0 z-10 flex items-center justify-between border-b bg-surface-white px-3 py-2.5 sm:px-5"
-		>
-			<Breadcrumbs class="h-7" :items="breadcrumbs" />
-			<div class="flex items-center gap-x-2">
-				<Tooltip v-if="canGoZen()" :text="__('Zen Mode')">
-					<Button @click="goFullScreen()">
-						<template #icon>
-							<Focus class="w-4 h-4 stroke-2" />
-						</template>
-					</Button>
-				</Tooltip>
-				<Button v-if="isAdmin" @click="showVideoStats()">
-					<template #icon>
-						<TrendingUp class="size-4 stroke-1.5" />
-					</template>
-				</Button>
+		<PageHeader :breadcrumbs="breadcrumbs">
+			<template #actions>
 				<CertificationLinks :courseName="courseName" />
-				<Button v-if="lesson.data.prev" @click="switchLesson('prev')">
-					<template #prefix>
-						<ChevronLeft class="w-4 h-4 stroke-1" />
-					</template>
-					<span>
-						{{ __('Previous') }}
-					</span>
-				</Button>
-
-				<Button v-if="lesson.data.next" @click="switchLesson('next')">
-					<template #suffix>
-						<ChevronRight class="w-4 h-4 stroke-1" />
-					</template>
-					<span>
-						{{ __('Next') }}
-					</span>
-				</Button>
-
 				<router-link
-					v-else
+					v-if="canEditLesson"
 					:to="{
 						name: 'CourseDetail',
 						params: { courseName: courseName },
+						hash: '#course editor',
+						query: { editLesson: `${chapterNumber}-${lessonNumber}` },
 					}"
 				>
-					<Button>
-						{{ __('Back to Course') }}
-					</Button>
+					<HeaderButton :label="__('Editor View')" icon="lucide-pencil" />
 				</router-link>
-			</div>
-		</header>
+			</template>
+		</PageHeader>
+
 		<div
-			:class="
-				embedded
-					? 'grid grid-cols-1 h-full'
-					: 'grid md:grid-cols-[70%,30%] h-[94vh]'
-			"
+			v-if="isMobile && lessonTotal"
+			class="flex items-center gap-2 border-b bg-surface-base px-3 py-2"
 		>
-			<div v-if="lesson.data.no_preview" class="border-e">
+			<Button
+				variant="subtle"
+				class="!size-9"
+				:label="__('Previous lesson')"
+				:disabled="!hasPrev"
+				@click="goPrev()"
+			>
+				<template #icon>
+					<span class="lucide-chevron-left size-4" />
+				</template>
+			</Button>
+			<div
+				class="min-w-0 flex-1 text-center text-p-xs font-medium tabular-nums text-ink-gray-5"
+			>
+				{{ lessonIndex }} / {{ lessonTotal }}
+			</div>
+			<Button
+				variant="subtle"
+				class="!size-9"
+				:label="__('Next lesson')"
+				:disabled="!hasNext"
+				@click="goNext()"
+			>
+				<template #icon>
+					<span class="lucide-chevron-right size-4" />
+				</template>
+			</Button>
+		</div>
+
+		<div class="grid md:grid-cols-[70%,30%] sm:h-[94vh]">
+			<div v-if="lesson.data.no_preview" class="sm:border-e">
 				<div class="shadow rounded-md w-3/4 mt-10 mx-auto text-center p-4">
 					<div class="flex items-center justify-center mt-4 gap-x-2">
-						<LockKeyholeIcon class="size-4 stroke-2 text-ink-gray-5" />
-						<div class="text-lg font-semibold text-ink-gray-7">
+						<span class="lucide-lock-keyhole size-4 text-ink-gray-5" />
+						<div class="text-lg-semibold text-ink-gray-7">
 							{{ __('This lesson is locked') }}
 						</div>
 					</div>
@@ -89,7 +83,7 @@
 					</Badge>
 					<Button v-else @click="redirectToLogin()">
 						<template #prefix>
-							<LogIn class="w-4 h-4 stroke-1" />
+							<span class="lucide-log-in size-4" />
 						</template>
 						{{ __('Login') }}
 					</Button>
@@ -98,13 +92,13 @@
 			<div
 				v-else
 				ref="lessonContainer"
-				class="bg-surface-white"
+				class="bg-surface-base min-w-0"
 				:class="{
 					'overflow-y-auto': zenModeEnabled,
 				}"
 			>
 				<div
-					class="border-e pt-5 pb-10 h-full"
+					class="sm:border-e pt-5 pb-10 h-full"
 					:class="{
 						'w-full md:w-3/5 mx-auto border-none !pt-10': zenModeEnabled,
 					}"
@@ -114,21 +108,21 @@
 							class="flex flex-col space-y-3 md:space-y-0 md:flex-row md:items-center justify-between"
 						>
 							<div class="flex flex-col">
-								<div class="text-3xl font-semibold text-ink-gray-9">
+								<h1 class="text-4xl-semibold text-ink-gray-9">
 									{{ lesson.data.title }}
-								</div>
+								</h1>
 
 								<div
 									v-if="zenModeEnabled"
-									class="relative flex items-center gap-x-2 text-sm mt-1 text-ink-gray-7 group w-fit mt-2"
+									class="relative flex items-center gap-x-2 text-sm text-ink-gray-7 group w-fit mt-2"
 								>
 									<span>
 										{{ lesson.data.chapter_title }} -
 										{{ lesson.data.course_title }}
 									</span>
-									<Info class="size-3" />
+									<span class="lucide-info size-3" />
 									<div
-										class="hidden group-hover:block rounded bg-gray-900 px-2 py-1 text-xs text-white shadow-xl absolute start-0 top-full mt-2"
+										class="hidden group-hover:block rounded bg-surface-gray-10 px-2 py-1 text-xs text-ink-base shadow-xl absolute start-0 top-full mt-2"
 									>
 										{{ Math.ceil(lesson.data.membership.progress) }}%
 										{{ __('completed') }}
@@ -137,17 +131,56 @@
 							</div>
 
 							<div
+								v-if="!zenModeEnabled && !isMobile"
+								class="flex items-center gap-x-2 mt-2 md:mt-0"
+							>
+								<Tooltip v-if="canGoZen()" :text="__('Zen Mode')">
+									<Button @click="goFullScreen()" :label="__('Zen Mode')">
+										<template #icon>
+											<span class="lucide-focus size-4" />
+										</template>
+									</Button>
+								</Tooltip>
+								<Button v-if="lesson.data.prev" @click="switchLesson('prev')">
+									<template #prefix>
+										<span class="lucide-chevron-left size-4" />
+									</template>
+									<span>{{ __('Previous') }}</span>
+								</Button>
+								<Button v-if="lesson.data.next" @click="switchLesson('next')">
+									<template #suffix>
+										<span class="lucide-chevron-right size-4" />
+									</template>
+									<span>{{ __('Next') }}</span>
+								</Button>
+								<router-link
+									v-else
+									:to="{
+										name: 'CourseDetail',
+										params: { courseName: courseName },
+									}"
+								>
+									<Button class="text-p-base-medium">{{
+										__('Back to Course')
+									}}</Button>
+								</router-link>
+							</div>
+
+							<div
 								v-if="zenModeEnabled"
 								class="flex items-center gap-x-2 mt-2 md:mt-0"
 							>
-								<Button @click="showDiscussionsInZenMode()">
+								<Button
+									@click="showDiscussionsInZenMode()"
+									:label="__('Toggle discussions')"
+								>
 									<template #icon>
-										<MessageCircleQuestion class="w-4 h-4 stroke-1.5" />
+										<span class="lucide-message-circle-question size-4" />
 									</template>
 								</Button>
 								<Button v-if="lesson.data.prev" @click="switchLesson('prev')">
 									<template #prefix>
-										<ChevronLeft class="w-4 h-4 stroke-1" />
+										<span class="lucide-chevron-left size-4" />
 									</template>
 									<span>
 										{{ __('Previous') }}
@@ -156,7 +189,7 @@
 
 								<Button v-if="lesson.data.next" @click="switchLesson('next')">
 									<template #suffix>
-										<ChevronRight class="w-4 h-4 stroke-1" />
+										<span class="lucide-chevron-right size-4" />
 									</template>
 									<span>
 										{{ __('Next') }}
@@ -170,7 +203,7 @@
 										params: { courseName: courseName },
 									}"
 								>
-									<Button>
+									<Button class="text-p-base-medium">
 										{{ __('Back to Course') }}
 									</Button>
 								</router-link>
@@ -186,6 +219,7 @@
 							>
 								<UserAvatar
 									v-for="instructor in lesson.data.instructors"
+									:key="instructor.name ?? instructor"
 									:user="instructor"
 								/>
 							</span>
@@ -204,9 +238,9 @@
 							"
 							class="bg-surface-gray-2 p-3 rounded-md mt-6"
 						>
-							<div class="text-ink-gray-5 font-medium">
+							<h2 class="text-ink-gray-5 font-medium">
 								{{ __('Instructor Notes') }}
-							</div>
+							</h2>
 							<div
 								id="instructor-content"
 								class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2 prose-sm max-w-none !whitespace-normal"
@@ -244,7 +278,7 @@
 					>
 						<TabButtons
 							v-if="tabs.length > 1"
-							:buttons="tabs"
+							:options="tabs"
 							v-model="currentTab"
 							class="w-fit mb-10"
 						/>
@@ -267,17 +301,48 @@
 					</div>
 				</div>
 			</div>
-			<div v-if="!embedded" class="sticky top-10 h-[94vh]">
+			<aside v-if="!isMobile" class="sticky top-10 h-[94vh]">
 				<StudentLessonSidebar
 					:courseName="courseName"
 					:courseTitle="lesson.data.course_title"
 					:progress="lessonProgress"
 					:selectedLessonNumber="`${chapterNumber}-${lessonNumber}`"
 					:completedLesson="completedLesson"
-					:withProgress="lesson.data.membership ? true : false"
 				/>
-			</div>
+			</aside>
 		</div>
+
+		<div
+			v-if="isMobile"
+			class="pointer-events-none sticky bottom-4 z-10 flex justify-end px-4"
+		>
+			<Button
+				variant="outline"
+				class="pointer-events-auto !h-11 !rounded-full !px-4 !shadow-lg"
+				@click="showChapters = true"
+			>
+				<template #prefix>
+					<span class="lucide-layers size-4" />
+				</template>
+				{{ __('Chapters') }}
+			</Button>
+		</div>
+
+		<BottomSheet v-if="isMobile" v-model="showChapters">
+			<template #header>
+				<div class="min-w-0 truncate text-p-lg-semibold text-ink-gray-9">
+					{{ lesson.data.course_title }}
+				</div>
+			</template>
+			<StudentLessonSidebar
+				:courseName="courseName"
+				:progress="lessonProgress"
+				:selectedLessonNumber="`${chapterNumber}-${lessonNumber}`"
+				:completedLesson="completedLesson"
+				:hideHeader="true"
+				@select-lesson="showChapters = false"
+			/>
+		</BottomSheet>
 	</div>
 	<InlineLessonMenu
 		v-if="lesson.data?.name"
@@ -286,17 +351,10 @@
 		v-model:notes="notes"
 		@updateNotes="updateNotes"
 	/>
-	<VideoStatistics
-		v-if="isAdmin"
-		v-model="showStatsDialog"
-		:lessonName="lesson.data?.name"
-		:lessonTitle="lesson.data?.title"
-	/>
 </template>
 <script setup>
 import {
 	Badge,
-	Breadcrumbs,
 	Button,
 	call,
 	createListResource,
@@ -317,16 +375,6 @@ import {
 } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import {
-	ChevronLeft,
-	ChevronRight,
-	LockKeyholeIcon,
-	LogIn,
-	Focus,
-	Info,
-	MessageCircleQuestion,
-	TrendingUp,
-} from 'lucide-vue-next'
-import {
 	getEditorTools,
 	enablePlyr,
 	highlightText,
@@ -335,6 +383,7 @@ import {
 import { sessionStore } from '@/stores/session'
 import { useSidebar } from '@/stores/sidebar'
 import { useSettings } from '@/stores/settings'
+import { useScreenSize } from '@/utils/composables'
 import {
 	resolveDwellSeconds,
 	isVideoComplete,
@@ -347,25 +396,36 @@ import CourseInstructors from '@/components/CourseInstructors.vue'
 import ProgressBar from '@/components/ProgressBar.vue'
 import Discussions from '@/components/Discussions.vue'
 import CertificationLinks from '@/components/CertificationLinks.vue'
-import VideoStatistics from '@/components/Modals/VideoStatistics.vue'
 import CourseOutline from '@/components/CourseOutline.vue'
 import StudentLessonSidebar from '@/components/StudentLessonSidebar.vue'
+import BottomSheet from '@/components/BottomSheet.vue'
+import PageHeader from '@/components/Layouts/PageHeader.vue'
+import HeaderButton from '@/components/HeaderButton.vue'
 import UserAvatar from '@/components/UserAvatar.vue'
 import Notes from '@/components/Notes/Notes.vue'
 import InlineLessonMenu from '@/components/Notes/InlineLessonMenu.vue'
 import { getLmsRoute } from '@/utils/basePath'
+import { provideStudentView } from '@/composables/useStudentView'
 
-const user = inject('$user')
-const socket = inject('$socket')
 const router = useRouter()
 const route = useRoute()
+const realUser = inject('$user')
+// A component's own provide() is invisible to its own inject(), so read the
+// handles provideStudentView returns rather than calling useStudentView().
+const { isStudentView, mockedUser } = provideStudentView(
+	realUser,
+	() => route.query.studentView === '1'
+)
+// Shadows every user.data read below and in every child, so the page renders
+// exactly what a student sees.
+const user = mockedUser
+const socket = inject('$socket')
 const allowDiscussions = ref(false)
 const editor = ref(null)
 const instructorEditor = ref(null)
 const lessonProgress = ref(0)
 const lessonContainer = ref(null)
 const zenModeEnabled = ref(false)
-const showStatsDialog = ref(false)
 const hasQuiz = ref(false)
 const discussionsContainer = ref(null)
 const timer = ref(0)
@@ -376,6 +436,8 @@ const showInlineMenu = ref(false)
 const currentTab = ref(null)
 const completedLesson = ref(null)
 const settingsStore = useSettings()
+const { isMobile } = useScreenSize()
+const showChapters = ref(false)
 let timerInterval = null
 
 const tabs = ref([])
@@ -393,37 +455,24 @@ const props = defineProps({
 		type: String,
 		required: true,
 	},
-	embedded: {
-		type: Boolean,
-		default: false,
-	},
 })
 
-const emit = defineEmits([
-	'select-lesson',
-	'lesson-completed',
-	'progress-updated',
-])
-
-// Exposed for the parent so the CourseEditor preview can render the same
-// Prev / Next / Zen-mode controls as the student header but place them in
-// the page-level LayoutHeader instead of inside the lesson body.
-defineExpose({
-	switchLesson: (direction) => switchLesson(direction),
-	goFullScreen: () => goFullScreen(),
-	canGoZen: () => canGoZen(),
-	hasPrev: computed(() => Boolean(lesson.data?.prev)),
-	hasNext: computed(() => Boolean(lesson.data?.next)),
-})
+let collapsedByLesson = false
+const isCourseAdmin = () =>
+	Boolean(user.data?.is_moderator || user.data?.is_instructor)
 
 onMounted(() => {
 	startTimer()
-	if (!props.embedded) sidebarStore.isSidebarCollapsed = true
+	// Keep the app sidebar open for admins/instructors so they can navigate
+	// while reviewing; only collapse it for students to maximise reading space.
+	if (!isCourseAdmin()) {
+		sidebarStore.isSidebarCollapsed = true
+		collapsedByLesson = true
+	}
 	document.addEventListener('fullscreenchange', attachFullscreenEvent)
 	socket.on('update_lesson_progress', (data) => {
 		if (data.course === props.courseName) {
 			lessonProgress.value = data.progress
-			emit('progress-updated', data.progress)
 		}
 	})
 })
@@ -442,7 +491,7 @@ const attachFullscreenEvent = () => {
 
 onBeforeUnmount(() => {
 	document.removeEventListener('fullscreenchange', attachFullscreenEvent)
-	if (!props.embedded) sidebarStore.isSidebarCollapsed = false
+	if (collapsedByLesson) sidebarStore.isSidebarCollapsed = false
 	trackVideoWatchDuration()
 })
 
@@ -508,12 +557,20 @@ const renderEditor = (holder, content) => {
 		document.getElementById(holder).innerHTML = ''
 	return new EditorJS({
 		holder: holder,
-		tools: getEditorTools(),
+		tools: getEditorTools(false, {}, { studentView: isStudentView.value }),
 		data: sanitizeEditorJs(JSON.parse(content)),
 		readOnly: true,
 		defaultBlock: 'embed',
 		i18n: {
 			direction: document.documentElement.dir === 'rtl' ? 'rtl' : 'ltr',
+		},
+		onReady() {
+			const root = document.getElementById(holder)
+			if (!root) return
+			root.querySelectorAll('a').forEach((a) => {
+				a.setAttribute('target', '_blank')
+				a.setAttribute('rel', 'noopener noreferrer')
+			})
 		},
 	})
 }
@@ -561,13 +618,7 @@ const progress = createResource({
 	},
 	onSuccess(data) {
 		lessonProgress.value = data
-		const name = lesson.data?.name
-		completedLesson.value = name
-		// Tell the parent (CourseEditor preview) so it can flip the
-		// sidebar's green tick and update the percentage without waiting
-		// for a refresh of the course resource.
-		if (name) emit('lesson-completed', name)
-		emit('progress-updated', data)
+		completedLesson.value = lesson.data?.name
 	},
 })
 
@@ -603,26 +654,48 @@ const breadcrumbs = computed(() => {
 				chapterNumber: props.chapterNumber,
 				lessonNumber: props.lessonNumber,
 			},
+			query: studentViewQuery.value,
 		},
 	})
 	return crumbs
 })
 
-const switchLesson = (direction) => {
+const outline = createResource({
+	url: 'lms.lms.utils.get_course_outline',
+	cache: ['course_outline_student', props.courseName, 'progress'],
+	makeParams() {
+		return {
+			course: props.courseName,
+			progress: true,
+		}
+	},
+	auto: false,
+})
+outline.fetch()
+
+watch(
+	() => props.courseName,
+	() => outline.reload()
+)
+
+const lessonNumbers = computed(() =>
+	(outline.data ?? []).flatMap((c) => c.lessons?.map((l) => l.number) ?? [])
+)
+const currentIndex = computed(() =>
+	lessonNumbers.value.indexOf(`${props.chapterNumber}-${props.lessonNumber}`)
+)
+const lessonTotal = computed(() => lessonNumbers.value.length)
+const lessonIndex = computed(() =>
+	currentIndex.value >= 0 ? currentIndex.value + 1 : 0
+)
+const hasPrev = computed(() => currentIndex.value > 0)
+const hasNext = computed(
+	() => currentIndex.value >= 0 && currentIndex.value < lessonTotal.value - 1
+)
+
+const goToLessonNumber = (number) => {
 	trackVideoWatchDuration()
-	let lessonIndex =
-		direction === 'prev'
-			? lesson.data.prev.split('.')
-			: lesson.data.next.split('.')
-
-	const [chapterNumber, lessonNumber] = lessonIndex
-	// In the embedded editor preview, navigate the parent's selection so the
-	// pane swaps in place instead of routing away to /lesson/...
-	if (props.embedded) {
-		emit('select-lesson', { chapterNumber, lessonNumber })
-		return
-	}
-
+	const [chapterNumber, lessonNumber] = number.split('-')
 	router.push({
 		name: 'Lesson',
 		params: {
@@ -630,6 +703,36 @@ const switchLesson = (direction) => {
 			chapterNumber,
 			lessonNumber,
 		},
+		query: studentViewQuery.value,
+	})
+}
+
+const goPrev = () => {
+	if (hasPrev.value)
+		goToLessonNumber(lessonNumbers.value[currentIndex.value - 1])
+}
+
+const goNext = () => {
+	if (hasNext.value)
+		goToLessonNumber(lessonNumbers.value[currentIndex.value + 1])
+}
+
+const switchLesson = (direction) => {
+	trackVideoWatchDuration()
+	let target =
+		direction === 'prev'
+			? lesson.data.prev.split('.')
+			: lesson.data.next.split('.')
+
+	const [chapterNumber, lessonNumber] = target
+	router.push({
+		name: 'Lesson',
+		params: {
+			courseName: props.courseName,
+			chapterNumber,
+			lessonNumber,
+		},
+		query: studentViewQuery.value,
 	})
 }
 
@@ -732,7 +835,7 @@ watch(
 		)
 		// When the lesson has video AND enforcement is on, suppress dwell so
 		// completion is gated on play-to-end. When enforcement is off, dwell
-		// runs for every lesson type — including YouTube/Plyr — so admins can
+		// runs for every lesson type (including YouTube/Plyr), so admins can
 		// set a short dwell to mark video lessons complete without a full
 		// playthrough.
 		if (!shouldStartDwellTimer({ hasVideo: hasVideoListener, enforceVideo })) {
@@ -867,11 +970,17 @@ const updateVideoTime = (video) => {
 let videoFallbackArmed = false
 let fallbackGeneration = 0
 const fallbackToDwellTimer = (reason) => {
+	// The dwell fallback only matters for an enrolled student tracking progress.
+	// Don't surface the "mark as viewed" toast in student view or to
+	// non-enrolled viewers (admins/instructors reviewing the lesson).
+	if (isStudentView.value || !lesson.data?.membership) return
 	if (videoFallbackArmed) return
 	videoFallbackArmed = true
 	console.warn('[Lesson] video fallback engaged:', reason)
 	toast.warning(
-		__('Video failed to load — you can still mark this lesson as viewed.')
+		__(
+			'Video failed to load. This lesson will still be marked complete after you spend some time on it.'
+		)
 	)
 	clearInterval(timerInterval)
 	timer.value = 0
@@ -929,6 +1038,20 @@ const isAdmin = computed(() => {
 	return user.data?.is_moderator || isInstructor
 })
 
+// Student view is a mode, not a destination: every hop that stays on a lesson
+// has to carry the flag, or Prev / Next / the sidebar silently drops the
+// moderator back into their own identity mid-course.
+const studentViewQuery = computed(() =>
+	isStudentView.value ? { studentView: 1 } : undefined
+)
+
+// Reads the real user, not the student-view shadow, so the way back to the
+// editor survives ?studentView=1.
+const canEditLesson = computed(() => {
+	const isInstructor = lesson.data?.instructors?.includes(realUser.data?.name)
+	return realUser.data?.is_moderator || isInstructor
+})
+
 const allowInstructorContent = () => {
 	if (window.read_only_mode) return false
 	return isAdmin.value
@@ -969,10 +1092,6 @@ const toggleInlineMenu = async () => {
 	if (selection.toString()) {
 		showInlineMenu.value = true
 	}
-}
-
-const showVideoStats = () => {
-	showStatsDialog.value = true
 }
 
 const canGoZen = () => {

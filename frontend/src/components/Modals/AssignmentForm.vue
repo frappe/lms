@@ -1,13 +1,8 @@
 <template>
-	<Dialog
-		v-model="show"
-		:options="{
-			size: 'lg',
-		}"
-	>
-		<template #body>
+	<Dialog v-model:open="show" size="lg" bare>
+		<template #default>
 			<div class="p-5 text-base">
-				<div class="text-lg text-ink-gray-9 font-semibold mb-5">
+				<div class="text-lg-semibold text-ink-gray-9 mb-5">
 					{{
 						assignmentID === 'new'
 							? __('Create an Assignment')
@@ -33,17 +28,18 @@
 						doctype="LMS Course"
 						placeholder=" "
 					/>
-					<div>
-						<div class="text-xs text-ink-gray-5 mb-2">
-							{{ __('Question') }}
-							<span class="text-ink-red-3">*</span>
-						</div>
-						<TextEditor
+					<div class="space-y-1.5">
+						<InputLabel
+							:id="questionLabelId"
+							:label="__('Question')"
+							:required="true"
+						/>
+						<RichTextEditor
 							:content="assignment.question"
 							@change="(val) => (assignment.question = val)"
 							:editable="true"
 							:fixedMenu="true"
-							editorClass="prose-sm max-w-none border-b border-x border-outline-gray-modals bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[10rem] max-h-[18rem] overflow-y-auto"
+							editorClass="prose-sm max-w-none border-b border-x border-outline-elevation-2 bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[10rem] max-h-[18rem] overflow-y-auto"
 						/>
 					</div>
 				</div>
@@ -70,10 +66,14 @@
 	</Dialog>
 </template>
 <script setup lang="ts">
-import { Button, Dialog, FormControl, TextEditor, toast } from 'frappe-ui'
-import { computed, reactive, watch } from 'vue'
+import { Button, Dialog, FormControl, toast } from 'frappe-ui'
+import { computed, reactive, watch, useId } from 'vue'
+import { InputLabel } from '@/components/Form/labeling'
 import { sanitizeHTML } from '@/utils'
 import Link from '@/components/Controls/Link.vue'
+import RichTextEditor from '@/components/RichTextEditor.vue'
+
+const questionLabelId = useId()
 
 const show = defineModel()
 const assignments = defineModel<Assignments>('assignments')

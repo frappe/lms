@@ -1,88 +1,105 @@
 <template>
-	<header
-		class="sticky top-0 z-10 flex items-center justify-between border-b bg-surface-white px-3 py-2.5 sm:px-5"
-	>
-		<Breadcrumbs v-if="submissionDetails.doc" :items="breadcrumbs" />
-		<div class="flex gap-2 items-center">
+	<PageHeader :breadcrumbs="breadcrumbs">
+		<template #actions>
 			<Badge
 				v-if="submissionDetails.isDirty"
 				:label="__('Not Saved')"
 				variant="subtle"
 				theme="orange"
 			/>
-			<Button variant="solid" @click="saveSubmission()">
-				{{ __('Save') }}
-			</Button>
-		</div>
-	</header>
-	<div v-if="submissionDetails.doc" class="w-2/3 border-x mx-auto py-5">
-		<div class="text-xl px-10 font-semibold text-ink-gray-9 mb-5">
-			{{ submissionDetails.doc.member_name }}
-		</div>
-		<div class="space-y-4 border-b pb-5 px-10">
-			<div class="grid grid-cols-2 gap-5">
-				<FormControl
-					v-model="submissionDetails.doc.quiz_title"
-					:label="__('Quiz')"
-					:disabled="true"
+			<ShortcutTooltip :label="__('Save')" combo="Mod+S">
+				<HeaderButton
+					:label="__('Save')"
+					icon="lucide-check"
+					variant="solid"
+					@click="saveSubmission()"
 				/>
-				<FormControl
-					v-model="submissionDetails.doc.member_name"
-					:label="__('Member')"
-					:disabled="true"
-				/>
-			</div>
-
-			<div class="grid grid-cols-2 gap-5">
-				<FormControl
-					v-model="submissionDetails.doc.score"
-					:label="__('Score')"
-					:disabled="true"
-				/>
-				<FormControl
-					v-model="submissionDetails.doc.percentage"
-					:label="__('Percentage')"
-					:disabled="true"
-				/>
-			</div>
-		</div>
-
-		<div class="divide-y">
-			<div
-				v-for="(row, index) in submissionDetails.doc.result"
-				class="py-5 px-10 space-y-4"
-			>
-				<div class="text-ink-gray-9">
-					<span class="font-semibold"> {{ __('Question') }}: </span>
-					<span class="leading-5" v-html="row.question"> </span>
-				</div>
-				<div class="text-ink-gray-9">
-					<span class="font-semibold"> {{ __('Answer') }}: </span>
-					<span class="leading-5" v-html="row.answer"></span>
-				</div>
+			</ShortcutTooltip>
+		</template>
+	</PageHeader>
+	<PageBody>
+		<div
+			v-if="submissionDetails.doc"
+			class="mx-auto w-full pb-5 sm:w-2/3 sm:border-x"
+		>
+			<div class="space-y-4 border-b pb-5 px-10">
 				<div class="grid grid-cols-2 gap-5">
-					<FormControl v-model="row.marks" :label="__('Marks')" />
 					<FormControl
-						v-model="row.marks_out_of"
-						:label="__('Marks out of')"
+						v-model="submissionDetails.doc.quiz_title"
+						:label="__('Quiz')"
+						:disabled="true"
+					/>
+					<FormControl
+						v-model="submissionDetails.doc.member_name"
+						:label="__('Member')"
+						:disabled="true"
+					/>
+				</div>
+
+				<div class="grid grid-cols-2 gap-5">
+					<FormControl
+						v-model="submissionDetails.doc.score"
+						:label="__('Score')"
+						:disabled="true"
+					/>
+					<FormControl
+						v-model="submissionDetails.doc.percentage"
+						:label="__('Percentage')"
 						:disabled="true"
 					/>
 				</div>
 			</div>
+
+			<div class="divide-y">
+				<div
+					v-for="(row, index) in submissionDetails.doc.result"
+					:key="row.name"
+					class="py-5 px-10 space-y-4"
+				>
+					<div class="text-ink-gray-9">
+						<span class="font-semibold"> {{ __('Question') }}: </span>
+						<span class="leading-5" v-html="sanitizeRichHTML(row.question)">
+						</span>
+					</div>
+					<div class="text-ink-gray-9">
+						<span class="font-semibold"> {{ __('Answer') }}: </span>
+						<span
+							class="leading-5"
+							v-html="sanitizeRichHTML(row.answer)"
+						></span>
+					</div>
+					<div class="grid grid-cols-2 gap-5">
+						<FormControl v-model="row.marks" :label="__('Marks')" />
+						<FormControl
+							v-model="row.marks_out_of"
+							:label="__('Marks out of')"
+							:disabled="true"
+						/>
+					</div>
+				</div>
+			</div>
 		</div>
-	</div>
+	</PageBody>
 </template>
 <script setup>
+import { sanitizeRichHTML } from '@/utils/sanitizeRichHTML'
 import {
 	createDocumentResource,
-	Breadcrumbs,
 	FormControl,
 	Button,
 	Badge,
 	usePageMeta,
 	toast,
 } from 'frappe-ui'
-import { computed, onBeforeUnmount, onMounted, inject } from 'vue'
+import { computed, onMounted, inject } from 'vue'
+import PageHeader from '@/components/Layouts/PageHeader.vue'
+import PageBody from '@/components/Layouts/PageBody.vue'
+import HeaderButton from '@/components/HeaderButton.vue'
+import ShortcutTooltip from '@/components/ShortcutTooltip.vue'
+import {
+	useKeyboardShortcuts,
+	saveShortcut,
+} from '@/composables/useKeyboardShortcuts'
 import { useRouter } from 'vue-router'
 import { sessionStore } from '@/stores/session'
 
@@ -93,24 +110,17 @@ const user = inject('$user')
 onMounted(() => {
 	if (!user.data?.is_instructor && !user.data?.is_moderator)
 		router.push({ name: 'Courses' })
-
-	window.addEventListener('keydown', keyboardShortcut)
 })
 
-onBeforeUnmount(() => {
-	window.removeEventListener('keydown', keyboardShortcut)
+useKeyboardShortcuts({
+	ignoreTyping: false,
+	shortcuts: [
+		{
+			...saveShortcut(() => saveSubmission()),
+			guard: (e) => !e.target?.classList?.contains('ProseMirror'),
+		},
+	],
 })
-
-const keyboardShortcut = (e) => {
-	if (
-		e.key === 's' &&
-		(e.ctrlKey || e.metaKey) &&
-		!e.target.classList.contains('ProseMirror')
-	) {
-		saveSubmission()
-		e.preventDefault()
-	}
-}
 
 const props = defineProps({
 	submission: {
@@ -125,20 +135,21 @@ const submissionDetails = createDocumentResource({
 	auto: true,
 })
 
+// The header renders before the doc lands. It used to be guarded by a `v-if`
+// on Breadcrumbs itself, and reading `.quiz` off an undefined doc threw during
+// render once the shared header took that guard away.
 const breadcrumbs = computed(() => {
+	const doc = submissionDetails.doc
+	if (!doc) return [{ label: __('Quiz Submissions') }]
 	return [
 		{
 			label: __('Quiz Submissions'),
 			route: {
 				name: 'QuizSubmissionList',
-				params: {
-					quizID: submissionDetails.doc.quiz,
-				},
+				params: { quizID: doc.quiz },
 			},
 		},
-		{
-			label: submissionDetails.doc.quiz_title,
-		},
+		{ label: doc.member_name || doc.name },
 	]
 })
 

@@ -1,9 +1,9 @@
 <template>
-	<div class="bg-surface-white w-full h-full">
+	<div class="bg-surface-base w-full h-full">
 		<div class="w-fit mx-auto mt-56 text-center p-4">
-			<div class="text-3xl font-semibold text-ink-gray-5 pb-4 mb-2 border-b">
+			<h1 class="text-4xl-semibold text-ink-gray-5 pb-4 mb-2 border-b">
 				{{ __('Not Permitted') }}
-			</div>
+			</h1>
 			<div v-if="user.data" class="px-5 py-3">
 				<div class="text-ink-gray-5">
 					{{ __('You do not have permission to access this page.') }}

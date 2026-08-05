@@ -1,19 +1,17 @@
 <template>
 	<Dialog
-		v-model="show"
-		:options="{
-			title: __('Enroll a Student'),
-			size: 'lg',
-			actions: [
-				{
-					label: 'Submit',
-					variant: 'solid',
-					onClick: (close) => addStudent(close),
-				},
-			],
-		}"
+		v-model:open="show"
+		:title="__('Enroll a Student')"
+		size="lg"
+		:actions="[
+			{
+				label: 'Submit',
+				variant: 'solid',
+				onClick: ({ close }) => addStudent(close),
+			},
+		]"
 	>
-		<template #body-content>
+		<template #default>
 			<div class="flex flex-col gap-4">
 				<Link
 					doctype="User"

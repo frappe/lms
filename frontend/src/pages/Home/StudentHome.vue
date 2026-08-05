@@ -3,12 +3,13 @@
 		<div class="mt-10 space-y-10">
 			<UpcomingEvaluations :forHome="true" />
 			<div v-if="myLiveClasses.data?.length">
-				<div class="font-semibold text-lg mb-3 text-ink-gray-9">
+				<h2 class="font-semibold text-md mb-3 text-ink-gray-9">
 					{{ __('Upcoming Live Classes') }}
-				</div>
+				</h2>
 				<div class="grid grid-cols-1 md:grid-cols-4 gap-5">
 					<div
 						v-for="cls in myLiveClasses.data"
+						:key="cls.name"
 						class="border rounded-md hover:border-outline-gray-3 p-3"
 					>
 						<div class="font-semibold text-ink-gray-9 leading-5 mb-1">
@@ -19,13 +20,13 @@
 						</div>
 						<div class="mt-auto space-y-4 text-ink-gray-7">
 							<div class="flex items-center gap-x-2">
-								<Calendar class="w-4 h-4 stroke-1.5" />
+								<span class="lucide-calendar size-4" />
 								<span>
 									{{ dayjs(cls.date).format('DD MMMM YYYY') }}
 								</span>
 							</div>
 							<div class="flex items-center gap-x-2">
-								<Clock class="w-4 h-4 stroke-1.5" />
+								<span class="lucide-clock size-4" />
 								<span>
 									{{ formatTime(cls.time) }} -
 									{{ dayjs(getClassEnd(cls)).format('HH:mm A') }}
@@ -42,7 +43,7 @@
 									class="cursor-pointer inline-flex items-center justify-center gap-2 transition-colors focus:outline-none text-ink-gray-8 bg-surface-gray-2 hover:bg-surface-gray-3 active:bg-surface-gray-4 focus-visible:ring focus-visible:ring-outline-gray-3 h-7 text-base px-2 rounded"
 									:class="cls.join_url ? 'w-full' : 'w-1/2'"
 								>
-									<Monitor class="h-4 w-4 stroke-1.5" />
+									<span class="lucide-monitor size-4" />
 									{{ __('Start') }}
 								</a>
 								<a
@@ -50,7 +51,7 @@
 									target="_blank"
 									class="w-full cursor-pointer inline-flex items-center justify-center gap-2 transition-colors focus:outline-none text-ink-gray-8 bg-surface-gray-2 hover:bg-surface-gray-3 active:bg-surface-gray-4 focus-visible:ring focus-visible:ring-outline-gray-3 h-7 text-base px-2 rounded"
 								>
-									<Video class="h-4 w-4 stroke-1.5" />
+									<span class="lucide-video size-4" />
 									{{ __('Join') }}
 								</a>
 							</div>
@@ -60,7 +61,7 @@
 								placement="right"
 							>
 								<div class="flex items-center gap-x-2 text-ink-amber-3 w-fit">
-									<Info class="w-4 h-4 stroke-1.5" />
+									<span class="lucide-info size-4" />
 									<span>
 										{{ __('Ended') }}
 									</span>
@@ -74,13 +75,13 @@
 
 		<div v-if="myCourses.data?.length" class="mt-10">
 			<div class="flex items-center justify-between mb-3">
-				<span class="font-semibold text-lg text-ink-gray-9">
+				<h2 class="font-semibold text-md text-ink-gray-9">
 					{{
 						myCourses.data[0].membership
 							? __('My Courses')
 							: __('Our Popular Courses')
 					}}
-				</span>
+				</h2>
 				<router-link
 					:to="{
 						name: 'Courses',
@@ -90,13 +91,14 @@
 						<span>
 							{{ __('See all') }}
 						</span>
-						<MoveRight class="size-3 stroke-1.5 rtl:rotate-180" />
+						<span class="lucide-move-right size-3 rtl:rotate-180" />
 					</span>
 				</router-link>
 			</div>
 			<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
 				<router-link
 					v-for="course in myCourses.data"
+					:key="course.name"
 					:to="{ name: 'CourseDetail', params: { courseName: course.name } }"
 				>
 					<CourseCard :course="course" />
@@ -106,13 +108,13 @@
 
 		<div v-if="myBatches.data?.length" class="mt-10">
 			<div class="flex items-center justify-between mb-3">
-				<span class="font-semibold text-lg text-ink-gray-9">
+				<h2 class="font-semibold text-md text-ink-gray-9">
 					{{
 						myBatches.data?.[0].students?.includes(user.data?.name)
 							? __('My Batches')
 							: __('Our Upcoming Batches')
 					}}
-				</span>
+				</h2>
 				<router-link
 					:to="{
 						name: 'Batches',
@@ -122,13 +124,14 @@
 						<span>
 							{{ __('See all') }}
 						</span>
-						<MoveRight class="size-3 stroke-1.5 rtl:rotate-180" />
+						<span class="lucide-move-right size-3 rtl:rotate-180" />
 					</span>
 				</router-link>
 			</div>
 			<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
 				<router-link
 					v-for="batch in myBatches.data"
+					:key="batch.name"
 					:to="{ name: 'BatchDetail', params: { batchName: batch.name } }"
 				>
 					<BatchCard :batch="batch" />
@@ -141,14 +144,6 @@
 import { inject } from 'vue'
 import { createResource, Tooltip } from 'frappe-ui'
 import { formatTime } from '@/utils'
-import {
-	Calendar,
-	Clock,
-	Info,
-	Monitor,
-	MoveRight,
-	Video,
-} from 'lucide-vue-next'
 import CourseCard from '@/components/CourseCard.vue'
 import BatchCard from '@/pages/Batches/components/BatchCard.vue'
 import UpcomingEvaluations from '@/components/UpcomingEvaluations.vue'

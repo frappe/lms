@@ -1,14 +1,12 @@
 <template>
 	<Dialog
-		v-model="show"
-		:options="{
-			title: __('Attendance for Class - {0}').format(live_class?.title),
-			size: '4xl',
-		}"
+		v-model:open="show"
+		:title="__('Attendance for Class - {0}').format(live_class?.title)"
+		size="4xl"
 	>
-		<template #body-content>
+		<template #default>
 			<div
-				class="grid grid-cols-2 gap-12 text-sm font-semibold text-ink-gray-5 pb-2"
+				class="grid grid-cols-2 gap-12 text-sm-semibold text-ink-gray-5 pb-2"
 			>
 				<div>
 					{{ __('Member') }}
@@ -26,12 +24,14 @@
 				</div>
 			</div>
 			<div class="divide-y text-base">
-				<div
+				<component
+					:is="participant.member_username ? 'router-link' : 'div'"
 					v-for="participant in participants.data"
-					@click="redirectToProfile(participant.member_username)"
+					:key="participant.name"
+					:to="profileRoute(participant.member_username)"
 					class="grid grid-cols-2 items-center w-full text-base w-fit py-2"
 				>
-					<div class="flex items-center gap-x-2">
+					<div class="flex items-center gap-x-3">
 						<Avatar
 							:image="participant.member_image"
 							:label="participant.member_name"
@@ -56,18 +56,17 @@
 						</div>
 						<div>{{ participant.duration }} {{ __('minutes') }}</div>
 					</div>
-				</div>
+				</component>
 			</div>
 		</template>
 	</Dialog>
 </template>
 <script setup lang="ts">
 import { Avatar, createListResource, Dialog, Tooltip } from 'frappe-ui'
-import { useRouter } from 'vue-router'
 import { inject } from 'vue'
+import { profileRoute } from '@/utils/routes'
 
 const show = defineModel()
-const router = useRouter()
 const dayjs = inject('$dayjs')
 
 interface LiveClass {
@@ -96,11 +95,4 @@ const participants = createListResource({
 	],
 	auto: true,
 })
-
-const redirectToProfile = (username: string) => {
-	router.push({
-		name: 'Profile',
-		params: { username },
-	})
-}
 </script>

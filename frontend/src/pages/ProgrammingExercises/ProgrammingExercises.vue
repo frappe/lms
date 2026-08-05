@@ -1,9 +1,20 @@
 <template>
-	<LayoutHeader>
-		<template #left-header>
-			<Breadcrumbs :items="breadcrumbs" />
-		</template>
-		<template #right-header>
+	<ListPage
+		:breadcrumbs="breadcrumbs"
+		:title="__('{0} Exercises').format(totalExercises.data || 0)"
+		layout="list"
+		:columns="columns"
+		:rows="exercises.data || []"
+		:list-options="listOptions"
+		:total-count="totalExercises.data ?? 0"
+		:loading="exercises.list.loading"
+		:has-next-page="exercises.hasNextPage"
+		v-model:page-length="pageLength"
+		empty-name="Programming Exercises"
+		empty-icon="lucide-code"
+		@load-more="exercises.next()"
+	>
+		<template #actions>
 			<router-link
 				v-if="exercises.data?.length"
 				class="hidden md:block"
@@ -11,9 +22,9 @@
 					name: 'ProgrammingExerciseSubmissions',
 				}"
 			>
-				<Button>
+				<Button class="text-p-base-medium">
 					<template #prefix>
-						<ClipboardList class="size-4 stroke-1.5" />
+						<span class="lucide-clipboard-list size-4" />
 					</template>
 					{{ __('Check All Submissions') }}
 				</Button>
@@ -29,121 +40,51 @@
 				"
 			>
 				<template #prefix>
-					<Plus class="size-4 stroke-1.5" />
+					<span class="lucide-plus size-4" />
 				</template>
 				{{ __('Create') }}
 			</Button>
 		</template>
-	</LayoutHeader>
-	<div class="flex min-h-0 flex-1 flex-col pt-5">
-		<div
-			class="mb-5 flex flex-col justify-between gap-y-4 px-5 sm:flex-row sm:items-center"
-		>
-			<div class="text-lg font-semibold text-ink-gray-9">
-				{{ __('{0} Exercises').format(exercises.data?.length) }}
-			</div>
-			<div class="flex flex-col gap-3 sm:gap-5 md:flex-row">
-				<FormControl
-					v-model="titleFilter"
-					:placeholder="__('Search by Title')"
-					@input="updateList"
-				/>
-				<Select
-					v-model="languageFilter"
-					:options="languages"
-					:placeholder="__('Type')"
-					@update:modelValue="updateList"
-				/>
-			</div>
-		</div>
 
-		<ListView
-			v-if="exercises.data?.length"
-			:columns="columns"
-			:rows="exercises.data"
-			row-key="name"
-			:options="{
-				showTooltip: false,
-				selectable: true,
-				onRowClick: (row: any) => {
-					if (readOnlyMode) return
-					exerciseID = row.name
-					showForm = true
-				},
-			}"
-			class="flex-1 overflow-y-auto px-5"
-		>
-			<ListHeader
-				class="mb-2 grid items-center rounded-none border-b bg-surface-white p-2"
+		<template #filters>
+			<FormControl
+				v-model="titleFilter"
+				:placeholder="__('Search')"
+				:aria-label="__('Search')"
+				@input="updateList"
 			>
-				<ListHeaderItem :item="item" v-for="item in columns">
-					<template #prefix="{ item }">
-						<FeatherIcon :name="item.icon?.toString()" class="h-4 w-4" />
-					</template>
-				</ListHeaderItem>
-			</ListHeader>
-			<ListRows>
-				<ListRow
-					:row="row"
-					v-for="row in exercises.data"
-					class="hover:bg-surface-gray-1"
-				>
-					<template #default="{ column, item }">
-						<ListRowItem :item="row[column.key]" :align="column.align">
-							<div
-								v-if="column.key == 'modified'"
-								class="text-sm text-ink-gray-5"
-							>
-								{{ dayjs(row[column.key]).format('MMM D, YYYY') }}
-							</div>
-							<div v-else>
-								{{ row[column.key] }}
-							</div>
-						</ListRowItem>
-					</template>
-				</ListRow>
-			</ListRows>
-			<ListSelectBanner>
-				<template #actions="{ unselectAll, selections }">
-					<div class="flex gap-2">
-						<Button
-							variant="ghost"
-							@click="showDeleteConfirmation(selections, unselectAll)"
-						>
-							<FeatherIcon name="trash-2" class="h-4 w-4 stroke-1.5" />
-						</Button>
-					</div>
+				<template #prefix>
+					<span class="lucide-search size-4 text-ink-gray-5" />
 				</template>
-			</ListSelectBanner>
-		</ListView>
-		<div v-else class="flex flex-1 items-center justify-center px-5">
-			<EmptyStateLayout name="Programming Exercises" />
-		</div>
-		<ListFooter
-			v-model="pageLength"
-			class="border-t px-3 py-2 sm:px-5"
-			:options="{
-				rowCount: exercises.data?.length,
-				totalCount: totalExercises.data,
-			}"
-		>
-			<template #right>
-				<div class="flex items-center">
-					<Button
-						v-if="exercises.hasNextPage"
-						:label="__('Load More')"
-						@click="exercises.next()"
-					/>
-					<div v-if="exercises.hasNextPage" class="mx-3 h-[80%] border-l" />
-					<div class="flex items-center gap-1 text-base text-ink-gray-5">
-						<div>{{ exercises.data?.length || 0 }}</div>
-						<div>{{ __('of') }}</div>
-						<div>{{ totalExercises.data || 0 }}</div>
-					</div>
-				</div>
-			</template>
-		</ListFooter>
-	</div>
+			</FormControl>
+			<Select
+				v-model="languageFilter"
+				:options="languages"
+				:placeholder="__('Type')"
+				@update:modelValue="updateList"
+			/>
+		</template>
+
+		<template #cell="{ column, value }">
+			<div v-if="column.key == 'modified'" class="text-sm text-ink-gray-5">
+				<!-- A cell value is `unknown`: a row is a bag of fields and only
+				     the branch it lands in knows what one holds. -->
+				{{ dayjs(value as string).format('MMM D, YYYY') }}
+			</div>
+			<div v-else>{{ value }}</div>
+		</template>
+
+		<template #selection-actions="{ unselectAll, selections }">
+			<Button
+				variant="ghost"
+				:label="__('Delete')"
+				@click="showDeleteConfirmation(selections, unselectAll)"
+			>
+				<span class="lucide-trash-2 size-4" />
+			</Button>
+		</template>
+	</ListPage>
+
 	<ProgrammingExerciseForm
 		v-model="showForm"
 		v-model:exercises="exercises"
@@ -155,30 +96,21 @@
 import { computed, getCurrentInstance, inject, onMounted, ref } from 'vue'
 import type dayjsType from 'dayjs'
 import {
-	Breadcrumbs,
 	Button,
 	call,
 	createResource,
 	createListResource,
-	FeatherIcon,
 	FormControl,
-	ListView,
-	ListHeader,
-	ListHeaderItem,
-	ListRows,
-	ListRow,
-	ListRowItem,
-	ListFooter,
-	ListSelectBanner,
 	toast,
 	usePageMeta,
 } from 'frappe-ui'
+import ListPage from '@/components/Layouts/ListPage.vue'
 import Select from '@/components/Controls/Select.vue'
-import { ClipboardList, Plus } from 'lucide-vue-next'
+import type { ListRow } from '@/types'
+
 import { sessionStore } from '@/stores/session'
 import { useRouter } from 'vue-router'
 import ProgrammingExerciseForm from '@/pages/ProgrammingExercises/ProgrammingExerciseForm.vue'
-import LayoutHeader from '@/components/Layouts/LayoutHeader.vue'
 
 const readOnlyMode = window.read_only_mode
 const { brand } = sessionStore()
@@ -214,7 +146,18 @@ const exercises = createListResource({
 	fields: ['name', 'title', 'language', 'problem_statement', 'modified'],
 	auto: true,
 	orderBy: 'modified desc',
+	pageLength: 24,
 })
+
+const listOptions = computed(() => ({
+	showTooltip: false,
+	selectable: true,
+	onRowClick: (row: ListRow) => {
+		if (readOnlyMode) return
+		exerciseID.value = row.name as string
+		showForm.value = true
+	},
+}))
 
 const updateList = () => {
 	let filters = getFilters()
@@ -282,7 +225,9 @@ const deleteExercises = (selections: Set<string>, unselectAll: () => void) => {
 const pageLength = computed({
 	get: () => exercises.pageLength,
 	set: (value) => {
-		exercises.update({ pageLength: value })
+		// reload() ignores a new pageLength while start > 0: it refetches the
+		// already loaded rows instead, so paging must be reset for it to apply.
+		exercises.update({ pageLength: value, start: 0 })
 		exercises.reload()
 	},
 })
@@ -313,21 +258,21 @@ const columns = computed(() => {
 			label: __('Title'),
 			key: 'title',
 			width: 1,
-			icon: 'file-text',
+			icon: 'lucide-file-text',
 		},
 		{
 			label: __('Language'),
 			key: 'language',
 			width: 1,
 			align: 'left',
-			icon: 'code',
+			icon: 'lucide-code',
 		},
 		{
 			label: __('Updated On'),
 			key: 'modified',
 			width: 1,
-			icon: 'clock',
-			align: 'right',
+			icon: 'lucide-clock',
+			align: 'left',
 		},
 	]
 })

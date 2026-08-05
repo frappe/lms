@@ -1,18 +1,13 @@
 <template>
-	<Dialog
-		v-model="show"
-		:options="{
-			size: '2xl',
-		}"
-	>
-		<template #body-title>
-			<div v-if="program.data" class="text-xl font-semibold text-ink-gray-9">
+	<Dialog v-model:open="show" size="2xl">
+		<template #title>
+			<div v-if="program.data" class="text-2xl-semibold text-ink-gray-9">
 				{{ __('Enrollment for Program {0}').format(program.data?.name) }}
 			</div>
 		</template>
-		<template #body-content>
+		<template #default>
 			<div v-if="program.data" class="text-base text-ink-gray-9">
-				<div class="bg-surface-blue-2 text-ink-blue-3 p-2 rounded-md leading-5">
+				<div class="bg-surface-blue-2 text-ink-blue-6 p-2 rounded-md leading-5">
 					<span>
 						{{
 							__('This program consists of {0} courses').format(
@@ -40,12 +35,13 @@
 				</div>
 
 				<div class="mt-5">
-					<div class="text-sm font-semibold text-ink-gray-5">
+					<div class="text-sm-semibold text-ink-gray-5">
 						{{ __('Courses in this Program') }}
 					</div>
 					<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
 						<div
 							v-for="course in program.data.courses"
+							:key="course.name"
 							class="flex flex-col border border-outline-gray-2 p-2 rounded-md h-full"
 						>
 							<div class="font-semibold text-ink-gray-9 leading-5 mb-2">
@@ -61,14 +57,14 @@
 							>
 								<Tooltip :text="__('Lessons')">
 									<span class="flex items-center gap-x-1">
-										<BookOpen class="size-3 stroke-1.5" />
+										<span class="lucide-book-open size-3" />
 										<span> {{ course.lessons }} {{ __('lessons') }} </span>
 									</span>
 								</Tooltip>
 
 								<Tooltip :text="__('Enrolled Students')">
 									<span class="flex items-center gap-x-1">
-										<User class="size-3 stroke-1.5" />
+										<span class="lucide-user size-3" />
 										<span> {{ course.enrollments }} {{ __('students') }} </span>
 									</span>
 								</Tooltip>
@@ -83,7 +79,7 @@
                                 </Tooltip> -->
 							</div>
 
-							<div class="flex items-center gap-x-1 mt-auto">
+							<div class="flex items-center gap-x-2.5 mt-auto">
 								<UserAvatar :user="course.instructors[0]" />
 								<span class="text-ink-gray-9">
 									{{ course.instructors[0].full_name }}
@@ -106,7 +102,7 @@
 <script setup lang="ts">
 import { Button, call, createResource, Dialog, toast, Tooltip } from 'frappe-ui'
 import { inject, watch } from 'vue'
-import { BookOpen, Star, User } from 'lucide-vue-next'
+
 import { useRouter } from 'vue-router'
 import CourseInstructors from '@/components/CourseInstructors.vue'
 

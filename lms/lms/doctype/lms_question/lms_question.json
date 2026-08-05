@@ -32,12 +32,48 @@
   "is_correct_4",
   "column_break_lknb",
   "explanation_4",
+  "section_break_opt_5",
+  "option_5",
+  "is_correct_5",
+  "column_break_opt_5",
+  "explanation_5",
+  "section_break_opt_6",
+  "option_6",
+  "is_correct_6",
+  "column_break_opt_6",
+  "explanation_6",
+  "section_break_opt_7",
+  "option_7",
+  "is_correct_7",
+  "column_break_opt_7",
+  "explanation_7",
+  "section_break_opt_8",
+  "option_8",
+  "is_correct_8",
+  "column_break_opt_8",
+  "explanation_8",
+  "section_break_opt_9",
+  "option_9",
+  "is_correct_9",
+  "column_break_opt_9",
+  "explanation_9",
+  "section_break_opt_10",
+  "option_10",
+  "is_correct_10",
+  "column_break_opt_10",
+  "explanation_10",
   "section_break_hkfe",
   "possibility_1",
   "possibility_3",
   "column_break_wpjr",
   "possibility_2",
-  "possibility_4"
+  "possibility_4",
+  "possibility_5",
+  "possibility_6",
+  "possibility_7",
+  "possibility_8",
+  "possibility_9",
+  "possibility_10"
  ],
  "fields": [
   {
@@ -52,6 +88,13 @@
    "in_list_view": 1,
    "label": "Type",
    "options": "Choices\nUser Input\nOpen Ended"
+  },
+  {
+   "default": "0",
+   "fieldname": "multiple",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "Multiple Correct Answers"
   },
   {
    "depends_on": "eval:doc.type == \"Choices\";",
@@ -156,20 +199,159 @@
    "label": "Explanation"
   },
   {
+   "depends_on": "eval: doc.type == 'Choices'",
+   "fieldname": "section_break_opt_5",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "option_5",
+   "fieldtype": "Small Text",
+   "label": "Option 5"
+  },
+  {
    "default": "0",
-   "fieldname": "multiple",
+   "fieldname": "is_correct_5",
    "fieldtype": "Check",
-   "hidden": 1,
-   "label": "Multiple Correct Answers"
+   "label": "Is Correct"
+  },
+  {
+   "fieldname": "column_break_opt_5",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "explanation_5",
+   "fieldtype": "Small Text",
+   "label": "Explanation"
+  },
+  {
+   "depends_on": "eval: doc.type == 'Choices'",
+   "fieldname": "section_break_opt_6",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "option_6",
+   "fieldtype": "Small Text",
+   "label": "Option 6"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_correct_6",
+   "fieldtype": "Check",
+   "label": "Is Correct"
+  },
+  {
+   "fieldname": "column_break_opt_6",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "explanation_6",
+   "fieldtype": "Small Text",
+   "label": "Explanation"
+  },
+  {
+   "depends_on": "eval: doc.type == 'Choices'",
+   "fieldname": "section_break_opt_7",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "option_7",
+   "fieldtype": "Small Text",
+   "label": "Option 7"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_correct_7",
+   "fieldtype": "Check",
+   "label": "Is Correct"
+  },
+  {
+   "fieldname": "column_break_opt_7",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "explanation_7",
+   "fieldtype": "Small Text",
+   "label": "Explanation"
+  },
+  {
+   "depends_on": "eval: doc.type == 'Choices'",
+   "fieldname": "section_break_opt_8",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "option_8",
+   "fieldtype": "Small Text",
+   "label": "Option 8"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_correct_8",
+   "fieldtype": "Check",
+   "label": "Is Correct"
+  },
+  {
+   "fieldname": "column_break_opt_8",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "explanation_8",
+   "fieldtype": "Small Text",
+   "label": "Explanation"
+  },
+  {
+   "depends_on": "eval: doc.type == 'Choices'",
+   "fieldname": "section_break_opt_9",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "option_9",
+   "fieldtype": "Small Text",
+   "label": "Option 9"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_correct_9",
+   "fieldtype": "Check",
+   "label": "Is Correct"
+  },
+  {
+   "fieldname": "column_break_opt_9",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "explanation_9",
+   "fieldtype": "Small Text",
+   "label": "Explanation"
+  },
+  {
+   "depends_on": "eval: doc.type == 'Choices'",
+   "fieldname": "section_break_opt_10",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "option_10",
+   "fieldtype": "Small Text",
+   "label": "Option 10"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_correct_10",
+   "fieldtype": "Check",
+   "label": "Is Correct"
+  },
+  {
+   "fieldname": "column_break_opt_10",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "explanation_10",
+   "fieldtype": "Small Text",
+   "label": "Explanation"
   },
   {
    "depends_on": "eval: doc.type == 'User Input'",
    "fieldname": "section_break_hkfe",
    "fieldtype": "Section Break"
-  },
-  {
-   "fieldname": "column_break_wpjr",
-   "fieldtype": "Column Break"
   },
   {
    "fieldname": "possibility_1",
@@ -183,6 +365,10 @@
    "label": "Possible Answer 3"
   },
   {
+   "fieldname": "column_break_wpjr",
+   "fieldtype": "Column Break"
+  },
+  {
    "fieldname": "possibility_2",
    "fieldtype": "Small Text",
    "label": "Possible Answer 2"
@@ -191,6 +377,36 @@
    "fieldname": "possibility_4",
    "fieldtype": "Small Text",
    "label": "Possible Answer 4"
+  },
+  {
+   "fieldname": "possibility_5",
+   "fieldtype": "Small Text",
+   "label": "Possible Answer 5"
+  },
+  {
+   "fieldname": "possibility_6",
+   "fieldtype": "Small Text",
+   "label": "Possible Answer 6"
+  },
+  {
+   "fieldname": "possibility_7",
+   "fieldtype": "Small Text",
+   "label": "Possible Answer 7"
+  },
+  {
+   "fieldname": "possibility_8",
+   "fieldtype": "Small Text",
+   "label": "Possible Answer 8"
+  },
+  {
+   "fieldname": "possibility_9",
+   "fieldtype": "Small Text",
+   "label": "Possible Answer 9"
+  },
+  {
+   "fieldname": "possibility_10",
+   "fieldtype": "Small Text",
+   "label": "Possible Answer 10"
   }
  ],
  "grid_page_length": 50,

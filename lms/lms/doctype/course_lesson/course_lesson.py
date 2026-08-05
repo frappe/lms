@@ -1,15 +1,31 @@
 # Copyright (c) 2021, FOSS United and contributors
 # For license information, please see license.txt
 
-import json
+import inspect
+from functools import cache
+from urllib.parse import unquote
 
 import frappe
 from frappe import _
 from frappe.model.document import Document
+from frappe.query_builder.functions import Locate
 from frappe.realtime import get_website_room
+from frappe.utils import add_to_date, now_datetime
+from frappe.utils.response import send_private_file
 from frappe.utils.telemetry import capture
 
-from lms.lms.utils import get_course_progress, is_demo_course, recalculate_course_progress, sanitize_editorjs
+from lms.lms.doctype.lms_enrollment.lms_enrollment import (
+	batched_enrollment_updates,
+	update_enrollment,
+)
+from lms.lms.permissions import INSTRUCTOR_FIELDS, can_access_lesson
+from lms.lms.utils import (
+	get_course_progress,
+	get_editorjs_blocks,
+	is_demo_course,
+	recalculate_course_progress,
+	sanitize_editorjs,
+)
 
 from ...md import find_macros
 
@@ -17,6 +33,9 @@ from ...md import find_macros
 class CourseLesson(Document):
 	def after_insert(self):
 		self.validate_progress_recalculation()
+
+	def on_trash(self):
+		cleanup_lesson_backreferences(self.name)
 
 	def after_delete(self):
 		self.validate_progress_recalculation()
@@ -57,10 +76,9 @@ class CourseLesson(Document):
 			self.save_lesson_details_in_quiz(self.instructor_content)
 
 	def save_lesson_details_in_quiz(self, content):
-		content = json.loads(self.content)
-		for block in content.get("blocks"):
+		for block in get_editorjs_blocks(content):
 			if block.get("type") == "quiz":
-				quiz = block.get("data").get("quiz")
+				quiz = (block.get("data") or {}).get("quiz")
 				if not frappe.db.exists("LMS Quiz", quiz):
 					frappe.throw(_("Invalid Quiz ID in content"))
 				frappe.db.set_value(
@@ -71,6 +89,155 @@ class CourseLesson(Document):
 						"lesson": self.name,
 					},
 				)
+
+
+def cleanup_lesson_backreferences(lesson: str):
+	"""Clear other docs' references to `lesson` so its deletion isn't blocked by
+	LinkExistsError (delete_doc paths: delete_lesson, delete_course, desk) or silently
+	orphaned (delete_chapter's raw db.delete). Notes are meaningless without the lesson
+	and are deleted; data-bearing docs (quiz + its submissions, enrollment progress,
+	graded work) are only unlinked."""
+	for note in frappe.get_all("LMS Lesson Note", {"lesson": lesson}, pluck="name"):
+		frappe.delete_doc("LMS Lesson Note", note, ignore_permissions=True)
+
+	frappe.db.set_value("LMS Quiz", {"lesson": lesson}, "lesson", None)
+	frappe.db.set_value("LMS Enrollment", {"current_lesson": lesson}, "current_lesson", None)
+	frappe.db.set_value("LMS Assignment Submission", {"lesson": lesson}, "lesson", None)
+
+
+def has_permission(doc, ptype="read", user=None):
+	user = user or frappe.session.user
+	if ptype not in ("read", "select", "print"):
+		# Authoring (create/write/delete): mirror sibling LMS hooks. Moderators
+		# and Course Creators manage lessons; otherwise fall back to per-course
+		# instructor/moderator via the rule.
+		roles = frappe.get_roles(user)
+		if "Moderator" in roles or "Course Creator" in roles:
+			return True
+		return can_access_lesson(doc.name, instructor_only=True, user=user)
+	# Read/select/print: the security gate. Enrollment / preview / instructor only.
+	# Deliberately NOT widened to all Course Creators, to preserve the media-access
+	# boundary (matches the original get_lesson gate).
+	return can_access_lesson(doc.name, user=user)
+
+
+# Lesson content fields a student may reach vs. instructor-only fields (gated harder).
+STUDENT_CONTENT_FIELDS = ("content", "body")
+
+
+def _resolve_lesson_references(file_url: str) -> list[tuple[str, bool]]:
+	"""Every (lesson, instructor_only) pair that references file_url.
+
+	Two sources, unioned:
+	- File attachments (fast path). Gives the exact attached_to_field.
+	- A search of the lesson content fields (the source of truth: uploaded files
+	  are frequently private-but-unattached, and pre-existing/seeded files always are).
+	An empty/unknown attachment field is treated as instructor-only (fail-closed).
+	"""
+	refs: list[tuple[str, bool]] = []
+
+	for r in frappe.db.get_all(
+		"File",
+		filters={"file_url": file_url, "is_private": 1, "attached_to_doctype": "Course Lesson"},
+		fields=["attached_to_name", "attached_to_field"],
+	):
+		if r.attached_to_name:
+			refs.append(
+				(r.attached_to_name, r.attached_to_field in INSTRUCTOR_FIELDS or not r.attached_to_field)
+			)
+
+	# Match the url as a literal substring via LOCATE (the query builder maps it to
+	# STRPOS/INSTR per dialect) instead of a LIKE pattern: LIKE needs %/_ escaped, and
+	# frappe.db.get_all(..., ["like", ...]) re-escapes the backslashes of an already
+	# escaped pattern, so any file_url containing "_" or "%" (e.g.
+	# Module_1_Introduction.pdf) silently matched nothing, denying enrolled students and
+	# preview guests their own lesson media.
+	lesson = frappe.qb.DocType("Course Lesson")
+	fields = [(f, False) for f in STUDENT_CONTENT_FIELDS] + [(f, True) for f in INSTRUCTOR_FIELDS]
+	for field, instructor_only in fields:
+		names = (
+			frappe.qb.from_(lesson)
+			.select(lesson.name)
+			.where(Locate(file_url, lesson[field]) > 0)
+			.run(pluck=True)
+		)
+		for name in names:
+			refs.append((name, instructor_only))
+
+	return refs
+
+
+@frappe.whitelist(allow_guest=True)  # nosemgrep: frappe-semgrep-rules.rules.security.guest-whitelisted-method
+def serve_resource(file_url: str):
+	"""Access-gated streaming of private lesson media for all users.
+
+	Native /private/files/ needs a Course Lesson read role-perm that LMS students and
+	guests don't hold, and it hard-refuses Guest, so ALL private lesson media is served
+	here instead (get_lesson rewrites embedded URLs to this endpoint for every user).
+	The owning lesson is resolved from the lesson content (source of truth) and from any
+	File attachment, then gated by the same can_access_lesson rule.
+	"""
+	if not isinstance(file_url, str):
+		frappe.throw(_("file_url must be a string"))
+
+	# URLs are percent-encoded in transit; decode before matching the File row / lesson
+	# content (which store the decoded path) and before the traversal check, so encoded
+	# spaces (%20) resolve and encoded traversal (%2e%2e) is still caught.
+	file_url = unquote(file_url)
+
+	if ".." in file_url:
+		frappe.throw(_("Invalid file path"))
+
+	file_row = frappe.db.get_value("File", {"file_url": file_url, "is_private": 1}, "file_name", as_dict=True)
+	if not file_row:
+		_deny(file_url, "no matching private file")
+		raise frappe.PermissionError
+
+	references = _resolve_lesson_references(file_url)
+	if not references:
+		_deny(file_url, "file not referenced by any lesson")
+		raise frappe.PermissionError
+
+	# Serve if the caller may reach the bytes through ANY referencing lesson.
+	if not any(
+		can_access_lesson(lesson, instructor_only=instructor_only) for lesson, instructor_only in references
+	):
+		_deny(file_url, "can_access_lesson denied for all references")
+		raise frappe.PermissionError
+
+	# send_private_file expects a path relative to the site's private/ dir.
+	relative_path = file_url.split("/private", 1)[1] if "/private" in file_url else file_url
+	return _serve_private_file(relative_path, file_row.file_name)
+
+
+@cache
+def _accepts_filename(func) -> bool:
+	"""Whether `func` takes a `filename` kwarg. Memoized per function object, so the
+	signature is introspected once per Frappe build (and again for a test's stub)."""
+	return "filename" in inspect.signature(func).parameters
+
+
+def _serve_private_file(relative_path: str, filename: str):
+	"""Version-safe call into Frappe's send_private_file.
+
+	The `filename` kwarg (nicer download name + content-type) was added only in recent
+	Frappe; LMS supports frappe>=14 where it may be absent. Passing it there raises
+	`TypeError: unexpected keyword argument 'filename'`. Fall back to the path-only form
+	(send_private_file derives the name from the path basename, which keeps the .pdf
+	extension so inline viewing still works).
+	"""
+	if _accepts_filename(send_private_file):
+		return send_private_file(relative_path, filename=filename)
+	return send_private_file(relative_path)
+
+
+def _deny(file_url, reason):
+	frappe.logger("lms.security").warning(
+		"Lesson resource access denied: user=%s file_url=%s reason=%s",
+		frappe.session.user,
+		file_url,
+		reason,
+	)
 
 
 def apply_enforcement_flags(quiz_done: bool, assignment_done: bool, settings: dict) -> tuple[bool, bool]:
@@ -92,11 +259,18 @@ def save_progress(lesson: str, course: str, scorm_details: dict = None):
 	"""
 	Note: Pass the argument scorm_details as a dict if it is SCORM related save_progress
 	"""
+	# The completion path writes the enrollment twice: LMS Course Progress.on_update
+	# recalculates progress, then this advances current_lesson. Batch them so the
+	# request emits a single on_update, as the pre-regression .save() did.
+	with batched_enrollment_updates():
+		return _save_progress(lesson, course, scorm_details)
+
+
+def _save_progress(lesson: str, course: str, scorm_details: dict = None):
 	membership = frappe.db.exists("LMS Enrollment", {"course": course, "member": frappe.session.user})
 	if not membership:
 		return 0
 
-	frappe.db.set_value("LMS Enrollment", membership, "current_lesson", lesson, update_modified=False)
 	progress_already_exists = frappe.db.exists(
 		"LMS Course Progress", {"lesson": lesson, "member": frappe.session.user}
 	)
@@ -167,31 +341,20 @@ def save_progress(lesson: str, course: str, scorm_details: dict = None):
 				"scorm_content": "" if scorm_details.is_complete else scorm_details.scorm_content,
 			},
 		)
+	next_lesson = None
 	if (not progress_already_exists and quiz_completed and assignment_completed and not scorm_details) or (
 		scorm_details and scorm_details.is_complete and not lesson_already_completed
 	):
 		next_lesson = get_next_lesson(course, lesson)
-		if next_lesson:
-			frappe.db.set_value(
-				"LMS Enrollment",
-				membership,
-				"current_lesson",
-				next_lesson,
-				update_modified=False,
-			)
+
 	progress = get_course_progress(course)
 	if not is_demo_course(course):
 		capture("course_progress", "lms")
 
-	# Two near-simultaneous save_progress requests (video-ended fires
-	# markProgress + trackVideoWatchDuration which also writes progress)
-	# used to race here — both .save()s called check_if_latest() and the
-	# second one threw TimestampMismatchError, swallowing whichever update
-	# arrived second. Update via db_set + an explicit on_change so the
-	# badge trigger still fires without entering the version guard.
-	enrollment = frappe.get_doc("LMS Enrollment", membership)
-	enrollment.db_set("progress", progress, update_modified=False)
-	enrollment.run_method("on_change")
+	# Completing the lesson advances the pointer; otherwise it parks on the one opened.
+	# Both fields go through update_enrollment() in one write. The raw set_values this
+	# replaces fired no on_update, which is the webhook regression being fixed.
+	update_enrollment(membership, {"current_lesson": next_lesson or lesson, "progress": progress})
 
 	frappe.publish_realtime(
 		event="update_lesson_progress",
@@ -235,16 +398,16 @@ def get_quiz_progress(lesson):
 	quizzes = []
 
 	if lesson_details.content:
-		content = json.loads(lesson_details.content)
-
-		for block in content.get("blocks"):
+		for block in get_editorjs_blocks(lesson_details.content):
+			data = block.get("data") or {}
 			if block.get("type") == "quiz":
-				quizzes.append(block.get("data").get("quiz"))
+				quizzes.append(data.get("quiz"))
 			if block.get("type") == "upload":
-				quizzes_in_video = block.get("data").get("quizzes")
-				if quizzes_in_video and len(quizzes_in_video) > 0:
+				quizzes_in_video = data.get("quizzes")
+				if isinstance(quizzes_in_video, list):
 					for row in quizzes_in_video:
-						quizzes.append(row.get("quiz"))
+						if isinstance(row, dict):
+							quizzes.append(row.get("quiz"))
 
 	elif lesson_details.body:
 		macros = find_macros(lesson_details.body)
@@ -264,16 +427,77 @@ def get_quiz_progress(lesson):
 	return True
 
 
+UNTITLED_LESSON_TITLE = "Untitled lesson"
+RENAME_BATCH_LIMIT = 500
+
+
+def _untitled_placeholders():
+	"""Placeholder titles in every language a lesson could have been created in."""
+	placeholders = {UNTITLED_LESSON_TITLE}
+	langs = set(frappe.db.get_all("User", pluck="language", distinct=True))
+	langs.add(frappe.db.get_default("lang"))
+	for lang in (lang for lang in langs if lang):
+		translated = frappe.translate.get_all_translations(lang).get(UNTITLED_LESSON_TITLE)
+		if translated:
+			placeholders.add(translated)
+	return list(placeholders)
+
+
+def rename_settled_untitled_lessons():
+	"""Rename settled 'NNNN Untitled lesson' docnames to their real title (daily).
+
+	TODO(docs): document this maintenance job at docs.frappe.io/learning.
+	"""
+	placeholders = _untitled_placeholders()
+	day_ago = add_to_date(now_datetime(), days=-1)
+	lessons = frappe.get_all(
+		"Course Lesson",
+		or_filters=[["name", "like", f"% {p}"] for p in placeholders],
+		filters={"modified": ("<", day_ago)},
+		fields=["name", "title"],
+		order_by="modified asc",
+		limit=RENAME_BATCH_LIMIT,
+	)
+	for lesson in lessons:
+		prefix, _sep, title_part = lesson.name.partition(" ")
+		if title_part not in placeholders:
+			continue
+		new_title = (lesson.title or "").strip()
+		if not new_title or new_title in placeholders:
+			continue
+		new_name = f"{prefix} {new_title}"[:140]
+		if new_name == lesson.name:
+			continue
+		try:
+			frappe.rename_doc(
+				"Course Lesson",
+				lesson.name,
+				new_name,
+				force=True,
+				rebuild_search=False,
+				show_alert=False,
+			)
+			frappe.db.commit()
+		except Exception:
+			frappe.db.rollback()
+			frappe.logger("lms").warning(
+				f"Failed to rename settled untitled lesson {lesson.name}", exc_info=True
+			)
+
+	if len(lessons) == RENAME_BATCH_LIMIT:
+		frappe.logger("lms").info(
+			"rename_settled_untitled_lessons hit the per-run cap; remaining lessons handled next run"
+		)
+
+
 def get_assignment_progress(lesson):
 	lesson_details = frappe.db.get_value("Course Lesson", lesson, ["body", "content"], as_dict=1)
 	assignments = []
 
 	if lesson_details.content:
-		content = json.loads(lesson_details.content)
-
-		for block in content.get("blocks"):
+		for block in get_editorjs_blocks(lesson_details.content):
 			if block.get("type") == "assignment":
-				assignments.append(block.get("data").get("assignment"))
+				assignments.append((block.get("data") or {}).get("assignment"))
 
 	elif lesson_details.body:
 		macros = find_macros(lesson_details.body)

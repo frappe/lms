@@ -1,78 +1,97 @@
 <template>
 	<div class="mt-6">
-		<div v-if="!singleThread" class="flex items-center mb-5">
-			<Button variant="outline" @click="showTopics = true">
+		<div v-if="!singleThread" class="flex items-center mb-5 md:hidden">
+			<Button
+				variant="outline"
+				class="text-p-base-medium"
+				:label="__('Back to topics')"
+				@click="showTopics = true"
+			>
 				<template #icon>
-					<ChevronLeft class="w-5 h-5 stroke-1.5 text-ink-gray-7" />
+					<span class="lucide-chevron-left size-5 text-ink-gray-7" />
 				</template>
 			</Button>
-			<span class="text-lg font-semibold ms-2 text-ink-gray-9">
+			<span class="text-lg-semibold ms-2 text-ink-gray-9">
 				{{ topic.title }}
 			</span>
 		</div>
-
-		<div v-for="(reply, index) in replies.data">
-			<div
-				class="py-3"
-				:class="{ 'border-b': index + 1 != replies.data.length }"
-			>
-				<div class="flex items-center justify-between mb-2">
-					<div class="flex items-center text-ink-gray-5">
-						<UserAvatar :user="reply.user" class="me-2" />
-						<span>
-							{{ reply.user.full_name }}
-						</span>
-						<span class="text-sm ms-2">
-							{{ timeAgo(reply.creation) }}
-						</span>
-					</div>
-					<Dropdown
-						v-if="
-							user.data.name == reply.owner && !reply.editable && !readOnlyMode
-						"
-						:options="[
-							{
-								label: __('Edit'),
-								onClick() {
-									reply.editable = true
-								},
-							},
-							{
-								label: __('Delete'),
-								onClick() {
-									deleteReply(reply)
-								},
-							},
-						]"
-					>
-						<template v-slot="{ open }">
-							<MoreHorizontal class="w-4 h-4 stroke-1.5 cursor-pointer" />
-						</template>
-					</Dropdown>
-					<div v-if="reply.editable">
-						<Button variant="ghost" @click="postEdited(reply)">
-							{{ __('Post') }}
-						</Button>
-						<Button variant="ghost" @click="reply.editable = false">
-							{{ __('Discard') }}
-						</Button>
-					</div>
-				</div>
-				<TextEditor
-					:content="reply.reply"
-					@change="(val) => (reply.reply = val)"
-					:editable="reply.editable || false"
-					:fixedMenu="reply.editable || false"
-					:editorClass="
-						reply.editable
-							? 'ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2 prose-sm max-w-none'
-							: 'prose-sm'
-					"
-				/>
-			</div>
+		<div
+			v-if="!singleThread"
+			class="hidden md:block text-lg-semibold mb-5 text-ink-gray-9"
+		>
+			{{ topic.title }}
 		</div>
 
-		<TextEditor
+		<ul class="list-none">
+			<li v-for="(reply, index) in replies.data" :key="reply.name">
+				<div
+					class="py-3"
+					:class="{ 'border-b': index + 1 != replies.data.length }"
+				>
+					<div class="flex items-center justify-between mb-2">
+						<div class="flex items-center text-ink-gray-5">
+							<UserAvatar :user="reply.user" class="me-2" />
+							<span>
+								{{ reply.user.full_name }}
+							</span>
+							<span class="text-sm ms-2">
+								{{ timeAgo(reply.creation) }}
+							</span>
+						</div>
+						<Dropdown
+							v-if="
+								user.data.name == reply.owner &&
+								!reply.editable &&
+								!readOnlyMode
+							"
+							:options="[
+								{
+									label: __('Edit'),
+									onClick() {
+										reply.editable = true
+									},
+								},
+								{
+									label: __('Delete'),
+									onClick() {
+										deleteReply(reply)
+									},
+								},
+							]"
+						>
+							<template #default>
+								<Button variant="ghost" :label="__('Reply actions')">
+									<template #icon>
+										<span class="lucide-more-horizontal size-4" />
+									</template>
+								</Button>
+							</template>
+						</Dropdown>
+						<div v-if="reply.editable">
+							<Button variant="ghost" @click="postEdited(reply)">
+								{{ __('Post') }}
+							</Button>
+							<Button variant="ghost" @click="reply.editable = false">
+								{{ __('Discard') }}
+							</Button>
+						</div>
+					</div>
+					<RichTextEditor
+						:content="reply.reply"
+						@change="(val) => (reply.reply = val)"
+						:editable="reply.editable || false"
+						:fixedMenu="reply.editable || false"
+						:editorClass="
+							reply.editable
+								? 'ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2 prose-sm max-w-none'
+								: 'prose-sm'
+						"
+					/>
+				</div>
+			</li>
+		</ul>
+
+		<RichTextEditor
 			v-if="renderEditor && !readOnlyMode"
 			class="mt-5"
 			:content="newReply"
@@ -93,19 +112,12 @@
 	</div>
 </template>
 <script setup>
-import {
-	call,
-	createResource,
-	TextEditor,
-	Button,
-	Dropdown,
-	toast,
-} from 'frappe-ui'
+import { call, createResource, Button, Dropdown, toast } from 'frappe-ui'
 import { timeAgo } from '@/utils'
 import UserAvatar from '@/components/UserAvatar.vue'
-import { ChevronLeft, MoreHorizontal } from 'lucide-vue-next'
 import { ref, inject, onMounted, onUnmounted } from 'vue'
 import { useTelemetry } from 'frappe-ui/frappe'
+import RichTextEditor from '@/components/RichTextEditor.vue'
 
 const showTopics = defineModel('showTopics')
 const newReply = ref('')
@@ -153,24 +165,23 @@ const replies = createResource({
 })
 
 const fetchMentionUsers = () => {
-	if (user.data?.is_student) {
-		renderEditor.value = true
-	} else {
-		allUsers.reload(
-			{},
-			{
-				onSuccess(data) {
-					mentionUsers.value = Object.values(data).map((user) => {
-						return {
-							value: user.name,
-							label: user.full_name,
-						}
-					})
-					renderEditor.value = true
-				},
-			}
-		)
-	}
+	// Render the editor right away; mentions are reactive and populate once the
+	// user list resolves, so we no longer block the editor on that fetch.
+	renderEditor.value = true
+	if (user.data?.is_student) return
+	allUsers.reload(
+		{},
+		{
+			onSuccess(data) {
+				mentionUsers.value = Object.values(data).map((user) => {
+					return {
+						value: user.name,
+						label: user.full_name,
+					}
+				})
+			},
+		}
+	)
 }
 
 const postReply = () => {

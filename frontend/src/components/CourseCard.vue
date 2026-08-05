@@ -1,7 +1,7 @@
 <template>
 	<div
 		v-if="course.title"
-		class="flex flex-col h-full rounded-md overflow-auto text-ink-gray-9 bg-surface-cards"
+		class="flex flex-col h-full rounded-md overflow-auto text-ink-gray-9 bg-surface-elevation-1"
 		style="min-height: 350px"
 	>
 		<div
@@ -18,7 +18,7 @@
 			<!-- <div class="flex items-center flex-wrap relative top-4 px-2 w-fit">
 				<div
 					v-if="course.featured"
-					class="flex items-center gap-x-1 text-xs text-ink-amber-3 bg-surface-white border border-outline-amber-1 px-2 py-0.5 rounded-md me-1 mb-1"
+					class="flex items-center gap-x-1 text-xs text-ink-amber-6 bg-surface-base border border-outline-amber-1 px-2 py-0.5 rounded-md me-1 mb-1"
 				>
 					<Star class="size-3 stroke-2" />
 					<span>
@@ -28,7 +28,7 @@
 				<div
 					v-if="course.tags"
 					v-for="tag in course.tags?.split(', ')"
-					class="text-xs border bg-surface-white text-ink-gray-9 px-2 py-0.5 rounded-md mb-1 me-1"
+					class="text-xs border bg-surface-base text-ink-gray-9 px-2 py-0.5 rounded-md mb-1 me-1"
 				>
 					{{ tag }}
 				</div>
@@ -40,8 +40,8 @@
 					course.title.length > 32
 						? 'text-lg'
 						: course.title.length > 20
-						? 'text-xl'
-						: 'text-2xl'
+						? 'text-2xl'
+						: 'text-3xl'
 				"
 			>
 				{{ course.title }}
@@ -52,7 +52,7 @@
 				<div v-if="course.lessons">
 					<Tooltip :text="__('Lessons')">
 						<span class="flex items-center">
-							<BookOpen class="h-4 w-4 stroke-1.5 me-1" />
+							<span class="lucide-book-open size-4 me-1" />
 							{{ course.lessons }}
 						</span>
 					</Tooltip>
@@ -61,7 +61,7 @@
 				<div v-if="course.enrollments">
 					<Tooltip :text="__('Enrolled Students')">
 						<span class="flex items-center">
-							<Users class="h-4 w-4 stroke-1.5 me-1" />
+							<span class="lucide-users size-4 me-1" />
 							{{ formatAmount(course.enrollments) }}
 						</span>
 					</Tooltip>
@@ -70,21 +70,23 @@
 				<div v-if="course.rating">
 					<Tooltip :text="__('Average Rating')">
 						<span class="flex items-center">
-							<Star class="h-4 w-4 stroke-1.5 me-1" />
+							<LucideStar
+								class="size-4 me-1 text-transparent fill-yellow-500"
+							/>
 							{{ formatRating(course.rating) }}
 						</span>
 					</Tooltip>
 				</div>
 
 				<Tooltip v-if="course.featured" :text="__('Featured')">
-					<Award class="size-4 stroke-2 text-ink-amber-3" />
+					<span class="lucide-award size-4 text-ink-amber-6" />
 				</Tooltip>
 			</div>
 
 			<div
 				v-if="course.image"
 				class="font-semibold leading-6"
-				:class="course.title.length > 32 ? 'text-lg' : 'text-xl'"
+				:class="course.title.length > 32 ? 'text-lg' : 'text-2xl'"
 			>
 				{{ course.title }}
 			</div>
@@ -110,6 +112,7 @@
 					>
 						<UserAvatar
 							v-for="instructor in course.instructors"
+							:key="instructor.username || instructor.name"
 							:user="instructor"
 						/>
 					</div>
@@ -125,7 +128,7 @@
 						v-if="course.paid_certificate || course.enable_certification"
 						:text="__('Get Certified')"
 					>
-						<GraduationCap class="size-5 stroke-1.5 text-ink-gray-7" />
+						<span class="lucide-graduation-cap size-5 text-ink-gray-7" />
 					</Tooltip>
 				</div>
 			</div>
@@ -133,7 +136,6 @@
 	</div>
 </template>
 <script setup>
-import { Award, BookOpen, GraduationCap, Star, Users } from 'lucide-vue-next'
 import { sessionStore } from '@/stores/session'
 import { Tooltip } from 'frappe-ui'
 import { formatAmount, formatRating } from '@/utils'
@@ -142,7 +144,6 @@ import { computed, watch } from 'vue'
 import CourseInstructors from '@/components/CourseInstructors.vue'
 import UserAvatar from '@/components/UserAvatar.vue'
 import ProgressBar from '@/components/ProgressBar.vue'
-import colors from '@/utils/frappe-ui-colors.json'
 
 const { user } = sessionStore()
 
@@ -154,10 +155,8 @@ const props = defineProps({
 })
 
 const gradientColor = computed(() => {
-	let themeMode = theme.value === 'dark' ? 'darkMode' : 'lightMode'
 	let color = props.course.card_gradient?.toLowerCase() || 'blue'
-	let colorMap = colors[themeMode][color]
-	return `linear-gradient(to top right, black, ${colorMap[400]})`
+	return `linear-gradient(to top right, black, var(--${color}-400))`
 })
 </script>
 <style>

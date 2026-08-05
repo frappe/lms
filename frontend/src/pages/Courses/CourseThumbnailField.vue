@@ -1,8 +1,6 @@
 <template>
-	<div class="flex flex-col gap-y-3">
-		<label class="block text-p-sm font-medium text-ink-gray-7">
-			{{ __('Course thumbnail') }}
-		</label>
+	<div class="flex flex-col gap-y-1.5">
+		<InputLabel :id="thumbnailLabelId" :label="__('Course thumbnail')" />
 
 		<div class="flex items-start gap-5">
 			<button
@@ -30,7 +28,7 @@
 					v-else-if="!doc.card_gradient"
 					class="flex flex-col items-center gap-1 text-ink-gray-5"
 				>
-					<ImageIcon class="size-5 stroke-1.5" />
+					<span class="lucide-image size-5" />
 					<span class="text-xs">{{ __('No thumbnail') }}</span>
 				</div>
 			</button>
@@ -49,13 +47,18 @@
 						<FileUploader
 							ref="uploaderRef"
 							:fileTypes="['.jpg,.jpeg,.gif,.png']"
+							:uploadArgs="{ private: false }"
 							@success="(file) => onUploaded(file.file_url)"
 							@failure="onUploadFailure"
 						>
 							<template #default="{ openFileSelector, uploading }">
-								<Button :loading="uploading" @click="openFileSelector">
+								<Button
+									class="text-p-base-medium"
+									:loading="uploading"
+									@click="openFileSelector"
+								>
 									<template #prefix>
-										<Upload class="size-4 stroke-1.5" />
+										<span class="lucide-upload size-4" />
 									</template>
 									{{ uploading ? __('Uploading') : __('Replace') }}
 								</Button>
@@ -63,12 +66,12 @@
 						</FileUploader>
 						<Button variant="ghost" theme="red" @click="removeImage">
 							<template #prefix>
-								<Trash2 class="size-4 stroke-1.5" />
+								<span class="lucide-trash-2 size-4" />
 							</template>
 							{{ __('Remove') }}
 						</Button>
 					</div>
-					<p class="text-p-sm text-ink-gray-6">
+					<p class="text-p-xs text-ink-gray-5">
 						{{ __('Remove the image to pick a color instead.') }}
 					</p>
 				</template>
@@ -89,7 +92,7 @@
 										? 'ring-2 ring-offset-2 ring-outline-gray-4'
 										: 'hover:scale-105'
 								"
-								:style="{ backgroundColor: getColor(c.toLowerCase(), 400) }"
+								:style="{ backgroundColor: `var(--${c.toLowerCase()}-400)` }"
 								:aria-label="c"
 								@click="pickColor(c)"
 							/>
@@ -99,21 +102,22 @@
 						<FileUploader
 							ref="uploaderRef"
 							:fileTypes="['.jpg,.jpeg,.gif,.png']"
+							:uploadArgs="{ private: false }"
 							@success="(file) => onUploaded(file.file_url)"
 							@failure="onUploadFailure"
 						>
 							<template #default="{ openFileSelector, uploading }">
 								<Button :loading="uploading" @click="openFileSelector">
 									<template #prefix>
-										<Upload class="size-4 stroke-1.5" />
+										<span class="lucide-upload size-4" />
 									</template>
 									{{ uploading ? __('Uploading') : __('Upload image instead') }}
 								</Button>
 							</template>
 						</FileUploader>
-						<span class="text-p-sm text-ink-gray-6">
-							{{ __('An image will replace the color.') }}
-						</span>
+						<p class="text-p-xs text-ink-gray-5">
+							{{ __('Upload an image to replace the color.') }}
+						</p>
 					</div>
 				</template>
 			</div>
@@ -123,11 +127,11 @@
 
 <script setup lang="ts">
 import { Button, FileUploader, createResource, toast } from 'frappe-ui'
-import { Image as ImageIcon, Trash2, Upload } from 'lucide-vue-next'
-import { computed, inject, ref, watch } from 'vue'
-import { getColor } from '@/utils'
-import type { CourseFormContext, Resource } from '@/types/api'
+import { computed, inject, ref, useId, watch } from 'vue'
+import type { CourseFormContext, Resource } from '@/types'
+import { InputLabel } from '@/components/Form/labeling'
 
+const thumbnailLabelId = useId()
 const { resource, markDirty } = inject<CourseFormContext>('courseForm')!
 
 const doc = computed(() => resource.doc)
@@ -152,7 +156,7 @@ const hasImage = computed<boolean>(() => Boolean(doc.value?.image))
 const wellColor = computed<string>(() => {
 	const c = doc.value?.card_gradient
 	if (!c) return ''
-	return getColor(String(c).toLowerCase(), 400)
+	return `var(--${String(c).toLowerCase()}-400)`
 })
 
 const filename = computed<string>(() => {

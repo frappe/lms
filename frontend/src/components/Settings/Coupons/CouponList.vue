@@ -1,111 +1,27 @@
 <template>
-	<div class="flex min-h-0 flex-col text-base">
-		<div class="flex items-center justify-between mb-5">
-			<div>
-				<div class="text-xl font-semibold mb-2 text-ink-gray-9">
-					{{ __(label) }}
-				</div>
-				<div class="text-ink-gray-6 leading-5">
-					{{ __(description) }}
-				</div>
-			</div>
-			<Button @click="openForm()">
-				<template #prefix>
-					<Plus class="h-3 w-3 stroke-1.5" />
-				</template>
-				{{ __('New') }}
-			</Button>
-		</div>
-
-		<div v-if="coupons.data?.length" class="overflow-y-auto">
-			<ListView
-				:columns="columns"
-				:rows="coupons.data"
-				row-key="name"
-				:options="{
-					showTooltip: false,
-					selectable: true,
-                    onRowClick: (row: Coupon) => {
-						openForm(row)
-					},
-				}"
-			>
-				<ListHeader
-					class="mb-2 grid items-center gap-x-4 rounded bg-surface-gray-2 p-2"
-				>
-				</ListHeader>
-				<ListRows>
-					<ListRow :row="row" v-for="row in coupons.data" :key="row.name">
-						<template #default="{ column, item }">
-							<ListRowItem :item="row[column.key]" :align="column.align">
-								<div v-if="column.key == 'enabled'">
-									<Badge v-if="row[column.key]" theme="green">
-										{{ __('Enabled') }}
-									</Badge>
-									<Badge v-else theme="gray">
-										{{ __('Disabled') }}
-									</Badge>
-								</div>
-								<div v-else-if="column.key == 'expires_on'">
-									{{ dayjs(row[column.key]).format('DD MMM YYYY') }}
-								</div>
-								<div v-else-if="column.key == 'discount'">
-									<div v-if="row['discount_type'] == 'Percentage'">
-										{{ row['percentage_discount'] }}%
-									</div>
-									<div v-else-if="row['discount_type'] == 'Fixed Amount'">
-										{{ row['fixed_amount_discount'] }}/-
-									</div>
-								</div>
-								<div v-else class="leading-5 text-sm">
-									{{ row[column.key] }}
-								</div>
-							</ListRowItem>
-						</template>
-					</ListRow>
-				</ListRows>
-				<ListSelectBanner>
-					<template #actions="{ unselectAll, selections }">
-						<div class="flex gap-2">
-							<Button
-								variant="ghost"
-								@click="confirmDeletion(selections, unselectAll)"
-							>
-								<Trash2 class="h-4 w-4 stroke-1.5" />
-							</Button>
-						</div>
-					</template>
-				</ListSelectBanner>
-			</ListView>
-		</div>
-		<EmptyStateLayout
-			v-else
-			name="Coupons"
-			:description="__('Add one to get started.')"
-			:icon="Ticket"
-		/>
-	</div>
+	<SettingsList
+		:title="__(label)"
+		:description="__(description)"
+		:columns="columns"
+		:rows="list.rows"
+		:loading="list.loading"
+		:has-next-page="list.hasNextPage"
+		v-model:search="list.search"
+		searchable
+		:search-label="__('Search coupons')"
+		empty-name="Coupons"
+		empty-icon="lucide-ticket"
+		@new="openForm()"
+		@load-more="list.loadMore()"
+		@row-click="openForm"
+	/>
 </template>
 <script setup lang="ts">
-import {
-	Badge,
-	Button,
-	call,
-	createListResource,
-	FeatherIcon,
-	ListView,
-	ListHeader,
-	ListHeaderItem,
-	ListRows,
-	ListRow,
-	ListRowItem,
-	ListSelectBanner,
-	toast,
-} from 'frappe-ui'
-import { computed, getCurrentInstance, inject, ref } from 'vue'
-import { Plus, Trash2, Ticket } from 'lucide-vue-next'
-import type { Coupon, Coupons } from './types'
-import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
+import { call, toast } from 'frappe-ui'
+import { getCurrentInstance, inject } from 'vue'
+import type { Coupon, SettingsListColumn, SettingsListRow } from '@/types'
+import type { SettingsListSource } from '@/composables/useSettingsListResource'
+import SettingsList from '@/components/Layouts/SettingsList.vue'
 
 const dayjs = inject('$dayjs') as typeof import('dayjs')
 const app = getCurrentInstance()
@@ -115,18 +31,22 @@ const emit = defineEmits(['updateStep'])
 const props = defineProps<{
 	label: string
 	description: string
-	coupons: Coupons
+	list: SettingsListSource
 }>()
 
-const openForm = (coupon: Coupon = {} as Coupon) => {
+const openForm = (coupon: SettingsListRow = {}) => {
 	emit('updateStep', 'details', { ...coupon })
 }
 
-const confirmDeletion = (selections: any[], unselectAll: () => void) => {
-	if (selections.length === 0) {
-		toast.info(__('No coupons selected for deletion'))
-		return
-	}
+function trashCoupon(name: string, close: () => void) {
+	call('frappe.client.delete', { doctype: 'LMS Coupon', name }).then(() => {
+		toast.success(__('Coupon deleted successfully'))
+		props.list.reload()
+		if (typeof close === 'function') close()
+	})
+}
+
+const confirmDeletion = (name: string) => {
 	$dialog({
 		title: __('Delete this coupon?'),
 		message: __(
@@ -138,70 +58,69 @@ const confirmDeletion = (selections: any[], unselectAll: () => void) => {
 				theme: 'red',
 				variant: 'solid',
 				onClick({ close }: { close: () => void }) {
-					call('lms.lms.api.delete_documents', {
-						doctype: 'LMS Coupon',
-						documents: Array.from(selections),
-					}).then((data: any) => {
-						toast.success(__('Coupon(s) deleted successfully'))
-						coupons.reload()
-						unselectAll()
-						close()
-					})
+					trashCoupon(name, close)
 				},
 			},
 		],
 	})
 }
 
-function trashCoupon(name, close) {
-	call('frappe.client.delete', { doctype: 'LMS Coupon', name }).then(() => {
-		toast.success(__('Coupon deleted successfully'))
-		coupons.reload()
-		if (typeof close === 'function') close()
-	})
+const discountLabel = (row: Coupon) => {
+	if (row.discount_type === 'Percentage') return `${row.percentage_discount}%`
+	if (row.discount_type === 'Fixed Amount')
+		return `${row.fixed_amount_discount}/-`
+	return ''
 }
 
-const columns = computed(() => {
-	return [
-		{
-			label: __('Code'),
-			key: 'code',
-			icon: 'tag',
-			width: '150px',
-		},
-		{
-			label: __('Discount'),
-			key: 'discount',
-			align: 'center',
-			width: '80px',
-			icon: 'dollar-sign',
-		},
-		{
-			label: __('Expires On'),
-			key: 'expires_on',
-			width: '120px',
-			icon: 'calendar',
-		},
-		{
-			label: __('Usage Limit'),
-			key: 'usage_limit',
-			align: 'center',
-			width: '100px',
-			icon: 'hash',
-		},
-		{
-			label: __('Redemption Count'),
-			key: 'redemption_count',
-			align: 'center',
-			width: '100px',
-			icon: 'users',
-		},
-		{
-			label: __('Enabled'),
-			key: 'enabled',
-			align: 'center',
-			icon: 'check-square',
-		},
-	]
-})
+const columns: SettingsListColumn[] = [
+	{
+		key: 'code',
+		label: __('Code'),
+		type: 'stacked',
+		width: 'minmax(0, 1.4fr)',
+		primary: (row) => row.code,
+	},
+	{
+		key: 'discount',
+		label: __('Discount'),
+		type: 'text',
+		value: (row) => discountLabel(row as Coupon),
+	},
+	{
+		key: 'expires_on',
+		label: __('Expires On'),
+		type: 'text',
+		value: (row) => dayjs(row.expires_on).format('DD MMM YYYY'),
+	},
+	{
+		key: 'redeemed',
+		label: __('Redeemed'),
+		type: 'text',
+		width: '5.5rem',
+		value: (row) => `${row.redemption_count}/${row.usage_limit}`,
+	},
+	{
+		key: 'status',
+		label: __('Status'),
+		type: 'badge',
+		width: '6.5rem',
+		badges: (row) => [
+			row.enabled
+				? { label: __('Enabled'), theme: 'green' }
+				: { label: __('Disabled'), theme: 'gray' },
+		],
+	},
+	{
+		key: 'actions',
+		type: 'actions',
+		ariaLabel: (row) => __('Actions for {0}').format(row.code),
+		options: (row) => [
+			{
+				label: __('Delete'),
+				icon: 'lucide-trash-2',
+				onClick: () => confirmDeletion(row.name),
+			},
+		],
+	},
+]
 </script>

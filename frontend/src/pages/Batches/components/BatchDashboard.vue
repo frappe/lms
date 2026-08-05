@@ -1,9 +1,9 @@
 <template>
-	<div class="h-[88vh]">
+	<div class="lg:h-[88vh]">
 		<div class="grid grid-cols-1 lg:grid-cols-[2fr,1fr] gap-5">
 			<div class="p-5">
 				<div class="mb-8 space-y-2">
-					<div class="text-lg text-ink-gray-9 font-semibold">
+					<div class="text-lg-semibold text-ink-gray-9">
 						{{ __('Curriculum') }}
 					</div>
 					<div class="text-ink-gray-7">
@@ -19,44 +19,21 @@
 						<div class="text-ink-gray-9 font-semibold mb-4">
 							{{ __('Courses') }}
 						</div>
-						<ListView
+						<ResponsiveListView
 							v-if="batch.data?.courses?.length"
 							:columns="courseColumns"
 							:rows="batch.data?.courses"
 							row-key="name"
-							class="border rounded-lg"
-							:options="{
-								showTooltip: false,
-								selectable: user.data?.is_student ? false : true,
-								getRowRoute: (row) => ({
-									name: 'CourseDetail',
-									params: { courseName: row.course },
-								}),
-							}"
+							class="sm:border sm:rounded-lg"
+							:options="courseListOptions"
 						>
-							<ListHeader
-								class="mb-2 grid items-center gap-x-4 rounded-none rounded-t bg-surface-gray-2 p-2"
-							>
-							</ListHeader>
-							<ListRows>
-								<ListRow
-									:row="row"
-									v-for="row in batch.data?.courses"
-									class="!rounded-none text-sm"
-								>
-									<template #default="{ column, item }">
-										<ListRowItem :item="row[column.key]" :align="column.align">
-											<div v-if="column.key === 'progress'">
-												{{ getProgress(row.course) }}%
-											</div>
-											<div v-else>
-												{{ row[column.key] }}
-											</div>
-										</ListRowItem>
-									</template>
-								</ListRow>
-							</ListRows>
-						</ListView>
+							<template #cell="{ column, row, value }">
+								<span v-if="column.key === 'progress'">
+									{{ getProgress(row.course) }}%
+								</span>
+								<span v-else>{{ value }}</span>
+							</template>
+						</ResponsiveListView>
 						<div v-else class="text-ink-gray-7">
 							{{ __('No courses added to this batch') }}
 						</div>
@@ -65,7 +42,7 @@
 					<Assessments :batch="batch.data.name" />
 				</div>
 			</div>
-			<div class="border-s h-[88vh] divide-y">
+			<div class="border-t divide-y lg:border-s lg:border-t-0 lg:h-[88vh]">
 				<div v-if="batch.data?.evaluation" class="p-4 mb-5">
 					<UpcomingEvaluations
 						:batch="batch.data.name"
@@ -81,18 +58,12 @@
 	</div>
 </template>
 <script setup>
-import { inject } from 'vue'
-import {
-	createListResource,
-	ListView,
-	ListHeader,
-	ListRows,
-	ListRow,
-	ListRowItem,
-} from 'frappe-ui'
+import { computed, inject } from 'vue'
+import { createListResource } from 'frappe-ui'
 import Assessments from '@/pages/Batches/components/Assessments.vue'
 import BatchCourses from '@/pages/Batches/components/BatchCourses.vue'
 import BatchFeedback from '@/pages/Batches/components/BatchFeedback.vue'
+import ResponsiveListView from '@/components/ResponsiveListView.vue'
 import UpcomingEvaluations from '@/components/UpcomingEvaluations.vue'
 
 const user = inject('$user')
@@ -131,7 +102,16 @@ const courseColumns = [
 	{
 		key: 'progress',
 		label: __('Progress'),
-		align: 'right',
+		align: 'left',
 	},
 ]
+
+const courseListOptions = computed(() => ({
+	showTooltip: false,
+	selectable: user.data?.is_student ? false : true,
+	getRowRoute: (row) => ({
+		name: 'CourseDetail',
+		params: { courseName: row.course },
+	}),
+}))
 </script>

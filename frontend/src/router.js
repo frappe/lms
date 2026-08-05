@@ -1,8 +1,27 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { call } from 'frappe-ui'
 import { usersStore } from './stores/user'
 import { sessionStore } from './stores/session'
 import { useSettings } from './stores/settings'
 import { getLmsBasePath } from './utils/basePath'
+
+// Run the fresh-site-admin persona check at most once per app load.
+let personaChecked = false
+
+async function shouldCapturePersona() {
+	const captured = await call('frappe.client.get_single_value', {
+		doctype: 'LMS Settings',
+		field: 'persona_captured',
+	})
+	if (captured) return false
+	const courseCount = await call('frappe.client.get_count', {
+		doctype: 'LMS Course',
+		filters: {
+			title: ['not like', '%A guide to Frappe Learning%'],
+		},
+	})
+	return !courseCount
+}
 
 const routes = [
 	{
@@ -129,11 +148,6 @@ const routes = [
 		component: () => import('@/pages/CertifiedParticipants.vue'),
 	},
 	{
-		path: '/notifications',
-		name: 'Notifications',
-		component: () => import('@/pages/Notifications.vue'),
-	},
-	{
 		path: '/quizzes',
 		name: 'Quizzes',
 		component: () => import('@/pages/Quizzes.vue'),
@@ -219,11 +233,6 @@ const routes = [
 		props: true,
 	},
 	{
-		path: '/search',
-		name: 'Search',
-		component: () => import('@/pages/Search/Search.vue'),
-	},
-	{
 		path: '/data-import',
 		name: 'DataImportList',
 		component: () => import('@/pages/DataImport.vue'),
@@ -239,6 +248,11 @@ const routes = [
 		name: 'DataImport',
 		component: () => import('@/pages/DataImport.vue'),
 		props: true,
+	},
+	{
+		path: '/:pathMatch(.*)*',
+		name: 'NotFound',
+		component: () => import('@/pages/NotFound.vue'),
 	},
 ]
 
@@ -269,6 +283,24 @@ router.beforeEach(async (to, from, next) => {
 			return
 		}
 	}
+
+	if (
+		isLoggedIn &&
+		!personaChecked &&
+		to.name !== 'PersonaForm' &&
+		userResource.data?.is_system_manager &&
+		!userResource.data?.developer_mode
+	) {
+		personaChecked = true
+		try {
+			if (await shouldCapturePersona()) {
+				return next({ name: 'PersonaForm' })
+			}
+		} catch (_) {
+			// Fail open: a transient API error must not block navigation.
+		}
+	}
+
 	return next()
 })
 

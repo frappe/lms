@@ -1,13 +1,8 @@
 <template>
-	<Dialog
-		v-model="show"
-		:options="{
-			size: '2xl',
-		}"
-	>
-		<template #body-title>
+	<Dialog v-model:open="show" size="2xl">
+		<template #title>
 			<div class="flex items-center justify-between gap-x-2 text-base w-full">
-				<div class="text-xl font-semibold text-ink-gray-9">
+				<div class="text-2xl-semibold text-ink-gray-9">
 					{{
 						programName === 'new' ? __('Create Program') : __('Edit Program')
 					}}
@@ -17,7 +12,7 @@
 				</Badge>
 			</div>
 		</template>
-		<template #body-content>
+		<template #default>
 			<div class="text-base">
 				<div class="grid grid-cols-1 md:grid-cols-2 gap-5 pb-5">
 					<FormControl
@@ -45,12 +40,12 @@
 
 				<div class="pb-5">
 					<div class="flex items-center justify-between mt-5 mb-4">
-						<div class="text-lg font-semibold text-ink-gray-9">
+						<div class="text-lg-semibold text-ink-gray-9">
 							{{ __('Courses') }}
 						</div>
 						<Button @click="openForm('course')">
 							<template #prefix>
-								<Plus class="h-4 w-4 stroke-1.5" />
+								<span class="lucide-plus size-4" />
 							</template>
 							<span>
 								{{ __('Add') }}
@@ -66,17 +61,21 @@
 							resizeColumn: true,
 							showTooltip: false,
 						}"
-						:rowKey="programName === 'new' ? 'course' : 'name'"
+						:rowKey="'course'"
 					>
 						<ListHeader
 							class="mb-2 grid items-center gap-x-4 rounded bg-surface-gray-2 p-2"
 						>
-							<ListHeaderItem :item="item" v-for="item in courseColumns" />
+							<ListHeaderItem
+								:item="item"
+								v-for="item in courseColumns"
+								:key="item.key"
+							/>
 						</ListHeader>
 						<ListRows>
 							<Draggable
 								:list="program.program_courses"
-								:item-key="programName === 'new' ? 'course' : 'name'"
+								:item-key="'course'"
 								group="items"
 								@end="updateOrder"
 								class="cursor-move"
@@ -91,9 +90,10 @@
 								<div class="flex gap-2">
 									<Button
 										variant="ghost"
+										:label="__('Delete')"
 										@click="remove(selections, unselectAll, 'courses')"
 									>
-										<Trash2 class="h-4 w-4 stroke-1.5" />
+										<span class="lucide-trash-2 size-4" />
 									</Button>
 								</div>
 							</template>
@@ -106,7 +106,7 @@
 
 				<div>
 					<div class="flex items-center justify-between mt-5 mb-4">
-						<div class="text-lg font-semibold text-ink-gray-9">
+						<div class="text-lg-semibold text-ink-gray-9">
 							{{ __('Members') }}
 						</div>
 
@@ -120,74 +120,57 @@
 								"
 							>
 								<template #prefix>
-									<TrendingUp class="size-4 stroke-1.5" />
+									<span class="lucide-trending-up size-4" />
 								</template>
 								{{ __('Progress Summary') }}
 							</Button>
 							<Button @click="openForm('member')">
 								<template #prefix>
-									<Plus class="h-4 w-4 stroke-1.5" />
+									<span class="lucide-plus size-4" />
 								</template>
 								{{ __('Add') }}
 							</Button>
 						</div>
 					</div>
-					<ListView
+					<ResponsiveListView
 						v-if="program.program_members?.length > 0"
 						:columns="memberColumns"
 						:rows="program.program_members"
-						:options="{
-							selectable: true,
-							resizeColumn: true,
-						}"
-						:rowKey="programName === 'new' ? 'member' : 'name'"
+						row-key="member"
+						:options="{ selectable: true }"
 					>
-						<ListHeader
-							class="mb-2 grid items-center gap-x-4 rounded bg-surface-gray-2 p-2"
-						>
-							<ListHeaderItem :item="item" v-for="item in memberColumns" />
-						</ListHeader>
-						<ListRows>
-							<ListRow :row="row" v-for="row in program.program_members" />
-						</ListRows>
-						<ListSelectBanner>
-							<template #actions="{ unselectAll, selections }">
-								<div class="flex gap-2">
-									<Button
-										variant="ghost"
-										@click="remove(selections, unselectAll, 'members')"
-									>
-										<Trash2 class="h-4 w-4 stroke-1.5" />
-									</Button>
-								</div>
-							</template>
-						</ListSelectBanner>
-					</ListView>
+						<template #selection-actions="{ unselectAll, selections }">
+							<Button
+								variant="ghost"
+								:label="__('Delete')"
+								@click="remove(selections, unselectAll, 'members')"
+							>
+								<span class="lucide-trash-2 size-4" />
+							</Button>
+						</template>
+					</ResponsiveListView>
 					<div v-else class="text-ink-gray-7">
 						{{ __('No members added yet.') }}
 					</div>
 				</div>
 			</div>
 			<Dialog
-				v-model="showFormDialog"
-				:options="{
-					title:
-						currentForm == 'course'
-							? __('Add Course to Program')
-							: __('Enroll Member to Program'),
-					actions: [
-						{
-							label: __('Add'),
-							variant: 'solid',
-							onClick: ({ close }: { close: () => void }) =>
-								currentForm == 'course'
-									? addCourse(close)
-									: addMember(close),
-						},
-					],
-				}"
+				v-model:open="showFormDialog"
+				:title="
+					currentForm == 'course'
+						? __('Add Course to Program')
+						: __('Enroll Member to Program')
+				"
+				:actions="[
+					{
+						label: __('Add'),
+						variant: 'solid',
+						onClick: ({ close }: { close: () => void }) =>
+							currentForm == 'course' ? addCourse(close) : addMember(close),
+					},
+				]"
 			>
-				<template #body-content>
+				<template #default>
 					<div @click.stop>
 						<Link
 							v-if="currentForm == 'course'"
@@ -204,7 +187,10 @@
 								ignore_user_type: 1,
 							}"
 							:label="__('Program Member')"
-							:onCreate="(value: string, close: () => void) => openSettings('Members', close)"
+							:onCreate="
+								(value: string, close: () => void) =>
+									openSettings('Members', close)
+							"
 						/>
 					</div>
 				</template>
@@ -225,7 +211,7 @@
 					theme="red"
 				>
 					<template #prefix>
-						<Trash2 class="size-4 stroke-1.5" />
+						<span class="lucide-trash-2 size-4" />
 					</template>
 					{{ __('Delete') }}
 				</Button>
@@ -252,10 +238,11 @@ import {
 	toast,
 } from 'frappe-ui'
 import { computed, ref, watch, getCurrentInstance } from 'vue'
-import { Plus, Trash2, TrendingUp } from 'lucide-vue-next'
-import { Programs, Program } from '@/types/programs'
+
+import { Programs, Program } from '@/types'
 import { sanitizeHTML, openSettings } from '@/utils'
 import Link from '@/components/Controls/Link.vue'
+import ResponsiveListView from '@/components/ResponsiveListView.vue'
 import Draggable from 'vuedraggable'
 import ProgramProgressSummary from '@/pages/Programs/ProgramProgressSummary.vue'
 
@@ -303,7 +290,7 @@ const setProgramData = () => {
 	programs.value?.data.forEach((p: Program) => {
 		if (p.name === props.programName) {
 			isNew = false
-			program.value = { ...p }
+			program.value = { program_courses: [], program_members: [], ...p }
 		}
 	})
 

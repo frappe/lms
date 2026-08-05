@@ -1,11 +1,11 @@
 <template>
-	<Popover transition="default">
-		<template #target="{ isOpen, togglePopover }" class="flex w-full">
-			<slot v-bind="{ isOpen, togglePopover }"></slot>
+	<Popover bare>
+		<template #trigger="{ isOpen, toggle }" class="flex w-full">
+			<slot v-bind="{ isOpen, togglePopover: toggle }"></slot>
 		</template>
-		<template #body>
+		<template #default>
 			<div
-				class="absolute start-1/2 mt-3 w-96 max-w-lg -translate-x-1/2 transform rounded-lg bg-surface-white px-4 sm:px-0 lg:max-w-3xl"
+				class="absolute start-1/2 mt-3 w-96 max-w-lg -translate-x-1/2 transform rounded-lg bg-surface-base px-4 sm:px-0 lg:max-w-3xl"
 			>
 				<div
 					class="overflow-hidden rounded-lg p-3 shadow-2xl ring-1 ring-black ring-opacity-5"
@@ -14,6 +14,7 @@
 						<TextInput
 							type="text"
 							placeholder="search by keyword"
+							:aria-label="__('Search images by keyword')"
 							v-model="search"
 							:debounce="300"
 							class="flex-1"
@@ -35,7 +36,8 @@
 						</FileUploader>
 					</div>
 					<div
-						class="relative mt-2 grid w-[25.5rem] gap-2 bg-surface-white lg:grid-cols-2"
+						v-if="hasImages"
+						class="relative mt-2 grid w-[25.5rem] gap-2 bg-surface-base lg:grid-cols-2"
 					>
 						<button
 							v-for="image in images.data"
@@ -48,11 +50,30 @@
 									image.urls.raw +
 									'&w=200&h=50&fit=crop&crop=entropy,faces,focalpoint'
 								"
+								:alt="__('Cover image option')"
 							/>
 						</button>
 					</div>
+					<!-- Unsplash needs an access key that most sites never set, so the
+					     grid is empty by default. Say so instead of showing a blank
+					     box that reads as a broken picker. -->
 					<div
-						v-if="images.data"
+						v-else-if="hasFetched && !images.loading"
+						class="mt-2 w-[25.5rem] rounded border border-dashed p-4 text-center text-sm text-ink-gray-5"
+					>
+						<template v-if="search">
+							{{ __('No images found for "{0}".').format(search) }}
+						</template>
+						<template v-else>
+							{{
+								__(
+									'Image search is unavailable. Add an Unsplash access key in Settings, or upload your own image.'
+								)
+							}}
+						</template>
+					</div>
+					<div
+						v-if="hasImages"
 						class="mt-2 text-center text-sm text-ink-gray-4"
 					>
 						{{ __('Image search powered by') }}
@@ -73,7 +94,7 @@ import {
 	Button,
 	createResource,
 } from 'frappe-ui'
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 
 const search = ref(null)
 const emit = defineEmits(['select'])
@@ -88,6 +109,15 @@ const images = createResource({
 	auto: true,
 	debounce: 500,
 })
+
+const hasImages = computed(() => images.data?.length > 0)
+
+// `auto: true` calls the *debounced* fetch, so `loading` stays false for the
+// whole debounce window. Keying the empty state off `loading` alone told a
+// correctly configured site its Unsplash key was missing for those 500ms.
+const hasFetched = computed(
+	() => images.data !== null && images.data !== undefined
+)
 
 watch(
 	() => search.value,

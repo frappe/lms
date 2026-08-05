@@ -1,167 +1,83 @@
 <template>
-	<div class="flex min-h-0 flex-col text-base">
-		<div class="flex items-center justify-between mb-5">
-			<div>
-				<div class="text-xl font-semibold mb-2 text-ink-gray-9">
-					{{ __(label) }}
-				</div>
-				<div class="text-ink-gray-6 leading-5">
-					{{ __(description) }}
-				</div>
-			</div>
-			<Button @click="openForm('new')">
-				<template #prefix>
-					<Plus class="h-3 w-3 stroke-1.5" />
-				</template>
-				{{ __('New') }}
-			</Button>
-		</div>
-
-		<div v-if="paymentGateways.data?.length" class="overflow-y-auto">
-			<ListView
-				:columns="columns"
-				:rows="paymentGateways.data"
-				row-key="name"
-				:options="{
-					showTooltip: false,
-					onRowClick: (row) => {
-						openForm(row.name)
-					},
-				}"
-			>
-				<ListHeader
-					class="mb-2 grid items-center gap-x-4 rounded bg-surface-gray-2 p-2"
-				>
-					<ListHeaderItem :item="item" v-for="item in columns">
-						<template #prefix="{ item }">
-							<FeatherIcon
-								v-if="item.icon"
-								:name="item.icon"
-								class="h-4 w-4 stroke-1.5"
-							/>
-						</template>
-					</ListHeaderItem>
-				</ListHeader>
-
-				<ListRows>
-					<ListRow :row="row" v-for="row in paymentGateways.data">
-						<template #default="{ column, item }">
-							<ListRowItem :item="row[column.key]" :align="column.align">
-								<div v-if="column.key == 'enabled'">
-									<Badge v-if="row[column.key]" theme="green">
-										{{ __('Enabled') }}
-									</Badge>
-									<Badge v-else theme="gray">
-										{{ __('Disabled') }}
-									</Badge>
-								</div>
-								<div v-else class="leading-5 text-sm">
-									{{ row[column.key] }}
-								</div>
-							</ListRowItem>
-						</template>
-					</ListRow>
-				</ListRows>
-
-				<ListSelectBanner>
-					<template #actions="{ unselectAll, selections }">
-						<div class="flex gap-2">
-							<Button
-								variant="ghost"
-								@click="removeAccount(selections, unselectAll)"
-							>
-								<Trash2 class="h-4 w-4 stroke-1.5" />
-							</Button>
-						</div>
-					</template>
-				</ListSelectBanner>
-			</ListView>
-		</div>
-		<EmptyStateLayout
-			v-else
-			name="Payment Gateways"
-			:description="__('Add one to get started.')"
-			:icon="DollarSign"
-		/>
-	</div>
+	<SettingsList
+		v-if="view === 'list'"
+		:title="__(label)"
+		:description="__(description)"
+		:columns="columns"
+		:rows="list.rows"
+		:loading="list.loading"
+		:has-next-page="list.hasNextPage"
+		v-model:search="list.search"
+		searchable
+		:search-label="__('Search gateways')"
+		empty-name="Payment Gateways"
+		empty-icon="lucide-dollar-sign"
+		@new="openForm('new')"
+		@load-more="list.loadMore()"
+		@row-click="(row) => openForm(row.name)"
+	/>
 	<PaymentGatewayDetails
-		v-model="showForm"
+		v-else
 		:gatewayID="currentGateway"
-		v-model:paymentGateways="paymentGateways"
+		v-model:paymentGateways="list.resource"
+		@updateStep="(step) => (view = step)"
 	/>
 </template>
-<script setup>
-import {
-	Badge,
-	Button,
-	call,
-	createListResource,
-	FeatherIcon,
-	ListView,
-	ListHeader,
-	ListHeaderItem,
-	ListRows,
-	ListRow,
-	ListRowItem,
-	ListSelectBanner,
-	toast,
-} from 'frappe-ui'
-import { computed, ref } from 'vue'
-import { Plus, Trash2, DollarSign } from 'lucide-vue-next'
+<script setup lang="ts">
+import { toast } from 'frappe-ui'
+import { ref } from 'vue'
 import PaymentGatewayDetails from '@/components/Settings/PaymentGatewayDetails.vue'
+import SettingsList from '@/components/Layouts/SettingsList.vue'
+import { useSettingsListResource } from '@/composables/useSettingsListResource'
 import { cleanError } from '@/utils'
-import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
+import type { SettingsListColumn } from '@/types'
 
-const showForm = ref(false)
-const currentGateway = ref(null)
+const view = ref<'list' | 'form'>('list')
+const currentGateway = ref<string | null>(null)
 
-const props = defineProps({
-	label: {
-		type: String,
-		required: true,
-	},
-	description: {
-		type: String,
-		required: true,
-	},
-})
+defineProps<{
+	label: string
+	description: string
+}>()
 
-const paymentGateways = createListResource({
+const list = useSettingsListResource({
 	doctype: 'Payment Gateway',
 	fields: ['name', 'gateway_settings', 'gateway_controller'],
-	auto: true,
+	searchFields: ['name', 'gateway_settings'],
 	orderBy: 'modified desc',
 })
 
-const openForm = (gatewayID) => {
-	currentGateway.value = gatewayID
-	showForm.value = true
-}
-
-const removeAccount = (selections, unselectAll) => {
-	call('lms.lms.api.delete_documents', {
-		doctype: 'Payment Gateway',
-		documents: Array.from(selections),
+const removeAccount = (gateway: string) => {
+	list.remove(gateway, {
+		onSuccess: () => toast.success(__('Payment gateway deleted successfully')),
+		onError: (err) => toast.error(cleanError(err.messages?.[0])),
 	})
-		.then(() => {
-			paymentGateways.reload()
-			toast.success(__('Payment gateways deleted successfully'))
-			unselectAll()
-		})
-		.catch((err) => {
-			toast.error(
-				cleanError(err.messages[0]) || __('Error deleting payment gateways')
-			)
-		})
 }
 
-const columns = computed(() => {
-	return [
-		{
-			label: __('Gateway'),
-			key: 'name',
-			icon: 'credit-card',
-		},
-	]
-})
+const columns: SettingsListColumn[] = [
+	{
+		key: 'gateway',
+		label: __('Gateway'),
+		type: 'stacked',
+		primary: (row) => row.name,
+		secondary: (row) => row.gateway_settings,
+	},
+	{
+		key: 'actions',
+		type: 'actions',
+		ariaLabel: (row) => __('Actions for {0}').format(row.name),
+		options: (row) => [
+			{
+				label: __('Delete'),
+				icon: 'lucide-trash-2',
+				onClick: () => removeAccount(row.name),
+			},
+		],
+	},
+]
+
+const openForm = (gatewayID: string) => {
+	currentGateway.value = gatewayID
+	view.value = 'form'
+}
 </script>

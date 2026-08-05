@@ -1,0 +1,35 @@
+<p>
+    {{ _("Dear ") }} {{ student_name }},
+</p>
+<br>
+<p>
+    {{ _("You're enrolled and all set! The course content is ready, so you can start learning right away and go at your own pace.") }}
+</p>
+{% if evaluation %}
+<br>
+<p>
+    {{ _("When you feel ready, you can schedule an evaluation to get certified.") }}
+    {% if evaluation_end_date %}
+    {{ _("The last day to schedule your evaluation is {0}.").format(frappe.utils.format_date(evaluation_end_date, "long")) }}
+    {% endif %}
+</p>
+{% endif %}
+<br>
+<p>
+    <b>{{ _("Batch:") }}</b> {{ title }}
+</p>
+<p>
+    <b>{{ _("Medium:") }}</b> {{ medium }}
+</p>
+<br>
+<p>
+    <a href="{{ get_lms_route('batches/' ~ name) }}">👉 {{ _("Visit your batch") }}</a>
+</p>
+<br>
+<p>
+    {{ _("If you have any questions or require assistance, feel free to contact us.") }}
+</p>
+<br>
+<p>
+    {{ _("Best Regards") }}
+</p>

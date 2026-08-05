@@ -1,19 +1,17 @@
 <template>
 	<Dialog
-		v-model="show"
-		:options="{
-			title: __('Add an assessment'),
-			size: 'sm',
-			actions: [
-				{
-					label: __('Submit'),
-					variant: 'solid',
-					onClick: (close) => addAssessment(close),
-				},
-			],
-		}"
+		v-model:open="show"
+		:title="__('Add an assessment')"
+		size="sm"
+		:actions="[
+			{
+				label: __('Submit'),
+				variant: 'solid',
+				onClick: ({ close }) => addAssessment(close),
+			},
+		]"
 	>
-		<template #body-content>
+		<template #default>
 			<div class="space-y-4">
 				<FormControl
 					type="select"

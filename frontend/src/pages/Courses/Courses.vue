@@ -1,9 +1,17 @@
 <template>
-	<LayoutHeader>
-		<template #left-header>
-			<Breadcrumbs :items="breadcrumbs" />
-		</template>
-		<template #right-header>
+	<ListPage
+		:breadcrumbs="breadcrumbs"
+		:title="__('All Courses')"
+		:rows="courses.data || []"
+		:loading="courses.list.loading || reloading"
+		:total-count="courseCount"
+		:has-next-page="courses.hasNextPage"
+		v-model:page-length="pageLength"
+		empty-name="Courses"
+		empty-icon="lucide-book-open"
+		@load-more="courses.next()"
+	>
+		<template #actions>
 			<Dropdown
 				placement="right"
 				side="bottom"
@@ -13,13 +21,13 @@
 				<template v-slot="{ open }">
 					<Button variant="solid">
 						<template #prefix>
-							<Plus class="size-4 stroke-1.5" />
+							<span class="lucide-plus size-4" />
 						</template>
 						{{ __('Create') }}
 						<template #suffix>
-							<ChevronDown
+							<span
 								:class="[
-									'ms-1 size-4 transform stroke-1.5 transition-transform',
+									'lucide-chevron-down ms-1 size-4 transform transition-transform',
 									open ? 'rotate-180' : '',
 								]"
 							/>
@@ -28,67 +36,49 @@
 				</template>
 			</Dropdown>
 		</template>
-	</LayoutHeader>
-	<div class="flex min-h-0 flex-1 flex-col p-5 pb-10">
-		<div
-			class="mb-5 flex flex-col justify-between space-y-4 lg:flex-row lg:items-center lg:space-y-0"
-		>
-			<div class="text-lg font-semibold text-ink-gray-9">
-				{{ __('All Courses') }}
-			</div>
-			<div
-				class="flex flex-col space-y-3 lg:flex-row lg:items-center lg:gap-x-4 lg:space-y-0"
+
+		<template #filters>
+			<TabButtons
+				:options="courseTabs"
+				v-model="currentTab"
+				class="!w-fit shrink-0"
+			/>
+			<FormControl
+				v-model="title"
+				:placeholder="__('Search')"
+				:aria-label="__('Search')"
+				type="text"
+				@input="updateCourses()"
 			>
-				<TabButtons :buttons="courseTabs" v-model="currentTab" class="w-fit" />
+				<template #prefix>
+					<span class="lucide-search size-4 text-ink-gray-5" />
+				</template>
+			</FormControl>
+			<ClearableCombobox
+				v-if="categories.data?.length"
+				v-model="currentCategory"
+				:options="categories.data.filter((c) => c.value)"
+				:placeholder="__('Category')"
+				@update:modelValue="updateCourses()"
+			/>
+			<ToggleFilter
+				:modelValue="certification"
+				:label="__('Certification')"
+				:mobileLabel="__('Certification available')"
+				:tooltip="__('Only show courses that offer a certificate')"
+				@update:modelValue="setCertification"
+			/>
+		</template>
 
-				<div class="grid grid-cols-2 gap-2">
-					<FormControl
-						v-model="title"
-						:placeholder="__('Search')"
-						type="text"
-						class="w-full"
-						@input="updateCourses()"
-					/>
-					<Select
-						v-if="categories.length"
-						v-model="currentCategory"
-						:options="categories"
-						:placeholder="__('Category')"
-						@update:modelValue="updateCourses()"
-					/>
-				</div>
-
-				<Tooltip :text="__('Only show courses that offer a certificate')">
-					<FormControl
-						type="checkbox"
-						v-model="certification"
-						:label="__('Certification')"
-						@change="updateCourses()"
-					/>
-				</Tooltip>
-			</div>
-		</div>
-		<div
-			v-if="courses.data?.length"
-			class="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4"
-		>
+		<template #card="{ row }">
 			<router-link
-				v-for="course in courses.data"
-				:to="{ name: 'CourseDetail', params: { courseName: course.name } }"
+				:to="{ name: 'CourseDetail', params: { courseName: row.name } }"
 			>
-				<CourseCard :course="course" />
+				<CourseCard :course="row" />
 			</router-link>
-		</div>
-		<EmptyStateLayout v-else-if="!courses.list.loading" name="Courses" />
-		<div
-			v-if="!courses.list.loading && courses.hasNextPage"
-			class="flex justify-center mt-5"
-		>
-			<Button @click="courses.next()">
-				{{ __('Load More') }}
-			</Button>
-		</div>
-	</div>
+		</template>
+	</ListPage>
+
 	<NewCourseModal
 		v-if="showCourseModal"
 		v-model="showCourseModal"
@@ -102,24 +92,21 @@
 </template>
 <script setup>
 import {
-	Breadcrumbs,
 	Button,
-	call,
 	createListResource,
+	createResource,
 	Dropdown,
 	FormControl,
 	TabButtons,
-	Tooltip,
 	usePageMeta,
 } from 'frappe-ui'
-import Select from '@/components/Controls/Select.vue'
+import ClearableCombobox from '@/components/Controls/ClearableCombobox.vue'
+import ToggleFilter from '@/components/Controls/ToggleFilter.vue'
+import ListPage from '@/components/Layouts/ListPage.vue'
 import { computed, inject, onMounted, ref, watch } from 'vue'
-import { ChevronDown, Plus } from 'lucide-vue-next'
 import { sessionStore } from '@/stores/session'
 import { canCreateCourse } from '@/utils'
 import CourseCard from '@/components/CourseCard.vue'
-import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
-import LayoutHeader from '@/components/Layouts/LayoutHeader.vue'
 import { useRouter } from 'vue-router'
 import NewCourseModal from '@/pages/Courses/NewCourseModal.vue'
 import CourseImportModal from '@/pages/Courses/CourseImportModal.vue'
@@ -127,20 +114,17 @@ import CourseImportModal from '@/pages/Courses/CourseImportModal.vue'
 const user = inject('$user')
 const dayjs = inject('$dayjs')
 const start = ref(0)
-const pageLength = ref(30)
-const categories = ref([
-	{
-		label: '',
-		value: null,
-	},
-])
 const currentCategory = ref(null)
 const title = ref('')
 const certification = ref(false)
+
+const setCertification = (value) => {
+	certification.value = value
+	updateCourses()
+}
 const filters = ref({})
 const currentTab = ref('live')
 const { brand } = sessionStore()
-const courseCount = ref(0)
 const router = useRouter()
 const showCourseModal = ref(false)
 const showCourseImportModal = ref(false)
@@ -148,14 +132,16 @@ const showCourseImportModal = ref(false)
 onMounted(() => {
 	setFiltersFromQuery()
 	updateCourses()
-	getCourseCount()
 })
 
 const setFiltersFromQuery = () => {
 	let queries = new URLSearchParams(location.search)
 	title.value = queries.get('title') || ''
 	currentCategory.value = queries.get('category') || null
-	certification.value = queries.get('certification') || false
+	// `|| false` would keep the raw string, so ?certification=false read as on.
+	certification.value = queries.get('certification') === 'true'
+	const tab = queries.get('tab')
+	if (tab) currentTab.value = tab
 	if (queries.get('newCourse') == '1') {
 		showCourseModal.value = true
 	}
@@ -165,38 +151,74 @@ const courses = createListResource({
 	doctype: 'LMS Course',
 	url: 'lms.lms.utils.get_courses',
 	cache: ['courses', user.data?.name],
-	pageLength: pageLength.value,
+	pageLength: 24,
 	start: start.value,
 })
 
-const setCategories = (data) => {
-	let allCategories = data.map((course) => course.category)
-	allCategories = allCategories.filter(
-		(category, index) => allCategories.indexOf(category) === index && category
-	)
-	if (categories.value.length <= allCategories.length) {
-		updateCategories(data)
+// The tabs filter on `enrolled`, `created` and `live`, which are not fields,
+// so `frappe.client.get_count` cannot answer this; only the endpoint that
+// resolves them can. Without it the footer can say how many rows it has but
+// not how many there are.
+const courseCountResource = createResource({
+	url: 'lms.lms.utils.get_course_count',
+	makeParams: () => ({ filters: filters.value }),
+	onError: (error) => {
+		console.error(error)
+	},
+})
+
+const courseCount = computed(() => courseCountResource.data ?? null)
+
+const getCourseCount = () => {
+	// Same sequencing hazard as the list: nothing orders the responses, so a
+	// slow count for filters the user has left would overwrite the current one.
+	courseCountResource.abort()
+	courseCountResource.submit()
+}
+
+// `list.loading` goes false mid-request: the aborted fetch's tail resolves
+// after the new reload() has started and clears the flag for it, so the empty
+// state flashes until the reload lands.
+const reloading = ref(false)
+
+const reloadCourses = async () => {
+	reloading.value = true
+	try {
+		await courses.reload()
+	} finally {
+		reloading.value = false
 	}
 }
 
-const getCourseCount = () => {
-	if (!user.data) return
-	if (!user.data.is_moderator) return
-	call('frappe.client.get_count', {
-		doctype: 'LMS Course',
-	}).then((data) => {
-		courseCount.value = data
-	})
-}
+const pageLength = computed({
+	get: () => courses.pageLength,
+	set: (value) => {
+		// reload() refetches only the rows already loaded when start > 0, so
+		// without rewinding to the first page a bigger page size changes nothing.
+		courses.update({ pageLength: value, start: 0 })
+		reloadCourses()
+	},
+})
+
+const categories = createListResource({
+	doctype: 'LMS Category',
+	url: 'lms.lms.utils.get_course_categories',
+	cache: ['course_categories'],
+	auto: true,
+})
 
 const updateCourses = () => {
 	updateFilters()
+	// createResource keeps no request sequence: every response assigns
+	// `data`, so a slow fetch for filters the user has already left repaints
+	// the list with the wrong courses seconds later. Cancel it first: an
+	// aborted fetch is swallowed and never reaches the list.
+	courses.list.abort()
 	courses.update({
 		filters: filters.value,
 	})
-	courses.reload().then((data) => {
-		setCategories(data)
-	})
+	reloadCourses()
+	getCourseCount()
 }
 
 const updateFilters = () => {
@@ -295,19 +317,6 @@ const setQueryParams = () => {
 	history.replaceState({}, '', `${location.pathname}${queryString}`)
 }
 
-const updateCategories = (data) => {
-	data.forEach((course) => {
-		if (
-			course.category &&
-			!categories.value.find((category) => category.value === course.category)
-		)
-			categories.value.push({
-				label: course.category,
-				value: course.category,
-			})
-	})
-}
-
 watch(currentTab, () => {
 	updateCourses()
 })
@@ -315,12 +324,8 @@ watch(currentTab, () => {
 const courseTabs = computed(() => {
 	let tabs = [
 		{
-			label: __('Live'),
+			label: __('Published'),
 			value: 'live',
-		},
-		{
-			label: __('New'),
-			value: 'new',
 		},
 		{
 			label: __('Upcoming'),
@@ -344,14 +349,14 @@ const courseMenu = computed(() => {
 	return [
 		{
 			label: __('New Course'),
-			icon: 'book-open',
+			icon: 'lucide-book-open',
 			onClick() {
 				showCourseModal.value = true
 			},
 		},
 		{
 			label: __('Import via Data Import Tool'),
-			icon: 'upload',
+			icon: 'lucide-upload',
 			onClick() {
 				router.push({
 					name: 'NewDataImport',
@@ -361,7 +366,7 @@ const courseMenu = computed(() => {
 		},
 		{
 			label: __('Import via ZIP'),
-			icon: 'folder-plus',
+			icon: 'lucide-folder-plus',
 			onClick() {
 				showCourseImportModal.value = true
 			},

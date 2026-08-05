@@ -1,22 +1,20 @@
 <template>
 	<Dialog
-		v-model="show"
+		v-model:open="show"
 		class="text-base"
-		:options="{
-			title: __('Apply for this job'),
-			size: 'lg',
-			actions: [
-				{
-					label: 'Submit',
-					variant: 'solid',
-					onClick: (close) => {
-						submitResume(close)
-					},
+		title="Apply for this job"
+		size="lg"
+		:actions="[
+			{
+				label: 'Submit',
+				variant: 'solid',
+				onClick: ({ close }) => {
+					submitResume(close)
 				},
-			],
-		}"
+			},
+		]"
 	>
-		<template #body-content>
+		<template #default>
 			<div class="flex flex-col gap-4 text-base">
 				<p class="text-ink-gray-9">
 					{{
@@ -38,12 +36,18 @@
 					>
 						<template v-slot="{ file, progress, uploading, openFileSelector }">
 							<div class="">
-								<Button @click="openFileSelector" :loading="uploading">
+								<Button
+									class="text-p-base-medium"
+									:loading="uploading"
+									@click="openFileSelector"
+								>
 									<template #prefix>
-										<Upload class="size-4 stroke-1.5" />
+										<span class="lucide-upload size-4" />
 									</template>
 									{{
-										uploading ? `Uploading ${progress}%` : 'Upload your resume'
+										uploading
+											? __('Uploading {0}%').format(progress)
+											: __('Upload your resume')
 									}}
 								</Button>
 							</div>
@@ -52,7 +56,7 @@
 				</div>
 				<div v-else class="flex items-center">
 					<div class="border rounded-md p-2 me-2">
-						<FileText class="h-5 w-5 stroke-1.5 text-ink-gray-7" />
+						<span class="lucide-file-text h-5 w-5 text-ink-gray-7" />
 					</div>
 					<div class="flex flex-col">
 						<span class="text-ink-gray-9">
@@ -69,7 +73,6 @@
 </template>
 <script setup>
 import { Dialog, FileUploader, Button, createResource, toast } from 'frappe-ui'
-import { FileText, Upload } from 'lucide-vue-next'
 import { ref, inject } from 'vue'
 import { getFileSize } from '@/utils/'
 

@@ -1,58 +1,83 @@
 <template>
-	<LayoutHeader>
-		<template #left-header>
-			<Breadcrumbs :items="breadcrumbs" />
-		</template>
-		<template #right-header>
+	<!-- A student sees their own enrolled/published split, which is not a
+	     filtered list page, so it keeps its own chrome. -->
+	<template v-if="isStudent">
+		<PageHeader :breadcrumbs="breadcrumbs" />
+		<StudentPrograms />
+	</template>
+
+	<ListPage
+		v-else
+		:breadcrumbs="breadcrumbs"
+		:title="__('All Programs')"
+		:rows="programs.data || []"
+		:total-count="programCount"
+		:loading="programs.list.loading || reloading"
+		:has-next-page="programs.hasNextPage"
+		v-model:page-length="pageLength"
+		empty-name="Programs"
+		empty-icon="lucide-graduation-cap"
+		@load-more="programs.next()"
+	>
+		<template #actions>
 			<Button
 				v-if="canCreateProgram()"
 				@click="openForm('new')"
 				variant="solid"
 			>
 				<template #prefix>
-					<Plus class="size-4 stroke-1.5" />
+					<span class="lucide-plus size-4" />
 				</template>
 				{{ __('Create') }}
 			</Button>
 		</template>
-	</LayoutHeader>
-	<div v-if="programs.data?.length && !isStudent" class="p-5">
-		<div class="text-lg font-semibold text-ink-gray-9 mb-5">
-			{{
-				__('{0} {1}').format(
-					programs.data.length,
-					programs.data.length == 1 ? __('Program') : __('Programs')
-				)
-			}}
-		</div>
-		<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-			<div
-				v-for="program in programs.data"
-				@click="openForm(program.name)"
-				class="border rounded-md p-3 hover:border-outline-gray-3 cursor-pointer space-y-2"
+
+		<template #filters>
+			<TabButtons
+				:options="programTabs"
+				v-model="currentTab"
+				class="!w-fit shrink-0"
+			/>
+			<FormControl
+				v-model="title"
+				:placeholder="__('Search')"
+				:aria-label="__('Search')"
+				type="text"
+				@input="debouncedUpdatePrograms()"
 			>
-				<div class="text-lg font-semibold text-ink-gray-9">
-					{{ program.name }}
+				<template #prefix>
+					<span class="lucide-search size-4 text-ink-gray-5" />
+				</template>
+			</FormControl>
+		</template>
+
+		<template #card="{ row }">
+			<button
+				type="button"
+				@click="openForm(row.name)"
+				class="block w-full cursor-pointer space-y-2 rounded-md border p-3 text-start hover:border-outline-gray-3"
+			>
+				<div class="text-lg-semibold text-ink-gray-9">
+					{{ row.name }}
 				</div>
 				<div class="flex items-center gap-x-2 text-ink-gray-7">
-					<BookOpen class="h-4 w-4 stroke-1.5" />
+					<span class="lucide-book-open size-4" />
 					<span>
-						{{ program.course_count }}
-						{{ program.course_count == 1 ? __('Course') : __('Courses') }}
+						{{ row.course_count }}
+						{{ row.course_count == 1 ? __('Course') : __('Courses') }}
 					</span>
 				</div>
 				<div class="flex items-center gap-x-2 text-ink-gray-7">
-					<User class="h-4 w-4 stroke-1.5" />
+					<span class="lucide-user size-4" />
 					<span>
-						{{ program.member_count || 0 }}
-						{{ program.member_count == 1 ? __('member') : __('members') }}
+						{{ row.member_count || 0 }}
+						{{ row.member_count == 1 ? __('member') : __('members') }}
 					</span>
 				</div>
-			</div>
-		</div>
-	</div>
-	<StudentPrograms v-else-if="isStudent" />
-	<EmptyStateLayout v-else name="Programs" />
+			</button>
+		</template>
+	</ListPage>
+
 	<ProgramForm
 		v-model="showForm"
 		:programName="currentProgram"
@@ -60,13 +85,21 @@
 	/>
 </template>
 <script setup>
-import { Breadcrumbs, Button, usePageMeta, createListResource } from 'frappe-ui'
-import { computed, inject, onMounted, ref } from 'vue'
-import { BookOpen, Plus, User } from 'lucide-vue-next'
+import {
+	Button,
+	createResource,
+	FormControl,
+	TabButtons,
+	usePageMeta,
+	createListResource,
+} from 'frappe-ui'
+import { computed, inject, onMounted, ref, watch } from 'vue'
+import { useDebounceFn } from '@vueuse/core'
+
 import { sessionStore } from '@/stores/session'
 import ProgramForm from '@/pages/Programs/ProgramForm.vue'
-import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
-import LayoutHeader from '@/components/Layouts/LayoutHeader.vue'
+import PageHeader from '@/components/Layouts/PageHeader.vue'
+import ListPage from '@/components/Layouts/ListPage.vue'
 import StudentPrograms from '@/pages/Programs/StudentPrograms.vue'
 
 const { brand } = sessionStore()
@@ -74,13 +107,17 @@ const user = inject('$user')
 const showForm = ref(false)
 const currentProgram = ref(null)
 const readOnlyMode = window.read_only_mode
+const title = ref('')
+const currentTab = ref('published')
+const filters = ref({})
 
 onMounted(() => {
 	if (!user.data) {
 		window.location.href = '/login'
 	}
 	if (user.data?.is_moderator || user.data?.is_instructor) {
-		programs.reload()
+		setFiltersFromQuery()
+		updatePrograms()
 	}
 })
 
@@ -97,6 +134,130 @@ const programs = createListResource({
 	],
 	auto: false,
 	orderBy: 'creation desc',
+	pageLength: 24,
+})
+
+// `list.loading` goes false mid-request: the aborted fetch's tail resolves
+// after the new reload() has started and clears the flag for it, so the empty
+// state flashes until the reload lands.
+const reloading = ref(false)
+
+const reloadPrograms = async () => {
+	reloading.value = true
+	try {
+		await programs.reload()
+	} finally {
+		reloading.value = false
+	}
+}
+
+const pageLength = computed({
+	get: () => programs.pageLength,
+	set: (value) => {
+		// reload() ignores the new size while start > 0: it refetches rows 0..N
+		// of the pages already loaded and then restores start. Resetting start
+		// makes the chosen size the size that is actually requested.
+		programs.update({ pageLength: value, start: 0 })
+		reloadPrograms()
+	},
+})
+
+const setFiltersFromQuery = () => {
+	let queries = new URLSearchParams(location.search)
+	title.value = queries.get('title') || ''
+}
+
+const updatePrograms = () => {
+	updateFilters()
+	// createResource keeps no request sequence: every response assigns `data`,
+	// so a slow fetch for filters the user has already left repaints the list
+	// with the wrong programs seconds later. Cancel it first: an aborted fetch
+	// is swallowed and never reaches the list.
+	programs.list.abort()
+	programs.update({
+		filters: filters.value,
+	})
+	reloadPrograms()
+	getProgramCount()
+}
+
+// @input fires on every keystroke, so an undebounced search costs one list
+// fetch and one count fetch per character typed.
+const debouncedUpdatePrograms = useDebounceFn(updatePrograms, 300)
+
+// LMS Program is a plain doctype filtered by plain fields, so the footer can
+// say how many programs the filters actually match.
+const programCountResource = createResource({
+	url: 'frappe.client.get_count',
+	makeParams: () => ({
+		doctype: 'LMS Program',
+		filters: filters.value,
+	}),
+	onError: (error) => {
+		console.error(error)
+	},
+})
+
+const programCount = computed(() => programCountResource.data || 0)
+
+const getProgramCount = () => {
+	// Same sequencing hazard as the list: nothing orders the responses, so a
+	// slow count for filters the user has left would overwrite the current
+	// total. An aborted fetch is swallowed and never assigns data.
+	programCountResource.abort()
+	programCountResource.submit()
+}
+
+const updateFilters = () => {
+	updateTitleFilter()
+	updateTabFilter()
+	setQueryParams()
+}
+
+const updateTitleFilter = () => {
+	if (title.value) {
+		filters.value['title'] = ['like', `%${title.value}%`]
+	} else {
+		delete filters.value['title']
+	}
+}
+
+const updateTabFilter = () => {
+	if (currentTab.value == 'unpublished') {
+		filters.value['published'] = 0
+	} else {
+		filters.value['published'] = 1
+	}
+}
+
+const setQueryParams = () => {
+	let queries = new URLSearchParams(location.search)
+	if (title.value) {
+		queries.set('title', title.value)
+	} else {
+		queries.delete('title')
+	}
+
+	let queryString = ''
+	if (queries.toString()) {
+		queryString = `?${queries.toString()}`
+	}
+	history.replaceState({}, '', `${location.pathname}${queryString}`)
+}
+
+const programTabs = computed(() => [
+	{
+		label: __('Published'),
+		value: 'published',
+	},
+	{
+		label: __('Unpublished'),
+		value: 'unpublished',
+	},
+])
+
+watch(currentTab, () => {
+	updatePrograms()
 })
 
 const canCreateProgram = () => {

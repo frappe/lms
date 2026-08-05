@@ -2,6 +2,7 @@
 # For license information, please see license.txt
 
 import json
+import os
 import re
 from binascii import Error as BinasciiError
 
@@ -9,8 +10,9 @@ import frappe
 from frappe import _, safe_decode
 from frappe.core.doctype.file.utils import get_random_filename
 from frappe.model.document import Document
-from frappe.utils import cint, comma_and
+from frappe.utils import cint, comma_and, escape_html
 from frappe.utils.file_manager import safe_b64decode
+from frappe.utils.html_utils import sanitize_html
 from fuzzywuzzy import fuzz
 
 from lms.lms.doctype.course_lesson.course_lesson import save_progress
@@ -22,6 +24,12 @@ from lms.lms.doctype.lms_question.lms_question import (
 from lms.lms.utils import (
 	generate_slug,
 )
+
+# Quiz answers may embed inline images as data: URIs. Only raster image types are
+# permitted. A data: URI with an active-document extension (.xhtml, .xsl, .html,
+# .js, …) would otherwise be written to the public /files/ dir and served inline,
+# enabling stored XSS on the LMS origin. SVG is excluded (script-bearing).
+ALLOWED_DATAURL_IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".gif", ".webp", ".avif", ".bmp"}
 
 
 class LMSQuiz(Document):
@@ -105,9 +113,37 @@ def set_total_marks(questions: list) -> int:
 	return marks
 
 
+def _parse_json_arg(raw, label):
+	"""Parse a client-supplied JSON-string argument, raising a clean error (not a 500)."""
+	try:
+		return json.loads(raw)
+	except (TypeError, ValueError):
+		frappe.throw(_("Invalid {0} submitted.").format(label), frappe.ValidationError)
+
+
+def _validate_quiz_results(results):
+	"""Coarse shape check before process_results reads result["question_name"] / ["answer"].
+	Rejects genuinely malformed items (non-dict, no question_name, or an answer that isn't a
+	list) with a clean validation error. A blank/null answer element is NOT rejected here: the
+	UI legitimately emits answer=[null] for a skipped open-ended question; process_results
+	normalises those to "" so a student can still submit a partially-answered quiz."""
+	for result in results:
+		if not (isinstance(result, dict) and result.get("question_name")):
+			frappe.throw(_("Invalid quiz results submitted."), frappe.ValidationError)
+		answer = result.get("answer")
+		if answer is not None and not isinstance(answer, list):
+			frappe.throw(_("Invalid quiz results submitted."), frappe.ValidationError)
+
+
 @frappe.whitelist()
 def submit_quiz(quiz: str, results: str | None = None):
-	results = json.loads(results) if results else []
+	if not isinstance(quiz, str):
+		frappe.throw(_("Invalid quiz."), frappe.ValidationError)
+
+	results = _parse_json_arg(results, _("quiz results")) if results else []
+	if not isinstance(results, list):
+		frappe.throw(_("Invalid quiz results submitted."), frappe.ValidationError)
+	_validate_quiz_results(results)
 
 	quiz_details = frappe.db.get_value(
 		"LMS Quiz",
@@ -123,11 +159,18 @@ def submit_quiz(quiz: str, results: str | None = None):
 		],
 		as_dict=1,
 	)
+	if not quiz_details:
+		frappe.throw(_("Invalid quiz."), frappe.ValidationError)
+
+	from lms.lms.permissions import can_access_quiz
+
+	if not can_access_quiz(quiz):
+		frappe.throw(_("You are not authorized to submit this quiz."), frappe.PermissionError)
 
 	data = process_results(results, quiz_details)
 	is_open_ended = data["is_open_ended"]
 
-	# Score and percentage are the submission's responsibility — its validate()
+	# Score and percentage are the submission's responsibility. Its validate()
 	# runs validate_marks() + set_percentage() on save. Read them back rather
 	# than recomputing here, so the two paths can't drift.
 	submission = create_submission(
@@ -156,6 +199,15 @@ def process_results(results: list, quiz_details: dict):
 			["question", "marks", "question_detail", "type"],
 			as_dict=1,
 		)
+		# The question must belong to this quiz. A stale/forged submission can name a row
+		# that no longer resolves for quiz_details; reject cleanly instead of NoneType-500ing.
+		if not question_details:
+			frappe.throw(_("Invalid quiz results submitted."), frappe.ValidationError)
+
+		# Normalise the answer to a non-empty list of strings so re.sub/join/[0] below can't
+		# choke on a null/empty element (the UI sends [null] for a skipped open-ended answer).
+		result["answer"] = [a if isinstance(a, str) else "" for a in (result.get("answer") or [])] or [""]
+
 		result["question_name"] = question_details.question
 		result["question"] = question_details.question_detail
 		result["marks_out_of"] = question_details.marks
@@ -175,9 +227,12 @@ def process_results(results: list, quiz_details: dict):
 		else:
 			is_open_ended = True
 			result["is_correct"] = 0
-			result["answer"] = re.sub(
-				r'<img[^>]*src\s*=\s*["\'](?=data:)(.*?)["\']', _save_file, result["answer"][0]
-			)
+			answer = re.sub(r'<img[^>]*src\s*=\s*["\'](?=data:)(.*?)["\']', _save_file, result["answer"][0])
+			# Defense-in-depth: the answer is later rendered in the instructor's
+			# privileged grading view (QuizSubmission.vue). The frontend already
+			# wraps it in sanitizeRichHTML, but a student-controlled answer must
+			# not be stored as live HTML that other surfaces could render raw.
+			result["answer"] = sanitize_html(answer, always_sanitize=True)
 
 	return {
 		"results": results,
@@ -214,6 +269,9 @@ def _save_file(match: re.Match) -> str:
 	headers, content = data.split(",")
 	mtype = headers.split(";", 1)[0]
 
+	if not mtype.lower().startswith("image/"):
+		frappe.throw(_("Only image data is allowed in quiz answers."))
+
 	if isinstance(content, str):
 		content = content.encode("utf-8")
 	if b"," in content:
@@ -231,6 +289,9 @@ def _save_file(match: re.Match) -> str:
 
 	else:
 		filename = get_random_filename(content_type=mtype)
+
+	if os.path.splitext(filename)[1].lower() not in ALLOWED_DATAURL_IMAGE_EXTENSIONS:
+		frappe.throw(_("File type of {0} is not allowed in quiz answers.").format(escape_html(filename)))
 
 	_file = frappe.get_doc(
 		{
@@ -294,11 +355,17 @@ def check_answer(quiz: str, question: str, question_type: str, answers: str):
 			frappe.PermissionError,
 		)
 
-	answers = answers and json.loads(answers)
+	answers = _parse_json_arg(answers, _("answers")) if answers else []
+	if not isinstance(answers, list):
+		frappe.throw(_("Invalid answers submitted."), frappe.ValidationError)
+
 	if question_type == "Choices":
 		return check_choice_answers(question, answers)
-	else:
-		return check_input_answers(question, answers[0])
+
+	# A blank input answer (empty list, or the [null] the UI emits for an untouched field)
+	# scores as incorrect; coerce to "" so answers[0] can't IndexError / feed None onward.
+	answer = answers[0] if answers else ""
+	return check_input_answers(question, answer if isinstance(answer, str) else "")
 
 
 def get_question_details(question: str):

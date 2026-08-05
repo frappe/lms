@@ -1,6 +1,6 @@
 <template>
 	<section class="space-y-5">
-		<div class="text-base font-semibold text-ink-gray-9">
+		<div class="text-base-semibold text-ink-gray-9">
 			{{ __('Course details') }}
 		</div>
 		<div class="grid grid-cols-2 gap-5">
@@ -18,13 +18,13 @@
 				:placeholder="__('Select category')"
 				:inlineCreate="true"
 				inlineCreatePlaceholder="Category name"
-				:onCreate="createCategory"
+				:onCreate="onCreateCategory"
 				variant="outline"
 				@update:modelValue="markDirty()"
 			/>
 			<CourseInstructorsField />
 			<div class="space-y-1.5">
-				<FormLabel :label="__('Tags')" />
+				<InputLabel :id="tagsLabelId" :label="__('Tags')" />
 				<MultiSelect
 					v-model="tagsArray"
 					:options="tagOptions"
@@ -33,16 +33,16 @@
 					class="w-full justify-between"
 					@update:query="tagQuery = $event"
 				>
-					<template #trigger="{ open, toggleOpen, selectedOptions }">
+					<template #trigger="{ open, selectedOptions }">
 						<button
 							type="button"
+							:aria-expanded="open"
 							:class="[
-								'relative inline-flex w-full min-h-7 items-center gap-2 rounded border border-outline-gray-2 bg-surface-white px-2 text-left text-base text-ink-gray-7 outline-none transition-colors hover:border-outline-gray-3 focus-visible:ring-2 ring-outline-gray-3',
-								open && 'ring-2',
+								'relative inline-flex w-full min-h-7 items-center gap-2 rounded border border-outline-gray-2 bg-surface-base px-2 text-start text-base text-ink-gray-8 outline-none transition-colors hover:border-outline-gray-3 hover:shadow-sm focus:border-outline-gray-4 focus:shadow-sm',
+								open && 'border-outline-gray-4 shadow-sm',
 							]"
-							@click="toggleOpen"
 						>
-							<Tag class="size-4 shrink-0 stroke-1.5 text-ink-gray-5" />
+							<span class="lucide-tag size-4 shrink-0 text-ink-gray-5" />
 							<span
 								class="min-w-0 flex-1 truncate"
 								:class="!selectedOptions.length && 'text-ink-gray-4'"
@@ -52,8 +52,8 @@
 								}}</template>
 								<template v-else>{{ __('Add tag') }}</template>
 							</span>
-							<ChevronDown
-								class="size-4 shrink-0 text-ink-gray-4 transition-transform duration-200"
+							<span
+								class="lucide-chevron-down size-4 shrink-0 text-ink-gray-4 transition-transform duration-200"
 								:class="open && 'rotate-180'"
 							/>
 						</button>
@@ -72,25 +72,35 @@
 				@change="markDirty()"
 			/>
 		</div>
-		<CourseThumbnailField />
+		<div class="grid gap-5 grid-cols-1 xl:grid-cols-2">
+			<CourseThumbnailField />
+			<VideoPreviewField
+				:modelValue="doc.video_link"
+				:label="__('Preview video')"
+				@update:modelValue="setVideoLink"
+			/>
+		</div>
 	</section>
 </template>
 
 <script setup lang="ts">
-import { FormControl, FormLabel, MultiSelect } from 'frappe-ui'
-import { ChevronDown, Tag } from 'lucide-vue-next'
-import { computed, inject, ref } from 'vue'
+import { FormControl, MultiSelect } from 'frappe-ui'
+import { computed, inject, ref, useId } from 'vue'
 import { createLMSCategory } from '@/utils'
+import { createHandler } from '@/pages/Courses/createHandler'
 import Link from '@/components/Controls/Link.vue'
 import CourseInstructorsField from '@/pages/Courses/CourseInstructorsField.vue'
 import CourseThumbnailField from '@/pages/Courses/CourseThumbnailField.vue'
-import type { CourseFormContext } from '@/types/api'
+import VideoPreviewField from '@/components/Controls/VideoPreviewField.vue'
+import type { CourseFormContext } from '@/types'
+import { InputLabel } from '@/components/Form/labeling'
 
 interface TagOption {
 	label: string
 	value: string
 }
 
+const tagsLabelId = useId()
 const { resource, markDirty } = inject<CourseFormContext>('courseForm')!
 
 const doc = computed(() => resource.doc)
@@ -124,6 +134,12 @@ const tagOptions = computed<TagOption[]>(() => {
 
 const tagsSelectedLabels = computed<string>(() => tagsArray.value.join(', '))
 
+function setVideoLink(value: string) {
+	if (!resource.doc) return
+	resource.doc.video_link = value
+	markDirty()
+}
+
 function createCategory(name: string, done?: () => void) {
 	if (!name) return
 	createLMSCategory(name).then((categoryName: string | undefined) => {
@@ -132,5 +148,9 @@ function createCategory(name: string, done?: () => void) {
 		done?.()
 		markDirty()
 	})
+}
+
+function onCreateCategory(value: string | null, done?: () => void) {
+	createHandler(value, done, (name) => createCategory(name, done))
 }
 </script>

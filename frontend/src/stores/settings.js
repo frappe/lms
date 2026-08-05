@@ -19,6 +19,13 @@ export const useSettings = defineStore('settings', () => {
 		auto: false,
 	})
 
+	function loadSidebarSettings(force = false) {
+		if (force) return sidebarSettings.reload()
+		if (sidebarSettings.data) return Promise.resolve(sidebarSettings.data)
+		if (sidebarSettings.loading) return sidebarSettings.promise
+		return sidebarSettings.reload()
+	}
+
 	const programs = createResource({
 		url: 'lms.lms.utils.get_programs',
 		auto: false,
@@ -31,5 +38,6 @@ export const useSettings = defineStore('settings', () => {
 		programs,
 		settings,
 		sidebarSettings,
+		loadSidebarSettings,
 	}
 })

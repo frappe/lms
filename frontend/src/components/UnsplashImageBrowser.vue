@@ -1,11 +1,11 @@
 <template>
-	<Popover transition="default">
-		<template #target="{ isOpen, togglePopover }" class="flex w-full">
-			<slot v-bind="{ isOpen, togglePopover }"></slot>
+	<Popover bare>
+		<template #trigger="{ isOpen, toggle }" class="flex w-full">
+			<slot v-bind="{ isOpen, togglePopover: toggle }"></slot>
 		</template>
-		<template #body>
+		<template #default>
 			<div
-				class="absolute start-1/2 mt-3 max-w-sm -translate-x-1/2 transform rounded-lg bg-surface-white px-4 sm:px-0 lg:max-w-3xl"
+				class="absolute start-1/2 mt-3 max-w-sm -translate-x-1/2 transform rounded-lg bg-surface-base px-4 sm:px-0 lg:max-w-3xl"
 			>
 				<div
 					class="overflow-hidden rounded-lg p-3 shadow-2xl ring-1 ring-black ring-opacity-5"
@@ -15,6 +15,7 @@
 							<TextInput
 								type="text"
 								placeholder="search by keyword"
+								:aria-label="__('Search by keyword')"
 								v-model="search"
 								:debounce="300"
 							/>
@@ -32,7 +33,7 @@
 						</FileUploader>
 					</div>
 					<div
-						class="relative mt-2 grid w-[25.5rem] gap-2 bg-surface-white lg:grid-cols-2"
+						class="relative mt-2 grid w-[25.5rem] gap-2 bg-surface-base lg:grid-cols-2"
 					>
 						<Button
 							v-for="image in $resources.images.data"
@@ -45,6 +46,7 @@
 									image.urls.raw +
 									'&w=200&h=50&fit=crop&crop=entropy,faces,focalpoint'
 								"
+								:alt="__('Unsplash photo')"
 							/>
 						</Button>
 					</div>

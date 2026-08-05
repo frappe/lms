@@ -2,13 +2,16 @@
 	<div class="p-2">
 		<Dropdown :options="userDropdownOptions">
 			<template v-slot="{ open, close }">
+				<!-- No `py-*` on the button: the name/user block is 40.5px on the
+				     paragraph scale, which overflows h-12's content box once
+				     padding takes 16px of it. `items-center` centres it in the 48px. -->
 				<button
-					class="flex h-12 py-2 items-center rounded-md duration-300 ease-in-out"
+					class="flex h-12 items-center rounded-md duration-300 ease-in-out"
 					:class="
 						isCollapsed
 							? 'px-0 w-auto'
 							: open
-							? 'bg-surface-white shadow-sm px-2 w-52'
+							? 'bg-surface-base shadow-sm px-2 w-52'
 							: 'hover:bg-surface-gray-3 px-2 w-52'
 					"
 				>
@@ -26,7 +29,7 @@
 								: 'opacity-100 ms-2 w-auto'
 						"
 					>
-						<div class="text-base font-medium text-ink-gray-9 leading-none">
+						<div class="text-p-base-medium text-ink-gray-9">
 							<span
 								v-if="
 									branding.data?.app_name && branding.data?.app_name != 'Frappe'
@@ -36,10 +39,7 @@
 							</span>
 							<span v-else> Learning </span>
 						</div>
-						<div
-							v-if="userResource.data"
-							class="mt-1 text-sm text-ink-gray-7 leading-none"
-						>
+						<div v-if="userResource.data" class="text-p-sm text-ink-gray-7">
 							{{ convertToTitleCase(userResource.data?.full_name) }}
 						</div>
 					</div>
@@ -51,7 +51,7 @@
 								: 'opacity-100 ms-2 w-auto'
 						"
 					>
-						<ChevronDown class="h-4 w-4 text-ink-gray-7" />
+						<span class="lucide-chevron-down h-4 w-4 text-ink-gray-7" />
 					</div>
 				</button>
 			</template>
@@ -65,29 +65,18 @@
 
 <script setup>
 import { sessionStore } from '@/stores/session'
-import { call, Dropdown, toast } from 'frappe-ui'
+import { call, createResource, Dropdown, toast } from 'frappe-ui'
 import { useRouter } from 'vue-router'
 import { convertToTitleCase } from '@/utils'
 import { applyTheme, toggleTheme, theme } from '@/utils/theme'
 import { usersStore } from '@/stores/user'
 import { useSettings } from '@/stores/settings'
-import { markRaw, watch, ref, onMounted, computed } from 'vue'
+import { h, watch, ref, onMounted, computed } from 'vue'
 import { createDialog } from '@/utils/dialogs'
-import Apps from '@/components/Sidebar/Apps.vue'
-import Configuration from '@/components/Sidebar/Configuration.vue'
 import FrappeCloudIcon from '@/components/Icons/FrappeCloudIcon.vue'
 import LMSLogo from '@/components/Icons/LMSLogo.vue'
 import SettingsModal from '@/components/Settings/Settings.vue'
-import {
-	ChevronDown,
-	LogIn,
-	LogOut,
-	Moon,
-	User,
-	Settings,
-	Sun,
-	Trash2,
-} from 'lucide-vue-next'
+import { Moon, Sun } from 'lucide-vue-next'
 
 const router = useRouter()
 const { logout, branding } = sessionStore()
@@ -103,6 +92,46 @@ const props = defineProps({
 		type: Boolean,
 		default: false,
 	},
+})
+
+const apps = createResource({
+	url: 'frappe.apps.get_apps',
+	cache: 'apps',
+	auto: true,
+	transform: (data) => [deskApp(), ...siblingApps(data)],
+})
+
+function deskApp() {
+	return {
+		name: 'frappe',
+		logo: '/assets/lms/images/desk.png',
+		title: __('Desk'),
+		route: '/desk/learning',
+	}
+}
+
+function siblingApps(data) {
+	return data
+		.filter((app) => app.name !== 'lms')
+		.map((app) => ({
+			name: app.name,
+			logo: app.logo,
+			title: __(app.title),
+			route: app.route,
+		}))
+}
+
+const appMenuItems = computed(() => {
+	return (apps.data || []).map((app) => ({
+		label: app.title,
+		onClick: () => {
+			window.location.href = app.route
+		},
+		slots: {
+			prefix: () =>
+				h('img', { class: 'size-4 shrink-0 rounded', src: app.logo }),
+		},
+	}))
 })
 
 onMounted(() => {
@@ -124,7 +153,7 @@ const userDropdownOptions = computed(() => {
 			group: '',
 			items: [
 				{
-					icon: User,
+					icon: 'lucide-user',
 					label: 'My Profile',
 					onClick: () => {
 						router.push(`/user/${userResource.data?.username}`)
@@ -141,7 +170,9 @@ const userDropdownOptions = computed(() => {
 					},
 				},
 				{
-					component: markRaw(Apps),
+					icon: 'lucide-layout-grid',
+					label: __('Apps'),
+					submenu: appMenuItems.value,
 					condition: () => {
 						let cookies = new URLSearchParams(
 							document.cookie.split('; ').join('&')
@@ -152,7 +183,7 @@ const userDropdownOptions = computed(() => {
 					},
 				},
 				{
-					icon: Settings,
+					icon: 'lucide-settings',
 					label: 'Settings',
 					onClick: () => {
 						settingsStore.isSettingsOpen = true
@@ -162,14 +193,27 @@ const userDropdownOptions = computed(() => {
 					},
 				},
 				{
-					component: markRaw(Configuration),
+					icon: 'lucide-wrench',
+					label: __('Configuration'),
+					submenu: [
+						{
+							icon: 'lucide-arrow-down-to-line',
+							label: __('Import'),
+							onClick: () => {
+								router.push({
+									name: 'DataImportList',
+									query: { step: 'list' },
+								})
+							},
+						},
+					],
 					condition: () => {
 						return userResource.data?.is_moderator
 					},
 				},
 				{
 					label: 'Clear Demo Data',
-					icon: Trash2,
+					icon: 'lucide-trash-2',
 					onClick: () => {
 						clearDemoDataConfirmation()
 					},
@@ -209,7 +253,7 @@ const userDropdownOptions = computed(() => {
 					},
 				},
 				{
-					icon: LogOut,
+					icon: 'lucide-log-out',
 					label: 'Log out',
 					onClick: () => {
 						logout.submit().then(() => {
@@ -221,7 +265,7 @@ const userDropdownOptions = computed(() => {
 					},
 				},
 				{
-					icon: LogIn,
+					icon: 'lucide-log-in',
 					label: 'Log in',
 					onClick: () => {
 						window.location.href = '/login'
@@ -272,3 +316,16 @@ const clearDemoData = () => {
 		})
 }
 </script>
+
+<style>
+/*
+ * frappe-ui's Dropdown content has no height bound, so a tall moderator menu
+ * overflows the viewport and the boundary row (e.g. "Toggle Theme") is clipped.
+ * reka exposes the room it has via --reka-popper-available-height; cap the menu
+ * to it and scroll the overflow. Portaled to body, so this rule is global.
+ */
+.dropdown-content {
+	max-height: var(--reka-popper-available-height);
+	overflow-y: auto;
+}
+</style>

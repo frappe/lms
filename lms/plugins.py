@@ -186,19 +186,39 @@ def youtube_video_renderer(video_id):
     """
 
 
+def _pdf_embed(src, width="100%", height="700px"):
+	"""Server-rendered PDF embed that stays usable on iOS.
+
+	iOS Safari (every iOS browser is WebKit) won't scroll a PDF inside an
+	<iframe>: it shows page 1 or nothing. There's no Vue here to mount the
+	pdf.js viewer (that's the SPA path), so we degrade gracefully: keep the
+	inline <iframe> for desktop and always surface an "Open PDF" link that hands
+	the file to the browser's native full-screen viewer, which scrolls on iOS.
+	"""
+	safe = quote(src, safe="/:?=&%#")
+	return f"""
+	<div style="display:flex;flex-direction:column;gap:8px">
+		<a href="{safe}" target="_blank" rel="noopener"
+			style="align-self:flex-start;text-decoration:underline">
+			{_("Open PDF in a new tab")} ↗
+		</a>
+		<iframe src="{safe}#toolbar=0" width="{width}" height="{height}"
+			title="PDF" frameborder="0"
+			style="border-radius: var(--border-radius-lg)"></iframe>
+	</div>
+	"""
+
+
 def embed_renderer(details):
 	type = details.split("|||")[0]
 	src = details.split("|||")[1]
-	width = "100%"
-	height = "400"
 
 	if type == "pdf":
-		width = "75%"
-		height = "600"
+		return _pdf_embed(src, width="75%", height="600")
 
 	return f"""
-	<iframe width={width} height={height}
-		src={src}
+	<iframe width="100%" height="400"
+		src="{quote(src, safe='/:?=&#')}"
 		title="Embedded Content"
 		frameborder="0"
 		style="border-radius: var(--border-radius-lg)"
@@ -217,7 +237,7 @@ def audio_renderer(src):
 
 
 def pdf_renderer(src):
-	return f"<iframe src='{quote(src)}#toolbar=0' width='100%' height='700px'></iframe>"
+	return _pdf_embed(src)
 
 
 def assignment_renderer(detail):

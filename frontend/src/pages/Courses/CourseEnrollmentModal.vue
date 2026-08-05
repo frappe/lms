@@ -1,12 +1,6 @@
 <template>
-	<Dialog
-		v-model="show"
-		:options="{
-			title: __('Enroll a Student'),
-			size: 'xl',
-		}"
-	>
-		<template #body-content>
+	<Dialog v-model:open="show" title="Enroll a Student" size="xl">
+		<template #default>
 			<div class="space-y-4">
 				<FormControl
 					type="checkbox"

@@ -1,12 +1,11 @@
 <template>
 	<Dialog
-		v-model="show"
-		:options="{
-			size: 'xl',
-			title: studentDetails.data?.full_name || __('Student Details'),
-		}"
+		v-model:open="show"
+		size="xl"
+		:title="studentDetails.data?.full_name || __('Student Details')"
+		bare
 	>
-		<template #body>
+		<template #default>
 			<div
 				v-if="studentDetails.loading && !studentDetails.data"
 				class="flex items-center justify-center py-12"
@@ -14,11 +13,11 @@
 				<LoadingIndicator class="size-4" />
 			</div>
 			<div v-else-if="studentDetails.data" class="p-5 space-y-10 text-sm">
-				<div class="flex items-center gap-x-2">
+				<div class="flex items-center gap-x-4">
 					<Avatar :image="studentDetails.data.user_image" size="3xl" />
 					<div class="space-y-1">
 						<div class="flex items-center gap-x-2">
-							<div class="text-xl font-semibold text-ink-gray-9">
+							<div class="text-2xl-semibold text-ink-gray-9">
 								{{ studentDetails.data.full_name }}
 							</div>
 							<Badge
@@ -38,95 +37,48 @@
 				</div>
 
 				<div class="space-y-8">
-					<!-- Assessments -->
-					<ListView
+					<ResponsiveListView
 						:columns="assessmentColumns"
 						:rows="studentDetails.data.assessments"
 						row-key="title"
-						class="border border-outline-gray-modals rounded-lg"
-						:options="{
-							selectable: false,
-							showTooltip: false,
-							onRowClick: (row: any) => {
-								redirectToAssessment(row)
-							}
-						}"
+						class="sm:border sm:border-outline-elevation-2 sm:rounded-lg"
+						:options="assessmentListOptions"
 					>
-						<ListHeader
-							class="mb-2 grid items-center gap-x-4 rounded-none rounded-t bg-surface-gray-2 p-2"
-						>
-						</ListHeader>
-						<ListRows v-for="row in studentDetails.data.assessments">
-							<ListRow :row="row" class="!rounded-none">
-								<template #default="{ column, item }">
-									<ListRowItem
-										:item="row[column.key]"
-										:align="column.align"
-										class="w-full"
-									>
-										<div
-											v-if="column.key == 'status' && isAssignment(row.status)"
-										>
-											<Badge :theme="getStatusTheme(row[column.key])">
-												{{ row[column.key] }}
-											</Badge>
-										</div>
-										<div v-else>
-											{{ row[column.key] }}
-										</div>
-									</ListRowItem>
-								</template>
-							</ListRow>
-						</ListRows>
-					</ListView>
+						<template #cell="{ column, value }">
+							<Badge
+								v-if="column.key == 'status' && isAssignment(value)"
+								:theme="getStatusTheme(value as string)"
+							>
+								{{ value }}
+							</Badge>
+							<span v-else>{{ value }}</span>
+						</template>
+					</ResponsiveListView>
 
 					<!-- Courses -->
-					<ListView
+					<ResponsiveListView
 						:columns="courseColumns"
 						:rows="studentDetails.data.courses"
 						row-key="title"
-						class="border border-outline-gray-modals rounded-lg"
-						:options="{
-							selectable: false,
-							showTooltip: false,
-							onRowClick: (row: any) => {
-								redirectToCourse(row)
-							}
-						}"
+						class="sm:border sm:border-outline-elevation-2 sm:rounded-lg"
+						:options="courseListOptions"
 					>
-						<ListHeader
-							class="mb-2 grid items-center gap-x-4 rounded-none rounded-t bg-surface-gray-2 p-2"
-						>
-						</ListHeader>
-						<ListRows v-for="row in studentDetails.data.courses">
-							<ListRow :row="row" class="!rounded-none">
-								<template #default="{ column, item }">
-									<ListRowItem
-										:item="row[column.key]"
-										:align="column.align"
-										class="w-full"
-									>
-										<template #prefix>
-											<ProgressBar
-												v-if="column.key == 'progress'"
-												:progress="Math.ceil(row[column.key])"
-												class="!mx-0 !me-4 max-w-32"
-											/>
-										</template>
-										<div
-											v-if="column.key == 'progress'"
-											class="text-xs !ms-0 !me-3 w-5"
-										>
-											{{ Math.ceil(row[column.key]) }}%
-										</div>
-										<div v-else>
-											{{ row[column.key] }}
-										</div>
-									</ListRowItem>
-								</template>
-							</ListRow>
-						</ListRows>
-					</ListView>
+						<template #cell="{ column, value }">
+							<span
+								v-if="column.key == 'progress'"
+								class="flex items-center gap-2"
+							>
+								<ProgressBar
+									:progress="Math.ceil(Number(value))"
+									class="!mx-0 min-w-0 max-w-32 flex-1"
+								/>
+								<span class="text-xs shrink-0">
+									{{ Math.ceil(Number(value)) }}%
+								</span>
+							</span>
+							<span v-else>{{ value }}</span>
+						</template>
+					</ResponsiveListView>
 				</div>
 			</div>
 		</template>
@@ -138,15 +90,12 @@ import {
 	Badge,
 	createResource,
 	Dialog,
-	ListView,
-	ListHeader,
-	ListRows,
-	ListRow,
-	ListRowItem,
 	LoadingIndicator,
 } from 'frappe-ui'
 import { useRouter } from 'vue-router'
 import ProgressBar from '@/components/ProgressBar.vue'
+import ResponsiveListView from '@/components/ResponsiveListView.vue'
+import type { ListColumn, ListRow, ListViewOptions } from '@/types'
 
 const show = defineModel()
 const router = useRouter()
@@ -167,7 +116,6 @@ const studentDetails = createResource({
 })
 
 const redirectToAssessment = (row: any) => {
-	console.log(row)
 	if (!row.submission) return
 	if (row.type == 'LMS Assignment') {
 		router.push({
@@ -204,15 +152,27 @@ const redirectToCourse = (row: any) => {
 	})
 }
 
-const assessmentColumns = [
-	{ key: 'title', label: 'Assessment', align: 'left', width: '60%' },
-	{ key: 'status', label: 'Percentage/Status', align: 'right' },
+const assessmentColumns: ListColumn[] = [
+	{ key: 'title', label: __('Assessment'), align: 'left', width: '60%' },
+	{ key: 'status', label: __('Percentage/Status'), align: 'left' },
 ]
 
-const courseColumns = [
-	{ key: 'title', label: 'Course', align: 'left', width: '70%' },
-	{ key: 'progress', label: 'Progress', align: 'right' },
+const courseColumns: ListColumn[] = [
+	{ key: 'title', label: __('Course'), align: 'left', width: '70%' },
+	{ key: 'progress', label: __('Progress'), align: 'left' },
 ]
+
+const assessmentListOptions: ListViewOptions = {
+	selectable: false,
+	showTooltip: false,
+	onRowClick: (row: ListRow) => redirectToAssessment(row),
+}
+
+const courseListOptions: ListViewOptions = {
+	selectable: false,
+	showTooltip: false,
+	onRowClick: (row: ListRow) => redirectToCourse(row),
+}
 
 const isAssignment = (value: any) => {
 	return isNaN(value)

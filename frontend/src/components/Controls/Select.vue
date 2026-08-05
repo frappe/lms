@@ -1,32 +1,26 @@
 <template>
-	<div>
-		<label v-if="label" class="block mb-1.5" :class="labelClasses">
-			{{ label }}
-			<span v-if="required" class="text-ink-red-3">*</span>
-		</label>
-		<Select
-			v-bind="$attrs"
-			:modelValue="modelValue"
-			:options="options"
-			:size="size"
-			:variant="variant"
-			:placeholder="placeholder"
-			:disabled="disabled"
-			:emptyText="emptyText"
-			:required="required"
-			@update:modelValue="
-				(val: SelectOptionValue | undefined) => emit('update:modelValue', val)
-			"
-		/>
-		<p v-if="description" class="mt-1 text-xs text-ink-gray-5">
-			{{ description }}
-		</p>
-	</div>
+	<Select
+		class="w-full"
+		v-bind="$attrs"
+		:modelValue="modelValue"
+		:options="options"
+		:size="size"
+		:variant="variant"
+		:placeholder="placeholder"
+		:disabled="disabled"
+		:emptyText="emptyText"
+		:required="required"
+		:label="label ? __(label) : undefined"
+		:description="description"
+		:error="error"
+		@update:modelValue="
+			(val: SelectOptionValue | undefined) => emit('update:modelValue', val)
+		"
+	/>
 </template>
 
 <script setup lang="ts">
 import { Select } from 'frappe-ui'
-import { computed } from 'vue'
 import type { SelectOption, SelectOptionValue } from 'frappe-ui'
 
 defineOptions({ inheritAttrs: false })
@@ -40,6 +34,7 @@ const props = withDefaults(
 		options?: SelectOption[]
 		label?: string
 		description?: string
+		error?: string
 		placeholder?: string
 		required?: boolean
 		disabled?: boolean
@@ -53,9 +48,4 @@ const props = withDefaults(
 const emit = defineEmits<{
 	(e: 'update:modelValue', value: SelectOptionValue | undefined): void
 }>()
-
-const labelClasses = computed<string[]>(() => {
-	const sizeMap: Record<string, string> = { sm: 'text-xs', md: 'text-base' }
-	return [sizeMap[props.size || 'sm'], 'text-ink-gray-5']
-})
 </script>

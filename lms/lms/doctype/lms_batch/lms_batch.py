@@ -13,6 +13,7 @@ from frappe.model.document import Document
 from frappe.utils import add_days, cint, format_datetime, get_time, nowdate
 
 from lms.lms.utils import (
+	format_timezone,
 	generate_slug,
 	get_assignment_details,
 	get_instructors,
@@ -191,7 +192,7 @@ def send_email_notification_for_published_batch(batch):
 		"end_date": batch.end_date,
 		"start_time": batch.start_time,
 		"medium": batch.medium,
-		"timezone": batch.timezone,
+		"timezone": format_timezone(batch.timezone, batch.start_date),
 		"instructors": instructors,
 		"batch_url": frappe.utils.get_url(get_lms_route(f"batches/{batch.name}")),
 	}
@@ -250,9 +251,11 @@ def create_live_class(
 		"start_time": format_datetime(f"{date} {time}", "yyyy-MM-ddTHH:mm:ssZ"),
 		"duration": duration,
 		"agenda": description,
-		"private_meeting": True,
-		"auto_recording": "none" if auto_recording == "No Recording" else auto_recording.lower(),
 		"timezone": timezone,
+		"settings": {
+			"private_meeting": True,
+			"auto_recording": "none" if auto_recording == "No Recording" else auto_recording.lower(),
+		},
 	}
 	headers = {
 		"Authorization": "Bearer " + authenticate(zoom_account),
@@ -447,7 +450,16 @@ def send_batch_start_reminder():
 	batches = frappe.get_all(
 		"LMS Batch",
 		{"start_date": add_days(nowdate(), 1), "published": 1},
-		["name", "title", "start_date", "start_time", "medium"],
+		[
+			"name",
+			"title",
+			"start_date",
+			"start_time",
+			"medium",
+			"show_live_class",
+			"evaluation",
+			"evaluation_end_date",
+		],
 	)
 
 	for batch in batches:
@@ -457,8 +469,12 @@ def send_batch_start_reminder():
 
 
 def send_mail(batch, student):
-	subject = _("Your batch {0} is starting tomorrow").format(batch.title)
-	template = "batch_start_reminder"
+	if batch.show_live_class:
+		subject = _("Your batch {0} is starting tomorrow").format(batch.title)
+		template = "batch_start_reminder"
+	else:
+		subject = _("You're enrolled in {0} – start whenever you're ready").format(batch.title)
+		template = "batch_start_reminder_recorded"
 
 	args = {
 		"student_name": student.member_name,
@@ -467,6 +483,8 @@ def send_mail(batch, student):
 		"start_time": batch.start_time,
 		"medium": batch.medium,
 		"name": batch.name,
+		"evaluation": batch.evaluation,
+		"evaluation_end_date": batch.evaluation_end_date,
 	}
 
 	frappe.sendmail(

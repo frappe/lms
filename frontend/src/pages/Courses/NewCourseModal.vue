@@ -1,14 +1,8 @@
 <template>
-	<Dialog
-		v-model="show"
-		:options="{
-			title: __('New Course'),
-			size: '3xl',
-		}"
-	>
-		<template #body-content>
+	<Dialog v-model:open="show" title="New Course" size="3xl">
+		<template #default>
 			<div class="text-base">
-				<div class="grid grid-cols-2 gap-5 border-b mb-5">
+				<div class="grid grid-cols-2 gap-5 border-b pb-5 mb-5">
 					<FormControl
 						v-model="course.title"
 						:label="__('Title')"
@@ -36,7 +30,10 @@
 						:onCreate="openMemberModal"
 					>
 						<template #prefix>
-							<div v-if="visibleAvatars.length" class="flex -space-x-1.5">
+							<div
+								v-if="visibleAvatars.length"
+								class="flex -space-x-1.5 rtl:space-x-reverse"
+							>
 								<Avatar
 									v-for="m in visibleAvatars"
 									:key="m.value"
@@ -46,12 +43,12 @@
 								/>
 								<span
 									v-if="overflowCount > 0"
-									class="z-10 grid size-5 place-items-center rounded-full bg-surface-gray-3 text-xs font-medium text-ink-gray-7"
+									class="z-10 grid size-5 place-items-center rounded-full bg-surface-gray-3 text-xs-medium text-ink-gray-7"
 								>
 									+{{ overflowCount }}
 								</span>
 							</div>
-							<Users v-else class="size-4 stroke-1.5 text-ink-gray-5" />
+							<span v-else class="lucide-users size-4 text-ink-gray-5" />
 						</template>
 						<template #item-prefix="{ item }">
 							<Avatar :image="item.image" :label="item.label" size="sm" />
@@ -78,23 +75,21 @@
 						:label="__('Short introduction')"
 						type="textarea"
 						:required="true"
-						:rows="4"
 					/>
 					<div class="space-y-1.5">
-						<label
-							:for="descriptionId"
-							class="block text-p-sm font-medium text-ink-gray-7"
-						>
-							{{ __('Course description') }}
-							<span class="text-ink-red-3">*</span>
-						</label>
-						<TextEditor
+						<InputLabel
+							:id="descriptionLabelId"
+							:for-id="descriptionId"
+							:label="__('Course description')"
+							:required="true"
+						/>
+						<RichTextEditor
 							:id="descriptionId"
 							:content="course.description"
 							@change="(val: string) => (course.description = val)"
 							:editable="true"
 							:fixedMenu="true"
-							editorClass="prose-sm max-w-none border-b border-x border-outline-gray-modals bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[10rem] max-h-[17rem] overflow-auto"
+							editorClass="prose-sm max-w-none border-b border-x border-outline-elevation-2 bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[10rem] max-h-[17rem] overflow-auto"
 						/>
 					</div>
 				</div>
@@ -102,7 +97,11 @@
 		</template>
 		<template #actions="{ close }">
 			<div class="text-end">
-				<Button variant="solid" @click="saveCourse(close)">
+				<Button
+					variant="solid"
+					:loading="courses.insert.loading"
+					@click="saveCourse(close)"
+				>
 					{{ __('Save') }}
 				</Button>
 			</div>
@@ -121,28 +120,20 @@ import {
 	Button,
 	Dialog,
 	FormControl,
-	TextEditor,
 	createResource,
 	toast,
 } from 'frappe-ui'
 import { useOnboarding, useTelemetry } from 'frappe-ui/frappe'
-import { Users } from 'lucide-vue-next'
-import {
-	computed,
-	inject,
-	onBeforeUnmount,
-	onMounted,
-	ref,
-	useId,
-	watch,
-} from 'vue'
+import { computed, inject, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import Link from '@/components/Controls/Link.vue'
 import MultiLink from '@/components/Controls/MultiLink.vue'
 import Uploader from '@/components/Controls/Uploader.vue'
 import NewMemberModal from '@/components/Modals/NewMemberModal.vue'
 import { cleanError, sanitizeHTML, createLMSCategory } from '@/utils'
-import type { Resource } from '@/types/api'
+import type { Resource } from '@/types'
+import RichTextEditor from '@/components/RichTextEditor.vue'
+import { InputLabel, useInputLabeling } from '@/components/Form/labeling'
 
 interface InstructorOption {
 	label: string
@@ -191,9 +182,10 @@ const course = ref<Course>({
 const INSTRUCTOR_ROLES = ['Course Creator', 'Batch Evaluator']
 const MAX_VISIBLE_AVATARS = 3
 const thumbnailGuidelines = __(
-	'Upload a 750×422 image (.jpg, .jpeg, .gif, or .png) — shown on the catalog card and lesson hero.'
+	'Upload a 750×422 image (.jpg, .jpeg, .gif, or .png). Shown on the catalog card and lesson hero.'
 )
-const descriptionId = useId()
+const { inputId: descriptionId, labelId: descriptionLabelId } =
+	useInputLabeling({})
 
 const instructorsRef = ref<{
 	optionByValue: Map<string, InstructorOption>

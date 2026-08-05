@@ -1,6 +1,7 @@
 <template>
 	<FileUploader
 		:fileTypes="['image/*', 'video/*', 'audio/*', '.pdf']"
+		:uploadArgs="uploadArgs"
 		:validateFile="validateFile"
 		@success="(data) => addFile(data)"
 		ref="fileUploader"
@@ -9,7 +10,7 @@
 </template>
 <script setup>
 import { FileUploader } from 'frappe-ui'
-import { onMounted, ref, nextTick } from 'vue'
+import { onMounted, ref, nextTick, computed } from 'vue'
 
 const fileUploader = ref(null)
 const emit = defineEmits(['fileUploaded'])
@@ -19,6 +20,23 @@ const props = defineProps({
 		type: Function,
 		required: true,
 	},
+	uploadContext: {
+		type: Object,
+		default: () => ({}),
+	},
+})
+
+// Attach to the lesson only once it exists: a null docname with doctype set
+// makes the File doctype reject the upload.
+const uploadArgs = computed(() => {
+	const args = { private: true }
+	const docname = props.uploadContext?.docname
+	if (docname) {
+		args.doctype = 'Course Lesson'
+		args.docname = docname
+		args.fieldname = props.uploadContext?.fieldname || 'content'
+	}
+	return args
 })
 
 onMounted(async () => {

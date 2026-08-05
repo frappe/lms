@@ -1,142 +1,51 @@
 <template>
-	<div class="flex flex-col min-h-0 text-base">
-		<div class="flex items-center justify-between mb-5">
-			<div class="flex flex-col space-y-2">
-				<div class="text-xl font-semibold text-ink-gray-9">
-					{{ label }}
-				</div>
-				<div class="text-ink-gray-6 leading-5">
-					{{ __(description || '') }}
-				</div>
-			</div>
-			<div class="flex items-center gap-x-5">
-				<Button @click="openForm('new')">
-					<template #prefix>
-						<Plus class="h-3 w-3 stroke-1.5" />
-					</template>
-					{{ __('New') }}
-				</Button>
-			</div>
-		</div>
-		<div v-if="zoomAccounts.data?.length" class="overflow-y-auto">
-			<ListView
-				:columns="columns"
-				:rows="zoomAccounts.data"
-				row-key="name"
-				:options="{
-					showTooltip: false,
-					onRowClick: (row) => {
-						openForm(row.name)
-					},
-				}"
-			>
-				<ListHeader
-					class="mb-2 grid items-center gap-x-4 rounded bg-surface-gray-2 p-2"
-				>
-					<ListHeaderItem :item="item" v-for="item in columns">
-						<template #prefix="{ item }">
-							<FeatherIcon
-								v-if="item.icon"
-								:name="item.icon"
-								class="h-4 w-4 stroke-1.5"
-							/>
-						</template>
-					</ListHeaderItem>
-				</ListHeader>
-
-				<ListRows>
-					<ListRow :row="row" v-for="row in zoomAccounts.data">
-						<template #default="{ column, item }">
-							<ListRowItem :item="row[column.key]" :align="column.align">
-								<template #prefix>
-									<div v-if="column.key == 'member_name'">
-										<Avatar
-											class="flex items-center"
-											:image="row['member_image']"
-											:label="item"
-											size="sm"
-										/>
-									</div>
-								</template>
-								<div v-if="column.key == 'enabled'">
-									<Badge v-if="row[column.key]" theme="green">
-										{{ __('Enabled') }}
-									</Badge>
-									<Badge v-else theme="gray">
-										{{ __('Disabled') }}
-									</Badge>
-								</div>
-								<div v-else class="leading-5 text-sm">
-									{{ row[column.key] }}
-								</div>
-							</ListRowItem>
-						</template>
-					</ListRow>
-				</ListRows>
-
-				<ListSelectBanner>
-					<template #actions="{ unselectAll, selections }">
-						<div class="flex gap-2">
-							<Button
-								variant="ghost"
-								@click="removeAccount(selections, unselectAll)"
-							>
-								<Trash2 class="h-4 w-4 stroke-1.5" />
-							</Button>
-						</div>
-					</template>
-				</ListSelectBanner>
-			</ListView>
-		</div>
-		<EmptyStateLayout
-			v-else
-			name="Zoom Settings"
-			:description="__('Add one to get started.')"
-			:icon="Video"
-		/>
-	</div>
-	<ZoomAccountModal
-		v-if="showForm"
-		v-model="showForm"
-		v-model:zoomAccounts="zoomAccounts"
+	<SettingsList
+		v-if="view === 'list'"
+		:title="label"
+		:description="__(description || '')"
+		:columns="columns"
+		:rows="list.rows"
+		:loading="list.loading"
+		:has-next-page="list.hasNextPage"
+		v-model:search="list.search"
+		searchable
+		:search-label="__('Search accounts')"
+		empty-name="Zoom Settings"
+		empty-icon="lucide-video"
+		@new="openForm('new')"
+		@load-more="list.loadMore()"
+		@row-click="(row) => openForm(row.name)"
+	/>
+	<ZoomAccountForm
+		v-else
 		:accountID="currentAccount"
+		v-model:zoomAccounts="list.resource"
+		@updateStep="(step) => (view = step)"
 	/>
 </template>
 <script setup lang="ts">
-import {
-	Avatar,
-	Button,
-	Badge,
-	createListResource,
-	FeatherIcon,
-	ListView,
-	ListHeader,
-	ListHeaderItem,
-	ListRows,
-	ListRow,
-	ListRowItem,
-	ListSelectBanner,
-	toast,
-} from 'frappe-ui'
-import { computed, onMounted, ref } from 'vue'
-import { Plus, Trash2, Video } from 'lucide-vue-next'
+import { call, toast } from 'frappe-ui'
+import { ref } from 'vue'
 import { cleanError } from '@/utils'
-import ZoomAccountModal from '@/components/Modals/ZoomAccountModal.vue'
-import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
+import ZoomAccountForm from '@/components/Settings/ZoomAccountForm.vue'
+import SettingsList from '@/components/Layouts/SettingsList.vue'
+import { useSettingsListResource } from '@/composables/useSettingsListResource'
+import type { SettingsListColumn, SettingsListRow } from '@/types'
 
-const showForm = ref(false)
+const view = ref<'list' | 'form'>('list')
 const currentAccount = ref<string | null>(null)
 
-const props = defineProps<{
+defineProps<{
 	label: string
 	description?: string
 }>()
 
-const zoomAccounts = createListResource({
+const list = useSettingsListResource({
 	doctype: 'LMS Zoom Settings',
 	fields: [
 		'name',
 		'enabled',
+		'account_name',
 		'member',
 		'member_name',
 		'member_image',
@@ -144,56 +53,74 @@ const zoomAccounts = createListResource({
 		'client_id',
 		'client_secret',
 	],
+	searchFields: ['account_name', 'account_id', 'member_name'],
 	cache: ['zoomAccounts'],
 })
 
-onMounted(() => {
-	fetchZoomAccounts()
-})
-
-const fetchZoomAccounts = () => {
-	zoomAccounts.reload()
-}
-
-const openForm = (accountID: string) => {
-	currentAccount.value = accountID
-	showForm.value = true
-}
-
-const removeAccount = (selections: Set<string>, unselectAll: () => void) => {
-	Array.from(selections).forEach((accountID) => {
-		zoomAccounts.delete.submit(accountID, {
-			onSuccess() {
-				toast.success(__('Zoom account deleted successfully'))
-				fetchZoomAccounts()
-				unselectAll()
-			},
-			onError(err: any) {
-				toast.error(cleanError(err.messages[0] || err))
-				console.error(err)
-			},
+const toggleEnabled = async (row: SettingsListRow, value: boolean) => {
+	const previous = row.enabled
+	row.enabled = value ? 1 : 0
+	try {
+		await call('frappe.client.set_value', {
+			doctype: 'LMS Zoom Settings',
+			name: row.name,
+			fieldname: 'enabled',
+			value: row.enabled,
 		})
+	} catch (err: any) {
+		row.enabled = previous
+		toast.error(cleanError(err.messages?.[0] || err))
+	}
+}
+
+const removeAccount = (accountID: string) => {
+	list.remove(accountID, {
+		onSuccess: () => toast.success(__('Zoom account deleted successfully')),
+		onError: (err) => toast.error(cleanError(err.messages?.[0])),
 	})
 }
 
-const columns = computed(() => {
-	return [
-		{
-			label: __('Member'),
-			key: 'member_name',
-			icon: 'user',
-		},
-		{
-			label: __('Account Name'),
-			key: 'name',
-			icon: 'video',
-		},
-		{
-			label: __('Status'),
-			key: 'enabled',
-			align: 'center',
-			icon: 'check-square',
-		},
-	]
-})
+const columns: SettingsListColumn[] = [
+	{
+		key: 'account',
+		label: __('Account'),
+		type: 'stacked',
+		primary: (row) => row.account_name || row.name,
+		secondary: (row) => row.account_id,
+	},
+	{
+		key: 'member',
+		label: __('Member'),
+		type: 'text',
+		value: (row) => row.member_name,
+		avatar: (row) => ({ image: row.member_image, label: row.member_name }),
+	},
+	{
+		key: 'enabled',
+		label: __('Enabled'),
+		type: 'switch',
+		width: '6.5rem',
+		checked: (row) => Boolean(row.enabled),
+		ariaLabel: (row) => __('Enable {0}').format(row.account_name || row.name),
+		onChange: toggleEnabled,
+	},
+	{
+		key: 'actions',
+		type: 'actions',
+		ariaLabel: (row) =>
+			__('Actions for {0}').format(row.account_name || row.name),
+		options: (row) => [
+			{
+				label: __('Delete'),
+				icon: 'lucide-trash-2',
+				onClick: () => removeAccount(row.name),
+			},
+		],
+	},
+]
+
+const openForm = (accountID: string) => {
+	currentAccount.value = accountID
+	view.value = 'form'
+}
 </script>

@@ -19,6 +19,9 @@ class LMSCoupon(Document):
 			self.code = self.code.strip().upper()
 
 	def validate_expiry_date(self):
+		if not self.enabled:
+			return
+
 		if self.expires_on and str(self.expires_on) < nowdate():
 			frappe.throw(_("Expiry date cannot be in the past"))
 

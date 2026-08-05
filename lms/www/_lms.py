@@ -112,6 +112,9 @@ def get_meta_from_document(app_path):
 			as_dict=True,
 		)
 
+		if not course:
+			return frappe._dict()
+
 		if course.description:
 			soup = BeautifulSoup(course.description, "html.parser")
 			course.description = escape_html(soup.get_text())
@@ -138,6 +141,9 @@ def get_meta_from_document(app_path):
 			["title", "meta_image", "batch_details", "category", "medium"],
 			as_dict=True,
 		)
+
+		if not batch:
+			return frappe._dict()
 
 		if batch.batch_details:
 			soup = BeautifulSoup(batch.batch_details, "html.parser")
@@ -166,6 +172,9 @@ def get_meta_from_document(app_path):
 			as_dict=True,
 		)
 
+		if not batch:
+			return frappe._dict()
+
 		if batch.batch_details:
 			soup = BeautifulSoup(batch.batch_details, "html.parser")
 			batch.batch_details = escape_html(soup.get_text())
@@ -193,6 +202,9 @@ def get_meta_from_document(app_path):
 			["job_title", "company_logo", "description"],
 			as_dict=True,
 		)
+
+		if not job_opening:
+			return frappe._dict()
 
 		if job_opening.description:
 			soup = BeautifulSoup(job_opening.description, "html.parser")
@@ -224,6 +236,9 @@ def get_meta_from_document(app_path):
 			as_dict=True,
 		)
 
+		if not user:
+			return frappe._dict()
+
 		if user.bio:
 			soup = BeautifulSoup(user.bio, "html.parser")
 			user.bio = escape_html(soup.get_text())
@@ -245,6 +260,9 @@ def get_meta_from_document(app_path):
 			["title", "image", "description"],
 			as_dict=True,
 		)
+
+		if not badge:
+			return frappe._dict()
 		return {
 			"title": badge.title,
 			"image": badge.image,
@@ -268,6 +286,9 @@ def get_meta_from_document(app_path):
 			["title"],
 			as_dict=True,
 		)
+
+		if not quiz:
+			return frappe._dict()
 		if quiz:
 			return {
 				"title": quiz.title,
@@ -290,6 +311,9 @@ def get_meta_from_document(app_path):
 			["title"],
 			as_dict=True,
 		)
+
+		if not assignment:
+			return frappe._dict()
 		if assignment:
 			return {
 				"title": assignment.title,

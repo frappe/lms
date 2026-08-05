@@ -1,8 +1,8 @@
 <template>
-	<Dialog v-model="show" :options="{ size: '4xl' }">
-		<template #body-title>
+	<Dialog v-model="show" size="4xl">
+		<template #title>
 			<div class="flex items-center gap-x-2">
-				<div class="text-xl font-semibold text-ink-gray-9">
+				<div class="text-lg font-semibold text-ink-gray-9">
 					{{
 						props.exerciseID === 'new'
 							? __('Create Programming Exercise')
@@ -14,7 +14,7 @@
 				</Badge>
 			</div>
 		</template>
-		<template #body-content>
+		<template #default>
 			<div class="grid grid-cols-2 gap-10">
 				<div class="space-y-4">
 					<FormControl
@@ -41,17 +41,18 @@
 					/>
 				</div>
 				<div>
-					<div>
-						<div class="text-xs text-ink-gray-5 mb-2">
-							{{ __('Problem Statement') }}
-							<span class="text-ink-red-3">*</span>
-						</div>
-						<TextEditor
+					<div class="space-y-1.5">
+						<InputLabel
+							:id="problemStatementLabelId"
+							:label="__('Problem Statement')"
+							:required="true"
+						/>
+						<RichTextEditor
 							:content="exercise.problem_statement"
 							@change="(val: string) => (exercise.problem_statement = val)"
 							:editable="true"
 							:fixedMenu="true"
-							editorClass="prose-sm max-w-none border-b border-x border-outline-gray-modals bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[10rem] max-h-[21rem] overflow-y-auto"
+							editorClass="prose-sm max-w-none border-b border-x border-outline-elevation-2 bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[10rem] max-h-[21rem] overflow-y-auto"
 						/>
 					</div>
 				</div>
@@ -66,7 +67,7 @@
 					theme="red"
 				>
 					<template #prefix>
-						<Trash2 class="size-4 stroke-1.5" />
+						<span class="lucide-trash-2 size-4" />
 					</template>
 					{{ __('Delete') }}
 				</Button>
@@ -80,9 +81,9 @@
 						},
 					}"
 				>
-					<Button>
+					<Button class="text-p-base-medium">
 						<template #prefix>
-							<Play class="size-4 stroke-1.5" />
+							<span class="lucide-play size-4" />
 						</template>
 						{{ __('Test this Exercise') }}
 					</Button>
@@ -98,7 +99,7 @@
 				>
 					<Button>
 						<template #prefix>
-							<ClipboardList class="size-4 stroke-1.5" />
+							<span class="lucide-clipboard-list size-4" />
 						</template>
 						{{ __('Check Submission') }}
 					</Button>
@@ -111,7 +112,8 @@
 	</Dialog>
 </template>
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, ref, watch, useId } from 'vue'
+import { InputLabel } from '@/components/Form/labeling'
 import { sanitizeHTML } from '@/utils'
 import {
 	Badge,
@@ -119,16 +121,13 @@ import {
 	createListResource,
 	Dialog,
 	FormControl,
-	TextEditor,
 	toast,
 } from 'frappe-ui'
-import {
-	ProgrammingExercise,
-	ProgrammingExercises,
-	TestCase,
-} from '@/types/programming-exercise'
-import { ClipboardList, Play, Trash2 } from 'lucide-vue-next'
+import { ProgrammingExercise, ProgrammingExercises, TestCase } from '@/types'
 import ChildTable from '@/components/Controls/ChildTable.vue'
+import RichTextEditor from '@/components/RichTextEditor.vue'
+
+const problemStatementLabelId = useId()
 
 const show = defineModel()
 const exercises = defineModel<ProgrammingExercises>('exercises')

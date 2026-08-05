@@ -1,5 +1,6 @@
 import type { Ref } from 'vue'
 import type { LMSCourse } from './lms/LMSCourse'
+import type { LMSBatch } from './lms/LMSBatch'
 
 export interface Resource<T = unknown> {
 	data: T
@@ -7,8 +8,8 @@ export interface Resource<T = unknown> {
 	error: unknown
 	doc?: T
 	hasNextPage?: boolean
-	reload(): void
-	fetch(): void
+	reload(): Promise<T>
+	fetch(): Promise<T>
 	next?(): void
 	submit(params?: unknown, opts?: unknown): void
 	update(opts: unknown): void
@@ -58,6 +59,12 @@ export interface CourseDetails
 	rating?: string
 	rating_count?: number
 	quiz_count?: number
+}
+
+export interface BatchDetails extends Omit<LMSBatch, 'instructors'> {
+	instructors: string[]
+	students?: string[]
+	batch_details_raw?: string
 }
 
 export interface CourseReviewInfo {

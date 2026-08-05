@@ -1,95 +1,85 @@
 <template>
-	<div class="flex flex-col text-base h-full">
-		<div class="flex items-center gap-x-2 mb-8 -ms-1.5">
-			<ChevronLeft
-				class="size-5 stroke-1.5 text-ink-gray-7 cursor-pointer"
-				@click="emit('updateStep', 'list')"
-			/>
-			<div class="text-xl font-semibold text-ink-gray-9">
-				{{ data?.name ? __('Edit Coupon') : __('New Coupon') }}
-			</div>
-		</div>
-		<div class="space-y-4 overflow-y-auto">
-			<div>
-				<Switch
-					size="sm"
-					v-model="data.enabled"
-					:label="__('Enabled')"
-					:description="__('Allow this coupon to be used for discounts.')"
-				/>
-			</div>
+	<SettingsLayout
+		:title="isNew ? __('New Coupon') : doc?.code || __('Coupon')"
+		:show-back="true"
+		:enabled="doc ? Boolean(doc.enabled) : undefined"
+		@back="emit('updateStep', 'list')"
+		@update:enabled="(value) => doc && (doc.enabled = value)"
+	>
+		<template #header-actions>
+			<Button variant="solid" :disabled="!doc" @click="saveCoupon()">
+				{{ __('Save') }}
+			</Button>
+		</template>
+
+		<div v-if="doc" class="space-y-4">
 			<div class="grid grid-cols-2 gap-4">
 				<FormControl
-					v-model="data.code"
+					v-model="doc.code"
 					:label="__('Coupon Code')"
 					:required="true"
-					@input="() => (data.code = data.code.toUpperCase())"
+					:placeholder="__('e.g. WELCOME10')"
+					@input="() => (doc.code = doc.code.toUpperCase())"
 				/>
 
-				<FormControl
-					v-model="data.discount_type"
+				<Select
+					v-model="doc.discount_type"
 					:label="__('Discount Type')"
 					:required="true"
-					type="select"
 					:options="['Percentage', 'Fixed Amount']"
+					class="w-full"
 				/>
 
 				<FormControl
-					v-model="data.expires_on"
+					v-model="doc.expires_on"
 					:label="__('Expires On')"
 					type="date"
 				/>
 
 				<FormControl
-					v-if="data.discount_type === 'Percentage'"
-					v-model="data.percentage_discount"
+					v-if="doc.discount_type === 'Percentage'"
+					v-model="doc.percentage_discount"
 					:required="true"
 					:label="__('Discount Percentage')"
 					type="number"
 				/>
 				<FormControl
 					v-else
-					v-model="data.fixed_amount_discount"
+					v-model="doc.fixed_amount_discount"
 					:required="true"
 					:label="__('Discount Amount')"
 					type="number"
 				/>
 				<FormControl
-					v-model="data.usage_limit"
+					v-model="doc.usage_limit"
 					:label="__('Usage Limit')"
 					type="number"
 				/>
 
 				<FormControl
-					v-model="data.redemptions_count"
+					v-model="doc.redemption_count"
 					:label="__('Redemptions Count')"
 					type="number"
 					:disabled="true"
 				/>
 			</div>
-			<div class="py-8">
-				<div class="font-semibold text-ink-gray-9 mb-2">
+			<div class="pt-4">
+				<h2 class="font-semibold text-ink-gray-9 mb-3">
 					{{ __('Applicable For') }}
-				</div>
-				<CouponItems ref="couponItems" :data="data" :coupons="coupons" />
+				</h2>
+				<CouponItems :items="doc.applicable_items" />
 			</div>
 		</div>
-		<div class="mt-auto flex gap-x-2 items-center ms-auto">
-			<Button variant="solid" @click="saveCoupon()">
-				{{ __('Save') }}
-			</Button>
-		</div>
-	</div>
+	</SettingsLayout>
 </template>
 <script setup lang="ts">
-import { Button, FormControl, toast } from 'frappe-ui'
-import Switch from '@/components/Controls/Switch.vue'
-import { ref } from 'vue'
-import { ChevronLeft } from 'lucide-vue-next'
-import type { Coupon, Coupons } from './types'
+import { Button, FormControl, toast, createDocumentResource } from 'frappe-ui'
+import { computed, reactive } from 'vue'
+import type { Coupon, Coupons } from '@/types'
 import CouponItems from '@/components/Settings/Coupons/CouponItems.vue'
+import SettingsLayout from '@/components/Layouts/SettingsLayout.vue'
+import Select from '@/components/Controls/Select.vue'
 
-const couponItems = ref<any>(null)
 const emit = defineEmits(['updateStep'])
 
 const props = defineProps<{
@@ -97,48 +87,64 @@ const props = defineProps<{
 	data: Coupon
 }>()
 
+const isNew = !props.data?.name
+
+// New coupons edit a local object; existing ones load as a full document (child
+// table + `modified`) so one save persists all of it and `modified` stays in sync.
+const localDoc = reactive<any>({
+	...props.data,
+	enabled: props.data?.enabled ?? true,
+	discount_type: props.data?.discount_type ?? 'Percentage',
+	applicable_items: props.data?.applicable_items?.length
+		? props.data.applicable_items
+		: [{ reference_doctype: 'LMS Course', reference_name: null }],
+})
+
+const couponDoc = isNew
+	? null
+	: createDocumentResource({
+			doctype: 'LMS Coupon',
+			name: props.data.name,
+			auto: true,
+	  })
+
+const doc = computed<any>(() => (isNew ? localDoc : couponDoc?.doc))
+
 const saveCoupon = () => {
-	if (props.data?.name) {
-		editCoupon()
-	} else {
-		createCoupon()
-	}
-}
+	const current = doc.value
+	if (!current) return
 
-const editCoupon = () => {
-	props.coupons.setValue.submit(
-		{
-			...props.data,
-		},
-		{
-			onSuccess(data: Coupon) {
-				if (couponItems.value) {
-					couponItems.value.saveItems()
-				}
-			},
-		}
-	)
-}
-
-const createCoupon = () => {
-	if (couponItems.value) {
-		let rows = couponItems.value.saveItems()
-		props.data.applicable_items = rows
+	const payload = {
+		...current,
+		// Drop half-filled rows; the server requires at least one valid item.
+		applicable_items: (current.applicable_items || []).filter(
+			(row: any) => row.reference_name
+		),
 	}
-	props.coupons.insert.submit(
-		{
-			...props.data,
+
+	const handlers = {
+		onError(err: any) {
+			toast.error(err.messages?.[0] || err.message || err)
+			console.error(err)
 		},
-		{
-			onSuccess(data: Coupon) {
+	}
+
+	if (isNew) {
+		props.coupons.insert.submit(payload, {
+			onSuccess(data: unknown) {
 				toast.success(__('Coupon created successfully'))
-				emit('updateStep', 'details', { ...data })
+				emit('updateStep', 'details', { ...(data as Coupon) })
 			},
-			onError(err: any) {
-				toast.error(err.messages?.[0] || err.message || err)
-				console.error(err)
+			...handlers,
+		})
+	} else {
+		couponDoc!.setValue.submit(payload, {
+			onSuccess() {
+				toast.success(__('Coupon updated successfully'))
+				props.coupons.reload()
 			},
-		}
-	)
+			...handlers,
+		})
+	}
 }
 </script>

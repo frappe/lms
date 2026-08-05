@@ -2,7 +2,7 @@
 	<div>
 		<div class="flex justify-between mb-5">
 			<div class="space-y-1">
-				<div class="text-lg text-ink-gray-9 font-semibold">
+				<div class="text-lg-semibold text-ink-gray-9">
 					{{ __('Feedback') }}
 				</div>
 				<div
@@ -15,6 +15,7 @@
 			<Button
 				v-if="feedbackList.data?.length && isAdmin"
 				variant="outline"
+				class="text-p-base-medium"
 				@click="showAllFeedback = true"
 			>
 				{{ __('View all feedback') }}
@@ -25,11 +26,14 @@
 				<div class="leading-5 mb-4 text-ink-gray-7">
 					<div v-if="readOnly">
 						{{ __('Thank you for providing your feedback.') }}
-						<span
+						<button
+							type="button"
 							@click="showFeedbackForm = !showFeedbackForm"
+							:aria-expanded="showFeedbackForm"
 							class="underline cursor-pointer"
-							>{{ __('Click here') }}</span
 						>
+							{{ __('Click here') }}
+						</button>
 						{{ __('to view your feedback.') }}
 					</div>
 					<div v-else>
@@ -40,9 +44,10 @@
 					<div class="space-y-4">
 						<Rating
 							v-for="key in ratingKeys"
+							:key="key"
 							v-model="feedback[key]"
 							:label="__(convertToTitleCase(key))"
-							:readonly="readOnly"
+							:disabled="readOnly"
 						/>
 					</div>
 					<FormControl
@@ -63,9 +68,10 @@
 			<div class="space-y-4">
 				<Rating
 					v-for="key in ratingKeys"
+					:key="key"
 					v-model="average[key]"
 					:label="__(convertToTitleCase(key))"
-					:readonly="true"
+					:disabled="true"
 				/>
 			</div>
 		</div>

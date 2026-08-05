@@ -5,7 +5,7 @@
 			:class="$attrs.class"
 		>
 			<div
-				class="bg-surface-gray-7 rounded-full"
+				class="bg-surface-gray-10 rounded-full"
 				:class="progressBarHeight"
 				:style="{ width: progressBarWidth }"
 			></div>

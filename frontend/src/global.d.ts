@@ -1,15 +1,20 @@
 export {}
 
-declare global {
-  function __(text: string): string
+declare module '*.svg?raw' {
+	const content: string
+	export default content
+}
 
-  interface String {
-    format(...args: any[]): string
-  }
+declare global {
+	function __(text: string): string
+
+	interface String {
+		format(...args: any[]): string
+	}
 }
 
 declare module 'vue' {
-  interface ComponentCustomProperties {
-    __: (text: string) => string
-  }
+	interface ComponentCustomProperties {
+		__: (text: string) => string
+	}
 }

@@ -1,15 +1,74 @@
 @import 'frappe-ui/style.css';
-@import './styles/codemirror.css';
+@import 'frappe-ui/list-style.css';
+@import './styles/blockEditor.css';
 
-/*
- * Pin a Combobox/MultiSelect footer to the bottom of its dropdown so footer
- * actions stay reachable while options scroll. Opt-in via [data-popover-footer-sticky]
- * on the slot's inner element so frappe-ui's `[data-slot="footer"]` wrapper picks it up.
- * Unscoped because frappe-ui popovers portal to <body>.
- */
+/* Icons are 1.5 stroke everywhere. frappe-ui already normalises the two lucide
+   paths it owns (the `lucide-*` mask classes and the `~icons/lucide/*`
+   components), but `lucide-vue-next` renders its own default of 2, so the
+   sidebar's dynamic `icons[name]` lookups came out heavier than the same icon
+   in a Dropdown. Normalise the third path here rather than at each call site.
+   A `stroke-*` utility is a single class, so `svg.lucide` outranks it: this is
+   the floor and the ceiling, which is the point. Filled icons (the review
+   stars) key off `fill` and are unaffected. */
+svg.lucide {
+	stroke-width: 1.5;
+}
+
+/* Menu rows sit on the tight `text-base` scale (line-height 1.15) while the
+   surfaces around them read on the paragraph scale. Bring them onto it, so a
+   dropdown label has the same rhythm as the sidebar label next to it.
+   The paragraph scale already carries its own leading (14px/21px), so the row's
+   native `py-1.5` stacks on top of it and the row grows to 33px. Drop that
+   padding and the height falls back to the `min-h-7` floor: 28px rows, the
+   label still on the p-scale. Dropdown has no per-instance class hook
+   (`menuClasses.content` is fixed), so the narrowest available scope is every
+   menu; Select/Autocomplete option lists use the same row slot outside
+   `.menu-content` and are deliberately left alone. */
+.menu-content [data-slot='item-list-row'] {
+	@apply text-p-base py-0;
+}
+
+/* This build makes --surface-sidebar transparent in dark mode; point it at
+   gray-1 so the sidebar keeps a visible surface. */
+[data-theme='dark'] {
+	--surface-sidebar: var(--surface-gray-1);
+}
+
+/* frappe-ui beta.7 FormLabel differs from InputLabel; match standalone labels
+   (and stray inline <label>s) to the field-label style. */
+label.block:not([data-slot='label']) {
+	@apply text-p-sm-medium text-ink-gray-7;
+}
+
+/* Switch rows follow CRM's settings row: a medium, darker label over the
+   text-p-sm/ink-gray-5 description frappe-ui already renders. Keyed off the
+   switch control rather than a wrapper class so a bare frappe-ui Switch is
+   styled the same as one routed through BooleanSwitch. Ref CRM
+   Settings/DashboardSettings.vue. */
+div:has(> [role='switch']) [data-slot='label'] {
+	@apply text-p-base-medium text-ink-gray-7;
+}
+
+/* frappe-ui beta.7 Switch leaves a loose label/description gap; tighten it so
+   they read as one group (scoped to our lms-switch wrapper). */
+.lms-switch [data-slot='label'] {
+	@apply leading-tight;
+}
+.lms-switch > div:has(> [data-slot='description']) {
+	@apply mt-0.5;
+}
+
+/* Pin a Combobox/MultiSelect dropdown footer so its actions stay reachable while
+   options scroll. Unscoped since frappe-ui popovers portal to <body>. */
 [data-slot='content-body']
 	[data-slot='footer']:has(> [data-popover-footer-sticky]) {
 	position: sticky;
 	bottom: -0.25rem;
 	z-index: 1;
+}
+
+/* frappe-ui's --ink-gray-2 bullets are near-invisible; use --ink-gray-4 (as the
+   ordered-list counters do) so markers stay legible. */
+.prose {
+	--tw-prose-bullets: var(--ink-gray-4);
 }

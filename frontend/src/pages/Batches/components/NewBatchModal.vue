@@ -1,18 +1,13 @@
 <template>
-	<Dialog
-		v-model="show"
-		:options="{
-			title: __('New Batch'),
-			size: '3xl',
-		}"
-	>
-		<template #body-content>
+	<Dialog v-model:open="show" title="New Batch" size="3xl">
+		<template #default>
 			<div class="text-base">
 				<div class="grid grid-cols-1 md:grid-cols-3 gap-5">
 					<FormControl
 						v-model="batch.title"
 						:label="__('Title')"
 						:required="true"
+						variant="outline"
 						autocomplete="off"
 					/>
 					<FormControl
@@ -20,41 +15,43 @@
 						:label="__('Start Date')"
 						type="date"
 						:required="true"
+						variant="outline"
 					/>
 					<FormControl
 						v-model="batch.end_date"
 						:label="__('End Date')"
 						type="date"
 						:required="true"
+						variant="outline"
 					/>
 					<FormControl
 						v-model="batch.start_time"
-						:label="__('Start Time')"
 						type="time"
+						:label="__('Start Time')"
 						:required="true"
+						variant="outline"
 					/>
 					<FormControl
 						v-model="batch.end_time"
-						:label="__('End Time')"
 						type="time"
+						:label="__('End Time')"
 						:required="true"
+						variant="outline"
 					/>
-					<div>
-						<label class="block text-sm text-ink-gray-5 mb-1.5">
-							{{ __('Timezone') }}
-							<span class="text-ink-red-3">*</span>
-						</label>
-						<Combobox
-							v-model="batch.timezone"
-							:options="timezoneOptions"
-							:placeholder="__('Select timezone')"
-							class="w-full"
-						/>
-					</div>
+					<Combobox
+						v-model="batch.timezone"
+						:options="timezoneOptions"
+						:placeholder="__('Select timezone')"
+						:label="__('Timezone')"
+						:required="true"
+						variant="outline"
+						class="w-full"
+					/>
 					<Link
 						v-model="batch.category"
 						doctype="LMS Category"
 						:label="__('Category')"
+						variant="outline"
 						:onCreate="createCategory"
 					/>
 					<FormControl
@@ -62,17 +59,15 @@
 						:label="__('Seat Count')"
 						type="number"
 						:required="false"
+						variant="outline"
 					/>
-					<div>
-						<label class="block text-sm text-ink-gray-5 mb-2">
-							{{ __('Medium') }}
-						</label>
-						<Select
-							v-model="batch.medium"
-							:options="mediumOptions"
-							class="w-full"
-						/>
-					</div>
+					<Select
+						v-model="batch.medium"
+						:label="__('Medium')"
+						:options="mediumOptions"
+						variant="outline"
+						class="w-full"
+					/>
 				</div>
 
 				<div class="space-y-5 border-t mt-5 pt-5">
@@ -82,37 +77,50 @@
 							:label="__('Description')"
 							type="textarea"
 							:required="true"
-							:rows="4"
+							variant="outline"
 						/>
-						<MultiSelect
+						<MultiLink
 							v-model="batch.instructors"
 							doctype="User"
-							:label="__('Instructors')"
-							:required="true"
-							:onCreate="() => (showMemberModal = true)"
 							url="lms.lms.api.search_users_by_role"
 							:searchParams="{ roles: JSON.stringify(['Batch Evaluator']) }"
+							:label="__('Instructors')"
+							:placeholder="__('Select instructors')"
+							:required="true"
+							variant="outline"
+							:onCreate="() => (showMemberModal = true)"
 						/>
 					</div>
-					<div class="">
-						<div class="mb-1.5 text-sm text-ink-gray-5">
-							{{ __('Batch Details') }}
-							<span class="text-ink-red-3">*</span>
-						</div>
-						<TextEditor
-							:content="batch.batch_details"
-							@change="(val: string) => (batch.batch_details = val)"
-							:editable="true"
-							:fixedMenu="true"
-							editorClass="prose-sm max-w-none border-b border-x bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[10rem] max-h-[14rem] overflow-auto"
+					<div class="space-y-1.5">
+						<InputLabel
+							:id="batchDetailsLabelId"
+							:for-id="batchDetailsId"
+							:label="__('Batch Details')"
+							:required="true"
 						/>
+						<div
+							class="rounded-t-lg rounded-b-md outline-none transition-[box-shadow] duration-150 ease-[cubic-bezier(0.23,1,0.32,1)]"
+						>
+							<RichTextEditor
+								:id="batchDetailsId"
+								:content="batch.batch_details"
+								@change="(val: string) => (batch.batch_details = val)"
+								:editable="true"
+								:fixedMenu="true"
+								editorClass="prose-sm max-w-none border-b border-x border-outline-gray-2 hover:border-outline-gray-3 hover:shadow-sm focus-within:border-outline-gray-4 focus-within:shadow-sm rounded-b-md py-1 px-2 min-h-[10rem] max-h-[14rem] overflow-auto transition-colors"
+							/>
+						</div>
 					</div>
 				</div>
 			</div>
 		</template>
 		<template #actions="{ close }">
 			<div class="text-end">
-				<Button variant="solid" @click="saveBatch(close)">
+				<Button
+					variant="solid"
+					:loading="batches.insert.loading"
+					@click="saveBatch(close)"
+				>
 					{{ __('Save') }}
 				</Button>
 			</div>
@@ -130,7 +138,6 @@ import {
 	Combobox,
 	Dialog,
 	FormControl,
-	TextEditor,
 	createResource,
 	toast,
 } from 'frappe-ui'
@@ -138,10 +145,12 @@ import { useOnboarding, useTelemetry } from 'frappe-ui/frappe'
 import { computed, inject, onMounted, onBeforeUnmount, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { sanitizeHTML, createLMSCategory, cleanError } from '@/utils'
-import MultiSelect from '@/components/Controls/MultiSelect.vue'
+import MultiLink from '@/components/Controls/MultiLink.vue'
 import Link from '@/components/Controls/Link.vue'
 import Select from '@/components/Controls/Select.vue'
 import NewMemberModal from '@/components/Modals/NewMemberModal.vue'
+import RichTextEditor from '@/components/RichTextEditor.vue'
+import { InputLabel, useInputLabeling } from '@/components/Form/labeling'
 
 const show = defineModel<boolean>({ required: true, default: false })
 const router = useRouter()
@@ -149,6 +158,8 @@ const { capture } = useTelemetry()
 const { updateOnboardingStep } = useOnboarding('learning')
 const user = inject<any>('$user')
 const showMemberModal = ref(false)
+const { inputId: batchDetailsId, labelId: batchDetailsLabelId } =
+	useInputLabeling({})
 
 const props = defineProps<{
 	batches: any

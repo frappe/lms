@@ -1,143 +1,169 @@
 <template>
-	<div class="flex flex-col min-h-0 text-base">
-		<div class="flex items-center justify-between mb-5">
-			<div class="flex flex-col space-y-2">
-				<div class="text-xl font-semibold text-ink-gray-9">
-					{{ label }}
-				</div>
-				<div class="text-xs text-ink-gray-5">
-					{{ __(description) }}
-				</div>
+	<SettingsList
+		:title="label"
+		:description="__(description)"
+		:columns="columns"
+		:rows="list.rows"
+		:loading="list.loading"
+		:has-next-page="list.hasNextPage"
+		v-model:search="list.search"
+		searchable
+		:search-label="__('Search categories')"
+		:new-label="showForm ? __('Close') : __('New')"
+		empty-name="Categories"
+		empty-icon="lucide-network"
+		@new="showCategoryForm()"
+		@load-more="list.loadMore()"
+		@row-click="promptRename"
+	>
+		<template #header-actions>
+			<div
+				v-if="saving"
+				class="flex items-center gap-x-1 text-ink-amber-6 border border-outline-amber-1 bg-surface-amber-1 rounded-lg px-2 py-1"
+			>
+				<LoadingIndicator class="size-2" />
+				<span class="text-xs">{{ __('saving...') }}</span>
 			</div>
-			<div class="flex items-center gap-x-5">
-				<div
-					class="flex items-center gap-x-1 text-ink-amber-3 border border-outline-amber-1 bg-surface-amber-1 rounded-lg px-2 py-1"
-					v-if="saving"
-				>
-					<LoadingIndicator class="size-2" />
-					<span class="text-xs">
-						{{ __('saving...') }}
-					</span>
-				</div>
-				<Button @click="() => showCategoryForm()">
-					<template #prefix>
-						<Plus v-if="!showForm" class="h-3 w-3 stroke-1.5" />
-						<X v-else class="h-3 w-3 stroke-1.5" />
-					</template>
-					{{ showForm ? __('Close') : __('New') }}
+		</template>
+
+		<template #header-bottom>
+			<div v-if="showForm" class="flex flex-1 items-center justify-end gap-x-2">
+				<FormControl
+					ref="categoryInput"
+					v-model="category"
+					:placeholder="__('Category Name')"
+					class="flex-1"
+					@keyup.enter="addCategory()"
+				/>
+				<Button @click="addCategory()" variant="subtle">
+					{{ __('Add') }}
 				</Button>
 			</div>
-		</div>
+		</template>
+	</SettingsList>
 
-		<div v-if="showForm" class="flex items-center justify-between my-4 gap-x-2">
-			<FormControl
-				ref="categoryInput"
-				v-model="category"
-				:placeholder="__('Category Name')"
-				class="flex-1"
-			/>
-			<Button @click="addCategory()" variant="subtle">
-				{{ __('Add') }}
-			</Button>
-		</div>
-
-		<div class="overflow-y-auto">
-			<div class="divide-y divide-outline-gray-modals space-y-2">
-				<div
-					v-if="categories.data?.length"
-					v-for="(cat, index) in categories.data"
-					:key="cat.name"
-					class="pt-2"
-				>
-					<div
-						v-if="editing?.name !== cat.name"
-						class="flex items-center justify-between group text-sm text-ink-gray-9"
-					>
-						<div class="text-ink-gray-9" @dblclick="allowEdit(cat, index)">
-							{{ cat.category }}
-						</div>
-						<Button
-							variant="ghost"
-							theme="red"
-							class="invisible group-hover:visible"
-							@click="deleteCategory(cat.name)"
-						>
-							<template #icon>
-								<Trash2 class="size-4 stroke-1.5 text-ink-red-4" />
-							</template>
-						</Button>
-					</div>
-					<FormControl
-						v-else
-						:ref="(el) => (editInputRef[index] = el)"
-						v-model="editedValue"
-						type="text"
-						class="w-full"
-						@keyup.enter="saveChanges(cat.name, editedValue)"
-					/>
-				</div>
-				<EmptyStateLayout
-					v-else
-					name="Categories"
-					:description="__('Add one to get started.')"
-					:icon="Network"
-				/>
-			</div>
-		</div>
-	</div>
+	<Dialog
+		v-model="renameOpen"
+		:title="__('Edit category')"
+		size="sm"
+		:actions="renameActions"
+	>
+		<FormControl
+			ref="renameInput"
+			v-model="editedValue"
+			type="text"
+			:label="__('Name')"
+			@keyup.enter="saveChanges()"
+		/>
+	</Dialog>
 </template>
-<script setup>
+<script setup lang="ts">
 import {
 	Button,
+	Dialog,
 	FormControl,
 	LoadingIndicator,
-	createListResource,
+	call,
 	createResource,
 	toast,
 } from 'frappe-ui'
-import { Plus, Trash2, X, Network } from 'lucide-vue-next'
-import { ref } from 'vue'
+import { nextTick, ref } from 'vue'
 import { cleanError } from '@/utils'
-import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
+import { createDialog } from '@/utils/dialogs'
+import dayjs from '@/utils/dayjs'
+import SettingsList from '@/components/Layouts/SettingsList.vue'
+import { useSettingsListResource } from '@/composables/useSettingsListResource'
+import type { SettingsListColumn, SettingsListRow } from '@/types'
 
 const showForm = ref(false)
-const category = ref(null)
-const categoryInput = ref(null)
+const category = ref<string | null>(null)
+const categoryInput = ref<any>(null)
 const saving = ref(false)
-const editing = ref(null)
+const editing = ref<string | null>(null)
 const editedValue = ref('')
-const editInputRef = ref([])
+const renameOpen = ref(false)
+const renameInput = ref<any>(null)
 
-const props = defineProps({
-	label: {
-		type: String,
-		required: true,
-	},
-	description: {
-		type: String,
-		default: '',
-	},
-})
+withDefaults(
+	defineProps<{
+		label: string
+		description?: string
+	}>(),
+	{ description: '' }
+)
 
-const categories = createListResource({
+const list = useSettingsListResource({
 	doctype: 'LMS Category',
-	fields: ['name', 'category'],
-	auto: true,
+	fields: ['name', 'category', 'creation'],
+	searchFields: ['category'],
+	orderBy: 'creation desc',
 })
+
+const confirmDeletion = (row: SettingsListRow) => {
+	createDialog({
+		title: __('Delete this category?'),
+		message: __(
+			'This will unlink this category from all courses and batches using it, and then delete it. This cannot be undone.'
+		),
+		actions: [
+			{
+				label: __('Delete'),
+				theme: 'red',
+				variant: 'solid',
+				onClick({ close }: { close: () => void }) {
+					deleteCategory(row.name, close)
+				},
+			},
+		],
+	})
+}
+
+const columns: SettingsListColumn[] = [
+	{
+		key: 'category',
+		label: __('Category'),
+		type: 'stacked',
+		primary: (row) => row.category,
+	},
+	{
+		key: 'creation',
+		label: __('Created'),
+		type: 'text',
+		width: '12rem',
+		value: (row) => dayjs(row.creation).format('DD MMM YYYY'),
+	},
+	{
+		key: 'actions',
+		type: 'actions',
+		ariaLabel: (row) => __('Actions for {0}').format(row.category),
+		options: (row) => [
+			{
+				label: __('Delete'),
+				icon: 'lucide-trash-2',
+				onClick: () => confirmDeletion(row),
+			},
+		],
+	},
+]
+
+const focusInput = (el: any) => {
+	nextTick(() => el?.$el?.querySelector('input')?.focus())
+}
 
 const addCategory = () => {
-	categories.insert.submit(
+	if (!category.value) return
+	list.resource.insert.submit(
 		{
 			category: category.value,
 		},
 		{
-			onSuccess(data) {
-				categories.reload()
+			onSuccess() {
+				list.reload()
 				category.value = null
 				showForm.value = false
 				toast.success(__('Category added successfully'))
 			},
-			onError(err) {
+			onError(err: any) {
 				toast.error(__(cleanError(err.messages[0]) || 'Unable to add category'))
 			},
 		}
@@ -146,14 +172,12 @@ const addCategory = () => {
 
 const showCategoryForm = () => {
 	showForm.value = !showForm.value
-	setTimeout(() => {
-		categoryInput.value.$el.querySelector('input').focus()
-	}, 0)
+	if (showForm.value) focusInput(categoryInput.value)
 }
 
 const updateCategory = createResource({
 	url: 'frappe.client.rename_doc',
-	makeParams(values) {
+	makeParams(values: { name: string; category: string }) {
 		return {
 			doctype: 'LMS Category',
 			old_name: values.name,
@@ -162,7 +186,34 @@ const updateCategory = createResource({
 	},
 })
 
-const update = (name, value) => {
+const promptRename = (row: SettingsListRow) => {
+	editing.value = row.name
+	editedValue.value = row.category
+	renameOpen.value = true
+	focusInput(renameInput.value)
+}
+
+const cancelEdit = () => {
+	editing.value = null
+	editedValue.value = ''
+	renameOpen.value = false
+}
+
+const renameActions = [
+	{
+		label: __('Save'),
+		variant: 'solid' as const,
+		onClick: () => saveChanges(),
+	},
+]
+
+const saveChanges = () => {
+	const name = editing.value
+	const value = editedValue.value?.trim()
+	if (!value || value === name) {
+		cancelEdit()
+		return
+	}
 	saving.value = true
 	updateCategory.submit(
 		{
@@ -172,15 +223,13 @@ const update = (name, value) => {
 		{
 			onSuccess() {
 				saving.value = false
-				categories.reload()
-				editing.value = null
-				editedValue.value = ''
+				list.reload()
+				cancelEdit()
 				toast.success(__('Category updated successfully'))
 			},
-			onError(err) {
+			onError(err: any) {
 				saving.value = false
-				editing.value = null
-				editedValue.value = ''
+				cancelEdit()
 				toast.error(
 					__(cleanError(err.messages[0]) || 'Unable to update category')
 				)
@@ -189,33 +238,23 @@ const update = (name, value) => {
 	)
 }
 
-const deleteCategory = (name) => {
+// LMS Category is a Link target on Course and Batch, so the server unlinks
+// before deleting; a plain delete raises LinkExistsError.
+const deleteCategory = (name: string, close: () => void) => {
 	saving.value = true
-	categories.delete.submit(name, {
-		onSuccess() {
-			saving.value = false
-			categories.reload()
+	call('lms.lms.api.delete_category', { category: name })
+		.then(() => {
+			list.reload()
+			if (typeof close === 'function') close()
 			toast.success(__('Category deleted successfully'))
-		},
-		onError(err) {
-			saving.value = false
+		})
+		.catch((err: any) => {
 			toast.error(
-				__(cleanError(err.messages[0]) || 'Unable to delete category')
+				__(cleanError(err.messages?.[0] || err) || 'Unable to delete category')
 			)
-		},
-	})
-}
-
-const saveChanges = (name, value) => {
-	saving.value = true
-	update(name, value)
-}
-
-const allowEdit = (cat, index) => {
-	editing.value = cat
-	editedValue.value = cat.category
-	setTimeout(() => {
-		editInputRef.value[index].$el.querySelector('input').focus()
-	}, 0)
+		})
+		.finally(() => {
+			saving.value = false
+		})
 }
 </script>

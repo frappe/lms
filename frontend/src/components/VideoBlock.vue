@@ -8,7 +8,11 @@
 				)
 			}}
 
-			<div v-for="(quiz, index) in quizzes" class="ps-3 mt-1">
+			<div
+				v-for="(quiz, index) in quizzes"
+				:key="`${quiz.quiz}-${index}`"
+				class="ps-3 mt-1"
+			>
 				<span>
 					{{ index + 1 }}. <span class="font-semibold"> {{ quiz.quiz }} </span>
 				</span>
@@ -25,13 +29,15 @@
 				@ended="videoEnded"
 				@click="togglePlay"
 				oncontextmenu="return false"
-				class="rounded-md border border-gray-100 cursor-pointer"
+				class="rounded-md border border-outline-gray-1 cursor-pointer"
 				ref="videoRef"
 				:src="fileURL"
 				:type="type"
 			></video>
-			<div
+			<button
+				type="button"
 				v-if="!playing"
+				:aria-label="__('Play video')"
 				class="absolute inset-0 flex items-center justify-center cursor-pointer"
 				@click="playVideo"
 			>
@@ -47,21 +53,22 @@
 				>
 					<Play />
 				</div>
-			</div>
+			</button>
 			<div
-				class="flex items-center gap-x-2 py-2 px-1 text-ink-white bg-gradient-to-b from-transparent to-black/75 absolute bottom-0 start-0 end-0 mx-auto rounded-md"
+				class="flex items-center gap-x-2 py-2 px-1 text-ink-base bg-gradient-to-b from-transparent to-black/75 absolute bottom-0 start-0 end-0 mx-auto rounded-md"
 				:class="{
 					'invisible group-hover:visible': playing,
 				}"
 			>
-				<Button variant="ghost" class="hover:bg-transparent">
+				<Button
+					variant="ghost"
+					class="hover:bg-transparent"
+					:label="playing ? __('Pause') : __('Play')"
+					@click="togglePlay"
+				>
 					<template #icon>
-						<Play
-							v-if="!playing"
-							@click="playVideo"
-							class="size-4 text-ink-gray-9"
-						/>
-						<Pause v-else @click="pauseVideo" class="size-5 text-ink-white" />
+						<Play v-if="!playing" class="size-4 text-ink-gray-9" />
+						<span v-else class="lucide-pause size-5 text-ink-base" />
 					</template>
 				</Button>
 
@@ -73,6 +80,7 @@
 						step="0.1"
 						v-model="currentTime"
 						@input="changeCurrentTime"
+						:aria-label="__('Seek')"
 						class="duration-slider h-1"
 					/>
 					<!-- QUIZ MARKERS -->
@@ -86,7 +94,7 @@
 					</div>
 				</div>
 
-				<span class="text-sm font-medium">
+				<span class="text-sm-medium">
 					{{ formatSeconds(currentTime) }} / {{ formatSeconds(duration) }}
 				</span>
 
@@ -97,20 +105,22 @@
 				<Button
 					variant="ghost"
 					@click="toggleMute"
+					:label="muted ? __('Unmute') : __('Mute')"
 					class="hover:bg-transparent"
 				>
 					<template #icon>
-						<Volume2 v-if="!muted" class="size-5 text-ink-white" />
-						<VolumeX v-else class="size-5 text-ink-white" />
+						<span class="lucide-volume-2 size-5 text-ink-base" v-if="!muted" />
+						<span class="lucide-volume-x size-5 text-ink-base" v-else />
 					</template>
 				</Button>
 				<Button
 					variant="ghost"
 					@click="toggleFullscreen"
+					:label="__('Toggle fullscreen')"
 					class="hover:bg-transparent"
 				>
 					<template #icon>
-						<Maximize class="size-5 text-ink-white" />
+						<span class="lucide-maximize size-5 text-ink-base" />
 					</template>
 				</Button>
 			</div>
@@ -121,8 +131,8 @@
 			:inVideo="true"
 			:backToVideo="resumeVideo"
 		/>
-		<div v-if="!readOnly" @click="showQuizModal = true">
-			<Button>
+		<div v-if="!readOnly">
+			<Button class="text-p-base-medium" @click="showQuizModal = true">
 				{{ __('Add Quiz to Video') }}
 			</Button>
 		</div>
@@ -133,13 +143,8 @@
 		:saveQuizzes="saveQuizzes"
 		:duration="duration"
 	/>
-	<Dialog
-		v-model="showQuizLoader"
-		:options="{
-			size: 'sm',
-		}"
-	>
-		<template #body>
+	<Dialog v-model:open="showQuizLoader" size="sm" bare>
+		<template #default>
 			<div class="flex flex-col space-y-2 p-5 text-base leading-5">
 				<span class="font-semibold">
 					{{ __('Time for a Quiz') }}
@@ -157,9 +162,8 @@
 </template>
 <script setup>
 import { ref, onMounted, computed, watch, onBeforeUnmount } from 'vue'
-import { Pause, Maximize, Volume2, VolumeX } from 'lucide-vue-next'
 import { Button, Dialog, Dropdown } from 'frappe-ui'
-import { formatSeconds, formatTimestamp } from '@/utils'
+import { formatSeconds, formatTimestamp } from '@/utils/format'
 import { useSettings } from '@/stores/settings'
 import Play from '@/components/Icons/Play.vue'
 import QuizInVideo from '@/components/Modals/QuizInVideo.vue'

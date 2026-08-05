@@ -1,36 +1,38 @@
 <template>
 	<div class="py-5 px-5 w-full lg:w-3/4 lg:px-0 mx-auto">
 		<div class="flex items-center justify-between mb-5">
-			<div class="text-lg text-ink-gray-9 font-semibold">
+			<h1 class="text-lg-semibold text-ink-gray-9">
 				{{ __('All Programs') }}
-			</div>
-			<TabButtons v-model="currentTab" :buttons="tabs" class="w-fit" />
+			</h1>
+			<TabButtons v-model="currentTab" :options="tabs" class="w-fit" />
 		</div>
-		<div v-for="(data, category) in programs.data">
+		<div v-for="(data, category) in programs.data" :key="category">
 			<div v-if="category == currentTab">
 				<div
 					v-if="data.length > 0"
 					class="grid grid-cols-1 lg:grid-cols-3 gap-5"
 				>
-					<div
+					<button
+						type="button"
 						v-for="program in data"
+						:key="program.name"
 						@click="openDetails(program.name, category)"
-						class="border rounded-md p-3 hover:border-outline-gray-3 cursor-pointer"
+						class="block w-full border rounded-md p-3 hover:border-outline-gray-3 cursor-pointer text-start"
 					>
-						<div class="text-lg font-semibold text-ink-gray-9 mb-2">
+						<div class="text-lg-semibold text-ink-gray-9 mb-2">
 							{{ program.name }}
 						</div>
 
 						<div class="flex items-center gap-x-5 text-sm text-ink-gray-7">
 							<div class="flex items-center gap-x-1">
-								<BookOpen class="size-3 stroke-1.5" />
+								<span class="lucide-book-open size-3" />
 								<span>
 									{{ program.course_count }}
 									{{ program.course_count == 1 ? __('course') : __('courses') }}
 								</span>
 							</div>
 							<div class="flex items-center gap-x-1">
-								<User class="size-4 stroke-1.5" />
+								<span class="lucide-user size-4" />
 								<span>
 									{{ program.member_count || 0 }}
 									{{ program.member_count == 1 ? __('member') : __('members') }}
@@ -44,12 +46,14 @@
 								{{ Math.ceil(program.progress) }}% {{ __('completed') }}
 							</div>
 						</div>
-					</div>
+					</button>
 				</div>
-				<EmptyStateLayout
-					v-else
-					:name="convertToTitleCase(category) + ' Programs'"
-				/>
+				<div v-else class="flex-1">
+					<EmptyStateLayout
+						:name="convertToTitleCase(category) + ' Programs'"
+						icon="lucide-graduation-cap"
+					/>
+				</div>
 				<!-- <div v-else class="col-span-3 text-center text-ink-gray-5">
                     {{ __('No programs found in this category.') }}
                 </div> -->
@@ -64,7 +68,7 @@
 <script setup lang="ts">
 import { createResource, TabButtons } from 'frappe-ui'
 import { computed, ref } from 'vue'
-import { BookOpen, User } from 'lucide-vue-next'
+
 import { useRouter } from 'vue-router'
 import { convertToTitleCase } from '@/utils'
 import ProgressBar from '@/components/ProgressBar.vue'

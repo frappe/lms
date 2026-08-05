@@ -1,8 +1,13 @@
 <template>
 	<div>
-		<div class="relative overflow-x-auto border rounded-md">
+		<div
+			class="relative overflow-x-auto border border-outline-gray-2 rounded-md"
+		>
 			<table class="w-full text-sm text-start text-ink-gray-5">
-				<thead class="text-xs text-ink-gray-7 uppercase bg-surface-gray-2">
+				<thead
+					class="text-xs text-ink-gray-7 uppercase bg-surface-gray-2 border-b border-outline-gray-2"
+				>
+					<!-- TODO(a11y): header cells use <td>; switching to <th scope="col"> would add UA bold/center styling (visual change), so deferred. -->
 					<tr>
 						<td scope="col" class="px-6 py-2">
 							{{ __('Document Type') }}
@@ -15,30 +20,35 @@
 				</thead>
 				<tbody>
 					<tr
-						v-for="row in rows"
-						class="bg-white dark:bg-gray-800 dark:border-gray-700 border-gray-200"
+						v-for="(row, index) in items"
+						:key="row.name ?? index"
+						class="bg-surface-base border-b border-outline-gray-2 last:border-b-0"
 					>
 						<td class="px-6 py-2">
-							<FormControl
-								type="select"
+							<Select
 								v-model="row.reference_doctype"
 								:options="[
 									{ label: 'Course', value: 'LMS Course' },
 									{ label: 'Batch', value: 'LMS Batch' },
 								]"
+								class="w-full"
 							/>
 						</td>
 						<td class="px-6 py-2">
 							<Link
 								:doctype="row.reference_doctype"
 								v-model="row.reference_name"
-								class="bg-white"
+								class="bg-surface-base w-full"
 							/>
 						</td>
 						<td class="px-6 py-2">
-							<Button variant="ghost" @click="removeRow(row)">
+							<Button
+								variant="ghost"
+								:aria-label="__('Remove row')"
+								@click="removeRow(index)"
+							>
 								<template #icon>
-									<X class="size-4 stroke-1.5" />
+									<span class="lucide-x size-4" />
 								</template>
 							</Button>
 						</td>
@@ -50,7 +60,7 @@
 		<div class="mt-4">
 			<Button @click="addRow()">
 				<template #prefix>
-					<Plus class="size-4 stroke-1.5" />
+					<span class="lucide-plus size-4" />
 				</template>
 				{{ __('Add Row') }}
 			</Button>
@@ -58,83 +68,25 @@
 	</div>
 </template>
 <script setup lang="ts">
-import type { ApplicableItem, Coupon, Coupons } from './types'
-import { ref, watch } from 'vue'
-import { Button, createListResource, FormControl } from 'frappe-ui'
-import { Plus, X } from 'lucide-vue-next'
+import type { ApplicableItem } from '@/types'
+import { Button } from 'frappe-ui'
 import Link from '@/components/Controls/Link.vue'
+import Select from '@/components/Controls/Select.vue'
 
-const rows = ref<
-	{
-		reference_doctype: string
-		reference_name: string | null
-		name: string | null
-	}[]
->([])
-
+// Mutates the parent doc's `applicable_items` in place; the parent saves the whole
+// doc, so Frappe diffs rows server-side; no per-row API calls here.
 const props = defineProps<{
-	data: Coupon
-	coupons: Coupons
+	items: ApplicableItem[]
 }>()
 
-const applicableItems = createListResource({
-	doctype: 'LMS Coupon Item',
-	fields: [
-		'reference_doctype',
-		'reference_name',
-		'name',
-		'parent',
-		'parenttype',
-		'parentfield',
-	],
-	parent: 'LMS Coupon',
-	onSuccess(data: ApplicableItem[]) {
-		rows.value = data
-	},
-})
-
 const addRow = () => {
-	rows.value.push({
+	props.items.push({
 		reference_doctype: 'LMS Course',
 		reference_name: null,
-		name: null,
-	})
+	} as unknown as ApplicableItem)
 }
 
-watch(
-	() => props.data,
-	() => {
-		if (props.data?.name) {
-			applicableItems.update({
-				filters: {
-					parent: props.data.name,
-				},
-			})
-			applicableItems.reload()
-		} else {
-			addRow()
-		}
-	},
-	{ immediate: true }
-)
-
-const saveItems = (parent = null) => {
-	return rows.value
+const removeRow = (index: number) => {
+	props.items.splice(index, 1)
 }
-
-const removeRow = (rowToRemove: any) => {
-	rows.value = rows.value.filter((row) => row !== rowToRemove)
-	if (rowToRemove.name) {
-		applicableItems.delete.submit(rowToRemove.name, {
-			onSuccess() {
-				props.coupons.reload()
-				applicableItems.reload()
-			},
-		})
-	}
-}
-
-defineExpose({
-	saveItems,
-})
 </script>

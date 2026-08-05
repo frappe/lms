@@ -1,15 +1,13 @@
 <template>
 	<Dialog
-		v-model="show"
-		:options="{
-			title: __('Student Progress'),
-			size: hasAssessmentData ? '4xl' : 'xl',
-		}"
+		v-model:open="show"
+		title="Student Progress"
+		:size="hasAssessmentData ? '4xl' : 'xl'"
 	>
-		<template #body-content>
+		<template #default>
 			<div class="text-base text-ink-gray-9 max-h-[70vh] overflow-y-auto">
 				<div class="flex justify-between mb-5 px-2">
-					<div class="flex items-center gap-x-2">
+					<div class="flex items-center gap-x-3">
 						<Avatar
 							:image="student?.member_image"
 							:label="student?.member_name"
@@ -38,44 +36,45 @@
 				<div class="grid gap-5" :class="hasAssessmentData ? 'grid-cols-2' : ''">
 					<div
 						v-if="lessons.data"
-						class="border border-outline-gray-modals rounded-lg px-3 pt-3 max-h-[60vh] overflow-y-auto"
+						class="border border-outline-elevation-2 rounded-lg px-3 max-h-[60vh] overflow-y-auto"
 					>
-						<div>
-							<div class="text-ink-gray-5 mb-5">
-								{{ __('Lesson Progress') }}
-							</div>
+						<div class="sticky top-0 z-10 bg-surface-base py-3 text-ink-gray-5">
+							{{ __('Lesson Progress') }}
 						</div>
-						<div
-							v-for="progress in lessons.data"
-							class="flex justify-between text-sm py-2 my-1"
-						>
-							<div class="">
-								<span class="me-3 text-xs">
-									{{ progress.chapter_idx }}.{{ progress.idx }}
-								</span>
-								<span>
-									{{ progress.title }}
-								</span>
-							</div>
-							<Tooltip
-								v-if="getLessonStatus(progress) == 'Complete'"
-								:text="__('Complete')"
+						<ul class="list-none">
+							<li
+								v-for="progress in lessons.data"
+								:key="progress.lesson_name"
+								class="flex justify-between text-sm py-2 my-1"
 							>
-								<Check class="text-ink-green-3 size-4" />
-							</Tooltip>
-							<Tooltip v-else :text="__('Pending')">
-								<Minus class="text-ink-amber-2 size-4" />
-							</Tooltip>
-							<!-- <Badge :theme="getLessonStatusTheme(progress)">
-								{{ getLessonStatus(progress) }}
-							</Badge> -->
-						</div>
+								<div class="">
+									<span class="me-3 text-xs">
+										{{ progress.chapter_idx }}.{{ progress.idx }}
+									</span>
+									<span>
+										{{ progress.title }}
+									</span>
+								</div>
+								<Tooltip
+									v-if="getLessonStatus(progress) == 'Complete'"
+									:text="__('Complete')"
+								>
+									<span class="lucide-check text-ink-green-6 size-4" />
+								</Tooltip>
+								<Tooltip v-else :text="__('Pending')">
+									<span class="lucide-minus text-ink-amber-5 size-4" />
+								</Tooltip>
+								<!-- <Badge :theme="getLessonStatusTheme(progress)">
+									{{ getLessonStatus(progress) }}
+								</Badge> -->
+							</li>
+						</ul>
 					</div>
 
 					<div class="space-y-3">
 						<div
 							v-if="assessmentProgress.data?.quizzes?.length"
-							class="border border-outline-gray-modals rounded-lg px-3 pt-3 h-fit"
+							class="border border-outline-elevation-2 rounded-lg px-3 pt-3 h-fit"
 						>
 							<div class="grid grid-cols-4 gap-5 text-ink-gray-5 mb-5">
 								<div class="col-span-2">
@@ -89,7 +88,8 @@
 								</div>
 							</div>
 							<div
-								v-for="quiz in assessmentProgress.data.quizzes"
+								v-for="(quiz, index) in assessmentProgress.data.quizzes"
+								:key="`${quiz.quiz}-${index}`"
 								class="grid grid-cols-4 gap-15 text-sm py-1 my-1"
 							>
 								<div class="col-span-2 leading-5">
@@ -104,46 +104,53 @@
 
 						<div
 							v-if="assessmentProgress.data?.assignments?.length"
-							class="border border-outline-gray-modals rounded-lg px-3 pt-3 h-fit"
+							class="border border-outline-elevation-2 rounded-lg px-3 pt-3 h-fit"
 						>
 							<div>
 								<div class="text-ink-gray-5 mb-5">
 									{{ __('Assignment Progress') }}
 								</div>
 							</div>
-							<div
-								v-for="assignment in assessmentProgress.data.assignments"
-								class="flex justify-between text-sm py-2 my-1"
-							>
-								<div>
-									{{ assignment.assignment_title }}
-								</div>
-								<Badge :theme="getAssessmentStatusTheme(assignment.status)">
-									{{ assignment.status }}
-								</Badge>
-							</div>
+							<ul class="list-none">
+								<li
+									v-for="(assignment, index) in assessmentProgress.data
+										.assignments"
+									:key="`${assignment.assignment}-${index}`"
+									class="flex justify-between text-sm py-2 my-1"
+								>
+									<div>
+										{{ assignment.assignment_title }}
+									</div>
+									<Badge :theme="getAssessmentStatusTheme(assignment.status)">
+										{{ assignment.status }}
+									</Badge>
+								</li>
+							</ul>
 						</div>
 
 						<div
 							v-if="assessmentProgress.data?.exercises?.length"
-							class="border border-outline-gray-modals rounded-lg px-3 pt-3 h-fit"
+							class="border border-outline-elevation-2 rounded-lg px-3 pt-3 h-fit"
 						>
 							<div>
 								<div class="text-ink-gray-5 mb-5">
 									{{ __('Programming Exercise Progress') }}
 								</div>
 							</div>
-							<div
-								v-for="exercise in assessmentProgress.data.exercises"
-								class="flex justify-between text-sm py-2 my-1"
-							>
-								<div>
-									{{ exercise.exercise_title }}
-								</div>
-								<Badge :theme="getAssessmentStatusTheme(exercise.status)">
-									{{ exercise.status }}
-								</Badge>
-							</div>
+							<ul class="list-none">
+								<li
+									v-for="(exercise, index) in assessmentProgress.data.exercises"
+									:key="`${exercise.exercise}-${index}`"
+									class="flex justify-between text-sm py-2 my-1"
+								>
+									<div>
+										{{ exercise.exercise_title }}
+									</div>
+									<Badge :theme="getAssessmentStatusTheme(exercise.status)">
+										{{ exercise.status }}
+									</Badge>
+								</li>
+							</ul>
 						</div>
 					</div>
 				</div>
@@ -162,7 +169,6 @@ import {
 } from 'frappe-ui'
 import ProgressBar from '@/components/ProgressBar.vue'
 import { computed } from 'vue'
-import { Check, Minus } from 'lucide-vue-next'
 
 const show = defineModel<boolean>({ required: true, default: false })
 

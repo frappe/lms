@@ -2,6 +2,7 @@
 # For license information, please see license.txt
 
 import json
+from datetime import datetime
 
 import frappe
 from frappe import _
@@ -19,17 +20,34 @@ from frappe.utils import (
 	nowtime,
 )
 
-from lms.lms.utils import get_evaluator
+from lms.lms.utils import (
+	PRIVILEGED_ROLES,
+	convert_from_system_timezone,
+	format_timezone,
+	get_evaluation_display_timezone,
+	get_evaluator,
+)
 
 
 class LMSCertificateRequest(Document):
 	def validate(self):
+		self.enforce_member_ownership()
 		self.set_evaluator()
 		self.validate_unavailability()
 		self.validate_slot()
 		self.validate_if_existing_requests()
 		self.validate_evaluation_end_date()
 		self.validate_timezone()
+
+	def enforce_member_ownership(self):
+		if PRIVILEGED_ROLES & set(frappe.get_roles()):
+			return
+		if self.member and self.member != frappe.session.user:
+			frappe.throw(
+				_("You cannot book an evaluation for another user."),
+				frappe.PermissionError,
+			)
+		self.member = frappe.session.user
 
 	def after_insert(self):
 		self.send_notification()
@@ -117,8 +135,14 @@ class LMSCertificateRequest(Document):
 					)
 
 	def validate_timezone(self):
-		if self.timezone:
-			return
+		"""The zone the stored wall clock is in, never the zone it is shown in.
+
+		date, start_time and end_time are system time: validate_if_existing_requests
+		and mark_eval_as_completed compare them against nowtime(), and create_event
+		hands Google Calendar a naive datetime. Derived, not accepted from the
+		client, so the field cannot come to disagree with what is stored beside it.
+		The display zone comes from the batch or course at render time.
+		"""
 		self.timezone = get_system_timezone()
 
 	def send_notification(self):
@@ -129,12 +153,18 @@ class LMSCertificateRequest(Document):
 			subject = _("Your evaluation slot has been booked")
 			template = "certificate_request_notification"
 
+			# The same instant the learner picked, rendered in the same zone the
+			# picker rendered it in. Otherwise the email restates their booking
+			# in a clock they never saw.
+			timezone = get_evaluation_display_timezone(self.course, self.batch_name)
+			date, start_time = convert_from_system_timezone(self.date, self.start_time, timezone)
+
 			args = {
 				"course": self.course_title,
-				"timezone": self.timezone,
-				"date": format_date(self.date, "medium"),
+				"timezone": format_timezone(timezone, datetime.combine(date, start_time)),
+				"date": format_date(date, "medium"),
 				"member_name": self.member_name,
-				"start_time": format_time(self.start_time, "short"),
+				"start_time": format_time(start_time, "short"),
 				"evaluator": self.evaluator_name,
 			}
 

@@ -9,18 +9,21 @@
 		<path
 			d="M10.875 9.06223L3 9.06232"
 			stroke="currentColor"
+			stroke-width="1.5"
 			stroke-linecap="round"
 			stroke-linejoin="round"
 		/>
 		<path
 			d="M6.74537 5.31699L3 9.06236L6.74527 12.8076"
 			stroke="currentColor"
+			stroke-width="1.5"
 			stroke-linecap="round"
 			stroke-linejoin="round"
 		/>
 		<path
 			d="M14.1423 4L14.1423 14.125"
 			stroke="currentColor"
+			stroke-width="1.5"
 			stroke-linecap="round"
 		/>
 	</svg>

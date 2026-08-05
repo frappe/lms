@@ -15,7 +15,10 @@
 		@update:modelValue="markDirty()"
 	>
 		<template #prefix>
-			<div v-if="visibleAvatars.length" class="flex -space-x-1.5">
+			<div
+				v-if="visibleAvatars.length"
+				class="flex -space-x-1.5 rtl:space-x-reverse"
+			>
 				<Avatar
 					v-for="m in visibleAvatars"
 					:key="m.value"
@@ -25,12 +28,12 @@
 				/>
 				<span
 					v-if="overflowCount > 0"
-					class="z-10 grid size-5 place-items-center rounded-full bg-surface-gray-3 text-xs font-medium text-ink-gray-7"
+					class="z-10 grid size-5 place-items-center rounded-full bg-surface-gray-3 text-xs-medium text-ink-gray-7"
 				>
 					+{{ overflowCount }}
 				</span>
 			</div>
-			<Users v-else class="size-4 stroke-1.5 text-ink-gray-5" />
+			<span v-else class="lucide-users size-4 text-ink-gray-5" />
 		</template>
 		<template #item-prefix="{ item }">
 			<Avatar :image="item.image" :label="item.label" size="sm" />
@@ -51,11 +54,10 @@
 
 <script setup lang="ts">
 import { Avatar, createResource } from 'frappe-ui'
-import { Users } from 'lucide-vue-next'
 import { computed, inject, ref, watch } from 'vue'
 import MultiLink from '@/components/Controls/MultiLink.vue'
 import NewMemberModal from '@/components/Modals/NewMemberModal.vue'
-import type { CourseFormContext, Resource } from '@/types/api'
+import type { CourseFormContext, Resource } from '@/types'
 
 interface InstructorOption {
 	label: string
@@ -91,7 +93,7 @@ function transformUsers(rows: Record<string, unknown>[]): InstructorOption[] {
 	}))
 }
 
-// Hydrate the chip labels/avatars for instructors saved on the doc — the
+// Hydrate the chip labels/avatars for instructors saved on the doc. The
 // search endpoint only returns query matches, so without this the chips
 // show raw user IDs (emails) after a page refresh.
 const resolvedDetails = ref<Map<string, InstructorOption>>(new Map())

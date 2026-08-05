@@ -1,87 +1,84 @@
 <template>
-	<Dialog v-model="show" :options="{ size: '5xl' }">
-		<template #body>
-			<div class="flex h-[calc(100vh_-_8rem)]">
-				<div
-					class="flex w-52 shrink-0 flex-col bg-surface-gray-2 p-2 overflow-y-auto"
+	<SettingsDialog v-model="show" v-model:tab="activeTab" size="5xl">
+		<template #title>{{ __('Settings') }}</template>
+		<SettingsSidebar>
+			<SettingsNavGroup
+				v-for="group in tabs"
+				:key="group.label"
+				:label="group.hideLabel ? undefined : __(group.label)"
+			>
+				<!-- CRM's sidebar type: xs-medium group headings, sm item labels, on
+				     the paragraph scale so the line-height matches the rest of the
+				     sidebar. Set on inner spans: the library's own text-base sits on
+				     the wrapper and would otherwise win the cascade. -->
+				<template #label>
+					<span class="text-p-xs-medium text-ink-gray-5">
+						{{ __(group.label) }}
+					</span>
+				</template>
+				<SettingsNavItem
+					v-for="item in group.items"
+					:key="item.label"
+					:value="item.label"
 				>
-					<h1 class="mb-3 px-2 pt-2 text-lg font-semibold text-ink-gray-9">
-						{{ __('Settings') }}
-					</h1>
-					<div class="space-y-5">
-						<div v-for="tab in tabs" :key="tab.label">
-							<div
-								v-if="!tab.hideLabel"
-								class="mb-2 mt-3 flex cursor-pointer gap-1.5 px-1 text-base text-ink-gray-5 transition-all duration-300 ease-in-out"
-							>
-								<span>{{ __(tab.label) }}</span>
-							</div>
-							<nav class="space-y-1">
-								<div v-for="item in tab.items" @click="activeTab = item">
-									<SidebarLink
-										:link="item"
-										:key="item.label"
-										:activeTab="activeTab?.label"
-									/>
-								</div>
-							</nav>
-						</div>
-					</div>
-				</div>
-				<div
-					v-if="activeTab && data.doc"
-					:key="activeTab.label"
-					class="flex flex-1 flex-col p-8 bg-surface-modal overflow-x-auto overflow-y-auto"
-				>
-					<component
-						v-if="activeTab.template"
-						:is="activeTab.template"
-						v-bind="{
-							label: activeTab.label,
-							description: activeTab.description,
-							...(activeTab.label == 'Branding'
-								? { sections: activeTab.sections }
-								: {}),
-							...(activeTab.label == 'Members' ||
-							activeTab.label == 'Evaluators' ||
-							activeTab.label == 'Transactions'
-								? { 'onUpdate:show': (val) => (show = val), show }
-								: {}),
-						}"
-					/>
-					<SettingDetails
-						v-else
-						:sections="activeTab.sections"
-						:label="activeTab.label"
-						:description="activeTab.description"
-						:data="data"
-					/>
-				</div>
-			</div>
-		</template>
-	</Dialog>
+					<template #prefix>
+						<span :class="[item.icon, 'size-4 shrink-0 text-ink-gray-7']" />
+					</template>
+					<span class="text-p-sm text-ink-gray-7">{{ __(item.label) }}</span>
+				</SettingsNavItem>
+			</SettingsNavGroup>
+		</SettingsSidebar>
+		<SettingsContent v-if="data.doc">
+			<SettingsPanel
+				v-for="item in items"
+				:key="item.label"
+				:value="item.label"
+			>
+				<component
+					v-if="item.template"
+					:is="item.template"
+					v-bind="panelProps(item)"
+				/>
+				<SettingDetails
+					v-else
+					:sections="item.sections"
+					:label="item.label"
+					:description="item.description"
+					:data="data"
+				/>
+			</SettingsPanel>
+		</SettingsContent>
+	</SettingsDialog>
 </template>
 <script setup>
-import { Dialog, createDocumentResource } from 'frappe-ui'
+import {
+	SettingsContent,
+	SettingsDialog,
+	SettingsNavGroup,
+	SettingsNavItem,
+	SettingsPanel,
+	SettingsSidebar,
+	createDocumentResource,
+} from 'frappe-ui'
 import { computed, markRaw, ref, watch } from 'vue'
 import { useSettings } from '@/stores/settings'
 import SettingDetails from '@/components/Settings/SettingDetails.vue'
-import SidebarLink from '@/components/Sidebar/SidebarLink.vue'
 import Members from '@/components/Settings/Members.vue'
-import Evaluators from '@/components/Settings/Evaluators.vue'
 import Categories from '@/components/Settings/Categories.vue'
-import EmailTemplates from '@/components/Settings/EmailTemplates.vue'
+import EmailTemplatePage from '@/components/Settings/EmailTemplate/EmailTemplatePage.vue'
+import EmailConfig from '@/components/Settings/EmailAccount/EmailConfig.vue'
 import BrandSettings from '@/components/Settings/BrandSettings.vue'
 import PaymentGateways from '@/components/Settings/PaymentGateways.vue'
 import Coupons from '@/components/Settings/Coupons/Coupons.vue'
 import Transactions from '@/components/Settings/Transactions/Transactions.vue'
 import ZoomSettings from '@/components/Settings/ZoomSettings.vue'
 import GoogleMeetSettings from '@/components/Settings/GoogleMeetSettings.vue'
-import Badges from '@/components/Settings/Badges.vue'
+import Badges from '@/components/Settings/Badges/Badges.vue'
+import RavenSettings from '@/components/Settings/Raven/RavenSettings.vue'
 
 const show = defineModel()
 const doctype = ref('LMS Settings')
-const activeTab = ref(null)
+const activeTab = ref('')
 const settingsStore = useSettings()
 
 const data = createDocumentResource({
@@ -96,11 +93,13 @@ const tabsStructure = computed(() => {
 	return [
 		{
 			label: 'Configuration',
-			hideLabel: true,
+			hideLabel: false,
 			items: [
 				{
 					label: 'General',
-					icon: 'Wrench',
+					icon: 'lucide-wrench',
+					description:
+						'Configure system-wide defaults, notifications, and contact information',
 					sections: [
 						{
 							label: 'System Configurations',
@@ -153,6 +152,8 @@ const tabsStructure = computed(() => {
 											name: 'send_notification_for_published_courses',
 											type: 'select',
 											options: [' ', 'Email', 'In-app'],
+											description:
+												'Notify members when a new course is published.',
 										},
 									],
 								},
@@ -163,6 +164,8 @@ const tabsStructure = computed(() => {
 											name: 'send_notification_for_published_batches',
 											type: 'select',
 											options: [' ', 'Email', 'In-app'],
+											description:
+												'Notify members when a new batch is published.',
 										},
 									],
 								},
@@ -178,6 +181,8 @@ const tabsStructure = computed(() => {
 											name: 'batch_confirmation_template',
 											doctype: 'Email Template',
 											type: 'Link',
+											description:
+												'Email template sent to students upon batch enrollment confirmation.',
 										},
 									],
 								},
@@ -188,6 +193,8 @@ const tabsStructure = computed(() => {
 											name: 'certification_template',
 											doctype: 'Email Template',
 											type: 'Link',
+											description:
+												'Email template sent to students when they earn a certification.',
 										},
 									],
 								},
@@ -240,7 +247,7 @@ const tabsStructure = computed(() => {
 							],
 						},
 						{
-							label: '',
+							label: 'Integrations',
 							columns: [
 								{
 									fields: [
@@ -271,7 +278,7 @@ const tabsStructure = computed(() => {
 				},
 				{
 					label: 'Course Progress',
-					icon: 'Activity',
+					icon: 'lucide-activity',
 					description:
 						'Control how lessons are marked complete: dwell time and enforcement toggles for video, quiz, and assignment.',
 					sections: [
@@ -284,6 +291,7 @@ const tabsStructure = computed(() => {
 											label: 'Lesson dwell time (seconds)',
 											name: 'lesson_dwell_time',
 											type: 'number',
+											min: 1,
 											description:
 												'Seconds a learner must stay on a lesson before it auto-marks complete.',
 										},
@@ -331,41 +339,44 @@ const tabsStructure = computed(() => {
 					label: 'Badges',
 					description:
 						'Create badges and assign them to students to acknowledge their achievements',
-					icon: 'Award',
+					icon: 'lucide-award',
 					template: markRaw(Badges),
 				},
 				{
 					label: 'Categories',
-					description: 'Double click to edit the category',
-					icon: 'Network',
+					description: 'Group courses under a category',
+					icon: 'lucide-network',
 					template: markRaw(Categories),
-				},
-				{
-					label: 'Email Templates',
-					description: 'Manage the email templates for your learning system',
-					icon: 'MailPlus',
-					template: markRaw(EmailTemplates),
 				},
 			],
 		},
 		{
-			label: 'Users',
+			label: 'Email',
+			items: [
+				{
+					label: 'Accounts',
+					description: 'Manage email accounts for incoming and outgoing mail',
+					icon: 'lucide-mail',
+					template: markRaw(EmailConfig),
+				},
+				{
+					label: 'Templates',
+					description: 'Manage the email templates for your learning system',
+					icon: 'lucide-mail-plus',
+					template: markRaw(EmailTemplatePage),
+				},
+			],
+		},
+		{
+			label: 'User Management',
 			hideLabel: false,
 			items: [
 				{
-					label: 'Members',
+					label: 'Users',
 					description:
-						'Add new members or manage roles and permissions of existing members',
-					icon: 'User',
+						'Manage users by adding or inviting them, and assign roles to control their access and permissions',
+					icon: 'lucide-user',
 					template: markRaw(Members),
-				},
-				{
-					label: 'Evaluators',
-					description: '',
-					icon: 'UserCircle2',
-					description:
-						'Add new evaluators or check the slots of existing evaluators',
-					template: markRaw(Evaluators),
 				},
 			],
 		},
@@ -375,7 +386,7 @@ const tabsStructure = computed(() => {
 			items: [
 				{
 					label: 'Configuration',
-					icon: 'CreditCard',
+					icon: 'lucide-credit-card',
 					description: 'Manage all your payment related settings and defaults',
 					sections: [
 						{
@@ -387,6 +398,8 @@ const tabsStructure = computed(() => {
 											name: 'default_currency',
 											type: 'Link',
 											doctype: 'Currency',
+											description:
+												'Default currency used for course and batch pricing.',
 										},
 										{
 											label: 'Show USD equivalent amount',
@@ -411,6 +424,8 @@ const tabsStructure = computed(() => {
 											name: 'payment_gateway',
 											type: 'Link',
 											doctype: 'Payment Gateway',
+											description:
+												'Payment gateway used to process course and batch purchases.',
 										},
 										{
 											label: 'Apply GST for India',
@@ -454,19 +469,19 @@ const tabsStructure = computed(() => {
 				},
 				{
 					label: 'Gateways',
-					icon: 'DollarSign',
+					icon: 'lucide-dollar-sign',
 					template: markRaw(PaymentGateways),
 					description: 'Add and manage all your payment gateways',
 				},
 				{
 					label: 'Transactions',
-					icon: 'Landmark',
+					icon: 'lucide-landmark',
 					template: markRaw(Transactions),
 					description: 'View all your payment transactions',
 				},
 				{
 					label: 'Coupons',
-					icon: 'Ticket',
+					icon: 'lucide-ticket',
 					template: markRaw(Coupons),
 					description: 'Manage discount coupons for courses and batches',
 				},
@@ -480,15 +495,28 @@ const tabsStructure = computed(() => {
 					label: 'Zoom',
 					description:
 						'Manage zoom accounts to conduct live classes from batches',
-					icon: 'Video',
+					icon: 'lucide-video',
 					template: markRaw(ZoomSettings),
 				},
 				{
 					label: 'Google Meet',
 					description:
 						'Manage Google Meet accounts to conduct live classes from batches',
-					icon: 'Presentation',
+					icon: 'lucide-presentation',
 					template: markRaw(GoogleMeetSettings),
+				},
+			],
+		},
+		{
+			label: 'Integrations',
+			hideLabel: false,
+			items: [
+				{
+					label: 'Raven',
+					description:
+						'Automatically sync Raven workspace and channel membership from your students and staff',
+					icon: 'lucide-messages-square',
+					template: markRaw(RavenSettings),
 				},
 			],
 		},
@@ -498,43 +526,14 @@ const tabsStructure = computed(() => {
 			items: [
 				{
 					label: 'Branding',
-					icon: 'Blocks',
+					icon: 'lucide-palette',
 					description:
 						'Customize the brand name and logo to make the application your own',
 					template: markRaw(BrandSettings),
-					sections: [
-						{
-							columns: [
-								{
-									fields: [
-										{
-											label: 'Brand Name',
-											name: 'app_name',
-											type: 'text',
-										},
-										{
-											label: 'Logo',
-											name: 'banner_image',
-											type: 'Upload',
-											description:
-												'Appears in the top left corner of the application to represent your brand.',
-										},
-										{
-											label: 'Favicon',
-											name: 'favicon',
-											type: 'Upload',
-											description:
-												'Appears in the browser tab next to the page title to help users quickly identify the application.',
-										},
-									],
-								},
-							],
-						},
-					],
 				},
 				{
 					label: 'Sidebar',
-					icon: 'PanelLeftIcon',
+					icon: 'lucide-panel-left',
 					description: 'Choose the items you want to show in the sidebar',
 					sections: [
 						{
@@ -545,21 +544,27 @@ const tabsStructure = computed(() => {
 											label: 'Courses',
 											name: 'courses',
 											type: 'checkbox',
+											description: 'Show the Courses link in the sidebar.',
 										},
 										{
 											label: 'Batches',
 											name: 'batches',
 											type: 'checkbox',
+											description: 'Show the Batches link in the sidebar.',
 										},
 										{
 											label: 'Programming Exercises',
 											name: 'programming_exercises',
 											type: 'checkbox',
+											description:
+												'Show the Programming Exercises link in the sidebar.',
 										},
 										{
 											label: 'Certifications',
 											name: 'certifications',
 											type: 'checkbox',
+											description:
+												'Show the Certifications link in the sidebar.',
 										},
 									],
 								},
@@ -569,16 +574,20 @@ const tabsStructure = computed(() => {
 											label: 'Jobs',
 											name: 'jobs',
 											type: 'checkbox',
+											description: 'Show the Jobs link in the sidebar.',
 										},
 										{
 											label: 'Statistics',
 											name: 'statistics',
 											type: 'checkbox',
+											description: 'Show the Statistics link in the sidebar.',
 										},
 										{
 											label: 'Notifications',
 											name: 'notifications',
 											type: 'checkbox',
+											description:
+												'Show the Notifications link in the sidebar.',
 										},
 									],
 								},
@@ -588,7 +597,7 @@ const tabsStructure = computed(() => {
 				},
 				{
 					label: 'Signup',
-					icon: 'LogIn',
+					icon: 'lucide-log-in',
 					description:
 						'Manage the settings related to user signup and registration',
 					sections: [
@@ -616,6 +625,8 @@ const tabsStructure = computed(() => {
 											type: 'Code',
 											mode: 'htmlmixed',
 											rows: 10,
+											description:
+												'Custom HTML shown on the signup page, e.g. for consent notices or terms of service.',
 										},
 									],
 								},
@@ -625,7 +636,7 @@ const tabsStructure = computed(() => {
 				},
 				{
 					label: 'SEO',
-					icon: 'Search',
+					icon: 'lucide-search',
 					description:
 						'Manage the SEO settings to improve your website ranking on search engines',
 					sections: [
@@ -654,6 +665,8 @@ const tabsStructure = computed(() => {
 											name: 'meta_image',
 											type: 'Upload',
 											size: 'lg',
+											description:
+												'Default social-share image used when pages lack their own meta image.',
 										},
 									],
 								},
@@ -664,6 +677,17 @@ const tabsStructure = computed(() => {
 			],
 		},
 	]
+})
+
+const items = computed(() => tabs.value.flatMap((group) => group.items))
+
+// Members and Transactions own dialogs of their own and need to close Settings.
+const panelProps = (item) => ({
+	label: item.label,
+	description: item.description,
+	...(['Users', 'Transactions'].includes(item.label)
+		? { 'onUpdate:show': (val) => (show.value = val), show: show.value }
+		: {}),
 })
 
 const tabs = computed(() => {
@@ -677,14 +701,14 @@ const tabs = computed(() => {
 	})
 })
 
-watch(show, async () => {
+watch(show, () => {
 	if (show.value) {
-		const currentTab = await tabs.value
-			.flatMap((tab) => tab.items)
-			.find((item) => item.label === settingsStore.activeTab)
-		activeTab.value = currentTab || tabs.value[0].items[0]
+		const stored = items.value.find(
+			(item) => item.label === settingsStore.activeTab
+		)
+		activeTab.value = (stored || items.value[0]).label
 	} else {
-		activeTab.value = null
+		activeTab.value = ''
 		settingsStore.isSettingsOpen = false
 	}
 })

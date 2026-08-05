@@ -1,20 +1,18 @@
 <template>
 	<Dialog
-		v-model="show"
-		:options="{
-			title: chapterDetail ? __('Edit Chapter') : __('Add Chapter'),
-			size: 'lg',
-			actions: [
-				{
-					label: chapterDetail ? __('Edit') : __('Create'),
-					variant: 'solid',
-					onClick: (close) =>
-						chapterDetail ? editChapter(close) : addChapter(close),
-				},
-			],
-		}"
+		v-model:open="show"
+		:title="chapterDetail ? __('Edit Chapter') : __('Add Chapter')"
+		size="lg"
+		:actions="[
+			{
+				label: chapterDetail ? __('Edit') : __('Create'),
+				variant: 'solid',
+				onClick: ({ close }) =>
+					chapterDetail ? editChapter(close) : addChapter(close),
+			},
+		]"
 	>
-		<template #body-content>
+		<template #default>
 			<div class="space-y-4 text-base">
 				<FormControl
 					label="Title"
@@ -22,7 +20,7 @@
 					:required="true"
 					autocomplete="off"
 				/>
-				<Switch
+				<BooleanSwitch
 					size="sm"
 					:label="__('SCORM Package')"
 					:description="
@@ -41,9 +39,15 @@
 					>
 						<template v-slot="{ file, progress, uploading, openFileSelector }">
 							<div class="mb-4">
-								<Button @click="openFileSelector" :loading="uploading">
+								<Button
+									class="text-p-base-medium"
+									:loading="uploading"
+									@click="openFileSelector"
+								>
 									{{
-										uploading ? `Uploading ${progress}%` : 'Upload an ZIP file'
+										uploading
+											? __('Uploading {0}%').format(progress)
+											: __('Upload a ZIP file')
 									}}
 								</Button>
 							</div>
@@ -51,20 +55,25 @@
 					</FileUploader>
 					<div v-else class="">
 						<div class="flex items-center">
-							<div class="border rounded-md p-2 me-2">
-								<FileText class="h-5 w-5 stroke-1.5 text-ink-gray-7" />
+							<div class="border rounded-md p-2 me-2 shrink-0">
+								<span class="lucide-file-text h-5 w-5 text-ink-gray-7" />
 							</div>
-							<div class="flex flex-col">
-								<span class="text-ink-gray-9">
+							<div class="flex min-w-0 flex-1 flex-col">
+								<span
+									class="truncate text-ink-gray-9"
+									:title="chapter.scorm_package.file_name"
+								>
 									{{ chapter.scorm_package.file_name }}
 								</span>
 								<span class="text-sm text-ink-gray-4 mt-1">
 									{{ getFileSize(chapter.scorm_package.file_size) }}
 								</span>
 							</div>
-							<X
+							<button
+								type="button"
+								:aria-label="__('Remove file')"
 								@click="() => (chapter.scorm_package = null)"
-								class="bg-surface-gray-3 rounded-md cursor-pointer stroke-1.5 w-5 h-5 p-1 ms-4"
+								class="lucide-x bg-surface-gray-3 rounded-md cursor-pointer w-5 h-5 p-1 ms-4 shrink-0"
 							/>
 						</div>
 					</div>
@@ -82,12 +91,11 @@ import {
 	FormControl,
 	toast,
 } from 'frappe-ui'
-import Switch from '@/components/Controls/Switch.vue'
+import BooleanSwitch from '@/components/Controls/BooleanSwitch.vue'
 import { reactive, watch, inject } from 'vue'
 import { getFileSize } from '@/utils/'
-import { FileText, X } from 'lucide-vue-next'
 import { useOnboarding, useTelemetry } from 'frappe-ui/frappe'
-import type { ChapterDetailInput, Resource, SessionUser } from '@/types/api'
+import type { ChapterDetailInput, SessionUser } from '@/types'
 
 type ScormPackage = { file_name: string; file_size: number } | null
 
@@ -98,7 +106,7 @@ interface ChapterForm {
 }
 
 const show = defineModel<boolean>()
-const outline = defineModel<Resource<unknown> | undefined>('outline')
+const emit = defineEmits<{ created: []; updated: [] }>()
 const user = inject<SessionUser>('$user')!
 const { capture } = useTelemetry()
 const { updateOnboardingStep } = useOnboarding('learning')
@@ -127,21 +135,6 @@ const chapterResource = createResource({
 	},
 })
 
-const chapterReference = createResource({
-	url: 'frappe.client.insert',
-	makeParams(values: { name: string }) {
-		return {
-			doc: {
-				doctype: 'Chapter Reference',
-				chapter: values.name,
-				parent: props.course,
-				parenttype: 'LMS Course',
-				parentfield: 'chapters',
-			},
-		}
-	},
-})
-
 const errorMessage = (err: { messages?: string[] } | string): string =>
 	typeof err === 'string' ? err : err.messages?.[0] ?? 'Error'
 
@@ -152,24 +145,14 @@ const addChapter = async (close: () => void) => {
 			validate() {
 				return validateChapter()
 			},
-			onSuccess: (data: { name: string }) => {
+			onSuccess: () => {
 				if (user.data?.is_system_manager)
 					updateOnboardingStep('create_first_chapter')
 
 				capture('chapter_created')
-				chapterReference.submit(
-					{ name: data.name },
-					{
-						onSuccess() {
-							cleanChapter()
-							outline.value?.reload()
-							toast.success(__('Chapter added successfully'))
-						},
-						onError(err: { messages?: string[] } | string) {
-							toast.error(errorMessage(err))
-						},
-					}
-				)
+				cleanChapter()
+				emit('created')
+				toast.success(__('Chapter added successfully'))
 				close()
 			},
 			onError(err: { messages?: string[] } | string) {
@@ -200,12 +183,10 @@ const editChapter = (close: () => void) => {
 		{},
 		{
 			validate() {
-				if (!chapter.title) {
-					return 'Title is required'
-				}
+				return validateChapter()
 			},
 			onSuccess() {
-				outline.value?.reload()
+				emit('updated')
 				toast.success(__('Chapter updated successfully'))
 				close()
 			},

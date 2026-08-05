@@ -1,6 +1,6 @@
 <template>
 	<div
-		class="text-sm absolute bg-white border rounded-md z-10 w-44"
+		class="text-sm absolute bg-surface-elevation-2 border rounded-md z-10 w-44"
 		:style="{
 			display: top > 0 ? 'block' : 'none',
 			top: top + 'px',
@@ -8,55 +8,58 @@
 		}"
 	>
 		<div class="space-y-2 py-2">
-			<div class="text-xs text-ink-gray-5 font-medium px-3">
+			<div class="text-xs-medium text-ink-gray-5 px-3">
 				{{ __('Highlight') }}
 			</div>
 			<div class="">
-				<div
+				<button
 					v-for="color in colors"
-					class="flex items-center gap-x-2 px-3 py-2 cursor-pointer hover:bg-surface-gray-2"
+					:key="color"
+					type="button"
+					class="w-full flex items-center gap-x-2 px-3 py-2 cursor-pointer hover:bg-surface-gray-2"
 					@click="saveHighLight(color)"
 				>
 					<span
 						class="size-3 rounded-full"
 						:style="{
-							backgroundColor: getColor(color.toLowerCase(), 400),
+							backgroundColor: `var(--${color.toLowerCase()}-400)`,
 						}"
 					></span>
 					<span>
 						{{ __(color) }}
 					</span>
-				</div>
+				</button>
 			</div>
 		</div>
 		<div class="border-t">
-			<div
+			<button
+				type="button"
 				@click="addToNotes()"
-				class="flex items-center gap-x-2 hover:bg-surface-gray-2 cursor-pointer rounded-b-md py-2 px-3"
+				class="w-full flex items-center gap-x-2 hover:bg-surface-gray-2 cursor-pointer rounded-b-md py-2 px-3"
 			>
-				<NotepadText class="size-3 stroke-1.5" />
+				<span class="lucide-notepad-text size-3" />
 				<span>
 					{{ __('Add to Notes') }}
 				</span>
-			</div>
-			<div
+			</button>
+			<button
 				v-if="highlightExists()"
+				type="button"
 				@click="deleteHighlight"
-				class="flex items-center gap-x-2 hover:bg-surface-gray-2 cursor-pointer rounded-b-md py-2 px-3"
+				class="w-full flex items-center gap-x-2 hover:bg-surface-gray-2 cursor-pointer rounded-b-md py-2 px-3"
 			>
-				<Trash2 class="size-3 stroke-1.5" />
+				<span class="lucide-trash-2 size-3" />
 				<span>
 					{{ __('Remove Highlight') }}
 				</span>
-			</div>
+			</button>
 		</div>
 	</div>
 </template>
 <script setup lang="ts">
 import { computed, inject, ref, watch } from 'vue'
-import { NotepadText, Trash2 } from 'lucide-vue-next'
-import type { Note, Notes } from '@/components/Notes/types'
-import { blockQuotesClick, getColor, highlightText } from '@/utils'
+import type { Note, Notes } from '@/types'
+import { blockQuotesClick, highlightText } from '@/utils'
 
 const user = inject<any>('$user')
 const show = defineModel()

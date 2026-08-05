@@ -1,12 +1,10 @@
 <template>
 	<Dialog
-		v-model="show"
-		:options="{
-			title: __('Progress Summary for {0}').format(programName),
-			size: '2xl',
-		}"
+		v-model:open="show"
+		:title="__('Progress Summary for {0}').format(programName)"
+		size="2xl"
 	>
-		<template #body-content>
+		<template #default>
 			<div class="text-base">
 				<div class="flex items-center justify-between gap-x-4 mb-4">
 					<NumberChart
@@ -31,11 +29,11 @@
 						categoryColumn: 'category',
 						valueColumn: 'count',
 						colors: [
-							getColor('red', 400),
-							getColor('amber', 400),
-							getColor('pink', 400),
-							getColor('blue', 400),
-							getColor('green', 400),
+							'var(--red-400)',
+							'var(--amber-400)',
+							'var(--pink-400)',
+							'var(--blue-400)',
+							'var(--green-400)',
 						],
 					}"
 				/>
@@ -43,20 +41,24 @@
 				<div class="mt-10">
 					<FormControl
 						v-model="searchFilter"
-						:placeholder="__('Search by Member')"
+						:placeholder="__('Search')"
 						class="mb-4"
-					/>
-					<ListView
-						v-if="progressList.length"
+					>
+						<template #prefix>
+							<span class="lucide-search size-4 text-ink-gray-5" />
+						</template>
+					</FormControl>
+					<ResponsiveListView
+						v-if="progressRows.length"
 						:columns="progressColumns"
-						:rows="progressList"
-						rowKey="name"
+						:rows="progressRows"
+						row-key="name"
 						:options="{
 							selectable: false,
 							showTooltip: false,
 						}"
 					/>
-					<div v-else class="text-center text-gray-500">
+					<div v-else class="text-center text-ink-gray-5">
 						{{ __('No members found.') }}
 					</div>
 				</div>
@@ -65,16 +67,10 @@
 	</Dialog>
 </template>
 <script setup lang="ts">
-import {
-	Dialog,
-	DonutChart,
-	FormControl,
-	ListView,
-	NumberChart,
-} from 'frappe-ui'
-import type { ProgramMember } from '@/types'
+import { Dialog, DonutChart, FormControl, NumberChart } from 'frappe-ui'
+import type { ListRow, ProgramMember } from '@/types'
 import { computed, ref, watch } from 'vue'
-import { getColor } from '@/utils'
+import ResponsiveListView from '@/components/ResponsiveListView.vue'
 
 const show = defineModel<boolean>({ default: false })
 const searchFilter = ref<string | null>(null)
@@ -85,6 +81,10 @@ const props = defineProps<{
 }>()
 
 const progressList = ref<ProgramMember[]>(props.programMembers || [])
+
+const progressRows = computed<ListRow[]>(() =>
+	progressList.value.map((member) => ({ ...member }))
+)
 
 const progressDistribution = computed(() => {
 	const categories = ['0-20%', '20-40%', '40-60%', '60-80%', '80-100%']
@@ -130,7 +130,7 @@ const progressColumns = computed(() => {
 		{
 			label: __('Progress (%)'),
 			key: 'progress',
-			align: 'right',
+			align: 'left',
 		},
 	]
 })
