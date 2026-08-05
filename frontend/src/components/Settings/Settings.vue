@@ -665,6 +665,8 @@ const tabsStructure = computed(() => {
 											name: 'meta_image',
 											type: 'Upload',
 											size: 'lg',
+											// Open Graph image: unauthenticated crawlers fetch it.
+											public: true,
 											description:
 												'Default social-share image used when pages lack their own meta image.',
 										},

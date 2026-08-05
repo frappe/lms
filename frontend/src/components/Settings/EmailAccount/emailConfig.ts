@@ -215,3 +215,38 @@ export function validateInputs(
 	}
 	return ''
 }
+
+/**
+ * Which of the two site-wide defaults this account holds. Frappe allows one
+ * default inbox and one default sender, and an account can be both, either or
+ * neither, so the four cases are distinct rather than a flag.
+ */
+export function defaultsBadgeLabel(account: {
+	default_incoming?: boolean | number
+	default_outgoing?: boolean | number
+	enable_incoming?: boolean | number
+	enable_outgoing?: boolean | number
+}): string {
+	if (account.default_incoming && account.default_outgoing) {
+		return __('Default Sending & Inbox')
+	}
+	if (account.default_incoming) {
+		return __('Default Inbox')
+	}
+	if (account.default_outgoing) {
+		return __('Default Sending')
+	}
+	// Holding neither default says nothing about direction. The column is headed
+	// "Role", so falling through to Inbox labelled every send-only relay as one
+	// that receives mail.
+	if (account.enable_incoming && account.enable_outgoing) {
+		return __('Sending & Inbox')
+	}
+	if (account.enable_outgoing) {
+		return __('Sending')
+	}
+	if (account.enable_incoming) {
+		return __('Inbox')
+	}
+	return __('Disabled')
+}

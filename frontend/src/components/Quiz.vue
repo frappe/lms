@@ -514,6 +514,7 @@ const showSubmissionConfirmation = ref(false)
 const possibleAnswer = ref(null)
 const timer = ref(0)
 let timerInterval = null
+let submitTimeout = null
 
 const props = defineProps({
 	quizName: {
@@ -538,6 +539,7 @@ onMounted(() => {
 onUnmounted(() => {
 	window.removeEventListener('pagehide', handlePageHide)
 	window.removeEventListener('beforeunload', handleBeforeUnload)
+	stopTimer()
 })
 
 const handlePageHide = () => {
@@ -610,16 +612,33 @@ const populateQuestions = () => {
 }
 
 const setupTimer = () => {
-	if (quiz.data.duration) {
+	// resetQuiz() reaches here from the quizName watcher, which fires before the
+	// new quiz has loaded — and on the very first navigation quiz.data is still
+	// null. Throwing here would abort the watcher before it can reload.
+	if (quiz.data?.duration) {
 		timer.value = quiz.data.duration * 60
 	}
 }
 
+const stopTimer = () => {
+	clearInterval(timerInterval)
+	timerInterval = null
+	// submitQuiz() defers createSubmission() by 500ms so the last answer can be
+	// written to localStorage first. Left pending, it fires against an unmounted
+	// or already-switched component and marks progress on the wrong lesson.
+	clearTimeout(submitTimeout)
+	submitTimeout = null
+}
+
 const startTimer = () => {
+	// The same instance can start a quiz more than once — a retake, or the
+	// component reused for another quiz. Without this, each start leaves the
+	// previous interval running and every one of them submits on expiry.
+	stopTimer()
 	timerInterval = setInterval(() => {
 		timer.value--
 		if (timer.value == 0) {
-			clearInterval(timerInterval)
+			stopTimer()
 			submitQuiz()
 		}
 	}, 1000)
@@ -762,6 +781,20 @@ watch(
 	() => props.quizName,
 	(newName) => {
 		if (newName) {
+			// The lesson-level quiz is not keyed at its mount site, so moving
+			// between two lessons that both carry a quiz reuses this instance
+			// instead of remounting it. Reloading alone leaves the previous
+			// quiz's answers, flagged questions and submission on screen.
+			stopTimer()
+			resetQuiz()
+			// Only on a genuine quiz switch, never from resetQuiz() itself — that is
+			// also the "Try Again" handler, and nulling attempts there leaves the
+			// start card with neither a Start button nor the exceeded-attempts
+			// message, both of which read attempts.data?.length.
+			attempts.reset()
+			// A submission already in flight is NOT aborted: the POST has reached the
+			// server and the attempt is spent either way, so cancelling the client
+			// would only hide the result. It is ignored instead, by submittedQuiz.
 			quiz.reload()
 		}
 	}
@@ -885,7 +918,8 @@ const submitQuiz = () => {
 		if (questionDetails.data?.type == 'Open Ended' || getAnswers().length) {
 			addToLocalStorage()
 		}
-		setTimeout(() => {
+		submitTimeout = setTimeout(() => {
+			submitTimeout = null
 			createSubmission()
 		}, 500)
 		return
@@ -894,13 +928,19 @@ const submitQuiz = () => {
 }
 
 const createSubmission = () => {
+	// Which quiz this submission belongs to. The component is reused across
+	// lessons, so by the time the response lands props.quizName may have moved
+	// on — and markLessonProgress() reads window.location.pathname at that
+	// moment, which would credit whatever lesson is open by then.
+	const submittedQuiz = props.quizName
 	quizSubmission.submit(
 		{},
 		{
 			onSuccess(data) {
+				if (props.quizName !== submittedQuiz) return
 				markLessonProgress()
 				if (quiz.data && quiz.data.max_attempts) attempts.reload()
-				if (quiz.data.duration) clearInterval(timerInterval)
+				stopTimer()
 			},
 			onError(err) {
 				const errorTitle = err?.message || ''
@@ -926,6 +966,7 @@ const resetQuiz = () => {
 	showAnswers.length = 0
 	possibleAnswer.value = null
 	attemptedQuestions.value = []
+	reviewQuestions.value = []
 	quizSubmission.reset()
 	populateQuestions()
 	setupTimer()

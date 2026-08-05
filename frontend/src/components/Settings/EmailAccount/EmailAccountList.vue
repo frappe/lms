@@ -54,7 +54,7 @@ import { Dialog, toast } from 'frappe-ui'
 import { ref } from 'vue'
 import { cleanError } from '@/utils'
 import EmailProviderIcon from './EmailProviderIcon.vue'
-import { emailIcon } from './emailConfig'
+import { defaultsBadgeLabel, emailIcon } from './emailConfig'
 import SettingsList from '@/components/Layouts/SettingsList.vue'
 import { useSettingsListResource } from '@/composables/useSettingsListResource'
 import type { EmailAccount, SettingsListColumn } from '@/types'
@@ -98,6 +98,14 @@ const columns: SettingsListColumn[] = [
 		primary: (row) => row.email_account_name,
 		secondary: (row) => row.email_id,
 		leading: true,
+	},
+	{
+		key: 'defaults',
+		label: __('Role'),
+		type: 'badge',
+		// Wide enough for the longest label, "Default Sending & Inbox".
+		width: '11rem',
+		badges: (row) => [{ label: defaultsBadgeLabel(row), theme: 'gray' }],
 	},
 	{
 		key: 'actions',

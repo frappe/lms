@@ -310,7 +310,6 @@ const setProgramData = () => {
 const programCourses = createListResource({
 	doctype: 'LMS Program Course',
 	fields: ['course', 'course_title', 'name', 'idx'],
-	cache: ['programCourses', props.programName],
 	parent: 'LMS Program',
 	orderBy: 'idx',
 	onSuccess(data: ProgramCourse[]) {
@@ -321,7 +320,6 @@ const programCourses = createListResource({
 const programMembers = createListResource({
 	doctype: 'LMS Program Member',
 	fields: ['member', 'full_name', 'progress', 'name'],
-	cache: ['programMembers', props.programName],
 	parent: 'LMS Program',
 	orderBy: 'creation desc',
 	onSuccess(data: ProgramMember[]) {
