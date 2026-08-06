@@ -8,7 +8,7 @@
 					:to="{
 						name: 'CourseDetail',
 						params: { courseName: courseName },
-						hash: '#course editor',
+						hash: '#editor',
 						query: { editLesson: `${chapterNumber}-${lessonNumber}` },
 					}"
 				>
