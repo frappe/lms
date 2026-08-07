@@ -131,7 +131,7 @@ function syncSelectedToUrl(number) {
 	if (route.query.editLesson === number) return
 	router.replace({
 		query: { ...route.query, editLesson: number },
-		hash: route.hash || '#course editor',
+		hash: route.hash || '#editor',
 	})
 }
 
@@ -285,7 +285,7 @@ watch(
 				const { editLesson, ...rest } = route.query
 				router.replace({
 					query: rest,
-					hash: route.hash || '#course editor',
+					hash: route.hash || '#editor',
 				})
 			}
 		}
@@ -328,7 +328,7 @@ watch(
 		if (lessonMode !== 'preview') {
 			legacyLessonModeHandled = true
 			const { lessonMode: _dropped, ...query } = route.query
-			router.replace({ query, hash: route.hash || '#course editor' })
+			router.replace({ query, hash: route.hash || '#editor' })
 			return
 		}
 		const number = route.query.editLesson || selectedNumber
