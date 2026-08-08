@@ -16,11 +16,11 @@ class LMSPayment(Document):
 
 
 UNIQUE_PAYMENT_ID = "unique_payment_id"
-
+UNIQUE_PENDING_PAYMENT = "unique_pending_payment"
 
 def on_doctype_update():
 	add_unique_payment_id_constraint()
-
+	add_unique_pending_payment_constraint()
 
 def add_unique_payment_id_constraint():
 	"""One gateway payment belongs to one LMS Payment. Two callbacks for the same
@@ -54,9 +54,34 @@ def add_unique_payment_id_constraint():
 	frappe.db.add_unique("LMS Payment", ["payment_id"])
 
 
+def add_unique_pending_payment_constraint():
+	if has_unique_pending_payment():
+		return
+
+	duplicates = get_duplicate_pending_payments()
+
+	if duplicates:
+		frappe.log_error(
+			title="Duplicate pending payments block a unique constraint on LMS Payment",
+			message="More than one pending LMS Payment row shares the same member/document.",
+			defer_insert=True,
+		)
+		frappe.db.add_index(
+			"LMS Payment",
+			["member", "payment_for_document_type", "payment_for_document", "payment_received"],
+		)
+		return
+
+	frappe.db.add_unique(
+		"LMS Payment",
+		["member", "payment_for_document_type", "payment_for_document", "payment_received"],
+	)
+
 def has_unique_payment_id() -> bool:
 	return bool(frappe.db.has_index("tabLMS Payment", UNIQUE_PAYMENT_ID))
 
+def has_unique_pending_payment() -> bool:
+	return bool(frappe.db.has_index("tabLMS Payment", UNIQUE_PENDING_PAYMENT))
 
 def get_duplicate_payment_ids() -> list[str]:
 	payment = frappe.qb.DocType("LMS Payment")
@@ -68,6 +93,15 @@ def get_duplicate_payment_ids() -> list[str]:
 		.having(fn.Count(payment.name) > 1)
 	).run(pluck=True)
 
+def get_duplicate_pending_payments() -> list:
+	payment = frappe.qb.DocType("LMS Payment")
+	return (
+		frappe.qb.from_(payment)
+		.select(payment.member, payment.payment_for_document_type, payment.payment_for_document)
+		.where(payment.payment_received == 0)
+		.groupby(payment.member, payment.payment_for_document_type, payment.payment_for_document)
+		.having(fn.Count(payment.name) > 1)
+	).run(as_dict=True)
 
 def send_payment_reminder():
 	outgoing_email_account = frappe.get_cached_value(

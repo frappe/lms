@@ -178,6 +178,7 @@ def record_payment(
 		if payment_name
 		else frappe.new_doc("LMS Payment")
 	)
+
 	payment_doc.update(
 		{
 			"member": frappe.session.user,
@@ -205,8 +206,30 @@ def record_payment(
 				"original_amount": original_amount,
 			}
 		)
+	try:
+		payment_doc.save(ignore_permissions=True)
 
-	payment_doc.save(ignore_permissions=True)
+	except Exception as e:
+		if not frappe.db.is_unique_key_violation(e):
+			raise
+		frappe.db.rollback()
+		# Another concurrent checkout request for the same member & document won
+		# the race and inserted the pending payment first, blocked by the
+		# unique constraint added in add_unique_pending_payment_constraint.
+		payment_name = frappe.db.exists(
+			"LMS Payment",
+			{
+				"member": frappe.session.user,
+				"payment_for_document_type": doctype,
+				"payment_for_document": docname,
+				"payment_received": 0,
+			},
+		)
+		payment_doc = frappe.get_doc(
+			"LMS Payment",
+			payment_name
+		)
+
 	return payment_doc
 
 
