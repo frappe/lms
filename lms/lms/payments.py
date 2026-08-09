@@ -164,41 +164,25 @@ def record_payment(
 	address = frappe._dict(address)
 	address_name = save_address(address)
 
-	payment_name = frappe.db.exists(
-		"LMS Payment",
-			{
-				"member": frappe.session.user,
-				"payment_for_document_type": doctype,
-				"payment_for_document": docname,
-				"payment_received": 0,
-			},
-		)
-	payment_doc = (
-		frappe.get_doc("LMS Payment", payment_name)
-		if payment_name
-		else frappe.new_doc("LMS Payment")
-	)
+	payment_details = {
+		"member": frappe.session.user,
+		"billing_name": address.billing_name,
+		"address": address_name,
+		"amount": amount,
+		"currency": currency,
+		"discount_amount": discount_amount,
+		"amount_with_gst": amount_with_gst,
+		"gstin": address.gstin,
+		"pan": address.pan,
+		"source": address.source,
+		"payment_for_document_type": doctype,
+		"payment_for_document": docname,
+		"payment_for_certificate": payment_for_certificate,
+		"member_consent": address.member_consent,
+	}
 
-	payment_doc.update(
-		{
-			"member": frappe.session.user,
-			"billing_name": address.billing_name,
-			"address": address_name,
-			"amount": amount,
-			"currency": currency,
-			"discount_amount": discount_amount,
-			"amount_with_gst": amount_with_gst,
-			"gstin": address.gstin,
-			"pan": address.pan,
-			"source": address.source,
-			"payment_for_document_type": doctype,
-			"payment_for_document": docname,
-			"payment_for_certificate": payment_for_certificate,
-			"member_consent": address.member_consent,
-		}
-	)
 	if coupon_code:
-		payment_doc.update(
+		payment_details.update(
 			{
 				"coupon": coupon,
 				"coupon_code": coupon_code,
@@ -206,6 +190,43 @@ def record_payment(
 				"original_amount": original_amount,
 			}
 		)
+
+	def get_or_create_pending_payment():
+		payment_name = frappe.db.exists(
+			"LMS Payment",
+			{
+				"member": frappe.session.user,
+				"payment_for_document_type": doctype,
+				"payment_for_document": docname,
+				"payment_received": 0,
+			},
+		)
+		return (
+			frappe.get_doc("LMS Payment", payment_name)
+			if payment_name
+			else frappe.new_doc("LMS Payment")
+		)
+	from lms.lms.doctype.lms_payment.lms_payment import has_unique_pending_payment
+
+	# Serialize this codepath in application code as long as the DB-level
+	# unique constraint isn't in place yet (see has_unique_pending_payment in
+	# lms_payment.py) — e.g. right after an upgrade, before an operator has
+	# cleaned up pre-existing duplicates. Once the constraint exists, this
+	# branch is skipped and the code below relies on the DB constraint.
+	if not has_unique_pending_payment():
+		lock_key = f"lms_pending_payment:{frappe.session.user}:{doctype}:{docname}"
+		if not frappe.cache().redis.set(lock_key, 1, nx=True, ex=15):
+			frappe.throw(_("Payment is already being processed, please wait a moment and retry."))
+		try:
+			payment_doc = get_or_create_pending_payment()
+			payment_doc.update(payment_details)
+			payment_doc.save(ignore_permissions=True)
+			return payment_doc
+		finally:
+			frappe.cache().delete_key(lock_key)
+
+	payment_doc = get_or_create_pending_payment()
+	payment_doc.update(payment_details)
 	try:
 		payment_doc.save(ignore_permissions=True)
 

@@ -6,8 +6,7 @@ from frappe import _
 from frappe.email.doctype.email_template.email_template import get_email_template
 from frappe.model.document import Document
 from frappe.utils import add_days, flt, nowdate
-from pypika import functions as fn
-
+from pypika import functions as fn, CustomFunction
 from lms.lms.utils import get_lms_route
 
 
@@ -69,12 +68,17 @@ def add_unique_pending_payment_constraint():
 		frappe.db.add_index(
 			"LMS Payment",
 			["member", "payment_for_document_type", "payment_for_document", "payment_received"],
+			index_name="unique_pending_payment_lookup",
 		)
-		return
+		for d in duplicates:
+			names = d.names.split(",")
+			for extra in names[1:]:
+				frappe.delete_doc("LMS Payment", extra, force=True, ignore_permissions=True)
 
 	frappe.db.add_unique(
 		"LMS Payment",
 		["member", "payment_for_document_type", "payment_for_document", "payment_received"],
+		constraint_name=UNIQUE_PENDING_PAYMENT,
 	)
 
 def has_unique_payment_id() -> bool:
@@ -95,9 +99,15 @@ def get_duplicate_payment_ids() -> list[str]:
 
 def get_duplicate_pending_payments() -> list:
 	payment = frappe.qb.DocType("LMS Payment")
+	GroupConcat = CustomFunction("GROUP_CONCAT", ["column"])
 	return (
 		frappe.qb.from_(payment)
-		.select(payment.member, payment.payment_for_document_type, payment.payment_for_document)
+		.select(
+			payment.member,
+			payment.payment_for_document_type,
+			payment.payment_for_document,
+			GroupConcat(payment.name).as_("names"),
+		)
 		.where(payment.payment_received == 0)
 		.groupby(payment.member, payment.payment_for_document_type, payment.payment_for_document)
 		.having(fn.Count(payment.name) > 1)
