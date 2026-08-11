@@ -178,6 +178,15 @@ const navigateToPage = (log) => {
 	} else if (link.includes('batches')) {
 		const batchTarget = link.pop()
 		const [batchName, hashValue] = batchTarget.split('#')
+<<<<<<< HEAD
+=======
+		router.push({
+			name: 'BatchDetail',
+			params: { batchName },
+			hash: hashValue ? `#${hashValue}` : '',
+		})
+	} else if (link.includes('assignment-submission')) {
+>>>>>>> f6aef17 (fix: preserve batch discussion hash in notifications)
 		router.push({
 			name: 'BatchDetail',
 			params: { batchName },
