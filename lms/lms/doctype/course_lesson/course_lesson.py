@@ -23,6 +23,7 @@ from lms.lms.permissions import INSTRUCTOR_FIELDS, can_access_lesson
 from lms.lms.utils import (
 	get_course_progress,
 	get_editorjs_blocks,
+	guest_access_allowed,
 	is_demo_course,
 	recalculate_course_progress,
 	sanitize_editorjs,
@@ -120,6 +121,45 @@ def has_permission(doc, ptype="read", user=None):
 	# Deliberately NOT widened to all Course Creators, to preserve the media-access
 	# boundary (matches the original get_lesson gate).
 	return can_access_lesson(doc.name, user=user)
+
+
+def get_permission_query_conditions(user=None):
+	"""List-read counterpart of has_permission's read branch.
+
+	Expresses resolve_lesson_access (lms/lms/permissions.py) as SQL: course
+	instructor, or enrolled member, or a preview lesson of a published course.
+	Deliberately NOT widened to all Course Creators — the read gate is per-course,
+	and widening it here would open the media boundary the doc read protects.
+	"""
+	user = user or frappe.session.user
+	if user == "Administrator":
+		return ""
+
+	roles = frappe.get_roles(user)
+	if "Moderator" in roles:
+		return ""
+
+	escaped = frappe.db.escape(user)
+	conditions = [
+		f"""`tabCourse Lesson`.course in (
+			select parent from `tabCourse Instructor`
+			where instructor = {escaped} and parenttype = 'LMS Course'
+		)""",
+		f"""`tabCourse Lesson`.course in (
+			select course from `tabLMS Enrollment` where member = {escaped}
+		)""",
+	]
+
+	if user != "Guest" or guest_access_allowed():
+		conditions.append(
+			"""(`tabCourse Lesson`.include_in_preview = 1
+			and `tabCourse Lesson`.course in (
+				select name from `tabLMS Course` where published = 1
+			))"""
+		)
+
+	joined = " or ".join(conditions)
+	return f"({joined})"
 
 
 # Lesson content fields a student may reach vs. instructor-only fields (gated harder).

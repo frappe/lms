@@ -20,7 +20,7 @@
 				{{ __('Problem Statement') }}
 			</h2>
 			<div
-				v-html="sanitizeRichHTML(exercise.doc?.problem_statement)"
+				v-safe-html:rich="exercise.doc?.problem_statement"
 				class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2 prose-sm max-w-none !whitespace-normal"
 			></div>
 		</div>
@@ -135,7 +135,6 @@
 	</div>
 </template>
 <script setup lang="ts">
-import { sanitizeRichHTML } from '@/utils/sanitizeRichHTML'
 import {
 	Badge,
 	Button,

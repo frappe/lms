@@ -25,12 +25,12 @@
 						<template v-if="modelValue">
 							<img
 								v-if="type === 'image'"
-								:src="modelValue"
+								:src="safeUrl(modelValue)"
 								:alt="label ? __(label) : __('Uploaded image preview')"
 								class="size-full object-cover"
 							/>
 							<video v-else controls class="size-full object-cover">
-								<source :src="modelValue" />
+								<source :src="safeUrl(modelValue)" />
 								{{ __('Your browser does not support the video tag.') }}
 							</video>
 						</template>
@@ -86,6 +86,7 @@ import {
 } from '@/components/Form/labeling'
 import { Image, Video } from 'lucide-vue-next'
 import { computed } from 'vue'
+import { safeUrl } from '@/utils/safeUrl'
 
 const emit = defineEmits<{
 	(e: 'update:modelValue', value: string): void

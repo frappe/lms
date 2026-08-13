@@ -39,6 +39,11 @@ class LMSEnrollment(Document):
 		update_program_progress(self.member)
 
 	def validate_duplicate_enrollment(self):
+		# Lock the course row first: see the note in
+		# lms_batch_enrollment.validate_duplicate_members. Two concurrent
+		# enrolments in the same course both read "absent" without it.
+		frappe.db.get_value("LMS Course", self.course, "name", for_update=True)
+
 		existing_enrollment = frappe.db.exists(
 			"LMS Enrollment",
 			{

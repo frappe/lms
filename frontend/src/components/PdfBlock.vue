@@ -54,9 +54,8 @@
 				</button>
 				<a
 					class="pdf-btn"
-					:href="file"
-					target="_blank"
-					rel="noopener"
+					:href="safeUrl(file)"
+					v-external
 					aria-label="Open in new tab"
 				>
 					<ExternalLink :size="16" :stroke-width="1.5" />
@@ -71,12 +70,7 @@
 			</div>
 			<div v-else-if="error" class="pdf-status pdf-error">
 				<span>{{ error }}</span>
-				<a
-					class="pdf-fallback-link"
-					:href="file"
-					target="_blank"
-					rel="noopener"
-				>
+				<a class="pdf-fallback-link" :href="safeUrl(file)" v-external>
 					Open the PDF in a new tab
 				</a>
 			</div>
@@ -109,6 +103,7 @@ import {
 	ExternalLink,
 	Loader2,
 } from 'lucide-vue-next'
+import { safeUrl } from '@/utils/safeUrl'
 
 const props = defineProps({
 	file: { type: String, required: true },
@@ -170,7 +165,7 @@ async function load() {
 
 		const base = import.meta.env.BASE_URL || '/'
 		const loadingTask = pdfjsLib.getDocument({
-			url: props.file,
+			url: safeUrl(props.file),
 			worker: sharedPdfWorker || undefined,
 			cMapUrl: `${base}pdfjs/cmaps/`,
 			cMapPacked: true,

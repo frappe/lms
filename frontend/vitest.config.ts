@@ -32,6 +32,9 @@ export default defineConfig({
 		environment: 'jsdom',
 		globals: true,
 		include: ['src/tests/**/*.test.{ts,js}'],
+		// Registers v-safe-html the way main.js does, so a component test does
+		// not have to know which components use the directive.
+		setupFiles: ['src/tests/setup.ts'],
 		// Nothing here is slow on its own. Every one of these files passes in
 		// well under a second when run alone. The default 5s is wall-clock
 		// though, and a full run mounts 60-odd suites in parallel, so a handful

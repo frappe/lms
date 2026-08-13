@@ -246,7 +246,8 @@ import {
 import { computed, inject, ref, watch, getCurrentInstance } from 'vue'
 
 import { Program, ProgramCourse, ProgramMember } from '@/types'
-import { sanitizeHTML, openSettings } from '@/utils'
+import { openSettings } from '@/utils'
+import { sanitizeOnWrite } from '@/utils/sanitizeOnWrite'
 import FormShell from '@/components/FormShell.vue'
 import HeaderButton from '@/components/HeaderButton.vue'
 import { useFormRoute } from '@/composables/useFormRoute'
@@ -416,7 +417,7 @@ watch(
 )
 
 const validateTitle = () => {
-	program.value.name = sanitizeHTML(program.value.name.trim())
+	program.value.name = sanitizeOnWrite(program.value.name.trim())
 }
 
 const saveProgram = () => {

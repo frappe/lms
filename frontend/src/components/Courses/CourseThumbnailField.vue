@@ -17,7 +17,7 @@
 			>
 				<img
 					v-if="hasImage"
-					:src="doc.image"
+					:src="safeUrl(doc.image)"
 					alt=""
 					class="size-full object-cover"
 				/>
@@ -135,6 +135,7 @@ import { Button, FileUploader, createResource, toast } from 'frappe-ui'
 import { computed, inject, ref, useId, watch } from 'vue'
 import type { CourseFormContext, Resource } from '@/types'
 import { InputLabel } from '@/components/Form/labeling'
+import { safeUrl } from '@/utils/safeUrl'
 
 // Layout mirrors VideoPreviewField (the sibling field in the same form row):
 // the well is full-width on phones and settles back to w-56 from `sm` up, so the

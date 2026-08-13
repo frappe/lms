@@ -145,7 +145,8 @@ import {
 } from 'frappe-ui'
 import { useOnboarding, useTelemetry } from 'frappe-ui/frappe'
 import { computed, inject, onMounted, onBeforeUnmount, ref } from 'vue'
-import { sanitizeHTML, createLMSCategory, cleanError } from '@/utils'
+import { createLMSCategory, cleanError } from '@/utils'
+import { sanitizeOnWrite } from '@/utils/sanitizeOnWrite'
 import FormShell from '@/components/FormShell.vue'
 import HeaderButton from '@/components/HeaderButton.vue'
 import { useFormRoute } from '@/composables/useFormRoute'
@@ -235,13 +236,13 @@ const onInstructorCreated = (user: any) => {
 }
 
 const validateFields = () => {
-	Object.keys(batch.value).forEach((key) => {
-		if (typeof batch.value[key as keyof Batch] === 'string') {
-			batch.value[key as keyof Batch] = sanitizeHTML(
-				batch.value[key as keyof Batch] as string
-			)
+	const fields = batch.value as Record<string, unknown>
+	for (const key of Object.keys(fields)) {
+		const value = fields[key]
+		if (typeof value === 'string') {
+			fields[key] = sanitizeOnWrite(value)
 		}
-	})
+	}
 }
 
 const saveBatch = () => {

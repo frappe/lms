@@ -298,6 +298,7 @@ import UserDropdown from '@/components/Sidebar/UserDropdown.vue'
 import CollapseSidebar from '@/components/Icons/CollapseSidebar.vue'
 import SidebarLink from '@/components/Sidebar/SidebarLink.vue'
 import CommandPalette from '@/components/CommandPalette/CommandPalette.vue'
+import { openExternal } from '@/utils/openExternal'
 import {
 	loadUnreadCount,
 	unreadCount,
@@ -669,7 +670,7 @@ const updateSidebarLinks = () => {
 }
 
 const redirectToWebsite = () => {
-	window.open('https://frappe.io/learning', '_blank')
+	openExternal('https://frappe.io/learning')
 }
 
 const isStudent = computed(() => {
@@ -708,9 +709,8 @@ const calculateTrialEndDays = (trialEndDate) => {
 }
 
 const redirectToAppointmentScreen = () => {
-	window.open(
-		'https://calendar.google.com/calendar/u/0/appointments/schedules/AcZssZ0c7Z3XIpW1WgbeIuktSaoX6qudoYuSdRbIlJty5TW7p4IZaOk5viHQGwTNi6HpNVqzOZOTHcle',
-		'_blank'
+	openExternal(
+		'https://calendar.google.com/calendar/u/0/appointments/schedules/AcZssZ0c7Z3XIpW1WgbeIuktSaoX6qudoYuSdRbIlJty5TW7p4IZaOk5viHQGwTNi6HpNVqzOZOTHcle'
 	)
 }
 

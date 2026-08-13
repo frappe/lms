@@ -83,7 +83,7 @@
 import { Badge, createResource, FormControl, toast } from 'frappe-ui'
 import { computed, inject, reactive, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { sanitizeHTML } from '@/utils'
+import { sanitizeOnWrite } from '@/utils/sanitizeOnWrite'
 import FormShell from '@/components/FormShell.vue'
 import HeaderButton from '@/components/HeaderButton.vue'
 import Link from '@/components/Controls/Link.vue'
@@ -177,7 +177,7 @@ const validateMandatoryFields = () => {
 const saveProfile = () => {
 	if (refusal.value || !profileData.value) return
 	if (validateMandatoryFields()) return
-	profile.bio = sanitizeHTML(profile.bio)
+	profile.bio = sanitizeOnWrite(profile.bio)
 	submitResource(
 		updateProfile,
 		{},

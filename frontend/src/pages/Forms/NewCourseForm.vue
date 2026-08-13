@@ -134,12 +134,8 @@ import Link from '@/components/Controls/Link.vue'
 import MultiLink from '@/components/Controls/MultiLink.vue'
 import Uploader from '@/components/Controls/Uploader.vue'
 import NewMemberModal from '@/components/Modals/NewMemberModal.vue'
-import {
-	canCreateCourse,
-	cleanError,
-	sanitizeHTML,
-	createLMSCategory,
-} from '@/utils'
+import { canCreateCourse, cleanError, createLMSCategory } from '@/utils'
+import { sanitizeOnWrite } from '@/utils/sanitizeOnWrite'
 import type { Resource } from '@/types'
 import RichTextEditor from '@/components/RichTextEditor.vue'
 import { InputLabel, useInputLabeling } from '@/components/Form/labeling'
@@ -322,13 +318,13 @@ const onInstructorCreated = (newUser: any) => {
 }
 
 const validateFields = () => {
-	Object.keys(course.value).forEach((key) => {
-		if (typeof course.value[key as keyof Course] === 'string') {
-			course.value[key as keyof Course] = sanitizeHTML(
-				course.value[key as keyof Course] as string
-			)
+	const fields = course.value as Record<string, unknown>
+	for (const key of Object.keys(fields)) {
+		const value = fields[key]
+		if (typeof value === 'string') {
+			fields[key] = sanitizeOnWrite(value)
 		}
-	})
+	}
 }
 
 const saveCourse = () => {

@@ -113,7 +113,7 @@
 <script setup lang="ts">
 import { computed, inject, ref, watch, useId } from 'vue'
 import { InputLabel } from '@/components/Form/labeling'
-import { sanitizeHTML } from '@/utils'
+import { sanitizeOnWrite } from '@/utils/sanitizeOnWrite'
 import {
 	Badge,
 	createDocumentResource,
@@ -312,7 +312,7 @@ watch(
 )
 
 const validateTitle = () => {
-	exercise.value.title = sanitizeHTML(exercise.value.title.trim())
+	exercise.value.title = sanitizeOnWrite(exercise.value.title.trim())
 }
 
 watch(

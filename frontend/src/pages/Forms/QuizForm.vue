@@ -75,7 +75,7 @@
 					<div
 						v-if="column.key === 'question_detail'"
 						class="text-xs [&>*]:inline"
-						v-html="sanitizeRichHTML(value)"
+						v-safe-html:rich="value"
 					></div>
 					<div v-else class="text-xs">
 						{{ value }}
@@ -251,8 +251,7 @@ import {
 import { sessionStore } from '@/stores/session'
 
 import { useRoute, useRouter } from 'vue-router'
-import { sanitizeHTML } from '@/utils'
-import { sanitizeRichHTML } from '@/utils/sanitizeRichHTML'
+import { sanitizeOnWrite } from '@/utils/sanitizeOnWrite'
 import { openFormRoute } from '@/composables/useFormRoute'
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 import ResponsiveListView from '@/components/ResponsiveListView.vue'
@@ -331,7 +330,7 @@ const quizDetails = createDocumentResource({
 })
 
 const validateTitle = () => {
-	quizDetails.doc.title = sanitizeHTML(quizDetails.doc.title.trim())
+	quizDetails.doc.title = sanitizeOnWrite(quizDetails.doc.title.trim())
 }
 
 // Debounced silent autosave: a burst of edits collapses into a single save

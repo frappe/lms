@@ -263,3 +263,25 @@ def has_permission(doc, ptype="read", user=None):
 		"LMS Batch Enrollment",
 		{"batch": doc.batch_name, "member": user},
 	)
+
+
+def get_permission_query_conditions(user=None):
+	"""List-read counterpart of has_permission above.
+
+	has_permission is never consulted on a list or report query, so without this
+	the enrolment check is enforced on the single-doc read and dropped on the
+	list read — which is how every batch's Zoom `start_url` was readable by any
+	authenticated user.
+	"""
+	user = user or frappe.session.user
+	if user == "Administrator":
+		return ""
+
+	roles = frappe.get_roles(user)
+	if "Moderator" in roles or "Batch Evaluator" in roles:
+		return ""
+
+	escaped = frappe.db.escape(user)
+	return f"""(`tabLMS Live Class`.batch_name in (
+		select batch from `tabLMS Batch Enrollment` where member = {escaped}
+	))"""

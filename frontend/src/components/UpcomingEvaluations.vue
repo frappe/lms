@@ -121,6 +121,7 @@ import { formatTime } from '@/utils'
 import { formatTimezone } from '@/utils/timezone'
 import { Button, createListResource, call, Dropdown, toast } from 'frappe-ui'
 import EvaluationModal from '@/components/Modals/EvaluationModal.vue'
+import { openExternal } from '@/utils/openExternal'
 
 const dayjs = inject('$dayjs')
 const user = inject('$user')
@@ -178,7 +179,7 @@ function openEvalModal() {
 }
 
 const openEvalCall = (evl) => {
-	window.open(evl.google_meet_link, '_blank')
+	openExternal(evl.google_meet_link)
 }
 
 const evaluationCourses = computed(() => {

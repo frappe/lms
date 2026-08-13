@@ -25,6 +25,7 @@ import Embed from '@editorjs/embed'
 import SimpleImage from '@editorjs/simple-image'
 import Table from '@editorjs/table'
 import DOMPurify from 'dompurify'
+import { decodeEntities } from './inertHtml'
 
 const readOnlyMode = window.read_only_mode
 
@@ -115,12 +116,6 @@ export function getImgDimensions(imgSrc) {
 		}
 		img.src = imgSrc
 	})
-}
-
-export function htmlToText(html) {
-	const div = document.createElement('div')
-	div.innerHTML = html
-	return div.textContent || div.innerText || ''
 }
 
 // Visual order of the inline toolbar (automad layout). References registered
@@ -1030,11 +1025,7 @@ export const blockQuotesClick = () => {
 	})
 }
 
-export const decodeEntities = (encodedString) => {
-	const textarea = document.createElement('textarea')
-	textarea.innerHTML = encodedString
-	return textarea.value
-}
+export { decodeEntities, htmlToText } from './inertHtml'
 
 export function validateEmail(email) {
 	return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email || '').trim())

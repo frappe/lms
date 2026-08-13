@@ -11,7 +11,7 @@
 			:icon="row.icon"
 			:description="row.description"
 			:value="row.value"
-			:href="row.href"
+			:href="safeUrl(row.href)"
 			:navigates="Boolean(row.to || row.action)"
 			:chevron="Boolean(row.to || row.href)"
 			@click="activate(row)"
@@ -40,6 +40,7 @@
 // draws it as a real <a> and the browser follows it, so there is no push to
 // make and no click to emit.
 import { useRouter } from 'vue-router'
+import { safeUrl } from '@/utils/safeUrl'
 import SettingsRow from '@/components/Settings/Mobile/SettingsRow.vue'
 import SettingsRowGroup from '@/components/Settings/Mobile/SettingsRowGroup.vue'
 import type {

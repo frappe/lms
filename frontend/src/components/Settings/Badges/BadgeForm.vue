@@ -23,8 +23,9 @@
 					:modelValue="badge.reference_doctype"
 					:options="referenceDoctypeOptions"
 					:label="__('Assign For')"
+					:required="true"
 					@update:modelValue="
-						(opt: any) => (badge.reference_doctype = opt.value)
+						(value: string | null) => (badge.reference_doctype = value ?? '')
 					"
 				/>
 				<FormControl

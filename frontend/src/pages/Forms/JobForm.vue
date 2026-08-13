@@ -126,7 +126,7 @@ import {
 import { computed, inject, onMounted, reactive, ref, useId, watch } from 'vue'
 import { sessionStore } from '@/stores/session'
 import { useRouter } from 'vue-router'
-import { sanitizeHTML } from '@/utils'
+import { sanitizeOnWrite } from '@/utils/sanitizeOnWrite'
 import { useScreenSize } from '@/utils/composables'
 import Uploader from '@/components/Controls/Uploader.vue'
 import PageHeader from '@/components/Layouts/PageHeader.vue'
@@ -280,7 +280,7 @@ const editJobDetails = () => {
 const validateJobFields = () => {
 	Object.keys(job).forEach((key) => {
 		if (typeof job[key] === 'string') {
-			job[key] = sanitizeHTML(job[key])
+			job[key] = sanitizeOnWrite(job[key])
 		}
 	})
 }

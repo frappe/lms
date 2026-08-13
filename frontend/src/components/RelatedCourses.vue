@@ -12,8 +12,7 @@
 				v-for="course in relatedCourses.data"
 				:key="course.name"
 				:to="{ name: 'CourseDetail', params: { courseName: course.name } }"
-				target="_blank"
-				rel="noopener"
+				v-external
 				class="cursor-pointer"
 			>
 				<CourseCard :course="course" />

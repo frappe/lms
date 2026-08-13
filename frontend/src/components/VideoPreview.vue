@@ -5,21 +5,21 @@
 	>
 		<iframe
 			v-if="videoPreview.type === 'youtube'"
-			:src="videoPreview.src"
+			:src="safeUrl(videoPreview.src)"
 			:title="__('Video preview')"
 			class="size-full"
 			allowfullscreen
 		/>
 		<video
 			v-else-if="videoPreview.type === 'file' && !videoError"
-			:src="videoPreview.src"
+			:src="safeUrl(videoPreview.src)"
 			controls
 			class="size-full object-contain"
 			@error="videoError = true"
 		/>
 		<img
 			v-else-if="fallbackImage"
-			:src="fallbackImage"
+			:src="safeUrl(fallbackImage)"
 			:alt="__('Video preview')"
 			class="size-full object-cover"
 		/>
@@ -28,6 +28,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { getVideoPreview } from '@/utils/video'
+import { safeUrl } from '@/utils/safeUrl'
 
 // Shared display for a course/batch preview video. A video_link can be a
 // YouTube link (render an embed iframe, NOT a <video>, which is what made batch

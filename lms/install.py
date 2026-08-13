@@ -2,6 +2,7 @@ import frappe
 from frappe.permissions import add_permission, update_permission_property
 
 from lms.lms.api import give_discussions_permission
+from lms.lms.enrollment_constraints import ensure_enrollment_unique_constraints
 
 
 def after_install():
@@ -11,6 +12,7 @@ def after_install():
 	give_event_permission()
 	ensure_batch_enrollment_index()
 	ensure_certificate_unique_constraint()
+	ensure_enrollment_unique_constraints()
 
 
 def ensure_batch_enrollment_index():

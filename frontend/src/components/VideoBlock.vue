@@ -31,7 +31,7 @@
 				oncontextmenu="return false"
 				class="rounded-md border border-outline-gray-1 cursor-pointer"
 				ref="videoRef"
-				:src="fileURL"
+				:src="safeUrl(fileURL)"
 				:type="type"
 			></video>
 			<button
@@ -166,6 +166,7 @@ import { formatSeconds, formatTimestamp } from '@/utils/format'
 import { useSettings } from '@/stores/settings'
 import Play from '@/components/Icons/Play.vue'
 import QuizInVideo from '@/components/Modals/QuizInVideo.vue'
+import { safeUrl } from '@/utils/safeUrl'
 
 /* The control bar is a fixed set of buttons plus an elapsed/duration readout,
    with the seek slider absorbing whatever is left. The slider is the only

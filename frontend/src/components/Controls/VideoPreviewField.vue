@@ -13,7 +13,7 @@
 			>
 				<iframe
 					v-if="preview.type === 'youtube'"
-					:src="preview.src"
+					:src="safeUrl(preview.src)"
 					:title="__('Video preview')"
 					class="size-full"
 					frameborder="0"
@@ -22,7 +22,7 @@
 				/>
 				<video
 					v-else-if="isUploadedVideo && !videoError"
-					:src="preview.src"
+					:src="safeUrl(preview.src)"
 					controls
 					class="size-full bg-black object-contain"
 					@error="videoError = true"
@@ -144,6 +144,7 @@ import {
 } from '@/components/Form/labeling'
 import { computed, ref, watch } from 'vue'
 import { getVideoPreview, getYouTubeId } from '@/utils/video'
+import { safeUrl } from '@/utils/safeUrl'
 
 // Only formats browsers can actually play. Reject the rest at upload time so a
 // course never ends up with an unplayable preview (e.g. .MOV/H.265).

@@ -3,7 +3,7 @@
 		:is="tag"
 		:type="tag === 'button' ? 'button' : undefined"
 		:aria-label="tag === 'button' ? label : undefined"
-		:href="href"
+		:href="safeUrl(href)"
 		:target="opensInNewTab ? '_blank' : undefined"
 		:rel="opensInNewTab ? 'noopener noreferrer' : undefined"
 		class="flex min-h-12 w-full items-center gap-3 border-b border-outline-gray-1 px-3.5 py-2 text-start last:border-b-0"
@@ -40,6 +40,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import { safeUrl } from '@/utils/safeUrl'
 
 // A single row of the inset-grouped settings list.
 //
@@ -77,14 +78,19 @@ const props = withDefaults(
 
 const emit = defineEmits<{ click: [] }>()
 
+// The shape follows the URL that will actually be rendered, not the one passed
+// in: a rejected scheme drops the attribute, and an <a> without href still takes
+// focus and announces as a link.
+const safeHref = computed(() => safeUrl(props.href))
+
 const tag = computed(() =>
-	props.href ? 'a' : props.navigates ? 'button' : 'div'
+	safeHref.value ? 'a' : props.navigates ? 'button' : 'div'
 )
 
 // Off this site, so a new tab: coming back is the phone's back gesture
 // otherwise, and it would have unloaded the app. A path this site serves itself
 // stays in the tab, the way the desktop sidebar sends one.
-const opensInNewTab = computed(() => /^https?:\/\//i.test(props.href || ''))
+const opensInNewTab = computed(() => /^https?:\/\//i.test(safeHref.value || ''))
 
 const newTabHint = __('(opens in a new tab)')
 </script>

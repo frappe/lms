@@ -193,6 +193,7 @@
 import { createResource, FormControl, Button, Badge, toast } from 'frappe-ui'
 import { computed, reactive, ref, onMounted, inject, watch } from 'vue'
 import { convertToTitleCase } from '@/utils'
+import { openExternal } from '@/utils/openExternal'
 
 const user = inject('$user')
 const readOnlyMode = window.read_only_mode
@@ -387,7 +388,7 @@ const authorizeCalendar = createResource({
 		}
 	},
 	onSuccess(data) {
-		window.open(data.url)
+		openExternal(data.url)
 	},
 	onError(err) {
 		toast.error(err.messages?.[0] || err)

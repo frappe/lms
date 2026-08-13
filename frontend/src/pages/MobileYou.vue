@@ -25,7 +25,7 @@
 				>
 					<img
 						v-if="userImage"
-						:src="userImage"
+						:src="safeUrl(userImage)"
 						alt=""
 						class="size-full object-cover"
 						@error="rememberImageFailure"
@@ -80,6 +80,7 @@ import { usePageMeta } from 'frappe-ui'
 import { storeToRefs } from 'pinia'
 import { sessionStore } from '@/stores/session'
 import { usersStore } from '@/stores/user'
+import { safeUrl } from '@/utils/safeUrl'
 import { setThemePreference, themePreference } from '@/utils/theme'
 import type { ThemePreference } from '@/utils/theme'
 import {
@@ -133,8 +134,11 @@ const rememberImageFailure = (event: Event): void => {
 	failedImageSrc.value = (event.target as HTMLImageElement).getAttribute('src')
 }
 
+// Sanitised here as well as at the binding so the `v-if` agrees with it: a
+// rejected scheme falls back to the initials rather than rendering an <img>
+// whose src the template then drops.
 const userImage = computed(() => {
-	const src = user.value?.user_image
+	const src = safeUrl(user.value?.user_image)
 	return src && src !== failedImageSrc.value ? src : undefined
 })
 

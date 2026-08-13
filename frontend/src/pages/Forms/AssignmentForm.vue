@@ -80,7 +80,7 @@ import {
 	toast,
 } from 'frappe-ui'
 import { computed, inject, reactive, useId, watch } from 'vue'
-import { sanitizeHTML } from '@/utils'
+import { sanitizeOnWrite } from '@/utils/sanitizeOnWrite'
 import FormShell from '@/components/FormShell.vue'
 import HeaderButton from '@/components/HeaderButton.vue'
 import { useFormRoute } from '@/composables/useFormRoute'
@@ -204,8 +204,8 @@ const saving = computed<boolean>(() =>
 )
 
 const validateFields = (): void => {
-	assignment.title = sanitizeHTML(assignment.title.trim())
-	assignment.question = sanitizeHTML(assignment.question)
+	assignment.title = sanitizeOnWrite(assignment.title.trim())
+	assignment.question = sanitizeOnWrite(assignment.question)
 }
 
 const updateAssignment = (): void => {

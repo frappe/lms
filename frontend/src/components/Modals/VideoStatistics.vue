@@ -81,7 +81,7 @@
 								<div
 									class="video-player"
 									:data-plyr-provider="provider"
-									:src="currentTab"
+									:src="safeUrl(currentTab)"
 								></div>
 							</div>
 							<VideoBlock v-else :file="currentTab" />
@@ -108,6 +108,7 @@ import { computed, ref, watch } from 'vue'
 import { enablePlyr, formatTimestamp } from '@/utils'
 import VideoBlock from '@/components/VideoBlock.vue'
 import NumberChartGraph from '@/components/NumberChartGraph.vue'
+import { safeUrl } from '@/utils/safeUrl'
 
 /* Responsive layout notes (Tailwind classes live in the template):
    - The member list / chart+player split stacks below `sm`; only above `sm` is

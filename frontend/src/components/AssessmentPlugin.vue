@@ -67,6 +67,7 @@ import { nextTick, onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { getLmsRoute } from '@/utils/basePath'
 import Link from '@/components/Controls/Link.vue'
+import { openExternal } from '@/utils/openExternal'
 
 const show = ref(false)
 const quiz = ref(null)
@@ -97,9 +98,9 @@ const addAssessment = () => {
 
 const redirectToForm = () => {
 	if (props.type == 'quiz') {
-		window.open(getLmsRoute('quizzes?new=true'), '_blank')
+		openExternal(getLmsRoute('quizzes?new=true'))
 	} else {
-		window.open(getLmsRoute('assignments/new'), '_blank')
+		openExternal(getLmsRoute('assignments/new'))
 	}
 }
 </script>

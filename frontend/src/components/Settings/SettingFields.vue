@@ -61,7 +61,8 @@
 									:class="field.size == 'lg' ? 'px-5 py-5' : 'px-20 py-8'"
 								>
 									<img
-										:src="fileUrl(data[field.name])"
+										:src="safeUrl(fileUrl(data[field.name]))"
+										alt=""
 										class="rounded"
 										:class="field.size == 'lg' ? 'w-36' : 'size-6'"
 									/>
@@ -172,6 +173,7 @@ import { validateFile } from '@/utils'
 import Link from '@/components/Controls/Link.vue'
 import CodeEditor from '@/components/Controls/CodeEditor.vue'
 import { seedCheckboxDefaults } from '@/components/Settings/mobileSettings'
+import { safeUrl } from '@/utils/safeUrl'
 
 // The FileUploader above binds :uploadArgs="{ private: !field.public }", and it
 // is written inline deliberately. Privacy is the FIELD's decision, never this
