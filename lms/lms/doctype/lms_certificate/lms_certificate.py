@@ -182,7 +182,18 @@ def create_certificate(course: str):
 				"template": default_certificate_template,
 			}
 		)
-		certificate.save(ignore_permissions=True)
+		try:
+			certificate.save(ignore_permissions=True)
+		except frappe.UniqueValidationError:
+			# Someone else's request for the same member+course won the race and
+			# committed between our is_certified() check above and this save().
+			# The unique constraint on (member, course, batch_name) is what
+			# actually stops the duplicate; hand back whatever it just certified
+			# instead of surfacing a "must be unique" error over a double click.
+			existing = is_certified(course)
+			return frappe.db.get_value(
+				"LMS Certificate", existing, ["name", "course", "template"], as_dict=True
+			)
 		return certificate
 
 

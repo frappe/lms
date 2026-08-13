@@ -10,6 +10,7 @@ def after_install():
 	give_user_list_permission()
 	give_event_permission()
 	ensure_batch_enrollment_index()
+	ensure_certificate_unique_constraint()
 
 
 def ensure_batch_enrollment_index():
@@ -17,6 +18,15 @@ def ensure_batch_enrollment_index():
 	if not frappe.db.table_exists("LMS Batch Enrollment"):
 		return
 	frappe.db.add_index("LMS Batch Enrollment", ["batch", "member"])
+
+
+def ensure_certificate_unique_constraint():
+	"""Add the (member, course, batch_name) unique constraint on fresh installs, which
+	skip the delete_duplicate_certificates patch that adds it; idempotent. Nothing to
+	dedupe here since the table is empty on a fresh install."""
+	if not frappe.db.table_exists("LMS Certificate"):
+		return
+	frappe.db.add_unique("LMS Certificate", ["member", "course", "batch_name"])
 
 
 def after_sync():
