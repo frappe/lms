@@ -248,7 +248,7 @@ def record_payment(
 			"name",
 			for_update=True,
 		)
-	payment_doc = frappe.get_doc("LMS Payment", payment_name)
+		payment_doc = frappe.get_doc("LMS Payment", payment_name)
 
 	return payment_doc
 
