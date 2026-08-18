@@ -70,10 +70,7 @@ def add_unique_pending_payment_constraint():
 			["member", "payment_for_document_type", "payment_for_document", "payment_received"],
 			index_name="unique_pending_payment_lookup",
 		)
-		for d in duplicates:
-			names = d.names.split(",")
-			for extra in names[1:]:
-				frappe.delete_doc("LMS Payment", extra, force=True, ignore_permissions=True)
+		return
 
 	frappe.db.add_unique(
 		"LMS Payment",
