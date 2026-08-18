@@ -225,7 +225,8 @@ def record_payment(
 
 	frappe.db.savepoint("before_insert_pending_payment")
 	payment_doc = get_or_create_pending_payment()
-	payment_doc.update(payment_details)
+	if payment_doc.is_new():
+		payment_doc.update(payment_details)
 	try:
 		payment_doc.save(ignore_permissions=True)
 	except Exception as e:
