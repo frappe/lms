@@ -35,10 +35,11 @@ class LMSEnrollment(Document):
 		if self.owner != self.member:
 			self.owner = self.member
 
+	def on_update(self):
+		update_program_progress(self.member)
+
 	def after_insert(self):
 		from lms.lms.doctype.lms_course.lms_course import update_course_enrollments
-
-		update_program_progress(self.member)
 
 		if self.member_type == "Student":
 			update_course_enrollments(self.course)
