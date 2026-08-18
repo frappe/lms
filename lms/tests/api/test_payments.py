@@ -1,3 +1,5 @@
+import threading
+
 import frappe
 
 from lms.lms import payments as payments_module
@@ -76,6 +78,7 @@ class TestPaymentLink(BaseTestUtils):
 					"source": "Website",
 				}
 			).insert()
+
 	def tearDown(self):
 		payments_module.get_controller = self.original_get_controller
 		frappe.db.set_single_value("LMS Settings", "payment_gateway", self.original_gateway)
@@ -150,15 +153,14 @@ class TestPaymentLink(BaseTestUtils):
 		# The second checkout must not create a second pending payment.
 
 		self.assertEqual(
-        frappe.db.count(
-            "LMS Payment",
-            {
-                "member": frappe.session.user,
-                "payment_for_document_type": "LMS Course",
-                "payment_for_document": self.course.name,
-                "payment_received": 0,
-            },
-        ),
-        1,
-    )
-
+			frappe.db.count(
+				"LMS Payment",
+				{
+					"member": frappe.session.user,
+					"payment_for_document_type": "LMS Course",
+					"payment_for_document": self.course.name,
+					"payment_received": 0,
+				},
+			),
+			1,
+		)
