@@ -236,7 +236,7 @@ def record_payment(
 		# Another concurrent checkout request for the same member & document won
 		# the race and inserted the pending payment first, blocked by the
 		# unique constraint added in add_unique_pending_payment_constraint.
-		payment_name = frappe.db.exists(
+		payment_name = frappe.db.get_value(
 			"LMS Payment",
 			{
 				"member": frappe.session.user,
@@ -245,8 +245,10 @@ def record_payment(
 				"payment_for_certificate": payment_for_certificate,
 				"payment_received": 0,
 			},
+			"name",
+			for_update=True,
 		)
-		payment_doc = frappe.get_doc("LMS Payment", payment_name)
+	payment_doc = frappe.get_doc("LMS Payment", payment_name)
 
 	return payment_doc
 
