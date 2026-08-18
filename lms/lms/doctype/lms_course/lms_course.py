@@ -239,18 +239,8 @@ def update_course_statistics():
 		)
 
 
-def update_course_enrollments(course):
-	enrollments = frappe.db.count(
-		"LMS Enrollment",
-		{
-			"course": course,
-			"member_type": "Student",
-		},
-	)
-
-	frappe.db.set_value(
-		"LMS Course",
-		course,
-		"enrollments",
-		enrollments,
+def update_course_enrollments(course, increment=True):
+	frappe.db.sql(
+		"UPDATE `tabLMS Course` SET enrollments = enrollments + %s WHERE name = %s",
+		(1 if increment else -1, course),
 	)
