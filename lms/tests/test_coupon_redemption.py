@@ -172,7 +172,8 @@ class TestCouponRedemption(BaseTestUtils):
 		coupon = self._create_coupon()
 
 		for _ in range(5):
-			payment = self._create_payment(coupon)
+			course = self._create_second_course()
+			payment = self._create_payment(coupon, course=course.name)
 			update_coupon_redemption(self._payment_doc(payment, coupon))
 
 		self.assertEqual(self._count(coupon), 5)
