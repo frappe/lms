@@ -198,14 +198,12 @@ def record_payment(
 				"member": frappe.session.user,
 				"payment_for_document_type": doctype,
 				"payment_for_document": docname,
+				"payment_for_certificate": payment_for_certificate,
 				"payment_received": 0,
 			},
 		)
-		return (
-			frappe.get_doc("LMS Payment", payment_name)
-			if payment_name
-			else frappe.new_doc("LMS Payment")
-		)
+		return frappe.get_doc("LMS Payment", payment_name) if payment_name else frappe.new_doc("LMS Payment")
+
 	from lms.lms.doctype.lms_payment.lms_payment import has_unique_pending_payment
 
 	# Serialize this codepath in application code as long as the DB-level
@@ -214,7 +212,7 @@ def record_payment(
 	# cleaned up pre-existing duplicates. Once the constraint exists, this
 	# branch is skipped and the code below relies on the DB constraint.
 	if not has_unique_pending_payment():
-		lock_key = f"lms_pending_payment:{frappe.session.user}:{doctype}:{docname}"
+		lock_key = f"lms_pending_payment:{frappe.session.user}:{doctype}:{docname}:{payment_for_certificate}"
 		if not frappe.cache().redis.set(lock_key, 1, nx=True, ex=15):
 			frappe.throw(_("Payment is already being processed, please wait a moment and retry."))
 		try:
@@ -225,15 +223,15 @@ def record_payment(
 		finally:
 			frappe.cache().delete_key(lock_key)
 
+	frappe.db.savepoint("before_insert_pending_payment")
 	payment_doc = get_or_create_pending_payment()
 	payment_doc.update(payment_details)
 	try:
 		payment_doc.save(ignore_permissions=True)
-
 	except Exception as e:
 		if not frappe.db.is_unique_key_violation(e):
 			raise
-		frappe.db.rollback()
+		frappe.db.rollback(savepoint="before_insert_pending_payment")
 		# Another concurrent checkout request for the same member & document won
 		# the race and inserted the pending payment first, blocked by the
 		# unique constraint added in add_unique_pending_payment_constraint.
@@ -243,13 +241,11 @@ def record_payment(
 				"member": frappe.session.user,
 				"payment_for_document_type": doctype,
 				"payment_for_document": docname,
+				"payment_for_certificate": payment_for_certificate,
 				"payment_received": 0,
 			},
 		)
-		payment_doc = frappe.get_doc(
-			"LMS Payment",
-			payment_name
-		)
+		payment_doc = frappe.get_doc("LMS Payment", payment_name)
 
 	return payment_doc
 

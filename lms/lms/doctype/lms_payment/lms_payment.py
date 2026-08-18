@@ -6,7 +6,9 @@ from frappe import _
 from frappe.email.doctype.email_template.email_template import get_email_template
 from frappe.model.document import Document
 from frappe.utils import add_days, flt, nowdate
-from pypika import functions as fn, CustomFunction
+from pypika import CustomFunction
+from pypika import functions as fn
+
 from lms.lms.utils import get_lms_route
 
 
@@ -17,9 +19,11 @@ class LMSPayment(Document):
 UNIQUE_PAYMENT_ID = "unique_payment_id"
 UNIQUE_PENDING_PAYMENT = "unique_pending_payment"
 
+
 def on_doctype_update():
 	add_unique_payment_id_constraint()
 	add_unique_pending_payment_constraint()
+
 
 def add_unique_payment_id_constraint():
 	"""One gateway payment belongs to one LMS Payment. Two callbacks for the same
@@ -67,22 +71,37 @@ def add_unique_pending_payment_constraint():
 		)
 		frappe.db.add_index(
 			"LMS Payment",
-			["member", "payment_for_document_type", "payment_for_document", "payment_received"],
+			[
+				"member",
+				"payment_for_document_type",
+				"payment_for_document",
+				"payment_for_certificate",
+				"payment_received",
+			],
 			index_name="unique_pending_payment_lookup",
 		)
 		return
 
 	frappe.db.add_unique(
 		"LMS Payment",
-		["member", "payment_for_document_type", "payment_for_document", "payment_received"],
+		[
+			"member",
+			"payment_for_document_type",
+			"payment_for_document",
+			"payment_received",
+			"payment_for_certificate",
+		],
 		constraint_name=UNIQUE_PENDING_PAYMENT,
 	)
+
 
 def has_unique_payment_id() -> bool:
 	return bool(frappe.db.has_index("tabLMS Payment", UNIQUE_PAYMENT_ID))
 
+
 def has_unique_pending_payment() -> bool:
 	return bool(frappe.db.has_index("tabLMS Payment", UNIQUE_PENDING_PAYMENT))
+
 
 def get_duplicate_payment_ids() -> list[str]:
 	payment = frappe.qb.DocType("LMS Payment")
@@ -94,6 +113,7 @@ def get_duplicate_payment_ids() -> list[str]:
 		.having(fn.Count(payment.name) > 1)
 	).run(pluck=True)
 
+
 def get_duplicate_pending_payments() -> list:
 	payment = frappe.qb.DocType("LMS Payment")
 	GroupConcat = CustomFunction("GROUP_CONCAT", ["column"])
@@ -103,12 +123,19 @@ def get_duplicate_pending_payments() -> list:
 			payment.member,
 			payment.payment_for_document_type,
 			payment.payment_for_document,
+			payment.payment_for_certificate,
 			GroupConcat(payment.name).as_("names"),
 		)
 		.where(payment.payment_received == 0)
-		.groupby(payment.member, payment.payment_for_document_type, payment.payment_for_document)
+		.groupby(
+			payment.member,
+			payment.payment_for_document_type,
+			payment.payment_for_document,
+			payment.payment_for_certificate,
+		)
 		.having(fn.Count(payment.name) > 1)
 	).run(as_dict=True)
+
 
 def send_payment_reminder():
 	outgoing_email_account = frappe.get_cached_value(
