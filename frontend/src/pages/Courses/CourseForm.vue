@@ -4,11 +4,6 @@
 		variant="form"
 		class="flex-1 min-h-0"
 	/>
-	<!-- Below `md` the two panes stack, so neither may keep its own scroll box:
-	     the aside's settings have to continue the same scroll the details
-	     started. Everything responsive here hangs off `md`, the width at which
-	     the columns actually split; a narrower cutoff would leave a band where
-	     the panes are stacked but still scroll independently. -->
 	<div v-else class="grid grid-cols-1 flex-1 md:min-h-0 md:grid-cols-[70%,30%]">
 		<div class="space-y-8 p-5 md:overflow-y-auto">
 			<CourseDetailsSection />
@@ -45,8 +40,8 @@ import {
 } from '@/composables/useKeyboardShortcuts'
 import { exportCourseAsZip } from '@/utils/exportCourse'
 import SkeletonLoader from '@/components/SkeletonLoader.vue'
-import CourseDetailsSection from '@/pages/Courses/CourseDetailsSection.vue'
-import CourseOverviewSection from '@/pages/Courses/CourseOverviewSection.vue'
+import CourseDetailsSection from '@/components/Courses/CourseDetailsSection.vue'
+import CourseOverviewSection from '@/components/Courses/CourseOverviewSection.vue'
 import CoursePublishSettings from '@/pages/Courses/CoursePublishSettings.vue'
 import type { LMSCourse } from '@/types/lms/LMSCourse'
 import type { CourseInstructor } from '@/types/lms/CourseInstructor'

@@ -12,7 +12,7 @@
 		]"
 	>
 		<template #default>
-			<div class="grid grid-cols-2 gap-5">
+			<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
 				<FormControl
 					v-model="address.address_title"
 					:label="__('Address Title')"

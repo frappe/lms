@@ -1,6 +1,6 @@
 import frappe
 
-from lms.lms.api import MEMBERS_PAGE_LENGTH, get_members
+from lms.lms.api import MEMBERS_PAGE_LENGTH, get_member, get_members
 from lms.lms.test_helpers import BaseTestUtils
 
 
@@ -85,3 +85,68 @@ class TestGetMembers(BaseTestUtils):
 		# refusal satisfies the contract; the two classes are unrelated.
 		with self.assertRaises((frappe.ValidationError, frappe.FrappeTypeError)):
 			get_members(search=["ada"])
+
+
+class TestGetMember(BaseTestUtils):
+	"""The member edit form seeds itself from one exact row.
+
+	It used to ask get_members for it, which pages and hides disabled users, so
+	the two cases below came back empty and left Save disabled with nothing on
+	screen explaining why.
+	"""
+
+	def setUp(self):
+		super().setUp()
+		self.moderator = self._create_user("moderator@example.com", "Mod", "Erator", ["Moderator"])
+		self.members = [
+			self._create_user(f"member{index}@example.com", "Member", str(index), ["LMS Student"])
+			for index in range(MEMBERS_PAGE_LENGTH + 3)
+		]
+		frappe.set_user(self.moderator.name)
+
+	def tearDown(self):
+		frappe.set_user("Administrator")
+		super().tearDown()
+
+	def test_returns_the_roles_of_the_member_asked_for(self):
+		target = self.members[0]
+
+		row = get_member(target.name)
+
+		self.assertEqual(row.name, target.name)
+		self.assertIn("LMS Student", row.roles)
+
+	def test_reaches_a_member_past_the_first_page(self):
+		# setUp creates three members more than a page holds, but which three fall
+		# off it is get_members' ordering (newest first) rather than part of the
+		# contract, so take the target from what the first page actually left out.
+		first_page = [member.name for member in get_members()]
+		off_page = [member for member in self.members if member.name not in first_page]
+
+		self.assertTrue(off_page, "the fixture no longer exceeds one page")
+		self.assertEqual(get_member(off_page[0].name).name, off_page[0].name)
+
+	def test_reaches_a_disabled_member(self):
+		target = self.members[0]
+		frappe.db.set_value("User", target.name, "enabled", 0)
+
+		self.assertNotIn(target.name, [member.name for member in get_members(search=target.name)])
+		self.assertEqual(get_member(target.name).name, target.name)
+
+	def test_rejects_a_member_that_does_not_exist(self):
+		with self.assertRaises(frappe.DoesNotExistError):
+			get_member("nobody@example.com")
+
+	def test_rejects_the_built_in_accounts(self):
+		for name in ["Administrator", "Guest"]:
+			with self.assertRaises(frappe.ValidationError):
+				get_member(name)
+
+	def test_rejects_a_blank_member(self):
+		with self.assertRaises(frappe.ValidationError):
+			get_member("   ")
+
+	def test_rejects_a_non_string(self):
+		# Same two-class refusal as get_members' search guard.
+		with self.assertRaises((frappe.ValidationError, frappe.FrappeTypeError)):
+			get_member(["ada"])

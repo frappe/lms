@@ -18,3 +18,17 @@ import "./commands";
 
 // Alternatively you can use CommonJS syntax:
 // require('./commands')
+
+// Chrome reports "ResizeObserver loop completed with undelivered notifications"
+// as an uncaught error, and Cypress fails whatever test is running when it
+// lands. It is a notification that the observer callbacks did not settle inside
+// one frame, not a thrown exception: nothing is broken and the app carries on.
+// It fires here on the combobox dropdowns that reposition themselves inside a
+// dialog (the Student picker on the enroll form, ~50% of the time locally), and
+// which test it hits is down to timing.
+//
+// Scoped to this one message on purpose — every other uncaught error still
+// fails the test it happens in.
+Cypress.on("uncaught:exception", (err) =>
+	/ResizeObserver loop/.test(err.message) ? false : undefined
+);

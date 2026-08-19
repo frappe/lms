@@ -4,7 +4,7 @@
 			<div class="text-ink-gray-9 font-semibold">
 				{{ __('Courses') }}
 			</div>
-			<Button v-if="isAdmin()" @click="openCourseModal()">
+			<Button v-if="isAdmin()" @click="openCourseForm()">
 				<template #prefix>
 					<span class="lucide-plus h-4 w-4" />
 				</template>
@@ -22,11 +22,12 @@
 				<template #selection-actions="{ unselectAll, selections }">
 					<Button
 						variant="ghost"
-						class="text-p-base-medium"
 						:label="__('Delete selected courses')"
 						@click="removeCourses(selections, unselectAll)"
 					>
-						<span class="lucide-trash-2 h-4 w-4" />
+						<template #icon>
+							<span class="lucide-trash-2 size-4" />
+						</template>
 					</Button>
 				</template>
 			</ResponsiveListView>
@@ -34,22 +35,19 @@
 		<div v-else class="text-ink-gray-7">
 			{{ __('No courses added to this batch') }}
 		</div>
-		<BatchCourseModal
-			v-model="showCourseModal"
-			:batch="batch.data?.name"
-			v-model:courses="courses"
-		/>
 	</div>
 </template>
 <script setup>
-import { computed, ref, inject } from 'vue'
-import BatchCourseModal from '@/components/Modals/BatchCourseModal.vue'
+import { computed, inject } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { openBatchForm } from '@/composables/useBatchForms'
 import ResponsiveListView from '@/components/ResponsiveListView.vue'
 import { createListResource, Button, toast } from 'frappe-ui'
 const readOnlyMode = window.read_only_mode
 
-const showCourseModal = ref(false)
 const user = inject('$user')
+const route = useRoute()
+const router = useRouter()
 
 const props = defineProps({
 	batch: {
@@ -68,10 +66,13 @@ const courses = createListResource({
 	parent: 'LMS Batch',
 	orderBy: 'idx',
 	auto: true,
+	// Named so BatchCourseForm can reload it through getCachedListResource
+	// after inserting. Keyed by batch, because BatchDetail is per-batch.
+	cache: ['batchCourses', props.batch.data?.name],
 })
 
-const openCourseModal = () => {
-	showCourseModal.value = true
+const openCourseForm = () => {
+	openBatchForm(router, 'NewBatchCourse', props.batch.data?.name, route.hash)
 }
 
 const courseColumns = [

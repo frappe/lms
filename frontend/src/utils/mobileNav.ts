@@ -1,16 +1,13 @@
 // Nav taxonomy for the phone layout: which destinations stay on the fixed
-// bottom bar, and how the rest are grouped inside the More sheet.
+// bottom bar, and how the rest are grouped on the You page.
 
 export interface NavLink {
 	label: string
 	icon: string
 	to?: string
 	activeFor?: string[]
-}
-
-export interface NavSection {
-	title: string
-	items: NavLink[]
+	/** Drawn as the user's avatar rather than as `icon`. Only the You tab is. */
+	avatar?: boolean
 }
 
 // Primaries are picked out of the admin-configured sidebar links, so disabling
@@ -18,18 +15,14 @@ export interface NavSection {
 export const PRIMARY_LABELS: readonly string[] = [
 	'Home',
 	'Courses',
-	'Certifications',
+	'Batches',
+	'Programs',
 ]
 
-// A signed-out visitor's whole destination set fits on the bar, so these are
-// hardcoded instead of matched against `sidebarLinks`. Those links are
-// admin-configured and arrive asynchronously; matching against them left the
-// guest bar holding nothing but the More button until the settings call
-// resolved, and sometimes it never did. Static list mirrors CRM's
-// `components/Mobile/MobileSidebar.vue`.
-//
-// Static is the starting set, not the final one: `pickPrimaryTabs` still hides
-// any of these the admin has switched off, once the settings actually arrive.
+// Hardcoded rather than matched against `sidebarLinks`, which arrive
+// asynchronously and left a signed-out visitor with an empty bar until the
+// settings call resolved. Mirrors CRM's components/Mobile/MobileSidebar.vue.
+// `pickPrimaryTabs` still hides any the admin has switched off.
 export const GUEST_TABS: readonly NavLink[] = [
 	{
 		label: 'Courses',
@@ -55,19 +48,26 @@ export const GUEST_TABS: readonly NavLink[] = [
 		to: 'Statistics',
 		activeFor: ['Statistics'],
 	},
-	// No route: MobileLayout sends this one to Frappe's server-rendered
-	// /login, the same way the More sheet's Log in entry does.
+	// No route: it leaves the SPA, so MobileLayout sends this one to Frappe's
+	// server-rendered /login rather than through vue-router.
 	{ label: 'Log in', icon: 'LogIn' },
 ]
 
-export const PROFILE_TAB: NavLink = {
-	label: 'Profile',
+// The last slot on the bar. It is the user's own face rather than a glyph,
+// which is what makes the bar read as "you" instead of "menu", the detail
+// Gameplan's /g/more gets right and an ellipsis does not.
+const YOU_TAB: NavLink = {
+	label: 'You',
 	icon: 'UserRound',
-	to: 'Profile',
-	activeFor: ['Profile'],
+	to: 'MobileYou',
+	activeFor: ['MobileYou'],
+	avatar: true,
 }
 
-const MAX_PRIMARY_TABS = 4
+// Five slots: the four PRIMARY_LABELS plus YOU_TAB. A ceiling on the whole bar,
+// and YOU_TAB is pushed last, so a fifth primary would cost the You tab its
+// place — widen this and the column widths together, or not at all.
+const MAX_PRIMARY_TABS = 5
 
 const SECTION_MAP: Record<string, readonly string[]> = {
 	LEARN: [
@@ -86,27 +86,8 @@ const SECTION_MAP: Record<string, readonly string[]> = {
 const ACCOUNT_LABELS: readonly string[] = [
 	'Notifications',
 	'Profile',
-	'Settings',
 	'Log in',
 	'Log out',
-]
-
-const SUBTITLES: Record<string, string> = {
-	Programs: 'Multi-course learning tracks',
-	Batches: 'Cohort-based sessions',
-	Quizzes: 'Across all your courses',
-	Assignments: 'Due, in review, submitted',
-	'Programming Exercises': 'Coding practice & solutions',
-	Jobs: 'Open roles, hiring partners',
-	Statistics: 'Your learning trends',
-	Settings: 'Branding, members, payments',
-}
-
-const SECTION_ORDER: readonly string[] = [
-	'LEARN',
-	'DISCOVER',
-	'MORE',
-	'ACCOUNT',
 ]
 
 export function sectionFor(label: string): string {
@@ -117,26 +98,16 @@ export function sectionFor(label: string): string {
 	return 'MORE'
 }
 
-export function subtitleFor(label: string): string {
-	return SUBTITLES[label] || ''
-}
-
-// Five equal-width tabs leave roughly 78px each. "Certifications" fills its
-// column edge to edge while "Home" floats in the middle of one, which reads as
-// uneven spacing. The design's own label for this tab is the shorter word.
+// Five columns on a 375px phone leave ~67px of text each: roughly ten
+// characters at 12px, which every default tab clears. The map is the one place
+// to shorten a label that does not fit, rather than letting `truncate` clip a
+// word.
 const SHORT_TAB_LABELS: Record<string, string> = {
-	Certifications: 'Certified',
 	'Programming Exercises': 'Exercises',
 }
 
 export function tabLabel(label: string): string {
 	return SHORT_TAB_LABELS[label] || label
-}
-
-// The bar only needs a More tab when there are destinations left to overflow
-// into the sheet. A signed-out visitor's five fit exactly.
-export function hasMoreTab(isSignedIn: boolean): boolean {
-	return isSignedIn
 }
 
 // What `get_sidebar_settings` can hand back, and what each shape means.
@@ -151,10 +122,10 @@ export function isGuestAccessRevoked(visibility?: SidebarVisibility): boolean {
 }
 
 // Otherwise the flags are keyed by the lowercased, underscored label, the same
-// convention MobileLayout's `filterLinksToShow` uses to drop a link from the
-// sheet. A label the settings say nothing about always stays, and so does
-// everything while `visibility` is still unresolved: an empty bar is worse than
-// one showing a destination for a moment.
+// convention the mobile nav store uses to drop a link from the bar. A label the
+// settings say nothing about always stays, and so does everything while
+// `visibility` is still unresolved: an empty bar is worse than one showing a
+// destination for a moment.
 export function isLinkEnabled(
 	label: string,
 	visibility?: SidebarVisibility
@@ -186,22 +157,21 @@ export function pickPrimaryTabs(
 		const link = sidebarLinks.find((item) => item.label === label)
 		if (link) picked.push(link)
 	}
-	picked.push(PROFILE_TAB)
+	picked.push(YOU_TAB)
 	return picked.slice(0, MAX_PRIMARY_TABS)
 }
 
+// Everything that did not make the bottom bar, in the order it arrived.
+//
 // `sidebarLinks` and `otherLinks` overlap. Programs is spliced into the
 // sidebar list while the moderator extras are appended to the other list, and
-// a re-entrant reload can leave the same label in both. Dedupe by label so the
-// sheet never shows a destination twice.
-export function buildMenuSections(
+// a re-entrant reload can leave the same label in both. Dedupe by label so a
+// destination is never offered twice.
+export function overflowLinks(
 	sidebarLinks: readonly NavLink[],
 	otherLinks: readonly NavLink[],
-	primaryLabels: readonly string[],
-	// The sheet no longer offers a search box; the filter stays because the
-	// grouping is what it exists to test and a caller may want it back.
-	search = ''
-): NavSection[] {
+	primaryLabels: readonly string[]
+): NavLink[] {
 	const primary = new Set(primaryLabels)
 	const seen = new Set<string>()
 	const items: NavLink[] = []
@@ -212,13 +182,5 @@ export function buildMenuSections(
 		items.push(link)
 	}
 
-	const query = search.trim().toLowerCase()
-	const matched = query
-		? items.filter((item) => item.label.toLowerCase().includes(query))
-		: items
-
-	return SECTION_ORDER.map((title) => ({
-		title,
-		items: matched.filter((item) => sectionFor(item.label) === title),
-	})).filter((section) => section.items.length > 0)
+	return items
 }

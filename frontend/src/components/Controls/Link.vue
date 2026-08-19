@@ -7,7 +7,7 @@
 			:placeholder="attrs.placeholder as string"
 			:disabled="attrs.readonly as boolean"
 			:size="(attrs.size as ComboboxSize) || 'sm'"
-			:aria-label="attrs['aria-label'] as string"
+			:aria-label="label ? undefined : (attrs['aria-label'] as string)"
 			:variant="attrs.variant as ComboboxVariant"
 			:loading="options.loading"
 			:label="label ? __(label) : undefined"
@@ -49,7 +49,7 @@
 							{{ __('Create') }}
 						</Button>
 					</div>
-					<div v-else class="flex justify-between">
+					<div v-else class="flex flex-wrap justify-between gap-2">
 						<Button
 							variant="ghost"
 							size="sm"

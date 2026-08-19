@@ -38,6 +38,7 @@ import { call, createResource, usePageMeta } from 'frappe-ui'
 import { useRouter } from 'vue-router'
 import { sessionStore } from '../../stores/session'
 import UpcomingEvaluations from '@/components/UpcomingEvaluations.vue'
+import { openExternal } from '@/utils/openExternal'
 
 const courseTitle = ref(null)
 const evaluator = ref(null)
@@ -112,11 +113,10 @@ const populateCourses = () => {
 }
 
 const openCertificate = (certificate) => {
-	window.open(
+	openExternal(
 		`/api/method/frappe.utils.print_format.download_pdf?doctype=LMS+Certificate&name=${
 			certificate.name
-		}&format=${encodeURIComponent(certificate.template)}`,
-		'_blank'
+		}&format=${encodeURIComponent(certificate.template)}`
 	)
 }
 

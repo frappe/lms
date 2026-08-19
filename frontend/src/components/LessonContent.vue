@@ -2,7 +2,7 @@
 	<div v-if="youtube">
 		<iframe
 			class="youtube-video"
-			:src="getYouTubeVideoSource(youtube.split('/').pop())"
+			:src="safeUrl(getYouTubeVideoSource(youtube.split('/').pop()))"
 			:title="__('YouTube video')"
 			width="100%"
 			:height="screenSize.width < 640 ? 200 : 400"
@@ -21,7 +21,7 @@
 		<div v-if="block.includes('{{ YouTubeVideo')">
 			<iframe
 				class="youtube-video"
-				:src="getYouTubeVideoSource(block)"
+				:src="safeUrl(getYouTubeVideoSource(block))"
 				:title="__('YouTube video')"
 				width="100%"
 				:height="screenSize.width < 640 ? 200 : 400"
@@ -39,14 +39,14 @@
 				controlsList="nodownload"
 				oncontextmenu="return false;"
 			>
-				<source :src="getId(block)" type="video/mp4" />
+				<source :src="safeUrl(getId(block))" type="video/mp4" />
 			</video>
 		</div>
 		<div v-else-if="block.includes('{{ PDF')">
 			<PdfBlock v-if="inlinePdf" :file="getId(block)" />
 			<iframe
 				v-else
-				:src="getId(block)"
+				:src="safeUrl(getId(block))"
 				:title="__('PDF document')"
 				width="100%"
 				height="700px"
@@ -56,21 +56,21 @@
 		</div>
 		<div v-else-if="block.includes('{{ Audio')">
 			<audio width="100%" controls controlsList="nodownload">
-				<source :src="getId(block)" type="audio/mp3" />
+				<source :src="safeUrl(getId(block))" type="audio/mp3" />
 			</audio>
 		</div>
 		<div v-else-if="block.includes('{{ Embed')">
 			<iframe
 				width="100%"
 				height="400"
-				:src="getId(block)"
+				:src="safeUrl(getId(block))"
 				:title="__('Embedded content')"
 				frameborder="0"
 				allowfullscreen
 			>
 			</iframe>
 		</div>
-		<div v-else v-html="renderSafe(block)"></div>
+		<div v-else v-safe-html:rich="renderMarkdown(block)"></div>
 	</div>
 	<div v-if="quizId">
 		<Quiz :quiz="quizId" />
@@ -82,8 +82,8 @@ import PdfBlock from '@/components/PdfBlock.vue'
 import MarkdownIt from 'markdown-it'
 import { useScreenSize } from '@/utils/composables'
 import { getMacroArg } from '@/utils/lessonMacros'
-import { sanitizeRichHTML } from '@/utils/sanitizeRichHTML'
 import { usesWebkitPdfViewer } from '@/utils/pdfViewer'
+import { safeUrl } from '@/utils/safeUrl'
 
 const screenSize = useScreenSize()
 const inlinePdf = usesWebkitPdfViewer()
@@ -93,11 +93,9 @@ const markdown = new MarkdownIt({
 	linkify: true,
 })
 
-// Route markdown output through the shared sanitizer so the anchor-target
-// hook (open in new tab) and form-tag blocklist are applied uniformly with
-// the rest of the LMS render pipelines. Keeps one source of truth for what
-// counts as safe user-authored HTML.
-const renderSafe = (block) => sanitizeRichHTML(markdown.render(block))
+// The directive sanitizes at the rich level, which is where the anchor-target
+// hook and the form-tag blocklist live. This only does the markdown pass.
+const renderMarkdown = (block) => markdown.render(block)
 
 const props = defineProps({
 	content: {

@@ -18,7 +18,7 @@
 			</router-link>
 			<div
 				v-if="hasBio(instructors[0].bio)"
-				v-html="renderBio(instructors[0].bio)"
+				v-safe-html:bio="decodeEntities(instructors[0].bio || '')"
 				class="ProseMirror prose prose-sm max-w-none text-p-sm text-ink-gray-7 leading-6 mt-4 line-clamp-3"
 			></div>
 		</template>
@@ -38,7 +38,7 @@
 			</router-link>
 			<div
 				v-if="hasBio(focused?.bio)"
-				v-html="renderBio(focused?.bio)"
+				v-safe-html:bio="decodeEntities(focused?.bio || '')"
 				class="ProseMirror prose prose-sm max-w-none text-p-sm text-ink-gray-7 leading-6 mt-4 line-clamp-3"
 			></div>
 
@@ -81,7 +81,6 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import DOMPurify from 'dompurify'
 import UserAvatar from '@/components/UserAvatar.vue'
 import { decodeEntities, htmlToText } from '@/utils'
 import type { CourseInstructorInfo } from '@/types'
@@ -145,25 +144,6 @@ const headerLabel = computed<string>(() => {
 function hasBio(bio?: string | null): boolean {
 	if (!bio) return false
 	return htmlToText(bio).trim().length > 0 || /<img\b/i.test(bio)
-}
-
-function renderBio(bio?: string | null): string {
-	return DOMPurify.sanitize(decodeEntities(bio || ''), {
-		ALLOWED_TAGS: [
-			'b',
-			'i',
-			'em',
-			'strong',
-			'a',
-			'p',
-			'br',
-			'ul',
-			'ol',
-			'li',
-			'img',
-		],
-		ALLOWED_ATTR: ['href', 'target', 'rel', 'src'],
-	})
 }
 
 function profileLink(instructor: CourseInstructorInfo) {

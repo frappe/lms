@@ -23,7 +23,7 @@
 			class="mx-auto w-full pb-5 sm:w-2/3 sm:border-x"
 		>
 			<div class="space-y-4 border-b pb-5 px-10">
-				<div class="grid grid-cols-2 gap-5">
+				<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
 					<FormControl
 						v-model="submissionDetails.doc.quiz_title"
 						:label="__('Quiz')"
@@ -36,7 +36,7 @@
 					/>
 				</div>
 
-				<div class="grid grid-cols-2 gap-5">
+				<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
 					<FormControl
 						v-model="submissionDetails.doc.score"
 						:label="__('Score')"
@@ -58,17 +58,13 @@
 				>
 					<div class="text-ink-gray-9">
 						<span class="font-semibold"> {{ __('Question') }}: </span>
-						<span class="leading-5" v-html="sanitizeRichHTML(row.question)">
-						</span>
+						<span class="leading-5" v-safe-html:rich="row.question"> </span>
 					</div>
 					<div class="text-ink-gray-9">
 						<span class="font-semibold"> {{ __('Answer') }}: </span>
-						<span
-							class="leading-5"
-							v-html="sanitizeRichHTML(row.answer)"
-						></span>
+						<span class="leading-5" v-safe-html:rich="row.answer"></span>
 					</div>
-					<div class="grid grid-cols-2 gap-5">
+					<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
 						<FormControl v-model="row.marks" :label="__('Marks')" />
 						<FormControl
 							v-model="row.marks_out_of"
@@ -82,7 +78,6 @@
 	</PageBody>
 </template>
 <script setup>
-import { sanitizeRichHTML } from '@/utils/sanitizeRichHTML'
 import {
 	createDocumentResource,
 	FormControl,

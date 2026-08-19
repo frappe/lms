@@ -78,7 +78,78 @@ def get_user_info():
 	user.developer_mode = frappe.conf.developer_mode
 	if user.is_fc_site and user.is_system_manager:
 		user.site_info = current_site_info()
+	user.permissions = _doctype_permissions()
 	return user
+
+
+PERMISSION_DOCTYPES = (
+	"LMS Course",
+	"Course Chapter",
+	"Course Lesson",
+	"LMS Batch",
+	"LMS Quiz",
+	"LMS Assignment",
+	"LMS Program",
+	"Job Opportunity",
+)
+
+
+MAX_PERMISSION_BATCH = 200
+
+
+@frappe.whitelist()
+def get_doc_permissions_many(doctype: str, names: str | list[str]):
+	"""Evaluated permissions for several documents of one doctype.
+
+	Batched because a course outline resolves affordances for every lesson on
+	screen at once; one call per document behind a hide-until-known gate is one
+	flicker per document. CRM asks per document (crm/frontend/src/data/
+	document.js) because its form view opens one.
+
+	doctype/names are annotated rather than isinstance-checked because
+	require_type_annotated_api_methods is on (hooks.py), so frappe rejects a
+	wrong type before this body runs — in a request and in tests alike."""
+	if isinstance(names, str):
+		names = frappe.parse_json(names)
+
+	if not isinstance(names, list):
+		frappe.throw(_("names must be a list"))
+
+	if len(names) > MAX_PERMISSION_BATCH:
+		frappe.throw(_("At most {0} documents per request").format(MAX_PERMISSION_BATCH))
+
+	if not frappe.db.exists("DocType", doctype):
+		frappe.throw(_("Unknown doctype"))
+
+	out = {}
+	for name in names:
+		if not isinstance(name, str):
+			continue
+		try:
+			doc = frappe.get_lazy_doc(doctype, name)
+		except frappe.DoesNotExistError:
+			out[name] = {}
+			continue
+		perms = frappe.permissions.get_doc_permissions(doc)
+		# A document the caller cannot read answers exactly like one that does not
+		# exist. Anything else lets a caller submit guessed names and read the
+		# difference: a permission map means the row is real, {} means it is not.
+		# The UI needs no more than this — hide-until-known treats a missing ptype
+		# as a deny, so {} and read=0 render the same.
+		out[name] = perms if perms.get("read") else {}
+	return out
+
+
+def _doctype_permissions():
+	"""Doctype-level answers for surfaces that have no docname yet: nav items and
+	route guards. Document-level answers come from get_doc_permissions_many."""
+	out = {}
+	for doctype in PERMISSION_DOCTYPES:
+		out[doctype] = {
+			ptype: 1 if frappe.has_permission(doctype, ptype) else 0
+			for ptype in ("read", "write", "create", "delete")
+		}
+	return out
 
 
 @frappe.whitelist(allow_guest=True)
@@ -975,12 +1046,51 @@ def update_chapter_index(chapter: str, course: str, idx: int):
 # Matches SETTINGS_PAGE_LENGTH in the frontend, which pages `start` by this.
 MEMBERS_PAGE_LENGTH = 13
 
+MEMBER_FIELDS = ["name", "full_name", "user_image", "username", "last_active"]
+
+
+def member_roles(member: str) -> list[str]:
+	roles = frappe.get_all(
+		"Has Role",
+		{
+			"parent": member,
+			"parenttype": "User",
+		},
+		pluck="role",
+	)
+	return [role for role in LMS_ROLES if role in roles]
+
+
+@frappe.whitelist()
+def get_member(member: str):
+	"""One member by exact name, for the member edit form.
+
+	get_members is a paginated search that also hides disabled users, so it
+	cannot answer "give me this one row": a member past the first page, or a
+	disabled one, came back empty and left the form unable to save.
+	"""
+	frappe.only_for(["Moderator"])
+
+	if not isinstance(member, str):
+		frappe.throw(_("Invalid member."), frappe.ValidationError)
+
+	member = member.strip()
+	if not member or member in ["Administrator", "Guest"]:
+		frappe.throw(_("Invalid member."), frappe.ValidationError)
+
+	row = frappe.db.get_value("User", member, MEMBER_FIELDS, as_dict=True)
+	if not row:
+		frappe.throw(_("Member {0} does not exist.").format(member), frappe.DoesNotExistError)
+
+	row.roles = member_roles(row.name)
+	return row
+
 
 @frappe.whitelist()
 def get_members(start: int = 0, search: str = None, role: str = "All"):
 	frappe.only_for(["Moderator"])
 
-	lms_roles = ["Moderator", "Course Creator", "Batch Evaluator", "LMS Student"]
+	lms_roles = LMS_ROLES
 	if not isinstance(role, str) or role not in (["All"] + lms_roles):
 		frappe.throw(_("Invalid role filter."), frappe.ValidationError)
 	if search is not None and not isinstance(search, str):
@@ -1005,22 +1115,14 @@ def get_members(start: int = 0, search: str = None, role: str = "All"):
 	members = frappe.get_all(
 		"User",
 		filters=filters,
-		fields=["name", "full_name", "user_image", "username", "last_active"],
+		fields=MEMBER_FIELDS,
 		or_filters=or_filters,
 		page_length=MEMBERS_PAGE_LENGTH,
 		start=start,
 	)
 
 	for member in members:
-		roles = frappe.get_all(
-			"Has Role",
-			{
-				"parent": member.name,
-				"parenttype": "User",
-			},
-			pluck="role",
-		)
-		member.roles = [role for role in lms_roles if role in roles]
+		member.roles = member_roles(member.name)
 
 	return members
 
@@ -1384,16 +1486,32 @@ def upsert_chapter(
 		scorm_package = frappe._dict(scorm_package or {})
 		if not scorm_package.get("name"):
 			frappe.throw(_("Please attach a SCORM package before saving this chapter."))
-		extract_path = extract_package(course, title, scorm_package)
+		if not isinstance(scorm_package.name, str):
+			frappe.throw(_("scorm_package name must be a string"))
 
-		values.update(
-			{
-				"scorm_package": scorm_package.name,
-				"scorm_package_path": _scorm_url(extract_path),
-				"manifest_file": _scorm_url(get_manifest_file(extract_path)),
-				"launch_file": _scorm_url(get_launch_file(extract_path)),
-			}
-		)
+		stored = _stored_scorm_values(name, scorm_package.name)
+		if stored:
+			# The File row was deleted out from under the chapter, but the package
+			# was already extracted to disk. Re-extracting is impossible and is not
+			# what a title edit asked for, so keep the extraction and let the save
+			# through — otherwise the chapter can never be renamed again.
+			#
+			# scorm_package itself is cleared rather than rewritten: it is a Link to
+			# File, and save() validates every non-empty Link unconditionally, so
+			# putting the missing name back would just trade this error for a
+			# LinkValidationError. The chapter stays playable off scorm_package_path.
+			values.update(stored)
+			values["scorm_package"] = None
+		else:
+			extract_path = extract_package(course, title, scorm_package)
+			values.update(
+				{
+					"scorm_package": scorm_package.name,
+					"scorm_package_path": _scorm_url(extract_path),
+					"manifest_file": _scorm_url(get_manifest_file(extract_path)),
+					"launch_file": _scorm_url(get_launch_file(extract_path)),
+				}
+			)
 
 	if name:
 		chapter = frappe.get_doc("Course Chapter", name)
@@ -1413,6 +1531,34 @@ def upsert_chapter(
 		add_lesson(title, chapter.name, course, 1)
 
 	return chapter
+
+
+def _stored_scorm_values(name: str | None, posted_package: str) -> dict | None:
+	"""The extraction already on `name`, when `posted_package` cannot be extracted.
+
+	Returns None — meaning "extract normally" — unless all three hold:
+
+	- this is an edit of an existing chapter,
+	- the File behind the posted package is gone, so extraction is impossible,
+	- and the caller posted the package the chapter already has.
+
+	That last condition is what keeps this to the rename case. Without it, a
+	creator replacing a package whose File row happened to be missing would get a
+	success response and a chapter still serving the old content.
+	"""
+	if not name or frappe.db.exists("File", posted_package):
+		return None
+	stored = frappe.db.get_value(
+		"Course Chapter",
+		name,
+		["scorm_package", "scorm_package_path", "manifest_file", "launch_file"],
+		as_dict=True,
+	)
+	if not stored or not stored.get("scorm_package_path"):
+		return None
+	if stored.get("scorm_package") != posted_package:
+		return None
+	return stored
 
 
 def _scorm_url(abs_path: str) -> str:
@@ -2189,21 +2335,58 @@ def get_progress_distribution(progressList: list):
 
 @frappe.whitelist(allow_guest=True)
 def get_pwa_manifest():
+	"""Web app manifest for installing the LMS as a PWA."""
 	title = frappe.db.get_single_value("Website Settings", "app_name") or "Frappe Learning"
-	banner_image = frappe.db.get_single_value("Website Settings", "banner_image")
+	route = get_lms_route()
 
+	# `display` was absent, so it defaulted to "browser" and the installed app
+	# launched inside full browser chrome — the one thing installing is meant to
+	# remove. Everything else here follows from actually being standalone: a
+	# `scope` so in-app navigation stays in the app, a stable `id` so a changed
+	# start_url is not treated as a different app, and colours so the OS paints
+	# its own surfaces to match instead of flashing white.
+	#
+	# theme_color matches the light-mode `theme-color` meta in index.html. A
+	# manifest carries a single value, so the light one wins here and the meta
+	# tags keep handling the light/dark split.
 	manifest = {
+		"id": route,
 		"name": title,
 		"short_name": title,
 		"description": "Easy to use, 100% open source Learning Management System",
-		"start_url": get_lms_route(),
+		"start_url": route,
+		"scope": route,
+		"display": "standalone",
+		"orientation": "portrait",
+		"theme_color": "#FFFFFF",
+		"background_color": "#FFFFFF",
+		# Split by purpose rather than the previous combined "maskable any": a
+		# maskable icon is drawn with its edges cropped to the platform's shape,
+		# so reusing one image for both gives a clipped icon wherever the "any"
+		# slot is used. The 512 has been on disk unused.
+		#
+		# Website Settings' banner_image is deliberately NOT a source here. It is
+		# a wide banner, and it was being declared as 192x192, so any site that
+		# set one got a squashed app icon.
 		"icons": [
 			{
-				"src": banner_image or "/assets/lms/frontend/manifest/manifest-icon-192.maskable.png",
+				"src": "/assets/lms/frontend/manifest/manifest-icon-192.maskable.png",
 				"sizes": "192x192",
 				"type": "image/png",
-				"purpose": "maskable any",
-			}
+				"purpose": "any",
+			},
+			{
+				"src": "/assets/lms/frontend/manifest/manifest-icon-512.maskable.png",
+				"sizes": "512x512",
+				"type": "image/png",
+				"purpose": "any",
+			},
+			{
+				"src": "/assets/lms/frontend/manifest/manifest-icon-512.maskable.png",
+				"sizes": "512x512",
+				"type": "image/png",
+				"purpose": "maskable",
+			},
 		],
 	}
 

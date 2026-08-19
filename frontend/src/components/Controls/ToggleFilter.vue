@@ -1,9 +1,4 @@
 <template>
-	<!-- One boolean filter, declared once by the page. A checkbox row is the
-	     desk idiom but does not survive a 390px header, so the same filter is a
-	     pressable chip on a phone. Which control that is stops being the page's
-	     business. Mirrors helpdesk's QuickFilterField.vue, which likewise picks
-	     the control from the filter's declaration. -->
 	<Tooltip v-if="!isMobile" :text="tooltip" class="!w-fit shrink-0">
 		<Checkbox
 			:modelValue="modelValue"
@@ -11,26 +6,37 @@
 			@update:modelValue="set(Boolean($event))"
 		/>
 	</Tooltip>
-	<!-- A phone has no hover, so the desk's tooltip has nowhere to live. Rather
-	     than give the chip a second control to explain it, the chip says what it
-	     does: `mobileLabel` is the whole sentence shortened to a name. -->
-	<FilterChip
+	<Checkbox
 		v-else
-		:active="modelValue"
-		:theme="theme"
-		class="!w-fit shrink-0"
-		@click="set(!modelValue)"
-	>
-		{{ mobileLabel || label }}
-	</FilterChip>
+		:modelValue="modelValue"
+		:label="mobileLabel || label"
+		:description="tooltip || undefined"
+		size="md"
+		@update:modelValue="set(Boolean($event))"
+	/>
 </template>
 
 <script setup lang="ts">
 import { nextTick } from 'vue'
 import { Checkbox, Tooltip } from 'frappe-ui'
-import FilterChip from './FilterChip.vue'
-import type { FilterChipTheme } from '@/types'
 import { useScreenSize } from '@/utils/composables'
+
+// One boolean filter, declared once by the page. Which control it becomes stops
+// being the page's business. Mirrors helpdesk's QuickFilterField.vue, which
+// likewise picks the control from the filter's declaration.
+//
+// A phone gets a checkbox too, not a chip.
+//
+// Filters now live in a sheet rather than a strip across the header (see
+// PageBody), so the reason the chip existed — a checkbox row does not survive a
+// 390px header — is gone, and the sheet has room for the desk idiom.
+//
+// The checkbox is also the better target: frappe-ui renders it as an <input>
+// plus a <label for>, so the label is part of the hit area natively. A chip
+// carried its text as a <button> child with no such association.
+//
+// The desk's tooltip has nowhere to live on a phone, so it becomes the
+// checkbox's description instead of being dropped.
 
 const props = withDefaults(
 	defineProps<{
@@ -39,14 +45,13 @@ const props = withDefaults(
 		/** Hovered on the desk control; a phone gets `mobileLabel` instead. */
 		tooltip?: string
 		/**
-		 * What the chip is called on a phone. The desk label sits beside a
+		 * What the filter is called on a phone. The desk label sits beside a
 		 * tooltip that carries the rest of the meaning, so it can be a bare
-		 * noun; the chip has to say the whole thing itself.
+		 * noun; in the sheet the label has to say the whole thing itself.
 		 */
 		mobileLabel?: string
-		theme?: FilterChipTheme
 	}>(),
-	{ tooltip: '', mobileLabel: '', theme: 'gray' }
+	{ tooltip: '', mobileLabel: '' }
 )
 
 const emit = defineEmits<{ 'update:modelValue': [value: boolean] }>()

@@ -13,7 +13,7 @@
 			>
 				<iframe
 					v-if="preview.type === 'youtube'"
-					:src="preview.src"
+					:src="safeUrl(preview.src)"
 					:title="__('Video preview')"
 					class="size-full"
 					frameborder="0"
@@ -22,7 +22,7 @@
 				/>
 				<video
 					v-else-if="isUploadedVideo && !videoError"
-					:src="preview.src"
+					:src="safeUrl(preview.src)"
 					controls
 					class="size-full bg-black object-contain"
 					@error="videoError = true"
@@ -31,7 +31,7 @@
 					v-else-if="isUploadedVideo && videoError"
 					class="flex flex-col items-center gap-1 px-3 text-center"
 				>
-					<span class="lucide-circle-check size-5 text-ink-green-600" />
+					<span class="lucide-circle-check size-5 text-ink-green-6" />
 					<span class="text-xs text-ink-gray-5">
 						{{ __("Saved. This format can't be previewed here.") }}
 					</span>
@@ -48,7 +48,6 @@
 				</button>
 			</div>
 
-			<!-- Uploaded video: thumbnail-style controls (no raw filename in an input). -->
 			<div v-if="isUploadedVideo" class="min-w-0 space-y-2 sm:flex-1">
 				<div class="text-p-sm-medium text-ink-gray-7 truncate">
 					{{ fileName }}
@@ -56,6 +55,7 @@
 				<div class="flex items-center gap-2">
 					<FileUploader
 						:fileTypes="['video/mp4', 'video/webm', 'video/ogg']"
+						:uploadArgs="{ private: false }"
 						:validateFile="validatePlayableVideo"
 						@success="(file: { file_url: string }) => update(file.file_url)"
 						@failure="onUploadFailure"
@@ -89,7 +89,6 @@
 				</p>
 			</div>
 
-			<!-- Empty or YouTube link: URL input + upload. -->
 			<div v-else class="min-w-0 space-y-2 sm:flex-1">
 				<FormControl
 					:id="inputId"
@@ -101,6 +100,7 @@
 				/>
 				<FileUploader
 					:fileTypes="['video/*']"
+					:uploadArgs="{ private: false }"
 					@success="(file: { file_url: string }) => update(file.file_url)"
 				>
 					<template #default="{ openFileSelector, uploading, progress }">
@@ -144,6 +144,7 @@ import {
 } from '@/components/Form/labeling'
 import { computed, ref, watch } from 'vue'
 import { getVideoPreview, getYouTubeId } from '@/utils/video'
+import { safeUrl } from '@/utils/safeUrl'
 
 // Only formats browsers can actually play. Reject the rest at upload time so a
 // course never ends up with an unplayable preview (e.g. .MOV/H.265).

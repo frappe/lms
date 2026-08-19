@@ -8,9 +8,7 @@
 			{
 				label: 'Submit',
 				variant: 'solid',
-				onClick: ({ close }) => {
-					submitResume(close)
-				},
+				onClick: ({ close }) => submitResume(close),
 			},
 		]"
 	>
@@ -75,6 +73,7 @@
 import { Dialog, FileUploader, Button, createResource, toast } from 'frappe-ui'
 import { ref, inject } from 'vue'
 import { getFileSize } from '@/utils/'
+import { resourceErrorMessage, submitResource } from '@/utils/resource'
 
 const resume = ref(null)
 const show = defineModel()
@@ -109,24 +108,24 @@ const jobApplication = createResource({
 	},
 })
 
-const submitResume = (close) => {
-	jobApplication.submit(
+const submitResume = (close) =>
+	submitResource(
+		jobApplication,
 		{},
 		{
 			validate() {
 				if (!resume.value) {
-					return 'Please upload your resume'
+					return __('Please upload your resume')
 				}
 			},
 			onSuccess() {
-				toast.success('Your application has been submitted successfully')
+				toast.success(__('Your application has been submitted successfully'))
 				application.value.reload()
 				close()
 			},
 			onError(err) {
-				toast.error(err.messages?.[0] || err)
+				toast.error(resourceErrorMessage(err))
 			},
 		}
 	)
-}
 </script>

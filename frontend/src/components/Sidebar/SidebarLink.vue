@@ -88,6 +88,7 @@ import * as icons from 'lucide-vue-next'
 import { toggleNotifications } from '@/stores/notifications'
 import { useSettings } from '@/stores/settings'
 import type { SidebarLink } from '@/types'
+import { openExternal } from '@/utils/openExternal'
 
 const router = useRouter()
 const settingsStore = useSettings()
@@ -126,7 +127,7 @@ function handleClick(): void {
 		showContactForm.value = true
 	} else if (props.link.to) {
 		if (props.link.to.startsWith('http')) {
-			window.open(props.link.to, '_blank')
+			openExternal(props.link.to)
 			return
 		}
 		window.location.href = `/${props.link.to}`

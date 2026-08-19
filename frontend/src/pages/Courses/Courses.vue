@@ -79,16 +79,7 @@
 		</template>
 	</ListPage>
 
-	<NewCourseModal
-		v-if="showCourseModal"
-		v-model="showCourseModal"
-		:courses="courses"
-	/>
-
-	<CourseImportModal
-		v-if="showCourseImportModal"
-		v-model="showCourseImportModal"
-	/>
+	<router-view />
 </template>
 <script setup>
 import {
@@ -108,8 +99,7 @@ import { sessionStore } from '@/stores/session'
 import { canCreateCourse } from '@/utils'
 import CourseCard from '@/components/CourseCard.vue'
 import { useRouter } from 'vue-router'
-import NewCourseModal from '@/pages/Courses/NewCourseModal.vue'
-import CourseImportModal from '@/pages/Courses/CourseImportModal.vue'
+import { openFormRoute } from '@/composables/useFormRoute'
 
 const user = inject('$user')
 const dayjs = inject('$dayjs')
@@ -126,8 +116,6 @@ const filters = ref({})
 const currentTab = ref('live')
 const { brand } = sessionStore()
 const router = useRouter()
-const showCourseModal = ref(false)
-const showCourseImportModal = ref(false)
 
 onMounted(() => {
 	setFiltersFromQuery()
@@ -142,8 +130,13 @@ const setFiltersFromQuery = () => {
 	certification.value = queries.get('certification') === 'true'
 	const tab = queries.get('tab')
 	if (tab) currentTab.value = tab
+	// Compatibility shim: ?newCourse=1 was this page's ad-hoc deep link before
+	// /courses/new existed. BatchCourseModal.vue:27 still emits it, as may
+	// bookmarks and anything outside the SPA, so forward it rather than drop it.
+	// replace(), so the query-param URL is not left behind as an entry the user
+	// can go Back to and re-open the form from.
 	if (queries.get('newCourse') == '1') {
-		showCourseModal.value = true
+		router.replace({ name: 'NewCourse' })
 	}
 }
 
@@ -314,7 +307,12 @@ const setQueryParams = () => {
 		queryString = `?${queries.toString()}`
 	}
 
-	history.replaceState({}, '', `${location.pathname}${queryString}`)
+	// Carry the existing state forward rather than replacing it with `{}`. This
+	// page hosts form child routes whose open/close semantics hang off a marker
+	// in history.state, and that marker only survives a reload through
+	// window.history. `{}` also being truthy means vue-router never re-seeds its
+	// own `position` key after such a reload, so every later pop delta is NaN.
+	history.replaceState(history.state, '', `${location.pathname}${queryString}`)
 }
 
 watch(currentTab, () => {
@@ -351,7 +349,9 @@ const courseMenu = computed(() => {
 			label: __('New Course'),
 			icon: 'lucide-book-open',
 			onClick() {
-				showCourseModal.value = true
+				// openFormRoute, not a bare router.push: it stamps the history
+				// entry so the form's own close() pops it instead of replacing.
+				openFormRoute(router, { name: 'NewCourse' })
 			},
 		},
 		{
@@ -368,7 +368,7 @@ const courseMenu = computed(() => {
 			label: __('Import via ZIP'),
 			icon: 'lucide-folder-plus',
 			onClick() {
-				showCourseImportModal.value = true
+				openFormRoute(router, { name: 'CourseImport' })
 			},
 		},
 	]

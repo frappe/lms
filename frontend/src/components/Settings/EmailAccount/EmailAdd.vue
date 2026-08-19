@@ -38,12 +38,9 @@
 					<CircleAlert class="size-5 shrink-0" />
 					<div class="text-wrap text-p-xs">
 						{{ selectedService.info }}
-						<a
-							:href="selectedService.link"
-							target="_blank"
-							rel="noopener noreferrer"
-							class="underline"
-							>{{ __('here') }}</a
+						<a :href="selectedService.link" v-external class="underline">{{
+							__('here')
+						}}</a
 						>.
 					</div>
 				</div>

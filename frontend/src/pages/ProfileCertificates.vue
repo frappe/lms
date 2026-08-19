@@ -11,8 +11,7 @@
 				v-for="certificate in certificates.data"
 				:key="certificate.name"
 				:href="certificateUrl(certificate)"
-				target="_blank"
-				rel="noopener noreferrer"
+				v-external
 				class="flex flex-col bg-surface-base border rounded-lg p-3 cursor-pointer hover:bg-surface-sidebar"
 			>
 				<div class="font-medium leading-5 mb-2 text-ink-gray-9">

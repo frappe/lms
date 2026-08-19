@@ -15,7 +15,7 @@
 		<div class="group relative h-[130px] w-full">
 			<img
 				v-if="profile.data.cover_image"
-				:src="profile.data.cover_image"
+				:src="safeUrl(profile.data.cover_image)"
 				alt=""
 				class="h-[130px] w-full object-cover object-center"
 			/>
@@ -48,7 +48,7 @@
 					<div class="relative">
 						<img
 							v-if="profile.data.user_image"
-							:src="profile.data.user_image"
+							:src="safeUrl(profile.data.user_image)"
 							:alt="profile.data.full_name"
 							class="object-cover h-[100px] w-[100px] rounded-full border-4 border-white object-cover"
 						/>
@@ -74,11 +74,11 @@
 									class="rounded-full w-fit"
 									:class="
 										profile.data.open_to === 'Work'
-											? 'bg-surface-green-3'
-											: 'bg-purple-500'
+											? 'bg-surface-green-7 text-ink-green-1'
+											: 'bg-surface-violet-7 text-ink-violet-1'
 									"
 								>
-									<span class="lucide-badge-check text-ink-base size-5" />
+									<span class="lucide-badge-check size-5" />
 								</div>
 							</div>
 						</Tooltip>
@@ -94,27 +94,24 @@
 					<div class="flex items-center gap-x-4 mt-2">
 						<a
 							v-if="profile.data.twitter"
-							:href="profile.data.twitter"
-							target="_blank"
-							rel="noopener noreferrer"
+							:href="safeUrl(profile.data.twitter)"
+							v-external
 							:aria-label="__('Twitter')"
 						>
 							<Twitter class="size-4 text-ink-gray-5 cursor-pointer" />
 						</a>
 						<a
 							v-if="profile.data.linkedin"
-							:href="profile.data.linkedin"
-							target="_blank"
-							rel="noopener noreferrer"
+							:href="safeUrl(profile.data.linkedin)"
+							v-external
 							:aria-label="__('LinkedIn')"
 						>
 							<Linkedin class="size-4 text-ink-gray-5 cursor-pointer" />
 						</a>
 						<a
 							v-if="profile.data.github"
-							:href="profile.data.github"
-							target="_blank"
-							rel="noopener noreferrer"
+							:href="safeUrl(profile.data.github)"
+							v-external
 							:aria-label="__('GitHub')"
 						>
 							<Github class="size-4 text-ink-gray-5 cursor-pointer" />
@@ -133,10 +130,6 @@
 				</Button>
 			</div>
 
-			<!-- On a phone the strip spans the row, so the pills have to grow
-			     with it or the grey track shows through past the last tab.
-			     `grow` shares the slack out instead of forcing equal columns,
-			     which would truncate the longer labels at 390px. -->
 			<div class="mb-4 mt-10">
 				<TabButtons
 					:class="
@@ -152,11 +145,6 @@
 		</div>
 	</div>
 	<NotFound v-else-if="(profile.fetched || profile.error) && !profile.data" />
-	<EditProfile
-		v-model="showProfileModal"
-		v-model:reloadProfile="profile"
-		:profile="profile"
-	/>
 </template>
 <script setup>
 import {
@@ -179,15 +167,15 @@ import { useScreenSize } from '@/utils/composables'
 import UserAvatar from '@/components/UserAvatar.vue'
 import NoPermission from '@/components/NoPermission.vue'
 import NotFound from '@/pages/NotFound.vue'
-import EditProfile from '@/components/Modals/EditProfile.vue'
 import EditCoverImage from '@/components/Modals/EditCoverImage.vue'
+import { openFormRoute } from '@/composables/useFormRoute'
+import { safeUrl } from '@/utils/safeUrl'
 
 const { user, brand } = sessionStore()
 const $user = inject('$user')
 const route = useRoute()
 const router = useRouter()
 const activeTab = ref('')
-const showProfileModal = ref(false)
 const readOnlyMode = window.read_only_mode
 const { isMobile } = useScreenSize()
 
@@ -238,17 +226,19 @@ const setActiveTab = () => {
 	if (!activeTab.value) activeTab.value = 'About'
 }
 
+// The edit form is a child route, not a tab, and `edit` matches none of the tab
+// segments — so setActiveTab lands on About and this effect would push the About
+// tab straight over a deep link to the form before it ever renders.
 watchEffect(() => {
-	if (activeTab.value) {
-		let route = {
-			About: { name: 'ProfileAbout' },
-			Certificates: { name: 'ProfileCertificates' },
-			Roles: { name: 'ProfileRoles' },
-			Slots: { name: 'ProfileEvaluator' },
-			Schedule: { name: 'ProfileEvaluationSchedule' },
-		}[activeTab.value]
-		router.push(route)
-	}
+	if (!activeTab.value || route.name === 'ProfileEditForm') return
+	let target = {
+		About: { name: 'ProfileAbout' },
+		Certificates: { name: 'ProfileCertificates' },
+		Roles: { name: 'ProfileRoles' },
+		Slots: { name: 'ProfileEvaluator' },
+		Schedule: { name: 'ProfileEvaluationSchedule' },
+	}[activeTab.value]
+	router.push(target)
 })
 
 watch(
@@ -259,7 +249,10 @@ watch(
 )
 
 const editProfile = () => {
-	showProfileModal.value = true
+	openFormRoute(router, {
+		name: 'ProfileEditForm',
+		params: { username: props.username },
+	})
 }
 
 const isSessionUser = () => {
@@ -305,10 +298,6 @@ const reloadUser = () => {
 			toast.error(__('Failed to refresh session'))
 			console.error(err)
 		})
-}
-
-const navigateTo = (url) => {
-	window.open(url, '_blank')
 }
 
 const breadcrumbs = computed(() => {

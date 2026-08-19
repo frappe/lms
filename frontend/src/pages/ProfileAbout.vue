@@ -5,24 +5,7 @@
 		</h2>
 		<div
 			v-if="profile.data.bio"
-			v-html="
-				DOMPurify.sanitize(decodeEntities(profile.data.bio), {
-					ALLOWED_TAGS: [
-						'b',
-						'i',
-						'em',
-						'strong',
-						'a',
-						'p',
-						'br',
-						'ul',
-						'ol',
-						'li',
-						'img',
-					],
-					ALLOWED_ATTR: ['href', 'target', 'rel', 'src'],
-				})
-			"
+			v-safe-html:bio="decodeEntities(profile.data.bio)"
 			class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2 prose-sm max-w-none !whitespace-normal"
 		></div>
 		<div v-else class="text-ink-gray-7 text-sm italic">
@@ -39,7 +22,7 @@
 					<template #trigger>
 						<div class="relative">
 							<img
-								:src="badge.badge_image"
+								:src="safeUrl(badge.badge_image)"
 								:alt="badge.badge"
 								class="h-[80px]"
 							/>
@@ -58,7 +41,7 @@
 						<div class="w-[250px] text-base">
 							<div class="bg-surface-gray-2 rounded-t-md py-5">
 								<img
-									:src="badge.badge_image"
+									:src="safeUrl(badge.badge_image)"
 									:alt="badge.badge"
 									class="h-[200px] mx-auto"
 								/>
@@ -124,8 +107,9 @@ import { createResource, HoverCard, Button } from 'frappe-ui'
 import { LinkedinIcon, Twitter } from 'lucide-vue-next'
 import { sessionStore } from '@/stores/session'
 import { decodeEntities } from '@/utils'
-import DOMPurify from 'dompurify'
 import { getLmsRoute } from '@/utils/basePath'
+import { safeUrl } from '@/utils/safeUrl'
+import { openExternal } from '@/utils/openExternal'
 
 const dayjs = inject('$dayjs')
 const user = inject('$user')
@@ -176,6 +160,6 @@ const shareOnSocial = (badge, medium) => {
 	else if (medium == 'Twitter')
 		shareUrl = `https://twitter.com/intent/tweet?text=${summary}&url=${url}`
 
-	window.open(shareUrl, '_blank')
+	openExternal(shareUrl)
 }
 </script>

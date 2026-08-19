@@ -198,7 +198,12 @@ async function mountList(options?: Record<string, unknown>, withBanner = true) {
 					},
 			  }
 			: {},
-		global: { stubs: { 'router-link': { template: '<a><slot /></a>' } } },
+		// `__` in a template compiles to `_ctx.__`, which resolves through the
+		// instance rather than globalThis, so stubGlobal alone does not reach it.
+		global: {
+			mocks: { __: (text: string) => text },
+			stubs: { 'router-link': { template: '<a><slot /></a>' } },
+		},
 	})
 	await nextTick()
 	return { wrapper, banner }
@@ -313,16 +318,23 @@ describe('ResponsiveListView cards and row navigation', () => {
 	})
 
 	// A card is the row's own link; once a selection is open, following it would
-	// throw the moderator off the page and drop what they had picked.
+	// throw the moderator off the page and drop what they had picked. It stops
+	// being a link entirely rather than preventing the default: RouterLink merges
+	// an outer @click BEHIND its own handler, which has already pushed the route.
 	it('turns a card into a selection target while a selection is open', async () => {
 		mobile.value = true
 		const { wrapper, banner } = await mountList(routedOptions)
 		await selectFirstRow(wrapper)
 
-		const event = clickCard(wrapper, 1)
+		const card = wrapper
+			.findAll('li')[1]
+			.element.querySelector('[data-list-card]') as HTMLElement
+		expect(card.tagName).toBe('DIV')
+		expect(card.getAttribute('href')).toBeNull()
+
+		clickCard(wrapper, 1)
 		await nextTick()
 
-		expect(event.defaultPrevented).toBe(true)
 		expect(Array.from(banner.value!.selections)).toEqual(['a', 'b'])
 	})
 

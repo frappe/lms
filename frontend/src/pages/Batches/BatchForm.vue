@@ -100,7 +100,7 @@
 							/>
 							<div
 								v-if="batchDetail.doc.paid_batch"
-								class="grid grid-cols-2 gap-3"
+								class="grid grid-cols-1 md:grid-cols-2 gap-3"
 							>
 								<FormControl
 									v-model="batchDetail.doc.amount"
@@ -164,12 +164,7 @@
 							:label="__('Enrollment Confirmation Email Template')"
 							v-model="batchDetail.doc.confirmation_email_template"
 							variant="outline"
-							:onCreate="
-								(value, close) => {
-									if (close) close()
-									showEmailTemplateModal = true
-								}
-							"
+							:onCreate="openEmailTemplateForm"
 						/>
 						<FormControl
 							v-model="batchDetail.doc.description"
@@ -288,12 +283,6 @@
 		:defaultRoles="['batch_evaluator']"
 		@created="onInstructorCreated"
 	/>
-	<EmailTemplateModal
-		v-model="showEmailTemplateModal"
-		v-model:emailTemplates="emailTemplates"
-		templateID="new"
-		@created="onEmailTemplateCreated"
-	/>
 </template>
 <script setup lang="ts">
 import {
@@ -314,7 +303,6 @@ import {
 	createResource,
 	toast,
 	call,
-	createListResource,
 } from 'frappe-ui'
 import { InputLabel, useInputLabeling } from '@/components/Form/labeling'
 import { useDebounceFn } from '@vueuse/core'
@@ -330,7 +318,7 @@ import {
 	useKeyboardShortcuts,
 	saveShortcut,
 } from '@/composables/useKeyboardShortcuts'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import Uploader from '@/components/Controls/Uploader.vue'
 import VideoPreviewField from '@/components/Controls/VideoPreviewField.vue'
 import MultiLink from '@/components/Controls/MultiLink.vue'
@@ -339,7 +327,7 @@ import Select from '@/components/Controls/Select.vue'
 import BatchCourses from '@/pages/Batches/components/BatchCourses.vue'
 import Assessments from '@/pages/Batches/components/Assessments.vue'
 import NewMemberModal from '@/components/Modals/NewMemberModal.vue'
-import EmailTemplateModal from '@/components/Modals/EmailTemplateModal.vue'
+import { openBatchForm } from '@/composables/useBatchForms'
 import type { LMSBatch } from '@/types/lms/LMSBatch'
 import type { CourseInstructor } from '@/types/lms/CourseInstructor'
 import type { Resource, BatchDetails, SessionUser } from '@/types'
@@ -362,6 +350,7 @@ const props = defineProps<{
 }>()
 
 const router = useRouter()
+const route = useRoute()
 const user = inject<SessionUser>('$user')!
 const instructors = ref<string[]>([])
 const app = getCurrentInstance()!
@@ -373,7 +362,6 @@ const originalDoc = ref<LMSBatch | null>(null)
 const { inputId: batchDetailsId, labelId: batchDetailsLabelId } =
 	useInputLabeling({})
 const showMemberModal = ref<boolean>(false)
-const showEmailTemplateModal = ref<boolean>(false)
 const emailTemplateLinkRef = ref<{ reload: () => void } | null>(null)
 
 const batchDetail = createDocumentResource({
@@ -382,18 +370,33 @@ const batchDetail = createDocumentResource({
 	auto: true,
 }) as Resource<LMSBatch | null>
 
-const emailTemplates = createListResource({
-	doctype: 'Email Template',
-	fields: ['name', 'subject', 'use_html', 'response', 'response_html'],
-	auto: true,
-	orderBy: 'modified desc',
-	cache: 'email-templates',
-})
-
-const onEmailTemplateCreated = (name: string): void => {
-	if (batchDetail.doc) batchDetail.doc.confirmation_email_template = name
-	emailTemplateLinkRef.value?.reload()
+const openEmailTemplateForm = (): void => {
+	openBatchForm(
+		router,
+		'NewBatchEmailTemplate',
+		props.batch.data?.name ?? '',
+		route.hash
+	)
 }
+
+// EmailTemplateForm is a route now, so it cannot emit `created` back at this
+// component the way the modal did — it hands the new name over in the URL
+// instead. Waits on the doc as well as the query because a deep-linked return
+// remounts this form and the doc lands after the query does. The param is
+// stripped once adopted, or a later reload would re-apply it over whatever the
+// user picked since.
+watch(
+	[() => route.query.emailTemplate, () => batchDetail.doc],
+	([created]) => {
+		if (typeof created !== 'string' || !created || !batchDetail.doc) return
+		batchDetail.doc.confirmation_email_template = created
+		emailTemplateLinkRef.value?.reload()
+		const query = { ...route.query }
+		delete query.emailTemplate
+		router.replace({ ...route, query })
+	},
+	{ immediate: true, flush: 'post' }
+)
 
 const updateBatchDetails = (value: string): void => {
 	if (batchDetail.doc) batchDetail.doc.batch_details = value

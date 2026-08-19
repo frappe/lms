@@ -43,8 +43,17 @@ vi.mock('frappe-ui', () => {
 		// Reproduces the quirk that costs a page a duplicate request: onChange
 		// assigns the model and then re-emits, so one click notifies twice with
 		// the same value before the prop has round-tripped.
+		// Faithful to frappe-ui's Checkbox in the one structural respect the
+		// filters rely on: an <input> plus a <label for> pointing at it, so the
+		// label is part of the hit area. A stub that rendered only the input
+		// would let a label-association assertion pass vacuously.
 		Checkbox: defineComponent({
-			props: { modelValue: Boolean, label: String },
+			props: {
+				modelValue: Boolean,
+				label: String,
+				description: String,
+				size: String,
+			},
 			emits: ['update:modelValue'],
 			methods: {
 				onChange() {
@@ -52,12 +61,19 @@ vi.mock('frappe-ui', () => {
 					this.$emit('update:modelValue', !this.modelValue)
 				},
 			},
-			template: `<input
-				type="checkbox"
-				data-testid="checkbox"
-				:aria-label="label"
-				@change="onChange"
-			/>`,
+			template: `<div>
+				<input
+					type="checkbox"
+					data-testid="checkbox"
+					id="cb"
+					:aria-label="label"
+					:checked="modelValue"
+					@change="onChange"
+				/>
+				<label data-testid="checkbox-label" for="cb" @click="onChange">
+					{{ label }}
+				</label>
+			</div>`,
 		}),
 		Tooltip: {
 			props: ['text'],
@@ -109,7 +125,12 @@ async function mountListPage(props: Record<string, unknown> = {}, slots = {}) {
 		slots,
 		global: {
 			mocks: { __: (s: string) => s },
-			stubs: { 'router-link': { template: '<a><slot /></a>' } },
+			stubs: {
+				'router-link': { template: '<a><slot /></a>' },
+				// PageBody's mobile filter sheet teleports to body; without this
+				// its contents leave the wrapper and are unfindable.
+				teleport: true,
+			},
 		},
 	})
 	await nextTick()
@@ -149,7 +170,10 @@ const deskScrollers = (wrapper: any) =>
 		.findAll('*')
 		.filter((node: any) => node.classes().includes('sm:overflow-y-auto'))
 
-const headerBlock = (wrapper: any) => wrapper.get('h1').element.parentElement!
+// Anchored to the strip itself rather than walked up from the <h1>: the
+// heading now shares a row wrapper with the mobile Filters button.
+const headerBlock = (wrapper: any) =>
+	wrapper.get('[data-testid="page-header-block"]').element
 
 describe('ListPage', () => {
 	it('hands every row to the page card slot', async () => {
@@ -304,30 +328,47 @@ describe('ToggleFilter', () => {
 		return { wrapper, value, reloads }
 	}
 
-	it('is a checkbox on a desk and a chip on a phone, from one declaration', async () => {
+	it('is a checkbox at every width, from one declaration', async () => {
 		mobile.value = false
 		const desk = await mountToggle()
 		expect(desk.wrapper.find('[data-testid="checkbox"]').exists()).toBe(true)
-		expect(desk.wrapper.find('button[aria-pressed]').exists()).toBe(false)
 
+		// The chip is gone: filters live in a sheet now (PageBody), so the phone
+		// has room for the desk idiom and gets the better hit area with it.
 		mobile.value = true
 		const phone = await mountToggle()
-		expect(phone.wrapper.find('button[aria-pressed]').exists()).toBe(true)
-		expect(phone.wrapper.find('[data-testid="checkbox"]').exists()).toBe(false)
+		expect(phone.wrapper.find('[data-testid="checkbox"]').exists()).toBe(true)
+		expect(phone.wrapper.find('button[aria-pressed]').exists()).toBe(false)
+	})
+
+	// The label is part of the control's hit area, not decoration beside it —
+	// frappe-ui renders <input> plus <label for>, and the stub mirrors that.
+	it('toggles from a click on the label, not just the box', async () => {
+		mobile.value = true
+		const { wrapper, value, reloads } = await mountToggle()
+
+		const input = wrapper.find('[data-testid="checkbox"]')
+		const label = wrapper.find('[data-testid="checkbox-label"]')
+		expect(label.attributes('for')).toBe(input.attributes('id'))
+
+		await label.trigger('click')
+		await nextTick()
+
+		expect(value.value).toBe(true)
+		expect(reloads).toHaveBeenCalledTimes(1)
 	})
 
 	// The desk label sits next to a tooltip carrying the rest of the meaning; a
-	// phone has no hover, so the chip has to say the whole thing in its name
-	// rather than hide it behind a second control.
-	it('names the chip for a phone, and falls back to the desk label', async () => {
+	// phone has no hover, so the sheet's label has to say the whole thing.
+	it('names the filter for a phone, and falls back to the desk label', async () => {
 		mobile.value = true
 		const named = await mountToggle()
-		expect(named.wrapper.find('button[aria-pressed]').text()).toBe(
+		expect(named.wrapper.find('[data-testid="checkbox-label"]').text()).toBe(
 			'Certification available'
 		)
 
 		const bare = await mountToggle({ mobileLabel: '' })
-		expect(bare.wrapper.find('button[aria-pressed]').text()).toBe(
+		expect(bare.wrapper.find('[data-testid="checkbox-label"]').text()).toBe(
 			'Certification'
 		)
 
@@ -349,17 +390,50 @@ describe('ToggleFilter', () => {
 		expect(value.value).toBe(true)
 		expect(reloads).toHaveBeenCalledTimes(1)
 	})
+})
 
-	it('reloads the list once per tap on the chip', async () => {
+describe('PageBody mobile filters', () => {
+	// Past three or four filters the desk's strip is a wall above the content on
+	// a phone. Below `sm` they collapse behind one button and open in a sheet.
+	it('shows a Filters button instead of the strip on a phone', async () => {
 		mobile.value = true
-		const { wrapper, value, reloads } = await mountToggle()
+		const wrapper = await mountListPage({}, { filters: '<i class="f">F</i>' })
 
-		await wrapper.find('button[aria-pressed]').trigger('click')
+		expect(wrapper.find('[data-testid="mobile-filters-button"]').exists()).toBe(
+			true
+		)
+	})
+
+	it('leaves the desk showing its filter strip, with no button', async () => {
+		mobile.value = false
+		const wrapper = await mountListPage({}, { filters: '<i class="f">F</i>' })
+
+		expect(wrapper.find('[data-testid="mobile-filters-button"]').exists()).toBe(
+			false
+		)
+		expect(wrapper.find('.f').exists()).toBe(true)
+	})
+
+	// The slot is rendered in ONE place at a time. Two renders would mount two
+	// copies of every control, both bound to the same page ref.
+	it('renders each filter exactly once', async () => {
+		mobile.value = true
+		const wrapper = await mountListPage({}, { filters: '<i class="f">F</i>' })
+		expect(wrapper.findAll('.f')).toHaveLength(0)
+
+		await wrapper.find('[data-testid="mobile-filters-button"]').trigger('click')
 		await nextTick()
 
-		expect(value.value).toBe(true)
-		expect(reloads).toHaveBeenCalledTimes(1)
-		expect(wrapper.find('button').attributes('aria-pressed')).toBe('true')
+		expect(wrapper.findAll('.f')).toHaveLength(1)
+	})
+
+	it('offers no Filters button when the page declares no filters', async () => {
+		mobile.value = true
+		const wrapper = await mountListPage({})
+
+		expect(wrapper.find('[data-testid="mobile-filters-button"]').exists()).toBe(
+			false
+		)
 	})
 })
 
@@ -394,16 +468,38 @@ describe('ResponsiveListView', () => {
 		])
 	})
 
-	it('stacks each row into a card built from the same columns on a phone', async () => {
+	it('stacks each row into a flat list row on a phone', async () => {
 		mobile.value = true
 		const wrapper = await mountList()
 
-		const cards = wrapper.findAll('li')
-		expect(cards).toHaveLength(2)
-		// The first column heads the card; the rest become labelled lines.
-		expect(cards[0].text()).toContain('Alpha')
-		expect(cards[0].text()).toContain('Updated On')
-		expect(cards[0].text()).toContain('01 Jan 2026')
+		const items = wrapper.findAll('li')
+		expect(items).toHaveLength(2)
+		// The first column is the row's title; the rest become one secondary
+		// line of values. Column labels are not SHOWN per row — that is the
+		// difference between a list and a stack of cards — but they are still
+		// spoken, or the value is read with nothing to say what it is.
+		expect(items[0].text()).toContain('Alpha')
+		expect(items[0].text()).toContain('01 Jan 2026')
+
+		expect(items[0].findAll('.sr-only').map((n) => n.text())).toContain(
+			'Updated On:'
+		)
+
+		const visible = items[0].element.cloneNode(true) as HTMLElement
+		visible.querySelectorAll('.sr-only').forEach((node) => node.remove())
+		expect(visible.textContent).not.toContain('Updated On')
+	})
+
+	it('draws rows as a divided list, not as separate cards', async () => {
+		mobile.value = true
+		const wrapper = await mountList()
+
+		const items = wrapper.findAll('li')
+		expect(items[0].classes()).toContain('border-b')
+		expect(items[0].classes()).toContain('last:border-b-0')
+		// No card chrome: no rounding, no box.
+		expect(items[0].classes()).not.toContain('rounded-lg')
+		expect(items[0].classes()).not.toContain('border')
 	})
 
 	it('feeds the phone card from the same cell slot as the desk row', async () => {

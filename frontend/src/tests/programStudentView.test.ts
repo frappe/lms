@@ -34,7 +34,7 @@ vi.mock('@/stores/user', () => ({
 vi.mock('@/router', () => ({ default: { push: vi.fn() } }))
 vi.mock('../translation', () => ({ default: {} }))
 vi.mock('@/translation', () => ({ default: {} }))
-vi.mock('@/pages/ProgrammingExercises/ProgrammingExerciseModal.vue', () => ({
+vi.mock('@/components/Modals/ProgrammingExerciseModal.vue', () => ({
 	default: {},
 }))
 vi.mock('@/utils/basePath', () => ({

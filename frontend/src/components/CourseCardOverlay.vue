@@ -153,6 +153,7 @@ import { useRouter } from 'vue-router'
 import CertificationLinks from '@/components/CertificationLinks.vue'
 import VideoPreview from '@/components/VideoPreview.vue'
 import { useTelemetry } from 'frappe-ui/frappe'
+import { openExternal } from '@/utils/openExternal'
 import type {
 	CourseDetails,
 	CourseInstructorInfo,
@@ -259,11 +260,10 @@ const certificate = createResource({
 		}
 	},
 	onSuccess(data: { name: string; template: string }) {
-		window.open(
+		openExternal(
 			`/api/method/frappe.utils.print_format.download_pdf?doctype=LMS+Certificate&name=${
 				data.name
-			}&format=${encodeURIComponent(data.template)}`,
-			'_blank'
+			}&format=${encodeURIComponent(data.template)}`
 		)
 	},
 }) as Resource<{ name: string; template: string } | null>

@@ -10,7 +10,7 @@
     "isolatedModules": true,
     "esModuleInterop": true,
     "lib": ["ESNext", "DOM"],
-    "types": [],
+    "types": ["vite/client"],
     "paths": {
       "@/*": ["./src/*"]
     }

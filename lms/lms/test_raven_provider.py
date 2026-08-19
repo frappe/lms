@@ -414,11 +414,17 @@ class TestBatchEnrollmentIndex(UnitTestCase):
 	"""
 
 	def test_batch_member_index_exists(self):
+		# Either index serves the lookup: unique_batch_member covers the same two
+		# columns in the same order, so add_enrollment_unique_constraints drops
+		# the plain one once it is in place. What this test protects is the
+		# coverage, not the name.
 		index_name = frappe.db.get_index_name(["batch", "member"])
 		self.assertTrue(
-			frappe.db.has_index("tabLMS Batch Enrollment", index_name),
-			f"Index {index_name} is missing from tabLMS Batch Enrollment. Run `bench migrate` "
-			"to apply lms.patches.v2_0.add_batch_enrollment_index.",
+			frappe.db.has_index("tabLMS Batch Enrollment", index_name)
+			or frappe.db.has_index("tabLMS Batch Enrollment", "unique_batch_member"),
+			"No (batch, member) index on tabLMS Batch Enrollment. Run `bench migrate` to "
+			"apply lms.patches.v2_0.add_batch_enrollment_index or "
+			"lms.patches.v2_0.add_enrollment_unique_constraints.",
 		)
 
 

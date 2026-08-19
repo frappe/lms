@@ -1,19 +1,14 @@
 <template>
-	<!-- One frappe-ui list at every width. The desk row and the phone card are
-	     two shapes of the same list, so they are drawn inside the same ListView:
-	     it owns the selection, which is what lets a phone select rows and reach
-	     the page's #selection-actions banner exactly as a desk does. -->
 	<ListView
 		ref="listView"
+		v-bind="$attrs"
 		:class="layoutClass"
 		:columns="shrinkableColumns"
 		:rows="rows"
 		:row-key="rowKey"
-		:options="options"
+		:options="listOptions"
 	>
 		<template #default>
-			<!-- Wide: the ordinary header row and rows, identical on every list page
-			     in this app, so they are written here once instead of per page. -->
 			<template v-if="!isMobile">
 				<ListHeader>
 					<ListHeaderItem
@@ -33,19 +28,25 @@
 				<ListRows />
 			</template>
 
-			<!-- Narrow: one card per row, built from the same column metadata and fed
-			     by the same #cell slot, so the two shapes cannot drift. A phone cannot
-			     show a row of columns without either clipping them or making the page
-			     scroll sideways, so the columns stack instead. -->
-			<ul v-else class="flex list-none flex-col gap-2">
+			<ul
+				v-else
+				ref="cardList"
+				role="list"
+				tabindex="-1"
+				class="flex list-none flex-col"
+			>
 				<li
 					v-for="row in rows"
 					:key="String(row[rowKey])"
-					class="rounded-lg border border-outline-gray-1 bg-surface-base"
-					:class="isRowInteractive ? 'hover:bg-surface-gray-1' : ''"
+					class="border-b border-outline-gray-1 last:border-b-0"
+					:class="isRowInteractive ? 'active:bg-surface-gray-2' : ''"
 				>
-					<div class="flex items-start">
-						<div v-if="selectionEnabled" class="p-3 pe-0">
+					<div class="flex items-start gap-3">
+						<div
+							v-if="selectionEnabled"
+							class="py-3"
+							:data-list-select="String(row[rowKey])"
+						>
 							<Checkbox
 								size="md"
 								:model-value="isRowSelected(row)"
@@ -57,10 +58,12 @@
 							:is="cardTag"
 							v-bind="cardBindings(row)"
 							data-list-card
-							class="block min-w-0 flex-1 p-3 text-start"
-							@click="onCardClick(row, $event)"
+							class="block min-w-0 flex-1 py-3 text-start"
+							@click="onCardClick(row)"
 						>
-							<div class="text-p-base-medium text-ink-gray-9">
+							<div
+								class="truncate text-p-base-medium text-ink-gray-9 [&>*]:truncate"
+							>
 								<slot
 									name="cell"
 									:column="titleColumn"
@@ -71,53 +74,57 @@
 								</slot>
 							</div>
 							<div
-								v-for="column in detailColumns"
-								:key="column.key"
-								class="mt-1 flex items-baseline gap-2 text-p-sm text-ink-gray-5"
+								v-if="detailColumns.length"
+								class="mt-0.5 flex min-w-0 flex-wrap items-baseline gap-x-1.5 text-p-sm text-ink-gray-6"
 							>
-								<span class="shrink-0">{{ column.label }}</span>
-								<span class="min-w-0 flex-1 text-ink-gray-7">
-									<slot
-										name="cell"
-										:column="column"
-										:row="row"
-										:value="row[column.key]"
-									>
-										{{ row[column.key] }}
-									</slot>
-								</span>
+								<template
+									v-for="(column, index) in detailColumns"
+									:key="column.key"
+								>
+									<span v-if="index" aria-hidden="true">·</span>
+									<span class="min-w-0 truncate [&>*]:truncate">
+										<span class="sr-only">{{ column.label }}: </span>
+										<slot
+											name="cell"
+											:column="column"
+											:row="row"
+											:value="row[column.key]"
+										>
+											{{ row[column.key] }}
+										</slot>
+									</span>
+								</template>
 							</div>
 						</component>
-					</div>
-					<div
-						v-if="actionColumns.length"
-						class="flex items-center justify-end gap-2 border-t border-outline-gray-1 px-3 py-2"
-					>
-						<template v-for="column in actionColumns" :key="column.key">
-							<slot
-								name="cell"
-								:column="column"
-								:row="row"
-								:value="row[column.key]"
-							/>
-						</template>
+						<div
+							v-if="actionColumns.length"
+							class="flex shrink-0 items-center gap-2 py-3"
+						>
+							<template v-for="column in actionColumns" :key="column.key">
+								<slot
+									name="cell"
+									:column="column"
+									:row="row"
+									:value="row[column.key]"
+								/>
+							</template>
+						</div>
 					</div>
 				</li>
 			</ul>
 
-			<ListSelectBanner
-				v-if="$slots['selection-actions']"
-				:class="isMobile ? MOBILE_BANNER_CLASS : undefined"
+			<Teleport
+				v-if="bannerRendered"
+				:to="bannerTarget"
+				:disabled="!bannerTarget"
 			>
-				<template #actions="bannerProps">
-					<slot name="selection-actions" v-bind="bannerProps" />
-				</template>
-			</ListSelectBanner>
+				<ListSelectBanner :class="bannerClass">
+					<template #actions="bannerProps">
+						<slot name="selection-actions" v-bind="bannerProps" />
+					</template>
+				</ListSelectBanner>
+			</Teleport>
 		</template>
-		<!-- Only claimed when the page draws its own cells; left alone, frappe-ui
-		     falls back to ListRowItem, which truncates and tooltips for free.
-		     Claimed, the page's cell gets the same truncation, so a page never
-		     has to remember it. -->
 		<template v-if="$slots.cell" #cell="{ column, row, item, align }">
 			<ListRowItem :column="column" :row="row" :item="item" :align="align">
 				<div class="min-w-0 truncate">
@@ -126,10 +133,20 @@
 			</ListRowItem>
 		</template>
 	</ListView>
+
+	<div v-if="isMobile && selectionEnabled" :class="MOBILE_DOCK_CLASS">
+		<span class="sr-only" role="status">{{ selectionAnnouncement }}</span>
+		<div
+			ref="bannerDock"
+			:class="MOBILE_BANNER_FLOW_CLASS"
+			:role="hasSelection ? 'region' : undefined"
+			:aria-label="hasSelection ? __('Selected rows') : undefined"
+		/>
+	</div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref, useSlots } from 'vue'
+import { computed, onMounted, ref, useSlots, watch } from 'vue'
 import {
 	Checkbox,
 	ListHeader,
@@ -142,10 +159,12 @@ import {
 import type { ListColumn, ListRow, ListViewOptions } from '@/types'
 import { useScreenSize } from '@/utils/composables'
 
-/**
- * The part of frappe-ui's ListView instance the cards drive. It describes
- * frappe-ui rather than a list page, so it stays local to this component.
- */
+// The phone banner is a second root node, so nothing is left for Vue to inherit
+// an attribute onto automatically; the list takes what a page passes, exactly
+// as it did while it was the only root.
+defineOptions({ inheritAttrs: false })
+
+// The part of frappe-ui's ListView instance the cards drive.
 interface ListViewSelection {
 	selections: ReadonlySet<unknown>
 	toggleRow: (rowKey: unknown) => void
@@ -159,10 +178,6 @@ const props = withDefaults(
 		options?: ListViewOptions
 		/** Column shown as the card heading. Defaults to the first column. */
 		titleKey?: string
-		/**
-		 * This list is the scrolling body of its page, so it owns the scroll
-		 * box and the page's header and footer stay put around it.
-		 */
 		pageScroll?: boolean
 	}>(),
 	{ options: undefined, titleKey: undefined, pageScroll: false }
@@ -171,24 +186,46 @@ const props = withDefaults(
 const slots = useSlots()
 const { isMobile } = useScreenSize()
 
-// `!w-full` beats frappe-ui's own `w-max` on this element. Left at max-content
-// the grid sizes to its widest column and the list scrolls sideways on any
-// screen narrower than the sum of its columns; a list page should narrow its
-// columns instead, which is what the minmax tracks below make possible.
-//
-// It never scrolls on its own. The list page's body owns the one scroll box, so
-// the filters above these rows travel with them; a box here would hold those
-// filters still and, on a phone, leave the page itself with no scroll range.
+// `!w-full` beats frappe-ui's `w-max`, which would size the grid to its widest
+// column and scroll the list sideways; the minmax tracks below narrow the
+// columns instead. The list never scrolls on its own — the page's body owns the
+// one scroll box, so the filters above these rows travel with them.
 const PAGE_BODY_CLASS = '!w-full pb-5'
 
-// frappe-ui sizes the selection banner for a desk (596px), which is wider than
-// a phone; unpinning that lets it wrap inside the viewport instead.
+// frappe-ui sizes the selection banner for a desk (596px). The class lands on
+// the banner's inner pill: ListSelectBanner sets `inheritAttrs: false` and
+// binds `$attrs.class` there, never on the outer positioned box.
 const MOBILE_BANNER_CLASS =
 	'!min-w-0 max-w-[calc(100vw-2rem)] flex-wrap gap-y-2'
+
+// The phone's banner is teleported out of the list because frappe-ui pins it
+// `absolute … bottom-6` against ListView's root, which is as tall as every row
+// there is — landing it hundreds of pixels below the screen. Outside that box
+// the dock is `sticky bottom-0` against the page's own scroller. A Teleport
+// moves the element, not the component, so the banner stays a child of ListView
+// and injects the real list from it.
+const MOBILE_DOCK_CLASS = 'sticky bottom-0 z-20'
+
+// The banner still has to be told to sit in the dock's flow, or it hangs out of
+// a zero-height box over the rows. Written from out here, on the child, because
+// `$attrs.class` reaches only the pill. The spacing goes with it: left on the
+// dock it would hold dead space open under every unselected list.
+const MOBILE_BANNER_FLOW_CLASS = '[&>*]:!static [&>*]:pb-4 [&>*]:pt-2'
 
 const layoutClass = computed(() =>
 	props.pageScroll ? PAGE_BODY_CLASS : '!w-full'
 )
+
+/* frappe-ui writes its own default wording in English at the source, so the
+   count is spelled out here and handed to ListView, which is where the banner
+   reads it from at either width. `ListViewOptions` does not carry
+   `selectionText` and no page sets one today, but this defers to a caller's
+   rather than overwriting it: a page that starts naming its own selection is
+   exactly the case the phone banner used to get wrong. */
+const listOptions = computed(() => ({
+	...props.options,
+	selectionText: props.options?.selectionText ?? selectionText,
+}))
 
 /**
  * An `fr` track will not shrink below its own content, so one long column
@@ -205,21 +242,6 @@ const shrinkableColumns = computed<ListColumn[]>(() =>
 	}))
 )
 
-const isRowInteractive = computed(
-	() =>
-		Boolean(props.options?.onRowClick) || Boolean(props.options?.getRowRoute)
-)
-
-const cardTag = computed(() => {
-	if (props.options?.getRowRoute) return 'router-link'
-	return props.options?.onRowClick ? 'button' : 'div'
-})
-
-function cardBindings(row: ListRow): Record<string, unknown> {
-	if (props.options?.getRowRoute) return { to: props.options.getRowRoute(row) }
-	return props.options?.onRowClick ? { type: 'button' } : {}
-}
-
 const titleColumn = computed<ListColumn>(() => {
 	const found = props.titleKey
 		? props.columns.find((column) => column.key === props.titleKey)
@@ -227,10 +249,14 @@ const titleColumn = computed<ListColumn>(() => {
 	return found ?? props.columns[0] ?? { label: '', key: '' }
 })
 
+// `hideOnMobile` is honoured here and nowhere else; the desk row keeps every
+// column.
 const detailColumns = computed(() =>
 	props.columns.filter(
 		(column) =>
-			column.key !== titleColumn.value.key && column.kind !== 'actions'
+			column.key !== titleColumn.value.key &&
+			column.kind !== 'actions' &&
+			!column.hideOnMobile
 	)
 )
 
@@ -242,17 +268,40 @@ const actionColumns = computed(() =>
 )
 
 const listView = ref<ListViewSelection | null>(null)
+const cardList = ref<HTMLElement | null>(null)
 
-/**
- * A card offers selection only where the page asked for it and gave the banner
- * something to hold: a checkbox that leads to no actions is a dead end. Which
- * slots a page fills is fixed at compile time, so this only has to re-read the
- * options.
- */
 const selectionEnabled = computed(
 	() =>
 		props.options?.selectable === true && Boolean(slots['selection-actions'])
 )
+
+const bannerRendered = computed(() =>
+	isMobile.value ? selectionEnabled.value : Boolean(slots['selection-actions'])
+)
+
+const bannerDock = ref<HTMLElement | null>(null)
+const mounted = ref(false)
+onMounted(() => (mounted.value = true))
+
+/**
+ * Null until the dock is standing, which is one render after this banner's
+ * first. Null disables the Teleport, so the banner draws in place for that
+ * render — empty, since frappe-ui hides it while nothing is selected.
+ */
+const bannerTarget = computed(() =>
+	isMobile.value && mounted.value ? bannerDock.value : null
+)
+
+// The banner is sized for a desk in frappe-ui; only the phone's copy is
+// unpinned, so the class travels with the width rather than the element.
+const bannerClass = computed(() =>
+	isMobile.value ? MOBILE_BANNER_CLASS : undefined
+)
+
+// A row's own checkbox. The attribute is written on the box around it because
+// frappe-ui's Checkbox inherits attributes onto its root as well as onto the
+// input, and it is the input that takes focus.
+const SELECT_BOX = '[data-list-select] input'
 
 const NO_SELECTION: ReadonlySet<unknown> = new Set()
 
@@ -268,7 +317,29 @@ function isRowSelected(row: ListRow): boolean {
 	return selections.value.has(row[props.rowKey])
 }
 
+// frappe-ui's own wording, translated. Read by the banner through the options
+// handed to ListView, and by the announcement below.
+function selectionText(count: number): string {
+	return count === 1
+		? __('1 row selected')
+		: __('{0} rows selected').format(count)
+}
+
+// Mounted for as long as the list can be selected, rather than with the
+// banner: a live region that arrives already holding its text is not reliably
+// read out.
+const selectionAnnouncement = computed(() =>
+	selections.value.size ? selectionText(selections.value.size) : ''
+)
+
+const hasSelection = computed(() => selections.value.size > 0)
+
+defineExpose({ selections })
+
+const lastActedKey = ref<string | null>(null)
+
 function toggleRowSelection(row: ListRow) {
+	lastActedKey.value = String(row[props.rowKey])
 	listView.value?.toggleRow(row[props.rowKey])
 }
 
@@ -279,22 +350,66 @@ function setRowSelected(row: ListRow, selected: unknown) {
 	toggleRowSelection(row)
 }
 
-function onCardClick(row: ListRow, event: MouseEvent) {
-	// Once a selection is open the card is a selection target, the way a phone
-	// mail list behaves: navigating away mid-selection would drop it, and a
-	// router-link would do exactly that if it were left to follow its route.
-	if (selectionEnabled.value && selections.value.size) {
-		event.preventDefault()
+// The card has to change element mid-selection rather than only its ARIA:
+// RouterLink renders an `<a>` and does not set `inheritAttrs: false`, so a
+// `@click` bound from out here merges BEHIND its own handler, which has already
+// read `defaultPrevented` as false and pushed the route by the time anything
+// here could run.
+const inSelectionMode = computed(
+	() => selectionEnabled.value && selections.value.size > 0
+)
+
+const cardTag = computed(() => {
+	if (inSelectionMode.value) return 'div'
+	if (props.options?.getRowRoute) return 'router-link'
+	return props.options?.onRowClick ? 'button' : 'div'
+})
+
+function cardBindings(row: ListRow): Record<string, unknown> {
+	if (inSelectionMode.value) return {}
+	if (props.options?.getRowRoute) return { to: props.options.getRowRoute(row) }
+	return props.options?.onRowClick ? { type: 'button' } : {}
+}
+
+const isRowInteractive = computed(
+	() =>
+		inSelectionMode.value ||
+		Boolean(props.options?.onRowClick) ||
+		Boolean(props.options?.getRowRoute)
+)
+
+// A closing selection destroys whatever was focused: the banner's close button
+// unmounts the banner it belongs to, and the card's element is swapped rather
+// than patched, because Vue compares vnode types and `'div'` is not the
+// RouterLink component. Focus would otherwise fall to `<body>`.
+watch(inSelectionMode, () => {
+	const focused = document.activeElement
+	if (!(focused instanceof HTMLElement)) return
+	const onCard = focused.matches('[data-list-card]')
+	if (!onCard && !bannerDock.value?.contains(focused)) return
+	const box = onCard
+		? focused.closest('li')?.querySelector<HTMLElement>(SELECT_BOX)
+		: selectBoxFor(lastActedKey.value)
+	;(box ?? cardList.value)?.focus()
+})
+
+function selectBoxFor(rowKey: string | null): HTMLElement | null {
+	const rows = Array.from(
+		cardList.value?.querySelectorAll<HTMLElement>('[data-list-select]') ?? []
+	)
+	const row = rows.find((el) => el.dataset.listSelect === rowKey) ?? rows[0]
+	return row?.querySelector<HTMLElement>('input') ?? null
+}
+
+function onCardClick(row: ListRow) {
+	if (inSelectionMode.value) {
 		toggleRowSelection(row)
 		return
 	}
 	props.options?.onRowClick?.(row)
 }
 
-/**
- * A phone card has no column header to sit under, so the checkbox names the row
- * it selects.
- */
+// A phone card has no column header to sit under, so the checkbox names its row.
 function selectionLabel(row: ListRow): string {
 	const title = row[titleColumn.value.key]
 	const name =

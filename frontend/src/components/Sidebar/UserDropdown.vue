@@ -2,9 +2,6 @@
 	<div class="p-2">
 		<Dropdown :options="userDropdownOptions">
 			<template v-slot="{ open, close }">
-				<!-- No `py-*` on the button: the name/user block is 40.5px on the
-				     paragraph scale, which overflows h-12's content box once
-				     padding takes 16px of it. `items-center` centres it in the 48px. -->
 				<button
 					class="flex h-12 items-center rounded-md duration-300 ease-in-out"
 					:class="
@@ -17,7 +14,8 @@
 				>
 					<img
 						v-if="branding.data?.banner_image"
-						:src="branding.data?.banner_image.file_url"
+						:src="safeUrl(branding.data?.banner_image.file_url)"
+						alt=""
 						class="w-8 h-8 rounded flex-shrink-0"
 					/>
 					<LMSLogo v-else class="w-8 h-8 rounded flex-shrink-0" />
@@ -39,7 +37,10 @@
 							</span>
 							<span v-else> Learning </span>
 						</div>
-						<div v-if="userResource.data" class="text-p-sm text-ink-gray-7">
+						<div
+							v-if="userResource.data"
+							class="-mt-0.5 text-p-sm text-ink-gray-7"
+						>
 							{{ convertToTitleCase(userResource.data?.full_name) }}
 						</div>
 					</div>
@@ -68,15 +69,17 @@ import { sessionStore } from '@/stores/session'
 import { call, createResource, Dropdown, toast } from 'frappe-ui'
 import { useRouter } from 'vue-router'
 import { convertToTitleCase } from '@/utils'
-import { applyTheme, toggleTheme, theme } from '@/utils/theme'
+import { toggleTheme, theme } from '@/utils/theme'
 import { usersStore } from '@/stores/user'
 import { useSettings } from '@/stores/settings'
-import { h, watch, ref, onMounted, computed } from 'vue'
+import { h, watch, ref, computed } from 'vue'
 import { createDialog } from '@/utils/dialogs'
 import FrappeCloudIcon from '@/components/Icons/FrappeCloudIcon.vue'
 import LMSLogo from '@/components/Icons/LMSLogo.vue'
 import SettingsModal from '@/components/Settings/Settings.vue'
 import { Moon, Sun } from 'lucide-vue-next'
+import { safeUrl } from '@/utils/safeUrl'
+import { openExternal } from '@/utils/openExternal'
 
 const router = useRouter()
 const { logout, branding } = sessionStore()
@@ -129,15 +132,16 @@ const appMenuItems = computed(() => {
 		},
 		slots: {
 			prefix: () =>
-				h('img', { class: 'size-4 shrink-0 rounded', src: app.logo }),
+				// alt="" deliberately: the row's own label names the app, and a
+				// second announcement of it would only repeat. Without it a screen
+				// reader falls back to reading the logo's filename.
+				h('img', {
+					class: 'size-4 shrink-0 rounded',
+					src: app.logo,
+					alt: '',
+				}),
 		},
 	}))
-})
-
-onMounted(() => {
-	if (['light', 'dark'].includes(theme.value)) {
-		applyTheme(theme.value)
-	}
 })
 
 watch(
@@ -281,7 +285,7 @@ const userDropdownOptions = computed(() => {
 
 const loginToFrappeCloud = () => {
 	let redirect_to = '/dashboard/sites/' + userResource.data.sitename
-	window.open(`${frappeCloudBaseEndpoint}${redirect_to}`, '_blank')
+	openExternal(`${frappeCloudBaseEndpoint}${redirect_to}`)
 }
 
 const clearDemoDataConfirmation = () => {

@@ -12,10 +12,6 @@
 			<Badge v-if="tab?.key === 'settings' && instance?.isDirty" theme="orange">
 				{{ __('Not Saved') }}
 			</Badge>
-			<!-- Publishing is the one action on this page you reach for often
-			     enough that burying it costs more than the header width it
-			     takes. It matches CourseDetail, which kept its own; the menu
-			     entry below is what a phone gets instead. -->
 			<Button
 				v-if="tab?.key === 'settings' && isAdmin && !isMobile"
 				:variant="batch.data?.published ? 'outline' : 'solid'"
@@ -46,7 +42,7 @@
 				v-if="tab?.key === 'dashboard' && isAdmin"
 				:label="__('Enroll')"
 				icon="lucide-plus"
-				@click="instance?.openEnrollModal?.()"
+				@click="openStudentForm"
 			/>
 			<template v-if="tab?.key === 'announcements' && isAdmin && !readOnlyMode">
 				<Tooltip
@@ -73,7 +69,6 @@
 			>
 				<HeaderButton
 					:label="__('Save')"
-					icon="lucide-save"
 					variant="solid"
 					@click="instance?.submitBatch()"
 				/>
@@ -99,21 +94,11 @@
 		</template>
 	</TabbedDetailPage>
 
-	<BulkCertificates
-		v-if="batch.data"
-		v-model="openCertificateDialog"
-		:batch="batch.data"
-	/>
-	<AnnouncementModal
-		v-if="showAnnouncementModal"
-		v-model="showAnnouncementModal"
-		:batch="batch.data.name"
-		:students="batch.data.students"
-	/>
+	<router-view />
 </template>
 <script setup>
-import { computed, inject, markRaw, ref, useTemplateRef, watch } from 'vue'
-import { useRouter } from 'vue-router'
+import { computed, inject, markRaw, provide, useTemplateRef, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import {
 	Badge,
 	Button,
@@ -130,22 +115,23 @@ import StudentBatchDashboard from '@/pages/Batches/components/BatchDashboard.vue
 import BatchOverview from '@/pages/Batches/BatchOverview.vue'
 import LiveClass from '@/pages/Batches/components/LiveClass.vue'
 import Announcements from '@/pages/Batches/components/Announcements.vue'
-import AnnouncementModal from '@/pages/Batches/components/AnnouncementModal.vue'
 import BatchForm from '@/pages/Batches/BatchForm.vue'
-import BulkCertificates from '@/pages/Batches/components/BulkCertificates.vue'
 import Discussions from '@/components/Discussions.vue'
 import HeaderButton from '@/components/HeaderButton.vue'
 import ShortcutTooltip from '@/components/ShortcutTooltip.vue'
 import SkeletonLoader from '@/components/SkeletonLoader.vue'
 import TabbedDetailPage from '@/components/Layouts/TabbedDetailPage.vue'
+import { openBatchForm } from '@/composables/useBatchForms'
 
 const router = useRouter()
+// Read by every form opener below. TabbedDetailPage still keeps the active tab
+// in route.hash (:143, :158), so a form route opened without it re-renders the
+// page on its first tab.
+const route = useRoute()
 const { brand } = sessionStore()
 const { isMobile } = useScreenSize()
 const user = inject('$user')
 const page = useTemplateRef('page')
-const openCertificateDialog = ref(false)
-const showAnnouncementModal = ref(false)
 const readOnlyMode = window.read_only_mode
 
 const props = defineProps({
@@ -178,6 +164,11 @@ watch(
 	() => props.batchName,
 	() => batch.reload()
 )
+
+// The forms in the <router-view> below change what this endpoint reports —
+// enrolling a student moves Seats Left on the overlay. Having no cache key is
+// what makes them unable to reach it themselves, so it is handed down.
+provide('reloadBatchDetails', () => batch.reload())
 
 const isAdmin = computed(() => {
 	return Boolean(user.data?.is_moderator || user.data?.is_evaluator)
@@ -245,7 +236,11 @@ const tabs = computed(() => {
 })
 
 const openAnnouncementModal = () => {
-	showAnnouncementModal.value = true
+	openBatchForm(router, 'NewAnnouncement', props.batchName, route.hash)
+}
+
+const openStudentForm = () => {
+	openBatchForm(router, 'NewBatchStudent', props.batchName, route.hash)
 }
 
 const publishToggle = createResource({
@@ -280,7 +275,7 @@ const batchMenu = (tab) => {
 			label: __('Generate Certificates'),
 			icon: 'lucide-award',
 			onClick: () => {
-				openCertificateDialog.value = true
+				openBatchForm(router, 'BulkCertificates', props.batchName, route.hash)
 			},
 		})
 	}

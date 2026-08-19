@@ -47,8 +47,6 @@
 			/>
 		</aside>
 
-		<!-- Mobile: there is no room for a 30% aside, so the outline opens from
-		     the Chapters pill into a sheet instead. -->
 		<BottomSheet v-if="isMobile" v-model="showChapters">
 			<template #header>
 				<div class="text-p-lg-semibold text-ink-gray-9">
@@ -131,7 +129,7 @@ function syncSelectedToUrl(number) {
 	if (route.query.editLesson === number) return
 	router.replace({
 		query: { ...route.query, editLesson: number },
-		hash: route.hash || '#course editor',
+		hash: route.hash || '#editor',
 	})
 }
 
@@ -285,7 +283,7 @@ watch(
 				const { editLesson, ...rest } = route.query
 				router.replace({
 					query: rest,
-					hash: route.hash || '#course editor',
+					hash: route.hash || '#editor',
 				})
 			}
 		}
@@ -328,7 +326,7 @@ watch(
 		if (lessonMode !== 'preview') {
 			legacyLessonModeHandled = true
 			const { lessonMode: _dropped, ...query } = route.query
-			router.replace({ query, hash: route.hash || '#course editor' })
+			router.replace({ query, hash: route.hash || '#editor' })
 			return
 		}
 		const number = route.query.editLesson || selectedNumber
@@ -403,7 +401,7 @@ function openVideoStats() {
 
 const courseOutlineRef = ref(null)
 function openAddChapter() {
-	courseOutlineRef.value?.openChapterModal?.(null)
+	courseOutlineRef.value?.openChapterForm?.(null)
 }
 
 defineExpose({

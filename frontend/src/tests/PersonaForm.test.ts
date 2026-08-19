@@ -64,7 +64,7 @@ vi.mock('@/components/Persona/PersonaCard.vue', async () => {
 	}
 })
 
-import PersonaForm from '@/pages/PersonaForm.vue'
+import PersonaForm from '@/pages/Forms/PersonaForm.vue'
 
 function mountForm() {
 	return mount(PersonaForm, {

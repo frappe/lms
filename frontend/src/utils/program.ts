@@ -1,10 +1,12 @@
 import { createApp, h } from 'vue'
+import { registerDirectives } from '@/directives'
 import { Code } from 'lucide-vue-next'
 import translationPlugin from '@/translation'
-import ProgrammingExerciseModal from '@/pages/ProgrammingExercises/ProgrammingExerciseModal.vue'
+import ProgrammingExerciseModal from '@/components/Modals/ProgrammingExerciseModal.vue'
 import { call } from 'frappe-ui'
 import { usersStore } from '@/stores/user'
 import { getLmsRoute } from '@/utils/basePath'
+import { blockNotice, embedFrame } from '@/utils/blockDom'
 
 export class Program {
 	data: any
@@ -38,6 +40,7 @@ export class Program {
 		const app = createApp({
 			render: () => h(Code, { size: 5, strokeWidth: 1.5 }),
 		})
+		registerDirectives(app)
 
 		const div = document.createElement('div')
 		app.mount(div)
@@ -72,6 +75,7 @@ export class Program {
 				this.renderExercise(exercise)
 			},
 		})
+		registerDirectives(app)
 		app.use(translationPlugin)
 		app.mount(this.wrapper)
 	}
@@ -92,7 +96,10 @@ export class Program {
 				const submissionPath = getLmsRoute(
 					`programming-exercises/${exercise}/submission/${submission}?fromLesson=1${studentView}`
 				)
-				this.wrapper.innerHTML = `<iframe src="${submissionPath}" class="w-full h-[900px] border rounded-md"></iframe>`
+				const frame = embedFrame(submissionPath, {
+					class: 'w-full h-[900px] border rounded-md',
+				})
+				this.wrapper.replaceChildren(...(frame ? [frame] : []))
 			})
 			return
 		}
@@ -103,11 +110,9 @@ export class Program {
 			},
 			fieldname: 'title',
 		}).then((data: { title: string }) => {
-			this.wrapper.innerHTML = `<div class='border rounded-md p-4 text-center bg-surface-sidebar mb-4'>
-                <span class="font-medium">
-                    Programming Exercise: ${data.title}
-                </span>
-            </div>`
+			this.wrapper.replaceChildren(
+				blockNotice(`Programming Exercise: ${data.title}`)
+			)
 			return
 		})
 	}

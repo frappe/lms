@@ -19,7 +19,7 @@
 						label: __('New Batch'),
 						icon: 'lucide-users',
 						onClick() {
-							showBatchModal = true
+							openFormRoute(router, { name: 'NewBatch' })
 						},
 					},
 					{
@@ -96,11 +96,7 @@
 		</template>
 	</ListPage>
 
-	<NewBatchModal
-		v-if="showBatchModal"
-		v-model="showBatchModal"
-		:batches="batches"
-	/>
+	<router-view />
 </template>
 <script setup>
 import {
@@ -119,7 +115,7 @@ import { useRouter } from 'vue-router'
 import { sessionStore } from '@/stores/session'
 import BatchCard from '@/pages/Batches/components/BatchCard.vue'
 import ListPage from '@/components/Layouts/ListPage.vue'
-import NewBatchModal from '@/pages/Batches/components/NewBatchModal.vue'
+import { openFormRoute } from '@/composables/useFormRoute'
 
 const user = inject('$user')
 const dayjs = inject('$dayjs')
@@ -135,7 +131,6 @@ const currentTab = ref(is_student.value ? 'all' : 'upcoming')
 const orderBy = ref('start_date')
 const readOnlyMode = window.read_only_mode
 const router = useRouter()
-const showBatchModal = ref(false)
 
 onMounted(() => {
 	setFiltersFromQuery()

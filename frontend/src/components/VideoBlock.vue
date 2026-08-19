@@ -31,7 +31,7 @@
 				oncontextmenu="return false"
 				class="rounded-md border border-outline-gray-1 cursor-pointer"
 				ref="videoRef"
-				:src="fileURL"
+				:src="safeUrl(fileURL)"
 				:type="type"
 			></video>
 			<button
@@ -72,7 +72,7 @@
 					</template>
 				</Button>
 
-				<div class="relative flex items-center w-full flex-1">
+				<div class="relative flex items-center w-full flex-1 min-w-0">
 					<input
 						type="range"
 						min="0"
@@ -83,7 +83,6 @@
 						:aria-label="__('Seek')"
 						class="duration-slider h-1"
 					/>
-					<!-- QUIZ MARKERS -->
 					<div class="absolute top-0 start-0 w-full h-full pointer-events-none">
 						<div
 							v-for="(quiz, index) in quizzes"
@@ -94,7 +93,7 @@
 					</div>
 				</div>
 
-				<span class="text-sm-medium">
+				<span class="text-sm-medium shrink-0 whitespace-nowrap">
 					{{ formatSeconds(currentTime) }} / {{ formatSeconds(duration) }}
 				</span>
 
@@ -167,7 +166,14 @@ import { formatSeconds, formatTimestamp } from '@/utils/format'
 import { useSettings } from '@/stores/settings'
 import Play from '@/components/Icons/Play.vue'
 import QuizInVideo from '@/components/Modals/QuizInVideo.vue'
+import { safeUrl } from '@/utils/safeUrl'
 
+/* The control bar is a fixed set of buttons plus an elapsed/duration readout,
+   with the seek slider absorbing whatever is left. The slider is the only
+   element that may shrink, so it carries `min-w-0` — without it the range
+   input's intrinsic width keeps the row wider than the player and the trailing
+   controls get clipped, which happens both on a phone and in the narrow column
+   of the video statistics modal. */
 const videoRef = ref(null)
 const videoContainer = ref(null)
 let playing = ref(false)

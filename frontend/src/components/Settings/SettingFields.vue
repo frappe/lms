@@ -20,7 +20,6 @@
 					v-for="(field, fieldIndex) in column.fields"
 					:key="`${columnIndex}-${fieldIndex}`"
 				>
-					<!-- Upload: full-width block (label/description sit above) -->
 					<div v-if="field.type == 'Upload'" class="py-3">
 						<div class="space-y-1 mb-2">
 							<div class="text-p-base-medium text-ink-gray-7">
@@ -33,6 +32,7 @@
 						<FileUploader
 							v-if="!data[field.name]"
 							:fileTypes="['image/*']"
+							:uploadArgs="{ private: !field.public }"
 							:validateFile="validateFile"
 							@success="(file) => (data[field.name] = file.file_url)"
 						>
@@ -61,7 +61,8 @@
 									:class="field.size == 'lg' ? 'px-5 py-5' : 'px-20 py-8'"
 								>
 									<img
-										:src="fileUrl(data[field.name])"
+										:src="safeUrl(fileUrl(data[field.name]))"
+										alt=""
 										class="rounded"
 										:class="field.size == 'lg' ? 'w-36' : 'size-6'"
 									/>
@@ -81,7 +82,6 @@
 						</div>
 					</div>
 
-					<!-- Code/HTML: full-width block -->
 					<div v-else-if="field.type == 'Code'" class="py-3">
 						<CodeEditor
 							:label="__(field.label)"
@@ -95,8 +95,6 @@
 						</CodeEditor>
 					</div>
 
-					<!-- Textarea: full-width block. Label leads, control follows, and
-					     the description reads as help text under the control. -->
 					<div v-else-if="field.type == 'textarea'" class="py-3">
 						<div class="text-p-base-medium text-ink-gray-7 mb-2">
 							{{ __(field.label) }}
@@ -174,6 +172,18 @@ import { watch } from 'vue'
 import { validateFile } from '@/utils'
 import Link from '@/components/Controls/Link.vue'
 import CodeEditor from '@/components/Controls/CodeEditor.vue'
+import { seedCheckboxDefaults } from '@/components/Settings/mobileSettings'
+import { safeUrl } from '@/utils/safeUrl'
+
+// The FileUploader above binds :uploadArgs="{ private: !field.public }", and it
+// is written inline deliberately. Privacy is the FIELD's decision, never this
+// component's: the backend maps every Attach / Attach Image field of a
+// third-party <Gateway> Settings doctype to type 'Upload' (api.py
+// get_transformed_fields), and those reach here via PaymentGatewayDetails —
+// merchant QR codes and KYC documents among them. Only a field that opts in with
+// `public: true` may be world-readable; everything else keeps frappe's private
+// default. Behind a helper the privacy ratchet in publicImageUploads.test.ts can
+// only see "computed" and would stop catching a flip to public.
 
 const props = defineProps({
 	sections: {
@@ -198,24 +208,10 @@ const fileName = (value) => {
 		: (url || '').split('/').pop()
 }
 
-// Seed each checkbox's default into the doc when it loads empty, without
-// overwriting an already-saved value. Watches props.data because the panel can
-// mount before the settings doc has loaded.
 watch(
 	() => props.data,
 	(data) => {
-		if (!data) return
-		props.sections.forEach((section) => {
-			section.columns.forEach((column) => {
-				column.fields.forEach((field) => {
-					if (field.type !== 'checkbox') return
-					const current = data[field.name]
-					if (current === null || current === undefined || current === '') {
-						data[field.name] = field.default ? 1 : 0
-					}
-				})
-			})
-		})
+		if (data) seedCheckboxDefaults(props.sections, data)
 	},
 	{ immediate: true }
 )

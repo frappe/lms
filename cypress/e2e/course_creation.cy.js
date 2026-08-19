@@ -21,8 +21,10 @@ describe("Course Creation", () => {
 		cy.get("button").contains("Create").click();
 		cy.contains('[role="menuitem"]', "New Course").click();
 
-		cy.get("[data-dismissable-layer]")
-			.last()
+		// The form is a route now (NewCourseForm.vue), and the Create dropdown
+		// that opened it is a dismissable layer that outlives the click, so scope
+		// to the form's own fields rather than to the last layer on the page.
+		cy.get('[data-testid="new-course-fields"]')
 			.should("be.visible")
 			.within(() => {
 				cy.get("label")
@@ -48,8 +50,7 @@ describe("Course Creation", () => {
 			.click();
 		cy.get("body").type("{esc}");
 
-		cy.get("[data-dismissable-layer]")
-			.last()
+		cy.get('[data-testid="new-course-fields"]')
 			.should("be.visible")
 			.within(() => {
 				// Thumbnail
@@ -69,9 +70,10 @@ describe("Course Creation", () => {
 					"text",
 					"Test Course Description. I need a very big description to test the UI. This is a very big description. It contains more than once sentence. Its meant to be this long as this is a UI test. Its unbearably long and I'm not sure why I'm typing this much. I'm just going to keep typing until I feel like its long enough. I think its long enough now. I'm going to stop typing now."
 				);
-
-				cy.button("Save").click();
 			});
+
+		// Save sits in the shell's action slot, outside the fields above.
+		cy.get('[data-testid="new-course-save"]').click();
 
 		// Redirect to course settings
 		cy.url({ timeout: 10000 }).should(
@@ -151,7 +153,9 @@ describe("Course Creation", () => {
 					.parent()
 					.find("input")
 					.type("Test Chapter");
-				cy.button("Create").click();
+				// ChapterForm.vue is a form route now, and every form in the
+				// shared shell submits with "Save".
+				cy.get('[data-testid="chapter-save"]').click();
 			});
 		cy.contains("Test Chapter", { timeout: 15000 }).should("exist");
 

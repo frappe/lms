@@ -1,0 +1,35 @@
+# Reviewed guest surface: every lms endpoint whitelisted with allow_guest=True.
+# Adding a line here is a security decision. Regenerate deliberately, never blindly.
+#
+# Baselining an entry is not a judgement that it is safe. Every entry below that
+# looked questionable on review -- get_own_assignment_submission, serve_resource,
+# get_chart_details, get_chart_data, get_course_completion_data, get_batch_details,
+# get_job_details, get_sidebar_settings -- already carries a finding in the
+# 2026-08-06 audit (apps/lms-security-audit.md). This file freezes the surface so a
+# NEW one cannot arrive unreviewed; it does not close the open ones.
+lms.lms.api.get_branding
+lms.lms.api.get_chart_details
+lms.lms.api.get_job_details
+lms.lms.api.get_job_opportunities
+lms.lms.api.get_job_opportunities_count
+lms.lms.api.get_lms_settings
+lms.lms.api.get_own_assignment_submission
+lms.lms.api.get_pwa_manifest
+lms.lms.api.get_sidebar_settings
+lms.lms.api.get_translations
+lms.lms.doctype.course_lesson.course_lesson.serve_resource
+lms.lms.user.sign_up
+lms.lms.utils.get_batch_count
+lms.lms.utils.get_batch_courses
+lms.lms.utils.get_batch_details
+lms.lms.utils.get_batches
+lms.lms.utils.get_chart_data
+lms.lms.utils.get_course_categories
+lms.lms.utils.get_course_completion_data
+lms.lms.utils.get_course_count
+lms.lms.utils.get_course_details
+lms.lms.utils.get_course_outline
+lms.lms.utils.get_courses
+lms.lms.utils.get_lesson
+lms.lms.utils.get_related_courses
+lms.lms.utils.get_reviews

@@ -9,6 +9,7 @@ import frappe
 from frappe import _
 from frappe.model.document import Document
 from frappe.query_builder.functions import Locate
+from frappe.rate_limiter import rate_limit
 from frappe.realtime import get_website_room
 from frappe.utils import add_to_date, now_datetime
 from frappe.utils.response import send_private_file
@@ -22,6 +23,7 @@ from lms.lms.permissions import INSTRUCTOR_FIELDS, can_access_lesson
 from lms.lms.utils import (
 	get_course_progress,
 	get_editorjs_blocks,
+	guest_access_allowed,
 	is_demo_course,
 	recalculate_course_progress,
 	sanitize_editorjs,
@@ -121,6 +123,45 @@ def has_permission(doc, ptype="read", user=None):
 	return can_access_lesson(doc.name, user=user)
 
 
+def get_permission_query_conditions(user=None):
+	"""List-read counterpart of has_permission's read branch.
+
+	Expresses resolve_lesson_access (lms/lms/permissions.py) as SQL: course
+	instructor, or enrolled member, or a preview lesson of a published course.
+	Deliberately NOT widened to all Course Creators — the read gate is per-course,
+	and widening it here would open the media boundary the doc read protects.
+	"""
+	user = user or frappe.session.user
+	if user == "Administrator":
+		return ""
+
+	roles = frappe.get_roles(user)
+	if "Moderator" in roles:
+		return ""
+
+	escaped = frappe.db.escape(user)
+	conditions = [
+		f"""`tabCourse Lesson`.course in (
+			select parent from `tabCourse Instructor`
+			where instructor = {escaped} and parenttype = 'LMS Course'
+		)""",
+		f"""`tabCourse Lesson`.course in (
+			select course from `tabLMS Enrollment` where member = {escaped}
+		)""",
+	]
+
+	if user != "Guest" or guest_access_allowed():
+		conditions.append(
+			"""(`tabCourse Lesson`.include_in_preview = 1
+			and `tabCourse Lesson`.course in (
+				select name from `tabLMS Course` where published = 1
+			))"""
+		)
+
+	joined = " or ".join(conditions)
+	return f"({joined})"
+
+
 # Lesson content fields a student may reach vs. instructor-only fields (gated harder).
 STUDENT_CONTENT_FIELDS = ("content", "body")
 
@@ -167,7 +208,21 @@ def _resolve_lesson_references(file_url: str) -> list[tuple[str, bool]]:
 	return refs
 
 
+# One flat ceiling, deliberately. A per-audience limit does not work here:
+# rate_limit's bucket is keyed on the endpoint and the IP alone, so Guest and
+# signed-in traffic from one address share a single counter and a lower guest
+# threshold is simply applied to a count that authenticated users already drove
+# up — locking out the anonymous visitors it was supposed to protect.
+#
+# The number is high because this endpoint is charged per asset, not per action:
+# a lesson costs one request per embedded file plus one per video byte-range on
+# every seek, and a whole NAT'd or CDN-fronted school shares the IP. Exceeding it
+# is invisible — these URLs load as <img>/<video>, so a 429 renders as a broken
+# image with no toast. Enumeration is not held off by this number anyway:
+# can_access_lesson gates every hit and _deny() logs each refusal. The limit is
+# only a backstop against a runaway scanner.
 @frappe.whitelist(allow_guest=True)  # nosemgrep: frappe-semgrep-rules.rules.security.guest-whitelisted-method
+@rate_limit(limit=20000, seconds=60 * 60)
 def serve_resource(file_url: str):
 	"""Access-gated streaming of private lesson media for all users.
 

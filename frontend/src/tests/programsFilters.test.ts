@@ -8,8 +8,9 @@
  * for the reload that replaced it and the empty state flashes.
  */
 import { describe, expect, it, vi, beforeEach } from 'vitest'
-import { nextTick, reactive } from 'vue'
-import { mount } from '@vue/test-utils'
+import { defineComponent, h, nextTick, reactive } from 'vue'
+import { flushPromises, mount } from '@vue/test-utils'
+import { createMemoryHistory, createRouter, type Router } from 'vue-router'
 
 type Rows = { name: string }[]
 
@@ -75,6 +76,17 @@ const { programsResource, requests, countAborts } = vi.hoisted(() => ({
 	countAborts: { value: 0 },
 }))
 
+// HeaderButton wraps frappe-ui's Button in a Tooltip below the mobile
+// breakpoint, and the hand-written frappe-ui mock here has no Tooltip. Stub it
+// down to the bare button so the fallthrough attrs the assertions use
+// (data-testid, the click handler) still land where they did before.
+vi.mock('@/components/HeaderButton.vue', () => ({
+	default: {
+		inheritAttrs: false,
+		template: `<button v-bind="$attrs" />`,
+	},
+}))
+
 vi.mock('frappe-ui', () => ({
 	usePageMeta: vi.fn(),
 	createListResource: () => programsResource.current,
@@ -112,7 +124,6 @@ vi.mock('frappe-ui', () => ({
 vi.mock('@/stores/session', () => ({ sessionStore: () => ({ brand: {} }) }))
 
 const stub = (template: string) => ({ default: { template } })
-vi.mock('@/pages/Programs/ProgramForm.vue', () => stub('<div />'))
 vi.mock('@/pages/Programs/StudentPrograms.vue', () => stub('<div />'))
 vi.mock('@/components/Layouts/PageHeader.vue', () => stub('<header />'))
 
@@ -135,12 +146,39 @@ vi.stubGlobal('__', (s: string) => s)
 const MODERATOR = { name: 'admin@test.com', is_moderator: true }
 const PUBLISHED_PROGRAMS = [{ name: 'program-a' }, { name: 'program-b' }]
 
-async function mountPrograms() {
+// The page hosts the program form as a child route, so it reads $route and
+// pushes through useRouter(). A real (memory) router is installed rather than a
+// hand-written $route mock, so the push assertion below is against the genuine
+// route table shape. The outlet itself is stubbed: this file is about list
+// state, and the form has its own tests.
+const blank = defineComponent({ render: () => h('div') })
+
+function makeRouter(): Router {
+	return createRouter({
+		history: createMemoryHistory(),
+		routes: [
+			{
+				path: '/programs',
+				name: 'Programs',
+				component: blank,
+				children: [
+					{ path: ':programName/edit', name: 'ProgramForm', component: blank },
+				],
+			},
+		],
+	})
+}
+
+async function mountPrograms(router: Router = makeRouter()) {
 	const { default: Programs } = await import('@/pages/Programs/Programs.vue')
+	await router.push('/programs')
+	await router.isReady()
 	const wrapper = mount(Programs, {
 		global: {
+			plugins: [router],
 			provide: { $user: { data: { ...MODERATOR } } },
 			mocks: { __: (s: string) => s },
+			stubs: { RouterView: true },
 		},
 	})
 	await nextTick()
@@ -204,6 +242,54 @@ describe('Programs list', () => {
 		await nextTick()
 		await nextTick()
 		expect(loading(wrapper)).toBe('false')
+	})
+
+	it('keeps history.state when it rewrites the query string', async () => {
+		window.history.replaceState(
+			{ lmsFormEntry: true },
+			'',
+			'/lms/programs?title='
+		)
+		await mountPrograms()
+
+		// The rewrite really happened, so the assertion below is about a live
+		// replaceState call and not about one that never ran.
+		expect(window.location.search).toBe('')
+		// A form opened as a child route of this page keeps its "we pushed this
+		// entry" marker in history.state, and only window.history.state survives a
+		// reload. Replacing it with `{}` turned the form's close from a pop into a
+		// replace, and left vue-router unable to re-seed its own position.
+		expect(window.history.state).toMatchObject({ lmsFormEntry: true })
+	})
+
+	it('opens the form as a stamped route entry, not as a local flag', async () => {
+		const router = makeRouter()
+		const wrapper = await mountPrograms(router)
+
+		const create = wrapper
+			.findAll('button')
+			.find((button) => button.text() === 'Create')
+		expect(create).toBeDefined()
+		await create!.trigger('click')
+		await flushPromises()
+
+		expect(router.currentRoute.value.name).toBe('ProgramForm')
+		expect(router.currentRoute.value.params.programName).toBe('new')
+		// Stamped, so the form knows Back should close it rather than leave the app.
+		expect(router.options.history.state).toMatchObject({ lmsFormEntry: true })
+	})
+
+	it('opens an existing program at its own edit address', async () => {
+		const router = makeRouter()
+		const wrapper = await mountPrograms(router)
+		requests.current[0].respond(PUBLISHED_PROGRAMS)
+		await nextTick()
+
+		await wrapper.find('button[type="button"]').trigger('click')
+		await flushPromises()
+
+		expect(router.currentRoute.value.name).toBe('ProgramForm')
+		expect(router.currentRoute.value.params.programName).toBe('program-a')
 	})
 
 	it('cancels the in-flight count before asking for a new one', async () => {

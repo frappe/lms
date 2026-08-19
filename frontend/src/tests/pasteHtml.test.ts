@@ -1,11 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { Markdown } from '@/utils/markdownParser'
 
-// The Markdown block's constructor calls the Frappe `__` translation global.
-declare global {
-	// eslint-disable-next-line no-var
-	var __: (text: string) => string
-}
+// The Markdown block's constructor calls the Frappe `__` translation global,
+// which src/global.d.ts already declares ambiently.
 globalThis.__ = (text: string) => text
 
 type Block = { type: string; data: any }

@@ -2512,6 +2512,14 @@ def get_payment_total(payment_doc: dict) -> float:
 
 
 def enroll_in_course(course: str, payment_name: str):
+	# The check below exists so a repeated payment callback is a no-op, and an
+	# unlocked check cannot deliver that: two callbacks arriving together both read
+	# "absent", and the loser then hits the controller's own duplicate error —
+	# failing a request that has already taken the learner's money. Locking the
+	# course row first makes the skip reliable. The controller locks the same row,
+	# so this adds no new lock ordering.
+	frappe.db.get_value("LMS Course", course, "name", for_update=True)
+
 	if not frappe.db.exists("LMS Enrollment", {"member": frappe.session.user, "course": course}):
 		enrollment = frappe.new_doc("LMS Enrollment")
 		payment = frappe.db.get_value("LMS Payment", payment_name, ["name", "source"], as_dict=True)

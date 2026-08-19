@@ -96,7 +96,12 @@ vi.mock('frappe-ui', () => ({
 	// frappe-ui's Checkbox reports one click twice: onChange assigns its
 	// defineModel and then re-emits update:modelValue (Checkbox.vue:76-77).
 	Checkbox: defineComponent({
-		props: { modelValue: Boolean, label: String },
+		props: {
+			modelValue: Boolean,
+			label: String,
+			description: String,
+			size: String,
+		},
 		emits: ['update:modelValue'],
 		methods: {
 			onChange() {
@@ -107,6 +112,7 @@ vi.mock('frappe-ui', () => ({
 		template: `<input
 			type="checkbox"
 			data-testid="toggle-checkbox"
+			:checked="modelValue"
 			@change="onChange"
 		/>`,
 	}),
@@ -142,13 +148,15 @@ vi.mock('@/utils/composables', async () => {
 })
 vi.mock('@/stores/session', () => ({ sessionStore: () => ({ brand: {} }) }))
 vi.mock('@/utils', () => ({ canCreateCourse: () => true }))
-vi.mock('vue-router', () => ({ useRouter: () => ({ push: vi.fn() }) }))
+// `replace` as well as `push`: the page forwards the legacy ?newCourse=1 deep
+// link onto the /courses/new child route through router.replace().
+vi.mock('vue-router', () => ({
+	useRouter: () => ({ push: vi.fn(), replace: vi.fn() }),
+}))
 
 const stub = (template: string) => ({ default: { template } })
 vi.mock('@/components/CourseCard.vue', () => stub('<article />'))
 vi.mock('@/components/Controls/ClearableCombobox.vue', () => stub('<div />'))
-vi.mock('@/pages/Courses/NewCourseModal.vue', () => stub('<div />'))
-vi.mock('@/pages/Courses/CourseImportModal.vue', () => stub('<div />'))
 
 // Stands in for the whole page shell, so this file stays about filter state.
 vi.mock('@/components/Layouts/ListPage.vue', () => ({
@@ -178,7 +186,18 @@ async function mountCourses(user: { data: Record<string, unknown> | null }) {
 				$dayjs: () => ({ add: () => ({ format: () => '' }) }),
 			},
 			mocks: { __: (s: string) => s },
-			stubs: { 'router-link': { template: '<a><slot /></a>' } },
+			// The page now hosts its two form child routes through an outlet.
+			// No router plugin is installed here (vue-router is mocked down to
+			// useRouter), so the outlet has to be stubbed or it stays an
+			// unresolved custom element and Vue warns on every mount.
+			stubs: {
+				'router-link': { template: '<a><slot /></a>' },
+				'router-view': true,
+				// Below `sm` the filters render inside PageBody's BottomSheet,
+				// which teleports to body — without this the sheet's contents
+				// leave the wrapper and no mobile filter is findable.
+				teleport: true,
+			},
 		},
 	})
 	await nextTick()
@@ -264,18 +283,39 @@ describe('Courses list filters', () => {
 		expect(requests.current[1].filters).toMatchObject({ certification: 1 })
 	})
 
-	it('sends the same request from the mobile certification chip', async () => {
+	// Same filter, same request, from the checkbox now inside the mobile
+	// filters sheet — the chip it replaced is gone.
+	it('sends the same request from the mobile certification checkbox', async () => {
 		mobile.value = true
 		const wrapper = await mountCourses({ data: { ...MODERATOR } })
 
-		await wrapper.find('button[aria-pressed]').trigger('click')
+		await wrapper.find('[data-testid="toggle-checkbox"]').trigger('change')
 		await nextTick()
 
 		expect(requests.current).toHaveLength(2)
 		expect(requests.current[1].filters).toMatchObject({ certification: 1 })
-		expect(
-			wrapper.find('button[aria-pressed]').attributes('aria-pressed')
-		).toBe('true')
+	})
+
+	// The page's two form child routes decide whether close() pops a history
+	// entry or replaces to the list by reading a marker out of history.state,
+	// and that marker only survives a RELOAD through window.history. A
+	// replaceState({}) here would wipe it — and, being truthy, would also stop
+	// vue-router re-seeding its own `position` key, making every later pop
+	// delta NaN.
+	it('rewrites the filter query without wiping window.history.state', async () => {
+		window.history.replaceState(
+			{ lmsFormEntry: true, position: 3 },
+			'',
+			'/lms/courses?title=vue'
+		)
+		await mountCourses({ data: { ...MODERATOR } })
+
+		expect(window.history.state).toMatchObject({
+			lmsFormEntry: true,
+			position: 3,
+		})
+		// and it did rewrite: the query survived the round trip.
+		expect(window.location.search).toBe('?title=vue')
 	})
 
 	it('reads certification=false from the query string as off', async () => {
@@ -285,7 +325,7 @@ describe('Courses list filters', () => {
 
 		expect(requests.current[0].filters).not.toHaveProperty('certification')
 		expect(
-			wrapper.find('button[aria-pressed]').attributes('aria-pressed')
-		).toBe('false')
+			wrapper.find('[data-testid="toggle-checkbox"]').attributes('checked')
+		).toBeUndefined()
 	})
 })

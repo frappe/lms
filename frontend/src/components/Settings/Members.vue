@@ -25,13 +25,6 @@
 		</template>
 	</SettingsList>
 
-	<NewMemberModal
-		v-model="showNewMember"
-		:editMember="memberToEdit"
-		@created="onMemberCreated"
-		@updated="refreshMembers"
-	/>
-
 	<Dialog
 		v-model:open="showDeleteDialog"
 		:title="
@@ -60,11 +53,11 @@
 <script setup lang="ts">
 import { call, createResource, Dialog, Select, toast } from 'frappe-ui'
 import { useRouter } from 'vue-router'
-import { ref, watch, inject } from 'vue'
-import { useOnboarding, useTelemetry } from 'frappe-ui/frappe'
-import type { SettingsListColumn, User } from '@/types'
+import { ref, watch } from 'vue'
+import type { SettingsListColumn } from '@/types'
 import { SETTINGS_PAGE_LENGTH } from '@/composables/useSettingsListResource'
-import NewMemberModal from '@/components/Modals/NewMemberModal.vue'
+import { openFormRoute } from '@/composables/useFormRoute'
+import { membersRevision } from '@/stores/members'
 import SettingsList from '@/components/Layouts/SettingsList.vue'
 import { cleanError } from '@/utils'
 
@@ -92,14 +85,9 @@ const roleOptions = [
 
 const memberList = ref<Member[]>([])
 const hasNextPage = ref(false)
-const showNewMember = ref(false)
-const user = inject<User | null>('$user')
-const { updateOnboardingStep } = useOnboarding('learning')
-const { capture } = useTelemetry()
 
 const showDeleteDialog = ref(false)
 const memberToDelete = ref<Member | null>(null)
-const memberToEdit = ref<Member | null>(null)
 
 defineProps({
 	label: {
@@ -112,6 +100,11 @@ defineProps({
 	},
 })
 
+// No frappe-ui `cache` key on purpose: makeParams closes over this component's
+// refs, and createResource hands back the FIRST instance for a key without
+// rebinding those closures, so a remounted panel would inherit a resource still
+// writing into the unmounted one's state. The member forms announce saves
+// through `membersRevision` instead (see stores/members.ts).
 const members = createResource({
 	url: 'lms.lms.api.get_members',
 	makeParams: () => ({
@@ -152,6 +145,13 @@ watch([search, currentRole], () => {
 	refreshMembers()
 })
 
+// A member form saved while this panel is still mounted behind it (the desktop
+// dialog) has no other way to reach the list. On a phone the panel unmounts, so
+// the fresh mount's own first fetch already covers it.
+watch(membersRevision, () => {
+	refreshMembers()
+})
+
 refreshMembers()
 
 const roleLabels: Record<string, string> = {
@@ -171,20 +171,19 @@ const openProfile = (username: string) => {
 	})
 }
 
-const onMemberCreated = () => {
-	if (user?.data?.is_system_manager) updateOnboardingStep('invite_students')
-	capture('user_added')
-	refreshMembers()
-}
-
+// The settings dialog is deliberately left open behind these: opening a member
+// form is not a "leave settings" action the way openProfile() is, and the form
+// renders as a second dialog on top, the way the delete confirmation below
+// already stacks.
 const openEditMember = (member: Member) => {
-	memberToEdit.value = member
-	showNewMember.value = true
+	openFormRoute(router, {
+		name: 'MemberForm',
+		params: { memberID: member.name },
+	})
 }
 
 const openNewMember = () => {
-	memberToEdit.value = null
-	showNewMember.value = true
+	openFormRoute(router, { name: 'MemberForm', params: { memberID: 'new' } })
 }
 
 const openDeleteDialog = (member: Member) => {

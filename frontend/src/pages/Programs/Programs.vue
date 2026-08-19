@@ -1,6 +1,4 @@
 <template>
-	<!-- A student sees their own enrolled/published split, which is not a
-	     filtered list page, so it keeps its own chrome. -->
 	<template v-if="isStudent">
 		<PageHeader :breadcrumbs="breadcrumbs" />
 		<StudentPrograms />
@@ -22,8 +20,8 @@
 		<template #actions>
 			<Button
 				v-if="canCreateProgram()"
-				@click="openForm('new')"
 				variant="solid"
+				@click="openForm('new')"
 			>
 				<template #prefix>
 					<span class="lucide-plus size-4" />
@@ -78,10 +76,9 @@
 		</template>
 	</ListPage>
 
-	<ProgramForm
-		v-model="showForm"
-		:programName="currentProgram"
-		v-model:programs="programs"
+	<router-view
+		:key="String($route.params.programName || '')"
+		@saved="updatePrograms"
 	/>
 </template>
 <script setup>
@@ -94,18 +91,18 @@ import {
 	createListResource,
 } from 'frappe-ui'
 import { computed, inject, onMounted, ref, watch } from 'vue'
+import { useRouter } from 'vue-router'
 import { useDebounceFn } from '@vueuse/core'
 
 import { sessionStore } from '@/stores/session'
-import ProgramForm from '@/pages/Programs/ProgramForm.vue'
 import PageHeader from '@/components/Layouts/PageHeader.vue'
 import ListPage from '@/components/Layouts/ListPage.vue'
 import StudentPrograms from '@/pages/Programs/StudentPrograms.vue'
+import { openFormRoute } from '@/composables/useFormRoute'
 
 const { brand } = sessionStore()
 const user = inject('$user')
-const showForm = ref(false)
-const currentProgram = ref(null)
+const router = useRouter()
 const readOnlyMode = window.read_only_mode
 const title = ref('')
 const currentTab = ref('published')
@@ -242,7 +239,13 @@ const setQueryParams = () => {
 	if (queries.toString()) {
 		queryString = `?${queries.toString()}`
 	}
-	history.replaceState({}, '', `${location.pathname}${queryString}`)
+	// Carry the existing state forward rather than replacing it with `{}`: this
+	// runs on mount, and a form opened at a child route of this page keeps its
+	// "we pushed this entry" marker in history.state — wiping it degrades the
+	// form's close from a pop into a replace after a reload. Passing `{}` also
+	// left vue-router unable to re-seed its own `position` (a truthy state is
+	// taken as its own), which makes every later pop delta NaN.
+	history.replaceState(history.state, '', `${location.pathname}${queryString}`)
 }
 
 const programTabs = computed(() => [
@@ -266,10 +269,14 @@ const canCreateProgram = () => {
 	return false
 }
 
+// openFormRoute, not a bare router.push: it stamps the history entry so the
+// form knows Back should close it rather than eject the user out of the app.
 const openForm = (programName) => {
 	if (!canCreateProgram()) return
-	currentProgram.value = programName
-	showForm.value = true
+	openFormRoute(router, {
+		name: 'ProgramForm',
+		params: { programName: programName || 'new' },
+	})
 }
 
 const isStudent = computed(() => {
