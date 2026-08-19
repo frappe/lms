@@ -194,7 +194,10 @@ class TestCouponRedemption(BaseTestUtils):
 		real threads with their own database connections."""
 		workers = 8
 		coupon = self._create_coupon()
-		payments = [self._create_payment(coupon) for _ in range(workers)]
+		payments = [
+			self._create_payment(coupon, course=f"fake-course-{frappe.generate_hash(length=6)}")
+			for _ in range(workers)
+		]
 
 		def redeem(payment):
 			update_coupon_redemption(self._payment_doc(payment, coupon))
@@ -288,7 +291,10 @@ class TestCouponRedemption(BaseTestUtils):
 		Payment rows, which do not contend with each other. One transaction, one
 		credited payment."""
 		coupon = self._create_coupon()
-		payments = [self._create_payment(coupon) for _ in range(2)]
+		payments = [
+			self._create_payment(coupon, course=f"fake-course-{frappe.generate_hash(length=6)}")
+			for _ in range(2)
+		]
 
 		def deliver(payment):
 			self._callback(payment, "pay_shared")
