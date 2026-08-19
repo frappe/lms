@@ -197,7 +197,7 @@ class TestCouponRedemption(BaseTestUtils):
 		payments = [
 			self._create_payment(
 				coupon,
-				course=self._create_course(title=f"Coupon Test Course {frappe.generate_hash(length=6)}").name,
+				course=self._create_second_course().name,
 			)
 			for _ in range(workers)
 		]
@@ -294,13 +294,7 @@ class TestCouponRedemption(BaseTestUtils):
 		Payment rows, which do not contend with each other. One transaction, one
 		credited payment."""
 		coupon = self._create_coupon()
-		payments = [
-			self._create_payment(
-				coupon,
-				course=self._create_course(title=f"Coupon Test Course {frappe.generate_hash(length=6)}").name,
-			)
-			for _ in range(2)
-		]
+		payments = [self._create_payment(coupon, course=self._create_second_course().name) for _ in range(2)]
 
 		def deliver(payment):
 			self._callback(payment, "pay_shared")
