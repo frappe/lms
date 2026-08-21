@@ -338,6 +338,18 @@ def save_progress_after_quiz(quiz_details: dict, percentage: float):
 
 	if quiz_details.passing_percentage and percentage < quiz_details.passing_percentage:
 		return
+
+	# save_progress refuses a locked lesson by raising, which would roll back the
+	# submission create_submission() has already written. A quiz can be reached
+	# without its lesson being open — can_access_quiz also grants through an
+	# LMS Assessment on a batch — so skip the progress write instead of failing the
+	# submit. The throw stays in _save_progress, which is the boundary for the
+	# direct-call bypass.
+	from lms.lms.permissions import get_locked_lessons
+
+	if quiz_details.lesson in get_locked_lessons(quiz_details.course):
+		return
+
 	save_progress(quiz_details.lesson, quiz_details.course)
 
 

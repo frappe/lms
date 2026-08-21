@@ -477,6 +477,7 @@ def get_course_fields():
 		"upcoming",
 		"featured",
 		"disable_self_learning",
+		"enforce_lesson_completion",
 		"published_on",
 		"category",
 		"evaluator",

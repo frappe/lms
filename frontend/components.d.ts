@@ -91,6 +91,7 @@ declare module 'vue' {
     ListPage: typeof import('./src/components/Layouts/ListPage.vue')['default']
     LiveClassAttendance: typeof import('./src/components/Modals/LiveClassAttendance.vue')['default']
     LMSLogo: typeof import('./src/components/Icons/LMSLogo.vue')['default']
+    LockedLessonNotice: typeof import('./src/components/LockedLessonNotice.vue')['default']
     LucideChevronLeft: typeof import('~icons/lucide/chevron-left')['default']
     LucideChevronRight: typeof import('~icons/lucide/chevron-right')['default']
     LucideStar: typeof import('~icons/lucide/star')['default']

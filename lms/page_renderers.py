@@ -28,7 +28,7 @@ class SCORMRenderer(BaseRenderer):
 	_DISK_ROOTS = ("private", "public")
 
 	def _check_permission(self):
-		from lms.lms.permissions import can_access_lesson
+		from lms.lms.permissions import can_access_lesson, get_locked_lessons
 
 		parts = self.path.strip("/").split("/")
 		# scorm/<course>/<title>/...
@@ -47,7 +47,10 @@ class SCORMRenderer(BaseRenderer):
 		# SCORM chapters are created with exactly one lesson (upsert_chapter invariant
 		# in api.py). order_by keeps the access check deterministic if that ever changes.
 		lesson = frappe.db.get_value("Lesson Reference", {"parent": chapter}, "lesson", order_by="idx asc")
-		if not lesson or not can_access_lesson(lesson):
+		# can_access_lesson answers "is this course yours or are you enrolled", which is
+		# lock-unaware. Sequential courses gate the bytes too, otherwise the SCORM page
+		# is a route around the gate that never touches get_lesson.
+		if not lesson or not can_access_lesson(lesson) or lesson in get_locked_lessons(course):
 			frappe.logger("lms.security").warning(
 				"SCORM resource access denied: user=%s path=%s",
 				frappe.session.user,

@@ -6,6 +6,11 @@ declare global {
 	interface String {
 		format(...args: any[]): string
 	}
+
+	// Set on the page by the server; absent unless the site is in read-only mode.
+	interface Window {
+		read_only_mode?: boolean
+	}
 }
 
 declare module 'vue' {
