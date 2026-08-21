@@ -228,7 +228,7 @@ def record_payment(
 	if payment_doc.is_new():
 		payment_doc.update(payment_details)
 	try:
-		payment_doc.save(ignore_permissions=True)
+		payment_doc.save()
 	except Exception as e:
 		if not frappe.db.is_unique_key_violation(e):
 			raise
