@@ -206,7 +206,13 @@ const importZip = () => {
 			})
 		})
 		.catch((error: any) => {
-			toast.error('Error importing course: ' + error.message)
+			// call() builds error.message as "<method> <exc_type>" and puts the
+			// server's own messages in error.messages. Reporting the former shows
+			// "...import_course_from_zip ValidationError" and hides the reason the
+			// archive was rejected, which is the only actionable part.
+			toast.error(
+				error.messages?.[0] ?? __('Error importing course') + ': ' + error.message
+			)
 			console.error('Error importing course:', error)
 		})
 }
