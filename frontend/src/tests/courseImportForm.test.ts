@@ -7,6 +7,7 @@ import {
 	type Router,
 } from 'vue-router'
 import { defineComponent, h } from 'vue'
+import { toast } from 'frappe-ui'
 
 vi.stubGlobal('__', (text: string) => text)
 enableAutoUnmount(afterEach)
@@ -148,6 +149,7 @@ describe('CourseImportForm as a route', () => {
 	beforeEach(() => {
 		callMock.mockReset()
 		uploadMock.mockReset()
+		vi.mocked(toast.error).mockClear()
 		uploadMock.mockResolvedValue({
 			file_url: '/files/course.zip',
 			file_name: 'course.zip',
@@ -212,6 +214,39 @@ describe('CourseImportForm as a route', () => {
 				zip_file_path: '/files/course.zip',
 			}
 		)
+	})
+
+	it('reports the server message when the import is rejected', async () => {
+		// call() throws an Error whose message is "<method> <exc_type>" and carries
+		// the server's own messages separately. Reporting the message alone told the
+		// user "...import_course_from_zip ValidationError" and dropped the reason.
+		const error: Error & { messages?: string[] } = new Error(
+			'lms.lms.api.import_course_from_zip ValidationError'
+		)
+		error.messages = ['Invalid course ZIP: Missing course.json']
+		callMock.mockRejectedValue(error)
+		const router = makeRouter()
+		await router.push({ name: 'CourseImport' })
+		const wrapper = await mountForm(router)
+
+		await attachZip(wrapper)
+		await wrapper.find('[data-testid="course-import-submit"]').trigger('click')
+		await flushPromises()
+
+		expect(toast.error).toHaveBeenCalledWith('Invalid course ZIP: Missing course.json')
+	})
+
+	it('falls back to the raw error when the server sent no message', async () => {
+		callMock.mockRejectedValue(new Error('boom'))
+		const router = makeRouter()
+		await router.push({ name: 'CourseImport' })
+		const wrapper = await mountForm(router)
+
+		await attachZip(wrapper)
+		await wrapper.find('[data-testid="course-import-submit"]').trigger('click')
+		await flushPromises()
+
+		expect(toast.error).toHaveBeenCalledWith('Error importing course: boom')
 	})
 
 	it('replaces rather than pushes on import, so Back reaches the list', async () => {
