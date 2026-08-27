@@ -216,15 +216,20 @@ describe('CourseImportForm as a route', () => {
 		)
 	})
 
-	it('reports the server message when the import is rejected', async () => {
-		// call() throws an Error whose message is "<method> <exc_type>" and carries
-		// the server's own messages separately. Reporting the message alone told the
-		// user "...import_course_from_zip ValidationError" and dropped the reason.
-		const error: Error & { messages?: string[] } = new Error(
-			'lms.lms.api.import_course_from_zip ValidationError'
+	// Both cases build the error the way call() does: `message` is
+	// "<method> <exc_type>" and the server's own text lives in `messages` — which
+	// call() never leaves empty, substituting 'Internal Server Error' when the
+	// response carried nothing.
+	const importError = (messages: string[]) => {
+		const error: Error & { messages: string[] } = Object.assign(
+			new Error('lms.lms.api.import_course_from_zip ValidationError'),
+			{ messages }
 		)
-		error.messages = ['Invalid course ZIP: Missing course.json']
-		callMock.mockRejectedValue(error)
+		return error
+	}
+
+	const rejectImportWith = async (messages: string[]) => {
+		callMock.mockRejectedValue(importError(messages))
 		const router = makeRouter()
 		await router.push({ name: 'CourseImport' })
 		const wrapper = await mountForm(router)
@@ -232,21 +237,24 @@ describe('CourseImportForm as a route', () => {
 		await attachZip(wrapper)
 		await wrapper.find('[data-testid="course-import-submit"]').trigger('click')
 		await flushPromises()
+	}
+
+	it('reports the server message when the import is rejected', async () => {
+		// Reporting error.message alone told the user
+		// "...import_course_from_zip ValidationError" and dropped the reason.
+		await rejectImportWith(['Invalid course ZIP: Missing course.json'])
 
 		expect(toast.error).toHaveBeenCalledWith('Invalid course ZIP: Missing course.json')
 	})
 
 	it('falls back to the raw error when the server sent no message', async () => {
-		callMock.mockRejectedValue(new Error('boom'))
-		const router = makeRouter()
-		await router.push({ name: 'CourseImport' })
-		const wrapper = await mountForm(router)
+		// call()'s placeholder is not a message anyone can act on, so it must not
+		// win over the fallback — which still names the method and exception.
+		await rejectImportWith(['Internal Server Error'])
 
-		await attachZip(wrapper)
-		await wrapper.find('[data-testid="course-import-submit"]').trigger('click')
-		await flushPromises()
-
-		expect(toast.error).toHaveBeenCalledWith('Error importing course: boom')
+		expect(toast.error).toHaveBeenCalledWith(
+			'Error importing course: lms.lms.api.import_course_from_zip ValidationError'
+		)
 	})
 
 	it('replaces rather than pushes on import, so Back reaches the list', async () => {

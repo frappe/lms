@@ -103,6 +103,7 @@ import { useFormRoute } from '@/composables/useFormRoute'
 // as composables/useKeyboardShortcuts.ts:3. Without this the import raises a
 // fresh TS7016 and pushes vue-tsc past its baseline.
 import { canCreateCourse } from '@/utils'
+import { resourceErrorMessage } from '@/utils/resource'
 
 const fileInput = ref<HTMLInputElement | null>(null)
 const zip = ref<any | null>(null)
@@ -210,8 +211,17 @@ const importZip = () => {
 			// server's own messages in error.messages. Reporting the former shows
 			// "...import_course_from_zip ValidationError" and hides the reason the
 			// archive was rejected, which is the only actionable part.
+			//
+			// Via resourceErrorMessage rather than messages[0] directly: call()
+			// never leaves `messages` empty — with nothing from the server it
+			// substitutes the untranslated "Internal Server Error" — so a plain
+			// nullish check would treat that placeholder as a real message and
+			// make this fallback unreachable.
 			toast.error(
-				error.messages?.[0] ?? __('Error importing course') + ': ' + error.message
+				resourceErrorMessage(
+					error,
+					__('Error importing course') + ': ' + error.message
+				)
 			)
 			console.error('Error importing course:', error)
 		})
