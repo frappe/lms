@@ -8,7 +8,48 @@ import frappe
 from lms.lms.test_helpers import BaseTestUtils
 
 
+<<<<<<< HEAD
 class TestLMSCourse(unittest.TestCase):
+=======
+class TestLMSCourse(BaseTestUtils):
+	def setUp(self):
+		super().setUp()
+		self.instructor = self._create_user(
+			"frappe@example.com", "Frappe", "Admin", ["Moderator", "Course Creator"]
+		)
+
+	def test_new_course(self):
+		course_name = f"Test Course {frappe.generate_hash()}"
+
+		course = self._create_course(course_name)
+
+		self.assertEqual(course.title, course_name)
+		self.assertTrue(frappe.db.exists("LMS Course", course.name))
+
+	def test_course_without_instructors_is_assigned_its_owner(self):
+		# `instructors` is mandatory on LMS Course and validate_instructors() is
+		# meant to fill it in with the owner when none is given. Every other test
+		# here supplies instructors explicitly (BaseTestUtils._create_course does),
+		# so this path had no coverage — and it is the path the course ZIP importer
+		# takes, since create_course_doc() only appends what the archive declares.
+		course = frappe.new_doc("LMS Course")
+		course.update(
+			{
+				"title": f"Test Course {frappe.generate_hash()}",
+				"short_introduction": "Created without an instructor",
+				"description": "The owner must be assigned as instructor automatically.",
+			}
+		)
+		course.insert(ignore_permissions=True)
+		self.cleanup_items.append(("LMS Course", course.name))
+
+		self.assertEqual([row.instructor for row in course.instructors], [course.owner])
+
+		# and it must be persisted, not only present on the in-memory document
+		course.reload()
+		self.assertEqual([row.instructor for row in course.instructors], [course.owner])
+
+>>>>>>> f95f064 (fix: assign the course owner as instructor in memory)
 	def test_video_link_stored_as_entered(self):
 		# validate_video_link is a no-op by design: reducing a URL to a bare id mangled
 		# uploaded /files paths and broke some YouTube urls. Calling it on an unsaved
