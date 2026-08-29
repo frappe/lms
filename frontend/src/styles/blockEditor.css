@@ -183,10 +183,6 @@ iframe {
 	display: none !important;
 }
 
-.plyr__volume input[type='range'] {
-	display: none;
-}
-
 .plyr__control--overlaid {
 	background: radial-gradient(
 		circle,

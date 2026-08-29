@@ -150,7 +150,7 @@ describe('Quiz remount', () => {
 		const first = mountQuiz()
 		await flushPromises()
 
-		expect(first.text()).toContain('This quiz consists of 1 questions.')
+		expect(first.text()).toContain('1 question')
 		expect(first.text()).toContain('Start')
 		expect(first.text()).not.toContain(
 			'This quiz has no questions available yet.',
@@ -166,7 +166,7 @@ describe('Quiz remount', () => {
 			['lms.lms.utils.get_quiz_with_questions', { quiz: 'QUIZ-1' }],
 			['lms.lms.utils.get_quiz_with_questions', { quiz: 'QUIZ-1' }],
 		])
-		expect(second.text()).toContain('This quiz consists of 1 questions.')
+		expect(second.text()).toContain('1 question')
 		expect(second.text()).toContain('Start')
 		expect(second.text()).not.toContain(
 			'This quiz has no questions available yet.',
@@ -174,7 +174,7 @@ describe('Quiz remount', () => {
 
 		const start = second
 			.findAll('button')
-			.find((button) => button.text() === 'Start')
+			.find((button) => button.text() === 'Start Quiz')
 		expect(start).toBeDefined()
 		await start!.trigger('click')
 		await flushPromises()

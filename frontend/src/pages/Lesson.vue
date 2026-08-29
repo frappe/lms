@@ -1404,10 +1404,6 @@ usePageMeta(() => {
 	border-inline-start: 1px solid #e8e8eb;
 }
 
-.plyr__volume input[type='range'] {
-	display: none;
-}
-
 .plyr__control--overlaid {
 	background: radial-gradient(
 		circle,

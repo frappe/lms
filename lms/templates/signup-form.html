@@ -1,4 +1,14 @@
-{% from "templates/includes/login/macros.html" import alert_banner %}
+{%- macro alert_banner(type, text="") -%}
+{%- set is_error = type == "error" -%}
+<div class="login-{{ type }}-banner es-alert hidden" role="alert" data-theme="{{ 'red' if is_error else 'green' }}">
+    <svg fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <use href="#icon-{{ 'circle-alert' if is_error else 'circle-check' }}"></use>
+    </svg>
+    <div class="es-alert__content">
+        <span class="es-alert__title">{{ text }}</span>
+    </div>
+</div>
+{%- endmacro -%}
 {% set custom_signup_content = frappe.db.get_single_value("LMS Settings", "custom_signup_content") %}
 {% set user_category = frappe.db.get_single_value("LMS Settings", "user_category") %}
 {% set login_link = '<a href="#login">' ~ _("Login") ~ '</a>' %}
@@ -207,16 +217,24 @@
                 const section = $("section:visible");
 
                 if (cint(code) === 0) {
-                    login.hide_loading();
+                    hide_signup_loading();
                     section.find(".login-success-banner").addClass("hidden");
                     show_signup_error(message);
                 } else {
                     login.set_status({{ _("Success") | tojson }}, "green");
                     section.find(".login-error-banner").addClass("hidden");
-                    login.show_success_banner(message);
+                    show_signup_success(message);
                 }
             }
         });
+    }
+
+    const hide_signup_loading = () => {
+        $(".signup-form .btn-signup").removeAttr("aria-busy").text(signup_button_label);
+    }
+
+    const show_signup_success = (message) => {
+        $("section:visible .login-success-banner").removeClass("hidden").find(".es-alert__title").text(message);
     }
 
     const show_signup_error = (message) => {

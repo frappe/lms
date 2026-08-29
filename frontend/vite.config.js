@@ -100,6 +100,7 @@ export default defineConfig(async ({ mode }) => {
 				'tailwind.config.js',
 				'highlight.js',
 				'plyr',
+				'interactjs',
 			],
 			exclude: mode === 'production' ? [] : ['frappe-ui'],
 		},
