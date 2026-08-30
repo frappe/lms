@@ -12,6 +12,14 @@ from frappe.utils.telemetry import capture
 
 class LMSCertificate(Document):
 	def validate(self):
+		# A certificate is earned via a course OR a batch, and whichever one
+		# doesn't apply is never set - which, on a plain frappe.get_doc() that
+		# never touches it, means None (SQL NULL), not "". The unique
+		# constraint below relies on both being consistently "" instead: two
+		# rows with course=NULL are not duplicates as far as a unique index is
+		# concerned, no matter what member or batch_name they share.
+		self.course = self.course or ""
+		self.batch_name = self.batch_name or ""
 		self.validate_criteria()
 		self.validate_duplicate_certificate()
 
@@ -164,6 +172,14 @@ def is_certified(course):
 
 @frappe.whitelist()
 def create_certificate(course: str):
+	# Locks the course row before the check below, so two requests for the same
+	# member+course cannot both read is_certified() as "not yet" and both go on
+	# to create one - same shape as the course lock enroll_in_course() takes
+	# (lms/lms/utils.py) before its own duplicate-enrollment check. The unique
+	# constraint on (member, course, batch_name) is the backstop for whatever
+	# creates a certificate without going through this function.
+	frappe.db.get_value("LMS Course", course, "name", for_update=True)
+
 	certificate = is_certified(course)
 	if certificate:
 		return frappe.db.get_value(
@@ -182,7 +198,18 @@ def create_certificate(course: str):
 				"template": default_certificate_template,
 			}
 		)
-		certificate.save(ignore_permissions=True)
+		try:
+			certificate.save(ignore_permissions=True)
+		except frappe.UniqueValidationError:
+			# Someone else's request for the same member+course won the race and
+			# committed between our is_certified() check above and this save().
+			# The unique constraint on (member, course, batch_name) is what
+			# actually stops the duplicate; hand back whatever it just certified
+			# instead of surfacing a "must be unique" error over a double click.
+			existing = is_certified(course)
+			return frappe.db.get_value(
+				"LMS Certificate", existing, ["name", "course", "template"], as_dict=True
+			)
 		return certificate
 
 
