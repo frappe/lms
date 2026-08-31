@@ -23,6 +23,7 @@
 				{{ submissionDoc.status }}
 			</Badge>
 		</div>
+<<<<<<< HEAD
 		<div class="min-h-0 flex-1">
 			<ExerciseWorkspaceSkeleton v-if="loading" />
 			<ExerciseWorkspace
@@ -46,6 +47,55 @@
 						@update:modelValue="editCode"
 						:language="editorLanguage"
 						:label="__('Your Code')"
+=======
+		<div>
+			<div class="flex items-center justify-between p-2 bg-surface-gray-2">
+				<div class="font-semibold text-ink-gray-9">
+					{{ exercise.doc?.language }}
+				</div>
+				<div class="flex items-center gap-x-2">
+					<Badge
+						v-if="submission.doc?.status"
+						:theme="submission.doc.status == 'Passed' ? 'green' : 'red'"
+					>
+						{{ submission.doc.status }}
+					</Badge>
+					<Button
+						v-if="
+							!falconError &&
+							(submissionID == 'new' ||
+								user.data?.name == submission.doc?.owner)
+						"
+						variant="solid"
+						@click="submitCode"
+						:loading="running"
+						:disabled="running"
+					>
+						<template #prefix>
+							<span class="lucide-play size-3" />
+						</template>
+						{{ running ? __('Running') : __('Run') }}
+					</Button>
+				</div>
+			</div>
+			<div class="flex flex-col space-y-4 pt-5 border-b">
+				<Code
+					v-model="code"
+					:language="exercise.doc?.language.toLowerCase()"
+					height="400px"
+					maxHeight="1000px"
+				/>
+				<div class="flex flex-col space-y-1">
+					<span v-if="error" class="text-xs text-ink-gray-5 px-1">
+						{{ __('Compiler Message') }}:
+					</span>
+					<textarea
+						v-if="error"
+						v-model="errorMessage"
+						:aria-label="__('Compiler Message')"
+						class="font-mono text-ink-red-6 bg-surface-gray-1 border-none text-sm h-32 leading-6"
+						readonly
+>>>>>>> da4a28d (fix: improve text contrast in programming exercise submission)
 					/>
 				</template>
 			</ExerciseWorkspace>
