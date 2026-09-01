@@ -319,7 +319,7 @@ def get_reviews(course: str):
 	)
 	out_of_ratings = (len(out_of_ratings) and out_of_ratings[0].options) or 5
 	for review in reviews:
-		review.rating = review.rating * out_of_ratings
+		review.rating = (review.rating or 0) * out_of_ratings
 		review.owner_details = frappe.db.get_value(
 			"User", review.owner, ["username", "full_name", "user_image"], as_dict=True
 		)
