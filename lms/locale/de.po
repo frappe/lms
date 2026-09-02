@@ -9256,6 +9256,7 @@ msgid "You don't have any notifications."
 msgstr "Sie haben keine Benachrichtigungen."
 
 #: frontend/src/components/Quiz.vue:367
+#, python-format
 msgid "You got {0}% correct answers with a score of {1} out of {2}"
 msgstr "Sie haben {0}% richtige Antworten mit einer Punktzahl von {1} von {2}"
 
@@ -9352,6 +9353,7 @@ msgid "You will have to complete the quiz to continue the video"
 msgstr "Sie müssen das Quiz abschließen, um das Video fortzusetzen"
 
 #: frontend/src/components/Quiz.vue:51
+#, python-format
 msgid "You will have to get {0}% correct answers in order to pass the quiz."
 msgstr "Sie müssen {0}% der Fragen richtig beantworten, um das Quiz zu bestehen."
 
@@ -9837,6 +9839,7 @@ msgstr "{0} {1} Stellenanzeigen"
 
 #: frontend/src/components/Questionnaire.vue:144
 #: frontend/src/pages/PersonaForm.vue:100
+#, python-format
 msgid "{0}% complete"
 msgstr "{0} % abgeschlossen"
 
