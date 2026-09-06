@@ -48,7 +48,7 @@ export default defineConfig({
 			// (valid under Vite's resolver, invalid under Node's strict ESM loader).
 			// Vitest externalizes node_modules to Node's loader by default; inlining
 			// keeps frappe-ui on Vite's transform/resolve pipeline, matching dev/build.
-			deps: { inline: ['frappe-ui'] },
+			deps: { inline: ['frappe-ui', '@framework/ui'] },
 		},
 	},
 	resolve: {
