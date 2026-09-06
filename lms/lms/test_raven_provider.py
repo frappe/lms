@@ -9,6 +9,7 @@ from frappe.tests.utils import FrappeTestCase
 
 from lms import raven_provider
 from lms.raven_provider import (
+	ProviderDataError,
 	default_evaluator,
 )
 
@@ -84,13 +85,10 @@ class TestAllEnrolledRule(FrappeTestCase):
 
 	def test_returns_enrolled_user(self):
 		rule = {
-			"rule_type": "All Enrolled Students",
+			"rule_type": "Student",
+			"student_scope": "Enrolled",
 			"payment_filter": "Any",
-			"batches": [],
-			"courses": [],
-			"staff_role": None,
-			"staff_scope_batches": [],
-			"staff_scope_courses": [],
+			"enrolled_in": "Any",
 		}
 		matched = default_evaluator(rule)
 		self.assertIn(self.enrolled.name, matched)
@@ -139,7 +137,14 @@ class TestAllEnrolledIncludesBatchOnlyStudents(FrappeTestCase):
 		self.addCleanup(lambda: frappe.delete_doc("LMS Batch Enrollment", enrollment.name, force=True))
 
 	def _matched(self, payment_filter: str = "Any") -> set:
-		return default_evaluator({"rule_type": "All Enrolled Students", "payment_filter": payment_filter})
+		return default_evaluator(
+			{
+				"rule_type": "Student",
+				"student_scope": "Enrolled",
+				"payment_filter": payment_filter,
+				"enrolled_in": "Any",
+			}
+		)
 
 	def test_batch_only_student_is_enrolled(self):
 		# The mirror never ran (no Batch Course rows). Prove it, so the assertion below
@@ -216,7 +221,9 @@ class TestStudentsOfBatchesRule(FrappeTestCase):
 
 	def test_matches_only_batch_members(self):
 		rule = {
-			"rule_type": "Students of Batches",
+			"rule_type": "Student",
+			"student_scope": "Enrolled",
+			"enrolled_in": "Batches",
 			"payment_filter": "Any",
 			"batches": [self.batch.name],
 		}
@@ -226,7 +233,9 @@ class TestStudentsOfBatchesRule(FrappeTestCase):
 
 	def test_paid_only_filters_out_unpaid(self):
 		rule = {
-			"rule_type": "Students of Batches",
+			"rule_type": "Student",
+			"student_scope": "Enrolled",
+			"enrolled_in": "Batches",
 			"payment_filter": "Paid",
 			"batches": [self.batch.name],
 		}
@@ -262,7 +271,9 @@ class TestStudentsOfCoursesRule(FrappeTestCase):
 
 	def test_matches_only_course_enrollees(self):
 		rule = {
-			"rule_type": "Students of Courses",
+			"rule_type": "Student",
+			"student_scope": "Enrolled",
+			"enrolled_in": "Courses",
 			"payment_filter": "Any",
 			"courses": [self.course],
 		}
@@ -271,7 +282,9 @@ class TestStudentsOfCoursesRule(FrappeTestCase):
 
 	def test_paid_only_filters_out_unpaid(self):
 		rule = {
-			"rule_type": "Students of Courses",
+			"rule_type": "Student",
+			"student_scope": "Enrolled",
+			"enrolled_in": "Courses",
 			"payment_filter": "Paid",
 			"courses": [self.course],
 		}
@@ -280,7 +293,9 @@ class TestStudentsOfCoursesRule(FrappeTestCase):
 
 	def test_payment_filter_free_matches_unpaid_enrollee(self):
 		rule = {
-			"rule_type": "Students of Courses",
+			"rule_type": "Student",
+			"student_scope": "Enrolled",
+			"enrolled_in": "Courses",
 			"payment_filter": "Free",
 			"courses": [self.course],
 		}
@@ -289,7 +304,9 @@ class TestStudentsOfCoursesRule(FrappeTestCase):
 
 	def test_payment_filter_paid_excludes_unpaid_enrollee(self):
 		rule = {
-			"rule_type": "Students of Courses",
+			"rule_type": "Student",
+			"student_scope": "Enrolled",
+			"enrolled_in": "Courses",
 			"payment_filter": "Paid",
 			"courses": [self.course],
 		}
@@ -371,7 +388,9 @@ class TestPaymentFilter(FrappeTestCase):
 	def _matched(self, payment_filter: str) -> set:
 		return default_evaluator(
 			{
-				"rule_type": "Students of Batches",
+				"rule_type": "Student",
+				"student_scope": "Enrolled",
+				"enrolled_in": "Batches",
 				"payment_filter": payment_filter,
 				"batches": [self.batch.name],
 			}
@@ -428,260 +447,538 @@ class TestBatchEnrollmentIndex(UnitTestCase):
 		)
 
 
-class TestStaffRule(FrappeTestCase):
-	"""Task 11: Staff rule. Instructor / Evaluator / Mentor / Any, plus scope filters.
-
-	Schema notes (verified against doctype JSON 2026-05-23):
-	  Course Instructor  : child table shared by LMS Course and LMS Batch.
-	                       parenttype='LMS Course'|'LMS Batch', user field=`instructor`.
-	  Course Evaluator   : standalone doctype, no course/batch link, user field=`evaluator`.
-	  LMS Course Mentor Mapping : has `course` + `mentor` fields.
-	"""
+class TestStudentScope(FrappeTestCase):
+	"""The Student cascade's two ends: All, and Enrolled across both scopes."""
 
 	def setUp(self):
-		# Skip before creating anything. With no LMS Course fixture this suite has
-		# nothing to attach staff to. Checking after inserting the users would
-		# leak them (User.insert commits, and addCleanup is only registered at the
-		# end of setUp), making every later method fail on the duplicate user.
 		existing = frappe.get_all("LMS Course", limit=1)
 		if not existing:
 			self.skipTest("No course fixture; populate one before running this test")
 		self.course = existing[0].name
 
-		self.instructor_user = frappe.get_doc(
+		self.student = frappe.get_doc(
 			{
 				"doctype": "User",
-				"email": "raven-instructor@example.com",
-				"first_name": "Raven Instructor",
+				"email": "raven-student-scope@example.com",
+				"first_name": "Raven Student Scope",
 				"send_welcome_email": 0,
 			}
 		).insert()
-		self.evaluator_user = frappe.get_doc(
+		self.addCleanup(self.student.delete)
+		self.student.add_roles("LMS Student")
+
+		self.roleless = frappe.get_doc(
 			{
 				"doctype": "User",
-				"email": "raven-evaluator@example.com",
-				"first_name": "Raven Evaluator",
+				"email": "raven-no-student-role@example.com",
+				"first_name": "Raven No Student Role",
 				"send_welcome_email": 0,
 			}
 		).insert()
-		self.mentor_user = frappe.get_doc(
+		self.addCleanup(self.roleless.delete)
+		frappe.db.delete("Has Role", {"parent": self.roleless.name, "role": "LMS Student"})
+
+	def test_all_is_everyone_holding_the_student_role(self):
+		members = default_evaluator({"rule_type": "Student", "student_scope": "All"})
+		self.assertIn(self.student.name, members)
+		self.assertNotIn(self.roleless.name, members)
+
+	def test_all_ends_the_cascade(self):
+		"""Nothing below All is read. A rule edited down from Enrolled may still
+		carry a payment filter and a scope; what the row shows is what it means."""
+		wide = default_evaluator({"rule_type": "Student", "student_scope": "All"})
+		with_leftovers = default_evaluator(
 			{
-				"doctype": "User",
-				"email": "raven-mentor@example.com",
-				"first_name": "Raven Mentor",
-				"send_welcome_email": 0,
+				"rule_type": "Student",
+				"student_scope": "All",
+				"payment_filter": "Paid",
+				"enrolled_in": "Courses",
+				"courses": ["NON-EXISTENT-COURSE"],
 			}
-		).insert()
-		self.other_user = frappe.get_doc(
+		)
+		self.assertEqual(wide, with_leftovers)
+
+	def test_a_disabled_holder_is_not_named(self):
+		frappe.db.set_value("User", self.student.name, "enabled", 0)
+		self.addCleanup(frappe.db.set_value, "User", self.student.name, "enabled", 1)
+		members = default_evaluator({"rule_type": "Student", "student_scope": "All"})
+		self.assertNotIn(self.student.name, members)
+
+	def test_enrolled_in_both_unions_the_two_scopes(self):
+		batches = frappe.get_all("LMS Batch", limit=1)
+		if not batches:
+			self.skipTest("No batch fixture")
+		both = default_evaluator(
 			{
-				"doctype": "User",
-				"email": "raven-nostaff@example.com",
-				"first_name": "Raven NoStaff",
-				"send_welcome_email": 0,
+				"rule_type": "Student",
+				"student_scope": "Enrolled",
+				"payment_filter": "Any",
+				"enrolled_in": "Both",
+				"batches": [batches[0].name],
+				"courses": [self.course],
 			}
-		).insert()
+		)
+		only_courses = default_evaluator(
+			{
+				"rule_type": "Student",
+				"student_scope": "Enrolled",
+				"payment_filter": "Any",
+				"enrolled_in": "Courses",
+				"courses": [self.course],
+			}
+		)
+		only_batches = default_evaluator(
+			{
+				"rule_type": "Student",
+				"student_scope": "Enrolled",
+				"payment_filter": "Any",
+				"enrolled_in": "Batches",
+				"batches": [batches[0].name],
+			}
+		)
+		self.assertEqual(both, only_courses | only_batches)
+
+	def test_an_unknown_scope_is_unevaluable_rather_than_empty(self):
+		for gone in ("Everyone", ""):
+			with self.assertRaises(ProviderDataError):
+				default_evaluator({"rule_type": "Student", "student_scope": gone})
+
+	def test_the_rule_types_this_replaced_are_unevaluable(self):
+		for gone in (
+			"All Enrolled Students",
+			"Students of Courses",
+			"Students of Batches",
+		):
+			with self.assertRaises(ProviderDataError):
+				default_evaluator({"rule_type": gone, "payment_filter": "Any"})
+
+
+class TestStaffRule(FrappeTestCase):
+	"""Staff rule: three role choices and one tagging choice.
+
+	Course Creator, Evaluator and Moderator each name a Frappe role, which is
+	site-wide, so there is nothing to scope them to. Instructor is a `Course
+	Instructor` row on a course or a batch, so it is the only choice that reads
+	the scope fields.
+	"""
+
+	def setUp(self):
+		# Skip before creating anything. With no LMS Course fixture there is
+		# nothing to attach an instructor to, and inserting the users first would
+		# leak them: User.insert commits, and addCleanup runs only from here on.
+		existing = frappe.get_all("LMS Course", limit=1)
+		if not existing:
+			self.skipTest("No course fixture; populate one before running this test")
+		self.course = existing[0].name
+
+		self.users = {}
+		for key, email in (
+			("instructor", "raven-instructor@example.com"),
+			("creator", "raven-creator@example.com"),
+			("evaluator", "raven-evaluator@example.com"),
+			("moderator", "raven-moderator@example.com"),
+			("assigned_evaluator", "raven-assigned-evaluator@example.com"),
+			("disabled", "raven-disabled-mod@example.com"),
+			("other", "raven-nostaff@example.com"),
+		):
+			self.users[key] = frappe.get_doc(
+				{
+					"doctype": "User",
+					"email": email,
+					"first_name": email.split("@")[0],
+					"send_welcome_email": 0,
+				}
+			).insert()
+
+		self.users["creator"].add_roles("Course Creator")
+		self.users["evaluator"].add_roles("Batch Evaluator")
+		self.users["moderator"].add_roles("Moderator")
+
+		# Holds the role but is switched off: the sync cannot link a member row to a
+		# user with no Raven User row, so a disabled holder must not be named.
+		self.users["disabled"].add_roles("Moderator")
+		frappe.db.set_value("User", self.users["disabled"].name, "enabled", 0)
 
 		self.course_doc = frappe.get_doc("LMS Course", self.course)
-		self.course_doc.append("instructors", {"instructor": self.instructor_user.name})
+		self.course_doc.append("instructors", {"instructor": self.users["instructor"].name})
+		# The other per-record tagging: LMS Course.evaluator links Course Evaluator.
+		# A different user from the platform-role evaluator, so a test naming one
+		# cannot pass by accident on the other.
+		frappe.get_doc(
+			{"doctype": "Course Evaluator", "evaluator": self.users["assigned_evaluator"].name}
+		).insert(ignore_permissions=True)
+		self.previous_evaluator = self.course_doc.evaluator
+		self.course_doc.evaluator = self.users["assigned_evaluator"].name
+		# nosemgrep: lms-unjustified-ignore-permissions - test fixture, seeding the rows the cases read back
 		self.course_doc.save(ignore_permissions=True)
-
-		if not frappe.db.exists("Course Evaluator", self.evaluator_user.name):
-			self.evaluator_doc = frappe.get_doc(
-				{"doctype": "Course Evaluator", "evaluator": self.evaluator_user.name}
-			).insert()
-		else:
-			self.evaluator_doc = frappe.get_doc("Course Evaluator", self.evaluator_user.name)
-
-		self.mentor_mapping = frappe.get_doc(
-			{
-				"doctype": "LMS Course Mentor Mapping",
-				"course": self.course,
-				"mentor": self.mentor_user.name,
-			}
-		).insert()
 
 		self.addCleanup(self._cleanup)
 
 	def _cleanup(self):
 		course_doc = frappe.get_doc("LMS Course", self.course)
 		course_doc.instructors = [
-			row for row in course_doc.instructors if row.instructor != self.instructor_user.name
+			row for row in course_doc.instructors if row.instructor != self.users["instructor"].name
 		]
+		course_doc.evaluator = self.previous_evaluator
 		course_doc.save(ignore_permissions=True)
+		if frappe.db.exists("Course Evaluator", self.users["assigned_evaluator"].name):
+			frappe.delete_doc("Course Evaluator", self.users["assigned_evaluator"].name, force=True)
 
-		if frappe.db.exists("Course Evaluator", self.evaluator_user.name):
-			frappe.delete_doc("Course Evaluator", self.evaluator_user.name, force=True)
-
-		if frappe.db.exists("LMS Course Mentor Mapping", self.mentor_mapping.name):
-			frappe.delete_doc("LMS Course Mentor Mapping", self.mentor_mapping.name, force=True)
-
-		for user in (self.instructor_user, self.evaluator_user, self.mentor_user, self.other_user):
+		for user in self.users.values():
 			if frappe.db.exists("User", user.name):
 				frappe.delete_doc("User", user.name, force=True)
 
 	def _rule(self, **kwargs) -> dict:
 		base = {
 			"rule_type": "Staff",
-			"payment_filter": "Any",
-			"batches": [],
-			"courses": [],
-			"staff_role": None,
+			"staff_kind": None,
+			"platform_roles": [],
+			"assigned_as": None,
+			"assigned_scope": "Any",
 			"staff_scope_batches": [],
 			"staff_scope_courses": [],
 		}
 		base.update(kwargs)
 		return base
 
-	# --- Instructor ---
+	def _assigned(self, **kwargs) -> dict:
+		return self._rule(staff_kind="Assigned on", **kwargs)
 
-	def test_instructor_role_returns_course_instructors(self):
-		"""staff_role=Instructor returns user from Course Instructor (unscoped)."""
-		matched = default_evaluator(self._rule(staff_role="Instructor"))
-		self.assertIn(self.instructor_user.name, matched)
-		self.assertNotIn(self.other_user.name, matched)
+	def _platform(self, *roles) -> dict:
+		return self._rule(staff_kind="Platform role", platform_roles=list(roles))
 
-	def test_instructor_role_scoped_to_course_returns_only_that_course(self):
-		"""staff_role=Instructor + staff_scope_courses=[X] returns only X's instructors."""
-		matched = default_evaluator(
-			self._rule(
-				staff_role="Instructor",
+	# --- Assigned on: named in a course or batch's own field ---
+
+	def test_instructor_unscoped_returns_every_course_instructor(self):
+		members = default_evaluator(self._assigned(assigned_as="Instructor"))
+		self.assertIn(self.users["instructor"].name, members)
+		self.assertNotIn(self.users["other"].name, members)
+
+	def test_instructor_scoped_to_its_course(self):
+		members = default_evaluator(
+			self._assigned(
+				assigned_as="Instructor",
+				assigned_scope="Courses",
 				staff_scope_courses=[self.course],
 			)
 		)
-		self.assertIn(self.instructor_user.name, matched)
-		matched_other = default_evaluator(
-			self._rule(
-				staff_role="Instructor",
+		self.assertIn(self.users["instructor"].name, members)
+
+	def test_instructor_scoped_elsewhere_matches_nobody(self):
+		members = default_evaluator(
+			self._assigned(
+				assigned_as="Instructor",
+				assigned_scope="Courses",
 				staff_scope_courses=["NON-EXISTENT-COURSE"],
 			)
 		)
-		self.assertNotIn(self.instructor_user.name, matched_other)
+		self.assertNotIn(self.users["instructor"].name, members)
 
-	# --- Evaluator ---
+	def test_a_scope_of_any_ignores_a_scope_left_in_the_config(self):
+		"""The multiselects are hidden while the scope reads Any, but a rule edited
+		down from Courses may still carry them. What the row shows is what it
+		means."""
+		members = default_evaluator(
+			self._assigned(
+				assigned_as="Instructor",
+				assigned_scope="Any",
+				staff_scope_courses=["NON-EXISTENT-COURSE"],
+			)
+		)
+		self.assertIn(self.users["instructor"].name, members)
 
-	def test_evaluator_role_returns_course_evaluators(self):
-		"""staff_role=Evaluator returns users from Course Evaluator (standalone, no scope)."""
-		matched = default_evaluator(self._rule(staff_role="Evaluator"))
-		self.assertIn(self.evaluator_user.name, matched)
-		self.assertNotIn(self.other_user.name, matched)
+	# --- Assigned on: Evaluator, the other per-record tagging ---
 
-	def test_evaluator_scope_courses_ignored(self):
-		"""Course Evaluator has no course link, so scope_courses has no effect on results."""
-		matched_scoped = default_evaluator(
-			self._rule(
-				staff_role="Evaluator",
+	def test_assigned_evaluator_unscoped_returns_everyone_named_on_a_record(self):
+		members = default_evaluator(self._assigned(assigned_as="Evaluator"))
+		self.assertIn(self.users["assigned_evaluator"].name, members)
+		self.assertNotIn(self.users["instructor"].name, members)
+
+	def test_assigned_evaluator_is_not_the_platform_evaluator_role(self):
+		"""The two "Evaluator"s name different people, which is the whole reason
+		they are separate branches. `evaluator` holds the Batch Evaluator role and
+		is named on no record; `assigned_evaluator` is named on the course."""
+		assigned = default_evaluator(self._assigned(assigned_as="Evaluator"))
+		self.assertNotIn(self.users["evaluator"].name, assigned)
+
+		platform = default_evaluator(self._platform("Evaluator"))
+		self.assertIn(self.users["evaluator"].name, platform)
+
+	def test_assigned_evaluator_scoped_to_its_course(self):
+		# A narrowing develop did not have: it ignored scope for evaluators.
+		members = default_evaluator(
+			self._assigned(
+				assigned_as="Evaluator",
+				assigned_scope="Courses",
 				staff_scope_courses=[self.course],
 			)
 		)
-		matched_unscoped = default_evaluator(self._rule(staff_role="Evaluator"))
-		self.assertIn(self.evaluator_user.name, matched_scoped)
-		self.assertEqual(
-			self.evaluator_user.name in matched_scoped,
-			self.evaluator_user.name in matched_unscoped,
+		self.assertEqual(members, {self.users["assigned_evaluator"].name})
+
+	def test_assigned_evaluator_scoped_elsewhere_matches_nobody(self):
+		members = default_evaluator(
+			self._assigned(
+				assigned_as="Evaluator",
+				assigned_scope="Courses",
+				staff_scope_courses=["NON-EXISTENT-COURSE"],
+			)
+		)
+		self.assertEqual(members, set())
+
+	def test_an_unknown_assigned_as_is_unevaluable_rather_than_empty(self):
+		for gone in ("Mentor", ""):
+			with self.assertRaises(ProviderDataError):
+				default_evaluator(self._assigned(assigned_as=gone))
+
+	# --- A scope chosen but left empty ---
+
+	def test_an_empty_chosen_scope_matches_nobody_rather_than_everyone(self):
+		"""The dangerous direction. `_instructor_users` reads "no scope at all" as
+		"every instructor on the site", so a Courses scope holding an empty list
+		would widen the rule to everyone instead of narrowing it to no one, and
+		membership sync being authoritative, widening adds real people to a
+		channel. `reqd` stops the editor reaching this; stored data can, when the
+		scope's only entry has since been deleted."""
+		for as_what in ("Instructor", "Evaluator"):
+			for scope, field in (
+				("Courses", "staff_scope_courses"),
+				("Batches", "staff_scope_batches"),
+			):
+				members = default_evaluator(
+					self._assigned(assigned_as=as_what, assigned_scope=scope, **{field: []})
+				)
+				self.assertEqual(members, set(), f"{as_what} scoped to empty {scope} matched {members}")
+
+	def test_a_scope_of_any_still_reaches_everyone(self):
+		# The guard above must not be reachable by the unscoped case, which is a
+		# deliberate "every instructor", not an empty scope.
+		members = default_evaluator(self._assigned(assigned_as="Instructor"))
+		self.assertIn(self.users["instructor"].name, members)
+
+	# --- Platform role: a site-wide Frappe role ---
+
+	def test_course_creator_returns_holders_of_that_role(self):
+		members = default_evaluator(self._platform("Course Creator"))
+		self.assertIn(self.users["creator"].name, members)
+		self.assertNotIn(self.users["moderator"].name, members)
+		self.assertNotIn(self.users["other"].name, members)
+
+	def test_moderator_returns_holders_of_that_role(self):
+		members = default_evaluator(self._platform("Moderator"))
+		self.assertIn(self.users["moderator"].name, members)
+		self.assertNotIn(self.users["creator"].name, members)
+
+	def test_evaluator_reads_the_batch_evaluator_role(self):
+		""" "Evaluator" is the wording on screen; `Batch Evaluator` is the role.
+
+		Not the same population as an assigned evaluator, which is whoever the
+		course or batch names in its own evaluator field. The two overlap only
+		partly, which is why they are separate branches rather than one word."""
+		members = default_evaluator(self._platform("Evaluator"))
+		self.assertIn(self.users["evaluator"].name, members)
+		self.assertNotIn(self.users["moderator"].name, members)
+
+	def test_several_roles_union(self):
+		members = default_evaluator(self._platform("Course Creator", "Moderator"))
+		self.assertIn(self.users["creator"].name, members)
+		self.assertIn(self.users["moderator"].name, members)
+		self.assertNotIn(self.users["other"].name, members)
+
+	def test_a_disabled_holder_is_not_named(self):
+		members = default_evaluator(self._platform("Moderator"))
+		self.assertNotIn(self.users["disabled"].name, members)
+
+	# --- All: the three platform roles, and deliberately nothing else ---
+
+	def test_all_is_the_union_of_the_three_platform_roles(self):
+		members = default_evaluator(self._rule(staff_kind="All"))
+		for key in ("creator", "evaluator", "moderator"):
+			self.assertIn(self.users[key].name, members)
+		self.assertNotIn(self.users["other"].name, members)
+
+	def test_all_does_not_reach_someone_tagged_but_role_less(self):
+		"""Recorded because it is invisible from the UI, and was chosen knowingly.
+
+		Nothing grants a role when a user is tagged as an instructor, and
+		CourseInstructor is a bare `pass` controller, so an instructor holding
+		none of the three roles is outside Staff > All. Measured on the frappuccino
+		bench when this was decided: 22 instructors, 4 of them role-less."""
+		members = default_evaluator(self._rule(staff_kind="All"))
+		self.assertNotIn(self.users["instructor"].name, members)
+
+	# --- The vocabulary this replaced ---
+
+	def test_a_rule_written_against_staff_role_is_unevaluable(self):
+		# Every one of these was a choice once. Answering the empty set for them is
+		# not "names nobody". Membership sync is authoritative, so it evicts every
+		# rule-managed member of the channel. ProviderDataError is the answer for a
+		# rule that cannot be evaluated: the read path logs and skips it, the sync
+		# path raises before it can act on it.
+		#
+		# "Evaluator" is the one that matters. It does not fail on its own terms,
+		# it used to mean every Course Evaluator record and would now mean holders
+		# of the Batch Evaluator role, populations that only partly overlap. Left
+		# to resolve, it would change a channel's membership with no error anywhere.
+		for gone in ("Instructor", "Evaluator", "Mentor", "Any", ""):
+			with self.assertRaises(ProviderDataError):
+				default_evaluator({"rule_type": "Staff", "staff_role": gone})
+
+	def test_the_unknown_kind_error_names_the_choices_that_do_exist(self):
+		# Whoever finds this in an Error Log has to know what to change it to.
+		with self.assertRaises(ProviderDataError) as caught:
+			default_evaluator(self._rule(staff_kind="Mentor"))
+		message = str(caught.exception)
+		self.assertIn("Mentor", message)
+		for choice in ("All", "Platform role", "Assigned on"):
+			self.assertIn(choice, message)
+
+
+class TestStaffScopedToABatch(FrappeTestCase):
+	"""The batch half of "Assigned on", which reads Course Instructor rows whose
+	parent is a batch, and the evaluator named on the batch's Batch Course rows.
+	"""
+
+	def setUp(self):
+		existing = frappe.get_all("LMS Course", limit=1)
+		if not existing:
+			self.skipTest("No course fixture; populate one before running this test")
+		self.course = existing[0].name
+
+		self.instructor = frappe.get_doc(
+			{
+				"doctype": "User",
+				"email": "raven-batch-instructor@example.com",
+				"first_name": "Batch Instructor",
+				"send_welcome_email": 0,
+			}
+		).insert()
+		self.evaluator = frappe.get_doc(
+			{
+				"doctype": "User",
+				"email": "raven-batch-evaluator@example.com",
+				"first_name": "Batch Evaluator",
+				"send_welcome_email": 0,
+			}
+		).insert()
+		frappe.get_doc({"doctype": "Course Evaluator", "evaluator": self.evaluator.name}).insert(
+			ignore_permissions=True
 		)
 
-	# --- Mentor ---
-
-	def test_mentor_role_returns_mentor_mapping_members(self):
-		"""staff_role=Mentor returns users from LMS Course Mentor Mapping."""
-		matched = default_evaluator(self._rule(staff_role="Mentor"))
-		self.assertIn(self.mentor_user.name, matched)
-		self.assertNotIn(self.other_user.name, matched)
-
-	def _batch(self, title: str, courses: list[str]) -> "frappe.Document":
-		batch = frappe.get_doc(
+		self.batch = frappe.get_doc(
 			{
 				"doctype": "LMS Batch",
-				"title": title,
+				"title": "Raven Staff Scope Batch",
 				"start_date": frappe.utils.today(),
 				"end_date": frappe.utils.add_days(frappe.utils.today(), 7),
-				"description": f"{title} description",
-				"batch_details": f"{title} details",
+				"description": "Batch scope fixture",
+				"batch_details": "Batch scope fixture",
+				"start_time": "09:00:00",
+				"end_time": "10:00:00",
+				"timezone": "Asia/Kolkata",
+				"instructors": [{"instructor": self.instructor.name}],
+				"courses": [{"course": self.course, "evaluator": self.evaluator.name}],
+			}
+		).insert()
+		self.elsewhere = frappe.get_doc(
+			{
+				"doctype": "LMS Batch",
+				"title": "Raven Staff Scope Other Batch",
+				"start_date": frappe.utils.today(),
+				"end_date": frappe.utils.add_days(frappe.utils.today(), 7),
+				"description": "Batch scope fixture",
+				"batch_details": "Batch scope fixture",
 				"start_time": "09:00:00",
 				"end_time": "10:00:00",
 				"timezone": "Asia/Kolkata",
 				"instructors": [{"instructor": "Administrator"}],
-				"courses": [{"course": course} for course in courses],
 			}
 		).insert()
-		self.addCleanup(lambda: frappe.delete_doc("LMS Batch", batch.name, force=True))
-		return batch
 
-	def test_mentor_scoped_to_batch_returns_mentors_of_batch_courses(self):
-		"""staff_scope_batches must be honoured: batch → its Batch Course rows → mentors."""
-		batch = self._batch("Raven Mentor Scope Batch", [self.course])
-		matched = default_evaluator(self._rule(staff_role="Mentor", staff_scope_batches=[batch.name]))
-		self.assertIn(self.mentor_user.name, matched)
+		self.addCleanup(self._cleanup)
 
-	def test_mentor_scoped_to_batch_without_courses_matches_nobody(self):
-		"""A batch scope that resolves to no courses must return {}, never every mentor.
+	def _cleanup(self):
+		for batch in (self.batch, self.elsewhere):
+			if frappe.db.exists("LMS Batch", batch.name):
+				frappe.delete_doc("LMS Batch", batch.name, force=True)
+		if frappe.db.exists("Course Evaluator", self.evaluator.name):
+			frappe.delete_doc("Course Evaluator", self.evaluator.name, force=True)
+		for user in (self.instructor, self.evaluator):
+			if frappe.db.exists("User", user.name):
+				frappe.delete_doc("User", user.name, force=True)
 
-		Regression: the Mentor branch read staff_scope_batches but only consumed
-		staff_scope_courses, so a batch-only scope built filters={} and handed the rule
-		every mentor on the site.
-		"""
-		batch = self._batch("Raven Mentor Empty Batch", [])
-		matched = default_evaluator(self._rule(staff_role="Mentor", staff_scope_batches=[batch.name]))
-		self.assertNotIn(self.mentor_user.name, matched)
-		self.assertEqual(matched, set())
+	def _assigned(self, **kwargs) -> dict:
+		return {"rule_type": "Staff", "staff_kind": "Assigned on", **kwargs}
 
-	def test_mentor_scoped_to_unknown_batch_matches_nobody(self):
-		matched = default_evaluator(
-			self._rule(staff_role="Mentor", staff_scope_batches=["NON-EXISTENT-BATCH"])
-		)
-		self.assertEqual(matched, set())
-
-	def test_mentor_course_and_batch_scopes_union(self):
-		batch = self._batch("Raven Mentor Union Batch", [self.course])
-		matched = default_evaluator(
-			self._rule(
-				staff_role="Mentor",
-				staff_scope_courses=["NON-EXISTENT-COURSE"],
-				staff_scope_batches=[batch.name],
+	def test_instructor_scoped_to_its_batch(self):
+		members = default_evaluator(
+			self._assigned(
+				assigned_as="Instructor",
+				assigned_scope="Batches",
+				staff_scope_batches=[self.batch.name],
 			)
 		)
-		self.assertIn(self.mentor_user.name, matched)
+		self.assertIn(self.instructor.name, members)
 
-	def test_mentor_scoped_to_course(self):
-		"""staff_role=Mentor + staff_scope_courses=[X] returns only X's mentors."""
-		matched = default_evaluator(
-			self._rule(
-				staff_role="Mentor",
+	def test_instructor_scoped_to_another_batch_matches_nobody(self):
+		members = default_evaluator(
+			self._assigned(
+				assigned_as="Instructor",
+				assigned_scope="Batches",
+				staff_scope_batches=[self.elsewhere.name],
+			)
+		)
+		self.assertNotIn(self.instructor.name, members)
+
+	def test_evaluator_scoped_to_its_batch_reads_the_batch_course_row(self):
+		members = default_evaluator(
+			self._assigned(
+				assigned_as="Evaluator",
+				assigned_scope="Batches",
+				staff_scope_batches=[self.batch.name],
+			)
+		)
+		self.assertIn(self.evaluator.name, members)
+
+	def test_both_unions_the_course_and_batch_scopes(self):
+		members = default_evaluator(
+			self._assigned(
+				assigned_as="Instructor",
+				assigned_scope="Both",
+				staff_scope_batches=[self.batch.name],
 				staff_scope_courses=[self.course],
 			)
 		)
-		self.assertIn(self.mentor_user.name, matched)
-		matched_other = default_evaluator(
-			self._rule(
-				staff_role="Mentor",
-				staff_scope_courses=["NON-EXISTENT-COURSE"],
+		self.assertIn(self.instructor.name, members)
+
+
+class TestTriggersFireAtAll(UnitTestCase):
+	"""Every declared trigger must be a doctype whose save runs doc_events.
+
+	raven_integration dispatches from a wildcard doc_events handler, which frappe
+	only reaches through Document.run_method, the parent document's. A child row is
+	written by the parent's update_child_table() with a direct d.db_update(), so a
+	child doctype named here is a trigger that can never fire: membership stops
+	reacting to the very edits it was listed for and waits for the nightly reconcile.
+	"""
+
+	def test_no_trigger_is_a_child_table(self):
+		import frappe
+
+		from lms.raven_provider import TRIGGERS
+
+		for doctype in TRIGGERS:
+			self.assertFalse(
+				frappe.get_meta(doctype).istable,
+				f"{doctype} is a child table, so doc_events never fires for it",
 			)
-		)
-		self.assertNotIn(self.mentor_user.name, matched_other)
 
-	# --- Any ---
+	def test_the_staff_and_instructor_parents_are_declared(self):
+		# Course Instructor hangs off both LMS Course and LMS Batch; Has Role hangs
+		# off User. Those three parents are what a tagging or a role grant saves.
+		from lms.raven_provider import TRIGGERS
 
-	def test_any_role_unions_all_three_sources(self):
-		"""staff_role=Any returns union of instructors + evaluators + mentors."""
-		matched = default_evaluator(self._rule(staff_role="Any"))
-		self.assertIn(self.instructor_user.name, matched)
-		self.assertIn(self.evaluator_user.name, matched)
-		self.assertIn(self.mentor_user.name, matched)
-		self.assertNotIn(self.other_user.name, matched)
-
-	def test_any_deduplicates_user_appearing_in_multiple_roles(self):
-		"""A user who is both instructor and mentor appears once in the result set."""
-		dual_mapping = frappe.get_doc(
-			{
-				"doctype": "LMS Course Mentor Mapping",
-				"course": self.course,
-				"mentor": self.instructor_user.name,
-			}
-		).insert()
-		self.addCleanup(lambda: frappe.delete_doc("LMS Course Mentor Mapping", dual_mapping.name, force=True))
-		matched = default_evaluator(self._rule(staff_role="Any"))
-		self.assertIn(self.instructor_user.name, matched)
-		self.assertIsInstance(matched, set)
+		for parent in ("LMS Course", "LMS Batch", "User"):
+			self.assertIn(parent, TRIGGERS)
 
 
 class TestRulePerformance(FrappeTestCase):
@@ -748,7 +1045,9 @@ class TestRulePerformance(FrappeTestCase):
 	def test_evaluate_rule_under_200ms_for_1000_students(self):
 		"""default_evaluator(Students of Batches) for a 1000-member batch must complete under 200ms."""
 		rule = {
-			"rule_type": "Students of Batches",
+			"rule_type": "Student",
+			"student_scope": "Enrolled",
+			"enrolled_in": "Batches",
 			"payment_filter": "Any",
 			"batches": [self.batch.name],
 		}
