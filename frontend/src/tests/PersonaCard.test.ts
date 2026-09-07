@@ -1,5 +1,5 @@
 /**
- * Tests for PersonaCard.vue — the data-driven onboarding stepper.
+ * Tests for PersonaCard.vue: the data-driven onboarding stepper.
  *
  * PersonaCard knows nothing about the persona questions; it renders whatever
  * `steps` it is given and steps through them. These tests pin the stepper
@@ -28,7 +28,12 @@ vi.mock('frappe-ui', () => ({
 						disabled: props.disabled,
 						onClick: () => !props.disabled && emit('click'),
 					},
-					[slots.prefix?.(), slots.icon?.(), slots.default?.(), slots.suffix?.()]
+					[
+						slots.prefix?.(),
+						slots.icon?.(),
+						slots.default?.(),
+						slots.suffix?.(),
+					]
 				)
 		},
 	},
@@ -96,16 +101,12 @@ function mountCard() {
 
 // Find a native <button> whose text contains `label`.
 function tag(wrapper: any, label: string) {
-	return wrapper
-		.findAll('button')
-		.find((b: any) => b.text().includes(label))
+	return wrapper.findAll('button').find((b: any) => b.text().includes(label))
 }
 
 // The Next button (every Button renders as a plain <button> via the mock).
 function nextBtn(wrapper: any) {
-	return wrapper
-		.findAll('button')
-		.find((b: any) => b.text().trim() === 'Next')
+	return wrapper.findAll('button').find((b: any) => b.text().trim() === 'Next')
 }
 
 beforeEach(() => {
@@ -115,9 +116,7 @@ beforeEach(() => {
 describe('PersonaCard', () => {
 	it('renders the first step and its options', () => {
 		const wrapper = mountCard()
-		expect(wrapper.text()).toContain(
-			'Where will you be using Frappe Learning?'
-		)
+		expect(wrapper.text()).toContain('Where will you be using Frappe Learning?')
 		expect(tag(wrapper, 'School')).toBeTruthy()
 		expect(tag(wrapper, 'Company')).toBeTruthy()
 		// No back chevron on the first step.
@@ -217,7 +216,7 @@ describe('PersonaCard', () => {
 		await flushPromises()
 		const complete = wrapper.emitted('complete')
 		expect(complete).toHaveLength(2)
-		// The edit made after Back is what gets submitted — never stale.
+		// The edit made after Back is what gets submitted, never stale.
 		expect(complete![1][0]).toEqual({
 			usage_context: 'School',
 			current_tool: 'Moodle',

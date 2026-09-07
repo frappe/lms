@@ -162,7 +162,7 @@ class TestCreateEmailAccount(UnitTestCase):
 	@patch("frappe.model.document.Document.save")
 	def test_duplicate_insert_propagates_error(self, mock_save):
 		"""A second account with the same name must surface the DB error, not
-		silently succeed — the whitelisted method inserts and lets the unique
+		silently succeed. The whitelisted method inserts and lets the unique
 		autoname reject the duplicate (no exists()-then-insert race)."""
 		with patch("lms.lms.email_account.frappe.get_doc") as mock_get_doc:
 			doc = mock_get_doc.return_value

@@ -3,20 +3,20 @@
 		v-if="step === 'list'"
 		:label="props.label"
 		:description="props.description"
-		:coupons="coupons"
+		:list="list"
 		@updateStep="updateStep"
 	/>
 	<CouponDetails
 		v-else-if="step == 'details'"
 		:key="data?.name || 'new'"
-		:coupons="coupons"
+		:coupons="list.resource"
 		:data="data"
 		@updateStep="updateStep"
 	/>
 </template>
 <script setup lang="ts">
 import { ref } from 'vue'
-import { createListResource } from 'frappe-ui'
+import { useSettingsListResource } from '@/composables/useSettingsListResource'
 import CouponList from '@/components/Settings/Coupons/CouponList.vue'
 import CouponDetails from '@/components/Settings/Coupons/CouponDetails.vue'
 import type { Coupon } from '@/types'
@@ -36,7 +36,7 @@ const updateStep = (newStep: 'list' | 'new' | 'edit', newData: Coupon) => {
 	}
 }
 
-const coupons = createListResource({
+const list = useSettingsListResource<Coupon>({
 	doctype: 'LMS Coupon',
 	fields: [
 		'name',
@@ -49,6 +49,6 @@ const coupons = createListResource({
 		'redemption_count',
 		'enabled',
 	],
-	auto: true,
+	searchFields: ['code'],
 })
 </script>

@@ -9,11 +9,14 @@
 					open: index == 1,
 					'self-start mt-0.5': inlineSelect,
 				}"
-				class="lucide-chevron-right size-4 text-ink-gray-9 stroke-1 transform duration-200"
+				class="lucide-chevron-right size-4 text-ink-gray-9 transform duration-200"
 			/>
 			<div
 				class="ms-2 min-w-0 flex-1 text-start"
-				:class="inlineSelect ? '' : 'flex items-baseline justify-between gap-3'"
+				:class="[
+					inlineSelect ? '' : 'flex items-baseline justify-between gap-3',
+					isScormChapterLocked ? 'cursor-not-allowed opacity-60' : '',
+				]"
 				@click="redirectToChapter"
 			>
 				<TextInput
@@ -60,8 +63,16 @@
 					/>
 				</Tooltip>
 			</div>
+			<template v-if="isScormChapterLocked">
+				<span
+					class="lucide-lock-keyhole size-4 text-ink-gray-4"
+					:title="__('Complete the previous lessons to unlock this one')"
+					aria-hidden="true"
+				/>
+				<span class="sr-only">{{ __('Locked') }}</span>
+			</template>
 			<span
-				v-if="chapter.is_scorm_package && isScormChapterComplete"
+				v-else-if="chapter.is_scorm_package && isScormChapterComplete"
 				class="lucide-check size-4 text-green-700"
 			/>
 		</DisclosureButton>
@@ -84,9 +95,17 @@
 						"
 					>
 						<component
-							:is="inlineSelect ? 'div' : 'router-link'"
-							:to="inlineSelect ? undefined : lessonRoute(lesson)"
-							:class="inlineSelect ? 'cursor-pointer' : ''"
+							:is="inlineSelect || lesson.locked ? 'div' : 'router-link'"
+							:to="
+								inlineSelect || lesson.locked ? undefined : lessonRoute(lesson)
+							"
+							:class="
+								lesson.locked
+									? 'cursor-not-allowed opacity-60'
+									: inlineSelect
+									? 'cursor-pointer'
+									: ''
+							"
 							@click="onLessonClick(lesson)"
 						>
 							<div class="flex items-center text-sm leading-5 group">
@@ -122,8 +141,18 @@
 										class="lucide-trash-2 h-4 w-4 text-ink-red-6 invisible group-hover:visible"
 									/>
 								</div>
+								<template v-if="lesson.locked">
+									<span
+										class="lucide-lock-keyhole h-4 w-4 text-ink-gray-4 ms-2"
+										:title="
+											__('Complete the previous lesson to unlock this one')
+										"
+										aria-hidden="true"
+									/>
+									<span class="sr-only">{{ __('Locked') }}</span>
+								</template>
 								<span
-									v-if="lesson.is_complete"
+									v-else-if="lesson.is_complete"
 									class="lucide-check h-4 w-4 text-green-700 ms-2"
 								/>
 							</div>
@@ -226,8 +255,8 @@ function cancelRename(): void {
 const defaultOpen = computed<boolean>(() => {
 	// Which chapter is expanded on (re)mount. The student lesson view carries
 	// the active lesson in route params; the in-page editor carries it in
-	// ?editLesson ("<chapter>-<lesson>") — which survives navigating away and
-	// back — with selectedLessonNumber as a fallback. Default to the first
+	// ?editLesson ("<chapter>-<lesson>"), which survives navigating away and
+	// back, with selectedLessonNumber as a fallback. Default to the first
 	// chapter only when nothing is active.
 	const editChapter =
 		typeof route.query.editLesson === 'string'
@@ -247,6 +276,18 @@ const isScormChapterComplete = computed<boolean>(() =>
 	)
 )
 
+// A SCORM chapter has no DisclosurePanel, so it never reaches the per-lesson lock
+// affordance below: without this it looks identical to an open one and the student
+// only learns it is locked after SCORMChapter.vue bounces them back. Same rule as
+// that page's own isLocked.
+const isScormChapterLocked = computed<boolean>(() =>
+	Boolean(
+		props.chapter.is_scorm_package &&
+			props.chapter.lessons?.length &&
+			props.chapter.lessons.every((l) => l.locked)
+	)
+)
+
 function isActiveLesson(lessonNumber: string): boolean {
 	if (props.inlineSelect) return props.selectedLessonNumber === lessonNumber
 	return (
@@ -263,7 +304,7 @@ function lessonRoute(lesson: OutlineLesson): RouteLocationRaw {
 		return {
 			name: 'CourseDetail',
 			params: { courseName: props.courseName },
-			hash: '#course editor',
+			hash: '#editor',
 			query: { editLesson: lesson.number },
 		}
 	}
@@ -274,6 +315,7 @@ function lessonRoute(lesson: OutlineLesson): RouteLocationRaw {
 }
 
 function onLessonClick(lesson: OutlineLesson) {
+	if (lesson.locked) return
 	if (!props.inlineSelect) return
 	emit('select-lesson', {
 		chapterNumber: lesson.number.split('-')[0],
@@ -291,6 +333,7 @@ function addLesson() {
 function redirectToChapter() {
 	if (!props.chapter.is_scorm_package) return
 	;(event as Event | undefined)?.preventDefault()
+	if (isScormChapterLocked.value) return
 	if (!user.data) {
 		toast.success(__('Please enroll for this course to view this lesson'))
 		return

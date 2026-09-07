@@ -51,7 +51,7 @@ import VideoBlock from '@/components/VideoBlock.vue'
 
 const show = defineModel()
 
-// One ordered list — the text-only Instructor Notes topic first, then the four
+// One ordered list: the text-only Instructor Notes topic first, then the four
 // videoed topics. Video paths are the static assets ExplanationVideos.vue used
 // to map by `type`; inlining them here lets the video sit in the open accordion
 // instead of a second modal.

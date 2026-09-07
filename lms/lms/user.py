@@ -85,9 +85,9 @@ def sign_up(email: str, full_name: str, verify_terms: bool, user_category: str):
 	set_country_from_ip(None, user.name)
 
 	if user.flags.email_sent:
-		return 1, _("Please check your email for verification")
+		return 1, _("Signup successful. Please check your email for verification.")
 	else:
-		return 2, _("Please ask your administrator to verify your sign-up")
+		return 2, _("Signup successful. Please ask your administrator to verify your sign-up.")
 
 
 def set_country_from_ip(login_manager: object = None, user: str = None):

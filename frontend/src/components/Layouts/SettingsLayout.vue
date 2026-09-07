@@ -13,10 +13,10 @@
 							size="md"
 							icon-left="lucide-chevron-left"
 							:label="title"
-							class="-ml-4 !max-w-96 !justify-start !pr-0 text-2xl-semibold cursor-pointer hover:bg-transparent hover:opacity-70 focus:bg-transparent focus:outline-none focus:ring-0 active:bg-transparent active:text-ink-gray-5"
+							class="-ms-4 !max-w-96 !justify-start !pe-0 text-p-2xl-semibold cursor-pointer hover:bg-transparent hover:opacity-70 focus:bg-transparent focus:outline-none focus:ring-0 active:bg-transparent active:text-ink-gray-5"
 							@click="emit('back')"
 						/>
-						<h2 v-else class="text-2xl-semibold text-ink-gray-8">
+						<h2 v-else class="text-p-2xl-semibold text-ink-gray-8">
 							{{ title }}
 						</h2>
 						<slot name="title-badge" />
@@ -26,9 +26,19 @@
 					</p>
 				</div>
 				<div
-					v-if="$slots['header-actions']"
-					class="flex shrink-0 items-center gap-2"
+					v-if="$slots['header-actions'] || enabled !== undefined"
+					class="flex shrink-0 items-center gap-3"
 				>
+					<Switch
+						v-if="enabled !== undefined"
+						v-model="enabled"
+						size="sm"
+						:label="__('Enabled')"
+					/>
+					<div v-if="unsaved" class="flex items-center gap-x-1 text-ink-gray-5">
+						<span class="lucide-dot size-4" />
+						<span class="text-p-sm">{{ __('Not saved') }}</span>
+					</div>
 					<slot name="header-actions" />
 				</div>
 			</div>
@@ -45,13 +55,21 @@
 </template>
 
 <script setup lang="ts">
-import { Button } from 'frappe-ui'
+import { Button, Switch } from 'frappe-ui'
 
 defineProps<{
 	title: string
 	description?: string
 	showBack?: boolean
+	/** Marks the record as edited but not yet written. */
+	unsaved?: boolean
 }>()
 
 const emit = defineEmits<{ back: [] }>()
+
+// A record's own on/off state belongs beside Save, not as the first field in
+// the body. Undefined on panels that have no such state, which is what hides it.
+const enabled = defineModel<boolean | undefined>('enabled', {
+	default: undefined,
+})
 </script>

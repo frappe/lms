@@ -22,7 +22,7 @@ const mountPlugin = (uploadContext: any) =>
 const args = (wrapper: any) =>
 	wrapper.findComponent({ name: 'FileUploader' }).props('uploadArgs')
 
-describe('UploadPlugin — uploadArgs', () => {
+describe('UploadPlugin: uploadArgs', () => {
 	it('omits doctype/docname when the lesson has no docname yet', () => {
 		const wrapper = mountPlugin({ docname: null, fieldname: 'content' })
 		const a = args(wrapper)
@@ -43,7 +43,10 @@ describe('UploadPlugin — uploadArgs', () => {
 	})
 
 	it('picks up a docname set on the live context after mount (lazy read)', async () => {
-		const context = reactive({ docname: null as string | null, fieldname: 'content' })
+		const context = reactive({
+			docname: null as string | null,
+			fieldname: 'content',
+		})
 		const wrapper = mountPlugin(context)
 		expect('docname' in args(wrapper)).toBe(false)
 

@@ -47,8 +47,6 @@
 			/>
 		</aside>
 
-		<!-- Mobile: there is no room for a 30% aside, so the outline opens from
-		     the Chapters pill into a sheet instead. -->
 		<BottomSheet v-if="isMobile" v-model="showChapters">
 			<template #header>
 				<div class="text-p-lg-semibold text-ink-gray-9">
@@ -131,7 +129,7 @@ function syncSelectedToUrl(number) {
 	if (route.query.editLesson === number) return
 	router.replace({
 		query: { ...route.query, editLesson: number },
-		hash: route.hash || '#course editor',
+		hash: route.hash || '#editor',
 	})
 }
 
@@ -237,7 +235,7 @@ const outline = createResource({
 			progress: false,
 		}
 	},
-	// auto:false — the resource fires from the course-name watcher below once
+	// auto:false: the resource fires from the course-name watcher below once
 	// the parent's course.data resolves. Auto-firing on mount would call the
 	// endpoint with course=undefined when CourseEditor mounts before the
 	// parent's course resource has loaded.
@@ -245,7 +243,7 @@ const outline = createResource({
 })
 
 // Drive initial selection from outline.data instead of the resource
-// onSuccess hook — that runs on every reload and skips cache hits, so a
+// onSuccess hook, which runs on every reload and skips cache hits, so a
 // deep-link landing on a cached outline never set `selected`.
 let initialPickDone = false
 function pickInitialLesson() {
@@ -285,7 +283,7 @@ watch(
 				const { editLesson, ...rest } = route.query
 				router.replace({
 					query: rest,
-					hash: route.hash || '#course editor',
+					hash: route.hash || '#editor',
 				})
 			}
 		}
@@ -301,7 +299,7 @@ watch(
 )
 
 // React to a deep-link change while the editor tab is already open.
-// Trust the query — a non-existent number means "new lesson", which
+// Trust the query. A non-existent number means "new lesson", which
 // LessonForm renders in create mode.
 watch(
 	() => route.query.editLesson,
@@ -314,7 +312,7 @@ watch(
 // ?lessonMode is a dead param: student view used to be a mode of this editor
 // and is now the lesson route. Send an old `preview` link to that route once
 // a lesson number is resolvable, and strip any other value so it can't linger
-// in the query that syncSelectedToUrl copies forward. One-shot — a redirect
+// in the query that syncSelectedToUrl copies forward. One-shot: a redirect
 // unmounts us, and the strip must not re-fire on its own replace.
 let legacyLessonModeHandled = false
 watch(
@@ -328,7 +326,7 @@ watch(
 		if (lessonMode !== 'preview') {
 			legacyLessonModeHandled = true
 			const { lessonMode: _dropped, ...query } = route.query
-			router.replace({ query, hash: route.hash || '#course editor' })
+			router.replace({ query, hash: route.hash || '#editor' })
 			return
 		}
 		const number = route.query.editLesson || selectedNumber
@@ -354,7 +352,7 @@ function saveSelectedLesson() {
 const isDirty = computed(() => Boolean(lessonFormRef.value?.isDirty))
 
 // The phone's lesson stepper. Derived from the outline, which is already
-// loaded, rather than from the LessonForm child — otherwise the buttons
+// loaded, rather than from the LessonForm child. Otherwise the buttons
 // flicker out on every hop while the child remounts and refetches.
 const flatLessonNumbers = computed(() =>
 	(outline.data ?? []).flatMap((c) => c.lessons?.map((l) => l.number) ?? [])
@@ -403,7 +401,7 @@ function openVideoStats() {
 
 const courseOutlineRef = ref(null)
 function openAddChapter() {
-	courseOutlineRef.value?.openChapterModal?.(null)
+	courseOutlineRef.value?.openChapterForm?.(null)
 }
 
 defineExpose({

@@ -2,6 +2,42 @@
 <html lang="{{ boot.lang }}" dir="{{ boot.text_direction }}">
 	<head>
 		<meta charset="UTF-8" />
+		<script>
+			/* The document is painted from --surface-base, which only resolves to
+			   the dark value once <html data-theme="dark"> exists. src/utils/theme.ts
+			   sets that attribute, but it cannot run until the app bundle executes —
+			   measured on a production build at 390px with the bundle blocked, the
+			   stylesheet alone paints srgb(255,255,255), and the bundle lands about
+			   300ms after first paint (1.1s at 6x CPU throttle). So a dark-mode user
+			   gets a full-screen white flash on every cold load. Resolving the stored
+			   preference here, before the stylesheet can paint, is the only place
+			   early enough: the preference lives in localStorage, so the server
+			   cannot render it into <html> the way frappe/www/desk.html does.
+			   Keep these rules in step with src/utils/theme.ts —
+			   src/tests/themeBootstrap.test.ts asserts the two agree. */
+			try {
+				var preference = localStorage.getItem('themePreference')
+				if (
+					preference !== 'light' &&
+					preference !== 'dark' &&
+					preference !== 'system'
+				) {
+					var legacy = localStorage.getItem('theme')
+					preference =
+						legacy === 'dark' || legacy === 'light' ? legacy : 'system'
+				}
+				document.documentElement.setAttribute(
+					'data-theme',
+					preference === 'system'
+						? window.matchMedia('(prefers-color-scheme: dark)').matches
+							? 'dark'
+							: 'light'
+						: preference
+				)
+			} catch (error) {
+				/* Private-mode localStorage throws; the light default still applies. */
+			}
+		</script>
 		<link rel="icon" href="{{ favicon }}" />
 		<link rel="manifest" href="/api/method/lms.lms.api.get_pwa_manifest" />
 		<link rel="apple-touch-icon" href="public/manifest/apple-icon-180.png" />
@@ -200,7 +236,10 @@
 			href="public/manifest/apple-splash-1136-640.jpg"
 			media="(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
 		/>
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta
+			name="viewport"
+			content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+		/>
 		<title>{{ title | e }}</title>
 		<meta name="title" content="{{ meta.title | e }}" />
 		<meta name="image" content="{{ meta.image | e }}" />

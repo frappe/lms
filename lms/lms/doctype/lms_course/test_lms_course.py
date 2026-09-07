@@ -25,7 +25,7 @@ class TestLMSCourse(BaseTestUtils):
 	def test_video_link_stored_as_entered(self):
 		course = self._create_course(f"Test Course {frappe.generate_hash()}")
 
-		# video_link is stored verbatim — no stripping. The frontend normalizes
+		# video_link is stored verbatim, with no stripping. The frontend normalizes
 		# both full URLs and uploaded file paths for rendering.
 		for link in (
 			"https://www.youtube.com/watch?v=dQw4w9WgXcQ",

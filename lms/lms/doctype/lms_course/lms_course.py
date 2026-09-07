@@ -51,7 +51,7 @@ class LMSCourse(Document):
 			).save(ignore_permissions=True)
 
 	def validate_video_link(self):
-		# Store video_link exactly as entered — a YouTube/Vimeo link or an uploaded
+		# Store video_link exactly as entered: a YouTube/Vimeo link or an uploaded
 		# file path. The frontend normalizes links for rendering (it handles full
 		# URLs and bare ids alike), so there's no need to strip URLs down to a bare
 		# id here. Stripping was lossy: it mangled uploaded /files paths and turned

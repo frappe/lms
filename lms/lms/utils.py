@@ -726,7 +726,7 @@ def get_zone(timezone: str) -> ZoneInfo | None:
 def get_evaluation_display_timezone(course: str = None, batch: str = None) -> str:
 	"""The zone evaluation slots are *shown* in. Never the zone they are stored in.
 
-	Slots are authored and stored in the system timezone — `nowtime()`
+	Slots are authored and stored in the system timezone. `nowtime()`
 	comparisons and the naive datetime handed to Google Calendar all depend on
 	that. The batch declares the zone its cohort works in, so that is what a
 	learner books against; a direct-evaluation course has no batch, and falls
@@ -754,7 +754,7 @@ def convert_from_system_timezone(date, time, timezone: str) -> tuple:
 	09:00 in Asia/Kolkata is Sunday 20:30 in America/Los_Angeles.
 
 	A zone name we cannot resolve is legacy free text with no offset to convert
-	against, so the wall clock is returned untouched — labelled, not moved.
+	against, so the wall clock is returned untouched: labelled, not moved.
 	"""
 	zone = get_zone(timezone)
 	system = get_zone(get_system_timezone())
@@ -768,7 +768,7 @@ def convert_from_system_timezone(date, time, timezone: str) -> tuple:
 def format_timezone(timezone: str, at=None) -> str:
 	""" "Asia/Kolkata" -> "Asia/Kolkata (GMT+5:30)".
 
-	`at` is the instant to read the offset at — a date, a datetime, or None for
+	`at` is the instant to read the offset at: a date, a datetime, or None for
 	now. It matters because the offset shifts across DST, and the slot picker
 	spans 60 days.
 
@@ -903,7 +903,7 @@ def get_courses(filters: dict = None, start: int = 0, limit_page_length: int | s
 	# the end.
 	# Read only as far as the window: `len(featured)` below is the offset the rest
 	# of the sequence starts at, and it is only needed when the window runs past
-	# the featured rows — which is exactly when this read returned all of them.
+	# the featured rows, which is exactly when this read returned all of them.
 	featured = (
 		get_featured_courses(filters.copy(), or_filters, fields, start + page_length) if show_featured else []
 	)
@@ -1123,7 +1123,7 @@ def get_course_fields():
 	]
 
 
-@frappe.whitelist(allow_guest=True)
+@frappe.whitelist(allow_guest=True)  # nosemgrep: frappe-semgrep-rules.rules.security.guest-whitelisted-method
 @rate_limit(limit=500, seconds=60 * 60)
 def get_course_details(course: str):
 	if not guest_access_allowed():
@@ -1161,7 +1161,13 @@ def get_course_details(course: str):
 		course_details.is_instructor = False
 
 	if course_details.membership and course_details.membership.current_lesson:
-		course_details.current_lesson = get_lesson_index(course_details.membership.current_lesson)
+		# "Continue Learning" must not point at a locked lesson. get_lesson_gate keeps
+		# the enrollment pointer when it is unlocked and substitutes the lesson the
+		# student may actually open otherwise; it returns None when no gate applies.
+		from lms.lms.permissions import get_lesson_gate
+
+		_locked, resume = get_lesson_gate(course)
+		course_details.current_lesson = get_lesson_index(resume or course_details.membership.current_lesson)
 
 	return course_details
 
@@ -1201,7 +1207,7 @@ def get_categorized_courses(courses: list) -> dict:
 	}
 
 
-@frappe.whitelist(allow_guest=True)
+@frappe.whitelist(allow_guest=True)  # nosemgrep: frappe-semgrep-rules.rules.security.guest-whitelisted-method
 def get_course_outline(course: str, progress: bool = False) -> list:
 	"""Returns the course outline."""
 
@@ -1216,7 +1222,11 @@ def get_course_outline(course: str, progress: bool = False) -> list:
 	files_by_name = get_scorm_files(chapters)
 	completed = get_completed_lessons(course, lesson_rows) if progress else set()
 
-	return build_outline(chapters, lesson_rows, files_by_name, completed, progress)
+	from lms.lms.permissions import enforces_lesson_completion
+
+	enforce = enforces_lesson_completion(course) if progress else False
+
+	return build_outline(chapters, lesson_rows, files_by_name, completed, progress, enforce)
 
 
 def get_outline_chapter(course: str) -> list:
@@ -1295,8 +1305,76 @@ def get_completed_lessons(course: str, lesson_rows: list) -> set:
 	)
 
 
+def compute_locked_lessons(ordered_lesson_names: list, completed: set) -> set:
+	"""Lesson names a student may not open yet, given the course order and what they finished.
+
+	A lesson is open when it is at or before the first incomplete lesson, or when the
+	student already completed it (so enabling the setting mid-cohort never revokes
+	access to work already done).
+
+	Names are deduped on first occurrence: a lesson reachable from two chapters would
+	otherwise be locked by its later occurrence and, since the return value is a set of
+	names, lock its earlier one too — with lesson one locked, even the redirect target
+	is locked and the course is a dead end.
+	"""
+	locked = set()
+	seen = set()
+	past_first_incomplete = False
+	for name in ordered_lesson_names:
+		if name in seen:
+			continue
+		seen.add(name)
+		if name in completed:
+			continue
+		if past_first_incomplete:
+			locked.add(name)
+		else:
+			past_first_incomplete = True
+	return locked
+
+
+def get_ordered_lesson_rows(course: str) -> list:
+	"""Lesson identity rows for a course, in (chapter idx, lesson idx) order.
+
+	Deliberately narrow. The lock rule needs nothing but names and order, so this must
+	not reuse get_outline_lessons: that selects body and content, the two largest text
+	columns, and every gated lesson view would then transfer the whole course.
+
+	The joins mirror get_outline_chapter / get_outline_lessons exactly (both reference
+	tables inner-joined to their target doctype) so this list and the one build_outline
+	derives its locks from can never diverge over a dangling reference row.
+	"""
+	ChapterReference = frappe.qb.DocType("Chapter Reference")
+	CourseChapter = frappe.qb.DocType("Course Chapter")
+	LessonReference = frappe.qb.DocType("Lesson Reference")
+	CourseLesson = frappe.qb.DocType("Course Lesson")
+	return (
+		frappe.qb.from_(ChapterReference)
+		.join(CourseChapter)
+		.on(CourseChapter.name == ChapterReference.chapter)
+		.join(LessonReference)
+		.on(LessonReference.parent == CourseChapter.name)
+		.join(CourseLesson)
+		.on(CourseLesson.name == LessonReference.lesson)
+		.select(
+			CourseLesson.name.as_("name"),
+			ChapterReference.chapter.as_("chapter_name"),
+			ChapterReference.idx.as_("chapter_idx"),
+			LessonReference.idx.as_("lesson_idx"),
+		)
+		.where(ChapterReference.parent == course)
+		.orderby(ChapterReference.idx)
+		.orderby(LessonReference.idx)
+	).run(as_dict=True)
+
+
 def build_outline(
-	chapters: list, lesson_rows: list, files_by_name: dict, completed: set, progress: bool
+	chapters: list,
+	lesson_rows: list,
+	files_by_name: dict,
+	completed: set,
+	progress: bool,
+	enforce_completion: bool = False,
 ) -> list:
 	chapter_idx_by_name = {c.name: c.idx for c in chapters}
 	lessons_by_chapter = {}
@@ -1318,8 +1396,19 @@ def build_outline(
 			lesson.is_complete = lr.name in completed
 		lessons_by_chapter.setdefault(lr.chapter_name, []).append(lesson)
 
+	if progress and enforce_completion:
+		ordered_names = [lesson.name for c in chapters for lesson in lessons_by_chapter.get(c.name, [])]
+		locked = compute_locked_lessons(ordered_names, completed)
+		for lessons in lessons_by_chapter.values():
+			for lesson in lessons:
+				lesson.locked = 1 if lesson.name in locked else 0
+				if lesson.locked:
+					# The quiz is part of the gated lesson, not a separate resource.
+					lesson.quiz_id = None
+
 	outline = []
 	for c in chapters:
+		lessons = lessons_by_chapter.get(c.name, [])
 		chapter = frappe._dict(
 			name=c.name,
 			title=c.title,
@@ -1327,15 +1416,48 @@ def build_outline(
 			launch_file=c.launch_file,
 			scorm_package=c.scorm_package,
 			idx=c.idx,
-			lessons=lessons_by_chapter.get(c.name, []),
+			lessons=lessons,
 		)
-		if c.is_scorm_package and c.scorm_package and c.scorm_package in files_by_name:
+		# launch_file is the SCORM entry URL and scorm_package resolves to the package
+		# file. Handing either out for a chapter the student cannot open yet would let
+		# the outline itself route around the gate, so withhold both.
+		if lessons and all(lesson.get("locked") for lesson in lessons):
+			chapter.launch_file = None
+			chapter.scorm_package = None
+		elif c.is_scorm_package and c.scorm_package and c.scorm_package in files_by_name:
 			chapter.scorm_package = files_by_name[c.scorm_package]
 		outline.append(chapter)
 	return outline
 
 
-@frappe.whitelist(allow_guest=True)
+def _gate_redirect(course: str) -> dict:
+	"""The locked payload for a lesson number that resolves to nothing.
+
+	Typing a lesson number that does not exist is the same URL tampering the gate is
+	there to catch, so on a gated course it lands the student back on their current
+	lesson rather than on the course page. Off a gated course the caller keeps the
+	existing empty response.
+
+	`not_found` travels with `locked` so the page can say which of the two happened:
+	the lesson does not exist, and telling the student to finish the earlier lessons to
+	unlock it would be a lie.
+	"""
+	from lms.lms.permissions import get_lesson_gate
+
+	_locked, resume = get_lesson_gate(course)
+	if not resume:
+		return {}
+
+	return {
+		"locked": 1,
+		"not_found": 1,
+		"title": _("Lesson not found"),
+		"course_title": frappe.db.get_value("LMS Course", course, "title"),
+		"redirect_to": get_lesson_index(resume),
+	}
+
+
+@frappe.whitelist(allow_guest=True)  # nosemgrep: frappe-semgrep-rules.rules.security.guest-whitelisted-method
 @rate_limit(limit=500, seconds=60 * 60)
 def get_lesson(course: str, chapter: int, lesson: int) -> dict:
 	if not guest_access_allowed():
@@ -1354,14 +1476,14 @@ def get_lesson(course: str, chapter: int, lesson: int) -> dict:
 		.limit(1)
 	).run(as_dict=1)
 	if not chapter_row:
-		return {}
+		return _gate_redirect(course)
 
 	chapter_name = chapter_row[0].name
 	chapter_title = chapter_row[0].title
 
 	lesson_name = frappe.db.get_value("Lesson Reference", {"parent": chapter_name, "idx": lesson}, "lesson")
 	if not lesson_name:
-		return {}
+		return _gate_redirect(course)
 
 	lesson_details = frappe.db.get_value(
 		"Course Lesson",
@@ -1386,7 +1508,20 @@ def get_lesson(course: str, chapter: int, lesson: int) -> dict:
 	)
 
 	if not lesson_details:
-		return {}
+		return _gate_redirect(course)
+
+	# Local import: permissions imports from utils at module load, so importing it
+	# at the top of utils would create a cycle.
+	from lms.lms.permissions import get_lesson_gate
+
+	locked, resume = get_lesson_gate(course)
+	if lesson_name in locked:
+		return {
+			"locked": 1,
+			"title": lesson_details.title,
+			"course_title": frappe.db.get_value("LMS Course", course, "title"),
+			"redirect_to": get_lesson_index(resume) if resume else "1-1",
+		}
 
 	if lesson_details.is_scorm_package:
 		return {
@@ -2354,8 +2489,8 @@ def serialize_callbacks_without_the_constraint():
 	Take one lock every callback contends for instead. The DocType row of the
 	table missing its constraint is an arbitrary choice, but it always exists and
 	nothing else writes it outside a migrate. Payment callbacks then queue
-	site-wide, which is coarse — and is why it only happens while the constraint
-	is missing — but it puts them back in line, so the second one sees the first
+	site-wide, which is coarse (and is why it only happens while the constraint
+	is missing), but it puts them back in line, so the second one sees the first
 	payment recorded."""
 	# Imported here: lms_payment imports get_lms_route from this module.
 	from lms.lms.doctype.lms_payment.lms_payment import has_unique_payment_id
@@ -2512,6 +2647,14 @@ def get_payment_total(payment_doc: dict) -> float:
 
 
 def enroll_in_course(course: str, payment_name: str):
+	# The check below exists so a repeated payment callback is a no-op, and an
+	# unlocked check cannot deliver that: two callbacks arriving together both read
+	# "absent", and the loser then hits the controller's own duplicate error —
+	# failing a request that has already taken the learner's money. Locking the
+	# course row first makes the skip reliable. The controller locks the same row,
+	# so this adds no new lock ordering.
+	frappe.db.get_value("LMS Course", course, "name", for_update=True)
+
 	if not frappe.db.exists("LMS Enrollment", {"member": frappe.session.user, "course": course}):
 		enrollment = frappe.new_doc("LMS Enrollment")
 		payment = frappe.db.get_value("LMS Payment", payment_name, ["name", "source"], as_dict=True)
@@ -2776,7 +2919,7 @@ def get_batch_count(filters: dict = None) -> int:
 def count_batches_the_clock_decides(filters: dict, batch_type: str) -> int:
 	"""How many matching batches `filter_batches_based_on_start_time` drops.
 
-	Only today's are ever in question — every other date the query has already
+	Only today's are ever in question. Every other date the query has already
 	settled. Upcoming drops the ones already under way; Archived, the ones still
 	to come. Both conditions are added rather than replacing the caller's date
 	filter, so a tab asking for `start_date > today` still counts nothing today.
@@ -2794,7 +2937,7 @@ def has_started_today(batch) -> bool:
 
 	Compared as times rather than as strings. `start_time` comes back from the
 	database as a timedelta, and `str()` renders a single-digit hour without a
-	leading zero — so "9:00:00" sorted above "14:30:00" and a batch that began
+	leading zero. That sorted "9:00:00" above "14:30:00", so a batch that began
 	at nine that morning still counted as upcoming at half past two.
 	"""
 	if getdate(batch.start_date) != getdate():
@@ -3034,8 +3177,8 @@ def get_editorjs_blocks(content):
 	if not isinstance(blocks, list):
 		return []
 	# Keep only blocks a reader can safely reach block["data"][...] on: the block must be a
-	# dict, and `data` (if present) must be a dict. A present-but-non-dict data — null, str,
-	# list ({"type": "quiz", "data": "x"}) — is dropped; note a plain `.get("data", {})` guard
+	# dict, and `data` (if present) must be a dict. A present-but-non-dict data (null, str,
+	# or a list like {"type": "quiz", "data": "x"}) is dropped; note a plain `.get("data", {})` guard
 	# wouldn't save the null case. Hand-authored/partial content must not AttributeError a
 	# save, the outline, or progress tracking.
 	valid_blocks = []

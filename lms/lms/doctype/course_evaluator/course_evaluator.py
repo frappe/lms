@@ -31,8 +31,8 @@ class CourseEvaluator(Document):
 		"""Being a Course Evaluator *is* holding the Batch Evaluator role.
 
 		Written as a Has Role row rather than `User.add_roles`, which saves the
-		whole User document: whenever the session user cannot write User docs —
-		every portal Moderator, since LMS only grants them list access — the save
+		whole User document: whenever the session user cannot write User docs
+		(every portal Moderator, since LMS only grants them list access), the save
 		is dropped and the role silently never lands, leaving an evaluator who
 		cannot open their own schedule. lms.lms.api.save_evaluator_role writes
 		the row directly for the same reason.
@@ -171,7 +171,7 @@ def group_slots_by_display_date(all_slots, timezone):
 	schedule row legitimately produces Sunday slots for a US-West batch.
 
 	Each slot carries both clocks. `date`/`start_time`/`end_time` are the system
-	values the booking is submitted with — everything downstream (`validate_slot`,
+	values the booking is submitted with. Everything downstream (`validate_slot`,
 	past-slot rejection, completion, the calendar event) reads system time.
 	`display_*` is what the learner sees. One display group can hold slots from
 	two different system dates, so the system date lives on the slot, not the group.
@@ -202,7 +202,7 @@ def group_slots_by_display_date(all_slots, timezone):
 				"display_start_time": display_start.strftime("%H:%M:%S"),
 				"display_end_time": display_end.strftime("%H:%M:%S"),
 				# A slot that sits inside one system day can straddle midnight once
-				# converted — 17:00-19:00 Asia/Kolkata is 23:30-01:30 in
+				# converted: 17:00-19:00 Asia/Kolkata is 23:30-01:30 in
 				# Pacific/Auckland. Without this the picker would render
 				# "23:30 - 01:30" under one date and say nothing about which day the
 				# slot ends on.

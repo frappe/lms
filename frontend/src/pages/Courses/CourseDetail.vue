@@ -28,24 +28,14 @@
 					:text="__('No changes to save')"
 					:hoverDelay="0.1"
 				>
-					<Button
-						variant="solid"
-						:disabled="true"
-						:class="isMobile ? '!size-9' : ''"
-					>
-						<span v-if="isMobile" class="lucide-save size-4" />
-						<span v-else>{{ __('Save') }}</span>
-					</Button>
+					<HeaderButton :label="__('Save')" variant="solid" disabled />
 				</Tooltip>
 				<ShortcutTooltip v-else :label="__('Save')" combo="Mod+S">
-					<Button
+					<HeaderButton
+						:label="__('Save')"
 						variant="solid"
-						:class="isMobile ? '!size-9' : ''"
 						@click="courseFormRef.submitCourse()"
-					>
-						<span v-if="isMobile" class="lucide-save size-4" />
-						<span v-else>{{ __('Save') }}</span>
-					</Button>
+					/>
 				</ShortcutTooltip>
 			</template>
 			<template v-if="tab?.key === 'editor' && editorSelected">
@@ -67,6 +57,7 @@
 				<Tooltip v-if="!isMobile" :text="__('How to edit a lesson')">
 					<Button
 						variant="ghost"
+						class="text-p-base-medium"
 						:label="__('How to edit a lesson')"
 						@click="showLessonHelp = true"
 					>
@@ -106,7 +97,7 @@
 				variant="outline"
 				class="!size-9"
 				:tooltip="__('Enroll')"
-				@click="courseDashboardRef?.openEnrollModal()"
+				@click="openEnrollForm()"
 			>
 				<template #icon>
 					<span class="lucide-plus size-4" />
@@ -115,7 +106,7 @@
 			<Button
 				v-else-if="tab?.key === 'dashboard' && course.data"
 				variant="outline"
-				@click="courseDashboardRef?.openEnrollModal()"
+				@click="openEnrollForm()"
 			>
 				<template #prefix>
 					<span class="lucide-plus size-4" />
@@ -141,7 +132,7 @@
 		<template #tab-body-editor>
 			<div
 				v-if="isMobile && editorSelected"
-				class="flex items-center gap-2 border-b bg-surface-base px-3 py-2"
+				class="flex items-center gap-2 border-b bg-surface-base px-5 py-2.5"
 			>
 				<Button
 					variant="subtle"
@@ -182,11 +173,6 @@
 		</template>
 
 		<template #overlay="{ tab }">
-			<!-- Chapters as a floating pill rather than a header icon: on a phone
-			     the outline is the control you reach for most while editing, and
-			     the bottom-right corner is where a thumb already is. Uses the
-			     ordinary outline Button so it carries espresso's surface, border
-			     and ink tokens instead of an ad-hoc dark fill. -->
 			<Button
 				v-if="isMobile && tab?.key === 'editor'"
 				variant="outline"
@@ -208,7 +194,7 @@
 				<div
 					class="pointer-events-auto flex w-[30%] items-center justify-between gap-x-2 border-s border-b bg-surface-base p-1 px-5"
 				>
-					<div class="py-2.5 text-base-medium text-ink-gray-9">
+					<div class="py-2.5 text-p-base-medium text-ink-gray-9">
 						{{ __('Chapters') }}
 					</div>
 					<Button size="sm" @click="courseEditorRef?.openAddChapter()">
@@ -222,11 +208,13 @@
 		</template>
 	</TabbedDetailPage>
 	<LessonHelp v-model="showLessonHelp" />
+
+	<router-view />
 </template>
 <script setup lang="ts">
 import { computed, inject, markRaw, ref, useTemplateRef, watch } from 'vue'
 import type { ComputedRef } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import type { Router } from 'vue-router'
 import {
 	Badge,
@@ -248,6 +236,8 @@ import CourseEditor from '@/pages/Courses/CourseEditor.vue'
 import CourseForm from '@/pages/Courses/CourseForm.vue'
 import LessonHelp from '@/components/LessonHelp.vue'
 import ShortcutTooltip from '@/components/ShortcutTooltip.vue'
+import HeaderButton from '@/components/HeaderButton.vue'
+import { openFormRoute } from '@/composables/useFormRoute'
 import type {
 	CourseDetails,
 	CourseInstructorInfo,
@@ -259,6 +249,7 @@ type Brand = { name?: string; logo?: string; favicon?: string }
 
 const { brand } = sessionStore() as { brand: Brand }
 const router: Router = useRouter()
+const route = useRoute()
 const user = inject<SessionUser>('$user')!
 const { isMobile } = useScreenSize()
 
@@ -287,12 +278,6 @@ const page = useTemplateRef('page')
 
 const courseFormRef = computed<CourseFormApi | null>(
 	() => (page.value?.instanceFor('settings') ?? null) as CourseFormApi | null
-)
-
-type CourseDashboardApi = { openEnrollModal: () => void }
-const courseDashboardRef = computed<CourseDashboardApi | null>(
-	() =>
-		(page.value?.instanceFor('dashboard') ?? null) as CourseDashboardApi | null
 )
 
 type CourseEditorApi = {
@@ -337,7 +322,7 @@ const publishToggle = createResource({
 }) as Resource<unknown>
 
 // On a phone the publish toggle joins the ... menu, where it keeps a written
-// label — an icon-only globe gave no hint that it publishes the course.
+// label. An icon-only globe gave no hint that it publishes the course.
 const courseOptions = computed<CourseMenuItem[]>(() => {
 	const menu = courseFormRef.value?.courseMenu ?? []
 	if (!isMobile.value || !user.data?.is_moderator) return menu
@@ -357,12 +342,25 @@ function togglePublishCourse() {
 	publishToggle.submit()
 }
 
+// The enrollment form is a child route now, not a modal the dashboard tab owned,
+// so the button navigates instead of reaching into the tab instance. Hash and
+// query both travel: the hash names the tab this page returns to, and the query
+// holds CourseEditor's open lesson.
+function openEnrollForm() {
+	openFormRoute(router, {
+		name: 'NewCourseEnrollment',
+		params: { courseName: props.courseName },
+		hash: route.hash,
+		query: { ...route.query },
+	})
+}
+
 const props = defineProps<{
 	courseName: string
 }>()
 
-// No `cache` key: it would be read once at setup, so the reload below — this
-// component is reused when you jump straight from one course to another — would
+// No `cache` key: it would be read once at setup, so the reload below (this
+// component is reused when you jump straight from one course to another) would
 // file the new course's data under the course you arrived on.
 const course = createResource({
 	url: 'lms.lms.utils.get_course_details',

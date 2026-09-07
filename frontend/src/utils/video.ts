@@ -7,7 +7,7 @@
 const YOUTUBE_RE =
 	/(?:youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|v\/|shorts\/)|youtu\.be\/)([\w-]{11})/
 
-// A bare 11-char video id, optionally trailed by tracking params — the legacy
+// A bare 11-char video id, optionally trailed by tracking params: the legacy
 // stored form (e.g. "XKA94rcu8b8?si=DEk3Kh20jA4uZFCa"). Anchored so file URLs
 // like "/files/intro.mp4" never match.
 const BARE_ID_RE = /^([\w-]{11})(?:[?&].*)?$/
@@ -31,17 +31,20 @@ type LessonLike = {
 }
 
 /**
- * Whether a lesson (course-lesson doc or editor draft) contains a video — a
+ * Whether a lesson (course-lesson doc or editor draft) contains a video: a
  * YouTube link, an uploaded video, a {{ Video }}/{{ YouTubeVideo }} macro in the
  * legacy body, or an embed/video-upload block in the editor content. Shared by
  * the lesson view and the lesson editor so the Video Statistics affordance shows
  * in exactly the same cases.
  */
-export function hasVideoContent(lesson: LessonLike | null | undefined): boolean {
+export function hasVideoContent(
+	lesson: LessonLike | null | undefined
+): boolean {
 	if (!lesson) return false
 	if (lesson.youtube) return true
 	if (lesson.videos?.length) return true
-	if (lesson.body && /\{\{ (YouTubeVideo|Video)\(/.test(lesson.body)) return true
+	if (lesson.body && /\{\{ (YouTubeVideo|Video)\(/.test(lesson.body))
+		return true
 	if (lesson.content) {
 		try {
 			const blocks = JSON.parse(lesson.content)?.blocks || []
@@ -69,7 +72,7 @@ export function getVideoPreview(url: string | null | undefined): VideoPreview {
 	if (url) {
 		const src = String(url)
 		// A bare filename (no scheme, no leading slash) is a legacy uploaded video
-		// whose /files/ prefix was stripped on save — resolve it against the public
+		// whose /files/ prefix was stripped on save. Resolve it against the public
 		// files path so <video> doesn't treat it as relative to the current route.
 		const resolved =
 			/^https?:\/\//.test(src) || src.startsWith('/') ? src : `/files/${src}`

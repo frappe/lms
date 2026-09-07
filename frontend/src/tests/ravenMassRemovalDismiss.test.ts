@@ -9,7 +9,7 @@ import MassRemovalConfirmDialog from '@/components/Settings/Raven/MassRemovalCon
 
 vi.mock('frappe-ui', () => ({
 	Dialog: {
-		props: ['modelValue', 'options'],
+		props: ['modelValue', 'title', 'message', 'size', 'actions'],
 		emits: ['update:modelValue'],
 		template: `
 			<div>
@@ -18,7 +18,7 @@ vi.mock('frappe-ui', () => ({
 					@click="$emit('update:modelValue', false)"
 				/>
 				<button
-					v-for="a in options.actions"
+					v-for="a in actions"
 					:key="a.label"
 					:data-testid="'action-' + (a.variant ?? 'plain')"
 					@click="a.onClick()"
@@ -39,7 +39,7 @@ const dialog = () =>
 		global: { config: { globalProperties: { __: (s: string) => s } } },
 	})
 
-describe('MassRemovalConfirmDialog — dismissal settles the caller', () => {
+describe('MassRemovalConfirmDialog: dismissal settles the caller', () => {
 	it('emits cancel when the dialog is dismissed without an action', async () => {
 		const wrapper = dialog()
 

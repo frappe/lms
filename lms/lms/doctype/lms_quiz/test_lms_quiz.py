@@ -143,7 +143,7 @@ class TestQuizSubmissionInputValidation(unittest.TestCase):
 		self.assertEqual(_parse_json_arg('{"a": 1}', "answers"), {"a": 1})
 
 	def test_malformed_json_is_rejected(self):
-		# Under a real request this is frappe.ValidationError; bare it raises too — the
+		# Under a real request this is frappe.ValidationError; bare it raises too. The
 		# contract is "reject, don't 500/parse-as-None".
 		for raw in ("not json", "{bad}", "", "[1,"):
 			with self.subTest(raw=raw):
@@ -153,7 +153,7 @@ class TestQuizSubmissionInputValidation(unittest.TestCase):
 
 class TestCheckAnswerEmptyInput(unittest.TestCase):
 	"""check_answer normalises the client answers payload before dispatching. Empty/absent
-	answers used to skip the parser and reach downstream in the wrong shape — answers[0]
+	answers used to skip the parser and reach downstream in the wrong shape: answers[0]
 	(IndexError on "") or `x in None` (TypeError). It must now normalise to a list and
 	reject an empty answer for input questions with a clean ValidationError. The pre-dispatch
 	permission/existence checks are monkeypatched so this stays fixture-free.
@@ -191,7 +191,7 @@ class TestCheckAnswerEmptyInput(unittest.TestCase):
 	# JSON strings that parse to empty/null), not Python None.
 
 	def test_empty_choice_answers_normalise_to_list(self):
-		# No selection on a choice question is legitimate — dispatch with [], never crash.
+		# No selection on a choice question is legitimate. Dispatch with [], never crash.
 		for raw in ("", "[]"):
 			with self.subTest(raw=raw):
 				self.choice_calls.clear()
@@ -233,7 +233,7 @@ class TestQuizResultValidation(unittest.TestCase):
 
 	def test_wellformed_and_blank_results_pass(self):
 		# Only coarse shape is enforced here; a blank/absent answer is NOT rejected (the UI
-		# emits [null] for a skipped question — process_results normalises it to "").
+		# emits [null] for a skipped question; process_results normalises it to "").
 		self.fn([])  # empty submission is fine
 		self.fn([{"question_name": "Q1", "answer": ["opt1"]}])
 		self.fn([{"question_name": "Q1", "answer": ["a", "b"]}])

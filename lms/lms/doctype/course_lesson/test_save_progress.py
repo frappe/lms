@@ -194,7 +194,7 @@ class TestSaveProgressEnrollmentLifecycle(BaseTestUtils):
 
 		# Queueing a webhook also registers flush_webhook_execution_queue on
 		# frappe.db.after_commit. This test never commits, so both would outlive it and
-		# fire inside whichever later test commits first (any sql_ddl does) — by which
+		# fire inside whichever later test commits first (any sql_ddl does), by which
 		# point this Webhook is rolled back, and that test dies on DoesNotExistError.
 		frappe.local._webhook_queue = []
 		self.addCleanup(frappe.db.after_commit.reset)

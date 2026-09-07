@@ -1,9 +1,9 @@
 /**
- * Tests for ProfileEvaluator.vue — the evaluator availability panel.
+ * Tests for ProfileEvaluator.vue: the evaluator availability panel.
  *
  * Focus: every write goes through the ownership-checked `lms.lms.api`
  * endpoints. It used to call `frappe.client.insert` / `set_value` / `delete`
- * directly, which fall back to Course Evaluator's role permissions — those
+ * directly, which fall back to Course Evaluator's role permissions. Those
  * grant blanket write to Moderator, Batch Evaluator and Course Creator with no
  * owner condition, so any of them could edit any other evaluator's calendar.
  *

@@ -2,9 +2,80 @@
 @import 'frappe-ui/list-style.css';
 @import './styles/blockEditor.css';
 
+/* Nothing has ever painted the document. frappe-ui's style.css declares the
+   theme variables but sets no background on html or body, so the canvas stayed
+   the user agent's white no matter what `data-theme` said. Light mode hid that
+   for free — white is exactly what --surface-base resolves to there — and dark
+   mode showed white through every region no element happens to cover: the
+   MobileLayout <main> (the one app main with no bg-surface-base of its own),
+   the overscroll gutter, and any page shorter than the viewport. Painting the
+   document is the fix rather than putting a background on one more <main>,
+   because a <main> cannot cover the regions that have no element at all.
+   color-scheme travels with it so scrollbars and native controls follow the
+   chosen theme instead of the OS's. Precedent: helpdesk/desk/src/index.css
+   styles `html, body` from the same token set. */
+html {
+	background-color: var(--surface-base);
+	color-scheme: light;
+}
+
+/* Icons are 1.5 stroke everywhere. frappe-ui already normalises the two lucide
+   paths it owns (the `lucide-*` mask classes and the `~icons/lucide/*`
+   components), but `lucide-vue-next` renders its own default of 2, so the
+   sidebar's dynamic `icons[name]` lookups came out heavier than the same icon
+   in a Dropdown. Normalise the third path here rather than at each call site.
+   A `stroke-*` utility is a single class, so `svg.lucide` outranks it: this is
+   the floor and the ceiling, which is the point. Filled icons (the review
+   stars) key off `fill` and are unaffected. */
+svg.lucide {
+	stroke-width: 1.5;
+}
+
+/* 48px, matching the desk header's computed height. Worn by PageHeader,
+   MobilePageLayout, FormShell and the SkeletonLoader placeholder, which has to
+   match their geometry or the page jumps when its data lands. No vertical
+   padding: the height is the floor below and the content centres inside it,
+   which is what keeps 48 exact.
+
+   The custom property is the single source. The frame takes its height from it
+   and the scroll containers clear it, so a header that changes height cannot
+   leave a band that swallows a focused element on Shift+Tab (WCAG 2.4.11). A
+   Tailwind class cannot be read back out of CSS, so the number has to live
+   here rather than in the @apply. */
+:root {
+	--header-frame-h: 3rem;
+}
+
+.header-frame {
+	@apply flex shrink-0 items-center border-b border-outline-gray-1 bg-surface-base px-5;
+	min-height: var(--header-frame-h);
+}
+
+/* #scrollContainer in MobileLayout and NoSidebarLayout, #main-content in
+   DesktopLayout — the page scrollports the sticky header overlaps. */
+main#scrollContainer,
+main#main-content {
+	scroll-padding-block-start: var(--header-frame-h);
+}
+
+/* Menu rows sit on the tight `text-base` scale (line-height 1.15) while the
+   surfaces around them read on the paragraph scale. Bring them onto it, so a
+   dropdown label has the same rhythm as the sidebar label next to it.
+   The paragraph scale already carries its own leading (14px/21px), so the row's
+   native `py-1.5` stacks on top of it and the row grows to 33px. Drop that
+   padding and the height falls back to the `min-h-7` floor: 28px rows, the
+   label still on the p-scale. Dropdown has no per-instance class hook
+   (`menuClasses.content` is fixed), so the narrowest available scope is every
+   menu; Select/Autocomplete option lists use the same row slot outside
+   `.menu-content` and are deliberately left alone. */
+.menu-content [data-slot='item-list-row'] {
+	@apply text-p-base py-0;
+}
+
 /* This build makes --surface-sidebar transparent in dark mode; point it at
    gray-1 so the sidebar keeps a visible surface. */
 [data-theme='dark'] {
+	color-scheme: dark;
 	--surface-sidebar: var(--surface-gray-1);
 }
 
@@ -12,6 +83,15 @@
    (and stray inline <label>s) to the field-label style. */
 label.block:not([data-slot='label']) {
 	@apply text-p-sm-medium text-ink-gray-7;
+}
+
+/* Switch rows follow CRM's settings row: a medium, darker label over the
+   text-p-sm/ink-gray-5 description frappe-ui already renders. Keyed off the
+   switch control rather than a wrapper class so a bare frappe-ui Switch is
+   styled the same as one routed through BooleanSwitch. Ref CRM
+   Settings/DashboardSettings.vue. */
+div:has(> [role='switch']) [data-slot='label'] {
+	@apply text-p-base-medium text-ink-gray-7;
 }
 
 /* frappe-ui beta.7 Switch leaves a loose label/description gap; tighten it so
@@ -30,6 +110,46 @@ label.block:not([data-slot='label']) {
 	position: sticky;
 	bottom: -0.25rem;
 	z-index: 1;
+}
+
+/* Bound those same panels to the phone. reka positions a popper by wrapping it
+   in a div carrying an inline `min-width: max-content` (PopperContent.vue:388),
+   and nothing in frappe-ui's chain below it — ComboboxContent, PopoverPanel, the
+   results viewport — ever sets a max-width. So the panel is always at least as
+   wide as its longest option: one 50-character email address and it is wider
+   than a 375px screen, hanging off the inline-end edge of a `fixed inset-0` form
+   that has nowhere to scroll sideways. The wrapper is itself `fixed`, so this
+   never produced a scrollbar to reach the overflow with — the panel's trailing
+   actions were simply unreachable. The non-obvious part is that the shrink chain
+   inside is already correct — ItemListRow gives the label `min-w-0 flex-1` and
+   the row `truncate`s — it simply never had a bounded box to shrink into, which
+   is why the text was sliced flush with no ellipsis rather than ellipsised: the
+   ellipsis was being computed off-screen. A max-width here clamps this box's
+   max-content contribution, so the wrapper's `max-content` resolves smaller and
+   the panel fits; floating-ui's shift middleware then slides it fully into view.
+   `vw` rather than `%`: the containing block is intrinsically sized, so a
+   percentage max-width is indefinite during intrinsic sizing and would no-op.
+   Unscoped, and above `sm` (640px) unset, for the same reasons as the rule
+   above.
+
+   Matched on the bare `[data-slot='content-body']`, exactly like that rule,
+   because frappe-ui renders a panel two ways and only one carries `data-panel`:
+   PopoverPanel.vue:4 sets it, so Popover, HoverCard, Select, Combobox and the
+   date pickers (via PickerShell) all have it — but MultiSelect.vue:409 and
+   TimePicker.vue:67 hand-roll their own shell div and never import
+   PopoverPanel. Requiring `data-panel` therefore skipped the Instructors picker
+   and every MultiLink field, which carry the widest options in the app. The two
+   panels this newly reaches are both safe: MultiSelect nests the same
+   ComboboxContent > FocusScope(as-child) > shell as Combobox, so the clamp
+   lands in the same place, and its scrolling results viewport is inside the
+   clamped box; TimePicker's panel is a fixed `w-44` (176px), so the clamp only
+   binds below a 208px viewport and never fires in practice. Select is
+   unaffected either way — it already matched, and its item-aligned popup is
+   clamped into the viewport by reka itself, so this only trims a few pixels. */
+@media (max-width: 639.98px) {
+	[data-slot='content-body'] {
+		max-width: calc(100vw - 2rem);
+	}
 }
 
 /* frappe-ui's --ink-gray-2 bullets are near-invisible; use --ink-gray-4 (as the

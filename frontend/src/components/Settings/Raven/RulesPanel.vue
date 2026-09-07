@@ -29,7 +29,7 @@
 
 		<!-- (c) Disabled rules drop out of an All (AND) intersection entirely, so the
 			 population is wider than the visible rule list implies. Nothing else says
-			 so — Disable is hidden under AND, but a mapping switched to AND after a
+			 so. Disable is hidden under AND, but a mapping switched to AND after a
 			 rule was disabled still lands here. -->
 		<div
 			v-if="combinator === 'All (AND)' && hasDisabledRules"
@@ -106,7 +106,7 @@
 								label: ($event as string) || undefined,
 							})
 						"
-						:placeholder="__('Label — e.g. Cohort cap')"
+						:placeholder="__('Label, e.g. Cohort cap')"
 						:aria-label="__('Label')"
 						class="w-full"
 					/>
@@ -207,7 +207,7 @@ const props = defineProps<{
 	description?: string
 	subtitle?: string
 	rules: RavenMemberRule[]
-	/** Mapping's rule combinator. Disable is Any (OR)-only — see rowOptions. */
+	/** Mapping's rule combinator. Disable is Any (OR)-only. See rowOptions. */
 	combinator?: string
 	noActiveRulesMessage: string
 }>()
@@ -266,7 +266,7 @@ const hasInvalidSavedRule = computed<boolean>(() =>
 	draft.value.some((row) => row.rule.name && invalidKeys.value.has(row.key))
 )
 
-// Nothing to add before the declaration lands — a rule with no type is unsavable.
+// Nothing to add before the declaration lands. A rule with no type is unsavable.
 const canAddRule = computed<boolean>(
 	() => invalidKeys.value.size === 0 && hasDeclaration.value
 )
@@ -275,14 +275,14 @@ function invalidMessage(key: string): string {
 	const reason = invalidKeys.value.get(key)
 	if (reason === 'undeclared')
 		return __(
-			'This rule type is no longer offered — pick another one to resume saving.'
+			'This rule type is no longer offered. Pick another one to resume saving.'
 		)
 	if (reason === 'unnamed')
-		return __('Name this rule — it is not saved until it has one.')
+		return __('Name this rule. It is not saved until it has one.')
 	if (reason === 'incomplete')
-		return __('Finish this rule — pick what it should match to save it.')
+		return __('Finish this rule. Pick what it should match to save it.')
 	return __(
-		'Matches another rule above — not saved. Change the type or criteria to keep it.'
+		'Matches another rule above and is not saved. Change the type or criteria to keep it.'
 	)
 }
 
@@ -300,13 +300,14 @@ function emitDraft(options?: { fromRemoval?: boolean }): void {
 		.map((row) => row.rule)
 	// Withholding a card means the payload can come out identical to what is already
 	// saved. Emitting it anyway costs a no-op save whose reload rebuilds `draft` from
-	// the server — deleting the card the user just added, with nothing logged. Adding
-	// a second rule to a mapping whose only rule is the default did exactly that.
+	// the server. That deletes the card the user just added, with nothing logged.
+	// Adding a second rule to a mapping whose only rule is the default did exactly
+	// that.
 	if (JSON.stringify(next) === JSON.stringify(props.rules ?? [])) return
 	emit('persist', next, options)
 }
 
-// Debounced per-row commit — avoids per-keystroke API spam.
+// Debounced per-row commit. Avoids per-keystroke API spam.
 // Declared above the draft because reconciliation reads the pending set.
 const commitTimers = new Map<string, ReturnType<typeof setTimeout>>()
 const COMMIT_DELAY_MS = 700
@@ -328,14 +329,15 @@ function reconcile(current: DraftRow[], rules: RavenMemberRule[]): DraftRow[] {
 	const byKey = new Map(current.map((row) => [row.key, row]))
 	// Unsaved draft rows a newly-named server rule has claimed as its own. A row
 	// persisted for the first time comes back with a docname (now its key), which no
-	// longer matches the `new-N` key it carried while unsaved — so byKey misses it.
+	// longer matches the `new-N` key it carried while unsaved. That is why byKey
+	// misses it.
 	// Match it by identity and mark it consumed, or the trailing loop re-adds the
 	// very row that was just saved as a phantom duplicate of itself.
 	const consumed = new Set<string>()
 	const next = rules.map((rule) => {
 		const key = rule.name ?? nextKey()
 		const row = byKey.get(key)
-		// A row with a commit still pending holds the newer copy — the server's is the
+		// A row with a commit still pending holds the newer copy. The server's is the
 		// state before that edit, so taking it would undo the keystrokes in flight.
 		if (row && commitTimers.has(key)) return row
 		if (!row && rule.name) {
@@ -352,7 +354,7 @@ function reconcile(current: DraftRow[], rules: RavenMemberRule[]): DraftRow[] {
 			rule: JSON.parse(JSON.stringify(rule)) as RavenMemberRule,
 		}
 	})
-	// A card the server has no counterpart for is unsaved work — a new rule, or one
+	// A card the server has no counterpart for is unsaved work: a new rule, or one
 	// withheld from the payload for being incomplete. A refetch is not a deletion.
 	// A just-saved row (consumed) already appears above, so it is not unsaved work.
 	const serverKeys = new Set(next.map((row) => row.key))
@@ -405,7 +407,7 @@ function removeRule(key: string): void {
 }
 
 // Disabling keeps the rule's config but stops it granting membership. Committed at
-// once rather than debounced — it's a discrete action, not typing.
+// once rather than debounced. It's a discrete action, not typing.
 // Stored as `Paused` (the doctype's Select option); the UI calls it Disabled.
 function toggleStatus(key: string): void {
 	const row = draft.value.find((r) => r.key === key)
@@ -427,13 +429,13 @@ function managedByLabel(row: DraftRow): string {
 	return `${__('Managed by')} ${row.rule.provider}`
 }
 
-// Frozen while disabled — the "..." menu (Enable / Remove) is the way out. A foreign
+// Frozen while disabled. The "..." menu (Enable / Remove) is the way out. A foreign
 // rule is frozen for good: its own app is where it is edited.
 function isLocked(row: DraftRow): boolean {
 	return row.rule.status === 'Paused' || isForeign(row)
 }
 
-// One hint at a time, cleared when the rule is enabled — nothing to time out.
+// One hint at a time, cleared when the rule is enabled. Nothing to time out.
 const hintKey = ref<string | null>(null)
 
 // Only a disabled rule of ours has a way out to point at; the foreign badge says
@@ -486,7 +488,7 @@ function rowOptions(key: string): DropdownOption[] {
 	const off =
 		draft.value.find((row) => row.key === key)?.rule.status === 'Paused'
 	// Under All (AND) a rule narrows the population, so disabling one would *widen*
-	// it — adding people, the opposite of what disabling means. Offer it on Any (OR)
+	// it by adding people, the opposite of what disabling means. Offer it on Any (OR)
 	// only. An already-disabled rule keeps its Enable so an AND switch can't strand it.
 	const canDisable = props.combinator !== 'All (AND)' || off
 	return [

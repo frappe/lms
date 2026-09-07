@@ -17,7 +17,7 @@ function tidyOffset(offset: string): string {
 
 /**
  * `new Date('2026-08-03')` is UTC midnight, which is the previous day in every
- * westward zone — enough to report the wrong side of a DST transition. A
+ * westward zone, enough to report the wrong side of a DST transition. A
  * date-only value is anchored at local midday instead, which no transition
  * crosses.
  */
@@ -39,7 +39,7 @@ function toInstant(at?: string | Date): Date {
 }
 
 /**
- * The UTC offset of `timezone` is not constant — it shifts across DST — so the
+ * The UTC offset of `timezone` is not constant (it shifts across DST), so the
  * instant being labelled has to be passed in.
  */
 function offsetOn(timezone: string, at?: string | Date): string {
@@ -58,7 +58,7 @@ function offsetOn(timezone: string, at?: string | Date): string {
  * offset at, defaulting to now.
  *
  * Values Intl does not recognise as a zone are legacy free text and are echoed
- * unchanged — they already read as a timezone to a human, and there is no safe
+ * unchanged. They already read as a timezone to a human, and there is no safe
  * way to parse them back into a zone.
  */
 export function formatTimezone(

@@ -1,5 +1,5 @@
 /**
- * CourseReviews.vue — review list rendering.
+ * CourseReviews.vue: review list rendering.
  *
  * Date guard: the "every review shows Today" bug came from the backend
  * overwriting `creation` with pretty_date() ("2 days ago"), which the frontend
@@ -21,7 +21,11 @@ type Review = {
 	owner: string
 	creation: string
 	review?: string
-	owner_details: { username: string; full_name: string; user_image: string } | null
+	owner_details: {
+		username: string
+		full_name: string
+		user_image: string
+	} | null
 }
 
 const review = (over: Partial<Review> & { name: string }): Review => ({
@@ -39,7 +43,11 @@ const DEFAULT_REVIEWS: Review[] = [
 		rating: 4,
 		creation: fmt(dayjs().subtract(1, 'day').subtract(1, 'hour')),
 	}),
-	review({ name: 'r-5-days', rating: 3, creation: fmt(dayjs().subtract(5, 'day')) }),
+	review({
+		name: 'r-5-days',
+		rating: 3,
+		creation: fmt(dayjs().subtract(5, 'day')),
+	}),
 	review({
 		name: 'r-2-months',
 		rating: 2,
@@ -67,7 +75,9 @@ vi.mock('frappe-ui', () => ({
 			  }
 			: { data: 0, reload: vi.fn(), refresh: vi.fn() },
 }))
-vi.mock('@/components/UserAvatar.vue', () => ({ default: { template: '<div />' } }))
+vi.mock('@/components/UserAvatar.vue', () => ({
+	default: { template: '<div />' },
+}))
 vi.mock('@/components/Modals/ReviewModal.vue', () => ({
 	default: { template: '<div />' },
 }))

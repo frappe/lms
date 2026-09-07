@@ -68,14 +68,14 @@ usePageMeta(() => {
 </script>
 
 <style scoped>
-/* frappe-ui's DataImport hard-codes its own sticky header — no slot, no prop to
-   turn it off — so suppressing it here is the only way this page gets the
+/* frappe-ui's DataImport hard-codes its own sticky header (no slot, no prop to
+   turn it off), so suppressing it here is the only way this page gets the
    app's header like every other page.
 
    Its step indicator is rendered twice, `hidden lg:flex` inside that header and
    a `lg:hidden` copy in the page below it. Hiding the header alone would
-   therefore leave a desk with no steps at all, so the in-page copy — matched on
-   the width class only it carries — is shown at every width instead. */
+   therefore leave a desk with no steps at all, so the in-page copy (matched on
+   the width class only it carries) is shown at every width instead. */
 .data-import-host :deep(> header) {
 	display: none;
 }

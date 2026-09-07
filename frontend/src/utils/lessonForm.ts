@@ -31,7 +31,7 @@ export function hasEditorContent(output?: EditorJsOutput | null): boolean {
 }
 
 /**
- * True when a lesson has instructor notes worth flagging — either legacy
+ * True when a lesson has instructor notes worth flagging: either legacy
  * markdown (`instructor_notes`) or EditorJS JSON (`instructor_content`) with at
  * least one non-empty block. An empty paragraph does not count.
  */
@@ -49,7 +49,7 @@ export function hasInstructorContent(
 }
 
 /**
- * Autosave is a no-op when a lesson is entirely empty — no title and no body.
+ * Autosave is a no-op when a lesson is entirely empty: no title and no body.
  * Content on its own is optional, so a title-only lesson still saves; skipping
  * the empty case avoids erroring on the required-title validation.
  */
@@ -62,7 +62,7 @@ export function shouldSkipLessonSave(
 
 /**
  * A lesson title is one line. The field is a `<textarea>` so a long title can
- * wrap and grow, but Enter is refused — and a title pasted (or already stored)
+ * wrap and grow, but Enter is refused, and a title pasted (or already stored)
  * with breaks in it collapses to spaces rather than rendering as two lines the
  * outline and breadcrumbs then show as one.
  */

@@ -1,4 +1,4 @@
-/** Billing.vue — India state validation and checkout error surfacing. */
+/** Billing.vue: India state validation and checkout error surfacing. */
 // A case-sensitive state whitelist that also omitted every union territory
 // rejected "GUJARAT", and the rejection reached the user as an empty toast
 // (toast.error was handed the raw Error), so the button looked dead.
@@ -218,7 +218,7 @@ const checkoutAddress = () => {
 	return call.params.address
 }
 
-describe('Billing — India state field', () => {
+describe('Billing: India state field', () => {
 	beforeEach(() => {
 		submitted.length = 0
 		unhandled.length = 0
@@ -299,7 +299,7 @@ describe('Billing — India state field', () => {
 	})
 })
 
-describe('Billing — checkout validation errors reach the user', () => {
+describe('Billing: checkout validation errors reach the user', () => {
 	beforeEach(() => {
 		submitted.length = 0
 		unhandled.length = 0

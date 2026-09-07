@@ -1,17 +1,15 @@
 <template>
-	<!-- A list page, declared. The page says what it filters and what a row
-	     looks like; PageHeader and PageBody own how that reads at each breakpoint.
-	     Shaped after helpdesk's ListViewBuilder.vue, which likewise takes the
-	     columns, the row options and the footer counts as configuration. -->
 	<PageHeader :breadcrumbs="breadcrumbs">
 		<template #actions>
 			<slot name="actions" />
 		</template>
 	</PageHeader>
 
-	<PageBody :title="title">
+	<PageBody :title="title" :selecting="selecting">
 		<template v-if="$slots.name" #name><slot name="name" /></template>
 		<template v-if="$slots.filters" #filters><slot name="filters" /></template>
+
+		<span class="sr-only" role="status">{{ loadingAnnouncement }}</span>
 
 		<SkeletonLoader
 			v-if="loading && !rows.length"
@@ -19,8 +17,6 @@
 			:count="8"
 			class="px-5 pb-5"
 		/>
-		<!-- The cards own the scroll box at every width, which is what leaves the
-		     header above and the footer below them both in place. -->
 		<div v-else-if="rows.length && layout === 'grid'" class="px-5 pb-5">
 			<div
 				class="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4"
@@ -35,6 +31,7 @@
 		</div>
 		<ResponsiveListView
 			v-else-if="rows.length"
+			ref="listView"
 			:columns="columns"
 			:rows="rows"
 			:row-key="rowKey"
@@ -56,12 +53,10 @@
 			<EmptyStateLayout :name="emptyName" :icon="emptyIcon" />
 		</div>
 
-		<!-- Every list page ends the same way, so Load More lives down here with
-		     the counts rather than as a lone button under the last row. -->
 		<template #footer>
 			<ListFooter
 				v-model="pageLength"
-				class="border-t px-5 py-2"
+				class="flex-wrap border-t px-5 py-2"
 				:options="{
 					rowCount: rows.length,
 					totalCount,
@@ -78,9 +73,6 @@
 						<div v-if="showLoadMore" class="mx-3 h-[80%] border-s" />
 						<div class="flex items-center gap-1 text-base text-ink-gray-5">
 							<div>{{ rows.length }}</div>
-							<!-- Two of these lists are served by endpoints with no
-							     count sibling, so the total is genuinely unknown
-							     rather than zero. Say the loaded count only. -->
 							<template v-if="totalCount !== null">
 								<div>{{ __('of') }}</div>
 								<div>{{ totalCount }}</div>
@@ -94,13 +86,14 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { Button, ListFooter } from 'frappe-ui'
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 import PageHeader from '@/components/Layouts/PageHeader.vue'
 import PageBody from '@/components/Layouts/PageBody.vue'
 import ResponsiveListView from '@/components/ResponsiveListView.vue'
 import SkeletonLoader from '@/components/SkeletonLoader.vue'
+import { useLoadingAnnouncement } from '@/utils/a11y'
 import type {
 	Breadcrumb,
 	ListColumn,
@@ -147,10 +140,57 @@ const props = withDefaults(
 
 const emit = defineEmits<{ loadMore: [] }>()
 
+// On a phone the bulk-action banner docks against the same bottom edge the
+// footer holds, and the banner is what the reader is working with, so the
+// footer gives the edge up for as long as the selection lasts rather than
+// being covered by it — the page size and Load More are still there, at the
+// end of the rows, and come back the moment the selection is cleared.
+const listView = ref<InstanceType<typeof ResponsiveListView> | null>(null)
+
+const selecting = computed(() => Boolean(listView.value?.selections.size))
+
 const pageLength = defineModel<number>('pageLength', { default: 24 })
 
 const skeletonVariant = computed(() =>
 	props.layout === 'grid' ? 'cards' : 'list'
+)
+
+// The skeleton above is `aria-hidden`, and on this page it IS the body, so
+// without this a reader lands on a document with nothing in it and no sign that
+// anything is on its way. The `role="status"` span is a sibling of the whole
+// v-if chain rather than part of it, so it is mounted for the life of the page
+// and every message lands in a region that was already there.
+//
+// It is the only thing here that speaks, so a load says one thing once:
+// PageHeader's breadcrumbs and PageBody's h1 are plain content, `usePageMeta`
+// writes document.title but no screen reader announces an SPA title change, and
+// ResponsiveListView's own `role="status"` lives in the `rows.length` branch and
+// holds nothing until a selection opens.
+//
+// It watches the whole flag rather than the skeleton's `loading && !rows.length`
+// because a filter or a search keeps the old rows on screen while it refetches:
+// no skeleton, but the list underneath is replaced, and "24 results loaded" is
+// the canonical status message. The rows still being readable is exactly why
+// that case gets no "Loading…" — an announcement with nothing on screen to
+// pair it with is the opposite of the parity a status message is for.
+const loadedMessage = () => {
+	// Says the same thing as the empty state it stands beside, deliberately:
+	// wording that diverged would read as a second, different event. Note that a
+	// failed first fetch also lands here, since the resource leaves `rows` empty
+	// and only records the failure on `error` — a signal this component is not
+	// given.
+	if (!props.rows.length) return __('No {0} Found').format(props.emptyName)
+	// Counted rather than named. `emptyName` is a plural noun passed untranslated
+	// ("Courses"), so a translated frame around it reads half-English, and there
+	// is no singular of it to reach for when the count is one.
+	if (props.rows.length === 1) return __('1 result loaded')
+	return __('{0} results loaded').format(props.rows.length)
+}
+
+const loadingAnnouncement = useLoadingAnnouncement(
+	() => props.loading,
+	loadedMessage,
+	() => (props.rows.length ? '' : __('Loading…'))
 )
 
 // createListResource starts out claiming a next page and only learns better

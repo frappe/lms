@@ -18,12 +18,7 @@
 			<Button
 				v-if="!readOnlyMode"
 				variant="solid"
-				@click="
-					() => {
-						assignmentID = 'new'
-						showAssignmentForm = true
-					}
-				"
+				@click="openAssignmentForm('new')"
 			>
 				<template #prefix>
 					<span class="lucide-plus size-4" />
@@ -63,16 +58,14 @@
 				:label="__('Delete')"
 				@click="deleteAssignment(selections, unselectAll)"
 			>
-				<span class="lucide-trash-2 h-4 w-4" />
+				<template #icon>
+					<span class="lucide-trash-2 size-4" aria-hidden="true" />
+				</template>
 			</Button>
 		</template>
 	</ListPage>
 
-	<AssignmentForm
-		v-model="showAssignmentForm"
-		v-model:assignments="assignments"
-		:assignmentID="assignmentID"
-	/>
+	<router-view @created="onAssignmentCreated" />
 </template>
 <script setup>
 import {
@@ -86,32 +79,42 @@ import {
 import ListPage from '@/components/Layouts/ListPage.vue'
 import Select from '@/components/Controls/Select.vue'
 import { computed, inject, onMounted, ref, watch } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
+import { useRouter } from 'vue-router'
 import { sessionStore } from '../stores/session'
-import AssignmentForm from '@/components/Modals/AssignmentForm.vue'
+import { openFormRoute } from '@/composables/useFormRoute'
 
 const user = inject('$user')
 const dayjs = inject('$dayjs')
 const titleFilter = ref('')
 const typeFilter = ref('')
-const showAssignmentForm = ref(false)
-const assignmentID = ref('new')
 const { brand } = sessionStore()
 const router = useRouter()
-const route = useRoute()
 const readOnlyMode = window.read_only_mode
 
 onMounted(() => {
 	if (!user.data?.is_moderator && !user.data?.is_instructor) {
 		router.push({ name: 'Courses' })
 	}
-	if (route.query.new === 'true') {
-		assignmentID.value = 'new'
-		showAssignmentForm.value = true
-	}
 	titleFilter.value = router.currentRoute.value.query.title
 	typeFilter.value = router.currentRoute.value.query.type
 })
+
+// openFormRoute rather than a bare router.push: it stamps the history entry so
+// the form's own Back/Escape pops it instead of replacing the list.
+const openAssignmentForm = (assignmentID) => {
+	openFormRoute(router, { name: 'AssignmentForm', params: { assignmentID } })
+}
+
+// The form does not share this page's list resource — see the comment in
+// AssignmentForm.vue — so a created assignment reaches the list only through
+// this handler.
+const onAssignmentCreated = () => {
+	reloadAssignments()
+	// The header count is its own resource and nothing else refetches it, so
+	// without this a created assignment left "N Assignments" stale until the
+	// next filter change.
+	totalAssignments.reload()
+}
 
 watch([titleFilter, typeFilter], () => {
 	router.push({
@@ -176,8 +179,7 @@ const listOptions = computed(() => ({
 	selectable: true,
 	onRowClick: (row) => {
 		if (readOnlyMode) return
-		assignmentID.value = row.name
-		showAssignmentForm.value = true
+		openAssignmentForm(row.name)
 	},
 }))
 
@@ -214,7 +216,7 @@ const assignmentColumns = computed(() => {
 			label: __('Updated On'),
 			key: 'modified',
 			width: 1,
-			align: 'right',
+			align: 'left',
 			icon: 'lucide-clock',
 		},
 	]

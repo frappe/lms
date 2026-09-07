@@ -54,16 +54,9 @@
 						icon="lucide-graduation-cap"
 					/>
 				</div>
-				<!-- <div v-else class="col-span-3 text-center text-ink-gray-5">
-                    {{ __('No programs found in this category.') }}
-                </div> -->
 			</div>
 		</div>
 	</div>
-	<ProgramEnrollment
-		v-model="showEnrollmentConfirmation"
-		:programName="enrollmentProgram"
-	/>
 </template>
 <script setup lang="ts">
 import { createResource, TabButtons } from 'frappe-ui'
@@ -72,13 +65,11 @@ import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { convertToTitleCase } from '@/utils'
 import ProgressBar from '@/components/ProgressBar.vue'
-import ProgramEnrollment from '@/pages/Programs/ProgramEnrollment.vue'
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
+import { openFormRoute } from '@/composables/useFormRoute'
 
 const currentTab = ref('enrolled')
 const router = useRouter()
-const showEnrollmentConfirmation = ref(false)
-const enrollmentProgram = ref(null)
 
 const programs = createResource({
 	url: 'lms.lms.utils.get_programs',
@@ -92,8 +83,12 @@ const openDetails = (programName: any, category: string) => {
 			params: { programName: programName },
 		})
 	} else {
-		showEnrollmentConfirmation.value = true
-		enrollmentProgram.value = programName
+		// openFormRoute, not a bare router.push: it stamps the history entry so
+		// cancelling pops back to this list rather than ejecting out of the app.
+		openFormRoute(router, {
+			name: 'ProgramEnrollment',
+			params: { programName: programName },
+		})
 	}
 }
 

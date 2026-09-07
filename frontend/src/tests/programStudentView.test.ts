@@ -1,5 +1,5 @@
 /**
- * The programming-exercise submission renders in an iframe — its own Vue app —
+ * The programming-exercise submission renders in an iframe (its own Vue app),
  * so the preview's provide/inject can't reach it. Student View has to travel in
  * the iframe URL, exactly as it does for assignments; without this the preview
  * kept showing the moderator-only settings button.
@@ -34,7 +34,7 @@ vi.mock('@/stores/user', () => ({
 vi.mock('@/router', () => ({ default: { push: vi.fn() } }))
 vi.mock('../translation', () => ({ default: {} }))
 vi.mock('@/translation', () => ({ default: {} }))
-vi.mock('@/pages/ProgrammingExercises/ProgrammingExerciseModal.vue', () => ({
+vi.mock('@/components/Modals/ProgrammingExerciseModal.vue', () => ({
 	default: {},
 }))
 vi.mock('@/utils/basePath', () => ({

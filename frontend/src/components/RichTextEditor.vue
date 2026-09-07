@@ -119,7 +119,7 @@ const extensions = computed(() => [
 ])
 
 // Uploads default to private so editor images are not served from the
-// unauthenticated /files/ path — the default the old TextEditor applied.
+// unauthenticated /files/ path, the default the old TextEditor applied.
 const fileUpload = useFileUpload()
 
 function uploadFile(file: File) {

@@ -1,16 +1,15 @@
 <template>
 	<Dialog
 		v-model="open"
-		:options="{
-			title: __('Delete {0}?').format(name),
-			message:
-				message ||
-				__(
-					'This deletes the {0} mapping and its membership rules, and stops syncing members. This cannot be undone.'
-				).format(entityName),
-			size: 'sm',
-			actions: dialogActions,
-		}"
+		:title="__('Delete {0}?').format(name)"
+		:message="
+			message ||
+			__(
+				'This deletes the {0} mapping and its membership rules, and stops syncing members. This cannot be undone.'
+			).format(entityName)
+		"
+		size="sm"
+		:actions="dialogActions"
 	/>
 </template>
 

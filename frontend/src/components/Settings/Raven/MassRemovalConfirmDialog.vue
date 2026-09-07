@@ -1,23 +1,21 @@
 <template>
 	<Dialog
 		v-model="open"
-		:options="{
-			title,
-			message,
-			size: 'sm',
-			actions: [
-				{
-					label: __('Cancel'),
-					onClick: onCancel,
-				},
-				{
-					label: confirmLabel,
-					variant: 'solid',
-					theme: removedCount > 0 ? 'red' : 'gray',
-					onClick: onConfirm,
-				},
-			],
-		}"
+		:title="title"
+		:message="message"
+		size="sm"
+		:actions="[
+			{
+				label: __('Cancel'),
+				onClick: onCancel,
+			},
+			{
+				label: confirmLabel,
+				variant: 'solid',
+				theme: removedCount > 0 ? 'red' : 'gray',
+				onClick: onConfirm,
+			},
+		]"
 	/>
 </template>
 
@@ -74,7 +72,7 @@ const title = computed<string>(() => {
 const message = computed<string>(() => {
 	if (bothWays.value)
 		return __(
-			'This will add {0} members to {1} and remove {2}. The removals cannot be undone — cancel to keep the current membership.'
+			'This will add {0} members to {1} and remove {2}. The removals cannot be undone. Cancel to keep the current membership.'
 		).format(props.addedCount, props.targetLabel, props.removedCount)
 	if (addOnly.value)
 		return __(

@@ -24,8 +24,8 @@ const holderRef = ref(null)
 let editor = null
 
 // Clicking the empty area below the last block (the redactor's bottom padding)
-// drops the caret into a fresh block — or focuses the last one if it's already
-// empty — so you can keep writing without hunting for the "+" handle. Detect
+// drops the caret into a fresh block (or focuses the last one if it's already
+// empty) so you can keep writing without hunting for the "+" handle. Detect
 // "below the last block" geometrically (click Y past the last block's bottom)
 // so it works regardless of which element receives the click.
 function handleBelowLastBlockClick(e) {
@@ -84,7 +84,7 @@ onMounted(() => {
 		},
 		onReady: () => {
 			// onReady can fire after the component unmounted (fast nav / deleting
-			// the open lesson) — by then onBeforeUnmount has nulled `editor`. Bail
+			// the open lesson); by then onBeforeUnmount has nulled `editor`. Bail
 			// so we don't call `new DragDrop(null)`, whose constructor reads
 			// editor.configuration and throws.
 			if (!editor) return

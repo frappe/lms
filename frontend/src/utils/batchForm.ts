@@ -2,7 +2,7 @@ import type { LMSBatch } from '@/types/lms/LMSBatch'
 
 // Client-side mirror of LMS Batch's mandatory fields (lms_batch.json `reqd`).
 // `batch_details` is a Text Editor field, so an "empty" editor still serializes
-// to markup like "<p></p>" — strip tags before treating it as filled.
+// to markup like "<p></p>", so strip tags before treating it as filled.
 interface BatchValidationInput {
 	doc: Pick<
 		LMSBatch,

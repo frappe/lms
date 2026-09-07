@@ -9,7 +9,7 @@ import frappe
 from frappe import _
 from frappe.model.document import Document
 from frappe.query_builder.functions import Locate
-from frappe.realtime import get_website_room
+from frappe.rate_limiter import rate_limit
 from frappe.utils import add_to_date, now_datetime
 from frappe.utils.response import send_private_file
 from frappe.utils.telemetry import capture
@@ -18,10 +18,11 @@ from lms.lms.doctype.lms_enrollment.lms_enrollment import (
 	batched_enrollment_updates,
 	update_enrollment,
 )
-from lms.lms.permissions import INSTRUCTOR_FIELDS, can_access_lesson
+from lms.lms.permissions import INSTRUCTOR_FIELDS, can_access_lesson, get_locked_lessons
 from lms.lms.utils import (
 	get_course_progress,
 	get_editorjs_blocks,
+	guest_access_allowed,
 	is_demo_course,
 	recalculate_course_progress,
 	sanitize_editorjs,
@@ -108,17 +109,56 @@ def cleanup_lesson_backreferences(lesson: str):
 def has_permission(doc, ptype="read", user=None):
 	user = user or frappe.session.user
 	if ptype not in ("read", "select", "print"):
-		# Authoring (create/write/delete): mirror sibling LMS hooks — Moderators
+		# Authoring (create/write/delete): mirror sibling LMS hooks. Moderators
 		# and Course Creators manage lessons; otherwise fall back to per-course
 		# instructor/moderator via the rule.
 		roles = frappe.get_roles(user)
 		if "Moderator" in roles or "Course Creator" in roles:
 			return True
 		return can_access_lesson(doc.name, instructor_only=True, user=user)
-	# Read/select/print: the security gate — enrollment / preview / instructor only.
+	# Read/select/print: the security gate. Enrollment / preview / instructor only.
 	# Deliberately NOT widened to all Course Creators, to preserve the media-access
 	# boundary (matches the original get_lesson gate).
 	return can_access_lesson(doc.name, user=user)
+
+
+def get_permission_query_conditions(user=None):
+	"""List-read counterpart of has_permission's read branch.
+
+	Expresses resolve_lesson_access (lms/lms/permissions.py) as SQL: course
+	instructor, or enrolled member, or a preview lesson of a published course.
+	Deliberately NOT widened to all Course Creators — the read gate is per-course,
+	and widening it here would open the media boundary the doc read protects.
+	"""
+	user = user or frappe.session.user
+	if user == "Administrator":
+		return ""
+
+	roles = frappe.get_roles(user)
+	if "Moderator" in roles:
+		return ""
+
+	escaped = frappe.db.escape(user)
+	conditions = [
+		f"""`tabCourse Lesson`.course in (
+			select parent from `tabCourse Instructor`
+			where instructor = {escaped} and parenttype = 'LMS Course'
+		)""",
+		f"""`tabCourse Lesson`.course in (
+			select course from `tabLMS Enrollment` where member = {escaped}
+		)""",
+	]
+
+	if user != "Guest" or guest_access_allowed():
+		conditions.append(
+			"""(`tabCourse Lesson`.include_in_preview = 1
+			and `tabCourse Lesson`.course in (
+				select name from `tabLMS Course` where published = 1
+			))"""
+		)
+
+	joined = " or ".join(conditions)
+	return f"({joined})"
 
 
 # Lesson content fields a student may reach vs. instructor-only fields (gated harder).
@@ -129,7 +169,7 @@ def _resolve_lesson_references(file_url: str) -> list[tuple[str, bool]]:
 	"""Every (lesson, instructor_only) pair that references file_url.
 
 	Two sources, unioned:
-	- File attachments (fast path) — gives the exact attached_to_field.
+	- File attachments (fast path). Gives the exact attached_to_field.
 	- A search of the lesson content fields (the source of truth: uploaded files
 	  are frequently private-but-unattached, and pre-existing/seeded files always are).
 	An empty/unknown attachment field is treated as instructor-only (fail-closed).
@@ -149,7 +189,7 @@ def _resolve_lesson_references(file_url: str) -> list[tuple[str, bool]]:
 	# Match the url as a literal substring via LOCATE (the query builder maps it to
 	# STRPOS/INSTR per dialect) instead of a LIKE pattern: LIKE needs %/_ escaped, and
 	# frappe.db.get_all(..., ["like", ...]) re-escapes the backslashes of an already
-	# escaped pattern — so any file_url containing "_" or "%" (e.g.
+	# escaped pattern, so any file_url containing "_" or "%" (e.g.
 	# Module_1_Introduction.pdf) silently matched nothing, denying enrolled students and
 	# preview guests their own lesson media.
 	lesson = frappe.qb.DocType("Course Lesson")
@@ -167,12 +207,26 @@ def _resolve_lesson_references(file_url: str) -> list[tuple[str, bool]]:
 	return refs
 
 
-@frappe.whitelist(allow_guest=True)
+# One flat ceiling, deliberately. A per-audience limit does not work here:
+# rate_limit's bucket is keyed on the endpoint and the IP alone, so Guest and
+# signed-in traffic from one address share a single counter and a lower guest
+# threshold is simply applied to a count that authenticated users already drove
+# up — locking out the anonymous visitors it was supposed to protect.
+#
+# The number is high because this endpoint is charged per asset, not per action:
+# a lesson costs one request per embedded file plus one per video byte-range on
+# every seek, and a whole NAT'd or CDN-fronted school shares the IP. Exceeding it
+# is invisible — these URLs load as <img>/<video>, so a 429 renders as a broken
+# image with no toast. Enumeration is not held off by this number anyway:
+# can_access_lesson gates every hit and _deny() logs each refusal. The limit is
+# only a backstop against a runaway scanner.
+@frappe.whitelist(allow_guest=True)  # nosemgrep: frappe-semgrep-rules.rules.security.guest-whitelisted-method
+@rate_limit(limit=20000, seconds=60 * 60)
 def serve_resource(file_url: str):
 	"""Access-gated streaming of private lesson media for all users.
 
 	Native /private/files/ needs a Course Lesson read role-perm that LMS students and
-	guests don't hold, and it hard-refuses Guest — so ALL private lesson media is served
+	guests don't hold, and it hard-refuses Guest, so ALL private lesson media is served
 	here instead (get_lesson rewrites embedded URLs to this endpoint for every user).
 	The owning lesson is resolved from the lesson content (source of truth) and from any
 	File attachment, then gated by the same can_access_lesson rule.
@@ -259,7 +313,7 @@ def save_progress(lesson: str, course: str, scorm_details: dict = None):
 	"""
 	Note: Pass the argument scorm_details as a dict if it is SCORM related save_progress
 	"""
-	# The completion path writes the enrollment twice — LMS Course Progress.on_update
+	# The completion path writes the enrollment twice: LMS Course Progress.on_update
 	# recalculates progress, then this advances current_lesson. Batch them so the
 	# request emits a single on_update, as the pre-regression .save() did.
 	with batched_enrollment_updates():
@@ -270,6 +324,16 @@ def _save_progress(lesson: str, course: str, scorm_details: dict = None):
 	membership = frappe.db.exists("LMS Enrollment", {"course": course, "member": frappe.session.user})
 	if not membership:
 		return 0
+
+	# On a sequential course this endpoint writes the gate's own unlock state, so an
+	# enrolled student could otherwise complete every lesson name the outline publishes
+	# and open the whole course. The lesson a student is legitimately on is the first
+	# incomplete one, which is never locked, so the normal path never reaches this.
+	if lesson in get_locked_lessons(course):
+		frappe.throw(
+			_("Complete the previous lesson before marking this one as done."),
+			frappe.PermissionError,
+		)
 
 	progress_already_exists = frappe.db.exists(
 		"LMS Course Progress", {"lesson": lesson, "member": frappe.session.user}
@@ -352,13 +416,18 @@ def _save_progress(lesson: str, course: str, scorm_details: dict = None):
 		capture("course_progress", "lms")
 
 	# Completing the lesson advances the pointer; otherwise it parks on the one opened.
-	# Both fields go through update_enrollment() in one write — the raw set_values this
+	# Both fields go through update_enrollment() in one write. The raw set_values this
 	# replaces fired no on_update, which is the webhook regression being fixed.
 	update_enrollment(membership, {"current_lesson": next_lesson or lesson, "progress": progress})
 
+	# Addressed to the member who completed the lesson, not the whole website room.
+	# Everything in this payload is theirs alone — `progress` is their course progress,
+	# which every other viewer of the course was assigning to their own progress bar —
+	# and it is the signal their outline reloads on, so a site-wide room made one
+	# student's completion refetch the outline in every concurrent viewer's browser.
 	frappe.publish_realtime(
 		event="update_lesson_progress",
-		room=get_website_room(),
+		user=frappe.session.user,
 		message={"course": course, "lesson": lesson, "progress": progress},
 		after_commit=True,
 	)

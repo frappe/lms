@@ -1,124 +1,51 @@
 <template>
-	<SettingsLayout
+	<SettingsList
 		v-if="view === 'list'"
 		:title="label"
 		:description="__(description || '')"
-	>
-		<template #header-actions>
-			<Button variant="solid" @click="openForm('new')">
-				<template #prefix>
-					<span class="lucide-plus h-4 w-4" />
-				</template>
-				{{ __('New') }}
-			</Button>
-		</template>
-		<List
-			v-if="zoomAccounts.data?.length"
-			:columns="columns"
-			class="list-row-px-3"
-		>
-			<ListHeader>
-				<ListHeaderCell>{{ __('Account') }}</ListHeaderCell>
-				<ListHeaderCell>{{ __('Status') }}</ListHeaderCell>
-				<ListHeaderCell />
-			</ListHeader>
-			<ListRows
-				:items="zoomAccounts.data"
-				row-key="name"
-				v-slot="{ item: row }"
-			>
-				<ListRow class="py-2.5" @click="openForm(row.name)">
-					<ListCell class="gap-2">
-						<Avatar
-							:image="row.member_image"
-							:label="row.member_name"
-							size="lg"
-							class="shrink-0"
-						/>
-						<div class="flex min-w-0 flex-col">
-							<span class="truncate text-p-base-medium text-ink-gray-8">
-								{{ row.member_name }}
-							</span>
-							<span class="truncate text-p-sm text-ink-gray-5">
-								{{ row.account_id }}
-							</span>
-						</div>
-					</ListCell>
-					<ListCell>
-						<Badge :theme="row.enabled ? 'green' : 'gray'">
-							{{ row.enabled ? __('Enabled') : __('Disabled') }}
-						</Badge>
-					</ListCell>
-					<ListCell class="justify-end" @click.stop>
-						<Dropdown
-							:options="[
-								{
-									label: __('Delete'),
-									icon: 'lucide-trash-2',
-									onClick: () => removeAccount(row.name),
-								},
-							]"
-							:button="{
-								icon: 'lucide-more-horizontal',
-								variant: 'ghost',
-								label: __('More options'),
-							}"
-							placement="right"
-						/>
-					</ListCell>
-				</ListRow>
-			</ListRows>
-		</List>
-		<EmptyStateLayout
-			v-else
-			name="Zoom Settings"
-			:description="__('Add one to get started.')"
-			icon="lucide-video"
-		/>
-	</SettingsLayout>
+		:columns="columns"
+		:rows="list.rows"
+		:loading="list.loading"
+		:has-next-page="list.hasNextPage"
+		v-model:search="list.search"
+		searchable
+		:search-label="__('Search accounts')"
+		empty-name="Zoom Settings"
+		empty-icon="lucide-video"
+		@new="openForm('new')"
+		@load-more="list.loadMore()"
+		@row-click="(row) => openForm(row.name)"
+	/>
 	<ZoomAccountForm
 		v-else
 		:accountID="currentAccount"
-		v-model:zoomAccounts="zoomAccounts"
+		v-model:zoomAccounts="list.resource"
 		@updateStep="(step) => (view = step)"
 	/>
 </template>
 <script setup lang="ts">
-import {
-	Avatar,
-	Button,
-	Badge,
-	Dropdown,
-	createListResource,
-	toast,
-} from 'frappe-ui'
-import {
-	List,
-	ListCell,
-	ListHeader,
-	ListHeaderCell,
-	ListRow,
-	ListRows,
-} from 'frappe-ui/list'
-import { computed, onMounted, ref } from 'vue'
+import { call, toast } from 'frappe-ui'
+import { ref } from 'vue'
 import { cleanError } from '@/utils'
 import ZoomAccountForm from '@/components/Settings/ZoomAccountForm.vue'
-import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
-import SettingsLayout from '@/components/Layouts/SettingsLayout.vue'
+import SettingsList from '@/components/Layouts/SettingsList.vue'
+import { useSettingsListResource } from '@/composables/useSettingsListResource'
+import type { SettingsListColumn, SettingsListRow } from '@/types'
 
 const view = ref<'list' | 'form'>('list')
 const currentAccount = ref<string | null>(null)
 
-const props = defineProps<{
+defineProps<{
 	label: string
 	description?: string
 }>()
 
-const zoomAccounts = createListResource({
+const list = useSettingsListResource({
 	doctype: 'LMS Zoom Settings',
 	fields: [
 		'name',
 		'enabled',
+		'account_name',
 		'member',
 		'member_name',
 		'member_image',
@@ -126,35 +53,74 @@ const zoomAccounts = createListResource({
 		'client_id',
 		'client_secret',
 	],
+	searchFields: ['account_name', 'account_id', 'member_name'],
 	cache: ['zoomAccounts'],
 })
 
-onMounted(() => {
-	fetchZoomAccounts()
-})
-
-const fetchZoomAccounts = () => {
-	zoomAccounts.reload()
+const toggleEnabled = async (row: SettingsListRow, value: boolean) => {
+	const previous = row.enabled
+	row.enabled = value ? 1 : 0
+	try {
+		await call('frappe.client.set_value', {
+			doctype: 'LMS Zoom Settings',
+			name: row.name,
+			fieldname: 'enabled',
+			value: row.enabled,
+		})
+	} catch (err: any) {
+		row.enabled = previous
+		toast.error(cleanError(err.messages?.[0] || err))
+	}
 }
 
-// Grid track sizes shared by the header and every row (--list-columns).
-const columns = ['minmax(0, 1fr)', '6.5rem', '2.25rem']
+const removeAccount = (accountID: string) => {
+	list.remove(accountID, {
+		onSuccess: () => toast.success(__('Zoom account deleted successfully')),
+		onError: (err) => toast.error(cleanError(err.messages?.[0])),
+	})
+}
+
+const columns: SettingsListColumn[] = [
+	{
+		key: 'account',
+		label: __('Account'),
+		type: 'stacked',
+		primary: (row) => row.account_name || row.name,
+		secondary: (row) => row.account_id,
+	},
+	{
+		key: 'member',
+		label: __('Member'),
+		type: 'text',
+		value: (row) => row.member_name,
+		avatar: (row) => ({ image: row.member_image, label: row.member_name }),
+	},
+	{
+		key: 'enabled',
+		label: __('Enabled'),
+		type: 'switch',
+		width: '6.5rem',
+		checked: (row) => Boolean(row.enabled),
+		ariaLabel: (row) => __('Enable {0}').format(row.account_name || row.name),
+		onChange: toggleEnabled,
+	},
+	{
+		key: 'actions',
+		type: 'actions',
+		ariaLabel: (row) =>
+			__('Actions for {0}').format(row.account_name || row.name),
+		options: (row) => [
+			{
+				label: __('Delete'),
+				icon: 'lucide-trash-2',
+				onClick: () => removeAccount(row.name),
+			},
+		],
+	},
+]
 
 const openForm = (accountID: string) => {
 	currentAccount.value = accountID
 	view.value = 'form'
-}
-
-const removeAccount = (accountID: string) => {
-	zoomAccounts.delete.submit(accountID, {
-		onSuccess() {
-			toast.success(__('Zoom account deleted successfully'))
-			fetchZoomAccounts()
-		},
-		onError(err: any) {
-			toast.error(cleanError(err.messages?.[0] || err))
-			console.error(err)
-		},
-	})
 }
 </script>

@@ -1,5 +1,5 @@
 /**
- * Pure unit tests for emailConfig.validateInputs — the shared client-side guard
+ * Pure unit tests for emailConfig.validateInputs: the shared client-side guard
  * used by both EmailAdd (create) and EmailEdit (update, allowMissingPassword).
  */
 import { describe, expect, it, vi } from 'vitest'
@@ -27,25 +27,25 @@ describe('validateInputs', () => {
 
 	it('requires an account name', () => {
 		expect(validateInputs({ ...base, email_account_name: '' }, 'GMail')).toBe(
-			'Account name is required',
+			'Account name is required'
 		)
 	})
 
 	it('requires an email id', () => {
 		expect(validateInputs({ ...base, email_id: '' }, 'GMail')).toBe(
-			'Email ID is required',
+			'Email ID is required'
 		)
 	})
 
 	it('rejects a malformed email id', () => {
 		expect(validateInputs({ ...base, email_id: 'not-an-email' }, 'GMail')).toBe(
-			'Invalid email ID',
+			'Invalid email ID'
 		)
 	})
 
 	it('requires a password for non-Frappe-Mail when not allowed missing', () => {
 		expect(validateInputs({ ...base, password: '' }, 'GMail')).toBe(
-			'Password is required',
+			'Password is required'
 		)
 	})
 
@@ -55,10 +55,10 @@ describe('validateInputs', () => {
 
 	it('requires api key + secret for Frappe Mail', () => {
 		expect(validateInputs({ ...base, api_key: '' }, 'Frappe Mail')).toBe(
-			'API Key is required',
+			'API Key is required'
 		)
 		expect(validateInputs({ ...base, api_secret: '' }, 'Frappe Mail')).toBe(
-			'API Secret is required',
+			'API Secret is required'
 		)
 	})
 

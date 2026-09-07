@@ -20,7 +20,7 @@ class SCORMRenderer(BaseRenderer):
 	# Disk roots tried, in order, to resolve SCORM bytes. New packages are extracted
 	# under private/scorm (gated: /private is always routed through Frappe, so this
 	# permission gate runs in production too). Legacy packages already extracted under
-	# public/scorm are still served as a fallback — but the standard bench nginx config
+	# public/scorm are still served as a fallback, but the standard bench nginx config
 	# serves public/ directly (try_files .../public/$uri @webserver), so for those legacy
 	# files this Python gate is BYPASSED in production, exactly as before. Such packages
 	# stay ungated in prod until re-uploaded (re-extraction lands them in private). New
@@ -28,7 +28,7 @@ class SCORMRenderer(BaseRenderer):
 	_DISK_ROOTS = ("private", "public")
 
 	def _check_permission(self):
-		from lms.lms.permissions import can_access_lesson
+		from lms.lms.permissions import can_access_lesson, get_locked_lessons
 
 		parts = self.path.strip("/").split("/")
 		# scorm/<course>/<title>/...
@@ -47,7 +47,10 @@ class SCORMRenderer(BaseRenderer):
 		# SCORM chapters are created with exactly one lesson (upsert_chapter invariant
 		# in api.py). order_by keeps the access check deterministic if that ever changes.
 		lesson = frappe.db.get_value("Lesson Reference", {"parent": chapter}, "lesson", order_by="idx asc")
-		if not lesson or not can_access_lesson(lesson):
+		# can_access_lesson answers "is this course yours or are you enrolled", which is
+		# lock-unaware. Sequential courses gate the bytes too, otherwise the SCORM page
+		# is a route around the gate that never touches get_lesson.
+		if not lesson or not can_access_lesson(lesson) or lesson in get_locked_lessons(course):
 			frappe.logger("lms.security").warning(
 				"SCORM resource access denied: user=%s path=%s",
 				frappe.session.user,

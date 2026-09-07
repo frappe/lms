@@ -1,9 +1,6 @@
 <template>
 	<SettingsLayout
 		:title="__('Setup Email')"
-		:description="
-			__('Choose the email service provider you want to configure.')
-		"
 		:show-back="true"
 		@back="emit('update:step', 'email-list')"
 	>
@@ -41,12 +38,9 @@
 					<CircleAlert class="size-5 shrink-0" />
 					<div class="text-wrap text-p-xs">
 						{{ selectedService.info }}
-						<a
-							:href="selectedService.link"
-							target="_blank"
-							rel="noopener noreferrer"
-							class="underline"
-							>{{ __('here') }}</a
+						<a :href="selectedService.link" v-external class="underline">{{
+							__('here')
+						}}</a
 						>.
 					</div>
 				</div>
@@ -79,7 +73,7 @@
 							:description="field.description"
 						/>
 					</div>
-					<ErrorMessage v-if="error" class="ml-1" :message="error" />
+					<ErrorMessage v-if="error" class="ms-1" :message="error" />
 				</div>
 			</div>
 		</div>
@@ -160,7 +154,7 @@ function handleSelect(service: EmailService) {
 	state.service = service.name
 }
 
-// shared cached accounts list — reload it so the new account shows on return
+// shared cached accounts list; reload it so the new account shows on return
 const emailAccounts = createListResource({
 	doctype: 'Email Account',
 	cache: ['Email Accounts'],

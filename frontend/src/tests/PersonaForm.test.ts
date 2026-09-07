@@ -1,5 +1,5 @@
 /**
- * Tests for PersonaForm.vue — the onboarding container that owns the step data
+ * Tests for PersonaForm.vue: the onboarding container that owns the step data
  * and the persist/telemetry/route wiring. PersonaCard is stubbed so we can drive
  * its `complete` and `choose` events directly and observe the side effects.
  */
@@ -64,7 +64,7 @@ vi.mock('@/components/Persona/PersonaCard.vue', async () => {
 	}
 })
 
-import PersonaForm from '@/pages/PersonaForm.vue'
+import PersonaForm from '@/pages/Forms/PersonaForm.vue'
 
 function mountForm() {
 	return mount(PersonaForm, {
@@ -119,7 +119,7 @@ describe('PersonaForm', () => {
 		await wrapper.find('.do-choose').trigger('click')
 		await flushPromises()
 
-		// One submission, keys exactly as before the redesign — the outcome
+		// One submission, keys exactly as before the redesign: the outcome
 		// row IS the first_milestone answer.
 		expect(captureMock).toHaveBeenCalledWith('onboarding_persona', {
 			usage_context: 'School',
@@ -171,7 +171,7 @@ describe('PersonaForm', () => {
 		const wrapper = mountForm()
 		await wrapper.find('button[type="button"]').trigger('click')
 		await flushPromises()
-		// Nothing answered yet — nothing to submit.
+		// Nothing answered yet, so nothing to submit.
 		expect(captureMock).not.toHaveBeenCalled()
 		const persist = callMock.mock.calls.find(
 			(c) => c[0] === 'frappe.client.set_value'

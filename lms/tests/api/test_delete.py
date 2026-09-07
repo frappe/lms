@@ -1,7 +1,7 @@
 import frappe
 from frappe.utils import add_days, nowdate
 
-from lms.lms.api import delete_chapter, delete_course, delete_lesson
+from lms.lms.api import delete_category, delete_chapter, delete_course, delete_lesson
 from lms.lms.test_helpers import BaseTestUtils
 from lms.lms.utils import get_course_details
 
@@ -459,3 +459,44 @@ class TestCourseDeletion(DeletionTestBase):
 			delete_course(self.course.name)
 
 		self.assertTrue(frappe.db.exists("LMS Course", self.course.name))
+
+
+class TestCategoryDeletion(DeletionTestBase):
+	def setUp(self):
+		super().setUp()
+		self.category = self.course.category
+
+	def test_plain_delete_is_blocked_while_a_course_links_it(self):
+		"""Why delete_category exists: category is a Link target on LMS Course."""
+		with self.assertRaises(frappe.LinkExistsError):
+			frappe.delete_doc("LMS Category", self.category)
+
+	def test_unlinks_category_from_courses_then_deletes(self):
+		self.assertEqual(self.category, "Business")
+
+		delete_category(self.category)
+
+		self.assertFalse(frappe.db.exists("LMS Category", self.category))
+		self.assertFalse(frappe.db.get_value("LMS Course", self.course.name, "category"))
+
+	def test_reports_what_it_unlinked(self):
+		# the site is shared, so count what is linked rather than assume a number
+		linked = {
+			doctype: frappe.db.count(doctype, {"category": self.category})
+			for doctype in ("LMS Course", "LMS Batch")
+		}
+		self.assertGreaterEqual(linked["LMS Course"], 1)
+
+		unlinked = delete_category(self.category)
+
+		self.assertEqual(unlinked, linked)
+
+	def test_unknown_category_is_rejected(self):
+		with self.assertRaises(frappe.ValidationError):
+			delete_category("No Such Category")
+
+	def test_student_cannot_delete_category(self):
+		frappe.set_user(self.student.name)
+
+		with self.assertRaises(frappe.PermissionError):
+			delete_category(self.category)

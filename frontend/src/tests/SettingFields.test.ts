@@ -30,7 +30,7 @@ vi.mock('frappe-ui', () => ({
 	Button: { template: '<button />' },
 }))
 // Checkboxes use the project-local BooleanSwitch (v-modeled on data[field.name],
-// the persisted source of truth) — mock it so toggling emits update:modelValue.
+// the persisted source of truth). Mock it so toggling emits update:modelValue.
 vi.mock('@/components/Controls/BooleanSwitch.vue', () => ({
 	default: {
 		props: ['modelValue'],
@@ -64,7 +64,7 @@ const mountFields = (sections: any[], data: any) =>
 		global: { mocks: { __: (s: string) => s } },
 	})
 
-describe('SettingFields — number input persists to data', () => {
+describe('SettingFields: number input persists to data', () => {
 	it('typing into a number field updates data[field.name]', async () => {
 		const sections = reactive([
 			{
@@ -138,15 +138,15 @@ describe('SettingFields — number input persists to data', () => {
 		await flushPromises()
 		await nextTick()
 
-		// The previously-typed dwell time must survive — the watcher
-		// must NOT sync the stale field.value over the user's input.
+		// The previously-typed dwell time must survive. The watcher must
+		// NOT sync the stale field.value over the user's input.
 		expect(data.lesson_dwell_time).toBe('1')
 		// And the checkbox toggle must persist to data.
 		expect(data.enforce_video_completion).toBe(true)
 	})
 })
 
-describe('SettingFields — Upload field renders both object and string values', () => {
+describe('SettingFields: Upload field renders both object and string values', () => {
 	const uploadSections = () =>
 		reactive([
 			{
@@ -192,9 +192,7 @@ describe('SettingFields — Upload field renders both object and string values',
 		await flushPromises()
 
 		expect(wrapper.text()).toContain('fresh-upload.png')
-		expect(wrapper.get('img').attributes('src')).toBe(
-			'/files/fresh-upload.png'
-		)
+		expect(wrapper.get('img').attributes('src')).toBe('/files/fresh-upload.png')
 	})
 
 	it('renders the uploader (no image) when the value is empty', async () => {
@@ -206,7 +204,7 @@ describe('SettingFields — Upload field renders both object and string values',
 	})
 })
 
-describe('SettingFields — checkbox defaults seed the persisted doc when empty', () => {
+describe('SettingFields: checkbox defaults seed the persisted doc when empty', () => {
 	it('does not seed non-checkbox defaults into data (parity: numbers bind data directly)', async () => {
 		const sections = reactive([
 			{
@@ -230,7 +228,7 @@ describe('SettingFields — checkbox defaults seed the persisted doc when empty'
 		await nextTick()
 
 		// Number/text/select fields bind data[field.name] directly and are never
-		// seeded — matching prior behavior where an empty doc showed an empty input.
+		// seeded, matching prior behavior where an empty doc showed an empty input.
 		expect(data.lesson_dwell_time).toBeUndefined()
 	})
 
@@ -256,9 +254,9 @@ describe('SettingFields — checkbox defaults seed the persisted doc when empty'
 		await flushPromises()
 
 		expect(data.enforce_quiz_completion).toBe(1)
-		expect(wrapper.get('[data-testid="switch"]').attributes('data-checked')).toBe(
-			'true'
-		)
+		expect(
+			wrapper.get('[data-testid="switch"]').attributes('data-checked')
+		).toBe('true')
 	})
 
 	it('checkbox default of 0 seeds data[field.name] = 0 (renders off)', async () => {
@@ -283,9 +281,9 @@ describe('SettingFields — checkbox defaults seed the persisted doc when empty'
 		await flushPromises()
 
 		expect(data.enforce_video_completion).toBe(0)
-		expect(wrapper.get('[data-testid="switch"]').attributes('data-checked')).toBe(
-			'false'
-		)
+		expect(
+			wrapper.get('[data-testid="switch"]').attributes('data-checked')
+		).toBe('false')
 	})
 
 	it('does not overwrite a saved checkbox value with its default', async () => {
@@ -306,7 +304,9 @@ describe('SettingFields — checkbox defaults seed the persisted doc when empty'
 			},
 		])
 		// Saved as off; the default (1) must not flip it back on.
-		const data = reactive<Record<string, unknown>>({ enforce_quiz_completion: 0 })
+		const data = reactive<Record<string, unknown>>({
+			enforce_quiz_completion: 0,
+		})
 		const wrapper = mountFields(sections, data)
 		await flushPromises()
 

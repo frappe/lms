@@ -7,7 +7,7 @@ vi.mock('@/utils', () => ({
 	// 'markdown' is the editor's defaultBlock and what the trailing-block
 	// affordance inserts; alias it to Paragraph so the test editor can create it.
 	getEditorTools: () => ({ paragraph: Paragraph, markdown: Paragraph }),
-	// No tune tools are registered above, so return no tunes — EditorJS would
+	// No tune tools are registered above, so return no tunes. EditorJS would
 	// otherwise fail resolving the clipboard tune names against missing tools.
 	getEditorTunes: () => [],
 	enablePlyr: () => {},
@@ -62,9 +62,7 @@ describe('BlockEditor', () => {
 
 	it('renders the native EditorJS toolbar (+ add and the ⋮⋮ settings menu)', () => {
 		expect(document.querySelector('.ce-toolbar__plus')).not.toBeNull()
-		expect(
-			document.querySelector('.ce-toolbar__settings-btn')
-		).not.toBeNull()
+		expect(document.querySelector('.ce-toolbar__settings-btn')).not.toBeNull()
 	})
 
 	it('does not inject the old custom Notion-style handle or menu', () => {

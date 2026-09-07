@@ -223,7 +223,7 @@ const courseCompletion = createResource({
 	cache: ['courseCompletion'],
 })
 
-// A donut with zero completions conveys nothing — hide it until at least one
+// A donut with zero completions conveys nothing, so hide it until at least one
 // learner has completed a course.
 const hasCompletions = computed(() => {
 	const completed = courseCompletion.data?.find((d) => d.label === 'Completed')

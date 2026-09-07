@@ -1,5 +1,5 @@
 /**
- * RuleEditor.vue renders the provider's declared field schema — labels, controls,
+ * RuleEditor.vue renders the provider's declared field schema: labels, controls,
  * defaults and `reqd` all come from `list_providers`, never from a copy kept here.
  */
 import { describe, expect, it, vi, beforeEach } from 'vitest'
@@ -128,7 +128,7 @@ beforeEach(() => {
 	h.providers = [LMS, ACME]
 })
 
-describe('RuleEditor — fields come from the declaration', () => {
+describe('RuleEditor: fields come from the declaration', () => {
 	it('offers the declared rule types, by their declared labels', () => {
 		const w = mountEditor({
 			rule_type: 'All Enrolled Students',
@@ -145,7 +145,7 @@ describe('RuleEditor — fields come from the declaration', () => {
 		expect(w.text()).toContain('Staff role')
 		expect(w.text()).toContain('Scope: Courses')
 		expect(w.text()).toContain('Leave empty for all')
-		// Payment belongs to the student rule types only — the declaration says so.
+		// Payment belongs to the student rule types only. The declaration says so.
 		expect(w.text()).not.toContain('Payment')
 	})
 
@@ -192,14 +192,16 @@ describe('RuleEditor — fields come from the declaration', () => {
 	})
 
 	// A displayed value the rule does not store reads as complete while the panel
-	// counts it incomplete — which blocks every later save behind a field that
+	// counts it incomplete, which blocks every later save behind a field that
 	// already looks filled.
 	it('leaves a required Select empty when the rule does not carry it', () => {
 		const w = mountEditor({ rule_type: 'Staff', status: 'Active' })
 
 		expect(comboProps(w, 'Staff role').modelValue).toBe('')
 		expect(
-			comboAt(w, 'Staff role').find('option[value="Any"]').attributes('selected')
+			comboAt(w, 'Staff role')
+				.find('option[value="Any"]')
+				.attributes('selected')
 		).toBeUndefined()
 	})
 
@@ -263,7 +265,7 @@ describe('RuleEditor — fields come from the declaration', () => {
 	})
 })
 
-describe('RuleEditor — a fieldtype it cannot render', () => {
+describe('RuleEditor: a fieldtype it cannot render', () => {
 	it('shows a disabled placeholder naming the fieldtype instead of dropping it', () => {
 		const w = mountEditor({
 			provider: 'Acme',
@@ -281,7 +283,7 @@ describe('RuleEditor — a fieldtype it cannot render', () => {
 	})
 })
 
-describe('RuleEditor — a foreign rule reads in its own vocabulary', () => {
+describe('RuleEditor: a foreign rule reads in its own vocabulary', () => {
 	it('renders the owning provider s rule types, not this app s', () => {
 		const w = mountEditor(
 			{ provider: 'Acme', rule_type: 'Widget Owners', status: 'Active' },

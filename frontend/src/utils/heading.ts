@@ -6,7 +6,7 @@ import type { HeaderData } from '@editorjs/header'
  * (`BlockEvents.enter`), so the browser's default runs and drops a `<br>` into
  * the contenteditable. The header tool's sanitize config allows no `<br>`
  * (unlike paragraph's), so the break is stripped on save and the two lines are
- * glued into one word — the editor shows a multi-line heading that silently
+ * glued into one word: the editor shows a multi-line heading that silently
  * collapses on reload. Refuse the break instead of losing text.
  */
 export class Heading extends Header {
@@ -28,7 +28,7 @@ export class Heading extends Header {
 }
 
 function refuseLineBreak(event: KeyboardEvent): void {
-	// Plain Enter still splits the block — that stays EditorJS's to handle.
+	// Plain Enter still splits the block. That stays EditorJS's to handle.
 	if (event.key === 'Enter' && event.shiftKey) {
 		event.preventDefault()
 	}
@@ -38,7 +38,7 @@ function stripLineBreaks(html: string): string {
 	return html.replace(/<br\s*\/?>/gi, ' ')
 }
 
-// Content written before this guard — or imported from markdown — can still
+// Content written before this guard (or imported from markdown) can still
 // arrive with breaks in it.
 function flattenLineBreaks(tag: HTMLElement): void {
 	tag.querySelectorAll('br').forEach((br) => br.replaceWith(' '))

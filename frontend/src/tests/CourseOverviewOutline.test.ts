@@ -1,5 +1,5 @@
 /**
- * CourseOverview.vue — outline fetch timing.
+ * CourseOverview.vue: outline fetch timing.
  *
  * The outline resource used to be `auto: true`, so on a cold load it fired
  * while the parent's course resource was still in flight. `course.data?.name`
@@ -24,7 +24,10 @@ type ResourceOpts = {
 // Every createResource() call in the component lands here so the test can assert
 // what fired, when, and with which params.
 const resources: Array<
-	ResourceOpts & { fetch: ReturnType<typeof vi.fn>; reload: ReturnType<typeof vi.fn> }
+	ResourceOpts & {
+		fetch: ReturnType<typeof vi.fn>
+		reload: ReturnType<typeof vi.fn>
+	}
 > = []
 
 vi.mock('frappe-ui', () => ({
@@ -41,20 +44,41 @@ vi.mock('frappe-ui', () => ({
 		return resource
 	},
 }))
-vi.mock('@/utils/', () => ({ formatAmount: (a: unknown) => String(a), formatRating: (r: unknown) => String(r) }))
-vi.mock('@/utils/sanitizeRichHTML', () => ({ sanitizeRichHTML: (h: string) => h }))
+vi.mock('@/utils/', () => ({
+	formatAmount: (a: unknown) => String(a),
+	formatRating: (r: unknown) => String(r),
+}))
+vi.mock('@/utils/sanitizeRichHTML', () => ({
+	sanitizeRichHTML: (h: string) => h,
+}))
 
 // shallowMount still *imports* every child; some pull in frappe-ui deep paths
 // that don't resolve under vitest. Stub them at the module level. (vi.mock is
 // hoisted, so each factory has to be inline.)
-vi.mock('@/components/CourseCardOverlay.vue', () => ({ default: { template: '<div />' } }))
-vi.mock('@/components/CourseOutline.vue', () => ({ default: { template: '<div />' } }))
-vi.mock('@/components/SkeletonLoader.vue', () => ({ default: { template: '<div />' } }))
-vi.mock('@/components/CourseReviews.vue', () => ({ default: { template: '<div />' } }))
-vi.mock('@/components/CourseInstructors.vue', () => ({ default: { template: '<div />' } }))
-vi.mock('@/components/CourseCreatorCard.vue', () => ({ default: { template: '<div />' } }))
-vi.mock('@/components/UserAvatar.vue', () => ({ default: { template: '<div />' } }))
-vi.mock('@/components/RelatedCourses.vue', () => ({ default: { template: '<div />' } }))
+vi.mock('@/components/CourseCardOverlay.vue', () => ({
+	default: { template: '<div />' },
+}))
+vi.mock('@/components/CourseOutline.vue', () => ({
+	default: { template: '<div />' },
+}))
+vi.mock('@/components/SkeletonLoader.vue', () => ({
+	default: { template: '<div />' },
+}))
+vi.mock('@/components/CourseReviews.vue', () => ({
+	default: { template: '<div />' },
+}))
+vi.mock('@/components/CourseInstructors.vue', () => ({
+	default: { template: '<div />' },
+}))
+vi.mock('@/components/CourseCreatorCard.vue', () => ({
+	default: { template: '<div />' },
+}))
+vi.mock('@/components/UserAvatar.vue', () => ({
+	default: { template: '<div />' },
+}))
+vi.mock('@/components/RelatedCourses.vue', () => ({
+	default: { template: '<div />' },
+}))
 
 vi.stubGlobal('__', (s: string) => s)
 
@@ -93,7 +117,10 @@ describe('CourseOverview outline resource', () => {
 
 		const outline = outlineResource()
 		expect(outline.fetch).toHaveBeenCalledTimes(1)
-		expect(outline.makeParams!()).toEqual({ course: 'COURSE-1', progress: false })
+		expect(outline.makeParams!()).toEqual({
+			course: 'COURSE-1',
+			progress: false,
+		})
 	})
 
 	it('fires immediately when the course is already cached at mount', () => {
@@ -102,7 +129,7 @@ describe('CourseOverview outline resource', () => {
 		expect(outlineResource().fetch).toHaveBeenCalledTimes(1)
 	})
 
-	// A `cache` key would be snapshotted at setup — undefined on a cold load —
+	// A `cache` key would be snapshotted at setup (undefined on a cold load),
 	// and frappe-ui shares one instance per key, so a fixed key here leaks one
 	// course's outline into another. The resource must be created without one.
 	it('does not register a global cache key', () => {

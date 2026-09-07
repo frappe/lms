@@ -31,7 +31,7 @@
 					:to="profileRoute(participant.member_username)"
 					class="grid grid-cols-2 items-center w-full text-base w-fit py-2"
 				>
-					<div class="flex items-center gap-x-2">
+					<div class="flex items-center gap-x-3">
 						<Avatar
 							:image="participant.member_image"
 							:label="participant.member_name"

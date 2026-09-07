@@ -1,5 +1,5 @@
 /**
- * MappingListTable.vue v2: any unmapped row — channel or workspace — renders dulled
+ * MappingListTable.vue v2: any unmapped row (channel or workspace) renders dulled
  * with a Link button; the actions column drops the "..." menu below two entries.
  */
 import { describe, expect, it, vi } from 'vitest'
@@ -147,73 +147,80 @@ const mountTable = (list: any, extra: Record<string, unknown> = {}) =>
 describe.each([
 	['channel', unmappedChannel, false],
 	['workspace', unmappedWorkspace, true],
-] as const)('MappingListTable — dulled unmapped %s row', (_entity, unmappedRow, adoptOnEdit) => {
-	it('dims the descriptive cells but not the actions cell, and disables (not hides) its controls', () => {
-		const list = makeList([mappedChannel(), unmappedRow()], adoptOnEdit)
-		const w = mountTable(list, { labelPrefix: '#', labelClass: 'font-mono' })
+] as const)(
+	'MappingListTable: dulled unmapped %s row',
+	(_entity, unmappedRow, adoptOnEdit) => {
+		it('dims the descriptive cells but not the actions cell, and disables (not hides) its controls', () => {
+			const list = makeList([mappedChannel(), unmappedRow()], adoptOnEdit)
+			const w = mountTable(list, { labelPrefix: '#', labelClass: 'font-mono' })
 
-		const rows = w.findAll('.row')
-		expect(rows).toHaveLength(2)
+			const rows = w.findAll('.row')
+			expect(rows).toHaveLength(2)
 
-		// Mapped row: no cell is dimmed.
-		const mappedCells = rows[0].findAll('.cell')
-		expect(mappedCells.every((c) => !c.classes().includes('opacity-60'))).toBe(
-			true
-		)
+			// Mapped row: no cell is dimmed.
+			const mappedCells = rows[0].findAll('.cell')
+			expect(
+				mappedCells.every((c) => !c.classes().includes('opacity-60'))
+			).toBe(true)
 
-		// Dulled row: label/type/combine/enabled dim, but the last (actions)
-		// cell stays full-opacity so its Link button reads as a live control.
-		const dulledCells = rows[1].findAll('.cell')
-		expect(dulledCells.slice(0, -1).every((c) => c.classes().includes('opacity-60'))).toBe(true)
-		expect(dulledCells.at(-1)!.classes()).not.toContain('opacity-60')
+			// Dulled row: label/type/combine/enabled dim, but the last (actions)
+			// cell stays full-opacity so its Link button reads as a live control.
+			const dulledCells = rows[1].findAll('.cell')
+			expect(
+				dulledCells
+					.slice(0, -1)
+					.every((c) => c.classes().includes('opacity-60'))
+			).toBe(true)
+			expect(dulledCells.at(-1)!.classes()).not.toContain('opacity-60')
 
-		// Both rows still show the Enabled switch and type/combine dropdowns —
-		// the dulled row's just come back disabled, not suppressed.
-		const switches = w.findAll('[data-testid="switch"]')
-		expect(switches).toHaveLength(2)
-		expect(switches[0].attributes('data-disabled')).toBeFalsy()
-		expect(switches[1].attributes('data-disabled')).toBeTruthy()
-	})
+			// Both rows still show the Enabled switch and type/combine dropdowns.
+			// The dulled row's just come back disabled, not suppressed.
+			const switches = w.findAll('[data-testid="switch"]')
+			expect(switches).toHaveLength(2)
+			expect(switches[0].attributes('data-disabled')).toBeFalsy()
+			expect(switches[1].attributes('data-disabled')).toBeTruthy()
+		})
 
-	it('has no rename control on the dulled row', () => {
-		const list = makeList([unmappedRow()], adoptOnEdit)
-		const w = mountTable(list)
-		expect(
-			w.findAll('button').some((b) => b.attributes('aria-label') === 'Rename')
-		).toBe(false)
-	})
+		it('has no rename control on the dulled row', () => {
+			const list = makeList([unmappedRow()], adoptOnEdit)
+			const w = mountTable(list)
+			expect(
+				w.findAll('button').some((b) => b.attributes('aria-label') === 'Rename')
+			).toBe(false)
+		})
 
-	it('shows an icon-only, aria-labelled Link button in the actions column that calls linkRow', async () => {
-		const list = makeList([unmappedRow()], adoptOnEdit)
-		const w = mountTable(list)
+		it('shows an icon-only, aria-labelled Link button in the actions column that calls linkRow', async () => {
+			const list = makeList([unmappedRow()], adoptOnEdit)
+			const w = mountTable(list)
 
-		const link = w
-			.findAll('button')
-			.find((b) => b.attributes('aria-label') === 'Link')
-		expect(link).toBeTruthy()
-		// Icon-only: no visible text label, just the aria-label for screen readers.
-		expect(link!.text()).toBe('')
+			const link = w
+				.findAll('button')
+				.find((b) => b.attributes('aria-label') === 'Link')
+			expect(link).toBeTruthy()
+			// Icon-only: no visible text label, just the aria-label for screen readers.
+			expect(link!.text()).toBe('')
 
-		await link!.trigger('click')
-		expect(list.linkRow).toHaveBeenCalledTimes(1)
-		expect(list.linkRow.mock.calls[0][0].key).toBe(unmappedRow().key)
-	})
+			await link!.trigger('click')
+			expect(list.linkRow).toHaveBeenCalledTimes(1)
+			expect(list.linkRow.mock.calls[0][0].key).toBe(unmappedRow().key)
+		})
 
-	it('does not select the row when a dulled row body is clicked', async () => {
-		const list = makeList([unmappedRow()], adoptOnEdit)
-		const w = mountTable(list)
-		await w.find('.row').trigger('click')
-		expect(list.selectRow).not.toHaveBeenCalled()
-	})
-})
+		it('does not select the row when a dulled row body is clicked', async () => {
+			const list = makeList([unmappedRow()], adoptOnEdit)
+			const w = mountTable(list)
+			await w.find('.row').trigger('click')
+			expect(list.selectRow).not.toHaveBeenCalled()
+		})
+	}
+)
 
-describe('MappingListTable — actions column: no per-row Delete on a healthy mapping', () => {
+describe('MappingListTable: actions column: no per-row Delete on a healthy mapping', () => {
 	it('a mapped channel row (no extraRowOptions) shows nothing in the actions cell', () => {
 		const list = makeList([mappedChannel()], false)
 		const w = mountTable(list)
 
 		// Type + combine dropdowns are the baseline on every row; no third, since a channel
-		// has no row-menu entries — deleting a healthy mapping is a Desk action now.
+		// has no row-menu entries. Deleting a healthy mapping is a Desk action now.
 		expect(w.findAll('.dropdown')).toHaveLength(2)
 		expect(
 			w.findAll('button').some((b) => b.attributes('aria-label') === 'Delete')
@@ -227,7 +234,7 @@ describe('MappingListTable — actions column: no per-row Delete on a healthy ma
 			extraRowOptions: () => [{ label: 'Channels', onClick }],
 		})
 
-		// Still just the type + combine dropdowns — the single row action is a
+		// Still just the type + combine dropdowns. The single row action is a
 		// direct button, not a third Dropdown.
 		expect(w.findAll('.dropdown')).toHaveLength(2)
 		const jump = w
@@ -252,7 +259,7 @@ describe('MappingListTable — actions column: no per-row Delete on a healthy ma
 	})
 })
 
-describe('MappingListTable — a mapped row is never dulled, regardless of adoptOnEdit', () => {
+describe('MappingListTable: a mapped row is never dulled, regardless of adoptOnEdit', () => {
 	it('selects a mapped channel row on click', async () => {
 		const list = makeList([mappedChannel()], false)
 		const w = mountTable(list)
@@ -261,11 +268,15 @@ describe('MappingListTable — a mapped row is never dulled, regardless of adopt
 	})
 })
 
-describe('MappingListTable — a stale row', () => {
+describe('MappingListTable: a stale row', () => {
 	function makeStaleList(recreate: () => void, del: () => void) {
 		const list = makeList([staleChannel()], false)
 		list.takeActionMenu = () => [
-			{ label: 'Recreate channel', icon: 'lucide-refresh-cw', onClick: recreate },
+			{
+				label: 'Recreate channel',
+				icon: 'lucide-refresh-cw',
+				onClick: recreate,
+			},
 			{
 				label: 'Delete mapping',
 				icon: 'lucide-trash-2',
@@ -279,10 +290,10 @@ describe('MappingListTable — a stale row', () => {
 	it('has no "Take action" control in the label cell any more', () => {
 		const list = makeStaleList(vi.fn(), vi.fn())
 		const w = mountTable(list)
-		expect(
-			w.findAll('button').some((b) => b.text() === 'Take action')
-		).toBe(false)
-		// The Stale badge itself stays — only the select-style control moved.
+		expect(w.findAll('button').some((b) => b.text() === 'Take action')).toBe(
+			false
+		)
+		// The Stale badge itself stays. Only the select-style control moved.
 		expect(w.find('[data-testid="badge"]').text()).toBe('Stale')
 	})
 
@@ -323,9 +334,9 @@ describe('MappingListTable — a stale row', () => {
 		const list = makeStaleList(vi.fn(), vi.fn())
 		const w = mountTable(list)
 		const cells = w.find('.row').findAll('.cell')
-		expect(cells.slice(0, -1).every((c) => c.classes().includes('opacity-60'))).toBe(
-			true
-		)
+		expect(
+			cells.slice(0, -1).every((c) => c.classes().includes('opacity-60'))
+		).toBe(true)
 		expect(cells.at(-1)!.classes()).not.toContain('opacity-60')
 	})
 

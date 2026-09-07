@@ -15,6 +15,7 @@
 			<Button
 				v-if="feedbackList.data?.length && isAdmin"
 				variant="outline"
+				class="text-p-base-medium"
 				@click="showAllFeedback = true"
 			>
 				{{ __('View all feedback') }}

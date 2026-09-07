@@ -10,7 +10,7 @@ class FakeRazorpayController:
 	Mirrors the real controller: `get_payment_url` creates the order itself when
 	the caller hasn't supplied an `order_id`, `create_order` converts rupees to
 	paise, and both write an Integration Request. `direct_create_order_calls`
-	records the calls that did *not* come from inside `get_payment_url` — i.e.
+	records the calls that did *not* come from inside `get_payment_url`, i.e.
 	the ones LMS made on its own.
 	"""
 
@@ -44,7 +44,7 @@ class FakeRazorpayController:
 
 class TestPaymentLink(BaseTestUtils):
 	"""LMS used to pre-create the Razorpay order and hand the resulting
-	`order_id` to `get_payment_url` — which creates the order itself whenever one
+	`order_id` to `get_payment_url`, which creates the order itself whenever one
 	is missing. That put gateway-specific order logic (and a hard-coded
 	`if payment_gateway != "Razorpay"`) in LMS, duplicating what the payments app
 	owns, while omitting the `receipt` / `payment_capture` fields the controller's
@@ -109,7 +109,7 @@ class TestPaymentLink(BaseTestUtils):
 		)
 
 	def test_controller_still_gets_an_order_created(self):
-		"""Delegating must not lose the order — `get_payment_url` creates one
+		"""Delegating must not lose the order. `get_payment_url` creates one
 		because LMS no longer supplies an `order_id`."""
 		self._buy_course()
 
@@ -124,7 +124,7 @@ class TestPaymentLink(BaseTestUtils):
 		self.assertEqual(self.controller.get_payment_url_calls[0]["amount"], 500)
 
 	def test_the_request_carrying_the_order_id_is_written_last(self):
-		"""The controller writes two Integration Requests per attempt — the paise
+		"""The controller writes two Integration Requests per attempt: the paise
 		order payload, then the checkout payload with the `order_id`.
 		`update_payment_record` resolves the payment with
 		`order_by="creation desc" limit 1`, so it depends on the second one being

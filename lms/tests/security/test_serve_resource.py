@@ -22,7 +22,7 @@ class TestServeResourceUnderscoreFilename(BaseTestUtils, FrappeAPITestCase):
 	to the users who can read the lesson.
 
 	The reference resolver's content-field search escaped %/_ and then ran the pattern
-	through frappe.db.get_all(..., ["like", ...]), which re-escaped the backslashes — so
+	through frappe.db.get_all(..., ["like", ...]), which re-escaped the backslashes, so
 	any file_url with "_" (e.g. Module_1_Introduction.pdf) matched no lesson. Enrolled
 	students and preview guests were denied their own media (403), and a private-but-
 	unattached file was denied for everyone including Administrator. The search now

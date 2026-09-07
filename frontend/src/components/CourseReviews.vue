@@ -16,7 +16,11 @@
 					}}
 				</span>
 			</div>
-			<Button v-if="membership && !hasReviewed.data" @click="openReviewModal()">
+			<Button
+				v-if="membership && !hasReviewed.data"
+				class="text-p-base-medium"
+				@click="openReviewModal()"
+			>
 				{{ __('Write a Review') }}
 			</Button>
 		</div>
@@ -85,7 +89,11 @@
 		</div>
 
 		<div v-if="canShowMore" class="mt-8">
-			<Button class="w-full" size="md" @click="showAll = true">
+			<Button
+				class="w-full text-p-base-medium"
+				size="md"
+				@click="showAll = true"
+			>
 				{{ __('View all reviews') }}
 			</Button>
 		</div>
@@ -156,7 +164,7 @@ const showAll = ref(false)
 const expanded = reactive<Record<string, boolean>>({})
 
 const visibleReviews = computed(() => {
-	// Drop reviews whose author record is missing — owner_details can come
+	// Drop reviews whose author record is missing: owner_details can come
 	// back null for guest-authored or deleted-user reviews, and the row
 	// markup dereferences it for the avatar / profile link.
 	const all = (reviews.data || []).filter((r) => r.owner_details)

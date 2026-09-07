@@ -1,7 +1,7 @@
 <template>
 	<div class="m-5 pb-10">
-		<div class="flex justify-between w-full">
-			<div class="md:w-2/3">
+		<div class="flex flex-col md:flex-row justify-between w-full">
+			<div class="md:w-2/3 min-w-0">
 				<h1 class="text-4xl-semibold text-ink-gray-9">
 					{{ batch.data.title }}
 				</h1>
@@ -26,7 +26,7 @@
 				<BatchOverlay :batch="batch" class="md:hidden mt-5" />
 				<div
 					class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2 prose-sm max-w-none !whitespace-normal mt-10"
-					v-html="sanitizeRichHTML(batch.data.batch_details)"
+					v-safe-html:rich="batch.data.batch_details"
 				></div>
 			</div>
 			<div class="hidden md:block">
@@ -59,7 +59,7 @@
 			</div>
 			<div v-if="batch.data.batch_details_raw">
 				<div
-					v-html="sanitizeRichHTML(batch.data.batch_details_raw)"
+					v-safe-html:rich="batch.data.batch_details_raw"
 					class="batch-description"
 				></div>
 			</div>
@@ -67,7 +67,6 @@
 	</div>
 </template>
 <script setup lang="ts">
-import { sanitizeRichHTML } from '@/utils/sanitizeRichHTML'
 import { createResource } from 'frappe-ui'
 import CourseCard from '@/components/CourseCard.vue'
 import BatchOverlay from '@/pages/Batches/components/BatchOverlay.vue'

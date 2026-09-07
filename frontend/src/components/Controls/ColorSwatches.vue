@@ -1,10 +1,17 @@
 <template>
 	<div class="space-y-1.5">
-		<FormLabel :label="__(label)" />
+		<InputLabel
+			v-if="label"
+			:id="labelId"
+			:for-id="inputId"
+			:label="label ? __(label) : undefined"
+			:required="required"
+		/>
 		<Popover side="bottom" class="!block">
 			<template #trigger="{ toggle, isOpen }">
 				<div class="space-y-2">
 					<FormControl
+						:id="inputId"
 						type="text"
 						autocomplete="off"
 						class="w-full"
@@ -36,7 +43,9 @@
 								:label="__('Clear color')"
 								@click="emit('update:modelValue', null)"
 							>
-								<span class="lucide-x size-3 text-ink-gray-5" />
+								<template #icon>
+									<span class="lucide-x size-3 text-ink-gray-5" />
+								</template>
 							</Button>
 						</template>
 					</FormControl>
@@ -69,13 +78,22 @@
 				</div>
 			</template>
 		</Popover>
-		<div class="text-sm text-ink-gray-5 mt-2">
-			{{ description }}
-		</div>
+		<InputDescription
+			v-if="showDescription"
+			:id="descriptionId"
+			:description="description ? __(description) : undefined"
+		/>
+		<InputError v-if="hasError" :id="errorMessageId" :lines="errorLines" />
 	</div>
 </template>
 <script setup lang="ts">
-import { Button, FormControl, FormLabel, Popover } from 'frappe-ui'
+import { Button, FormControl, Popover } from 'frappe-ui'
+import {
+	InputDescription,
+	InputError,
+	InputLabel,
+	useInputLabeling,
+} from '@/components/Form/labeling'
 import { computed } from 'vue'
 
 const emit = defineEmits(['update:modelValue', 'change'])
@@ -84,7 +102,19 @@ const props = defineProps<{
 	modelValue: string
 	label: string
 	description?: string
+	required?: boolean
+	error?: string
 }>()
+
+const {
+	inputId,
+	labelId,
+	descriptionId,
+	errorMessageId,
+	hasError,
+	errorLines,
+	showDescription,
+} = useInputLabeling(props)
 
 const colors = computed(() => {
 	return [

@@ -1,10 +1,17 @@
 <template>
 	<div class="space-y-1.5">
-		<FormLabel :label="label" />
+		<InputLabel
+			v-if="label"
+			:id="labelId"
+			:for-id="inputId"
+			:label="label ? __(label) : undefined"
+			:required="required"
+		/>
 		<div class="w-full">
 			<Popover>
 				<template #trigger>
 					<button
+						:id="inputId"
 						type="button"
 						class="flex w-full items-center gap-x-2 focus:outline-none transition-colors border border-[--surface-gray-2] bg-surface-gray-2 rounded h-7 py-1.5 px-2 hover:border-outline-elevation-2 hover:bg-surface-gray-3 focus:bg-surface-base focus:border-outline-gray-4 focus:shadow-sm focus:ring-0"
 					>
@@ -53,12 +60,24 @@
 				</template>
 			</Popover>
 		</div>
+		<InputDescription
+			v-if="showDescription"
+			:id="descriptionId"
+			:description="description ? __(description) : undefined"
+		/>
+		<InputError v-if="hasError" :id="errorMessageId" :lines="errorLines" />
 	</div>
 </template>
 <script setup>
-import { FormControl, FormLabel, Popover } from 'frappe-ui'
+import { FormControl, Popover } from 'frappe-ui'
+import {
+	InputDescription,
+	InputError,
+	InputLabel,
+	useInputLabeling,
+} from '@/components/Form/labeling'
 import * as icons from 'lucide-vue-next'
-import { ref, computed, onMounted, nextTick } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 
 const iconQuery = ref('')
 const selectedIcon = ref('')
@@ -84,7 +103,29 @@ const props = defineProps({
 		type: String,
 		default: '',
 	},
+	description: {
+		type: String,
+		default: undefined,
+	},
+	required: {
+		type: Boolean,
+		default: false,
+	},
+	error: {
+		type: String,
+		default: undefined,
+	},
 })
+
+const {
+	inputId,
+	labelId,
+	descriptionId,
+	errorMessageId,
+	hasError,
+	errorLines,
+	showDescription,
+} = useInputLabeling(props)
 
 onMounted(() => {
 	selectedIcon.value = props.modelValue

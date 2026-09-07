@@ -64,7 +64,9 @@
 				:label="__('Delete')"
 				@click="deleteExercises(selections, unselectAll)"
 			>
-				<span class="lucide-trash-2 size-4" />
+				<template #icon>
+					<span class="lucide-trash-2 size-4" aria-hidden="true" />
+				</template>
 			</Button>
 		</template>
 	</ListPage>
@@ -236,7 +238,7 @@ const submissionColumns = computed(() => {
 			key: 'modified',
 			width: '15%',
 			icon: 'lucide-clock',
-			align: 'right',
+			align: 'left',
 		},
 	]
 })

@@ -1,5 +1,5 @@
 // @editorjs/header ships no type declarations. Declare only the surface our
-// Heading subclass touches (see utils/heading.ts) — including the two API
+// Heading subclass touches (see utils/heading.ts), including the two API
 // members the base tool reads, so a test can construct one without a cast.
 declare module '@editorjs/header' {
 	export interface HeaderData {

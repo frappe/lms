@@ -1,4 +1,5 @@
 import frappeUIPreset from 'frappe-ui/tailwind'
+import { safeAreaPlugin } from './tailwind/safeArea.js'
 
 export default {
 	presets: [frappeUIPreset],
@@ -21,5 +22,5 @@ export default {
 			},
 		},
 	},
-	plugins: [],
+	plugins: [safeAreaPlugin],
 }

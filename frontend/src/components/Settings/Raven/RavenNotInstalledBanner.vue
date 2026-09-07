@@ -11,12 +11,7 @@
 			{{ body }}
 		</span>
 	</div>
-	<a
-		v-if="missing === 'raven'"
-		:href="marketplaceUrl"
-		target="_blank"
-		rel="noopener"
-	>
+	<a v-if="missing === 'raven'" :href="marketplaceUrl" v-external>
 		<Button variant="solid">
 			{{ __('Get Raven') }}
 			<template #suffix>

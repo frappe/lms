@@ -17,7 +17,7 @@ class TestEvaluatorAvailability(BaseTestUtils):
 	doctype role permissions. `Course Evaluator` grants full write to Moderator,
 	Batch Evaluator *and* Course Creator with no row-level owner condition, so
 	any of them could add slots to, edit, or mark unavailability on any other
-	evaluator's calendar — a Course Creator can't even open the Slots tab, yet
+	evaluator's calendar. A Course Creator can't even open the Slots tab, yet
 	could still write to it through the API.
 
 	The rule these endpoints enforce: you may edit your own availability, and a
@@ -64,7 +64,7 @@ class TestEvaluatorAvailability(BaseTestUtils):
 					user.insert(ignore_permissions=True)
 				else:
 					# Reused across runs, and a test may have stripped a role to
-					# set up its own state — put the fixture's roles back.
+					# set up its own state. Put the fixture's roles back.
 					user = frappe.get_doc("User", email)
 					missing = [r for r in roles if r not in {d.role for d in user.roles}]
 					if missing:
@@ -96,7 +96,7 @@ class TestEvaluatorAvailability(BaseTestUtils):
 		frappe.session.user = self.original_user
 
 	def _reset_evaluator_doc(self, evaluator):
-		"""One known slot per test — the tests add, edit and delete rows."""
+		"""One known slot per test. The tests add, edit and delete rows."""
 		if frappe.db.exists("Course Evaluator", evaluator):
 			doc = frappe.get_doc("Course Evaluator", evaluator)
 			doc.schedule = []
@@ -222,7 +222,7 @@ class TestEvaluatorAvailability(BaseTestUtils):
 	# --- reading must not write ------------------------------------------
 
 	def _reset_target(self, evaluator, drop_role=True):
-		"""A pre-fix run leaves the record — and the granted role — behind.
+		"""A pre-fix run leaves the record (and the granted role) behind.
 
 		`drop_role` stays off for a fixture that is *meant* to hold Batch
 		Evaluator: stripping it would make the caller fail `only_for`.
@@ -236,8 +236,8 @@ class TestEvaluatorAvailability(BaseTestUtils):
 	def test_reading_details_does_not_create_a_record_for_the_target(self):
 		"""`get_evaluator_details` used to insert a Course Evaluator for whoever
 		it was asked about. The Slots tab renders for any profile holding
-		Moderator, and the resource fires on mount — before the client-side
-		redirect — so opening another moderator's profile wrote to their name."""
+		Moderator, and the resource fires on mount (before the client-side
+		redirect), so opening another moderator's profile wrote to their name."""
 		self._reset_target(self.plain_moderator.email)
 		frappe.session.user = self.moderator.email
 
@@ -251,8 +251,8 @@ class TestEvaluatorAvailability(BaseTestUtils):
 	def test_reading_details_does_not_grant_the_target_the_evaluator_role(self):
 		"""Saving a Course Evaluator runs validate_evaluator_role, which adds
 		`Batch Evaluator` to the target. The grant only lands when the *caller*
-		may write User docs — a portal Moderator's role write is silently
-		dropped — so an admin-level reader is what made this an escalation."""
+		may write User docs (a portal Moderator's role write is silently
+		dropped), so an admin-level reader is what made this an escalation."""
 		self._reset_target(self.plain_moderator.email)
 		frappe.session.user = "Administrator"
 
@@ -295,7 +295,7 @@ class TestEvaluatorAvailability(BaseTestUtils):
 
 	def test_adding_a_slot_creates_the_evaluator_record_on_demand(self):
 		"""Creation moves to the write path, so an evaluator with no record yet
-		can still be given slots — it just takes a deliberate write."""
+		can still be given slots. It just takes a deliberate write."""
 		self._reset_target(self.plain_moderator.email)
 		frappe.session.user = self.moderator.email
 
@@ -306,7 +306,7 @@ class TestEvaluatorAvailability(BaseTestUtils):
 
 	def test_creating_the_record_actually_grants_the_role(self):
 		"""`User.add_roles` saves the whole User doc, which a portal Moderator
-		may not write — so the grant silently never landed and the evaluator
+		may not write. The grant silently never landed and the evaluator
 		could not open their own schedule."""
 		self._reset_target(self.plain_moderator.email)
 		frappe.session.user = self.moderator.email
@@ -322,7 +322,7 @@ class TestEvaluatorAvailability(BaseTestUtils):
 
 	def test_a_student_cannot_make_themselves_an_evaluator(self):
 		"""Ownership alone is not a gate: naming yourself passes it, and the
-		first write provisions a Course Evaluator with ignore_permissions —
+		first write provisions a Course Evaluator with ignore_permissions,
 		which grants Batch Evaluator. The caller needs the role already."""
 		self._reset_target(self.student.email)
 		frappe.session.user = self.student.email
@@ -350,7 +350,7 @@ class TestEvaluatorAvailability(BaseTestUtils):
 	# --- reads are owner-gated too ----------------------------------------
 
 	def test_an_evaluator_cannot_read_another_evaluators_schedule(self):
-		"""`only_for` is a role gate, not an owner gate — every Batch Evaluator
+		"""`only_for` is a role gate, not an owner gate. Every Batch Evaluator
 		could read every other one's schedule, unavailability and calendar."""
 		frappe.session.user = self.evaluator.email
 
@@ -367,8 +367,8 @@ class TestEvaluatorAvailability(BaseTestUtils):
 	# --- no record means no write ------------------------------------------
 
 	def test_unavailability_on_a_missing_record_is_refused_not_created(self):
-		"""A no-op unavailability write used to create the record — and grant
-		the role — for someone who had never been an evaluator."""
+		"""A no-op unavailability write used to create the record (and grant
+		the role) for someone who had never been an evaluator."""
 		self._reset_target(self.plain_moderator.email)
 		frappe.session.user = self.moderator.email
 

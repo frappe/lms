@@ -23,21 +23,14 @@ const onRejection = (reason: unknown) => {
 		unexpectedRejections.push(String(message ?? reason))
 	}
 }
-// Reached via globalThis because this tsconfig sets `types: []`, so there are
-// no @types/node globals to declare `process`.
-const proc = (globalThis as { process?: NodeEventTarget }).process
-type NodeEventTarget = {
-	on(event: string, listener: (reason: unknown) => void): void
-	off(event: string, listener: (reason: unknown) => void): void
-}
-proc?.on('unhandledRejection', onRejection)
+process.on('unhandledRejection', onRejection)
 afterAll(() => {
-	proc?.off('unhandledRejection', onRejection)
+	process.off('unhandledRejection', onRejection)
 	expect(unexpectedRejections).toEqual([])
 })
 
 // pdf.js can't be imported in vitest+jsdom (ReferenceError: DOMMatrix), and it
-// needs no real rendering to test the lifecycle — mock it. A shared `state`
+// needs no real rendering to test the lifecycle, so mock it. A shared `state`
 // lets each test steer getDocument to resolve or reject.
 const state = vi.hoisted(() => ({
 	shouldReject: false,
@@ -184,7 +177,7 @@ describe('PdfBlock', () => {
 		expect(createPdfWorker).toHaveBeenCalledTimes(1)
 
 		// ...and one PDFWorker wrapping it, owned by the module, not by either
-		// loading task — so a's teardown can't strand b on the spinner forever.
+		// loading task, so a's teardown can't strand b on the spinner forever.
 		expect(state.pdfWorkers).toBe(1)
 
 		a.unmount()
@@ -198,7 +191,7 @@ describe('PdfBlock', () => {
 	// The bug this pins: via GlobalWorkerOptions.workerPort, pdf.js records the
 	// SHARED worker on each document's loading task, so one viewer's
 	// pdfDoc.destroy() tears down the port-level message handler its siblings
-	// are still listening on — their load then never resolves *and never
+	// are still listening on. Their load then never resolves *and never
 	// rejects*, leaving a permanent "Loading PDF…". Passing `worker` explicitly
 	// makes pdf.js skip that ownership assignment.
 	it('passes the shared worker explicitly instead of via the pdf.js global', async () => {
@@ -218,7 +211,7 @@ describe('PdfBlock', () => {
 		const pdf = await import('pdfjs-dist/legacy/build/pdf.mjs')
 		// A load still in flight at unmount: pdfDoc is null, so pdfDoc.destroy()
 		// is a no-op and only task.destroy() can cancel it. Settled at the end of
-		// the test rather than left dangling — a pending load that outlives
+		// the test rather than left dangling: a pending load that outlives
 		// vi.resetModules() re-imports the REAL pdf.js and leaks a rejection.
 		let settle: (v: unknown) => void = () => {}
 		vi.mocked(pdf.getDocument).mockReturnValueOnce({

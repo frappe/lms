@@ -53,7 +53,7 @@ export function toApiRule(r: RavenMemberRule): ApiRule {
 }
 
 /**
- * Identity of a rule's *membership effect* — everything but the cosmetic `label`/
+ * Identity of a rule's *membership effect*: everything but the cosmetic `label`/
  * `name`, so callers can tell a rename apart from a change that moves people.
  */
 export function membershipSignature(rules: readonly RavenMemberRule[]): string {
@@ -63,7 +63,7 @@ export function membershipSignature(rules: readonly RavenMemberRule[]): string {
 			// Canonicalize config like ruleIdentity does, so key order never
 			// spuriously changes the signature and forces an avoidable diff.
 			return { provider, rule_type, status, config: canonicalJson(config) }
-		}),
+		})
 	)
 }
 
@@ -80,7 +80,7 @@ function canonicalJson(value: unknown): string {
 
 /**
  * Mirrors `engine.validate_unique_member_rules`: provider + rule_type + config, key
- * order aside. `status` is excluded there too — a Paused rule collides with Active.
+ * order aside. `status` is excluded there too: a Paused rule collides with Active.
  */
 export function ruleIdentity(r: RavenMemberRule): string {
 	const { provider, rule_type, config } = toApiRule(r)

@@ -28,7 +28,7 @@ class TestCourseEvaluator(BaseTestUtils):
 
 	def _slots(self, schedule):
 		"""Every slot, flattened. Groups are keyed by *display* date, so nothing
-		timezone-independent can be asserted about them — the system values each
+		timezone-independent can be asserted about them; the system values each
 		slot carries are what the booking is made of."""
 		return [slot for row in schedule for slot in row.get("slots")]
 

@@ -1,5 +1,5 @@
 /**
- * Tests for Student View — `?studentView=1` on the lesson route, which shows a
+ * Tests for Student View: `?studentView=1` on the lesson route, which shows a
  * course as a learner sees it.
  *
  * The lesson page renders the same components for everyone, and each of them
@@ -161,7 +161,7 @@ const LessonStandIn = defineComponent({
 			() => props.studentViewQuery === '1'
 		)
 		const user = mockedUser
-		// The real user, not the shadow — this is what gates "Editor view".
+		// The real user, not the shadow: this is what gates "Editor view".
 		const ownInjected = inject<{ data?: Record<string, unknown> }>('$user')
 		const selfInjectedFlag = useStudentView()
 		return () =>

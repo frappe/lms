@@ -331,7 +331,7 @@ class TestCouponRedemption(BaseTestUtils):
 
 	def test_certificate_purchase_enrolls_a_learner_who_is_not_enrolled(self):
 		"""The purchase is recorded on the enrollment, so without one the learner
-		pays and gets nothing — and never stops paying, because the checkout
+		pays and gets nothing, and never stops paying, because the checkout
 		guard reads the same flag."""
 		coupon = self._create_coupon()
 		payment = self._create_payment(coupon, payment_for_certificate=1)

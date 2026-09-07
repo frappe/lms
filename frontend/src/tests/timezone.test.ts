@@ -56,7 +56,7 @@ describe('formatTimezone date anchoring', () => {
 	it('reads a date-only value on that date, not the day before', () => {
 		// America/Santiago moves GMT-4 -> GMT-3 overnight on 2026-09-05.
 		// `new Date('2026-09-06')` is UTC midnight, which is still 2026-09-05
-		// there — the wrong side of the transition.
+		// there: the wrong side of the transition.
 		expect(formatTimezone('America/Santiago', '2026-09-06')).toBe(
 			'America/Santiago (GMT-3:00)'
 		)

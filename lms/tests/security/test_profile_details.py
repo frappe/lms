@@ -8,7 +8,7 @@ class TestProfileDetails(BaseTestUtils):
 	"""`get_profile_details` checked `has_lms_role()` against the *caller*, so a
 	user holding no LMS role could not load their own profile page. Every user
 	created through the LMS picks up `LMS Student` via the `before_insert` hook,
-	but users created in Desk, by Data Import or by another app do not — they hit
+	but users created in Desk, by Data Import or by another app do not; they hit
 	a dead profile.
 
 	Widening that must not reopen the username-enumeration hole the earlier

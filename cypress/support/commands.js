@@ -80,8 +80,8 @@ Cypress.Commands.add("closeOnboardingModal", () => {
 		}
 
 		// Close via the header X, which sets showHelpModal = false and removes
-		// the modal. ("Skip all" only dismisses the onboarding steps — the modal
-		// then shows the help center — so the X is what actually closes it.) The
+		// the modal. ("Skip all" only dismisses the onboarding steps and the modal
+		// then shows the help center, so the X is what actually closes it.) The
 		// X is frappe-ui's FeatherIcon "x"; match a lucide x too in case the icon
 		// set changes. Force-click to skip Cypress's actionability wait, since
 		// the modal's transitions detach nodes mid-wait and fail a normal click.

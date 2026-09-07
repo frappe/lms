@@ -1,6 +1,6 @@
 /**
  * providerSchema's completeness check. `fieldsOf` returns [] for a rule type the
- * declaration does not cover — including every type while it is unloaded — and
+ * declaration does not cover (including every type while it is unloaded), and
  * `[].every()` is true, so completeness must be gated on the type being declared.
  */
 import { describe, expect, it, vi } from 'vitest'
@@ -49,7 +49,7 @@ const rule = (over: Partial<RavenMemberRule> = {}): RavenMemberRule => ({
 describe('hasRequiredFields', () => {
 	it('is false for a rule type the declaration does not cover', () => {
 		expect(hasRequiredFields(ruleTypes, rule({ rule_type: 'Retired' }))).toBe(
-			false,
+			false
 		)
 	})
 
@@ -67,10 +67,7 @@ describe('hasRequiredFields', () => {
 
 	it('is true for a declared type with no reqd fields', () => {
 		expect(
-			hasRequiredFields(
-				ruleTypes,
-				rule({ rule_type: 'All Enrolled Students' }),
-			),
+			hasRequiredFields(ruleTypes, rule({ rule_type: 'All Enrolled Students' }))
 		).toBe(true)
 	})
 })

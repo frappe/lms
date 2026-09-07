@@ -1,0 +1,88 @@
+<template>
+	<section class="space-y-5 border-t pt-6">
+		<div class="text-base-semibold text-ink-gray-9">
+			{{ __('Course overview') }}
+		</div>
+		<div class="space-y-1.5">
+			<InputLabel
+				:id="descriptionLabelId"
+				:for-id="descriptionId"
+				:label="__('Course Description')"
+				:required="true"
+			/>
+			<div
+				class="rounded-t-lg rounded-b-md outline-none transition-[box-shadow] duration-150 ease-[cubic-bezier(0.23,1,0.32,1)]"
+			>
+				<RichTextEditor
+					:id="descriptionId"
+					:content="doc.description"
+					@change="
+						(val) => {
+							doc.description = val
+							markDirty()
+						}
+					"
+					:editable="true"
+					:fixedMenu="true"
+					editorClass="prose-sm max-w-none border-b border-x border-outline-gray-2 hover:border-outline-gray-3 hover:shadow-sm focus-within:border-outline-gray-4 focus-within:shadow-sm rounded-b-md py-1 px-2 min-h-[7rem] transition-colors"
+				/>
+			</div>
+		</div>
+		<MultiLink
+			v-model="relatedCourses"
+			doctype="LMS Course"
+			:filters="{ name: ['!=', resource.doc?.name], published: 1 }"
+			:label="__('Related Courses')"
+			:placeholder="__('Select related courses')"
+			:emptyText="__('No other published courses available')"
+			variant="outline"
+			@update:modelValue="markDirty()"
+		/>
+	</section>
+
+	<section class="space-y-5 border-t pt-6">
+		<div>
+			<div class="text-base-semibold text-ink-gray-9">
+				{{ __('Meta Tags') }}
+			</div>
+			<div class="mt-1 text-p-sm text-ink-gray-6">
+				{{
+					__(
+						'These tags help search engines describe and rank your course in results.'
+					)
+				}}
+			</div>
+		</div>
+		<FormControl
+			v-model="meta.description"
+			:label="__('Meta description')"
+			type="textarea"
+			:placeholder="__('A short summary of the course for search results.')"
+			variant="outline"
+			@input="markDirty()"
+		/>
+		<FormControl
+			v-model="meta.keywords"
+			:label="__('Meta keywords')"
+			type="textarea"
+			:placeholder="__('Comma separated keywords for SEO')"
+			variant="outline"
+			@input="markDirty()"
+		/>
+	</section>
+</template>
+
+<script setup lang="ts">
+import { FormControl } from 'frappe-ui'
+import { computed, inject, useId } from 'vue'
+import MultiLink from '@/components/Controls/MultiLink.vue'
+import type { CourseFormContext } from '@/types'
+import RichTextEditor from '@/components/RichTextEditor.vue'
+import { InputLabel } from '@/components/Form/labeling'
+
+const { resource, relatedCourses, meta, markDirty } =
+	inject<CourseFormContext>('courseForm')!
+const doc = computed(() => resource.doc)
+const descriptionId = useId()
+const descriptionLabelId = useId()
+</script>

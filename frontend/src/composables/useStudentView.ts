@@ -11,7 +11,7 @@ import {
  * Student View shows a lesson as a learner sees it, but every component below
  * it still injected the real `$user`, whose `is_moderator` / `is_instructor` /
  * `is_evaluator` flags stay true. So the preview kept rendering instructor
- * affordances — most visibly Assignment.vue's Grading panel, which let a
+ * affordances, most visibly Assignment.vue's Grading panel, which let a
  * moderator submit the assignment in preview and then grade themselves.
  *
  * `$user` is provided app-wide in main.js and read via `inject('$user')`

@@ -76,7 +76,7 @@ beforeEach(() => {
 	h.toast.error.mockReset()
 })
 
-describe('useMappingList — confirmDelete re-entrancy guard', () => {
+describe('useMappingList: confirmDelete re-entrancy guard', () => {
 	it('submits exactly once when confirmDelete is called twice before the first submit resolves', async () => {
 		const list = await channelList([mappedChannel()])
 		const row = list.rows.value[0]
@@ -85,7 +85,7 @@ describe('useMappingList — confirmDelete re-entrancy guard', () => {
 		expect(list.deleteOpen.value).toBe(true)
 
 		// Two synchronous confirms, back to back, before the in-flight submit's
-		// promise resolves — the double-submit shape from the bug report.
+		// promise resolves: the double-submit shape from the bug report.
 		list.confirmDelete()
 		list.confirmDelete()
 

@@ -39,6 +39,11 @@ class LMSEnrollment(Document):
 		update_program_progress(self.member)
 
 	def validate_duplicate_enrollment(self):
+		# Lock the course row first: see the note in
+		# lms_batch_enrollment.validate_duplicate_members. Two concurrent
+		# enrolments in the same course both read "absent" without it.
+		frappe.db.get_value("LMS Course", self.course, "name", for_update=True)
+
 		existing_enrollment = frappe.db.exists(
 			"LMS Enrollment",
 			{
@@ -127,7 +132,7 @@ def batched_enrollment_updates():
 	"""Coalesce every enrollment write in this block into one write and one dispatch."""
 	# A lesson completion writes the enrollment twice: LMS Course Progress.on_update
 	# recalculates progress, then save_progress advances current_lesson. Dispatched
-	# separately that is two on_updates — two webhook deliveries per completion, where
+	# separately that is two on_updates: two webhook deliveries per completion, where
 	# the pre-regression .save() delivered one. Batching restores the single event.
 	if getattr(frappe.local, "lms_enrollment_batch", None) is not None:
 		yield

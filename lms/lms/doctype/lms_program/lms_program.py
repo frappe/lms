@@ -67,3 +67,22 @@ def has_permission(doc, ptype="read", user=None):
 		return True
 
 	return False
+
+
+def get_permission_query_conditions(user=None):
+	"""List-read counterpart of has_permission above: published, or a member."""
+	user = user or frappe.session.user
+	if user == "Administrator":
+		return ""
+
+	if user == "Guest" and not guest_access_allowed():
+		return "1 = 0"
+
+	roles = frappe.get_roles(user)
+	if "Moderator" in roles or "Course Creator" in roles:
+		return ""
+
+	escaped = frappe.db.escape(user)
+	return f"""(`tabLMS Program`.published = 1 or `tabLMS Program`.name in (
+		select parent from `tabLMS Program Member` where member = {escaped}
+	))"""

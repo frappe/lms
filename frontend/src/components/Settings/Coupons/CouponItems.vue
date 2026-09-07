@@ -74,7 +74,7 @@ import Link from '@/components/Controls/Link.vue'
 import Select from '@/components/Controls/Select.vue'
 
 // Mutates the parent doc's `applicable_items` in place; the parent saves the whole
-// doc, so Frappe diffs rows server-side — no per-row API calls here.
+// doc, so Frappe diffs rows server-side; no per-row API calls here.
 const props = defineProps<{
 	items: ApplicableItem[]
 }>()

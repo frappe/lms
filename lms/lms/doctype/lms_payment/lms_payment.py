@@ -27,7 +27,7 @@ def add_unique_payment_id_constraint():
 	payment id can be resolved to different rows, which do not lock each other,
 	so the constraint is what stops both being credited.
 
-	A site that already carries duplicates — the very bug this prevents — keeps
+	A site that already carries duplicates (the very bug this prevents) keeps
 	its rows and is told, rather than having a migration decide which payment was
 	really charged. It gets a plain index for the duplicate lookup, and
 	update_payment_record falls back to serializing callbacks until the

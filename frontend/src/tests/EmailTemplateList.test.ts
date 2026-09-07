@@ -1,8 +1,10 @@
 /**
- * Tests for EmailTemplateList.vue — the settings list of templates.
+ * Tests for EmailTemplateList.vue: the settings list of templates.
  *
- * Focus: Delete goes through a confirm Dialog before calling delete.submit,
- * and it deletes the row that was clicked (not the first row).
+ * Focus: Delete goes through a confirm Dialog before the list removes anything,
+ * and it deletes the row that was clicked (not the first row). It goes through
+ * the composable's remove(), not the raw resource, because that is what takes
+ * the list back to page one afterwards.
  *
  * The frappe-ui/list family is stubbed (it is frappe-ui's own, tested there);
  * ListRows renders its row slot per item so the per-row Dropdown is reachable.
@@ -16,9 +18,12 @@ const { deleteSubmit, toastMock } = vi.hoisted(() => ({
 	toastMock: { success: vi.fn(), error: vi.fn(), info: vi.fn() },
 }))
 
-vi.mock('frappe-ui', () => ({
-	createListResource: () => ({
-		data: [
+vi.mock('@/composables/useSettingsListResource', () => ({
+	SETTINGS_PAGE_LENGTH: 13,
+	useSettingsListResource: () => ({
+		resource: {},
+		search: '',
+		rows: [
 			{ name: 'Welcome', subject: 'Hello', use_html: 0, response: 'r' },
 			{
 				name: 'Dispatch',
@@ -27,8 +32,16 @@ vi.mock('frappe-ui', () => ({
 				response: 'r',
 			},
 		],
-		delete: { submit: deleteSubmit },
+		loading: false,
+		hasNextPage: false,
+		loadMore: vi.fn(),
+		reload: vi.fn(),
+		applyFilters: vi.fn(),
+		remove: deleteSubmit,
 	}),
+}))
+
+vi.mock('frappe-ui', () => ({
 	toast: toastMock,
 	Button: {
 		props: ['label'],

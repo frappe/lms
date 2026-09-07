@@ -46,13 +46,11 @@
 			<ToggleFilter
 				:modelValue="openToWork"
 				:label="__('Open to Work')"
-				theme="green"
 				@update:modelValue="setOpenToWork"
 			/>
 			<ToggleFilter
 				:modelValue="hiring"
 				:label="__('Hiring')"
-				theme="blue"
 				@update:modelValue="setHiring"
 			/>
 		</template>

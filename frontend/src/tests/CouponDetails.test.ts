@@ -1,7 +1,7 @@
 /**
  * Tests for the coupon editor (CouponDetails + CouponItems).
  *
- * The coupon is saved as ONE document — the applicable_items child table rides
+ * The coupon is saved as ONE document: the applicable_items child table rides
  * along in the save payload, and Frappe diffs the rows server-side. These tests
  * pin that contract end to end: editing an existing row in place, adding a new
  * row, and dropping half-filled rows all show up correctly in the single save.
@@ -153,7 +153,7 @@ beforeEach(() => {
 	docHolder.doc = seedDoc()
 })
 
-describe('coupon editor — saving applicable items', () => {
+describe('coupon editor: saving applicable items', () => {
 	it('persists an in-place edit of an existing row in the single save', async () => {
 		const w = await mountEditor()
 		await w.get('[data-testid="link-ABCE"]').setValue('ABCD')

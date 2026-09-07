@@ -75,7 +75,7 @@ function reload(): void {
 }
 
 // A mapped row fetches its detail; an unmapped one has none yet, so it opens on
-// an empty ruleset — adding the first rule adopts it (see persistRules).
+// an empty ruleset. Adding the first rule adopts it (see persistRules).
 //
 // Also refetch when the combinator (All (AND) / Any (OR)) flips: it is switched from
 // the sibling list row, which reloads only the list, so member_count would otherwise
@@ -105,7 +105,7 @@ const update = createResource({
 })
 
 // Writes the one status field. Never replaces the rule list, so it cannot delete a
-// sibling — and it still works while an invalid saved rule blocks the panel's save.
+// sibling, and it still works while an invalid saved rule blocks the panel's save.
 const setStatus = createResource({
 	url: `raven_integration.api.set_${props.entity}_rule_status`,
 	onSuccess() {
@@ -159,7 +159,7 @@ function applyRulesFor(mappingName: string, next: RavenMemberRule[]): void {
 // it would drop. Anything at or above the threshold needs confirmation first.
 const pendingRules = ref<RavenMemberRule[] | null>(null)
 // Set only while the pending write targets a just-adopted mapping, whose detail
-// has not been fetched — everything else writes against `detail`.
+// has not been fetched. Everything else writes against `detail`.
 const pendingAdopted = ref<string | null>(null)
 // True while the pending change deleted a rule: removing a rule is an explicit
 // destructive act, so confirm on *any* member drop, not only past the threshold.
@@ -195,7 +195,7 @@ const ruleDiff = createResource<RuleDiff>({
 		applyPending(next)
 	},
 	onError(err: { messages?: string[] }) {
-		// Never apply a membership change we could not preview — the point of the
+		// Never apply a membership change we could not preview. The point of the
 		// diff is to catch the ones that empty a workspace.
 		clearPending()
 		toast.error(
@@ -227,7 +227,7 @@ async function persistRules(
 ): Promise<void> {
 	// Unmapped workspace: the first rule adopts the row (link_workspace), then
 	// persists onto it. Adopting can also RECOVER a mapping another admin created
-	// in the meantime, whose rules and members this write would replace — so the
+	// in the meantime, whose rules and members this write would replace, so the
 	// diff still gates it. A genuinely fresh mapping has nobody to remove and
 	// comes straight back through.
 	if (!props.row.mapped) {
@@ -315,10 +315,10 @@ const noActiveRulesMessage = computed<string>(() => {
 	if (!detail.data) return ''
 	return isWorkspace
 		? __(
-				'No active rules — membership is not being synced, so this workspace stays as it is.'
+				'No active rules. Membership is not being synced, so this workspace stays as it is.'
 		  )
 		: __(
-				'No active rules — this channel is not being synced. Add a rule to scope its membership.'
+				'No active rules. This channel is not being synced. Add a rule to scope its membership.'
 		  )
 })
 </script>

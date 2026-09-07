@@ -1714,10 +1714,6 @@
   resolved "https://registry.yarnpkg.com/@popperjs/core/-/core-2.11.8.tgz#6b79032e760a0899cd4204710beede972a3a185f"
   integrity sha512-P1st0aksCrn9sGZhp8GMYwBnQsbvAWsZAX44oXNNvLHGqAOcoVxmjZiohstwQ7SqKnbR47akdNi+uleWD8+g6A==
 
-"@raven-integration/ui@link:../../raven_integration/ui":
-  version "0.0.0"
-  uid ""
-
 "@rolldown/binding-android-arm64@1.0.2":
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/@rolldown/binding-android-arm64/-/binding-android-arm64-1.0.2.tgz#ebe1264e43ba5bb224c58c85e0ac238f87e5ad14"
@@ -2039,6 +2035,18 @@
   dependencies:
     "@tanstack/virtual-core" "3.13.18"
 
+"@tensorflow/tfjs-core@1.7.0":
+  version "1.7.0"
+  resolved "https://registry.yarnpkg.com/@tensorflow/tfjs-core/-/tfjs-core-1.7.0.tgz#9207c8f2481c52a6a40135a6aaf21a9bb0339bdf"
+  integrity sha512-uwQdiklNjqBnHPeseOdG0sGxrI3+d6lybaKu2+ou3ajVeKdPEwpWbgqA6iHjq1iylnOGkgkbbnQ6r2lwkiIIHw==
+  dependencies:
+    "@types/offscreencanvas" "~2019.3.0"
+    "@types/seedrandom" "2.4.27"
+    "@types/webgl-ext" "0.0.30"
+    "@types/webgl2" "0.0.4"
+    node-fetch "~2.1.2"
+    seedrandom "2.4.3"
+
 "@tiptap/core@^3.26.0", "@tiptap/core@^3.26.1":
   version "3.26.1"
   resolved "https://registry.yarnpkg.com/@tiptap/core/-/core-3.26.1.tgz#a4d3222248af7af01aede146806a5757465cc654"
@@ -2339,10 +2347,20 @@
   dependencies:
     "@types/unist" "*"
 
+"@types/offscreencanvas@~2019.3.0":
+  version "2019.3.0"
+  resolved "https://registry.yarnpkg.com/@types/offscreencanvas/-/offscreencanvas-2019.3.0.tgz#3336428ec7e9180cf4566dfea5da04eb586a6553"
+  integrity sha512-esIJx9bQg+QYF0ra8GnvfianIY8qWB0GBx54PK5Eps6m+xTj86KLavHv6qDhzKcu5UUOgNfJ2pWaIIV7TRUd9Q==
+
 "@types/resolve@1.20.2":
   version "1.20.2"
   resolved "https://registry.yarnpkg.com/@types/resolve/-/resolve-1.20.2.tgz#97d26e00cd4a0423b4af620abecf3e6f442b7975"
   integrity sha512-60BCwRFOZCQhDncwQdxxeOEEkbc5dIMccYLwbxsS4TUNeVECQ/pBJ0j09mrHOl/JJvpRPGwO9SvE4nR2Nb/a4Q==
+
+"@types/seedrandom@2.4.27":
+  version "2.4.27"
+  resolved "https://registry.yarnpkg.com/@types/seedrandom/-/seedrandom-2.4.27.tgz#9db563937dd86915f69092bc43259d2f48578e41"
+  integrity sha512-YvMLqFak/7rt//lPBtEHv3M4sRNA+HGxrhFZ+DQs9K2IkYJbNwVIb8avtJfhDiuaUBX/AW0jnjv48FV8h3u9bQ==
 
 "@types/trusted-types@^2.0.2", "@types/trusted-types@^2.0.7":
   version "2.0.7"
@@ -2363,6 +2381,16 @@
   version "0.0.21"
   resolved "https://registry.yarnpkg.com/@types/web-bluetooth/-/web-bluetooth-0.0.21.tgz#525433c784aed9b457aaa0ee3d92aeb71f346b63"
   integrity sha512-oIQLCGWtcFZy2JW77j9k8nHzAOpqMHLQejDA48XXMWH6tjCQHz5RCFz1bzsmROyL6PUm+LLnUiI4BCn221inxA==
+
+"@types/webgl-ext@0.0.30":
+  version "0.0.30"
+  resolved "https://registry.yarnpkg.com/@types/webgl-ext/-/webgl-ext-0.0.30.tgz#0ce498c16a41a23d15289e0b844d945b25f0fb9d"
+  integrity sha512-LKVgNmBxN0BbljJrVUwkxwRYqzsAEPcZOe6S2T6ZaBDIrFp0qu4FNlpc5sM1tGbXUYFgdVQIoeLk1Y1UoblyEg==
+
+"@types/webgl2@0.0.4":
+  version "0.0.4"
+  resolved "https://registry.yarnpkg.com/@types/webgl2/-/webgl2-0.0.4.tgz#c3b0f9d6b465c66138e84e64cb3bdf8373c2c279"
+  integrity sha512-PACt1xdErJbMUOUweSrbVM7gSIYm1vTncW2hF6Os/EeWi6TXYAYMPp+8v6rzHmypE5gHrxaxZNXgMkJVIdZpHw==
 
 "@vexip-ui/hooks@^2.8.0":
   version "2.9.3"
@@ -3133,10 +3161,10 @@ define-properties@^1.2.1:
     has-property-descriptors "^1.0.0"
     object-keys "^1.1.1"
 
-defu@^6.1.4:
-  version "6.1.4"
-  resolved "https://registry.yarnpkg.com/defu/-/defu-6.1.4.tgz#4e0c9cf9ff68fe5f3d7f2765cc1a012dfdcb0479"
-  integrity sha512-mEQCMmwJu317oSz8CwdIOdwf3xMif1ttiM8LTufzc3g6kR+9Pe236twL8j3IYT1F7GfRgGcW6MWxzZjLIkuHIg==
+defu@^6.1.5:
+  version "6.1.7"
+  resolved "https://registry.yarnpkg.com/defu/-/defu-6.1.7.tgz#72543567c8e9f97ff13ce402b6dbe09ac5ae4d23"
+  integrity sha512-7z22QmUWiQ/2d0KkdYmANbRUVABpZ9SNYyH5vx6PZ+nE5bcC0l7uFvEfHlyld/HcGBFTL536ClDt3DEcSlEJAQ==
 
 dequal@^2.0.0:
   version "2.0.3"
@@ -3350,6 +3378,11 @@ es-errors@^1.3.0:
   resolved "https://registry.yarnpkg.com/es-errors/-/es-errors-1.3.0.tgz#05f75a25dab98e4fb1dcd5e1472c0546d5057c8f"
   integrity sha512-Zf5H2Kxt2xjTvbJvP2ZWLEICxA6j+hAmMzIlypy4xcBg1vKVnx89Wy0GbS+kf5cwCVFFzdCFh2XSCFNULS6csw==
 
+es-module-lexer@^1.7.0:
+  version "1.7.0"
+  resolved "https://registry.yarnpkg.com/es-module-lexer/-/es-module-lexer-1.7.0.tgz#9159601561880a85f2734560a9099b2c31e5372a"
+  integrity sha512-jEQoCwk8hyb2AZziIOLhDqpm5+2ww5uIE6lkO/6jcOCusfk6LhMHpXXfBLXTZ7Ydyt0j4VoUQv6uGNYbdW+kBA==
+
 es-module-lexer@^2.0.0:
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/es-module-lexer/-/es-module-lexer-2.1.0.tgz#1dfcbb5ea3bbfb63f28e1fc3676c3676d1c9624c"
@@ -3452,6 +3485,14 @@ exsolve@^1.0.7:
   resolved "https://registry.yarnpkg.com/exsolve/-/exsolve-1.0.8.tgz#7f5e34da61cd1116deda5136e62292c096f50613"
   integrity sha512-LmDxfWXwcTArk8fUEnOfSZpHOJ6zOMUJKOtFLFqJLoKJetuQG874Uc7/Kki7zFLzYybmZhp1M7+98pfMqeX8yA==
 
+face-api.js@^0.22.2:
+  version "0.22.2"
+  resolved "https://registry.yarnpkg.com/face-api.js/-/face-api.js-0.22.2.tgz#5accbf7e53b1569685d116a7e18dbc4800770d39"
+  integrity sha512-9Bbv/yaBRTKCXjiDqzryeKhYxmgSjJ7ukvOvEBy6krA0Ah/vNBlsf7iBNfJljWiPA8Tys1/MnB3lyP2Hfmsuyw==
+  dependencies:
+    "@tensorflow/tfjs-core" "1.7.0"
+    tslib "^1.11.1"
+
 fast-deep-equal@^3.1.3:
   version "3.1.3"
   resolved "https://registry.yarnpkg.com/fast-deep-equal/-/fast-deep-equal-3.1.3.tgz#3a7d56b559d6cbc3eb512325244e619a65c6c525"
@@ -3532,10 +3573,10 @@ fraction.js@^4.1.2:
   resolved "https://registry.yarnpkg.com/fraction.js/-/fraction.js-4.3.7.tgz#06ca0085157e42fda7f9e726e79fefc4068840f7"
   integrity sha512-ZsDfxO51wGAXREY55a7la9LScWpwv9RxIrYABrlvOFBlH/ShPnrtsXeuUIfXKKOVicNxQ+o8JTbJvjS4M89yew==
 
-frappe-ui@^1.0.0-beta.24:
-  version "1.0.0-beta.24"
-  resolved "https://registry.yarnpkg.com/frappe-ui/-/frappe-ui-1.0.0-beta.24.tgz#af2009e2140ca119e6931ccd9004a76db44509d5"
-  integrity sha512-70xNZJ2jlGd/9UX6dQ4wglFFBqoxmsS/a/SlD9g2Lu5+31/eJDufwQUAvHitRQSw6Feb8wvVt1TLKSGkkWpirA==
+frappe-ui@1.0.0-beta.29:
+  version "1.0.0-beta.29"
+  resolved "https://registry.yarnpkg.com/frappe-ui/-/frappe-ui-1.0.0-beta.29.tgz#0b9ae7cd17c6867739a595656bba5525349a32f9"
+  integrity sha512-Uovz5JUEQBOJ85CyKtjTADgk+SjXWknfF8U54xgQQ/j3QP2nZ96abjnugh2I2Y5u5KHBl+k8tbKJZ3xbTD8Q7w==
   dependencies:
     "@codemirror/lang-css" "^6.3.0"
     "@codemirror/lang-html" "^6.4.9"
@@ -3594,6 +3635,7 @@ frappe-ui@^1.0.0-beta.24:
     dayjs "^1.11.13"
     dompurify "^3.4.0"
     echarts "^5.6.0"
+    es-module-lexer "^1.7.0"
     feather-icons "^4.28.0"
     fuzzysort "^3.1.0"
     grid-layout-plus "^1.1.0"
@@ -3601,11 +3643,12 @@ frappe-ui@^1.0.0-beta.24:
     idb-keyval "^6.2.0"
     lowlight "^3.3.0"
     lucide-static "^1.16.0"
+    magic-string "^0.30.21"
     marked "^15.0.12"
     ora "5.4.1"
     prettier "^3.3.2"
     prosemirror-tables "^1.8.1"
-    reka-ui "^2.5.0"
+    reka-ui "^2.9.9"
     slugify "^1.6.6"
     socket.io-client "^4.5.1"
     tippy.js "^6.3.7"
@@ -4569,6 +4612,11 @@ nanoid@^3.3.12:
   resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-3.3.12.tgz#ab3d912e217a6d0a514f00a72a16543a28982c05"
   integrity sha512-ZB9RH/39qpq5Vu6Y+NmUaFhQR6pp+M2Xt76XBnEwDaGcVAqhlvxrl3B2bKS5D3NH3QR76v3aSrKaF/Kiy7lEtQ==
 
+node-fetch@~2.1.2:
+  version "2.1.2"
+  resolved "https://registry.yarnpkg.com/node-fetch/-/node-fetch-2.1.2.tgz#ab884e8e7e57e38a944753cec706f788d1768bb5"
+  integrity sha512-IHLHYskTc2arMYsHZH82PVX8CSKT5lzb7AXeyO06QnjGDKtkv+pv3mEki6S7reB/x1QPo+YPxQRNEVgR5V/w3Q==
+
 node-releases@^2.0.27:
   version "2.0.27"
   resolved "https://registry.yarnpkg.com/node-releases/-/node-releases-2.0.27.tgz#eedca519205cf20f650f61d56b070db111231e4e"
@@ -5152,10 +5200,10 @@ regjsparser@^0.13.0:
   dependencies:
     jsesc "~3.1.0"
 
-reka-ui@^2.5.0:
-  version "2.8.0"
-  resolved "https://registry.yarnpkg.com/reka-ui/-/reka-ui-2.8.0.tgz#612023ad40c5c10999aef304f2b828cdd08da6a8"
-  integrity sha512-N4JOyIrmDE7w2i06WytqcV2QICubtS2PsK5Uo8FIMAgmO13KhUAgAByP26cXjjm2oF/w7rTyRs8YaqtvaBT+SA==
+reka-ui@^2.9.9:
+  version "2.10.1"
+  resolved "https://registry.yarnpkg.com/reka-ui/-/reka-ui-2.10.1.tgz#af51db13cf753668385639900f0e01e99c386f44"
+  integrity sha512-drcOQ4rQtDYAcGCsyQBqQg8QQ+H3B+zDaMJU0h8KPEPMa7g9BHu3zcOi4OB39XJSWizceFoNO0Z9tctSGLOXqg==
   dependencies:
     "@floating-ui/dom" "^1.6.13"
     "@floating-ui/vue" "^1.1.6"
@@ -5165,7 +5213,7 @@ reka-ui@^2.5.0:
     "@vueuse/core" "^14.1.0"
     "@vueuse/shared" "^14.1.0"
     aria-hidden "^1.2.4"
-    defu "^6.1.4"
+    defu "^6.1.5"
     ohash "^2.0.11"
 
 require-from-string@^2.0.2:
@@ -5316,6 +5364,11 @@ scule@^1.3.0:
   version "1.3.0"
   resolved "https://registry.yarnpkg.com/scule/-/scule-1.3.0.tgz#6efbd22fd0bb801bdcc585c89266a7d2daa8fbd3"
   integrity sha512-6FtHJEvt+pVMIB9IBY+IcCJ6Z5f1iQnytgyfKMhDKgmzYG+TeH/wx1y3l27rshSbLiSanrR9ffZDrEsmjlQF2g==
+
+seedrandom@2.4.3:
+  version "2.4.3"
+  resolved "https://registry.yarnpkg.com/seedrandom/-/seedrandom-2.4.3.tgz#2438504dad33917314bff18ac4d794f16d6aaecc"
+  integrity sha512-2CkZ9Wn2dS4mMUWQaXLsOAfGD+irMlLEeSP3cMxpGbgyOOzJGFa+MWCOMTOCMyZinHRPxyOj/S/C57li/1to6Q==
 
 semver@^6.3.1:
   version "6.3.1"
@@ -5844,6 +5897,11 @@ tslib@2.3.0:
   version "2.3.0"
   resolved "https://registry.yarnpkg.com/tslib/-/tslib-2.3.0.tgz#803b8cdab3e12ba581a4ca41c8839bbb0dacb09e"
   integrity sha512-N82ooyxVNm6h1riLCoyS9e3fuJ3AMG2zIZs2Gd1ATcSFjSA23Q0fzjjZeh0jbJvWVDZ0cJT8yaNNaaXHzueNjg==
+
+tslib@^1.11.1:
+  version "1.14.1"
+  resolved "https://registry.yarnpkg.com/tslib/-/tslib-1.14.1.tgz#cf2d38bdc34a134bcaf1091c41f6619e2f672d00"
+  integrity sha512-Xni35NKzjgMrwevysHTCArtLDpPvye8zV/0E4EyYn43P7/7qvQwPh9BGkHewbMulVntbigmcT7rdX3BNo9wRJg==
 
 tslib@^2.0.0, tslib@^2.4.0, tslib@^2.8.0:
   version "2.8.1"

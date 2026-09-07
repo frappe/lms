@@ -22,7 +22,7 @@ const { getEditorTools } = await import('@/utils')
 // EditorJS's built-in Bold calls `document.execCommand('bold')`. Inside a
 // heading the text is already bold, so the browser reads the command as "on"
 // and *un*-bolds instead: it writes `<span style="font-weight: normal">`, which
-// the block sanitizer then drops. Bolding a heading was therefore impossible —
+// the block sanitizer then drops. Bolding a heading was therefore impossible:
 // the toolbar button and Ctrl+B both silently did nothing. The Range-based tool
 // below wraps the selection in `<b>` regardless of the surrounding weight.
 function selectInside(host: HTMLElement, start: number, end: number): Range {

@@ -18,7 +18,7 @@
 				:disabled="!isCollapsed"
 			>
 				<slot name="icon">
-					<span class="grid h-5 w-6 flex-shrink-0 place-items-center">
+					<span class="grid size-4 flex-shrink-0 place-items-center">
 						<component
 							:is="typeof link.icon === 'string' ? icons[link.icon] : link.icon"
 							class="h-4 w-4 stroke-1.5 text-ink-gray-8"
@@ -33,7 +33,7 @@
 				:hoverDelay="1.5"
 			>
 				<span
-					class="min-w-0 truncate text-sm leading-5 duration-300 ease-in-out"
+					class="min-w-0 truncate text-p-sm duration-300 ease-in-out"
 					:class="
 						isCollapsed
 							? 'ms-0 w-0 overflow-hidden opacity-0'
@@ -51,7 +51,7 @@
 			/>
 			<span
 				v-if="link.count && !isCollapsed"
-				class="!ms-auto block text-xs text-ink-gray-5"
+				class="!ms-auto block text-p-xs text-ink-gray-5"
 				:class="
 					isCollapsed && link.count > 9
 						? 'absolute top-[2px] end-0 bg-surface-base'
@@ -62,7 +62,7 @@
 			</span>
 			<div
 				v-if="showControls && !isCollapsed"
-				class="flex items-center gap-x-2 !ms-auto block text-xs text-ink-gray-5 group-hover:visible invisible"
+				class="flex items-center gap-x-2 !ms-auto block text-p-xs text-ink-gray-5 group-hover:visible invisible"
 			>
 				<component
 					:is="icons['Edit']"
@@ -88,6 +88,7 @@ import * as icons from 'lucide-vue-next'
 import { toggleNotifications } from '@/stores/notifications'
 import { useSettings } from '@/stores/settings'
 import type { SidebarLink } from '@/types'
+import { openExternal } from '@/utils/openExternal'
 
 const router = useRouter()
 const settingsStore = useSettings()
@@ -126,7 +127,7 @@ function handleClick(): void {
 		showContactForm.value = true
 	} else if (props.link.to) {
 		if (props.link.to.startsWith('http')) {
-			window.open(props.link.to, '_blank')
+			openExternal(props.link.to)
 			return
 		}
 		window.location.href = `/${props.link.to}`

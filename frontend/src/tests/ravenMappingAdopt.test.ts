@@ -101,7 +101,7 @@ beforeEach(() => {
 	h.toast.error.mockReset()
 })
 
-describe('useMappingList — workspace adopt on edit', () => {
+describe('useMappingList: workspace adopt on edit', () => {
 	it('exposes adoptOnEdit true for workspaces', () => {
 		const list = useMappingList({ entity: 'workspace' })
 		expect(list.adoptOnEdit).toBe(true)
@@ -264,7 +264,7 @@ describe('useMappingList — workspace adopt on edit', () => {
 	})
 })
 
-describe('useMappingList — channel Link (no adopt on edit)', () => {
+describe('useMappingList: channel Link (no adopt on edit)', () => {
 	async function channelList(records: any[]) {
 		const list = useMappingList({ entity: 'channel', workspace: 'RWM-parent' })
 		res('list_channels').data = records
@@ -294,7 +294,7 @@ describe('useMappingList — channel Link (no adopt on edit)', () => {
 	})
 })
 
-describe('useMappingList — ensureMapped duplicate race', () => {
+describe('useMappingList: ensureMapped duplicate race', () => {
 	it('recovers from a DuplicateEntryError by resolving the existing mapping', async () => {
 		const list = await workspaceList([unmappedWorkspace()])
 		const row = list.rows.value[0]
@@ -323,7 +323,7 @@ describe('useMappingList — ensureMapped duplicate race', () => {
 
 		expect(name).toBe('RWM-existing')
 		expect(listRes.reload).toHaveBeenCalled()
-		// A duplicate race is benign — no error toast.
+		// A duplicate race is benign: no error toast.
 		expect(h.toast.error).not.toHaveBeenCalled()
 	})
 })

@@ -5,16 +5,24 @@
 			:modelValue="modelValue"
 			:options="options"
 			:placeholder="placeholder"
-			@update:modelValue="(value) => emit('update:modelValue', value || null)"
+			:label="label"
+			:description="description"
+			:error="error"
+			:required="required"
+			@update:modelValue="
+				(value) => emit('update:modelValue', value ? String(value) : null)
+			"
 		>
-			<template #suffix="{ open, selectedOption, clearSelection }">
+			<!-- Clearable variant (frappe-ui docs): an inline clear button via #suffix,
+			falling back to the chevron when nothing is selected. -->
+			<template #suffix="{ open, selectedOption, clear }">
 				<button
 					v-if="selectedOption"
 					type="button"
 					:aria-label="__('Clear')"
 					tabindex="-1"
 					class="grid size-4 place-items-center rounded-sm text-ink-gray-5 hover:bg-surface-gray-3 hover:text-ink-gray-7"
-					@click.stop="clearSelection()"
+					@click.stop="clear()"
 					@pointerdown.stop
 				>
 					<span class="lucide-x size-4" />
@@ -43,6 +51,10 @@ defineProps<{
 	modelValue: string | null
 	options: ComboboxOption[]
 	placeholder?: string
+	label?: string
+	description?: string
+	error?: string
+	required?: boolean
 }>()
 
 const emit = defineEmits<{ 'update:modelValue': [string | null] }>()

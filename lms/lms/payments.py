@@ -117,8 +117,8 @@ def get_payment_link(
 
 	# The controller creates the order itself when no `order_id` is supplied
 	# (see RazorpaySettings.get_payment_url). Pre-creating one here made the
-	# gateway skip that branch and left two Integration Requests per attempt —
-	# one in paise without an `order_id`, one in rupees with it — which
+	# gateway skip that branch and left two Integration Requests per attempt
+	# (one in paise without an `order_id`, one in rupees with it), which
 	# update_payment_record's "creation desc, limit 1" lookup can resolve to the
 	# wrong row.
 	return controller.get_payment_url(**payment_details)

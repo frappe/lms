@@ -1,5 +1,5 @@
 /**
- * Tests for EmailTemplateAdd.vue — create / duplicate an email template.
+ * Tests for EmailTemplateAdd.vue: create / duplicate an email template.
  *
  * Focus: required-field validation, the duplicate flow (" - Copy" + isDuplicate
  * label), the use_html → response_html payload branch, and the double-submit
@@ -80,7 +80,7 @@ beforeEach(() => {
 	lastInsert.value = null
 })
 
-describe('EmailTemplateAdd — create (rich text)', () => {
+describe('EmailTemplateAdd: create (rich text)', () => {
 	it('inserts with __newname and the rich-text response', async () => {
 		const w = mountAdd()
 		await setField(w, 'Name', 'Dispatch Notification')
@@ -113,7 +113,7 @@ describe('EmailTemplateAdd — create (rich text)', () => {
 	})
 })
 
-describe('EmailTemplateAdd — validation', () => {
+describe('EmailTemplateAdd: validation', () => {
 	it('blocks submit when name is empty', async () => {
 		const w = mountAdd()
 		await setField(w, 'Subject', 'Subject')
@@ -133,7 +133,7 @@ describe('EmailTemplateAdd — validation', () => {
 	})
 })
 
-describe('EmailTemplateAdd — duplicate', () => {
+describe('EmailTemplateAdd: duplicate', () => {
 	it('prefills " - Copy" and shows the Duplicate action', async () => {
 		const w = mountAdd({
 			templateData: {
@@ -153,7 +153,7 @@ describe('EmailTemplateAdd — duplicate', () => {
 	})
 })
 
-describe('EmailTemplateAdd — double-submit', () => {
+describe('EmailTemplateAdd: double-submit', () => {
 	it('spamming Create inserts exactly once', async () => {
 		const w = mountAdd()
 		await setField(w, 'Name', 'X')

@@ -22,7 +22,7 @@
 					name: 'ProgrammingExerciseSubmissions',
 				}"
 			>
-				<Button>
+				<Button class="text-p-base-medium">
 					<template #prefix>
 						<span class="lucide-clipboard-list size-4" />
 					</template>
@@ -32,12 +32,7 @@
 			<Button
 				v-if="!readOnlyMode"
 				variant="solid"
-				@click="
-					() => {
-						exerciseID = 'new'
-						showForm = true
-					}
-				"
+				@click="openExerciseForm('new')"
 			>
 				<template #prefix>
 					<span class="lucide-plus size-4" />
@@ -67,8 +62,6 @@
 
 		<template #cell="{ column, value }">
 			<div v-if="column.key == 'modified'" class="text-sm text-ink-gray-5">
-				<!-- A cell value is `unknown` — a row is a bag of fields and only
-				     the branch it lands in knows what one holds. -->
 				{{ dayjs(value as string).format('MMM D, YYYY') }}
 			</div>
 			<div v-else>{{ value }}</div>
@@ -80,17 +73,14 @@
 				:label="__('Delete')"
 				@click="showDeleteConfirmation(selections, unselectAll)"
 			>
-				<span class="lucide-trash-2 size-4" />
+				<template #icon>
+					<span class="lucide-trash-2 size-4" aria-hidden="true" />
+				</template>
 			</Button>
 		</template>
 	</ListPage>
 
-	<ProgrammingExerciseForm
-		v-model="showForm"
-		v-model:exercises="exercises"
-		:exerciseID="exerciseID"
-		v-model:totalExercises="totalExercises"
-	/>
+	<router-view />
 </template>
 <script setup lang="ts">
 import { computed, getCurrentInstance, inject, onMounted, ref } from 'vue'
@@ -110,12 +100,10 @@ import type { ListRow } from '@/types'
 
 import { sessionStore } from '@/stores/session'
 import { useRouter } from 'vue-router'
-import ProgrammingExerciseForm from '@/pages/ProgrammingExercises/ProgrammingExerciseForm.vue'
+import { openFormRoute } from '@/composables/useFormRoute'
 
 const readOnlyMode = window.read_only_mode
 const { brand } = sessionStore()
-const showForm = ref<boolean>(false)
-const exerciseID = ref<string>('new')
 const user = inject<any>('$user')
 const dayjs = inject<typeof dayjsType>('$dayjs')!
 const titleFilter = ref<string>('')
@@ -149,13 +137,21 @@ const exercises = createListResource({
 	pageLength: 24,
 })
 
+// openFormRoute, not a bare router.push: it stamps the history entry so the
+// form knows it can pop rather than replace when it closes.
+const openExerciseForm = (exerciseID: string) => {
+	openFormRoute(router, {
+		name: 'ProgrammingExerciseForm',
+		params: { exerciseID },
+	})
+}
+
 const listOptions = computed(() => ({
 	showTooltip: false,
 	selectable: true,
 	onRowClick: (row: ListRow) => {
 		if (readOnlyMode) return
-		exerciseID.value = row.name as string
-		showForm.value = true
+		openExerciseForm(row.name as string)
 	},
 }))
 
@@ -272,7 +268,7 @@ const columns = computed(() => {
 			key: 'modified',
 			width: 1,
 			icon: 'lucide-clock',
-			align: 'right',
+			align: 'left',
 		},
 	]
 })

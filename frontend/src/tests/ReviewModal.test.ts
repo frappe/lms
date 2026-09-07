@@ -1,5 +1,5 @@
 /**
- * ReviewModal.vue — submit behavior.
+ * ReviewModal.vue: submit behavior.
  *
  * Guards: (1) a missing rating must keep the dialog OPEN and surface the error
  * (the old code called close() unconditionally, so the modal vanished on a
@@ -95,7 +95,7 @@ describe('ReviewModal submit', () => {
 		await wrapper.get('[data-testid="action"]').trigger('click')
 
 		expect(toastError).toHaveBeenCalledWith('Please enter a rating.')
-		// close() must NOT have fired — the modal stays open so input isn't lost
+		// close() must NOT have fired; the modal stays open so input isn't lost
 		expect(wrapper.emitted('update:modelValue')).toBeUndefined()
 		expect(reloadReviews).not.toHaveBeenCalled()
 	})

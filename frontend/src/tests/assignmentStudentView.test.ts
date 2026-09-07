@@ -1,5 +1,5 @@
 /**
- * The assignment submission renders in an iframe — its own Vue app — so the
+ * The assignment submission renders in an iframe (its own Vue app), so the
  * preview's provide/inject can't reach it. Student View has to travel in the
  * iframe URL, and the receiving page turns it back into a provide.
  */

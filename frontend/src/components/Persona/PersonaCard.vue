@@ -4,7 +4,7 @@
 		<Button
 			v-if="current > 0"
 			variant="ghost"
-			class="self-start sm:absolute sm:right-full sm:top-12 sm:mr-4"
+			class="self-start sm:absolute sm:end-full sm:top-12 sm:me-4"
 			:aria-label="backLabel"
 			@click="back"
 		>
@@ -97,7 +97,7 @@ const backLabel = computed(() => __('Back'))
 function advance() {
 	if (current.value < props.steps.length - 1) {
 		current.value += 1
-		// Reaching the outcome step means the questions are done — hand the
+		// Reaching the outcome step means the questions are done. Hand the
 		// answers up. Re-emitted on every arrival so edits made after going
 		// Back are never submitted stale.
 		if (step.value.type === 'outcome') {

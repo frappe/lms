@@ -1,7 +1,6 @@
 <template>
 	<SettingsLayout
-		:title="__('Transaction Details')"
-		:description="__('Review and update the details of this payment.')"
+		:title="transactionData?.billing_name || __('Transaction Details')"
 		:show-back="true"
 		@back="emit('updateStep', 'list')"
 	>
@@ -11,6 +10,7 @@
 					transactionData?.payment_for_document_type &&
 					transactionData?.payment_for_document
 				"
+				class="text-p-base-medium"
 				@click="openDetails()"
 			>
 				{{ __('Open the ') }}
@@ -25,7 +25,7 @@
 			</Button>
 		</template>
 		<div v-if="transactionData" class="overflow-y-auto">
-			<div class="grid grid-cols-3 gap-5">
+			<div class="grid grid-cols-1 md:grid-cols-3 gap-5">
 				<FormControl
 					:label="__('Payment Received')"
 					type="checkbox"
@@ -44,7 +44,7 @@
 				/>
 			</div>
 
-			<div class="grid grid-cols-3 gap-5 mt-5">
+			<div class="grid grid-cols-1 md:grid-cols-3 gap-5 mt-5">
 				<Link
 					:label="__('Member')"
 					doctype="User"
@@ -81,7 +81,7 @@
 			<div class="font-semibold mt-10 text-ink-gray-9">
 				{{ __('Payment Details') }}
 			</div>
-			<div class="grid grid-cols-3 gap-5 mt-5">
+			<div class="grid grid-cols-1 md:grid-cols-3 gap-5 mt-5">
 				<Link
 					:label="__('Currency')"
 					v-model="transactionData.currency"
@@ -105,7 +105,7 @@
 				<div class="font-semibold mt-10 text-ink-gray-9">
 					{{ __('Coupon Details') }}
 				</div>
-				<div class="grid grid-cols-3 gap-5 mt-5">
+				<div class="grid grid-cols-1 md:grid-cols-3 gap-5 mt-5">
 					<FormControl
 						v-if="transactionData.coupon"
 						:label="__('Coupon Code')"
@@ -136,7 +136,7 @@
 			<div class="font-semibold mt-10 text-ink-gray-9">
 				{{ __('Billing Details') }}
 			</div>
-			<div class="grid grid-cols-3 gap-5 mt-5">
+			<div class="grid grid-cols-1 md:grid-cols-3 gap-5 mt-5">
 				<Link
 					:label="__('Address')"
 					v-model="transactionData.address"

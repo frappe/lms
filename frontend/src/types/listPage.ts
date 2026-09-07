@@ -8,9 +8,6 @@ export interface Breadcrumb {
 	route?: RouteLocationRaw
 }
 
-/** Which meaning a boolean filter carries when it is on. */
-export type FilterChipTheme = 'gray' | 'green' | 'blue'
-
 /** One column of a `ResponsiveListView`: a desk column, and a card line. */
 export interface ListColumn {
 	label: string
@@ -20,6 +17,12 @@ export interface ListColumn {
 	/** A `lucide-*` class, shown beside the desk column header. */
 	icon?: string
 	kind?: 'data' | 'actions'
+	/**
+	 * Kept off the phone card. The desk row still shows it: a card line is
+	 * read at a glance, so a page opts out of the values that only earn their
+	 * place in a table it can scan.
+	 */
+	hideOnMobile?: boolean
 }
 
 export type ListRow = Record<string, unknown>
@@ -37,4 +40,8 @@ export interface ListViewOptions {
 	showTooltip?: boolean
 	onRowClick?: (row: ListRow) => void
 	getRowRoute?: (row: ListRow) => RouteLocationRaw
+	/* Names the selection in the banner, at both widths. Left unset,
+	   ResponsiveListView supplies a translated count; frappe-ui's own fallback
+	   is hardcoded English and is never reached. */
+	selectionText?: (count: number) => string
 }

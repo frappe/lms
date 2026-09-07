@@ -2,7 +2,7 @@ import type { LMSCourse } from '@/types/lms/LMSCourse'
 
 // Client-side mirror of LMS Course's mandatory fields (lms_course.json `reqd`).
 // `description` is a Text Editor field, so an "empty" editor still serializes to
-// markup like "<p></p>" — strip tags before treating it as filled.
+// markup like "<p></p>", so strip tags before treating it as filled.
 interface CourseValidationInput {
 	doc: Pick<
 		LMSCourse,

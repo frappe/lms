@@ -78,7 +78,78 @@ def get_user_info():
 	user.developer_mode = frappe.conf.developer_mode
 	if user.is_fc_site and user.is_system_manager:
 		user.site_info = current_site_info()
+	user.permissions = _doctype_permissions()
 	return user
+
+
+PERMISSION_DOCTYPES = (
+	"LMS Course",
+	"Course Chapter",
+	"Course Lesson",
+	"LMS Batch",
+	"LMS Quiz",
+	"LMS Assignment",
+	"LMS Program",
+	"Job Opportunity",
+)
+
+
+MAX_PERMISSION_BATCH = 200
+
+
+@frappe.whitelist()
+def get_doc_permissions_many(doctype: str, names: str | list[str]):
+	"""Evaluated permissions for several documents of one doctype.
+
+	Batched because a course outline resolves affordances for every lesson on
+	screen at once; one call per document behind a hide-until-known gate is one
+	flicker per document. CRM asks per document (crm/frontend/src/data/
+	document.js) because its form view opens one.
+
+	doctype/names are annotated rather than isinstance-checked because
+	require_type_annotated_api_methods is on (hooks.py), so frappe rejects a
+	wrong type before this body runs — in a request and in tests alike."""
+	if isinstance(names, str):
+		names = frappe.parse_json(names)
+
+	if not isinstance(names, list):
+		frappe.throw(_("names must be a list"))
+
+	if len(names) > MAX_PERMISSION_BATCH:
+		frappe.throw(_("At most {0} documents per request").format(MAX_PERMISSION_BATCH))
+
+	if not frappe.db.exists("DocType", doctype):
+		frappe.throw(_("Unknown doctype"))
+
+	out = {}
+	for name in names:
+		if not isinstance(name, str):
+			continue
+		try:
+			doc = frappe.get_lazy_doc(doctype, name)
+		except frappe.DoesNotExistError:
+			out[name] = {}
+			continue
+		perms = frappe.permissions.get_doc_permissions(doc)
+		# A document the caller cannot read answers exactly like one that does not
+		# exist. Anything else lets a caller submit guessed names and read the
+		# difference: a permission map means the row is real, {} means it is not.
+		# The UI needs no more than this — hide-until-known treats a missing ptype
+		# as a deny, so {} and read=0 render the same.
+		out[name] = perms if perms.get("read") else {}
+	return out
+
+
+def _doctype_permissions():
+	"""Doctype-level answers for surfaces that have no docname yet: nav items and
+	route guards. Document-level answers come from get_doc_permissions_many."""
+	out = {}
+	for doctype in PERMISSION_DOCTYPES:
+		out[doctype] = {
+			ptype: 1 if frappe.has_permission(doctype, ptype) else 0
+			for ptype in ("read", "write", "create", "delete")
+		}
+	return out
 
 
 @frappe.whitelist(allow_guest=True)
@@ -426,13 +497,13 @@ def get_unsplash_photos(keyword: str = None):
 def get_evaluator_details(evaluator: str):
 	# Same rule as the writes: your own, or anyone's if you are a Moderator. A
 	# role check alone let any Batch Evaluator read every other evaluator's
-	# schedule, unavailability and calendar — the profile page's redirect is
+	# schedule, unavailability and calendar. The profile page's redirect is
 	# client-side, so it stops nobody calling the endpoint directly.
 	evaluator = enforce_evaluator_access(evaluator)
 
 	# Reading must not write. Saving a Course Evaluator runs
 	# CourseEvaluator.validate_evaluator_role, which *grants* the target the
-	# Batch Evaluator role — and this endpoint is reached with whatever user the
+	# Batch Evaluator role. This endpoint is reached with whatever user the
 	# profile page is showing. The record is created on the first write instead
 	# (see get_owned_evaluator_doc), where it is a deliberate act.
 	if frappe.db.exists("Course Evaluator", {"evaluator": evaluator}):
@@ -468,7 +539,7 @@ def ensure_evaluator_calendar():
 
 	Batch Evaluators are portal users without create permission on Google
 	Calendar (only System Manager / Desk User have it), so it is provisioned on
-	their behalf — but only for themselves, and only when they ask for it by
+	their behalf, but only for themselves, and only when they ask for it by
 	starting the authorisation flow.
 	"""
 	frappe.only_for(EVALUATOR_ROLES)
@@ -534,7 +605,7 @@ def get_owned_evaluator_doc(evaluator: str, create: bool = False):
 	"""Resolve the caller's (or, for a Moderator, the target's) availability.
 
 	`create` is only ever set by the one endpoint that means "this person is an
-	evaluator now" — adding a slot — and only after that call's own arguments
+	evaluator now" (adding a slot), and only after that call's own arguments
 	have been validated. Editing, deleting or setting unavailability on a record
 	that does not exist is a mistake, not a reason to conjure one: saving a
 	Course Evaluator grants the Batch Evaluator role, so creating on those paths
@@ -602,7 +673,7 @@ def get_owned_slot(doc, slot: str | int):
 	Looking the row up by name alone would let a valid actor point a write at
 	someone else's row; the slot has to belong to the evaluator they passed.
 	Evaluator Schedule rows are autoincrement-named, so the identifier arrives
-	as a number from JSON — compare as strings rather than trusting the type.
+	as a number from JSON. Compare as strings rather than trusting the type.
 	"""
 	if slot is None or not str(slot).strip():
 		frappe.throw(_("Slot is required."))
@@ -972,11 +1043,54 @@ def update_chapter_index(chapter: str, course: str, idx: int):
 		frappe.db.set_value("Chapter Reference", {"chapter": chapter_name, "parent": course}, "idx", i + 1)
 
 
+# Matches SETTINGS_PAGE_LENGTH in the frontend, which pages `start` by this.
+MEMBERS_PAGE_LENGTH = 13
+
+MEMBER_FIELDS = ["name", "full_name", "user_image", "username", "last_active"]
+
+
+def member_roles(member: str) -> list[str]:
+	roles = frappe.get_all(
+		"Has Role",
+		{
+			"parent": member,
+			"parenttype": "User",
+		},
+		pluck="role",
+	)
+	return [role for role in LMS_ROLES if role in roles]
+
+
+@frappe.whitelist()
+def get_member(member: str):
+	"""One member by exact name, for the member edit form.
+
+	get_members is a paginated search that also hides disabled users, so it
+	cannot answer "give me this one row": a member past the first page, or a
+	disabled one, came back empty and left the form unable to save.
+	"""
+	frappe.only_for(["Moderator"])
+
+	if not isinstance(member, str):
+		frappe.throw(_("Invalid member."), frappe.ValidationError)
+
+	member = member.strip()
+	if not member or member in ["Administrator", "Guest"]:
+		frappe.throw(_("Invalid member."), frappe.ValidationError)
+
+	row = frappe.db.get_value("User", member, MEMBER_FIELDS, as_dict=True)
+	if not row:
+		frappe.throw(_("Member {0} does not exist.").format(member), frappe.DoesNotExistError)
+
+	row.roles = member_roles(row.name)
+	return row
+
+
 @frappe.whitelist()
 def get_members(start: int = 0, search: str = None, role: str = "All"):
 	frappe.only_for(["Moderator"])
 
-	lms_roles = ["Moderator", "Course Creator", "Batch Evaluator", "LMS Student"]
+	lms_roles = LMS_ROLES
 	if not isinstance(role, str) or role not in (["All"] + lms_roles):
 		frappe.throw(_("Invalid role filter."), frappe.ValidationError)
 	if search is not None and not isinstance(search, str):
@@ -1001,22 +1115,14 @@ def get_members(start: int = 0, search: str = None, role: str = "All"):
 	members = frappe.get_all(
 		"User",
 		filters=filters,
-		fields=["name", "full_name", "user_image", "username", "last_active"],
+		fields=MEMBER_FIELDS,
 		or_filters=or_filters,
-		page_length=20,
+		page_length=MEMBERS_PAGE_LENGTH,
 		start=start,
 	)
 
 	for member in members:
-		roles = frappe.get_all(
-			"Has Role",
-			{
-				"parent": member.name,
-				"parenttype": "User",
-			},
-			pluck="role",
-		)
-		member.roles = [role for role in lms_roles if role in roles]
+		member.roles = member_roles(member.name)
 
 	return members
 
@@ -1281,7 +1387,7 @@ def delete_course(course: str):
 	# list, a program's course list); remove those rows so the delete isn't blocked.
 	frappe.db.delete("Related Courses", {"course": course})
 	frappe.db.delete("LMS Program Course", {"course": course})
-	# Preserve authored assessments and graded work — unlink from the course/lesson rather than delete.
+	# Preserve authored assessments and graded work. Unlink from the course/lesson rather than delete.
 	frappe.db.set_value("LMS Quiz", {"course": course}, {"course": None, "lesson": None})
 	frappe.db.set_value("LMS Quiz Submission", {"course": course}, "course", None)
 	frappe.db.set_value("LMS Assignment Submission", {"course": course}, {"course": None, "lesson": None})
@@ -1380,16 +1486,32 @@ def upsert_chapter(
 		scorm_package = frappe._dict(scorm_package or {})
 		if not scorm_package.get("name"):
 			frappe.throw(_("Please attach a SCORM package before saving this chapter."))
-		extract_path = extract_package(course, title, scorm_package)
+		if not isinstance(scorm_package.name, str):
+			frappe.throw(_("scorm_package name must be a string"))
 
-		values.update(
-			{
-				"scorm_package": scorm_package.name,
-				"scorm_package_path": _scorm_url(extract_path),
-				"manifest_file": _scorm_url(get_manifest_file(extract_path)),
-				"launch_file": _scorm_url(get_launch_file(extract_path)),
-			}
-		)
+		stored = _stored_scorm_values(name, scorm_package.name)
+		if stored:
+			# The File row was deleted out from under the chapter, but the package
+			# was already extracted to disk. Re-extracting is impossible and is not
+			# what a title edit asked for, so keep the extraction and let the save
+			# through — otherwise the chapter can never be renamed again.
+			#
+			# scorm_package itself is cleared rather than rewritten: it is a Link to
+			# File, and save() validates every non-empty Link unconditionally, so
+			# putting the missing name back would just trade this error for a
+			# LinkValidationError. The chapter stays playable off scorm_package_path.
+			values.update(stored)
+			values["scorm_package"] = None
+		else:
+			extract_path = extract_package(course, title, scorm_package)
+			values.update(
+				{
+					"scorm_package": scorm_package.name,
+					"scorm_package_path": _scorm_url(extract_path),
+					"manifest_file": _scorm_url(get_manifest_file(extract_path)),
+					"launch_file": _scorm_url(get_launch_file(extract_path)),
+				}
+			)
 
 	if name:
 		chapter = frappe.get_doc("Course Chapter", name)
@@ -1411,8 +1533,36 @@ def upsert_chapter(
 	return chapter
 
 
+def _stored_scorm_values(name: str | None, posted_package: str) -> dict | None:
+	"""The extraction already on `name`, when `posted_package` cannot be extracted.
+
+	Returns None — meaning "extract normally" — unless all three hold:
+
+	- this is an edit of an existing chapter,
+	- the File behind the posted package is gone, so extraction is impossible,
+	- and the caller posted the package the chapter already has.
+
+	That last condition is what keeps this to the rename case. Without it, a
+	creator replacing a package whose File row happened to be missing would get a
+	success response and a chapter still serving the old content.
+	"""
+	if not name or frappe.db.exists("File", posted_package):
+		return None
+	stored = frappe.db.get_value(
+		"Course Chapter",
+		name,
+		["scorm_package", "scorm_package_path", "manifest_file", "launch_file"],
+		as_dict=True,
+	)
+	if not stored or not stored.get("scorm_package_path"):
+		return None
+	if stored.get("scorm_package") != posted_package:
+		return None
+	return stored
+
+
 def _scorm_url(abs_path: str) -> str:
-	"""Map an extracted SCORM disk path (<site>/private/scorm/...) to the location-independent "/scorm/<course>/<title>/..." URL stored on Course Chapter — same shape legacy public chapters have, so no DB change."""
+	"""Map an extracted SCORM disk path (<site>/private/scorm/...) to the location-independent "/scorm/<course>/<title>/..." URL stored on Course Chapter. Same shape legacy public chapters have, so no DB change."""
 	rel = os.path.relpath(abs_path, frappe.get_site_path("private"))
 	return "/" + rel.replace(os.sep, "/")
 
@@ -1426,7 +1576,7 @@ def _scorm_extract_path(course: str, title: str) -> str:
 	if not course_root.startswith(scorm_root + os.sep):
 		frappe.throw(_("Invalid course or chapter name"))
 
-	# Must resolve strictly inside the course dir — a title of "."/""/"sub/.." collapses to course_root, whose rmtree would wipe every chapter.
+	# Must resolve strictly inside the course dir. A title of "."/""/"sub/.." collapses to course_root, whose rmtree would wipe every chapter.
 	extract_path = os.path.realpath(os.path.join(course_root, title))
 	if not extract_path.startswith(course_root + os.sep):
 		frappe.throw(_("Invalid course or chapter name"))
@@ -1721,7 +1871,7 @@ def get_week_difference(start_date: str, current_date: str) -> int:
 @frappe.whitelist()
 def get_notifications(filters: dict = None):
 	filters = frappe._dict(filters or {})
-	# Always scoped to the session user — no IDOR surface; only an optional read flag from the client is honoured.
+	# Always scoped to the session user. No IDOR surface; only an optional read flag from the client is honoured.
 	query_filters = {"for_user": frappe.session.user}
 	if "read" in filters:
 		query_filters["read"] = 1 if filters.read else 0
@@ -1886,7 +2036,7 @@ def save_evaluator_role(user: str, value: int):
 			try:
 				doc.save(ignore_permissions=True)
 			except frappe.DuplicateEntryError:
-				# A concurrent request already created this evaluator; the primary key (autoname field:evaluator) guarantees uniqueness, so the row exists — nothing more to do.
+				# A concurrent request already created this evaluator; the primary key (autoname field:evaluator) guarantees uniqueness, so the row exists. Nothing more to do.
 				frappe.db.rollback(save_point="save_evaluator")
 	else:
 		frappe.db.delete("Has Role", {"parent": user, "role": "Batch Evaluator"})
@@ -2185,21 +2335,58 @@ def get_progress_distribution(progressList: list):
 
 @frappe.whitelist(allow_guest=True)
 def get_pwa_manifest():
+	"""Web app manifest for installing the LMS as a PWA."""
 	title = frappe.db.get_single_value("Website Settings", "app_name") or "Frappe Learning"
-	banner_image = frappe.db.get_single_value("Website Settings", "banner_image")
+	route = get_lms_route()
 
+	# `display` was absent, so it defaulted to "browser" and the installed app
+	# launched inside full browser chrome — the one thing installing is meant to
+	# remove. Everything else here follows from actually being standalone: a
+	# `scope` so in-app navigation stays in the app, a stable `id` so a changed
+	# start_url is not treated as a different app, and colours so the OS paints
+	# its own surfaces to match instead of flashing white.
+	#
+	# theme_color matches the light-mode `theme-color` meta in index.html. A
+	# manifest carries a single value, so the light one wins here and the meta
+	# tags keep handling the light/dark split.
 	manifest = {
+		"id": route,
 		"name": title,
 		"short_name": title,
 		"description": "Easy to use, 100% open source Learning Management System",
-		"start_url": get_lms_route(),
+		"start_url": route,
+		"scope": route,
+		"display": "standalone",
+		"orientation": "portrait",
+		"theme_color": "#FFFFFF",
+		"background_color": "#FFFFFF",
+		# Split by purpose rather than the previous combined "maskable any": a
+		# maskable icon is drawn with its edges cropped to the platform's shape,
+		# so reusing one image for both gives a clipped icon wherever the "any"
+		# slot is used. The 512 has been on disk unused.
+		#
+		# Website Settings' banner_image is deliberately NOT a source here. It is
+		# a wide banner, and it was being declared as 192x192, so any site that
+		# set one got a squashed app icon.
 		"icons": [
 			{
-				"src": banner_image or "/assets/lms/frontend/manifest/manifest-icon-192.maskable.png",
+				"src": "/assets/lms/frontend/manifest/manifest-icon-192.maskable.png",
 				"sizes": "192x192",
 				"type": "image/png",
-				"purpose": "maskable any",
-			}
+				"purpose": "any",
+			},
+			{
+				"src": "/assets/lms/frontend/manifest/manifest-icon-512.maskable.png",
+				"sizes": "512x512",
+				"type": "image/png",
+				"purpose": "any",
+			},
+			{
+				"src": "/assets/lms/frontend/manifest/manifest-icon-512.maskable.png",
+				"sizes": "512x512",
+				"type": "image/png",
+				"purpose": "maskable",
+			},
 		],
 	}
 
@@ -2235,7 +2422,7 @@ def get_profile_details(username: str):
 	)
 	# Every user created through the LMS picks up `LMS Student` from the
 	# before_insert hook, but users made in Desk, by Data Import or by another
-	# app do not — they must still be able to open their own profile. Viewing
+	# app do not. They must still be able to open their own profile. Viewing
 	# anyone else's still requires an LMS role, and that refusal comes before
 	# the not-found check so a caller without one can't use the difference
 	# between the two errors to enumerate usernames.
@@ -2859,3 +3046,30 @@ def export_course_as_zip(course_name: str):
 def import_course_from_zip(zip_file_path: str):
 	frappe.only_for(["Moderator", "Course Creator"])
 	return import_course_zip(zip_file_path)
+
+
+@frappe.whitelist()
+def delete_category(category: str):
+	"""Unlink a category from every course and batch, then delete it.
+
+	LMS Course.category and LMS Batch.category are Link fields, so Frappe
+	refuses to delete a category that is still in use. Clearing the references
+	first keeps the two steps in one transaction.
+	"""
+	frappe.only_for("Moderator")
+
+	if not category or not isinstance(category, str):
+		frappe.throw(_("Category is required."))
+
+	if not frappe.db.exists("LMS Category", category):
+		frappe.throw(_("Category {0} does not exist.").format(category))
+
+	unlinked = {}
+	for doctype in ("LMS Course", "LMS Batch"):
+		names = frappe.get_all(doctype, filters={"category": category}, pluck="name")
+		for name in names:
+			frappe.db.set_value(doctype, name, "category", None)
+		unlinked[doctype] = len(names)
+
+	frappe.delete_doc("LMS Category", category)
+	return unlinked

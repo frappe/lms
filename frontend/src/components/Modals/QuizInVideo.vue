@@ -51,7 +51,9 @@
 								:label="__('Remove quiz')"
 								@click="removeQuiz(selections, unselectAll)"
 							>
-								<span class="lucide-trash-2 h-4 w-4" />
+								<template #icon>
+									<span class="lucide-trash-2 size-4" />
+								</template>
 							</Button>
 						</template>
 					</ResponsiveListView>
@@ -173,7 +175,7 @@ const columns = computed(() => {
 		{
 			key: 'time',
 			label: __('Time in Video (minutes)'),
-			align: 'center',
+			align: 'left',
 		},
 	]
 })

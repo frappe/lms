@@ -151,7 +151,7 @@ class TestApplyEnforcementFlagsEdgeCases(unittest.TestCase):
 	def test_string_zero_is_truthy_treated_as_enforced(self):
 		"""Frappe may return '0' as a string from raw queries. `not '0'` is False, so it's still enforced.
 
-		Codifies current behavior — callers that hit this should pass int(value) explicitly.
+		Codifies current behavior. Callers that hit this should pass int(value) explicitly.
 		"""
 		settings = {"enforce_quiz_completion": "0", "enforce_assignment_completion": "0"}
 		# Both still treated as enforced because non-empty strings are truthy.
@@ -244,7 +244,7 @@ class TestServePrivateFileVersionSafe(unittest.TestCase):
 class TestGetEditorjsBlocks(unittest.TestCase):
 	"""get_editorjs_blocks underpins save_lesson_details_in_quiz, get_quiz_progress and
 	get_assignment_progress. Before it existed those did a bare json.loads(content) which
-	500'd when `content` wasn't EditorJS JSON — e.g. a raw video URL pasted into the Desk
+	500'd when `content` wasn't EditorJS JSON, e.g. a raw video URL pasted into the Desk
 	Course Lesson form (the original bug: JSONDecodeError in on_update).
 	"""
 
@@ -312,7 +312,7 @@ class TestGetEditorjsBlocks(unittest.TestCase):
 class TestLessonBlockExtraction(unittest.TestCase):
 	"""The block-type filtering that save_lesson_details_in_quiz / get_quiz_progress /
 	get_assignment_progress run on top of get_editorjs_blocks. Pure (no DB): asserts which
-	blocks surface a quiz/assignment id and, crucially, that embeds surface neither — so a
+	blocks surface a quiz/assignment id and, crucially, that embeds surface neither, so a
 	lesson made entirely of video embeds never reaches the DB-lookup branches.
 	"""
 

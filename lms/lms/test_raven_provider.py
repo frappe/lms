@@ -101,7 +101,7 @@ class TestAllEnrolledIncludesBatchOnlyStudents(FrappeTestCase):
 	"""'All Enrolled Students' must not drop students who only have a batch enrollment.
 
 	LMS Batch Enrollment mirrors itself into one LMS Enrollment per Batch Course row, so a
-	batch with no courses mirrors nothing. Membership sync is authoritative — an omission
+	batch with no courses mirrors nothing. Membership sync is authoritative. An omission
 	here removes a real student from the channel.
 	"""
 
@@ -142,7 +142,7 @@ class TestAllEnrolledIncludesBatchOnlyStudents(FrappeTestCase):
 		return default_evaluator({"rule_type": "All Enrolled Students", "payment_filter": payment_filter})
 
 	def test_batch_only_student_is_enrolled(self):
-		# The mirror never ran (no Batch Course rows) — prove it, so the assertion below
+		# The mirror never ran (no Batch Course rows). Prove it, so the assertion below
 		# is actually testing the batch-enrollment branch.
 		self.assertFalse(frappe.db.exists("LMS Enrollment", {"member": self.batch_only.name}))
 		self.assertIn(self.batch_only.name, self._matched())
@@ -395,7 +395,7 @@ class TestPaymentFilter(FrappeTestCase):
 
 		This is inherited behaviour, pinned deliberately so the frappe.qb rewrite
 		can't drift from the raw SQL it replaced. It is arguably wrong (the student
-		vanishes from every rule) — changing it is a product decision, not a refactor.
+		vanishes from every rule). Changing it is a product decision, not a refactor.
 		"""
 		self.assertNotIn(self.dangling.name, self._matched("Paid"))
 		self.assertNotIn(self.dangling.name, self._matched("Free"))
@@ -409,21 +409,27 @@ class TestPaymentFilter(FrappeTestCase):
 class TestBatchEnrollmentIndex(UnitTestCase):
 	"""The (batch, member) index that TestRulePerformance's 200ms budget depends on.
 
-	Added by lms.patches.v2_0.add_batch_enrollment_index. Schema-only, so UnitTestCase
-	— IntegrationTestCase's test-record loader trips the Fiscal Year overlap flake here.
+	Added by lms.patches.v2_0.add_batch_enrollment_index. Schema-only, so UnitTestCase.
+	IntegrationTestCase's test-record loader trips the Fiscal Year overlap flake here.
 	"""
 
 	def test_batch_member_index_exists(self):
+		# Either index serves the lookup: unique_batch_member covers the same two
+		# columns in the same order, so add_enrollment_unique_constraints drops
+		# the plain one once it is in place. What this test protects is the
+		# coverage, not the name.
 		index_name = frappe.db.get_index_name(["batch", "member"])
 		self.assertTrue(
-			frappe.db.has_index("tabLMS Batch Enrollment", index_name),
-			f"Index {index_name} is missing from tabLMS Batch Enrollment — run `bench migrate` "
-			"to apply lms.patches.v2_0.add_batch_enrollment_index.",
+			frappe.db.has_index("tabLMS Batch Enrollment", index_name)
+			or frappe.db.has_index("tabLMS Batch Enrollment", "unique_batch_member"),
+			"No (batch, member) index on tabLMS Batch Enrollment. Run `bench migrate` to "
+			"apply lms.patches.v2_0.add_batch_enrollment_index or "
+			"lms.patches.v2_0.add_enrollment_unique_constraints.",
 		)
 
 
 class TestStaffRule(FrappeTestCase):
-	"""Task 11: Staff rule — Instructor / Evaluator / Mentor / Any + scope filters.
+	"""Task 11: Staff rule. Instructor / Evaluator / Mentor / Any, plus scope filters.
 
 	Schema notes (verified against doctype JSON 2026-05-23):
 	  Course Instructor  : child table shared by LMS Course and LMS Batch.
@@ -434,7 +440,7 @@ class TestStaffRule(FrappeTestCase):
 
 	def setUp(self):
 		# Skip before creating anything. With no LMS Course fixture this suite has
-		# nothing to attach staff to — and checking after inserting the users would
+		# nothing to attach staff to. Checking after inserting the users would
 		# leak them (User.insert commits, and addCleanup is only registered at the
 		# end of setUp), making every later method fail on the duplicate user.
 		existing = frappe.get_all("LMS Course", limit=1)
@@ -682,7 +688,7 @@ class TestRulePerformance(FrappeTestCase):
 	"""Task 17: default_evaluator for 'Students of Batches' must return under 200ms for 1000 members.
 
 	The budget depends on the (batch, member) index added by
-	lms.patches.v2_0.add_batch_enrollment_index — without it the query is a full table
+	lms.patches.v2_0.add_batch_enrollment_index. Without it the query is a full table
 	scan. TestBatchEnrollmentIndex asserts the index directly; this test would still pass
 	unindexed on a small dev DB, so treat that one as the real guard.
 	"""
@@ -715,7 +721,7 @@ class TestRulePerformance(FrappeTestCase):
 		audit = (now, now, "Administrator", "Administrator")
 		emails = [self._perf_email(j) for j in range(self._TOTAL)]
 
-		# bulk_insert, not per-row insert() — 1000 ORM inserts takes minutes.
+		# bulk_insert, not per-row insert(). 1000 ORM inserts takes minutes.
 		frappe.db.bulk_insert(
 			"User",
 			["name", "creation", "modified", "owner", "modified_by", "user_type", "email", "first_name"],
@@ -730,7 +736,7 @@ class TestRulePerformance(FrappeTestCase):
 		)
 
 	def tearDown(self):
-		# Set-based cleanup — the ORM would issue 1000 separate deletes.
+		# Set-based cleanup. The ORM would issue 1000 separate deletes.
 		perf_members = f"user-perf-%{self._EMAIL_SUFFIX}"
 		enrollment = frappe.qb.DocType("LMS Batch Enrollment")
 		frappe.qb.from_(enrollment).delete().where(enrollment.member.like(perf_members)).run()
@@ -756,14 +762,14 @@ class TestRulePerformance(FrappeTestCase):
 		self.assertLess(
 			elapsed,
 			self._THRESHOLD_SEC,
-			f"default_evaluator took {elapsed * 1000:.1f}ms — exceeds {self._THRESHOLD_SEC * 1000:.0f}ms "
+			f"default_evaluator took {elapsed * 1000:.1f}ms. Exceeds {self._THRESHOLD_SEC * 1000:.0f}ms "
 			f"threshold. Check that lms.patches.v2_0.add_batch_enrollment_index has run.",
 		)
 
 
 class TestGetRavenSetup(UnitTestCase):
 	"""Settings > Raven asks LMS, not raven_integration, whether raven_integration is
-	there — a method of an uninstalled app raises AppNotInstalledError, and the panel
+	there. A method of an uninstalled app raises AppNotInstalledError, and the panel
 	that exists to say "install it" cannot render off an exception. Schema-free, so
 	UnitTestCase.
 	"""
@@ -783,7 +789,7 @@ class TestGetRavenSetup(UnitTestCase):
 		blocked = ("raven_integration", "raven_integration.api")
 		saved = {name: sys.modules.get(name) for name in blocked}
 		# A None entry makes the import machinery raise ImportError, exactly as an
-		# uninstalled app does — so the test fails loudly if the delegation runs.
+		# uninstalled app does. The test fails loudly if the delegation runs.
 		for name in blocked:
 			sys.modules[name] = None
 		try:
@@ -815,7 +821,7 @@ class TestGetRavenSetup(UnitTestCase):
 		self.assertTrue(state["enabled"])
 
 	def test_gate_follows_the_manager_roles_hook(self):
-		"""The Settings modal is open to Moderators, so this must be too — and the role
+		"""The Settings modal is open to Moderators, so this must be too. The role
 		list has to come from the hook, or it drifts from raven_integration's own gate.
 		"""
 		self._patch_apps(["frappe", "lms"])

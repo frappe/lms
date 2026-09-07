@@ -102,7 +102,7 @@ const courseColumns = [
 	{
 		key: 'progress',
 		label: __('Progress'),
-		align: 'right',
+		align: 'left',
 	},
 ]
 
