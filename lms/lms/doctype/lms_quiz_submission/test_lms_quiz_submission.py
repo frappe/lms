@@ -4,10 +4,14 @@
 import unittest
 from types import SimpleNamespace
 
+<<<<<<< HEAD
 import frappe
 
 from lms.lms.doctype.lms_quiz_submission.lms_quiz_submission import LMSQuizSubmission
 from lms.lms.test_helpers import BaseTestUtils, released_frappe_sanitizer, released_sanitize_html
+=======
+from lms.lms.doctype.lms_quiz_submission.lms_quiz_submission import LMSQuizSubmission
+>>>>>>> 625d05f (fix(quiz): floor a submission's percentage at zero)
 
 
 class TestSetPercentage(unittest.TestCase):
@@ -27,6 +31,7 @@ class TestSetPercentage(unittest.TestCase):
 
 	def test_a_zero_score_leaves_the_percentage_alone(self):
 		self.assertEqual(self.percentage(0, 4), 0)
+<<<<<<< HEAD
 
 
 class TestValidateMarks(unittest.TestCase):
@@ -226,3 +231,5 @@ class TestQuizSubmissionQuestions(BaseTestUtils):
 		doc.result[1].marks = 3
 		doc.save()
 		self.assertEqual(doc.score, 8)
+=======
+>>>>>>> 625d05f (fix(quiz): floor a submission's percentage at zero)
