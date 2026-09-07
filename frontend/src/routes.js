@@ -228,20 +228,30 @@ export const routes = [
 		component: () => import('@/pages/Quizzes.vue'),
 	},
 	{
-		path: '/quizzes/:quizID',
+		path: '/quizzes/submissions',
+		name: 'QuizSubmissions',
+		component: () => import('@/pages/QuizSubmissions.vue'),
+	},
+	{
+		path: '/quizzes/questions',
+		name: 'Questions',
+		component: () => import('@/pages/Questions.vue'),
+	},
+	{
+		// A quiz has no name until its mandatory fields are filled, so this route
+		// has no param.
+		path: '/quizzes/new',
+		name: 'NewQuiz',
+		component: () => import('@/pages/Forms/QuizForm.vue'),
+	},
+	{
+		// The `edit/` prefix is mandatory. A docname is generate_slug(title), so a
+		// quiz titled "Questions" would be shadowed by the static /quizzes/questions
+		// above; vue-router scores static over param.
+		path: '/quizzes/edit/:quizID',
 		name: 'QuizForm',
 		component: () => import('@/pages/Forms/QuizForm.vue'),
 		props: true,
-		children: [
-			{
-				// :questionName is the LMS Quiz Question ROW name, or 'new'. It is
-				// NOT the LMS Question docname — marks lives on the row. See design R2.
-				path: 'question/:questionName',
-				name: 'QuizQuestion',
-				component: () => import('@/pages/Forms/QuizQuestionForm.vue'),
-				props: true,
-			},
-		],
 	},
 	{
 		path: '/quiz/:quizID',
@@ -250,16 +260,29 @@ export const routes = [
 		props: true,
 	},
 	{
-		path: '/quiz-submissions/:quizID',
-		name: 'QuizSubmissionList',
-		component: () => import('@/pages/QuizSubmissionList.vue'),
-		props: true,
-	},
-	{
 		path: '/quiz-submission/:submission',
 		name: 'QuizSubmission',
 		component: () => import('@/pages/QuizSubmission.vue'),
 		props: true,
+	},
+	{
+		// Links made before the rebuild. A bare `:quizID` never swallows the static
+		// siblings above: vue-router scores a fixed segment higher whatever the order.
+		path: '/quizzes/:quizID',
+		redirect: (to) => `/quizzes/edit/${to.params.quizID}`,
+	},
+	{
+		// The per-question page is gone; a question is edited inside its quiz now.
+		path: '/quizzes/:quizID/question/:questionName',
+		redirect: (to) => `/quizzes/edit/${to.params.quizID}`,
+	},
+	{
+		// The per-quiz submissions page is now the cross-quiz list, scoped by filter.
+		path: '/quiz-submissions/:quizID',
+		redirect: (to) => ({
+			name: 'QuizSubmissions',
+			query: { quiz: String(to.params.quizID) },
+		}),
 	},
 	{
 		path: '/programs',
