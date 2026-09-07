@@ -13,8 +13,28 @@ svg.lucide {
 	stroke-width: 1.5;
 }
 
+<<<<<<< HEAD
 /* 48px, the desk header's height. The property is the single source so the
    scroll containers below clear exactly the header (WCAG 2.4.11). */
+=======
+/* frappe-ui truncates control labels at a 1.15 line-height, clipping descenders. */
+:where(button, [role='menuitem'], [role='option'], [role='combobox'])
+	:where(.truncate) {
+	line-height: 1.5;
+}
+
+/* 48px, matching the desk header's computed height. Worn by PageHeader,
+   MobilePageLayout, FormShell and the SkeletonLoader placeholder, which has to
+   match their geometry or the page jumps when its data lands. No vertical
+   padding: the height is the floor below and the content centres inside it,
+   which is what keeps 48 exact.
+
+   The custom property is the single source. The frame takes its height from it
+   and the scroll containers clear it, so a header that changes height cannot
+   leave a band that swallows a focused element on Shift+Tab (WCAG 2.4.11). A
+   Tailwind class cannot be read back out of CSS, so the number has to live
+   here rather than in the @apply. */
+>>>>>>> 40411f3 (fix(ui): stop clipping descenders in control labels)
 :root {
 	--header-frame-h: 3rem;
 }
