@@ -1,6 +1,12 @@
+<<<<<<< HEAD
 import { config, flushPromises, mount } from '@vue/test-utils'
 import type { VueWrapper } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+=======
+import { flushPromises, mount } from '@vue/test-utils'
+import type { VueWrapper } from '@vue/test-utils'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+>>>>>>> 117a350 (feat(quiz): an author preview and a real pager on the learner quiz)
 
 import Quiz from '@/components/Quiz.vue'
 
@@ -14,6 +20,23 @@ const resourceState = vi.hoisted(() => ({
 	quizError: null as any,
 	// Per-option verdict check_answer returns: 1 correct, 2 partial, 0 wrong.
 	checkAnswer: [] as unknown[],
+}))
+
+// Copied verbatim from frappe-ui 1.0.0-beta.29 `src/components/Button/Button.vue` so the stub reproduces the real state classes the pager relies on.
+const buttonClasses = vi.hoisted(() => ({
+	variant: {
+		'gray-solid':
+			'text-ink-base bg-surface-gray-10 hover:bg-surface-gray-9 active:bg-surface-gray-8',
+		'gray-subtle':
+			'text-ink-gray-8 bg-surface-gray-2 hover:bg-surface-gray-3 active:bg-surface-gray-4',
+		'blue-subtle':
+			'text-ink-blue-6 bg-surface-blue-2 hover:bg-surface-blue-3 active:bg-surface-blue-4',
+	} as Record<string, string>,
+	disabled: {
+		'gray-solid': 'bg-surface-gray-2 text-ink-gray-4',
+		'gray-subtle': 'bg-surface-gray-2 text-ink-gray-4',
+		'blue-subtle': 'bg-surface-blue-2 text-ink-blue-link',
+	} as Record<string, string>,
 }))
 
 vi.mock('frappe-ui', async () => {
@@ -85,9 +108,29 @@ vi.mock('frappe-ui', async () => {
 		call: vi.fn(),
 		toast: { warning: vi.fn(), error: vi.fn() },
 		Button: {
+<<<<<<< HEAD
 			props: { disabled: { type: Boolean, default: false } },
 			emits: ['click'],
 			template: `<button type="button" :disabled="disabled" @click="$emit('click')"><slot /></button>`,
+=======
+			props: {
+				label: { type: String, default: undefined },
+				theme: { type: String, default: 'gray' },
+				variant: { type: String, default: 'subtle' },
+				disabled: { type: Boolean, default: false },
+			},
+			emits: ['click'],
+			computed: {
+				stateClasses(this: any) {
+					const key = `${this.theme}-${this.variant}`
+					const map = this.disabled
+						? buttonClasses.disabled
+						: buttonClasses.variant
+					return map[key] ?? ''
+				},
+			},
+			template: `<button type="button" :class="stateClasses" :disabled="disabled" :aria-label="label" @click="$emit('click')"><slot /></button>`,
+>>>>>>> 117a350 (feat(quiz): an author preview and a real pager on the learner quiz)
 		},
 		Badge: empty,
 		// The option controls render their content through a `label` slot, so a
@@ -176,6 +219,7 @@ const quizResponse = () => ({
 	},
 })
 
+<<<<<<< HEAD
 // Unmounts whatever a test left mounted: a live quiz keeps its pagehide listener
 // and would send a beacon during a later test.
 const roots: VueWrapper[] = []
@@ -192,6 +236,8 @@ afterEach(() => {
 let mountedQuizzes = 0
 
 // A distinct idPrefix per mount, as mountBlock gives each lesson block.
+=======
+>>>>>>> 117a350 (feat(quiz): an author preview and a real pager on the learner quiz)
 const mountQuiz = (props: Record<string, unknown> = {}) =>
 	mount(Quiz, {
 		props: { quizName: 'QUIZ-1', ...props },
@@ -349,6 +395,7 @@ describe('Quiz in an author preview', () => {
 		resourceState.response = choicesQuizResponse(1)
 	})
 
+<<<<<<< HEAD
 	// Guards the lesson-only "Preview only" badge leaking onto the quiz form.
 	// Came with this branch's quiz assessment card restyle.
 	// Added on feat/assessment-visual-redesign; the badge marks lesson embeds.
@@ -362,6 +409,8 @@ describe('Quiz in an author preview', () => {
 		wrapper.unmount()
 	})
 
+=======
+>>>>>>> 117a350 (feat(quiz): an author preview and a real pager on the learner quiz)
 	// The quiz form's Preview mounts this as it ships, and the button is not the
 	// only way in: a timed quiz auto-submits and proctoring submits on a
 	// violation. That submission is real.
@@ -385,6 +434,7 @@ describe('Quiz in an author preview', () => {
 		}
 	})
 })
+<<<<<<< HEAD
 
 describe('Quiz choices', () => {
 	// `Check` only renders when the quiz shows answers, and it is the only
@@ -704,3 +754,5 @@ describe('Quiz closed while submitting', () => {
 		wrapper.unmount()
 	})
 })
+=======
+>>>>>>> 117a350 (feat(quiz): an author preview and a real pager on the learner quiz)
