@@ -1025,14 +1025,14 @@ def update_course_filters(filters: dict) -> tuple:
 
 	if filters.get("enrolled"):
 		enrolled_courses = frappe.get_all("LMS Enrollment", {"member": frappe.session.user}, pluck="course")
-		filters.update({"name": ["in", enrolled_courses]})
+		filters.update({"name": ["in", list(set(enrolled_courses))]})
 		del filters["enrolled"]
 
 	if filters.get("created"):
 		created_courses = frappe.get_all(
 			"Course Instructor", {"instructor": frappe.session.user}, pluck="parent"
 		)
-		filters.update({"name": ["in", created_courses]})
+		filters.update({"name": ["in", list(set(created_courses))]})
 		del filters["created"]
 
 	if filters.get("live"):
