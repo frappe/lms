@@ -24,6 +24,7 @@ from frappe.utils.html_utils import sanitize_html
 from fuzzywuzzy import fuzz
 
 from lms.lms.doctype.course_lesson.course_lesson import save_progress
+from lms.lms.doctype.lms_content_author.lms_content_author import AuthoredDocument
 from lms.lms.doctype.lms_question.lms_question import (
 	QUESTION_CORRECTNESS_FIELDS,
 	QUESTION_OPTION_FIELDS,
@@ -56,7 +57,7 @@ MAX_VIOLATION_FRAME_BYTES = 250 * 1024
 MAX_VIOLATION_FRAMES = 40
 
 
-class LMSQuiz(Document):
+class LMSQuiz(AuthoredDocument, Document):
 	def validate(self):
 		self.validate_duplicate_questions()
 		self.validate_limit()
