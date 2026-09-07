@@ -1,4 +1,5 @@
 import { call, toast } from 'frappe-ui'
+<<<<<<< HEAD
 import type { FrappeResourceError } from 'frappe-ui'
 import { computed, nextTick, ref } from 'vue'
 
@@ -6,18 +7,39 @@ interface BulkDeleteResult {
 	deleted: number
 	failed: string[]
 	firstError?: FrappeResourceError
+=======
+import { computed, nextTick, ref } from 'vue'
+
+export interface DeleteError {
+	messages?: string[]
+	message?: string
+}
+
+export interface BulkDeleteResult {
+	deleted: number
+	failed: string[]
+	firstError?: DeleteError
+>>>>>>> 71affda (feat(quiz): shared helpers for question type, content and validity)
 }
 
 // Frappe puts the readable half of a server error in `messages`; `message` carries
 // a network or client failure.
+<<<<<<< HEAD
 function deleteErrorMessage(error: FrappeResourceError | undefined): string {
+=======
+export function deleteErrorMessage(error: DeleteError | undefined): string {
+>>>>>>> 71affda (feat(quiz): shared helpers for question type, content and validity)
 	return error?.messages?.[0] || error?.message || String(error)
 }
 
 // One request per row, all in flight together, so the caller refetches once; a
 // list resource's own `delete` refetches inside every success. Settled, not
 // all: one rejection would take the reload.
+<<<<<<< HEAD
 async function bulkDeleteDocs(
+=======
+export async function bulkDeleteDocs(
+>>>>>>> 71affda (feat(quiz): shared helpers for question type, content and validity)
 	doctype: string,
 	selections: Set<string>
 ): Promise<BulkDeleteResult> {
@@ -29,13 +51,21 @@ async function bulkDeleteDocs(
 	)
 
 	const failed: string[] = []
+<<<<<<< HEAD
 	let firstError: FrappeResourceError | undefined
+=======
+	let firstError: DeleteError | undefined
+>>>>>>> 71affda (feat(quiz): shared helpers for question type, content and validity)
 	results.forEach((result, index) => {
 		const name = names[index]
 		if (name === undefined) return
 		if (result.status === 'rejected') {
 			failed.push(name)
+<<<<<<< HEAD
 			firstError = firstError ?? (result.reason as FrappeResourceError)
+=======
+			firstError = firstError ?? (result.reason as DeleteError)
+>>>>>>> 71affda (feat(quiz): shared helpers for question type, content and validity)
 			console.error(`Error deleting ${doctype}:`, result.reason)
 			return
 		}
