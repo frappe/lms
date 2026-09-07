@@ -6,9 +6,23 @@
 import { describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 
+<<<<<<< HEAD
 const editorClassFor = { current: '' as unknown }
 
 vi.mock('frappe-ui', () => ({
+=======
+const editorClassFor = { current: [] as unknown[] }
+
+vi.mock('frappe-ui', () => ({
+	TextEditor: {
+		props: ['editorClass', 'content', 'editable', 'fixedMenu', 'placeholder'],
+		created() {
+			// @ts-expect-error - options API `this` inside a stub
+			editorClassFor.current = this.editorClass
+		},
+		template: '<div class="text-editor-stub" />',
+	},
+>>>>>>> 71ff6f4 (feat(quiz): the question editor, its card and its dialog)
 	Button: { template: '<button><slot /></button>' },
 	Badge: { template: '<span><slot /></span>' },
 	Dropdown: { template: '<div><slot /></div>' },
@@ -16,6 +30,7 @@ vi.mock('frappe-ui', () => ({
 	FormLabel: { template: '<label />' },
 }))
 
+<<<<<<< HEAD
 vi.mock('@/components/RichTextEditor.vue', () => ({
 	default: {
 		name: 'RichTextEditorStub',
@@ -40,11 +55,17 @@ vi.mock('@/components/RichTextEditor.vue', () => ({
 	},
 }))
 
+=======
+>>>>>>> 71ff6f4 (feat(quiz): the question editor, its card and its dialog)
 vi.stubGlobal('__', (s: string) => s)
 
 // translation.js installs String.prototype.format at app boot; the marks label
 // reads it during setup, so a bare mount() would fail on the format call rather
 // than on anything this file is about.
+<<<<<<< HEAD
+=======
+// @ts-expect-error - augmenting the frappe global
+>>>>>>> 71ff6f4 (feat(quiz): the question editor, its card and its dialog)
 String.prototype.format = function (this: string, ...args: unknown[]): string {
 	return args.reduce<string>(
 		(out, arg, i) => out.replaceAll(`{${i}}`, String(arg)),
@@ -52,6 +73,7 @@ String.prototype.format = function (this: string, ...args: unknown[]): string {
 	)
 }
 
+<<<<<<< HEAD
 async function mountEditor(
 	uiType: string,
 	fillHeight: boolean,
@@ -61,12 +83,19 @@ async function mountEditor(
 		option_2: 'b',
 	}
 ) {
+=======
+async function mountEditor(uiType: string, fillHeight: boolean) {
+>>>>>>> 71ff6f4 (feat(quiz): the question editor, its card and its dialog)
 	const { default: QuestionEditor } = await import(
 		'@/components/Quiz/QuestionEditor.vue'
 	)
 	return mount(QuestionEditor, {
 		props: {
+<<<<<<< HEAD
 			question,
+=======
+			question: { question: 'Q?', option_1: 'a', option_2: 'b' },
+>>>>>>> 71ff6f4 (feat(quiz): the question editor, its card and its dialog)
 			uiType,
 			fillHeight,
 			idPrefix: 'test',
@@ -76,9 +105,15 @@ async function mountEditor(
 }
 
 const classOf = (wrapper: ReturnType<typeof mount>) =>
+<<<<<<< HEAD
 	wrapper.find('.text-editor-stub').element.parentElement!.className
 
 const editorClass = () => editorClassFor.current as string
+=======
+	wrapper.find('.text-editor-stub').classes().join(' ')
+
+const editorClass = () => (editorClassFor.current as string[]).join(' ')
+>>>>>>> 71ff6f4 (feat(quiz): the question editor, its card and its dialog)
 
 describe('QuestionEditor fill', () => {
 	it('fills for an open ended question', async () => {
@@ -114,6 +149,7 @@ describe('QuestionEditor fill', () => {
 		expect(editorClass()).toContain('min-h-[5rem]')
 	})
 })
+<<<<<<< HEAD
 
 describe('QuestionEditor field labelling', () => {
 	const editorOf = (wrapper: ReturnType<typeof mount>) =>
@@ -138,3 +174,5 @@ describe('QuestionEditor field labelling', () => {
 		)
 	})
 })
+=======
+>>>>>>> 71ff6f4 (feat(quiz): the question editor, its card and its dialog)

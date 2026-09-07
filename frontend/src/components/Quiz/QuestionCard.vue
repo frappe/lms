@@ -2,12 +2,20 @@
 	<div
 		v-if="!isEditing"
 		:id="`question-card-${row.name}`"
+<<<<<<< HEAD
 		class="relative flex items-center gap-3 rounded-6 border border-outline-gray-2 bg-surface-base px-4 py-3 transition-colors hover:border-outline-gray-3 focus-within:border-outline-gray-4"
+=======
+		class="relative flex items-center gap-3 rounded-lg border border-outline-gray-2 bg-surface-base px-4 py-3 transition-colors hover:border-outline-gray-3 focus-within:border-outline-gray-4"
+>>>>>>> 71ff6f4 (feat(quiz): the question editor, its card and its dialog)
 	>
 		<button
 			v-if="!readOnly"
 			type="button"
+<<<<<<< HEAD
 			class="absolute inset-0 rounded-6"
+=======
+			class="absolute inset-0 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-outline-gray-3"
+>>>>>>> 71ff6f4 (feat(quiz): the question editor, its card and its dialog)
 			:aria-label="__('Edit question {0}').format(index + 1)"
 			@click="emit('edit')"
 		/>
@@ -20,7 +28,11 @@
 			"
 		/>
 		<span
+<<<<<<< HEAD
 			class="shrink-0 size-5 rounded-4 flex items-center justify-center bg-surface-gray-2 text-ink-gray-7 text-xs"
+=======
+			class="shrink-0 size-5 rounded flex items-center justify-center bg-surface-gray-2 text-ink-gray-7 text-xs"
+>>>>>>> 71ff6f4 (feat(quiz): the question editor, its card and its dialog)
 			>{{ index + 1 }}</span
 		>
 		<div
@@ -52,10 +64,21 @@
 				{{ marksLabel(row.marks) }}
 			</Badge>
 		</span>
+<<<<<<< HEAD
 		<Dropdown v-if="!readOnly" :options="rowMenu" align="end">
 			<Button
 				variant="ghost"
 				class="relative z-10"
+=======
+		<Dropdown
+			v-if="!readOnly"
+			:options="rowMenu"
+			placement="right"
+			class="relative z-10"
+		>
+			<Button
+				variant="ghost"
+>>>>>>> 71ff6f4 (feat(quiz): the question editor, its card and its dialog)
 				icon="lucide-more-horizontal"
 				:label="__('More actions for question {0}').format(index + 1)"
 			/>
@@ -65,7 +88,11 @@
 	<div
 		v-else
 		:id="`question-card-${row.name}`"
+<<<<<<< HEAD
 		class="rounded-6 border border-outline-gray-2 bg-surface-base hover:border-outline-gray-3 focus-within:border-outline-gray-4 transition-colors"
+=======
+		class="rounded-lg border border-outline-gray-2 bg-surface-base hover:border-outline-gray-3 focus-within:border-outline-gray-4 transition-colors"
+>>>>>>> 71ff6f4 (feat(quiz): the question editor, its card and its dialog)
 	>
 		<QuestionEditor
 			ref="editorRef"
