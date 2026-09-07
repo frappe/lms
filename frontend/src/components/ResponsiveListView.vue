@@ -9,7 +9,7 @@
 		:options="listOptions"
 	>
 		<template #default>
-			<template v-if="!isMobile">
+			<template v-if="!showCards">
 				<ListHeader>
 					<ListHeaderItem
 						v-for="column in shrinkableColumns"
@@ -81,7 +81,9 @@
 									v-for="(column, index) in detailColumns"
 									:key="column.key"
 								>
-									<span v-if="index" aria-hidden="true">·</span>
+									<span v-if="index && !noDetailSeparator" aria-hidden="true"
+										>·</span
+									>
 									<span class="min-w-0 truncate [&>*]:truncate">
 										<span class="sr-only">{{ column.label }}: </span>
 										<slot
@@ -134,11 +136,11 @@
 		</template>
 	</ListView>
 
-	<div v-if="isMobile && selectionEnabled" :class="MOBILE_DOCK_CLASS">
+	<div v-if="showCards && selectionEnabled" :class="CARD_DOCK_CLASS">
 		<span class="sr-only" role="status">{{ selectionAnnouncement }}</span>
 		<div
 			ref="bannerDock"
-			:class="MOBILE_BANNER_FLOW_CLASS"
+			:class="CARD_BANNER_FLOW_CLASS"
 			:role="hasSelection ? 'region' : undefined"
 			:aria-label="hasSelection ? __('Selected rows') : undefined"
 		/>
@@ -159,9 +161,9 @@ import {
 import type { ListColumn, ListRow, ListViewOptions } from '@/types'
 import { useScreenSize } from '@/utils/composables'
 
-// The phone banner is a second root node, so nothing is left for Vue to inherit
-// an attribute onto automatically; the list takes what a page passes, exactly
-// as it did while it was the only root.
+// The card layout's banner dock is a second root node, so nothing is left for
+// Vue to inherit an attribute onto automatically; the list takes what a page
+// passes, exactly as it did while it was the only root.
 defineOptions({ inheritAttrs: false })
 
 // The part of frappe-ui's ListView instance the cards drive.
@@ -179,12 +181,31 @@ const props = withDefaults(
 		/** Column shown as the card heading. Defaults to the first column. */
 		titleKey?: string
 		pageScroll?: boolean
+		/**
+		 * Draw the cards at every width, not only below the phone breakpoint.
+		 * For a list that sits in a column narrower than the viewport it is
+		 * measured against, a side panel, where the desk row would not fit.
+		 */
+		forceCards?: boolean
+		/** Drop the `·` between detail cells, for a list whose cells are already badges. */
+		noDetailSeparator?: boolean
 	}>(),
-	{ options: undefined, titleKey: undefined, pageScroll: false }
+	{
+		options: undefined,
+		titleKey: undefined,
+		pageScroll: false,
+		forceCards: false,
+		noDetailSeparator: false,
+	}
 )
 
 const slots = useSlots()
 const { isMobile } = useScreenSize()
+
+// Which of the two shapes is on screen. Every layout branch reads this rather
+// than the width: a caller asking for cards wants the whole card treatment,
+// banner dock included.
+const showCards = computed(() => props.forceCards || isMobile.value)
 
 // `!w-full` beats frappe-ui's `w-max`, which would size the grid to its widest
 // column and scroll the list sideways; the minmax tracks below narrow the
@@ -192,25 +213,21 @@ const { isMobile } = useScreenSize()
 // one scroll box, so the filters above these rows travel with them.
 const PAGE_BODY_CLASS = '!w-full pb-5'
 
-// frappe-ui sizes the selection banner for a desk (596px). The class lands on
-// the banner's inner pill: ListSelectBanner sets `inheritAttrs: false` and
-// binds `$attrs.class` there, never on the outer positioned box.
-const MOBILE_BANNER_CLASS =
-	'!min-w-0 max-w-[calc(100vw-2rem)] flex-wrap gap-y-2'
+// frappe-ui sizes the selection banner for a desk (596px), wider than the
+// cards. The class lands on the inner pill: ListSelectBanner sets
+// `inheritAttrs: false` and binds `$attrs.class` there.
+const CARD_BANNER_CLASS = '!min-w-0 max-w-[calc(100vw-2rem)] flex-wrap gap-y-2'
 
-// The phone's banner is teleported out of the list because frappe-ui pins it
-// `absolute … bottom-6` against ListView's root, which is as tall as every row
-// there is — landing it hundreds of pixels below the screen. Outside that box
-// the dock is `sticky bottom-0` against the page's own scroller. A Teleport
-// moves the element, not the component, so the banner stays a child of ListView
-// and injects the real list from it.
-const MOBILE_DOCK_CLASS = 'sticky bottom-0 z-20'
+// The card banner is teleported out because frappe-ui pins it `absolute
+// bottom-6` against ListView's root, as tall as every row. Outside it the dock
+// is `sticky bottom-0` on the page scroller.
+const CARD_DOCK_CLASS = 'sticky bottom-0 z-20'
 
 // The banner still has to be told to sit in the dock's flow, or it hangs out of
 // a zero-height box over the rows. Written from out here, on the child, because
 // `$attrs.class` reaches only the pill. The spacing goes with it: left on the
 // dock it would hold dead space open under every unselected list.
-const MOBILE_BANNER_FLOW_CLASS = '[&>*]:!static [&>*]:pb-4 [&>*]:pt-2'
+const CARD_BANNER_FLOW_CLASS = '[&>*]:!static [&>*]:pb-4 [&>*]:pt-2'
 
 const layoutClass = computed(() =>
 	props.pageScroll ? PAGE_BODY_CLASS : '!w-full'
@@ -228,9 +245,9 @@ const listOptions = computed(() => ({
 }))
 
 /**
- * An `fr` track will not shrink below its own content, so one long column
- * label pushes the whole grid wider than the page. `minmax(0, …)` lets the
- * track shrink and hands the overflow to the cell's `truncate` instead.
+ * An `fr` track will not shrink below its own content, so one long column label
+ * pushes the whole grid wider than the page. `minmax(0, …)` lets the track
+ * shrink and hands the overflow to the cell's `truncate` instead.
  */
 const shrinkableColumns = computed<ListColumn[]>(() =>
 	props.columns.map((column) => ({
@@ -276,7 +293,7 @@ const selectionEnabled = computed(
 )
 
 const bannerRendered = computed(() =>
-	isMobile.value ? selectionEnabled.value : Boolean(slots['selection-actions'])
+	showCards.value ? selectionEnabled.value : Boolean(slots['selection-actions'])
 )
 
 const bannerDock = ref<HTMLElement | null>(null)
@@ -289,13 +306,13 @@ onMounted(() => (mounted.value = true))
  * render — empty, since frappe-ui hides it while nothing is selected.
  */
 const bannerTarget = computed(() =>
-	isMobile.value && mounted.value ? bannerDock.value : null
+	showCards.value && mounted.value ? bannerDock.value : null
 )
 
-// The banner is sized for a desk in frappe-ui; only the phone's copy is
-// unpinned, so the class travels with the width rather than the element.
+// The banner is sized for a desk in frappe-ui; only the card layout's copy is
+// unpinned, so the class travels with the layout rather than the element.
 const bannerClass = computed(() =>
-	isMobile.value ? MOBILE_BANNER_CLASS : undefined
+	showCards.value ? CARD_BANNER_CLASS : undefined
 )
 
 // A row's own checkbox. The attribute is written on the box around it because
@@ -409,7 +426,7 @@ function onCardClick(row: ListRow) {
 	props.options?.onRowClick?.(row)
 }
 
-// A phone card has no column header to sit under, so the checkbox names its row.
+// A card has no column header to sit under, so the checkbox names its row.
 function selectionLabel(row: ListRow): string {
 	const title = row[titleColumn.value.key]
 	const name =
