@@ -207,6 +207,10 @@ const displayRows = computed(() =>
 	)
 )
 
+<<<<<<< HEAD
+=======
+// Sets the state asked for, never flips it, because Checkbox reports a click twice.
+>>>>>>> 7be2a07 (feat(quiz): the question bank as a panel, not a drawer)
 const setSelected = (row, value) => {
 	if (value) selected.add(row.name)
 	else selected.delete(row.name)
