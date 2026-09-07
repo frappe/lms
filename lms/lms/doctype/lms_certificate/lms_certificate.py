@@ -37,7 +37,9 @@ class LMSCertificate(Document):
 		args = {
 			"member_name": self.member_name,
 			"course_name": self.course,
-			"course_title": frappe.db.get_value("LMS Course", self.course, "title"),
+			"course_title": frappe.db.get_value("LMS Course", self.course, "title") if self.course else None,
+			"batch_name": self.batch_name,
+			"batch_title": frappe.db.get_value("LMS Batch", self.batch_name, "title") if self.batch_name else None,
 			"name": self.name,
 			"template": self.template,
 		}
