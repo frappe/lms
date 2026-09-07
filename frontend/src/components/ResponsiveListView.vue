@@ -81,6 +81,7 @@
 									v-for="(column, index) in detailColumns"
 									:key="column.key"
 								>
+<<<<<<< HEAD
 									<span
 										v-if="index && !noDetailSeparator"
 										aria-hidden="true"
@@ -95,6 +96,12 @@
 												: 'shrink-0 truncate [&>*]:truncate'
 										"
 									>
+=======
+									<span v-if="index && !noDetailSeparator" aria-hidden="true"
+										>·</span
+									>
+									<span class="min-w-0 truncate [&>*]:truncate">
+>>>>>>> e5e2beb (feat(list): draw ResponsiveListView cards at any width via forceCards)
 										<span class="sr-only">{{ column.label }}: </span>
 										<slot
 											name="cell"
@@ -146,7 +153,11 @@
 		</template>
 	</ListView>
 
+<<<<<<< HEAD
 	<div v-if="docksBanner && selectionEnabled" :class="CARD_DOCK_CLASS">
+=======
+	<div v-if="showCards && selectionEnabled" :class="CARD_DOCK_CLASS">
+>>>>>>> e5e2beb (feat(list): draw ResponsiveListView cards at any width via forceCards)
 		<span class="sr-only" role="status">{{ selectionAnnouncement }}</span>
 		<div
 			ref="bannerDock"
@@ -199,12 +210,15 @@ const props = withDefaults(
 		forceCards?: boolean
 		/** Drop the `·` between detail cells, for a list whose cells are already badges. */
 		noDetailSeparator?: boolean
+<<<<<<< HEAD
 		/**
 		 * Put the selection banner under the rows at every width, as the cards do.
 		 * For a short table inside a form, where frappe-ui's floating banner
 		 * would sit on top of the very rows that were selected.
 		 */
 		dockedBanner?: boolean
+=======
+>>>>>>> e5e2beb (feat(list): draw ResponsiveListView cards at any width via forceCards)
 	}>(),
 	{
 		options: undefined,
@@ -212,7 +226,10 @@ const props = withDefaults(
 		pageScroll: false,
 		forceCards: false,
 		noDetailSeparator: false,
+<<<<<<< HEAD
 		dockedBanner: false,
+=======
+>>>>>>> e5e2beb (feat(list): draw ResponsiveListView cards at any width via forceCards)
 	}
 )
 
@@ -313,9 +330,13 @@ const selectionEnabled = computed(
 const docksBanner = computed(() => showCards.value || props.dockedBanner)
 
 const bannerRendered = computed(() =>
+<<<<<<< HEAD
 	docksBanner.value
 		? selectionEnabled.value
 		: Boolean(slots['selection-actions'])
+=======
+	showCards.value ? selectionEnabled.value : Boolean(slots['selection-actions'])
+>>>>>>> e5e2beb (feat(list): draw ResponsiveListView cards at any width via forceCards)
 )
 
 const bannerDock = ref<HTMLElement | null>(null)
@@ -328,13 +349,21 @@ onMounted(() => (mounted.value = true))
  * render — empty, since frappe-ui hides it while nothing is selected.
  */
 const bannerTarget = computed(() =>
+<<<<<<< HEAD
 	docksBanner.value && mounted.value ? bannerDock.value : null
+=======
+	showCards.value && mounted.value ? bannerDock.value : null
+>>>>>>> e5e2beb (feat(list): draw ResponsiveListView cards at any width via forceCards)
 )
 
 // The banner is sized for a desk in frappe-ui; only the card layout's copy is
 // unpinned, so the class travels with the layout rather than the element.
 const bannerClass = computed(() =>
+<<<<<<< HEAD
 	docksBanner.value ? CARD_BANNER_CLASS : undefined
+=======
+	showCards.value ? CARD_BANNER_CLASS : undefined
+>>>>>>> e5e2beb (feat(list): draw ResponsiveListView cards at any width via forceCards)
 )
 
 // Row checkbox. The attribute sits on the wrapper, but the input inside takes
