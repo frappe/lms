@@ -14,22 +14,18 @@
 			:class="cellCount === 3 ? 'sm:grid-cols-3' : 'sm:grid-cols-2'"
 			data-testid="condition-cells"
 		>
-			<div class="min-w-0">
-				<div
+			<div class="min-w-0" data-testid="condition-type">
+				<Select
 					v-if="!frozen"
-					role="group"
+					:model-value="rule.rule_type"
+					:options="typeOptions"
+					:placeholder="__('Condition')"
 					:aria-labelledby="`${nameId} ${typeWordId}`"
-				>
-					<Combobox
-						:model-value="rule.rule_type"
-						:options="typeOptions"
-						:placeholder="__('Condition')"
-						trigger="button"
-						:aria-labelledby="`${nameId} ${typeWordId}`"
-						class="w-full"
-						@update:model-value="setRuleType($event as string)"
-					/>
-				</div>
+					side="bottom"
+					align="start"
+					class="w-full"
+					@update:model-value="setRuleType($event as string)"
+				/>
 				<p v-else class="pt-1 text-p-base text-ink-gray-7">{{ typeText }}</p>
 			</div>
 
@@ -127,16 +123,12 @@
 // cells whose control drops it too are wrapped in a named group instead. See
 // below.
 //
-// The type cell takes Combobox's button trigger rather than its default input
-// one. An <input> holding a label longer than its box scrolls instead of
-// eliding, so a nested row showed "ll Enrolled Students" or "All Enrolled
-// Student", the ends cut off with no ellipsis to say so, and frappe-ui's
-// input-mode classes (Combobox/utils.ts, `inputClasses`) carry no text-ellipsis
-// to change that. The button trigger renders the label in a `truncate` span, so
-// it elides. That mode drops caller attrs from the trigger, though. Only
-// `inputAriaAttrs` is bound there, and everything else goes to the popover's own
-// search box, so the row's name goes on a group wrapper, exactly as it does for
-// the MultiLink cells, which drop it for the same reason.
+// The type cell is a Select, the same control every cascade answer beside it
+// uses. It was a Combobox for its search box, which two options do not need, and
+// that cost a wrapper: Combobox's button trigger binds only `inputAriaAttrs` and
+// sends everything else to the popover's own search field, so the row's name had
+// to go on a `role="group"` around it. Select takes `aria-labelledby` itself.
+// The MultiLink cells still need that wrapper, for the same reason Combobox did.
 //
 // A row that cannot be saved is therefore not narrated here at all: the wording
 // lives in the section message, under the builder. This row carries no visual
@@ -161,7 +153,7 @@
 // The row's root carries no padding: ConditionBuilder anchors the and/or of the
 // row to its top edge, so any padding here shows up as the conjunction floating
 // above the controls it joins.
-import { Badge, Combobox } from 'frappe-ui'
+import { Badge, Select } from 'frappe-ui'
 import { computed, useId } from 'vue'
 import RuleConditionField from './RuleConditionField.vue'
 import {

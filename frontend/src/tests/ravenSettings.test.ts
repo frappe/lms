@@ -908,6 +908,11 @@ describe('a condition row', () => {
 	// By the word that names the cell, not by position: a cascade grows a level
 	// and every index below it moves. Adding `payment_filter` to the fixture
 	// silently retargeted an index-1 edit from `enrolled_in` onto it.
+	// The type picker is a Select like the cascade answers now, so it can no longer
+	// be told from them by component name, and it is the first Select in the row
+	// rather than the first cascade one.
+	const typePicker = (w: VueWrapper) =>
+		w.get('[data-testid="condition-type"]').getComponent({ name: 'Select' })
 	const selectNamed = (w: VueWrapper, label: string) => {
 		const cell = inline(w).find((c) => c.get('span').text() === label)
 		if (!cell) throw new Error(`no condition cell named ${label}`)
@@ -938,7 +943,7 @@ describe('a condition row', () => {
 	it('leaves a paused rule paused when it is retyped', async () => {
 		const w = row({ status: 'Paused', student_scope: 'All' })
 
-		w.findComponent({ name: 'Combobox' }).vm.$emit('update:modelValue', 'Staff')
+		typePicker(w).vm.$emit('update:modelValue', 'Staff')
 		await nextTick()
 
 		expect(emittedRule(w).status).toBe('Paused')
@@ -1013,8 +1018,8 @@ describe('a condition row', () => {
 	})
 
 	it('wraps the controls that drop a name in a group that carries one', () => {
-		// Combobox's button trigger and MultiLink bind only their own aria
-		// attributes, so a name put on either lands on nothing.
+		// MultiLink binds only its own aria attributes, so a name put on it lands on
+		// nothing. Select does carry one, which is why the type cell is not wrapped.
 		const w = row({
 			student_scope: 'Enrolled',
 			enrolled_in: 'Courses',
@@ -1022,14 +1027,23 @@ describe('a condition row', () => {
 		})
 		const groups = w.findAll('[role="group"]')
 
-		const typeCell = groups.find((g) =>
-			g.findComponent({ name: 'Combobox' }).exists()
-		)!
 		const valueCell = groups.find((g) =>
 			g.findComponent({ name: 'MultiLink' }).exists()
 		)!
-		expect(typeCell.attributes('aria-labelledby')).toContain('row-name ')
 		expect(valueCell.attributes('aria-labelledby')).toContain('row-name ')
+	})
+
+	it('names the type picker on the control, not on a wrapper', () => {
+		// It was a Combobox, whose button trigger drops caller attrs, so the name had
+		// to go on a role="group" around it. A Select takes it directly, and a group
+		// left behind would announce the cell twice.
+		const w = row({})
+		const trigger = w.get(
+			'[data-testid="condition-type"] [data-slot="trigger"]'
+		)
+
+		expect(trigger.attributes('aria-labelledby')).toContain('row-name ')
+		expect(w.findComponent({ name: 'Combobox' }).exists()).toBe(false)
 	})
 
 	it('emits a whole new rule when a cell changes, never a nested write', async () => {
@@ -1038,7 +1052,7 @@ describe('a condition row', () => {
 		const w = row({ student_scope: 'Enrolled' })
 		const before = w.props('rule')
 
-		selects(w)[0].vm.$emit('update:modelValue', 'All')
+		selectNamed(w, 'Students').vm.$emit('update:modelValue', 'All')
 		await nextTick()
 
 		expect(emittedRule(w).student_scope).toBe('All')
@@ -1049,7 +1063,7 @@ describe('a condition row', () => {
 	it('keeps only what the new type declares when the row is retyped', async () => {
 		const w = row({ student_scope: 'Enrolled', enrolled_in: 'Courses' })
 
-		w.findComponent({ name: 'Combobox' }).vm.$emit('update:modelValue', 'Staff')
+		typePicker(w).vm.$emit('update:modelValue', 'Staff')
 		await nextTick()
 
 		// A leftover key would still be sent as config, describing a rule the new
@@ -1074,7 +1088,7 @@ describe('a condition row', () => {
 			staff_scope_courses: ['C1'],
 		})
 
-		selects(w)[0].vm.$emit('update:modelValue', 'All')
+		selectNamed(w, 'Staff').vm.$emit('update:modelValue', 'All')
 		await nextTick()
 
 		expect(emittedRule(w).staff_kind).toBe('All')
@@ -1116,7 +1130,7 @@ describe('a condition row', () => {
 		const w = row({ provider: 'OTHER', rule_type: 'Their Rule' })
 
 		expect(w.text()).toContain('Managed by OTHER')
-		expect(w.findComponent({ name: 'Combobox' }).exists()).toBe(false)
+		expect(w.findComponent({ name: 'Select' }).exists()).toBe(false)
 	})
 })
 
@@ -1138,6 +1152,21 @@ describe('the conditions of a channel', () => {
 			apiRule('Student', { student_scope: 'Enrolled', enrolled_in: 'Courses' }),
 		],
 	}
+
+	it('asks the builder for the free width, not for a size', () => {
+		// A `#condition` row spans the builder's three leaf tracks, which default to
+		// `minmax(0, max-content)`: the cascade sat in about a third of the card and
+		// the rest went to the actions track, `minmax(max-content, 1fr)`. jsdom lays
+		// nothing out, so the prop is the only thing assertable here; what it has to
+		// be is a fraction big enough to leave that track its max-content floor.
+		const w = channel({ rules: incomplete })
+		const columns = w
+			.findComponent({ name: 'ConditionBuilder' })
+			.props('columns') as Record<string, string>
+
+		for (const track of ['field', 'operator', 'value'])
+			expect(columns[track]).toMatch(/^minmax\(0, \d{2,}fr\)$/)
+	})
 
 	it('words an unfinished condition once, under the builder, and marks its row', () => {
 		// Three surfaces used to say it: the control's own error, a message beside
