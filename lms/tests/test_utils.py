@@ -518,6 +518,12 @@ class TestListEndpointPaging(BaseTestUtils):
 	def test_the_count_includes_the_featured_courses(self):
 		self.assertEqual(get_course_count(filters=self._filters()), 4)
 
+	def test_created_courses_filter_deduplication(self):
+		"""Ensure multiple instructor entries for the same course return unique course entries."""
+		courses = get_courses(filters={"created": 1})
+		course_names = [c.name for c in courses]
+		self.assertEqual(len(course_names), len(set(course_names)))
+
 	def test_the_batch_count_agrees_with_the_batch_list(self):
 		filters = {"published": 1}
 		listed = get_batches(filters=filters.copy(), start=0, limit_page_length=MAX_PAGE_LENGTH)
