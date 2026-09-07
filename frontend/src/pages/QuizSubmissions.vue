@@ -11,8 +11,11 @@
 		:list-options="listOptions"
 		empty-name="Quiz Submissions"
 		empty-icon="lucide-file-check"
+<<<<<<< HEAD
 		:empty-title="emptyState?.title"
 		:empty-description="emptyState?.description"
+=======
+>>>>>>> d2f0156 (feat(quiz): a cross-quiz Submissions list)
 		@load-more="submissions.next()"
 	>
 		<template #filters>
@@ -103,11 +106,15 @@ const filters = ref<QuizSubmissionFilters>({ quiz: '', member: '', course: '' })
 setFiltersFromRoute()
 
 onMounted(() => {
+<<<<<<< HEAD
 	if (
 		!user.data?.is_instructor &&
 		!user.data?.is_moderator &&
 		!user.data?.is_evaluator
 	) {
+=======
+	if (!user.data?.is_instructor && !user.data?.is_moderator) {
+>>>>>>> d2f0156 (feat(quiz): a cross-quiz Submissions list)
 		router.push({ name: 'Courses' })
 		return
 	}
@@ -226,6 +233,7 @@ const columns = computed<ListColumn[]>(() => [
 
 // A filter is not a place, so the trail never names the quiz in scope. The quiz
 // is already named by the filter control and by every row's Quiz column.
+<<<<<<< HEAD
 // Only instructors and moderators reach this page.
 const emptyState = {
 	title: __('No quiz attempts yet'),
@@ -234,6 +242,8 @@ const emptyState = {
 	),
 }
 
+=======
+>>>>>>> d2f0156 (feat(quiz): a cross-quiz Submissions list)
 const breadcrumbs = computed<Breadcrumb[]>(() => [
 	{ label: __('Quizzes'), route: { name: 'Quizzes' } },
 	{ label: __('Submissions') },
