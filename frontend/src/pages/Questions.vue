@@ -12,6 +12,7 @@
 		v-model:search="search"
 		empty-name="Questions"
 		empty-icon="lucide-circle-help"
+<<<<<<< HEAD
 		:empty-title="emptyState?.title"
 		:empty-description="emptyState?.description"
 		@load-more="questions.next()"
@@ -25,6 +26,10 @@
 			/>
 		</template>
 
+=======
+		@load-more="questions.next()"
+	>
+>>>>>>> d94e08b (feat(quiz): a cross-quiz Questions list)
 		<template #actions>
 			<Button v-if="!readOnlyMode" variant="solid" @click="newQuestion">
 				<template #prefix>
@@ -103,7 +108,10 @@ import { useRouter } from 'vue-router'
 import { useDebounceFn } from '@vueuse/core'
 import { sessionStore } from '@/stores/session'
 import ListPage from '@/components/Layouts/ListPage.vue'
+<<<<<<< HEAD
 import EmptyStateActions from '@/components/EmptyStateActions.vue'
+=======
+>>>>>>> d94e08b (feat(quiz): a cross-quiz Questions list)
 import QuestionDialog from '@/components/Quiz/QuestionDialog.vue'
 import { QUESTION_TYPES, questionTypeMeta } from '@/utils/quizQuestion'
 import { htmlToText } from '@/utils/inertHtml'
@@ -122,6 +130,7 @@ const dayjs = inject('$dayjs') as (date: string) => {
 }
 const user = inject('$user') as SessionUser
 const router = useRouter()
+<<<<<<< HEAD
 // What lands in this list and how to start it, for the person who would fill it;
 // learners keep the default wording.
 const emptyState = computed(() => {
@@ -134,6 +143,8 @@ const emptyState = computed(() => {
 	}
 })
 
+=======
+>>>>>>> d94e08b (feat(quiz): a cross-quiz Questions list)
 const readOnlyMode = window.read_only_mode
 const search = ref<string>('')
 const typeFilter = ref<QuestionTypeFilter>('')
