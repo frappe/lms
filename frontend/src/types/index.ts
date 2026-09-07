@@ -10,7 +10,10 @@ export * from './notes'
 export * from './programmingExercises'
 export * from './programs'
 export * from './questions'
+<<<<<<< HEAD
 export * from './quiz'
+=======
+>>>>>>> 71affda (feat(quiz): shared helpers for question type, content and validity)
 export * from './quizSubmissions'
 export * from './raven'
 export * from './settings'
