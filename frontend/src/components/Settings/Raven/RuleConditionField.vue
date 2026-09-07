@@ -36,13 +36,6 @@
 			class="w-full"
 			@update:model-value="emit('update:modelValue', $event as string)"
 		/>
-		<p
-			v-if="description"
-			class="mt-1 text-p-sm text-ink-gray-5"
-			data-testid="field-description"
-		>
-			{{ description }}
-		</p>
 	</div>
 </template>
 
@@ -61,9 +54,12 @@
 // edit is still a value the reader needs, and naming the fieldtype instead
 // dropped it.
 //
-// The declared `description` is rendered under the control because the scope
-// fields' whole meaning is in it: an empty "Batches" reads as "matches nobody"
-// where the backend means "every batch".
+// A declared `description` is NOT rendered. A condition row is one line of a
+// sentence the reader is composing, and a paragraph hanging under one cell
+// pushes the cells beside it apart and re-flows the row as the cascade changes.
+// Whatever a field needs to say has to fit its label or its options. The key
+// stays on RuleField because a declaration may still carry it; this screen is
+// what ignores it.
 //
 // Select-all is opted into here and nowhere else. A condition names a set the
 // reader is deliberately widening. "Every course we currently list" is a real
@@ -106,10 +102,6 @@ const editable = computed<boolean>(
 
 const fieldLabel = computed<string>(() =>
 	__(props.field.label ?? props.field.fieldname)
-)
-
-const description = computed<string>(() =>
-	props.field.description ? __(props.field.description) : ''
 )
 
 const doctypeOf = computed<string>(() =>
