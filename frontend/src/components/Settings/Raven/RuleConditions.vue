@@ -7,6 +7,7 @@
 		:max-depth="MAX_CONDITION_DEPTH"
 		:new-condition="rules.newCondition"
 		:readonly="nothingToAdd"
+		:columns="CONDITION_COLUMNS"
 	>
 		<template #condition="{ condition, path, readonly, update }">
 			<RuleCondition
@@ -106,6 +107,23 @@ import {
 	pathKey,
 } from '@/utils/raven/ruleAdapter'
 import type { RuleGroup, RulePath } from '@/types'
+
+// A `#condition` row spans the builder's three leaf tracks, and all three default
+// to `minmax(0, max-content)`, so the row was as wide as whatever sat inside it
+// and the cascade took about a third of the card. The rest went to the actions
+// track, which frappe-ui declares `minmax(max-content, 1fr)` to push the row menu
+// onto the end edge.
+//
+// This asks for the free width rather than for a size. The fraction is large
+// enough that the actions track keeps only its `max-content` floor, the menu
+// button itself: the menu stays on the end edge and everything before it belongs
+// to the cascade. `minmax(0, …)` so a long option elides inside its cell rather
+// than widening the row past the card.
+const CONDITION_COLUMNS = {
+	field: 'minmax(0, 100fr)',
+	operator: 'minmax(0, 100fr)',
+	value: 'minmax(0, 100fr)',
+}
 
 const props = defineProps<{ rules: ChannelRules }>()
 
