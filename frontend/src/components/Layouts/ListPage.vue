@@ -88,7 +88,15 @@
 			<ListFooter
 				v-model="pageLength"
 				class="flex-wrap border-t px-5 py-2"
+<<<<<<< HEAD
 				:options="{ pageLengthOptions }"
+=======
+				:options="{
+					rowCount: rows.length,
+					totalCount: resolvedCount,
+					pageLengthOptions,
+				}"
+>>>>>>> b9d9a25 (feat(list): move the count and page length into ListPage)
 			>
 				<template #right>
 					<div class="flex items-center">
@@ -114,9 +122,19 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
+<<<<<<< HEAD
 import { Button, createResource, FormControl, toast } from 'frappe-ui'
 import type { FrappeResourceError } from 'frappe-ui'
 import { ListFooter } from 'frappe-ui/experimental'
+=======
+import {
+	Button,
+	createResource,
+	FormControl,
+	ListFooter,
+	toast,
+} from 'frappe-ui'
+>>>>>>> b9d9a25 (feat(list): move the count and page length into ListPage)
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 import PageHeader from '@/components/Layouts/PageHeader.vue'
 import PageBody from '@/components/Layouts/PageBody.vue'
@@ -221,6 +239,7 @@ const pageLength = defineModel<number>('pageLength', { default: 24 })
 // search are unchanged.
 const search = defineModel<string>('search')
 
+<<<<<<< HEAD
 // With a search or filter on, an empty list means nothing matched, not that
 // there is nothing to show (Helpdesk's SkeletonLoader `hasAppliedFilter`).
 const activeQuery = computed(() => (search.value || props.searchQuery).trim())
@@ -246,6 +265,8 @@ const clearFilters = () => {
 	emit('clearFilters')
 }
 
+=======
+>>>>>>> b9d9a25 (feat(list): move the count and page length into ListPage)
 watch(pageLength, (value: number) => {
 	// reload() ignores a new pageLength while start > 0: it refetches the
 	// already loaded rows instead, so paging must be reset for it to apply.
@@ -267,8 +288,13 @@ const countResource = props.listResource
 			// Without this the heading just reads zero, which is indistinguishable
 			// from an empty list. Each page used to carry its own; the count moved
 			// here, so the report of its failure has to move here too.
+<<<<<<< HEAD
 			onError(error: FrappeResourceError) {
 				toast.error(error.messages?.[0] || __('Could not count the list'))
+=======
+			onError(error: { messages?: string[] }) {
+				toast.error(error?.messages?.[0] || __('Could not count the list'))
+>>>>>>> b9d9a25 (feat(list): move the count and page length into ListPage)
 			},
 	  })
 	: null
