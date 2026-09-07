@@ -158,6 +158,7 @@ export interface RuleField {
 	fieldtype: string
 	/** On-screen wording; falls back to the fieldname when the provider omits it. */
 	label?: string
+	/** Declarable, but the condition row does not render it. See RuleConditionField. */
 	description?: string
 	/** A literal option list for `Select`; a doctype name for `MultiSelect`. */
 	options?: string | string[]

@@ -186,6 +186,8 @@ const DECLARATIONS = [
 						fieldname: 'platform_roles',
 						fieldtype: 'MultiSelectStatic',
 						label: 'Roles',
+						// Declared on purpose: the row has to ignore it.
+						description: 'A role granted across the site.',
 						options: ['Course Creator', 'Evaluator', 'Moderator'],
 						reqd: 1,
 						depends_on: { field: 'staff_kind', value_in: ['Platform role'] },
@@ -1031,6 +1033,16 @@ describe('a condition row', () => {
 			g.findComponent({ name: 'MultiLink' }).exists()
 		)!
 		expect(valueCell.attributes('aria-labelledby')).toContain('row-name ')
+	})
+
+	it('renders no description inside a condition row', () => {
+		// A row is one line of a sentence the reader is composing. A paragraph under
+		// one cell pushes the cells beside it apart and re-flows the row as the
+		// cascade changes, so a declared description is ignored here.
+		const w = row({ rule_type: 'Staff', staff_kind: 'Platform role' })
+
+		expect(w.text()).not.toContain('A role granted across the site.')
+		expect(w.find('[data-testid="field-description"]').exists()).toBe(false)
 	})
 
 	it('names the type picker on the control, not on a wrapper', () => {
