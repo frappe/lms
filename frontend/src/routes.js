@@ -281,7 +281,10 @@ export const routes = [
 		path: '/quiz-submissions/:quizID',
 		redirect: (to) => ({
 			name: 'QuizSubmissions',
+<<<<<<< HEAD
 			params: {},
+=======
+>>>>>>> bf3236f (refactor(quiz): route the redesigned quiz pages and retire the per-question form)
 			query: { quiz: String(to.params.quizID) },
 		}),
 	},

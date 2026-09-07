@@ -19,6 +19,7 @@
 			{{ __('{0} Quizzes').format(totalCount || 0) }}
 		</template>
 
+<<<<<<< HEAD
 		<template v-if="emptyState" #empty-actions>
 			<EmptyStateActions
 				list="quizzes"
@@ -39,6 +40,15 @@
 				:label="__('Questions')"
 				icon="lucide-circle-help"
 			/>
+=======
+		<template #actions>
+			<router-link :to="{ name: 'QuizSubmissions' }">
+				<HeaderButton :label="__('Submissions')" icon="lucide-file-check" />
+			</router-link>
+			<router-link :to="{ name: 'Questions' }">
+				<HeaderButton :label="__('Questions')" icon="lucide-circle-help" />
+			</router-link>
+>>>>>>> bf3236f (refactor(quiz): route the redesigned quiz pages and retire the per-question form)
 			<Button v-if="!readOnlyMode" variant="solid" @click="createQuiz">
 				<template #prefix>
 					<span class="lucide-plus size-4" />
@@ -82,7 +92,10 @@
 <script setup>
 import { Button, Checkbox, createListResource, usePageMeta } from 'frappe-ui'
 import ListPage from '@/components/Layouts/ListPage.vue'
+<<<<<<< HEAD
 import EmptyStateActions from '@/components/EmptyStateActions.vue'
+=======
+>>>>>>> bf3236f (refactor(quiz): route the redesigned quiz pages and retire the per-question form)
 import HeaderButton from '@/components/HeaderButton.vue'
 import { useRouter } from 'vue-router'
 import { computed, inject, onMounted, ref, watch } from 'vue'
