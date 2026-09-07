@@ -145,6 +145,14 @@ const DECLARATIONS = [
 						default: 'Enrolled',
 					},
 					{
+						fieldname: 'payment_filter',
+						fieldtype: 'Select',
+						label: 'Payment',
+						options: ['Any', 'Paid', 'Free'],
+						default: 'Any',
+						depends_on: { field: 'student_scope', value_in: ['Enrolled'] },
+					},
+					{
 						fieldname: 'enrolled_in',
 						fieldtype: 'Select',
 						label: 'Enrolled in',
@@ -897,6 +905,14 @@ describe('a condition row', () => {
 		inline(w).map((cell) => cell.get('span').text())
 	const blocks = (w: VueWrapper) => w.findAll('[data-testid="block-field"]')
 	const selects = (w: VueWrapper) => w.findAllComponents({ name: 'Select' })
+	// By the word that names the cell, not by position: a cascade grows a level
+	// and every index below it moves. Adding `payment_filter` to the fixture
+	// silently retargeted an index-1 edit from `enrolled_in` onto it.
+	const selectNamed = (w: VueWrapper, label: string) => {
+		const cell = inline(w).find((c) => c.get('span').text() === label)
+		if (!cell) throw new Error(`no condition cell named ${label}`)
+		return cell.getComponent({ name: 'Select' })
+	}
 	const emittedRule = (w: VueWrapper) =>
 		w.emitted('update')![0][0] as RavenMemberRule
 
@@ -913,7 +929,7 @@ describe('a condition row', () => {
 			courses: ['C1'],
 		})
 
-		await selects(w)[1].vm.$emit('update:modelValue', 'Batches')
+		await selectNamed(w, 'Enrolled in').vm.$emit('update:modelValue', 'Batches')
 
 		expect(emittedRule(w).status).toBe('Paused')
 		expect(emittedRule(w).enrolled_in).toBe('Batches')
@@ -947,9 +963,43 @@ describe('a condition row', () => {
 			courses: ['C1'],
 		})
 
-		expect(labelled(w)).toEqual(['Students', 'Enrolled in'])
+		expect(labelled(w)).toEqual(['Students', 'Payment', 'Enrolled in'])
 		expect(blocks(w)).toHaveLength(1)
 		expect(w.findComponent({ name: 'MultiLink' }).exists()).toBe(true)
+	})
+
+	it('lays the type picker and the cascade answers out on equal tracks', () => {
+		// The type picker used to take flex-1 and grow to whatever was left, which
+		// pushed the first cascade answer onto a line of its own: the two controls
+		// the user reads as a pair were the two that looked least alike. Equal grid
+		// tracks, so no cell's width depends on the label inside it.
+		const cells = (w: VueWrapper) => w.get('[data-testid="condition-cells"]')
+
+		expect(cells(row({})).classes()).toContain('grid')
+		expect(
+			cells(row({}))
+				.classes()
+				.some((c) => c.startsWith('flex'))
+		).toBe(false)
+	})
+
+	it('pairs the cascade up once it outgrows one line', () => {
+		// Two tracks, or three where the whole cascade fits on one. Four cells is
+		// the shape that has to read as two rows of two rather than three and an
+		// orphan, which is the case a plain flex-wrap gets wrong.
+		const columns = (rule: Partial<RavenMemberRule>) =>
+			row(rule).get('[data-testid="condition-cells"]').classes()
+
+		// [type][scope]: the cascade stops at the first answer.
+		expect(columns({})).toContain('sm:grid-cols-2')
+
+		// [type][kind][roles]: three, so one line.
+		expect(
+			columns({ rule_type: 'Staff', staff_kind: 'Platform role' })
+		).toContain('sm:grid-cols-3')
+
+		// [type][scope] / [payment][enrolled in]: four, so two rows of two.
+		expect(columns({ student_scope: 'Enrolled' })).toContain('sm:grid-cols-2')
 	})
 
 	it('names every control against the row rather than with a shared word', () => {
@@ -1039,7 +1089,7 @@ describe('a condition row', () => {
 		expect(labelled(missing)).toEqual(['Students'])
 
 		const filled = row({ student_scope: 'Enrolled' })
-		expect(inline(filled)).toHaveLength(2)
+		expect(inline(filled)).toHaveLength(3)
 	})
 
 	it('offers exactly the declared options for a static multiselect', async () => {

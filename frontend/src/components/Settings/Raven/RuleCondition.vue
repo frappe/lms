@@ -10,10 +10,11 @@
 		<span :id="typeWordId" class="sr-only">{{ __('Condition') }}</span>
 
 		<div
-			class="flex w-full flex-wrap items-start gap-2"
+			class="grid w-full grid-cols-1 items-start gap-2"
+			:class="cellCount === 3 ? 'sm:grid-cols-3' : 'sm:grid-cols-2'"
 			data-testid="condition-cells"
 		>
-			<div class="min-w-0 flex-1 basis-40">
+			<div class="min-w-0">
 				<div
 					v-if="!frozen"
 					role="group"
@@ -35,7 +36,7 @@
 			<div
 				v-for="field in slots.inline"
 				:key="field.fieldname"
-				class="w-[9.5rem] min-w-0 shrink-0"
+				class="min-w-0"
 				data-testid="inline-field"
 			>
 				<span :id="wordId(field)" class="sr-only">{{ labelOf(field) }}</span>
@@ -89,9 +90,29 @@
 // rule model is {provider, rule_type, config:{...}} rather than a
 // [field, operator, value] triple, so providerSchema.conditionSlots bands the
 // declared fields instead of mapping them onto three fixed cells: the rule-type
-// picker, then every Select on the same wrapping line, then every multiselect on
-// a row of its own. A multiselect's chips grow with the selection, and a control
-// that reflows as you pick is unreadable beside fixed-width ones.
+// picker and every fixed-width control share a grid, and every doctype-backed
+// multiselect takes a row of its own. Those chips grow with the site's courses
+// and batches, and a control that wide is unreadable in a cell sized for a
+// Select.
+//
+// The grid is two equal tracks, or three when the whole cascade fits on one
+// line. That is `cellCount` below, and it is what makes the five shapes this
+// provider declares read as pairs rather than as a ragged wrap:
+//
+//   Student · All            [type][scope]
+//   Student · Enrolled       [type][scope] / [payment][enrolled in] / batches / courses
+//   Staff · All              [type][kind]
+//   Staff · Platform role    [type][kind][roles]
+//   Staff · Assigned on      [type][kind] / [as][on] / batches / courses
+//
+// Equal tracks rather than a wrapping flex line with widths of their own: the
+// type picker used to take `flex-1` and grow to whatever was left, which pushed
+// the first cascade answer onto a line of its own and made the two controls the
+// user reads as a pair the two that looked least alike.
+//
+// One column below `sm`. A grid does not wrap the way the flex line it replaced
+// did, so without this the pairing would hold at 360px too and put two controls
+// in about 150px each.
 //
 // What this row deliberately does NOT render: the leading and/or cell and the
 // overflow menu. The component owns both, so a second copy of either would
@@ -228,6 +249,11 @@ const typeOptions = computed<Option[]>(() =>
 const slots = computed(() =>
 	conditionSlots(ruleTypes.value, props.rule.rule_type, props.rule)
 )
+
+// The type picker plus the cascade answers beside it. Three of them fit a line;
+// more than that pairs up, so a four-cell cascade reads as two rows of two
+// rather than three and an orphan.
+const cellCount = computed<number>(() => slots.value.inline.length + 1)
 
 function labelOf(field: RuleField): string {
 	return __(field.label ?? field.fieldname)
