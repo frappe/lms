@@ -37,6 +37,11 @@ type Doc = Record<string, any>
 const server: { doc: Doc } = { doc: {} }
 const clone = (value: Doc) => JSON.parse(JSON.stringify(value))
 
+<<<<<<< HEAD
+=======
+const META_URL = 'lms.lms.doctype.lms_quiz.lms_quiz.get_question_meta'
+
+>>>>>>> ac09ab4 (feat(quiz): rebuild the quiz form around autosave and a local question set)
 const {
 	createResourceMock,
 	createDocumentResourceMock,
@@ -145,11 +150,14 @@ createDocumentResourceMock.mockImplementation((options: any) => {
 	return resource
 })
 
+<<<<<<< HEAD
 // QuizForm.vue's `useTelemetry()` needs a stub here.
 vi.mock('@framework/ui/telemetry/index', () => ({
 	useTelemetry: () => ({ capture: vi.fn() }),
 }))
 
+=======
+>>>>>>> ac09ab4 (feat(quiz): rebuild the quiz form around autosave and a local question set)
 vi.mock('frappe-ui', () => ({
 	createResource: createResourceMock,
 	createDocumentResource: createDocumentResourceMock,
@@ -166,10 +174,18 @@ vi.mock('frappe-ui', () => ({
 			title: String,
 			description: String,
 			theme: String,
+<<<<<<< HEAD
 			dismissible: { type: Boolean, default: false },
 		},
 		emits: ['dismiss'],
 		template: `<div role="alert" :data-theme="theme"><span>{{ title }}</span><slot name="description">{{ description }}</slot><button v-if="dismissible" type="button" aria-label="Dismiss" @click="$emit('dismiss')" /></div>`,
+=======
+			variant: String,
+			dismissible: { type: Boolean, default: true },
+		},
+		emits: ['dismiss'],
+		template: `<div role="alert" :data-theme="theme"><span>{{ title }}</span><slot name="description">{{ description }}</slot><button v-if="dismissible" type="button" aria-label="Dismiss" @click="$emit('dismiss')" /><slot name="footer" /></div>`,
+>>>>>>> ac09ab4 (feat(quiz): rebuild the quiz form around autosave and a local question set)
 	},
 	Tooltip: { template: `<span><slot /></span>` },
 	Button: {
@@ -221,7 +237,11 @@ vi.mock('frappe-ui', () => ({
 	},
 	// Menu options are rendered as real buttons so the route pushes behind Preview/Submissions/Delete are reachable, and `theme` is exposed so the destructive row can be asserted rather than assumed.
 	Dropdown: {
+<<<<<<< HEAD
 		props: ['options'],
+=======
+		props: ['options', 'placement'],
+>>>>>>> ac09ab4 (feat(quiz): rebuild the quiz form around autosave and a local question set)
 		template: `<div class="dropdown">
       <slot :open="false" />
       <button
@@ -377,12 +397,15 @@ vi.mock('@/components/Quiz/QuestionBankPanel.vue', () => ({
 vi.mock('@/stores/session', () => ({
 	sessionStore: () => ({ brand: { favicon: '' } }),
 }))
+<<<<<<< HEAD
 // The server's write answer for the quiz, read at mount.
 const authorship = vi.hoisted(() => ({ canWrite: true as boolean | null }))
 vi.mock('@/composables/useCanWrite', async () => {
 	const { ref } = await import('vue')
 	return { useCanWrite: () => ref(authorship.canWrite) }
 })
+=======
+>>>>>>> ac09ab4 (feat(quiz): rebuild the quiz form around autosave and a local question set)
 vi.mock('@/composables/useKeyboardShortcuts', () => ({
 	useKeyboardShortcuts: vi.fn(),
 	saveShortcut: (action: () => void) => ({ keys: 's', action }),
@@ -402,6 +425,17 @@ const CHOICE_ROW = {
 	marks: 2,
 	question_detail: '<p>2+2?</p>',
 }
+<<<<<<< HEAD
+=======
+const OPEN_ENDED_ROW = {
+	idx: 2,
+	name: 'qq2',
+	question: 'Q2',
+	type: 'Open Ended',
+	marks: 3,
+	question_detail: '<p>Discuss.</p>',
+}
+>>>>>>> ac09ab4 (feat(quiz): rebuild the quiz form around autosave and a local question set)
 
 // What QuestionBankPanel emits for one picked question, and what QuestionCard emits for a copy it has just inserted into the bank.
 const BANK_PICK = {
@@ -411,6 +445,16 @@ const BANK_PICK = {
 	multiple: 0,
 	question_detail: '<p>From the bank</p>',
 }
+<<<<<<< HEAD
+=======
+const COPY_OF_Q1 = {
+	question: 'NEW-1',
+	marks: 2,
+	type: 'Choices',
+	multiple: 0,
+	question_detail: '<p>2+2?</p>',
+}
+>>>>>>> ac09ab4 (feat(quiz): rebuild the quiz form around autosave and a local question set)
 
 const sumMarks = (questions: Doc[]) =>
 	questions.reduce((total, row) => total + (row.marks || 0), 0)
@@ -482,12 +526,63 @@ const mountForm = async (
 	return { wrapper: host.findComponent(QuizForm) as any, router, host }
 }
 
+<<<<<<< HEAD
 const doc = (wrapper: any) => wrapper.vm.quizDetails.doc as Doc
 
 const cardComponents = (wrapper: any) =>
 	wrapper.findAllComponents({ name: 'QuestionCard' })
 const rowComponent = (wrapper: any, name: string) =>
 	cardComponents(wrapper).find((c: any) => c.props('row').name === name)
+=======
+// The Create button's destination: a form with no quiz behind it at all.
+const mountNewQuiz = async () => {
+	const router = makeRouter()
+	await router.push({ name: 'NewQuiz' })
+	await router.isReady()
+	const host = mount(
+		{ template: '<router-view />' },
+		{
+			global: {
+				plugins: [router],
+				provide: { $user: { data: { name: 'mod@x.com', is_moderator: true } } },
+				config: { globalProperties: { $dialog } },
+				mocks: { __: (text: string) => text },
+			},
+		}
+	)
+	await flushPromises()
+	return { wrapper: host.findComponent(QuizForm) as any, router, host }
+}
+
+const doc = (wrapper: any) => wrapper.vm.quizDetails.doc as Doc
+const cards = (wrapper: any) => wrapper.findAll('.question-card')
+const cardFor = (wrapper: any, name: string) =>
+	cards(wrapper).find((c: any) => c.attributes('data-name') === name)
+const draggable = (wrapper: any) => wrapper.findComponent({ name: 'Draggable' })
+
+// The draft lives in its own ref, so it is read off the component rather than hunted for in doc.questions, which is the whole point of the refactor.
+const draftRow = (wrapper: any) => wrapper.vm.draft as Doc | null
+const draftCard = (wrapper: any) =>
+	wrapper.find('[data-testid="draft-card"] .question-card')
+const cardComponents = (wrapper: any) =>
+	wrapper.findAllComponents({ name: 'QuestionCard' })
+const draftComponent = (wrapper: any) =>
+	cardComponents(wrapper).find((c: any) => c.props('draft'))
+const rowComponent = (wrapper: any, name: string) =>
+	cardComponents(wrapper).find((c: any) => c.props('row').name === name)
+const listRowNames = (wrapper: any) =>
+	doc(wrapper).questions.map((row: Doc) => row.name)
+
+const emitFromRow = async (
+	wrapper: any,
+	name: string,
+	event: string,
+	payload?: unknown
+) => {
+	rowComponent(wrapper, name)!.vm.$emit(event, payload)
+	await flushPromises()
+}
+>>>>>>> ac09ab4 (feat(quiz): rebuild the quiz form around autosave and a local question set)
 
 // The toolbar row above the list.
 const toolbar = (wrapper: any) => {
@@ -495,6 +590,53 @@ const toolbar = (wrapper: any) => {
 	expect(rows).toHaveLength(1)
 	return rows[0]
 }
+<<<<<<< HEAD
+=======
+const toolbarButton = (wrapper: any, label: string) =>
+	toolbar(wrapper)
+		.findAll('button')
+		.find((button: any) => button.text() === label)
+const toolbarLabels = (wrapper: any) =>
+	toolbar(wrapper)
+		.findAll('button')
+		.map((button: any) => button.text())
+
+const addDraft = async (wrapper: any) => {
+	await toolbarButton(wrapper, 'New question')!.trigger('click')
+	await flushPromises()
+}
+
+// Types into the draft the way the real card does: it writes onto the row object it was handed.
+const typeIntoDraft = async (wrapper: any) => {
+	await draftCard(wrapper)
+		.find('[data-testid="type-into-card"]')
+		.trigger('click')
+	await flushPromises()
+}
+
+const openBank = async (wrapper: any) => {
+	await toolbarButton(wrapper, 'Question bank')!.trigger('click')
+	await flushPromises()
+}
+const bankPanel = (wrapper: any) =>
+	wrapper.findComponent({ name: 'QuestionBankPanel' })
+
+// Ticking a checkbox grows the set the panel's own add reads.
+const selectInBank = async (wrapper: any, count: number) => {
+	bankSelection.count = count
+	bankPanel(wrapper).vm.$emit('selection-change', count)
+	await flushPromises()
+}
+
+// The whole flow, through the toolbar, because that is the only way in: open, tick, press Add questions.
+const addFromBank = async (wrapper: any, picks: Doc[] = [BANK_PICK]) => {
+	await openBank(wrapper)
+	bankPicks.value = picks
+	await selectInBank(wrapper, picks.length)
+	await toolbarButton(wrapper, 'Add questions')!.trigger('click')
+	await flushPromises()
+}
+>>>>>>> ac09ab4 (feat(quiz): rebuild the quiz form around autosave and a local question set)
 
 // Preview / Submissions / Delete are plain header buttons now, there is no overflow menu, and no Save button at all: autosave is the save mechanism and Cmd/Ctrl+S is the only way to force a flush.
 const headerButton = (wrapper: any, label: string) =>
@@ -508,6 +650,12 @@ const pressSave = async () => {
 	await flushPromises()
 }
 
+<<<<<<< HEAD
+=======
+const labelledField = (wrapper: any, label: string) =>
+	wrapper.findAll('label').find((l: any) => l.text().startsWith(label))
+
+>>>>>>> ac09ab4 (feat(quiz): rebuild the quiz form around autosave and a local question set)
 const typeTitle = async (wrapper: any, value: string) => {
 	const title = wrapper
 		.findAll('label')
@@ -518,8 +666,23 @@ const typeTitle = async (wrapper: any, value: string) => {
 // Save is disabled while the doc is pristine, and a disabled button swallows the click, so a save assertion has to dirty the doc first.
 const makeDirty = (wrapper: any) => typeTitle(wrapper, 'Edited title')
 
+<<<<<<< HEAD
 // useScreenSize() reads window.innerWidth at setup, so a width has to be set before
 // the mount, not after it.
+=======
+// Nothing but the mount fetch and the usage lookup may have gone out.
+const expectNothingWritten = () => {
+	expect(calls.inserts).toEqual([])
+	expect(calls.deletes).toEqual([])
+	expect(calls.urls.filter((url) => url !== META_URL)).toEqual([])
+	expect(setValueSubmit).not.toHaveBeenCalled()
+	expect(reloadSpy).toHaveBeenCalledTimes(1)
+}
+
+// useScreenSize() reads window.innerWidth at setup, so a width has to be set before
+// the mount, not after it.
+const PHONE = 375
+>>>>>>> ac09ab4 (feat(quiz): rebuild the quiz form around autosave and a local question set)
 const DESKTOP = 1024
 const setViewport = (width: number): void => {
 	Object.defineProperty(window, 'innerWidth', {
@@ -546,13 +709,17 @@ beforeEach(() => {
 	// The notice's dismissal lives here, and it outlives a mount by design.
 	sessionStorage.clear()
 	viewportWidth = 1280
+<<<<<<< HEAD
 	authorship.canWrite = true
+=======
+>>>>>>> ac09ab4 (feat(quiz): rebuild the quiz form around autosave and a local question set)
 	$dialog.mockReset()
 	vi.mocked(toast.success).mockClear()
 	vi.mocked(toast.error).mockClear()
 	vi.mocked(toast.dismiss).mockClear()
 })
 
+<<<<<<< HEAD
 describe('QuizForm: page heading', () => {
 	// Guards: QuizForm had no h1. Introduced in #2662; test added with the a11y
 	// audit remediation.
@@ -641,6 +808,8 @@ describe('QuizForm: copy link', () => {
 	})
 })
 
+=======
+>>>>>>> ac09ab4 (feat(quiz): rebuild the quiz form around autosave and a local question set)
 // frappe-ui's setValue.onError restores the doc by REPLACING the object
 // (documentResource.js:58), tripping the deep watcher, so the failed tick
 // re-arms every 1.2s. A mock leaving doc alone would pass with no guard at all.
@@ -672,6 +841,7 @@ describe('QuizForm: autosave', () => {
 	})
 })
 
+<<<<<<< HEAD
 // Placing a quiz made its edit screen writable since #2826.
 // Added for audit finding #3 on branch fix/assessment-placement-use-only.
 describe('QuizForm: authorship', () => {
@@ -710,6 +880,8 @@ describe('QuizForm: authorship', () => {
 	})
 })
 
+=======
+>>>>>>> ac09ab4 (feat(quiz): rebuild the quiz form around autosave and a local question set)
 // The redirects run against the real route table, not a hand-made one: the whole
 // point is that vue-router scores these the way routes.js declares them. Components
 // are stubbed because a push resolves the target's lazy import, which would drag
@@ -746,6 +918,7 @@ describe('legacy quiz URLs', () => {
 		expect(router.currentRoute.value.fullPath).toBe(to)
 	})
 
+<<<<<<< HEAD
 	it('carries the quiz into the filter, not into a param the list lacks', async () => {
 		const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
 		const router = await realRouter()
@@ -754,6 +927,8 @@ describe('legacy quiz URLs', () => {
 		expect(warnings.filter((w) => w.includes('quizID'))).toEqual([])
 	})
 
+=======
+>>>>>>> ac09ab4 (feat(quiz): rebuild the quiz form around autosave and a local question set)
 	// The redirect is a bare `:quizID`, so it sits alongside the static siblings it
 	// must never swallow. A quiz whose docname is `new` stays unreachable, which is
 	// the trade routes.js already documents.

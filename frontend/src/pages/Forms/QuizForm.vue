@@ -2,15 +2,20 @@
 	<PageHeader :breadcrumbs="breadcrumbs" :loading="quizDetails.loading">
 		<template #actions>
 			<template v-if="!readOnlyMode">
+<<<<<<< HEAD
 				<Badge
 					v-if="doc?.name && !locked"
 					:theme="hasUnsavedWork ? 'amber' : 'green'"
 				>
+=======
+				<Badge v-if="doc?.name" :theme="hasUnsavedWork ? 'amber' : 'green'">
+>>>>>>> ac09ab4 (feat(quiz): rebuild the quiz form around autosave and a local question set)
 					{{ hasUnsavedWork ? __('Not saved') : __('Saved') }}
 				</Badge>
 				<template v-if="doc?.name">
 					<HeaderButton
 						variant="subtle"
+<<<<<<< HEAD
 						icon="lucide-link"
 						:label="__('Copy link')"
 						@click="copyQuizLink"
@@ -25,12 +30,25 @@
 					/>
 					<HeaderButton
 						variant="subtle"
+=======
+						icon="lucide-eye"
+						:label="previewLabel"
+						:aria-pressed="previewing"
+						:disabled="!previewing && (!!draft || dirtyCardNames.size > 0)"
+						@click="togglePreview"
+					/>
+					<HeaderButton
+						variant="subtle"
+>>>>>>> ac09ab4 (feat(quiz): rebuild the quiz form around autosave and a local question set)
 						icon="lucide-clipboard-list"
 						:label="__('Submissions')"
 						@click="goToSubmissions"
 					/>
 					<HeaderButton
+<<<<<<< HEAD
 						v-if="!locked"
+=======
+>>>>>>> ac09ab4 (feat(quiz): rebuild the quiz form around autosave and a local question set)
 						variant="subtle"
 						theme="red"
 						icon="lucide-trash-2"
@@ -53,6 +71,7 @@
 		class="grid flex-1 grid-cols-1 lg:min-h-0 lg:grid-cols-[7fr,3fr]"
 	>
 		<div class="flex min-h-0 flex-col overflow-y-auto px-5 py-5">
+<<<<<<< HEAD
 			<div v-if="previewing" data-testid="quiz-preview" class="w-full">
 				<Quiz :quizName="quizDetails.doc.name" preview />
 			</div>
@@ -69,6 +88,21 @@
 					class="mb-5 flex items-center gap-3"
 					data-testid="question-toolbar"
 				>
+=======
+			<div
+				v-if="previewing"
+				data-testid="quiz-preview"
+				class="mx-auto w-full max-w-2xl"
+			>
+				<Quiz :quizName="quizDetails.doc.name" preview />
+			</div>
+			<template v-else>
+				<div
+					v-if="!readOnlyMode"
+					class="mb-5 flex items-center gap-3"
+					data-testid="question-toolbar"
+				>
+>>>>>>> ac09ab4 (feat(quiz): rebuild the quiz form around autosave and a local question set)
 					<FormControl
 						class="flex-1"
 						type="text"
@@ -120,8 +154,12 @@
 				<Alert
 					v-else-if="showOpenEndedNotice"
 					class="mb-5"
+<<<<<<< HEAD
 					theme="amber"
 					dismissible
+=======
+					theme="yellow"
+>>>>>>> ac09ab4 (feat(quiz): rebuild the quiz form around autosave and a local question set)
 					:title="__('Manual grading')"
 					@dismiss="dismissOpenEndedNotice"
 				>
@@ -162,7 +200,11 @@
 						)
 					"
 				>
+<<<<<<< HEAD
 					<Button v-if="!locked" variant="subtle" @click="addBlankQuestion">
+=======
+					<Button variant="subtle" @click="addBlankQuestion">
+>>>>>>> ac09ab4 (feat(quiz): rebuild the quiz form around autosave and a local question set)
 						<template #prefix><span class="lucide-plus size-4" /></template>
 						{{ __('New question') }}
 					</Button>
@@ -186,7 +228,11 @@
 									:reorderDisabled="reorderDisabled"
 									:usageCount="questionMeta[element.question]?.quizzes || 1"
 									:meta="questionMeta[element.question] || null"
+<<<<<<< HEAD
 									:readOnly="locked"
+=======
+									:readOnly="readOnlyMode"
+>>>>>>> ac09ab4 (feat(quiz): rebuild the quiz form around autosave and a local question set)
 									:allowedUiTypes="allowedUiTypesFor(typeRows, element.name)"
 									@edit="openCard(element)"
 									@done="closeCard(element.name)"
@@ -231,12 +277,16 @@
 				@selection-change="bankSelectionCount = $event"
 				@close="closeBank"
 			/>
+<<<<<<< HEAD
 			<fieldset
 				v-else
 				:disabled="locked"
 				data-testid="quiz-details-fields"
 				class="m-0 min-w-0 space-y-8 border-0 p-5"
 			>
+=======
+			<div v-else class="space-y-8 p-5">
+>>>>>>> ac09ab4 (feat(quiz): rebuild the quiz form around autosave and a local question set)
 				<div class="space-y-5">
 					<h2 class="text-lg font-semibold text-ink-gray-9">
 						{{ __('Details') }}
@@ -346,6 +396,7 @@
 						variant="outline"
 						:required="true"
 					/>
+<<<<<<< HEAD
 					<BooleanSwitch
 						v-model="doc.enable_scheduling"
 						size="sm"
@@ -380,6 +431,10 @@
 					/>
 				</div>
 			</fieldset>
+=======
+				</div>
+			</div>
+>>>>>>> ac09ab4 (feat(quiz): rebuild the quiz form around autosave and a local question set)
 		</div>
 	</div>
 </template>
@@ -399,7 +454,10 @@ import BooleanSwitch from '@/components/Controls/BooleanSwitch.vue'
 import HeaderButton from '@/components/HeaderButton.vue'
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 import PageHeader from '@/components/Layouts/PageHeader.vue'
+<<<<<<< HEAD
 import { toDatetimeLocal, fromDatetimeLocal } from '@/utils/schedule'
+=======
+>>>>>>> ac09ab4 (feat(quiz): rebuild the quiz form around autosave and a local question set)
 import Draggable from 'vuedraggable'
 import QuestionCard from '@/components/Quiz/QuestionCard.vue'
 import QuestionBankPanel from '@/components/Quiz/QuestionBankPanel.vue'
@@ -431,9 +489,14 @@ import { useDebounceFn } from '@vueuse/core'
 
 import { onBeforeRouteLeave, useRouter } from 'vue-router'
 import { sanitizeOnWrite } from '@/utils/sanitizeOnWrite'
+<<<<<<< HEAD
 import { getLmsRoute } from '@/utils/basePath'
 import { resourceErrorMessage, submitResource } from '@/utils/resource'
 import { useCanWrite } from '@/composables/useCanWrite'
+=======
+import { useTelemetry } from 'frappe-ui/frappe'
+import { resourceErrorMessage, submitResource } from '@/utils/resource'
+>>>>>>> ac09ab4 (feat(quiz): rebuild the quiz form around autosave and a local question set)
 
 const { brand } = sessionStore()
 const rightPanel = ref('settings') // 'settings' | 'bank'
@@ -482,6 +545,7 @@ const questionMeta = ref({})
 const user = inject('$user')
 const router = useRouter()
 const readOnlyMode = window.read_only_mode
+const { capture } = useTelemetry()
 const { $dialog } = getCurrentInstance().appContext.config.globalProperties
 
 const deleteQuiz = () => {
@@ -522,11 +586,14 @@ const props = defineProps({
 // A quiz takes its docname from its title, so nothing is written until the author
 // has given it one. Until then the fields edit this object and no doc exists.
 const isNew = computed(() => !props.quizID)
+<<<<<<< HEAD
 
 // Placing a quiz in a lesson grants use only, so a non-author opens it read-only.
 const canWrite = useCanWrite('LMS Quiz', () => props.quizID)
 const locked = computed(() => readOnlyMode || canWrite.value !== true)
 const notAuthor = computed(() => !readOnlyMode && canWrite.value === false)
+=======
+>>>>>>> ac09ab4 (feat(quiz): rebuild the quiz form around autosave and a local question set)
 const newQuiz = reactive({ title: '', passing_percentage: 100 })
 const doc = computed(() => (isNew.value ? newQuiz : quizDetails.value.doc))
 
@@ -546,7 +613,11 @@ const savedQuestions = () =>
 // setValue replaces doc wholesale and unmounts every open editor, so a save waits for them.
 const canSave = computed(
 	() =>
+<<<<<<< HEAD
 		!locked.value &&
+=======
+		!readOnlyMode &&
+>>>>>>> ac09ab4 (feat(quiz): rebuild the quiz form around autosave and a local question set)
 		quizDetails.value.isDirty &&
 		!draft.value &&
 		editingNames.size === 0
@@ -679,6 +750,7 @@ const togglePreview = async () => {
 	previewing.value = true
 }
 
+<<<<<<< HEAD
 // The learner-facing page, the link an author shares.
 const copyQuizLink = async () => {
 	const link = `${window.location.origin}${getLmsRoute(
@@ -711,6 +783,8 @@ const copyText = async (text) => {
 	if (!copied) throw new Error('copy failed')
 }
 
+=======
+>>>>>>> ac09ab4 (feat(quiz): rebuild the quiz form around autosave and a local question set)
 // The cross-quiz list with this quiz's filter applied, not the per-quiz page: the
 // filters are right there, so the author can widen the view without going back.
 const goToSubmissions = () =>
@@ -912,6 +986,10 @@ const createIfNamed = async () => {
 			url: 'frappe.client.insert',
 			auto: false,
 		}).submit({ doc: { doctype: 'LMS Quiz', ...newQuiz } })
+<<<<<<< HEAD
+=======
+		capture('quiz_created')
+>>>>>>> ac09ab4 (feat(quiz): rebuild the quiz form around autosave and a local question set)
 		// The page is not remounted by this: the quizID watch above picks the quiz up.
 		router.replace({ name: 'QuizForm', params: { quizID: created.name } })
 	} catch (error) {
@@ -1009,9 +1087,15 @@ const submitQuiz = ({ notify = true } = {}) => {
 				// The server message is the actionable half, so the warning wraps around it.
 				// It stays up until dismissed, because nobody is watching an autosave fail.
 				toast.error(
+<<<<<<< HEAD
 					__('{0} Your changes are not saved.').format(
 						err.messages?.[0] || err
 					),
+=======
+					__(
+						'{0} Your changes are not saved. Do not close this tab until they are.'
+					).format(err.messages?.[0] || err),
+>>>>>>> ac09ab4 (feat(quiz): rebuild the quiz form around autosave and a local question set)
 					{ id: SAVE_FAILED_TOAST, duration: Infinity }
 				)
 			},
@@ -1075,11 +1159,14 @@ const calculateTotalMarks = () => {
 	const counted = limit ? rows.slice(0, limit) : rows
 	return counted.reduce((total, row) => total + (Number(row.marks) || 0), 0)
 }
+<<<<<<< HEAD
 
 // A new quiz's title changes on every keystroke, so its heading stays fixed.
 const pageTitle = computed(() =>
 	isNew.value ? __('New Quiz') : doc.value?.title || __('Quiz')
 )
+=======
+>>>>>>> ac09ab4 (feat(quiz): rebuild the quiz form around autosave and a local question set)
 
 const breadcrumbs = computed(() => {
 	const crumbs = [
