@@ -13,7 +13,10 @@
   "type",
   "multiple",
   "marks",
+<<<<<<< HEAD
   "authors",
+=======
+>>>>>>> 4a599e2 (feat(quiz): question bank and usage endpoints, with marks on the question)
   "section_break_ytxi",
   "option_1",
   "is_correct_1",
