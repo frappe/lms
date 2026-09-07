@@ -192,8 +192,18 @@ export function isForeignRule(rule: RavenMemberRule): boolean {
 	return !!rule.provider && rule.provider !== LMS_PROVIDER
 }
 
-/** Fieldtypes whose control gets a row to itself. */
-const BLOCK_FIELDTYPES = ['MultiSelect', 'MultiSelectStatic']
+/**
+ * Fieldtypes whose control gets a row to itself: the doctype-backed multiselect
+ * only. Its candidates are the site's courses and batches, so its chips grow
+ * without a bound and it has to be able to use the width.
+ *
+ * `MultiSelectStatic` is deliberately not here. It holds at most the three
+ * declared platform roles, so it fits a cell, and the row lays its cells out on
+ * a grid whose tracks are fixed fractions: a control growing inside one gets
+ * taller rather than pushing its neighbours onto the next line, which is what
+ * kept it out of this band while the row was a wrapping flex line.
+ */
+const BLOCK_FIELDTYPES = ['MultiSelect']
 
 /**
  * A rule type's visible fields, split into the two bands a condition row draws.
@@ -201,11 +211,16 @@ const BLOCK_FIELDTYPES = ['MultiSelect', 'MultiSelectStatic']
  * selects as it has levels, and the third onwards read as leftovers under the row.
  */
 export interface ConditionSlots {
-	/** Selects, on one wrapping line: in a cascade each narrows the next. */
+	/**
+	 * The cells that share the row's grid with the type picker: every control
+	 * whose width does not depend on what is in it. In a cascade each narrows
+	 * the next.
+	 */
 	inline: RuleField[]
 	/**
-	 * Multiselects, one row each. Their chips grow with the selection, so a
-	 * control that reflows as you pick is unreadable beside fixed-width ones.
+	 * Doctype-backed multiselects, one row each. Their chips grow with the
+	 * selection, so a control that reflows as you pick is unreadable in a cell
+	 * sized for a Select.
 	 */
 	blocks: RuleField[]
 }

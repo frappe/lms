@@ -584,13 +584,28 @@ describe('the bands a condition row draws', () => {
 		})
 	})
 
-	it('keeps a static multiselect out of the inline band too', () => {
-		// platform_roles is a multiselect by value even though its options are
-		// declared like a Select's. Banding on "is it a Select" would put its chips,
-		// which reflow as you pick, back beside the fixed-width controls.
+	it('keeps a static multiselect in the inline band', () => {
+		// platform_roles holds at most the three declared platform roles, so it fits
+		// a grid cell. Only the doctype-backed multiselect, whose candidates are the
+		// site's own courses and batches, takes a row.
 		expect(
 			bands('Staff', ruleWith('Staff', 'staff_kind=Platform role'))
-		).toEqual({ inline: 'staff_kind', blocks: 'platform_roles' })
+		).toEqual({ inline: 'staff_kind platform_roles', blocks: '' })
+	})
+
+	it('leaves the whole Staff cascade of scopes on the grid', () => {
+		// The pair the row draws as one line of three: type, kind, roles. Pinned
+		// because it is the only shape with an odd number of grid cells, and the
+		// only reason RuleCondition draws three tracks rather than two.
+		expect(
+			bands(
+				'Staff',
+				ruleWith('Staff', 'staff_kind=Assigned on, assigned_scope=Both')
+			)
+		).toEqual({
+			inline: 'staff_kind assigned_as assigned_scope',
+			blocks: 'staff_scope_batches staff_scope_courses',
+		})
 	})
 
 	it('bands every visible field, dropping none', () => {
