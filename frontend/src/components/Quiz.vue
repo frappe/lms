@@ -309,6 +309,7 @@
 									)
 								}}
 							</span>
+<<<<<<< HEAD
 							<div
 								role="progressbar"
 								class="min-w-0 flex-1"
@@ -320,6 +321,185 @@
 									__('Question {0} of {1}').format(
 										activeQuestion,
 										questions.length
+=======
+						</label>
+						<div
+							v-if="questionDetails.data[`explanation_${index}`]"
+							class="mt-2 break-words text-xs text-ink-gray-7"
+							v-show="showAnswers.length"
+						>
+							{{ questionDetails.data[`explanation_${index}`] }}
+						</div>
+					</div>
+					<div v-else-if="questionDetails.data.type == 'User Input'">
+						<FormControl
+							v-model="possibleAnswer"
+							type="textarea"
+							:disabled="showAnswers.length ? true : false"
+							class="my-2"
+						/>
+						<div v-if="showAnswers.length">
+							<Badge v-if="showAnswers[0]" :label="__('Correct')" theme="green">
+								<template #prefix>
+									<span
+										class="lucide-check-circle w-4 h-4 text-ink-green-5 me-1"
+									/>
+								</template>
+							</Badge>
+							<Badge v-else theme="red" :label="__('Incorrect')">
+								<template #prefix>
+									<span class="lucide-x-circle w-4 h-4 text-ink-red-6 me-1" />
+								</template>
+							</Badge>
+						</div>
+					</div>
+					<div v-else>
+						<RichTextEditor
+							class="mt-4"
+							:content="possibleAnswer"
+							@change="(val) => (possibleAnswer = val)"
+							:editable="true"
+							:fixedMenu="true"
+							editorClass="prose-sm max-w-none border-b border-x border-outline-elevation-2 bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[7rem]"
+						/>
+					</div>
+					<div class="flex items-center mt-8 gap-4">
+						<div class="flex-1">
+							<Checkbox
+								v-if="!quiz.data.show_answers"
+								:label="__('Mark for review')"
+								:model-value="reviewQuestions.includes(activeQuestion) ? 1 : 0"
+								@change="markForReview($event, activeQuestion)"
+							/>
+						</div>
+						<nav
+							v-if="!quiz.data.show_answers"
+							:aria-label="__('Question navigation')"
+							class="flex flex-wrap items-center gap-2"
+						>
+							<Button
+								:label="__('Previous question')"
+								@click="switchQuestion(activeQuestion - 1)"
+								:disabled="activeQuestion == 1"
+								class="rounded-full"
+							>
+								<template #icon>
+									<span class="lucide-chevron-left size-4" />
+								</template>
+							</Button>
+							<template v-for="(item, pidx) in paginationWindow" :key="pidx">
+								<span
+									v-if="item === '...'"
+									aria-hidden="true"
+									class="w-7 text-center text-sm text-ink-gray-5"
+								>
+									{{ item }}
+								</span>
+								<Button
+									v-else
+									:label="__('Question {0}').format(item)"
+									:variant="activeQuestion == item ? 'solid' : 'subtle'"
+									:theme="pageTheme(item)"
+									:aria-current="activeQuestion == item ? 'page' : undefined"
+									class="!w-7 !px-0 rounded-full"
+									:class="activeQuestion == item ? 'font-medium' : ''"
+									@click="switchQuestion(item)"
+								>
+									{{ item }}
+								</Button>
+							</template>
+
+							<Button
+								:label="__('Next question')"
+								@click="switchQuestion(activeQuestion + 1)"
+								:disabled="activeQuestion == questions.length"
+								class="rounded-full"
+							>
+								<template #icon>
+									<span class="lucide-chevron-right size-4" />
+								</template>
+							</Button>
+						</nav>
+						<div class="flex-1 flex justify-end">
+							<Button
+								v-if="
+									quiz.data.show_answers &&
+									!showAnswers.length &&
+									questionDetails.data.type != 'Open Ended'
+								"
+								@click="checkAnswer()"
+							>
+								<span>{{ __('Check') }}</span>
+							</Button>
+							<Button
+								v-else-if="activeQuestion != questions.length"
+								@click="
+									quiz.data.show_answers
+										? nextQuestion()
+										: switchQuestion(activeQuestion + 1)
+								"
+							>
+								<span>{{ __('Next') }}</span>
+							</Button>
+							<Button
+								v-else-if="!preview"
+								variant="solid"
+								@click="handleSubmitClick()"
+							>
+								<span>{{ __('Submit') }}</span>
+							</Button>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- Activity log (shown during quiz, below the question card) -->
+			<div
+				v-if="quiz.data.enable_proctoring && summaryLog.length"
+				class="border rounded-lg overflow-hidden mt-4"
+			>
+				<div
+					class="px-4 py-2.5 border-b flex items-center justify-between bg-surface-gray-1"
+				>
+					<span class="text-xs font-semibold text-ink-gray-8">{{
+						__('Activity')
+					}}</span>
+					<span class="text-xs text-ink-gray-5"
+						>{{ summaryLog.length }}
+						{{ summaryLog.length == 1 ? __('event') : __('events') }}</span
+					>
+				</div>
+				<div class="divide-y max-h-64 overflow-y-auto">
+					<div
+						v-for="(entry, i) in summaryLog"
+						:key="i"
+						class="flex items-center gap-2.5 px-4 py-2.5"
+					>
+						<span
+							class="size-1.5 rounded-full shrink-0"
+							:class="
+								entry.severity === 'violation'
+									? 'bg-ink-red-6'
+									: 'bg-ink-orange-6'
+							"
+						/>
+						<span class="text-sm text-ink-gray-7 flex-1">{{
+							violationEventLabels[entry.eventType] || entry.eventType
+						}}</span>
+						<!-- What the camera saw as the event fired. The stored file is shown
+						     rather than the frame the browser still holds: it is the same record
+						     the instructor reads, and safeUrl drops a data: URI in any case. -->
+						<a
+							v-if="safeUrl(entry.frame)"
+							v-external
+							:href="safeUrl(entry.frame)"
+							class="shrink-0"
+						>
+							<img
+								:src="safeUrl(entry.frame)"
+								:alt="
+									__('Camera at {0}').format(
+										violationEventLabels[entry.eventType] || entry.eventType
+>>>>>>> 117a350 (feat(quiz): an author preview and a real pager on the learner quiz)
 									)
 								"
 							>
@@ -927,6 +1107,7 @@ const violationLog = ref<ViolationEvent[]>([])
 const submissionReason = ref<SubmissionReason | ''>('')
 let submitTimeout: ReturnType<typeof setTimeout> | undefined
 
+<<<<<<< HEAD
 const props = withDefaults(
 	defineProps<{
 		quizName: string
@@ -942,6 +1123,29 @@ const props = withDefaults(
 		backToVideo: () => {},
 	}
 )
+=======
+const props = defineProps({
+	quizName: {
+		type: String,
+		required: true,
+	},
+	// Author-facing preview. The learner view is rendered exactly as it ships, but
+	// nothing may be written: a submission here is a real LMS Quiz Submission, it
+	// notifies, and it spends one of the author's own max_attempts.
+	preview: {
+		type: Boolean,
+		default: false,
+	},
+	inVideo: {
+		type: Boolean,
+		default: false,
+	},
+	backToVideo: {
+		type: Function,
+		default: () => {},
+	},
+})
+>>>>>>> 117a350 (feat(quiz): an author preview and a real pager on the learner quiz)
 
 onMounted(() => {
 	window.addEventListener('pagehide', handlePageHide)
@@ -1018,6 +1222,7 @@ const serialiseViolationLog = (withFrames = true): string =>
 			.map(({ frame, ...event }) => (withFrames ? { ...event, frame } : event))
 	)
 
+<<<<<<< HEAD
 const handlePageHide = (): void => {
 	sendSubmitBeacon('browser_closed')
 }
@@ -1039,6 +1244,11 @@ const sendSubmitBeacon = (reason: SubmissionReason): void => {
 		!quizSubmission.data &&
 		quiz.data
 	) {
+=======
+const handlePageHide = () => {
+	if (props.preview) return
+	if (activeQuestion.value > 0 && !quizSubmission.data) {
+>>>>>>> 117a350 (feat(quiz): an author preview and a real pager on the learner quiz)
 		const params = new URLSearchParams({
 			quiz: quiz.data.name,
 			results: localStorage.getItem(quiz.data.title) || '[]',
@@ -1790,9 +2000,14 @@ const submitQuiz = (reason: SubmissionReason = 'manual'): void => {
 	createSubmission(reason)
 }
 
+<<<<<<< HEAD
 const createSubmission = (reason: SubmissionReason = 'manual'): void => {
 	if (props.preview) return endSubmitting(false)
 	beginSubmitting()
+=======
+const createSubmission = (reason = 'manual') => {
+	if (props.preview) return
+>>>>>>> 117a350 (feat(quiz): an author preview and a real pager on the learner quiz)
 	// Which quiz this submission belongs to. The component is reused across
 	// lessons, so by the time the response lands props.quizName may have moved
 	// on — and markLessonProgress() reads window.location.pathname at that
@@ -1887,8 +2102,43 @@ const recordCurrentAttempt = () => {
 	addToLocalStorage()
 }
 
+<<<<<<< HEAD
 const markForReview = (checked: boolean, questionNumber: number): void => {
 	if (checked) {
+=======
+const paginationWindow = computed(() => {
+	const total = questions.value.length
+	const current = activeQuestion.value
+	const pages = []
+	const size = 5
+
+	let start = Math.floor((current - 1) / size) * size + 1
+	let end = Math.min(start + size - 1, total)
+
+	if (start > 1) {
+		pages.push('...')
+	}
+
+	for (let i = start; i <= end; i++) {
+		pages.push(i)
+	}
+
+	if (end < total) {
+		pages.push('...')
+	}
+
+	return pages
+})
+
+// The current page wins over the attempted tint, so it reads as "here", not "answered".
+const pageTheme = (questionNumber) => {
+	if (activeQuestion.value == questionNumber) return 'gray'
+	return attemptedQuestions.value.includes(questionNumber) ? 'blue' : 'gray'
+}
+
+const markForReview = (event, questionNumber) => {
+	if (event.target.checked) {
+>>>>>>> 117a350 (feat(quiz): an author preview and a real pager on the learner quiz)
 		if (!reviewQuestions.value.includes(questionNumber)) {
 			reviewQuestions.value.push(questionNumber)
 		}
