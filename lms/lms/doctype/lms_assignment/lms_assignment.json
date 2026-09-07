@@ -63,7 +63,8 @@
    "depends_on": "show_answer",
    "fieldname": "answer",
    "fieldtype": "Text Editor",
-   "label": "Answer"
+   "label": "Answer",
+   "permlevel": 1
   },
   {
    "default": "1",
@@ -119,7 +120,7 @@
    "link_fieldname": "assignment"
   }
  ],
- "modified": "2026-02-05 11:37:36.492016",
+ "modified": "2026-09-08 00:00:00.000000",
  "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "LMS Assignment",
@@ -182,6 +183,30 @@
    "report": 1,
    "role": "Batch Evaluator",
    "share": 1,
+   "write": 1
+  },
+  {
+   "permlevel": 1,
+   "read": 1,
+   "role": "System Manager",
+   "write": 1
+  },
+  {
+   "permlevel": 1,
+   "read": 1,
+   "role": "Moderator",
+   "write": 1
+  },
+  {
+   "permlevel": 1,
+   "read": 1,
+   "role": "Course Creator",
+   "write": 1
+  },
+  {
+   "permlevel": 1,
+   "read": 1,
+   "role": "Batch Evaluator",
    "write": 1
   }
  ],
