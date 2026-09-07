@@ -63,7 +63,11 @@
 		<p
 			v-if="correctAnswerInvalid"
 			:id="correctAnswerMessageId"
+<<<<<<< HEAD
 			class="mt-2 flex items-center gap-1.5 text-p-sm text-ink-red-5"
+=======
+			class="mt-2 flex items-center gap-1.5 text-p-sm text-ink-red-6"
+>>>>>>> 71ff6f4 (feat(quiz): the question editor, its card and its dialog)
 		>
 			<span class="lucide-circle-alert size-4 shrink-0" />
 			{{
@@ -159,7 +163,11 @@ import {
 	isChoice,
 } from '@/utils/quizQuestion'
 
+<<<<<<< HEAD
 // Verbatim from frappe-ui Checkbox's inputClasses (md, enabled), minus its rounded-1.
+=======
+// Verbatim from frappe-ui Checkbox's inputClasses (md, enabled), minus its rounded-sm.
+>>>>>>> 71ff6f4 (feat(quiz): the question editor, its card and its dialog)
 const RADIO_CLASSES =
 	'mt-[1px] h-4 w-4 bg-surface-base border-outline-gray-4 text-ink-gray-9 transition hover:border-outline-gray-7 hover:shadow-sm focus:border-outline-gray-8 focus:ring-0 focus:ring-offset-0 active:border-outline-gray-6 active:bg-surface-gray-2'
 
