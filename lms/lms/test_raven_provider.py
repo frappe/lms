@@ -604,6 +604,7 @@ class TestStaffRule(FrappeTestCase):
 		# The other per-record tagging: LMS Course.evaluator links Course Evaluator.
 		# A different user from the platform-role evaluator, so a test naming one
 		# cannot pass by accident on the other.
+		# nosemgrep: lms-unjustified-ignore-permissions - test fixture, seeding the rows the cases read back
 		frappe.get_doc(
 			{"doctype": "Course Evaluator", "evaluator": self.users["assigned_evaluator"].name}
 		).insert(ignore_permissions=True)
@@ -620,6 +621,7 @@ class TestStaffRule(FrappeTestCase):
 			row for row in course_doc.instructors if row.instructor != self.users["instructor"].name
 		]
 		course_doc.evaluator = self.previous_evaluator
+		# nosemgrep: lms-unjustified-ignore-permissions - test fixture, restoring what setUp changed
 		course_doc.save(ignore_permissions=True)
 		if frappe.db.exists("Course Evaluator", self.users["assigned_evaluator"].name):
 			frappe.delete_doc("Course Evaluator", self.users["assigned_evaluator"].name, force=True)
@@ -860,6 +862,7 @@ class TestStaffScopedToABatch(FrappeTestCase):
 				"send_welcome_email": 0,
 			}
 		).insert()
+		# nosemgrep: lms-unjustified-ignore-permissions - test fixture, seeding the rows the cases read back
 		frappe.get_doc({"doctype": "Course Evaluator", "evaluator": self.evaluator.name}).insert(
 			ignore_permissions=True
 		)
