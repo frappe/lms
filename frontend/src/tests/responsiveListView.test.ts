@@ -15,7 +15,11 @@ vi.mock('@/utils/composables', async () => {
 })
 
 // The stubs below are trimmed copies of the frappe-ui components they stand in for, kept faithful on the one thing under test: where the selection lives.
+<<<<<<< HEAD
 vi.mock('frappe-ui/experimental', async () => {
+=======
+vi.mock('frappe-ui', async () => {
+>>>>>>> e5e2beb (feat(list): draw ResponsiveListView cards at any width via forceCards)
 	const { computed, defineComponent, inject, provide, reactive, watch } =
 		await import('vue')
 
@@ -95,6 +99,32 @@ vi.mock('frappe-ui/experimental', async () => {
 		><slot name="actions" v-bind="bannerProps" /></div>`,
 	})
 
+<<<<<<< HEAD
+=======
+	const Checkbox = defineComponent({
+		name: 'Checkbox',
+		inheritAttrs: false,
+		props: { modelValue: Boolean, size: String },
+		emits: ['update:modelValue'],
+		setup(_props, { emit }) {
+			// frappe-ui's Checkbox writes its model and then re-emits, so one change reports the same value twice.
+			function onChange(event: Event) {
+				const next = (event.target as HTMLInputElement).checked
+				emit('update:modelValue', next)
+				emit('update:modelValue', next)
+			}
+			return { onChange }
+		},
+		template: `<input
+			type="checkbox"
+			data-testid="row-checkbox"
+			v-bind="$attrs"
+			:checked="modelValue"
+			@change="onChange"
+		/>`,
+	})
+
+>>>>>>> e5e2beb (feat(list): draw ResponsiveListView cards at any width via forceCards)
 	const passthrough = (testid: string) => ({
 		inheritAttrs: false,
 		template: `<div data-testid="${testid}" v-bind="$attrs"><slot /></div>`,
