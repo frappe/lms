@@ -88,3 +88,17 @@ class TestSignupForm(UnitTestCase):
 		source = Path(os.path.dirname(lms.__file__), "templates", "signup-form.html").read_text()
 		self.assertNotIn("login.show_success_banner", source)
 		self.assertNotIn("login.hide_loading", source)
+
+	def test_reveals_banners_with_an_explicit_display(self):
+		"""Released frappe ships these banners as `display: none` and frappe's own
+		login.js re-hides them inline on every keystroke, so dropping the `hidden`
+		class is not enough to make one visible."""
+		source = Path(os.path.dirname(lms.__file__), "templates", "signup-form.html").read_text()
+		self.assertIn('css("display", "flex")', source)
+
+	def test_banner_icon_is_sized_and_unfilled_inline(self):
+		"""Released frappe's `.login-*-banner svg` rule sets a fill and no size; a
+		presentation attribute loses to it, which renders the stroked glyph as a blob."""
+		html = self.render_without_framework_templates()
+		self.assertIn('style="fill: none"', html)
+		self.assertIn('width="16" height="16"', html)
