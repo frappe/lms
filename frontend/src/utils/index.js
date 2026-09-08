@@ -15,7 +15,6 @@ import { Bold } from '@/utils/inline/Bold'
 import { Underline } from '@/utils/inline/Underline'
 import { Strikethrough } from '@/utils/inline/Strikethrough'
 import { AlignLeft, AlignCenter, AlignRight } from '@/utils/inline/TextAlign'
-import { Color } from '@/utils/inline/Color'
 import {
 	clipboardTunes,
 	clipboardTuneNames,
@@ -130,7 +129,6 @@ const INLINE_TOOLBAR_ORDER = [
 	'inlineCode',
 	'underline',
 	'strikeThrough',
-	'color',
 ]
 
 export function getEditorTools(
@@ -211,7 +209,6 @@ export function getEditorTools(
 		alignLeft: AlignLeft,
 		alignCenter: AlignCenter,
 		alignRight: AlignRight,
-		color: Color,
 		copyBlock: clipboardTunes.copyBlock,
 		cutBlock: clipboardTunes.cutBlock,
 		pasteBlock: clipboardTunes.pasteBlock,

@@ -22,21 +22,14 @@ interface UnwrapPlan {
 export abstract class BaseInline extends ToolButton {
 	protected abstract get tag(): string
 
-	private removers: Array<() => void> = []
-	private savedRange: Range | null = null
-
 	surround(range: Range): void {
-		// Clicking inside the action panel clears the live selection (EditorJS
-		// skips its mousedown preventDefault there), so fall back to the range
-		// saved when the panel opened.
-		const target = range ?? this.savedRange
-		if (!target || target.collapsed) {
+		if (!range || range.collapsed) {
 			return
 		}
 		if (this.state) {
-			this.unwrap(target)
+			this.unwrap(range)
 		} else {
-			this.wrap(target)
+			this.wrap(range)
 		}
 	}
 
@@ -99,46 +92,15 @@ export abstract class BaseInline extends ToolButton {
 	checkState(): boolean {
 		const selection = window.getSelection()
 		const range = selection?.rangeCount ? selection.getRangeAt(0) : null
-		const node = this.findWrapper()
 		// "On" means every character is already formatted. Reading the boundary
 		// ancestors alone reported false for a run inside the selection, so the
 		// next press nested tags.
 		this.state =
-			range && !range.collapsed ? this.isFullyWrapped(range) : node !== null
-		if (this.state && node) {
-			this.savedRange = range
-			setTimeout((): void => {
-				this.showActions(node)
-			}, 0)
-		} else {
-			this.hideActions()
-		}
+			range && !range.collapsed
+				? this.isFullyWrapped(range)
+				: this.findWrapper() !== null
 		return this.state
 	}
-
-	clear(): void {
-		this.removers.forEach((remove): void => {
-			remove()
-		})
-		this.removers = []
-	}
-
-	protected listen(
-		element: HTMLElement | Document | Window,
-		events: string,
-		callback: (event: Event) => void
-	): void {
-		events.split(' ').forEach((event): void => {
-			element.addEventListener(event, callback)
-			this.removers.push((): void => {
-				element.removeEventListener(event, callback)
-			})
-		})
-	}
-
-	protected showActions(_node: HTMLElement): void {}
-
-	protected hideActions(): void {}
 
 	private get selector(): string {
 		return this.tag.toLowerCase()
