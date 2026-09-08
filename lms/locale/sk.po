@@ -2022,7 +2022,11 @@ msgid "Course Completions"
 msgstr "Dokončené kurzy"
 
 #: frontend/src/pages/Courses/CourseOverview.vue:110
+<<<<<<< HEAD
 msgid "Course content coming soon!"
+=======
+msgid "Course Content coming soon!"
+>>>>>>> 5833813 (feat(i18n): add Slovak language support and complete Czech translations (#2665))
 msgstr "Obsah kurzu bude čoskoro k dispozícii!"
 
 #. Label of the course_count (Int) field in DocType 'LMS Program'
