@@ -21,6 +21,7 @@ interface UnwrapPlan {
  */
 export abstract class BaseInline extends ToolButton {
 	protected abstract get tag(): string
+<<<<<<< HEAD
 
 	surround(range: Range): void {
 		if (!range || range.collapsed) {
@@ -30,6 +31,24 @@ export abstract class BaseInline extends ToolButton {
 			this.unwrap(range)
 		} else {
 			this.wrap(range)
+=======
+
+	private removers: Array<() => void> = []
+	private savedRange: Range | null = null
+
+	surround(range: Range): void {
+		// Clicking inside the action panel clears the live selection (EditorJS
+		// skips its mousedown preventDefault there), so fall back to the range
+		// saved when the panel opened.
+		const target = range ?? this.savedRange
+		if (!target || target.collapsed) {
+			return
+		}
+		if (this.state) {
+			this.unwrap(target)
+		} else {
+			this.wrap(target)
+>>>>>>> e5c5a7d (fix(lesson-editor): stop the inline tools losing text and formatting)
 		}
 	}
 
@@ -92,13 +111,29 @@ export abstract class BaseInline extends ToolButton {
 	checkState(): boolean {
 		const selection = window.getSelection()
 		const range = selection?.rangeCount ? selection.getRangeAt(0) : null
+<<<<<<< HEAD
+=======
+		const node = this.findWrapper()
+>>>>>>> e5c5a7d (fix(lesson-editor): stop the inline tools losing text and formatting)
 		// "On" means every character is already formatted. Reading the boundary
 		// ancestors alone reported false for a run inside the selection, so the
 		// next press nested tags.
 		this.state =
+<<<<<<< HEAD
 			range && !range.collapsed
 				? this.isFullyWrapped(range)
 				: this.findWrapper() !== null
+=======
+			range && !range.collapsed ? this.isFullyWrapped(range) : node !== null
+		if (this.state && node) {
+			this.savedRange = range
+			setTimeout((): void => {
+				this.showActions(node)
+			}, 0)
+		} else {
+			this.hideActions()
+		}
+>>>>>>> e5c5a7d (fix(lesson-editor): stop the inline tools losing text and formatting)
 		return this.state
 	}
 
@@ -242,6 +277,161 @@ export abstract class BaseInline extends ToolButton {
 		remainder: Range,
 		side: 'before' | 'after'
 	): void {
+<<<<<<< HEAD
+=======
+		events.split(' ').forEach((event): void => {
+			element.addEventListener(event, callback)
+			this.removers.push((): void => {
+				element.removeEventListener(event, callback)
+			})
+		})
+	}
+
+	protected showActions(_node: HTMLElement): void {}
+
+	protected hideActions(): void {}
+
+	private get selector(): string {
+		return this.tag.toLowerCase()
+	}
+
+	private findWrapper(): HTMLElement | null {
+		return this.api.selection.findParentTag(this.tag)
+	}
+
+	private wrapperOf(node: Node): HTMLElement | null {
+		const element =
+			node.nodeType === Node.ELEMENT_NODE
+				? (node as Element)
+				: node.parentElement
+		return element?.closest<HTMLElement>(this.selector) ?? null
+	}
+
+	/** Every text run the range actually covers, clipped to the range. */
+	private textPartsIn(range: Range): TextPart[] {
+		const root = range.commonAncestorContainer
+		const scope =
+			root.nodeType === Node.TEXT_NODE ? (root.parentNode as Node) : root
+		const walker = document.createTreeWalker(scope, NodeFilter.SHOW_TEXT)
+		const parts: TextPart[] = []
+		let node: Node | null
+		while ((node = walker.nextNode())) {
+			const text = node as Text
+			if (!range.intersectsNode(text)) {
+				continue
+			}
+			const start = text === range.startContainer ? range.startOffset : 0
+			const end = text === range.endContainer ? range.endOffset : text.length
+			if (end > start) {
+				parts.push({ node: text, start, end })
+			}
+		}
+		return parts
+	}
+
+	private wrapPart(part: TextPart): HTMLElement {
+		let text = part.node
+		if (part.end < text.length) {
+			text.splitText(part.end)
+		}
+		if (part.start > 0) {
+			text = text.splitText(part.start)
+		}
+		const node = document.createElement(this.tag)
+		text.parentNode?.insertBefore(node, text)
+		node.appendChild(text)
+		return node
+	}
+
+	private isFullyWrapped(range: Range): boolean {
+		const parts = this.textPartsIn(range)
+		if (!parts.length) {
+			return this.findWrapper() !== null
+		}
+		return parts.every((part): boolean => this.wrapperOf(part.node) !== null)
+	}
+
+	private wrappersIn(range: Range): HTMLElement[] {
+		const found = new Set<HTMLElement>()
+		for (const boundary of [range.startContainer, range.endContainer]) {
+			const wrapper = this.wrapperOf(boundary)
+			if (wrapper) {
+				found.add(wrapper)
+			}
+		}
+		const root = range.commonAncestorContainer
+		const scope =
+			root.nodeType === Node.ELEMENT_NODE
+				? (root as Element)
+				: root.parentElement
+		scope?.querySelectorAll<HTMLElement>(this.selector).forEach((el): void => {
+			if (range.intersectsNode(el)) {
+				found.add(el)
+			}
+		})
+		return [...found].sort((a, b): number =>
+			a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1
+		)
+	}
+
+	/** Which parts of `wrapper` fall outside the selection. Measurement only: every
+	 * plan is built against the document as it stands before any of them run. */
+	private planUnwrap(wrapper: HTMLElement, range: Range): UnwrapPlan {
+		const full = document.createRange()
+		full.selectNodeContents(wrapper)
+		const coversStart =
+			range.compareBoundaryPoints(Range.START_TO_START, full) <= 0
+		const coversEnd = range.compareBoundaryPoints(Range.END_TO_END, full) >= 0
+
+		let head: Range | null = null
+		if (!coversStart) {
+			head = document.createRange()
+			head.setStart(full.startContainer, full.startOffset)
+			head.setEnd(range.startContainer, range.startOffset)
+		}
+		let tail: Range | null = null
+		if (!coversEnd) {
+			tail = document.createRange()
+			tail.setStart(range.endContainer, range.endOffset)
+			tail.setEnd(full.endContainer, full.endOffset)
+		}
+		return { wrapper, head, tail }
+	}
+
+	/** Strip the formatting from the part of the wrapper the selection covers. */
+	private applyUnwrap({ wrapper, head, tail }: UnwrapPlan): void {
+		// Tail before head: extracting the head shifts everything after it.
+		if (tail) {
+			this.reinsert(wrapper, tail, 'after')
+		}
+		if (head) {
+			this.reinsert(wrapper, head, 'before')
+		}
+		wrapper.replaceWith(...Array.from(wrapper.childNodes))
+	}
+
+	/** The distinct parents of the given wrappers, read before anything moves. */
+	private parentsOf(wrappers: HTMLElement[]): Set<Node> {
+		const parents = new Set<Node>()
+		for (const wrapper of wrappers) {
+			if (wrapper.parentNode) {
+				parents.add(wrapper.parentNode)
+			}
+		}
+		return parents
+	}
+
+	/**
+	 * Re-wrap the part of a run left outside the selection. Empty means no nodes,
+	 * not no text: `extractContents` has already detached the remainder, so
+	 * bailing on `textContent` deleted a lone `<br>` or `<img>`.
+	 */
+	private reinsert(
+		wrapper: HTMLElement,
+		remainder: Range,
+		side: 'before' | 'after'
+	): void {
+>>>>>>> e5c5a7d (fix(lesson-editor): stop the inline tools losing text and formatting)
 		const contents = remainder.extractContents()
 		if (!contents.textContent && !contents.querySelector('*')) {
 			return
