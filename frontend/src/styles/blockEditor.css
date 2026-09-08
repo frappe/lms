@@ -414,6 +414,7 @@ iframe {
 	background: var(--surface-elevation-2);
 }
 
+<<<<<<< HEAD
 /* Inline code chip. Two upstream defaults have to be overridden:
    - Tailwind Typography's `prose code` glues a literal ` glyph on either side,
      so code marked with the toolbar button reads as `like this`.
@@ -436,6 +437,8 @@ code.inline-code {
 	letter-spacing: normal;
 }
 
+=======
+>>>>>>> cc66dc6 (feat(lesson-editor): remove the inline text-colour tool)
 /* Inline code chip. Two upstream defaults have to be overridden:
    - Tailwind Typography's `prose code` glues a literal ` glyph on either side,
      so code marked with the toolbar button reads as `like this`.
