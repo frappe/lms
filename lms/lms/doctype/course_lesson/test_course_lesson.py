@@ -392,6 +392,10 @@ class TestRenameSettledUntitledLessons(BaseTestUtils):
 		expected = f"{prefix} Titre Réel"
 		self.assertFalse(frappe.db.exists("Course Lesson", lesson.name))
 		self.assertTrue(frappe.db.exists("Course Lesson", expected))
+<<<<<<< HEAD
+=======
+		self.cleanup_items.append(("Course Lesson", expected))
+>>>>>>> f0f6c18 (fix(lesson): stop frappe sanitising the content JSON as HTML)
 
 
 class TestLessonContentSurvivesSave(BaseTestUtils):
@@ -444,6 +448,7 @@ class TestLessonContentSurvivesSave(BaseTestUtils):
 		self.assertIn('href="https://frappe.io/"', saved)
 		self.assertIn('rel="noopener noreferrer"', saved)
 
+<<<<<<< HEAD
 	def test_markup_that_is_not_json_is_escaped_on_save(self):
 		markup = "<img src=x onerror=alert(1)>"
 		lesson = self._create_lesson("Lesson plain markup", self.chapter.name, self.course.name, markup)
@@ -1446,3 +1451,14 @@ class TestLegacyQuizIdGatesCompletion(BaseTestUtils):
 
 	def test_quiz_id_is_ignored_when_the_lesson_has_no_body(self):
 		self.assertTrue(self._quiz_done_for("Quiz Id Empty", None, None))
+=======
+	def test_plain_inline_markup_round_trips(self):
+		markup = "<b>b</b> <i>i</i> <u>u</u> <s>s</s>"
+		self.assertEqual(self._saved_text(markup, "Lesson plain"), markup)
+
+	def test_script_and_event_handlers_are_still_stripped(self):
+		saved = self._saved_text('<script>alert(1)</script><img src="x" onerror="alert(1)">ok', "Lesson xss")
+		self.assertNotIn("<script", saved)
+		self.assertNotIn("onerror", saved)
+		self.assertIn("ok", saved)
+>>>>>>> f0f6c18 (fix(lesson): stop frappe sanitising the content JSON as HTML)
