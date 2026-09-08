@@ -420,3 +420,25 @@ iframe {
 	background: none;
 	cursor: pointer;
 }
+
+/* Inline code chip. Two upstream defaults have to be overridden:
+   - Tailwind Typography's `prose code` glues a literal ` glyph on either side,
+     so code marked with the toolbar button reads as `like this`.
+   - @editorjs/inline-code injects its own stylesheet with a hardcoded pink
+     (#faeff0/#b44437) that never flips in dark mode.
+   `code.inline-code` outranks both (they are single-class selectors, and
+   Typography's is wrapped in a zero-specificity :where()). */
+code.inline-code::before,
+code.inline-code::after {
+	content: none;
+}
+
+code.inline-code {
+	background: var(--surface-gray-3);
+	color: var(--ink-gray-8);
+	padding: 2px 5px;
+	border-radius: 5px;
+	font-size: 0.86em;
+	font-weight: 500;
+	letter-spacing: normal;
+}
