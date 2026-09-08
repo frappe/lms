@@ -31,6 +31,12 @@ svg.lucide {
 	stroke-width: 1.5;
 }
 
+/* frappe-ui truncates control labels at a 1.15 line-height, clipping descenders. */
+:where(button, [role='menuitem'], [role='option'], [role='combobox'])
+	:where(.truncate) {
+	line-height: 1.5;
+}
+
 /* 48px, matching the desk header's computed height. Worn by PageHeader,
    MobilePageLayout, FormShell and the SkeletonLoader placeholder, which has to
    match their geometry or the page jumps when its data lands. No vertical

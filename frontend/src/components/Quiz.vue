@@ -518,8 +518,9 @@
 								@change="markForReview($event, activeQuestion)"
 							/>
 						</div>
-						<div
+						<nav
 							v-if="!quiz.data.show_answers"
+							:aria-label="__('Question navigation')"
 							class="flex flex-wrap items-center gap-2"
 						>
 							<Button
@@ -532,28 +533,27 @@
 									<span class="lucide-chevron-left size-4" />
 								</template>
 							</Button>
-							<component
-								:is="item === '...' ? 'span' : 'button'"
-								v-for="(item, pidx) in paginationWindow"
-								:key="pidx"
-								:type="item === '...' ? null : 'button'"
-								class="w-6 h-6 rounded-full flex items-center justify-center text-sm"
-								:class="{
-									'cursor-pointer': item !== '...',
-									'bg-surface-gray-4 border border-outline-gray-7 font-medium':
-										activeQuestion == item,
-									'text-ink-gray-5': item === '...',
-									'bg-surface-blue-2 text-ink-blue-8':
-										attemptedQuestions.includes(item) && activeQuestion != item,
-									'bg-surface-gray-3 text-ink-gray-6':
-										activeQuestion != item &&
-										item !== '...' &&
-										!attemptedQuestions.includes(item),
-								}"
-								@click="item !== '...' && switchQuestion(item)"
-							>
-								{{ item }}
-							</component>
+							<template v-for="(item, pidx) in paginationWindow" :key="pidx">
+								<span
+									v-if="item === '...'"
+									aria-hidden="true"
+									class="w-7 text-center text-sm text-ink-gray-5"
+								>
+									{{ item }}
+								</span>
+								<Button
+									v-else
+									:label="__('Question {0}').format(item)"
+									:variant="activeQuestion == item ? 'solid' : 'subtle'"
+									:theme="pageTheme(item)"
+									:aria-current="activeQuestion == item ? 'page' : undefined"
+									class="!w-7 !px-0 rounded-full"
+									:class="activeQuestion == item ? 'font-medium' : ''"
+									@click="switchQuestion(item)"
+								>
+									{{ item }}
+								</Button>
+							</template>
 
 							<Button
 								:label="__('Next question')"
@@ -565,7 +565,7 @@
 									<span class="lucide-chevron-right size-4" />
 								</template>
 							</Button>
-						</div>
+						</nav>
 						<div class="flex-1 flex justify-end">
 							<Button
 								v-if="
@@ -587,7 +587,11 @@
 							>
 								<span>{{ __('Next') }}</span>
 							</Button>
-							<Button variant="solid" v-else @click="handleSubmitClick()">
+							<Button
+								v-else-if="!preview"
+								variant="solid"
+								@click="handleSubmitClick()"
+							>
 								<span>{{ __('Submit') }}</span>
 							</Button>
 						</div>
@@ -960,6 +964,13 @@ const props = defineProps({
 		type: String,
 		required: true,
 	},
+	// Author-facing preview. The learner view is rendered exactly as it ships, but
+	// nothing may be written: a submission here is a real LMS Quiz Submission, it
+	// notifies, and it spends one of the author's own max_attempts.
+	preview: {
+		type: Boolean,
+		default: false,
+	},
 	inVideo: {
 		type: Boolean,
 		default: false,
@@ -995,6 +1006,7 @@ const serialiseViolationLog = (withFrames = true) =>
 	)
 
 const handlePageHide = () => {
+	if (props.preview) return
 	if (activeQuestion.value > 0 && !quizSubmission.data) {
 		const params = new URLSearchParams({
 			quiz: quiz.data.name,
@@ -1276,6 +1288,10 @@ watch(
 const startQuiz = () => {
 	activeQuestion.value = 1
 	localStorage.removeItem(quiz.data.title)
+	// Neither in an author preview. Nothing may be submitted there, so a countdown
+	// would reach zero with no way to end the attempt and the camera would stay on
+	// with it, and a violation cap would do the same.
+	if (props.preview) return
 	if (quiz.data.duration) startTimer()
 	if (quiz.data.enable_proctoring) proctoringActive.value = true
 }
@@ -1476,6 +1492,7 @@ const submitQuiz = (reason = 'manual') => {
 }
 
 const createSubmission = (reason = 'manual') => {
+	if (props.preview) return
 	// Which quiz this submission belongs to. The component is reused across
 	// lessons, so by the time the response lands props.quizName may have moved
 	// on — and markLessonProgress() reads window.location.pathname at that
@@ -1605,6 +1622,12 @@ const paginationWindow = computed(() => {
 
 	return pages
 })
+
+// The current page wins over the attempted tint, so it reads as "here", not "answered".
+const pageTheme = (questionNumber) => {
+	if (activeQuestion.value == questionNumber) return 'gray'
+	return attemptedQuestions.value.includes(questionNumber) ? 'blue' : 'gray'
+}
 
 const markForReview = (event, questionNumber) => {
 	if (event.target.checked) {

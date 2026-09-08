@@ -222,7 +222,6 @@ const MANIFEST: Record<string, Privacy[]> = {
 	'pages/Forms/JobForm.vue': ['undeclared'],
 	'pages/Forms/ProfileEditForm.vue': ['undeclared'],
 	'pages/Forms/ProgrammingExerciseForm.vue': ['undeclared'],
-	'pages/Forms/QuizQuestionForm.vue': ['undeclared'],
 }
 
 describe('every uploader has the privacy the manifest states', () => {

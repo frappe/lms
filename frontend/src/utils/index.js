@@ -596,9 +596,11 @@ const getSidebarItems = (forMobile = false) => {
 					activeFor: [
 						'Quizzes',
 						'QuizForm',
+						'NewQuiz',
 						'QuizPage',
-						'QuizSubmissionList',
+						'QuizSubmissions',
 						'QuizSubmission',
+						'Questions',
 					],
 				},
 				{

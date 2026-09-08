@@ -12,6 +12,7 @@
   "question",
   "type",
   "multiple",
+  "marks",
   "section_break_ytxi",
   "option_1",
   "is_correct_1",
@@ -95,6 +96,14 @@
    "fieldtype": "Check",
    "hidden": 1,
    "label": "Multiple Correct Answers"
+  },
+  {
+   "default": "1",
+   "fieldname": "marks",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Marks",
+   "non_negative": 1
   },
   {
    "depends_on": "eval:doc.type == \"Choices\";",
