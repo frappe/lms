@@ -206,6 +206,15 @@
         const banner = $("section:visible .login-error-banner");
         banner.find(".es-alert__title").text(message);
 
+<<<<<<< HEAD
+=======
+        if (message === {{ _("Already Registered") | tojson }}) {
+            title.html({{ already_registered_message | tojson }});
+        } else {
+            title.text(message);
+        }
+
+>>>>>>> 619bad0 (fix(signup-form): reveal the result banners on released frappe)
         reveal_banner(banner);
     }
 </script>
