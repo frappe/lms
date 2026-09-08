@@ -1,9 +1,13 @@
 # Copyright (c) 2021, FOSS United and Contributors
 # See license.txt
 
+<<<<<<< HEAD
 import html
 import json
 import re
+=======
+import json
+>>>>>>> f0f6c18 (fix(lesson): stop frappe sanitising the content JSON as HTML)
 from datetime import datetime
 from pathlib import Path
 from unittest.mock import patch
@@ -733,9 +737,15 @@ class TestEditorJsSanitisation(unittest.TestCase):
 		# The align tool carries its whole payload in an attribute, so it is the
 		# one a tag-level allowlist can silently strip.
 		text = '<span class="lms-align" style="text-align: center; ' 'display: block;">mid</span>'
+<<<<<<< HEAD
 		out = compact_styles(self._text(self._payload(text)))
 		self.assertIn("lms-align", out)
 		self.assertIn("text-align:center", out)
+=======
+		out = self._text(self._payload(text))
+		self.assertIn("lms-align", out)
+		self.assertIn("text-align:center", out.replace(" ;", ";"))
+>>>>>>> f0f6c18 (fix(lesson): stop frappe sanitising the content JSON as HTML)
 		self.assertIn("display:block", out)
 
 	def test_keeps_the_other_inline_tools(self):
@@ -752,6 +762,7 @@ class TestEditorJsSanitisation(unittest.TestCase):
 		self.assertEqual(out, "x")
 
 	def test_still_strips_a_script(self):
+<<<<<<< HEAD
 		out = self._text(self._payload('ok<script>alert(1)</script><img src="x" onerror="alert(1)">'))
 		self.assertNotIn("<script", out)
 		self.assertNotIn("onerror", out)
@@ -879,3 +890,20 @@ class TestEditorJsEmbedSources(unittest.TestCase):
 		self.assertTrue(self._kept("QhA4h6qD4wY", service="youtube"))
 		self.assertFalse(self._kept("QhA4h6qD4wY"))
 		self.assertFalse(self._kept("javascript:alert(1)", service="youtube"))
+=======
+		out = self._text(self._payload("ok<script>alert(1)</script>"))
+		self.assertNotIn("<script", out)
+
+	def test_returns_invalid_json_unchanged(self):
+		"""Byte-for-byte, markup or not.
+
+		A corrupted row still repairs on read, and rewriting it here breaks that:
+		one title-only save turned a recoverable lesson into an unrecoverable one.
+		"""
+		for raw in (
+			'{"blocks":[{"da',
+			'{"blocks":[{"data":{"text":"hi<b data-x="\\&quot;1\\&quot;">there"}}]}',
+		):
+			with self.subTest(raw=raw):
+				self.assertEqual(sanitize_editorjs(raw), raw)
+>>>>>>> f0f6c18 (fix(lesson): stop frappe sanitising the content JSON as HTML)

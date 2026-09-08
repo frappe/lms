@@ -4054,6 +4054,7 @@ def sanitize_editorjs(raw):
 	`content` carries `ignore_xss_filter`, so frappe's field-level `sanitize_html`
 	no longer runs over it: it read the whole JSON document as markup and left the
 	field unparseable. `sanitize_json` is the gate instead, string by string.
+<<<<<<< HEAD
 
 	Text that is not EditorJS JSON, even after `load_editorjs` repairs it, is
 	HTML-escaped rather than cleaned: escaping is reversible, so the author can
@@ -4064,6 +4065,17 @@ def sanitize_editorjs(raw):
 		return dump_editorjs(drop_unsafe_embeds(sanitize_json(data)))
 	except (TypeError, ValueError, RecursionError):
 		return escape_markup(raw)
+=======
+	"""
+	try:
+		data = json.loads(raw)
+	except (TypeError, ValueError):
+		# Returned byte-for-byte. Nothing renders content that will not parse, and
+		# rewriting it defeats the repair on read: one title-only save was enough
+		# to turn a recoverable lesson into an unrecoverable one.
+		return raw
+	return json.dumps(sanitize_json(data), separators=(",", ":"))
+>>>>>>> f0f6c18 (fix(lesson): stop frappe sanitising the content JSON as HTML)
 
 
 def get_editorjs_blocks(content):

@@ -136,8 +136,12 @@
    "fieldname": "content",
    "fieldtype": "Text",
    "ignore_xss_filter": 1,
+<<<<<<< HEAD
    "label": "Content",
    "print_hide": 1
+=======
+   "label": "Content"
+>>>>>>> f0f6c18 (fix(lesson): stop frappe sanitising the content JSON as HTML)
   },
   {
    "fieldname": "column_break_cjmf",
@@ -147,8 +151,12 @@
    "fieldname": "instructor_content",
    "fieldtype": "Text",
    "ignore_xss_filter": 1,
+<<<<<<< HEAD
    "label": "Instructor Content",
    "print_hide": 1
+=======
+   "label": "Instructor Content"
+>>>>>>> f0f6c18 (fix(lesson): stop frappe sanitising the content JSON as HTML)
   },
   {
    "fieldname": "column_break_syza",
