@@ -593,7 +593,10 @@ const captureEditors = async () => {
 }
 
 function saveLesson({ flush = false } = {}) {
+<<<<<<< HEAD
 	if (isDraft.value) return createDraftLesson({ flush })
+=======
+>>>>>>> f1c1169 (fix(lesson): never overwrite lesson content we failed to parse)
 	// foldEditorData skips unreadable fields, so `lesson` still holds their stored
 	// strings and the write puts them back unchanged rather than blanking them.
 	warnUnreadable()

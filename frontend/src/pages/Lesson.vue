@@ -222,10 +222,17 @@
 						</div>
 						<div
 							v-if="contentUnreadable"
+<<<<<<< HEAD
 							class="flex items-center gap-3 rounded-6 bg-surface-amber-2 p-3 mt-8"
 						>
 							<div
 								class="grid size-7 shrink-0 place-items-center text-ink-amber-5"
+=======
+							class="flex items-center gap-3 rounded-lg bg-surface-amber-2 p-3 mt-8"
+						>
+							<div
+								class="grid size-7 shrink-0 place-items-center text-ink-amber-6"
+>>>>>>> f1c1169 (fix(lesson): never overwrite lesson content we failed to parse)
 							>
 								<span class="lucide-circle-alert size-4" aria-hidden="true" />
 							</div>
@@ -402,7 +409,10 @@ import UserAvatar from '@/components/UserAvatar.vue'
 import Notes from '@/components/Notes/Notes.vue'
 import InlineLessonMenu from '@/components/Notes/InlineLessonMenu.vue'
 import { parseStoredEditorJs } from '@/utils/lessonForm'
+<<<<<<< HEAD
 import { isLessonSelection } from '@/utils/lessonSelection'
+=======
+>>>>>>> f1c1169 (fix(lesson): never overwrite lesson content we failed to parse)
 import { getLmsRoute } from '@/utils/basePath'
 import { provideStudentView } from '@/composables/useStudentView'
 import type { UserResource } from '@/composables/useStudentView'
@@ -578,12 +588,19 @@ const contentUnreadable = ref(false)
 
 // A single stored block is EditorJS's empty default, so notes only count from
 // two up. Unreadable notes render nothing at all.
+<<<<<<< HEAD
 const hasInstructorNotesToRender = (
 	instructorContent: string | null | undefined
 ): instructorContent is string =>
 	(parseStoredEditorJs(instructorContent)?.blocks?.length ?? 0) > 1
 
 const setupLesson = (data: LessonPayload): void => {
+=======
+const hasInstructorNotesToRender = (instructorContent) =>
+	(parseStoredEditorJs(instructorContent)?.blocks?.length ?? 0) > 1
+
+const setupLesson = (data) => {
+>>>>>>> f1c1169 (fix(lesson): never overwrite lesson content we failed to parse)
 	if (Object.keys(data).length === 0) {
 		router.push({
 			name: 'CourseDetail',
@@ -603,7 +620,11 @@ const setupLesson = (data: LessonPayload): void => {
 			},
 		})
 	}
+<<<<<<< HEAD
 	lessonProgress.value = data.membership?.progress ?? 0
+=======
+	lessonProgress.value = data.membership?.progress
+>>>>>>> f1c1169 (fix(lesson): never overwrite lesson content we failed to parse)
 	contentUnreadable.value = false
 	if (data.content) {
 		editor.value = renderEditor('editor', data.content)
@@ -634,7 +655,11 @@ const checkQuiz = () => {
 
 // Returns null when the stored payload will not parse. Throwing aborts
 // setupLesson mid-way and takes the timer, video sources and notes with it.
+<<<<<<< HEAD
 const openLinksInNewTab = (holder: string): void => {
+=======
+const openLinksInNewTab = (holder) => {
+>>>>>>> f1c1169 (fix(lesson): never overwrite lesson content we failed to parse)
 	const root = document.getElementById(holder)
 	if (!root) return
 	root.querySelectorAll('a').forEach((a) => {
@@ -643,6 +668,7 @@ const openLinksInNewTab = (holder: string): void => {
 	})
 }
 
+<<<<<<< HEAD
 const renderEditor = (holder: string, content: string): EditorJS | null => {
 	const data = parseStoredEditorJs(content)
 	if (!data) return null
@@ -650,6 +676,13 @@ const renderEditor = (holder: string, content: string): EditorJS | null => {
 	// empty it. Attached after render: the holder is under v-if="lesson.data".
 	const host = document.createElement('div')
 	nextTick(() => document.getElementById(holder)?.replaceChildren(host))
+=======
+const renderEditor = (holder, content) => {
+	const data = parseStoredEditorJs(content)
+	if (!data) return null
+	const existing = document.getElementById(holder)
+	if (existing) existing.innerHTML = ''
+>>>>>>> f1c1169 (fix(lesson): never overwrite lesson content we failed to parse)
 	return new EditorJS({
 		holder: host,
 		tools: getEditorTools(false, {}, { studentView: isStudentView.value }),
