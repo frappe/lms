@@ -1,6 +1,7 @@
 # Copyright (c) 2021, FOSS United and Contributors
 # See license.txt
 
+import json
 from datetime import datetime
 from unittest.mock import patch
 
@@ -41,6 +42,7 @@ from lms.lms.utils import (
 	has_student_role,
 	is_instructor,
 	resolve_page_length,
+	sanitize_editorjs,
 	slugify,
 )
 
@@ -687,3 +689,57 @@ class TestEvaluationDisplayTimezone(BaseTestUtils):
 
 	def test_falls_back_to_the_system_timezone(self):
 		self.assertEqual(get_evaluation_display_timezone(self.course.name), get_system_timezone())
+
+
+class TestEditorJsSanitisation(unittest.TestCase):
+	"""
+	Every lesson save runs its EditorJS payload through `sanitize_editorjs`.
+	The inline tools each wrap the selection in their own tag, and a tag the
+	sanitiser does not recognise is unwrapped -- the text survives, the styling
+	does not, and the author only finds out when the lesson renders plain.
+	"""
+
+	def _text(self, raw):
+		return json.loads(sanitize_editorjs(raw))["blocks"][0]["data"]["text"]
+
+	def _payload(self, text):
+		return json.dumps({"blocks": [{"type": "paragraph", "data": {"text": text}}]})
+
+	def test_keeps_a_span_carrying_class_and_style(self):
+		# The align tool carries its whole payload in an attribute, so it is the
+		# one a tag-level allowlist can silently strip.
+		text = '<span class="lms-align" style="text-align: center; ' 'display: block;">mid</span>'
+		out = self._text(self._payload(text))
+		self.assertIn("lms-align", out)
+		self.assertIn("text-align:center", out.replace(" ;", ";"))
+		self.assertIn("display:block", out)
+
+	def test_keeps_the_other_inline_tools(self):
+		out = self._text(self._payload("<b>b</b><u>u</u><s>s</s>"))
+		for tag in ("<b>", "<u>", "<s>"):
+			self.assertIn(tag, out)
+
+	def test_a_custom_element_is_unwrapped(self):
+		# Why the contract above is pinned. frappe's sanitiser allowlists tags by
+		# name and knows no custom elements, so one is unwrapped and its styling
+		# lost while the text stays -- which reads as "colour does nothing" rather
+		# than as an error. The align tool used to emit `<lms-align>`.
+		out = self._text(self._payload('<lms-align style="text-align: center;">x</lms-align>'))
+		self.assertEqual(out, "x")
+
+	def test_still_strips_a_script(self):
+		out = self._text(self._payload("ok<script>alert(1)</script>"))
+		self.assertNotIn("<script", out)
+
+	def test_returns_invalid_json_unchanged(self):
+		"""Byte-for-byte, markup or not.
+
+		A corrupted row still repairs on read, and rewriting it here breaks that:
+		one title-only save turned a recoverable lesson into an unrecoverable one.
+		"""
+		for raw in (
+			'{"blocks":[{"da',
+			'{"blocks":[{"data":{"text":"hi<b data-x="\\&quot;1\\&quot;">there"}}]}',
+		):
+			with self.subTest(raw=raw):
+				self.assertEqual(sanitize_editorjs(raw), raw)
