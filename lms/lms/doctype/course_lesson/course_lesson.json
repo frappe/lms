@@ -134,6 +134,7 @@
   {
    "fieldname": "content",
    "fieldtype": "Text",
+   "ignore_xss_filter": 1,
    "label": "Content"
   },
   {
@@ -143,6 +144,7 @@
   {
    "fieldname": "instructor_content",
    "fieldtype": "Text",
+   "ignore_xss_filter": 1,
    "label": "Instructor Content"
   },
   {
