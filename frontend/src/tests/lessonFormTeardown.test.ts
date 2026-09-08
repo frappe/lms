@@ -431,6 +431,7 @@ describe('LessonForm title is single-line', () => {
 	})
 })
 
+<<<<<<< HEAD
 describe('LessonForm title focus ring', () => {
 	let wrapper: VueWrapper
 
@@ -484,6 +485,8 @@ describe('LessonForm title focus ring', () => {
 	})
 })
 
+=======
+>>>>>>> f1c1169 (fix(lesson): never overwrite lesson content we failed to parse)
 // A lesson whose stored content is not valid JSON. The editor cannot render it,
 // so it sits empty, indistinguishable from a lesson that has no body. Rather
 // than let that emptiness be persisted, the form refuses to save at all and
