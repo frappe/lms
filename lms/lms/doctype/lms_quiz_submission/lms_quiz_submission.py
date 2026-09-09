@@ -47,7 +47,8 @@ class LMSQuizSubmission(Document):
 
 	def set_percentage(self):
 		if self.score and self.score_out_of:
-			self.percentage = (self.score / self.score_out_of) * 100
+			# Floored at zero, or negative marking throws the whole submission away.
+			self.percentage = max(0, (self.score / self.score_out_of) * 100)
 
 	def notify_member(self):
 		if self.score != 0 and self.has_value_changed("score"):
