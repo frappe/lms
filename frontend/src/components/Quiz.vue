@@ -624,10 +624,7 @@
 				</div>
 			</div>
 
-			<div
-				v-if="!quiz.data.show_answers"
-				class="border rounded-lg p-4 mt-4"
-			>
+			<div v-if="!quiz.data.show_answers" class="border rounded-lg p-4 mt-4">
 				<div class="font-semibold">
 					{{ __('Questions') }}
 				</div>
