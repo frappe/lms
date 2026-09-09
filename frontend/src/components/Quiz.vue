@@ -641,7 +641,7 @@
 						@click="switchQuestion(index)"
 						class="w-6 h-6 rounded-full flex items-center justify-center text-sm cursor-pointer"
 						:class="{
-							'bg-surface-gray-7 text-ink-white font-medium':
+							'bg-surface-gray-7 text-ink-base font-medium':
 								activeQuestion == index,
 							'bg-surface-blue-2 text-ink-blue-6':
 								activeQuestion != index && attemptedQuestions.includes(index),
