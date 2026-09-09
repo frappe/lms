@@ -520,7 +520,7 @@
 						</div>
 						<div class="flex-1 flex justify-end gap-2">
 							<Button
-								v-if="activeQuestion > 1"
+								v-if="!quiz.data.show_answers && activeQuestion > 1"
 								@click="switchQuestion(activeQuestion - 1)"
 							>
 								<span>{{ __('Previous') }}</span>
