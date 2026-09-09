@@ -304,7 +304,12 @@ const isDirty = computed(
 		state.email_account_name !== loaded.value.email_account_name
 )
 
-useDirtyGuard(() => isDirty.value)
+useDirtyGuard(
+	() => isDirty.value,
+	// seed() is the same path a fresh load takes, over the account this form
+	// opened with.
+	() => seed(loaded.value)
+)
 
 const createAccount = async () => {
 	await call(EMAIL_ACCOUNT_METHODS.create, {
@@ -315,11 +320,18 @@ const createAccount = async () => {
 }
 
 const updateAccount = async () => {
-	if (state.email_account_name !== loaded.value.email_account_name)
+	if (state.email_account_name !== loaded.value.email_account_name) {
 		await call(EMAIL_ACCOUNT_METHODS.rename, {
 			name: loaded.value.email_account_name,
 			new_name: state.email_account_name,
 		})
+		// Record it the moment it commits. The field write below can still fail
+		// on its own -- update_email_account calls doc.save(), which revalidates
+		// the credentials against the live server, so a wrong password is
+		// rejected there -- and a retry would otherwise rename from a name the
+		// server has already forgotten, which `_require_account` throws on.
+		loaded.value.email_account_name = state.email_account_name
+	}
 	if (fieldsDirty.value)
 		await call(EMAIL_ACCOUNT_METHODS.update, {
 			name: state.email_account_name,

@@ -436,13 +436,21 @@ export function defaultsBadgeLabel(account: {
 	enable_incoming?: boolean | number
 	enable_outgoing?: boolean | number
 }): string {
-	if (account.default_incoming && account.default_outgoing) {
+	// Each default counts only for a direction the account is enabled for, which
+	// is the same reading the row menu takes: frappe resolves a default inbox as
+	// `enable_incoming` AND `default_incoming`, so the flag on a disabled
+	// direction is one nothing consults. Reporting it anyway advertised a "Default
+	// Inbox" whose "Clear default inbox" entry the menu had already withdrawn.
+	const inbox = Boolean(account.default_incoming && account.enable_incoming)
+	const sending = Boolean(account.default_outgoing && account.enable_outgoing)
+
+	if (inbox && sending) {
 		return __('Default Sending & Inbox')
 	}
-	if (account.default_incoming) {
+	if (inbox) {
 		return __('Default Inbox')
 	}
-	if (account.default_outgoing) {
+	if (sending) {
 		return __('Default Sending')
 	}
 	// Holding neither default says nothing about direction. The column is headed
