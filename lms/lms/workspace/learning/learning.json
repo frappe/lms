@@ -104,7 +104,7 @@
   {
    "hidden": 0,
    "is_query_report": 0,
-   "label": "Interest",
+   "label": "Course Interest",
    "link_count": 0,
    "link_to": "LMS Course Interest",
    "link_type": "DocType",
