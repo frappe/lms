@@ -12,6 +12,7 @@ import BrandSettings from '@/components/Settings/BrandSettings.vue'
 import PaymentGateways from '@/components/Settings/PaymentGateways/PaymentGateways.vue'
 import Coupons from '@/components/Settings/Coupons/Coupons.vue'
 import { transactionsPage } from '@/components/Settings/Transactions/transactions'
+import { badgeAssignmentsSettingsPage } from '@/components/Settings/Badges/badgeAssignments'
 import { badgesSettingsPage } from '@/components/Settings/Badges/badges'
 import { zoomSettingsPage } from '@/components/Settings/Zoom/zoom'
 import {
@@ -147,6 +148,13 @@ export const settingsTree: SettingsGroup[] = [
 				icon: 'lucide-award',
 				records: true,
 				page: badgesSettingsPage,
+			},
+			{
+				label: 'Badge Assignments',
+				slug: 'badge-assignments',
+				icon: 'lucide-badge-check',
+				records: true,
+				page: badgeAssignmentsSettingsPage,
 			},
 			{
 				label: 'Categories',
