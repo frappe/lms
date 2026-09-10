@@ -1,4 +1,5 @@
 import { flushPromises, mount } from '@vue/test-utils'
+import type { VueWrapper } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import Quiz from '@/components/Quiz.vue'
@@ -6,7 +7,26 @@ import Quiz from '@/components/Quiz.vue'
 const resourceState = vi.hoisted(() => ({
 	cache: new Map<string, any>(),
 	request: vi.fn(),
+	// Every resource submit, by url. `request` only records reads.
+	submits: [] as string[],
 	response: null as any,
+}))
+
+// Copied verbatim from frappe-ui 1.0.0-beta.29 `src/components/Button/Button.vue` so the stub reproduces the real state classes the pager relies on.
+const buttonClasses = vi.hoisted(() => ({
+	variant: {
+		'gray-solid':
+			'text-ink-base bg-surface-gray-10 hover:bg-surface-gray-9 active:bg-surface-gray-8',
+		'gray-subtle':
+			'text-ink-gray-8 bg-surface-gray-2 hover:bg-surface-gray-3 active:bg-surface-gray-4',
+		'blue-subtle':
+			'text-ink-blue-6 bg-surface-blue-2 hover:bg-surface-blue-3 active:bg-surface-blue-4',
+	} as Record<string, string>,
+	disabled: {
+		'gray-solid': 'bg-surface-gray-2 text-ink-gray-4',
+		'gray-subtle': 'bg-surface-gray-2 text-ink-gray-4',
+		'blue-subtle': 'bg-surface-blue-2 text-ink-blue-link',
+	} as Record<string, string>,
 }))
 
 vi.mock('frappe-ui', async () => {
@@ -28,8 +48,7 @@ vi.mock('frappe-ui', async () => {
 			resourceState.request(options.url, params)
 
 			if (options.url === 'lms.lms.utils.get_quiz_with_questions') {
-				// Match a real network response: let the remounted component finish
-				// setup before the cached resource's original callbacks run.
+				// Match a real network response: let the remounted component finish setup before the cached resource's original callbacks run.
 				await Promise.resolve()
 
 				const raw = structuredClone(resourceState.response)
@@ -48,7 +67,9 @@ vi.mock('frappe-ui', async () => {
 			loading: false,
 			reload,
 			fetch: reload,
-			submit: vi.fn(),
+			submit: vi.fn(() => {
+				resourceState.submits.push(options.url)
+			}),
 			reset: vi.fn(() => {
 				resource.data = null
 			}),
@@ -66,8 +87,23 @@ vi.mock('frappe-ui', async () => {
 		call: vi.fn(),
 		toast: { warning: vi.fn(), error: vi.fn() },
 		Button: {
+			props: {
+				label: { type: String, default: undefined },
+				theme: { type: String, default: 'gray' },
+				variant: { type: String, default: 'subtle' },
+				disabled: { type: Boolean, default: false },
+			},
 			emits: ['click'],
-			template: `<button @click="$emit('click')"><slot /></button>`,
+			computed: {
+				stateClasses(this: any) {
+					const key = `${this.theme}-${this.variant}`
+					const map = this.disabled
+						? buttonClasses.disabled
+						: buttonClasses.variant
+					return map[key] ?? ''
+				},
+			},
+			template: `<button type="button" :class="stateClasses" :disabled="disabled" :aria-label="label" @click="$emit('click')"><slot /></button>`,
 		},
 		Badge: empty,
 		Checkbox: empty,
@@ -99,7 +135,7 @@ vi.stubGlobal('__', (value: string) => value)
 // `String.format` is supplied by Frappe in the browser runtime.
 String.prototype.format = function (...args: unknown[]) {
 	return this.replace(/\{(\d+)\}/g, (_match: string, index: number) =>
-		String(args[index]),
+		String(args[index])
 	)
 }
 
@@ -129,9 +165,9 @@ const quizResponse = () => ({
 	},
 })
 
-const mountQuiz = () =>
+const mountQuiz = (props: Record<string, unknown> = {}) =>
 	mount(Quiz, {
-		props: { quizName: 'QUIZ-1' },
+		props: { quizName: 'QUIZ-1', ...props },
 		global: {
 			provide: { $user: { data: { name: 'learner@example.com' } } },
 			mocks: { __: (value: string) => value },
@@ -141,6 +177,7 @@ const mountQuiz = () =>
 beforeEach(() => {
 	resourceState.cache.clear()
 	resourceState.request.mockReset()
+	resourceState.submits.length = 0
 	resourceState.response = quizResponse()
 	localStorage.clear()
 })
@@ -150,10 +187,10 @@ describe('Quiz remount', () => {
 		const first = mountQuiz()
 		await flushPromises()
 
-		expect(first.text()).toContain('This quiz consists of 1 questions.')
+		expect(first.text()).toContain('1 question')
 		expect(first.text()).toContain('Start')
 		expect(first.text()).not.toContain(
-			'This quiz has no questions available yet.',
+			'This quiz has no questions available yet.'
 		)
 		expect(resourceState.request).toHaveBeenCalledTimes(1)
 		first.unmount()
@@ -166,15 +203,15 @@ describe('Quiz remount', () => {
 			['lms.lms.utils.get_quiz_with_questions', { quiz: 'QUIZ-1' }],
 			['lms.lms.utils.get_quiz_with_questions', { quiz: 'QUIZ-1' }],
 		])
-		expect(second.text()).toContain('This quiz consists of 1 questions.')
+		expect(second.text()).toContain('1 question')
 		expect(second.text()).toContain('Start')
 		expect(second.text()).not.toContain(
-			'This quiz has no questions available yet.',
+			'This quiz has no questions available yet.'
 		)
 
 		const start = second
 			.findAll('button')
-			.find((button) => button.text() === 'Start')
+			.find((button) => button.text() === 'Start Quiz')
 		expect(start).toBeDefined()
 		await start!.trigger('click')
 		await flushPromises()
@@ -182,5 +219,72 @@ describe('Quiz remount', () => {
 		expect(second.text()).toContain('Visible question body')
 		expect(resourceState.request).toHaveBeenCalledTimes(2)
 		second.unmount()
+	})
+})
+
+const choicesQuizResponse = (count: number) => ({
+	quiz: {
+		name: 'QUIZ-1',
+		title: 'Quiz pager states',
+		duration: 0,
+		passing_percentage: 70,
+		shuffle_questions: 0,
+		show_answers: 0,
+		show_submission_history: 0,
+		questions: Array.from({ length: count }, (_unused, index) => ({
+			question: `Q${index + 1}`,
+			marks: 1,
+		})),
+	},
+	questions_by_name: Object.fromEntries(
+		Array.from({ length: count }, (_unused, index) => [
+			`Q${index + 1}`,
+			{
+				name: `Q${index + 1}`,
+				question: `Question body ${index + 1}`,
+				type: 'Choices',
+				multiple: 0,
+				option_1: `First option ${index + 1}`,
+				is_correct_1: 1,
+				option_2: `Second option ${index + 1}`,
+			},
+		])
+	),
+})
+
+const startQuiz = async (wrapper: VueWrapper<any>) => {
+	const start = wrapper
+		.findAll('button')
+		.find((button) => button.text() === 'Start Quiz')
+	expect(start).toBeDefined()
+	await start!.trigger('click')
+	await flushPromises()
+}
+describe('Quiz in an author preview', () => {
+	beforeEach(() => {
+		resourceState.response = choicesQuizResponse(1)
+	})
+
+	// The quiz form's Preview mounts this as it ships, and the button is not the
+	// only way in: a timed quiz auto-submits and proctoring submits on a
+	// violation. That submission is real.
+	it('writes nothing when a submit is triggered anyway', async () => {
+		vi.useFakeTimers()
+		try {
+			const wrapper = mountQuiz({ preview: true })
+			await flushPromises()
+			await startQuiz(wrapper)
+			resourceState.submits.length = 0
+			;(wrapper.vm as any).submitQuiz('timeout')
+			await vi.advanceTimersByTimeAsync(1000)
+			await flushPromises()
+
+			expect(resourceState.submits).not.toContain(
+				'lms.lms.doctype.lms_quiz.lms_quiz.submit_quiz'
+			)
+			wrapper.unmount()
+		} finally {
+			vi.useRealTimers()
+		}
 	})
 })

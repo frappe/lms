@@ -1,14 +1,4 @@
-/**
- * Selection in ResponsiveListView.
- *
- * The component draws a desk row above 640px and a card below it. Bulk actions
- * are the part of a list page that a breakpoint can silently take away: a
- * moderator on a phone still has to be able to pick rows and reach the page's
- * #selection-actions banner. What is pinned down here is that both shapes are
- * selected out of the one frappe-ui ListView, that the banner slot is handed
- * the same props at either width, and that a page which never asked to be
- * selectable gets no selection furniture on a phone.
- */
+/** Selection in ResponsiveListView. */
 import { describe, expect, it, vi } from 'vitest'
 import { h, nextTick, ref } from 'vue'
 import { mount } from '@vue/test-utils'
@@ -24,10 +14,7 @@ vi.mock('@/utils/composables', async () => {
 	}
 })
 
-// The stubs below are trimmed copies of the frappe-ui components they stand in
-// for, kept faithful on the one thing under test: where the selection lives.
-// The real ones cannot be imported here: frappe-ui's ListView pulls in its
-// resources plugin, which does not resolve outside a Vite app build.
+// The stubs below are trimmed copies of the frappe-ui components they stand in for, kept faithful on the one thing under test: where the selection lives.
 vi.mock('frappe-ui', async () => {
 	const { computed, defineComponent, inject, provide, reactive, watch } =
 		await import('vue')
@@ -60,8 +47,7 @@ vi.mock('frappe-ui', async () => {
 				}
 			}
 
-			// ListSelectBanner reads the selection by injection, including when it
-			// is written into the default slot the way this component writes it.
+			// ListSelectBanner reads the selection by injection, including when it is written into the default slot the way this component writes it.
 			provide(
 				'list',
 				computed(() => ({
@@ -79,10 +65,7 @@ vi.mock('frappe-ui', async () => {
 			expose({ selections, toggleRow, toggleAllRows })
 			return {}
 		},
-		// Both wrappers are copied verbatim from frappe-ui's ListView.vue, class
-		// lists included. The inner one is the reason the cards need a scroll box
-		// of their own: it clips them, and the class a caller passes lands on it
-		// rather than replacing anything.
+		// Both wrappers are copied verbatim from frappe-ui's ListView.vue, class lists included.
 		template: `<div class="relative flex w-full flex-1 flex-col overflow-x-auto">
 			<div
 				class="flex w-max min-w-full flex-col overflow-y-hidden"
@@ -118,8 +101,7 @@ vi.mock('frappe-ui', async () => {
 		props: { modelValue: Boolean, size: String },
 		emits: ['update:modelValue'],
 		setup(_props, { emit }) {
-			// frappe-ui's Checkbox writes its model and then re-emits, so one change
-			// reports the same value twice.
+			// frappe-ui's Checkbox writes its model and then re-emits, so one change reports the same value twice.
 			function onChange(event: Event) {
 				const next = (event.target as HTMLInputElement).checked
 				emit('update:modelValue', next)
@@ -158,8 +140,7 @@ vi.mock('frappe-ui', async () => {
 
 vi.stubGlobal('__', (text: string) => text)
 
-// frappe's translation layer patches String.prototype.format onto the page at
-// runtime; every list page in this app calls it, so the tests get it too.
+// frappe's translation layer patches String.prototype.format onto the page at runtime; every list page in this app calls it, so the tests get it too.
 String.prototype.format = function (this: string, ...args: unknown[]): string {
 	return this.replace(/{(\d+)}/g, (match, index) =>
 		args[Number(index)] === undefined ? match : String(args[Number(index)])
@@ -198,8 +179,7 @@ async function mountList(options?: Record<string, unknown>, withBanner = true) {
 					},
 			  }
 			: {},
-		// `__` in a template compiles to `_ctx.__`, which resolves through the
-		// instance rather than globalThis, so stubGlobal alone does not reach it.
+		// `__` in a template compiles to `_ctx.__`, which resolves through the instance rather than globalThis, so stubGlobal alone does not reach it.
 		global: {
 			mocks: { __: (text: string) => text },
 			stubs: { 'router-link': { template: '<a><slot /></a>' } },
@@ -317,10 +297,7 @@ describe('ResponsiveListView cards and row navigation', () => {
 		expect(clickCard(wrapper, 1).defaultPrevented).toBe(false)
 	})
 
-	// A card is the row's own link; once a selection is open, following it would
-	// throw the moderator off the page and drop what they had picked. It stops
-	// being a link entirely rather than preventing the default: RouterLink merges
-	// an outer @click BEHIND its own handler, which has already pushed the route.
+	// A card is the row's own link; once a selection is open, following it would throw the moderator off the page and drop what they had picked.
 	it('turns a card into a selection target while a selection is open', async () => {
 		mobile.value = true
 		const { wrapper, banner } = await mountList(routedOptions)
@@ -388,27 +365,10 @@ describe('ResponsiveListView without selection', () => {
 	})
 })
 
-/**
- * frappe-ui hands its rows a box it has already clipped (`overflow-y-hidden`),
- * and supplies the scrolling itself in ListRows. The card shape replaces
- * ListRows, so it has to supply that scrolling too. Without it the cards past
- * the first screenful are painted and unreachable, which is what a phone with
- * 24 quizzes on it actually showed. jsdom has no layout to measure, so what is
- * pinned here is the structure that produces it; the measurement lives in the
- * handover.
- */
+/** frappe-ui hands its rows a box it has already clipped (`overflow-y-hidden`), and supplies the scrolling itself in ListRows. */
 describe('ResponsiveListView card scrolling', () => {
 	const SCROLLS = 'overflow-y-auto'
 
-	// The cards must not scroll inside anything of their own. The page body owns
-	// the single scroll box, and on a phone even that is released so the page
-	// itself scrolls; a box here would take the page's scroll range away, and a
-	// browser only retracts its URL bar when the root scroller moves.
-	//
-	// It is worth stating because frappe-ui makes it easy to get wrong twice
-	// over: the box it hands these rows is `overflow-y-hidden`, and it supplies
-	// the scrolling in ListRows, which the card shape replaces. Give the cards
-	// nothing and they are clipped; give them a scroller and the page is.
 	it('never scrolls the cards inside a box of their own', async () => {
 		mobile.value = true
 		const { wrapper } = await mountList(routedOptions)
@@ -442,5 +402,76 @@ describe('ResponsiveListView card scrolling', () => {
 		const banner = wrapper.find('[data-testid="select-banner"]').element
 		const list = wrapper.find('ul').element
 		expect(banner.contains(list)).toBe(false)
+	})
+})
+
+/** The `·` between the card's detail cells. */
+describe('ResponsiveListView detail separator', () => {
+	const mountCards = async (props: Record<string, unknown> = {}) => {
+		const { default: ResponsiveListView } = await import(
+			'@/components/ResponsiveListView.vue'
+		)
+		mobile.value = true
+		const wrapper = mount(ResponsiveListView, {
+			props: { columns: COLUMNS, rows: ROWS, rowKey: 'name', ...props },
+			global: {
+				mocks: { __: (text: string) => text },
+				stubs: { 'router-link': { template: '<a><slot /></a>' } },
+			},
+		})
+		await nextTick()
+		return wrapper
+	}
+
+	// COLUMNS is title + one detail column, so a second detail column is what makes the separator reachable at all: it renders only from index 1 on.
+	const TWO_DETAILS = [...COLUMNS, { label: 'Owner', key: 'name', width: 1 }]
+
+	it('draws the middot between detail cells by default', async () => {
+		const wrapper = await mountCards({ columns: TWO_DETAILS })
+		expect(wrapper.find('li').text()).toContain('·')
+	})
+
+	it('hides it from assistive tech, being decoration', async () => {
+		const wrapper = await mountCards({ columns: TWO_DETAILS })
+		const dot = wrapper
+			.findAll('li')[0]
+			.findAll('span')
+			.find((s) => s.text() === '·')!
+		expect(dot.attributes('aria-hidden')).toBe('true')
+	})
+
+	it('never draws one before the first detail cell', async () => {
+		// One detail column, so there is no gap to fill and `v-if="index"` is what keeps a leading middot off the row.
+		const wrapper = await mountCards()
+		expect(wrapper.find('li').text()).not.toContain('·')
+	})
+
+	it('drops it when a list opts out', async () => {
+		const wrapper = await mountCards({
+			columns: TWO_DETAILS,
+			noDetailSeparator: true,
+		})
+		expect(wrapper.find('li').text()).not.toContain('·')
+	})
+
+	it('renders nothing at all in its place, not an empty span', async () => {
+		// The detail row is a flex box with `gap-x-1.5`, so an empty span left behind would still hold a gap open and the cells would sit further apart with the separator gone than a list that never had one.
+		const plain = await mountCards()
+		const opted = await mountCards({
+			columns: TWO_DETAILS,
+			noDetailSeparator: true,
+		})
+		const spans = (w: VueWrapper) =>
+			w.findAll('li')[0].findAll('[data-list-card] > div')[1].findAll('span')
+				.length
+		// One wrapper span per detail cell, plus its sr-only label, and nothing else: two cells opted out cost exactly twice what one cell costs.
+		expect(spans(opted as VueWrapper)).toBe(2 * spans(plain as VueWrapper))
+	})
+
+	it('keeps the separator for a list that says nothing', async () => {
+		// The regression that matters: the default is what a dozen callers get.
+		const wrapper = await mountCards({ columns: TWO_DETAILS })
+		expect(wrapper.props('noDetailSeparator')).toBe(false)
+		expect(wrapper.find('li').text()).toContain('·')
 	})
 })

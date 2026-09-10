@@ -9,6 +9,7 @@
 			:size="(attrs.size as ComboboxSize) || 'sm'"
 			:aria-label="label ? undefined : (attrs['aria-label'] as string)"
 			:variant="attrs.variant as ComboboxVariant"
+			:align="props.align"
 			:loading="options.loading"
 			:label="label ? __(label) : undefined"
 			:required="required"
@@ -108,8 +109,11 @@ const props = withDefaults(
 		inlineCreate?: boolean
 		inlineCreatePlaceholder?: string
 		onCreate?: CreateHandler
+		// Where the popover hangs off the control. `end` is the trailing edge in
+		// either direction, so a control near the end of a row opens inwards.
+		align?: 'start' | 'center' | 'end'
 	}>(),
-	{ inlineCreatePlaceholder: 'Enter...' }
+	{ inlineCreatePlaceholder: 'Enter...', align: 'start' }
 )
 
 const emit = defineEmits<{

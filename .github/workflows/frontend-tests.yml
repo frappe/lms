@@ -10,7 +10,24 @@ jobs:
     name: Vitest
     runs-on: ubuntu-latest
     steps:
+      # The bench layout, because frontend/package.json declares
+      # `@framework/ui: link:../../frappe/ui` the way helpdesk and crm do. A
+      # checkout at the workspace root resolves that link outside the workspace,
+      # and vitest then fails with "Failed to resolve import
+      # @framework/ui/ConditionBuilder", naming neither the link nor the cause.
       - uses: actions/checkout@v4
+        with:
+          path: apps/lms
+
+      # Only the package the link points at. `develop`, because ConditionBuilder
+      # is on no version-16 branch or v16 tag. It is bundled into the SPA at
+      # build time, so this pins what LMS builds against, not what it runs on.
+      - uses: actions/checkout@v4
+        with:
+          repository: frappe/frappe
+          ref: develop
+          path: apps/frappe
+          sparse-checkout: ui
 
       - uses: actions/setup-node@v6
         with:
@@ -21,14 +38,14 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.cache/yarn
-          key: ${{ runner.os }}-yarn-${{ hashFiles('frontend/yarn.lock') }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('apps/lms/frontend/yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-yarn-
 
       - name: Install dependencies
-        working-directory: frontend
+        working-directory: apps/lms/frontend
         run: yarn install --frozen-lockfile
 
       - name: Run vitest
-        working-directory: frontend
+        working-directory: apps/lms/frontend
         run: yarn test --run
