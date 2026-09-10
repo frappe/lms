@@ -32,6 +32,12 @@ interface FieldBase {
 	 * block is the only caller. A hidden field is not written and not validated.
 	 */
 	showIf?: (doc: SettingsListRow) => boolean
+	/**
+	 * Drops the border a section normally draws above every field but the
+	 * first, so this one sits flush against the field before it, as one
+	 * group rather than two separate rows.
+	 */
+	noDivider?: boolean
 }
 
 /**
@@ -62,17 +68,19 @@ export type SettingsField =
 			 */
 			min?: number
 			/**
-			 * Draw the control across the row with its label above, the way
-			 * `textarea` and `richtext` are drawn, instead of in the 12rem column
-			 * on the end edge.
-			 *
-			 * For a one-line value that is nonetheless long: an Email Template's
-			 * subject is a sentence carrying Jinja placeholders, and 12rem showed
-			 * the user "Your batch {{ batch }} star" and stopped. Not a textarea
-			 * instead — a control that accepts a newline would be lying about a
-			 * field the server stores as one line.
+			 * Draws the control full width with label above, like `textarea`,
+			 * instead of the 12rem end column. For a one-line value that's
+			 * nonetheless long (an Email Template subject); not textarea.
 			 */
 			fullWidth?: boolean
+			/**
+			 * `type: 'password'` only. The shared diff-and-save is wrong for it:
+			 * sending the loaded mask back stores the mask, and an untouched
+			 * blank clears the secret. Renderer keeps it out of `data`, reporting
+			 * a typed value via `@secret` for the page to write at Save. Manual
+			 * pages only; nothing here fires that write on autosave's behalf.
+			 */
+			secret?: boolean
 	  })
 	| (FieldBase & { type: 'textarea'; rows?: number })
 	| (FieldBase & DisplayFallback & { type: 'select'; options: FieldOptions })
@@ -233,6 +241,16 @@ export interface ListPage {
 	empty?: { name: string; icon?: string }
 	create?: { label?: string; detail: DetailPage }
 	rowDetail?: DetailPage
+	/**
+	 * Shows a banner and greys out the list until Google API is enabled.
+	 * Google Calendar's OAuth has nothing to authorize against otherwise.
+	 */
+	requiresGoogleApi?: boolean
+	/**
+	 * Same as {@link requiresGoogleApi}, plus at least one Google Calendar
+	 * row. A Meet account can't name a calendar that doesn't exist yet.
+	 */
+	requiresGoogleCalendar?: boolean
 }
 
 export interface CustomPage {

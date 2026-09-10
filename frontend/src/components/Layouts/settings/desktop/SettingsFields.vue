@@ -110,8 +110,38 @@
 					</div>
 
 					<div
+						v-else-if="field.type == 'password' && field.secret"
+						class="py-3"
+					>
+						<div class="text-p-base-medium text-ink-gray-7 mb-2">
+							{{ __(field.label) }}
+						</div>
+						<FormControl
+							type="password"
+							class="w-full"
+							:model-value="secretValues[field.name] || ''"
+							:required="field.reqd"
+							:disabled="field.disabled"
+							:aria-label="__(field.label)"
+							:placeholder="
+								hasStoredSecret(field)
+									? __('Saved, leave blank to keep it')
+									: field.placeholder || __(field.label)
+							"
+							@update:model-value="(value) => setSecret(field, value)"
+						/>
+						<div
+							v-if="field.description"
+							class="text-p-sm text-ink-gray-5 mt-2"
+						>
+							{{ __(field.description) }}
+						</div>
+					</div>
+
+					<div
 						v-else-if="field.fullWidth"
 						class="py-3"
+						:class="{ '!border-t-0': field.noDivider }"
 						@input="onInput(field)"
 						@focusout="onSettle(field)"
 					>
@@ -205,7 +235,7 @@
 <script setup>
 import { FormControl, Select } from 'frappe-ui'
 import BooleanSwitch from '@/components/Controls/BooleanSwitch.vue'
-import { watch } from 'vue'
+import { reactive, watch } from 'vue'
 import Link from '@/components/Controls/Link.vue'
 import CodeEditor from '@/components/Controls/CodeEditor.vue'
 import ImageUploadField from '@/components/Controls/ImageUploadField.vue'
@@ -237,21 +267,21 @@ const props = defineProps({
 	},
 })
 
-// There is no Update button on these panels, so every control has to say when
-// its value is settled and the panel above decides what to do about it.
-//
-// A checkbox, radio, dropdown, switch or Link commits 'now' — a pick is whole
-// at the first interaction. A text, number or code field commits 'typing',
-// which the panel writes only after a rest period, so a half-typed value is
-// not sent a character at a time into a doctype that validates on save
-// (contact_us_email, contact_us_url and lesson_dwell_time each throw from
-// validate()).
-//
-// Leaving the field ends the typing, so focusout commits 'now' too. That is
-// not a second write: dirtiness is a comparison, so it writes if the value
-// changed and does nothing if it did not. focusout and not blur, because blur
-// does not bubble past the input.
-const emit = defineEmits(['commit'])
+// No Update button here: a pick commits 'now'; text/number/code fields
+// commit 'typing', debounced so partial values don't hit validate() mid-type.
+// focusout also commits 'now' (blur doesn't bubble).
+const emit = defineEmits(['commit', 'secret'])
+
+// A `secret` field's typed value, kept out of `data` (see the schema's own
+// note on why). Reports up via `@secret` instead of the normal commit path.
+const secretValues = reactive({})
+
+const hasStoredSecret = (field) => Boolean(props.data[field.name])
+
+const setSecret = (field, value) => {
+	secretValues[field.name] = value
+	emit('secret', field.name, value)
+}
 
 // The template branches out switch, Link and select on its own. This is for
 // everything the shared FormControl branch covers, where a radio or a date is

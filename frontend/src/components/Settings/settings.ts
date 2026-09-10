@@ -3,6 +3,7 @@ import type { SettingsGroup } from '@/types/settingsSchema'
 import Categories from '@/components/Settings/Categories.vue'
 import { membersSettingsPage } from '@/components/Settings/Members/members'
 import EmailConfig from '@/components/Settings/EmailAccount/EmailConfig.vue'
+import { emailTemplateSettingsPage } from '@/components/Settings/EmailTemplate/emailTemplate'
 import { sidebarSettingsPage } from '@/components/Settings/Sidebar/sidebar'
 // BrandSettings.vue is still `<script setup>` with no `lang="ts"`, so a TS
 // importer gets TS7016; only settingsStructure.js reached it before. Clears
@@ -20,7 +21,7 @@ import {
 	googleMeetSettingsPage,
 } from '@/components/Settings/GoogleMeet/googleMeet'
 import { canManageGoogleIntegrations } from '@/components/Settings/GoogleApi/googleApi'
-import GoogleApiSettings from '@/components/Settings/GoogleApi/GoogleApiSettings.vue'
+import Services from '@/components/Settings/Services/Services.vue'
 import { googleCalendarSettingsPage } from '@/components/Settings/GoogleCalendar/googleCalendar'
 import RavenSettings from '@/components/Settings/Raven/RavenSettings.vue'
 import Preferences from '@/components/Settings/Preferences.vue'
@@ -171,6 +172,74 @@ export const settingsTree: SettingsGroup[] = [
 		label: 'Communication',
 		items: [
 			{
+				label: 'General',
+				slug: 'communication-general',
+				icon: 'lucide-settings-2',
+				// Moved back here from Preferences.vue, since both are about how
+				// the site communicates. Both write LMS Settings, which
+				// Preferences.vue already autosaves, so this page needs no writer.
+				page: {
+					kind: 'fields',
+					source: { doc: 'LMS Settings' },
+					save: 'auto',
+					sections: [
+						{
+							label: 'Contact Information',
+							fields: [
+								{
+									label: 'Email',
+									name: 'contact_us_email',
+									type: 'text',
+									fullWidth: true,
+								},
+								{
+									label: 'URL',
+									name: 'contact_us_url',
+									type: 'text',
+									fullWidth: true,
+									noDivider: true,
+								},
+							],
+						},
+						// Both override the notification rule's own wording. Shown
+						// here so a site that set one can clear it.
+						{
+							label: 'Email Templates',
+							fields: [
+								{
+									label: 'Batch Confirmation Template',
+									name: 'batch_confirmation_template',
+									type: 'link',
+									doctype: 'Email Template',
+									// CRM adds an `enabled` Check field to Email Template,
+									// defaulting to disabled, and search_widget filters on
+									// it unless told otherwise. See the `filters` doc comment.
+									filters: { include_disabled: 1 },
+									description:
+										'Replaces the wording of the batch enrollment notification.',
+								},
+								{
+									label: 'Certificate Email Template',
+									name: 'certification_template',
+									type: 'link',
+									doctype: 'Email Template',
+									filters: { include_disabled: 1 },
+									description:
+										'Replaces the wording of the certification notification.',
+								},
+							],
+						},
+					],
+				},
+			},
+			{
+				label: 'Email Template',
+				slug: 'email-template',
+				icon: 'lucide-mail-plus',
+				records: true,
+				page: emailTemplateSettingsPage,
+			},
+			{
 				label: 'Email Accounts',
 				slug: 'email-accounts',
 				icon: 'lucide-mail',
@@ -301,23 +370,16 @@ export const settingsTree: SettingsGroup[] = [
 		],
 	},
 	{
-		label: 'Conferencing',
+		// Conferencing folded in here. Google Meet, Calendar and Zoom are
+		// conferencing providers, no different from the rest of Integrations.
+		label: 'Integrations',
 		hideLabel: false,
 		items: [
 			{
-				label: 'Google Meet',
-				slug: 'google-meet',
-				icon: 'lucide-presentation',
-				records: true,
-				condition: canManageGoogleMeet,
-				page: googleMeetSettingsPage,
-			},
-			{
-				label: 'Google API',
-				slug: 'google-api',
-				icon: 'lucide-cloud',
-				condition: canManageGoogleIntegrations,
-				page: { kind: 'custom', component: markRaw(GoogleApiSettings) },
+				label: 'Services',
+				slug: 'services',
+				icon: 'lucide-key-round',
+				page: { kind: 'custom', component: markRaw(Services) },
 			},
 			{
 				label: 'Google Calendar',
@@ -328,54 +390,25 @@ export const settingsTree: SettingsGroup[] = [
 				page: googleCalendarSettingsPage,
 			},
 			{
+				label: 'Google Meet',
+				slug: 'google-meet',
+				icon: 'lucide-presentation',
+				records: true,
+				condition: canManageGoogleMeet,
+				page: googleMeetSettingsPage,
+			},
+			{
 				label: 'Zoom',
 				slug: 'zoom',
 				icon: 'lucide-video',
 				records: true,
 				page: zoomSettingsPage,
 			},
-		],
-	},
-	{
-		label: 'Integrations',
-		hideLabel: false,
-		items: [
 			{
 				label: 'Raven',
 				slug: 'raven',
 				icon: 'lucide-messages-square',
 				page: { kind: 'custom', component: markRaw(RavenSettings) },
-			},
-			{
-				label: 'Services',
-				slug: 'services',
-				icon: 'lucide-key-round',
-				page: {
-					kind: 'fields',
-					source: { doc: 'LMS Settings' },
-					save: 'auto',
-					sections: [
-						{
-							label: 'Services',
-							fields: [
-								{
-									label: 'Livecode URL',
-									name: 'livecode_url',
-									type: 'text',
-									description:
-										"Address of the LiveCode server that runs the code learners write in programming exercises. Leave it blank to use Frappe's hosted server, or see https://docs.frappe.io/learning/falcon-self-hosting-guide to host your own.",
-								},
-								{
-									label: 'Unsplash Access Key',
-									name: 'unsplash_access_key',
-									type: 'password',
-									description:
-										'Allows users to pick a profile cover image from Unsplash. https://unsplash.com/documentation#getting-started.',
-								},
-							],
-						},
-					],
-				},
 			},
 		],
 	},

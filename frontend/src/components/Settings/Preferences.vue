@@ -262,55 +262,8 @@ const accessSections = [
 			},
 		],
 	},
-	// Communication's own General page was dissolved into this one, so these
-	// two sections arrive whole rather than being redistributed. They write
-	// LMS Settings, which is the doc this page already autosaves, so they need
-	// no writer of their own.
-	{
-		label: 'Contact Information',
-		fields: [
-			{
-				label: 'Email',
-				name: 'contact_us_email',
-				type: 'text',
-				description:
-					'Users can reach out to this email for support or inquiries.',
-			},
-			{
-				label: 'URL',
-				name: 'contact_us_url',
-				type: 'text',
-				description:
-					'Users can reach out to this URL for support or inquiries.',
-			},
-		],
-	},
-	// Both override the wording of the notification rule that sends that mail, so
-	// a site that set one before upgrading keeps sending the old template and an
-	// admin editing the rule sees no effect. Shown here so it can be cleared.
-	{
-		label: 'Email Templates',
-		fields: [
-			{
-				label: 'Batch Confirmation Template',
-				name: 'batch_confirmation_template',
-				type: 'link',
-				doctype: 'Email Template',
-				description:
-					'Replaces the wording of the batch enrollment notification.',
-			},
-			{
-				label: 'Certificate Email Template',
-				name: 'certification_template',
-				type: 'link',
-				doctype: 'Email Template',
-				description: 'Replaces the wording of the certification notification.',
-			},
-		],
-	},
 	// Not a notification gate. It decides whether a booking carries a calendar
-	// invite, not whether the evaluation mail is sent, which is why it sits with
-	// the rest of the site's contact settings.
+	// invite, not whether the evaluation mail is sent.
 	{
 		label: 'Evaluations',
 		fields: [

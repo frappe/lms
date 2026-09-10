@@ -286,13 +286,11 @@ const MANIFEST: Record<string, Privacy[]> = {
 	'components/DiscussionReplies.vue': ['undeclared', 'undeclared'],
 	'components/Modals/DiscussionModal.vue': ['undeclared'],
 	'components/Quiz.vue': ['undeclared'],
-	'components/Settings/EmailTemplate/EmailTemplateAdd.vue': ['undeclared'],
-	'components/Settings/EmailTemplate/EmailTemplateEdit.vue': ['undeclared'],
-	// SettingsFields draws its upload field (ImageUploadField, per-field) ahead
-	// of its richtext field (RichTextEditor, undeclared) in document order, but
-	// openingTags groups matches by tag marker first, and RichTextEditor's
-	// marker sorts ahead of ImageUploadField's in UPLOADER_TAGS — so the
-	// undeclared entry lands first here regardless of source order.
+	// SettingsFields draws its upload field ahead of its richtext field in
+	// document order, but openingTags groups matches by tag marker first, and
+	// RichTextEditor's marker sorts ahead of ImageUploadField's in
+	// UPLOADER_TAGS, so the undeclared entry lands first here regardless of
+	// source order.
 	'components/Layouts/settings/desktop/SettingsFields.vue': [
 		'undeclared',
 		'per-field',

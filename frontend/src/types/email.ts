@@ -45,17 +45,3 @@ export interface EmailAccount {
 	append_emails_to_sent_folder?: boolean | number
 	sent_folder_name?: string
 }
-
-export interface EmailTemplate {
-	name: string
-	subject?: string
-	reference_doctype?: string
-	use_html?: boolean | number
-	response?: string
-	response_html?: string
-}
-
-export type EmailTemplateStep =
-	| 'template-list'
-	| 'template-new'
-	| 'template-edit'
