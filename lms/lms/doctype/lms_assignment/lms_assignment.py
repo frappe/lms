@@ -3,6 +3,7 @@
 
 from frappe.model.document import Document
 
+<<<<<<< HEAD
 from lms.lms.doctype.lms_content_author.lms_content_author import AuthoredDocument
 from lms.lms.schedule_utils import validate_schedule_fields
 from lms.lms.utils import generate_slug
@@ -15,5 +16,11 @@ class LMSAssignment(AuthoredDocument, Document):
 		if not self.name:
 			self.name = generate_slug(self.title, "LMS Assignment", reserved=frozenset({"new"}))
 
+=======
+from lms.lms.schedule_utils import validate_schedule_fields
+
+
+class LMSAssignment(Document):
+>>>>>>> 60ef8e4 (feat(quiz): add availability scheduling for quizzes and assignments)
 	def validate(self):
 		validate_schedule_fields(self)

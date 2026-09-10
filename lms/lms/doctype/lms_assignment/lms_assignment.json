@@ -84,12 +84,15 @@
    "options": "LMS Course"
   },
   {
+<<<<<<< HEAD
    "fieldname": "authors",
    "fieldtype": "Table MultiSelect",
    "label": "Authors",
    "options": "LMS Content Author"
   },
   {
+=======
+>>>>>>> 60ef8e4 (feat(quiz): add availability scheduling for quizzes and assignments)
    "fieldname": "section_break_schedule",
    "fieldtype": "Section Break",
    "label": "Scheduling"

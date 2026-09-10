@@ -132,10 +132,16 @@ import BooleanSwitch from '@/components/Controls/BooleanSwitch.vue'
 import { useFormRoute } from '@/composables/useFormRoute'
 import Link from '@/components/Controls/Link.vue'
 import RichTextEditor from '@/components/RichTextEditor.vue'
+<<<<<<< HEAD
 import { InputLabel } from 'frappe-ui/experimental'
 import { resourceErrorMessage, submitResource } from '@/utils/resource'
 import { toDatetimeLocal, fromDatetimeLocal } from '@/utils/schedule'
 import { useCanWrite } from '@/composables/useCanWrite'
+=======
+import { InputLabel } from '@/components/Form/labeling'
+import { submitResource } from '@/utils/resource'
+import { toDatetimeLocal, fromDatetimeLocal } from '@/utils/schedule'
+>>>>>>> 60ef8e4 (feat(quiz): add availability scheduling for quizzes and assignments)
 
 const questionLabelId = useId()
 
@@ -266,6 +272,7 @@ const saving = computed<boolean>(() =>
 	Boolean(newAssignment.loading || assignmentDoc?.setValue?.loading)
 )
 
+<<<<<<< HEAD
 // An image-only question has no text but is not empty (CourseCreatorCard.vue).
 const hasContent = (html: string): boolean =>
 	html.replace(/<[^>]*>/g, '').trim().length > 0 || /<img\b/i.test(html)
@@ -308,6 +315,28 @@ const validateFields = (): boolean => {
 		return false
 	}
 	return validateSchedule()
+=======
+const validateFields = (): boolean => {
+	assignment.title = sanitizeOnWrite(assignment.title.trim())
+	assignment.question = sanitizeOnWrite(assignment.question)
+	if (assignment.enable_scheduling) {
+		if (!assignment.schedule_start) {
+			toast.error(__('Schedule Start is required when scheduling is enabled.'))
+			return false
+		}
+		if (
+			assignment.schedule_end &&
+			new Date(assignment.schedule_end) <= new Date(assignment.schedule_start)
+		) {
+			toast.error(__('Schedule End must be after Schedule Start.'))
+			return false
+		}
+	} else {
+		assignment.schedule_start = null
+		assignment.schedule_end = null
+	}
+	return true
+>>>>>>> 60ef8e4 (feat(quiz): add availability scheduling for quizzes and assignments)
 }
 
 const updateAssignment = (): void => {
@@ -334,7 +363,11 @@ const updateAssignment = (): void => {
 }
 
 const saveAssignment = (): void => {
+<<<<<<< HEAD
 	if (!canManageAssignments.value || !canEdit.value) return
+=======
+	if (!canManageAssignments.value) return
+>>>>>>> 60ef8e4 (feat(quiz): add availability scheduling for quizzes and assignments)
 	if (!validateFields()) return
 	if (isNew.value) newAssignment.submit()
 	else updateAssignment()

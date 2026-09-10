@@ -8,6 +8,7 @@
 				{{ __('Submission by') }} {{ submissionDoc?.member_name }}
 			</div>
 		</div>
+<<<<<<< HEAD
 		<AssessmentCard>
 			<AssessmentCardHeader
 				icon="lucide-notebook-pen"
@@ -15,6 +16,52 @@
 				:subtitle="assignment.data.title"
 			>
 				<ShortcutTooltip
+=======
+
+		<div class="flex flex-col overflow-y-auto">
+			<div class="p-5 space-y-5">
+				<div
+					v-if="scheduleBlocked"
+					class="bg-surface-amber-1 text-ink-amber-6 p-3 rounded-md leading-5 text-sm"
+				>
+					{{ scheduleMessage }}
+				</div>
+				<div class="flex items-center justify-between">
+					<div class="font-semibold text-ink-gray-9">
+						{{ __('Submission') }}
+					</div>
+					<div class="flex items-center gap-x-2">
+						<Badge v-if="isDirty" theme="orange">
+							{{ __('Not Saved') }}
+						</Badge>
+						<Badge
+							v-else-if="submissionResource.doc?.status"
+							:theme="statusTheme"
+							size="lg"
+						>
+							{{ submissionResource.doc?.status }}
+						</Badge>
+						<ShortcutTooltip
+							v-if="
+								(canModifyAssignment || canGradeSubmission) &&
+								(!scheduleBlocked || canGradeSubmission)
+							"
+							:label="__('Save')"
+							combo="Mod+S"
+						>
+							<Button
+								variant="solid"
+								:loading="isSubmitting"
+								:disabled="scheduleBlocked && !canGradeSubmission"
+								@click="submitAssignment()"
+							>
+								{{ __('Save') }}
+							</Button>
+						</ShortcutTooltip>
+					</div>
+				</div>
+				<div
+>>>>>>> 60ef8e4 (feat(quiz): add availability scheduling for quizzes and assignments)
 					v-if="
 						(canModifyAssignment || canGradeSubmission) &&
 						(!scheduleBlocked || canGradeSubmission)
@@ -22,6 +69,7 @@
 					:label="saveLabel"
 					combo="Mod+S"
 				>
+<<<<<<< HEAD
 					<Button
 						variant="solid"
 						size="sm"
@@ -33,6 +81,102 @@
 					</Button>
 				</ShortcutTooltip>
 			</AssessmentCardHeader>
+=======
+					{{ __("You've successfully submitted the assignment.") }}
+					{{
+						__(
+							"Once the moderator grades your submission, you'll find the details here."
+						)
+					}}
+					{{ __('Feel free to make edits to your submission if needed.') }}
+				</div>
+				<div
+					v-if="showUploader() && canModifyAssignment && !scheduleBlocked"
+					class="border rounded-lg p-3"
+				>
+					<div class="font-semibold mb-2">
+						{{ __('Upload Assignment') }}
+					</div>
+					<div class="text-ink-gray-5 text-sm mt-1 mb-4">
+						{{
+							__('You can only upload {0} files').format(assignment.data.type)
+						}}
+					</div>
+					<FileUploader
+						v-if="!attachment"
+						:fileTypes="getType()"
+						:uploadArgs="{
+							private: true,
+						}"
+						:validateFile="
+							(file) =>
+								validateFile(file, true, assignment.data.type.toLowerCase())
+						"
+						@success="(file) => saveSubmission(file)"
+					>
+						<template #default="{ uploading, progress, openFileSelector }">
+							<Button @click="openFileSelector" :loading="uploading">
+								{{
+									uploading
+										? __('Uploading {0}%').format(progress)
+										: __('Upload File')
+								}}
+							</Button>
+						</template>
+					</FileUploader>
+					<div v-else>
+						<div class="flex items-center text-ink-gray-7">
+							<a
+								:href="safeUrl(attachment)"
+								v-external
+								class="cursor-pointer !no-underline text-sm leading-5"
+							>
+								<div class="flex items-center">
+									<div class="border rounded-md p-2 me-2">
+										<span class="lucide-file-text h-5 w-5" />
+									</div>
+									<span>
+										{{ attachment.split('/').pop() }}
+									</span>
+								</div>
+							</a>
+							<button
+								v-if="canModifyAssignment"
+								type="button"
+								:aria-label="__('Remove submission')"
+								@click="removeSubmission()"
+								class="lucide-x bg-surface-gray-3 rounded-md cursor-pointer w-5 h-5 p-1 ms-4"
+							/>
+						</div>
+					</div>
+				</div>
+				<div v-else-if="assignment.data.type == 'URL' && !scheduleBlocked">
+					<div class="text-p-sm-medium text-ink-gray-7 mb-1.5">
+						{{ __('Enter a URL') }}
+					</div>
+					<FormControl
+						v-model="answer"
+						type="text"
+						:aria-label="__('Enter a URL')"
+						:disabled="!canModifyAssignment"
+					/>
+				</div>
+				<div v-else-if="!showUploader() && !scheduleBlocked">
+					<div class="text-sm mb-2 text-ink-gray-7">
+						{{ __('Write your answer here') }}
+					</div>
+					<RichTextEditor
+						:content="answer"
+						@change="(val) => (answer = val)"
+						:editable="canModifyAssignment"
+						:fixedMenu="true"
+						:uploadArgs="{
+							private: true,
+						}"
+						editorClass="prose-sm max-w-none border-b border-x border-outline-elevation-2 bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[7rem]"
+					/>
+				</div>
+>>>>>>> 60ef8e4 (feat(quiz): add availability scheduling for quizzes and assignments)
 
 			<div
 				class="grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_minmax(0,0.9fr)]"
@@ -314,12 +458,16 @@ import router from '@/router'
 import { validateFile } from '@/utils'
 import RichTextEditor from '@/components/RichTextEditor.vue'
 import { safeUrl } from '@/utils/safeUrl'
+<<<<<<< HEAD
 import { AUDIO_EXTENSIONS } from '@/utils/audio'
 import AudioBlock from '@/components/AudioBlock.vue'
 import { useAssessmentSchedule } from '@/composables/useAssessmentSchedule'
 import type { ScheduledAssessment } from '@/composables/useAssessmentSchedule'
 import { markLessonProgress } from '@/utils/markLessonProgress'
 import type { SessionUser } from '@/types'
+=======
+import { getScheduleBlockReason } from '@/utils/schedule'
+>>>>>>> 60ef8e4 (feat(quiz): add availability scheduling for quizzes and assignments)
 
 type SubmissionStatus = 'Not Graded' | 'Pass' | 'Fail'
 
@@ -577,7 +725,11 @@ const canModifyAssignment = computed(() => {
 	if (scheduleBlocked.value) {
 		return false
 	}
+<<<<<<< HEAD
 	if (currentSubmission.value == 'new') {
+=======
+	if (props.submissionName == 'new') {
+>>>>>>> 60ef8e4 (feat(quiz): add availability scheduling for quizzes and assignments)
 		return true
 	} else if (
 		submissionDoc.value?.owner == user.data?.name &&
@@ -588,6 +740,7 @@ const canModifyAssignment = computed(() => {
 	return false
 })
 
+<<<<<<< HEAD
 const { scheduleBlocked, scheduleMessage } = useAssessmentSchedule(
 	() => assignment.data,
 	{
@@ -599,6 +752,36 @@ const { scheduleBlocked, scheduleMessage } = useAssessmentSchedule(
 const saveLabel = computed(() =>
 	currentSubmission.value == 'new' ? __('Submit') : __('Save')
 )
+=======
+const scheduleBlockReason = computed(() =>
+	getScheduleBlockReason(
+		assignment.data?.enable_scheduling,
+		assignment.data?.schedule_start,
+		assignment.data?.schedule_end
+	)
+)
+
+const scheduleBlocked = computed(() => !!scheduleBlockReason.value)
+
+const scheduleMessage = computed(() => {
+	if (scheduleBlockReason.value === 'not_started') {
+		return __('This assignment opens on {0}.').format(
+			formatScheduleDate(assignment.data?.schedule_start)
+		)
+	}
+	if (scheduleBlockReason.value === 'ended') {
+		return __('The schedule for this assignment has ended.')
+	}
+	return ''
+})
+
+const formatScheduleDate = (value) => {
+	if (!value) return ''
+	const date = new Date(value)
+	if (Number.isNaN(date.getTime())) return String(value)
+	return date.toLocaleString()
+}
+>>>>>>> 60ef8e4 (feat(quiz): add availability scheduling for quizzes and assignments)
 
 const submissionStatusOptions = computed(() => {
 	return [

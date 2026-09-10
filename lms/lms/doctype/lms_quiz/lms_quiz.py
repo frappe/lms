@@ -210,7 +210,10 @@ def submit_quiz(
 			"marks_to_cut",
 			"enable_proctoring",
 			"max_violations",
+<<<<<<< HEAD
 			"limit_questions_to",
+=======
+>>>>>>> 60ef8e4 (feat(quiz): add availability scheduling for quizzes and assignments)
 			"enable_scheduling",
 			"schedule_start",
 			"schedule_end",

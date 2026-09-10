@@ -7,6 +7,7 @@ from frappe.desk.doctype.notification_log.notification_log import make_notificat
 from frappe.model.document import Document
 from frappe.utils import validate_url
 
+<<<<<<< HEAD
 from lms.lms.html_sanitizer import sanitize_rich_text
 from lms.lms.permissions import can_access_assessment
 from lms.lms.schedule_utils import assert_within_schedule
@@ -14,6 +15,10 @@ from lms.lms.utils import PRIVILEGED_ROLES, get_attachable_files, get_lms_route,
 
 # The files an Audio assignment's player can play, as frontend/src/utils/audio.ts lists them.
 AUDIO_EXTENSIONS = (".mp3", ".wav", ".ogg", ".m4a", ".aac")
+=======
+from lms.lms.schedule_utils import assert_within_schedule
+from lms.lms.utils import PRIVILEGED_ROLES, get_lms_route
+>>>>>>> 60ef8e4 (feat(quiz): add availability scheduling for quizzes and assignments)
 
 
 class LMSAssignmentSubmission(Document):
@@ -21,7 +26,10 @@ class LMSAssignmentSubmission(Document):
 		self.enforce_member_ownership()
 		self.enforce_assignment_access()
 		self.enforce_grading_permission()
+<<<<<<< HEAD
 		self.sanitize_rich_text_fields()
+=======
+>>>>>>> 60ef8e4 (feat(quiz): add availability scheduling for quizzes and assignments)
 		self.validate_schedule_window()
 		self.validate_duplicates()
 		self.validate_url()
@@ -29,6 +37,7 @@ class LMSAssignmentSubmission(Document):
 		validate_attachable_file(self, "assignment_attachment")
 		self.validate_status()
 
+<<<<<<< HEAD
 	def validate_audio_attachment(self):
 		"""The upload picker filters by type in the browser; a submission saved through the API skips it."""
 		if not self.assignment_attachment:
@@ -50,6 +59,8 @@ class LMSAssignmentSubmission(Document):
 		for field in ("comments", "answer"):
 			self.set(field, sanitize_rich_text(self.get(field)))
 
+=======
+>>>>>>> 60ef8e4 (feat(quiz): add availability scheduling for quizzes and assignments)
 	def validate_schedule_window(self):
 		"""Students cannot create or edit submission content outside the window.
 

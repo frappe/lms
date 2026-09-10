@@ -14,6 +14,7 @@
 				<Skeleton class="h-8 w-24 rounded-4" />
 			</div>
 		</div>
+<<<<<<< HEAD
 	</AssessmentCard>
 	<div v-else-if="quiz.data" class="space-y-4">
 		<AssessmentCard>
@@ -29,6 +30,78 @@
 					data-testid="violation-count"
 					size="sm"
 					:theme="violationCount > 0 ? 'red' : 'green'"
+=======
+
+		<div v-if="activeQuestion == 0" class="space-y-4">
+			<!-- Info card — full width -->
+			<div class="border rounded-xl overflow-hidden">
+				<div class="px-5 pt-5 pb-4 space-y-3 text-center">
+					<h2 class="text-xl font-semibold text-ink-gray-9 leading-snug">
+						{{ quiz.data.title }}
+					</h2>
+					<div class="flex flex-wrap gap-1.5 justify-center">
+						<span
+							class="inline-flex items-center gap-1.5 bg-surface-gray-3 text-ink-gray-7 text-xs font-medium px-2.5 py-1 rounded-full"
+						>
+							<span class="lucide-list size-3.5" />
+							{{ questions.length }}
+							{{ questions.length == 1 ? __('question') : __('questions') }}
+						</span>
+						<span
+							v-if="quiz.data.passing_percentage"
+							class="inline-flex items-center gap-1.5 bg-surface-gray-3 text-ink-gray-7 text-xs font-medium px-2.5 py-1 rounded-full"
+						>
+							<span class="lucide-target size-3.5" />
+							{{
+								__('Passing score: {0}%').format(quiz.data.passing_percentage)
+							}}
+						</span>
+						<span
+							v-if="quiz.data.max_attempts"
+							class="inline-flex items-center gap-1.5 bg-surface-gray-3 text-ink-gray-7 text-xs font-medium px-2.5 py-1 rounded-full"
+						>
+							<span class="lucide-refresh-cw size-3.5" />
+							{{ quiz.data.max_attempts }}
+							{{ quiz.data.max_attempts == 1 ? __('attempt') : __('attempts') }}
+						</span>
+						<span
+							v-if="quiz.data.duration"
+							class="inline-flex items-center gap-1.5 bg-surface-blue-1 text-ink-blue-6 text-xs font-medium px-2.5 py-1 rounded-full"
+						>
+							<span class="lucide-timer size-3.5" />
+							{{ quiz.data.duration }} {{ __('min') }}
+						</span>
+						<span
+							v-if="quiz.data.enable_proctoring"
+							class="inline-flex items-center gap-1.5 bg-surface-orange-1 text-ink-orange-6 text-xs font-medium px-2.5 py-1 rounded-full"
+						>
+							<span class="lucide-camera size-3.5" />
+							{{ __('Proctored') }}
+						</span>
+						<span
+							v-if="quiz.data.enable_scheduling && quiz.data.schedule_start"
+							class="inline-flex items-center gap-1.5 bg-surface-gray-3 text-ink-gray-7 text-xs font-medium px-2.5 py-1 rounded-full"
+						>
+							<span class="lucide-calendar size-3.5" />
+							{{ __('Opens') }}:
+							{{ formatScheduleDate(quiz.data.schedule_start) }}
+						</span>
+						<span
+							v-if="quiz.data.enable_scheduling && quiz.data.schedule_end"
+							class="inline-flex items-center gap-1.5 bg-surface-gray-3 text-ink-gray-7 text-xs font-medium px-2.5 py-1 rounded-full"
+						>
+							<span class="lucide-calendar-x size-3.5" />
+							{{ __('Closes') }}:
+							{{ formatScheduleDate(quiz.data.schedule_end) }}
+						</span>
+					</div>
+				</div>
+
+				<!-- Proctored: centered info lines -->
+				<div
+					v-if="quiz.data.enable_proctoring && questions.length"
+					class="px-5 mb-4 space-y-2"
+>>>>>>> 60ef8e4 (feat(quiz): add availability scheduling for quizzes and assignments)
 				>
 					<template #prefix>
 						<span class="lucide-camera size-3" aria-hidden="true" />
@@ -184,6 +257,7 @@
 							__('Resume Video')
 						}}</Button>
 					</template>
+<<<<<<< HEAD
 					<div
 						v-if="
 							quiz.data.enable_proctoring &&
@@ -283,6 +357,20 @@
 							<Button v-if="inVideo" @click="props.backToVideo()">{{
 								__('Resume Video')
 							}}</Button>
+=======
+					<template v-else-if="scheduleBlocked">
+						<div class="bg-surface-amber-1 rounded-lg px-4 py-3 mb-3">
+							<div class="text-sm text-ink-amber-6 leading-5">
+								{{ scheduleMessage }}
+							</div>
+						</div>
+						<Button v-if="inVideo" @click="props.backToVideo()">{{
+							__('Resume Video')
+						}}</Button>
+					</template>
+					<template v-else>
+						<div class="flex items-center justify-center gap-2">
+>>>>>>> 60ef8e4 (feat(quiz): add availability scheduling for quizzes and assignments)
 							<Button
 								variant="solid"
 								:disabled="!!quiz.data.enable_proctoring && !cameraReady"
@@ -295,6 +383,7 @@
 				</div>
 			</div>
 
+<<<<<<< HEAD
 			<div v-else-if="!quizSubmission.data">
 				<template v-for="(question, qtidx) in questions" :key="question.name">
 					<div v-if="qtidx == activeQuestion - 1 && questionDetails.data">
@@ -302,6 +391,117 @@
 							class="flex h-11 items-center gap-3 border-b border-outline-gray-1 bg-surface-gray-1 px-3.5"
 						>
 							<span class="shrink-0 text-sm text-ink-gray-6">
+=======
+			<!-- Camera + Rules (proctored only). Stacked until there is room for two
+			     columns: split early, the camera preview and the rule text each get
+			     a strip too narrow to read, and every rule wraps to three lines. -->
+			<div
+				v-if="
+					quiz.data.enable_proctoring && !attemptsExhausted && !scheduleBlocked
+				"
+				class="grid gap-4 md:grid-cols-2"
+			>
+				<!-- Camera setup -->
+				<div class="border rounded-xl overflow-hidden flex flex-col">
+					<div class="px-4 py-3 border-b">
+						<div class="text-sm font-semibold text-ink-gray-8">
+							{{ __('Camera Setup') }}
+						</div>
+					</div>
+					<!-- The preview is an absolutely-positioned <video>, so it has no
+					     height of its own and takes it from this box. Side by side the
+					     row supplied one — the rules column is taller — but stacked
+					     there is nothing above it to stretch against, so it needs a
+					     floor of its own. -->
+					<div class="p-4 flex-1 flex flex-col min-h-[18rem] md:min-h-0">
+						<ProctoringMonitor
+							class="flex-1 flex flex-col min-h-0"
+							:max-violations="quiz.data.max_violations"
+							:active="false"
+							:violation-count="violationCount"
+							@camera-ready="cameraReady = true"
+							@camera-lost="cameraReady = false"
+							@camera-denied="() => {}"
+							@violation="handleViolation"
+							@warning="handleWarning"
+						/>
+					</div>
+				</div>
+
+				<!-- Proctoring rules -->
+				<div class="border rounded-xl overflow-hidden flex flex-col">
+					<div class="px-4 py-3 border-b">
+						<div class="text-sm font-semibold text-ink-gray-8">
+							{{ __('Proctoring Rules') }}
+						</div>
+					</div>
+					<!-- No flex-1 here. With flex-basis 0 the rules contribute nothing to
+					     the card's own height, so the card takes it from the row — and
+					     when the camera column beside it is the shorter of the two, the
+					     last rule falls outside the card and overflow-hidden clips it. -->
+					<div class="divide-y">
+						<div class="flex items-start gap-3 px-4 py-3">
+							<span
+								class="lucide-eye-off size-4 shrink-0 text-ink-gray-5 mt-0.5"
+							/>
+							<div>
+								<div class="text-sm text-ink-gray-8 leading-5">
+									{{ __('Face must be visible') }}
+								</div>
+								<div class="text-xs text-ink-gray-5 mt-0.5 leading-5">
+									{{ __('Looking away for too long counts as a violation.') }}
+								</div>
+							</div>
+						</div>
+						<div class="flex items-start gap-3 px-4 py-3">
+							<span
+								class="lucide-users size-4 shrink-0 text-ink-gray-5 mt-0.5"
+							/>
+							<div>
+								<div class="text-sm text-ink-gray-8 leading-5">
+									{{ __('One person only') }}
+								</div>
+								<div class="text-xs text-ink-gray-5 mt-0.5 leading-5">
+									{{ __('Multiple faces in the frame will be flagged.') }}
+								</div>
+							</div>
+						</div>
+						<div class="flex items-start gap-3 px-4 py-3">
+							<span
+								class="lucide-monitor-x size-4 shrink-0 text-ink-gray-5 mt-0.5"
+							/>
+							<div>
+								<div class="text-sm text-ink-gray-8 leading-5">
+									{{ __('Stay on this tab') }}
+								</div>
+								<div class="text-xs text-ink-gray-5 mt-0.5 leading-5">
+									{{
+										__(
+											'Switching tabs or minimizing the window is flagged immediately.'
+										)
+									}}
+								</div>
+							</div>
+						</div>
+						<div class="flex items-start gap-3 px-4 py-3">
+							<span
+								class="lucide-camera-off size-4 shrink-0 text-ink-gray-5 mt-0.5"
+							/>
+							<div>
+								<div class="text-sm text-ink-gray-8 leading-5">
+									{{ __('Keep camera connected') }}
+								</div>
+								<div class="text-xs text-ink-gray-5 mt-0.5 leading-5">
+									{{ __('Disconnecting your camera counts as a violation.') }}
+								</div>
+							</div>
+						</div>
+						<div class="flex items-start gap-3 px-4 py-3 bg-surface-orange-1">
+							<span
+								class="lucide-alert-triangle size-4 shrink-0 text-ink-orange-5 mt-0.5"
+							/>
+							<div class="text-sm text-ink-orange-6 leading-5">
+>>>>>>> 60ef8e4 (feat(quiz): add availability scheduling for quizzes and assignments)
 								{{
 									__('Question {0} of {1}').format(
 										activeQuestion,
@@ -861,10 +1061,16 @@ import {
 	watch,
 } from 'vue'
 import { timeAgo } from '@/utils/format'
+<<<<<<< HEAD
 import { violationLabel } from '@/utils/proctoring'
 import { useAssessmentSchedule } from '@/composables/useAssessmentSchedule'
 import { quizScheduleNotice } from '@/utils/quizSchedule'
 import { markLessonProgress } from '@/utils/markLessonProgress'
+=======
+import { safeUrl } from '@/utils/safeUrl'
+import { getScheduleBlockReason } from '@/utils/schedule'
+import ProgressBar from '@/components/ProgressBar.vue'
+>>>>>>> 60ef8e4 (feat(quiz): add availability scheduling for quizzes and assignments)
 import ResponsiveListView from '@/components/ResponsiveListView.vue'
 import RichTextEditor from '@/components/RichTextEditor.vue'
 import router from '@/router'
@@ -1292,6 +1498,7 @@ const attemptsExhausted = computed(
 		(attempts.data?.length ?? 0) >= quiz.data.max_attempts
 )
 
+<<<<<<< HEAD
 const { now, scheduleBlockReason, scheduleBlocked } = useAssessmentSchedule(
 	() => quiz.data,
 	{
@@ -1327,6 +1534,38 @@ watch(scheduleBlockReason, (reason, previous) => {
 })
 
 const shuffleArray = <T>(array: T[]): T[] => {
+=======
+const scheduleBlockReason = computed(() =>
+	getScheduleBlockReason(
+		quiz.data?.enable_scheduling,
+		quiz.data?.schedule_start,
+		quiz.data?.schedule_end
+	)
+)
+
+const scheduleBlocked = computed(() => !!scheduleBlockReason.value)
+
+const scheduleMessage = computed(() => {
+	if (scheduleBlockReason.value === 'not_started') {
+		return __('This quiz opens on {0}.').format(
+			formatScheduleDate(quiz.data?.schedule_start)
+		)
+	}
+	if (scheduleBlockReason.value === 'ended') {
+		return __('The schedule for this quiz has ended.')
+	}
+	return ''
+})
+
+const formatScheduleDate = (value) => {
+	if (!value) return ''
+	const date = new Date(value)
+	if (Number.isNaN(date.getTime())) return String(value)
+	return date.toLocaleString()
+}
+
+const shuffleArray = (array) => {
+>>>>>>> 60ef8e4 (feat(quiz): add availability scheduling for quizzes and assignments)
 	for (let i = array.length - 1; i > 0; i--) {
 		const j = Math.floor(Math.random() * (i + 1))
 		;[array[i], array[j]] = [array[j], array[i]]
@@ -1481,7 +1720,10 @@ watch(
 
 const startQuiz = () => {
 	if (scheduleBlocked.value) return
+<<<<<<< HEAD
 	if (!quiz.data || !questions.value.length) return
+=======
+>>>>>>> 60ef8e4 (feat(quiz): add availability scheduling for quizzes and assignments)
 	activeQuestion.value = 1
 	attemptStartedAt = Date.now()
 	localStorage.removeItem(quiz.data.title)
