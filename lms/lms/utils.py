@@ -2396,7 +2396,11 @@ def get_quiz_with_questions(quiz: str) -> dict:
 		QUESTION_OPTION_FIELDS,
 	)
 	from lms.lms.permissions import can_access_quiz
+<<<<<<< HEAD
 	from lms.lms.schedule_utils import enrich_schedule_payload
+=======
+	from lms.lms.schedule_utils import get_schedule_block_reason
+>>>>>>> 058d43f (fix(quiz): address schedule PR review and CI failures)
 
 	if not isinstance(quiz, str):
 		frappe.throw(_("Quiz must be a string."))
@@ -2407,8 +2411,18 @@ def get_quiz_with_questions(quiz: str) -> dict:
 		)
 		frappe.throw(_("You are not authorized to view this quiz."), frappe.PermissionError)
 
+<<<<<<< HEAD
 	quiz_doc = enrich_schedule_payload(frappe.get_doc("LMS Quiz", quiz).as_dict())
 	reason = quiz_doc.get("schedule_block_reason")
+=======
+	quiz_doc = frappe.get_doc("LMS Quiz", quiz).as_dict()
+	reason = get_schedule_block_reason(
+		quiz_doc.get("enable_scheduling"),
+		quiz_doc.get("schedule_start"),
+		quiz_doc.get("schedule_end"),
+	)
+	quiz_doc["schedule_block_reason"] = reason
+>>>>>>> 058d43f (fix(quiz): address schedule PR review and CI failures)
 
 	privileged = bool(PRIVILEGED_ROLES & set(frappe.get_roles()))
 	withhold_questions = bool(reason) and not privileged
@@ -2429,14 +2443,20 @@ def get_quiz_with_questions(quiz: str) -> dict:
 				"type",
 				"multiple",
 				*QUESTION_OPTION_FIELDS,
+<<<<<<< HEAD
 			]
 			if can_view_quiz_answers(quiz, quiz_doc.get("show_answers")):
 				fields += QUESTION_EXPLANATION_FIELDS
 			# nosemgrep: lms-unjustified-ignore-permissions - access gated by can_access_quiz above
+=======
+				*QUESTION_EXPLANATION_FIELDS,
+			]
+>>>>>>> 058d43f (fix(quiz): address schedule PR review and CI failures)
 			rows = frappe.get_all(
 				"LMS Question",
 				filters=[["name", "in", question_names]],
 				fields=fields,
+<<<<<<< HEAD
 				ignore_permissions=True,
 			)
 			questions_by_name = {row["name"]: _rewrite_question_private_media(row) for row in rows}
@@ -2445,10 +2465,17 @@ def get_quiz_with_questions(quiz: str) -> dict:
 					child["question_detail"] = rewrite_private_media(
 						child["question_detail"], QUESTION_PRIVATE_MEDIA_ENDPOINT
 					)
+=======
+				# nosemgrep: lms-unjustified-ignore-permissions - access gated by can_access_quiz above
+				ignore_permissions=True,
+			)
+			questions_by_name = {row["name"]: row for row in rows}
+>>>>>>> 058d43f (fix(quiz): address schedule PR review and CI failures)
 
 	return {"quiz": quiz_doc, "questions_by_name": questions_by_name}
 
 
+<<<<<<< HEAD
 def _rewrite_question_private_media(row: dict) -> dict:
 	"""Route private images in a quiz question through serve_question_resource.
 
@@ -2474,10 +2501,17 @@ def get_assignment(name: str) -> dict:
 	DocPerm by hitting this whitelist directly.
 	"""
 	from lms.lms.schedule_utils import enrich_schedule_payload
+=======
+@frappe.whitelist()
+def get_assignment(name: str) -> dict:
+	"""Return an LMS Assignment with a server-computed schedule_block_reason."""
+	from lms.lms.schedule_utils import get_schedule_block_reason
+>>>>>>> 058d43f (fix(quiz): address schedule PR review and CI failures)
 
 	if not isinstance(name, str):
 		frappe.throw(_("Assignment must be a string."))
 
+<<<<<<< HEAD
 	doc = frappe.get_doc("LMS Assignment", name)
 	doc.check_permission("read")
 	doc.apply_fieldlevel_read_permissions()
@@ -2485,6 +2519,17 @@ def get_assignment(name: str) -> dict:
 
 
 # nosemgrep: security.guest-whitelisted-method - pre-existing grant, unchanged by this branch; guests are served only when guest access is on. Flagged only because the body changed.
+=======
+	assignment = frappe.get_doc("LMS Assignment", name).as_dict()
+	assignment["schedule_block_reason"] = get_schedule_block_reason(
+		assignment.get("enable_scheduling"),
+		assignment.get("schedule_start"),
+		assignment.get("schedule_end"),
+	)
+	return assignment
+
+
+>>>>>>> 058d43f (fix(quiz): address schedule PR review and CI failures)
 @frappe.whitelist(allow_guest=True)
 @rate_limit(limit=500, seconds=60 * 60)
 def get_batch_courses(batch: str) -> list:

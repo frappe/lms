@@ -109,6 +109,7 @@ vi.mock('@/components/Controls/Link.vue', () => ({
 vi.mock('@/components/Controls/BooleanSwitch.vue', () => ({
 	default: { props: ['modelValue', 'label'], template: `<div />` },
 }))
+<<<<<<< HEAD
 // The server's write answer for the assignment, read at mount.
 const authorship = vi.hoisted(() => ({ canWrite: true as boolean | null }))
 vi.mock('@/composables/useCanWrite', async () => {
@@ -118,6 +119,8 @@ vi.mock('@/composables/useCanWrite', async () => {
 			ref(name() ? authorship.canWrite : true),
 	}
 })
+=======
+>>>>>>> 058d43f (fix(quiz): address schedule PR review and CI failures)
 
 import { toast } from 'frappe-ui'
 import AssignmentForm from '@/pages/Forms/AssignmentForm.vue'
