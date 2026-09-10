@@ -872,7 +872,15 @@ export const openSettings = (slug, close = null) => {
 }
 
 export const cleanError = (message) => {
-	const cleanMessage = message.replace(/<[^>]+>/g, (match) => {
+	// Every caller passes `err.messages?.[0] || err`; frappe-ui attaches
+	// `.messages` only to a server-error response, so a transport failure
+	// re-throws a raw object. Coerced here, not per call site, since throwing
+	// from inside a catch loses the original error and skips its cleanup.
+	const text =
+		typeof message === 'string'
+			? message
+			: String(message?.message ?? message ?? '')
+	const cleanMessage = text.replace(/<[^>]+>/g, (match) => {
 		return match.replace(/<\/?[^>]+(>|$)/g, '')
 	})
 	return cleanMessage

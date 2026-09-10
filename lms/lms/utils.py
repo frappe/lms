@@ -69,6 +69,8 @@ def resolve_text_direction(lang: str) -> str:
 	while boot.lang comes from get_user_lang(), which a guest gets from System
 	Settings. Passing the language in keeps the two from disagreeing.
 	"""
+	from frappe.utils.jinja_globals import is_rtl
+
 	setting = frappe.db.get_single_value("LMS Settings", "text_direction")
 
 	if setting == "Left to Right":
@@ -76,7 +78,18 @@ def resolve_text_direction(lang: str) -> str:
 	if setting == "Right to Left":
 		return "rtl"
 
-	return "rtl" if lang in ("ar", "he", "fa", "ps") else "ltr"
+	# Frappe's own answer, over the language asked about rather than the session
+	# one. A hardcoded set here went stale immediately: frappe ships `ku` and
+	# `ur` as RTL too, and resolves a regional code through get_parent_language,
+	# so Urdu and Kurdish sites were served `<html dir="ltr">`. Its comment asks
+	# for the set to be kept in sync with a JavaScript twin; a third copy in LMS
+	# is the one that would drift unnoticed.
+	previous = frappe.local.lang
+	try:
+		frappe.local.lang = lang
+		return "rtl" if is_rtl() else "ltr"
+	finally:
+		frappe.local.lang = previous
 
 
 def slugify(title: str, used_slugs: list = None):
