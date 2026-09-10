@@ -606,16 +606,26 @@ const timezoneOptions = computed(() =>
 	(timezoneResource.data || []).map((tz: string) => ({ label: tz, value: tz }))
 )
 
-// A new batch opens on the site's own timezone rather than an empty picker.
-// Guarded on doc, because this can resolve before the document loads.
+const systemTimezone = ref<string | null>(null)
+
 createResource({
 	url: 'lms.lms.api.get_system_preferences',
 	auto: true,
 	onSuccess: (data: { time_zone: string }) => {
-		const doc = batchDetail.doc
-		if (doc && !doc.timezone) doc.timezone = data.time_zone
+		systemTimezone.value = data.time_zone
 	},
 })
+
+// A new batch opens on the site's own timezone rather than an empty picker.
+// Sampling batchDetail.doc once inside that onSuccess dropped the default
+// whenever the preferences answered before the full document fetch, the common case.
+watch(
+	[() => batchDetail.doc, systemTimezone],
+	([doc, zone]) => {
+		if (doc && zone && !doc.timezone) doc.timezone = zone
+	},
+	{ immediate: true }
+)
 
 const mediumOptions = computed(() => {
 	return [

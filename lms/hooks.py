@@ -77,6 +77,11 @@ setup_wizard_complete = "lms.demo.demo_data.create_demo_data"
 after_migrate = [
 	"lms.sqlite.build_index_in_background",
 	"lms.lms.doctype.lms_payment.lms_payment.add_unique_payment_id_constraint",
+	# Also on migrate, not only after_sync. Both seeders are create-if-absent, and
+	# running the sidebar one on fresh installs alone means a fourteenth built-in
+	# added to `standard_sidebar_items` later never reaches a site that has
+	# already run the v2_0 patch -- which is what its own docstring promises.
+	"lms.lms.sidebar.seed_sidebar_items",
 ]
 
 # Desk Notifications
