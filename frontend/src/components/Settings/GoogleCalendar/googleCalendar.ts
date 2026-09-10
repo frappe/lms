@@ -85,4 +85,5 @@ export const googleCalendarSettingsPage: ListPage = {
 	empty: { name: 'Google Calendar', icon: 'lucide-calendar' },
 	create: { detail },
 	rowDetail: detail,
+	requiresGoogleApi: true,
 }

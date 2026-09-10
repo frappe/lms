@@ -3,10 +3,10 @@
 		:title="heading"
 		:show-back="showBack"
 		:save-state="autosave?.status.value"
-		:unsaved="autosave ? undefined : source.isDirty"
+		:unsaved="autosave ? undefined : hasPendingChanges"
 		:save-label="autosave ? undefined : __('Save')"
 		:saving="saving"
-		:can-save="source.isDirty"
+		:can-save="hasPendingChanges"
 		save-testid="settings-fields-save"
 		v-model:enabled="enabled"
 		@back="emit('back')"
@@ -14,10 +14,12 @@
 	>
 		<SettingsFields
 			v-if="source.doc"
+			:key="fieldsKey"
 			:sections="sections"
 			:data="source.doc"
 			:flush="showBack"
 			@commit="commit"
+			@secret="onSecret"
 		/>
 	</SettingsLayout>
 </template>
@@ -46,8 +48,8 @@ export function applyFieldMeta(
 </script>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
-import { toast } from 'frappe-ui'
+import { computed, onMounted, reactive, ref, watch } from 'vue'
+import { call, toast } from 'frappe-ui'
 import SettingsFields from '@/components/Layouts/settings/desktop/SettingsFields.vue'
 import SettingsLayout from '@/components/Layouts/settings/desktop/SettingsLayout.vue'
 import { useAutosave, type CommitMode } from '@/composables/useAutosave'
@@ -80,14 +82,27 @@ const source = useSettingsSource(props.page.source, {
 	defaults: props.page.defaults,
 })
 
-// A panel whose every section carries a heading needs no title above them: the
-// title and the first heading sit at the same type token and say the same
-// thing twice. A panel with even one unlabelled section keeps it, because for
-// that block the title is the only heading there is.
-//
-// A back control is exempt. There the title is not a heading at all but the
-// way out of the page, and a record's own name is the only thing that says
-// which record this is.
+// Needed again here because a `secret` field's own set_value call names a
+// doctype the diffed save() call never does.
+const secretDoctype =
+	'doctype' in props.page.source ? props.page.source.doctype : 'LMS Settings'
+
+// A `secret` field's typed value, held here rather than on source.doc. See
+// the schema's own note on why. `fieldsKey` remounts SettingsFields once the
+// write lands, clearing the box back to its placeholder.
+const pendingSecrets = reactive<Record<string, string>>({})
+const onSecret = (fieldname: string, value: string) => {
+	if (value) pendingSecrets[fieldname] = value
+	else delete pendingSecrets[fieldname]
+}
+const hasPendingChanges = computed(
+	() => source.isDirty || Object.keys(pendingSecrets).length > 0
+)
+const fieldsKey = ref(0)
+
+// A panel whose every section carries a heading needs no title above them,
+// since they'd say the same thing twice. A back control is exempt: there
+// the title is the way out of the page, not a heading.
 const heading = computed(() => {
 	if (props.showBack) return props.title
 	const sections = props.page.sections
@@ -160,9 +175,29 @@ const save = () => {
 			back: () => emit('back'),
 		})
 
+	// Sequenced, not Promise.all. A new record's real name only exists once
+	// this resolves, and a secret write needs that name, not NEW_RECORD.
 	source
 		.save()
-		.then(finish)
+		.then(async () => {
+			const entries = Object.entries(pendingSecrets)
+			if (entries.length) {
+				await Promise.all(
+					entries.map(([fieldname, value]) =>
+						call('frappe.client.set_value', {
+							doctype: secretDoctype,
+							name: source.name,
+							fieldname,
+							value,
+						})
+					)
+				)
+				for (const key of Object.keys(pendingSecrets))
+					delete pendingSecrets[key]
+				fieldsKey.value += 1
+			}
+			return finish()
+		})
 		.catch(reportFailure)
 		.finally(() => (saving.value = false))
 }

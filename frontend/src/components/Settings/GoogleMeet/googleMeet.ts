@@ -189,4 +189,5 @@ export const googleMeetSettingsPage: ListPage = {
 	empty: { name: 'Google Meet Settings', icon: 'lucide-presentation' },
 	create: { detail: form.forNew() },
 	rowDetail: form.forRecord(),
+	requiresGoogleCalendar: true,
 }

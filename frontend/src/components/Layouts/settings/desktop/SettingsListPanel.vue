@@ -30,6 +30,7 @@
 		:new-label="page.create?.label"
 		:empty-name="page.empty?.name"
 		:empty-icon="page.empty?.icon"
+		:disabled="dependencyUnmet"
 		flush
 		@new="openCreate"
 		@load-more="list.loadMore()"
@@ -41,6 +42,15 @@
 				class="w-40"
 				:aria-label="page.filter.ariaLabel()"
 				:options="page.filter.options()"
+			/>
+		</template>
+		<template v-if="dependencyBanner" #banner>
+			<Alert
+				class="mb-4"
+				theme="yellow"
+				variant="subtle"
+				:dismissible="false"
+				:title="dependencyBanner"
 			/>
 		</template>
 	</SettingsList>
@@ -89,9 +99,10 @@ export interface ListPanelPage extends ListPage {
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import { Select } from 'frappe-ui'
+import { Alert, createResource, Select } from 'frappe-ui'
 import SettingsFieldsPanel from '@/components/Layouts/settings/desktop/SettingsFieldsPanel.vue'
 import SettingsList from '@/components/Layouts/settings/desktop/SettingsList.vue'
+import { useSettingsSource } from '@/composables/useSettingsSource'
 import {
 	useSettingsListResource,
 	useSettingsMethodResource,
@@ -133,14 +144,62 @@ const filterValue = ref(props.page.filter?.default ?? '')
 const filterParams = (): Record<string, unknown> =>
 	props.page.filter ? { [props.page.filter.name]: filterValue.value } : {}
 
-// Read once, at setup. `createListResource` fixes its doctype and fields at
-// creation, so a caller that renders two different ListPages through this
-// component must key it per item or the second would keep the first's resource.
-//
-// A `method` names a whitelisted endpoint that returns the rows itself, which
-// is not something a list resource can be talked into: it builds a get_list
-// call out of a doctype and fields. Users is one — get_members applies its own
-// filters and looks up each row's roles — so it pages against `start` instead.
+// Read once for the whole mount. Only fetched for a page that opts in.
+// Google Calendar's and Google Meet's own item condition already
+// guarantees whoever reaches this component holds permission on it.
+const dependsOnGoogleApi =
+	props.page.requiresGoogleApi || props.page.requiresGoogleCalendar
+const googleApiSource = dependsOnGoogleApi
+	? useSettingsSource({ doctype: 'Google Settings', name: 'Google Settings' })
+	: null
+const googleApiEnabled = computed(() => Boolean(googleApiSource?.doc?.enable))
+
+// A narrow existence check, not a list the page ever shows. One row is
+// enough to know a Google Calendar exists.
+const calendarCheck = props.page.requiresGoogleCalendar
+	? createResource<{ name: string }[]>({
+			url: 'frappe.client.get_list',
+			params: { doctype: 'Google Calendar', fields: ['name'], limit: 1 },
+			auto: true,
+	  })
+	: null
+const hasGoogleCalendar = computed(() => Boolean(calendarCheck?.data?.length))
+
+// True from the first render, not just once a fetch resolves "not enabled".
+// Otherwise a click before that arrives opens a form for a dependency that
+// was never actually met.
+const dependencyUnmet = computed(
+	() =>
+		dependsOnGoogleApi &&
+		(Boolean(googleApiSource?.loading) ||
+			!googleApiEnabled.value ||
+			(Boolean(props.page.requiresGoogleCalendar) &&
+				(Boolean(calendarCheck?.loading) || !hasGoogleCalendar.value)))
+)
+
+// The banner's text waits for the real answer, unlike the disabled state
+// itself, so it's never wrong for a moment.
+const dependencyBanner = computed((): string => {
+	if (!dependencyUnmet.value) return ''
+	if (googleApiSource?.loading) return ''
+	if (!googleApiEnabled.value) {
+		return props.page.requiresGoogleCalendar
+			? __(
+					'Enable Google API in Services and set up a Google Calendar to use this.'
+			  )
+			: __('Enable Google API in Services to use this.')
+	}
+	if (props.page.requiresGoogleCalendar) {
+		if (calendarCheck?.loading) return ''
+		if (!hasGoogleCalendar.value)
+			return __('Set up a Google Calendar to use this.')
+	}
+	return ''
+})
+
+// Read once, at setup: a caller rendering two different ListPages through this
+// component must key it per item, or the second reuses the first's resource.
+// A `method` page (e.g. get_members) pages against `start` instead of get_list.
 const listSource = props.page.resource
 
 // Read once, at setup, and kept: `filters` on a config can be a getter, and the
