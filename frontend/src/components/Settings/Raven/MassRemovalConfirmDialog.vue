@@ -12,7 +12,7 @@
 			{
 				label: confirmLabel,
 				variant: 'solid',
-				theme: removedCount > 0 ? 'red' : 'gray',
+				theme: removedCount > 0 || unknown ? 'red' : 'gray',
 				onClick: onConfirm,
 			},
 		]"
@@ -31,8 +31,14 @@ const props = withDefaults(
 		/** Non-zero only for a combinator switch: All (AND) → Any (OR) admits people. */
 		addedCount?: number
 		targetLabel: string
+		/**
+		 * The counts could not be worked out, so they are zero for want of an answer
+		 * rather than because nobody moves. Said plainly instead of dressed up as
+		 * "remove 0 members", which reads as a change that does nothing.
+		 */
+		unknown?: boolean
 	}>(),
-	{ addedCount: 0 }
+	{ addedCount: 0, unknown: false }
 )
 
 const emit = defineEmits<{
@@ -64,12 +70,17 @@ const addOnly = computed<boolean>(
 )
 
 const title = computed<string>(() => {
+	if (props.unknown) return __('Save without checking who this affects?')
 	if (bothWays.value) return __('Change who is a member?')
 	if (addOnly.value) return __('Add members?')
 	return __('Remove members?')
 })
 
 const message = computed<string>(() => {
+	if (props.unknown)
+		return __(
+			'The conditions on {0} could not be worked out, so there is no telling who this change adds or removes. It usually means the app that supplies a condition type is no longer installed. Saving applies the change anyway.'
+		).format(props.targetLabel)
 	if (bothWays.value)
 		return __(
 			'This will add {0} members to {1} and remove {2}. The removals cannot be undone. Cancel to keep the current membership.'
@@ -84,6 +95,7 @@ const message = computed<string>(() => {
 })
 
 const confirmLabel = computed<string>(() => {
+	if (props.unknown) return __('Save anyway')
 	if (bothWays.value)
 		return __('Add {0}, remove {1}').format(
 			props.addedCount,

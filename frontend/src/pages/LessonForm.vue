@@ -132,6 +132,7 @@ import { useDebounceFn } from '@vueuse/core'
 import { enablePlyr, sanitizeEditorJs } from '@/utils'
 import {
 	hasEditorContent,
+	parseStoredEditorJs,
 	shouldSkipLessonSave,
 	toSingleLineTitle,
 } from '@/utils/lessonForm'
@@ -195,6 +196,37 @@ const emit = defineEmits(['saved'])
 
 // True after initial render, so render()'s onChange doesn't autosave.
 let initialLoadComplete = false
+
+// An unreadable field renders as empty, which looks exactly like a lesson with
+// no body, so foldEditorData holds it back and writes it home unchanged.
+// Per field: unreadable notes must not stop the author fixing the body.
+const unreadable = reactive({ content: false, instructor_content: false })
+
+const unreadableLabels = () =>
+	[
+		unreadable.content && __('Content'),
+		unreadable.instructor_content && __('Instructor Notes'),
+	].filter(Boolean)
+
+// What the last toast said, rather than a boolean. The fields resolve
+// independently, so a warning naming only Content must not suppress the later
+// one that also names the notes.
+let warnedAbout = ''
+
+function markUnreadable(field) {
+	unreadable[field] = true
+}
+
+function warnUnreadable() {
+	const fields = unreadableLabels().join(', ')
+	if (!fields || warnedAbout === fields) return
+	warnedAbout = fields
+	toast.error(__('Lesson content could not be read'), {
+		description: __(
+			'The stored {0} of this lesson could not be read, so the editor is showing it as empty. It is left untouched and will not be overwritten; anything else you edit still saves. Reload the page; if it still fails, restore the lesson from its version history in Desk.'
+		).format(fields),
+	})
+}
 
 const props = defineProps({
 	courseName: {
@@ -285,6 +317,9 @@ const lessonDetails = createResource({
 	auto: true,
 	onSuccess(data) {
 		if (data.lesson) {
+			unreadable.content = false
+			unreadable.instructor_content = false
+			warnedAbout = ''
 			Object.keys(data.lesson).forEach((key) => {
 				lesson[key] = data.lesson[key]
 			})
@@ -325,9 +360,11 @@ const addLessonContent = (data) => {
 	return editor.value.isReady().then(() => {
 		if (!editor.value) return
 		if (data.lesson.content) {
-			return editor.value.render(
-				sanitizeEditorJs(JSON.parse(data.lesson.content))
-			)
+			const stored = parseStoredEditorJs(data.lesson.content)
+			// Throwing here abandons the rest of the load chain, leaving the form
+			// permanently un-loaded, and the notes editor's edits with it.
+			if (!stored) return markUnreadable('content')
+			return editor.value.render(sanitizeEditorJs(stored))
 		} else if (data.lesson.body) {
 			let blocks = convertToJSON(data.lesson)
 			return editor.value.render({
@@ -342,9 +379,9 @@ const addInstructorNotes = (data) => {
 	return instructorEditor.value.isReady().then(() => {
 		if (!instructorEditor.value) return
 		if (data.lesson.instructor_content) {
-			return instructorEditor.value.render(
-				sanitizeEditorJs(JSON.parse(data.lesson.instructor_content))
-			)
+			const stored = parseStoredEditorJs(data.lesson.instructor_content)
+			if (!stored) return markUnreadable('instructor_content')
+			return instructorEditor.value.render(sanitizeEditorJs(stored))
 		} else if (data.lesson.instructor_notes) {
 			let blocks = convertToJSON(data.lesson)
 			return instructorEditor.value.render({
@@ -404,12 +441,7 @@ const lessonReference = createResource({
 
 // Stored body has real content? Lets title-only edits skip re-serialising.
 const storedContentHasBody = () => {
-	if (!lesson.content) return false
-	try {
-		return hasEditorContent(JSON.parse(lesson.content))
-	} catch {
-		return false
-	}
+	return hasEditorContent(parseStoredEditorJs(lesson.content))
 }
 
 // Editor destroyed mid-save can reject; degrade to null so persist still runs.
@@ -420,14 +452,14 @@ const serialise = (ed) =>
 const foldEditorData = (bodyData, notesData) => {
 	// Editor gone or empty: keep stored content so we don't wipe the body.
 	let bodyHasContent = storedContentHasBody()
-	if (bodyData) {
+	if (bodyData && !unreadable.content) {
 		bodyData = removeEmptyBlocks(bodyData)
 		bodyHasContent = hasEditorContent(bodyData)
 		if (bodyHasContent) lesson.content = JSON.stringify(bodyData)
 	}
 
 	// Fold notes only after load, else the empty default wipes stored notes.
-	if (initialLoadComplete && notesData) {
+	if (initialLoadComplete && notesData && !unreadable.instructor_content) {
 		notesData = removeEmptyBlocks(notesData)
 		lesson.instructor_content = JSON.stringify(notesData)
 		// Clear legacy field so removed notes don't reappear via fallback.
@@ -448,25 +480,32 @@ const captureEditors = async () => {
 }
 
 function saveLesson({ flush = false } = {}) {
-	// Serialise both editors concurrently before unmount destroys them.
-	const bodyPromise = serialise(editor.value)
-	const notesPromise = serialise(instructorEditor.value)
+	// foldEditorData skips unreadable fields, so `lesson` still holds their stored
+	// strings and the write puts them back unchanged rather than blanking them.
+	warnUnreadable()
 
-	Promise.all([bodyPromise, notesPromise]).then(([bodyData, notesData]) => {
-		const bodyHasContent = foldEditorData(bodyData, notesData)
+	// Both serialise() calls are made before either is awaited, so the editors
+	// are read before unmount destroys them.
+	Promise.all([
+		serialise(editor.value),
+		serialise(instructorEditor.value),
+	]).then(([bodyData, notesData]) => persistLesson(bodyData, notesData, flush))
+}
 
-		// Skip when there's nothing to save: no title, no body.
-		if (shouldSkipLessonSave(lesson.title, bodyHasContent)) return
+function persistLesson(bodyData, notesData, flush) {
+	const bodyHasContent = foldEditorData(bodyData, notesData)
 
-		// During teardown only an explicit flush may persist.
-		if (isUnmounting && !flush) return
-		if (lessonDeleted) return
-		if (lessonDetails.data?.lesson) {
-			editCurrentLesson()
-		} else {
-			createNewLesson()
-		}
-	})
+	// Nothing to save: no title, no body.
+	if (shouldSkipLessonSave(lesson.title, bodyHasContent)) return
+
+	// During teardown only an explicit flush may persist.
+	if (isUnmounting && !flush) return
+	if (lessonDeleted) return
+	if (lessonDetails.data?.lesson) {
+		editCurrentLesson()
+	} else {
+		createNewLesson()
+	}
 }
 
 const removeEmptyBlocks = (outputData) => {

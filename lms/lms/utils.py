@@ -952,9 +952,18 @@ def get_course_count(filters: dict = None) -> int:
 
 
 def count_matching(doctype: str, filters: dict | list, or_filters: dict = None) -> int:
-	"""Row count for filters that include or_filters, which db.count cannot take."""
-	rows = frappe.get_all(doctype, filters=filters, or_filters=or_filters, fields=[{"COUNT": "*"}])
-	return cint(next(iter(rows[0].values()))) if rows else 0
+	"""Return row count for filters, including OR filters."""
+	if not or_filters:
+		return frappe.db.count(doctype, filters)
+	return len(
+		frappe.get_all(
+			doctype,
+			filters=filters,
+			or_filters=or_filters,
+			fields=["name"],
+			limit_page_length=0,
+		)
+	)
 
 
 def as_filter_conditions(filters: dict) -> list:
@@ -1750,12 +1759,19 @@ def get_country_code():
 
 @frappe.whitelist()
 def get_quiz_with_questions(quiz: str) -> dict:
-	"""Return the quiz doc plus every question's details in a single round trip."""
+	"""Return the quiz doc plus every question's details in a single round trip.
+
+	When scheduling blocks the quiz for a non-privileged user, question content
+	is withheld so learners cannot inspect it before the window opens (or after
+	it ends). Metadata including ``schedule_block_reason`` is still returned so
+	the UI can show the availability message.
+	"""
 	from lms.lms.doctype.lms_question.lms_question import (
 		QUESTION_EXPLANATION_FIELDS,
 		QUESTION_OPTION_FIELDS,
 	)
 	from lms.lms.permissions import can_access_quiz
+	from lms.lms.schedule_utils import enrich_schedule_payload
 
 	if not isinstance(quiz, str):
 		frappe.throw(_("Quiz must be a string."))
@@ -1766,28 +1782,58 @@ def get_quiz_with_questions(quiz: str) -> dict:
 		)
 		frappe.throw(_("You are not authorized to view this quiz."), frappe.PermissionError)
 
-	quiz_doc = frappe.get_doc("LMS Quiz", quiz).as_dict()
+	quiz_doc = enrich_schedule_payload(frappe.get_doc("LMS Quiz", quiz).as_dict())
+	reason = quiz_doc.get("schedule_block_reason")
 
-	question_names = [row.get("question") for row in quiz_doc.get("questions") or [] if row.get("question")]
+	privileged = bool(PRIVILEGED_ROLES & set(frappe.get_roles()))
+	withhold_questions = bool(reason) and not privileged
+
 	questions_by_name = {}
-	if question_names:
-		fields = [
-			"name",
-			"question",
-			"type",
-			"multiple",
-			*QUESTION_OPTION_FIELDS,
-			*QUESTION_EXPLANATION_FIELDS,
+	if withhold_questions:
+		# Child rows only hold question names / marks; clearing them plus the
+		# detail map keeps prompt/options out of the response entirely.
+		quiz_doc["questions"] = []
+	else:
+		question_names = [
+			row.get("question") for row in quiz_doc.get("questions") or [] if row.get("question")
 		]
-		rows = frappe.get_all(
-			"LMS Question",
-			filters=[["name", "in", question_names]],
-			fields=fields,
-			ignore_permissions=True,
-		)
-		questions_by_name = {row["name"]: row for row in rows}
+		if question_names:
+			fields = [
+				"name",
+				"question",
+				"type",
+				"multiple",
+				*QUESTION_OPTION_FIELDS,
+				*QUESTION_EXPLANATION_FIELDS,
+			]
+			# nosemgrep: lms-unjustified-ignore-permissions - access gated by can_access_quiz above
+			rows = frappe.get_all(
+				"LMS Question",
+				filters=[["name", "in", question_names]],
+				fields=fields,
+				ignore_permissions=True,
+			)
+			questions_by_name = {row["name"]: row for row in rows}
 
 	return {"quiz": quiz_doc, "questions_by_name": questions_by_name}
+
+
+@frappe.whitelist()
+def get_assignment(name: str) -> dict:
+	"""Return an LMS Assignment with a server-computed schedule_block_reason.
+
+	Mirrors ``frappe.client.get`` permission checks so callers cannot bypass
+	DocPerm by hitting this whitelist directly.
+	"""
+	from lms.lms.schedule_utils import enrich_schedule_payload
+
+	if not isinstance(name, str):
+		frappe.throw(_("Assignment must be a string."))
+
+	doc = frappe.get_doc("LMS Assignment", name)
+	doc.check_permission("read")
+	doc.apply_fieldlevel_read_permissions()
+	return enrich_schedule_payload(doc.as_dict())
 
 
 @frappe.whitelist(allow_guest=True)
@@ -3151,9 +3197,18 @@ def is_demo_course(course: str) -> bool:
 
 
 def sanitize_editorjs(raw):
+	"""Sanitise lesson content without treating the JSON envelope as HTML.
+
+	`content` carries `ignore_xss_filter`, so frappe's field-level `sanitize_html`
+	no longer runs over it: it read the whole JSON document as markup and left the
+	field unparseable. `sanitize_json` is the gate instead, string by string.
+	"""
 	try:
 		data = json.loads(raw)
 	except (TypeError, ValueError):
+		# Returned byte-for-byte. Nothing renders content that will not parse, and
+		# rewriting it defeats the repair on read: one title-only save was enough
+		# to turn a recoverable lesson into an unrecoverable one.
 		return raw
 	return json.dumps(sanitize_json(data), separators=(",", ":"))
 

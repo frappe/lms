@@ -502,29 +502,16 @@ const markStatusClass = (row) => {
 	return row.marks > 0 ? 'bg-ink-orange-6' : 'bg-ink-red-6'
 }
 
-// The header renders before the doc lands. It used to be guarded by a `v-if`
-// on Breadcrumbs itself, and reading `.quiz` off an undefined doc threw during
-// render once the shared header took that guard away.
-//
-// The trail continues the submission list's own — Quizzes, the quiz, then its
-// submissions — so arriving here from that list adds a crumb rather than
-// replacing the path that led to it.
+// The header renders before the doc lands, so this must not read `.quiz` off an
+// undefined doc. Matches the list page: no quiz crumb, and no `?quiz=` back,
+// which used to relocate the list.
 const breadcrumbs = computed(() => {
-	const crumbs = [{ label: __('Quizzes'), route: { name: 'Quizzes' } }]
+	const crumbs = [
+		{ label: __('Quizzes'), route: { name: 'Quizzes' } },
+		{ label: __('Submissions'), route: { name: 'QuizSubmissions' } },
+	]
 	const doc = submissionDetails.doc
-	if (!doc) return crumbs
-
-	if (doc.quiz_title) {
-		crumbs.push({
-			label: doc.quiz_title,
-			route: { name: 'QuizForm', params: { quizID: doc.quiz } },
-		})
-	}
-	crumbs.push({
-		label: __('Submissions'),
-		route: { name: 'QuizSubmissionList', params: { quizID: doc.quiz } },
-	})
-	crumbs.push({ label: doc.member_name || doc.name })
+	if (doc) crumbs.push({ label: doc.member_name || doc.name })
 	return crumbs
 })
 
@@ -567,7 +554,7 @@ onBeforeUnmount(() => {
 })
 
 usePageMeta(() => ({
-	title: `${submissionDetails.doc?.quiz_title}`,
+	title: submissionDetails.doc?.quiz_title || __('Quiz Submission'),
 	icon: brand.favicon,
 }))
 </script>

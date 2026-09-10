@@ -89,6 +89,22 @@
 							<span class="lucide-camera size-3.5" />
 							{{ __('Proctored') }}
 						</span>
+						<span
+							v-if="quiz.data.enable_scheduling && quiz.data.schedule_start"
+							class="inline-flex items-center gap-1.5 bg-surface-gray-3 text-ink-gray-7 text-xs font-medium px-2.5 py-1 rounded-full"
+						>
+							<span class="lucide-calendar size-3.5" />
+							{{ __('Opens') }}:
+							{{ formatScheduleDate(quiz.data.schedule_start) }}
+						</span>
+						<span
+							v-if="quiz.data.enable_scheduling && quiz.data.schedule_end"
+							class="inline-flex items-center gap-1.5 bg-surface-gray-3 text-ink-gray-7 text-xs font-medium px-2.5 py-1 rounded-full"
+						>
+							<span class="lucide-calendar-x size-3.5" />
+							{{ __('Closes') }}:
+							{{ formatScheduleDate(quiz.data.schedule_end) }}
+						</span>
 					</div>
 				</div>
 
@@ -245,6 +261,16 @@
 							__('Resume Video')
 						}}</Button>
 					</template>
+					<template v-else-if="scheduleBlocked">
+						<div class="bg-surface-amber-1 rounded-lg px-4 py-3 mb-3">
+							<div class="text-sm text-ink-amber-6 leading-5">
+								{{ scheduleMessage }}
+							</div>
+						</div>
+						<Button v-if="inVideo" @click="props.backToVideo()">{{
+							__('Resume Video')
+						}}</Button>
+					</template>
 					<template v-else>
 						<div class="flex items-center justify-center gap-2">
 							<Button
@@ -276,7 +302,9 @@
 			     columns: split early, the camera preview and the rule text each get
 			     a strip too narrow to read, and every rule wraps to three lines. -->
 			<div
-				v-if="quiz.data.enable_proctoring && !attemptsExhausted"
+				v-if="
+					quiz.data.enable_proctoring && !attemptsExhausted && !scheduleBlocked
+				"
 				class="grid gap-4 md:grid-cols-2"
 			>
 				<!-- Camera setup -->
@@ -518,55 +546,13 @@
 								@change="markForReview($event, activeQuestion)"
 							/>
 						</div>
-						<div
-							v-if="!quiz.data.show_answers"
-							class="flex flex-wrap items-center gap-2"
-						>
+						<div class="flex-1 flex justify-end gap-2">
 							<Button
-								:label="__('Previous question')"
+								v-if="!quiz.data.show_answers && activeQuestion > 1"
 								@click="switchQuestion(activeQuestion - 1)"
-								:disabled="activeQuestion == 1"
-								class="rounded-full"
 							>
-								<template #icon>
-									<span class="lucide-chevron-left size-4" />
-								</template>
+								<span>{{ __('Previous') }}</span>
 							</Button>
-							<component
-								:is="item === '...' ? 'span' : 'button'"
-								v-for="(item, pidx) in paginationWindow"
-								:key="pidx"
-								:type="item === '...' ? null : 'button'"
-								class="w-6 h-6 rounded-full flex items-center justify-center text-sm"
-								:class="{
-									'cursor-pointer': item !== '...',
-									'bg-surface-gray-4 border border-outline-gray-7 font-medium':
-										activeQuestion == item,
-									'text-ink-gray-5': item === '...',
-									'bg-surface-blue-2 text-ink-blue-8':
-										attemptedQuestions.includes(item) && activeQuestion != item,
-									'bg-surface-gray-3 text-ink-gray-6':
-										activeQuestion != item &&
-										item !== '...' &&
-										!attemptedQuestions.includes(item),
-								}"
-								@click="item !== '...' && switchQuestion(item)"
-							>
-								{{ item }}
-							</component>
-
-							<Button
-								:label="__('Next question')"
-								@click="switchQuestion(activeQuestion + 1)"
-								:disabled="activeQuestion == questions.length"
-								class="rounded-full"
-							>
-								<template #icon>
-									<span class="lucide-chevron-right size-4" />
-								</template>
-							</Button>
-						</div>
-						<div class="flex-1 flex justify-end">
 							<Button
 								v-if="
 									quiz.data.show_answers &&
@@ -587,7 +573,11 @@
 							>
 								<span>{{ __('Next') }}</span>
 							</Button>
-							<Button variant="solid" v-else @click="handleSubmitClick()">
+							<Button
+								v-else-if="!preview"
+								variant="solid"
+								@click="handleSubmitClick()"
+							>
 								<span>{{ __('Submit') }}</span>
 							</Button>
 						</div>
@@ -660,6 +650,36 @@
 						</span>
 					</div>
 				</div>
+			</div>
+
+			<div v-if="!quiz.data.show_answers" class="border rounded-lg p-4 mt-4">
+				<div class="font-semibold">
+					{{ __('Questions') }}
+				</div>
+				<nav
+					:aria-label="__('Question navigation')"
+					class="flex flex-wrap items-center gap-2 mt-2"
+				>
+					<button
+						v-for="index in questions.length"
+						:key="index"
+						type="button"
+						:aria-label="__('Question {0}').format(index)"
+						:aria-current="activeQuestion == index ? 'page' : undefined"
+						@click="switchQuestion(index)"
+						class="w-6 h-6 rounded-full flex items-center justify-center text-sm cursor-pointer"
+						:class="{
+							'bg-surface-gray-7 text-ink-base font-medium':
+								activeQuestion == index,
+							'bg-surface-blue-2 text-ink-blue-6':
+								activeQuestion != index && attemptedQuestions.includes(index),
+							'bg-surface-gray-3':
+								activeQuestion != index && !attemptedQuestions.includes(index),
+						}"
+					>
+						{{ index }}
+					</button>
+				</nav>
 			</div>
 
 			<div v-if="reviewQuestions.length" class="border rounded-lg p-4 mt-4">
@@ -930,6 +950,7 @@ import {
 } from 'vue'
 import { timeAgo } from '@/utils/format'
 import { safeUrl } from '@/utils/safeUrl'
+import { getScheduleBlockReason } from '@/utils/schedule'
 import ProgressBar from '@/components/ProgressBar.vue'
 import ResponsiveListView from '@/components/ResponsiveListView.vue'
 import RichTextEditor from '@/components/RichTextEditor.vue'
@@ -959,6 +980,13 @@ const props = defineProps({
 	quizName: {
 		type: String,
 		required: true,
+	},
+	// Author-facing preview. The learner view is rendered exactly as it ships, but
+	// nothing may be written: a submission here is a real LMS Quiz Submission, it
+	// notifies, and it spends one of the author's own max_attempts.
+	preview: {
+		type: Boolean,
+		default: false,
 	},
 	inVideo: {
 		type: Boolean,
@@ -995,6 +1023,7 @@ const serialiseViolationLog = (withFrames = true) =>
 	)
 
 const handlePageHide = () => {
+	if (props.preview) return
 	if (activeQuestion.value > 0 && !quizSubmission.data) {
 		const params = new URLSearchParams({
 			quiz: quiz.data.name,
@@ -1128,6 +1157,78 @@ const attemptsExhausted = computed(
 		!!quiz.data?.max_attempts &&
 		(attempts.data?.length ?? 0) >= quiz.data.max_attempts
 )
+
+const scheduleNow = ref(new Date())
+let scheduleClock = null
+
+const scheduleBlockReason = computed(() =>
+	getScheduleBlockReason(
+		quiz.data?.enable_scheduling,
+		quiz.data?.schedule_start_iso || quiz.data?.schedule_start,
+		quiz.data?.schedule_end_iso || quiz.data?.schedule_end,
+		scheduleNow.value
+	)
+)
+
+const scheduleBlocked = computed(() => !!scheduleBlockReason.value)
+
+const scheduleMessage = computed(() => {
+	if (scheduleBlockReason.value === 'not_started') {
+		return __('This quiz opens on {0}.').format(
+			formatScheduleDate(
+				quiz.data?.schedule_start_iso || quiz.data?.schedule_start
+			)
+		)
+	}
+	if (scheduleBlockReason.value === 'ended') {
+		return __('The schedule for this quiz has ended.')
+	}
+	return ''
+})
+
+const formatScheduleDate = (value) => {
+	if (!value) return ''
+	const date = new Date(value)
+	if (Number.isNaN(date.getTime())) return String(value)
+	return date.toLocaleString()
+}
+
+watch(scheduleBlockReason, (reason, previous) => {
+	// Questions are withheld while blocked; once the window opens, refetch so
+	// Start can load real prompts without a full page reload.
+	if (previous && !reason && !Object.keys(questionsByName.value).length) {
+		quiz.reload()
+	}
+})
+
+const stopScheduleClock = () => {
+	if (scheduleClock) {
+		clearInterval(scheduleClock)
+		scheduleClock = null
+	}
+}
+
+const startScheduleClock = () => {
+	stopScheduleClock()
+	scheduleNow.value = new Date()
+	scheduleClock = setInterval(() => {
+		scheduleNow.value = new Date()
+	}, 15000)
+}
+
+// Only tick while scheduling is on — keeps lesson-reuse timer tests (and
+// everyday quizzes) free of a leftover interval.
+watch(
+	() => quiz.data?.enable_scheduling,
+	(enabled) => {
+		if (enabled) startScheduleClock()
+		else stopScheduleClock()
+	}
+)
+
+onUnmounted(() => {
+	stopScheduleClock()
+})
 
 const shuffleArray = (array) => {
 	for (let i = array.length - 1; i > 0; i--) {
@@ -1274,8 +1375,13 @@ watch(
 )
 
 const startQuiz = () => {
+	if (scheduleBlocked.value) return
 	activeQuestion.value = 1
 	localStorage.removeItem(quiz.data.title)
+	// Neither in an author preview. Nothing may be submitted there, so a countdown
+	// would reach zero with no way to end the attempt and the camera would stay on
+	// with it, and a violation cap would do the same.
+	if (props.preview) return
 	if (quiz.data.duration) startTimer()
 	if (quiz.data.enable_proctoring) proctoringActive.value = true
 }
@@ -1476,6 +1582,7 @@ const submitQuiz = (reason = 'manual') => {
 }
 
 const createSubmission = (reason = 'manual') => {
+	if (props.preview) return
 	// Which quiz this submission belongs to. The component is reused across
 	// lessons, so by the time the response lands props.quizName may have moved
 	// on — and markLessonProgress() reads window.location.pathname at that
@@ -1581,30 +1688,6 @@ const recordCurrentAttempt = () => {
 	}
 	addToLocalStorage()
 }
-
-const paginationWindow = computed(() => {
-	const total = questions.value.length
-	const current = activeQuestion.value
-	const pages = []
-	const size = 5
-
-	let start = Math.floor((current - 1) / size) * size + 1
-	let end = Math.min(start + size - 1, total)
-
-	if (start > 1) {
-		pages.push('...')
-	}
-
-	for (let i = start; i <= end; i++) {
-		pages.push(i)
-	}
-
-	if (end < total) {
-		pages.push('...')
-	}
-
-	return pages
-})
 
 const markForReview = (event, questionNumber) => {
 	if (event.target.checked) {
