@@ -147,6 +147,7 @@ const form = recordForm({
 					type: 'link',
 					doctype: 'Google Calendar',
 					reqd: true,
+					onCreate: (_value, close) => openSettings('google-calendar', close),
 				},
 			],
 		},

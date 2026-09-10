@@ -19,6 +19,9 @@ import {
 	canManageGoogleMeet,
 	googleMeetSettingsPage,
 } from '@/components/Settings/GoogleMeet/googleMeet'
+import { canManageGoogleIntegrations } from '@/components/Settings/GoogleApi/googleApi'
+import GoogleApiSettings from '@/components/Settings/GoogleApi/GoogleApiSettings.vue'
+import { googleCalendarSettingsPage } from '@/components/Settings/GoogleCalendar/googleCalendar'
 import RavenSettings from '@/components/Settings/Raven/RavenSettings.vue'
 import Preferences from '@/components/Settings/Preferences.vue'
 
@@ -308,6 +311,21 @@ export const settingsTree: SettingsGroup[] = [
 				records: true,
 				condition: canManageGoogleMeet,
 				page: googleMeetSettingsPage,
+			},
+			{
+				label: 'Google API',
+				slug: 'google-api',
+				icon: 'lucide-cloud',
+				condition: canManageGoogleIntegrations,
+				page: { kind: 'custom', component: markRaw(GoogleApiSettings) },
+			},
+			{
+				label: 'Google Calendar',
+				slug: 'google-calendar',
+				icon: 'lucide-calendar',
+				records: true,
+				condition: canManageGoogleIntegrations,
+				page: googleCalendarSettingsPage,
 			},
 			{
 				label: 'Zoom',
