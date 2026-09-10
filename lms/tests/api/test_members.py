@@ -15,13 +15,9 @@ class TestGetMembers(BaseTestUtils):
 	def setUp(self):
 		super().setUp()
 		self.moderator = self._create_user("moderator@example.com", "Mod", "Erator", ["Moderator"])
-		# Two full pages of its own, because the paging case below asserts that page
-		# two is full. `MEMBERS_PAGE_LENGTH + 3` seeded 17 users with the moderator
-		# and needed 26, so it passed only where a previous suite had left enough
-		# users behind and failed on a site that starts clean.
 		self.members = [
 			self._create_user(f"member{index}@example.com", "Member", str(index), ["LMS Student"])
-			for index in range(2 * MEMBERS_PAGE_LENGTH)
+			for index in range(MEMBERS_PAGE_LENGTH + 3)
 		]
 		frappe.set_user(self.moderator.name)
 
