@@ -136,10 +136,11 @@ def update_program_progress(member):
 
 
 def _update_course_enrollments(course, increment=True):
-	frappe.db.sql(
-		"UPDATE `tabLMS Course` SET enrollments = enrollments + %s WHERE name = %s",
-		(1 if increment else -1, course),
-	)
+	LMSCourse = frappe.qb.DocType("LMS Course")
+	value = 1 if increment else -1
+	frappe.qb.update(LMSCourse).set(LMSCourse.enrollments, LMSCourse.enrollments + value).where(
+		LMSCourse.name == course
+	).run()
 
 
 @contextmanager
