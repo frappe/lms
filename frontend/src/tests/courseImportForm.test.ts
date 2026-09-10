@@ -7,6 +7,7 @@ import {
 	type Router,
 } from 'vue-router'
 import { defineComponent, h } from 'vue'
+import { toast } from 'frappe-ui'
 
 vi.stubGlobal('__', (text: string) => text)
 enableAutoUnmount(afterEach)
@@ -148,6 +149,7 @@ describe('CourseImportForm as a route', () => {
 	beforeEach(() => {
 		callMock.mockReset()
 		uploadMock.mockReset()
+		vi.mocked(toast.error).mockClear()
 		uploadMock.mockResolvedValue({
 			file_url: '/files/course.zip',
 			file_name: 'course.zip',
@@ -211,6 +213,47 @@ describe('CourseImportForm as a route', () => {
 			{
 				zip_file_path: '/files/course.zip',
 			}
+		)
+	})
+
+	// Both cases build the error the way call() does: `message` is
+	// "<method> <exc_type>" and the server's own text lives in `messages` — which
+	// call() never leaves empty, substituting 'Internal Server Error' when the
+	// response carried nothing.
+	const importError = (messages: string[]) => {
+		const error: Error & { messages: string[] } = Object.assign(
+			new Error('lms.lms.api.import_course_from_zip ValidationError'),
+			{ messages }
+		)
+		return error
+	}
+
+	const rejectImportWith = async (messages: string[]) => {
+		callMock.mockRejectedValue(importError(messages))
+		const router = makeRouter()
+		await router.push({ name: 'CourseImport' })
+		const wrapper = await mountForm(router)
+
+		await attachZip(wrapper)
+		await wrapper.find('[data-testid="course-import-submit"]').trigger('click')
+		await flushPromises()
+	}
+
+	it('reports the server message when the import is rejected', async () => {
+		// Reporting error.message alone told the user
+		// "...import_course_from_zip ValidationError" and dropped the reason.
+		await rejectImportWith(['Invalid course ZIP: Missing course.json'])
+
+		expect(toast.error).toHaveBeenCalledWith('Invalid course ZIP: Missing course.json')
+	})
+
+	it('falls back to the raw error when the server sent no message', async () => {
+		// call()'s placeholder is not a message anyone can act on, so it must not
+		// win over the fallback — which still names the method and exception.
+		await rejectImportWith(['Internal Server Error'])
+
+		expect(toast.error).toHaveBeenCalledWith(
+			'Error importing course: lms.lms.api.import_course_from_zip ValidationError'
 		)
 	})
 
