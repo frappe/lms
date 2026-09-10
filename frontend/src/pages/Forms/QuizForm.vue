@@ -326,6 +326,38 @@
 						variant="outline"
 						:required="true"
 					/>
+					<BooleanSwitch
+						v-model="doc.enable_scheduling"
+						size="sm"
+						:label="__('Enable Scheduling')"
+						:description="
+							__('Restrict when learners can start and submit this quiz.')
+						"
+					/>
+					<FormControl
+						v-if="doc.enable_scheduling"
+						type="datetime-local"
+						:model-value="toDatetimeLocal(doc.schedule_start)"
+						@update:model-value="
+							(val) => (doc.schedule_start = fromDatetimeLocal(val))
+						"
+						:label="__('Schedule Start')"
+						variant="outline"
+						:required="true"
+					/>
+					<FormControl
+						v-if="doc.enable_scheduling"
+						type="datetime-local"
+						:model-value="toDatetimeLocal(doc.schedule_end)"
+						@update:model-value="
+							(val) => (doc.schedule_end = fromDatetimeLocal(val))
+						"
+						:label="__('Schedule End')"
+						:description="
+							__('Optional. Leave empty to keep the quiz open after it starts.')
+						"
+						variant="outline"
+					/>
 				</div>
 			</div>
 		</div>
@@ -347,6 +379,7 @@ import BooleanSwitch from '@/components/Controls/BooleanSwitch.vue'
 import HeaderButton from '@/components/HeaderButton.vue'
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 import PageHeader from '@/components/Layouts/PageHeader.vue'
+import { toDatetimeLocal, fromDatetimeLocal } from '@/utils/schedule'
 import Draggable from 'vuedraggable'
 import QuestionCard from '@/components/Quiz/QuestionCard.vue'
 import QuestionBankPanel from '@/components/Quiz/QuestionBankPanel.vue'
