@@ -81,6 +81,17 @@ const poppers = () => bodyChildren().filter((el) => el.matches(POPPER))
 const restack = () => {
 	const open = overlays()
 
+	// Every popper's own open order is timestamped here regardless of whether
+	// a dialog happens to be open right now. Without this, a popper that was
+	// already on the page before the NEXT dialog opens (a nav/create menu
+	// whose selection fired but whose node outlives the click) would only get
+	// timestamped the first time restack sees it WITH a dialog present —
+	// making it look, wrongly, like it opened alongside that dialog rather
+	// than before it.
+	for (const popper of poppers()) {
+		if (!openedAt.has(popper)) openedAt.set(popper, ++opened)
+	}
+
 	// A popper with no dialog under it is back in the root stacking context and is
 	// handed back its own `auto`.
 	if (!open.length) {
@@ -121,10 +132,17 @@ const restack = () => {
 	// Fixed when the popper first appears, exactly as a dialog's own layer is. A
 	// popper belongs to the dialog it was opened from, so re-reading the current
 	// top would keep lifting the menu over whichever dialog replaced it.
+	//
+	// Only a popper timestamped AFTER the current top dialog is raised above
+	// it — one timestamped earlier predates that dialog (a stale menu whose
+	// node outlives its own dismissal) and is left at its default `auto`
+	// stacking, below every dialog layer, rather than lifted over one it
+	// doesn't belong to.
 	const ceiling = layerOf(ordered.length)
+	const topOpenedAt = openedAt.get(top) ?? 0
 	for (const popper of poppers()) {
-		if (openedAt.has(popper)) continue
-		openedAt.set(popper, opened)
+		if (popper.hasAttribute(LAYER_ATTR)) continue
+		if ((openedAt.get(popper) ?? 0) <= topOpenedAt) continue
 		const layer = ceiling + 1
 		ensureLayerRule(layer)
 		popper.setAttribute(LAYER_ATTR, String(layer))
@@ -137,11 +155,33 @@ const restack = () => {
 
 // DialogContent stops `pointerdown` before reka's own listener can close the
 // menu, so the dismissal is sent explicitly via Escape, which only ever
-// closes the highest layer (the menu, never the dialog under it).
+// closes the highest layer (the menu, never the dialog under it) — PROVIDED
+// the menu actually still outranks the dialog. A dropdown/nav popper that
+// "outlives the click" (its trigger's selection already fired, but its own
+// leave transition hasn't removed the node yet) stays a body child for a
+// beat after the dialog it's unrelated to opens above it. `restack` already
+// freezes a popper's layer, one above the ceiling, the moment it first
+// appears — so a popper opened BEFORE the current top dialog is frozen
+// below it, and is no longer reka's real highest DismissableLayer. Sending
+// Escape for one of those would not reach it (reka only dismisses the
+// highest layer) and would instead close the dialog the user just opened.
+const topOverlayZ = (): number => {
+	const z = overlays().map((o) => Number(o.style.zIndex) || 0)
+	return z.length ? Math.max(...z) : 0
+}
+
+const menuAbove = (): boolean => {
+	// LAYER_ATTR, not style.zIndex: floating-ui rewrites a popper's inline
+	// style on every reposition, so the attribute — which the CSS rule keys
+	// off — is the value that actually survives between restacks.
+	const ceiling = topOverlayZ()
+	return poppers().some((p) => Number(p.getAttribute(LAYER_ATTR)) > ceiling)
+}
+
 const dismissMenu = (event: Event) => {
 	const target = event.target
 	if (!(target instanceof Element)) return
-	if (!poppers().length) return
+	if (!menuAbove()) return
 	if (target.closest(POPPER)) return
 	if (!target.closest(`[${INTERACTIVE_ATTR}]`)) return
 	document.dispatchEvent(

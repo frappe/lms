@@ -59,4 +59,69 @@ describe('dialog layering', () => {
 
 		expect(layerOf(opened)).toBeGreaterThan(layerOf(stranded))
 	})
+
+	// A dropdown/nav menu whose selection already fired (e.g. "Create > New
+	// Course") can still be a body child for a beat after the dialog it is
+	// unrelated to opens — its own leave transition hasn't removed the node
+	// yet. Clicking inside the freshly-opened dialog must not be mistaken for
+	// "dismiss the menu that's covering this dialog": that menu is stale, not
+	// really on top, and reka's real Escape handling would land on the
+	// dialog, not the menu.
+	describe('the stale-popper Escape workaround', () => {
+		const openPopper = (): HTMLElement => {
+			const popper = document.createElement('div')
+			popper.setAttribute('data-reka-popper-content-wrapper', '')
+			document.body.appendChild(popper)
+			return popper
+		}
+
+		const escapeDispatched = (): Promise<boolean> => {
+			return new Promise((resolve) => {
+				const onKeydown = (e: KeyboardEvent) => {
+					if (e.key !== 'Escape') return
+					document.removeEventListener('keydown', onKeydown)
+					resolve(true)
+				}
+				document.addEventListener('keydown', onKeydown)
+				setTimeout(() => {
+					document.removeEventListener('keydown', onKeydown)
+					resolve(false)
+				}, 0)
+			})
+		}
+
+		const pointerdownInside = (el: HTMLElement) => {
+			const target = document.createElement('button')
+			el.appendChild(target)
+			target.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }))
+		}
+
+		it('does not fire for a stale popper that predates the dialog', async () => {
+			// The "Create" dropdown opens and its selection already fired, but
+			// its node outlives the click.
+			openPopper()
+			await settle()
+
+			// The dialog it opened is a genuinely new, unrelated overlay.
+			const overlay = openOverlay()
+			await settle()
+
+			const done = escapeDispatched()
+			pointerdownInside(overlay.querySelector('[role="dialog"]')!)
+			expect(await done).toBe(false)
+		})
+
+		it('still fires for a popper genuinely opened from within the top dialog', async () => {
+			const overlay = openOverlay()
+			await settle()
+
+			// A Select/Combobox opened from inside the already-open dialog.
+			openPopper()
+			await settle()
+
+			const done = escapeDispatched()
+			pointerdownInside(overlay.querySelector('[role="dialog"]')!)
+			expect(await done).toBe(true)
+		})
+	})
 })
