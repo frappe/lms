@@ -286,33 +286,38 @@
 		},
 		{
 			"default": "1",
+			"description": "Superseded by Settings > Sidebar. No longer the source of truth.",
 			"fieldname": "courses",
 			"fieldtype": "Check",
-			"label": "Courses"
+			"label": "Courses (Deprecated)"
 		},
 		{
 			"default": "1",
+			"description": "Superseded by Settings > Sidebar. No longer the source of truth.",
 			"fieldname": "batches",
 			"fieldtype": "Check",
-			"label": "Batches"
+			"label": "Batches (Deprecated)"
 		},
 		{
 			"default": "1",
+			"description": "Superseded by Settings > Sidebar. No longer the source of truth.",
 			"fieldname": "jobs",
 			"fieldtype": "Check",
-			"label": "Jobs"
+			"label": "Jobs (Deprecated)"
 		},
 		{
 			"default": "1",
+			"description": "Superseded by Settings > Sidebar. No longer the source of truth.",
 			"fieldname": "statistics",
 			"fieldtype": "Check",
-			"label": "Statistics"
+			"label": "Statistics (Deprecated)"
 		},
 		{
 			"default": "1",
+			"description": "Superseded by Settings > Sidebar. No longer the source of truth.",
 			"fieldname": "notifications",
 			"fieldtype": "Check",
-			"label": "Notifications"
+			"label": "Notifications (Deprecated)"
 		},
 		{
 			"fieldname": "items_in_sidebar_section",
@@ -435,9 +440,10 @@
 		},
 		{
 			"default": "1",
+			"description": "Superseded by Settings > Sidebar. No longer the source of truth.",
 			"fieldname": "programming_exercises",
 			"fieldtype": "Check",
-			"label": "Programming Exercises"
+			"label": "Programming Exercises (Deprecated)"
 		},
 		{
 			"fieldname": "contact_us_tab",
@@ -460,9 +466,10 @@
 		},
 		{
 			"default": "1",
+			"description": "Superseded by Settings > Sidebar. No longer the source of truth.",
 			"fieldname": "certifications",
 			"fieldtype": "Check",
-			"label": "Certifications"
+			"label": "Certifications (Deprecated)"
 		},
 		{
 			"default": "0",

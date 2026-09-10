@@ -3,6 +3,7 @@ import type { SettingsGroup } from '@/types/settingsSchema'
 import Categories from '@/components/Settings/Categories.vue'
 import Members from '@/components/Settings/Members.vue'
 import EmailConfig from '@/components/Settings/EmailAccount/EmailConfig.vue'
+import { sidebarSettingsPage } from '@/components/Settings/Sidebar/sidebar'
 // BrandSettings.vue is still `<script setup>` with no `lang="ts"`, so a TS
 // importer gets TS7016; only settingsStructure.js reached it before. Clears
 // itself once the component is converted.
@@ -364,66 +365,7 @@ export const settingsTree: SettingsGroup[] = [
 				icon: 'lucide-palette',
 				page: { kind: 'custom', component: markRaw(BrandSettings) },
 			},
-			{
-				label: 'Sidebar',
-				slug: 'sidebar',
-				icon: 'lucide-panel-left',
-				page: {
-					kind: 'fields',
-					source: { doc: 'LMS Settings' },
-					save: 'auto',
-					sections: [
-						{
-							label: 'Sidebar',
-							fields: [
-								{
-									label: 'Courses',
-									name: 'courses',
-									type: 'checkbox',
-									description: 'Show the Courses link in the sidebar.',
-								},
-								{
-									label: 'Batches',
-									name: 'batches',
-									type: 'checkbox',
-									description: 'Show the Batches link in the sidebar.',
-								},
-								{
-									label: 'Programming Exercises',
-									name: 'programming_exercises',
-									type: 'checkbox',
-									description:
-										'Show the Programming Exercises link in the sidebar.',
-								},
-								{
-									label: 'Certifications',
-									name: 'certifications',
-									type: 'checkbox',
-									description: 'Show the Certifications link in the sidebar.',
-								},
-								{
-									label: 'Jobs',
-									name: 'jobs',
-									type: 'checkbox',
-									description: 'Show the Jobs link in the sidebar.',
-								},
-								{
-									label: 'Statistics',
-									name: 'statistics',
-									type: 'checkbox',
-									description: 'Show the Statistics link in the sidebar.',
-								},
-								{
-									label: 'Notifications',
-									name: 'notifications',
-									type: 'checkbox',
-									description: 'Show the Notifications link in the sidebar.',
-								},
-							],
-						},
-					],
-				},
-			},
+			sidebarSettingsPage,
 			{
 				label: 'SEO',
 				slug: 'seo',

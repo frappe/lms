@@ -37,6 +37,7 @@ from lms.lms.doctype.course_lesson.course_lesson import (
 	cleanup_lesson_backreferences,
 	save_progress,
 )
+from lms.lms.sidebar import LEGACY_VISIBILITY_FIELDS, ROW_FIELDS, get_sidebar_rows
 from lms.lms.utils import (
 	LMS_ROLES,
 	can_modify_batch,
@@ -847,56 +848,97 @@ def get_all_users():
 	return {user.name: user for user in users}
 
 
+# nosemgrep: security.guest-whitelisted-method - pre-existing grant, unchanged by this branch; the endpoint gates itself (a guest on a site with allow_guest_access off gets a bare []). Flagged only because semgrep ci re-scans the whole function when its body changes.
 @frappe.whitelist(allow_guest=True)
 def get_sidebar_settings():
 	lms_settings = frappe.get_single("LMS Settings")
 	if frappe.session.user == "Guest" and not lms_settings.allow_guest_access:
 		return []
 
+	rows = get_sidebar_rows(lms_settings)
 	sidebar_items = frappe._dict()
-	items = [
-		"courses",
-		"batches",
-		"certifications",
-		"jobs",
-		"statistics",
-		"notifications",
-		"programming_exercises",
-	]
-	for item in items:
-		sidebar_items[item] = lms_settings.get(item)
 
-	if len(lms_settings.sidebar_items):
-		web_pages = frappe.get_all(
-			"LMS Sidebar Item",
-			{"parenttype": "LMS Settings", "parentfield": "sidebar_items"},
-			["web_page", "route", "title as label", "icon", "name"],
+	# The seven legacy keys, derived from the rows that replaced them. Emitted
+	# for anything not updated in this change; the rows are the contract.
+	# Seeded from the Check fields first so a site whose patch has not run yet
+	# still gets an answer rather than seven missing keys.
+	for field in LEGACY_VISIBILITY_FIELDS:
+		sidebar_items[field] = cint(lms_settings.get(field))
+	for row in rows:
+		if row["name1"] in LEGACY_VISIBILITY_FIELDS:
+			sidebar_items[row["name1"]] = 0 if row["hidden"] else 1
+
+	sidebar_items.sidebar_rows = rows
+	sidebar_items.web_pages = [
+		frappe._dict(
+			web_page=row["web_page"],
+			route=row["to"],
+			label=row["label"],
+			icon=row["icon"],
+			name=row["name"],
+			to=row["to"],
 		)
-		for page in web_pages:
-			page.to = page.route
-
-		sidebar_items.web_pages = web_pages
+		for row in rows
+		if row["item_type"] == "Web Page" and not row["hidden"]
+	]
 
 	return sidebar_items
 
 
 @frappe.whitelist()
-def update_sidebar_item(webpage: str, icon: str):
-	frappe.only_for("Moderator")
-	filters = {
-		"web_page": webpage,
-		"parenttype": "LMS Settings",
-		"parentfield": "sidebar_items",
-		"parent": "LMS Settings",
-	}
+def update_sidebar_item(webpage: str, icon: str | None = None):
+	"""Add a published Web Page to the sidebar, or re-icon one already there.
 
-	if frappe.db.exists("LMS Sidebar Item", filters):
-		frappe.db.set_value("LMS Sidebar Item", filters, "icon", icon)
+	The only writer the "New" dialog has. It appends to LMS Settings and saves
+	the parent, so validate_sidebar_items assigns the row its id and idx and the
+	target checks run — the sidebar then folds the new row into "More" like any
+	other web page.
+	"""
+	frappe.only_for("Moderator")
+
+	if not frappe.db.exists("Web Page", {"name": webpage, "published": 1}):
+		frappe.throw(_("{0} is not a published web page.").format(frappe.bold(webpage)))
+
+	settings = frappe.get_single("LMS Settings")
+	existing = next(
+		(row for row in settings.sidebar_items if row.item_type == "Web Page" and row.web_page == webpage),
+		None,
+	)
+	if existing:
+		existing.icon = icon
 	else:
-		doc = frappe.new_doc("LMS Sidebar Item")
-		doc.update(filters)
-		doc.icon = icon
-		doc.insert()
+		settings.append("sidebar_items", {"item_type": "Web Page", "web_page": webpage, "icon": icon})
+
+	settings.save()
+	return get_sidebar_settings()
+
+
+@frappe.whitelist()
+def save_sidebar_items(rows: list):
+	"""Replace the sidebar table, and nothing else on LMS Settings.
+
+	The settings page edits one cached LMS Settings document shared by every
+	panel, and a document save sends every field that is dirty on it, so saving
+	the sidebar from there also commits whatever another panel left unsaved.
+	"""
+	frappe.only_for("Moderator")
+
+	if isinstance(rows, str):
+		rows = frappe.parse_json(rows)
+	if not isinstance(rows, list):
+		frappe.throw(_("Sidebar rows must be a list."))
+
+	settings = frappe.get_single("LMS Settings")
+	settings.set("sidebar_items", [])
+	for index, row in enumerate(rows):
+		if not isinstance(row, dict):
+			frappe.throw(_("Each sidebar row must be an object."))
+		item = {field: row.get(field) for field in ROW_FIELDS}
+		item["idx"] = index + 1
+		settings.append("sidebar_items", item)
+
+	settings.save()
+	return get_sidebar_settings()
 
 
 @frappe.whitelist()
