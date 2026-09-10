@@ -62,6 +62,23 @@ def extend_bootinfo(bootinfo: dict):
 	bootinfo["lms_path"] = get_lms_path()
 
 
+def resolve_text_direction(lang: str) -> str:
+	"""The direction the SPA shell is served with.
+
+	`is_rtl()` reads frappe.local.lang, which a guest gets from Accept-Language,
+	while boot.lang comes from get_user_lang(), which a guest gets from System
+	Settings. Passing the language in keeps the two from disagreeing.
+	"""
+	setting = frappe.db.get_single_value("LMS Settings", "text_direction")
+
+	if setting == "Left to Right":
+		return "ltr"
+	if setting == "Right to Left":
+		return "rtl"
+
+	return "rtl" if lang in ("ar", "he", "fa", "ps") else "ltr"
+
+
 def slugify(title: str, used_slugs: list = None):
 	"""Converts title to a slug.
 

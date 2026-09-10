@@ -7,6 +7,7 @@
 	"field_order": [
 		"general_tab",
 		"allow_guest_access",
+		"text_direction",
 		"prevent_skipping_videos",
 		"send_calendar_invite_for_evaluations",
 		"column_break_zdel",
@@ -361,6 +362,13 @@
 			"fieldname": "allow_guest_access",
 			"fieldtype": "Check",
 			"label": "Allow Guest Access"
+		},
+		{
+			"default": "Auto",
+			"fieldname": "text_direction",
+			"fieldtype": "Select",
+			"label": "Text Direction",
+			"options": "Auto\nLeft to Right\nRight to Left"
 		},
 		{
 			"fieldname": "payment_reminder_template",

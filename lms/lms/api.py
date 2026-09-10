@@ -3073,3 +3073,33 @@ def delete_category(category: str):
 
 	frappe.delete_doc("LMS Category", category)
 	return unlinked
+
+
+@frappe.whitelist()
+def get_system_preferences():
+	from frappe.core.doctype.user.user import get_timezones
+
+	return {
+		"language": frappe.db.get_single_value("System Settings", "language"),
+		"time_zone": frappe.db.get_single_value("System Settings", "time_zone"),
+		"timezones": get_timezones().get("timezones", []),
+	}
+
+
+@frappe.whitelist()
+def set_system_preferences(language: str = None, time_zone: str = None):
+	from frappe.core.doctype.user.user import get_timezones
+
+	frappe.only_for("System Manager")
+
+	if language:
+		if not frappe.db.exists("Language", language):
+			frappe.throw(_("{0} is not a valid language").format(language))
+		frappe.db.set_single_value("System Settings", "language", language)
+
+	if time_zone:
+		if time_zone not in get_timezones().get("timezones", []):
+			frappe.throw(_("{0} is not a valid timezone").format(time_zone))
+		frappe.db.set_single_value("System Settings", "time_zone", time_zone)
+
+	frappe.clear_cache()

@@ -21,7 +21,7 @@
 							:model-value="systemLanguage"
 							doctype="Language"
 							data-test="system-language"
-							:readonly="!canEditSystem"
+							:readonly="!systemEditable"
 							:aria-label="__('System Language')"
 							class="w-48"
 							@update:model-value="(value) => onSystemSelect('language', value)"
@@ -44,7 +44,7 @@
 							:model-value="systemTimezone"
 							:options="timezoneOptions"
 							data-test="system-timezone"
-							:disabled="!canEditSystem"
+							:disabled="!systemEditable"
 							:aria-label="__('System Timezone')"
 							:placeholder="__('Search timezone')"
 							class="w-48"
@@ -195,13 +195,28 @@ const preferences = createResource({
 const savePreferences = createResource({
 	url: 'lms.lms.api.set_system_preferences',
 })
+// The permission AND the answer. get_system_preferences only starts
+// fetching on mount, but the panel renders as soon as LMS Settings has a
+// doc, so there's a window where systemDirty reads false and the arrival
+// watcher silently overwrites whatever was picked, with no error or "Not
+// saved" marker.
+const systemEditable = computed<boolean>(
+	() => canEditSystem.value && Boolean(preferences.data)
+)
+
+// Seeded once, then only adopted again when the user has not moved on. `write`
+// reloads this resource, and a pick made while that write was in flight would
+// otherwise be overwritten by the answer and read as saved.
+let systemSeeded = false
 
 watch(
 	() => preferences.data as SystemPreferences | undefined,
 	(data) => {
 		if (!data) return
+		if (systemSeeded && systemDirty.value) return
 		systemLanguage.value = data.language
 		systemTimezone.value = data.time_zone
+		systemSeeded = true
 	},
 	{ immediate: true }
 )
@@ -270,9 +285,32 @@ const accessSections = [
 			},
 		],
 	},
-	// Not a notification gate: it decides whether a booking carries a calendar
-	// invite, not whether the evaluation mail is sent, which is why it sits here
-	// with the rest of the site's contact settings.
+	// Both override the wording of the notification rule that sends that mail, so
+	// a site that set one before upgrading keeps sending the old template and an
+	// admin editing the rule sees no effect. Shown here so it can be cleared.
+	{
+		label: 'Email Templates',
+		fields: [
+			{
+				label: 'Batch Confirmation Template',
+				name: 'batch_confirmation_template',
+				type: 'link',
+				doctype: 'Email Template',
+				description:
+					'Replaces the wording of the batch enrollment notification.',
+			},
+			{
+				label: 'Certificate Email Template',
+				name: 'certification_template',
+				type: 'link',
+				doctype: 'Email Template',
+				description: 'Replaces the wording of the certification notification.',
+			},
+		],
+	},
+	// Not a notification gate. It decides whether a booking carries a calendar
+	// invite, not whether the evaluation mail is sent, which is why it sits with
+	// the rest of the site's contact settings.
 	{
 		label: 'Evaluations',
 		fields: [
