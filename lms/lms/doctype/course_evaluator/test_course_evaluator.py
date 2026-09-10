@@ -17,6 +17,18 @@ from lms.lms.test_helpers import BaseTestUtils
 
 EVALUATOR_NOWTIME = "lms.lms.doctype.course_evaluator.course_evaluator.nowtime"
 REQUEST_NOWTIME = "lms.lms.doctype.lms_certificate_request.lms_certificate_request.nowtime"
+EVALUATOR_GETDATE = "lms.lms.doctype.course_evaluator.course_evaluator.getdate"
+REQUEST_GETDATE = "lms.lms.doctype.lms_certificate_request.lms_certificate_request.getdate"
+
+
+def _frozen_getdate(frozen_date):
+	"""getdate() with no args means "today"; a midnight rollover mid-test must
+	not change it. Forward calls that ask about a specific date untouched."""
+
+	def _getdate(value=None):
+		return frozen_date if value is None else getdate(value)
+
+	return _getdate
 
 
 class TestCourseEvaluator(BaseTestUtils):
@@ -50,10 +62,12 @@ class TestCourseEvaluator(BaseTestUtils):
 
 	@patch(EVALUATOR_NOWTIME, return_value="00:00:00")
 	def test_schedule_dates(self, _evaluator_nowtime):
-		schedule = get_schedule(self.batch.courses[0].course, self.batch.name)
-		dates = sorted({getdate(slot.get("date")) for slot in self._slots(schedule)})
-		self.assertEqual(dates[0], self.calculated_first_date_of_schedule())
-		self.assertEqual(dates[-1], self.calculated_last_date_of_schedule())
+		today = getdate()
+		with patch(EVALUATOR_GETDATE, side_effect=_frozen_getdate(today)):
+			schedule = get_schedule(self.batch.courses[0].course, self.batch.name)
+			dates = sorted({getdate(slot.get("date")) for slot in self._slots(schedule)})
+		self.assertEqual(dates[0], self.calculated_first_date_of_schedule(today))
+		self.assertEqual(dates[-1], self.calculated_last_date_of_schedule(today))
 
 	def test_every_slot_carries_both_clocks(self):
 		# The booking submits the system values; the picker renders the display
@@ -71,11 +85,10 @@ class TestCourseEvaluator(BaseTestUtils):
 			self.assertEqual(row.get("display_timezone"), "Europe/Berlin")
 			self.assertTrue(row.get("display_timezone_label").startswith("Europe/Berlin (GMT"))
 
-	def calculated_first_date_of_schedule(self):
+	def calculated_first_date_of_schedule(self, today):
 		# Only correct while no slot today has started, which is why the caller
 		# pins the clock: once one has, the first date also depends on the
 		# fixture's unavailable window and this arithmetic no longer models it.
-		today = getdate()
 		offset_monday = (0 - today.weekday() + 7) % 7  # 0 for Monday
 		offset_wednesday = (2 - today.weekday() + 7) % 7  # 2 for Wednesday
 		if offset_monday < offset_wednesday:
@@ -84,8 +97,8 @@ class TestCourseEvaluator(BaseTestUtils):
 			first_date = add_days(today, offset_wednesday)
 		return first_date
 
-	def calculated_last_date_of_schedule(self):
-		last_day = getdate(get_schedule_range_end_date(getdate(), self.batch.name))
+	def calculated_last_date_of_schedule(self, today):
+		last_day = getdate(get_schedule_range_end_date(today, self.batch.name))
 		while last_day.weekday() not in (0, 2):
 			last_day = add_days(last_day, -1)
 
@@ -107,6 +120,14 @@ class TestTodaysSlots(BaseTestUtils):
 
 	def setUp(self):
 		super().setUp()
+		# Frozen once, up front: get_schedule and LMSCertificateRequest.validate
+		# both call getdate() with no args to mean "today", and a midnight
+		# rollover mid-test must not let them disagree.
+		self.today = getdate()
+		for target in (EVALUATOR_GETDATE, REQUEST_GETDATE):
+			patcher = patch(target, side_effect=_frozen_getdate(self.today))
+			patcher.start()
+			self.addCleanup(patcher.stop)
 		self.instructor = self._create_user(
 			"frappe@example.com", "Frappe", "Admin", ["Moderator", "Course Creator"]
 		)
@@ -127,7 +148,7 @@ class TestTodaysSlots(BaseTestUtils):
 		self._create_user(email, "Today", "Evaluator", ["Batch Evaluator"])
 		evaluator = frappe.new_doc("Course Evaluator")
 		evaluator.evaluator = email
-		today = getdate().strftime("%A")
+		today = self.today.strftime("%A")
 		evaluator.append("schedule", {"day": today, "start_time": "09:00:00", "end_time": "10:00:00"})
 		evaluator.append("schedule", {"day": today, "start_time": "16:00:00", "end_time": "17:00:00"})
 		evaluator.save()
@@ -135,7 +156,7 @@ class TestTodaysSlots(BaseTestUtils):
 		return evaluator
 
 	def _todays_slots(self, schedule):
-		today = getdate().strftime("%Y-%m-%d")
+		today = self.today.strftime("%Y-%m-%d")
 		return [slot for row in schedule for slot in row["slots"] if slot["date"] == today]
 
 	def _start_times(self, slots):
