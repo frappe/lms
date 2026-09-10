@@ -952,9 +952,13 @@ def get_course_count(filters: dict = None) -> int:
 
 
 def count_matching(doctype: str, filters: dict | list, or_filters: dict = None) -> int:
-	"""Row count for filters that include or_filters, which db.count cannot take."""
-	rows = frappe.get_all(doctype, filters=filters, or_filters=or_filters, fields=[{"COUNT": "*"}])
-	return cint(next(iter(rows[0].values()))) if rows else 0
+	"""Return row count for filters, including OR filters."""
+	if not or_filters:
+		return frappe.db.count(doctype, filters)
+	# db.count takes no or_filters. Counted in SQL: this backs a guest endpoint, so
+	# fetching every matching name just to len() it grows with the site.
+	rows = frappe.get_all(doctype, filters=filters, or_filters=or_filters, fields=["count(name) as total"])
+	return cint(rows[0].total) if rows else 0
 
 
 def as_filter_conditions(filters: dict) -> list:
