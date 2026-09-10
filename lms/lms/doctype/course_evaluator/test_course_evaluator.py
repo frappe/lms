@@ -15,6 +15,9 @@ from lms.lms.doctype.course_evaluator.course_evaluator import (
 )
 from lms.lms.test_helpers import BaseTestUtils
 
+EVALUATOR_NOWTIME = "lms.lms.doctype.course_evaluator.course_evaluator.nowtime"
+REQUEST_NOWTIME = "lms.lms.doctype.lms_certificate_request.lms_certificate_request.nowtime"
+
 
 class TestCourseEvaluator(BaseTestUtils):
 	def setUp(self):
@@ -45,7 +48,8 @@ class TestCourseEvaluator(BaseTestUtils):
 				self.assertEqual(format_time(slot.get("start_time"), "HH:mm:ss"), "14:00:00")
 				self.assertEqual(format_time(slot.get("end_time"), "HH:mm:ss"), "16:00:00")
 
-	def test_schedule_dates(self):
+	@patch(EVALUATOR_NOWTIME, return_value="00:00:00")
+	def test_schedule_dates(self, _evaluator_nowtime):
 		schedule = get_schedule(self.batch.courses[0].course, self.batch.name)
 		dates = sorted({getdate(slot.get("date")) for slot in self._slots(schedule)})
 		self.assertEqual(dates[0], self.calculated_first_date_of_schedule())
@@ -68,6 +72,9 @@ class TestCourseEvaluator(BaseTestUtils):
 			self.assertTrue(row.get("display_timezone_label").startswith("Europe/Berlin (GMT"))
 
 	def calculated_first_date_of_schedule(self):
+		# Only correct while no slot today has started, which is why the caller
+		# pins the clock: once one has, the first date also depends on the
+		# fixture's unavailable window and this arithmetic no longer models it.
 		today = getdate()
 		offset_monday = (0 - today.weekday() + 7) % 7  # 0 for Monday
 		offset_wednesday = (2 - today.weekday() + 7) % 7  # 2 for Wednesday
@@ -91,6 +98,89 @@ class TestCourseEvaluator(BaseTestUtils):
 		for slot in self._slots(schedule):
 			schedule_date = getdate(slot.get("date"))
 			self.assertFalse(unavailable_from < schedule_date < unavailable_to)
+
+
+class TestTodaysSlots(BaseTestUtils):
+	"""get_schedule and LMSCertificateRequest.validate have to agree on which of
+	today's slots are still bookable, or the picker offers one and the booking
+	throws."""
+
+	def setUp(self):
+		super().setUp()
+		self.instructor = self._create_user(
+			"frappe@example.com", "Frappe", "Admin", ["Moderator", "Course Creator"]
+		)
+		self.course = self._create_course()
+		self.evaluator = self._create_evaluator_working_today()
+		self.previous_evaluator = frappe.db.get_value("LMS Course", self.course.name, "evaluator")
+		frappe.db.set_value("LMS Course", self.course.name, "evaluator", self.evaluator.name)
+
+	def tearDown(self):
+		frappe.set_user("Administrator")
+		frappe.db.set_value("LMS Course", self.course.name, "evaluator", self.previous_evaluator)
+		super().tearDown()
+
+	def _create_evaluator_working_today(self):
+		# Built fresh every run: the schedule is keyed to today's weekday, so a
+		# fixture left behind by an earlier day carries the wrong one.
+		email = f"today.evaluator.{frappe.generate_hash(length=8)}@example.com"
+		self._create_user(email, "Today", "Evaluator", ["Batch Evaluator"])
+		evaluator = frappe.new_doc("Course Evaluator")
+		evaluator.evaluator = email
+		today = getdate().strftime("%A")
+		evaluator.append("schedule", {"day": today, "start_time": "09:00:00", "end_time": "10:00:00"})
+		evaluator.append("schedule", {"day": today, "start_time": "16:00:00", "end_time": "17:00:00"})
+		evaluator.save()
+		self.cleanup_items.append(("Course Evaluator", evaluator.name))
+		return evaluator
+
+	def _todays_slots(self, schedule):
+		today = getdate().strftime("%Y-%m-%d")
+		return [slot for row in schedule for slot in row["slots"] if slot["date"] == today]
+
+	def _start_times(self, slots):
+		return [format_time(slot["start_time"], "HH:mm:ss") for slot in slots]
+
+	@patch(EVALUATOR_NOWTIME, return_value="12:00:00")
+	def test_slot_that_already_started_today_is_not_offered(self, _evaluator_nowtime):
+		slots = self._todays_slots(get_schedule(self.course.name))
+		self.assertEqual(self._start_times(slots), ["16:00:00"])
+
+	@patch(EVALUATOR_NOWTIME, return_value="16:00:00")
+	def test_slot_starting_exactly_now_is_still_offered(self, _evaluator_nowtime):
+		slots = self._todays_slots(get_schedule(self.course.name))
+		self.assertEqual(self._start_times(slots), ["16:00:00"])
+
+	@patch(EVALUATOR_NOWTIME, return_value="18:00:00")
+	def test_no_slots_offered_for_today_once_all_have_started(self, _evaluator_nowtime):
+		self.assertEqual(self._todays_slots(get_schedule(self.course.name)), [])
+
+	@patch(REQUEST_NOWTIME, return_value="12:00:00")
+	@patch(EVALUATOR_NOWTIME, return_value="12:00:00")
+	def test_every_slot_offered_for_today_can_be_booked(self, _evaluator_nowtime, _request_nowtime):
+		student = self._create_user(
+			f"today.student.{frappe.generate_hash(length=8)}@example.com",
+			"Today",
+			"Student",
+			["LMS Student"],
+		)
+		frappe.set_user(student.name)
+
+		slots = self._todays_slots(get_schedule(self.course.name))
+		self.assertTrue(slots)
+		for slot in slots:
+			request = frappe.new_doc("LMS Certificate Request")
+			request.update(
+				{
+					"course": self.course.name,
+					"date": slot["date"],
+					"day": slot["day"],
+					"start_time": slot["start_time"],
+					"end_time": slot["end_time"],
+				}
+			)
+			request.insert()
+			self.cleanup_items.append(("LMS Certificate Request", request.name))
 
 
 @patch("lms.lms.utils.get_system_timezone", return_value="Asia/Kolkata")
