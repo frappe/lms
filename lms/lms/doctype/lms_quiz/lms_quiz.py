@@ -28,6 +28,7 @@ from lms.lms.doctype.lms_question.lms_question import (
 	QUESTION_OPTION_FIELDS,
 	QUESTION_POSSIBILITY_FIELDS,
 )
+from lms.lms.schedule_utils import assert_within_schedule, validate_schedule_fields
 from lms.lms.utils import (
 	generate_slug,
 	has_course_instructor_role,
@@ -60,6 +61,7 @@ class LMSQuiz(Document):
 		self.validate_limit()
 		self.calculate_total_marks()
 		self.validate_open_ended_questions()
+		validate_schedule_fields(self)
 
 	def validate_duplicate_questions(self):
 		questions = [row.question for row in self.questions]
@@ -178,6 +180,7 @@ def submit_quiz(
 		quiz,
 		[
 			"name",
+			"title",
 			"total_marks",
 			"passing_percentage",
 			"lesson",
@@ -186,6 +189,9 @@ def submit_quiz(
 			"marks_to_cut",
 			"enable_proctoring",
 			"max_violations",
+			"enable_scheduling",
+			"schedule_start",
+			"schedule_end",
 		],
 		as_dict=1,
 	)
@@ -196,6 +202,13 @@ def submit_quiz(
 
 	if not can_access_quiz(quiz):
 		frappe.throw(_("You are not authorized to submit this quiz."), frappe.PermissionError)
+
+	assert_within_schedule(
+		quiz_details.enable_scheduling,
+		quiz_details.schedule_start,
+		quiz_details.schedule_end,
+		label=quiz_details.title or _("This quiz"),
+	)
 
 	data = process_results(results, quiz_details)
 	is_open_ended = data["is_open_ended"]
