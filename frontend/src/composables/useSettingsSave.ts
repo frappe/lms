@@ -66,7 +66,14 @@ export async function runSave<T>(
 	try {
 		const result = await options.run()
 		if (options.success) toast.success(options.success)
-		await options.after?.(result)
+		try {
+			await options.after?.(result)
+		} catch (err) {
+			// The write landed. A refetch or a close failing after it is not a
+			// failed save, and reporting it as one contradicts the toast already
+			// on screen.
+			console.error(err)
+		}
 	} catch (err) {
 		const message = options.failure(err)
 		if (state.error) state.error.value = message

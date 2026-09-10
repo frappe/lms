@@ -103,7 +103,6 @@ const props = withDefaults(
 		loading?: boolean
 		hasNextPage?: boolean
 		searchable?: boolean
-		searchLabel?: string
 		/**
 		 * A filter other than the search box is narrowing `rows`. Without it, a
 		 * panel filtered to nothing falsely falls back to "Add one to get started".
@@ -122,7 +121,6 @@ const props = withDefaults(
 		loading: false,
 		hasNextPage: false,
 		searchable: false,
-		searchLabel: '',
 		filtered: false,
 		showNew: true,
 		newLabel: '',
@@ -141,5 +139,5 @@ const emit = defineEmits<{
 
 const search = defineModel<string>('search', { default: '' })
 
-const searchPlaceholder = computed(() => props.searchLabel || __('Search'))
+const searchPlaceholder = computed(() => __('Search'))
 </script>

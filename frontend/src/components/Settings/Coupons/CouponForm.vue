@@ -176,9 +176,18 @@ const error = state.error
 
 const record = computed(() => props.name ?? null)
 
+// A draft is dirty against the defaults it opened on, not against emptiness:
+// newCoupon() seeds fields that draftIsDirty would otherwise call dirty,
+// which left New Coupon reading "Not saved" before anything was typed.
+const pristine = ref('')
+
+const snapshot = (value: SettingsListRow | null) =>
+	JSON.stringify(value ?? null)
+
 const { source, doc, isNew, isDirty, enabled } = useSettingsRecord({
 	doctype: COUPON_DOCTYPE,
 	record,
+	dirty: (s) => (s.isNew ? snapshot(s.doc) !== pristine.value : s.isDirty),
 })
 
 // `immediate` because the form mounts with the record already chosen, so
@@ -187,7 +196,9 @@ const { source, doc, isNew, isDirty, enabled } = useSettingsRecord({
 watch(
 	() => source.isNew,
 	(seeding) => {
-		if (seeding && doc.value) Object.assign(doc.value, newCoupon())
+		if (!seeding || !doc.value) return
+		Object.assign(doc.value, newCoupon())
+		pristine.value = snapshot(doc.value)
 	},
 	{ flush: 'post', immediate: true }
 )

@@ -40,17 +40,61 @@ vi.stubGlobal('__', (s: string) => s)
 const uploadArgsOf = (wrapper: ReturnType<typeof mount>): unknown =>
 	wrapper.findComponent({ name: 'FileUploader' }).props('uploadArgs')
 
-describe('public uploaders declare private: false', () => {
-	it('ImageUploader — brand logo and favicon, rendered on /login for Guest', async () => {
+// ImageUploader and the row that wraps it are shared by the brand logo, the
+// badge image and a payment gateway's attachment, so they carry the caller's
+// answer rather than one of their own.
+describe('the shared image controls forward the privacy they are given', () => {
+	const mountUploader = async (props: Record<string, unknown>) => {
 		const ImageUploader = (
 			await import('@/components/Controls/ImageUploader.vue')
 		).default
-		const w = mount(ImageUploader, {
+		return mount(ImageUploader, {
+			props,
 			global: { mocks: { __: (s: string) => s } },
 		})
-		expect(uploadArgsOf(w)).toMatchObject({ private: false })
+	}
+
+	const mountField = async (props: Record<string, unknown>) => {
+		const ImageUploadField = (
+			await import('@/components/Controls/ImageUploadField.vue')
+		).default
+		return mount(ImageUploadField, {
+			props: { label: 'Brand Logo', ...props },
+			global: { mocks: { __: (s: string) => s } },
+		})
+	}
+
+	it('uploads public when the caller says so — the brand logo, a badge', async () => {
+		expect(uploadArgsOf(await mountUploader({ is_private: false }))).toEqual({
+			private: false,
+		})
+		expect(uploadArgsOf(await mountField({ is_private: false }))).toEqual({
+			private: false,
+		})
 	})
 
+	it('uploads private when the caller says so — a gateway attachment', async () => {
+		expect(uploadArgsOf(await mountUploader({ is_private: true }))).toEqual({
+			private: true,
+		})
+		expect(uploadArgsOf(await mountField({ is_private: true }))).toEqual({
+			private: true,
+		})
+	})
+
+	// Neither control defaults it. A call site that forgets leaves the key
+	// undefined, and FileUploader reads that as private, the safe end.
+	it('never invents public for a caller that said nothing', async () => {
+		expect(uploadArgsOf(await mountUploader({}))).not.toMatchObject({
+			private: false,
+		})
+		expect(uploadArgsOf(await mountField({}))).not.toMatchObject({
+			private: false,
+		})
+	})
+})
+
+describe('public uploaders declare private: false', () => {
 	it('Uploader — profile, badge, company logo, batch meta image, course image', async () => {
 		const Uploader = (await import('@/components/Controls/Uploader.vue'))
 			.default
@@ -62,18 +106,17 @@ describe('public uploaders declare private: false', () => {
 	})
 })
 
-// SettingFields renders whatever the backend labels type 'Upload', and
-// get_transformed_fields maps EVERY Attach / Attach Image field of a
-// third-party <Gateway> Settings doctype to that type. Only a field that opts
-// in may be public.
-describe('SettingFields leaves privacy to the field', () => {
+// SettingsFields renders whatever the backend labels type 'Upload'; only a
+// field that opts in may be public, though get_transformed_fields maps EVERY
+// Attach / Attach Image field of a third-party <Gateway> doctype to that type.
+describe('SettingsFields leaves privacy to the field', () => {
 	const mountFields = async (field: Record<string, unknown>) => {
-		const SettingFields = (
-			await import('@/components/Settings/SettingFields.vue')
+		const SettingsFields = (
+			await import('@/components/Layouts/settings/desktop/SettingsFields.vue')
 		).default
-		return mount(SettingFields, {
+		return mount(SettingsFields, {
 			props: {
-				sections: [{ columns: [{ fields: [field] }] }],
+				sections: [{ fields: [field] }],
 				data: {},
 			},
 			global: { mocks: { __: (s: string) => s } },
@@ -84,7 +127,7 @@ describe('SettingFields leaves privacy to the field', () => {
 		const w = await mountFields({
 			label: 'Meta Image',
 			name: 'meta_image',
-			type: 'Upload',
+			type: 'upload',
 			public: true,
 		})
 		expect(uploadArgsOf(w)).toMatchObject({ private: false })
@@ -94,7 +137,7 @@ describe('SettingFields leaves privacy to the field', () => {
 		const w = await mountFields({
 			label: 'Merchant QR',
 			name: 'merchant_qr',
-			type: 'Upload',
+			type: 'upload',
 		})
 		expect(uploadArgsOf(w)).toMatchObject({ private: true })
 	})
@@ -122,7 +165,19 @@ const vueFilesUnder = (dir: string): string[] => {
  * `=>` in an arrow-function attribute, which makes the whole check depend on
  * the order the attributes happen to be written in.
  */
-const UPLOADER_TAGS = ['<FileUploader', '<RichTextEditor']
+const UPLOADER_TAGS = [
+	'<FileUploader',
+	'<RichTextEditor',
+	'<ImageUploader',
+	'<ImageUploadField',
+]
+
+/**
+ * The two controls between a call site and its FileUploader: neither decides
+ * privacy, each forwards the caller's `is_private`. Their call sites are
+ * scanned too, read off `is_private` instead of `uploadArgs`.
+ */
+const FORWARDING_TAGS = ['<ImageUploader', '<ImageUploadField']
 
 const openingTags = (source: string): string[] =>
 	UPLOADER_TAGS.flatMap((marker) => openingTagsFor(source, marker))
@@ -160,9 +215,26 @@ const uploadArgsExpression = (tag: string): string | null => {
 	return match ? match[2].trim() : null
 }
 
+/** The raw expression bound to :is_private / :is-private, if any. */
+const isPrivateExpression = (tag: string): string | null => {
+	const match = tag.match(/(?::|v-bind:)is[-_]private\s*=\s*("|')([\s\S]*?)\1/)
+	return match ? match[2].trim() : null
+}
+
 type Privacy = 'public' | 'private' | 'per-field' | 'computed' | 'undeclared'
 
+const forwardedPrivacyOf = (tag: string): Privacy => {
+	const expression = isPrivateExpression(tag)
+	if (expression === null) return 'undeclared'
+	if (/^(false|0)$/.test(expression)) return 'public'
+	if (/^(true|1)$/.test(expression)) return 'private'
+	return 'per-field'
+}
+
 const privacyOf = (tag: string): Privacy => {
+	if (FORWARDING_TAGS.some((marker) => tag.startsWith(marker)))
+		return forwardedPrivacyOf(tag)
+
 	const expression = uploadArgsExpression(tag)
 	if (expression === null) return 'undeclared'
 	if (!expression.startsWith('{')) return 'computed'
@@ -183,9 +255,14 @@ const privacyOf = (tag: string): Privacy => {
  * who is allowed to read the file.
  */
 const MANIFEST: Record<string, Privacy[]> = {
+	// The two shared image controls, which forward rather than decide. Their
+	// callers are the entries that say public or private.
+	'components/Controls/ImageUploader.vue': ['per-field'],
+	'components/Controls/ImageUploadField.vue': ['per-field'],
 	// Learner- and crawler-facing: these must stay readable without a session.
-	'components/Controls/ImageUploader.vue': ['public'],
 	'components/Controls/Uploader.vue': ['public'],
+	// The brand logo and the favicon, rendered on /login for Guest.
+	'components/Settings/BrandSettings.vue': ['public', 'public'],
 	'components/Controls/VideoPreviewField.vue': ['public', 'public'],
 	'components/Modals/EditCoverImage.vue': ['public'],
 	'components/UnsplashImageBrowser.vue': ['public'],
@@ -195,22 +272,31 @@ const MANIFEST: Record<string, Privacy[]> = {
 	'components/Modals/JobApplicationModal.vue': ['private'],
 	'pages/Forms/ChapterForm.vue': ['private'],
 	'components/Notes/Notes.vue': ['private'],
-	// Neither literal. `per-field` reads the field's own `public` flag and
-	// `computed` is any other expression. `undeclared` passes no uploadArgs at
-	// all — for a RichTextEditor that means private, because its uploadFile
-	// defaults `private: true`. Safe by exposure, but it is why an image pasted
-	// into a lesson body can end up invisible to everyone but its author.
-	// Auditing those call sites is separate work, deliberately not done here;
-	// the manifest exists so the next person sees the whole list at once rather
-	// than discovering it one broken image at a time.
+	// A gateway's attachment keeps the privacy SettingsFields gave it before the
+	// form was hand-rolled: get_transformed_fields sets no `public` flag on any
+	// of them, so `:is_private="true"` here is what keeps it private.
+	'components/Settings/PaymentGateways/PaymentGatewayForm.vue': ['private'],
+	// Neither literal. `per-field` reads the field's own `public` flag,
+	// `computed` is any other expression, and `undeclared` passes no uploadArgs
+	// at all, which for a RichTextEditor means private (its uploadFile defaults
+	// `private: true`). That's why an image pasted into a lesson body can end up
+	// invisible to everyone but its author; auditing those sites is separate,
+	// deliberately not done here.
 	'components/ContactUsEmail.vue': ['undeclared'],
 	'components/DiscussionReplies.vue': ['undeclared', 'undeclared'],
 	'components/Modals/DiscussionModal.vue': ['undeclared'],
 	'components/Quiz.vue': ['undeclared'],
 	'components/Settings/EmailTemplate/EmailTemplateAdd.vue': ['undeclared'],
 	'components/Settings/EmailTemplate/EmailTemplateEdit.vue': ['undeclared'],
-	'components/Settings/SettingFields.vue': ['per-field'],
-	'components/Layouts/settings/desktop/SettingsFields.vue': ['undeclared'],
+	// SettingsFields draws its upload field (ImageUploadField, per-field) ahead
+	// of its richtext field (RichTextEditor, undeclared) in document order, but
+	// openingTags groups matches by tag marker first, and RichTextEditor's
+	// marker sorts ahead of ImageUploadField's in UPLOADER_TAGS — so the
+	// undeclared entry lands first here regardless of source order.
+	'components/Layouts/settings/desktop/SettingsFields.vue': [
+		'undeclared',
+		'per-field',
+	],
 	'components/UploadPlugin.vue': ['computed'],
 	'pages/Forms/AssignmentForm.vue': ['undeclared'],
 	'pages/Forms/AnnouncementForm.vue': ['undeclared'],

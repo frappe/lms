@@ -517,3 +517,59 @@ describe('useSettingsHash records', () => {
 		expect(api.activeRecord.value).toBe(null)
 	})
 })
+
+describe('useSettingsHash: dismissing twice', () => {
+	/**
+	 * `close()` had no re-entrancy guard. `router.go()` is async, so the dialog
+	 * is still visibly open when a second dismiss arrives and pops again.
+	 * Escape twice quickly went back four entries instead of two.
+	 */
+	it('pops once when two dismisses arrive before the first lands', async () => {
+		const { router, api } = await setup('/courses')
+
+		pushSettingsHash(router, 'badges')
+		await flushPromises()
+		api.selectRecord('badge-1')
+		await flushPromises()
+		expect(router.currentRoute.value.hash).toBe('#settings/badges/badge-1')
+		expect(router.options.history.state.settingsDepth).toBe(2)
+
+		// createMemoryHistory applies go() synchronously; stubbing it models a real
+		// browser's async go(), where the dialog is still open for the second dismiss.
+		const go = vi.spyOn(router, 'go').mockImplementation(() => {})
+		api.close()
+		api.close()
+
+		expect(go).toHaveBeenCalledTimes(1)
+		expect(go).toHaveBeenCalledWith(-2)
+	})
+})
+
+describe('useSettingsHash: a dismiss the guard refuses', () => {
+	/**
+	 * The re-entrancy flag must clear on aborts too: a refused navigation never
+	 * changes the hash, so a `closing` flag cleared only by the hash watcher
+	 * would leave `close()` dead for the rest of the session.
+	 */
+	it('still closes after an earlier dismiss was refused', async () => {
+		const { router, api } = await setup('/courses')
+
+		pushSettingsHash(router, 'badges')
+		await flushPromises()
+		api.selectRecord('badge-1')
+		await flushPromises()
+		expect(router.currentRoute.value.hash).toBe('#settings/badges/badge-1')
+
+		const refuse = router.beforeEach(() => false)
+		api.close()
+		await flushPromises()
+		expect(router.currentRoute.value.hash).toBe('#settings/badges/badge-1')
+
+		refuse()
+		api.close()
+		await flushPromises()
+
+		expect(api.isOpen.value).toBe(false)
+		expect(router.currentRoute.value.hash).toBe('')
+	})
+})

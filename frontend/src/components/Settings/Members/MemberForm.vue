@@ -258,6 +258,10 @@ const saveRoles = async (name: string) => {
 			role: row.role,
 			value: roles[row.key] ? 1 : 0,
 		})
+		// Recorded per row, not after the loop. A refused write partway through
+		// leaves the rows already saved reported as saved, so a retry sends only
+		// what is still outstanding.
+		initialRoles[row.key] = roles[row.key]
 	}
 }
 

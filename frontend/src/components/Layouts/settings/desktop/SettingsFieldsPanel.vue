@@ -16,6 +16,7 @@
 			v-if="source.doc"
 			:sections="sections"
 			:data="source.doc"
+			:flush="showBack"
 			@commit="commit"
 		/>
 	</SettingsLayout>
@@ -106,13 +107,13 @@ const autosave =
 		: null
 
 // Only the manual path registers. Settings.vue mounts every panel at once, so
-// an autosave panel nobody is looking at would be registered too — and one is
-// dirty for the whole of each in-flight write, and stays dirty for good after a
-// refused one. That is a prompt on the next tab change, over a page whose only
-// answer to it is Discard: there is no Save to offer. A manual panel is the
-// case the guard exists for. Deregistration is the composable's, via
-// onScopeDispose.
-if (!autosave) useDirtyGuard(() => source.isDirty)
+// an unwatched autosave panel would register too and stay dirty for good
+// after a refused write, prompting on tab change with no Save to offer.
+if (!autosave)
+	useDirtyGuard(
+		() => source.isDirty,
+		() => void source.reload()
+	)
 
 // SettingsFields reports every settled edit whether or not anyone listens.
 // 'cancel' is a withdrawal, not a write: a bounded field went out of bounds
@@ -134,29 +135,35 @@ watch(
 
 const saving = ref(false)
 
+const firstProblem = (): string => {
+	if (!source.doc) return ''
+	return props.page.validate?.(source.doc) ?? ''
+}
+
+const reportFailure = (error: { messages?: string[]; message?: string }) => {
+	toast.error(error?.messages?.[0] || error?.message || __('Save failed'))
+	console.error(error)
+}
+
 const save = () => {
-	const invalid = source.doc ? props.page.validate?.(source.doc) ?? '' : ''
+	const invalid = firstProblem()
 	if (invalid) {
 		toast.error(invalid)
 		return
 	}
 	saving.value = true
-	// Read before the write: a successful insert clears isNew, so asking after
-	// it reports every save as an update.
 	const created = source.isNew
+	const finish = () =>
+		props.page.onSaved?.({
+			created,
+			name: source.name,
+			back: () => emit('back'),
+		})
+
 	source
 		.save()
-		.then(() =>
-			props.page.onSaved?.({
-				created,
-				name: source.name,
-				back: () => emit('back'),
-			})
-		)
-		.catch((error: { messages?: string[]; message?: string }) => {
-			toast.error(error?.messages?.[0] || error?.message || __('Save failed'))
-			console.error(error)
-		})
+		.then(finish)
+		.catch(reportFailure)
 		.finally(() => (saving.value = false))
 }
 

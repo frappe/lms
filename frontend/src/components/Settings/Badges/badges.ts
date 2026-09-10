@@ -17,12 +17,12 @@ import type {
  * SettingsListPanel draws both.
  */
 
-export const BADGE_DOCTYPE = 'LMS Badge'
+const BADGE_DOCTYPE = 'LMS Badge'
 
 /** LMS Badge autonames `field:title`, so editing the title renames the record. */
-export const BADGE_RENAME_FIELD = 'title'
+const BADGE_RENAME_FIELD = 'title'
 
-export const BADGE_FIELDS = [
+const BADGE_FIELDS = [
 	'name',
 	'title',
 	'enabled',
@@ -36,7 +36,7 @@ export const BADGE_FIELDS = [
 	'field_to_check',
 ]
 
-export const BADGE_SEARCH_FIELDS = ['title', 'description']
+const BADGE_SEARCH_FIELDS = ['title', 'description']
 
 const DOCTYPE_LABELS: Record<string, () => string> = {
 	'LMS Course': () => __('Course'),
@@ -55,7 +55,7 @@ const DOCTYPE_LABELS: Record<string, () => string> = {
  * reference doctype is called. Gray, like every other pill: eight tinted
  * pills down a column would read as status when none of them is one.
  */
-export const awardedFor = (doctype: string): SettingsListBadge => ({
+const awardedFor = (doctype: string): SettingsListBadge => ({
 	label: DOCTYPE_LABELS[doctype]?.() || doctype,
 	theme: 'gray',
 })
@@ -71,8 +71,8 @@ const removeBadge = deleteRow(
 	'Error deleting badge'
 )
 
-// Every header is a getter: a config module is evaluated before the translation
-// plugin installs `__` on window.
+// Every header is a getter. A config module is evaluated before the
+// translation plugin installs `__` on window.
 const columns: SettingsListColumn[] = [
 	{
 		key: 'title',
@@ -119,7 +119,7 @@ const columns: SettingsListColumn[] = [
 	},
 ]
 
-export const referenceDoctypeOptions = (): SelectOption[] => [
+const referenceDoctypeOptions = (): SelectOption[] => [
 	{ label: __('Course'), value: 'LMS Course' },
 	{ label: __('Batch'), value: 'LMS Batch' },
 	{ label: __('User'), value: 'Member' },
@@ -133,26 +133,26 @@ export const referenceDoctypeOptions = (): SelectOption[] => [
 	{ label: __('Batch Enrollment'), value: 'LMS Batch Enrollment' },
 ]
 
-export const eventOptions = (): SelectOption[] =>
+const eventOptions = (): SelectOption[] =>
 	['New', 'Value Change', 'Manual Assignment'].map((event) => ({
 		label: __(event),
 		value: event,
 	}))
 
-export const userFieldOptions = (): SelectOption[] => [
+const userFieldOptions = (): SelectOption[] => [
 	{ label: __('Member'), value: 'member' },
 	{ label: __('Owner'), value: 'owner' },
 ]
 
 // A condition is written here rather than merely checked, so the hint carries a
 // worked example of each shape it can take.
-export const conditionHint = (): string =>
+const conditionHint = (): string =>
 	__(
 		'Manual Assignment takes JSON filters, e.g. {"published": 1}. Every other event takes an expression over `doc`, e.g. doc.progress == 100.'
 	)
 
 /** The fields a new badge opens on, before anything has been typed. */
-export const newBadge = (): Record<string, unknown> => ({
+const newBadge = (): Record<string, unknown> => ({
 	title: '',
 	enabled: 1,
 	description: '',
@@ -181,6 +181,7 @@ const form = recordForm({
 				{
 					name: 'title',
 					label: 'Title',
+					description: 'The name this badge is awarded and displayed under.',
 					type: 'text',
 					placeholder: 'e.g. Course Champion',
 					reqd: true,
@@ -218,6 +219,7 @@ const form = recordForm({
 				{
 					name: 'reference_doctype',
 					label: 'Assign For',
+					description: 'The record whose events award this badge.',
 					type: 'select',
 					get options() {
 						return referenceDoctypeOptions()
@@ -227,6 +229,7 @@ const form = recordForm({
 				{
 					name: 'user_field',
 					label: 'Assign To',
+					description: 'Which user on that record receives it.',
 					type: 'select',
 					get options() {
 						return userFieldOptions()
@@ -236,6 +239,8 @@ const form = recordForm({
 				{
 					name: 'event',
 					label: 'Event',
+					description:
+						'What awards it: a new record, a changed value, or a manual assignment.',
 					type: 'select',
 					get options() {
 						return eventOptions()

@@ -75,6 +75,7 @@ const form = recordForm({
 				{
 					name: 'member',
 					label: 'Member',
+					description: 'The user receiving the badge.',
 					type: 'link',
 					doctype: 'User',
 					reqd: true,
@@ -82,11 +83,18 @@ const form = recordForm({
 				{
 					name: 'badge',
 					label: 'Badge',
+					description: 'The badge being awarded.',
 					type: 'link',
 					doctype: 'LMS Badge',
 					reqd: true,
 				},
-				{ name: 'issued_on', label: 'Issued On', type: 'date', reqd: true },
+				{
+					name: 'issued_on',
+					label: 'Issued On',
+					description: 'The date this badge was awarded.',
+					type: 'date',
+					reqd: true,
+				},
 			],
 		},
 	],

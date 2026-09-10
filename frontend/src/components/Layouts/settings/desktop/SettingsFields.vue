@@ -33,20 +33,30 @@
 						@input="report(field, 'typing')"
 						@focusout="report(field, 'now')"
 					>
+						<div
+							data-testid="code-field-label"
+							class="text-p-base-medium text-ink-gray-7 mb-2"
+						>
+							{{ __(field.label) }}
+						</div>
 						<CodeEditor
-							:label="__(field.label)"
 							:type="codeType(field)"
-							:description="
-								field.description ? __(field.description) : undefined
-							"
 							v-model="data[field.name]"
 							:height="codeHeight(field)"
 							class="shrink-0"
 							:required="field.reqd"
 							:readonly="field.disabled"
 							:showLineNumbers="true"
+							:aria-label="__(field.label)"
 						>
 						</CodeEditor>
+						<div
+							v-if="field.description"
+							data-testid="code-field-description"
+							class="text-p-sm text-ink-gray-5 mt-2"
+						>
+							{{ __(field.description) }}
+						</div>
 					</div>
 
 					<div
@@ -407,15 +417,16 @@ const onInput = (field) => {
 	emit('commit', commitMode(field))
 }
 
-// Leaving the field is the first moment the value is final, so this is the only
-// place a bound is enforced. An out-of-bounds value goes back to the last good
-// one and reports nothing: the resource compares its way clean again, which is
-// what clears the "Not saved" marker the failed write used to leave behind.
+// Leaving the field is the only place a bound is enforced; an out-of-bounds
+// value reverts to the last good one and is still reported, since the
+// rollback only matches the server if that write actually fired. Otherwise
+// the doc could sit dirty with no timer armed, stuck at "Not saved" forever.
+// Reporting a clean field costs nothing: useAutosave's send() returns on
+// `!isDirty`.
 const onSettle = (field) => {
 	if (field.disabled) return
 	if (isOutOfBounds(field, props.data[field.name])) {
 		props.data[field.name] = lastGood[field.name]
-		return
 	}
 	emit('commit', 'now')
 }

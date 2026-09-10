@@ -8,7 +8,6 @@
 		:has-next-page="list.hasNextPage"
 		v-model:search="list.search"
 		searchable
-		:search-label="searchLabel()"
 		:empty-name="emptyState.name"
 		:empty-icon="emptyState.icon"
 		@new="openForm(NEW_GATEWAY)"
@@ -28,7 +27,6 @@ import {
 	columns,
 	emptyState,
 	gatewayList,
-	searchLabel,
 } from '@/components/Settings/PaymentGateways/paymentGateways'
 
 // Settings > Payment Gateways: the list of configured gateways, with the form

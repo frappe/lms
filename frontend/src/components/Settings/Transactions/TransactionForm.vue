@@ -68,7 +68,7 @@
 				/>
 			</div>
 
-			<div class="flex flex-col items-start gap-3">
+			<div class="flex flex-wrap items-center gap-x-8 gap-y-3">
 				<Checkbox
 					v-model="forCertificate"
 					data-testid="payment-for-certificate"

@@ -32,8 +32,6 @@ export const emptyState = {
 	icon: 'lucide-dollar-sign',
 }
 
-export const searchLabel = () => __('Search gateways')
-
 /** The provider's own name, e.g. `Razorpay Settings` → `Razorpay`. */
 export const SETTINGS_SUFFIX = ' Settings'
 

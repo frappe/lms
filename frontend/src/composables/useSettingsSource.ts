@@ -193,10 +193,17 @@ export function useSettingsSource(
 	}
 
 	const save = async (): Promise<unknown> => {
-		if (isNew.value)
-			return call('frappe.client.insert', {
+		if (isNew.value) {
+			const inserted = await call('frappe.client.insert', {
 				doc: { doctype, ...draft.value },
 			})
+			// The draft has been written, so it is no longer something to discard.
+			// Without this a create form navigates away still registered dirty and
+			// the guard prompts on top of its own success toast.
+			draft.value = newDraft()
+			pristine.value = JSON.stringify(draft.value)
+			return inserted
+		}
 		const current = resource.value
 		if (!current) return undefined
 
@@ -230,8 +237,8 @@ export function useSettingsSource(
 		name: target,
 		isDirty: computed(() => {
 			if (!isNew.value) return Boolean(resource.value?.isDirty)
-			// Only a seeded draft has a baseline to compare against; without one the
-			// honest answer is still "does it hold anything worth writing".
+			// Only a seeded draft has a baseline to compare against. Without one the
+			// answer stays "does it hold anything worth writing".
 			return options.defaults
 				? JSON.stringify(draft.value) !== pristine.value
 				: draftIsDirty(draft.value)

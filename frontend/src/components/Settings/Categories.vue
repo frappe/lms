@@ -7,7 +7,6 @@
 		:has-next-page="list.hasNextPage"
 		v-model:search="list.search"
 		searchable
-		:search-label="__('Search categories')"
 		:new-label="showForm ? __('Close') : __('New')"
 		empty-name="Categories"
 		empty-icon="lucide-network"

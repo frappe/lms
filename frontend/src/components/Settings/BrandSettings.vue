@@ -120,9 +120,14 @@ const autosave = useAutosave({
 	isDirty: () =>
 		Boolean(branding.data) &&
 		JSON.stringify(getFieldsToSave()) !== savedFields.value,
-	write: () =>
-		saveSettings.submit({ fields: getFieldsToSave() }).then(() => {
-			savedFields.value = JSON.stringify(getFieldsToSave())
-		}),
+	write: () => {
+		// Snapshot what is sent, and baseline against that. Reading the fields
+		// again on the response absorbs anything typed while the write was in
+		// flight, and useAutosave's queued replay then drops it as not dirty.
+		const sent = getFieldsToSave()
+		return saveSettings
+			.submit({ fields: sent })
+			.then(() => (savedFields.value = JSON.stringify(sent)))
+	},
 })
 </script>

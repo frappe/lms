@@ -96,9 +96,18 @@ export function useSettingsHash(tabs: ComputedRef<SettingsRoutableGroup[]>) {
 	// go() is async; clear on afterEach (fires on aborts too) so an aborted pop
 	// can't leave it stuck.
 	let dropping = false
+	// Same for close()'s own pop. `closing` can't serve as this flag: it is
+	// nulled by the hash watcher, and a refused navigation never changes the
+	// hash, so a refused dismiss would leave close() dead for the session.
+	let popping = false
 	onScopeDispose(
-		router.afterEach(() => {
+		router.afterEach((_to, _from, failure) => {
 			dropping = false
+			popping = false
+			// Only on a refusal. A completed pop still needs `closing` for the hash
+			// watcher below; a refused one never reaches it, and leaving it set
+			// force-closes the dialog on the next hash change.
+			if (failure) closing = null
 		})
 	)
 
@@ -175,11 +184,15 @@ export function useSettingsHash(tabs: ComputedRef<SettingsRoutableGroup[]>) {
 		})
 	}
 
+	// router.go() is async, so the dialog is still visibly open when a second
+	// dismiss arrives (Escape twice, or a backdrop click right after) while
+	// depthOf() reads the same value. Popping again would overshoot by a page.
 	const close = () => {
-		if (!isOpen.value) return
+		if (!isOpen.value || popping) return
 		const ours = depthOf(router)
 		const query = { ...route.query }
 		if (ours > 0) {
+			popping = true
 			closing = { query }
 			router.go(-ours)
 		} else {

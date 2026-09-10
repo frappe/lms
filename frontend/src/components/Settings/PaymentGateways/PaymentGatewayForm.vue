@@ -225,6 +225,14 @@ const loadGateway = async (gateway: string) => {
 			doctype: details.doctype,
 			name: details.docname,
 			auto: true,
+			// The try/catch above covers get_payment_gateway_details only; this
+			// resource fetches on its own. frappe-ui nulls `doc` on a failed get,
+			// which `loading` reads as "still loading", so a deleted or
+			// unreadable record would otherwise spin forever.
+			onError: (err: any) => {
+				reportError(err, __('Error loading payment gateway'))
+				emit('back')
+			},
 		}) as unknown as SettingsDocumentResource
 	} catch (err: any) {
 		reportError(err, __('Error loading payment gateway'))
@@ -397,7 +405,15 @@ const isDirty = computed(() =>
 	isNew.value ? draftIsDirty() : Boolean(settings.value?.isDirty)
 )
 
-useDirtyGuard(() => isDirty.value)
+useDirtyGuard(
+	() => isDirty.value,
+	// A gateway that exists refetches its credentials; one being created has
+	// only the draft, and discarding it means dropping what was typed.
+	() => {
+		if (isNew.value) clearDraft()
+		else void settings.value?.reload()
+	}
+)
 
 /**
  * A gateway that does not exist yet.

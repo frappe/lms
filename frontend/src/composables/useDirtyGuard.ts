@@ -6,14 +6,27 @@ import type { Router } from 'vue-router'
 // several are registered at once, and one slot would leave earlier panels unguarded.
 type DirtyCheck = () => boolean
 
-const registered = new Set<DirtyCheck>()
+interface DirtyEntry {
+	isDirty: DirtyCheck
+	discard?: () => void
+}
+
+const registered = new Set<DirtyEntry>()
+
+// Suppressed for the rest of the navigation the user answered, so a redirect
+// chained off it does not ask a second time for one decision. Cleared by the
+// router's afterEach, which fires once the whole chain settles.
+const suppressed = new Set<DirtyEntry>()
 
 // Register a form from its setup; it deregisters itself when that component
-// goes away. Registering while showing a list is harmless — a list is clean.
-export function useDirtyGuard(isDirty: DirtyCheck) {
-	registered.add(isDirty)
+// goes away. `discard` is what the form does on Discard: without it the
+// guard only stops asking, and the next Save writes the edits anyway.
+export function useDirtyGuard(isDirty: DirtyCheck, discard?: () => void) {
+	const entry: DirtyEntry = { isDirty, discard }
+	registered.add(entry)
 	onScopeDispose(() => {
-		registered.delete(isDirty)
+		registered.delete(entry)
+		suppressed.delete(entry)
 	})
 }
 
@@ -23,19 +36,32 @@ export function installDirtyGuard(
 	router: Router,
 	confirm: () => Promise<boolean>
 ) {
-	return router.beforeEach(async (to, from) => {
-		const dirty = [...registered].filter((isDirty) => isDirty())
+	// A stub router in a test may not have afterEach; the suppression below is
+	// then simply never released, which is the old drop-the-checker behaviour.
+	const stopAfter = router.afterEach?.(() => suppressed.clear()) ?? (() => {})
+	const stopBefore = router.beforeEach(async (to, from) => {
+		const dirty = [...registered].filter(
+			(entry) => !suppressed.has(entry) && entry.isDirty()
+		)
 		if (!dirty.length) return true
 		// Same view: a query change (the page's filters) is not leaving the form.
 		if (to.hash === from.hash) return true
 
 		if (!(await confirm())) return false
 
-		// Discarding: drop every checker now, so a redirect chained off this
-		// navigation does not ask again for the same decision.
-		for (const isDirty of dirty) registered.delete(isDirty)
+		// Throw the edits away, then stop asking for the rest of this navigation.
+		// Suppressed rather than deleted, so a form still mounted is guarded
+		// again the next time it goes dirty.
+		for (const entry of dirty) {
+			entry.discard?.()
+			suppressed.add(entry)
+		}
 		return true
 	})
+	return () => {
+		stopBefore()
+		stopAfter()
+	}
 }
 
 // Keys that move on their own (new `modified`/`__last_sync_on` on every
