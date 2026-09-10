@@ -76,6 +76,7 @@ const source = useSettingsSource(props.page.source, {
 	record: computed(() => props.record ?? null),
 	resource: props.data,
 	renameField: props.page.renameField,
+	defaults: props.page.defaults,
 })
 
 // A panel whose every section carries a heading needs no title above them: the
@@ -134,9 +135,24 @@ watch(
 const saving = ref(false)
 
 const save = () => {
+	const invalid = source.doc ? props.page.validate?.(source.doc) ?? '' : ''
+	if (invalid) {
+		toast.error(invalid)
+		return
+	}
 	saving.value = true
+	// Read before the write: a successful insert clears isNew, so asking after
+	// it reports every save as an update.
+	const created = source.isNew
 	source
 		.save()
+		.then(() =>
+			props.page.onSaved?.({
+				created,
+				name: source.name,
+				back: () => emit('back'),
+			})
+		)
 		.catch((error: { messages?: string[]; message?: string }) => {
 			toast.error(error?.messages?.[0] || error?.message || __('Save failed'))
 			console.error(error)

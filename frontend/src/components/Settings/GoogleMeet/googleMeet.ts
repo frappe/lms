@@ -1,19 +1,20 @@
-import { defineAsyncComponent, markRaw } from 'vue'
-import { call, toast } from 'frappe-ui'
+import { toast } from 'frappe-ui'
+import { useTelemetry } from 'frappe-ui/frappe'
 import { usersStore } from '@/stores/user'
-import { reloadSettingsLists } from '@/composables/useSettingsListResource'
-import { cleanError } from '@/utils'
+import {
+	deleteRow,
+	setRowField,
+	toggleRowField,
+} from '@/components/Settings/rowActions'
+import { recordForm } from '@/components/Settings/recordForm'
+import { openSettings } from '@/utils'
 import type { ListPage } from '@/types/settingsSchema'
 import type { SettingsListColumn, SettingsListRow } from '@/types'
 
 /**
  * Google Meet accounts: the list, as data, and one component for the account
- * behind a row. The same shape as Zoom, which is the same problem — a doctype of
- * accounts, one per evaluator, read as a list and edited as a record.
- *
- * What lives here is only what is Google Meet's: which doctype, who may see the
- * page, whose accounts it shows, what a row is made of, and what a row's menu
- * can do. SettingsListPanel does the rest, as it does for every list.
+ * behind a row. What lives here is only what is Google Meet's, and
+ * SettingsListPanel does the rest, as it does for every list.
  */
 
 const DOCTYPE = 'LMS Google Meet Settings'
@@ -29,15 +30,9 @@ const memberLabel = (row: SettingsListRow): string =>
 	row.member_name || row.member || ''
 
 /**
- * Whose accounts this page shows. A moderator sees the site's; anyone else sees
- * their own, which is what GoogleMeetSettings.vue narrowed its resource to in
- * onMounted. It is an access control, not a display filter — the rows the
- * server sends are the rows the user may see.
- *
- * Read through the store rather than an injected `$user` because a config
- * module has no component to inject into, and called lazily for the same reason
- * the column labels are: pinia is installed in main.js, after this module has
- * been evaluated.
+ * Whose accounts this page shows. A moderator sees the site's, anyone else sees
+ * their own. It is an access control, not a display filter. Read through the
+ * store lazily, because pinia is installed after this module is evaluated.
  */
 export const memberScope = (): Record<string, unknown> => {
 	const { userResource } = usersStore()
@@ -47,9 +42,8 @@ export const memberScope = (): Record<string, unknown> => {
 
 /**
  * Whether the page belongs in the sidebar at all. The component this replaces
- * refused to fetch anything for a user who was neither a moderator nor an
- * evaluator, and a page has no say in whether its item is listed — so the guard
- * lives on the item as `condition`.
+ * refused to fetch for a user who was neither a moderator nor an evaluator, and
+ * a page has no say in whether its item is listed.
  */
 export const canManageGoogleMeet = (): boolean => {
 	const { userResource } = usersStore()
@@ -59,55 +53,23 @@ export const canManageGoogleMeet = (): boolean => {
 
 /**
  * Optimistic, with a rollback. The row flips under the pointer and the write
- * follows it; a rejected write puts the row back to the value it held before.
- * Nothing reloads the list here, so without the rollback the row would keep
- * showing a state the server refused.
+ * follows it. Nothing reloads the list here, so without the rollback a rejected
+ * write would leave the row showing a state the server refused.
  */
-const toggleEnabled = async (row: SettingsListRow, value: boolean) => {
-	const previous = row.enabled
-	row.enabled = value ? 1 : 0
-	try {
-		await call('frappe.client.set_value', {
-			doctype: DOCTYPE,
-			name: row.name,
-			fieldname: 'enabled',
-			value: row.enabled,
-		})
-	} catch (err: any) {
-		row.enabled = previous
-		toast.error(cleanError(err.messages?.[0] || err))
-	}
-}
+const toggleEnabled = toggleRowField(
+	setRowField(DOCTYPE),
+	'Error updating Google Meet account'
+)
 
-/**
- * The row menu's Delete. A config module is handed the row and nothing else, so
- * it asks every list on screen for that doctype to refetch rather than reaching
- * for the resource behind this one — which is also what keeps the list on its
- * first page, where the removed row was.
- */
-const removeAccount = async (row: SettingsListRow) => {
-	try {
-		await call('frappe.client.delete', { doctype: DOCTYPE, name: row.name })
-		toast.success(__('Google Meet account deleted successfully'))
-		await reloadSettingsLists(DOCTYPE)
-	} catch (err: any) {
-		toast.error(cleanError(err.messages?.[0] || err))
-	}
-}
+const removeAccount = deleteRow(
+	DOCTYPE,
+	'Google Meet account deleted successfully',
+	'Error deleting Google Meet account'
+)
 
-// Every header is a getter, and that is not decoration. `__` is installed on
-// window by the translation plugin in main.js, which runs after every static
-// import has already been evaluated — so a config module that called it while
-// building this array would call an undefined global. A getter defers the
-// lookup to the moment the list renders, which is where the component this
-// replaces called it from setup().
-//
-// The account and its member share one column, as two lines of a `stacked`
-// cell: an account is a person's, and reading the two side by side spent a
-// third of the row on a column that never says anything the first does not.
-// Both lines truncate, as does the calendar beside them — the values that
-// overflow are a full name and a calendar id, and a row that wrapped either
-// would be taller than the rest of the list.
+// Every header is a getter, because `__` is installed on window only after every
+// static import has been evaluated. The account and its member share one
+// `stacked` column, since a column of its own said nothing the first did not.
 const columns: SettingsListColumn[] = [
 	{
 		key: 'account',
@@ -152,23 +114,53 @@ const columns: SettingsListColumn[] = [
 	},
 ]
 
-/**
- * One component for New and for an existing account alike: it is handed the
- * record the panel opened, and 'new' is a record name like any other.
- *
- * A `kind: 'custom'` detail rather than a fields page, because the account name
- * is the document's own name and the other two fields are pickers with a
- * sentence each — see GoogleMeetAccountForm.vue.
- *
- * Loaded on demand, the way Zoom loads its form: the list is what opens, and
- * the form is a component with a document resource behind it.
- */
-const accountForm = {
-	kind: 'custom' as const,
-	component: markRaw(
-		defineAsyncComponent(() => import('./GoogleMeetAccountForm.vue'))
-	),
-}
+const form = recordForm({
+	doctype: DOCTYPE,
+	// `autoname: field:account_name`, so the account's name is the document's and
+	// only a rename moves it.
+	renameField: 'account_name',
+	enabledField: 'enabled',
+	newTitle: () => __('New Google Meet Account'),
+	recordTitle: (row) => accountLabel(row) || __('Google Meet Account'),
+	sections: [
+		{
+			fields: [
+				{
+					name: 'account_name',
+					label: 'Account Name',
+					type: 'text',
+					reqd: true,
+				},
+				{
+					name: 'member',
+					label: 'Member',
+					description: 'The evaluator whose meetings this account books',
+					type: 'link',
+					doctype: 'Course Evaluator',
+					reqd: true,
+					onCreate: (_value, close) => openSettings('members', close),
+				},
+				{
+					name: 'google_calendar',
+					label: 'Google Calendar',
+					description: 'The calendar this account books its meetings on',
+					type: 'link',
+					doctype: 'Google Calendar',
+					reqd: true,
+				},
+			],
+		},
+	],
+	onSaved: ({ created, back }) => {
+		toast.success(
+			created
+				? __('Google Meet account created successfully')
+				: __('Google Meet account updated successfully')
+		)
+		if (created) useTelemetry().capture('google_meet_account_linked')
+		back()
+	},
+})
 
 export const googleMeetSettingsPage: ListPage = {
 	kind: 'list',
@@ -183,9 +175,9 @@ export const googleMeetSettingsPage: ListPage = {
 			'member_image',
 			'google_calendar',
 		],
-		// A getter, and read once by the panel at setup: the signed-in user is not
-		// loaded when this module is first imported, which is why the component
-		// this replaces applied the filter from onMounted rather than from setup.
+		// A getter, read once by the panel at setup. The signed-in user is not loaded
+		// when this module is first imported, which is why the component this
+		// replaces applied the filter from onMounted.
 		get filters() {
 			return memberScope()
 		},
@@ -194,6 +186,6 @@ export const googleMeetSettingsPage: ListPage = {
 	columns,
 	searchable: true,
 	empty: { name: 'Google Meet Settings', icon: 'lucide-presentation' },
-	create: { detail: accountForm },
-	rowDetail: accountForm,
+	create: { detail: form.forNew() },
+	rowDetail: form.forRecord(),
 }

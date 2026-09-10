@@ -15,9 +15,11 @@
 				>
 					<div v-if="field.type == 'upload'" class="py-3">
 						<ImageUploadField
+							:icon="field.icon || 'lucide-image'"
 							:label="__(field.label)"
 							:description="uploadDescription(field)"
 							:image_url="fileUrl(data[field.name]) || ''"
+							:required="field.reqd"
 							:is_private="!field.public"
 							:disabled="field.disabled"
 							@upload="(url) => setValue(field, url)"

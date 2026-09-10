@@ -1,8 +1,10 @@
-import { call, toast } from 'frappe-ui'
 // @ts-expect-error utils/dialogs.js is still plain JS, so it has no declarations
 import { createDialog } from '@/utils/dialogs'
-import { reloadSettingsLists } from '@/composables/useSettingsListResource'
-import { cleanError } from '@/utils'
+import {
+	deleteRow,
+	setRowField,
+	toggleRowField,
+} from '@/components/Settings/rowActions'
 import dayjs from '@/utils/dayjs'
 import type { SettingsListResourceOptions } from '@/composables/useSettingsListResource'
 import type { SelectOption } from '@/types/settingsSchema'
@@ -79,38 +81,16 @@ const redeemedLabel = (row: SettingsListRow): string => {
  * write follows; a rejected write puts it back. Nothing else reloads the
  * list, so without this the row would keep showing a state the server refused.
  */
-const toggleEnabled = async (row: SettingsListRow, value: boolean) => {
-	const previous = row.enabled
-	row.enabled = value ? 1 : 0
-	try {
-		await call('frappe.client.set_value', {
-			doctype: COUPON_DOCTYPE,
-			name: row.name,
-			fieldname: 'enabled',
-			value: row.enabled,
-		})
-	} catch (err: any) {
-		row.enabled = previous
-		toast.error(
-			cleanError(err.messages?.[0] || err) || __('Error updating coupon')
-		)
-	}
-}
+const toggleEnabled = toggleRowField(
+	setRowField(COUPON_DOCTYPE),
+	'Error updating coupon'
+)
 
-const removeCoupon = async (row: SettingsListRow) => {
-	try {
-		await call('frappe.client.delete', {
-			doctype: COUPON_DOCTYPE,
-			name: row.name,
-		})
-		toast.success(__('Coupon deleted successfully'))
-		await reloadSettingsLists(COUPON_DOCTYPE)
-	} catch (err: any) {
-		toast.error(
-			cleanError(err.messages?.[0] || err) || __('Error deleting coupon')
-		)
-	}
-}
+const removeCoupon = deleteRow(
+	COUPON_DOCTYPE,
+	'Coupon deleted successfully',
+	'Error deleting coupon'
+)
 
 const confirmDeletion = (row: SettingsListRow) => {
 	createDialog({

@@ -11,12 +11,12 @@ import BrandSettings from '@/components/Settings/BrandSettings.vue'
 import PaymentGateways from '@/components/Settings/PaymentGateways/PaymentGateways.vue'
 import Coupons from '@/components/Settings/Coupons/Coupons.vue'
 import { transactionsPage } from '@/components/Settings/Transactions/transactions'
+import { badgesSettingsPage } from '@/components/Settings/Badges/badges'
 import { zoomSettingsPage } from '@/components/Settings/Zoom/zoom'
 import {
 	canManageGoogleMeet,
 	googleMeetSettingsPage,
 } from '@/components/Settings/GoogleMeet/googleMeet'
-import Badges from '@/components/Settings/Badges/Badges.vue'
 import RavenSettings from '@/components/Settings/Raven/RavenSettings.vue'
 import Preferences from '@/components/Settings/Preferences.vue'
 
@@ -145,7 +145,7 @@ export const settingsTree: SettingsGroup[] = [
 				slug: 'badges',
 				icon: 'lucide-award',
 				records: true,
-				page: { kind: 'custom', component: markRaw(Badges) },
+				page: badgesSettingsPage,
 			},
 			{
 				label: 'Categories',

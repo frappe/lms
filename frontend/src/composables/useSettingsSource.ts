@@ -1,4 +1,4 @@
-import { computed, reactive, shallowRef, watch, type Ref } from 'vue'
+import { computed, reactive, ref, shallowRef, watch, type Ref } from 'vue'
 import { call, createDocumentResource } from 'frappe-ui'
 import type { SettingsSource } from '@/types/settingsSchema'
 import type { SettingsListRow } from '@/types/settingsList'
@@ -49,6 +49,12 @@ export interface UseSettingsSourceOptions {
 	 * `renameField`. Editing it renames the record instead of writing a field.
 	 */
 	renameField?: string
+	/**
+	 * What a new record opens holding. A draft that seeds a value is dirty
+	 * against those defaults rather than against emptiness, which is what stops
+	 * New reading "Not saved" before anything is typed.
+	 */
+	defaults?: () => Record<string, unknown>
 }
 
 export interface SettingsSourceHandle {
@@ -140,11 +146,17 @@ export function useSettingsSource(
 	const isNew = computed(() => target.value === NEW_RECORD)
 
 	// A record that does not exist yet has no document to load, so it edits a
-	// plain object. A fresh one each time, or the draft abandoned on the last
-	// New would be waiting in the next one.
-	const draft = shallowRef<SettingsListRow>(reactive({}))
+	// plain object. A fresh one each time, or the draft abandoned on the last New
+	// would be waiting in the next one.
+	const newDraft = (): SettingsListRow =>
+		reactive({ ...(options.defaults?.() ?? {}) })
+
+	const draft = shallowRef<SettingsListRow>(newDraft())
+	const pristine = ref(JSON.stringify(draft.value))
 	watch(isNew, (value) => {
-		if (value) draft.value = reactive({})
+		if (!value) return
+		draft.value = newDraft()
+		pristine.value = JSON.stringify(draft.value)
 	})
 
 	// In a watcher rather than a computed: createDocumentResource registers in a
@@ -216,9 +228,14 @@ export function useSettingsSource(
 			isNew.value ? draft.value : resource.value?.doc ?? null
 		),
 		name: target,
-		isDirty: computed(() =>
-			isNew.value ? draftIsDirty(draft.value) : Boolean(resource.value?.isDirty)
-		),
+		isDirty: computed(() => {
+			if (!isNew.value) return Boolean(resource.value?.isDirty)
+			// Only a seeded draft has a baseline to compare against; without one the
+			// honest answer is still "does it hold anything worth writing".
+			return options.defaults
+				? JSON.stringify(draft.value) !== pristine.value
+				: draftIsDirty(draft.value)
+		}),
 		save,
 		reload,
 		isNew,

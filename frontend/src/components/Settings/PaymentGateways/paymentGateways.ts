@@ -1,8 +1,6 @@
-import { call, toast } from 'frappe-ui'
 // @ts-expect-error utils/dialogs.js is still plain JS, so it has no declarations
 import { createDialog } from '@/utils/dialogs'
-import { reloadSettingsLists } from '@/composables/useSettingsListResource'
-import { cleanError } from '@/utils'
+import { deleteRow } from '@/components/Settings/rowActions'
 import type { SettingsListColumn, SettingsListRow } from '@/types'
 
 /**
@@ -47,18 +45,11 @@ export const providerName = (doctype: string) =>
 const settingsDoctype = (row: SettingsListRow) =>
 	row.gateway_settings || `${row.name}${SETTINGS_SUFFIX}`
 
-const removeGateway = async (row: SettingsListRow) => {
-	try {
-		await call('frappe.client.delete', { doctype: DOCTYPE, name: row.name })
-		toast.success(__('Payment gateway deleted successfully'))
-		await reloadSettingsLists(DOCTYPE)
-	} catch (err: any) {
-		toast.error(
-			cleanError(err.messages?.[0] || err) ||
-				__('Error deleting payment gateway')
-		)
-	}
-}
+const removeGateway = deleteRow(
+	DOCTYPE,
+	'Payment gateway deleted successfully',
+	'Error deleting payment gateway'
+)
 
 // The same confirmation the other settings lists put a delete behind. It says
 // what is left behind too: deleting the gateway unlists it, but the credentials
