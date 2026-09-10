@@ -4,12 +4,15 @@
 import unittest
 from datetime import timedelta
 from unittest.mock import patch
+from zoneinfo import ZoneInfo
 
 import frappe
-from frappe.utils import get_datetime
+from frappe.utils import get_datetime, get_system_timezone
 
 from lms.lms.schedule_utils import (
 	assert_within_schedule,
+	datetime_to_iso,
+	enrich_schedule_payload,
 	get_schedule_block_reason,
 	validate_schedule_fields,
 )
@@ -81,6 +84,25 @@ class TestScheduleUtils(unittest.TestCase):
 			with self.assertRaises(frappe.ValidationError):
 				assert_within_schedule(1, start, None, label="Quiz")
 
+	def test_datetime_to_iso_uses_system_timezone(self):
+		iso = datetime_to_iso(FIXED_NOW)
+		self.assertTrue(iso.startswith("2026-06-15T12:00:00"))
+		aware = get_datetime(FIXED_NOW).replace(tzinfo=ZoneInfo(get_system_timezone()))
+		self.assertEqual(iso, aware.isoformat())
+
+	def test_enrich_schedule_payload_adds_iso_and_reason(self):
+		with patch("lms.lms.schedule_utils.now_datetime", return_value=FIXED_NOW):
+			payload = enrich_schedule_payload(
+				{
+					"enable_scheduling": 1,
+					"schedule_start": FIXED_NOW + timedelta(days=1),
+					"schedule_end": None,
+				}
+			)
+		self.assertEqual(payload["schedule_block_reason"], "not_started")
+		self.assertTrue(payload["schedule_start_iso"].startswith("2026-06-16T12:00:00"))
+		self.assertIsNone(payload["schedule_end_iso"])
+
 
 class TestLMSQuizScheduling(unittest.TestCase):
 	def tearDown(self):
@@ -90,7 +112,7 @@ class TestLMSQuizScheduling(unittest.TestCase):
 		quiz = frappe.get_doc(
 			{
 				"doctype": "LMS Quiz",
-				"title": f"Schedule Quiz {frappe.generate_hash(length=6)}",
+				"title": "Schedule Quiz Missing Start",
 				"passing_percentage": 50,
 				"enable_scheduling": 1,
 			}
@@ -101,7 +123,7 @@ class TestLMSQuizScheduling(unittest.TestCase):
 		quiz = frappe.get_doc(
 			{
 				"doctype": "LMS Quiz",
-				"title": f"Schedule Quiz {frappe.generate_hash(length=6)}",
+				"title": "Schedule Quiz End Before Start",
 				"passing_percentage": 50,
 				"enable_scheduling": 1,
 				"schedule_start": FIXED_NOW,
@@ -116,7 +138,7 @@ class TestLMSQuizScheduling(unittest.TestCase):
 		quiz = frappe.get_doc(
 			{
 				"doctype": "LMS Quiz",
-				"title": f"Future Quiz {frappe.generate_hash(length=6)}",
+				"title": "Schedule Quiz Submit Before Start",
 				"passing_percentage": 50,
 				"enable_scheduling": 1,
 				"schedule_start": FIXED_NOW + timedelta(days=2),
@@ -150,7 +172,7 @@ class TestLMSQuizScheduling(unittest.TestCase):
 		quiz = frappe.get_doc(
 			{
 				"doctype": "LMS Quiz",
-				"title": f"Future Quiz {frappe.generate_hash(length=6)}",
+				"title": "Schedule Quiz Withhold Questions",
 				"passing_percentage": 50,
 				"enable_scheduling": 1,
 				"schedule_start": FIXED_NOW + timedelta(days=2),
@@ -166,6 +188,7 @@ class TestLMSQuizScheduling(unittest.TestCase):
 					payload = get_quiz_with_questions(quiz.name)
 
 		self.assertEqual(payload["quiz"]["schedule_block_reason"], "not_started")
+		self.assertTrue(payload["quiz"]["schedule_start_iso"].startswith("2026-06-17T12:00:00"))
 		self.assertEqual(payload["quiz"]["questions"], [])
 		self.assertEqual(payload["questions_by_name"], {})
 
@@ -178,7 +201,7 @@ class TestLMSAssignmentScheduling(unittest.TestCase):
 		assignment = frappe.get_doc(
 			{
 				"doctype": "LMS Assignment",
-				"title": f"Schedule ASG {frappe.generate_hash(length=6)}",
+				"title": "Schedule Assignment Missing Start",
 				"type": "Text",
 				"question": "Answer this",
 				"enable_scheduling": 1,
@@ -190,7 +213,7 @@ class TestLMSAssignmentScheduling(unittest.TestCase):
 		assignment = frappe.get_doc(
 			{
 				"doctype": "LMS Assignment",
-				"title": f"Ended ASG {frappe.generate_hash(length=6)}",
+				"title": "Schedule Assignment Ended Window",
 				"type": "Text",
 				"question": "Answer this",
 				"enable_scheduling": 1,
@@ -230,7 +253,7 @@ class TestLMSAssignmentScheduling(unittest.TestCase):
 		assignment = frappe.get_doc(
 			{
 				"doctype": "LMS Assignment",
-				"title": f"Future ASG {frappe.generate_hash(length=6)}",
+				"title": "Schedule Assignment Future Window",
 				"type": "Text",
 				"question": "Answer this",
 				"enable_scheduling": 1,
@@ -244,3 +267,26 @@ class TestLMSAssignmentScheduling(unittest.TestCase):
 			payload = get_assignment(assignment.name)
 
 		self.assertEqual(payload["schedule_block_reason"], "not_started")
+		self.assertTrue(payload["schedule_start_iso"].startswith("2026-06-16T12:00:00"))
+
+	def test_get_assignment_requires_read_permission(self):
+		from lms.lms.utils import get_assignment
+
+		assignment = frappe.get_doc(
+			{
+				"doctype": "LMS Assignment",
+				"title": "Schedule Assignment Permission Check",
+				"type": "Text",
+				"question": "Answer this",
+				"enable_scheduling": 0,
+			}
+		)
+		# nosemgrep: lms-unjustified-ignore-permissions - test fixture
+		assignment.insert(ignore_permissions=True)
+
+		with patch.object(
+			frappe.model.document.Document,
+			"check_permission",
+			side_effect=frappe.PermissionError,
+		):
+			self.assertRaises(frappe.PermissionError, get_assignment, assignment.name)

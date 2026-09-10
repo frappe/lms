@@ -1762,7 +1762,7 @@ def get_quiz_with_questions(quiz: str) -> dict:
 		QUESTION_OPTION_FIELDS,
 	)
 	from lms.lms.permissions import can_access_quiz
-	from lms.lms.schedule_utils import get_schedule_block_reason
+	from lms.lms.schedule_utils import enrich_schedule_payload
 
 	if not isinstance(quiz, str):
 		frappe.throw(_("Quiz must be a string."))
@@ -1773,13 +1773,8 @@ def get_quiz_with_questions(quiz: str) -> dict:
 		)
 		frappe.throw(_("You are not authorized to view this quiz."), frappe.PermissionError)
 
-	quiz_doc = frappe.get_doc("LMS Quiz", quiz).as_dict()
-	reason = get_schedule_block_reason(
-		quiz_doc.get("enable_scheduling"),
-		quiz_doc.get("schedule_start"),
-		quiz_doc.get("schedule_end"),
-	)
-	quiz_doc["schedule_block_reason"] = reason
+	quiz_doc = enrich_schedule_payload(frappe.get_doc("LMS Quiz", quiz).as_dict())
+	reason = quiz_doc.get("schedule_block_reason")
 
 	privileged = bool(PRIVILEGED_ROLES & set(frappe.get_roles()))
 	withhold_questions = bool(reason) and not privileged
@@ -1802,11 +1797,11 @@ def get_quiz_with_questions(quiz: str) -> dict:
 				*QUESTION_OPTION_FIELDS,
 				*QUESTION_EXPLANATION_FIELDS,
 			]
+			# nosemgrep: lms-unjustified-ignore-permissions - access gated by can_access_quiz above
 			rows = frappe.get_all(
 				"LMS Question",
 				filters=[["name", "in", question_names]],
 				fields=fields,
-				# nosemgrep: lms-unjustified-ignore-permissions - access gated by can_access_quiz above
 				ignore_permissions=True,
 			)
 			questions_by_name = {row["name"]: row for row in rows}
@@ -1816,19 +1811,20 @@ def get_quiz_with_questions(quiz: str) -> dict:
 
 @frappe.whitelist()
 def get_assignment(name: str) -> dict:
-	"""Return an LMS Assignment with a server-computed schedule_block_reason."""
-	from lms.lms.schedule_utils import get_schedule_block_reason
+	"""Return an LMS Assignment with a server-computed schedule_block_reason.
+
+	Mirrors ``frappe.client.get`` permission checks so callers cannot bypass
+	DocPerm by hitting this whitelist directly.
+	"""
+	from lms.lms.schedule_utils import enrich_schedule_payload
 
 	if not isinstance(name, str):
 		frappe.throw(_("Assignment must be a string."))
 
-	assignment = frappe.get_doc("LMS Assignment", name).as_dict()
-	assignment["schedule_block_reason"] = get_schedule_block_reason(
-		assignment.get("enable_scheduling"),
-		assignment.get("schedule_start"),
-		assignment.get("schedule_end"),
-	)
-	return assignment
+	doc = frappe.get_doc("LMS Assignment", name)
+	doc.check_permission("read")
+	doc.apply_fieldlevel_read_permissions()
+	return enrich_schedule_payload(doc.as_dict())
 
 
 @frappe.whitelist(allow_guest=True)

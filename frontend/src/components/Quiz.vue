@@ -1170,25 +1170,26 @@ const attemptsExhausted = computed(
 		(attempts.data?.length ?? 0) >= quiz.data.max_attempts
 )
 
-const scheduleBlockReason = computed(() => {
-	// Server reason is authoritative (system timezone). Client fallback only
-	// covers payloads that predate schedule_block_reason.
-	if (quiz.data && 'schedule_block_reason' in quiz.data) {
-		return quiz.data.schedule_block_reason || null
-	}
-	return getScheduleBlockReason(
+const scheduleNow = ref(new Date())
+let scheduleClock = null
+
+const scheduleBlockReason = computed(() =>
+	getScheduleBlockReason(
 		quiz.data?.enable_scheduling,
-		quiz.data?.schedule_start,
-		quiz.data?.schedule_end
+		quiz.data?.schedule_start_iso || quiz.data?.schedule_start,
+		quiz.data?.schedule_end_iso || quiz.data?.schedule_end,
+		scheduleNow.value
 	)
-})
+)
 
 const scheduleBlocked = computed(() => !!scheduleBlockReason.value)
 
 const scheduleMessage = computed(() => {
 	if (scheduleBlockReason.value === 'not_started') {
 		return __('This quiz opens on {0}.').format(
-			formatScheduleDate(quiz.data?.schedule_start)
+			formatScheduleDate(
+				quiz.data?.schedule_start_iso || quiz.data?.schedule_start
+			)
 		)
 	}
 	if (scheduleBlockReason.value === 'ended') {
@@ -1203,6 +1204,27 @@ const formatScheduleDate = (value) => {
 	if (Number.isNaN(date.getTime())) return String(value)
 	return date.toLocaleString()
 }
+
+watch(scheduleBlockReason, (reason, previous) => {
+	// Questions are withheld while blocked; once the window opens, refetch so
+	// Start can load real prompts without a full page reload.
+	if (previous && !reason && !Object.keys(questionsByName.value).length) {
+		quiz.reload()
+	}
+})
+
+onMounted(() => {
+	scheduleClock = setInterval(() => {
+		scheduleNow.value = new Date()
+	}, 15000)
+})
+
+onUnmounted(() => {
+	if (scheduleClock) {
+		clearInterval(scheduleClock)
+		scheduleClock = null
+	}
+})
 
 const shuffleArray = (array) => {
 	for (let i = array.length - 1; i > 0; i--) {

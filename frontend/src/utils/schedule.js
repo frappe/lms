@@ -17,9 +17,9 @@ export function fromDatetimeLocal(value) {
 /**
  * Client-side schedule window check. Mirrors lms.lms.schedule_utils.
  *
- * Prefer the server-provided `schedule_block_reason` on quiz/assignment
- * payloads when present — Frappe Datetimes are system-timezone wall clocks,
- * so a browser-local parse can disagree with the server across timezones.
+ * Prefer offset-bearing ISO values from the server (`schedule_start_iso` /
+ * `schedule_end_iso`) so browser and system timezones agree. Naive Frappe
+ * strings are a last-resort fallback only.
  *
  * @returns {'not_started' | 'ended' | null}
  */
@@ -30,7 +30,18 @@ export function getScheduleBlockReason(
 	now = new Date()
 ) {
 	if (!enableScheduling) return null
-	if (scheduleStart && now < new Date(scheduleStart)) return 'not_started'
-	if (scheduleEnd && now > new Date(scheduleEnd)) return 'ended'
+	const start = parseScheduleInstant(scheduleStart)
+	const end = parseScheduleInstant(scheduleEnd)
+	if (start && now < start) return 'not_started'
+	if (end && now > end) return 'ended'
 	return null
+}
+
+function parseScheduleInstant(value) {
+	if (!value) return null
+	if (value instanceof Date) {
+		return Number.isNaN(value.getTime()) ? null : value
+	}
+	const date = new Date(value)
+	return Number.isNaN(date.getTime()) ? null : date
 }

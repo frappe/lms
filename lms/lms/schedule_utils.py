@@ -5,9 +5,11 @@
 
 from __future__ import annotations
 
+from zoneinfo import ZoneInfo
+
 import frappe
 from frappe import _
-from frappe.utils import get_datetime, now_datetime
+from frappe.utils import get_datetime, get_system_timezone, now_datetime
 
 
 def validate_schedule_fields(doc) -> None:
@@ -82,3 +84,29 @@ def assert_doc_within_schedule(doc, *, label: str | None = None) -> None:
 		doc.get("schedule_end") if hasattr(doc, "get") else getattr(doc, "schedule_end", None),
 		label=label,
 	)
+
+
+def datetime_to_iso(value) -> str | None:
+	"""Convert a naive system-timezone Datetime to an offset-bearing ISO string.
+
+	Learners' browsers must not treat schedule boundaries as local wall clocks;
+	ISO with an explicit offset keeps client and server windows aligned.
+	"""
+	if not value:
+		return None
+	dt = get_datetime(value)
+	if dt.tzinfo is None:
+		dt = dt.replace(tzinfo=ZoneInfo(get_system_timezone()))
+	return dt.isoformat()
+
+
+def enrich_schedule_payload(doc: dict) -> dict:
+	"""Attach schedule_block_reason and offset-aware ISO timestamps for the UI."""
+	doc["schedule_block_reason"] = get_schedule_block_reason(
+		doc.get("enable_scheduling"),
+		doc.get("schedule_start"),
+		doc.get("schedule_end"),
+	)
+	doc["schedule_start_iso"] = datetime_to_iso(doc.get("schedule_start"))
+	doc["schedule_end_iso"] = datetime_to_iso(doc.get("schedule_end"))
+	return doc

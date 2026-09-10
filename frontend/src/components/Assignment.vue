@@ -234,7 +234,7 @@ import {
 	FormControl,
 	toast,
 } from 'frappe-ui'
-import { computed, inject, ref, watch } from 'vue'
+import { computed, inject, onMounted, onUnmounted, ref, watch } from 'vue'
 import ShortcutTooltip from '@/components/ShortcutTooltip.vue'
 import {
 	useKeyboardShortcuts,
@@ -252,6 +252,8 @@ const comments = ref(null)
 const router = useRouter()
 const user = inject('$user')
 const isDirty = ref(false)
+const scheduleNow = ref(new Date())
+let scheduleClock = null
 
 const props = defineProps({
 	assignmentID: {
@@ -266,6 +268,19 @@ const props = defineProps({
 		type: Boolean,
 		default: true,
 	},
+})
+
+onMounted(() => {
+	scheduleClock = setInterval(() => {
+		scheduleNow.value = new Date()
+	}, 15000)
+})
+
+onUnmounted(() => {
+	if (scheduleClock) {
+		clearInterval(scheduleClock)
+		scheduleClock = null
+	}
 })
 
 useKeyboardShortcuts({
@@ -472,23 +487,23 @@ const canModifyAssignment = computed(() => {
 	return false
 })
 
-const scheduleBlockReason = computed(() => {
-	if (assignment.data && 'schedule_block_reason' in assignment.data) {
-		return assignment.data.schedule_block_reason || null
-	}
-	return getScheduleBlockReason(
+const scheduleBlockReason = computed(() =>
+	getScheduleBlockReason(
 		assignment.data?.enable_scheduling,
-		assignment.data?.schedule_start,
-		assignment.data?.schedule_end
+		assignment.data?.schedule_start_iso || assignment.data?.schedule_start,
+		assignment.data?.schedule_end_iso || assignment.data?.schedule_end,
+		scheduleNow.value
 	)
-})
+)
 
 const scheduleBlocked = computed(() => !!scheduleBlockReason.value)
 
 const scheduleMessage = computed(() => {
 	if (scheduleBlockReason.value === 'not_started') {
 		return __('This assignment opens on {0}.').format(
-			formatScheduleDate(assignment.data?.schedule_start)
+			formatScheduleDate(
+				assignment.data?.schedule_start_iso || assignment.data?.schedule_start
+			)
 		)
 	}
 	if (scheduleBlockReason.value === 'ended') {
