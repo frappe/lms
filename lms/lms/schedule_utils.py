@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 from zoneinfo import ZoneInfo
 
 import frappe
@@ -16,6 +17,13 @@ import frappe
 from frappe import _
 from frappe.utils import get_datetime, now_datetime
 >>>>>>> 60ef8e4 (feat(quiz): add availability scheduling for quizzes and assignments)
+=======
+from zoneinfo import ZoneInfo
+
+import frappe
+from frappe import _
+from frappe.utils import get_datetime, get_system_timezone, now_datetime
+>>>>>>> d194a5e (fix(quiz): harden schedule access, timezone, and CI)
 
 
 def validate_schedule_fields(doc) -> None:
@@ -91,6 +99,9 @@ def assert_doc_within_schedule(doc, *, label: str | None = None) -> None:
 		label=label,
 	)
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> d194a5e (fix(quiz): harden schedule access, timezone, and CI)
 
 
 def datetime_to_iso(value) -> str | None:
@@ -117,5 +128,8 @@ def enrich_schedule_payload(doc: dict) -> dict:
 	doc["schedule_start_iso"] = datetime_to_iso(doc.get("schedule_start"))
 	doc["schedule_end_iso"] = datetime_to_iso(doc.get("schedule_end"))
 	return doc
+<<<<<<< HEAD
 =======
 >>>>>>> 60ef8e4 (feat(quiz): add availability scheduling for quizzes and assignments)
+=======
+>>>>>>> d194a5e (fix(quiz): harden schedule access, timezone, and CI)
