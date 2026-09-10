@@ -1,7 +1,7 @@
 import { markRaw } from 'vue'
 import type { SettingsGroup } from '@/types/settingsSchema'
 import Categories from '@/components/Settings/Categories.vue'
-import Members from '@/components/Settings/Members.vue'
+import { membersSettingsPage } from '@/components/Settings/Members/members'
 import EmailConfig from '@/components/Settings/EmailAccount/EmailConfig.vue'
 import { sidebarSettingsPage } from '@/components/Settings/Sidebar/sidebar'
 // BrandSettings.vue is still `<script setup>` with no `lang="ts"`, so a TS
@@ -186,9 +186,7 @@ export const settingsTree: SettingsGroup[] = [
 				label: 'Users',
 				slug: 'members',
 				icon: 'lucide-user',
-				// Interim: the Members record-page split lands in its own phase.
-				// Renders the pre-existing Members.vue until then.
-				page: { kind: 'custom', component: markRaw(Members) },
+				page: membersSettingsPage,
 			},
 		],
 	},

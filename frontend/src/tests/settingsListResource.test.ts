@@ -12,13 +12,26 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest'
 import { nextTick } from 'vue'
 
-const { fetches, cache, deferred } = vi.hoisted(() => ({
-	fetches: [] as any[],
-	cache: new Map<string, any>(),
-	deferred: [] as Array<() => void>,
-}))
+const { fetches, cache, deferred, methodCalls, methodDeferred } = vi.hoisted(
+	() => ({
+		fetches: [] as any[],
+		cache: new Map<string, any>(),
+		deferred: [] as Array<() => void>,
+		methodCalls: [] as any[],
+		methodDeferred: [] as Array<(rows: any[] | null) => void>,
+	})
+)
 
 vi.mock('frappe-ui', () => ({
+	// useSettingsMethodResource's resource: one call per reload(), with no
+	// caching and no built-in sequencing of its own. The token guard that
+	// gives it sequencing lives in the composable, not here.
+	createResource: (options: any) => ({
+		reload: () => {
+			methodCalls.push(options.makeParams())
+			return new Promise((resolve) => methodDeferred.push(resolve))
+		},
+	}),
 	createListResource: (options: any) => {
 		const key = Array.isArray(options.cache)
 			? options.cache.join(':')
@@ -93,6 +106,7 @@ vi.mock('frappe-ui', () => ({
 import {
 	SETTINGS_PAGE_LENGTH,
 	useSettingsListResource,
+	useSettingsMethodResource,
 } from '@/composables/useSettingsListResource'
 
 /** Advances microtasks so a queued request is issued, without landing it. */
@@ -121,7 +135,16 @@ beforeEach(() => {
 	fetches.length = 0
 	deferred.length = 0
 	cache.clear()
+	methodCalls.length = 0
+	methodDeferred.length = 0
 })
+
+/** Lands the oldest outstanding method-resource call with `rows`. */
+const landMethod = async (rows: any[] | null) => {
+	methodDeferred.shift()?.(rows)
+	await Promise.resolve()
+	await Promise.resolve()
+}
 
 describe('useSettingsListResource', () => {
 	it('pages at 13 rows', async () => {
@@ -289,5 +312,69 @@ describe('useSettingsListResource', () => {
 				['description', 'like', '%SAVE20%'],
 			],
 		})
+	})
+})
+
+/**
+ * useSettingsMethodResource: the same contract as above, for the one list
+ * (Settings > Users, via get_members) that pages a whitelisted method.
+ * createResource has none of createListResource's paging or sequencing, so all three are hand-rolled here.
+ */
+describe('useSettingsMethodResource', () => {
+	it('resets to the first page and refetches when the search changes', async () => {
+		const list = useSettingsMethodResource({
+			method: 'lms.lms.api.get_members',
+			doctype: 'User',
+		})
+		expect(methodCalls.at(-1)).toMatchObject({ search: '', start: 0 })
+		await landMethod(new Array(13).fill({ name: 'old' }))
+		expect(list.rows).toHaveLength(13)
+
+		list.search = 'ada'
+		await Promise.resolve()
+		await Promise.resolve()
+
+		expect(methodCalls.at(-1)).toMatchObject({ search: 'ada', start: 0 })
+		await landMethod([{ name: 'ada@example.com' }])
+
+		// Replaced, not appended to: the old page is gone the moment the
+		// search reload lands, not once a second page would have arrived.
+		expect(list.rows).toEqual([{ name: 'ada@example.com' }])
+	})
+
+	it('drops a response superseded by a newer request', async () => {
+		const list = useSettingsMethodResource({
+			method: 'lms.lms.api.get_members',
+			doctype: 'User',
+		})
+
+		// The construction-time auto reload is still in flight when the search
+		// changes underneath it, leaving two calls outstanding.
+		list.search = 'first'
+		await Promise.resolve()
+		await Promise.resolve()
+		expect(methodCalls).toHaveLength(2)
+
+		await landMethod([{ name: 'stale' }])
+		expect(list.rows).toEqual([])
+
+		await landMethod([{ name: 'fresh' }])
+		expect(list.rows).toEqual([{ name: 'fresh' }])
+	})
+
+	it('flags hasNextPage from what the server actually returned', async () => {
+		const list = useSettingsMethodResource({
+			method: 'lms.lms.api.get_members',
+			doctype: 'User',
+			pageLength: 5,
+		})
+		await landMethod(new Array(5).fill({}))
+		expect(list.hasNextPage).toBe(true)
+
+		list.loadMore()
+		await landMethod(new Array(2).fill({}))
+
+		expect(list.rows).toHaveLength(7)
+		expect(list.hasNextPage).toBe(false)
 	})
 })
