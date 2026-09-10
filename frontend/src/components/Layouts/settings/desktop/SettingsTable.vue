@@ -1,13 +1,9 @@
 <template>
-	<List
-		:columns="tracks"
-		class="-mx-3 list-row-px-3 flex min-h-0 flex-col [--list-row-height:3.5rem]"
+	<div
+		class="-mx-3 min-h-0 flex-1 overflow-y-auto [--list-row-height:3.5rem]"
+		:style="scrollerStyle"
 	>
-		<div
-			role="presentation"
-			class="min-h-0 flex-1 overflow-y-auto"
-			:style="scrollerStyle"
-		>
+		<List :columns="tracks" class="list-row-px-3">
 			<ListHeader class="sticky top-0 z-10 bg-surface-elevation-1">
 				<ListHeaderCell
 					v-for="column in columns"
@@ -128,16 +124,16 @@
 					</ListRow>
 				</ListRows>
 			</div>
-		</div>
-	</List>
+		</List>
 
-	<div v-if="hasNextPage" class="mt-4 flex shrink-0 justify-center">
-		<Button @click="emit('loadMore')">
-			<template #prefix>
-				<span class="lucide-refresh-cw size-3" />
-			</template>
-			{{ __('Load More') }}
-		</Button>
+		<div v-if="hasNextPage" class="mt-4 flex justify-center">
+			<Button @click="emit('loadMore')">
+				<template #prefix>
+					<span class="lucide-refresh-cw size-3" />
+				</template>
+				{{ __('Load More') }}
+			</Button>
+		</div>
 	</div>
 </template>
 
@@ -150,10 +146,9 @@
 // box ~15px versus a header outside it, offsetting every fixed column after.
 // `-mx-3` cancels `list-row-px-3` so the first column aligns with the title.
 //
-// Load More stays OUTSIDE the List. `List` is a `role="table"`, which owns only
-// rows and rowgroups, and a `role="presentation"` scroller does not launder a
-// button placed inside it. With `visibleRows` capping the scroller it would also
-// sit below the fold.
+// Load More sits inside the scroller (it's the row after the last row) but
+// outside `List`, which is `role="table"` and owns only rows/rowgroups; a
+// `role="presentation"` wrapper wouldn't launder a button placed inside it.
 //
 // Dark hover is re-toned because frappe-ui's `surface-gray-1` equals
 // `surface-elevation-1`, the only surface here, so hovering did nothing.

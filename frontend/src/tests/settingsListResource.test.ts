@@ -94,6 +94,10 @@ vi.mock('frappe-ui', () => ({
 			delete: {
 				submit(name: string, callbacks: any) {
 					out.deleted = name
+					// frappe-ui's delete resource refetches from its OWN onSuccess
+					// (listResource.js:161), before any per-call onSuccess runs. The
+					// stub left this out, so the overlapping request went unnoticed.
+					out.list.fetch()
 					callbacks?.onSuccess?.()
 				},
 			},
@@ -251,6 +255,50 @@ describe('useSettingsListResource', () => {
 		// concatenated onto the rows already shown and the deleted row stays.
 		expect(list.resource.start).toBe(0)
 		expect(fetches.at(-1)).toMatchObject({ start: 0, pageLength: 13 })
+	})
+
+	it('asks for no page but the first once a delete has been issued', async () => {
+		const list = build()
+		await drain()
+		list.resource.data = new Array(13).fill({})
+		list.loadMore()
+		await drain()
+		expect(list.resource.start).toBe(13)
+
+		list.resource.data = new Array(26).fill({})
+		const before = fetches.length
+		list.remove('SAVE20')
+		await drain()
+
+		// Rewinding to page one AFTER frappe-ui's refetch has fired does not help:
+		// list.onSuccess reads `start` when the response LANDS, so the in-flight
+		// start=13 request takes the replace branch and renders rows 14-26 as page one.
+		expect(fetches.slice(before).map((fetch: any) => fetch.start)).toEqual(
+			fetches.slice(before).map(() => 0)
+		)
+	})
+
+	it('does not skip the page a failed Load More asked for', async () => {
+		const list = build()
+		await drain()
+		list.resource.data = new Array(13).fill({})
+		list.loadMore()
+		await drain()
+		expect(list.resource.start).toBe(13)
+
+		const original = list.resource.list.fetch
+		list.resource.list.fetch = () => Promise.reject(new Error('offline'))
+		await list.loadMore()
+		list.resource.list.fetch = original
+
+		// Back to the last page that actually landed. Left at 26, the next Load
+		// More would ask for 39 and rows 26-38 would never be fetched.
+		expect(list.resource.start).toBe(13)
+
+		const before = fetches.length
+		list.loadMore()
+		await drain()
+		expect(fetches.slice(before).map((fetch: any) => fetch.start)).toEqual([26])
 	})
 
 	it('reports a delete failure to the caller instead of swallowing it', async () => {

@@ -48,6 +48,7 @@
 			<SettingsTable
 				:columns="columns"
 				:rows="rows"
+				:visible-rows="VISIBLE_ROWS"
 				:row-key="rowKey"
 				:row-status="rowStatus"
 				:has-next-page="hasNextPage"
@@ -138,6 +139,12 @@ const emit = defineEmits<{
 }>()
 
 const search = defineModel<string>('search', { default: '' })
+
+/**
+ * Twelve rows fit; row thirteen is reached by scrolling. A definite region
+ * size keeps the header pinned and the panel from shifting on Load More.
+ */
+const VISIBLE_ROWS = 12
 
 const searchPlaceholder = computed(() => __('Search'))
 </script>

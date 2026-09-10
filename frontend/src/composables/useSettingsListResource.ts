@@ -149,22 +149,31 @@ export function useSettingsListResource<TRow = Record<string, any>>(
 		return fetchFirstPage()
 	}
 
+	// The offset moves before the request goes out, so a failed fetch must put
+	// it back, or the NEXT Load More silently skips the page that failed.
+	// The rejection is swallowed too, since nothing binds a handler to it.
 	const loadMore = () =>
-		enqueue(() => {
-			resource.start = resource.start + resource.pageLength
-			return resource.list.fetch()
+		enqueue(async () => {
+			const loaded = resource.start
+			resource.start = loaded + resource.pageLength
+			try {
+				return await resource.list.fetch()
+			} catch (error) {
+				resource.start = loaded
+				return undefined
+			}
 		})
 
-	// frappe-ui's own delete handler refetches with `fetch()`, which keeps the
-	// current start; past page one that concatenates onto the rows already shown
-	// and the deleted row stays on screen. The list has to go back to page one.
+	// frappe-ui's own delete handler refetches with `fetch()` before this
+	// callback runs, keeping the current start, so past page one it
+	// concatenates and the deleted row stays. Rewind first, so the refetch it starts is a page-one request.
 	const remove: SettingsListSource<TRow>['remove'] = (name, callbacks = {}) =>
 		enqueue(
 			() =>
 				new Promise((resolve) => {
+					resource.start = 0
 					resource.delete.submit(name, {
 						onSuccess: () => {
-							resource.start = 0
 							resolve(resource.reload())
 							callbacks.onSuccess?.()
 						},
