@@ -210,6 +210,7 @@ const MANIFEST: Record<string, Privacy[]> = {
 	'components/Settings/EmailTemplate/EmailTemplateAdd.vue': ['undeclared'],
 	'components/Settings/EmailTemplate/EmailTemplateEdit.vue': ['undeclared'],
 	'components/Settings/SettingFields.vue': ['per-field'],
+	'components/Layouts/settings/desktop/SettingsFields.vue': ['undeclared'],
 	'components/UploadPlugin.vue': ['computed'],
 	'pages/Forms/AssignmentForm.vue': ['undeclared'],
 	'pages/Forms/AnnouncementForm.vue': ['undeclared'],

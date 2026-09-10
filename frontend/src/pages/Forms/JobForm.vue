@@ -129,7 +129,7 @@ import { useRouter } from 'vue-router'
 import { sanitizeOnWrite } from '@/utils/sanitizeOnWrite'
 import { useScreenSize } from '@/utils/composables'
 import Uploader from '@/components/Controls/Uploader.vue'
-import PageHeader from '@/components/Layouts/PageHeader.vue'
+import PageHeader from '@/components/Layouts/pages/PageHeader.vue'
 import HeaderButton from '@/components/HeaderButton.vue'
 import ShortcutTooltip from '@/components/ShortcutTooltip.vue'
 import {

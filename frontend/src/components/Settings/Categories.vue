@@ -71,7 +71,7 @@ import { nextTick, ref } from 'vue'
 import { cleanError } from '@/utils'
 import { createDialog } from '@/utils/dialogs'
 import dayjs from '@/utils/dayjs'
-import SettingsList from '@/components/Layouts/SettingsList.vue'
+import SettingsList from '@/components/Layouts/settings/desktop/SettingsList.vue'
 import { useSettingsListResource } from '@/composables/useSettingsListResource'
 import type { SettingsListColumn, SettingsListRow } from '@/types'
 

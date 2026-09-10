@@ -54,7 +54,7 @@ vi.mock('frappe-ui/list', () => ({
 	ListCell: { template: `<div data-testid="cell"><slot /></div>` },
 }))
 
-vi.mock('@/components/Layouts/SettingsLayout.vue', () => ({
+vi.mock('@/components/Layouts/settings/desktop/SettingsLayout.vue', () => ({
 	default: {
 		props: ['title', 'description', 'showBack'],
 		template: `<div><div data-testid="title">{{ title }}</div><slot name="header-actions" /><slot name="header-bottom" /><slot /></div>`,
@@ -78,7 +78,7 @@ vi.stubGlobal('__', translate)
 	return args.reduce((out, arg, i) => out.replace(`{${i}}`, arg), String(this))
 }
 
-import SettingsList from '@/components/Layouts/SettingsList.vue'
+import SettingsList from '@/components/Layouts/settings/desktop/SettingsList.vue'
 
 const toggled: any[] = []
 

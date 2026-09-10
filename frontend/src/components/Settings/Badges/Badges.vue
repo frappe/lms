@@ -34,7 +34,7 @@ import { computed, ref } from 'vue'
 import { cleanError } from '@/utils'
 import BadgeForm from '@/components/Settings/Badges/BadgeForm.vue'
 import BadgeAssignments from '@/components/Settings/Badges/BadgeAssignments.vue'
-import SettingsList from '@/components/Layouts/SettingsList.vue'
+import SettingsList from '@/components/Layouts/settings/desktop/SettingsList.vue'
 import { useSettingsListResource } from '@/composables/useSettingsListResource'
 import type { Badge, SettingsListColumn } from '@/types'
 

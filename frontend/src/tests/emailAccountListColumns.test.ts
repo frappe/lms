@@ -14,7 +14,7 @@ import type { SettingsListColumn } from '@/types'
 
 const columnsSeen: SettingsListColumn[][] = []
 
-vi.mock('@/components/Layouts/SettingsList.vue', () => ({
+vi.mock('@/components/Layouts/settings/desktop/SettingsList.vue', () => ({
 	default: {
 		name: 'SettingsList',
 		props: ['columns', 'rows', 'loading', 'hasNextPage', 'search'],

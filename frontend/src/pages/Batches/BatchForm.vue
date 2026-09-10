@@ -222,7 +222,7 @@
 							variant="outline"
 							:onCreate="
 								(value, close) => {
-									openSettings('Zoom Accounts', close)
+									openSettings('zoom', close)
 								}
 							"
 						/>
@@ -234,7 +234,7 @@
 							variant="outline"
 							:onCreate="
 								(value, close) => {
-									openSettings('Google Meet Accounts', close)
+									openSettings('google-meet', close)
 								}
 							"
 						/>
@@ -605,6 +605,17 @@ const timezoneResource = createResource({
 const timezoneOptions = computed(() =>
 	(timezoneResource.data || []).map((tz: string) => ({ label: tz, value: tz }))
 )
+
+// A new batch opens on the site's own timezone rather than an empty picker.
+// Guarded on doc, because this can resolve before the document loads.
+createResource({
+	url: 'lms.lms.api.get_system_preferences',
+	auto: true,
+	onSuccess: (data: { time_zone: string }) => {
+		const doc = batchDetail.doc
+		if (doc && !doc.timezone) doc.timezone = data.time_zone
+	},
+})
 
 const mediumOptions = computed(() => {
 	return [

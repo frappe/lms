@@ -234,7 +234,7 @@ vi.mock('frappe-ui', () => ({
 	},
 }))
 
-vi.mock('@/components/Layouts/PageHeader.vue', () => ({
+vi.mock('@/components/Layouts/pages/PageHeader.vue', () => ({
 	default: {
 		props: ['breadcrumbs', 'loading'],
 		template: `<header><slot name="actions" /></header>`,

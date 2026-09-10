@@ -49,7 +49,7 @@
 </template>
 
 <script setup lang="ts">
-import SettingsLayout from '@/components/Layouts/SettingsLayout.vue'
+import SettingsLayout from '@/components/Layouts/settings/desktop/SettingsLayout.vue'
 import { EmailAccount, EmailStep } from '@/types'
 import {
 	Button,

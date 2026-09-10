@@ -58,7 +58,7 @@ import type { SettingsListColumn } from '@/types'
 import { SETTINGS_PAGE_LENGTH } from '@/composables/useSettingsListResource'
 import { openFormRoute } from '@/composables/useFormRoute'
 import { membersRevision } from '@/stores/members'
-import SettingsList from '@/components/Layouts/SettingsList.vue'
+import SettingsList from '@/components/Layouts/settings/desktop/SettingsList.vue'
 import { cleanError } from '@/utils'
 
 type Member = {

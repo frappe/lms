@@ -63,7 +63,7 @@ const { stub } = vi.hoisted(() => ({
 vi.mock('@/components/Controls/Link.vue', stub)
 vi.mock('@/components/Controls/Uploader.vue', stub)
 vi.mock('@/components/RichTextEditor.vue', stub)
-vi.mock('@/components/Layouts/PageHeader.vue', stub)
+vi.mock('@/components/Layouts/pages/PageHeader.vue', stub)
 // Rendered rather than nulled: the form's Save carries its data-testid on this
 // component, so a null stub takes the button out of the DOM entirely.
 vi.mock('@/components/HeaderButton.vue', () => ({

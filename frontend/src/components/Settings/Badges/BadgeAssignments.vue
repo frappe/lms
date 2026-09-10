@@ -28,7 +28,7 @@ import { toast } from 'frappe-ui'
 import { inject, ref } from 'vue'
 import BadgeAssignmentForm from '@/components/Settings/Badges/BadgeAssignmentForm.vue'
 import { cleanError } from '@/utils'
-import SettingsList from '@/components/Layouts/SettingsList.vue'
+import SettingsList from '@/components/Layouts/settings/desktop/SettingsList.vue'
 import { useSettingsListResource } from '@/composables/useSettingsListResource'
 import type { BadgeAssignment, SettingsListColumn } from '@/types'
 

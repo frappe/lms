@@ -84,7 +84,7 @@ import { cleanError } from '@/utils'
 import type { Badges, Badge } from '@/types'
 import CodeEditor from '@/components/Controls/CodeEditor.vue'
 import Uploader from '@/components/Controls/Uploader.vue'
-import SettingsLayout from '@/components/Layouts/SettingsLayout.vue'
+import SettingsLayout from '@/components/Layouts/settings/desktop/SettingsLayout.vue'
 import Select from '@/components/Controls/Select.vue'
 
 const emit = defineEmits<{ updateStep: ['list' | 'form'] }>()

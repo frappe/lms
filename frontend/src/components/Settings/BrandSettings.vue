@@ -115,7 +115,7 @@
 </template>
 <script setup>
 import { createResource, Button, FormControl } from 'frappe-ui'
-import SettingsLayout from '@/components/Layouts/SettingsLayout.vue'
+import SettingsLayout from '@/components/Layouts/settings/desktop/SettingsLayout.vue'
 import ImageUploader from '@/components/Controls/ImageUploader.vue'
 import { ref } from 'vue'
 import { safeUrl } from '@/utils/safeUrl'

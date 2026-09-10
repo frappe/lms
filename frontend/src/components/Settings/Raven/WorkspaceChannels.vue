@@ -62,7 +62,7 @@
 import { computed } from 'vue'
 import { Button } from 'frappe-ui'
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
-import SettingsTable from '@/components/Layouts/SettingsTable.vue'
+import SettingsTable from '@/components/Layouts/settings/desktop/SettingsTable.vue'
 import DeleteConfirmDialog from './DeleteConfirmDialog.vue'
 import {
 	useMappingList,

@@ -32,8 +32,8 @@
 </template>
 <script setup>
 import { computed, inject, onMounted, ref } from 'vue'
-import PageHeader from '@/components/Layouts/PageHeader.vue'
-import PageBody from '@/components/Layouts/PageBody.vue'
+import PageHeader from '@/components/Layouts/pages/PageHeader.vue'
+import PageBody from '@/components/Layouts/pages/PageBody.vue'
 import { call, createResource, usePageMeta } from 'frappe-ui'
 import { useRouter } from 'vue-router'
 import { sessionStore } from '../../stores/session'

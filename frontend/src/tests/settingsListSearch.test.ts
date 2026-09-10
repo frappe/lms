@@ -82,42 +82,18 @@ vi.mock('vue-router', () => ({
 vi.stubGlobal('__', (text: string) => text)
 
 import Badges from '@/components/Settings/Badges/Badges.vue'
-import CouponList from '@/components/Settings/Coupons/CouponList.vue'
-import TransactionList from '@/components/Settings/Transactions/TransactionList.vue'
-import BadgeAssignments from '@/components/Settings/Badges/BadgeAssignments.vue'
 import Categories from '@/components/Settings/Categories.vue'
 import Coupons from '@/components/Settings/Coupons/Coupons.vue'
-import EmailTemplateList from '@/components/Settings/EmailTemplate/EmailTemplateList.vue'
-import GoogleMeetSettings from '@/components/Settings/GoogleMeetSettings.vue'
-import PaymentGateways from '@/components/Settings/PaymentGateways.vue'
+import PaymentGateways from '@/components/Settings/PaymentGateways/PaymentGateways.vue'
 import Transactions from '@/components/Settings/Transactions/Transactions.vue'
-import ZoomSettings from '@/components/Settings/ZoomSettings.vue'
 
 const panels = [
 	{ name: 'Badges', component: Badges, searchFields: ['title', 'description'] },
-	{
-		name: 'Badge Assignments',
-		component: BadgeAssignments,
-		props: { badgeName: 'Top Learner' },
-		searchFields: ['member_name', 'member'],
-	},
 	{ name: 'Categories', component: Categories, searchFields: ['category'] },
 	{
 		name: 'Coupons',
 		component: Coupons,
 		searchFields: ['code'],
-		// The parent owns the resource; the child declares the columns.
-		columnsIn: CouponList,
-	},
-	{
-		name: 'Email Templates',
-		component: EmailTemplateList,
-		searchFields: ['name', 'subject'],
-	},
-	{
-		name: 'Google Meet',
-		component: GoogleMeetSettings,
-		searchFields: ['member_name', 'google_calendar'],
 	},
 	{
 		name: 'Payment Gateways',
@@ -128,12 +104,6 @@ const panels = [
 		name: 'Transactions',
 		component: Transactions,
 		searchFields: ['billing_name', 'member'],
-		columnsIn: TransactionList,
-	},
-	{
-		name: 'Zoom',
-		component: ZoomSettings,
-		searchFields: ['account_name', 'account_id', 'member_name'],
 	},
 ]
 

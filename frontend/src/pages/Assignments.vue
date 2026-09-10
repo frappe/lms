@@ -76,7 +76,7 @@ import {
 	toast,
 	usePageMeta,
 } from 'frappe-ui'
-import ListPage from '@/components/Layouts/ListPage.vue'
+import ListPage from '@/components/Layouts/pages/ListPage.vue'
 import Select from '@/components/Controls/Select.vue'
 import { computed, inject, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'

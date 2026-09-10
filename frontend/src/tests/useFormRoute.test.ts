@@ -197,4 +197,25 @@ describe('useFormRoute', () => {
 		// the app instead of replacing to its parent.
 		expect(handles.openedByUs).toBe(false)
 	})
+
+	// Same merge, same leak, different key: the background is what App.vue
+	// paints under a modal, so carrying it onto a saved-onto page would put a
+	// stale list behind a route that is not a modal at all.
+	it('saveAndReplace does not leak the background onto the destination', async () => {
+		const router = makeRouter(makeMergingMemoryHistory())
+		await router.push({ name: 'Batches' })
+		await openFormRoute(router, { name: 'NewBatch' })
+		await mountAt(router)
+		expect(router.options.history.state).toMatchObject({
+			lmsFormBackground: '/batches',
+		})
+
+		handles.saveAndReplace({ name: 'EditBatch' })
+		await flushPromises()
+
+		expect(
+			(router.options.history.state as Record<string, unknown>)
+				.lmsFormBackground
+		).toBeNull()
+	})
 })

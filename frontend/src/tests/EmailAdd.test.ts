@@ -54,7 +54,7 @@ vi.mock('frappe-ui/frappe', () => ({
 	useTelemetry: () => ({ capture: vi.fn() }),
 }))
 
-vi.mock('@/components/Layouts/SettingsLayout.vue', () => ({
+vi.mock('@/components/Layouts/settings/desktop/SettingsLayout.vue', () => ({
 	default: {
 		template: `<div><slot name="header-actions" /><slot /></div>`,
 	},

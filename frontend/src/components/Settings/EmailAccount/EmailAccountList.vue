@@ -55,7 +55,7 @@ import { ref } from 'vue'
 import { cleanError } from '@/utils'
 import EmailProviderIcon from './EmailProviderIcon.vue'
 import { defaultsBadgeLabel, emailIcon } from './emailConfig'
-import SettingsList from '@/components/Layouts/SettingsList.vue'
+import SettingsList from '@/components/Layouts/settings/desktop/SettingsList.vue'
 import { useSettingsListResource } from '@/composables/useSettingsListResource'
 import type { EmailAccount, SettingsListColumn } from '@/types'
 

@@ -41,7 +41,7 @@ const translate = (text: string) => text
 
 vi.stubGlobal('__', translate)
 
-import SettingsTable from '@/components/Layouts/SettingsTable.vue'
+import SettingsTable from '@/components/Layouts/settings/desktop/SettingsTable.vue'
 
 const columns: SettingsListColumn[] = [
 	{

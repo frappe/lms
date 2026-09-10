@@ -1,83 +1,74 @@
 <template>
-	<TransactionDetails
-		v-if="step == 'new'"
-		:transactions="list.resource"
-		:data="data"
-		:fieldMeta="fieldMeta.data || {}"
-		v-model:show="show"
-		@updateStep="updateStep"
-	/>
-	<TransactionList
-		v-else-if="step === 'list'"
-		:label="props.label"
-		:description="props.description"
-		:list="list"
-		@updateStep="updateStep"
-	/>
-	<TransactionDetails
-		v-else-if="step == 'details'"
-		:transactions="list.resource"
-		:data="data"
-		:fieldMeta="fieldMeta.data || {}"
-		v-model:show="show"
-		@updateStep="updateStep"
-	/>
+	<SettingsList
+		v-if="view === 'list'"
+		:title="__(label)"
+		:columns="columns"
+		:rows="list.rows"
+		:loading="list.loading"
+		:has-next-page="list.hasNextPage"
+		v-model:search="list.search"
+		searchable
+		:search-label="__('Search transactions')"
+		empty-name="Transactions"
+		empty-icon="lucide-landmark"
+		@new="openForm(NEW_RECORD)"
+		@load-more="list.loadMore()"
+		@row-click="(row) => openForm(row.name)"
+	>
+		<template #header-bottom>
+			<Select
+				v-model="status"
+				data-testid="transaction-status"
+				class="w-44"
+				:aria-label="__('Filter by payment status')"
+				:options="statusOptions()"
+			/>
+		</template>
+	</SettingsList>
+
+	<TransactionForm v-else :name="selected" @back="closeForm()" />
 </template>
+
 <script setup lang="ts">
-import { ref } from 'vue'
-import { createResource } from 'frappe-ui'
+import { Select } from 'frappe-ui'
+import { ref, watch } from 'vue'
+import SettingsList from '@/components/Layouts/settings/desktop/SettingsList.vue'
+import TransactionForm from '@/components/Settings/Transactions/TransactionForm.vue'
+import {
+	STATUS_ALL,
+	columns,
+	statusFilters,
+	statusOptions,
+	transactionList,
+} from '@/components/Settings/Transactions/transactions'
 import { useSettingsListResource } from '@/composables/useSettingsListResource'
-import TransactionList from '@/components/Settings/Transactions/TransactionList.vue'
-import TransactionDetails from '@/components/Settings/Transactions/TransactionDetails.vue'
+import { NEW_RECORD } from '@/composables/useSettingsSource'
 
-const step = ref('list')
-const data = ref<any | null>(null)
-const show = defineModel('show')
+// Settings > Payment > Transactions: the list of payments, with the one
+// payment behind a row or behind New in TransactionForm.vue. Three files
+// per list page (config, list, form), imported statically for a same-tick reveal.
 
-const props = defineProps<{
-	label: string
-	description: string
-}>()
+defineProps<{ label: string }>()
 
-const updateStep = (newStep: 'list' | 'new' | 'edit', newData: any) => {
-	step.value = newStep
-	if (newData) {
-		data.value = newData
-	} else {
-		data.value = null
-	}
+const view = ref<'list' | 'form'>('list')
+const selected = ref<string | null>(null)
+
+const list = useSettingsListResource(transactionList)
+
+const status = ref(STATUS_ALL)
+
+// Straight to the server, and back to the first page: the rows on screen were
+// fetched under the old filter, so none of them can be kept.
+watch(status, (value) => list.applyFilters(statusFilters(value)))
+
+const openForm = (name: string) => {
+	selected.value = name
+	view.value = 'form'
 }
 
-const fieldMeta = createResource({
-	url: 'lms.lms.api.get_payment_field_meta',
-	auto: true,
-})
-
-const list = useSettingsListResource({
-	doctype: 'LMS Payment',
-	fields: [
-		'name',
-		'member',
-		'billing_name',
-		'source',
-		'payment_for_document_type',
-		'payment_for_document',
-		'payment_received',
-		'payment_for_certificate',
-		'currency',
-		'amount',
-		'amount_with_gst',
-		'coupon',
-		'coupon_code',
-		'discount_amount',
-		'original_amount',
-		'order_id',
-		'payment_id',
-		'gstin',
-		'pan',
-		'address',
-	],
-	searchFields: ['billing_name', 'member'],
-	orderBy: 'modified desc',
-})
+const closeForm = () => {
+	view.value = 'list'
+	selected.value = null
+	list.reload()
+}
 </script>

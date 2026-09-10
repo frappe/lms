@@ -75,7 +75,7 @@
 // Helpdesk use is banned here for RTL.
 import { Badge, createResource, toast } from 'frappe-ui'
 import { computed, ref } from 'vue'
-import SettingsLayout from '@/components/Layouts/SettingsLayout.vue'
+import SettingsLayout from '@/components/Layouts/settings/desktop/SettingsLayout.vue'
 import RavenSetupRow from './RavenSetupRow.vue'
 import WorkspaceList from './WorkspaceList.vue'
 import WorkspaceView from './WorkspaceView.vue'

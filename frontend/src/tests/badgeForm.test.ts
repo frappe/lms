@@ -79,7 +79,7 @@ vi.mock('@/components/Controls/Select.vue', () => ({
 		template: `<div data-testid="select" />`,
 	},
 }))
-vi.mock('@/components/Layouts/SettingsLayout.vue', () => ({
+vi.mock('@/components/Layouts/settings/desktop/SettingsLayout.vue', () => ({
 	default: {
 		props: ['title', 'showBack', 'enabled'],
 		template: `<div><slot name="header-actions" /><slot /></div>`,

@@ -144,7 +144,7 @@ import {
 } from 'frappe-ui'
 import { computed, ref, watch } from 'vue'
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
-import SettingsLayout from '@/components/Layouts/SettingsLayout.vue'
+import SettingsLayout from '@/components/Layouts/settings/desktop/SettingsLayout.vue'
 import { useWorkspaceGeneral } from '@/composables/raven/useWorkspaceGeneral'
 import UnsavedChangesDialog from './UnsavedChangesDialog.vue'
 import WorkspaceChannels from './WorkspaceChannels.vue'

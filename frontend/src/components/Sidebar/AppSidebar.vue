@@ -299,6 +299,7 @@ import CollapseSidebar from '@/components/Icons/CollapseSidebar.vue'
 import SidebarLink from '@/components/Sidebar/SidebarLink.vue'
 import CommandPalette from '@/components/CommandPalette/CommandPalette.vue'
 import { openExternal } from '@/utils/openExternal'
+import { pushSettingsHash } from '@/composables/useSettingsHash'
 import {
 	loadUnreadCount,
 	unreadCount,
@@ -314,13 +315,7 @@ const showPageModal = ref(false)
 const isModerator = ref(false)
 const isInstructor = ref(false)
 const pageToEdit = ref(null)
-const {
-	sidebarSettings,
-	activeTab,
-	isSettingsOpen,
-	programs,
-	loadSidebarSettings,
-} = useSettings()
+const { sidebarSettings, programs, loadSidebarSettings } = useSettings()
 const settingsStore = useSettings()
 const showOnboarding = ref(false)
 const showIntermediateModal = ref(false)
@@ -507,8 +502,7 @@ const steps = reactive([
 		completed: false,
 		onClick: () => {
 			minimize.value = true
-			activeTab.value = 'Members'
-			isSettingsOpen.value = true
+			pushSettingsHash(router, 'members')
 		},
 	},
 	{
