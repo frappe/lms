@@ -7,6 +7,7 @@
 			{
 				label: 'Add',
 				variant: 'solid',
+				loading: webPage.loading,
 				onClick: ({ close }) => {
 					addWebPage(close)
 				},
@@ -22,20 +23,28 @@
 					:filters="{
 						published: 1,
 					}"
+					:required="true"
 				/>
-				<IconPicker v-model="page.icon" :label="__('Icon')" class="mt-4" />
+				<IconPicker
+					v-model="page.icon"
+					:label="__('Icon')"
+					class="mt-4"
+					:required="true"
+				/>
+				<ErrorMessage v-if="error" class="mt-4" :message="error" />
 			</div>
 		</template>
 	</Dialog>
 </template>
 <script setup>
-import { Dialog, createResource, toast } from 'frappe-ui'
+import { Dialog, ErrorMessage, createResource, toast } from 'frappe-ui'
 import Link from '@/components/Controls/Link.vue'
-import { reactive, watch } from 'vue'
+import { reactive, ref, watch } from 'vue'
 import IconPicker from '@/components/Controls/IconPicker.vue'
 
 const sidebar = defineModel('reloadSidebar')
 const show = defineModel()
+const error = ref('')
 const page = reactive({
 	icon: '',
 	webpage: '',
@@ -69,7 +78,19 @@ watch(
 	{ immediate: true }
 )
 
+watch(
+	() => [page.webpage, page.icon, show.value],
+	() => {
+		error.value = ''
+	}
+)
+
 const addWebPage = (close) => {
+	error.value = ''
+	if (!page.webpage || !page.icon) {
+		error.value = __('Please fill the required fields')
+		return
+	}
 	webPage.submit(
 		{},
 		{
@@ -79,8 +100,7 @@ const addWebPage = (close) => {
 				toast.success(__('Web page added to sidebar'))
 			},
 			onError(err) {
-				toast.error(err.message[0] || err)
-				close()
+				error.value = err.message?.[0] || err.messages?.[0] || err
 			},
 		}
 	)
