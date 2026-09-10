@@ -46,7 +46,6 @@
 						@click="submitCode"
 						:loading="running"
 						:disabled="running"
-						class="text-ink-gray-9"
 					>
 						<template #prefix>
 							<span class="lucide-play size-3" />
@@ -70,7 +69,7 @@
 						v-if="error"
 						v-model="errorMessage"
 						:aria-label="__('Compiler Message')"
-						class="font-mono text-ink-red-3 bg-surface-gray-1 border-none text-sm h-32 leading-6"
+						class="font-mono text-ink-red-6 bg-surface-gray-1 border-none text-sm h-32 leading-6"
 						readonly
 					/>
 				</div>
