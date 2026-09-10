@@ -1,10 +1,5 @@
 <template>
-	<SettingsLayout
-		:title="__(label)"
-		:description="
-			__('Choose which links appear in the sidebar, and in what order.')
-		"
-	>
+	<SettingsLayout :title="__(label)">
 		<template #header-actions>
 			<Button
 				data-testid="new-sidebar-link"

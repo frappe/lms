@@ -1,11 +1,6 @@
 <template>
 	<SettingsList
 		:title="__('Email Accounts')"
-		:description="
-			__(
-				'Manage your email accounts and configure incoming and outgoing settings.'
-			)
-		"
 		:columns="columns"
 		:rows="list.rows"
 		:loading="list.loading"
