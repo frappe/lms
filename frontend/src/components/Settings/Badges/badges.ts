@@ -183,6 +183,7 @@ const form = recordForm({
 					label: 'Title',
 					description: 'The name this badge is awarded and displayed under.',
 					type: 'text',
+					fullWidth: true,
 					placeholder: 'e.g. Course Champion',
 					reqd: true,
 				},

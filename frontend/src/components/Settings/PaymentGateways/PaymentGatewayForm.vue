@@ -40,6 +40,7 @@
 				<FormControl
 					v-for="field in credentialFields"
 					:key="field.name"
+					:class="{ 'col-span-2': isLongField(field) }"
 					v-model="doc[field.name]"
 					:label="__(field.label)"
 					:type="controlType(field)"
@@ -374,6 +375,13 @@ const controlType = (field: GatewayField) => {
 
 const selectOptions = (field: GatewayField) =>
 	field.type === 'Select' ? (field.options || '').split('\n') : undefined
+
+// A secret or webhook URL runs long enough that the 2-column grid crops it.
+// A Password gets the same treatment; ids and short keys stay half-width.
+const LONG_NAME = /secret|webhook|_url$|^url$/i
+
+const isLongField = (field: GatewayField) =>
+	field.type === 'Password' || LONG_NAME.test(field.name)
 
 // A secret has no example to show, so the box says nothing rather than
 // repeating its own label back at it.

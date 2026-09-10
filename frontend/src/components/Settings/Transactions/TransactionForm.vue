@@ -238,6 +238,7 @@
 					v-model="doc.coupon"
 					class="w-56"
 					doctype="LMS Coupon"
+					title-first
 					:aria-label="__('Coupon')"
 					:required="required('coupon')"
 				/>
