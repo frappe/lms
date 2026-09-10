@@ -8,7 +8,12 @@
 	>
 		<template #header-actions>
 			<slot name="header-actions" />
-			<Button v-if="showNew" variant="solid" @click="emit('new')">
+			<Button
+				v-if="showNew"
+				variant="solid"
+				:disabled="disabled"
+				@click="emit('new')"
+			>
 				<template #prefix>
 					<span class="lucide-plus size-4" />
 				</template>
@@ -37,50 +42,57 @@
 			</div>
 		</template>
 
+		<slot name="banner" />
+
 		<div
-			v-if="loading && !rows.length"
-			class="flex flex-1 items-center justify-center py-20"
+			class="flex h-full min-h-0 flex-col"
+			:class="{ 'pointer-events-none opacity-50': disabled }"
 		>
-			<LoadingIndicator class="size-5 text-ink-gray-5" />
-		</div>
-
-		<template v-else-if="rows.length">
-			<SettingsTable
-				:columns="columns"
-				:rows="rows"
-				:visible-rows="VISIBLE_ROWS"
-				:row-key="rowKey"
-				:row-status="rowStatus"
-				:has-next-page="hasNextPage"
-				@row-click="emit('rowClick', $event)"
-				@load-more="emit('loadMore')"
+			<div
+				v-if="loading && !rows.length"
+				class="flex flex-1 items-center justify-center py-20"
 			>
-				<template v-if="$slots.cell" #cell="cellProps">
-					<slot name="cell" v-bind="cellProps" />
-				</template>
-				<template v-if="$slots.leading" #leading="leadingProps">
-					<slot name="leading" v-bind="leadingProps" />
-				</template>
-			</SettingsTable>
-		</template>
+				<LoadingIndicator class="size-5 text-ink-gray-5" />
+			</div>
 
-		<EmptyStateLayout
-			v-else-if="search || filtered"
-			:name="emptyName"
-			:title="__('No results')"
-			:description="
-				search
-					? __('No {0} match {1}').format(emptyName.toLowerCase(), search)
-					: __('No {0} match this filter').format(emptyName.toLowerCase())
-			"
-			:icon="emptyIcon"
-		/>
-		<EmptyStateLayout
-			v-else
-			:name="emptyName"
-			:description="__('Add one to get started')"
-			:icon="emptyIcon"
-		/>
+			<template v-else-if="rows.length">
+				<SettingsTable
+					:columns="columns"
+					:rows="rows"
+					:visible-rows="VISIBLE_ROWS"
+					:row-key="rowKey"
+					:row-status="rowStatus"
+					:has-next-page="hasNextPage"
+					@row-click="emit('rowClick', $event)"
+					@load-more="emit('loadMore')"
+				>
+					<template v-if="$slots.cell" #cell="cellProps">
+						<slot name="cell" v-bind="cellProps" />
+					</template>
+					<template v-if="$slots.leading" #leading="leadingProps">
+						<slot name="leading" v-bind="leadingProps" />
+					</template>
+				</SettingsTable>
+			</template>
+
+			<EmptyStateLayout
+				v-else-if="search || filtered"
+				:name="emptyName"
+				:title="__('No results')"
+				:description="
+					search
+						? __('No {0} match {1}').format(emptyName.toLowerCase(), search)
+						: __('No {0} match this filter').format(emptyName.toLowerCase())
+				"
+				:icon="emptyIcon"
+			/>
+			<EmptyStateLayout
+				v-else
+				:name="emptyName"
+				:description="__('Add one to get started')"
+				:icon="emptyIcon"
+			/>
+		</div>
 	</SettingsLayout>
 </template>
 
@@ -114,6 +126,8 @@ const props = withDefaults(
 		showBack?: boolean
 		emptyName?: string
 		emptyIcon?: string
+		/** Greys out the rows and disables New, for the `#banner` slot to explain. */
+		disabled?: boolean
 	}>(),
 	{
 		description: '',
@@ -128,6 +142,7 @@ const props = withDefaults(
 		showBack: false,
 		emptyName: '',
 		emptyIcon: 'lucide-graduation-cap',
+		disabled: false,
 	}
 )
 
