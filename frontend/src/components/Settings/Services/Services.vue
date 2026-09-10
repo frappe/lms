@@ -9,7 +9,7 @@
 		@save="save"
 	>
 		<div class="divide-y divide-outline-elevation-2">
-			<div class="py-3">
+			<div class="pb-3">
 				<div class="text-p-base-medium text-ink-gray-7 mb-2">
 					{{ __('Livecode URL') }}
 				</div>
