@@ -16,6 +16,11 @@ export function fromDatetimeLocal(value) {
 
 /**
  * Client-side schedule window check. Mirrors lms.lms.schedule_utils.
+ *
+ * Prefer the server-provided `schedule_block_reason` on quiz/assignment
+ * payloads when present — Frappe Datetimes are system-timezone wall clocks,
+ * so a browser-local parse can disagree with the server across timezones.
+ *
  * @returns {'not_started' | 'ended' | null}
  */
 export function getScheduleBlockReason(

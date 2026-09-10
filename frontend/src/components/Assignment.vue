@@ -274,9 +274,8 @@ useKeyboardShortcuts({
 })
 
 const assignment = createResource({
-	url: 'frappe.client.get',
+	url: 'lms.lms.utils.get_assignment',
 	params: {
-		doctype: 'LMS Assignment',
 		name: props.assignmentID,
 	},
 	auto: true,
@@ -473,13 +472,16 @@ const canModifyAssignment = computed(() => {
 	return false
 })
 
-const scheduleBlockReason = computed(() =>
-	getScheduleBlockReason(
+const scheduleBlockReason = computed(() => {
+	if (assignment.data && 'schedule_block_reason' in assignment.data) {
+		return assignment.data.schedule_block_reason || null
+	}
+	return getScheduleBlockReason(
 		assignment.data?.enable_scheduling,
 		assignment.data?.schedule_start,
 		assignment.data?.schedule_end
 	)
-)
+})
 
 const scheduleBlocked = computed(() => !!scheduleBlockReason.value)
 

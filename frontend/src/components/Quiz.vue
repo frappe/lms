@@ -1170,13 +1170,18 @@ const attemptsExhausted = computed(
 		(attempts.data?.length ?? 0) >= quiz.data.max_attempts
 )
 
-const scheduleBlockReason = computed(() =>
-	getScheduleBlockReason(
+const scheduleBlockReason = computed(() => {
+	// Server reason is authoritative (system timezone). Client fallback only
+	// covers payloads that predate schedule_block_reason.
+	if (quiz.data && 'schedule_block_reason' in quiz.data) {
+		return quiz.data.schedule_block_reason || null
+	}
+	return getScheduleBlockReason(
 		quiz.data?.enable_scheduling,
 		quiz.data?.schedule_start,
 		quiz.data?.schedule_end
 	)
-)
+})
 
 const scheduleBlocked = computed(() => !!scheduleBlockReason.value)
 
