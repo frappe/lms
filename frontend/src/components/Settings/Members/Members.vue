@@ -1,6 +1,6 @@
 <template>
 	<SettingsList
-		v-if="view === 'list'"
+		v-if="!record"
 		:title="__(label)"
 		:columns="columns"
 		:rows="list.rows"
@@ -25,7 +25,7 @@
 		</template>
 	</SettingsList>
 
-	<MemberForm v-else :name="selected" :row="selectedRow" @back="closeForm()" />
+	<MemberForm v-else :name="record" :row="selectedRow" @back="closeForm()" />
 </template>
 
 <script setup lang="ts">
@@ -54,13 +54,15 @@ defineProps<{ label: string }>()
 
 const router = useRouter()
 
-const view = ref<'list' | 'form'>('list')
+// The open record, as a model rather than state of its own, the same
+// contract SettingsListPanel has, and what makes '#settings/members/<name>'
+// land on it. A second copy could disagree with the URL; a derived one can't.
+const record = defineModel<string | null>('record', { default: null })
+
 const role = ref('All')
 
-// The record the form is on: an email address, or NEW_RECORD. The row behind it
-// is kept alongside so the header can name the person before their document has
-// landed.
-const selected = ref<string | null>(null)
+// The row behind the open record, so the header can name the person before
+// their document has landed. Null on a deep link, which the form allows for.
 const selectedRow = ref<SettingsListRow | null>(null)
 
 const list = useSettingsMethodResource<SettingsListRow>({
@@ -91,13 +93,11 @@ const columns = memberColumns({
 
 const openForm = (row: SettingsListRow | null) => {
 	selectedRow.value = row
-	selected.value = row ? String(row.name) : NEW_RECORD
-	view.value = 'form'
+	record.value = row ? String(row.name) : NEW_RECORD
 }
 
 const closeForm = () => {
-	view.value = 'list'
-	selected.value = null
+	record.value = null
 	selectedRow.value = null
 	list.reload()
 }
