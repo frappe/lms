@@ -29,16 +29,6 @@ jobs:
         with:
           path: apps/lms
 
-      # frontend/package.json links `@framework/ui` to ../../frappe/ui, so the
-      # SPA does not build without the package beside it. Only that directory is
-      # needed, and only from `develop`: ConditionBuilder is on no v16 tag.
-      - uses: actions/checkout@v4
-        with:
-          repository: frappe/frappe
-          ref: develop
-          path: apps/frappe
-          sparse-checkout: ui
-
       - name: Create bench structure
         run: |
           mkdir -p sites
