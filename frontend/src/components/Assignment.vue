@@ -234,7 +234,7 @@ import {
 	FormControl,
 	toast,
 } from 'frappe-ui'
-import { computed, inject, onMounted, onUnmounted, ref, watch } from 'vue'
+import { computed, inject, onUnmounted, ref, watch } from 'vue'
 import ShortcutTooltip from '@/components/ShortcutTooltip.vue'
 import {
 	useKeyboardShortcuts,
@@ -270,18 +270,20 @@ const props = defineProps({
 	},
 })
 
-onMounted(() => {
-	scheduleClock = setInterval(() => {
-		scheduleNow.value = new Date()
-	}, 15000)
-})
-
-onUnmounted(() => {
+const stopScheduleClock = () => {
 	if (scheduleClock) {
 		clearInterval(scheduleClock)
 		scheduleClock = null
 	}
-})
+}
+
+const startScheduleClock = () => {
+	stopScheduleClock()
+	scheduleNow.value = new Date()
+	scheduleClock = setInterval(() => {
+		scheduleNow.value = new Date()
+	}, 15000)
+}
 
 useKeyboardShortcuts({
 	ignoreTyping: false,
@@ -518,6 +520,18 @@ const formatScheduleDate = (value) => {
 	if (Number.isNaN(date.getTime())) return String(value)
 	return date.toLocaleString()
 }
+
+watch(
+	() => assignment.data?.enable_scheduling,
+	(enabled) => {
+		if (enabled) startScheduleClock()
+		else stopScheduleClock()
+	}
+)
+
+onUnmounted(() => {
+	stopScheduleClock()
+})
 
 const submissionStatusOptions = computed(() => {
 	return [
