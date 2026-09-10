@@ -1,7 +1,7 @@
 {%- macro alert_banner(type, text="") -%}
 {%- set is_error = type == "error" -%}
 <div class="login-{{ type }}-banner es-alert hidden" role="alert" data-theme="{{ 'red' if is_error else 'green' }}">
-    <svg fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <svg width="16" height="16" style="fill: none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <use href="#icon-{{ 'circle-alert' if is_error else 'circle-check' }}"></use>
     </svg>
     <div class="es-alert__content">
@@ -233,8 +233,12 @@
         $(".signup-form .btn-signup").removeAttr("aria-busy").text(signup_button_label);
     }
 
+    const reveal_banner = (banner) => banner.css("display", "flex").removeClass("hidden");
+
     const show_signup_success = (message) => {
-        $("section:visible .login-success-banner").removeClass("hidden").find(".es-alert__title").text(message);
+        const banner = $("section:visible .login-success-banner");
+        banner.find(".es-alert__title").text(message);
+        reveal_banner(banner);
     }
 
     const show_signup_error = (message) => {
@@ -247,6 +251,6 @@
             title.text(message);
         }
 
-        banner.removeClass("hidden");
+        reveal_banner(banner);
     }
 </script>
