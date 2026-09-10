@@ -88,28 +88,10 @@
 
 			<div class="text-p-lg-semibold text-ink-gray-8">{{ __('Roles') }}</div>
 
-			<div class="divide-y divide-outline-elevation-2">
-				<div
-					v-for="row in ROLE_ROWS"
-					:key="row.key"
-					data-testid="role-row"
-					class="flex items-center justify-between gap-8 py-3"
-				>
-					<label
-						:for="switchId(row.key)"
-						class="text-p-base-medium text-ink-gray-7"
-					>
-						{{ row.label() }}
-					</label>
-					<div class="shrink-0">
-						<BooleanSwitch
-							:id="switchId(row.key)"
-							v-model="roles[row.key]"
-							size="sm"
-						/>
-					</div>
-				</div>
-			</div>
+			<RoleSwitches
+				:model-value="roles"
+				@toggle="(key, value) => (roles[key] = value)"
+			/>
 		</div>
 	</SettingsLayout>
 </template>
@@ -122,9 +104,9 @@ import {
 	createResource,
 	toast,
 } from 'frappe-ui'
-import { computed, inject, reactive, useId, ref } from 'vue'
+import { computed, inject, reactive, ref } from 'vue'
 import { useOnboarding, useTelemetry } from 'frappe-ui/frappe'
-import BooleanSwitch from '@/components/Controls/BooleanSwitch.vue'
+import RoleSwitches from '@/components/Controls/RoleSwitches.vue'
 import SettingsLayout from '@/components/Layouts/settings/desktop/SettingsLayout.vue'
 import {
 	MEMBERS_DOCTYPE,
@@ -132,7 +114,6 @@ import {
 	memberError,
 	noRoles,
 	rolesFrom,
-	type MemberRoleKey,
 } from '@/components/Settings/Members/members'
 import { useSettingsRecord } from '@/composables/useSettingsRecord'
 import { runSave, useSaveState } from '@/composables/useSettingsSave'
@@ -142,21 +123,9 @@ import { sanitizeHTML } from '@/utils'
 import type { SessionUser, SettingsListRow } from '@/types'
 
 /**
- * One member, behind both New and a row.
- *
- * Hand-rolled rather than routed through SettingsFields, because a member is
- * two things saved two different ways — a User document, written through the
- * document resource, and four roles, each of which is its own `save_role` call.
- *
- * That split is also what keeps the page usable by a moderator who is not a
- * System Manager. User's only writing DocPerm is System Manager's, so the
- * profile fields need one; the roles do not. The document is written only when
- * something in it actually changed, so a moderator editing roles alone never
- * reaches for it.
- *
- * Handed the open record's name and reporting only that it is finished, the
- * same contract ZoomAccountForm.vue has. `row` comes with it so the header can
- * name the person before their document has landed.
+ * One member, behind both New and a row. Hand-rolled rather than routed
+ * through SettingsFields, because a member is two things saved two different
+ * ways: a User document, and four roles each saved via `save_role`.
  */
 
 const props = defineProps<{
@@ -215,12 +184,6 @@ const {
 	record,
 	dirty: (s) => s.isDirty || rolesDirty.value,
 })
-
-// The label is drawn by the row rather than by the switch, so it has to reach
-// the control as a <label for>: frappe-ui's Switch generates an id only when it
-// is given none, and never hands it back out.
-const formId = useId()
-const switchId = (key: MemberRoleKey) => `${formId}-${key}`
 
 // get_member, not the list endpoint: that one hard-filters `enabled = 1` and
 // pages, so a disabled member could never come back. It's also the only read

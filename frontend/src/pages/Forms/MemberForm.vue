@@ -38,28 +38,10 @@
 					<div class="text-p-sm-medium text-ink-gray-7">
 						{{ __('Roles') }}
 					</div>
-					<div class="divide-y divide-outline-elevation-2">
-						<div
-							v-for="role in ROLE_ROWS"
-							:key="role.key"
-							data-testid="role-row"
-							class="flex items-center justify-between gap-4 py-3"
-						>
-							<label
-								:for="switchId(role.key)"
-								class="text-p-base-medium text-ink-gray-7"
-							>
-								{{ __(role.label) }}
-							</label>
-							<div class="shrink-0">
-								<BooleanSwitch
-									:id="switchId(role.key)"
-									v-model="roles[role.key]"
-									size="sm"
-								/>
-							</div>
-						</div>
-					</div>
+					<RoleSwitches
+						:model-value="roles"
+						@toggle="(key, value) => (roles[key] = value)"
+					/>
 				</div>
 			</div>
 		</template>
@@ -79,13 +61,18 @@
 </template>
 <script setup lang="ts">
 import { call, createResource, FormControl, toast } from 'frappe-ui'
-import { computed, inject, onMounted, reactive, ref, useId, watch } from 'vue'
+import { computed, inject, onMounted, reactive, ref, watch } from 'vue'
 import { useOnboarding, useTelemetry } from 'frappe-ui/frappe'
-import BooleanSwitch from '@/components/Controls/BooleanSwitch.vue'
+import RoleSwitches from '@/components/Controls/RoleSwitches.vue'
 import FormShell from '@/components/FormShell.vue'
 import HeaderButton from '@/components/HeaderButton.vue'
 import { useFormRoute } from '@/composables/useFormRoute'
 import { notifyMembersChanged } from '@/stores/members'
+import {
+	ROLE_ROWS,
+	noRoles,
+	type MemberRoleKey,
+} from '@/components/Settings/Members/members'
 import { cleanError } from '@/utils'
 import type { Resource, SessionUser } from '@/types'
 
@@ -127,12 +114,12 @@ const refusal = computed(() => {
 	return ''
 })
 
-const ROLE_MAP: Record<string, string> = {
-	moderator: 'Moderator',
-	course_creator: 'Course Creator',
-	batch_evaluator: 'Batch Evaluator',
-	lms_student: 'LMS Student',
-}
+// The server's name for each role, keyed the same way `roles` is. Derived
+// from ROLE_ROWS rather than hand-duplicated, so this can't silently drift
+// from the desktop settings form's own mapping.
+const ROLE_MAP = Object.fromEntries(
+	ROLE_ROWS.map((row) => [row.key, row.role])
+) as Record<MemberRoleKey, string>
 
 const member = reactive({
 	email: isEdit.value ? props.memberID : '',
@@ -140,30 +127,7 @@ const member = reactive({
 	last_name: '',
 })
 
-const roles = reactive({
-	moderator: false,
-	course_creator: false,
-	batch_evaluator: false,
-	lms_student: false,
-})
-
-// Display order, and what each role is called on screen — neither of which is
-// the server's role name. One row per entry, so the name and the switch beside
-// it cannot drift apart; the 2x2 grid this replaced sat every label nearer the
-// next role's switch than its own, and this is the phone's surface.
-const ROLE_ROWS: { key: keyof typeof roles; label: string }[] = [
-	{ key: 'lms_student', label: 'Student' },
-	{ key: 'course_creator', label: 'Course Creator' },
-	{ key: 'batch_evaluator', label: 'Evaluator' },
-	{ key: 'moderator', label: 'Moderator' },
-]
-
-// The name is drawn by the row, not by the switch, so it has to reach the
-// control as a <label for>: frappe-ui's Switch generates an id only when it is
-// given none, and never hands it back out. An aria-label would not do — the
-// component forwards stray attrs to its wrapper div, not to the button.
-const formId = useId()
-const switchId = (key: string) => `${formId}-${key}`
+const roles = reactive(noRoles())
 
 const initialRoles = reactive({ ...roles })
 const submitting = ref(false)
@@ -219,7 +183,10 @@ const errorMessage = (err: { messages?: string[] }, fallback: string): string =>
 	cleanError(err.messages?.[0]) || fallback
 
 const assignRoles = async (userEmail: string) => {
-	for (const [key, checked] of Object.entries(roles)) {
+	for (const [key, checked] of Object.entries(roles) as [
+		MemberRoleKey,
+		boolean
+	][]) {
 		if (checked)
 			await call('lms.lms.api.save_role', {
 				user: userEmail,

@@ -413,10 +413,9 @@ describe('the member form route', () => {
 		})
 	})
 
-	// The four roles read as a list of rows, the same shape the settings form
-	// draws them in: name at the start, its own control at the end. The 2x2 grid
-	// this replaced put each label nearer the next role's switch than its own —
-	// worst of all on the phone, which is the surface this route serves.
+	// Now renders through the shared RoleSwitches component, reversing an
+	// earlier fix for this phone route. What's still tested: each row pairs
+	// one label with its own switch, whatever the column count.
 	describe('the roles block', () => {
 		const mountAdd = async () => {
 			const router = makeRouter()
@@ -451,10 +450,9 @@ describe('the member form route', () => {
 				expect(switchNamed(wrapper, role).attributes('role')).toBe('switch')
 		})
 
-		// One column at every width, phone included: a row is a label and a
-		// control on one line, so there is no wider arrangement to fall back to
-		// and no breakpoint that could reintroduce the two-up grid.
-		it('holds at a phone width, with no breakpoint to fall back to', async () => {
+		// The grid goes two-up from md now, like the other two surfaces. A
+		// switch still can't end up adjacent to a label that isn't its own.
+		it('keeps each switch paired with its own row at a phone width', async () => {
 			Object.defineProperty(window, 'innerWidth', {
 				value: 320,
 				writable: true,
@@ -465,11 +463,8 @@ describe('the member form route', () => {
 
 			expect(rows).toHaveLength(4)
 			for (const row of rows) {
-				const classes = row.classes().join(' ')
-				expect(classes).not.toMatch(/(^|\s)(sm|md|lg|xl):/)
-				expect(row.element.parentElement?.className).not.toMatch(
-					/(^|\s)(sm|md|lg|xl):/
-				)
+				expect(row.findAll('label')).toHaveLength(1)
+				expect(row.findAll('[role="switch"]')).toHaveLength(1)
 			}
 		})
 

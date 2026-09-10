@@ -46,18 +46,30 @@ export const roleOptions = (): SelectOption[] => [
  * Creator keeps its own name here, not the badge's "Instructor".
  */
 export const ROLE_ROWS = [
-	{ key: 'lms_student', role: 'LMS Student', label: () => __('Student') },
+	{
+		key: 'lms_student',
+		role: 'LMS Student',
+		label: () => __('Student'),
+		description: () => __('Learn courses and track progress'),
+	},
 	{
 		key: 'course_creator',
 		role: 'Course Creator',
 		label: () => __('Course Creator'),
+		description: () => __('Build and manage courses, chapters, and lessons'),
 	},
 	{
 		key: 'batch_evaluator',
 		role: 'Batch Evaluator',
 		label: () => __('Evaluator'),
+		description: () => __('Manage batches, review and grade submissions'),
 	},
-	{ key: 'moderator', role: 'Moderator', label: () => __('Moderator') },
+	{
+		key: 'moderator',
+		role: 'Moderator',
+		label: () => __('Moderator'),
+		description: () => __('Oversee all users, content, and system settings'),
+	},
 ] as const
 
 export type MemberRoleKey = typeof ROLE_ROWS[number]['key']
