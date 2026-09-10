@@ -1213,17 +1213,33 @@ watch(scheduleBlockReason, (reason, previous) => {
 	}
 })
 
-onMounted(() => {
-	scheduleClock = setInterval(() => {
-		scheduleNow.value = new Date()
-	}, 15000)
-})
-
-onUnmounted(() => {
+const stopScheduleClock = () => {
 	if (scheduleClock) {
 		clearInterval(scheduleClock)
 		scheduleClock = null
 	}
+}
+
+const startScheduleClock = () => {
+	stopScheduleClock()
+	scheduleNow.value = new Date()
+	scheduleClock = setInterval(() => {
+		scheduleNow.value = new Date()
+	}, 15000)
+}
+
+// Only tick while scheduling is on — keeps lesson-reuse timer tests (and
+// everyday quizzes) free of a leftover interval.
+watch(
+	() => quiz.data?.enable_scheduling,
+	(enabled) => {
+		if (enabled) startScheduleClock()
+		else stopScheduleClock()
+	}
+)
+
+onUnmounted(() => {
+	stopScheduleClock()
 })
 
 const shuffleArray = (array) => {
