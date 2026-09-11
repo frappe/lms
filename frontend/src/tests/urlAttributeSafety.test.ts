@@ -83,7 +83,7 @@ const EXEMPT = new Map<string, string>([
 		'link comes from the services table in emailConfig.ts',
 	],
 	[
-		'../components/Settings/EmailAccount/EmailProviderIcon.vue',
+		'../components/Settings/EmailAccount/EmailProviderPicker.vue',
 		'logo comes from the services table in emailConfig.ts',
 	],
 	[

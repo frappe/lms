@@ -674,6 +674,11 @@ const form = markRaw(
 	defineAsyncComponent(() => import('./EmailAccountForm.vue'))
 )
 
+// Same reason as `form`: it reads `services` from this module.
+const emptyState = markRaw(
+	defineAsyncComponent(() => import('./EmailAccountsEmptyState.vue'))
+)
+
 export const emailAccountsPage: ListPage = {
 	kind: 'list',
 	resource: {
@@ -691,6 +696,7 @@ export const emailAccountsPage: ListPage = {
 	columns,
 	searchable: true,
 	empty: { name: 'Email Accounts', icon: 'lucide-mail' },
+	emptyContent: { component: emptyState },
 	create: { detail: { kind: 'custom', component: form } },
 	rowDetail: { kind: 'custom', component: form },
 }

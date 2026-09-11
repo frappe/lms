@@ -61,9 +61,9 @@ vi.stubGlobal('__', (text: string) => text)
 
 import EmailAccountForm from '@/components/Settings/EmailAccount/EmailAccountForm.vue'
 
-const mountForm = () =>
+const mountForm = (name = 'new') =>
 	mount(EmailAccountForm, {
-		props: { name: 'new' },
+		props: { name },
 		global: { mocks: { __: (s: string) => s } },
 	})
 
@@ -104,5 +104,20 @@ describe('the isNew provider picker', () => {
 		for (const service of services) {
 			expect(service.description).toBeTruthy()
 		}
+	})
+
+	it("opens straight to the fields, pre-selected, when the empty-list picker's hint names a provider", () => {
+		const w = mountForm('new:SparkPost')
+
+		expect(w.find('[data-testid="provider-GMail"]').exists()).toBe(false)
+		expect(w.text()).toContain('SparkPost')
+		expect(w.find('[data-testid="settings-fields"]').exists()).toBe(true)
+	})
+
+	it('falls back to the picker for a hint naming no known provider', () => {
+		const w = mountForm('new:NotAProvider')
+
+		expect(w.find('[data-testid="provider-GMail"]').exists()).toBe(true)
+		expect(w.find('[data-testid="settings-fields"]').exists()).toBe(false)
 	})
 })

@@ -266,4 +266,65 @@ describe('SettingsList', () => {
 			build({ searchable: true }).find('[data-testid="search"]').exists()
 		).toBe(true)
 	})
+
+	describe('emptyContent', () => {
+		const EmptyContent = {
+			emits: ['pick'],
+			template: `<button data-testid="empty-content" @click="$emit('pick', 'GMail')" />`,
+		}
+
+		it('draws it instead of the generic caption when the list is truly empty', () => {
+			const wrapper = build({
+				rows: [],
+				emptyName: 'Coupons',
+				emptyContent: { component: EmptyContent },
+			})
+
+			expect(wrapper.find('[data-testid="empty-content"]').exists()).toBe(true)
+			expect(wrapper.find('[data-testid="empty"]').exists()).toBe(false)
+		})
+
+		it('still shows the generic "no results" state for a search or filter', () => {
+			const searched = build({
+				rows: [],
+				emptyName: 'Coupons',
+				search: 'zzz',
+				emptyContent: { component: EmptyContent },
+			})
+			expect(searched.find('[data-testid="empty-content"]').exists()).toBe(
+				false
+			)
+			expect(searched.get('[data-testid="empty"]').text()).toContain('zzz')
+
+			const filtered = build({
+				rows: [],
+				emptyName: 'Coupons',
+				filtered: true,
+				emptyContent: { component: EmptyContent },
+			})
+			expect(filtered.find('[data-testid="empty-content"]').exists()).toBe(
+				false
+			)
+		})
+
+		it('leaves the plain caption alone for a page that supplies nothing', () => {
+			const wrapper = build({ rows: [], emptyName: 'Coupons' })
+
+			expect(wrapper.get('[data-testid="empty"]').text()).toContain(
+				'Add one to get started'
+			)
+		})
+
+		it("funnels its pick into SettingsList's own `new` event", async () => {
+			const wrapper = build({
+				rows: [],
+				emptyName: 'Coupons',
+				emptyContent: { component: EmptyContent },
+			})
+
+			await wrapper.get('[data-testid="empty-content"]').trigger('click')
+
+			expect(wrapper.emitted('new')?.[0]).toEqual(['GMail'])
+		})
+	})
 })

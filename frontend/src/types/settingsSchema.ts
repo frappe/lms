@@ -247,6 +247,16 @@ export interface ListPage {
 	columns: SettingsListColumn[]
 	searchable?: boolean
 	empty?: { name: string; icon?: string }
+	/**
+	 * Replaces the generic "Add one to get started" empty state with a page's
+	 * own content, for one with something more useful to a first-time visitor
+	 * than a caption -- Email Accounts' provider picker. Mirrors
+	 * {@link FieldsPage.extra}'s shape. A click the component fires as `pick`
+	 * opens the create form the same way the header's New button does, with
+	 * the click's own value carried in as a hint (see SettingsList's `new`
+	 * event and SettingsListPanel's `openCreate`).
+	 */
+	emptyContent?: { component: Component }
 	create?: { label?: string; detail: DetailPage }
 	rowDetail?: DetailPage
 	/**

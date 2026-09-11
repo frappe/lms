@@ -10,26 +10,11 @@
 		@save="submit"
 	>
 		<div class="space-y-4">
-			<div
+			<EmailProviderPicker
 				v-if="isNew && !state.service"
-				class="flex flex-wrap items-center gap-4"
-			>
-				<button
-					v-for="option in services"
-					:key="option.name"
-					type="button"
-					:data-testid="'provider-' + option.name"
-					:aria-pressed="state.service === option.name"
-					class="flex w-[70px] flex-col items-center gap-1"
-					@click="selectService(option)"
-				>
-					<EmailProviderIcon
-						:service-name="option.name"
-						:logo="option.icon"
-						:selected="state.service === option.name"
-					/>
-				</button>
-			</div>
+				:services="services"
+				@pick="selectService"
+			/>
 
 			<template v-if="state.service">
 				<div v-if="isNew && selected" class="flex items-center gap-3">
@@ -95,7 +80,7 @@ import { useTelemetry } from 'frappe-ui/frappe'
 import { CircleAlert, Mail as LucideMail } from 'lucide-vue-next'
 import SettingsFields from '@/components/Layouts/settings/desktop/SettingsFields.vue'
 import SettingsLayout from '@/components/Layouts/settings/desktop/SettingsLayout.vue'
-import EmailProviderIcon from './EmailProviderIcon.vue'
+import EmailProviderPicker from './EmailProviderPicker.vue'
 import {
 	CUSTOM_SERVICE,
 	EMAIL_ACCOUNT_METHODS,
@@ -142,9 +127,29 @@ const emit = defineEmits<{ back: [] }>()
 
 const NEW_RECORD = 'new'
 
+// The empty-list picker opens a create form pre-selected on a provider by
+// suffixing the reserved id: 'new:GMail'. SettingsListPanel treats the whole
+// prefix as "open create" (see its own isCreateRecord); only this form reads
+// the part after the colon.
+const NEW_RECORD_WITH_SERVICE = `${NEW_RECORD}:`
+
 const { capture } = useTelemetry()
 
-const isNew = computed(() => !props.name || props.name === NEW_RECORD)
+const isNew = computed(
+	() =>
+		!props.name ||
+		props.name === NEW_RECORD ||
+		props.name.startsWith(NEW_RECORD_WITH_SERVICE)
+)
+
+// Falls back to '' (the picker) for a hint naming no known provider, rather
+// than opening the fields on a service nothing here recognises.
+const preselectedService = computed(() => {
+	const name = props.name ?? ''
+	if (!name.startsWith(NEW_RECORD_WITH_SERVICE)) return ''
+	const hint = name.slice(NEW_RECORD_WITH_SERVICE.length)
+	return services.some((service) => service.name === hint) ? hint : ''
+})
 
 const blankState = (): EmailAccountState => ({
 	email_account_name: '',
@@ -170,6 +175,7 @@ const blankState = (): EmailAccountState => ({
 })
 
 const state = reactive<EmailAccountState>(blankState())
+if (preselectedService.value) state.service = preselectedService.value
 
 // The same object, typed for the template: `v-model` on a bracket lookup needs
 // a writable target, and the state's index signature is `unknown`.
