@@ -14,15 +14,23 @@
 					</div>
 				</div>
 				<div class="shrink-0">
-					<Combobox
-						:model-value="defaultIncoming"
-						:options="incomingOptions"
-						:disabled="!incomingOptions.length"
-						:placeholder="__('No default set')"
-						:aria-label="__('Default Incoming account')"
-						class="w-56"
-						@update:model-value="(value) => pick('incoming', value)"
-					/>
+					<Tooltip
+						:text="
+							incomingOptions.length
+								? undefined
+								: __('Add an email account to set one as your default.')
+						"
+					>
+						<Combobox
+							:model-value="defaultIncoming"
+							:options="incomingOptions"
+							:disabled="!incomingOptions.length"
+							:placeholder="__('No default set')"
+							:aria-label="__('Default Incoming account')"
+							class="w-56"
+							@update:model-value="(value) => pick('incoming', value)"
+						/>
+					</Tooltip>
 				</div>
 			</div>
 			<div class="flex items-center justify-between gap-4 py-3">
@@ -35,29 +43,31 @@
 					</div>
 				</div>
 				<div class="shrink-0">
-					<Combobox
-						:model-value="defaultOutgoing"
-						:options="outgoingOptions"
-						:disabled="!outgoingOptions.length"
-						:placeholder="__('No default set')"
-						:aria-label="__('Default Outgoing account')"
-						class="w-56"
-						@update:model-value="(value) => pick('outgoing', value)"
-					/>
+					<Tooltip
+						:text="
+							outgoingOptions.length
+								? undefined
+								: __('Add an email account to set one as your default.')
+						"
+					>
+						<Combobox
+							:model-value="defaultOutgoing"
+							:options="outgoingOptions"
+							:disabled="!outgoingOptions.length"
+							:placeholder="__('No default set')"
+							:aria-label="__('Default Outgoing account')"
+							class="w-56"
+							@update:model-value="(value) => pick('outgoing', value)"
+						/>
+					</Tooltip>
 				</div>
 			</div>
-		</div>
-		<div
-			v-if="!accounts.length && !loading"
-			class="text-p-sm text-ink-gray-5 mt-2"
-		>
-			{{ __('Add an email account to set one as your default.') }}
 		</div>
 	</div>
 </template>
 
 <script setup lang="ts">
-import { call, Combobox, toast } from 'frappe-ui'
+import { call, Combobox, toast, Tooltip } from 'frappe-ui'
 import { computed } from 'vue'
 import { cleanError } from '@/utils'
 import {
@@ -106,7 +116,6 @@ async function loadAll(): Promise<void> {
 loadAll()
 
 const accounts = computed(() => source.rows)
-const loading = computed(() => source.loading)
 
 // A default counts only for a direction the account is enabled for, the same
 // reading the Email Accounts list's own row menu and role badge take: frappe

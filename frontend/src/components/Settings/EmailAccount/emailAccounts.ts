@@ -151,6 +151,7 @@ const fixedFields: RenderField[] = [
 		type: 'text',
 		placeholder: __('Support / Sales'),
 		required: true,
+		fullWidth: true,
 	},
 	{
 		label: __('Email ID'),
@@ -158,9 +159,13 @@ const fixedFields: RenderField[] = [
 		type: 'email',
 		placeholder: __('johndoe@example.com'),
 		required: true,
+		fullWidth: true,
 	},
 ]
 
+// Default Incoming/Default Outgoing are set from Communication > General now,
+// not per account -- kept off this list so the form has no second, staler way
+// to write the same site-wide singleton (see commonPayload below).
 export const incomingOutgoingFields: RenderField[] = [
 	{
 		label: __('Enable Incoming'),
@@ -176,22 +181,6 @@ export const incomingOutgoingFields: RenderField[] = [
 			'If enabled, outgoing emails can be sent from this account.'
 		),
 	},
-	{
-		label: __('Default Incoming'),
-		name: 'default_incoming',
-		type: 'checkbox',
-		description: __(
-			'If enabled, all replies to your company (eg: replies@yourcompany.com) will come to this account. Note: Only one account can be default incoming.'
-		),
-	},
-	{
-		label: __('Default Outgoing'),
-		name: 'default_outgoing',
-		type: 'checkbox',
-		description: __(
-			'If enabled, all outgoing emails will be sent from this account. Note: Only one account can be default outgoing.'
-		),
-	},
 ]
 
 export const popularProviderFields: RenderField[] = [
@@ -202,6 +191,7 @@ export const popularProviderFields: RenderField[] = [
 		type: 'password',
 		placeholder: '********',
 		required: true,
+		fullWidth: true,
 	},
 ]
 
@@ -312,6 +302,7 @@ export function toSettingsField(field: RenderField): SettingsField {
 		description: field.description,
 		placeholder: field.placeholder,
 		reqd: field.required,
+		fullWidth: field.fullWidth,
 		type: field.type,
 	}
 }
@@ -519,13 +510,15 @@ export function defaultsBadgeLabel(account: {
 	return __('Disabled')
 }
 
+// default_incoming/default_outgoing are absent on purpose: update_email_account
+// leaves an absent field untouched, and Communication > General is this
+// singleton's only writer now -- echoing back whatever this form last loaded
+// would let a stale open tab clobber a default set from there meanwhile.
 const commonPayload = (state: EmailAccountState) => ({
 	email_id: state.email_id,
 	service: state.service,
 	enable_incoming: state.enable_incoming,
 	enable_outgoing: state.enable_outgoing,
-	default_incoming: state.default_incoming,
-	default_outgoing: state.default_outgoing,
 })
 
 /** The host, port and encryption fields, sent only for a custom server. */

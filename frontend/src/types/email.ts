@@ -5,6 +5,8 @@ export interface RenderField {
 	placeholder?: string
 	description?: string
 	required?: boolean
+	/** Full width, label above, instead of the settings-form end column. */
+	fullWidth?: boolean
 }
 
 export interface EmailService {
