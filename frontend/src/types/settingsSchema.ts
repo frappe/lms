@@ -197,6 +197,14 @@ export interface FieldsPage {
 		name: string | null
 		back: () => void
 	}) => void
+	/**
+	 * A block rendered after the page's own fields, inside the same scrolling
+	 * body. For content the field/section schema can't express (Communication
+	 * > General's default-account pickers, which read a second list rather
+	 * than a field on this page's own document). Mirrors SettingsHeader's
+	 * `#below` slot: conditional, and spaced off from what comes before it.
+	 */
+	extra?: { component: Component }
 }
 
 export interface SettingsListSource {

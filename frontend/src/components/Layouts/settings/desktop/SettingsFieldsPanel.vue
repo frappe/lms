@@ -21,6 +21,9 @@
 			@commit="commit"
 			@secret="onSecret"
 		/>
+		<div v-if="page.extra" class="mt-6">
+			<component :is="page.extra.component" />
+		</div>
 	</SettingsLayout>
 </template>
 

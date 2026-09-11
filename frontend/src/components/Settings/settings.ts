@@ -1,4 +1,4 @@
-import { markRaw } from 'vue'
+import { defineAsyncComponent, markRaw } from 'vue'
 import type { SettingsGroup } from '@/types/settingsSchema'
 import Categories from '@/components/Settings/Categories.vue'
 import { membersSettingsPage } from '@/components/Settings/Members/members'
@@ -25,6 +25,15 @@ import Services from '@/components/Settings/Services/Services.vue'
 import { googleCalendarSettingsPage } from '@/components/Settings/GoogleCalendar/googleCalendar'
 import RavenSettings from '@/components/Settings/Raven/RavenSettings.vue'
 import Preferences from '@/components/Settings/Preferences.vue'
+
+// Loaded on demand, same as the Email Accounts form below it in the tree:
+// Communication > General renders every time Settings opens, and this reads
+// a second list nothing else on the page needs.
+const emailAccountDefaults = markRaw(
+	defineAsyncComponent(
+		() => import('@/components/Settings/EmailAccount/EmailAccountDefaults.vue')
+	)
+)
 
 /**
  * The settings tree, as data. Ported from settingsStructure.js, with every
@@ -230,6 +239,7 @@ export const settingsTree: SettingsGroup[] = [
 							],
 						},
 					],
+					extra: { component: emailAccountDefaults },
 				},
 			},
 			{
