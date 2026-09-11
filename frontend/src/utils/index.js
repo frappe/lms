@@ -249,6 +249,16 @@ export function getEditorTools(
 							window.innerWidth < 640 ? '15rem' : '30rem'
 						};" frameborder="0" allowfullscreen></iframe>`,
 					},
+					peertube: {
+						// Generic PeerTube support: any instance, watch URLs /w/<id> or /videos/watch/<id>.
+						// The embed is built on the same host, so no third-party domain is introduced.
+						regex: /^https:\/\/([a-z0-9.-]+)\/(?:w|videos\/watch)\/([a-zA-Z0-9-]+)(?:\?[^\s]*)?$/,
+						embedUrl: 'https://<%= remote_id %>',
+						html: `<iframe style="width:100%; height: ${
+							window.innerWidth < 640 ? '15rem' : '30rem'
+						};" frameborder="0" allowfullscreen sandbox="allow-same-origin allow-scripts allow-popups allow-forms"></iframe>`,
+						id: ([host, id]) => `${host}/videos/embed/${id}?title=0&warningTitle=0&peertubeLink=0`,
+					},
 					codepen: true,
 					aparat: {
 						regex: /^(?:http[s]?:\/\/)?(?:www.)?aparat\.com\/v\/([^\/\?\&]+)\/?$/,
