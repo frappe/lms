@@ -2,7 +2,7 @@ import { markRaw } from 'vue'
 import type { SettingsGroup } from '@/types/settingsSchema'
 import Categories from '@/components/Settings/Categories.vue'
 import { membersSettingsPage } from '@/components/Settings/Members/members'
-import EmailConfig from '@/components/Settings/EmailAccount/EmailConfig.vue'
+import { emailAccountsPage } from '@/components/Settings/EmailAccount/emailAccounts'
 import { emailTemplateSettingsPage } from '@/components/Settings/EmailTemplate/emailTemplate'
 import { sidebarSettingsPage } from '@/components/Settings/Sidebar/sidebar'
 // BrandSettings.vue is still `<script setup>` with no `lang="ts"`, so a TS
@@ -243,10 +243,8 @@ export const settingsTree: SettingsGroup[] = [
 				label: 'Email Accounts',
 				slug: 'email-accounts',
 				icon: 'lucide-mail',
-				// Interim: the moderator-gated record-page split (EmailAccounts.ts,
-				// EmailAccountForm.vue) is deferred to a reconciliation task against
-				// a second implementation. Renders EmailConfig.vue until that lands.
-				page: { kind: 'custom', component: markRaw(EmailConfig) },
+				records: true,
+				page: emailAccountsPage,
 			},
 		],
 	},
