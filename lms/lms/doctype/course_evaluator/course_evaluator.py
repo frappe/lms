@@ -6,7 +6,7 @@ from datetime import datetime
 import frappe
 from frappe import _
 from frappe.model.document import Document
-from frappe.utils import add_days, get_time, getdate, nowdate
+from frappe.utils import add_days, get_time, getdate, nowdate, nowtime
 
 from lms.lms.utils import (
 	convert_from_system_timezone,
@@ -112,6 +112,8 @@ def get_all_slots(evaluator, start_date, end_date):
 		day_of_week = current_date.strftime("%A")
 		slots_for_day = [x for x in schedule if x.day == day_of_week]
 		for slot in slots_for_day:
+			if slot_has_started(current_date, slot.start_time):
+				continue
 			all_slots.append(
 				frappe._dict(
 					{
@@ -124,6 +126,17 @@ def get_all_slots(evaluator, start_date, end_date):
 			)
 		current_date = add_days(current_date, 1)
 	return all_slots
+
+
+def slot_has_started(date, start_time) -> bool:
+	"""Both clocks are system time, and the strict `<` is the one
+	LMSCertificateRequest.validate_if_existing_requests books against, so a slot
+	starting exactly now still counts. A picker that offers what the validator
+	rejects is what put "You cannot schedule evaluations for past slots." in
+	front of a learner who picked the first slot shown. Named apart from
+	lms.lms.utils.has_started_today, which asks the same question of a batch.
+	"""
+	return getdate(date) == getdate() and get_time(start_time) < get_time(nowtime())
 
 
 def get_evaluator_schedule(evaluator):

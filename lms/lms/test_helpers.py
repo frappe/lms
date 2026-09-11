@@ -162,7 +162,14 @@ class BaseTestUtils(UnitTestCase):
 
 	def _create_evaluator(self, evaluator_email="frappe@example.com"):
 		if frappe.db.exists("Course Evaluator", evaluator_email):
-			return frappe.get_doc("Course Evaluator", evaluator_email)
+			evaluator = frappe.get_doc("Course Evaluator", evaluator_email)
+			# The window is relative to the day it was written, and this doc
+			# outlives the run that made it. Left stale, it swallows the dates
+			# callers compute from today and the failure looks like a date bug.
+			evaluator.unavailable_from = add_days(nowdate(), 5)
+			evaluator.unavailable_to = add_days(nowdate(), 12)
+			evaluator.save()
+			return evaluator
 
 		evaluator = frappe.new_doc("Course Evaluator")
 		evaluator.update(
