@@ -1,5 +1,5 @@
 /**
- * emailConfig.defaultsBadgeLabel: the badge the Email Accounts list shows for
+ * defaultsBadgeLabel: the badge the Email Accounts list shows for
  * each account. The four cases are distinct because Frappe tracks the default
  * inbox and the default sender separately, and one account can hold both.
  *
@@ -9,10 +9,18 @@
 import { describe, expect, it, vi } from 'vitest'
 
 vi.mock('@/utils', () => ({
+	cleanError: (message: unknown) => message,
 	validateEmail: (e: string) => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e),
 }))
+// The badge moved into the page's config module, which also carries the list's
+// actions — so the modules those reach for are stubbed rather than loaded.
+vi.mock('frappe-ui', () => ({ call: vi.fn(), toast: {} }))
+vi.mock('@/utils/dialogs', () => ({ createDialog: vi.fn() }))
+vi.mock('@/composables/useSettingsListResource', () => ({
+	reloadSettingsLists: vi.fn(),
+}))
 
-import { defaultsBadgeLabel } from '@/components/Settings/EmailAccount/emailConfig'
+import { defaultsBadgeLabel } from '@/components/Settings/EmailAccount/emailAccounts'
 
 describe('defaultsBadgeLabel', () => {
 	it('names both roles when the account holds both defaults', () => {
