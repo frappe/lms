@@ -11,7 +11,11 @@ import LogoSendgrid from '@/assets/images/sendgrid.png'
 import LogoSparkpost from '@/assets/images/sparkpost.webp'
 import LogoYahoo from '@/assets/images/yahoo.png'
 import LogoYandex from '@/assets/images/yandex.png'
-import type { ListPage } from '@/types/settingsSchema'
+import type {
+	FieldsSection,
+	ListPage,
+	SettingsField,
+} from '@/types/settingsSchema'
 import type {
 	EmailService,
 	RenderField,
@@ -290,6 +294,29 @@ export const customServerSwitches: RenderField[] = [
 ]
 
 /**
+ * RenderField, as the field union SettingsFields renders. The two shapes
+ * already agree on label/name/placeholder/description; only the name for
+ * "required" differs.
+ */
+export function toSettingsField(field: RenderField): SettingsField {
+	if (field.type === 'checkbox')
+		return {
+			name: field.name,
+			label: field.label,
+			description: field.description,
+			type: 'checkbox',
+		}
+	return {
+		name: field.name,
+		label: field.label,
+		description: field.description,
+		placeholder: field.placeholder,
+		reqd: field.required,
+		type: field.type,
+	}
+}
+
+/**
  * Names match the Email Account `service` field options exactly so the backend
  * can map each to its host/port presets — except Custom, which has none and is
  * stored as a blank service.
@@ -298,6 +325,9 @@ export const services: EmailService[] = [
 	{
 		name: 'GMail',
 		icon: LogoGmail,
+		get description() {
+			return __('Send and receive through your Gmail account')
+		},
 		info: __(`Setting up GMail requires you to enable two factor authentication
 		  and app specific passwords. Read more`),
 		link: 'https://support.google.com/accounts/answer/185833',
@@ -306,6 +336,9 @@ export const services: EmailService[] = [
 	{
 		name: 'Outlook.com',
 		icon: LogoOutlook,
+		get description() {
+			return __('Send and receive through your Outlook account')
+		},
 		info: __(`Setting up Outlook requires you to enable two factor authentication
 		  and app specific passwords. Read more`),
 		link: 'https://support.microsoft.com/en-us/account-billing/how-to-get-and-use-app-passwords-5896ed9b-4263-e681-128a-a6f2979a7944',
@@ -314,6 +347,9 @@ export const services: EmailService[] = [
 	{
 		name: 'Sendgrid',
 		icon: LogoSendgrid,
+		get description() {
+			return __('Send through your SendGrid account')
+		},
 		info: __(`Setting up Sendgrid requires you to enable two factor authentication
 		  and app specific passwords. Read more`),
 		link: 'https://sendgrid.com/docs/ui/account-and-settings/two-factor-authentication/',
@@ -322,6 +358,9 @@ export const services: EmailService[] = [
 	{
 		name: 'SparkPost',
 		icon: LogoSparkpost,
+		get description() {
+			return __('Send through your SparkPost account')
+		},
 		info: __(`Setting up SparkPost requires you to enable two factor authentication
 		  and app specific passwords. Read more`),
 		link: 'https://support.sparkpost.com/docs/my-account-and-profile/enabling-two-factor-authentication',
@@ -330,6 +369,9 @@ export const services: EmailService[] = [
 	{
 		name: 'Yahoo Mail',
 		icon: LogoYahoo,
+		get description() {
+			return __('Send and receive through your Yahoo Mail account')
+		},
 		info: __(`Setting up Yahoo requires you to enable two factor authentication
 		  and app specific passwords. Read more`),
 		link: 'https://help.yahoo.com/kb/SLN15241.html',
@@ -338,6 +380,9 @@ export const services: EmailService[] = [
 	{
 		name: 'Yandex.Mail',
 		icon: LogoYandex,
+		get description() {
+			return __('Send and receive through your Yandex Mail account')
+		},
 		info: __(`Setting up Yandex requires you to enable two factor authentication
 		  and app specific passwords. Read more`),
 		link: 'https://yandex.com/support/id/authorization/app-passwords.html',
@@ -346,6 +391,9 @@ export const services: EmailService[] = [
 	{
 		name: FRAPPE_MAIL,
 		icon: LogoFrappeMail,
+		get description() {
+			return __('Send and receive through Frappe Mail')
+		},
 		info: __(
 			`Setting up Frappe Mail requires you to have an API key and API Secret of your email account. Read more`
 		),
@@ -355,6 +403,9 @@ export const services: EmailService[] = [
 	{
 		name: CUSTOM_SERVICE,
 		icon: '',
+		get description() {
+			return __('Connect any IMAP/POP3 and SMTP server')
+		},
 		info: __(
 			`Any IMAP/POP3 and SMTP server your provider gives you the host and port for. Read more`
 		),
@@ -582,65 +633,6 @@ const confirmDeletion = (row: SettingsListRow) => {
 	})
 }
 
-/**
- * Move one of the two site-wide defaults onto this account, or off it.
- *
- * Not the optimistic write with a rollback that Zoom's `enabled` switch does,
- * and not a switch column either. Both defaults are singletons: setting one
- * here clears it on whichever account held it before, so the write changes a
- * row that is not the one under the pointer, and no per-row rollback can put
- * that row back. The list refetches instead, which is what Delete does and for
- * the same reason.
- */
-const setDefault = async (
-	row: SettingsListRow,
-	kind: 'incoming' | 'outgoing',
-	held: boolean
-) => {
-	try {
-		await call(METHOD.setDefault, {
-			email_account: held ? '' : row.name,
-			kind,
-		})
-		toast.success(
-			held
-				? __('Default cleared')
-				: __('{0} is now the default').format(accountLabel(row))
-		)
-		await reloadSettingsLists(DOCTYPE)
-	} catch (err: any) {
-		toast.error(
-			cleanError(err.messages?.[0] || err) || __('Could not set the default')
-		)
-	}
-}
-
-/**
- * The row menu's two default entries, present only for a direction the account
- * is enabled for: Frappe reads a default inbox as `enable_incoming` AND
- * `default_incoming`, so the flag on a disabled account is one nothing consults.
- */
-const defaultOptions = (row: SettingsListRow) => {
-	const entries = []
-	if (row.enable_incoming)
-		entries.push({
-			label: row.default_incoming
-				? __('Clear default inbox')
-				: __('Make default inbox'),
-			icon: 'lucide-inbox',
-			onClick: () => setDefault(row, 'incoming', Boolean(row.default_incoming)),
-		})
-	if (row.enable_outgoing)
-		entries.push({
-			label: row.default_outgoing
-				? __('Clear default sender')
-				: __('Make default sender'),
-			icon: 'lucide-send',
-			onClick: () => setDefault(row, 'outgoing', Boolean(row.default_outgoing)),
-		})
-	return entries
-}
-
 const columns: SettingsListColumn[] = [
 	{
 		key: 'account',
@@ -672,7 +664,6 @@ const columns: SettingsListColumn[] = [
 		type: 'actions',
 		ariaLabel: (row) => __('Actions for {0}').format(accountLabel(row)),
 		options: (row) => [
-			...defaultOptions(row),
 			{
 				label: __('Delete'),
 				icon: 'lucide-trash-2',

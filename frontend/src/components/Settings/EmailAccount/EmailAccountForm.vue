@@ -10,11 +10,15 @@
 		@save="submit"
 	>
 		<div class="space-y-4">
-			<div v-if="isNew" class="flex flex-wrap items-center gap-4">
+			<div
+				v-if="isNew && !state.service"
+				class="flex flex-wrap items-center gap-4"
+			>
 				<button
 					v-for="option in services"
 					:key="option.name"
 					type="button"
+					:data-testid="'provider-' + option.name"
 					:aria-pressed="state.service === option.name"
 					class="flex w-[70px] flex-col items-center gap-1"
 					@click="selectService(option)"
@@ -28,6 +32,35 @@
 			</div>
 
 			<template v-if="state.service">
+				<div v-if="isNew && selected" class="flex items-center gap-3">
+					<div
+						class="flex size-8 shrink-0 items-center justify-center rounded-xl bg-surface-gray-2"
+					>
+						<img
+							v-if="selected.icon"
+							:src="selected.icon"
+							:alt="__('{0} icon').format(selected.name)"
+							class="size-4"
+						/>
+						<LucideMail v-else class="size-4 text-ink-gray-7" />
+					</div>
+					<div class="flex min-w-0 flex-col">
+						<span class="text-p-base-medium text-ink-gray-8">{{
+							selected.name
+						}}</span>
+						<span class="text-p-sm text-ink-gray-6">{{
+							selected.description
+						}}</span>
+					</div>
+					<Button
+						variant="ghost"
+						class="ms-auto"
+						data-testid="change-provider"
+						:label="__('Change')"
+						@click="state.service = ''"
+					/>
+				</div>
+
 				<div
 					v-if="isNew && selected"
 					class="flex items-center gap-2 rounded-md p-2 text-ink-gray-6 ring-1 ring-outline-gray-3"
@@ -42,80 +75,12 @@
 					</div>
 				</div>
 
-				<div data-testid="credentials" class="grid grid-cols-2 gap-4">
-					<FormControl
-						v-for="field in credentialFields"
-						:key="field.name"
-						v-model="form[field.name]"
-						:label="field.label"
-						:name="field.name"
-						:type="field.type"
-						:placeholder="field.placeholder"
-						:required="field.required"
-						autocomplete="off"
-					/>
-				</div>
-
-				<template v-if="isCustom">
-					<div class="h-px border-t border-outline-elevation-2" />
-					<div data-testid="custom-server" class="grid grid-cols-2 gap-4">
-						<FormControl
-							v-for="field in customServerFields"
-							:key="field.name"
-							v-model="form[field.name]"
-							:label="field.label"
-							:name="field.name"
-							:type="field.type"
-							:placeholder="field.placeholder"
-							autocomplete="off"
-						/>
-					</div>
-					<div class="space-y-4">
-						<div
-							v-for="field in customServerSwitches"
-							:key="field.name"
-							class="flex items-center justify-between gap-8"
-						>
-							<div class="flex flex-col">
-								<div class="text-p-base-medium text-ink-gray-7">
-									{{ field.label }}
-								</div>
-								<div class="text-p-sm text-ink-gray-5">
-									{{ field.description }}
-								</div>
-							</div>
-							<Switch
-								v-model="form[field.name]"
-								size="sm"
-								:aria-label="field.label"
-							/>
-						</div>
-					</div>
-				</template>
-
-				<div class="h-px border-t border-outline-elevation-2" />
-
-				<div class="space-y-4">
-					<div
-						v-for="field in incomingOutgoingFields"
-						:key="field.name"
-						class="flex items-center justify-between gap-8"
-					>
-						<div class="flex flex-col">
-							<div class="text-p-base-medium text-ink-gray-7">
-								{{ field.label }}
-							</div>
-							<div class="text-p-sm text-ink-gray-5">
-								{{ field.description }}
-							</div>
-						</div>
-						<Switch
-							v-model="form[field.name]"
-							size="sm"
-							:aria-label="field.label"
-						/>
-					</div>
-				</div>
+				<SettingsFields
+					:sections="sections"
+					:data="form"
+					flush
+					@commit="() => {}"
+				/>
 			</template>
 
 			<ErrorMessage v-if="error" class="ms-1" :message="error" />
@@ -125,9 +90,10 @@
 
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
-import { ErrorMessage, FormControl, Switch, call, toast } from 'frappe-ui'
+import { Button, ErrorMessage, call, toast } from 'frappe-ui'
 import { useTelemetry } from 'frappe-ui/frappe'
-import { CircleAlert } from 'lucide-vue-next'
+import { CircleAlert, Mail as LucideMail } from 'lucide-vue-next'
+import SettingsFields from '@/components/Layouts/settings/desktop/SettingsFields.vue'
 import SettingsLayout from '@/components/Layouts/settings/desktop/SettingsLayout.vue'
 import EmailProviderIcon from './EmailProviderIcon.vue'
 import {
@@ -142,6 +108,7 @@ import {
 	incomingOutgoingFields,
 	popularProviderFields,
 	services,
+	toSettingsField,
 	validateInputs,
 	type EmailAccountState,
 } from './emailAccounts'
@@ -149,6 +116,7 @@ import { useDirtyGuard } from '@/composables/useDirtyGuard'
 import { runSave, useSaveState } from '@/composables/useSettingsSave'
 import { safeUrl } from '@/utils/safeUrl'
 import type { EmailService } from '@/types'
+import type { FieldsSection } from '@/types/settingsSchema'
 
 /**
  * The one part of Settings > Communication > Email Accounts that is not config:
@@ -224,6 +192,30 @@ const selected = computed<EmailService | undefined>(() =>
 const credentialFields = computed(() =>
 	state.service === FRAPPE_MAIL ? frappeMailFields : popularProviderFields
 )
+
+/**
+ * The panel's fields, as SettingsFields renders them. Custom Server gets its
+ * own labelled section only while it is on screen -- same rule `editable`
+ * follows -- so switching away from Custom does not leave an empty heading.
+ */
+const sections = computed<FieldsSection[]>(() => {
+	const result: FieldsSection[] = [
+		{ fields: credentialFields.value.map(toSettingsField) },
+	]
+	if (isCustom.value)
+		result.push({
+			label: __('Custom Server'),
+			fields: [
+				...customServerFields.map(toSettingsField),
+				...customServerSwitches.map(toSettingsField),
+			],
+		})
+	result.push({
+		label: __('Incoming & Outgoing'),
+		fields: incomingOutgoingFields.map(toSettingsField),
+	})
+	return result
+})
 
 /**
  * Every field the update writes, which is what dirtiness is measured over.

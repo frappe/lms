@@ -10,6 +10,8 @@ export interface RenderField {
 export interface EmailService {
 	name: string
 	icon: string
+	/** One line, shown next to the name once the provider is picked. */
+	description: string
 	info: string
 	link: string
 	custom: boolean
