@@ -2079,7 +2079,18 @@ def send_contact_us_email(subject: str, content: str) -> str:
 
 
 @frappe.whitelist()
-def get_certification_details(course: str):
+def get_certification_details(course: str) -> dict:
+	"""Everything the certification CTA and page need about one course.
+
+	`title` and `evaluator` are served here because LMS Student has no read
+	permission on LMS Course, so a client-side frappe.client.get_value for them
+	fails for the learner the page exists for.
+	"""
+	# Unreachable while require_type_annotated_api_methods is on, since frappe
+	# coerces the argument first. This is the guard for every other caller.
+	if not isinstance(course, str):
+		frappe.throw(_("course must be a string"))
+
 	membership = None
 	filters = {"course": course, "member": frappe.session.user}
 
@@ -2091,17 +2102,37 @@ def get_certification_details(course: str):
 			as_dict=1,
 		)
 
-	paid_certificate = frappe.db.get_value("LMS Course", course, "paid_certificate")
+	# Same gate as get_course_details: an unenrolled, non-staff caller can only
+	# see a published course, or they can enumerate titles that were never
+	# meant to be visible. A course that doesn't exist isn't gated here.
+	is_course_published = frappe.db.get_value("LMS Course", course, "published")
+	course_exists = is_course_published is not None
+	if course_exists and not is_course_published and not can_modify_course(course) and not membership:
+		frappe.throw(_("You do not have permission to view this course."), frappe.PermissionError)
+
+	details = (
+		frappe.db.get_value(
+			"LMS Course",
+			course,
+			["title", "paid_certificate", "evaluator"],
+			as_dict=1,
+		)
+		or frappe._dict()
+	)
 	certificate = frappe.db.get_value(
 		"LMS Certificate",
 		{"member": frappe.session.user, "course": course},
-		["name", "template"],
+		["name", "template", "issue_date"],
 		as_dict=1,
 	)
 
 	return {
+		"title": details.title,
 		"membership": membership,
-		"paid_certificate": paid_certificate,
+		"paid_certificate": details.paid_certificate,
+		# A staff email address. The page only reads it once the certificate has
+		# been paid for, so that is the gate rather than bare enrollment.
+		"evaluator": details.evaluator if membership and membership.purchased_certificate else None,
 		"certificate": certificate,
 	}
 
