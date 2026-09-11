@@ -124,7 +124,7 @@ vi.mock('@/components/StudentLessonSidebar.vue', () => ({
 vi.mock('@/components/BottomSheet.vue', () => ({
 	default: stub('BottomSheet'),
 }))
-vi.mock('@/components/Layouts/PageHeader.vue', () => ({
+vi.mock('@/components/Layouts/pages/PageHeader.vue', () => ({
 	default: stub('PageHeader'),
 }))
 vi.mock('@/components/HeaderButton.vue', () => ({

@@ -1,96 +1,88 @@
 <template>
 	<SettingsList
 		:title="label"
-		:description="__(description)"
 		:columns="columns"
 		:rows="list.rows"
 		:loading="list.loading"
 		:has-next-page="list.hasNextPage"
 		v-model:search="list.search"
 		searchable
-		:search-label="__('Search categories')"
 		:new-label="showForm ? __('Close') : __('New')"
 		empty-name="Categories"
 		empty-icon="lucide-network"
-		@new="showCategoryForm()"
+		@new="openForm()"
 		@load-more="list.loadMore()"
-		@row-click="promptRename"
+		@row-click="openForm"
 	>
 		<template #header-actions>
 			<div
-				v-if="saving"
+				v-if="deleting"
 				class="flex items-center gap-x-1 text-ink-amber-6 border border-outline-amber-1 bg-surface-amber-1 rounded-lg px-2 py-1"
 			>
 				<LoadingIndicator class="size-2" />
 				<span class="text-xs">{{ __('saving...') }}</span>
 			</div>
 		</template>
-
-		<template #header-bottom>
-			<div v-if="showForm" class="flex flex-1 items-center justify-end gap-x-2">
-				<FormControl
-					ref="categoryInput"
-					v-model="category"
-					:placeholder="__('Category Name')"
-					class="flex-1"
-					@keyup.enter="addCategory()"
-				/>
-				<Button @click="addCategory()" variant="subtle">
-					{{ __('Add') }}
-				</Button>
-			</div>
-		</template>
 	</SettingsList>
 
 	<Dialog
-		v-model="renameOpen"
-		:title="__('Edit category')"
+		v-model="showForm"
+		:title="isNew ? __('New Category') : __('Edit Category')"
 		size="sm"
-		:actions="renameActions"
+		:actions="actions"
 	>
-		<FormControl
-			ref="renameInput"
-			v-model="editedValue"
-			type="text"
-			:label="__('Name')"
-			@keyup.enter="saveChanges()"
-		/>
+		<template #default>
+			<div class="space-y-4">
+				<FormControl
+					v-model="draft"
+					type="text"
+					:label="__('Name')"
+					:placeholder="__('Category name')"
+					:required="true"
+					autofocus
+					@keyup.enter="save()"
+				/>
+				<ErrorMessage :message="error" />
+			</div>
+		</template>
 	</Dialog>
 </template>
 <script setup lang="ts">
 import {
-	Button,
 	Dialog,
+	ErrorMessage,
 	FormControl,
 	LoadingIndicator,
 	call,
 	createResource,
 	toast,
 } from 'frappe-ui'
-import { nextTick, ref } from 'vue'
+import { computed, ref } from 'vue'
 import { cleanError } from '@/utils'
 import { createDialog } from '@/utils/dialogs'
 import dayjs from '@/utils/dayjs'
-import SettingsList from '@/components/Layouts/SettingsList.vue'
+import SettingsList from '@/components/Layouts/settings/desktop/SettingsList.vue'
 import { useSettingsListResource } from '@/composables/useSettingsListResource'
 import type { SettingsListColumn, SettingsListRow } from '@/types'
 
 const showForm = ref(false)
-const category = ref<string | null>(null)
-const categoryInput = ref<any>(null)
-const saving = ref(false)
+const draft = ref('')
+// The name the dialog opened on, which is both the record it writes to and the
+// value an edit is dirty against. Null is what makes the dialog a create.
 const editing = ref<string | null>(null)
-const editedValue = ref('')
-const renameOpen = ref(false)
-const renameInput = ref<any>(null)
+const loaded = ref('')
+const error = ref('')
+const saving = ref(false)
+const deleting = ref(false)
 
-withDefaults(
-	defineProps<{
-		label: string
-		description?: string
-	}>(),
-	{ description: '' }
-)
+// A save the dialog has already moved on from (reopened on another row, or
+// on New) must not close what is open now or write its error under it.
+// Only the newest one is still allowed to land.
+let saveToken = 0
+
+defineProps<{
+	label: string
+}>()
 
 const list = useSettingsListResource({
 	doctype: 'LMS Category',
@@ -98,6 +90,112 @@ const list = useSettingsListResource({
 	searchFields: ['category'],
 	orderBy: 'creation desc',
 })
+
+const isNew = computed(() => editing.value === null)
+
+// useSettingsSource's split, over the one field this doctype has: a draft is
+// dirty once it holds something worth writing, and a loaded record once its
+// value differs from the one it came with.
+const isDirty = computed(() => {
+	const value = draft.value.trim()
+	if (!value) return false
+	return isNew.value ? true : value !== loaded.value
+})
+
+const actions = computed(() => [
+	{
+		label: isNew.value ? __('Create') : __('Save'),
+		variant: 'solid' as const,
+		disabled: !isDirty.value,
+		onClick: () => save(),
+	},
+])
+
+// The dialog is one form in two states, so opening it is what loads it:
+// from the row for an edit, from nothing for a create.
+const openForm = (row?: SettingsListRow) => {
+	saveToken++
+	saving.value = false
+	editing.value = row?.name ?? null
+	loaded.value = row?.category ?? ''
+	draft.value = loaded.value
+	error.value = ''
+	showForm.value = true
+}
+
+const messageOf = (err: any, fallback: string): string => {
+	const message = err?.messages?.[0] || err?.message || err
+	return (typeof message === 'string' && cleanError(message)) || fallback
+}
+
+// A refused write keeps the dialog, and what was typed, where it is, and
+// puts the server's message under the field.
+const onSaveError = (err: any, fallback: string) => {
+	saving.value = false
+	error.value = messageOf(err, fallback)
+}
+
+const onSaved = (message: string) => {
+	saving.value = false
+	showForm.value = false
+	list.reload()
+	toast.success(message)
+}
+
+// LMS Category is named `field:category` with the field itself unique, so the
+// name IS the category and editing it is a rename rather than a field write.
+const updateCategory = createResource({
+	url: 'frappe.client.rename_doc',
+	makeParams(values: { name: string; category: string }) {
+		return {
+			doctype: 'LMS Category',
+			old_name: values.name,
+			new_name: values.category,
+		}
+	},
+})
+
+// Returns a promise, which is what Dialog keeps the action button loading on
+// until the request settles either way.
+const save = (): Promise<void> => {
+	if (!isDirty.value || saving.value) return Promise.resolve()
+	const value = draft.value.trim()
+	error.value = ''
+	saving.value = true
+	const token = ++saveToken
+
+	return new Promise<void>((resolve) => {
+		const callbacks = (saved: string, fallback: string) => ({
+			onSuccess: () => {
+				if (token === saveToken) onSaved(saved)
+				resolve()
+			},
+			onError: (err: any) => {
+				if (token === saveToken) onSaveError(err, fallback)
+				resolve()
+			},
+		})
+
+		if (isNew.value) {
+			list.resource.insert.submit(
+				{ category: value },
+				callbacks(
+					__('Category added successfully'),
+					__('Unable to add category')
+				)
+			)
+			return
+		}
+
+		updateCategory.submit(
+			{ name: editing.value, category: value },
+			callbacks(
+				__('Category updated successfully'),
+				__('Unable to update category')
+			)
+		)
+	})
+}
 
 const confirmDeletion = (row: SettingsListRow) => {
 	createDialog({
@@ -146,102 +244,10 @@ const columns: SettingsListColumn[] = [
 	},
 ]
 
-const focusInput = (el: any) => {
-	nextTick(() => el?.$el?.querySelector('input')?.focus())
-}
-
-const addCategory = () => {
-	if (!category.value) return
-	list.resource.insert.submit(
-		{
-			category: category.value,
-		},
-		{
-			onSuccess() {
-				list.reload()
-				category.value = null
-				showForm.value = false
-				toast.success(__('Category added successfully'))
-			},
-			onError(err: any) {
-				toast.error(__(cleanError(err.messages[0]) || 'Unable to add category'))
-			},
-		}
-	)
-}
-
-const showCategoryForm = () => {
-	showForm.value = !showForm.value
-	if (showForm.value) focusInput(categoryInput.value)
-}
-
-const updateCategory = createResource({
-	url: 'frappe.client.rename_doc',
-	makeParams(values: { name: string; category: string }) {
-		return {
-			doctype: 'LMS Category',
-			old_name: values.name,
-			new_name: values.category,
-		}
-	},
-})
-
-const promptRename = (row: SettingsListRow) => {
-	editing.value = row.name
-	editedValue.value = row.category
-	renameOpen.value = true
-	focusInput(renameInput.value)
-}
-
-const cancelEdit = () => {
-	editing.value = null
-	editedValue.value = ''
-	renameOpen.value = false
-}
-
-const renameActions = [
-	{
-		label: __('Save'),
-		variant: 'solid' as const,
-		onClick: () => saveChanges(),
-	},
-]
-
-const saveChanges = () => {
-	const name = editing.value
-	const value = editedValue.value?.trim()
-	if (!value || value === name) {
-		cancelEdit()
-		return
-	}
-	saving.value = true
-	updateCategory.submit(
-		{
-			name: name,
-			category: value,
-		},
-		{
-			onSuccess() {
-				saving.value = false
-				list.reload()
-				cancelEdit()
-				toast.success(__('Category updated successfully'))
-			},
-			onError(err: any) {
-				saving.value = false
-				cancelEdit()
-				toast.error(
-					__(cleanError(err.messages[0]) || 'Unable to update category')
-				)
-			},
-		}
-	)
-}
-
 // LMS Category is a Link target on Course and Batch, so the server unlinks
 // before deleting; a plain delete raises LinkExistsError.
 const deleteCategory = (name: string, close: () => void) => {
-	saving.value = true
+	deleting.value = true
 	call('lms.lms.api.delete_category', { category: name })
 		.then(() => {
 			list.reload()
@@ -249,12 +255,10 @@ const deleteCategory = (name: string, close: () => void) => {
 			toast.success(__('Category deleted successfully'))
 		})
 		.catch((err: any) => {
-			toast.error(
-				__(cleanError(err.messages?.[0] || err) || 'Unable to delete category')
-			)
+			toast.error(messageOf(err, __('Unable to delete category')))
 		})
 		.finally(() => {
-			saving.value = false
+			deleting.value = false
 		})
 }
 </script>

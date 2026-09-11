@@ -46,7 +46,7 @@ vi.mock('frappe-ui/frappe', () => ({
 const { stub } = vi.hoisted(() => ({
 	stub: () => ({ default: { render: () => null } }),
 }))
-vi.mock('@/components/Layouts/TabbedDetailPage.vue', stub)
+vi.mock('@/components/Layouts/pages/TabbedDetailPage.vue', stub)
 vi.mock('@/pages/Courses/CourseOverview.vue', stub)
 vi.mock('@/pages/Courses/CourseDashboard.vue', stub)
 vi.mock('@/pages/Courses/CourseEditor.vue', stub)

@@ -1,11 +1,6 @@
 <template>
 	<SettingsList
 		:title="__('Email Accounts')"
-		:description="
-			__(
-				'Manage your email accounts and configure incoming and outgoing settings.'
-			)
-		"
 		:columns="columns"
 		:rows="list.rows"
 		:loading="list.loading"
@@ -55,7 +50,7 @@ import { ref } from 'vue'
 import { cleanError } from '@/utils'
 import EmailProviderIcon from './EmailProviderIcon.vue'
 import { defaultsBadgeLabel, emailIcon } from './emailConfig'
-import SettingsList from '@/components/Layouts/SettingsList.vue'
+import SettingsList from '@/components/Layouts/settings/desktop/SettingsList.vue'
 import { useSettingsListResource } from '@/composables/useSettingsListResource'
 import type { EmailAccount, SettingsListColumn } from '@/types'
 

@@ -193,7 +193,7 @@
 							:label="__('Program Member')"
 							:onCreate="
 								(value: string, close: () => void) =>
-									openSettings('Members', close)
+									openSettings('members', close)
 							"
 						/>
 					</div>

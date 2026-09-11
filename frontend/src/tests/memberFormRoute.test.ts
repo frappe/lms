@@ -13,20 +13,26 @@ enableAutoUnmount(afterEach)
 
 // frappe-ui's ESM build doesn't resolve under vitest (see chapterForm.test.ts),
 // so every export the page and FormShell reach for is stubbed by hand.
-const { callMock, createResourceMock, getCachedResourceMock, toastMock } =
-	vi.hoisted(() => {
-		window.matchMedia ??= (() => ({
-			matches: false,
-			addEventListener: () => {},
-			removeEventListener: () => {},
-		})) as unknown as typeof window.matchMedia
-		return {
-			callMock: vi.fn(),
-			createResourceMock: vi.fn(),
-			getCachedResourceMock: vi.fn(),
-			toastMock: { success: vi.fn(), error: vi.fn() },
-		}
-	})
+const {
+	callMock,
+	createResourceMock,
+	getCachedResourceMock,
+	switchIds,
+	toastMock,
+} = vi.hoisted(() => {
+	window.matchMedia ??= (() => ({
+		matches: false,
+		addEventListener: () => {},
+		removeEventListener: () => {},
+	})) as unknown as typeof window.matchMedia
+	return {
+		callMock: vi.fn(),
+		createResourceMock: vi.fn(),
+		getCachedResourceMock: vi.fn(),
+		switchIds: { n: 0 },
+		toastMock: { success: vi.fn(), error: vi.fn() },
+	}
+})
 
 // HeaderButton wraps frappe-ui's Button in a Tooltip below the mobile
 // breakpoint, and the hand-written frappe-ui mock here has no Tooltip. Stub it
@@ -68,6 +74,25 @@ vi.mock('frappe-ui', () => ({
 			<input :value="modelValue" :disabled="disabled" @input="$emit('update:modelValue', $event.target.value)" />
 		</label>`,
 	},
+	// Mirrors the real Switch: a `role="switch"` button carrying the id, with
+	// `label` drawing its own <label for>. A looser stub would let the
+	// accessible-name assertions below pass against an unusable implementation.
+	Switch: {
+		props: ['modelValue', 'label', 'size', 'id'],
+		emits: ['update:modelValue'],
+		setup: (props: { id?: string }) => ({
+			controlId: props.id ?? `switch-${(switchIds.n += 1)}`,
+		}),
+		template: `<div class="flex flex-col">
+			<label v-if="label" :for="controlId">{{ label }}</label>
+			<button
+				role="switch"
+				:id="controlId"
+				:aria-checked="String(!!modelValue)"
+				@click="$emit('update:modelValue', !modelValue)"
+			/>
+		</div>`,
+	},
 }))
 
 vi.mock('frappe-ui/frappe', () => ({
@@ -77,14 +102,6 @@ vi.mock('frappe-ui/frappe', () => ({
 
 // @/utils is the barrel that pulls in plyr; only cleanError is used here.
 vi.mock('@/utils', () => ({ cleanError: (msg: string) => msg }))
-
-vi.mock('@/components/Controls/BooleanSwitch.vue', () => ({
-	default: {
-		props: ['modelValue', 'label', 'size'],
-		emits: ['update:modelValue'],
-		template: `<button :data-testid="'role-' + label" :data-on="String(modelValue)" @click="$emit('update:modelValue', !modelValue)">{{ label }}</button>`,
-	},
-}))
 
 import MemberForm from '@/pages/Forms/MemberForm.vue'
 import { openFormRoute } from '@/composables/useFormRoute'
@@ -148,6 +165,17 @@ const fields = (wrapper: ReturnType<typeof mount>) =>
 const save = (wrapper: ReturnType<typeof mount>) =>
 	wrapper.find('[data-testid="member-save"]')
 
+/**
+ * A switch, found through the association that names it rather than by
+ * position: the visible role name is a <label for> pointing at the control's
+ * id. Throws if the pairing is wrong or the name isn't where AT can read it.
+ */
+const switchNamed = (wrapper: ReturnType<typeof mount>, name: string) => {
+	const label = wrapper.findAll('label').find((l) => l.text() === name)
+	if (!label) throw new Error(`no label reading "${name}"`)
+	return wrapper.get(`[role="switch"][id="${label.attributes('for')}"]`)
+}
+
 describe('the member form route', () => {
 	beforeEach(() => {
 		Object.defineProperty(window, 'innerWidth', {
@@ -209,7 +237,7 @@ describe('the member form route', () => {
 	})
 
 	// Members.vue's Add button carried no gate of its own; the gate was on the
-	// settings surface around it, and a URL goes through neither.
+	// settings pages around it, and a URL goes through neither.
 	describe('the permission gate', () => {
 		it('refuses a non-moderator', async () => {
 			const router = makeRouter()
@@ -251,7 +279,7 @@ describe('the member form route', () => {
 		})
 	})
 
-	// Cold deep link: nothing opened this form, so no settings surface is
+	// Cold deep link: nothing opened this form, so no settings page is
 	// mounted, there is no in-memory member row handed over from a click, and
 	// there is no history entry of ours to pop.
 	describe('a cold deep link', () => {
@@ -303,17 +331,15 @@ describe('the member form route', () => {
 			await flushPromises()
 
 			expect(save(wrapper).attributes('disabled')).toBeUndefined()
+			expect(switchNamed(wrapper, 'Student').attributes('aria-checked')).toBe(
+				'true'
+			)
 			expect(
-				wrapper.find('[data-testid="role-Student"]').attributes('data-on')
+				switchNamed(wrapper, 'Course Creator').attributes('aria-checked')
 			).toBe('true')
-			expect(
-				wrapper
-					.find('[data-testid="role-Course Creator"]')
-					.attributes('data-on')
-			).toBe('true')
-			expect(
-				wrapper.find('[data-testid="role-Moderator"]').attributes('data-on')
-			).toBe('false')
+			expect(switchNamed(wrapper, 'Moderator').attributes('aria-checked')).toBe(
+				'false'
+			)
 			// The email is the route param, not something the parent handed over.
 			expect(
 				(
@@ -323,12 +349,11 @@ describe('the member form route', () => {
 			).toBe(MEMBER)
 		})
 
-		// The emits are gone with the modal, so the list is refreshed by bumping
-		// a module-level signal. Deliberately NOT the parent's resource by cache
-		// key: Members.vue's resource closes over component-local refs, and
-		// frappe-ui hands back the first instance for a cache key without
-		// rebinding them, so a remounted panel would render empty forever.
-		it('announces the change even with no settings surface mounted', async () => {
+		// The emits are gone with the modal, so the list refreshes via a
+		// module-level signal, deliberately NOT the parent's resource by cache
+		// key: frappe-ui hands back the first instance for a cache key without
+		// rebinding component-local refs, so a remounted panel would render empty.
+		it('announces the change even with no settings page mounted', async () => {
 			const router = makeRouter()
 			await router.push('/settings/users/new')
 			const wrapper = await mountForm(router)
@@ -337,7 +362,7 @@ describe('the member form route', () => {
 			await wrapper
 				.find('[data-testid="field-Email"] input')
 				.setValue('  jane@doe.com  ')
-			await wrapper.find('[data-testid="role-Student"]').trigger('click')
+			await switchNamed(wrapper, 'Student').trigger('click')
 			await save(wrapper).trigger('click')
 			await flushPromises()
 
@@ -388,6 +413,79 @@ describe('the member form route', () => {
 		})
 	})
 
+	// Now renders through the shared RoleSwitches component, reversing an
+	// earlier fix for this phone route. What's still tested: each row pairs
+	// one label with its own switch, whatever the column count.
+	describe('the roles block', () => {
+		const mountAdd = async () => {
+			const router = makeRouter()
+			await router.push('/settings/users/new')
+			return mountForm(router)
+		}
+
+		it('gives each role a row of its own, the name beside its switch', async () => {
+			const wrapper = await mountAdd()
+			const rows = wrapper.findAll('[data-testid="role-row"]')
+
+			expect(rows.map((row) => row.get('label').text())).toEqual([
+				'Student',
+				'Course Creator',
+				'Evaluator',
+				'Moderator',
+			])
+			for (const row of rows) {
+				expect(row.findAll('label')).toHaveLength(1)
+				expect(row.findAll('[role="switch"]')).toHaveLength(1)
+			}
+		})
+
+		it('names every switch by the role it sits next to', async () => {
+			const wrapper = await mountAdd()
+			for (const role of [
+				'Student',
+				'Course Creator',
+				'Evaluator',
+				'Moderator',
+			])
+				expect(switchNamed(wrapper, role).attributes('role')).toBe('switch')
+		})
+
+		// The grid goes two-up from md now, like the other two surfaces. A
+		// switch still can't end up adjacent to a label that isn't its own.
+		it('keeps each switch paired with its own row at a phone width', async () => {
+			Object.defineProperty(window, 'innerWidth', {
+				value: 320,
+				writable: true,
+				configurable: true,
+			})
+			const wrapper = await mountAdd()
+			const rows = wrapper.findAll('[data-testid="role-row"]')
+
+			expect(rows).toHaveLength(4)
+			for (const row of rows) {
+				expect(row.findAll('label')).toHaveLength(1)
+				expect(row.findAll('[role="switch"]')).toHaveLength(1)
+			}
+		})
+
+		it('toggles the role its row names, not the one beside it', async () => {
+			const wrapper = await mountAdd()
+			callMock.mockResolvedValue({ name: MEMBER })
+
+			await wrapper.find('[data-testid="field-Email"] input').setValue(MEMBER)
+			await switchNamed(wrapper, 'Evaluator').trigger('click')
+			await save(wrapper).trigger('click')
+			await flushPromises()
+
+			expect(callMock.mock.calls.slice(1)).toEqual([
+				[
+					'lms.lms.api.save_role',
+					{ user: MEMBER, role: 'Batch Evaluator', value: 1 },
+				],
+			])
+		})
+	})
+
 	// Opened from Members.vue instead. On desktop the settings dialog is still
 	// floating above whatever page the URL points at, so closing has to pop back
 	// to that page rather than replace it with the phone settings screen.
@@ -415,7 +513,7 @@ describe('the member form route', () => {
 		lookup.data = { name: MEMBER, roles: ['LMS Student'] }
 		await flushPromises()
 
-		await wrapper.find('[data-testid="role-Moderator"]').trigger('click')
+		await switchNamed(wrapper, 'Moderator').trigger('click')
 		callMock.mockResolvedValue(true)
 		await save(wrapper).trigger('click')
 		await flushPromises()

@@ -131,3 +131,4 @@ lms.patches.v2_0.add_video_watch_duration_index #18-06-2026
 lms.patches.v2_0.add_batch_enrollment_index #20-07-2026
 lms.patches.v2_0.make_public_images_public #05-08-2026
 lms.patches.v2_0.set_question_marks_from_quizzes #05-09-2026
+lms.patches.v2_0.seed_sidebar_items #02-09-2026

@@ -112,6 +112,11 @@ const props = withDefaults(
 		// Where the popover hangs off the control. `end` is the trailing edge in
 		// either direction, so a control near the end of a row opens inwards.
 		align?: 'start' | 'center' | 'end'
+		/**
+		 * search_link puts the record name in `label`, title_field in
+		 * `description`. Swaps which shows bold, for this caller only.
+		 */
+		titleFirst?: boolean
 	}>(),
 	{ inlineCreatePlaceholder: 'Enter...', align: 'start' }
 )
@@ -140,9 +145,10 @@ const searchTransform = (data: LinkOption[]): LinkOption[] =>
 		const label = o.label || o.value
 		// Drop the description when it just repeats the label.
 		const hasDescription = o.description && o.description !== label
-		return hasDescription
-			? { label, value: o.value, description: o.description }
-			: { label, value: o.value }
+		if (!hasDescription) return { label, value: o.value }
+		return props.titleFirst
+			? { label: o.description as string, value: o.value, description: label }
+			: { label, value: o.value, description: o.description }
 	})
 
 const options = createResource({

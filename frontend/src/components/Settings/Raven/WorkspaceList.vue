@@ -63,7 +63,7 @@
 // tab you had to already be on to know it existed.
 import { computed, ref, watch } from 'vue'
 import { Select } from 'frappe-ui'
-import SettingsList from '@/components/Layouts/SettingsList.vue'
+import SettingsList from '@/components/Layouts/settings/desktop/SettingsList.vue'
 import DeleteConfirmDialog from './DeleteConfirmDialog.vue'
 import {
 	useMappingList,

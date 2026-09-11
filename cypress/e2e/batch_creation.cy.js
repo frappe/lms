@@ -2,6 +2,18 @@ describe("Batch Creation", () => {
 	const dateNow = Date.now();
 	const randomEvaluator = `evaluator${dateNow}@example.com`;
 
+	// Settings > Users renders its own member form, whose placeholders are not the
+	// standalone /lms member form's. The label is the stable handle: frappe-ui's
+	// FormControl points it at the input's id.
+	const fillMemberField = (label, value) =>
+		cy
+			.get("[data-dismissable-layer]")
+			.contains("label", label)
+			.invoke("attr", "for")
+			.then((id) => {
+				cy.get(`[id="${id}"]`).type(value);
+			});
+
 	it("creates an evaluator via Users settings", () => {
 		cy.login();
 		cy.visit("/lms/batches");
@@ -28,12 +40,8 @@ describe("Batch Creation", () => {
 			.contains("New")
 			.click();
 
-		cy.get("[data-dismissable-layer]")
-			.find("input[placeholder='jane@doe.com']")
-			.type(randomEvaluator);
-		cy.get("[data-dismissable-layer]")
-			.find("input[placeholder='Jane']")
-			.type("Evaluator");
+		fillMemberField("Email", randomEvaluator);
+		fillMemberField("First Name", "Evaluator");
 
 		// Toggle Evaluator role. frappe-ui's Switch renders a <label for=id>
 		// linked to the switch button's id, so toggle via that association
@@ -95,12 +103,8 @@ describe("Batch Creation", () => {
 			.find("button")
 			.contains("New")
 			.click();
-		cy.get("[data-dismissable-layer]")
-			.find("input[placeholder='jane@doe.com']")
-			.type(randomStudent);
-		cy.get("[data-dismissable-layer]")
-			.find("input[placeholder='Jane']")
-			.type("Student");
+		fillMemberField("Email", randomStudent);
+		fillMemberField("First Name", "Student");
 		cy.get('[data-testid="member-save"]').click();
 		cy.wait("@studentInsert", { timeout: 15000 });
 		cy.contains("Add New Member").should("not.exist");

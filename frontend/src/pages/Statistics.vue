@@ -145,7 +145,7 @@ import {
 	usePageMeta,
 } from 'frappe-ui'
 import { computed } from 'vue'
-import PageHeader from '@/components/Layouts/PageHeader.vue'
+import PageHeader from '@/components/Layouts/pages/PageHeader.vue'
 import { sessionStore } from '../stores/session'
 
 const { brand } = sessionStore()
