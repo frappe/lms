@@ -81,7 +81,7 @@
 </template>
 
 <script setup lang="ts">
-import SettingsLayout from '@/components/Layouts/SettingsLayout.vue'
+import SettingsLayout from '@/components/Layouts/settings/desktop/SettingsLayout.vue'
 import { useTelemetry } from 'frappe-ui/frappe'
 import { EmailAccount, EmailService, EmailStep } from '@/types'
 import {

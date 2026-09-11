@@ -378,7 +378,7 @@ import {
 import BooleanSwitch from '@/components/Controls/BooleanSwitch.vue'
 import HeaderButton from '@/components/HeaderButton.vue'
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
-import PageHeader from '@/components/Layouts/PageHeader.vue'
+import PageHeader from '@/components/Layouts/pages/PageHeader.vue'
 import { toDatetimeLocal, fromDatetimeLocal } from '@/utils/schedule'
 import Draggable from 'vuedraggable'
 import QuestionCard from '@/components/Quiz/QuestionCard.vue'

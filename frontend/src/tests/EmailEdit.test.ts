@@ -43,7 +43,7 @@ vi.mock('frappe-ui', () => ({
 	},
 }))
 
-vi.mock('@/components/Layouts/SettingsLayout.vue', () => ({
+vi.mock('@/components/Layouts/settings/desktop/SettingsLayout.vue', () => ({
 	default: { template: `<div><slot name="header-actions" /><slot /></div>` },
 }))
 
