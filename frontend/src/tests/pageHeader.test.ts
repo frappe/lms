@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { createMemoryHistory, createRouter } from 'vue-router'
-import PageHeader from '@/components/Layouts/PageHeader.vue'
+import PageHeader from '@/components/Layouts/pages/PageHeader.vue'
 import type { Breadcrumb } from '@/types'
 
 const { mobile } = vi.hoisted(() => ({ mobile: { value: true } }))

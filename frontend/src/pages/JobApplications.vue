@@ -115,7 +115,7 @@ import {
 } from 'frappe-ui'
 import { computed, inject, ref, reactive, watch } from 'vue'
 import { sessionStore } from '../stores/session'
-import ListPage from '@/components/Layouts/ListPage.vue'
+import ListPage from '@/components/Layouts/pages/ListPage.vue'
 import RichTextEditor from '@/components/RichTextEditor.vue'
 import { openExternal } from '@/utils/openExternal'
 
