@@ -12,6 +12,7 @@ from xml.dom.minidom import parseString
 
 import frappe
 from frappe import _
+from frappe.email.email_body import get_message_id
 from frappe.integrations.frappe_providers.frappecloud_billing import (
 	current_site_info,
 	is_fc_site,
@@ -24,6 +25,8 @@ from frappe.utils import (
 	flt,
 	format_date,
 	get_datetime,
+	get_fullname,
+	get_string_between,
 	get_system_timezone,
 	get_time,
 	getdate,
@@ -40,6 +43,7 @@ from lms.lms.doctype.course_lesson.course_lesson import (
 from lms.lms.sidebar import LEGACY_VISIBILITY_FIELDS, ROW_FIELDS, get_sidebar_rows
 from lms.lms.utils import (
 	LMS_ROLES,
+	attach_file_to_doc,
 	can_modify_batch,
 	can_modify_course,
 	format_timezone,
@@ -53,7 +57,9 @@ from lms.lms.utils import (
 	has_course_instructor_role,
 	has_evaluator_role,
 	has_lms_role,
+	has_message,
 	has_moderator_role,
+	prepare_inline_images,
 )
 
 
@@ -2008,6 +2014,68 @@ def cancel_evaluation(evaluation: dict):
 
 			frappe.delete_doc("Event Participants", event.name, ignore_permissions=True)
 			frappe.delete_doc("Event", event.parent, ignore_permissions=True)
+
+
+@frappe.whitelist(methods=["POST"])
+def send_contact_us_email(subject: str, content: str) -> str:
+	"""Email the address configured in LMS Settings, images and all.
+
+	The recipient is read here rather than taken from the request, which is what
+	the browser's old call to frappe.core.doctype.communication.email.make did.
+	That method is still whitelisted and still listed in lms.auth.ALLOWED_PATHS,
+	so this closes the path the LMS UI takes, not the method itself.
+	"""
+	if not isinstance(subject, str) or not isinstance(content, str):
+		frappe.throw(_("Subject and message must both be text."))
+
+	if not subject.strip():
+		frappe.throw(_("Please add a subject."))
+
+	if not has_message(content):
+		frappe.throw(_("Please write a message."))
+
+	recipient = frappe.db.get_single_value("LMS Settings", "contact_us_email")
+	if not recipient:
+		frappe.throw(_("This site has no contact address. Ask a moderator to set one in LMS Settings."))
+
+	subject = subject.strip()
+	message_id = get_string_between("<", get_message_id(), ">")
+	# Every field that decides where this goes is set here, not accepted from the request.
+	# nosemgrep: lms-unjustified-ignore-permissions - a student holds no create permission on Communication
+	communication = frappe.get_doc(
+		{
+			"doctype": "Communication",
+			"communication_type": "Communication",
+			"communication_medium": "Email",
+			"subject": subject,
+			"content": content,
+			"sender": frappe.session.user,
+			"sender_full_name": get_fullname(frappe.session.user),
+			"recipients": recipient,
+			"sent_or_received": "Sent",
+			# Without it a reply cannot be threaded back to this record.
+			"message_id": message_id,
+		}
+	).insert(ignore_permissions=True)
+
+	# Built from the stored copy, which Communication sanitizes on save, rather
+	# than from the request. The record keeps its `src` URLs, so it still
+	# renders in Desk once the files below are attached to it; only the outgoing
+	# message carries `embed`. Same split as Helpdesk's HD Ticket.
+	body, inline_images = prepare_inline_images(communication.content)
+	for image in inline_images:
+		attach_file_to_doc(image["filename"], "Communication", communication.name)
+
+	frappe.sendmail(
+		recipients=[recipient],
+		sender=frappe.session.user,
+		subject=subject,
+		content=body,
+		inline_images=inline_images,
+		communication=communication.name,
+		message_id=message_id,
+	)
+	return communication.name
 
 
 @frappe.whitelist()

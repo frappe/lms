@@ -7,6 +7,7 @@ from zoneinfo import ZoneInfo
 
 import frappe
 import requests
+from bs4 import BeautifulSoup, Comment
 from frappe import _
 from frappe.desk.doctype.dashboard_chart.dashboard_chart import get_result
 from frappe.desk.doctype.notification_log.notification_log import make_notification_logs
@@ -27,6 +28,7 @@ from frappe.utils import (
 	getdate,
 	nowtime,
 	rounded,
+	strip_html,
 	to_timedelta,
 	validate_email_address,
 )
@@ -819,6 +821,170 @@ def format_timezone(timezone: str, at=None) -> str:
 	hours, minutes = divmod(abs(total_minutes), 60)
 	sign = "+" if total_minutes >= 0 else "-"
 	return f"{timezone} (GMT{sign}{hours}:{minutes:02d})"
+
+
+MAX_INLINE_IMAGES = 10
+MAX_INLINE_IMAGE_BYTES = 5 * 1024 * 1024
+
+
+def has_message(html: str | None) -> bool:
+	"""An image on its own is a message.
+
+	The editor uploads a pasted screenshot as a file and leaves the body around
+	it empty, so strip_html returns "" for the one thing a contact-us mail most
+	often carries.
+	"""
+	if not html:
+		return False
+
+	if strip_html(html).replace("\xa0", " ").replace("&nbsp;", " ").strip():
+		return True
+
+	return bool(BeautifulSoup(html, "html.parser").find(["img", "video"]))
+
+
+def prepare_inline_images(html: str | None) -> tuple[str, list[dict]]:
+	"""Rewrite site images to `embed` and return their bytes alongside.
+
+	frappe turns `<img embed="...">` into a real inline attachment carrying a
+	Content-Id (email_body.replace_filename_with_cid), which is the only way a
+	private file reaches an external recipient: a /private/files/ URL in an
+	email is served to nobody.
+
+	The bytes travel with the message instead of being re-read from a path at
+	send time. set_part_html prefers what the caller supplies, and letting
+	frappe resolve the path itself means trusting a string the client sent:
+	get_filecontent_from_path has no permission check of its own, and matching
+	that string against the database first does not help, because
+	tabFile.file_url is utf8mb4_unicode_ci while the filesystem is
+	case-sensitive. So `/private/files/Offer.pdf`, which the sender uploaded,
+	matches the row for `/private/files/offer.pdf`, which they cannot read.
+	Here the row decides: its own file_url goes into `embed`, and its own
+	content is what travels.
+	"""
+	if not html:
+		return "", []
+
+	soup = BeautifulSoup(html, "html.parser")
+	# to_markdown turns a comment into visible text in the plaintext part.
+	for comment in soup.find_all(string=lambda text: isinstance(text, Comment)):
+		comment.extract()
+
+	candidate_tags = []
+	for tag in soup.find_all(["img", "video"]):
+		src = tag.get("src")
+		if isinstance(src, str) and src.startswith(("/files/", "/private/files/")):
+			candidate_tags.append((tag, src))
+
+	# One query (plus one permission check per candidate row) for every image in
+	# the message, instead of one query per tag: a message with several embeds
+	# was otherwise a query per embed.
+	files_by_url = get_readable_files([src for _tag, src in candidate_tags])
+
+	inline_images = []
+	total_bytes = 0
+
+	for tag, src in candidate_tags:
+		file = files_by_url.get(src)
+		if not file:
+			continue
+
+		if len(inline_images) >= MAX_INLINE_IMAGES:
+			frappe.throw(
+				_("An email can carry at most {0} images. Please send the rest separately.").format(
+					MAX_INLINE_IMAGES
+				)
+			)
+
+		# Checked against the File row's own recorded size before reading the
+		# content, so a file that alone blows the budget is rejected without
+		# loading it into memory first.
+		if file.file_size and total_bytes + file.file_size > MAX_INLINE_IMAGE_BYTES:
+			frappe.throw(
+				_("These images come to more than {0} MB. Please send smaller ones.").format(
+					MAX_INLINE_IMAGE_BYTES // (1024 * 1024)
+				)
+			)
+
+		content = file.get_content()
+		total_bytes += len(content)
+		if total_bytes > MAX_INLINE_IMAGE_BYTES:
+			frappe.throw(
+				_("These images come to more than {0} MB. Please send smaller ones.").format(
+					MAX_INLINE_IMAGE_BYTES // (1024 * 1024)
+				)
+			)
+
+		tag["embed"] = file.file_url
+		del tag["src"]
+		inline_images.append({"filename": file.file_url, "filecontent": content})
+
+	return str(soup), inline_images
+
+
+def get_readable_files(file_urls: list[str]) -> dict:
+	"""The File each URL in `file_urls` resolves to, keyed by that exact URL.
+
+	One query covers every URL. tabFile.file_url is case-insensitive, so a
+	caller's string can match more than one row; permission decides between
+	them, not which one the database happens to return first.
+	"""
+	if not file_urls:
+		return {}
+
+	candidates = frappe.get_all("File", filters={"file_url": ["in", file_urls]}, fields=["name", "file_url"])
+	names_by_lower_url = {}
+	for row in candidates:
+		names_by_lower_url.setdefault(row.file_url.lower(), []).append(row.name)
+
+	resolved = {}
+	for file_url in file_urls:
+		if file_url in resolved:
+			continue
+		for name in names_by_lower_url.get(file_url.lower(), []):
+			# has_permission(doc=name) would refetch the row internally to
+			# evaluate it; fetch once and pass the doc so a match costs one
+			# read, not two.
+			candidate = frappe.get_doc("File", name)
+			if frappe.has_permission("File", ptype="read", doc=candidate):
+				resolved[file_url] = candidate
+				break
+
+	return resolved
+
+
+def attach_file_to_doc(file_url: str, doctype: str, docname: str) -> None:
+	"""Point a File row at `docname` so the stored copy renders.
+
+	File.has_permission grants a private file to its owner, an explicit share,
+	or whoever can read the document it is attached to. An editor upload is
+	attached to nothing, so without this the image in a saved Communication is
+	broken for every reader but the sender. Mirrors Helpdesk's
+	HDTicket.attach_file_with_doc.
+	"""
+	# Lock the row this file is attaching to before the check below, or two
+	# concurrent callers can both see "no File row yet" and both insert one.
+	# Same shape as the batch and course locks elsewhere in this file.
+	frappe.db.get_value(doctype, docname, "name", for_update=True)
+
+	filters = {
+		"file_url": file_url,
+		"attached_to_doctype": doctype,
+		"attached_to_name": docname,
+	}
+	if frappe.db.exists("File", filters):
+		return
+
+	# A student cannot create a File row against a Communication they do not own.
+	# nosemgrep: lms-unjustified-ignore-permissions - prepare_inline_images already checked has_permission on this file
+	frappe.get_doc(
+		{
+			"doctype": "File",
+			"file_url": file_url,
+			"is_private": 1 if file_url.startswith("/private/") else 0,
+			**filters,
+		}
+	).insert(ignore_permissions=True)
 
 
 def check_multicurrency(amount: float, currency: str, country: str = None, amount_usd: float = None):
