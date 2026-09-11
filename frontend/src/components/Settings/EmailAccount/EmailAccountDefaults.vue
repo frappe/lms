@@ -14,23 +14,14 @@
 					</div>
 				</div>
 				<div class="shrink-0">
-					<Tooltip
-						:text="
-							incomingOptions.length
-								? undefined
-								: __('Add an email account to set one as your default.')
-						"
-					>
-						<Combobox
-							:model-value="defaultIncoming"
-							:options="incomingOptions"
-							:disabled="!incomingOptions.length"
-							:placeholder="__('No default set')"
-							:aria-label="__('Default Incoming account')"
-							class="w-56"
-							@update:model-value="(value) => pick('incoming', value)"
-						/>
-					</Tooltip>
+					<Combobox
+						:model-value="defaultIncoming"
+						:options="incomingOptions"
+						:placeholder="__('No default set')"
+						:aria-label="__('Default Incoming account')"
+						class="w-56"
+						@update:model-value="(value) => pick('incoming', value)"
+					/>
 				</div>
 			</div>
 			<div class="flex items-center justify-between gap-4 py-3">
@@ -43,23 +34,14 @@
 					</div>
 				</div>
 				<div class="shrink-0">
-					<Tooltip
-						:text="
-							outgoingOptions.length
-								? undefined
-								: __('Add an email account to set one as your default.')
-						"
-					>
-						<Combobox
-							:model-value="defaultOutgoing"
-							:options="outgoingOptions"
-							:disabled="!outgoingOptions.length"
-							:placeholder="__('No default set')"
-							:aria-label="__('Default Outgoing account')"
-							class="w-56"
-							@update:model-value="(value) => pick('outgoing', value)"
-						/>
-					</Tooltip>
+					<Combobox
+						:model-value="defaultOutgoing"
+						:options="outgoingOptions"
+						:placeholder="__('No default set')"
+						:aria-label="__('Default Outgoing account')"
+						class="w-56"
+						@update:model-value="(value) => pick('outgoing', value)"
+					/>
 				</div>
 			</div>
 		</div>
@@ -67,7 +49,7 @@
 </template>
 
 <script setup lang="ts">
-import { call, Combobox, toast, Tooltip } from 'frappe-ui'
+import { call, Combobox, toast } from 'frappe-ui'
 import { computed } from 'vue'
 import { cleanError } from '@/utils'
 import {

@@ -206,7 +206,6 @@ export const settingsTree: SettingsGroup[] = [
 									name: 'contact_us_url',
 									type: 'text',
 									fullWidth: true,
-									noDivider: true,
 								},
 							],
 						},

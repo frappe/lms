@@ -33,6 +33,14 @@ import EmailAccountsEmptyState from '@/components/Settings/EmailAccount/EmailAcc
 import { services } from '@/components/Settings/EmailAccount/emailAccounts'
 
 describe('EmailAccountsEmptyState', () => {
+	it('shows the Helpdesk-style "Choose your provider" heading', () => {
+		const wrapper = mount(EmailAccountsEmptyState, {
+			global: { mocks: { __: (s: string) => s } },
+		})
+
+		expect(wrapper.text()).toContain('Choose your provider')
+	})
+
 	it('shows every configured provider', () => {
 		const wrapper = mount(EmailAccountsEmptyState, {
 			global: { mocks: { __: (s: string) => s } },

@@ -1,22 +1,9 @@
 <template>
-	<div
-		class="flex h-full min-h-64 w-full grow flex-col items-center justify-center gap-4 px-6 sm:px-4"
-	>
-		<div class="flex flex-col items-center gap-1">
-			<span
-				class="text-base-medium text-center text-ink-gray-8 sm:text-lg-medium"
-			>
-				{{ __('No email accounts yet') }}
-			</span>
-			<span class="text-center text-p-sm text-ink-gray-6 sm:text-p-base">
-				{{ __('Choose a provider to connect one') }}
-			</span>
+	<div>
+		<div class="text-p-lg-semibold text-ink-gray-8 mb-3">
+			{{ __('Choose your provider') }}
 		</div>
-		<EmailProviderPicker
-			class="w-full max-w-xl"
-			:services="services"
-			@pick="onPick"
-		/>
+		<EmailProviderPicker :services="services" @pick="onPick" />
 	</div>
 </template>
 
@@ -31,6 +18,9 @@ import type { EmailService } from '@/types'
  * data and reports a pick as a plain string hint -- the provider name -- for
  * SettingsList to fold into the same `new` event the header's New button
  * already fires.
+ *
+ * No SettingsHeader of its own: just the plain heading Helpdesk draws above
+ * its own provider grid, under the panel's existing "Email Accounts" title.
  */
 
 const emit = defineEmits<{ pick: [hint: string] }>()

@@ -9,7 +9,7 @@
 		<template #header-actions>
 			<slot name="header-actions" />
 			<Button
-				v-if="showNew"
+				v-if="showNew && !isEmptyContentShown"
 				variant="solid"
 				:disabled="disabled"
 				@click="emit('new')"
@@ -21,10 +21,13 @@
 			</Button>
 		</template>
 
-		<template v-if="searchable || $slots['header-bottom']" #header-bottom>
+		<template
+			v-if="(searchable && !isEmptyContentShown) || $slots['header-bottom']"
+			#header-bottom
+		>
 			<div class="flex items-center gap-2">
 				<FormControl
-					v-if="searchable"
+					v-if="searchable && !isEmptyContentShown"
 					v-model="search"
 					type="text"
 					class="w-1/3"
@@ -176,6 +179,17 @@ const emit = defineEmits<{
 const onEmptyContentPick = (hint: string): void => emit('new', hint)
 
 const search = defineModel<string>('search', { default: '' })
+
+// Mirrors the template's own `v-else-if` chain: true exactly when the
+// `emptyContent` branch is the one that will draw. Drives hiding New and the
+// search box, so they can never disagree with what's on screen.
+const isEmptyContentShown = computed(
+	() =>
+		!(props.loading && !props.rows.length) &&
+		!props.rows.length &&
+		!(search.value || props.filtered) &&
+		Boolean(props.emptyContent)
+)
 
 /**
  * Twelve rows fit; row thirteen is reached by scrolling. A definite region

@@ -17,7 +17,7 @@
 			:key="fieldsKey"
 			:sections="sections"
 			:data="source.doc"
-			:flush="showBack"
+			:flush="showBack && !page.dividers"
 			@commit="commit"
 			@secret="onSecret"
 		/>

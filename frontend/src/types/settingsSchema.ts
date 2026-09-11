@@ -205,6 +205,11 @@ export interface FieldsPage {
 	 * `#below` slot: conditional, and spaced off from what comes before it.
 	 */
 	extra?: { component: Component }
+	/**
+	 * Opts a record sub-page back into ordinary row dividers instead of
+	 * `flush`'s bare gaps. No effect on a top-level fields page.
+	 */
+	dividers?: boolean
 }
 
 export interface SettingsListSource {

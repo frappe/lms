@@ -36,11 +36,6 @@ vi.mock('frappe-ui', () => ({
 			<button data-clear @click="$emit('update:modelValue', null)" />
 		</div>`,
 	},
-	Tooltip: {
-		name: 'TooltipStub',
-		props: ['text'],
-		template: `<div :data-tooltip="text"><slot /></div>`,
-	},
 }))
 
 vi.mock('@/utils', () => ({
@@ -227,16 +222,14 @@ describe('the default pickers', () => {
 		expect(toast.error).toHaveBeenCalledWith('Could not save')
 	})
 
-	it('does not crash with no email accounts yet', async () => {
+	it('does not crash with no email accounts yet, and leaves the picker usable', async () => {
 		server.accounts = []
 
 		const w = panel()
 		await flushPromises()
 
 		const box = boxNamed(w, 'Default Incoming account')
-		expect(box.attributes('data-disabled')).toBe('true')
-		expect(box.element.parentElement?.getAttribute('data-tooltip')).toBe(
-			'Add an email account to set one as your default.'
-		)
+		expect(box.attributes('data-disabled')).toBeUndefined()
+		expect(box.findAll('[data-option]')).toHaveLength(0)
 	})
 })
