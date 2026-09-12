@@ -38,6 +38,9 @@
 							class="text-p-base-medium text-ink-gray-7 mb-2"
 						>
 							{{ __(field.label) }}
+							<span v-if="field.reqd" class="text-ink-red-6" aria-hidden="true"
+								>*</span
+							>
 						</div>
 						<CodeEditor
 							:type="codeType(field)"
@@ -67,6 +70,9 @@
 					>
 						<div class="text-p-base-medium text-ink-gray-7 mb-2">
 							{{ __(field.label) }}
+							<span v-if="field.reqd" class="text-ink-red-6" aria-hidden="true"
+								>*</span
+							>
 						</div>
 						<div :style="contentBox(section, field)">
 							<FormControl
@@ -90,6 +96,9 @@
 					<div v-else-if="field.type == 'richtext'" class="py-3">
 						<div class="text-p-base-medium text-ink-gray-7 mb-2">
 							{{ __(field.label) }}
+							<span v-if="field.reqd" class="text-ink-red-6" aria-hidden="true"
+								>*</span
+							>
 						</div>
 						<div :style="contentBox(section, field)">
 							<RichTextEditor
@@ -115,6 +124,9 @@
 					>
 						<div class="text-p-base-medium text-ink-gray-7 mb-2">
 							{{ __(field.label) }}
+							<span v-if="field.reqd" class="text-ink-red-6" aria-hidden="true"
+								>*</span
+							>
 						</div>
 						<FormControl
 							type="password"
@@ -147,6 +159,9 @@
 					>
 						<div class="text-p-base-medium text-ink-gray-7 mb-2">
 							{{ __(field.label) }}
+							<span v-if="field.reqd" class="text-ink-red-6" aria-hidden="true"
+								>*</span
+							>
 						</div>
 						<FormControl
 							:key="field.name"
@@ -171,6 +186,12 @@
 						<div class="flex flex-col">
 							<div class="text-p-base-medium text-ink-gray-7">
 								{{ __(field.label) }}
+								<span
+									v-if="field.reqd"
+									class="text-ink-red-6"
+									aria-hidden="true"
+									>*</span
+								>
 							</div>
 							<div v-if="field.description" class="text-p-sm text-ink-gray-5">
 								{{ __(field.description) }}

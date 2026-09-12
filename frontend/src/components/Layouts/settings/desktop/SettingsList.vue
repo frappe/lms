@@ -9,7 +9,7 @@
 		<template #header-actions>
 			<slot name="header-actions" />
 			<Button
-				v-if="showNew"
+				v-if="showNew && !isEmptyContentShown"
 				variant="solid"
 				:disabled="disabled"
 				@click="emit('new')"
@@ -21,10 +21,13 @@
 			</Button>
 		</template>
 
-		<template v-if="searchable || $slots['header-bottom']" #header-bottom>
+		<template
+			v-if="(searchable && !isEmptyContentShown) || $slots['header-bottom']"
+			#header-bottom
+		>
 			<div class="flex items-center gap-2">
 				<FormControl
-					v-if="searchable"
+					v-if="searchable && !isEmptyContentShown"
 					v-model="search"
 					type="text"
 					class="w-1/3"
@@ -86,6 +89,11 @@
 				"
 				:icon="emptyIcon"
 			/>
+			<component
+				:is="emptyContent.component"
+				v-else-if="emptyContent"
+				@pick="onEmptyContentPick"
+			/>
 			<EmptyStateLayout
 				v-else
 				:name="emptyName"
@@ -97,7 +105,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, type Component } from 'vue'
 import { Button, FormControl, LoadingIndicator } from 'frappe-ui'
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 import SettingsLayout from '@/components/Layouts/settings/desktop/SettingsLayout.vue'
@@ -126,6 +134,14 @@ const props = withDefaults(
 		showBack?: boolean
 		emptyName?: string
 		emptyIcon?: string
+		/**
+		 * Replaces the plain "Add one to get started" empty state with a page's
+		 * own content, for one that has something better to offer a first-time
+		 * visitor than a caption -- Email Accounts' provider picker is the only
+		 * caller. Only draws in place of the true-empty state, never the
+		 * search/filter "no results" one.
+		 */
+		emptyContent?: { component: Component }
 		/** Greys out the rows and disables New, for the `#banner` slot to explain. */
 		disabled?: boolean
 	}>(),
@@ -147,13 +163,33 @@ const props = withDefaults(
 )
 
 const emit = defineEmits<{
-	new: []
+	/**
+	 * A hint carries the value clicking a card in `emptyContent` should open
+	 * the create form pre-selected on; the header's New button emits with none.
+	 */
+	new: [hint?: string]
 	back: []
 	loadMore: []
 	rowClick: [row: SettingsListRow]
 }>()
 
+// `emptyContent`'s component is the one caller of `pick`; funnelling it into
+// `new` reuses the exact channel the header's own New button already opens
+// the create form through, rather than teaching this list a second one.
+const onEmptyContentPick = (hint: string): void => emit('new', hint)
+
 const search = defineModel<string>('search', { default: '' })
+
+// Mirrors the template's own `v-else-if` chain: true exactly when the
+// `emptyContent` branch is the one that will draw. Drives hiding New and the
+// search box, so they can never disagree with what's on screen.
+const isEmptyContentShown = computed(
+	() =>
+		!(props.loading && !props.rows.length) &&
+		!props.rows.length &&
+		!(search.value || props.filtered) &&
+		Boolean(props.emptyContent)
+)
 
 /**
  * Twelve rows fit; row thirteen is reached by scrolling. A definite region

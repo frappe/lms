@@ -266,4 +266,121 @@ describe('SettingsList', () => {
 			build({ searchable: true }).find('[data-testid="search"]').exists()
 		).toBe(true)
 	})
+
+	describe('emptyContent', () => {
+		const EmptyContent = {
+			emits: ['pick'],
+			template: `<button data-testid="empty-content" @click="$emit('pick', 'GMail')" />`,
+		}
+
+		it('draws it instead of the generic caption when the list is truly empty', () => {
+			const wrapper = build({
+				rows: [],
+				emptyName: 'Coupons',
+				emptyContent: { component: EmptyContent },
+			})
+
+			expect(wrapper.find('[data-testid="empty-content"]').exists()).toBe(true)
+			expect(wrapper.find('[data-testid="empty"]').exists()).toBe(false)
+		})
+
+		it('still shows the generic "no results" state for a search or filter', () => {
+			const searched = build({
+				rows: [],
+				emptyName: 'Coupons',
+				search: 'zzz',
+				emptyContent: { component: EmptyContent },
+			})
+			expect(searched.find('[data-testid="empty-content"]').exists()).toBe(
+				false
+			)
+			expect(searched.get('[data-testid="empty"]').text()).toContain('zzz')
+
+			const filtered = build({
+				rows: [],
+				emptyName: 'Coupons',
+				filtered: true,
+				emptyContent: { component: EmptyContent },
+			})
+			expect(filtered.find('[data-testid="empty-content"]').exists()).toBe(
+				false
+			)
+		})
+
+		it('leaves the plain caption alone for a page that supplies nothing', () => {
+			const wrapper = build({ rows: [], emptyName: 'Coupons' })
+
+			expect(wrapper.get('[data-testid="empty"]').text()).toContain(
+				'Add one to get started'
+			)
+		})
+
+		it("funnels its pick into SettingsList's own `new` event", async () => {
+			const wrapper = build({
+				rows: [],
+				emptyName: 'Coupons',
+				emptyContent: { component: EmptyContent },
+			})
+
+			await wrapper.get('[data-testid="empty-content"]').trigger('click')
+
+			expect(wrapper.emitted('new')?.[0]).toEqual(['GMail'])
+		})
+
+		it('hides the header New button while its own content is the affordance', () => {
+			const wrapper = build({
+				rows: [],
+				emptyName: 'Coupons',
+				emptyContent: { component: EmptyContent },
+			})
+
+			expect(
+				wrapper
+					.findAll('[data-testid="button"]')
+					.some((b) => b.text().includes('New'))
+			).toBe(false)
+		})
+
+		it('keeps New for the generic empty state, and for a search with no matches', () => {
+			expect(
+				build({ rows: [], emptyName: 'Coupons' })
+					.findAll('[data-testid="button"]')
+					.some((b) => b.text().includes('New'))
+			).toBe(true)
+
+			expect(
+				build({
+					rows: [],
+					emptyName: 'Coupons',
+					search: 'zzz',
+					emptyContent: { component: EmptyContent },
+				})
+					.findAll('[data-testid="button"]')
+					.some((b) => b.text().includes('New'))
+			).toBe(true)
+		})
+
+		it('hides the search box while its own content is the affordance', () => {
+			const wrapper = build({
+				rows: [],
+				emptyName: 'Coupons',
+				searchable: true,
+				emptyContent: { component: EmptyContent },
+			})
+
+			expect(wrapper.find('[data-testid="search"]').exists()).toBe(false)
+		})
+
+		it('keeps the search box for a search with no matches', () => {
+			const wrapper = build({
+				rows: [],
+				emptyName: 'Coupons',
+				searchable: true,
+				search: 'zzz',
+				emptyContent: { component: EmptyContent },
+			})
+
+			expect(wrapper.find('[data-testid="search"]').exists()).toBe(true)
+		})
+	})
 })

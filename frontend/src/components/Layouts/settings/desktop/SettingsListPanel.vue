@@ -30,6 +30,7 @@
 		:new-label="page.create?.label"
 		:empty-name="page.empty?.name"
 		:empty-icon="page.empty?.icon"
+		:empty-content="page.emptyContent"
 		:disabled="dependencyUnmet"
 		flush
 		@new="openCreate"
@@ -126,6 +127,13 @@ const props = defineProps<{
 // The create id reserved by the settings hash ('#settings/<slug>/new'), so a
 // record model driven from the URL and one driven from a click agree.
 const NEW_RECORD = 'new'
+
+// A create can carry a hint after a colon ('new:GMail'), for a page whose
+// `emptyContent` reports which card was clicked. Only the id itself routes
+// to `create.detail` here; the detail component reads the hint back out of
+// `record` itself, the same channel it already gets a docname through.
+const isCreateRecord = (value: string | null): boolean =>
+	value === NEW_RECORD || Boolean(value?.startsWith(`${NEW_RECORD}:`))
 
 // The open record, as a model rather than internal state: the URL layer drives
 // this from the hash's second segment, and nothing else here knows about hashes.
@@ -271,7 +279,7 @@ const recordRenamed = (name: string) => {
 
 const detail = computed<DetailPage | null>(() => {
 	if (!record.value) return null
-	if (record.value === NEW_RECORD) return props.page.create?.detail ?? null
+	if (isCreateRecord(record.value)) return props.page.create?.detail ?? null
 	return props.page.rowDetail ?? null
 })
 
@@ -279,7 +287,7 @@ const detail = computed<DetailPage | null>(() => {
 // row, and a deep link can name a record on a page the list has not reached, so
 // the title function has to survive being handed nothing.
 const detailRow = computed<SettingsListRow>(() => {
-	if (!record.value || record.value === NEW_RECORD) return {}
+	if (!record.value || isCreateRecord(record.value)) return {}
 	return list.rows.find((row) => row.name === record.value) ?? {}
 })
 
@@ -312,8 +320,11 @@ const detailTitle = computed(() => {
 	return page && page.kind === 'fields' ? page.title(detailRow.value) : ''
 })
 
-const openCreate = () => {
-	record.value = NEW_RECORD
+// `hint` is the card `emptyContent` was clicked on, carried into the create
+// id so the detail component can read it back off `record`/`name`; the
+// header's own New button calls this with none.
+const openCreate = (hint?: string) => {
+	record.value = hint ? `${NEW_RECORD}:${hint}` : NEW_RECORD
 }
 
 // A page that says where its rows go is obeyed, whether or not it also has a

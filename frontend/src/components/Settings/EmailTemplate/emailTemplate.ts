@@ -51,6 +51,10 @@ const form = recordForm({
 	renameField: 'name',
 	newTitle: () => __('New Email Template'),
 	recordTitle: (row) => templateLabel(row) || __('Email Template'),
+	// Name, Subject and Content are all bare fullWidth fields with no
+	// description -- flush's usual "one block, no dividers" reads as dead air
+	// between them here, not a single grouped thing.
+	dividers: true,
 	sections: [
 		{
 			fields: [
