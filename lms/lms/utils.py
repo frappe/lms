@@ -3034,6 +3034,7 @@ def get_batch_type(filters: dict) -> str:
 	start_op = _filter_operator(filters.get("start_date"))
 	# Active is not-ended (end_date >= today). Check it before start_date so
 	# Archived's start_date <= today is not the only signal.
+	end_sign = _filter_operator(filters.get("end_date"))
 	if ">" in end_sign:
 		return "active"
 	if ">" in start_op:
