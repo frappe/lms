@@ -163,12 +163,14 @@ const outline = createResource({
 	makeParams() {
 		return { course: props.courseName, progress: props.getProgress }
 	},
-	auto: true,
+	auto: Boolean(props.courseName),
 }) as Resource<OutlineChapter[] | null>
 
 watch(
 	() => props.courseName,
-	() => outline.reload()
+	() => {
+		if (props.courseName) outline.reload()
+	}
 )
 
 watch(
