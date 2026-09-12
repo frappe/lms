@@ -62,18 +62,23 @@ let currentReviews: Review[] = DEFAULT_REVIEWS
 // frappe-ui's internal module resolution doesn't work under vitest; stub the
 // pieces CourseReviews uses. The reviews resource returns the fixture; the
 // has-reviewed count resource returns 0.
+let lastReviewsResourceOpts: { auto?: boolean } | undefined
+
 vi.mock('frappe-ui', () => ({
 	Button: { template: '<button><slot /></button>' },
-	createResource: (opts: { url: string }) =>
-		opts.url === 'lms.lms.utils.get_reviews'
-			? {
-					get data() {
-						return currentReviews
-					},
-					reload: vi.fn(),
-					refresh: vi.fn(),
-			  }
-			: { data: 0, reload: vi.fn(), refresh: vi.fn() },
+	createResource: (opts: { url: string; auto?: boolean }) => {
+		if (opts.url === 'lms.lms.utils.get_reviews') {
+			lastReviewsResourceOpts = opts
+			return {
+				get data() {
+					return currentReviews
+				},
+				reload: vi.fn(),
+				refresh: vi.fn(),
+			}
+		}
+		return { data: 0, reload: vi.fn(), refresh: vi.fn() }
+	},
 }))
 vi.mock('@/components/UserAvatar.vue', () => ({
 	default: { template: '<div />' },
@@ -122,6 +127,23 @@ describe('CourseReviews date rendering', () => {
 		const dates = await renderedDates()
 		// every row but the first is older than a day and must not read "Today"
 		expect(dates.slice(1).every((d) => d !== 'Today')).toBe(true)
+	})
+})
+
+describe('CourseReviews resource params', () => {
+	// A blank courseName sent `get_reviews` with no `course` arg at all,
+	// throwing a TypeError the backend has no handler for and crashing every
+	// later assertion in the same test file (frontend regression, 2026-09-11).
+	it('does not auto-fire get_reviews without a courseName', async () => {
+		mountReviews({ courseName: '' })
+		await flushPromises()
+		expect(lastReviewsResourceOpts?.auto).toBe(false)
+	})
+
+	it('auto-fires get_reviews once a courseName is present', async () => {
+		mountReviews({ courseName: 'C1' })
+		await flushPromises()
+		expect(lastReviewsResourceOpts?.auto).toBe(true)
 	})
 })
 
