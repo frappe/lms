@@ -256,6 +256,7 @@ import ResponsiveListView from '@/components/ResponsiveListView.vue'
 import Draggable from 'vuedraggable'
 import ProgramProgressSummary from '@/components/Programs/ProgramProgressSummary.vue'
 import { submitResource } from '@/utils/resource'
+import { withoutSelectedRows } from '@/utils/programSelection'
 
 const showFormDialog = ref(false)
 const currentForm = ref<'course' | 'member'>('course')
@@ -577,12 +578,16 @@ const remove = (
 ) => {
 	const selectionsArray = Array.from(selections)
 	if (type === 'courses') {
-		program.value.program_courses = program.value.program_courses.filter(
-			(c: any) => !selectionsArray.includes(c.name || c.course)
+		program.value.program_courses = withoutSelectedRows(
+			program.value.program_courses,
+			selectionsArray,
+			['name', 'course']
 		)
 	} else {
-		program.value.program_members = program.value.program_members.filter(
-			(m: any) => !selectionsArray.includes(m.name || m.member)
+		program.value.program_members = withoutSelectedRows(
+			program.value.program_members,
+			selectionsArray,
+			['name', 'member']
 		)
 	}
 	dirty.value = true
