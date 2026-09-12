@@ -17,10 +17,13 @@
 			:key="fieldsKey"
 			:sections="sections"
 			:data="source.doc"
-			:flush="showBack"
+			:flush="showBack && !page.dividers"
 			@commit="commit"
 			@secret="onSecret"
 		/>
+		<div v-if="page.extra" class="mt-6">
+			<component :is="page.extra.component" />
+		</div>
 	</SettingsLayout>
 </template>
 

@@ -1,8 +1,8 @@
-import { markRaw } from 'vue'
+import { defineAsyncComponent, markRaw } from 'vue'
 import type { SettingsGroup } from '@/types/settingsSchema'
 import Categories from '@/components/Settings/Categories.vue'
 import { membersSettingsPage } from '@/components/Settings/Members/members'
-import EmailConfig from '@/components/Settings/EmailAccount/EmailConfig.vue'
+import { emailAccountsPage } from '@/components/Settings/EmailAccount/emailAccounts'
 import { emailTemplateSettingsPage } from '@/components/Settings/EmailTemplate/emailTemplate'
 import { sidebarSettingsPage } from '@/components/Settings/Sidebar/sidebar'
 // BrandSettings.vue is still `<script setup>` with no `lang="ts"`, so a TS
@@ -25,6 +25,15 @@ import Services from '@/components/Settings/Services/Services.vue'
 import { googleCalendarSettingsPage } from '@/components/Settings/GoogleCalendar/googleCalendar'
 import RavenSettings from '@/components/Settings/Raven/RavenSettings.vue'
 import Preferences from '@/components/Settings/Preferences.vue'
+
+// Loaded on demand, same as the Email Accounts form below it in the tree:
+// Communication > General renders every time Settings opens, and this reads
+// a second list nothing else on the page needs.
+const emailAccountDefaults = markRaw(
+	defineAsyncComponent(
+		() => import('@/components/Settings/EmailAccount/EmailAccountDefaults.vue')
+	)
+)
 
 /**
  * The settings tree, as data. Ported from settingsStructure.js, with every
@@ -197,7 +206,6 @@ export const settingsTree: SettingsGroup[] = [
 									name: 'contact_us_url',
 									type: 'text',
 									fullWidth: true,
-									noDivider: true,
 								},
 							],
 						},
@@ -230,6 +238,7 @@ export const settingsTree: SettingsGroup[] = [
 							],
 						},
 					],
+					extra: { component: emailAccountDefaults },
 				},
 			},
 			{
@@ -243,10 +252,8 @@ export const settingsTree: SettingsGroup[] = [
 				label: 'Email Accounts',
 				slug: 'email-accounts',
 				icon: 'lucide-mail',
-				// Interim: the moderator-gated record-page split (EmailAccounts.ts,
-				// EmailAccountForm.vue) is deferred to a reconciliation task against
-				// a second implementation. Renders EmailConfig.vue until that lands.
-				page: { kind: 'custom', component: markRaw(EmailConfig) },
+				records: true,
+				page: emailAccountsPage,
 			},
 		],
 	},
