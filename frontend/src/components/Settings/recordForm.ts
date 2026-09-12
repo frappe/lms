@@ -35,6 +35,8 @@ export interface RecordFormOptions {
 	validate?: FieldsPage['validate']
 	/** The toast, the telemetry and the way back, once a save lands. */
 	onSaved?: FieldsPage['onSaved']
+	/** See {@link FieldsPage.dividers}. */
+	dividers?: boolean
 	/** Header for the New page. */
 	newTitle: () => string
 	/**
@@ -55,6 +57,7 @@ export function recordForm(options: RecordFormOptions): RecordForm {
 		...(options.defaults ? { defaults: options.defaults } : {}),
 		...(options.validate ? { validate: options.validate } : {}),
 		...(options.onSaved ? { onSaved: options.onSaved } : {}),
+		...(options.dividers ? { dividers: options.dividers } : {}),
 	}
 
 	return {
