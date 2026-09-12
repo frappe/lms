@@ -7,7 +7,6 @@ from zoneinfo import ZoneInfo
 
 import frappe
 import requests
-from bs4 import BeautifulSoup, Comment
 from frappe import _
 from frappe.desk.doctype.dashboard_chart.dashboard_chart import get_result
 from frappe.desk.doctype.notification_log.notification_log import make_notification_logs
@@ -28,7 +27,6 @@ from frappe.utils import (
 	getdate,
 	nowtime,
 	rounded,
-	strip_html,
 	to_timedelta,
 	validate_email_address,
 )
@@ -62,36 +60,6 @@ def get_lms_route(path=""):
 
 def extend_bootinfo(bootinfo: dict):
 	bootinfo["lms_path"] = get_lms_path()
-
-
-def resolve_text_direction(lang: str) -> str:
-	"""The direction the SPA shell is served with.
-
-	`is_rtl()` reads frappe.local.lang, which a guest gets from Accept-Language,
-	while boot.lang comes from get_user_lang(), which a guest gets from System
-	Settings. Passing the language in keeps the two from disagreeing.
-	"""
-	from frappe.utils.jinja_globals import is_rtl
-
-	setting = frappe.db.get_single_value("LMS Settings", "text_direction")
-
-	if setting == "Left to Right":
-		return "ltr"
-	if setting == "Right to Left":
-		return "rtl"
-
-	# Frappe's own answer, over the language asked about rather than the session
-	# one. A hardcoded set here went stale immediately: frappe ships `ku` and
-	# `ur` as RTL too, and resolves a regional code through get_parent_language,
-	# so Urdu and Kurdish sites were served `<html dir="ltr">`. Its comment asks
-	# for the set to be kept in sync with a JavaScript twin; a third copy in LMS
-	# is the one that would drift unnoticed.
-	previous = frappe.local.lang
-	try:
-		frappe.local.lang = lang
-		return "rtl" if is_rtl() else "ltr"
-	finally:
-		frappe.local.lang = previous
 
 
 def slugify(title: str, used_slugs: list = None):
@@ -821,170 +789,6 @@ def format_timezone(timezone: str, at=None) -> str:
 	hours, minutes = divmod(abs(total_minutes), 60)
 	sign = "+" if total_minutes >= 0 else "-"
 	return f"{timezone} (GMT{sign}{hours}:{minutes:02d})"
-
-
-MAX_INLINE_IMAGES = 10
-MAX_INLINE_IMAGE_BYTES = 5 * 1024 * 1024
-
-
-def has_message(html: str | None) -> bool:
-	"""An image on its own is a message.
-
-	The editor uploads a pasted screenshot as a file and leaves the body around
-	it empty, so strip_html returns "" for the one thing a contact-us mail most
-	often carries.
-	"""
-	if not html:
-		return False
-
-	if strip_html(html).replace("\xa0", " ").replace("&nbsp;", " ").strip():
-		return True
-
-	return bool(BeautifulSoup(html, "html.parser").find(["img", "video"]))
-
-
-def prepare_inline_images(html: str | None) -> tuple[str, list[dict]]:
-	"""Rewrite site images to `embed` and return their bytes alongside.
-
-	frappe turns `<img embed="...">` into a real inline attachment carrying a
-	Content-Id (email_body.replace_filename_with_cid), which is the only way a
-	private file reaches an external recipient: a /private/files/ URL in an
-	email is served to nobody.
-
-	The bytes travel with the message instead of being re-read from a path at
-	send time. set_part_html prefers what the caller supplies, and letting
-	frappe resolve the path itself means trusting a string the client sent:
-	get_filecontent_from_path has no permission check of its own, and matching
-	that string against the database first does not help, because
-	tabFile.file_url is utf8mb4_unicode_ci while the filesystem is
-	case-sensitive. So `/private/files/Offer.pdf`, which the sender uploaded,
-	matches the row for `/private/files/offer.pdf`, which they cannot read.
-	Here the row decides: its own file_url goes into `embed`, and its own
-	content is what travels.
-	"""
-	if not html:
-		return "", []
-
-	soup = BeautifulSoup(html, "html.parser")
-	# to_markdown turns a comment into visible text in the plaintext part.
-	for comment in soup.find_all(string=lambda text: isinstance(text, Comment)):
-		comment.extract()
-
-	candidate_tags = []
-	for tag in soup.find_all(["img", "video"]):
-		src = tag.get("src")
-		if isinstance(src, str) and src.startswith(("/files/", "/private/files/")):
-			candidate_tags.append((tag, src))
-
-	# One query (plus one permission check per candidate row) for every image in
-	# the message, instead of one query per tag: a message with several embeds
-	# was otherwise a query per embed.
-	files_by_url = get_readable_files([src for _tag, src in candidate_tags])
-
-	inline_images = []
-	total_bytes = 0
-
-	for tag, src in candidate_tags:
-		file = files_by_url.get(src)
-		if not file:
-			continue
-
-		if len(inline_images) >= MAX_INLINE_IMAGES:
-			frappe.throw(
-				_("An email can carry at most {0} images. Please send the rest separately.").format(
-					MAX_INLINE_IMAGES
-				)
-			)
-
-		# Checked against the File row's own recorded size before reading the
-		# content, so a file that alone blows the budget is rejected without
-		# loading it into memory first.
-		if file.file_size and total_bytes + file.file_size > MAX_INLINE_IMAGE_BYTES:
-			frappe.throw(
-				_("These images come to more than {0} MB. Please send smaller ones.").format(
-					MAX_INLINE_IMAGE_BYTES // (1024 * 1024)
-				)
-			)
-
-		content = file.get_content()
-		total_bytes += len(content)
-		if total_bytes > MAX_INLINE_IMAGE_BYTES:
-			frappe.throw(
-				_("These images come to more than {0} MB. Please send smaller ones.").format(
-					MAX_INLINE_IMAGE_BYTES // (1024 * 1024)
-				)
-			)
-
-		tag["embed"] = file.file_url
-		del tag["src"]
-		inline_images.append({"filename": file.file_url, "filecontent": content})
-
-	return str(soup), inline_images
-
-
-def get_readable_files(file_urls: list[str]) -> dict:
-	"""The File each URL in `file_urls` resolves to, keyed by that exact URL.
-
-	One query covers every URL. tabFile.file_url is case-insensitive, so a
-	caller's string can match more than one row; permission decides between
-	them, not which one the database happens to return first.
-	"""
-	if not file_urls:
-		return {}
-
-	candidates = frappe.get_all("File", filters={"file_url": ["in", file_urls]}, fields=["name", "file_url"])
-	names_by_lower_url = {}
-	for row in candidates:
-		names_by_lower_url.setdefault(row.file_url.lower(), []).append(row.name)
-
-	resolved = {}
-	for file_url in file_urls:
-		if file_url in resolved:
-			continue
-		for name in names_by_lower_url.get(file_url.lower(), []):
-			# has_permission(doc=name) would refetch the row internally to
-			# evaluate it; fetch once and pass the doc so a match costs one
-			# read, not two.
-			candidate = frappe.get_doc("File", name)
-			if frappe.has_permission("File", ptype="read", doc=candidate):
-				resolved[file_url] = candidate
-				break
-
-	return resolved
-
-
-def attach_file_to_doc(file_url: str, doctype: str, docname: str) -> None:
-	"""Point a File row at `docname` so the stored copy renders.
-
-	File.has_permission grants a private file to its owner, an explicit share,
-	or whoever can read the document it is attached to. An editor upload is
-	attached to nothing, so without this the image in a saved Communication is
-	broken for every reader but the sender. Mirrors Helpdesk's
-	HDTicket.attach_file_with_doc.
-	"""
-	# Lock the row this file is attaching to before the check below, or two
-	# concurrent callers can both see "no File row yet" and both insert one.
-	# Same shape as the batch and course locks elsewhere in this file.
-	frappe.db.get_value(doctype, docname, "name", for_update=True)
-
-	filters = {
-		"file_url": file_url,
-		"attached_to_doctype": doctype,
-		"attached_to_name": docname,
-	}
-	if frappe.db.exists("File", filters):
-		return
-
-	# A student cannot create a File row against a Communication they do not own.
-	# nosemgrep: lms-unjustified-ignore-permissions - prepare_inline_images already checked has_permission on this file
-	frappe.get_doc(
-		{
-			"doctype": "File",
-			"file_url": file_url,
-			"is_private": 1 if file_url.startswith("/private/") else 0,
-			**filters,
-		}
-	).insert(ignore_permissions=True)
 
 
 def check_multicurrency(amount: float, currency: str, country: str = None, amount_usd: float = None):
@@ -3088,6 +2892,9 @@ def get_batches(
 		filters = {}
 
 	update_batch_filters(filters)
+	# Classify before get_all: it may rewrite the filter dict in place, and
+	# then `end_date >= today` no longer looks like Active to get_batch_type.
+	batch_type = get_batch_type(filters)
 
 	batches = frappe.get_all(
 		"LMS Batch",
@@ -3114,7 +2921,7 @@ def get_batches(
 		page_length=resolve_page_length(limit_page_length),
 	)
 
-	batches = filter_batches_based_on_start_time(batches, filters)
+	batches = filter_batches_based_on_start_time(batches, filters, batch_type)
 	batches = get_batch_card_details(batches)
 	return batches
 
@@ -3134,9 +2941,9 @@ def update_batch_filters(filters: dict) -> None:
 def get_batch_count(filters: dict = None) -> int:
 	"""How many batches the same filters `get_batches` takes actually match.
 
-	The list footer cannot ask `frappe.client.get_count` for this: the Upcoming
-	and Archived tabs turn on the time of day, and the query only settles the
-	date, so `filter_batches_based_on_start_time` decides the rest in Python.
+	The list footer cannot ask `frappe.client.get_count` for this: Active,
+	Upcoming and Archived turn on the time of day, and the query only settles
+	the date, so `filter_batches_based_on_start_time` decides the rest in Python.
 
 	Counted as two COUNTs rather than by fetching the rows and repeating that
 	pass over them: the endpoint is open to guests, so the work it does must not
@@ -3149,9 +2956,9 @@ def get_batch_count(filters: dict = None) -> int:
 		filters = {}
 
 	update_batch_filters(filters)
+	batch_type = get_batch_type(filters)
 	total = count_matching("LMS Batch", filters)
 
-	batch_type = get_batch_type(filters)
 	if batch_type:
 		total -= count_batches_the_clock_decides(filters, batch_type)
 
@@ -3163,9 +2970,17 @@ def count_batches_the_clock_decides(filters: dict, batch_type: str) -> int:
 
 	Only today's are ever in question. Every other date the query has already
 	settled. Upcoming drops the ones already under way; Archived, the ones still
-	to come. Both conditions are added rather than replacing the caller's date
-	filter, so a tab asking for `start_date > today` still counts nothing today.
+	to come; Active (current plus upcoming) drops the ones that have already
+	ended. Conditions are added rather than replacing the caller's date filter,
+	so a tab asking for `start_date > today` still counts nothing today.
 	"""
+	if batch_type == "active":
+		already_ended = as_filter_conditions(filters) + [
+			["end_date", "=", getdate()],
+			["end_time", "<", nowtime()],
+		]
+		return count_matching("LMS Batch", already_ended)
+
 	started = "<" if batch_type == "upcoming" else ">="
 	conditions = as_filter_conditions(filters) + [
 		["start_date", "=", getdate()],
@@ -3187,28 +3002,52 @@ def has_started_today(batch) -> bool:
 	return to_timedelta(str(batch.start_time)) < to_timedelta(nowtime())
 
 
-def filter_batches_based_on_start_time(batches: list, filters: dict) -> list:
-	batchType = get_batch_type(filters)
+def has_ended_today(batch) -> bool:
+	"""Whether a batch that ends today has already finished.
+
+	Same timedelta comparison as `has_started_today`: `end_time` is a timedelta,
+	and a string compare would put "9:00:00" after "14:30:00".
+	"""
+	if getdate(batch.end_date) != getdate():
+		return False
+	return to_timedelta(str(batch.end_time)) < to_timedelta(nowtime())
+
+
+def filter_batches_based_on_start_time(batches: list, filters: dict, batch_type: str = None) -> list:
+	batchType = batch_type if batch_type is not None else get_batch_type(filters)
 	if batchType == "upcoming":
 		batches = [batch for batch in batches if not has_started_today(batch)]
 	elif batchType == "archived":
 		batches = [
 			batch for batch in batches if getdate(batch.start_date) != getdate() or has_started_today(batch)
 		]
+	elif batchType == "active":
+		batches = [
+			batch for batch in batches if getdate(batch.end_date) != getdate() or not has_ended_today(batch)
+		]
 	return batches
 
 
 def get_batch_type(filters: dict) -> str:
-	start_date_filter = filters.get("start_date")
-	batchType = None
-	if start_date_filter:
-		sign = start_date_filter[0]
-		if ">" in sign:
-			batchType = "upcoming"
-		elif "<" in sign:
-			batchType = "archived"
+	if not isinstance(filters, dict):
+		return None
+	start_op = _filter_operator(filters.get("start_date"))
+	# Active is not-ended (end_date >= today). Check it before start_date so
+	# Archived's start_date <= today is not the only signal.
+	if ">" in end_sign:
+		return "active"
+	if ">" in start_op:
+		return "upcoming"
+	if "<" in start_op:
+		return "archived"
+	return None
 
-	return batchType
+
+def _filter_operator(value) -> str:
+	"""The operator in a frappe filter value: `['>=', date]` → `'>='`."""
+	if isinstance(value, list | tuple) and value:
+		return str(value[0])
+	return ""
 
 
 def get_batch_card_details(batches: list) -> list:
