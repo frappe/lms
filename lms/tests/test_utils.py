@@ -2,7 +2,8 @@
 # See license.txt
 
 import json
-from datetime import datetime
+from contextlib import contextmanager
+from datetime import date, datetime, timedelta
 from unittest.mock import patch
 
 import frappe
@@ -20,6 +21,7 @@ from lms.lms.utils import (
 	get_average_rating,
 	get_batch_count,
 	get_batch_details,
+	get_batch_type,
 	get_batches,
 	get_chapters,
 	get_course_categories,
@@ -450,6 +452,8 @@ class TestListEndpointPaging(BaseTestUtils):
 
 	CATEGORY = "Paging Test Category"
 	STARTED_TODAY = "Paging Batch Already Started"
+	FROZEN_TODAY = date(2026, 6, 15)
+	FROZEN_NOON = "12:00:00"
 
 	def setUp(self):
 		super().setUp()
@@ -552,6 +556,49 @@ class TestListEndpointPaging(BaseTestUtils):
 		self.assertIn(self.STARTED_TODAY, [batch.title for batch in listed])
 		self.assertEqual(get_batch_count(filters=filters.copy()), len(listed))
 
+	def test_the_active_tab_is_current_plus_upcoming(self):
+		"""Active is not-ended: running now and not started yet. The date-only
+		query cannot drop a batch that ended at 00:00:01 today."""
+		with self._freeze_batch_clock():
+			self._create_today_batch(self.STARTED_TODAY, "00:00:00", "00:00:01", on_date=self.FROZEN_TODAY)
+			self._create_today_batch(
+				"Paging Batch Still Running", "00:00:00", "23:59:59", on_date=self.FROZEN_TODAY
+			)
+			self._create_today_batch(
+				"Paging Batch Not Started", "23:00:00", "23:59:59", on_date=self.FROZEN_TODAY
+			)
+			self._create_today_batch(
+				"Paging Batch Next Week",
+				"10:00:00",
+				"11:00:00",
+				on_date=self.FROZEN_TODAY + timedelta(days=7),
+			)
+			filters = self._active_filters(on_date=self.FROZEN_TODAY)
+
+			listed = get_batches(filters=filters.copy(), start=0, limit_page_length=MAX_PAGE_LENGTH)
+			titles = [batch.title for batch in listed]
+
+			self.assertIn("Paging Batch Still Running", titles)
+			self.assertIn("Paging Batch Not Started", titles)
+			self.assertIn("Paging Batch Next Week", titles)
+			self.assertNotIn(self.STARTED_TODAY, titles)
+			self.assertEqual(get_batch_count(filters=filters.copy()), len(listed))
+
+	def test_the_active_count_never_walks_the_rows(self):
+		with self._freeze_batch_clock():
+			self._create_today_batch(self.STARTED_TODAY, "00:00:00", "00:00:01", on_date=self.FROZEN_TODAY)
+			filters = self._active_filters(on_date=self.FROZEN_TODAY)
+			expected = get_batch_count(filters=filters.copy())
+
+			with patch("lms.lms.utils.filter_batches_based_on_start_time") as walked:
+				walked.side_effect = AssertionError("the count fetched and filtered the rows")
+				self.assertEqual(get_batch_count(filters=filters.copy()), expected)
+
+	def test_active_filters_are_not_read_as_archived(self):
+		self.assertEqual(get_batch_type({"published": 1, "end_date": [">=", getdate()]}), "active")
+		self.assertEqual(get_batch_type({"start_date": ["<=", getdate()]}), "archived")
+		self.assertEqual(get_batch_type({"start_date": [">=", getdate()]}), "upcoming")
+
 	def test_the_batch_count_never_walks_the_rows(self):
 		"""The count is open to guests, so it must stay a COUNT.
 
@@ -567,19 +614,50 @@ class TestListEndpointPaging(BaseTestUtils):
 			walked.side_effect = AssertionError("the count fetched and filtered the rows")
 			self.assertEqual(get_batch_count(filters=filters.copy()), expected)
 
+	def _active_filters(self, on_date=None):
+		on_date = on_date or getdate()
+		return {
+			"published": 1,
+			"end_date": [">=", on_date],
+		}
+
+	@contextmanager
+	def _freeze_batch_clock(self):
+		"""Pin `getdate()` / `nowtime()` where the list and count read them.
+
+		`getdate(value)` still parses; only the no-arg call is frozen, so a
+		fixture dated FROZEN_TODAY is "today" at noon regardless of the wall clock.
+		"""
+
+		def frozen_getdate(*args, **kwargs):
+			if not args and not kwargs:
+				return self.FROZEN_TODAY
+			return getdate(*args, **kwargs)
+
+		with (
+			patch("lms.lms.utils.getdate", side_effect=frozen_getdate),
+			patch("lms.lms.utils.nowtime", return_value=self.FROZEN_NOON),
+			patch("frappe.utils.nowtime", return_value=self.FROZEN_NOON),
+		):
+			yield
+
 	def _create_started_today_batch(self):
-		if frappe.db.exists("LMS Batch", {"title": self.STARTED_TODAY}):
+		# Before any wall clock this test can run at, so the list always
+		# treats it as already under way.
+		self._create_today_batch(self.STARTED_TODAY, "00:00:00", "00:00:01")
+
+	def _create_today_batch(self, title, start_time, end_time, on_date=None):
+		if frappe.db.exists("LMS Batch", {"title": title}):
 			return
+		on_date = on_date or getdate()
 		batch = frappe.new_doc("LMS Batch")
 		batch.update(
 			{
-				"title": self.STARTED_TODAY,
-				"start_date": getdate(),
-				"end_date": getdate(),
-				# Before any wall clock this test can run at, so the list always
-				# treats it as already under way.
-				"start_time": "00:00:00",
-				"end_time": "00:00:01",
+				"title": title,
+				"start_date": on_date,
+				"end_date": on_date,
+				"start_time": start_time,
+				"end_time": end_time,
 				"timezone": "Asia/Kolkata",
 				"published": 1,
 				"description": "Paging fixture",
