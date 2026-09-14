@@ -434,9 +434,17 @@
 							{{ __('Question {0}').format(activeQuestion) }} -
 							{{ getInstructions(questionDetails.data) }}
 						</div>
-						<div class="shrink-0 text-ink-gray-9 text-sm-semibold">
-							{{ question.marks }}
-							{{ question.marks == 1 ? __('Mark') : __('Marks') }}
+						<div class="shrink-0 flex items-baseline gap-3">
+							<span
+								v-if="questionDetails.data.topic"
+								class="text-ink-gray-5 text-sm"
+							>
+								{{ __(questionDetails.data.topic) }}
+							</span>
+							<span class="text-ink-gray-9 text-sm-semibold">
+								{{ question.marks }}
+								{{ question.marks == 1 ? __('Mark') : __('Marks') }}
+							</span>
 						</div>
 					</div>
 					<div
