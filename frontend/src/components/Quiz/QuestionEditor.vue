@@ -75,7 +75,6 @@
 			<div :id="questionLabelId" class="sr-only">
 				<FormLabel
 					:id="questionEditorId"
-					size="md"
 					:label="__('Question')"
 					:required="true"
 				/>

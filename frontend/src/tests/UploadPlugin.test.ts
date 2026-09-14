@@ -1,10 +1,17 @@
 import { describe, expect, it, vi } from 'vitest'
 
-// Stub FileUploader so we can read the uploadArgs it receives.
+// Stub FileUploader so we can read the flat props it receives.
 vi.mock('frappe-ui', () => ({
 	FileUploader: {
 		name: 'FileUploader',
-		props: ['uploadArgs', 'fileTypes', 'validateFile'],
+		props: [
+			'private',
+			'doctype',
+			'docname',
+			'fieldname',
+			'fileTypes',
+			'validateFile',
+		],
 		template: '<div class="file-uploader" />',
 	},
 }))
@@ -19,16 +26,16 @@ const mountPlugin = (uploadContext: any) =>
 		global: { mocks: { __: (s: string) => s } },
 	})
 
-const args = (wrapper: any) =>
-	wrapper.findComponent({ name: 'FileUploader' }).props('uploadArgs')
+const uploader = (wrapper: any) =>
+	wrapper.findComponent({ name: 'FileUploader' })
 
-describe('UploadPlugin: uploadArgs', () => {
-	it('omits doctype/docname when the lesson has no docname yet', () => {
+describe('UploadPlugin: attach args', () => {
+	it('is always private and omits doctype/docname when the lesson has no docname yet', () => {
 		const wrapper = mountPlugin({ docname: null, fieldname: 'content' })
-		const a = args(wrapper)
-		expect(a.private).toBe(true)
-		expect('doctype' in a).toBe(false)
-		expect('docname' in a).toBe(false)
+		const u = uploader(wrapper)
+		expect(u.props('private')).toBe(true)
+		expect(u.props('doctype')).toBeUndefined()
+		expect(u.props('docname')).toBeUndefined()
 	})
 
 	it('attaches to the lesson when a docname is present', () => {
@@ -36,10 +43,10 @@ describe('UploadPlugin: uploadArgs', () => {
 			docname: 'lesson-123',
 			fieldname: 'content',
 		})
-		const a = args(wrapper)
-		expect(a.doctype).toBe('Course Lesson')
-		expect(a.docname).toBe('lesson-123')
-		expect(a.fieldname).toBe('content')
+		const u = uploader(wrapper)
+		expect(u.props('doctype')).toBe('Course Lesson')
+		expect(u.props('docname')).toBe('lesson-123')
+		expect(u.props('fieldname')).toBe('content')
 	})
 
 	it('picks up a docname set on the live context after mount (lazy read)', async () => {
@@ -48,13 +55,13 @@ describe('UploadPlugin: uploadArgs', () => {
 			fieldname: 'content',
 		})
 		const wrapper = mountPlugin(context)
-		expect('docname' in args(wrapper)).toBe(false)
+		expect(uploader(wrapper).props('docname')).toBeUndefined()
 
 		context.docname = 'lesson-456'
 		await nextTick()
 
-		const a = args(wrapper)
-		expect(a.doctype).toBe('Course Lesson')
-		expect(a.docname).toBe('lesson-456')
+		const u = uploader(wrapper)
+		expect(u.props('doctype')).toBe('Course Lesson')
+		expect(u.props('docname')).toBe('lesson-456')
 	})
 })

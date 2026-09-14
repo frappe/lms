@@ -9,7 +9,7 @@
 		/>
 		<FileUploader
 			:fileTypes="[fileType]"
-			:uploadArgs="{ private: false }"
+			:private="false"
 			:validateFile="(file: File) => validateFile(file, true, type)"
 			@success="(file: { file_url: string }) => saveFile(file)"
 			@failure="onUploadFailure"

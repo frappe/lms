@@ -29,7 +29,7 @@
 					<FileUploader
 						v-if="!chapter.scorm_package"
 						:fileTypes="['.zip']"
-						:uploadArgs="{ private: true }"
+						:private="true"
 						:validateFile="validateFile"
 						@success="(file) => (chapter.scorm_package = file)"
 					>

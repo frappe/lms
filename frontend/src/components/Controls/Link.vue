@@ -11,6 +11,7 @@
 			:variant="attrs.variant as ComboboxVariant"
 			:align="props.align"
 			:loading="options.loading"
+			:filterable="false"
 			:label="label ? __(label) : undefined"
 			:required="required"
 			:description="description"
@@ -86,7 +87,7 @@ import { useAttrs, computed, ref, watch } from 'vue'
 import { useSettings } from '@/stores/settings'
 import type { Resource } from '@/types'
 
-type ComboboxSize = 'sm' | 'md' | 'lg' | 'xl'
+type ComboboxSize = 'xs' | 'sm' | 'md' | 'lg'
 type ComboboxVariant = 'subtle' | 'outline' | 'ghost'
 
 interface LinkOption {

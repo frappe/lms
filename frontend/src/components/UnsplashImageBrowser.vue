@@ -21,7 +21,7 @@
 							/>
 						</div>
 						<FileUploader
-							:uploadArgs="{ private: false }"
+							:private="false"
 							@success="(file) => $emit('select', file.file_url)"
 						>
 							<template

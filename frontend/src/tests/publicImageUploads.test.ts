@@ -2,9 +2,10 @@
  * Every FileUploader must state, in its own markup, whether the File it creates
  * is public or private.
  *
- * Two defaults conspire against that. frappe-ui's FileUploader fills in
- * `{ private: true }` whenever uploadArgs says nothing about it
- * (FileUploader.vue:82-86), and frappe's upload_file defaults is_private to 1
+ * Two defaults conspire against that. frappe-ui's FileUploader defaults its flat
+ * `private` prop to `true` whenever the caller doesn't pass one
+ * (FileUploader.vue's `withDefaults(defineProps<FileUploaderProps>(), { private:
+ * true, ... })`), and frappe's upload_file defaults is_private to 1
  * (handler.py:152). A File that lands private and unattached is readable only by
  * its owner and Administrator (File.has_permission), so everyone else —
  * including the Guest rendering /login, and the crawler fetching an Open Graph
@@ -13,7 +14,7 @@
  * The ratchet below deliberately has NO exemption list. An exemption keyed on a
  * filename goes stale silently: the entry outlives the reason for it, and it
  * disables the check for every uploader in that file rather than the one that
- * was justified. Requiring an explicit `private:` instead means a genuinely
+ * was justified. Requiring an explicit `:private=` instead means a genuinely
  * private uploader — the SCORM zip, a résumé, an assignment submission — says so
  * in the markup a reviewer is already reading.
  */
@@ -25,7 +26,7 @@ import { join, relative, resolve } from 'node:path'
 vi.mock('frappe-ui', () => ({
 	FileUploader: {
 		name: 'FileUploader',
-		props: ['uploadArgs', 'fileTypes', 'fileType', 'validateFile'],
+		props: ['private', 'fileTypes', 'fileType', 'validateFile'],
 		template: '<div />',
 	},
 	Button: { template: '<button><slot /></button>' },
@@ -37,8 +38,8 @@ vi.mock('@/utils', () => ({ validateFile: () => undefined }))
 
 vi.stubGlobal('__', (s: string) => s)
 
-const uploadArgsOf = (wrapper: ReturnType<typeof mount>): unknown =>
-	wrapper.findComponent({ name: 'FileUploader' }).props('uploadArgs')
+const privateOf = (wrapper: ReturnType<typeof mount>): unknown =>
+	wrapper.findComponent({ name: 'FileUploader' }).props('private')
 
 // ImageUploader and the row that wraps it are shared by the brand logo, the
 // badge image and a payment gateway's attachment, so they carry the caller's
@@ -65,32 +66,20 @@ describe('the shared image controls forward the privacy they are given', () => {
 	}
 
 	it('uploads public when the caller says so — the brand logo, a badge', async () => {
-		expect(uploadArgsOf(await mountUploader({ is_private: false }))).toEqual({
-			private: false,
-		})
-		expect(uploadArgsOf(await mountField({ is_private: false }))).toEqual({
-			private: false,
-		})
+		expect(privateOf(await mountUploader({ is_private: false }))).toBe(false)
+		expect(privateOf(await mountField({ is_private: false }))).toBe(false)
 	})
 
 	it('uploads private when the caller says so — a gateway attachment', async () => {
-		expect(uploadArgsOf(await mountUploader({ is_private: true }))).toEqual({
-			private: true,
-		})
-		expect(uploadArgsOf(await mountField({ is_private: true }))).toEqual({
-			private: true,
-		})
+		expect(privateOf(await mountUploader({ is_private: true }))).toBe(true)
+		expect(privateOf(await mountField({ is_private: true }))).toBe(true)
 	})
 
-	// Neither control defaults it. A call site that forgets leaves the key
+	// Neither control defaults it. A call site that forgets leaves the prop
 	// undefined, and FileUploader reads that as private, the safe end.
 	it('never invents public for a caller that said nothing', async () => {
-		expect(uploadArgsOf(await mountUploader({}))).not.toMatchObject({
-			private: false,
-		})
-		expect(uploadArgsOf(await mountField({}))).not.toMatchObject({
-			private: false,
-		})
+		expect(privateOf(await mountUploader({}))).not.toBe(false)
+		expect(privateOf(await mountField({}))).not.toBe(false)
 	})
 })
 
@@ -102,7 +91,7 @@ describe('public uploaders declare private: false', () => {
 			props: { modelValue: null },
 			global: { mocks: { __: (s: string) => s } },
 		})
-		expect(uploadArgsOf(w)).toMatchObject({ private: false })
+		expect(privateOf(w)).toBe(false)
 	})
 })
 
@@ -130,7 +119,7 @@ describe('SettingsFields leaves privacy to the field', () => {
 			type: 'upload',
 			public: true,
 		})
-		expect(uploadArgsOf(w)).toMatchObject({ private: false })
+		expect(privateOf(w)).toBe(false)
 	})
 
 	it('keeps a gateway attachment private by default', async () => {
@@ -139,7 +128,7 @@ describe('SettingsFields leaves privacy to the field', () => {
 			name: 'merchant_qr',
 			type: 'upload',
 		})
-		expect(uploadArgsOf(w)).toMatchObject({ private: true })
+		expect(privateOf(w)).toBe(true)
 	})
 })
 
@@ -209,9 +198,22 @@ const openingTagsFor = (source: string, marker: string): string[] => {
 	return tags
 }
 
-/** The raw expression bound to :uploadArgs / v-bind:uploadArgs, if any. */
+/**
+ * The raw expression bound to :uploadArgs / v-bind:uploadArgs, if any.
+ *
+ * Only `<RichTextEditor>` still takes this shape — it is RichTextEditor.vue's
+ * own prop (spread into `fileUpload.upload()`), untouched by frappe-ui's
+ * `uploadArgs` → flat-props migration. `<FileUploader>` itself dropped
+ * `uploadArgs` for flat props; see `privateAttrExpression`.
+ */
 const uploadArgsExpression = (tag: string): string | null => {
 	const match = tag.match(/(?::|v-bind:)uploadArgs\s*=\s*("|')([\s\S]*?)\1/)
+	return match ? match[2].trim() : null
+}
+
+/** The raw expression bound to :private, if any (FileUploader's flat prop). */
+const privateAttrExpression = (tag: string): string | null => {
+	const match = tag.match(/(?::|v-bind:)private\s*=\s*("|')([\s\S]*?)\1/)
 	return match ? match[2].trim() : null
 }
 
@@ -231,10 +233,8 @@ const forwardedPrivacyOf = (tag: string): Privacy => {
 	return 'per-field'
 }
 
-const privacyOf = (tag: string): Privacy => {
-	if (FORWARDING_TAGS.some((marker) => tag.startsWith(marker)))
-		return forwardedPrivacyOf(tag)
-
+/** `<RichTextEditor>`'s own `:uploadArgs="{ ... }"` object prop. */
+const objectArgsPrivacyOf = (tag: string): Privacy => {
 	const expression = uploadArgsExpression(tag)
 	if (expression === null) return 'undeclared'
 	if (!expression.startsWith('{')) return 'computed'
@@ -244,6 +244,29 @@ const privacyOf = (tag: string): Privacy => {
 		return 'private'
 	if (/\b(private|is_private)\s*:/.test(expression)) return 'per-field'
 	return 'undeclared'
+}
+
+/**
+ * `<FileUploader>`'s flat `:private=` prop. ImageUploader.vue forwards its own
+ * `is_private` prop straight through (`:private="is_private"`) rather than
+ * deciding privacy itself, the same relationship `forwardedPrivacyOf` reads
+ * off its callers — so that specific identifier reads as `per-field` too, not
+ * as an opaque `computed` expression.
+ */
+const flatPrivacyOf = (tag: string): Privacy => {
+	const expression = privateAttrExpression(tag)
+	if (expression === null) return 'undeclared'
+	if (/^(false|0)$/.test(expression)) return 'public'
+	if (/^(true|1)$/.test(expression)) return 'private'
+	if (/\bis_private\b/.test(expression)) return 'per-field'
+	return 'computed'
+}
+
+const privacyOf = (tag: string): Privacy => {
+	if (FORWARDING_TAGS.some((marker) => tag.startsWith(marker)))
+		return forwardedPrivacyOf(tag)
+	if (tag.startsWith('<RichTextEditor')) return objectArgsPrivacyOf(tag)
+	return flatPrivacyOf(tag)
 }
 
 /**
@@ -295,7 +318,9 @@ const MANIFEST: Record<string, Privacy[]> = {
 		'undeclared',
 		'per-field',
 	],
-	'components/UploadPlugin.vue': ['computed'],
+	// A literal `:private="true"` now that the flat prop replaced the
+	// `uploadArgs` computed object — no longer `computed`, still private.
+	'components/UploadPlugin.vue': ['private'],
 	'pages/Forms/AssignmentForm.vue': ['undeclared'],
 	'pages/Forms/AnnouncementForm.vue': ['undeclared'],
 	'pages/Batches/BatchForm.vue': ['undeclared'],

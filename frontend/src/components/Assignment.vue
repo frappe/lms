@@ -98,9 +98,7 @@
 					<FileUploader
 						v-if="!attachment"
 						:fileTypes="getType()"
-						:uploadArgs="{
-							private: true,
-						}"
+						:private="true"
 						:validateFile="
 							(file) =>
 								validateFile(file, true, assignment.data.type.toLowerCase())

@@ -13,7 +13,10 @@
 
 			<div v-else class="flex items-center justify-between gap-3">
 				<div class="flex items-center gap-3">
-					<Switch v-model="lesson.include_in_preview" @change="markDirty" />
+					<Switch
+						v-model="lesson.include_in_preview"
+						@update:modelValue="markDirty"
+					/>
 					<div class="flex items-center gap-1.5">
 						<span class="text-p-base font-medium text-ink-gray-8">
 							{{ __('Include in preview') }}
@@ -51,7 +54,7 @@
 						<Switch
 							v-model="lesson.include_in_preview"
 							class="shrink-0"
-							@change="markDirty"
+							@update:modelValue="markDirty"
 						/>
 					</div>
 				</div>

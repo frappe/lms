@@ -21,7 +21,7 @@
 						/>
 						<FileUploader
 							:fileTypes="['image/*']"
-							:uploadArgs="{ private: false }"
+							:private="false"
 							:validateFile="validateFile"
 							@success="(file) => saveImage(file)"
 						>
