@@ -76,15 +76,19 @@ vi.mock('frappe-ui', () => ({
 	Switch: passthrough,
 }))
 
-// A plain mock, not `importOriginal`: `@framework/ui`'s root barrel also
-// `export *`s components (GeolocationField among them) that import
-// `leaflet`/`leaflet-draw` assets not installed in this frontend — loading the
-// real module here crashes module resolution. Nothing this file renders reads
-// another `@framework/ui` export.
-vi.mock('@framework/ui', () => ({
+vi.mock('@framework/ui/telemetry/index', async (importOriginal) => ({
+	...(await importOriginal<typeof import('@framework/ui/telemetry/index')>()),
 	useTelemetry: () => ({ capture: vi.fn() }),
-	useOnboarding: () => ({ updateOnboardingStep: vi.fn() }),
 }))
+vi.mock(
+	'@framework/ui/components/Onboarding/index',
+	async (importOriginal) => ({
+		...(await importOriginal<
+			typeof import('@framework/ui/components/Onboarding/index')
+		>()),
+		useOnboarding: () => ({ updateOnboardingStep: vi.fn() }),
+	})
+)
 
 vi.mock('@/components/Controls/BooleanSwitch.vue', () => ({
 	default: {

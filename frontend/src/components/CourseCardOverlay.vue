@@ -152,7 +152,7 @@ import { Badge, Button, call, createResource, toast } from 'frappe-ui'
 import { useRouter } from 'vue-router'
 import CertificationLinks from '@/components/CertificationLinks.vue'
 import VideoPreview from '@/components/VideoPreview.vue'
-import { useTelemetry } from '@framework/ui'
+import { useTelemetry } from '@framework/ui/telemetry/index'
 import { openExternal } from '@/utils/openExternal'
 import type {
 	CourseDetails,

@@ -53,13 +53,13 @@ vi.mock('frappe-ui', () => ({
 	Select: { template: '<select />' },
 }))
 
-// A plain mock, not `importOriginal`: `@framework/ui`'s root barrel also
-// `export *`s components (GeolocationField among them) that import
-// `leaflet`/`leaflet-draw` assets not installed in this frontend — loading the
-// real module here crashes module resolution. Nothing this file renders reads
-// another `@framework/ui` export.
-vi.mock('@framework/ui', () => ({
+// Mocks the specific `@framework/ui` submodules this file imports from — the
+// bare package root's barrel also `export *`s components (GeolocationField
+// among them) that import `leaflet`/`leaflet-draw` assets not installed here.
+vi.mock('@framework/ui/components/Onboarding/index', () => ({
 	useOnboarding: () => ({ updateOnboardingStep: vi.fn() }),
+}))
+vi.mock('@framework/ui/telemetry/index', () => ({
 	useTelemetry: () => ({ capture: vi.fn() }),
 }))
 

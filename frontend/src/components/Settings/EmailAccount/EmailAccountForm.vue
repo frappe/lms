@@ -76,7 +76,7 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
 import { Button, ErrorMessage, call, toast } from 'frappe-ui'
-import { useTelemetry } from '@framework/ui'
+import { useTelemetry } from '@framework/ui/telemetry/index'
 import { CircleAlert, Mail as LucideMail } from 'lucide-vue-next'
 import SettingsFields from '@/components/Layouts/settings/desktop/SettingsFields.vue'
 import SettingsLayout from '@/components/Layouts/settings/desktop/SettingsLayout.vue'

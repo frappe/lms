@@ -244,16 +244,16 @@ import {
 	Users,
 	BookText,
 } from 'lucide-vue-next'
+import { TrialBanner } from '@framework/ui/components/TrialBanner/index'
 import {
-	TrialBanner,
 	HelpModal,
 	GettingStartedBanner,
 	useOnboarding,
 	showHelpModal,
 	minimize,
 	IntermediateStepModal,
-	useTelemetry,
-} from '@framework/ui'
+} from '@framework/ui/components/Onboarding/index'
+import { useTelemetry } from '@framework/ui/telemetry/index'
 import InviteIcon from '@/components/Icons/InviteIcon.vue'
 import UserDropdown from '@/components/Sidebar/UserDropdown.vue'
 import CollapseSidebar from '@/components/Icons/CollapseSidebar.vue'

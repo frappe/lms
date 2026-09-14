@@ -116,7 +116,7 @@ import { call, createResource, Button, Dropdown, toast } from 'frappe-ui'
 import { timeAgo } from '@/utils'
 import UserAvatar from '@/components/UserAvatar.vue'
 import { ref, inject, onMounted, onUnmounted } from 'vue'
-import { useTelemetry } from '@framework/ui'
+import { useTelemetry } from '@framework/ui/telemetry/index'
 import RichTextEditor from '@/components/RichTextEditor.vue'
 
 const showTopics = defineModel('showTopics')

@@ -251,7 +251,7 @@ import PageBody from '@/components/Layouts/pages/PageBody.vue'
 import { sessionStore } from '../stores/session'
 import Link from '@/components/Controls/Link.vue'
 import NotPermitted from '@/components/NotPermitted.vue'
-import { useTelemetry } from '@framework/ui'
+import { useTelemetry } from '@framework/ui/telemetry/index'
 import { getLmsRoute } from '@/utils/basePath'
 import {
 	INDIAN_STATE_OPTIONS,

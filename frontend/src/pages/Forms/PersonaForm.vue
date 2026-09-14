@@ -24,7 +24,7 @@
 <script setup>
 import PersonaCard from '@/components/Persona/PersonaCard.vue'
 import { call, usePageMeta } from 'frappe-ui'
-import { useTelemetry } from '@framework/ui'
+import { useTelemetry } from '@framework/ui/telemetry/index'
 import { BookOpen, Users, Award, Rocket, Compass } from 'lucide-vue-next'
 import { computed, inject, markRaw, ref } from 'vue'
 import { useRouter } from 'vue-router'

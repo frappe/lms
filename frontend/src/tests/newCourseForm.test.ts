@@ -110,15 +110,19 @@ vi.mock('frappe-ui', () => ({
 	Select: passthrough,
 }))
 
-// A plain mock, not `importOriginal`: `@framework/ui`'s root barrel also
-// `export *`s components (GeolocationField among them) that import
-// `leaflet`/`leaflet-draw` assets not installed in this frontend — loading the
-// real module here crashes module resolution. Nothing this file renders reads
-// another `@framework/ui` export.
-vi.mock('@framework/ui', () => ({
+vi.mock('@framework/ui/telemetry/index', async (importOriginal) => ({
+	...(await importOriginal<typeof import('@framework/ui/telemetry/index')>()),
 	useTelemetry: () => ({ capture: vi.fn() }),
-	useOnboarding: () => ({ updateOnboardingStep: vi.fn() }),
 }))
+vi.mock(
+	'@framework/ui/components/Onboarding/index',
+	async (importOriginal) => ({
+		...(await importOriginal<
+			typeof import('@framework/ui/components/Onboarding/index')
+		>()),
+		useOnboarding: () => ({ updateOnboardingStep: vi.fn() }),
+	})
+)
 
 // The rich text editor drags in ProseMirror; the form's behaviour under test
 // does not involve it.

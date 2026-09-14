@@ -142,7 +142,8 @@ import { hasVideoContent } from '@/utils/video'
 import BlockEditor from '@/components/BlockEditor.vue'
 import BottomSheet from '@/components/BottomSheet.vue'
 import { useScreenSize } from '@/utils/composables'
-import { useOnboarding, useTelemetry } from '@framework/ui'
+import { useOnboarding } from '@framework/ui/components/Onboarding/index'
+import { useTelemetry } from '@framework/ui/telemetry/index'
 import {
 	useKeyboardShortcuts,
 	saveShortcut,

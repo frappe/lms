@@ -1,5 +1,5 @@
 import { toast } from 'frappe-ui'
-import { useTelemetry } from '@framework/ui'
+import { useTelemetry } from '@framework/ui/telemetry/index'
 import { usersStore } from '@/stores/user'
 import {
 	deleteRow,

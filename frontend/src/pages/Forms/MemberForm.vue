@@ -62,7 +62,8 @@
 <script setup lang="ts">
 import { call, createResource, FormControl, toast } from 'frappe-ui'
 import { computed, inject, onMounted, reactive, ref, watch } from 'vue'
-import { useOnboarding, useTelemetry } from '@framework/ui'
+import { useOnboarding } from '@framework/ui/components/Onboarding/index'
+import { useTelemetry } from '@framework/ui/telemetry/index'
 import RoleSwitches from '@/components/Controls/RoleSwitches.vue'
 import FormShell from '@/components/FormShell.vue'
 import HeaderButton from '@/components/HeaderButton.vue'

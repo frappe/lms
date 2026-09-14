@@ -19,11 +19,10 @@ vi.hoisted(() => {
 vi.stubGlobal('__', (s: string) => s)
 
 // The tree imports every settings page, and several of them import
-// `@framework/ui` (telemetry/onboarding). Its root barrel also `export *`s
-// components (GeolocationField among them) that import `leaflet`/`leaflet-draw`
-// assets not installed in this frontend — loading the real module crashes
-// module resolution, even though nothing here mounts a component.
-vi.mock('@framework/ui', () => ({}))
+// `@framework/ui/telemetry` and/or `@framework/ui/components/Onboarding`. Both
+// must resolve, even though nothing here mounts a component.
+vi.mock('@framework/ui/telemetry/index', () => ({}))
+vi.mock('@framework/ui/components/Onboarding/index', () => ({}))
 
 import { settingsTree } from '@/components/Settings/settings'
 import { NEW_RECORD, useSettingsSource } from '@/composables/useSettingsSource'
