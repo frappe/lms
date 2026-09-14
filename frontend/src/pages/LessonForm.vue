@@ -57,16 +57,24 @@
 				</div>
 			</BottomSheet>
 
-			<textarea
-				ref="titleRef"
-				v-model="lesson.title"
-				:placeholder="__('Lesson title')"
-				:aria-label="__('Lesson title')"
-				rows="1"
-				class="lesson-title block w-full resize-none overflow-hidden border-0 bg-transparent p-0 text-2xl font-bold leading-tight text-ink-gray-9 placeholder:text-ink-gray-4 focus:outline-none focus:ring-0"
-				@input="onTitleInput"
-				@keydown.enter="onTitleEnter"
-			/>
+			<div>
+				<div
+					v-if="chapterTitle"
+					class="lesson-chapter-title mb-1 text-p-sm text-ink-gray-5"
+				>
+					{{ chapterTitle }}
+				</div>
+				<textarea
+					ref="titleRef"
+					v-model="lesson.title"
+					:placeholder="__('Lesson title')"
+					:aria-label="__('Lesson title')"
+					rows="1"
+					class="lesson-title block w-full resize-none overflow-hidden border-0 bg-transparent p-0 text-2xl font-bold leading-tight text-ink-gray-9 placeholder:text-ink-gray-4 focus:outline-none focus:ring-0"
+					@input="onTitleInput"
+					@keydown.enter="onTitleEnter"
+				/>
+			</div>
 
 			<details
 				class="instructor-notes rounded-lg border border-outline-gray-2"
@@ -352,6 +360,10 @@ const lessonDetails = createResource({
 		}
 	},
 })
+
+// Which chapter this lesson belongs to. A lesson is only reachable through its
+// chapter, so without this the form gives no clue which one is being edited.
+const chapterTitle = computed(() => lessonDetails.data?.chapter?.title)
 
 const addLessonContent = (data) => {
 	// Editor can unmount mid-load; render() on a null ref throws.
