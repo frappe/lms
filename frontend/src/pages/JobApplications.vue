@@ -59,44 +59,42 @@
 	</ListPage>
 
 	<Dialog
-		v-model="showEmailModal"
+		v-model:open="showEmailModal"
 		:title="__('Send Email to {0}').format(selectedApplicant?.full_name)"
 		size="lg"
 		:actions="[
 			{
 				label: __('Send'),
 				variant: 'solid',
-				onClick: (close) => sendEmail(close),
+				onClick: ({ close }) => sendEmail(close),
 			},
 		]"
 	>
-		<template #default>
-			<div class="space-y-4">
-				<FormControl
-					v-model="emailForm.subject"
-					:label="__('Subject')"
-					:placeholder="__('Enter email subject')"
-					required
-				/>
-				<FormControl
-					v-model="emailForm.replyTo"
-					:label="__('Reply To')"
-					:placeholder="__('Enter reply to email')"
-				/>
-				<div>
-					<div class="text-sm text-ink-gray-5 mb-1">
-						{{ __('Message') }}
-					</div>
-					<RichTextEditor
-						:content="emailForm.message"
-						@change="(val) => (emailForm.message = val)"
-						:editable="true"
-						:fixedMenu="true"
-						editorClass="prose-sm max-w-none border-b border-x border-outline-elevation-2 bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[7rem]"
-					/>
+		<div class="space-y-4">
+			<FormControl
+				v-model="emailForm.subject"
+				:label="__('Subject')"
+				:placeholder="__('Enter email subject')"
+				required
+			/>
+			<FormControl
+				v-model="emailForm.replyTo"
+				:label="__('Reply To')"
+				:placeholder="__('Enter reply to email')"
+			/>
+			<div>
+				<div class="text-sm text-ink-gray-5 mb-1">
+					{{ __('Message') }}
 				</div>
+				<RichTextEditor
+					:content="emailForm.message"
+					@change="(val) => (emailForm.message = val)"
+					:editable="true"
+					:fixedMenu="true"
+					editorClass="prose-sm max-w-none border-b border-x border-outline-elevation-2 bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[7rem]"
+				/>
 			</div>
-		</template>
+		</div>
 	</Dialog>
 </template>
 

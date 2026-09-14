@@ -117,7 +117,7 @@
 											? column.ariaLabel(row)
 											: __('More options'),
 									}"
-									placement="right"
+									align="end"
 								/>
 							</slot>
 						</ListCell>

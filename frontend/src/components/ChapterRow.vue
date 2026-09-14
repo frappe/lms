@@ -48,14 +48,14 @@
 				>
 					{{ chapter.lessons.length }}
 				</span>
-				<Tooltip :text="__('Edit Chapter')" placement="bottom">
+				<Tooltip :text="__('Edit Chapter')" side="bottom">
 					<span
 						v-if="allowEdit && chapter.is_scorm_package"
 						@click.prevent="emit('edit-chapter', chapter)"
 						class="lucide-file-pen-line size-4 text-ink-gray-9 invisible group-hover:visible"
 					/>
 				</Tooltip>
-				<Tooltip :text="__('Delete Chapter')" placement="bottom">
+				<Tooltip :text="__('Delete Chapter')" side="bottom">
 					<span
 						v-if="allowEdit"
 						@click.prevent="emit('delete-chapter', chapter.name)"

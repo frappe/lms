@@ -603,7 +603,7 @@ const deleteProgram = () => {
 				label: __('Delete'),
 				theme: 'red',
 				variant: 'solid',
-				onClick(closeDialog: () => void) {
+				onClick({ close: closeDialog }: { close: () => void }) {
 					submitResource(programs.delete, programId.value, {
 						onSuccess() {
 							toast.success(__('Program deleted successfully'))

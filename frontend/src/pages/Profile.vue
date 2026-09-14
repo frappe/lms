@@ -65,7 +65,7 @@
 									? __('Open to Work')
 									: __('Hiring')
 							"
-							placement="right"
+							side="right"
 						>
 							<div
 								class="absolute bottom-3 end-1 p-0.5 bg-surface-base rounded-full"

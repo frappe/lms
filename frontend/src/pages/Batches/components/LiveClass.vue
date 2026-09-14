@@ -94,7 +94,7 @@
 					<Tooltip
 						v-else-if="hasClassEnded(cls)"
 						:text="__('This class has ended')"
-						placement="right"
+						side="right"
 					>
 						<div class="flex items-center gap-x-2 text-ink-amber-6 w-fit">
 							<span class="lucide-info w-4 h-4" />

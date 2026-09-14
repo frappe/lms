@@ -135,10 +135,8 @@
 						<span
 							class="lucide-circle-alert size-4 text-ink-gray-7 cursor-pointer"
 						/>
-						<template #body>
-							<div
-								class="max-w-[30ch] rounded bg-surface-gray-10 px-2 py-1 text-center text-p-xs text-ink-base shadow-xl"
-							>
+						<template #content>
+							<div class="max-w-[30ch] text-center text-p-xs">
 								{{
 									__(
 										'This site is being updated. You will not be able to make any changes. Full access will be restored shortly.'

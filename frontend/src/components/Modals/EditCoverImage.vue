@@ -1,7 +1,7 @@
 <template>
 	<Popover bare>
-		<template #trigger="{ isOpen, toggle }" class="flex w-full">
-			<slot v-bind="{ isOpen, togglePopover: toggle }"></slot>
+		<template #trigger="{ open, toggle }" class="flex w-full">
+			<slot v-bind="{ open, toggle }"></slot>
 		</template>
 		<template #default>
 			<div

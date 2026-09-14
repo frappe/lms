@@ -55,7 +55,7 @@
 		<Dropdown
 			v-if="!readOnly"
 			:options="rowMenu"
-			placement="right"
+			align="end"
 			class="relative z-10"
 		>
 			<Button

@@ -13,7 +13,7 @@
 	>
 		<template #actions>
 			<Dropdown
-				placement="right"
+				align="end"
 				side="bottom"
 				v-if="canCreateCourse()"
 				:options="courseMenu"

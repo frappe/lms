@@ -23,7 +23,6 @@
 			<Dropdown
 				v-if="isAdmin && batchMenu(tab).length"
 				:options="batchMenu(tab)"
-				placement="left"
 				side="left"
 			>
 				<template v-slot="{ open }">

@@ -52,7 +52,6 @@
 										},
 									},
 								]"
-								placement="left"
 								side="left"
 							>
 								<template v-slot="{ open }">
@@ -211,7 +210,7 @@ const cancelEvaluation = (evl) => {
 				label: __('Cancel'),
 				theme: 'red',
 				variant: 'solid',
-				onClick(close) {
+				onClick({ close }) {
 					call('lms.lms.api.cancel_evaluation', { evaluation: evl })
 						.then(() => {
 							upcoming_evals.reload()

@@ -145,7 +145,7 @@ const userDropdownOptions = computed(() => {
 	return [
 		{
 			group: '',
-			items: [
+			options: [
 				{
 					icon: 'lucide-user',
 					label: 'My Profile',
@@ -231,7 +231,7 @@ const userDropdownOptions = computed(() => {
 								{
 									label: __('Confirm'),
 									variant: 'solid',
-									onClick(close) {
+									onClick({ close }) {
 										loginToFrappeCloud()
 										close()
 									},
@@ -289,7 +289,7 @@ const clearDemoDataConfirmation = () => {
 				label: __('Confirm'),
 				theme: 'red',
 				variant: 'solid',
-				onClick(close) {
+				onClick({ close }) {
 					clearDemoData()
 					close()
 				},

@@ -26,7 +26,7 @@
 	</SettingsList>
 
 	<Dialog
-		v-model="showForm"
+		v-model:open="showForm"
 		:title="isNew ? __('New Category') : __('Edit Category')"
 		size="sm"
 		:actions="actions"

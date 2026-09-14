@@ -27,8 +27,8 @@ export let Dialogs = {
 					icon: dialog.icon,
 					position: dialog.position,
 					actions: dialog.actions,
-					modelValue: dialog.show,
-					'onUpdate:modelValue': (val) => (dialog.show = val),
+					open: dialog.show,
+					'onUpdate:open': (val) => (dialog.show = val),
 				},
 				() => [
 					h(

@@ -33,7 +33,7 @@
 						</span>
 					</button>
 				</template>
-				<template #default="{ close, isOpen }" class="w-full">
+				<template #default="{ close }" class="w-full">
 					<div class="p-3 max-h-56 overflow-auto w-full">
 						<FormControl
 							ref="search"

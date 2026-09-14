@@ -14,7 +14,7 @@
 
 				<Tooltip
 					v-if="program.data?.enforce_course_order"
-					placement="right"
+					side="right"
 					:text="
 						__(
 							'Courses must be completed in order. You can only start the next course after completing the previous one.'

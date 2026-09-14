@@ -1,5 +1,6 @@
 <template>
 	<Dialog
+		v-model:open="open"
 		:title="singularize(props.title)"
 		size="2xl"
 		:actions="[
@@ -38,6 +39,7 @@ import { singularize } from '@/utils'
 import { useTelemetry } from '@framework/ui/telemetry/index'
 import RichTextEditor from '@/components/RichTextEditor.vue'
 
+const open = defineModel('modelValue')
 const topics = defineModel('reloadTopics')
 const emit = defineEmits(['created'])
 const { capture } = useTelemetry()
