@@ -29,7 +29,7 @@
 			<div class="p-5 space-y-5">
 				<div
 					v-if="scheduleBlocked"
-					class="bg-surface-amber-1 text-ink-amber-6 p-3 rounded-5 leading-5 text-sm"
+					class="bg-surface-amber-1 text-ink-amber-5 p-3 rounded-5 leading-5 text-sm"
 				>
 					{{ scheduleMessage }}
 				</div>
@@ -73,7 +73,7 @@
 						!['Pass', 'Fail'].includes(submissionResource.doc?.status) &&
 						submissionResource.doc?.owner == user.data?.name
 					"
-					class="bg-surface-blue-2 text-ink-blue-5 p-3 rounded-5 leading-5 text-sm"
+					class="bg-surface-blue-2 text-ink-blue-4 p-3 rounded-5 leading-5 text-sm"
 				>
 					{{ __("You've successfully submitted the assignment.") }}
 					{{

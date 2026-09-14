@@ -40,7 +40,7 @@ describe('SettingsFields marks a required field', () => {
 			{ name: 'nickname', label: 'Nickname', type: 'text' },
 		])
 
-		expect(w.findAll('.text-ink-red-6')).toHaveLength(1)
+		expect(w.findAll('.text-ink-red-5')).toHaveLength(1)
 		expect(w.text()).toContain('Account name')
 		expect(w.text()).toContain('Nickname')
 	})
@@ -50,7 +50,7 @@ describe('SettingsFields marks a required field', () => {
 			{ name: 'nickname', label: 'Nickname', type: 'text' },
 		])
 
-		expect(w.find('.text-ink-red-6').exists()).toBe(false)
+		expect(w.find('.text-ink-red-5').exists()).toBe(false)
 	})
 
 	it('marks a required fullWidth field', async () => {
@@ -64,7 +64,7 @@ describe('SettingsFields marks a required field', () => {
 			},
 		])
 
-		expect(w.findAll('.text-ink-red-6')).toHaveLength(1)
+		expect(w.findAll('.text-ink-red-5')).toHaveLength(1)
 	})
 
 	it('marks a required textarea field', async () => {
@@ -72,7 +72,7 @@ describe('SettingsFields marks a required field', () => {
 			{ name: 'notes', label: 'Notes', type: 'textarea', reqd: true },
 		])
 
-		expect(w.findAll('.text-ink-red-6')).toHaveLength(1)
+		expect(w.findAll('.text-ink-red-5')).toHaveLength(1)
 	})
 
 	it('does not mark an optional checkbox, and still renders it', async () => {
@@ -80,7 +80,7 @@ describe('SettingsFields marks a required field', () => {
 			{ name: 'enabled', label: 'Enabled', type: 'checkbox' },
 		])
 
-		expect(w.find('.text-ink-red-6').exists()).toBe(false)
+		expect(w.find('.text-ink-red-5').exists()).toBe(false)
 		expect(w.text()).toContain('Enabled')
 	})
 })

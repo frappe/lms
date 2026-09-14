@@ -74,8 +74,8 @@
 									class="rounded-full w-fit"
 									:class="
 										profile.data.open_to === 'Work'
-											? 'bg-surface-green-7 text-ink-green-1'
-											: 'bg-surface-violet-7 text-ink-violet-1'
+											? 'bg-surface-green-7 text-white'
+											: 'bg-surface-violet-7 text-white'
 									"
 								>
 									<span class="lucide-badge-check size-5" />

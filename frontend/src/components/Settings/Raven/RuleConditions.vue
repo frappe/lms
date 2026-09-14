@@ -78,7 +78,7 @@
 		<p
 			v-for="message in sectionErrors"
 			:key="message"
-			class="text-p-sm text-ink-red-6"
+			class="text-p-sm text-ink-red-5"
 		>
 			{{ message }}
 		</p>

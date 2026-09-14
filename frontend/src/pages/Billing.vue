@@ -85,7 +85,7 @@
 					</div>
 
 					<p
-						class="bg-surface-amber-2 text-ink-amber-5 text-sm leading-5 p-2 rounded-5"
+						class="bg-surface-amber-2 text-ink-amber-4 text-sm leading-5 p-2 rounded-5"
 					>
 						{{
 							__(
@@ -193,7 +193,7 @@
 							/>
 							<div
 								v-if="showConsentWarning"
-								class="mt-1 text-xs text-ink-red-6"
+								class="mt-1 text-xs text-ink-red-5"
 							>
 								{{
 									__('Please provide your consent to proceed with the payment')

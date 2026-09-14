@@ -59,7 +59,7 @@
 					<span
 						v-if="allowEdit"
 						@click.prevent="emit('delete-chapter', chapter.name)"
-						class="lucide-trash-2 size-4 text-ink-red-6 hidden group-hover:inline-block"
+						class="lucide-trash-2 size-4 text-ink-red-5 hidden group-hover:inline-block"
 					/>
 				</Tooltip>
 			</div>
@@ -138,7 +138,7 @@
 												chapter: chapter.name,
 											})
 										"
-										class="lucide-trash-2 h-4 w-4 text-ink-red-6 invisible group-hover:visible"
+										class="lucide-trash-2 h-4 w-4 text-ink-red-5 invisible group-hover:visible"
 									/>
 								</div>
 								<template v-if="lesson.locked">

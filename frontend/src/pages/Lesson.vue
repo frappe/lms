@@ -271,7 +271,7 @@
 							class="flex items-center gap-3 rounded-6 bg-surface-amber-2 p-3 mt-8"
 						>
 							<div
-								class="grid size-7 shrink-0 place-items-center text-ink-amber-6"
+								class="grid size-7 shrink-0 place-items-center text-ink-amber-5"
 							>
 								<span class="lucide-circle-alert size-4" aria-hidden="true" />
 							</div>

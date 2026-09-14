@@ -217,7 +217,7 @@
 							<div class="mb-0.5 text-xs text-ink-gray-5">
 								{{ __('Violations') }}
 							</div>
-							<div class="text-sm font-medium text-ink-red-6">
+							<div class="text-sm font-medium text-ink-red-5">
 								{{ submissionDetails.doc.violation_count }}
 							</div>
 						</div>
@@ -274,8 +274,8 @@
 									class="absolute -start-[21px] top-1 size-2 rounded-full"
 									:class="
 										entry.severity === 'violation'
-											? 'bg-ink-red-6'
-											: 'bg-ink-orange-6'
+											? 'bg-ink-red-5'
+											: 'bg-ink-orange-5'
 									"
 								/>
 								<div class="text-xs font-medium leading-5 text-ink-gray-7">
@@ -288,8 +288,8 @@
 										class="font-medium"
 										:class="
 											entry.severity === 'violation'
-												? 'text-ink-red-6'
-												: 'text-ink-orange-6'
+												? 'text-ink-red-5'
+												: 'text-ink-orange-5'
 										"
 									>
 										{{ severityLabel(entry.severity) }}
@@ -498,8 +498,8 @@ const severityLabel = (severity) =>
 	severity === 'violation' ? __('Violation') : __('Warning')
 
 const markStatusClass = (row) => {
-	if (row.marks == row.marks_out_of) return 'bg-ink-green-6'
-	return row.marks > 0 ? 'bg-ink-orange-6' : 'bg-ink-red-6'
+	if (row.marks == row.marks_out_of) return 'bg-ink-green-5'
+	return row.marks > 0 ? 'bg-ink-orange-5' : 'bg-ink-red-5'
 }
 
 // The header renders before the doc lands, so this must not read `.quiz` off an

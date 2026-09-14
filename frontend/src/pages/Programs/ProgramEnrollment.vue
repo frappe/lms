@@ -12,7 +12,7 @@
 				data-testid="program-enrollment-summary"
 				class="text-base text-ink-gray-9"
 			>
-				<div class="bg-surface-blue-2 text-ink-blue-6 p-2 rounded-5 leading-5">
+				<div class="bg-surface-blue-2 text-ink-blue-5 p-2 rounded-5 leading-5">
 					<span>
 						{{
 							__('This program consists of {0} courses').format(

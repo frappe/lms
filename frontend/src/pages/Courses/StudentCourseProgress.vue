@@ -59,10 +59,10 @@
 									v-if="getLessonStatus(progress) == 'Complete'"
 									:text="__('Complete')"
 								>
-									<span class="lucide-check text-ink-green-6 size-4" />
+									<span class="lucide-check text-ink-green-5 size-4" />
 								</Tooltip>
 								<Tooltip v-else :text="__('Pending')">
-									<span class="lucide-minus text-ink-amber-5 size-4" />
+									<span class="lucide-minus text-ink-amber-4 size-4" />
 								</Tooltip>
 								<!-- <Badge :theme="getLessonStatusTheme(progress)">
 									{{ getLessonStatus(progress) }}

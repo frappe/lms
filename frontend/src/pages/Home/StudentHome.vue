@@ -60,7 +60,7 @@
 								:text="__('This class has ended')"
 								side="right"
 							>
-								<div class="flex items-center gap-x-2 text-ink-amber-3 w-fit">
+								<div class="flex items-center gap-x-2 text-ink-amber-2 w-fit">
 									<span class="lucide-info size-4" />
 									<span>
 										{{ __('Ended') }}

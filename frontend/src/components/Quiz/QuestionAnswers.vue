@@ -63,7 +63,7 @@
 		<p
 			v-if="correctAnswerInvalid"
 			:id="correctAnswerMessageId"
-			class="mt-2 flex items-center gap-1.5 text-p-sm text-ink-red-6"
+			class="mt-2 flex items-center gap-1.5 text-p-sm text-ink-red-5"
 		>
 			<span class="lucide-circle-alert size-4 shrink-0" />
 			{{

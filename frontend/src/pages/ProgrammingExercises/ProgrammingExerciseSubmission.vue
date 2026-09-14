@@ -2,7 +2,7 @@
 	<PageHeader v-if="!fromLesson" :breadcrumbs="breadcrumbs" />
 	<div
 		v-if="falconError"
-		class="flex items-center justify-between p-3 text-sm bg-surface-amber-1 text-ink-amber-3"
+		class="flex items-center justify-between p-3 text-sm bg-surface-amber-1 text-ink-amber-2"
 	>
 		<span>
 			{{ falconError }}
@@ -69,7 +69,7 @@
 						v-if="error"
 						v-model="errorMessage"
 						:aria-label="__('Compiler Message')"
-						class="font-mono text-ink-red-6 bg-surface-gray-1 border-none text-sm h-32 leading-6"
+						class="font-mono text-ink-red-5 bg-surface-gray-1 border-none text-sm h-32 leading-6"
 						readonly
 					/>
 				</div>
@@ -93,8 +93,8 @@
 								class="font-semibold ms-2 me-1"
 								:class="
 									testCase.status === 'Passed'
-										? 'text-ink-green-3'
-										: 'text-ink-red-3'
+										? 'text-ink-green-2'
+										: 'text-ink-red-2'
 								"
 							>
 								{{ testCase.status }}

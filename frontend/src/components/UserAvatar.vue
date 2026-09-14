@@ -12,7 +12,7 @@
 				<div class="rounded-full bg-surface-green-7 w-fit">
 					<span
 						class="lucide-badge-check"
-						:class="'text-ink-green-1 ' + checkSize"
+						:class="'text-white ' + checkSize"
 					/>
 				</div>
 			</Tooltip>
@@ -22,7 +22,7 @@
 				<div class="rounded-full bg-surface-violet-7 w-fit">
 					<span
 						class="lucide-badge-check"
-						:class="'text-ink-violet-1 ' + checkSize"
+						:class="'text-white ' + checkSize"
 					/>
 				</div>
 			</Tooltip>

@@ -62,7 +62,7 @@
 							<button
 								type="button"
 								@click="deleteRow(rowIndex)"
-								class="flex items-center gap-x-2 w-full text-start px-3 py-2 text-sm text-ink-red-6"
+								class="flex items-center gap-x-2 w-full text-start px-3 py-2 text-sm text-ink-red-5"
 							>
 								<span class="lucide-trash-2 size-4" />
 								<span>

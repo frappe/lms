@@ -20,8 +20,8 @@
 				v-if="quiz.data.duration"
 				class="inline-flex items-center gap-1.5 text-sm font-medium px-3 py-1.5 rounded-full transition-colors"
 				:class="{
-					'bg-surface-red-1 text-ink-red-6': timerUrgency === 'critical',
-					'bg-surface-orange-1 text-ink-orange-6': timerUrgency === 'warning',
+					'bg-surface-red-1 text-ink-red-5': timerUrgency === 'critical',
+					'bg-surface-orange-1 text-ink-orange-5': timerUrgency === 'warning',
 					'bg-surface-gray-3 text-ink-gray-7': timerUrgency === 'normal',
 				}"
 			>
@@ -77,14 +77,14 @@
 						</span>
 						<span
 							v-if="quiz.data.duration"
-							class="inline-flex items-center gap-1.5 bg-surface-blue-1 text-ink-blue-6 text-xs font-medium px-2.5 py-1 rounded-full"
+							class="inline-flex items-center gap-1.5 bg-surface-blue-1 text-ink-blue-5 text-xs font-medium px-2.5 py-1 rounded-full"
 						>
 							<span class="lucide-timer size-3.5" />
 							{{ quiz.data.duration }} {{ __('min') }}
 						</span>
 						<span
 							v-if="quiz.data.enable_proctoring"
-							class="inline-flex items-center gap-1.5 bg-surface-orange-1 text-ink-orange-6 text-xs font-medium px-2.5 py-1 rounded-full"
+							class="inline-flex items-center gap-1.5 bg-surface-orange-1 text-ink-orange-5 text-xs font-medium px-2.5 py-1 rounded-full"
 						>
 							<span class="lucide-camera size-3.5" />
 							{{ __('Proctored') }}
@@ -246,7 +246,7 @@
 					</template>
 					<template v-else-if="attemptsExhausted">
 						<div class="bg-surface-red-1 rounded-6 px-4 py-3 mb-3">
-							<div class="text-sm text-ink-red-6 leading-5">
+							<div class="text-sm text-ink-red-5 leading-5">
 								{{
 									__(
 										"You've used all {0} {1} for this quiz. Reach out to your instructor if you need to try again."
@@ -263,7 +263,7 @@
 					</template>
 					<template v-else-if="scheduleBlocked">
 						<div class="bg-surface-amber-1 rounded-6 px-4 py-3 mb-3">
-							<div class="text-sm text-ink-amber-6 leading-5">
+							<div class="text-sm text-ink-amber-5 leading-5">
 								{{ scheduleMessage }}
 							</div>
 						</div>
@@ -404,9 +404,9 @@
 						</div>
 						<div class="flex items-start gap-3 px-4 py-3 bg-surface-orange-1">
 							<span
-								class="lucide-alert-triangle size-4 shrink-0 text-ink-orange-5 mt-0.5"
+								class="lucide-alert-triangle size-4 shrink-0 text-ink-orange-4 mt-0.5"
 							/>
-							<div class="text-sm text-ink-orange-6 leading-5">
+							<div class="text-sm text-ink-orange-5 leading-5">
 								{{
 									__(
 										'After {0} {1}, the quiz will be automatically submitted.'
@@ -478,15 +478,15 @@
 								<div v-if="index - 1 == idx">
 									<span
 										v-if="answer == 1"
-										class="lucide-check-circle w-4 h-4 text-ink-green-5"
+										class="lucide-check-circle w-4 h-4 text-ink-green-4"
 									/>
 									<span
 										v-else-if="answer == 2"
-										class="lucide-minus-circle w-4 h-4 text-ink-green-5"
+										class="lucide-minus-circle w-4 h-4 text-ink-green-4"
 									/>
 									<span
 										v-else-if="answer == 0"
-										class="lucide-x-circle w-4 h-4 text-ink-red-6"
+										class="lucide-x-circle w-4 h-4 text-ink-red-5"
 									/>
 									<span v-else class="lucide-minus-circle w-4 h-4" />
 								</div>
@@ -516,13 +516,13 @@
 							<Badge v-if="showAnswers[0]" :label="__('Correct')" theme="green">
 								<template #prefix>
 									<span
-										class="lucide-check-circle w-4 h-4 text-ink-green-5 me-1"
+										class="lucide-check-circle w-4 h-4 text-ink-green-4 me-1"
 									/>
 								</template>
 							</Badge>
 							<Badge v-else theme="red" :label="__('Incorrect')">
 								<template #prefix>
-									<span class="lucide-x-circle w-4 h-4 text-ink-red-6 me-1" />
+									<span class="lucide-x-circle w-4 h-4 text-ink-red-5 me-1" />
 								</template>
 							</Badge>
 						</div>
@@ -610,8 +610,8 @@
 							class="size-1.5 rounded-full shrink-0"
 							:class="
 								entry.severity === 'violation'
-									? 'bg-ink-red-6'
-									: 'bg-ink-orange-6'
+									? 'bg-ink-red-5'
+									: 'bg-ink-orange-5'
 							"
 						/>
 						<span class="text-sm text-ink-gray-7 flex-1">{{
@@ -640,8 +640,8 @@
 							class="text-xs font-medium uppercase tracking-wide shrink-0"
 							:class="
 								entry.severity === 'violation'
-									? 'text-ink-red-6'
-									: 'text-ink-orange-6'
+									? 'text-ink-red-5'
+									: 'text-ink-orange-5'
 							"
 						>
 							{{
@@ -671,7 +671,7 @@
 						:class="{
 							'bg-surface-gray-7 text-ink-base font-medium':
 								activeQuestion == index,
-							'bg-surface-blue-2 text-ink-blue-6':
+							'bg-surface-blue-2 text-ink-blue-5':
 								activeQuestion != index && attemptedQuestions.includes(index),
 							'bg-surface-gray-3':
 								activeQuestion != index && !attemptedQuestions.includes(index),
@@ -709,12 +709,12 @@
 					class="bg-surface-red-2 px-5 py-4 border-b border-outline-red-2"
 				>
 					<div class="flex items-center gap-2.5 mb-1">
-						<span class="lucide-shield-x size-4 text-ink-red-6 shrink-0" />
-						<span class="text-sm font-semibold text-ink-red-7">{{
+						<span class="lucide-shield-x size-4 text-ink-red-5 shrink-0" />
+						<span class="text-sm font-semibold text-ink-red-6">{{
 							__('Maximum violations reached')
 						}}</span>
 					</div>
-					<p class="text-sm text-ink-red-6 leading-5 ps-6.5">
+					<p class="text-sm text-ink-red-5 leading-5 ps-6.5">
 						{{
 							__(
 								'This quiz was submitted automatically because you reached the maximum of {0} {1}. Reach out to your instructor if you need to try again.'
@@ -796,8 +796,8 @@
 							class="size-1.5 rounded-full shrink-0"
 							:class="
 								entry.severity === 'violation'
-									? 'bg-ink-red-6'
-									: 'bg-ink-orange-6'
+									? 'bg-ink-red-5'
+									: 'bg-ink-orange-5'
 							"
 						/>
 						<span class="text-sm text-ink-gray-7 flex-1">{{
@@ -826,8 +826,8 @@
 							class="text-xs font-medium uppercase tracking-wide shrink-0"
 							:class="
 								entry.severity === 'violation'
-									? 'text-ink-red-6'
-									: 'text-ink-orange-6'
+									? 'text-ink-red-5'
+									: 'text-ink-orange-5'
 							"
 						>
 							{{
@@ -908,13 +908,13 @@
 						/>
 					</div>
 					<div class="flex justify-between text-xs">
-						<span class="text-ink-green-7 font-medium"
+						<span class="text-ink-green-6 font-medium"
 							>{{ attemptedQuestions.length }} {{ __('attempted') }}</span
 						>
 						<span
 							:class="
 								questions.length - attemptedQuestions.length > 0
-									? 'text-ink-orange-7 font-medium'
+									? 'text-ink-orange-6 font-medium'
 									: 'text-ink-gray-5'
 							"
 						>

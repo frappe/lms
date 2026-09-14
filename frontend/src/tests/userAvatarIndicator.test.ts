@@ -1,9 +1,11 @@
 /**
  * The avatar's "Open to Work" / "Hiring" indicator.
  *
- * Both indicators are solid colour chips with a check glyph on top, so they have
- * to use frappe-ui's solid pairing for that colour — `ink-<colour>-1` on
- * `surface-<colour>-7` (Badge.vue:53-78). Neither did:
+ * Both indicators are solid colour chips with a check glyph on top. The
+ * espresso v2 ink shift (#1016) dropped the neutral-white `-1` step from
+ * every chromatic ink scale, so the check glyph on the solid chip uses plain
+ * `text-white` rather than an `ink-<colour>-1` token — there is no v2
+ * destination for the old white step. Neither indicator did this before:
  *
  * - Work drew `text-ink-base` on `bg-surface-green-3`. In light mode `--ink-base`
  *   is oklch(1 0 0) — the same value as `--surface-base` — and surface-green-3 is
@@ -43,14 +45,14 @@ describe('UserAvatar indicator', () => {
 		const html = indicator('Work').html()
 
 		expect(html).toContain('bg-surface-green-7')
-		expect(html).toContain('text-ink-green-1')
+		expect(html).toContain('text-white')
 	})
 
 	it('draws Hiring as a solid violet chip', () => {
 		const html = indicator('Hiring').html()
 
 		expect(html).toContain('bg-surface-violet-7')
-		expect(html).toContain('text-ink-violet-1')
+		expect(html).toContain('text-white')
 	})
 
 	it('uses no raw palette colour and no base ink on a tint', () => {

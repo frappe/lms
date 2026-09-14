@@ -18,7 +18,7 @@
 			<!-- <div class="flex items-center flex-wrap relative top-4 px-2 w-fit">
 				<div
 					v-if="course.featured"
-					class="flex items-center gap-x-1 text-xs text-ink-amber-6 bg-surface-base border border-outline-amber-1 px-2 py-0.5 rounded-5 me-1 mb-1"
+					class="flex items-center gap-x-1 text-xs text-ink-amber-5 bg-surface-base border border-outline-amber-1 px-2 py-0.5 rounded-5 me-1 mb-1"
 				>
 					<Star class="size-3 stroke-2" />
 					<span>
@@ -79,7 +79,7 @@
 				</div>
 
 				<Tooltip v-if="course.featured" :text="__('Featured')">
-					<span class="lucide-award size-4 text-ink-amber-6" />
+					<span class="lucide-award size-4 text-ink-amber-5" />
 				</Tooltip>
 			</div>
 

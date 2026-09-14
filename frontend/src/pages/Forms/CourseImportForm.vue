@@ -70,7 +70,7 @@
 						</div>
 						<button
 							type="button"
-							class="lucide-trash-2 size-4 text-ink-red-6 cursor-pointer"
+							class="lucide-trash-2 size-4 text-ink-red-5 cursor-pointer"
 							:aria-label="__('Remove file')"
 							@click="deleteFile"
 						/>

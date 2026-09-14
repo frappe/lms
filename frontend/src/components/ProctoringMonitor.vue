@@ -4,7 +4,7 @@
 		<template v-if="phase === 'setup'">
 			<div
 				v-if="cameraError"
-				class="bg-surface-red-1 text-ink-red-6 rounded-6 p-3 text-sm leading-5 mb-3"
+				class="bg-surface-red-1 text-ink-red-5 rounded-6 p-3 text-sm leading-5 mb-3"
 			>
 				{{ cameraError }}
 			</div>
@@ -27,7 +27,7 @@
 					:class="{
 						'bg-black/50 text-white':
 							setupStatus === 'loading' || setupStatus === 'detecting',
-						'bg-surface-red-2/90 text-ink-red-6':
+						'bg-surface-red-2/90 text-ink-red-5':
 							setupStatus === 'no_face' || setupStatus === 'multiple_faces',
 					}"
 				>
@@ -50,10 +50,10 @@
 				<!-- Ready indicator -->
 				<div
 					v-else
-					class="absolute inset-0 ring-2 ring-inset ring-ink-green-5 rounded-7 pointer-events-none"
+					class="absolute inset-0 ring-2 ring-inset ring-ink-green-4 rounded-7 pointer-events-none"
 				>
 					<div
-						class="absolute top-2 end-2 flex items-center gap-1 bg-surface-green-1 text-ink-green-6 text-xs font-medium px-2 py-1 rounded-full"
+						class="absolute top-2 end-2 flex items-center gap-1 bg-surface-green-1 text-ink-green-5 text-xs font-medium px-2 py-1 rounded-full"
 					>
 						<span class="lucide-check size-3" />
 						{{ __('Ready') }}
@@ -115,8 +115,8 @@
 				class="flex items-center gap-x-1.5 px-3 py-1.5 rounded-full text-sm font-medium"
 				:class="
 					violationCount > 0
-						? 'bg-surface-red-1 text-ink-red-6'
-						: 'bg-surface-green-1 text-ink-green-6'
+						? 'bg-surface-red-1 text-ink-red-5'
+						: 'bg-surface-green-1 text-ink-green-5'
 				"
 			>
 				<span class="lucide-camera size-4" />

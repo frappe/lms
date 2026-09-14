@@ -20,7 +20,7 @@ const buttonClasses = vi.hoisted(() => ({
 		'gray-subtle':
 			'text-ink-gray-8 bg-surface-gray-2 hover:bg-surface-gray-3 active:bg-surface-gray-4',
 		'blue-subtle':
-			'text-ink-blue-6 bg-surface-blue-2 hover:bg-surface-blue-3 active:bg-surface-blue-4',
+			'text-ink-blue-5 bg-surface-blue-2 hover:bg-surface-blue-3 active:bg-surface-blue-4',
 	} as Record<string, string>,
 	disabled: {
 		'gray-solid': 'bg-surface-gray-2 text-ink-gray-4',
