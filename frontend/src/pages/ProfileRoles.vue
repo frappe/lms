@@ -5,7 +5,7 @@
 		</h2>
 		<div
 			v-if="readOnlyMode"
-			class="flex items-center gap-x-2 text-sm text-ink-gray-7 bg-surface-gray-1 px-3 py-2 rounded-md w-full text-center"
+			class="flex items-center gap-x-2 text-sm text-ink-gray-7 bg-surface-gray-1 px-3 py-2 rounded-5 w-full text-center"
 		>
 			<span class="lucide-circle-alert size-4" />
 			<span>

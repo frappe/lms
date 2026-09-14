@@ -52,7 +52,7 @@
 				</div>
 			</template>
 			<template #default="{ close }">
-				<div class="rounded-lg bg-surface-base p-3 border w-fit mt-2">
+				<div class="rounded-6 bg-surface-base p-3 border w-fit mt-2">
 					<div class="text-xs text-ink-gray-5 mb-1.5">
 						{{ __('Swatches') }}
 					</div>

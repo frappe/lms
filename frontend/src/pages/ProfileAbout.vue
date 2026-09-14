@@ -39,7 +39,7 @@
 					</template>
 					<template #default>
 						<div class="w-[250px] text-base">
-							<div class="bg-surface-gray-2 rounded-t-md py-5">
+							<div class="bg-surface-gray-2 rounded-t-5 py-5">
 								<img
 									:src="safeUrl(badge.badge_image)"
 									:alt="badge.badge"

@@ -45,7 +45,7 @@
 
 		<div v-if="activeQuestion == 0" class="space-y-4">
 			<!-- Info card — full width -->
-			<div class="border rounded-xl overflow-hidden">
+			<div class="border rounded-7 overflow-hidden">
 				<div class="px-5 pt-5 pb-4 space-y-3 text-center">
 					<h2 class="text-xl font-semibold text-ink-gray-9 leading-snug">
 						{{ quiz.data.title }}
@@ -245,7 +245,7 @@
 						}}</Button>
 					</template>
 					<template v-else-if="attemptsExhausted">
-						<div class="bg-surface-red-1 rounded-lg px-4 py-3 mb-3">
+						<div class="bg-surface-red-1 rounded-6 px-4 py-3 mb-3">
 							<div class="text-sm text-ink-red-6 leading-5">
 								{{
 									__(
@@ -262,7 +262,7 @@
 						}}</Button>
 					</template>
 					<template v-else-if="scheduleBlocked">
-						<div class="bg-surface-amber-1 rounded-lg px-4 py-3 mb-3">
+						<div class="bg-surface-amber-1 rounded-6 px-4 py-3 mb-3">
 							<div class="text-sm text-ink-amber-6 leading-5">
 								{{ scheduleMessage }}
 							</div>
@@ -308,7 +308,7 @@
 				class="grid gap-4 md:grid-cols-2"
 			>
 				<!-- Camera setup -->
-				<div class="border rounded-xl overflow-hidden flex flex-col">
+				<div class="border rounded-7 overflow-hidden flex flex-col">
 					<div class="px-4 py-3 border-b">
 						<div class="text-sm font-semibold text-ink-gray-8">
 							{{ __('Camera Setup') }}
@@ -335,7 +335,7 @@
 				</div>
 
 				<!-- Proctoring rules -->
-				<div class="border rounded-xl overflow-hidden flex flex-col">
+				<div class="border rounded-7 overflow-hidden flex flex-col">
 					<div class="px-4 py-3 border-b">
 						<div class="text-sm font-semibold text-ink-gray-8">
 							{{ __('Proctoring Rules') }}
@@ -427,7 +427,7 @@
 			<div v-for="(question, qtidx) in questions" :key="question.name">
 				<div
 					v-if="qtidx == activeQuestion - 1 && questionDetails.data"
-					class="border rounded-lg p-5"
+					class="border rounded-6 p-5"
 				>
 					<div class="flex flex-wrap items-baseline justify-between gap-x-4">
 						<div class="min-w-0 text-sm text-ink-gray-5">
@@ -450,7 +450,7 @@
 					>
 						<label
 							v-if="questionDetails.data[`option_${index}`]"
-							class="flex items-center bg-surface-gray-3 rounded-md p-3 mt-4 w-full min-w-0 cursor-pointer focus:border-blue-600"
+							class="flex items-center bg-surface-gray-3 rounded-5 p-3 mt-4 w-full min-w-0 cursor-pointer focus:border-blue-600"
 						>
 							<input
 								v-if="!showAnswers.length && !questionDetails.data.multiple"
@@ -465,7 +465,7 @@
 								v-else-if="!showAnswers.length && questionDetails.data.multiple"
 								type="checkbox"
 								:name="encodeURIComponent(questionDetails.data.question)"
-								class="w-3.5 h-3.5 shrink-0 text-ink-gray-9 rounded-sm focus:ring-outline-elevation-2"
+								class="w-3.5 h-3.5 shrink-0 text-ink-gray-9 rounded-1 focus:ring-outline-elevation-2"
 								@change="markAnswer(index)"
 								:checked="selectedOptions[index - 1]"
 							/>
@@ -534,7 +534,7 @@
 							@change="(val) => (possibleAnswer = val)"
 							:editable="true"
 							:fixedMenu="true"
-							editorClass="prose-sm max-w-none border-b border-x border-outline-elevation-2 bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[7rem]"
+							editorClass="prose-sm max-w-none border-b border-x border-outline-elevation-2 bg-surface-gray-2 rounded-b-5 py-1 px-2 min-h-[7rem]"
 						/>
 					</div>
 					<div class="flex items-center mt-8 gap-4">
@@ -587,7 +587,7 @@
 			<!-- Activity log (shown during quiz, below the question card) -->
 			<div
 				v-if="quiz.data.enable_proctoring && summaryLog.length"
-				class="border rounded-lg overflow-hidden mt-4"
+				class="border rounded-6 overflow-hidden mt-4"
 			>
 				<div
 					class="px-4 py-2.5 border-b flex items-center justify-between bg-surface-gray-1"
@@ -633,7 +633,7 @@
 										violationEventLabels[entry.eventType] || entry.eventType
 									)
 								"
-								class="h-8 w-11 rounded border object-cover"
+								class="h-8 w-11 rounded-4 border object-cover"
 							/>
 						</a>
 						<span
@@ -652,7 +652,7 @@
 				</div>
 			</div>
 
-			<div v-if="!quiz.data.show_answers" class="border rounded-lg p-4 mt-4">
+			<div v-if="!quiz.data.show_answers" class="border rounded-6 p-4 mt-4">
 				<div class="font-semibold">
 					{{ __('Questions') }}
 				</div>
@@ -682,7 +682,7 @@
 				</nav>
 			</div>
 
-			<div v-if="reviewQuestions.length" class="border rounded-lg p-4 mt-4">
+			<div v-if="reviewQuestions.length" class="border rounded-6 p-4 mt-4">
 				<div class="font-semibold">
 					{{ __('Questions marked for review') }}
 				</div>
@@ -700,7 +700,7 @@
 			</div>
 		</div>
 		<div v-else class="space-y-4">
-			<div class="border rounded-lg overflow-hidden">
+			<div class="border rounded-6 overflow-hidden">
 				<!-- Violation banner shown when quiz was auto-submitted due to max violations -->
 				<div
 					v-if="
@@ -773,7 +773,7 @@
 			<!-- Activity log persists into summary view for proctored quizzes -->
 			<div
 				v-if="quiz.data.enable_proctoring && summaryLog.length"
-				class="border rounded-lg overflow-hidden"
+				class="border rounded-6 overflow-hidden"
 			>
 				<div
 					class="px-4 py-2.5 border-b flex items-center justify-between bg-surface-gray-1"
@@ -819,7 +819,7 @@
 										violationEventLabels[entry.eventType] || entry.eventType
 									)
 								"
-								class="h-8 w-11 rounded border object-cover"
+								class="h-8 w-11 rounded-4 border object-cover"
 							/>
 						</a>
 						<span

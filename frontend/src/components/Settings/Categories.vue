@@ -17,7 +17,7 @@
 		<template #header-actions>
 			<div
 				v-if="deleting"
-				class="flex items-center gap-x-1 text-ink-amber-6 border border-outline-amber-1 bg-surface-amber-1 rounded-lg px-2 py-1"
+				class="flex items-center gap-x-1 text-ink-amber-6 border border-outline-amber-1 bg-surface-amber-1 rounded-6 px-2 py-1"
 			>
 				<LoadingIndicator class="size-2" />
 				<span class="text-xs">{{ __('saving...') }}</span>

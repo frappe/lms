@@ -499,7 +499,7 @@ describe('ResponsiveListView', () => {
 		expect(items[0].classes()).toContain('border-b')
 		expect(items[0].classes()).toContain('last:border-b-0')
 		// No card chrome: no rounding, no box.
-		expect(items[0].classes()).not.toContain('rounded-lg')
+		expect(items[0].classes()).not.toContain('rounded-6')
 		expect(items[0].classes()).not.toContain('border')
 	})
 

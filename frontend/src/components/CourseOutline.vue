@@ -37,7 +37,7 @@
 		<div
 			v-else
 			:class="{
-				'border-2 rounded-md py-2 px-2': showOutline && outline.data?.length,
+				'border-2 rounded-5 py-2 px-2': showOutline && outline.data?.length,
 			}"
 		>
 			<Draggable

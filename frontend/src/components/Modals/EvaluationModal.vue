@@ -57,7 +57,7 @@
 									v-for="slot in row.slots"
 									:key="`${slot.date}-${slot.start_time}`"
 									type="button"
-									class="text-base text-center border rounded-md text-ink-gray-8 p-2 cursor-pointer text-ink-gray-7 hover:bg-surface-gray-2 hover:border-outline-gray-3"
+									class="text-base text-center border rounded-5 text-ink-gray-8 p-2 cursor-pointer text-ink-gray-7 hover:bg-surface-gray-2 hover:border-outline-gray-3"
 									@click="saveSlot(slot)"
 									:title="slotLabel(slot, row)"
 									:aria-label="slotLabel(slot, row)"

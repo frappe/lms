@@ -159,7 +159,7 @@ import {
 	isChoice,
 } from '@/utils/quizQuestion'
 
-// Verbatim from frappe-ui Checkbox's inputClasses (md, enabled), minus its rounded-sm.
+// Verbatim from frappe-ui Checkbox's inputClasses (md, enabled), minus its rounded-1.
 const RADIO_CLASSES =
 	'mt-[1px] h-4 w-4 bg-surface-base border-outline-gray-4 text-ink-gray-9 transition hover:border-outline-gray-7 hover:shadow-sm focus:border-outline-gray-8 focus:ring-0 focus:ring-offset-0 active:border-outline-gray-6 active:bg-surface-gray-2'
 

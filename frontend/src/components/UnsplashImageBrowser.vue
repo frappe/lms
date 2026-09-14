@@ -5,10 +5,10 @@
 		</template>
 		<template #default>
 			<div
-				class="absolute start-1/2 mt-3 max-w-sm -translate-x-1/2 transform rounded-lg bg-surface-base px-4 sm:px-0 lg:max-w-3xl"
+				class="absolute start-1/2 mt-3 max-w-sm -translate-x-1/2 transform rounded-6 bg-surface-base px-4 sm:px-0 lg:max-w-3xl"
 			>
 				<div
-					class="overflow-hidden rounded-lg p-3 shadow-2xl ring-1 ring-black ring-opacity-5"
+					class="overflow-hidden rounded-6 p-3 shadow-2xl ring-1 ring-black ring-opacity-5"
 				>
 					<div class="flex items-center gap-x-2">
 						<div class="flex-1">
@@ -41,7 +41,7 @@
 						<Button
 							v-for="image in images.data"
 							:key="image.id"
-							class="h-[50px] w-[200px] overflow-hidden rounded hover:opacity-80"
+							class="h-[50px] w-[200px] overflow-hidden rounded-4 hover:opacity-80"
 							@click="$emit('select', image.urls.raw)"
 						>
 							<img

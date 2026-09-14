@@ -74,3 +74,52 @@ describe('design tokens removed by frappe-ui migration v2', () => {
 		})
 	}
 })
+
+// Radius aliases were removed in 1.0.0 (ADR-0006): the preset replaces
+// Tailwind's own radius scale, so `rounded-md` etc. now emit no CSS at all —
+// the same silent-failure shape as the colour renames above.
+//
+// Source of truth: node_modules/frappe-ui/tailwind/migrate-tokens-v2.js —
+// RADIUS_STEP_BY_ALIAS / RADIUS_BARE_STEP / RADIUS_SIDES.
+//
+// The bare, side-less `rounded` is plain English (it shows up in prose and
+// comments), so it is deliberately left out of this name-based check — a
+// false positive there would make the suite unreliable. It is covered by a
+// manual grep during the radius migration instead.
+const RADIUS_STEP_BY_ALIAS: Record<string, string> = {
+	sm: '1',
+	md: '5',
+	lg: '6',
+	xl: '7',
+	'2xl': '8',
+}
+const RADIUS_SIDES = ['t', 'r', 'b', 'l', 'tl', 'tr', 'br', 'bl', 's', 'e', 'ss', 'se', 'es', 'ee']
+
+const REMOVED_RADIUS_ALIASES: Record<string, string> = {}
+for (const side of RADIUS_SIDES) {
+	REMOVED_RADIUS_ALIASES[`rounded-${side}`] = `rounded-${side}-4`
+}
+for (const side of ['', ...RADIUS_SIDES.map((s) => `-${s}`)]) {
+	for (const [alias, step] of Object.entries(RADIUS_STEP_BY_ALIAS)) {
+		REMOVED_RADIUS_ALIASES[`rounded${side}-${alias}`] = `rounded${side}-${step}`
+	}
+}
+
+// Radius alias tokens are whole class names (no colour-style prefix), so the
+// match only needs word-like boundaries on both sides.
+const radiusUsageRegex = (token: string): RegExp =>
+	new RegExp(`(?<![a-zA-Z0-9-])${token}(?![a-zA-Z0-9-])`)
+
+describe('radius aliases removed by frappe-ui migration v2', () => {
+	const files = sourceFiles(SRC)
+
+	for (const [removed, replacement] of Object.entries(REMOVED_RADIUS_ALIASES)) {
+		it(`does not use \`${removed}\` (renamed to \`${replacement}\`)`, () => {
+			const offenders = files
+				.filter((file) => radiusUsageRegex(removed).test(readFileSync(file, 'utf8')))
+				.map((file) => relative(SRC, file))
+
+			expect(offenders).toEqual([])
+		})
+	}
+})

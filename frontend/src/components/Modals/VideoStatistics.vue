@@ -19,7 +19,7 @@
 				>
 					<div class="grid grid-cols-1 gap-5 sm:grid-cols-[55%,40%]">
 						<div
-							class="space-y-5 border rounded-md p-2 pt-4 max-h-[50vh] sm:max-h-[70vh] overflow-y-auto"
+							class="space-y-5 border rounded-5 p-2 pt-4 max-h-[50vh] sm:max-h-[70vh] overflow-y-auto"
 						>
 							<div
 								class="grid grid-cols-[60%,40%] sm:grid-cols-[70%,30%] text-sm text-ink-gray-5"
@@ -34,10 +34,10 @@
 							<div
 								v-for="row in currentTabData"
 								:key="row.name"
-								class="hover:bg-surface-gray-2 cursor-pointer rounded-md"
+								class="hover:bg-surface-gray-2 cursor-pointer rounded-5"
 							>
 								<router-link
-									class="block rounded-md py-1 px-2"
+									class="block rounded-5 py-1 px-2"
 									:to="{
 										name: 'Profile',
 										params: { username: row.member_username },

@@ -4,7 +4,7 @@
 		<div v-if="access.data?.access && orderSummary.data" class="px-5 pb-10">
 			<div class="flex flex-col lg:flex-row justify-between">
 				<div class="flex flex-col lg:order-last mb-10 lg:mt-10 lg:w-1/4">
-					<div class="h-fit bg-surface-gray-2 rounded-md p-5 space-y-4">
+					<div class="h-fit bg-surface-gray-2 rounded-5 p-5 space-y-4">
 						<div class="space-y-1">
 							<div class="text-ink-gray-5 uppercase text-xs">
 								{{ __('Payment for ') }} {{ type }}:
@@ -49,7 +49,7 @@
 						</div>
 					</div>
 
-					<div class="bg-surface-gray-2 rounded-md p-4 space-y-2 my-5">
+					<div class="bg-surface-gray-2 rounded-5 p-4 space-y-2 my-5">
 						<span class="text-ink-gray-5 uppercase text-xs">
 							{{ __('Enter a Coupon Code') }}:
 						</span>
@@ -85,7 +85,7 @@
 					</div>
 
 					<p
-						class="bg-surface-amber-2 text-ink-amber-5 text-sm leading-5 p-2 rounded-md"
+						class="bg-surface-amber-2 text-ink-amber-5 text-sm leading-5 p-2 rounded-5"
 					>
 						{{
 							__(

@@ -51,7 +51,7 @@
 		<div class="m-2 flex flex-col gap-1">
 			<div
 				v-if="readOnlyMode && !sidebarStore.isSidebarCollapsed"
-				class="z-10 m-2 bg-surface-elevation-2 py-2.5 px-3 text-p-xs text-ink-gray-7 rounded-md"
+				class="z-10 m-2 bg-surface-elevation-2 py-2.5 px-3 text-p-xs text-ink-gray-7 rounded-5"
 			>
 				{{
 					__(
@@ -63,7 +63,7 @@
 				v-if="
 					isStudent && !profileIsComplete && !sidebarStore.isSidebarCollapsed
 				"
-				class="flex flex-col gap-3 text-ink-gray-9 py-2.5 px-3 bg-surface-base shadow-sm rounded-md"
+				class="flex flex-col gap-3 text-ink-gray-9 py-2.5 px-3 bg-surface-base shadow-sm rounded-5"
 			>
 				<div class="flex flex-col text-p-sm gap-1">
 					<div class="inline-flex gap-1">

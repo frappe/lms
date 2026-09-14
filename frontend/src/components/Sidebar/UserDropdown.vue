@@ -3,7 +3,7 @@
 		<Dropdown :options="userDropdownOptions">
 			<template v-slot="{ open, close }">
 				<button
-					class="flex h-12 items-center rounded-md duration-300 ease-in-out"
+					class="flex h-12 items-center rounded-5 duration-300 ease-in-out"
 					:class="
 						isCollapsed
 							? 'px-0 w-auto'
@@ -16,9 +16,9 @@
 						v-if="branding.data?.banner_image"
 						:src="safeUrl(branding.data?.banner_image.file_url)"
 						alt=""
-						class="w-8 h-8 rounded flex-shrink-0"
+						class="w-8 h-8 rounded-4 flex-shrink-0"
 					/>
-					<LMSLogo v-else class="w-8 h-8 rounded flex-shrink-0" />
+					<LMSLogo v-else class="w-8 h-8 rounded-4 flex-shrink-0" />
 					<div
 						class="flex flex-1 flex-col text-start duration-300 ease-in-out"
 						:class="
@@ -133,7 +133,7 @@ const appMenuItems = computed(() => {
 				// second announcement of it would only repeat. Without it a screen
 				// reader falls back to reading the logo's filename.
 				h('img', {
-					class: 'size-4 shrink-0 rounded',
+					class: 'size-4 shrink-0 rounded-4',
 					src: app.logo,
 					alt: '',
 				}),

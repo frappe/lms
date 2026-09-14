@@ -19,7 +19,7 @@
 			<template v-if="state.service">
 				<div v-if="isNew && selected" class="flex items-center gap-3">
 					<div
-						class="flex size-8 shrink-0 items-center justify-center rounded-xl bg-surface-gray-2"
+						class="flex size-8 shrink-0 items-center justify-center rounded-7 bg-surface-gray-2"
 					>
 						<img
 							v-if="selected.icon"
@@ -48,7 +48,7 @@
 
 				<div
 					v-if="isNew && selected"
-					class="flex items-center gap-2 rounded-md p-2 text-ink-gray-6 ring-1 ring-outline-gray-3"
+					class="flex items-center gap-2 rounded-5 p-2 text-ink-gray-6 ring-1 ring-outline-gray-3"
 				>
 					<CircleAlert class="size-5 shrink-0" />
 					<div class="text-wrap text-p-xs">

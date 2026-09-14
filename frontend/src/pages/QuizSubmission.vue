@@ -25,7 +25,7 @@
 					</template>
 					<template #default>
 						<p
-							class="w-56 rounded-lg bg-surface-base p-3 text-sm leading-5 text-ink-gray-7 shadow-2xl ring-1 ring-black ring-opacity-5"
+							class="w-56 rounded-6 bg-surface-base p-3 text-sm leading-5 text-ink-gray-7 shadow-2xl ring-1 ring-black ring-opacity-5"
 						>
 							{{ ownSubmissionNotice }}
 						</p>
@@ -329,7 +329,7 @@
 														entry.event_type
 												)
 											"
-											class="w-full rounded border"
+											class="w-full rounded-4 border"
 										/>
 									</a>
 								</details>

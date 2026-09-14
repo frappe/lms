@@ -41,7 +41,7 @@
 						:columns="assessmentColumns"
 						:rows="studentDetails.data.assessments"
 						row-key="title"
-						class="sm:border sm:border-outline-elevation-2 sm:rounded-lg"
+						class="sm:border sm:border-outline-elevation-2 sm:rounded-6"
 						:options="assessmentListOptions"
 					>
 						<template #cell="{ column, value }">
@@ -60,7 +60,7 @@
 						:columns="courseColumns"
 						:rows="studentDetails.data.courses"
 						row-key="title"
-						class="sm:border sm:border-outline-elevation-2 sm:rounded-lg"
+						class="sm:border sm:border-outline-elevation-2 sm:rounded-6"
 						:options="courseListOptions"
 					>
 						<template #cell="{ column, value }">

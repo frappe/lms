@@ -8,7 +8,7 @@
 			<div
 				v-for="tag in tags?.split(', ')"
 				:key="tag"
-				class="flex items-center bg-surface-gray-2 p-2 rounded-md me-2"
+				class="flex items-center bg-surface-gray-2 p-2 rounded-5 me-2"
 			>
 				{{ tag }}
 				<button

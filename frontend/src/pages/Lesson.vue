@@ -52,7 +52,7 @@
 
 		<div class="grid md:grid-cols-[70%,30%] sm:h-[94vh]">
 			<div v-if="lesson.data.no_preview" class="sm:border-e">
-				<div class="shadow rounded-md w-3/4 mt-10 mx-auto text-center p-4">
+				<div class="shadow rounded-5 w-3/4 mt-10 mx-auto text-center p-4">
 					<div class="flex items-center justify-center mt-4 gap-x-2">
 						<span class="lucide-lock-keyhole size-4 text-ink-gray-5" />
 						<div class="text-lg-semibold text-ink-gray-7">
@@ -129,7 +129,7 @@
 									</span>
 									<span class="lucide-info size-3" />
 									<div
-										class="hidden group-hover:block rounded bg-surface-gray-10 px-2 py-1 text-xs text-ink-base shadow-xl absolute start-0 top-full mt-2"
+										class="hidden group-hover:block rounded-4 bg-surface-gray-10 px-2 py-1 text-xs text-ink-base shadow-xl absolute start-0 top-full mt-2"
 									>
 										{{ Math.ceil(lesson.data.membership.progress) }}%
 										{{ __('completed') }}
@@ -247,7 +247,7 @@
 								hasInstructorNotesToRender(lesson.data.instructor_content) &&
 								allowInstructorContent()
 							"
-							class="bg-surface-gray-2 p-3 rounded-md mt-6"
+							class="bg-surface-gray-2 p-3 rounded-5 mt-6"
 						>
 							<h2 class="text-ink-gray-5 font-medium">
 								{{ __('Instructor Notes') }}
@@ -268,7 +268,7 @@
 						</div>
 						<div
 							v-if="contentUnreadable"
-							class="flex items-center gap-3 rounded-lg bg-surface-amber-2 p-3 mt-8"
+							class="flex items-center gap-3 rounded-6 bg-surface-amber-2 p-3 mt-8"
 						>
 							<div
 								class="grid size-7 shrink-0 place-items-center text-ink-amber-6"

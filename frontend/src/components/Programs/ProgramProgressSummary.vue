@@ -8,14 +8,14 @@
 			<div class="text-base">
 				<div class="flex items-center justify-between gap-x-4 mb-4">
 					<NumberChart
-						class="border rounded-md w-full"
+						class="border rounded-5 w-full"
 						:config="{
 							title: __('Enrollments'),
 							value: programMembers.length || 0,
 						}"
 					/>
 					<NumberChart
-						class="border rounded-md w-full"
+						class="border rounded-5 w-full"
 						:config="{
 							title: __('Average Progress %'),
 							value: averageProgress || 0,

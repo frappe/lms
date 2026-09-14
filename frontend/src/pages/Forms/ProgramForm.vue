@@ -64,7 +64,7 @@
 						:rowKey="'course'"
 					>
 						<ListHeader
-							class="mb-2 grid items-center gap-x-4 rounded bg-surface-gray-2 p-2"
+							class="mb-2 grid items-center gap-x-4 rounded-4 bg-surface-gray-2 p-2"
 						>
 							<ListHeaderItem
 								:item="item"

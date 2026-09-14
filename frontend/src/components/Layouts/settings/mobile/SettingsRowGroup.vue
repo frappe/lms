@@ -4,7 +4,7 @@
 			{{ label }}
 		</span>
 		<div
-			class="flex flex-col overflow-hidden rounded-xl border border-outline-gray-1 bg-surface-base"
+			class="flex flex-col overflow-hidden rounded-7 border border-outline-gray-1 bg-surface-base"
 		>
 			<slot />
 		</div>

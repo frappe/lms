@@ -4,13 +4,13 @@
 		<template v-if="phase === 'setup'">
 			<div
 				v-if="cameraError"
-				class="bg-surface-red-1 text-ink-red-6 rounded-lg p-3 text-sm leading-5 mb-3"
+				class="bg-surface-red-1 text-ink-red-6 rounded-6 p-3 text-sm leading-5 mb-3"
 			>
 				{{ cameraError }}
 			</div>
 
 			<div
-				class="relative rounded-xl overflow-hidden bg-surface-gray-3 flex-1 min-h-0"
+				class="relative rounded-7 overflow-hidden bg-surface-gray-3 flex-1 min-h-0"
 			>
 				<video
 					ref="videoEl"
@@ -50,7 +50,7 @@
 				<!-- Ready indicator -->
 				<div
 					v-else
-					class="absolute inset-0 ring-2 ring-inset ring-ink-green-5 rounded-xl pointer-events-none"
+					class="absolute inset-0 ring-2 ring-inset ring-ink-green-5 rounded-7 pointer-events-none"
 				>
 					<div
 						class="absolute top-2 end-2 flex items-center gap-1 bg-surface-green-1 text-ink-green-6 text-xs font-medium px-2 py-1 rounded-full"
@@ -74,7 +74,7 @@
 					     Minimising is meant to spare the student the distraction, not
 					     to stop the proctoring they agreed to. -->
 					<div
-						class="overflow-hidden rounded-xl bg-surface-base shadow-lg transition-all"
+						class="overflow-hidden rounded-7 bg-surface-base shadow-lg transition-all"
 						:class="
 							minimized ? 'pointer-events-none size-0 opacity-0' : 'w-44 border'
 						"
@@ -89,7 +89,7 @@
 							/>
 							<button
 								type="button"
-								class="absolute end-1.5 top-1.5 rounded-md bg-black/50 p-1 text-white"
+								class="absolute end-1.5 top-1.5 rounded-5 bg-black/50 p-1 text-white"
 								:aria-label="__('Minimise camera')"
 								@click="minimized = true"
 							>
@@ -101,7 +101,7 @@
 					<button
 						v-if="minimized"
 						type="button"
-						class="flex items-center gap-1.5 rounded-md border bg-surface-base px-2.5 py-1.5 text-xs font-medium text-ink-gray-7 shadow-lg"
+						class="flex items-center gap-1.5 rounded-5 border bg-surface-base px-2.5 py-1.5 text-xs font-medium text-ink-gray-7 shadow-lg"
 						:aria-label="__('Show camera')"
 						@click="minimized = false"
 					>

@@ -72,7 +72,7 @@
 			/>
 
 			<details
-				class="instructor-notes rounded-lg border border-outline-gray-2"
+				class="instructor-notes rounded-6 border border-outline-gray-2"
 				@toggle="onInstructorNotesToggle"
 			>
 				<summary

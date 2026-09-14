@@ -90,7 +90,7 @@
 						class="outline-lesson ps-8 py-2 pe-4 text-ink-gray-9"
 						:class="
 							isActiveLesson(lesson.number)
-								? 'bg-surface-gray-3 rounded-md'
+								? 'bg-surface-gray-3 rounded-5'
 								: ''
 						"
 					>

@@ -36,7 +36,7 @@
 				<div class="grid gap-5" :class="hasAssessmentData ? 'grid-cols-2' : ''">
 					<div
 						v-if="lessons.data"
-						class="border border-outline-elevation-2 rounded-lg px-3 max-h-[60vh] overflow-y-auto"
+						class="border border-outline-elevation-2 rounded-6 px-3 max-h-[60vh] overflow-y-auto"
 					>
 						<div class="sticky top-0 z-10 bg-surface-base py-3 text-ink-gray-5">
 							{{ __('Lesson Progress') }}
@@ -74,7 +74,7 @@
 					<div class="space-y-3">
 						<div
 							v-if="assessmentProgress.data?.quizzes?.length"
-							class="border border-outline-elevation-2 rounded-lg px-3 pt-3 h-fit"
+							class="border border-outline-elevation-2 rounded-6 px-3 pt-3 h-fit"
 						>
 							<div class="grid grid-cols-4 gap-5 text-ink-gray-5 mb-5">
 								<div class="col-span-2">
@@ -104,7 +104,7 @@
 
 						<div
 							v-if="assessmentProgress.data?.assignments?.length"
-							class="border border-outline-elevation-2 rounded-lg px-3 pt-3 h-fit"
+							class="border border-outline-elevation-2 rounded-6 px-3 pt-3 h-fit"
 						>
 							<div>
 								<div class="text-ink-gray-5 mb-5">
@@ -130,7 +130,7 @@
 
 						<div
 							v-if="assessmentProgress.data?.exercises?.length"
-							class="border border-outline-elevation-2 rounded-lg px-3 pt-3 h-fit"
+							class="border border-outline-elevation-2 rounded-6 px-3 pt-3 h-fit"
 						>
 							<div>
 								<div class="text-ink-gray-5 mb-5">

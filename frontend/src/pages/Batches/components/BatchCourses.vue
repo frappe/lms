@@ -16,7 +16,7 @@
 				:columns="courseColumns"
 				:rows="courses.data"
 				row-key="name"
-				class="sm:border sm:rounded-lg"
+				class="sm:border sm:rounded-6"
 				:options="listOptions"
 			>
 				<template #selection-actions="{ unselectAll, selections }">

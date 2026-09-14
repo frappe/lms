@@ -100,11 +100,11 @@ import { openFormRoute } from '@/composables/useFormRoute'
 import { pushSettingsHash } from '@/composables/useSettingsHash'
 
 const chipClass =
-	'inline-flex size-5 shrink-0 items-center justify-center rounded-sm bg-surface-gray-2'
+	'inline-flex size-5 shrink-0 items-center justify-center rounded-1 bg-surface-gray-2'
 
 // `size-5` fixes a square, which crops a multi-letter key. Width grows instead.
 const wideChipClass =
-	'inline-flex h-5 min-w-5 w-auto shrink-0 items-center justify-center rounded-sm bg-surface-gray-2 px-1.5'
+	'inline-flex h-5 min-w-5 w-auto shrink-0 items-center justify-center rounded-1 bg-surface-gray-2 px-1.5'
 
 // Below this the palette keeps showing the jump-to list. The results pane used
 // to take over at one character while the search only ran from three, so the

@@ -8,7 +8,7 @@
 
 		<div v-if="hasImage" class="flex flex-col gap-4 sm:flex-row sm:items-start">
 			<div
-				class="relative aspect-[750/422] w-full shrink-0 grid place-items-center overflow-hidden rounded-lg border border-outline-gray-2 bg-surface-gray-2 sm:w-56"
+				class="relative aspect-[750/422] w-full shrink-0 grid place-items-center overflow-hidden rounded-6 border border-outline-gray-2 bg-surface-gray-2 sm:w-56"
 			>
 				<img :src="safeUrl(doc.image)" alt="" class="size-full object-cover" />
 			</div>
@@ -65,7 +65,7 @@
 		>
 			<template #default="{ openFileSelector, uploading }">
 				<div
-					class="relative aspect-[750/422] w-full shrink-0 grid place-items-center overflow-hidden rounded-lg border border-outline-gray-2 bg-surface-gray-2 sm:w-56"
+					class="relative aspect-[750/422] w-full shrink-0 grid place-items-center overflow-hidden rounded-6 border border-outline-gray-2 bg-surface-gray-2 sm:w-56"
 					:style="
 						doc?.card_gradient ? { backgroundColor: wellColor } : undefined
 					"
@@ -96,7 +96,7 @@
 								v-for="c in colors"
 								:key="c"
 								type="button"
-								class="size-8 rounded-md border border-outline-gray-2 transition"
+								class="size-8 rounded-5 border border-outline-gray-2 transition"
 								:class="
 									doc?.card_gradient === c
 										? 'ring-2 ring-offset-2 ring-outline-gray-4'

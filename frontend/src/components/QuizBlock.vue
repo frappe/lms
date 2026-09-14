@@ -1,6 +1,6 @@
 <template>
 	<Quiz v-if="user.data" :quizName="quiz"></Quiz>
-	<div v-else class="border rounded-md text-center py-20">
+	<div v-else class="border rounded-5 text-center py-20">
 		<div>
 			{{ __('Please login to access the quiz.') }}
 		</div>

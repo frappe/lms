@@ -16,7 +16,7 @@
 				:columns="assessmentColumns"
 				:rows="assessments.data"
 				row-key="name"
-				class="sm:border sm:rounded-lg"
+				class="sm:border sm:rounded-6"
 				:options="listOptions"
 			>
 				<template #cell="{ column, value }">

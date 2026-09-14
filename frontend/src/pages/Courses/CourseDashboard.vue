@@ -39,7 +39,7 @@
 			v-else
 			class="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-5 items-start"
 		>
-			<div class="border rounded-lg py-3 px-4">
+			<div class="border rounded-6 py-3 px-4">
 				<div class="flex items-center justify-between mb-3">
 					<div class="text-lg-semibold text-ink-gray-9">
 						{{ __('Students') }}
@@ -116,7 +116,7 @@
 			<div class="space-y-5">
 				<div
 					v-if="chartDetails.data?.average_progress > 0"
-					class="border rounded-lg p-4"
+					class="border rounded-6 p-4"
 				>
 					<div class="text-ink-gray-5 mb-4">
 						{{ __('Progress Summary') }}
@@ -131,7 +131,7 @@
 								:key="row.name"
 							>
 								<div
-									class="size-2 rounded"
+									class="size-2 rounded-4"
 									:style="{
 										backgroundColor: `var(--${
 											row.name.startsWith('Just')
@@ -196,7 +196,7 @@
 				</div>
 				<div
 					v-if="lessonProgress.data?.length"
-					class="border rounded-lg pt-4 px-4"
+					class="border rounded-6 pt-4 px-4"
 				>
 					<div class="flex items-center justify-between mb-4">
 						<div class="text-ink-gray-5">

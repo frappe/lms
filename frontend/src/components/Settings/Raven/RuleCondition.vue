@@ -1,6 +1,6 @@
 <template>
 	<div
-		class="flex w-full flex-col gap-2 rounded"
+		class="flex w-full flex-col gap-2 rounded-4"
 		:role="problem ? 'group' : undefined"
 		:aria-labelledby="problem ? nameId : undefined"
 		:aria-invalid="problem ? 'true' : undefined"

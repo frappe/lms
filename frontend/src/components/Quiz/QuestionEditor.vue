@@ -158,7 +158,7 @@ const questionInvalid = computed(
 // The shadow belongs to the field, never the card, or focus stacks two of them.
 // Progression copied from TextInput.vue's outline variant, with red swapped in for invalid.
 const editorClass = computed(() => [
-	'prose-sm max-w-none border-b border-x bg-surface-base rounded-b-md py-2 px-3 transition-colors',
+	'prose-sm max-w-none border-b border-x bg-surface-base rounded-b-5 py-2 px-3 transition-colors',
 	fillsHeight.value ? 'flex-1 overflow-y-auto min-h-[6rem]' : 'min-h-[5rem]',
 	questionInvalid.value
 		? 'border-outline-red-3 hover:border-outline-red-3 hover:shadow-sm focus-within:border-outline-red-4 focus-within:shadow-sm'

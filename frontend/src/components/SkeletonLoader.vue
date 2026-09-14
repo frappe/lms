@@ -6,51 +6,51 @@
 			>
 				<div class="w-full min-w-0 space-y-10 md:w-2/3">
 					<section class="space-y-4">
-						<div class="h-7 w-2/3 rounded bg-surface-gray-3" />
+						<div class="h-7 w-2/3 rounded-4 bg-surface-gray-3" />
 						<div class="flex flex-wrap items-center gap-x-3 gap-y-2">
-							<div class="h-5 w-24 rounded bg-surface-gray-2" />
-							<div class="h-5 w-20 rounded bg-surface-gray-2" />
-							<div class="h-5 w-28 rounded bg-surface-gray-2" />
+							<div class="h-5 w-24 rounded-4 bg-surface-gray-2" />
+							<div class="h-5 w-20 rounded-4 bg-surface-gray-2" />
+							<div class="h-5 w-28 rounded-4 bg-surface-gray-2" />
 						</div>
 						<div class="flex flex-wrap gap-2">
-							<div class="h-6 w-16 rounded bg-surface-gray-2" />
-							<div class="h-6 w-20 rounded bg-surface-gray-2" />
+							<div class="h-6 w-16 rounded-4 bg-surface-gray-2" />
+							<div class="h-6 w-20 rounded-4 bg-surface-gray-2" />
 						</div>
 						<div class="space-y-2">
-							<div class="h-6 w-full rounded bg-surface-gray-2" />
-							<div class="h-6 w-5/6 rounded bg-surface-gray-2" />
+							<div class="h-6 w-full rounded-4 bg-surface-gray-2" />
+							<div class="h-6 w-5/6 rounded-4 bg-surface-gray-2" />
 						</div>
 						<div
-							class="h-80 w-full max-w-sm rounded-md bg-surface-gray-3 md:hidden"
+							class="h-80 w-full max-w-sm rounded-5 bg-surface-gray-3 md:hidden"
 						/>
 					</section>
 
 					<section>
 						<div class="mb-4 flex items-baseline justify-between gap-4">
-							<div class="h-6 w-48 rounded bg-surface-gray-3" />
-							<div class="h-4 w-24 rounded bg-surface-gray-2" />
+							<div class="h-6 w-48 rounded-4 bg-surface-gray-3" />
+							<div class="h-4 w-24 rounded-4 bg-surface-gray-2" />
 						</div>
-						<div class="rounded-md border p-2">
+						<div class="rounded-5 border p-2">
 							<div v-for="i in 6" :key="i" class="flex h-9 items-center px-2">
-								<div class="h-5 w-2/3 rounded bg-surface-gray-2" />
+								<div class="h-5 w-2/3 rounded-4 bg-surface-gray-2" />
 							</div>
 						</div>
 					</section>
 
 					<section class="space-y-3">
-						<div class="h-6 w-56 rounded bg-surface-gray-3" />
+						<div class="h-6 w-56 rounded-4 bg-surface-gray-3" />
 						<div
 							v-for="i in 3"
 							:key="i"
-							class="h-4 rounded bg-surface-gray-2"
+							class="h-4 rounded-4 bg-surface-gray-2"
 							:class="i === 3 ? 'w-2/3' : 'w-full'"
 						/>
 					</section>
 				</div>
 
 				<aside class="hidden w-80 shrink-0 flex-col space-y-6 md:flex">
-					<div class="h-80 w-full rounded-md bg-surface-gray-3" />
-					<div class="h-40 w-full rounded-md bg-surface-gray-2" />
+					<div class="h-80 w-full rounded-5 bg-surface-gray-3" />
+					<div class="h-40 w-full rounded-5 bg-surface-gray-2" />
 				</aside>
 			</div>
 		</div>
@@ -61,11 +61,11 @@
 		>
 			<div class="space-y-8 p-5">
 				<section v-for="s in 2" :key="s" class="space-y-5">
-					<div class="h-4 w-40 rounded bg-surface-gray-3" />
+					<div class="h-4 w-40 rounded-4 bg-surface-gray-3" />
 					<div class="grid grid-cols-1 gap-5 md:grid-cols-2">
 						<div v-for="i in 4" :key="i" class="space-y-1.5">
-							<div class="h-4 w-24 rounded bg-surface-gray-2" />
-							<div class="h-7 w-full rounded bg-surface-gray-2" />
+							<div class="h-4 w-24 rounded-4 bg-surface-gray-2" />
+							<div class="h-7 w-full rounded-4 bg-surface-gray-2" />
 						</div>
 					</div>
 				</section>
@@ -74,8 +74,8 @@
 				<div v-for="i in 5" :key="i" class="flex items-start gap-3">
 					<div class="h-5 w-9 shrink-0 rounded-full bg-surface-gray-2" />
 					<div class="min-w-0 flex-1 space-y-1.5">
-						<div class="h-4 w-1/3 rounded bg-surface-gray-2" />
-						<div class="h-3 w-2/3 rounded bg-surface-gray-2" />
+						<div class="h-4 w-1/3 rounded-4 bg-surface-gray-2" />
+						<div class="h-3 w-2/3 rounded-4 bg-surface-gray-2" />
 					</div>
 				</div>
 			</div>
@@ -83,33 +83,33 @@
 
 		<div v-else-if="variant === 'header'" class="header-frame justify-between">
 			<div class="flex min-w-0 flex-1 items-center gap-2">
-				<div class="size-4 shrink-0 rounded bg-surface-gray-2 sm:hidden" />
-				<div class="h-4 w-40 max-w-full rounded bg-surface-gray-3 sm:hidden" />
+				<div class="size-4 shrink-0 rounded-4 bg-surface-gray-2 sm:hidden" />
+				<div class="h-4 w-40 max-w-full rounded-4 bg-surface-gray-3 sm:hidden" />
 				<div class="hidden h-7 items-center gap-2 sm:flex">
-					<div class="h-4 w-16 rounded bg-surface-gray-2" />
-					<div class="h-4 w-1 rounded bg-surface-gray-2" />
-					<div class="h-4 w-40 rounded bg-surface-gray-3" />
+					<div class="h-4 w-16 rounded-4 bg-surface-gray-2" />
+					<div class="h-4 w-1 rounded-4 bg-surface-gray-2" />
+					<div class="h-4 w-40 rounded-4 bg-surface-gray-3" />
 				</div>
 			</div>
 			<div class="flex shrink-0 items-center gap-2">
-				<div class="size-9 rounded bg-surface-gray-2 sm:hidden" />
-				<div class="size-9 rounded bg-surface-gray-2 sm:hidden" />
-				<div class="hidden h-7 w-20 rounded bg-surface-gray-2 sm:block" />
-				<div class="hidden h-7 w-24 rounded bg-surface-gray-3 sm:block" />
+				<div class="size-9 rounded-4 bg-surface-gray-2 sm:hidden" />
+				<div class="size-9 rounded-4 bg-surface-gray-2 sm:hidden" />
+				<div class="hidden h-7 w-20 rounded-4 bg-surface-gray-2 sm:block" />
+				<div class="hidden h-7 w-24 rounded-4 bg-surface-gray-3 sm:block" />
 			</div>
 		</div>
 
 		<div v-else-if="variant === 'editor-content'" class="py-6 sm:py-10">
 			<div class="space-y-6 px-4 sm:mx-10 sm:px-20">
 				<div
-					class="h-9 w-40 rounded-full bg-surface-gray-2 sm:h-7 sm:w-56 sm:rounded"
+					class="h-9 w-40 rounded-full bg-surface-gray-2 sm:h-7 sm:w-56 sm:rounded-4"
 				/>
-				<div class="h-7 w-2/3 rounded bg-surface-gray-3" />
+				<div class="h-7 w-2/3 rounded-4 bg-surface-gray-3" />
 				<div class="space-y-3">
 					<div
 						v-for="i in 5"
 						:key="i"
-						class="h-4 rounded bg-surface-gray-2"
+						class="h-4 rounded-4 bg-surface-gray-2"
 						:class="i === 5 ? 'w-2/3' : 'w-full'"
 					/>
 				</div>
@@ -125,23 +125,23 @@
 				:key="i"
 				class="flex h-9 items-center gap-2 px-2"
 			>
-				<div class="size-4 shrink-0 rounded bg-surface-gray-2" />
-				<div class="h-5 w-2/3 rounded bg-surface-gray-2" />
+				<div class="size-4 shrink-0 rounded-4 bg-surface-gray-2" />
+				<div class="h-5 w-2/3 rounded-4 bg-surface-gray-2" />
 			</div>
 		</div>
 
 		<div v-else-if="variant === 'list'">
-			<div class="mb-2 hidden h-8 rounded bg-surface-gray-2 sm:block" />
+			<div class="mb-2 hidden h-8 rounded-4 bg-surface-gray-2 sm:block" />
 			<div
 				v-for="i in count"
 				:key="i"
 				class="border-b border-outline-gray-1 py-3 last:border-b-0 sm:flex sm:h-10 sm:items-center sm:gap-4 sm:border-b-0 sm:px-2 sm:py-0"
 			>
-				<div class="h-5 w-2/3 rounded bg-surface-gray-2 sm:h-4 sm:w-1/3" />
+				<div class="h-5 w-2/3 rounded-4 bg-surface-gray-2 sm:h-4 sm:w-1/3" />
 				<div
-					class="mt-1.5 h-4 w-1/3 rounded bg-surface-gray-2 sm:mt-0 sm:w-1/4"
+					class="mt-1.5 h-4 w-1/3 rounded-4 bg-surface-gray-2 sm:mt-0 sm:w-1/4"
 				/>
-				<div class="hidden h-4 w-1/5 rounded bg-surface-gray-2 sm:block" />
+				<div class="hidden h-4 w-1/5 rounded-4 bg-surface-gray-2 sm:block" />
 			</div>
 		</div>
 
@@ -152,17 +152,17 @@
 			<div
 				v-for="i in count"
 				:key="i"
-				class="flex h-full flex-col rounded-md border p-4"
+				class="flex h-full flex-col rounded-5 border p-4"
 			>
-				<div class="h-5 w-3/4 rounded bg-surface-gray-3" />
-				<div class="mt-2 h-4 w-1/3 rounded bg-surface-gray-2" />
+				<div class="h-5 w-3/4 rounded-4 bg-surface-gray-3" />
+				<div class="mt-2 h-4 w-1/3 rounded-4 bg-surface-gray-2" />
 				<div class="mt-4 space-y-2">
-					<div class="h-4 w-full rounded bg-surface-gray-2" />
-					<div class="h-4 w-5/6 rounded bg-surface-gray-2" />
+					<div class="h-4 w-full rounded-4 bg-surface-gray-2" />
+					<div class="h-4 w-5/6 rounded-4 bg-surface-gray-2" />
 				</div>
 				<div class="mt-6 flex items-center gap-2">
 					<div class="size-6 shrink-0 rounded-full bg-surface-gray-2" />
-					<div class="h-4 w-24 rounded bg-surface-gray-2" />
+					<div class="h-4 w-24 rounded-4 bg-surface-gray-2" />
 				</div>
 			</div>
 		</div>
@@ -171,7 +171,7 @@
 			<div
 				v-for="i in lines"
 				:key="i"
-				class="h-4 rounded bg-surface-gray-2"
+				class="h-4 rounded-4 bg-surface-gray-2"
 				:class="i === lines ? 'w-2/3' : 'w-full'"
 			/>
 		</div>

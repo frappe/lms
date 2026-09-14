@@ -28,7 +28,7 @@
 				>
 					<div v-if="creating" class="flex items-center gap-1">
 						<button
-							class="p-1 rounded hover:bg-surface-gray-3 text-ink-gray-5"
+							class="p-1 rounded-4 hover:bg-surface-gray-3 text-ink-gray-5"
 							:aria-label="__('Cancel')"
 							@click="creating = false"
 						>
