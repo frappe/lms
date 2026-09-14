@@ -67,7 +67,8 @@
 	</Dialog>
 </template>
 <script setup lang="ts">
-import { Dialog, DonutChart, FormControl, NumberChart } from 'frappe-ui'
+import { Dialog, FormControl } from 'frappe-ui'
+import { DonutChart, NumberChart } from 'frappe-ui/experimental'
 import type { ListRow, ProgramMember } from '@/types'
 import { computed, ref, watch } from 'vue'
 import ResponsiveListView from '@/components/ResponsiveListView.vue'

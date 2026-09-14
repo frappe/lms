@@ -24,77 +24,78 @@ vi.mock('@/utils/composables', async () => {
 	}
 })
 
-vi.mock('frappe-ui', () => {
-	const passthrough = (tag: string, testid?: string) => ({
-		inheritAttrs: false,
-		template: `<${tag} v-bind="$attrs"${
-			testid ? ` data-testid="${testid}"` : ''
-		}><slot /></${tag}>`,
-	})
-	return {
-		Breadcrumbs: { template: '<nav data-testid="breadcrumbs" />' },
-		Button: passthrough('button'),
-		ListFooter: {
-			props: ['modelValue', 'options'],
-			template: `<div data-testid="footer">
-				<slot name="right" />
-			</div>`,
-		},
-		// Reproduces the quirk that costs a page a duplicate request: onChange
-		// assigns the model and then re-emits, so one click notifies twice with
-		// the same value before the prop has round-tripped.
-		// Faithful to frappe-ui's Checkbox in the one structural respect the
-		// filters rely on: an <input> plus a <label for> pointing at it, so the
-		// label is part of the hit area. A stub that rendered only the input
-		// would let a label-association assertion pass vacuously.
-		Checkbox: defineComponent({
-			props: {
-				modelValue: Boolean,
-				label: String,
-				description: String,
-				size: String,
-			},
-			emits: ['update:modelValue'],
-			methods: {
-				onChange() {
-					this.$emit('update:modelValue', !this.modelValue)
-					this.$emit('update:modelValue', !this.modelValue)
-				},
-			},
-			template: `<div>
-				<input
-					type="checkbox"
-					data-testid="checkbox"
-					id="cb"
-					:aria-label="label"
-					:checked="modelValue"
-					@change="onChange"
-				/>
-				<label data-testid="checkbox-label" for="cb" @click="onChange">
-					{{ label }}
-				</label>
-			</div>`,
-		}),
-		Tooltip: {
-			props: ['text'],
-			template: '<div :data-tooltip="text"><slot /></div>',
-		},
-		ListView: {
-			name: 'ListView',
-			props: ['columns', 'rows', 'rowKey', 'options'],
-			template: '<div data-testid="listview"><slot /></div>',
-		},
-		ListHeader: passthrough('div', 'list-header'),
-		ListHeaderItem: {
-			props: ['item'],
-			template:
-				'<div><slot name="prefix" :item="item" />{{ item.label }}</div>',
-		},
-		ListRows: { template: '<div data-testid="list-rows" />' },
-		ListRowItem: { template: '<div><slot /></div>' },
-		ListSelectBanner: { template: '<div><slot name="actions" /></div>' },
-	}
+const passthrough = (tag: string, testid?: string) => ({
+	inheritAttrs: false,
+	template: `<${tag} v-bind="$attrs"${
+		testid ? ` data-testid="${testid}"` : ''
+	}><slot /></${tag}>`,
 })
+
+vi.mock('frappe-ui', () => ({
+	Breadcrumbs: { template: '<nav data-testid="breadcrumbs" />' },
+	Button: passthrough('button'),
+	// Reproduces the quirk that costs a page a duplicate request: onChange
+	// assigns the model and then re-emits, so one click notifies twice with
+	// the same value before the prop has round-tripped.
+	// Faithful to frappe-ui's Checkbox in the one structural respect the
+	// filters rely on: an <input> plus a <label for> pointing at it, so the
+	// label is part of the hit area. A stub that rendered only the input
+	// would let a label-association assertion pass vacuously.
+	Checkbox: defineComponent({
+		props: {
+			modelValue: Boolean,
+			label: String,
+			description: String,
+			size: String,
+		},
+		emits: ['update:modelValue'],
+		methods: {
+			onChange() {
+				this.$emit('update:modelValue', !this.modelValue)
+				this.$emit('update:modelValue', !this.modelValue)
+			},
+		},
+		template: `<div>
+			<input
+				type="checkbox"
+				data-testid="checkbox"
+				id="cb"
+				:aria-label="label"
+				:checked="modelValue"
+				@change="onChange"
+			/>
+			<label data-testid="checkbox-label" for="cb" @click="onChange">
+				{{ label }}
+			</label>
+		</div>`,
+	}),
+	Tooltip: {
+		props: ['text'],
+		template: '<div :data-tooltip="text"><slot /></div>',
+	},
+}))
+
+vi.mock('frappe-ui/experimental', () => ({
+	ListFooter: {
+		props: ['modelValue', 'options'],
+		template: `<div data-testid="footer">
+			<slot name="right" />
+		</div>`,
+	},
+	ListView: {
+		name: 'ListView',
+		props: ['columns', 'rows', 'rowKey', 'options'],
+		template: '<div data-testid="listview"><slot /></div>',
+	},
+	ListHeader: passthrough('div', 'list-header'),
+	ListHeaderItem: {
+		props: ['item'],
+		template: '<div><slot name="prefix" :item="item" />{{ item.label }}</div>',
+	},
+	ListRows: { template: '<div data-testid="list-rows" />' },
+	ListRowItem: { template: '<div><slot /></div>' },
+	ListSelectBanner: { template: '<div><slot name="actions" /></div>' },
+}))
 
 const stub = (template: string) => ({ default: { template } })
 vi.mock('@/components/SkeletonLoader.vue', () =>

@@ -23,6 +23,14 @@ vi.mock('frappe-ui', () => ({
 	createResource: () => ({ data: null, reload: vi.fn(), submit: vi.fn() }),
 }))
 
+// NewMemberModal.vue -> RoleSwitches.vue pulls in members.ts -> Members.vue ->
+// MemberForm.vue, which imports `@framework/ui`. Its root barrel also
+// `export *`s components (GeolocationField among them) that import
+// `leaflet`/`leaflet-draw` assets not installed in this frontend — loading the
+// real module crashes module resolution, even though nothing here renders
+// MemberForm.vue.
+vi.mock('@framework/ui', () => ({}))
+
 vi.stubGlobal('__', (s: string) => s)
 
 const doc = {

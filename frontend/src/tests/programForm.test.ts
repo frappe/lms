@@ -111,6 +111,9 @@ vi.mock('frappe-ui', () => ({
 		emits: ['update:modelValue'],
 		template: `<label>{{ label }}<input :type="type" :value="modelValue" @input="$emit('update:modelValue', $event.target.value)" /></label>`,
 	},
+}))
+
+vi.mock('frappe-ui/experimental', () => ({
 	ListView: passthrough,
 	ListHeader: passthrough,
 	ListHeaderItem: passthrough,

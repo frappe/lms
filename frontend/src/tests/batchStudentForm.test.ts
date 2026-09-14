@@ -66,13 +66,14 @@ vi.mock('frappe-ui', () => ({
 	},
 }))
 
-vi.mock('@framework/ui', async (importOriginal) => {
-	const actual = await importOriginal<typeof import('@framework/ui')>()
-	return {
-		...actual,
-		useOnboarding: () => ({ updateOnboardingStep: updateOnboardingStepMock }),
-	}
-})
+// A plain mock, not `importOriginal`: `@framework/ui`'s root barrel also
+// `export *`s components (GeolocationField among them) that import
+// `leaflet`/`leaflet-draw` assets not installed in this frontend — loading the
+// real module here crashes module resolution. Nothing this file renders reads
+// another `@framework/ui` export.
+vi.mock('@framework/ui', () => ({
+	useOnboarding: () => ({ updateOnboardingStep: updateOnboardingStepMock }),
+}))
 
 // @/utils is the barrel that pulls in plyr and the settings store; only
 // openSettings is used here.

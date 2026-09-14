@@ -53,14 +53,15 @@ vi.mock('frappe-ui', () => ({
 	Select: { template: '<select />' },
 }))
 
-vi.mock('@framework/ui', async (importOriginal) => {
-	const actual = await importOriginal<typeof import('@framework/ui')>()
-	return {
-		...actual,
-		useOnboarding: () => ({ updateOnboardingStep: vi.fn() }),
-		useTelemetry: () => ({ capture: vi.fn() }),
-	}
-})
+// A plain mock, not `importOriginal`: `@framework/ui`'s root barrel also
+// `export *`s components (GeolocationField among them) that import
+// `leaflet`/`leaflet-draw` assets not installed in this frontend — loading the
+// real module here crashes module resolution. Nothing this file renders reads
+// another `@framework/ui` export.
+vi.mock('@framework/ui', () => ({
+	useOnboarding: () => ({ updateOnboardingStep: vi.fn() }),
+	useTelemetry: () => ({ capture: vi.fn() }),
+}))
 
 // @/utils pulls in plyr, which touches window.matchMedia at import time.
 vi.mock('@/utils', () => ({

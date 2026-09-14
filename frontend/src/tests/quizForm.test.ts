@@ -147,6 +147,14 @@ createDocumentResourceMock.mockImplementation((options: any) => {
 	return resource
 })
 
+// `@framework/ui`'s root barrel also `export *`s components (GeolocationField
+// among them) that import `leaflet`/`leaflet-draw` assets not installed in
+// this frontend — loading the real module crashes module resolution, so
+// QuizForm.vue's `useTelemetry()` needs a stub here.
+vi.mock('@framework/ui', () => ({
+	useTelemetry: () => ({ capture: vi.fn() }),
+}))
+
 vi.mock('frappe-ui', () => ({
 	createResource: createResourceMock,
 	createDocumentResource: createDocumentResourceMock,

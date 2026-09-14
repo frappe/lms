@@ -235,14 +235,16 @@ import {
 	createListResource,
 	Dialog,
 	FormControl,
+	toast,
+} from 'frappe-ui'
+import {
 	ListSelectBanner,
 	ListView,
 	ListHeader,
 	ListHeaderItem,
 	ListRows,
 	ListRow,
-	toast,
-} from 'frappe-ui'
+} from 'frappe-ui/experimental'
 import { computed, inject, ref, watch, getCurrentInstance } from 'vue'
 
 import { Program, ProgramCourse, ProgramMember } from '@/types'

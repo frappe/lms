@@ -112,11 +112,14 @@ vi.mock('frappe-ui', async () => {
 			template: '<div v-if="open"><slot /></div>',
 		},
 		FormControl: empty,
-		ListView: empty,
 		LoadingIndicator: empty,
-		TextEditor: empty,
 	}
 })
+
+vi.mock('frappe-ui/experimental', () => ({
+	ListView: { template: '<div><slot /></div>' },
+	TextEditor: { template: '<div><slot /></div>' },
+}))
 
 vi.mock('@/components/ProgressBar.vue', () => ({
 	default: { template: '<div />' },

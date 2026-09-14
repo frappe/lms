@@ -101,7 +101,6 @@ import {
 	createListResource,
 	Dialog,
 	FormControl,
-	NumberChart,
 	TabButtons,
 } from 'frappe-ui'
 import { computed, ref, watch } from 'vue'

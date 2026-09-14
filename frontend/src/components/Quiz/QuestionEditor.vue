@@ -102,14 +102,8 @@
 </template>
 
 <script setup>
-import {
-	TextEditor,
-	Button,
-	Badge,
-	Dropdown,
-	FormControl,
-	FormLabel,
-} from 'frappe-ui'
+import { Button, Badge, Dropdown, FormControl, FormLabel } from 'frappe-ui'
+import { TextEditor } from 'frappe-ui/experimental'
 import { ref, computed, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import QuestionAnswers from './QuestionAnswers.vue'
 import {

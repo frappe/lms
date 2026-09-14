@@ -87,7 +87,6 @@ vi.mock('frappe-ui', async () => {
 		Avatar: passthrough,
 		Dialog: { props: ['open'], template: '<div><slot /></div>' },
 		FormControl: passthrough,
-		NumberChart: passthrough,
 		TabButtons: passthrough,
 	}
 })

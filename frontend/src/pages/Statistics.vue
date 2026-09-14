@@ -136,14 +136,12 @@
 </template>
 <script setup>
 import {
-	AxisChart,
 	createResource,
-	DonutChart,
 	LoadingIndicator,
-	NumberChart,
 	Tooltip,
 	usePageMeta,
 } from 'frappe-ui'
+import { AxisChart, DonutChart, NumberChart } from 'frappe-ui/experimental'
 import { computed } from 'vue'
 import PageHeader from '@/components/Layouts/pages/PageHeader.vue'
 import { sessionStore } from '../stores/session'

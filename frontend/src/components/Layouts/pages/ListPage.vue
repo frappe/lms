@@ -105,13 +105,8 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import {
-	Button,
-	createResource,
-	FormControl,
-	ListFooter,
-	toast,
-} from 'frappe-ui'
+import { Button, createResource, FormControl, toast } from 'frappe-ui'
+import { ListFooter } from 'frappe-ui/experimental'
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 import PageHeader from '@/components/Layouts/pages/PageHeader.vue'
 import PageBody from '@/components/Layouts/pages/PageBody.vue'

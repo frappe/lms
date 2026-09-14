@@ -154,13 +154,13 @@
 </template>
 <script setup lang="ts">
 import {
-	AxisChart,
 	createResource,
 	createListResource,
 	FormControl,
 	Avatar,
 	Button,
 } from 'frappe-ui'
+import { AxisChart } from 'frappe-ui/experimental'
 import { computed, inject, onMounted, ref, watch } from 'vue'
 import type dayjsType from 'dayjs'
 import { formatAmount } from '@/utils'

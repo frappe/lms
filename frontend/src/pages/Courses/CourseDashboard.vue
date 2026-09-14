@@ -260,10 +260,10 @@ import {
 	Button,
 	createListResource,
 	createResource,
-	ECharts,
 	FormControl,
 	Tooltip,
 } from 'frappe-ui'
+import { ECharts } from 'frappe-ui/experimental'
 import Select from '@/components/Controls/Select.vue'
 import { computed, inject, ref, watch } from 'vue'
 import type dayjsType from 'dayjs'
