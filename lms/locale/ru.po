@@ -9913,3 +9913,18 @@ msgstr "{} Прошел"
 msgid "{} Published"
 msgstr "{} Опубликовано"
 
+#: frontend/src/components/Sidebar/UserDropdown.vue:161
+msgid "Toggle Theme"
+msgstr "Переключить тему"
+
+#: frontend/src/components/Sidebar/UserDropdown.vue:209
+msgid "Clear Demo Data"
+msgstr "Очистить демонстрационные данные"
+
+#: frontend/src/components/Sidebar/UserDropdown.vue:223
+msgid "Login to Frappe Cloud"
+msgstr "Войти в Frappe Cloud"
+
+#: frontend/src/components/Sidebar/UserDropdown.vue:263
+msgid "Log in"
+msgstr "Войти"
