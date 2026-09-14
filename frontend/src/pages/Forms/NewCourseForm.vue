@@ -125,7 +125,7 @@ import {
 	createResource,
 	toast,
 } from 'frappe-ui'
-import { useOnboarding, useTelemetry } from 'frappe-ui/frappe'
+import { useOnboarding, useTelemetry } from '@framework/ui'
 import { computed, inject, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import FormShell from '@/components/FormShell.vue'
 import HeaderButton from '@/components/HeaderButton.vue'

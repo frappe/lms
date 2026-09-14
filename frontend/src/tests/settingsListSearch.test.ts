@@ -53,10 +53,14 @@ vi.mock('frappe-ui', () => ({
 	Select: { template: '<select />' },
 }))
 
-vi.mock('frappe-ui/frappe', () => ({
-	useOnboarding: () => ({ updateOnboardingStep: vi.fn() }),
-	useTelemetry: () => ({ capture: vi.fn() }),
-}))
+vi.mock('@framework/ui', async (importOriginal) => {
+	const actual = await importOriginal<typeof import('@framework/ui')>()
+	return {
+		...actual,
+		useOnboarding: () => ({ updateOnboardingStep: vi.fn() }),
+		useTelemetry: () => ({ capture: vi.fn() }),
+	}
+})
 
 // @/utils pulls in plyr, which touches window.matchMedia at import time.
 vi.mock('@/utils', () => ({

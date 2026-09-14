@@ -143,7 +143,7 @@ import {
 	createResource,
 	toast,
 } from 'frappe-ui'
-import { useOnboarding, useTelemetry } from 'frappe-ui/frappe'
+import { useOnboarding, useTelemetry } from '@framework/ui'
 import { computed, inject, onMounted, onBeforeUnmount, ref } from 'vue'
 import { createLMSCategory, cleanError } from '@/utils'
 import { sanitizeOnWrite } from '@/utils/sanitizeOnWrite'

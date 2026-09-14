@@ -34,10 +34,14 @@ vi.mock('frappe-ui', () => ({
 	Tabs: passthrough,
 }))
 
-vi.mock('frappe-ui/frappe', () => ({
-	useTelemetry: () => ({ capture: vi.fn() }),
-	useOnboarding: () => ({ updateOnboardingStep: vi.fn() }),
-}))
+vi.mock('@framework/ui', async (importOriginal) => {
+	const actual = await importOriginal<typeof import('@framework/ui')>()
+	return {
+		...actual,
+		useTelemetry: () => ({ capture: vi.fn() }),
+		useOnboarding: () => ({ updateOnboardingStep: vi.fn() }),
+	}
+})
 
 // `shallow` stubs these at RENDER time, but their modules are still imported at
 // setup time, and several of them (the editor, the settings form) drag in the

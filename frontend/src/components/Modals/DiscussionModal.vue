@@ -35,7 +35,7 @@
 import { call, Dialog, FormControl, toast } from 'frappe-ui'
 import { reactive } from 'vue'
 import { singularize } from '@/utils'
-import { useTelemetry } from 'frappe-ui/frappe'
+import { useTelemetry } from '@framework/ui'
 import RichTextEditor from '@/components/RichTextEditor.vue'
 
 const topics = defineModel('reloadTopics')

@@ -95,10 +95,14 @@ vi.mock('frappe-ui', () => ({
 	},
 }))
 
-vi.mock('frappe-ui/frappe', () => ({
-	useOnboarding: () => ({ updateOnboardingStep: vi.fn() }),
-	useTelemetry: () => ({ capture: vi.fn() }),
-}))
+vi.mock('@framework/ui', async (importOriginal) => {
+	const actual = await importOriginal<typeof import('@framework/ui')>()
+	return {
+		...actual,
+		useOnboarding: () => ({ updateOnboardingStep: vi.fn() }),
+		useTelemetry: () => ({ capture: vi.fn() }),
+	}
+})
 
 // @/utils is the barrel that pulls in plyr; only cleanError is used here.
 vi.mock('@/utils', () => ({ cleanError: (msg: string) => msg }))

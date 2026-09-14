@@ -142,7 +142,7 @@ import { hasVideoContent } from '@/utils/video'
 import BlockEditor from '@/components/BlockEditor.vue'
 import BottomSheet from '@/components/BottomSheet.vue'
 import { useScreenSize } from '@/utils/composables'
-import { useOnboarding, useTelemetry } from 'frappe-ui/frappe'
+import { useOnboarding, useTelemetry } from '@framework/ui'
 import {
 	useKeyboardShortcuts,
 	saveShortcut,

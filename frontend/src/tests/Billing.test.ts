@@ -143,9 +143,13 @@ vi.mock('frappe-ui', () => ({
 	},
 }))
 
-vi.mock('frappe-ui/frappe', () => ({
-	useTelemetry: () => ({ capture: vi.fn() }),
-}))
+vi.mock('@framework/ui', async (importOriginal) => {
+	const actual = await importOriginal<typeof import('@framework/ui')>()
+	return {
+		...actual,
+		useTelemetry: () => ({ capture: vi.fn() }),
+	}
+})
 vi.mock('@/stores/session', () => ({
 	sessionStore: () => ({ brand: { favicon: '' } }),
 }))

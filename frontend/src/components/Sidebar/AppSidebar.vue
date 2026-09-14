@@ -253,7 +253,7 @@ import {
 	minimize,
 	IntermediateStepModal,
 	useTelemetry,
-} from 'frappe-ui/frappe'
+} from '@framework/ui'
 import InviteIcon from '@/components/Icons/InviteIcon.vue'
 import UserDropdown from '@/components/Sidebar/UserDropdown.vue'
 import CollapseSidebar from '@/components/Icons/CollapseSidebar.vue'

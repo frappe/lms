@@ -33,9 +33,13 @@ vi.mock('frappe-ui', () => ({
 		template: `<div data-testid="error">{{ message }}</div>`,
 	},
 }))
-vi.mock('frappe-ui/frappe', () => ({
-	useTelemetry: () => ({ capture: vi.fn() }),
-}))
+vi.mock('@framework/ui', async (importOriginal) => {
+	const actual = await importOriginal<typeof import('@framework/ui')>()
+	return {
+		...actual,
+		useTelemetry: () => ({ capture: vi.fn() }),
+	}
+})
 vi.mock('@/components/Layouts/settings/desktop/SettingsLayout.vue', () => ({
 	default: {
 		props: ['title', 'showBack', 'unsaved', 'saveLabel', 'saving', 'canSave'],

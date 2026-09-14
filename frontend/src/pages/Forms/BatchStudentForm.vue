@@ -47,7 +47,7 @@ import {
 	getCachedResource,
 	toast,
 } from 'frappe-ui'
-import { useOnboarding } from 'frappe-ui/frappe'
+import { useOnboarding } from '@framework/ui'
 import { useRoute } from 'vue-router'
 import { openSettings } from '@/utils'
 import Link from '@/components/Controls/Link.vue'

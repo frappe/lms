@@ -9,7 +9,7 @@ import translationPlugin from './translation'
 import { usersStore } from './stores/user'
 import { initSocket } from './socket'
 import { FrappeUI, setConfig, frappeRequest } from 'frappe-ui'
-import { telemetryPlugin } from 'frappe-ui/frappe'
+import { telemetryPlugin } from '@framework/ui'
 import { registerDirectives } from './directives'
 
 let pinia = createPinia()
