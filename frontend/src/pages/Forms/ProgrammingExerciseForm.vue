@@ -32,9 +32,6 @@
 						:label="__('Test Cases')"
 						:columns="testCaseColumns"
 						:required="true"
-						:addable="true"
-						:deletable="true"
-						:editable="true"
 						:placeholder="__('Add Test Case')"
 					/>
 				</div>

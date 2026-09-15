@@ -33,11 +33,10 @@
 			{{ batch.price }}
 		</div>
 		<div class="flex flex-col space-y-2 mt-auto">
-			<DateRange
-				:startDate="batch.start_date"
-				:endDate="batch.end_date"
-				class="text-sm text-ink-gray-7"
-			/>
+			<div class="flex items-center text-sm text-ink-gray-7">
+				<span class="lucide-calendar h-4 w-4 me-2" />
+				<span>{{ getFormattedDateRange(batch.start_date, batch.end_date) }}</span>
+			</div>
 			<div class="flex items-center text-sm text-ink-gray-7">
 				<span class="lucide-clock h-4 w-4 me-2 text-ink-gray-7" />
 				<span dir="ltr">
@@ -79,9 +78,8 @@
 </template>
 <script setup>
 import { Badge } from 'frappe-ui'
-import { formatTime } from '@/utils'
+import { formatTime, getFormattedDateRange } from '@/utils'
 import { formatTimezone, nextOccurrence } from '@/utils/timezone'
-import DateRange from '@/components/Common/DateRange.vue'
 import CourseInstructors from '@/components/CourseInstructors.vue'
 import UserAvatar from '@/components/UserAvatar.vue'
 
