@@ -27,6 +27,13 @@ const toHexChannel = (channel: number): string =>
 		.toString(16)
 		.padStart(2, '0')
 
+// Alpha is a linear 0-1 opacity, not a linear-light colour value, so it must
+// not go through the sRGB gamma curve `gammaEncode()` applies to R/G/B.
+const toHexAlpha = (alpha: number): string =>
+	Math.round(Math.min(1, Math.max(0, alpha)) * 255)
+		.toString(16)
+		.padStart(2, '0')
+
 export const oklchToHex = (value: string): string => {
 	const match = value.trim().match(OKLCH_PATTERN)
 	if (!match) throw new Error(`not an oklch() colour: ${value}`)
@@ -52,5 +59,5 @@ export const oklchToHex = (value: string): string => {
 		-0.0041960863 * lCubed - 0.7034186147 * mCubed + 1.707614701 * sCubed
 
 	const rgb = `${toHexChannel(r)}${toHexChannel(g)}${toHexChannel(bl)}`
-	return alpha === undefined ? `#${rgb}` : `#${rgb}${toHexChannel(alpha)}`
+	return alpha === undefined ? `#${rgb}` : `#${rgb}${toHexAlpha(alpha)}`
 }
