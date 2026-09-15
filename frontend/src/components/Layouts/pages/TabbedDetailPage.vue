@@ -185,8 +185,13 @@ defineExpose({ instanceFor: (key: string): unknown => instances[key] ?? null })
 </script>
 
 <style scoped>
+/* Same box as the `.header-frame` above: one height token, one inset.
+   CourseDetail floats its Chapters bar level with this row, so both borders
+   have to land on the same line. frappe-ui sizes only the pills. */
 :deep([role='tablist']) {
 	flex-shrink: 0;
+	height: var(--header-frame-h);
+	padding-inline: 1.25rem;
 }
 
 :deep([role='tabpanel'][data-state='active']) {
@@ -207,9 +212,6 @@ defineExpose({ instanceFor: (key: string): unknown => instances[key] ?? null })
 @media (max-width: 639px) {
 	.detail-tabs :deep([role='tablist']) {
 		gap: 1rem;
-		/* Same inset as the header above and the body below, so the whole page
-		   lines up on one edge. */
-		padding-inline: 1.25rem;
 	}
 }
 </style>
