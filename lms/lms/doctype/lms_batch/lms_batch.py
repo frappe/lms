@@ -517,3 +517,22 @@ def has_permission(doc, ptype="read", user=None):
 		return True
 
 	return False
+
+
+def get_permission_query_conditions(user=None):
+	"""List-read counterpart of has_permission above: published, or enrolled."""
+	user = user or frappe.session.user
+	if user == "Administrator":
+		return ""
+
+	if user == "Guest" and not guest_access_allowed():
+		return "1 = 0"
+
+	roles = frappe.get_roles(user)
+	if "Moderator" in roles or "Batch Evaluator" in roles:
+		return ""
+
+	escaped = frappe.db.escape(user)
+	return f"""(`tabLMS Batch`.published = 1 or `tabLMS Batch`.name in (
+		select batch from `tabLMS Batch Enrollment` where member = {escaped}
+	))"""

@@ -1,0 +1,66 @@
+rules:
+  - id: lms-mutating-whitelist-needs-post
+    languages: [python]
+    severity: ERROR
+    message: >-
+      This whitelisted method mutates state but does not declare
+      methods=["POST"]. Frappe allows GET unless you say otherwise, and
+      validate_csrf_token returns early on GET, so this is reachable by a
+      tokenless cross-site navigation. Filesystem and outbound effects also
+      survive Frappe's GET auto-rollback.
+    patterns:
+      - pattern: |
+          @frappe.whitelist()
+          def $F(...):
+            ...
+      - pattern-either:
+          - pattern-inside: |
+              @frappe.whitelist()
+              def $F(...):
+                ...
+                shutil.rmtree(...)
+                ...
+          - pattern-inside: |
+              @frappe.whitelist()
+              def $F(...):
+                ...
+                frappe.delete_doc(...)
+                ...
+          - pattern-inside: |
+              @frappe.whitelist()
+              def $F(...):
+                ...
+                $DOC.insert(...)
+                ...
+
+  - id: lms-unjustified-ignore-permissions
+    languages: [python]
+    severity: WARNING
+    message: >-
+      ignore_permissions=True bypasses DocPerms, if_owner and every
+      has_permission hook. If it is genuinely required, justify it on the line
+      above with "# nosemgrep: lms-unjustified-ignore-permissions - <reason>"
+      so a reviewer sees the claim.
+    pattern-either:
+      - pattern: $F(..., ignore_permissions=True, ...)
+      - pattern: $OBJ.flags.ignore_permissions = True
+
+  - id: lms-exists-then-insert
+    languages: [python]
+    severity: ERROR
+    message: >-
+      exists()/count() followed by insert() in the same function is a
+      read-then-insert race. Two concurrent requests both see "absent" and both
+      insert. Add a DB unique constraint (see
+      lms/patches/v2_0/delete_duplicate_course_progress.py) or take a
+      FOR UPDATE lock.
+    patterns:
+      - pattern-either:
+          - pattern: |
+              if not frappe.db.exists(...):
+                ...
+                $DOC.insert(...)
+          - pattern: |
+              if frappe.db.count(...) < $N:
+                ...
+                $DOC.insert(...)

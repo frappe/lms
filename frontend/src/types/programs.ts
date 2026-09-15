@@ -4,12 +4,16 @@ export interface Program {
     published: boolean;
     enforce_course_order: boolean;
     program_courses: ProgramCourse[];
-    program_batches: ProgramMember[];
-    course_count: number;
-    member_count: number;
+    // The child table is `program_members` on the doctype; the old name here
+    // matched nothing, so every read of it through this type was an error.
+    program_members: ProgramMember[];
+    // Server-maintained rollups: present on a fetched program, absent on one the
+    // form is still building.
+    course_count?: number;
+    member_count?: number;
 }
 
-interface ProgramCourse {
+export interface ProgramCourse {
     course: string;
     course_title: string;
     idx: number;

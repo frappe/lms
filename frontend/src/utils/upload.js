@@ -1,4 +1,5 @@
 import AudioBlock from '@/components/AudioBlock.vue'
+import { registerDirectives } from '@/directives'
 import VideoBlock from '@/components/VideoBlock.vue'
 import PdfBlock from '@/components/PdfBlock.vue'
 import UploadPlugin from '@/components/UploadPlugin.vue'
@@ -6,6 +7,8 @@ import { h, createApp } from 'vue'
 import { Upload as UploadIcon } from 'lucide-vue-next'
 import { createDialog } from '@/utils/dialogs'
 import { usesWebkitPdfViewer } from '@/utils/pdfViewer'
+import { embedFrame } from '@/utils/blockDom'
+import { safeUrl } from '@/utils/safeUrl'
 import translationPlugin from '../translation'
 
 export class Upload {
@@ -20,6 +23,7 @@ export class Upload {
 			render: () =>
 				h(UploadIcon, { size: 18, strokeWidth: 1.5, color: 'black' }),
 		})
+		registerDirectives(app)
 
 		const div = document.createElement('div')
 		app.mount(div)
@@ -57,6 +61,7 @@ export class Upload {
 					this.data.quizzes = quizzes
 				},
 			})
+			registerDirectives(app)
 			app.use(translationPlugin)
 			app.config.globalProperties.$dialog = createDialog
 			app.mount(this.wrapper)
@@ -65,6 +70,7 @@ export class Upload {
 			const app = createApp(AudioBlock, {
 				file: file.file_url,
 			})
+			registerDirectives(app)
 			app.mount(this.wrapper)
 			return
 		} else if (file.file_type == 'PDF') {
@@ -73,23 +79,31 @@ export class Upload {
 			// pdf.js worker + render tasks down. Everywhere else keeps the native
 			// plugin. See utils/pdfViewer.
 			if (!usesWebkitPdfViewer()) {
-				this.wrapper.innerHTML = `<iframe src="${
-					window.location.origin
-				}${encodeURI(
-					file.file_url
-				)}" width='100%' height='700px' class="mb-4" type="application/pdf"></iframe>`
+				const frame = embedFrame(file.file_url, {
+					width: '100%',
+					height: '700px',
+					class: 'mb-4',
+					type: 'application/pdf',
+				})
+				this.wrapper.replaceChildren(...(frame ? [frame] : []))
 				return
 			}
 			this.app = createApp(PdfBlock, {
 				file: file.file_url,
 			})
+			registerDirectives(this.app)
 			this.app.use(translationPlugin)
 			this.app.mount(this.wrapper)
 			return
 		} else {
-			this.wrapper.innerHTML = `<img class="mb-4" src=${encodeURI(
-				file.file_url
-			)} width='100%'>`
+			const src = safeUrl(file.file_url)
+			if (src) {
+				const img = document.createElement('img')
+				img.setAttribute('src', src)
+				img.className = 'mb-4'
+				img.setAttribute('width', '100%')
+				this.wrapper.replaceChildren(img)
+			}
 			return
 		}
 	}
@@ -103,6 +117,7 @@ export class Upload {
 				this.renderFile(file)
 			},
 		})
+		registerDirectives(app)
 		app.use(translationPlugin)
 		app.mount(this.wrapper)
 	}

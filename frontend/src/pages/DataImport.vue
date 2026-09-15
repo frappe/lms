@@ -11,7 +11,7 @@
 <script setup lang="ts">
 import { usePageMeta } from 'frappe-ui'
 import { DataImport } from 'frappe-ui/frappe'
-import PageHeader from '@/components/Layouts/PageHeader.vue'
+import PageHeader from '@/components/Layouts/pages/PageHeader.vue'
 import type { Breadcrumb } from '@/types'
 import { sessionStore } from '../stores/session'
 import { useRoute, useRouter } from 'vue-router'

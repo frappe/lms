@@ -246,12 +246,6 @@
 			</div>
 		</div>
 	</div>
-	<CourseEnrollmentModal
-		v-if="showEnrollmentModal"
-		v-model="showEnrollmentModal"
-		:course="course"
-		:students="progressList"
-	/>
 	<StudentCourseProgress
 		v-if="showProgressModal"
 		v-model="showProgressModal"
@@ -274,7 +268,6 @@ import Select from '@/components/Controls/Select.vue'
 import { computed, inject, ref, watch } from 'vue'
 import type dayjsType from 'dayjs'
 import { formatAmount } from '@/utils'
-import CourseEnrollmentModal from '@/pages/Courses/CourseEnrollmentModal.vue'
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 import NumberChartGraph from '@/components/NumberChartGraph.vue'
 import ProgressBar from '@/components/ProgressBar.vue'
@@ -294,14 +287,7 @@ const props = defineProps<{
 }>()
 
 const dayjs = inject<typeof dayjsType>('$dayjs')!
-const showEnrollmentModal = ref<boolean>(false)
 const searchFilter = ref<string | null>(null)
-
-function openEnrollModal() {
-	showEnrollmentModal.value = true
-}
-
-defineExpose({ openEnrollModal })
 
 const showProgressModal = ref<boolean>(false)
 const currentStudent = ref<Record<string, unknown> | null>(null)
@@ -336,6 +322,9 @@ const progressList = createListResource({
 	],
 	pageLength: 100,
 	auto: true,
+	// Also how CourseEnrollmentForm reaches this list through
+	// getCachedListResource after enrolling someone — it is a route of its own
+	// now, so it has no way in through props.
 	cache: ['courseProgress', props.course.data?.name],
 })
 

@@ -60,6 +60,20 @@ jobs:
       - name: Run Semgrep rules
         run: semgrep ci --config ./frappe-semgrep-rules/rules
 
+      - name: Run LMS security Semgrep rules
+        # `semgrep ci` is diff-aware on its own: in a PR it fetches and computes
+        # the branch-off point itself, so only findings this PR introduces
+        # block. Passing --baseline-commit instead would fail here, because the
+        # checkout above is shallow and `git cat-file -e <base sha>` misses.
+        # The fixtures are deliberate positives and must not be scanned.
+        run: semgrep ci --config ./.github/semgrep/security.yml --exclude '.github/semgrep/fixtures'
+
+      - name: Run Vue directive Semgrep rules
+        # --error for the same reason as the RTL step below: a bare
+        # `semgrep scan` prints its findings and still exits 0. The tree is at
+        # 0 findings, so no baseline is needed.
+        run: semgrep scan --error --config ./.github/semgrep/vue-directives.yml frontend/src
+
       - name: Run RTL Semgrep rules
         # --error is required: a bare `semgrep scan` prints its findings and
         # still exits 0, so without it this step could never fail.

@@ -8,79 +8,45 @@
 			:class="sidebarStore.isSidebarCollapsed ? 'items-center' : ''"
 		>
 			<UserDropdown :isCollapsed="sidebarStore.isSidebarCollapsed" />
-			<div class="flex flex-col" v-if="sidebarSettings.data">
-				<div v-for="link in sidebarLinks" class="mx-2 my-2.5">
-					<div
-						v-if="!link.hideLabel"
-						class="mb-2 mt-3 flex cursor-pointer gap-1.5 px-1 text-p-base-medium text-ink-gray-5 transition-all duration-300 ease-in-out"
-					>
-						<span>{{ __(link.label) }}</span>
-					</div>
-					<nav class="space-y-1">
-						<div v-for="item in link.items">
+			<nav v-if="sidebarSettings.data" class="mx-2 my-2.5 space-y-1">
+				<template v-for="row in sidebarRows" :key="row.key">
+					<div v-if="row.kind === 'gap'" class="h-2.5" aria-hidden="true" />
+					<div v-else-if="row.kind === 'accordion'" class="pt-2">
+						<button
+							type="button"
+							class="flex w-full items-center pe-2 my-1 text-ink-gray-5"
+							:aria-expanded="sidebarStore.isGroupOpen(row.key)"
+							@click="sidebarStore.toggleGroup(row.key)"
+						>
+							<span class="grid h-5 w-6 flex-shrink-0 place-items-center">
+								<span
+									class="lucide-chevron-right h-4 w-4 text-ink-gray-9 transition-all duration-300 ease-in-out"
+									:class="{
+										'rotate-90': sidebarStore.isGroupOpen(row.key),
+										'rtl:rotate-180': !sidebarStore.isGroupOpen(row.key),
+									}"
+								/>
+							</span>
+							<span v-if="!sidebarStore.isSidebarCollapsed" class="ms-2">
+								{{ __(row.label) }}
+							</span>
+						</button>
+						<div v-show="sidebarStore.isGroupOpen(row.key)" class="space-y-1">
 							<SidebarLink
-								:link="item"
+								v-for="item in row.items"
+								:key="item.key"
+								:link="item.link"
 								:isCollapsed="sidebarStore.isSidebarCollapsed"
 							/>
 						</div>
-					</nav>
-				</div>
-			</div>
-			<div
-				v-if="sidebarSettings.data?.web_pages?.length || isModerator"
-				class="mt-4"
-			>
-				<div
-					class="flex items-center justify-between pe-2 cursor-pointer"
-					:class="sidebarStore.isSidebarCollapsed ? 'ps-3' : 'ps-4'"
-					@click="toggleWebPages"
-				>
-					<div
-						v-if="!sidebarStore.isSidebarCollapsed"
-						class="flex items-center text-ink-gray-5 my-1"
-					>
-						<span class="grid h-5 w-6 flex-shrink-0 place-items-center">
-							<span
-								class="lucide-chevron-right h-4 w-4 text-ink-gray-9 transition-all duration-300 ease-in-out"
-								:class="{
-									'rotate-90': !sidebarStore.isWebpagesCollapsed,
-									'rtl:rotate-180': sidebarStore.isWebpagesCollapsed,
-								}"
-							/>
-						</span>
-						<span class="ms-2">
-							{{ __('More') }}
-						</span>
 					</div>
-					<Button
-						v-if="isModerator && !readOnlyMode"
-						variant="ghost"
-						@click="openPageModal()"
-					>
-						<template #icon>
-							<span class="lucide-plus h-4 w-4 text-ink-gray-7" />
-						</template>
-					</Button>
-				</div>
-				<div
-					v-if="sidebarSettings.data?.web_pages?.length"
-					class="flex flex-col transition-all duration-300 ease-in-out"
-					:class="!sidebarStore.isWebpagesCollapsed ? 'block' : 'hidden'"
-				>
-					<div
-						v-for="link in sidebarSettings.data.web_pages"
-						class="mx-2 my-0.5"
-					>
-						<SidebarLink
-							:link="link"
-							:isCollapsed="sidebarStore.isSidebarCollapsed"
-							:showControls="isModerator ? true : false"
-							@openModal="openPageModal"
-							@deletePage="deletePage"
-						/>
-					</div>
-				</div>
-			</div>
+					<SidebarLink
+						v-else
+						:link="row.link"
+						:isCollapsed="sidebarStore.isSidebarCollapsed"
+					/>
+				</template>
+			</nav>
 		</div>
 		<div class="m-2 flex flex-col gap-1">
 			<div
@@ -246,23 +212,18 @@
 		/>
 	</div>
 	<CommandPalette v-model="settingsStore.isCommandPaletteOpen" />
-	<PageModal
-		v-model="showPageModal"
-		v-model:reloadSidebar="sidebarSettings"
-		:page="pageToEdit"
-	/>
 </template>
 
 <script setup>
 import { getSidebarLinks } from '@/utils'
 import { usersStore } from '@/stores/user'
-import { sessionStore } from '@/stores/session'
 import { useSidebar } from '@/stores/sidebar'
 import { useSettings } from '@/stores/settings'
-import { Button, call, createResource, Tooltip, toast } from 'frappe-ui'
-import PageModal from '@/components/Modals/PageModal.vue'
+import { Button, call, Tooltip } from 'frappe-ui'
+import { buildSidebarRows } from '@/utils/sidebarRows'
 import LMSLogo from '@/components/Icons/LMSLogo.vue'
 import { useRouter } from 'vue-router'
+import { openFormRoute } from '@/composables/useFormRoute'
 import {
 	ref,
 	onMounted,
@@ -298,25 +259,21 @@ import UserDropdown from '@/components/Sidebar/UserDropdown.vue'
 import CollapseSidebar from '@/components/Icons/CollapseSidebar.vue'
 import SidebarLink from '@/components/Sidebar/SidebarLink.vue'
 import CommandPalette from '@/components/CommandPalette/CommandPalette.vue'
+import { openExternal } from '@/utils/openExternal'
+import { pushSettingsHash } from '@/composables/useSettingsHash'
+import {
+	loadUnreadCount,
+	unreadCount,
+	unreadNotifications,
+} from '@/stores/notifications'
 
-const { user } = sessionStore()
 const { userResource } = usersStore()
 let sidebarStore = useSidebar()
 const socket = inject('$socket')
-const unreadCount = ref(0)
 const sidebarLinks = ref(null)
 const { capture } = useTelemetry()
-const showPageModal = ref(false)
-const isModerator = ref(false)
 const isInstructor = ref(false)
-const pageToEdit = ref(null)
-const {
-	sidebarSettings,
-	activeTab,
-	isSettingsOpen,
-	programs,
-	loadSidebarSettings,
-} = useSettings()
+const { sidebarSettings, programs, loadSidebarSettings } = useSettings()
 const settingsStore = useSettings()
 const showOnboarding = ref(false)
 const showIntermediateModal = ref(false)
@@ -336,62 +293,39 @@ onMounted(() => {
 	setUpOnboarding()
 	addKeyboardShortcut()
 	updateSidebarLinks()
-	socket.on('publish_lms_notifications', (data) => {
+	loadUnreadCount()
+	socket.on('publish_lms_notifications', () => {
 		unreadNotifications.reload()
 	})
 })
 
-const updateSidebarLinksVisibility = () => {
-	loadSidebarSettings().then(() => {
-		const data = sidebarSettings.data
-		if (!data) return
-		Object.keys(data).forEach((key) => {
-			if (!parseInt(data[key])) {
-				sidebarLinks.value.forEach((link) => {
-					link.items = link.items.filter(
-						(item) => item.label.toLowerCase().split(' ').join('_') !== key
-					)
-				})
-			}
-		})
-	})
+// The count lives in stores/notifications now, so the badge follows it rather
+// than being written from the resource's onSuccess.
+watch(unreadCount, () => updateUnreadCount())
+
+const sidebarRows = computed(() =>
+	buildSidebarRows(sidebarLinks.value ?? [], sidebarSettings.data)
+)
+
+const onKeyboardShortcut = (e) => {
+	if (
+		e.key === 'k' &&
+		(e.ctrlKey || e.metaKey) &&
+		!e.repeat &&
+		!e.target.classList.contains('ProseMirror')
+	) {
+		toggleCommandPalette()
+		e.preventDefault()
+	}
 }
 
 const addKeyboardShortcut = () => {
-	window.addEventListener('keydown', (e) => {
-		if (
-			e.key === 'k' &&
-			(e.ctrlKey || e.metaKey) &&
-			!e.target.classList.contains('ProseMirror')
-		) {
-			toggleCommandPalette()
-			e.preventDefault()
-		}
-	})
+	window.addEventListener('keydown', onKeyboardShortcut)
 }
 
 const toggleCommandPalette = () => {
 	settingsStore.isCommandPaletteOpen = !settingsStore.isCommandPaletteOpen
 }
-
-const unreadNotifications = createResource({
-	cache: 'Unread Notifications Count',
-	url: 'frappe.client.get_count',
-	makeParams(values) {
-		return {
-			doctype: 'Notification Log',
-			filters: {
-				for_user: user,
-				read: 0,
-			},
-		}
-	},
-	onSuccess(data) {
-		unreadCount.value = data
-		updateUnreadCount()
-	},
-	auto: user ? true : false,
-})
 
 const updateUnreadCount = () => {
 	sidebarLinks.value?.forEach((link) => {
@@ -403,34 +337,11 @@ const updateUnreadCount = () => {
 	})
 }
 
-const openPageModal = (link) => {
-	showPageModal.value = true
-	pageToEdit.value = link
-}
-
-const deletePage = (link) => {
-	call('lms.lms.api.delete_documents', {
-		doctype: 'LMS Sidebar Item',
-		documents: [link.name],
-	}).then(() => {
-		loadSidebarSettings(true)
-		toast.success(__('Page deleted successfully'))
-	})
-}
-
 const toggleSidebar = () => {
 	sidebarStore.isSidebarCollapsed = !sidebarStore.isSidebarCollapsed
 	localStorage.setItem(
 		'isSidebarCollapsed',
 		JSON.stringify(sidebarStore.isSidebarCollapsed)
-	)
-}
-
-const toggleWebPages = () => {
-	sidebarStore.isWebpagesCollapsed = !sidebarStore.isWebpagesCollapsed
-	localStorage.setItem(
-		'isWebpagesCollapsed',
-		JSON.stringify(sidebarStore.isWebpagesCollapsed)
 	)
 }
 
@@ -475,7 +386,7 @@ const steps = reactive([
 					hash: '#settings',
 				})
 			} else {
-				router.push({ name: 'Courses', query: { newCourse: '1' } })
+				openFormRoute(router, { name: 'NewCourse' })
 			}
 		},
 	},
@@ -495,7 +406,7 @@ const steps = reactive([
 					hash: '#settings',
 				})
 			} else {
-				router.push({ name: 'Courses', query: { newCourse: '1' } })
+				openFormRoute(router, { name: 'NewCourse' })
 			}
 		},
 	},
@@ -517,8 +428,7 @@ const steps = reactive([
 		completed: false,
 		onClick: () => {
 			minimize.value = true
-			activeTab.value = 'Members'
-			isSettingsOpen.value = true
+			pushSettingsHash(router, 'members')
 		},
 	},
 	{
@@ -655,7 +565,6 @@ const setUpOnboarding = () => {
 watch(userResource, async () => {
 	await userResource.promise
 	if (userResource.data) {
-		isModerator.value = userResource.data.is_moderator
 		isInstructor.value = userResource.data.is_instructor
 		await programs.reload()
 		setUpOnboarding()
@@ -675,12 +584,12 @@ watch(
 
 const updateSidebarLinks = () => {
 	sidebarLinks.value = getSidebarLinks()
-	updateSidebarLinksVisibility()
+	loadSidebarSettings()
 	updateUnreadCount()
 }
 
 const redirectToWebsite = () => {
-	window.open('https://frappe.io/learning', '_blank')
+	openExternal('https://frappe.io/learning')
 }
 
 const isStudent = computed(() => {
@@ -719,13 +628,13 @@ const calculateTrialEndDays = (trialEndDate) => {
 }
 
 const redirectToAppointmentScreen = () => {
-	window.open(
-		'https://calendar.google.com/calendar/u/0/appointments/schedules/AcZssZ0c7Z3XIpW1WgbeIuktSaoX6qudoYuSdRbIlJty5TW7p4IZaOk5viHQGwTNi6HpNVqzOZOTHcle',
-		'_blank'
+	openExternal(
+		'https://calendar.google.com/calendar/u/0/appointments/schedules/AcZssZ0c7Z3XIpW1WgbeIuktSaoX6qudoYuSdRbIlJty5TW7p4IZaOk5viHQGwTNi6HpNVqzOZOTHcle'
 	)
 }
 
 onUnmounted(() => {
 	socket.off('publish_lms_notifications')
+	window.removeEventListener('keydown', onKeyboardShortcut)
 })
 </script>

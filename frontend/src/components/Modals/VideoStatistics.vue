@@ -7,13 +7,9 @@
 						v-if="tabs.length > 1"
 						:options="tabs"
 						v-model="currentTab"
+						:aria-label="__('Select video')"
 						class="w-fit"
 					/>
-					<!-- <FormControl
-						v-model="searchText"
-						:placeholder="__('Search by Member')"
-						class="mt-2 me-5 w-[25%]"
-					/> -->
 				</div>
 				<div
 					v-if="currentTab"
@@ -21,11 +17,13 @@
 						'mt-5': tabs.length > 1,
 					}"
 				>
-					<div class="grid grid-cols-[55%,40%] gap-5">
+					<div class="grid grid-cols-1 gap-5 sm:grid-cols-[55%,40%]">
 						<div
-							class="space-y-5 border rounded-md p-2 pt-4 max-h-[70vh] overflow-y-auto"
+							class="space-y-5 border rounded-md p-2 pt-4 max-h-[50vh] sm:max-h-[70vh] overflow-y-auto"
 						>
-							<div class="grid grid-cols-[70%,30%] text-sm text-ink-gray-5">
+							<div
+								class="grid grid-cols-[60%,40%] sm:grid-cols-[70%,30%] text-sm text-ink-gray-5"
+							>
 								<div class="px-4">
 									{{ __('Member') }}
 								</div>
@@ -36,26 +34,33 @@
 							<div
 								v-for="row in currentTabData"
 								:key="row.name"
-								class="hover:bg-surface-gray-1 cursor-pointer rounded-md py-1 px-2"
+								class="hover:bg-surface-gray-2 cursor-pointer rounded-md"
 							>
 								<router-link
+									class="block rounded-md py-1 px-2"
 									:to="{
 										name: 'Profile',
 										params: { username: row.member_username },
 									}"
 								>
-									<div class="grid grid-cols-[70%,30%] items-center">
-										<div class="flex items-center gap-x-3">
+									<div
+										class="grid grid-cols-[60%,40%] sm:grid-cols-[70%,30%] items-center"
+									>
+										<div class="flex items-center gap-x-3 min-w-0">
 											<Avatar
 												:image="row.member_image"
 												:label="row.member_name"
 												size="xl"
+												aria-hidden="true"
+												class="shrink-0"
 											/>
-											<div class="space-y-1">
-												<div class="font-medium">
+											<div class="space-y-1 min-w-0">
+												<div
+													class="font-medium truncate underline underline-offset-2"
+												>
 													{{ row.member_name }}
 												</div>
-												<div class="text-sm text-ink-gray-6">
+												<div class="text-sm text-ink-gray-6 truncate">
 													{{ row.member }}
 												</div>
 											</div>
@@ -76,7 +81,7 @@
 								<div
 									class="video-player"
 									:data-plyr-provider="provider"
-									:src="currentTab"
+									:src="safeUrl(currentTab)"
 								></div>
 							</div>
 							<VideoBlock v-else :file="currentTab" />
@@ -103,7 +108,24 @@ import { computed, ref, watch } from 'vue'
 import { enablePlyr, formatTimestamp } from '@/utils'
 import VideoBlock from '@/components/VideoBlock.vue'
 import NumberChartGraph from '@/components/NumberChartGraph.vue'
+import { safeUrl } from '@/utils/safeUrl'
 
+/* Responsive layout notes (Tailwind classes live in the template):
+   - The member list / chart+player split stacks below `sm`; only above `sm` is
+     there room for two real panels side by side.
+   - The label/value rows stay two columns at every width. They read fine as
+     columns on a phone, and the visual column pairing is the only thing tying
+     the "Watch Time (mins)" header to each number: a screen reader gets no
+     association from a grid of divs, so hiding or stacking the header would
+     strip the value's only label. Widening the value column below `sm` keeps
+     the header from wrapping to three lines instead.
+   - The member cell needs `min-w-0` + `truncate`: long emails have no break
+     opportunity and otherwise overflow the column rather than shrink with it.
+   - The member name is underlined at rest, not on hover. The whole row is a
+     link to the profile, and a phone has no hover, so a hover-only cue leaves
+     nothing on screen to say the row is tappable. `hover:bg-surface-gray-2`
+     rather than `-gray-1` because `-gray-1` is within ~1.08:1 of the dialog
+     panel in dark mode, i.e. no visible hover state there at all. */
 const show = defineModel<boolean | undefined>()
 const currentTab = ref<string>('')
 const searchText = ref<string>('')
@@ -219,16 +241,12 @@ const embedURL = computed(() => {
 
 const tabs = computed(() => {
 	return Object.keys(statisticsData.value).map((source, index) => ({
-		label: __(`Video ${index + 1}`),
+		label: __('Video {0}').format(index + 1),
 		value: source,
 	}))
 })
 </script>
 <style>
-.plyr__volume input[type='range'] {
-	display: none;
-}
-
 .plyr__control--overlaid {
 	background: radial-gradient(
 		circle,

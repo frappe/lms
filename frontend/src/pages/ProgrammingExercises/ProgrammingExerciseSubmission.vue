@@ -7,7 +7,7 @@
 		<span>
 			{{ falconError }}
 		</span>
-		<Button v-if="user.data?.is_moderator" @click="openSettings('General')">
+		<Button v-if="user.data?.is_moderator" @click="openSettings('general')">
 			<template #prefix>
 				<span class="lucide-settings size-4" />
 			</template>
@@ -20,7 +20,7 @@
 				{{ __('Problem Statement') }}
 			</h2>
 			<div
-				v-html="sanitizeRichHTML(exercise.doc?.problem_statement)"
+				v-safe-html:rich="exercise.doc?.problem_statement"
 				class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2 prose-sm max-w-none !whitespace-normal"
 			></div>
 		</div>
@@ -46,7 +46,6 @@
 						@click="submitCode"
 						:loading="running"
 						:disabled="running"
-						class="text-ink-gray-9"
 					>
 						<template #prefix>
 							<span class="lucide-play size-3" />
@@ -70,11 +69,10 @@
 						v-if="error"
 						v-model="errorMessage"
 						:aria-label="__('Compiler Message')"
-						class="font-mono text-ink-red-3 bg-surface-gray-1 border-none text-sm h-32 leading-6"
+						class="font-mono text-ink-red-6 bg-surface-gray-1 border-none text-sm h-32 leading-6"
 						readonly
 					/>
 				</div>
-				<!-- <textarea v-else v-model="output" class="bg-surface-gray-1 border-none text-sm h-28 leading-6" readonly /> -->
 			</div>
 
 			<div ref="testCaseSection" class="p-5">
@@ -101,12 +99,6 @@
 							>
 								{{ testCase.status }}
 							</span>
-							<!-- <span v-if="testCase.status === 'Passed'">
-								<Check class="size-4 text-ink-green-3" />
-							</span>
-							<span v-else>
-								<X class="size-4 text-ink-red-3" />
-							</span> -->
 						</div>
 						<div class="flex items-center justify-between w-[60%]">
 							<div v-if="testCase.input" class="space-y-2">
@@ -142,7 +134,6 @@
 	</div>
 </template>
 <script setup lang="ts">
-import { sanitizeRichHTML } from '@/utils/sanitizeRichHTML'
 import {
 	Badge,
 	Button,
@@ -152,7 +143,7 @@ import {
 	usePageMeta,
 } from 'frappe-ui'
 import { computed, inject, onMounted, ref, watch } from 'vue'
-import PageHeader from '@/components/Layouts/PageHeader.vue'
+import PageHeader from '@/components/Layouts/pages/PageHeader.vue'
 import { sessionStore } from '@/stores/session'
 import { useRouter } from 'vue-router'
 import { openSettings } from '@/utils'
@@ -310,7 +301,9 @@ watch(
 )
 
 const loadFalcon = () => {
-	if (settings.data) {
+	// An unset livecode_url leaves the default in place rather than building
+	// `undefined/static/livecode.js`.
+	if (settings.data?.livecode_url) {
 		falconURL.value = settings.data.livecode_url
 	}
 	return new Promise((resolve, reject) => {

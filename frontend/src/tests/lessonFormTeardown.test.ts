@@ -112,6 +112,7 @@ vi.mock('@/utils', () => ({
 
 vi.mock('@/utils/video', () => ({ hasVideoContent: () => false }))
 
+import { toast } from 'frappe-ui'
 import LessonForm from '@/pages/LessonForm.vue'
 import BlockEditorStub from '@/components/BlockEditor.vue'
 
@@ -418,5 +419,59 @@ describe('LessonForm title is single-line', () => {
 
 		const editLesson = findResource('frappe.client.set_value')
 		expect(editLesson.lastParams.fieldname.title).toBe('Assignment sjksjla')
+	})
+})
+
+// A lesson whose stored content is not valid JSON. The editor cannot render it,
+// so it sits empty, indistinguishable from a lesson that has no body. Rather
+// than let that emptiness be persisted, the form refuses to save at all and
+// says why.
+describe('LessonForm with unreadable stored content', () => {
+	let wrapper: VueWrapper
+
+	// Truncated mid-string, the way a half-written value fails: the parse dies on
+	// the unterminated string, not at end-of-data.
+	const CORRUPT = '{"time":1,"blocks":[{"type":"paragraph","data":{"text":"Les'
+
+	beforeEach(() => {
+		created.list.length = 0
+		editorState.saveData = {}
+		editorState.holdInstructorReady = false
+		editorState.rejectBodySave = false
+		editorState.rejectNotesSave = false
+		vi.mocked(toast.error).mockClear()
+	})
+
+	afterEach(() => {
+		try {
+			wrapper?.unmount()
+		} catch {
+			// already unmounted by the test
+		}
+		document.body.innerHTML = ''
+	})
+
+	// The editor rendered nothing for the unreadable field, so whatever it holds
+	// must never reach the row. The rest of the lesson still has to save, or a
+	// corrupt body would freeze the title too.
+	it('writes the unreadable field back untouched and saves the rest', async () => {
+		wrapper = await mountLoaded({ content: CORRUPT })
+
+		editorState.saveData.content = paragraph('h')
+		await editTitle(wrapper, 'Edited title')
+		wrapper.unmount()
+		await flushPromises()
+
+		const editLesson = findResource('frappe.client.set_value')
+		expect(editLesson.submit).toHaveBeenCalled()
+		expect(editLesson.lastParams.fieldname.title).toBe('Edited title')
+		// Byte-for-byte what was stored -- not the blank editor, not a repair.
+		expect(editLesson.lastParams.fieldname.content).toBe(CORRUPT)
+		expect(toast.error).toHaveBeenCalledWith(
+			'Lesson content could not be read',
+			expect.objectContaining({
+				description: expect.stringContaining('Content'),
+			})
+		)
 	})
 })

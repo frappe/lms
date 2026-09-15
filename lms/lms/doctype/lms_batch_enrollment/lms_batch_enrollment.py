@@ -61,6 +61,14 @@ class LMSBatchEnrollment(Document):
 		return "Course Creator" in roles or "Moderator" in roles or "Batch Evaluator" in roles
 
 	def validate_duplicate_members(self):
+		# Lock the batch row for the rest of this transaction before reading. The
+		# check below is a read of a row a concurrent request has not inserted
+		# yet, so without the lock both requests see "absent" and both insert —
+		# and a duplicate row also consumes a seat in validate_seat_availability,
+		# which turns a double-click into "no seats available" for someone else.
+		# Same shape as the payment and coupon locks in lms/lms/utils.py.
+		frappe.db.get_value("LMS Batch", self.batch, "name", for_update=True)
+
 		if frappe.db.exists(
 			"LMS Batch Enrollment",
 			{"batch": self.batch, "member": self.member, "name": ["!=", self.name]},
@@ -77,6 +85,13 @@ class LMSBatchEnrollment(Document):
 		courses = frappe.get_all("Batch Course", filters={"parent": self.batch}, fields=["course"])
 
 		for course in courses:
+			# Same reasoning as validate_duplicate_members, one level down: without
+			# the lock, two batches sharing a course can both read "absent" for the
+			# same member and the loser's inner insert throws, failing an enrolment
+			# that should have skipped. Batch row first, then course row, in that
+			# order everywhere — the reverse order exists nowhere, so no cycle.
+			frappe.db.get_value("LMS Course", course.course, "name", for_update=True)
+
 			if not frappe.db.exists(
 				"LMS Enrollment",
 				{"course": course.course, "member": self.member},

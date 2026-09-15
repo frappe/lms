@@ -1,11 +1,10 @@
 import { describe, expect, it } from 'vitest'
 
 import {
-	buildMenuSections,
-	hasMoreTab,
+	isLinkEnabled,
+	overflowLinks,
 	pickPrimaryTabs,
 	sectionFor,
-	subtitleFor,
 	type NavLink,
 } from '@/utils/mobileNav'
 
@@ -33,40 +32,51 @@ const otherLinks = [
 	link('Log out'),
 ]
 
-const sectionTitles = (sections: { title: string }[]) =>
-	sections.map((s) => s.title)
-
-const labelsIn = (
-	sections: { title: string; items: NavLink[] }[],
-	title: string
-) => sections.find((s) => s.title === title)?.items.map((i) => i.label) ?? []
-
 describe('pickPrimaryTabs', () => {
 	it('picks the curated primaries out of the admin-configured links', () => {
 		const tabs = pickPrimaryTabs(sidebarLinks, true)
 		expect(tabs.map((t) => t.label)).toEqual([
 			'Home',
 			'Courses',
-			'Certifications',
-			'Profile',
+			'Batches',
+			'Programs',
+			'You',
 		])
 	})
 
 	it('drops a primary the admin has disabled', () => {
-		const withoutCertifications = sidebarLinks.filter(
-			(l) => l.label !== 'Certifications'
-		)
+		const withoutBatches = sidebarLinks.filter((l) => l.label !== 'Batches')
+		expect(pickPrimaryTabs(withoutBatches, true).map((t) => t.label)).toEqual([
+			'Home',
+			'Courses',
+			'Programs',
+			'You',
+		])
+	})
+
+	it('never exceeds five tabs', () => {
+		// Four PRIMARY_LABELS plus You, and You is pushed last — a fifth primary
+		// would cost it its place.
+		expect(pickPrimaryTabs(sidebarLinks, true)).toHaveLength(5)
+	})
+
+	it('falls back to You alone when the links have not loaded yet', () => {
+		expect(pickPrimaryTabs([], true).map((t) => t.label)).toEqual(['You'])
+	})
+
+	it('asks for the You tab to be drawn as the user, not as a glyph', () => {
+		// MobileLayout branches on this to render an Avatar instead of
+		// icons[tab.icon]; without it the bar reads as a menu rather than as you.
+		const you = pickPrimaryTabs(sidebarLinks, true).at(-1)
+		expect(you?.avatar).toBe(true)
+		expect(you?.to).toBe('MobileYou')
+		expect(you?.activeFor).toEqual(['MobileYou'])
+	})
+
+	it('gives a signed-out visitor no You tab at all', () => {
 		expect(
-			pickPrimaryTabs(withoutCertifications, true).map((t) => t.label)
-		).toEqual(['Home', 'Courses', 'Profile'])
-	})
-
-	it('never exceeds four tabs, leaving room for More', () => {
-		expect(pickPrimaryTabs(sidebarLinks, true)).toHaveLength(4)
-	})
-
-	it('falls back to Profile alone when the links have not loaded yet', () => {
-		expect(pickPrimaryTabs([], true).map((t) => t.label)).toEqual(['Profile'])
+			pickPrimaryTabs(sidebarLinks, false).map((t) => t.label)
+		).not.toContain('You')
 	})
 })
 
@@ -160,13 +170,35 @@ describe('pickPrimaryTabs for a signed-out visitor', () => {
 	})
 })
 
-describe('hasMoreTab', () => {
-	it('keeps More for a signed-in user, whose nav overflows the bar', () => {
-		expect(hasMoreTab(true)).toBe(true)
+describe('isLinkEnabled', () => {
+	const webPage = {
+		name: 'row-handbook',
+		name1: 'handbook',
+		item_type: 'Web Page',
+		hidden: 0,
+	}
+
+	it('reads a built-in row rather than the legacy key it replaced', () => {
+		const visibility = {
+			sidebar_rows: [{ name1: 'jobs', item_type: 'Built-in', hidden: 1 }],
+			jobs: 1,
+		}
+		expect(isLinkEnabled('Jobs', visibility)).toBe(false)
 	})
 
-	it('drops More for a signed-out visitor, who has no overflow', () => {
-		expect(hasMoreTab(false)).toBe(false)
+	// Same unseeded site as buildSidebarRows' fallback: rows are present but
+	// none is a built-in, so the legacy keys are still the only word on the
+	// built-ins. The two must not disagree about which links show.
+	it('reads the legacy keys when no row is a built-in', () => {
+		const visibility = { sidebar_rows: [webPage], jobs: 0 }
+		expect(isLinkEnabled('Jobs', visibility)).toBe(false)
+	})
+
+	it('keeps Home locked visible whatever the rows say', () => {
+		const visibility = {
+			sidebar_rows: [{ name1: 'home', item_type: 'Built-in', hidden: 1 }],
+		}
+		expect(isLinkEnabled('Home', visibility)).toBe(true)
 	})
 })
 
@@ -180,7 +212,7 @@ describe('sectionFor', () => {
 	it('files session actions under ACCOUNT', () => {
 		expect(sectionFor('Notifications')).toBe('ACCOUNT')
 		expect(sectionFor('Log out')).toBe('ACCOUNT')
-		expect(sectionFor('Settings')).toBe('ACCOUNT')
+		expect(sectionFor('Profile')).toBe('ACCOUNT')
 	})
 
 	it('falls back to MORE for an unrecognised destination', () => {
@@ -188,83 +220,47 @@ describe('sectionFor', () => {
 	})
 })
 
-describe('buildMenuSections', () => {
-	const primaryLabels = ['Home', 'Courses', 'Certifications', 'Profile']
-	const build = (search = '') =>
-		buildMenuSections(sidebarLinks, otherLinks, primaryLabels, search)
+// What the More sheet used to be built from, and what the You page is built
+// from now. The grouping moved to buildYouRows; the selection stayed here.
+describe('overflowLinks', () => {
+	const primaryLabels = ['Home', 'Courses', 'Certifications', 'You']
+	const build = () => overflowLinks(sidebarLinks, otherLinks, primaryLabels)
+	const labels = () => build().map((l) => l.label)
 
-	it('groups the moderator extras under LEARN, not ACCOUNT', () => {
-		// Regression: these arrive via `otherLinks`, which used to be hardcoded
-		// to ACCOUNT, so Quizzes/Assignments/Programming Exercises showed up
-		// under the account heading in the More sheet.
-		expect(labelsIn(build(), 'LEARN')).toEqual([
+	it('keeps everything that did not fit on the bar, in arrival order', () => {
+		expect(labels()).toEqual([
 			'Programs',
 			'Batches',
+			'Jobs',
+			'Statistics',
 			'Quizzes',
 			'Assignments',
 			'Programming Exercises',
-		])
-		// Profile is absent because it is already a bottom-bar tab. Settings is
-		// present because the desk sidebar that normally opens it is not
-		// rendered on a phone, leaving the More sheet as the only way in.
-		expect(labelsIn(build(), 'ACCOUNT')).toEqual([
 			'Notifications',
+			'Profile',
 			'Settings',
 			'Log out',
 		])
 	})
 
-	it('shows a destination once when it appears in both link lists', () => {
+	it('returns a destination once when it appears in both link lists', () => {
 		// Regression: a re-entrant sidebar reload left Programs in both arrays
 		// and the sheet rendered it twice.
-		const duplicated = buildMenuSections(
+		const duplicated = overflowLinks(
 			[...sidebarLinks, link('Programs')],
 			[link('Programs'), ...otherLinks],
-			primaryLabels,
-			''
+			primaryLabels
 		)
-		expect(
-			labelsIn(duplicated, 'LEARN').filter((l) => l === 'Programs')
-		).toEqual(['Programs'])
+		expect(duplicated.filter((l) => l.label === 'Programs')).toHaveLength(1)
 	})
 
 	it('leaves out anything already on the bottom bar', () => {
-		const all = build().flatMap((s) => s.items.map((i) => i.label))
-		expect(all).not.toContain('Home')
-		expect(all).not.toContain('Courses')
-		expect(all).not.toContain('Certifications')
-		expect(all).not.toContain('Profile')
+		for (const primary of primaryLabels) {
+			expect(labels()).not.toContain(primary)
+		}
 	})
 
-	it('orders sections LEARN, DISCOVER, then ACCOUNT', () => {
-		expect(sectionTitles(build())).toEqual(['LEARN', 'DISCOVER', 'ACCOUNT'])
-	})
-
-	it('drops sections the search has emptied', () => {
-		const sections = build('quiz')
-		expect(sectionTitles(sections)).toEqual(['LEARN'])
-		expect(labelsIn(sections, 'LEARN')).toEqual(['Quizzes'])
-	})
-
-	it('matches the search case-insensitively and ignores padding', () => {
-		expect(labelsIn(build('  BATCH  '), 'LEARN')).toEqual(['Batches'])
-	})
-
-	it('returns no sections when nothing matches', () => {
-		expect(build('nothing here')).toEqual([])
-	})
-
-	it('returns no sections before the links have loaded', () => {
-		expect(buildMenuSections([], [], primaryLabels, '')).toEqual([])
-	})
-})
-
-describe('subtitleFor', () => {
-	it('describes a known destination', () => {
-		expect(subtitleFor('Batches')).toBe('Cohort-based sessions')
-	})
-
-	it('is empty for a destination with no description', () => {
-		expect(subtitleFor('Log out')).toBe('')
+	it('has nothing to offer before the links have loaded', () => {
+		expect(overflowLinks([], [], primaryLabels)).toEqual([])
 	})
 })

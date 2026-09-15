@@ -1,4 +1,5 @@
 import { Code } from 'lucide-vue-next'
+import { registerDirectives } from '@/directives'
 import { h, createApp } from 'vue'
 import { HTML_ESCAPE_MAP } from '@/utils/format'
 // lib/core registers no languages; register just the picker's set to avoid bundling all ~190.
@@ -339,6 +340,7 @@ export class CodeBox {
 			render: () =>
 				h(Code, { size: 18, strokeWidth: 1.5, color: 'currentColor' }),
 		})
+		registerDirectives(app)
 
 		const div = document.createElement('div')
 		app.mount(div)

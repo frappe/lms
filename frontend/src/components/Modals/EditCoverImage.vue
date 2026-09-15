@@ -48,8 +48,10 @@
 						>
 							<img
 								:src="
-									image.urls.raw +
-									'&w=200&h=50&fit=crop&crop=entropy,faces,focalpoint'
+									safeUrl(
+										image.urls.raw +
+											'&w=200&h=50&fit=crop&crop=entropy,faces,focalpoint'
+									)
 								"
 								:alt="__('Cover image option')"
 							/>
@@ -78,7 +80,7 @@
 						class="mt-2 text-center text-sm text-ink-gray-4"
 					>
 						{{ __('Image search powered by') }}
-						<a class="underline" target="_blank" href="https://unsplash.com">
+						<a class="underline" v-external href="https://unsplash.com">
 							{{ __('Unsplash') }}
 						</a>
 					</div>
@@ -96,6 +98,7 @@ import {
 	createResource,
 } from 'frappe-ui'
 import { computed, ref, watch } from 'vue'
+import { safeUrl } from '@/utils/safeUrl'
 
 const search = ref(null)
 const emit = defineEmits(['select'])

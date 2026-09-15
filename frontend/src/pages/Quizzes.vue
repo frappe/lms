@@ -1,39 +1,35 @@
 <template>
 	<ListPage
 		:breadcrumbs="breadcrumbs"
-		:title="__('{0} Quizzes').format(totalQuizzes.data || 0)"
 		layout="list"
 		:columns="quizColumns"
 		:rows="quizzes.data || []"
 		:list-options="listOptions"
-		:total-count="totalQuizzes.data ?? 0"
+		:list-resource="quizzes"
 		:loading="quizzes.list.loading"
 		:has-next-page="quizzes.hasNextPage"
-		v-model:page-length="pageLength"
+		v-model:search="search"
 		empty-name="Quizzes"
 		empty-icon="lucide-circle-help"
 		@load-more="quizzes.next()"
 	>
+		<template #name="{ totalCount }">
+			{{ __('{0} Quizzes').format(totalCount || 0) }}
+		</template>
+
 		<template #actions>
+			<router-link :to="{ name: 'QuizSubmissions' }">
+				<HeaderButton :label="__('Submissions')" icon="lucide-file-check" />
+			</router-link>
+			<router-link :to="{ name: 'Questions' }">
+				<HeaderButton :label="__('Questions')" icon="lucide-circle-help" />
+			</router-link>
 			<Button v-if="!readOnlyMode" variant="solid" @click="createQuiz">
 				<template #prefix>
 					<span class="lucide-plus size-4" />
 				</template>
 				{{ __('Create') }}
 			</Button>
-		</template>
-
-		<template #filters>
-			<FormControl
-				v-model="search"
-				type="text"
-				:placeholder="__('Search')"
-				:aria-label="__('Search')"
-			>
-				<template #prefix>
-					<span class="lucide-search size-4 text-ink-gray-5" />
-				</template>
-			</FormControl>
 		</template>
 
 		<template #cell="{ column, row, value }">
@@ -48,36 +44,37 @@
 			<div v-else>{{ value }}</div>
 		</template>
 
-		<template #selection-actions="{ unselectAll, selections }">
+		<template #selection-actions="{ selections }">
+			<span class="sr-only" role="status">{{ deleteAnnouncement }}</span>
 			<Button
 				variant="ghost"
-				:label="__('Delete')"
-				@click="deleteQuiz(selections, unselectAll)"
+				:label="deleting ? __('Deleting…') : __('Delete')"
+				:aria-disabled="deleting"
+				:class="deleting ? 'cursor-not-allowed' : ''"
+				@click="deleteQuiz(selections)"
 			>
-				<span class="lucide-trash-2 size-4" />
+				<template #icon>
+					<span
+						class="lucide-trash-2 size-4"
+						:class="deleting ? 'opacity-60' : ''"
+						aria-hidden="true"
+					/>
+				</template>
 			</Button>
 		</template>
 	</ListPage>
 </template>
 <script setup>
-import {
-	Button,
-	Checkbox,
-	createListResource,
-	createResource,
-	FormControl,
-	toast,
-	usePageMeta,
-} from 'frappe-ui'
-import ListPage from '@/components/Layouts/ListPage.vue'
+import { Button, Checkbox, createListResource, usePageMeta } from 'frappe-ui'
+import ListPage from '@/components/Layouts/pages/ListPage.vue'
+import HeaderButton from '@/components/HeaderButton.vue'
 import { useRouter } from 'vue-router'
 import { computed, inject, onMounted, ref, watch } from 'vue'
 
 import { sessionStore } from '@/stores/session'
-import { useTelemetry } from 'frappe-ui/frappe'
+import { useBulkDeleteAction } from '@/utils/bulkDelete'
 
 const { brand } = sessionStore()
-const { capture } = useTelemetry()
 const user = inject('$user')
 const dayjs = inject('$dayjs')
 const router = useRouter()
@@ -101,10 +98,6 @@ watch(search, () => {
 		filters: quizFilters.value,
 	})
 	quizzes.reload()
-	totalQuizzes.update({
-		filters: quizFilters.value,
-	})
-	totalQuizzes.reload()
 })
 
 const quizzes = createListResource({
@@ -133,16 +126,6 @@ const quizzes = createListResource({
 	},
 })
 
-const pageLength = computed({
-	get: () => quizzes.pageLength,
-	set: (value) => {
-		// reload() ignores a new pageLength while start > 0: it refetches the
-		// already loaded rows instead, so paging must be reset for it to apply.
-		quizzes.update({ pageLength: value, start: 0 })
-		quizzes.reload()
-	},
-})
-
 const listOptions = computed(() => ({
 	showTooltip: false,
 	selectable: true,
@@ -152,49 +135,38 @@ const listOptions = computed(() => ({
 	}),
 }))
 
-const totalQuizzes = createResource({
-	url: 'frappe.client.get_count',
-	params: {
-		doctype: 'LMS Quiz',
-		filters: quizFilters.value,
+// Nothing is written here. A quiz named "Untitled Quiz" before the author had
+// typed anything took its docname from that placeholder and kept it for good.
+const createQuiz = () => router.push({ name: 'NewQuiz' })
+
+const {
+	deleting,
+	announcement: deleteAnnouncement,
+	run: deleteQuiz,
+} = useBulkDeleteAction('LMS Quiz', {
+	announcement: () => __('Deleting quizzes…'),
+	onDeleted: () => {
+		// Nothing refetches on its own now that `quizzes.delete` is not what
+		// deletes. `reload()` rather than `list.fetch()`: past the first page the
+		// latter appends the refetch onto the rows it just refetched.
+		quizzes.reload()
 	},
-	auto: true,
-	cache: ['quizzes_count', user.data?.name],
-	onError(err) {
-		toast.error(err.messages?.[0] || err)
-		console.error(err)
-	},
+	success: (deleted) =>
+		deleted === 1
+			? __('Quiz deleted successfully')
+			: __('{0} quizzes deleted successfully').format(deleted),
+	allFailed: ({ total, error }) =>
+		(total === 1
+			? __('Error deleting quiz: {0}')
+			: __('Error deleting quizzes: {0}')
+		).format(error),
+	partial: ({ deleted, total, error }) =>
+		__('{0} of {1} quizzes deleted; the rest remain selected: {2}').format(
+			deleted,
+			total,
+			error
+		),
 })
-
-const createQuiz = () => {
-	quizzes.insert.submit(
-		{
-			title: __('Untitled Quiz'),
-		},
-		{
-			onSuccess(data) {
-				capture('quiz_created')
-				router.push({
-					name: 'QuizForm',
-					params: {
-						quizID: data.name,
-					},
-				})
-			},
-			onError(error) {
-				toast.error(__('Error creating quiz: {0}').format(error.message))
-			},
-		}
-	)
-}
-
-const deleteQuiz = (selections, unselectAll) => {
-	Array.from(selections).forEach(async (quizName) => {
-		await quizzes.delete.submit(quizName)
-	})
-	unselectAll()
-	toast.success(__('Quizzes deleted successfully'))
-}
 
 const quizColumns = computed(() => {
 	return [
@@ -207,6 +179,7 @@ const quizColumns = computed(() => {
 		{
 			label: __('Total Marks'),
 			key: 'total_marks',
+			hideOnMobile: true,
 			width: 0.5,
 			align: 'left',
 			icon: 'lucide-hash',
@@ -214,6 +187,7 @@ const quizColumns = computed(() => {
 		{
 			label: __('Passing Percentage'),
 			key: 'passing_percentage',
+			hideOnMobile: true,
 			width: 1,
 			align: 'left',
 			icon: 'lucide-percent',
@@ -221,6 +195,7 @@ const quizColumns = computed(() => {
 		{
 			label: __('Max Attempts'),
 			key: 'max_attempts',
+			hideOnMobile: true,
 			width: 0.5,
 			align: 'left',
 			icon: 'lucide-repeat',
@@ -228,6 +203,7 @@ const quizColumns = computed(() => {
 		{
 			label: __('Show Answers'),
 			key: 'show_answers',
+			hideOnMobile: true,
 			width: 0.5,
 			align: 'left',
 			icon: 'lucide-eye',

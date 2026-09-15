@@ -43,7 +43,9 @@
 								:label="__('Clear color')"
 								@click="emit('update:modelValue', null)"
 							>
-								<span class="lucide-x size-3 text-ink-gray-5" />
+								<template #icon>
+									<span class="lucide-x size-3 text-ink-gray-5" />
+								</template>
 							</Button>
 						</template>
 					</FormControl>

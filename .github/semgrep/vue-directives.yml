@@ -1,0 +1,48 @@
+# Local run: semgrep scan --config .github/semgrep/vue-directives.yml frontend/src
+#
+# These are generic-mode regexes, so they see the whole file including comments.
+# The vitest scanners in src/tests/safeHtmlDirective.test.ts strip commented-out
+# markup before matching; this pair does not, which is the stricter reading and
+# the right one for a CI gate: a commented-out sink is one uncomment away.
+rules:
+    - id: no-raw-v-html
+      message: |
+          Raw v-html is banned. Use v-safe-html:rich (lesson bodies, rich author
+          content), v-safe-html:basic (short subjects) or v-safe-html:bio (user
+          bios). A missing or unknown level renders at the strictest profile.
+      languages: [generic]
+      severity: ERROR
+      paths: { include: ['*.vue'] }
+      patterns:
+          - pattern-regex: '(?:^|[\s"''`(\[{])v-html\s*='
+
+    # v-html's other spellings. Vue assigns el.innerHTML for every form below,
+    # so a ban that names only one of them is a ban with a documented bypass.
+    # Verified against @vue/compiler-dom: `:innerHTML`, `v-bind:innerHTML`, the
+    # `.innerHTML` dot shorthand, the `.prop` modifier and `v-bind="{ innerHTML
+    # }"` all compile to a prop assignment. The kebab-case forms are matched too
+    # even though Vue treats them as attributes rather than props — the cost is
+    # one false positive on markup nobody writes, and the alternative is a
+    # reviewer having to know which halves of the spelling matter.
+    - id: no-bound-innerhtml-prop
+      message: |
+          A bound innerHTML prop is v-html under another name and is banned for
+          the same reason. Use v-safe-html with an explicit level.
+      languages: [generic]
+      severity: ERROR
+      paths: { include: ['*.vue'] }
+      patterns:
+          - pattern-either:
+                - pattern-regex: '(?:^|[\s"''`(\[{])(?:\.|:|v-bind:)inner-?[hH][tT][mM][lL](?:\.[a-zA-Z]+)?\s*='
+                - pattern-regex: 'v-bind\s*=\s*"[^"]*\binner-?[hH][tT][mM][lL]\s*[:}]'
+
+    - id: external-link-needs-directive
+      message: |
+          Use v-external instead of a bare target="_blank" — it sets
+          rel="noopener noreferrer" so the opened page cannot reach
+          window.opener (reverse tabnabbing).
+      languages: [generic]
+      severity: ERROR
+      paths: { include: ['*.vue'] }
+      patterns:
+          - pattern-regex: 'target\s*=\s*[\"'']_blank[\"'']'

@@ -1,6 +1,8 @@
 import { CodeXml } from 'lucide-vue-next'
+import { registerDirectives } from '@/directives'
 import { createApp, h } from 'vue'
 import { escapeHTML } from '@/utils/format'
+import { sanitizeAt } from '@/directives/safeHtmlLevels'
 
 // Language-class hints on pasted code (hljs/Prism/SyntaxHighlighter). Anchored to
 // a class-token boundary so 'language-' matches only as its own class.
@@ -68,6 +70,7 @@ export class Markdown {
 			render: () =>
 				h(CodeXml, { size: 18, strokeWidth: 1.5, color: 'black' }),
 		})
+		registerDirectives(app)
 
 		const div = document.createElement('div')
 		app.mount(div)
@@ -85,7 +88,11 @@ export class Markdown {
 		this.wrapper.classList.add('cdx-block', 'ce-paragraph')
 		this.wrapper.contentEditable = !this.readOnly
 		this.wrapper.dataset.placeholder = this.placeholder
-		this.wrapper.innerHTML = this.text
+		// Lesson bodies are EditorJS JSON, and frappe's sanitize_html returns JSON
+		// untouched (is_json early return), so nothing upstream cleans this text.
+		// v-safe-html cannot reach it either — the block builds its own DOM — so it
+		// calls the same sanitizer directly, at the level lesson content renders at.
+		this.wrapper.innerHTML = sanitizeAt('rich', this.text)
 
 		if (!this.readOnly) {
 			this.wrapper.addEventListener('focus', () =>

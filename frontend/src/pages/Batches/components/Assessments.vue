@@ -4,7 +4,7 @@
 			<h2 class="text-ink-gray-9 font-semibold">
 				{{ __('Assessments') }}
 			</h2>
-			<Button v-if="canAddAssessments()" @click="showModal = true">
+			<Button v-if="canAddAssessments()" @click="openAssessmentForm()">
 				<template #prefix>
 					<span class="lucide-plus h-4 w-4" />
 				</template>
@@ -37,7 +37,9 @@
 						:label="__('Delete')"
 						@click="removeAssessments(selections, unselectAll)"
 					>
-						<span class="lucide-trash-2 h-4 w-4" />
+						<template #icon>
+							<span class="lucide-trash-2 size-4" />
+						</template>
 					</Button>
 				</template>
 			</ResponsiveListView>
@@ -46,20 +48,15 @@
 			{{ __('No assessments added to this batch') }}
 		</div>
 	</div>
-	<AssessmentModal
-		v-model="showModal"
-		v-model:assessments="assessments"
-		:batch="props.batch"
-	/>
 </template>
 <script setup>
 import { createResource, Button, Badge } from 'frappe-ui'
-import { computed, inject, ref } from 'vue'
-import AssessmentModal from '@/components/Modals/AssessmentModal.vue'
+import { computed, inject } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { openBatchForm } from '@/composables/useBatchForms'
 import ResponsiveListView from '@/components/ResponsiveListView.vue'
 
 const user = inject('$user')
-const showModal = ref(false)
 const readOnlyMode = window.read_only_mode
 
 const props = defineProps({
@@ -89,7 +86,17 @@ const assessments = createResource({
 		batch: props.batch,
 	},
 	auto: true,
+	// Named so AssessmentForm can reload it through getCachedResource after
+	// inserting. Keyed by batch, because BatchDetail is per-batch.
+	cache: ['batchAssessments', props.batch],
 })
+
+const route = useRoute()
+const router = useRouter()
+
+const openAssessmentForm = () => {
+	openBatchForm(router, 'NewAssessment', props.batch, route.hash)
+}
 
 const deleteAssessments = createResource({
 	url: 'lms.lms.api.delete_documents',

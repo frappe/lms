@@ -4,7 +4,7 @@
 			<source :src="encodeURI(file)" type="audio/mp3" />
 		</audio> -->
 		<audio @ended="handleAudioEnd" controlsList="nodownload" class="mb-4">
-			<source :src="encodeURI(file)" type="audio/mp3" />
+			<source :src="safeUrl(encodeURI(file))" type="audio/mp3" />
 		</audio>
 		<div class="flex items-center gap-x-2 shadow rounded-lg p-1 w-1/2">
 			<Button
@@ -50,6 +50,7 @@
 <script setup>
 import { ref, onMounted, watch } from 'vue'
 import { Button } from 'frappe-ui'
+import { safeUrl } from '@/utils/safeUrl'
 
 const isPlaying = ref(false)
 const audio = ref(null)

@@ -62,15 +62,35 @@ class LearningSearch(SQLiteSearch):
 				{"modified": "creation"},
 			],
 		},
-		"Course Instructor": {
+		# Quizzes and programs carry no prose of their own, so the title doubles as
+		# the content field the index requires.
+		"LMS Quiz": {
 			"fields": [
 				"name",
-				{"title": "instructor"},
-				{"content": "instructor"},
-				"parent",
-				"parenttype",
+				"title",
+				{"content": "title"},
+				"owner",
 				"modified",
-			]
+			],
+		},
+		"LMS Assignment": {
+			"fields": [
+				"name",
+				"title",
+				{"content": "question"},
+				"owner",
+				"modified",
+			],
+		},
+		"LMS Program": {
+			"fields": [
+				"name",
+				"title",
+				{"content": "title"},
+				"published",
+				"owner",
+				"modified",
+			],
 		},
 	}
 
@@ -110,18 +130,10 @@ class LearningSearch(SQLiteSearch):
 		"owner",
 	]
 
-	INSTRUCTOR_FIELDS = [
-		"name",
-		"instructor",
-		"parent",
-		"parenttype",
-	]
-
 	DOCTYPE_FIELDS = {
 		"LMS Course": COURSE_FIELDS,
 		"LMS Batch": BATCH_FIELDS,
 		"Job Opportunity": JOB_FIELDS,
-		"Course Instructor": INSTRUCTOR_FIELDS,
 	}
 
 	def build_index(self):
@@ -138,32 +150,8 @@ class LearningSearch(SQLiteSearch):
 		if not document:
 			return None
 
-		if doc.doctype == "Course Instructor":
-			document = self.get_instructor_details(doc, document)
-		else:
-			if not document.get("modified"):
-				self.set_modified_date(doc, doc.doctype, document)
-
-		return document
-
-	def get_instructor_details(self, doc, document):
-		instructor = frappe.db.get_value("User", doc.instructor, "full_name")
-		fields = self.COURSE_FIELDS if doc.parenttype == "LMS Course" else self.BATCH_FIELDS
-		details = frappe.db.get_value(doc.parenttype, doc.parent, fields, as_dict=True)
-
-		if details:
-			document["doctype"] = doc.parenttype
-			document["name"] = doc.parent
-			document["title"] = self._process_content(details.title)
-			document["published"] = details.get("published", 0)
-			document["content"] = self._process_content(
-				f"Instructor: {instructor}\n{details.description}\n{doc.instructor}"
-			)
-			self.set_modified_date(details, doc.parenttype, document)
-			if doc.parenttype == "LMS Course":
-				document["published_on"] = details.get("published_on")
-			elif doc.parenttype == "LMS Batch":
-				document["start_date"] = details.get("start_date")
+		if not document.get("modified"):
+			self.set_modified_date(doc, doc.doctype, document)
 
 		return document
 

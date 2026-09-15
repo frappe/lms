@@ -47,8 +47,6 @@
 			/>
 		</aside>
 
-		<!-- Mobile: there is no room for a 30% aside, so the outline opens from
-		     the Chapters pill into a sheet instead. -->
 		<BottomSheet v-if="isMobile" v-model="showChapters">
 			<template #header>
 				<div class="text-p-lg-semibold text-ink-gray-9">
@@ -403,7 +401,7 @@ function openVideoStats() {
 
 const courseOutlineRef = ref(null)
 function openAddChapter() {
-	courseOutlineRef.value?.openChapterModal?.(null)
+	courseOutlineRef.value?.openChapterForm?.(null)
 }
 
 defineExpose({

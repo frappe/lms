@@ -64,7 +64,9 @@
 				:label="__('Delete')"
 				@click="deleteExercises(selections, unselectAll)"
 			>
-				<span class="lucide-trash-2 size-4" />
+				<template #icon>
+					<span class="lucide-trash-2 size-4" aria-hidden="true" />
+				</template>
 			</Button>
 		</template>
 	</ListPage>
@@ -89,7 +91,7 @@ import { computed, inject, onMounted, ref, watch } from 'vue'
 import { sessionStore } from '@/stores/session'
 import { useRouter } from 'vue-router'
 import Link from '@/components/Controls/Link.vue'
-import ListPage from '@/components/Layouts/ListPage.vue'
+import ListPage from '@/components/Layouts/pages/ListPage.vue'
 
 const { brand } = sessionStore()
 const dayjs = inject('$dayjs') as any

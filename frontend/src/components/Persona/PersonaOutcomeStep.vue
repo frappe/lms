@@ -8,7 +8,7 @@
 			@click="emit('choose', option)"
 		>
 			<span
-				class="flex size-8 shrink-0 items-center justify-center rounded-md bg-surface-gray-2 text-ink-gray-7 transition-colors group-hover:bg-surface-white"
+				class="flex size-8 shrink-0 items-center justify-center rounded-md bg-surface-gray-2 text-ink-gray-7 transition-colors group-hover:bg-surface-base"
 			>
 				<component :is="option.icon" v-if="option.icon" class="size-4" />
 			</span>

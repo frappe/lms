@@ -1,0 +1,901 @@
+{
+	"Course Chapter": {
+		"Course Creator#0": [
+			"read",
+			"write",
+			"create",
+			"delete",
+			"share",
+			"report",
+			"export"
+		],
+		"LMS Student#0": [
+			"read",
+			"share",
+			"report",
+			"export"
+		],
+		"Moderator#0": [
+			"read",
+			"write",
+			"create",
+			"delete",
+			"share",
+			"report",
+			"export"
+		]
+	},
+	"Course Evaluator": {
+		"Batch Evaluator#0": [
+			"read",
+			"write",
+			"create",
+			"delete",
+			"share",
+			"report",
+			"export"
+		],
+		"Course Creator#0": [
+			"read",
+			"write",
+			"create",
+			"delete",
+			"share",
+			"report",
+			"export"
+		],
+		"Moderator#0": [
+			"read",
+			"write",
+			"create",
+			"delete",
+			"share",
+			"report",
+			"export"
+		]
+	},
+	"Course Lesson": {
+		"Course Creator#0#if_owner": [
+			"read",
+			"write",
+			"create",
+			"share",
+			"report",
+			"export"
+		],
+		"Moderator#0": [
+			"read",
+			"write",
+			"create",
+			"delete",
+			"share",
+			"report",
+			"export"
+		]
+	},
+	"Function": {
+		"LMS Student#0": [
+			"read",
+			"share",
+			"report",
+			"export"
+		]
+	},
+	"Industry": {
+		"LMS Student#0": [
+			"read",
+			"share",
+			"report",
+			"export"
+		]
+	},
+	"Job Opportunity": {
+		"LMS Student#0#if_owner": [
+			"read",
+			"write",
+			"create",
+			"share",
+			"report",
+			"export"
+		]
+	},
+	"LMS Assignment": {
+		"Batch Evaluator#0": [
+			"read",
+			"write",
+			"create",
+			"share",
+			"report",
+			"export"
+		],
+		"Course Creator#0": [
+			"read",
+			"write",
+			"create",
+			"share",
+			"report",
+			"export"
+		],
+		"LMS Student#0": [
+			"read",
+			"share",
+			"report",
+			"export"
+		],
+		"Moderator#0": [
+			"read",
+			"write",
+			"create",
+			"delete",
+			"share",
+			"report",
+			"export"
+		]
+	},
+	"LMS Assignment Submission": {
+		"Batch Evaluator#0": [
+			"read",
+			"write",
+			"create",
+			"share",
+			"report",
+			"export"
+		],
+		"Course Creator#0": [
+			"read",
+			"write",
+			"create",
+			"share",
+			"report",
+			"export"
+		],
+		"LMS Student#0#if_owner": [
+			"read",
+			"write",
+			"create",
+			"share",
+			"report",
+			"export"
+		],
+		"Moderator#0": [
+			"read",
+			"write",
+			"create",
+			"delete",
+			"share",
+			"report",
+			"export"
+		]
+	},
+	"LMS Badge": {
+		"Moderator#0": [
+			"read",
+			"write",
+			"create",
+			"delete",
+			"share",
+			"report",
+			"export"
+		]
+	},
+	"LMS Badge Assignment": {
+		"Batch Evaluator#0": [
+			"read",
+			"write",
+			"create",
+			"delete",
+			"share",
+			"report",
+			"export"
+		],
+		"Course Creator#0": [
+			"read",
+			"write",
+			"create",
+			"delete",
+			"share",
+			"report",
+			"export"
+		],
+		"LMS Student#0#if_owner": [
+			"read",
+			"create"
+		],
+		"Moderator#0": [
+			"read",
+			"write",
+			"create",
+			"delete",
+			"share",
+			"report",
+			"export"
+		]
+	},
+	"LMS Batch": {
+		"Batch Evaluator#0": [
+			"read",
+			"write",
+			"create",
+			"delete",
+			"share",
+			"report",
+			"export"
+		],
+		"LMS Student#0": [
+			"read"
+		],
+		"Moderator#0": [
+			"read",
+			"write",
+			"create",
+			"delete",
+			"share",
+			"report",
+			"export"
+		]
+	},
+	"LMS Batch Enrollment": {
+		"Batch Evaluator#0": [
+			"read",
+			"write",
+			"create",
+			"delete",
+			"share",
+			"report",
+			"export"
+		],
+		"LMS Student#0#if_owner": [
+			"read",
+			"create"
+		],
+		"Moderator#0": [
+			"read",
+			"write",
+			"create",
+			"delete",
+			"share",
+			"report",
+			"export"
+		]
+	},
+	"LMS Batch Feedback": {
+		"Batch Evaluator#0": [
+			"read",
+			"write",
+			"create",
+			"delete",
+			"share",
+			"report",
+			"export"
+		],
+		"LMS Student#0#if_owner": [
+			"read",
+			"write",
+			"create",
+			"share",
+			"report",
+			"export"
+		],
+		"Moderator#0": [
+			"read",
+			"write",
+			"create",
+			"delete",
+			"share",
+			"report",
+			"export"
+		]
+	},
+	"LMS Category": {
+		"Batch Evaluator#0": [
+			"read",
+			"share",
+			"report",
+			"export"
+		],
+		"Course Creator#0": [
+			"read",
+			"share",
+			"report",
+			"export"
+		],
+		"Moderator#0": [
+			"read",
+			"write",
+			"create",
+			"delete",
+			"share",
+			"report",
+			"export"
+		]
+	},
+	"LMS Certificate": {
+		"Batch Evaluator#0": [
+			"read",
+			"write",
+			"create",
+			"delete",
+			"share",
+			"report",
+			"export"
+		],
+		"Course Creator#0": [
+			"read",
+			"write",
+			"create",
+			"delete",
+			"share",
+			"report",
+			"export"
+		],
+		"LMS Student#0": [
+			"read",
+			"share",
+			"report",
+			"export"
+		],
+		"Moderator#0": [
+			"read",
+			"write",
+			"create",
+			"delete",
+			"share",
+			"report",
+			"export"
+		]
+	},
+	"LMS Certificate Evaluation": {
+		"Batch Evaluator#0": [
+			"read",
+			"write",
+			"create",
+			"delete",
+			"share",
+			"report",
+			"export"
+		]
+	},
+	"LMS Certificate Request": {
+		"Batch Evaluator#0": [
+			"read",
+			"write",
+			"create",
+			"delete",
+			"share",
+			"report",
+			"export"
+		],
+		"Course Creator#0": [
+			"read",
+			"write",
+			"create",
+			"delete",
+			"share",
+			"report",
+			"export"
+		],
+		"LMS Student#0#if_owner": [
+			"read",
+			"create",
+			"share",
+			"report",
+			"export"
+		],
+		"Moderator#0": [
+			"read",
+			"write",
+			"create",
+			"delete",
+			"share",
+			"report",
+			"export"
+		]
+	},
+	"LMS Coupon": {
+		"Batch Evaluator#0": [
+			"read",
+			"write",
+			"create",
+			"delete",
+			"share",
+			"report",
+			"export"
+		],
+		"Course Creator#0": [
+			"read",
+			"write",
+			"create",
+			"delete",
+			"share",
+			"report",
+			"export"
+		],
+		"Moderator#0": [
+			"read",
+			"write",
+			"create",
+			"delete",
+			"share",
+			"report",
+			"export"
+		]
+	},
+	"LMS Course": {
+		"Course Creator#0": [
+			"read",
+			"write",
+			"create",
+			"delete",
+			"share",
+			"report",
+			"export"
+		],
+		"Moderator#0": [
+			"read",
+			"write",
+			"create",
+			"delete",
+			"share",
+			"report",
+			"export"
+		]
+	},
+	"LMS Course Progress": {
+		"Course Creator#0": [
+			"read",
+			"write",
+			"create",
+			"delete",
+			"share",
+			"report",
+			"export"
+		],
+		"LMS Student#0#if_owner": [
+			"read",
+			"share",
+			"report",
+			"export"
+		],
+		"Moderator#0": [
+			"read",
+			"write",
+			"create",
+			"delete",
+			"share",
+			"report",
+			"export"
+		]
+	},
+	"LMS Course Review": {
+		"Batch Evaluator#0": [
+			"read",
+			"write",
+			"create",
+			"delete",
+			"share",
+			"report",
+			"export"
+		],
+		"Course Creator#0": [
+			"read",
+			"write",
+			"create",
+			"delete",
+			"share",
+			"report",
+			"export"
+		],
+		"LMS Student#0#if_owner": [
+			"read",
+			"write",
+			"create",
+			"share",
+			"report",
+			"export"
+		],
+		"Moderator#0": [
+			"read",
+			"write",
+			"create",
+			"delete",
+			"share",
+			"report",
+			"export"
+		]
+	},
+	"LMS Enrollment": {
+		"Course Creator#0": [
+			"read",
+			"write",
+			"create",
+			"delete",
+			"share",
+			"report",
+			"export"
+		],
+		"LMS Student#0#if_owner": [
+			"read",
+			"write",
+			"create",
+			"share",
+			"report",
+			"export"
+		],
+		"Moderator#0": [
+			"read",
+			"write",
+			"create",
+			"delete",
+			"share",
+			"report",
+			"export"
+		]
+	},
+	"LMS Google Meet Settings": {
+		"Batch Evaluator#0#if_owner": [
+			"read",
+			"write",
+			"create",
+			"delete",
+			"share",
+			"report",
+			"export"
+		],
+		"Moderator#0": [
+			"read",
+			"write",
+			"create",
+			"delete",
+			"share",
+			"report",
+			"export"
+		]
+	},
+	"LMS Job Application": {
+		"LMS Student#0#if_owner": [
+			"read",
+			"write",
+			"create",
+			"share",
+			"report",
+			"export"
+		]
+	},
+	"LMS Lesson Note": {
+		"Course Creator#0": [
+			"read",
+			"write",
+			"create",
+			"delete",
+			"share",
+			"report",
+			"export"
+		],
+		"LMS Student#0#if_owner": [
+			"read",
+			"write",
+			"create",
+			"delete",
+			"share",
+			"report",
+			"export"
+		],
+		"Moderator#0": [
+			"read",
+			"write",
+			"create",
+			"delete",
+			"share",
+			"report",
+			"export"
+		]
+	},
+	"LMS Live Class": {
+		"Batch Evaluator#0": [
+			"read",
+			"write",
+			"create",
+			"delete",
+			"share",
+			"report",
+			"export"
+		],
+		"LMS Student#0": [
+			"read",
+			"share",
+			"report",
+			"export"
+		],
+		"Moderator#0": [
+			"read",
+			"write",
+			"create",
+			"delete",
+			"share",
+			"report",
+			"export"
+		]
+	},
+	"LMS Live Class Participant": {
+		"Batch Evaluator#0": [
+			"read",
+			"write",
+			"create",
+			"delete",
+			"share",
+			"report",
+			"export"
+		],
+		"Moderator#0": [
+			"read",
+			"write",
+			"create",
+			"delete",
+			"share",
+			"report",
+			"export"
+		]
+	},
+	"LMS Payment": {
+		"Moderator#0": [
+			"read",
+			"write",
+			"create",
+			"delete",
+			"share",
+			"report",
+			"export"
+		]
+	},
+	"LMS Program": {
+		"Course Creator#0": [
+			"read",
+			"write",
+			"create",
+			"delete",
+			"share",
+			"report",
+			"export"
+		],
+		"LMS Student#0": [
+			"read"
+		],
+		"Moderator#0": [
+			"read",
+			"write",
+			"create",
+			"delete",
+			"share",
+			"report",
+			"export"
+		]
+	},
+	"LMS Programming Exercise": {
+		"Batch Evaluator#0": [
+			"read",
+			"write",
+			"create",
+			"delete",
+			"share",
+			"report",
+			"export"
+		],
+		"Course Creator#0": [
+			"read",
+			"write",
+			"create",
+			"delete",
+			"share",
+			"report",
+			"export"
+		],
+		"LMS Student#0": [
+			"read",
+			"share",
+			"report",
+			"export"
+		],
+		"Moderator#0": [
+			"read",
+			"write",
+			"create",
+			"delete",
+			"share",
+			"report",
+			"export"
+		]
+	},
+	"LMS Programming Exercise Submission": {
+		"Batch Evaluator#0": [
+			"read",
+			"write",
+			"create",
+			"delete",
+			"share",
+			"report",
+			"export"
+		],
+		"Course Creator#0": [
+			"read",
+			"write",
+			"create",
+			"delete",
+			"share",
+			"report",
+			"export"
+		],
+		"LMS Student#0#if_owner": [
+			"read",
+			"write",
+			"create",
+			"share",
+			"report",
+			"export"
+		],
+		"Moderator#0": [
+			"read",
+			"write",
+			"create",
+			"delete",
+			"share",
+			"report",
+			"export"
+		]
+	},
+	"LMS Question": {
+		"Course Creator#0": [
+			"read",
+			"write",
+			"create",
+			"delete",
+			"share",
+			"report",
+			"export"
+		],
+		"Moderator#0": [
+			"read",
+			"write",
+			"create",
+			"delete",
+			"share",
+			"report",
+			"export"
+		]
+	},
+	"LMS Quiz": {
+		"Batch Evaluator#0": [
+			"read",
+			"write",
+			"create",
+			"delete",
+			"share",
+			"report",
+			"export"
+		],
+		"Course Creator#0": [
+			"read",
+			"write",
+			"create",
+			"delete",
+			"share",
+			"report",
+			"export"
+		],
+		"LMS Student#0": [
+			"read",
+			"share",
+			"report",
+			"export"
+		],
+		"Moderator#0": [
+			"read",
+			"write",
+			"create",
+			"delete",
+			"share",
+			"report",
+			"export"
+		]
+	},
+	"LMS Quiz Submission": {
+		"LMS Student#0#if_owner": [
+			"read",
+			"share",
+			"report",
+			"export"
+		]
+	},
+	"LMS Settings": {
+		"Moderator#0": [
+			"read",
+			"write",
+			"create",
+			"delete",
+			"share"
+		]
+	},
+	"LMS Source": {
+		"LMS Student#0": [
+			"read",
+			"share",
+			"report",
+			"export"
+		],
+		"Moderator#0": [
+			"read",
+			"write",
+			"create",
+			"delete",
+			"share",
+			"report",
+			"export"
+		]
+	},
+	"LMS Timetable Template": {
+		"Moderator#0": [
+			"read",
+			"write",
+			"create",
+			"delete",
+			"share",
+			"report",
+			"export"
+		]
+	},
+	"LMS Video Watch Duration": {
+		"Course Creator#0": [
+			"read",
+			"write",
+			"create",
+			"delete",
+			"share",
+			"report",
+			"export"
+		],
+		"LMS Student#0#if_owner": [
+			"read",
+			"write",
+			"create",
+			"share",
+			"report",
+			"export"
+		],
+		"Moderator#0": [
+			"read",
+			"write",
+			"create",
+			"delete",
+			"share",
+			"report",
+			"export"
+		]
+	},
+	"LMS Zoom Settings": {
+		"Batch Evaluator#0#if_owner": [
+			"read",
+			"write",
+			"create",
+			"delete",
+			"share",
+			"report",
+			"export"
+		],
+		"Moderator#0": [
+			"read",
+			"write",
+			"create",
+			"delete",
+			"share",
+			"report",
+			"export"
+		]
+	},
+	"User Skill": {
+		"LMS Student#0": [
+			"read",
+			"share",
+			"report",
+			"export"
+		]
+	}
+}

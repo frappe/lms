@@ -15,6 +15,11 @@
   "total_marks",
   "passing_percentage",
   "duration",
+  "enable_proctoring",
+  "max_violations",
+  "enable_scheduling",
+  "schedule_start",
+  "schedule_end",
   "section_break_tzbu",
   "shuffle_questions",
   "limit_questions_to",
@@ -138,6 +143,21 @@
   },
   {
    "default": "0",
+   "fieldname": "enable_proctoring",
+   "fieldtype": "Check",
+   "label": "Enable Proctoring"
+  },
+  {
+   "default": "3",
+   "depends_on": "eval:doc.enable_proctoring",
+   "fieldname": "max_violations",
+   "fieldtype": "Int",
+   "label": "Max Violations",
+   "mandatory_depends_on": "eval:doc.enable_proctoring",
+   "non_negative": 1
+  },
+  {
+   "default": "0",
    "fieldname": "enable_negative_marking",
    "fieldtype": "Check",
    "label": "Enable Negative Marking"
@@ -148,6 +168,25 @@
    "fieldname": "marks_to_cut",
    "fieldtype": "Int",
    "label": "Marks To Cut"
+  },
+  {
+   "default": "0",
+   "fieldname": "enable_scheduling",
+   "fieldtype": "Check",
+   "label": "Enable Scheduling"
+  },
+  {
+   "depends_on": "enable_scheduling",
+   "fieldname": "schedule_start",
+   "fieldtype": "Datetime",
+   "label": "Schedule Start",
+   "mandatory_depends_on": "enable_scheduling"
+  },
+  {
+   "depends_on": "enable_scheduling",
+   "fieldname": "schedule_end",
+   "fieldtype": "Datetime",
+   "label": "Schedule End"
   }
  ],
  "grid_page_length": 50,

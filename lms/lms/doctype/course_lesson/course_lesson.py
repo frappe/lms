@@ -10,7 +10,6 @@ from frappe import _
 from frappe.model.document import Document
 from frappe.query_builder.functions import Locate
 from frappe.rate_limiter import rate_limit
-from frappe.realtime import get_website_room
 from frappe.utils import add_to_date, now_datetime
 from frappe.utils.response import send_private_file
 from frappe.utils.telemetry import capture
@@ -19,10 +18,11 @@ from lms.lms.doctype.lms_enrollment.lms_enrollment import (
 	batched_enrollment_updates,
 	update_enrollment,
 )
-from lms.lms.permissions import INSTRUCTOR_FIELDS, can_access_lesson
+from lms.lms.permissions import INSTRUCTOR_FIELDS, can_access_lesson, get_locked_lessons
 from lms.lms.utils import (
 	get_course_progress,
 	get_editorjs_blocks,
+	guest_access_allowed,
 	is_demo_course,
 	recalculate_course_progress,
 	sanitize_editorjs,
@@ -120,6 +120,45 @@ def has_permission(doc, ptype="read", user=None):
 	# Deliberately NOT widened to all Course Creators, to preserve the media-access
 	# boundary (matches the original get_lesson gate).
 	return can_access_lesson(doc.name, user=user)
+
+
+def get_permission_query_conditions(user=None):
+	"""List-read counterpart of has_permission's read branch.
+
+	Expresses resolve_lesson_access (lms/lms/permissions.py) as SQL: course
+	instructor, or enrolled member, or a preview lesson of a published course.
+	Deliberately NOT widened to all Course Creators — the read gate is per-course,
+	and widening it here would open the media boundary the doc read protects.
+	"""
+	user = user or frappe.session.user
+	if user == "Administrator":
+		return ""
+
+	roles = frappe.get_roles(user)
+	if "Moderator" in roles:
+		return ""
+
+	escaped = frappe.db.escape(user)
+	conditions = [
+		f"""`tabCourse Lesson`.course in (
+			select parent from `tabCourse Instructor`
+			where instructor = {escaped} and parenttype = 'LMS Course'
+		)""",
+		f"""`tabCourse Lesson`.course in (
+			select course from `tabLMS Enrollment` where member = {escaped}
+		)""",
+	]
+
+	if user != "Guest" or guest_access_allowed():
+		conditions.append(
+			"""(`tabCourse Lesson`.include_in_preview = 1
+			and `tabCourse Lesson`.course in (
+				select name from `tabLMS Course` where published = 1
+			))"""
+		)
+
+	joined = " or ".join(conditions)
+	return f"({joined})"
 
 
 # Lesson content fields a student may reach vs. instructor-only fields (gated harder).
@@ -286,6 +325,16 @@ def _save_progress(lesson: str, course: str, scorm_details: dict = None):
 	if not membership:
 		return 0
 
+	# On a sequential course this endpoint writes the gate's own unlock state, so an
+	# enrolled student could otherwise complete every lesson name the outline publishes
+	# and open the whole course. The lesson a student is legitimately on is the first
+	# incomplete one, which is never locked, so the normal path never reaches this.
+	if lesson in get_locked_lessons(course):
+		frappe.throw(
+			_("Complete the previous lesson before marking this one as done."),
+			frappe.PermissionError,
+		)
+
 	progress_already_exists = frappe.db.exists(
 		"LMS Course Progress", {"lesson": lesson, "member": frappe.session.user}
 	)
@@ -371,9 +420,14 @@ def _save_progress(lesson: str, course: str, scorm_details: dict = None):
 	# replaces fired no on_update, which is the webhook regression being fixed.
 	update_enrollment(membership, {"current_lesson": next_lesson or lesson, "progress": progress})
 
+	# Addressed to the member who completed the lesson, not the whole website room.
+	# Everything in this payload is theirs alone — `progress` is their course progress,
+	# which every other viewer of the course was assigning to their own progress bar —
+	# and it is the signal their outline reloads on, so a site-wide room made one
+	# student's completion refetch the outline in every concurrent viewer's browser.
 	frappe.publish_realtime(
 		event="update_lesson_progress",
-		room=get_website_room(),
+		user=frappe.session.user,
 		message={"course": course, "lesson": lesson, "progress": progress},
 		after_commit=True,
 	)

@@ -1,15 +1,17 @@
 <template>
-	<div class="relative flex h-full min-h-64 w-full grow justify-center">
+	<div class="flex h-full min-h-64 w-full grow items-center justify-center">
 		<div
-			class="absolute inset-x-0 top-[35%] mx-auto flex flex-col items-center gap-3 px-4"
+			class="flex w-full flex-col items-center gap-3 px-6 sm:px-4"
 			:class="widthClass"
 		>
-			<span class="size-7.5 text-ink-gray-5" :class="icon" />
+			<span class="size-10 text-ink-gray-5 sm:size-7.5" :class="icon" />
 			<div class="flex flex-col items-center gap-1">
-				<span class="text-lg-medium text-center text-ink-gray-8">
+				<span
+					class="text-base-medium text-center text-ink-gray-8 sm:text-lg-medium"
+				>
 					{{ computedTitle }}
 				</span>
-				<span class="text-center text-p-base text-ink-gray-6">
+				<span class="text-center text-p-sm text-ink-gray-6 sm:text-p-base">
 					{{ computedDescription }}
 				</span>
 			</div>
@@ -46,14 +48,20 @@ const computedDescription = computed(
 		).format(props.name?.toLowerCase())
 )
 
+// The fractional widths are desktop-only. Unqualified, `w-4/12` is about 130px
+// on a 390px phone, which wrapped the copy into a sliver a word or two wide.
+// The base `w-full` holds until `sm`, and these take over from there.
+//
+// Centered via flex on the parent, not a physical inline-axis class, so
+// the RTL rule has nothing to catch here.
 const widthClass = computed(() => {
 	switch (props.width) {
 		case 'sm':
-			return 'w-2/12'
+			return 'sm:w-2/12'
 		case 'lg':
-			return 'w-8/12'
+			return 'sm:w-8/12'
 		default:
-			return 'w-4/12'
+			return 'sm:w-4/12'
 	}
 })
 </script>

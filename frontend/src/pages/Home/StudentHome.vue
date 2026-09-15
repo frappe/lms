@@ -38,8 +38,8 @@
 							>
 								<a
 									v-if="user.data?.is_moderator || user.data?.is_evaluator"
-									:href="cls.start_url"
-									target="_blank"
+									:href="safeUrl(cls.start_url)"
+									v-external
 									class="cursor-pointer inline-flex items-center justify-center gap-2 transition-colors focus:outline-none text-ink-gray-8 bg-surface-gray-2 hover:bg-surface-gray-3 active:bg-surface-gray-4 focus-visible:ring focus-visible:ring-outline-gray-3 h-7 text-base px-2 rounded"
 									:class="cls.join_url ? 'w-full' : 'w-1/2'"
 								>
@@ -47,8 +47,8 @@
 									{{ __('Start') }}
 								</a>
 								<a
-									:href="cls.join_url"
-									target="_blank"
+									:href="safeUrl(cls.join_url)"
+									v-external
 									class="w-full cursor-pointer inline-flex items-center justify-center gap-2 transition-colors focus:outline-none text-ink-gray-8 bg-surface-gray-2 hover:bg-surface-gray-3 active:bg-surface-gray-4 focus-visible:ring focus-visible:ring-outline-gray-3 h-7 text-base px-2 rounded"
 								>
 									<span class="lucide-video size-4" />
@@ -147,6 +147,7 @@ import { formatTime } from '@/utils'
 import CourseCard from '@/components/CourseCard.vue'
 import BatchCard from '@/pages/Batches/components/BatchCard.vue'
 import UpcomingEvaluations from '@/components/UpcomingEvaluations.vue'
+import { safeUrl } from '@/utils/safeUrl'
 
 const dayjs = inject<any>('$dayjs')
 const user = inject<any>('$user')

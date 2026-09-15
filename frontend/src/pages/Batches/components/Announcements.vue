@@ -19,7 +19,7 @@
 					</div>
 					<div
 						class="prose prose-sm bg-surface-sidebar !min-w-full px-4 py-2 rounded-md"
-						v-html="sanitizeRichHTML(comm.content)"
+						v-safe-html:rich="comm.content"
 					></div>
 				</div>
 			</li>
@@ -30,7 +30,6 @@
 	</div>
 </template>
 <script setup>
-import { sanitizeRichHTML } from '@/utils/sanitizeRichHTML'
 import { createResource, Avatar } from 'frappe-ui'
 import { timeAgo } from '@/utils'
 

@@ -6,6 +6,8 @@ import { Upload } from '@/utils/upload'
 import { Markdown } from '@/utils/markdownParser'
 import { useSettings } from '@/stores/settings'
 import { usersStore } from '@/stores/user'
+import router from '@/router'
+import { pushSettingsHash } from '@/composables/useSettingsHash'
 import { Heading } from '@/utils/heading'
 import Paragraph from '@editorjs/paragraph'
 import { CodeBox } from '@/utils/code'
@@ -15,7 +17,6 @@ import { Bold } from '@/utils/inline/Bold'
 import { Underline } from '@/utils/inline/Underline'
 import { Strikethrough } from '@/utils/inline/Strikethrough'
 import { AlignLeft, AlignCenter, AlignRight } from '@/utils/inline/TextAlign'
-import { Color } from '@/utils/inline/Color'
 import {
 	clipboardTunes,
 	clipboardTuneNames,
@@ -25,6 +26,7 @@ import Embed from '@editorjs/embed'
 import SimpleImage from '@editorjs/simple-image'
 import Table from '@editorjs/table'
 import DOMPurify from 'dompurify'
+import { decodeEntities } from './inertHtml'
 
 const readOnlyMode = window.read_only_mode
 
@@ -117,12 +119,6 @@ export function getImgDimensions(imgSrc) {
 	})
 }
 
-export function htmlToText(html) {
-	const div = document.createElement('div')
-	div.innerHTML = html
-	return div.textContent || div.innerText || ''
-}
-
 // Visual order of the inline toolbar (automad layout). References registered
 // inline-tool names: EditorJS built-ins (bold/italic/link) + our custom tools.
 const INLINE_TOOLBAR_ORDER = [
@@ -135,7 +131,6 @@ const INLINE_TOOLBAR_ORDER = [
 	'inlineCode',
 	'underline',
 	'strikeThrough',
-	'color',
 ]
 
 export function getEditorTools(
@@ -216,7 +211,6 @@ export function getEditorTools(
 		alignLeft: AlignLeft,
 		alignCenter: AlignCenter,
 		alignRight: AlignRight,
-		color: Color,
 		copyBlock: clipboardTunes.copyBlock,
 		cutBlock: clipboardTunes.cutBlock,
 		pasteBlock: clipboardTunes.pasteBlock,
@@ -604,9 +598,11 @@ const getSidebarItems = (forMobile = false) => {
 					activeFor: [
 						'Quizzes',
 						'QuizForm',
+						'NewQuiz',
 						'QuizPage',
-						'QuizSubmissionList',
+						'QuizSubmissions',
 						'QuizSubmission',
+						'Questions',
 					],
 				},
 				{
@@ -854,17 +850,37 @@ export const createLMSCategory = (name) => {
 		})
 }
 
-export const openSettings = (category, close = null) => {
+// Settings is the desktop dialog, mounted only inside the sidebar's
+// UserDropdown; the phone has no settings pages. On a phone the hash below
+// reaches nothing, so this says so instead of closing and losing whatever
+// the user had half-filled in behind it.
+//
+// Takes the tab's slug, not its label, since renaming a label must not break
+// callers. Returns whether Settings actually opened, so a caller that closes
+// itself separately can stay put when it did not.
+export const openSettings = (slug, close = null) => {
 	const settingsStore = useSettings()
+	if (!settingsStore.isSettingsMounted) {
+		toast.error(__('Settings is only available on a larger screen.'))
+		return false
+	}
 	if (close) {
 		close()
 	}
-	settingsStore.activeTab = category
-	settingsStore.isSettingsOpen = true
+	pushSettingsHash(router, slug)
+	return true
 }
 
 export const cleanError = (message) => {
-	const cleanMessage = message.replace(/<[^>]+>/g, (match) => {
+	// Every caller passes `err.messages?.[0] || err`; frappe-ui attaches
+	// `.messages` only to a server-error response, so a transport failure
+	// re-throws a raw object. Coerced here, not per call site, since throwing
+	// from inside a catch loses the original error and skips its cleanup.
+	const text =
+		typeof message === 'string'
+			? message
+			: String(message?.message ?? message ?? '')
+	const cleanMessage = text.replace(/<[^>]+>/g, (match) => {
 		return match.replace(/<\/?[^>]+(>|$)/g, '')
 	})
 	return cleanMessage
@@ -1018,11 +1034,7 @@ export const blockQuotesClick = () => {
 	})
 }
 
-export const decodeEntities = (encodedString) => {
-	const textarea = document.createElement('textarea')
-	textarea.innerHTML = encodedString
-	return textarea.value
-}
+export { decodeEntities, htmlToText } from './inertHtml'
 
 export function validateEmail(email) {
 	return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email || '').trim())

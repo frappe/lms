@@ -10,6 +10,7 @@ import { usersStore } from './stores/user'
 import { initSocket } from './socket'
 import { FrappeUI, setConfig, frappeRequest, pageMetaPlugin } from 'frappe-ui'
 import { telemetryPlugin } from 'frappe-ui/frappe'
+import { registerDirectives } from './directives'
 
 let pinia = createPinia()
 let app = createApp(App)
@@ -20,6 +21,7 @@ app.use(pinia)
 app.use(router)
 app.use(translationPlugin)
 app.use(pageMetaPlugin)
+registerDirectives(app)
 app.provide('$dayjs', dayjs)
 app.provide('$socket', initSocket())
 app.mount('#app')

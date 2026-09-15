@@ -12,8 +12,7 @@
 				v-for="course in relatedCourses.data"
 				:key="course.name"
 				:to="{ name: 'CourseDetail', params: { courseName: course.name } }"
-				target="_blank"
-				rel="noopener"
+				v-external
 				class="cursor-pointer"
 			>
 				<CourseCard :course="course" />
@@ -41,13 +40,13 @@ const relatedCourses = createResource({
 			course: props.courseName,
 		}
 	},
-	auto: true,
+	auto: Boolean(props.courseName),
 }) as Resource<LMSCourse[] | null>
 
 watch(
 	() => props.courseName,
 	() => {
-		relatedCourses.reload()
+		if (props.courseName) relatedCourses.reload()
 	}
 )
 </script>

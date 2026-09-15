@@ -11,9 +11,12 @@ export interface Resource<T = unknown> {
 	reload(): Promise<T>
 	fetch(): Promise<T>
 	next?(): void
-	submit(params?: unknown, opts?: unknown): void
+	// Promise, not void: frappe-ui's submit resolves or REJECTS, and typing it
+	// away is what let bare `resource.submit(...)` statements spread unnoticed —
+	// see utils/resource.ts.
+	submit(params?: unknown, opts?: unknown): Promise<T>
 	update(opts: unknown): void
-	setValue: { submit(values: unknown, opts?: unknown): void }
+	setValue: { submit(values: unknown, opts?: unknown): Promise<T> }
 }
 
 export interface UserInfo {
@@ -31,6 +34,7 @@ export interface SessionUser {
 	data?: UserInfo & {
 		is_moderator?: boolean
 		is_instructor?: boolean
+		is_evaluator?: boolean
 		is_student?: boolean
 		is_system_manager?: boolean
 	}
@@ -81,6 +85,7 @@ export interface OutlineLesson {
 	number: string
 	icon?: string
 	is_complete?: boolean
+	locked?: 0 | 1
 }
 
 export interface OutlineChapter {
@@ -93,7 +98,13 @@ export interface OutlineChapter {
 }
 
 export interface CertificationInfo {
-	certificate?: { name: string; template: string } | null
+	title?: string | null
+	evaluator?: string | null
+	certificate?: {
+		name: string
+		template: string
+		issue_date?: string
+	} | null
 	membership?: {
 		purchased_certificate?: 0 | 1
 		certificate?: string
