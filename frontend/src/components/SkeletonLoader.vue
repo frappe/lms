@@ -84,7 +84,9 @@
 		<div v-else-if="variant === 'header'" class="header-frame justify-between">
 			<div class="flex min-w-0 flex-1 items-center gap-2">
 				<div class="size-4 shrink-0 rounded-4 bg-surface-gray-2 sm:hidden" />
-				<div class="h-4 w-40 max-w-full rounded-4 bg-surface-gray-3 sm:hidden" />
+				<div
+					class="h-4 w-40 max-w-full rounded-4 bg-surface-gray-3 sm:hidden"
+				/>
 				<div class="hidden h-7 items-center gap-2 sm:flex">
 					<div class="h-4 w-16 rounded-4 bg-surface-gray-2" />
 					<div class="h-4 w-1 rounded-4 bg-surface-gray-2" />

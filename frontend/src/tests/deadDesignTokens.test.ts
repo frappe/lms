@@ -93,7 +93,22 @@ const RADIUS_STEP_BY_ALIAS: Record<string, string> = {
 	xl: '7',
 	'2xl': '8',
 }
-const RADIUS_SIDES = ['t', 'r', 'b', 'l', 'tl', 'tr', 'br', 'bl', 's', 'e', 'ss', 'se', 'es', 'ee']
+const RADIUS_SIDES = [
+	't',
+	'r',
+	'b',
+	'l',
+	'tl',
+	'tr',
+	'br',
+	'bl',
+	's',
+	'e',
+	'ss',
+	'se',
+	'es',
+	'ee',
+]
 
 const REMOVED_RADIUS_ALIASES: Record<string, string> = {}
 for (const side of RADIUS_SIDES) {
@@ -116,7 +131,9 @@ describe('radius aliases removed by frappe-ui migration v2', () => {
 	for (const [removed, replacement] of Object.entries(REMOVED_RADIUS_ALIASES)) {
 		it(`does not use \`${removed}\` (renamed to \`${replacement}\`)`, () => {
 			const offenders = files
-				.filter((file) => radiusUsageRegex(removed).test(readFileSync(file, 'utf8')))
+				.filter((file) =>
+					radiusUsageRegex(removed).test(readFileSync(file, 'utf8'))
+				)
 				.map((file) => relative(SRC, file))
 
 			expect(offenders).toEqual([])
