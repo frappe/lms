@@ -93,7 +93,7 @@ import {
 	InputError,
 	InputLabel,
 	useInputLabeling,
-} from '@/components/Form/labeling'
+} from 'frappe-ui/experimental'
 import { computed } from 'vue'
 
 const emit = defineEmits(['update:modelValue', 'change'])

@@ -109,7 +109,7 @@
 </template>
 <script setup lang="ts">
 import { computed, inject, ref, watch, useId } from 'vue'
-import { InputLabel } from '@/components/Form/labeling'
+import { InputLabel } from 'frappe-ui/experimental'
 import { sanitizeOnWrite } from '@/utils/sanitizeOnWrite'
 import {
 	Badge,

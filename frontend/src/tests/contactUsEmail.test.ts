@@ -52,7 +52,7 @@ vi.mock('@/stores/settings', () => ({
 	}),
 }))
 
-vi.mock('@/components/Form/labeling', () => ({
+vi.mock('frappe-ui/experimental', () => ({
 	InputLabel: { props: ['id', 'label', 'required'], template: '<label />' },
 }))
 

@@ -13,7 +13,7 @@
 <script setup lang="ts">
 import { useId } from 'vue'
 import RichTextEditor from '@/components/RichTextEditor.vue'
-import { InputLabel } from '@/components/Form/labeling'
+import { InputLabel } from 'frappe-ui/experimental'
 import type { FieldComponentEmits, FieldComponentProps } from '@framework/ui/FormLayout'
 
 /**

@@ -47,7 +47,7 @@
 <script setup lang="ts">
 import { useId } from 'vue'
 import ImageUploader from '@/components/Controls/ImageUploader.vue'
-import { InputLabel } from '@/components/Form/labeling'
+import { InputLabel } from 'frappe-ui/experimental'
 import { safeUrl } from '@/utils/safeUrl'
 
 /**

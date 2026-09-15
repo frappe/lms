@@ -101,7 +101,7 @@ import {
 	InputError,
 	InputLabel,
 	useInputLabeling,
-} from '@/components/Form/labeling'
+} from 'frappe-ui/experimental'
 
 const rows = defineModel<Record<string, string>[]>()
 const menuRef = ref(null)

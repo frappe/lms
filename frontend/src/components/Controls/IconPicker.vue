@@ -75,7 +75,7 @@ import {
 	InputError,
 	InputLabel,
 	useInputLabeling,
-} from '@/components/Form/labeling'
+} from 'frappe-ui/experimental'
 import * as icons from 'lucide-vue-next'
 import { ref, computed, onMounted } from 'vue'
 

@@ -139,7 +139,7 @@ import { canCreateCourse, cleanError, createLMSCategory } from '@/utils'
 import { sanitizeOnWrite } from '@/utils/sanitizeOnWrite'
 import type { Resource } from '@/types'
 import RichTextEditor from '@/components/RichTextEditor.vue'
-import { InputLabel, useInputLabeling } from '@/components/Form/labeling'
+import { InputLabel, useInputLabeling } from 'frappe-ui/experimental'
 import { submitResource } from '@/utils/resource'
 
 interface InstructorOption {

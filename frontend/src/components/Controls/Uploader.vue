@@ -83,7 +83,7 @@ import {
 	InputError,
 	InputLabel,
 	useInputLabeling,
-} from '@/components/Form/labeling'
+} from 'frappe-ui/experimental'
 import { Image, Video } from 'lucide-vue-next'
 import { computed } from 'vue'
 import { safeUrl } from '@/utils/safeUrl'
