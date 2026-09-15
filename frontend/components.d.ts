@@ -127,6 +127,7 @@ declare module 'vue' {
     ResponsiveListView: typeof import('./src/components/ResponsiveListView.vue')['default']
     ReviewModal: typeof import('./src/components/Modals/ReviewModal.vue')['default']
     RichTextEditor: typeof import('./src/components/RichTextEditor.vue')['default']
+    RichTextEditorField: typeof import('./src/components/FormLayout/RichTextEditorField.vue')['default']
     RoleSwitches: typeof import('./src/components/Controls/RoleSwitches.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
