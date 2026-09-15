@@ -27,8 +27,13 @@
 				class="detail-tabs"
 				:class="{ 'page-flow': flowsWithPage }"
 			>
+				<!-- The icon belongs in the prefix region, not the label: `#tab-label`
+				     lands inside the trigger's `truncate` span, which clips a
+				     `display: block` icon mask onto its own line. -->
+				<template v-if="!isMobile" #tab-prefix="{ tab }">
+					<span class="size-4" :class="own(tab.data).icon" />
+				</template>
 				<template #tab-label="{ tab }">
-					<span v-if="!isMobile" class="size-4" :class="own(tab.data).icon" />
 					{{ tabLabel(own(tab.data)) }}
 				</template>
 				<template #tab-panel="{ tab }">

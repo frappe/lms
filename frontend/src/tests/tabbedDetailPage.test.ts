@@ -26,10 +26,10 @@ vi.mock('@/components/Layouts/pages/PageHeader.vue', () => ({
 vi.mock('frappe-ui', async () => {
 	const { computed, defineComponent, watch } = await import('vue')
 
-	// A stand-in for the composed Tabs family's shorthand mode: a `value`
-	// keyed model, `#tab-label`/`#tab-panel` slots, and the real component's
-	// stale-model fallback (an unknown value snaps to the first tab and
-	// emits) so the page's own hash-sync is exercised the way it runs in
+	// A stand-in for the composed Tabs family's shorthand mode: a `value` keyed
+	// model, the `#tab-prefix`/`#tab-label`/`#tab-panel` slots, and the real
+	// component's stale-model fallback (an unknown value snaps to the first tab
+	// and emits) so the page's own hash-sync is exercised the way it runs in
 	// production.
 	const Tabs = defineComponent({
 		name: 'Tabs',
@@ -64,6 +64,7 @@ vi.mock('frappe-ui', async () => {
 		>
 			<div role="tablist">
 				<template v-for="(tab, i) in tabs" :key="i">
+					<slot name="tab-prefix" :tab="tab" :selected="tab.value === selected" />
 					<slot name="tab-label" :tab="tab" :selected="tab.value === selected" />
 				</template>
 			</div>
