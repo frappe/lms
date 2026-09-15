@@ -305,17 +305,20 @@ const sidebarRows = computed(() =>
 	buildSidebarRows(sidebarLinks.value ?? [], sidebarSettings.data)
 )
 
+const onKeyboardShortcut = (e) => {
+	if (
+		e.key === 'k' &&
+		(e.ctrlKey || e.metaKey) &&
+		!e.repeat &&
+		!e.target.classList.contains('ProseMirror')
+	) {
+		toggleCommandPalette()
+		e.preventDefault()
+	}
+}
+
 const addKeyboardShortcut = () => {
-	window.addEventListener('keydown', (e) => {
-		if (
-			e.key === 'k' &&
-			(e.ctrlKey || e.metaKey) &&
-			!e.target.classList.contains('ProseMirror')
-		) {
-			toggleCommandPalette()
-			e.preventDefault()
-		}
-	})
+	window.addEventListener('keydown', onKeyboardShortcut)
 }
 
 const toggleCommandPalette = () => {
@@ -630,5 +633,6 @@ const redirectToAppointmentScreen = () => {
 
 onUnmounted(() => {
 	socket.off('publish_lms_notifications')
+	window.removeEventListener('keydown', onKeyboardShortcut)
 })
 </script>
