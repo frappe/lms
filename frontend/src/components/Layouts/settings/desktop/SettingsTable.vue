@@ -1,9 +1,6 @@
 <template>
-	<div
-		class="-mx-3 min-h-0 flex-1 overflow-y-auto [--list-row-height:3.5rem]"
-		:style="scrollerStyle"
-	>
-		<List :columns="tracks" class="list-row-px-3">
+	<div class="-mx-3 min-h-0 flex-1 overflow-y-auto" :style="scrollerStyle">
+		<List :columns="tracks" :row-height="ROW_HEIGHT_PX" class="list-row-px-3">
 			<ListHeader class="sticky top-0 z-10 bg-surface-elevation-1">
 				<ListHeaderCell
 					v-for="column in columns"
@@ -200,13 +197,20 @@ const props = withDefaults(
 	}
 )
 
+// v1 List sizes rows to content unless given `:row-height` (its own
+// `--_list-row-height`, internal and reset at every list root — not a public
+// hook). This is the one number both the prop and the ceiling below read, so
+// they can't drift apart the way the old `--list-row-height` var and the
+// prop-less <List> did.
+const ROW_HEIGHT_PX = 56
+
 // A ceiling, not a fixed height: a hard height clips on a short viewport.
-// Inline style because the row height is a custom property, and a Tailwind
-// class assembled from a prop is invisible to the JIT scan. `2rem` is the header.
+// Inline style because a Tailwind class assembled from a prop is invisible to
+// the JIT scan. `2rem` is the header.
 const scrollerStyle = computed(() =>
 	props.visibleRows
 		? {
-				maxHeight: `calc(var(--list-row-height) * ${props.visibleRows} + 2rem)`,
+				maxHeight: `calc(${ROW_HEIGHT_PX}px * ${props.visibleRows} + 2rem)`,
 		  }
 		: undefined
 )

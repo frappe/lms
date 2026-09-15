@@ -73,12 +73,31 @@ vi.mock('frappe-ui', () => ({
 		props: ['text'],
 		template: '<div :data-tooltip="text"><slot /></div>',
 	},
+	// The v1 contract: an `options` array of `{ label, value }`, not the v0
+	// `:buttons` prop ListFooter's own dead fallback still passes. Reads
+	// `options` the same way the real component does, so a page that binds
+	// the wrong prop renders no tabs here either.
+	TabButtons: {
+		props: ['options', 'modelValue'],
+		emits: ['update:modelValue'],
+		template: `<div data-testid="tab-buttons">
+			<button
+				v-for="option in options"
+				:key="option.value"
+				type="button"
+				:data-testid="'page-length-' + option.value"
+				:data-state="option.value === modelValue ? 'checked' : 'unchecked'"
+				@click="$emit('update:modelValue', option.value)"
+			>{{ option.label }}</button>
+		</div>`,
+	},
 }))
 
 vi.mock('frappe-ui/experimental', () => ({
 	ListFooter: {
 		props: ['modelValue', 'options'],
 		template: `<div data-testid="footer">
+			<slot name="left" />
 			<slot name="right" />
 		</div>`,
 	},
@@ -201,8 +220,29 @@ describe('ListPage', () => {
 	it('gives every page the same footer, and asks for the next page from it', async () => {
 		const wrapper = await mountListPage({ hasNextPage: true })
 		expect(wrapper.find('[data-testid="footer"]').exists()).toBe(true)
-		await wrapper.find('[data-testid="footer"] button').trigger('click')
+		// Scoped past the page-length tabs, which are buttons in the same footer.
+		await wrapper
+			.find('[data-testid="footer"] button[label="Load More"]')
+			.trigger('click')
 		expect(wrapper.emitted('loadMore')).toHaveLength(1)
+	})
+
+	it('renders real, clickable page-length options, not zero', async () => {
+		// ListFooter's own `#left` fallback passes v0's `:buttons` to v1
+		// TabButtons, which only reads `:options` — so unless ListPage overrides
+		// `#left` itself, this renders no tabs at all.
+		const wrapper = await mountListPage({}, { card: '<article />' })
+		const tabs = wrapper.findAll('[data-testid="footer"] [data-testid^="page-length-"]')
+
+		expect(tabs).toHaveLength(3)
+		expect(tabs.map((tab) => tab.text())).toEqual(['24', '60', '120'])
+	})
+
+	it('reacts to a page-length click by updating the pageLength model', async () => {
+		const wrapper = await mountListPage({}, { card: '<article />' })
+		await wrapper.get('[data-testid="page-length-60"]').trigger('click')
+
+		expect(wrapper.emitted('update:pageLength')?.at(-1)).toEqual([60])
 	})
 
 	it('says only the loaded count when the list has no total to compare against', async () => {
