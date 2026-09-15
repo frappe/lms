@@ -247,10 +247,6 @@ const tabs = computed(() => {
 })
 </script>
 <style>
-.plyr__volume input[type='range'] {
-	display: none;
-}
-
 .plyr__control--overlaid {
 	background: radial-gradient(
 		circle,

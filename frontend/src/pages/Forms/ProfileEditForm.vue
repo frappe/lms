@@ -21,7 +21,6 @@
 					<Uploader
 						v-model="profile.image"
 						:label="__('Profile Image')"
-						:required="true"
 						shape="circle"
 					/>
 					<FormControl
@@ -29,11 +28,7 @@
 						:label="__('First Name')"
 						:required="true"
 					/>
-					<FormControl
-						v-model="profile.last_name"
-						:label="__('Last Name')"
-						:required="true"
-					/>
+					<FormControl v-model="profile.last_name" :label="__('Last Name')" />
 					<FormControl v-model="profile.headline" :label="__('Headline')" />
 					<FormControl v-model="profile.linkedin" :label="__('LinkedIn ID')" />
 					<FormControl v-model="profile.github" :label="__('GitHub ID')" />
@@ -43,7 +38,7 @@
 					<FormControl
 						v-model="profile.open_to"
 						type="select"
-						:options="[' ', 'Work', 'Hiring']"
+						:options="[{ label: '', value: '' }, 'Work', 'Hiring']"
 						:label="__('Open to')"
 						:placeholder="__('Looking for new work or hiring talent?')"
 					/>
@@ -110,7 +105,6 @@ const props = defineProps({
 const user = inject('$user')
 const router = useRouter()
 const readOnlyMode = window.read_only_mode
-const hasLanguageChanged = ref(false)
 const isDirty = ref(false)
 
 const parent = {
@@ -137,6 +131,7 @@ const profile = reactive({
 	first_name: '',
 	last_name: '',
 	headline: '',
+	language: '',
 	bio: '',
 	image: '',
 	open_to: '',
@@ -144,6 +139,13 @@ const profile = reactive({
 	github: '',
 	twitter: '',
 })
+
+// Every key above is a User fieldname except `image`, which edits `user_image`.
+const serverField = (key) => (key === 'image' ? 'user_image' : key)
+
+const hasLanguageChanged = computed(
+	() => profile.language !== (profileData.value?.language ?? '')
+)
 
 const updateProfile = createResource({
 	url: 'frappe.client.set_value',
@@ -162,8 +164,6 @@ const updateProfile = createResource({
 const validateMandatoryFields = () => {
 	const missingFields = []
 	if (!profile.first_name) missingFields.push(__('First Name'))
-	if (!profile.last_name) missingFields.push(__('Last Name'))
-	if (!profile.image) missingFields.push(__('Profile Image'))
 	if (missingFields.length) {
 		toast.error(
 			__('Please fill the mandatory fields: {0}').format(
@@ -177,6 +177,11 @@ const validateMandatoryFields = () => {
 const saveProfile = () => {
 	if (refusal.value || !profileData.value) return
 	if (validateMandatoryFields()) return
+
+	// Read before submitting: the computed is live against the parent resource,
+	// which onSuccess reloads out from under it.
+	const languageChanged = hasLanguageChanged.value
+
 	profile.bio = sanitizeOnWrite(profile.bio)
 	submitResource(
 		updateProfile,
@@ -189,7 +194,7 @@ const saveProfile = () => {
 				// render a half-shaped profile for the tick before the reload lands.
 				props.profile?.reload()
 				toast.success(__('Profile updated successfully'))
-				if (hasLanguageChanged.value) {
+				if (languageChanged) {
 					// A language change only takes effect after the whole SPA reloads,
 					// which is what the modal did. Going through location rather than
 					// the router so the reload lands on the profile, not back here.
@@ -207,17 +212,12 @@ const saveProfile = () => {
 
 watch(
 	profile,
-	(newVal) => {
+	() => {
 		const data = profileData.value
 		if (!data) return
-		const keys = Object.keys(newVal).filter((key) => key !== 'image')
-		for (const key of keys) {
-			if (newVal[key] !== data[key]) {
-				isDirty.value = true
-				return
-			}
-		}
-		isDirty.value = profile.image !== data.user_image
+		isDirty.value = Object.keys(profile).some(
+			(key) => profile[key] !== (data[serverField(key)] ?? '')
+		)
 	},
 	{ deep: true }
 )
@@ -229,26 +229,11 @@ watch(
 	profileData,
 	(data) => {
 		if (!data) return
-		profile.first_name = data.first_name
-		profile.last_name = data.last_name
-		profile.headline = data.headline
-		profile.language = data.language
-		profile.bio = data.bio
-		profile.open_to = data.open_to
-		profile.linkedin = data.linkedin
-		profile.github = data.github
-		profile.twitter = data.twitter
-		profile.image = data.user_image
+		for (const key of Object.keys(profile)) {
+			profile[key] = data[serverField(key)] ?? ''
+		}
 		isDirty.value = false
 	},
 	{ immediate: true }
-)
-
-watch(
-	() => profile.language,
-	() => {
-		if (profileData.value && profile.language !== profileData.value.language)
-			hasLanguageChanged.value = true
-	}
 )
 </script>

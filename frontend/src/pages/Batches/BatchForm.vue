@@ -222,7 +222,7 @@
 							variant="outline"
 							:onCreate="
 								(value, close) => {
-									openSettings('Zoom Accounts', close)
+									openSettings('zoom', close)
 								}
 							"
 						/>
@@ -234,7 +234,7 @@
 							variant="outline"
 							:onCreate="
 								(value, close) => {
-									openSettings('Google Meet Accounts', close)
+									openSettings('google-meet', close)
 								}
 							"
 						/>
@@ -604,6 +604,27 @@ const timezoneResource = createResource({
 
 const timezoneOptions = computed(() =>
 	(timezoneResource.data || []).map((tz: string) => ({ label: tz, value: tz }))
+)
+
+const systemTimezone = ref<string | null>(null)
+
+createResource({
+	url: 'lms.lms.api.get_system_preferences',
+	auto: true,
+	onSuccess: (data: { time_zone: string }) => {
+		systemTimezone.value = data.time_zone
+	},
+})
+
+// A new batch opens on the site's own timezone rather than an empty picker.
+// Sampling batchDetail.doc once inside that onSuccess dropped the default
+// whenever the preferences answered before the full document fetch, the common case.
+watch(
+	[() => batchDetail.doc, systemTimezone],
+	([doc, zone]) => {
+		if (doc && zone && !doc.timezone) doc.timezone = zone
+	},
+	{ immediate: true }
 )
 
 const mediumOptions = computed(() => {

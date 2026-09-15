@@ -25,6 +25,8 @@ export interface LMSCourse {
 	short_introduction: string
 	/**	Disable Self Learning : Check	*/
 	disable_self_learning?: 0 | 1
+	/**	Enforce Lesson Completion : Check	*/
+	enforce_lesson_completion?: 0 | 1
 	/**	Preview Image : Attach Image	*/
 	image?: string
 	/**	Tags : Data	*/

@@ -194,7 +194,7 @@
 				<div
 					class="pointer-events-auto flex w-[30%] items-center justify-between gap-x-2 border-s border-b bg-surface-base p-1 px-5"
 				>
-					<div class="py-2.5 text-base-medium text-ink-gray-9">
+					<div class="py-2.5 text-p-base-medium text-ink-gray-9">
 						{{ __('Chapters') }}
 					</div>
 					<Button size="sm" @click="courseEditorRef?.openAddChapter()">
@@ -227,8 +227,8 @@ import {
 } from 'frappe-ui'
 import { sessionStore } from '@/stores/session'
 import { useScreenSize } from '@/utils/composables'
-import TabbedDetailPage from '@/components/Layouts/TabbedDetailPage.vue'
-import type { DetailTab } from '@/components/Layouts/TabbedDetailPage.vue'
+import TabbedDetailPage from '@/components/Layouts/pages/TabbedDetailPage.vue'
+import type { DetailTab } from '@/components/Layouts/pages/TabbedDetailPage.vue'
 import CourseOverview from '@/pages/Courses/CourseOverview.vue'
 import SkeletonLoader from '@/components/SkeletonLoader.vue'
 import CourseDashboard from '@/pages/Courses/CourseDashboard.vue'

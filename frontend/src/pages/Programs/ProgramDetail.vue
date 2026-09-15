@@ -65,8 +65,8 @@
 </template>
 <script setup lang="ts">
 import { computed, inject, onMounted } from 'vue'
-import PageHeader from '@/components/Layouts/PageHeader.vue'
-import PageBody from '@/components/Layouts/PageBody.vue'
+import PageHeader from '@/components/Layouts/pages/PageHeader.vue'
+import PageBody from '@/components/Layouts/pages/PageBody.vue'
 import { Badge, call, createResource, Tooltip, usePageMeta } from 'frappe-ui'
 import { sessionStore } from '@/stores/session'
 

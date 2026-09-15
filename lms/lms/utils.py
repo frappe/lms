@@ -7,6 +7,7 @@ from zoneinfo import ZoneInfo
 
 import frappe
 import requests
+from bs4 import BeautifulSoup, Comment
 from frappe import _
 from frappe.desk.doctype.dashboard_chart.dashboard_chart import get_result
 from frappe.desk.doctype.notification_log.notification_log import make_notification_logs
@@ -27,6 +28,7 @@ from frappe.utils import (
 	getdate,
 	nowtime,
 	rounded,
+	strip_html,
 	to_timedelta,
 	validate_email_address,
 )
@@ -60,6 +62,36 @@ def get_lms_route(path=""):
 
 def extend_bootinfo(bootinfo: dict):
 	bootinfo["lms_path"] = get_lms_path()
+
+
+def resolve_text_direction(lang: str) -> str:
+	"""The direction the SPA shell is served with.
+
+	`is_rtl()` reads frappe.local.lang, which a guest gets from Accept-Language,
+	while boot.lang comes from get_user_lang(), which a guest gets from System
+	Settings. Passing the language in keeps the two from disagreeing.
+	"""
+	from frappe.utils.jinja_globals import is_rtl
+
+	setting = frappe.db.get_single_value("LMS Settings", "text_direction")
+
+	if setting == "Left to Right":
+		return "ltr"
+	if setting == "Right to Left":
+		return "rtl"
+
+	# Frappe's own answer, over the language asked about rather than the session
+	# one. A hardcoded set here went stale immediately: frappe ships `ku` and
+	# `ur` as RTL too, and resolves a regional code through get_parent_language,
+	# so Urdu and Kurdish sites were served `<html dir="ltr">`. Its comment asks
+	# for the set to be kept in sync with a JavaScript twin; a third copy in LMS
+	# is the one that would drift unnoticed.
+	previous = frappe.local.lang
+	try:
+		frappe.local.lang = lang
+		return "rtl" if is_rtl() else "ltr"
+	finally:
+		frappe.local.lang = previous
 
 
 def slugify(title: str, used_slugs: list = None):
@@ -791,6 +823,170 @@ def format_timezone(timezone: str, at=None) -> str:
 	return f"{timezone} (GMT{sign}{hours}:{minutes:02d})"
 
 
+MAX_INLINE_IMAGES = 10
+MAX_INLINE_IMAGE_BYTES = 5 * 1024 * 1024
+
+
+def has_message(html: str | None) -> bool:
+	"""An image on its own is a message.
+
+	The editor uploads a pasted screenshot as a file and leaves the body around
+	it empty, so strip_html returns "" for the one thing a contact-us mail most
+	often carries.
+	"""
+	if not html:
+		return False
+
+	if strip_html(html).replace("\xa0", " ").replace("&nbsp;", " ").strip():
+		return True
+
+	return bool(BeautifulSoup(html, "html.parser").find(["img", "video"]))
+
+
+def prepare_inline_images(html: str | None) -> tuple[str, list[dict]]:
+	"""Rewrite site images to `embed` and return their bytes alongside.
+
+	frappe turns `<img embed="...">` into a real inline attachment carrying a
+	Content-Id (email_body.replace_filename_with_cid), which is the only way a
+	private file reaches an external recipient: a /private/files/ URL in an
+	email is served to nobody.
+
+	The bytes travel with the message instead of being re-read from a path at
+	send time. set_part_html prefers what the caller supplies, and letting
+	frappe resolve the path itself means trusting a string the client sent:
+	get_filecontent_from_path has no permission check of its own, and matching
+	that string against the database first does not help, because
+	tabFile.file_url is utf8mb4_unicode_ci while the filesystem is
+	case-sensitive. So `/private/files/Offer.pdf`, which the sender uploaded,
+	matches the row for `/private/files/offer.pdf`, which they cannot read.
+	Here the row decides: its own file_url goes into `embed`, and its own
+	content is what travels.
+	"""
+	if not html:
+		return "", []
+
+	soup = BeautifulSoup(html, "html.parser")
+	# to_markdown turns a comment into visible text in the plaintext part.
+	for comment in soup.find_all(string=lambda text: isinstance(text, Comment)):
+		comment.extract()
+
+	candidate_tags = []
+	for tag in soup.find_all(["img", "video"]):
+		src = tag.get("src")
+		if isinstance(src, str) and src.startswith(("/files/", "/private/files/")):
+			candidate_tags.append((tag, src))
+
+	# One query (plus one permission check per candidate row) for every image in
+	# the message, instead of one query per tag: a message with several embeds
+	# was otherwise a query per embed.
+	files_by_url = get_readable_files([src for _tag, src in candidate_tags])
+
+	inline_images = []
+	total_bytes = 0
+
+	for tag, src in candidate_tags:
+		file = files_by_url.get(src)
+		if not file:
+			continue
+
+		if len(inline_images) >= MAX_INLINE_IMAGES:
+			frappe.throw(
+				_("An email can carry at most {0} images. Please send the rest separately.").format(
+					MAX_INLINE_IMAGES
+				)
+			)
+
+		# Checked against the File row's own recorded size before reading the
+		# content, so a file that alone blows the budget is rejected without
+		# loading it into memory first.
+		if file.file_size and total_bytes + file.file_size > MAX_INLINE_IMAGE_BYTES:
+			frappe.throw(
+				_("These images come to more than {0} MB. Please send smaller ones.").format(
+					MAX_INLINE_IMAGE_BYTES // (1024 * 1024)
+				)
+			)
+
+		content = file.get_content()
+		total_bytes += len(content)
+		if total_bytes > MAX_INLINE_IMAGE_BYTES:
+			frappe.throw(
+				_("These images come to more than {0} MB. Please send smaller ones.").format(
+					MAX_INLINE_IMAGE_BYTES // (1024 * 1024)
+				)
+			)
+
+		tag["embed"] = file.file_url
+		del tag["src"]
+		inline_images.append({"filename": file.file_url, "filecontent": content})
+
+	return str(soup), inline_images
+
+
+def get_readable_files(file_urls: list[str]) -> dict:
+	"""The File each URL in `file_urls` resolves to, keyed by that exact URL.
+
+	One query covers every URL. tabFile.file_url is case-insensitive, so a
+	caller's string can match more than one row; permission decides between
+	them, not which one the database happens to return first.
+	"""
+	if not file_urls:
+		return {}
+
+	candidates = frappe.get_all("File", filters={"file_url": ["in", file_urls]}, fields=["name", "file_url"])
+	names_by_lower_url = {}
+	for row in candidates:
+		names_by_lower_url.setdefault(row.file_url.lower(), []).append(row.name)
+
+	resolved = {}
+	for file_url in file_urls:
+		if file_url in resolved:
+			continue
+		for name in names_by_lower_url.get(file_url.lower(), []):
+			# has_permission(doc=name) would refetch the row internally to
+			# evaluate it; fetch once and pass the doc so a match costs one
+			# read, not two.
+			candidate = frappe.get_doc("File", name)
+			if frappe.has_permission("File", ptype="read", doc=candidate):
+				resolved[file_url] = candidate
+				break
+
+	return resolved
+
+
+def attach_file_to_doc(file_url: str, doctype: str, docname: str) -> None:
+	"""Point a File row at `docname` so the stored copy renders.
+
+	File.has_permission grants a private file to its owner, an explicit share,
+	or whoever can read the document it is attached to. An editor upload is
+	attached to nothing, so without this the image in a saved Communication is
+	broken for every reader but the sender. Mirrors Helpdesk's
+	HDTicket.attach_file_with_doc.
+	"""
+	# Lock the row this file is attaching to before the check below, or two
+	# concurrent callers can both see "no File row yet" and both insert one.
+	# Same shape as the batch and course locks elsewhere in this file.
+	frappe.db.get_value(doctype, docname, "name", for_update=True)
+
+	filters = {
+		"file_url": file_url,
+		"attached_to_doctype": doctype,
+		"attached_to_name": docname,
+	}
+	if frappe.db.exists("File", filters):
+		return
+
+	# A student cannot create a File row against a Communication they do not own.
+	# nosemgrep: lms-unjustified-ignore-permissions - prepare_inline_images already checked has_permission on this file
+	frappe.get_doc(
+		{
+			"doctype": "File",
+			"file_url": file_url,
+			"is_private": 1 if file_url.startswith("/private/") else 0,
+			**filters,
+		}
+	).insert(ignore_permissions=True)
+
+
 def check_multicurrency(amount: float, currency: str, country: str = None, amount_usd: float = None):
 	settings = frappe.get_single("LMS Settings")
 	show_usd_equivalent = settings.show_usd_equivalent
@@ -952,9 +1148,18 @@ def get_course_count(filters: dict = None) -> int:
 
 
 def count_matching(doctype: str, filters: dict | list, or_filters: dict = None) -> int:
-	"""Row count for filters that include or_filters, which db.count cannot take."""
-	rows = frappe.get_all(doctype, filters=filters, or_filters=or_filters, fields=[{"COUNT": "*"}])
-	return cint(next(iter(rows[0].values()))) if rows else 0
+	"""Return row count for filters, including OR filters."""
+	if not or_filters:
+		return frappe.db.count(doctype, filters)
+	return len(
+		frappe.get_all(
+			doctype,
+			filters=filters,
+			or_filters=or_filters,
+			fields=["name"],
+			limit_page_length=0,
+		)
+	)
 
 
 def as_filter_conditions(filters: dict) -> list:
@@ -1123,7 +1328,7 @@ def get_course_fields():
 	]
 
 
-@frappe.whitelist(allow_guest=True)
+@frappe.whitelist(allow_guest=True)  # nosemgrep: frappe-semgrep-rules.rules.security.guest-whitelisted-method
 @rate_limit(limit=500, seconds=60 * 60)
 def get_course_details(course: str):
 	if not guest_access_allowed():
@@ -1161,7 +1366,13 @@ def get_course_details(course: str):
 		course_details.is_instructor = False
 
 	if course_details.membership and course_details.membership.current_lesson:
-		course_details.current_lesson = get_lesson_index(course_details.membership.current_lesson)
+		# "Continue Learning" must not point at a locked lesson. get_lesson_gate keeps
+		# the enrollment pointer when it is unlocked and substitutes the lesson the
+		# student may actually open otherwise; it returns None when no gate applies.
+		from lms.lms.permissions import get_lesson_gate
+
+		_locked, resume = get_lesson_gate(course)
+		course_details.current_lesson = get_lesson_index(resume or course_details.membership.current_lesson)
 
 	return course_details
 
@@ -1201,7 +1412,7 @@ def get_categorized_courses(courses: list) -> dict:
 	}
 
 
-@frappe.whitelist(allow_guest=True)
+@frappe.whitelist(allow_guest=True)  # nosemgrep: frappe-semgrep-rules.rules.security.guest-whitelisted-method
 def get_course_outline(course: str, progress: bool = False) -> list:
 	"""Returns the course outline."""
 
@@ -1216,7 +1427,11 @@ def get_course_outline(course: str, progress: bool = False) -> list:
 	files_by_name = get_scorm_files(chapters)
 	completed = get_completed_lessons(course, lesson_rows) if progress else set()
 
-	return build_outline(chapters, lesson_rows, files_by_name, completed, progress)
+	from lms.lms.permissions import enforces_lesson_completion
+
+	enforce = enforces_lesson_completion(course) if progress else False
+
+	return build_outline(chapters, lesson_rows, files_by_name, completed, progress, enforce)
 
 
 def get_outline_chapter(course: str) -> list:
@@ -1295,8 +1510,76 @@ def get_completed_lessons(course: str, lesson_rows: list) -> set:
 	)
 
 
+def compute_locked_lessons(ordered_lesson_names: list, completed: set) -> set:
+	"""Lesson names a student may not open yet, given the course order and what they finished.
+
+	A lesson is open when it is at or before the first incomplete lesson, or when the
+	student already completed it (so enabling the setting mid-cohort never revokes
+	access to work already done).
+
+	Names are deduped on first occurrence: a lesson reachable from two chapters would
+	otherwise be locked by its later occurrence and, since the return value is a set of
+	names, lock its earlier one too — with lesson one locked, even the redirect target
+	is locked and the course is a dead end.
+	"""
+	locked = set()
+	seen = set()
+	past_first_incomplete = False
+	for name in ordered_lesson_names:
+		if name in seen:
+			continue
+		seen.add(name)
+		if name in completed:
+			continue
+		if past_first_incomplete:
+			locked.add(name)
+		else:
+			past_first_incomplete = True
+	return locked
+
+
+def get_ordered_lesson_rows(course: str) -> list:
+	"""Lesson identity rows for a course, in (chapter idx, lesson idx) order.
+
+	Deliberately narrow. The lock rule needs nothing but names and order, so this must
+	not reuse get_outline_lessons: that selects body and content, the two largest text
+	columns, and every gated lesson view would then transfer the whole course.
+
+	The joins mirror get_outline_chapter / get_outline_lessons exactly (both reference
+	tables inner-joined to their target doctype) so this list and the one build_outline
+	derives its locks from can never diverge over a dangling reference row.
+	"""
+	ChapterReference = frappe.qb.DocType("Chapter Reference")
+	CourseChapter = frappe.qb.DocType("Course Chapter")
+	LessonReference = frappe.qb.DocType("Lesson Reference")
+	CourseLesson = frappe.qb.DocType("Course Lesson")
+	return (
+		frappe.qb.from_(ChapterReference)
+		.join(CourseChapter)
+		.on(CourseChapter.name == ChapterReference.chapter)
+		.join(LessonReference)
+		.on(LessonReference.parent == CourseChapter.name)
+		.join(CourseLesson)
+		.on(CourseLesson.name == LessonReference.lesson)
+		.select(
+			CourseLesson.name.as_("name"),
+			ChapterReference.chapter.as_("chapter_name"),
+			ChapterReference.idx.as_("chapter_idx"),
+			LessonReference.idx.as_("lesson_idx"),
+		)
+		.where(ChapterReference.parent == course)
+		.orderby(ChapterReference.idx)
+		.orderby(LessonReference.idx)
+	).run(as_dict=True)
+
+
 def build_outline(
-	chapters: list, lesson_rows: list, files_by_name: dict, completed: set, progress: bool
+	chapters: list,
+	lesson_rows: list,
+	files_by_name: dict,
+	completed: set,
+	progress: bool,
+	enforce_completion: bool = False,
 ) -> list:
 	chapter_idx_by_name = {c.name: c.idx for c in chapters}
 	lessons_by_chapter = {}
@@ -1318,8 +1601,19 @@ def build_outline(
 			lesson.is_complete = lr.name in completed
 		lessons_by_chapter.setdefault(lr.chapter_name, []).append(lesson)
 
+	if progress and enforce_completion:
+		ordered_names = [lesson.name for c in chapters for lesson in lessons_by_chapter.get(c.name, [])]
+		locked = compute_locked_lessons(ordered_names, completed)
+		for lessons in lessons_by_chapter.values():
+			for lesson in lessons:
+				lesson.locked = 1 if lesson.name in locked else 0
+				if lesson.locked:
+					# The quiz is part of the gated lesson, not a separate resource.
+					lesson.quiz_id = None
+
 	outline = []
 	for c in chapters:
+		lessons = lessons_by_chapter.get(c.name, [])
 		chapter = frappe._dict(
 			name=c.name,
 			title=c.title,
@@ -1327,15 +1621,48 @@ def build_outline(
 			launch_file=c.launch_file,
 			scorm_package=c.scorm_package,
 			idx=c.idx,
-			lessons=lessons_by_chapter.get(c.name, []),
+			lessons=lessons,
 		)
-		if c.is_scorm_package and c.scorm_package and c.scorm_package in files_by_name:
+		# launch_file is the SCORM entry URL and scorm_package resolves to the package
+		# file. Handing either out for a chapter the student cannot open yet would let
+		# the outline itself route around the gate, so withhold both.
+		if lessons and all(lesson.get("locked") for lesson in lessons):
+			chapter.launch_file = None
+			chapter.scorm_package = None
+		elif c.is_scorm_package and c.scorm_package and c.scorm_package in files_by_name:
 			chapter.scorm_package = files_by_name[c.scorm_package]
 		outline.append(chapter)
 	return outline
 
 
-@frappe.whitelist(allow_guest=True)
+def _gate_redirect(course: str) -> dict:
+	"""The locked payload for a lesson number that resolves to nothing.
+
+	Typing a lesson number that does not exist is the same URL tampering the gate is
+	there to catch, so on a gated course it lands the student back on their current
+	lesson rather than on the course page. Off a gated course the caller keeps the
+	existing empty response.
+
+	`not_found` travels with `locked` so the page can say which of the two happened:
+	the lesson does not exist, and telling the student to finish the earlier lessons to
+	unlock it would be a lie.
+	"""
+	from lms.lms.permissions import get_lesson_gate
+
+	_locked, resume = get_lesson_gate(course)
+	if not resume:
+		return {}
+
+	return {
+		"locked": 1,
+		"not_found": 1,
+		"title": _("Lesson not found"),
+		"course_title": frappe.db.get_value("LMS Course", course, "title"),
+		"redirect_to": get_lesson_index(resume),
+	}
+
+
+@frappe.whitelist(allow_guest=True)  # nosemgrep: frappe-semgrep-rules.rules.security.guest-whitelisted-method
 @rate_limit(limit=500, seconds=60 * 60)
 def get_lesson(course: str, chapter: int, lesson: int) -> dict:
 	if not guest_access_allowed():
@@ -1354,14 +1681,14 @@ def get_lesson(course: str, chapter: int, lesson: int) -> dict:
 		.limit(1)
 	).run(as_dict=1)
 	if not chapter_row:
-		return {}
+		return _gate_redirect(course)
 
 	chapter_name = chapter_row[0].name
 	chapter_title = chapter_row[0].title
 
 	lesson_name = frappe.db.get_value("Lesson Reference", {"parent": chapter_name, "idx": lesson}, "lesson")
 	if not lesson_name:
-		return {}
+		return _gate_redirect(course)
 
 	lesson_details = frappe.db.get_value(
 		"Course Lesson",
@@ -1386,7 +1713,20 @@ def get_lesson(course: str, chapter: int, lesson: int) -> dict:
 	)
 
 	if not lesson_details:
-		return {}
+		return _gate_redirect(course)
+
+	# Local import: permissions imports from utils at module load, so importing it
+	# at the top of utils would create a cycle.
+	from lms.lms.permissions import get_lesson_gate
+
+	locked, resume = get_lesson_gate(course)
+	if lesson_name in locked:
+		return {
+			"locked": 1,
+			"title": lesson_details.title,
+			"course_title": frappe.db.get_value("LMS Course", course, "title"),
+			"redirect_to": get_lesson_index(resume) if resume else "1-1",
+		}
 
 	if lesson_details.is_scorm_package:
 		return {
@@ -1615,12 +1955,19 @@ def get_country_code():
 
 @frappe.whitelist()
 def get_quiz_with_questions(quiz: str) -> dict:
-	"""Return the quiz doc plus every question's details in a single round trip."""
+	"""Return the quiz doc plus every question's details in a single round trip.
+
+	When scheduling blocks the quiz for a non-privileged user, question content
+	is withheld so learners cannot inspect it before the window opens (or after
+	it ends). Metadata including ``schedule_block_reason`` is still returned so
+	the UI can show the availability message.
+	"""
 	from lms.lms.doctype.lms_question.lms_question import (
 		QUESTION_EXPLANATION_FIELDS,
 		QUESTION_OPTION_FIELDS,
 	)
 	from lms.lms.permissions import can_access_quiz
+	from lms.lms.schedule_utils import enrich_schedule_payload
 
 	if not isinstance(quiz, str):
 		frappe.throw(_("Quiz must be a string."))
@@ -1631,28 +1978,58 @@ def get_quiz_with_questions(quiz: str) -> dict:
 		)
 		frappe.throw(_("You are not authorized to view this quiz."), frappe.PermissionError)
 
-	quiz_doc = frappe.get_doc("LMS Quiz", quiz).as_dict()
+	quiz_doc = enrich_schedule_payload(frappe.get_doc("LMS Quiz", quiz).as_dict())
+	reason = quiz_doc.get("schedule_block_reason")
 
-	question_names = [row.get("question") for row in quiz_doc.get("questions") or [] if row.get("question")]
+	privileged = bool(PRIVILEGED_ROLES & set(frappe.get_roles()))
+	withhold_questions = bool(reason) and not privileged
+
 	questions_by_name = {}
-	if question_names:
-		fields = [
-			"name",
-			"question",
-			"type",
-			"multiple",
-			*QUESTION_OPTION_FIELDS,
-			*QUESTION_EXPLANATION_FIELDS,
+	if withhold_questions:
+		# Child rows only hold question names / marks; clearing them plus the
+		# detail map keeps prompt/options out of the response entirely.
+		quiz_doc["questions"] = []
+	else:
+		question_names = [
+			row.get("question") for row in quiz_doc.get("questions") or [] if row.get("question")
 		]
-		rows = frappe.get_all(
-			"LMS Question",
-			filters=[["name", "in", question_names]],
-			fields=fields,
-			ignore_permissions=True,
-		)
-		questions_by_name = {row["name"]: row for row in rows}
+		if question_names:
+			fields = [
+				"name",
+				"question",
+				"type",
+				"multiple",
+				*QUESTION_OPTION_FIELDS,
+				*QUESTION_EXPLANATION_FIELDS,
+			]
+			# nosemgrep: lms-unjustified-ignore-permissions - access gated by can_access_quiz above
+			rows = frappe.get_all(
+				"LMS Question",
+				filters=[["name", "in", question_names]],
+				fields=fields,
+				ignore_permissions=True,
+			)
+			questions_by_name = {row["name"]: row for row in rows}
 
 	return {"quiz": quiz_doc, "questions_by_name": questions_by_name}
+
+
+@frappe.whitelist()
+def get_assignment(name: str) -> dict:
+	"""Return an LMS Assignment with a server-computed schedule_block_reason.
+
+	Mirrors ``frappe.client.get`` permission checks so callers cannot bypass
+	DocPerm by hitting this whitelist directly.
+	"""
+	from lms.lms.schedule_utils import enrich_schedule_payload
+
+	if not isinstance(name, str):
+		frappe.throw(_("Assignment must be a string."))
+
+	doc = frappe.get_doc("LMS Assignment", name)
+	doc.check_permission("read")
+	doc.apply_fieldlevel_read_permissions()
+	return enrich_schedule_payload(doc.as_dict())
 
 
 @frappe.whitelist(allow_guest=True)
@@ -3016,9 +3393,18 @@ def is_demo_course(course: str) -> bool:
 
 
 def sanitize_editorjs(raw):
+	"""Sanitise lesson content without treating the JSON envelope as HTML.
+
+	`content` carries `ignore_xss_filter`, so frappe's field-level `sanitize_html`
+	no longer runs over it: it read the whole JSON document as markup and left the
+	field unparseable. `sanitize_json` is the gate instead, string by string.
+	"""
 	try:
 		data = json.loads(raw)
 	except (TypeError, ValueError):
+		# Returned byte-for-byte. Nothing renders content that will not parse, and
+		# rewriting it defeats the repair on read: one title-only save was enough
+		# to turn a recoverable lesson into an unrecoverable one.
 		return raw
 	return json.dumps(sanitize_json(data), separators=(",", ":"))
 

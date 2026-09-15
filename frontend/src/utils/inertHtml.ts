@@ -25,5 +25,15 @@ export const decodeEntities = (encodedString?: string | null): string => {
 	return textarea.value
 }
 
-export const htmlToText = (html?: string | null): string =>
-	inert(html ?? '').body.textContent || ''
+// The blocks a rich-text editor writes. textContent joins them with nothing in
+// between, so `<p>First</p><p>Second</p>` came out as `FirstSecond`. Every
+// consumer is a one-line `truncate` preview, where that costs a word boundary.
+const BLOCKS = 'p,div,h1,h2,h3,h4,h5,h6,li,tr,blockquote,br'
+
+export const htmlToText = (html?: string | null): string => {
+	const doc = inert(html ?? '')
+	// after(), not a string join. The separator is a text node in the parsed
+	// document, so nothing is re-serialised and re-parsed on the way out.
+	doc.body.querySelectorAll(BLOCKS).forEach((block) => block.after(' '))
+	return (doc.body.textContent || '').replace(/\s+/g, ' ').trim()
+}

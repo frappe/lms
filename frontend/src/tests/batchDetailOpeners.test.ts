@@ -76,7 +76,7 @@ vi.mock('@/components/HeaderButton.vue', () => ({
 
 // Drives the #actions slot with a chosen tab, which is the only way to reach
 // the header openers without standing up the whole tab shell.
-vi.mock('@/components/Layouts/TabbedDetailPage.vue', () => ({
+vi.mock('@/components/Layouts/pages/TabbedDetailPage.vue', () => ({
 	default: {
 		props: ['tabs', 'breadcrumbs', 'published', 'loading', 'doc', 'docProp'],
 		template: `<div><slot name="actions" :tab="{ key: 'announcements' }" :instance="null" /></div>`,

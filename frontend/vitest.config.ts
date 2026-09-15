@@ -48,10 +48,25 @@ export default defineConfig({
 			// (valid under Vite's resolver, invalid under Node's strict ESM loader).
 			// Vitest externalizes node_modules to Node's loader by default; inlining
 			// keeps frappe-ui on Vite's transform/resolve pipeline, matching dev/build.
-			deps: { inline: ['frappe-ui'] },
+			deps: { inline: ['frappe-ui', '@framework/ui'] },
 		},
 	},
 	resolve: {
+		// Resolve the linked `@framework/ui` through its symlink rather than its real
+		// path. It is `link:../../frappe/ui`, and its own source imports bare deps of
+		// its own: `vuedraggable` in ConditionGroup.vue, plus reka-ui, dompurify and
+		// frappe-ui. Resolution walks up from the *importer*, so following the link to
+		// `apps/frappe/ui/src/...` looks for them under `apps/frappe` — which on a bench
+		// has its own node_modules and in CI is a sparse checkout of `ui` alone. Keeping
+		// the symlinked path walks up through `apps/lms/frontend/node_modules` instead,
+		// where LMS already declares every one of them.
+		//
+		// So it fails only in CI, which is why it was invisible here: locally
+		// `apps/frappe/node_modules/vuedraggable` satisfies the lookup. Both the vitest
+		// run and the SPA build hit it, as "Failed to resolve import vuedraggable from
+		// ...ConditionGroup.vue". Reproduce it by pointing the link at a copy of
+		// apps/frappe/ui that has no node_modules beside it.
+		preserveSymlinks: true,
 		alias: {
 			'@': path.resolve(path.dirname(fileURLToPath(import.meta.url)), 'src'),
 		},

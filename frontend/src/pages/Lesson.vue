@@ -38,10 +38,10 @@
 				{{ lessonIndex }} / {{ lessonTotal }}
 			</div>
 			<Button
+				v-if="canGoNext"
 				variant="subtle"
 				class="!size-9"
 				:label="__('Next lesson')"
-				:disabled="!hasNext"
 				@click="goNext()"
 			>
 				<template #icon>
@@ -88,6 +88,13 @@
 						{{ __('Login') }}
 					</Button>
 				</div>
+			</div>
+			<div v-else-if="lesson.data.locked" class="sm:border-e">
+				<LockedLessonNotice
+					:redirect="!!lesson.data.redirect_to"
+					:notFound="!!lesson.data.not_found"
+					@done="goToCurrentLesson()"
+				/>
 			</div>
 			<div
 				v-else
@@ -147,7 +154,10 @@
 									</template>
 									<span>{{ __('Previous') }}</span>
 								</Button>
-								<Button v-if="lesson.data.next" @click="switchLesson('next')">
+								<Button
+									v-if="lesson.data.next && canGoNext"
+									@click="switchLesson('next')"
+								>
 									<template #suffix>
 										<span class="lucide-chevron-right size-4" />
 									</template>
@@ -187,7 +197,10 @@
 									</span>
 								</Button>
 
-								<Button v-if="lesson.data.next" @click="switchLesson('next')">
+								<Button
+									v-if="lesson.data.next && canGoNext"
+									@click="switchLesson('next')"
+								>
 									<template #suffix>
 										<span class="lucide-chevron-right size-4" />
 									</template>
@@ -231,9 +244,7 @@
 
 						<div
 							v-if="
-								lesson.data.instructor_content &&
-								JSON.parse(lesson.data.instructor_content)?.blocks?.length >
-									1 &&
+								hasInstructorNotesToRender(lesson.data.instructor_content) &&
 								allowInstructorContent()
 							"
 							class="bg-surface-gray-2 p-3 rounded-md mt-6"
@@ -250,10 +261,35 @@
 							v-else-if="lesson.data.instructor_notes"
 							class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2 prose-sm max-w-none !whitespace-normal mt-8"
 						>
-							<LessonContent :content="lesson.data.instructor_notes" />
+							<LessonContent
+								:key="lesson.data.name"
+								:content="lesson.data.instructor_notes"
+							/>
 						</div>
 						<div
-							v-if="lesson.data.content"
+							v-if="contentUnreadable"
+							class="flex items-center gap-3 rounded-lg bg-surface-amber-2 p-3 mt-8"
+						>
+							<div
+								class="grid size-7 shrink-0 place-items-center text-ink-amber-6"
+							>
+								<span class="lucide-circle-alert size-4" aria-hidden="true" />
+							</div>
+							<div class="flex min-w-0 flex-1 flex-col">
+								<span class="text-p-sm-medium text-ink-gray-8">
+									{{ __('This lesson could not be displayed') }}
+								</span>
+								<span class="text-p-sm text-ink-gray-6">
+									{{
+										__(
+											'Its content is stored in a form we cannot read. Reload the page, and tell your instructor if it keeps happening.'
+										)
+									}}
+								</span>
+							</div>
+						</div>
+						<div
+							v-else-if="lesson.data.content"
 							@mouseup="toggleInlineMenu"
 							class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2 prose-sm max-w-none !whitespace-normal mt-8"
 						>
@@ -265,6 +301,7 @@
 						>
 							<LessonContent
 								v-if="lesson.data?.body"
+								:key="lesson.data.name"
 								:content="lesson.data.body"
 								:youtube="lesson.data.youtube"
 								:quizId="lesson.data.quiz_id"
@@ -397,13 +434,15 @@ import ProgressBar from '@/components/ProgressBar.vue'
 import Discussions from '@/components/Discussions.vue'
 import CertificationLinks from '@/components/CertificationLinks.vue'
 import CourseOutline from '@/components/CourseOutline.vue'
+import LockedLessonNotice from '@/components/LockedLessonNotice.vue'
 import StudentLessonSidebar from '@/components/StudentLessonSidebar.vue'
 import BottomSheet from '@/components/BottomSheet.vue'
-import PageHeader from '@/components/Layouts/PageHeader.vue'
+import PageHeader from '@/components/Layouts/pages/PageHeader.vue'
 import HeaderButton from '@/components/HeaderButton.vue'
 import UserAvatar from '@/components/UserAvatar.vue'
 import Notes from '@/components/Notes/Notes.vue'
 import InlineLessonMenu from '@/components/Notes/InlineLessonMenu.vue'
+import { parseStoredEditorJs } from '@/utils/lessonForm'
 import { getLmsRoute } from '@/utils/basePath'
 import { provideStudentView } from '@/composables/useStudentView'
 
@@ -470,12 +509,19 @@ onMounted(() => {
 		collapsedByLesson = true
 	}
 	document.addEventListener('fullscreenchange', attachFullscreenEvent)
-	socket.on('update_lesson_progress', (data) => {
-		if (data.course === props.courseName) {
-			lessonProgress.value = data.progress
-		}
-	})
+	socket.on('update_lesson_progress', onLessonProgress)
 })
+
+const onLessonProgress = (data) => {
+	if (data.course !== props.courseName) return
+	lessonProgress.value = data.progress
+	// A quiz or an assignment completes its lesson by calling
+	// mark_lesson_progress directly, never touching this page's progress
+	// resource, so this event is the only signal that they unlocked the next
+	// lesson. The server now addresses it to the completing member alone.
+	// Skip the ones the progress resource already reloaded for.
+	if (data.lesson !== completedLesson.value) outline.reload()
+}
 
 const attachFullscreenEvent = () => {
 	if (document.fullscreenElement) {
@@ -491,6 +537,9 @@ const attachFullscreenEvent = () => {
 
 onBeforeUnmount(() => {
 	document.removeEventListener('fullscreenchange', attachFullscreenEvent)
+	// Without this the handler outlives the page, and every revisit adds another
+	// one — so a single progress event fires one outline reload per past visit.
+	socket.off('update_lesson_progress', onLessonProgress)
 	if (collapsedByLesson) sidebarStore.isSidebarCollapsed = false
 	trackVideoWatchDuration()
 })
@@ -507,12 +556,24 @@ const lesson = createResource({
 	auto: true,
 })
 
+// The stored body would not parse, so there is nothing to render and nothing
+// the student can do about it. Say so rather than show a lesson with no body.
+const contentUnreadable = ref(false)
+
+// A single stored block is EditorJS's empty default, so notes only count from
+// two up. Unreadable notes render nothing at all.
+const hasInstructorNotesToRender = (instructorContent) =>
+	(parseStoredEditorJs(instructorContent)?.blocks?.length ?? 0) > 1
+
 const setupLesson = (data) => {
 	if (Object.keys(data).length === 0) {
 		router.push({
 			name: 'CourseDetail',
 			params: { courseName: props.courseName },
 		})
+		return
+	}
+	if (data.locked) {
 		return
 	}
 	if (data.is_scorm_package) {
@@ -525,11 +586,12 @@ const setupLesson = (data) => {
 		})
 	}
 	lessonProgress.value = data.membership?.progress
-	if (data.content) editor.value = renderEditor('editor', data.content)
-	if (
-		data.instructor_content &&
-		JSON.parse(data.instructor_content)?.blocks?.length > 1
-	)
+	contentUnreadable.value = false
+	if (data.content) {
+		editor.value = renderEditor('editor', data.content)
+		contentUnreadable.value = !editor.value
+	}
+	if (hasInstructorNotesToRender(data.instructor_content))
 		instructorEditor.value = renderEditor(
 			'instructor-content',
 			data.instructor_content
@@ -552,26 +614,32 @@ const checkQuiz = () => {
 	}
 }
 
+// Returns null when the stored payload will not parse. Throwing aborts
+// setupLesson mid-way and takes the timer, video sources and notes with it.
+const openLinksInNewTab = (holder) => {
+	const root = document.getElementById(holder)
+	if (!root) return
+	root.querySelectorAll('a').forEach((a) => {
+		a.setAttribute('target', '_blank')
+		a.setAttribute('rel', 'noopener noreferrer')
+	})
+}
+
 const renderEditor = (holder, content) => {
-	if (document.getElementById(holder))
-		document.getElementById(holder).innerHTML = ''
+	const data = parseStoredEditorJs(content)
+	if (!data) return null
+	const existing = document.getElementById(holder)
+	if (existing) existing.innerHTML = ''
 	return new EditorJS({
 		holder: holder,
 		tools: getEditorTools(false, {}, { studentView: isStudentView.value }),
-		data: sanitizeEditorJs(JSON.parse(content)),
+		data: sanitizeEditorJs(data),
 		readOnly: true,
 		defaultBlock: 'embed',
 		i18n: {
 			direction: document.documentElement.dir === 'rtl' ? 'rtl' : 'ltr',
 		},
-		onReady() {
-			const root = document.getElementById(holder)
-			if (!root) return
-			root.querySelectorAll('a').forEach((a) => {
-				a.setAttribute('target', '_blank')
-				a.setAttribute('rel', 'noopener noreferrer')
-			})
-		},
+		onReady: () => openLinksInNewTab(holder),
 	})
 }
 
@@ -619,6 +687,9 @@ const progress = createResource({
 	onSuccess(data) {
 		lessonProgress.value = data
 		completedLesson.value = lesson.data?.name
+		// Reload here rather than waiting on the socket, so this page's own
+		// completion unlocks the next lesson even where realtime is unavailable.
+		outline.reload()
 	},
 })
 
@@ -691,11 +762,26 @@ const hasPrev = computed(() => currentIndex.value > 0)
 const hasNext = computed(
 	() => currentIndex.value >= 0 && currentIndex.value < lessonTotal.value - 1
 )
+const outlineLessons = computed(() =>
+	(outline.data ?? []).flatMap((c) => c.lessons ?? [])
+)
+const nextLessonLocked = computed(
+	() => !!outlineLessons.value[currentIndex.value + 1]?.locked
+)
+const outlineReady = computed(() => Array.isArray(outline.data))
+// Next used to be outline-independent (v-if="lesson.data.next"). Keep that
+// behaviour until the outline resolves, and if it never does: an unresolved,
+// errored or rate-limited outline would otherwise hide Next AND the Back to
+// Course fallback, leaving no forward affordance at all — on ungated courses too.
+const canGoNext = computed(() => {
+	if (!outlineReady.value) return !!lesson.data?.next
+	return hasNext.value && !nextLessonLocked.value
+})
 
-const goToLessonNumber = (number) => {
+const goToLessonNumber = (number, { replace = false } = {}) => {
 	trackVideoWatchDuration()
 	const [chapterNumber, lessonNumber] = number.split('-')
-	router.push({
+	const target = {
 		name: 'Lesson',
 		params: {
 			courseName: props.courseName,
@@ -703,7 +789,14 @@ const goToLessonNumber = (number) => {
 			lessonNumber,
 		},
 		query: studentViewQuery.value,
-	})
+	}
+	if (replace) router.replace(target)
+	else router.push(target)
+}
+
+const goToCurrentLesson = () => {
+	if (lesson.data?.redirect_to)
+		goToLessonNumber(lesson.data.redirect_to, { replace: true })
 }
 
 const goPrev = () => {
@@ -712,11 +805,14 @@ const goPrev = () => {
 }
 
 const goNext = () => {
-	if (hasNext.value)
+	// The mobile pager is driven by the outline, so it needs the outline-derived
+	// index too — canGoNext alone can be true before the outline resolves.
+	if (canGoNext.value && hasNext.value)
 		goToLessonNumber(lessonNumbers.value[currentIndex.value + 1])
 }
 
 const switchLesson = (direction) => {
+	if (direction === 'next' && !canGoNext.value) return
 	trackVideoWatchDuration()
 	let target =
 		direction === 'prev'
@@ -1343,10 +1439,6 @@ usePageMeta(() => {
 
 .tc-table {
 	border-inline-start: 1px solid #e8e8eb;
-}
-
-.plyr__volume input[type='range'] {
-	display: none;
 }
 
 .plyr__control--overlaid {

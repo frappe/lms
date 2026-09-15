@@ -424,9 +424,9 @@ describe('BatchStudentForm as a route', () => {
 	// Link hands its onCreate exactly one argument; a handler that expected a
 	// second `close` callback threw on every click.
 	it.each([
-		['User', 'Members'],
-		['LMS Payment', 'Transactions'],
-	])('opens Settings from "Create New" on %s', async (doctype, tab) => {
+		['User', 'members'],
+		['LMS Payment', 'transactions'],
+	])('opens Settings from "Create New" on %s', async (doctype, slug) => {
 		const router = makeRouter()
 		await router.push({
 			name: 'BatchDetail',
@@ -439,13 +439,15 @@ describe('BatchStudentForm as a route', () => {
 		await wrapper.find(`[data-testid="create-${doctype}"]`).trigger('click')
 		await flushPromises()
 
-		expect(openSettingsMock).toHaveBeenCalledWith(tab)
-		expect(router.currentRoute.value.name).toBe('BatchDetail')
+		expect(openSettingsMock).toHaveBeenCalledWith(slug)
+		expect(router.currentRoute.value.name).toBe('NewBatchStudent')
 	})
 
-	// Settings is mounted only in the desktop sidebar. Closing the form for a
-	// dialog that never appears threw away whatever the user had typed and left
-	// them with no way to add the member they came for.
+	// Settings is mounted only in the desktop sidebar, so on a phone
+	// openSettings reports nowhere to go. The form must stay put either way:
+	// it used to close itself for a dialog that never appeared, throwing away
+	// whatever the user had typed. This pins the quieter half: a refusal
+	// navigates nowhere at all.
 	it('stays put when Settings has nowhere to open', async () => {
 		openSettingsMock.mockReturnValue(false)
 		const router = makeRouter()
@@ -460,7 +462,7 @@ describe('BatchStudentForm as a route', () => {
 		await wrapper.find('[data-testid="create-User"]').trigger('click')
 		await flushPromises()
 
-		expect(openSettingsMock).toHaveBeenCalledWith('Members')
+		expect(openSettingsMock).toHaveBeenCalledWith('members')
 		expect(router.currentRoute.value.name).toBe('NewBatchStudent')
 	})
 
