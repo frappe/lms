@@ -31,7 +31,6 @@ declare module 'vue' {
     CollapsibleSection: typeof import('./src/components/CollapsibleSection.vue')['default']
     ColorSwatches: typeof import('./src/components/Controls/ColorSwatches.vue')['default']
     CommandPalette: typeof import('./src/components/CommandPalette/CommandPalette.vue')['default']
-    CommandPaletteGroup: typeof import('./src/components/CommandPalette/CommandPaletteGroup.vue')['default']
     ContactUsEmail: typeof import('./src/components/ContactUsEmail.vue')['default']
     CouponForm: typeof import('./src/components/Settings/Coupons/CouponForm.vue')['default']
     Coupons: typeof import('./src/components/Settings/Coupons/Coupons.vue')['default']
