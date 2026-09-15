@@ -1,3 +1,5 @@
+import threading
+
 import frappe
 
 from lms.lms import payments as payments_module
@@ -69,6 +71,13 @@ class TestPaymentLink(BaseTestUtils):
 			title=f"Paid Payments Course {hash}", instructor=self.instructor.email
 		)
 		self.course.db_set({"paid_course": 1, "course_price": 500, "currency": "INR"}, update_modified=False)
+		if not frappe.db.exists("LMS Source", "Website"):
+			frappe.get_doc(
+				{
+					"doctype": "LMS Source",
+					"source": "Website",
+				}
+			).insert()
 
 	def tearDown(self):
 		payments_module.get_controller = self.original_get_controller
@@ -135,3 +144,23 @@ class TestPaymentLink(BaseTestUtils):
 		self.assertEqual(len(self.controller.integration_requests), 2)
 		self.assertNotIn("order_id", self.controller.integration_requests[0])
 		self.assertEqual(self.controller.integration_requests[-1]["order_id"], "order_TEST123")
+
+	def test_duplicate_pending_payment(self):
+		"""Retrying checkout should not create multiple pending LMS Payment records."""
+		self._buy_course()
+		self._buy_course()
+
+		# The second checkout must not create a second pending payment.
+
+		self.assertEqual(
+			frappe.db.count(
+				"LMS Payment",
+				{
+					"member": frappe.session.user,
+					"payment_for_document_type": "LMS Course",
+					"payment_for_document": self.course.name,
+					"payment_received": 0,
+				},
+			),
+			1,
+		)

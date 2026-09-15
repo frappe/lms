@@ -172,7 +172,8 @@ class TestCouponRedemption(BaseTestUtils):
 		coupon = self._create_coupon()
 
 		for _ in range(5):
-			payment = self._create_payment(coupon)
+			course = self._create_second_course()
+			payment = self._create_payment(coupon, course=course.name)
 			update_coupon_redemption(self._payment_doc(payment, coupon))
 
 		self.assertEqual(self._count(coupon), 5)
@@ -193,7 +194,13 @@ class TestCouponRedemption(BaseTestUtils):
 		real threads with their own database connections."""
 		workers = 8
 		coupon = self._create_coupon()
-		payments = [self._create_payment(coupon) for _ in range(workers)]
+		payments = [
+			self._create_payment(
+				coupon,
+				course=self._create_second_course().name,
+			)
+			for _ in range(workers)
+		]
 
 		def redeem(payment):
 			update_coupon_redemption(self._payment_doc(payment, coupon))
@@ -287,7 +294,7 @@ class TestCouponRedemption(BaseTestUtils):
 		Payment rows, which do not contend with each other. One transaction, one
 		credited payment."""
 		coupon = self._create_coupon()
-		payments = [self._create_payment(coupon) for _ in range(2)]
+		payments = [self._create_payment(coupon, course=self._create_second_course().name) for _ in range(2)]
 
 		def deliver(payment):
 			self._callback(payment, "pay_shared")
