@@ -12,7 +12,7 @@ import { mount } from '@vue/test-utils'
 
 vi.mock('frappe-ui', () => ({
 	createResource: () => ({ data: [], submit: vi.fn(async () => []) }),
-	debounce: (fn: () => void) => fn,
+	debounce: (fn: () => void) => Object.assign(fn, { cancel: () => {} }),
 	Dialog: Object.assign(
 		{
 			props: ['open', 'size', 'bare'],

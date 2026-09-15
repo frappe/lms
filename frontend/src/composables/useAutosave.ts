@@ -86,9 +86,10 @@ export function useAutosave(options: AutosaveOptions): Autosave {
 	let savedTimer: ReturnType<typeof setTimeout> | undefined
 	let tickPending = false
 
-	// Neither frappe-ui's debounce nor vueuse's useDebounceFn can be cancelled,
-	// so the rest period is a plain timer this owns and can disarm. The
-	// immediate path cancels by clearing its flag instead.
+	// vueuse's useDebounceFn cannot be cancelled (frappe-ui's `debounce` gained
+	// a `.cancel()` in 1.0.0-beta.65, but this composable does not use it), so
+	// the rest period is a plain timer this owns and can disarm. The immediate
+	// path cancels by clearing its flag instead.
 	const disarm = () => {
 		clearTimeout(restTimer)
 		restTimer = undefined

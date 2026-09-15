@@ -18,7 +18,7 @@ const resource: any = reactive({
 })
 vi.mock('frappe-ui', () => ({
 	createResource: () => resource,
-	debounce: (fn: any) => fn,
+	debounce: (fn: any) => Object.assign(fn, { cancel: () => {} }),
 	Dialog: Object.assign(
 		{ props: ['open', 'size', 'bare'], template: `<div><slot /></div>` },
 		{ Title: { template: `<div><slot /></div>` } }
