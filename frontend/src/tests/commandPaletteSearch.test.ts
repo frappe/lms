@@ -33,8 +33,16 @@ vi.mock('frappe-ui', () => ({
 }))
 
 const push = vi.fn()
+// currentRoute and options.history are part of the stub because openFormRoute
+// reads both: it stamps the location it is leaving into history.state so
+// App.vue can keep that page rendered under the form's dialog.
 vi.mock('vue-router', () => ({
-	useRouter: () => ({ push, replace: vi.fn() }),
+	useRouter: () => ({
+		push,
+		replace: vi.fn(),
+		currentRoute: { value: { fullPath: '/courses', matched: [{}] } },
+		options: { history: { state: {} } },
+	}),
 }))
 
 // The palette reads roles to decide which category rows to show, which page a
@@ -390,7 +398,9 @@ describe('command palette form routes', () => {
 		await nextTick()
 
 		expect(push).toHaveBeenCalledWith(
-			expect.objectContaining({ state: { lmsFormEntry: true } })
+			expect.objectContaining({
+				state: { lmsFormEntry: true, lmsFormBackground: '/courses' },
+			})
 		)
 	})
 

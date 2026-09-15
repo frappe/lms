@@ -28,8 +28,11 @@ from lms.lms.doctype.lms_question.lms_question import (
 	QUESTION_OPTION_FIELDS,
 	QUESTION_POSSIBILITY_FIELDS,
 )
+from lms.lms.schedule_utils import assert_within_schedule, validate_schedule_fields
 from lms.lms.utils import (
 	generate_slug,
+	has_course_instructor_role,
+	has_moderator_role,
 )
 
 # Quiz answers may embed inline images as data: URIs. Only raster image types are
@@ -58,6 +61,7 @@ class LMSQuiz(Document):
 		self.validate_limit()
 		self.calculate_total_marks()
 		self.validate_open_ended_questions()
+		validate_schedule_fields(self)
 
 	def validate_duplicate_questions(self):
 		questions = [row.question for row in self.questions]
@@ -176,6 +180,7 @@ def submit_quiz(
 		quiz,
 		[
 			"name",
+			"title",
 			"total_marks",
 			"passing_percentage",
 			"lesson",
@@ -184,6 +189,9 @@ def submit_quiz(
 			"marks_to_cut",
 			"enable_proctoring",
 			"max_violations",
+			"enable_scheduling",
+			"schedule_start",
+			"schedule_end",
 		],
 		as_dict=1,
 	)
@@ -194,6 +202,13 @@ def submit_quiz(
 
 	if not can_access_quiz(quiz):
 		frappe.throw(_("You are not authorized to submit this quiz."), frappe.PermissionError)
+
+	assert_within_schedule(
+		quiz_details.enable_scheduling,
+		quiz_details.schedule_start,
+		quiz_details.schedule_end,
+		label=quiz_details.title or _("This quiz"),
+	)
 
 	data = process_results(results, quiz_details)
 	is_open_ended = data["is_open_ended"]
@@ -729,3 +744,134 @@ def check_input_answers(question: str, answer: str):
 		if possibility and fuzz.token_sort_ratio(possibility, answer) > 85:
 			return 1
 	return 0
+
+
+@frappe.whitelist()
+def get_question_meta(questions: str | list):
+	"""Return {question_name: {quizzes, type, multiple}} for the authoring UI.
+
+	`multiple` comes from LMS Question because the quiz's own child row has no such
+	column, so a collapsed card reading the row alone badges every multiple choice
+	question as single until it is opened.
+	"""
+	if not (has_moderator_role() or has_course_instructor_role()):
+		frappe.throw(_("You are not permitted to read question details."), frappe.PermissionError)
+
+	if isinstance(questions, str):
+		try:
+			questions = json.loads(questions)
+		except (ValueError, TypeError):
+			frappe.throw(_("questions must be a JSON list of question names."))
+	if not isinstance(questions, list):
+		frappe.throw(_("questions must be a list."))
+	questions = [q for q in questions if isinstance(q, str) and q]
+	if not questions:
+		return {}
+
+	QQ = frappe.qb.DocType("LMS Quiz Question")
+	rows = (
+		frappe.qb.from_(QQ)
+		.select(QQ.question, QQ.parent)
+		.where(QQ.question.isin(questions))
+		.where(QQ.parenttype == "LMS Quiz")
+	).run(as_dict=True)
+
+	seen = {}
+	for row in rows:
+		seen.setdefault(row.question, set()).add(row.parent)
+
+	meta = {}
+	for question in frappe.get_all(
+		"LMS Question", filters={"name": ["in", questions]}, fields=["name", "type", "multiple"]
+	):
+		meta[question["name"]] = {
+			"quizzes": len(seen.get(question["name"], ())),
+			"type": question["type"],
+			"multiple": cint(question["multiple"]),
+		}
+	return meta
+
+
+QUESTION_BANK_TYPES = ("Choices", "User Input", "Open Ended")
+
+
+def _name_list(value):
+	"""Coerce a whitelisted list argument, which may arrive as a JSON string."""
+	if isinstance(value, str):
+		# parse_json raises on anything that is not JSON, and a filter narrowing the
+		# bank is not worth a 500: an unreadable one narrows nothing.
+		try:
+			value = frappe.parse_json(value)
+		except Exception:
+			return []
+	if not isinstance(value, list):
+		return []
+	return [item for item in value if isinstance(item, str) and item]
+
+
+@frappe.whitelist()
+def get_question_bank(
+	quiz: str | None = None,
+	search: str | None = None,
+	question_type: str | None = None,
+	exclude: list | str | None = None,
+	allowed_types: list | str | None = None,
+):
+	"""List reusable LMS Questions for the bank picker, flagged for `quiz`."""
+	if not (has_moderator_role() or has_course_instructor_role()):
+		frappe.throw(_("You are not permitted to access the question bank."), frappe.PermissionError)
+
+	filters = {}
+	# The types this quiz can still take. Applied here rather than after the fact: one
+	# page is all the picker gets, so a quiz holding the 100 most recently modified
+	# questions drew an empty bank with hundreds left to choose from.
+	offered = [t for t in _name_list(allowed_types) if t in QUESTION_BANK_TYPES]
+	if question_type in QUESTION_BANK_TYPES:
+		# Intersected, never replaced. A type the quiz cannot take has nothing to
+		# offer, and answering with rows the picker then drops reads as a bug.
+		if offered and question_type not in offered:
+			return []
+		filters["type"] = question_type
+	elif offered:
+		filters["type"] = ["in", offered]
+
+	# Same reason. The caller knows which questions the quiz holds, including the rows
+	# staged this session that no saved quiz row accounts for yet.
+	excluded = _name_list(exclude)
+	if excluded:
+		filters["name"] = ["not in", excluded]
+
+	or_filters = None
+	if search and isinstance(search, str):
+		like = f"%{search.strip()}%"
+		or_filters = {"question": ["like", like], "name": ["like", like]}
+
+	questions = frappe.get_all(
+		"LMS Question",
+		filters=filters,
+		or_filters=or_filters,
+		fields=["name", "question", "type", "multiple", "marks"],
+		order_by="modified desc",
+		limit_page_length=100,
+	)
+	if not questions:
+		return []
+
+	in_quiz = set()
+	if quiz and isinstance(quiz, str):
+		in_quiz = set(
+			frappe.get_all(
+				"LMS Quiz Question",
+				filters={"parent": quiz, "parenttype": "LMS Quiz"},
+				pluck="question",
+			)
+		)
+
+	# Marks belong to the question now. A quiz's own row can still carry a different
+	# number, but the bank offers the question's, which is what a new row starts on.
+	for q in questions:
+		q["already_in_quiz"] = q["name"] in in_quiz
+		# cint, not `or 1`: a question deliberately worth 0 marks (the field is
+		# non_negative, not > 0) would otherwise be offered to the quiz as worth 1.
+		q["default_marks"] = cint(q["marks"]) if q.get("marks") is not None else 1
+	return questions

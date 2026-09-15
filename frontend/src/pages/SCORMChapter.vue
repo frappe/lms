@@ -49,7 +49,7 @@ import {
 } from 'frappe-ui'
 import { computed, inject, onBeforeMount, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import PageHeader from '@/components/Layouts/PageHeader.vue'
+import PageHeader from '@/components/Layouts/pages/PageHeader.vue'
 import LockedLessonNotice from '@/components/LockedLessonNotice.vue'
 import { useSidebar } from '@/stores/sidebar'
 import { sessionStore } from '../stores/session'

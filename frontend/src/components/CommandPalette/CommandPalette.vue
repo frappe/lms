@@ -97,6 +97,7 @@ import {
 	visibleNavTargets,
 } from './categories'
 import { openFormRoute } from '@/composables/useFormRoute'
+import { pushSettingsHash } from '@/composables/useSettingsHash'
 
 const chipClass =
 	'inline-flex size-5 shrink-0 items-center justify-center rounded-sm bg-surface-gray-2'
@@ -529,7 +530,7 @@ const accountItems = computed<PaletteItem[]>(() => {
 			title: __('Settings'),
 			icon: 'lucide-settings',
 			perform: () => {
-				settingsStore.isSettingsOpen = true
+				pushSettingsHash(router)
 			},
 		},
 	]
