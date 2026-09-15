@@ -51,7 +51,7 @@
 									</div>
 									<Badge
 										v-if="rowStatus?.(row)"
-										theme="orange"
+										theme="amber"
 										class="ms-2 shrink-0"
 									>
 										{{ rowStatus(row) }}

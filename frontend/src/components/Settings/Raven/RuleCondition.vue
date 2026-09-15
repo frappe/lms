@@ -76,7 +76,7 @@
 			data-testid="row-status"
 		>
 			<Badge v-if="foreign" theme="gray" :label="managedByLabel" />
-			<Badge v-if="paused" theme="orange" :label="__('Paused')" />
+			<Badge v-if="paused" theme="amber" :label="__('Paused')" />
 		</div>
 	</div>
 </template>

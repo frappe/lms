@@ -22,32 +22,28 @@
 			:class="{ 'min-h-0': !flowsWithPage }"
 		>
 			<Tabs
-				v-model="tabIndex"
-				:tabs="visibleTabs"
+				v-model="activeKey"
+				:tabs="shorthandTabs"
 				class="detail-tabs"
 				:class="{ 'page-flow': flowsWithPage }"
 			>
-				<template #tab-item="{ tab }">
-					<button
-						class="flex items-center gap-1.5 whitespace-nowrap py-2.5 text-p-base text-ink-gray-5 duration-300 ease-in-out hover:text-ink-gray-9 data-[state=active]:text-ink-gray-9"
-					>
-						<span v-if="!isMobile" class="size-4" :class="own(tab).icon" />
-						{{ tabLabel(own(tab)) }}
-					</button>
+				<template #tab-label="{ tab }">
+					<span v-if="!isMobile" class="size-4" :class="own(tab.data).icon" />
+					{{ tabLabel(own(tab.data)) }}
 				</template>
 				<template #tab-panel="{ tab }">
 					<template v-if="!loading">
 						<slot
-							v-if="$slots[bodySlot(own(tab))]"
-							:name="bodySlot(own(tab))"
-							:tab="own(tab)"
+							v-if="$slots[bodySlot(own(tab.data))]"
+							:name="bodySlot(own(tab.data))"
+							:tab="own(tab.data)"
 							:doc="doc"
 						/>
 						<component
 							v-else
-							:is="own(tab).component"
-							:ref="(el: unknown) => setInstance(own(tab).key, el)"
-							v-bind="bodyProps(own(tab))"
+							:is="own(tab.data).component"
+							:ref="(el: unknown) => setInstance(own(tab.data).key, el)"
+							v-bind="bodyProps(own(tab.data))"
 						/>
 					</template>
 				</template>
@@ -76,6 +72,7 @@ export interface DetailTab {
 <script setup lang="ts">
 import { computed, onMounted, ref, shallowReactive, watch } from 'vue'
 import { Tabs } from 'frappe-ui'
+import type { TabItem, TabValue } from 'frappe-ui'
 import PageHeader from '@/components/Layouts/pages/PageHeader.vue'
 import { useScreenSize } from '@/utils/composables'
 import { useRoute, useRouter } from 'vue-router'
@@ -104,15 +101,27 @@ const route = useRoute()
 const router = useRouter()
 const { isMobile } = useScreenSize()
 
-const tabIndex = ref<number>(0)
 const instances = shallowReactive<Record<string, unknown>>({})
 
 const visibleTabs = computed<DetailTab[]>(() =>
 	props.tabs.filter((tab) => tab.when ?? true)
 )
 
-const activeTab = computed<DetailTab | undefined>(
-	() => visibleTabs.value[tabIndex.value]
+// Trigger value is the tab's own key, not a position: extra DetailTab fields
+// (component, icon, flow, ...) ride along under `data`, which the shorthand
+// slots read back as `tab.data`. `DetailTab` has no index signature, so it
+// needs the same `unknown` step back into it that `own()` takes.
+const shorthandTabs = computed<TabItem[]>(() =>
+	visibleTabs.value.map((tab) => ({
+		value: tab.key,
+		data: tab as unknown as Record<string, unknown>,
+	}))
+)
+
+const activeKey = ref<TabValue | undefined>(visibleTabs.value[0]?.key)
+
+const activeTab = computed<DetailTab | undefined>(() =>
+	visibleTabs.value.find((tab) => tab.key === activeKey.value)
 )
 
 const activeInstance = computed<unknown>(() =>
@@ -123,7 +132,7 @@ const flowsWithPage = computed<boolean>(
 	() => isMobile.value && Boolean(activeTab.value?.flow)
 )
 
-const own = (tab: unknown): DetailTab => tab as DetailTab
+const own = (data: unknown): DetailTab => data as DetailTab
 
 const bodySlot = (tab: DetailTab): `tab-body-${string}` => `tab-body-${tab.key}`
 
@@ -146,13 +155,13 @@ function keyFromHash(): string {
 function selectFromHash(): void {
 	const key = keyFromHash()
 	if (!key) return
-	const index = visibleTabs.value.findIndex((tab) => tab.key === key)
-	if (index !== -1) tabIndex.value = index
+	const match = visibleTabs.value.find((tab) => tab.key === key)
+	if (match) activeKey.value = match.key
 }
 
 onMounted(selectFromHash)
 
-watch(tabIndex, () => {
+watch(activeKey, () => {
 	const tab = activeTab.value
 	if (tab && tab.key !== keyFromHash()) {
 		router.push({ ...route, hash: `#${tab.key}` })
@@ -161,10 +170,11 @@ watch(tabIndex, () => {
 
 watch(() => route.hash, selectFromHash)
 
-watch(visibleTabs, () => {
-	if (tabIndex.value >= visibleTabs.value.length) tabIndex.value = 0
-	selectFromHash()
-})
+// A stale key (the visible set shrank under it) is Tabs' own job now — it
+// falls back to the first selectable trigger and emits. Only the hash
+// preference is this page's own: a tab hidden when the page opened can
+// still be the one a deep link named, once it appears.
+watch(visibleTabs, selectFromHash)
 
 defineExpose({ instanceFor: (key: string): unknown => instances[key] ?? null })
 </script>

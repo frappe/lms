@@ -38,7 +38,7 @@
 						{{ __('Submission') }}
 					</div>
 					<div class="flex items-center gap-x-2">
-						<Badge v-if="isDirty" theme="orange">
+						<Badge v-if="isDirty" theme="amber">
 							{{ __('Not Saved') }}
 						</Badge>
 						<Badge
@@ -541,7 +541,7 @@ const submissionStatusOptions = computed(() => {
 
 const statusTheme = computed(() => {
 	if (!submissionResource.doc) {
-		return 'orange'
+		return 'amber'
 	} else if (submissionResource.doc.status == 'Pass') {
 		return 'green'
 	} else if (submissionResource.doc.status == 'Not Graded') {

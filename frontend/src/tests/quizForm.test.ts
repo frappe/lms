@@ -169,7 +169,7 @@ vi.mock('frappe-ui', () => ({
 			description: String,
 			theme: String,
 			variant: String,
-			dismissible: { type: Boolean, default: true },
+			dismissible: { type: Boolean, default: false },
 		},
 		emits: ['dismiss'],
 		template: `<div role="alert" :data-theme="theme"><span>{{ title }}</span><slot name="description">{{ description }}</slot><button v-if="dismissible" type="button" aria-label="Dismiss" @click="$emit('dismiss')" /><slot name="footer" /></div>`,

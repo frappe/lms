@@ -7,7 +7,7 @@
 
 				<Badge
 					v-if="program.data"
-					:theme="program.data.progress < 100 ? 'orange' : 'green'"
+					:theme="program.data.progress < 100 ? 'amber' : 'green'"
 				>
 					{{ program.data.progress }}% {{ __('completed') }}
 				</Badge>

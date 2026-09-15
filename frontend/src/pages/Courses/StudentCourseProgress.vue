@@ -209,14 +209,14 @@ const getLessonStatusTheme = (lesson: any) => {
 	if (status === 'Complete') {
 		return 'green'
 	} else {
-		return 'orange'
+		return 'amber'
 	}
 }
 
 const getAssessmentStatusTheme = (status: string) => {
 	if (status.includes('Pass')) return 'green'
 	else if (status.includes('Fail')) return 'red'
-	else return 'orange'
+	else return 'amber'
 }
 
 const hasAssessmentData = computed(() => {

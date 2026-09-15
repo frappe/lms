@@ -2,7 +2,7 @@
 	<div class="">
 		<PageHeader :breadcrumbs="breadcrumbs">
 			<template #actions>
-				<Badge v-if="isDirty" theme="orange">
+				<Badge v-if="isDirty" theme="amber">
 					{{ __('Not Saved') }}
 				</Badge>
 				<ShortcutTooltip :label="__('Save')" combo="Mod+S" :disabled="isMobile">

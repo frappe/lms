@@ -5,7 +5,7 @@
 		@close="close"
 	>
 		<template #header-action>
-			<Badge theme="orange" v-if="dirty">
+			<Badge theme="amber" v-if="dirty">
 				{{ __('Not Saved') }}
 			</Badge>
 		</template>

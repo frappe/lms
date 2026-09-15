@@ -1,7 +1,7 @@
 <template>
 	<FormShell :title="__('Edit Profile')" @close="close">
 		<template #header-action>
-			<Badge v-if="isDirty" theme="orange">
+			<Badge v-if="isDirty" theme="amber">
 				{{ __('Not Saved') }}
 			</Badge>
 		</template>

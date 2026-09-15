@@ -44,7 +44,7 @@
 					v-if="submissionDetails.isDirty"
 					:label="__('Not Saved')"
 					variant="subtle"
-					theme="orange"
+					theme="amber"
 				/>
 				<ShortcutTooltip :label="__('Save')" combo="Mod+S">
 					<HeaderButton

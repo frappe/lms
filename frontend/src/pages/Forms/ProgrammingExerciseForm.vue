@@ -1,7 +1,7 @@
 <template>
 	<FormShell :title="title" size="4xl" @close="close">
 		<template #header-action>
-			<Badge v-if="isDirty && canManageExercise" theme="orange">
+			<Badge v-if="isDirty && canManageExercise" theme="amber">
 				{{ __('Not Saved') }}
 			</Badge>
 		</template>

@@ -9,7 +9,7 @@
 		doc-prop="batch"
 	>
 		<template #actions="{ tab, instance }">
-			<Badge v-if="tab?.key === 'settings' && instance?.isDirty" theme="orange">
+			<Badge v-if="tab?.key === 'settings' && instance?.isDirty" theme="amber">
 				{{ __('Not Saved') }}
 			</Badge>
 			<Button

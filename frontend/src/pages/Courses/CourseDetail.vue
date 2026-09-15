@@ -10,7 +10,7 @@
 	>
 		<template #actions="{ tab }">
 			<template v-if="tab?.key === 'settings' && courseFormRef">
-				<Badge v-if="courseFormRef.isDirty" theme="orange">
+				<Badge v-if="courseFormRef.isDirty" theme="amber">
 					{{ __('Not Saved') }}
 				</Badge>
 				<Dropdown
