@@ -3134,9 +3134,9 @@ def update_batch_filters(filters: dict) -> None:
 def get_batch_count(filters: dict = None) -> int:
 	"""How many batches the same filters `get_batches` takes actually match.
 
-	The list footer cannot ask `frappe.client.get_count` for this: the Upcoming
-	and Archived tabs turn on the time of day, and the query only settles the
-	date, so `filter_batches_based_on_start_time` decides the rest in Python.
+	The list footer cannot ask `frappe.client.get_count` for this: Active,
+	Upcoming and Archived turn on the time of day, and the query only settles
+	the date, so `filter_batches_based_on_start_time` decides the rest in Python.
 
 	Counted as two COUNTs rather than by fetching the rows and repeating that
 	pass over them: the endpoint is open to guests, so the work it does must not
@@ -3163,9 +3163,17 @@ def count_batches_the_clock_decides(filters: dict, batch_type: str) -> int:
 
 	Only today's are ever in question. Every other date the query has already
 	settled. Upcoming drops the ones already under way; Archived, the ones still
-	to come. Both conditions are added rather than replacing the caller's date
-	filter, so a tab asking for `start_date > today` still counts nothing today.
+	to come; Active, the ones that have already ended. Conditions are added rather
+	than replacing the caller's date filter, so a tab asking for `start_date > today`
+	still counts nothing today.
 	"""
+	if batch_type == "active":
+		already_ended = as_filter_conditions(filters) + [
+			["end_date", "=", getdate()],
+			["end_time", "<", nowtime()],
+		]
+		return count_matching("LMS Batch", already_ended)
+
 	started = "<" if batch_type == "upcoming" else ">="
 	conditions = as_filter_conditions(filters) + [
 		["start_date", "=", getdate()],
@@ -3187,6 +3195,17 @@ def has_started_today(batch) -> bool:
 	return to_timedelta(str(batch.start_time)) < to_timedelta(nowtime())
 
 
+def has_ended_today(batch) -> bool:
+	"""Whether a batch that ends today has already finished.
+
+	Same timedelta comparison as `has_started_today`: `end_time` is a timedelta,
+	and a string compare would put "9:00:00" after "14:30:00".
+	"""
+	if getdate(batch.end_date) != getdate():
+		return False
+	return to_timedelta(str(batch.end_time)) < to_timedelta(nowtime())
+
+
 def filter_batches_based_on_start_time(batches: list, filters: dict) -> list:
 	batchType = get_batch_type(filters)
 	if batchType == "upcoming":
@@ -3195,20 +3214,46 @@ def filter_batches_based_on_start_time(batches: list, filters: dict) -> list:
 		batches = [
 			batch for batch in batches if getdate(batch.start_date) != getdate() or has_started_today(batch)
 		]
+	elif batchType == "active":
+		batches = [
+			batch for batch in batches if getdate(batch.end_date) != getdate() or not has_ended_today(batch)
+		]
 	return batches
 
 
 def get_batch_type(filters: dict) -> str:
-	start_date_filter = filters.get("start_date")
-	batchType = None
-	if start_date_filter:
-		sign = start_date_filter[0]
-		if ">" in sign:
-			batchType = "upcoming"
-		elif "<" in sign:
-			batchType = "archived"
+	if not isinstance(filters, dict):
+		return None
 
-	return batchType
+	start_date_filter = filters.get("start_date")
+	end_date_filter = filters.get("end_date")
+
+	# Active is the intersection: started (start_date <= today) and not ended
+	# (end_date >= today). Check it first so that start_date <= today is not
+	# read as Archived.
+	if start_date_filter and end_date_filter:
+		if "<" in start_date_filter[0] and ">" in end_date_filter[0]:
+			return "active"
+
+	if start_date_filter:
+		start_op = _filter_operator(filters.get("start_date"))
+		# Active is not-ended (end_date >= today). Check it before start_date so
+		# Archived's start_date <= today is not the only signal.
+		end_sign = _filter_operator(filters.get("end_date"))
+		if ">" in end_sign:
+			return "active"
+		if ">" in start_op:
+			return "upcoming"
+		if "<" in start_op:
+			return "archived"
+	return None
+
+
+def _filter_operator(value) -> str:
+	"""The operator in a frappe filter value: `['>=', date]` → `'>='`."""
+	if isinstance(value, list | tuple) and value:
+		return str(value[0])
+	return ""
 
 
 def get_batch_card_details(batches: list) -> list:
