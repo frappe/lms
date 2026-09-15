@@ -2,7 +2,7 @@
 	<div class="p-5">
 		<div
 			v-if="isAdmin() && !hasProviderAccount()"
-			class="flex lg:items-center gap-x-2 mb-5 bg-surface-amber-1 px-3 py-2 rounded-lg text-ink-amber-6"
+			class="flex lg:items-center gap-x-2 mb-5 bg-surface-amber-1 px-3 py-2 rounded-6 text-ink-amber-5"
 		>
 			<span class="lucide-alert-circle size-7 md:size-4" />
 			<span class="leading-5">
@@ -38,7 +38,7 @@
 			<div
 				v-for="cls in liveClasses.data"
 				:key="cls.name"
-				class="flex flex-col border rounded-md h-full text-ink-gray-7 hover:border-outline-gray-3 p-3"
+				class="flex flex-col border rounded-5 h-full text-ink-gray-7 hover:border-outline-gray-3 p-3"
 				:class="{
 					'cursor-pointer': isAdmin() && cls.attendees > 0,
 				}"
@@ -76,7 +76,7 @@
 							v-if="user.data?.is_moderator || user.data?.is_evaluator"
 							:href="safeUrl(cls.start_url || cls.join_url)"
 							v-external
-							class="cursor-pointer inline-flex items-center justify-center gap-2 transition-colors focus:outline-none text-ink-gray-8 bg-surface-gray-2 hover:bg-surface-gray-3 active:bg-surface-gray-4 focus-visible:ring focus-visible:ring-outline-gray-3 h-7 text-base px-2 rounded"
+							class="cursor-pointer inline-flex items-center justify-center gap-2 transition-colors focus:outline-none text-ink-gray-8 bg-surface-gray-2 hover:bg-surface-gray-3 active:bg-surface-gray-4 focus-visible:ring focus-visible:ring-outline-gray-3 h-7 text-base px-2 rounded-4"
 							:class="cls.join_url ? 'w-full' : 'w-1/2'"
 						>
 							<span class="lucide-monitor h-4 w-4" />
@@ -85,7 +85,7 @@
 						<a
 							:href="safeUrl(cls.join_url)"
 							v-external
-							class="w-full cursor-pointer inline-flex items-center justify-center gap-2 transition-colors focus:outline-none text-ink-gray-8 bg-surface-gray-2 hover:bg-surface-gray-3 active:bg-surface-gray-4 focus-visible:ring focus-visible:ring-outline-gray-3 h-7 text-base px-2 rounded"
+							class="w-full cursor-pointer inline-flex items-center justify-center gap-2 transition-colors focus:outline-none text-ink-gray-8 bg-surface-gray-2 hover:bg-surface-gray-3 active:bg-surface-gray-4 focus-visible:ring focus-visible:ring-outline-gray-3 h-7 text-base px-2 rounded-4"
 						>
 							<span class="lucide-video h-4 w-4" />
 							{{ __('Join') }}
@@ -94,9 +94,9 @@
 					<Tooltip
 						v-else-if="hasClassEnded(cls)"
 						:text="__('This class has ended')"
-						placement="right"
+						side="right"
 					>
-						<div class="flex items-center gap-x-2 text-ink-amber-6 w-fit">
+						<div class="flex items-center gap-x-2 text-ink-amber-5 w-fit">
 							<span class="lucide-info w-4 h-4" />
 							<span>
 								{{ __('Ended') }}

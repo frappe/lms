@@ -1,6 +1,6 @@
 <template>
 	<div
-		class="text-sm absolute bg-surface-elevation-2 border rounded-md z-10 w-44"
+		class="text-sm absolute bg-surface-elevation-2 border rounded-5 z-10 w-44"
 		:style="{
 			display: top > 0 ? 'block' : 'none',
 			top: top + 'px',
@@ -35,7 +35,7 @@
 			<button
 				type="button"
 				@click="addToNotes()"
-				class="w-full flex items-center gap-x-2 hover:bg-surface-gray-2 cursor-pointer rounded-b-md py-2 px-3"
+				class="w-full flex items-center gap-x-2 hover:bg-surface-gray-2 cursor-pointer rounded-b-5 py-2 px-3"
 			>
 				<span class="lucide-notepad-text size-3" />
 				<span>
@@ -46,7 +46,7 @@
 				v-if="highlightExists()"
 				type="button"
 				@click="deleteHighlight"
-				class="w-full flex items-center gap-x-2 hover:bg-surface-gray-2 cursor-pointer rounded-b-md py-2 px-3"
+				class="w-full flex items-center gap-x-2 hover:bg-surface-gray-2 cursor-pointer rounded-b-5 py-2 px-3"
 			>
 				<span class="lucide-trash-2 size-3" />
 				<span>

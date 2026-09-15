@@ -67,10 +67,20 @@ describe('SettingsTable: the scrolling window', () => {
 	it('opens a window of exactly the rows asked for, plus the header', () => {
 		// The header shares the scroll box, so it has to be paid for or the
 		// window comes up a row short of what the caller asked for. `2rem` is
-		// frappe-ui's own ListHeader height (`h-8`).
+		// frappe-ui's own ListHeader height (`h-8`). jsdom's cssstyle folds the
+		// `56px * 9` product itself, so the value that round-trips is `504px`.
 		expect(scroller(build({ visibleRows: 9 })).style.maxHeight).toBe(
-			'calc(var(--list-row-height) * 9 + 2rem)'
+			'calc(504px + 2rem)'
 		)
+	})
+
+	it('feeds List the same row height the ceiling is built from', () => {
+		// v1 List sizes rows to content unless given `:row-height` — the ceiling
+		// above and this prop must read one shared number, or they drift apart
+		// the way `--list-row-height` (a var nothing in v1 List reads) and a
+		// prop-less <List> silently did.
+		const list = build({ visibleRows: 9 }).get('[data-testid="list"]')
+		expect(list.attributes('row-height')).toBe('56')
 	})
 
 	it('caps nothing unless a page asks it to', () => {

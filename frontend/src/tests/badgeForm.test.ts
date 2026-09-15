@@ -34,7 +34,7 @@ vi.mock('frappe-ui', () => ({
 		template: `<div data-testid="error">{{ message }}</div>`,
 	},
 	FileUploader: {
-		props: ['fileTypes', 'uploadArgs', 'validateFile'],
+		props: ['fileTypes', 'private', 'validateFile'],
 		emits: ['success'],
 		template: `<div>
 			<slot :uploading="false" :progress="0" :openFileSelector="() => {}" />

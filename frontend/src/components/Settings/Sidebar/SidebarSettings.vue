@@ -14,7 +14,7 @@
 		</template>
 
 		<div data-testid="sidebar-panel">
-			<div class="overflow-hidden rounded border border-outline-elevation-2">
+			<div class="overflow-hidden rounded-4 border border-outline-elevation-2">
 				<div
 					data-testid="sidebar-grid-header"
 					class="flex items-center bg-surface-gray-2 text-p-sm text-ink-gray-5"
@@ -66,7 +66,7 @@
 									tabindex="0"
 									role="button"
 									:aria-label="dragHandleLabel(element)"
-									class="lucide-grip-vertical size-4 cursor-grab rounded text-ink-gray-5 focus:outline-none focus-visible:ring-2 focus-visible:ring-outline-gray-3"
+									class="lucide-grip-vertical size-4 cursor-grab rounded-4 text-ink-gray-5 focus:outline-none focus-visible:ring-2 focus-visible:ring-outline-gray-3"
 									@keydown.up.prevent="moveRow(element, -1)"
 									@keydown.down.prevent="moveRow(element, 1)"
 								/>

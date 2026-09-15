@@ -4,7 +4,7 @@
 			<Badge
 				v-if="rules.dirty.value"
 				variant="subtle"
-				theme="orange"
+				theme="amber"
 				size="sm"
 				:label="__('Not Saved')"
 			/>

@@ -24,21 +24,38 @@ vi.mock('@/components/Layouts/pages/PageHeader.vue', () => ({
 }))
 
 vi.mock('frappe-ui', async () => {
-	const { computed, defineComponent } = await import('vue')
+	const { computed, defineComponent, watch } = await import('vue')
 
+	// A stand-in for the composed Tabs family's shorthand mode: a `value` keyed
+	// model, the `#tab-prefix`/`#tab-label`/`#tab-panel` slots, and the real
+	// component's stale-model fallback (an unknown value snaps to the first tab
+	// and emits) so the page's own hash-sync is exercised the way it runs in
+	// production.
 	const Tabs = defineComponent({
 		name: 'Tabs',
 		inheritAttrs: false,
 		props: {
 			tabs: { type: Array, required: true },
-			modelValue: { type: Number, default: 0 },
+			modelValue: { type: [String, Number], default: undefined },
 		},
 		emits: ['update:modelValue'],
-		setup(props) {
+		setup(props, { emit }) {
 			const defaultValue = computed(
-				() => (props.tabs[0] as { label: string }).label
+				() => (props.tabs[0] as { value: string }).value
 			)
-			return { defaultValue }
+			const selected = computed(() => {
+				const items = props.tabs as { value: unknown }[]
+				const known = items.some((tab) => tab.value === props.modelValue)
+				return known ? props.modelValue : items[0]?.value
+			})
+			watch(
+				selected,
+				(value) => {
+					if (value !== props.modelValue) emit('update:modelValue', value)
+				},
+				{ immediate: true }
+			)
+			return { defaultValue, selected }
 		},
 		template: `<div
 			data-testid="tabs"
@@ -47,11 +64,12 @@ vi.mock('frappe-ui', async () => {
 		>
 			<div role="tablist">
 				<template v-for="(tab, i) in tabs" :key="i">
-					<slot name="tab-item" :tab="tab" :selected="i === modelValue" />
+					<slot name="tab-prefix" :tab="tab" :selected="tab.value === selected" />
+					<slot name="tab-label" :tab="tab" :selected="tab.value === selected" />
 				</template>
 			</div>
 			<div role="tabpanel" data-state="active">
-				<slot name="tab-panel" :tab="tabs[modelValue]" />
+				<slot name="tab-panel" :tab="tabs.find((t) => t.value === selected)" />
 			</div>
 		</div>`,
 	})
@@ -166,8 +184,8 @@ function shell(wrapper: VueWrapper) {
 	return wrapper.find('[data-testid="tabs"]')
 }
 
-async function openTab(wrapper: any, index: number) {
-	wrapper.findComponent({ name: 'Tabs' }).vm.$emit('update:modelValue', index)
+async function openTab(wrapper: any, key: string) {
+	wrapper.findComponent({ name: 'Tabs' }).vm.$emit('update:modelValue', key)
 	await flushPromises()
 }
 
@@ -179,8 +197,10 @@ describe('TabbedDetailPage tab visibility', () => {
 			tabs: tabs({ settings: { when: false } }),
 		})
 
-		const shown = wrapper.findComponent({ name: 'Tabs' }).props('tabs') as Tab[]
-		expect(shown.map((tab) => tab.key)).toEqual([
+		const shown = wrapper.findComponent({ name: 'Tabs' }).props('tabs') as {
+			data: Tab
+		}[]
+		expect(shown.map((tab) => tab.data.key)).toEqual([
 			'overview',
 			'dashboard',
 			'editor',
@@ -192,8 +212,10 @@ describe('TabbedDetailPage tab visibility', () => {
 			tabs: tabs({ settings: { when: true } }),
 		})
 
-		const shown = wrapper.findComponent({ name: 'Tabs' }).props('tabs') as Tab[]
-		expect(shown.map((tab) => tab.key)).toContain('settings')
+		const shown = wrapper.findComponent({ name: 'Tabs' }).props('tabs') as {
+			data: Tab
+		}[]
+		expect(shown.map((tab) => tab.data.key)).toContain('settings')
 	})
 
 	it('renders the single view instead of a tab shell when no tab is visible', async () => {
@@ -243,7 +265,7 @@ describe('TabbedDetailPage hash', () => {
 	it('writes the tab key into the hash, not its translated label', async () => {
 		const { wrapper, router } = await mountPage({ tabs: tabs() })
 
-		await openTab(wrapper, 2)
+		await openTab(wrapper, 'editor')
 
 		expect(router.currentRoute.value.hash).toBe('#editor')
 		expect(wrapper.find('[data-testid="body-editor"]').exists()).toBe(true)
@@ -280,7 +302,7 @@ describe('TabbedDetailPage hash', () => {
 
 	it('brings the open tab back in range when the visible set shrinks', async () => {
 		const { wrapper } = await mountPage({ tabs: tabs() })
-		await openTab(wrapper, 3)
+		await openTab(wrapper, 'settings')
 		expect(wrapper.find('[data-testid="body-settings"]').exists()).toBe(true)
 
 		await wrapper.setProps({
@@ -321,7 +343,7 @@ describe('TabbedDetailPage document binding', () => {
 		expect(wrapper.find('[data-testid="own-editor"]').exists()).toBe(true)
 		expect(wrapper.find('[data-testid="body-editor"]').exists()).toBe(false)
 
-		await openTab(wrapper, 0)
+		await openTab(wrapper, 'overview')
 		expect(wrapper.find('[data-testid="body-overview"]').exists()).toBe(true)
 	})
 })
@@ -339,7 +361,7 @@ describe('TabbedDetailPage mobile flow', () => {
 		mobile.value = true
 		const { wrapper } = await mountPage({ tabs: tabs() })
 
-		await openTab(wrapper, 1)
+		await openTab(wrapper, 'dashboard')
 
 		expect(shell(wrapper).classes()).not.toContain('page-flow')
 		expect(wrapper.classes()).toContain('h-full')
@@ -369,7 +391,7 @@ describe('TabbedDetailPage actions', () => {
 		expect(seen.key).toBe('overview')
 		expect(wrapper.find('[data-testid="action"]').exists()).toBe(true)
 
-		await openTab(wrapper, 2)
+		await openTab(wrapper, 'editor')
 
 		expect(seen.key).toBe('editor')
 	})
@@ -388,7 +410,7 @@ describe('TabbedDetailPage actions', () => {
 
 		expect(seen.instance?.save).toBeUndefined()
 
-		await openTab(wrapper, 3)
+		await openTab(wrapper, 'settings')
 		await nextTick()
 
 		expect(seen.instance?.save?.()).toBe('saved')

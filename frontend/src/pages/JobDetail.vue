@@ -72,7 +72,7 @@
 						>
 							<img
 								:src="safeUrl(job.data.company_logo)"
-								class="size-10 rounded-lg object-contain cursor-pointer"
+								class="size-10 rounded-6 object-contain cursor-pointer"
 								:alt="job.data.company_name"
 							/>
 						</a>

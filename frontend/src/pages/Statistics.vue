@@ -11,19 +11,19 @@
 			<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
 				<Tooltip :text="__('Published Courses')">
 					<NumberChart
-						class="border rounded-md"
+						class="border rounded-5"
 						:config="{ title: 'Courses', value: chartDetails.data.courses }"
 					/>
 				</Tooltip>
 				<Tooltip :text="__('Active Members')">
 					<NumberChart
-						class="border rounded-md"
+						class="border rounded-5"
 						:config="{ title: 'Signups', value: chartDetails.data.users }"
 					/>
 				</Tooltip>
 				<Tooltip :text="__('Course Enrollments')">
 					<NumberChart
-						class="border rounded-md"
+						class="border rounded-5"
 						:config="{
 							title: 'Enrollments',
 							value: chartDetails.data.enrollments,
@@ -32,7 +32,7 @@
 				</Tooltip>
 				<Tooltip :text="__('Course Completions')">
 					<NumberChart
-						class="border rounded-md"
+						class="border rounded-5"
 						:config="{
 							title: 'Completions',
 							value: chartDetails.data.completions,
@@ -41,7 +41,7 @@
 				</Tooltip>
 				<Tooltip :text="__('Certified Members')">
 					<NumberChart
-						class="border rounded-md"
+						class="border rounded-5"
 						:config="{
 							title: 'Certifications',
 							value: chartDetails.data.certifications,
@@ -50,7 +50,7 @@
 				</Tooltip>
 			</div>
 			<div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
-				<div class="border rounded-md min-h-72">
+				<div class="border rounded-5 min-h-72">
 					<AxisChart
 						v-if="signupsChart.data"
 						:config="{
@@ -70,7 +70,7 @@
 						}"
 					/>
 				</div>
-				<div class="border rounded-md min-h-72">
+				<div class="border rounded-5 min-h-72">
 					<AxisChart
 						v-if="enrollmentChart.data"
 						:config="{
@@ -92,7 +92,7 @@
 						}"
 					/>
 				</div>
-				<div class="border rounded-md">
+				<div class="border rounded-5">
 					<AxisChart
 						v-if="certification.data"
 						:config="{
@@ -118,7 +118,7 @@
 						}"
 					/>
 				</div>
-				<div v-if="hasCompletions" class="border rounded-md">
+				<div v-if="hasCompletions" class="border rounded-5">
 					<DonutChart
 						v-if="courseCompletion.data"
 						:config="{
@@ -136,14 +136,12 @@
 </template>
 <script setup>
 import {
-	AxisChart,
 	createResource,
-	DonutChart,
 	LoadingIndicator,
-	NumberChart,
 	Tooltip,
 	usePageMeta,
 } from 'frappe-ui'
+import { AxisChart, DonutChart, NumberChart } from 'frappe-ui/experimental'
 import { computed } from 'vue'
 import PageHeader from '@/components/Layouts/pages/PageHeader.vue'
 import { sessionStore } from '../stores/session'

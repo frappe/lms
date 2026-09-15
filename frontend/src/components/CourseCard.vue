@@ -1,11 +1,11 @@
 <template>
 	<div
 		v-if="course.title"
-		class="flex flex-col h-full rounded-md overflow-auto text-ink-gray-9 bg-surface-elevation-1"
+		class="flex flex-col h-full rounded-5 overflow-auto text-ink-gray-9 bg-surface-elevation-1"
 		style="min-height: 350px"
 	>
 		<div
-			class="w-[100%] h-[168px] bg-cover bg-center bg-no-repeat border-t border-x rounded-t-md"
+			class="w-[100%] h-[168px] bg-cover bg-center bg-no-repeat border-t border-x rounded-t-5"
 			:style="
 				course.image
 					? { backgroundImage: `url('${encodeURI(course.image)}')` }
@@ -18,7 +18,7 @@
 			<!-- <div class="flex items-center flex-wrap relative top-4 px-2 w-fit">
 				<div
 					v-if="course.featured"
-					class="flex items-center gap-x-1 text-xs text-ink-amber-6 bg-surface-base border border-outline-amber-1 px-2 py-0.5 rounded-md me-1 mb-1"
+					class="flex items-center gap-x-1 text-xs text-ink-amber-5 bg-surface-base border border-outline-amber-1 px-2 py-0.5 rounded-5 me-1 mb-1"
 				>
 					<Star class="size-3 stroke-2" />
 					<span>
@@ -28,7 +28,7 @@
 				<div
 					v-if="course.tags"
 					v-for="tag in course.tags?.split(', ')"
-					class="text-xs border bg-surface-base text-ink-gray-9 px-2 py-0.5 rounded-md mb-1 me-1"
+					class="text-xs border bg-surface-base text-ink-gray-9 px-2 py-0.5 rounded-5 mb-1 me-1"
 				>
 					{{ tag }}
 				</div>
@@ -47,7 +47,7 @@
 				{{ course.title }}
 			</div>
 		</div>
-		<div class="flex flex-col flex-auto p-4 border-x-2 border-b-2 rounded-b-md">
+		<div class="flex flex-col flex-auto p-4 border-x-2 border-b-2 rounded-b-5">
 			<div class="flex items-center justify-between mb-2">
 				<div v-if="course.lessons">
 					<Tooltip :text="__('Lessons')">
@@ -79,7 +79,7 @@
 				</div>
 
 				<Tooltip v-if="course.featured" :text="__('Featured')">
-					<span class="lucide-award size-4 text-ink-amber-6" />
+					<span class="lucide-award size-4 text-ink-amber-5" />
 				</Tooltip>
 			</div>
 

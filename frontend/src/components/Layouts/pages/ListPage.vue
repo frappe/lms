@@ -81,6 +81,9 @@
 					pageLengthOptions,
 				}"
 			>
+				<template #left>
+					<TabButtons v-model="pageLength" :options="pageLengthTabs" />
+				</template>
 				<template #right>
 					<div class="flex items-center">
 						<Button
@@ -109,9 +112,10 @@ import {
 	Button,
 	createResource,
 	FormControl,
-	ListFooter,
+	TabButtons,
 	toast,
 } from 'frappe-ui'
+import { ListFooter } from 'frappe-ui/experimental'
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 import PageHeader from '@/components/Layouts/pages/PageHeader.vue'
 import PageBody from '@/components/Layouts/pages/PageBody.vue'
@@ -196,6 +200,13 @@ const listView = ref<InstanceType<typeof ResponsiveListView> | null>(null)
 const selecting = computed(() => Boolean(listView.value?.selections.size))
 
 const pageLength = defineModel<number>('pageLength', { default: 24 })
+
+// ListFooter's own `#left` fallback renders v0 TabButtons (`:buttons`), which
+// v1 TabButtons no longer accepts, so it silently renders nothing. This
+// overrides it with the same tabs, built the v1 way.
+const pageLengthTabs = computed(() =>
+	props.pageLengthOptions.map((option) => ({ label: option, value: option }))
+)
 
 // Bound, this renders the search box at the head of the filter strip. Left
 // unbound it is `undefined` and there is no box, so pages with nothing to

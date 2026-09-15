@@ -29,7 +29,7 @@
 					<FileUploader
 						v-if="!chapter.scorm_package"
 						:fileTypes="['.zip']"
-						:uploadArgs="{ private: true }"
+						:private="true"
 						:validateFile="validateFile"
 						@success="(file) => (chapter.scorm_package = file)"
 					>
@@ -43,7 +43,7 @@
 					</FileUploader>
 					<div v-else class="">
 						<div class="flex items-center">
-							<div class="border rounded-md p-2 me-2 shrink-0">
+							<div class="border rounded-5 p-2 me-2 shrink-0">
 								<span class="lucide-file-text h-5 w-5 text-ink-gray-7" />
 							</div>
 							<div class="flex min-w-0 flex-1 flex-col">
@@ -64,7 +64,7 @@
 								type="button"
 								:aria-label="__('Remove file')"
 								@click="() => (chapter.scorm_package = null)"
-								class="lucide-x bg-surface-gray-3 rounded-md cursor-pointer w-5 h-5 p-1 ms-4 shrink-0"
+								class="lucide-x bg-surface-gray-3 rounded-5 cursor-pointer w-5 h-5 p-1 ms-4 shrink-0"
 							/>
 						</div>
 					</div>
@@ -99,7 +99,8 @@ import { computed, inject, onMounted, reactive, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { getFileSize } from '@/utils/'
 import { resourceErrorMessage, submitResource } from '@/utils/resource'
-import { useOnboarding, useTelemetry } from 'frappe-ui/frappe'
+import { useOnboarding } from '@framework/ui/components/Onboarding/index'
+import { useTelemetry } from '@framework/ui/telemetry/index'
 import FormShell from '@/components/FormShell.vue'
 import HeaderButton from '@/components/HeaderButton.vue'
 import { useFormRoute } from '@/composables/useFormRoute'

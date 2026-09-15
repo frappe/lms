@@ -35,9 +35,8 @@ function assertFrameworkUiLinked(frontend) {
 }
 
 export default defineConfig(async ({ mode }) => {
-	const isDev = mode === 'development'
 	assertFrameworkUiLinked(__dirname)
-	const frappeui = await importFrappeUIPlugin(isDev)
+	const frappeui = await importFrappeUIPlugin()
 
 	const config = {
 		define: {
@@ -154,7 +153,6 @@ export default defineConfig(async ({ mode }) => {
 		},
 		optimizeDeps: {
 			include: [
-				'feather-icons',
 				'tailwind.config.js',
 				'highlight.js',
 				'plyr',
@@ -166,19 +164,7 @@ export default defineConfig(async ({ mode }) => {
 	return config
 })
 
-async function importFrappeUIPlugin(isDev) {
-	if (isDev) {
-		try {
-			const module = await import('../frappe-ui/vite')
-			return module.default
-		} catch (error) {
-			console.warn(
-				'Local frappe-ui not found, falling back to npm package:',
-				error.message
-			)
-		}
-	}
-	// Fall back to npm package if local import fails
+async function importFrappeUIPlugin() {
 	const module = await import('frappe-ui/vite')
 	return module.default
 }

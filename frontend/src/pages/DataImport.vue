@@ -2,15 +2,15 @@
 	<PageHeader :breadcrumbs="breadcrumbs" />
 	<div class="data-import-host">
 		<DataImport
-			:doctype="route.params.doctype"
-			:importName="route.params.importName"
+			:doctype="doctypeParam"
+			:importName="importNameParam"
 			:doctypeMap="doctypeMap"
 		/>
 	</div>
 </template>
 <script setup lang="ts">
 import { usePageMeta } from 'frappe-ui'
-import { DataImport } from 'frappe-ui/frappe'
+import { DataImport } from '@framework/ui/components/DataImport/index'
 import PageHeader from '@/components/Layouts/pages/PageHeader.vue'
 import type { Breadcrumb } from '@/types'
 import { sessionStore } from '../stores/session'
@@ -21,6 +21,20 @@ const { brand } = sessionStore()
 const route = useRoute()
 const router = useRouter()
 const user = inject<any>('$user')
+
+// Both route segments are single dynamic params (routes.js), never repeated —
+// narrowed here because vue-router types every param as `string | string[]`
+// and `@framework/ui`'s DataImport takes `string | null | undefined`.
+const doctypeParam = computed(() =>
+	Array.isArray(route.params.doctype)
+		? route.params.doctype[0]
+		: route.params.doctype
+)
+const importNameParam = computed(() =>
+	Array.isArray(route.params.importName)
+		? route.params.importName[0]
+		: route.params.importName
+)
 
 onMounted(() => {
 	if (!user.data?.is_moderator) {

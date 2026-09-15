@@ -38,7 +38,7 @@
 							class="text-p-base-medium text-ink-gray-7 mb-2"
 						>
 							{{ __(field.label) }}
-							<span v-if="field.reqd" class="text-ink-red-6" aria-hidden="true"
+							<span v-if="field.reqd" class="text-ink-red-5" aria-hidden="true"
 								>*</span
 							>
 						</div>
@@ -70,7 +70,7 @@
 					>
 						<div class="text-p-base-medium text-ink-gray-7 mb-2">
 							{{ __(field.label) }}
-							<span v-if="field.reqd" class="text-ink-red-6" aria-hidden="true"
+							<span v-if="field.reqd" class="text-ink-red-5" aria-hidden="true"
 								>*</span
 							>
 						</div>
@@ -96,7 +96,7 @@
 					<div v-else-if="field.type == 'richtext'" class="py-3">
 						<div class="text-p-base-medium text-ink-gray-7 mb-2">
 							{{ __(field.label) }}
-							<span v-if="field.reqd" class="text-ink-red-6" aria-hidden="true"
+							<span v-if="field.reqd" class="text-ink-red-5" aria-hidden="true"
 								>*</span
 							>
 						</div>
@@ -106,7 +106,7 @@
 								:editable="!field.disabled"
 								:fixed-menu="true"
 								:placeholder="field.placeholder || __(field.label)"
-								editor-class="prose-sm max-w-none border-b border-x border-outline-elevation-2 bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[7rem] max-h-[13rem] overflow-y-auto"
+								editor-class="prose-sm max-w-none border-b border-x border-outline-elevation-2 bg-surface-gray-2 rounded-b-5 py-1 px-2 min-h-[7rem] max-h-[13rem] overflow-y-auto"
 								@change="(value) => onRichText(field, value)"
 							/>
 						</div>
@@ -124,7 +124,7 @@
 					>
 						<div class="text-p-base-medium text-ink-gray-7 mb-2">
 							{{ __(field.label) }}
-							<span v-if="field.reqd" class="text-ink-red-6" aria-hidden="true"
+							<span v-if="field.reqd" class="text-ink-red-5" aria-hidden="true"
 								>*</span
 							>
 						</div>
@@ -159,7 +159,7 @@
 					>
 						<div class="text-p-base-medium text-ink-gray-7 mb-2">
 							{{ __(field.label) }}
-							<span v-if="field.reqd" class="text-ink-red-6" aria-hidden="true"
+							<span v-if="field.reqd" class="text-ink-red-5" aria-hidden="true"
 								>*</span
 							>
 						</div>
@@ -188,7 +188,7 @@
 								{{ __(field.label) }}
 								<span
 									v-if="field.reqd"
-									class="text-ink-red-6"
+									class="text-ink-red-5"
 									aria-hidden="true"
 									>*</span
 								>

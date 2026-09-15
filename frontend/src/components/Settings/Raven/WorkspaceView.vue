@@ -4,14 +4,14 @@
 			<Badge
 				v-if="detail?.stale"
 				variant="subtle"
-				theme="orange"
+				theme="amber"
 				size="sm"
 				:label="__('Stale')"
 			/>
 			<Badge
 				v-if="form.dirty.value"
 				variant="subtle"
-				theme="orange"
+				theme="amber"
 				size="sm"
 				:label="__('Not Saved')"
 			/>
@@ -59,16 +59,11 @@
 				/>
 			</div>
 
-			<Tabs
-				v-model="tabIndex"
-				as="div"
-				:tabs="tabs"
-				class="workspace-tabs mt-8"
-			>
+			<Tabs v-model="activeTab" :tabs="tabs" class="workspace-tabs mt-8">
 				<template #tab-panel="{ tab }">
 					<div class="tab-panel-content mt-4">
 						<WorkspaceChannels
-							v-if="tab.label === tabs[0].label"
+							v-if="tab.value === 'channels'"
 							:key="detail?.name ?? ''"
 							:workspace="detail?.name ?? ''"
 							:raven-workspace="detail?.raven_workspace"
@@ -142,6 +137,7 @@ import {
 	createResource,
 	toast,
 } from 'frappe-ui'
+import type { TabValue } from 'frappe-ui'
 import { computed, ref, watch } from 'vue'
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 import SettingsLayout from '@/components/Layouts/settings/desktop/SettingsLayout.vue'
@@ -173,7 +169,7 @@ const emit = defineEmits<{
 
 const isNew = computed<boolean>(() => !props.name)
 
-const tabIndex = ref(0)
+const activeTab = ref<TabValue>('channels')
 
 const VISIBILITIES: WorkspaceVisibility[] = ['Public', 'Private']
 
@@ -186,8 +182,8 @@ const visibilityOptions = VISIBILITIES.map((value) => ({
 // above the strip, and what can be done to the record itself lives on its row in
 // the list, so there is no General tab holding one field and two buttons.
 const tabs = [
-	{ label: __('Channels'), icon: 'lucide-hash' },
-	{ label: __('Members'), icon: 'lucide-users' },
+	{ value: 'channels', label: __('Channels'), icon: 'lucide-hash' },
+	{ value: 'members', label: __('Members'), icon: 'lucide-users' },
 ]
 
 // Three states, not two: in flight, loaded, and failed. onError only toasts, so

@@ -220,7 +220,7 @@ test.describe("Batch Creation", () => {
 		// mobile copy, which is display:none on the desktop test viewport —
 		// scope these assertions to the visible overlay.
 		const overlay = page
-			.locator(".border-2.rounded-md.lg\\:w-72:visible")
+			.locator(".border-2.rounded-5.lg\\:w-72:visible")
 			.first();
 		await expect(overlay.getByText("01 Oct 2030 - 31 Oct 2030")).toBeVisible();
 		await expect(overlay.getByText("10:00 AM - 11:00 AM")).toBeVisible();
@@ -265,7 +265,7 @@ test.describe("Batch Creation", () => {
 			.filter({ hasText: "Overview" })
 			.click();
 		const overlayAfterEnroll = page
-			.locator(".border-2.rounded-md.lg\\:w-72:visible")
+			.locator(".border-2.rounded-5.lg\\:w-72:visible")
 			.first();
 		await expect(overlayAfterEnroll.getByText("9 Seats Left")).toBeVisible({
 			timeout: 10000,

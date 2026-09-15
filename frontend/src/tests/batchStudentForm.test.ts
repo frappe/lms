@@ -66,9 +66,15 @@ vi.mock('frappe-ui', () => ({
 	},
 }))
 
-vi.mock('frappe-ui/frappe', () => ({
-	useOnboarding: () => ({ updateOnboardingStep: updateOnboardingStepMock }),
-}))
+vi.mock(
+	'@framework/ui/components/Onboarding/index',
+	async (importOriginal) => ({
+		...(await importOriginal<
+			typeof import('@framework/ui/components/Onboarding/index')
+		>()),
+		useOnboarding: () => ({ updateOnboardingStep: updateOnboardingStepMock }),
+	})
+)
 
 // @/utils is the barrel that pulls in plyr and the settings store; only
 // openSettings is used here.

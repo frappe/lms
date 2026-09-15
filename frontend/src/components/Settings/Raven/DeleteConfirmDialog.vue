@@ -1,6 +1,6 @@
 <template>
 	<Dialog
-		v-model="open"
+		v-model:open="open"
 		:title="__('Delete {0}?').format(name)"
 		:message="
 			message ||

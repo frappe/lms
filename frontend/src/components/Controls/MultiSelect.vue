@@ -10,14 +10,14 @@
 		<Combobox v-model="selectedValue" nullable v-slot="{ open }">
 			<div class="relative w-full">
 				<div
-					class="flex flex-wrap items-center gap-1.5 w-full rounded-lg border border-[--surface-gray-2] bg-surface-gray-2 px-2 py-1.5 cursor-text transition-colors hover:border-outline-elevation-2 hover:bg-surface-gray-3 focus-within:bg-surface-base focus-within:border-outline-gray-4 focus-within:shadow-sm focus-within:ring-0"
+					class="flex flex-wrap items-center gap-1.5 w-full rounded-6 border border-[--surface-gray-2] bg-surface-gray-2 px-2 py-1.5 cursor-text transition-colors hover:border-outline-elevation-2 hover:bg-surface-gray-3 focus-within:bg-surface-base focus-within:border-outline-gray-4 focus-within:shadow-sm focus-within:ring-0"
 					@click="focusInput"
 				>
 					<button
 						v-for="value in values"
 						:key="value"
 						type="button"
-						class="inline-flex items-center gap-1 bg-surface-base border border-outline-gray-2 text-ink-gray-7 ps-2 pe-1.5 py-0.5 rounded text-base leading-5"
+						class="inline-flex items-center gap-1 bg-surface-base border border-outline-gray-2 text-ink-gray-7 ps-2 pe-1.5 py-0.5 rounded-4 text-base leading-5"
 						@click.stop="removeValue(value)"
 					>
 						<span>{{ value }}</span>
@@ -43,7 +43,7 @@
 				<ComboboxOptions
 					v-show="open"
 					static
-					class="absolute z-20 mt-1 w-full rounded-lg bg-surface-elevation-2 border-2 border-outline-elevation-2 max-h-[13rem] flex flex-col"
+					class="absolute z-20 mt-1 w-full rounded-6 bg-surface-elevation-2 border-2 border-outline-elevation-2 max-h-[13rem] flex flex-col"
 				>
 					<div
 						class="flex-1 my-1 overflow-y-auto px-1.5"
@@ -58,7 +58,7 @@
 							>
 								<li
 									:class="[
-										'flex cursor-pointer items-center rounded px-2 py-1 text-base',
+										'flex cursor-pointer items-center rounded-4 px-2 py-1 text-base',
 										{ 'bg-surface-gray-2': active },
 									]"
 								>
@@ -85,7 +85,7 @@
 
 					<div
 						v-if="attrs.onCreate"
-						class="p-1 bg-surface-base border-t rounded-b-lg"
+						class="p-1 bg-surface-base border-t rounded-b-6"
 					>
 						<Button
 							variant="ghost"

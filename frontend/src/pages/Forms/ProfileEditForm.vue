@@ -1,7 +1,7 @@
 <template>
 	<FormShell :title="__('Edit Profile')" @close="close">
 		<template #header-action>
-			<Badge v-if="isDirty" theme="orange">
+			<Badge v-if="isDirty" theme="amber">
 				{{ __('Not Saved') }}
 			</Badge>
 		</template>
@@ -55,7 +55,7 @@
 							:fixedMenu="true"
 							@change="(val) => (profile.bio = val)"
 							:content="profile.bio"
-							editorClass="prose-sm py-2 px-2 min-h-[280px] border-outline-gray-2 hover:border-outline-gray-3 rounded-b-md bg-surface-gray-3"
+							editorClass="prose-sm py-2 px-2 min-h-[280px] border-outline-gray-2 hover:border-outline-gray-3 rounded-b-5 bg-surface-gray-3"
 						/>
 					</div>
 				</div>

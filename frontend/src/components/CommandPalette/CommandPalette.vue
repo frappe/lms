@@ -100,11 +100,11 @@ import { openFormRoute } from '@/composables/useFormRoute'
 import { pushSettingsHash } from '@/composables/useSettingsHash'
 
 const chipClass =
-	'inline-flex size-5 shrink-0 items-center justify-center rounded-sm bg-surface-gray-2'
+	'inline-flex size-5 shrink-0 items-center justify-center rounded-1 bg-surface-gray-2'
 
 // `size-5` fixes a square, which crops a multi-letter key. Width grows instead.
 const wideChipClass =
-	'inline-flex h-5 min-w-5 w-auto shrink-0 items-center justify-center rounded-sm bg-surface-gray-2 px-1.5'
+	'inline-flex h-5 min-w-5 w-auto shrink-0 items-center justify-center rounded-1 bg-surface-gray-2 px-1.5'
 
 // Below this the palette keeps showing the jump-to list. The results pane used
 // to take over at one character while the search only ran from three, so the
@@ -135,13 +135,15 @@ const activeIndex = ref(-1)
 // dropped.
 let searchToken = 0
 
-// The token the waiting debounced tick is holding. frappe-ui's `debounce` hands
-// back a bare function with no `.cancel()`, so a scheduled search is disarmed
-// rather than cleared: the tick still runs, sees that `searchToken` has moved
-// past it, and asks the server for nothing.
+// The token the waiting debounced tick was holding. frappe-ui's `debounce`
+// (>= 1.0.0-beta.65) returns a function with `.cancel()`, so invalidateSearch
+// below cancels the pending tick outright now — it should never fire with a
+// stale token. This check stays as a defense-in-depth backstop rather than
+// something the normal path relies on.
 let armedToken = 0
 const invalidateSearch = () => {
 	searchToken += 1
+	debouncedSearch.cancel()
 }
 
 const searchFailed = ref(false)

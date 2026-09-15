@@ -106,7 +106,8 @@
 				<Alert
 					v-else-if="showOpenEndedNotice"
 					class="mb-5"
-					theme="yellow"
+					theme="amber"
+					dismissible
 					:title="__('Manual grading')"
 					@dismiss="dismissOpenEndedNotice"
 				>
@@ -411,7 +412,7 @@ import { useDebounceFn } from '@vueuse/core'
 
 import { onBeforeRouteLeave, useRouter } from 'vue-router'
 import { sanitizeOnWrite } from '@/utils/sanitizeOnWrite'
-import { useTelemetry } from 'frappe-ui/frappe'
+import { useTelemetry } from '@framework/ui/telemetry/index'
 import { resourceErrorMessage, submitResource } from '@/utils/resource'
 
 const { brand } = sessionStore()

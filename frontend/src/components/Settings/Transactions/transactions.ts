@@ -271,7 +271,7 @@ export const columns: SettingsListColumn[] = [
 			badges.push(
 				row.payment_received
 					? { label: __('Paid'), theme: 'green' as const }
-					: { label: __('Unpaid'), theme: 'orange' as const }
+					: { label: __('Unpaid'), theme: 'amber' as const }
 			)
 			if (row.payment_for_certificate)
 				badges.push({ label: __('Certificate'), theme: 'blue' as const })

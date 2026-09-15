@@ -20,6 +20,12 @@ const { callMock, toastMock, closeMock } = vi.hoisted(() => ({
 	closeMock: vi.fn(),
 }))
 
+// RoleSwitches.vue pulls in members.ts -> Members.vue -> MemberForm.vue, which
+// imports `@framework/ui/telemetry` and `@framework/ui/components/Onboarding`.
+// Both must resolve even though nothing here renders MemberForm.vue.
+vi.mock('@framework/ui/telemetry/index', () => ({}))
+vi.mock('@framework/ui/components/Onboarding/index', () => ({}))
+
 vi.mock('frappe-ui', () => ({
 	call: callMock,
 	toast: toastMock,

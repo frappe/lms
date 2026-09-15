@@ -16,7 +16,7 @@
 			:id="inputId"
 			ref="editor"
 			:aria-label="ariaLabel"
-			class="h-auto flex-1 overflow-hidden overscroll-none !rounded border border-outline-gray-2 bg-surface-gray-2 transition-colors hover:border-outline-gray-3 focus-within:border-outline-gray-4 focus-within:shadow-sm dark:bg-gray-900"
+			class="h-auto flex-1 overflow-hidden overscroll-none !rounded-4 border border-outline-gray-2 bg-surface-gray-2 transition-colors hover:border-outline-gray-3 focus-within:border-outline-gray-4 focus-within:shadow-sm dark:bg-gray-900"
 		/>
 		<InputDescription
 			v-if="showDescription"
