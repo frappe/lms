@@ -26,7 +26,7 @@
 				:text="__(link.label)"
 				side="right"
 				:disabled="isCollapsed"
-				:hoverDelay="1.5"
+				:hoverDelay="1500"
 			>
 				<span
 					class="min-w-0 truncate text-p-sm duration-300 ease-in-out"

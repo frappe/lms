@@ -8,7 +8,7 @@
 			:required="required"
 		/>
 		<Popover side="bottom" bare class="!block">
-			<template #trigger="{ toggle }">
+			<template #trigger="{ setOpen }">
 				<div class="space-y-2">
 					<FormControl
 						:id="inputId"
@@ -16,7 +16,7 @@
 						autocomplete="off"
 						class="w-full"
 						:placeholder="__('Set Color')"
-						@focus="toggle"
+						@focus="setOpen(true)"
 						:modelValue="modelValue"
 						@update:modelValue="(val: string) => emit('update:modelValue', val)"
 					>

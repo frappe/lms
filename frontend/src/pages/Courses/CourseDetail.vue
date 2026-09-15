@@ -26,7 +26,7 @@
 				<Tooltip
 					v-if="!courseFormRef.isDirty"
 					:text="__('No changes to save')"
-					:hoverDelay="0.1"
+					:hoverDelay="100"
 				>
 					<HeaderButton :label="__('Save')" variant="solid" disabled />
 				</Tooltip>
