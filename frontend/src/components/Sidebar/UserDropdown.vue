@@ -1,6 +1,9 @@
 <template>
 	<div class="p-2">
 		<Dropdown :options="userDropdownOptions">
+			<template #item-suffix="{ selected }">
+				<span v-if="selected" class="lucide-check size-4 text-ink-gray-7" aria-hidden="true" />
+			</template>
 			<template v-slot="{ open, close }">
 				<button
 					class="flex h-12 items-center rounded-5 duration-300 ease-in-out"
@@ -66,7 +69,7 @@ import { sessionStore } from '@/stores/session'
 import { call, createResource, Dropdown, toast } from 'frappe-ui'
 import { useRouter } from 'vue-router'
 import { convertToTitleCase } from '@/utils'
-import { toggleTheme, theme } from '@/utils/theme'
+import { setThemePreference, themePreference } from '@/utils/theme'
 import { usersStore } from '@/stores/user'
 import { useSettings } from '@/stores/settings'
 import { h, computed } from 'vue'
@@ -74,7 +77,6 @@ import { createDialog } from '@/utils/dialogs'
 import FrappeCloudIcon from '@/components/Icons/FrappeCloudIcon.vue'
 import LMSLogo from '@/components/Icons/LMSLogo.vue'
 import SettingsModal from '@/components/Settings/Settings.vue'
-import { Moon, Sun } from 'lucide-vue-next'
 import { safeUrl } from '@/utils/safeUrl'
 import { openExternal } from '@/utils/openExternal'
 import { pushSettingsHash } from '@/composables/useSettingsHash'
@@ -157,11 +159,28 @@ const userDropdownOptions = computed(() => {
 					},
 				},
 				{
-					icon: theme.value === 'light' ? Moon : Sun,
-					label: 'Toggle Theme',
-					onClick: () => {
-						toggleTheme()
-					},
+					icon: 'lucide-sun-moon',
+					label: __('Theme'),
+					submenu: [
+						{
+							icon: 'lucide-sun',
+							label: __('Light'),
+							selected: themePreference.value === 'light',
+							onClick: () => setThemePreference('light'),
+						},
+						{
+							icon: 'lucide-moon',
+							label: __('Dark'),
+							selected: themePreference.value === 'dark',
+							onClick: () => setThemePreference('dark'),
+						},
+						{
+							icon: 'lucide-monitor',
+							label: __('System'),
+							selected: themePreference.value === 'system',
+							onClick: () => setThemePreference('system'),
+						},
+					],
 				},
 				{
 					icon: 'lucide-layout-grid',
