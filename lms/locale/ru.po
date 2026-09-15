@@ -1400,11 +1400,11 @@ msgstr "Оформить заказ на Курсы"
 
 #: lms/templates/emails/published_batch_notification.html:52
 msgid "Checkout the batch"
-msgstr "Оформить группу"
+msgstr "Посмотреть группу"
 
 #: lms/templates/emails/published_course_notification.html:36
 msgid "Checkout the course"
-msgstr "Оформить курс"
+msgstr "Посмотреть курс"
 
 #. Option for the 'Type' (Select) field in DocType 'LMS Question'
 #. Option for the 'Type' (Select) field in DocType 'LMS Quiz Question'
