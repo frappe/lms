@@ -2,8 +2,8 @@
  * Held Ctrl/⌘+K auto-repeats the keydown. Each repeat used to re-toggle the
  * palette, so a held shortcut opened it then closed it before key-up.
  */
-import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { mount } from '@vue/test-utils'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { mount, type VueWrapper } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 
 const { resource } = vi.hoisted(() => ({
@@ -88,18 +88,26 @@ function press(init: KeyboardEventInit = {}) {
 	)
 }
 
+let wrapper: VueWrapper | undefined
+
 beforeEach(() => {
 	setActivePinia(createPinia())
 })
 
+afterEach(() => {
+	wrapper?.unmount()
+	wrapper = undefined
+})
+
 function build() {
-	return mount(AppSidebar, {
+	wrapper = mount(AppSidebar, {
 		global: {
 			provide: { $socket: { on: vi.fn(), off: vi.fn() } },
 			mocks: { __: (globalThis as any).__ },
 			stubs: { 'router-link': { template: `<a><slot /></a>` } },
 		},
 	})
+	return wrapper
 }
 
 describe('the command palette shortcut', () => {
