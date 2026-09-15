@@ -37,14 +37,18 @@
 			/>
 
 			<div v-if="credentialFields.length" class="grid grid-cols-2 gap-4">
-				<FormControl
+				<component
+					:is="field.type === 'Password' ? Password : FormControl"
 					v-for="field in credentialFields"
 					:key="field.name"
 					:class="{ 'col-span-2': isLongField(field) }"
 					v-model="doc[field.name]"
+					v-bind="
+						field.type === 'Password'
+							? {}
+							: { type: controlType(field), options: selectOptions(field) }
+					"
 					:label="__(field.label)"
-					:type="controlType(field)"
-					:options="selectOptions(field)"
 					:placeholder="placeholder(field)"
 					:description="description(field)"
 					:required="Boolean(field.reqd)"
@@ -108,6 +112,7 @@ import {
 	Combobox,
 	FormControl,
 	LoadingIndicator,
+	Password,
 	Switch,
 	call,
 	createDocumentResource,
@@ -132,7 +137,7 @@ import type { SettingsListRow } from '@/types'
 /**
  * One payment gateway, behind both New and a row.
  *
- * Credentials draw as a two-column FormControl grid, with state fields
+ * Credentials draw as a two-column grid, with state fields
  * (sandbox switch, header image) as their own row below a divider, CRM's
  * Telephony > Twilio shape.
  */
@@ -349,12 +354,11 @@ const credentialFields = computed(() =>
 	)
 )
 
-// The box a credential is typed into. A fieldtype this does not name falls
-// through to a text box, which is what the value is on the wire anyway.
+// The box a credential is typed into. A Password never reaches here — it gets
+// the Password component instead. A fieldtype this does not name falls through
+// to a text box, which is what the value is on the wire anyway.
 const controlType = (field: GatewayField) => {
 	switch (field.type) {
-		case 'Password':
-			return 'password'
 		case 'Select':
 			return 'select'
 		case 'Int':

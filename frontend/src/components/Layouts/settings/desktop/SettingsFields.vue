@@ -128,8 +128,7 @@
 								>*</span
 							>
 						</div>
-						<FormControl
-							type="password"
+						<Password
 							class="w-full"
 							:model-value="secretValues[field.name] || ''"
 							:required="field.reqd"
@@ -163,13 +162,13 @@
 								>*</span
 							>
 						</div>
-						<FormControl
+						<component
+							:is="controlOf(field)"
 							:key="field.name"
 							v-model="data[field.name]"
-							:type="field.type"
+							v-bind="controlProps(field)"
 							:required="field.reqd"
 							:disabled="field.disabled"
-							:min="field.min"
 							class="w-full"
 							:aria-label="__(field.label)"
 							:placeholder="field.placeholder || __(field.label)"
@@ -232,15 +231,13 @@
 								@input="onInput(field)"
 								@focusout="onSettle(field)"
 							>
-								<FormControl
+								<component
+									:is="controlOf(field)"
 									:key="field.name"
 									v-model="data[field.name]"
-									:type="field.type"
-									:rows="field.rows"
-									:options="field.options"
+									v-bind="controlProps(field)"
 									:required="field.reqd"
 									:disabled="field.disabled"
-									:min="field.min"
 									class="w-48"
 									:aria-label="__(field.label)"
 									:placeholder="field.placeholder || __(field.label)"
@@ -254,7 +251,7 @@
 	</div>
 </template>
 <script setup>
-import { FormControl, Select } from 'frappe-ui'
+import { FormControl, Password, Select } from 'frappe-ui'
 import BooleanSwitch from '@/components/Controls/BooleanSwitch.vue'
 import { reactive, watch } from 'vue'
 import Link from '@/components/Controls/Link.vue'
@@ -298,6 +295,22 @@ const emit = defineEmits(['commit', 'secret'])
 const secretValues = reactive({})
 
 const hasStoredSecret = (field) => Boolean(props.data[field.name])
+
+// Every `password` field is a secret, whether or not it opts into `secret`
+// storage, so all of them get Password's masked box and reveal toggle rather
+// than a bare type="password". Password takes no `type` prop — handing it one
+// would land on the input and override its own show/hide.
+const controlOf = (field) => (field.type === 'password' ? Password : FormControl)
+
+const controlProps = (field) =>
+	field.type === 'password'
+		? {}
+		: {
+				type: field.type,
+				rows: field.rows,
+				options: field.options,
+				min: field.min,
+		  }
 
 const setSecret = (field, value) => {
 	secretValues[field.name] = value
