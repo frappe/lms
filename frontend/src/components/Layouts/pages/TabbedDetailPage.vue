@@ -34,7 +34,7 @@
 					<span class="size-4" :class="own(tab.data).icon" />
 				</template>
 				<template #tab-label="{ tab }">
-					{{ tabLabel(own(tab.data)) }}
+					<span class="text-p-base">{{ tabLabel(own(tab.data)) }}</span>
 				</template>
 				<template #tab-panel="{ tab }">
 					<template v-if="!loading">
