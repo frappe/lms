@@ -168,7 +168,6 @@ vi.mock('frappe-ui', () => ({
 			title: String,
 			description: String,
 			theme: String,
-			variant: String,
 			dismissible: { type: Boolean, default: false },
 		},
 		emits: ['dismiss'],
@@ -224,7 +223,7 @@ vi.mock('frappe-ui', () => ({
 	},
 	// Menu options are rendered as real buttons so the route pushes behind Preview/Submissions/Delete are reachable, and `theme` is exposed so the destructive row can be asserted rather than assumed.
 	Dropdown: {
-		props: ['options', 'placement'],
+		props: ['options'],
 		template: `<div class="dropdown">
       <slot :open="false" />
       <button

@@ -27,7 +27,7 @@ vi.mock('frappe-ui', () => ({
 		template: `<div><slot name="indicator" /></div>`,
 	},
 	Tooltip: {
-		props: ['text', 'placement'],
+		props: ['text', 'side'],
 		template: `<div><slot /></div>`,
 	},
 }))
