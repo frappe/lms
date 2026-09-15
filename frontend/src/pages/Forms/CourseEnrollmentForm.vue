@@ -161,14 +161,15 @@ const reloadStudents = () => {
 // neither field is — it closes its own dropdown first, so there is no second
 // close callback to invoke here.
 //
-// Leaving the form to open Settings is the modal's behaviour kept intact: the
-// settings drawer would otherwise sit under a full-screen form on a phone.
+// The form stays open behind Settings, an overlay that pushes a hash entry
+// over the form's own route. Closing the form here would pop that entry and
+// Settings would never appear; staying open also keeps what the user typed.
 const openMemberSettings = () => {
-	if (openSettings('Members')) close()
+	openSettings('members')
 }
 
 const openPaymentSettings = () => {
-	if (openSettings('Transactions')) close()
+	openSettings('transactions')
 }
 
 const validateData = (): boolean => {

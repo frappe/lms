@@ -118,7 +118,7 @@ const COLUMNS = [
 
 async function mountListPage(props: Record<string, unknown> = {}, slots = {}) {
 	const { default: ListPage } = await import(
-		'@/components/Layouts/ListPage.vue'
+		'@/components/Layouts/pages/ListPage.vue'
 	)
 	const wrapper = mount(ListPage, {
 		props: { breadcrumbs: [{ label: 'Courses' }], rows: ROWS, ...props },

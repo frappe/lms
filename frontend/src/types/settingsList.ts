@@ -12,7 +12,19 @@ export interface SettingsListAvatar {
 	label?: string
 }
 
-export type BadgeTheme = 'gray' | 'blue' | 'green' | 'orange' | 'red'
+/**
+ * frappe-ui's Badge themes, minus the deprecated `orange` alias for `amber`.
+ * Six is the ceiling on how many things a colour can tell apart in one
+ * column: a page with more categories than that has to double up.
+ */
+export type BadgeTheme =
+	| 'gray'
+	| 'blue'
+	| 'green'
+	| 'amber'
+	| 'orange'
+	| 'red'
+	| 'violet'
 
 export interface SettingsListBadge {
 	label: string

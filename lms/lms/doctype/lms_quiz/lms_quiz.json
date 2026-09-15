@@ -17,6 +17,9 @@
   "duration",
   "enable_proctoring",
   "max_violations",
+  "enable_scheduling",
+  "schedule_start",
+  "schedule_end",
   "section_break_tzbu",
   "shuffle_questions",
   "limit_questions_to",
@@ -165,6 +168,25 @@
    "fieldname": "marks_to_cut",
    "fieldtype": "Int",
    "label": "Marks To Cut"
+  },
+  {
+   "default": "0",
+   "fieldname": "enable_scheduling",
+   "fieldtype": "Check",
+   "label": "Enable Scheduling"
+  },
+  {
+   "depends_on": "enable_scheduling",
+   "fieldname": "schedule_start",
+   "fieldtype": "Datetime",
+   "label": "Schedule Start",
+   "mandatory_depends_on": "enable_scheduling"
+  },
+  {
+   "depends_on": "enable_scheduling",
+   "fieldname": "schedule_end",
+   "fieldtype": "Datetime",
+   "label": "Schedule End"
   }
  ],
  "grid_page_length": 50,

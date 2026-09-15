@@ -32,8 +32,11 @@ PLATFORM_ROLES = {
 # close to every user on the site rather than every user who did something.
 STUDENT_ROLE = "LMS Student"
 
-# `label` / `description` are the rule builder's on-screen wording: the UI renders
-# these declarations, so anything a fieldname cannot spell has to live here.
+# `label` is the rule builder's on-screen wording: the UI renders these
+# declarations, so anything a fieldname cannot spell has to live here. A field may
+# also carry a `description`, which the row renders under the control; no field
+# here does, so the two branches of Evaluator, the platform role and the one
+# assigned on a course, are told apart by their labels alone.
 RULE_TYPES = [
 	{
 		"type": "Student",
@@ -107,7 +110,6 @@ RULE_TYPES = [
 				"fieldname": "platform_roles",
 				"fieldtype": "MultiSelectStatic",
 				"label": "Roles",
-				"description": "A role granted across the site, not a tagging on one course or batch.",
 				"options": list(PLATFORM_ROLES),
 				"reqd": 1,
 				"depends_on": {"field": "staff_kind", "value_in": ["Platform role"]},
@@ -116,9 +118,6 @@ RULE_TYPES = [
 				"fieldname": "assigned_as",
 				"fieldtype": "Select",
 				"label": "Assigned as",
-				# The description carries the whole distinction from the Platform
-				# role branch, which offers an "Evaluator" naming different people.
-				"description": "Named in a course or batch's own instructor or evaluator field.",
 				"options": ["Instructor", "Evaluator"],
 				"reqd": 1,
 				"depends_on": {"field": "staff_kind", "value_in": ["Assigned on"]},

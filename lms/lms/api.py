@@ -12,6 +12,7 @@ from xml.dom.minidom import parseString
 
 import frappe
 from frappe import _
+from frappe.email.email_body import get_message_id
 from frappe.integrations.frappe_providers.frappecloud_billing import (
 	current_site_info,
 	is_fc_site,
@@ -24,6 +25,8 @@ from frappe.utils import (
 	flt,
 	format_date,
 	get_datetime,
+	get_fullname,
+	get_string_between,
 	get_system_timezone,
 	get_time,
 	getdate,
@@ -37,8 +40,10 @@ from lms.lms.doctype.course_lesson.course_lesson import (
 	cleanup_lesson_backreferences,
 	save_progress,
 )
+from lms.lms.sidebar import LEGACY_VISIBILITY_FIELDS, ROW_FIELDS, get_sidebar_rows
 from lms.lms.utils import (
 	LMS_ROLES,
+	attach_file_to_doc,
 	can_modify_batch,
 	can_modify_course,
 	format_timezone,
@@ -52,7 +57,9 @@ from lms.lms.utils import (
 	has_course_instructor_role,
 	has_evaluator_role,
 	has_lms_role,
+	has_message,
 	has_moderator_role,
+	prepare_inline_images,
 )
 
 
@@ -847,56 +854,97 @@ def get_all_users():
 	return {user.name: user for user in users}
 
 
+# nosemgrep: security.guest-whitelisted-method - pre-existing grant, unchanged by this branch; the endpoint gates itself (a guest on a site with allow_guest_access off gets a bare []). Flagged only because semgrep ci re-scans the whole function when its body changes.
 @frappe.whitelist(allow_guest=True)
 def get_sidebar_settings():
 	lms_settings = frappe.get_single("LMS Settings")
 	if frappe.session.user == "Guest" and not lms_settings.allow_guest_access:
 		return []
 
+	rows = get_sidebar_rows(lms_settings)
 	sidebar_items = frappe._dict()
-	items = [
-		"courses",
-		"batches",
-		"certifications",
-		"jobs",
-		"statistics",
-		"notifications",
-		"programming_exercises",
-	]
-	for item in items:
-		sidebar_items[item] = lms_settings.get(item)
 
-	if len(lms_settings.sidebar_items):
-		web_pages = frappe.get_all(
-			"LMS Sidebar Item",
-			{"parenttype": "LMS Settings", "parentfield": "sidebar_items"},
-			["web_page", "route", "title as label", "icon", "name"],
+	# The seven legacy keys, derived from the rows that replaced them. Emitted
+	# for anything not updated in this change; the rows are the contract.
+	# Seeded from the Check fields first so a site whose patch has not run yet
+	# still gets an answer rather than seven missing keys.
+	for field in LEGACY_VISIBILITY_FIELDS:
+		sidebar_items[field] = cint(lms_settings.get(field))
+	for row in rows:
+		if row["name1"] in LEGACY_VISIBILITY_FIELDS:
+			sidebar_items[row["name1"]] = 0 if row["hidden"] else 1
+
+	sidebar_items.sidebar_rows = rows
+	sidebar_items.web_pages = [
+		frappe._dict(
+			web_page=row["web_page"],
+			route=row["to"],
+			label=row["label"],
+			icon=row["icon"],
+			name=row["name"],
+			to=row["to"],
 		)
-		for page in web_pages:
-			page.to = page.route
-
-		sidebar_items.web_pages = web_pages
+		for row in rows
+		if row["item_type"] == "Web Page" and not row["hidden"]
+	]
 
 	return sidebar_items
 
 
 @frappe.whitelist()
-def update_sidebar_item(webpage: str, icon: str):
-	frappe.only_for("Moderator")
-	filters = {
-		"web_page": webpage,
-		"parenttype": "LMS Settings",
-		"parentfield": "sidebar_items",
-		"parent": "LMS Settings",
-	}
+def update_sidebar_item(webpage: str, icon: str | None = None):
+	"""Add a published Web Page to the sidebar, or re-icon one already there.
 
-	if frappe.db.exists("LMS Sidebar Item", filters):
-		frappe.db.set_value("LMS Sidebar Item", filters, "icon", icon)
+	The only writer the "New" dialog has. It appends to LMS Settings and saves
+	the parent, so validate_sidebar_items assigns the row its id and idx and the
+	target checks run — the sidebar then folds the new row into "More" like any
+	other web page.
+	"""
+	frappe.only_for("Moderator")
+
+	if not frappe.db.exists("Web Page", {"name": webpage, "published": 1}):
+		frappe.throw(_("{0} is not a published web page.").format(frappe.bold(webpage)))
+
+	settings = frappe.get_single("LMS Settings")
+	existing = next(
+		(row for row in settings.sidebar_items if row.item_type == "Web Page" and row.web_page == webpage),
+		None,
+	)
+	if existing:
+		existing.icon = icon
 	else:
-		doc = frappe.new_doc("LMS Sidebar Item")
-		doc.update(filters)
-		doc.icon = icon
-		doc.insert()
+		settings.append("sidebar_items", {"item_type": "Web Page", "web_page": webpage, "icon": icon})
+
+	settings.save()
+	return get_sidebar_settings()
+
+
+@frappe.whitelist()
+def save_sidebar_items(rows: list):
+	"""Replace the sidebar table, and nothing else on LMS Settings.
+
+	The settings page edits one cached LMS Settings document shared by every
+	panel, and a document save sends every field that is dirty on it, so saving
+	the sidebar from there also commits whatever another panel left unsaved.
+	"""
+	frappe.only_for("Moderator")
+
+	if isinstance(rows, str):
+		rows = frappe.parse_json(rows)
+	if not isinstance(rows, list):
+		frappe.throw(_("Sidebar rows must be a list."))
+
+	settings = frappe.get_single("LMS Settings")
+	settings.set("sidebar_items", [])
+	for index, row in enumerate(rows):
+		if not isinstance(row, dict):
+			frappe.throw(_("Each sidebar row must be an object."))
+		item = {field: row.get(field) for field in ROW_FIELDS}
+		item["idx"] = index + 1
+		settings.append("sidebar_items", item)
+
+	settings.save()
+	return get_sidebar_settings()
 
 
 @frappe.whitelist()
@@ -1968,8 +2016,81 @@ def cancel_evaluation(evaluation: dict):
 			frappe.delete_doc("Event", event.parent, ignore_permissions=True)
 
 
+@frappe.whitelist(methods=["POST"])
+def send_contact_us_email(subject: str, content: str) -> str:
+	"""Email the address configured in LMS Settings, images and all.
+
+	The recipient is read here rather than taken from the request, which is what
+	the browser's old call to frappe.core.doctype.communication.email.make did.
+	That method is still whitelisted and still listed in lms.auth.ALLOWED_PATHS,
+	so this closes the path the LMS UI takes, not the method itself.
+	"""
+	if not isinstance(subject, str) or not isinstance(content, str):
+		frappe.throw(_("Subject and message must both be text."))
+
+	if not subject.strip():
+		frappe.throw(_("Please add a subject."))
+
+	if not has_message(content):
+		frappe.throw(_("Please write a message."))
+
+	recipient = frappe.db.get_single_value("LMS Settings", "contact_us_email")
+	if not recipient:
+		frappe.throw(_("This site has no contact address. Ask a moderator to set one in LMS Settings."))
+
+	subject = subject.strip()
+	message_id = get_string_between("<", get_message_id(), ">")
+	# Every field that decides where this goes is set here, not accepted from the request.
+	# nosemgrep: lms-unjustified-ignore-permissions - a student holds no create permission on Communication
+	communication = frappe.get_doc(
+		{
+			"doctype": "Communication",
+			"communication_type": "Communication",
+			"communication_medium": "Email",
+			"subject": subject,
+			"content": content,
+			"sender": frappe.session.user,
+			"sender_full_name": get_fullname(frappe.session.user),
+			"recipients": recipient,
+			"sent_or_received": "Sent",
+			# Without it a reply cannot be threaded back to this record.
+			"message_id": message_id,
+		}
+	).insert(ignore_permissions=True)
+
+	# Built from the stored copy, which Communication sanitizes on save, rather
+	# than from the request. The record keeps its `src` URLs, so it still
+	# renders in Desk once the files below are attached to it; only the outgoing
+	# message carries `embed`. Same split as Helpdesk's HD Ticket.
+	body, inline_images = prepare_inline_images(communication.content)
+	for image in inline_images:
+		attach_file_to_doc(image["filename"], "Communication", communication.name)
+
+	frappe.sendmail(
+		recipients=[recipient],
+		sender=frappe.session.user,
+		subject=subject,
+		content=body,
+		inline_images=inline_images,
+		communication=communication.name,
+		message_id=message_id,
+	)
+	return communication.name
+
+
 @frappe.whitelist()
-def get_certification_details(course: str):
+def get_certification_details(course: str) -> dict:
+	"""Everything the certification CTA and page need about one course.
+
+	`title` and `evaluator` are served here because LMS Student has no read
+	permission on LMS Course, so a client-side frappe.client.get_value for them
+	fails for the learner the page exists for.
+	"""
+	# Unreachable while require_type_annotated_api_methods is on, since frappe
+	# coerces the argument first. This is the guard for every other caller.
+	if not isinstance(course, str):
+		frappe.throw(_("course must be a string"))
+
 	membership = None
 	filters = {"course": course, "member": frappe.session.user}
 
@@ -1981,17 +2102,37 @@ def get_certification_details(course: str):
 			as_dict=1,
 		)
 
-	paid_certificate = frappe.db.get_value("LMS Course", course, "paid_certificate")
+	# Same gate as get_course_details: an unenrolled, non-staff caller can only
+	# see a published course, or they can enumerate titles that were never
+	# meant to be visible. A course that doesn't exist isn't gated here.
+	is_course_published = frappe.db.get_value("LMS Course", course, "published")
+	course_exists = is_course_published is not None
+	if course_exists and not is_course_published and not can_modify_course(course) and not membership:
+		frappe.throw(_("You do not have permission to view this course."), frappe.PermissionError)
+
+	details = (
+		frappe.db.get_value(
+			"LMS Course",
+			course,
+			["title", "paid_certificate", "evaluator"],
+			as_dict=1,
+		)
+		or frappe._dict()
+	)
 	certificate = frappe.db.get_value(
 		"LMS Certificate",
 		{"member": frappe.session.user, "course": course},
-		["name", "template"],
+		["name", "template", "issue_date"],
 		as_dict=1,
 	)
 
 	return {
+		"title": details.title,
 		"membership": membership,
-		"paid_certificate": paid_certificate,
+		"paid_certificate": details.paid_certificate,
+		# A staff email address. The page only reads it once the certificate has
+		# been paid for, so that is the gate rather than bare enrollment.
+		"evaluator": details.evaluator if membership and membership.purchased_certificate else None,
 		"certificate": certificate,
 	}
 
@@ -2566,6 +2707,7 @@ def get_created_courses():
 		.join(Course)
 		.on(CourseInstructor.parent == Course.name)
 		.select(Course.name)
+		.distinct()
 		.orderby(Course.published_on, order=frappe.qb.desc)
 		.limit(3)
 	)
@@ -2596,6 +2738,7 @@ def get_created_batches():
 		.join(Batch)
 		.on(CourseInstructor.parent == Batch.name)
 		.select(Batch.name)
+		.distinct()
 		.where(CourseInstructor.instructor == frappe.session.user)
 		.where(Batch.start_date >= getdate())
 		.orderby(Batch.start_date, order=frappe.qb.asc)
@@ -3073,3 +3216,33 @@ def delete_category(category: str):
 
 	frappe.delete_doc("LMS Category", category)
 	return unlinked
+
+
+@frappe.whitelist()
+def get_system_preferences():
+	from frappe.core.doctype.user.user import get_timezones
+
+	return {
+		"language": frappe.db.get_single_value("System Settings", "language"),
+		"time_zone": frappe.db.get_single_value("System Settings", "time_zone"),
+		"timezones": get_timezones().get("timezones", []),
+	}
+
+
+@frappe.whitelist()
+def set_system_preferences(language: str = None, time_zone: str = None):
+	from frappe.core.doctype.user.user import get_timezones
+
+	frappe.only_for("System Manager")
+
+	if language:
+		if not frappe.db.exists("Language", language):
+			frappe.throw(_("{0} is not a valid language").format(language))
+		frappe.db.set_single_value("System Settings", "language", language)
+
+	if time_zone:
+		if time_zone not in get_timezones().get("timezones", []):
+			frappe.throw(_("{0} is not a valid timezone").format(time_zone))
+		frappe.db.set_single_value("System Settings", "time_zone", time_zone)
+
+	frappe.clear_cache()

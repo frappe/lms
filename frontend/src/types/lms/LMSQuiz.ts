@@ -39,4 +39,10 @@ export interface LMSQuiz {
 	enable_negative_marking?: 0 | 1
 	/**	Marks To Cut : Int	*/
 	marks_to_cut?: number
+	/**	Enable Scheduling : Check	*/
+	enable_scheduling?: 0 | 1
+	/**	Schedule Start : Datetime	*/
+	schedule_start?: string
+	/**	Schedule End : Datetime	*/
+	schedule_end?: string
 }

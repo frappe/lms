@@ -392,13 +392,13 @@ describe('CourseEnrollmentForm as a route', () => {
 		await wrapper.find('[data-testid="create-User"]').trigger('click')
 		await flushPromises()
 
-		expect(openSettingsMock).toHaveBeenCalledWith('Members')
-		expect(router.currentRoute.value.name).toBe('CourseDetail')
+		expect(openSettingsMock).toHaveBeenCalledWith('members')
+		expect(router.currentRoute.value.name).toBe('NewCourseEnrollment')
 	})
 
-	// Settings is mounted only in the desktop sidebar. Closing the form for a
-	// dialog that never appears threw away whatever the user had typed and left
-	// them with no way to add the member they came for.
+	// Settings is mounted only in the desktop sidebar, so on a phone
+	// openSettings reports nowhere to go. The form used to close itself for a
+	// dialog that never appeared, throwing away what the user typed; this pins that a refusal navigates nowhere.
 	it('stays put when Settings has nowhere to open', async () => {
 		openSettingsMock.mockReturnValue(false)
 		const router = makeRouter()
@@ -412,7 +412,7 @@ describe('CourseEnrollmentForm as a route', () => {
 		await wrapper.find('[data-testid="create-User"]').trigger('click')
 		await flushPromises()
 
-		expect(openSettingsMock).toHaveBeenCalledWith('Members')
+		expect(openSettingsMock).toHaveBeenCalledWith('members')
 		expect(router.currentRoute.value.name).toBe('NewCourseEnrollment')
 	})
 

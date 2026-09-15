@@ -68,4 +68,20 @@ describe('entity decoding is inert', () => {
 		expect(htmlToText('<p>one <b>two</b></p>')).toBe('one two')
 		expect(htmlToText('')).toBe('')
 	})
+
+	// textContent concatenates block elements with nothing between them, so a
+	// two-paragraph question previewed as one line read "First lineSecond line".
+	// These previews are the only consumer, and a word boundary is the whole point.
+	it('htmlToText separates blocks it flattens', () => {
+		expect(htmlToText('<p>First line</p><p>Second line</p>')).toBe(
+			'First line Second line'
+		)
+		expect(htmlToText('<h1>Title</h1><p>Body text</p>')).toBe('Title Body text')
+		expect(htmlToText('<ul><li>one</li><li>two</li></ul>')).toBe('one two')
+		expect(htmlToText('<p>a</p><br><p>b</p>')).toBe('a b')
+	})
+
+	it('htmlToText collapses the whitespace a preview cannot show', () => {
+		expect(htmlToText('<p>spaced   out\n\ntext</p>')).toBe('spaced out text')
+	})
 })

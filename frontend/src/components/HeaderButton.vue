@@ -1,6 +1,7 @@
 <template>
 	<Tooltip v-if="isMobile && icon" :text="label">
 		<Button
+			v-bind="$attrs"
 			:variant="variant"
 			:theme="theme"
 			:loading="loading"
@@ -15,6 +16,7 @@
 	</Tooltip>
 	<Button
 		v-else
+		v-bind="$attrs"
 		:variant="variant"
 		:theme="theme"
 		:loading="loading"
@@ -60,6 +62,11 @@ withDefaults(
 		disabled: false,
 	}
 )
+
+// frappe-ui's Tooltip sets inheritAttrs: false and never re-binds $attrs, so on
+// the mobile branch every attribute a caller passes (data-testid, aria-pressed)
+// was landing on the Tooltip and disappearing. Bind them onto the Button itself.
+defineOptions({ inheritAttrs: false })
 
 const emit = defineEmits<{ (e: 'click'): void }>()
 
