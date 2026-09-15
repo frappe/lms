@@ -278,15 +278,6 @@ on_login = "lms.lms.user.on_login"
 
 get_site_info = "lms.activation.get_site_info"
 
-# add_to_apps_screen = [
-# 	{
-# 		"name": "lms",
-# 		"logo": "/assets/lms/frontend/learning.svg",
-# 		"title": "Learning",
-# 		"route": f"/{get_lms_path()}",
-# 		"has_permission": "lms.lms.api.check_app_permission",
-# 	}
-# ]
 add_to_apps_screen = [
 	{
 		"name": "lms",
@@ -296,6 +287,18 @@ add_to_apps_screen = [
 		"has_permission": "lms.lms.api.check_app_permission",
 	}
 ]
+
+# add_to_apps_screen = [
+# 	{
+# 		"name": "lms",
+# 		"logo": "/assets/lms/frontend/learning.svg",
+# 		"title": "Learning",
+# 		"route": f"/{get_lms_path()}",
+# 		"has_permission": "lms.lms.api.check_app_permission",
+# 	}
+# ]
+
+
 sqlite_search = ["lms.sqlite.LearningSearch"]
 auth_hooks = ["lms.auth.authenticate"]
 require_type_annotated_api_methods = True
