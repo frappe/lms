@@ -24,8 +24,11 @@ vi.mock('frappe-ui', () => ({
 	Tooltip: { template: `<div><slot /></div>` },
 }))
 
-vi.mock('frappe-ui/frappe', () => ({
+vi.mock('@framework/ui/components/TrialBanner/index', () => ({
 	TrialBanner: { template: `<div />` },
+}))
+
+vi.mock('@framework/ui/components/Onboarding/index', () => ({
 	HelpModal: { template: `<div />` },
 	GettingStartedBanner: { template: `<div />` },
 	IntermediateStepModal: { template: `<div />` },
@@ -35,6 +38,9 @@ vi.mock('frappe-ui/frappe', () => ({
 	}),
 	showHelpModal: { value: false },
 	minimize: { value: false },
+}))
+
+vi.mock('@framework/ui/telemetry/index', () => ({
 	useTelemetry: () => ({ capture: vi.fn() }),
 }))
 
