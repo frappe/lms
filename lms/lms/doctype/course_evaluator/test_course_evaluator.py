@@ -19,6 +19,10 @@ EVALUATOR_NOWTIME = "lms.lms.doctype.course_evaluator.course_evaluator.nowtime"
 REQUEST_NOWTIME = "lms.lms.doctype.lms_certificate_request.lms_certificate_request.nowtime"
 EVALUATOR_GETDATE = "lms.lms.doctype.course_evaluator.course_evaluator.getdate"
 REQUEST_GETDATE = "lms.lms.doctype.lms_certificate_request.lms_certificate_request.getdate"
+# get_schedule anchors its window on nowdate() and then walks it with
+# getdate(). Pinning one clock and not the other leaves a test that starts
+# just before midnight asserting against two different days.
+EVALUATOR_NOWDATE = "lms.lms.doctype.course_evaluator.course_evaluator.nowdate"
 
 
 def _frozen_getdate(frozen_date):
@@ -47,8 +51,18 @@ class TestCourseEvaluator(BaseTestUtils):
 		slot carries are what the booking is made of."""
 		return [slot for row in schedule for slot in row.get("slots")]
 
-	def test_schedule_day_and_time(self):
-		schedule = get_schedule(self.batch.courses[0].course, self.batch.name)
+	@patch(EVALUATOR_NOWTIME, return_value="00:00:00")
+	def test_schedule_day_and_time(self, _evaluator_nowtime):
+		# Every clock is pinned for the same reason test_schedule_dates pins
+		# them: unfrozen, today's own slot drops out of the schedule the moment
+		# its start time passes, taking the count below 14 for the rest of the
+		# day. That a started slot is withheld has its own tests.
+		today = getdate()
+		with (
+			patch(EVALUATOR_GETDATE, side_effect=_frozen_getdate(today)),
+			patch(EVALUATOR_NOWDATE, return_value=str(today)),
+		):
+			schedule = get_schedule(self.batch.courses[0].course, self.batch.name)
 		days = ["Monday", "Wednesday"]
 		self.assertGreaterEqual(len(schedule), 14)
 		for slot in self._slots(schedule):
@@ -63,7 +77,10 @@ class TestCourseEvaluator(BaseTestUtils):
 	@patch(EVALUATOR_NOWTIME, return_value="00:00:00")
 	def test_schedule_dates(self, _evaluator_nowtime):
 		today = getdate()
-		with patch(EVALUATOR_GETDATE, side_effect=_frozen_getdate(today)):
+		with (
+			patch(EVALUATOR_GETDATE, side_effect=_frozen_getdate(today)),
+			patch(EVALUATOR_NOWDATE, return_value=str(today)),
+		):
 			schedule = get_schedule(self.batch.courses[0].course, self.batch.name)
 			dates = sorted({getdate(slot.get("date")) for slot in self._slots(schedule)})
 		self.assertEqual(dates[0], self.calculated_first_date_of_schedule(today))
@@ -121,11 +138,17 @@ class TestTodaysSlots(BaseTestUtils):
 	def setUp(self):
 		super().setUp()
 		# Frozen once, up front: get_schedule and LMSCertificateRequest.validate
-		# both call getdate() with no args to mean "today", and a midnight
-		# rollover mid-test must not let them disagree.
+		# both read "today" off the clock, and a midnight rollover mid-test must
+		# not let them disagree. _todays_slots asserts against self.today, so the
+		# window get_schedule builds has to start on that date too.
 		self.today = getdate()
-		for target in (EVALUATOR_GETDATE, REQUEST_GETDATE):
-			patcher = patch(target, side_effect=_frozen_getdate(self.today))
+		frozen_getdate = _frozen_getdate(self.today)
+		patchers = [
+			patch(EVALUATOR_GETDATE, side_effect=frozen_getdate),
+			patch(REQUEST_GETDATE, side_effect=frozen_getdate),
+			patch(EVALUATOR_NOWDATE, return_value=str(self.today)),
+		]
+		for patcher in patchers:
 			patcher.start()
 			self.addCleanup(patcher.stop)
 		self.instructor = self._create_user(
