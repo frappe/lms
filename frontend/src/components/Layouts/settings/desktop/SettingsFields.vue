@@ -27,39 +27,41 @@
 						/>
 					</div>
 
-					<div
-						v-else-if="field.type == 'code'"
-						class="py-3"
-						@input="report(field, 'typing')"
-						@focusout="report(field, 'now')"
-					>
-						<div
-							data-testid="code-field-label"
-							class="text-p-base-medium text-ink-gray-7 mb-2"
-						>
-							{{ __(field.label) }}
-							<span v-if="field.reqd" class="text-ink-red-5" aria-hidden="true"
-								>*</span
-							>
-						</div>
+					<div v-else-if="field.type == 'code'" class="code-field py-3">
 						<CodeEditor
-							:type="codeType(field)"
 							v-model="data[field.name]"
-							:height="codeHeight(field)"
-							class="shrink-0"
+							:language="codeLanguage(field)"
 							:required="field.reqd"
-							:readonly="field.disabled"
-							:showLineNumbers="true"
-							:aria-label="__(field.label)"
+							:disabled="field.disabled"
+							size="sm"
+							class="shrink-0"
+							:style="codeBox(field)"
+							@update:model-value="report(field, 'typing')"
+							@change="report(field, 'now')"
 						>
+							<template #label>
+								<span
+									data-testid="code-field-label"
+									class="text-p-base-medium text-ink-gray-7"
+								>
+									{{ __(field.label) }}
+									<span
+										v-if="field.reqd"
+										class="text-ink-red-5"
+										aria-hidden="true"
+										>*</span
+									>
+								</span>
+							</template>
+							<template v-if="field.description" #description>
+								<span
+									data-testid="code-field-description"
+									class="text-p-sm text-ink-gray-5"
+								>
+									{{ __(field.description) }}
+								</span>
+							</template>
 						</CodeEditor>
-						<div
-							v-if="field.description"
-							data-testid="code-field-description"
-							class="text-p-sm text-ink-gray-5 mt-2"
-						>
-							{{ __(field.description) }}
-						</div>
 					</div>
 
 					<div
@@ -252,10 +254,10 @@
 </template>
 <script setup>
 import { FormControl, Password, Select } from 'frappe-ui'
+import { CodeEditor } from 'frappe-ui/experimental'
 import BooleanSwitch from '@/components/Controls/BooleanSwitch.vue'
 import { reactive, watch } from 'vue'
 import Link from '@/components/Controls/Link.vue'
-import CodeEditor from '@/components/Controls/CodeEditor.vue'
 import ImageUploadField from '@/components/Controls/ImageUploadField.vue'
 import RichTextEditor from '@/components/RichTextEditor.vue'
 import { seedCheckboxDefaults } from '@/components/Settings/Mobile/mobileRows'
@@ -339,17 +341,26 @@ const INSTANT_TYPES = [
 const visibleFields = (section) =>
 	section.fields.filter((field) => !field.showIf || field.showIf(props.data))
 
-// The schema names a language like CodeMirror; CodeEditor names it like Ace.
-// Not derivable from each other, so the mapping is spelled out. Unmapped
-// falls back to HTML, matching every code field's prior default.
-const CODE_TYPES = { htmlmixed: 'HTML', javascript: 'JavaScript', json: 'JSON' }
+// The schema names a mode the way CodeMirror 5 did; the editor wants a
+// CodeMirror 6 language key. Unmapped falls back to html, matching every code
+// field's prior default.
+const CODE_LANGUAGES = { htmlmixed: 'html', javascript: 'javascript' }
 
-const codeType = (field) => CODE_TYPES[field.mode] || 'HTML'
+const codeLanguage = (field) => CODE_LANGUAGES[field.mode] || 'html'
 
 // 25px a line, which is what the one pre-existing code field's `rows: 10` was
 // already being drawn at back when the height was hardcoded to 250px. Its
 // height must not move because a second field finally reads the number.
-const codeHeight = (field) => `${(field.rows ?? 10) * 25}px`
+//
+// A custom property rather than a `height` prop: the editor has none, and caps
+// itself at `--cm-max-height`. Custom properties inherit, so setting it on the
+// labelled wrapper reaches the editor inside. The matching floor is a CSS rule
+// below, because a cap alone would let a short document draw a short box and
+// Email Template's Use HTML toggle swaps this field with a fixed-height rich
+// text one.
+const codeBox = (field) => ({
+	'--cm-max-height': `${(field.rows ?? 10) * 25}px`,
+})
 
 const CONTENT_TYPES = ['textarea', 'richtext']
 
@@ -527,3 +538,12 @@ watch(
 	{ immediate: true }
 )
 </script>
+
+<style scoped>
+/* Min and max on the same element pins the editor to exactly the height the
+   schema's `rows` asks for. `.cm-editor` is a column flexbox whose scroller
+   grows, so the code scrolls inside a box that never resizes. */
+.code-field :deep(.cm-editor) {
+	min-height: var(--cm-max-height);
+}
+</style>
