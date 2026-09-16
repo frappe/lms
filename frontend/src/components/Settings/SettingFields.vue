@@ -82,16 +82,28 @@
 						</div>
 					</div>
 
-					<div v-else-if="field.type == 'Code'" class="py-3">
+					<div v-else-if="field.type == 'Code'" class="code-field py-3">
 						<CodeEditor
-							:label="__(field.label)"
-							type="HTML"
-							description="The HTML you add here will be shown on your sign up page."
 							v-model="data[field.name]"
-							height="250px"
+							language="html"
+							size="sm"
 							class="shrink-0"
-							:showLineNumbers="true"
+							:style="{ '--cm-max-height': '250px' }"
 						>
+							<template #label>
+								<span class="text-p-base-medium text-ink-gray-7">
+									{{ __(field.label) }}
+								</span>
+							</template>
+							<template #description>
+								<span class="text-p-sm text-ink-gray-5">
+									{{
+										__(
+											'The HTML you add here will be shown on your sign up page.'
+										)
+									}}
+								</span>
+							</template>
 						</CodeEditor>
 					</div>
 
@@ -145,15 +157,13 @@
 								:aria-label="__(field.label)"
 								class="w-48"
 							/>
-							<FormControl
+							<component
+								:is="controlOf(field)"
 								v-else
 								:key="field.name"
 								v-model="data[field.name]"
-								:type="field.type"
-								:rows="field.rows"
-								:options="field.options"
+								v-bind="controlProps(field)"
 								:required="field.reqd"
-								:min="field.min"
 								class="w-48"
 								:aria-label="__(field.label)"
 								:placeholder="field.placeholder || __(field.label)"
@@ -166,12 +176,12 @@
 	</div>
 </template>
 <script setup>
-import { Button, FileUploader, FormControl, Select } from 'frappe-ui'
+import { Button, FileUploader, FormControl, Password, Select } from 'frappe-ui'
+import { CodeEditor } from 'frappe-ui/experimental'
 import BooleanSwitch from '@/components/Controls/BooleanSwitch.vue'
 import { watch } from 'vue'
 import { validateFile } from '@/utils'
 import Link from '@/components/Controls/Link.vue'
-import CodeEditor from '@/components/Controls/CodeEditor.vue'
 import { seedCheckboxDefaults } from '@/components/Settings/mobileSettings'
 import { safeUrl } from '@/utils/safeUrl'
 
@@ -184,6 +194,22 @@ import { safeUrl } from '@/utils/safeUrl'
 // `public: true` may be world-readable; everything else keeps frappe's private
 // default. Behind a helper the privacy ratchet in publicImageUploads.test.ts can
 // only see "computed" and would stop catching a flip to public.
+
+// Every `password` field is a secret, so all of them get Password's masked box
+// and reveal toggle rather than a bare type="password". Password takes no `type`
+// prop: handing it one would land on the input and override its own show/hide.
+const controlOf = (field) =>
+	field.type === 'password' ? Password : FormControl
+
+const controlProps = (field) =>
+	field.type === 'password'
+		? {}
+		: {
+				type: field.type,
+				rows: field.rows,
+				options: field.options,
+				min: field.min,
+		  }
 
 const props = defineProps({
 	sections: {
@@ -216,3 +242,12 @@ watch(
 	{ immediate: true }
 )
 </script>
+
+<style scoped>
+/* Min and max on the same element pins the editor to exactly 250px.
+   `.cm-editor` is a column flexbox whose scroller grows, so the code scrolls
+   inside a box that never resizes. */
+.code-field :deep(.cm-editor) {
+	min-height: var(--cm-max-height);
+}
+</style>
