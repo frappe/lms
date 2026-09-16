@@ -322,7 +322,9 @@ const MANIFEST: Record<string, Privacy[]> = {
 	// `uploadArgs` computed object — no longer `computed`, still private.
 	'components/UploadPlugin.vue': ['private'],
 	'pages/Forms/AssignmentForm.vue': ['undeclared'],
-	'pages/Forms/AnnouncementForm.vue': ['undeclared'],
+	// Moved out of AnnouncementForm.vue when it adopted FormLayout: the
+	// `<RichTextEditor>` tag now lives in this reusable field adapter instead.
+	'components/FormLayout/RichTextEditorField.vue': ['undeclared'],
 	'pages/Batches/BatchForm.vue': ['undeclared'],
 	'pages/Forms/EmailTemplateForm.vue': ['undeclared'],
 	'pages/Forms/NewBatchForm.vue': ['undeclared'],

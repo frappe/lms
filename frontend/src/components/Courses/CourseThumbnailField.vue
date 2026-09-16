@@ -129,7 +129,7 @@
 import { Button, FileUploader, createResource, toast } from 'frappe-ui'
 import { computed, inject, ref, useId, watch } from 'vue'
 import type { CourseFormContext, Resource } from '@/types'
-import { InputLabel } from '@/components/Form/labeling'
+import { InputLabel } from 'frappe-ui/experimental'
 import { safeUrl } from '@/utils/safeUrl'
 
 // Layout mirrors VideoPreviewField (the sibling field in the same form row):

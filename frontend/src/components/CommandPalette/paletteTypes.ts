@@ -16,7 +16,6 @@ export interface PaletteItem {
 	icon?: string
 	/** Unix seconds, as the search index stores it. */
 	modified?: number
-	isActive?: boolean
 	/** Belongs to a query the user has already replaced; shown, not selectable. */
 	isStale?: boolean
 }

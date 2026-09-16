@@ -48,8 +48,15 @@ class TestCourseEvaluator(BaseTestUtils):
 		slot carries are what the booking is made of."""
 		return [slot for row in schedule for slot in row.get("slots")]
 
-	def test_schedule_day_and_time(self):
-		schedule = get_schedule(self.batch.courses[0].course, self.batch.name)
+	@patch(EVALUATOR_NOWTIME, return_value="00:00:00")
+	def test_schedule_day_and_time(self, _evaluator_nowtime):
+		# Both clocks are pinned for the same reason test_schedule_dates pins
+		# them: unfrozen, today's own slot drops out of the schedule the moment
+		# its start time passes, taking the count below 14 for the rest of the
+		# day. That a started slot is withheld has its own tests.
+		today = getdate()
+		with patch(EVALUATOR_GETDATE, side_effect=_frozen_getdate(today)):
+			schedule = get_schedule(self.batch.courses[0].course, self.batch.name)
 		days = ["Monday", "Wednesday"]
 		self.assertGreaterEqual(len(schedule), 14)
 		for slot in self._slots(schedule):
