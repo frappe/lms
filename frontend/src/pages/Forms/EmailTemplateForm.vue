@@ -77,7 +77,7 @@ import {
 import { computed, inject, reactive, useId } from 'vue'
 import { useRoute } from 'vue-router'
 import BooleanSwitch from '@/components/Controls/BooleanSwitch.vue'
-import { InputLabel } from '@/components/Form/labeling'
+import { InputLabel } from 'frappe-ui/experimental'
 import FormShell from '@/components/FormShell.vue'
 import HeaderButton from '@/components/HeaderButton.vue'
 import RichTextEditor from '@/components/RichTextEditor.vue'

@@ -137,7 +137,7 @@ import {
 	saveShortcut,
 } from '@/composables/useKeyboardShortcuts'
 import RichTextEditor from '@/components/RichTextEditor.vue'
-import { InputLabel } from '@/components/Form/labeling'
+import { InputLabel } from 'frappe-ui/experimental'
 import { submitResource } from '@/utils/resource'
 
 const user = inject('$user')

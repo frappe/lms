@@ -80,7 +80,7 @@
 				<template #prefix>
 					<span class="lucide-plus size-4 text-ink-gray-7" />
 				</template>
-				{{ __('Add Row') }}
+				{{ placeholder || __('Add Row') }}
 			</Button>
 		</div>
 		<InputDescription
@@ -101,7 +101,7 @@ import {
 	InputError,
 	InputLabel,
 	useInputLabeling,
-} from '@/components/Form/labeling'
+} from 'frappe-ui/experimental'
 
 const rows = defineModel<Record<string, string>[]>()
 const menuRef = ref(null)
@@ -113,11 +113,6 @@ const emit = defineEmits<{
 	(e: 'update:modelValue', value: Record<string, string>[]): void
 }>()
 
-type Cell = {
-	value: string
-	editable?: boolean
-}
-
 const props = withDefaults(
 	defineProps<{
 		modelValue?: Record<string, string>[]
@@ -126,6 +121,8 @@ const props = withDefaults(
 		description?: string
 		error?: string
 		required?: boolean
+		/** Add-row button text. Already translated by the caller. */
+		placeholder?: string
 	}>(),
 	{
 		columns: () => [] as string[],
