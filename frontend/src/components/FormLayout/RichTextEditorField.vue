@@ -14,7 +14,10 @@
 import { useId } from 'vue'
 import RichTextEditor from '@/components/RichTextEditor.vue'
 import { InputLabel } from 'frappe-ui/experimental'
-import type { FieldComponentEmits, FieldComponentProps } from '@framework/ui/FormLayout'
+import type {
+	FieldComponentEmits,
+	FieldComponentProps,
+} from '@framework/ui/FormLayout'
 
 /**
  * `FormLayout`'s field adapter for LMS's own rich text editor. Uncontrolled by

@@ -35,7 +35,9 @@
 		<div class="flex flex-col space-y-2 mt-auto">
 			<div class="flex items-center text-sm text-ink-gray-7">
 				<span class="lucide-calendar h-4 w-4 me-2" />
-				<span>{{ getFormattedDateRange(batch.start_date, batch.end_date) }}</span>
+				<span>{{
+					getFormattedDateRange(batch.start_date, batch.end_date)
+				}}</span>
 			</div>
 			<div class="flex items-center text-sm text-ink-gray-7">
 				<span class="lucide-clock h-4 w-4 me-2 text-ink-gray-7" />

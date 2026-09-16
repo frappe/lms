@@ -37,10 +37,18 @@
 				</CommandPaletteGroup>
 			</CommandPaletteList>
 
-			<p v-if="showsErrorState" class="px-4.5 py-2 text-ink-gray-5" role="status">
+			<p
+				v-if="showsErrorState"
+				class="px-4.5 py-2 text-ink-gray-5"
+				role="status"
+			>
 				{{ __('Could not search just now. Try again.') }}
 			</p>
-			<p v-if="showsEmptyState" class="px-4.5 py-2 text-ink-gray-5" role="status">
+			<p
+				v-if="showsEmptyState"
+				class="px-4.5 py-2 text-ink-gray-5"
+				role="status"
+			>
 				{{ __('No results found') }}
 			</p>
 
@@ -87,7 +95,15 @@ import {
 	CommandPaletteList,
 	type CommandPaletteSelectEvent,
 } from 'frappe-ui/experimental'
-import { computed, inject, nextTick, onUnmounted, ref, useTemplateRef, watch } from 'vue'
+import {
+	computed,
+	inject,
+	nextTick,
+	onUnmounted,
+	ref,
+	useTemplateRef,
+	watch,
+} from 'vue'
 import type dayjsType from 'dayjs'
 import { useRouter } from 'vue-router'
 import { usersStore } from '@/stores/user'

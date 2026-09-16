@@ -2,7 +2,11 @@
 	<div class="p-2">
 		<Dropdown :options="userDropdownOptions">
 			<template #item-suffix="{ selected }">
-				<span v-if="selected" class="lucide-check size-4 text-ink-gray-7" aria-hidden="true" />
+				<span
+					v-if="selected"
+					class="lucide-check size-4 text-ink-gray-7"
+					aria-hidden="true"
+				/>
 			</template>
 			<template v-slot="{ open, close }">
 				<button
