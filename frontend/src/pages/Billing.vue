@@ -192,7 +192,9 @@
 								v-model="billingDetails.member_consent"
 								:error="
 									showConsentWarning
-										? __('Please provide your consent to proceed with the payment')
+										? __(
+												'Please provide your consent to proceed with the payment'
+										  )
 										: undefined
 								"
 							/>

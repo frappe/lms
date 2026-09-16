@@ -123,7 +123,14 @@
 import { inject, ref, getCurrentInstance, computed } from 'vue'
 import { formatTime } from '@/utils'
 import { formatTimezone } from '@/utils/timezone'
-import { Alert, Button, createListResource, call, Dropdown, toast } from 'frappe-ui'
+import {
+	Alert,
+	Button,
+	createListResource,
+	call,
+	Dropdown,
+	toast,
+} from 'frappe-ui'
 import EvaluationModal from '@/components/Modals/EvaluationModal.vue'
 import { openExternal } from '@/utils/openExternal'
 

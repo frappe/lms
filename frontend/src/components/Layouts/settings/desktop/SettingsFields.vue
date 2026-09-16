@@ -302,7 +302,8 @@ const hasStoredSecret = (field) => Boolean(props.data[field.name])
 // storage, so all of them get Password's masked box and reveal toggle rather
 // than a bare type="password". Password takes no `type` prop — handing it one
 // would land on the input and override its own show/hide.
-const controlOf = (field) => (field.type === 'password' ? Password : FormControl)
+const controlOf = (field) =>
+	field.type === 'password' ? Password : FormControl
 
 const controlProps = (field) =>
 	field.type === 'password'
