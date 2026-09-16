@@ -264,10 +264,10 @@ class TestSaveProgressEnrollmentLifecycle(BaseTestUtils):
 
 	def test_recalculate_course_progress_dispatches_on_update(self):
 		"""Regression: recalculate_course_progress wrote via raw set_value, firing no doc events."""
-		# LMS Course Progress.on_update already calls recalculate_course_progress,
-		# so this insert leaves the enrollment's cached value correct. Force it
-		# stale afterwards, the way a raw write (or a race) would, so the
-		# recompute below actually changes something and has a dispatch to prove.
+		# on_update already recalculates, so this insert leaves the cached value
+		# correct. Force it stale afterwards, the way a raw write or a race would, so
+		# the recompute below actually changes something.
+		# nosemgrep: lms-unjustified-ignore-permissions - test fixture setup
 		frappe.get_doc(
 			{
 				"doctype": "LMS Course Progress",

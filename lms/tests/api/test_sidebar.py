@@ -57,7 +57,7 @@ class TestSidebar(BaseTestUtils):
 		names = [row.name1 for row in self.settings.sidebar_items]
 		self.assertEqual(names, [row["name1"] for row in rows])
 
-	def test_save_sidebar_items_rejects_by_case(self):
+	def test_save_sidebar_items_rejects_deleting_hiding_or_escaping_the_site(self):
 		def deleted_standard_row():
 			return []
 

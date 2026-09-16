@@ -8,10 +8,9 @@ import frappe
 
 class TestLMSCourse(unittest.TestCase):
 	def test_video_link_stored_as_entered(self):
-		# video_link is stored verbatim, with no stripping: validate_video_link is a
-		# no-op by design (stripping URLs down to a bare id was lossy — it mangled
-		# uploaded /files paths and some YouTube urls didn't round-trip). Calling it
-		# directly on an unsaved doc proves the contract without five save() round-trips.
+		# validate_video_link is a no-op by design: reducing a URL to a bare id mangled
+		# uploaded /files paths and broke some YouTube urls. Calling it on an unsaved
+		# doc proves the contract without five save() round-trips.
 		course = frappe.new_doc("LMS Course")
 		for link in (
 			"https://www.youtube.com/watch?v=dQw4w9WgXcQ",

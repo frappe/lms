@@ -364,10 +364,9 @@ class TestQuizAuthoringHelpers(FrappeTestCase):
 		self.assertEqual(by_name[self.q2.name]["default_marks"], 1)
 
 	def test_bank_offers_the_questions_own_marks_including_zero(self):
-		# TestQuizAuthoringHelpers has no per-test rollback (FrappeTestCase rolls back
-		# once, at class teardown), so a write to the shared q1 must restore itself.
-		# `marks` is non_negative, not > 0, so 0 is a number an author can choose;
-		# `or 1` used to read it as absent and quietly offer the question as worth 1.
+		# FrappeTestCase rolls back once at class teardown, so a write to the shared q1
+		# must restore itself. `marks` is non_negative, so 0 is a real choice; `or 1`
+		# used to read it as absent and offer the question as worth 1.
 		original_marks = frappe.db.get_value("LMS Question", self.q1.name, "marks")
 		self.addCleanup(frappe.db.set_value, "LMS Question", self.q1.name, "marks", original_marks)
 		cases = [("nonzero", 5), ("zero", 0)]
@@ -470,12 +469,10 @@ class TestQuestionMarksBackfill(FrappeTestCase):
 			}
 		).insert()
 
-	def test_backfill_marks_pins_each_case(self):
+	def test_backfill_takes_the_highest_quiz_weight_and_leaves_authored_marks_alone(self):
 		def zero_weight():
-			# 0 is a weight an author can pick: `reqd` does not block it, because frappe
-			# reads an Int through cstr and "0" counts as content. Filtering the backfill
-			# on `marks > 1` left such a question on the new default of 1, so adding it
-			# from the bank scored it 1 when every quiz using it scored it 0.
+			# 0 is a weight an author can pick (`reqd` reads an Int through cstr, so "0"
+			# counts as content). Filtering on `marks > 1` left it on the default of 1.
 			question = self._question("Backfill zero")
 			self._quiz("Backfill Zero Quiz", [{"question": question.name, "marks": 0}])
 			frappe.db.set_value("LMS Question", question.name, "marks", 1, update_modified=False)

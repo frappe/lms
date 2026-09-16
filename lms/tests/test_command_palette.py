@@ -264,10 +264,8 @@ class TestAuthoredScope(BaseTestUtils):
 			frappe.set_user("Administrator")
 
 	def test_an_author_is_given_the_quiz_they_made(self):
-		# Each test below sets the owner it needs rather than relying on setUp's
-		# fixture value: the quiz is a shared class-level fixture now, so a test
-		# must not depend on what an earlier test (alphabetically,
-		# test_an_evaluator_is_given_the_quiz_they_made) happened to leave behind.
+		# The quiz is a shared class fixture, so each test sets the owner it needs
+		# rather than inheriting whatever the previous one left behind.
 		frappe.db.set_value("LMS Quiz", self.quiz.name, "owner", self.author.name)
 		self.assertFalse(frappe.db.get_value("LMS Quiz", self.quiz.name, "course"))
 		self.assertEqual(self.permitted_for(self.author.name), {self.quiz.name})

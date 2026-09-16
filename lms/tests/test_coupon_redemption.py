@@ -212,7 +212,7 @@ class TestCouponRedemption(_CouponRedemptionFixtures, BaseTestUtils):
 
 	# Usage limit
 
-	def test_usage_limit_logging_by_case(self):
+	def test_usage_limit_is_logged_only_once_a_redemption_passes_it(self):
 		# The payment already went through in the paid case, so the redemption
 		# is still recorded (and logged); the other two cases are within limit
 		# / no limit set, so nothing is logged.

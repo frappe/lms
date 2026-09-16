@@ -12,10 +12,9 @@ class TestAuth(BaseTestUtils):
 
 	def setUp(self):
 		super().setUp()
-		# authenticate() no-ops entirely unless this is set; CI's site config sets it,
-		# but a local site's doesn't, which made test_allowed_path pass vacuously (the
-		# gate never ran) and test_not_allowed_path fail (no PermissionError, since
-		# nothing was ever checked).
+		# authenticate() no-ops unless this is set. CI's site config sets it, a local
+		# one doesn't, so test_allowed_path passed vacuously and test_not_allowed_path
+		# failed locally.
 		self._original_block_endpoints = frappe.conf.get("block_endpoints")
 		frappe.conf.block_endpoints = 1
 

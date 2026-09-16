@@ -105,7 +105,18 @@ class TestApplyEnforcementFlags(unittest.TestCase):
 		)
 
 
+class _DictSubclass(dict):
+	"""A frappe._dict-like subclass: the helper must duck-type, not isinstance-check."""
+
+
 class TestApplyEnforcementFlagsEdgeCases(unittest.TestCase):
+	QUIZ_OFF = {"enforce_quiz_completion": 0, "enforce_assignment_completion": 1}
+	ASSIGNMENT_OFF = {"enforce_quiz_completion": 1, "enforce_assignment_completion": 0}
+	BOTH_OFF = {"enforce_quiz_completion": 0, "enforce_assignment_completion": 0}
+	STRING_ZERO = {"enforce_quiz_completion": "0", "enforce_assignment_completion": "0"}
+	STRING_ONE = {"enforce_quiz_completion": "1", "enforce_assignment_completion": "1"}
+	NONE_QUIZ = {"enforce_quiz_completion": None, "enforce_assignment_completion": 1}
+
 	def setUp(self):
 		from lms.lms.doctype.course_lesson.course_lesson import (
 			apply_enforcement_flags,
@@ -113,79 +124,31 @@ class TestApplyEnforcementFlagsEdgeCases(unittest.TestCase):
 
 		self.fn = apply_enforcement_flags
 
-	def test_enforcement_flags_by_case(self):
-		def quiz_off_returns_true_for_quiz():
-			settings = {"enforce_quiz_completion": 0, "enforce_assignment_completion": 1}
-			self.assertEqual(
-				self.fn(quiz_done=False, assignment_done=False, settings=settings), (True, False)
-			)
-
-		def assignment_off_returns_true_for_assignment():
-			settings = {"enforce_quiz_completion": 1, "enforce_assignment_completion": 0}
-			self.assertEqual(
-				self.fn(quiz_done=False, assignment_done=False, settings=settings), (False, True)
-			)
-
-		def missing_settings_keys_treated_as_enforced():
-			self.assertEqual(self.fn(quiz_done=False, assignment_done=True, settings={}), (False, True))
-
-		def dict_subclass_input():
-			"""A frappe._dict-like subclass of dict should work via duck-typing."""
-
-			class _Dict(dict):
-				pass
-
-			settings = _Dict({"enforce_quiz_completion": 0, "enforce_assignment_completion": 1})
-			self.assertEqual(
-				self.fn(quiz_done=False, assignment_done=False, settings=settings), (True, False)
-			)
-
-		def string_zero_is_truthy_treated_as_enforced():
-			"""Frappe may return '0' as a string from raw queries. `not '0'` is False, so
-			it's still enforced. Codifies current behavior: callers that hit this should
-			pass int(value) explicitly."""
-			settings = {"enforce_quiz_completion": "0", "enforce_assignment_completion": "0"}
-			self.assertEqual(
-				self.fn(quiz_done=False, assignment_done=False, settings=settings), (False, False)
-			)
-
-		def string_one_treated_as_enforced():
-			settings = {"enforce_quiz_completion": "1", "enforce_assignment_completion": "1"}
-			self.assertEqual(self.fn(quiz_done=True, assignment_done=True, settings=settings), (True, True))
-			self.assertEqual(self.fn(quiz_done=False, assignment_done=True, settings=settings), (False, True))
-
-		def none_for_flag_disables_enforcement():
-			"""Present-but-None: helper sees `not None == True`, treats as NOT enforced.
-			Distinct from missing key (which defaults to 1 / enforced via dict.get's
-			default)."""
-			settings = {"enforce_quiz_completion": None, "enforce_assignment_completion": 1}
-			self.assertEqual(
-				self.fn(quiz_done=False, assignment_done=False, settings=settings), (True, False)
-			)
-
-		def both_int_zero_disabled():
-			settings = {"enforce_quiz_completion": 0, "enforce_assignment_completion": 0}
-			for quiz_done in (True, False):
-				for assignment_done in (True, False):
-					with self.subTest(quiz_done=quiz_done, assignment_done=assignment_done):
-						self.assertEqual(
-							self.fn(quiz_done=quiz_done, assignment_done=assignment_done, settings=settings),
-							(True, True),
-						)
-
+	def test_a_flag_is_enforced_unless_it_is_explicitly_falsy(self):
+		"""Enforcement is the default: only a genuinely falsy flag turns it off, and a
+		missing key is not falsy because dict.get supplies 1."""
 		cases = [
-			("quiz_off_returns_true_for_quiz", quiz_off_returns_true_for_quiz),
-			("assignment_off_returns_true_for_assignment", assignment_off_returns_true_for_assignment),
-			("missing_settings_keys_treated_as_enforced", missing_settings_keys_treated_as_enforced),
-			("dict_subclass_input", dict_subclass_input),
-			("string_zero_is_truthy_treated_as_enforced", string_zero_is_truthy_treated_as_enforced),
-			("string_one_treated_as_enforced", string_one_treated_as_enforced),
-			("none_for_flag_disables_enforcement", none_for_flag_disables_enforcement),
-			("both_int_zero_disabled", both_int_zero_disabled),
+			# case, quiz_done, assignment_done, settings, expected
+			("quiz_off", False, False, self.QUIZ_OFF, (True, False)),
+			("assignment_off", False, False, self.ASSIGNMENT_OFF, (False, True)),
+			("missing_keys_stay_enforced", False, True, {}, (False, True)),
+			("both_off_and_both_done", True, True, self.BOTH_OFF, (True, True)),
+			("both_off_and_quiz_done", True, False, self.BOTH_OFF, (True, True)),
+			("both_off_and_assignment_done", False, True, self.BOTH_OFF, (True, True)),
+			("both_off_and_neither_done", False, False, self.BOTH_OFF, (True, True)),
+			# "0" is a non-empty string, so it is truthy and still reads as enforced.
+			# Callers that hit this should pass int(value) explicitly.
+			("string_zero_is_truthy", False, False, self.STRING_ZERO, (False, False)),
+			("string_one_both_done", True, True, self.STRING_ONE, (True, True)),
+			("string_one_quiz_undone", False, True, self.STRING_ONE, (False, True)),
+			# Present-but-None is falsy, unlike a missing key.
+			("none_disables", False, False, self.NONE_QUIZ, (True, False)),
+			("dict_subclass_is_duck_typed", False, False, _DictSubclass(self.QUIZ_OFF), (True, False)),
 		]
-		for case, run in cases:
+		for case, quiz_done, assignment_done, settings, expected in cases:
 			with self.subTest(case=case):
-				run()
+				got = self.fn(quiz_done=quiz_done, assignment_done=assignment_done, settings=settings)
+				self.assertEqual(got, expected)
 
 	def test_does_not_mutate_settings(self):
 		settings = {"enforce_quiz_completion": 1, "enforce_assignment_completion": 0}
@@ -364,19 +327,6 @@ class TestRenameSettledUntitledLessons(BaseTestUtils):
 		)
 		self.course = self._create_course(title=f"Rename Untitled Course {frappe.generate_hash(length=6)}")
 		self.chapter = self._create_chapter("Rename Chapter", self.course.name)
-
-	def tearDown(self):
-		frappe.set_user("Administrator")
-		for lesson in frappe.db.get_all("Course Lesson", {"chapter": self.chapter.name}, pluck="name"):
-			frappe.delete_doc("Course Lesson", lesson, force=True, ignore_permissions=True)
-		frappe.delete_doc("Course Chapter", self.chapter.name, force=True, ignore_permissions=True)
-		frappe.delete_doc("LMS Course", self.course.name, force=True, ignore_permissions=True)
-		# A successful rename commits (see the product code's docstring). If this
-		# test triggered one, these deletes are the last thing in the transaction
-		# before the class's own end-of-class rollback fires; leaving them
-		# uncommitted would let that rollback resurrect the row it committed.
-		frappe.db.commit()  # nosemgrep
-		super(BaseTestUtils, self).tearDown()
 
 	def _make_untitled_lesson(self):
 		lesson = self._create_lesson(UNTITLED_LESSON_TITLE, self.chapter.name, self.course.name)

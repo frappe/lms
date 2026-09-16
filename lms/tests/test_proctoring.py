@@ -149,7 +149,7 @@ class TestViolationEventNormalization(unittest.TestCase):
 				events = _normalise(event)
 				self.assertAlmostEqual(events[0]["timestamp"], now_datetime(), delta=timedelta(minutes=1))
 
-	def test_event_type_key_resolution(self):
+	def test_event_type_is_read_from_either_case_with_camel_case_winning(self):
 		cases = [
 			(
 				"camel_case_accepted",
@@ -189,7 +189,7 @@ class TestViolationEventNormalization(unittest.TestCase):
 		)
 		self.assertEqual(len(events), 1)
 
-	def test_severity_coercion(self):
+	def test_unknown_severity_becomes_violation_and_warning_is_preserved(self):
 		cases = [
 			(
 				"unknown_coerced_to_violation",
@@ -336,7 +336,7 @@ class TestSubmitQuizWithViolations(unittest.TestCase):
 			]
 		)
 
-	def test_violation_count_by_case(self):
+	def test_violation_count_is_derived_from_the_events_not_the_reported_number(self):
 		cases = [
 			# No event list to derive from (the pagehide beacon), so the reported count stands.
 			("reported_count_stands_with_no_events", dict(violation_count=2), 2, None),
@@ -383,7 +383,7 @@ class TestSubmitQuizWithViolations(unittest.TestCase):
 				if expected_log_rows is not None:
 					self.assertEqual(len(_get_logs(result["submission"])), expected_log_rows)
 
-	def test_submission_reason_by_case(self):
+	def test_submission_reason_must_be_backed_by_the_logged_violations(self):
 		cases = [
 			(
 				# max_violations is 3 on the fixture quiz, so three logged violations back the claim.
@@ -591,10 +591,9 @@ class TestGetQuizViolationLogs(unittest.TestCase):
 			frappe.session.user = original
 
 	def test_each_event_keeps_its_own_severity(self):
-		# A violation and a warning must stay distinguishable on the stored row:
-		# collapsing them shows one severity for every event in the proctoring
-		# report. Every other severity assertion in this file is on the in-memory
-		# normaliser output, so this is the only one that reaches the database.
+		# The only severity assertion in this file that reaches the database; the rest
+		# read the in-memory normaliser output. Restored after f43db06b1 (this branch)
+		# deleted all three DB-level severity tests at once.
 		logs = self._call("Administrator")
 		self.assertEqual([log.severity for log in logs], ["violation", "warning"])
 

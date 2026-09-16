@@ -69,10 +69,8 @@ class TestServeResourceUnderscoreFilename(BaseTestUtils):
 
 	def setUp(self):
 		super().setUp()
-		# test_underscore_is_not_a_wildcard and test_content_search_matches_percent_filename
-		# both call self.lesson.save() below; the savepoint rollback reverts the DB row's
-		# `modified` afterwards, so reload keeps the in-memory doc from going stale for the
-		# next test's save.
+		# Tests below save self.lesson; the savepoint reverts the DB row's `modified`,
+		# so reload keeps the in-memory doc from going stale for the next save.
 		self.lesson.reload()
 
 	def _serve_as(self, user):

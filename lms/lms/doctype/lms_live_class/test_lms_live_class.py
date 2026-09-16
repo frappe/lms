@@ -82,10 +82,9 @@ class TestLMSLiveClass(BaseTestUtils):
 
 	def setUp(self):
 		super().setUp()
-		# A test that saves the shared batch/settings docs leaves their in-memory
-		# `modified` timestamp ahead of the DB row once the savepoint rolls the
-		# write back, which trips check_if_latest on the next test's save. Reload
-		# both at the start of every test so they always match the rolled-back DB.
+		# Saving these shared docs leaves their in-memory `modified` ahead of the DB
+		# row once the savepoint rolls the write back, tripping check_if_latest on
+		# the next save. Reload so they always match the rolled-back row.
 		self.batch.reload()
 		self.google_meet_settings.reload()
 
@@ -217,39 +216,26 @@ class TestLMSLiveClass(BaseTestUtils):
 		frappe.delete_doc("LMS Live Class", live_class.name, force=True)
 		self.assertFalse(frappe.db.exists("Event", event_name))
 
-	def test_batch_provider_validation_by_case(self):
-		def google_meet_without_account():
-			self.batch.conferencing_provider = "Google Meet"
-			self.batch.google_meet_account = ""
-			with self.assertRaises(frappe.exceptions.ValidationError):
-				self.batch.save()
-			self.batch.reload()
+	def test_batch_validation_google_meet_without_account(self):
+		self.batch.conferencing_provider = "Google Meet"
+		self.batch.google_meet_account = ""
 
-		def google_meet_with_valid_account():
-			self.batch.conferencing_provider = "Google Meet"
-			self.batch.google_meet_account = self.google_meet_settings.name
-			self.batch.save()
-			self.batch.reload()
-
-			self.assertEqual(self.batch.conferencing_provider, "Google Meet")
-			self.assertEqual(self.batch.google_meet_account, self.google_meet_settings.name)
-
-			self.batch.conferencing_provider = ""
-			self.batch.google_meet_account = ""
+		with self.assertRaises(frappe.exceptions.ValidationError):
 			self.batch.save()
 
-		def zoom_without_account():
-			self.batch.conferencing_provider = "Zoom"
-			self.batch.zoom_account = ""
-			with self.assertRaises(frappe.exceptions.ValidationError):
-				self.batch.save()
-			self.batch.reload()
+	def test_batch_validation_google_meet_with_valid_account(self):
+		self.batch.conferencing_provider = "Google Meet"
+		self.batch.google_meet_account = self.google_meet_settings.name
 
-		cases = [
-			("google_meet_without_account", google_meet_without_account),
-			("google_meet_with_valid_account", google_meet_with_valid_account),
-			("zoom_without_account", zoom_without_account),
-		]
-		for case, run in cases:
-			with self.subTest(case=case):
-				run()
+		self.batch.save()
+		self.batch.reload()
+
+		self.assertEqual(self.batch.conferencing_provider, "Google Meet")
+		self.assertEqual(self.batch.google_meet_account, self.google_meet_settings.name)
+
+	def test_batch_validation_zoom_without_account(self):
+		self.batch.conferencing_provider = "Zoom"
+		self.batch.zoom_account = ""
+
+		with self.assertRaises(frappe.exceptions.ValidationError):
+			self.batch.save()

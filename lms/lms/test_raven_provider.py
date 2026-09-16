@@ -709,10 +709,9 @@ class TestStaffRule(FrappeTestCase):
 	# --- Platform role: a site-wide Frappe role ---
 
 	def test_each_platform_role_returns_only_its_own_holders(self):
-		# "Evaluator" is the wording on screen; `Batch Evaluator` is the role. Not the
-		# same population as an assigned evaluator, which is whoever the course or
-		# batch names in its own evaluator field -- the two overlap only partly,
-		# which is why they are separate branches rather than one word.
+		# "Evaluator" on screen is the `Batch Evaluator` role, a different population
+		# from an assigned evaluator (whoever a course or batch names in its own
+		# evaluator field). They overlap only partly, hence two branches.
 		cases = [
 			("course_creator", "Course Creator", "creator", ["moderator", "other"]),
 			("moderator", "Moderator", "moderator", ["creator"]),
@@ -952,41 +951,33 @@ class TestGetRavenSetup(UnitTestCase):
 			else:
 				sys.modules[name] = original
 
-	def test_get_raven_setup_by_case(self):
-		def missing_apps():
-			self._patch_apps(["frappe", "lms"])
-			saved = self._blocked_imports("raven_integration", "raven_integration.api")
-			try:
-				state = raven_provider.get_raven_setup()
-			finally:
-				self._restore_imports(saved)
-			self.assertEqual(state, {"raven": False, "raven_integration": False, "enabled": False})
-
-		def raven_missing_on_its_own():
-			self._patch_apps(["frappe", "lms", "raven_integration"])
+	def test_reports_missing_apps_without_importing_them(self):
+		self._patch_apps(["frappe", "lms"])
+		saved = self._blocked_imports("raven_integration", "raven_integration.api")
+		try:
 			state = raven_provider.get_raven_setup()
-			self.assertFalse(state["raven"])
-			self.assertTrue(state["raven_integration"])
-			self.assertFalse(state["enabled"])
+		finally:
+			self._restore_imports(saved)
+		self.assertEqual(state, {"raven": False, "raven_integration": False, "enabled": False})
 
-		def delegates_once_both_apps_installed():
-			self._patch_apps(["frappe", "lms", "raven", "raven_integration"])
-			stub = types.ModuleType("raven_integration.api")
-			stub.is_setup = lambda: {"raven": True, "raven_integration": True, "enabled": True}
-			sys.modules["raven_integration.api"] = stub
+	def test_reports_raven_missing_on_its_own(self):
+		self._patch_apps(["frappe", "lms", "raven_integration"])
 
-			state = raven_provider.get_raven_setup()
+		state = raven_provider.get_raven_setup()
 
-			self.assertTrue(state["enabled"])
+		self.assertFalse(state["raven"])
+		self.assertTrue(state["raven_integration"])
+		self.assertFalse(state["enabled"])
 
-		cases = [
-			("reports_missing_apps_without_importing_them", missing_apps),
-			("reports_raven_missing_on_its_own", raven_missing_on_its_own),
-			("delegates_once_both_apps_are_installed", delegates_once_both_apps_installed),
-		]
-		for case, run in cases:
-			with self.subTest(case=case):
-				run()
+	def test_delegates_once_both_apps_are_installed(self):
+		self._patch_apps(["frappe", "lms", "raven", "raven_integration"])
+		stub = types.ModuleType("raven_integration.api")
+		stub.is_setup = lambda: {"raven": True, "raven_integration": True, "enabled": True}
+		sys.modules["raven_integration.api"] = stub
+
+		state = raven_provider.get_raven_setup()
+
+		self.assertTrue(state["enabled"])
 
 	def test_gate_follows_the_manager_roles_hook(self):
 		"""The Settings modal is open to Moderators, so this must be too. The role

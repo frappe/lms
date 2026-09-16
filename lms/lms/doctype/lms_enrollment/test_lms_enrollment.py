@@ -18,10 +18,8 @@ class TestLMSEnrollment(BaseTestUtils):
 		cls.course = cls._create_course(title=f"Test Course {hash}", instructor=cls.instructor.email)
 
 	def _new_student(self):
-		# Its own student per test: _create_enrollment dedupes by (course, member),
-		# and the shared course means a shared student would find the previous
-		# test's enrollment row within the same test if the savepoint rollback
-		# ever ran later than expected.
+		# Its own student per test: _create_enrollment dedupes by (course, member), and
+		# the course is shared, so a shared student would find the previous test's row.
 		return self._create_user(
 			f"student-{frappe.generate_hash(length=6)}@example.com", "Student", "Test", ["LMS Student"]
 		)

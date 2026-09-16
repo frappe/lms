@@ -30,14 +30,9 @@ class BaseTestUtils(IntegrationTestCase):
 
 	def tearDown(self):
 		frappe.db.rollback(save_point="lms_test")
-		# A savepoint rollback runs no rollback observers, so every cache this test
-		# dirtied still holds the pre-rollback value. Three separate layers, none of
-		# which the savepoint or a session.user assignment reaches:
-		#   - the document cache, which lives in frappe.cache keyed
-		#     "document_cache::<doctype>::<name>", not on frappe.local
-		#   - the redis user hashes, "roles" among them, which is where a role a
-		#     test granted or stripped survives
-		#   - frappe.local.role_permissions / user_perms, which only set_user clears
+		# A savepoint rollback runs no rollback observers, so three caches still hold
+		# what this test wrote: the redis document cache, the redis user hashes
+		# ("roles"), and frappe.local's perms, which only set_user clears.
 		frappe.cache.delete_keys(DOCUMENT_CACHE_PREFIX)
 		frappe.cache.delete_key(user_cache_keys)
 		frappe.set_user("Administrator")
@@ -602,11 +597,10 @@ class MemberOwnershipTestMixin:
 				doc = self._new_doc(member=member, variant=variant)
 				doc.insert()
 				self.assertEqual(doc.member, self.student_a.name)
-				# Both rows target the same member on the same underlying record
-				# (course/assignment); a duplicate-request/duplicate-submission
-				# guard on that pair would otherwise reject the second row, which
-				# never happened when these were two separate, savepoint-isolated
-				# test methods.
+				# Both rows hit the same (member, record) pair, so the duplicate
+				# guard would reject the second one. Separate test methods never
+				# collided because each had its own savepoint.
+				# nosemgrep: lms-unjustified-ignore-permissions - removing a row this test just made
 				frappe.delete_doc(doc.doctype, doc.name, ignore_permissions=True)
 
 	def test_privileged_user_can_act_on_behalf_of_member(self):

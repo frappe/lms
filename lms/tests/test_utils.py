@@ -90,7 +90,7 @@ class TestLMSUtils(BaseTestUtils):
 		average_rating = get_average_rating(self.course.name)
 		self.assertEqual(average_rating, 4.5)
 
-	def test_get_reviews_payload(self):
+	def test_get_reviews_returns_raw_creation_scaled_rating_and_owner_newest_first(self):
 		reviews = get_reviews(self.course.name)
 
 		with self.subTest(case="count"):
@@ -237,7 +237,7 @@ class TestLMSUtils(BaseTestUtils):
 		self.assertEqual(len(batch_details.instructors), len(self.batch.instructors))
 		self.assertEqual(len(batch_details.students), 2)
 
-	def test_get_course_categories_by_case(self):
+	def test_course_categories_list_used_published_ones_with_a_clear_option(self):
 		with self.subTest(case="includes_used_category"):
 			labels = [category["label"] for category in get_course_categories()]
 			self.assertIn(self.course.category, labels)
