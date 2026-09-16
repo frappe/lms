@@ -590,6 +590,14 @@ class TestGetQuizViolationLogs(unittest.TestCase):
 		finally:
 			frappe.session.user = original
 
+	def test_each_event_keeps_its_own_severity(self):
+		# A violation and a warning must stay distinguishable on the stored row:
+		# collapsing them shows one severity for every event in the proctoring
+		# report. Every other severity assertion in this file is on the in-memory
+		# normaliser output, so this is the only one that reaches the database.
+		logs = self._call("Administrator")
+		self.assertEqual([log.severity for log in logs], ["violation", "warning"])
+
 	def test_logs_returned_in_ascending_timestamp_order(self):
 		logs = self._call("Administrator")
 		self.assertEqual(logs[0].event_type, "tab_switch")
