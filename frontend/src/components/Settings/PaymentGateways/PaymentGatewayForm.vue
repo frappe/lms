@@ -174,6 +174,9 @@ const currentGateway = computed(() => props.name ?? null)
 const isNew = computed(() => currentGateway.value === NEW_GATEWAY)
 
 const fields = ref<GatewayField[]>([])
+// Set once a configured gateway says which doctype holds it; `provider` is
+// the same answer while creating.
+const gatewayDoctype = ref<string | null>(null)
 const providers = ref<Provider[]>([])
 const provider = ref<string | null>(null)
 const fetching = ref(false)
@@ -237,6 +240,7 @@ const loadGateway = async (gateway: string) => {
 			{ payment_gateway: gateway }
 		)
 		fields.value = details.fields || []
+		gatewayDoctype.value = details.doctype
 		settings.value = createDocumentResource({
 			doctype: details.doctype,
 			name: details.docname,
@@ -368,23 +372,41 @@ const credentialFields = computed(() =>
 // the Password component instead. A fieldtype this does not name falls through
 // to a text box, which is what the value is on the wire anyway.
 /**
- * Frappe's Password fieldtype, plus the credentials the provider doctypes
- * declare as plain Data. GoCardless' `access_token` and `webhooks_secret` are
- * secrets by any reading but ship as Data (they belong to the payments app),
- * so routing on the fieldtype alone left them on screen in clear text.
- *
- * Matched on the name, and deliberately not on a bare `key`: Stripe's
- * `publishable_key`, Razorpay's `api_key` and Braintree's `public_key` are
- * meant to be read and copied, and masking those would be the regression.
+ * Credential-shaped names. The provider doctypes type their secrets
+ * inconsistently — GoCardless' `access_token` and `webhooks_secret`, Mpesa's
+ * `consumer_key` and Braintree's `public_key` are all plain `Data` — so the
+ * fieldtype cannot be trusted on its own. This defaults to masking, because
+ * the safe failure is a hidden field rather than a leaked one.
  *
  * Presentation only. A Data field is still stored unencrypted — the fieldtype
- * is what routes a value into Frappe's encrypted store, and those doctypes are
- * not ours to change.
+ * is what routes a value into Frappe's encrypted store, and those doctypes
+ * belong to the payments app, not here.
  */
-const SECRET_NAME = /secret|token|password|passphrase|salt/i
+const CREDENTIAL_NAME = /secret|token|password|passphrase|salt|key/i
 
-const isSecret = (field: GatewayField) =>
-	field.type === 'Password' || SECRET_NAME.test(field.name)
+/**
+ * The credentials that are public on purpose and have to stay readable:
+ * Stripe publishes its key to the browser, and Razorpay's `api_key` is the
+ * `key_id` its checkout script takes.
+ *
+ * Keyed by doctype, because the name alone does not say. Braintree's
+ * `public_key` is a server-side credential despite its name, and Mpesa's
+ * `consumer_key` is half of a Basic auth pair — both are masked.
+ */
+const PUBLIC_CREDENTIALS = new Set([
+	'Stripe Settings.publishable_key',
+	'Razorpay Settings.api_key',
+])
+
+const providerDoctype = computed(() =>
+	isNew.value ? provider.value : gatewayDoctype.value
+)
+
+const isSecret = (field: GatewayField) => {
+	if (field.type === 'Password') return true
+	if (!CREDENTIAL_NAME.test(field.name)) return false
+	return !PUBLIC_CREDENTIALS.has(`${providerDoctype.value}.${field.name}`)
+}
 
 const controlType = (field: GatewayField) => {
 	switch (field.type) {
@@ -419,7 +441,7 @@ const isLongField = (field: GatewayField) =>
 // A secret has no example to show, so the box says nothing rather than
 // repeating its own label back at it.
 const placeholder = (field: GatewayField) =>
-	field.type === 'Password' ? undefined : __(field.label)
+	isSecret(field) ? undefined : __(field.label)
 
 const description = (field: GatewayField) =>
 	field.description ? __(field.description) : undefined

@@ -35,6 +35,14 @@ const STRIPE_FIELDS = [
 	{ name: 'secret_key', label: 'Secret Key', type: 'Password', reqd: 1 },
 ]
 
+// Mpesa as the site ships it. `consumer_key` is Data but is half of a Basic
+// auth pair — server-side, and not public the way Stripe's key is.
+const MPESA_FIELDS = [
+	{ name: 'consumer_key', label: 'Consumer Key', type: 'Data', reqd: 1 },
+	{ name: 'consumer_secret', label: 'Consumer Secret', type: 'Password' },
+	{ name: 'till_number', label: 'Till Number', type: 'Data' },
+]
+
 vi.mock('frappe-ui', () => {
 	const control = (name: string) => ({
 		name,
@@ -51,13 +59,15 @@ vi.mock('frappe-ui', () => {
 				return Promise.resolve([
 					{ name: 'GoCardless Settings', issingle: 0 },
 					{ name: 'Stripe Settings', issingle: 0 },
+					{ name: 'Mpesa Settings', issingle: 0 },
 				])
 			if (method === 'frappe.client.get_list') return Promise.resolve([])
 			if (method === 'lms.lms.api.get_new_gateway_fields')
 				return Promise.resolve(
-					args.doctype === 'Stripe Settings'
-						? STRIPE_FIELDS
-						: GOCARDLESS_FIELDS
+					{
+						'Stripe Settings': STRIPE_FIELDS,
+						'Mpesa Settings': MPESA_FIELDS,
+					}[args.doctype as string] ?? GOCARDLESS_FIELDS
 				)
 			return Promise.resolve(null)
 		},
@@ -163,14 +173,24 @@ describe('PaymentGatewayForm credentials', () => {
 		expect(controlFor(wrapper, 'Payment Gateway Name')).toBe('FormControl')
 	})
 
-	it('does not mask a key that is meant to be read', async () => {
-		// Stripe publishes this one to the browser by design, as Razorpay does
-		// its api_key and Braintree its public_key. Masking them would be the
-		// regression, so a bare `key` must not match.
+	it('does not mask a key that is published on purpose', async () => {
+		// Stripe hands this one to the browser by design. Masking it would be
+		// the regression, so it is exempted by name AND doctype.
 		const wrapper = await mountNewGateway('Stripe Settings')
 
 		expect(controlFor(wrapper, 'Publishable Key')).toBe('FormControl')
 		expect(controlFor(wrapper, 'Secret Key')).toBe('Password')
+	})
+
+	it('masks a credential whose name merely says key', async () => {
+		// Mpesa's consumer_key is server-side, half of a Basic auth pair. The
+		// rule defaults to masking, so only the explicitly public ones are
+		// readable — a name containing `key` is not enough to exempt it.
+		const wrapper = await mountNewGateway('Mpesa Settings')
+
+		expect(controlFor(wrapper, 'Consumer Key')).toBe('Password')
+		expect(controlFor(wrapper, 'Consumer Secret')).toBe('Password')
+		expect(controlFor(wrapper, 'Till Number')).toBe('FormControl')
 	})
 })
 
