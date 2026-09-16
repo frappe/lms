@@ -38,13 +38,13 @@
 
 			<div v-if="credentialFields.length" class="grid grid-cols-2 gap-4">
 				<component
-					:is="field.type === 'Password' ? Password : FormControl"
+					:is="isSecret(field) ? Password : FormControl"
 					v-for="field in credentialFields"
 					:key="field.name"
 					:class="{ 'col-span-2': isLongField(field) }"
 					v-model="doc[field.name]"
 					v-bind="
-						field.type === 'Password'
+						isSecret(field)
 							? {}
 							: { type: controlType(field), options: selectOptions(field) }
 					"
@@ -209,6 +209,16 @@ const clearDraft = () => {
 	for (const key of Object.keys(draft)) delete draft[key]
 }
 
+/**
+ * The draft's baseline. `draftIsDirty()` measures against these same defaults,
+ * so a freshly seeded draft reads as clean — which is what a just-created
+ * gateway needs before it navigates away.
+ */
+const seedDraft = () => {
+	clearDraft()
+	for (const field of fields.value) draft[field.name] = field.default ?? ''
+}
+
 const reportError = (err: any, fallback: string) =>
 	toast.error(cleanError(err?.messages?.[0] || err) || fallback)
 
@@ -310,7 +320,7 @@ watch(provider, async (doctype) => {
 			'lms.lms.api.get_new_gateway_fields',
 			{ doctype }
 		)
-		for (const field of fields.value) draft[field.name] = field.default ?? ''
+		seedDraft()
 	} catch (err: any) {
 		reportError(err, __('Error loading provider fields'))
 	} finally {
@@ -357,6 +367,25 @@ const credentialFields = computed(() =>
 // The box a credential is typed into. A Password never reaches here — it gets
 // the Password component instead. A fieldtype this does not name falls through
 // to a text box, which is what the value is on the wire anyway.
+/**
+ * Frappe's Password fieldtype, plus the credentials the provider doctypes
+ * declare as plain Data. GoCardless' `access_token` and `webhooks_secret` are
+ * secrets by any reading but ship as Data (they belong to the payments app),
+ * so routing on the fieldtype alone left them on screen in clear text.
+ *
+ * Matched on the name, and deliberately not on a bare `key`: Stripe's
+ * `publishable_key`, Razorpay's `api_key` and Braintree's `public_key` are
+ * meant to be read and copied, and masking those would be the regression.
+ *
+ * Presentation only. A Data field is still stored unencrypted — the fieldtype
+ * is what routes a value into Frappe's encrypted store, and those doctypes are
+ * not ours to change.
+ */
+const SECRET_NAME = /secret|token|password|passphrase|salt/i
+
+const isSecret = (field: GatewayField) =>
+	field.type === 'Password' || SECRET_NAME.test(field.name)
+
 const controlType = (field: GatewayField) => {
 	switch (field.type) {
 		case 'Select':
@@ -464,7 +493,13 @@ const save = () => {
 		// list shows, so the list is refetched rather than added to.
 		after: async () => {
 			await reloadSettingsLists(DOCTYPE)
-			if (creating) emit('back')
+			// The draft still holds what was typed, and it is what isDirty reads
+			// while creating — so without reseeding it the dirty guard stops the
+			// form on its way out and offers to discard changes already saved.
+			if (creating) {
+				seedDraft()
+				emit('back')
+			}
 		},
 		failure: (err: any) =>
 			cleanError(err?.messages?.[0] || err) ||
