@@ -52,12 +52,14 @@ class TestCourseProgressIDOR(BaseTestUtils):
 			frappe.session.user = "Administrator"
 
 	def test_controller_rebinds_member_to_session_user(self):
+		# A blank member is filled in from the session, not left for the caller to
+		# supply: enforce_member_ownership sets self.member unconditionally once the
+		# ownership check passes, whether or not the caller supplied a value.
 		frappe.session.user = self.attacker.email
 		try:
 			doc = frappe.get_doc(
 				{
 					"doctype": "LMS Course Progress",
-					"member": self.attacker.email,  # own account is allowed
 					"course": self.course.name,
 					"lesson": self.lesson.name,
 					"status": "Complete",

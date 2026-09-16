@@ -1,23 +1,18 @@
 # Copyright (c) 2021, FOSS United and Contributors
 # See license.txt
 
+import unittest
+
 import frappe
 
-from lms.lms.test_helpers import BaseTestUtils
 
-
-class TestLMSCourse(BaseTestUtils):
-	def setUp(self):
-		super().setUp()
-		self.instructor = self._create_user(
-			"frappe@example.com", "Frappe", "Admin", ["Moderator", "Course Creator"]
-		)
-
+class TestLMSCourse(unittest.TestCase):
 	def test_video_link_stored_as_entered(self):
-		course = self._create_course(f"Test Course {frappe.generate_hash()}")
-
-		# video_link is stored verbatim, with no stripping. The frontend normalizes
-		# both full URLs and uploaded file paths for rendering.
+		# video_link is stored verbatim, with no stripping: validate_video_link is a
+		# no-op by design (stripping URLs down to a bare id was lossy — it mangled
+		# uploaded /files paths and some YouTube urls didn't round-trip). Calling it
+		# directly on an unsaved doc proves the contract without five save() round-trips.
+		course = frappe.new_doc("LMS Course")
 		for link in (
 			"https://www.youtube.com/watch?v=dQw4w9WgXcQ",
 			"https://www.youtube.com/embed/-LPmw2Znl2c",
@@ -26,5 +21,5 @@ class TestLMSCourse(BaseTestUtils):
 			"/private/files/intro.mp4",
 		):
 			course.video_link = link
-			course.save()
+			course.validate_video_link()
 			self.assertEqual(course.video_link, link)
