@@ -28,6 +28,7 @@ vi.mock('frappe-ui', () => ({
 	Select: { props: ['modelValue', 'options'], template: '<select />' },
 	FileUploader: { template: '<div />' },
 	Button: { template: '<button />' },
+	Password: { template: '<input type="password" />' },
 }))
 // Checkboxes use the project-local BooleanSwitch (v-modeled on data[field.name],
 // the persisted source of truth). Mock it so toggling emits update:modelValue.
@@ -48,8 +49,8 @@ vi.mock('@/components/Controls/BooleanSwitch.vue', () => ({
 vi.mock('@/components/Controls/Link.vue', () => ({
 	default: { template: '<div />' },
 }))
-vi.mock('@/components/Controls/CodeEditor.vue', () => ({
-	default: { template: '<div />' },
+vi.mock('frappe-ui/experimental', () => ({
+	CodeEditor: { template: '<div />' },
 }))
 vi.mock('@/utils', () => ({ validateFile: () => true }))
 vi.mock('lucide-vue-next', () => ({ X: { template: '<i />' } }))

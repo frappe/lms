@@ -31,10 +31,7 @@
 							setupStatus === 'no_face' || setupStatus === 'multiple_faces',
 					}"
 				>
-					<span
-						v-if="setupStatus === 'loading'"
-						class="lucide-loader-2 size-3.5 animate-spin"
-					/>
+					<Spinner v-if="setupStatus === 'loading'" size="sm" />
 					<span
 						v-else-if="setupStatus === 'no_face'"
 						class="lucide-alert-circle size-3.5"
@@ -128,6 +125,7 @@
 </template>
 
 <script setup>
+import { Spinner } from 'frappe-ui'
 import * as faceapi from 'face-api.js'
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 

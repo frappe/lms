@@ -65,12 +65,18 @@
 				/>
 				<CodeEditor
 					v-model="badge.condition"
-					:label="__('Condition')"
-					type="JavaScript"
+					language="javascript"
 					:required="true"
-					:showBorder="true"
-					height="82px"
-				/>
+					size="sm"
+					class="badge-condition"
+					:style="{ '--cm-max-height': '82px' }"
+				>
+					<template #label>
+						<span class="text-xs text-ink-gray-5">
+							{{ __('Condition') }}
+						</span>
+					</template>
+				</CodeEditor>
 			</div>
 			<div class="space-y-4"></div>
 		</div>
@@ -78,11 +84,11 @@
 </template>
 <script setup lang="ts">
 import { Combobox, Button, call, FormControl, toast } from 'frappe-ui'
+import { CodeEditor } from 'frappe-ui/experimental'
 import BooleanSwitch from '@/components/Controls/BooleanSwitch.vue'
 import { computed, ref, watch } from 'vue'
 import { cleanError } from '@/utils'
 import type { Badges, Badge } from '@/types'
-import CodeEditor from '@/components/Controls/CodeEditor.vue'
 import Uploader from '@/components/Controls/Uploader.vue'
 import SettingsLayout from '@/components/Layouts/SettingsLayout.vue'
 import Select from '@/components/Controls/Select.vue'
@@ -233,3 +239,9 @@ const userFieldOptions = computed(() => {
 	]
 })
 </script>
+
+<style scoped>
+.badge-condition :deep(.cm-editor) {
+	min-height: var(--cm-max-height);
+}
+</style>

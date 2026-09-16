@@ -24,7 +24,6 @@
 		"@framework/ui": "link:../../frappe/ui",
 		"@headlessui/vue": "1.7.23",
 		"@vueuse/core": "^14.1.0",
-		"ace-builds": "1.36.2",
 		"dayjs": "1.11.10",
 		"dompurify": "3.2.6",
 		"editorjs-drag-drop": "1.1.16",
