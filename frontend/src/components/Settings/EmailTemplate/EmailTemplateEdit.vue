@@ -73,7 +73,7 @@ import {
 	toast,
 } from 'frappe-ui'
 import { reactive, ref, useId } from 'vue'
-import { InputLabel } from '@/components/Form/labeling'
+import { InputLabel } from 'frappe-ui/experimental'
 import { cleanError } from '@/utils'
 import type { EmailTemplate, EmailTemplateStep } from '@/types'
 import RichTextEditor from '@/components/RichTextEditor.vue'

@@ -48,12 +48,6 @@ const setThemePreference = (preference: ThemePreference): void => {
 	paint(resolve(preference))
 }
 
-// Toggling from 'system' commits to the opposite of whatever system currently
-// resolves to, which is what a user flipping a switch means by it.
-const toggleTheme = (): void => {
-	setThemePreference(theme.value === 'dark' ? 'light' : 'dark')
-}
-
 // Paint at module init rather than from a component's onMounted. The previous
 // arrangement had UserDropdown call applyTheme(theme.value) on mount, which
 // under a tri-state preference would rewrite a 'system' choice into a concrete
@@ -82,4 +76,4 @@ if (typeof window !== 'undefined' && typeof window.matchMedia === 'function') {
 		})
 }
 
-export { setThemePreference, theme, themePreference, toggleTheme }
+export { setThemePreference, theme, themePreference }
