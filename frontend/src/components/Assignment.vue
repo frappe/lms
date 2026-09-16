@@ -27,12 +27,7 @@
 
 		<div class="flex flex-col overflow-y-auto">
 			<div class="p-5 space-y-5">
-				<div
-					v-if="scheduleBlocked"
-					class="bg-surface-amber-1 text-ink-amber-5 p-3 rounded-5 leading-5 text-sm"
-				>
-					{{ scheduleMessage }}
-				</div>
+				<Alert v-if="scheduleBlocked" theme="amber" :title="scheduleMessage" />
 				<div class="flex items-center justify-between">
 					<div class="font-semibold text-ink-gray-9">
 						{{ __('Submission') }}
@@ -67,22 +62,26 @@
 						</ShortcutTooltip>
 					</div>
 				</div>
-				<div
+				<Alert
 					v-if="
 						submissionName != 'new' &&
 						!['Pass', 'Fail'].includes(submissionResource.doc?.status) &&
 						submissionResource.doc?.owner == user.data?.name
 					"
-					class="bg-surface-blue-2 text-ink-blue-4 p-3 rounded-5 leading-5 text-sm"
+					theme="blue"
 				>
-					{{ __("You've successfully submitted the assignment.") }}
-					{{
-						__(
-							"Once the moderator grades your submission, you'll find the details here."
-						)
-					}}
-					{{ __('Feel free to make edits to your submission if needed.') }}
-				</div>
+					<template #title>
+						{{ __("You've successfully submitted the assignment.") }}
+					</template>
+					<template #description>
+						{{
+							__(
+								"Once the moderator grades your submission, you'll find the details here."
+							)
+						}}
+						{{ __('Feel free to make edits to your submission if needed.') }}
+					</template>
+				</Alert>
 				<div
 					v-if="showUploader() && canModifyAssignment && !scheduleBlocked"
 					class="border rounded-6 p-3"
@@ -223,6 +222,7 @@
 </template>
 <script setup>
 import {
+	Alert,
 	Badge,
 	Button,
 	call,

@@ -1,18 +1,15 @@
 <template>
 	<div class="p-5">
-		<div
+		<Alert
 			v-if="isAdmin() && !hasProviderAccount()"
-			class="flex lg:items-center gap-x-2 mb-5 bg-surface-amber-1 px-3 py-2 rounded-6 text-ink-amber-5"
-		>
-			<span class="lucide-alert-circle size-7 md:size-4" />
-			<span class="leading-5">
-				{{
-					__(
-						'Please select a conferencing provider and add an account to the batch to create live classes.'
-					)
-				}}
-			</span>
-		</div>
+			theme="amber"
+			class="mb-5"
+			:description="
+				__(
+					'Please select a conferencing provider and add an account to the batch to create live classes.'
+				)
+			"
+		/>
 
 		<div class="flex items-center justify-between">
 			<div class="text-lg-semibold text-ink-gray-9">
@@ -122,7 +119,7 @@
 // modal — but carries nested Start/Join anchors, so it cannot become a
 // <button> without invalid nesting. Reaching it by keyboard needs a dedicated
 // action control, which is a redesign rather than an attribute.
-import { createListResource, Button, Tooltip } from 'frappe-ui'
+import { Alert, createListResource, Button, Tooltip } from 'frappe-ui'
 import { inject, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { formatTime } from '@/utils/'

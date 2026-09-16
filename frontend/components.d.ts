@@ -26,7 +26,6 @@ declare module 'vue' {
     ChapterRow: typeof import('./src/components/ChapterRow.vue')['default']
     ChildTable: typeof import('./src/components/Controls/ChildTable.vue')['default']
     ClearableCombobox: typeof import('./src/components/Controls/ClearableCombobox.vue')['default']
-    CodeEditor: typeof import('./src/components/Controls/CodeEditor.vue')['default']
     CollapseSidebar: typeof import('./src/components/Icons/CollapseSidebar.vue')['default']
     CollapsibleSection: typeof import('./src/components/CollapsibleSection.vue')['default']
     ColorSwatches: typeof import('./src/components/Controls/ColorSwatches.vue')['default']
