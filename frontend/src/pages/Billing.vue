@@ -190,15 +190,12 @@
 								type="checkbox"
 								class="leading-6"
 								v-model="billingDetails.member_consent"
+								:error="
+									showConsentWarning
+										? __('Please provide your consent to proceed with the payment')
+										: undefined
+								"
 							/>
-							<div
-								v-if="showConsentWarning"
-								class="mt-1 text-xs text-ink-red-5"
-							>
-								{{
-									__('Please provide your consent to proceed with the payment')
-								}}
-							</div>
 						</div>
 						<Button
 							variant="solid"
