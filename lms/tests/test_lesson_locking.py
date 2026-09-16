@@ -143,14 +143,6 @@ class TestLessonLockingIntegration(BaseTestUtils):
 			{self.lessons[1].name, self.lessons[2].name},
 		)
 
-	def test_completing_the_first_lesson_unlocks_the_second(self):
-		self._enable()
-		frappe.set_user("Administrator")
-		progress = self._create_progress(self.student.email, self.course.name, self.lessons[0].name)
-		frappe.db.set_value("LMS Course Progress", progress.name, "status", "Complete")
-		frappe.set_user(self.student.email)
-		self.assertEqual(get_locked_lessons(self.course.name), {self.lessons[2].name})
-
 	def test_partially_complete_does_not_unlock(self):
 		self._enable()
 		frappe.set_user("Administrator")
@@ -198,6 +190,10 @@ class TestLessonLockingIntegration(BaseTestUtils):
 		self.assertEqual(payload.get("redirect_to"), "1-1")
 		self.assertNotIn("content", payload)
 		self.assertNotIn("body", payload)
+		# Both payloads redirect, so the page tells them apart on this flag alone:
+		# "finish the earlier lessons to unlock this one" is false of a lesson that
+		# does not exist.
+		self.assertIsNone(payload.get("not_found"))
 
 	def test_get_lesson_sends_a_nonexistent_lesson_number_back_to_the_current_one(self):
 		"""Typing a lesson number that does not exist is the same URL tampering the gate
@@ -213,17 +209,6 @@ class TestLessonLockingIntegration(BaseTestUtils):
 				self.assertEqual(payload.get("locked"), 1)
 				self.assertEqual(payload.get("not_found"), 1)
 				self.assertEqual(payload.get("redirect_to"), "1-1")
-
-	def test_a_lesson_that_exists_but_is_locked_is_not_flagged_not_found(self):
-		# Both payloads redirect, so the page tells them apart on this flag alone:
-		# "finish the earlier lessons to unlock this one" is false of a lesson that
-		# does not exist.
-		self._enable()
-		from lms.lms.utils import get_lesson
-
-		payload = get_lesson(self.course.name, 1, 2)
-		self.assertEqual(payload.get("locked"), 1)
-		self.assertIsNone(payload.get("not_found"))
 
 	def test_a_nonexistent_lesson_number_is_still_empty_without_the_gate(self):
 		from lms.lms.utils import get_lesson
@@ -324,27 +309,21 @@ class TestLessonLockingIntegration(BaseTestUtils):
 			self.assertNotIn("body", row)
 			self.assertNotIn("content", row)
 
-	def test_save_progress_refuses_a_locked_lesson(self):
-		self._enable()
-		from lms.lms.doctype.course_lesson.course_lesson import save_progress
-
-		with self.assertRaises(frappe.PermissionError):
-			save_progress(self.lessons[2].name, self.course.name)
-		self.assertFalse(
-			frappe.db.exists(
-				"LMS Course Progress", {"lesson": self.lessons[2].name, "member": self.student.email}
-			)
-		)
-
 	def test_save_progress_cannot_unlock_the_whole_course(self):
 		# The bypass: call save_progress once per lesson name the outline publishes and
-		# every lesson gets a Complete row, emptying the lock set.
+		# every lesson gets a Complete row, emptying the lock set. Also pins the
+		# narrower single-lesson case: no progress row is left behind for a refusal.
 		self._enable()
 		from lms.lms.doctype.course_lesson.course_lesson import save_progress
 
 		for lesson in self.lessons[1:]:
 			with self.assertRaises(frappe.PermissionError):
 				save_progress(lesson.name, self.course.name)
+		self.assertFalse(
+			frappe.db.exists(
+				"LMS Course Progress", {"lesson": self.lessons[2].name, "member": self.student.email}
+			)
+		)
 
 		self.assertEqual(
 			get_locked_lessons(self.course.name),

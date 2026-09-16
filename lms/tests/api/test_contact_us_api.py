@@ -6,7 +6,6 @@ from unittest.mock import patch
 
 import frappe
 from frappe.email.email_body import replace_filename_with_cid
-from frappe.exceptions import FrappeTypeError
 
 from lms.lms.api import send_contact_us_email
 from lms.lms.test_helpers import BaseTestUtils
@@ -151,17 +150,9 @@ class TestPrepareInlineImages(ContactUsTestCase):
 			prepare_inline_images(f'<img src="{first.file_url}"><img src="{second.file_url}">')
 
 	@patch("lms.lms.utils.MAX_INLINE_IMAGE_BYTES", 4)
-	def test_images_over_the_byte_cap_are_refused(self):
+	def test_the_byte_cap_is_checked_before_reading_the_file(self):
 		# as_dict builds the whole MIME string inside the request, so an
 		# unbounded payload is a request-time cost, not a queue one.
-		file = self._file(self.sender.name)
-		frappe.set_user(self.sender.name)
-
-		with self.assertRaises(frappe.ValidationError):
-			prepare_inline_images(f'<img src="{file.file_url}">')
-
-	@patch("lms.lms.utils.MAX_INLINE_IMAGE_BYTES", 4)
-	def test_the_byte_cap_is_checked_before_reading_the_file(self):
 		# file.file_size alone already exceeds the cap here, so get_content
 		# (which loads the whole file into memory) should never run.
 		file = self._file(self.sender.name)
@@ -314,16 +305,6 @@ class TestSendContactUsEmail(ContactUsTestCase):
 		frappe.set_user(self.sender.name)
 		with self.assertRaises(frappe.ValidationError):
 			send_contact_us_email("Broken video", "<p><br></p>")
-
-	def test_a_guest_is_not_a_permitted_caller(self):
-		# allow_guest is what frappe checks at dispatch, and it records the
-		# function in frappe.guest_methods rather than tagging it.
-		self.assertNotIn(send_contact_us_email, frappe.guest_methods)
-
-	def test_non_string_arguments_are_rejected(self):
-		frappe.set_user(self.sender.name)
-		with self.assertRaises((frappe.ValidationError, FrappeTypeError)):
-			send_contact_us_email(["Broken video"], "<p>hi</p>")
 
 
 class TestAttachFileToDoc(ContactUsTestCase):

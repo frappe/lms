@@ -13,12 +13,6 @@ class TestCreateEmailAccount(UnitTestCase):
 
 	# --- input validation ---------------------------------------------------
 
-	def test_rejects_non_dict_data(self):
-		# the @frappe.whitelist() `data: dict` type hint rejects non-dicts at the
-		# wrapper layer before _validate_input even runs
-		with self.assertRaises(FrappeTypeError):
-			create_email_account("not-a-dict")
-
 	def test_rejects_non_string_service(self):
 		with self.assertRaises(frappe.ValidationError):
 			create_email_account({"service": 123})

@@ -141,3 +141,19 @@ class TestSidebar(BaseTestUtils):
 		delete_sidebar_item(webpage=webpage.name)
 		self.settings.reload()
 		self.assertFalse(any(row.web_page == webpage.name for row in self.settings.sidebar_items))
+
+	def test_icon_and_web_page_are_optional_on_a_sidebar_row(self):
+		# Moved from test_lms_settings.py::TestSidebarItemSchema: no test here
+		# actually exercises a row with neither field set (every fixture row
+		# carries an icon), so this schema check is the only proof.
+		meta = frappe.get_meta("LMS Sidebar Item")
+		self.assertFalse(meta.get_field("web_page").reqd)
+		self.assertFalse(meta.get_field("icon").reqd)
+		self.assertFalse(meta.get_field("icon").read_only)
+
+	def test_item_type_offers_every_kind_of_row(self):
+		options = frappe.get_meta("LMS Sidebar Item").get_field("item_type").options
+		self.assertEqual(
+			options.split("\n"),
+			["Built-in", "Web Page", "Route", "External"],
+		)

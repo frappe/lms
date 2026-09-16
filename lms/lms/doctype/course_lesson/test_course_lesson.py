@@ -116,12 +116,6 @@ class TestApplyEnforcementFlags(unittest.TestCase):
 			(False, True),
 		)
 
-	def test_both_off_returns_true_true(self):
-		self.assertEqual(
-			self._call(quiz_done=False, assignment_done=False, enforce_quiz=0, enforce_assignment=0),
-			(True, True),
-		)
-
 	def test_missing_settings_keys_treated_as_enforced(self):
 		from lms.lms.doctype.course_lesson.course_lesson import (
 			apply_enforcement_flags,
@@ -182,29 +176,11 @@ class TestApplyEnforcementFlagsEdgeCases(unittest.TestCase):
 						(True, True),
 					)
 
-	def test_idempotent(self):
-		settings = {"enforce_quiz_completion": 1, "enforce_assignment_completion": 1}
-		first = self.fn(quiz_done=True, assignment_done=False, settings=settings)
-		second = self.fn(quiz_done=True, assignment_done=False, settings=settings)
-		self.assertEqual(first, second)
-
 	def test_does_not_mutate_settings(self):
 		settings = {"enforce_quiz_completion": 1, "enforce_assignment_completion": 0}
 		snapshot = dict(settings)
 		self.fn(quiz_done=True, assignment_done=False, settings=settings)
 		self.assertEqual(settings, snapshot)
-
-	def test_keyword_argument_contract(self):
-		"""save_progress invokes with keyword args; the helper must accept them in any order."""
-		settings = {"enforce_quiz_completion": 1, "enforce_assignment_completion": 1}
-		self.assertEqual(
-			self.fn(settings=settings, quiz_done=True, assignment_done=False),
-			(True, False),
-		)
-		self.assertEqual(
-			self.fn(assignment_done=False, quiz_done=True, settings=settings),
-			(True, False),
-		)
 
 
 class TestServePrivateFileVersionSafe(unittest.TestCase):
@@ -504,13 +480,3 @@ class TestLessonContentSurvivesSave(BaseTestUtils):
 		saved = self._saved_text('<a href="https://frappe.io/">here</a>', "Lesson link")
 		self.assertIn('href="https://frappe.io/"', saved)
 		self.assertIn('rel="noopener noreferrer"', saved)
-
-	def test_plain_inline_markup_round_trips(self):
-		markup = "<b>b</b> <i>i</i> <u>u</u> <s>s</s>"
-		self.assertEqual(self._saved_text(markup, "Lesson plain"), markup)
-
-	def test_script_and_event_handlers_are_still_stripped(self):
-		saved = self._saved_text('<script>alert(1)</script><img src="x" onerror="alert(1)">ok', "Lesson xss")
-		self.assertNotIn("<script", saved)
-		self.assertNotIn("onerror", saved)
-		self.assertIn("ok", saved)

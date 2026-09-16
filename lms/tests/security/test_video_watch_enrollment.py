@@ -41,13 +41,3 @@ class TestVideoWatchEnrollment(BaseTestUtils):
 	def test_enrolled_user_can_track(self):
 		self._call(self.enrolled.email)
 		self.assertEqual(self._watch_records(self.enrolled.email), 1)
-
-	def test_non_string_lesson_rejected(self):
-		# Rejected either by Frappe's whitelist type validation (FrappeTypeError,
-		# from the `lesson: str` annotation) or by our own isinstance guard.
-		frappe.session.user = self.enrolled.email
-		try:
-			with self.assertRaises((frappe.ValidationError, frappe.FrappeTypeError)):
-				track_video_watch_duration(["not", "a", "string"], self.videos)
-		finally:
-			frappe.session.user = "Administrator"

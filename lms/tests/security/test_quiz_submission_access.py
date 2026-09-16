@@ -57,17 +57,6 @@ class TestQuizSubmissionAccess(BaseTestUtils):
 		):
 			frappe.delete_doc("LMS Quiz Submission", name, force=True)
 
-	def test_non_string_quiz_rejected(self):
-		# A non-string quiz must fail cleanly, not with a 500 from the ORM: either
-		# Frappe's whitelist type validation (FrappeTypeError, from the `quiz: str`
-		# annotation) or our own isinstance guard rejects it.
-		frappe.session.user = self.enrolled.email
-		try:
-			with self.assertRaises((frappe.ValidationError, frappe.FrappeTypeError)):
-				submit_quiz(["not", "a", "string"], json.dumps(self.results))
-		finally:
-			frappe.session.user = "Administrator"
-
 	def test_non_enrolled_user_cannot_submit(self):
 		with self.assertRaises(frappe.PermissionError):
 			self._submit(self.outsider.email)

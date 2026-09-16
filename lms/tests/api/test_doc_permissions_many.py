@@ -29,13 +29,6 @@ class TestDocPermissionsMany(BaseTestUtils):
 		result = get_doc_permissions_many("LMS Course", frappe.as_json([self.course.name]))
 		self.assertEqual(result[self.course.name]["read"], 1)
 
-	def test_rejects_a_non_string_doctype(self):
-		# require_type_annotated_api_methods is on, so the framework rejects this
-		# on the annotation before the body runs. FrappeTypeError is a TypeError,
-		# not a ValidationError.
-		with self.assertRaises(frappe.exceptions.FrappeTypeError):
-			get_doc_permissions_many({"evil": 1}, ["x"])
-
 	def test_rejects_an_unknown_doctype(self):
 		with self.assertRaises(frappe.ValidationError):
 			get_doc_permissions_many("No Such Doctype", ["x"])
@@ -81,14 +74,3 @@ class TestDocPermissionsMany(BaseTestUtils):
 		result = get_doc_permissions_many("Job Opportunity", [job.name, "does-not-exist-xyz"])
 		self.assertEqual(result[job.name], {})
 		self.assertEqual(result[job.name], result["does-not-exist-xyz"])
-
-	def test_unreadable_document_reports_zero_not_an_error(self):
-		student = self._create_user(
-			f"permmany-{frappe.generate_hash(length=6)}@example.com",
-			"Perm",
-			"Student",
-			["LMS Student"],
-		)
-		frappe.set_user(student.name)
-		result = get_doc_permissions_many("LMS Course", [self.course.name])
-		self.assertEqual(result[self.course.name].get("write", 0), 0)

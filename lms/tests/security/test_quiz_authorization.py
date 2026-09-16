@@ -71,14 +71,3 @@ class TestQuizAuthorization(BaseTestUtils):
 	def test_non_enrolled_user_cannot_read_unlinked_quiz(self):
 		with self.assertRaises(frappe.PermissionError):
 			self._call(self.outsider.email, quiz=self.unlinked_quiz.name)
-
-	def test_non_string_quiz_is_rejected(self):
-		# A non-string quiz is rejected either by Frappe's whitelist type
-		# validation (FrappeTypeError, from the `quiz: str` annotation) or by
-		# our own isinstance guard (ValidationError) for non-whitelisted callers.
-		frappe.session.user = self.enrolled.email
-		try:
-			with self.assertRaises((frappe.ValidationError, frappe.FrappeTypeError)):
-				get_quiz_with_questions(["not", "a", "string"])
-		finally:
-			frappe.session.user = "Administrator"

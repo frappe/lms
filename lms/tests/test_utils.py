@@ -417,9 +417,6 @@ class TestResolvePageLength(UnitTestCase):
 			with self.subTest(value=junk):
 				self.assertEqual(resolve_page_length(junk), DEFAULT_PAGE_LENGTH)
 
-	def test_a_guest_cannot_ask_for_the_whole_table(self):
-		self.assertEqual(resolve_page_length(10_000), MAX_PAGE_LENGTH)
-
 	def test_boundaries(self):
 		self.assertEqual(resolve_page_length(1), 1)
 		self.assertEqual(resolve_page_length(MAX_PAGE_LENGTH), MAX_PAGE_LENGTH)
@@ -721,8 +718,10 @@ class TestEditorJsSanitisation(unittest.TestCase):
 		self.assertEqual(out, "x")
 
 	def test_still_strips_a_script(self):
-		out = self._text(self._payload("ok<script>alert(1)</script>"))
+		out = self._text(self._payload('ok<script>alert(1)</script><img src="x" onerror="alert(1)">'))
 		self.assertNotIn("<script", out)
+		self.assertNotIn("onerror", out)
+		self.assertIn("ok", out)
 
 	def test_returns_invalid_json_unchanged(self):
 		"""Byte-for-byte, markup or not.

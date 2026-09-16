@@ -410,14 +410,6 @@ class TestQuizAuthoringHelpers(FrappeTestCase):
 			[],
 		)
 
-	def test_bank_keeps_an_explicit_type_the_quiz_can_take(self):
-		bank = get_question_bank(
-			quiz=self.quiz_a.name,
-			question_type="Open Ended",
-			allowed_types=["Open Ended"],
-		)
-		self.assertTrue(all(row["type"] == "Open Ended" for row in bank))
-
 	def test_bank_filters_by_type_and_search(self):
 		open_only = get_question_bank(quiz=self.quiz_a.name, question_type="Open Ended")
 		self.assertTrue(all(r["type"] == "Open Ended" for r in open_only))

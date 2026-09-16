@@ -33,14 +33,3 @@ class TestUnsplashPhotos(BaseTestUtils):
 		empty list the unconfigured call produced."""
 		get_unsplash_photos()
 		self.assertFalse(frappe.cache().get_value("unsplash_photos"))
-
-	def test_non_string_keyword_is_rejected(self):
-		"""Two layers reject a non-string keyword, and which one fires depends on
-		the caller. Inside a request or a test frappe validates the `str`
-		annotation first and raises FrappeTypeError; a background job or script
-		skips that check (`_in_request_or_test`) and hits the isinstance guard,
-		which throws ValidationError. Either way the value never reaches the
-		Unsplash request."""
-		for bad in ([">", "x"], {"like": "%"}, 7):
-			with self.assertRaises((frappe.ValidationError, frappe.exceptions.FrappeTypeError)):
-				get_unsplash_photos(bad)

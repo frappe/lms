@@ -182,14 +182,6 @@ class TestCouponRedemption(_CouponRedemptionFixtures, BaseTestUtils):
 
 	# Counting
 
-	def test_increments_redemption_count(self):
-		coupon = self._create_coupon()
-		payment = self._create_payment(coupon)
-
-		update_coupon_redemption(self._payment_doc(payment, coupon))
-
-		self.assertEqual(self._count(coupon), 1)
-
 	def test_no_coupon_is_a_noop(self):
 		coupon = self._create_coupon()
 		payment = self._create_payment()

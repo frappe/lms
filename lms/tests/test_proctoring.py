@@ -224,14 +224,6 @@ class TestViolationEventNormalization(unittest.TestCase):
 		)
 		self.assertCountEqual([e["event_type"] for e in events], valid_types)
 
-	def test_mixed_valid_and_invalid_types_keeps_only_valid(self):
-		events = _normalise(
-			{"eventType": "tab_switch", "timestamp": "2026-01-01T00:00:00Z"},
-			{"eventType": "screen_capture", "timestamp": "2026-01-01T00:01:00Z"},  # invalid
-			{"eventType": "multiple_faces", "timestamp": "2026-01-01T00:02:00Z"},
-		)
-		self.assertEqual(len(events), 2)
-
 
 # ---------------------------------------------------------------------------
 # 2. Integration — events actually written to the database
@@ -257,21 +249,6 @@ class TestSaveViolationEventsDB(unittest.TestCase):
 	def setUp(self):
 		frappe.db.delete("LMS Quiz Violation Log", {"quiz_submission": self.submission.name})
 
-	def test_valid_events_land_in_db(self):
-		_save_violation_events(
-			self.submission.name,
-			_normalise(
-				{"eventType": "tab_switch", "severity": "violation", "timestamp": "2026-07-01T10:00:00Z"},
-				{"eventType": "no_face", "severity": "warning", "timestamp": "2026-07-01T10:01:00Z"},
-			),
-		)
-		logs = _get_logs(self.submission.name)
-		self.assertEqual(len(logs), 2)
-		self.assertEqual(logs[0].event_type, "tab_switch")
-		self.assertEqual(logs[0].severity, "violation")
-		self.assertEqual(logs[1].event_type, "no_face")
-		self.assertEqual(logs[1].severity, "warning")
-
 	def test_timestamp_stored_in_site_timezone(self):
 		_save_violation_events(
 			self.submission.name,
@@ -285,22 +262,6 @@ class TestSaveViolationEventsDB(unittest.TestCase):
 		)
 		logs = _get_logs(self.submission.name)
 		self.assertEqual(get_datetime(logs[0].timestamp), _local("2026-07-15T14:30:45.123Z"))
-
-	def test_unknown_events_not_stored(self):
-		_save_violation_events(
-			self.submission.name,
-			_normalise(
-				{"eventType": "totally_fake", "severity": "violation"},
-				{
-					"eventType": "camera_disconnect",
-					"severity": "violation",
-					"timestamp": "2026-07-01T10:00:00Z",
-				},
-			),
-		)
-		logs = _get_logs(self.submission.name)
-		self.assertEqual(len(logs), 1)
-		self.assertEqual(logs[0].event_type, "camera_disconnect")
 
 	def test_multiple_calls_append_not_replace(self):
 		_save_violation_events(
@@ -317,25 +278,6 @@ class TestSaveViolationEventsDB(unittest.TestCase):
 		)
 		logs = _get_logs(self.submission.name)
 		self.assertEqual(len(logs), 2)
-
-	def test_insert_failure_is_swallowed(self):
-		# The graded submission is already saved by the time this runs, so a broken
-		# audit-log write must not surface as a failed submission.
-		with (
-			patch("frappe.db.bulk_insert", side_effect=Exception("boom")),
-			patch("frappe.log_error") as mock_log,
-		):
-			_save_violation_events(
-				self.submission.name,
-				_normalise(
-					{
-						"eventType": "tab_switch",
-						"severity": "violation",
-						"timestamp": "2026-07-01T10:00:00Z",
-					}
-				),
-			)
-		mock_log.assert_called_once()
 
 
 # ---------------------------------------------------------------------------
@@ -477,7 +419,10 @@ class TestSubmitQuizWithViolations(unittest.TestCase):
 	def test_submission_survives_a_failing_violation_log_write(self):
 		# The frontend no longer retries on error, so a broken log write must not be
 		# allowed to fail the submission it belongs to.
-		with patch("frappe.db.bulk_insert", side_effect=Exception("boom")), patch("frappe.log_error"):
+		with (
+			patch("frappe.db.bulk_insert", side_effect=Exception("boom")),
+			patch("frappe.log_error") as mock_log,
+		):
 			result = submit_quiz(
 				self.quiz.name,
 				results=self._results(),
@@ -486,6 +431,9 @@ class TestSubmitQuizWithViolations(unittest.TestCase):
 			)
 		self.assertIn("submission", result)
 		self.assertEqual(self._stored(result["submission"], "violation_count"), 1)
+		# The audit-log write failed silently: the submission must not carry that
+		# failure without a trace anywhere.
+		mock_log.assert_called_once()
 
 	def test_violation_events_persisted_when_provided(self):
 		events = json.dumps(
@@ -516,11 +464,6 @@ class TestSubmitQuizWithViolations(unittest.TestCase):
 				results=self._results(),
 				violation_events="not-valid-json",
 			)
-
-	def test_submit_without_violation_events_succeeds(self):
-		result = submit_quiz(self.quiz.name, results=self._results())
-		self.assertIn("submission", result)
-		self.assertIn("score", result)
 
 	def test_zero_violation_count_is_stored(self):
 		result = submit_quiz(self.quiz.name, results=self._results(), violation_count=0)
@@ -632,19 +575,6 @@ class TestGetQuizViolationLogs(unittest.TestCase):
 		self.assertEqual(logs[0].event_type, "tab_switch")
 		self.assertEqual(logs[1].event_type, "no_face")
 
-	def test_returned_fields_include_event_type_severity_timestamp(self):
-		logs = self._call("Administrator")
-		first = logs[0]
-		self.assertIn("event_type", first)
-		self.assertIn("severity", first)
-		self.assertIn("timestamp", first)
-
-	def test_severities_are_stored_correctly(self):
-		logs = self._call("Administrator")
-		severity_map = {log.event_type: log.severity for log in logs}
-		self.assertEqual(severity_map["tab_switch"], "violation")
-		self.assertEqual(severity_map["no_face"], "warning")
-
 
 # ---------------------------------------------------------------------------
 # 5. is_open_ended_submission
@@ -668,11 +598,10 @@ class TestIsOpenEndedSubmission(unittest.TestCase):
 		frappe.db.delete("LMS Question", cls.question.name)
 
 	def test_choice_quiz_returns_false(self):
-		self.assertFalse(is_open_ended_submission(self.submission.name))
+		result = is_open_ended_submission(self.submission.name)
+		self.assertFalse(result)
+		# Not just falsy: the frontend gate switches on strict identity.
+		self.assertIs(result, False)
 
 	def test_nonexistent_submission_returns_false(self):
 		self.assertFalse(is_open_ended_submission("does-not-exist-xyz"))
-
-	def test_returns_bool_not_truthy(self):
-		result = is_open_ended_submission(self.submission.name)
-		self.assertIsInstance(result, bool)

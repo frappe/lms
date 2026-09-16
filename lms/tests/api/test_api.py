@@ -195,23 +195,19 @@ class TestTrackVideoWatchDuration(BaseTestUtils):
 			filters["source"] = source
 		return frappe.get_all("LMS Video Watch Duration", filters=filters, fields=["name", "watch_time"])
 
-	def test_creates_row_when_none_exists(self):
+	def test_updates_only_when_greater(self):
 		track_video_watch_duration(self.lesson.name, [{"source": "a.mp4", "watch_time": 12}])
 		rows = self._watch_rows("a.mp4")
 		self.assertEqual(len(rows), 1)
 		self.assertEqual(flt(rows[0].watch_time), 12)
 
-	def test_updates_only_when_greater(self):
-		track_video_watch_duration(self.lesson.name, [{"source": "a.mp4", "watch_time": 10}])
+		# A lower watch_time must not create a second row or move the value down.
 		track_video_watch_duration(self.lesson.name, [{"source": "a.mp4", "watch_time": 5}])
-		self.assertEqual(flt(self._watch_rows("a.mp4")[0].watch_time), 10)
+		self.assertEqual(len(self._watch_rows("a.mp4")), 1)
+		self.assertEqual(flt(self._watch_rows("a.mp4")[0].watch_time), 12)
+
 		track_video_watch_duration(self.lesson.name, [{"source": "a.mp4", "watch_time": 20}])
 		self.assertEqual(flt(self._watch_rows("a.mp4")[0].watch_time), 20)
-
-	def test_no_duplicate_on_repeat(self):
-		track_video_watch_duration(self.lesson.name, [{"source": "a.mp4", "watch_time": 10}])
-		track_video_watch_duration(self.lesson.name, [{"source": "a.mp4", "watch_time": 15}])
-		self.assertEqual(len(self._watch_rows("a.mp4")), 1)
 
 	def test_tracks_multiple_videos(self):
 		track_video_watch_duration(

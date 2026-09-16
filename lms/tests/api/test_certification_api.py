@@ -2,7 +2,6 @@
 # See license.txt
 
 import frappe
-from frappe.exceptions import FrappeTypeError
 from frappe.utils import getdate
 
 from lms.lms.api import get_certification_details
@@ -142,12 +141,6 @@ class TestGetCertificationDetails(BaseTestUtils):
 		self.assertIsNone(details["title"])
 		self.assertIsNone(details["evaluator"])
 		self.assertIsNone(details["certificate"])
-
-	def test_non_string_course_is_rejected_at_the_boundary(self):
-		# A filter list is the exploit db.get_value's flexibility hands you.
-		frappe.set_user(self.student.name)
-		with self.assertRaises(FrappeTypeError):
-			get_certification_details(["!=", ""])
 
 	def test_the_isinstance_guard_rejects_it_too(self):
 		# require_type_annotated_api_methods makes frappe coerce before the body

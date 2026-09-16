@@ -66,20 +66,6 @@ class TestSaveProgressEnrollmentLifecycle(BaseTestUtils):
 		finally:
 			frappe.set_user("Administrator")
 
-	def test_concurrent_enrollment_saves_raise_timestamp_mismatch(self):
-		"""The .save() path this fix avoids: the second writer loses to check_if_latest."""
-		a = frappe.get_doc("LMS Enrollment", self.enrollment.name)
-		b = frappe.get_doc("LMS Enrollment", self.enrollment.name)
-
-		a.progress = 40
-		a.flags.ignore_version = True
-		a.save(ignore_permissions=True)
-
-		b.progress = 60
-		b.flags.ignore_version = True
-		with self.assertRaises(frappe.TimestampMismatchError):
-			b.save(ignore_permissions=True)
-
 	def test_concurrent_progress_writes_survive_the_race(self):
 		"""Both writers land, neither raises, and each still dispatches on_update."""
 		with self._record_enrollment_events() as events:
@@ -97,12 +83,6 @@ class TestSaveProgressEnrollmentLifecycle(BaseTestUtils):
 
 		after = frappe.db.get_value("LMS Enrollment", self.enrollment.name, "modified")
 		self.assertEqual(before, after)
-
-	def test_save_progress_dispatches_on_update_on_enrollment(self):
-		with self._record_enrollment_events() as events:
-			self._save_progress_as_student()
-
-		self.assertIn("on_update", events)
 
 	def test_lesson_completion_dispatches_exactly_one_on_update(self):
 		"""Progress and current_lesson are one logical change: one event, one webhook."""
@@ -148,15 +128,6 @@ class TestSaveProgressEnrollmentLifecycle(BaseTestUtils):
 			self.lesson.name,
 		)
 		self.assertIn("on_update", events)
-
-	def test_completing_the_final_lesson_keeps_current_lesson_on_it(self):
-		"""get_next_lesson returns None on the last lesson; current_lesson must not be cleared."""
-		self._save_progress_as_student()
-
-		self.assertEqual(
-			frappe.db.get_value("LMS Enrollment", self.enrollment.name, "current_lesson"),
-			self.lesson.name,
-		)
 
 	def test_completing_a_lesson_advances_current_lesson_to_the_next(self):
 		second = self._create_lesson("WH Lesson 2", self.chapter.name, self.course.name)

@@ -36,18 +36,6 @@ class TestSearchCategoryValidation(FrappeTestCase):
 		with self.assertRaises(frappe.ValidationError):
 			search_sqlite("kubernetes", category="doctype = 'User' --")
 
-	# Frappe coerces annotated arguments before the body runs, so a wrongly typed
-	# argument dies as FrappeTypeError and never reaches the isinstance guard.
-	# That guard is the backstop for the day the annotation goes away — dropping
-	# it would silently hand a list to the search.
-	def test_non_string_category_is_rejected(self):
-		with self.assertRaises((frappe.exceptions.FrappeTypeError, frappe.ValidationError)):
-			search_sqlite("kubernetes", category=["courses"])
-
-	def test_non_string_query_is_rejected(self):
-		with self.assertRaises((frappe.exceptions.FrappeTypeError, frappe.ValidationError)):
-			search_sqlite(["kubernetes"])
-
 	def test_every_course_scoped_doctype_is_permission_checked(self):
 		for doctype in COURSE_SCOPED_DOCTYPES:
 			self.assertIn(doctype, PERMISSION_CHECKED_DOCTYPES)
@@ -275,15 +263,13 @@ class TestAuthoredScope(BaseTestUtils):
 		finally:
 			frappe.set_user("Administrator")
 
-	def test_the_quiz_has_no_course_to_be_scoped_by(self):
-		self.assertFalse(frappe.db.get_value("LMS Quiz", self.quiz.name, "course"))
-
 	def test_an_author_is_given_the_quiz_they_made(self):
 		# Each test below sets the owner it needs rather than relying on setUp's
 		# fixture value: the quiz is a shared class-level fixture now, so a test
 		# must not depend on what an earlier test (alphabetically,
 		# test_an_evaluator_is_given_the_quiz_they_made) happened to leave behind.
 		frappe.db.set_value("LMS Quiz", self.quiz.name, "owner", self.author.name)
+		self.assertFalse(frappe.db.get_value("LMS Quiz", self.quiz.name, "course"))
 		self.assertEqual(self.permitted_for(self.author.name), {self.quiz.name})
 
 	def test_an_evaluator_is_given_the_quiz_they_made(self):

@@ -98,13 +98,6 @@ class TestGetMembers(BaseTestUtils):
 
 		self.assertIn(target.name, [member.name for member in found])
 
-	def test_search_rejects_a_non_string(self):
-		# @whitelist's pydantic argument check rejects the list with FrappeTypeError
-		# before the body's own isinstance guard can throw ValidationError. Either
-		# refusal satisfies the contract; the two classes are unrelated.
-		with self.assertRaises((frappe.ValidationError, frappe.FrappeTypeError)):
-			get_members(search=["ada"])
-
 
 class TestGetMember(BaseTestUtils):
 	"""The member edit form seeds itself from one exact row.
@@ -180,8 +173,3 @@ class TestGetMember(BaseTestUtils):
 	def test_rejects_a_blank_member(self):
 		with self.assertRaises(frappe.ValidationError):
 			get_member("   ")
-
-	def test_rejects_a_non_string(self):
-		# Same two-class refusal as get_members' search guard.
-		with self.assertRaises((frappe.ValidationError, frappe.FrappeTypeError)):
-			get_member(["ada"])

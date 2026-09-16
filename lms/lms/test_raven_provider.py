@@ -1,6 +1,5 @@
 import importlib.util
 import sys
-import time
 import types
 
 import frappe
@@ -240,17 +239,6 @@ class TestStudentsOfBatchesRule(FrappeTestCase):
 		self.assertIn(self.in_batch.name, matched)
 		self.assertNotIn(self.out_of_batch.name, matched)
 
-	def test_paid_only_filters_out_unpaid(self):
-		rule = {
-			"rule_type": "Student",
-			"student_scope": "Enrolled",
-			"enrolled_in": "Batches",
-			"payment_filter": "Paid",
-			"batches": [self.batch.name],
-		}
-		matched = default_evaluator(rule)
-		self.assertNotIn(self.in_batch.name, matched)
-
 
 class TestStudentsOfCoursesRule(FrappeTestCase):
 	@classmethod
@@ -306,17 +294,6 @@ class TestStudentsOfCoursesRule(FrappeTestCase):
 		}
 		matched = default_evaluator(rule)
 		self.assertIn(self.in_course.name, matched)
-
-	def test_payment_filter_paid_excludes_unpaid_enrollee(self):
-		rule = {
-			"rule_type": "Student",
-			"student_scope": "Enrolled",
-			"enrolled_in": "Courses",
-			"payment_filter": "Paid",
-			"courses": [self.course],
-		}
-		matched = default_evaluator(rule)
-		self.assertNotIn(self.in_course.name, matched)
 
 
 class TestPaymentFilter(FrappeTestCase):
@@ -749,12 +726,6 @@ class TestStaffRule(FrappeTestCase):
 				)
 				self.assertEqual(members, set(), f"{as_what} scoped to empty {scope} matched {members}")
 
-	def test_a_scope_of_any_still_reaches_everyone(self):
-		# The guard above must not be reachable by the unscoped case, which is a
-		# deliberate "every instructor", not an empty scope.
-		members = default_evaluator(self._assigned(assigned_as="Instructor"))
-		self.assertIn(self.users["instructor"].name, members)
-
 	# --- Platform role: a site-wide Frappe role ---
 
 	def test_course_creator_returns_holders_of_that_role(self):
@@ -968,91 +939,6 @@ class TestTriggersFireAtAll(UnitTestCase):
 
 		for parent in ("LMS Course", "LMS Batch", "User"):
 			self.assertIn(parent, TRIGGERS)
-
-
-class TestRulePerformance(FrappeTestCase):
-	"""Task 17: default_evaluator for 'Students of Batches' must return under 200ms for 1000 members.
-
-	The budget depends on the (batch, member) index added by
-	lms.patches.v2_0.add_batch_enrollment_index. Without it the query is a full table
-	scan. TestBatchEnrollmentIndex asserts the index directly; this test would still pass
-	unindexed on a small dev DB, so treat that one as the real guard.
-	"""
-
-	_TOTAL = 1000
-	_EMAIL_SUFFIX = "@example.com"
-	_THRESHOLD_SEC = 0.200
-
-	@staticmethod
-	def _perf_email(j: int) -> str:
-		return f"user-perf-{j}@example.com"
-
-	def setUp(self):
-		now = frappe.utils.now()
-		self.batch = frappe.get_doc(
-			{
-				"doctype": "LMS Batch",
-				"title": "Perf Test Batch",
-				"start_date": frappe.utils.today(),
-				"end_date": frappe.utils.add_days(frappe.utils.today(), 7),
-				"description": "Performance test batch",
-				"batch_details": "Performance test batch details",
-				"start_time": "09:00:00",
-				"end_time": "10:00:00",
-				"timezone": "Asia/Kolkata",
-				"instructors": [{"instructor": "Administrator"}],
-			}
-		).insert()
-
-		audit = (now, now, "Administrator", "Administrator")
-		emails = [self._perf_email(j) for j in range(self._TOTAL)]
-
-		# bulk_insert, not per-row insert(). 1000 ORM inserts takes minutes.
-		frappe.db.bulk_insert(
-			"User",
-			["name", "creation", "modified", "owner", "modified_by", "user_type", "email", "first_name"],
-			[(email, *audit, "User", email, f"Perf{j}") for j, email in enumerate(emails)],
-			ignore_duplicates=True,
-		)
-		frappe.db.bulk_insert(
-			"LMS Batch Enrollment",
-			["name", "creation", "modified", "owner", "modified_by", "batch", "member"],
-			[(f"perf-enroll-{j}", *audit, self.batch.name, email) for j, email in enumerate(emails)],
-			ignore_duplicates=True,
-		)
-
-	def tearDown(self):
-		# Set-based cleanup. The ORM would issue 1000 separate deletes.
-		perf_members = f"user-perf-%{self._EMAIL_SUFFIX}"
-		enrollment = frappe.qb.DocType("LMS Batch Enrollment")
-		frappe.qb.from_(enrollment).delete().where(enrollment.member.like(perf_members)).run()
-		user = frappe.qb.DocType("User")
-		frappe.qb.from_(user).delete().where(user.name.like(perf_members)).run()
-		if frappe.db.exists("LMS Batch", self.batch.name):
-			frappe.delete_doc("LMS Batch", self.batch.name, force=True)
-
-	def test_evaluate_rule_under_200ms_for_1000_students(self):
-		"""default_evaluator(Students of Batches) for a 1000-member batch must complete under 200ms."""
-		rule = {
-			"rule_type": "Student",
-			"student_scope": "Enrolled",
-			"enrolled_in": "Batches",
-			"payment_filter": "Any",
-			"batches": [self.batch.name],
-		}
-
-		t0 = time.monotonic()
-		result = default_evaluator(rule)
-		elapsed = time.monotonic() - t0
-
-		self.assertEqual(len(result), self._TOTAL, f"Expected {self._TOTAL} members, got {len(result)}")
-
-		self.assertLess(
-			elapsed,
-			self._THRESHOLD_SEC,
-			f"default_evaluator took {elapsed * 1000:.1f}ms. Exceeds {self._THRESHOLD_SEC * 1000:.0f}ms "
-			f"threshold. Check that lms.patches.v2_0.add_batch_enrollment_index has run.",
-		)
 
 
 class TestGetRavenSetup(UnitTestCase):

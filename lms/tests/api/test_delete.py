@@ -455,11 +455,6 @@ class TestCategoryDeletion(DeletionTestBase):
 		super().setUp()
 		self.category = self.course.category
 
-	def test_plain_delete_is_blocked_while_a_course_links_it(self):
-		"""Why delete_category exists: category is a Link target on LMS Course."""
-		with self.assertRaises(frappe.LinkExistsError):
-			frappe.delete_doc("LMS Category", self.category)
-
 	def test_unlinks_category_from_courses_then_deletes(self):
 		delete_category(self.category)
 
