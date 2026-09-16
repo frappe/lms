@@ -53,13 +53,17 @@ class TestDisabledBadgeAssignment(BaseTestUtils):
 		finally:
 			frappe.session.user = "Administrator"
 
-	def test_a_student_cannot_award_themselves_a_disabled_badge(self):
-		with self.assertRaises(frappe.ValidationError):
-			self._assign(self.disabled_badge, self.student.name)
-
-	def test_a_moderator_cannot_award_a_disabled_badge_either(self):
-		with self.assertRaises(frappe.ValidationError):
-			self._assign(self.disabled_badge, "Administrator")
+	def test_disabled_badge_cannot_be_awarded_by_anyone(self):
+		# The gate has no role branch: neither a student awarding themselves nor
+		# an Administrator/Moderator caller can get a disabled badge past it.
+		cases = [
+			("student", self.student.name),
+			("administrator", "Administrator"),
+		]
+		for case, caller in cases:
+			with self.subTest(case=case):
+				with self.assertRaises(frappe.ValidationError):
+					self._assign(self.disabled_badge, caller)
 
 	def test_an_enabled_badge_is_still_assignable(self):
 		"""The control: the gate is the badge's own switch, not the insert path."""

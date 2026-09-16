@@ -98,34 +98,27 @@ class TestServeResourceUnderscoreFilename(BaseTestUtils):
 			msg="content-field search must resolve a student-accessible reference for an underscore filename",
 		)
 
-	def test_underscore_is_not_a_wildcard(self):
-		"""The "_" must be matched literally, not as a single-character LIKE wildcard: a
-		lesson embedding a url the searched one matches only wildcard-wise must not
-		resolve as student-accessible content."""
-		other_url = self.file_url.replace("_", "Z")
-		self.lesson.content = json.dumps(
-			{"blocks": [{"type": "upload", "data": {"file_url": other_url, "file_type": "PDF"}}]}
-		)
-		self.lesson.save(ignore_permissions=True)
+	def test_wildcard_characters_are_matched_literally(self):
+		# LIKE wildcards ("_" a single character, "%" any run of characters) must not
+		# act as wildcards here: a lesson embedding a url the searched one matches
+		# only wildcard-wise must not resolve as student-accessible content.
+		cases = [
+			("underscore", self.file_url, self.file_url.replace("_", "Z")),
+			(
+				"percent",
+				"/private/files/report50%final.pdf",
+				"/private/files/report50XXXXXfinal.pdf",
+			),
+		]
+		for case, embedded_url, mismatched_query in cases:
+			with self.subTest(case=case):
+				self.lesson.content = json.dumps(
+					{"blocks": [{"type": "upload", "data": {"file_url": embedded_url, "file_type": "PDF"}}]}
+				)
+				self.lesson.save(ignore_permissions=True)
 
-		self.assertIn((self.lesson.name, False), _resolve_lesson_references(other_url))
-		self.assertNotIn((self.lesson.name, False), _resolve_lesson_references(self.file_url))
-
-	def test_content_search_matches_percent_filename(self):
-		"""A filename with a literal % must resolve too, and the % must stay literal
-		rather than acting as a multi-character wildcard."""
-		pct_url = "/private/files/report50%final.pdf"
-		self.lesson.content = json.dumps(
-			{"blocks": [{"type": "upload", "data": {"file_url": pct_url, "file_type": "PDF"}}]}
-		)
-		self.lesson.save(ignore_permissions=True)
-
-		self.assertIn((self.lesson.name, False), _resolve_lesson_references(pct_url))
-		# the % is literal: a url that differs only where the % sits must not match.
-		self.assertNotIn(
-			(self.lesson.name, False),
-			_resolve_lesson_references("/private/files/report50XXXXXfinal.pdf"),
-		)
+				self.assertIn((self.lesson.name, False), _resolve_lesson_references(embedded_url))
+				self.assertNotIn((self.lesson.name, False), _resolve_lesson_references(mismatched_query))
 
 	def test_unattached_private_file_still_resolves(self):
 		"""The prod 'everyone incl. Administrator 403s' case: a private file not attached to

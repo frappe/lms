@@ -57,36 +57,39 @@ class TestSidebar(BaseTestUtils):
 		names = [row.name1 for row in self.settings.sidebar_items]
 		self.assertEqual(names, [row["name1"] for row in rows])
 
-	def test_save_sidebar_items_rejects_a_deleted_standard_row(self):
-		self.assertRaises(
-			frappe.ValidationError,
-			save_sidebar_items,
-			rows=[],
-		)
+	def test_save_sidebar_items_rejects_by_case(self):
+		def deleted_standard_row():
+			return []
 
-	def test_save_sidebar_items_rejects_hiding_home(self):
-		rows = [
-			{field: row.get(field) for field in ("name1", "is_standard", "item_type", "hidden")}
-			for row in self.settings.sidebar_items
+		def hiding_home():
+			rows = [
+				{field: row.get(field) for field in ("name1", "is_standard", "item_type", "hidden")}
+				for row in self.settings.sidebar_items
+			]
+			for row in rows:
+				if row["name1"] == "home":
+					row["hidden"] = 1
+			return rows
+
+		def off_site_route():
+			return [
+				{
+					"name1": "custom_route",
+					"item_type": "Route",
+					"route": "//evil.example.com",
+					"title": "Escape",
+					"icon": "lucide-link",
+				}
+			]
+
+		cases = [
+			("deleted_standard_row", deleted_standard_row),
+			("hiding_home", hiding_home),
+			("off_site_route", off_site_route),
 		]
-		for row in rows:
-			if row["name1"] == "home":
-				row["hidden"] = 1
-
-		self.assertRaises(frappe.ValidationError, save_sidebar_items, rows=rows)
-
-	def test_save_sidebar_items_rejects_an_off_site_route(self):
-		rows = [
-			{
-				"name1": "custom_route",
-				"item_type": "Route",
-				"route": "//evil.example.com",
-				"title": "Escape",
-				"icon": "lucide-link",
-			}
-		]
-
-		self.assertRaises(frappe.ValidationError, save_sidebar_items, rows=rows)
+		for case, build_rows in cases:
+			with self.subTest(case=case):
+				self.assertRaises(frappe.ValidationError, save_sidebar_items, rows=build_rows())
 
 	def test_update_sidebar_item_rejects_an_unpublished_page(self):
 		self.assertRaises(

@@ -158,19 +158,17 @@ class TestTodaysSlots(BaseTestUtils):
 	def _start_times(self, slots):
 		return [format_time(slot["start_time"], "HH:mm:ss") for slot in slots]
 
-	@patch(EVALUATOR_NOWTIME, return_value="12:00:00")
-	def test_slot_that_already_started_today_is_not_offered(self, _evaluator_nowtime):
-		slots = self._todays_slots(get_schedule(self.course.name))
-		self.assertEqual(self._start_times(slots), ["16:00:00"])
-
-	@patch(EVALUATOR_NOWTIME, return_value="16:00:00")
-	def test_slot_starting_exactly_now_is_still_offered(self, _evaluator_nowtime):
-		slots = self._todays_slots(get_schedule(self.course.name))
-		self.assertEqual(self._start_times(slots), ["16:00:00"])
-
-	@patch(EVALUATOR_NOWTIME, return_value="18:00:00")
-	def test_no_slots_offered_for_today_once_all_have_started(self, _evaluator_nowtime):
-		self.assertEqual(self._todays_slots(get_schedule(self.course.name)), [])
+	def test_todays_slots_by_current_clock_time(self):
+		cases = [
+			("already_started_slot_not_offered", "12:00:00", ["16:00:00"]),
+			("slot_starting_exactly_now_still_offered", "16:00:00", ["16:00:00"]),
+			("no_slots_once_all_have_started", "18:00:00", []),
+		]
+		for case, now, expected_start_times in cases:
+			with self.subTest(case=case):
+				with patch(EVALUATOR_NOWTIME, return_value=now):
+					slots = self._todays_slots(get_schedule(self.course.name))
+					self.assertEqual(self._start_times(slots), expected_start_times)
 
 	@patch(REQUEST_NOWTIME, return_value="12:00:00")
 	@patch(EVALUATOR_NOWTIME, return_value="12:00:00")

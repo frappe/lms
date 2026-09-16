@@ -212,17 +212,29 @@ class TestCouponRedemption(_CouponRedemptionFixtures, BaseTestUtils):
 
 	# Usage limit
 
-	def test_paid_redemption_past_the_usage_limit_is_still_recorded(self):
-		coupon = self._create_coupon(redemption_count=1, usage_limit=1)
-		payment = self._create_payment(coupon)
+	def test_usage_limit_logging_by_case(self):
+		# The payment already went through in the paid case, so the redemption
+		# is still recorded (and logged); the other two cases are within limit
+		# / no limit set, so nothing is logged.
+		cases = [
+			("paid_past_limit_is_still_recorded_and_logged", 1, 1, 2, True),
+			("within_limit_is_not_logged", 0, 5, 1, False),
+			("no_limit_set_is_not_logged", 99, 0, 100, False),
+		]
+		for case, redemption_count, usage_limit, expected_count, expect_log in cases:
+			with self.subTest(case=case):
+				coupon = self._create_coupon(redemption_count=redemption_count, usage_limit=usage_limit)
+				payment = self._create_payment(coupon)
 
-		with patch.object(frappe, "log_error") as log_error:
-			update_coupon_redemption(self._payment_doc(payment, coupon))
+				with patch.object(frappe, "log_error") as log_error:
+					update_coupon_redemption(self._payment_doc(payment, coupon))
 
-		# The payment already went through, so the redemption is still recorded.
-		self.assertEqual(self._count(coupon), 2)
-		log_error.assert_called_once()
-		self.assertIn(coupon.name, str(log_error.call_args))
+				self.assertEqual(self._count(coupon), expected_count)
+				if expect_log:
+					log_error.assert_called_once()
+					self.assertIn(coupon.name, str(log_error.call_args))
+				else:
+					log_error.assert_not_called()
 
 	def test_free_redemption_past_the_usage_limit_is_rejected(self):
 		"""Nothing has been paid on a fully discounted order, so the limit can
@@ -234,26 +246,6 @@ class TestCouponRedemption(_CouponRedemptionFixtures, BaseTestUtils):
 			update_coupon_redemption(self._payment_doc(payment, coupon, amount=0))
 
 		self.assertEqual(self._count(coupon), 1)
-
-	def test_does_not_log_within_usage_limit(self):
-		coupon = self._create_coupon(redemption_count=0, usage_limit=5)
-		payment = self._create_payment(coupon)
-
-		with patch.object(frappe, "log_error") as log_error:
-			update_coupon_redemption(self._payment_doc(payment, coupon))
-
-		self.assertEqual(self._count(coupon), 1)
-		log_error.assert_not_called()
-
-	def test_does_not_log_when_no_usage_limit_set(self):
-		coupon = self._create_coupon(redemption_count=99, usage_limit=0)
-		payment = self._create_payment(coupon)
-
-		with patch.object(frappe, "log_error") as log_error:
-			update_coupon_redemption(self._payment_doc(payment, coupon))
-
-		self.assertEqual(self._count(coupon), 100)
-		log_error.assert_not_called()
 
 	# Gateway callbacks
 

@@ -152,27 +152,40 @@ class TestEvaluatorAvailability(BaseTestUtils):
 
 	# --- other people's availability -------------------------------------
 
-	def test_course_creator_cannot_add_a_slot_for_someone_else(self):
-		"""The probe that found this: a Course Creator, who cannot even open the
-		Slots tab, could write to any evaluator's calendar."""
-		frappe.session.user = self.course_creator.email
-		with self.assertRaises(frappe.PermissionError):
-			add_evaluator_slot(self.evaluator.email, "Wednesday", "09:00:00", "10:00:00")
-
-	def test_course_creator_cannot_set_someone_elses_unavailability(self):
-		frappe.session.user = self.course_creator.email
-		with self.assertRaises(frappe.PermissionError):
-			set_evaluator_unavailability(self.evaluator.email, "unavailable_to", "2026-09-01")
-
-	def test_evaluator_cannot_write_a_peers_availability(self):
-		frappe.session.user = self.other_evaluator.email
-		with self.assertRaises(frappe.PermissionError):
-			add_evaluator_slot(self.evaluator.email, "Thursday", "09:00:00", "10:00:00")
-
-	def test_student_cannot_write_availability(self):
-		frappe.session.user = self.student.email
-		with self.assertRaises(frappe.PermissionError):
-			add_evaluator_slot(self.evaluator.email, "Friday", "09:00:00", "10:00:00")
+	def test_writing_someone_elses_calendar_is_refused(self):
+		"""The probe that found this: a Course Creator, who cannot even open
+		the Slots tab, could write to any evaluator's calendar; neither can a
+		peer evaluator or a student."""
+		cases = [
+			(
+				"course_creator_add_slot",
+				self.course_creator.email,
+				lambda: add_evaluator_slot(self.evaluator.email, "Wednesday", "09:00:00", "10:00:00"),
+			),
+			(
+				"course_creator_set_unavailability",
+				self.course_creator.email,
+				lambda: set_evaluator_unavailability(self.evaluator.email, "unavailable_to", "2026-09-01"),
+			),
+			(
+				"peer_evaluator_add_slot",
+				self.other_evaluator.email,
+				lambda: add_evaluator_slot(self.evaluator.email, "Thursday", "09:00:00", "10:00:00"),
+			),
+			(
+				"student_add_slot",
+				self.student.email,
+				lambda: add_evaluator_slot(self.evaluator.email, "Friday", "09:00:00", "10:00:00"),
+			),
+		]
+		for case, caller, action in cases:
+			with self.subTest(case=case):
+				frappe.session.user = caller
+				try:
+					with self.assertRaises(frappe.PermissionError):
+						action()
+				finally:
+					frappe.session.user = self.original_user
 
 	def test_moderator_may_edit_anyones_availability(self):
 		frappe.session.user = self.moderator.email
@@ -201,31 +214,52 @@ class TestEvaluatorAvailability(BaseTestUtils):
 
 	# --- input validation --------------------------------------------------
 
-	def test_fieldname_outside_the_allowlist_is_rejected(self):
+	def test_writes_reject_malformed_fieldnames_and_values(self):
 		frappe.session.user = self.evaluator.email
-		with self.assertRaises(frappe.ValidationError):
-			update_evaluator_slot(self.evaluator.email, self._slot_of(self.schedule), "parent", "x")
-
-	def test_unavailability_fieldname_outside_the_allowlist_is_rejected(self):
-		frappe.session.user = self.evaluator.email
-		with self.assertRaises(frappe.ValidationError):
-			set_evaluator_unavailability(self.evaluator.email, "evaluator", "someone@else.com")
+		slot = self._slot_of(self.schedule)
+		cases = [
+			(
+				"slot_fieldname_outside_allowlist",
+				frappe.ValidationError,
+				lambda: update_evaluator_slot(self.evaluator.email, slot, "parent", "x"),
+			),
+			(
+				"unavailability_fieldname_outside_allowlist",
+				frappe.ValidationError,
+				lambda: set_evaluator_unavailability(self.evaluator.email, "evaluator", "someone@else.com"),
+			),
+			(
+				"unknown_slot",
+				(frappe.DoesNotExistError, frappe.PermissionError),
+				lambda: update_evaluator_slot(self.evaluator.email, "does-not-exist", "day", "Monday"),
+			),
+			(
+				"invalid_day",
+				frappe.ValidationError,
+				lambda: add_evaluator_slot(self.evaluator.email, "Noonday", "09:00:00", "10:00:00"),
+			),
+			(
+				"malformed_time_on_update",
+				frappe.ValidationError,
+				lambda: update_evaluator_slot(self.evaluator.email, slot, "start_time", "25:99"),
+			),
+			(
+				"malformed_unavailability_date",
+				frappe.ValidationError,
+				lambda: set_evaluator_unavailability(self.evaluator.email, "unavailable_from", "garbage"),
+			),
+		]
+		for case, expected, action in cases:
+			with self.subTest(case=case):
+				with self.assertRaises(expected):
+					action()
 
 	def test_non_string_evaluator_is_rejected(self):
 		frappe.session.user = self.evaluator.email
 		for bad in (["a"], {"b": 1}, 7, ""):
-			with self.assertRaises((frappe.ValidationError, frappe.exceptions.FrappeTypeError)):
-				add_evaluator_slot(bad, "Monday", "09:00:00", "10:00:00")
-
-	def test_unknown_slot_is_rejected(self):
-		frappe.session.user = self.evaluator.email
-		with self.assertRaises((frappe.DoesNotExistError, frappe.PermissionError)):
-			update_evaluator_slot(self.evaluator.email, "does-not-exist", "day", "Monday")
-
-	def test_invalid_day_is_rejected(self):
-		frappe.session.user = self.evaluator.email
-		with self.assertRaises(frappe.ValidationError):
-			add_evaluator_slot(self.evaluator.email, "Noonday", "09:00:00", "10:00:00")
+			with self.subTest(bad=bad):
+				with self.assertRaises((frappe.ValidationError, frappe.exceptions.FrappeTypeError)):
+					add_evaluator_slot(bad, "Monday", "09:00:00", "10:00:00")
 
 	# --- reading must not write ------------------------------------------
 
@@ -294,12 +328,16 @@ class TestEvaluatorAvailability(BaseTestUtils):
 
 		self.assertFalse(frappe.db.exists("Course Evaluator", self.fresh_evaluator.email))
 
-	def test_existing_availability_still_reads_back(self):
-		frappe.session.user = self.evaluator.email
-
-		details = get_evaluator_details(self.evaluator.email)
-
-		self.assertEqual([row["day"] for row in details["slots"]["schedule"]], ["Monday"])
+	def test_existing_availability_reads_back_for_owner_and_moderator(self):
+		cases = [
+			("owner", self.evaluator.email),
+			("moderator", self.moderator.email),
+		]
+		for case, caller in cases:
+			with self.subTest(case=case):
+				frappe.session.user = caller
+				details = get_evaluator_details(self.evaluator.email)
+				self.assertEqual([row["day"] for row in details["slots"]["schedule"]], ["Monday"])
 
 	def test_adding_a_slot_creates_the_evaluator_record_on_demand(self):
 		"""Creation moves to the write path, so an evaluator with no record yet
@@ -365,34 +403,27 @@ class TestEvaluatorAvailability(BaseTestUtils):
 		with self.assertRaises(frappe.PermissionError):
 			get_evaluator_details(self.other_evaluator.email)
 
-	def test_a_moderator_can_still_read_anyones_schedule(self):
-		frappe.session.user = self.moderator.email
-
-		details = get_evaluator_details(self.evaluator.email)
-
-		self.assertEqual([row["day"] for row in details["slots"]["schedule"]], ["Monday"])
-
 	# --- no record means no write ------------------------------------------
 
-	def test_unavailability_on_a_missing_record_is_refused_not_created(self):
-		"""A no-op unavailability write used to create the record (and grant
-		the role) for someone who had never been an evaluator."""
-		self._reset_target(self.plain_moderator.email)
-		frappe.session.user = self.moderator.email
+	def test_a_write_to_a_missing_record_is_refused_not_created(self):
+		"""A no-op write used to create the record (and grant the role) for
+		someone who had never been an evaluator."""
+		cases = [
+			(
+				"unavailability",
+				lambda: set_evaluator_unavailability(self.plain_moderator.email, "unavailable_from", None),
+			),
+			("delete_slot", lambda: delete_evaluator_slot(self.plain_moderator.email, 1)),
+		]
+		for case, action in cases:
+			with self.subTest(case=case):
+				self._reset_target(self.plain_moderator.email)
+				frappe.session.user = self.moderator.email
 
-		with self.assertRaises(frappe.DoesNotExistError):
-			set_evaluator_unavailability(self.plain_moderator.email, "unavailable_from", None)
+				with self.assertRaises(frappe.DoesNotExistError):
+					action()
 
-		self.assertFalse(frappe.db.exists("Course Evaluator", self.plain_moderator.email))
-
-	def test_deleting_a_slot_on_a_missing_record_creates_nothing(self):
-		self._reset_target(self.plain_moderator.email)
-		frappe.session.user = self.moderator.email
-
-		with self.assertRaises(frappe.DoesNotExistError):
-			delete_evaluator_slot(self.plain_moderator.email, 1)
-
-		self.assertFalse(frappe.db.exists("Course Evaluator", self.plain_moderator.email))
+				self.assertFalse(frappe.db.exists("Course Evaluator", self.plain_moderator.email))
 
 	# --- value validation ---------------------------------------------------
 
@@ -400,21 +431,9 @@ class TestEvaluatorAvailability(BaseTestUtils):
 		frappe.session.user = self.evaluator.email
 
 		for bad in ("25:99", "not-a-time", "", None, 7):
-			with self.assertRaises((frappe.ValidationError, frappe.exceptions.FrappeTypeError)):
-				add_evaluator_slot(self.evaluator.email, "Monday", bad, "10:00:00")
-
-	def test_a_malformed_time_on_update_is_a_validation_error(self):
-		frappe.session.user = self.evaluator.email
-		slot = self._slot_of(self.schedule)
-
-		with self.assertRaises(frappe.ValidationError):
-			update_evaluator_slot(self.evaluator.email, slot, "start_time", "25:99")
-
-	def test_a_malformed_unavailability_date_is_a_validation_error(self):
-		frappe.session.user = self.evaluator.email
-
-		with self.assertRaises(frappe.ValidationError):
-			set_evaluator_unavailability(self.evaluator.email, "unavailable_from", "garbage")
+			with self.subTest(bad=bad):
+				with self.assertRaises((frappe.ValidationError, frappe.exceptions.FrappeTypeError)):
+					add_evaluator_slot(self.evaluator.email, "Monday", bad, "10:00:00")
 
 	def test_clearing_unavailability_is_still_allowed(self):
 		frappe.session.user = self.evaluator.email

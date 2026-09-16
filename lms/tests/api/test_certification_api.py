@@ -58,12 +58,47 @@ class TestGetCertificationDetails(BaseTestUtils):
 		self.assertEqual(details["paid_certificate"], 1)
 		self.assertEqual(details["membership"]["purchased_certificate"], 1)
 
-	def test_evaluator_is_withheld_from_someone_not_on_the_course(self):
-		frappe.set_user(self.outsider.name)
-		details = get_certification_details(self.course.name)
-		self.assertIsNone(details["membership"])
-		self.assertIsNone(details["evaluator"])
-		self.assertEqual(details["title"], self.course.title)
+	def test_certification_details_withheld_from_non_members(self):
+		def outsider():
+			frappe.set_user(self.outsider.name)
+			details = get_certification_details(self.course.name)
+			self.assertIsNone(details["membership"])
+			self.assertIsNone(details["evaluator"])
+			self.assertEqual(details["title"], self.course.title)
+
+		def guest():
+			# allow_guest is what frappe checks at dispatch, and it records the
+			# function in frappe.guest_methods rather than tagging it.
+			self.assertNotIn(get_certification_details, frappe.guest_methods)
+			frappe.set_user("Guest")
+			details = get_certification_details(self.course.name)
+			self.assertIsNone(details["membership"])
+			self.assertIsNone(details["evaluator"])
+			self.assertIsNone(details["certificate"])
+
+		def roleless_stranger():
+			# _create_user needs an elevated caller; an earlier row in this method
+			# may have left session.user as Guest or another low-privilege account.
+			frappe.set_user("Administrator")
+			stranger = self._create_user(
+				f"cert.stranger.{frappe.generate_hash(length=8)}@example.com",
+				"Cert",
+				"Stranger",
+				[],
+			)
+			frappe.set_user(stranger.name)
+			details = get_certification_details(self.course.name)
+			self.assertIsNone(details["membership"])
+			self.assertIsNone(details["evaluator"])
+
+		cases = [
+			("outsider_not_on_the_course", outsider),
+			("guest_caller", guest),
+			("roleless_stranger", roleless_stranger),
+		]
+		for case, run in cases:
+			with self.subTest(case=case):
+				run()
 
 	def test_evaluator_is_withheld_until_the_certificate_is_paid_for(self):
 		# Enrolment alone is self-service on a published course; the page only
@@ -80,30 +115,6 @@ class TestGetCertificationDetails(BaseTestUtils):
 		self.assertIsNotNone(details["membership"])
 		self.assertIsNone(details["evaluator"])
 
-	def test_a_guest_is_not_a_permitted_caller(self):
-		# allow_guest is what frappe checks at dispatch, and it records the
-		# function in frappe.guest_methods rather than tagging it.
-		self.assertNotIn(get_certification_details, frappe.guest_methods)
-
-		frappe.set_user("Guest")
-		details = get_certification_details(self.course.name)
-		self.assertIsNone(details["membership"])
-		self.assertIsNone(details["evaluator"])
-		self.assertIsNone(details["certificate"])
-
-	def test_a_user_with_no_lms_role_gets_no_evaluator(self):
-		stranger = self._create_user(
-			f"cert.stranger.{frappe.generate_hash(length=8)}@example.com",
-			"Cert",
-			"Stranger",
-			[],
-		)
-		frappe.set_user(stranger.name)
-
-		details = get_certification_details(self.course.name)
-		self.assertIsNone(details["membership"])
-		self.assertIsNone(details["evaluator"])
-
 	def test_certificate_carries_the_issue_date_the_page_renders(self):
 		certificate = self._create_certificate(self.course.name, self.student.name)
 		frappe.set_user(self.student.name)
@@ -112,28 +123,25 @@ class TestGetCertificationDetails(BaseTestUtils):
 		self.assertEqual(details["certificate"]["name"], certificate.name)
 		self.assertEqual(getdate(details["certificate"]["issue_date"]), getdate(certificate.issue_date))
 
-	def test_unpublished_course_title_is_withheld_from_an_outsider(self):
+	def test_unpublished_course_visibility_by_caller(self):
 		# get_course_details hides an unpublished course from anyone who isn't
 		# enrolled, modifying it, or staff; this endpoint skipped that check.
 		frappe.db.set_value("LMS Course", self.course.name, "published", 0)
-		frappe.set_user(self.outsider.name)
 
-		with self.assertRaisesRegex(frappe.PermissionError, UNPUBLISHED_COURSE_MESSAGE):
-			get_certification_details(self.course.name)
+		with self.subTest(case="withheld_from_an_outsider"):
+			frappe.set_user(self.outsider.name)
+			with self.assertRaisesRegex(frappe.PermissionError, UNPUBLISHED_COURSE_MESSAGE):
+				get_certification_details(self.course.name)
 
-	def test_unpublished_course_is_still_visible_to_the_enrolled_learner(self):
-		frappe.db.set_value("LMS Course", self.course.name, "published", 0)
-		frappe.set_user(self.student.name)
+		with self.subTest(case="visible_to_the_enrolled_learner"):
+			frappe.set_user(self.student.name)
+			details = get_certification_details(self.course.name)
+			self.assertEqual(details["title"], self.course.title)
 
-		details = get_certification_details(self.course.name)
-		self.assertEqual(details["title"], self.course.title)
-
-	def test_unpublished_course_is_still_visible_to_the_instructor(self):
-		frappe.db.set_value("LMS Course", self.course.name, "published", 0)
-		frappe.set_user(self.instructor.name)
-
-		details = get_certification_details(self.course.name)
-		self.assertEqual(details["title"], self.course.title)
+		with self.subTest(case="visible_to_the_instructor"):
+			frappe.set_user(self.instructor.name)
+			details = get_certification_details(self.course.name)
+			self.assertEqual(details["title"], self.course.title)
 
 	def test_unknown_course_returns_no_details(self):
 		frappe.set_user(self.student.name)

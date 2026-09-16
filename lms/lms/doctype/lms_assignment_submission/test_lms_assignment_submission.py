@@ -3,10 +3,10 @@
 
 import frappe
 
-from lms.lms.test_helpers import BaseTestUtils
+from lms.lms.test_helpers import BaseTestUtils, MemberOwnershipTestMixin
 
 
-class TestLMSAssignmentSubmission(BaseTestUtils):
+class TestLMSAssignmentSubmission(MemberOwnershipTestMixin, BaseTestUtils):
 	@classmethod
 	def setUpClass(cls):
 		super().setUpClass()
@@ -27,29 +27,8 @@ class TestLMSAssignmentSubmission(BaseTestUtils):
 		doc.answer = answer
 		return doc
 
-	def test_student_cannot_submit_for_another_member(self):
-		frappe.set_user(self.student_a.name)
-		doc = self._new_submission(member=self.student_b.name)
-		with self.assertRaises(frappe.PermissionError):
-			doc.insert()
-
-	def test_student_member_defaults_to_session_user(self):
-		frappe.set_user(self.student_a.name)
-		doc = self._new_submission(member=None)
-		doc.insert()
-		self.assertEqual(doc.member, self.student_a.name)
-
-	def test_student_can_submit_for_self(self):
-		frappe.set_user(self.student_a.name)
-		doc = self._new_submission(member=self.student_a.name)
-		doc.insert()
-		self.assertEqual(doc.member, self.student_a.name)
-
-	def test_privileged_user_can_submit_on_behalf_of_member(self):
-		frappe.set_user(self.moderator.name)
-		doc = self._new_submission(member=self.student_b.name)
-		doc.insert()
-		self.assertEqual(doc.member, self.student_b.name)
+	def _new_doc(self, member=None, variant=0):
+		return self._new_submission(member=member)
 
 	def test_student_cannot_reassign_member_on_update(self):
 		frappe.set_user(self.student_a.name)

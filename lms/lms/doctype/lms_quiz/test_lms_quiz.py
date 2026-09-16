@@ -32,47 +32,62 @@ class TestLMSQuiz(unittest.TestCase):
 		question.save()
 		self.assertTrue(question.multiple)
 
-	def test_with_no_correct_option(self):
-		question = frappe.new_doc("LMS Question")
-		question.question = "Question Multiple"
-		question.type = "Choices"
-		question.option_1 = "Option 1"
-		question.option_2 = "Option 2"
-		self.assertRaises(frappe.ValidationError, question.save)
+	def test_question_without_a_scorable_answer_is_rejected(self):
+		def no_correct_option():
+			question = frappe.new_doc("LMS Question")
+			question.question = "Question Multiple"
+			question.type = "Choices"
+			question.option_1 = "Option 1"
+			question.option_2 = "Option 2"
+			return question
 
-	def test_with_no_possible_answers(self):
-		question = frappe.new_doc("LMS Question")
-		question.question = "Question Multiple"
-		question.type = "User Input"
-		self.assertRaises(frappe.ValidationError, question.save)
+		def no_possible_answers():
+			question = frappe.new_doc("LMS Question")
+			question.question = "Question Multiple"
+			question.type = "User Input"
+			return question
 
-	def test_scores_question_with_ten_options(self):
+		cases = [
+			("no_correct_option", no_correct_option),
+			("no_possible_answers", no_possible_answers),
+		]
+		for case, build in cases:
+			with self.subTest(case=case):
+				question = build()
+				self.assertRaises(frappe.ValidationError, question.save)
+
+	def test_choice_scoring_true_and_false_for_ten_and_two_option_questions(self):
 		from lms.lms.doctype.lms_quiz.lms_quiz import verify_answer
 
-		q = frappe.new_doc("LMS Question")
-		q.question = "Ten option question"
-		q.type = "Choices"
-		for i in range(1, 11):
-			q.set(f"option_{i}", f"opt{i}")
-		q.is_correct_7 = 1
-		q.save()
+		def ten_options():
+			q = frappe.new_doc("LMS Question")
+			q.question = "Ten option question"
+			q.type = "Choices"
+			for i in range(1, 11):
+				q.set(f"option_{i}", f"opt{i}")
+			q.is_correct_7 = 1
+			q.save()
+			return q, "opt7", "opt3"
 
-		self.assertTrue(verify_answer(q.name, ["opt7"]))
-		self.assertFalse(verify_answer(q.name, ["opt3"]))
+		def legacy_two_options():
+			q = frappe.new_doc("LMS Question")
+			q.question = "Two option legacy"
+			q.type = "Choices"
+			q.option_1 = "yes"
+			q.is_correct_1 = 1
+			q.option_2 = "no"
+			q.save()
+			return q, "yes", "no"
 
-	def test_legacy_two_option_question_still_scores(self):
-		from lms.lms.doctype.lms_quiz.lms_quiz import verify_answer
-
-		q = frappe.new_doc("LMS Question")
-		q.question = "Two option legacy"
-		q.type = "Choices"
-		q.option_1 = "yes"
-		q.is_correct_1 = 1
-		q.option_2 = "no"
-		q.save()
-
-		self.assertTrue(verify_answer(q.name, ["yes"]))
-		self.assertFalse(verify_answer(q.name, ["no"]))
+		cases = [
+			("ten_options", ten_options),
+			("legacy_two_options", legacy_two_options),
+		]
+		for case, build in cases:
+			with self.subTest(case=case):
+				q, correct, incorrect = build()
+				self.assertTrue(verify_answer(q.name, [correct]))
+				self.assertFalse(verify_answer(q.name, [incorrect]))
 
 	def test_user_input_matches_seventh_possibility(self):
 		from lms.lms.doctype.lms_quiz.lms_quiz import check_input_answers
@@ -100,17 +115,21 @@ class TestQuizAnswerImageUpload(unittest.TestCase):
 		answer = f'<img src="data:{mime_type};filename={filename},{encoded}">'
 		return re.sub(IMAGE_DATA_URI_PATTERN, _save_file, answer)
 
-	def test_rejects_active_document_extension(self):
-		with self.assertRaises(ValidationError):
-			self.save_answer_image("application/xhtml+xml", "attack.xhtml", b"<script>alert(1)</script>")
-
-	def test_rejects_non_image_mime_type(self):
-		with self.assertRaises(ValidationError):
-			self.save_answer_image("text/javascript", "attack.js", b"alert(1)")
-
-	def test_rejects_image_mime_with_active_document_extension(self):
-		with self.assertRaises(ValidationError):
-			self.save_answer_image("image/png", "spoof.xhtml")
+	def test_rejects_unsafe_mime_type_or_extension_combos(self):
+		cases = [
+			(
+				"active_document_extension",
+				"application/xhtml+xml",
+				"attack.xhtml",
+				b"<script>alert(1)</script>",
+			),
+			("non_image_mime_type", "text/javascript", "attack.js", b"alert(1)"),
+			("image_mime_with_active_document_extension", "image/png", "spoof.xhtml", b"image-bytes"),
+		]
+		for case, mime_type, filename, content in cases:
+			with self.subTest(case=case):
+				with self.assertRaises(ValidationError):
+					self.save_answer_image(mime_type, filename, content)
 
 	def test_accepts_genuine_image(self):
 		rendered = self.save_answer_image("image/png", "answer.png", ONE_PIXEL_PNG)
@@ -333,15 +352,6 @@ class TestQuizAuthoringHelpers(FrappeTestCase):
 		self.assertEqual(result[self.q1.name]["multiple"], 0)
 		self.assertEqual(result[self.q2.name]["type"], "Open Ended")
 
-	def test_meta_requires_instructor(self):
-		# addCleanup, not a trailing set_user: if the endpoint ever stops raising, the
-		# assertion raises out of this method and every later test in the run would
-		# execute as Guest and fail for a reason that has nothing to do with it.
-		self.addCleanup(frappe.set_user, "Administrator")
-		frappe.set_user("Guest")
-		with self.assertRaises(frappe.PermissionError):
-			get_question_meta([self.q1.name])
-
 	def test_bank_lists_with_flags_and_default_marks(self):
 		bank = get_question_bank(quiz=self.quiz_a.name)
 		by_name = {row["name"]: row for row in bank}
@@ -353,25 +363,20 @@ class TestQuizAuthoringHelpers(FrappeTestCase):
 		self.assertFalse(by_name[self.q2.name]["already_in_quiz"])
 		self.assertEqual(by_name[self.q2.name]["default_marks"], 1)
 
-	def test_bank_offers_the_questions_own_marks(self):
+	def test_bank_offers_the_questions_own_marks_including_zero(self):
 		# TestQuizAuthoringHelpers has no per-test rollback (FrappeTestCase rolls back
 		# once, at class teardown), so a write to the shared q1 must restore itself.
+		# `marks` is non_negative, not > 0, so 0 is a number an author can choose;
+		# `or 1` used to read it as absent and quietly offer the question as worth 1.
 		original_marks = frappe.db.get_value("LMS Question", self.q1.name, "marks")
 		self.addCleanup(frappe.db.set_value, "LMS Question", self.q1.name, "marks", original_marks)
-		frappe.db.set_value("LMS Question", self.q1.name, "marks", 5)
-		bank = get_question_bank(quiz=self.quiz_a.name)
-		by_name = {row["name"]: row for row in bank}
-		self.assertEqual(by_name[self.q1.name]["default_marks"], 5)
-
-	def test_bank_offers_a_zero_marks_question_as_zero(self):
-		# `marks` is non_negative, not > 0, so 0 is a number an author can choose.
-		# `or 1` read it as absent and quietly offered the question as worth 1.
-		original_marks = frappe.db.get_value("LMS Question", self.q1.name, "marks")
-		self.addCleanup(frappe.db.set_value, "LMS Question", self.q1.name, "marks", original_marks)
-		frappe.db.set_value("LMS Question", self.q1.name, "marks", 0)
-		bank = get_question_bank(quiz=self.quiz_a.name)
-		by_name = {row["name"]: row for row in bank}
-		self.assertEqual(by_name[self.q1.name]["default_marks"], 0)
+		cases = [("nonzero", 5), ("zero", 0)]
+		for case, marks in cases:
+			with self.subTest(case=case):
+				frappe.db.set_value("LMS Question", self.q1.name, "marks", marks)
+				bank = get_question_bank(quiz=self.quiz_a.name)
+				by_name = {row["name"]: row for row in bank}
+				self.assertEqual(by_name[self.q1.name]["default_marks"], marks)
 
 	def test_bank_excludes_the_names_it_is_given(self):
 		# The picker gets one page, so a quiz already holding the most recently
@@ -417,14 +422,20 @@ class TestQuizAuthoringHelpers(FrappeTestCase):
 		self.assertTrue(any(r["name"] == self.q1.name for r in searched))
 		self.assertFalse(any(r["name"] == self.q2.name for r in searched))
 
-	def test_bank_requires_instructor(self):
+	def test_question_meta_and_bank_endpoints_require_instructor(self):
 		# addCleanup, not a trailing set_user: if the endpoint ever stops raising, the
 		# assertion raises out of this method and every later test in the run would
 		# execute as Guest and fail for a reason that has nothing to do with it.
 		self.addCleanup(frappe.set_user, "Administrator")
 		frappe.set_user("Guest")
-		with self.assertRaises(frappe.PermissionError):
-			get_question_bank(quiz=self.quiz_a.name)
+		cases = [
+			("get_question_meta", lambda: get_question_meta([self.q1.name])),
+			("get_question_bank", lambda: get_question_bank(quiz=self.quiz_a.name)),
+		]
+		for case, action in cases:
+			with self.subTest(case=case):
+				with self.assertRaises(frappe.PermissionError):
+					action()
 
 
 from lms.patches.v2_0.set_question_marks_from_quizzes import PATCH as MARKS_PATCH  # noqa: E402
@@ -459,57 +470,61 @@ class TestQuestionMarksBackfill(FrappeTestCase):
 			}
 		).insert()
 
-	def test_a_zero_weight_backfills_as_zero(self):
-		# 0 is a weight an author can pick: `reqd` does not block it, because frappe
-		# reads an Int through cstr and "0" counts as content. Filtering the backfill
-		# on `marks > 1` left such a question on the new default of 1, so adding it
-		# from the bank scored it 1 when every quiz using it scored it 0.
-		question = self._question("Backfill zero")
-		self._quiz("Backfill Zero Quiz", [{"question": question.name, "marks": 0}])
-		frappe.db.set_value("LMS Question", question.name, "marks", 1, update_modified=False)
+	def test_backfill_marks_pins_each_case(self):
+		def zero_weight():
+			# 0 is a weight an author can pick: `reqd` does not block it, because frappe
+			# reads an Int through cstr and "0" counts as content. Filtering the backfill
+			# on `marks > 1` left such a question on the new default of 1, so adding it
+			# from the bank scored it 1 when every quiz using it scored it 0.
+			question = self._question("Backfill zero")
+			self._quiz("Backfill Zero Quiz", [{"question": question.name, "marks": 0}])
+			frappe.db.set_value("LMS Question", question.name, "marks", 1, update_modified=False)
+			return question, 0
 
-		backfill_question_marks()
+		def highest_weight():
+			question = self._question("Backfill highest")
+			self._quiz("Backfill Highest A", [{"question": question.name, "marks": 2}])
+			self._quiz("Backfill Highest B", [{"question": question.name, "marks": 5}])
+			frappe.db.set_value("LMS Question", question.name, "marks", 1, update_modified=False)
+			return question, 5
 
-		self.assertEqual(frappe.db.get_value("LMS Question", question.name, "marks"), 0)
+		def deliberate_zero():
+			# 0 is a weight, not an absent value. `marks <= 1` kept it permanently
+			# eligible, so a re-run read the author's 0 as unset and overwrote it.
+			question = self._question("Backfill deliberate zero")
+			self._quiz("Backfill Deliberate Zero Quiz", [{"question": question.name, "marks": 3}])
+			frappe.db.set_value("LMS Question", question.name, "marks", 0, update_modified=False)
+			return question, 0
 
-	def test_takes_the_highest_weight_across_quizzes(self):
-		question = self._question("Backfill highest")
-		self._quiz("Backfill Highest A", [{"question": question.name, "marks": 2}])
-		self._quiz("Backfill Highest B", [{"question": question.name, "marks": 5}])
-		frappe.db.set_value("LMS Question", question.name, "marks", 1, update_modified=False)
+		def already_run():
+			# The only guard that can protect a deliberate 1: from the data alone it is
+			# indistinguishable from a question nobody has touched.
+			question = self._question("Backfill already run")
+			self._quiz("Backfill Already Run Quiz", [{"question": question.name, "marks": 6}])
+			frappe.db.set_value("LMS Question", question.name, "marks", 1, update_modified=False)
+			frappe.get_doc({"doctype": "Patch Log", "patch": f"{MARKS_PATCH} #05-09-2026"}).insert()
+			return question, 1
 
-		backfill_question_marks()
+		def set_by_hand():
+			question = self._question("Backfill manual")
+			self._quiz("Backfill Manual Quiz", [{"question": question.name, "marks": 4}])
+			frappe.db.set_value("LMS Question", question.name, "marks", 7, update_modified=False)
+			return question, 7
 
-		self.assertEqual(frappe.db.get_value("LMS Question", question.name, "marks"), 5)
+		cases = [
+			("a_zero_weight_backfills_as_zero", zero_weight),
+			("takes_the_highest_weight_across_quizzes", highest_weight),
+			("leaves_a_weight_deliberately_set_to_zero", deliberate_zero),
+			("does_nothing_once_the_patch_is_recorded", already_run),
+			("leaves_a_weight_set_by_hand", set_by_hand),
+		]
+		for case, build in cases:
+			with self.subTest(case=case):
+				# Only "already_run" wants the patch marked recorded; forgetting it
+				# again here undoes that row's insert so later rows still backfill.
+				self._forget_the_patch_ran()
+				question, expected_marks = build()
 
-	def test_leaves_a_weight_deliberately_set_to_zero(self):
-		# 0 is a weight, not an absent value. `marks <= 1` kept it permanently
-		# eligible, so a re-run read the author's 0 as unset and overwrote it.
-		question = self._question("Backfill deliberate zero")
-		self._quiz("Backfill Deliberate Zero Quiz", [{"question": question.name, "marks": 3}])
-		frappe.db.set_value("LMS Question", question.name, "marks", 0, update_modified=False)
+				backfill_question_marks()
 
-		backfill_question_marks()
-
-		self.assertEqual(frappe.db.get_value("LMS Question", question.name, "marks"), 0)
-
-	def test_does_nothing_once_the_patch_is_recorded(self):
-		# The only guard that can protect a deliberate 1: from the data alone it is
-		# indistinguishable from a question nobody has touched.
-		question = self._question("Backfill already run")
-		self._quiz("Backfill Already Run Quiz", [{"question": question.name, "marks": 6}])
-		frappe.db.set_value("LMS Question", question.name, "marks", 1, update_modified=False)
-		frappe.get_doc({"doctype": "Patch Log", "patch": f"{MARKS_PATCH} #05-09-2026"}).insert()
-
-		backfill_question_marks()
-
-		self.assertEqual(frappe.db.get_value("LMS Question", question.name, "marks"), 1)
-
-	def test_leaves_a_weight_set_by_hand(self):
-		question = self._question("Backfill manual")
-		self._quiz("Backfill Manual Quiz", [{"question": question.name, "marks": 4}])
-		frappe.db.set_value("LMS Question", question.name, "marks", 7, update_modified=False)
-
-		backfill_question_marks()
-
-		self.assertEqual(frappe.db.get_value("LMS Question", question.name, "marks"), 7)
+				self.assertEqual(frappe.db.get_value("LMS Question", question.name, "marks"), expected_marks)

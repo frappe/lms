@@ -22,11 +22,15 @@ class TestUnsplashPhotos(BaseTestUtils):
 		frappe.cache().delete_value("unsplash_photos")
 		super().tearDown()
 
-	def test_keyword_search_returns_empty_list_when_unconfigured(self):
-		self.assertEqual(get_unsplash_photos("mountain"), [])
-
-	def test_listing_returns_empty_list_when_unconfigured(self):
-		self.assertEqual(get_unsplash_photos(), [])
+	def test_returns_empty_list_when_unconfigured(self):
+		cases = [
+			("keyword_search", "mountain"),
+			("unfiltered_listing", None),
+		]
+		for case, keyword in cases:
+			with self.subTest(case=case):
+				args = (keyword,) if keyword is not None else ()
+				self.assertEqual(get_unsplash_photos(*args), [])
 
 	def test_empty_result_is_not_cached(self):
 		"""A site that adds the access key later must not keep serving the

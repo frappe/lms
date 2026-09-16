@@ -51,23 +51,25 @@ class TestQuizAuthorization(BaseTestUtils):
 		finally:
 			frappe.session.user = "Administrator"
 
-	def test_non_enrolled_user_cannot_read_quiz(self):
-		with self.assertRaises(frappe.PermissionError):
-			self._call(self.outsider.email)
+	def test_allowed_readers_can_read_the_quiz(self):
+		cases = [
+			("enrolled_student_linked_quiz", self.enrolled.email, None),
+			("instructor_linked_quiz", self.instructor.email, None),
+			# Regression: an author/moderator must still reach a quiz not yet
+			# embedded anywhere.
+			("moderator_unlinked_quiz", self.instructor.email, self.unlinked_quiz.name),
+		]
+		for case, user, quiz in cases:
+			with self.subTest(case=case):
+				result = self._call(user, quiz=quiz)
+				self.assertEqual(len(result["questions_by_name"]), len(self.questions))
 
-	def test_enrolled_student_can_read_quiz(self):
-		result = self._call(self.enrolled.email)
-		self.assertEqual(len(result["questions_by_name"]), len(self.questions))
-
-	def test_instructor_can_read_quiz(self):
-		result = self._call(self.instructor.email)
-		self.assertEqual(len(result["questions_by_name"]), len(self.questions))
-
-	def test_moderator_can_read_unlinked_quiz(self):
-		# Regression: an author/moderator must still reach a quiz not yet embedded anywhere.
-		result = self._call(self.instructor.email, quiz=self.unlinked_quiz.name)
-		self.assertEqual(len(result["questions_by_name"]), len(self.questions))
-
-	def test_non_enrolled_user_cannot_read_unlinked_quiz(self):
-		with self.assertRaises(frappe.PermissionError):
-			self._call(self.outsider.email, quiz=self.unlinked_quiz.name)
+	def test_non_enrolled_user_cannot_read_the_quiz(self):
+		cases = [
+			("linked_quiz", None),
+			("unlinked_quiz", self.unlinked_quiz.name),
+		]
+		for case, quiz in cases:
+			with self.subTest(case=case):
+				with self.assertRaises(frappe.PermissionError):
+					self._call(self.outsider.email, quiz=quiz)

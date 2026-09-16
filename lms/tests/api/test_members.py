@@ -86,17 +86,14 @@ class TestGetMembers(BaseTestUtils):
 
 	def test_search_reaches_a_member_past_the_first_page(self):
 		target = self.members[-1]
-
-		found = get_members(search=target.first_name + " " + target.last_name)
-
-		self.assertIn(target.name, [member.name for member in found])
-
-	def test_search_matches_the_email_too(self):
-		target = self.members[-1]
-
-		found = get_members(search=target.name)
-
-		self.assertIn(target.name, [member.name for member in found])
+		cases = [
+			("by_name", target.first_name + " " + target.last_name),
+			("by_email", target.name),
+		]
+		for case, search in cases:
+			with self.subTest(case=case):
+				found = get_members(search=search)
+				self.assertIn(target.name, [member.name for member in found])
 
 
 class TestGetMember(BaseTestUtils):

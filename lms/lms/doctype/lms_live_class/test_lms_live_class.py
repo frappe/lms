@@ -171,54 +171,40 @@ class TestLMSLiveClass(BaseTestUtils):
 		self.google_meet_settings.google_calendar = old_calendar
 		self.google_meet_settings.save()
 
-	def test_update_live_class_date_updates_event(self):
-		"""Rescheduling a live class should update the linked Event."""
-		live_class = self._create_live_class()
-		live_class.reload()
-		event_name = live_class.event
+	def test_updating_a_live_class_updates_its_event(self):
+		def date_change(live_class):
+			new_date = add_days(nowdate(), 5)
+			live_class.date = new_date
+			return lambda event: self.assertIn(str(new_date), str(event.starts_on))
 
-		new_date = add_days(nowdate(), 5)
-		live_class.date = new_date
-		live_class.save(ignore_permissions=True)
+		def time_change(live_class):
+			live_class.time = "15:00:00"
+			return lambda event: self.assertIn("15:00", str(event.starts_on))
 
-		event = frappe.get_doc("Event", event_name)
-		self.assertIn(str(new_date), str(event.starts_on))
+		def title_change(live_class):
+			live_class.title = "Updated Title"
+			return lambda event: self.assertIn("Updated Title", event.subject)
 
-	def test_update_live_class_time_updates_event(self):
-		"""Changing the time of a live class should update the linked Event."""
-		live_class = self._create_live_class()
-		live_class.reload()
-		event_name = live_class.event
+		def duration_change(live_class):
+			live_class.duration = 120
+			return lambda event: self.assertIn("12:00", str(event.ends_on))
 
-		live_class.time = "15:00:00"
-		live_class.save(ignore_permissions=True)
+		cases = [
+			("date", date_change),
+			("time", time_change),
+			("title", title_change),
+			("duration", duration_change),
+		]
+		for case, mutate in cases:
+			with self.subTest(case=case):
+				live_class = self._create_live_class()
+				live_class.reload()
+				event_name = live_class.event
 
-		event = frappe.get_doc("Event", event_name)
-		self.assertIn("15:00", str(event.starts_on))
+				check = mutate(live_class)
+				live_class.save(ignore_permissions=True)
 
-	def test_update_live_class_title_updates_event(self):
-		"""Changing the title of a live class should update the linked Event subject."""
-		live_class = self._create_live_class()
-		live_class.reload()
-		event_name = live_class.event
-
-		live_class.title = "Updated Title"
-		live_class.save(ignore_permissions=True)
-
-		event = frappe.get_doc("Event", event_name)
-		self.assertIn("Updated Title", event.subject)
-
-	def test_update_live_class_duration_updates_event(self):
-		"""Changing the duration should update the linked Event's end time."""
-		live_class = self._create_live_class()
-		live_class.reload()
-		event_name = live_class.event
-
-		live_class.duration = 120
-		live_class.save(ignore_permissions=True)
-
-		event = frappe.get_doc("Event", event_name)
-		self.assertIn("12:00", str(event.ends_on))
+				check(frappe.get_doc("Event", event_name))
 
 	def test_delete_live_class_deletes_event(self):
 		"""Deleting a live class should delete the linked Frappe Event."""
@@ -231,33 +217,39 @@ class TestLMSLiveClass(BaseTestUtils):
 		frappe.delete_doc("LMS Live Class", live_class.name, force=True)
 		self.assertFalse(frappe.db.exists("Event", event_name))
 
-	def test_batch_validation_google_meet_without_account(self):
-		"""Saving a batch with Google Meet provider but no account should fail."""
-		self.batch.conferencing_provider = "Google Meet"
-		self.batch.google_meet_account = ""
-		with self.assertRaises(frappe.exceptions.ValidationError):
+	def test_batch_provider_validation_by_case(self):
+		def google_meet_without_account():
+			self.batch.conferencing_provider = "Google Meet"
+			self.batch.google_meet_account = ""
+			with self.assertRaises(frappe.exceptions.ValidationError):
+				self.batch.save()
+			self.batch.reload()
+
+		def google_meet_with_valid_account():
+			self.batch.conferencing_provider = "Google Meet"
+			self.batch.google_meet_account = self.google_meet_settings.name
+			self.batch.save()
+			self.batch.reload()
+
+			self.assertEqual(self.batch.conferencing_provider, "Google Meet")
+			self.assertEqual(self.batch.google_meet_account, self.google_meet_settings.name)
+
+			self.batch.conferencing_provider = ""
+			self.batch.google_meet_account = ""
 			self.batch.save()
 
-		self.batch.reload()
+		def zoom_without_account():
+			self.batch.conferencing_provider = "Zoom"
+			self.batch.zoom_account = ""
+			with self.assertRaises(frappe.exceptions.ValidationError):
+				self.batch.save()
+			self.batch.reload()
 
-	def test_batch_validation_google_meet_with_valid_account(self):
-		"""Saving a batch with Google Meet and a valid account should succeed."""
-		self.batch.conferencing_provider = "Google Meet"
-		self.batch.google_meet_account = self.google_meet_settings.name
-		self.batch.save()
-		self.batch.reload()
-
-		self.assertEqual(self.batch.conferencing_provider, "Google Meet")
-		self.assertEqual(self.batch.google_meet_account, self.google_meet_settings.name)
-
-		self.batch.conferencing_provider = ""
-		self.batch.google_meet_account = ""
-		self.batch.save()
-
-	def test_batch_validation_zoom_without_account(self):
-		"""Saving a batch with Zoom provider but no account should fail."""
-		self.batch.conferencing_provider = "Zoom"
-		self.batch.zoom_account = ""
-		with self.assertRaises(frappe.exceptions.ValidationError):
-			self.batch.save()
-		self.batch.reload()
+		cases = [
+			("google_meet_without_account", google_meet_without_account),
+			("google_meet_with_valid_account", google_meet_with_valid_account),
+			("zoom_without_account", zoom_without_account),
+		]
+		for case, run in cases:
+			with self.subTest(case=case):
+				run()

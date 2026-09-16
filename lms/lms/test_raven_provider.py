@@ -60,53 +60,6 @@ class TestOptionalRavenIntegrationImport(UnitTestCase):
 			module.default_evaluator({"rule_type": "No Such Rule"})
 
 
-class TestAllEnrolledRule(FrappeTestCase):
-	def setUp(self):
-		self.enrolled = frappe.get_doc(
-			{
-				"doctype": "User",
-				"email": "raven-test-enrolled@example.com",
-				"first_name": "Enrolled",
-				"send_welcome_email": 0,
-			}
-		).insert()
-		self.unenrolled = frappe.get_doc(
-			{
-				"doctype": "User",
-				"email": "raven-test-unenrolled@example.com",
-				"first_name": "Unenrolled",
-				"send_welcome_email": 0,
-			}
-		).insert()
-		course = frappe.get_all("LMS Course", limit=1)
-		if not course:
-			self.skipTest("No course fixture; populate one before running this test")
-		self.course = course[0].name
-		self.enrollment = frappe.get_doc(
-			{
-				"doctype": "LMS Enrollment",
-				"member": self.enrolled.name,
-				"course": self.course,
-			}
-		).insert()
-		# addCleanup is LIFO: enrolled/unenrolled must be added before enrollment
-		# so enrollment is deleted first, then users.
-		self.addCleanup(self.enrolled.delete)
-		self.addCleanup(self.unenrolled.delete)
-		self.addCleanup(self.enrollment.delete)
-
-	def test_returns_enrolled_user(self):
-		rule = {
-			"rule_type": "Student",
-			"student_scope": "Enrolled",
-			"payment_filter": "Any",
-			"enrolled_in": "Any",
-		}
-		matched = default_evaluator(rule)
-		self.assertIn(self.enrolled.name, matched)
-		self.assertNotIn(self.unenrolled.name, matched)
-
-
 class TestAllEnrolledIncludesBatchOnlyStudents(FrappeTestCase):
 	"""'All Enrolled Students' must not drop students who only have a batch enrollment.
 
@@ -261,6 +214,14 @@ class TestStudentsOfCoursesRule(FrappeTestCase):
 				"course": cls.course,
 			}
 		).insert()
+		cls.unenrolled = frappe.get_doc(
+			{
+				"doctype": "User",
+				"email": "raven-test-unenrolled@example.com",
+				"first_name": "Unenrolled",
+				"send_welcome_email": 0,
+			}
+		).insert()
 
 	def test_matches_only_course_enrollees(self):
 		rule = {
@@ -272,6 +233,20 @@ class TestStudentsOfCoursesRule(FrappeTestCase):
 		}
 		matched = default_evaluator(rule)
 		self.assertIn(self.in_course.name, matched)
+
+	def test_returns_every_enrolled_user_when_scope_is_any(self):
+		# Moved here from TestAllEnrolledRule (down to this one test after Phase 3):
+		# "Any" is a wider scope than "Courses"/"Batches", so it belongs on the same
+		# fixture -- the course enrollee is enrolled, the class's unenrolled user is not.
+		rule = {
+			"rule_type": "Student",
+			"student_scope": "Enrolled",
+			"payment_filter": "Any",
+			"enrolled_in": "Any",
+		}
+		matched = default_evaluator(rule)
+		self.assertIn(self.in_course.name, matched)
+		self.assertNotIn(self.unenrolled.name, matched)
 
 	def test_paid_only_filters_out_unpaid(self):
 		rule = {
@@ -631,26 +606,6 @@ class TestStaffRule(FrappeTestCase):
 		self.assertIn(self.users["instructor"].name, members)
 		self.assertNotIn(self.users["other"].name, members)
 
-	def test_instructor_scoped_to_its_course(self):
-		members = default_evaluator(
-			self._assigned(
-				assigned_as="Instructor",
-				assigned_scope="Courses",
-				staff_scope_courses=[self.course],
-			)
-		)
-		self.assertIn(self.users["instructor"].name, members)
-
-	def test_instructor_scoped_elsewhere_matches_nobody(self):
-		members = default_evaluator(
-			self._assigned(
-				assigned_as="Instructor",
-				assigned_scope="Courses",
-				staff_scope_courses=["NON-EXISTENT-COURSE"],
-			)
-		)
-		self.assertNotIn(self.users["instructor"].name, members)
-
 	def test_a_scope_of_any_ignores_a_scope_left_in_the_config(self):
 		"""The multiselects are hidden while the scope reads Any, but a rule edited
 		down from Courses may still carry them. What the row shows is what it
@@ -681,26 +636,51 @@ class TestStaffRule(FrappeTestCase):
 		platform = default_evaluator(self._platform("Evaluator"))
 		self.assertIn(self.users["evaluator"].name, platform)
 
-	def test_assigned_evaluator_scoped_to_its_course(self):
+	def test_assigned_as_scoped_to_its_course_or_elsewhere(self):
 		# A narrowing develop did not have: it ignored scope for evaluators.
-		members = default_evaluator(
-			self._assigned(
-				assigned_as="Evaluator",
-				assigned_scope="Courses",
-				staff_scope_courses=[self.course],
-			)
-		)
-		self.assertEqual(members, {self.users["assigned_evaluator"].name})
+		def instructor_scoped_to_its_course(members):
+			self.assertIn(self.users["instructor"].name, members)
 
-	def test_assigned_evaluator_scoped_elsewhere_matches_nobody(self):
-		members = default_evaluator(
-			self._assigned(
-				assigned_as="Evaluator",
-				assigned_scope="Courses",
-				staff_scope_courses=["NON-EXISTENT-COURSE"],
-			)
-		)
-		self.assertEqual(members, set())
+		def instructor_scoped_elsewhere_matches_nobody(members):
+			self.assertNotIn(self.users["instructor"].name, members)
+
+		def assigned_evaluator_scoped_to_its_course(members):
+			self.assertEqual(members, {self.users["assigned_evaluator"].name})
+
+		def assigned_evaluator_scoped_elsewhere_matches_nobody(members):
+			self.assertEqual(members, set())
+
+		cases = [
+			("instructor_scoped_to_its_course", "Instructor", [self.course], instructor_scoped_to_its_course),
+			(
+				"instructor_scoped_elsewhere_matches_nobody",
+				"Instructor",
+				["NON-EXISTENT-COURSE"],
+				instructor_scoped_elsewhere_matches_nobody,
+			),
+			(
+				"assigned_evaluator_scoped_to_its_course",
+				"Evaluator",
+				[self.course],
+				assigned_evaluator_scoped_to_its_course,
+			),
+			(
+				"assigned_evaluator_scoped_elsewhere_matches_nobody",
+				"Evaluator",
+				["NON-EXISTENT-COURSE"],
+				assigned_evaluator_scoped_elsewhere_matches_nobody,
+			),
+		]
+		for case, assigned_as, staff_scope_courses, check in cases:
+			with self.subTest(case=case):
+				members = default_evaluator(
+					self._assigned(
+						assigned_as=assigned_as,
+						assigned_scope="Courses",
+						staff_scope_courses=staff_scope_courses,
+					)
+				)
+				check(members)
 
 	def test_an_unknown_assigned_as_is_unevaluable_rather_than_empty(self):
 		for gone in ("Mentor", ""):
@@ -728,26 +708,22 @@ class TestStaffRule(FrappeTestCase):
 
 	# --- Platform role: a site-wide Frappe role ---
 
-	def test_course_creator_returns_holders_of_that_role(self):
-		members = default_evaluator(self._platform("Course Creator"))
-		self.assertIn(self.users["creator"].name, members)
-		self.assertNotIn(self.users["moderator"].name, members)
-		self.assertNotIn(self.users["other"].name, members)
-
-	def test_moderator_returns_holders_of_that_role(self):
-		members = default_evaluator(self._platform("Moderator"))
-		self.assertIn(self.users["moderator"].name, members)
-		self.assertNotIn(self.users["creator"].name, members)
-
-	def test_evaluator_reads_the_batch_evaluator_role(self):
-		""" "Evaluator" is the wording on screen; `Batch Evaluator` is the role.
-
-		Not the same population as an assigned evaluator, which is whoever the
-		course or batch names in its own evaluator field. The two overlap only
-		partly, which is why they are separate branches rather than one word."""
-		members = default_evaluator(self._platform("Evaluator"))
-		self.assertIn(self.users["evaluator"].name, members)
-		self.assertNotIn(self.users["moderator"].name, members)
+	def test_each_platform_role_returns_only_its_own_holders(self):
+		# "Evaluator" is the wording on screen; `Batch Evaluator` is the role. Not the
+		# same population as an assigned evaluator, which is whoever the course or
+		# batch names in its own evaluator field -- the two overlap only partly,
+		# which is why they are separate branches rather than one word.
+		cases = [
+			("course_creator", "Course Creator", "creator", ["moderator", "other"]),
+			("moderator", "Moderator", "moderator", ["creator"]),
+			("evaluator", "Evaluator", "evaluator", ["moderator"]),
+		]
+		for case, role, holder_key, non_holder_keys in cases:
+			with self.subTest(case=case):
+				members = default_evaluator(self._platform(role))
+				self.assertIn(self.users[holder_key].name, members)
+				for key in non_holder_keys:
+					self.assertNotIn(self.users[key].name, members)
 
 	def test_several_roles_union(self):
 		members = default_evaluator(self._platform("Course Creator", "Moderator"))
@@ -908,7 +884,9 @@ class TestStaffScopedToABatch(FrappeTestCase):
 				staff_scope_courses=[self.course],
 			)
 		)
-		self.assertIn(self.instructor.name, members)
+		# The course's own instructor (from _minimal_course()'s default) and the
+		# batch's instructor: exactly the union of both scopes, nothing wider.
+		self.assertEqual(members, {self.instructor.name, "Administrator"})
 
 
 class TestTriggersFireAtAll(UnitTestCase):
@@ -958,41 +936,57 @@ class TestGetRavenSetup(UnitTestCase):
 	def _patch_apps(self, apps):
 		frappe.get_installed_apps = lambda *a, **k: apps
 
-	def test_reports_missing_apps_without_importing_them(self):
-		self._patch_apps(["frappe", "lms"])
-		blocked = ("raven_integration", "raven_integration.api")
-		saved = {name: sys.modules.get(name) for name in blocked}
-		# A None entry makes the import machinery raise ImportError, exactly as an
-		# uninstalled app does. The test fails loudly if the delegation runs.
-		for name in blocked:
+	def _blocked_imports(self, *names):
+		"""A None entry makes the import machinery raise ImportError, exactly as an
+		uninstalled app does. Restored on exit so the delegation stays testable
+		by a later case in the same run."""
+		saved = {name: sys.modules.get(name) for name in names}
+		for name in names:
 			sys.modules[name] = None
-		try:
+		return saved
+
+	def _restore_imports(self, saved):
+		for name, original in saved.items():
+			if original is None:
+				sys.modules.pop(name, None)
+			else:
+				sys.modules[name] = original
+
+	def test_get_raven_setup_by_case(self):
+		def missing_apps():
+			self._patch_apps(["frappe", "lms"])
+			saved = self._blocked_imports("raven_integration", "raven_integration.api")
+			try:
+				state = raven_provider.get_raven_setup()
+			finally:
+				self._restore_imports(saved)
+			self.assertEqual(state, {"raven": False, "raven_integration": False, "enabled": False})
+
+		def raven_missing_on_its_own():
+			self._patch_apps(["frappe", "lms", "raven_integration"])
 			state = raven_provider.get_raven_setup()
-		finally:
-			for name, original in saved.items():
-				if original is None:
-					sys.modules.pop(name, None)
-				else:
-					sys.modules[name] = original
+			self.assertFalse(state["raven"])
+			self.assertTrue(state["raven_integration"])
+			self.assertFalse(state["enabled"])
 
-		self.assertEqual(state, {"raven": False, "raven_integration": False, "enabled": False})
+		def delegates_once_both_apps_installed():
+			self._patch_apps(["frappe", "lms", "raven", "raven_integration"])
+			stub = types.ModuleType("raven_integration.api")
+			stub.is_setup = lambda: {"raven": True, "raven_integration": True, "enabled": True}
+			sys.modules["raven_integration.api"] = stub
 
-	def test_reports_raven_missing_on_its_own(self):
-		self._patch_apps(["frappe", "lms", "raven_integration"])
-		state = raven_provider.get_raven_setup()
-		self.assertFalse(state["raven"])
-		self.assertTrue(state["raven_integration"])
-		self.assertFalse(state["enabled"])
+			state = raven_provider.get_raven_setup()
 
-	def test_delegates_once_both_apps_are_installed(self):
-		self._patch_apps(["frappe", "lms", "raven", "raven_integration"])
-		stub = types.ModuleType("raven_integration.api")
-		stub.is_setup = lambda: {"raven": True, "raven_integration": True, "enabled": True}
-		sys.modules["raven_integration.api"] = stub
+			self.assertTrue(state["enabled"])
 
-		state = raven_provider.get_raven_setup()
-
-		self.assertTrue(state["enabled"])
+		cases = [
+			("reports_missing_apps_without_importing_them", missing_apps),
+			("reports_raven_missing_on_its_own", raven_missing_on_its_own),
+			("delegates_once_both_apps_are_installed", delegates_once_both_apps_installed),
+		]
+		for case, run in cases:
+			with self.subTest(case=case):
+				run()
 
 	def test_gate_follows_the_manager_roles_hook(self):
 		"""The Settings modal is open to Moderators, so this must be too. The role

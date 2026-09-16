@@ -163,7 +163,10 @@ class TestLessonDeletion(DeletionTestBase):
 		self.assertEqual(self._lesson_ref_idx(self.chapter, first), 1)
 		self.assertEqual(self._lesson_ref_idx(self.chapter, last), 2)
 
-	def test_cleans_up_progress_and_watch_duration(self):
+	def test_deleting_a_lesson_cleans_up_all_its_backreferences(self):
+		# Build every back-reference kind on one lesson and delete it once (the
+		# pattern TestChapterDeletion.test_cleans_up_lesson_backreferences already
+		# uses), then check each cascade as its own subTest row.
 		lesson = self._add_lesson(self.chapter, "Lesson 1", 1)
 		self._create_progress(self.student.email, self.course.name, lesson.name)
 		frappe.get_doc(
@@ -175,66 +178,32 @@ class TestLessonDeletion(DeletionTestBase):
 				"watch_time": 12,
 			}
 		).insert(ignore_permissions=True)
-
-		delete_lesson(lesson.name, self.chapter.name)
-
-		self.assertFalse(frappe.db.exists("LMS Course Progress", {"lesson": lesson.name}))
-		self.assertFalse(frappe.db.exists("LMS Video Watch Duration", {"lesson": lesson.name}))
-
-	def test_removes_lesson_discussions(self):
-		lesson = self._add_lesson(self.chapter, "Lesson 1", 1)
 		topic, reply = self._create_discussion("Course Lesson", lesson.name)
-
-		delete_lesson(lesson.name, self.chapter.name)
-
-		self.assertFalse(frappe.db.exists("Discussion Topic", topic.name))
-		self.assertFalse(frappe.db.exists("Discussion Reply", reply.name))
-
-	def test_unlinks_quiz_instead_of_blocking_deletion(self):
-		lesson = self._add_lesson(self.chapter, "Lesson 1", 1)
 		quiz = self._create_quiz_for_lesson(lesson.name)
-
-		delete_lesson(lesson.name, self.chapter.name)
-
-		self.assertFalse(frappe.db.exists("Course Lesson", lesson.name))
-		self.assertTrue(frappe.db.exists("LMS Quiz", quiz.name))
-		self.assertIsNone(frappe.db.get_value("LMS Quiz", quiz.name, "lesson"))
-
-	def test_unlinks_enrollment_current_lesson(self):
-		lesson = self._add_lesson(self.chapter, "Lesson 1", 1)
 		enrollment = self._create_enrollment(self.student.email, self.course.name)
 		frappe.db.set_value("LMS Enrollment", enrollment.name, "current_lesson", lesson.name)
-
-		delete_lesson(lesson.name, self.chapter.name)
-
-		self.assertTrue(frappe.db.exists("LMS Enrollment", enrollment.name))
-		self.assertIsNone(frappe.db.get_value("LMS Enrollment", enrollment.name, "current_lesson"))
-
-	def test_unlinks_assignment_submission(self):
-		lesson = self._add_lesson(self.chapter, "Lesson 1", 1)
 		submission = self._create_assignment_submission_for_lesson(lesson.name, self.student.email)
-
-		delete_lesson(lesson.name, self.chapter.name)
-
-		self.assertTrue(frappe.db.exists("LMS Assignment Submission", submission.name))
-		self.assertIsNone(frappe.db.get_value("LMS Assignment Submission", submission.name, "lesson"))
-
-	def test_deletes_linked_notes(self):
-		lesson = self._add_lesson(self.chapter, "Lesson 1", 1)
 		note = self._create_lesson_note(lesson.name, self.student.email)
 
 		delete_lesson(lesson.name, self.chapter.name)
 
-		self.assertFalse(frappe.db.exists("LMS Lesson Note", note.name))
-
-	def test_student_cannot_delete_lesson(self):
-		lesson = self._add_lesson(self.chapter, "Lesson 1", 1)
-		frappe.set_user(self.student.email)
-
-		with self.assertRaises(frappe.PermissionError):
-			delete_lesson(lesson.name, self.chapter.name)
-
-		self.assertTrue(frappe.db.exists("Course Lesson", lesson.name))
+		with self.subTest(case="progress_and_watch_duration"):
+			self.assertFalse(frappe.db.exists("LMS Course Progress", {"lesson": lesson.name}))
+			self.assertFalse(frappe.db.exists("LMS Video Watch Duration", {"lesson": lesson.name}))
+		with self.subTest(case="discussions"):
+			self.assertFalse(frappe.db.exists("Discussion Topic", topic.name))
+			self.assertFalse(frappe.db.exists("Discussion Reply", reply.name))
+		with self.subTest(case="quiz_unlinked_not_deleted"):
+			self.assertTrue(frappe.db.exists("LMS Quiz", quiz.name))
+			self.assertIsNone(frappe.db.get_value("LMS Quiz", quiz.name, "lesson"))
+		with self.subTest(case="enrollment_current_lesson_unlinked"):
+			self.assertTrue(frappe.db.exists("LMS Enrollment", enrollment.name))
+			self.assertIsNone(frappe.db.get_value("LMS Enrollment", enrollment.name, "current_lesson"))
+		with self.subTest(case="assignment_submission_unlinked"):
+			self.assertTrue(frappe.db.exists("LMS Assignment Submission", submission.name))
+			self.assertIsNone(frappe.db.get_value("LMS Assignment Submission", submission.name, "lesson"))
+		with self.subTest(case="notes_deleted"):
+			self.assertFalse(frappe.db.exists("LMS Lesson Note", note.name))
 
 
 class TestChapterDeletion(DeletionTestBase):
@@ -293,15 +262,6 @@ class TestChapterDeletion(DeletionTestBase):
 		self.assertIsNone(frappe.db.get_value("LMS Quiz", quiz.name, "lesson"))
 		self.assertIsNone(frappe.db.get_value("LMS Assignment Submission", submission.name, "lesson"))
 		self.assertIsNone(frappe.db.get_value("LMS Enrollment", enrollment.name, "current_lesson"))
-
-	def test_student_cannot_delete_chapter(self):
-		chapter = self._add_chapter("Chapter 1", 1)
-		frappe.set_user(self.student.email)
-
-		with self.assertRaises(frappe.PermissionError):
-			delete_chapter(chapter.name)
-
-		self.assertTrue(frappe.db.exists("Course Chapter", chapter.name))
 
 
 class TestCourseDeletion(DeletionTestBase):
@@ -441,14 +401,6 @@ class TestCourseDeletion(DeletionTestBase):
 		# is skipped; the function must still not crash on the now-missing course.
 		self.assertEqual(get_course_details(course_name), {})
 
-	def test_student_cannot_delete_course(self):
-		frappe.set_user(self.student.email)
-
-		with self.assertRaises(frappe.PermissionError):
-			delete_course(self.course.name)
-
-		self.assertTrue(frappe.db.exists("LMS Course", self.course.name))
-
 
 class TestCategoryDeletion(DeletionTestBase):
 	def setUp(self):
@@ -477,8 +429,29 @@ class TestCategoryDeletion(DeletionTestBase):
 		with self.assertRaises(frappe.ValidationError):
 			delete_category("No Such Category")
 
-	def test_student_cannot_delete_category(self):
-		frappe.set_user(self.student.name)
 
-		with self.assertRaises(frappe.PermissionError):
-			delete_category(self.category)
+class TestStudentCannotDelete(DeletionTestBase):
+	def setUp(self):
+		super().setUp()
+		self.chapter = self._add_chapter("Chapter 1", 1)
+		self.lesson = self._add_lesson(self.chapter, "Lesson 1", 1)
+		self.category = self.course.category
+		frappe.set_user(self.student.email)
+
+	def test_student_cannot_delete_at_any_content_level(self):
+		cases = [
+			(
+				"lesson",
+				"Course Lesson",
+				self.lesson.name,
+				lambda: delete_lesson(self.lesson.name, self.chapter.name),
+			),
+			("chapter", "Course Chapter", self.chapter.name, lambda: delete_chapter(self.chapter.name)),
+			("course", "LMS Course", self.course.name, lambda: delete_course(self.course.name)),
+			("category", "LMS Category", self.category, lambda: delete_category(self.category)),
+		]
+		for case, doctype, name, action in cases:
+			with self.subTest(case=case):
+				with self.assertRaises(frappe.PermissionError):
+					action()
+				self.assertTrue(frappe.db.exists(doctype, name))

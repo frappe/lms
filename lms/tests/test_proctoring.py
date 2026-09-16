@@ -112,59 +112,66 @@ class TestViolationEventNormalization(unittest.TestCase):
 	fit to store: known event types, known severities, timestamps that are neither
 	unparseable nor in the future."""
 
-	def test_iso_timestamp_is_converted_from_utc_to_site_timezone(self):
+	def test_iso_timestamps_are_converted_from_utc_to_site_timezone(self):
 		# JS Date.toISOString() is always UTC; the stored value must be in the site's
 		# timezone so it reads in the same clock as every other date on the page.
-		events = _normalise(
-			{"eventType": "tab_switch", "severity": "violation", "timestamp": "2026-07-31T08:38:00.000Z"}
-		)
-		self.assertEqual(len(events), 1)
-		self.assertEqual(events[0]["timestamp"], _local("2026-07-31T08:38:00.000Z"))
+		cases = [
+			("with_milliseconds", "2026-07-31T08:38:00.000Z"),
+			("without_milliseconds", "2026-07-31T08:38:00Z"),
+		]
+		for case, timestamp in cases:
+			with self.subTest(case=case):
+				events = _normalise(
+					{"eventType": "tab_switch", "severity": "violation", "timestamp": timestamp}
+				)
+				self.assertEqual(len(events), 1)
+				self.assertEqual(events[0]["timestamp"], _local(timestamp))
 
-	def test_iso_timestamp_without_milliseconds_normalised(self):
-		events = _normalise(
-			{"eventType": "tab_switch", "severity": "violation", "timestamp": "2026-07-31T08:38:00Z"}
-		)
-		self.assertEqual(events[0]["timestamp"], _local("2026-07-31T08:38:00Z"))
+	def test_timestamp_falls_back_to_server_now_when_unusable(self):
+		cases = [
+			("missing", {"eventType": "tab_switch", "severity": "violation"}),
+			(
+				"unparseable",
+				{"eventType": "tab_switch", "severity": "violation", "timestamp": "not-a-date"},
+			),
+			(
+				"in_the_future",
+				{
+					"eventType": "tab_switch",
+					"severity": "violation",
+					# A learner cannot backdate -- or postdate -- evidence by editing their clock.
+					"timestamp": add_to_date(now_datetime(), years=1).isoformat(),
+				},
+			),
+		]
+		for case, event in cases:
+			with self.subTest(case=case):
+				events = _normalise(event)
+				self.assertAlmostEqual(events[0]["timestamp"], now_datetime(), delta=timedelta(minutes=1))
 
-	def test_missing_timestamp_falls_back_to_server_now(self):
-		events = _normalise({"eventType": "tab_switch", "severity": "violation"})
-		self.assertEqual(len(events), 1)
-		self.assertAlmostEqual(events[0]["timestamp"], now_datetime(), delta=timedelta(minutes=1))
-
-	def test_unparseable_timestamp_falls_back_to_server_now(self):
-		events = _normalise({"eventType": "tab_switch", "severity": "violation", "timestamp": "not-a-date"})
-		self.assertAlmostEqual(events[0]["timestamp"], now_datetime(), delta=timedelta(minutes=1))
-
-	def test_future_timestamp_is_clamped_to_server_now(self):
-		# A learner cannot backdate — or postdate — evidence by editing their clock.
-		events = _normalise(
-			{
-				"eventType": "tab_switch",
-				"severity": "violation",
-				"timestamp": add_to_date(now_datetime(), years=1).isoformat(),
-			}
-		)
-		self.assertAlmostEqual(events[0]["timestamp"], now_datetime(), delta=timedelta(minutes=1))
-
-	def test_camel_case_eventType_key_is_accepted(self):
-		events = _normalise(
-			{"eventType": "no_face", "severity": "violation", "timestamp": "2026-01-01T00:00:00Z"}
-		)
-		self.assertEqual(events[0]["event_type"], "no_face")
-
-	def test_snake_case_event_type_key_is_accepted(self):
-		events = _normalise(
-			{"event_type": "focus_loss", "severity": "violation", "timestamp": "2026-01-01T00:00:00Z"}
-		)
-		self.assertEqual(events[0]["event_type"], "focus_loss")
-
-	def test_camel_case_takes_precedence_over_snake_case(self):
-		# If both keys exist, camelCase wins (matches JS payload shape)
-		events = _normalise(
-			{"eventType": "tab_switch", "event_type": "no_face", "timestamp": "2026-01-01T00:00:00Z"}
-		)
-		self.assertEqual(events[0]["event_type"], "tab_switch")
+	def test_event_type_key_resolution(self):
+		cases = [
+			(
+				"camel_case_accepted",
+				{"eventType": "no_face", "severity": "violation", "timestamp": "2026-01-01T00:00:00Z"},
+				"no_face",
+			),
+			(
+				"snake_case_accepted",
+				{"event_type": "focus_loss", "severity": "violation", "timestamp": "2026-01-01T00:00:00Z"},
+				"focus_loss",
+			),
+			(
+				# If both keys exist, camelCase wins (matches JS payload shape).
+				"camel_case_takes_precedence_over_snake_case",
+				{"eventType": "tab_switch", "event_type": "no_face", "timestamp": "2026-01-01T00:00:00Z"},
+				"tab_switch",
+			),
+		]
+		for case, event, expected_type in cases:
+			with self.subTest(case=case):
+				events = _normalise(event)
+				self.assertEqual(events[0]["event_type"], expected_type)
 
 	def test_unknown_event_type_is_silently_dropped(self):
 		events = _normalise(
@@ -182,17 +189,23 @@ class TestViolationEventNormalization(unittest.TestCase):
 		)
 		self.assertEqual(len(events), 1)
 
-	def test_invalid_severity_coerced_to_violation(self):
-		events = _normalise(
-			{"eventType": "tab_switch", "severity": "critical", "timestamp": "2026-01-01T00:00:00Z"}
-		)
-		self.assertEqual(events[0]["severity"], "violation")
-
-	def test_warning_severity_preserved(self):
-		events = _normalise(
-			{"eventType": "no_face", "severity": "warning", "timestamp": "2026-01-01T00:00:00Z"}
-		)
-		self.assertEqual(events[0]["severity"], "warning")
+	def test_severity_coercion(self):
+		cases = [
+			(
+				"unknown_coerced_to_violation",
+				{"eventType": "tab_switch", "severity": "critical", "timestamp": "2026-01-01T00:00:00Z"},
+				"violation",
+			),
+			(
+				"warning_preserved",
+				{"eventType": "no_face", "severity": "warning", "timestamp": "2026-01-01T00:00:00Z"},
+				"warning",
+			),
+		]
+		for case, event, expected_severity in cases:
+			with self.subTest(case=case):
+				events = _normalise(event)
+				self.assertEqual(events[0]["severity"], expected_severity)
 
 	def test_empty_payload_yields_no_events(self):
 		self.assertEqual(_normalise_violation_events(None), [])
@@ -208,11 +221,6 @@ class TestViolationEventNormalization(unittest.TestCase):
 	def test_payload_that_is_not_a_list_is_rejected(self):
 		with self.assertRaises(frappe.ValidationError):
 			_normalise_violation_events(json.dumps({"eventType": "tab_switch"}))
-
-	def test_empty_event_list_never_calls_bulk_insert(self):
-		with patch("frappe.db.bulk_insert") as mock_insert:
-			_save_violation_events("dummy-sub", [])
-		mock_insert.assert_not_called()
 
 	def test_all_five_valid_event_types_are_accepted(self):
 		valid_types = ["tab_switch", "no_face", "multiple_faces", "focus_loss", "camera_disconnect"]
@@ -262,6 +270,11 @@ class TestSaveViolationEventsDB(unittest.TestCase):
 		)
 		logs = _get_logs(self.submission.name)
 		self.assertEqual(get_datetime(logs[0].timestamp), _local("2026-07-15T14:30:45.123Z"))
+
+	def test_empty_event_list_never_calls_bulk_insert(self):
+		with patch("frappe.db.bulk_insert") as mock_insert:
+			_save_violation_events("dummy-sub", [])
+		mock_insert.assert_not_called()
 
 	def test_multiple_calls_append_not_replace(self):
 		_save_violation_events(
@@ -323,77 +336,82 @@ class TestSubmitQuizWithViolations(unittest.TestCase):
 			]
 		)
 
-	def test_violation_count_saved_on_submission(self):
-		# No event list to derive from (the pagehide beacon), so the reported count stands.
-		result = submit_quiz(self.quiz.name, results=self._results(), violation_count=2)
-		self.assertEqual(self._stored(result["submission"], "violation_count"), 2)
+	def test_violation_count_by_case(self):
+		cases = [
+			# No event list to derive from (the pagehide beacon), so the reported count stands.
+			("reported_count_stands_with_no_events", dict(violation_count=2), 2, None),
+			# A learner who logs two violations but reports none is recorded as two.
+			(
+				"reported_count_ignored_when_events_supplied",
+				dict(violation_count=0, violation_events=self._violations(2)),
+				2,
+				None,
+			),
+			(
+				"inflated_count_cut_back_to_the_events",
+				dict(violation_count=99, violation_events=self._violations(1)),
+				1,
+				None,
+			),
+			(
+				"warnings_do_not_count_as_violations",
+				dict(
+					violation_count=2,
+					violation_events=json.dumps(
+						[
+							{
+								"eventType": "tab_switch",
+								"severity": "violation",
+								"timestamp": "2026-07-01T10:00:00Z",
+							},
+							{
+								"eventType": "no_face",
+								"severity": "warning",
+								"timestamp": "2026-07-01T10:01:00Z",
+							},
+						]
+					),
+				),
+				1,
+				2,
+			),
+		]
+		for case, kwargs, expected_count, expected_log_rows in cases:
+			with self.subTest(case=case):
+				result = submit_quiz(self.quiz.name, results=self._results(), **kwargs)
+				self.assertEqual(self._stored(result["submission"], "violation_count"), expected_count)
+				if expected_log_rows is not None:
+					self.assertEqual(len(_get_logs(result["submission"])), expected_log_rows)
 
-	def test_reported_count_is_ignored_when_events_are_supplied(self):
-		# A learner who logs two violations but reports none is recorded as two.
-		result = submit_quiz(
-			self.quiz.name,
-			results=self._results(),
-			violation_count=0,
-			violation_events=self._violations(2),
-		)
-		self.assertEqual(self._stored(result["submission"], "violation_count"), 2)
-
-	def test_inflated_count_is_cut_back_to_the_events(self):
-		result = submit_quiz(
-			self.quiz.name,
-			results=self._results(),
-			violation_count=99,
-			violation_events=self._violations(1),
-		)
-		self.assertEqual(self._stored(result["submission"], "violation_count"), 1)
-
-	def test_warnings_do_not_count_as_violations(self):
-		events = json.dumps(
-			[
-				{"eventType": "tab_switch", "severity": "violation", "timestamp": "2026-07-01T10:00:00Z"},
-				{"eventType": "no_face", "severity": "warning", "timestamp": "2026-07-01T10:01:00Z"},
-			]
-		)
-		result = submit_quiz(
-			self.quiz.name, results=self._results(), violation_count=2, violation_events=events
-		)
-		self.assertEqual(self._stored(result["submission"], "violation_count"), 1)
-		self.assertEqual(len(_get_logs(result["submission"])), 2)
-
-	def test_submission_reason_saved(self):
-		# max_violations is 3 on the fixture quiz, so three logged violations back the claim.
-		result = submit_quiz(
-			self.quiz.name,
-			results=self._results(),
-			submission_reason="max_violations",
-			violation_events=self._violations(3),
-		)
-		self.assertEqual(self._stored(result["submission"], "submission_reason"), "max_violations")
-
-	def test_unsupported_max_violations_claim_is_downgraded(self):
-		result = submit_quiz(
-			self.quiz.name,
-			results=self._results(),
-			submission_reason="max_violations",
-			violation_events=self._violations(1),
-		)
-		self.assertEqual(self._stored(result["submission"], "submission_reason"), "manual")
-
-	def test_reason_is_forced_to_max_violations_when_the_events_say_so(self):
-		# Hiding an auto-submit behind "manual" does not work: the log outvotes the claim.
-		result = submit_quiz(
-			self.quiz.name,
-			results=self._results(),
-			submission_reason="manual",
-			violation_events=self._violations(3),
-		)
-		self.assertEqual(self._stored(result["submission"], "submission_reason"), "max_violations")
-
-	def test_unknown_submission_reason_falls_back_to_manual(self):
-		result = submit_quiz(
-			self.quiz.name, results=self._results(), submission_reason="<script>alert(1)</script>"
-		)
-		self.assertEqual(self._stored(result["submission"], "submission_reason"), "manual")
+	def test_submission_reason_by_case(self):
+		cases = [
+			(
+				# max_violations is 3 on the fixture quiz, so three logged violations back the claim.
+				"saved_when_backed_by_enough_violations",
+				dict(submission_reason="max_violations", violation_events=self._violations(3)),
+				"max_violations",
+			),
+			(
+				"unsupported_max_violations_claim_is_downgraded",
+				dict(submission_reason="max_violations", violation_events=self._violations(1)),
+				"manual",
+			),
+			(
+				# Hiding an auto-submit behind "manual" does not work: the log outvotes the claim.
+				"forced_to_max_violations_when_the_events_say_so",
+				dict(submission_reason="manual", violation_events=self._violations(3)),
+				"max_violations",
+			),
+			(
+				"unknown_reason_falls_back_to_manual",
+				dict(submission_reason="<script>alert(1)</script>"),
+				"manual",
+			),
+		]
+		for case, kwargs, expected_reason in cases:
+			with self.subTest(case=case):
+				result = submit_quiz(self.quiz.name, results=self._results(), **kwargs)
+				self.assertEqual(self._stored(result["submission"], "submission_reason"), expected_reason)
 
 	def test_events_are_ignored_when_proctoring_is_off(self):
 		question = _make_question()
@@ -549,13 +567,15 @@ class TestGetQuizViolationLogs(unittest.TestCase):
 		finally:
 			frappe.session.user = original
 
-	def test_submission_owner_can_read_logs(self):
-		logs = self._call(self.student.name)
-		self.assertEqual(len(logs), 2)
-
-	def test_system_manager_can_read_logs(self):
-		logs = self._call("Administrator")
-		self.assertEqual(len(logs), 2)
+	def test_authorised_readers_can_read_logs(self):
+		cases = [
+			("submission_owner", self.student.name),
+			("system_manager", "Administrator"),
+		]
+		for case, user in cases:
+			with self.subTest(case=case):
+				logs = self._call(user)
+				self.assertEqual(len(logs), 2)
 
 	def test_unrelated_student_is_rejected(self):
 		with self.assertRaises(frappe.PermissionError):

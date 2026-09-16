@@ -4,10 +4,10 @@
 import frappe
 from frappe.utils import add_days, getdate
 
-from lms.lms.test_helpers import BaseTestUtils
+from lms.lms.test_helpers import BaseTestUtils, MemberOwnershipTestMixin
 
 
-class TestLMSCertificateRequest(BaseTestUtils):
+class TestLMSCertificateRequest(MemberOwnershipTestMixin, BaseTestUtils):
 	@classmethod
 	def setUpClass(cls):
 		super().setUpClass()
@@ -42,26 +42,5 @@ class TestLMSCertificateRequest(BaseTestUtils):
 			doc.member = member
 		return doc
 
-	def test_student_cannot_book_for_another_member(self):
-		frappe.set_user(self.student_a.name)
-		doc = self._new_request(member=self.student_b.name, day_offset=1)
-		with self.assertRaises(frappe.PermissionError):
-			doc.insert()
-
-	def test_student_member_defaults_to_session_user(self):
-		frappe.set_user(self.student_a.name)
-		doc = self._new_request(member=None, day_offset=2)
-		doc.insert()
-		self.assertEqual(doc.member, self.student_a.name)
-
-	def test_student_can_book_for_self(self):
-		frappe.set_user(self.student_a.name)
-		doc = self._new_request(member=self.student_a.name, day_offset=3)
-		doc.insert()
-		self.assertEqual(doc.member, self.student_a.name)
-
-	def test_privileged_user_can_book_on_behalf_of_member(self):
-		frappe.set_user(self.moderator.name)
-		doc = self._new_request(member=self.student_b.name, day_offset=4)
-		doc.insert()
-		self.assertEqual(doc.member, self.student_b.name)
+	def _new_doc(self, member=None, variant=0):
+		return self._new_request(member=member, day_offset=variant)

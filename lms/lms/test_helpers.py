@@ -563,3 +563,41 @@ class BaseTestUtils(IntegrationTestCase):
 
 		submission.insert()
 		return submission
+
+
+class MemberOwnershipTestMixin:
+	"""Shared member-ownership rules for a doctype where a student may only act
+	on their own `member` row unless privileged (Moderator etc.). Concrete
+	classes provide `_new_doc(member=None, variant=0)`; `variant` lets a
+	subclass avoid colliding with itself across the rows below when its
+	fixtures dedupe on some other field (e.g. a booking slot)."""
+
+	def test_student_cannot_act_for_another_member(self):
+		frappe.set_user(self.student_a.name)
+		doc = self._new_doc(member=self.student_b.name, variant=1)
+		with self.assertRaises(frappe.PermissionError):
+			doc.insert()
+
+	def test_student_member_defaults_to_or_matches_session_user(self):
+		frappe.set_user(self.student_a.name)
+		cases = [
+			("defaults_when_unset", None, 2),
+			("explicit_self", self.student_a.name, 3),
+		]
+		for case, member, variant in cases:
+			with self.subTest(case=case):
+				doc = self._new_doc(member=member, variant=variant)
+				doc.insert()
+				self.assertEqual(doc.member, self.student_a.name)
+				# Both rows target the same member on the same underlying record
+				# (course/assignment); a duplicate-request/duplicate-submission
+				# guard on that pair would otherwise reject the second row, which
+				# never happened when these were two separate, savepoint-isolated
+				# test methods.
+				frappe.delete_doc(doc.doctype, doc.name, ignore_permissions=True)
+
+	def test_privileged_user_can_act_on_behalf_of_member(self):
+		frappe.set_user(self.moderator.name)
+		doc = self._new_doc(member=self.student_b.name, variant=4)
+		doc.insert()
+		self.assertEqual(doc.member, self.student_b.name)
