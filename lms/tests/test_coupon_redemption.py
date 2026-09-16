@@ -37,20 +37,25 @@ class _CouponRedemptionFixtures:
 		self.instructor = self._create_user(
 			f"cinstr-{hash}@example.com", "Ida", "Instr", ["Course Creator", "Moderator"]
 		)
-		self.course = self._create_course(
-			title=f"Coupon Redemption Course {hash}", instructor=self.instructor.email
-		)
-		self.course.db_set({"paid_course": 1, "course_price": 1000, "currency": "INR"})
+		self.course = self._new_course_for_instructor(self.instructor)
 		self.extra_courses = []
 		self._committed_items = []
 
+	def _new_course_for_instructor(self, instructor):
+		course = self._create_course(
+			title=f"Coupon Redemption Course {frappe.generate_hash(length=6)}", instructor=instructor.email
+		)
+		course.db_set({"paid_course": 1, "course_price": 1000, "currency": "INR"})
+		return course
+
 	def _delete_course_records(self):
-		"""Some tests commit, so the framework's rollback cannot undo them."""
+		"""Some tests commit, so the framework's rollback cannot undo them.
+		Not itself the final commit: _commit_cleanup commits once at the end,
+		after this and everything that follows it."""
 		courses = [self.course.name] + [course.name for course in self.extra_courses]
 		for doctype, field in (("LMS Enrollment", "course"), ("LMS Payment", "payment_for_document")):
 			for name in frappe.get_all(doctype, {field: ("in", courses)}, pluck="name"):
 				frappe.delete_doc(doctype, name, force=True, ignore_permissions=True)
-		frappe.db.commit()  # nosemgrep
 
 	def _create_coupon(self, redemption_count=0, usage_limit=None, percentage_discount=10):
 		coupon = frappe.new_doc("LMS Coupon")
@@ -151,11 +156,7 @@ class _CouponRedemptionFixtures:
 		)
 
 	def _create_second_course(self):
-		course = self._create_course(
-			title=f"Coupon Redemption Course {frappe.generate_hash(length=6)}",
-			instructor=self.instructor.email,
-		)
-		course.db_set({"paid_course": 1, "course_price": 1000, "currency": "INR"})
+		course = self._new_course_for_instructor(self.instructor)
 		self.extra_courses.append(course)
 		return course
 
@@ -165,9 +166,19 @@ class TestCouponRedemption(_CouponRedemptionFixtures, BaseTestUtils):
 	savepoint: none of it commits. The threaded tests live in
 	TestCouponRedemptionConcurrency below, which cannot use that savepoint."""
 
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
+		hash = frappe.generate_hash(length=6)
+		cls.instructor = cls._create_user(
+			f"cinstr-{hash}@example.com", "Ida", "Instr", ["Course Creator", "Moderator"]
+		)
+
 	def setUp(self):
 		super().setUp()
-		self._new_course_fixture()
+		self.course = self._new_course_for_instructor(self.instructor)
+		self.extra_courses = []
+		self._committed_items = []
 
 	# Counting
 

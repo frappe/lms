@@ -16,22 +16,27 @@ from lms.lms.test_helpers import BaseTestUtils
 
 
 class TestSaveProgressEnrollmentLifecycle(BaseTestUtils):
-	def setUp(self):
-		super().setUp()
-		self.instructor = self._create_user(
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
+		cls.instructor = cls._create_user(
 			"wh-instructor@example.com", "Webhook", "Instructor", ["Course Creator"]
 		)
-		self.student = self._create_user("wh-student@example.com", "Webhook", "Student", ["LMS Student"])
-		self.course = self._create_course(instructor=self.instructor.email)
-		self.chapter = self._create_chapter("WH Chapter", self.course.name)
-		self._create_chapter_reference(self.course.name, self.chapter.name)
-		self.lesson = self._create_lesson("WH Lesson", self.chapter.name, self.course.name)
-		self._create_lesson_reference(self.chapter.name, self.lesson.name)
-		self.enrollment = self._create_enrollment(self.student.email, self.course.name)
+		cls.student = cls._create_user("wh-student@example.com", "Webhook", "Student", ["LMS Student"])
+		cls.course = cls._create_course(instructor=cls.instructor.email)
+		cls.chapter = cls._create_chapter("WH Chapter", cls.course.name)
+		cls._create_chapter_reference(cls.course.name, cls.chapter.name)
+		cls.lesson = cls._create_lesson("WH Lesson", cls.chapter.name, cls.course.name)
+		cls._create_lesson_reference(cls.chapter.name, cls.lesson.name)
+		cls.enrollment = cls._create_enrollment(cls.student.email, cls.course.name)
 
 		original_capture = course_lesson.capture
 		course_lesson.capture = lambda *a, **k: None
-		self.addCleanup(setattr, course_lesson, "capture", original_capture)
+		cls.addClassCleanup(setattr, course_lesson, "capture", original_capture)
+
+	def setUp(self):
+		super().setUp()
+		frappe.db.set_value("LMS Enrollment", self.enrollment.name, {"progress": 0, "current_lesson": None})
 
 	def tearDown(self):
 		frappe.set_user("Administrator")

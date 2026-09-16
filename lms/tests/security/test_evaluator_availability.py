@@ -87,13 +87,21 @@ class TestEvaluatorAvailability(BaseTestUtils):
 	def setUp(self):
 		super().setUp()
 		self.schedule = self._reset_evaluator_doc(self.evaluator.email)
-		self.other_schedule = self._reset_evaluator_doc(self.other_evaluator.email)
+		self._other_schedule = None
 
 		self.original_user = frappe.session.user
 		self.addCleanup(self._restore_user)
 
 	def _restore_user(self):
 		frappe.session.user = self.original_user
+
+	@property
+	def other_schedule(self):
+		# Only 2 of the 37 tests need a second evaluator's calendar, and building
+		# one is a full doc.save(); build it on first use instead of for every test.
+		if self._other_schedule is None:
+			self._other_schedule = self._reset_evaluator_doc(self.other_evaluator.email)
+		return self._other_schedule
 
 	def _reset_evaluator_doc(self, evaluator):
 		"""One known slot per test. The tests add, edit and delete rows."""

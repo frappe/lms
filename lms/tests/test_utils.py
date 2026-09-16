@@ -48,11 +48,11 @@ from lms.lms.utils import (
 
 
 class TestLMSUtils(BaseTestUtils):
-	def setUp(self):
-		super().setUp()
-
-		self._setup_course_flow()
-		self._setup_batch_flow()
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
+		cls._setup_course_flow()
+		cls._setup_batch_flow()
 
 	def test_simple_slugs(self):
 		self.assertEqual(slugify("hello-world"), "hello-world")
@@ -443,20 +443,22 @@ class TestListEndpointPaging(BaseTestUtils):
 
 	CATEGORY = "Paging Test Category"
 	STARTED_TODAY = "Paging Batch Already Started"
+	featured_titles = ["Paging Featured A", "Paging Featured B"]
+	plain_titles = ["Paging Plain A", "Paging Plain B"]
 
-	def setUp(self):
-		super().setUp()
-		if not frappe.db.exists("LMS Category", self.CATEGORY):
-			frappe.get_doc({"doctype": "LMS Category", "category": self.CATEGORY}).insert(
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
+		if not frappe.db.exists("LMS Category", cls.CATEGORY):
+			frappe.get_doc({"doctype": "LMS Category", "category": cls.CATEGORY}).insert(
 				ignore_permissions=True
 			)
 
-		self.featured_titles = ["Paging Featured A", "Paging Featured B"]
-		self.plain_titles = ["Paging Plain A", "Paging Plain B"]
-		for title in self.featured_titles + self.plain_titles:
-			self._create_paging_course(title, featured=title in self.featured_titles)
+		for title in cls.featured_titles + cls.plain_titles:
+			cls._create_paging_course(title, featured=title in cls.featured_titles)
 
-	def _create_paging_course(self, title, featured):
+	@classmethod
+	def _create_paging_course(cls, title, featured):
 		if frappe.db.exists("LMS Course", {"title": title}):
 			return
 		course = frappe.new_doc("LMS Course")
@@ -465,7 +467,7 @@ class TestListEndpointPaging(BaseTestUtils):
 				"title": title,
 				"short_introduction": "Paging fixture",
 				"description": "Paging fixture",
-				"category": self.CATEGORY,
+				"category": cls.CATEGORY,
 				"published": 1,
 				"featured": 1 if featured else 0,
 				"instructors": [{"instructor": "Administrator"}],
@@ -646,13 +648,14 @@ class TestConvertFromSystemTimezone(UnitTestCase):
 
 
 class TestEvaluationDisplayTimezone(BaseTestUtils):
-	def setUp(self):
-		super().setUp()
-		self.admin = self._create_user(
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
+		cls.admin = cls._create_user(
 			"frappe@example.com", "Frappe", "Admin", ["Moderator", "Course Creator", "Batch Evaluator"]
 		)
-		self.evaluator = self._create_evaluator()
-		self.course = self._create_course(title="Display Timezone Course")
+		cls.evaluator = cls._create_evaluator()
+		cls.course = cls._create_course(title="Display Timezone Course")
 
 	def test_batch_timezone_wins(self):
 		batch = self._create_batch(self.course.name, title="Display Timezone Batch")

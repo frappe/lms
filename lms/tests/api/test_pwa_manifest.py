@@ -49,6 +49,13 @@ class TestPWAManifest(BaseTestUtils):
 
 	def test_banner_image_is_not_used_as_an_icon(self):
 		"""It is a wide banner, and was being declared as a 192x192 square."""
+		# set_single_value clears the document cache it writes through, but a
+		# savepoint rollback does not repopulate it (it clears value_cache only),
+		# so a bare write here would stick in the cache past this test even
+		# though the DB row rolls back. Restoring through set_single_value
+		# clears the cache again on the way out.
+		original = frappe.db.get_single_value("Website Settings", "banner_image")
+		self.addCleanup(frappe.db.set_single_value, "Website Settings", "banner_image", original)
 		frappe.db.set_single_value("Website Settings", "banner_image", "/files/wide-banner.png")
 
 		sources = [icon["src"] for icon in _manifest()["icons"]]
@@ -57,6 +64,8 @@ class TestPWAManifest(BaseTestUtils):
 			self.assertTrue(src.startswith("/assets/lms/frontend/manifest/"))
 
 	def test_name_follows_website_settings(self):
+		original = frappe.db.get_single_value("Website Settings", "app_name")
+		self.addCleanup(frappe.db.set_single_value, "Website Settings", "app_name", original)
 		frappe.db.set_single_value("Website Settings", "app_name", "Acme Academy")
 
 		manifest = _manifest()

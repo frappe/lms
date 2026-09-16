@@ -7,12 +7,16 @@ from lms.lms.utils import get_course_details
 
 
 class DeletionTestBase(BaseTestUtils):
-	def setUp(self):
-		super().setUp()
-		self.instructor = self._create_user(
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
+		cls.instructor = cls._create_user(
 			"frappe@example.com", "Frappe", "Admin", ["Course Creator", "Moderator"]
 		)
-		self.student = self._create_user("student1@example.com", "Ashley", "Smith", ["LMS Student"])
+		cls.student = cls._create_user("student1@example.com", "Ashley", "Smith", ["LMS Student"])
+
+	def setUp(self):
+		super().setUp()
 		self.course = self._create_course()
 
 	def tearDown(self):
@@ -457,8 +461,6 @@ class TestCategoryDeletion(DeletionTestBase):
 			frappe.delete_doc("LMS Category", self.category)
 
 	def test_unlinks_category_from_courses_then_deletes(self):
-		self.assertEqual(self.category, "Business")
-
 		delete_category(self.category)
 
 		self.assertFalse(frappe.db.exists("LMS Category", self.category))

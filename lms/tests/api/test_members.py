@@ -1,7 +1,11 @@
+from unittest.mock import patch
+
 import frappe
 
-from lms.lms.api import MEMBERS_PAGE_LENGTH, get_member, get_members
+from lms.lms.api import get_member, get_members
 from lms.lms.test_helpers import BaseTestUtils
+
+MEMBERS_PAGE_LENGTH = 3
 
 
 class TestGetMembers(BaseTestUtils):
@@ -10,19 +14,30 @@ class TestGetMembers(BaseTestUtils):
 	The frontend steps `start` by that same number, so a mismatch here silently
 	skips or repeats a row on every Load More. Search has to reach past the
 	first page, since the panel does not fetch the rest before searching.
+
+	MEMBERS_PAGE_LENGTH is patched down to 3 for the whole class: get_members
+	reads it from lms.lms.api at call time, so 7 users (a moderator plus two
+	full patched pages) is enough to exercise every case below without the
+	real page length's user count.
 	"""
+
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
+		cls._page_length_patch = patch("lms.lms.api.MEMBERS_PAGE_LENGTH", MEMBERS_PAGE_LENGTH)
+		cls._page_length_patch.start()
+		cls.addClassCleanup(cls._page_length_patch.stop)
+
+		cls.moderator = cls._create_user("moderator@example.com", "Mod", "Erator", ["Moderator"])
+		# Two full pages of its own, because the paging case below asserts that page
+		# two is full.
+		cls.members = [
+			cls._create_user(f"member{index}@example.com", "Member", str(index), ["LMS Student"])
+			for index in range(2 * MEMBERS_PAGE_LENGTH)
+		]
 
 	def setUp(self):
 		super().setUp()
-		self.moderator = self._create_user("moderator@example.com", "Mod", "Erator", ["Moderator"])
-		# Two full pages of its own, because the paging case below asserts that page
-		# two is full. `MEMBERS_PAGE_LENGTH + 3` seeded 17 users with the moderator
-		# and needed 26, so it passed only where a previous suite had left enough
-		# users behind and failed on a site that starts clean.
-		self.members = [
-			self._create_user(f"member{index}@example.com", "Member", str(index), ["LMS Student"])
-			for index in range(2 * MEMBERS_PAGE_LENGTH)
-		]
 		frappe.set_user(self.moderator.name)
 
 	def _users_in_one_query(self, limit):
@@ -97,15 +112,30 @@ class TestGetMember(BaseTestUtils):
 	It used to ask get_members for it, which pages and hides disabled users, so
 	the two cases below came back empty and left Save disabled with nothing on
 	screen explaining why.
+
+	MEMBERS_PAGE_LENGTH is patched to 3 for the whole class, same as TestGetMembers,
+	and the fixture seeds one member MORE than a page holds. Counting the moderator
+	towards that is not enough: on a site whose only users are this fixture's, the
+	members are the newest rows and fill the first page by themselves, so nothing is
+	left off it. Seeding PAGE_LENGTH + 1 members makes the overflow arithmetic rather
+	than a property of whatever else the site happens to contain.
 	"""
+
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
+		cls._page_length_patch = patch("lms.lms.api.MEMBERS_PAGE_LENGTH", MEMBERS_PAGE_LENGTH)
+		cls._page_length_patch.start()
+		cls.addClassCleanup(cls._page_length_patch.stop)
+
+		cls.moderator = cls._create_user("moderator@example.com", "Mod", "Erator", ["Moderator"])
+		cls.members = [
+			cls._create_user(f"member{index}@example.com", "Member", str(index), ["LMS Student"])
+			for index in range(MEMBERS_PAGE_LENGTH + 1)
+		]
 
 	def setUp(self):
 		super().setUp()
-		self.moderator = self._create_user("moderator@example.com", "Mod", "Erator", ["Moderator"])
-		self.members = [
-			self._create_user(f"member{index}@example.com", "Member", str(index), ["LMS Student"])
-			for index in range(MEMBERS_PAGE_LENGTH + 3)
-		]
 		frappe.set_user(self.moderator.name)
 
 	def tearDown(self):
@@ -121,12 +151,13 @@ class TestGetMember(BaseTestUtils):
 		self.assertIn("LMS Student", row.roles)
 
 	def test_reaches_a_member_past_the_first_page(self):
-		# setUp creates three members more than a page holds, but which three fall
-		# off it is get_members' ordering (newest first) rather than part of the
-		# contract, so take the target from what the first page actually left out.
+		# There are more fixture members than a page holds, so at least one is off it
+		# whatever get_members' ordering does and whatever else is on the site. Which
+		# one is not part of the contract, so take it from what page one left out.
 		first_page = [member.name for member in get_members()]
 		off_page = [member for member in self.members if member.name not in first_page]
 
+		self.assertGreater(len(self.members), MEMBERS_PAGE_LENGTH, "fixture must exceed a page")
 		self.assertTrue(off_page, "the fixture no longer exceeds one page")
 		self.assertEqual(get_member(off_page[0].name).name, off_page[0].name)
 

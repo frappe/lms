@@ -19,29 +19,30 @@ def _quiz_block_content(quiz):
 class TestQuizAuthorization(BaseTestUtils):
 	"""get_quiz_with_questions must require enrollment/ownership, not just an LMS role."""
 
-	def setUp(self):
-		super().setUp()
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
 		hash = frappe.generate_hash(length=6)
-		self.instructor = self._create_user(
+		cls.instructor = cls._create_user(
 			f"qinstr-{hash}@example.com", "Ivy", "Instr", ["Course Creator", "Moderator"]
 		)
-		self.enrolled = self._create_user(f"qstud-{hash}@example.com", "Ed", "Enrolled", ["LMS Student"])
-		self.outsider = self._create_user(f"qout-{hash}@example.com", "Ove", "Outsider", ["LMS Student"])
+		cls.enrolled = cls._create_user(f"qstud-{hash}@example.com", "Ed", "Enrolled", ["LMS Student"])
+		cls.outsider = cls._create_user(f"qout-{hash}@example.com", "Ove", "Outsider", ["LMS Student"])
 
-		self.questions = self._create_quiz_questions()
-		self.quiz = self._create_quiz(self.questions, title=f"Authz Quiz {hash}")
-		self.course = self._create_course(title=f"Quiz Course {hash}", instructor=self.instructor.email)
-		self.chapter = self._create_chapter(f"QChapter {hash}", self.course.name)
+		cls.questions = cls._create_quiz_questions()
+		cls.quiz = cls._create_quiz(cls.questions, title=f"Authz Quiz {hash}")
+		cls.course = cls._create_course(title=f"Quiz Course {hash}", instructor=cls.instructor.email)
+		cls.chapter = cls._create_chapter(f"QChapter {hash}", cls.course.name)
 		# Link the quiz to the course the way production does: embed it as a content block,
 		# which makes Course Lesson.save_lesson_details_in_quiz set LMS Quiz.course/lesson.
 		# (Course Lesson.quiz_id is a manual field that is never auto-populated.)
-		self.lesson = self._create_lesson(
-			f"QLesson {hash}", self.chapter.name, self.course.name, _quiz_block_content(self.quiz.name)
+		cls.lesson = cls._create_lesson(
+			f"QLesson {hash}", cls.chapter.name, cls.course.name, _quiz_block_content(cls.quiz.name)
 		)
-		self._create_enrollment(self.enrolled.email, self.course.name)
+		cls._create_enrollment(cls.enrolled.email, cls.course.name)
 
 		# A second quiz never linked to any lesson or batch (e.g. mid-authoring).
-		self.unlinked_quiz = self._create_quiz(self.questions, title=f"Unlinked Quiz {hash}")
+		cls.unlinked_quiz = cls._create_quiz(cls.questions, title=f"Unlinked Quiz {hash}")
 
 	def _call(self, user, quiz=None):
 		frappe.session.user = user

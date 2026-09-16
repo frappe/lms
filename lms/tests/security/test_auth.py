@@ -5,9 +5,10 @@ from lms.lms.test_helpers import BaseTestUtils
 
 
 class TestAuth(BaseTestUtils):
-	def setUp(self):
-		super().setUp()
-		self.normal_user = self._create_user("normal-user@example.com", "Normal", "User", ["LMS Student"])
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
+		cls.normal_user = cls._create_user("normal-user@example.com", "Normal", "User", ["LMS Student"])
 
 	def test_allowed_path(self):
 		frappe.form_dict.cmd = "ping"

@@ -15,20 +15,6 @@ class TestSidebar(BaseTestUtils):
 		super().setUp()
 		self.settings = frappe.get_single("LMS Settings")
 		self.settings.reload()
-		# Content fields only -- a stale `name` here would make the reset try to
-		# update rows a test's own save_sidebar_items() call already replaced,
-		# silently restoring nothing rather than the original thirteen.
-		self.original_rows = [
-			{field: row.get(field) for field in ROW_FIELDS} for row in self.settings.sidebar_items
-		]
-
-	def tearDown(self):
-		settings = frappe.get_single("LMS Settings")
-		settings.reload()
-		settings.set("sidebar_items", self.original_rows)
-		settings.flags.ignore_permissions = True
-		settings.save()
-		super().tearDown()
 
 	def test_seed_sidebar_items_is_idempotent(self):
 		seed_sidebar_items()

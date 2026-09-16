@@ -48,6 +48,10 @@ class TestSearchCategoryValidation(FrappeTestCase):
 		with self.assertRaises((frappe.exceptions.FrappeTypeError, frappe.ValidationError)):
 			search_sqlite(["kubernetes"])
 
+	def test_every_course_scoped_doctype_is_permission_checked(self):
+		for doctype in COURSE_SCOPED_DOCTYPES:
+			self.assertIn(doctype, PERMISSION_CHECKED_DOCTYPES)
+
 
 class TestIndexSchema(FrappeTestCase):
 	"""SQLiteSearch validates its schema when the class is instantiated, so a
@@ -117,12 +121,13 @@ class TestQuizAndAssignmentScope(BaseTestUtils):
 	permission_query_conditions hook, so get_list alone handed a student every
 	row on the site."""
 
-	def setUp(self):
-		super().setUp()
-		self.student = self._create_user("palette-student@example.com", "Pal", "Ette", ["LMS Student"])
-		self.questions = self._create_quiz_questions()
-		self.quiz = self._create_quiz(self.questions, title="Palette Scope Quiz")
-		self.assignment = self._create_assignment(title="Palette Scope Assignment")
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
+		cls.student = cls._create_user("palette-student@example.com", "Pal", "Ette", ["LMS Student"])
+		cls.questions = cls._create_quiz_questions()
+		cls.quiz = cls._create_quiz(cls.questions, title="Palette Scope Quiz")
+		cls.assignment = cls._create_assignment(title="Palette Scope Assignment")
 
 	def test_a_student_is_given_no_quiz_or_assignment(self):
 		frappe.set_user(self.student.email)
@@ -150,10 +155,6 @@ class TestQuizAndAssignmentScope(BaseTestUtils):
 		permitted = get_permitted_names([row("LMS Quiz", self.quiz.name)])
 		self.assertEqual(permitted["LMS Quiz"], {self.quiz.name})
 
-	def test_every_course_scoped_doctype_is_permission_checked(self):
-		for doctype in COURSE_SCOPED_DOCTYPES:
-			self.assertIn(doctype, PERMISSION_CHECKED_DOCTYPES)
-
 
 class TestGroupOrder(FrappeTestCase):
 	def test_groups_come_back_in_the_documented_order(self):
@@ -172,12 +173,13 @@ class TestProgramScope(BaseTestUtils):
 	LMS Quiz and LMS Assignment, so get_list is expected to constrain it. This
 	pins that, because the palette relies on it rather than scoping by hand."""
 
-	def setUp(self):
-		super().setUp()
-		self.student = self._create_user("prog-student@example.com", "Prog", "Student", ["LMS Student"])
-		self.hidden = frappe.new_doc("LMS Program")
-		self.hidden.update({"title": "Palette Unpublished Program", "published": 0})
-		self.hidden.save()
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
+		cls.student = cls._create_user("prog-student@example.com", "Prog", "Student", ["LMS Student"])
+		cls.hidden = frappe.new_doc("LMS Program")
+		cls.hidden.update({"title": "Palette Unpublished Program", "published": 0})
+		cls.hidden.save()
 
 	def test_a_student_is_not_given_an_unpublished_program(self):
 		frappe.set_user(self.student.email)
@@ -258,15 +260,13 @@ class TestAuthoredScope(BaseTestUtils):
 	asks for it, so scoping by course alone lost an author the quiz they had just
 	made — and a Batch Evaluator, who instructs no courses, had no way in at all."""
 
-	def setUp(self):
-		super().setUp()
-		self.author = self._create_user("palette-author@example.com", "Pal", "Author", ["Course Creator"])
-		self.evaluator = self._create_user(
-			"palette-evaluator@example.com", "Pal", "Eval", ["Batch Evaluator"]
-		)
-		self.questions = self._create_quiz_questions()
-		self.quiz = self._create_quiz(self.questions, title="Palette Authored Quiz")
-		frappe.db.set_value("LMS Quiz", self.quiz.name, "owner", self.author.name)
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
+		cls.author = cls._create_user("palette-author@example.com", "Pal", "Author", ["Course Creator"])
+		cls.evaluator = cls._create_user("palette-evaluator@example.com", "Pal", "Eval", ["Batch Evaluator"])
+		cls.questions = cls._create_quiz_questions()
+		cls.quiz = cls._create_quiz(cls.questions, title="Palette Authored Quiz")
 
 	def permitted_for(self, user):
 		frappe.set_user(user)
@@ -279,6 +279,11 @@ class TestAuthoredScope(BaseTestUtils):
 		self.assertFalse(frappe.db.get_value("LMS Quiz", self.quiz.name, "course"))
 
 	def test_an_author_is_given_the_quiz_they_made(self):
+		# Each test below sets the owner it needs rather than relying on setUp's
+		# fixture value: the quiz is a shared class-level fixture now, so a test
+		# must not depend on what an earlier test (alphabetically,
+		# test_an_evaluator_is_given_the_quiz_they_made) happened to leave behind.
+		frappe.db.set_value("LMS Quiz", self.quiz.name, "owner", self.author.name)
 		self.assertEqual(self.permitted_for(self.author.name), {self.quiz.name})
 
 	def test_an_evaluator_is_given_the_quiz_they_made(self):
@@ -286,4 +291,5 @@ class TestAuthoredScope(BaseTestUtils):
 		self.assertEqual(self.permitted_for(self.evaluator.name), {self.quiz.name})
 
 	def test_another_author_is_not_given_it(self):
+		frappe.db.set_value("LMS Quiz", self.quiz.name, "owner", self.author.name)
 		self.assertEqual(self.permitted_for(self.evaluator.name), set())

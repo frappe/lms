@@ -7,12 +7,13 @@ from lms.lms.test_helpers import BaseTestUtils
 
 
 class TestLMSAssignmentSubmission(BaseTestUtils):
-	def setUp(self):
-		super().setUp()
-		self.student_a = self._create_user("rtv.student.a@example.com", "Student", "Alpha", ["LMS Student"])
-		self.student_b = self._create_user("rtv.student.b@example.com", "Student", "Bravo", ["LMS Student"])
-		self.moderator = self._create_user("rtv.moderator@example.com", "Mod", "Erator", ["Moderator"])
-		self.assignment = self._create_assignment()
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
+		cls.student_a = cls._create_user("rtv.student.a@example.com", "Student", "Alpha", ["LMS Student"])
+		cls.student_b = cls._create_user("rtv.student.b@example.com", "Student", "Bravo", ["LMS Student"])
+		cls.moderator = cls._create_user("rtv.moderator@example.com", "Mod", "Erator", ["Moderator"])
+		cls.assignment = cls._create_assignment()
 
 	def tearDown(self):
 		frappe.set_user("Administrator")

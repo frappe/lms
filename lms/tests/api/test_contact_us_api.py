@@ -1,6 +1,7 @@
 # Copyright (c) 2026, Frappe and Contributors
 # See license.txt
 
+import unittest
 from unittest.mock import patch
 
 import frappe
@@ -16,15 +17,16 @@ PNG = b"\x89PNG\r\n\x1a\n"
 
 
 class ContactUsTestCase(BaseTestUtils):
-	def setUp(self):
-		super().setUp()
-		self.sender = self._create_user(
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
+		cls.sender = cls._create_user(
 			f"contact.sender.{frappe.generate_hash(length=8)}@example.com",
 			"Contact",
 			"Sender",
 			["LMS Student"],
 		)
-		self.other = self._create_user(
+		cls.other = cls._create_user(
 			f"contact.other.{frappe.generate_hash(length=8)}@example.com",
 			"Contact",
 			"Other",
@@ -46,7 +48,10 @@ class ContactUsTestCase(BaseTestUtils):
 		return doc
 
 
-class TestHasMessage(BaseTestUtils):
+class TestContactUsPureFunctions(unittest.TestCase):
+	"""has_message, and the prepare_inline_images paths that never reach the DB
+	(no candidate /files/ or /private/files/ src, or no content at all)."""
+
 	def test_an_image_on_its_own_is_a_message(self):
 		# strip_html leaves nothing behind for a pasted screenshot, which is the
 		# single most common contact-us body.
@@ -60,6 +65,19 @@ class TestHasMessage(BaseTestUtils):
 		for body in (None, "", "<p></p>", "<p><br></p>", "<p>&nbsp;</p>", "<p>\xa0</p>"):
 			with self.subTest(body=body):
 				self.assertFalse(has_message(body))
+
+	def test_empty_content_stays_empty(self):
+		self.assertEqual(prepare_inline_images(""), ("", []))
+		self.assertEqual(prepare_inline_images(None), ("", []))
+
+	def test_an_external_image_is_left_alone(self):
+		body, images = prepare_inline_images('<img src="https://example.com/cat.png">')
+		self.assertIn('src="https://example.com/cat.png"', body)
+		self.assertEqual(images, [])
+
+	def test_comments_are_dropped(self):
+		body, _images = prepare_inline_images("<p>a</p><!-- mso conditional --><p>b</p>")
+		self.assertNotIn("mso conditional", body)
 
 
 class TestPrepareInlineImages(ContactUsTestCase):
@@ -122,21 +140,6 @@ class TestPrepareInlineImages(ContactUsTestCase):
 		self.assertNotIn(victim.file_url, body)
 		self.assertEqual(images, [{"filename": mine.file_url, "filecontent": PNG + b"MINE"}])
 		self.assertIn(f'embed="{mine.file_url}"', body)
-
-	def test_an_external_image_is_left_alone(self):
-		frappe.set_user(self.sender.name)
-		body, images = prepare_inline_images('<img src="https://example.com/cat.png">')
-		self.assertIn('src="https://example.com/cat.png"', body)
-		self.assertEqual(images, [])
-
-	def test_empty_content_stays_empty(self):
-		self.assertEqual(prepare_inline_images(""), ("", []))
-		self.assertEqual(prepare_inline_images(None), ("", []))
-
-	def test_comments_are_dropped(self):
-		frappe.set_user(self.sender.name)
-		body, _images = prepare_inline_images("<p>a</p><!-- mso conditional --><p>b</p>")
-		self.assertNotIn("mso conditional", body)
 
 	@patch("lms.lms.utils.MAX_INLINE_IMAGES", 1)
 	def test_more_images_than_the_cap_are_refused(self):

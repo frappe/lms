@@ -8,13 +8,14 @@ class TestEnrollmentFieldGuard(BaseTestUtils):
 	purchased_certificate fields on their own enrollment
 	(VULN-2026-FRAPPE-LMS-009, -010)."""
 
-	def setUp(self):
-		super().setUp()
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
 		hash = frappe.generate_hash(length=6)
-		self.student = self._create_user(f"efstud-{hash}@example.com", "Eli", "Student", ["LMS Student"])
-		self.moderator = self._create_user(f"efmod-{hash}@example.com", "Mac", "Derator", ["Moderator"])
-		self.course = self._create_course(title=f"Guard Course {hash}", instructor=self.moderator.email)
-		self.enrollment = self._create_enrollment(self.student.email, self.course.name)
+		cls.student = cls._create_user(f"efstud-{hash}@example.com", "Eli", "Student", ["LMS Student"])
+		cls.moderator = cls._create_user(f"efmod-{hash}@example.com", "Mac", "Derator", ["Moderator"])
+		cls.course = cls._create_course(title=f"Guard Course {hash}", instructor=cls.moderator.email)
+		cls.enrollment = cls._create_enrollment(cls.student.email, cls.course.name)
 
 	def _as(self, user, mutate):
 		frappe.session.user = user

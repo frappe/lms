@@ -15,45 +15,38 @@ class TestGetCertificationDetails(BaseTestUtils):
 	"""LMS Student has no read permission on LMS Course, so everything the
 	certification page needs about the course has to come from here."""
 
-	def setUp(self):
-		super().setUp()
-		self.instructor = self._create_user(
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
+		cls.instructor = cls._create_user(
 			"frappe@example.com", "Frappe", "Admin", ["Moderator", "Course Creator"]
 		)
-		self.student = self._create_user(
+		cls.student = cls._create_user(
 			f"cert.learner.{frappe.generate_hash(length=8)}@example.com",
 			"Cert",
 			"Learner",
 			["LMS Student"],
 		)
-		self.outsider = self._create_user(
+		cls.outsider = cls._create_user(
 			f"cert.outsider.{frappe.generate_hash(length=8)}@example.com",
 			"Cert",
 			"Outsider",
 			["LMS Student"],
 		)
-		self.evaluator = self._create_evaluator()
-		self.course = self._create_course()
-		self.previous_course_fields = frappe.db.get_value(
-			"LMS Course", self.course.name, ["paid_certificate", "evaluator", "published"], as_dict=1
-		)
+		cls.evaluator = cls._create_evaluator()
+		cls.course = cls._create_course()
 		frappe.db.set_value(
 			"LMS Course",
-			self.course.name,
-			{"paid_certificate": 1, "evaluator": self.evaluator.name},
+			cls.course.name,
+			{"paid_certificate": 1, "evaluator": cls.evaluator.name},
 		)
-		self._create_enrollment(self.student.name, self.course.name)
+		cls._create_enrollment(cls.student.name, cls.course.name)
 		frappe.db.set_value(
 			"LMS Enrollment",
-			{"course": self.course.name, "member": self.student.name},
+			{"course": cls.course.name, "member": cls.student.name},
 			"purchased_certificate",
 			1,
 		)
-
-	def tearDown(self):
-		frappe.set_user("Administrator")
-		frappe.db.set_value("LMS Course", self.course.name, self.previous_course_fields)
-		super().tearDown()
 
 	def test_learner_gets_the_course_title_and_evaluator(self):
 		frappe.set_user(self.student.name)

@@ -57,21 +57,22 @@ class TestEnrollmentRaces(BaseTestUtils):
 	exactly the state both requests are in after their read.
 	"""
 
-	def setUp(self):
-		super().setUp()
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
 		hash = frappe.generate_hash(length=6)
-		self.instructor = self._create_user(
+		cls.instructor = cls._create_user(
 			f"race-instr-{hash}@example.com", "Race", "Instr", ["Course Creator", "Moderator"]
 		)
-		self._create_evaluator(self.instructor.email)
-		self.course = self._create_course(title=f"Race Course {hash}", instructor=self.instructor.email)
-		self.batch = self._create_batch(
-			course=self.course.name,
-			instructor=self.instructor.email,
+		cls._create_evaluator(cls.instructor.email)
+		cls.course = cls._create_course(title=f"Race Course {hash}", instructor=cls.instructor.email)
+		cls.batch = cls._create_batch(
+			course=cls.course.name,
+			instructor=cls.instructor.email,
 			title=f"Race Batch {hash}",
-			evaluator=self.instructor.email,
+			evaluator=cls.instructor.email,
 		)
-		self.member = self._create_user(f"race-member-{hash}@example.com", "Race", "Tester", ["LMS Student"])
+		cls.member = cls._create_user(f"race-member-{hash}@example.com", "Race", "Tester", ["LMS Student"])
 
 	def test_duplicate_batch_enrollment_is_refused_by_the_database(self):
 		with patch.object(LMSBatchEnrollment, "validate_duplicate_members"):

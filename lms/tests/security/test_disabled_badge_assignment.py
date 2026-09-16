@@ -11,14 +11,16 @@ class TestDisabledBadgeAssignment(BaseTestUtils):
 	make.
 	"""
 
-	def setUp(self):
-		super().setUp()
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
 		hash = frappe.generate_hash(length=6)
-		self.student = self._create_user(f"bstud-{hash}@example.com", "Bea", "Student", ["LMS Student"])
-		self.enabled_badge = self._create_badge(f"Enabled Badge {hash}", enabled=1)
-		self.disabled_badge = self._create_badge(f"Disabled Badge {hash}", enabled=0)
+		cls.student = cls._create_user(f"bstud-{hash}@example.com", "Bea", "Student", ["LMS Student"])
+		cls.enabled_badge = cls._create_badge(f"Enabled Badge {hash}", enabled=1)
+		cls.disabled_badge = cls._create_badge(f"Disabled Badge {hash}", enabled=0)
 
-	def _create_badge(self, title, enabled):
+	@classmethod
+	def _create_badge(cls, title, enabled):
 		badge = frappe.get_doc(
 			{
 				"doctype": "LMS Badge",

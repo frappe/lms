@@ -187,8 +187,10 @@ class TestAllEnrolledIncludesBatchOnlyStudents(FrappeTestCase):
 
 
 class TestStudentsOfBatchesRule(FrappeTestCase):
-	def setUp(self):
-		self.batch = frappe.get_doc(
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
+		cls.batch = frappe.get_doc(
 			{
 				"doctype": "LMS Batch",
 				"title": "Raven Test Batch",
@@ -202,7 +204,7 @@ class TestStudentsOfBatchesRule(FrappeTestCase):
 				"instructors": [{"instructor": "Administrator"}],
 			}
 		).insert()
-		self.in_batch = frappe.get_doc(
+		cls.in_batch = frappe.get_doc(
 			{
 				"doctype": "User",
 				"email": "in-batch@example.com",
@@ -210,7 +212,7 @@ class TestStudentsOfBatchesRule(FrappeTestCase):
 				"send_welcome_email": 0,
 			}
 		).insert()
-		self.out_of_batch = frappe.get_doc(
+		cls.out_of_batch = frappe.get_doc(
 			{
 				"doctype": "User",
 				"email": "out-batch@example.com",
@@ -218,19 +220,13 @@ class TestStudentsOfBatchesRule(FrappeTestCase):
 				"send_welcome_email": 0,
 			}
 		).insert()
-		self.enrollment = frappe.get_doc(
+		cls.enrollment = frappe.get_doc(
 			{
 				"doctype": "LMS Batch Enrollment",
-				"member": self.in_batch.name,
-				"batch": self.batch.name,
+				"member": cls.in_batch.name,
+				"batch": cls.batch.name,
 			}
 		).insert()
-		# LIFO: last-added cleanup runs first. Add parents before children so
-		# enrollment (child) is deleted before batch/users (parents).
-		self.addCleanup(self.batch.delete)
-		self.addCleanup(self.in_batch.delete)
-		self.addCleanup(self.out_of_batch.delete)
-		self.addCleanup(self.enrollment.delete)
 
 	def test_matches_only_batch_members(self):
 		rule = {
@@ -257,11 +253,12 @@ class TestStudentsOfBatchesRule(FrappeTestCase):
 
 
 class TestStudentsOfCoursesRule(FrappeTestCase):
-	def setUp(self):
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
 		course = _minimal_course()
-		self.addCleanup(course.delete)
-		self.course = course.name
-		self.in_course = frappe.get_doc(
+		cls.course = course.name
+		cls.in_course = frappe.get_doc(
 			{
 				"doctype": "User",
 				"email": "raven-in-course@example.com",
@@ -269,17 +266,13 @@ class TestStudentsOfCoursesRule(FrappeTestCase):
 				"send_welcome_email": 0,
 			}
 		).insert()
-		self.enrollment = frappe.get_doc(
+		cls.enrollment = frappe.get_doc(
 			{
 				"doctype": "LMS Enrollment",
-				"member": self.in_course.name,
-				"course": self.course,
+				"member": cls.in_course.name,
+				"course": cls.course,
 			}
 		).insert()
-		# LIFO: add parent (user) before child (enrollment) so enrollment is
-		# deleted first, then the user.
-		self.addCleanup(self.in_course.delete)
-		self.addCleanup(self.enrollment.delete)
 
 	def test_matches_only_course_enrollees(self):
 		rule = {
@@ -335,8 +328,9 @@ class TestPaymentFilter(FrappeTestCase):
 	link is neither.
 	"""
 
-	def _user(self, email: str) -> "frappe.Document":
-		user = frappe.get_doc(
+	@classmethod
+	def _user(cls, email: str) -> "frappe.Document":
+		return frappe.get_doc(
 			{
 				"doctype": "User",
 				"email": email,
@@ -344,10 +338,9 @@ class TestPaymentFilter(FrappeTestCase):
 				"send_welcome_email": 0,
 			}
 		).insert()
-		self.addCleanup(lambda: frappe.delete_doc("User", user.name, force=True))
-		return user
 
-	def _payment(self, member: str, received: int) -> str:
+	@classmethod
+	def _payment(cls, member: str, received: int) -> str:
 		payment = frappe.get_doc(
 			{
 				"doctype": "LMS Payment",
@@ -355,23 +348,24 @@ class TestPaymentFilter(FrappeTestCase):
 				"payment_received": received,
 				"amount": 100,
 				"payment_for_document_type": "LMS Batch",
-				"payment_for_document": self.batch.name,
+				"payment_for_document": cls.batch.name,
 			}
 		).insert(ignore_mandatory=True)
-		self.addCleanup(lambda: frappe.delete_doc("LMS Payment", payment.name, force=True))
 		return payment.name
 
-	def _enroll(self, member: str, payment: str | None) -> None:
+	@classmethod
+	def _enroll(cls, member: str, payment: str | None) -> None:
 		enrollment = frappe.get_doc(
-			{"doctype": "LMS Batch Enrollment", "member": member, "batch": self.batch.name}
+			{"doctype": "LMS Batch Enrollment", "member": member, "batch": cls.batch.name}
 		).insert()
-		self.addCleanup(lambda: frappe.delete_doc("LMS Batch Enrollment", enrollment.name, force=True))
 		if payment:
 			# set_value bypasses link validation, which the dangling case needs.
 			frappe.db.set_value("LMS Batch Enrollment", enrollment.name, "payment", payment)
 
-	def setUp(self):
-		self.batch = frappe.get_doc(
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
+		cls.batch = frappe.get_doc(
 			{
 				"doctype": "LMS Batch",
 				"title": "Raven Payment Filter Batch",
@@ -385,17 +379,16 @@ class TestPaymentFilter(FrappeTestCase):
 				"instructors": [{"instructor": "Administrator"}],
 			}
 		).insert()
-		self.addCleanup(lambda: frappe.delete_doc("LMS Batch", self.batch.name, force=True))
 
-		self.paid = self._user("raven-paid@example.com")
-		self.unpaid = self._user("raven-unpaid@example.com")
-		self.dangling = self._user("raven-dangling@example.com")
-		self.free = self._user("raven-free@example.com")
+		cls.paid = cls._user("raven-paid@example.com")
+		cls.unpaid = cls._user("raven-unpaid@example.com")
+		cls.dangling = cls._user("raven-dangling@example.com")
+		cls.free = cls._user("raven-free@example.com")
 
-		self._enroll(self.paid.name, self._payment(self.paid.name, 1))
-		self._enroll(self.unpaid.name, self._payment(self.unpaid.name, 0))
-		self._enroll(self.dangling.name, "LMS-PAYMENT-DOES-NOT-EXIST")
-		self._enroll(self.free.name, None)
+		cls._enroll(cls.paid.name, cls._payment(cls.paid.name, 1))
+		cls._enroll(cls.unpaid.name, cls._payment(cls.unpaid.name, 0))
+		cls._enroll(cls.dangling.name, "LMS-PAYMENT-DOES-NOT-EXIST")
+		cls._enroll(cls.free.name, None)
 
 	def _matched(self, payment_filter: str) -> set:
 		return default_evaluator(
@@ -462,12 +455,13 @@ class TestBatchEnrollmentIndex(UnitTestCase):
 class TestStudentScope(FrappeTestCase):
 	"""The Student cascade's two ends: All, and Enrolled across both scopes."""
 
-	def setUp(self):
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
 		course = _minimal_course()
-		self.addCleanup(course.delete)
-		self.course = course.name
+		cls.course = course.name
 
-		self.student = frappe.get_doc(
+		cls.student = frappe.get_doc(
 			{
 				"doctype": "User",
 				"email": "raven-student-scope@example.com",
@@ -475,10 +469,9 @@ class TestStudentScope(FrappeTestCase):
 				"send_welcome_email": 0,
 			}
 		).insert()
-		self.addCleanup(self.student.delete)
-		self.student.add_roles("LMS Student")
+		cls.student.add_roles("LMS Student")
 
-		self.roleless = frappe.get_doc(
+		cls.roleless = frappe.get_doc(
 			{
 				"doctype": "User",
 				"email": "raven-no-student-role@example.com",
@@ -486,8 +479,26 @@ class TestStudentScope(FrappeTestCase):
 				"send_welcome_email": 0,
 			}
 		).insert()
-		self.addCleanup(self.roleless.delete)
-		frappe.db.delete("Has Role", {"parent": self.roleless.name, "role": "LMS Student"})
+		frappe.db.delete("Has Role", {"parent": cls.roleless.name, "role": "LMS Student"})
+
+		# Its own batch. test_enrolled_in_both_unions_the_two_scopes used to take
+		# whatever LMS Batch happened to be on the site and skipTest when there was
+		# none, so on a fresh site (CI) it never ran at all.
+		cls.batch = frappe.get_doc(
+			{
+				"doctype": "LMS Batch",
+				"title": f"Raven Student Scope Batch {frappe.generate_hash(length=6)}",
+				"start_date": frappe.utils.today(),
+				"end_date": frappe.utils.add_days(frappe.utils.today(), 7),
+				"description": "Student scope batch fixture",
+				"batch_details": "Student scope batch fixture",
+				"start_time": "09:00:00",
+				"end_time": "10:00:00",
+				"timezone": "Asia/Kolkata",
+				"instructors": [{"instructor": "Administrator"}],
+				"courses": [{"course": cls.course}],
+			}
+		).insert()
 
 	def test_all_is_everyone_holding_the_student_role(self):
 		members = default_evaluator({"rule_type": "Student", "student_scope": "All"})
@@ -516,16 +527,13 @@ class TestStudentScope(FrappeTestCase):
 		self.assertNotIn(self.student.name, members)
 
 	def test_enrolled_in_both_unions_the_two_scopes(self):
-		batches = frappe.get_all("LMS Batch", limit=1)
-		if not batches:
-			self.skipTest("No batch fixture")
 		both = default_evaluator(
 			{
 				"rule_type": "Student",
 				"student_scope": "Enrolled",
 				"payment_filter": "Any",
 				"enrolled_in": "Both",
-				"batches": [batches[0].name],
+				"batches": [self.batch.name],
 				"courses": [self.course],
 			}
 		)
@@ -544,7 +552,7 @@ class TestStudentScope(FrappeTestCase):
 				"student_scope": "Enrolled",
 				"payment_filter": "Any",
 				"enrolled_in": "Batches",
-				"batches": [batches[0].name],
+				"batches": [self.batch.name],
 			}
 		)
 		self.assertEqual(both, only_courses | only_batches)
@@ -573,14 +581,13 @@ class TestStaffRule(FrappeTestCase):
 	the scope fields.
 	"""
 
-	def setUp(self):
-		# Build the course before any user: User.insert commits, and addCleanup
-		# only runs from here on, so a course-fixture failure must happen first.
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
 		course = _minimal_course()
-		self.addCleanup(course.delete)
-		self.course = course.name
+		cls.course = course.name
 
-		self.users = {}
+		cls.users = {}
 		for key, email in (
 			("instructor", "raven-instructor@example.com"),
 			("creator", "raven-creator@example.com"),
@@ -590,7 +597,7 @@ class TestStaffRule(FrappeTestCase):
 			("disabled", "raven-disabled-mod@example.com"),
 			("other", "raven-nostaff@example.com"),
 		):
-			self.users[key] = frappe.get_doc(
+			cls.users[key] = frappe.get_doc(
 				{
 					"doctype": "User",
 					"email": email,
@@ -599,45 +606,27 @@ class TestStaffRule(FrappeTestCase):
 				}
 			).insert()
 
-		self.users["creator"].add_roles("Course Creator")
-		self.users["evaluator"].add_roles("Batch Evaluator")
-		self.users["moderator"].add_roles("Moderator")
+		cls.users["creator"].add_roles("Course Creator")
+		cls.users["evaluator"].add_roles("Batch Evaluator")
+		cls.users["moderator"].add_roles("Moderator")
 
 		# Holds the role but is switched off: the sync cannot link a member row to a
 		# user with no Raven User row, so a disabled holder must not be named.
-		self.users["disabled"].add_roles("Moderator")
-		frappe.db.set_value("User", self.users["disabled"].name, "enabled", 0)
+		cls.users["disabled"].add_roles("Moderator")
+		frappe.db.set_value("User", cls.users["disabled"].name, "enabled", 0)
 
-		self.course_doc = frappe.get_doc("LMS Course", self.course)
-		self.course_doc.append("instructors", {"instructor": self.users["instructor"].name})
+		cls.course_doc = frappe.get_doc("LMS Course", cls.course)
+		cls.course_doc.append("instructors", {"instructor": cls.users["instructor"].name})
 		# The other per-record tagging: LMS Course.evaluator links Course Evaluator.
 		# A different user from the platform-role evaluator, so a test naming one
 		# cannot pass by accident on the other.
 		# nosemgrep: lms-unjustified-ignore-permissions - test fixture, seeding the rows the cases read back
 		frappe.get_doc(
-			{"doctype": "Course Evaluator", "evaluator": self.users["assigned_evaluator"].name}
+			{"doctype": "Course Evaluator", "evaluator": cls.users["assigned_evaluator"].name}
 		).insert(ignore_permissions=True)
-		self.previous_evaluator = self.course_doc.evaluator
-		self.course_doc.evaluator = self.users["assigned_evaluator"].name
+		cls.course_doc.evaluator = cls.users["assigned_evaluator"].name
 		# nosemgrep: lms-unjustified-ignore-permissions - test fixture, seeding the rows the cases read back
-		self.course_doc.save(ignore_permissions=True)
-
-		self.addCleanup(self._cleanup)
-
-	def _cleanup(self):
-		course_doc = frappe.get_doc("LMS Course", self.course)
-		course_doc.instructors = [
-			row for row in course_doc.instructors if row.instructor != self.users["instructor"].name
-		]
-		course_doc.evaluator = self.previous_evaluator
-		# nosemgrep: lms-unjustified-ignore-permissions - test fixture, restoring what setUp changed
-		course_doc.save(ignore_permissions=True)
-		if frappe.db.exists("Course Evaluator", self.users["assigned_evaluator"].name):
-			frappe.delete_doc("Course Evaluator", self.users["assigned_evaluator"].name, force=True)
-
-		for user in self.users.values():
-			if frappe.db.exists("User", user.name):
-				frappe.delete_doc("User", user.name, force=True)
+		cls.course_doc.save(ignore_permissions=True)
 
 	def _rule(self, **kwargs) -> dict:
 		base = {
@@ -849,12 +838,13 @@ class TestStaffScopedToABatch(FrappeTestCase):
 	parent is a batch, and the evaluator named on the batch's Batch Course rows.
 	"""
 
-	def setUp(self):
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
 		course = _minimal_course()
-		self.addCleanup(course.delete)
-		self.course = course.name
+		cls.course = course.name
 
-		self.instructor = frappe.get_doc(
+		cls.instructor = frappe.get_doc(
 			{
 				"doctype": "User",
 				"email": "raven-batch-instructor@example.com",
@@ -862,7 +852,7 @@ class TestStaffScopedToABatch(FrappeTestCase):
 				"send_welcome_email": 0,
 			}
 		).insert()
-		self.evaluator = frappe.get_doc(
+		cls.evaluator = frappe.get_doc(
 			{
 				"doctype": "User",
 				"email": "raven-batch-evaluator@example.com",
@@ -871,11 +861,11 @@ class TestStaffScopedToABatch(FrappeTestCase):
 			}
 		).insert()
 		# nosemgrep: lms-unjustified-ignore-permissions - test fixture, seeding the rows the cases read back
-		frappe.get_doc({"doctype": "Course Evaluator", "evaluator": self.evaluator.name}).insert(
+		frappe.get_doc({"doctype": "Course Evaluator", "evaluator": cls.evaluator.name}).insert(
 			ignore_permissions=True
 		)
 
-		self.batch = frappe.get_doc(
+		cls.batch = frappe.get_doc(
 			{
 				"doctype": "LMS Batch",
 				"title": "Raven Staff Scope Batch",
@@ -886,11 +876,11 @@ class TestStaffScopedToABatch(FrappeTestCase):
 				"start_time": "09:00:00",
 				"end_time": "10:00:00",
 				"timezone": "Asia/Kolkata",
-				"instructors": [{"instructor": self.instructor.name}],
-				"courses": [{"course": self.course, "evaluator": self.evaluator.name}],
+				"instructors": [{"instructor": cls.instructor.name}],
+				"courses": [{"course": cls.course, "evaluator": cls.evaluator.name}],
 			}
 		).insert()
-		self.elsewhere = frappe.get_doc(
+		cls.elsewhere = frappe.get_doc(
 			{
 				"doctype": "LMS Batch",
 				"title": "Raven Staff Scope Other Batch",
@@ -904,18 +894,6 @@ class TestStaffScopedToABatch(FrappeTestCase):
 				"instructors": [{"instructor": "Administrator"}],
 			}
 		).insert()
-
-		self.addCleanup(self._cleanup)
-
-	def _cleanup(self):
-		for batch in (self.batch, self.elsewhere):
-			if frappe.db.exists("LMS Batch", batch.name):
-				frappe.delete_doc("LMS Batch", batch.name, force=True)
-		if frappe.db.exists("Course Evaluator", self.evaluator.name):
-			frappe.delete_doc("Course Evaluator", self.evaluator.name, force=True)
-		for user in (self.instructor, self.evaluator):
-			if frappe.db.exists("User", user.name):
-				frappe.delete_doc("User", user.name, force=True)
 
 	def _assigned(self, **kwargs) -> dict:
 		return {"rule_type": "Staff", "staff_kind": "Assigned on", **kwargs}

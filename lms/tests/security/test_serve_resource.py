@@ -28,43 +28,52 @@ class TestServeResourceUnderscoreFilename(BaseTestUtils):
 	matches the url as a literal substring (LOCATE), so no escaping is involved.
 	"""
 
-	def setUp(self):
-		super().setUp()
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
 		h = frappe.generate_hash(length=6)
-		self.instructor = self._create_user(
+		cls.instructor = cls._create_user(
 			f"instr-{h}@example.com", "Ada", "Instr", ["Course Creator", "Moderator"]
 		)
-		self.student = self._create_user(f"stud-{h}@example.com", "Sam", "Student", ["LMS Student"])
-		self.outsider = self._create_user(f"out-{h}@example.com", "Otto", "Outsider", ["LMS Student"])
+		cls.student = cls._create_user(f"stud-{h}@example.com", "Sam", "Student", ["LMS Student"])
+		cls.outsider = cls._create_user(f"out-{h}@example.com", "Otto", "Outsider", ["LMS Student"])
 
-		self.course = self._create_course(title=f"Serve Course {h}", instructor=self.instructor.email)
-		self.chapter = self._create_chapter(f"Chapter {h}", self.course.name)
-		self.lesson = self._create_lesson(f"Lesson {h}", self.chapter.name, self.course.name)
-		self._create_chapter_reference(self.course.name, self.chapter.name, idx=1)
-		self._create_lesson_reference(self.chapter.name, self.lesson.name)
-		self._create_enrollment(self.student.email, self.course.name)
+		cls.course = cls._create_course(title=f"Serve Course {h}", instructor=cls.instructor.email)
+		cls.chapter = cls._create_chapter(f"Chapter {h}", cls.course.name)
+		cls.lesson = cls._create_lesson(f"Lesson {h}", cls.chapter.name, cls.course.name)
+		cls._create_chapter_reference(cls.course.name, cls.chapter.name, idx=1)
+		cls._create_lesson_reference(cls.chapter.name, cls.lesson.name)
+		cls._create_enrollment(cls.student.email, cls.course.name)
 
 		# Private PDF with an underscore filename, attached like an editorjs upload block
 		# (attached_to_field is left unset). frappe assigns the real (hash-suffixed) url;
 		# embed THAT url in the lesson content, mirroring the real upload flow.
-		self.pdf = frappe.get_doc(
+		cls.pdf = frappe.get_doc(
 			{
 				"doctype": "File",
 				"file_name": f"Module_1_Introduction_{h}.pdf",
 				"is_private": 1,
 				"attached_to_doctype": "Course Lesson",
-				"attached_to_name": self.lesson.name,
+				"attached_to_name": cls.lesson.name,
 				"content": base64.b64encode(_MIN_PDF).decode(),
 				"decode": True,
 			}
 		).insert(ignore_permissions=True)
-		self.file_url = self.pdf.file_url
-		self.assertIn("_", self.file_url)  # the property under test
+		cls.file_url = cls.pdf.file_url
+		assert "_" in cls.file_url  # the property under test
 
-		self.lesson.content = json.dumps(
-			{"blocks": [{"type": "upload", "data": {"file_url": self.file_url, "file_type": "PDF"}}]}
+		cls.lesson.content = json.dumps(
+			{"blocks": [{"type": "upload", "data": {"file_url": cls.file_url, "file_type": "PDF"}}]}
 		)
-		self.lesson.save(ignore_permissions=True)
+		cls.lesson.save(ignore_permissions=True)
+
+	def setUp(self):
+		super().setUp()
+		# test_underscore_is_not_a_wildcard and test_content_search_matches_percent_filename
+		# both call self.lesson.save() below; the savepoint rollback reverts the DB row's
+		# `modified` afterwards, so reload keeps the in-memory doc from going stale for the
+		# next test's save.
+		self.lesson.reload()
 
 	def _serve_as(self, user):
 		"""serve_resource with the byte-streaming step stubbed (no HTTP request in tests).

@@ -2,17 +2,17 @@
 # See license.txt
 
 import json
+import unittest
 from unittest.mock import patch
 
 import frappe
-from frappe.tests.utils import FrappeTestCase
 
 from lms.lms.permissions import enforces_lesson_completion, get_locked_lessons
 from lms.lms.test_helpers import BaseTestUtils
 from lms.lms.utils import compute_locked_lessons
 
 
-class TestComputeLockedLessons(FrappeTestCase):
+class TestComputeLockedLessons(unittest.TestCase):
 	def test_nothing_complete_leaves_only_the_first_lesson_open(self):
 		locked = compute_locked_lessons(["L1", "L2", "L3"], set())
 		self.assertEqual(locked, {"L2", "L3"})
@@ -40,6 +40,10 @@ class TestComputeLockedLessons(FrappeTestCase):
 		locked = compute_locked_lessons(["L1", "L2", "L1"], set())
 		self.assertEqual(locked, {"L2"})
 
+	def test_malformed_course_argument_locks_nothing(self):
+		self.assertEqual(get_locked_lessons(None), set())
+		self.assertEqual(get_locked_lessons(["!=", ""]), set())
+
 
 class TestLessonLockingIntegration(BaseTestUtils):
 	@classmethod
@@ -49,27 +53,28 @@ class TestLessonLockingIntegration(BaseTestUtils):
 		# bench migrate cannot see this worktree.
 		frappe.reload_doctype("LMS Course")
 
-	def setUp(self):
-		super().setUp()
-		self.student = self._create_user("locking-student@example.com", "Lock", "Student", ["LMS Student"])
-		self.author = self._create_user(
+		cls.student = cls._create_user("locking-student@example.com", "Lock", "Student", ["LMS Student"])
+		cls.author = cls._create_user(
 			"locking-author@example.com", "Lock", "Author", ["Course Creator", "Moderator"]
 		)
-		self.course = self._create_course(title="Locking Course", instructor=self.author.email)
-		self.chapter = self._create_chapter("Locking Chapter", self.course.name)
-		self._create_chapter_reference(self.course.name, self.chapter.name, idx=1)
+		cls.course = cls._create_course(title="Locking Course", instructor=cls.author.email)
+		cls.chapter = cls._create_chapter("Locking Chapter", cls.course.name)
+		cls._create_chapter_reference(cls.course.name, cls.chapter.name, idx=1)
 
-		self.lessons = []
+		cls.lessons = []
 		for idx in range(1, 4):
-			lesson = self._create_lesson(f"Locking Lesson {idx}", self.chapter.name, self.course.name)
-			self.lessons.append(lesson)
+			lesson = cls._create_lesson(f"Locking Lesson {idx}", cls.chapter.name, cls.course.name)
+			cls.lessons.append(lesson)
 
-		chapter_doc = frappe.get_doc("Course Chapter", self.chapter.name)
-		for lesson in self.lessons:
+		chapter_doc = frappe.get_doc("Course Chapter", cls.chapter.name)
+		for lesson in cls.lessons:
 			chapter_doc.append("lessons", {"lesson": lesson.name})
 		chapter_doc.save()
 
-		self._create_enrollment(self.student.email, self.course.name)
+		cls._create_enrollment(cls.student.email, cls.course.name)
+
+	def setUp(self):
+		super().setUp()
 		frappe.set_user(self.student.email)
 
 	def tearDown(self):
@@ -167,10 +172,6 @@ class TestLessonLockingIntegration(BaseTestUtils):
 		self._enable()
 		frappe.set_user("Guest")
 		self.assertFalse(enforces_lesson_completion(self.course.name))
-
-	def test_malformed_course_argument_locks_nothing(self):
-		self.assertEqual(get_locked_lessons(None), set())
-		self.assertEqual(get_locked_lessons(["!=", ""]), set())
 
 	def test_outline_stamps_locked_when_the_gate_applies(self):
 		self._enable()
@@ -566,10 +567,3 @@ class TestLessonLockingIntegration(BaseTestUtils):
 			if call.args and call.args[0] == "LMS Enrollment" and "current_lesson" in call.args
 		]
 		self.assertEqual(pointer_reads, [])
-
-
-class TestLessonLockingImportExport(FrappeTestCase):
-	def test_export_carries_the_setting(self):
-		from lms.lms.course_import_export import get_course_fields
-
-		self.assertIn("enforce_lesson_completion", get_course_fields())

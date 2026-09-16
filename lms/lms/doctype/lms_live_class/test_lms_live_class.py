@@ -14,8 +14,9 @@ GOOGLE_CALENDAR_MODULE = "frappe.integrations.doctype.google_calendar.google_cal
 class TestLMSLiveClass(BaseTestUtils):
 	"""Tests for LMS Live Class including Google Meet integration."""
 
-	def setUp(self):
-		super().setUp()
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
 
 		# Mock get_google_calendar_object to prevent Frappe's Event hooks
 		# from calling the real Google Calendar API (no OAuth tokens in CI).
@@ -32,64 +33,61 @@ class TestLMSLiveClass(BaseTestUtils):
 		mock_api.events.return_value.patch.return_value.execute.return_value = {}
 		mock_api.events.return_value.delete.return_value.execute.return_value = None
 
-		self._gcal_patcher = patch(
+		gcal_patcher = patch(
 			f"{GOOGLE_CALENDAR_MODULE}.get_google_calendar_object",
 			return_value=(mock_api, MagicMock()),
 		)
-		self._gcal_patcher.start()
+		gcal_patcher.start()
+		cls.addClassCleanup(gcal_patcher.stop)
 
-		self._setup_course_flow()
-		self._setup_batch_flow()
-		self._setup_google_meet()
+		cls.admin = cls._create_user(
+			"frappe@example.com", "Frappe", "Admin", ["Moderator", "Course Creator", "Batch Evaluator"]
+		)
+		cls.course = cls._create_course()
+		cls._create_evaluator()
+		cls.batch = cls._create_batch(cls.course.name)
+		cls._setup_google_meet()
 
-	def tearDown(self):
-		super().tearDown()
-		self._gcal_patcher.stop()
-		if hasattr(self, "_original_google_settings"):
-			google_settings = frappe.get_doc("Google Settings")
-			google_settings.enable = self._original_google_settings["enable"]
-			google_settings.client_id = self._original_google_settings["client_id"]
-			google_settings.client_secret = ""
-			google_settings.save(ignore_permissions=True)
-
-	def _setup_google_meet(self):
+	@classmethod
+	def _setup_google_meet(cls):
 		"""Create Google Calendar and Google Meet Settings for testing."""
 		google_settings = frappe.get_doc("Google Settings")
-		self._original_google_settings = {
-			"enable": google_settings.enable,
-			"client_id": google_settings.client_id,
-		}
 		google_settings.enable = 1
 		google_settings.client_id = "test-client-id"
 		google_settings.client_secret = "test-client-secret"
 		google_settings.save(ignore_permissions=True)
 
-		calendar_name = f"Test GCal {frappe.generate_hash(length=6)}"
-		if not frappe.db.exists("Google Calendar", calendar_name):
-			calendar = frappe.get_doc(
-				{
-					"doctype": "Google Calendar",
-					"calendar_name": calendar_name,
-					"user": "Administrator",
-					"google_account": "test@gmail.com",
-				}
-			)
-			calendar.insert(ignore_permissions=True)
-			self.google_calendar = calendar
-		else:
-			self.google_calendar = frappe.get_doc("Google Calendar", calendar_name)
+		calendar = frappe.get_doc(
+			{
+				"doctype": "Google Calendar",
+				"calendar_name": f"Test GCal {frappe.generate_hash(length=6)}",
+				"user": "Administrator",
+				"google_account": "test@gmail.com",
+			}
+		)
+		calendar.insert(ignore_permissions=True)
+		cls.google_calendar = calendar
 
-		account_name = f"Test Meet {frappe.generate_hash(length=6)}"
-		self.google_meet_settings = frappe.get_doc(
+		cls.google_meet_settings = frappe.get_doc(
 			{
 				"doctype": "LMS Google Meet Settings",
-				"account_name": account_name,
+				"account_name": f"Test Meet {frappe.generate_hash(length=6)}",
 				"member": "Administrator",
-				"google_calendar": self.google_calendar.name,
+				"google_calendar": cls.google_calendar.name,
 				"enabled": 1,
 			}
 		)
-		self.google_meet_settings.insert(ignore_permissions=True)
+		# nosemgrep: lms-unjustified-ignore-permissions - test fixture setup
+		cls.google_meet_settings.insert(ignore_permissions=True)
+
+	def setUp(self):
+		super().setUp()
+		# A test that saves the shared batch/settings docs leaves their in-memory
+		# `modified` timestamp ahead of the DB row once the savepoint rolls the
+		# write back, which trips check_if_latest on the next test's save. Reload
+		# both at the start of every test so they always match the rolled-back DB.
+		self.batch.reload()
+		self.google_meet_settings.reload()
 
 	def _create_live_class(self, provider="Google Meet", **kwargs):
 		"""Helper to create a live class for testing."""

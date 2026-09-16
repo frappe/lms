@@ -262,9 +262,11 @@ from lms.lms.doctype.lms_quiz.lms_quiz import (
 
 
 class TestQuizAuthoringHelpers(FrappeTestCase):
-	def setUp(self):
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
 		frappe.set_user("Administrator")
-		self.q1 = frappe.get_doc(
+		cls.q1 = frappe.get_doc(
 			{
 				"doctype": "LMS Question",
 				"question": "Usage Q1",
@@ -274,27 +276,27 @@ class TestQuizAuthoringHelpers(FrappeTestCase):
 				"option_2": "B",
 			}
 		).insert()
-		self.q2 = frappe.get_doc(
+		cls.q2 = frappe.get_doc(
 			{
 				"doctype": "LMS Question",
 				"question": "Usage Q2",
 				"type": "Open Ended",
 			}
 		).insert()
-		self.quiz_a = frappe.get_doc(
+		cls.quiz_a = frappe.get_doc(
 			{
 				"doctype": "LMS Quiz",
 				"title": "Usage Quiz A",
 				"passing_percentage": 70,
-				"questions": [{"question": self.q1.name, "marks": 2}],
+				"questions": [{"question": cls.q1.name, "marks": 2}],
 			}
 		).insert()
-		self.quiz_b = frappe.get_doc(
+		cls.quiz_b = frappe.get_doc(
 			{
 				"doctype": "LMS Quiz",
 				"title": "Usage Quiz B",
 				"passing_percentage": 70,
-				"questions": [{"question": self.q1.name, "marks": 3}],
+				"questions": [{"question": cls.q1.name, "marks": 3}],
 			}
 		).insert()
 
@@ -352,6 +354,10 @@ class TestQuizAuthoringHelpers(FrappeTestCase):
 		self.assertEqual(by_name[self.q2.name]["default_marks"], 1)
 
 	def test_bank_offers_the_questions_own_marks(self):
+		# TestQuizAuthoringHelpers has no per-test rollback (FrappeTestCase rolls back
+		# once, at class teardown), so a write to the shared q1 must restore itself.
+		original_marks = frappe.db.get_value("LMS Question", self.q1.name, "marks")
+		self.addCleanup(frappe.db.set_value, "LMS Question", self.q1.name, "marks", original_marks)
 		frappe.db.set_value("LMS Question", self.q1.name, "marks", 5)
 		bank = get_question_bank(quiz=self.quiz_a.name)
 		by_name = {row["name"]: row for row in bank}
@@ -360,6 +366,8 @@ class TestQuizAuthoringHelpers(FrappeTestCase):
 	def test_bank_offers_a_zero_marks_question_as_zero(self):
 		# `marks` is non_negative, not > 0, so 0 is a number an author can choose.
 		# `or 1` read it as absent and quietly offered the question as worth 1.
+		original_marks = frappe.db.get_value("LMS Question", self.q1.name, "marks")
+		self.addCleanup(frappe.db.set_value, "LMS Question", self.q1.name, "marks", original_marks)
 		frappe.db.set_value("LMS Question", self.q1.name, "marks", 0)
 		bank = get_question_bank(quiz=self.quiz_a.name)
 		by_name = {row["name"]: row for row in bank}

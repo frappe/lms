@@ -5,14 +5,14 @@ from lms.lms.test_helpers import BaseTestUtils
 
 
 class TestDocPermissionsMany(BaseTestUtils):
-	def setUp(self):
-		super().setUp()
-		frappe.set_user("Administrator")
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
 		hash = frappe.generate_hash(length=6)
-		self.instructor = self._create_user(
+		cls.instructor = cls._create_user(
 			f"permmany-instr-{hash}@example.com", "Perm", "Many", ["Course Creator", "Moderator"]
 		)
-		self.course = self._create_course(title=f"Perm Many Course {hash}", instructor=self.instructor.email)
+		cls.course = cls._create_course(title=f"Perm Many Course {hash}", instructor=cls.instructor.email)
 
 	def tearDown(self):
 		frappe.set_user("Administrator")
