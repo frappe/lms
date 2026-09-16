@@ -1,10 +1,8 @@
 /**
- * Shared mount/query helpers for the CommandPalette test suites.
- *
- * The palette is built on `frappe-ui/experimental`'s real Dialog + Listbox, not
- * a stub, so it teleports into `document.body` — every query here runs against
- * the document rather than the mounted wrapper. jsdom has no layout, so reka's
- * scroll-the-highlight-into-view call needs a no-op stub.
+ * Mount/query helpers for the CommandPalette suites. The palette runs on the
+ * real Dialog + Listbox, so it teleports into `document.body` and every query
+ * here reads the document, not the wrapper. jsdom has no layout, hence the
+ * scrollIntoView stub.
  */
 import { mount, type VueWrapper } from '@vue/test-utils'
 import { nextTick } from 'vue'

@@ -10,19 +10,23 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 
-vi.mock('frappe-ui', () => ({
-	call: vi.fn(),
-	createResource: () => ({ data: null, loading: false, submit: vi.fn() }),
-	toast: { success: vi.fn(), error: vi.fn() },
-	// A prop-capturing stub: this suite checks the menu's own data (which rows
-	// exist, what they call), not Dropdown's popover mechanics — that is
-	// frappe-ui's own to test.
-	Dropdown: {
-		name: 'Dropdown',
-		props: ['options'],
-		template: `<div><slot :open="false" :close="() => {}" /></div>`,
-	},
-}))
+// Only what this suite controls is replaced; the rest of frappe-ui stays real.
+// Dropdown becomes a prop-capturing stub because the assertions are about the
+// menu's own data (which rows exist, what they call), not popover mechanics.
+vi.mock('frappe-ui', async () => {
+	const actual = await vi.importActual<typeof import('frappe-ui')>('frappe-ui')
+	return {
+		...actual,
+		call: vi.fn(),
+		createResource: () => ({ data: null, loading: false, submit: vi.fn() }),
+		toast: { success: vi.fn(), error: vi.fn() },
+		Dropdown: {
+			name: 'Dropdown',
+			props: ['options'],
+			template: `<div><slot :open="false" :close="() => {}" /></div>`,
+		},
+	}
+})
 
 vi.mock('@/stores/session', () => ({
 	sessionStore: () => ({

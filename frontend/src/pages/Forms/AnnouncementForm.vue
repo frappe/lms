@@ -95,8 +95,6 @@ const refusal = computed(() => {
 	return null
 })
 
-// Uncontrolled by design-doc decision: the editor gets no :content binding, so a
-// reloaded draft always starts empty. Accepted, out of scope for the conversion.
 const doc = ref({
 	subject: '',
 	replyTo: '',

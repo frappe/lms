@@ -88,6 +88,7 @@ import {
 	type CommandPaletteSelectEvent,
 } from 'frappe-ui/experimental'
 import { computed, inject, nextTick, onUnmounted, ref, useTemplateRef, watch } from 'vue'
+import type dayjsType from 'dayjs'
 import { useRouter } from 'vue-router'
 import { usersStore } from '@/stores/user'
 import { useSettings } from '@/stores/settings'
@@ -103,7 +104,7 @@ import {
 import { openFormRoute } from '@/composables/useFormRoute'
 import { pushSettingsHash } from '@/composables/useSettingsHash'
 
-const dayjs = inject<any>('$dayjs')
+const dayjs = inject<typeof dayjsType>('$dayjs')!
 
 const chipClass =
 	'inline-flex size-5 shrink-0 items-center justify-center rounded-1 bg-surface-gray-2'
