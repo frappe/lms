@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 """Populate a site so that migrating it proves something.
 
 Migrations over empty tables always succeed, even when the change is invalid.
@@ -14,6 +15,25 @@ import sys
 
 import frappe
 
+=======
+"""Populate a site with enough data for migration testing to be meaningful.
+
+Runs against the OLDEST version in the ladder, so it may only touch doctypes and
+fields that existed at LMS v2.0.0. It is invoked from outside the installed app
+(the workflow checks out the repo at PR head and feeds this file to the console),
+which is what lets it seed a site running much older code.
+
+Migrations on empty tables always succeed, even when the change is invalid, so
+every table this fixture can reach gets at least a few rows.
+"""
+
+import json
+import os
+
+import frappe
+
+COUNTS_PATH = os.environ.get("FIXTURE_COUNTS", "/tmp/lms-fixture-counts.json")
+>>>>>>> b81cbc0 (feat: add migration testing)
 COURSE_COUNT = 2
 CHAPTERS_PER_COURSE = 2
 LESSONS_PER_CHAPTER = 3
@@ -21,6 +41,12 @@ STUDENT_COUNT = 3
 
 
 def user(email, first_name, roles):
+<<<<<<< HEAD
+=======
+	if frappe.db.exists("User", email):
+		return email
+
+>>>>>>> b81cbc0 (feat: add migration testing)
 	doc = frappe.get_doc(
 		{
 			"doctype": "User",
@@ -29,17 +55,29 @@ def user(email, first_name, roles):
 			"send_welcome_email": 0,
 			"enabled": 1,
 		}
+<<<<<<< HEAD
 	).insert()
+=======
+	).insert(ignore_permissions=True)
+>>>>>>> b81cbc0 (feat: add migration testing)
 
 	for role in roles:
 		if frappe.db.exists("Role", role):
 			doc.append("roles", {"role": role})
+<<<<<<< HEAD
 	doc.save()
+=======
+	doc.save(ignore_permissions=True)
+>>>>>>> b81cbc0 (feat: add migration testing)
 
 	return email
 
 
+<<<<<<< HEAD
 def course(title, instructor):
+=======
+def course(title, instructor, index):
+>>>>>>> b81cbc0 (feat: add migration testing)
 	doc = frappe.get_doc(
 		{
 			"doctype": "LMS Course",
@@ -50,7 +88,11 @@ def course(title, instructor):
 			"published": 1,
 			"instructors": [{"instructor": instructor}],
 		}
+<<<<<<< HEAD
 	).insert()
+=======
+	).insert(ignore_permissions=True)
+>>>>>>> b81cbc0 (feat: add migration testing)
 
 	for chapter_index in range(CHAPTERS_PER_COURSE):
 		chapter = frappe.get_doc(
@@ -60,7 +102,11 @@ def course(title, instructor):
 				"course": doc.name,
 				"description": "Chapter description",
 			}
+<<<<<<< HEAD
 		).insert()
+=======
+		).insert(ignore_permissions=True)
+>>>>>>> b81cbc0 (feat: add migration testing)
 
 		doc.append("chapters", {"chapter": chapter.name})
 
@@ -73,6 +119,7 @@ def course(title, instructor):
 					"course": doc.name,
 					"body": "Lesson body with **markdown** and a {{ YouTubeVideo('abc') }} macro.",
 				}
+<<<<<<< HEAD
 			).insert()
 
 			chapter.append("lessons", {"lesson": lesson.name})
@@ -80,6 +127,15 @@ def course(title, instructor):
 		chapter.save()
 
 	doc.save()
+=======
+			).insert(ignore_permissions=True)
+
+			chapter.append("lessons", {"lesson": lesson.name})
+
+		chapter.save(ignore_permissions=True)
+
+	doc.save(ignore_permissions=True)
+>>>>>>> b81cbc0 (feat: add migration testing)
 
 	return doc
 
@@ -97,7 +153,11 @@ def quiz(title, course_name):
 				"option_2": "Second option",
 				"is_correct_2": 0,
 			}
+<<<<<<< HEAD
 		).insert()
+=======
+		).insert(ignore_permissions=True)
+>>>>>>> b81cbc0 (feat: add migration testing)
 		questions.append({"question": question.name, "marks": 1})
 
 	return frappe.get_doc(
@@ -109,6 +169,7 @@ def quiz(title, course_name):
 			"total_marks": len(questions),
 			"questions": questions,
 		}
+<<<<<<< HEAD
 	).insert()
 
 
@@ -126,6 +187,9 @@ def print_format():
 		.insert()
 		.name
 	)
+=======
+	).insert(ignore_permissions=True)
+>>>>>>> b81cbc0 (feat: add migration testing)
 
 
 def batch(title, course_name, instructor, students):
@@ -145,7 +209,11 @@ def batch(title, course_name, instructor, students):
 			"courses": [{"course": course_name}],
 			"students": [{"student": student} for student in students],
 		}
+<<<<<<< HEAD
 	).insert()
+=======
+	).insert(ignore_permissions=True)
+>>>>>>> b81cbc0 (feat: add migration testing)
 
 	frappe.get_doc(
 		{
@@ -155,25 +223,38 @@ def batch(title, course_name, instructor, students):
 			"date": "2025-01-13",
 			"time": "10:00:00",
 			"duration": 60,
+<<<<<<< HEAD
 			"timezone": "Asia/Kolkata",
 			"host": instructor,
 			"description": "Live class description",
 		}
 	).insert()
+=======
+			"description": "Live class description",
+		}
+	).insert(ignore_permissions=True)
+>>>>>>> b81cbc0 (feat: add migration testing)
 
 	return doc
 
 
 def seed():
+<<<<<<< HEAD
 	# frappe.connect() defaults to set_admin_as_user=True, so these run as
 	# Administrator and need no ignore_permissions.
+=======
+>>>>>>> b81cbc0 (feat: add migration testing)
 	instructor = user("fixture-instructor@example.com", "Fixture Instructor", ["Course Creator"])
 	students = [
 		user(f"fixture-student-{index}@example.com", f"Fixture Student {index}", ["LMS Student"])
 		for index in range(STUDENT_COUNT)
 	]
 
+<<<<<<< HEAD
 	courses = [course(f"Fixture course {index + 1}", instructor) for index in range(COURSE_COUNT)]
+=======
+	courses = [course(f"Fixture course {index + 1}", instructor, index) for index in range(COURSE_COUNT)]
+>>>>>>> b81cbc0 (feat: add migration testing)
 
 	for index, doc in enumerate(courses):
 		quiz(f"Fixture quiz {index + 1}", doc.name)
@@ -185,7 +266,11 @@ def seed():
 					"course": doc.name,
 					"member": student,
 				}
+<<<<<<< HEAD
 			).insert()
+=======
+			).insert(ignore_permissions=True)
+>>>>>>> b81cbc0 (feat: add migration testing)
 
 		lessons = frappe.get_all("Course Lesson", filters={"course": doc.name}, pluck="name")
 		for student in students:
@@ -198,7 +283,11 @@ def seed():
 						"member": student,
 						"status": "Complete",
 					}
+<<<<<<< HEAD
 				).insert()
+=======
+				).insert(ignore_permissions=True)
+>>>>>>> b81cbc0 (feat: add migration testing)
 
 	batch("Fixture batch", courses[0].name, instructor, students)
 
@@ -208,6 +297,7 @@ def seed():
 			"member": students[0],
 			"course": courses[0].name,
 			"issue_date": "2025-03-07",
+<<<<<<< HEAD
 			"template": print_format(),
 		}
 	).insert()
@@ -221,6 +311,19 @@ def summarise():
 	Printed rather than hardcoded in the assertions, so changing the fixture cannot
 	leave the assertions checking the old shape. The workflow reads the FIXTURE_JSON
 	line back out and passes it to each hop.
+=======
+		}
+	).insert(ignore_permissions=True)
+
+	frappe.db.commit()
+
+
+def summarise():
+	"""Write the row counts every later hop must still satisfy.
+
+	Written to a file rather than hardcoded in the assertions so that changing the
+	fixture cannot silently leave the assertions checking the old shape.
+>>>>>>> b81cbc0 (feat: add migration testing)
 	"""
 	counted = {}
 	for doctype in (
@@ -240,6 +343,7 @@ def summarise():
 	for doctype, count in counted.items():
 		print(f"FIXTURE {doctype} = {count}")
 		if not count:
+<<<<<<< HEAD
 			print(f"FIXTURE EMPTY {doctype}; migrations over it would be vacuous")
 			return None
 
@@ -272,3 +376,16 @@ def main(site):
 
 if __name__ == "__main__":
 	main(sys.argv[1])
+=======
+			raise SystemExit(f"fixture seeded no rows for {doctype}; migrations over it would be vacuous")
+
+	with open(COUNTS_PATH, "w") as f:
+		json.dump(counted, f, indent=1)
+
+	return counted
+
+
+seed()
+summarise()
+print("FIXTURE seeded")
+>>>>>>> b81cbc0 (feat: add migration testing)

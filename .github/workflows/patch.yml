@@ -12,6 +12,7 @@ on:
       - 'crowdin.yml'
       - '.mergify.yml'
   workflow_dispatch:
+<<<<<<< HEAD
   # Only seeds the apt cache: a cache saved in a pull request is visible to that
   # pull request alone, one saved on a base branch to every pull request. The
   # key follows the runner image, so every push keeps it current.
@@ -19,6 +20,8 @@ on:
     branches:
       - version-16
       - version-16-hotfix
+=======
+>>>>>>> b81cbc0 (feat: add migration testing)
 
 permissions:
   contents: read
@@ -28,6 +31,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+<<<<<<< HEAD
   seed-apt-cache:
     name: Seed apt cache
     if: github.event_name == 'push'
@@ -42,6 +46,10 @@ jobs:
   test:
     name: Patch Test
     if: github.event_name != 'push'
+=======
+  test:
+    name: Patch Test
+>>>>>>> b81cbc0 (feat: add migration testing)
     runs-on: ubuntu-latest
     timeout-minutes: 60
 
@@ -69,13 +77,21 @@ jobs:
 
     env:
       SITE: lms.test
+<<<<<<< HEAD
       PR_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+=======
+      FIXTURE_COUNTS: /tmp/lms-fixture-counts.json
+>>>>>>> b81cbc0 (feat: add migration testing)
 
     steps:
       # Full history: the ladder checks out the v2.0.0 tag and the PR head out of
       # this same clone, so a shallow fetch has nothing to walk back to.
       - name: Clone
+<<<<<<< HEAD
         uses: actions/checkout@v6
+=======
+        uses: actions/checkout@v4
+>>>>>>> b81cbc0 (feat: add migration testing)
         with:
           fetch-depth: 0
 
@@ -87,7 +103,10 @@ jobs:
         with:
           python-version: |
             3.11
+<<<<<<< HEAD
             3.13
+=======
+>>>>>>> b81cbc0 (feat: add migration testing)
             3.14
 
       - name: Setup Node
@@ -100,6 +119,7 @@ jobs:
         run: echo "127.0.0.1 $SITE" | sudo tee -a /etc/hosts
 
       - name: Install system dependencies
+<<<<<<< HEAD
         uses: ./.github/actions/apt-install
         with:
           packages: libcups2-dev mariadb-client libmariadb-dev
@@ -110,6 +130,16 @@ jobs:
           # The helpers run under the bench's own python, from the sites directory
           # frappe.init() expects to be started in.
           PY="$HOME/frappe-bench/env/bin/python"
+=======
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            libcups2-dev mariadb-client libmariadb-dev
+
+      - name: Build the oldest bench and seed the fixture
+        run: |
+          set -e
+>>>>>>> b81cbc0 (feat: add migration testing)
           pip install frappe-bench
 
           bench init ~/frappe-bench \
@@ -119,6 +149,7 @@ jobs:
             --skip-redis-config-generation
           cd ~/frappe-bench
 
+<<<<<<< HEAD
           bench get-app --skip-assets --branch version-15 payments https://github.com/frappe/payments
 
           # A pull_request checkout is detached. Give its actual head an advertised
@@ -154,6 +185,15 @@ jobs:
           # but the razorpay 1.4 that LMS v2.0.0 pins still imports it. The hops
           # rebuild the env, so this only holds for the seed.
           bench pip install "setuptools<82"
+=======
+          bench get-app --branch version-15 payments https://github.com/frappe/payments
+          bench get-app --branch v2.0.0 lms "${GITHUB_WORKSPACE}"
+
+          # bench may clone shallow; the ladder needs every ref from the workspace.
+          git -C apps/lms remote set-url origin "${GITHUB_WORKSPACE}"
+          git -C apps/lms fetch --force --tags origin '+refs/heads/*:refs/remotes/origin/*' --unshallow \
+            || git -C apps/lms fetch --force --tags origin '+refs/heads/*:refs/remotes/origin/*'
+>>>>>>> b81cbc0 (feat: add migration testing)
 
           bench set-config -g db_host 127.0.0.1
           bench new-site "$SITE" \
@@ -161,6 +201,7 @@ jobs:
             --admin-password admin
           bench --site "$SITE" install-app lms
 
+<<<<<<< HEAD
           (cd sites && "$PY" \
             "${GITHUB_WORKSPACE}/.github/helper/seed_fixture.py" "$SITE") | tee /tmp/seed.log
 
@@ -179,11 +220,26 @@ jobs:
 
           # Each hop moves frappe, payments and lms together; lms requires payments,
           # so it cannot be dropped the way erpnext drops it before its own ladder.
+=======
+          echo "exec(open('${GITHUB_WORKSPACE}/.github/helper/seed_fixture.py').read(), globals())" \
+            | bench --site "$SITE" console
+
+      - name: Walk the version ladder
+        run: |
+          set -e
+          cd ~/frappe-bench
+
+          # Each hop moves frappe, payments and lms together. LMS declares
+          # required_apps = ["frappe/payments"], so payments cannot be dropped the
+          # way erpnext drops it, and a hop that pairs them wrongly fails at
+          # install time against the per-branch frappe-dependencies pins.
+>>>>>>> b81cbc0 (feat: add migration testing)
           hop() {
             local name="$1" frappe_ref="$2" payments_ref="$3" lms_ref="$4" python_bin="$5"
 
             echo "::group::hop ${name}"
 
+<<<<<<< HEAD
             git -C apps/frappe fetch --depth 1 upstream "$frappe_ref"
             git -C apps/frappe checkout -q -f FETCH_HEAD
             git -C apps/payments fetch --depth 1 upstream "$payments_ref"
@@ -202,11 +258,20 @@ jobs:
               git -C "apps/$app" clean -qxdf
             done
 
+=======
+            git -C apps/frappe fetch --depth 1 origin "$frappe_ref"
+            git -C apps/frappe checkout -q -f FETCH_HEAD
+            git -C apps/payments fetch --depth 1 origin "$payments_ref"
+            git -C apps/payments checkout -q -f FETCH_HEAD
+            git -C apps/lms checkout -q -f "$lms_ref"
+
+>>>>>>> b81cbc0 (feat: add migration testing)
             rm -rf ~/frappe-bench/env
             bench -v setup env --python "$python_bin"
             bench pip install -e ./apps/payments
             bench pip install -e ./apps/lms
 
+<<<<<<< HEAD
             # erpnext's ladder gets a cold cache for free: it kills honcho between
             # hops, and the Procfile's redis goes down with it. These are service
             # containers that outlive the job, so clear the cache by hand. frappe.init()
@@ -218,10 +283,17 @@ jobs:
 
             (cd sites && "$PY" \
               "${GITHUB_WORKSPACE}/.github/helper/assert_fixture.py" "$SITE" "$name")
+=======
+            bench --site "$SITE" migrate
+
+            echo "exec(open('${GITHUB_WORKSPACE}/.github/helper/assert_fixture.py').read(), globals())" \
+              | FIXTURE_HOP="$name" bench --site "$SITE" console
+>>>>>>> b81cbc0 (feat: add migration testing)
 
             echo "::endgroup::"
           }
 
+<<<<<<< HEAD
           # The first branch that exists wins, so a line still in development
           # resolves to develop until its own branch is cut. lms shipped its v15
           # line as main-hotfix before it took the version-N names.
@@ -304,6 +376,34 @@ jobs:
           python_bin="$(python_for "$base_version")"
 
           hop "head" "$frappe_ref" "$payments_ref" "pr/head" "$python_bin"
+=======
+          # Stop the ladder at the line the PR targets. Walking past it and back
+          # down would migrate the fixture through schema the PR's line never has.
+          base="${GITHUB_BASE_REF:-develop}"
+          case "$base" in
+            version-15*) rungs="" ;;
+            version-16*) rungs="15" ;;
+            *)           rungs="15 16" ;;
+          esac
+
+          for rung in $rungs; do
+            case "$rung" in
+              15) hop "version-15" version-15-hotfix version-15-hotfix \
+                    "origin/version-15-hotfix" "$(which python3.11)" ;;
+              16) hop "version-16" version-16-hotfix version-16 \
+                    "origin/version-16-hotfix" "$(which python3.14)" ;;
+            esac
+          done
+
+          # The PR's own code, with frappe and payments on the line it targets.
+          case "$base" in
+            version-15*) payments_ref=version-15-hotfix; python_bin="$(which python3.11)" ;;
+            version-16*) payments_ref=version-16; python_bin="$(which python3.14)" ;;
+            *)           payments_ref=develop; python_bin="$(which python3.14)" ;;
+          esac
+
+          hop "head" "$base" "$payments_ref" "$GITHUB_SHA" "$python_bin"
+>>>>>>> b81cbc0 (feat: add migration testing)
 
       - name: Show bench logs
         if: ${{ always() }}
