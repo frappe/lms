@@ -1,11 +1,16 @@
 import json
 
 import frappe
+from frappe.cache_manager import user_cache_keys
 from frappe.tests import IntegrationTestCase
 from frappe.utils import add_days, nowdate
 
 from lms.lms.doctype.lms_certificate.lms_certificate import get_default_certificate_template
 from lms.lms.doctype.lms_quiz.lms_quiz import submit_quiz
+
+# frappe keys cached documents as f"document_cache::{doctype}::{name}"
+# (frappe/model/document.py, get_document_cache_key).
+DOCUMENT_CACHE_PREFIX = "document_cache::"
 
 
 class BaseTestUtils(IntegrationTestCase):
@@ -25,9 +30,17 @@ class BaseTestUtils(IntegrationTestCase):
 
 	def tearDown(self):
 		frappe.db.rollback(save_point="lms_test")
-		if hasattr(frappe.local, "document_cache"):
-			frappe.local.document_cache.clear()
-		frappe.session.user = "Administrator"
+		# A savepoint rollback runs no rollback observers, so every cache this test
+		# dirtied still holds the pre-rollback value. Three separate layers, none of
+		# which the savepoint or a session.user assignment reaches:
+		#   - the document cache, which lives in frappe.cache keyed
+		#     "document_cache::<doctype>::<name>", not on frappe.local
+		#   - the redis user hashes, "roles" among them, which is where a role a
+		#     test granted or stripped survives
+		#   - frappe.local.role_permissions / user_perms, which only set_user clears
+		frappe.cache.delete_keys(DOCUMENT_CACHE_PREFIX)
+		frappe.cache.delete_key(user_cache_keys)
+		frappe.set_user("Administrator")
 		super().tearDown()
 
 	@classmethod
