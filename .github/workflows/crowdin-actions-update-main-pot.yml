@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - develop
+<<<<<<< HEAD
       - main-hotfix
       - version-16-hotfix
       - version-15-hotfix
@@ -15,6 +16,11 @@ on:
         description: "Also upload this branch's .po files (seeds a new Crowdin branch)"
         type: boolean
         default: false
+=======
+    paths:
+      - "lms/locale/main.pot"
+  workflow_dispatch:
+>>>>>>> 8886a25 (chore: migrate crowdin sync to crowdin/github-action)
 
 concurrency:
   group: crowdin-upload-${{ github.ref_name }}
@@ -44,7 +50,11 @@ jobs:
         with:
           config: crowdin.yml
           upload_sources: true
+<<<<<<< HEAD
           upload_translations: ${{ inputs.upload_translations || false }}
+=======
+          upload_translations: false
+>>>>>>> 8886a25 (chore: migrate crowdin sync to crowdin/github-action)
           download_translations: false
           create_pull_request: false
           crowdin_branch_name: "[frappe.lms] ${{ github.ref_name }}"
