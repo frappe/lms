@@ -3,9 +3,14 @@
 Migrations over empty tables always succeed, even when the change is invalid.
 Runs on the oldest version in the ladder, so it may only touch doctypes and
 fields that existed at LMS v2.0.0.
+
+Run with the bench's own python from the sites directory:
+
+    ../env/bin/python .github/helper/seed_fixture.py <site>
 """
 
 import json
+import sys
 
 import frappe
 
@@ -160,7 +165,7 @@ def batch(title, course_name, instructor, students):
 
 
 def seed():
-	# bench console connects with set_admin_as_user=True, so these run as
+	# frappe.connect() defaults to set_admin_as_user=True, so these run as
 	# Administrator and need no ignore_permissions.
 	instructor = user("fixture-instructor@example.com", "Fixture Instructor", ["Course Creator"])
 	students = [
@@ -239,13 +244,31 @@ def summarise():
 			return None
 
 	# Batch students move out of the Batch Student child table into LMS Batch
-	# Enrollment docs (patches/v2_0/migrate_batch_student_data.py), so the count is
-	# recorded separately from the doctypes that keep their own rows.
-	summary = {"counts": counted, "batch_students": frappe.db.count("Batch Student")}
+	# Enrollment docs (patches/v2_0/migrate_batch_student_data.py), so they are
+	# recorded as pairs rather than as one of the counts above: the assertions have
+	# to match them against rows of a doctype that does not exist yet.
+	summary = {
+		"counts": counted,
+		"batch_students": sorted(
+			[parent, student]
+			for parent, student in frappe.get_all("Batch Student", fields=["parent", "student"], as_list=True)
+		),
+	}
 	print("FIXTURE_JSON " + json.dumps(summary))
 
 	return summary
 
 
-seed()
-summarise()
+def main(site):
+	frappe.init(site)
+	frappe.connect()
+	try:
+		seed()
+		if not summarise():
+			raise SystemExit(1)
+	finally:
+		frappe.destroy()
+
+
+if __name__ == "__main__":
+	main(sys.argv[1])

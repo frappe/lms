@@ -50,12 +50,13 @@ jobs:
 
     env:
       SITE: lms.test
+      PR_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
 
     steps:
       # Full history: the ladder checks out the v2.0.0 tag and the PR head out of
       # this same clone, so a shallow fetch has nothing to walk back to.
       - name: Clone
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -67,6 +68,7 @@ jobs:
         with:
           python-version: |
             3.11
+            3.13
             3.14
 
       - name: Setup Node
@@ -86,7 +88,10 @@ jobs:
 
       - name: Build the oldest bench and seed the fixture
         run: |
-          set -e
+          set -euo pipefail
+          # The helpers run under the bench's own python, from the sites directory
+          # frappe.init() expects to be started in.
+          PY="$HOME/frappe-bench/env/bin/python"
           pip install frappe-bench
 
           bench init ~/frappe-bench \
@@ -99,11 +104,20 @@ jobs:
           bench get-app --skip-assets --branch version-15 payments https://github.com/frappe/payments
           bench get-app --skip-assets --branch v2.0.0 lms "${GITHUB_WORKSPACE}"
 
-          # get-app from a local path leaves no origin behind, so add it rather than
-          # set-url, then pull every ref the ladder needs to check out later.
-          git -C apps/lms remote remove origin 2>/dev/null || true
-          git -C apps/lms remote add origin "${GITHUB_WORKSPACE}"
-          git -C apps/lms fetch --force --tags origin '+refs/heads/*:refs/remotes/origin/*'
+          # bench init clones frappe and payments with their remote named upstream.
+          # Keep LMS upstream pointed at the canonical repository for stable rungs,
+          # and use the checked-out workspace for the exact pull-request head.
+          git -C apps/lms remote remove upstream 2>/dev/null || true
+          git -C apps/lms remote add upstream https://github.com/frappe/lms.git
+          git -C apps/lms remote remove pr 2>/dev/null || true
+          git -C apps/lms remote add pr "${GITHUB_WORKSPACE}"
+          # LMS has no version-15 line: its frappe-v15-era releases are main /
+          # main-hotfix, so that is the rung that pairs with frappe version-15-hotfix.
+          git -C apps/lms fetch --force --tags upstream \
+            '+refs/heads/main-hotfix:refs/remotes/upstream/main-hotfix' \
+            '+refs/heads/version-16-hotfix:refs/remotes/upstream/version-16-hotfix'
+          git -C apps/lms fetch --force pr "$PR_HEAD_SHA"
+          git -C apps/lms update-ref refs/remotes/pr/head FETCH_HEAD
 
           # Prove we are actually on v2.0.0. If --branch silently did not apply, the
           # fixture would be seeded by current code and the ladder would test nothing.
@@ -121,8 +135,8 @@ jobs:
             --admin-password admin
           bench --site "$SITE" install-app lms
 
-          echo "exec(open('${GITHUB_WORKSPACE}/.github/helper/seed_fixture.py').read(), globals())" \
-            | bench --site "$SITE" console | tee /tmp/seed.log
+          (cd sites && "$PY" \
+            "${GITHUB_WORKSPACE}/.github/helper/seed_fixture.py" "$SITE") | tee /tmp/seed.log
 
           counts="$(grep -m1 '^FIXTURE_JSON ' /tmp/seed.log | cut -d' ' -f2-)"
           if [ -z "$counts" ]; then
@@ -133,8 +147,9 @@ jobs:
 
       - name: Walk the version ladder
         run: |
-          set -e
+          set -euo pipefail
           cd ~/frappe-bench
+          PY="$HOME/frappe-bench/env/bin/python"
 
           # Each hop moves frappe, payments and lms together; lms requires payments,
           # so it cannot be dropped the way erpnext drops it before its own ladder.
@@ -143,9 +158,9 @@ jobs:
 
             echo "::group::hop ${name}"
 
-            git -C apps/frappe fetch --depth 1 origin "$frappe_ref"
+            git -C apps/frappe fetch --depth 1 upstream "$frappe_ref"
             git -C apps/frappe checkout -q -f FETCH_HEAD
-            git -C apps/payments fetch --depth 1 origin "$payments_ref"
+            git -C apps/payments fetch --depth 1 upstream "$payments_ref"
             git -C apps/payments checkout -q -f FETCH_HEAD
             git -C apps/lms checkout -q -f "$lms_ref"
 
@@ -156,12 +171,8 @@ jobs:
 
             bench --site "$SITE" migrate
 
-            echo "exec(open('${GITHUB_WORKSPACE}/.github/helper/assert_fixture.py').read(), globals())" \
-              | FIXTURE_HOP="$name" bench --site "$SITE" console | tee /tmp/assert.log
-            grep -q "^FIXTURE_OK ${name}\$" /tmp/assert.log || {
-              echo "fixture assertions failed after hop ${name}"
-              exit 1
-            }
+            (cd sites && "$PY" \
+              "${GITHUB_WORKSPACE}/.github/helper/assert_fixture.py" "$SITE" "$name")
 
             echo "::endgroup::"
           }
@@ -170,28 +181,44 @@ jobs:
           # down would migrate the fixture through schema the PR's line never has.
           base="${GITHUB_BASE_REF:-develop}"
           case "$base" in
-            version-15*) rungs="" ;;
+            main|main-hotfix|version-15*) rungs="" ;;
             version-16*) rungs="15" ;;
-            *)           rungs="15 16" ;;
+            develop)     rungs="15 16" ;;
+            *)
+              echo "unsupported migration-test base branch: $base"
+              exit 1
+              ;;
           esac
 
           for rung in $rungs; do
             case "$rung" in
               15) hop "version-15" version-15-hotfix version-15-hotfix \
-                    "origin/version-15-hotfix" "$(which python3.11)" ;;
+                    "upstream/main-hotfix" "$(which python3.13)" ;;
               16) hop "version-16" version-16-hotfix version-16 \
-                    "origin/version-16-hotfix" "$(which python3.14)" ;;
+                    "upstream/version-16-hotfix" "$(which python3.14)" ;;
             esac
           done
 
           # The PR's own code, with frappe and payments on the line it targets.
           case "$base" in
-            version-15*) payments_ref=version-15-hotfix; python_bin="$(which python3.11)" ;;
-            version-16*) payments_ref=version-16; python_bin="$(which python3.14)" ;;
-            *)           payments_ref=develop; python_bin="$(which python3.14)" ;;
+            main|main-hotfix|version-15*)
+              frappe_ref=version-15-hotfix
+              payments_ref=version-15-hotfix
+              python_bin="$(which python3.13)"
+              ;;
+            version-16*)
+              frappe_ref=version-16-hotfix
+              payments_ref=version-16
+              python_bin="$(which python3.14)"
+              ;;
+            develop)
+              frappe_ref=develop
+              payments_ref=develop
+              python_bin="$(which python3.14)"
+              ;;
           esac
 
-          hop "head" "$base" "$payments_ref" "$GITHUB_SHA" "$python_bin"
+          hop "head" "$frappe_ref" "$payments_ref" "pr/head" "$python_bin"
 
       - name: Show bench logs
         if: ${{ always() }}

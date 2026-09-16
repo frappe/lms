@@ -4,14 +4,17 @@
 status alone proves only that nothing raised. A deliberate schema change that
 moves data is expected to fail here first; the fix is a patch that carries the
 data over.
+
+Run with the bench's own python from the sites directory:
+
+    ../env/bin/python .github/helper/assert_fixture.py <site> <hop>
 """
 
 import json
 import os
+import sys
 
 import frappe
-
-HOP = os.environ.get("FIXTURE_HOP", "unknown")
 
 
 def compare_counts(failures, expected):
@@ -47,33 +50,55 @@ def compare_batch_enrollment(failures, seeded):
 	"""Batch students are migrated out of a child table into their own doctype.
 
 	Until that patch has run the doctype does not exist, so this only asserts once
-	it does. Dropping every migrated row would otherwise go unnoticed.
+	it does. Comparing the pairs rather than the count catches a migration that
+	keeps the right number of rows while attaching them to the wrong batch.
 	"""
 	if not frappe.db.exists("DocType", "LMS Batch Enrollment"):
 		return
 
-	found = frappe.db.count("LMS Batch Enrollment")
-	if found != seeded:
-		failures.append(f"LMS Batch Enrollment: {seeded} batch students seeded, {found} rows after migration")
+	found = sorted(
+		[batch, member]
+		for batch, member in frappe.get_all("LMS Batch Enrollment", fields=["batch", "member"], as_list=True)
+	)
+	missing = [pair for pair in seeded if pair not in found]
+	if missing:
+		failures.append(f"LMS Batch Enrollment: seeded batch students never arrived: {missing}")
+
+	extra = [pair for pair in found if pair not in seeded]
+	if extra:
+		failures.append(f"LMS Batch Enrollment: rows nothing seeded: {extra}")
+
+	for batch, member in found:
+		if not frappe.db.exists("LMS Batch", batch):
+			failures.append(f"LMS Batch Enrollment for {member} points at missing batch {batch}")
+		if not frappe.db.exists("User", member):
+			failures.append(f"LMS Batch Enrollment on {batch} points at missing member {member}")
 
 
-def main():
-	summary = json.loads(os.environ["FIXTURE_COUNTS"])
-
+def check(summary):
 	failures = []
 	compare_counts(failures, summary["counts"])
 	compare_batch_enrollment(failures, summary["batch_students"])
 	compare_links(failures)
+	return failures
+
+
+def main(site, hop):
+	frappe.init(site)
+	frappe.connect()
+	try:
+		failures = check(json.loads(os.environ["FIXTURE_COUNTS"]))
+	finally:
+		frappe.destroy()
 
 	if failures:
-		print(f"FIXTURE FAILED after hop '{HOP}':")
+		print(f"FIXTURE FAILED after hop '{hop}':")
 		for failure in failures:
 			print(f"  - {failure}")
-		return
+		raise SystemExit(1)
 
-	# The caller greps for this line. bench console is IPython, which swallows
-	# SystemExit and exits 0, so raising here would not fail the job.
-	print(f"FIXTURE_OK {HOP}")
+	print(f"FIXTURE OK after hop '{hop}'")
 
 
-main()
+if __name__ == "__main__":
+	main(sys.argv[1], sys.argv[2])
