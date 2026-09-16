@@ -60,13 +60,8 @@ def compare_batch_enrollment(failures, seeded):
 		[batch, member]
 		for batch, member in frappe.get_all("LMS Batch Enrollment", fields=["batch", "member"], as_list=True)
 	)
-	missing = [pair for pair in seeded if pair not in found]
-	if missing:
-		failures.append(f"LMS Batch Enrollment: seeded batch students never arrived: {missing}")
-
-	extra = [pair for pair in found if pair not in seeded]
-	if extra:
-		failures.append(f"LMS Batch Enrollment: rows nothing seeded: {extra}")
+	if found != seeded:
+		failures.append(f"LMS Batch Enrollment: expected exactly {seeded}, found {found}")
 
 	for batch, member in found:
 		if not frappe.db.exists("LMS Batch", batch):

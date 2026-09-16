@@ -102,6 +102,11 @@ jobs:
           cd ~/frappe-bench
 
           bench get-app --skip-assets --branch version-15 payments https://github.com/frappe/payments
+
+          # A pull_request checkout is detached. Give its actual head an advertised
+          # local ref before get-app clones the workspace; fetching an unadvertised
+          # raw SHA from a local Git remote is rejected by upload-pack.
+          git -C "$GITHUB_WORKSPACE" update-ref refs/heads/ci-pr-head "$PR_HEAD_SHA"
           bench get-app --skip-assets --branch v2.0.0 lms "${GITHUB_WORKSPACE}"
 
           # bench init clones frappe and payments with their remote named upstream.
@@ -116,8 +121,8 @@ jobs:
           git -C apps/lms fetch --force --tags upstream \
             '+refs/heads/main-hotfix:refs/remotes/upstream/main-hotfix' \
             '+refs/heads/version-16-hotfix:refs/remotes/upstream/version-16-hotfix'
-          git -C apps/lms fetch --force pr "$PR_HEAD_SHA"
-          git -C apps/lms update-ref refs/remotes/pr/head FETCH_HEAD
+          git -C apps/lms fetch --force pr \
+            '+refs/heads/ci-pr-head:refs/remotes/pr/head'
 
           # Prove we are actually on v2.0.0. If --branch silently did not apply, the
           # fixture would be seeded by current code and the ladder would test nothing.
