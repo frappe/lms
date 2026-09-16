@@ -1,0 +1,231 @@
+name: Patch
+
+on:
+  pull_request:
+    paths-ignore:
+      - '**.js'
+      - '**.ts'
+      - '**.vue'
+      - '**.css'
+      - '**.md'
+      - '**.html'
+      - 'crowdin.yml'
+      - '.mergify.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: patch-${{ github.event_name }}-${{ github.event.number || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Patch Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    services:
+      mariadb:
+        image: mariadb:11.8
+        env:
+          MARIADB_ROOT_PASSWORD: 123
+        ports:
+          - 3306:3306
+        options: --health-cmd="mariadb-admin ping" --health-interval=5s --health-timeout=2s --health-retries=3
+      # bench's own defaults point at these ports, so no redis config is needed.
+      redis-cache:
+        image: redis:alpine
+        ports:
+          - 13000:6379
+      redis-queue:
+        image: redis:alpine
+        ports:
+          - 11000:6379
+      redis-socketio:
+        image: redis:alpine
+        ports:
+          - 12000:6379
+
+    env:
+      SITE: lms.test
+      PR_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+
+    steps:
+      # Full history: the ladder checks out the v2.0.0 tag and the PR head out of
+      # this same clone, so a shallow fetch has nothing to walk back to.
+      - name: Clone
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      # 3.11 seeds the fixture. LMS v2.0.0 predates the pkg_resources removal and
+      # will not import on 3.14; frappe version-15 allows >=3.10, so 3.11 is valid
+      # for that hop. Everything from v16 on requires >=3.14.
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: |
+            3.11
+            3.13
+            3.14
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          check-latest: true
+
+      - name: Add to Hosts
+        run: echo "127.0.0.1 $SITE" | sudo tee -a /etc/hosts
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            libcups2-dev mariadb-client libmariadb-dev
+
+      - name: Build the oldest bench and seed the fixture
+        run: |
+          set -euo pipefail
+          # The helpers run under the bench's own python, from the sites directory
+          # frappe.init() expects to be started in.
+          PY="$HOME/frappe-bench/env/bin/python"
+          pip install frappe-bench
+
+          bench init ~/frappe-bench \
+            --frappe-branch version-15 \
+            --python "$(which python3.11)" \
+            --skip-assets \
+            --skip-redis-config-generation
+          cd ~/frappe-bench
+
+          bench get-app --skip-assets --branch version-15 payments https://github.com/frappe/payments
+          bench get-app --skip-assets --branch v2.0.0 lms "${GITHUB_WORKSPACE}"
+
+          # bench init clones frappe and payments with their remote named upstream.
+          # Keep LMS upstream pointed at the canonical repository for stable rungs,
+          # and use the checked-out workspace for the exact pull-request head.
+          git -C apps/lms remote remove upstream 2>/dev/null || true
+          git -C apps/lms remote add upstream https://github.com/frappe/lms.git
+          git -C apps/lms remote remove pr 2>/dev/null || true
+          git -C apps/lms remote add pr "${GITHUB_WORKSPACE}"
+          # LMS has no version-15 line: its frappe-v15-era releases are main /
+          # main-hotfix, so that is the rung that pairs with frappe version-15-hotfix.
+          git -C apps/lms fetch --force --tags upstream \
+            '+refs/heads/main-hotfix:refs/remotes/upstream/main-hotfix' \
+            '+refs/heads/version-16-hotfix:refs/remotes/upstream/version-16-hotfix'
+          git -C apps/lms fetch --force pr "$PR_HEAD_SHA"
+          git -C apps/lms update-ref refs/remotes/pr/head FETCH_HEAD
+
+          # Prove we are actually on v2.0.0. If --branch silently did not apply, the
+          # fixture would be seeded by current code and the ladder would test nothing.
+          git -C apps/lms checkout -q -f v2.0.0
+          on="$(git -C apps/lms rev-parse HEAD)"
+          want="$(git -C apps/lms rev-parse v2.0.0^{commit})"
+          if [ "$on" != "$want" ]; then
+            echo "expected lms at v2.0.0 ($want), got $on"
+            exit 1
+          fi
+
+          bench set-config -g db_host 127.0.0.1
+          bench new-site "$SITE" \
+            --mariadb-root-password 123 \
+            --admin-password admin
+          bench --site "$SITE" install-app lms
+
+          (cd sites && "$PY" \
+            "${GITHUB_WORKSPACE}/.github/helper/seed_fixture.py" "$SITE") | tee /tmp/seed.log
+
+          counts="$(grep -m1 '^FIXTURE_JSON ' /tmp/seed.log | cut -d' ' -f2-)"
+          if [ -z "$counts" ]; then
+            echo "seed printed no FIXTURE_JSON line"
+            exit 1
+          fi
+          echo "FIXTURE_COUNTS=$counts" >> "$GITHUB_ENV"
+
+      - name: Walk the version ladder
+        run: |
+          set -euo pipefail
+          cd ~/frappe-bench
+          PY="$HOME/frappe-bench/env/bin/python"
+
+          # Each hop moves frappe, payments and lms together; lms requires payments,
+          # so it cannot be dropped the way erpnext drops it before its own ladder.
+          hop() {
+            local name="$1" frappe_ref="$2" payments_ref="$3" lms_ref="$4" python_bin="$5"
+
+            echo "::group::hop ${name}"
+
+            git -C apps/frappe fetch --depth 1 upstream "$frappe_ref"
+            git -C apps/frappe checkout -q -f FETCH_HEAD
+            git -C apps/payments fetch --depth 1 upstream "$payments_ref"
+            git -C apps/payments checkout -q -f FETCH_HEAD
+            git -C apps/lms checkout -q -f "$lms_ref"
+
+            rm -rf ~/frappe-bench/env
+            bench -v setup env --python "$python_bin"
+            bench pip install -e ./apps/payments
+            bench pip install -e ./apps/lms
+
+            bench --site "$SITE" migrate
+
+            (cd sites && "$PY" \
+              "${GITHUB_WORKSPACE}/.github/helper/assert_fixture.py" "$SITE" "$name")
+
+            echo "::endgroup::"
+          }
+
+          # Stop the ladder at the line the PR targets. Walking past it and back
+          # down would migrate the fixture through schema the PR's line never has.
+          base="${GITHUB_BASE_REF:-develop}"
+          case "$base" in
+            main|main-hotfix|version-15*) rungs="" ;;
+            version-16*) rungs="15" ;;
+            develop)     rungs="15 16" ;;
+            *)
+              echo "unsupported migration-test base branch: $base"
+              exit 1
+              ;;
+          esac
+
+          for rung in $rungs; do
+            case "$rung" in
+              15) hop "version-15" version-15-hotfix version-15-hotfix \
+                    "upstream/main-hotfix" "$(which python3.13)" ;;
+              16) hop "version-16" version-16-hotfix version-16 \
+                    "upstream/version-16-hotfix" "$(which python3.14)" ;;
+            esac
+          done
+
+          # The PR's own code, with frappe and payments on the line it targets.
+          case "$base" in
+            main|main-hotfix|version-15*)
+              frappe_ref=version-15-hotfix
+              payments_ref=version-15-hotfix
+              python_bin="$(which python3.13)"
+              ;;
+            version-16*)
+              frappe_ref=version-16-hotfix
+              payments_ref=version-16
+              python_bin="$(which python3.14)"
+              ;;
+            develop)
+              frappe_ref=develop
+              payments_ref=develop
+              python_bin="$(which python3.14)"
+              ;;
+          esac
+
+          hop "head" "$frappe_ref" "$payments_ref" "pr/head" "$python_bin"
+
+      - name: Show bench logs
+        if: ${{ always() }}
+        run: |
+          cd ~/frappe-bench/logs || exit 0
+          for f in ./*.log*; do
+            echo "::group::$f"
+            cat "$f" || true
+            echo "::endgroup::"
+          done
