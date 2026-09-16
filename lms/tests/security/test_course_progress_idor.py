@@ -1,12 +1,11 @@
 import json
 
 import frappe
-from frappe.tests.test_api import FrappeAPITestCase
 
 from lms.lms.test_helpers import BaseTestUtils
 
 
-class TestCourseProgressIDOR(BaseTestUtils, FrappeAPITestCase):
+class TestCourseProgressIDOR(BaseTestUtils):
 	"""A student must not be able to record progress for another member."""
 
 	def setUp(self):
@@ -61,7 +60,6 @@ class TestCourseProgressIDOR(BaseTestUtils, FrappeAPITestCase):
 				}
 			)
 			doc.insert(ignore_permissions=True)
-			self.cleanup_items.append(("LMS Course Progress", doc.name))
 			self.assertEqual(doc.member, self.attacker.email)
 		finally:
 			frappe.session.user = "Administrator"

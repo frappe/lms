@@ -75,7 +75,6 @@ class TestLMSLiveClass(BaseTestUtils):
 				}
 			)
 			calendar.insert(ignore_permissions=True)
-			self.cleanup_items.append(("Google Calendar", calendar.name))
 			self.google_calendar = calendar
 		else:
 			self.google_calendar = frappe.get_doc("Google Calendar", calendar_name)
@@ -91,7 +90,6 @@ class TestLMSLiveClass(BaseTestUtils):
 			}
 		)
 		self.google_meet_settings.insert(ignore_permissions=True)
-		self.cleanup_items.append(("LMS Google Meet Settings", self.google_meet_settings.name))
 
 	def _create_live_class(self, provider="Google Meet", **kwargs):
 		"""Helper to create a live class for testing."""
@@ -112,7 +110,6 @@ class TestLMSLiveClass(BaseTestUtils):
 
 		live_class = frappe.get_doc(data)
 		live_class.insert(ignore_permissions=True)
-		self.cleanup_items.append(("LMS Live Class", live_class.name))
 		return live_class
 
 	# --- T9: Unit tests for Google Meet live class creation ---
@@ -233,10 +230,6 @@ class TestLMSLiveClass(BaseTestUtils):
 
 		self.assertTrue(frappe.db.exists("Event", event_name))
 
-		# Remove from cleanup since we're deleting manually
-		self.cleanup_items = [
-			(t, n) for t, n in self.cleanup_items if not (t == "LMS Live Class" and n == live_class.name)
-		]
 		frappe.delete_doc("LMS Live Class", live_class.name, force=True)
 		self.assertFalse(frappe.db.exists("Event", event_name))
 

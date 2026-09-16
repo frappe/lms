@@ -14,6 +14,19 @@ from lms.raven_provider import (
 )
 
 
+def _minimal_course():
+	"""A course fixture these tests only ever pass by name, never dereference."""
+	return frappe.get_doc(
+		{
+			"doctype": "LMS Course",
+			"title": f"Raven Provider Course {frappe.generate_hash(length=6)}",
+			"short_introduction": "Minimal course for raven_provider tests.",
+			"description": "Minimal course for raven_provider tests.",
+			"instructors": [{"instructor": "Administrator"}],
+		}
+	).insert()
+
+
 class TestOptionalRavenIntegrationImport(UnitTestCase):
 	"""lms.raven_provider must import on a bench without the optional raven_integration app.
 
@@ -245,10 +258,9 @@ class TestStudentsOfBatchesRule(FrappeTestCase):
 
 class TestStudentsOfCoursesRule(FrappeTestCase):
 	def setUp(self):
-		existing = frappe.get_all("LMS Course", limit=1)
-		if not existing:
-			self.skipTest("No course fixture; populate one before running this test")
-		self.course = existing[0].name
+		course = _minimal_course()
+		self.addCleanup(course.delete)
+		self.course = course.name
 		self.in_course = frappe.get_doc(
 			{
 				"doctype": "User",
@@ -451,10 +463,9 @@ class TestStudentScope(FrappeTestCase):
 	"""The Student cascade's two ends: All, and Enrolled across both scopes."""
 
 	def setUp(self):
-		existing = frappe.get_all("LMS Course", limit=1)
-		if not existing:
-			self.skipTest("No course fixture; populate one before running this test")
-		self.course = existing[0].name
+		course = _minimal_course()
+		self.addCleanup(course.delete)
+		self.course = course.name
 
 		self.student = frappe.get_doc(
 			{
@@ -563,13 +574,11 @@ class TestStaffRule(FrappeTestCase):
 	"""
 
 	def setUp(self):
-		# Skip before creating anything. With no LMS Course fixture there is
-		# nothing to attach an instructor to, and inserting the users first would
-		# leak them: User.insert commits, and addCleanup runs only from here on.
-		existing = frappe.get_all("LMS Course", limit=1)
-		if not existing:
-			self.skipTest("No course fixture; populate one before running this test")
-		self.course = existing[0].name
+		# Build the course before any user: User.insert commits, and addCleanup
+		# only runs from here on, so a course-fixture failure must happen first.
+		course = _minimal_course()
+		self.addCleanup(course.delete)
+		self.course = course.name
 
 		self.users = {}
 		for key, email in (
@@ -841,10 +850,9 @@ class TestStaffScopedToABatch(FrappeTestCase):
 	"""
 
 	def setUp(self):
-		existing = frappe.get_all("LMS Course", limit=1)
-		if not existing:
-			self.skipTest("No course fixture; populate one before running this test")
-		self.course = existing[0].name
+		course = _minimal_course()
+		self.addCleanup(course.delete)
+		self.course = course.name
 
 		self.instructor = frappe.get_doc(
 			{

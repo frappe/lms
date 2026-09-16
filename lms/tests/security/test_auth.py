@@ -1,11 +1,10 @@
 import frappe
-from frappe.tests.test_api import FrappeAPITestCase
 
 from lms.auth import authenticate
 from lms.lms.test_helpers import BaseTestUtils
 
 
-class TestAuth(BaseTestUtils, FrappeAPITestCase):
+class TestAuth(BaseTestUtils):
 	def setUp(self):
 		super().setUp()
 		self.normal_user = self._create_user("normal-user@example.com", "Normal", "User", ["LMS Student"])

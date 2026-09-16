@@ -27,7 +27,6 @@ class TestSystemPreferences(BaseTestUtils):
 
 	def test_set_system_preferences_requires_system_manager(self):
 		student = self._create_user("prefs.student@example.com", "Prefs", "Student", roles=["LMS Student"])
-		self.cleanup_items.append(("User", student.name))
 
 		frappe.set_user(student.name)
 		try:

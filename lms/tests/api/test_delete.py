@@ -21,7 +21,7 @@ class DeletionTestBase(BaseTestUtils):
 
 	def _add_chapter(self, title, idx):
 		chapter = self._create_chapter(title, self.course.name)
-		ref = frappe.get_doc(
+		frappe.get_doc(
 			{
 				"doctype": "Chapter Reference",
 				"chapter": chapter.name,
@@ -31,12 +31,11 @@ class DeletionTestBase(BaseTestUtils):
 				"idx": idx,
 			}
 		).insert()
-		self.cleanup_items.append(("Chapter Reference", ref.name))
 		return chapter
 
 	def _add_lesson(self, chapter, title, idx):
 		lesson = self._create_lesson(title, chapter.name, self.course.name)
-		ref = frappe.get_doc(
+		frappe.get_doc(
 			{
 				"doctype": "Lesson Reference",
 				"lesson": lesson.name,
@@ -46,7 +45,6 @@ class DeletionTestBase(BaseTestUtils):
 				"idx": idx,
 			}
 		).insert()
-		self.cleanup_items.append(("Lesson Reference", ref.name))
 		return lesson
 
 	def _lesson_ref_idx(self, chapter, lesson):
@@ -66,7 +64,6 @@ class DeletionTestBase(BaseTestUtils):
 				"reference_docname": reference_docname,
 			}
 		).insert(ignore_permissions=True)
-		self.cleanup_items.append(("Discussion Topic", topic.name))
 		reply = frappe.get_doc(
 			{
 				"doctype": "Discussion Reply",
@@ -74,7 +71,6 @@ class DeletionTestBase(BaseTestUtils):
 				"reply": "Test reply",
 			}
 		).insert(ignore_permissions=True)
-		self.cleanup_items.append(("Discussion Reply", reply.name))
 		return topic, reply
 
 	def _create_quiz_for_lesson(self, lesson, title="Deletion Quiz"):
@@ -89,7 +85,6 @@ class DeletionTestBase(BaseTestUtils):
 				"is_correct_2": 0,
 			}
 		).insert(ignore_permissions=True)
-		self.cleanup_items.append(("LMS Question", question.name))
 
 		quiz = frappe.get_doc(
 			{
@@ -99,7 +94,6 @@ class DeletionTestBase(BaseTestUtils):
 				"questions": [{"question": question.name, "marks": 5}],
 			}
 		).insert(ignore_permissions=True)
-		self.cleanup_items.append(("LMS Quiz", quiz.name))
 
 		# Mirror save_lesson_details_in_quiz: an embedded quiz back-references its lesson.
 		frappe.db.set_value("LMS Quiz", quiz.name, {"lesson": lesson, "course": self.course.name})
@@ -114,7 +108,6 @@ class DeletionTestBase(BaseTestUtils):
 				"type": "Text",
 			}
 		).insert(ignore_permissions=True)
-		self.cleanup_items.append(("LMS Assignment", assignment.name))
 
 		submission = frappe.get_doc(
 			{
@@ -126,7 +119,6 @@ class DeletionTestBase(BaseTestUtils):
 				"status": "Pass",
 			}
 		).insert(ignore_permissions=True)
-		self.cleanup_items.append(("LMS Assignment Submission", submission.name))
 		return submission
 
 	def _create_lesson_note(self, lesson, member):
@@ -138,7 +130,6 @@ class DeletionTestBase(BaseTestUtils):
 				"note": "My note",
 			}
 		).insert(ignore_permissions=True)
-		self.cleanup_items.append(("LMS Lesson Note", note.name))
 		return note
 
 
@@ -372,7 +363,6 @@ class TestCourseDeletion(DeletionTestBase):
 				"course": self.course.name,
 			}
 		).insert(ignore_permissions=True)
-		self.cleanup_items.append(("LMS Assignment", assignment.name))
 
 		cert_request = frappe.get_doc(
 			{
@@ -384,7 +374,6 @@ class TestCourseDeletion(DeletionTestBase):
 				"end_time": "11:00:00",
 			}
 		).insert(ignore_permissions=True)
-		self.cleanup_items.append(("LMS Certificate Request", cert_request.name))
 
 		cert_eval = frappe.get_doc(
 			{
@@ -396,7 +385,6 @@ class TestCourseDeletion(DeletionTestBase):
 				"status": "Pending",
 			}
 		).insert(ignore_permissions=True)
-		self.cleanup_items.append(("LMS Certificate Evaluation", cert_eval.name))
 
 		interest = frappe.get_doc(
 			{
@@ -405,7 +393,6 @@ class TestCourseDeletion(DeletionTestBase):
 				"user": self.student.email,
 			}
 		).insert(ignore_permissions=True)
-		self.cleanup_items.append(("LMS Course Interest", interest.name))
 
 		mentor = frappe.get_doc(
 			{
@@ -414,7 +401,6 @@ class TestCourseDeletion(DeletionTestBase):
 				"mentor": self.student.email,
 			}
 		).insert(ignore_permissions=True)
-		self.cleanup_items.append(("LMS Course Mentor Mapping", mentor.name))
 
 		# This course listed as "related" inside another course.
 		other = self._create_course(title="Other Referrer Course")
@@ -422,14 +408,13 @@ class TestCourseDeletion(DeletionTestBase):
 		other.save(ignore_permissions=True)
 
 		# This course included in a program.
-		program = frappe.get_doc(
+		frappe.get_doc(
 			{
 				"doctype": "LMS Program",
 				"title": f"Ref Program {frappe.generate_hash()}",
 				"program_courses": [{"course": self.course.name}],
 			}
 		).insert(ignore_permissions=True)
-		self.cleanup_items.append(("LMS Program", program.name))
 
 		delete_course(self.course.name)
 

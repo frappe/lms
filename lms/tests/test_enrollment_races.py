@@ -2,6 +2,7 @@ from contextlib import contextmanager
 from unittest.mock import patch
 
 import frappe
+from frappe.tests import UnitTestCase
 
 from lms.lms.doctype.lms_batch_enrollment.lms_batch_enrollment import LMSBatchEnrollment
 from lms.lms.doctype.lms_enrollment.lms_enrollment import LMSEnrollment
@@ -11,6 +12,35 @@ from lms.lms.enrollment_constraints import (
 )
 from lms.lms.test_helpers import BaseTestUtils
 from lms.lms.utils import enroll_in_course
+
+
+class TestEnrollmentUniqueIndexes(UnitTestCase):
+	"""add_unique/sql_ddl commit, which would collapse BaseTestUtils' per-test
+	savepoint, so these three schema-only checks run outside it entirely."""
+
+	def test_the_unique_indexes_exist(self):
+		"""after_install is the only thing that adds these, so this passes on a
+		fresh site (including CI) and says nothing about an upgraded one — the
+		lock tests below are what cover those."""
+		self.assertTrue(frappe.db.has_index("tabLMS Batch Enrollment", "unique_batch_member"))
+		self.assertTrue(frappe.db.has_index("tabLMS Enrollment", "unique_course_member"))
+
+	def test_constraining_is_idempotent_and_cannot_skip(self):
+		"""after_install runs on sites that may already have these indexes, so the
+		helper has to be a no-op then. It also no longer has a path that returns
+		having added nothing: the dedupe and its log-and-return are deleted, so
+		either add_unique creates the index or it raises. (The raising half is not
+		asserted here — proving it needs a live unique index dropped and duplicate
+		rows inserted, which would leave this shared site unconstrained if the test
+		died midway. add_unique is frappe's, and the skip branch is gone.)"""
+		ensure_enrollment_unique_constraints()
+		self.assertTrue(frappe.db.has_index("tabLMS Batch Enrollment", "unique_batch_member"))
+		self.assertTrue(frappe.db.has_index("tabLMS Enrollment", "unique_course_member"))
+
+	def test_the_superseded_plain_index_is_dropped(self):
+		"""unique_batch_member covers the same two columns in the same order as
+		the index add_batch_enrollment_index added for the Raven lookup."""
+		self.assertFalse(frappe.db.has_index("tabLMS Batch Enrollment", REDUNDANT_BATCH_INDEX))
 
 
 class TestEnrollmentRaces(BaseTestUtils):
@@ -42,30 +72,6 @@ class TestEnrollmentRaces(BaseTestUtils):
 			evaluator=self.instructor.email,
 		)
 		self.member = self._create_user(f"race-member-{hash}@example.com", "Race", "Tester", ["LMS Student"])
-
-	def test_the_unique_indexes_exist(self):
-		"""after_install is the only thing that adds these, so this passes on a
-		fresh site (including CI) and says nothing about an upgraded one — the
-		lock tests below are what cover those."""
-		self.assertTrue(frappe.db.has_index("tabLMS Batch Enrollment", "unique_batch_member"))
-		self.assertTrue(frappe.db.has_index("tabLMS Enrollment", "unique_course_member"))
-
-	def test_constraining_is_idempotent_and_cannot_skip(self):
-		"""after_install runs on sites that may already have these indexes, so the
-		helper has to be a no-op then. It also no longer has a path that returns
-		having added nothing: the dedupe and its log-and-return are deleted, so
-		either add_unique creates the index or it raises. (The raising half is not
-		asserted here — proving it needs a live unique index dropped and duplicate
-		rows inserted, which would leave this shared site unconstrained if the test
-		died midway. add_unique is frappe's, and the skip branch is gone.)"""
-		ensure_enrollment_unique_constraints()
-		self.assertTrue(frappe.db.has_index("tabLMS Batch Enrollment", "unique_batch_member"))
-		self.assertTrue(frappe.db.has_index("tabLMS Enrollment", "unique_course_member"))
-
-	def test_the_superseded_plain_index_is_dropped(self):
-		"""unique_batch_member covers the same two columns in the same order as
-		the index add_batch_enrollment_index added for the Raven lookup."""
-		self.assertFalse(frappe.db.has_index("tabLMS Batch Enrollment", REDUNDANT_BATCH_INDEX))
 
 	def test_duplicate_batch_enrollment_is_refused_by_the_database(self):
 		with patch.object(LMSBatchEnrollment, "validate_duplicate_members"):
@@ -118,7 +124,6 @@ class TestEnrollmentRaces(BaseTestUtils):
 			"LMS Enrollment", {"course": self.course.name, "member": frappe.session.user}
 		)
 		self.assertIsNotNone(created)
-		self.cleanup_items.append(("LMS Enrollment", created))
 		self._assert_locked_before_read(log, "LMS Course", "LMS Enrollment")
 
 	def test_batch_enrollment_locks_each_course_before_auto_enrolling(self):
@@ -175,7 +180,6 @@ class TestEnrollmentRaces(BaseTestUtils):
 		)
 		# nosemgrep: lms-unjustified-ignore-permissions - the race, not the role check, is under test
 		doc.insert(ignore_permissions=True)
-		self.cleanup_items.append(("LMS Batch Enrollment", doc.name))
 		return doc
 
 	def _insert_enrollment(self):
@@ -188,5 +192,4 @@ class TestEnrollmentRaces(BaseTestUtils):
 		)
 		# nosemgrep: lms-unjustified-ignore-permissions - the race, not the role check, is under test
 		doc.insert(ignore_permissions=True)
-		self.cleanup_items.append(("LMS Enrollment", doc.name))
 		return doc

@@ -42,7 +42,6 @@ class ContactUsTestCase(BaseTestUtils):
 		doc.is_private = is_private
 		doc.content = content
 		doc.save(ignore_permissions=True)
-		self.cleanup_items.append(("File", doc.name))
 		frappe.set_user("Administrator")
 		return doc
 
@@ -227,7 +226,6 @@ class TestSendContactUsEmail(ContactUsTestCase):
 	def _send(self, subject, content):
 		with patch("frappe.sendmail") as sendmail:
 			name = send_contact_us_email(subject, content)
-		self.cleanup_items.append(("Communication", name))
 		return name, sendmail.call_args.kwargs
 
 	def test_the_recipient_comes_from_settings_not_the_caller(self):
@@ -344,12 +342,6 @@ class TestAttachFileToDoc(ContactUsTestCase):
 
 		lock_calls = [c for c in calls if c[0][:2] == ("User", self.sender.name) and c[1].get("for_update")]
 		self.assertEqual(len(lock_calls), 1)
-
-		attached = frappe.db.get_value(
-			"File",
-			{"file_url": file.file_url, "attached_to_doctype": "User", "attached_to_name": self.sender.name},
-		)
-		self.cleanup_items.append(("File", attached))
 
 
 class TestEmbedIsWhatFrappeInlines(ContactUsTestCase):

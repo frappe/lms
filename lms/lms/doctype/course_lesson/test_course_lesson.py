@@ -14,6 +14,8 @@ from lms.lms.doctype.course_lesson.course_lesson import (
 )
 from lms.lms.test_helpers import BaseTestUtils
 
+IGNORE_TEST_RECORD_DEPENDENCIES = ["Course Chapter", "LMS Course"]
+
 # One sample URL per embed service registered in the LMS EditorJS editor.
 # Source of truth: frontend/src/utils/index.js → getEditorTools() → embed.config.services.
 # Keep this in sync with that list when a service is added/removed.
@@ -361,19 +363,33 @@ class TestLessonBlockExtraction(unittest.TestCase):
 
 
 class TestRenameSettledUntitledLessons(BaseTestUtils):
+	"""Keep the scheduled job's commits inside the test transaction."""
+
 	def setUp(self):
 		super().setUp()
+		commit_patcher = patch.object(frappe.db, "commit")
+		commit_patcher.start()
+		self.addCleanup(commit_patcher.stop)
 		# _create_course() defaults instructor="frappe@example.com"; create it so the
 		# course's instructor Link resolves on a fresh DB (mirrors TestLMSCourse.setUp).
 		self.instructor = self._create_user(
 			"frappe@example.com", "Frappe", "Admin", ["Moderator", "Course Creator"]
 		)
-		self.course = self._create_course(title="Rename Untitled Course")
+		self.course = self._create_course(title=f"Rename Untitled Course {frappe.generate_hash(length=6)}")
 		self.chapter = self._create_chapter("Rename Chapter", self.course.name)
 
 	def tearDown(self):
 		frappe.set_user("Administrator")
-		super().tearDown()
+		for lesson in frappe.db.get_all("Course Lesson", {"chapter": self.chapter.name}, pluck="name"):
+			frappe.delete_doc("Course Lesson", lesson, force=True, ignore_permissions=True)
+		frappe.delete_doc("Course Chapter", self.chapter.name, force=True, ignore_permissions=True)
+		frappe.delete_doc("LMS Course", self.course.name, force=True, ignore_permissions=True)
+		# A successful rename commits (see the product code's docstring). If this
+		# test triggered one, these deletes are the last thing in the transaction
+		# before the class's own end-of-class rollback fires; leaving them
+		# uncommitted would let that rollback resurrect the row it committed.
+		frappe.db.commit()  # nosemgrep
+		super(BaseTestUtils, self).tearDown()
 
 	def _make_untitled_lesson(self):
 		lesson = self._create_lesson(UNTITLED_LESSON_TITLE, self.chapter.name, self.course.name)
@@ -399,7 +415,6 @@ class TestRenameSettledUntitledLessons(BaseTestUtils):
 		expected = f"{prefix} Real Title"
 		self.assertFalse(frappe.db.exists("Course Lesson", lesson.name))
 		self.assertTrue(frappe.db.exists("Course Lesson", expected))
-		self.cleanup_items.append(("Course Lesson", expected))
 
 	def test_recently_modified_lesson_is_not_renamed(self):
 		lesson = self._make_untitled_lesson()
@@ -438,7 +453,6 @@ class TestRenameSettledUntitledLessons(BaseTestUtils):
 		expected = f"{prefix} Titre Réel"
 		self.assertFalse(frappe.db.exists("Course Lesson", lesson.name))
 		self.assertTrue(frappe.db.exists("Course Lesson", expected))
-		self.cleanup_items.append(("Course Lesson", expected))
 
 
 class TestLessonContentSurvivesSave(BaseTestUtils):

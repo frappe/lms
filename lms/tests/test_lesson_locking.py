@@ -123,7 +123,6 @@ class TestLessonLockingIntegration(BaseTestUtils):
 				"passing_percentage": 70,
 			}
 		).insert(ignore_permissions=True)
-		self.cleanup_items.append(("LMS Quiz", quiz.name))
 		frappe.set_user(user)
 		return quiz
 

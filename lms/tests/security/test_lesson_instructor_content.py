@@ -1,7 +1,6 @@
 import json
 
 import frappe
-from frappe.tests.test_api import FrappeAPITestCase
 
 from lms.lms.test_helpers import BaseTestUtils
 from lms.lms.utils import get_lesson
@@ -19,7 +18,7 @@ def _editorjs(text):
 	)
 
 
-class TestLessonInstructorContentLeak(BaseTestUtils, FrappeAPITestCase):
+class TestLessonInstructorContentLeak(BaseTestUtils):
 	"""get_lesson must not return instructor-only fields to students or preview guests."""
 
 	SECRET_NOTES = "GRADING-NOTES-be-strict"

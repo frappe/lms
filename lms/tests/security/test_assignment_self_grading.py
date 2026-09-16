@@ -1,10 +1,9 @@
 import frappe
-from frappe.tests.test_api import FrappeAPITestCase
 
 from lms.lms.test_helpers import BaseTestUtils
 
 
-class TestAssignmentSelfGrading(BaseTestUtils, FrappeAPITestCase):
+class TestAssignmentSelfGrading(BaseTestUtils):
 	"""A student must not be able to grade their own assignment submission."""
 
 	def setUp(self):
@@ -27,7 +26,6 @@ class TestAssignmentSelfGrading(BaseTestUtils, FrappeAPITestCase):
 				}
 			)
 			doc.insert()
-			self.cleanup_items.append(("LMS Assignment Submission", doc.name))
 			return doc.name
 		finally:
 			frappe.session.user = "Administrator"

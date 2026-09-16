@@ -156,7 +156,7 @@ class TestSaveProgressEnrollmentLifecycle(BaseTestUtils):
 	def test_completing_a_lesson_advances_current_lesson_to_the_next(self):
 		second = self._create_lesson("WH Lesson 2", self.chapter.name, self.course.name)
 		# _create_lesson_reference hardcodes idx=1; get_next_lesson needs idx+1 to exist.
-		reference = frappe.get_doc(
+		frappe.get_doc(
 			{
 				"doctype": "Lesson Reference",
 				"lesson": second.name,
@@ -166,7 +166,6 @@ class TestSaveProgressEnrollmentLifecycle(BaseTestUtils):
 				"idx": 2,
 			}
 		).insert()
-		self.cleanup_items.append(("Lesson Reference", reference.name))
 
 		self._save_progress_as_student()
 
@@ -188,7 +187,6 @@ class TestSaveProgressEnrollmentLifecycle(BaseTestUtils):
 				"enabled": 1,
 			}
 		).insert(ignore_permissions=True)
-		self.cleanup_items.append(("Webhook", webhook.name))
 		frappe.client_cache.delete_value("webhooks")
 		self.addCleanup(frappe.client_cache.delete_value, "webhooks")
 
@@ -252,7 +250,6 @@ class TestSaveProgressEnrollmentLifecycle(BaseTestUtils):
 				"program_members": [{"member": self.student.email}],
 			}
 		).insert(ignore_permissions=True)
-		self.cleanup_items.append(("LMS Program", program.name))
 
 		progress = self._save_progress_as_student()
 
@@ -291,6 +288,21 @@ class TestSaveProgressEnrollmentLifecycle(BaseTestUtils):
 
 	def test_recalculate_course_progress_dispatches_on_update(self):
 		"""Regression: recalculate_course_progress wrote via raw set_value, firing no doc events."""
+		# LMS Course Progress.on_update already calls recalculate_course_progress,
+		# so this insert leaves the enrollment's cached value correct. Force it
+		# stale afterwards, the way a raw write (or a race) would, so the
+		# recompute below actually changes something and has a dispatch to prove.
+		frappe.get_doc(
+			{
+				"doctype": "LMS Course Progress",
+				"member": self.student.email,
+				"course": self.course.name,
+				"lesson": self.lesson.name,
+				"status": "Complete",
+			}
+		).insert(ignore_permissions=True)
+		frappe.db.set_value("LMS Enrollment", self.enrollment.name, "progress", 0, update_modified=False)
+
 		with self._record_enrollment_events() as events:
 			utils.recalculate_course_progress(self.course.name, self.student.email)
 

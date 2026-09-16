@@ -2,7 +2,6 @@ import base64
 import json
 
 import frappe
-from frappe.tests.test_api import FrappeAPITestCase
 
 from lms.lms.doctype.course_lesson import course_lesson
 from lms.lms.doctype.course_lesson.course_lesson import _resolve_lesson_references, serve_resource
@@ -17,7 +16,7 @@ _MIN_PDF = (
 )
 
 
-class TestServeResourceUnderscoreFilename(BaseTestUtils, FrappeAPITestCase):
+class TestServeResourceUnderscoreFilename(BaseTestUtils):
 	"""Regression: a private lesson PDF whose filename contains "_" must still be served
 	to the users who can read the lesson.
 
@@ -59,7 +58,6 @@ class TestServeResourceUnderscoreFilename(BaseTestUtils, FrappeAPITestCase):
 				"decode": True,
 			}
 		).insert(ignore_permissions=True)
-		self.cleanup_items.append(("File", self.pdf.name))
 		self.file_url = self.pdf.file_url
 		self.assertIn("_", self.file_url)  # the property under test
 
@@ -67,7 +65,6 @@ class TestServeResourceUnderscoreFilename(BaseTestUtils, FrappeAPITestCase):
 			{"blocks": [{"type": "upload", "data": {"file_url": self.file_url, "file_type": "PDF"}}]}
 		)
 		self.lesson.save(ignore_permissions=True)
-		frappe.db.commit()
 
 	def _serve_as(self, user):
 		"""serve_resource with the byte-streaming step stubbed (no HTTP request in tests).
@@ -101,7 +98,6 @@ class TestServeResourceUnderscoreFilename(BaseTestUtils, FrappeAPITestCase):
 			{"blocks": [{"type": "upload", "data": {"file_url": other_url, "file_type": "PDF"}}]}
 		)
 		self.lesson.save(ignore_permissions=True)
-		frappe.db.commit()
 
 		self.assertIn((self.lesson.name, False), _resolve_lesson_references(other_url))
 		self.assertNotIn((self.lesson.name, False), _resolve_lesson_references(self.file_url))
@@ -114,7 +110,6 @@ class TestServeResourceUnderscoreFilename(BaseTestUtils, FrappeAPITestCase):
 			{"blocks": [{"type": "upload", "data": {"file_url": pct_url, "file_type": "PDF"}}]}
 		)
 		self.lesson.save(ignore_permissions=True)
-		frappe.db.commit()
 
 		self.assertIn((self.lesson.name, False), _resolve_lesson_references(pct_url))
 		# the % is literal: a url that differs only where the % sits must not match.
@@ -127,7 +122,6 @@ class TestServeResourceUnderscoreFilename(BaseTestUtils, FrappeAPITestCase):
 		"""The prod 'everyone incl. Administrator 403s' case: a private file not attached to
 		the lesson must still resolve via the content search (its documented fallback)."""
 		frappe.db.set_value("File", self.pdf.name, {"attached_to_doctype": None, "attached_to_name": None})
-		frappe.db.commit()
 		self.assertTrue(_resolve_lesson_references(self.file_url))
 
 	# --- user-facing behaviour ----------------------------------------------------
@@ -139,9 +133,10 @@ class TestServeResourceUnderscoreFilename(BaseTestUtils, FrappeAPITestCase):
 		self.assertIsNotNone(self._serve_as(self.instructor.email))
 
 	def test_preview_guest_served_when_enabled(self):
+		original = frappe.db.get_single_value("LMS Settings", "allow_guest_access")
+		self.addCleanup(frappe.db.set_single_value, "LMS Settings", "allow_guest_access", original)
 		self.lesson.db_set("include_in_preview", 1)
 		frappe.db.set_single_value("LMS Settings", "allow_guest_access", 1)
-		frappe.db.commit()
 		self.assertIsNotNone(self._serve_as("Guest"))
 
 	def test_non_member_denied(self):

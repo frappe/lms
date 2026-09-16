@@ -1,11 +1,10 @@
 import frappe
-from frappe.tests.test_api import FrappeAPITestCase
 
 from lms.lms.api import track_video_watch_duration
 from lms.lms.test_helpers import BaseTestUtils
 
 
-class TestVideoWatchEnrollment(BaseTestUtils, FrappeAPITestCase):
+class TestVideoWatchEnrollment(BaseTestUtils):
 	"""track_video_watch_duration must require lesson access (VULN-2026-FRAPPE-LMS-002)."""
 
 	def setUp(self):

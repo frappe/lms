@@ -121,7 +121,7 @@ class TestQuizAndAssignmentScope(BaseTestUtils):
 		super().setUp()
 		self.student = self._create_user("palette-student@example.com", "Pal", "Ette", ["LMS Student"])
 		self.questions = self._create_quiz_questions()
-		self.quiz = self._create_quiz(title="Palette Scope Quiz")
+		self.quiz = self._create_quiz(self.questions, title="Palette Scope Quiz")
 		self.assignment = self._create_assignment(title="Palette Scope Assignment")
 
 	def test_a_student_is_given_no_quiz_or_assignment(self):
@@ -178,7 +178,6 @@ class TestProgramScope(BaseTestUtils):
 		self.hidden = frappe.new_doc("LMS Program")
 		self.hidden.update({"title": "Palette Unpublished Program", "published": 0})
 		self.hidden.save()
-		self.cleanup_items.append(("LMS Program", self.hidden.name))
 
 	def test_a_student_is_not_given_an_unpublished_program(self):
 		frappe.set_user(self.student.email)
@@ -266,7 +265,7 @@ class TestAuthoredScope(BaseTestUtils):
 			"palette-evaluator@example.com", "Pal", "Eval", ["Batch Evaluator"]
 		)
 		self.questions = self._create_quiz_questions()
-		self.quiz = self._create_quiz(title="Palette Authored Quiz")
+		self.quiz = self._create_quiz(self.questions, title="Palette Authored Quiz")
 		frappe.db.set_value("LMS Quiz", self.quiz.name, "owner", self.author.name)
 
 	def permitted_for(self, user):

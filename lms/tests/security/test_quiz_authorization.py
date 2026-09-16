@@ -1,7 +1,6 @@
 import json
 
 import frappe
-from frappe.tests.test_api import FrappeAPITestCase
 
 from lms.lms.test_helpers import BaseTestUtils
 from lms.lms.utils import get_quiz_with_questions
@@ -17,7 +16,7 @@ def _quiz_block_content(quiz):
 	)
 
 
-class TestQuizAuthorization(BaseTestUtils, FrappeAPITestCase):
+class TestQuizAuthorization(BaseTestUtils):
 	"""get_quiz_with_questions must require enrollment/ownership, not just an LMS role."""
 
 	def setUp(self):
@@ -30,7 +29,7 @@ class TestQuizAuthorization(BaseTestUtils, FrappeAPITestCase):
 		self.outsider = self._create_user(f"qout-{hash}@example.com", "Ove", "Outsider", ["LMS Student"])
 
 		self.questions = self._create_quiz_questions()
-		self.quiz = self._create_quiz(title=f"Authz Quiz {hash}")
+		self.quiz = self._create_quiz(self.questions, title=f"Authz Quiz {hash}")
 		self.course = self._create_course(title=f"Quiz Course {hash}", instructor=self.instructor.email)
 		self.chapter = self._create_chapter(f"QChapter {hash}", self.course.name)
 		# Link the quiz to the course the way production does: embed it as a content block,
@@ -42,7 +41,7 @@ class TestQuizAuthorization(BaseTestUtils, FrappeAPITestCase):
 		self._create_enrollment(self.enrolled.email, self.course.name)
 
 		# A second quiz never linked to any lesson or batch (e.g. mid-authoring).
-		self.unlinked_quiz = self._create_quiz(title=f"Unlinked Quiz {hash}")
+		self.unlinked_quiz = self._create_quiz(self.questions, title=f"Unlinked Quiz {hash}")
 
 	def _call(self, user, quiz=None):
 		frappe.session.user = user

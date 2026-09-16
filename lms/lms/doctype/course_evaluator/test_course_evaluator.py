@@ -152,7 +152,6 @@ class TestTodaysSlots(BaseTestUtils):
 		evaluator.append("schedule", {"day": today, "start_time": "09:00:00", "end_time": "10:00:00"})
 		evaluator.append("schedule", {"day": today, "start_time": "16:00:00", "end_time": "17:00:00"})
 		evaluator.save()
-		self.cleanup_items.append(("Course Evaluator", evaluator.name))
 		return evaluator
 
 	def _todays_slots(self, schedule):
@@ -201,7 +200,6 @@ class TestTodaysSlots(BaseTestUtils):
 				}
 			)
 			request.insert()
-			self.cleanup_items.append(("LMS Certificate Request", request.name))
 
 
 @patch("lms.lms.utils.get_system_timezone", return_value="Asia/Kolkata")
@@ -323,8 +321,6 @@ class TestEvaluatorRoleCRUD(BaseTestUtils):
 
 		self.assertTrue(self._has_batch_evaluator_role(self.test_user.email))
 		self.assertTrue(self._has_course_evaluator(self.test_user.email))
-
-		self.cleanup_items.append(("Course Evaluator", self.test_user.email))
 
 	def test_remove_evaluator_role_removes_both(self):
 		"""save_role with value=0 should remove Has Role AND Course Evaluator."""

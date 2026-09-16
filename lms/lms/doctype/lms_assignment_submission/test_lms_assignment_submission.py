@@ -36,28 +36,24 @@ class TestLMSAssignmentSubmission(BaseTestUtils):
 		frappe.set_user(self.student_a.name)
 		doc = self._new_submission(member=None)
 		doc.insert()
-		self.cleanup_items.append(("LMS Assignment Submission", doc.name))
 		self.assertEqual(doc.member, self.student_a.name)
 
 	def test_student_can_submit_for_self(self):
 		frappe.set_user(self.student_a.name)
 		doc = self._new_submission(member=self.student_a.name)
 		doc.insert()
-		self.cleanup_items.append(("LMS Assignment Submission", doc.name))
 		self.assertEqual(doc.member, self.student_a.name)
 
 	def test_privileged_user_can_submit_on_behalf_of_member(self):
 		frappe.set_user(self.moderator.name)
 		doc = self._new_submission(member=self.student_b.name)
 		doc.insert()
-		self.cleanup_items.append(("LMS Assignment Submission", doc.name))
 		self.assertEqual(doc.member, self.student_b.name)
 
 	def test_student_cannot_reassign_member_on_update(self):
 		frappe.set_user(self.student_a.name)
 		doc = self._new_submission(member=self.student_a.name)
 		doc.insert()
-		self.cleanup_items.append(("LMS Assignment Submission", doc.name))
 		doc.member = self.student_b.name
 		with self.assertRaises(frappe.PermissionError):
 			doc.save()
@@ -66,7 +62,6 @@ class TestLMSAssignmentSubmission(BaseTestUtils):
 		frappe.set_user(self.moderator.name)
 		doc = self._new_submission(member=self.student_a.name)
 		doc.insert()
-		self.cleanup_items.append(("LMS Assignment Submission", doc.name))
 		doc.member = self.student_b.name
 		doc.save()
 		self.assertEqual(doc.member, self.student_b.name)

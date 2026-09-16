@@ -132,7 +132,6 @@ class TestLMSUtils(BaseTestUtils):
 			}
 		)
 		course.save()
-		self.cleanup_items.append(("LMS Course", course.name))
 		self.assertIsNone(get_average_rating(course.name))
 
 	def test_get_lesson_index(self):
@@ -233,7 +232,6 @@ class TestLMSUtils(BaseTestUtils):
 			frappe.get_doc({"doctype": "LMS Category", "category": "Marketing"}).insert(
 				ignore_permissions=True
 			)
-			self.cleanup_items.append(("LMS Category", "Marketing"))
 
 		second = frappe.new_doc("LMS Course")
 		second.update(
@@ -247,7 +245,6 @@ class TestLMSUtils(BaseTestUtils):
 			}
 		)
 		second.save()
-		self.cleanup_items.append(("LMS Course", second.name))
 
 		labels = [category["label"] for category in get_course_categories()]
 		self.assertIn("Business", labels)
@@ -256,7 +253,6 @@ class TestLMSUtils(BaseTestUtils):
 	def test_get_course_categories_excludes_unpublished(self):
 		if not frappe.db.exists("LMS Category", "Hidden"):
 			frappe.get_doc({"doctype": "LMS Category", "category": "Hidden"}).insert(ignore_permissions=True)
-			self.cleanup_items.append(("LMS Category", "Hidden"))
 
 		draft = frappe.new_doc("LMS Course")
 		draft.update(
@@ -270,7 +266,6 @@ class TestLMSUtils(BaseTestUtils):
 			}
 		)
 		draft.save()
-		self.cleanup_items.append(("LMS Course", draft.name))
 
 		labels = [category["label"] for category in get_course_categories()]
 		self.assertNotIn("Hidden", labels)
@@ -284,7 +279,6 @@ class TestLMSUtils(BaseTestUtils):
 		self.assertEqual(user.last_name, "User")
 		self.assertEqual(user.full_name, "Test User")
 		self.assertIn("LMS Student", [role.role for role in user.roles])
-		self.cleanup_items.append(("User", user.name))
 
 	def test_create_user_with_full_name(self):
 		user = create_user(
@@ -294,7 +288,6 @@ class TestLMSUtils(BaseTestUtils):
 		self.assertEqual(user.last_name, "Michael Doe")
 		self.assertEqual(user.full_name, "John Michael Doe")
 		self.assertIn("Course Creator", [role.role for role in user.roles])
-		self.cleanup_items.append(("User", user.name))
 
 
 # Fixture-free (no DB) coverage for the lesson-content EditorJS-JSON guard.
@@ -457,7 +450,6 @@ class TestListEndpointPaging(BaseTestUtils):
 			frappe.get_doc({"doctype": "LMS Category", "category": self.CATEGORY}).insert(
 				ignore_permissions=True
 			)
-			self.cleanup_items.append(("LMS Category", self.CATEGORY))
 
 		self.featured_titles = ["Paging Featured A", "Paging Featured B"]
 		self.plain_titles = ["Paging Plain A", "Paging Plain B"]
@@ -480,7 +472,6 @@ class TestListEndpointPaging(BaseTestUtils):
 			}
 		)
 		course.insert(ignore_permissions=True)
-		self.cleanup_items.append(("LMS Course", course.name))
 
 	def _filters(self):
 		# `live` is the Published tab: it excludes featured from the main query
@@ -588,7 +579,6 @@ class TestListEndpointPaging(BaseTestUtils):
 			}
 		)
 		batch.insert(ignore_permissions=True)
-		self.cleanup_items.append(("LMS Batch", batch.name))
 
 	def test_a_guest_with_no_access_is_counted_as_nothing(self):
 		frappe.db.set_single_value("LMS Settings", "allow_guest_access", 0)

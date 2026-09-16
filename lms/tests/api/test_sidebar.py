@@ -42,7 +42,6 @@ class TestSidebar(BaseTestUtils):
 		student = self._create_user(
 			"sidebar.student@example.com", "Sidebar", "Student", roles=["LMS Student"]
 		)
-		self.cleanup_items.append(("User", student.name))
 
 		frappe.set_user(student.name)
 		try:
@@ -148,7 +147,6 @@ class TestSidebar(BaseTestUtils):
 				"published": 1,
 			}
 		).insert(ignore_permissions=True)
-		self.cleanup_items.append(("Web Page", webpage.name))
 
 		update_sidebar_item(webpage=webpage.name, icon="lucide-link")
 		self.settings.reload()

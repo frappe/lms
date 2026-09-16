@@ -21,10 +21,6 @@ IMAGE_DATA_URI_PATTERN = r'<img[^>]*src\s*=\s*["\'](?=data:)(.*?)["\']'
 
 
 class TestLMSQuiz(unittest.TestCase):
-	@classmethod
-	def setUpClass(cls) -> None:
-		frappe.get_doc({"doctype": "LMS Quiz", "title": "Test Quiz", "passing_percentage": 90}).save()
-
 	def test_with_multiple_options(self):
 		question = frappe.new_doc("LMS Question")
 		question.question = "Question Multiple"
@@ -90,11 +86,6 @@ class TestLMSQuiz(unittest.TestCase):
 
 		self.assertTrue(bool(check_input_answers(q.name, "answer 7")))
 		self.assertFalse(bool(check_input_answers(q.name, "totally different")))
-
-	@classmethod
-	def tearDownClass(cls) -> None:
-		frappe.db.delete("LMS Quiz", "test-quiz")
-		frappe.db.delete("LMS Question")
 
 
 class TestQuizAnswerImageUpload(unittest.TestCase):

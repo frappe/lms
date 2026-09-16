@@ -1,11 +1,10 @@
 import frappe
-from frappe.tests.test_api import FrappeAPITestCase
 
 from lms.lms.api import get_profile_details
 from lms.lms.test_helpers import BaseTestUtils
 
 
-class TestProfileDetailsDisclosure(BaseTestUtils, FrappeAPITestCase):
+class TestProfileDetailsDisclosure(BaseTestUtils):
 	"""get_profile_details must not leak privileged roles to other users, and must not
 	behave as a username-enumeration oracle (VULN-2026-FRAPPE-LMS-001, -003)."""
 

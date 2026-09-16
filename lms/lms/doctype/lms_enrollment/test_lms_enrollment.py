@@ -27,8 +27,5 @@ class TestLMSEnrollment(BaseTestUtils):
 		enrollment = self._create_enrollment(self.student.email, self.course.name)
 		after_insert = frappe.db.get_value("LMS Course", self.course.name, "enrollments")
 		frappe.delete_doc("LMS Enrollment", enrollment.name, force=True)
-		self.cleanup_items = [
-			item for item in self.cleanup_items if item != ("LMS Enrollment", enrollment.name)
-		]
 		after_delete = frappe.db.get_value("LMS Course", self.course.name, "enrollments")
 		self.assertEqual(after_delete, after_insert - 1)

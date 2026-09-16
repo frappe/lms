@@ -1,10 +1,9 @@
 import frappe
-from frappe.tests.test_api import FrappeAPITestCase
 
 from lms.lms.test_helpers import BaseTestUtils
 
 
-class TestEnrollmentFieldGuard(BaseTestUtils, FrappeAPITestCase):
+class TestEnrollmentFieldGuard(BaseTestUtils):
 	"""A student must not be able to write the server-managed progress /
 	purchased_certificate fields on their own enrollment
 	(VULN-2026-FRAPPE-LMS-009, -010)."""

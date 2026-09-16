@@ -145,7 +145,6 @@ class TestLMSAPI(BaseTestUtils):
 		original_first_lesson = frappe.get_doc("Course Lesson", original_first_chapter.lessons[0].lesson)
 		self.assertEqual(imported_first_lesson.title, original_first_lesson.title)
 		self.assertEqual(imported_first_lesson.content, original_first_lesson.content)
-		self.cleanup_imported_course(imported_course.name)
 
 	def get_imported_course(self):
 		latest_file = self.get_latest_zip_file()
@@ -154,19 +153,6 @@ class TestLMSAPI(BaseTestUtils):
 		imported_course_name = import_course_from_zip(zip_file_path)
 		imported_course = frappe.get_doc("LMS Course", imported_course_name)
 		return imported_course
-
-	def cleanup_imported_course(self, course_name):
-		self.cleanup_items.append(("LMS Course", course_name))
-		self.cleanup_imported_assessment("LMS Quiz", self.quiz)
-		self.cleanup_imported_assessment("LMS Assignment", self.assignment)
-		self.cleanup_imported_assessment("LMS Programming Exercise", self.programming_exercise)
-
-	def cleanup_imported_assessment(self, doctype, doc):
-		imported_assessment = frappe.db.get_value(
-			doctype, {"title": doc.title, "name": ["!=", doc.name]}, "name"
-		)
-		if imported_assessment:
-			self.cleanup_items.append((doctype, imported_assessment))
 
 	def test_sanitize_string_filename_behavior(self):
 		result = sanitize_string(

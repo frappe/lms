@@ -55,19 +55,16 @@ class TestLMSCertificateRequest(BaseTestUtils):
 		frappe.set_user(self.student_a.name)
 		doc = self._new_request(member=None, day_offset=2)
 		doc.insert()
-		self.cleanup_items.append(("LMS Certificate Request", doc.name))
 		self.assertEqual(doc.member, self.student_a.name)
 
 	def test_student_can_book_for_self(self):
 		frappe.set_user(self.student_a.name)
 		doc = self._new_request(member=self.student_a.name, day_offset=3)
 		doc.insert()
-		self.cleanup_items.append(("LMS Certificate Request", doc.name))
 		self.assertEqual(doc.member, self.student_a.name)
 
 	def test_privileged_user_can_book_on_behalf_of_member(self):
 		frappe.set_user(self.moderator.name)
 		doc = self._new_request(member=self.student_b.name, day_offset=4)
 		doc.insert()
-		self.cleanup_items.append(("LMS Certificate Request", doc.name))
 		self.assertEqual(doc.member, self.student_b.name)

@@ -1,10 +1,9 @@
 import frappe
-from frappe.tests.test_api import FrappeAPITestCase
 
 from lms.lms.test_helpers import BaseTestUtils
 
 
-class TestDisabledBadgeAssignment(BaseTestUtils, FrappeAPITestCase):
+class TestDisabledBadgeAssignment(BaseTestUtils):
 	"""A disabled badge must not be awarded, whoever is asking.
 
 	The doc_events path already filters on `enabled`, so the only way a disabled
@@ -34,7 +33,6 @@ class TestDisabledBadgeAssignment(BaseTestUtils, FrappeAPITestCase):
 			}
 		)
 		badge.insert(ignore_permissions=True)
-		self.cleanup_items.append(("LMS Badge", badge.name))
 		return badge.name
 
 	def _assign(self, badge, user):
@@ -49,7 +47,6 @@ class TestDisabledBadgeAssignment(BaseTestUtils, FrappeAPITestCase):
 				}
 			)
 			doc.insert()
-			self.cleanup_items.append(("LMS Badge Assignment", doc.name))
 			return doc.name
 		finally:
 			frappe.session.user = "Administrator"

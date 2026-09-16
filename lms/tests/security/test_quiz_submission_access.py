@@ -1,7 +1,6 @@
 import json
 
 import frappe
-from frappe.tests.test_api import FrappeAPITestCase
 
 from lms.lms.doctype.lms_quiz.lms_quiz import submit_quiz
 from lms.lms.doctype.lms_quiz_submission.lms_quiz_submission import MaximumAttemptsExceededError
@@ -18,7 +17,7 @@ def _quiz_block_content(quiz):
 	)
 
 
-class TestQuizSubmissionAccess(BaseTestUtils, FrappeAPITestCase):
+class TestQuizSubmissionAccess(BaseTestUtils):
 	"""submit_quiz must require quiz access and enforce max_attempts
 	(VULN-2026-FRAPPE-LMS-005)."""
 
@@ -32,7 +31,7 @@ class TestQuizSubmissionAccess(BaseTestUtils, FrappeAPITestCase):
 		self.outsider = self._create_user(f"sqout-{hash}@example.com", "Otis", "Outsider", ["LMS Student"])
 
 		self.questions = self._create_quiz_questions()
-		self.quiz = self._create_quiz(title=f"Submit Quiz {hash}")
+		self.quiz = self._create_quiz(self.questions, title=f"Submit Quiz {hash}")
 		self.course = self._create_course(title=f"Submit Course {hash}", instructor=self.instructor.email)
 		self.chapter = self._create_chapter(f"SQChapter {hash}", self.course.name)
 		# Embedding the quiz in a lesson makes save_lesson_details_in_quiz set
