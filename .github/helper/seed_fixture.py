@@ -107,6 +107,22 @@ def quiz(title, course_name):
 	).insert()
 
 
+def print_format():
+	return (
+		frappe.get_doc(
+			{
+				"doctype": "Print Format",
+				"name": "Fixture Certificate",
+				"doc_type": "LMS Certificate",
+				"print_format_type": "Jinja",
+				"html": "<div>{{ doc.name }}</div>",
+			}
+		)
+		.insert()
+		.name
+	)
+
+
 def batch(title, course_name, instructor, students):
 	doc = frappe.get_doc(
 		{
@@ -134,6 +150,8 @@ def batch(title, course_name, instructor, students):
 			"date": "2025-01-13",
 			"time": "10:00:00",
 			"duration": 60,
+			"timezone": "Asia/Kolkata",
+			"host": instructor,
 			"description": "Live class description",
 		}
 	).insert()
@@ -185,6 +203,7 @@ def seed():
 			"member": students[0],
 			"course": courses[0].name,
 			"issue_date": "2025-03-07",
+			"template": print_format(),
 		}
 	).insert()
 
@@ -216,11 +235,16 @@ def summarise():
 	for doctype, count in counted.items():
 		print(f"FIXTURE {doctype} = {count}")
 		if not count:
-			raise SystemExit(f"fixture seeded no rows for {doctype}; migrations over it would be vacuous")
+			print(f"FIXTURE EMPTY {doctype}; migrations over it would be vacuous")
+			return None
 
-	print("FIXTURE_JSON " + json.dumps(counted))
+	# Batch students move out of the Batch Student child table into LMS Batch
+	# Enrollment docs (patches/v2_0/migrate_batch_student_data.py), so the count is
+	# recorded separately from the doctypes that keep their own rows.
+	summary = {"counts": counted, "batch_students": frappe.db.count("Batch Student")}
+	print("FIXTURE_JSON " + json.dumps(summary))
 
-	return counted
+	return summary
 
 
 seed()

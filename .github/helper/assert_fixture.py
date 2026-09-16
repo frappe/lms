@@ -14,9 +14,7 @@ import frappe
 HOP = os.environ.get("FIXTURE_HOP", "unknown")
 
 
-def compare_counts(failures):
-	expected = json.loads(os.environ["FIXTURE_COUNTS"])
-
+def compare_counts(failures, expected):
 	for doctype, count in expected.items():
 		if not frappe.db.exists("DocType", doctype):
 			failures.append(f"{doctype} no longer exists; {count} seeded rows are unaccounted for")
@@ -45,9 +43,26 @@ def compare_links(failures):
 			failures.append(f"LMS Enrollment {name} points at missing course {course}")
 
 
+def compare_batch_enrollment(failures, seeded):
+	"""Batch students are migrated out of a child table into their own doctype.
+
+	Until that patch has run the doctype does not exist, so this only asserts once
+	it does. Dropping every migrated row would otherwise go unnoticed.
+	"""
+	if not frappe.db.exists("DocType", "LMS Batch Enrollment"):
+		return
+
+	found = frappe.db.count("LMS Batch Enrollment")
+	if found != seeded:
+		failures.append(f"LMS Batch Enrollment: {seeded} batch students seeded, {found} rows after migration")
+
+
 def main():
+	summary = json.loads(os.environ["FIXTURE_COUNTS"])
+
 	failures = []
-	compare_counts(failures)
+	compare_counts(failures, summary["counts"])
+	compare_batch_enrollment(failures, summary["batch_students"])
 	compare_links(failures)
 
 	if failures:
