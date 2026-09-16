@@ -2,17 +2,17 @@
 # See license.txt
 
 import json
+import unittest
 from unittest.mock import patch
 
 import frappe
-from frappe.tests.utils import FrappeTestCase
 
 from lms.lms.permissions import enforces_lesson_completion, get_locked_lessons
 from lms.lms.test_helpers import BaseTestUtils
 from lms.lms.utils import compute_locked_lessons
 
 
-class TestComputeLockedLessons(FrappeTestCase):
+class TestComputeLockedLessons(unittest.TestCase):
 	def test_nothing_complete_leaves_only_the_first_lesson_open(self):
 		locked = compute_locked_lessons(["L1", "L2", "L3"], set())
 		self.assertEqual(locked, {"L2", "L3"})
@@ -40,6 +40,10 @@ class TestComputeLockedLessons(FrappeTestCase):
 		locked = compute_locked_lessons(["L1", "L2", "L1"], set())
 		self.assertEqual(locked, {"L2"})
 
+	def test_malformed_course_argument_locks_nothing(self):
+		self.assertEqual(get_locked_lessons(None), set())
+		self.assertEqual(get_locked_lessons(["!=", ""]), set())
+
 
 class TestLessonLockingIntegration(BaseTestUtils):
 	@classmethod
@@ -49,27 +53,28 @@ class TestLessonLockingIntegration(BaseTestUtils):
 		# bench migrate cannot see this worktree.
 		frappe.reload_doctype("LMS Course")
 
-	def setUp(self):
-		super().setUp()
-		self.student = self._create_user("locking-student@example.com", "Lock", "Student", ["LMS Student"])
-		self.author = self._create_user(
+		cls.student = cls._create_user("locking-student@example.com", "Lock", "Student", ["LMS Student"])
+		cls.author = cls._create_user(
 			"locking-author@example.com", "Lock", "Author", ["Course Creator", "Moderator"]
 		)
-		self.course = self._create_course(title="Locking Course", instructor=self.author.email)
-		self.chapter = self._create_chapter("Locking Chapter", self.course.name)
-		self._create_chapter_reference(self.course.name, self.chapter.name, idx=1)
+		cls.course = cls._create_course(title="Locking Course", instructor=cls.author.email)
+		cls.chapter = cls._create_chapter("Locking Chapter", cls.course.name)
+		cls._create_chapter_reference(cls.course.name, cls.chapter.name, idx=1)
 
-		self.lessons = []
+		cls.lessons = []
 		for idx in range(1, 4):
-			lesson = self._create_lesson(f"Locking Lesson {idx}", self.chapter.name, self.course.name)
-			self.lessons.append(lesson)
+			lesson = cls._create_lesson(f"Locking Lesson {idx}", cls.chapter.name, cls.course.name)
+			cls.lessons.append(lesson)
 
-		chapter_doc = frappe.get_doc("Course Chapter", self.chapter.name)
-		for lesson in self.lessons:
+		chapter_doc = frappe.get_doc("Course Chapter", cls.chapter.name)
+		for lesson in cls.lessons:
 			chapter_doc.append("lessons", {"lesson": lesson.name})
 		chapter_doc.save()
 
-		self._create_enrollment(self.student.email, self.course.name)
+		cls._create_enrollment(cls.student.email, cls.course.name)
+
+	def setUp(self):
+		super().setUp()
 		frappe.set_user(self.student.email)
 
 	def tearDown(self):
@@ -123,7 +128,6 @@ class TestLessonLockingIntegration(BaseTestUtils):
 				"passing_percentage": 70,
 			}
 		).insert(ignore_permissions=True)
-		self.cleanup_items.append(("LMS Quiz", quiz.name))
 		frappe.set_user(user)
 		return quiz
 
@@ -138,14 +142,6 @@ class TestLessonLockingIntegration(BaseTestUtils):
 			get_locked_lessons(self.course.name),
 			{self.lessons[1].name, self.lessons[2].name},
 		)
-
-	def test_completing_the_first_lesson_unlocks_the_second(self):
-		self._enable()
-		frappe.set_user("Administrator")
-		progress = self._create_progress(self.student.email, self.course.name, self.lessons[0].name)
-		frappe.db.set_value("LMS Course Progress", progress.name, "status", "Complete")
-		frappe.set_user(self.student.email)
-		self.assertEqual(get_locked_lessons(self.course.name), {self.lessons[2].name})
 
 	def test_partially_complete_does_not_unlock(self):
 		self._enable()
@@ -169,25 +165,19 @@ class TestLessonLockingIntegration(BaseTestUtils):
 		frappe.set_user("Guest")
 		self.assertFalse(enforces_lesson_completion(self.course.name))
 
-	def test_malformed_course_argument_locks_nothing(self):
-		self.assertEqual(get_locked_lessons(None), set())
-		self.assertEqual(get_locked_lessons(["!=", ""]), set())
-
-	def test_outline_stamps_locked_when_the_gate_applies(self):
+	def test_outline_stamps_locked_only_when_progress_is_requested(self):
 		self._enable()
 		from lms.lms.utils import get_course_outline
 
-		outline = get_course_outline(self.course.name, progress=True)
-		lessons = [lesson for chapter in outline for lesson in chapter.lessons]
-		self.assertEqual([lesson.locked for lesson in lessons], [0, 1, 1])
+		with self.subTest(case="progress_true_stamps_locked"):
+			outline = get_course_outline(self.course.name, progress=True)
+			lessons = [lesson for chapter in outline for lesson in chapter.lessons]
+			self.assertEqual([lesson.locked for lesson in lessons], [0, 1, 1])
 
-	def test_outline_without_progress_does_not_stamp_locked(self):
-		self._enable()
-		from lms.lms.utils import get_course_outline
-
-		outline = get_course_outline(self.course.name, progress=False)
-		lessons = [lesson for chapter in outline for lesson in chapter.lessons]
-		self.assertFalse(any("locked" in lesson for lesson in lessons))
+		with self.subTest(case="progress_false_omits_locked"):
+			outline = get_course_outline(self.course.name, progress=False)
+			lessons = [lesson for chapter in outline for lesson in chapter.lessons]
+			self.assertFalse(any("locked" in lesson for lesson in lessons))
 
 	def test_get_lesson_refuses_a_locked_lesson(self):
 		self._enable()
@@ -198,6 +188,10 @@ class TestLessonLockingIntegration(BaseTestUtils):
 		self.assertEqual(payload.get("redirect_to"), "1-1")
 		self.assertNotIn("content", payload)
 		self.assertNotIn("body", payload)
+		# Both payloads redirect, so the page tells them apart on this flag alone:
+		# "finish the earlier lessons to unlock this one" is false of a lesson that
+		# does not exist.
+		self.assertIsNone(payload.get("not_found"))
 
 	def test_get_lesson_sends_a_nonexistent_lesson_number_back_to_the_current_one(self):
 		"""Typing a lesson number that does not exist is the same URL tampering the gate
@@ -213,17 +207,6 @@ class TestLessonLockingIntegration(BaseTestUtils):
 				self.assertEqual(payload.get("locked"), 1)
 				self.assertEqual(payload.get("not_found"), 1)
 				self.assertEqual(payload.get("redirect_to"), "1-1")
-
-	def test_a_lesson_that_exists_but_is_locked_is_not_flagged_not_found(self):
-		# Both payloads redirect, so the page tells them apart on this flag alone:
-		# "finish the earlier lessons to unlock this one" is false of a lesson that
-		# does not exist.
-		self._enable()
-		from lms.lms.utils import get_lesson
-
-		payload = get_lesson(self.course.name, 1, 2)
-		self.assertEqual(payload.get("locked"), 1)
-		self.assertIsNone(payload.get("not_found"))
 
 	def test_a_nonexistent_lesson_number_is_still_empty_without_the_gate(self):
 		from lms.lms.utils import get_lesson
@@ -252,8 +235,28 @@ class TestLessonLockingIntegration(BaseTestUtils):
 		from lms.lms.utils import get_lesson
 
 		payload = get_lesson(self.course.name, 1, 3)
+
 		self.assertEqual(payload.get("locked"), 1)
 		self.assertEqual(payload.get("redirect_to"), "1-2")
+
+	def test_redirect_target_is_never_locked_when_the_pointer_is_stale(self):
+		# The pointer can name a locked lesson: save_progress wrote it while the
+		# setting was off, or the chapters were reordered afterwards. Redirecting
+		# there is a dead end.
+		self._enable()
+		self._complete(self.lessons[0].name)
+		self._set_pointer(self.lessons[2].name)
+
+		from lms.lms.utils import get_lesson, get_lesson_index
+
+		locked = get_locked_lessons(self.course.name)
+		self.assertIn(self.lessons[2].name, locked)
+
+		payload = get_lesson(self.course.name, 1, 3)
+
+		self.assertEqual(payload.get("locked"), 1)
+		self.assertEqual(payload.get("redirect_to"), "1-2")
+		self.assertNotIn(payload["redirect_to"], {get_lesson_index(name) for name in locked})
 
 	def test_get_lesson_refuses_a_locked_scorm_lesson(self):
 		self._enable()
@@ -274,44 +277,18 @@ class TestLessonLockingIntegration(BaseTestUtils):
 		self.assertFalse(payload.get("locked"))
 		self.assertEqual(payload.get("title"), "Locking Lesson 3")
 
-	def test_redirect_target_is_never_locked_when_the_pointer_is_stale(self):
-		# The pointer can name a locked lesson: save_progress wrote it while the setting
-		# was off, or the chapters were reordered afterwards. Redirecting there is a dead
-		# end — the router replaces the route it is already on and nothing happens.
+	def test_continue_learning_pointer_by_lock_state(self):
 		self._enable()
 		self._complete(self.lessons[0].name)
-		self._set_pointer(self.lessons[2].name)
-
-		from lms.lms.utils import get_lesson
-
-		locked = get_locked_lessons(self.course.name)
-		self.assertIn(self.lessons[2].name, locked)
-
-		payload = get_lesson(self.course.name, 1, 3)
-		self.assertEqual(payload.get("locked"), 1)
-		self.assertEqual(payload.get("redirect_to"), "1-2")
-
-		from lms.lms.utils import get_lesson_index
-
-		self.assertNotIn(payload["redirect_to"], {get_lesson_index(name) for name in locked})
-
-	def test_continue_learning_never_points_at_a_locked_lesson(self):
-		self._enable()
-		self._complete(self.lessons[0].name)
-		self._set_pointer(self.lessons[2].name)
-
 		from lms.lms.utils import get_course_details
 
-		self.assertEqual(get_course_details(self.course.name).current_lesson, "1-2")
+		with self.subTest(case="never_points_at_a_locked_lesson"):
+			self._set_pointer(self.lessons[2].name)
+			self.assertEqual(get_course_details(self.course.name).current_lesson, "1-2")
 
-	def test_continue_learning_keeps_the_pointer_when_it_is_open(self):
-		self._enable()
-		self._complete(self.lessons[0].name)
-		self._set_pointer(self.lessons[1].name)
-
-		from lms.lms.utils import get_course_details
-
-		self.assertEqual(get_course_details(self.course.name).current_lesson, "1-2")
+		with self.subTest(case="keeps_the_pointer_when_it_is_open"):
+			self._set_pointer(self.lessons[1].name)
+			self.assertEqual(get_course_details(self.course.name).current_lesson, "1-2")
 
 	def test_ordered_lesson_rows_carry_no_lesson_bodies(self):
 		# The lock rule needs names and order only; body/content would put the whole
@@ -324,27 +301,21 @@ class TestLessonLockingIntegration(BaseTestUtils):
 			self.assertNotIn("body", row)
 			self.assertNotIn("content", row)
 
-	def test_save_progress_refuses_a_locked_lesson(self):
-		self._enable()
-		from lms.lms.doctype.course_lesson.course_lesson import save_progress
-
-		with self.assertRaises(frappe.PermissionError):
-			save_progress(self.lessons[2].name, self.course.name)
-		self.assertFalse(
-			frappe.db.exists(
-				"LMS Course Progress", {"lesson": self.lessons[2].name, "member": self.student.email}
-			)
-		)
-
 	def test_save_progress_cannot_unlock_the_whole_course(self):
 		# The bypass: call save_progress once per lesson name the outline publishes and
-		# every lesson gets a Complete row, emptying the lock set.
+		# every lesson gets a Complete row, emptying the lock set. Also pins the
+		# narrower single-lesson case: no progress row is left behind for a refusal.
 		self._enable()
 		from lms.lms.doctype.course_lesson.course_lesson import save_progress
 
 		for lesson in self.lessons[1:]:
 			with self.assertRaises(frappe.PermissionError):
 				save_progress(lesson.name, self.course.name)
+		self.assertFalse(
+			frappe.db.exists(
+				"LMS Course Progress", {"lesson": self.lessons[2].name, "member": self.student.email}
+			)
+		)
 
 		self.assertEqual(
 			get_locked_lessons(self.course.name),
@@ -365,14 +336,15 @@ class TestLessonLockingIntegration(BaseTestUtils):
 		self.assertEqual(get_locked_lessons(self.course.name), {self.lessons[2].name})
 
 	def test_scorm_renderer_refuses_bytes_for_a_locked_chapter(self):
-		# SCORMChapter.vue never calls get_lesson, so this is the authoritative gate for
-		# a student who opens /learn/<scorm-chapter> directly.
+		# SCORMChapter.vue never calls get_lesson, so this is the authoritative gate
+		# for a student who opens /learn/<scorm-chapter> directly.
 		self._enable()
 		chapter, _lesson = self._add_scorm_chapter()
 
 		from lms.page_renderers import SCORMRenderer
 
 		renderer = SCORMRenderer(path=f"scorm/{self.course.name}/{chapter.title}/index.html")
+
 		with self.assertRaises(frappe.PermissionError):
 			renderer._check_permission()
 
@@ -385,6 +357,7 @@ class TestLessonLockingIntegration(BaseTestUtils):
 		from lms.page_renderers import SCORMRenderer
 
 		renderer = SCORMRenderer(path=f"scorm/{self.course.name}/{chapter.title}/index.html")
+
 		self.assertIsNone(renderer._check_permission())
 
 	def test_outline_withholds_the_launch_file_of_a_locked_scorm_chapter(self):
@@ -394,7 +367,8 @@ class TestLessonLockingIntegration(BaseTestUtils):
 		from lms.lms.utils import get_course_outline
 
 		outline = get_course_outline(self.course.name, progress=True)
-		scorm = next(c for c in outline if c.name == chapter.name)
+		scorm = next(chap for chap in outline if chap.name == chapter.name)
+
 		self.assertIsNone(scorm.launch_file)
 		self.assertIsNone(scorm.scorm_package)
 
@@ -407,30 +381,26 @@ class TestLessonLockingIntegration(BaseTestUtils):
 		from lms.lms.utils import get_course_outline
 
 		outline = get_course_outline(self.course.name, progress=True)
-		scorm = next(c for c in outline if c.name == chapter.name)
+		scorm = next(chap for chap in outline if chap.name == chapter.name)
+
 		self.assertEqual(scorm.launch_file, "index.html")
 
-	def test_locked_lesson_quiz_is_not_readable(self):
+	def test_lesson_quiz_readability_follows_its_own_lock_state(self):
 		self._enable()
-		quiz = self._create_lesson_quiz(self.lessons[2].name)
-
 		from lms.lms.permissions import can_access_quiz
 
-		self.assertFalse(can_access_quiz(quiz.name))
+		with self.subTest(case="locked_lesson_quiz_is_not_readable"):
+			quiz = self._create_lesson_quiz(self.lessons[2].name)
+			self.assertFalse(can_access_quiz(quiz.name))
 
-	def test_the_current_lessons_quiz_stays_readable(self):
-		self._enable()
-		quiz = self._create_lesson_quiz(self.lessons[0].name)
-
-		from lms.lms.permissions import can_access_quiz
-
-		self.assertTrue(can_access_quiz(quiz.name))
+		with self.subTest(case="current_lessons_quiz_stays_readable"):
+			quiz = self._create_lesson_quiz(self.lessons[0].name, title="Locking Lesson Quiz Open")
+			self.assertTrue(can_access_quiz(quiz.name))
 
 	def test_a_quiz_orphaned_from_its_lesson_is_refused_under_the_gate(self):
-		# cleanup_lesson_backreferences clears LMS Quiz.lesson on the lesson's deletion
-		# and leaves LMS Quiz.course standing, so the placement carries no lesson to
-		# check. `None not in locked` holds for every course, which granted any enrolled
-		# member the questions of a quiz still embedded in a locked lesson.
+		# Deleting a lesson clears LMS Quiz.lesson but leaves LMS Quiz.course, so the
+		# placement has no lesson to check and `None not in locked` holds for every
+		# course -- handing any enrolled member a locked lesson's questions.
 		self._enable()
 		quiz = self._create_lesson_quiz(self.lessons[2].name)
 		frappe.db.set_value("LMS Quiz", quiz.name, "lesson", None)
@@ -567,10 +537,3 @@ class TestLessonLockingIntegration(BaseTestUtils):
 			if call.args and call.args[0] == "LMS Enrollment" and "current_lesson" in call.args
 		]
 		self.assertEqual(pointer_reads, [])
-
-
-class TestLessonLockingImportExport(FrappeTestCase):
-	def test_export_carries_the_setting(self):
-		from lms.lms.course_import_export import get_course_fields
-
-		self.assertIn("enforce_lesson_completion", get_course_fields())

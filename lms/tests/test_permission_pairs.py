@@ -83,7 +83,6 @@ class TestLiveClassListRead(BaseTestUtils):
 		# test has no use for — the condition under test never reads the event.
 		with patch.object(LMSLiveClass, "create_calendar_event"):
 			live_class.insert()
-		self.cleanup_items.append(("LMS Live Class", live_class.name))
 		self.live_class = live_class.name
 
 	def tearDown(self):

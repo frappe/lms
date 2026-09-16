@@ -7,6 +7,7 @@ import frappe
 
 from lms.lms.course_import_export import (
 	get_assessments_from_lesson,
+	get_course_fields,
 	replace_assessment_names,
 )
 
@@ -19,6 +20,9 @@ class TestImportExportContentGuards(unittest.TestCase):
 	whole export. These readers must fail soft. Fixture-free: the non-JSON paths
 	never reach the DB.
 	"""
+
+	def test_export_carries_the_lesson_locking_setting(self):
+		self.assertIn("enforce_lesson_completion", get_course_fields())
 
 	def test_get_assessments_from_lesson_non_json(self):
 		# Non-JSON content yields no assessments/questions/test_cases and never hits the DB.
