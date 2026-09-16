@@ -1,0 +1,56 @@
+name: Download translations from Crowdin
+
+on:
+  schedule:
+    - cron: "0 4 * * 1"
+  workflow_dispatch:
+
+concurrency:
+  group: crowdin-download
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  download-translations:
+    name: Download translations into ${{ matrix.branch }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # l10n_branch is the branch Crowdin opens its PR from. develop keeps
+          # the name the old GitHub integration used, so PR history stays under
+          # one head branch. A new branch here needs its own explicit name.
+          - branch: develop
+            l10n_branch: l10n_develop2
+
+    steps:
+      - name: Checkout ${{ matrix.branch }}
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ matrix.branch }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Download translations and open PR
+        uses: crowdin/github-action@v2.17.1
+        with:
+          config: crowdin.yml
+          upload_sources: false
+          upload_translations: false
+          download_translations: true
+          crowdin_branch_name: "[frappe.lms] ${{ matrix.branch }}"
+          skip_ref_checkout: true
+          localization_branch_name: ${{ matrix.l10n_branch }}
+          create_pull_request: true
+          pull_request_base_branch_name: ${{ matrix.branch }}
+          commit_message: "chore: sync translations from crowdin"
+          pull_request_title: "chore: sync translations from crowdin (${{ matrix.branch }})"
+          pull_request_labels: "translation"
+          pull_request_reviewers: raizasafeel
+        env:
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+          CROWDIN_PROJECT_ID: ${{ secrets.CROWDIN_PROJECT_ID }}
+          CROWDIN_PERSONAL_TOKEN: ${{ secrets.CROWDIN_PERSONAL_TOKEN }}
