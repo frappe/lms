@@ -1,20 +1,14 @@
-"""Populate a site with enough data for migration testing to be meaningful.
+"""Populate a site so that migrating it proves something.
 
-Runs against the OLDEST version in the ladder, so it may only touch doctypes and
-fields that existed at LMS v2.0.0. It is invoked from outside the installed app
-(the workflow checks out the repo at PR head and feeds this file to the console),
-which is what lets it seed a site running much older code.
-
-Migrations on empty tables always succeed, even when the change is invalid, so
-every table this fixture can reach gets at least a few rows.
+Migrations over empty tables always succeed, even when the change is invalid.
+Runs on the oldest version in the ladder, so it may only touch doctypes and
+fields that existed at LMS v2.0.0.
 """
 
 import json
-import os
 
 import frappe
 
-COUNTS_PATH = os.environ.get("FIXTURE_COUNTS", "/tmp/lms-fixture-counts.json")
 COURSE_COUNT = 2
 CHAPTERS_PER_COURSE = 2
 LESSONS_PER_CHAPTER = 3
@@ -22,9 +16,6 @@ STUDENT_COUNT = 3
 
 
 def user(email, first_name, roles):
-	if frappe.db.exists("User", email):
-		return email
-
 	doc = frappe.get_doc(
 		{
 			"doctype": "User",
@@ -33,17 +24,17 @@ def user(email, first_name, roles):
 			"send_welcome_email": 0,
 			"enabled": 1,
 		}
-	).insert(ignore_permissions=True)
+	).insert()
 
 	for role in roles:
 		if frappe.db.exists("Role", role):
 			doc.append("roles", {"role": role})
-	doc.save(ignore_permissions=True)
+	doc.save()
 
 	return email
 
 
-def course(title, instructor, index):
+def course(title, instructor):
 	doc = frappe.get_doc(
 		{
 			"doctype": "LMS Course",
@@ -54,7 +45,7 @@ def course(title, instructor, index):
 			"published": 1,
 			"instructors": [{"instructor": instructor}],
 		}
-	).insert(ignore_permissions=True)
+	).insert()
 
 	for chapter_index in range(CHAPTERS_PER_COURSE):
 		chapter = frappe.get_doc(
@@ -64,7 +55,7 @@ def course(title, instructor, index):
 				"course": doc.name,
 				"description": "Chapter description",
 			}
-		).insert(ignore_permissions=True)
+		).insert()
 
 		doc.append("chapters", {"chapter": chapter.name})
 
@@ -77,13 +68,13 @@ def course(title, instructor, index):
 					"course": doc.name,
 					"body": "Lesson body with **markdown** and a {{ YouTubeVideo('abc') }} macro.",
 				}
-			).insert(ignore_permissions=True)
+			).insert()
 
 			chapter.append("lessons", {"lesson": lesson.name})
 
-		chapter.save(ignore_permissions=True)
+		chapter.save()
 
-	doc.save(ignore_permissions=True)
+	doc.save()
 
 	return doc
 
@@ -101,7 +92,7 @@ def quiz(title, course_name):
 				"option_2": "Second option",
 				"is_correct_2": 0,
 			}
-		).insert(ignore_permissions=True)
+		).insert()
 		questions.append({"question": question.name, "marks": 1})
 
 	return frappe.get_doc(
@@ -113,7 +104,7 @@ def quiz(title, course_name):
 			"total_marks": len(questions),
 			"questions": questions,
 		}
-	).insert(ignore_permissions=True)
+	).insert()
 
 
 def batch(title, course_name, instructor, students):
@@ -133,7 +124,7 @@ def batch(title, course_name, instructor, students):
 			"courses": [{"course": course_name}],
 			"students": [{"student": student} for student in students],
 		}
-	).insert(ignore_permissions=True)
+	).insert()
 
 	frappe.get_doc(
 		{
@@ -145,19 +136,21 @@ def batch(title, course_name, instructor, students):
 			"duration": 60,
 			"description": "Live class description",
 		}
-	).insert(ignore_permissions=True)
+	).insert()
 
 	return doc
 
 
 def seed():
+	# bench console connects with set_admin_as_user=True, so these run as
+	# Administrator and need no ignore_permissions.
 	instructor = user("fixture-instructor@example.com", "Fixture Instructor", ["Course Creator"])
 	students = [
 		user(f"fixture-student-{index}@example.com", f"Fixture Student {index}", ["LMS Student"])
 		for index in range(STUDENT_COUNT)
 	]
 
-	courses = [course(f"Fixture course {index + 1}", instructor, index) for index in range(COURSE_COUNT)]
+	courses = [course(f"Fixture course {index + 1}", instructor) for index in range(COURSE_COUNT)]
 
 	for index, doc in enumerate(courses):
 		quiz(f"Fixture quiz {index + 1}", doc.name)
@@ -169,7 +162,7 @@ def seed():
 					"course": doc.name,
 					"member": student,
 				}
-			).insert(ignore_permissions=True)
+			).insert()
 
 		lessons = frappe.get_all("Course Lesson", filters={"course": doc.name}, pluck="name")
 		for student in students:
@@ -182,7 +175,7 @@ def seed():
 						"member": student,
 						"status": "Complete",
 					}
-				).insert(ignore_permissions=True)
+				).insert()
 
 	batch("Fixture batch", courses[0].name, instructor, students)
 
@@ -193,16 +186,17 @@ def seed():
 			"course": courses[0].name,
 			"issue_date": "2025-03-07",
 		}
-	).insert(ignore_permissions=True)
+	).insert()
 
-	frappe.db.commit()
+	frappe.db.commit()  # nosemgrep a seeding script has no enclosing request to commit for it
 
 
 def summarise():
-	"""Write the row counts every later hop must still satisfy.
+	"""Print the row counts every later hop must still satisfy.
 
-	Written to a file rather than hardcoded in the assertions so that changing the
-	fixture cannot silently leave the assertions checking the old shape.
+	Printed rather than hardcoded in the assertions, so changing the fixture cannot
+	leave the assertions checking the old shape. The workflow reads the FIXTURE_JSON
+	line back out and passes it to each hop.
 	"""
 	counted = {}
 	for doctype in (
@@ -224,12 +218,10 @@ def summarise():
 		if not count:
 			raise SystemExit(f"fixture seeded no rows for {doctype}; migrations over it would be vacuous")
 
-	with open(COUNTS_PATH, "w") as f:
-		json.dump(counted, f, indent=1)
+	print("FIXTURE_JSON " + json.dumps(counted))
 
 	return counted
 
 
 seed()
 summarise()
-print("FIXTURE seeded")

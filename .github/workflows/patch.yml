@@ -50,7 +50,6 @@ jobs:
 
     env:
       SITE: lms.test
-      FIXTURE_COUNTS: /tmp/lms-fixture-counts.json
 
     steps:
       # Full history: the ladder checks out the v2.0.0 tag and the PR head out of
@@ -97,13 +96,24 @@ jobs:
             --skip-redis-config-generation
           cd ~/frappe-bench
 
-          bench get-app --branch version-15 payments https://github.com/frappe/payments
-          bench get-app --branch v2.0.0 lms "${GITHUB_WORKSPACE}"
+          bench get-app --skip-assets --branch version-15 payments https://github.com/frappe/payments
+          bench get-app --skip-assets --branch v2.0.0 lms "${GITHUB_WORKSPACE}"
 
-          # bench may clone shallow; the ladder needs every ref from the workspace.
-          git -C apps/lms remote set-url origin "${GITHUB_WORKSPACE}"
-          git -C apps/lms fetch --force --tags origin '+refs/heads/*:refs/remotes/origin/*' --unshallow \
-            || git -C apps/lms fetch --force --tags origin '+refs/heads/*:refs/remotes/origin/*'
+          # get-app from a local path leaves no origin behind, so add it rather than
+          # set-url, then pull every ref the ladder needs to check out later.
+          git -C apps/lms remote remove origin 2>/dev/null || true
+          git -C apps/lms remote add origin "${GITHUB_WORKSPACE}"
+          git -C apps/lms fetch --force --tags origin '+refs/heads/*:refs/remotes/origin/*'
+
+          # Prove we are actually on v2.0.0. If --branch silently did not apply, the
+          # fixture would be seeded by current code and the ladder would test nothing.
+          git -C apps/lms checkout -q -f v2.0.0
+          on="$(git -C apps/lms rev-parse HEAD)"
+          want="$(git -C apps/lms rev-parse v2.0.0^{commit})"
+          if [ "$on" != "$want" ]; then
+            echo "expected lms at v2.0.0 ($want), got $on"
+            exit 1
+          fi
 
           bench set-config -g db_host 127.0.0.1
           bench new-site "$SITE" \
@@ -112,17 +122,22 @@ jobs:
           bench --site "$SITE" install-app lms
 
           echo "exec(open('${GITHUB_WORKSPACE}/.github/helper/seed_fixture.py').read(), globals())" \
-            | bench --site "$SITE" console
+            | bench --site "$SITE" console | tee /tmp/seed.log
+
+          counts="$(grep -m1 '^FIXTURE_JSON ' /tmp/seed.log | cut -d' ' -f2-)"
+          if [ -z "$counts" ]; then
+            echo "seed printed no FIXTURE_JSON line"
+            exit 1
+          fi
+          echo "FIXTURE_COUNTS=$counts" >> "$GITHUB_ENV"
 
       - name: Walk the version ladder
         run: |
           set -e
           cd ~/frappe-bench
 
-          # Each hop moves frappe, payments and lms together. LMS declares
-          # required_apps = ["frappe/payments"], so payments cannot be dropped the
-          # way erpnext drops it, and a hop that pairs them wrongly fails at
-          # install time against the per-branch frappe-dependencies pins.
+          # Each hop moves frappe, payments and lms together; lms requires payments,
+          # so it cannot be dropped the way erpnext drops it before its own ladder.
           hop() {
             local name="$1" frappe_ref="$2" payments_ref="$3" lms_ref="$4" python_bin="$5"
 
@@ -142,7 +157,11 @@ jobs:
             bench --site "$SITE" migrate
 
             echo "exec(open('${GITHUB_WORKSPACE}/.github/helper/assert_fixture.py').read(), globals())" \
-              | FIXTURE_HOP="$name" bench --site "$SITE" console
+              | FIXTURE_HOP="$name" bench --site "$SITE" console | tee /tmp/assert.log
+            grep -q "^FIXTURE_OK ${name}\$" /tmp/assert.log || {
+              echo "fixture assertions failed after hop ${name}"
+              exit 1
+            }
 
             echo "::endgroup::"
           }

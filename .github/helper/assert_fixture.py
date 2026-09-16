@@ -1,13 +1,9 @@
 """Assert the seeded fixture survived a migration.
 
 `bench migrate` exits 0 for a patch that silently drops or orphans rows, so exit
-status alone proves only that nothing raised. This runs after every hop and
-compares against the counts the seed recorded, plus the links that must still
-resolve.
-
-A deliberate schema change that moves data is expected to fail here first. That
-is the point: the fix is a patch that carries the data over, after which the
-seed and its recorded counts are updated together.
+status alone proves only that nothing raised. A deliberate schema change that
+moves data is expected to fail here first; the fix is a patch that carries the
+data over.
 """
 
 import json
@@ -15,13 +11,11 @@ import os
 
 import frappe
 
-COUNTS_PATH = os.environ.get("FIXTURE_COUNTS", "/tmp/lms-fixture-counts.json")
 HOP = os.environ.get("FIXTURE_HOP", "unknown")
 
 
 def compare_counts(failures):
-	with open(COUNTS_PATH) as f:
-		expected = json.load(f)
+	expected = json.loads(os.environ["FIXTURE_COUNTS"])
 
 	for doctype, count in expected.items():
 		if not frappe.db.exists("DocType", doctype):
@@ -60,9 +54,11 @@ def main():
 		print(f"FIXTURE FAILED after hop '{HOP}':")
 		for failure in failures:
 			print(f"  - {failure}")
-		raise SystemExit(1)
+		return
 
-	print(f"FIXTURE intact after hop '{HOP}'")
+	# The caller greps for this line. bench console is IPython, which swallows
+	# SystemExit and exits 0, so raising here would not fail the job.
+	print(f"FIXTURE_OK {HOP}")
 
 
 main()
