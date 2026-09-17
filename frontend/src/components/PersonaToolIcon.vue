@@ -8,13 +8,15 @@
 			loading="lazy"
 		/>
 
-		<component
-			:is="glyph"
-			v-else-if="glyph"
-			class="tool-tile-glyph size-3.5"
-		/>
+		<component :is="glyph" v-else-if="glyph" class="tool-tile-glyph size-3.5" />
 
-		<svg v-else class="tool-tile-placeholder" viewBox="0 0 20 20" width="14" height="14">
+		<svg
+			v-else
+			class="tool-tile-placeholder"
+			viewBox="0 0 20 20"
+			width="14"
+			height="14"
+		>
 			<rect width="20" height="20" rx="5" />
 			<text
 				x="10"

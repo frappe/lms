@@ -470,8 +470,7 @@
 						<div v-else v-for="index in MAX_OPTIONS" :key="index">
 							<Checkbox
 								v-if="
-									!showAnswers.length &&
-									questionDetails.data[`option_${index}`]
+									!showAnswers.length && questionDetails.data[`option_${index}`]
 								"
 								class="mt-4"
 								:class="OPTION_ROW_CLASSES"

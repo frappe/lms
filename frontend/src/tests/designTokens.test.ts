@@ -25,14 +25,13 @@
  * beta.24 still has, so a stale node_modules would accept names CI rejects.
  */
 import { describe, expect, it } from 'vitest'
-import { readFileSync } from 'node:fs'
-import { resolve } from 'node:path'
 
-const FRAPPE_UI = resolve(process.cwd(), 'node_modules/frappe-ui')
-const readJSON = (path: string) =>
-	JSON.parse(readFileSync(resolve(FRAPPE_UI, path), 'utf8'))
-
-const colors = readJSON('tailwind/generated/colors.json')
+// Imported rather than read off disk: this project ships no @types/node, so
+// `node:fs` and `process` would each cost a type error. `resolveJsonModule` is
+// on, and Vite resolves these the same way the app's own imports resolve.
+import appPackage from '../../package.json'
+import frappeUiPackage from '../../node_modules/frappe-ui/package.json'
+import colors from '../../node_modules/frappe-ui/tailwind/generated/colors.json'
 
 // surface-gray-3, ink-blue-4, outline-alpha-gray-1, ... every name that
 // resolves to a themed CSS variable.
@@ -275,11 +274,8 @@ describe('design tokens', () => {
 	})
 
 	it('runs against the frappe-ui version package.json pins', () => {
-		const pinned = readJSON(
-			resolve(process.cwd(), 'package.json')
-		).dependencies['frappe-ui']
-		const installed = readJSON('package.json').version
-		expect(`frappe-ui@${installed}`).toBe(`frappe-ui@${pinned}`)
+		const pinned = appPackage.dependencies['frappe-ui']
+		expect(`frappe-ui@${frappeUiPackage.version}`).toBe(`frappe-ui@${pinned}`)
 	})
 
 	it('uses no semantic token frappe-ui does not define', () => {

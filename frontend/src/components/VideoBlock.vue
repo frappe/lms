@@ -406,11 +406,13 @@ iframe {
 }
 /* token-exempt-end */
 
+/* token-exempt-start: scrim on the video still */
 .video-play-scrim {
 	background: radial-gradient(
 		circle,
-		rgba(0, 0, 0, 0.3) 0%, /* token-exempt: scrim on the video still */
-		rgba(0, 0, 0, 0.4) 50% /* token-exempt: scrim on the video still */
+		rgba(0, 0, 0, 0.3) 0%,
+		rgba(0, 0, 0, 0.4) 50%
 	);
 }
+/* token-exempt-end */
 </style>

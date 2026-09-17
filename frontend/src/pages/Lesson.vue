@@ -1445,13 +1445,15 @@ usePageMeta(() => {
 	border-inline-start: 1px solid var(--outline-gray-2);
 }
 
+/* token-exempt-start: scrim on the video, not the page */
 .plyr__control--overlaid {
 	background: radial-gradient(
 		circle,
-		rgba(0, 0, 0, 0.4) 0%, /* token-exempt: scrim on the video */
-		rgba(0, 0, 0, 0.5) 50% /* token-exempt: scrim on the video */
+		rgba(0, 0, 0, 0.4) 0%,
+		rgba(0, 0, 0, 0.5) 50%
 	);
 }
+/* token-exempt-end */
 
 .plyr__control:hover {
 	background: none;

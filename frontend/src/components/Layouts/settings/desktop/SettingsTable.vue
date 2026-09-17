@@ -12,10 +12,7 @@
 			</ListHeader>
 			<div role="rowgroup">
 				<ListRows :items="rows" :row-key="rowKey" v-slot="{ item: row }">
-					<ListRow
-						:class="ROW_CLASSES"
-						@click="emit('rowClick', row)"
-					>
+					<ListRow :class="ROW_CLASSES" @click="emit('rowClick', row)">
 						<ListCell
 							v-for="column in columns"
 							:key="column.key"
