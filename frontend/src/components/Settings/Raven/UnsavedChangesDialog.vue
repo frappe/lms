@@ -1,6 +1,6 @@
 <template>
 	<Dialog
-		v-model="open"
+		v-model:open="open"
 		:title="__('Leave without saving?')"
 		:message="__('You have unsaved changes, leave anyway?')"
 		size="sm"

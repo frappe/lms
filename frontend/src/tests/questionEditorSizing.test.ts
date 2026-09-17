@@ -9,6 +9,14 @@ import { mount } from '@vue/test-utils'
 const editorClassFor = { current: [] as unknown[] }
 
 vi.mock('frappe-ui', () => ({
+	Button: { template: '<button><slot /></button>' },
+	Badge: { template: '<span><slot /></span>' },
+	Dropdown: { template: '<div><slot /></div>' },
+	FormControl: { template: '<input />' },
+	FormLabel: { template: '<label />' },
+}))
+
+vi.mock('frappe-ui/experimental', () => ({
 	TextEditor: {
 		props: ['editorClass', 'content', 'editable', 'fixedMenu', 'placeholder'],
 		created() {
@@ -17,11 +25,6 @@ vi.mock('frappe-ui', () => ({
 		},
 		template: '<div class="text-editor-stub" />',
 	},
-	Button: { template: '<button><slot /></button>' },
-	Badge: { template: '<span><slot /></span>' },
-	Dropdown: { template: '<div><slot /></div>' },
-	FormControl: { template: '<input />' },
-	FormLabel: { template: '<label />' },
 }))
 
 vi.stubGlobal('__', (s: string) => s)

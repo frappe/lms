@@ -1,14 +1,14 @@
 <template>
 	<Popover bare>
-		<template #trigger="{ isOpen, toggle }" class="flex w-full">
-			<slot v-bind="{ isOpen, togglePopover: toggle }"></slot>
+		<template #trigger="{ open, setOpen }" class="flex w-full">
+			<slot v-bind="{ open, setOpen }"></slot>
 		</template>
 		<template #default>
 			<div
-				class="absolute start-1/2 mt-3 w-96 max-w-lg -translate-x-1/2 transform rounded-lg bg-surface-base px-4 sm:px-0 lg:max-w-3xl"
+				class="absolute start-1/2 mt-3 w-96 max-w-lg -translate-x-1/2 transform rounded-6 bg-surface-base px-4 sm:px-0 lg:max-w-3xl"
 			>
 				<div
-					class="overflow-hidden rounded-lg p-3 shadow-2xl ring-1 ring-black ring-opacity-5"
+					class="overflow-hidden rounded-6 p-3 shadow-2xl ring-1 ring-black ring-opacity-5"
 				>
 					<div class="flex items-center justify-center gap-x-2">
 						<TextInput
@@ -21,7 +21,7 @@
 						/>
 						<FileUploader
 							:fileTypes="['image/*']"
-							:uploadArgs="{ private: false }"
+							:private="false"
 							:validateFile="validateFile"
 							@success="(file) => saveImage(file)"
 						>
@@ -43,7 +43,7 @@
 						<button
 							v-for="image in images.data"
 							:key="image.id"
-							class="h-[50px] w-[200px] overflow-hidden rounded hover:opacity-80"
+							class="h-[50px] w-[200px] overflow-hidden rounded-4 hover:opacity-80"
 							@click="$emit('select', image.urls.raw)"
 						>
 							<img
@@ -62,7 +62,7 @@
 					     box that reads as a broken picker. -->
 					<div
 						v-else-if="hasFetched && !images.loading"
-						class="mt-2 w-[25.5rem] rounded border border-dashed p-4 text-center text-sm text-ink-gray-5"
+						class="mt-2 w-[25.5rem] rounded-4 border border-dashed p-4 text-center text-sm text-ink-gray-5"
 					>
 						<template v-if="search">
 							{{ __('No images found for "{0}".').format(search) }}

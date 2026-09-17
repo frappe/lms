@@ -12,7 +12,7 @@
 				:key="certificate.name"
 				:href="certificateUrl(certificate)"
 				v-external
-				class="flex flex-col bg-surface-base border rounded-lg p-3 cursor-pointer hover:bg-surface-sidebar"
+				class="flex flex-col bg-surface-base border rounded-6 p-3 cursor-pointer hover:bg-surface-sidebar"
 			>
 				<div class="font-medium leading-5 mb-2 text-ink-gray-9">
 					{{ certificate.course_title || certificate.batch_title }}

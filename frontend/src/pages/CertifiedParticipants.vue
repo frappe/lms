@@ -59,7 +59,7 @@
 			<component
 				:is="row.username ? 'router-link' : 'div'"
 				:to="profileRoute(row.username, 'ProfileAbout')"
-				class="flex flex-col rounded-lg border p-3 text-ink-gray-9"
+				class="flex flex-col rounded-6 border p-3 text-ink-gray-9"
 				:class="
 					row.username ? 'cursor-pointer hover:border-outline-gray-3' : ''
 				"

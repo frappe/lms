@@ -5,6 +5,7 @@ import postcss from 'postcss'
 // frappe-ui's own token export, so the expected colours come from the same
 // source the stylesheet is generated from rather than being restated here.
 import colors from '../../node_modules/frappe-ui/tailwind/generated/colors.json'
+import { oklchToHex } from './oklch'
 
 // The bug this guards: nothing painted the document. frappe-ui declares the
 // theme variables but sets no background on html or body, and every app layout
@@ -35,7 +36,11 @@ const themeVariables = (theme: 'light' | 'dark'): Record<string, string> => {
 			const resolved = reference
 				.split('/')
 				.reduce<any>((node, key) => (node == null ? node : node[key]), colors)
-			if (typeof resolved === 'string') out[`--${group}-${name}`] = resolved
+			// frappe-ui exports these as oklch(...) strings; normalize to hex once,
+			// here, so every downstream comparison and the hex-parsing helpers
+			// below can stay hex-only.
+			if (typeof resolved === 'string')
+				out[`--${group}-${name}`] = oklchToHex(resolved)
 		}
 	}
 	return out

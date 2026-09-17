@@ -15,7 +15,7 @@ vi.mock('@/utils/composables', async () => {
 })
 
 // The stubs below are trimmed copies of the frappe-ui components they stand in for, kept faithful on the one thing under test: where the selection lives.
-vi.mock('frappe-ui', async () => {
+vi.mock('frappe-ui/experimental', async () => {
 	const { computed, defineComponent, inject, provide, reactive, watch } =
 		await import('vue')
 
@@ -95,6 +95,28 @@ vi.mock('frappe-ui', async () => {
 		><slot name="actions" v-bind="bannerProps" /></div>`,
 	})
 
+	const passthrough = (testid: string) => ({
+		inheritAttrs: false,
+		template: `<div data-testid="${testid}" v-bind="$attrs"><slot /></div>`,
+	})
+
+	return {
+		ListView,
+		ListSelectBanner,
+		ListHeader: passthrough('list-header'),
+		ListHeaderItem: {
+			props: ['item'],
+			template:
+				'<div><slot name="prefix" :item="item" />{{ item.label }}</div>',
+		},
+		ListRows: { template: '<div data-testid="list-rows" />' },
+		ListRowItem: { template: '<div><slot /></div>' },
+	}
+})
+
+vi.mock('frappe-ui', async () => {
+	const { defineComponent } = await import('vue')
+
 	const Checkbox = defineComponent({
 		name: 'Checkbox',
 		inheritAttrs: false,
@@ -118,24 +140,7 @@ vi.mock('frappe-ui', async () => {
 		/>`,
 	})
 
-	const passthrough = (testid: string) => ({
-		inheritAttrs: false,
-		template: `<div data-testid="${testid}" v-bind="$attrs"><slot /></div>`,
-	})
-
-	return {
-		Checkbox,
-		ListView,
-		ListSelectBanner,
-		ListHeader: passthrough('list-header'),
-		ListHeaderItem: {
-			props: ['item'],
-			template:
-				'<div><slot name="prefix" :item="item" />{{ item.label }}</div>',
-		},
-		ListRows: { template: '<div data-testid="list-rows" />' },
-		ListRowItem: { template: '<div><slot /></div>' },
-	}
+	return { Checkbox }
 })
 
 vi.stubGlobal('__', (text: string) => text)

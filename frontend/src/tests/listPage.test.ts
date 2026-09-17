@@ -24,77 +24,97 @@ vi.mock('@/utils/composables', async () => {
 	}
 })
 
-vi.mock('frappe-ui', () => {
-	const passthrough = (tag: string, testid?: string) => ({
-		inheritAttrs: false,
-		template: `<${tag} v-bind="$attrs"${
-			testid ? ` data-testid="${testid}"` : ''
-		}><slot /></${tag}>`,
-	})
-	return {
-		Breadcrumbs: { template: '<nav data-testid="breadcrumbs" />' },
-		Button: passthrough('button'),
-		ListFooter: {
-			props: ['modelValue', 'options'],
-			template: `<div data-testid="footer">
-				<slot name="right" />
-			</div>`,
-		},
-		// Reproduces the quirk that costs a page a duplicate request: onChange
-		// assigns the model and then re-emits, so one click notifies twice with
-		// the same value before the prop has round-tripped.
-		// Faithful to frappe-ui's Checkbox in the one structural respect the
-		// filters rely on: an <input> plus a <label for> pointing at it, so the
-		// label is part of the hit area. A stub that rendered only the input
-		// would let a label-association assertion pass vacuously.
-		Checkbox: defineComponent({
-			props: {
-				modelValue: Boolean,
-				label: String,
-				description: String,
-				size: String,
-			},
-			emits: ['update:modelValue'],
-			methods: {
-				onChange() {
-					this.$emit('update:modelValue', !this.modelValue)
-					this.$emit('update:modelValue', !this.modelValue)
-				},
-			},
-			template: `<div>
-				<input
-					type="checkbox"
-					data-testid="checkbox"
-					id="cb"
-					:aria-label="label"
-					:checked="modelValue"
-					@change="onChange"
-				/>
-				<label data-testid="checkbox-label" for="cb" @click="onChange">
-					{{ label }}
-				</label>
-			</div>`,
-		}),
-		Tooltip: {
-			props: ['text'],
-			template: '<div :data-tooltip="text"><slot /></div>',
-		},
-		ListView: {
-			name: 'ListView',
-			props: ['columns', 'rows', 'rowKey', 'options'],
-			template: '<div data-testid="listview"><slot /></div>',
-		},
-		ListHeader: passthrough('div', 'list-header'),
-		ListHeaderItem: {
-			props: ['item'],
-			template:
-				'<div><slot name="prefix" :item="item" />{{ item.label }}</div>',
-		},
-		ListRows: { template: '<div data-testid="list-rows" />' },
-		ListRowItem: { template: '<div><slot /></div>' },
-		ListSelectBanner: { template: '<div><slot name="actions" /></div>' },
-	}
+const passthrough = (tag: string, testid?: string) => ({
+	inheritAttrs: false,
+	template: `<${tag} v-bind="$attrs"${
+		testid ? ` data-testid="${testid}"` : ''
+	}><slot /></${tag}>`,
 })
+
+vi.mock('frappe-ui', () => ({
+	Breadcrumbs: { template: '<nav data-testid="breadcrumbs" />' },
+	Button: passthrough('button'),
+	// Reproduces the quirk that costs a page a duplicate request: onChange
+	// assigns the model and then re-emits, so one click notifies twice with
+	// the same value before the prop has round-tripped.
+	// Faithful to frappe-ui's Checkbox in the one structural respect the
+	// filters rely on: an <input> plus a <label for> pointing at it, so the
+	// label is part of the hit area. A stub that rendered only the input
+	// would let a label-association assertion pass vacuously.
+	Checkbox: defineComponent({
+		props: {
+			modelValue: Boolean,
+			label: String,
+			description: String,
+			size: String,
+		},
+		emits: ['update:modelValue'],
+		methods: {
+			onChange() {
+				this.$emit('update:modelValue', !this.modelValue)
+				this.$emit('update:modelValue', !this.modelValue)
+			},
+		},
+		template: `<div>
+			<input
+				type="checkbox"
+				data-testid="checkbox"
+				id="cb"
+				:aria-label="label"
+				:checked="modelValue"
+				@change="onChange"
+			/>
+			<label data-testid="checkbox-label" for="cb" @click="onChange">
+				{{ label }}
+			</label>
+		</div>`,
+	}),
+	Tooltip: {
+		props: ['text'],
+		template: '<div :data-tooltip="text"><slot /></div>',
+	},
+	// The v1 contract: an `options` array of `{ label, value }`, not the v0
+	// `:buttons` prop ListFooter's own dead fallback still passes. Reads
+	// `options` the same way the real component does, so a page that binds
+	// the wrong prop renders no tabs here either.
+	TabButtons: {
+		props: ['options', 'modelValue'],
+		emits: ['update:modelValue'],
+		template: `<div data-testid="tab-buttons">
+			<button
+				v-for="option in options"
+				:key="option.value"
+				type="button"
+				:data-testid="'page-length-' + option.value"
+				:data-state="option.value === modelValue ? 'checked' : 'unchecked'"
+				@click="$emit('update:modelValue', option.value)"
+			>{{ option.label }}</button>
+		</div>`,
+	},
+}))
+
+vi.mock('frappe-ui/experimental', () => ({
+	ListFooter: {
+		props: ['modelValue', 'options'],
+		template: `<div data-testid="footer">
+			<slot name="left" />
+			<slot name="right" />
+		</div>`,
+	},
+	ListView: {
+		name: 'ListView',
+		props: ['columns', 'rows', 'rowKey', 'options'],
+		template: '<div data-testid="listview"><slot /></div>',
+	},
+	ListHeader: passthrough('div', 'list-header'),
+	ListHeaderItem: {
+		props: ['item'],
+		template: '<div><slot name="prefix" :item="item" />{{ item.label }}</div>',
+	},
+	ListRows: { template: '<div data-testid="list-rows" />' },
+	ListRowItem: { template: '<div><slot /></div>' },
+	ListSelectBanner: { template: '<div><slot name="actions" /></div>' },
+}))
 
 const stub = (template: string) => ({ default: { template } })
 vi.mock('@/components/SkeletonLoader.vue', () =>
@@ -200,8 +220,29 @@ describe('ListPage', () => {
 	it('gives every page the same footer, and asks for the next page from it', async () => {
 		const wrapper = await mountListPage({ hasNextPage: true })
 		expect(wrapper.find('[data-testid="footer"]').exists()).toBe(true)
-		await wrapper.find('[data-testid="footer"] button').trigger('click')
+		// Scoped past the page-length tabs, which are buttons in the same footer.
+		await wrapper
+			.find('[data-testid="footer"] button[label="Load More"]')
+			.trigger('click')
 		expect(wrapper.emitted('loadMore')).toHaveLength(1)
+	})
+
+	it('renders real, clickable page-length options, not zero', async () => {
+		// ListFooter's own `#left` fallback passes v0's `:buttons` to v1
+		// TabButtons, which only reads `:options` — so unless ListPage overrides
+		// `#left` itself, this renders no tabs at all.
+		const wrapper = await mountListPage({}, { card: '<article />' })
+		const tabs = wrapper.findAll('[data-testid="footer"] [data-testid^="page-length-"]')
+
+		expect(tabs).toHaveLength(3)
+		expect(tabs.map((tab) => tab.text())).toEqual(['24', '60', '120'])
+	})
+
+	it('reacts to a page-length click by updating the pageLength model', async () => {
+		const wrapper = await mountListPage({}, { card: '<article />' })
+		await wrapper.get('[data-testid="page-length-60"]').trigger('click')
+
+		expect(wrapper.emitted('update:pageLength')?.at(-1)).toEqual([60])
 	})
 
 	it('says only the loaded count when the list has no total to compare against', async () => {
@@ -498,7 +539,7 @@ describe('ResponsiveListView', () => {
 		expect(items[0].classes()).toContain('border-b')
 		expect(items[0].classes()).toContain('last:border-b-0')
 		// No card chrome: no rounding, no box.
-		expect(items[0].classes()).not.toContain('rounded-lg')
+		expect(items[0].classes()).not.toContain('rounded-6')
 		expect(items[0].classes()).not.toContain('border')
 	})
 

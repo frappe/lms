@@ -69,20 +69,12 @@
 		}}
 	</p>
 
-	<div
-		v-if="sectionErrors.length"
+	<ErrorMessage
 		:id="sectionErrorId"
 		class="mt-2"
 		data-testid="section-errors"
-	>
-		<p
-			v-for="message in sectionErrors"
-			:key="message"
-			class="text-p-sm text-ink-red-6"
-		>
-			{{ message }}
-		</p>
-	</div>
+		:message="sectionErrors.join('\n')"
+	/>
 </template>
 
 <script setup lang="ts">
@@ -96,7 +88,7 @@
 // `#condition-actions` takes `aria-labelledby`, never `aria-label`: frappe-ui's
 // Button overwrites aria-label from its own `label` prop.
 import { ConditionBuilder } from '@framework/ui/ConditionBuilder'
-import { Button, Dropdown } from 'frappe-ui'
+import { Button, Dropdown, ErrorMessage } from 'frappe-ui'
 import { computed, useId } from 'vue'
 import RuleCondition from './RuleCondition.vue'
 import type { ChannelRules } from '@/composables/raven/useChannelRules'

@@ -1,7 +1,7 @@
 <template>
 	<FileUploader
 		:file-types="image_type"
-		:uploadArgs="{ private: is_private }"
+		:private="is_private"
 		:validateFile="validate"
 		@success="(file) => emit('upload', file.file_url)"
 	>

@@ -11,6 +11,7 @@
 			:variant="attrs.variant as ComboboxVariant"
 			:align="props.align"
 			:loading="options.loading"
+			:filterable="false"
 			:label="label ? __(label) : undefined"
 			:required="required"
 			:description="description"
@@ -27,7 +28,7 @@
 				>
 					<div v-if="creating" class="flex items-center gap-1">
 						<button
-							class="p-1 rounded hover:bg-surface-gray-3 text-ink-gray-5"
+							class="p-1 rounded-4 hover:bg-surface-gray-3 text-ink-gray-5"
 							:aria-label="__('Cancel')"
 							@click="creating = false"
 						>
@@ -86,7 +87,7 @@ import { useAttrs, computed, ref, watch } from 'vue'
 import { useSettings } from '@/stores/settings'
 import type { Resource } from '@/types'
 
-type ComboboxSize = 'sm' | 'md' | 'lg' | 'xl'
+type ComboboxSize = 'xs' | 'sm' | 'md' | 'lg'
 type ComboboxVariant = 'subtle' | 'outline' | 'ghost'
 
 interface LinkOption {

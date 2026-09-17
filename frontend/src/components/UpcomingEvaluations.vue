@@ -8,26 +8,31 @@
 				{{ __('Schedule') }}
 			</Button>
 		</div>
-		<div
+		<Alert
 			v-if="endDate && !endDateHasPassed"
-			class="text-sm leading-5 bg-surface-amber-1 text-ink-amber-6 p-2 rounded-md mb-4"
+			theme="amber"
+			class="mb-4"
+			:description="
+				__('Please make sure to schedule your evaluation before this date.')
+			"
 		>
-			{{ __('The last day to schedule your evaluations is ') }}
-			<span class="font-medium">
-				{{ dayjs(endDate).format('DD MMMM YYYY') }} </span
-			>.
-			{{ __('Please make sure to schedule your evaluation before this date.') }}
-		</div>
-		<div
+			<template #title>
+				{{ __('The last day to schedule your evaluations is ') }}
+				<span class="font-medium">
+					{{ dayjs(endDate).format('DD MMMM YYYY') }} </span
+				>.
+			</template>
+		</Alert>
+		<Alert
 			v-else-if="endDateHasPassed"
-			class="text-sm leading-5 bg-surface-red-1 text-ink-red-6 p-2 rounded-md mb-4"
-		>
-			{{
+			theme="red"
+			class="mb-4"
+			:description="
 				__(
 					'The deadline to schedule evaluations has passed. Please contact the Instructor for assistance.'
 				)
-			}}
-		</div>
+			"
+		/>
 		<div v-if="upcoming_evals.data?.length">
 			<div
 				class="grid gap-4"
@@ -35,7 +40,7 @@
 			>
 				<div v-for="evl in upcoming_evals.data" :key="evl.name">
 					<div
-						class="border hover:border-outline-gray-3 text-ink-gray-7 rounded-md p-3"
+						class="border hover:border-outline-gray-3 text-ink-gray-7 rounded-5 p-3"
 					>
 						<div class="flex justify-between mb-3">
 							<span class="font-semibold text-ink-gray-9 leading-5">
@@ -52,7 +57,6 @@
 										},
 									},
 								]"
-								placement="left"
 								side="left"
 							>
 								<template v-slot="{ open }">
@@ -119,7 +123,14 @@
 import { inject, ref, getCurrentInstance, computed } from 'vue'
 import { formatTime } from '@/utils'
 import { formatTimezone } from '@/utils/timezone'
-import { Button, createListResource, call, Dropdown, toast } from 'frappe-ui'
+import {
+	Alert,
+	Button,
+	createListResource,
+	call,
+	Dropdown,
+	toast,
+} from 'frappe-ui'
 import EvaluationModal from '@/components/Modals/EvaluationModal.vue'
 import { openExternal } from '@/utils/openExternal'
 
@@ -211,7 +222,7 @@ const cancelEvaluation = (evl) => {
 				label: __('Cancel'),
 				theme: 'red',
 				variant: 'solid',
-				onClick(close) {
+				onClick({ close }) {
 					call('lms.lms.api.cancel_evaluation', { evaluation: evl })
 						.then(() => {
 							upcoming_evals.reload()

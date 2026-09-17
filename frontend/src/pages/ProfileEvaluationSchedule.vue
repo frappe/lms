@@ -1,12 +1,14 @@
 <template>
 	<div class="mt-7 mb-20">
 		<div class="flex h-dvh flex-col overflow-hidden">
+			<!-- The view switcher lives in Calendar's default header, which the
+			     #header below replaces, so nothing on screen can leave Week.
+			     `enableShortcuts: false` closes the other door: m/w/d would
+			     otherwise switch the view with no way back. -->
 			<Calendar
 				v-if="evaluations.data?.length"
 				:config="{
 					defaultMode: 'Week',
-					disableModes: ['Day', 'Week'],
-					redundantCellHeight: 100,
 					enableShortcuts: false,
 				}"
 				:events="evaluations.data"
@@ -41,7 +43,8 @@
 	<Event v-model="showEvent" :event="currentEvent" />
 </template>
 <script setup>
-import { Calendar, createListResource, Button } from 'frappe-ui'
+import { createListResource, Button } from 'frappe-ui'
+import { Calendar } from 'frappe-ui/experimental'
 import { inject, ref } from 'vue'
 import Event from '@/components/Modals/Event.vue'
 

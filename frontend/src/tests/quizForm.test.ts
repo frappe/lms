@@ -147,6 +147,11 @@ createDocumentResourceMock.mockImplementation((options: any) => {
 	return resource
 })
 
+// QuizForm.vue's `useTelemetry()` needs a stub here.
+vi.mock('@framework/ui/telemetry/index', () => ({
+	useTelemetry: () => ({ capture: vi.fn() }),
+}))
+
 vi.mock('frappe-ui', () => ({
 	createResource: createResourceMock,
 	createDocumentResource: createDocumentResourceMock,
@@ -163,8 +168,7 @@ vi.mock('frappe-ui', () => ({
 			title: String,
 			description: String,
 			theme: String,
-			variant: String,
-			dismissible: { type: Boolean, default: true },
+			dismissible: { type: Boolean, default: false },
 		},
 		emits: ['dismiss'],
 		template: `<div role="alert" :data-theme="theme"><span>{{ title }}</span><slot name="description">{{ description }}</slot><button v-if="dismissible" type="button" aria-label="Dismiss" @click="$emit('dismiss')" /><slot name="footer" /></div>`,
@@ -219,7 +223,7 @@ vi.mock('frappe-ui', () => ({
 	},
 	// Menu options are rendered as real buttons so the route pushes behind Preview/Submissions/Delete are reachable, and `theme` is exposed so the destructive row can be asserted rather than assumed.
 	Dropdown: {
-		props: ['options', 'placement'],
+		props: ['options'],
 		template: `<div class="dropdown">
       <slot :open="false" />
       <button

@@ -1,6 +1,6 @@
 <template>
 	<Dialog
-		v-model="show"
+		v-model:open="show"
 		:title="__('New Address')"
 		size="xl"
 		:actions="[

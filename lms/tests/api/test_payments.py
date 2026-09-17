@@ -1,3 +1,5 @@
+import unittest
+
 import frappe
 
 from lms.lms import payments as payments_module
@@ -52,6 +54,16 @@ class TestPaymentLink(BaseTestUtils):
 	LMS gateway-agnostic.
 	"""
 
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
+		hash = frappe.generate_hash(length=6)
+		cls.instructor = cls._create_user(
+			f"payinstr-{hash}@example.com", "Ina", "Instructor", ["Course Creator"]
+		)
+		cls.course = cls._create_course(title=f"Paid Payments Course {hash}", instructor=cls.instructor.email)
+		cls.course.db_set({"paid_course": 1, "course_price": 500, "currency": "INR"}, update_modified=False)
+
 	def setUp(self):
 		super().setUp()
 		self.controller = FakeRazorpayController()
@@ -60,15 +72,6 @@ class TestPaymentLink(BaseTestUtils):
 
 		self.original_gateway = frappe.db.get_single_value("LMS Settings", "payment_gateway")
 		frappe.db.set_single_value("LMS Settings", "payment_gateway", "Razorpay")
-
-		hash = frappe.generate_hash(length=6)
-		self.instructor = self._create_user(
-			f"payinstr-{hash}@example.com", "Ina", "Instructor", ["Course Creator"]
-		)
-		self.course = self._create_course(
-			title=f"Paid Payments Course {hash}", instructor=self.instructor.email
-		)
-		self.course.db_set({"paid_course": 1, "course_price": 500, "currency": "INR"}, update_modified=False)
 
 	def tearDown(self):
 		payments_module.get_controller = self.original_get_controller
@@ -100,14 +103,6 @@ class TestPaymentLink(BaseTestUtils):
 		self.assertEqual(self.controller.direct_create_order_calls, [])
 		self.assertEqual(len(self.controller.get_payment_url_calls), 1)
 
-	def test_no_create_order_helper_remains(self):
-		"""`create_order` in lms.lms.payments was a stale copy of logic that has
-		since moved into the payments app."""
-		self.assertFalse(
-			hasattr(payments_module, "create_order"),
-			"lms.lms.payments.create_order duplicates the payments app controller",
-		)
-
 	def test_controller_still_gets_an_order_created(self):
 		"""Delegating must not lose the order. `get_payment_url` creates one
 		because LMS no longer supplies an `order_id`."""
@@ -135,3 +130,13 @@ class TestPaymentLink(BaseTestUtils):
 		self.assertEqual(len(self.controller.integration_requests), 2)
 		self.assertNotIn("order_id", self.controller.integration_requests[0])
 		self.assertEqual(self.controller.integration_requests[-1]["order_id"], "order_TEST123")
+
+
+class TestPaymentsModuleShape(unittest.TestCase):
+	def test_no_create_order_helper_remains(self):
+		"""`create_order` in lms.lms.payments was a stale copy of logic that has
+		since moved into the payments app."""
+		self.assertFalse(
+			hasattr(payments_module, "create_order"),
+			"lms.lms.payments.create_order duplicates the payments app controller",
+		)

@@ -121,14 +121,17 @@ vi.mock('frappe-ui', () => ({
 			'required',
 			'disabled',
 			'placeholder',
+			// Declared so a field-level error Billing hands the control is
+			// observable here; the real control renders it as InputError.
+			'error',
 		],
 		emits: ['update:modelValue', 'input'],
-		template: `<input
+		template: `<span><input
 			:data-testid="'fc-' + label"
 			:type="type || 'text'"
 			:value="modelValue"
 			@change="$emit('update:modelValue', type === 'checkbox' ? $event.target.checked : $event.target.value)"
-		/>`,
+		/><span v-if="error" data-slot="error">{{ error }}</span></span>`,
 	},
 	Combobox: {
 		props: ['modelValue', 'options', 'label', 'required', 'placeholder'],
@@ -143,7 +146,8 @@ vi.mock('frappe-ui', () => ({
 	},
 }))
 
-vi.mock('frappe-ui/frappe', () => ({
+vi.mock('@framework/ui/telemetry/index', async (importOriginal) => ({
+	...(await importOriginal<typeof import('@framework/ui/telemetry/index')>()),
 	useTelemetry: () => ({ capture: vi.fn() }),
 }))
 vi.mock('@/stores/session', () => ({
@@ -317,6 +321,34 @@ describe('Billing: checkout validation errors reach the user', () => {
 		expect(toastMock.error).toHaveBeenCalledWith(
 			'Please provide your consent to proceed with the payment.'
 		)
+	})
+
+	it('hands the consent error to the checkbox, not just the toast', async () => {
+		// The warning used to be a hand-rolled red div beside the control, so it
+		// was never tied to the checkbox for assistive tech. FormControl's own
+		// error region is, via aria-invalid / aria-errormessage.
+		const wrapper = await mountBilling()
+		await proceed(wrapper)
+
+		const error = wrapper
+			.findAll('[data-slot="error"]')
+			.find((node) => node.text().includes('consent'))
+		expect(error?.text()).toBe(
+			'Please provide your consent to proceed with the payment'
+		)
+	})
+
+	it('clears the consent error once the box is ticked', async () => {
+		const wrapper = await mountBilling()
+		await proceed(wrapper)
+		await consent(wrapper)
+		await proceed(wrapper)
+
+		expect(
+			wrapper
+				.findAll('[data-slot="error"]')
+				.some((node) => node.text().includes('consent'))
+		).toBe(false)
 	})
 
 	it('toasts readable text for an invalid state', async () => {

@@ -1,5 +1,5 @@
 <template>
-	<div v-if="batch.data" class="border-2 rounded-md lg:w-72">
+	<div v-if="batch.data" class="border-2 rounded-5 lg:w-72">
 		<VideoPreview
 			:video-link="batch.data.video_link"
 			:fallback-image="batch.data.image"
@@ -42,11 +42,14 @@
 				<span class="lucide-book-open h-4 w-4 me-2" />
 				<span> {{ batch.data.courses.length }} {{ __('Courses') }} </span>
 			</div>
-			<DateRange
-				:startDate="batch.data.start_date"
-				:endDate="batch.data.end_date"
-				class="mb-3"
-			/>
+			<div class="flex items-center mb-3 text-ink-gray-7">
+				<span class="lucide-calendar h-4 w-4 me-2" />
+				<span>
+					{{
+						getFormattedDateRange(batch.data.start_date, batch.data.end_date)
+					}}
+				</span>
+			</div>
 			<div class="flex items-center mb-3 text-ink-gray-7">
 				<span class="lucide-clock h-4 w-4 me-2" />
 				<span dir="ltr">
@@ -112,9 +115,12 @@
 <script setup>
 import { inject, computed } from 'vue'
 import { Badge, Button, createResource, toast } from 'frappe-ui'
-import { formatNumberIntoCurrency, formatTime } from '@/utils'
+import {
+	formatNumberIntoCurrency,
+	formatTime,
+	getFormattedDateRange,
+} from '@/utils'
 import { formatTimezone, nextOccurrence } from '@/utils/timezone'
-import DateRange from '@/components/Common/DateRange.vue'
 import VideoPreview from '@/components/VideoPreview.vue'
 
 const user = inject('$user')

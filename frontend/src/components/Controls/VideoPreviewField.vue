@@ -9,7 +9,7 @@
 		/>
 		<div class="flex flex-col gap-4 sm:flex-row sm:items-start">
 			<div
-				class="relative aspect-[750/422] w-full shrink-0 grid place-items-center overflow-hidden rounded-lg border border-outline-gray-2 bg-surface-gray-2 sm:w-56"
+				class="relative aspect-[750/422] w-full shrink-0 grid place-items-center overflow-hidden rounded-6 border border-outline-gray-2 bg-surface-gray-2 sm:w-56"
 			>
 				<iframe
 					v-if="preview.type === 'youtube'"
@@ -31,7 +31,7 @@
 					v-else-if="isUploadedVideo && videoError"
 					class="flex flex-col items-center gap-1 px-3 text-center"
 				>
-					<span class="lucide-circle-check size-5 text-ink-green-6" />
+					<span class="lucide-circle-check size-5 text-ink-green-5" />
 					<span class="text-xs text-ink-gray-5">
 						{{ __("Saved. This format can't be previewed here.") }}
 					</span>
@@ -41,7 +41,7 @@
 					v-if="modelValue && !isUploadedVideo"
 					type="button"
 					:aria-label="__('Remove video')"
-					class="absolute end-1 top-1 grid size-6 place-items-center rounded bg-surface-base/90 shadow"
+					class="absolute end-1 top-1 grid size-6 place-items-center rounded-4 bg-surface-base/90 shadow"
 					@click="update('')"
 				>
 					<span class="lucide-x size-4 text-ink-gray-7" />
@@ -55,7 +55,7 @@
 				<div class="flex items-center gap-2">
 					<FileUploader
 						:fileTypes="['video/mp4', 'video/webm', 'video/ogg']"
-						:uploadArgs="{ private: false }"
+						:private="false"
 						:validateFile="validatePlayableVideo"
 						@success="(file: { file_url: string }) => update(file.file_url)"
 						@failure="onUploadFailure"
@@ -100,7 +100,7 @@
 				/>
 				<FileUploader
 					:fileTypes="['video/*']"
-					:uploadArgs="{ private: false }"
+					:private="false"
 					@success="(file: { file_url: string }) => update(file.file_url)"
 				>
 					<template #default="{ openFileSelector, uploading, progress }">
@@ -141,7 +141,7 @@ import {
 	InputError,
 	InputLabel,
 	useInputLabeling,
-} from '@/components/Form/labeling'
+} from 'frappe-ui/experimental'
 import { computed, ref, watch } from 'vue'
 import { getVideoPreview, getYouTubeId } from '@/utils/video'
 import { safeUrl } from '@/utils/safeUrl'

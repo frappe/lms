@@ -8,14 +8,14 @@
 			<div class="text-base">
 				<div class="flex items-center justify-between gap-x-4 mb-4">
 					<NumberChart
-						class="border rounded-md w-full"
+						class="border rounded-5 w-full"
 						:config="{
 							title: __('Enrollments'),
 							value: programMembers.length || 0,
 						}"
 					/>
 					<NumberChart
-						class="border rounded-md w-full"
+						class="border rounded-5 w-full"
 						:config="{
 							title: __('Average Progress %'),
 							value: averageProgress || 0,
@@ -67,7 +67,8 @@
 	</Dialog>
 </template>
 <script setup lang="ts">
-import { Dialog, DonutChart, FormControl, NumberChart } from 'frappe-ui'
+import { Dialog, FormControl } from 'frappe-ui'
+import { DonutChart, NumberChart } from 'frappe-ui/experimental'
 import type { ListRow, ProgramMember } from '@/types'
 import { computed, ref, watch } from 'vue'
 import ResponsiveListView from '@/components/ResponsiveListView.vue'

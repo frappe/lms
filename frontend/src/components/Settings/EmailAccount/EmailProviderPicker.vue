@@ -5,7 +5,7 @@
 			:key="service.name"
 			type="button"
 			:data-testid="'provider-' + service.name"
-			class="flex items-center gap-2.5 rounded-lg border border-outline-gray-2 p-2.5 text-start transition-colors hover:border-outline-gray-3 hover:bg-surface-gray-1"
+			class="flex items-center gap-2.5 rounded-6 border border-outline-gray-2 p-2.5 text-start transition-colors hover:border-outline-gray-3 hover:bg-surface-gray-1"
 			@click="emit('pick', service)"
 		>
 			<div class="flex size-6 shrink-0 items-center justify-center">

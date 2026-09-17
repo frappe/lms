@@ -7,8 +7,8 @@
 			:label="label ? __(label) : undefined"
 			:required="required"
 		/>
-		<Popover side="bottom" class="!block">
-			<template #trigger="{ toggle, isOpen }">
+		<Popover side="bottom" bare class="!block">
+			<template #trigger="{ setOpen }">
 				<div class="space-y-2">
 					<FormControl
 						:id="inputId"
@@ -16,7 +16,7 @@
 						autocomplete="off"
 						class="w-full"
 						:placeholder="__('Set Color')"
-						@focus="toggle"
+						@focus="setOpen(true)"
 						:modelValue="modelValue"
 						@update:modelValue="(val: string) => emit('update:modelValue', val)"
 					>
@@ -51,8 +51,8 @@
 					</FormControl>
 				</div>
 			</template>
-			<template #body="{ close }">
-				<div class="rounded-lg bg-surface-base p-3 border w-fit mt-2">
+			<template #default="{ close }">
+				<div class="rounded-6 bg-surface-base p-3 border w-fit mt-2">
 					<div class="text-xs text-ink-gray-5 mb-1.5">
 						{{ __('Swatches') }}
 					</div>
@@ -93,7 +93,7 @@ import {
 	InputError,
 	InputLabel,
 	useInputLabeling,
-} from '@/components/Form/labeling'
+} from 'frappe-ui/experimental'
 import { computed } from 'vue'
 
 const emit = defineEmits(['update:modelValue', 'change'])

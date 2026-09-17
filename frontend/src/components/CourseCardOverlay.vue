@@ -1,5 +1,5 @@
 <template>
-	<div class="border-2 rounded-md min-w-80 max-w-sm">
+	<div class="border-2 rounded-5 min-w-80 max-w-sm">
 		<VideoPreview
 			:video-link="course.data?.video_link"
 			:fallback-image="course.data?.image"
@@ -152,7 +152,7 @@ import { Badge, Button, call, createResource, toast } from 'frappe-ui'
 import { useRouter } from 'vue-router'
 import CertificationLinks from '@/components/CertificationLinks.vue'
 import VideoPreview from '@/components/VideoPreview.vue'
-import { useTelemetry } from 'frappe-ui/frappe'
+import { useTelemetry } from '@framework/ui/telemetry/index'
 import { openExternal } from '@/utils/openExternal'
 import type {
 	CourseDetails,

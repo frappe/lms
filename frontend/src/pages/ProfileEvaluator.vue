@@ -4,14 +4,17 @@
 			<h2 class="text-md font-semibold text-ink-gray-9">
 				{{ __('My availability') }}
 			</h2>
-			<p v-if="evaluator.data?.timezone" class="text-sm text-ink-gray-6">
+			<p
+				v-if="evaluator.data?.timezone"
+				class="mt-1 text-sm leading-5 text-ink-gray-6"
+			>
 				{{ __('Times are in {0}').format(evaluator.data.timezone) }}
 			</p>
 		</div>
 
 		<div
 			v-if="readOnlyMode"
-			class="flex items-center gap-x-2 text-sm text-ink-gray-7 bg-surface-gray-1 px-3 py-2 rounded-md w-full text-center"
+			class="flex items-center gap-x-2 text-sm text-ink-gray-7 bg-surface-gray-1 px-3 py-2 rounded-5 w-full text-center"
 		>
 			<span class="lucide-circle-alert size-4" />
 			<span>
@@ -82,7 +85,7 @@
 						v-if="isSessionUser()"
 						type="button"
 						:aria-label="__('Delete slot')"
-						class="lucide-x size-6 text-red-900 rounded-md cursor-pointer p-1 bg-surface-red-2 md:sr-only md:group-hover:not-sr-only md:focus:not-sr-only"
+						class="lucide-x size-6 text-red-900 rounded-5 cursor-pointer p-1 bg-surface-red-2 md:sr-only md:group-hover:not-sr-only md:focus:not-sr-only"
 						@click="deleteRow(slot.name)"
 					/>
 				</div>
@@ -175,7 +178,7 @@
 				</h2>
 				<div
 					v-if="evaluator.data?.calendar && evaluator.data?.is_authorized"
-					class="flex items-center bg-surface-green-2 text-green-900 text-sm p-1 rounded-md mb-4 w-fit"
+					class="flex items-center bg-surface-green-2 text-green-900 text-sm p-1 rounded-5 mb-4 w-fit"
 				>
 					<span class="lucide-check size-4 me-2" />
 					{{ __('Your calendar is set.') }}

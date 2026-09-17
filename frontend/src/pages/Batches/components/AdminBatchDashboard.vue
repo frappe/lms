@@ -40,7 +40,7 @@
 			v-else
 			class="grid grid-cols-1 lg:grid-cols-[3fr_2fr] gap-5 items-start"
 		>
-			<div class="border rounded-lg py-3 px-4 order-2 lg:order-1">
+			<div class="border rounded-6 py-3 px-4 order-2 lg:order-1">
 				<div class="flex items-center justify-between gap-x-2 mb-3">
 					<h2 class="text-lg-semibold text-ink-gray-9">
 						{{ __('Students') }}
@@ -114,7 +114,7 @@
 			<div class="order-1 lg:order-2 space-y-5">
 				<AxisChart
 					v-if="showProgressChart"
-					class="border rounded-lg p-3 min-h-[300px]"
+					class="border rounded-6 p-3 min-h-[300px]"
 					:config="{
 						data: filteredChartData,
 						title: __('Batch Summary'),
@@ -139,7 +139,7 @@
 					}"
 				/>
 
-				<div class="p-4 border rounded-lg">
+				<div class="p-4 border rounded-6">
 					<BatchFeedback v-if="batch.data" :batch="batch.data.name" />
 				</div>
 			</div>
@@ -154,13 +154,13 @@
 </template>
 <script setup lang="ts">
 import {
-	AxisChart,
 	createResource,
 	createListResource,
 	FormControl,
 	Avatar,
 	Button,
 } from 'frappe-ui'
+import { AxisChart } from 'frappe-ui/experimental'
 import { computed, inject, onMounted, ref, watch } from 'vue'
 import type dayjsType from 'dayjs'
 import { formatAmount } from '@/utils'

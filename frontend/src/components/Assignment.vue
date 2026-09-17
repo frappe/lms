@@ -2,7 +2,7 @@
 	<div
 		v-if="assignment.data"
 		class="grid grid-cols-2 h-full"
-		:class="{ 'border rounded-lg overflow-auto': !showTitle }"
+		:class="{ 'border rounded-6 overflow-auto': !showTitle }"
 	>
 		<div
 			class="border-e p-5 overflow-y-auto h-[calc(100vh-3.2rem)]"
@@ -27,18 +27,13 @@
 
 		<div class="flex flex-col overflow-y-auto">
 			<div class="p-5 space-y-5">
-				<div
-					v-if="scheduleBlocked"
-					class="bg-surface-amber-1 text-ink-amber-6 p-3 rounded-md leading-5 text-sm"
-				>
-					{{ scheduleMessage }}
-				</div>
+				<Alert v-if="scheduleBlocked" theme="amber" :title="scheduleMessage" />
 				<div class="flex items-center justify-between">
 					<div class="font-semibold text-ink-gray-9">
 						{{ __('Submission') }}
 					</div>
 					<div class="flex items-center gap-x-2">
-						<Badge v-if="isDirty" theme="orange">
+						<Badge v-if="isDirty" theme="amber">
 							{{ __('Not Saved') }}
 						</Badge>
 						<Badge
@@ -67,25 +62,29 @@
 						</ShortcutTooltip>
 					</div>
 				</div>
-				<div
+				<Alert
 					v-if="
 						submissionName != 'new' &&
 						!['Pass', 'Fail'].includes(submissionResource.doc?.status) &&
 						submissionResource.doc?.owner == user.data?.name
 					"
-					class="bg-surface-blue-2 text-ink-blue-5 p-3 rounded-md leading-5 text-sm"
+					theme="blue"
 				>
-					{{ __("You've successfully submitted the assignment.") }}
-					{{
-						__(
-							"Once the moderator grades your submission, you'll find the details here."
-						)
-					}}
-					{{ __('Feel free to make edits to your submission if needed.') }}
-				</div>
+					<template #title>
+						{{ __("You've successfully submitted the assignment.") }}
+					</template>
+					<template #description>
+						{{
+							__(
+								"Once the moderator grades your submission, you'll find the details here."
+							)
+						}}
+						{{ __('Feel free to make edits to your submission if needed.') }}
+					</template>
+				</Alert>
 				<div
 					v-if="showUploader() && canModifyAssignment && !scheduleBlocked"
-					class="border rounded-lg p-3"
+					class="border rounded-6 p-3"
 				>
 					<div class="font-semibold mb-2">
 						{{ __('Upload Assignment') }}
@@ -98,9 +97,7 @@
 					<FileUploader
 						v-if="!attachment"
 						:fileTypes="getType()"
-						:uploadArgs="{
-							private: true,
-						}"
+						:private="true"
 						:validateFile="
 							(file) =>
 								validateFile(file, true, assignment.data.type.toLowerCase())
@@ -125,7 +122,7 @@
 								class="cursor-pointer !no-underline text-sm leading-5"
 							>
 								<div class="flex items-center">
-									<div class="border rounded-md p-2 me-2">
+									<div class="border rounded-5 p-2 me-2">
 										<span class="lucide-file-text h-5 w-5" />
 									</div>
 									<span>
@@ -138,7 +135,7 @@
 								type="button"
 								:aria-label="__('Remove submission')"
 								@click="removeSubmission()"
-								class="lucide-x bg-surface-gray-3 rounded-md cursor-pointer w-5 h-5 p-1 ms-4"
+								class="lucide-x bg-surface-gray-3 rounded-5 cursor-pointer w-5 h-5 p-1 ms-4"
 							/>
 						</div>
 					</div>
@@ -166,7 +163,7 @@
 						:uploadArgs="{
 							private: true,
 						}"
-						editorClass="prose-sm max-w-none border-b border-x border-outline-elevation-2 bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[7rem]"
+						editorClass="prose-sm max-w-none border-b border-x border-outline-elevation-2 bg-surface-gray-2 rounded-b-5 py-1 px-2 min-h-[7rem]"
 					/>
 				</div>
 
@@ -175,7 +172,7 @@
 						user.data?.name == submissionResource.doc?.owner &&
 						submissionResource.doc?.comments
 					"
-					class="mt-8 p-3 border rounded-lg bg-surface-gray-2"
+					class="mt-8 p-3 border rounded-6 bg-surface-gray-2"
 				>
 					<div class="text-ink-gray-5 mb-4">
 						{{ __('Comments by Evaluator') }}
@@ -215,7 +212,7 @@
 							:uploadArgs="{
 								private: true,
 							}"
-							editorClass="prose-sm max-w-none border-b border-x border-outline-elevation-2 bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[7rem]"
+							editorClass="prose-sm max-w-none border-b border-x border-outline-elevation-2 bg-surface-gray-2 rounded-b-5 py-1 px-2 min-h-[7rem]"
 						/>
 					</div>
 				</div>
@@ -225,6 +222,7 @@
 </template>
 <script setup>
 import {
+	Alert,
 	Badge,
 	Button,
 	call,
@@ -543,7 +541,7 @@ const submissionStatusOptions = computed(() => {
 
 const statusTheme = computed(() => {
 	if (!submissionResource.doc) {
-		return 'orange'
+		return 'amber'
 	} else if (submissionResource.doc.status == 'Pass') {
 		return 'green'
 	} else if (submissionResource.doc.status == 'Not Graded') {

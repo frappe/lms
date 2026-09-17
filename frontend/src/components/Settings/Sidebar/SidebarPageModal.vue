@@ -1,37 +1,33 @@
 <template>
 	<Dialog
-		v-model="open"
-		:options="{
-			title: page ? __('Edit sidebar link') : __('Add link to sidebar'),
-			size: 'lg',
-			actions: [
-				{
-					label: page ? __('Save') : __('Add'),
-					variant: 'solid',
-					loading: resource.loading,
-					onClick: submit,
-				},
-			],
-		}"
+		v-model:open="open"
+		:title="page ? __('Edit sidebar link') : __('Add link to sidebar')"
+		size="lg"
+		:actions="[
+			{
+				label: page ? __('Save') : __('Add'),
+				variant: 'solid',
+				loading: resource.loading,
+				onClick: submit,
+			},
+		]"
 	>
-		<template #body-content>
-			<div class="flex flex-col gap-4 text-base">
-				<Link
-					data-testid="page-web-page"
-					v-model="draft.web_page"
-					doctype="Web Page"
-					:label="__('Web Page')"
-					:filters="{ published: 1 }"
-					:disabled="Boolean(page)"
-				/>
-				<IconPicker
-					data-testid="page-icon"
-					v-model="draft.icon"
-					:label="__('Icon')"
-				/>
-				<ErrorMessage v-if="error" :message="error" />
-			</div>
-		</template>
+		<div class="flex flex-col gap-4 text-base">
+			<Link
+				data-testid="page-web-page"
+				v-model="draft.web_page"
+				doctype="Web Page"
+				:label="__('Web Page')"
+				:filters="{ published: 1 }"
+				:disabled="Boolean(page)"
+			/>
+			<IconPicker
+				data-testid="page-icon"
+				v-model="draft.icon"
+				:label="__('Icon')"
+			/>
+			<ErrorMessage v-if="error" :message="error" />
+		</div>
 	</Dialog>
 </template>
 

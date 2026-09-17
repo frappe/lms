@@ -40,7 +40,7 @@ vi.mock('frappe-ui', () => ({
 	// on a DOM node, so the stub has to expose `options` for the test to invoke.
 	Dropdown: {
 		name: 'Dropdown',
-		props: ['options', 'placement', 'side'],
+		props: ['options', 'side'],
 		template: `<div class="dropdown"><slot :open="false" /></div>`,
 	},
 }))

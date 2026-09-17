@@ -14,8 +14,9 @@ GOOGLE_CALENDAR_MODULE = "frappe.integrations.doctype.google_calendar.google_cal
 class TestLMSLiveClass(BaseTestUtils):
 	"""Tests for LMS Live Class including Google Meet integration."""
 
-	def setUp(self):
-		super().setUp()
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
 
 		# Mock get_google_calendar_object to prevent Frappe's Event hooks
 		# from calling the real Google Calendar API (no OAuth tokens in CI).
@@ -32,66 +33,60 @@ class TestLMSLiveClass(BaseTestUtils):
 		mock_api.events.return_value.patch.return_value.execute.return_value = {}
 		mock_api.events.return_value.delete.return_value.execute.return_value = None
 
-		self._gcal_patcher = patch(
+		gcal_patcher = patch(
 			f"{GOOGLE_CALENDAR_MODULE}.get_google_calendar_object",
 			return_value=(mock_api, MagicMock()),
 		)
-		self._gcal_patcher.start()
+		gcal_patcher.start()
+		cls.addClassCleanup(gcal_patcher.stop)
 
-		self._setup_course_flow()
-		self._setup_batch_flow()
-		self._setup_google_meet()
+		cls.admin = cls._create_user(
+			"frappe@example.com", "Frappe", "Admin", ["Moderator", "Course Creator", "Batch Evaluator"]
+		)
+		cls.course = cls._create_course()
+		cls._create_evaluator()
+		cls.batch = cls._create_batch(cls.course.name)
+		cls._setup_google_meet()
 
-	def tearDown(self):
-		super().tearDown()
-		self._gcal_patcher.stop()
-		if hasattr(self, "_original_google_settings"):
-			google_settings = frappe.get_doc("Google Settings")
-			google_settings.enable = self._original_google_settings["enable"]
-			google_settings.client_id = self._original_google_settings["client_id"]
-			google_settings.client_secret = ""
-			google_settings.save(ignore_permissions=True)
-
-	def _setup_google_meet(self):
+	@classmethod
+	def _setup_google_meet(cls):
 		"""Create Google Calendar and Google Meet Settings for testing."""
 		google_settings = frappe.get_doc("Google Settings")
-		self._original_google_settings = {
-			"enable": google_settings.enable,
-			"client_id": google_settings.client_id,
-		}
 		google_settings.enable = 1
 		google_settings.client_id = "test-client-id"
 		google_settings.client_secret = "test-client-secret"
 		google_settings.save(ignore_permissions=True)
 
-		calendar_name = f"Test GCal {frappe.generate_hash(length=6)}"
-		if not frappe.db.exists("Google Calendar", calendar_name):
-			calendar = frappe.get_doc(
-				{
-					"doctype": "Google Calendar",
-					"calendar_name": calendar_name,
-					"user": "Administrator",
-					"google_account": "test@gmail.com",
-				}
-			)
-			calendar.insert(ignore_permissions=True)
-			self.cleanup_items.append(("Google Calendar", calendar.name))
-			self.google_calendar = calendar
-		else:
-			self.google_calendar = frappe.get_doc("Google Calendar", calendar_name)
+		calendar = frappe.get_doc(
+			{
+				"doctype": "Google Calendar",
+				"calendar_name": f"Test GCal {frappe.generate_hash(length=6)}",
+				"user": "Administrator",
+				"google_account": "test@gmail.com",
+			}
+		)
+		calendar.insert(ignore_permissions=True)
+		cls.google_calendar = calendar
 
-		account_name = f"Test Meet {frappe.generate_hash(length=6)}"
-		self.google_meet_settings = frappe.get_doc(
+		cls.google_meet_settings = frappe.get_doc(
 			{
 				"doctype": "LMS Google Meet Settings",
-				"account_name": account_name,
+				"account_name": f"Test Meet {frappe.generate_hash(length=6)}",
 				"member": "Administrator",
-				"google_calendar": self.google_calendar.name,
+				"google_calendar": cls.google_calendar.name,
 				"enabled": 1,
 			}
 		)
-		self.google_meet_settings.insert(ignore_permissions=True)
-		self.cleanup_items.append(("LMS Google Meet Settings", self.google_meet_settings.name))
+		# nosemgrep: lms-unjustified-ignore-permissions - test fixture setup
+		cls.google_meet_settings.insert(ignore_permissions=True)
+
+	def setUp(self):
+		super().setUp()
+		# Saving these shared docs leaves their in-memory `modified` ahead of the DB
+		# row once the savepoint rolls the write back, tripping check_if_latest on
+		# the next save. Reload so they always match the rolled-back row.
+		self.batch.reload()
+		self.google_meet_settings.reload()
 
 	def _create_live_class(self, provider="Google Meet", **kwargs):
 		"""Helper to create a live class for testing."""
@@ -112,7 +107,6 @@ class TestLMSLiveClass(BaseTestUtils):
 
 		live_class = frappe.get_doc(data)
 		live_class.insert(ignore_permissions=True)
-		self.cleanup_items.append(("LMS Live Class", live_class.name))
 		return live_class
 
 	# --- T9: Unit tests for Google Meet live class creation ---
@@ -176,54 +170,40 @@ class TestLMSLiveClass(BaseTestUtils):
 		self.google_meet_settings.google_calendar = old_calendar
 		self.google_meet_settings.save()
 
-	def test_update_live_class_date_updates_event(self):
-		"""Rescheduling a live class should update the linked Event."""
-		live_class = self._create_live_class()
-		live_class.reload()
-		event_name = live_class.event
+	def test_updating_a_live_class_updates_its_event(self):
+		def date_change(live_class):
+			new_date = add_days(nowdate(), 5)
+			live_class.date = new_date
+			return lambda event: self.assertIn(str(new_date), str(event.starts_on))
 
-		new_date = add_days(nowdate(), 5)
-		live_class.date = new_date
-		live_class.save(ignore_permissions=True)
+		def time_change(live_class):
+			live_class.time = "15:00:00"
+			return lambda event: self.assertIn("15:00", str(event.starts_on))
 
-		event = frappe.get_doc("Event", event_name)
-		self.assertIn(str(new_date), str(event.starts_on))
+		def title_change(live_class):
+			live_class.title = "Updated Title"
+			return lambda event: self.assertIn("Updated Title", event.subject)
 
-	def test_update_live_class_time_updates_event(self):
-		"""Changing the time of a live class should update the linked Event."""
-		live_class = self._create_live_class()
-		live_class.reload()
-		event_name = live_class.event
+		def duration_change(live_class):
+			live_class.duration = 120
+			return lambda event: self.assertIn("12:00", str(event.ends_on))
 
-		live_class.time = "15:00:00"
-		live_class.save(ignore_permissions=True)
+		cases = [
+			("date", date_change),
+			("time", time_change),
+			("title", title_change),
+			("duration", duration_change),
+		]
+		for case, mutate in cases:
+			with self.subTest(case=case):
+				live_class = self._create_live_class()
+				live_class.reload()
+				event_name = live_class.event
 
-		event = frappe.get_doc("Event", event_name)
-		self.assertIn("15:00", str(event.starts_on))
+				check = mutate(live_class)
+				live_class.save(ignore_permissions=True)
 
-	def test_update_live_class_title_updates_event(self):
-		"""Changing the title of a live class should update the linked Event subject."""
-		live_class = self._create_live_class()
-		live_class.reload()
-		event_name = live_class.event
-
-		live_class.title = "Updated Title"
-		live_class.save(ignore_permissions=True)
-
-		event = frappe.get_doc("Event", event_name)
-		self.assertIn("Updated Title", event.subject)
-
-	def test_update_live_class_duration_updates_event(self):
-		"""Changing the duration should update the linked Event's end time."""
-		live_class = self._create_live_class()
-		live_class.reload()
-		event_name = live_class.event
-
-		live_class.duration = 120
-		live_class.save(ignore_permissions=True)
-
-		event = frappe.get_doc("Event", event_name)
-		self.assertIn("12:00", str(event.ends_on))
+				check(frappe.get_doc("Event", event_name))
 
 	def test_delete_live_class_deletes_event(self):
 		"""Deleting a live class should delete the linked Frappe Event."""
@@ -233,40 +213,29 @@ class TestLMSLiveClass(BaseTestUtils):
 
 		self.assertTrue(frappe.db.exists("Event", event_name))
 
-		# Remove from cleanup since we're deleting manually
-		self.cleanup_items = [
-			(t, n) for t, n in self.cleanup_items if not (t == "LMS Live Class" and n == live_class.name)
-		]
 		frappe.delete_doc("LMS Live Class", live_class.name, force=True)
 		self.assertFalse(frappe.db.exists("Event", event_name))
 
 	def test_batch_validation_google_meet_without_account(self):
-		"""Saving a batch with Google Meet provider but no account should fail."""
 		self.batch.conferencing_provider = "Google Meet"
 		self.batch.google_meet_account = ""
+
 		with self.assertRaises(frappe.exceptions.ValidationError):
 			self.batch.save()
 
-		self.batch.reload()
-
 	def test_batch_validation_google_meet_with_valid_account(self):
-		"""Saving a batch with Google Meet and a valid account should succeed."""
 		self.batch.conferencing_provider = "Google Meet"
 		self.batch.google_meet_account = self.google_meet_settings.name
+
 		self.batch.save()
 		self.batch.reload()
 
 		self.assertEqual(self.batch.conferencing_provider, "Google Meet")
 		self.assertEqual(self.batch.google_meet_account, self.google_meet_settings.name)
 
-		self.batch.conferencing_provider = ""
-		self.batch.google_meet_account = ""
-		self.batch.save()
-
 	def test_batch_validation_zoom_without_account(self):
-		"""Saving a batch with Zoom provider but no account should fail."""
 		self.batch.conferencing_provider = "Zoom"
 		self.batch.zoom_account = ""
+
 		with self.assertRaises(frappe.exceptions.ValidationError):
 			self.batch.save()
-		self.batch.reload()

@@ -192,7 +192,7 @@ const showDeleteConfirmation = (
 				label: __('Delete'),
 				theme: 'red',
 				variant: 'solid',
-				onClick(close: () => void) {
+				onClick({ close }: { close: () => void }) {
 					deleteExercises(selections, unselectAll)
 					close()
 				},

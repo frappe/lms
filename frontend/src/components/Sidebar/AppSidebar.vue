@@ -51,7 +51,7 @@
 		<div class="m-2 flex flex-col gap-1">
 			<div
 				v-if="readOnlyMode && !sidebarStore.isSidebarCollapsed"
-				class="z-10 m-2 bg-surface-elevation-2 py-2.5 px-3 text-p-xs text-ink-gray-7 rounded-md"
+				class="z-10 m-2 bg-surface-elevation-2 py-2.5 px-3 text-p-xs text-ink-gray-7 rounded-5"
 			>
 				{{
 					__(
@@ -63,7 +63,7 @@
 				v-if="
 					isStudent && !profileIsComplete && !sidebarStore.isSidebarCollapsed
 				"
-				class="flex flex-col gap-3 text-ink-gray-9 py-2.5 px-3 bg-surface-base shadow-sm rounded-md"
+				class="flex flex-col gap-3 text-ink-gray-9 py-2.5 px-3 bg-surface-base shadow-sm rounded-5"
 			>
 				<div class="flex flex-col text-p-sm gap-1">
 					<div class="inline-flex gap-1">
@@ -135,10 +135,8 @@
 						<span
 							class="lucide-circle-alert size-4 text-ink-gray-7 cursor-pointer"
 						/>
-						<template #body>
-							<div
-								class="max-w-[30ch] rounded bg-surface-gray-10 px-2 py-1 text-center text-p-xs text-ink-base shadow-xl"
-							>
+						<template #content>
+							<div class="max-w-[30ch] text-center text-p-xs">
 								{{
 									__(
 										'This site is being updated. You will not be able to make any changes. Full access will be restored shortly.'
@@ -244,16 +242,16 @@ import {
 	Users,
 	BookText,
 } from 'lucide-vue-next'
+import { TrialBanner } from '@framework/ui/components/TrialBanner/index'
 import {
-	TrialBanner,
 	HelpModal,
 	GettingStartedBanner,
 	useOnboarding,
 	showHelpModal,
 	minimize,
 	IntermediateStepModal,
-	useTelemetry,
-} from 'frappe-ui/frappe'
+} from '@framework/ui/components/Onboarding/index'
+import { useTelemetry } from '@framework/ui/telemetry/index'
 import InviteIcon from '@/components/Icons/InviteIcon.vue'
 import UserDropdown from '@/components/Sidebar/UserDropdown.vue'
 import CollapseSidebar from '@/components/Icons/CollapseSidebar.vue'
@@ -307,17 +305,20 @@ const sidebarRows = computed(() =>
 	buildSidebarRows(sidebarLinks.value ?? [], sidebarSettings.data)
 )
 
+const onKeyboardShortcut = (e) => {
+	if (
+		e.key === 'k' &&
+		(e.ctrlKey || e.metaKey) &&
+		!e.repeat &&
+		!e.target.classList.contains('ProseMirror')
+	) {
+		toggleCommandPalette()
+		e.preventDefault()
+	}
+}
+
 const addKeyboardShortcut = () => {
-	window.addEventListener('keydown', (e) => {
-		if (
-			e.key === 'k' &&
-			(e.ctrlKey || e.metaKey) &&
-			!e.target.classList.contains('ProseMirror')
-		) {
-			toggleCommandPalette()
-			e.preventDefault()
-		}
-	})
+	window.addEventListener('keydown', onKeyboardShortcut)
 }
 
 const toggleCommandPalette = () => {
@@ -632,5 +633,6 @@ const redirectToAppointmentScreen = () => {
 
 onUnmounted(() => {
 	socket.off('publish_lms_notifications')
+	window.removeEventListener('keydown', onKeyboardShortcut)
 })
 </script>

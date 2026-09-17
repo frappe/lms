@@ -1,7 +1,7 @@
 <template>
 	<FormShell :title="title" size="4xl" @close="close">
 		<template #header-action>
-			<Badge v-if="isDirty && canManageExercise" theme="orange">
+			<Badge v-if="isDirty && canManageExercise" theme="amber">
 				{{ __('Not Saved') }}
 			</Badge>
 		</template>
@@ -32,9 +32,6 @@
 						:label="__('Test Cases')"
 						:columns="testCaseColumns"
 						:required="true"
-						:addable="true"
-						:deletable="true"
-						:editable="true"
 						:placeholder="__('Add Test Case')"
 					/>
 				</div>
@@ -50,7 +47,7 @@
 							@change="(val: string) => (exercise.problem_statement = val)"
 							:editable="true"
 							:fixedMenu="true"
-							editorClass="prose-sm max-w-none border-b border-x border-outline-elevation-2 bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[10rem] max-h-[21rem] overflow-y-auto"
+							editorClass="prose-sm max-w-none border-b border-x border-outline-elevation-2 bg-surface-gray-2 rounded-b-5 py-1 px-2 min-h-[10rem] max-h-[21rem] overflow-y-auto"
 						/>
 					</div>
 				</div>
@@ -112,7 +109,7 @@
 </template>
 <script setup lang="ts">
 import { computed, inject, ref, watch, useId } from 'vue'
-import { InputLabel } from '@/components/Form/labeling'
+import { InputLabel } from 'frappe-ui/experimental'
 import { sanitizeOnWrite } from '@/utils/sanitizeOnWrite'
 import {
 	Badge,

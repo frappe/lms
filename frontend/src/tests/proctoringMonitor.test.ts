@@ -93,6 +93,15 @@ describe('ProctoringMonitor — setup phase', () => {
 		// Before getUserMedia resolves, setupStatus is 'loading'
 		const wrapper = mountMonitor()
 		expect(wrapper.text()).toContain('Loading camera')
+		// Drawn by frappe-ui's Spinner, which announces itself; the hand-rolled
+		// lucide-loader-2 it replaced was an unlabelled decorative span.
+		expect(wrapper.get('[role="status"]').classes()).toContain('fui-spinner')
+	})
+
+	it('drops the spinner once the camera is past loading', async () => {
+		const wrapper = mountMonitor()
+		await flushPromises()
+		expect(wrapper.find('[role="status"]').exists()).toBe(false)
 	})
 
 	it('shows an error message and emits camera-denied when access is refused', async () => {

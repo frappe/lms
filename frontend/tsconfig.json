@@ -1,21 +1,39 @@
 {
-  "compilerOptions": {
-    "target": "ESNext",
-    "useDefineForClassFields": true,
-    "module": "ESNext",
-    "moduleResolution": "Bundler",
-    "strict": true,
-    "jsx": "preserve",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "esModuleInterop": true,
-    "lib": ["ESNext", "DOM"],
-    "types": ["vite/client"],
-    "paths": {
-      "@/*": ["./src/*"],
-      "vue": ["./node_modules/vue"]
-    }
-  },
-  "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue", "src/*.d.ts"],
-  "references": [{ "path": "./tsconfig.node.json" }]
+	"compilerOptions": {
+		"target": "ESNext",
+		"useDefineForClassFields": true,
+		"module": "ESNext",
+		"moduleResolution": "Bundler",
+		"strict": true,
+		"jsx": "preserve",
+		"resolveJsonModule": true,
+		"isolatedModules": true,
+		"esModuleInterop": true,
+		"lib": ["ESNext", "DOM"],
+		"types": ["vite/client"],
+		"paths": {
+			"@/*": ["./src/*"],
+			"vue": ["./node_modules/vue"],
+			"@framework/ui/telemetry/index": [
+				"./node_modules/@framework/ui/src/telemetry/index.ts"
+			],
+			"@framework/ui/components/Onboarding/index": [
+				"./node_modules/@framework/ui/src/components/Onboarding/index.ts"
+			],
+			"@framework/ui/components/DataImport/index": [
+				"./node_modules/@framework/ui/src/components/DataImport/index.ts"
+			],
+			"@framework/ui/components/TrialBanner/index": [
+				"./node_modules/@framework/ui/src/components/TrialBanner/index.ts"
+			]
+		}
+	},
+	"include": [
+		"src/**/*.ts",
+		"src/**/*.d.ts",
+		"src/**/*.tsx",
+		"src/**/*.vue",
+		"src/*.d.ts"
+	],
+	"references": [{ "path": "./tsconfig.node.json" }]
 }
