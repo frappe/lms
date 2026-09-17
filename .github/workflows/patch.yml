@@ -118,9 +118,7 @@ jobs:
           git -C apps/lms remote add pr "${GITHUB_WORKSPACE}"
           # LMS has no version-15 line: its frappe-v15-era releases are main /
           # main-hotfix, so that is the rung that pairs with frappe version-15-hotfix.
-          git -C apps/lms fetch --force --tags upstream \
-            '+refs/heads/main-hotfix:refs/remotes/upstream/main-hotfix' \
-            '+refs/heads/version-16-hotfix:refs/remotes/upstream/version-16-hotfix'
+          git -C apps/lms fetch --force --tags upstream '+refs/heads/*:refs/remotes/upstream/*'
           git -C apps/lms fetch --force pr \
             '+refs/heads/ci-pr-head:refs/remotes/pr/head'
 
@@ -169,10 +167,29 @@ jobs:
             git -C apps/payments checkout -q -f FETCH_HEAD
             git -C apps/lms checkout -q -f "$lms_ref"
 
+            # checkout -f removes tracked files but not untracked ones, so a module
+            # directory the new version deleted survives as its own __pycache__ --
+            # and an empty directory is still a namespace package, so deleting just
+            # the __pycache__ is not enough. Python imports it with __file__ of None
+            # and frappe's sync_for does os.path.dirname() on that. frappe dropped
+            # the Social module in v16; without this, hop version-16 dies on it.
+            # crm's migration-test.yml swaps its app in with rsync --delete for the
+            # same reason: the tree has to match the version, not accumulate it.
+            for app in frappe payments lms; do
+              git -C "apps/$app" clean -qxdf
+            done
+
             rm -rf ~/frappe-bench/env
             bench -v setup env --python "$python_bin"
             bench pip install -e ./apps/payments
             bench pip install -e ./apps/lms
+
+            # erpnext's ladder gets a cold cache for free: it kills honcho between
+            # hops, and the Procfile's redis goes down with it. These are service
+            # containers that outlive the job, so clear the cache by hand. frappe.init()
+            # reads the app -> modules map out of redis, and migrate's own clear_cache()
+            # comes too late -- frappe.local is populated before it runs.
+            bench --site "$SITE" clear-cache
 
             bench --site "$SITE" migrate
 
@@ -182,46 +199,86 @@ jobs:
             echo "::endgroup::"
           }
 
-          # Stop the ladder at the line the PR targets. Walking past it and back
-          # down would migrate the fixture through schema the PR's line never has.
+          # The first branch that exists wins, so a line still in development
+          # resolves to develop until its own branch is cut. lms shipped its v15
+          # line as main-hotfix before it took the version-N names.
+          pick_branch() {
+            local dir="$1" version="$2" ref
+            local refs="version-${version}-hotfix version-${version}"
+            if [ "$dir" = apps/lms ] && [ "$version" = 15 ]; then
+              refs="$refs main-hotfix"
+            fi
+            refs="$refs develop"
+
+            for ref in $refs; do
+              if git -C "$dir" ls-remote --exit-code --heads upstream "$ref" >/dev/null 2>&1; then
+                echo "$ref"
+                return 0
+              fi
+            done
+
+            echo "no v${version} branch in ${dir}; tried: ${refs}" >&2
+            return 1
+          }
+
+          python_for() {
+            case "$1" in
+              15) which python3.13 ;;
+              *)  which python3.14 ;;
+            esac
+          }
+
+          # ladder-range-start
+          # frappe develop is 17.0.0-dev. max_version is how far the ladder will
+          # climb; raise it when the line after it opens.
+          develop_version=17
+          max_version=18
+
+          # main and main-hotfix are lms's v15 line under its old name. An
+          # unrecognised base is treated as develop rather than failing the job.
           base="${GITHUB_BASE_REF:-develop}"
           case "$base" in
-            main|main-hotfix|version-15*) rungs="" ;;
-            version-16*) rungs="15" ;;
-            develop)     rungs="15 16" ;;
-            *)
-              echo "unsupported migration-test base branch: $base"
-              exit 1
+            main|main-hotfix) base_version=15 ;;
+            version-[0-9]*)
+              base_version="${base#version-}"
+              base_version="${base_version%%-*}"
               ;;
+            *) base_version="$develop_version" ;;
           esac
 
-          for rung in $rungs; do
-            case "$rung" in
-              15) hop "version-15" version-15-hotfix version-15-hotfix \
-                    "upstream/main-hotfix" "$(which python3.13)" ;;
-              16) hop "version-16" version-16-hotfix version-16 \
-                    "upstream/version-16-hotfix" "$(which python3.14)" ;;
-            esac
+          if [ "$base_version" -gt "$max_version" ]; then
+            base_version="$max_version"
+          fi
+          if [ "$base_version" -lt 15 ]; then
+            base_version=15
+          fi
+
+          # Stop at the line the PR targets: climbing past it and back down would
+          # migrate the fixture through schema that line never has.
+          rungs=""
+          version=15
+          while [ "$version" -lt "$base_version" ]; do
+            rungs="$rungs $version"
+            version=$((version + 1))
+          done
+          # ladder-range-end
+
+          echo "base ${base} -> v${base_version}, rungs:${rungs:-" none"}"
+
+          for version in $rungs; do
+            frappe_ref="$(pick_branch apps/frappe "$version")"
+            payments_ref="$(pick_branch apps/payments "$version")"
+            lms_ref="$(pick_branch apps/lms "$version")"
+            python_bin="$(python_for "$version")"
+
+            hop "version-$version" "$frappe_ref" "$payments_ref" \
+              "upstream/$lms_ref" "$python_bin"
           done
 
           # The PR's own code, with frappe and payments on the line it targets.
-          case "$base" in
-            main|main-hotfix|version-15*)
-              frappe_ref=version-15-hotfix
-              payments_ref=version-15-hotfix
-              python_bin="$(which python3.13)"
-              ;;
-            version-16*)
-              frappe_ref=version-16-hotfix
-              payments_ref=version-16
-              python_bin="$(which python3.14)"
-              ;;
-            develop)
-              frappe_ref=develop
-              payments_ref=develop
-              python_bin="$(which python3.14)"
-              ;;
-          esac
+          frappe_ref="$(pick_branch apps/frappe "$base_version")"
+          payments_ref="$(pick_branch apps/payments "$base_version")"
+          python_bin="$(python_for "$base_version")"
 
           hop "head" "$frappe_ref" "$payments_ref" "pr/head" "$python_bin"
 
