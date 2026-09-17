@@ -106,7 +106,20 @@ vi.mock('frappe-ui', async () => {
 			template: `<button type="button" :class="stateClasses" :disabled="disabled" :aria-label="label" @click="$emit('click')"><slot /></button>`,
 		},
 		Badge: empty,
-		Checkbox: empty,
+		// The option controls render their content through a `label` slot, so a
+		// bare `<slot />` stub would drop every answer from the markup.
+		Checkbox: {
+			props: ['modelValue'],
+			template: '<div><slot name="label" /><slot /></div>',
+		},
+		Radio: {
+			props: ['value'],
+			template: '<div><slot name="label" /></div>',
+		},
+		RadioGroup: {
+			props: ['modelValue', 'name'],
+			template: '<div><slot /></div>',
+		},
 		Dialog: {
 			props: ['open'],
 			template: '<div v-if="open"><slot /></div>',

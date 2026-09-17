@@ -77,6 +77,17 @@ main#main-content {
 	@apply text-p-base py-0;
 }
 
+/* frappe-ui's tailwind plugin swaps the checkbox tick to a dark glyph under
+   [data-theme='dark'] (its @tailwindcss/forms base paints the glyph white, and
+   the checked fill is light in dark mode). It ships nothing equivalent for
+   radio, so a checked native radio is a white dot on a near-white fill — the
+   control reads as a plain disc and the selection is invisible. Same swap, same
+   reason. The quiz player uses frappe-ui's <Radio> instead; this covers the
+   native radio the question editor still renders. Worth upstreaming. */
+[data-theme='dark'] [type='radio']:checked {
+	background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='%230F0F0F' xmlns='http://www.w3.org/2000/svg'%3e%3ccircle cx='8' cy='8' r='3'/%3e%3c/svg%3e");
+}
+
 /* This build makes --surface-sidebar transparent in dark mode; point it at
    gray-1 so the sidebar keeps a visible surface. */
 [data-theme='dark'] {

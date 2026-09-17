@@ -211,9 +211,15 @@ const codeLines = function* (): Generator<[string, number, string, boolean]> {
 		const raw = source.split('\n')
 		const code = stripComments(raw)
 		let inRegion = false
+		let carried = false
 		for (const [i, line] of code.entries()) {
 			if (EXEMPT_START.test(raw[i])) inRegion = true
-			const exempt = inRegion || EXEMPT_LINE.test(raw[i])
+			const marked = EXEMPT_LINE.test(raw[i])
+			const exempt = inRegion || marked || carried
+			// A marker covers its own line and the next one, so a value that
+			// cannot carry a trailing comment — inside an HTML tag, or past the
+			// print width — can still be annotated from the line above.
+			carried = marked
 			if (EXEMPT_END.test(raw[i])) inRegion = false
 			yield [file, i + 1, line, exempt]
 		}
@@ -248,8 +254,10 @@ const classesOn = (line: string): string[] => {
 	}
 	for (const m of line.matchAll(/:class\s*=\s*"([^"]*)"/g)) lists.push(m[1])
 	for (const m of line.matchAll(/(['"`])((?:(?!\1)[^\\]|\\.)*)\1/g)) {
+		// Allow any run of variants before the utility, so a string that is only
+		// ever `dark:sm:hover:bg-...` is still recognised as a class list.
 		if (
-			/(^|\s)(bg|text|border|ring|rounded|outline|divide|fill|stroke|from|to|via|shadow|placeholder|accent|caret|decoration)-/.test(
+			/(^|\s)(?:[a-z0-9-]+:)*(bg|text|border|ring|rounded|outline|divide|fill|stroke|from|to|via|shadow|placeholder|accent|caret|decoration)-/.test(
 				m[2]
 			)
 		) {
@@ -453,9 +461,21 @@ describe('design tokens', () => {
 		expect(offenders).toEqual([])
 	})
 
+	/**
+	 * A Vue template cannot carry a `token-exempt:` comment — one inside a tag
+	 * is not valid syntax, and one between elements renders into the DOM in dev
+	 * — so the single remaining native control is named here instead, where
+	 * adding to the list is a visible diff.
+	 */
 	it('styles no native radio or checkbox', () => {
+		const allowed: Record<string, string> = {
+			'components/Quiz/QuestionAnswers.vue':
+				'the question editor; its dark-mode dot is fixed globally by the ' +
+				"[data-theme='dark'] [type='radio']:checked rule in index.css",
+		}
 		const offenders: Offender[] = []
 		for (const [file, source] of FILES) {
+			if (file in allowed) continue
 			const lines = stripComments(source.split('\n'))
 			for (const [i, line] of lines.entries()) {
 				if (!/type\s*=\s*["']?(?:radio|checkbox)["']?/.test(line)) continue
@@ -479,16 +499,22 @@ describe('design tokens', () => {
 	})
 
 	/**
-	 * A semantic token already carries both themes, so `dark:` on one is a
-	 * second opinion about a value that has already decided. The overlay ramps
-	 * are the exception and are allowed through: they are alpha over whatever
-	 * is behind them, so they hold no theme of their own and the right step
-	 * genuinely differs per theme — frappe-ui's own Dialog backdrop is
-	 * `bg-black-overlay-200 dark:bg-black-overlay-700`.
+	 * A semantic token already carries both themes, so `dark:` on one is
+	 * usually a second opinion about a value that has already decided.
+	 *
+	 * Two things get through. The overlay ramps are alpha over whatever is
+	 * behind them, so they hold no theme of their own and the right step
+	 * genuinely differs — frappe-ui's own Dialog backdrop is
+	 * `bg-black-overlay-200 dark:bg-black-overlay-700`. And a `dark:` that
+	 * picks a *different* token because two tokens collide in one theme is
+	 * real: SettingsTable's row hover is frappe-ui's `surface-gray-1`, which
+	 * in dark mode is the same value as the dialog surface under it, so the
+	 * hover disappeared. That one says so with `token-exempt:`.
 	 */
 	it('needs no dark: variant on a themed token', () => {
 		const offenders: Offender[] = []
-		for (const [file, line, text] of codeLines()) {
+		for (const [file, line, text, exempt] of codeLines()) {
+			if (exempt) continue
 			for (const cls of classesOn(text)) {
 				const { base, variants } = baseClass(cls)
 				if (!variants.includes('dark')) continue

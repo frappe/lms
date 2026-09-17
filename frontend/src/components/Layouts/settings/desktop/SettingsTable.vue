@@ -13,7 +13,7 @@
 			<div role="rowgroup">
 				<ListRows :items="rows" :row-key="rowKey" v-slot="{ item: row }">
 					<ListRow
-						class="sm:hover:bg-surface-gray-2 [outline-offset:-3px]"
+						:class="ROW_CLASSES"
 						@click="emit('rowClick', row)"
 					>
 						<ListCell
@@ -173,6 +173,16 @@ import type {
 	SettingsListColumn,
 	SettingsListRow,
 } from '@/types'
+
+// The outline sits inside the row: a row is exactly as wide as the scroller's
+// content box, so a ring at the default offset loses its side strokes.
+//
+// The `dark:` picks a different token, it does not restate one. frappe-ui
+// washes the row to surface-gray-1, which in dark mode is the same value as the
+// dialog surface beneath it, so the hover vanished. Light mode keeps
+// frappe-ui's own wash. See settingsTableScroll.test.ts.
+// token-exempt: dark: selects a different token, not the same one twice
+const ROW_CLASSES = 'dark:sm:hover:bg-surface-gray-2 [outline-offset:-3px]'
 
 const props = withDefaults(
 	defineProps<{

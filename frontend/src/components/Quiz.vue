@@ -443,68 +443,77 @@
 						class="text-ink-gray-9 font-semibold mt-2 leading-5 break-words [&_img]:h-auto [&_img]:max-w-full"
 						v-safe-html:rich="questionDetails.data.question"
 					></div>
-					<div
-						v-if="questionDetails.data.type == 'Choices'"
-						v-for="index in MAX_OPTIONS"
-						:key="index"
-					>
-						<label
-							v-if="questionDetails.data[`option_${index}`]"
-							class="flex items-center bg-surface-gray-3 rounded-5 p-3 mt-4 w-full min-w-0 cursor-pointer focus:border-blue-600"
+					<template v-if="questionDetails.data.type == 'Choices'">
+						<RadioGroup
+							v-if="!showAnswers.length && !questionDetails.data.multiple"
+							class="mt-4"
+							:model-value="selectedIndex"
+							:name="encodeURIComponent(questionDetails.data.question)"
+							@update:model-value="markAnswer"
 						>
-							<input
-								v-if="!showAnswers.length && !questionDetails.data.multiple"
-								type="radio"
-								:name="encodeURIComponent(questionDetails.data.question)"
-								class="w-3.5 h-3.5 shrink-0 text-ink-gray-9 focus:ring-outline-elevation-2"
-								@change="markAnswer(index)"
-								:checked="selectedOptions[index - 1]"
-							/>
+							<template v-for="index in MAX_OPTIONS" :key="index">
+								<Radio
+									v-if="questionDetails.data[`option_${index}`]"
+									:value="index"
+									:class="OPTION_ROW_CLASSES"
+								>
+									<template #label>
+										<span
+											:class="OPTION_LABEL_CLASSES"
+											v-safe-html:rich="questionDetails.data[`option_${index}`]"
+										/>
+									</template>
+								</Radio>
+							</template>
+						</RadioGroup>
 
-							<input
-								v-else-if="!showAnswers.length && questionDetails.data.multiple"
-								type="checkbox"
-								:name="encodeURIComponent(questionDetails.data.question)"
-								class="w-3.5 h-3.5 shrink-0 text-ink-gray-9 rounded-1 focus:ring-outline-elevation-2"
-								@change="markAnswer(index)"
-								:checked="selectedOptions[index - 1]"
-							/>
+						<div v-else v-for="index in MAX_OPTIONS" :key="index">
+							<Checkbox
+								v-if="
+									!showAnswers.length &&
+									questionDetails.data[`option_${index}`]
+								"
+								class="mt-4"
+								:class="OPTION_ROW_CLASSES"
+								:model-value="!!selectedOptions[index - 1]"
+								@update:model-value="markAnswer(index)"
+							>
+								<template #label>
+									<span
+										:class="OPTION_LABEL_CLASSES"
+										v-safe-html:rich="questionDetails.data[`option_${index}`]"
+									/>
+								</template>
+							</Checkbox>
+
 							<div
-								v-else-if="quiz.data.show_answers"
-								v-for="(answer, idx) in showAnswers"
-								:key="idx"
-								class="shrink-0"
+								v-else-if="
+									quiz.data.show_answers &&
+									questionDetails.data[`option_${index}`]
+								"
+								class="mt-4 flex items-center"
+								:class="OPTION_ROW_CLASSES"
 							>
-								<div v-if="index - 1 == idx">
-									<span
-										v-if="answer == 1"
-										class="lucide-check-circle w-4 h-4 text-ink-green-4"
-									/>
-									<span
-										v-else-if="answer == 2"
-										class="lucide-minus-circle w-4 h-4 text-ink-green-4"
-									/>
-									<span
-										v-else-if="answer == 0"
-										class="lucide-x-circle w-4 h-4 text-ink-red-5"
-									/>
-									<span v-else class="lucide-minus-circle w-4 h-4" />
-								</div>
+								<span
+									class="w-4 h-4 shrink-0"
+									:class="answerIconClass(showAnswers[index - 1])"
+								/>
+								<span
+									class="ms-2 flex-1"
+									:class="OPTION_LABEL_CLASSES"
+									v-safe-html:rich="questionDetails.data[`option_${index}`]"
+								/>
 							</div>
-							<span
-								class="ms-2 min-w-0 flex-1 break-words text-ink-gray-9 [&_img]:h-auto [&_img]:max-w-full"
-								v-safe-html:rich="questionDetails.data[`option_${index}`]"
+
+							<div
+								v-if="questionDetails.data[`explanation_${index}`]"
+								class="mt-2 break-words text-xs text-ink-gray-7"
+								v-show="showAnswers.length"
 							>
-							</span>
-						</label>
-						<div
-							v-if="questionDetails.data[`explanation_${index}`]"
-							class="mt-2 break-words text-xs text-ink-gray-7"
-							v-show="showAnswers.length"
-						>
-							{{ questionDetails.data[`explanation_${index}`] }}
+								{{ questionDetails.data[`explanation_${index}`] }}
+							</div>
 						</div>
-					</div>
+					</template>
 					<div v-else-if="questionDetails.data.type == 'User Input'">
 						<FormControl
 							v-model="possibleAnswer"
@@ -937,6 +946,8 @@ import {
 	Dialog,
 	LoadingIndicator,
 	FormControl,
+	Radio,
+	RadioGroup,
 	toast,
 } from 'frappe-ui'
 import {
@@ -961,6 +972,30 @@ const activeQuestion = ref(0)
 const currentQuestion = ref('')
 const MAX_OPTIONS = 10
 const selectedOptions = ref(Array(MAX_OPTIONS).fill(0))
+
+// The option row is the surface, not the control. RadioGroup's own `padded`
+// draws a surface only on hover, and the quiz wants every option to read as a
+// card, so the row keeps its own classes and the group stays unpadded.
+const OPTION_ROW_CLASSES =
+	'bg-surface-gray-3 rounded-5 p-3 w-full min-w-0 cursor-pointer'
+const OPTION_LABEL_CLASSES =
+	'min-w-0 break-words text-ink-gray-9 [&_img]:h-auto [&_img]:max-w-full'
+
+// RadioGroup is single-select, so it models the one chosen option rather than
+// the 0/1-per-option array the rest of the quiz (and the submit payload) uses.
+const selectedIndex = computed(() => {
+	const chosen = selectedOptions.value.findIndex((value) => value)
+	return chosen === -1 ? undefined : chosen + 1
+})
+
+// showAnswers holds 1 correct / 2 partially correct / 0 wrong, and undefined
+// for an option the learner never touched.
+const answerIconClass = (answer) => {
+	if (answer == 1) return 'lucide-check-circle text-ink-green-4'
+	if (answer == 2) return 'lucide-minus-circle text-ink-green-4'
+	if (answer == 0) return 'lucide-x-circle text-ink-red-5'
+	return 'lucide-minus-circle'
+}
 const showAnswers = reactive([])
 const questions = ref([])
 const attemptedQuestions = ref([])
