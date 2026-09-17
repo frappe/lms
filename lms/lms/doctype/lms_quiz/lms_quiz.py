@@ -5,6 +5,7 @@ import json
 import os
 import re
 from binascii import Error as BinasciiError
+from functools import partial
 
 import frappe
 from frappe import _, safe_decode
@@ -230,6 +231,7 @@ def submit_quiz(
 	save_progress_after_quiz(quiz_details, percentage)
 
 	_save_violation_events(submission.name, proctoring["events"])
+	_attach_answer_files(data["answer_files"], submission.name)
 
 	return {
 		"score": submission.score,
@@ -239,6 +241,25 @@ def submit_quiz(
 		"percentage": percentage,
 		"is_open_ended": is_open_ended,
 	}
+
+
+def _attach_answer_files(file_names: list[str], submission: str) -> None:
+	"""Bind a learner's inline answer images to the submission that carries them.
+
+	A private File with no attachment is readable by its owner alone, which would hide
+	the learner's evidence from the grader. Attaching defers to File.has_permission,
+	and so to LMS Quiz Submission's own read rule.
+	"""
+	if not file_names:
+		return
+
+	File = frappe.qb.DocType("File")
+	(
+		frappe.qb.update(File)
+		.set(File.attached_to_doctype, "LMS Quiz Submission")
+		.set(File.attached_to_name, submission)
+		.where(File.name.isin(file_names))
+	).run()
 
 
 def _build_proctoring_record(
@@ -516,6 +537,7 @@ def _attach_frame_urls(logs: list[dict]):
 
 def process_results(results: list, quiz_details: dict):
 	is_open_ended = False
+	answer_files: list[str] = []
 
 	for result in results:
 		question_details = frappe.db.get_value(
@@ -553,7 +575,11 @@ def process_results(results: list, quiz_details: dict):
 		else:
 			is_open_ended = True
 			result["is_correct"] = 0
-			answer = re.sub(r'<img[^>]*src\s*=\s*["\'](?=data:)(.*?)["\']', _save_file, result["answer"][0])
+			answer = re.sub(
+				r'<img[^>]*src\s*=\s*["\'](?=data:)(.*?)["\']',
+				partial(_save_file, answer_files),
+				result["answer"][0],
+			)
 			# Defense-in-depth: the answer is later rendered in the instructor's
 			# privileged grading view (QuizSubmission.vue). The frontend already
 			# wraps it in sanitizeRichHTML, but a student-controlled answer must
@@ -563,6 +589,7 @@ def process_results(results: list, quiz_details: dict):
 	return {
 		"results": results,
 		"is_open_ended": is_open_ended,
+		"answer_files": answer_files,
 	}
 
 
@@ -590,7 +617,7 @@ def verify_answer(question: str, answer: list):
 	return correct
 
 
-def _save_file(match: re.Match) -> str:
+def _save_file(created: list[str], match: re.Match) -> str:
 	data = match.group(1).split("data:")[1]
 	headers, content = data.split(",")
 	mtype = headers.split(";", 1)[0]
@@ -619,16 +646,20 @@ def _save_file(match: re.Match) -> str:
 	if os.path.splitext(filename)[1].lower() not in ALLOWED_DATAURL_IMAGE_EXTENSIONS:
 		frappe.throw(_("File type of {0} is not allowed in quiz answers.").format(escape_html(filename)))
 
+	# Private, not public: a /files/ answer image is readable by anyone holding the URL,
+	# including the other learners sitting the same quiz. submit_quiz then binds it to
+	# the submission, which is what lets the grader read it.
 	_file = frappe.get_doc(
 		{
 			"doctype": "File",
 			"file_name": filename,
 			"content": content,
 			"decode": False,
-			"is_private": False,
+			"is_private": True,
 		}
 	)
 	_file.save(ignore_permissions=True)
+	created.append(_file.name)
 	file_url = _file.unique_url
 	frappe.flags.has_dataurl = True
 
