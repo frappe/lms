@@ -100,6 +100,7 @@ permission_query_conditions = {
 	"LMS Batch": "lms.lms.doctype.lms_batch.lms_batch.get_permission_query_conditions",
 	"LMS Program": "lms.lms.doctype.lms_program.lms_program.get_permission_query_conditions",
 	"Course Lesson": "lms.lms.doctype.course_lesson.course_lesson.get_permission_query_conditions",
+	"LMS Certificate Evaluation": "lms.lms.doctype.lms_certificate_evaluation.lms_certificate_evaluation.get_permission_query_conditions",
 }
 
 has_permission = {
@@ -108,6 +109,7 @@ has_permission = {
 	"LMS Program": "lms.lms.doctype.lms_program.lms_program.has_permission",
 	"LMS Certificate": "lms.lms.doctype.lms_certificate.lms_certificate.has_permission",
 	"Course Lesson": "lms.lms.doctype.course_lesson.course_lesson.has_permission",
+	"LMS Certificate Evaluation": "lms.lms.doctype.lms_certificate_evaluation.lms_certificate_evaluation.has_permission",
 	"File": "lms.lms.permissions.file_has_permission",
 }
 
