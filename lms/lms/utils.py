@@ -2015,6 +2015,26 @@ def get_country_code():
 	return
 
 
+def can_view_quiz_answers(quiz: str, show_answers=None) -> bool:
+	"""Whether the caller is entitled to a quiz's answer-key material.
+
+	An explanation is written per option and authors normally write one only on
+	the correct option, so shipping explanations with the question ships the
+	answer. They go out to privileged users, to a learner who has already
+	submitted (the attempt is spent), and for a quiz that reveals answers as the
+	learner goes: `Quiz.vue` renders the explanation out of this same payload
+	right after `check_answer` and never refetches, so withholding them there
+	would silently kill the feedback the setting exists for.
+	"""
+	if PRIVILEGED_ROLES & set(frappe.get_roles()):
+		return True
+
+	if show_answers:
+		return True
+
+	return bool(frappe.db.exists("LMS Quiz Submission", {"quiz": quiz, "member": frappe.session.user}))
+
+
 @frappe.whitelist()
 def get_quiz_with_questions(quiz: str) -> dict:
 	"""Return the quiz doc plus every question's details in a single round trip.
@@ -2062,8 +2082,9 @@ def get_quiz_with_questions(quiz: str) -> dict:
 				"type",
 				"multiple",
 				*QUESTION_OPTION_FIELDS,
-				*QUESTION_EXPLANATION_FIELDS,
 			]
+			if can_view_quiz_answers(quiz, quiz_doc.get("show_answers")):
+				fields += QUESTION_EXPLANATION_FIELDS
 			# nosemgrep: lms-unjustified-ignore-permissions - access gated by can_access_quiz above
 			rows = frappe.get_all(
 				"LMS Question",
