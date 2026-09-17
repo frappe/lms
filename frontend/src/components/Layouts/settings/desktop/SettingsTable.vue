@@ -13,7 +13,7 @@
 			<div role="rowgroup">
 				<ListRows :items="rows" :row-key="rowKey" v-slot="{ item: row }">
 					<ListRow
-						class="dark:sm:hover:bg-surface-gray-2 [outline-offset:-3px]"
+						class="sm:hover:bg-surface-gray-2 [outline-offset:-3px]"
 						@click="emit('rowClick', row)"
 					>
 						<ListCell

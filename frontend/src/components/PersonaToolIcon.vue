@@ -1,10 +1,5 @@
 <template>
-	<!-- Uniform white tile behind every mark so transparent logos stay visible
-	     in dark mode (literal white on purpose; it must not flip with theme). -->
-	<span
-		class="inline-flex size-4 shrink-0 items-center justify-center rounded-[3px] bg-white"
-		aria-hidden="true"
-	>
+	<span class="tool-tile" aria-hidden="true">
 		<img
 			v-if="image"
 			:src="image"
@@ -13,13 +8,14 @@
 			loading="lazy"
 		/>
 
-		<!-- Non-brand options: neutral Lucide glyphs. Fixed gray, not an ink
-		     token: the tile stays white in dark mode, so the glyph must too. -->
-		<component :is="glyph" v-else-if="glyph" class="size-3.5 text-[#525252]" />
+		<component
+			:is="glyph"
+			v-else-if="glyph"
+			class="tool-tile-glyph size-3.5"
+		/>
 
-		<!-- Unknown tool: neutral placeholder -->
-		<svg v-else viewBox="0 0 20 20" width="14" height="14">
-			<rect width="20" height="20" rx="5" fill="#F1F1F1" />
+		<svg v-else class="tool-tile-placeholder" viewBox="0 0 20 20" width="14" height="14">
+			<rect width="20" height="20" rx="5" />
 			<text
 				x="10"
 				y="10"
@@ -28,7 +24,6 @@
 				font-size="11"
 				font-weight="600"
 				font-family="ui-sans-serif, system-ui, sans-serif"
-				fill="#6B6B6B"
 			>
 				?
 			</text>
@@ -58,3 +53,30 @@ const GLYPHS = {
 const image = computed(() => toolLogos[props.name])
 const glyph = computed(() => GLYPHS[props.name])
 </script>
+
+<style scoped>
+/* token-exempt: a uniform white tile behind every mark, so a transparent brand
+   logo stays legible in dark mode. It must NOT flip with the theme — and
+   because the tile is fixed, the glyph and placeholder on it are fixed too.
+   These live here rather than in the template so the reasoning is one comment
+   instead of three, and so no comment renders into the DOM in dev. */
+.tool-tile {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+	width: 1rem;
+	height: 1rem;
+	border-radius: 3px;
+	background: #ffffff; /* token-exempt: fixed tile */
+}
+.tool-tile-glyph {
+	color: #525252; /* token-exempt: fixed tile */
+}
+.tool-tile-placeholder rect {
+	fill: #f1f1f1; /* token-exempt: fixed tile */
+}
+.tool-tile-placeholder text {
+	fill: #6b6b6b; /* token-exempt: fixed tile */
+}
+</style>

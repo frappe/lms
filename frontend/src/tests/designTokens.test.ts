@@ -105,19 +105,25 @@ for (const side of ['', ...RADIUS_SIDES.map((s) => `-${s}`)]) {
 }
 
 /**
- * Literal colours that are allowed to stay, each with the reason.
+ * A line may keep a literal colour by saying why, at the site:
  *
- * A scrim over video or cover art is black in both themes by design, but it
- * goes through `black-overlay-*` so the opacity comes from the token set —
- * these entries are the ones that cannot.
+ *   background: #fff; // token-exempt: the paper a PDF page is drawn on
+ *
+ * A contiguous vendored region — a third-party theme carrying its own
+ * light/dark pair — brackets itself instead:
+ *
+ *   // token-exempt-start: highlight.js atom-one theme
+ *   ...
+ *   // token-exempt-end
+ *
+ * Deliberately never per-file. A file-wide exemption also excuses the drift
+ * sitting next to the legitimate literal, which is how PdfBlock's toolbar kept
+ * a light-mode grey ramp while nobody noticed, and how Lesson.vue kept
+ * `theme('colors.gray.200')` behind a highlight.js theme it happens to contain.
  */
-const LITERAL_ALLOWLIST: Record<string, string> = {
-	'components/Icons/LMSLogo.vue': 'brand mark; fixed by definition',
-	'utils/code.ts': 'vendored highlight.js theme (atom-one), own light/dark pair',
-	'styles/blockEditor.css':
-		'vendored highlight.js theme + EditorJS shadow values',
-	'pages/Lesson.vue': 'vendored highlight.js theme (night-owl)',
-}
+const EXEMPT_LINE = /token-exempt:\s*\S/
+const EXEMPT_START = /token-exempt-start:\s*\S/
+const EXEMPT_END = /token-exempt-end\b/
 
 // Vite's own loader, so the type check needs no @types/node for the tree scan
 // and it resolves what the app builds from.
@@ -195,11 +201,22 @@ type Offender = string
 const at = (file: string, line: number, detail: string): Offender =>
 	`${file}:${line} — ${detail}`
 
-/** Every code line of every scanned file, comments blanked. */
-const codeLines = function* (): Generator<[string, number, string]> {
+/**
+ * Every line of every scanned file as `[file, lineNo, code, exempt]`. `code`
+ * has comments blanked — the `token-exempt` markers are read off the original,
+ * since blanking the comment would take the marker with it.
+ */
+const codeLines = function* (): Generator<[string, number, string, boolean]> {
 	for (const [file, source] of FILES) {
-		const lines = stripComments(source.split('\n'))
-		for (const [i, line] of lines.entries()) yield [file, i + 1, line]
+		const raw = source.split('\n')
+		const code = stripComments(raw)
+		let inRegion = false
+		for (const [i, line] of code.entries()) {
+			if (EXEMPT_START.test(raw[i])) inRegion = true
+			const exempt = inRegion || EXEMPT_LINE.test(raw[i])
+			if (EXEMPT_END.test(raw[i])) inRegion = false
+			yield [file, i + 1, line, exempt]
+		}
 	}
 }
 
@@ -350,11 +367,12 @@ describe('design tokens', () => {
 	})
 
 	it('uses no literal colour value', () => {
-		const hex = /#(?:[0-9a-fA-F]{6}(?:[0-9a-fA-F]{2})?|[0-9a-fA-F]{3})(?![0-9a-zA-Z-])/g
+		const hex =
+			/#(?:[0-9a-fA-F]{6}(?:[0-9a-fA-F]{2})?|[0-9a-fA-F]{3})(?![0-9a-zA-Z-])/g
 		const fn = /\b(?:rgba?|hsla?)\(\s*[\d.]/g
 		const offenders: Offender[] = []
-		for (const [file, line, text] of codeLines()) {
-			if (file in LITERAL_ALLOWLIST) continue
+		for (const [file, line, text, exempt] of codeLines()) {
+			if (exempt) continue
 			for (const m of text.matchAll(hex)) {
 				offenders.push(at(file, line, `${m[0]} — literal colour`))
 			}
@@ -365,12 +383,59 @@ describe('design tokens', () => {
 		expect(offenders).toEqual([])
 	})
 
-	it('allowlists only files that still exist', () => {
-		const scanned = new Set(FILES.map(([file]) => file))
-		const stale = Object.keys(LITERAL_ALLOWLIST).filter(
-			(file) => !scanned.has(file)
+	/**
+	 * Tailwind's `theme()` resolves at build time, so `theme('colors.gray.600')`
+	 * in a <style> block bakes in the light-mode primitive just as surely as
+	 * writing the hex would — and reads like a token while doing it.
+	 */
+	it('resolves no raw palette through theme()', () => {
+		const families = RAW_FAMILIES.join('|')
+		const pattern = new RegExp(
+			`theme\\(\\s*['"\`]colors\\.((?:${families})\\.\\d{1,3}|white|black)`,
+			'g'
 		)
-		expect(stale).toEqual([])
+		const offenders: Offender[] = []
+		for (const [file, line, text, exempt] of codeLines()) {
+			if (exempt) continue
+			for (const m of text.matchAll(pattern)) {
+				offenders.push(
+					at(file, line, `theme('colors.${m[1]}') — build-time primitive`)
+				)
+			}
+		}
+		expect(offenders).toEqual([])
+	})
+
+	it('grants no exemption without a reason', () => {
+		const offenders: Offender[] = []
+		for (const [file, source] of FILES) {
+			for (const [i, raw] of source.split('\n').entries()) {
+				if (/token-exempt(-start)?:?\s*$/.test(raw)) {
+					offenders.push(at(file, i + 1, 'token-exempt with no reason given'))
+				}
+			}
+		}
+		expect(offenders).toEqual([])
+	})
+
+	it('closes every exempt region it opens', () => {
+		const offenders: Offender[] = []
+		for (const [file, source] of FILES) {
+			let open: number | null = null
+			for (const [i, raw] of source.split('\n').entries()) {
+				if (EXEMPT_START.test(raw)) {
+					if (open !== null) {
+						offenders.push(at(file, i + 1, `region already open at ${open}`))
+					}
+					open = i + 1
+				} else if (EXEMPT_END.test(raw)) {
+					if (open === null) offenders.push(at(file, i + 1, 'end with no start'))
+					open = null
+				}
+			}
+			if (open !== null) offenders.push(at(file, open, 'region never closed'))
+		}
+		expect(offenders).toEqual([])
 	})
 
 	it('uses no radius alias removed in 1.0.0', () => {
@@ -413,15 +478,22 @@ describe('design tokens', () => {
 		expect(offenders).toEqual([])
 	})
 
-	it('needs no dark: variant', () => {
+	/**
+	 * A semantic token already carries both themes, so `dark:` on one is a
+	 * second opinion about a value that has already decided. The overlay ramps
+	 * are the exception and are allowed through: they are alpha over whatever
+	 * is behind them, so they hold no theme of their own and the right step
+	 * genuinely differs per theme — frappe-ui's own Dialog backdrop is
+	 * `bg-black-overlay-200 dark:bg-black-overlay-700`.
+	 */
+	it('needs no dark: variant on a themed token', () => {
 		const offenders: Offender[] = []
 		for (const [file, line, text] of codeLines()) {
 			for (const cls of classesOn(text)) {
-				if (baseClass(cls).variants.includes('dark')) {
-					offenders.push(
-						at(file, line, `${cls} — espresso tokens already flip`)
-					)
-				}
+				const { base, variants } = baseClass(cls)
+				if (!variants.includes('dark')) continue
+				if (/-(?:black|white)-overlay-\d+$/.test(base)) continue
+				offenders.push(at(file, line, `${cls} — the token already flips`))
 			}
 		}
 		expect(offenders).toEqual([])

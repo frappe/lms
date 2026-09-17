@@ -1310,10 +1310,11 @@ usePageMeta(() => {
 }
 
 .lesson-content img {
-	border: 1px solid theme('colors.gray.200');
+	border: 1px solid var(--outline-gray-2);
 	border-radius: 0.5rem;
 }
 
+/* token-exempt-start: highlight.js night-owl theme, own light/dark pair */
 .lesson-content code {
 	display: block;
 	overflow-x: auto;
@@ -1323,9 +1324,10 @@ usePageMeta(() => {
 	border-radius: 0.5rem;
 	margin: 1rem 0;
 }
+/* token-exempt-end */
 
 .lesson-content a {
-	color: theme('colors.gray.900');
+	color: var(--ink-gray-9);
 	text-decoration: underline;
 	font-weight: 500;
 }
@@ -1394,7 +1396,7 @@ usePageMeta(() => {
 	justify-content: flex-start;
 	align-items: flex-start;
 	border-radius: 2px;
-	box-shadow: 0 3px 15px -3px rgba(13, 20, 33, 0.13);
+	box-shadow: 0 3px 15px -3px rgba(13, 20, 33, 0.13); /* token-exempt: cast shadow */
 	position: absolute;
 	top: 100%;
 	margin: 5px 0;
@@ -1423,6 +1425,7 @@ usePageMeta(() => {
 	display: flex !important;
 }
 
+/* token-exempt-start: highlight.js atom-one theme, own light/dark pair */
 .dark {
 	color: #abb2bf;
 	background-color: #282c34;
@@ -1432,20 +1435,21 @@ usePageMeta(() => {
 	color: #383a42;
 	background-color: #fafafa;
 }
+/* token-exempt-end */
 
 .codeBoxTextArea {
 	line-height: 1.7;
 }
 
 .tc-table {
-	border-inline-start: 1px solid #e8e8eb;
+	border-inline-start: 1px solid var(--outline-gray-2);
 }
 
 .plyr__control--overlaid {
 	background: radial-gradient(
 		circle,
-		rgba(0, 0, 0, 0.4) 0%,
-		rgba(0, 0, 0, 0.5) 50%
+		rgba(0, 0, 0, 0.4) 0%, /* token-exempt: scrim on the video */
+		rgba(0, 0, 0, 0.5) 50% /* token-exempt: scrim on the video */
 	);
 }
 
@@ -1454,7 +1458,7 @@ usePageMeta(() => {
 }
 
 .plyr--video {
-	border: 1px solid theme('colors.gray.200');
+	border: 1px solid var(--outline-gray-2);
 	border-radius: 8px;
 }
 

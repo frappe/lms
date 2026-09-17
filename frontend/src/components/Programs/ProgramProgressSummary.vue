@@ -29,11 +29,11 @@
 						categoryColumn: 'category',
 						valueColumn: 'count',
 						colors: [
-							'var(--red-400)',
-							'var(--amber-400)',
-							'var(--pink-400)',
-							'var(--blue-400)',
-							'var(--green-400)',
+							'var(--surface-red-6)',
+							'var(--surface-amber-6)',
+							'var(--surface-yellow-6)',
+							'var(--surface-blue-6)',
+							'var(--surface-green-6)',
 						],
 					}"
 				/>

@@ -73,7 +73,7 @@
 			</template>
 			<span
 				v-else-if="chapter.is_scorm_package && isScormChapterComplete"
-				class="lucide-check size-4 text-green-700"
+				class="lucide-check size-4 text-ink-green-8"
 			/>
 		</DisclosureButton>
 		<DisclosurePanel v-if="!chapter.is_scorm_package">
@@ -151,7 +151,7 @@
 								</template>
 								<span
 									v-else-if="lesson.is_complete"
-									class="lucide-check h-4 w-4 text-green-700 ms-2"
+									class="lucide-check h-4 w-4 text-ink-green-8 ms-2"
 								/>
 							</div>
 						</component>

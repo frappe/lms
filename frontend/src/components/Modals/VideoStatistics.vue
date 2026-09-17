@@ -249,8 +249,8 @@ const tabs = computed(() => {
 .plyr__control--overlaid {
 	background: radial-gradient(
 		circle,
-		rgba(0, 0, 0, 0.4) 0%,
-		rgba(0, 0, 0, 0.5) 50%
+		rgba(0, 0, 0, 0.4) 0%, /* token-exempt: scrim on the video, not the page */
+		rgba(0, 0, 0, 0.5) 50% /* token-exempt: scrim on the video, not the page */
 	);
 }
 
@@ -259,7 +259,7 @@ const tabs = computed(() => {
 }
 
 .plyr--video {
-	border: 1px solid theme('colors.gray.200');
+	border: 1px solid var(--outline-gray-2);
 	border-radius: 8px;
 }
 
