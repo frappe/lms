@@ -1,3 +1,4 @@
+
 <template>
 	<div class="pdf-block mb-4">
 		<div class="pdf-toolbar">
@@ -11,9 +12,11 @@
 				>
 					<ChevronLeft :size="18" :stroke-width="1.5" />
 				</button>
-				<span class="pdf-page-indicator">{{
-					numPages ? currentPage + ' / ' + numPages : '-'
-				}}</span>
+
+				<span class="pdf-page-indicator">
+					{{ numPages ? `${currentPage} / ${numPages}` : '-' }}
+				</span>
+
 				<button
 					type="button"
 					class="pdf-btn"
@@ -24,6 +27,7 @@
 					<ChevronRight :size="18" :stroke-width="1.5" />
 				</button>
 			</div>
+
 			<div class="pdf-toolbar-group">
 				<button
 					type="button"
@@ -34,6 +38,7 @@
 				>
 					<ZoomOut :size="18" :stroke-width="1.5" />
 				</button>
+
 				<button
 					type="button"
 					class="pdf-btn"
@@ -41,8 +46,9 @@
 					aria-label="Fit width"
 					@click="fitWidth"
 				>
-					<Maximize2 :size="16" :stroke-width="1.5" />
+					<Maximize2 :size="18" :stroke-width="1.5" />
 				</button>
+
 				<button
 					type="button"
 					class="pdf-btn"
@@ -52,48 +58,76 @@
 				>
 					<ZoomIn :size="18" :stroke-width="1.5" />
 				</button>
+
 				<a
 					class="pdf-btn"
-					:href="safeUrl(file)"
-					v-external
-					aria-label="Open in new tab"
+					:href="safePdfUrl"
+					target="_blank"
+					rel="noopener noreferrer"
+					aria-label="Open PDF in new tab"
 				>
-					<ExternalLink :size="16" :stroke-width="1.5" />
+					<ExternalLink :size="18" :stroke-width="1.5" />
 				</a>
 			</div>
 		</div>
 
-		<div ref="scrollEl" class="pdf-scroll" @scroll.passive="scheduleUpdate">
-			<div v-if="loading" class="pdf-status">
-				<Loader2 :size="20" :stroke-width="1.5" class="pdf-spin" />
-				<span>Loading PDF…</span>
-			</div>
-			<div v-else-if="error" class="pdf-status pdf-error">
-				<span>{{ error }}</span>
-				<a class="pdf-fallback-link" :href="safeUrl(file)" v-external>
-					Open the PDF in a new tab
-				</a>
-			</div>
+		<div
+			v-if="loading"
+			class="pdf-status"
+		>
+			<Loader2 class="pdf-spin" :size="18" />
+			<span>Loading PDF...</span>
+		</div>
+
+		<div
+			v-else-if="error"
+			class="pdf-status pdf-error"
+		>
+			<span>{{ error }}</span>
+
+			<a
+				class="pdf-fallback-link"
+				:href="safePdfUrl"
+				target="_blank"
+				rel="noopener noreferrer"
+			>
+				Open PDF directly
+			</a>
+		</div>
+
+		<div
+			v-else
+			ref="scrollEl"
+			class="pdf-scroll"
+			@scroll.passive="scheduleUpdate"
+		>
 			<div
-				v-for="(meta, i) in pageMeta"
-				v-else
-				:key="i"
-				:ref="(el) => setPageEl(el, i)"
+				v-for="(meta, index) in pageMeta"
+				:key="index"
+				:ref="(el) => setPageEl(el, index)"
 				class="pdf-page"
 				:style="{
-					width: Math.floor(meta.width * scale) + 'px',
-					height: Math.floor(meta.height * scale) + 'px',
+					width: `${meta.width * scale}px`,
+					height: `${meta.height * scale}px`,
 				}"
 			>
-				<canvas :ref="(el) => setCanvasEl(el, i)"></canvas>
+				<canvas
+					:ref="(el) => setCanvasEl(el, index)"
+				></canvas>
 			</div>
 		</div>
 	</div>
 </template>
 
 <script setup>
-import { ref, onBeforeUnmount } from 'vue'
-import { createPdfWorker } from '@/utils/pdfWorker'
+import {
+	ref,
+	computed,
+	onMounted,
+	onBeforeUnmount,
+	nextTick,
+} from 'vue'
+
 import {
 	ChevronLeft,
 	ChevronRight,
@@ -103,17 +137,59 @@ import {
 	ExternalLink,
 	Loader2,
 } from 'lucide-vue-next'
+
+import { createPdfWorker } from '@/utils/pdfWorker'
 import { safeUrl } from '@/utils/safeUrl'
 
 const props = defineProps({
-	file: { type: String, required: true },
+	file: {
+		type: String,
+		required: true,
+	},
+
+	// Optional analytics information.
+	session: {
+		type: String,
+		default: '',
+	},
+
+	activity: {
+		type: String,
+		default: '',
+	},
+
+	student: {
+		type: String,
+		default: '',
+	},
+
+	enableTelemetry: {
+		type: Boolean,
+		default: true,
+	},
 })
 
-// iOS Safari blanks a canvas past its area/memory limit: pdf.js's own failure
-// mode on large or high-DPI pages. Cap the backing store to pdf.js's default.
+/*
+|--------------------------------------------------------------------------
+| Configuration
+|--------------------------------------------------------------------------
+*/
+
+const EVENT_DOCTYPE = 'LMS Activity Event'
+const EVENT_TYPE = 'pdf_page_view'
+const EVENT_API = '/api/method/frappe.client.insert'
+
 const MAX_CANVAS_PIXELS = 16_777_216
 const MIN_SCALE = 0.25
 const MAX_SCALE = 5
+
+const safePdfUrl = computed(() => safeUrl(props.file))
+
+/*
+|--------------------------------------------------------------------------
+| Vue state
+|--------------------------------------------------------------------------
+*/
 
 const scrollEl = ref(null)
 const loading = ref(true)
@@ -121,288 +197,639 @@ const error = ref(null)
 const numPages = ref(0)
 const currentPage = ref(1)
 const scale = ref(1)
-const pageMeta = ref([]) // per-page { width, height } at scale 1
+const pageMeta = ref([])
 
-// Heavy pdf.js objects are kept out of Vue reactivity on purpose.
+/*
+|--------------------------------------------------------------------------
+| PDF state
+|--------------------------------------------------------------------------
+*/
+
 let pdfjsLib = null
 let pdfDoc = null
+let loadingTask = null
+
 let pageEls = []
 let canvasEls = []
-let renderTasks = [] // active RenderTask per page index
-let rendered = [] // bool per page index
-let rafId = null
-let task = null // in-flight PDFDocumentLoadingTask
+let renderTasks = []
+let rendered = []
 
-// --- shared, ref-counted worker (multi-instance safe; terminated on last unmount) ---
-// A leaked pdf.js worker is worse than a leaked <audio>, so we always release it.
-// The ref is taken synchronously at mount and dropped on unmount, so an unmount
-// that races an in-flight load() can never strand a ref (and its worker).
-let heldWorker = false
+let rafId = null
 let disposed = false
 
-function setPageEl(el, i) {
-	if (el) pageEls[i] = el
-}
-function setCanvasEl(el, i) {
-	if (el) canvasEls[i] = el
-}
+/*
+|--------------------------------------------------------------------------
+| Telemetry state
+|--------------------------------------------------------------------------
+*/
 
-async function load() {
-	try {
-		// Dynamic import: there is no manualChunks here, so a static import would
-		// fold ~144kB gzip of pdf.js into the main entry that every LMS page pays.
-		pdfjsLib = await import('pdfjs-dist/legacy/build/pdf.mjs')
-		if (disposed) return
-		// Wrap the raw port in our own PDFWorker and pass it explicitly. Via
-		// GlobalWorkerOptions.workerPort, pdf.js hands each loading task
-		// ownership of the shared worker, so one viewer's pdfDoc.destroy()
-		// tears down the port-level message handler every *sibling* viewer is
-		// still listening on. Their getDocument() then never settles and the
-		// spinner runs forever. Passing `worker` keeps ownership here.
-		if (sharedWorker && !sharedPdfWorker) {
-			sharedPdfWorker = new pdfjsLib.PDFWorker({ port: sharedWorker })
-		}
+let lastTrackedPage = null
+let trackedPages = new Set()
 
-		const base = import.meta.env.BASE_URL || '/'
-		const loadingTask = pdfjsLib.getDocument({
-			url: safeUrl(props.file),
-			worker: sharedPdfWorker || undefined,
-			cMapUrl: `${base}pdfjs/cmaps/`,
-			cMapPacked: true,
-			standardFontDataUrl: `${base}pdfjs/standard_fonts/`,
-		})
-		task = loadingTask
-		pdfDoc = await loadingTask.promise
-		task = null
-		if (disposed) return
-		numPages.value = pdfDoc.numPages
+/*
+|--------------------------------------------------------------------------
+| Shared PDF worker
+|--------------------------------------------------------------------------
+*/
 
-		// Fetch each page's intrinsic size (metadata only, no render) so the
-		// continuous-scroll placeholders have correct heights up front.
-		const meta = []
-		for (let n = 1; n <= pdfDoc.numPages; n++) {
-			const page = await pdfDoc.getPage(n)
-			const vp = page.getViewport({ scale: 1 })
-			meta.push({ width: vp.width, height: vp.height })
-		}
-		if (disposed) return
-		pageMeta.value = meta
-		renderTasks = new Array(meta.length).fill(null)
-		rendered = new Array(meta.length).fill(false)
-		loading.value = false
+let sharedWorker = null
+let sharedWorkerRefs = 0
+let sharedPdfWorker = null
 
-		await nextFrame()
-		if (disposed) return
-		fitWidth()
-	} catch (e) {
-		loading.value = false
-		error.value = 'This PDF could not be displayed.'
-		// eslint-disable-next-line no-console
-		console.error('PdfBlock: failed to load PDF', e)
+let heldWorker = false
+
+/*
+|--------------------------------------------------------------------------
+| DOM references
+|--------------------------------------------------------------------------
+*/
+
+function setPageEl(element, index) {
+	if (element) {
+		pageEls[index] = element
 	}
 }
 
-// Synchronous so the ref is taken at mount, before load()'s first await. The
-// GlobalWorkerOptions.workerPort wiring happens later in load() once pdf.js is
-// imported. pdf.js falls back to its main-thread worker if none is available.
+function setCanvasEl(element, index) {
+	if (element) {
+		canvasEls[index] = element
+	}
+}
+
+/*
+|--------------------------------------------------------------------------
+| Frappe helpers
+|--------------------------------------------------------------------------
+*/
+
+function getCsrfToken() {
+	return (
+		window.frappe?.csrf_token ||
+		document.querySelector('meta[name="csrf-token"]')?.content ||
+		'None'
+	)
+}
+
+async function sendLearningEvent(pageNumber) {
+	if (!props.enableTelemetry) return
+
+	if (!props.session || !props.activity) {
+		console.warn(
+			'PdfBlock: telemetry skipped because session or activity is missing',
+		)
+		return
+	}
+
+	const uniqueKey = `${props.activity}:${pageNumber}`
+
+	// Prevent duplicate events for the same page in this viewer session.
+	if (trackedPages.has(uniqueKey)) {
+		return
+	}
+
+	trackedPages.add(uniqueKey)
+
+	const eventDocument = {
+		doctype: EVENT_DOCTYPE,
+
+		event_type: EVENT_TYPE,
+
+		session: props.session,
+
+		activity: props.activity,
+
+		student: props.student || window.frappe?.session?.user || '',
+
+		page_number: pageNumber,
+
+		event_time: new Date().toISOString().slice(0, 19),
+
+		metadata: JSON.stringify({
+			file: props.file,
+			page: pageNumber,
+			total_pages: numPages.value,
+			scale: scale.value,
+			source: 'PdfBlock',
+		}),
+	}
+
+	try {
+		const response = await fetch(EVENT_API, {
+			method: 'POST',
+
+			headers: {
+				'Content-Type': 'application/json',
+				'X-Frappe-CSRF-Token': getCsrfToken(),
+			},
+
+			credentials: 'same-origin',
+
+			body: JSON.stringify({
+				doc: JSON.stringify(eventDocument),
+			}),
+		})
+
+		if (!response.ok) {
+			throw new Error(
+				`Telemetry request failed with status ${response.status}`,
+			)
+		}
+
+		console.debug(
+			`PdfBlock: page ${pageNumber} event saved successfully`,
+		)
+	} catch (eventError) {
+		// Do not break PDF reading if telemetry fails.
+		console.warn(
+			'PdfBlock: failed to save learning event',
+			eventError,
+		)
+
+		// Allow retry if the request failed.
+		trackedPages.delete(uniqueKey)
+	}
+}
+
+function trackCurrentPage(pageNumber) {
+	if (!pageNumber || pageNumber === lastTrackedPage) {
+		return
+	}
+
+	lastTrackedPage = pageNumber
+	sendLearningEvent(pageNumber)
+}
+
+/*
+|--------------------------------------------------------------------------
+| Worker management
+|--------------------------------------------------------------------------
+*/
+
 function acquireWorker() {
 	if (heldWorker) return
+
 	heldWorker = true
-	sharedWorkerRefs++
+	sharedWorkerRefs += 1
+
 	if (!sharedWorker) {
 		try {
 			sharedWorker = createPdfWorker()
-		} catch (e) {
-			// No worker (blocked / unsupported) -> pdf.js falls back to its
-			// main-thread fake worker. Slower, but the viewer still works.
+		} catch (workerError) {
 			sharedWorker = null
-			// eslint-disable-next-line no-console
-			console.warn('PdfBlock: pdf.js worker unavailable', e)
+
+			console.warn(
+				'PdfBlock: worker unavailable, using fallback worker',
+				workerError,
+			)
 		}
 	}
 }
 
 function releaseWorker() {
 	if (!heldWorker) return
+
 	heldWorker = false
 	sharedWorkerRefs = Math.max(0, sharedWorkerRefs - 1)
-	// Not guarded on the per-instance `pdfjsLib`: an instance that unmounts
-	// before its dynamic import resolves would otherwise strand a terminated
-	// worker in module scope.
+
 	if (sharedWorkerRefs === 0) {
-		sharedPdfWorker?.destroy()
+		try {
+			sharedPdfWorker?.destroy()
+		} catch {
+			// Worker already destroyed.
+		}
+
 		sharedPdfWorker = null
-		sharedWorker?.terminate()
+
+		try {
+			sharedWorker?.terminate()
+		} catch {
+			// Worker already terminated.
+		}
+
 		sharedWorker = null
 	}
 }
 
-async function renderPage(i) {
-	if (rendered[i] || renderTasks[i]) return
-	const canvas = canvasEls[i]
-	if (!canvas || !pdfDoc) return
-	rendered[i] = true // claim the slot before awaiting to avoid double-render races
+/*
+|--------------------------------------------------------------------------
+| PDF loading
+|--------------------------------------------------------------------------
+*/
+
+async function load() {
 	try {
-		const page = await pdfDoc.getPage(i + 1)
-		const viewport = page.getViewport({ scale: scale.value })
+		pdfjsLib = await import(
+			'pdfjs-dist/legacy/build/pdf.mjs'
+		)
+
+		if (disposed) return
+
+		if (sharedWorker && !sharedPdfWorker) {
+			sharedPdfWorker = new pdfjsLib.PDFWorker({
+				port: sharedWorker,
+			})
+		}
+
+		const base = import.meta.env.BASE_URL || '/'
+
+		const task = pdfjsLib.getDocument({
+			url: safeUrl(props.file),
+
+			worker: sharedPdfWorker || undefined,
+
+			cMapUrl: `${base}pdfjs/cmaps/`,
+
+			cMapPacked: true,
+
+			standardFontDataUrl: `${base}pdfjs/standard_fonts/`,
+		})
+
+		loadingTask = task
+
+		pdfDoc = await task.promise
+
+		loadingTask = null
+
+		if (disposed) return
+
+		numPages.value = pdfDoc.numPages
+
+		const metadata = []
+
+		for (let pageNumber = 1; pageNumber <= pdfDoc.numPages; pageNumber++) {
+			const page = await pdfDoc.getPage(pageNumber)
+
+			const viewport = page.getViewport({
+				scale: 1,
+			})
+
+			metadata.push({
+				width: viewport.width,
+				height: viewport.height,
+			})
+		}
+
+		if (disposed) return
+
+		pageMeta.value = metadata
+
+		renderTasks = new Array(metadata.length).fill(null)
+
+		rendered = new Array(metadata.length).fill(false)
+
+		loading.value = false
+
+		await nextTick()
+
+		await nextFrame()
+
+		if (disposed) return
+
+		fitWidth()
+
+		scheduleUpdate()
+	} catch (loadError) {
+		loading.value = false
+
+		error.value = 'This PDF could not be displayed.'
+
+		console.error(
+			'PdfBlock: failed to load PDF',
+			loadError,
+		)
+	}
+}
+
+/*
+|--------------------------------------------------------------------------
+| Page rendering
+|--------------------------------------------------------------------------
+*/
+
+async function renderPage(index) {
+	if (rendered[index] || renderTasks[index]) {
+		return
+	}
+
+	const canvas = canvasEls[index]
+
+	if (!canvas || !pdfDoc) {
+		return
+	}
+
+	rendered[index] = true
+
+	try {
+		const page = await pdfDoc.getPage(index + 1)
+
+		const viewport = page.getViewport({
+			scale: scale.value,
+		})
 
 		let outputScale = window.devicePixelRatio || 1
-		let bw = Math.floor(viewport.width * outputScale)
-		let bh = Math.floor(viewport.height * outputScale)
-		if (bw * bh > MAX_CANVAS_PIXELS) {
-			outputScale *= Math.sqrt(MAX_CANVAS_PIXELS / (bw * bh))
-			bw = Math.floor(viewport.width * outputScale)
-			bh = Math.floor(viewport.height * outputScale)
-		}
-		canvas.width = bw
-		canvas.height = bh
-		canvas.style.width = Math.floor(viewport.width) + 'px'
-		canvas.style.height = Math.floor(viewport.height) + 'px'
 
-		const task = page.render({
-			canvasContext: canvas.getContext('2d'),
+		let backingWidth = Math.floor(
+			viewport.width * outputScale,
+		)
+
+		let backingHeight = Math.floor(
+			viewport.height * outputScale,
+		)
+
+		const totalPixels = backingWidth * backingHeight
+
+		if (totalPixels > MAX_CANVAS_PIXELS) {
+			outputScale *= Math.sqrt(
+				MAX_CANVAS_PIXELS / totalPixels,
+			)
+
+			backingWidth = Math.floor(
+				viewport.width * outputScale,
+			)
+
+			backingHeight = Math.floor(
+				viewport.height * outputScale,
+			)
+		}
+
+		canvas.width = backingWidth
+		canvas.height = backingHeight
+
+		canvas.style.width = `${Math.floor(viewport.width)}px`
+		canvas.style.height = `${Math.floor(viewport.height)}px`
+
+		const context = canvas.getContext('2d')
+
+		if (!context) {
+			throw new Error('Canvas 2D context unavailable')
+		}
+
+		const renderTask = page.render({
+			canvasContext: context,
+
 			viewport,
+
 			transform:
-				outputScale !== 1 ? [outputScale, 0, 0, outputScale, 0, 0] : null,
+				outputScale !== 1
+					? [
+							outputScale,
+							0,
+							0,
+							outputScale,
+							0,
+							0,
+						]
+					: null,
 		})
-		renderTasks[i] = task
-		await task.promise
-		renderTasks[i] = null
-	} catch (e) {
-		renderTasks[i] = null
-		rendered[i] = false
-		// RenderingCancelledException on scale change / teardown is expected.
-		if (e?.name !== 'RenderingCancelledException') {
-			// eslint-disable-next-line no-console
-			console.error('PdfBlock: failed to render page', i + 1, e)
+
+		renderTasks[index] = renderTask
+
+		await renderTask.promise
+
+		renderTasks[index] = null
+	} catch (renderError) {
+		renderTasks[index] = null
+
+		rendered[index] = false
+
+		if (
+			renderError?.name !==
+			'RenderingCancelledException'
+		) {
+			console.error(
+				'PdfBlock: failed to render page',
+				index + 1,
+				renderError,
+			)
 		}
 	}
 }
 
-function clearPage(i) {
-	const task = renderTasks[i]
-	if (task) {
-		task.cancel()
-		renderTasks[i] = null
+function clearPage(index) {
+	const renderTask = renderTasks[index]
+
+	if (renderTask) {
+		try {
+			renderTask.cancel()
+		} catch {
+			// Render task already completed.
+		}
+
+		renderTasks[index] = null
 	}
-	rendered[i] = false
-	const canvas = canvasEls[i]
+
+	rendered[index] = false
+
+	const canvas = canvasEls[index]
+
 	if (canvas) {
 		canvas.width = 0
 		canvas.height = 0
 	}
 }
 
-// Render pages within a screenful of the viewport, clear the rest, and track
-// the most-visible page as `currentPage`. Bounds memory so iOS doesn't OOM.
+/*
+|--------------------------------------------------------------------------
+| Visibility and page tracking
+|--------------------------------------------------------------------------
+*/
+
 function updateVisible() {
-	const el = scrollEl.value
-	if (!el || loading.value || error.value) return
-	const cRect = el.getBoundingClientRect()
-	const margin = cRect.height
-	let best = { i: 0, area: -1 }
-	for (let i = 0; i < pageEls.length; i++) {
-		const pel = pageEls[i]
-		if (!pel) continue
-		const r = pel.getBoundingClientRect()
-		const near =
-			r.bottom >= cRect.top - margin && r.top <= cRect.bottom + margin
-		if (near) renderPage(i)
-		else clearPage(i)
-		const visible =
-			Math.min(r.bottom, cRect.bottom) - Math.max(r.top, cRect.top)
-		if (visible > best.area) best = { i, area: visible }
+	const container = scrollEl.value
+
+	if (!container || loading.value || error.value) {
+		return
 	}
-	currentPage.value = best.i + 1
+
+	const containerRect = container.getBoundingClientRect()
+
+	const margin = containerRect.height
+
+	let bestPage = {
+		index: 0,
+		visibleArea: -1,
+	}
+
+	for (let index = 0; index < pageEls.length; index++) {
+		const pageElement = pageEls[index]
+
+		if (!pageElement) continue
+
+		const pageRect = pageElement.getBoundingClientRect()
+
+		const isNearViewport =
+			pageRect.bottom >= containerRect.top - margin &&
+			pageRect.top <= containerRect.bottom + margin
+
+		if (isNearViewport) {
+			renderPage(index)
+		} else {
+			clearPage(index)
+		}
+
+		const visibleHeight =
+			Math.min(
+				pageRect.bottom,
+				containerRect.bottom,
+			) -
+			Math.max(
+				pageRect.top,
+				containerRect.top,
+			)
+
+		const visibleArea = Math.max(0, visibleHeight)
+
+		if (visibleArea > bestPage.visibleArea) {
+			bestPage = {
+				index,
+				visibleArea,
+			}
+		}
+	}
+
+	const detectedPage = bestPage.index + 1
+
+	currentPage.value = detectedPage
+
+	trackCurrentPage(detectedPage)
 }
 
 function scheduleUpdate() {
-	if (rafId != null) return
+	if (rafId !== null) return
+
 	rafId = requestAnimationFrame(() => {
 		rafId = null
+
 		updateVisible()
 	})
 }
 
 function nextFrame() {
-	return new Promise((resolve) => requestAnimationFrame(() => resolve()))
+	return new Promise((resolve) => {
+		requestAnimationFrame(() => resolve())
+	})
 }
 
+/*
+|--------------------------------------------------------------------------
+| Zoom and navigation
+|--------------------------------------------------------------------------
+*/
+
 function relayout() {
-	// scale changed: drop every canvas, then re-render what's on screen.
-	for (let i = 0; i < pageEls.length; i++) clearPage(i)
+	for (let index = 0; index < pageEls.length; index++) {
+		clearPage(index)
+	}
+
 	scheduleUpdate()
 }
 
-function setScale(next) {
-	const clamped = Math.min(MAX_SCALE, Math.max(MIN_SCALE, next))
-	if (clamped === scale.value) return
-	scale.value = clamped
+function setScale(nextScale) {
+	const nextValue = Math.min(
+		MAX_SCALE,
+		Math.max(MIN_SCALE, nextScale),
+	)
+
+	if (nextValue === scale.value) return
+
+	scale.value = nextValue
+
 	nextFrame().then(relayout)
 }
 
 function zoomIn() {
 	setScale(scale.value * 1.25)
 }
+
 function zoomOut() {
 	setScale(scale.value * 0.8)
 }
-function fitWidth() {
-	const el = scrollEl.value
-	if (!el || !pageMeta.value.length) return
-	const widest = Math.max(...pageMeta.value.map((m) => m.width))
-	// leave room for scrollbar / padding
-	const avail = el.clientWidth - 24
-	if (widest > 0 && avail > 0) setScale(avail / widest)
-}
 
-function goToPage(n) {
-	const target = Math.min(numPages.value, Math.max(1, n))
-	const pel = pageEls[target - 1]
-	const el = scrollEl.value
-	if (pel && el) {
-		el.scrollTop = pel.offsetTop
-		currentPage.value = target
-		scheduleUpdate()
+function fitWidth() {
+	const container = scrollEl.value
+
+	if (!container || !pageMeta.value.length) {
+		return
+	}
+
+	const widestPage = Math.max(
+		...pageMeta.value.map((meta) => meta.width),
+	)
+
+	const availableWidth = container.clientWidth - 24
+
+	if (widestPage > 0 && availableWidth > 0) {
+		setScale(availableWidth / widestPage)
 	}
 }
 
-acquireWorker()
-load()
+function goToPage(pageNumber) {
+	const targetPage = Math.min(
+		numPages.value,
+		Math.max(1, pageNumber),
+	)
+
+	const pageElement = pageEls[targetPage - 1]
+
+	const container = scrollEl.value
+
+	if (!pageElement || !container) return
+
+	container.scrollTop = pageElement.offsetTop
+
+	currentPage.value = targetPage
+
+	trackCurrentPage(targetPage)
+
+	scheduleUpdate()
+}
+
+/*
+|--------------------------------------------------------------------------
+| Lifecycle
+|--------------------------------------------------------------------------
+*/
+
+onMounted(() => {
+	acquireWorker()
+	load()
+})
 
 onBeforeUnmount(() => {
 	disposed = true
-	if (rafId != null) cancelAnimationFrame(rafId)
-	for (let i = 0; i < renderTasks.length; i++) {
+
+	if (rafId !== null) {
+		cancelAnimationFrame(rafId)
+		rafId = null
+	}
+
+	for (let index = 0; index < renderTasks.length; index++) {
 		try {
-			renderTasks[i]?.cancel()
-		} catch (e) {
-			/* already settled */
+			renderTasks[index]?.cancel()
+		} catch {
+			// Render task already completed.
 		}
 	}
+
 	renderTasks = []
+
 	try {
 		pdfDoc?.destroy()
-		// A load that never resolved leaves pdfDoc null, so cancel the task too.
-		task?.destroy()
-	} catch (e) {
-		/* noop */
+		loadingTask?.destroy()
+	} catch {
+		// PDF already destroyed.
 	}
+
 	pdfDoc = null
-	task = null
+	loadingTask = null
+
 	releaseWorker()
 })
 
-defineExpose({ fitWidth, goToPage })
-</script>
-
-<script>
-// Module-scoped so every PdfBlock instance shares one pdf.js worker.
-let sharedWorker = null
-let sharedWorkerRefs = 0
-// The pdf.js-side wrapper for `sharedWorker`. Owned here, never by a loading
-// task, so one document's destroy() can't tear it out from under another's.
-let sharedPdfWorker = null
+defineExpose({
+	fitWidth,
+	goToPage,
+})
 </script>
 
 <style scoped>
@@ -412,6 +839,7 @@ let sharedPdfWorker = null
 	overflow: hidden;
 	background: var(--gray-50, #f9fafb);
 }
+
 .pdf-toolbar {
 	display: flex;
 	align-items: center;
@@ -421,11 +849,13 @@ let sharedPdfWorker = null
 	border-bottom: 1px solid var(--gray-200, #e5e7eb);
 	background: var(--white, #fff);
 }
+
 .pdf-toolbar-group {
 	display: flex;
 	align-items: center;
 	gap: 4px;
 }
+
 .pdf-btn {
 	display: inline-flex;
 	align-items: center;
@@ -439,13 +869,16 @@ let sharedPdfWorker = null
 	cursor: pointer;
 	border: none;
 }
+
 .pdf-btn:hover:not(:disabled) {
 	background: var(--gray-100, #f3f4f6);
 }
+
 .pdf-btn:disabled {
 	opacity: 0.4;
 	cursor: default;
 }
+
 .pdf-page-indicator {
 	min-width: 56px;
 	text-align: center;
@@ -453,6 +886,7 @@ let sharedPdfWorker = null
 	color: var(--gray-700, #374151);
 	font-variant-numeric: tabular-nums;
 }
+
 .pdf-scroll {
 	height: 700px;
 	max-height: 80vh;
@@ -462,18 +896,20 @@ let sharedPdfWorker = null
 	align-items: center;
 	gap: 12px;
 	padding: 12px;
-	/* Keep the browser's native pinch-zoom and panning on touch devices. */
 	touch-action: pan-x pan-y pinch-zoom;
 	-webkit-overflow-scrolling: touch;
 }
+
 .pdf-page {
 	background: var(--white, #fff);
 	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
 	flex: 0 0 auto;
 }
+
 .pdf-page canvas {
 	display: block;
 }
+
 .pdf-status {
 	display: flex;
 	align-items: center;
@@ -482,17 +918,21 @@ let sharedPdfWorker = null
 	color: var(--gray-600, #4b5563);
 	font-size: 14px;
 }
+
 .pdf-error {
 	flex-direction: column;
 }
+
 .pdf-fallback-link,
 .pdf-status a {
 	color: var(--blue-600, #2563eb);
 	text-decoration: underline;
 }
+
 .pdf-spin {
 	animation: pdf-spin 1s linear infinite;
 }
+
 @keyframes pdf-spin {
 	to {
 		transform: rotate(360deg);
