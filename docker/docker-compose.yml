@@ -2,7 +2,7 @@ version: "3.7"
 name: lms
 services:
   mariadb:
-    image: mariadb:10.8
+    image: docker.io/library/mariadb:10.8
     command:
       - --character-set-server=utf8mb4
       - --collation-server=utf8mb4_unicode_ci
@@ -14,19 +14,22 @@ services:
       - mariadb-data:/var/lib/mysql
 
   redis:
-    image: redis:alpine
+    image: docker.io/library/redis:alpine
 
   frappe:
-    image: frappe/bench:latest
+    image: docker.io/frappe/bench:latest
     command: bash /workspace/init.sh
     environment:
       - SHELL=/bin/bash
     working_dir: /home/frappe
     volumes:
-      - .:/workspace
+      - ./init.sh:/workspace/init.sh:Z
+      - ..:/workspace/lms:Z
+      - frappe-bench:/home/frappe/frappe-bench
     ports:
       - 8000:8000
       - 9000:9000
 
 volumes:
   mariadb-data:
+  frappe-bench:

@@ -1,8 +1,17 @@
-#!bin/bash
+#!/bin/bash
+
+set -e
 
 if [ -d "/home/frappe/frappe-bench/apps/frappe" ]; then
     echo "Bench already exists, skipping init"
     cd frappe-bench
+	# Keep the disposable container copy aligned with the checked-out project.
+	# Runtime data lives under sites/ and MariaDB, not inside the app directory.
+	rsync --archive --delete \
+		--exclude .git \
+		--exclude node_modules \
+		/workspace/lms/ apps/lms/
+    sed -i 's|^web:.*|web: bench serve --port 8000 --host 0.0.0.0|' ./Procfile
     bench start
 else
     echo "Creating new bench..."
@@ -25,7 +34,9 @@ sed -i '/redis/d' ./Procfile
 sed -i '/watch/d' ./Procfile
 
 bench get-app payments
-bench get-app lms
+git config --global --add safe.directory /workspace/lms
+git config --global --add safe.directory /workspace/lms/.git
+bench get-app /workspace/lms
 
 bench new-site lms.localhost \
 --force \
@@ -39,4 +50,5 @@ bench --site lms.localhost set-config developer_mode 1
 bench --site lms.localhost clear-cache
 bench use lms.localhost
 
+sed -i 's|^web:.*|web: bench serve --port 8000 --host 0.0.0.0|' ./Procfile
 bench start

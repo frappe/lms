@@ -1,10 +1,11 @@
 import { io } from 'socket.io-client'
-import { socketio_port } from '../../../../sites/common_site_config.json'
+
+const socketioPort = import.meta.env.VITE_SOCKETIO_PORT || 9000
 
 export function initSocket() {
 	let host = window.location.hostname
 	let siteName = window.site_name || host
-	let port = window.location.port ? `:${socketio_port}` : ''
+	let port = window.location.port ? `:${socketioPort}` : ''
 	let protocol = port ? 'http' : 'https'
 	let url = `${protocol}://${host}${port}/${siteName}`
 

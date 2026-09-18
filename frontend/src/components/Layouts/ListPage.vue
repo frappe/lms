@@ -71,12 +71,8 @@
 							@click="emit('loadMore')"
 						/>
 						<div v-if="showLoadMore" class="mx-3 h-[80%] border-s" />
-						<div class="flex items-center gap-1 text-base text-ink-gray-5">
-							<div>{{ rows.length }}</div>
-							<template v-if="totalCount !== null">
-								<div>{{ __('of') }}</div>
-								<div>{{ totalCount }}</div>
-							</template>
+						<div class="text-base text-ink-gray-5">
+							{{ footerCountLabel }}
 						</div>
 					</div>
 				</template>
@@ -197,4 +193,13 @@ const loadingAnnouncement = useLoadingAnnouncement(
 // once a response lands, so asking for page two mid-first-fetch appends onto
 // data that does not exist yet and wedges the list on its skeleton.
 const showLoadMore = computed(() => !props.loading && props.hasNextPage)
+
+// Keep the count in a single text node. Besides preserving visible spacing in
+// compact layouts, this gives translators control over word order instead of
+// stitching three independently translated fragments together.
+const footerCountLabel = computed(() =>
+	props.totalCount === null
+		? String(props.rows.length)
+		: __('{0} of {1}').format(props.rows.length, props.totalCount)
+)
 </script>

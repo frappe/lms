@@ -104,7 +104,19 @@ vi.mock('@/components/Layouts/EmptyStateLayout.vue', () =>
 	stub('<div data-testid="empty" />')
 )
 
-vi.stubGlobal('__', (s: string) => s)
+const translate = (message: string) => {
+	if (!/{\d+}/.test(message)) return message
+	return {
+		format: (...args: unknown[]) =>
+			message.replace(/{(\d+)}/g, (match, index) =>
+				typeof args[Number(index)] === 'undefined'
+					? match
+					: String(args[Number(index)])
+			),
+	}
+}
+
+vi.stubGlobal('__', translate)
 
 const ROWS = [
 	{ name: 'a', title: 'Alpha', modified: '01 Jan 2026' },
@@ -124,7 +136,7 @@ async function mountListPage(props: Record<string, unknown> = {}, slots = {}) {
 		props: { breadcrumbs: [{ label: 'Courses' }], rows: ROWS, ...props },
 		slots,
 		global: {
-			mocks: { __: (s: string) => s },
+			mocks: { __: translate },
 			stubs: {
 				'router-link': { template: '<a><slot /></a>' },
 				// PageBody's mobile filter sheet teleports to body; without this
@@ -206,7 +218,7 @@ describe('ListPage', () => {
 
 	it('says only the loaded count when the list has no total to compare against', async () => {
 		const withTotal = await mountListPage({ totalCount: 40 })
-		expect(withTotal.find('[data-testid="footer"]').text()).toContain('of')
+		expect(withTotal.find('[data-testid="footer"]').text()).toContain('2 of 40')
 
 		const withoutTotal = await mountListPage({})
 		expect(withoutTotal.find('[data-testid="footer"]').text()).not.toContain(

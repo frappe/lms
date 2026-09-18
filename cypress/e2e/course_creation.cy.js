@@ -143,7 +143,7 @@ describe("Course Creation", () => {
 		// CourseOutline's own header). Scope to the chapter dialog by its Title
 		// field. The onboarding "Getting started" panel is also a dismissable
 		// layer, but it has no Title input.
-		cy.contains("button", "Add").click();
+		cy.get(".pointer-events-auto").contains("button", "Add").click();
 		cy.get("[data-dismissable-layer]")
 			.filter(':has(label:contains("Title"))')
 			.should("be.visible")

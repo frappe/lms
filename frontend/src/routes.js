@@ -388,6 +388,18 @@ export const routes = [
 		name: 'MobileYou',
 		component: () => import('@/pages/MobileYou.vue'),
 	},
+	...[
+		['/about', 'About'],
+		['/help', 'Help'],
+		['/contact', 'Contact'],
+		['/privacy', 'Privacy'],
+		['/terms', 'Terms'],
+	].map(([path, name]) => ({
+		path,
+		name,
+		component: () => import('@/pages/PublicInfo.vue'),
+		meta: { publicPage: true },
+	})),
 	// The only thing under '/settings' with an address. Settings itself is the
 	// desktop dialog, which floats over whatever page the URL points at and has
 	// no route of its own — an LMS is not configured with a thumb, so there are

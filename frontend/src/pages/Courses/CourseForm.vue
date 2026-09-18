@@ -18,7 +18,12 @@
 </template>
 
 <script setup lang="ts">
-import { createResource, createDocumentResource, toast } from 'frappe-ui'
+import {
+	createResource,
+	createDocumentResource,
+	getCachedListResource,
+	toast,
+} from 'frappe-ui'
 import {
 	computed,
 	getCurrentInstance,
@@ -248,8 +253,27 @@ const deleteCourse = createResource({
 	},
 	onSuccess() {
 		toast.success(__('Course deleted successfully'))
+		// The course list is cached across route changes. Remove the deleted row
+		// immediately so navigating back cannot briefly (or, after a fast refetch
+		// racing the server commit, indefinitely) resurrect the course card.
+		const deletedName = courseResource.doc?.name
+		const cachedCourses = getCachedListResource([
+			'courses',
+			user.data?.name,
+		])
+		if (deletedName) {
+			cachedCourses?.setData(
+				(rows = []) => rows.filter((row) => row.name !== deletedName)
+			)
+		}
 		// Land on the creator's "Created" courses. Pick another course to edit.
 		router.push({ name: 'Courses', query: { tab: 'created' } })
+		// Frappe commits the POST transaction at the end of request teardown. A
+		// list fetch triggered by the route change can reach the database just
+		// before that commit and put the deleted row back into the shared cache.
+		// Reconcile once teardown has completed; the optimistic removal above
+		// keeps the UI correct in the meantime.
+		window.setTimeout(() => cachedCourses?.reload(), 300)
 	},
 	onError(err: { messages?: string[] } | string) {
 		toast.error(

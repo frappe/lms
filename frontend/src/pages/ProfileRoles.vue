@@ -57,6 +57,12 @@ const course_creator = ref(false)
 const batch_evaluator = ref(false)
 const lms_student = ref(false)
 const readOnlyMode = window.read_only_mode
+const roleState = {
+	moderator,
+	course_creator,
+	batch_evaluator,
+	lms_student,
+}
 
 const props = defineProps({
 	profile: {
@@ -73,14 +79,8 @@ const roles = createResource({
 		}
 	},
 	onSuccess(data) {
-		let roles = [
-			'moderator',
-			'course_creator',
-			'batch_evaluator',
-			'lms_student',
-		]
-		for (let role of roles) {
-			if (data[role]) eval(role).value = true
+		for (const [role, state] of Object.entries(roleState)) {
+			state.value = Boolean(data[role])
 		}
 	},
 })
@@ -96,16 +96,18 @@ watch(
 )
 
 const saveRole = async (role) => {
+	const state = roleState[role]
+	if (!state) return
+
 	const roleName =
 		role == 'lms_student'
 			? 'LMS Student'
 			: convertToTitleCase(role.split('_').join(' '))
-	const value = eval(role).value
 
 	await call('lms.lms.api.save_role', {
 		user: props.profile.data?.name,
 		role: roleName,
-		value: value,
+		value: state.value,
 	})
 	toast.success(__('Role updated successfully'))
 }
