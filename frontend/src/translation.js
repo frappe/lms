@@ -87,12 +87,21 @@ export function loadTranslations() {
 			resolve({})
 		}, TRANSLATION_LOAD_TIMEOUT)
 	})
-	const available = Promise.any([cached, networkPromise]).catch((error) => {
-		console.warn(
-			'Unable to load translations; using source messages.',
-			error,
-		)
-		return {}
+	// Wait for the first usable source without Promise.any (unsupported by some
+	// browsers in Vite's target range).
+	const available = new Promise((resolve) => {
+		let remaining = 2
+		for (const candidate of [cached, networkPromise]) {
+			candidate.then(resolve, (error) => {
+				if (--remaining === 0) {
+					console.warn(
+						'Unable to load translations; using source messages.',
+						error,
+					)
+					resolve({})
+				}
+			})
+		}
 	})
 	translationsPromise = Promise.race([available, timeout]).finally(() => {
 		window.clearTimeout(timeoutId)
