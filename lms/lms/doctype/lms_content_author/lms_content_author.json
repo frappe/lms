@@ -14,7 +14,8 @@
    "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Author",
-   "options": "User"
+   "options": "User",
+   "reqd": 1
   }
  ],
  "index_web_pages_for_search": 1,

@@ -96,6 +96,7 @@
 			"read",
 			"write",
 			"create",
+			"delete",
 			"share",
 			"report",
 			"export"
@@ -108,6 +109,7 @@
 			"read",
 			"write",
 			"create",
+			"delete",
 			"share",
 			"report",
 			"export"
