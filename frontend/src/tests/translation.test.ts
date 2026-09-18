@@ -55,10 +55,11 @@ describe('translation startup', () => {
 		call.mockReturnValue(
 			new Promise((resolve) => {
 				resolveRequest = resolve
-			}),
+			})
 		)
-		const { default: translationPlugin, loadTranslations } =
-			await import('@/translation')
+		const { default: translationPlugin, loadTranslations } = await import(
+			'@/translation'
+		)
 		translationPlugin({ config: { globalProperties: {} } })
 
 		await expect(loadTranslations()).resolves.toEqual({
@@ -78,7 +79,7 @@ describe('translation startup', () => {
 		getLocal.mockReturnValue(
 			new Promise((resolve) => {
 				resolveCache = resolve
-			}),
+			})
 		)
 		call.mockResolvedValue({ Courses: 'Cursos nuevos' })
 		const { loadTranslations } = await import('@/translation')
@@ -97,7 +98,7 @@ describe('translation startup', () => {
 		call.mockReturnValue(
 			new Promise((resolve) => {
 				resolveRequest = resolve
-			}),
+			})
 		)
 		const { loadTranslations } = await import('@/translation')
 
@@ -125,8 +126,9 @@ describe('translation startup', () => {
 		const warning = vi.spyOn(console, 'warn').mockImplementation(() => {})
 		call.mockRejectedValueOnce(new Error('network unavailable'))
 		call.mockResolvedValueOnce({ Courses: 'Cursos' })
-		const { default: translationPlugin, loadTranslations } =
-			await import('@/translation')
+		const { default: translationPlugin, loadTranslations } = await import(
+			'@/translation'
+		)
 
 		await expect(loadTranslations()).resolves.toEqual({})
 		expect(window.translatedMessages).toBeUndefined()
@@ -144,10 +146,11 @@ describe('translation startup', () => {
 		call.mockReturnValue(
 			new Promise((resolve) => {
 				resolveRequest = resolve
-			}),
+			})
 		)
-		const { default: translationPlugin, loadTranslations } =
-			await import('@/translation')
+		const { default: translationPlugin, loadTranslations } = await import(
+			'@/translation'
+		)
 
 		const loading = loadTranslations()
 		await vi.advanceTimersByTimeAsync(10_000)

@@ -82,7 +82,7 @@ export function loadTranslations() {
 	const timeout = new Promise((resolve) => {
 		timeoutId = window.setTimeout(() => {
 			console.warn(
-				'Translation startup timed out; using source messages.',
+				'Translation startup timed out; using source messages.'
 			)
 			resolve({})
 		}, TRANSLATION_LOAD_TIMEOUT)
@@ -96,7 +96,7 @@ export function loadTranslations() {
 				if (--remaining === 0) {
 					console.warn(
 						'Unable to load translations; using source messages.',
-						error,
+						error
 					)
 					resolve({})
 				}
