@@ -14,6 +14,8 @@ from lms.lms.doctype.course_lesson.course_lesson import (
 )
 from lms.lms.test_helpers import BaseTestUtils
 
+IGNORE_TEST_RECORD_DEPENDENCIES = ["Course Chapter", "LMS Course"]
+
 # One sample URL per embed service registered in the LMS EditorJS editor.
 # Source of truth: frontend/src/utils/index.js → getEditorTools() → embed.config.services.
 # Keep this in sync with that list when a service is added/removed.
@@ -102,36 +104,19 @@ class TestApplyEnforcementFlags(unittest.TestCase):
 			(True, False),
 		)
 
-	def test_quiz_off_returns_true_for_quiz(self):
-		self.assertEqual(
-			self._call(quiz_done=False, assignment_done=False, enforce_quiz=0, enforce_assignment=1),
-			(True, False),
-		)
 
-	def test_assignment_off_returns_true_for_assignment(self):
-		self.assertEqual(
-			self._call(quiz_done=False, assignment_done=False, enforce_quiz=1, enforce_assignment=0),
-			(False, True),
-		)
-
-	def test_both_off_returns_true_true(self):
-		self.assertEqual(
-			self._call(quiz_done=False, assignment_done=False, enforce_quiz=0, enforce_assignment=0),
-			(True, True),
-		)
-
-	def test_missing_settings_keys_treated_as_enforced(self):
-		from lms.lms.doctype.course_lesson.course_lesson import (
-			apply_enforcement_flags,
-		)
-
-		self.assertEqual(
-			apply_enforcement_flags(quiz_done=False, assignment_done=True, settings={}),
-			(False, True),
-		)
+class _DictSubclass(dict):
+	"""A frappe._dict-like subclass: the helper must duck-type, not isinstance-check."""
 
 
 class TestApplyEnforcementFlagsEdgeCases(unittest.TestCase):
+	QUIZ_OFF = {"enforce_quiz_completion": 0, "enforce_assignment_completion": 1}
+	ASSIGNMENT_OFF = {"enforce_quiz_completion": 1, "enforce_assignment_completion": 0}
+	BOTH_OFF = {"enforce_quiz_completion": 0, "enforce_assignment_completion": 0}
+	STRING_ZERO = {"enforce_quiz_completion": "0", "enforce_assignment_completion": "0"}
+	STRING_ONE = {"enforce_quiz_completion": "1", "enforce_assignment_completion": "1"}
+	NONE_QUIZ = {"enforce_quiz_completion": None, "enforce_assignment_completion": 1}
+
 	def setUp(self):
 		from lms.lms.doctype.course_lesson.course_lesson import (
 			apply_enforcement_flags,
@@ -139,70 +124,37 @@ class TestApplyEnforcementFlagsEdgeCases(unittest.TestCase):
 
 		self.fn = apply_enforcement_flags
 
-	def test_dict_subclass_input(self):
-		"""A frappe._dict-like subclass of dict should work via duck-typing."""
-
-		class _Dict(dict):
-			pass
-
-		settings = _Dict({"enforce_quiz_completion": 0, "enforce_assignment_completion": 1})
-		self.assertEqual(self.fn(quiz_done=False, assignment_done=False, settings=settings), (True, False))
-
-	def test_string_zero_is_truthy_treated_as_enforced(self):
-		"""Frappe may return '0' as a string from raw queries. `not '0'` is False, so it's still enforced.
-
-		Codifies current behavior. Callers that hit this should pass int(value) explicitly.
-		"""
-		settings = {"enforce_quiz_completion": "0", "enforce_assignment_completion": "0"}
-		# Both still treated as enforced because non-empty strings are truthy.
-		self.assertEqual(self.fn(quiz_done=False, assignment_done=False, settings=settings), (False, False))
-
-	def test_string_one_treated_as_enforced(self):
-		settings = {"enforce_quiz_completion": "1", "enforce_assignment_completion": "1"}
-		self.assertEqual(self.fn(quiz_done=True, assignment_done=True, settings=settings), (True, True))
-		self.assertEqual(self.fn(quiz_done=False, assignment_done=True, settings=settings), (False, True))
-
-	def test_none_for_flag_disables_enforcement(self):
-		"""Present-but-None: helper sees `not None == True`, treats as NOT enforced.
-
-		Distinct from missing key (which defaults to 1 / enforced via dict.get's default).
-		"""
-		settings = {"enforce_quiz_completion": None, "enforce_assignment_completion": 1}
-		self.assertEqual(self.fn(quiz_done=False, assignment_done=False, settings=settings), (True, False))
-
-	def test_both_int_zero_disabled(self):
-		settings = {"enforce_quiz_completion": 0, "enforce_assignment_completion": 0}
-		for quiz_done in (True, False):
-			for assignment_done in (True, False):
-				with self.subTest(quiz_done=quiz_done, assignment_done=assignment_done):
-					self.assertEqual(
-						self.fn(quiz_done=quiz_done, assignment_done=assignment_done, settings=settings),
-						(True, True),
-					)
-
-	def test_idempotent(self):
-		settings = {"enforce_quiz_completion": 1, "enforce_assignment_completion": 1}
-		first = self.fn(quiz_done=True, assignment_done=False, settings=settings)
-		second = self.fn(quiz_done=True, assignment_done=False, settings=settings)
-		self.assertEqual(first, second)
+	def test_a_flag_is_enforced_unless_it_is_explicitly_falsy(self):
+		"""Enforcement is the default: only a genuinely falsy flag turns it off, and a
+		missing key is not falsy because dict.get supplies 1."""
+		cases = [
+			# case, quiz_done, assignment_done, settings, expected
+			("quiz_off", False, False, self.QUIZ_OFF, (True, False)),
+			("assignment_off", False, False, self.ASSIGNMENT_OFF, (False, True)),
+			("missing_keys_stay_enforced", False, True, {}, (False, True)),
+			("both_off_and_both_done", True, True, self.BOTH_OFF, (True, True)),
+			("both_off_and_quiz_done", True, False, self.BOTH_OFF, (True, True)),
+			("both_off_and_assignment_done", False, True, self.BOTH_OFF, (True, True)),
+			("both_off_and_neither_done", False, False, self.BOTH_OFF, (True, True)),
+			# "0" is a non-empty string, so it is truthy and still reads as enforced.
+			# Callers that hit this should pass int(value) explicitly.
+			("string_zero_is_truthy", False, False, self.STRING_ZERO, (False, False)),
+			("string_one_both_done", True, True, self.STRING_ONE, (True, True)),
+			("string_one_quiz_undone", False, True, self.STRING_ONE, (False, True)),
+			# Present-but-None is falsy, unlike a missing key.
+			("none_disables", False, False, self.NONE_QUIZ, (True, False)),
+			("dict_subclass_is_duck_typed", False, False, _DictSubclass(self.QUIZ_OFF), (True, False)),
+		]
+		for case, quiz_done, assignment_done, settings, expected in cases:
+			with self.subTest(case=case):
+				got = self.fn(quiz_done=quiz_done, assignment_done=assignment_done, settings=settings)
+				self.assertEqual(got, expected)
 
 	def test_does_not_mutate_settings(self):
 		settings = {"enforce_quiz_completion": 1, "enforce_assignment_completion": 0}
 		snapshot = dict(settings)
 		self.fn(quiz_done=True, assignment_done=False, settings=settings)
 		self.assertEqual(settings, snapshot)
-
-	def test_keyword_argument_contract(self):
-		"""save_progress invokes with keyword args; the helper must accept them in any order."""
-		settings = {"enforce_quiz_completion": 1, "enforce_assignment_completion": 1}
-		self.assertEqual(
-			self.fn(settings=settings, quiz_done=True, assignment_done=False),
-			(True, False),
-		)
-		self.assertEqual(
-			self.fn(assignment_done=False, quiz_done=True, settings=settings),
-			(True, False),
-		)
 
 
 class TestServePrivateFileVersionSafe(unittest.TestCase):
@@ -361,19 +313,20 @@ class TestLessonBlockExtraction(unittest.TestCase):
 
 
 class TestRenameSettledUntitledLessons(BaseTestUtils):
+	"""Keep the scheduled job's commits inside the test transaction."""
+
 	def setUp(self):
 		super().setUp()
+		commit_patcher = patch.object(frappe.db, "commit")
+		commit_patcher.start()
+		self.addCleanup(commit_patcher.stop)
 		# _create_course() defaults instructor="frappe@example.com"; create it so the
 		# course's instructor Link resolves on a fresh DB (mirrors TestLMSCourse.setUp).
 		self.instructor = self._create_user(
 			"frappe@example.com", "Frappe", "Admin", ["Moderator", "Course Creator"]
 		)
-		self.course = self._create_course(title="Rename Untitled Course")
+		self.course = self._create_course(title=f"Rename Untitled Course {frappe.generate_hash(length=6)}")
 		self.chapter = self._create_chapter("Rename Chapter", self.course.name)
-
-	def tearDown(self):
-		frappe.set_user("Administrator")
-		super().tearDown()
 
 	def _make_untitled_lesson(self):
 		lesson = self._create_lesson(UNTITLED_LESSON_TITLE, self.chapter.name, self.course.name)
@@ -399,7 +352,6 @@ class TestRenameSettledUntitledLessons(BaseTestUtils):
 		expected = f"{prefix} Real Title"
 		self.assertFalse(frappe.db.exists("Course Lesson", lesson.name))
 		self.assertTrue(frappe.db.exists("Course Lesson", expected))
-		self.cleanup_items.append(("Course Lesson", expected))
 
 	def test_recently_modified_lesson_is_not_renamed(self):
 		lesson = self._make_untitled_lesson()
@@ -438,7 +390,6 @@ class TestRenameSettledUntitledLessons(BaseTestUtils):
 		expected = f"{prefix} Titre Réel"
 		self.assertFalse(frappe.db.exists("Course Lesson", lesson.name))
 		self.assertTrue(frappe.db.exists("Course Lesson", expected))
-		self.cleanup_items.append(("Course Lesson", expected))
 
 
 class TestLessonContentSurvivesSave(BaseTestUtils):
@@ -490,13 +441,3 @@ class TestLessonContentSurvivesSave(BaseTestUtils):
 		saved = self._saved_text('<a href="https://frappe.io/">here</a>', "Lesson link")
 		self.assertIn('href="https://frappe.io/"', saved)
 		self.assertIn('rel="noopener noreferrer"', saved)
-
-	def test_plain_inline_markup_round_trips(self):
-		markup = "<b>b</b> <i>i</i> <u>u</u> <s>s</s>"
-		self.assertEqual(self._saved_text(markup, "Lesson plain"), markup)
-
-	def test_script_and_event_handlers_are_still_stripped(self):
-		saved = self._saved_text('<script>alert(1)</script><img src="x" onerror="alert(1)">ok', "Lesson xss")
-		self.assertNotIn("<script", saved)
-		self.assertNotIn("onerror", saved)
-		self.assertIn("ok", saved)

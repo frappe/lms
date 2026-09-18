@@ -4,7 +4,10 @@
 			<h2 class="text-md font-semibold text-ink-gray-9">
 				{{ __('My availability') }}
 			</h2>
-			<p v-if="evaluator.data?.timezone" class="text-sm text-ink-gray-6">
+			<p
+				v-if="evaluator.data?.timezone"
+				class="mt-1 text-sm leading-5 text-ink-gray-6"
+			>
 				{{ __('Times are in {0}').format(evaluator.data.timezone) }}
 			</p>
 		</div>

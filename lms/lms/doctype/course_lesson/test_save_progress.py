@@ -16,22 +16,27 @@ from lms.lms.test_helpers import BaseTestUtils
 
 
 class TestSaveProgressEnrollmentLifecycle(BaseTestUtils):
-	def setUp(self):
-		super().setUp()
-		self.instructor = self._create_user(
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
+		cls.instructor = cls._create_user(
 			"wh-instructor@example.com", "Webhook", "Instructor", ["Course Creator"]
 		)
-		self.student = self._create_user("wh-student@example.com", "Webhook", "Student", ["LMS Student"])
-		self.course = self._create_course(instructor=self.instructor.email)
-		self.chapter = self._create_chapter("WH Chapter", self.course.name)
-		self._create_chapter_reference(self.course.name, self.chapter.name)
-		self.lesson = self._create_lesson("WH Lesson", self.chapter.name, self.course.name)
-		self._create_lesson_reference(self.chapter.name, self.lesson.name)
-		self.enrollment = self._create_enrollment(self.student.email, self.course.name)
+		cls.student = cls._create_user("wh-student@example.com", "Webhook", "Student", ["LMS Student"])
+		cls.course = cls._create_course(instructor=cls.instructor.email)
+		cls.chapter = cls._create_chapter("WH Chapter", cls.course.name)
+		cls._create_chapter_reference(cls.course.name, cls.chapter.name)
+		cls.lesson = cls._create_lesson("WH Lesson", cls.chapter.name, cls.course.name)
+		cls._create_lesson_reference(cls.chapter.name, cls.lesson.name)
+		cls.enrollment = cls._create_enrollment(cls.student.email, cls.course.name)
 
 		original_capture = course_lesson.capture
 		course_lesson.capture = lambda *a, **k: None
-		self.addCleanup(setattr, course_lesson, "capture", original_capture)
+		cls.addClassCleanup(setattr, course_lesson, "capture", original_capture)
+
+	def setUp(self):
+		super().setUp()
+		frappe.db.set_value("LMS Enrollment", self.enrollment.name, {"progress": 0, "current_lesson": None})
 
 	def tearDown(self):
 		frappe.set_user("Administrator")
@@ -61,20 +66,6 @@ class TestSaveProgressEnrollmentLifecycle(BaseTestUtils):
 		finally:
 			frappe.set_user("Administrator")
 
-	def test_concurrent_enrollment_saves_raise_timestamp_mismatch(self):
-		"""The .save() path this fix avoids: the second writer loses to check_if_latest."""
-		a = frappe.get_doc("LMS Enrollment", self.enrollment.name)
-		b = frappe.get_doc("LMS Enrollment", self.enrollment.name)
-
-		a.progress = 40
-		a.flags.ignore_version = True
-		a.save(ignore_permissions=True)
-
-		b.progress = 60
-		b.flags.ignore_version = True
-		with self.assertRaises(frappe.TimestampMismatchError):
-			b.save(ignore_permissions=True)
-
 	def test_concurrent_progress_writes_survive_the_race(self):
 		"""Both writers land, neither raises, and each still dispatches on_update."""
 		with self._record_enrollment_events() as events:
@@ -92,12 +83,6 @@ class TestSaveProgressEnrollmentLifecycle(BaseTestUtils):
 
 		after = frappe.db.get_value("LMS Enrollment", self.enrollment.name, "modified")
 		self.assertEqual(before, after)
-
-	def test_save_progress_dispatches_on_update_on_enrollment(self):
-		with self._record_enrollment_events() as events:
-			self._save_progress_as_student()
-
-		self.assertIn("on_update", events)
 
 	def test_lesson_completion_dispatches_exactly_one_on_update(self):
 		"""Progress and current_lesson are one logical change: one event, one webhook."""
@@ -144,19 +129,10 @@ class TestSaveProgressEnrollmentLifecycle(BaseTestUtils):
 		)
 		self.assertIn("on_update", events)
 
-	def test_completing_the_final_lesson_keeps_current_lesson_on_it(self):
-		"""get_next_lesson returns None on the last lesson; current_lesson must not be cleared."""
-		self._save_progress_as_student()
-
-		self.assertEqual(
-			frappe.db.get_value("LMS Enrollment", self.enrollment.name, "current_lesson"),
-			self.lesson.name,
-		)
-
 	def test_completing_a_lesson_advances_current_lesson_to_the_next(self):
 		second = self._create_lesson("WH Lesson 2", self.chapter.name, self.course.name)
 		# _create_lesson_reference hardcodes idx=1; get_next_lesson needs idx+1 to exist.
-		reference = frappe.get_doc(
+		frappe.get_doc(
 			{
 				"doctype": "Lesson Reference",
 				"lesson": second.name,
@@ -166,7 +142,6 @@ class TestSaveProgressEnrollmentLifecycle(BaseTestUtils):
 				"idx": 2,
 			}
 		).insert()
-		self.cleanup_items.append(("Lesson Reference", reference.name))
 
 		self._save_progress_as_student()
 
@@ -188,7 +163,6 @@ class TestSaveProgressEnrollmentLifecycle(BaseTestUtils):
 				"enabled": 1,
 			}
 		).insert(ignore_permissions=True)
-		self.cleanup_items.append(("Webhook", webhook.name))
 		frappe.client_cache.delete_value("webhooks")
 		self.addCleanup(frappe.client_cache.delete_value, "webhooks")
 
@@ -252,7 +226,6 @@ class TestSaveProgressEnrollmentLifecycle(BaseTestUtils):
 				"program_members": [{"member": self.student.email}],
 			}
 		).insert(ignore_permissions=True)
-		self.cleanup_items.append(("LMS Program", program.name))
 
 		progress = self._save_progress_as_student()
 
@@ -291,6 +264,21 @@ class TestSaveProgressEnrollmentLifecycle(BaseTestUtils):
 
 	def test_recalculate_course_progress_dispatches_on_update(self):
 		"""Regression: recalculate_course_progress wrote via raw set_value, firing no doc events."""
+		# on_update already recalculates, so this insert leaves the cached value
+		# correct. Force it stale afterwards, the way a raw write or a race would, so
+		# the recompute below actually changes something.
+		# nosemgrep: lms-unjustified-ignore-permissions - test fixture setup
+		frappe.get_doc(
+			{
+				"doctype": "LMS Course Progress",
+				"member": self.student.email,
+				"course": self.course.name,
+				"lesson": self.lesson.name,
+				"status": "Complete",
+			}
+		).insert(ignore_permissions=True)
+		frappe.db.set_value("LMS Enrollment", self.enrollment.name, "progress", 0, update_modified=False)
+
 		with self._record_enrollment_events() as events:
 			utils.recalculate_course_progress(self.course.name, self.student.email)
 

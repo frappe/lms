@@ -15,20 +15,6 @@ class TestSidebar(BaseTestUtils):
 		super().setUp()
 		self.settings = frappe.get_single("LMS Settings")
 		self.settings.reload()
-		# Content fields only -- a stale `name` here would make the reset try to
-		# update rows a test's own save_sidebar_items() call already replaced,
-		# silently restoring nothing rather than the original thirteen.
-		self.original_rows = [
-			{field: row.get(field) for field in ROW_FIELDS} for row in self.settings.sidebar_items
-		]
-
-	def tearDown(self):
-		settings = frappe.get_single("LMS Settings")
-		settings.reload()
-		settings.set("sidebar_items", self.original_rows)
-		settings.flags.ignore_permissions = True
-		settings.save()
-		super().tearDown()
 
 	def test_seed_sidebar_items_is_idempotent(self):
 		seed_sidebar_items()
@@ -42,7 +28,6 @@ class TestSidebar(BaseTestUtils):
 		student = self._create_user(
 			"sidebar.student@example.com", "Sidebar", "Student", roles=["LMS Student"]
 		)
-		self.cleanup_items.append(("User", student.name))
 
 		frappe.set_user(student.name)
 		try:
@@ -72,36 +57,39 @@ class TestSidebar(BaseTestUtils):
 		names = [row.name1 for row in self.settings.sidebar_items]
 		self.assertEqual(names, [row["name1"] for row in rows])
 
-	def test_save_sidebar_items_rejects_a_deleted_standard_row(self):
-		self.assertRaises(
-			frappe.ValidationError,
-			save_sidebar_items,
-			rows=[],
-		)
+	def test_save_sidebar_items_rejects_deleting_hiding_or_escaping_the_site(self):
+		def deleted_standard_row():
+			return []
 
-	def test_save_sidebar_items_rejects_hiding_home(self):
-		rows = [
-			{field: row.get(field) for field in ("name1", "is_standard", "item_type", "hidden")}
-			for row in self.settings.sidebar_items
+		def hiding_home():
+			rows = [
+				{field: row.get(field) for field in ("name1", "is_standard", "item_type", "hidden")}
+				for row in self.settings.sidebar_items
+			]
+			for row in rows:
+				if row["name1"] == "home":
+					row["hidden"] = 1
+			return rows
+
+		def off_site_route():
+			return [
+				{
+					"name1": "custom_route",
+					"item_type": "Route",
+					"route": "//evil.example.com",
+					"title": "Escape",
+					"icon": "lucide-link",
+				}
+			]
+
+		cases = [
+			("deleted_standard_row", deleted_standard_row),
+			("hiding_home", hiding_home),
+			("off_site_route", off_site_route),
 		]
-		for row in rows:
-			if row["name1"] == "home":
-				row["hidden"] = 1
-
-		self.assertRaises(frappe.ValidationError, save_sidebar_items, rows=rows)
-
-	def test_save_sidebar_items_rejects_an_off_site_route(self):
-		rows = [
-			{
-				"name1": "custom_route",
-				"item_type": "Route",
-				"route": "//evil.example.com",
-				"title": "Escape",
-				"icon": "lucide-link",
-			}
-		]
-
-		self.assertRaises(frappe.ValidationError, save_sidebar_items, rows=rows)
+		for case, build_rows in cases:
+			with self.subTest(case=case):
+				self.assertRaises(frappe.ValidationError, save_sidebar_items, rows=build_rows())
 
 	def test_update_sidebar_item_rejects_an_unpublished_page(self):
 		self.assertRaises(
@@ -148,7 +136,6 @@ class TestSidebar(BaseTestUtils):
 				"published": 1,
 			}
 		).insert(ignore_permissions=True)
-		self.cleanup_items.append(("Web Page", webpage.name))
 
 		update_sidebar_item(webpage=webpage.name, icon="lucide-link")
 		self.settings.reload()
@@ -157,3 +144,19 @@ class TestSidebar(BaseTestUtils):
 		delete_sidebar_item(webpage=webpage.name)
 		self.settings.reload()
 		self.assertFalse(any(row.web_page == webpage.name for row in self.settings.sidebar_items))
+
+	def test_icon_and_web_page_are_optional_on_a_sidebar_row(self):
+		# Moved from test_lms_settings.py::TestSidebarItemSchema: no test here
+		# actually exercises a row with neither field set (every fixture row
+		# carries an icon), so this schema check is the only proof.
+		meta = frappe.get_meta("LMS Sidebar Item")
+		self.assertFalse(meta.get_field("web_page").reqd)
+		self.assertFalse(meta.get_field("icon").reqd)
+		self.assertFalse(meta.get_field("icon").read_only)
+
+	def test_item_type_offers_every_kind_of_row(self):
+		options = frappe.get_meta("LMS Sidebar Item").get_field("item_type").options
+		self.assertEqual(
+			options.split("\n"),
+			["Built-in", "Web Page", "Route", "External"],
+		)

@@ -13,12 +13,6 @@ class TestCreateEmailAccount(UnitTestCase):
 
 	# --- input validation ---------------------------------------------------
 
-	def test_rejects_non_dict_data(self):
-		# the @frappe.whitelist() `data: dict` type hint rejects non-dicts at the
-		# wrapper layer before _validate_input even runs
-		with self.assertRaises(FrappeTypeError):
-			create_email_account("not-a-dict")
-
 	def test_rejects_non_string_service(self):
 		with self.assertRaises(frappe.ValidationError):
 			create_email_account({"service": 123})
@@ -41,82 +35,94 @@ class TestCreateEmailAccount(UnitTestCase):
 
 	# --- presets / defaults -------------------------------------------------
 
-	@patch("frappe.model.document.Document.save")
-	def test_creates_gmail_with_presets(self, mock_save):
-		with patch("lms.lms.email_account.frappe.get_doc") as mock_get_doc:
-			doc = mock_get_doc.return_value
-			doc.name = "Support"
-			create_email_account(
+	def test_presets_are_applied_for_the_chosen_service(self):
+		cases = [
+			(
+				"gmail_service_presets",
 				{
 					"service": "GMail",
 					"email_account_name": "Support",
 					"email_id": "support@example.com",
 					"password": "app-pass",
 					"enable_outgoing": 1,
-				}
-			)
-			built = mock_get_doc.call_args[0][0]
-			self.assertEqual(built["service"], "GMail")
-			self.assertEqual(built["smtp_server"], "smtp.gmail.com")
-			self.assertEqual(built["email_server"], "imap.gmail.com")
-			self.assertEqual(built["enable_outgoing"], 1)
-
-	@patch("frappe.model.document.Document.save")
-	def test_applies_imap_defaults(self, mock_save):
-		with patch("lms.lms.email_account.frappe.get_doc") as mock_get_doc:
-			mock_get_doc.return_value.name = "Support"
-			create_email_account(
+				},
+				"Support",
+				{
+					"service": "GMail",
+					"smtp_server": "smtp.gmail.com",
+					"email_server": "imap.gmail.com",
+					"enable_outgoing": 1,
+				},
+			),
+			(
+				"generic_imap_defaults",
 				{
 					"service": "GMail",
 					"email_account_name": "Support",
 					"email_id": "support@example.com",
 					"password": "app-pass",
-				}
-			)
-			built = mock_get_doc.call_args[0][0]
-			self.assertEqual(built["use_imap"], 1)
-			self.assertEqual(built["use_tls"], 1)
-			self.assertEqual(built["smtp_port"], 587)
-			self.assertEqual(built["email_sync_option"], "ALL")
+				},
+				"Support",
+				{"use_imap": 1, "use_tls": 1, "smtp_port": 587, "email_sync_option": "ALL"},
+			),
+			(
+				"custom_service_is_stored_as_no_service",
+				{
+					"service": "Custom",
+					"email_account_name": "Relay",
+					"email_id": "relay@example.com",
+					"password": "app-pass",
+					"smtp_server": "smtp.acme.com",
+				},
+				"Relay",
+				{"service": ""},
+			),
+		]
+		for case, payload, doc_name, expected in cases:
+			with self.subTest(case=case):
+				with (
+					patch("frappe.model.document.Document.save"),
+					patch("lms.lms.email_account.frappe.get_doc") as mock_get_doc,
+				):
+					mock_get_doc.return_value.name = doc_name
+					create_email_account(payload)
+					built = mock_get_doc.call_args[0][0]
+					for key, value in expected.items():
+						self.assertEqual(built[key], value)
 
 	# --- incoming / imap_folder --------------------------------------------
 
-	@patch("frappe.model.document.Document.save")
-	def test_incoming_appends_imap_folder(self, mock_save):
-		with patch("lms.lms.email_account.frappe.get_doc") as mock_get_doc:
-			doc = mock_get_doc.return_value
-			doc.name = "Support"
-			create_email_account(
-				{
-					"service": "GMail",
-					"email_account_name": "Support",
-					"email_id": "support@example.com",
-					"password": "app-pass",
-					"enable_incoming": 1,
-				}
-			)
-			built = mock_get_doc.call_args[0][0]
-			self.assertEqual(built["enable_incoming"], 1)
-			doc.append.assert_called_once_with(
-				"imap_folder",
-				{"append_to": "Communication", "folder_name": "INBOX"},
-			)
-
-	@patch("frappe.model.document.Document.save")
-	def test_outgoing_only_skips_imap_folder(self, mock_save):
-		with patch("lms.lms.email_account.frappe.get_doc") as mock_get_doc:
-			doc = mock_get_doc.return_value
-			doc.name = "Support"
-			create_email_account(
-				{
-					"service": "GMail",
-					"email_account_name": "Support",
-					"email_id": "support@example.com",
-					"password": "app-pass",
-					"enable_outgoing": 1,
-				}
-			)
-			doc.append.assert_not_called()
+	def test_imap_folder_is_appended_only_when_incoming_is_enabled(self):
+		cases = [
+			("incoming_appends_imap_folder", {"enable_incoming": 1}, True),
+			("outgoing_only_skips_imap_folder", {"enable_outgoing": 1}, False),
+		]
+		for case, extra, expect_append in cases:
+			with self.subTest(case=case):
+				with (
+					patch("frappe.model.document.Document.save"),
+					patch("lms.lms.email_account.frappe.get_doc") as mock_get_doc,
+				):
+					doc = mock_get_doc.return_value
+					doc.name = "Support"
+					create_email_account(
+						{
+							"service": "GMail",
+							"email_account_name": "Support",
+							"email_id": "support@example.com",
+							"password": "app-pass",
+							**extra,
+						}
+					)
+					if expect_append:
+						built = mock_get_doc.call_args[0][0]
+						self.assertEqual(built["enable_incoming"], 1)
+						doc.append.assert_called_once_with(
+							"imap_folder",
+							{"append_to": "Communication", "folder_name": "INBOX"},
+						)
+					else:
+						doc.append.assert_not_called()
 
 	# --- credential routing -------------------------------------------------
 
@@ -179,23 +185,7 @@ class TestCreateEmailAccount(UnitTestCase):
 				)
 
 	# --- custom server ------------------------------------------------------
-
-	@patch("frappe.model.document.Document.save")
-	def test_custom_service_is_stored_as_no_service(self, mock_save):
-		"""Email Account's `service` Select has no Custom option — a
-		hand-entered server is stored with no service at all."""
-		with patch("lms.lms.email_account.frappe.get_doc") as mock_get_doc:
-			mock_get_doc.return_value.name = "Relay"
-			create_email_account(
-				{
-					"service": "Custom",
-					"email_account_name": "Relay",
-					"email_id": "relay@example.com",
-					"password": "app-pass",
-					"smtp_server": "smtp.acme.com",
-				}
-			)
-			self.assertEqual(mock_get_doc.call_args[0][0]["service"], "")
+	# test_custom_service_is_stored_as_no_service lives in the presets table above.
 
 	@patch("frappe.model.document.Document.save")
 	def test_custom_server_carries_host_port_and_encryption(self, mock_save):

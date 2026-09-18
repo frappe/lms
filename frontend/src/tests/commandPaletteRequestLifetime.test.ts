@@ -8,9 +8,16 @@
  * a test decides when the trailing tick would have landed, and can assert it
  * was cancelled instead.
  */
-import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { mount } from '@vue/test-utils'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
+import {
+	clickItem,
+	mountPalette,
+	paletteInput,
+	keydown,
+	type,
+	unmountPalette,
+} from './helpers/commandPalette'
 
 const resource = {
 	submit: vi.fn(async () => []),
@@ -30,18 +37,10 @@ vi.mock('frappe-ui', () => ({
 		}
 		return armed
 	},
-	Dialog: Object.assign(
-		{ props: ['open', 'size', 'bare'], template: `<div><slot /></div>` },
-		{ Title: { template: `<div><slot /></div>` } }
-	),
 }))
 
 vi.mock('vue-router', () => ({
 	useRouter: () => ({ push: vi.fn(), replace: vi.fn() }),
-}))
-
-vi.mock('@/components/CommandPalette/CommandPaletteGroup.vue', () => ({
-	default: { name: 'PaletteGroup', props: ['list'], template: `<div />` },
 }))
 
 vi.mock('@/stores/user', () => ({
@@ -72,41 +71,7 @@ vi.stubGlobal('__', (message: string) => {
 	}
 })
 
-import CommandPalette from '@/components/CommandPalette/CommandPalette.vue'
-
-const build = () =>
-	mount(CommandPalette, {
-		props: { modelValue: true },
-		global: { mocks: { __: (globalThis as any).__ } },
-	})
-
-function rows(wrapper: ReturnType<typeof build>) {
-	const list = wrapper
-		.findComponent({ name: 'PaletteGroup' })
-		.props('list') as any[]
-	return list.flatMap((group) => group.items)
-}
-
-function press(wrapper: ReturnType<typeof build>, key: string) {
-	return wrapper.find('input').trigger('keydown', { key })
-}
-
-/** Types `text`, which arms the tick but does not fire it. */
-async function type(wrapper: ReturnType<typeof build>, text: string) {
-	const input = wrapper.find('input')
-	await input.setValue(text)
-	await input.trigger('input')
-	await nextTick()
-}
-
-/** Arrows onto the row with `title` and opens it. */
-async function open(wrapper: ReturnType<typeof build>, title: string) {
-	const index = rows(wrapper).findIndex((item) => item.title === title)
-	expect(index).toBeGreaterThanOrEqual(0)
-	for (let i = 0; i <= index; i++) await press(wrapper, 'ArrowDown')
-	await press(wrapper, 'Enter')
-	await nextTick()
-}
+afterEach(unmountPalette)
 
 beforeEach(() => {
 	tick = null
@@ -115,8 +80,8 @@ beforeEach(() => {
 
 describe('a scheduled search', () => {
 	it('runs when nothing has invalidated it', async () => {
-		const wrapper = build()
-		await type(wrapper, 'kub')
+		await mountPalette()
+		await type('kub')
 
 		tick!()
 		await nextTick()
@@ -125,8 +90,8 @@ describe('a scheduled search', () => {
 	})
 
 	it('does not reach the server after the palette closes', async () => {
-		const wrapper = build()
-		await type(wrapper, 'kub')
+		const wrapper = await mountPalette()
+		await type('kub')
 
 		await wrapper.setProps({ modelValue: false })
 		await nextTick()
@@ -137,8 +102,8 @@ describe('a scheduled search', () => {
 	})
 
 	it('does not reach the server after the palette unmounts', async () => {
-		const wrapper = build()
-		await type(wrapper, 'kub')
+		const wrapper = await mountPalette()
+		await type('kub')
 
 		wrapper.unmount()
 
@@ -147,12 +112,11 @@ describe('a scheduled search', () => {
 	})
 
 	it('does not search the category the user has backed out of', async () => {
-		const wrapper = build()
-		await open(wrapper, 'Courses')
-		await type(wrapper, 'kub')
+		await mountPalette()
+		await clickItem((item) => item.title === 'Courses')
+		await type('kub')
 
-		await press(wrapper, 'Escape')
-		await nextTick()
+		await keydown(paletteInput(), 'Escape')
 
 		expect(tick).toBeNull()
 		expect(resource.submit).not.toHaveBeenCalled()

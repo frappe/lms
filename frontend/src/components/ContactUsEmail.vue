@@ -34,7 +34,7 @@
 <script setup lang="ts">
 import { Button, call, Dialog, FormControl, toast } from 'frappe-ui'
 import { ref, useId } from 'vue'
-import { InputLabel } from '@/components/Form/labeling'
+import { InputLabel } from 'frappe-ui/experimental'
 import { resourceErrorMessage } from '@/utils/resource'
 import RichTextEditor from '@/components/RichTextEditor.vue'
 

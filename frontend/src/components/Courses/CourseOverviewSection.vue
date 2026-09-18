@@ -78,7 +78,7 @@ import { computed, inject, useId } from 'vue'
 import MultiLink from '@/components/Controls/MultiLink.vue'
 import type { CourseFormContext } from '@/types'
 import RichTextEditor from '@/components/RichTextEditor.vue'
-import { InputLabel } from '@/components/Form/labeling'
+import { InputLabel } from 'frappe-ui/experimental'
 
 const { resource, relatedCourses, meta, markDirty } =
 	inject<CourseFormContext>('courseForm')!

@@ -32,8 +32,7 @@
 				<div class="text-p-base-medium text-ink-gray-7 mb-2">
 					{{ __('Unsplash Access Key') }}
 				</div>
-				<FormControl
-					type="password"
+				<Password
 					class="w-full"
 					:model-value="lmsSource.doc?.unsplash_access_key"
 					:aria-label="__('Unsplash Access Key')"
@@ -91,8 +90,7 @@
 					<div class="text-p-base-medium text-ink-gray-7 mb-2">
 						{{ __('Client Secret') }}
 					</div>
-					<FormControl
-						type="password"
+					<Password
 						class="w-full"
 						v-model="secretInput"
 						:error="clientSecretError"
@@ -115,7 +113,7 @@
 // loads as Frappe's dummy mask or empty, so `secretInput` lives outside
 // `googleSource.doc` and the write only carries it when actually typed into.
 import { computed, ref } from 'vue'
-import { FormControl, call, toast } from 'frappe-ui'
+import { FormControl, Password, call, toast } from 'frappe-ui'
 import BooleanSwitch from '@/components/Controls/BooleanSwitch.vue'
 import SettingsLayout from '@/components/Layouts/settings/desktop/SettingsLayout.vue'
 import { useSettingsSource } from '@/composables/useSettingsSource'

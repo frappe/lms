@@ -1,0 +1,293 @@
+name: Patch
+
+on:
+  pull_request:
+    paths-ignore:
+      - '**.js'
+      - '**.ts'
+      - '**.vue'
+      - '**.css'
+      - '**.md'
+      - '**.html'
+      - 'crowdin.yml'
+      - '.mergify.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: patch-${{ github.event_name }}-${{ github.event.number || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Patch Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    services:
+      mariadb:
+        image: mariadb:11.8
+        env:
+          MARIADB_ROOT_PASSWORD: 123
+        ports:
+          - 3306:3306
+        options: --health-cmd="mariadb-admin ping" --health-interval=5s --health-timeout=2s --health-retries=3
+      # bench's own defaults point at these ports, so no redis config is needed.
+      redis-cache:
+        image: redis:alpine
+        ports:
+          - 13000:6379
+      redis-queue:
+        image: redis:alpine
+        ports:
+          - 11000:6379
+      redis-socketio:
+        image: redis:alpine
+        ports:
+          - 12000:6379
+
+    env:
+      SITE: lms.test
+      PR_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+
+    steps:
+      # Full history: the ladder checks out the v2.0.0 tag and the PR head out of
+      # this same clone, so a shallow fetch has nothing to walk back to.
+      - name: Clone
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      # 3.11 seeds the fixture. LMS v2.0.0 predates the pkg_resources removal and
+      # will not import on 3.14; frappe version-15 allows >=3.10, so 3.11 is valid
+      # for that hop. Everything from v16 on requires >=3.14.
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: |
+            3.11
+            3.13
+            3.14
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          check-latest: true
+
+      - name: Add to Hosts
+        run: echo "127.0.0.1 $SITE" | sudo tee -a /etc/hosts
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            libcups2-dev mariadb-client libmariadb-dev
+
+      - name: Build the oldest bench and seed the fixture
+        run: |
+          set -euo pipefail
+          # The helpers run under the bench's own python, from the sites directory
+          # frappe.init() expects to be started in.
+          PY="$HOME/frappe-bench/env/bin/python"
+          pip install frappe-bench
+
+          bench init ~/frappe-bench \
+            --frappe-branch version-15 \
+            --python "$(which python3.11)" \
+            --skip-assets \
+            --skip-redis-config-generation
+          cd ~/frappe-bench
+
+          bench get-app --skip-assets --branch version-15 payments https://github.com/frappe/payments
+
+          # A pull_request checkout is detached. Give its actual head an advertised
+          # local ref before get-app clones the workspace; fetching an unadvertised
+          # raw SHA from a local Git remote is rejected by upload-pack.
+          git -C "$GITHUB_WORKSPACE" update-ref refs/heads/ci-pr-head "$PR_HEAD_SHA"
+          bench get-app --skip-assets --branch v2.0.0 lms "${GITHUB_WORKSPACE}"
+
+          # bench init clones frappe and payments with their remote named upstream.
+          # Keep LMS upstream pointed at the canonical repository for stable rungs,
+          # and use the checked-out workspace for the exact pull-request head.
+          git -C apps/lms remote remove upstream 2>/dev/null || true
+          git -C apps/lms remote add upstream https://github.com/frappe/lms.git
+          git -C apps/lms remote remove pr 2>/dev/null || true
+          git -C apps/lms remote add pr "${GITHUB_WORKSPACE}"
+          # LMS has no version-15 line: its frappe-v15-era releases are main /
+          # main-hotfix, so that is the rung that pairs with frappe version-15-hotfix.
+          git -C apps/lms fetch --force --tags upstream '+refs/heads/*:refs/remotes/upstream/*'
+          git -C apps/lms fetch --force pr \
+            '+refs/heads/ci-pr-head:refs/remotes/pr/head'
+
+          # Prove we are actually on v2.0.0. If --branch silently did not apply, the
+          # fixture would be seeded by current code and the ladder would test nothing.
+          git -C apps/lms checkout -q -f v2.0.0
+          on="$(git -C apps/lms rev-parse HEAD)"
+          want="$(git -C apps/lms rev-parse v2.0.0^{commit})"
+          if [ "$on" != "$want" ]; then
+            echo "expected lms at v2.0.0 ($want), got $on"
+            exit 1
+          fi
+
+          bench set-config -g db_host 127.0.0.1
+          bench new-site "$SITE" \
+            --mariadb-root-password 123 \
+            --admin-password admin
+          bench --site "$SITE" install-app lms
+
+          (cd sites && "$PY" \
+            "${GITHUB_WORKSPACE}/.github/helper/seed_fixture.py" "$SITE") | tee /tmp/seed.log
+
+          counts="$(grep -m1 '^FIXTURE_JSON ' /tmp/seed.log | cut -d' ' -f2-)"
+          if [ -z "$counts" ]; then
+            echo "seed printed no FIXTURE_JSON line"
+            exit 1
+          fi
+          echo "FIXTURE_COUNTS=$counts" >> "$GITHUB_ENV"
+
+      - name: Walk the version ladder
+        run: |
+          set -euo pipefail
+          cd ~/frappe-bench
+          PY="$HOME/frappe-bench/env/bin/python"
+
+          # Each hop moves frappe, payments and lms together; lms requires payments,
+          # so it cannot be dropped the way erpnext drops it before its own ladder.
+          hop() {
+            local name="$1" frappe_ref="$2" payments_ref="$3" lms_ref="$4" python_bin="$5"
+
+            echo "::group::hop ${name}"
+
+            git -C apps/frappe fetch --depth 1 upstream "$frappe_ref"
+            git -C apps/frappe checkout -q -f FETCH_HEAD
+            git -C apps/payments fetch --depth 1 upstream "$payments_ref"
+            git -C apps/payments checkout -q -f FETCH_HEAD
+            git -C apps/lms checkout -q -f "$lms_ref"
+
+            # checkout -f removes tracked files but not untracked ones, so a module
+            # directory the new version deleted survives as its own __pycache__ --
+            # and an empty directory is still a namespace package, so deleting just
+            # the __pycache__ is not enough. Python imports it with __file__ of None
+            # and frappe's sync_for does os.path.dirname() on that. frappe dropped
+            # the Social module in v16; without this, hop version-16 dies on it.
+            # crm's migration-test.yml swaps its app in with rsync --delete for the
+            # same reason: the tree has to match the version, not accumulate it.
+            for app in frappe payments lms; do
+              git -C "apps/$app" clean -qxdf
+            done
+
+            rm -rf ~/frappe-bench/env
+            bench -v setup env --python "$python_bin"
+            bench pip install -e ./apps/payments
+            bench pip install -e ./apps/lms
+
+            # erpnext's ladder gets a cold cache for free: it kills honcho between
+            # hops, and the Procfile's redis goes down with it. These are service
+            # containers that outlive the job, so clear the cache by hand. frappe.init()
+            # reads the app -> modules map out of redis, and migrate's own clear_cache()
+            # comes too late -- frappe.local is populated before it runs.
+            bench --site "$SITE" clear-cache
+
+            bench --site "$SITE" migrate
+
+            (cd sites && "$PY" \
+              "${GITHUB_WORKSPACE}/.github/helper/assert_fixture.py" "$SITE" "$name")
+
+            echo "::endgroup::"
+          }
+
+          # The first branch that exists wins, so a line still in development
+          # resolves to develop until its own branch is cut. lms shipped its v15
+          # line as main-hotfix before it took the version-N names.
+          pick_branch() {
+            local dir="$1" version="$2" ref
+            local refs="version-${version}-hotfix version-${version}"
+            if [ "$dir" = apps/lms ] && [ "$version" = 15 ]; then
+              refs="$refs main-hotfix"
+            fi
+            refs="$refs develop"
+
+            for ref in $refs; do
+              if git -C "$dir" ls-remote --exit-code --heads upstream "$ref" >/dev/null 2>&1; then
+                echo "$ref"
+                return 0
+              fi
+            done
+
+            echo "no v${version} branch in ${dir}; tried: ${refs}" >&2
+            return 1
+          }
+
+          python_for() {
+            case "$1" in
+              15) which python3.13 ;;
+              *)  which python3.14 ;;
+            esac
+          }
+
+          # ladder-range-start
+          # frappe develop is 17.0.0-dev. max_version is how far the ladder will
+          # climb; raise it when the line after it opens.
+          develop_version=17
+          max_version=18
+
+          # main and main-hotfix are lms's v15 line under its old name. An
+          # unrecognised base is treated as develop rather than failing the job.
+          base="${GITHUB_BASE_REF:-develop}"
+          case "$base" in
+            main|main-hotfix) base_version=15 ;;
+            version-[0-9]*)
+              base_version="${base#version-}"
+              base_version="${base_version%%-*}"
+              ;;
+            *) base_version="$develop_version" ;;
+          esac
+
+          if [ "$base_version" -gt "$max_version" ]; then
+            base_version="$max_version"
+          fi
+          if [ "$base_version" -lt 15 ]; then
+            base_version=15
+          fi
+
+          # Stop at the line the PR targets: climbing past it and back down would
+          # migrate the fixture through schema that line never has.
+          rungs=""
+          version=15
+          while [ "$version" -lt "$base_version" ]; do
+            rungs="$rungs $version"
+            version=$((version + 1))
+          done
+          # ladder-range-end
+
+          echo "base ${base} -> v${base_version}, rungs:${rungs:-" none"}"
+
+          for version in $rungs; do
+            frappe_ref="$(pick_branch apps/frappe "$version")"
+            payments_ref="$(pick_branch apps/payments "$version")"
+            lms_ref="$(pick_branch apps/lms "$version")"
+            python_bin="$(python_for "$version")"
+
+            hop "version-$version" "$frappe_ref" "$payments_ref" \
+              "upstream/$lms_ref" "$python_bin"
+          done
+
+          # The PR's own code, with frappe and payments on the line it targets.
+          frappe_ref="$(pick_branch apps/frappe "$base_version")"
+          payments_ref="$(pick_branch apps/payments "$base_version")"
+          python_bin="$(python_for "$base_version")"
+
+          hop "head" "$frappe_ref" "$payments_ref" "pr/head" "$python_bin"
+
+      - name: Show bench logs
+        if: ${{ always() }}
+        run: |
+          cd ~/frappe-bench/logs || exit 0
+          for f in ./*.log*; do
+            echo "::group::$f"
+            cat "$f" || true
+            echo "::endgroup::"
+          done

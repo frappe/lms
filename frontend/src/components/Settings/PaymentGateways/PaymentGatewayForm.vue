@@ -37,14 +37,18 @@
 			/>
 
 			<div v-if="credentialFields.length" class="grid grid-cols-2 gap-4">
-				<FormControl
+				<component
+					:is="isSecret(field) ? Password : FormControl"
 					v-for="field in credentialFields"
 					:key="field.name"
 					:class="{ 'col-span-2': isLongField(field) }"
 					v-model="doc[field.name]"
+					v-bind="
+						isSecret(field)
+							? {}
+							: { type: controlType(field), options: selectOptions(field) }
+					"
 					:label="__(field.label)"
-					:type="controlType(field)"
-					:options="selectOptions(field)"
 					:placeholder="placeholder(field)"
 					:description="description(field)"
 					:required="Boolean(field.reqd)"
@@ -108,6 +112,7 @@ import {
 	Combobox,
 	FormControl,
 	LoadingIndicator,
+	Password,
 	Switch,
 	call,
 	createDocumentResource,
@@ -132,7 +137,7 @@ import type { SettingsListRow } from '@/types'
 /**
  * One payment gateway, behind both New and a row.
  *
- * Credentials draw as a two-column FormControl grid, with state fields
+ * Credentials draw as a two-column grid, with state fields
  * (sandbox switch, header image) as their own row below a divider, CRM's
  * Telephony > Twilio shape.
  */
@@ -169,6 +174,9 @@ const currentGateway = computed(() => props.name ?? null)
 const isNew = computed(() => currentGateway.value === NEW_GATEWAY)
 
 const fields = ref<GatewayField[]>([])
+// Set once a configured gateway says which doctype holds it; `provider` is
+// the same answer while creating.
+const gatewayDoctype = ref<string | null>(null)
 const providers = ref<Provider[]>([])
 const provider = ref<string | null>(null)
 const fetching = ref(false)
@@ -204,6 +212,16 @@ const clearDraft = () => {
 	for (const key of Object.keys(draft)) delete draft[key]
 }
 
+/**
+ * The draft's baseline. `draftIsDirty()` measures against these same defaults,
+ * so a freshly seeded draft reads as clean — which is what a just-created
+ * gateway needs before it navigates away.
+ */
+const seedDraft = () => {
+	clearDraft()
+	for (const field of fields.value) draft[field.name] = field.default ?? ''
+}
+
 const reportError = (err: any, fallback: string) =>
 	toast.error(cleanError(err?.messages?.[0] || err) || fallback)
 
@@ -222,6 +240,7 @@ const loadGateway = async (gateway: string) => {
 			{ payment_gateway: gateway }
 		)
 		fields.value = details.fields || []
+		gatewayDoctype.value = details.doctype
 		settings.value = createDocumentResource({
 			doctype: details.doctype,
 			name: details.docname,
@@ -305,7 +324,7 @@ watch(provider, async (doctype) => {
 			'lms.lms.api.get_new_gateway_fields',
 			{ doctype }
 		)
-		for (const field of fields.value) draft[field.name] = field.default ?? ''
+		seedDraft()
 	} catch (err: any) {
 		reportError(err, __('Error loading provider fields'))
 	} finally {
@@ -349,12 +368,48 @@ const credentialFields = computed(() =>
 	)
 )
 
-// The box a credential is typed into. A fieldtype this does not name falls
-// through to a text box, which is what the value is on the wire anyway.
+// The box a credential is typed into. A Password never reaches here — it gets
+// the Password component instead. A fieldtype this does not name falls through
+// to a text box, which is what the value is on the wire anyway.
+/**
+ * Credential-shaped names. The provider doctypes type their secrets
+ * inconsistently — GoCardless' `access_token` and `webhooks_secret`, Mpesa's
+ * `consumer_key` and Braintree's `public_key` are all plain `Data` — so the
+ * fieldtype cannot be trusted on its own. This defaults to masking, because
+ * the safe failure is a hidden field rather than a leaked one.
+ *
+ * Presentation only. A Data field is still stored unencrypted — the fieldtype
+ * is what routes a value into Frappe's encrypted store, and those doctypes
+ * belong to the payments app, not here.
+ */
+const CREDENTIAL_NAME = /secret|token|password|passphrase|salt|key/i
+
+/**
+ * The credentials that are public on purpose and have to stay readable:
+ * Stripe publishes its key to the browser, and Razorpay's `api_key` is the
+ * `key_id` its checkout script takes.
+ *
+ * Keyed by doctype, because the name alone does not say. Braintree's
+ * `public_key` is a server-side credential despite its name, and Mpesa's
+ * `consumer_key` is half of a Basic auth pair — both are masked.
+ */
+const PUBLIC_CREDENTIALS = new Set([
+	'Stripe Settings.publishable_key',
+	'Razorpay Settings.api_key',
+])
+
+const providerDoctype = computed(() =>
+	isNew.value ? provider.value : gatewayDoctype.value
+)
+
+const isSecret = (field: GatewayField) => {
+	if (field.type === 'Password') return true
+	if (!CREDENTIAL_NAME.test(field.name)) return false
+	return !PUBLIC_CREDENTIALS.has(`${providerDoctype.value}.${field.name}`)
+}
+
 const controlType = (field: GatewayField) => {
 	switch (field.type) {
-		case 'Password':
-			return 'password'
 		case 'Select':
 			return 'select'
 		case 'Int':
@@ -386,7 +441,7 @@ const isLongField = (field: GatewayField) =>
 // A secret has no example to show, so the box says nothing rather than
 // repeating its own label back at it.
 const placeholder = (field: GatewayField) =>
-	field.type === 'Password' ? undefined : __(field.label)
+	isSecret(field) ? undefined : __(field.label)
 
 const description = (field: GatewayField) =>
 	field.description ? __(field.description) : undefined
@@ -460,7 +515,13 @@ const save = () => {
 		// list shows, so the list is refetched rather than added to.
 		after: async () => {
 			await reloadSettingsLists(DOCTYPE)
-			if (creating) emit('back')
+			// The draft still holds what was typed, and it is what isDirty reads
+			// while creating — so without reseeding it the dirty guard stops the
+			// form on its way out and offers to discard changes already saved.
+			if (creating) {
+				seedDraft()
+				emit('back')
+			}
 		},
 		failure: (err: any) =>
 			cleanError(err?.messages?.[0] || err) ||

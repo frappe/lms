@@ -93,7 +93,7 @@ import CourseInstructorsField from '@/components/Courses/CourseInstructorsField.
 import CourseThumbnailField from '@/components/Courses/CourseThumbnailField.vue'
 import VideoPreviewField from '@/components/Controls/VideoPreviewField.vue'
 import type { CourseFormContext } from '@/types'
-import { InputLabel } from '@/components/Form/labeling'
+import { InputLabel } from 'frappe-ui/experimental'
 
 interface TagOption {
 	label: string

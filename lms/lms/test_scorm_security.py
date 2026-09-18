@@ -26,39 +26,25 @@ class TestScormExtractPath(unittest.TestCase):
 		path = _scorm_extract_path("my-course", "chapter-1")
 		self.assertEqual(path, os.path.join(course_root, "chapter-1"))
 
-	def test_parent_traversal_in_title_is_rejected(self):
-		with self.assertRaises(frappe.exceptions.ValidationError):
-			_scorm_extract_path("my-course", "../victim-course/victim-chapter")
-
-	def test_nested_traversal_in_title_is_rejected(self):
-		with self.assertRaises(frappe.exceptions.ValidationError):
-			_scorm_extract_path("my-course", "sub/../../victim-course/x")
-
-	def test_absolute_title_is_rejected(self):
-		with self.assertRaises(frappe.exceptions.ValidationError):
-			_scorm_extract_path("my-course", "/srv/other/x")
-
-	def test_empty_course_is_rejected(self):
-		# An empty course collapses course_root to the scorm root, so a title could reach a sibling course.
-		with self.assertRaises(frappe.exceptions.ValidationError):
-			_scorm_extract_path("", "victim-course/chapter-1")
-
-	def test_dot_course_is_rejected(self):
-		with self.assertRaises(frappe.exceptions.ValidationError):
-			_scorm_extract_path(".", "victim-course/chapter-1")
-
-	def test_dot_title_is_rejected(self):
-		# "." collapses extract_path to course_root, whose rmtree would wipe every chapter.
-		with self.assertRaises(frappe.exceptions.ValidationError):
-			_scorm_extract_path("my-course", ".")
-
-	def test_empty_title_is_rejected(self):
-		with self.assertRaises(frappe.exceptions.ValidationError):
-			_scorm_extract_path("my-course", "")
-
-	def test_sub_parent_title_collapsing_to_course_root_is_rejected(self):
-		with self.assertRaises(frappe.exceptions.ValidationError):
-			_scorm_extract_path("my-course", "sub/..")
+	def test_hostile_course_or_title_is_rejected(self):
+		cases = [
+			("parent_traversal_in_title", "my-course", "../victim-course/victim-chapter"),
+			("nested_traversal_in_title", "my-course", "sub/../../victim-course/x"),
+			("absolute_title", "my-course", "/srv/other/x"),
+			# An empty course collapses course_root to the scorm root, so a title
+			# could reach a sibling course.
+			("empty_course", "", "victim-course/chapter-1"),
+			("dot_course", ".", "victim-course/chapter-1"),
+			# "." collapses extract_path to course_root, whose rmtree would wipe
+			# every chapter.
+			("dot_title", "my-course", "."),
+			("empty_title", "my-course", ""),
+			("sub_parent_title_collapsing_to_course_root", "my-course", "sub/.."),
+		]
+		for case, course, title in cases:
+			with self.subTest(case=case):
+				with self.assertRaises(frappe.exceptions.ValidationError):
+					_scorm_extract_path(course, title)
 
 
 class TestScormExtractContainment(unittest.TestCase):

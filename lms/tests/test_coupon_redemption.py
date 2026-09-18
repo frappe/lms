@@ -27,30 +27,35 @@ BILLING_ADDRESS = {
 }
 
 
-class TestCouponRedemption(BaseTestUtils):
-	def setUp(self):
-		super().setUp()
+class _CouponRedemptionFixtures:
+	"""Shared fixture helpers for both coupon-redemption test classes below.
+	Not a TestCase itself: mixed into one savepoint-isolated class and one
+	commit-based one, so it must not assume either isolation strategy."""
+
+	def _new_course_fixture(self):
 		hash = frappe.generate_hash(length=6)
 		self.instructor = self._create_user(
 			f"cinstr-{hash}@example.com", "Ida", "Instr", ["Course Creator", "Moderator"]
 		)
-		self.course = self._create_course(
-			title=f"Coupon Redemption Course {hash}", instructor=self.instructor.email
-		)
-		self.course.db_set({"paid_course": 1, "course_price": 1000, "currency": "INR"})
+		self.course = self._new_course_for_instructor(self.instructor)
 		self.extra_courses = []
+		self._committed_items = []
 
-	def tearDown(self):
-		self._delete_course_records()
-		super().tearDown()
+	def _new_course_for_instructor(self, instructor):
+		course = self._create_course(
+			title=f"Coupon Redemption Course {frappe.generate_hash(length=6)}", instructor=instructor.email
+		)
+		course.db_set({"paid_course": 1, "course_price": 1000, "currency": "INR"})
+		return course
 
 	def _delete_course_records(self):
-		"""Some tests commit, so the framework's rollback cannot undo them."""
+		"""Some tests commit, so the framework's rollback cannot undo them.
+		Not itself the final commit: _commit_cleanup commits once at the end,
+		after this and everything that follows it."""
 		courses = [self.course.name] + [course.name for course in self.extra_courses]
 		for doctype, field in (("LMS Enrollment", "course"), ("LMS Payment", "payment_for_document")):
 			for name in frappe.get_all(doctype, {field: ("in", courses)}, pluck="name"):
 				frappe.delete_doc(doctype, name, force=True, ignore_permissions=True)
-		frappe.db.commit()  # nosemgrep
 
 	def _create_coupon(self, redemption_count=0, usage_limit=None, percentage_discount=10):
 		coupon = frappe.new_doc("LMS Coupon")
@@ -65,7 +70,7 @@ class TestCouponRedemption(BaseTestUtils):
 			}
 		)
 		coupon.save(ignore_permissions=True)
-		self.cleanup_items.append(("LMS Coupon", coupon.name))
+		self._committed_items.append(("LMS Coupon", coupon.name))
 
 		if redemption_count:
 			frappe.db.set_value("LMS Coupon", coupon.name, "redemption_count", redemption_count)
@@ -85,7 +90,7 @@ class TestCouponRedemption(BaseTestUtils):
 			}
 		)
 		address.save(ignore_permissions=True)
-		self.cleanup_items.append(("Address", address.name))
+		self._committed_items.append(("Address", address.name))
 		return address
 
 	def _create_source(self):
@@ -110,7 +115,7 @@ class TestCouponRedemption(BaseTestUtils):
 			}
 		)
 		payment.save(ignore_permissions=True)
-		self.cleanup_items.append(("LMS Payment", payment.name))
+		self._committed_items.append(("LMS Payment", payment.name))
 		return payment
 
 	def _payment_doc(self, payment, coupon, amount=1000):
@@ -150,15 +155,32 @@ class TestCouponRedemption(BaseTestUtils):
 			frappe.db.exists("LMS Enrollment", {"member": frappe.session.user, "course": self.course.name})
 		)
 
+	def _create_second_course(self):
+		course = self._new_course_for_instructor(self.instructor)
+		self.extra_courses.append(course)
+		return course
+
+
+class TestCouponRedemption(_CouponRedemptionFixtures, BaseTestUtils):
+	"""Everything here runs and rolls back inside BaseTestUtils' per-test
+	savepoint: none of it commits. The threaded tests live in
+	TestCouponRedemptionConcurrency below, which cannot use that savepoint."""
+
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
+		hash = frappe.generate_hash(length=6)
+		cls.instructor = cls._create_user(
+			f"cinstr-{hash}@example.com", "Ida", "Instr", ["Course Creator", "Moderator"]
+		)
+
+	def setUp(self):
+		super().setUp()
+		self.course = self._new_course_for_instructor(self.instructor)
+		self.extra_courses = []
+		self._committed_items = []
+
 	# Counting
-
-	def test_increments_redemption_count(self):
-		coupon = self._create_coupon()
-		payment = self._create_payment(coupon)
-
-		update_coupon_redemption(self._payment_doc(payment, coupon))
-
-		self.assertEqual(self._count(coupon), 1)
 
 	def test_no_coupon_is_a_noop(self):
 		coupon = self._create_coupon()
@@ -188,31 +210,31 @@ class TestCouponRedemption(BaseTestUtils):
 
 		self.assertNotEqual(frappe.db.get_value("LMS Coupon", coupon.name, "modified"), modified_before)
 
-	def test_parallel_redemptions_are_not_lost(self):
-		"""Two redemptions committing at the same time must both be counted, on
-		real threads with their own database connections."""
-		workers = 8
-		coupon = self._create_coupon()
-		payments = [self._create_payment(coupon) for _ in range(workers)]
-
-		def redeem(payment):
-			update_coupon_redemption(self._payment_doc(payment, coupon))
-
-		self.assertEqual(self._in_parallel(coupon, redeem, payments), workers)
-
 	# Usage limit
 
-	def test_paid_redemption_past_the_usage_limit_is_still_recorded(self):
-		coupon = self._create_coupon(redemption_count=1, usage_limit=1)
-		payment = self._create_payment(coupon)
+	def test_usage_limit_is_logged_only_once_a_redemption_passes_it(self):
+		# The payment already went through in the paid case, so the redemption
+		# is still recorded (and logged); the other two cases are within limit
+		# / no limit set, so nothing is logged.
+		cases = [
+			("paid_past_limit_is_still_recorded_and_logged", 1, 1, 2, True),
+			("within_limit_is_not_logged", 0, 5, 1, False),
+			("no_limit_set_is_not_logged", 99, 0, 100, False),
+		]
+		for case, redemption_count, usage_limit, expected_count, expect_log in cases:
+			with self.subTest(case=case):
+				coupon = self._create_coupon(redemption_count=redemption_count, usage_limit=usage_limit)
+				payment = self._create_payment(coupon)
 
-		with patch.object(frappe, "log_error") as log_error:
-			update_coupon_redemption(self._payment_doc(payment, coupon))
+				with patch.object(frappe, "log_error") as log_error:
+					update_coupon_redemption(self._payment_doc(payment, coupon))
 
-		# The payment already went through, so the redemption is still recorded.
-		self.assertEqual(self._count(coupon), 2)
-		log_error.assert_called_once()
-		self.assertIn(coupon.name, str(log_error.call_args))
+				self.assertEqual(self._count(coupon), expected_count)
+				if expect_log:
+					log_error.assert_called_once()
+					self.assertIn(coupon.name, str(log_error.call_args))
+				else:
+					log_error.assert_not_called()
 
 	def test_free_redemption_past_the_usage_limit_is_rejected(self):
 		"""Nothing has been paid on a fully discounted order, so the limit can
@@ -224,26 +246,6 @@ class TestCouponRedemption(BaseTestUtils):
 			update_coupon_redemption(self._payment_doc(payment, coupon, amount=0))
 
 		self.assertEqual(self._count(coupon), 1)
-
-	def test_does_not_log_within_usage_limit(self):
-		coupon = self._create_coupon(redemption_count=0, usage_limit=5)
-		payment = self._create_payment(coupon)
-
-		with patch.object(frappe, "log_error") as log_error:
-			update_coupon_redemption(self._payment_doc(payment, coupon))
-
-		self.assertEqual(self._count(coupon), 1)
-		log_error.assert_not_called()
-
-	def test_does_not_log_when_no_usage_limit_set(self):
-		coupon = self._create_coupon(redemption_count=99, usage_limit=0)
-		payment = self._create_payment(coupon)
-
-		with patch.object(frappe, "log_error") as log_error:
-			update_coupon_redemption(self._payment_doc(payment, coupon))
-
-		self.assertEqual(self._count(coupon), 100)
-		log_error.assert_not_called()
 
 	# Gateway callbacks
 
@@ -270,58 +272,6 @@ class TestCouponRedemption(BaseTestUtils):
 
 		self.assertEqual(frappe.db.get_value("LMS Payment", open_checkout.name, "payment_received"), 0)
 		self.assertEqual(self._count(coupon), 1)
-
-	def test_parallel_callbacks_for_one_payment_count_once(self):
-		"""Two gateway retries for the same payment can arrive at once. Only one
-		of them may count a redemption."""
-		coupon = self._create_coupon()
-		payment = self._create_payment(coupon)
-
-		def deliver(_):
-			self._callback(payment, "pay_first")
-
-		self.assertEqual(self._in_parallel(coupon, deliver, [payment] * 4), 1)
-
-	def test_parallel_callbacks_for_one_gateway_payment_credit_one_payment(self):
-		"""Retries for one gateway payment can be resolved to different LMS
-		Payment rows, which do not contend with each other. One transaction, one
-		credited payment."""
-		coupon = self._create_coupon()
-		payments = [self._create_payment(coupon) for _ in range(2)]
-
-		def deliver(payment):
-			self._callback(payment, "pay_shared")
-
-		self.assertEqual(self._in_parallel(coupon, deliver, payments), 1)
-
-	def test_parallel_callbacks_are_serialized_without_the_constraint(self):
-		"""A site carrying duplicate payment ids cannot take the constraint, and
-		the two callbacks need not even be for the same course. It must still not
-		credit two payments for one gateway payment."""
-		coupon = self._create_coupon()
-		other_course = self._create_second_course()
-		payments = [
-			self._create_payment(coupon),
-			self._create_payment(coupon, course=other_course.name),
-		]
-		self._drop_unique_payment_id()
-
-		def deliver(payment):
-			self._callback(payment, "pay_shared", course=payment.payment_for_document)
-
-		try:
-			self.assertEqual(self._in_parallel(coupon, deliver, payments), 1)
-		finally:
-			add_unique_payment_id_constraint()
-
-	def _create_second_course(self):
-		course = self._create_course(
-			title=f"Coupon Redemption Course {frappe.generate_hash(length=6)}",
-			instructor=self.instructor.email,
-		)
-		course.db_set({"paid_course": 1, "course_price": 1000, "currency": "INR"})
-		self.extra_courses.append(course)
-		return course
 
 	def test_missing_payment_record_fails_with_a_readable_error(self):
 		with patch.object(frappe, "log_error"), self.assertRaises(frappe.ValidationError) as caught:
@@ -391,7 +341,77 @@ class TestCouponRedemption(BaseTestUtils):
 		address = frappe.get_last_doc("Address", filters={"email_id": frappe.session.user})
 		self.assertEqual(address.address_line1, "42 New Street")
 
-	# Threading
+
+class TestCouponRedemptionConcurrency(_CouponRedemptionFixtures, BaseTestUtils):
+	"""These tests commit from worker threads (see _in_parallel), which would
+	release BaseTestUtils' per-test savepoint out from under it. This class
+	skips the savepoint entirely and cleans up explicitly instead."""
+
+	def setUp(self):
+		# Skip BaseTestUtils.setUp: these tests commit.
+		super(BaseTestUtils, self).setUp()
+		self._new_course_fixture()
+
+	def tearDown(self):
+		# Skip BaseTestUtils.tearDown: there is no savepoint to roll back to.
+		# Every test here already cleans up via _commit_cleanup() in the
+		# _in_parallel() finally block.
+		super(BaseTestUtils, self).tearDown()
+
+	def test_parallel_redemptions_are_not_lost(self):
+		"""Two redemptions committing at the same time must both be counted, on
+		real threads with their own database connections."""
+		workers = 8
+		coupon = self._create_coupon()
+		payments = [self._create_payment(coupon) for _ in range(workers)]
+
+		def redeem(payment):
+			update_coupon_redemption(self._payment_doc(payment, coupon))
+
+		self.assertEqual(self._in_parallel(coupon, redeem, payments), workers)
+
+	def test_parallel_callbacks_for_one_payment_count_once(self):
+		"""Two gateway retries for the same payment can arrive at once. Only one
+		of them may count a redemption."""
+		coupon = self._create_coupon()
+		payment = self._create_payment(coupon)
+
+		def deliver(_):
+			self._callback(payment, "pay_first")
+
+		self.assertEqual(self._in_parallel(coupon, deliver, [payment] * 4), 1)
+
+	def test_parallel_callbacks_for_one_gateway_payment_credit_one_payment(self):
+		"""Retries for one gateway payment can be resolved to different LMS
+		Payment rows, which do not contend with each other. One transaction, one
+		credited payment."""
+		coupon = self._create_coupon()
+		payments = [self._create_payment(coupon) for _ in range(2)]
+
+		def deliver(payment):
+			self._callback(payment, "pay_shared")
+
+		self.assertEqual(self._in_parallel(coupon, deliver, payments), 1)
+
+	def test_parallel_callbacks_are_serialized_without_the_constraint(self):
+		"""A site carrying duplicate payment ids cannot take the constraint, and
+		the two callbacks need not even be for the same course. It must still not
+		credit two payments for one gateway payment."""
+		coupon = self._create_coupon()
+		other_course = self._create_second_course()
+		payments = [
+			self._create_payment(coupon),
+			self._create_payment(coupon, course=other_course.name),
+		]
+		self._drop_unique_payment_id()
+
+		def deliver(payment):
+			self._callback(payment, "pay_shared", course=payment.payment_for_document)
+
+		try:
+			self.assertEqual(self._in_parallel(coupon, deliver, payments), 1)
+		finally:
+			add_unique_payment_id_constraint()
 
 	def _in_parallel(self, coupon, work, items) -> int:
 		"""Run work(item) once per item, each on its own connection, all at the
@@ -435,8 +455,12 @@ class TestCouponRedemption(BaseTestUtils):
 		"""The fixtures above were committed, so rolling back the test cannot
 		remove them."""
 		self._delete_course_records()
-		for doctype, name in reversed(self.cleanup_items):
+		for doctype, name in reversed(self._committed_items):
 			if frappe.db.exists(doctype, name):
 				frappe.delete_doc(doctype, name, force=True, ignore_permissions=True)
-		self.cleanup_items = []
+		self._committed_items = []
+		for course in [self.course, *self.extra_courses]:
+			frappe.delete_doc("LMS Course", course.name, force=True, ignore_permissions=True)
+		self.extra_courses = []
+		frappe.delete_doc("User", self.instructor.name, force=True, ignore_permissions=True)
 		frappe.db.commit()  # nosemgrep

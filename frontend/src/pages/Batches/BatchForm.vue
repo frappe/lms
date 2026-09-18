@@ -304,7 +304,7 @@ import {
 	toast,
 	call,
 } from 'frappe-ui'
-import { InputLabel, useInputLabeling } from '@/components/Form/labeling'
+import { InputLabel, useInputLabeling } from 'frappe-ui/experimental'
 import { useDebounceFn } from '@vueuse/core'
 import BooleanSwitch from '@/components/Controls/BooleanSwitch.vue'
 import {

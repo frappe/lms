@@ -119,7 +119,7 @@ import BooleanSwitch from '@/components/Controls/BooleanSwitch.vue'
 import { useFormRoute } from '@/composables/useFormRoute'
 import Link from '@/components/Controls/Link.vue'
 import RichTextEditor from '@/components/RichTextEditor.vue'
-import { InputLabel } from '@/components/Form/labeling'
+import { InputLabel } from 'frappe-ui/experimental'
 import { submitResource } from '@/utils/resource'
 import { toDatetimeLocal, fromDatetimeLocal } from '@/utils/schedule'
 
