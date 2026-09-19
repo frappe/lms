@@ -10,6 +10,8 @@ const resourceState = vi.hoisted(() => ({
 	// Every resource submit, by url. `request` only records reads.
 	submits: [] as string[],
 	response: null as any,
+	// Per-option verdict check_answer returns: 1 correct, 2 partial, 0 wrong.
+	checkAnswer: [] as unknown[],
 }))
 
 // Copied verbatim from frappe-ui 1.0.0-beta.29 `src/components/Button/Button.vue` so the stub reproduces the real state classes the pager relies on.
@@ -55,6 +57,10 @@ vi.mock('frappe-ui', async () => {
 				const transformed = options.transform?.(raw)
 				resource.data = transformed == null ? raw : transformed
 				options.onSuccess?.(raw)
+			}
+
+			if (options.url === 'lms.lms.doctype.lms_quiz.lms_quiz.check_answer') {
+				options.onSuccess?.(resourceState.checkAnswer)
 			}
 
 			resource.loading = false
@@ -112,13 +118,21 @@ vi.mock('frappe-ui', async () => {
 			props: ['modelValue'],
 			template: '<div><slot name="label" /><slot /></div>',
 		},
-		Radio: {
-			props: ['value'],
-			template: '<div><slot name="label" /></div>',
-		},
+		// `Radio` reaches its group through provide/inject and is meaningless
+		// outside one, so the stubs keep that contract rather than flattening it.
 		RadioGroup: {
 			props: ['modelValue', 'name'],
+			emits: ['update:modelValue'],
+			provide(this: any) {
+				return { pickRadio: (value: unknown) => this.$emit('update:modelValue', value) }
+			},
 			template: '<div><slot /></div>',
+		},
+		Radio: {
+			props: ['value'],
+			inject: ['pickRadio'],
+			template:
+				'<button type="button" class="radio-option" @click="pickRadio(value)"><slot name="label" /></button>',
 		},
 		Dialog: {
 			props: ['open'],
@@ -195,6 +209,7 @@ beforeEach(() => {
 	resourceState.request.mockReset()
 	resourceState.submits.length = 0
 	resourceState.response = quizResponse()
+	resourceState.checkAnswer = []
 	localStorage.clear()
 })
 
@@ -302,5 +317,51 @@ describe('Quiz in an author preview', () => {
 		} finally {
 			vi.useRealTimers()
 		}
+	})
+})
+
+describe('Quiz choices', () => {
+	// `Check` only renders when the quiz shows answers, and it is the only
+	// caller of checkAnswer, so this is the one flow that reaches the verdict
+	// markup at all.
+	beforeEach(() => {
+		const response = choicesQuizResponse(1)
+		response.quiz.show_answers = 1
+		resourceState.response = response
+	})
+
+	const pickFirstAndCheck = async (wrapper: VueWrapper<any>) => {
+		await startQuiz(wrapper)
+		await wrapper.findAll('.radio-option')[0].trigger('click')
+		const check = wrapper.findAll('button').find((b) => b.text() === 'Check')
+		expect(check).toBeDefined()
+		await check!.trigger('click')
+		await flushPromises()
+	}
+
+	it('sends the option the learner picks', async () => {
+		const wrapper = mountQuiz()
+		await flushPromises()
+		resourceState.checkAnswer = [1, 0]
+		await pickFirstAndCheck(wrapper)
+
+		// The warning toast instead of a request would mean getAnswers() saw
+		// nothing selected, i.e. RadioGroup never reached selectedOptions.
+		expect(resourceState.request.mock.calls.map((call) => call[0])).toContain(
+			'lms.lms.doctype.lms_quiz.lms_quiz.check_answer'
+		)
+		wrapper.unmount()
+	})
+
+	it('marks each option right or wrong once checked, keeping the labels', async () => {
+		const wrapper = mountQuiz()
+		await flushPromises()
+		resourceState.checkAnswer = [1, 0]
+		await pickFirstAndCheck(wrapper)
+
+		expect(wrapper.text()).toContain('First option 1')
+		expect(wrapper.text()).toContain('Second option 1')
+		expect(wrapper.find('.lucide-check-circle').exists()).toBe(true)
+		wrapper.unmount()
 	})
 })

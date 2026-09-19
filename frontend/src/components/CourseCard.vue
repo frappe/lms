@@ -156,10 +156,8 @@ const props = defineProps({
 
 const gradientColor = computed(() => {
 	let color = props.course.card_gradient?.toLowerCase() || 'blue'
-	// token-exempt: the card art is a dark gradient in both themes by
-	// construction, so it neither flips nor needs to. Six of card_gradient's
-	// twelve options (cyan, orange, pink, purple, teal, violet) have no
-	// semantic ramp at all, only the primitive.
+	// token-exempt: dark card art in both themes by construction, and six of
+	// card_gradient's twelve colours have no semantic ramp at all.
 	return `linear-gradient(to top right, black, var(--${color}-400))`
 })
 </script>
