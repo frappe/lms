@@ -6,47 +6,34 @@
 			@done="goToCurrentLesson()"
 		/>
 	</div>
-	<div
-		v-else-if="
-			readyToRender &&
-			outlineSettled &&
-			(enrollment.data?.length ||
-				user.data?.is_moderator ||
-				user.data?.is_instructor)
-		"
-	>
+	<div v-else-if="readyToRender && launchFile">
 		<iframe
-			:src="safeUrl(chapter.doc.launch_file)"
-			:title="chapter.doc?.title || __('Lesson content')"
+			:src="launchFile"
+			:title="playback.data?.title || __('Lesson content')"
 			class="w-full h-[calc(100vh-3.00rem)]"
 		/>
 	</div>
-	<div v-else-if="!enrollment.data?.length">
-		<div class="text-center pt-10 px-5 md:px-0 pb-10">
-			<div class="text-center">
-				<div class="mb-4">
-					{{
-						__(
-							'You are not enrolled in this course. Please enroll to access this lesson.'
-						)
-					}}
-				</div>
-				<Button variant="solid" @click="enrollStudent()">
-					{{ __('Start Learning') }}
-				</Button>
-			</div>
+	<div v-else-if="hasNoLesson" class="text-center pt-10 px-5 md:px-0 pb-10">
+		{{ __('This chapter has no lesson to play yet.') }}
+	</div>
+	<div v-else-if="isNotEntitled" class="text-center pt-10 px-5 md:px-0 pb-10">
+		<div class="mb-4">
+			{{
+				__(
+					'You are not enrolled in this course. Please enroll to access this lesson.'
+				)
+			}}
 		</div>
+		<Button variant="solid" @click="enrollStudent()">
+			{{ __('Start Learning') }}
+		</Button>
+	</div>
+	<div v-else-if="hasNoPackage" class="text-center pt-10 px-5 md:px-0 pb-10">
+		{{ __('This lesson has no content to play yet.') }}
 	</div>
 </template>
 <script setup>
-import {
-	Button,
-	call,
-	createDocumentResource,
-	createListResource,
-	createResource,
-	usePageMeta,
-} from 'frappe-ui'
+import { Button, call, createResource, toast, usePageMeta } from 'frappe-ui'
 import { computed, inject, onBeforeMount, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import PageHeader from '@/components/Layouts/pages/PageHeader.vue'
@@ -83,13 +70,18 @@ onBeforeMount(() => {
 	setupSCORMAPI()
 })
 
-const chapter = createDocumentResource({
-	doctype: 'Course Chapter',
-	name: props.chapterName,
+// `launch_file` is permlevel 1, so the Course Chapter read this page used to make no
+// longer carries it. The server answers instead, on the same rule that refuses the
+// package bytes, so a URL arriving here is one this site will then serve.
+const playback = createResource({
+	url: 'lms.lms.doctype.course_chapter.course_chapter.get_scorm_playback',
+	makeParams() {
+		return { chapter: props.chapterName }
+	},
 	auto: true,
-	cache: ['chapter', props.chapterName],
 	onSuccess(data) {
-		progress.submit()
+		if (data?.locked) outline.fetch()
+		else if (data?.launch_file) progress.submit()
 	},
 	// `/learn/:chapterName` also matches a lesson URL with no lesson number, so a
 	// mistyped or tampered address resolves to a chapter that does not exist. Without
@@ -99,6 +91,34 @@ const chapter = createDocumentResource({
 	},
 })
 
+// Four states, and only the server tells them apart: locked, not entitled, no lesson,
+// playing. The page renders what it is told and derives none of them itself.
+const isLocked = computed(() => !!playback.data?.locked)
+
+// delete_lesson drops the Lesson Reference and leaves the chapter standing. The server
+// refuses the package, but that refusal is not a missing enrolment: offered as one it
+// asks the course's own instructor to enrol in their own course.
+const hasNoLesson = computed(() => !!playback.data && !playback.data.lesson)
+
+const isNotEntitled = computed(
+	() => !!playback.data && !hasNoLesson.value && !playback.data.can_access
+)
+
+// Sanitised here rather than at the binding, so a URL the allowlist rejects falls
+// through to hasNoPackage instead of mounting an iframe with no src.
+const launchFile = computed(() => safeUrl(playback.data?.launch_file))
+
+// A chapter the student may play whose package never finished uploading. Saying so
+// beats the blank frame an empty iframe src leaves behind.
+const hasNoPackage = computed(
+	() =>
+		!!playback.data &&
+		!isLocked.value &&
+		!hasNoLesson.value &&
+		!isNotEntitled.value &&
+		!launchFile.value
+)
+
 const leaveForCourse = () => {
 	router.replace({
 		name: 'CourseDetail',
@@ -106,11 +126,8 @@ const leaveForCourse = () => {
 	})
 }
 
-// This page reads the Course Chapter doc straight from the DB and iframes its
-// launch file; it never calls get_lesson, so without the outline it is a route
-// around the sequential-completion gate. The server refuses the SCORM bytes
-// either way (SCORMRenderer._check_permission), this turns that refusal into the
-// same locked treatment the lesson page shows.
+// Fetched only on the locked branch, and only to name the lesson to resume at.
+// Nothing here decides whether the package may play; the server already did.
 const outline = createResource({
 	url: 'lms.lms.utils.get_course_outline',
 	cache: ['course_outline_student', props.courseName, 'progress'],
@@ -120,29 +137,11 @@ const outline = createResource({
 			progress: true,
 		}
 	},
-	auto: true,
 })
 
 const outlineLessons = computed(() =>
 	(outline.data ?? []).flatMap((chapter) => chapter.lessons ?? [])
 )
-
-// The chapter doc and its progress resolve on a chain of their own, so without
-// this the iframe can mount before the outline has said whether the chapter is
-// locked — and the student reads the server's 403 page for the package before the
-// locked notice replaces it. An outline that errors still settles: the bytes are
-// refused server side either way, and waiting forever would leave a blank page.
-const outlineSettled = computed(
-	() => Array.isArray(outline.data) || !!outline.error
-)
-
-const isLocked = computed(() => {
-	const chapter = (outline.data ?? []).find(
-		(item) => item.name === props.chapterName
-	)
-	const lessons = chapter?.lessons ?? []
-	return lessons.length > 0 && lessons.every((lesson) => lesson.locked)
-})
 
 // The rule leaves exactly one incomplete lesson open: the one to resume at.
 const currentLessonNumber = computed(
@@ -164,15 +163,20 @@ const goToCurrentLesson = () => {
 	})
 }
 
-const enrollment = createListResource({
-	doctype: 'LMS Enrollment',
-	fields: ['member', 'course'],
-	filters: {
-		course: props.courseName,
-		member: user.data?.name,
+// An insert and nothing else, the shape Lesson.vue enrols with. A list resource read no
+// row here — get_scorm_playback says who may play — and frappe-ui refetches it on
+// insert.onSuccess, so enrolling issued an unfiltered LMS Enrollment read on the way out.
+const enrollment = createResource({
+	url: 'frappe.client.insert',
+	makeParams() {
+		return {
+			doc: {
+				doctype: 'LMS Enrollment',
+				course: props.courseName,
+				member: user.data?.name,
+			},
+		}
 	},
-	auto: true,
-	cache: ['enrollments', props.courseName, user.data?.name],
 })
 
 const getDataFromLMS = (key) => {
@@ -230,7 +234,7 @@ const saveDataToLMS = (key, value) => {
 
 const saveProgress = (scormDetails = null) => {
 	call('lms.lms.doctype.course_lesson.course_lesson.save_progress', {
-		lesson: chapter.doc.lessons[0].lesson,
+		lesson: playback.data?.lesson,
 		course: props.courseName,
 		scorm_details: scormDetails,
 	})
@@ -244,26 +248,38 @@ const progress = createResource({
 			fieldname: ['status', 'scorm_content'],
 			filters: {
 				member: user.data?.name,
-				lesson: chapter.doc.lessons[0].lesson,
-				chapter: chapter.doc.name,
-				course: chapter.doc?.course,
+				lesson: playback.data?.lesson,
+				chapter: playback.data?.chapter,
+				course: playback.data?.course,
 			},
 		}
 	},
 	onSuccess(data) {
 		readyToRender.value = true
 	},
+	// The resume point is a convenience, not a gate, so a failure here must not hold the
+	// frame back — without this the page had a fifth state no branch could render. It is
+	// said out loud because what is lost is cmi.suspend_data: a long package restarts.
+	onError() {
+		readyToRender.value = true
+		toast.error(__('Could not load your saved progress'), {
+			description: __(
+				'This lesson will start from the beginning. Reload the page to try resuming where you left off.'
+			),
+		})
+	},
 })
 
 const enrollStudent = () => {
-	enrollment.insert.submit(
+	enrollment.submit(
+		{},
 		{
-			course: props.courseName,
-			member: user.data?.name,
-		},
-		{
-			onSuccess(data) {
+			onSuccess() {
 				window.location.reload()
+			},
+			onError(err) {
+				toast.error(__(err.messages?.[0] || err))
+				console.error(err)
 			},
 		}
 	)
@@ -314,18 +330,18 @@ const breadcrumbs = computed(() => {
 			route: { name: 'Courses' },
 		},
 		{
-			label: chapter.doc?.course_title,
+			label: playback.data?.course_title,
 			route: { name: 'CourseDetail', params: { courseName: props.courseName } },
 		},
 		{
-			label: chapter.doc?.title,
+			label: playback.data?.title,
 		},
 	]
 })
 
 usePageMeta(() => {
 	return {
-		title: chapter.doc?.title,
+		title: playback.data?.title,
 		icon: brand.favicon,
 	}
 })
