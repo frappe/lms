@@ -1,34 +1,46 @@
-version: "3.7"
 name: lms
 services:
   mariadb:
     image: docker.io/library/mariadb:10.8
+    restart: unless-stopped
     command:
       - --character-set-server=utf8mb4
       - --collation-server=utf8mb4_unicode_ci
       - --skip-character-set-client-handshake
       - --skip-innodb-read-only-compressed # Temporary fix for MariaDB 10.6
     environment:
-      MYSQL_ROOT_PASSWORD: 123
+      MYSQL_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD:-123}
     volumes:
       - mariadb-data:/var/lib/mysql
 
   redis:
     image: docker.io/library/redis:alpine
+    restart: unless-stopped
 
   frappe:
     image: docker.io/frappe/bench:latest
+    restart: unless-stopped
     command: bash /workspace/init.sh
     environment:
       - SHELL=/bin/bash
+      - MARIADB_ROOT_PASSWORD=${MARIADB_ROOT_PASSWORD:-123}
+      - LMS_ADMIN_PASSWORD=${LMS_ADMIN_PASSWORD:-admin}
+      - NODE_OPTIONS=--max-old-space-size=4096
+      - MAIL_SERVER=${MAIL_SERVER:-}
+      - MAIL_PORT=${MAIL_PORT:-587}
+      - MAIL_LOGIN=${MAIL_LOGIN:-}
+      - MAIL_PASSWORD=${MAIL_PASSWORD:-}
+      - MAIL_USE_TLS=${MAIL_USE_TLS:-1}
+      - MAIL_USE_SSL=${MAIL_USE_SSL:-0}
+      - MAIL_DEFAULT_SENDER=${MAIL_DEFAULT_SENDER:-}
     working_dir: /home/frappe
     volumes:
       - ./init.sh:/workspace/init.sh:Z
       - ..:/workspace/lms:Z
       - frappe-bench:/home/frappe/frappe-bench
     ports:
-      - 8000:8000
-      - 9000:9000
+      - ${LMS_BIND_ADDRESS:-127.0.0.1}:8000:8000
+      - ${LMS_BIND_ADDRESS:-127.0.0.1}:9000:9000
 
 volumes:
   mariadb-data:

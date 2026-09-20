@@ -1,0 +1,32 @@
+{
+ "actions": [],
+ "autoname": "hash",
+ "creation": "2026-09-20 17:20:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": ["instructor", "payment", "payment_type", "course", "student", "status", "available_on", "payout", "amounts_section", "gross_amount", "bank_fee", "platform_commission", "instructor_amount", "currency"],
+ "fields": [
+  {"fieldname":"instructor","fieldtype":"Link","label":"Instructor","options":"User","reqd":1,"in_list_view":1},
+  {"fieldname":"payment","fieldtype":"Link","label":"Payment","options":"LMS Payment","reqd":1},
+  {"fieldname":"course","fieldtype":"Dynamic Link","label":"Course or Batch","options":"payment_type","reqd":1},
+  {"fieldname":"payment_type","fieldtype":"Data","hidden":1,"label":"Payment Type"},
+  {"fieldname":"student","fieldtype":"Link","label":"Student","options":"User","reqd":1},
+  {"default":"Pending","fieldname":"status","fieldtype":"Select","label":"Status","options":"Pending\nAvailable\nRequested\nPaid\nReversed","reqd":1,"in_list_view":1},
+  {"fieldname":"available_on","fieldtype":"Date","label":"Available On","reqd":1},
+  {"fieldname":"payout","fieldtype":"Link","label":"Payout","options":"LMS Instructor Payout"},
+  {"fieldname":"amounts_section","fieldtype":"Section Break","label":"Amounts"},
+  {"fieldname":"gross_amount","fieldtype":"Currency","label":"Gross Amount","options":"currency","reqd":1},
+  {"fieldname":"bank_fee","fieldtype":"Currency","label":"Bank Fee","options":"currency"},
+  {"fieldname":"platform_commission","fieldtype":"Currency","label":"Platform Commission","options":"currency","reqd":1},
+  {"fieldname":"instructor_amount","fieldtype":"Currency","label":"Instructor Amount","options":"currency","reqd":1,"in_list_view":1},
+  {"fieldname":"currency","fieldtype":"Link","label":"Currency","options":"Currency","reqd":1}
+ ],
+ "modified": "2026-09-20 17:20:00.000000",
+ "modified_by": "Administrator",
+ "module": "LMS",
+ "name": "LMS Instructor Earning",
+ "owner": "Administrator",
+ "permissions": [{"role":"System Manager","read":1,"write":1,"create":1,"delete":1,"report":1,"export":1}],
+ "sort_field": "creation",
+ "sort_order": "DESC"
+}

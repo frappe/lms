@@ -17,6 +17,7 @@ lms.lms.api.get_own_assignment_submission
 lms.lms.api.get_pwa_manifest
 lms.lms.api.get_sidebar_settings
 lms.lms.api.get_translations
+lms.lms.halyk.payment_callback
 lms.lms.doctype.course_lesson.course_lesson.serve_resource
 lms.lms.user.sign_up
 lms.lms.utils.get_batch_count

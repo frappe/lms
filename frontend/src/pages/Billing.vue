@@ -139,11 +139,12 @@
 							/>
 						</div>
 						<div class="space-y-4">
-							<Link
-								doctype="Country"
-								:value="billingDetails.country"
-								@change="(option) => changeCurrency(option)"
+							<Combobox
+								:modelValue="billingDetails.country"
+								@update:modelValue="changeCurrency"
+								:options="CIS_COUNTRY_OPTIONS"
 								:label="__('Country')"
+								:placeholder="__('Select a country')"
 								:required="!!fieldMeta.country?.reqd"
 							/>
 							<FormControl
@@ -177,6 +178,39 @@
 							/>
 						</div>
 					</div>
+					<fieldset v-if="!isZeroAmount" class="mt-8">
+						<legend class="text-lg-semibold text-ink-gray-9">
+							{{ __('Payment method') }}
+						</legend>
+						<p v-if="checkoutAvailability.data?.test_mode" class="mt-1 text-sm text-ink-amber-7">
+							{{ __('Test mode — no real money will be charged.') }}
+						</p>
+						<div class="mt-3 grid grid-cols-1 sm:grid-cols-3 gap-3">
+							<label
+								v-for="method in paymentMethods"
+								:key="method.value"
+								:class="[
+									'flex min-h-16 items-center gap-3 rounded-lg border p-3 transition-colors',
+									method.enabled ? 'cursor-pointer' : 'cursor-not-allowed opacity-50',
+									selectedPaymentMethod === method.value
+										? 'border-outline-gray-6 bg-surface-gray-2'
+										: 'border-outline-gray-2',
+								]"
+							>
+								<input
+									type="radio"
+									name="payment-method"
+									:value="method.value"
+									:disabled="!method.enabled"
+									v-model="selectedPaymentMethod"
+								/>
+								<span>
+									<span class="block text-sm font-medium text-ink-gray-9">{{ method.label }}</span>
+									<span class="block text-xs text-ink-gray-5">{{ method.description }}</span>
+								</span>
+							</label>
+						</div>
+					</fieldset>
 					<div
 						class="flex flex-col lg:flex-row items-start lg:items-center justify-between border-t pt-4 mt-8 space-y-4 lg:space-y-0"
 					>
@@ -200,16 +234,27 @@
 								}}
 							</div>
 						</div>
-						<Button
-							variant="solid"
-							size="md"
-							class="ms-auto text-p-base-medium"
-							@click="generatePaymentLink()"
-						>
+						<div class="ms-auto flex flex-col items-end gap-2">
+							<p
+								v-if="!isZeroAmount && !checkoutAvailability.data?.enabled"
+								class="max-w-sm text-end text-sm text-ink-amber-7"
+								role="status"
+							>
+								{{ __('Online payment is temporarily unavailable.') }}
+							</p>
+							<Button
+								variant="solid"
+								size="md"
+								class="text-p-base-medium"
+								:disabled="!isZeroAmount && !checkoutAvailability.data?.enabled"
+								:loading="paymentLink.loading"
+								@click="generatePaymentLink()"
+							>
 							{{
-								isZeroAmount ? __('Enroll for Free') : __('Proceed to Payment')
+								isZeroAmount ? __('Enroll for Free') : __('Pay with Halyk ePay')
 							}}
-						</Button>
+							</Button>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -257,6 +302,7 @@ import {
 	INDIAN_STATE_OPTIONS,
 	canonicalIndianState,
 } from '@/utils/indianStates'
+import { CIS_COUNTRY_OPTIONS } from '@/utils/cisCountries'
 
 const breadcrumbs = [
 	{ label: __('Billing Details'), route: { name: 'Billing' } },
@@ -270,6 +316,7 @@ const { capture } = useTelemetry()
 onMounted(() => {
 	if (user.data?.name) {
 		access.submit()
+		checkoutAvailability.submit()
 	}
 })
 
@@ -312,6 +359,36 @@ const orderSummary = createResource({
 	},
 })
 
+const checkoutAvailability = createResource({
+	url: 'lms.lms.halyk.get_checkout_availability',
+})
+
+const selectedPaymentMethod = ref('card')
+const paymentMethods = computed(() => [
+	{
+		value: 'card',
+		label: __('Bank card'),
+		description: __('Visa or Mastercard'),
+		enabled: checkoutAvailability.data?.methods?.includes('card') ?? false,
+	},
+	{
+		value: 'halyk_qr',
+		label: __('Halyk QR'),
+		description: checkoutAvailability.data?.test_mode
+			? __('Available after production activation')
+			: __('Pay in the Halyk app'),
+		enabled: checkoutAvailability.data?.methods?.includes('halyk_qr') ?? false,
+	},
+	{
+		value: 'google_pay',
+		label: __('Google Pay'),
+		description: checkoutAvailability.data?.test_mode
+			? __('Production only')
+			: __('Use a saved card'),
+		enabled: checkoutAvailability.data?.methods?.includes('google_pay') ?? false,
+	},
+])
+
 const appliedCoupon = ref(null)
 const billingDetails = reactive({})
 const fieldMeta = reactive({})
@@ -326,7 +403,7 @@ const setBillingDetails = (data) => {
 		data?.address_line2 || getDefault('address_line2')
 	billingDetails.city = data?.city || getDefault('city')
 	billingDetails.state = data?.state || getDefault('state')
-	billingDetails.country = data?.country || getDefault('country')
+	billingDetails.country = data?.country || getDefault('country') || 'Kazakhstan'
 	billingDetails.pincode = data?.pincode || getDefault('pincode')
 	billingDetails.phone = data?.phone || getDefault('phone')
 	billingDetails.source = data?.source || getDefault('source')
@@ -354,6 +431,7 @@ const paymentLink = createResource({
 			payment_for_certificate: props.type == 'certificate',
 			coupon_code: appliedCoupon.value,
 			country: billingDetails.country,
+			payment_method: selectedPaymentMethod.value,
 		}
 		return data
 	},
@@ -373,7 +451,16 @@ const generatePaymentLink = () => {
 				}
 				return validateAddress()
 			},
-			onSuccess(data) {
+			async onSuccess(data) {
+				if (data?.provider === 'halyk_epay') {
+					capture('checkout_initiated', { type: props.type, provider: 'halyk_epay' })
+					try {
+						await openHalykCheckout(data)
+					} catch (error) {
+						showError(error)
+					}
+					return
+				}
 				if (typeof data !== 'string' || !data) {
 					toast.error(
 						__('Could not start the payment. Please contact the administrator.')
@@ -388,6 +475,32 @@ const generatePaymentLink = () => {
 			},
 		}
 	)
+}
+
+const loadExternalScript = (src) =>
+	new Promise((resolve, reject) => {
+		const existing = document.querySelector(`script[src="${src}"]`)
+		if (existing) {
+			if (window.halyk?.pay) return resolve()
+			existing.addEventListener('load', resolve, { once: true })
+			existing.addEventListener('error', reject, { once: true })
+			return
+		}
+		const script = document.createElement('script')
+		script.src = src
+		script.async = true
+		script.onload = resolve
+		script.onerror = () => reject(new Error(__('Could not load Halyk ePay. Please try again.')))
+		document.head.appendChild(script)
+	})
+
+const openHalykCheckout = async (checkout) => {
+	if (!checkout?.script_url || !checkout?.payment) {
+		throw new Error(__('Invalid response from Halyk ePay.'))
+	}
+	await loadExternalScript(checkout.script_url)
+	if (!window.halyk?.pay) throw new Error(__('Halyk ePay is unavailable. Please try again.'))
+	window.halyk.pay(checkout.payment)
 }
 
 function applyCouponCode() {

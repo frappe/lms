@@ -6,7 +6,7 @@ export function initSocket() {
 	let host = window.location.hostname
 	let siteName = window.site_name || host
 	let port = window.location.port ? `:${socketioPort}` : ''
-	let protocol = port ? 'http' : 'https'
+	let protocol = window.location.protocol === 'https:' ? 'https' : 'http'
 	let url = `${protocol}://${host}${port}/${siteName}`
 
 	let socket = io(url, {

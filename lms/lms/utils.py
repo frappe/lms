@@ -2408,6 +2408,12 @@ def complete_enrollment(payment_name: str, doctype: str, docname: str):
 	# enrolling is the slower half of this transaction.
 	update_coupon_redemption(payment_doc)
 
+	# A callback can be retried, so the earning recorder is independently
+	# idempotent on payment + instructor.
+	from lms.lms.earnings import record_instructor_earnings
+
+	record_instructor_earnings(payment_name, frappe.flags.get("payment_bank_fee") or 0)
+
 
 def get_integration_requests(doctype: str, docname: str):
 	return frappe.get_all(

@@ -15,4 +15,6 @@ lms/www/lms.html
 lms/www/_lms.html
 frappe-ui
 frappe-semgrep-rules
+docker/.env
+docker/backups/
 cypress/screenshots/

@@ -1,0 +1,9 @@
+[Unit]
+Description=Check LMS public health
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+EnvironmentFile=-/opt/lms/docker/.env
+ExecStart=/opt/lms/docker/scripts/healthcheck.sh

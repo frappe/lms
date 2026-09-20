@@ -1,0 +1,25 @@
+{
+ "actions": [],
+ "autoname": "format:PAYOUT-{#####}",
+ "creation": "2026-09-20 17:20:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": ["instructor", "amount", "currency", "status", "requested_on", "processed_on", "bank_reference"],
+ "fields": [
+  {"fieldname":"instructor","fieldtype":"Link","label":"Instructor","options":"User","reqd":1,"in_list_view":1},
+  {"fieldname":"amount","fieldtype":"Currency","label":"Amount","options":"currency","reqd":1,"in_list_view":1},
+  {"fieldname":"currency","fieldtype":"Link","label":"Currency","options":"Currency","reqd":1},
+  {"default":"Requested","fieldname":"status","fieldtype":"Select","label":"Status","options":"Requested\nPaid\nRejected","reqd":1,"in_list_view":1},
+  {"fieldname":"requested_on","fieldtype":"Datetime","label":"Requested On","reqd":1},
+  {"fieldname":"processed_on","fieldtype":"Datetime","label":"Processed On"},
+  {"fieldname":"bank_reference","fieldtype":"Data","label":"Bank Reference"}
+ ],
+ "modified": "2026-09-20 17:20:00.000000",
+ "modified_by": "Administrator",
+ "module": "LMS",
+ "name": "LMS Instructor Payout",
+ "owner": "Administrator",
+ "permissions": [{"role":"System Manager","read":1,"write":1,"create":1,"delete":1,"report":1,"export":1}],
+ "sort_field": "creation",
+ "sort_order": "DESC"
+}

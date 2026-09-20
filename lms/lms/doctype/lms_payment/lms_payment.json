@@ -30,6 +30,8 @@
   "address",
   "payment_id",
   "order_id",
+  "payment_gateway_name",
+  "gateway_secret_hash",
   "column_break_monu",
   "gstin",
   "pan"
@@ -44,6 +46,19 @@
    "fieldname": "payment_id",
    "fieldtype": "Data",
    "label": "Payment ID"
+  },
+  {
+   "fieldname": "payment_gateway_name",
+   "fieldtype": "Data",
+   "label": "Payment Gateway",
+   "read_only": 1
+  },
+  {
+   "fieldname": "gateway_secret_hash",
+   "fieldtype": "Password",
+   "hidden": 1,
+   "label": "Gateway Secret Hash",
+   "read_only": 1
   },
   {
    "fieldname": "amount",
@@ -203,7 +218,7 @@
    "link_fieldname": "payment"
   }
  ],
- "modified": "2026-07-28 12:30:00.000000",
+ "modified": "2026-09-20 17:10:00.000000",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Payment",

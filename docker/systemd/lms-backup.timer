@@ -1,0 +1,10 @@
+[Unit]
+Description=Run LMS backup every day
+
+[Timer]
+OnCalendar=*-*-* 02:30:00
+Persistent=true
+RandomizedDelaySec=15m
+
+[Install]
+WantedBy=timers.target

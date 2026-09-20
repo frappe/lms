@@ -37,11 +37,11 @@ const FIELD_META = {
 
 const SUMMARY = {
 	title: 'Batch',
-	original_amount_formatted: '₹ 2,000',
-	gst_amount_formatted: '₹ 360',
-	total_amount_formatted: '₹ 2,360',
-	total_amount: 2360,
-	gst_applied: 360,
+	original_amount_formatted: '₹ 0',
+	gst_amount_formatted: '₹ 0',
+	total_amount_formatted: '₹ 0',
+	total_amount: 0,
+	gst_applied: 0,
 }
 
 type ResourceParams = { address: BillingAddress } & Record<string, unknown>
@@ -164,6 +164,12 @@ vi.mock('@/components/Controls/Link.vue', () => ({
 	},
 }))
 vi.mock('@/utils/basePath', () => ({ getLmsRoute: (r: string) => `/lms/${r}` }))
+vi.mock('@/utils/cisCountries', () => ({
+	CIS_COUNTRY_OPTIONS: [
+		{ label: 'Kazakhstan', value: 'Kazakhstan' },
+		{ label: 'Kyrgyzstan', value: 'Kyrgyzstan' },
+	],
+}))
 
 vi.stubGlobal('__', (s: string) => s)
 
@@ -204,7 +210,11 @@ const consent = async (wrapper: VueWrapper) => {
 const proceed = async (wrapper: VueWrapper) => {
 	const button = wrapper
 		.findAll('button')
-		.find((b) => b.text().includes('Proceed to Payment'))
+		.find((b) =>
+			['Proceed to Payment', 'Enroll for Free'].some((label) =>
+				b.text().includes(label)
+			)
+		)
 	if (!button) throw new Error('checkout button not rendered')
 	await button.trigger('click')
 	await flushPromises()

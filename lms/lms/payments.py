@@ -53,6 +53,7 @@ def get_payment_link(
 	payment_for_certificate: int,
 	coupon_code: str | None = None,
 	country: str | None = None,
+	payment_method: str | None = None,
 ):
 	payment_gateway = get_payment_gateway()
 	address = frappe._dict(address)
@@ -80,7 +81,10 @@ def get_payment_link(
 	# Resolve the controller before writing anything: get_controller validates the
 	# gateway and fails with an actionable message, so a misconfigured gateway
 	# doesn't leave an orphan Address / LMS Payment row behind.
-	controller = get_controller(payment_gateway) if total_amount > 0 else None
+	from lms.lms import halyk
+
+	use_halyk = total_amount > 0 and halyk.is_enabled()
+	controller = get_controller(payment_gateway) if total_amount > 0 and not use_halyk else None
 
 	payment = record_payment(
 		address,
@@ -100,6 +104,18 @@ def get_payment_link(
 		frappe.db.set_value("LMS Payment", payment.name, "payment_received", 1)
 		complete_enrollment(payment.name, doctype, docname)
 		return redirect_to
+
+	if use_halyk:
+		if payment_method not in (None, "card"):
+			frappe.throw(_("This payment method is not available in the Halyk test environment."))
+		return halyk.create_checkout(
+			payment,
+			total_amount,
+			currency,
+			title,
+			redirect_to,
+			address,
+		)
 
 	payment_details = {
 		"amount": total_amount,

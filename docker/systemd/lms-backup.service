@@ -1,0 +1,9 @@
+[Unit]
+Description=Backup LMS database and files
+Requires=docker.service
+After=docker.service
+
+[Service]
+Type=oneshot
+EnvironmentFile=-/opt/lms/docker/.env
+ExecStart=/opt/lms/docker/scripts/backup.sh

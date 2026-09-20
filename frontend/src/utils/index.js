@@ -569,6 +569,15 @@ const getSidebarItems = (forMobile = false) => {
 					activeFor: ['Statistics'],
 				},
 				{
+					label: 'Earnings',
+					icon: 'WalletCards',
+					to: 'Earnings',
+					activeFor: ['Earnings'],
+					condition: () => {
+						return !forMobile && isAdmin()
+					},
+				},
+				{
 					label: 'Contact Us',
 					icon: settings.data?.contact_us_url ? 'Headset' : 'Mail',
 					to: settings.data?.contact_us_url

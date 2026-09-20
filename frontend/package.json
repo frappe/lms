@@ -6,7 +6,7 @@
 	"scripts": {
 		"dev": "vite",
 		"serve": "vite preview",
-		"build": "vite build --base=/assets/lms/frontend/ && npm run copy-html-entry",
+		"build": "NODE_OPTIONS=--max-old-space-size=4096 vite build --base=/assets/lms/frontend/ && npm run copy-html-entry",
 		"copy-html-entry": "cp ../lms/public/frontend/index.html ../lms/www/_lms.html",
 		"test": "vitest run",
 		"test:watch": "vitest"
