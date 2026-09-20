@@ -749,24 +749,37 @@ def base_name(path):
 	return path.split("/")[-1]
 
 
-def existing_asset_names(asset_names):
-	"""Which of these file names the site already has, in one query.
+def asset_file_url(asset_name, is_private):
+	"""Where frappe will serve this asset, which is the URL the content cites."""
+	# frappe applies the same rewrite in save_file_on_filesystem. Not imported from
+	# there, because get_safe_file_name only exists on develop and this backports.
+	safe_name = re.sub(r"[/\\%?#]", "_", asset_name)
+	return ("/private/files/" if is_private else "/files/") + safe_name
 
-	Query builder rather than get_all: get_all would scope File by the caller's own
-	read permission and report a taken name as free.
+
+def existing_asset_urls(file_urls):
+	"""Which of these URLs the site already serves, in one locking query.
+
+	Locking because the answer decides whether to insert, and under REPEATABLE READ
+	a plain read cannot see a row a concurrent import has already committed.
+	`file_url` is indexed; `file_name` is not, and would lock every row scanned.
+	Query builder rather than get_all, which would scope File by the caller's own
+	read permission and report a taken URL as free.
 	"""
-	if not asset_names:
+	if not file_urls:
 		return set()
 
 	File = frappe.qb.DocType("File")
-	query = frappe.qb.from_(File).select(File.file_name).where(File.file_name.isin(list(asset_names)))
+	query = (
+		frappe.qb.from_(File).select(File.file_url).where(File.file_url.isin(list(file_urls))).for_update()
+	)
 	return set(query.run(pluck=True))
 
 
-def create_asset_doc(asset_name, content, is_private=1, existing=None):
-	if existing is None:
-		existing = existing_asset_names([asset_name])
-	if asset_name in existing:
+def create_asset_doc(asset_name, content, is_private, existing):
+	"""Create the File the content cites, unless the site already serves that URL."""
+	file_url = asset_file_url(asset_name, is_private)
+	if file_url in existing:
 		return
 	asset_doc = frappe.new_doc("File")
 	asset_doc.file_name = asset_name
@@ -823,12 +836,16 @@ def get_asset_privacy(zip_file):
 	return privacy
 
 
-def process_asset_file(zip_file, file, privacy=None, existing=None):
+def asset_is_private(privacy, asset_name):
+	return privacy.get(asset_name, 1)
+
+
+def process_asset_file(zip_file, file, privacy, existing):
 	if not is_safe_zip_member(file):
 		return
 	asset_name = base_name(file)
 	with zip_file.open(file) as f:
-		create_asset_doc(asset_name, f.read(), (privacy or {}).get(asset_name, 1), existing)
+		create_asset_doc(asset_name, f.read(), asset_is_private(privacy, asset_name), existing)
 
 
 def validate_assets(members):
@@ -876,12 +893,21 @@ def create_assets(zip_file):
 	members = asset_members(zip_file)
 	validate_assets(members)
 	privacy = get_asset_privacy(zip_file)
-	existing = existing_asset_names({base_name(info.filename) for info in members})
+	asset_names = {base_name(info.filename) for info in members}
+	existing = existing_asset_urls(
+		{asset_file_url(name, asset_is_private(privacy, name)) for name in asset_names}
+	)
 	for info in members:
 		try:
 			process_asset_file(zip_file, info.filename, privacy, existing)
-		except Exception as e:
-			frappe.log_error(f"Error processing asset {info.filename}: {e}")
+		except Exception:
+			# One bad asset must not abort the import. The title stays constant because
+			# the member name is attacker-supplied and Error Log stores it in a Data
+			# field. No with_context, because the locals hold the asset bytes.
+			frappe.log_error(
+				title="Course import: asset skipped",
+				message=f"{info.filename}\n\n{frappe.get_traceback()}",
+			)
 
 
 def get_lesson_title(zip_file, lesson_name):

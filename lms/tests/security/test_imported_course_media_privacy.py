@@ -24,6 +24,8 @@ import frappe
 
 from lms.lms.course_import_export import (
 	MAX_IMPORTED_ASSET_BYTES,
+	asset_file_url,
+	existing_asset_urls,
 	import_course_zip,
 	is_safe_zip_member,
 	validate_assets,
@@ -52,11 +54,12 @@ class TestImportedCourseMediaPrivacy(BaseTestUtils):
 		cls.listed_author = cls._create_user(
 			f"mp-author-{hash}@example.com", "Au", "Thor", ["Course Creator"]
 		).name
+		cls.private_asset = f"secret-{hash}.png"
+		cls.public_asset = f"banner-{hash}.png"
 
 	def _build_zip(self):
 		"""A course whose lesson embeds one private and one public asset."""
-		private_asset = f"secret-{self.hash}.png"
-		public_asset = f"banner-{self.hash}.png"
+		private_asset, public_asset = self.private_asset, self.public_asset
 		content = json.dumps(
 			{
 				"blocks": [
@@ -166,12 +169,31 @@ class TestImportedCourseMediaPrivacy(BaseTestUtils):
 
 		with patch.object(
 			course_import_export,
-			"existing_asset_names",
-			wraps=course_import_export.existing_asset_names,
+			"existing_asset_urls",
+			wraps=course_import_export.existing_asset_urls,
 		) as probe:
 			self._import()
 
 		self.assertEqual(probe.call_count, 1)
+
+	def test_a_public_file_of_that_name_does_not_block_the_private_asset(self):
+		"""Regression from frappe/lms#2768's own privacy change, caught reviewing that
+		PR. Private and public are two directories. A site already holding a public
+		secret.png made the name-keyed check skip the imported private one, leaving
+		the lesson citing /private/files/secret.png, which nothing serves."""
+		squatter = frappe.new_doc("File")
+		squatter.file_name = self.private_asset
+		squatter.content = ONE_PIXEL_PNG + b"squatter"
+		squatter.is_private = 0
+		squatter.insert()
+		self.assertEqual(squatter.file_url, f"/files/{self.private_asset}")
+
+		self._import()
+
+		self.assertTrue(
+			frappe.db.exists("File", {"file_url": f"/private/files/{self.private_asset}"}),
+			"the public file of that name swallowed the private asset",
+		)
 
 	def test_two_archive_paths_sharing_a_file_name_create_one_asset(self):
 		"""Greptile P1 on frappe/lms#2768. assets/a/x.png and assets/b/x.png reduce to
@@ -233,6 +255,34 @@ class TestImportedCourseMediaPrivacy(BaseTestUtils):
 		rows = frappe.get_all("File", filters={"file_name": name}, fields=["name", "file_size"], limit=2)
 		self.assertEqual(len(rows), 1, f"expected the valid member alone, got {rows}")
 		self.assertEqual(rows[0].file_size, len(valid_bytes))
+
+	def test_the_existence_check_is_a_locking_read_on_the_url(self):
+		"""Greptile P1 on frappe/lms#2768: check-then-insert with no lock, so two
+		concurrent imports both read the URL as free and both create the asset.
+
+		Asserted on the SQL because this runner holds one transaction for the whole
+		run, and a test that really took the lock would stall every later File insert
+		in its range. Verified by hand against a second connection instead.
+		"""
+		with patch.object(frappe.db, "sql", return_value=[]) as spy:
+			existing_asset_urls({"/private/files/lock-probe.png"})
+
+		sql = str(spy.call_args[0][0]).lower()
+		self.assertIn("for update", sql)
+		self.assertIn("file_url", sql)
+		self.assertNotIn("file_name", sql)
+
+	def test_the_asset_url_is_the_one_the_lesson_cites(self):
+		"""The key existing_asset_urls matches on. Added reviewing frappe/lms#2768."""
+		for name, is_private, expected in (
+			("logo.png", 1, "/private/files/logo.png"),
+			("logo.png", 0, "/files/logo.png"),
+			# frappe rewrites these before deriving the URL; predicting the raw name
+			# would look for an asset at a URL the site never serves.
+			("a#b?c.png", 0, "/files/a_b_c.png"),
+		):
+			with self.subTest(name=name, is_private=is_private):
+				self.assertEqual(asset_file_url(name, is_private), expected)
 
 	def test_the_listed_instructor_is_still_carried_over(self):
 		course, _, _ = self._import()
