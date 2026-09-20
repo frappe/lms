@@ -18,7 +18,12 @@ from lms.lms.doctype.lms_enrollment.lms_enrollment import (
 	batched_enrollment_updates,
 	update_enrollment,
 )
-from lms.lms.permissions import INSTRUCTOR_FIELDS, can_access_lesson, get_locked_lessons
+from lms.lms.permissions import (
+	INSTRUCTOR_FIELDS,
+	can_access_lesson,
+	courses_authored_by,
+	get_locked_lessons,
+)
 from lms.lms.utils import (
 	get_course_progress,
 	get_editorjs_blocks,
@@ -207,6 +212,27 @@ def _resolve_lesson_references(file_url: str) -> list[tuple[str, bool]]:
 	return refs
 
 
+def _references_vouched_by_owner(references: list[tuple[str, bool]], owner: str) -> list[tuple[str, bool]]:
+	"""The references whose lesson the file's owner authors (a moderator authors every one).
+
+	Both sources are attacker-writable -- a url pasted into your own lesson body, or
+	File.attached_to_name -- so otherwise any author adopts another's private file."""
+	lesson_course = {
+		row.name: row.course
+		for row in frappe.db.get_all(
+			"Course Lesson",
+			filters={"name": ("in", list({lesson for lesson, _ in references}))},
+			fields=["name", "course"],
+		)
+	}
+	vouching = courses_authored_by(owner, lesson_course.values())
+	return [
+		(lesson, instructor_only)
+		for lesson, instructor_only in references
+		if lesson_course.get(lesson) in vouching
+	]
+
+
 # One flat ceiling, deliberately. A per-audience limit does not work here:
 # rate_limit's bucket is keyed on the endpoint and the IP alone, so Guest and
 # signed-in traffic from one address share a single counter and a lower guest
@@ -242,7 +268,9 @@ def serve_resource(file_url: str):
 	if ".." in file_url:
 		frappe.throw(_("Invalid file path"))
 
-	file_row = frappe.db.get_value("File", {"file_url": file_url, "is_private": 1}, "file_name", as_dict=True)
+	file_row = frappe.db.get_value(
+		"File", {"file_url": file_url, "is_private": 1}, ["file_name", "owner"], as_dict=True
+	)
 	if not file_row:
 		_deny(file_url, "no matching private file")
 		raise frappe.PermissionError
@@ -252,7 +280,12 @@ def serve_resource(file_url: str):
 		_deny(file_url, "file not referenced by any lesson")
 		raise frappe.PermissionError
 
-	# Serve if the caller may reach the bytes through ANY referencing lesson.
+	references = _references_vouched_by_owner(references, file_row.owner)
+	if not references:
+		_deny(file_url, "no referencing lesson belongs to a course the file owner authors")
+		raise frappe.PermissionError
+
+	# Serve if the caller may reach the bytes through ANY vouched-for referencing lesson.
 	if not any(
 		can_access_lesson(lesson, instructor_only=instructor_only) for lesson, instructor_only in references
 	):

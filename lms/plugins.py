@@ -118,6 +118,7 @@ def quiz_renderer(quiz_name):
 		QUESTION_OPTION_FIELDS,
 		QUESTION_POSSIBILITY_FIELDS,
 	)
+	from lms.lms.utils import can_view_quiz_answers
 
 	quiz.questions = []
 	fields = [
@@ -127,9 +128,10 @@ def quiz_renderer(quiz_name):
 		"multiple",
 		*QUESTION_OPTION_FIELDS,
 		*QUESTION_CORRECTNESS_FIELDS,
-		*QUESTION_EXPLANATION_FIELDS,
 		*QUESTION_POSSIBILITY_FIELDS,
 	]
+	if can_view_quiz_answers(quiz_name, quiz.show_answers):
+		fields += QUESTION_EXPLANATION_FIELDS
 
 	questions = frappe.get_all(
 		"LMS Quiz Question",
