@@ -1059,6 +1059,40 @@ def guest_access_allowed():
 	return True
 
 
+SELF_SCOPED_FILTERS = ("created", "enrolled")
+
+
+def can_list_unpublished(user: str = None) -> bool:
+	"""Whether a caller may see draft rows in a list that is not self-scoped."""
+	user = user or frappe.session.user
+	if user == "Guest":
+		return False
+	return bool(has_moderator_role(user)) or "System Manager" in frappe.get_roles(user)
+
+
+def is_self_scoped(filters: dict) -> bool:
+	"""True when the list is already narrowed to rows that belong to the caller.
+
+	`created` and `enrolled` are resolved into a `name in (...)` over the caller's
+	own courses / enrolments, so a draft reached through them is one the caller
+	authored or is already inside.
+	"""
+	return any(filters.get(key) for key in SELF_SCOPED_FILTERS)
+
+
+def restrict_to_published(filters: dict, self_scoped: bool) -> None:
+	"""Pin `published` for callers not entitled to drafts, in place.
+
+	The course and batch lists are whitelisted with allow_guest and hand
+	caller-supplied filters straight to the query, so `{"published": 0}` used to
+	return every unpublished row to anyone who asked. The caller's value is
+	overwritten, not defaulted: it is the value being abused.
+	"""
+	if self_scoped or can_list_unpublished():
+		return
+	filters["published"] = 1
+
+
 DEFAULT_PAGE_LENGTH = 24
 MAX_PAGE_LENGTH = 120
 
@@ -1086,7 +1120,9 @@ def get_courses(filters: dict = None, start: int = 0, limit_page_length: int | s
 	if not filters:
 		filters = {}
 
+	self_scoped = is_self_scoped(filters)
 	filters, or_filters, show_featured = update_course_filters(filters)
+	restrict_to_published(filters, self_scoped)
 	fields = get_course_fields()
 	page_length = resolve_page_length(limit_page_length)
 	start = cint(start)
@@ -1138,7 +1174,9 @@ def get_course_count(filters: dict = None) -> int:
 	if not filters:
 		filters = {}
 
+	self_scoped = is_self_scoped(filters)
 	filters, or_filters, show_featured = update_course_filters(filters)
+	restrict_to_published(filters, self_scoped)
 	total = count_matching("LMS Course", filters, or_filters)
 	if show_featured:
 		# `update_course_filters` narrowed the query to featured=0 for the live
@@ -1416,7 +1454,13 @@ def get_categorized_courses(courses: list) -> dict:
 def get_course_outline(course: str, progress: bool = False) -> list:
 	"""Returns the course outline."""
 
+	if not isinstance(course, str):
+		frappe.throw(_("Course must be a string."))
+
 	if not guest_access_allowed():
+		return []
+
+	if not can_view_course(course):
 		return []
 
 	chapters = get_outline_chapter(course)
@@ -1432,6 +1476,24 @@ def get_course_outline(course: str, progress: bool = False) -> list:
 	enforce = enforces_lesson_completion(course) if progress else False
 
 	return build_outline(chapters, lesson_rows, files_by_name, completed, progress, enforce)
+
+
+def can_view_course(course: str) -> bool:
+	"""Whether the caller may read an individual course's structure.
+
+	A published course is public. A draft is readable by a moderator, by its own
+	instructors, and by a member already enrolled in it: unpublishing a course
+	must not lock out the people who were already inside, which is the stance
+	`resolve_lesson_access` takes for lessons.
+	"""
+	published = frappe.db.get_value("LMS Course", course, "published")
+	if published is None:
+		return False
+	if published:
+		return True
+	if frappe.session.user == "Guest":
+		return False
+	return bool(can_modify_course(course) or get_membership(course))
 
 
 def get_outline_chapter(course: str) -> list:
@@ -1953,6 +2015,26 @@ def get_country_code():
 	return
 
 
+def can_view_quiz_answers(quiz: str, show_answers=None) -> bool:
+	"""Whether the caller is entitled to a quiz's answer-key material.
+
+	An explanation is written per option and authors normally write one only on
+	the correct option, so shipping explanations with the question ships the
+	answer. They go out to privileged users, to a learner who has already
+	submitted (the attempt is spent), and for a quiz that reveals answers as the
+	learner goes: `Quiz.vue` renders the explanation out of this same payload
+	right after `check_answer` and never refetches, so withholding them there
+	would silently kill the feedback the setting exists for.
+	"""
+	if PRIVILEGED_ROLES & set(frappe.get_roles()):
+		return True
+
+	if show_answers:
+		return True
+
+	return bool(frappe.db.exists("LMS Quiz Submission", {"quiz": quiz, "member": frappe.session.user}))
+
+
 @frappe.whitelist()
 def get_quiz_with_questions(quiz: str) -> dict:
 	"""Return the quiz doc plus every question's details in a single round trip.
@@ -2000,8 +2082,9 @@ def get_quiz_with_questions(quiz: str) -> dict:
 				"type",
 				"multiple",
 				*QUESTION_OPTION_FIELDS,
-				*QUESTION_EXPLANATION_FIELDS,
 			]
+			if can_view_quiz_answers(quiz, quiz_doc.get("show_answers")):
+				fields += QUESTION_EXPLANATION_FIELDS
 			# nosemgrep: lms-unjustified-ignore-permissions - access gated by can_access_quiz above
 			rows = frappe.get_all(
 				"LMS Question",
@@ -3087,7 +3170,9 @@ def get_batches(
 	if not filters:
 		filters = {}
 
+	self_scoped = is_self_scoped(filters)
 	update_batch_filters(filters)
+	restrict_to_published(filters, self_scoped)
 
 	batches = frappe.get_all(
 		"LMS Batch",
@@ -3148,7 +3233,9 @@ def get_batch_count(filters: dict = None) -> int:
 	if not filters:
 		filters = {}
 
+	self_scoped = is_self_scoped(filters)
 	update_batch_filters(filters)
+	restrict_to_published(filters, self_scoped)
 	total = count_matching("LMS Batch", filters)
 
 	batch_type = get_batch_type(filters)

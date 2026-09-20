@@ -77,6 +77,27 @@ def can_access_lesson(lesson: str, *, instructor_only: bool = False, user: str |
 	return is_instructor if instructor_only else can_access
 
 
+def courses_authored_by(user: str, courses) -> set[str]:
+	"""The subset of `courses` that `user` may author (a moderator authors every one).
+
+	can_modify_course only answers for frappe.session.user; this judges a third party --
+	a file's owner -- from the tables, for a whole set in one query."""
+	courses = {course for course in courses or [] if course}
+	if not courses or not user:
+		return set()
+
+	if user == "Administrator" or has_moderator_role(user):
+		return courses
+
+	return set(
+		frappe.db.get_all(
+			"Course Instructor",
+			filters={"instructor": user, "parent": ("in", list(courses)), "parenttype": "LMS Course"},
+			pluck="parent",
+		)
+	)
+
+
 def can_access_quiz(quiz: str, *, user: str | None = None) -> bool:
 	"""Single source of truth for who may read a quiz's questions/answers.
 

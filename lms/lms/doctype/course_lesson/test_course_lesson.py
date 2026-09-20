@@ -441,3 +441,150 @@ class TestLessonContentSurvivesSave(BaseTestUtils):
 		saved = self._saved_text('<a href="https://frappe.io/">here</a>', "Lesson link")
 		self.assertIn('href="https://frappe.io/"', saved)
 		self.assertIn('rel="noopener noreferrer"', saved)
+
+
+class TestServeResourceFileOwnership(BaseTestUtils):
+	"""Ticket 73894 finding E05. A lesson only vouches for a private file if the
+	file's OWNER authors that lesson's course.
+
+	Without that rule serve_resource served any private file the caller could *name*
+	from a lesson they control: paste the url into a lesson you author, or repoint the
+	File's attached_to_name at it, and the can_access_lesson gate then passes on your
+	own lesson (ticket 73894, finding E05).
+	"""
+
+	SERVED = "authz-passed"
+	DENIED = "permission-error"
+
+	def setUp(self):
+		super().setUp()
+		suffix = frappe.generate_hash(length=6)
+
+		self.author = self._creator(f"lesson-file-owner-{suffix}@example.com", "Owner", "A")
+		self.attacker = self._creator(f"lesson-file-attacker-{suffix}@example.com", "Attacker", "B")
+		self.outsider = self._creator(f"lesson-file-outsider-{suffix}@example.com", "Outsider", "C")
+		self.student = self._create_user(
+			f"lesson-file-student-{suffix}@example.com", "Enrolled", "Student", ["LMS Student"]
+		).name
+
+		self.course_a, self.lesson_a = self._course_with_lesson(f"Owner A {suffix}", self.author)
+		self.course_b, self.lesson_b = self._course_with_lesson(f"Attacker B {suffix}", self.attacker)
+		self._create_enrollment(self.student, self.course_a)
+
+		self.file_url = self._private_file(owner=self.author, lesson=self.lesson_a)
+		self._embed(self.lesson_a, self.file_url)
+
+	def _creator(self, email, first_name, last_name):
+		return self._create_user(email, first_name, last_name, ["Course Creator"]).name
+
+	def _course_with_lesson(self, label, instructor):
+		course = self._create_course(title=f"{label} Course", instructor=instructor).name
+		chapter = self._create_chapter(f"{label} Chapter", course).name
+		return course, self._create_lesson(f"{label} Lesson", chapter, course).name
+
+	def _private_file(self, owner, lesson):
+		"""A private File carrying real bytes, owned by `owner` and attached to `lesson`."""
+		frappe.set_user(owner)
+		try:
+			# Fixture setup, not the thing under test: this site's Course Creator
+			# DocPerm on Course Lesson is if_owner.
+			# nosemgrep: lms-unjustified-ignore-permissions
+			file = frappe.get_doc(
+				{
+					"doctype": "File",
+					"file_name": f"secret-{frappe.generate_hash(length=8)}.txt",
+					"is_private": 1,
+					"content": "owner-only bytes",
+					"attached_to_doctype": "Course Lesson",
+					"attached_to_name": lesson,
+					"attached_to_field": "content",
+				}
+			).insert(ignore_permissions=True)
+		finally:
+			frappe.set_user("Administrator")
+
+		self.assertEqual(file.owner, owner)
+		# The transaction rollback does not unlink what was written to disk.
+		self.addCleanup(self._unlink, file.get_full_path())
+		return file.file_url
+
+	@staticmethod
+	def _unlink(path):
+		import os
+
+		if os.path.exists(path):
+			os.remove(path)
+
+	def _embed(self, lesson, url):
+		"""Put the url in the lesson body, bypassing the form (fixture setup, not the
+		thing under test — on this site a Course Creator's DocPerm is if_owner)."""
+		content = _content({"type": "paragraph", "data": {"text": f'<img src="{url}">'}})
+		frappe.db.set_value("Course Lesson", lesson, "content", content, update_modified=False)
+
+	def _serve_as(self, user):
+		"""Run the endpoint in `user`'s own session and classify the outcome.
+
+		There is no request in a test runner, so a call that PASSES authorization dies
+		inside send_private_file with ``AttributeError: request``. Only
+		frappe.PermissionError is a denial.
+		"""
+		from lms.lms.doctype.course_lesson.course_lesson import serve_resource
+
+		frappe.set_user(user)
+		try:
+			serve_resource(self.file_url)
+			return self.SERVED
+		except frappe.PermissionError:
+			return self.DENIED
+		except AttributeError as e:
+			if "request" not in str(e):
+				raise
+			return self.SERVED
+		finally:
+			frappe.set_user("Administrator")
+
+	# --- the attacks ---------------------------------------------------------
+
+	def test_embedding_the_url_in_your_own_lesson_does_not_grant_access(self):
+		self._embed(self.lesson_b, self.file_url)
+		self.assertEqual(self._serve_as(self.attacker), self.DENIED)
+
+	def test_repointing_the_attachment_at_your_own_lesson_does_not_grant_access(self):
+		frappe.db.set_value("File", {"file_url": self.file_url}, "attached_to_name", self.lesson_b)
+		self.assertEqual(self._serve_as(self.attacker), self.DENIED)
+
+	def test_an_unrelated_course_creator_is_denied(self):
+		self.assertEqual(self._serve_as(self.outsider), self.DENIED)
+
+	# --- what must keep working ----------------------------------------------
+
+	def test_the_author_still_gets_their_own_file(self):
+		self.assertEqual(self._serve_as(self.author), self.SERVED)
+
+	def test_an_enrolled_student_still_gets_the_lesson_media(self):
+		self.assertEqual(self._serve_as(self.student), self.SERVED)
+
+	def test_a_preview_guest_still_gets_the_lesson_media(self):
+		frappe.db.set_value("Course Lesson", self.lesson_a, "include_in_preview", 1, update_modified=False)
+		frappe.db.set_value("LMS Course", self.course_a, "published", 1, update_modified=False)
+		previous = frappe.db.get_single_value("LMS Settings", "allow_guest_access")
+		frappe.db.set_single_value("LMS Settings", "allow_guest_access", 1)
+		self.addCleanup(frappe.db.set_single_value, "LMS Settings", "allow_guest_access", previous)
+		self.addCleanup(frappe.clear_cache)
+
+		self.assertEqual(self._serve_as("Guest"), self.SERVED)
+
+	def test_a_file_owned_by_a_moderator_resolves_in_any_lesson(self):
+		"""A moderator may legitimately place a file in any course, so their file is
+		vouched for by every lesson that references it."""
+		moderator = self._create_user(
+			f"lesson-file-mod-{frappe.generate_hash(length=6)}@example.com",
+			"Mod",
+			"Erator",
+			["Moderator", "Course Creator"],
+		).name
+		self.file_url = self._private_file(owner=moderator, lesson=self.lesson_b)
+		self._embed(self.lesson_b, self.file_url)
+
+		self.assertEqual(self._serve_as(self.attacker), self.SERVED)
+		self.assertEqual(self._serve_as(self.outsider), self.DENIED)
