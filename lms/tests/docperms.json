@@ -28,19 +28,11 @@
 	"Course Evaluator": {
 		"Batch Evaluator#0": [
 			"read",
-			"write",
-			"create",
-			"delete",
-			"share",
 			"report",
 			"export"
 		],
 		"Course Creator#0": [
 			"read",
-			"write",
-			"create",
-			"delete",
-			"share",
 			"report",
 			"export"
 		],

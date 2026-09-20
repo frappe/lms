@@ -6,6 +6,7 @@
 import base64
 import re
 import unittest
+from functools import partial
 
 import frappe
 from frappe.exceptions import ValidationError
@@ -99,7 +100,7 @@ class TestLMSQuiz(unittest.TestCase):
 
 class TestQuizAnswerImageUpload(unittest.TestCase):
 	"""Open-ended quiz answers may embed inline images as data: URIs that get
-	written to the public /files/ directory. Only image types are allowed: an
+	written to the private files directory. Only image types are allowed: an
 	active-document extension (.xhtml, .js, ...) would be served inline and
 	enable stored XSS on the LMS origin.
 	"""
@@ -107,7 +108,8 @@ class TestQuizAnswerImageUpload(unittest.TestCase):
 	def save_answer_image(self, mime_type, filename, content=b"image-bytes"):
 		encoded = base64.b64encode(content).decode()
 		answer = f'<img src="data:{mime_type};filename={filename},{encoded}">'
-		return re.sub(IMAGE_DATA_URI_PATTERN, _save_file, answer)
+		self.created_files = []
+		return re.sub(IMAGE_DATA_URI_PATTERN, partial(_save_file, self.created_files), answer)
 
 	def test_rejects_active_document_extension(self):
 		with self.assertRaises(ValidationError):
@@ -123,7 +125,10 @@ class TestQuizAnswerImageUpload(unittest.TestCase):
 
 	def test_accepts_genuine_image(self):
 		rendered = self.save_answer_image("image/png", "answer.png", ONE_PIXEL_PNG)
-		self.assertIn("/files/", rendered)
+		# "/private/files/" and not "/files/": the latter is a substring of the former,
+		# so the loose assertion passed either way and pinned nothing.
+		self.assertIn("/private/files/", rendered)
+		self.assertEqual(len(self.created_files), 1)
 
 	def tearDown(self):
 		for name in frappe.get_all("File", {"file_name": "answer.png"}, pluck="name"):
