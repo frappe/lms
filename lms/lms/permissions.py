@@ -30,11 +30,23 @@ INSTRUCTOR_FIELDS = {"instructor_content", "instructor_notes"}
 # moves authority or hands out a whole row.
 COURSE_READ_PTYPES = ("read", "select", "print")
 
+# Rows that belong to one learner and to the authors of one course. The value is the
+# field naming the learner. LMS Course Review has no member field; its controller keys
+# enrollment and uniqueness on `owner`, so the rule does too.
+COURSE_RECORD_MEMBER_FIELDS = {
+	"LMS Course Progress": "member",
+	"LMS Video Watch Duration": "member",
+	"LMS Course Review": "owner",
+}
+
 
 def can_author_course(course: str, *, user: str | None = None) -> bool:
-	"""``can_modify_course`` for an explicit user: a Moderator, or a Course Instructor row."""
+	"""``can_modify_course`` for an explicit user: a site administrator, a Moderator, or a
+	Course Instructor row."""
 	if not isinstance(course, str) or not course:
 		return False
+	if is_site_administrator(user):
+		return True
 
 	original_user = frappe.session.user
 	try:
@@ -91,7 +103,7 @@ def course_query_conditions(user=None) -> str:
 
 def _course_read_condition(user=None):
 	user = user or frappe.session.user
-	if user == "Administrator" or "Moderator" in frappe.get_roles(user):
+	if is_site_administrator(user) or "Moderator" in frappe.get_roles(user):
 		return None
 
 	course = frappe.qb.DocType("LMS Course")
@@ -151,6 +163,80 @@ def chapter_query_conditions(user=None) -> str:
 	course = frappe.qb.DocType("LMS Course")
 	readable = frappe.qb.from_(course).select(course.name).where(condition)
 	return _render(chapter.course.isin(readable))
+
+
+def course_record_has_permission(doc, ptype="read", user=None) -> bool:
+	"""Single-document counterpart of :func:`course_record_query_conditions`: a
+	course progress, watch duration or review row belongs to its learner and to
+	the authors of its course."""
+	user = user or frappe.session.user
+	if _course_read_condition(user) is None:
+		# Administrator or Moderator: the query side does not narrow them either.
+		return True
+
+	member_field = COURSE_RECORD_MEMBER_FIELDS.get(doc.doctype)
+	# A saved row is judged by its STORED values, or relabelling `member`/`course`
+	# in the same request would move it into the caller's reach.
+	stored = (
+		None
+		if doc.is_new()
+		else frappe.db.get_value(doc.doctype, doc.name, [member_field or "name", "course"], as_dict=True)
+	)
+	source = stored or doc
+	if member_field and source.get(member_field) == user and doc.get(member_field) == user:
+		# The learner's own row. DocPerm still decides whether they may write it.
+		return True
+
+	course = source.get("course") if stored else _course_of_new_record(doc)
+	if not course and doc.is_new():
+		# Let _validate_mandatory refuse it with a friendlier message.
+		return True
+
+	moved_to = doc.get("course") if stored and doc.get("course") != course else None
+	if course and all(can_author_course(c, user=user) for c in (course, moved_to) if c):
+		return True
+
+	frappe.logger("lms.security").warning(
+		"Course record denied: user=%s doctype=%s name=%s course=%s ptype=%s",
+		user,
+		doc.doctype,
+		doc.name,
+		course,
+		ptype,
+	)
+	return False
+
+
+def _course_of_new_record(doc) -> str | None:
+	if course := doc.get("course"):
+		return course
+	if lesson := doc.get("lesson"):
+		return frappe.db.get_value("Course Lesson", lesson, "course")
+	return None
+
+
+def course_record_query_conditions(user=None, doctype=None) -> str:
+	"""List-read counterpart of :func:`course_record_has_permission`, as SQL."""
+	member_field = COURSE_RECORD_MEMBER_FIELDS.get(doctype)
+	if not member_field:
+		# "" is the list engine's spelling of "no restriction", so a doctype this
+		# function does not gate has to refuse explicitly rather than by accident.
+		return "1 = 0"
+
+	user = user or frappe.session.user
+	if _course_read_condition(user) is None:
+		return ""
+
+	record = frappe.qb.DocType(doctype)
+	instructor = frappe.qb.DocType("Course Instructor")
+	member = LiteralValue(frappe.db.escape(user))
+	taught = (
+		frappe.qb.from_(instructor)
+		.select(instructor.parent)
+		.where((instructor.instructor == member) & (instructor.parenttype == "LMS Course"))
+	)
+	condition = Bracket((getattr(record, member_field) == member) | record.course.isin(taught))
+	return _render(condition)
 
 
 def resolve_lesson_access(lesson: str, *, user: str | None = None) -> tuple[bool, bool]:
