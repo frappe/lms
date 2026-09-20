@@ -189,10 +189,11 @@ const chapter = reactive<ChapterFields>({
 // fetch trigger is a non-immediate watch, would then render an empty chapter
 // list on a course that has chapters. Same rule as MemberForm.vue:158-162.
 //
-// The outline row, not the Course Chapter doc, is the right source: the outline
-// expands `scorm_package` into its File record (utils.py:1244-1245), and both
-// the SCORM summary here and the re-save need `file_name`/`file_size`/`name`
-// off it. A plain document fetch would return only the File's docname.
+// The outline row, not the Course Chapter doc, is the right source: build_outline
+// expands `scorm_package` into its File record, which the summary here and the re-save
+// both need. Since the field moved to permlevel 1 a document fetch would return nothing
+// to a role without that grant, and the outline answers off the same can_modify_course
+// predicate upsert_chapter refuses this form's save on.
 const outline = createResource({
 	url: 'lms.lms.utils.get_course_outline',
 	cache: ['chapter_form_outline', props.courseName],
