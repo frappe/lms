@@ -163,6 +163,12 @@ doc_events = {
 	"LMS Quiz Question": {"validate": CHILD_ROW_MOVE_GATE},
 	"LMS Test Case": {"validate": CHILD_ROW_MOVE_GATE},
 	"LMS Content Author": {"validate": CHILD_ROW_MOVE_GATE},
+	# LMS Program carries `authors` too -- composed into its own has_permission hook
+	# rather than registered on the shared gate -- so the same two doors reach its
+	# child tables.
+	"LMS Program": {"validate": CHILD_ROW_MOVE_GATE},
+	"LMS Program Course": {"validate": CHILD_ROW_MOVE_GATE},
+	"LMS Program Member": {"validate": CHILD_ROW_MOVE_GATE},
 	"User": {
 		"validate": "lms.lms.user.validate_username_duplicates",
 		"before_insert": "lms.lms.user.add_lms_student_role",
