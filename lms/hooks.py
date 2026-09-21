@@ -82,6 +82,7 @@ after_migrate = [
 	# added to `standard_sidebar_items` later never reaches a site that has
 	# already run the v2_0 patch -- which is what its own docstring promises.
 	"lms.lms.sidebar.seed_sidebar_items",
+	"lms.lms.docperm_shadow.warn_about_shadowed_permlevels",
 ]
 
 # Desk Notifications
