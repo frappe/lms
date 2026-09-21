@@ -139,6 +139,7 @@
 	display: flex !important;
 }
 
+/* token-exempt-start: highlight.js atom-one theme, own light/dark pair */
 .dark {
 	color: #abb2bf;
 	background-color: #282c34;
@@ -148,6 +149,7 @@
 	color: #383a42;
 	background-color: #fafafa;
 }
+/* token-exempt-end */
 
 .prose :where(pre):not(:where([class~='not-prose'], [class~='not-prose'] *)) {
 	overflow-x: unset;

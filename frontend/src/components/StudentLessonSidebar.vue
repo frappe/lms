@@ -109,7 +109,7 @@
 									</template>
 									<CircleCheck
 										v-else-if="withProgress && lesson.is_complete"
-										class="size-4 stroke-1.5 shrink-0 text-green-700 fill-none"
+										class="size-4 stroke-1.5 shrink-0 text-ink-green-8 fill-none"
 									/>
 									<Circle
 										v-else-if="withProgress"

@@ -11,7 +11,9 @@
 					: {
 							left: sidebarLeft,
 							width: '400px',
-							boxShadow: '8px 0px 8px rgba(0, 0, 0, 0.1)',
+							// A cast shadow is black alpha in either theme, the same way
+							// frappe-ui's own --elevation-* values are.
+							boxShadow: '8px 0px 8px rgba(0, 0, 0, 0.1)', // token-exempt: shadow
 					  }
 			"
 		>

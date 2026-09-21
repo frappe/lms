@@ -51,7 +51,7 @@
 						</span>
 						<span class="inline-flex items-start whitespace-nowrap">
 							<span>{{ __('Tap') }}&nbsp;</span>
-							<span class="lucide-share size-4 text-blue-600" />
+							<span class="lucide-share size-4 text-ink-blue-8" />
 							<span>&nbsp;{{ __("and then 'Add to Home Screen'") }}</span>
 						</span>
 					</span>

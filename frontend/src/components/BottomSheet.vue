@@ -3,7 +3,7 @@
 		<Transition name="sheet-backdrop">
 			<div
 				v-if="modelValue"
-				class="fixed inset-0 z-40 bg-black/40"
+				class="fixed inset-0 z-40 bg-black-overlay-200 dark:bg-black-overlay-700"
 				@click="close"
 			/>
 		</Transition>

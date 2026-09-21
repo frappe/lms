@@ -246,6 +246,7 @@ const tabs = computed(() => {
 })
 </script>
 <style>
+/* token-exempt-start: scrim on the video, not the page */
 .plyr__control--overlaid {
 	background: radial-gradient(
 		circle,
@@ -253,13 +254,14 @@ const tabs = computed(() => {
 		rgba(0, 0, 0, 0.5) 50%
 	);
 }
+/* token-exempt-end */
 
 .plyr__control:hover {
 	background: none;
 }
 
 .plyr--video {
-	border: 1px solid theme('colors.gray.200');
+	border: 1px solid var(--outline-gray-2);
 	border-radius: 8px;
 }
 

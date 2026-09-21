@@ -8,7 +8,7 @@
 				class="absolute start-1/2 mt-3 max-w-sm -translate-x-1/2 transform rounded-6 bg-surface-base px-4 sm:px-0 lg:max-w-3xl"
 			>
 				<div
-					class="overflow-hidden rounded-6 p-3 shadow-2xl ring-1 ring-black ring-opacity-5"
+					class="overflow-hidden rounded-6 p-3 shadow-2xl ring-1 ring-outline-gray-2"
 				>
 					<div class="flex items-center gap-x-2">
 						<div class="flex-1">

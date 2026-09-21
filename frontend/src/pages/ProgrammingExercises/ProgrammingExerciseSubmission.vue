@@ -444,7 +444,7 @@ usePageMeta(() => {
 </script>
 <style>
 .ProseMirror pre {
-	background: theme('colors.gray.200');
-	color: theme('colors.gray.900');
+	background: var(--surface-gray-3);
+	color: var(--ink-gray-9);
 }
 </style>

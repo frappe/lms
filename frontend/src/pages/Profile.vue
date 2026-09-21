@@ -50,11 +50,11 @@
 							v-if="profile.data.user_image"
 							:src="safeUrl(profile.data.user_image)"
 							:alt="profile.data.full_name"
-							class="object-cover h-[100px] w-[100px] rounded-full border-4 border-white object-cover"
+							class="object-cover h-[100px] w-[100px] rounded-full border-4 border-[color:var(--surface-base)] object-cover"
 						/>
 						<div
 							v-else
-							class="flex items-center justify-center h-[100px] w-[100px] rounded-full border-4 border-white bg-surface-gray-2 text-4xl-semibold text-ink-gray-7"
+							class="flex items-center justify-center h-[100px] w-[100px] rounded-full border-4 border-[color:var(--surface-base)] bg-surface-gray-2 text-4xl-semibold text-ink-gray-7"
 						>
 							{{ profile.data.full_name.charAt(0).toUpperCase() }}
 						</div>
