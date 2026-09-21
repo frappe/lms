@@ -265,7 +265,7 @@ export function getEditorTools(
 							'https://docs.google.com/presentation/d/<%= remote_id %>/embed',
 						html: `<iframe style='width: 100%; height: ${
 							window.innerWidth < 640 ? '15rem' : '30rem'
-						}; border: 1px solid #D3D3D3; border-radius: 12px; margin: 1rem 0' frameborder='0' allowfullscreen='true'></iframe>`,
+						}; border: 1px solid var(--outline-gray-2); border-radius: 12px; margin: 1rem 0' frameborder='0' allowfullscreen='true'></iframe>`,
 					},
 					drive: {
 						regex: /^https:\/\/drive\.google\.com\/file\/d\/([A-Za-z0-9_-]+)\/view(\?.+)?$/,
@@ -273,25 +273,25 @@ export function getEditorTools(
 							'https://drive.google.com/file/d/<%= remote_id %>/preview',
 						html: `<iframe style='width: 100%; height: ${
 							window.innerWidth < 640 ? '15rem' : '30rem'
-						}; border: 1px solid #D3D3D3; border-radius: 12px;' frameborder='0' allowfullscreen='true'></iframe>`,
+						}; border: 1px solid var(--outline-gray-2); border-radius: 12px;' frameborder='0' allowfullscreen='true'></iframe>`,
 					},
 					docsPublic: {
 						regex: /^https:\/\/docs\.google\.com\/document\/d\/([A-Za-z0-9_-]+)\/edit(\?.+)?$/,
 						embedUrl:
 							'https://docs.google.com/document/d/<%= remote_id %>/preview',
-						html: "<iframe style='width: 100%; height: 40rem; border: 1px solid #D3D3D3; border-radius: 12px;' frameborder='0' allowfullscreen='true'></iframe>",
+						html: "<iframe style='width: 100%; height: 40rem; border: 1px solid var(--outline-gray-2); border-radius: 12px;' frameborder='0' allowfullscreen='true'></iframe>",
 					},
 					sheetsPublic: {
 						regex: /^https:\/\/docs\.google\.com\/spreadsheets\/d\/([A-Za-z0-9_-]+)\/edit(\?.+)?$/,
 						embedUrl:
 							'https://docs.google.com/spreadsheets/d/<%= remote_id %>/preview',
-						html: "<iframe style='width: 100%; height: 40rem; border: 1px solid #D3D3D3; border-radius: 12px;' frameborder='0' allowfullscreen='true'></iframe>",
+						html: "<iframe style='width: 100%; height: 40rem; border: 1px solid var(--outline-gray-2); border-radius: 12px;' frameborder='0' allowfullscreen='true'></iframe>",
 					},
 					slidesPublic: {
 						regex: /^https:\/\/docs\.google\.com\/presentation\/d\/([A-Za-z0-9_-]+)\/edit(\?.+)?$/,
 						embedUrl:
 							'https://docs.google.com/presentation/d/<%= remote_id %>/embed',
-						html: "<iframe style='width: 100%; height: 30rem; border: 1px solid #D3D3D3; border-radius: 12px; margin: 1rem 0;' frameborder='0' allowfullscreen='true'></iframe>",
+						html: "<iframe style='width: 100%; height: 30rem; border: 1px solid var(--outline-gray-2); border-radius: 12px; margin: 1rem 0;' frameborder='0' allowfullscreen='true'></iframe>",
 					},
 					codesandbox: {
 						regex: /^https:\/\/codesandbox\.io\/(?:(?:p\/(?:sandbox|devbox)\/)|(?:embed\/)|(?:s\/))?([A-Za-z0-9_-]+)(?:[\/\?].*)?$/,

@@ -25,7 +25,7 @@
 					v-if="setupStatus !== 'ready'"
 					class="absolute bottom-0 inset-x-0 flex items-center justify-center gap-1.5 py-2 text-xs font-medium"
 					:class="{
-						'bg-black/50 text-white':
+						'bg-black-overlay-500 text-white':
 							setupStatus === 'loading' || setupStatus === 'detecting',
 						'bg-surface-red-2/90 text-ink-red-5':
 							setupStatus === 'no_face' || setupStatus === 'multiple_faces',
@@ -86,7 +86,7 @@
 							/>
 							<button
 								type="button"
-								class="absolute end-1.5 top-1.5 rounded-5 bg-black/50 p-1 text-white"
+								class="absolute end-1.5 top-1.5 rounded-5 bg-black-overlay-500 p-1 text-white"
 								:aria-label="__('Minimise camera')"
 								@click="minimized = true"
 							>

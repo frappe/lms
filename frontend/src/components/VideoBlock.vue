@@ -41,16 +41,7 @@
 				class="absolute inset-0 flex items-center justify-center cursor-pointer"
 				@click="playVideo"
 			>
-				<div
-					class="rounded-full p-4 ps-4.5"
-					style="
-						background: radial-gradient(
-							circle,
-							rgba(0, 0, 0, 0.3) 0%,
-							rgba(0, 0, 0, 0.4) 50%
-						);
-					"
-				>
+				<div class="video-play-scrim rounded-full p-4 ps-4.5">
 					<Play />
 				</div>
 			</button>
@@ -383,6 +374,8 @@ iframe {
 	min-height: 500px;
 }
 
+/* token-exempt-start: the transport sits on the video, which is its own dark
+   surface in either theme — the same reasoning as the play scrim below. */
 .duration-slider {
 	-webkit-appearance: none;
 	appearance: none;
@@ -411,4 +404,15 @@ iframe {
 		box-shadow: -500px 0 0 500px theme('colors.white');
 	}
 }
+/* token-exempt-end */
+
+/* token-exempt-start: scrim on the video still */
+.video-play-scrim {
+	background: radial-gradient(
+		circle,
+		rgba(0, 0, 0, 0.3) 0%,
+		rgba(0, 0, 0, 0.4) 50%
+	);
+}
+/* token-exempt-end */
 </style>
