@@ -24,7 +24,7 @@
 					v-else-if="isUploadedVideo && !videoError"
 					:src="safeUrl(preview.src)"
 					controls
-					class="size-full bg-black object-contain"
+					class="size-full bg-black-overlay-950 object-contain"
 					@error="videoError = true"
 				/>
 				<div
