@@ -823,39 +823,38 @@ def can_write_the_stored_parent(parenttype: str, parent: str) -> bool:
 	return frappe.has_permission(parenttype, "write", doc=parent)
 
 
-# The doctypes a lesson can embed. Anything else is not an assessment and is refused
-# outright rather than looked up, so a caller that hands this a doctype name cannot
-# turn the gate into a reader of arbitrary rows.
+# Doctypes an assessment placement can name; anything else is refused outright.
 ASSESSMENT_DOCTYPES = ("LMS Quiz", "LMS Assignment", "LMS Programming Exercise")
 
-# The two doctypes carrying a course stamp from before the placement table.
-# LMS Programming Exercise has no course field at all, which is why a course-scoped
-# rule for it was not expressible until LMS Lesson Assessment existed.
+# Doctypes carrying a pre-placement-table course stamp. LMS Programming Exercise
+# has no course field at all.
 LEGACY_STAMP_DOCTYPES = ("LMS Quiz", "LMS Assignment")
+
+# The empty-set spelling of "no assessment is administrable", for a subquery with
+# no table to select from.
+NO_ASSESSMENT_NAMES = "select null from dual where 1 = 0"
 
 
 def can_access_assessment(doctype: str, name: str, *, user: str | None = None) -> bool:
-	"""Who may read an assessment's questions and answers.
-
-	Granted to global moderators and the assessment's own author (so a newly created
-	one can still be edited before it is embedded anywhere), to course authors and
-	enrolled members of any course a lesson places it in, and to batch instructors,
-	tagged evaluators and enrolled members of any batch whose assessment list
-	references it.
-
-	Enrolled members are further gated by the sequential lesson lock, which is the one
-	branch :func:`_assessment_query_conditions` cannot express.
-	"""
-	return _assessment_answer(doctype, name, user)
+	"""Who may read an assessment: its author, a course that places it, or a batch
+	that runs it. Enrolled members are further gated by the sequential lesson lock,
+	which :func:`_assessment_query_conditions` cannot express."""
+	return _assessment_answer(doctype, name, user, include_members=True)
 
 
-def _assessment_answer(doctype: str, name: str, user: str | None) -> bool:
-	"""Moderator or owner, then a course that places it, then a batch that runs it."""
+def can_administer_assessment(doctype: str, name: str, *, user: str | None = None) -> bool:
+	"""``can_access_assessment`` with both enrolled-member branches removed.
+	Submissions compose on this one: every enrolled member is a member, so the wider
+	reading would hand a student every other student's work."""
+	return _assessment_answer(doctype, name, user, include_members=False)
+
+
+def _assessment_answer(doctype: str, name: str, user: str | None, *, include_members: bool) -> bool:
+	"""Site admin, moderator or content author, then a course that places it, then
+	a batch that runs it."""
 	if doctype not in ASSESSMENT_DOCTYPES or not isinstance(name, str) or not name:
 		return False
-
-	owner = frappe.db.get_value(doctype, name, "owner")
-	if not owner:
+	if not frappe.db.exists(doctype, name):
 		return False
 
 	original_user = frappe.session.user
@@ -863,122 +862,139 @@ def _assessment_answer(doctype: str, name: str, user: str | None) -> bool:
 	try:
 		# The can_modify_* / get_membership helpers read session.user.
 		frappe.session.user = user
-		if has_moderator_role(user) or owner == user:
+		if is_site_administrator(user) or has_moderator_role(user) or is_content_author(doctype, name, user):
 			return True
-		return _reaches_through_a_course(doctype, name, user) or _reaches_through_a_batch(
-			doctype, name, user
-		)
+		return _reaches_through_a_course(
+			doctype, name, user, include_members=include_members
+		) or _reaches_through_a_batch(doctype, name, user, include_members=include_members)
 	finally:
 		frappe.session.user = original_user
 
 
-def _reaches_through_a_course(doctype: str, name: str, user: str) -> bool:
-	"""Whether any course this assessment is placed in grants `user`."""
-	for course, lessons in _course_placements(doctype, name).items():
-		if can_modify_course(course):
-			return True
-		if _member_reaches_a_placement(course, lessons, user):
-			return True
-
-	return any(can_modify_course(course) for course in _author_only_courses(doctype, name))
-
-
-def _member_reaches_a_placement(course: str, lessons: set, user: str) -> bool:
-	"""An enrolled member reaches it through a lesson the sequential gate leaves open."""
-	if not get_membership(course, user):
+def _reaches_through_a_course(doctype: str, name: str, user: str, *, include_members: bool) -> bool:
+	"""Whether any course this assessment is placed in grants `user`: one query for
+	every candidate course's Course Instructor row, not one per course."""
+	placements = _course_placements(doctype, name)
+	courses = set(placements) | _author_only_courses(doctype, name)
+	if not courses:
 		return False
+
+	instructor = frappe.qb.DocType("Course Instructor")
+	if _taught("LMS Course", user).where(instructor.parent.isin(courses)).run(pluck=True):
+		return True
+	if not include_members:
+		return False
+
+	enrolled = _enrolled_in(set(placements), user)
+	return any(
+		_member_reaches_a_placement(course, lessons)
+		for course, lessons in placements.items()
+		if course in enrolled
+	)
+
+
+def _enrolled_in(courses: set, user: str) -> set:
+	"""Which of `courses` `user` is enrolled in -- one query for every candidate
+	course, not one per course."""
+	if not courses:
+		return set()
+	return set(
+		frappe.get_all(
+			"LMS Enrollment",
+			filters={"member": user, "course": ("in", list(courses))},
+			pluck="course",
+		)
+	)
+
+
+def _member_reaches_a_placement(course: str, lessons: set) -> bool:
+	"""An already-enrolled member reaches it through a lesson the sequential gate
+	leaves open."""
 	locked = get_locked_lessons(course)
 	# A placement with no owning lesson cannot be checked against the lock set at all:
-	# `None not in locked` is true of every course, so such a placement would grant any
-	# enrolled member an assessment whose lesson is still locked.
+	# `None not in locked` is true of every course, which would grant a still-locked
+	# assessment to any enrolled member.
 	return not locked or any(lesson and lesson not in locked for lesson in lessons)
 
 
-def _reaches_through_a_batch(doctype: str, name: str, user: str) -> bool:
-	"""Whether any batch running this assessment grants `user`.
+def _reaches_through_a_batch(doctype: str, name: str, user: str, *, include_members: bool) -> bool:
+	"""Whether any batch running this assessment grants `user`: instructor, tagged
+	evaluator, or (when include_members) an enrolled student."""
+	batches = _running_batches(doctype, name)
+	if not batches:
+		return False
 
-	Whoever evaluates a batch may read the answer keys of the assessments that batch
-	runs, so the evaluator tag grants alongside the instructor list.
-	"""
-	for batch in _running_batches(doctype, name):
-		if can_modify_batch(batch) or _is_tagged_evaluator(batch, user):
-			return True
-		if frappe.db.exists("LMS Batch Enrollment", {"batch": batch, "member": user}):
-			return True
-	return False
+	instructor = frappe.qb.DocType("Course Instructor")
+	if _taught("LMS Batch", user).where(instructor.parent.isin(batches)).run(pluck=True):
+		return True
+	if frappe.get_all(
+		"Batch Course",
+		filters={"evaluator": user, "parenttype": "LMS Batch", "parent": ("in", batches)},
+		limit=1,
+	):
+		return True
+	if not include_members:
+		return False
+	return bool(
+		frappe.get_all("LMS Batch Enrollment", filters={"batch": ("in", batches), "member": user}, limit=1)
+	)
 
 
 def _running_batches(doctype: str, name: str) -> list:
-	"""Batches whose assessment list references this assessment."""
-	rows = frappe.get_all(
-		"LMS Assessment",
-		filters={"assessment_type": doctype, "assessment_name": name},
-		pluck="parent",
-	)
-	return [batch for batch in rows if batch]
+	"""Batches whose assessment list references this assessment, joined against
+	LMS Batch so a deleted batch's stray row is dropped."""
+	assessment = frappe.qb.DocType("LMS Assessment")
+	batch = frappe.qb.DocType("LMS Batch")
+	return (
+		frappe.qb.from_(assessment)
+		.join(batch)
+		.on(batch.name == assessment.parent)
+		.select(assessment.parent)
+		.where((assessment.assessment_type == doctype) & (assessment.assessment_name == name))
+	).run(pluck=True)
 
 
-def _is_tagged_evaluator(batch: str, user: str) -> bool:
-	"""The evaluator tagged on one of the batch's courses, which is not a role.
-
-	Spelled out here rather than folded into can_modify_batch, which answers a batch's
-	instructors and moderators only: widening that helper would change every one of
-	its existing callers, and this module registers nothing.
-	"""
-	return bool(
-		frappe.db.exists("Batch Course", {"evaluator": user, "parent": batch, "parenttype": "LMS Batch"})
-	)
+def _resolve_lesson_courses(lessons: list) -> dict:
+	"""``{lesson: course}`` for every lesson in `lessons`, resolved through its
+	chapter like :func:`resolve_lesson_course` -- one query for the whole set."""
+	if not lessons:
+		return {}
+	lesson = frappe.qb.DocType("Course Lesson")
+	chapter = frappe.qb.DocType("Course Chapter")
+	rows = (
+		frappe.qb.from_(lesson)
+		.join(chapter)
+		.on(chapter.name == lesson.chapter)
+		.select(lesson.name, chapter.course)
+		.where(lesson.name.isin(lessons))
+	).run(as_dict=True)
+	return {row.name: row.course for row in rows if row.course}
 
 
 def _course_placements(doctype: str, name: str) -> dict:
-	"""``{course: {lesson, ...}}`` for every course a student-visible lesson places it in.
-
-	Grouped by course, not held as flat (course, lesson) pairs: every check the caller
-	makes except the lock chain is course-level, and an assessment embedded in several
-	lessons of one course would otherwise repeat the membership read and the whole lock
-	chain per lesson for a set that cannot differ between them.
-	"""
-	placements = {}
-	for lesson in _placement_lessons(doctype, name, instructor_only=0):
-		_add_placement(placements, lesson)
+	"""``{course: {lesson, ...}}`` for every course a student-visible lesson places
+	it in, plus (for a quiz) the lessons naming it by the hand-set `quiz_id`."""
+	lessons = _placement_lessons(doctype, name, instructor_only=0)
 	if doctype == "LMS Quiz":
-		# Course Lesson.quiz_id is a hand-set field nothing auto-populates, and it is a
-		# placement too. The quiz id is a bearer handle, so the lesson travels with it:
-		# a sequential course gates the quiz on the same rule as the lesson embedding it.
-		for lesson in frappe.get_all("Course Lesson", filters={"quiz_id": name}, pluck="name"):
-			_add_placement(placements, lesson)
+		lessons = lessons + frappe.get_all("Course Lesson", filters={"quiz_id": name}, pluck="name")
+
+	placements = {}
+	for lesson, course in _resolve_lesson_courses(lessons).items():
+		placements.setdefault(course, set()).add(lesson)
 	return placements
 
 
 def _author_only_courses(doctype: str, name: str) -> set:
-	"""Courses that reach this assessment through authorship and through nothing else.
-
-	Two of them, and neither is a student placement, so neither reaches the enrolment
-	or lock checks:
-
-	- an instructor_only placement, which means "whoever may author this course, and
-	  nobody else";
-	- the pre-placement-table course stamp, for the same reason. The base's lesson save
-	  writes that stamp from instructor_content as well as content and marks the two
-	  identically (course_lesson.py:86-90), so reading it as a student placement hands
-	  every enrolled member an assessment embedded only in a lesson's instructor notes —
-	  which is the leak the instructor_only flag exists to close.
-	"""
-	courses = set()
-	for lesson in _placement_lessons(doctype, name, instructor_only=1):
-		course = resolve_lesson_course(lesson)
-		if course:
-			courses.add(course)
+	"""Courses that reach this assessment only through authorship: an
+	instructor_only placement, or the pre-placement-table course stamp."""
+	lessons = _placement_lessons(doctype, name, instructor_only=1)
+	courses = set(_resolve_lesson_courses(lessons).values())
 	_add_legacy_stamp_course(doctype, name, courses)
 	return courses
 
 
 def _placement_lessons(doctype: str, name: str, *, instructor_only: int) -> list:
-	"""The lessons placing this assessment, from the table a lesson save rebuilds.
-
-	frappe.get_all rather than get_list on purpose: this is the server code that
-	establishes the rule, not a caller subject to it.
-	"""
+	"""The lessons placing this assessment, from the table a lesson save rebuilds."""
 	return frappe.get_all(
 		"LMS Lesson Assessment",
 		filters={
@@ -991,29 +1007,14 @@ def _placement_lessons(doctype: str, name: str, *, instructor_only: int) -> list
 	)
 
 
-def _add_placement(placements: dict, lesson: str):
-	course = resolve_lesson_course(lesson)
-	if course:
-		placements.setdefault(course, set()).add(lesson)
-
-
 def _add_legacy_stamp_course(doctype: str, name: str, courses: set):
-	"""Fold in the pre-placement-table course stamp, which only ever grants an author.
-
-	Lessons saved before the table have no rows, so without this the gate denies the
-	authors of every assessment already embedded in the wild.
-
-	The stamp's own lesson wins over the stamped course whenever it resolves: the
-	stamp was copied from the same copy-on-save mirror one hop out, so a moved chapter
-	leaves it naming the course the lesson has left. The stamped course is the fallback
-	whenever the resolver yields nothing, because a lesson removed by a raw path that
-	skipped cleanup leaves .lesson set and unresolvable, and dropping the stamp there
-	would refuse the course's own instructors an assessment still filed under it.
-	"""
+	"""Fold in the pre-placement-table course stamp, which only ever grants an
+	author. The stamp's own lesson wins over the stamped course whenever it
+	resolves; the stamped course is the fallback."""
 	if doctype not in LEGACY_STAMP_DOCTYPES:
 		return
-	# LMS Assignment has a course and no lesson: its course is author-picked rather
-	# than derived, so there was never a lesson stamp beside it to resolve through.
+	# LMS Assignment has a course and no lesson: its course is author-picked, so
+	# there was never a lesson stamp to resolve through.
 	fields = ["course", "lesson"] if doctype == "LMS Quiz" else ["course"]
 	stamp = frappe.db.get_value(doctype, name, fields, as_dict=True)
 	resolved = resolve_lesson_course(stamp.lesson) if stamp.get("lesson") else None
@@ -1035,151 +1036,207 @@ def programming_exercise_query_conditions(user: str | None = None) -> str:
 
 
 def _assessment_query_conditions(doctype: str, user: str | None = None) -> str:
-	"""can_access_assessment as SQL, for the list read a has_permission hook never sees.
-
-	Same branches in the same order — the row's own owner, a course that places it, a
-	batch that runs it — because a doctype registered for one layer and not the other
-	reads as protected while /api/resource, reports, exports and Data Import still
-	enumerate every row.
-
-	One branch is deliberately absent: the sequential lesson lock. get_locked_lessons
-	walks a course's ordered lesson list against the student's completion set, which is
-	not a WHERE fragment, so a locked lesson's assessment is listed to an enrolled
-	member and refused when they open it. Course Lesson's own query condition leaves
-	the lock out for the same reason.
-	"""
+	"""``can_access_assessment`` as SQL, for the list read a has_permission hook
+	never sees. The sequential lesson lock is deliberately absent: it is not a
+	WHERE fragment, so a locked assessment is listed and refused when opened."""
 	if doctype not in ASSESSMENT_DOCTYPES:
-		# "" is the list engine's spelling of "no restriction", so a doctype this module
-		# does not gate has to refuse rather than return the value that opens it.
+		# "" is the list engine's spelling of "no restriction", so an ungated
+		# doctype has to refuse rather than return the value that opens it.
 		return "1 = 0"
 
 	user = user or frappe.session.user
 	if _is_unrestricted(user):
 		return ""
-	return _assessment_reach_conditions(doctype, user)
+	assessment = frappe.qb.DocType(doctype)
+	condition = _assessment_reach_condition(doctype, assessment, user, include_members=True)
+	return _render(condition)
+
+
+def administrable_assessment_names(doctype: str, user: str | None = None) -> str:
+	"""``can_administer_assessment`` as SQL: a bare ``select`` for a submission's
+	query condition to nest in an ``in (...)``. No enrolled-member branch, same as
+	:func:`can_administer_assessment`."""
+	if doctype not in ASSESSMENT_DOCTYPES:
+		return NO_ASSESSMENT_NAMES
+
+	assessment = frappe.qb.DocType(doctype)
+	user = user or frappe.session.user
+	query = frappe.qb.from_(assessment).select(assessment.name)
+	if not _is_unrestricted(user):
+		condition = _assessment_reach_condition(doctype, assessment, user, include_members=False)
+		query = query.where(condition)
+	return query.get_sql()
 
 
 def _is_unrestricted(user: str) -> bool:
-	"""Whoever the assessment rule never narrows."""
-	return user == "Administrator" or bool(has_moderator_role(user))
+	"""Whoever the assessment rule never narrows: a site administrator or a Moderator."""
+	return is_site_administrator(user) or bool(has_moderator_role(user))
 
 
-def _assessment_reach_conditions(doctype: str, user: str) -> str:
-	"""The reach sentence as one parenthesised OR, in the predicate's branch order.
+def _assessment_reach_condition(doctype: str, assessment, user: str, *, include_members: bool) -> Bracket:
+	"""The reach sentence as one bracketed OR. The administer reading shares this
+	builder with the access reading, just with the member branches left out, so
+	the two cannot drift apart."""
+	conditions = [_authored_condition(doctype, assessment, user)]
+	conditions.extend(_course_conditions(doctype, assessment, user, include_members=include_members))
+	conditions.append(_batch_condition(doctype, assessment, user, include_members=include_members))
+	combined = conditions[0]
+	for condition in conditions[1:]:
+		combined = combined | condition
+	return Bracket(combined)
 
-	Built once, in the predicate's branch order, so the SQL and the document gate say
-	the same sentence rather than each spelling it out independently.
-	"""
-	table = f"`tab{doctype}`"
-	member = frappe.db.escape(user)
-	conditions = [f"{table}.owner = {member}"]
-	conditions.extend(_course_conditions(doctype, table, member))
-	conditions.append(_batch_condition(doctype, table, member))
-	return "({})".format(" or ".join(conditions))
+
+def _authored_condition(doctype: str, assessment, user: str):
+	"""SQL mirror of :func:`is_content_author`: a stored `authors` row naming
+	`user`, or -- only when the row carries no `authors` rows at all -- its owner."""
+	author = frappe.qb.DocType("LMS Content Author")
+	named_doctype = LiteralValue(frappe.db.escape(doctype))
+	named_field = LiteralValue(frappe.db.escape("authors"))
+	member = LiteralValue(frappe.db.escape(user))
+
+	def _authors_for(*extra):
+		query = (
+			frappe.qb.from_(author)
+			.select(author.parent)
+			.where((author.parenttype == named_doctype) & (author.parentfield == named_field))
+		)
+		for condition in extra:
+			query = query.where(condition)
+		return query
+
+	is_named_author = assessment.name.isin(_authors_for(author.author == member))
+	has_no_authors = assessment.name.notin(_authors_for())
+	return is_named_author | (has_no_authors & (assessment.owner == member))
 
 
-def _course_conditions(doctype: str, table: str, member: str) -> list:
-	"""Every way a course reaches this assessment, for both grants a course carries.
-
-	Enrolment sees student-visible placements. Authoring sees those, the
-	instructor_only ones and the pre-placement-table stamp, all three of which grant
-	whoever may author the course and nobody else.
-
-	The stamp is on the authored list only, and that is load-bearing rather than
-	tidy: the base's lesson save writes it from instructor_content as well as content
-	and marks the two identically (course_lesson.py:86-90), so putting it on the
-	enrolled list hands every member of the course an assessment embedded only in a
-	lesson's instructor notes.
-	"""
-	authored = (
-		"select parent from `tabCourse Instructor` "
-		f"where instructor = {member} and parenttype = 'LMS Course'"
-	)
-	enrolled = f"select course from `tabLMS Enrollment` where member = {member}"
-	conditions = [_placed_in_a_lesson(doctype, table, enrolled, student_visible_only=True)]
+def _course_conditions(doctype: str, assessment, user: str, *, include_members: bool) -> list:
+	"""Every way a course reaches this assessment. Authoring sees a student
+	placement, an instructor_only one and the legacy stamp -- all author-only.
+	Enrolment sees only the student-visible placement."""
+	# Each subquery gets its own `_taught`/`_enrolled_courses` call rather than one
+	# shared object: embedding the same query builder in several isin() clauses of
+	# one tree is untested territory this module does not otherwise rely on.
+	conditions = [
+		_placed_in_a_lesson(doctype, assessment, _taught("LMS Course", user), student_visible_only=False)
+	]
 	if doctype == "LMS Quiz":
-		conditions.append(_placed_by_quiz_id(table, enrolled))
-	conditions.append(_placed_in_a_lesson(doctype, table, authored, student_visible_only=False))
-	if doctype == "LMS Quiz":
-		conditions.append(_placed_by_quiz_id(table, authored))
-	conditions.extend(_legacy_stamp_conditions(doctype, table, authored))
+		conditions.append(_placed_by_quiz_id(assessment, _taught("LMS Course", user)))
+	legacy = _legacy_stamp_condition(doctype, assessment, _taught("LMS Course", user))
+	if legacy is not None:
+		conditions.append(legacy)
+
+	if include_members:
+		conditions.append(
+			_placed_in_a_lesson(doctype, assessment, _enrolled_courses(user), student_visible_only=True)
+		)
+		if doctype == "LMS Quiz":
+			conditions.append(_placed_by_quiz_id(assessment, _enrolled_courses(user)))
 	return conditions
 
 
-def _placed_in_a_lesson(doctype: str, table: str, courses: str, *, student_visible_only: bool) -> str:
-	"""Placement rows whose lesson resolves, through its chapter, into `courses`.
-
-	Never through Course Lesson.course: this is resolve_lesson_course spelled as SQL,
-	and the inner joins drop a lesson whose chapter is gone exactly as the resolver's
-	None does. Every comparison is `in`, never `not in`, so an unresolvable row is
-	dropped rather than shown.
-	"""
-	visible_only = "and la.instructor_only = 0" if student_visible_only else ""
-	return f"""{table}.name in (
-		select la.assessment_name from `tabLMS Lesson Assessment` la
-		join `tabCourse Lesson` cl on cl.name = la.parent
-		join `tabCourse Chapter` cc on cc.name = cl.chapter
-		where la.parenttype = 'Course Lesson'
-			and la.assessment_type = {frappe.db.escape(doctype)}
-			{visible_only}
-			and cc.course in ({courses})
-	)"""
+def _enrolled_courses(user: str):
+	"""The courses `user` is enrolled in, as a subquery."""
+	enrollment = frappe.qb.DocType("LMS Enrollment")
+	return (
+		frappe.qb.from_(enrollment)
+		.select(enrollment.course)
+		.where(enrollment.member == LiteralValue(frappe.db.escape(user)))
+	)
 
 
-def _placed_by_quiz_id(table: str, courses: str) -> str:
+def _placed_in_a_lesson(doctype: str, assessment, courses, *, student_visible_only: bool):
+	"""Placement rows whose lesson resolves, through its chapter, into `courses` --
+	never through Course Lesson.course, which is a stale copy-on-save mirror."""
+	la = frappe.qb.DocType("LMS Lesson Assessment")
+	cl = frappe.qb.DocType("Course Lesson")
+	cc = frappe.qb.DocType("Course Chapter")
+	subquery = (
+		frappe.qb.from_(la)
+		.join(cl)
+		.on(cl.name == la.parent)
+		.join(cc)
+		.on(cc.name == cl.chapter)
+		.select(la.assessment_name)
+		.where(
+			(la.parenttype == "Course Lesson")
+			& (la.assessment_type == LiteralValue(frappe.db.escape(doctype)))
+			& cc.course.isin(courses)
+		)
+	)
+	if student_visible_only:
+		subquery = subquery.where(la.instructor_only == 0)
+	return assessment.name.isin(subquery)
+
+
+def _placed_by_quiz_id(assessment, courses):
 	"""Course Lesson.quiz_id, a hand-set field nothing auto-populates and a placement."""
-	return f"""{table}.name in (
-		select cl.quiz_id from `tabCourse Lesson` cl
-		join `tabCourse Chapter` cc on cc.name = cl.chapter
-		where cc.course in ({courses})
-	)"""
+	cl = frappe.qb.DocType("Course Lesson")
+	cc = frappe.qb.DocType("Course Chapter")
+	subquery = (
+		frappe.qb.from_(cl)
+		.join(cc)
+		.on(cc.name == cl.chapter)
+		.select(cl.quiz_id)
+		.where(cc.course.isin(courses))
+	)
+	return assessment.name.isin(subquery)
 
 
-def _legacy_stamp_conditions(doctype: str, table: str, courses: str) -> list:
-	"""The pre-placement-table stamp, read the way _add_legacy_stamp_course reads it.
-
-	The coalesce is the whole point: the stamp's own lesson wins whenever it resolves
-	and the stamped course is the fallback only when it does not. Folding the stamped
-	course in as well would hand the departed course's students and instructors an
-	answer key the lesson took with it when its chapter moved. LMS Programming
-	Exercise has neither column, so it gets no clause at all.
-	"""
+def _legacy_stamp_condition(doctype: str, assessment, courses):
+	"""The pre-placement-table stamp: the stamp's own lesson wins whenever it
+	resolves, and the stamped course is only the fallback. None for a doctype
+	with neither column."""
 	if doctype not in LEGACY_STAMP_DOCTYPES:
-		return []
+		return None
+
 	if doctype == "LMS Quiz":
-		stamped_course = f"""coalesce((
-			select cc.course from `tabCourse Lesson` cl
-			join `tabCourse Chapter` cc on cc.name = cl.chapter
-			where cl.name = {table}.lesson
-		), {table}.course)"""
+		cl = frappe.qb.DocType("Course Lesson")
+		cc = frappe.qb.DocType("Course Chapter")
+		lesson_course = (
+			frappe.qb.from_(cl)
+			.join(cc)
+			.on(cc.name == cl.chapter)
+			.select(cc.course)
+			.where(cl.name == assessment.lesson)
+		)
+		stamped_course = fn.Coalesce(lesson_course, assessment.course)
 	else:
-		# LMS Assignment has a course and no lesson: its course is author-picked rather
-		# than derived, so there was never a lesson stamp beside it to resolve through.
-		stamped_course = f"{table}.course"
-	return [f"{stamped_course} in ({courses})"]
+		# LMS Assignment has a course and no lesson: its course is author-picked,
+		# so there was never a lesson stamp beside it to resolve through.
+		stamped_course = assessment.course
+	return stamped_course.isin(courses)
 
 
-def _batch_condition(doctype: str, table: str, member: str) -> str:
-	"""Batches running this assessment, for their instructors, evaluators and students.
+def _batch_condition(doctype: str, assessment, user: str, *, include_members: bool):
+	"""Batches running this assessment, for their instructors, tagged evaluators
+	and (when include_members) enrolled students."""
+	la = frappe.qb.DocType("LMS Assessment")
+	reach = la.parent.isin(_taught("LMS Batch", user)) | la.parent.isin(_evaluator_batches(user))
+	if include_members:
+		enrollment = frappe.qb.DocType("LMS Batch Enrollment")
+		member_batches = (
+			frappe.qb.from_(enrollment)
+			.select(enrollment.batch)
+			.where(enrollment.member == LiteralValue(frappe.db.escape(user)))
+		)
+		reach = reach | la.parent.isin(member_batches)
 
-	Whoever evaluates a batch reads the answer keys of the assessments that batch runs.
-	The doctype under test is carried into the filter rather than hard-coded to
-	"LMS Quiz" — hard-coding it fails in the refusing direction, which is the direction
-	that says nothing when it is wrong.
-	"""
-	reaches = [
-		f"""la.parent in (
-			select parent from `tabCourse Instructor`
-			where instructor = {member} and parenttype = 'LMS Batch'
-		)""",
-		f"""la.parent in (
-			select parent from `tabBatch Course`
-			where evaluator = {member} and parenttype = 'LMS Batch'
-		)""",
-	]
-	reaches.append(f"la.parent in (select batch from `tabLMS Batch Enrollment` where member = {member})")
-	return f"""{table}.name in (
-		select la.assessment_name from `tabLMS Assessment` la
-		where la.assessment_type = {frappe.db.escape(doctype)}
-			and ({" or ".join(reaches)})
-	)"""
+	subquery = (
+		frappe.qb.from_(la)
+		.select(la.assessment_name)
+		.where((la.assessment_type == LiteralValue(frappe.db.escape(doctype))) & reach)
+	)
+	return assessment.name.isin(subquery)
+
+
+def _evaluator_batches(user: str):
+	"""Batches whose Batch Course tags `user` as evaluator, as a subquery."""
+	batch_course = frappe.qb.DocType("Batch Course")
+	return (
+		frappe.qb.from_(batch_course)
+		.select(batch_course.parent)
+		.where(
+			(batch_course.evaluator == LiteralValue(frappe.db.escape(user)))
+			& (batch_course.parenttype == "LMS Batch")
+		)
+	)

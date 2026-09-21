@@ -4,17 +4,22 @@
 from contextlib import contextmanager
 
 import frappe
+from frappe.query_builder import Bracket
+from pypika.terms import LiteralValue
 
 from lms.lms.permissions import (
+	NO_ASSESSMENT_NAMES,
 	_assessment_query_conditions,
+	administrable_assessment_names,
 	can_access_assessment,
 	can_access_quiz,
+	can_administer_assessment,
 	get_locked_lessons,
 )
 from lms.lms.test_helpers import BaseTestUtils
 
-# What Task 10 will write into hooks.py. Held here so the list assertions measure the
-# SQL this commit writes rather than waiting on a registration in a later commit.
+# What a later commit will write into hooks.py. Held here so the list assertions
+# measure the SQL this commit writes without waiting on that registration.
 ASSESSMENT_QUERY_CONDITIONS = {
 	"LMS Quiz": ["lms.lms.permissions.quiz_query_conditions"],
 	"LMS Assignment": ["lms.lms.permissions.assignment_query_conditions"],
@@ -24,12 +29,8 @@ ASSESSMENT_QUERY_CONDITIONS = {
 
 @contextmanager
 def conditions_registered():
-	"""Apply the query conditions to frappe.get_list without touching hooks.py.
-
-	db_query reads the mapping through frappe.get_hooks and resolves each entry with
-	frappe.get_attr, so overriding that one hook is the whole of what registration does
-	to a list query. Every other hook still answers from the real registry.
-	"""
+	"""Apply the query conditions to frappe.get_list without touching hooks.py, by
+	overriding frappe.get_hooks for permission_query_conditions alone."""
 	real_get_hooks = frappe.get_hooks
 
 	def get_hooks(hook=None, default="_KEEP_DEFAULT_LIST", app_name=None):
@@ -47,12 +48,8 @@ def conditions_registered():
 
 def lists_for(doctype: str, name: str, user: str) -> bool:
 	"""Whether `user` finds `name` in the doctype's list, with the condition applied.
-
-	frappe.get_list and never frappe.get_all, which sets ignore_permissions=True and
-	would pass against a condition that does nothing. limit_page_length=0 because the
-	site is shared: the default page of 20 rows would drop the row under test on
-	volume and read as a refusal.
-	"""
+	frappe.get_list, never frappe.get_all, which sets ignore_permissions=True and
+	would pass against a condition that does nothing."""
 	original_user = frappe.session.user
 	frappe.set_user(user)
 	try:
@@ -63,13 +60,8 @@ def lists_for(doctype: str, name: str, user: str) -> bool:
 
 
 class TestAssessmentPlacementAccess(BaseTestUtils):
-	"""Who reaches an assessment through the lesson that places it.
-
-	The single-Link LMS Quiz.course/.lesson stamp this replaces modelled an N:M
-	relation with one value, had no counterpart on LMS Programming Exercise at all,
-	and was written from a lesson's instructor notes without marking it — so a quiz
-	only an instructor was meant to see was served to every enrolled member.
-	"""
+	"""Who reaches an assessment through the lesson that places it. Replaces a
+	single-Link stamp that held one course and leaked instructor-only quizzes."""
 
 	def setUp(self):
 		super().setUp()
@@ -84,6 +76,9 @@ class TestAssessmentPlacementAccess(BaseTestUtils):
 		self.member = self._create_user(f"aps-member-{suffix}@example.com", "Mel", "Member", ["LMS Student"])
 		self.outsider = self._create_user(
 			f"aps-outsider-{suffix}@example.com", "Ove", "Outsider", ["LMS Student"]
+		)
+		self.site_admin = self._create_user(
+			f"aps-sysman-{suffix}@example.com", "Sam", "SysManager", ["System Manager"]
 		)
 
 		self.course = self._create_course(title=f"Placement Course {suffix}", instructor=self.instructor.name)
@@ -116,6 +111,12 @@ class TestAssessmentPlacementAccess(BaseTestUtils):
 		self.assertFalse(can_access_assessment("LMS Quiz", self.quiz.name, user=self.member.name))
 		self.assertFalse(can_access_assessment("LMS Quiz", self.quiz.name, user=self.instructor.name))
 
+	def test_a_system_manager_reaches_every_assessment(self):
+		"""The DocPerm every one of these doctypes grants System Manager; the predicate
+		must go through is_site_administrator or this role is silently narrowed too."""
+		self.assertNotIn("Moderator", frappe.get_roles(self.site_admin.name))
+		self.assertTrue(can_access_assessment("LMS Quiz", self.quiz.name, user=self.site_admin.name))
+
 	def test_a_name_that_is_not_a_string_is_refused(self):
 		self.assertFalse(can_access_assessment("LMS Quiz", None, user=self.member.name))
 		self.assertFalse(can_access_assessment("LMS Quiz", {"title": ("like", "%")}, user=self.member.name))
@@ -126,9 +127,8 @@ class TestAssessmentPlacementAccess(BaseTestUtils):
 	# --- the regression this commit closes ---
 
 	def test_a_saved_lesson_places_its_quiz_for_the_course_it_is_in(self):
-		"""A lesson save writes placement rows, and on this base it also still writes
-		the legacy stamp beside them — PR 5 kept that deliberately, and the assertion
-		is here so a later change cannot retire the stamp without this suite noticing."""
+		"""A lesson save writes placement rows and still writes the legacy stamp beside
+		them, deliberately, so a later change cannot retire the stamp unnoticed."""
 		self._place_in_lesson(self.course.name, "LMS Quiz", self.quiz.name)
 		self.assertEqual(frappe.db.get_value("LMS Quiz", self.quiz.name, "course"), self.course.name)
 		self.assertTrue(can_access_assessment("LMS Quiz", self.quiz.name, user=self.instructor.name))
@@ -136,16 +136,9 @@ class TestAssessmentPlacementAccess(BaseTestUtils):
 		self.assertFalse(can_access_assessment("LMS Quiz", self.quiz.name, user=self.outsider.name))
 
 	def test_the_old_quiz_gate_reads_one_placement_where_the_table_holds_many(self):
-		"""`can_access_quiz` is the develop-era gate and this PR deliberately leaves it
-		alone, so the two readings of "may this user reach this quiz" are measurably
-		different. The single `LMS Quiz.course` Link holds one value for a quiz that can
-		sit in many courses, and the last lesson saved wins; the placement table holds
-		one row per placement and has no winner.
-
-		Tier 4 PR 7 collapses `can_access_quiz` into the new predicate. Repointing it
-		here would be an unannounced behaviour change on two live whitelisted endpoints
-		(`lms_quiz.py:203`, `utils.py:1975`) in a PR that registers nothing.
-		"""
+		"""`can_access_quiz` is the develop-era gate, deliberately left alone here: its
+		`LMS Quiz.course` Link holds one course and the last lesson saved wins, while
+		the placement table holds one row per placement and has no winner."""
 		other_course = self._create_course(
 			title=f"Second Gate {self.course.name}", instructor=self.author.name
 		)
@@ -162,21 +155,9 @@ class TestAssessmentPlacementAccess(BaseTestUtils):
 		self.assertFalse(can_access_quiz(self.quiz.name, user=self.instructor.name))
 
 	def test_the_old_quiz_gate_grants_an_instructor_only_quiz_this_one_refuses(self):
-		"""A live bug on develop, pinned rather than fixed here.
-
-		`validate_quiz_id` stamps `LMS Quiz.course` from `instructor_content` as well as
-		`content` and marks the two identically (`course_lesson.py:86-90`), and
-		`can_access_quiz` reads that stamp as a student placement — so every enrolled
-		member of the course reaches a quiz embedded only in a lesson's instructor
-		notes. `can_access_assessment` reads the same stamp as an author-only course and
-		refuses them.
-
-		The stamp keeps being written: `LMS Quiz Submission.course` has
-		`fetch_from: quiz.course`, so retiring the write would silently NULL a column on
-		another doctype. The fix is on the reading side, which is what this branch
-		changed. When PR 7 repoints `can_access_quiz`, the second assertion becomes
-		`assertFalse` and this test becomes an ordinary agreement test.
-		"""
+		"""A live bug on develop, pinned rather than fixed here: `validate_quiz_id` stamps
+		`LMS Quiz.course` from `instructor_content` too, so `can_access_quiz` reads that
+		stamp as a student placement while `can_access_assessment` reads it as author-only."""
 		self._place_in_lesson(self.course.name, "LMS Quiz", self.quiz.name, instructor_only=True)
 		self.assertEqual(
 			frappe.db.get_value("LMS Quiz", self.quiz.name, "course"),
@@ -233,10 +214,9 @@ class TestAssessmentPlacementAccess(BaseTestUtils):
 	# --- instructor-only placements ---
 
 	def test_an_instructor_only_placement_denies_an_enrolled_student(self):
-		"""The rule the placement table exists for, and the reason the legacy stamp is
-		read as an author-only course: the lesson save stamps this quiz from
-		`instructor_content` exactly as it would from `content`, so reading the stamp as
-		a student placement would grant the member here and the flag would be inert."""
+		"""The rule the placement table exists for: the lesson save stamps this quiz from
+		`instructor_content` exactly as it would from `content`, so a student placement
+		reading of the stamp would grant the member here and the flag would be inert."""
 		lesson = self._place_in_lesson(self.course.name, "LMS Quiz", self.quiz.name, instructor_only=True)
 		self.assertEqual(
 			frappe.db.get_value("LMS Quiz", self.quiz.name, "course"),
@@ -260,10 +240,9 @@ class TestAssessmentPlacementAccess(BaseTestUtils):
 		self.assertFalse(can_access_assessment("LMS Quiz", self.quiz.name, user=self.outsider.name))
 
 	def test_an_instructor_only_placement_follows_the_chapter_not_the_mirror(self):
-		"""R-20. Course Lesson.course is a copy-on-save fetch_from mirror, so a chapter
-		re-pointed at another course leaves every lesson under it naming the course it
-		has left — and an instructor_only placement read off that grants the departed
-		course's author and refuses the arrived course's own."""
+		"""Course Lesson.course is a copy-on-save fetch_from mirror, so a chapter
+		re-pointed at another course leaves every lesson under it naming the departed
+		course, and reading placements off that mirror would grant the wrong author."""
 		arrived_instructor = self._create_user(
 			f"aps-arrived-{frappe.generate_hash(length=6)}@example.com", "Ben", "Arrived", ["Course Creator"]
 		)
@@ -287,15 +266,9 @@ class TestAssessmentPlacementAccess(BaseTestUtils):
 	# --- the legacy stamp, read as an author-only course ---
 
 	def test_the_legacy_stamp_grants_the_course_author_and_not_its_members(self):
-		"""Lessons saved before the placement table have no rows, only the frozen stamp.
-		Without this fallback the gate denies the authors of every already-embedded
-		assessment in the wild.
-
-		It grants an author and nobody else, because the stamp does not say whether the
-		lesson embedded the quiz in its content or in its instructor notes — the save
-		writes the same two columns either way. A member reaches an assessment through a
-		placement row, which does carry that distinction.
-		"""
+		"""Lessons saved before the placement table have only the frozen stamp; without
+		this fallback the gate denies every already-embedded assessment's author. It
+		grants the author only, since the stamp cannot say content vs. instructor notes."""
 		self._stamp_legacy_quiz_placement(self.quiz.name, self.course.name)
 		self.assertFalse(
 			frappe.db.exists("LMS Lesson Assessment", {"assessment_name": self.quiz.name}),
@@ -306,10 +279,9 @@ class TestAssessmentPlacementAccess(BaseTestUtils):
 		self.assertFalse(can_access_assessment("LMS Quiz", self.quiz.name, user=self.outsider.name))
 
 	def test_the_legacy_assignment_course_field_grants_the_author_and_not_its_members(self):
-		"""LMS Assignment.course is author-picked and no lesson save writes it, so it
-		carries no instructor-notes hazard of its own. It is read the same way anyway:
-		one reading of "the stamp" is cheaper to hold than two, and after PR 5's
-		backfill an assignment actually embedded in a lesson is reached by its row."""
+		"""LMS Assignment.course is author-picked, so it carries no instructor-notes
+		hazard of its own, but is read the same way anyway: one reading of "the stamp"
+		is cheaper to hold than two."""
 		frappe.db.set_value("LMS Assignment", self.assignment.name, "course", self.course.name)
 		self.assertTrue(
 			can_access_assessment("LMS Assignment", self.assignment.name, user=self.instructor.name)
@@ -321,13 +293,9 @@ class TestAssessmentPlacementAccess(BaseTestUtils):
 
 
 class TestAssessmentBatchAccess(BaseTestUtils):
-	"""The batch branch, which R-24 settles: an evaluator of a batch may read the
-	answer keys of the assessments that batch runs.
-
-	It is pinned here because generalising the gate is where it could be reversed by
-	accident — the branch used to hard-code assessment_type="LMS Quiz", so carrying
-	the doctype under test is the difference between granting and silently refusing.
-	"""
+	"""The batch branch: an evaluator of a batch may read the answer keys of the
+	assessments that batch runs. Pinned here because the branch used to hard-code
+	assessment_type="LMS Quiz", so carrying the doctype under test matters."""
 
 	def setUp(self):
 		super().setUp()
@@ -460,14 +428,9 @@ class TestAssessmentBatchAccess(BaseTestUtils):
 
 
 class TestAssessmentListScope(BaseTestUtils):
-	"""The list half of the same rule, and whether the two halves agree.
-
-	A has_permission hook is never consulted on a list query, so a doctype registered
-	for one and not the other reads as protected while /api/resource, reports, exports
-	and Data Import still enumerate every row. These are the assertions that hold the
-	SQL to the predicate, and every one of them goes through lists_for — frappe.get_all
-	sets ignore_permissions=True and would pass against a condition that does nothing.
-	"""
+	"""The list half of the same rule: a has_permission hook is never consulted on a
+	list query, so a doctype registered for one and not the other still enumerates
+	every row through /api/resource, reports, exports and Data Import."""
 
 	def setUp(self):
 		super().setUp()
@@ -505,13 +468,9 @@ class TestAssessmentListScope(BaseTestUtils):
 		self.assertEqual(frappe.db.get_value("LMS Quiz", self.quiz.name, "owner"), self.author.name)
 
 	def test_get_all_bypasses_the_condition_that_get_list_enforces(self):
-		"""Both halves of the trap this task turns on, in one place.
-
-		Before the condition applies, an outsider lists the quiz — so every refusal
-		below is the condition's doing and not a DocPerm's; LMS Student holds read on
-		all three doctypes. With it applied, get_list refuses and get_all still returns
-		the row, which is what makes a get_all assertion here worthless.
-		"""
+		"""Before the condition applies, an outsider lists the quiz -- so a refusal below
+		is the condition's doing, not a DocPerm's. With it applied, get_all still
+		returns the row, which is what makes a get_all assertion here worthless."""
 		self._place_in_lesson(self.course.name, "LMS Quiz", self.quiz.name)
 		frappe.set_user(self.outsider.name)
 		try:
@@ -537,6 +496,16 @@ class TestAssessmentListScope(BaseTestUtils):
 		moderator = self._create_user(f"als-mod-{self.suffix}@example.com", "Moe", "Moderator", ["Moderator"])
 		self.assertEqual(_assessment_query_conditions("LMS Quiz", moderator.name), "")
 		self.assertEqual(_assessment_query_conditions("LMS Quiz", "Administrator"), "")
+
+	def test_a_system_manager_is_unrestricted(self):
+		"""System Manager holds a DocPerm on every assessment doctype; the query
+		condition must widen for it the same way it does for Administrator."""
+		site_admin = self._create_user(
+			f"als-sysman-{self.suffix}@example.com", "Sam", "SysManager", ["System Manager"]
+		)
+		self.assertNotIn("Moderator", frappe.get_roles(site_admin.name))
+		self.assertEqual(_assessment_query_conditions("LMS Quiz", site_admin.name), "")
+		self.assertTrue(lists_for("LMS Quiz", self.quiz.name, site_admin.name))
 
 	# --- course placements ---
 
@@ -583,10 +552,9 @@ class TestAssessmentListScope(BaseTestUtils):
 		self.assertTrue(lists_for("LMS Quiz", self.quiz.name, self.instructor.name))
 
 	def test_a_placement_follows_the_chapter_and_not_the_lesson_mirror(self):
-		"""R-20 on the list read. Course Lesson.course is a copy-on-save fetch_from
-		mirror a chapter's move leaves naming the course the lesson has left, so a join
-		through it lists the assessment for the departed course and hides it from the
-		arrived one."""
+		"""Course Lesson.course is a copy-on-save fetch_from mirror a chapter's move
+		leaves naming the departed course, so a join through it would list the
+		assessment for the wrong course."""
 		arrived_instructor = self._create_user(
 			f"als-arrived-{self.suffix}@example.com", "Ben", "Arrived", ["Course Creator"]
 		)
@@ -634,13 +602,9 @@ class TestAssessmentListScope(BaseTestUtils):
 		self.assertFalse(lists_for("LMS Quiz", self.quiz.name, self.outsider.name))
 
 	def test_the_legacy_lesson_wins_over_the_course_the_stamp_froze(self):
-		"""R-20 again, on the half of the stamp that can still be resolved.
-
-		Folding the stamped course in unconditionally hands the departed course's
-		instructors an answer key the lesson took with it. The stamped course is the
-		fallback, not an addition. Measured on the authors, because the stamp grants
-		nobody else.
-		"""
+		"""Folding the stamped course in unconditionally would hand the departed course's
+		instructors an answer key the lesson took with it: the stamped course is the
+		fallback, not an addition."""
 		arrived_instructor = self._create_user(
 			f"als-legacy-instr-{self.suffix}@example.com", "Lee", "Legacy", ["Course Creator"]
 		)
@@ -681,8 +645,9 @@ class TestAssessmentListScope(BaseTestUtils):
 	# --- the two layers against each other ---
 
 	def test_the_two_layers_answer_the_same_for_every_actor(self):
-		"""The acceptance criterion for this commit. A registered pair that disagrees is
-		finding F-8's shape, and there the list layer was the half that was right."""
+		"""The acceptance criterion for this commit: a registered pair that disagrees
+		here has burned an earlier reviewer before, and the list layer was the half
+		that was right."""
 		self._place_in_lesson(self.course.name, "LMS Quiz", self.quiz.name)
 		self._place_in_lesson(self.course.name, "LMS Assignment", self.assignment.name)
 		self._place_in_lesson(self.course.name, "LMS Programming Exercise", self.exercise.name)
@@ -710,14 +675,9 @@ class TestAssessmentListScope(BaseTestUtils):
 				)
 
 	def test_the_sequential_lock_is_the_one_thing_the_list_layer_cannot_say(self):
-		"""The single divergence, pinned here so it cannot go quiet.
-
-		get_locked_lessons walks the ordered lesson list against the completion set,
-		which is not a WHERE fragment. So an enrolled student sees a locked lesson's
-		quiz in a list and is refused when they open it. Course Lesson's own query
-		condition splits the same way for the same reason: a query condition is the
-		list gate and has_permission is the document gate.
-		"""
+		"""The single divergence, pinned here: get_locked_lessons walks the ordered
+		lesson list against the completion set, which is not a WHERE fragment, so a
+		locked assessment is listed and refused only when opened."""
 		locked_lesson = self._lock_the_quiz_behind_an_earlier_lesson()
 		frappe.set_user(self.member.name)
 		try:
@@ -732,12 +692,9 @@ class TestAssessmentListScope(BaseTestUtils):
 		self.assertTrue(lists_for("LMS Quiz", self.quiz.name, self.member.name))
 
 	def _lock_the_quiz_behind_an_earlier_lesson(self) -> str:
-		"""Put the quiz in the second lesson of a course that enforces completion.
-
-		The lock rule reads the ordered lesson list, which comes from the reference
-		tables rather than from Course Lesson.chapter, so both chapters need a Chapter
-		Reference row for the order to exist at all.
-		"""
+		"""Put the quiz in the second lesson of a course that enforces completion. The
+		lock rule reads the ordered lesson list from the reference tables, so both
+		chapters need a Chapter Reference row for the order to exist at all."""
 		first_chapter = self._create_chapter(f"Lock Chapter {self.suffix}", self.course.name)
 		first_lesson = self._create_lesson(f"Lock Lesson {self.suffix}", first_chapter.name, self.course.name)
 		self._create_chapter_reference(self.course.name, first_chapter.name, idx=1)
@@ -747,3 +704,243 @@ class TestAssessmentListScope(BaseTestUtils):
 		self._create_lesson_reference(placed.chapter, placed.name)
 		frappe.db.set_value("LMS Course", self.course.name, "enforce_lesson_completion", 1)
 		return placed.name
+
+
+def names_matching_subquery(doctype: str, subquery: str, name: str) -> list[str]:
+	"""`name`, if the raw subquery selects it, nested the way a future submission query
+	condition will nest it: `name in (<subquery>)`.
+
+	administrable_assessment_names hands out SQL text because a query condition is SQL
+	text, so the nesting has to happen here. Bracket(LiteralValue(...)) is how pypika
+	nests a string that is already SQL -- the rest of the statement is built, not
+	formatted, and `name` is bound by the query builder."""
+	assessment = frappe.qb.DocType(doctype)
+	return (
+		frappe.qb.from_(assessment)
+		.select(assessment.name)
+		.where(assessment.name.isin(Bracket(LiteralValue(subquery))))
+		.where(assessment.name == name)
+		.run(pluck=True)
+	)
+
+
+def administers_in_sql(doctype: str, name: str, user: str) -> bool:
+	"""Whether the administer subquery names `name`, nested the way a future submission
+	query condition will nest it. administrable_assessment_names returns a bare
+	subquery, not a query condition, so there is no get_list to route it through."""
+	subquery = administrable_assessment_names(doctype, user)
+	return bool(names_matching_subquery(doctype, subquery, name))
+
+
+class TestAssessmentAdministerScope(BaseTestUtils):
+	"""The instructor-only reading a future submission gate will depend on: reachable
+	by course authors, batch instructors and tagged evaluators, and by no enrolled
+	member, since every learner is an enrolled member of their own course."""
+
+	def setUp(self):
+		super().setUp()
+		frappe.set_user("Administrator")
+		self.suffix = frappe.generate_hash(length=6)
+		self.instructor = self._create_user(
+			f"aad-instr-{self.suffix}@example.com", "Ivy", "Instructor", ["Course Creator"]
+		)
+		self.author = self._create_user(
+			f"aad-author-{self.suffix}@example.com", "Amy", "Author", ["Course Creator"]
+		)
+		self.member = self._create_user(
+			f"aad-member-{self.suffix}@example.com", "Mel", "Member", ["LMS Student"]
+		)
+		self.outsider = self._create_user(
+			f"aad-outsider-{self.suffix}@example.com", "Ove", "Outsider", ["LMS Student"]
+		)
+		self.moderator = self._create_user(
+			f"aad-mod-{self.suffix}@example.com", "Moe", "Moderator", ["Moderator"]
+		)
+		self.course = self._create_course(
+			title=f"Administer Course {self.suffix}", instructor=self.instructor.name
+		)
+		self.questions = self._create_quiz_questions()
+		self.quiz = self._create_quiz(self.questions, title=f"Administer Quiz {self.suffix}")
+		self.assignment = self._create_assignment(title=f"Administer Assignment {self.suffix}")
+		frappe.db.set_value("LMS Quiz", self.quiz.name, "owner", self.author.name)
+		self._create_enrollment(self.member.name, self.course.name)
+		self._place_in_lesson(self.course.name, "LMS Quiz", self.quiz.name)
+		self._place_in_lesson(self.course.name, "LMS Assignment", self.assignment.name)
+
+	def tearDown(self):
+		frappe.set_user("Administrator")
+		super().tearDown()
+
+	# --- the controls, read before any count ---
+
+	def test_the_actors_hold_the_roles_the_refusals_rest_on(self):
+		"""A Moderator is granted by a branch this suite is not about, and the member
+		must really be enrolled or its refusal would prove nothing."""
+		for user in (self.member, self.outsider, self.instructor, self.author):
+			self.assertNotIn("Moderator", frappe.get_roles(user.name), user.name)
+		self.assertIn("Moderator", frappe.get_roles(self.moderator.name))
+		self.assertTrue(
+			frappe.db.exists("LMS Enrollment", {"course": self.course.name, "member": self.member.name})
+		)
+
+	def test_the_access_predicate_grants_the_member_this_suite_refuses(self):
+		"""The control the split is measured against. Without this the refusals below
+		could be a broken placement rather than the narrower reading."""
+		self.assertTrue(can_access_assessment("LMS Quiz", self.quiz.name, user=self.member.name))
+		self.assertTrue(lists_for("LMS Quiz", self.quiz.name, self.member.name))
+
+	# --- the split, on both layers ---
+
+	def test_an_enrolled_member_may_not_administer_what_they_may_access(self):
+		"""The reason this predicate exists. Both layers, because a submission pair
+		composed on the list half alone would leak on /api/resource and nowhere else."""
+		self.assertFalse(can_administer_assessment("LMS Quiz", self.quiz.name, user=self.member.name))
+		self.assertFalse(administers_in_sql("LMS Quiz", self.quiz.name, self.member.name))
+
+	def test_a_batch_member_may_not_administer_the_batch_assessment(self):
+		"""The other member branch. A batch enrolment reaches the assessment and
+		administers nothing."""
+		evaluator = self._create_user(
+			f"aad-beval-{self.suffix}@example.com", "Ela", "Evaluator", ["Batch Evaluator"]
+		)
+		self._create_evaluator(evaluator.name)
+		batch_instructor = self._create_user(
+			f"aad-bmi-{self.suffix}@example.com", "Bud", "Instructor", ["Course Creator", "Batch Evaluator"]
+		)
+		batch = self._create_batch(
+			self.course.name,
+			instructor=batch_instructor.name,
+			title=f"Administer Batch {self.suffix}",
+			evaluator=evaluator.name,
+		)
+		batch.append("assessment", {"assessment_type": "LMS Quiz", "assessment_name": self.quiz.name})
+		batch.save()
+		student = self._create_user(f"aad-batch-{self.suffix}@example.com", "Bea", "Batch", ["LMS Student"])
+		self._create_batch_enrollment(student.name, batch.name)
+		self.assertTrue(can_access_assessment("LMS Quiz", self.quiz.name, user=student.name))
+		self.assertFalse(can_administer_assessment("LMS Quiz", self.quiz.name, user=student.name))
+		self.assertFalse(administers_in_sql("LMS Quiz", self.quiz.name, student.name))
+
+	def test_the_course_instructor_administers_it_on_both_layers(self):
+		self.assertTrue(can_administer_assessment("LMS Quiz", self.quiz.name, user=self.instructor.name))
+		self.assertTrue(administers_in_sql("LMS Quiz", self.quiz.name, self.instructor.name))
+
+	def test_the_author_administers_their_own_assessment(self):
+		self.assertTrue(can_administer_assessment("LMS Quiz", self.quiz.name, user=self.author.name))
+		self.assertTrue(administers_in_sql("LMS Quiz", self.quiz.name, self.author.name))
+
+	def test_an_outsider_administers_nothing(self):
+		self.assertFalse(can_administer_assessment("LMS Quiz", self.quiz.name, user=self.outsider.name))
+		self.assertFalse(administers_in_sql("LMS Quiz", self.quiz.name, self.outsider.name))
+
+	def test_a_batch_instructor_and_its_tagged_evaluator_administer_it(self):
+		"""can_modify_batch answers the instructor list; the evaluator tag is a separate
+		probe because develop's can_modify_batch has no evaluator branch."""
+		evaluator = self._create_user(
+			f"aad-eval-{self.suffix}@example.com", "Eve", "Evaluator", ["Batch Evaluator"]
+		)
+		self._create_evaluator(evaluator.name)
+		batch_instructor = self._create_user(
+			f"aad-binstr-{self.suffix}@example.com",
+			"Bob",
+			"Instructor",
+			["Course Creator", "Batch Evaluator"],
+		)
+		batch = self._create_batch(
+			self.course.name,
+			instructor=batch_instructor.name,
+			title=f"Administer Assessed {self.suffix}",
+			evaluator=evaluator.name,
+		)
+		batch.append("assessment", {"assessment_type": "LMS Quiz", "assessment_name": self.quiz.name})
+		batch.save()
+		for user in (batch_instructor.name, evaluator.name):
+			with self.subTest(user=user):
+				self.assertTrue(can_administer_assessment("LMS Quiz", self.quiz.name, user=user))
+				self.assertTrue(administers_in_sql("LMS Quiz", self.quiz.name, user))
+
+	# --- the four callers ---
+
+	def test_guest_administers_nothing_and_lists_nothing(self):
+		"""Guest is a real user in frappe, so it is passed as the literal string."""
+		self.assertFalse(can_administer_assessment("LMS Quiz", self.quiz.name, user="Guest"))
+		self.assertFalse(administers_in_sql("LMS Quiz", self.quiz.name, "Guest"))
+		self.assertFalse(can_access_assessment("LMS Quiz", self.quiz.name, user="Guest"))
+
+	def test_a_doctype_that_is_not_an_assessment_is_refused_by_both_halves(self):
+		"""The empty-set subquery, not an empty string: "" is a syntax error inside
+		`in (...)` where it would mean "no restriction" at the top of a condition."""
+		self.assertFalse(can_administer_assessment("LMS Course", self.course.name, user="Administrator"))
+		self.assertEqual(administrable_assessment_names("LMS Course", "Administrator"), NO_ASSESSMENT_NAMES)
+		self.assertEqual(frappe.db.sql(f"select 1 where exists ({NO_ASSESSMENT_NAMES})"), ())
+
+	def test_a_name_that_is_not_a_string_is_refused(self):
+		"""get_value's second argument is `filters`, so a mapping would be matched
+		against the whole table and resolve an arbitrary row."""
+		self.assertFalse(can_administer_assessment("LMS Quiz", None, user=self.instructor.name))
+		self.assertFalse(
+			can_administer_assessment("LMS Quiz", {"title": ("like", "%")}, user=self.instructor.name)
+		)
+
+	def test_an_unrestricted_caller_gets_every_name_rather_than_an_empty_string(self):
+		for user in (self.moderator.name, "Administrator"):
+			with self.subTest(user=user):
+				self.assertEqual(
+					administrable_assessment_names("LMS Quiz", user), "SELECT `name` FROM `tabLMS Quiz`"
+				)
+				self.assertTrue(administers_in_sql("LMS Quiz", self.quiz.name, user))
+				self.assertTrue(can_administer_assessment("LMS Quiz", self.quiz.name, user=user))
+
+	def test_a_system_manager_administers_every_assessment(self):
+		"""System Manager holds a DocPerm on every assessment doctype; the administer
+		predicate must widen for it the same way it does for Moderator."""
+		site_admin = self._create_user(
+			f"aad-sysman-{self.suffix}@example.com", "Sam", "SysManager", ["System Manager"]
+		)
+		self.assertNotIn("Moderator", frappe.get_roles(site_admin.name))
+		self.assertTrue(can_administer_assessment("LMS Quiz", self.quiz.name, user=site_admin.name))
+		self.assertTrue(administers_in_sql("LMS Quiz", self.quiz.name, site_admin.name))
+
+	# --- instructor_only is no exception on this path ---
+
+	def test_an_instructor_only_placement_is_no_exception_to_the_administer_reading(self):
+		"""A student-visible placement and an instructor-only one answer identically
+		here, unlike for can_access_assessment, since authorship is the only course
+		branch left once the member branches are gone."""
+		hidden = self._create_quiz(self.questions, title=f"Administer Hidden {self.suffix}")
+		frappe.db.set_value("LMS Quiz", hidden.name, "owner", self.author.name)
+		self._place_in_lesson(self.course.name, "LMS Quiz", hidden.name, instructor_only=True)
+		self.assertTrue(can_administer_assessment("LMS Quiz", hidden.name, user=self.instructor.name))
+		self.assertTrue(administers_in_sql("LMS Quiz", hidden.name, self.instructor.name))
+		self.assertFalse(can_administer_assessment("LMS Quiz", hidden.name, user=self.member.name))
+		self.assertFalse(administers_in_sql("LMS Quiz", hidden.name, self.member.name))
+		self.assertFalse(can_access_assessment("LMS Quiz", hidden.name, user=self.member.name))
+
+	# --- the two layers against each other ---
+
+	def test_the_two_administer_layers_answer_the_same_for_every_actor(self):
+		"""An agreement sweep for the administer pair: an earlier draft of this predicate
+		had a real branch-order bug that only this shape of test caught."""
+		hidden = self._create_quiz(self.questions, title=f"Administer Agree {self.suffix}")
+		self._place_in_lesson(self.course.name, "LMS Quiz", hidden.name, instructor_only=True)
+		assessments = (
+			("LMS Quiz", self.quiz.name),
+			("LMS Quiz", hidden.name),
+			("LMS Assignment", self.assignment.name),
+		)
+		actors = (
+			self.member.name,
+			self.outsider.name,
+			self.instructor.name,
+			self.author.name,
+			self.moderator.name,
+			"Guest",
+			"Administrator",
+		)
+		for doctype, name in assessments:
+			for actor in actors:
+				self.assertEqual(
+					can_administer_assessment(doctype, name, user=actor),
+					administers_in_sql(doctype, name, actor),
+					f"{actor} gets different answers from the two administer layers for {doctype} {name}",
+				)
