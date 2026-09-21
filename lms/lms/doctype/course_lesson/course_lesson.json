@@ -29,7 +29,8 @@
   "column_break_15",
   "file_type",
   "column_break_syza",
-  "help"
+  "help",
+  "assessments"
  ],
  "fields": [
   {
@@ -158,11 +159,20 @@
    "fieldtype": "Check",
    "label": "Is SCORM Package",
    "read_only": 1
+  },
+  {
+   "description": "Derived from the lesson content on save. Not hand-edited.",
+   "fieldname": "assessments",
+   "fieldtype": "Table",
+   "hidden": 1,
+   "label": "Assessments",
+   "options": "LMS Lesson Assessment",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-04-01 12:21:25.050340",
+ "modified": "2026-09-22 10:00:00.000000",
  "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "Course Lesson",
