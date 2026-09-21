@@ -19,6 +19,7 @@ from lms.lms.doctype.lms_enrollment.lms_enrollment import (
 	batched_enrollment_updates,
 	update_enrollment,
 )
+from lms.lms.lesson_assessments import lesson_assessment_rows
 from lms.lms.permissions import (
 	INSTRUCTOR_FIELDS,
 	can_access_lesson,
@@ -51,6 +52,15 @@ class CourseLesson(Document):
 	def validate(self):
 		self.content = sanitize_editorjs(self.content)
 		self.instructor_content = sanitize_editorjs(self.instructor_content)
+		self.sync_lesson_assessments()
+
+	def sync_lesson_assessments(self):
+		"""Rebuild this lesson's placement rows from its own content, never hand-edited.
+		Runs in validate, not on_update: child rows are written during save, so an
+		on_update append would persist nothing."""
+		self.set("assessments", [])
+		for row in lesson_assessment_rows(self.body, self.content, self.instructor_content):
+			self.append("assessments", row)
 
 	def on_update(self):
 		self.validate_quiz_id()
