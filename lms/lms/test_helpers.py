@@ -362,6 +362,13 @@ class BaseTestUtils(IntegrationTestCase):
 		return quiz
 
 	@classmethod
+	def _set_authors(cls, doctype: str, name: str, users: list[str]):
+		"""Replace the stored `authors` rows outright, leaving `owner` untouched."""
+		doc = frappe.get_doc(doctype, name)
+		doc.set("authors", [{"author": user} for user in users])
+		doc.save(ignore_permissions=True)
+
+	@classmethod
 	def _stamp_legacy_quiz_placement(cls, quiz: str, course: str, lesson: str | None = None):
 		"""Write the frozen pre-placement-table LMS Quiz.course/.lesson stamp, deliberately.
 		Use _place_in_lesson for a placement the app itself would make."""
