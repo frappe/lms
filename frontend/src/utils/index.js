@@ -249,6 +249,26 @@ export function getEditorTools(
 							window.innerWidth < 640 ? '15rem' : '30rem'
 						};" frameborder="0" allowfullscreen></iframe>`,
 					},
+					ted: {
+						// www.ted.com/talks/<slug>, optionally with ?language=<code>,
+						// which selects the subtitle/interface language of the player.
+						regex: /^https?:\/\/(?:www\.)?ted\.com\/talks\/([\w-]+)\/?(?:\?(?:[^\s#]*&)?language=([\w-]+))?[^\s]*$/,
+						embedUrl:
+							'https://embed.ted.com/talks/<%= remote_id %>',
+						html: `<iframe style="width:100%; height: ${
+							window.innerWidth < 640 ? '15rem' : '30rem'
+						};" frameborder="0" scrolling="no" allowfullscreen></iframe>`,
+						id: ([slug, language]) =>
+							language ? `lang/${language}/${slug}` : slug,
+					},
+					dailymotion: {
+						regex: /^https?:\/\/(?:(?:www\.)?dailymotion\.com\/(?:embed\/)?video\/|dai\.ly\/)([a-zA-Z0-9]+)(?:_[^\s?#]*)?(?:[?#][^\s]*)?$/,
+						embedUrl:
+							'https://www.dailymotion.com/embed/video/<%= remote_id %>',
+						html: `<iframe style="width:100%; height: ${
+							window.innerWidth < 640 ? '15rem' : '30rem'
+						};" frameborder="0" allowfullscreen></iframe>`,
+					},
 					codepen: true,
 					aparat: {
 						regex: /^(?:http[s]?:\/\/)?(?:www.)?aparat\.com\/v\/([^\/\?\&]+)\/?$/,
