@@ -472,6 +472,29 @@ def courses_authored_by_each(users, courses) -> dict[str, set[str]]:
 	return authored
 
 
+def resolve_lesson_course(lesson: str) -> str | None:
+	"""The course a stored lesson is filed under, resolved through its chapter.
+
+	Never `Course Lesson.course`: it is a read-only `fetch_from: chapter.course` mirror,
+	and fetch_from is copy-on-save, so re-pointing a chapter at another course leaves
+	every lesson under it naming the course it has already left. The chapter is the
+	field that moves, so the chapter is the field to read.
+
+	Returns None when the lesson is gone, has no chapter, or names no existing chapter.
+	Anything built on this reads that as "no course", which denies everyone but a
+	Moderator. The type guard is not decoration: get_value's second argument is
+	`filters`, so a mapping would be matched against the whole table and resolve an
+	arbitrary lesson.
+	"""
+	if not isinstance(lesson, str) or not lesson:
+		return None
+
+	chapter = frappe.db.get_value("Course Lesson", lesson, "chapter")
+	if not chapter:
+		return None
+	return frappe.db.get_value("Course Chapter", chapter, "course") or None
+
+
 def can_access_quiz(quiz: str, *, user: str | None = None) -> bool:
 	"""Single source of truth for who may read a quiz's questions/answers.
 
