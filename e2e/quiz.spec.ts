@@ -177,7 +177,7 @@ test.describe("Quiz", () => {
 			await expect(page.getByText("What is 2 + 2?")).toBeVisible({
 				timeout: 10000,
 			});
-			await expect(page.locator('input[type="radio"]').first()).toBeVisible();
+			await expect(page.getByRole("radio").first()).toBeVisible();
 		});
 
 		test("submits the quiz and shows the result", async ({ page }) => {
@@ -186,11 +186,9 @@ test.describe("Quiz", () => {
 
 			await button(page, "Start Quiz").click();
 
-			// Select any answer
-			await page
-				.locator('input[type="radio"]')
-				.first()
-				.check({ force: true, timeout: 10000 });
+			// Select any answer. frappe-ui's Radio is a `role="radio"` button, not a
+			// native input, so `.check()` does not apply to it.
+			await page.getByRole("radio").first().click({ timeout: 10000 });
 
 			const submitQuiz = page.waitForResponse(
 				(res) =>
