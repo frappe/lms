@@ -1,0 +1,5 @@
+[phases.build]
+cmds = ["cd frontend && yarn install && yarn build"]
+
+[phases.start]
+cmd = "yarn start"  # or however you serve the frontend
