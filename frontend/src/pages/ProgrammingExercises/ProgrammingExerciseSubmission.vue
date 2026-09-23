@@ -46,7 +46,6 @@
 						@click="submitCode"
 						:loading="running"
 						:disabled="running"
-						class="text-ink-gray-9"
 					>
 						<template #prefix>
 							<span class="lucide-play size-3" />
@@ -56,11 +55,11 @@
 				</div>
 			</div>
 			<div class="flex flex-col space-y-4 pt-5 border-b">
-				<Code
+				<CodeEditor
 					v-model="code"
-					:language="exercise.doc?.language.toLowerCase()"
+					:type="exercise.doc?.language || 'Python'"
 					height="400px"
-					maxHeight="1000px"
+					:showLineNumbers="true"
 				/>
 				<div class="flex flex-col space-y-1">
 					<span v-if="error" class="text-xs text-ink-gray-5 px-1">
@@ -145,6 +144,7 @@ import {
 } from 'frappe-ui'
 import { computed, inject, onMounted, ref, watch } from 'vue'
 import PageHeader from '@/components/Layouts/PageHeader.vue'
+import CodeEditor from '@/components/Controls/CodeEditor.vue'
 import { sessionStore } from '@/stores/session'
 import { useRouter } from 'vue-router'
 import { openSettings } from '@/utils'
@@ -318,9 +318,20 @@ const loadFalcon = () => {
 
 const submitCode = async () => {
 	running.value = true
-	await runCode()
-	createSubmission()
-	running.value = false
+	error.value = false
+	errorMessage.value = null
+	try {
+		await runCode()
+		await createSubmission()
+	} catch (executionError) {
+		error.value = true
+		errorMessage.value =
+			executionError instanceof Error
+				? executionError.message
+				: String(executionError)
+	} finally {
+		running.value = false
+	}
 }
 
 const runCode = async () => {
@@ -333,12 +344,7 @@ const runCode = async () => {
 
 	for (const test_case of exercise.doc.test_cases) {
 		let result = await execute(test_case.input)
-		if (error.value) {
-			errorMessage.value = result
-			break
-		} else {
-			output.value = result
-		}
+		output.value = result
 		let status =
 			result.trim() === test_case.expected_output.trim() ? 'Passed' : 'Failed'
 		testCases.value.push({
@@ -350,11 +356,11 @@ const runCode = async () => {
 	}
 }
 
-const createSubmission = () => {
+const createSubmission = async () => {
 	if (!testCases.value.length) return
 	let codeToSave = code.value?.replace(boilerplate.value, '') || ''
 
-	call('lms.lms.api.create_programming_exercise_submission', {
+	await call('lms.lms.api.create_programming_exercise_submission', {
 		exercise: props.exerciseID,
 		submission: props.submissionID,
 		code: codeToSave,
@@ -382,46 +388,72 @@ const createSubmission = () => {
 
 const execute = (stdin = ''): Promise<string> => {
 	return new Promise((resolve, reject) => {
-		let outputChunks: string[] = []
-		let hasExited = false
-		let hasError = false
+		const outputChunks: string[] = []
+		const errorChunks: string[] = []
+		let settled = false
+		let session: any
+		let timeout: ReturnType<typeof setTimeout> | undefined
 
-		let session = new LiveCodeSession({
-			base_url: falconURL.value,
-			runtime: exercise.doc?.language.toLowerCase() || 'python',
-			code: code.value,
-			files: [{ filename: 'stdin', contents: stdin }],
-			onMessage: (msg: any) => {
-				console.log('msg', msg)
+		const cleanup = () => {
+			if (timeout) clearTimeout(timeout)
+			session?.ws?.removeEventListener('error', handleConnectionFailure)
+			session?.ws?.removeEventListener('close', handleConnectionFailure)
+		}
 
-				if (msg.msgtype === 'write' && msg.file === 'stdout') {
-					outputChunks.push(msg.data)
-				}
+		const succeed = (result: string) => {
+			if (settled) return
+			settled = true
+			cleanup()
+			resolve(result)
+		}
 
-				if (msg.msgtype === 'write' && msg.file === 'stderr') {
-					hasError = true
-					errorMessage.value = msg.data
-				}
+		const fail = (message: string) => {
+			if (settled) return
+			settled = true
+			cleanup()
+			reject(new Error(message))
+		}
 
-				if (msg.msgtype === 'exitstatus') {
-					hasExited = true
-					if (msg.exitstatus !== 0) {
-						error.value = true
-					} else {
-						error.value = false
+		const handleConnectionFailure = () => {
+			fail(__('Unable to connect to the code runner. Please try again.'))
+		}
+
+		try {
+			session = new LiveCodeSession({
+				base_url: falconURL.value,
+				runtime: exercise.doc?.language.toLowerCase() || 'python',
+				code: code.value,
+				files: [{ filename: 'stdin', contents: stdin }],
+				onMessage: (msg: any) => {
+					if (msg.msgtype === 'write' && msg.file === 'stdout') {
+						outputChunks.push(msg.data)
 					}
-					resolve(outputChunks.join('').trim())
-				}
-			},
-		})
 
-		setTimeout(() => {
-			if (!hasExited) {
-				running.value = false
-				error.value = true
-				errorMessage.value = 'Execution timed out.'
-				reject('Execution timed out.')
-			}
+					if (msg.msgtype === 'write' && msg.file === 'stderr') {
+						errorChunks.push(msg.data)
+					}
+
+					if (msg.msgtype === 'exitstatus') {
+						if (msg.exitstatus !== 0) {
+							fail(
+								errorChunks.join('').trim() ||
+									__('Code execution failed.')
+							)
+							return
+						}
+						succeed(outputChunks.join('').trim())
+					}
+				},
+			})
+			session.ws?.addEventListener('error', handleConnectionFailure)
+			session.ws?.addEventListener('close', handleConnectionFailure)
+		} catch {
+			handleConnectionFailure()
+			return
+		}
+
+		timeout = setTimeout(() => {
+			fail(__('Execution timed out.'))
 		}, 20000)
 	})
 }
