@@ -184,12 +184,8 @@ function enrollStudent() {
 	}
 	const courseName = props.course.data?.name
 	if (!courseName) return
-	call('frappe.client.insert', {
-		doc: {
-			doctype: 'LMS Enrollment',
-			course: courseName,
-			member: user.data.name,
-		},
+	call('lms.lms.api.enroll_in_course', {
+		course: courseName,
 	})
 		.then(() => {
 			capture('enrolled_in_course', { course: courseName })

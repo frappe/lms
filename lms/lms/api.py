@@ -117,6 +117,37 @@ def set_user_language(language: str):
 	return {"language": language}
 
 
+@frappe.whitelist()
+def enroll_in_course(course: str):
+	"""Enroll the current signed-in user in a published self-learning course.
+
+	The generic ``frappe.client.insert`` endpoint performs a doctype-level
+	permission check before ``LMS Enrollment`` can apply its course-specific
+	validation. LMS Student has owner-scoped enrollment permissions, so expose
+	the narrow self-enrollment operation instead of granting broad enrollment
+	create access.
+	"""
+	if frappe.session.user == "Guest":
+		frappe.throw(_("You must log in to enroll in a course."))
+	course = str(course or "").strip()
+	if not course or not frappe.db.exists("LMS Course", course):
+		frappe.throw(_("Course not found."))
+	existing = frappe.db.exists(
+		"LMS Enrollment", {"course": course, "member": frappe.session.user}
+	)
+	if existing:
+		return frappe.get_doc("LMS Enrollment", existing).as_dict()
+	enrollment = frappe.get_doc(
+		{
+			"doctype": "LMS Enrollment",
+			"course": course,
+			"member": frappe.session.user,
+		}
+	)
+	enrollment.insert(ignore_permissions=True)
+	return enrollment.as_dict()
+
+
 PERMISSION_DOCTYPES = (
 	"LMS Course",
 	"Course Chapter",

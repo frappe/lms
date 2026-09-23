@@ -7,6 +7,7 @@ import frappe
 from frappe.utils import flt
 
 from lms.lms.api import (
+	enroll_in_course,
 	export_course_as_zip,
 	get_certified_participants,
 	get_course_assessment_progress,
@@ -21,6 +22,21 @@ class TestLMSAPI(BaseTestUtils):
 	def setUp(self):
 		super().setUp()
 		self._setup_course_flow()
+
+	def test_student_can_self_enroll_through_lms_endpoint(self):
+		course = self._create_course(
+			title="Self Enrollment API Course",
+			instructor=self.admin.email,
+		)
+		previous_user = frappe.session.user
+		try:
+			frappe.set_user(self.student1.email)
+			enrollment = enroll_in_course(course.name)
+			self.assertEqual(enrollment["member"], self.student1.email)
+			self.assertEqual(enrollment["course"], course.name)
+			self.cleanup_items.append(("LMS Enrollment", enrollment["name"]))
+		finally:
+			frappe.set_user(previous_user)
 
 	def test_certified_participants_with_category(self):
 		filters = {"category": "Utility Course"}
