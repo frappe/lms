@@ -666,9 +666,23 @@ def create_lesson_docs(zip_file, course_name, chapter_docs):
 	return lesson_docs
 
 
+def drop_source_site_authors(data):
+	"""An imported row answers to whoever imported it, not to the site it came from.
+
+	`authors` names Users, and the export serialises those child rows. Carried
+	across, the Link either does not resolve here -- LinkValidationError out of
+	insert(), so no part of the course arrives -- or resolves to an unrelated
+	account that happens to share the email, handing it write on content it never
+	made while the importer who owns the row cannot edit it. Dropped, the
+	AuthoredDocument seed names the importer, the same as for any other new row.
+	"""
+	data.pop("authors", None)
+
+
 def create_question_doc(zip_file, file):
 	question_data = read_json_from_zip(zip_file, file)
 	if question_data:
+		drop_source_site_authors(question_data)
 		doc = frappe.new_doc("LMS Question")
 		doc.update(question_data)
 		doc.insert(ignore_permissions=True)
@@ -716,6 +730,7 @@ def build_assessment_doc(assessment_data):
 
 	questions = assessment_data.pop("questions", [])
 	test_cases = assessment_data.pop("test_cases", [])
+	drop_source_site_authors(assessment_data)
 	doc = frappe.new_doc(doctype)
 	doc.update(assessment_data)
 
