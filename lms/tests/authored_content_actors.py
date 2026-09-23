@@ -31,8 +31,10 @@ from lms.lms.test_helpers import BaseTestUtils
 
 AUTHORED_DOCTYPES = ("LMS Quiz", "LMS Programming Exercise", "LMS Assignment", "LMS Question")
 
-# Every parent whose child rows the gate answers for.
-GATED_PARENTS = AUTHORED_DOCTYPES
+# Every parent whose child rows the gate answers for. LMS Program is not in the tuple
+# above -- it composes the write gate rather than registering on it -- but it carries
+# `authors`, so its own child tables are reachable by the same move.
+GATED_PARENTS = (*AUTHORED_DOCTYPES, "LMS Program")
 GATE = "lms.lms.permissions.refuse_moving_child_rows_out_of_content_the_user_cannot_write"
 
 
@@ -100,8 +102,8 @@ class AuthoredContentChildRowActors(BaseTestUtils):
 			frappe.set_user("Administrator")  # nosemgrep: frappe-setuser
 
 	def _title(self, label):
-		"""Unique per call: _movable_cases rebuilds its fixtures on every call, so a
-		title carrying only the suite hash collided on the second one."""
+		"""Unique per call. LMS Program autonames `field:title`, which forces unique=1,
+		and _movable_cases rebuilds its fixtures on every call."""
 		return f"{label} {self.hash} {frappe.generate_hash(length=4)}"
 
 	def _insert_as(self, owner, payload):
@@ -127,6 +129,9 @@ class AuthoredContentChildRowActors(BaseTestUtils):
 			},
 		)
 
+	def _program(self, owner, label):
+		return self._insert_as(owner, {"doctype": "LMS Program", "title": self._title(label)})
+
 	def _question(self, owner, label):
 		return self._insert_as(
 			owner,
@@ -143,7 +148,11 @@ class AuthoredContentChildRowActors(BaseTestUtils):
 
 	def _content(self, parenttype, owner, label):
 		"""One of the gated parents, by doctype, so a control can build its own destination."""
-		builders = {"LMS Quiz": self._quiz, "LMS Programming Exercise": self._exercise}
+		builders = {
+			"LMS Quiz": self._quiz,
+			"LMS Programming Exercise": self._exercise,
+			"LMS Program": self._program,
+		}
 		return builders[parenttype](owner, label)
 
 	def _seed_row(self, child_doctype, parent, parenttype, parentfield, fields, idx=1):
@@ -202,4 +211,36 @@ class AuthoredContentChildRowActors(BaseTestUtils):
 				self._quiz(self.author.name, "Source Authors Quiz"),
 				self._quiz(self.bystander.name, "Destination Authors Quiz"),
 			),
+			(
+				"LMS Program Course",
+				"LMS Program",
+				"program_courses",
+				{"course": self._course_for_a_program()},
+				self._program(self.author.name, "Source Program"),
+				self._program(self.bystander.name, "Destination Program"),
+			),
+			(
+				"LMS Program Member",
+				"LMS Program",
+				"program_members",
+				{"member": self.bystander.name},
+				self._program(self.author.name, "Source Member Program"),
+				self._program(self.bystander.name, "Destination Member Program"),
+			),
 		]
+
+	def _course_for_a_program(self):
+		"""A course for a program row to point at, made by the author through the
+		ordinary permission path -- a Course Creator holds create on LMS Course."""
+		with self._acting_as(self.author.name):
+			course = frappe.get_doc(
+				{
+					"doctype": "LMS Course",
+					"title": self._title("Program Course"),
+					"short_introduction": "Short",
+					"description": "Description",
+					"published": 1,
+					"instructors": [{"instructor": self.author.name}],
+				}
+			).insert()
+		return course.name

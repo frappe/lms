@@ -17,17 +17,19 @@ from contextlib import contextmanager
 import frappe
 
 from lms import hooks
+from lms.lms.doctype.lms_program import lms_program
 from lms.lms.permissions import has_authored_content_permission, stored_authors
 from lms.lms.test_helpers import BaseTestUtils
 
 AUTHORED_DOCTYPES = ("LMS Quiz", "LMS Programming Exercise", "LMS Assignment", "LMS Question")
 
-# LMS Program is the one other doctype in this family and deliberately does NOT
-# carry `authors` yet. frappe allows one has_permission hook per doctype and
-# LMS Program's own hook already holds its read rule, so giving it the field means
-# composing this gate into that hook rather than registering on it -- a different
-# change, on its own branch. What is pinned here is that the field never reaches a
-# doctype whose gate does not read it.
+# LMS Program carries `authors` too and is deliberately NOT in the tuple above.
+# frappe allows one has_permission hook per doctype and LMS Program's own hook
+# already holds its read rule, so it composes has_authored_content_permission rather
+# than registering on it. What that composition answers is measured in
+# lms/tests/security/test_program_authoring_scope.py; what is pinned here is only
+# that the field never reaches a doctype whose gate does not read it.
+COMPOSED_CARRIERS = {"LMS Program": "lms.lms.doctype.lms_program.lms_program.has_permission"}
 
 # LMS Question carries no Batch Evaluator DocPerm row. The grant was decided and
 # never written, and it is to be treated as not existing — so an evaluator is not
@@ -302,7 +304,7 @@ class TestAuthoredContentScope(BaseTestUtils):
 		)
 		self.assertEqual(
 			carriers,
-			set(AUTHORED_DOCTYPES),
+			set(AUTHORED_DOCTYPES) | set(COMPOSED_CARRIERS),
 			"a doctype gained or lost the authors field",
 		)
 
@@ -310,3 +312,8 @@ class TestAuthoredContentScope(BaseTestUtils):
 		self.assertEqual(
 			gated, set(AUTHORED_DOCTYPES), "a doctype carries the field without the gate that reads it"
 		)
+
+		for doctype, target in COMPOSED_CARRIERS.items():
+			with self.subTest(doctype=doctype):
+				self.assertEqual(hooks.has_permission.get(doctype), target)
+				self.assertIs(lms_program.has_authored_content_permission, has_authored_content_permission)
