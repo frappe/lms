@@ -107,7 +107,7 @@
 							class="flex items-center justify-center px-4 py-10 text-center"
 						>
 							<span class="text-sm text-ink-gray-5">
-								{{ __('Course Content coming soon!') }}
+								{{ __('Course content coming soon!') }}
 							</span>
 						</div>
 						<CourseOutline
