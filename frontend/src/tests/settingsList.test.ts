@@ -33,8 +33,8 @@ vi.mock('frappe-ui', () => ({
 	},
 	LoadingIndicator: { template: `<span data-testid="spinner" />` },
 	Switch: {
-		props: ['modelValue', 'ariaLabel'],
-		template: `<button data-testid="switch" :aria-label="ariaLabel" @click="$emit('update:modelValue', !modelValue)" />`,
+		props: ['modelValue'],
+		template: `<button data-testid="switch" @click="$emit('update:modelValue', !modelValue)"><slot name="label" /></button>`,
 	},
 }))
 
@@ -150,9 +150,11 @@ describe('SettingsList', () => {
 		expect(wrapper.get('[data-testid="avatar"]').attributes('data-label')).toBe(
 			'Marketing'
 		)
-		expect(wrapper.get('[data-testid="switch"]').attributes('aria-label')).toBe(
-			'Enable Marketing'
-		)
+		// Named through the slot the component wires to its control, and named
+		// without adding a visible word to a column whose header already has one.
+		const name = wrapper.get('[data-testid="switch"] span')
+		expect(name.text()).toBe('Enable Marketing')
+		expect(name.classes()).toContain('sr-only')
 	})
 
 	it('drops the second line when a stacked column has no secondary', () => {
@@ -177,6 +179,24 @@ describe('SettingsList', () => {
 		for (const cell of build().findAll('[data-testid="header-cell"]')) {
 			expect(cell.classes()).toContain('text-p-sm')
 		}
+	})
+
+	it('keeps the header in the same scroller as the rows', () => {
+		// Not a stylistic preference. The header and the rows are separate grid
+		// containers sharing one `--list-columns` track list, so they only line up
+		// while they are the same width. With the header outside the scroller, a
+		// classic (space-taking) scrollbar makes the rows' content box ~15px
+		// narrower, the `fr` track absorbs the entire difference, and every fixed
+		// column after it draws that far right of its own cells. Measured at 15px
+		// on Linux Chrome before this moved. Sharing the box makes the widths
+		// equal under every scrollbar style; `sticky` is what keeps the labels in
+		// view once they scroll with the rows.
+		const wrapper = build()
+		const scroller = wrapper.get('.overflow-y-auto')
+
+		expect(scroller.find('[data-testid="header"]').exists()).toBe(true)
+		expect(scroller.find('[data-testid="row"]').exists()).toBe(true)
+		expect(wrapper.get('[data-testid="header"]').classes()).toContain('sticky')
 	})
 
 	it('opens the row on click', async () => {

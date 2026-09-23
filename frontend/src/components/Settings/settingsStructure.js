@@ -442,7 +442,7 @@ export const settingsStructure = [
 			{
 				label: 'Raven',
 				description:
-					'Automatically sync Raven workspace and channel membership from your students and staff',
+					'Automatically add your students and staff to Raven channels, by your own rules',
 				icon: 'lucide-messages-square',
 				template: markRaw(RavenSettings),
 			},
