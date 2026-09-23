@@ -5,8 +5,10 @@ import frappe
 from frappe import _
 from frappe.model.document import Document
 
+from lms.lms.doctype.lms_content_author.lms_content_author import AuthoredDocument
 
-class LMSProgrammingExercise(Document):
+
+class LMSProgrammingExercise(AuthoredDocument, Document):
 	def validate(self):
 		self.validate_test_cases()
 

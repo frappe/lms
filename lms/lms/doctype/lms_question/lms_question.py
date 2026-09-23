@@ -5,6 +5,7 @@ import frappe
 from frappe import _
 from frappe.model.document import Document
 
+from lms.lms.doctype.lms_content_author.lms_content_author import AuthoredDocument
 from lms.lms.utils import has_course_instructor_role, has_moderator_role
 
 # Each LMS Question carries up to 10 option/correctness/explanation/possibility
@@ -16,7 +17,7 @@ QUESTION_EXPLANATION_FIELDS = [f"explanation_{i}" for i in range(1, 11)]
 QUESTION_POSSIBILITY_FIELDS = [f"possibility_{i}" for i in range(1, 11)]
 
 
-class LMSQuestion(Document):
+class LMSQuestion(AuthoredDocument, Document):
 	def validate(self):
 		validate_correct_answers(self)
 		update_question_title(self)
