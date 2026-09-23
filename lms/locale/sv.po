@@ -2275,7 +2275,7 @@ msgid "Course Completions"
 msgstr "Kursavslutningar"
 
 #: frontend/src/pages/Courses/CourseOverview.vue:110
-msgid "Course Content coming soon!"
+msgid "Course content coming soon!"
 msgstr "Kurs innehåll kommer snart!"
 
 #. Label of the course_count (Int) field in DocType 'LMS Program'
