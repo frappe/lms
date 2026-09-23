@@ -2,6 +2,7 @@ import type { ThemePreference } from '@/utils/theme'
 import { overflowLinks, sectionFor, type NavLink } from '@/utils/mobileNav'
 import {
 	colourModeRow,
+	languageRow,
 	type MobileRow,
 	type MobileRowGroup,
 } from './mobileSettings'
@@ -75,6 +76,7 @@ export const buildYouRows = (options: {
 	otherLinks: readonly NavLink[]
 	primaryLabels: readonly string[]
 	themePreference: ThemePreference
+	language?: string
 	unreadCount?: number
 	/**
 	 * `router.hasRoute`. Required rather than defaulted: a default of "yes,
@@ -88,6 +90,7 @@ export const buildYouRows = (options: {
 		otherLinks,
 		primaryLabels,
 		themePreference,
+		language,
 		unreadCount,
 		hasRoute,
 	} = options
@@ -124,6 +127,7 @@ export const buildYouRows = (options: {
 	}
 
 	settingsRows.push(colourModeRow(themePreference))
+	settingsRows.push(languageRow(language))
 	settingsRows.push({
 		key: 'Log out',
 		label: 'Log out',

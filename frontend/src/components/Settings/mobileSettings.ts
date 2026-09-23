@@ -90,6 +90,21 @@ const COLOUR_MODE_LABELS: Record<string, string> = {
 
 export const COLOUR_MODE_ACTION = 'colour-mode'
 
+export const LANGUAGE_ACTION = 'language'
+
+const LANGUAGE_LABELS: Record<string, string> = {
+	en: 'English',
+	vi: 'Tiếng Việt',
+}
+
+export const languageRow = (language?: string): MobileRow => ({
+	key: 'language',
+	label: 'Language',
+	icon: 'lucide-languages',
+	value: LANGUAGE_LABELS[language || 'en'] || language || 'English',
+	action: LANGUAGE_ACTION,
+})
+
 // Exported because the You page lists this row. It reports being picked rather
 // than routing somewhere: the picker is a sheet, so there is one way to choose
 // from a short list on a phone and no `/settings/appearance` page that exists
@@ -110,6 +125,7 @@ export interface SettingsUser {
 	name?: string
 	username?: string
 	is_moderator?: boolean | number
+	language?: string
 	user_image?: string
 	/** The one-line "what I do". `bio` is long-form prose and is not this. */
 	headline?: string

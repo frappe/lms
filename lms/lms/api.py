@@ -64,7 +64,18 @@ def get_user_info():
 	user = frappe.db.get_value(
 		"User",
 		frappe.session.user,
-		["name", "email", "enabled", "user_image", "full_name", "user_type", "username", "bio", "headline"],
+		[
+			"name",
+			"email",
+			"enabled",
+			"user_image",
+			"full_name",
+			"user_type",
+			"username",
+			"bio",
+			"headline",
+			"language",
+		],
 		as_dict=1,
 	)
 	user["roles"] = frappe.get_roles(user.name)
@@ -80,6 +91,30 @@ def get_user_info():
 		user.site_info = current_site_info()
 	user.permissions = _doctype_permissions()
 	return user
+
+
+@frappe.whitelist()
+def get_available_languages():
+	"""Return enabled languages that any signed-in LMS user may select."""
+	return frappe.get_all(
+		"Language",
+		filters={"enabled": 1},
+		fields=["name", "language_name"],
+		order_by="language_name asc",
+	)
+
+
+@frappe.whitelist()
+def set_user_language(language: str):
+	"""Set the current user's language without requiring User write access."""
+	if frappe.session.user == "Guest":
+		frappe.throw(_("You must be logged in to change your language."))
+
+	if not frappe.db.exists("Language", {"name": language, "enabled": 1}):
+		frappe.throw(_("This language is not available."))
+
+	frappe.db.set_value("User", frappe.session.user, "language", language)
+	return {"language": language}
 
 
 PERMISSION_DOCTYPES = (

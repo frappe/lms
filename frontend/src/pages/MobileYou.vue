@@ -65,6 +65,7 @@
 				/>
 			</div>
 		</BottomSheet>
+		<LanguageDialog v-model="showLanguageDialog" />
 	</MobilePageLayout>
 </template>
 
@@ -101,8 +102,10 @@ import { buildYouRows } from '@/components/Settings/youRows'
 import {
 	buildAppearanceRows,
 	COLOUR_MODE_ACTION,
+	LANGUAGE_ACTION,
 	type SettingsUser,
 } from '@/components/Settings/mobileSettings'
+import LanguageDialog from '@/components/LanguageDialog.vue'
 
 const router = useRouter()
 const { logout, brand } = sessionStore()
@@ -173,6 +176,7 @@ const groups = computed(() =>
 		otherLinks: otherLinks.value,
 		primaryLabels: primaryLabels.value,
 		themePreference: themePreference.value,
+		language: user.value?.language,
 		unreadCount: unreadCount.value,
 		hasRoute: (name: string) => router.hasRoute(name),
 	})
@@ -203,6 +207,7 @@ watch(
 onMounted(() => loadUnreadCount())
 
 const showColourMode = ref(false)
+const showLanguageDialog = ref(false)
 
 // Called from script rather than inline in the template: a `<script setup>`
 // template resolves only what the component exposes.
@@ -241,6 +246,7 @@ const chooseColourMode = (mode: string): void => {
 const activate = (action: string): void => {
 	if (action === 'notifications') toggleNotifications()
 	else if (action === COLOUR_MODE_ACTION) showColourMode.value = true
+	else if (action === LANGUAGE_ACTION) showLanguageDialog.value = true
 	else if (action === 'logout') logout.submit()
 }
 
