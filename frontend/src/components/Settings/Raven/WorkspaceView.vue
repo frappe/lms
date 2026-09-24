@@ -137,7 +137,7 @@ import {
 	createResource,
 	toast,
 } from 'frappe-ui'
-import type { TabValue } from 'frappe-ui'
+import type { FrappeResourceError, TabValue } from 'frappe-ui'
 import { computed, ref, watch } from 'vue'
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 import SettingsLayout from '@/components/Layouts/settings/desktop/SettingsLayout.vue'
@@ -182,8 +182,8 @@ const visibilityOptions = VISIBILITIES.map((value) => ({
 // above the strip, and what can be done to the record itself lives on its row in
 // the list, so there is no General tab holding one field and two buttons.
 const tabs = [
-	{ value: 'channels', label: __('Channels'), icon: 'lucide-hash' },
-	{ value: 'members', label: __('Members'), icon: 'lucide-users' },
+	{ value: 'channels', label: __('Channels'), iconLeft: 'lucide-hash' },
+	{ value: 'members', label: __('Members'), iconLeft: 'lucide-users' },
 ]
 
 // Three states, not two: in flight, loaded, and failed. onError only toasts, so
@@ -193,7 +193,7 @@ const tabs = [
 // own on `loading` for this reason.
 const resource = createResource<WorkspaceDetail>({
 	url: 'raven_integration.api.get_workspace',
-	onError(err: { messages?: string[] }) {
+	onError(err: FrappeResourceError) {
 		toast.error(err?.messages?.[0] ?? __('Could not load the workspace'))
 	},
 })
@@ -239,22 +239,9 @@ function leave(): void {
 </script>
 
 <style scoped>
-/* Only a tab's own row list scrolls, the Name/Visibility fields above the
-   tabs, the tab strip, each tab's own heading row and its table's column
-   header all stay in view. That used to mean one scroller for the whole page
-   (see git history): frappe-ui's TabsRoot is `flex-1 overflow-hidden` and its
-   panel `overflow-auto` by default, so letting the panel scroll dragged the
-   Channels/Members heading away with the list, which read as broken on a long
-   one. Disabling that nested scroll entirely fixed it, at the cost of the
-   Name/Visibility fields and the tab strip scrolling away too on a long list
-   worse for the same reason.
-   Rather than re-enabling frappe-ui's panel scroll, the scroll is pushed one
-   level deeper still, into SettingsTable's own row list
-   (SettingsTable.vue), the one element that actually has nothing above it
-   worth keeping in view. Every layer between here and there stays a bounded,
-   non-scrolling flex column (`min-h-0` so it can shrink below its content,
-   which `overflow: hidden` gets for free per spec) so the height it is given
-   actually reaches that bottom layer instead of collapsing to content size. */
+/* Only a tab's row list scrolls (SettingsTable.vue). frappe-ui's TabsRoot and
+   panel bound nothing, so every layer down to it must be a bounded,
+   non-scrolling flex column (`min-h-0` or `overflow: hidden`). */
 /* These two bound the height, which is what lets the row list below be the only
    thing that scrolls, take that away and the whole panel scrolls as one again.
    `overflow: hidden` is how they bound it, so it stays.
@@ -278,16 +265,9 @@ function leave(): void {
 	overflow: hidden;
 }
 
-/* frappe-ui pins the tablist only when the panel asks for the room; this page's
-   panels are intrinsically tall, so hold the strip at its content height. */
+/* Else the tall panel squeezes the strip below its content height. */
 .workspace-tabs :deep([role='tablist']) {
 	flex-shrink: 0;
-	/* A horizontal tablist carries px-5 on top of its p-1 (frappe-ui Tabs.vue), so
-	   the labels start 20px in, not the 4px p-1 alone suggests, and the cascade
-	   gives px-5 the win. Zeroing the inline start padding is what actually puts
-	   the first label on the container's edge, beside the header chevron and above
-	   the panel. The strip's own border still spans the full width. */
-	padding-inline-start: 0;
 }
 
 .tab-panel-content {

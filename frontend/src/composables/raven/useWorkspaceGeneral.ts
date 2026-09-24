@@ -3,6 +3,7 @@
 // the Save button in the header, next to the title, and reads them off one
 // resource; ours reads them off this.
 import { createResource, toast } from 'frappe-ui'
+import type { FrappeResourceError } from 'frappe-ui'
 import { computed, reactive, watch, type ComputedRef } from 'vue'
 import type { WorkspaceDetail, WorkspaceVisibility } from '@/types'
 
@@ -121,7 +122,7 @@ export function useWorkspaceGeneral(
 	const locked = computed<boolean>(() => !!detail.value?.stale)
 
 	function onError(fallback: string) {
-		return (err: { messages?: string[] }): void => {
+		return (err: FrappeResourceError): void => {
 			toast.error(err?.messages?.[0] ?? fallback)
 			onChanged()
 		}
@@ -141,7 +142,7 @@ export function useWorkspaceGeneral(
 	// reload when the create is the thing that failed.
 	const createWorkspace = createResource({
 		url: 'raven_integration.api.create_workspace',
-		onError(err: { messages?: string[] }) {
+		onError(err: FrappeResourceError) {
 			toast.error(err?.messages?.[0] ?? __('Could not create the workspace'))
 		},
 	})

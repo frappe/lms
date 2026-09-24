@@ -66,36 +66,30 @@
 						</template>
 					</Button>
 				</Tooltip>
-				<router-link
-					:to="{
-						name: 'Lesson',
-						params: {
-							courseName: props.courseName,
-							chapterNumber: editorSelected.chapterNumber,
-							lessonNumber: editorSelected.lessonNumber,
-						},
-						query: { studentView: 1 },
-					}"
-				>
-					<Tooltip v-if="isMobile" :text="__('Student View')">
-						<Button variant="outline" class="!size-9">
-							<template #icon>
-								<span class="lucide-eye size-4" />
-							</template>
-						</Button>
-					</Tooltip>
-					<Button v-else variant="outline">
-						<template #prefix>
+				<Tooltip v-if="isMobile" :text="__('Student View')">
+					<Button
+						variant="outline"
+						class="!size-9"
+						:label="__('Student View')"
+						:route="studentViewRoute"
+					>
+						<template #icon>
 							<span class="lucide-eye size-4" />
 						</template>
-						{{ __('Student View') }}
 					</Button>
-				</router-link>
+				</Tooltip>
+				<Button v-else variant="outline" :route="studentViewRoute">
+					<template #prefix>
+						<span class="lucide-eye size-4" />
+					</template>
+					{{ __('Student View') }}
+				</Button>
 			</template>
 			<Button
 				v-if="tab?.key === 'dashboard' && course.data && isMobile"
 				variant="outline"
 				class="!size-9"
+				:label="__('Enroll')"
 				:tooltip="__('Enroll')"
 				@click="openEnrollForm()"
 			>
@@ -227,6 +221,7 @@ import {
 	toast,
 	usePageMeta,
 } from 'frappe-ui'
+import type { FrappeResourceError } from 'frappe-ui'
 import { sessionStore } from '@/stores/session'
 import { useScreenSize } from '@/utils/composables'
 import TabbedDetailPage from '@/components/Layouts/pages/TabbedDetailPage.vue'
@@ -264,6 +259,16 @@ interface EditorSelection {
 
 const editorSelected = ref<EditorSelection | null>(null)
 const showLessonHelp = ref(false)
+
+const studentViewRoute = computed(() => ({
+	name: 'Lesson',
+	params: {
+		courseName: props.courseName,
+		chapterNumber: editorSelected.value?.chapterNumber,
+		lessonNumber: editorSelected.value?.lessonNumber,
+	},
+	query: { studentView: 1 },
+}))
 
 type CourseMenuItem = {
 	label: string
@@ -314,11 +319,8 @@ const publishToggle = createResource({
 		)
 		course.reload()
 	},
-	onError(err: { messages?: string[] } | string) {
-		const msg =
-			typeof err === 'string'
-				? err
-				: err.messages?.[0] ?? __('Could not update publish status')
+	onError(err: FrappeResourceError) {
+		const msg = err.messages?.[0] ?? __('Could not update publish status')
 		toast.error(msg)
 	},
 }) as Resource<unknown>

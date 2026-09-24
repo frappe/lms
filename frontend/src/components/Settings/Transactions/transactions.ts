@@ -1,4 +1,5 @@
 import { call, toast } from 'frappe-ui'
+import type { FrappeResourceError } from 'frappe-ui'
 import { markRaw } from 'vue'
 // @ts-expect-error router.js is still plain JS, so it has no declarations
 import router from '@/router'
@@ -187,7 +188,7 @@ const removeTransaction = (name: string, close: () => void) => {
 			if (typeof close === 'function') close()
 			return reloadSettingsLists(DOCTYPE)
 		})
-		.catch((error: { messages?: string[] }) => {
+		.catch((error: FrappeResourceError) => {
 			toast.error(error?.messages?.[0] || __('Unable to delete transaction'))
 			console.error(error)
 		})

@@ -74,6 +74,7 @@
 // no row to show them. Centred with flex, because the translate-x trick CRM and
 // Helpdesk use is banned here for RTL.
 import { Badge, createResource, toast } from 'frappe-ui'
+import type { FrappeResourceError } from 'frappe-ui'
 import { computed, ref } from 'vue'
 import SettingsLayout from '@/components/Layouts/settings/desktop/SettingsLayout.vue'
 import RavenSetupRow from './RavenSetupRow.vue'
@@ -97,7 +98,7 @@ const notPermitted = ref(false)
 const setup = createResource<RavenSetupState>({
 	url: 'lms.raven_provider.get_raven_setup',
 	auto: true,
-	onError(err: { exc_type?: string }) {
+	onError(err: FrappeResourceError) {
 		notPermitted.value = err?.exc_type === 'PermissionError'
 	},
 })
@@ -130,7 +131,7 @@ const enableIntegration = createResource({
 	onSuccess() {
 		setup.reload()
 	},
-	onError(err: { messages?: string[] }) {
+	onError(err: FrappeResourceError) {
 		toast.error(err?.messages?.[0] ?? __('Could not enable the integration'))
 	},
 })

@@ -1,4 +1,5 @@
 import { call, toast } from 'frappe-ui'
+import type { FrappeResourceError } from 'frappe-ui'
 import { markRaw } from 'vue'
 // @ts-expect-error utils/dialogs.js is still plain JS, so it has no declarations
 import { createDialog } from '@/utils/dialogs'
@@ -143,7 +144,7 @@ export const memberColumns = (
 ]
 
 export const memberError = (
-	error: { messages?: string[]; message?: string },
+	error: FrappeResourceError,
 	fallback: string
 ): string => {
 	const message = error?.messages?.[0] || error?.message
@@ -161,7 +162,7 @@ const removeMember = (
 			toast.success(__('User deleted'))
 			onDeleted()
 		})
-		.catch((error: { messages?: string[] }) => {
+		.catch((error: FrappeResourceError) => {
 			toast.error(memberError(error, __('Unable to delete user')))
 			console.error(error)
 		})

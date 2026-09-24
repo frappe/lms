@@ -8,6 +8,7 @@ import {
 	type Ref,
 } from 'vue'
 import { createListResource, createResource } from 'frappe-ui'
+import type { FrappeResourceError } from 'frappe-ui'
 
 export const SETTINGS_PAGE_LENGTH = 13
 
@@ -27,7 +28,7 @@ export function reloadSettingsLists(doctype: string): Promise<unknown> {
 
 export interface ResourceCallbacks<T = unknown> {
 	onSuccess?: (data: T) => void
-	onError?: (error: { messages?: string[] }) => void
+	onError?: (error: FrappeResourceError) => void
 }
 
 /**
@@ -87,7 +88,7 @@ export interface SettingsListSource<TRow = Record<string, any>>
 		name: string,
 		callbacks?: {
 			onSuccess?: () => void
-			onError?: (error: { messages?: string[] }) => void
+			onError?: (error: FrappeResourceError) => void
 		}
 	) => Promise<unknown>
 }
@@ -177,7 +178,7 @@ export function useSettingsListResource<TRow = Record<string, any>>(
 							resolve(resource.reload())
 							callbacks.onSuccess?.()
 						},
-						onError: (error: { messages?: string[] }) => {
+						onError: (error: FrappeResourceError) => {
 							callbacks.onError?.(error)
 							resolve(undefined)
 						},

@@ -116,7 +116,10 @@ import { computed, ref } from 'vue'
 import { FormControl, Password, call, toast } from 'frappe-ui'
 import BooleanSwitch from '@/components/Controls/BooleanSwitch.vue'
 import SettingsLayout from '@/components/Layouts/settings/desktop/SettingsLayout.vue'
-import { useSettingsSource } from '@/composables/useSettingsSource'
+import {
+	reportSaveFailure,
+	useSettingsSource,
+} from '@/composables/useSettingsSource'
 import { canManageGoogleIntegrations } from '@/components/Settings/GoogleApi/googleApi'
 
 const GOOGLE_DOCTYPE = 'Google Settings'
@@ -177,10 +180,6 @@ const isDirty = computed(
 
 const saving = ref(false)
 
-const reportFailure = (error: { messages?: string[]; message?: string }) => {
-	toast.error(error?.messages?.[0] || error?.message || __('Save failed'))
-}
-
 const save = () => {
 	if (hasBlockingErrors.value) {
 		toast.error(
@@ -213,7 +212,7 @@ const save = () => {
 			toast.success(__('Services settings saved'))
 			secretInput.value = ''
 		})
-		.catch(reportFailure)
+		.catch(reportSaveFailure)
 		.finally(() => (saving.value = false))
 }
 </script>
