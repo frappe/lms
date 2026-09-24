@@ -4,6 +4,7 @@
 			v-if="isAdmin() && !hasProviderAccount()"
 			theme="amber"
 			class="mb-5"
+			:title="__('No conferencing account')"
 			:description="
 				__(
 					'Please select a conferencing provider and add an account to the batch to create live classes.'

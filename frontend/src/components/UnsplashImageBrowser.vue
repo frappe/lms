@@ -1,6 +1,6 @@
 <template>
 	<Popover bare>
-		<template #trigger="{ open, setOpen }" class="flex w-full">
+		<template #trigger="{ open, setOpen }">
 			<slot v-bind="{ open, setOpen }"></slot>
 		</template>
 		<template #default>

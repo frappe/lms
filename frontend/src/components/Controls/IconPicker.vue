@@ -33,7 +33,7 @@
 						</span>
 					</button>
 				</template>
-				<template #default="{ close }" class="w-full">
+				<template #default="{ close }">
 					<div class="p-3 max-h-56 overflow-auto w-full">
 						<FormControl
 							ref="search"
@@ -82,7 +82,7 @@ import { ref, computed, onMounted } from 'vue'
 const iconQuery = ref('')
 const selectedIcon = ref('')
 const search = ref(null)
-const emit = defineEmits(['update:modelValue', 'change'])
+const emit = defineEmits(['update:modelValue'])
 
 const iconArray = ref(
 	Object.keys(icons)
