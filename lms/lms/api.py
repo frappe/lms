@@ -22,6 +22,7 @@ from frappe.utils import (
 	add_days,
 	cint,
 	date_diff,
+	escape_html,
 	flt,
 	format_date,
 	get_datetime,
@@ -31,6 +32,7 @@ from frappe.utils import (
 	get_time,
 	getdate,
 	now,
+	validate_email_address,
 )
 from frappe.utils.response import Response
 from pypika import functions as fn
@@ -2135,6 +2137,116 @@ def get_certification_details(course: str) -> dict:
 		"evaluator": details.evaluator if membership and membership.purchased_certificate else None,
 		"certificate": certificate,
 	}
+
+
+def _optional_member_field(value: str | None) -> str | None:
+	if value is None:
+		return None
+	if not isinstance(value, str):
+		frappe.throw(_("Invalid value."), frappe.ValidationError)
+	value = value.strip()
+	return value or None
+
+
+def _is_welcome_email_failure(exc: BaseException) -> bool:
+	if isinstance(exc, frappe.OutgoingEmailError):
+		return True
+	text = f"{exc.__class__.__name__} {exc}".lower()
+	return any(
+		needle in text
+		for needle in ("smtp", "email account", "outgoing", "authentication failed", "welcome email")
+	)
+
+
+@frappe.whitelist()
+def create_member(
+	email: str,
+	first_name: str | None = None,
+	last_name: str | None = None,
+	username: str | None = None,
+	phone: str | None = None,
+	mobile_no: str | None = None,
+	location: str | None = None,
+	bio: str | None = None,
+):
+	"""Add a member from Settings > Users.
+
+	frappe.client.insert of User sends the welcome email inside insert(). A
+	broken outgoing account then 500s as Internal Server Error with nothing in
+	lms.log, and the new user cannot log in without that mail. Catch that here
+	so the LMS UI names the email account, and write an Error Log the operator
+	can actually find.
+	"""
+	frappe.only_for("Moderator")
+
+	if not isinstance(email, str) or not email.strip():
+		frappe.throw(_("Email is required"), frappe.ValidationError)
+
+	email = email.strip()
+	validate_email_address(email, throw=True)
+
+	if frappe.db.exists("User", email):
+		frappe.throw(_("A user with this email already exists."))
+
+	user = frappe.get_doc(
+		{
+			"doctype": "User",
+			"email": email,
+			"first_name": (
+				escape_html(first_name.strip())
+				if isinstance(first_name, str) and first_name.strip()
+				else None
+			),
+			"last_name": (
+				escape_html(last_name.strip()) if isinstance(last_name, str) and last_name.strip() else None
+			),
+			"username": _optional_member_field(username),
+			"phone": _optional_member_field(phone),
+			"mobile_no": _optional_member_field(mobile_no),
+			"location": _optional_member_field(location),
+			"bio": _optional_member_field(bio),
+			"send_welcome_email": 1,
+			"user_type": "Website User",
+		}
+	)
+
+	try:
+		user.insert(ignore_permissions=True)
+	except frappe.DuplicateEntryError:
+		frappe.clear_last_message()
+		frappe.throw(_("A user with this email already exists."))
+	except frappe.ValidationError:
+		raise
+	except Exception as exc:
+		_log_member_create_failure()
+		if _is_welcome_email_failure(exc):
+			_throw_welcome_email_failed()
+		raise
+
+	# User.send_password_notification swallows OutgoingEmailError, so insert can
+	# still return with the welcome mail unsent. Name that in the LMS UI too.
+	if cint(user.send_welcome_email) and not user.flags.get("email_sent"):
+		_log_member_create_failure()
+		_throw_welcome_email_failed()
+
+	return user.as_dict()
+
+
+def _log_member_create_failure():
+	frappe.log_error(
+		title="Failed to add LMS member",
+		message=frappe.get_traceback(),
+		defer_insert=True,
+	)
+
+
+def _throw_welcome_email_failed():
+	frappe.throw(
+		_(
+			"Could not finish adding this member. The welcome email failed to send, so the new user cannot log in. Open Settings > Email Account, fix the outgoing account, then try again. If the user already appears in the list, ask them to use Forgot Password after email is working."
+		),
+		title=_("Welcome email failed"),
+	)
 
 
 @frappe.whitelist()
