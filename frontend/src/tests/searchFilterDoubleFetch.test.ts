@@ -1,6 +1,6 @@
-// rc.1's TextInput emits update:modelValue on input and on change, so a search
-// box reloading on that event fetched twice per typed value. Each page must
-// reload its list once per value.
+// Regression: rc.1 TextInput emits update:modelValue on input and change, so search lists fetched twice.
+// Introduced by the frappe-ui 1.0.0-rc.1 upgrade; test added in that PR (chore/frappe-ui-v1-rc1)
+// to pin one reload per typed value on each list page.
 import { describe, expect, it, vi, beforeEach } from 'vitest'
 import { nextTick, reactive } from 'vue'
 import { flushPromises, mount } from '@vue/test-utils'

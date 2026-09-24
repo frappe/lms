@@ -1,5 +1,6 @@
-// Uploader.vue toasts the reason for a failed upload. v1 FileUploader emits
-// @failure with an UploadError carrying `messages`, or the validateFile string.
+// Regression: failed uploads lost their reason, since v1 FileUploader emits an UploadError, not a string.
+// Introduced by the frappe-ui 1.0.0-rc.1 upgrade; test added in that PR (chore/frappe-ui-v1-rc1)
+// to pin Uploader.vue showing the server's reason or the validateFile message.
 import { describe, it, expect, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 

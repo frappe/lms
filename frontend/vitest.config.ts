@@ -47,7 +47,12 @@ export default defineConfig({
 			// (valid under Vite's resolver, invalid under Node's strict ESM loader).
 			// Vitest externalizes node_modules to Node's loader by default; inlining
 			// keeps frappe-ui on Vite's transform/resolve pipeline, matching dev/build.
-			deps: { inline: ['frappe-ui', '@framework/ui'] },
+			// tiptap and ProseMirror are inlined so `resolve.dedupe` below reaches
+			// them: @tiptap/pm nests a second prosemirror-model, and a node from one
+			// copy fails the other's instanceof checks.
+			deps: {
+				inline: ['frappe-ui', '@framework/ui', /@tiptap\//, /prosemirror-/],
+			},
 		},
 	},
 	resolve: {
@@ -69,8 +74,13 @@ export default defineConfig({
 		alias: {
 			'@': path.resolve(path.dirname(fileURLToPath(import.meta.url)), 'src'),
 		},
-		// Match vite.config.js so tests load one CodeMirror/Lezer like the build.
+		// Match vite.config.js so tests load one ProseMirror and CodeMirror/Lezer
+		// like the build.
 		dedupe: [
+			'prosemirror-model',
+			'prosemirror-state',
+			'prosemirror-view',
+			'prosemirror-transform',
 			'@codemirror/language',
 			'@codemirror/state',
 			'@codemirror/view',
