@@ -22,7 +22,6 @@ from frappe.utils import (
 	add_days,
 	cint,
 	date_diff,
-	escape_html,
 	flt,
 	format_date,
 	get_datetime,
@@ -2158,6 +2157,15 @@ def _is_welcome_email_failure(exc: BaseException) -> bool:
 	)
 
 
+def _handle_member_create_failure(exc: BaseException):
+	if isinstance(exc, frappe.ValidationError) and not _is_welcome_email_failure(exc):
+		raise
+	_log_member_create_failure(exc)
+	if _is_welcome_email_failure(exc):
+		_throw_welcome_email_failed()
+	raise
+
+
 @frappe.whitelist()
 def create_member(
 	email: str,
@@ -2192,14 +2200,8 @@ def create_member(
 		{
 			"doctype": "User",
 			"email": email,
-			"first_name": (
-				escape_html(first_name.strip())
-				if isinstance(first_name, str) and first_name.strip()
-				else None
-			),
-			"last_name": (
-				escape_html(last_name.strip()) if isinstance(last_name, str) and last_name.strip() else None
-			),
+			"first_name": _optional_member_field(first_name),
+			"last_name": _optional_member_field(last_name),
 			"username": _optional_member_field(username),
 			"phone": _optional_member_field(phone),
 			"mobile_no": _optional_member_field(mobile_no),
@@ -2215,27 +2217,30 @@ def create_member(
 	except frappe.DuplicateEntryError:
 		frappe.clear_last_message()
 		frappe.throw(_("A user with this email already exists."))
-	except frappe.ValidationError:
-		raise
 	except Exception as exc:
-		_log_member_create_failure()
-		if _is_welcome_email_failure(exc):
-			_throw_welcome_email_failed()
-		raise
+		_handle_member_create_failure(exc)
 
 	# User.send_password_notification swallows OutgoingEmailError, so insert can
 	# still return with the welcome mail unsent. Name that in the LMS UI too.
 	if cint(user.send_welcome_email) and not user.flags.get("email_sent"):
-		_log_member_create_failure()
+		_log_member_create_failure(
+			RuntimeError("Welcome email was not sent; outgoing mail likely failed silently.")
+		)
 		_throw_welcome_email_failed()
 
 	return user.as_dict()
 
 
-def _log_member_create_failure():
+def _log_member_create_failure(exc: BaseException | None = None):
+	parts = []
+	if exc is not None:
+		parts.append(f"{exc.__class__.__name__}: {exc}")
+	tb = frappe.get_traceback()
+	if tb and tb.strip() not in ("", "NoneType: None"):
+		parts.append(tb)
 	frappe.log_error(
 		title="Failed to add LMS member",
-		message=frappe.get_traceback(),
+		message="\n".join(parts) or "Unknown error",
 		defer_insert=True,
 	)
 
