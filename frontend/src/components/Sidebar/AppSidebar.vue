@@ -76,20 +76,20 @@
 						{{ __('Highlight what makes you unique and show your skills.') }}
 					</div>
 				</div>
-				<router-link
-					:to="{
+				<Button
+					:route="{
 						name: 'Profile',
 						params: {
 							username: userResource.data?.username,
 						},
 					}"
+					:label="__('My Profile')"
+					class="w-full"
 				>
-					<Button :label="__('My Profile')" class="w-full">
-						<template #prefix>
-							<span class="lucide-chevrons-right h-4 w-4 text-ink-gray-7" />
-						</template>
-					</Button>
-				</router-link>
+					<template #prefix>
+						<span class="lucide-chevrons-right h-4 w-4 text-ink-gray-7" />
+					</template>
+				</Button>
 			</div>
 			<Tooltip
 				v-if="

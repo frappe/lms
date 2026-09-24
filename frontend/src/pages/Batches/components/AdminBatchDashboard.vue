@@ -112,32 +112,20 @@
 			</div>
 
 			<div class="order-1 lg:order-2 space-y-5">
-				<AxisChart
-					v-if="showProgressChart"
-					class="border rounded-6 p-3 min-h-[300px]"
-					:config="{
-						data: filteredChartData,
-						title: __('Batch Summary'),
-						subtitle: __('Progress of students in courses and assessments'),
-						xAxis: {
-							key: 'task',
-							title: 'Tasks',
-							type: 'category',
-						},
-						yAxis: {
+				<ChartCard v-if="showProgressChart" class="h-[300px]">
+					<BarChart
+						:data="filteredChartData"
+						x="task"
+						y="value"
+						:title="__('Batch Summary')"
+						:subtitle="__('Progress of students in courses and assessments')"
+						:x-axis="{ title: __('Tasks'), type: 'category' }"
+						:y-axis="{
 							title: __('Number of Students'),
-							echartOptions: {
-								minInterval: 1,
-							},
-						},
-						series: [
-							{
-								name: 'value',
-								type: 'bar',
-							},
-						],
-					}"
-				/>
+							echartOptions: { minInterval: 1 },
+						}"
+					/>
+				</ChartCard>
 
 				<div class="p-4 border rounded-6">
 					<BatchFeedback v-if="batch.data" :batch="batch.data.name" />
@@ -160,7 +148,7 @@ import {
 	Avatar,
 	Button,
 } from 'frappe-ui'
-import { AxisChart } from 'frappe-ui/experimental'
+import { BarChart, ChartCard } from 'frappe-ui/charts'
 import { computed, inject, onMounted, ref, watch } from 'vue'
 import type dayjsType from 'dayjs'
 import { formatAmount } from '@/utils'

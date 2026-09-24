@@ -42,13 +42,18 @@
 							:label="__('Problem Statement')"
 							:required="true"
 						/>
-						<RichTextEditor
-							:content="exercise.problem_statement"
-							@change="(val: string) => (exercise.problem_statement = val)"
-							:editable="true"
-							:fixedMenu="true"
-							editorClass="prose-sm max-w-none border-b border-x border-outline-elevation-2 bg-surface-gray-2 rounded-b-5 py-1 px-2 min-h-[10rem] max-h-[21rem] overflow-y-auto"
-						/>
+						<div>
+							<RichTextEditor
+								:ariaLabelledby="problemStatementLabelId"
+								:ariaRequired="true"
+								:content="exercise.problem_statement"
+								@change="(val: string) => (exercise.problem_statement = val)"
+								:editable="true"
+								:fixedMenu="true"
+								menuClass="bg-surface-gray-2"
+								editorClass="prose-sm max-w-none border-b border-x border-outline-elevation-2 bg-surface-gray-2 rounded-b-5 py-1 px-2 min-h-[10rem] max-h-[21rem] overflow-y-auto"
+							/>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -67,36 +72,30 @@
 					theme="red"
 					@click="deleteExercise()"
 				/>
-				<router-link
+				<HeaderButton
 					v-if="exerciseID != 'new'"
-					:to="{
+					:route="{
 						name: 'ProgrammingExerciseSubmission',
 						params: {
 							exerciseID: props.exerciseID,
 							submissionID: 'new',
 						},
 					}"
-				>
-					<HeaderButton
-						:label="__('Test this Exercise')"
-						icon="lucide-play"
-						class="text-p-base-medium"
-					/>
-				</router-link>
-				<router-link
+					:label="__('Test this Exercise')"
+					icon="lucide-play"
+					class="text-p-base-medium"
+				/>
+				<HeaderButton
 					v-if="exerciseID != 'new'"
-					:to="{
+					:route="{
 						name: 'ProgrammingExerciseSubmissions',
 						query: {
 							exercise: props.exerciseID,
 						},
 					}"
-				>
-					<HeaderButton
-						:label="__('Check Submission')"
-						icon="lucide-clipboard-list"
-					/>
-				</router-link>
+					:label="__('Check Submission')"
+					icon="lucide-clipboard-list"
+				/>
 				<HeaderButton
 					data-testid="programming-exercise-save"
 					:label="__('Save')"
@@ -119,13 +118,14 @@ import {
 	FormControl,
 	toast,
 } from 'frappe-ui'
+import type { FrappeResourceError } from 'frappe-ui'
 import { ProgrammingExercise, TestCase } from '@/types'
 import ChildTable from '@/components/Controls/ChildTable.vue'
 import FormShell from '@/components/FormShell.vue'
 import HeaderButton from '@/components/HeaderButton.vue'
 import RichTextEditor from '@/components/RichTextEditor.vue'
 import { useFormRoute } from '@/composables/useFormRoute'
-import { submitResource } from '@/utils/resource'
+import { resourceErrorMessage, submitResource } from '@/utils/resource'
 
 const user = inject<any>('$user')
 const problemStatementLabelId = useId()
@@ -240,8 +240,8 @@ const exerciseDoc =
 				doctype: 'LMS Programming Exercise',
 				name: props.exerciseID,
 				auto: true,
-				onError(err: any) {
-					toast.error(__(err.messages?.[0] || err))
+				onError(err: FrappeResourceError) {
+					toast.error(resourceErrorMessage(err, __('Error')))
 					console.error('Error loading exercise:', err)
 				},
 		  })
@@ -272,8 +272,8 @@ const testCases = createListResource({
 		isDirty.value = false
 		originalTestCaseCount.value = data.length
 	},
-	onError(err: any) {
-		toast.error(__(err.messages?.[0] || err))
+	onError(err: FrappeResourceError) {
+		toast.error(resourceErrorMessage(err, __('Error')))
 		console.error('Error loading testCases:', err)
 	},
 })
@@ -361,8 +361,8 @@ const createNewExercise = () => {
 				// whatever preceded the list rather than a stale empty form.
 				saveAndReplace({ name: 'ProgrammingExercises' })
 			},
-			onError(err: any) {
-				toast.warning(__(err.messages?.[0] || err))
+			onError(err: FrappeResourceError) {
+				toast.warning(resourceErrorMessage(err, __('Error')))
 			},
 		}
 	)
@@ -384,8 +384,8 @@ const updateExercise = () => {
 				toast.success(__('Programming Exercise updated successfully'))
 				saveAndReplace({ name: 'ProgrammingExercises' })
 			},
-			onError(err: any) {
-				toast.warning(__(err.messages?.[0] || err))
+			onError(err: FrappeResourceError) {
+				toast.warning(resourceErrorMessage(err, __('Error')))
 			},
 		}
 	)
@@ -406,8 +406,8 @@ const deleteExercise = () => {
 			toast.success(__('Programming Exercise deleted successfully'))
 			close()
 		},
-		onError(err: any) {
-			toast.warning(__(err.messages?.[0] || err))
+		onError(err: FrappeResourceError) {
+			toast.warning(resourceErrorMessage(err, __('Error')))
 		},
 	})
 }
