@@ -12,6 +12,10 @@
     "test:watch": "vitest"
   },
   "dependencies": {
+    "@codemirror/lang-html": "^6.4.9",
+    "@codemirror/lang-javascript": "^6.2.2",
+    "@codemirror/state": "^6.0.0",
+    "@codemirror/view": "^6.0.0",
     "@editorjs/editorjs": "2.29.0",
     "@editorjs/embed": "2.7.0",
     "@editorjs/header": "2.8.1",
@@ -25,9 +29,10 @@
     "@vueuse/core": "^14.1.0",
     "dayjs": "1.11.10",
     "dompurify": "3.2.6",
+    "echarts": "^6.1.0",
     "editorjs-drag-drop": "1.1.16",
     "face-api.js": "^0.22.2",
-    "frappe-ui": "1.0.0-beta.69",
+    "frappe-ui": "1.0.0-rc.1",
     "highlight.js": "11.11.1",
     "lucide-static": "^1.31.0",
     "lucide-vue-next": "0.383.0",
@@ -42,6 +47,7 @@
     "vuedraggable": "4.1.0"
   },
   "devDependencies": {
+    "@codemirror/language": "^6.0.0",
     "@vitejs/plugin-vue": "5.0.3",
     "@vue/test-utils": "^2.4.10",
     "autoprefixer": "10.4.2",

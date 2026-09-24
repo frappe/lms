@@ -6,8 +6,8 @@ import { lucideIcons } from 'frappe-ui/vite'
 
 export default defineConfig({
 	// `import { X } from 'frappe-ui'` resolves the entire barrel (src/index.ts,
-	// ~30 component families incl. DatePicker/TextEditor/Charts/ListView), because
-	// frappe-ui here is an installed npm package, not a symlinked working copy.
+	// incl. DatePicker/Dialog/Select), because frappe-ui here is an installed
+	// npm package, not a symlinked working copy.
 	// frappe-ui/vite's `barrelImports` plugin only rewrites named imports to deep,
 	// single-component paths for a symlinked/working-copy install (`linkedOnly`
 	// defaults true); tried forcing `linkedOnly: false` to narrow this and it broke
@@ -18,10 +18,9 @@ export default defineConfig({
 	// in reverse (skips rewriting), so it was left out entirely rather than added
 	// for no effect. Net effect: mounting ANY unmocked frappe-ui export currently
 	// evaluates the whole barrel's module graph, same as a real (non-linked) dev
-	// server today, not a test-only gap. `lucideIcons` below exists because that
-	// full-barrel load reaches `DatePicker` -> `PickerShell.vue`, which imports the
-	// `~icons/lucide/chevron-down` virtual module (NOT Combobox's own chevron;
-	// that's a plain `lucide-chevron-down` CSS class, no icon import involved).
+	// server today, not a test-only gap. `lucideIcons` resolves LMS's own
+	// auto-registered `<LucideX>` tags and @framework/ui's `~icons/lucide/*`
+	// imports, mirroring the app build's `frappeui({ lucideIcons: true })`.
 	// Registering `lucideIcons` also turns on `unplugin-auto-import` /
 	// `unplugin-vue-components`, which write to the tracked
 	// `frontend/auto-imports.d.ts` / `frontend/components.d.ts` on every test run
@@ -70,6 +69,16 @@ export default defineConfig({
 		alias: {
 			'@': path.resolve(path.dirname(fileURLToPath(import.meta.url)), 'src'),
 		},
-		dedupe: ['vue', 'frappe-ui'],
+		// Match vite.config.js so tests load one CodeMirror/Lezer like the build.
+		dedupe: [
+			'@codemirror/language',
+			'@codemirror/state',
+			'@codemirror/view',
+			'@lezer/common',
+			'@lezer/lr',
+			'@lezer/highlight',
+			'vue',
+			'frappe-ui',
+		],
 	},
 })
