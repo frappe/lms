@@ -87,7 +87,6 @@ const chapter = createDocumentResource({
 	doctype: 'Course Chapter',
 	name: props.chapterName,
 	auto: true,
-	cache: ['chapter', props.chapterName],
 	onSuccess(data) {
 		progress.submit()
 	},
