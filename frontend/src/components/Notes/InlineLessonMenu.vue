@@ -21,9 +21,7 @@
 				>
 					<span
 						class="size-3 rounded-full"
-						:style="{
-							backgroundColor: `var(--${color.toLowerCase()}-400)`,
-						}"
+						:style="{ backgroundColor: swatchColor(color) }"
 					></span>
 					<span>
 						{{ __(color) }}
@@ -59,6 +57,7 @@
 <script setup lang="ts">
 import { computed, inject, ref, watch } from 'vue'
 import type { Note, Notes } from '@/types'
+import type { FrappeResourceError } from 'frappe-ui'
 import { blockQuotesClick, highlightText } from '@/utils'
 
 const user = inject<any>('$user')
@@ -111,6 +110,9 @@ const colors = computed(() => {
 	return ['Red', 'Blue', 'Green', 'Yellow', 'Purple']
 })
 
+// token-exempt: colours come from the fixed list above, each a real ramp
+const swatchColor = (color: string) => `var(--surface-${color.toLowerCase()}-5)`
+
 const highlightExists = () => {
 	return notes.value?.data?.some(
 		(note: Note) => note.highlighted_text === selectedText.value
@@ -134,7 +136,7 @@ const saveHighLight = (color: string) => {
 				resetStates()
 				emit('updateNotes')
 			},
-			onError(err: any) {
+			onError(err: FrappeResourceError) {
 				console.error('Error saving highlight:', err)
 				resetStates()
 			},
@@ -157,7 +159,7 @@ const deleteHighlight = () => {
 				}
 			})
 		},
-		onError(err: any) {
+		onError(err: FrappeResourceError) {
 			console.error('Error deleting highlight:', err)
 			resetStates()
 		},
@@ -194,7 +196,7 @@ const createNote = () => {
 					resetStates()
 				}, 100)
 			},
-			onError(err: any) {
+			onError(err: FrappeResourceError) {
 				console.error('Error creating note:', err)
 				resetStates()
 			},
@@ -217,7 +219,7 @@ const updateNote = (noteToUpdate: Note) => {
 					resetStates()
 				}, 100)
 			},
-			onError(err: any) {
+			onError(err: FrappeResourceError) {
 				console.error('Error updating note:', err)
 				resetStates()
 			},

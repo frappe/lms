@@ -963,10 +963,12 @@ const createHighlightSpan = (color, name, scrollIntoView) => {
 	const span = document.createElement('span')
 	span.className = 'highlighted-text'
 	if (scrollIntoView) {
-		span.style.border = `2px solid var(--${color}-400)`
+		// token-exempt: colour is a saved highlight swatch name
+		span.style.border = `2px solid var(--surface-${color}-5)`
 		span.style.borderRadius = '4px'
 	} else {
-		span.style.backgroundColor = `var(--${color}-200)`
+		// token-exempt: colour is a saved highlight swatch name
+		span.style.backgroundColor = `var(--surface-${color}-3)`
 	}
 	span.dataset.name = name
 	return span

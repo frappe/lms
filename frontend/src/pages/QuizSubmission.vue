@@ -274,8 +274,8 @@
 									class="absolute -start-[21px] top-1 size-2 rounded-full"
 									:class="
 										entry.severity === 'violation'
-											? 'bg-ink-red-5'
-											: 'bg-ink-orange-5'
+											? 'bg-surface-red-6'
+											: 'bg-surface-orange-6'
 									"
 								/>
 								<div class="text-xs font-medium leading-5 text-ink-gray-7">
@@ -312,7 +312,7 @@
 									     reader, and swaps on open so the control still describes
 									     what it does. -->
 									<summary
-										class="w-fit cursor-pointer list-none text-xs text-ink-gray-5 underline decoration-outline-gray-2 underline-offset-2 hover:text-ink-gray-7 hover:decoration-ink-gray-7 [&::-webkit-details-marker]:hidden"
+										class="w-fit cursor-pointer list-none text-xs text-ink-gray-5 underline underline-offset-2 hover:text-ink-gray-7 [&::-webkit-details-marker]:hidden"
 									>
 										{{ __('Snapshot') }}
 									</summary>
@@ -498,8 +498,8 @@ const severityLabel = (severity) =>
 	severity === 'violation' ? __('Violation') : __('Warning')
 
 const markStatusClass = (row) => {
-	if (row.marks == row.marks_out_of) return 'bg-ink-green-5'
-	return row.marks > 0 ? 'bg-ink-orange-5' : 'bg-ink-red-5'
+	if (row.marks == row.marks_out_of) return 'bg-surface-green-6'
+	return row.marks > 0 ? 'bg-surface-orange-6' : 'bg-surface-red-6'
 }
 
 // The header renders before the doc lands, so this must not read `.quiz` off an
