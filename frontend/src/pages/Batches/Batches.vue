@@ -65,7 +65,6 @@
 				:placeholder="__('Search')"
 				:aria-label="__('Search')"
 				type="text"
-				@input="updateBatches()"
 			>
 				<template #prefix>
 					<span class="lucide-search size-4 text-ink-gray-5" />
@@ -135,6 +134,8 @@ const router = useRouter()
 onMounted(() => {
 	setFiltersFromQuery()
 	updateBatches()
+	// TextInput emits on input and change; watched after query hydration to avoid a refetch.
+	watch(title, () => updateBatches())
 	categories.value = [
 		{
 			label: '',
