@@ -23,6 +23,15 @@
 					side="bottom"
 					align="end"
 				/>
+				<Button
+					v-if="user.data?.is_moderator && !isMobile"
+					:variant="course.data?.published ? 'subtle' : 'solid'"
+					:theme="course.data?.published ? 'red' : 'gray'"
+					:loading="publishToggle.loading"
+					@click="togglePublishCourse"
+				>
+					{{ course.data?.published ? __('Unpublish') : __('Publish') }}
+				</Button>
 				<Tooltip
 					v-if="!courseFormRef.isDirty"
 					:text="__('No changes to save')"
@@ -106,15 +115,6 @@
 					<span class="lucide-plus size-4" />
 				</template>
 				{{ __('Enroll') }}
-			</Button>
-			<Button
-				v-if="tab?.key === 'settings' && user.data?.is_moderator && !isMobile"
-				:variant="course.data?.published ? 'outline' : 'solid'"
-				:theme="course.data?.published ? 'red' : 'gray'"
-				:loading="publishToggle.loading"
-				@click="togglePublishCourse"
-			>
-				{{ course.data?.published ? __('Unpublish') : __('Publish') }}
 			</Button>
 		</template>
 
