@@ -141,21 +141,21 @@
 					</div>
 				</div>
 				<div v-else-if="assignment.data.type == 'URL' && !scheduleBlocked">
-					<div class="text-p-sm-medium text-ink-gray-7 mb-1.5">
-						{{ __('Enter a URL') }}
-					</div>
 					<FormControl
 						v-model="answer"
 						type="text"
-						:aria-label="__('Enter a URL')"
+						:label="__('Enter a URL')"
 						:disabled="!canModifyAssignment"
 					/>
 				</div>
 				<div v-else-if="!showUploader() && !scheduleBlocked">
-					<div class="text-sm mb-2 text-ink-gray-7">
-						{{ __('Write your answer here') }}
-					</div>
+					<InputLabel
+						:id="answerLabelId"
+						:label="__('Write your answer here')"
+						class="mb-1.5"
+					/>
 					<RichTextEditor
+						:ariaLabelledby="answerLabelId"
 						:content="answer"
 						@change="(val) => (answer = val)"
 						:editable="canModifyAssignment"
@@ -196,10 +196,13 @@
 						:options="submissionStatusOptions"
 					/>
 					<div>
-						<div class="text-p-sm-medium text-ink-gray-7 mb-1.5">
-							{{ __('Comments') }}
-						</div>
+						<InputLabel
+							:id="commentsLabelId"
+							:label="__('Comments')"
+							class="mb-1.5"
+						/>
 						<RichTextEditor
+							:ariaLabelledby="commentsLabelId"
 							:content="comments"
 							@change="
 								(val) => {
@@ -232,7 +235,8 @@ import {
 	FormControl,
 	toast,
 } from 'frappe-ui'
-import { computed, inject, onUnmounted, ref, watch } from 'vue'
+import { InputLabel } from 'frappe-ui/experimental'
+import { computed, inject, onUnmounted, ref, useId, watch } from 'vue'
 import ShortcutTooltip from '@/components/ShortcutTooltip.vue'
 import {
 	useKeyboardShortcuts,
@@ -247,6 +251,8 @@ import { getScheduleBlockReason } from '@/utils/schedule'
 const answer = ref(null)
 const attachment = ref(null)
 const comments = ref(null)
+const answerLabelId = useId()
+const commentsLabelId = useId()
 const router = useRouter()
 const user = inject('$user')
 const isDirty = ref(false)

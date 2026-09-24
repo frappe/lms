@@ -83,7 +83,7 @@
 						:fixedMenu="reply.editable || false"
 						:editorClass="
 							reply.editable
-								? 'ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2 prose-sm max-w-none'
+								? 'prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2 prose-sm'
 								: 'prose-sm'
 						"
 					/>
@@ -93,13 +93,12 @@
 
 		<RichTextEditor
 			v-if="renderEditor && !readOnlyMode"
-			class="mt-5"
 			:content="newReply"
 			:mentions="mentionUsers"
 			@change="(val) => (newReply = val)"
 			:placeholder="__('Type your reply here...')"
 			:fixedMenu="true"
-			editorClass="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2 prose-sm max-w-none border border-outline-gray-2 rounded-b-5 min-h-[7rem] py-1 px-2"
+			editorClass="prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2 prose-sm border border-outline-gray-2 rounded-b-5 min-h-[7rem] py-1 px-2"
 		/>
 		<div v-if="!readOnlyMode" class="flex justify-between mt-2">
 			<span> </span>
@@ -165,8 +164,8 @@ const replies = createResource({
 })
 
 const fetchMentionUsers = () => {
-	// Render the editor right away; mentions are reactive and populate once the
-	// user list resolves, so we no longer block the editor on that fetch.
+	// Render the editor right away; the @ menu reads mentionUsers live, so it
+	// fills in once the user list resolves.
 	renderEditor.value = true
 	if (user.data?.is_student) return
 	allUsers.reload(
