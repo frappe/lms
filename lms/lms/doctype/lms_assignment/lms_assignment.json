@@ -10,6 +10,7 @@
  "engine": "InnoDB",
  "field_order": [
   "title",
+  "authors",
   "type",
   "grade_assignment",
   "course",
@@ -63,7 +64,8 @@
    "depends_on": "show_answer",
    "fieldname": "answer",
    "fieldtype": "Text Editor",
-   "label": "Answer"
+   "label": "Answer",
+   "permlevel": 1
   },
   {
    "default": "1",
@@ -81,6 +83,12 @@
    "fieldtype": "Link",
    "label": "Course",
    "options": "LMS Course"
+  },
+  {
+   "fieldname": "authors",
+   "fieldtype": "Table MultiSelect",
+   "label": "Authors",
+   "options": "LMS Content Author"
   },
   {
    "fieldname": "section_break_schedule",
@@ -119,7 +127,7 @@
    "link_fieldname": "assignment"
   }
  ],
- "modified": "2026-02-05 11:37:36.492016",
+ "modified": "2026-09-08 02:30:00.000000",
  "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "LMS Assignment",
@@ -162,6 +170,7 @@
   },
   {
    "create": 1,
+   "delete": 1,
    "email": 1,
    "export": 1,
    "import": 1,
@@ -174,6 +183,7 @@
   },
   {
    "create": 1,
+   "delete": 1,
    "email": 1,
    "export": 1,
    "import": 1,
@@ -182,6 +192,30 @@
    "report": 1,
    "role": "Batch Evaluator",
    "share": 1,
+   "write": 1
+  },
+  {
+   "permlevel": 1,
+   "read": 1,
+   "role": "System Manager",
+   "write": 1
+  },
+  {
+   "permlevel": 1,
+   "read": 1,
+   "role": "Moderator",
+   "write": 1
+  },
+  {
+   "permlevel": 1,
+   "read": 1,
+   "role": "Course Creator",
+   "write": 1
+  },
+  {
+   "permlevel": 1,
+   "read": 1,
+   "role": "Batch Evaluator",
    "write": 1
   }
  ],

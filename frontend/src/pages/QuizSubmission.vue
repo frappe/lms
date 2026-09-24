@@ -25,7 +25,7 @@
 					</template>
 					<template #default>
 						<p
-							class="w-56 rounded-6 bg-surface-base p-3 text-sm leading-5 text-ink-gray-7 shadow-2xl ring-1 ring-black ring-opacity-5"
+							class="w-56 rounded-6 bg-surface-base p-3 text-sm leading-5 text-ink-gray-7 shadow-2xl ring-1 ring-outline-gray-2"
 						>
 							{{ ownSubmissionNotice }}
 						</p>

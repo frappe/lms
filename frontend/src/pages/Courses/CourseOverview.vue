@@ -27,7 +27,7 @@
 						</template>
 						<template v-if="Number(course.data.rating) > 0">
 							<div class="flex items-center gap-1">
-								<LucideStar class="size-4 text-transparent fill-yellow-500" />
+								<LucideStar class="size-4 text-transparent fill-ink-amber-7" />
 								<span class="font-medium text-ink-gray-9">{{
 									formatRating(course.data.rating)
 								}}</span>
@@ -107,7 +107,7 @@
 							class="flex items-center justify-center px-4 py-10 text-center"
 						>
 							<span class="text-sm text-ink-gray-5">
-								{{ __('Course Content coming soon!') }}
+								{{ __('Course content coming soon!') }}
 							</span>
 						</div>
 						<CourseOutline

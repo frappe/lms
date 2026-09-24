@@ -7,6 +7,7 @@ from frappe.desk.doctype.notification_log.notification_log import make_notificat
 from frappe.model.document import Document
 from frappe.utils import validate_url
 
+from lms.lms.html_sanitizer import sanitize_rich_text
 from lms.lms.schedule_utils import assert_within_schedule
 from lms.lms.utils import PRIVILEGED_ROLES, get_lms_route
 
@@ -15,10 +16,17 @@ class LMSAssignmentSubmission(Document):
 	def validate(self):
 		self.enforce_member_ownership()
 		self.enforce_grading_permission()
+		self.sanitize_rich_text_fields()
 		self.validate_schedule_window()
 		self.validate_duplicates()
 		self.validate_url()
 		self.validate_status()
+
+	def sanitize_rich_text_fields(self):
+		"""Drop form controls the framework's allowlist keeps: `comments` is mailed as
+		`email_content`, and both fields render outside the SPA where v-safe-html does not."""
+		for field in ("comments", "answer"):
+			self.set(field, sanitize_rich_text(self.get(field)))
 
 	def validate_schedule_window(self):
 		"""Students cannot create or edit submission content outside the window.

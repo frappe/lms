@@ -13,6 +13,7 @@
   "type",
   "multiple",
   "marks",
+  "authors",
   "section_break_ytxi",
   "option_1",
   "is_correct_1",
@@ -416,13 +417,19 @@
    "fieldname": "possibility_10",
    "fieldtype": "Small Text",
    "label": "Possible Answer 10"
+  },
+  {
+   "fieldname": "authors",
+   "fieldtype": "Table MultiSelect",
+   "label": "Authors",
+   "options": "LMS Content Author"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
  "make_attachments_public": 1,
- "modified": "2025-11-10 11:40:18.568547",
+ "modified": "2026-09-08 02:30:00.000000",
  "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "LMS Question",

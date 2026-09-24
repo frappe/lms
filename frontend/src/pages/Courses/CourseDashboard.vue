@@ -16,7 +16,7 @@
 				:value="course.data?.rating || 0"
 			>
 				<template #prefix>
-					<LucideStar class="size-5 text-transparent fill-amber-500" />
+					<LucideStar class="size-5 text-transparent fill-ink-amber-7" />
 				</template>
 			</NumberChartGraph>
 			<NumberChartGraph :title="__('Lessons')" :value="course.data?.lessons" />

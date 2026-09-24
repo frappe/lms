@@ -82,6 +82,7 @@ after_migrate = [
 	# added to `standard_sidebar_items` later never reaches a site that has
 	# already run the v2_0 patch -- which is what its own docstring promises.
 	"lms.lms.sidebar.seed_sidebar_items",
+	"lms.lms.docperm_shadow.warn_about_shadowed_permlevels",
 ]
 
 # Desk Notifications
@@ -100,6 +101,7 @@ permission_query_conditions = {
 	"LMS Batch": "lms.lms.doctype.lms_batch.lms_batch.get_permission_query_conditions",
 	"LMS Program": "lms.lms.doctype.lms_program.lms_program.get_permission_query_conditions",
 	"Course Lesson": "lms.lms.doctype.course_lesson.course_lesson.get_permission_query_conditions",
+	"LMS Certificate Evaluation": "lms.lms.doctype.lms_certificate_evaluation.lms_certificate_evaluation.get_permission_query_conditions",
 }
 
 has_permission = {
@@ -108,7 +110,12 @@ has_permission = {
 	"LMS Program": "lms.lms.doctype.lms_program.lms_program.has_permission",
 	"LMS Certificate": "lms.lms.doctype.lms_certificate.lms_certificate.has_permission",
 	"Course Lesson": "lms.lms.doctype.course_lesson.course_lesson.has_permission",
+	"LMS Certificate Evaluation": "lms.lms.doctype.lms_certificate_evaluation.lms_certificate_evaluation.has_permission",
 	"File": "lms.lms.permissions.file_has_permission",
+	"LMS Quiz": "lms.lms.permissions.has_authored_content_permission",
+	"LMS Programming Exercise": "lms.lms.permissions.has_authored_content_permission",
+	"LMS Assignment": "lms.lms.permissions.has_authored_content_permission",
+	"LMS Question": "lms.lms.permissions.has_authored_content_permission",
 }
 
 # DocType Class
@@ -123,6 +130,8 @@ override_doctype_class = {
 # ---------------
 # Hook on document methods and events
 
+CHILD_ROW_MOVE_GATE = "lms.lms.permissions.refuse_moving_child_rows_out_of_content_the_user_cannot_write"
+
 doc_events = {
 	"*": {
 		"on_change": [
@@ -134,6 +143,32 @@ doc_events = {
 		"validate": "lms.lms.utils.validate_discussion_reply",
 	},
 	"Notification Log": {"on_change": "lms.lms.utils.publish_notifications"},
+	# One rule, two entry points: a child row whose stored parent is not the one it is
+	# being saved under answers to the parent it is leaving.
+	#
+	# On the child, because has_child_permission is only ever shown the parent named on
+	# the row being saved, so a row moved out of somebody else's quiz is checked against
+	# the destination alone. A has_permission entry for a child would never be called --
+	# frappe.has_permission returns has_child_permission for an istable doctype before
+	# any controller hook for the child is reached.
+	#
+	# On the parent, because doc_events on a child do NOT fire when its parent saves its
+	# own children, and Document.update_child_table db_updates every submitted row by
+	# name with no ownership check. A save of the thief's own quiz naming a foreign row
+	# is checked for `write` on the destination only, and reaches the child gate never.
+	"LMS Quiz": {"validate": CHILD_ROW_MOVE_GATE},
+	"LMS Programming Exercise": {"validate": CHILD_ROW_MOVE_GATE},
+	"LMS Assignment": {"validate": CHILD_ROW_MOVE_GATE},
+	"LMS Question": {"validate": CHILD_ROW_MOVE_GATE},
+	"LMS Quiz Question": {"validate": CHILD_ROW_MOVE_GATE},
+	"LMS Test Case": {"validate": CHILD_ROW_MOVE_GATE},
+	"LMS Content Author": {"validate": CHILD_ROW_MOVE_GATE},
+	# LMS Program carries `authors` too -- composed into its own has_permission hook
+	# rather than registered on the shared gate -- so the same two doors reach its
+	# child tables.
+	"LMS Program": {"validate": CHILD_ROW_MOVE_GATE},
+	"LMS Program Course": {"validate": CHILD_ROW_MOVE_GATE},
+	"LMS Program Member": {"validate": CHILD_ROW_MOVE_GATE},
 	"User": {
 		"validate": "lms.lms.user.validate_username_duplicates",
 		"before_insert": "lms.lms.user.add_lms_student_role",

@@ -7,12 +7,22 @@ from frappe.desk.doctype.notification_log.notification_log import make_notificat
 from frappe.model.document import Document
 from frappe.utils import cint
 
+from lms.lms.html_sanitizer import sanitize_rich_text
+
 
 class LMSQuizSubmission(Document):
 	def validate(self):
 		self.validate_if_max_attempts_exceeded()
+		self.sanitize_result_html()
 		self.validate_marks()
 		self.set_percentage()
+
+	def sanitize_result_html(self):
+		"""A child doctype fires no doc_events, so the parent cleans its rows. Both fields
+		render outside the SPA (reports, exports, the jinja portal)."""
+		for row in self.result:
+			row.answer = sanitize_rich_text(row.answer)
+			row.question = sanitize_rich_text(row.question)
 
 	def on_update(self):
 		self.notify_member()

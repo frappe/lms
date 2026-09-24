@@ -333,6 +333,6 @@ usePageMeta(() => {
 
 .batch-description strong {
 	font-weight: 600;
-	color: theme('colors.gray.900') !important;
+	color: var(--ink-gray-9) !important;
 }
 </style>
