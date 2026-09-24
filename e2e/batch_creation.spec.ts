@@ -17,13 +17,11 @@ const fillMemberField = async (page: Page, label: string, value: string) => {
 };
 
 const openUsersSettings = async (page: Page) => {
-	// Exact match, not a substring: on a fresh site with zero batches,
-	// EmptyStateLayout's "...fresh learning experiences are on the way!"
-	// also contains "learning" (hasText on a string is case-insensitive),
-	// so an unanchored match resolves to two elements.
+	// The header's title is the site's app name when one is set, so locate
+	// it by frappe-ui's slot marker instead.
 	await page
-		.locator("span")
-		.filter({ hasText: /^\s*Learning\s*$/ })
+		.getByRole("navigation", { name: "Main" })
+		.locator('[data-slot="sidebar-header"] button')
 		.click();
 	await page.getByRole("menuitem", { name: "Settings" }).click();
 	await page

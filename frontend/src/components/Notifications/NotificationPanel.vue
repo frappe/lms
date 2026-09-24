@@ -148,7 +148,7 @@ const emptyDescription = computed(() =>
 )
 
 const sidebarLeft = computed(() =>
-	sidebarStore.isSidebarCollapsed ? '3.5rem' : '14rem'
+	sidebarStore.isSidebarCollapsed ? '3rem' : '14rem'
 )
 
 const hasUnread = computed(() => notifications.data?.some((n) => !n.read))
