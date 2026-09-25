@@ -6,7 +6,7 @@
 			class="mb-5"
 			:title="
 				__(
-					'Add a conferencing account in Settings → Integrations, then select it in the batch Settings.',
+					'Set up conferencing in the batch Settings tab to create live classes.',
 				)
 			"
 		/>
