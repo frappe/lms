@@ -3,17 +3,17 @@
 		<PageHeader :breadcrumbs="breadcrumbs">
 			<template #actions>
 				<CertificationLinks :courseName="courseName" />
-				<router-link
+				<HeaderButton
 					v-if="canEditLesson"
-					:to="{
+					:label="__('Editor View')"
+					icon="lucide-pencil"
+					:route="{
 						name: 'CourseDetail',
 						params: { courseName: courseName },
 						hash: '#editor',
 						query: { editLesson: `${chapterNumber}-${lessonNumber}` },
 					}"
-				>
-					<HeaderButton :label="__('Editor View')" icon="lucide-pencil" />
-				</router-link>
+				/>
 			</template>
 		</PageHeader>
 
@@ -129,7 +129,7 @@
 									</span>
 									<span class="lucide-info size-3" />
 									<div
-										class="hidden group-hover:block rounded-4 bg-surface-gray-10 px-2 py-1 text-xs text-ink-base shadow-xl absolute start-0 top-full mt-2"
+										class="hidden group-hover:block [@media(hover:none)]:block [@media(hover:none)]:static [@media(hover:none)]:mt-0 rounded-4 bg-surface-gray-10 px-2 py-1 text-xs text-ink-base shadow-xl absolute start-0 top-full mt-2"
 									>
 										{{ Math.ceil(lesson.data.membership.progress) }}%
 										{{ __('completed') }}
@@ -148,32 +148,12 @@
 										</template>
 									</Button>
 								</Tooltip>
-								<Button v-if="lesson.data.prev" @click="switchLesson('prev')">
-									<template #prefix>
-										<span class="lucide-chevron-left size-4" />
-									</template>
-									<span>{{ __('Previous') }}</span>
-								</Button>
-								<Button
-									v-if="lesson.data.next && canGoNext"
-									@click="switchLesson('next')"
-								>
-									<template #suffix>
-										<span class="lucide-chevron-right size-4" />
-									</template>
-									<span>{{ __('Next') }}</span>
-								</Button>
-								<router-link
-									v-else
-									:to="{
-										name: 'CourseDetail',
-										params: { courseName: courseName },
-									}"
-								>
-									<Button class="text-p-base-medium">{{
-										__('Back to Course')
-									}}</Button>
-								</router-link>
+								<LessonNavButtons
+									:hasPrev="!!lesson.data.prev"
+									:hasNext="!!(lesson.data.next && canGoNext)"
+									:courseName="courseName"
+									@switch="switchLesson"
+								/>
 							</div>
 
 							<div
@@ -188,38 +168,12 @@
 										<span class="lucide-message-circle-question size-4" />
 									</template>
 								</Button>
-								<Button v-if="lesson.data.prev" @click="switchLesson('prev')">
-									<template #prefix>
-										<span class="lucide-chevron-left size-4" />
-									</template>
-									<span>
-										{{ __('Previous') }}
-									</span>
-								</Button>
-
-								<Button
-									v-if="lesson.data.next && canGoNext"
-									@click="switchLesson('next')"
-								>
-									<template #suffix>
-										<span class="lucide-chevron-right size-4" />
-									</template>
-									<span>
-										{{ __('Next') }}
-									</span>
-								</Button>
-
-								<router-link
-									v-else
-									:to="{
-										name: 'CourseDetail',
-										params: { courseName: courseName },
-									}"
-								>
-									<Button class="text-p-base-medium">
-										{{ __('Back to Course') }}
-									</Button>
-								</router-link>
+								<LessonNavButtons
+									:hasPrev="!!lesson.data.prev"
+									:hasNext="!!(lesson.data.next && canGoNext)"
+									:courseName="courseName"
+									@switch="switchLesson"
+								/>
 							</div>
 						</div>
 
@@ -435,6 +389,7 @@ import Discussions from '@/components/Discussions.vue'
 import CertificationLinks from '@/components/CertificationLinks.vue'
 import CourseOutline from '@/components/CourseOutline.vue'
 import LockedLessonNotice from '@/components/LockedLessonNotice.vue'
+import LessonNavButtons from '@/components/LessonNavButtons.vue'
 import StudentLessonSidebar from '@/components/StudentLessonSidebar.vue'
 import BottomSheet from '@/components/BottomSheet.vue'
 import PageHeader from '@/components/Layouts/pages/PageHeader.vue'
@@ -1288,129 +1243,8 @@ usePageMeta(() => {
 	transition: margin 0.1s ease-in-out;
 }
 
-.lesson-content p {
-	margin-bottom: 1rem;
-	line-height: 1.7;
-}
-
-.lesson-content li {
-	line-height: 1.7;
-}
-
-.lesson-content ol {
-	list-style: auto;
-	margin: revert;
-	padding: 1rem;
-}
-
-.lesson-content ul {
-	list-style: auto;
-	padding: 1rem;
-	margin: revert;
-}
-
-.lesson-content img {
-	border: 1px solid var(--outline-gray-2);
-	border-radius: 0.5rem;
-}
-
-/* token-exempt-start: highlight.js night-owl theme, own light/dark pair */
-.lesson-content code {
-	display: block;
-	overflow-x: auto;
-	padding: 1rem 1.25rem;
-	background: #011627;
-	color: #d6deeb;
-	border-radius: 0.5rem;
-	margin: 1rem 0;
-}
-/* token-exempt-end */
-
-.lesson-content a {
-	color: var(--ink-gray-9);
-	text-decoration: underline;
-	font-weight: 500;
-}
-
-.embed-tool__caption,
-.cdx-simple-image__caption {
-	display: none;
-}
-
-.ce-block__content {
-	max-width: unset;
-}
-
 .codex-editor__redactor {
 	padding-bottom: 0px !important;
-}
-
-.codeBoxHolder {
-	display: flex;
-	flex-direction: column;
-	justify-content: flex-start;
-	align-items: flex-start;
-}
-
-.codeBoxTextArea {
-	width: 100%;
-	min-height: 30px;
-	padding: 10px;
-	border-radius: 2px 2px 2px 0;
-	border: none !important;
-	outline: none !important;
-	font: 14px monospace;
-}
-
-.codeBoxSelectDiv {
-	display: flex;
-	flex-direction: column;
-	justify-content: flex-start;
-	align-items: flex-start;
-	position: relative;
-}
-
-.codeBoxSelectInput {
-	border-radius: 0 0 20px 2px;
-	padding: 2px 26px;
-	padding-top: 0;
-	padding-inline-end: 0;
-	text-align: start;
-	cursor: pointer;
-	border: none !important;
-	outline: none !important;
-}
-
-.codeBoxSelectDropIcon {
-	position: absolute !important;
-	inset-inline-start: 10px !important;
-	bottom: 0 !important;
-	width: unset !important;
-	height: unset !important;
-	font-size: 16px !important;
-}
-
-.codeBoxSelectPreview {
-	display: none;
-	flex-direction: column;
-	justify-content: flex-start;
-	align-items: flex-start;
-	border-radius: 2px;
-	box-shadow: 0 3px 15px -3px rgba(13, 20, 33, 0.13); /* token-exempt: cast shadow */
-	position: absolute;
-	top: 100%;
-	margin: 5px 0;
-	max-height: 30vh;
-	overflow-x: hidden;
-	overflow-y: auto;
-	z-index: 10000;
-}
-
-.codeBoxSelectItem {
-	width: 100%;
-	padding: 5px 20px;
-	margin: 0;
-	cursor: pointer;
 }
 
 .codeBoxSelectItem:hover {
@@ -1419,53 +1253,5 @@ usePageMeta(() => {
 
 .codeBoxSelectedItem {
 	background-color: lightblue !important;
-}
-
-.codeBoxShow {
-	display: flex !important;
-}
-
-/* token-exempt-start: highlight.js atom-one theme, own light/dark pair */
-.dark {
-	color: #abb2bf;
-	background-color: #282c34;
-}
-
-.light {
-	color: #383a42;
-	background-color: #fafafa;
-}
-/* token-exempt-end */
-
-.codeBoxTextArea {
-	line-height: 1.7;
-}
-
-.tc-table {
-	border-inline-start: 1px solid var(--outline-gray-2);
-}
-
-/* token-exempt-start: scrim on the video, not the page */
-.plyr__control--overlaid {
-	background: radial-gradient(
-		circle,
-		rgba(0, 0, 0, 0.4) 0%,
-		rgba(0, 0, 0, 0.5) 50%
-	);
-}
-/* token-exempt-end */
-
-.plyr__control:hover {
-	background: none;
-}
-
-.plyr--video {
-	border: 1px solid var(--outline-gray-2);
-	border-radius: 8px;
-}
-
-:root {
-	--plyr-range-fill-background: white;
-	--plyr-video-control-background-hover: transparent;
 }
 </style>

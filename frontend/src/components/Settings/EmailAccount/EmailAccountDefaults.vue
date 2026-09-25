@@ -20,7 +20,9 @@
 						:placeholder="__('No default set')"
 						:aria-label="__('Default Incoming account')"
 						class="w-56"
-						@update:model-value="(value) => pick('incoming', value)"
+						@update:model-value="
+							(value) => pick('incoming', value == null ? null : String(value))
+						"
 					/>
 				</div>
 			</div>
@@ -40,7 +42,9 @@
 						:placeholder="__('No default set')"
 						:aria-label="__('Default Outgoing account')"
 						class="w-56"
-						@update:model-value="(value) => pick('outgoing', value)"
+						@update:model-value="
+							(value) => pick('outgoing', value == null ? null : String(value))
+						"
 					/>
 				</div>
 			</div>

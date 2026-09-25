@@ -10,126 +10,85 @@
 		<div v-else-if="chartDetails.data" class="p-5">
 			<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
 				<Tooltip :text="__('Published Courses')">
-					<NumberChart
-						class="border rounded-5"
-						:config="{ title: 'Courses', value: chartDetails.data.courses }"
+					<NumberCard
+						title="Courses"
+						:value="chartDetails.data.courses"
+						:format="compactNumber"
 					/>
 				</Tooltip>
 				<Tooltip :text="__('Active Members')">
-					<NumberChart
-						class="border rounded-5"
-						:config="{ title: 'Signups', value: chartDetails.data.users }"
+					<NumberCard
+						title="Signups"
+						:value="chartDetails.data.users"
+						:format="compactNumber"
 					/>
 				</Tooltip>
 				<Tooltip :text="__('Course Enrollments')">
-					<NumberChart
-						class="border rounded-5"
-						:config="{
-							title: 'Enrollments',
-							value: chartDetails.data.enrollments,
-						}"
+					<NumberCard
+						title="Enrollments"
+						:value="chartDetails.data.enrollments"
+						:format="compactNumber"
 					/>
 				</Tooltip>
 				<Tooltip :text="__('Course Completions')">
-					<NumberChart
-						class="border rounded-5"
-						:config="{
-							title: 'Completions',
-							value: chartDetails.data.completions,
-						}"
+					<NumberCard
+						title="Completions"
+						:value="chartDetails.data.completions"
+						:format="compactNumber"
 					/>
 				</Tooltip>
 				<Tooltip :text="__('Certified Members')">
-					<NumberChart
-						class="border rounded-5"
-						:config="{
-							title: 'Certifications',
-							value: chartDetails.data.certifications,
-						}"
+					<NumberCard
+						title="Certifications"
+						:value="chartDetails.data.certifications"
+						:format="compactNumber"
 					/>
 				</Tooltip>
 			</div>
 			<div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
-				<div class="border rounded-5 min-h-72">
-					<AxisChart
+				<ChartCard class="h-80">
+					<LineChart
 						v-if="signupsChart.data"
-						:config="{
-							data: signupsChart.data,
-							title: 'Signups',
-							subtitle: 'Signups per day',
-							xAxis: {
-								key: 'date',
-								type: 'time',
-								title: 'Date',
-								timeGrain: 'day',
-							},
-							yAxis: {
-								title: 'Signups',
-							},
-							series: [{ name: 'signups', type: 'line', showDataPoints: true }],
-						}"
+						:data="signupsChart.data"
+						x="date"
+						y="count"
+						title="Signups"
+						subtitle="Signups per day"
+						:x-axis="{ type: 'time', timeGrain: 'day' }"
 					/>
-				</div>
-				<div class="border rounded-5 min-h-72">
-					<AxisChart
+				</ChartCard>
+				<ChartCard class="h-80">
+					<LineChart
 						v-if="enrollmentChart.data"
-						:config="{
-							data: enrollmentChart.data,
-							title: 'Enrollments',
-							subtitle: 'Enrollments per day',
-							xAxis: {
-								key: 'date',
-								type: 'time',
-								title: 'Date',
-								timeGrain: 'day',
-							},
-							yAxis: {
-								title: 'Enrollments',
-							},
-							series: [
-								{ name: 'enrollments', type: 'line', showDataPoints: true },
-							],
-						}"
+						:data="enrollmentChart.data"
+						x="date"
+						y="count"
+						title="Enrollments"
+						subtitle="Enrollments per day"
+						:x-axis="{ type: 'time', timeGrain: 'day' }"
 					/>
-				</div>
-				<div class="border rounded-5">
-					<AxisChart
+				</ChartCard>
+				<ChartCard class="h-80">
+					<LineChart
 						v-if="certification.data"
-						:config="{
-							data: certification.data,
-							title: 'Certifications',
-							subtitle: 'Certifications per day',
-							xAxis: {
-								key: 'date',
-								type: 'time',
-								title: 'Date',
-								timeGrain: 'day',
-							},
-							yAxis: {
-								title: 'Certifications',
-							},
-							series: [
-								{
-									name: 'certifications',
-									type: 'line',
-									showDataPoints: true,
-								},
-							],
-						}"
+						:data="certification.data"
+						x="date"
+						y="count"
+						title="Certifications"
+						subtitle="Certifications per day"
+						:x-axis="{ type: 'time', timeGrain: 'day' }"
 					/>
-				</div>
-				<div v-if="hasCompletions" class="border rounded-5">
+				</ChartCard>
+				<ChartCard v-if="hasCompletions" class="h-80">
 					<DonutChart
-						v-if="courseCompletion.data"
-						:config="{
-							data: courseCompletion.data,
-							title: 'Completions',
-							subtitle: 'Course Completion',
-							categoryColumn: 'label',
-							valueColumn: 'value',
-						}"
+						:data="courseCompletion.data"
+						category="label"
+						value="value"
+						title="Completions"
+						subtitle="Course Completion"
+						:center-label="__('Enrollments')"
 					/>
-				</div>
+				</ChartCard>
 			</div>
 		</div>
 	</div>
@@ -141,9 +100,10 @@ import {
 	Tooltip,
 	usePageMeta,
 } from 'frappe-ui'
-import { AxisChart, DonutChart, NumberChart } from 'frappe-ui/experimental'
+import { ChartCard, DonutChart, LineChart, NumberCard } from 'frappe-ui/charts'
 import { computed } from 'vue'
 import PageHeader from '@/components/Layouts/pages/PageHeader.vue'
+import { compactNumber } from '@/utils/numberCardFormat'
 import { sessionStore } from '../stores/session'
 
 const { brand } = sessionStore()
@@ -171,14 +131,6 @@ const signupsChart = createResource({
 		chart_name: 'New Signups',
 	},
 	auto: true,
-	transform(data) {
-		return data.map((item) => {
-			return {
-				date: new Date(item.date),
-				signups: item.count,
-			}
-		})
-	},
 })
 
 const enrollmentChart = createResource({
@@ -188,14 +140,6 @@ const enrollmentChart = createResource({
 		chart_name: 'Course Enrollments',
 	},
 	auto: true,
-	transform(data) {
-		return data.map((item) => {
-			return {
-				date: new Date(item.date),
-				enrollments: item.count,
-			}
-		})
-	},
 })
 
 const certification = createResource({
@@ -205,14 +149,6 @@ const certification = createResource({
 		chart_name: 'Certification',
 	},
 	auto: true,
-	transform(data) {
-		return data.map((item) => {
-			return {
-				date: new Date(item.date),
-				certifications: item.count,
-			}
-		})
-	},
 })
 
 const courseCompletion = createResource({

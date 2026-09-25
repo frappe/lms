@@ -123,8 +123,8 @@ const CODEBOX_THEME_CSS = `
 .codeBoxHolder .codeBoxTextArea.dark .hljs-emphasis { font-style: italic; }
 .codeBoxHolder .codeBoxTextArea.dark .hljs-strong { font-weight: bold; }
 .codeBoxHolder .codeBoxTextArea.dark .hljs-link { text-decoration: underline; }
-// token-exempt-end
 `
+// token-exempt-end
 
 // Convert legacy contenteditable HTML to plain text: block tags -> line breaks,
 // <br> -> \n, inline tags stripped. DOMParser is inert (no scripts/loads).

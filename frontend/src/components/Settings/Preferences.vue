@@ -49,7 +49,11 @@
 							:placeholder="__('Search timezone')"
 							class="w-48"
 							@update:model-value="
-								(value) => onSystemSelect('time_zone', value)
+								(value) =>
+									onSystemSelect(
+										'time_zone',
+										value == null ? null : String(value)
+									)
 							"
 						/>
 					</div>
@@ -140,8 +144,6 @@ function cachedSettings(): SettingsResource {
 	return createDocumentResource({
 		doctype: 'LMS Settings',
 		name: 'LMS Settings',
-		fields: ['*'],
-		cache: 'LMS Settings',
 		auto: true,
 	}) as unknown as SettingsResource
 }

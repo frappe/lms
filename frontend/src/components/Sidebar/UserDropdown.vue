@@ -1,76 +1,27 @@
 <template>
-	<div class="p-2">
-		<Dropdown :options="userDropdownOptions">
-			<template #item-suffix="{ selected }">
-				<span
-					v-if="selected"
-					class="lucide-check size-4 text-ink-gray-7"
-					aria-hidden="true"
-				/>
-			</template>
-			<template v-slot="{ open, close }">
-				<button
-					class="flex h-12 items-center rounded-5 duration-300 ease-in-out"
-					:class="
-						isCollapsed
-							? 'px-0 w-auto'
-							: open
-							? 'bg-surface-base shadow-sm px-2 w-52'
-							: 'hover:bg-surface-gray-3 px-2 w-52'
-					"
-				>
-					<img
-						v-if="branding.data?.banner_image"
-						:src="safeUrl(branding.data?.banner_image.file_url)"
-						alt=""
-						class="w-8 h-8 rounded-4 flex-shrink-0"
-					/>
-					<LMSLogo v-else class="w-8 h-8 rounded-4 flex-shrink-0" />
-					<div
-						class="flex flex-1 flex-col text-start duration-300 ease-in-out"
-						:class="
-							isCollapsed
-								? 'opacity-0 ms-0 w-0 overflow-hidden'
-								: 'opacity-100 ms-2 w-auto'
-						"
-					>
-						<div class="text-p-base-medium text-ink-gray-9">
-							<span
-								v-if="
-									branding.data?.app_name && branding.data?.app_name != 'Frappe'
-								"
-							>
-								{{ branding.data?.app_name }}
-							</span>
-							<span v-else> Learning </span>
-						</div>
-						<div
-							v-if="userResource.data"
-							class="-mt-0.5 text-p-sm text-ink-gray-7"
-						>
-							{{ convertToTitleCase(userResource.data?.full_name) }}
-						</div>
-					</div>
-					<div
-						class="duration-300 ease-in-out"
-						:class="
-							isCollapsed
-								? 'opacity-0 ms-0 w-0 overflow-hidden'
-								: 'opacity-100 ms-2 w-auto'
-						"
-					>
-						<span class="lucide-chevron-down h-4 w-4 text-ink-gray-7" />
-					</div>
-				</button>
-			</template>
-		</Dropdown>
-	</div>
+	<SidebarHeader
+		:title="appName"
+		:subtitle="
+			userResource.data ? convertToTitleCase(userResource.data.full_name) : ''
+		"
+		:menuItems="userDropdownOptions"
+	>
+		<template #prefix>
+			<img
+				v-if="branding.data?.banner_image"
+				:src="safeUrl(branding.data?.banner_image.file_url)"
+				alt=""
+				class="size-full object-cover"
+			/>
+			<LMSLogo v-else class="size-full" />
+		</template>
+	</SidebarHeader>
 	<SettingsModal v-if="userResource.data?.is_moderator" />
 </template>
 
 <script setup>
 import { sessionStore } from '@/stores/session'
-import { call, createResource, Dropdown, toast } from 'frappe-ui'
+import { call, createResource, SidebarHeader, toast } from 'frappe-ui'
 import { useRouter } from 'vue-router'
 import { convertToTitleCase } from '@/utils'
 import { setThemePreference, themePreference } from '@/utils/theme'
@@ -93,12 +44,23 @@ let { isLoggedIn } = sessionStore()
 const frappeCloudBaseEndpoint = 'https://frappecloud.com'
 const $dialog = createDialog
 
-const props = defineProps({
-	isCollapsed: {
-		type: Boolean,
-		default: false,
-	},
-})
+const appName = computed(() =>
+	branding.data?.app_name && branding.data.app_name != 'Frappe'
+		? branding.data.app_name
+		: 'Learning'
+)
+
+// SidebarHeader passes no slots through to its Dropdown, so the check that
+// marks the current theme rides on each option instead.
+const themeCheck = {
+	suffix: ({ selected }) =>
+		selected
+			? h('span', {
+					class: 'lucide-check size-4 text-ink-gray-7',
+					'aria-hidden': 'true',
+			  })
+			: null,
+}
 
 const apps = createResource({
 	url: 'frappe.apps.get_apps',
@@ -170,18 +132,21 @@ const userDropdownOptions = computed(() => {
 							icon: 'lucide-sun',
 							label: __('Light'),
 							selected: themePreference.value === 'light',
+							slots: themeCheck,
 							onClick: () => setThemePreference('light'),
 						},
 						{
 							icon: 'lucide-moon',
 							label: __('Dark'),
 							selected: themePreference.value === 'dark',
+							slots: themeCheck,
 							onClick: () => setThemePreference('dark'),
 						},
 						{
 							icon: 'lucide-monitor',
 							label: __('System'),
 							selected: themePreference.value === 'system',
+							slots: themeCheck,
 							onClick: () => setThemePreference('system'),
 						},
 					],
@@ -333,16 +298,3 @@ const clearDemoData = () => {
 		})
 }
 </script>
-
-<style>
-/*
- * frappe-ui's Dropdown content has no height bound, so a tall moderator menu
- * overflows the viewport and the boundary row (e.g. "Toggle Theme") is clipped.
- * reka exposes the room it has via --reka-popper-available-height; cap the menu
- * to it and scroll the overflow. Portaled to body, so this rule is global.
- */
-.dropdown-content {
-	max-height: var(--reka-popper-available-height);
-	overflow-y: auto;
-}
-</style>

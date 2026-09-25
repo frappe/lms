@@ -30,7 +30,6 @@ vi.mock('frappe-ui', () => ({
 		template: `<button type="button" :aria-label="ariaLabel" @click="$emit('click')"><slot /></button>`,
 	},
 	FormControl: { props: ['modelValue'], template: `<input />` },
-	FormLabel: { props: ['label'], template: `<label>{{ label }}</label>` },
 	createResource: () => ({
 		data: [],
 		loading: false,

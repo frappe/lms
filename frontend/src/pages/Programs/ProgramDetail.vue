@@ -45,7 +45,7 @@
 					/>
 					<div
 						v-if="!course.eligible && program.data.enforce_course_order"
-						class="absolute inset-0 flex flex-col items-center justify-center space-y-2 text-ink-base rounded-5 invisible group-hover:visible"
+						class="absolute inset-0 flex flex-col items-center justify-center space-y-2 text-ink-base rounded-5 invisible group-hover:visible [@media(hover:none)]:group-active:visible"
 						:style="{
 							background:
 								'radial-gradient(circle, darkgray 0%, lightgray 100%)',

@@ -7,20 +7,20 @@
 // and `process` would each cost a type error.
 import appPackage from '../../../package.json'
 import frappeUiPackage from '../../../node_modules/frappe-ui/package.json'
-import colors from '../../../node_modules/frappe-ui/tailwind/generated/colors.json'
+import { colors, semanticColors } from 'frappe-ui/tailwind/tokens'
 
 export const PINNED_FRAPPE_UI = appPackage.dependencies['frappe-ui']
 export const INSTALLED_FRAPPE_UI = frappeUiPackage.version
 
 /** Every name that resolves to a themed CSS variable. */
 export const SEMANTIC_TOKENS = new Set<string>(
-	Object.entries(colors.themedVariables.light).flatMap(([category, tokens]) =>
-		Object.keys(tokens as object).map((name) => `${category}-${name}`)
+	Object.entries(semanticColors.light).flatMap(([category, tokens]) =>
+		Object.keys(tokens).map((name) => `${category}-${name}`)
 	)
 )
 
 /** The primitive ramps: registered as Tailwind colours, declared on `:root` only. */
-export const RAW_FAMILIES = Object.keys(colors.lightMode).filter(
+export const RAW_FAMILIES = Object.keys(colors.light).filter(
 	(family) => !family.endsWith('-alpha')
 )
 
@@ -83,18 +83,43 @@ export const EXEMPT_LINE = /token-exempt:\s*\S/
 export const EXEMPT_START = /token-exempt-start:\s*\S/
 export const EXEMPT_END = /token-exempt-end\b/
 
-const sources = import.meta.glob('../../**/*.{vue,ts,js,css}', {
-	query: '?raw',
-	import: 'default',
-	eager: true,
-}) as Record<string, string>
+// `src/tests` holds offending strings as fixtures, so it is not scanned.
+const scripts = import.meta.glob(
+	['../../**/*.{vue,ts,js}', '!../../tests/**'],
+	{
+		query: '?raw',
+		import: 'default',
+		eager: true,
+	}
+) as Record<string, string>
+
+// Vitest stubs every .css module to '' (its `css` option is off), `?raw`
+// included, so stylesheets are read off disk. The specifier is a variable
+// because this project ships no @types/node.
+const fsModule = 'node:fs'
+const { readFileSync } = (await import(/* @vite-ignore */ fsModule)) as {
+	readFileSync: (path: URL, encoding: 'utf8') => string
+}
+
+/** A file under `src/` as it is on disk, keyed like `FILES`. */
+export const onDisk = (file: string) => {
+	// A literal first argument would be rewritten by Vite's asset-URL transform.
+	const path = `../../${file}`
+	return readFileSync(new URL(path, import.meta.url), 'utf8')
+}
+
+const cssPaths = Object.keys(
+	import.meta.glob(['../../**/*.css', '!../../tests/**'])
+)
+const styles = Object.fromEntries(
+	cssPaths.map((path) => [path, onDisk(path.slice('../../'.length))])
+)
 
 // Keys are relative to this file, so everything under `src/` arrives as
-// `../../<path>` while `src/tests` — which holds offending strings as fixtures
-// — arrives as `../<name>` or `./<name>` and is excluded by the same prefix.
-export const FILES = Object.entries(sources)
-	.filter(([path]) => path.startsWith('../../'))
-	.map(([path, source]) => [path.slice('../../'.length), source] as const)
+// `../../<path>`.
+export const FILES = Object.entries({ ...scripts, ...styles }).map(
+	([path, source]) => [path.slice('../../'.length), source] as const
+)
 
 /**
  * Blank out comment regions, preserving line numbers, so a hex quoted in prose
@@ -196,7 +221,10 @@ export const baseClass = (cls: string) => {
 const CLASS_LIKE =
 	/(^|\s)(?:[a-z0-9-]+:)*(bg|text|border|ring|rounded|outline|divide|fill|stroke|from|to|via|shadow|placeholder|accent|caret|decoration)-/
 
-/** Class-ish tokens on a line: class attributes, `:class` bindings, class strings. */
+/**
+ * Class-ish tokens on a line: class attributes, `:class` bindings, class
+ * strings, `@apply` lists.
+ */
 export const classesOn = (line: string): string[] => {
 	const lists: string[] = []
 	for (const m of line.matchAll(
@@ -208,7 +236,10 @@ export const classesOn = (line: string): string[] => {
 	for (const m of line.matchAll(/(['"`])((?:(?!\1)[^\\]|\\.)*)\1/g)) {
 		if (CLASS_LIKE.test(m[2])) lists.push(m[2])
 	}
+	for (const m of line.matchAll(/@apply\s+([^;}]+)/g)) lists.push(m[1])
 	return [...new Set(lists)].flatMap((list) =>
-		list.split(/[\s'"`]+/).filter((c) => c && c.length <= 120)
+		list
+			.split(/[\s'"`]+/)
+			.filter((c) => c && c !== '!important' && c.length <= 120)
 	)
 }

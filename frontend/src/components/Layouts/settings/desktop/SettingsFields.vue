@@ -28,40 +28,12 @@
 					</div>
 
 					<div v-else-if="field.type == 'code'" class="code-field py-3">
-						<CodeEditor
+						<SettingsCodeField
 							v-model="data[field.name]"
-							:language="codeLanguage(field)"
-							:required="field.reqd"
-							:disabled="field.disabled"
-							size="sm"
-							class="shrink-0"
-							:style="codeBox(field)"
+							:field="field"
 							@update:model-value="report(field, 'typing')"
 							@change="report(field, 'now')"
-						>
-							<template #label>
-								<span
-									data-testid="code-field-label"
-									class="text-p-base-medium text-ink-gray-7"
-								>
-									{{ __(field.label) }}
-									<span
-										v-if="field.reqd"
-										class="text-ink-red-5"
-										aria-hidden="true"
-										>*</span
-									>
-								</span>
-							</template>
-							<template v-if="field.description" #description>
-								<span
-									data-testid="code-field-description"
-									class="text-p-sm text-ink-gray-5"
-								>
-									{{ __(field.description) }}
-								</span>
-							</template>
-						</CodeEditor>
+						/>
 					</div>
 
 					<div
@@ -70,72 +42,77 @@
 						@input="report(field, 'typing')"
 						@focusout="report(field, 'now')"
 					>
-						<div class="text-p-base-medium text-ink-gray-7 mb-2">
-							{{ __(field.label) }}
-							<span v-if="field.reqd" class="text-ink-red-5" aria-hidden="true"
-								>*</span
-							>
-						</div>
-						<div :style="contentBox(section, field)">
+						<InputLabel
+							:id="labelId(field)"
+							:for-id="controlId(field)"
+							:label="__(field.label)"
+							:required="field.reqd"
+						/>
+						<div class="mt-1" :style="contentBox(section, field)">
 							<FormControl
 								type="textarea"
+								:id="controlId(field)"
 								:rows="field.rows || 3"
 								v-model="data[field.name]"
 								:disabled="field.disabled"
 								:required="field.reqd"
 								:aria-label="__(field.label)"
+								:aria-describedby="describedBy(field)"
 								:placeholder="field.placeholder || __(field.label)"
 							/>
 						</div>
-						<div
+						<InputDescription
 							v-if="field.description"
-							class="text-p-sm text-ink-gray-5 mt-2"
-						>
-							{{ __(field.description) }}
-						</div>
+							:id="descriptionId(field)"
+							:description="__(field.description)"
+							class="mt-1"
+						/>
 					</div>
 
 					<div v-else-if="field.type == 'richtext'" class="py-3">
-						<div class="text-p-base-medium text-ink-gray-7 mb-2">
-							{{ __(field.label) }}
-							<span v-if="field.reqd" class="text-ink-red-5" aria-hidden="true"
-								>*</span
-							>
-						</div>
-						<div :style="contentBox(section, field)">
+						<InputLabel
+							:id="labelId(field)"
+							:label="__(field.label)"
+							:required="field.reqd"
+						/>
+						<div class="mt-1" :style="contentBox(section, field)">
 							<RichTextEditor
 								:content="data[field.name]"
 								:editable="!field.disabled"
+								:aria-labelledby="labelId(field)"
+								:aria-required="field.reqd"
 								:fixed-menu="true"
 								:placeholder="field.placeholder || __(field.label)"
 								editor-class="prose-sm max-w-none border-b border-x border-outline-elevation-2 bg-surface-gray-2 rounded-b-5 py-1 px-2 min-h-[7rem] max-h-[13rem] overflow-y-auto"
 								@change="(value) => onRichText(field, value)"
 							/>
 						</div>
-						<div
+						<InputDescription
 							v-if="field.description"
-							class="text-p-sm text-ink-gray-5 mt-2"
-						>
-							{{ __(field.description) }}
-						</div>
+							:id="descriptionId(field)"
+							:description="__(field.description)"
+							class="mt-1"
+						/>
 					</div>
 
 					<div
 						v-else-if="field.type == 'password' && field.secret"
 						class="py-3"
 					>
-						<div class="text-p-base-medium text-ink-gray-7 mb-2">
-							{{ __(field.label) }}
-							<span v-if="field.reqd" class="text-ink-red-5" aria-hidden="true"
-								>*</span
-							>
-						</div>
+						<InputLabel
+							:id="labelId(field)"
+							:for-id="controlId(field)"
+							:label="__(field.label)"
+							:required="field.reqd"
+						/>
 						<Password
-							class="w-full"
+							class="mt-1 w-full"
+							:id="controlId(field)"
 							:model-value="secretValues[field.name] || ''"
 							:required="field.reqd"
 							:disabled="field.disabled"
 							:aria-label="__(field.label)"
+							:aria-describedby="describedBy(field)"
 							:placeholder="
 								hasStoredSecret(field)
 									? __('Saved, leave blank to keep it')
@@ -143,12 +120,12 @@
 							"
 							@update:model-value="(value) => setSecret(field, value)"
 						/>
-						<div
+						<InputDescription
 							v-if="field.description"
-							class="text-p-sm text-ink-gray-5 mt-2"
-						>
-							{{ __(field.description) }}
-						</div>
+							:id="descriptionId(field)"
+							:description="__(field.description)"
+							class="mt-1"
+						/>
 					</div>
 
 					<div
@@ -158,29 +135,31 @@
 						@input="onInput(field)"
 						@focusout="onSettle(field)"
 					>
-						<div class="text-p-base-medium text-ink-gray-7 mb-2">
-							{{ __(field.label) }}
-							<span v-if="field.reqd" class="text-ink-red-5" aria-hidden="true"
-								>*</span
-							>
-						</div>
+						<InputLabel
+							:id="labelId(field)"
+							:for-id="controlId(field)"
+							:label="__(field.label)"
+							:required="field.reqd"
+						/>
 						<component
 							:is="controlOf(field)"
 							:key="field.name"
 							v-model="data[field.name]"
 							v-bind="controlProps(field)"
+							:id="controlId(field)"
 							:required="field.reqd"
 							:disabled="field.disabled"
-							class="w-full"
+							class="mt-1 w-full"
 							:aria-label="__(field.label)"
+							:aria-describedby="describedBy(field)"
 							:placeholder="field.placeholder || __(field.label)"
 						/>
-						<div
+						<InputDescription
 							v-if="field.description"
-							class="text-p-sm text-ink-gray-5 mt-2"
-						>
-							{{ __(field.description) }}
-						</div>
+							:id="descriptionId(field)"
+							:description="__(field.description)"
+							class="mt-1"
+						/>
 					</div>
 
 					<div v-else class="flex items-center justify-between gap-4 py-3">
@@ -204,6 +183,7 @@
 								size="sm"
 								:model-value="data[field.name]"
 								:disabled="field.disabled"
+								:aria-label="__(field.label)"
 								@update:model-value="(value) => onPick(field, value)"
 							/>
 							<Link
@@ -227,24 +207,31 @@
 								class="w-48"
 								@update:model-value="(value) => onPick(field, value)"
 							/>
-							<span
+							<div
 								v-else
-								class="contents"
+								class="w-48"
 								@input="onInput(field)"
 								@focusout="onSettle(field)"
 							>
+								<label
+									v-if="isPicker(field)"
+									:for="controlId(field)"
+									class="sr-only"
+									>{{ __(field.label) }}</label
+								>
 								<component
 									:is="controlOf(field)"
 									:key="field.name"
+									:id="controlId(field)"
 									v-model="data[field.name]"
 									v-bind="controlProps(field)"
 									:required="field.reqd"
 									:disabled="field.disabled"
-									class="w-48"
-									:aria-label="__(field.label)"
+									class="w-full"
+									:aria-label="isPicker(field) ? undefined : __(field.label)"
 									:placeholder="field.placeholder || __(field.label)"
 								/>
-							</span>
+							</div>
 						</div>
 					</div>
 				</template>
@@ -254,12 +241,13 @@
 </template>
 <script setup>
 import { FormControl, Password, Select } from 'frappe-ui'
-import { CodeEditor } from 'frappe-ui/experimental'
+import { InputDescription, InputLabel } from 'frappe-ui/experimental'
 import BooleanSwitch from '@/components/Controls/BooleanSwitch.vue'
-import { reactive, watch } from 'vue'
+import { reactive, useId, watch } from 'vue'
 import Link from '@/components/Controls/Link.vue'
 import ImageUploadField from '@/components/Controls/ImageUploadField.vue'
 import RichTextEditor from '@/components/RichTextEditor.vue'
+import SettingsCodeField from './SettingsCodeField.vue'
 import { seedCheckboxDefaults } from '@/components/Settings/Mobile/mobileRows'
 
 // is_private="!field.public" is written inline deliberately: privacy is the
@@ -315,6 +303,23 @@ const controlProps = (field) =>
 				min: field.min,
 		  }
 
+// PickerShell's wrapper div swallows aria-label, so these get a <label for>
+// on the id PickerShell forwards to the input.
+const PICKER_TYPES = ['date', 'daterange', 'datetime', 'time']
+
+const isPicker = (field) => PICKER_TYPES.includes(field.type)
+
+const uid = useId()
+
+const controlId = (field) => `${uid}-${field.name}`
+
+const labelId = (field) => `${controlId(field)}-label`
+
+const descriptionId = (field) => `${controlId(field)}-description`
+
+const describedBy = (field) =>
+	field.description ? descriptionId(field) : undefined
+
 const setSecret = (field, value) => {
 	secretValues[field.name] = value
 	emit('secret', field.name, value)
@@ -329,7 +334,6 @@ const INSTANT_TYPES = [
 	'select',
 	'link',
 	'combobox',
-	'autocomplete',
 	'date',
 	'datetime',
 	'datetime-local',
@@ -341,27 +345,6 @@ const INSTANT_TYPES = [
 // validated. Only Transactions' coupon block uses this.
 const visibleFields = (section) =>
 	section.fields.filter((field) => !field.showIf || field.showIf(props.data))
-
-// The schema names a mode the way CodeMirror 5 did; the editor wants a
-// CodeMirror 6 language key. Unmapped falls back to html, matching every code
-// field's prior default.
-const CODE_LANGUAGES = { htmlmixed: 'html', javascript: 'javascript' }
-
-const codeLanguage = (field) => CODE_LANGUAGES[field.mode] || 'html'
-
-// 25px a line, which is what the one pre-existing code field's `rows: 10` was
-// already being drawn at back when the height was hardcoded to 250px. Its
-// height must not move because a second field finally reads the number.
-//
-// A custom property rather than a `height` prop: the editor has none, and caps
-// itself at `--cm-max-height`. Custom properties inherit, so setting it on the
-// labelled wrapper reaches the editor inside. The matching floor is a CSS rule
-// below, because a cap alone would let a short document draw a short box and
-// Email Template's Use HTML toggle swaps this field with a fixed-height rich
-// text one.
-const codeBox = (field) => ({
-	'--cm-max-height': `${(field.rows ?? 10) * 25}px`,
-})
 
 const CONTENT_TYPES = ['textarea', 'richtext']
 
@@ -539,12 +522,3 @@ watch(
 	{ immediate: true }
 )
 </script>
-
-<style scoped>
-/* Min and max on the same element pins the editor to exactly the height the
-   schema's `rows` asks for. `.cm-editor` is a column flexbox whose scroller
-   grows, so the code scrolls inside a box that never resizes. */
-.code-field :deep(.cm-editor) {
-	min-height: var(--cm-max-height);
-}
-</style>

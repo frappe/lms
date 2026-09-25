@@ -17,8 +17,7 @@ export class Assignment {
 
 	static get toolbox() {
 		const app = createApp({
-			render: () =>
-				h(Pencil, { size: 18, strokeWidth: 1.5, color: 'black' }),
+			render: () => h(Pencil, { size: 18, strokeWidth: 1.5 }),
 		})
 		registerDirectives(app)
 

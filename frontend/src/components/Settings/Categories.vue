@@ -57,6 +57,7 @@ import {
 	createResource,
 	toast,
 } from 'frappe-ui'
+import type { FrappeResourceError } from 'frappe-ui'
 import { computed, ref } from 'vue'
 import { cleanError } from '@/utils'
 import { createDialog } from '@/utils/dialogs'
@@ -123,14 +124,12 @@ const openForm = (row?: SettingsListRow) => {
 	showForm.value = true
 }
 
-const messageOf = (err: any, fallback: string): string => {
-	const message = err?.messages?.[0] || err?.message || err
-	return (typeof message === 'string' && cleanError(message)) || fallback
-}
+const messageOf = (err: FrappeResourceError, fallback: string): string =>
+	cleanError(err.messages?.[0] || err.message) || fallback
 
 // A refused write keeps the dialog, and what was typed, where it is, and
 // puts the server's message under the field.
-const onSaveError = (err: any, fallback: string) => {
+const onSaveError = (err: FrappeResourceError, fallback: string) => {
 	saving.value = false
 	error.value = messageOf(err, fallback)
 }
@@ -170,7 +169,7 @@ const save = (): Promise<void> => {
 				if (token === saveToken) onSaved(saved)
 				resolve()
 			},
-			onError: (err: any) => {
+			onError: (err: FrappeResourceError) => {
 				if (token === saveToken) onSaveError(err, fallback)
 				resolve()
 			},
@@ -254,7 +253,7 @@ const deleteCategory = (name: string, close: () => void) => {
 			if (typeof close === 'function') close()
 			toast.success(__('Category deleted successfully'))
 		})
-		.catch((err: any) => {
+		.catch((err: FrappeResourceError) => {
 			toast.error(messageOf(err, __('Unable to delete category')))
 		})
 		.finally(() => {

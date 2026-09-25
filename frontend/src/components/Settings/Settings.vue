@@ -2,11 +2,7 @@
 	<SettingsDialog v-model:open="show" v-model:tab="activeSlug" size="5xl">
 		<template #title>{{ __('Settings') }}</template>
 		<SettingsSidebar>
-			<SettingsNavGroup
-				v-for="group in tabs"
-				:key="group.label"
-				:label="group.hideLabel ? undefined : __(group.label)"
-			>
+			<SettingsNavGroup v-for="group in tabs" :key="group.label">
 				<template #label>
 					<span class="text-xs-medium text-ink-gray-5">
 						{{ __(group.label) }}
@@ -24,7 +20,7 @@
 				</SettingsNavItem>
 			</SettingsNavGroup>
 		</SettingsSidebar>
-		<SettingsContent ref="content">
+		<SettingsContent>
 			<SettingsPanel v-for="item in items" :key="item.slug" :value="item.slug">
 				<SettingsFieldsPanel
 					v-if="item.page.kind === 'fields'"
@@ -48,22 +44,24 @@
 				/>
 			</SettingsPanel>
 		</SettingsContent>
-		<Button
-			class="absolute end-1 top-1 z-30"
-			variant="ghost"
-			:label="__('Close')"
-			@click="show = false"
-		>
-			<template #icon>
-				<span class="lucide-x size-4 text-ink-gray-9" />
-			</template>
-		</Button>
+		<Dialog.Close as-child>
+			<Button
+				class="absolute end-1 top-1 z-30"
+				variant="ghost"
+				:label="__('Close')"
+			>
+				<template #icon>
+					<span class="lucide-x size-4 text-ink-gray-9" />
+				</template>
+			</Button>
+		</Dialog.Close>
 	</SettingsDialog>
 	<DiscardChangesDialog />
 </template>
 <script setup>
 import {
 	Button,
+	Dialog,
 	SettingsContent,
 	SettingsDialog,
 	SettingsNavGroup,
@@ -72,7 +70,7 @@ import {
 	SettingsSidebar,
 	createDocumentResource,
 } from 'frappe-ui'
-import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useSettings } from '@/stores/settings'
 import DiscardChangesDialog from '@/components/Settings/DiscardChangesDialog.vue'
@@ -110,8 +108,6 @@ onBeforeUnmount(() => {
 const data = createDocumentResource({
 	doctype: doctype.value,
 	name: doctype.value,
-	fields: ['*'],
-	cache: doctype.value,
 	auto: true,
 })
 
@@ -151,35 +147,6 @@ const show = computed({
 		if (!value) close()
 	},
 })
-
-// Dismissing on a backdrop click, which frappe-ui's dialog stack loses:
-// reka-ui reads an outside click off a document-level `pointerdown`, and
-// frappe-ui's `@pointerdown.stop` on the dialog content keeps that handler
-// from ever seeing one, so one click in the panel and reka swallows the
-// next backdrop click instead of dismissing. The overlay is the exact
-// surface for this fix: a panel click is stopped before it gets here.
-const content = ref(null)
-const dialogContent = computed(
-	() => content.value?.$el?.closest('[data-dismissable-layer]') ?? null
-)
-const dialogOverlay = computed(
-	() => dialogContent.value?.closest('.dialog-overlay') ?? null
-)
-
-watch(
-	dialogOverlay,
-	(overlay, _previous, onCleanup) => {
-		if (!overlay) return
-		const dismiss = (event) => {
-			if (dialogContent.value?.contains(event.target)) return
-			event.stopPropagation()
-			show.value = false
-		}
-		overlay.addEventListener('pointerdown', dismiss)
-		onCleanup(() => overlay.removeEventListener('pointerdown', dismiss))
-	},
-	{ immediate: true }
-)
 
 // Panels are keyed by slug, so this is what the nav emits back on a click.
 const activeSlug = computed({

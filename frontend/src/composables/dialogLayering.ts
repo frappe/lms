@@ -1,30 +1,13 @@
 import { onScopeDispose } from 'vue'
 
-/*
- * Stack dialogs by open order, and expose only the top one. Every frappe-ui
- * overlay is z-index:auto and teleported to <body> in *anchor* order, not
- * open order (Settings mounts at app start, so it is always first in <body>
- * however late it opens). `inert` also takes covered dialogs out of the
- * focus order and accessibility tree, so tabbing/screen readers stay on top.
- *
- * frappe-ui 1.0.0-beta.29 moved DialogContent out from inside DialogOverlay:
- * the overlay is now an empty `fixed inset-0` div, and the actual dialog
- * content lives in an adjacent teleported SIBLING,
- * `.dialog-scroll-container`. Both still land as direct <body> children in
- * that order (overlay, then its panel). Whatever z-index/inert/pointer-events
- * this file gives the overlay has to go on that sibling panel too, or the
- * overlay's own stacking context (it has an explicit z-index; the panel
- * doesn't) paints over its own dialog's content. reka also marks the overlay
- * `aria-hidden` under this shape (it's no longer an ancestor of the content),
- * which looks alarming but is unrelated to any of this.
- */
+// Stack dialogs by open order, expose only the top one. Every dialog is z-50,
+// so ties fall back to <body> order, which is anchor order. Settings mounts
+// first however late it opens. `inert` keeps focus and screen readers on top.
 const OVERLAY = '.dialog-overlay'
 
-/*
- * The beta.29 sibling holding a dialog's actual content. `null` under the
- * older nested shape (DialogContent inside DialogOverlay), which this file
- * still has to keep supporting for anything not yet on beta.29.
- */
+// A dialog is two adjacent <body> children, an empty overlay then this panel.
+// Both are z-50, so the panel takes its overlay's layer, inert and
+// pointer-events, or it paints above a later dialog's overlay.
 const PANEL = '.dialog-scroll-container'
 
 const panelOf = (overlay: HTMLElement): HTMLElement | null => {
@@ -35,8 +18,6 @@ const panelOf = (overlay: HTMLElement): HTMLElement | null => {
 }
 
 const contentOf = (overlay: HTMLElement): HTMLElement | null => {
-	const nested = overlay.querySelector('[role="dialog"]')
-	if (nested instanceof HTMLElement) return nested
 	const inPanel = panelOf(overlay)?.querySelector('[role="dialog"]')
 	return inPanel instanceof HTMLElement ? inPanel : null
 }
@@ -169,8 +150,8 @@ const restack = () => {
 		(a, b) => (openedAt.get(a) ?? 0) - (openedAt.get(b) ?? 0)
 	)
 	ordered.forEach((overlay, rank) => {
-		// Later in DOM order than its overlay, so a beta.29 panel at the same
-		// z-index already paints above it — no extra rank needed.
+		// The panel follows its overlay in DOM order, so the same z-index
+		// already paints it above. No extra rank needed.
 		const z = String(layerOf(rank + 1))
 		overlay.style.zIndex = z
 		const panel = panelOf(overlay)

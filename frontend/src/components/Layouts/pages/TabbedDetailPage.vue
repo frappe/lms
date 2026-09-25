@@ -194,16 +194,25 @@ defineExpose({ instanceFor: (key: string): unknown => instances[key] ?? null })
 	padding-inline: 1.25rem;
 }
 
-:deep([role='tabpanel'][data-state='active']) {
+.detail-tabs {
 	flex: 1 1 0%;
 	min-height: 0;
 }
 
+:deep([role='tabpanel'][data-state='active']) {
+	display: flex;
+	flex: 1 1 0%;
+	flex-direction: column;
+	min-height: 0;
+}
+
 .detail-tabs.page-flow {
+	min-height: auto;
 	overflow: visible;
 }
 
 .detail-tabs.page-flow :deep([role='tabpanel'][data-state='active']) {
+	display: block;
 	flex: none;
 	min-height: auto;
 	overflow: visible;

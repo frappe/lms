@@ -139,7 +139,6 @@
 import { sessionStore } from '@/stores/session'
 import { Tooltip } from 'frappe-ui'
 import { formatAmount, formatRating } from '@/utils'
-import { theme } from '@/utils/theme'
 import { computed, watch } from 'vue'
 import CourseInstructors from '@/components/CourseInstructors.vue'
 import UserAvatar from '@/components/UserAvatar.vue'
@@ -156,25 +155,11 @@ const props = defineProps({
 
 const gradientColor = computed(() => {
 	let color = props.course.card_gradient?.toLowerCase() || 'blue'
-	// token-exempt: dark card art in both themes by construction, and six of
-	// card_gradient's twelve colours have no semantic ramp at all.
+	// token-exempt: card art stays dark in both themes.
 	return `linear-gradient(to top right, black, var(--${color}-400))`
 })
 </script>
 <style>
-.course-card-pills {
-	background: #ffffff; /* token-exempt: sits on the dark card art, not the page */
-	margin-left: 0;
-	margin-right: 0.5rem;
-	padding: 3.5px 8px;
-	font-size: 11px;
-	text-align: center;
-	letter-spacing: 0.011em;
-	text-transform: uppercase;
-	font-weight: 600;
-	width: fit-content;
-}
-
 .avatar-group {
 	display: inline-flex;
 	align-items: center;
