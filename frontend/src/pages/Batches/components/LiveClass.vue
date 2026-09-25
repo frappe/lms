@@ -4,7 +4,7 @@
 			v-if="isAdmin() && !hasProviderAccount()"
 			theme="amber"
 			class="mb-5"
-			:description="
+			:title="
 				__(
 					'Add a conferencing account in Settings → Integrations, then select it in the batch Settings.',
 				)
