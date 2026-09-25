@@ -191,6 +191,8 @@ def get_assignment_for_learner(assignment):
 		"rubric": serialise_rubric(rubric, for_learner=True)
 		if rubric and cint(rubric.visible_to_learner)
 		else None,
+		# Graded through Copilot (repo submission + AI draft) even when the rubric is hidden.
+		"is_project": bool(rubric),
 		"submissions": [
 			learner_status(frappe.get_doc("Copilot Project Submission", name)) for name in projects
 		],

@@ -87,6 +87,13 @@ class TestProjectFeedback(CopilotTestCase):
 			},
 		)["draft"]
 
+	def test_hidden_rubric_still_marks_the_assignment_as_a_project(self):
+		frappe.db.set_value("Copilot Rubric", {"assignment": self.assignment.name}, "visible_to_learner", 0)
+		self.as_user(self.learner)
+		page = feedback.get_assignment_for_learner(self.assignment.name)
+		self.assertIsNone(page["rubric"])
+		self.assertTrue(page["is_project"])
+
 	def test_submission_accepts_only_github_links(self):
 		self.as_user(self.learner)
 		with self.assertRaises(frappe.ValidationError):
