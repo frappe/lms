@@ -4,9 +4,9 @@
 			v-if="isAdmin() && !hasProviderAccount()"
 			theme="amber"
 			class="mb-5"
-			:title="
+			:description="
 				__(
-					'Set up conferencing in the batch Settings tab to create live classes.',
+					'Add a conferencing account in Settings → Integrations, then select it in the batch Settings.',
 				)
 			"
 		/>

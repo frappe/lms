@@ -4,9 +4,11 @@ export function timeAgo(date) {
 	return useTimeAgo(date).value
 }
 
-// dayjs date format from the site's System Settings (boot data); dayjs tokens are just the uppercase of Frappe's.
+// Map the site's System Settings date_format (boot data) to dayjs tokens.
+const DATE_TOKENS = { yyyy: 'YYYY', yy: 'YY', mmm: 'MMM', mm: 'MM', dd: 'DD' }
 export function getDateFormat() {
-	return (window.date_format || 'dd-mm-yyyy').toUpperCase()
+	const fmt = window.date_format || 'dd-mm-yyyy'
+	return fmt.replace(/yyyy|yy|mmm|mm|dd/g, (t) => DATE_TOKENS[t])
 }
 
 export const formatSeconds = (time) => {

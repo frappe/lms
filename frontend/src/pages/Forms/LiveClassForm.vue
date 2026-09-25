@@ -166,7 +166,7 @@ const refusal = computed(() => {
 		return __('You are not permitted to create a live class for this batch.')
 	if (!hasProviderAccount.value)
 		return __(
-			'Set up conferencing in the batch Settings tab to create live classes.',
+			'Add a conferencing account in Settings → Integrations, then select it in the batch Settings.',
 		)
 	return null
 })
