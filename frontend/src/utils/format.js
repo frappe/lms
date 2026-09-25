@@ -4,11 +4,9 @@ export function timeAgo(date) {
 	return useTimeAgo(date).value
 }
 
-// Frappe stores the date format in System Settings (e.g. "dd-mm-yyyy"); convert it to the dayjs tokens the DatePicker expects.
+// dayjs date format from the site's System Settings (boot data); dayjs tokens are just the uppercase of Frappe's.
 export function getDateFormat() {
-	const fmt = window.sysdefaults?.date_format
-	if (!fmt) return 'YYYY-MM-DD'
-	return fmt.replace('yyyy', 'YYYY').replace('mm', 'MM').replace('dd', 'DD')
+	return (window.date_format || 'dd-mm-yyyy').toUpperCase()
 }
 
 export const formatSeconds = (time) => {
