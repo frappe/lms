@@ -83,6 +83,7 @@ after_migrate = [
 	# already run the v2_0 patch -- which is what its own docstring promises.
 	"lms.lms.sidebar.seed_sidebar_items",
 	"lms.lms.docperm_shadow.warn_about_shadowed_permlevels",
+	"lms.copilot.setup.after_migrate",
 ]
 
 # Desk Notifications
@@ -101,6 +102,11 @@ permission_query_conditions = {
 	"LMS Batch": "lms.lms.doctype.lms_batch.lms_batch.get_permission_query_conditions",
 	"LMS Program": "lms.lms.doctype.lms_program.lms_program.get_permission_query_conditions",
 	"Course Lesson": "lms.lms.doctype.course_lesson.course_lesson.get_permission_query_conditions",
+	"Copilot Feedback Draft": "lms.copilot.permissions.feedback_draft_query",
+	"Copilot Project Submission": "lms.copilot.permissions.project_submission_query",
+	"Copilot Proposal": "lms.copilot.permissions.proposal_query",
+	"Copilot Weekly Insight": "lms.copilot.permissions.weekly_insight_query",
+	"Copilot Rubric": "lms.copilot.permissions.rubric_query",
 	"LMS Certificate Evaluation": "lms.lms.doctype.lms_certificate_evaluation.lms_certificate_evaluation.get_permission_query_conditions",
 }
 
@@ -112,6 +118,11 @@ has_permission = {
 	"Course Lesson": "lms.lms.doctype.course_lesson.course_lesson.has_permission",
 	"LMS Certificate Evaluation": "lms.lms.doctype.lms_certificate_evaluation.lms_certificate_evaluation.has_permission",
 	"File": "lms.lms.permissions.file_has_permission",
+	"Copilot Feedback Draft": "lms.copilot.permissions.course_has_permission",
+	"Copilot Project Submission": "lms.copilot.permissions.course_has_permission",
+	"Copilot Proposal": "lms.copilot.permissions.course_has_permission",
+	"Copilot Weekly Insight": "lms.copilot.permissions.course_has_permission",
+	"Copilot Rubric": "lms.copilot.permissions.rubric_has_permission",
 	"LMS Quiz": "lms.lms.permissions.has_authored_content_permission",
 	"LMS Programming Exercise": "lms.lms.permissions.has_authored_content_permission",
 	"LMS Assignment": "lms.lms.permissions.has_authored_content_permission",
@@ -194,6 +205,8 @@ scheduler_events = {
 		"lms.lms.doctype.lms_live_class.lms_live_class.send_live_class_reminder",
 		"lms.lms.doctype.lms_course.lms_course.send_notification_for_published_courses",
 		"lms.lms.doctype.course_lesson.course_lesson.rename_settled_untitled_lessons",
+		"lms.copilot.proposals.expire_open_proposals",
+		"lms.copilot.conversations.purge_old_transcripts",
 	],
 }
 

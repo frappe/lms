@@ -141,6 +141,11 @@
 					</div>
 				</div>
 				<div v-else-if="assignment.data.type == 'URL' && !scheduleBlocked">
+					<CopilotProjectLink
+						v-if="!canGradeSubmission"
+						:assignment="assignmentID"
+						class="mb-4"
+					/>
 					<FormControl
 						v-model="answer"
 						type="text"
@@ -246,6 +251,7 @@ import { useRouter } from 'vue-router'
 import { validateFile } from '@/utils'
 import RichTextEditor from '@/components/RichTextEditor.vue'
 import { safeUrl } from '@/utils/safeUrl'
+import CopilotProjectLink from '@/components/Copilot/CopilotProjectLink.vue'
 import { getScheduleBlockReason } from '@/utils/schedule'
 
 const answer = ref(null)

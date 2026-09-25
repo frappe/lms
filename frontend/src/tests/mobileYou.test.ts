@@ -57,6 +57,13 @@ vi.mock('frappe-ui', () => ({
 	usePageMeta: vi.fn(),
 }))
 
+vi.mock('@/components/LanguageDialog.vue', () => ({
+	default: {
+		props: ['modelValue'],
+		template: '<div data-testid="language-dialog" />',
+	},
+}))
+
 vi.mock('pinia', () => ({ storeToRefs: (store: unknown) => store }))
 
 vi.mock('@/stores/session', () => ({
@@ -201,12 +208,11 @@ describe('what the page shows', () => {
 		expect(rowLabelled(wrapper, 'Notifications')?.text()).toContain('4')
 	})
 
-	it('offers no way into settings, not even to a moderator', async () => {
-		// An LMS is not configured with a thumb. The desktop dialog is the only
-		// settings surface, so there is no row here and no gate on one.
+	it('offers a language setting to every signed-in user', async () => {
 		const { wrapper } = await openYou()
 		expect(rowLabelled(wrapper, 'Settings')).toBeUndefined()
 		expect(rowLabelled(wrapper, 'Colour mode')).toBeDefined()
+		expect(rowLabelled(wrapper, 'Language')).toBeDefined()
 	})
 })
 

@@ -21,6 +21,7 @@ services:
     command: bash /workspace/init.sh
     environment:
       - SHELL=/bin/bash
+      - NODE_OPTIONS=--max-old-space-size=6144
     working_dir: /home/frappe
     volumes:
       - .:/workspace

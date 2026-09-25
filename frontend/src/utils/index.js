@@ -585,6 +585,39 @@ const getSidebarItems = (forMobile = false) => {
 			],
 		},
 		{
+			label: 'Copilot',
+			hideLabel: true,
+			items: [
+				{
+					label: 'Review Queue',
+					icon: 'Sparkles',
+					to: 'CopilotQueue',
+					condition: () => {
+						return !forMobile && isAdmin()
+					},
+					activeFor: [
+						'CopilotQueue',
+						'CopilotFeedbackReview',
+						'CopilotProposal',
+						'CopilotInsight',
+					],
+				},
+				{
+					label: 'Course from Documents',
+					icon: 'FileUp',
+					to: 'CopilotImports',
+					condition: () => {
+						return (
+							!forMobile &&
+							(userResource?.data?.is_instructor ||
+								userResource?.data?.is_moderator)
+						)
+					},
+					activeFor: ['CopilotImports', 'CopilotImportDetail'],
+				},
+			],
+		},
+		{
 			label: 'Assessments',
 			hideLabel: true,
 			items: [

@@ -1,6 +1,7 @@
 import frappe
 from frappe.permissions import add_permission, update_permission_property
 
+from lms.copilot.setup import ensure_roles as ensure_copilot_roles
 from lms.lms.api import give_discussions_permission
 from lms.lms.enrollment_constraints import ensure_enrollment_unique_constraints
 from lms.lms.sidebar import seed_sidebar_items
@@ -13,6 +14,7 @@ def after_install():
 	give_event_permission()
 	ensure_batch_enrollment_index()
 	ensure_enrollment_unique_constraints()
+	ensure_copilot_roles()
 
 
 def ensure_batch_enrollment_index():

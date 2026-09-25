@@ -17,6 +17,7 @@
 		</template>
 	</SidebarHeader>
 	<SettingsModal v-if="userResource.data?.is_moderator" />
+	<LanguageDialog v-model="showLanguageDialog" />
 </template>
 
 <script setup>
@@ -27,11 +28,12 @@ import { convertToTitleCase } from '@/utils'
 import { setThemePreference, themePreference } from '@/utils/theme'
 import { usersStore } from '@/stores/user'
 import { useSettings } from '@/stores/settings'
-import { h, computed } from 'vue'
+import { h, computed, ref } from 'vue'
 import { createDialog } from '@/utils/dialogs'
 import FrappeCloudIcon from '@/components/Icons/FrappeCloudIcon.vue'
 import LMSLogo from '@/components/Icons/LMSLogo.vue'
 import SettingsModal from '@/components/Settings/Settings.vue'
+import LanguageDialog from '@/components/LanguageDialog.vue'
 import { safeUrl } from '@/utils/safeUrl'
 import { openExternal } from '@/utils/openExternal'
 import { pushSettingsHash } from '@/composables/useSettingsHash'
@@ -41,6 +43,7 @@ const { logout, branding } = sessionStore()
 let { userResource } = usersStore()
 const settingsStore = useSettings()
 let { isLoggedIn } = sessionStore()
+const showLanguageDialog = ref(false)
 const frappeCloudBaseEndpoint = 'https://frappecloud.com'
 const $dialog = createDialog
 
@@ -162,6 +165,16 @@ const userDropdownOptions = computed(() => {
 						let system_user = cookies.get('system_user')
 						if (system_user === 'yes') return true
 						else return false
+					},
+				},
+				{
+					icon: 'lucide-languages',
+					label: __('Language'),
+					onClick: () => {
+						showLanguageDialog.value = true
+					},
+					condition: () => {
+						return isLoggedIn
 					},
 				},
 				{

@@ -81,6 +81,21 @@ export const colourModeRow = (themePreference: ThemePreference): MobileRow => ({
 	action: COLOUR_MODE_ACTION,
 })
 
+export const LANGUAGE_ACTION = 'language'
+
+const LANGUAGE_LABELS: Record<string, string> = {
+	en: 'English',
+	vi: 'Tiếng Việt',
+}
+
+export const languageRow = (language?: string): MobileRow => ({
+	key: 'language',
+	label: 'Language',
+	icon: 'lucide-languages',
+	value: LANGUAGE_LABELS[language || 'en'] || language || 'English',
+	action: LANGUAGE_ACTION,
+})
+
 // What a phone screen needs of `get_user_info`, a subset of its payload,
 // named field for field so a screen reading it is type-checked against the
 // endpoint's actual return rather than `any`.
@@ -89,6 +104,7 @@ export interface SettingsUser {
 	name?: string
 	username?: string
 	is_moderator?: boolean | number
+	language?: string
 	user_image?: string
 	/** The one-line "what I do". `bio` is long-form prose and is not this. */
 	headline?: string
@@ -173,6 +189,7 @@ export const buildYouRows = (options: {
 	otherLinks: readonly NavLink[]
 	primaryLabels: readonly string[]
 	themePreference: ThemePreference
+	language?: string
 	unreadCount?: number
 	/**
 	 * `router.hasRoute`. Required rather than defaulted: a default of "yes,
@@ -185,6 +202,7 @@ export const buildYouRows = (options: {
 		otherLinks,
 		primaryLabels,
 		themePreference,
+		language,
 		unreadCount,
 		hasRoute,
 	} = options
@@ -220,6 +238,7 @@ export const buildYouRows = (options: {
 	}
 
 	settingsRows.push(colourModeRow(themePreference))
+	settingsRows.push(languageRow(language))
 	settingsRows.push({
 		key: 'Log out',
 		label: 'Log out',

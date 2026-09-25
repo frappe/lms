@@ -1,0 +1,135 @@
+{
+ "actions": [],
+ "allow_rename": 0,
+ "creation": "2026-09-23 09:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "gateway_section",
+  "gateway_url",
+  "gateway_api_key",
+  "column_break_gw",
+  "default_model",
+  "review_model",
+  "monthly_token_quota",
+  "behaviour_section",
+  "enable_learner_widget",
+  "proposal_ttl_days",
+  "conversation_retention_days",
+  "column_break_bh",
+  "github_app_id",
+  "weekly_report_weekday",
+  "weekly_report_hour"
+ ],
+ "fields": [
+  {
+   "fieldname": "gateway_section",
+   "fieldtype": "Section Break",
+   "label": "AI Gateway"
+  },
+  {
+   "description": "Base URL of the AI Gateway, for example http://engine:8001",
+   "fieldname": "gateway_url",
+   "fieldtype": "Data",
+   "label": "Gateway URL"
+  },
+  {
+   "description": "Per-site key the Gateway uses to identify this site.",
+   "fieldname": "gateway_api_key",
+   "fieldtype": "Password",
+   "label": "Gateway API Key"
+  },
+  {
+   "fieldname": "column_break_gw",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "Small model for learner Q&A.",
+   "fieldname": "default_model",
+   "fieldtype": "Data",
+   "label": "Default Model"
+  },
+  {
+   "description": "Stronger model for project feedback and weekly reports.",
+   "fieldname": "review_model",
+   "fieldtype": "Data",
+   "label": "Review Model"
+  },
+  {
+   "fieldname": "monthly_token_quota",
+   "fieldtype": "Int",
+   "label": "Monthly Token Quota"
+  },
+  {
+   "fieldname": "behaviour_section",
+   "fieldtype": "Section Break",
+   "label": "Behaviour"
+  },
+  {
+   "default": "1",
+   "fieldname": "enable_learner_widget",
+   "fieldtype": "Check",
+   "label": "Enable Learner Assistant"
+  },
+  {
+   "default": "7",
+   "fieldname": "proposal_ttl_days",
+   "fieldtype": "Int",
+   "label": "Proposal Expiry (Days)"
+  },
+  {
+   "default": "90",
+   "fieldname": "conversation_retention_days",
+   "fieldtype": "Int",
+   "label": "Conversation Retention (Days)"
+  },
+  {
+   "fieldname": "column_break_bh",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "github_app_id",
+   "fieldtype": "Data",
+   "label": "GitHub App ID"
+  },
+  {
+   "default": "Monday",
+   "fieldname": "weekly_report_weekday",
+   "fieldtype": "Select",
+   "label": "Weekly Report Day",
+   "options": "Monday\nTuesday\nWednesday\nThursday\nFriday\nSaturday\nSunday"
+  },
+  {
+   "default": "8",
+   "fieldname": "weekly_report_hour",
+   "fieldtype": "Int",
+   "label": "Weekly Report Hour"
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "issingle": 1,
+ "links": [],
+ "modified": "2026-09-23 09:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Copilot",
+ "name": "Copilot Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

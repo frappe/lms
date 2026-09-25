@@ -13,6 +13,7 @@ import {
 } from '@/components/Settings/Mobile/mobileRows'
 import {
 	colourModeRow,
+	languageRow,
 	type MobileRow,
 	type MobileRowGroup,
 } from '@/components/Settings/Mobile/mobileRows'
@@ -24,8 +25,8 @@ const link = (label: string, icon: string, to?: string): NavLink => ({
 	to,
 })
 
-// What stores/mobileNavLinks holds once settled for a moderator. No Settings
-// link, since the phone has no settings page for one to point at.
+// What stores/mobileNavLinks holds once it has settled for a moderator. The
+// language control is added independently of the moderator-only settings UI.
 const SIDEBAR = [
 	link('Home', 'Home', 'Home'),
 	link('Programs', 'Route', 'Programs'),
@@ -172,24 +173,37 @@ describe('notifications', () => {
 		)
 	})
 
-	it('has no row at all when the link is absent', () => {
+	it('keeps the language row when the notifications link is absent', () => {
 		const groups = build({
 			otherLinks: OTHER.filter((l) => l.to !== 'Notifications'),
 		})
-		expect(labelsIn(groups, 'Settings')).toEqual(['Colour mode', 'Log out'])
+		expect(labelsIn(groups, 'Settings')).toEqual([
+			'Colour mode',
+			'Language',
+			'Log out',
+		])
 	})
 })
 
 describe('the last group', () => {
-	it('is the session, with no way into settings', () => {
-		// An LMS is not configured with a thumb: there is no phone settings
-		// screen and no moderator gate here to hide one behind.
+	it('includes language while keeping admin settings role-gated', () => {
+		// The full settings modal remains moderator-only, but language is a
+		// per-user preference and is available to every signed-in user.
 		expect(labelsIn(build(), 'Settings')).toEqual([
 			'Notifications',
 			'Colour mode',
+			'Language',
 			'Log out',
 		])
 		expect(allRows(build()).map((row) => row.label)).not.toContain('Settings')
+	})
+
+	it('draws the row the shared languageRow builder builds', () => {
+		expect(
+			group(build({ language: 'vi' }), 'Settings')?.rows.find(
+				(row) => row.key === 'language'
+			)
+		).toEqual(languageRow('vi'))
 	})
 
 	it('draws the row the shared colourModeRow builder builds', () => {
@@ -284,6 +298,7 @@ describe('every icon the page can draw', () => {
 			'lucide-mail',
 			'lucide-bell',
 			'lucide-sun-moon',
+			'lucide-languages',
 			'lucide-log-out',
 		])
 	})
