@@ -175,7 +175,7 @@ const uploadFile = (e: Event) => {
 	})
 	uploader
 		.upload(file, {
-			private: 1,
+			private: true,
 		})
 		.then((data: any) => {
 			zip.value = data

@@ -116,6 +116,7 @@
 			<div class="space-y-5">
 				<div
 					v-if="chartDetails.data?.average_progress > 0"
+					ref="progressSummary"
 					class="border rounded-6 p-4"
 				>
 					<div class="text-ink-gray-5 mb-4">
@@ -132,17 +133,7 @@
 							>
 								<div
 									class="size-2 rounded-4"
-									:style="{
-										backgroundColor: `var(--${
-											row.name.startsWith('Just')
-												? 'red'
-												: row.name.startsWith('In')
-												? 'amber'
-												: row.name.startsWith('Adv')
-												? 'blue'
-												: 'green'
-										}-400)`,
-									}"
+									:style="{ backgroundColor: progressColor(row.name) }"
 								></div>
 								<Tooltip :text="row.name.split('(')[1].replace(')', '')">
 									<div class="ms-2">
@@ -162,36 +153,7 @@
 								</Tooltip>
 							</li>
 						</ul>
-						<ECharts
-							class="w-40 h-20"
-							:options="{
-								color: progressColors,
-								series: [
-									{
-										type: 'pie',
-										radius: ['50%', '70%'],
-										center: ['50%', '50%'],
-										label: {
-											show: false,
-										},
-										labelLine: {
-											show: false,
-										},
-										emphasis: {
-											label: {
-												show: false,
-											},
-											scale: false,
-										},
-										legend: {
-											show: false,
-										},
-										data: chartDetails.data?.progress_distribution || [],
-									},
-								],
-								showInlineLabels: false,
-							}"
-						/>
+						<ProgressRing class="w-40 h-20" :slices="progressSlices" />
 					</div>
 				</div>
 				<div
@@ -205,7 +167,8 @@
 						<Select
 							:options="lessonProgressSortingOptions"
 							@update:modelValue="
-								(value: string) => updateLessonProgress(value)
+								(value: SelectOptionValue | null) =>
+									value != null && updateLessonProgress(String(value))
 							"
 							:placeholder="__('Sort by')"
 							class="!w-32"
@@ -263,9 +226,16 @@ import {
 	FormControl,
 	Tooltip,
 } from 'frappe-ui'
-import { ECharts } from 'frappe-ui/experimental'
+import type { SelectOptionValue } from 'frappe-ui'
+import {
+	registerChartModules,
+	useChart,
+	useChartTokens,
+} from 'frappe-ui/charts'
+import { PieChart } from 'echarts/charts'
 import Select from '@/components/Controls/Select.vue'
-import { computed, inject, ref, watch } from 'vue'
+import { computed, defineComponent, h, inject, ref, watch } from 'vue'
+import type { PropType } from 'vue'
 import type dayjsType from 'dayjs'
 import { formatAmount } from '@/utils'
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
@@ -375,9 +345,61 @@ const showStudentsEmptyState = computed(
 		!progressList.loading && !progressList.data?.length && !searchFilter.value
 )
 
-const progressColors = computed(() =>
-	['red', 'amber', 'blue', 'green'].map((color) => `var(--${color}-400)`)
-)
+type ProgressRow = { name: string; value: number }
+type ProgressSlice = ProgressRow & { itemStyle: { color: string } }
+
+const PROGRESS_CATEGORICAL_SLOT = { red: 8, amber: 6, blue: 0, green: 2 }
+
+registerChartModules([PieChart])
+
+const progressSummary = ref<HTMLElement>()
+const { tokens: chartTokens } = useChartTokens(progressSummary)
+
+const progressHue = (name: string): keyof typeof PROGRESS_CATEGORICAL_SLOT => {
+	if (name.startsWith('Just')) return 'red'
+	if (name.startsWith('In')) return 'amber'
+	if (name.startsWith('Adv')) return 'blue'
+	return 'green'
+}
+
+const progressColor = (name: string) => {
+	const slot = PROGRESS_CATEGORICAL_SLOT[progressHue(name)]
+	return chartTokens.value.categorical[slot]
+}
+
+const progressSlices = computed<ProgressSlice[]>(() => {
+	const rows = (chartDetails.data?.progress_distribution || []) as ProgressRow[]
+	return rows.map((row) => ({
+		...row,
+		itemStyle: { color: progressColor(row.name) },
+	}))
+})
+
+const ProgressRing = defineComponent({
+	props: {
+		slices: { type: Array as PropType<ProgressSlice[]>, required: true },
+	},
+	setup(ringProps) {
+		const plot = ref<HTMLElement>()
+		useChart({
+			container: plot,
+			option: () => ({
+				series: [
+					{
+						type: 'pie',
+						radius: ['50%', '70%'],
+						center: ['50%', '50%'],
+						label: { show: false },
+						labelLine: { show: false },
+						emphasis: { label: { show: false }, scale: false },
+						data: ringProps.slices,
+					},
+				],
+			}),
+		})
+		return () => h('div', { ref: plot })
+	},
+})
 
 const progressColumns = computed<ListColumn[]>(() => {
 	return [

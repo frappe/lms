@@ -26,11 +26,10 @@ import { join, relative, resolve } from 'node:path'
 vi.mock('frappe-ui', () => ({
 	FileUploader: {
 		name: 'FileUploader',
-		props: ['private', 'fileTypes', 'fileType', 'validateFile'],
+		props: ['private', 'fileTypes', 'validateFile'],
 		template: '<div />',
 	},
 	Button: { template: '<button><slot /></button>' },
-	FormLabel: { props: ['label', 'required'], template: '<label />' },
 	toast: { success: vi.fn(), error: vi.fn() },
 }))
 
@@ -118,8 +117,8 @@ const vueFilesUnder = (dir: string): string[] => {
  * Every opening uploader tag, ending at the first `>` that is NOT
  * inside an attribute value. RichTextEditor counts: it uploads pasted and
  * dragged images too (its uploadFile defaults them to private), so a lesson body
- * written in one decides privacy exactly as a FileUploader does. The app has no
- * <TextEditor — that name matched nothing at all. A naive /[^>]*>/ stops at the `>` of the first
+ * written in one decides privacy exactly as a FileUploader does.
+ * A naive /[^>]*>/ stops at the `>` of the first
  * `=>` in an arrow-function attribute, which makes the whole check depend on
  * the order the attributes happen to be written in.
  */
@@ -241,6 +240,7 @@ const MANIFEST: Record<string, Privacy[]> = {
 	'components/DiscussionReplies.vue': ['undeclared', 'undeclared'],
 	'components/Modals/DiscussionModal.vue': ['undeclared'],
 	'components/Quiz.vue': ['undeclared'],
+	'components/Quiz/QuestionEditor.vue': ['undeclared'],
 	'components/Settings/EmailTemplate/EmailTemplateAdd.vue': ['undeclared'],
 	'components/Settings/EmailTemplate/EmailTemplateEdit.vue': ['undeclared'],
 	'components/Settings/SettingFields.vue': ['per-field'],

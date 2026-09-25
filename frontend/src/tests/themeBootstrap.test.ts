@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import postcss from 'postcss'
-import colors from '../../node_modules/frappe-ui/tailwind/generated/colors.json'
+import { semanticColors } from 'frappe-ui/tailwind/tokens'
 import { oklchToHex } from './oklch'
 
 // The bug this guards: the document is painted from --surface-base, and that
@@ -24,19 +24,12 @@ import { oklchToHex } from './oklch'
 const ROOT = resolve(__dirname, '../..')
 
 const themeVariables = (theme: 'light' | 'dark'): Record<string, string> => {
-	const themed = (colors as any).themedVariables[theme]
 	const out: Record<string, string> = {}
-	for (const [group, tokens] of Object.entries(
-		themed as Record<string, Record<string, string>>
-	)) {
-		for (const [name, reference] of Object.entries(tokens)) {
-			const resolved = reference
-				.split('/')
-				.reduce<any>((node, key) => (node == null ? node : node[key]), colors)
+	for (const [group, tokens] of Object.entries(semanticColors[theme])) {
+		for (const [name, value] of Object.entries<string>(tokens)) {
 			// frappe-ui exports these as oklch(...) strings; normalize to hex once,
 			// here, so every downstream comparison stays hex-only.
-			if (typeof resolved === 'string')
-				out[`--${group}-${name}`] = oklchToHex(resolved)
+			out[`--${group}-${name}`] = oklchToHex(value)
 		}
 	}
 	return out

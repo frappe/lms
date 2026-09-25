@@ -10,11 +10,7 @@
 			:style="scrollerStyle"
 		>
 			<ListHeader class="sticky top-0 z-10 bg-surface-elevation-1">
-				<ListHeaderCell
-					v-for="column in columns"
-					:key="column.key"
-					class="text-p-sm"
-				>
+				<ListHeaderCell v-for="column in columns" :key="column.key">
 					{{ column.label }}
 				</ListHeaderCell>
 			</ListHeader>

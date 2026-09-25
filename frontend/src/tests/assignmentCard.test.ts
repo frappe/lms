@@ -16,6 +16,13 @@ vi.mock('frappe-ui', () => {
 					h(tag, slots.default?.()),
 		})
 	return {
+		Alert: defineComponent({
+			props: ['title', 'description', 'theme'],
+			setup:
+				(props, { slots }) =>
+				() =>
+					h('div', [props.title, props.description, slots.default?.()]),
+		}),
 		Badge: passthrough('span'),
 		Button: defineComponent({
 			setup:

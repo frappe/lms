@@ -14,8 +14,11 @@
 					<div v-if="lessonCounts.total" class="text-p-sm text-ink-gray-7">
 						{{ lessonsCompletedLabel }}
 					</div>
-					<router-link
-						:to="{
+					<Button
+						variant="solid"
+						size="md"
+						class="w-full"
+						:route="{
 							name: 'Lesson',
 							params: {
 								courseName: course.data?.name,
@@ -28,20 +31,21 @@
 							},
 						}"
 					>
-						<Button variant="solid" size="md" class="w-full">
-							<template #prefix>
-								<span class="lucide-book-text size-4" />
-							</template>
-							<span>
-								{{ progress ? __('Continue Learning') : __('Start Learning') }}
-							</span>
-						</Button>
-					</router-link>
+						<template #prefix>
+							<span class="lucide-book-text size-4" />
+						</template>
+						<span>
+							{{ progress ? __('Continue Learning') : __('Start Learning') }}
+						</span>
+					</Button>
 					<CertificationLinks :courseName="course.data.name" class="w-full" />
 				</div>
-				<router-link
+				<Button
 					v-else-if="course.data?.paid_course && !isAdmin"
-					:to="{
+					variant="solid"
+					size="md"
+					class="w-full mb-8 text-p-base-medium"
+					:route="{
 						name: 'Billing',
 						params: {
 							type: 'course',
@@ -49,19 +53,13 @@
 						},
 					}"
 				>
-					<Button
-						variant="solid"
-						size="md"
-						class="w-full mb-8 text-p-base-medium"
-					>
-						<template #prefix>
-							<span class="lucide-credit-card size-4" />
-						</template>
-						<span>
-							{{ __('Buy this course') }}
-						</span>
-					</Button>
-				</router-link>
+					<template #prefix>
+						<span class="lucide-credit-card size-4" />
+					</template>
+					<span>
+						{{ __('Buy this course') }}
+					</span>
+				</Button>
 				<Badge
 					v-else-if="course.data?.disable_self_learning && !isAdmin"
 					theme="blue"
@@ -153,6 +151,8 @@
 <script setup lang="ts">
 import { computed, inject, watch } from 'vue'
 import { Badge, Button, call, createResource, toast } from 'frappe-ui'
+import type { FrappeResourceError } from 'frappe-ui'
+import { resourceErrorMessage } from '@/utils/resource'
 import { useRouter } from 'vue-router'
 import CertificationLinks from '@/components/CertificationLinks.vue'
 import ProgressBar from '@/components/ProgressBar.vue'
@@ -203,8 +203,8 @@ function enrollStudent() {
 				})
 			}, 1000)
 		})
-		.catch((err: { messages?: string[] } | string) => {
-			const msg = typeof err === 'string' ? err : err.messages?.[0] ?? 'Error'
+		.catch((err: FrappeResourceError) => {
+			const msg = resourceErrorMessage(err, 'Error')
 			toast.warning(__(msg))
 			console.error(err)
 		})

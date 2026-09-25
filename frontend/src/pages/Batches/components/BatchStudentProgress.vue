@@ -1,10 +1,5 @@
 <template>
-	<Dialog
-		v-model:open="show"
-		size="xl"
-		:title="studentDetails.data?.full_name || __('Student Details')"
-		bare
-	>
+	<Dialog v-model:open="show" size="xl" bare>
 		<template #default>
 			<div
 				v-if="studentDetails.loading && !studentDetails.data"
@@ -20,13 +15,7 @@
 							<div class="text-2xl-semibold text-ink-gray-9">
 								{{ studentDetails.data.full_name }}
 							</div>
-							<Badge
-								v-if="
-									Object.keys(studentDetails.data.assessments).length ||
-									Object.keys(studentDetails.data.courses).length
-								"
-								:theme="studentDetails.data.progress === 100 ? 'green' : 'red'"
-							>
+							<Badge v-if="hasProgress" :theme="progressTheme">
 								{{ studentDetails.data.progress }}% {{ __('Complete') }}
 							</Badge>
 						</div>
@@ -46,7 +35,7 @@
 					>
 						<template #cell="{ column, value }">
 							<Badge
-								v-if="column.key == 'status' && isAssignment(value)"
+								v-if="isStatusBadge(column, value)"
 								:theme="getStatusTheme(value as string)"
 							>
 								{{ value }}
@@ -55,7 +44,6 @@
 						</template>
 					</ResponsiveListView>
 
-					<!-- Courses -->
 					<ResponsiveListView
 						:columns="courseColumns"
 						:rows="studentDetails.data.courses"
@@ -92,6 +80,7 @@ import {
 	Dialog,
 	LoadingIndicator,
 } from 'frappe-ui'
+import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import ProgressBar from '@/components/ProgressBar.vue'
 import ResponsiveListView from '@/components/ResponsiveListView.vue'
@@ -174,8 +163,23 @@ const courseListOptions: ListViewOptions = {
 	onRowClick: (row: ListRow) => redirectToCourse(row),
 }
 
+const hasProgress = computed(() => {
+	const data = studentDetails.data
+	return Boolean(
+		Object.keys(data.assessments).length || Object.keys(data.courses).length
+	)
+})
+
+const progressTheme = computed(() =>
+	studentDetails.data.progress === 100 ? 'green' : 'red'
+)
+
 const isAssignment = (value: any) => {
 	return isNaN(value)
+}
+
+const isStatusBadge = (column: ListColumn, value: any) => {
+	return column.key == 'status' && isAssignment(value)
 }
 
 const getStatusTheme = (status: string) => {

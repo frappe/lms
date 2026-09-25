@@ -18,7 +18,6 @@ import RavenSettings from '@/components/Settings/Raven/RavenSettings.vue'
 export const settingsStructure = [
 	{
 		label: 'Configuration',
-		hideLabel: false,
 		items: [
 			{
 				label: 'General',
@@ -296,7 +295,6 @@ export const settingsStructure = [
 	},
 	{
 		label: 'User Management',
-		hideLabel: false,
 		items: [
 			{
 				label: 'Users',
@@ -309,7 +307,6 @@ export const settingsStructure = [
 	},
 	{
 		label: 'Payment',
-		hideLabel: false,
 		items: [
 			{
 				label: 'Configuration',
@@ -417,7 +414,6 @@ export const settingsStructure = [
 	},
 	{
 		label: 'Conferencing',
-		hideLabel: false,
 		items: [
 			{
 				label: 'Zoom',
@@ -437,7 +433,6 @@ export const settingsStructure = [
 	},
 	{
 		label: 'Integrations',
-		hideLabel: false,
 		items: [
 			{
 				label: 'Raven',
@@ -450,7 +445,6 @@ export const settingsStructure = [
 	},
 	{
 		label: 'Customize',
-		hideLabel: false,
 		items: [
 			{
 				label: 'Branding',

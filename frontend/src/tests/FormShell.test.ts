@@ -4,11 +4,8 @@ import { nextTick } from 'vue'
 import FormShell from '@/components/FormShell.vue'
 import { Dialog } from 'frappe-ui'
 
-// frappe-ui doesn't resolve under vitest (see NewMemberModal.test.ts,
-// ReviewModal.test.ts, etc.); stub the two pieces FormShell uses. The Dialog
-// stub mirrors the real open/title/size contract closely enough to assert
-// the default/actions/title slots; Button forwards its native click and
-// renders the #icon slot so the back-arrow test can find and trigger it.
+// Dialog is FormShell's only frappe-ui import. This stub mirrors its
+// open/title/size contract and slots, and keeps reka's portal and focus code out.
 // The mobile page also legitimately carries role="dialog" now (finding 3),
 // so tests distinguish "the desktop Dialog rendered" via findComponent(Dialog)
 // rather than a bare [role="dialog"] query, which both branches would match.
@@ -17,10 +14,6 @@ vi.mock('frappe-ui', () => ({
 		props: ['open', 'title', 'size'],
 		emits: ['update:open'],
 		template: `<div v-if="open" role="dialog"><slot name="title" /><slot /><slot name="actions" /></div>`,
-	},
-	Button: {
-		emits: ['click'],
-		template: `<button @click="$emit('click', $event)"><slot name="icon" /><slot /></button>`,
 	},
 }))
 
@@ -264,8 +257,8 @@ describe('FormShell', () => {
 	// (`data-dismissable-layer`, DismissableLayer.js:104). The layer portals to
 	// <body>, so it is NOT inside pageRef and cannot be found by containment.
 	//
-	// The stubs below mirror that DOM rather than reka itself, because frappe-ui
-	// does not resolve under vitest (see the mock at the top of this file).
+	// The stubs below mirror that DOM, not reka, so the suite controls which
+	// layer is open.
 	describe('Escape with an open popover layer', () => {
 		// `Link` uses the combobox's input mode: focus stays on the input inside
 		// pageRef and the listbox is portaled out, related only by aria-controls.

@@ -49,8 +49,8 @@ vi.mock('@/components/Controls/BooleanSwitch.vue', () => ({
 vi.mock('@/components/Controls/Link.vue', () => ({
 	default: { template: '<div />' },
 }))
-vi.mock('frappe-ui/experimental', () => ({
-	CodeEditor: { template: '<div />' },
+vi.mock('@/components/Layouts/SettingsCodeField.vue', () => ({
+	default: { template: '<div />' },
 }))
 vi.mock('@/utils', () => ({ validateFile: () => true }))
 vi.mock('lucide-vue-next', () => ({ X: { template: '<i />' } }))

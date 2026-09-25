@@ -6,7 +6,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 
-const editorClassFor = { current: [] as unknown[] }
+const editorClassFor = { current: '' as unknown }
 
 vi.mock('frappe-ui', () => ({
 	Button: { template: '<button><slot /></button>' },
@@ -16,14 +16,27 @@ vi.mock('frappe-ui', () => ({
 	FormLabel: { template: '<label />' },
 }))
 
-vi.mock('frappe-ui/experimental', () => ({
-	TextEditor: {
-		props: ['editorClass', 'content', 'editable', 'fixedMenu', 'placeholder'],
+vi.mock('@/components/RichTextEditor.vue', () => ({
+	default: {
+		name: 'RichTextEditorStub',
+		props: [
+			'editorClass',
+			'content',
+			'editable',
+			'fixedMenu',
+			'placeholder',
+			'id',
+			'ariaLabelledby',
+			'ariaRequired',
+			'ariaInvalid',
+		],
+		emits: ['change', 'blur'],
 		created() {
 			// @ts-expect-error - options API `this` inside a stub
 			editorClassFor.current = this.editorClass
 		},
-		template: '<div class="text-editor-stub" />',
+		template:
+			'<div class="text-editor-stub" :id="id" :aria-invalid="String(ariaInvalid)" />',
 	},
 }))
 
@@ -32,7 +45,6 @@ vi.stubGlobal('__', (s: string) => s)
 // translation.js installs String.prototype.format at app boot; the marks label
 // reads it during setup, so a bare mount() would fail on the format call rather
 // than on anything this file is about.
-// @ts-expect-error - augmenting the frappe global
 String.prototype.format = function (this: string, ...args: unknown[]): string {
 	return args.reduce<string>(
 		(out, arg, i) => out.replaceAll(`{${i}}`, String(arg)),
@@ -40,13 +52,21 @@ String.prototype.format = function (this: string, ...args: unknown[]): string {
 	)
 }
 
-async function mountEditor(uiType: string, fillHeight: boolean) {
+async function mountEditor(
+	uiType: string,
+	fillHeight: boolean,
+	question: Record<string, string> = {
+		question: 'Q?',
+		option_1: 'a',
+		option_2: 'b',
+	}
+) {
 	const { default: QuestionEditor } = await import(
 		'@/components/Quiz/QuestionEditor.vue'
 	)
 	return mount(QuestionEditor, {
 		props: {
-			question: { question: 'Q?', option_1: 'a', option_2: 'b' },
+			question,
 			uiType,
 			fillHeight,
 			idPrefix: 'test',
@@ -56,9 +76,9 @@ async function mountEditor(uiType: string, fillHeight: boolean) {
 }
 
 const classOf = (wrapper: ReturnType<typeof mount>) =>
-	wrapper.find('.text-editor-stub').classes().join(' ')
+	wrapper.find('.text-editor-stub').element.parentElement!.className
 
-const editorClass = () => (editorClassFor.current as string[]).join(' ')
+const editorClass = () => editorClassFor.current as string
 
 describe('QuestionEditor fill', () => {
 	it('fills for an open ended question', async () => {
@@ -92,5 +112,29 @@ describe('QuestionEditor fill', () => {
 		const wrapper = await mountEditor('single', false)
 		expect(classOf(wrapper)).not.toContain('flex-1')
 		expect(editorClass()).toContain('min-h-[5rem]')
+	})
+})
+
+describe('QuestionEditor field labelling', () => {
+	const editorOf = (wrapper: ReturnType<typeof mount>) =>
+		wrapper.findComponent({ name: 'RichTextEditorStub' })
+
+	it('labels the field and marks it required', async () => {
+		const wrapper = await mountEditor('single', false)
+		const props = editorOf(wrapper).props()
+		expect(props.id).toBe('question-editor-test')
+		expect(props.ariaLabelledby).toBe('question-editor-label-test')
+		expect(props.ariaRequired).toBe(true)
+	})
+
+	it('reports an empty question as invalid once the field is left', async () => {
+		const wrapper = await mountEditor('single', false, { question: '' })
+		expect(editorOf(wrapper).props('ariaInvalid')).toBe(false)
+		await editorOf(wrapper).vm.$emit('blur', new FocusEvent('blur'))
+		await wrapper.vm.$nextTick()
+		expect(editorOf(wrapper).props('ariaInvalid')).toBe(true)
+		expect(wrapper.find('.text-editor-stub').attributes('aria-invalid')).toBe(
+			'true'
+		)
 	})
 })

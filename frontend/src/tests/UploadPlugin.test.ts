@@ -1,30 +1,68 @@
-import { describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-// Stub FileUploader so we can read the flat props it receives.
-vi.mock('frappe-ui', () => ({
-	FileUploader: {
-		name: 'FileUploader',
-		props: [
-			'private',
-			'doctype',
-			'docname',
-			'fieldname',
-			'fileTypes',
-			'validateFile',
-		],
-		template: '<div class="file-uploader" />',
+const { openFileSelector, slotState } = vi.hoisted(() => ({
+	openFileSelector: vi.fn(),
+	slotState: {
+		uploading: false,
+		progress: 0,
+		error: null as string | null,
 	},
 }))
 
-import { mount } from '@vue/test-utils'
+// Stub FileUploader so we can read the flat props it receives.
+vi.mock('frappe-ui', async () => {
+	const { h } = await import('vue')
+	type Slots = import('vue').SetupContext['slots']
+	return {
+		Button: {
+			name: 'Button',
+			emits: ['click'],
+			setup(_: unknown, { slots, emit }: any) {
+				return () =>
+					h('button', { onClick: () => emit('click') }, slots.default?.())
+			},
+		},
+		ErrorMessage: {
+			name: 'ErrorMessage',
+			props: ['message'],
+			setup(props: { message?: string }) {
+				return () => h('p', { class: 'error-message' }, props.message ?? '')
+			},
+		},
+		FileUploader: {
+			name: 'FileUploader',
+			props: [
+				'private',
+				'doctype',
+				'docname',
+				'fieldname',
+				'fileTypes',
+				'validateFile',
+			],
+			setup(_: unknown, { slots }: { slots: Slots }) {
+				return () =>
+					h(
+						'div',
+						{ class: 'file-uploader' },
+						slots.default?.({ openFileSelector, ...slotState })
+					)
+			},
+		},
+	}
+})
+
+import { flushPromises, mount } from '@vue/test-utils'
 import { reactive, nextTick } from 'vue'
 import UploadPlugin from '@/components/UploadPlugin.vue'
+import translationPlugin from '@/translation'
 
-const mountPlugin = (uploadContext: any) =>
-	mount(UploadPlugin, {
+const mountPlugin = (uploadContext: any) => {
+	;(window as any).translatedMessages = {}
+	return mount(UploadPlugin, {
 		props: { onFileUploaded: () => {}, uploadContext },
-		global: { mocks: { __: (s: string) => s } },
+		global: { plugins: [translationPlugin] },
 	})
+}
 
 const uploader = (wrapper: any) =>
 	wrapper.findComponent({ name: 'FileUploader' })
@@ -63,5 +101,43 @@ describe('UploadPlugin: attach args', () => {
 		const u = uploader(wrapper)
 		expect(u.props('doctype')).toBe('Course Lesson')
 		expect(u.props('docname')).toBe('lesson-456')
+	})
+})
+
+describe('UploadPlugin: file picker', () => {
+	beforeEach(() => {
+		openFileSelector.mockClear()
+		Object.assign(slotState, { uploading: false, progress: 0, error: null })
+	})
+
+	it('opens the file selector once through the slot prop on mount', async () => {
+		mountPlugin({ docname: null, fieldname: 'content' })
+		await flushPromises()
+		expect(openFileSelector).toHaveBeenCalledTimes(1)
+	})
+
+	it('keeps an upload button to reopen a cancelled picker', async () => {
+		const wrapper = mountPlugin({ docname: null, fieldname: 'content' })
+		await flushPromises()
+		const button = wrapper.find('button')
+		expect(button.text()).toBe('Upload File')
+		await button.trigger('click')
+		expect(openFileSelector).toHaveBeenCalledTimes(2)
+	})
+
+	it('shows upload progress', async () => {
+		Object.assign(slotState, { uploading: true, progress: 42 })
+		const wrapper = mountPlugin({ docname: null, fieldname: 'content' })
+		await flushPromises()
+		expect(wrapper.find('button').text()).toBe('Uploading 42%')
+	})
+
+	it('shows the validation error', async () => {
+		slotState.error = 'Only image and video files are allowed.'
+		const wrapper = mountPlugin({ docname: null, fieldname: 'content' })
+		await flushPromises()
+		expect(wrapper.find('.error-message').text()).toBe(
+			'Only image and video files are allowed.'
+		)
 	})
 })

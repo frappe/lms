@@ -4,6 +4,8 @@
  * value into both themes. Vocabulary comes from the installed frappe-ui.
  */
 import { describe, expect, it } from 'vitest'
+import resolveConfig from 'tailwindcss/resolveConfig'
+import frappeUIPreset from 'frappe-ui/tailwind'
 import {
 	at,
 	baseClass,
@@ -15,15 +17,95 @@ import {
 	EXEMPT_START,
 	FILES,
 	INSTALLED_FRAPPE_UI,
+	onDisk,
 	PINNED_FRAPPE_UI,
 	RAW_FAMILIES,
 	SEMANTIC_TOKENS,
 	stripComments,
 } from './helpers/designTokens'
 
+// The theme section each colour utility reads in Tailwind v3's core plugins.
+const THEME_SECTION: Record<string, string> = {
+	bg: 'backgroundColor',
+	text: 'textColor',
+	border: 'borderColor',
+	ring: 'ringColor',
+	'ring-offset': 'ringOffsetColor',
+	outline: 'outlineColor',
+	divide: 'divideColor',
+	from: 'gradientColorStops',
+	via: 'gradientColorStops',
+	to: 'gradientColorStops',
+	fill: 'fill',
+	stroke: 'stroke',
+	accent: 'accentColor',
+	caret: 'caretColor',
+	placeholder: 'placeholderColor',
+	decoration: 'textDecorationColor',
+	shadow: 'boxShadowColor',
+}
+for (const side of ['t', 'r', 'b', 'l', 'x', 'y', 's', 'e']) {
+	THEME_SECTION[`border-${side}`] = 'borderColor'
+}
+
+const childKey = (prefix: string, key: string) => {
+	if (key === 'DEFAULT') return prefix
+	return prefix ? `${prefix}-${key}` : key
+}
+
+const keysOf = (value: object, prefix = ''): string[] =>
+	Object.entries(value).flatMap(([key, child]) => {
+		const name = childKey(prefix, key)
+		return child && typeof child === 'object' ? keysOf(child, name) : [name]
+	})
+
+// The preset registers each family under some sections only (`surface` for
+// bg, `ink` for text, `outline` for border/ring/divide), so a real token can
+// pair with a utility that has no key for it and compile to nothing.
+const theme = resolveConfig({ presets: [frappeUIPreset], content: [] })
+	.theme as Record<string, object | undefined>
+const PAINTS = Object.fromEntries(
+	Object.entries(THEME_SECTION).map(([utility, section]) => [
+		utility,
+		new Set(keysOf(theme[section] ?? {})),
+	])
+)
+
+const tokenUse =
+	/^([a-z]+(?:-[a-z]+)?)-(((?:surface|ink|outline)(?:-alpha)?)-[a-z0-9-]+)(?:\/\d+)?$/
+
+/** Why `base` emits no CSS although its token exists, or null. */
+const wrongFamily = (base: string): string | null => {
+	const m = base.match(tokenUse)
+	if (!m) return null
+	const [, utility, token, family] = m
+	const paints = PAINTS[utility]
+	if (!paints || !SEMANTIC_TOKENS.has(token) || paints.has(token)) return null
+	return `${utility}-* has no ${family}-* key`
+}
+
+// A name assembled at runtime never meets the token check above.
+const dynamicVar = /var\(\s*--(?:surface|ink|outline)(?:-alpha)?-\$\{/
+
 describe('design tokens', () => {
 	it('scans the source tree', () => {
 		expect(FILES.length).toBeGreaterThan(100)
+	})
+
+	// An empty read passes every rule below, so it must not pass here. Only a
+	// file that is empty on disk may scan as empty.
+	it('reads every scanned file', () => {
+		const lost = FILES.filter(
+			([file, source]) => source.length === 0 && onDisk(file).length > 0
+		)
+		expect(lost.map(([file]) => file)).toEqual([])
+	})
+
+	it('scans the stylesheets', () => {
+		const scanned = new Map(FILES)
+		for (const file of ['index.css', 'styles/blockEditor.css']) {
+			expect(scanned.get(file)?.length ?? 0, file).toBeGreaterThan(0)
+		}
 	})
 
 	// beta.69 dropped 22 tokens beta.24 still defines, so a stale node_modules
@@ -45,11 +127,24 @@ describe('design tokens', () => {
 				if (m && !SEMANTIC_TOKENS.has(m[1])) {
 					offenders.push(at(file, line, `${cls} — no such token`))
 				}
+				const wrong = wrongFamily(baseClass(cls).base)
+				if (wrong) offenders.push(at(file, line, `${cls} — ${wrong}`))
 			}
 			for (const m of code.matchAll(asVar)) {
 				if (!SEMANTIC_TOKENS.has(m[1])) {
 					offenders.push(at(file, line, `var(--${m[1]}) — no such token`))
 				}
+			}
+		}
+		expect(offenders).toEqual([])
+	})
+
+	it('builds no token name at runtime', () => {
+		const offenders: string[] = []
+		for (const { file, line, code, exempt } of codeLines()) {
+			if (exempt) continue
+			if (dynamicVar.test(code)) {
+				offenders.push(at(file, line, 'var(--…-${…}) — unverifiable token'))
 			}
 		}
 		expect(offenders).toEqual([])
@@ -81,7 +176,9 @@ describe('design tokens', () => {
 	// declared on `:root` and never redefined for dark.
 	it('uses no raw primitive CSS variable', () => {
 		const pattern = new RegExp(
-			`var\\(\\s*--((?:${RAW_FAMILIES.join('|')})-\\d{1,3}|white|black)\\s*[,)]`,
+			`var\\(\\s*--((?:${RAW_FAMILIES.join(
+				'|'
+			)})-\\d{1,3}|white|black)\\s*[,)]`,
 			'g'
 		)
 		const offenders: string[] = []
@@ -97,7 +194,9 @@ describe('design tokens', () => {
 	// primitive just as surely as the hex would, while reading like a token.
 	it('resolves no raw palette through theme()', () => {
 		const pattern = new RegExp(
-			`theme\\(\\s*['"\`]colors\\.((?:${RAW_FAMILIES.join('|')})\\.\\d{1,3}|white|black)`,
+			`theme\\(\\s*['"\`]colors\\.((?:${RAW_FAMILIES.join(
+				'|'
+			)})\\.\\d{1,3}|white|black)`,
 			'g'
 		)
 		const offenders: string[] = []
@@ -237,12 +336,44 @@ describe('design tokens', () => {
 					}
 					open = i + 1
 				} else if (EXEMPT_END.test(raw)) {
-					if (open === null) offenders.push(at(file, i + 1, 'end with no start'))
+					if (open === null)
+						offenders.push(at(file, i + 1, 'end with no start'))
 					open = null
 				}
 			}
 			if (open !== null) offenders.push(at(file, open, 'region never closed'))
 		}
 		expect(offenders).toEqual([])
+	})
+
+	describe('rules', () => {
+		it('flags a token its utility has no key for', () => {
+			expect(wrongFamily('bg-ink-red-5')).toBe('bg-* has no ink-* key')
+			expect(wrongFamily('ring-ink-green-4')).toBe('ring-* has no ink-* key')
+			expect(wrongFamily('text-surface-gray-2')).not.toBeNull()
+			expect(wrongFamily('bg-outline-gray-2')).not.toBeNull()
+			expect(wrongFamily('border-t-ink-gray-3')).not.toBeNull()
+		})
+
+		it('passes a token its utility has a key for', () => {
+			for (const cls of [
+				'bg-surface-gray-2',
+				'bg-surface-gray-2/50',
+				'text-ink-gray-5',
+				'border-outline-gray-2',
+				'border-s-outline-gray-2',
+				'ring-outline-gray-3',
+				'divide-outline-gray-1',
+				'fill-ink-gray-5',
+				'placeholder-ink-gray-4',
+			]) {
+				expect(wrongFamily(cls), cls).toBeNull()
+			}
+		})
+
+		it('flags a token name built at runtime', () => {
+			expect(dynamicVar.test('`var(--surface-${x}-5)`')).toBe(true)
+			expect(dynamicVar.test('var(--surface-gray-5)')).toBe(false)
+		})
 	})
 })

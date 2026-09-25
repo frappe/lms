@@ -47,7 +47,7 @@
 				<!-- Ready indicator -->
 				<div
 					v-else
-					class="absolute inset-0 ring-2 ring-inset ring-ink-green-4 rounded-7 pointer-events-none"
+					class="absolute inset-0 ring-2 ring-inset ring-outline-green-4 rounded-7 pointer-events-none"
 				>
 					<div
 						class="absolute top-2 end-2 flex items-center gap-1 bg-surface-green-1 text-ink-green-5 text-xs font-medium px-2 py-1 rounded-full"

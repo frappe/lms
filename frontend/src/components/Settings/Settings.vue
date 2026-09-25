@@ -2,11 +2,7 @@
 	<SettingsDialog v-model:open="show" v-model:tab="activeTab" size="5xl">
 		<template #title>{{ __('Settings') }}</template>
 		<SettingsSidebar>
-			<SettingsNavGroup
-				v-for="group in tabs"
-				:key="group.label"
-				:label="group.hideLabel ? undefined : __(group.label)"
-			>
+			<SettingsNavGroup v-for="group in tabs" :key="group.label">
 				<template #label>
 					<span class="text-p-xs-medium text-ink-gray-5">
 						{{ __(group.label) }}
@@ -45,10 +41,23 @@
 				/>
 			</SettingsPanel>
 		</SettingsContent>
+		<Dialog.Close as-child>
+			<Button
+				class="absolute end-1 top-1 z-30"
+				variant="ghost"
+				:label="__('Close')"
+			>
+				<template #icon>
+					<span class="lucide-x size-4 text-ink-gray-9" />
+				</template>
+			</Button>
+		</Dialog.Close>
 	</SettingsDialog>
 </template>
 <script setup>
 import {
+	Button,
+	Dialog,
 	SettingsContent,
 	SettingsDialog,
 	SettingsNavGroup,
@@ -80,8 +89,6 @@ onBeforeUnmount(() => {
 const data = createDocumentResource({
 	doctype: doctype.value,
 	name: doctype.value,
-	fields: ['*'],
-	cache: doctype.value,
 	auto: true,
 })
 

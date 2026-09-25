@@ -203,7 +203,7 @@ test.describe("Course Creation", () => {
 		await titleField.fill("Test Lesson");
 		await createResponse;
 		await expect(
-			page.locator(".outline-lesson").filter({ hasText: "Test Lesson" })
+			page.getByTestId("outline-lesson").filter({ hasText: "Test Lesson" })
 		).toBeVisible({ timeout: 15000 });
 
 		// Regression: deleting the lesson open in the editor must drop back to
@@ -224,7 +224,7 @@ test.describe("Course Creation", () => {
 			page.locator(".outline-lesson").filter({ hasText: "Throwaway lesson" })
 		).toBeVisible({ timeout: 15000 });
 		await page
-			.locator(".outline-lesson")
+			.getByTestId("outline-lesson")
 			.last()
 			.locator(".lucide-trash-2")
 			.click({ force: true });
@@ -237,9 +237,9 @@ test.describe("Course Creation", () => {
 		await expect(
 			page.getByText("Select a lesson on the right to start editing.")
 		).toBeVisible();
-		await expect(page.locator(".outline-lesson")).toHaveCount(1);
+		await expect(page.getByTestId("outline-lesson")).toHaveCount(1);
 		await expect(
-			page.locator(".outline-lesson").filter({ hasText: "Test Lesson" })
+			page.getByTestId("outline-lesson").filter({ hasText: "Test Lesson" })
 		).toBeVisible();
 	});
 
