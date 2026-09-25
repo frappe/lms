@@ -27,6 +27,7 @@
 							v-model="batchDetail.doc.start_date"
 							:label="__('Batch Start Date')"
 							type="date"
+							:format="dateFormat"
 							:required="true"
 							variant="outline"
 						/>
@@ -34,6 +35,7 @@
 							v-model="batchDetail.doc.end_date"
 							:label="__('Batch End Date')"
 							type="date"
+							:format="dateFormat"
 							:required="true"
 							variant="outline"
 						/>
@@ -129,6 +131,7 @@
 								v-model="batchDetail.doc.evaluation_end_date"
 								:label="__('Evaluation End Date')"
 								type="date"
+								:format="dateFormat"
 								variant="outline"
 							/>
 						</div>
@@ -314,6 +317,7 @@ import {
 	updateMetaInfo,
 } from '@/utils'
 import { validateBatch } from '@/utils/batchForm'
+import { getDateFormat } from '@/utils/format'
 import {
 	useKeyboardShortcuts,
 	saveShortcut,
@@ -353,6 +357,7 @@ const router = useRouter()
 const route = useRoute()
 const user = inject<SessionUser>('$user')!
 const instructors = ref<string[]>([])
+const dateFormat = getDateFormat()
 const app = getCurrentInstance()!
 const { $dialog } = app.appContext.config.globalProperties as {
 	$dialog: DialogFn
@@ -375,7 +380,7 @@ const openEmailTemplateForm = (): void => {
 		router,
 		'NewBatchEmailTemplate',
 		props.batch.data?.name ?? '',
-		route.hash
+		route.hash,
 	)
 }
 
@@ -395,7 +400,7 @@ watch(
 		delete query.emailTemplate
 		router.replace({ ...route, query })
 	},
-	{ immediate: true, flush: 'post' }
+	{ immediate: true, flush: 'post' },
 )
 
 const updateBatchDetails = (value: string): void => {
@@ -467,7 +472,7 @@ watch(
 		updateBatchData()
 		getMetaInfo('batches', batchDetail.doc?.name, meta)
 	},
-	{ deep: true }
+	{ deep: true },
 )
 
 const updateBatchData = (): void => {
@@ -537,13 +542,13 @@ const updateBatch = (opts: { silent?: boolean } = {}): void => {
 			},
 			onError(err: { messages?: string[] } | string) {
 				const msg =
-					typeof err === 'string' ? err : err.messages?.[0] ?? __('Error')
+					typeof err === 'string' ? err : (err.messages?.[0] ?? __('Error'))
 				// Autosave failures stay quiet; the orange "Not Saved" badge remains
 				// (isDirty is untouched) so the change isn't silently lost.
 				if (!opts.silent) toast.error(msg)
 				console.error(err)
 			},
-		}
+		},
 	)
 }
 
@@ -551,7 +556,7 @@ const deleteBatch = (): void => {
 	$dialog({
 		title: __('Confirm your action to delete'),
 		message: __(
-			'Deleting this batch will also delete all its data including enrolled students, linked courses, assessments, feedback and discussions. Are you sure you want to continue?'
+			'Deleting this batch will also delete all its data including enrolled students, linked courses, assessments, feedback and discussions. Are you sure you want to continue?',
 		),
 		actions: [
 			{
@@ -603,7 +608,7 @@ const timezoneResource = createResource({
 }) as Resource<string[]>
 
 const timezoneOptions = computed(() =>
-	(timezoneResource.data || []).map((tz: string) => ({ label: tz, value: tz }))
+	(timezoneResource.data || []).map((tz: string) => ({ label: tz, value: tz })),
 )
 
 const systemTimezone = ref<string | null>(null)
@@ -624,7 +629,7 @@ watch(
 	([doc, zone]) => {
 		if (doc && zone && !doc.timezone) doc.timezone = zone
 	},
-	{ immediate: true }
+	{ immediate: true },
 )
 
 const mediumOptions = computed(() => {

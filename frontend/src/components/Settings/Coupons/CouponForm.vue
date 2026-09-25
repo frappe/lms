@@ -49,6 +49,7 @@
 					v-model="doc.expires_on"
 					:label="__('Expires On')"
 					type="date"
+					:format="dateFormat"
 					autocomplete="off"
 				/>
 				<FormControl
@@ -144,6 +145,7 @@
 import { ErrorMessage, FormControl, LoadingIndicator, toast } from 'frappe-ui'
 import { computed, ref, useId, watch } from 'vue'
 import { cleanError } from '@/utils'
+import { getDateFormat } from '@/utils/format'
 import { reloadSettingsLists } from '@/composables/useSettingsListResource'
 import { useSettingsRecord } from '@/composables/useSettingsRecord'
 import { runSave, useSaveState } from '@/composables/useSettingsSave'
@@ -169,6 +171,8 @@ const props = defineProps<{ name?: string | null }>()
 const emit = defineEmits<{ back: [] }>()
 
 const applicableLabelId = useId()
+
+const dateFormat = getDateFormat()
 
 const state = useSaveState()
 const saving = state.saving
@@ -200,11 +204,11 @@ watch(
 		Object.assign(doc.value, newCoupon())
 		pristine.value = snapshot(doc.value)
 	},
-	{ flush: 'post', immediate: true }
+	{ flush: 'post', immediate: true },
 )
 
 const title = computed(() =>
-	isNew.value ? __('New Coupon') : doc.value?.code || __('Coupon')
+	isNew.value ? __('New Coupon') : doc.value?.code || __('Coupon'),
 )
 
 // Codes are typed in whatever case and redeemed in one.
@@ -223,7 +227,7 @@ const redeemed = computed(() => {
 })
 
 const items = computed<SettingsListRow[]>(
-	() => doc.value?.applicable_items ?? []
+	() => doc.value?.applicable_items ?? [],
 )
 
 const addItem = () => {

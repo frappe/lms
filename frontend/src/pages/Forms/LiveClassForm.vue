@@ -19,6 +19,7 @@
 						<FormControl
 							v-model="liveClass.date"
 							type="date"
+							:format="dateFormat"
 							:label="__('Date')"
 							:required="true"
 						/>
@@ -33,7 +34,7 @@
 						<Tooltip
 							:text="
 								__(
-									'Time must be in 24 hour format (HH:mm). Example 11:30 or 22:00'
+									'Time must be in 24 hour format (HH:mm). Example 11:30 or 22:00',
 								)
 							"
 						>
@@ -106,6 +107,7 @@ import {
 } from '@/composables/useBatchForms'
 import { useFormRoute } from '@/composables/useFormRoute'
 import { submitResource } from '@/utils/resource'
+import { getDateFormat } from '@/utils/format'
 
 const props = defineProps({
 	batchName: {
@@ -118,12 +120,13 @@ const user = inject('$user')
 const dayjs = inject('$dayjs')
 const route = useRoute()
 const readOnlyMode = window.read_only_mode
+const dateFormat = getDateFormat()
 
 // C2: close()'s pop branch restores the hash by itself; its deep-link branch
 // replaces to this literal location, so the tab hash has to be carried here or
 // a close lands on the bare path and silently resets the page to tab 0.
 const { close } = useFormRoute(
-	batchRouteLocation('BatchDetail', props.batchName, route.hash)
+	batchRouteLocation('BatchDetail', props.batchName, route.hash),
 )
 
 // Parent context a URL cannot carry: the conferencing provider and its account
@@ -134,11 +137,11 @@ const batch = useBatchDetails(() => props.batchName)
 const loadingBatch = computed(() => !batch.data && batch.loading)
 
 const conferencingProvider = computed(
-	() => batch.data?.conferencing_provider || null
+	() => batch.data?.conferencing_provider || null,
 )
 
 const isAdmin = computed(() =>
-	Boolean(user.data?.is_moderator || user.data?.is_evaluator)
+	Boolean(user.data?.is_moderator || user.data?.is_evaluator),
 )
 
 // Copied from LiveClass.vue's canCreateClass()/hasProviderAccount(), which gate
@@ -163,7 +166,7 @@ const refusal = computed(() => {
 		return __('You are not permitted to create a live class for this batch.')
 	if (!hasProviderAccount.value)
 		return __(
-			'Please select a conferencing provider and add an account to the batch to create live classes.'
+			'Please select a conferencing provider and add an account to the batch to create live classes.',
 		)
 	return null
 })
@@ -285,12 +288,12 @@ const validateFormFields = () => {
 	}
 	const liveClassDateTime = dayjs(`${liveClass.date}T${liveClass.time}`).tz(
 		liveClass.timezone,
-		true
+		true,
 	)
 	if (
 		liveClassDateTime.isSameOrBefore(
 			dayjs().tz(liveClass.timezone, false),
-			'minute'
+			'minute',
 		)
 	) {
 		return __('Please select a future date and time.')
