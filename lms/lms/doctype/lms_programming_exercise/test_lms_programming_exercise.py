@@ -2,7 +2,7 @@
 # See license.txt
 
 # import frappe
-from frappe.tests import IntegrationTestCase, UnitTestCase
+from frappe.tests.utils import FrappeTestCase
 
 # On IntegrationTestCase, the doctype test records and all
 # link-field test record dependencies are recursively loaded
@@ -11,7 +11,7 @@ EXTRA_TEST_RECORD_DEPENDENCIES = []  # eg. ["User"]
 IGNORE_TEST_RECORD_DEPENDENCIES = []  # eg. ["User"]
 
 
-class UnitTestLMSProgrammingExercise(UnitTestCase):
+class UnitTestLMSProgrammingExercise(FrappeTestCase):
 	"""
 	Unit tests for LMSProgrammingExercise.
 	Use this class for testing individual functions and methods.
@@ -20,7 +20,7 @@ class UnitTestLMSProgrammingExercise(UnitTestCase):
 	pass
 
 
-class IntegrationTestLMSProgrammingExercise(IntegrationTestCase):
+class IntegrationTestLMSProgrammingExercise(FrappeTestCase):
 	"""
 	Integration tests for LMSProgrammingExercise.
 	Use this class for testing interactions between multiple components.

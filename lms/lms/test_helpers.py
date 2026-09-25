@@ -1,14 +1,14 @@
 import json
 
 import frappe
-from frappe.tests import UnitTestCase
+from frappe.tests.utils import FrappeTestCase
 from frappe.utils import add_days, nowdate
 
 from lms.lms.doctype.lms_certificate.lms_certificate import get_default_certificate_template
 from lms.lms.doctype.lms_quiz.lms_quiz import submit_quiz
 
 
-class BaseTestUtils(UnitTestCase):
+class BaseTestUtils(FrappeTestCase):
 	"""
 	Base class with helper methods for creating test data.
 	Subclasses should call super().setUp() and super().tearDown().

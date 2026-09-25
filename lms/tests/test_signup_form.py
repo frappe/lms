@@ -7,7 +7,7 @@ from unittest.mock import patch
 
 import frappe
 from frappe import _
-from frappe.tests import UnitTestCase
+from frappe.tests.utils import FrappeTestCase
 from jinja2 import ChoiceLoader, Environment, FileSystemLoader, PrefixLoader
 
 import lms
@@ -15,7 +15,7 @@ import lms
 SIGNUP_FORM = "lms/templates/signup-form.html"
 
 
-class TestSignupForm(UnitTestCase):
+class TestSignupForm(FrappeTestCase):
 	def patched_settings(self, lms_settings):
 		original = frappe.db.get_single_value
 
