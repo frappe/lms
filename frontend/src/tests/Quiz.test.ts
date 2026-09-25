@@ -14,23 +14,6 @@ const resourceState = vi.hoisted(() => ({
 	checkAnswer: [] as unknown[],
 }))
 
-// Copied verbatim from frappe-ui 1.0.0-beta.29 `src/components/Button/Button.vue` so the stub reproduces the real state classes the pager relies on.
-const buttonClasses = vi.hoisted(() => ({
-	variant: {
-		'gray-solid':
-			'text-ink-base bg-surface-gray-10 hover:bg-surface-gray-9 active:bg-surface-gray-8',
-		'gray-subtle':
-			'text-ink-gray-8 bg-surface-gray-2 hover:bg-surface-gray-3 active:bg-surface-gray-4',
-		'blue-subtle':
-			'text-ink-blue-5 bg-surface-blue-2 hover:bg-surface-blue-3 active:bg-surface-blue-4',
-	} as Record<string, string>,
-	disabled: {
-		'gray-solid': 'bg-surface-gray-2 text-ink-gray-4',
-		'gray-subtle': 'bg-surface-gray-2 text-ink-gray-4',
-		'blue-subtle': 'bg-surface-blue-2 text-ink-blue-link',
-	} as Record<string, string>,
-}))
-
 vi.mock('frappe-ui', async () => {
 	const { reactive } = await import('vue')
 
@@ -93,23 +76,9 @@ vi.mock('frappe-ui', async () => {
 		call: vi.fn(),
 		toast: { warning: vi.fn(), error: vi.fn() },
 		Button: {
-			props: {
-				label: { type: String, default: undefined },
-				theme: { type: String, default: 'gray' },
-				variant: { type: String, default: 'subtle' },
-				disabled: { type: Boolean, default: false },
-			},
+			props: { disabled: { type: Boolean, default: false } },
 			emits: ['click'],
-			computed: {
-				stateClasses(this: any) {
-					const key = `${this.theme}-${this.variant}`
-					const map = this.disabled
-						? buttonClasses.disabled
-						: buttonClasses.variant
-					return map[key] ?? ''
-				},
-			},
-			template: `<button type="button" :class="stateClasses" :disabled="disabled" :aria-label="label" @click="$emit('click')"><slot /></button>`,
+			template: `<button type="button" :disabled="disabled" @click="$emit('click')"><slot /></button>`,
 		},
 		Badge: empty,
 		// The option controls render their content through a `label` slot, so a
@@ -124,7 +93,9 @@ vi.mock('frappe-ui', async () => {
 			props: ['modelValue', 'name'],
 			emits: ['update:modelValue'],
 			provide(this: any) {
-				return { pickRadio: (value: unknown) => this.$emit('update:modelValue', value) }
+				return {
+					pickRadio: (value: unknown) => this.$emit('update:modelValue', value),
+				}
 			},
 			template: '<div><slot /></div>',
 		},
@@ -145,7 +116,6 @@ vi.mock('frappe-ui', async () => {
 
 vi.mock('frappe-ui/experimental', () => ({
 	ListView: { template: '<div><slot /></div>' },
-	TextEditor: { template: '<div><slot /></div>' },
 }))
 
 vi.mock('@/components/ProgressBar.vue', () => ({

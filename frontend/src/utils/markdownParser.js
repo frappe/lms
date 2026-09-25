@@ -67,8 +67,7 @@ export class Markdown {
 
 	static get toolbox() {
 		const app = createApp({
-			render: () =>
-				h(CodeXml, { size: 18, strokeWidth: 1.5, color: 'black' }),
+			render: () => h(CodeXml, { size: 18, strokeWidth: 1.5 }),
 		})
 		registerDirectives(app)
 

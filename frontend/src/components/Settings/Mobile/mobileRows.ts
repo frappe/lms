@@ -113,12 +113,26 @@ export const buildAppearanceRows = (
 // this page is the only way to reach anything else.
 
 // Nav links name a lucide *component* (`BookOpen`), settings rows a lucide
-// *utility class* (`lucide-book-open`). Handing a component name to SettingsRow
-// puts `BookOpen` in a class attribute, rendering an invisible icon rather than erroring.
+// *utility class* (`lucide-book-open`). Literal map, Tailwind only emits classes
+// spelled out in source. Covers every Pages row icon.
+const ICON_CLASSES: Record<string, string> = {
+	Home: 'lucide-home',
+	Search: 'lucide-search',
+	BookOpen: 'lucide-book-open',
+	Route: 'lucide-route',
+	Users: 'lucide-users',
+	GraduationCap: 'lucide-graduation-cap',
+	Briefcase: 'lucide-briefcase',
+	TrendingUp: 'lucide-trending-up',
+	Headset: 'lucide-headset',
+	Mail: 'lucide-mail',
+	CircleHelp: 'lucide-circle-help',
+	Pencil: 'lucide-pencil',
+	Code: 'lucide-code',
+}
+
 export const iconClass = (icon?: string): string | undefined =>
-	icon
-		? `lucide-${icon.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase()}`
-		: undefined
+	icon ? ICON_CLASSES[icon] ?? 'lucide-link' : undefined
 
 // The sections survive as a sort order, not as three headings: one "Pages"
 // list, course content first, keeping related rows adjacent (arrival order

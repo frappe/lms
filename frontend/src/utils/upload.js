@@ -20,8 +20,7 @@ export class Upload {
 
 	static get toolbox() {
 		const app = createApp({
-			render: () =>
-				h(UploadIcon, { size: 18, strokeWidth: 1.5, color: 'black' }),
+			render: () => h(UploadIcon, { size: 18, strokeWidth: 1.5 }),
 		})
 		registerDirectives(app)
 

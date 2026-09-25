@@ -32,12 +32,15 @@ vi.mock('frappe-ui', () => ({
 		emits: ['click'],
 		template: `<button @click="$emit('click')"><slot /></button>`,
 	},
-	Badge: { template: `<span><slot /></span>` },
+	FormLabel: {
+		props: ['id', 'label'],
+		template: `<label :for="id">{{ label }}</label>`,
+	},
 	FormControl: {
 		props: ['modelValue', 'type', 'label', 'options', 'id', 'disabled'],
 		emits: ['update:modelValue'],
-		template: `<input :data-type="type" :data-label="label" :value="modelValue"
-			@input="$emit('update:modelValue', $event.target.value)" />`,
+		template: `<input :id="id" :data-type="type" :data-label="label"
+			:value="modelValue" @input="$emit('update:modelValue', $event.target.value)" />`,
 	},
 }))
 
@@ -157,5 +160,24 @@ describe('ProfileEvaluator availability writes', () => {
 			fieldname: 'unavailable_from',
 			value: '2026-08-01',
 		})
+	})
+
+	it('points each time label at its slot input', async () => {
+		const wrapper = await mountPanel()
+		// The mocked resource is not reactive, so re-render to pick up the seed.
+		wrapper.vm.$forceUpdate()
+		await flushPromises()
+		for (const [text, id] of [
+			['Start Time', 'start-time-42'],
+			['End Time', 'end-time-42'],
+			['Start Time', 'new-slot-start-time'],
+			['End Time', 'new-slot-end-time'],
+		]) {
+			const label = wrapper
+				.findAll('label')
+				.find((l) => l.text() === text && l.attributes('for') === id)
+			expect(label).toBeTruthy()
+			expect(wrapper.find(`input#${id}`).exists()).toBe(true)
+		}
 	})
 })

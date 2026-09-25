@@ -537,7 +537,6 @@
 					</div>
 					<div v-else>
 						<RichTextEditor
-							class="mt-4"
 							:content="possibleAnswer"
 							@change="(val) => (possibleAnswer = val)"
 							:editable="true"
@@ -550,8 +549,10 @@
 							<Checkbox
 								v-if="!quiz.data.show_answers"
 								:label="__('Mark for review')"
-								:model-value="reviewQuestions.includes(activeQuestion) ? 1 : 0"
-								@change="markForReview($event, activeQuestion)"
+								:model-value="reviewQuestions.includes(activeQuestion)"
+								@update:model-value="
+									(checked) => markForReview(checked, activeQuestion)
+								"
 							/>
 						</div>
 						<div class="flex-1 flex justify-end gap-2">
@@ -618,8 +619,8 @@
 							class="size-1.5 rounded-full shrink-0"
 							:class="
 								entry.severity === 'violation'
-									? 'bg-ink-red-5'
-									: 'bg-ink-orange-5'
+									? 'bg-surface-red-6'
+									: 'bg-surface-orange-6'
 							"
 						/>
 						<span class="text-sm text-ink-gray-7 flex-1">{{
@@ -804,8 +805,8 @@
 							class="size-1.5 rounded-full shrink-0"
 							:class="
 								entry.severity === 'violation'
-									? 'bg-ink-red-5'
-									: 'bg-ink-orange-5'
+									? 'bg-surface-red-6'
+									: 'bg-surface-orange-6'
 							"
 						/>
 						<span class="text-sm text-ink-gray-7 flex-1">{{
@@ -1723,8 +1724,8 @@ const recordCurrentAttempt = () => {
 	addToLocalStorage()
 }
 
-const markForReview = (event, questionNumber) => {
-	if (event.target.checked) {
+const markForReview = (checked, questionNumber) => {
+	if (checked) {
 		if (!reviewQuestions.value.includes(questionNumber)) {
 			reviewQuestions.value.push(questionNumber)
 		}

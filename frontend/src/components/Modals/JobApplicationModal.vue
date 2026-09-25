@@ -1,7 +1,6 @@
 <template>
 	<Dialog
 		v-model:open="show"
-		class="text-base"
 		title="Apply for this job"
 		size="lg"
 		:actions="[

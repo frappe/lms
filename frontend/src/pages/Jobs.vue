@@ -12,24 +12,23 @@
 		@load-more="jobs.next()"
 	>
 		<template #actions>
-			<router-link
+			<Button
 				v-if="
 					user.data?.name && settings.data?.allow_job_posting && !readOnlyMode
 				"
-				:to="{
+				variant="solid"
+				:route="{
 					name: 'JobForm',
 					params: {
 						jobName: 'new',
 					},
 				}"
 			>
-				<Button variant="solid">
-					<template #prefix>
-						<span class="lucide-plus size-4" />
-					</template>
-					{{ __('Create') }}
-				</Button>
-			</router-link>
+				<template #prefix>
+					<span class="lucide-plus size-4" />
+				</template>
+				{{ __('Create') }}
+			</Button>
 		</template>
 
 		<template #filters>
@@ -38,14 +37,12 @@
 				v-model="activeTab"
 				:options="tabs"
 				class="!w-fit shrink-0"
-				@change="updateJobs"
 			/>
 			<FormControl
 				type="text"
 				:placeholder="__('Search')"
 				:aria-label="__('Search jobs')"
 				v-model="searchQuery"
-				@input="updateJobs"
 			>
 				<template #prefix>
 					<span class="lucide-search size-4 text-ink-gray-5" />
@@ -244,16 +241,23 @@ watch(country, () => {
 	updateJobs()
 })
 
+// Watch, not a listener. TextInput emits on both input and change.
+watch(searchQuery, () => {
+	updateJobs()
+})
+
 const tabs = computed(() => {
 	const tabsArray = [
 		{
 			label: __('Open'),
+			value: 'Open',
 		},
 	]
 
 	if (closedJobs.value) {
 		tabsArray.push({
 			label: __('Closed'),
+			value: 'Closed',
 		})
 	}
 

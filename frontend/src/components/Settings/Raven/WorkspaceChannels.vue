@@ -37,13 +37,12 @@
 		v-model:open="list.deleteOpen.value"
 		entity="channel"
 		:name="list.toDelete.value?.label ?? ''"
-		:loading="list.deleting.value"
 		:message="
 			__(
 				'This deletes the channel mapping and its conditions, and removes everyone those conditions added to the channel. Anyone added by hand in Raven stays. This action cannot be undone.'
 			)
 		"
-		@confirm="list.confirmDelete"
+		:on-confirm="list.confirmDelete"
 	/>
 </template>
 

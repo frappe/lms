@@ -54,6 +54,7 @@ import {
 	getCachedListResource,
 	toast,
 } from 'frappe-ui'
+import type { FrappeResourceError } from 'frappe-ui'
 import { computed, inject, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { openSettings } from '@/utils'
@@ -196,7 +197,7 @@ const enrollStudent = () => {
 				toast.success(__('Student enrolled successfully'))
 				saveAndReplace(parent)
 			},
-			onError(err: unknown) {
+			onError(err: FrappeResourceError) {
 				toast.error(resourceErrorMessage(err, __('Error')))
 			},
 		}

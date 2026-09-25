@@ -49,7 +49,6 @@
 					v-model="doc.expires_on"
 					:label="__('Expires On')"
 					type="date"
-					autocomplete="off"
 				/>
 				<FormControl
 					v-model="doc.usage_limit"
@@ -141,7 +140,7 @@
 	</SettingsLayout>
 </template>
 <script setup lang="ts">
-import { ErrorMessage, FormControl, LoadingIndicator, toast } from 'frappe-ui'
+import { Button, ErrorMessage, FormControl, LoadingIndicator } from 'frappe-ui'
 import { computed, ref, useId, watch } from 'vue'
 import { cleanError } from '@/utils'
 import { reloadSettingsLists } from '@/composables/useSettingsListResource'
