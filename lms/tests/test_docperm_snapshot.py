@@ -5,7 +5,6 @@ import json
 from pathlib import Path
 
 import frappe
-from frappe.modules.utils import get_module_list
 from frappe.tests.utils import FrappeTestCase
 
 BASELINE = Path(__file__).parent / "docperms.json"
@@ -21,7 +20,7 @@ def _snapshot():
 	# The app's own modules, read from lms/modules.txt rather than matched with a
 	# LIKE pattern: the app ships both "LMS" and "Job", and a "%LMS%" filter drops
 	# every Job doctype without saying so.
-	modules = get_module_list("lms")
+	modules = frappe.get_module_list("lms")
 	out = {}
 	for name in frappe.get_all("DocType", filters={"module": ("in", modules)}, pluck="name"):
 		meta = frappe.get_meta(name)
@@ -40,7 +39,7 @@ def _snapshot():
 
 class TestDocPermSnapshot(FrappeTestCase):
 	def test_snapshot_covers_both_app_modules(self):
-		modules = set(get_module_list("lms"))
+		modules = set(frappe.get_module_list("lms"))
 		self.assertEqual(
 			modules,
 			{"LMS", "Job"},
