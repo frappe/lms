@@ -2,12 +2,12 @@ from unittest.mock import patch
 
 import frappe
 from frappe.exceptions import FrappeTypeError
-from frappe.tests import UnitTestCase
+from frappe.tests.utils import FrappeTestCase
 
 from lms.lms.email_account import create_email_account
 
 
-class TestCreateEmailAccount(UnitTestCase):
+class TestCreateEmailAccount(FrappeTestCase):
 	def setUp(self):
 		frappe.set_user("Administrator")
 

@@ -4,7 +4,6 @@ import time
 import types
 
 import frappe
-from frappe.tests import UnitTestCase
 from frappe.tests.utils import FrappeTestCase
 
 from lms import raven_provider
@@ -13,12 +12,11 @@ from lms.raven_provider import (
 )
 
 
-class TestOptionalRavenIntegrationImport(UnitTestCase):
+class TestOptionalRavenIntegrationImport(FrappeTestCase):
 	"""lms.raven_provider must import on a bench without the optional raven_integration app.
 
 	Regression: a module-scope `from raven_integration.exceptions import ProviderDataError`
-	made every test module that touches the provider error out on import. Schema-free, so
-	UnitTestCase (IntegrationTestCase's record loader trips the Fiscal Year flake).
+	made every test module that touches the provider error out on import.
 	"""
 
 	def test_imports_without_raven_integration(self):
@@ -406,11 +404,10 @@ class TestPaymentFilter(FrappeTestCase):
 			self.assertIn(user.name, matched)
 
 
-class TestBatchEnrollmentIndex(UnitTestCase):
+class TestBatchEnrollmentIndex(FrappeTestCase):
 	"""The (batch, member) index that TestRulePerformance's 200ms budget depends on.
 
-	Added by lms.patches.v2_0.add_batch_enrollment_index. Schema-only, so UnitTestCase.
-	IntegrationTestCase's test-record loader trips the Fiscal Year overlap flake here.
+	Added by lms.patches.v2_0.add_batch_enrollment_index.
 	"""
 
 	def test_batch_member_index_exists(self):
@@ -767,11 +764,10 @@ class TestRulePerformance(FrappeTestCase):
 		)
 
 
-class TestGetRavenSetup(UnitTestCase):
+class TestGetRavenSetup(FrappeTestCase):
 	"""Settings > Raven asks LMS, not raven_integration, whether raven_integration is
 	there. A method of an uninstalled app raises AppNotInstalledError, and the panel
-	that exists to say "install it" cannot render off an exception. Schema-free, so
-	UnitTestCase.
+	that exists to say "install it" cannot render off an exception.
 	"""
 
 	def setUp(self):
