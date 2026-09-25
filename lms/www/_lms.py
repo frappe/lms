@@ -41,7 +41,7 @@ def get_boot():
 			"lms_path": get_lms_path(),
 			"lang": lang,
 			"text_direction": resolve_text_direction(lang),
-			"sysdefaults": frappe.defaults.get_defaults(),
+			"date_format": frappe.get_system_settings("date_format"),
 		}
 	)
 
