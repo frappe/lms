@@ -24,7 +24,7 @@ class TestSignupForm(UnitTestCase):
 				return lms_settings.get(fieldname)
 			return original(doctype, fieldname, *args, **kwargs)
 
-		return patch.object(frappe.db, "get_single_value", side_effect=get_single_value)
+		return patch.object(frappe.db, "get_single_value", get_single_value)
 
 	def render(self, **lms_settings):
 		with self.patched_settings(lms_settings):
