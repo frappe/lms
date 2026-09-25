@@ -1,0 +1,81 @@
+{
+ "actions": [],
+ "allow_rename": 0,
+ "creation": "2026-09-23 09:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "criterion",
+  "description",
+  "max_level",
+  "points",
+  "levels",
+  "taught_in_lesson",
+  "pass_example",
+  "fail_example"
+ ],
+ "fields": [
+  {
+   "fieldname": "criterion",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Criterion",
+   "reqd": 1
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Small Text",
+   "in_list_view": 1,
+   "label": "Description"
+  },
+  {
+   "default": "3",
+   "fieldname": "max_level",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Max Level"
+  },
+  {
+   "description": "Weight of this criterion in the total score.",
+   "fieldname": "points",
+   "fieldtype": "Float",
+   "label": "Points"
+  },
+  {
+   "description": "What each level means, one line per level, e.g. \"1: ...\".",
+   "fieldname": "levels",
+   "fieldtype": "Small Text",
+   "label": "Levels"
+  },
+  {
+   "description": "Lesson where this skill is taught, so feedback can point back to it.",
+   "fieldname": "taught_in_lesson",
+   "fieldtype": "Link",
+   "label": "Taught in Lesson",
+   "options": "Course Lesson"
+  },
+  {
+   "fieldname": "pass_example",
+   "fieldtype": "Small Text",
+   "label": "Passing Example"
+  },
+  {
+   "fieldname": "fail_example",
+   "fieldtype": "Small Text",
+   "label": "Failing Example"
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-09-25 09:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Copilot",
+ "name": "Copilot Rubric Criterion",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}

@@ -1,0 +1,79 @@
+{
+ "actions": [],
+ "allow_rename": 0,
+ "creation": "2026-09-25 12:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "file_url",
+  "file_name",
+  "kind",
+  "pages",
+  "chars",
+  "error",
+  "pages_json"
+ ],
+ "fields": [
+  {
+   "fieldname": "file_url",
+   "fieldtype": "Attach",
+   "in_list_view": 1,
+   "label": "File",
+   "reqd": 1
+  },
+  {
+   "fieldname": "file_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "File Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "kind",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Kind",
+   "read_only": 1
+  },
+  {
+   "description": "PDF pages, slides, or sections of a text document.",
+   "fieldname": "pages",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Pages",
+   "read_only": 1
+  },
+  {
+   "fieldname": "chars",
+   "fieldtype": "Int",
+   "label": "Characters",
+   "read_only": 1
+  },
+  {
+   "fieldname": "error",
+   "fieldtype": "Small Text",
+   "label": "Extraction Error",
+   "read_only": 1
+  },
+  {
+   "fieldname": "pages_json",
+   "fieldtype": "JSON",
+   "hidden": 1,
+   "label": "Extracted Text by Page",
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-09-25 12:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Copilot",
+ "name": "Copilot Import Source",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}

@@ -9904,3 +9904,669 @@ msgstr "Bạn phải đăng nhập để thay đổi ngôn ngữ."
 #: lms/lms/api.py
 msgid "This language is not available."
 msgstr "Ngôn ngữ này không khả dụng."
+
+msgid "AI confidence"
+msgstr "Độ tự tin AI"
+
+msgid "Applied and verified."
+msgstr "Đã áp dụng và xác minh."
+
+msgid "Approve and apply"
+msgstr "Duyệt và áp dụng"
+
+msgid "Approve and send"
+msgstr "Duyệt và gửi"
+
+msgid "Approve {0} feedback drafts?"
+msgstr "Duyệt {0} nhận xét nháp?"
+
+msgid "Ask the assistant to rewrite…"
+msgstr "Yêu cầu AI viết lại…"
+
+msgid "Automatic tests ran"
+msgstr "Đã chạy test tự động"
+
+msgid "Back to LMS"
+msgstr "Về LMS"
+
+msgid "Confidence: {0} · needs a closer look"
+msgstr "Độ tự tin: {0} · cần xem kỹ"
+
+msgid "Could not load this file from GitHub. The repository may be private or the file moved."
+msgstr "Không tải được file từ GitHub. Repo có thể đang để riêng tư hoặc file đã bị chuyển."
+
+msgid "Discard draft"
+msgstr "Bỏ bản nháp"
+
+msgid "Discard this draft?"
+msgstr "Bỏ bản nháp này?"
+
+msgid "Draft discarded."
+msgstr "Đã bỏ bản nháp."
+
+msgid "Draft feedback"
+msgstr "Nhận xét nháp"
+
+msgid "Draft saved."
+msgstr "Đã lưu nháp."
+
+msgid "Drafted by AI"
+msgstr "AI soạn"
+
+msgid "Edit: {0}"
+msgstr "Mức sửa: {0}"
+
+msgid "Every criterion in these drafts has high confidence. They will be sent to learners unchanged."
+msgstr "Mọi tiêu chí trong các bản nháp này đều có độ tự tin cao. Chúng sẽ được gửi tới học viên nguyên văn."
+
+msgid "Everything the assistant drafts waits here until you approve it."
+msgstr "Mọi thứ AI soạn nháp đều nằm ở đây cho tới khi bạn duyệt."
+
+msgid "Evidence ({0})"
+msgstr "Bằng chứng ({0})"
+
+msgid "Expires {0}"
+msgstr "Hết hạn {0}"
+
+msgid "Test passed"
+msgstr "Test đạt"
+
+msgid "Test did not pass"
+msgstr "Test chưa đạt"
+
+msgid "Feedback from your teacher"
+msgstr "Nhận xét của giáo viên"
+
+msgid "Feedback received"
+msgstr "Đã nhận nhận xét"
+
+msgid "Feedback sent to the learner."
+msgstr "Đã gửi nhận xét tới học viên."
+
+msgid "File"
+msgstr "File"
+
+msgid "Grade it myself"
+msgstr "Tự chấm"
+
+msgid "High"
+msgstr "Cao"
+
+msgid "How it is graded"
+msgstr "Tiêu chí chấm"
+
+msgid "Instructions"
+msgstr "Hướng dẫn"
+
+msgid "Learner"
+msgstr "Học viên"
+
+msgid "Learner reminder"
+msgstr "Nhắc học viên"
+
+msgid "Learners needing attention"
+msgstr "Học viên cần chú ý"
+
+msgid "Learning Copilot"
+msgstr "Learning Copilot"
+
+msgid "Lesson change"
+msgstr "Sửa bài giảng"
+
+msgid "Lesson quiz"
+msgstr "Quiz bài học"
+
+msgid "Rubric"
+msgstr "Rubric chấm điểm"
+
+msgid "Add rubric to {0}"
+msgstr "Thêm rubric cho {0}"
+
+msgid "Replace rubric of {0}"
+msgstr "Thay rubric của {0}"
+
+msgid "Lesson text"
+msgstr "Nội dung bài học"
+
+msgid "Level for {0}"
+msgstr "Mức điểm cho {0}"
+
+msgid "Level suggested by the assistant"
+msgstr "Mức AI đề xuất"
+
+msgid "Loading {0}…"
+msgstr "Đang tải {0}…"
+
+msgid "Low"
+msgstr "Thấp"
+
+msgid "Message to the learner"
+msgstr "Lời nhắn gửi học viên"
+
+msgid "Message to the learner (editable)"
+msgstr "Lời nhắn gửi học viên (sửa được)"
+
+msgid "Next →"
+msgstr "Bài sau →"
+
+msgid "No test results yet."
+msgstr "Chưa có kết quả test."
+
+msgid "No weekly report yet"
+msgstr "Chưa có báo cáo tuần"
+
+msgid "Nothing is waiting for you. Everything the assistant drafts will appear here."
+msgstr "Không có gì chờ duyệt. Mọi thứ AI soạn nháp sẽ hiện ở đây."
+
+msgid "Open on GitHub"
+msgstr "Mở trên GitHub"
+
+msgid "Open this page from a project assignment to submit your work."
+msgstr "Mở trang này từ một bài dự án để nộp bài."
+
+msgid "Project feedback"
+msgstr "Nhận xét bài"
+
+msgid "Question for you"
+msgstr "Câu hỏi chuyển GV"
+
+msgid "Quick-approve high-confidence feedback ({0})"
+msgstr "Duyệt nhanh các bài AI tự tin cao ({0})"
+
+msgid "Re-read after applying: the change is in place."
+msgstr "Đã đọc lại sau khi áp dụng: thay đổi đã có trong bài."
+
+msgid "Reason (optional)"
+msgstr "Lý do (không bắt buộc)"
+
+msgid "Reject"
+msgstr "Từ chối"
+
+msgid "Reject this proposal?"
+msgstr "Từ chối đề xuất này?"
+
+msgid "Rejected."
+msgstr "Đã từ chối."
+
+msgid "Reminder"
+msgstr "Tin nhắc"
+
+msgid "Repository link"
+msgstr "Link repo"
+
+msgid "Requested by {0} ({1})"
+msgstr "Yêu cầu bởi {0} ({1})"
+
+msgid "Review proposal"
+msgstr "Xem đề xuất"
+
+msgid "Review queue"
+msgstr "Hàng chờ duyệt"
+
+msgid "Rubric: {0}"
+msgstr "Rubric: {0}"
+
+msgid "Save draft"
+msgstr "Lưu nháp"
+
+msgid "Send reply"
+msgstr "Gửi trả lời"
+
+msgid "Send to assistant"
+msgstr "Gửi cho AI"
+
+msgid "Sent back to the assistant."
+msgstr "Đã gửi lại cho AI."
+
+msgid "Something went wrong. Please try again."
+msgstr "Có lỗi xảy ra. Vui lòng thử lại."
+
+msgid "Submission history"
+msgstr "Lịch sử nộp"
+
+msgid "Submit again"
+msgstr "Nộp lại"
+
+msgid "Submit your project"
+msgstr "Nộp bài dự án"
+
+msgid "Submitted"
+msgstr "Đã nộp"
+
+msgid "Submitted {0}"
+msgstr "Nộp lúc {0}"
+
+msgid "Submitted. Tests will run shortly."
+msgstr "Đã nộp. Test sẽ chạy trong giây lát."
+
+msgid "Suggestion: "
+msgstr "Đề xuất: "
+
+msgid "Test results ({0}/{1})"
+msgstr "Kết quả test ({0}/{1})"
+
+msgid "Tests {0} passed"
+msgstr "Test {0} đạt"
+
+msgid "The assistant has not written a report for this course."
+msgstr "AI chưa viết báo cáo cho khóa này."
+
+msgid "The draft cites no files. Open the repository to read the code."
+msgstr "Bản nháp không trích dẫn file nào. Mở repo để đọc code."
+
+msgid "The learner sees nothing from it. Grade the submission in the LMS as usual."
+msgstr "Học viên sẽ không thấy gì từ bản nháp này. Hãy chấm bài trên LMS như bình thường."
+
+msgid "The repository must be public on GitHub."
+msgstr "Repo cần để công khai trên GitHub."
+
+msgid "This page could not be loaded"
+msgstr "Không tải được trang"
+
+msgid "To {0} learner(s): {1}"
+msgstr "Gửi {0} học viên: {1}"
+
+msgid "Waiting"
+msgstr "Chờ"
+
+msgid "Waiting for your teacher to review the feedback"
+msgstr "Đang chờ giáo viên duyệt nhận xét"
+
+msgid "We could not process this submission. Your teacher has been told."
+msgstr "Chưa xử lý được bài nộp này. Giáo viên đã được báo."
+
+msgid "Week of {0}"
+msgstr "Tuần từ {0}"
+
+msgid "What should the assistant change?"
+msgstr "AI cần sửa gì?"
+
+msgid "Where the class is stuck"
+msgstr "Chỗ lớp vướng nhiều nhất"
+
+msgid "While you wait, look at the tests that did not pass."
+msgstr "Trong lúc chờ, em có thể xem các test chưa đạt và hỏi trợ giảng AI về chúng."
+
+msgid "You have not submitted this project yet."
+msgstr "Em chưa nộp bài dự án này."
+
+msgid "Your reply"
+msgstr "Câu trả lời của bạn"
+
+msgid "Your reply is sent to the learner as a notification."
+msgstr "Câu trả lời được gửi tới học viên dưới dạng thông báo."
+
+msgid "by {0}"
+msgstr "bởi {0}"
+
+msgid "commit {0}"
+msgstr "commit {0}"
+
+msgid "{0} criteria need a closer look"
+msgstr "{0} tiêu chí cần xem kỹ"
+
+msgid "{0} d"
+msgstr "{0} ngày"
+
+msgid "{0} h"
+msgstr "{0} giờ"
+
+msgid "{0} learners"
+msgstr "{0} học viên"
+
+msgid "{0} min"
+msgstr "{0} phút"
+
+msgid "{0} sent, {1} skipped"
+msgstr "Đã gửi {0}, bỏ qua {1}"
+
+msgid "← Previous"
+msgstr "← Bài trước"
+
+msgid "Pending Review"
+msgstr "Chờ duyệt"
+
+msgid "Applied"
+msgstr "Đã áp dụng"
+
+msgid "Rejected"
+msgstr "Đã từ chối"
+
+msgid "Expired"
+msgstr "Hết hạn"
+
+msgid "Superseded"
+msgstr "Đã thay thế"
+
+msgid "Feedback Sent"
+msgstr "Đã gửi nhận xét"
+
+msgid "Awaiting Review"
+msgstr "Chờ giáo viên duyệt"
+
+msgid "Testing"
+msgstr "Đang chạy test"
+
+msgid "Rewrite Requested"
+msgstr "Yêu cầu viết lại"
+
+msgid "Unchanged"
+msgstr "Không sửa"
+
+msgid "Light"
+msgstr "Sửa nhẹ"
+
+msgid "Rewrite"
+msgstr "Viết lại"
+
+msgid "Teacher"
+msgstr "Giáo viên"
+
+msgid "AI Engine"
+msgstr "AI"
+
+msgid "learners"
+msgstr "học viên"
+
+msgid "questions"
+msgstr "câu hỏi"
+
+msgid "submissions"
+msgstr "bài nộp"
+
+msgid "approved_feedback"
+msgstr "nhận xét đã duyệt"
+
+msgid "A reminder from your teacher"
+msgstr "Lời nhắc từ giáo viên"
+
+msgid "Add quiz “{0}” to {1}"
+msgstr "Thêm quiz “{0}” vào {1}"
+
+msgid "Drafted for teacher approval. Nothing has been changed yet."
+msgstr "Đã soạn nháp chờ giáo viên duyệt. Chưa có gì bị thay đổi."
+
+msgid "Edit lesson {0}"
+msgstr "Sửa bài {0}"
+
+msgid "Enroll in the course before submitting this project."
+msgstr "Hãy ghi danh khóa học trước khi nộp bài dự án này."
+
+msgid "Enter a public GitHub repository link like https://github.com/owner/repo."
+msgstr "Hãy nhập link repo GitHub công khai, ví dụ https://github.com/owner/repo."
+
+msgid "Feedback drafted for teacher review. The learner sees nothing yet."
+msgstr "Đã soạn nhận xét nháp chờ giáo viên duyệt. Học viên chưa thấy gì."
+
+msgid "Feedback for this submission has already been sent."
+msgstr "Nhận xét cho bài nộp này đã được gửi."
+
+msgid "Learner {0} is not enrolled in this course."
+msgstr "Học viên {0} không học khóa này."
+
+msgid "Missing scores for: {0}."
+msgstr "Thiếu điểm cho: {0}."
+
+msgid "Not every criterion is high confidence."
+msgstr "Không phải mọi tiêu chí đều có độ tự tin cao."
+
+msgid "Only assistant answers can be rated."
+msgstr "Chỉ đánh giá được câu trả lời của AI."
+
+msgid "Only teachers have a review queue."
+msgstr "Chỉ giáo viên có hàng chờ duyệt."
+
+msgid "Only the review agent or a teacher can do this."
+msgstr "Chỉ agent nhận xét hoặc giáo viên làm được việc này."
+
+msgid "Please sign in to use the learning assistant."
+msgstr "Vui lòng đăng nhập để dùng trợ giảng AI."
+
+msgid "Remind {0} learner(s) in {1}"
+msgstr "Nhắc {0} học viên khóa {1}"
+
+msgid "Result must be Pass, Fail or Not Graded."
+msgstr "Kết quả phải là Đạt, Chưa đạt hoặc Chưa chấm."
+
+msgid "The change could not be verified after it was applied."
+msgstr "Không xác minh được thay đổi sau khi áp dụng."
+
+msgid "The lesson changed after the assistant read it."
+msgstr "Bài học đã bị sửa sau khi AI đọc."
+
+msgid "The lesson does not belong to this assignment's course."
+msgstr "Bài học không thuộc khóa của bài tập này."
+
+msgid "The lesson has no block {0}."
+msgstr "Bài học không có khối {0}."
+
+msgid "The proposal passed its review deadline."
+msgstr "Đề xuất đã quá hạn duyệt."
+
+msgid "The tool {0} is not available to you."
+msgstr "Bạn không dùng được tool {0}."
+
+msgid "This assignment has no rubric yet. Ask the teacher to add one."
+msgstr "Bài tập này chưa có rubric. Hãy nhờ giáo viên thêm."
+
+msgid "This conversation belongs to someone else."
+msgstr "Hội thoại này thuộc về người khác."
+
+msgid "This draft is already {0}."
+msgstr "Bản nháp này đã ở trạng thái {0}."
+
+msgid "This lesson is not open yet."
+msgstr "Bài học này chưa mở."
+
+msgid "This proposal is already {0}."
+msgstr "Đề xuất này đã ở trạng thái {0}."
+
+msgid "Unknown arguments: {0}."
+msgstr "Tham số không hợp lệ: {0}."
+
+msgid "You cannot review this assignment."
+msgstr "Bạn không được duyệt bài tập này."
+
+msgid "You cannot review work for this course."
+msgstr "Bạn không được duyệt bài của khóa này."
+
+msgid "You do not teach this course."
+msgstr "Bạn không dạy khóa học này."
+
+msgid "Your question was sent to your teacher."
+msgstr "Câu hỏi của em đã được chuyển cho giáo viên."
+
+msgid "Your teacher answered: {0}"
+msgstr "Giáo viên đã trả lời: {0}"
+
+msgid "{0} is required."
+msgstr "{0} là bắt buộc."
+
+msgid "{0} is too long."
+msgstr "{0} quá dài."
+
+msgid "{0} not found."
+msgstr "Không tìm thấy {0}."
+
+msgid "{0} learner(s)"
+msgstr "{0} học viên"
+
+msgid "Course draft"
+msgstr "Bản nháp khóa học"
+
+msgid "Course Draft"
+msgstr "Bản nháp khóa học"
+
+msgid "New course from documents"
+msgstr "Tạo khóa từ tài liệu"
+
+msgid "Lessons without source material"
+msgstr "Bài học không có tài liệu nguồn"
+
+msgid "Choose what to do with them…"
+msgstr "Chọn cách xử lý…"
+
+msgid "Keep them, marked for me to complete"
+msgstr "Giữ lại, gắn nhãn để tôi bổ sung"
+
+msgid "Drop them from the course"
+msgstr "Bỏ khỏi khóa học"
+
+msgid "{0} lesson(s) have no source material in your documents."
+msgstr "{0} bài học không có đoạn tài liệu nguồn tương ứng."
+
+msgid "Open the new course (unpublished)"
+msgstr "Mở khóa học mới (chưa xuất bản)"
+
+msgid "Choose what to do with the lessons that have no source material."
+msgstr "Hãy chọn cách xử lý các bài thiếu tài liệu nguồn."
+
+msgid "Missing material"
+msgstr "Thiếu tài liệu"
+
+msgid "From: {0}"
+msgstr "Từ: {0}"
+
+msgid "Chapter {0}: {1}"
+msgstr "Chương {0}: {1}"
+
+msgid "Assignments and rubrics"
+msgstr "Bài tập và rubric"
+
+msgid "After lesson {0}"
+msgstr "Sau bài {0}"
+
+msgid "taught in {0}"
+msgstr "dạy ở bài {0}"
+
+msgid "Could not upload {0}."
+msgstr "Không tải lên được {0}."
+
+msgid "Course title"
+msgstr "Tên khóa học"
+
+msgid "e.g. Python for beginners"
+msgstr "vd: Python cho người mới bắt đầu"
+
+msgid "Brief"
+msgstr "Yêu cầu"
+
+msgid "Audience, goals, and topics the outline must cover (optional)"
+msgstr "Đối tượng, mục tiêu, chủ đề đề cương phải có (không bắt buộc)"
+
+msgid "Documents"
+msgstr "Tài liệu"
+
+msgid "Draft the course"
+msgstr "Soạn khóa học"
+
+msgid "Uploading…"
+msgstr "Đang tải lên…"
+
+msgid "Upload the slides, syllabus, exercises and grading criteria you already have. The assistant drafts chapters, lessons, assignments and rubrics that cite your pages. Nothing is created until you approve the draft."
+msgstr "Tải lên slide, giáo trình, bài tập và tiêu chí chấm sẵn có. Trợ lý soạn chương, bài học, bài tập và rubric, có dẫn tới trang tài liệu. Không có gì được tạo trên LMS trước khi bạn duyệt bản nháp."
+
+msgid "Documents (PDF, DOCX, PPTX, Markdown, text; up to 10 files)"
+msgstr "Tài liệu (PDF, DOCX, PPTX, Markdown, văn bản; tối đa 10 file)"
+
+msgid "Brief for the assistant"
+msgstr "Yêu cầu cho trợ lý"
+
+msgid "Earlier imports"
+msgstr "Các lần tạo trước"
+
+msgid "The assistant is reading your documents and drafting the course. This usually takes one to three minutes; the page refreshes by itself."
+msgstr "Trợ lý đang đọc tài liệu và soạn khóa học, thường mất 1–3 phút; trang sẽ tự cập nhật."
+
+msgid "Review the course draft"
+msgstr "Duyệt bản nháp khóa học"
+
+msgid "Open the course draft"
+msgstr "Mở bản nháp khóa học"
+
+msgid "Draft again"
+msgstr "Soạn lại"
+
+msgid "Queued again."
+msgstr "Đã xếp hàng soạn lại."
+
+msgid "Extracted"
+msgstr "Đã trích"
+
+msgid "{0} {1}(s), {2} characters"
+msgstr "{0} {1}, {2} ký tự"
+
+msgid "page"
+msgstr "trang"
+
+msgid "slide"
+msgstr "slide"
+
+msgid "p."
+msgstr "tr."
+
+msgid "Queued"
+msgstr "Đang soạn"
+
+msgid "Ready"
+msgstr "Đã có bản nháp"
+
+msgid "Create course “{0}” from {1} file(s)"
+msgstr "Tạo khóa “{0}” từ {1} tài liệu"
+
+msgid "{0} chapter(s), {1} lesson(s), {2} assignment(s) with rubric from {3} file(s)."
+msgstr "{0} chương, {1} bài học, {2} bài tập kèm rubric từ {3} tài liệu."
+
+msgid "{0} lesson(s) have no source material."
+msgstr "{0} bài không có tài liệu nguồn."
+
+msgid "{0} lesson(s) have no source material. Keep them marked for you to complete, or drop them."
+msgstr "{0} bài không có tài liệu nguồn. Hãy chọn giữ lại (gắn nhãn để bổ sung) hoặc bỏ các bài đó."
+
+msgid "Missing material: this lesson was not drafted from your documents."
+msgstr "Thiếu tài liệu: bài này không được soạn từ tài liệu của bạn."
+
+msgid "Sources: {0}"
+msgstr "Nguồn: {0}"
+
+msgid "> ⚠️ **Missing material.** The assistant wrote this lesson without a matching passage in your documents. Check it and add your own material before publishing."
+msgstr "> ⚠️ **Thiếu tài liệu.** Trợ lý soạn bài này khi không có đoạn tương ứng trong tài liệu của bạn. Hãy kiểm tra và bổ sung tài liệu trước khi xuất bản."
+
+msgid "Only teachers can create courses from documents."
+msgstr "Chỉ giáo viên mới tạo được khóa học từ tài liệu."
+
+msgid "This course import belongs to another teacher."
+msgstr "Lần tạo khóa này thuộc về giáo viên khác."
+
+msgid "No text could be extracted from the files."
+msgstr "Không trích được văn bản nào từ các file."
+
+msgid "The AI Gateway is not configured (Copilot Settings)."
+msgstr "Chưa cấu hình AI Gateway (Copilot Settings)."
+
+msgid "This import already has a course draft. Reject it first to draft again."
+msgstr "Lần tạo này đã có bản nháp khóa học. Hãy từ chối bản nháp đó trước khi soạn lại."
+
+msgid "A course was already created from this import."
+msgstr "Khóa học đã được tạo từ lần này rồi."
+
+msgid "Only teachers can approve a course draft."
+msgstr "Chỉ giáo viên mới duyệt được bản nháp khóa học."
+
+msgid "Every lesson lacks source material, so nothing would be left to create."
+msgstr "Tất cả bài học đều thiếu tài liệu nguồn nên không còn gì để tạo."
+
+msgid "No text found in {0}. Scanned documents need OCR first."
+msgstr "Không tìm thấy văn bản trong {0}. Tài liệu scan cần OCR trước."
+
+msgid "{0}: only PDF, DOCX, PPTX, Markdown and text files are supported."
+msgstr "{0}: chỉ hỗ trợ PDF, DOCX, PPTX, Markdown và văn bản."
+
+msgid "{0} is larger than 25 MB."
+msgstr "{0} lớn hơn 25 MB."
+
+msgid "The PDF is password protected."
+msgstr "PDF có mật khẩu."
+
+msgid "No file received."
+msgstr "Chưa nhận được file."

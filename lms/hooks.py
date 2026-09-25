@@ -77,6 +77,7 @@ setup_wizard_complete = "lms.demo.demo_data.create_demo_data"
 after_migrate = [
 	"lms.sqlite.build_index_in_background",
 	"lms.lms.doctype.lms_payment.lms_payment.add_unique_payment_id_constraint",
+	"lms.copilot.setup.after_migrate",
 ]
 
 # Desk Notifications
@@ -95,6 +96,11 @@ permission_query_conditions = {
 	"LMS Batch": "lms.lms.doctype.lms_batch.lms_batch.get_permission_query_conditions",
 	"LMS Program": "lms.lms.doctype.lms_program.lms_program.get_permission_query_conditions",
 	"Course Lesson": "lms.lms.doctype.course_lesson.course_lesson.get_permission_query_conditions",
+	"Copilot Feedback Draft": "lms.copilot.permissions.feedback_draft_query",
+	"Copilot Project Submission": "lms.copilot.permissions.project_submission_query",
+	"Copilot Proposal": "lms.copilot.permissions.proposal_query",
+	"Copilot Weekly Insight": "lms.copilot.permissions.weekly_insight_query",
+	"Copilot Rubric": "lms.copilot.permissions.rubric_query",
 }
 
 has_permission = {
@@ -104,6 +110,11 @@ has_permission = {
 	"LMS Certificate": "lms.lms.doctype.lms_certificate.lms_certificate.has_permission",
 	"Course Lesson": "lms.lms.doctype.course_lesson.course_lesson.has_permission",
 	"File": "lms.lms.permissions.file_has_permission",
+	"Copilot Feedback Draft": "lms.copilot.permissions.course_has_permission",
+	"Copilot Project Submission": "lms.copilot.permissions.course_has_permission",
+	"Copilot Proposal": "lms.copilot.permissions.course_has_permission",
+	"Copilot Weekly Insight": "lms.copilot.permissions.course_has_permission",
+	"Copilot Rubric": "lms.copilot.permissions.rubric_has_permission",
 }
 
 # DocType Class
@@ -154,6 +165,8 @@ scheduler_events = {
 		"lms.lms.doctype.lms_live_class.lms_live_class.send_live_class_reminder",
 		"lms.lms.doctype.lms_course.lms_course.send_notification_for_published_courses",
 		"lms.lms.doctype.course_lesson.course_lesson.rename_settled_untitled_lessons",
+		"lms.copilot.proposals.expire_open_proposals",
+		"lms.copilot.conversations.purge_old_transcripts",
 	],
 }
 
