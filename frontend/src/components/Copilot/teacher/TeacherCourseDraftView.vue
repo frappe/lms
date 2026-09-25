@@ -64,7 +64,7 @@
 			<div
 				v-for="(item, index) in preview.assignments"
 				:key="index"
-				class="space-y-2 rounded-lg border border-outline-gray-2 p-3"
+				class="space-y-2 rounded-6 border border-outline-gray-2 p-3"
 			>
 				<div class="flex flex-wrap items-center gap-2">
 					<span class="text-p-base font-medium text-ink-gray-9">

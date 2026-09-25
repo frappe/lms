@@ -12,8 +12,7 @@ declare global {
 window.__ = (t: string) => t
 
 // frappe-ui's module resolution doesn't work under vitest, so stub Dialog to
-// render its default slot whenever `open` is true (matches the beta.7 contract:
-// v-model:open => `open` prop).
+// render its default slot while `open` (bound by v-model:open) is true.
 vi.mock('frappe-ui', () => ({
 	Dialog: {
 		props: ['open', 'title', 'size'],

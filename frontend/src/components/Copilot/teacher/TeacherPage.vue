@@ -32,8 +32,8 @@
 <script setup>
 import { computed } from 'vue'
 import { LoadingIndicator } from 'frappe-ui'
-import PageHeader from '@/components/Layouts/PageHeader.vue'
-import PageBody from '@/components/Layouts/PageBody.vue'
+import PageHeader from '@/components/Layouts/pages/PageHeader.vue'
+import PageBody from '@/components/Layouts/pages/PageBody.vue'
 import TeacherNotice from './TeacherNotice.vue'
 
 const props = defineProps({

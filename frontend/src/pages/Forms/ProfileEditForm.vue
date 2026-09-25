@@ -1,7 +1,7 @@
 <template>
 	<FormShell :title="__('Edit Profile')" @close="close">
 		<template #header-action>
-			<Badge v-if="isDirty" theme="orange">
+			<Badge v-if="isDirty" theme="amber">
 				{{ __('Not Saved') }}
 			</Badge>
 		</template>
@@ -21,6 +21,7 @@
 					<Uploader
 						v-model="profile.image"
 						:label="__('Profile Image')"
+						:required="false"
 						shape="circle"
 					/>
 					<FormControl
@@ -48,14 +49,13 @@
 						doctype="Language"
 					/>
 					<div>
-						<div class="mb-1.5 text-p-sm-medium text-ink-gray-7">
-							{{ __('Bio') }}
-						</div>
+						<InputLabel :id="bioLabelId" :label="__('Bio')" class="mb-1.5" />
 						<RichTextEditor
+							:ariaLabelledby="bioLabelId"
 							:fixedMenu="true"
 							@change="(val) => (profile.bio = val)"
 							:content="profile.bio"
-							editorClass="prose-sm py-2 px-2 min-h-[280px] border-outline-gray-2 hover:border-outline-gray-3 rounded-b-md bg-surface-gray-3"
+							editorClass="prose-sm py-2 px-2 min-h-[280px] border-outline-gray-2 hover:border-outline-gray-3 rounded-b-5 bg-surface-gray-3"
 						/>
 					</div>
 				</div>
@@ -76,7 +76,8 @@
 </template>
 <script setup>
 import { Badge, createResource, FormControl, toast } from 'frappe-ui'
-import { computed, inject, reactive, ref, watch } from 'vue'
+import { computed, inject, reactive, ref, useId, watch } from 'vue'
+import { InputLabel } from 'frappe-ui/experimental'
 import { useRouter } from 'vue-router'
 import { sanitizeOnWrite } from '@/utils/sanitizeOnWrite'
 import FormShell from '@/components/FormShell.vue'
@@ -104,6 +105,7 @@ const props = defineProps({
 
 const user = inject('$user')
 const router = useRouter()
+const bioLabelId = useId()
 const readOnlyMode = window.read_only_mode
 const isDirty = ref(false)
 

@@ -74,7 +74,7 @@ vi.mock('@/stores/session', () => ({
 vi.mock('@/stores/sidebar', () => ({
 	useSidebar: () => ({ isSidebarCollapsed: false }),
 }))
-vi.mock('@/components/Layouts/PageHeader.vue', () => ({
+vi.mock('@/components/Layouts/pages/PageHeader.vue', () => ({
 	default: { name: 'PageHeader', template: '<div><slot /></div>' },
 }))
 

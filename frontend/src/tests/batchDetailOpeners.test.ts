@@ -40,7 +40,7 @@ vi.mock('frappe-ui', () => ({
 	// on a DOM node, so the stub has to expose `options` for the test to invoke.
 	Dropdown: {
 		name: 'Dropdown',
-		props: ['options', 'placement', 'side'],
+		props: ['options', 'side'],
 		template: `<div class="dropdown"><slot :open="false" /></div>`,
 	},
 }))
@@ -76,7 +76,7 @@ vi.mock('@/components/HeaderButton.vue', () => ({
 
 // Drives the #actions slot with a chosen tab, which is the only way to reach
 // the header openers without standing up the whole tab shell.
-vi.mock('@/components/Layouts/TabbedDetailPage.vue', () => ({
+vi.mock('@/components/Layouts/pages/TabbedDetailPage.vue', () => ({
 	default: {
 		props: ['tabs', 'breadcrumbs', 'published', 'loading', 'doc', 'docProp'],
 		template: `<div><slot name="actions" :tab="{ key: 'announcements' }" :instance="null" /></div>`,
@@ -123,7 +123,6 @@ const mountPage = async (router: Router) => {
 			provide: {
 				$user: { data: { name: 'mod@example.com', is_moderator: true } },
 			},
-			stubs: { teleport: true },
 			mocks: { __: (text: string) => text },
 		},
 	})

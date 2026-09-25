@@ -1,94 +1,115 @@
 <template>
-	<Dialog v-model:open="show" size="2xl" bare>
-		<template #default>
-			<Dialog.Title as-child>
-				<h2 class="sr-only">{{ __('Command palette') }}</h2>
-			</Dialog.Title>
-			<div class="text-base" @keydown="onKeydown">
-				<div class="flex items-center gap-x-2 ps-4.5 border-b">
-					<span class="lucide-search size-4 text-ink-gray-4" />
-					<input
-						ref="inputRef"
-						type="text"
-						role="combobox"
-						aria-expanded="true"
-						aria-controls="command-palette-results"
-						:placeholder="__('Search')"
-						class="w-full border-none bg-transparent py-3 !ps-2 pe-4.5 text-base text-ink-gray-7 placeholder-ink-gray-4 focus:ring-0"
-						@input="onInput"
-						v-model="query"
-						autocomplete="off"
-					/>
-				</div>
+	<CommandPalette
+		v-model:open="show"
+		v-model:query="query"
+		:filterable="false"
+		:title="__('Command palette')"
+		@select="onSelect"
+	>
+		<div ref="paletteRef" @keydown="onKeydown">
+			<CommandPaletteInput :placeholder="__('Search')" />
 
-				<div
-					id="command-palette-results"
-					class="max-h-96 overflow-auto mb-2"
-					ref="resultsRef"
+			<CommandPaletteList class="max-h-96 mb-2">
+				<CommandPaletteGroup
+					v-for="group in groups"
+					:key="group.title"
+					:label="group.title"
 				>
-					<div class="mt-5 space-y-5">
-						<CommandPaletteGroup :list="groups" @select="run" />
-					</div>
-					<p
-						v-if="showsErrorState"
-						class="px-4.5 py-2 text-ink-gray-5"
-						role="status"
+					<CommandPaletteItem
+						v-for="(item, index) in group.items"
+						:key="index"
+						:value="item"
+						:disabled="item.isStale"
 					>
-						{{ __('Could not search just now. Try again.') }}
-					</p>
-					<p
-						v-if="showsEmptyState"
-						class="px-4.5 py-2 text-ink-gray-5"
-						role="status"
-					>
-						{{ __('No results found') }}
-					</p>
-				</div>
+						<div class="flex items-center gap-x-3">
+							<span
+								v-if="item.icon"
+								:class="[item.icon, 'size-4 text-ink-gray-6']"
+							/>
+							<div v-safe-html:rich="item.title"></div>
+						</div>
+						<template v-if="item.modified" #suffix>
+							<div class="text-ink-gray-5">
+								{{ dayjs.unix(item.modified).fromNow(true) }}
+							</div>
+						</template>
+					</CommandPaletteItem>
+				</CommandPaletteGroup>
+			</CommandPaletteList>
 
-				<div
-					class="flex items-center gap-x-5 w-full border-t py-2 text-sm text-ink-gray-7 px-4.5"
-				>
-					<div class="flex items-center gap-x-2">
-						<span :class="chipClass">
-							<span class="lucide-move-up size-3.5 text-ink-gray-7" />
-						</span>
-						<span :class="chipClass">
-							<span class="lucide-move-down size-3.5 text-ink-gray-7" />
-						</span>
-						<span>
-							{{ __('to navigate') }}
-						</span>
-					</div>
-					<div class="flex items-center gap-x-2">
-						<span :class="chipClass">
-							<span class="lucide-corner-down-left size-3.5 text-ink-gray-7" />
-						</span>
-						<span>
-							{{ __('to select') }}
-						</span>
-					</div>
-					<div class="flex items-center gap-x-2">
-						<span :class="[wideChipClass, 'text-xs text-ink-gray-7']">
-							{{ __('esc') }}
-						</span>
-						<span>
-							{{ __('to close') }}
-						</span>
-					</div>
+			<p
+				v-if="showsErrorState"
+				class="px-4.5 py-2 text-ink-gray-5"
+				role="status"
+			>
+				{{ __('Could not search just now. Try again.') }}
+			</p>
+			<p
+				v-if="showsEmptyState"
+				class="px-4.5 py-2 text-ink-gray-5"
+				role="status"
+			>
+				{{ __('No results found') }}
+			</p>
+
+			<CommandPaletteFooter>
+				<div class="flex items-center gap-x-2">
+					<span :class="chipClass">
+						<span class="lucide-move-up size-3.5 text-ink-gray-7" />
+					</span>
+					<span :class="chipClass">
+						<span class="lucide-move-down size-3.5 text-ink-gray-7" />
+					</span>
+					<span>
+						{{ __('to navigate') }}
+					</span>
 				</div>
-			</div>
-		</template>
-	</Dialog>
+				<div class="flex items-center gap-x-2">
+					<span :class="chipClass">
+						<span class="lucide-corner-down-left size-3.5 text-ink-gray-7" />
+					</span>
+					<span>
+						{{ __('to select') }}
+					</span>
+				</div>
+				<div class="flex items-center gap-x-2">
+					<span :class="[wideChipClass, 'text-xs text-ink-gray-7']">
+						{{ __('esc') }}
+					</span>
+					<span>
+						{{ __('to close') }}
+					</span>
+				</div>
+			</CommandPaletteFooter>
+		</div>
+	</CommandPalette>
 </template>
 <script setup lang="ts">
-import { createResource, debounce, Dialog } from 'frappe-ui'
-import { computed, nextTick, onUnmounted, ref, watch } from 'vue'
+import { createResource, debounce } from 'frappe-ui'
+import {
+	CommandPalette,
+	CommandPaletteFooter,
+	CommandPaletteGroup,
+	CommandPaletteInput,
+	CommandPaletteItem,
+	CommandPaletteList,
+	type CommandPaletteSelectEvent,
+} from 'frappe-ui/experimental'
+import {
+	computed,
+	inject,
+	nextTick,
+	onUnmounted,
+	ref,
+	useTemplateRef,
+	watch,
+} from 'vue'
+import type dayjsType from 'dayjs'
 import { useRouter } from 'vue-router'
 import { usersStore } from '@/stores/user'
 import { useSettings } from '@/stores/settings'
 // @ts-expect-error utils/index.js has no type declarations yet
 import { getSidebarLinks } from '@/utils'
-import CommandPaletteGroup from './CommandPaletteGroup.vue'
 import type { PaletteGroup, PaletteItem, PaletteRoute } from './paletteTypes'
 import { MODAL_FORM_ROUTES, routeForSearchHit } from './paletteTypes'
 import {
@@ -97,13 +118,16 @@ import {
 	visibleNavTargets,
 } from './categories'
 import { openFormRoute } from '@/composables/useFormRoute'
+import { pushSettingsHash } from '@/composables/useSettingsHash'
+
+const dayjs = inject<typeof dayjsType>('$dayjs')!
 
 const chipClass =
-	'inline-flex size-5 shrink-0 items-center justify-center rounded-sm bg-surface-gray-2'
+	'inline-flex size-5 shrink-0 items-center justify-center rounded-1 bg-surface-gray-2'
 
 // `size-5` fixes a square, which crops a multi-letter key. Width grows instead.
 const wideChipClass =
-	'inline-flex h-5 min-w-5 w-auto shrink-0 items-center justify-center rounded-sm bg-surface-gray-2 px-1.5'
+	'inline-flex h-5 min-w-5 w-auto shrink-0 items-center justify-center rounded-1 bg-surface-gray-2 px-1.5'
 
 // Below this the palette keeps showing the jump-to list. The results pane used
 // to take over at one character while the search only ran from three, so the
@@ -119,12 +143,7 @@ const settingsStore = useSettings()
 const scope = ref<string | null>(null)
 const query = ref<string>('')
 const searchResults = ref<PaletteGroup[]>([])
-const inputRef = ref<HTMLInputElement | null>(null)
-const resultsRef = ref<HTMLElement | null>(null)
-
-// -1 is "the user has not arrowed yet", which is what lets the first ArrowDown
-// land on the first row rather than the second.
-const activeIndex = ref(-1)
+const paletteRef = useTemplateRef<HTMLElement>('paletteRef')
 
 // One token per request. Comparing against the current query instead would miss
 // two requests for *different* queries overlapping and landing out of order:
@@ -134,13 +153,15 @@ const activeIndex = ref(-1)
 // dropped.
 let searchToken = 0
 
-// The token the waiting debounced tick is holding. frappe-ui's `debounce` hands
-// back a bare function with no `.cancel()`, so a scheduled search is disarmed
-// rather than cleared: the tick still runs, sees that `searchToken` has moved
-// past it, and asks the server for nothing.
+// The token the waiting debounced tick was holding. frappe-ui's `debounce`
+// (>= 1.0.0-beta.65) returns a function with `.cancel()`, so invalidateSearch
+// below cancels the pending tick outright now — it should never fire with a
+// stale token. This check stays as a defense-in-depth backstop rather than
+// something the normal path relies on.
 let armedToken = 0
 const invalidateSearch = () => {
 	searchToken += 1
+	debouncedSearch.cancel()
 }
 
 const searchFailed = ref(false)
@@ -255,15 +276,10 @@ const groups = computed<PaletteGroup[]>(() => {
 			? [{ title: __('Jump to'), items: sections }, ...hits]
 			: hits
 		: browseGroups.value
-	// Stale rows are skipped by the counter, not just excluded from it, so the
-	// active index keeps addressing the same live row either way.
-	let index = 0
 	return source.map((group) => ({
 		title: group.title,
 		items: group.items.map((item) =>
-			group.isStale
-				? { ...item, isStale: true, isActive: false }
-				: { ...item, isActive: index++ === activeIndex.value }
+			group.isStale ? { ...item, isStale: true } : item
 		),
 	}))
 })
@@ -276,11 +292,6 @@ const groups = computed<PaletteGroup[]>(() => {
  */
 const renderedCount = computed(() =>
 	groups.value.reduce((total, group) => total + group.items.length, 0)
-)
-
-/** What the keyboard can reach: a stale row is on screen but not in here. */
-const flatItems = computed<PaletteItem[]>(() =>
-	groups.value.flatMap((group) => group.items).filter((item) => !item.isStale)
 )
 
 const showsEmptyState = computed(
@@ -302,11 +313,6 @@ const debouncedSearch = debounce(() => {
 	if (armedToken !== searchToken) return
 	if (isSearching.value) runSearch(armedToken)
 }, 300)
-
-const onInput = () => {
-	armedToken = ++searchToken
-	debouncedSearch()
-}
 
 // A trailing tick used to fire its request after the dialog was gone. The token
 // dropped the response, but the round trip still went out.
@@ -332,14 +338,19 @@ const toGroups = (data: unknown): PaletteGroup[] => {
 		.filter((group) => group.items.length > 0)
 }
 
+// This also fires for the query resets `resetSearch`/`navigateTo` make
+// themselves (closing, unmounting, leaving a category), which must not
+// re-arm a search — only a query that is still long enough schedules one.
 watch(query, () => {
-	activeIndex.value = -1
 	if (!isSearching.value) {
 		invalidateSearch()
 		searchResults.value = []
 		hasSettled.value = false
 		searchFailed.value = false
+		return
 	}
+	armedToken = ++searchToken
+	debouncedSearch()
 })
 
 watch(show, () => {
@@ -356,29 +367,14 @@ watch(show, () => {
 })
 
 const onKeydown = (e: KeyboardEvent) => {
-	if (e.key === 'ArrowDown') {
-		e.preventDefault()
-		moveActive(1)
-	} else if (e.key === 'ArrowUp') {
-		e.preventDefault()
-		moveActive(-1)
-	} else if (e.key === 'Enter') {
-		// A result button the user tabbed to takes Enter as a click of its own.
-		// Handling it here would open whichever row is highlighted instead.
-		if (isResultButton(e.target)) return
-		e.preventDefault()
-		// Enter with nothing arrowed to opens the top hit, which is what the
-		// caret sitting in a search box implies.
-		const item = flatItems.value[Math.max(activeIndex.value, 0)]
-		if (item) run(item)
-	} else if (e.key === 'Escape') {
+	if (e.key === 'Escape') {
 		if (scope.value) {
 			// The dialog closes on Escape at the document level unless this is
 			// stopped, which made backing out one level impossible.
 			e.preventDefault()
 			e.stopPropagation()
 			leaveScope()
-		} else show.value = false
+		}
 	} else if (e.key === 'Backspace' && !query.value && scope.value) {
 		// Only on an empty query, so Backspace stays an ordinary edit while there
 		// is still something to delete.
@@ -387,44 +383,22 @@ const onKeydown = (e: KeyboardEvent) => {
 	}
 }
 
-const isResultButton = (target: EventTarget | null): boolean =>
-	target instanceof Element && Boolean(target.closest('[data-palette-item]'))
-
-const moveActive = (direction: number) => {
-	const total = flatItems.value.length
-	if (!total) return
-	// The highlight belongs to the input's caret. Arrowing from a result button
-	// the user had tabbed to would otherwise leave focus and highlight on
-	// different rows, and Enter opens the focused one.
-	focusInput()
-	const next = activeIndex.value + direction
-	if (next < 0) activeIndex.value = total - 1
-	else if (next >= total) activeIndex.value = 0
-	else activeIndex.value = next
-	nextTick(scrollActiveItemIntoView)
-}
-
-const scrollActiveItemIntoView = () => {
-	const active = resultsRef.value?.querySelector<HTMLElement>(
-		'[data-palette-item][data-active="true"]'
-	)
-	if (!active) return
-	// Scrolling the row alone left its heading clipped above the fold, so arrowing
-	// up to the top row of a group hid which group it belonged to.
-	const group = active.closest<HTMLElement>('[data-palette-group]')
-	const isFirstOfGroup = group?.querySelector('[data-palette-item]') === active
-	;(isFirstOfGroup && group ? group : active).scrollIntoView({
-		block: 'nearest',
-	})
-}
-
-const run = (item: PaletteItem) => {
-	if (item.isStale) return
-	if (item.category) enterScope(item.category)
-	else if (item.perform) {
-		show.value = false
-		item.perform()
-	} else if (item.route) navigateTo(item.route)
+const onSelect = (value: PaletteItem, event: CommandPaletteSelectEvent) => {
+	if (value.isStale) {
+		event.preventDefault()
+		return
+	}
+	if (value.category) {
+		// Narrowing to a category keeps the palette open.
+		event.preventDefault()
+		enterScope(value.category)
+		return
+	}
+	if (value.perform) {
+		value.perform()
+	} else if (value.route) {
+		navigateTo(value.route)
+	}
 }
 
 const enterScope = (category: string) => {
@@ -447,16 +421,14 @@ const resetSearch = () => {
 	query.value = ''
 	searchResults.value = []
 	resultsQuery.value = null
-	activeIndex.value = -1
 	searchFailed.value = false
 	hasSettled.value = false
 }
 
-/** Clicking a row destroys that button, so without this the caret would be left
- * on nothing. The keys are bound to the dialog panel and keep working either
- * way; typing is what needs the input back. */
+/** Selecting a row destroys that button, so without this the caret would be left
+ * on nothing. */
 const focusInput = () => {
-	nextTick(() => inputRef.value?.focus())
+	nextTick(() => paletteRef.value?.querySelector('input')?.focus())
 }
 
 const navigateTo = (route: PaletteRoute) => {
@@ -529,7 +501,7 @@ const accountItems = computed<PaletteItem[]>(() => {
 			title: __('Settings'),
 			icon: 'lucide-settings',
 			perform: () => {
-				settingsStore.isSettingsOpen = true
+				pushSettingsHash(router)
 			},
 		},
 	]
@@ -537,7 +509,7 @@ const accountItems = computed<PaletteItem[]>(() => {
 </script>
 <style>
 mark {
-	background-color: theme('colors.amber.100');
+	background-color: var(--surface-amber-2);
 	font-weight: 500;
 }
 </style>

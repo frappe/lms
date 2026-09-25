@@ -1,7 +1,7 @@
 <template>
 	<div
 		v-if="isProject"
-		class="flex flex-col gap-3 rounded-lg bg-surface-blue-2 p-3 text-p-sm text-ink-blue-5 sm:flex-row sm:items-center"
+		class="flex flex-col gap-3 rounded-6 bg-surface-blue-2 p-3 text-p-sm text-ink-blue-5 sm:flex-row sm:items-center"
 		data-testid="copilot-project-link"
 	>
 		<div class="flex-1 leading-5">

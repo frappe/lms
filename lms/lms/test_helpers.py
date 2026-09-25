@@ -1,31 +1,45 @@
 import json
 
 import frappe
-from frappe.tests import UnitTestCase
+from frappe.cache_manager import user_cache_keys
+from frappe.tests import IntegrationTestCase
 from frappe.utils import add_days, nowdate
 
 from lms.lms.doctype.lms_certificate.lms_certificate import get_default_certificate_template
 from lms.lms.doctype.lms_quiz.lms_quiz import submit_quiz
 
+# frappe keys cached documents as f"document_cache::{doctype}::{name}"
+# (frappe/model/document.py, get_document_cache_key).
+DOCUMENT_CACHE_PREFIX = "document_cache::"
 
-class BaseTestUtils(UnitTestCase):
+
+class BaseTestUtils(IntegrationTestCase):
 	"""
 	Base class with helper methods for creating test data.
 	Subclasses should call super().setUp() and super().tearDown().
+
+	Fixture helpers are classmethods so they can build shared fixtures in
+	setUpClass as well as per-test state in setUp. Each test runs inside a
+	savepoint that undoes everything it did; nothing needs to be registered
+	for cleanup.
 	"""
 
 	def setUp(self):
-		self.cleanup_items = []
+		super().setUp()
+		frappe.db.savepoint("lms_test")
 
 	def tearDown(self):
-		for item_type, item_name in reversed(self.cleanup_items):
-			if frappe.db.exists(item_type, item_name):
-				try:
-					frappe.delete_doc(item_type, item_name, force=True)
-				except Exception as e:
-					print(f"Error deleting {item_type} {item_name}: {e}")
+		frappe.db.rollback(save_point="lms_test")
+		# A savepoint rollback runs no rollback observers, so three caches still hold
+		# what this test wrote: the redis document cache, the redis user hashes
+		# ("roles"), and frappe.local's perms, which only set_user clears.
+		frappe.cache.delete_keys(DOCUMENT_CACHE_PREFIX)
+		frappe.cache.delete_key(user_cache_keys)
+		frappe.set_user("Administrator")
+		super().tearDown()
 
-	def _create_user(self, email, first_name, last_name, roles, user_type="Website User"):
+	@classmethod
+	def _create_user(cls, email, first_name, last_name, roles, user_type="Website User"):
 		if frappe.db.exists("User", email):
 			return frappe.get_doc("User", email)
 
@@ -42,19 +56,21 @@ class BaseTestUtils(UnitTestCase):
 		for role in roles:
 			user.append("roles", {"role": role})
 		user.save()
-		self.cleanup_items.append(("User", user.name))
 		return user
 
-	def _create_course(self, title="Utility Course", instructor="frappe@example.com"):
+	@classmethod
+	def _create_course(cls, title="Utility Course", instructor="frappe@example.com"):
 		existing = frappe.db.exists("LMS Course", {"title": title})
 		if existing:
 			return frappe.get_doc("LMS Course", existing)
 
+		# LMS Category autonames from `category`, so the name is the category itself and a
+		# duplicate insert fails on the primary key -- the unique constraint already exists.
+		# nosemgrep: lms-exists-then-insert - name is the category, duplicate insert fails on the PK
 		if not frappe.db.exists("LMS Category", "Business"):
 			frappe.get_doc({"doctype": "LMS Category", "category": "Business"}).insert(
 				ignore_permissions=True
 			)
-			self.cleanup_items.append(("LMS Category", "Business"))
 
 		course = frappe.new_doc("LMS Course")
 		course.update(
@@ -69,10 +85,10 @@ class BaseTestUtils(UnitTestCase):
 			}
 		)
 		course.save()
-		self.cleanup_items.append(("LMS Course", course.name))
 		return course
 
-	def _create_chapter(self, title, course):
+	@classmethod
+	def _create_chapter(cls, title, course):
 		if not title:
 			title = f"Course Chapter {frappe.generate_hash()}"
 
@@ -88,10 +104,10 @@ class BaseTestUtils(UnitTestCase):
 			}
 		)
 		chapter.save()
-		self.cleanup_items.append(("Course Chapter", chapter.name))
 		return chapter
 
-	def _create_lesson(self, title, chapter, course, content=None):
+	@classmethod
+	def _create_lesson(cls, title, chapter, course, content=None):
 		existing = frappe.db.exists("Course Lesson", {"course": course, "title": title})
 		if existing:
 			return frappe.get_doc("Course Lesson", existing)
@@ -109,10 +125,10 @@ class BaseTestUtils(UnitTestCase):
 			}
 		)
 		lesson.save()
-		self.cleanup_items.append(("Course Lesson", lesson.name))
 		return lesson
 
-	def _create_lesson_reference(self, chapter, lesson):
+	@classmethod
+	def _create_lesson_reference(cls, chapter, lesson):
 		lesson_ref = frappe.get_doc(
 			{
 				"doctype": "Lesson Reference",
@@ -124,10 +140,10 @@ class BaseTestUtils(UnitTestCase):
 			}
 		)
 		lesson_ref.insert()
-		self.cleanup_items.append(("Lesson Reference", lesson_ref.name))
 		return lesson_ref
 
-	def _create_chapter_reference(self, course, chapter, idx=1):
+	@classmethod
+	def _create_chapter_reference(cls, course, chapter, idx=1):
 		chapter_ref = frappe.get_doc(
 			{
 				"doctype": "Chapter Reference",
@@ -139,10 +155,10 @@ class BaseTestUtils(UnitTestCase):
 			}
 		)
 		chapter_ref.insert()
-		self.cleanup_items.append(("Chapter Reference", chapter_ref.name))
 		return chapter_ref
 
-	def _create_enrollment(self, member, course):
+	@classmethod
+	def _create_enrollment(cls, member, course):
 		existing = frappe.db.exists("LMS Enrollment", {"course": course, "member": member})
 		if existing:
 			return frappe.get_doc("LMS Enrollment", existing)
@@ -150,19 +166,26 @@ class BaseTestUtils(UnitTestCase):
 		enrollment = frappe.new_doc("LMS Enrollment")
 		enrollment.update({"member": member, "course": course})
 		enrollment.insert()
-		self.cleanup_items.append(("LMS Enrollment", enrollment.name))
 		return enrollment
 
-	def _create_progress(self, member, course, lesson):
+	@classmethod
+	def _create_progress(cls, member, course, lesson):
 		progress = frappe.new_doc("LMS Course Progress")
 		progress.update({"member": member, "course": course, "lesson": lesson})
 		progress.insert()
-		self.cleanup_items.append(("LMS Course Progress", progress.name))
 		return progress
 
-	def _create_evaluator(self, evaluator_email="frappe@example.com"):
+	@classmethod
+	def _create_evaluator(cls, evaluator_email="frappe@example.com"):
 		if frappe.db.exists("Course Evaluator", evaluator_email):
-			return frappe.get_doc("Course Evaluator", evaluator_email)
+			evaluator = frappe.get_doc("Course Evaluator", evaluator_email)
+			# The window is relative to the day it was written, and this doc
+			# outlives the run that made it. Left stale, it swallows the dates
+			# callers compute from today and the failure looks like a date bug.
+			evaluator.unavailable_from = add_days(nowdate(), 5)
+			evaluator.unavailable_to = add_days(nowdate(), 12)
+			evaluator.save()
+			return evaluator
 
 		evaluator = frappe.new_doc("Course Evaluator")
 		evaluator.update(
@@ -177,11 +200,11 @@ class BaseTestUtils(UnitTestCase):
 			}
 		)
 		evaluator.save()
-		self.cleanup_items.append(("Course Evaluator", evaluator.name))
 		return evaluator
 
+	@classmethod
 	def _create_batch(
-		self,
+		cls,
 		course,
 		instructor="frappe@example.com",
 		title="Utility Training",
@@ -209,10 +232,10 @@ class BaseTestUtils(UnitTestCase):
 			}
 		)
 		batch.save()
-		self.cleanup_items.append(("LMS Batch", batch.name))
 		return batch
 
-	def _create_batch_enrollment(self, member, batch):
+	@classmethod
+	def _create_batch_enrollment(cls, member, batch):
 		existing = frappe.db.exists("LMS Batch Enrollment", {"batch": batch, "member": member})
 		if existing:
 			return frappe.get_doc("LMS Batch Enrollment", existing)
@@ -220,14 +243,15 @@ class BaseTestUtils(UnitTestCase):
 		batch_enrollment = frappe.new_doc("LMS Batch Enrollment")
 		batch_enrollment.update({"member": member, "batch": batch})
 		batch_enrollment.insert()
-		self.cleanup_items.append(("LMS Batch Enrollment", batch_enrollment.name))
 		return batch_enrollment
 
-	def _add_rating(self, course, member, rating, review_text):
+	@classmethod
+	def _add_rating(cls, course, member, rating, review_text):
 		existing = frappe.db.exists("LMS Course Review", {"course": course, "owner": member})
 		if existing:
 			return frappe.get_doc("LMS Course Review", existing)
 
+		original_user = frappe.session.user
 		frappe.session.user = member
 		review_doc = frappe.new_doc("LMS Course Review")
 		review_doc.update(
@@ -238,11 +262,11 @@ class BaseTestUtils(UnitTestCase):
 			}
 		)
 		review_doc.save()
-		self.cleanup_items.append(("LMS Course Review", review_doc.name))
-		frappe.session.user = "Administrator"
+		frappe.session.user = original_user
 		return review_doc
 
-	def _create_certificate(self, course, member):
+	@classmethod
+	def _create_certificate(cls, course, member):
 		existing = frappe.db.exists("LMS Certificate", {"course": course, "member": member})
 		if existing:
 			return frappe.get_doc("LMS Certificate", existing)
@@ -258,10 +282,10 @@ class BaseTestUtils(UnitTestCase):
 			}
 		)
 		certificate.save()
-		self.cleanup_items.append(("LMS Certificate", certificate.name))
 		return certificate
 
-	def _create_quiz_questions(self):
+	@classmethod
+	def _create_quiz_questions(cls):
 		questions = []
 		for index in range(1, 4):
 			question = frappe.new_doc("LMS Question")
@@ -276,11 +300,11 @@ class BaseTestUtils(UnitTestCase):
 				}
 			)
 			question.save()
-			self.cleanup_items.append(("LMS Question", question.name))
 			questions.append(question)
 		return questions
 
-	def _create_quiz(self, title="Utility Quiz"):
+	@classmethod
+	def _create_quiz(cls, questions, title="Utility Quiz"):
 		existing = frappe.db.exists("LMS Quiz", {"title": title})
 		if existing:
 			return frappe.get_doc("LMS Quiz", existing)
@@ -294,7 +318,7 @@ class BaseTestUtils(UnitTestCase):
 			}
 		)
 
-		for question in self.questions:
+		for question in questions:
 			quiz.append(
 				"questions",
 				{
@@ -303,10 +327,10 @@ class BaseTestUtils(UnitTestCase):
 				},
 			)
 		quiz.save()
-		self.cleanup_items.append(("LMS Quiz", quiz.name))
 		return quiz
 
-	def _create_assignment(self, title="Utility Assignment"):
+	@classmethod
+	def _create_assignment(cls, title="Utility Assignment"):
 		existing = frappe.db.exists("LMS Assignment", {"title": title})
 		if existing:
 			return frappe.get_doc("LMS Assignment", existing)
@@ -321,128 +345,139 @@ class BaseTestUtils(UnitTestCase):
 			}
 		)
 		assignment.save()
-		self.cleanup_items.append(("LMS Assignment", assignment.name))
 		return assignment
 
-	def _setup_course_flow(self):
-		self.student1 = self._create_user("student1@example.com", "Ashley", "Smith", ["LMS Student"])
-		self.student2 = self._create_user("student2@example.com", "John", "Doe", ["LMS Student"])
-		self.admin = self._create_user(
+	@classmethod
+	def _setup_course_flow(cls):
+		cls.student1 = cls._create_user("student1@example.com", "Ashley", "Smith", ["LMS Student"])
+		cls.student2 = cls._create_user("student2@example.com", "John", "Doe", ["LMS Student"])
+		cls.admin = cls._create_user(
 			"frappe@example.com", "Frappe", "Admin", ["Moderator", "Course Creator", "Batch Evaluator"]
 		)
-		self.course = self._create_course()
-		self._setup_quiz()
-		self._setup_assignment()
-		self._setup_programming_exercise()
-		self._setup_chapters()
+		cls.course = cls._create_course()
+		cls._setup_quiz()
+		cls._setup_assignment()
+		cls._setup_programming_exercise()
+		cls._setup_chapters()
 
-		self._create_enrollment(self.student1.email, self.course.name)
-		self._add_student_progress(self.student1.email, self.course.name)
-		self._create_enrollment(self.student2.email, self.course.name)
-		self._add_student_progress(self.student2.email, self.course.name)
+		cls._create_enrollment(cls.student1.email, cls.course.name)
+		cls._add_student_progress(cls.student1.email, cls.course.name)
+		cls._create_enrollment(cls.student2.email, cls.course.name)
+		cls._add_student_progress(cls.student2.email, cls.course.name)
 
-		self._add_rating(self.course.name, self.student1.email, 0.8, "Good course")
-		self._add_rating(self.course.name, self.student2.email, 1, "Excellent course")
+		cls._add_rating(cls.course.name, cls.student1.email, 0.8, "Good course")
+		cls._add_rating(cls.course.name, cls.student2.email, 1, "Excellent course")
 
-		self._create_certificate(self.course.name, self.student1.email)
+		cls._create_certificate(cls.course.name, cls.student1.email)
 
-	def _setup_quiz(self):
-		self.questions = self._create_quiz_questions()
-		self.quiz = self._create_quiz()
+	@classmethod
+	def _setup_quiz(cls):
+		cls.questions = cls._create_quiz_questions()
+		cls.quiz = cls._create_quiz(cls.questions)
 
-	def _setup_assignment(self):
-		self.assignment = self._create_assignment()
+	@classmethod
+	def _setup_assignment(cls):
+		cls.assignment = cls._create_assignment()
 
-	def _setup_programming_exercise(self):
-		self.programming_exercise = self._create_programming_exercise()
+	@classmethod
+	def _setup_programming_exercise(cls):
+		cls.programming_exercise = cls._create_programming_exercise()
 
-	def _setup_chapters(self):
+	@classmethod
+	def _setup_chapters(cls):
 		chapters = []
 		for i in range(1, 4):
-			chapter = self._create_chapter(f"Chapter {i}", self.course.name)
+			chapter = cls._create_chapter(f"Chapter {i}", cls.course.name)
 			chapters.append(chapter)
-		self.course.reload()
+		cls.course.reload()
 		for chapter in chapters:
-			if not any(c.chapter == chapter.name for c in self.course.chapters):
-				self.course.append("chapters", {"chapter": chapter.name})
-		self.course.save()
-		self._setup_lessons()
+			if not any(c.chapter == chapter.name for c in cls.course.chapters):
+				cls.course.append("chapters", {"chapter": chapter.name})
+		cls.course.save()
+		cls._setup_lessons()
 
-	def _setup_lessons(self):
-		for index, chapter_ref in enumerate(self.course.chapters):
+	@classmethod
+	def _setup_lessons(cls):
+		for index, chapter_ref in enumerate(cls.course.chapters):
 			chapter_doc = frappe.get_doc("Course Chapter", chapter_ref.chapter)
 			for j in range(1, 5):
 				content = None
 				if j == 2 and index == 2:
-					content = self._get_quiz_lesson_content()
+					content = cls._get_quiz_lesson_content()
 				if j == 3 and index == 2:
-					content = self._get_assignment_lesson_content()
+					content = cls._get_assignment_lesson_content()
 				if j == 4 and index == 2:
-					content = self._get_exercise_lesson_content()
+					content = cls._get_exercise_lesson_content()
 				lesson_title = f"Lesson {j} of {chapter_ref.chapter}"
-				lesson = self._create_lesson(lesson_title, chapter_ref.chapter, self.course.name, content)
+				lesson = cls._create_lesson(lesson_title, chapter_ref.chapter, cls.course.name, content)
 
 				if not any(l.lesson == lesson.name for l in chapter_doc.lessons):
 					chapter_doc.append("lessons", {"lesson": lesson.name})
 
 			chapter_doc.save()
 
-	def _get_quiz_lesson_content(self):
+	@classmethod
+	def _get_quiz_lesson_content(cls):
 		return f"""{{
 			"time": 1765194986690,
 			"blocks": [
 				{{
 					"id": "dkLzbW14ds",
 					"type": "quiz",
-					"data": {{ "quiz": "{self.quiz.name}" }}
+					"data": {{ "quiz": "{cls.quiz.name}" }}
 				}}
 			],
 			"version": "2.29.0"
 		}}"""
 
-	def _get_assignment_lesson_content(self):
+	@classmethod
+	def _get_assignment_lesson_content(cls):
 		return f"""{{
 			"time": 1765194986690,
 			"blocks": [
 				{{
 					"id": "dkLzbW14ds",
 					"type": "assignment",
-					"data": {{ "assignment": "{self.assignment.name}" }}
+					"data": {{ "assignment": "{cls.assignment.name}" }}
 				}}
 			],
 			"version": "2.29.0"
 		}}"""
 
-	def _get_exercise_lesson_content(self):
+	@classmethod
+	def _get_exercise_lesson_content(cls):
 		return f"""{{
 			"time": 1765194986690,
 			"blocks": [
 				{{
 					"id": "dkLzbW14ds",
 					"type": "program",
-					"data": {{ "exercise": "{self.programming_exercise.name}" }}
+					"data": {{ "exercise": "{cls.programming_exercise.name}" }}
 				}}
 			],
 			"version": "2.29.0"
 		}}"""
 
-	def _setup_batch_flow(self):
-		self.evaluator = self._create_evaluator()
-		self.batch = self._create_batch(self.course.name)
-		self._create_batch_enrollment(self.student1.email, self.batch.name)
-		self._create_batch_enrollment(self.student2.email, self.batch.name)
+	@classmethod
+	def _setup_batch_flow(cls):
+		cls.evaluator = cls._create_evaluator()
+		cls.batch = cls._create_batch(cls.course.name)
+		cls._create_batch_enrollment(cls.student1.email, cls.batch.name)
+		cls._create_batch_enrollment(cls.student2.email, cls.batch.name)
 
-	def _add_student_progress(self, member, course):
-		self._create_quiz_submission(member)
-		self._create_assignment_submission(member)
-		self._create_programming_exercise_submission(member)
+	@classmethod
+	def _add_student_progress(cls, member, course):
+		cls._create_quiz_submission(member)
+		cls._create_assignment_submission(member)
+		cls._create_programming_exercise_submission(member)
 		lessons = frappe.db.get_all(
 			"Course Lesson", {"course": course}, pluck="name", limit=2, order_by="creation desc"
 		)
 		for lesson in lessons:
-			self._create_lesson_progress(member, course, lesson)
+			cls._create_lesson_progress(member, course, lesson)
 
-	def _create_lesson_progress(self, member, course, lesson):
+	@classmethod
+	def _create_lesson_progress(cls, member, course, lesson):
 		existing = frappe.db.exists(
 			"LMS Course Progress", {"member": member, "course": course, "lesson": lesson}
 		)
@@ -452,33 +487,31 @@ class BaseTestUtils(UnitTestCase):
 		progress = frappe.new_doc("LMS Course Progress")
 		progress.update({"member": member, "course": course, "lesson": lesson, "status": "Complete"})
 		progress.insert()
-		self.cleanup_items.append(("LMS Course Progress", progress.name))
 		return progress
 
-	def _create_quiz_submission(self, member):
-		existing = frappe.db.exists("LMS Quiz Submission", {"quiz": self.quiz.name, "member": member})
+	@classmethod
+	def _create_quiz_submission(cls, member):
+		existing = frappe.db.exists("LMS Quiz Submission", {"quiz": cls.quiz.name, "member": member})
 		if existing:
 			return frappe.get_doc("LMS Quiz Submission", existing)
 
+		original_user = frappe.session.user
 		frappe.session.user = member
 		results = []
-		for index, question in enumerate(self.questions):
+		for index, question in enumerate(cls.questions):
 			results.append(
 				{
 					"question_name": question.name,
 					"answer": [question.option_1 if index % 2 == 0 else question.option_2],
 				}
 			)
-		submit_quiz(self.quiz.name, json.dumps(results))
-		submission = frappe.db.get_value(
-			"LMS Quiz Submission", {"quiz": self.quiz.name, "member": member}, "name"
-		)
-		self.cleanup_items.append(("LMS Quiz Submission", submission))
-		frappe.session.user = "Administrator"
+		submit_quiz(cls.quiz.name, json.dumps(results))
+		frappe.session.user = original_user
 
-	def _create_assignment_submission(self, member):
+	@classmethod
+	def _create_assignment_submission(cls, member):
 		existing = frappe.db.exists(
-			"LMS Assignment Submission", {"assignment": self.assignment.name, "member": member}
+			"LMS Assignment Submission", {"assignment": cls.assignment.name, "member": member}
 		)
 		if existing:
 			return frappe.get_doc("LMS Assignment Submission", existing)
@@ -486,7 +519,7 @@ class BaseTestUtils(UnitTestCase):
 		submission = frappe.new_doc("LMS Assignment Submission")
 		submission.update(
 			{
-				"assignment": self.assignment.name,
+				"assignment": cls.assignment.name,
 				"member": member,
 				"answer": "This is the submission content for the utility assignment.",
 				"status": "Pass",
@@ -494,10 +527,10 @@ class BaseTestUtils(UnitTestCase):
 		)
 
 		submission.insert()
-		self.cleanup_items.append(("LMS Assignment Submission", submission.name))
 		return submission
 
-	def _create_programming_exercise(self, title="Utility Programming Exercise"):
+	@classmethod
+	def _create_programming_exercise(cls, title="Utility Programming Exercise"):
 		existing = frappe.db.exists("LMS Programming Exercise", {"title": title})
 		if existing:
 			return frappe.get_doc("LMS Programming Exercise", existing)
@@ -515,13 +548,13 @@ class BaseTestUtils(UnitTestCase):
 			}
 		)
 		programming_exercise.save()
-		self.cleanup_items.append(("LMS Programming Exercise", programming_exercise.name))
 		return programming_exercise
 
-	def _create_programming_exercise_submission(self, member):
+	@classmethod
+	def _create_programming_exercise_submission(cls, member):
 		existing = frappe.db.exists(
 			"LMS Programming Exercise Submission",
-			{"exercise": self.programming_exercise.name, "member": member},
+			{"exercise": cls.programming_exercise.name, "member": member},
 		)
 		if existing:
 			return frappe.get_doc("LMS Programming Exercise Submission", existing)
@@ -529,7 +562,7 @@ class BaseTestUtils(UnitTestCase):
 		submission = frappe.new_doc("LMS Programming Exercise Submission")
 		submission.update(
 			{
-				"exercise": self.programming_exercise.name,
+				"exercise": cls.programming_exercise.name,
 				"member": member,
 				"code": "print(inputs[0] + 1)",
 				"status": "Passed",
@@ -537,5 +570,41 @@ class BaseTestUtils(UnitTestCase):
 		)
 
 		submission.insert()
-		self.cleanup_items.append(("LMS Programming Exercise Submission", submission.name))
 		return submission
+
+
+class MemberOwnershipTestMixin:
+	"""Shared member-ownership rules for a doctype where a student may only act
+	on their own `member` row unless privileged (Moderator etc.). Concrete
+	classes provide `_new_doc(member=None, variant=0)`; `variant` lets a
+	subclass avoid colliding with itself across the rows below when its
+	fixtures dedupe on some other field (e.g. a booking slot)."""
+
+	def test_student_cannot_act_for_another_member(self):
+		frappe.set_user(self.student_a.name)
+		doc = self._new_doc(member=self.student_b.name, variant=1)
+		with self.assertRaises(frappe.PermissionError):
+			doc.insert()
+
+	def test_student_member_defaults_to_or_matches_session_user(self):
+		frappe.set_user(self.student_a.name)
+		cases = [
+			("defaults_when_unset", None, 2),
+			("explicit_self", self.student_a.name, 3),
+		]
+		for case, member, variant in cases:
+			with self.subTest(case=case):
+				doc = self._new_doc(member=member, variant=variant)
+				doc.insert()
+				self.assertEqual(doc.member, self.student_a.name)
+				# Both rows hit the same (member, record) pair, so the duplicate
+				# guard would reject the second one. Separate test methods never
+				# collided because each had its own savepoint.
+				# nosemgrep: lms-unjustified-ignore-permissions - removing a row this test just made
+				frappe.delete_doc(doc.doctype, doc.name, ignore_permissions=True)
+
+	def test_privileged_user_can_act_on_behalf_of_member(self):
+		frappe.set_user(self.moderator.name)
+		doc = self._new_doc(member=self.student_b.name, variant=4)
+		doc.insert()
+		self.assertEqual(doc.member, self.student_b.name)

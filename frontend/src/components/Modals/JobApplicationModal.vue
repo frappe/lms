@@ -1,7 +1,6 @@
 <template>
 	<Dialog
 		v-model:open="show"
-		class="text-base"
 		title="Apply for this job"
 		size="lg"
 		:actions="[
@@ -25,7 +24,7 @@
 					<FileUploader
 						:fileTypes="['.pdf']"
 						:validateFile="validateFile"
-						:uploadArgs="{ private: 1 }"
+						:private="true"
 						@success="
 							(file) => {
 								resume = file
@@ -53,7 +52,7 @@
 					</FileUploader>
 				</div>
 				<div v-else class="flex items-center">
-					<div class="border rounded-md p-2 me-2">
+					<div class="border rounded-5 p-2 me-2">
 						<span class="lucide-file-text h-5 w-5 text-ink-gray-7" />
 					</div>
 					<div class="flex flex-col">

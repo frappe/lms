@@ -27,12 +27,11 @@ describe('innerHTML writes go through the sanitizer', () => {
 			'../utils/code.ts',
 			'hljs.highlight escapes the source it returns (see the call site)',
 		],
-		['../utils/inline/BaseInline.ts', 'module-constant icon markup'],
 		[
 			'../utils/inertHtml.ts',
 			'the one deliberate write: an inert DOMParser document, pre-sanitizer',
 		],
-		['../utils/inline/TextAlign.ts', 'module-constant icon markup'],
+		['../utils/inline/ToolButton.ts', 'module-constant icon markup'],
 	])
 
 	it('finds sources to scan', () => {

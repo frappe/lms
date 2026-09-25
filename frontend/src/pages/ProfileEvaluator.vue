@@ -4,14 +4,17 @@
 			<h2 class="text-md font-semibold text-ink-gray-9">
 				{{ __('My availability') }}
 			</h2>
-			<p v-if="evaluator.data?.timezone" class="text-sm text-ink-gray-6">
+			<p
+				v-if="evaluator.data?.timezone"
+				class="mt-1 text-sm leading-5 text-ink-gray-6"
+			>
 				{{ __('Times are in {0}').format(evaluator.data.timezone) }}
 			</p>
 		</div>
 
 		<div
 			v-if="readOnlyMode"
-			class="flex items-center gap-x-2 text-sm text-ink-gray-7 bg-surface-gray-1 px-3 py-2 rounded-md w-full text-center"
+			class="flex items-center gap-x-2 text-sm text-ink-gray-7 bg-surface-gray-1 px-3 py-2 rounded-5 w-full text-center"
 		>
 			<span class="lucide-circle-alert size-4" />
 			<span>
@@ -52,12 +55,11 @@
 						@update:modelValue="update(slot.name, 'day', $event)"
 						:disabled="!isSessionUser()"
 					/>
-					<label
-						:for="`start-time-${slot.name}`"
-						class="md:sr-only block text-xs text-ink-gray-5"
-					>
-						{{ __('Start Time') }}
-					</label>
+					<FormLabel
+						:id="`start-time-${slot.name}`"
+						:label="__('Start Time')"
+						class="md:sr-only"
+					/>
 					<FormControl
 						type="time"
 						:id="`start-time-${slot.name}`"
@@ -65,12 +67,11 @@
 						@update:modelValue="update(slot.name, 'start_time', $event)"
 						:disabled="!isSessionUser()"
 					/>
-					<label
-						:for="`end-time-${slot.name}`"
-						class="md:sr-only block text-xs text-ink-gray-5"
-					>
-						{{ __('End Time') }}
-					</label>
+					<FormLabel
+						:id="`end-time-${slot.name}`"
+						:label="__('End Time')"
+						class="md:sr-only"
+					/>
 					<FormControl
 						type="time"
 						:id="`end-time-${slot.name}`"
@@ -82,7 +83,7 @@
 						v-if="isSessionUser()"
 						type="button"
 						:aria-label="__('Delete slot')"
-						class="lucide-x size-6 text-red-900 rounded-md cursor-pointer p-1 bg-surface-red-2 md:sr-only md:group-hover:not-sr-only md:focus:not-sr-only"
+						class="lucide-x size-6 text-ink-red-8 rounded-5 cursor-pointer p-1 bg-surface-red-2 md:sr-only md:group-hover:not-sr-only md:focus:not-sr-only md:[@media(hover:none)]:not-sr-only"
 						@click="deleteRow(slot.name)"
 					/>
 				</div>
@@ -99,12 +100,11 @@
 						@update:modelValue="add()"
 						:disabled="!isSessionUser()"
 					/>
-					<label
-						for="new-slot-start-time"
-						class="md:sr-only block text-xs text-ink-gray-5"
-					>
-						{{ __('Start Time') }}
-					</label>
+					<FormLabel
+						id="new-slot-start-time"
+						:label="__('Start Time')"
+						class="md:sr-only"
+					/>
 					<FormControl
 						type="time"
 						id="new-slot-start-time"
@@ -112,12 +112,11 @@
 						@update:modelValue="add()"
 						:disabled="!isSessionUser()"
 					/>
-					<label
-						for="new-slot-end-time"
-						class="md:sr-only block text-xs text-ink-gray-5"
-					>
-						{{ __('End Time') }}
-					</label>
+					<FormLabel
+						id="new-slot-end-time"
+						:label="__('End Time')"
+						class="md:sr-only"
+					/>
 					<FormControl
 						type="time"
 						id="new-slot-end-time"
@@ -175,7 +174,7 @@
 				</h2>
 				<div
 					v-if="evaluator.data?.calendar && evaluator.data?.is_authorized"
-					class="flex items-center bg-surface-green-2 text-green-900 text-sm p-1 rounded-md mb-4 w-fit"
+					class="flex items-center bg-surface-green-2 text-ink-green-8 text-sm p-1 rounded-5 mb-4 w-fit"
 				>
 					<span class="lucide-check size-4 me-2" />
 					{{ __('Your calendar is set.') }}
@@ -190,7 +189,13 @@
 <script setup>
 // The slots are stored as bare wall-clock times and read as system time
 // everywhere downstream, so the editor has to name the clock it means.
-import { createResource, FormControl, Button, Badge, toast } from 'frappe-ui'
+import {
+	createResource,
+	FormControl,
+	FormLabel,
+	Button,
+	toast,
+} from 'frappe-ui'
 import { computed, reactive, ref, onMounted, inject, watch } from 'vue'
 import { convertToTitleCase } from '@/utils'
 import { openExternal } from '@/utils/openExternal'

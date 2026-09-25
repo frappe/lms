@@ -10,6 +10,7 @@ core (frappe/permissions.py), CRM (crm.permissions.*), and Raven (raven.permissi
 """
 
 import frappe
+from frappe import _
 
 from lms.lms.utils import (
 	can_modify_batch,
@@ -75,6 +76,27 @@ def can_access_lesson(lesson: str, *, instructor_only: bool = False, user: str |
 	"""
 	is_instructor, can_access = resolve_lesson_access(lesson, user=user)
 	return is_instructor if instructor_only else can_access
+
+
+def courses_authored_by(user: str, courses) -> set[str]:
+	"""The subset of `courses` that `user` may author (a moderator authors every one).
+
+	can_modify_course only answers for frappe.session.user; this judges a third party --
+	a file's owner -- from the tables, for a whole set in one query."""
+	courses = {course for course in courses or [] if course}
+	if not courses or not user:
+		return set()
+
+	if user == "Administrator" or has_moderator_role(user):
+		return courses
+
+	return set(
+		frappe.db.get_all(
+			"Course Instructor",
+			filters={"instructor": user, "parent": ("in", list(courses)), "parenttype": "LMS Course"},
+			pluck="parent",
+		)
+	)
 
 
 def can_access_quiz(quiz: str, *, user: str | None = None) -> bool:
@@ -265,3 +287,141 @@ def file_has_permission(doc, ptype="read", user=None):
 		doc.attached_to_name,
 	)
 	return False
+
+
+# --- Authored content -------------------------------------------------------
+#
+# LMS Quiz, LMS Programming Exercise, LMS Assignment and LMS Question are one
+# shared library that no single course owns, so write narrows to the people named
+# in `authors` instead of to a course. Read stays wide: one library, both
+# authoring roles, and the student half of the read is a separate rule.
+
+SITE_ADMIN_ROLE = "System Manager"
+
+# `share`, `export` and `report` are deliberately absent: this field records who
+# may change the content, not who may pass it on. `create` is here because a child
+# row's insert is checked against its PARENT -- has_child_permission ends at
+# has_permission(parent, "create", doc=<the parent>) -- so without it any holder of
+# the role appends a question, or themselves, to another author's row. `None` is
+# absent because get_doc_permissions passes it for "no ptype asked", and refusing
+# that returns an empty permission map for a user who genuinely holds read.
+NARROWED_PTYPES = ("write", "delete", "create")
+
+
+def is_site_administrator(user: str | None = None) -> bool:
+	"""Whether `user` administers this site rather than authoring one row on it.
+
+	A has_permission hook can only subtract, so a role holding a DocPerm row and
+	absent from the predicate is denied silently. This app has locked its site
+	administrators out once already -- patches/v2_0/restore_system_manager_perms.py.
+	"""
+	user = user or frappe.session.user
+	return user == "Administrator" or SITE_ADMIN_ROLE in frappe.get_roles(user)
+
+
+def stored_authors(doctype: str, name: str) -> list[str]:
+	"""The `authors` rows as the database holds them, not as a save proposes them.
+
+	Gating on the submitted list would let anyone who can reach the form write
+	themselves into the list that decides whether they may write. A row whose
+	`author` is empty is dropped: it is still truthy, so it would skip the `owner`
+	fallback and lock the creator out of their own row.
+	"""
+	rows = frappe.get_all(
+		"LMS Content Author",
+		filters={"parent": name, "parenttype": doctype, "parentfield": "authors"},
+		pluck="author",
+	)
+	return [author for author in rows if author]
+
+
+def is_content_author(doctype: str, name: str, user: str | None = None) -> bool:
+	"""Whether `user` is one of the people responsible for this row.
+
+	The fallback to `owner` is what makes shipping no backfill patch safe: every row
+	written before the field existed carries an empty `authors`. It is a fallback
+	and not an addition -- once somebody is named, the row has been handed over.
+	"""
+	user = user or frappe.session.user
+	authors = stored_authors(doctype, name)
+	if authors:
+		return user in authors
+	return frappe.db.get_value(doctype, name, "owner") == user
+
+
+def has_authored_content_permission(doc, ptype: str | None = None, user: str | None = None) -> bool:
+	"""has_permission for every doctype carrying `authors`, registered in hooks.py.
+
+	A document with no name is a row being created, which is not scoped: insert
+	calls check_permission("create") before set_new_name.
+	"""
+	if ptype not in NARROWED_PTYPES:
+		return True
+	user = user or frappe.session.user
+	if is_site_administrator(user) or has_moderator_role(user):
+		return True
+	if doc is None or doc.get("__islocal") or not doc.get("name"):
+		return True
+	return is_content_author(doc.doctype, doc.name, user)
+
+
+def refuse_moving_child_rows_out_of_content_the_user_cannot_write(doc, method=None):
+	"""doc_events `validate` for the authored content family AND for its child tables.
+
+	One rule -- a row whose stored parent is not the one it is being saved under
+	answers to the parent it is leaving -- at the two entry points that reach a child
+	row, because neither sees the other's traffic. has_child_permission is only ever
+	shown the parent named on the row in hand, so a row saved on its own is checked
+	against the destination alone; and a child never fires doc_events when its parent
+	saves it, while Document.update_child_table db_updates every submitted row by name
+	with no ownership check, so the parent has to ask on the row's behalf.
+	"""
+	if doc.meta.istable:
+		refuse_rows_taken_from_a_parent_the_user_cannot_write(
+			doc.doctype, [doc.name], doc.parent, doc.parenttype
+		)
+		return
+	for field in doc.meta.get_table_fields():
+		submitted = [row.name for row in doc.get(field.fieldname) or [] if not row.is_new()]
+		refuse_rows_taken_from_a_parent_the_user_cannot_write(field.options, submitted, doc.name, doc.doctype)
+
+
+def refuse_rows_taken_from_a_parent_the_user_cannot_write(
+	child_doctype: str, row_names: list[str], parent: str, parenttype: str
+):
+	"""One SELECT per child table, and one permission check per parent being left."""
+	named = [name for name in row_names if name]
+	if not named:
+		return
+	stored_rows = frappe.get_all(
+		child_doctype, filters={"name": ("in", named)}, fields=["parent", "parenttype"]
+	)
+	checked = {}
+	for stored in stored_rows:
+		source = (stored.parenttype, stored.parent)
+		if source == (parenttype, parent):
+			continue
+		if source not in checked:
+			checked[source] = can_write_the_stored_parent(*source)
+		if checked[source]:
+			continue
+		frappe.throw(
+			_("You do not have permission to move this row out of {0} {1}").format(
+				_(stored.parenttype), stored.parent
+			),
+			frappe.PermissionError,
+		)
+
+
+def can_write_the_stored_parent(parenttype: str, parent: str) -> bool:
+	"""A stored parent that no longer exists is not one anybody may write through.
+
+	has_permission resolves a docname with get_lazy_doc, which throws
+	DoesNotExistError for a deleted parent -- so without this the caller gets a 404
+	naming somebody else's docname instead of the refusal.
+	"""
+	if not (parenttype and parent):
+		return False
+	if not frappe.db.exists(parenttype, parent):
+		return False
+	return frappe.has_permission(parenttype, "write", doc=parent)

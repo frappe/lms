@@ -1,7 +1,7 @@
 <template>
 	<div v-if="message.role === 'user'" class="flex justify-end">
 		<div
-			class="max-w-[85%] whitespace-pre-wrap break-words rounded-lg bg-surface-gray-3 px-3 py-2 text-p-sm text-ink-gray-9"
+			class="max-w-[85%] whitespace-pre-wrap break-words rounded-6 bg-surface-gray-3 px-3 py-2 text-p-sm text-ink-gray-9"
 		>
 			{{ message.text }}
 		</div>
@@ -9,7 +9,7 @@
 	<div v-else class="space-y-2" data-testid="tutor-answer">
 		<div
 			v-if="message.error"
-			class="rounded-lg bg-surface-red-1 px-3 py-2 text-p-sm text-ink-red-6"
+			class="rounded-6 bg-surface-red-1 px-3 py-2 text-p-sm text-ink-red-6"
 		>
 			{{ message.text }}
 		</div>
@@ -21,7 +21,7 @@
 
 		<div
 			v-if="citations.length"
-			class="rounded-md border px-3 py-2 text-p-xs text-ink-gray-7"
+			class="rounded-5 border px-3 py-2 text-p-xs text-ink-gray-7"
 		>
 			<div class="mb-1 font-medium text-ink-gray-5">
 				{{ __('Sources in this course') }}

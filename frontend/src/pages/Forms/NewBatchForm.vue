@@ -102,7 +102,7 @@
 							:required="true"
 						/>
 						<div
-							class="rounded-t-lg rounded-b-md outline-none transition-[box-shadow] duration-150 ease-[cubic-bezier(0.23,1,0.32,1)]"
+							class="rounded-t-6 rounded-b-5 outline-none transition-[box-shadow] duration-150 ease-[cubic-bezier(0.23,1,0.32,1)]"
 						>
 							<RichTextEditor
 								:id="batchDetailsId"
@@ -110,7 +110,7 @@
 								@change="(val: string) => (batch.batch_details = val)"
 								:editable="true"
 								:fixedMenu="true"
-								editorClass="prose-sm max-w-none border-b border-x border-outline-gray-2 hover:border-outline-gray-3 hover:shadow-sm focus-within:border-outline-gray-4 focus-within:shadow-sm rounded-b-md py-1 px-2 min-h-[10rem] max-h-[14rem] overflow-auto transition-colors"
+								editorClass="prose-sm max-w-none border-b border-x border-outline-gray-2 hover:border-outline-gray-3 hover:shadow-sm focus-within:border-outline-gray-4 focus-within:shadow-sm rounded-b-5 py-1 px-2 min-h-[10rem] max-h-[14rem] overflow-auto transition-colors"
 							/>
 						</div>
 					</div>
@@ -143,10 +143,12 @@ import {
 	createResource,
 	toast,
 } from 'frappe-ui'
-import { useOnboarding, useTelemetry } from 'frappe-ui/frappe'
+import type { FrappeResourceError } from 'frappe-ui'
+import { useOnboarding } from '@framework/ui/components/Onboarding/index'
+import { useTelemetry } from '@framework/ui/telemetry/index'
 import { computed, inject, onMounted, onBeforeUnmount, ref } from 'vue'
 import { createLMSCategory, cleanError } from '@/utils'
-import { sanitizeOnWrite } from '@/utils/sanitizeOnWrite'
+import { sanitizeStringFields } from '@/utils/sanitizeOnWrite'
 import FormShell from '@/components/FormShell.vue'
 import HeaderButton from '@/components/HeaderButton.vue'
 import { useFormRoute } from '@/composables/useFormRoute'
@@ -155,7 +157,7 @@ import Link from '@/components/Controls/Link.vue'
 import Select from '@/components/Controls/Select.vue'
 import NewMemberModal from '@/components/Modals/NewMemberModal.vue'
 import RichTextEditor from '@/components/RichTextEditor.vue'
-import { InputLabel, useInputLabeling } from '@/components/Form/labeling'
+import { InputLabel, useInputLabeling } from 'frappe-ui/experimental'
 import { submitResource } from '@/utils/resource'
 
 const { capture } = useTelemetry()
@@ -235,19 +237,9 @@ const onInstructorCreated = (user: any) => {
 	batch.value.instructors = [...batch.value.instructors, user.name]
 }
 
-const validateFields = () => {
-	const fields = batch.value as Record<string, unknown>
-	for (const key of Object.keys(fields)) {
-		const value = fields[key]
-		if (typeof value === 'string') {
-			fields[key] = sanitizeOnWrite(value)
-		}
-	}
-}
-
 const saveBatch = () => {
 	if (!canCreateBatch.value) return
-	validateFields()
+	sanitizeStringFields(batch.value as Record<string, unknown>)
 	submitResource(
 		batches.insert,
 		{
@@ -273,8 +265,8 @@ const saveBatch = () => {
 					})
 				}
 			},
-			onError(err: any) {
-				const message = err?.messages?.[0]
+			onError(err: FrappeResourceError) {
+				const message = err.messages?.[0]
 				toast.error(message ? cleanError(message) : __('Error creating batch'))
 				console.error(err)
 			},

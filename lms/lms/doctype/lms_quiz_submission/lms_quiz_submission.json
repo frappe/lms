@@ -18,7 +18,9 @@
   "percentage",
   "passing_percentage",
   "section_break_6",
-  "result"
+  "result",
+  "violation_count",
+  "submission_reason"
  ],
  "fields": [
   {
@@ -112,6 +114,17 @@
    "fieldtype": "Data",
    "label": "Quiz Title",
    "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "violation_count",
+   "fieldtype": "Int",
+   "label": "Violations"
+  },
+  {
+   "fieldname": "submission_reason",
+   "fieldtype": "Data",
+   "label": "Submission Reason"
   }
  ],
  "grid_page_length": 50,

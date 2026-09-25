@@ -9,7 +9,7 @@
 					v-if="!zip"
 					@dragover.prevent
 					@drop.prevent="(e) => uploadFile(e)"
-					class="h-[120px] flex flex-col items-center justify-center bg-surface-gray-1 border border-dashed border-outline-gray-3 rounded-md"
+					class="h-[120px] flex flex-col items-center justify-center bg-surface-gray-1 border border-dashed border-outline-gray-3 rounded-5"
 				>
 					<div v-if="!uploading" class="w-4/5 text-center">
 						<span
@@ -35,7 +35,7 @@
 					</div>
 					<div
 						v-else-if="uploading"
-						class="w-fit bg-surface-base border rounded-md p-2 my-4"
+						class="w-fit bg-surface-base border rounded-5 p-2 my-4"
 					>
 						<div class="space-y-2">
 							<div class="font-medium">
@@ -55,10 +55,10 @@
 				</div>
 				<div
 					v-else-if="zip"
-					class="h-[120px] flex items-center justify-center bg-surface-gray-1 border border-dashed border-outline-gray-3 rounded-md"
+					class="h-[120px] flex items-center justify-center bg-surface-gray-1 border border-dashed border-outline-gray-3 rounded-5"
 				>
 					<div
-						class="w-fit bg-surface-base border rounded-md p-2 flex items-center justify-between gap-x-4 mx-5"
+						class="w-fit bg-surface-base border rounded-5 p-2 flex items-center justify-between gap-x-4 mx-5"
 					>
 						<div class="space-y-2">
 							<div class="font-medium leading-5 text-ink-gray-9">
@@ -70,7 +70,7 @@
 						</div>
 						<button
 							type="button"
-							class="lucide-trash-2 size-4 text-ink-red-6 cursor-pointer"
+							class="lucide-trash-2 size-4 text-ink-red-5 cursor-pointer"
 							:aria-label="__('Remove file')"
 							@click="deleteFile"
 						/>
@@ -174,7 +174,7 @@ const uploadFile = (e: Event) => {
 	})
 	uploader
 		.upload(file, {
-			private: 1,
+			private: true,
 		})
 		.then((data: any) => {
 			zip.value = data

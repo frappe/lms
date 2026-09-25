@@ -3,7 +3,7 @@
 		<Transition name="sheet-backdrop">
 			<div
 				v-if="modelValue"
-				class="fixed inset-0 z-40 bg-black/40"
+				class="fixed inset-0 z-40 bg-black-overlay-200 dark:bg-black-overlay-700"
 				@click="close"
 			/>
 		</Transition>
@@ -11,7 +11,7 @@
 			<div
 				v-if="modelValue"
 				ref="panel"
-				class="pb-safe-4 fixed inset-x-0 bottom-0 z-40 flex max-h-[85vh] flex-col rounded-t-2xl bg-surface-base shadow-2xl"
+				class="pb-safe-4 fixed inset-x-0 bottom-0 z-40 flex max-h-[85vh] flex-col rounded-t-8 bg-surface-base shadow-2xl"
 				:style="panelStyle"
 				role="dialog"
 				aria-modal="true"

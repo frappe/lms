@@ -1,6 +1,6 @@
 <template>
 	<div
-		class="rounded-lg border p-3"
+		class="rounded-6 border p-3"
 		:class="flagged ? 'border-outline-amber-3' : 'border-outline-gray-2'"
 		data-testid="copilot-score"
 	>

@@ -7,6 +7,8 @@ from frappe.desk.doctype.notification_log.notification_log import make_notificat
 from frappe.model.document import Document
 from frappe.utils import validate_url
 
+from lms.lms.html_sanitizer import sanitize_rich_text
+from lms.lms.schedule_utils import assert_within_schedule
 from lms.lms.utils import PRIVILEGED_ROLES, get_lms_route
 
 
@@ -14,9 +16,45 @@ class LMSAssignmentSubmission(Document):
 	def validate(self):
 		self.enforce_member_ownership()
 		self.enforce_grading_permission()
+		self.sanitize_rich_text_fields()
+		self.validate_schedule_window()
 		self.validate_duplicates()
 		self.validate_url()
 		self.validate_status()
+
+	def sanitize_rich_text_fields(self):
+		"""Drop form controls the framework's allowlist keeps: `comments` is mailed as
+		`email_content`, and both fields render outside the SPA where v-safe-html does not."""
+		for field in ("comments", "answer"):
+			self.set(field, sanitize_rich_text(self.get(field)))
+
+	def validate_schedule_window(self):
+		"""Students cannot create or edit submission content outside the window.
+
+		Privileged roles may still grade (and manage submissions) outside the
+		schedule.
+		"""
+		if PRIVILEGED_ROLES & set(frappe.get_roles()):
+			return
+
+		if not self.assignment:
+			return
+
+		schedule = frappe.db.get_value(
+			"LMS Assignment",
+			self.assignment,
+			["title", "enable_scheduling", "schedule_start", "schedule_end"],
+			as_dict=True,
+		)
+		if not schedule:
+			return
+
+		assert_within_schedule(
+			schedule.enable_scheduling,
+			schedule.schedule_start,
+			schedule.schedule_end,
+			label=schedule.title or _("This assignment"),
+		)
 
 	def enforce_grading_permission(self):
 		"""Only evaluators/instructors may set the grading fields.

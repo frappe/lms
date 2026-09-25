@@ -40,7 +40,7 @@
 			v-else
 			class="grid grid-cols-1 lg:grid-cols-[3fr_2fr] gap-5 items-start"
 		>
-			<div class="border rounded-lg py-3 px-4 order-2 lg:order-1">
+			<div class="border rounded-6 py-3 px-4 order-2 lg:order-1">
 				<div class="flex items-center justify-between gap-x-2 mb-3">
 					<h2 class="text-lg-semibold text-ink-gray-9">
 						{{ __('Students') }}
@@ -112,34 +112,22 @@
 			</div>
 
 			<div class="order-1 lg:order-2 space-y-5">
-				<AxisChart
-					v-if="showProgressChart"
-					class="border rounded-lg p-3 min-h-[300px]"
-					:config="{
-						data: filteredChartData,
-						title: __('Batch Summary'),
-						subtitle: __('Progress of students in courses and assessments'),
-						xAxis: {
-							key: 'task',
-							title: 'Tasks',
-							type: 'category',
-						},
-						yAxis: {
+				<ChartCard v-if="showProgressChart" class="h-[300px]">
+					<BarChart
+						:data="filteredChartData"
+						x="task"
+						y="value"
+						:title="__('Batch Summary')"
+						:subtitle="__('Progress of students in courses and assessments')"
+						:x-axis="{ title: __('Tasks'), type: 'category' }"
+						:y-axis="{
 							title: __('Number of Students'),
-							echartOptions: {
-								minInterval: 1,
-							},
-						},
-						series: [
-							{
-								name: 'value',
-								type: 'bar',
-							},
-						],
-					}"
-				/>
+							echartOptions: { minInterval: 1 },
+						}"
+					/>
+				</ChartCard>
 
-				<div class="p-4 border rounded-lg">
+				<div class="p-4 border rounded-6">
 					<BatchFeedback v-if="batch.data" :batch="batch.data.name" />
 				</div>
 			</div>
@@ -154,13 +142,13 @@
 </template>
 <script setup lang="ts">
 import {
-	AxisChart,
 	createResource,
 	createListResource,
 	FormControl,
 	Avatar,
 	Button,
 } from 'frappe-ui'
+import { BarChart, ChartCard } from 'frappe-ui/charts'
 import { computed, inject, onMounted, ref, watch } from 'vue'
 import type dayjsType from 'dayjs'
 import { formatAmount } from '@/utils'

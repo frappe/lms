@@ -1,6 +1,6 @@
 <template>
 	<Dialog
-		v-model="open"
+		v-model:open="open"
 		:title="__('Delete {0}?').format(name)"
 		:message="
 			message ||
@@ -25,17 +25,16 @@ const props = defineProps<{
 	/** What kind of thing is being deleted ("workspace" / "channel"). */
 	entity?: string
 	message?: string
-	loading?: boolean
+	/** Runs the delete. Delete button spins until the promise settles. */
+	onConfirm: () => Promise<unknown> | void
 }>()
-const emit = defineEmits<{ confirm: [] }>()
 const open = defineModel<boolean>('open')
 
 interface DialogAction {
 	label: string
 	variant?: 'solid'
 	theme?: 'red'
-	loading?: boolean
-	onClick: (context: { close: () => void }) => void
+	onClick: (context: { close: () => void }) => Promise<unknown> | void
 }
 
 const entityName = computed<string>(() => props.entity || 'workspace')
@@ -49,8 +48,7 @@ const dialogActions = computed<DialogAction[]>(() => [
 		label: __('Delete'),
 		variant: 'solid' as const,
 		theme: 'red' as const,
-		loading: props.loading,
-		onClick: () => emit('confirm'),
+		onClick: () => props.onConfirm(),
 	},
 ])
 </script>

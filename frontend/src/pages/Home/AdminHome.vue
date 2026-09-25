@@ -11,7 +11,7 @@
 						v-for="evaluation in evals?.data"
 						:key="evaluation.name"
 						:to="profileRoute(user.data?.username, 'ProfileEvaluationSchedule')"
-						class="border rounded-md p-3 flex flex-col h-full"
+						class="border rounded-5 p-3 flex flex-col h-full"
 						:class="
 							user.data?.username
 								? 'cursor-pointer hover:border-outline-gray-3'
@@ -58,7 +58,7 @@
 					<div
 						v-for="cls in liveClasses?.data"
 						:key="cls.name"
-						class="border hover:border-outline-gray-3 rounded-md p-3"
+						class="border hover:border-outline-gray-3 rounded-5 p-3"
 					>
 						<div class="text-ink-gray-9 text-lg-semibold leading-5 mb-1">
 							{{ cls.title }}
@@ -66,56 +66,11 @@
 						<div class="text-ink-gray-7 leading-5 mb-4">
 							{{ cls.description }}
 						</div>
-						<div class="mt-auto space-y-3 text-ink-gray-7">
-							<div class="flex items-center gap-x-2">
-								<span class="lucide-calendar size-4" />
-								<span>
-									{{ dayjs(cls.date).format('DD MMMM YYYY') }}
-								</span>
-							</div>
-							<div class="flex items-center gap-x-2">
-								<span class="lucide-clock size-4" />
-								<span>
-									{{ formatTime(cls.time) }} -
-									{{ dayjs(getClassEnd(cls)).format('HH:mm A') }}
-								</span>
-							</div>
-							<div
-								v-if="canAccessClass(cls)"
-								class="flex items-center gap-x-2 text-ink-gray-9 mt-auto"
-							>
-								<a
-									v-if="user.data?.is_moderator || user.data?.is_evaluator"
-									:href="safeUrl(cls.start_url)"
-									v-external
-									class="cursor-pointer inline-flex items-center justify-center gap-2 transition-colors focus:outline-none text-ink-gray-8 bg-surface-gray-2 hover:bg-surface-gray-3 active:bg-surface-gray-4 focus-visible:ring focus-visible:ring-outline-gray-3 h-7 text-base px-2 rounded"
-									:class="cls.join_url ? 'w-full' : 'w-1/2'"
-								>
-									<span class="lucide-monitor size-4" />
-									{{ __('Start') }}
-								</a>
-								<a
-									:href="safeUrl(cls.join_url)"
-									v-external
-									class="w-full cursor-pointer inline-flex items-center justify-center gap-2 transition-colors focus:outline-none text-ink-gray-8 bg-surface-gray-2 hover:bg-surface-gray-3 active:bg-surface-gray-4 focus-visible:ring focus-visible:ring-outline-gray-3 h-7 text-base px-2 rounded"
-								>
-									<span class="lucide-video size-4" />
-									{{ __('Join') }}
-								</a>
-							</div>
-							<Tooltip
-								v-else-if="hasClassEnded(cls)"
-								:text="__('This class has ended')"
-								placement="right"
-							>
-								<div class="flex items-center gap-x-2 text-ink-amber-6 w-fit">
-									<span class="lucide-info size-4" />
-									<span>
-										{{ __('Ended') }}
-									</span>
-								</div>
-							</Tooltip>
-						</div>
+						<LiveClassCard
+							:cls="cls"
+							class="space-y-3"
+							ended-class="text-ink-amber-5"
+						/>
 					</div>
 				</div>
 			</div>
@@ -196,26 +151,24 @@
 					)
 				}}
 			</div>
-			<router-link :to="{ name: 'NewCourse' }" class="mt-4">
-				<Button>
-					<template #prefix>
-						<span class="lucide-plus size-4" />
-					</template>
-					{{ __('Create Course') }}
-				</Button>
-			</router-link>
+			<Button :route="{ name: 'NewCourse' }" class="mt-4">
+				<template #prefix>
+					<span class="lucide-plus size-4" />
+				</template>
+				{{ __('Create Course') }}
+			</Button>
 		</div>
 	</div>
 </template>
 <script setup lang="ts">
-import { Button, createResource, Tooltip } from 'frappe-ui'
+import { Button, createResource } from 'frappe-ui'
 import { inject } from 'vue'
 import { formatTime } from '@/utils'
 import { formatTimezone } from '@/utils/timezone'
 import { profileRoute } from '@/utils/routes'
 import CourseCard from '@/components/CourseCard.vue'
 import BatchCard from '@/pages/Batches/components/BatchCard.vue'
-import { safeUrl } from '@/utils/safeUrl'
+import LiveClassCard from '@/pages/Home/LiveClassCard.vue'
 
 const user = inject<any>('$user')
 const dayjs = inject<any>('$dayjs')
@@ -234,30 +187,4 @@ const createdBatches = createResource({
 	url: 'lms.lms.api.get_created_batches',
 	auto: true,
 })
-
-const getClassEnd = (cls: { date: string; time: string; duration: number }) => {
-	const classStart = new Date(`${cls.date}T${cls.time}`)
-	return new Date(classStart.getTime() + cls.duration * 60000)
-}
-
-const canAccessClass = (cls: {
-	date: string
-	time: string
-	duration: number
-}) => {
-	if (cls.date < dayjs().format('YYYY-MM-DD')) return false
-	if (cls.date > dayjs().format('YYYY-MM-DD')) return false
-	if (hasClassEnded(cls)) return false
-	return true
-}
-
-const hasClassEnded = (cls: {
-	date: string
-	time: string
-	duration: number
-}) => {
-	const classEnd = getClassEnd(cls)
-	const now = new Date()
-	return now > classEnd
-}
 </script>

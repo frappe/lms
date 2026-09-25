@@ -124,7 +124,7 @@ vi.mock('@/components/StudentLessonSidebar.vue', () => ({
 vi.mock('@/components/BottomSheet.vue', () => ({
 	default: stub('BottomSheet'),
 }))
-vi.mock('@/components/Layouts/PageHeader.vue', () => ({
+vi.mock('@/components/Layouts/pages/PageHeader.vue', () => ({
 	default: stub('PageHeader'),
 }))
 vi.mock('@/components/HeaderButton.vue', () => ({
@@ -173,10 +173,6 @@ async function mountLesson(
 			provide: {
 				$user: { data: { name: 'student@example.com' } },
 				$socket: { on: socketOnMock, off: socketOffMock },
-			},
-			stubs: {
-				teleport: true,
-				'router-link': { template: '<a><slot /></a>' },
 			},
 		},
 	})
@@ -566,5 +562,27 @@ describe('Lesson.vue Next survives an outline that never resolves', () => {
 		;(wrapper.vm as any).goNext()
 
 		expect(pushMock).not.toHaveBeenCalled()
+	})
+})
+
+describe('Lesson.vue zen-mode progress chip', () => {
+	it('drops into flow on touch screens so it cannot cover the zen buttons', async () => {
+		wrapper = await mountLesson()
+		findResource('lms.lms.utils.get_lesson').data = {
+			...baseLesson,
+			membership: { progress: 42.3 },
+		}
+		;(wrapper.vm as any).zenModeEnabled = true
+		await flushPromises()
+
+		const chip = wrapper
+			.findAll('div')
+			.find((el) => el.text() === '43% completed')
+		expect(chip).toBeDefined()
+		const classes = chip!.classes()
+		expect(classes).toContain('absolute')
+		expect(classes).toContain('[@media(hover:none)]:block')
+		expect(classes).toContain('[@media(hover:none)]:static')
+		expect(classes).toContain('[@media(hover:none)]:mt-0')
 	})
 })

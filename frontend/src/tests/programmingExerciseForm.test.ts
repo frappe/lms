@@ -27,7 +27,6 @@ const {
 	createListResourceMock,
 	createResourceMock,
 	createDocumentResourceMock,
-	passthrough,
 } = vi.hoisted(() => {
 	// @/utils pulls in plyr, which touches matchMedia at import time.
 	window.matchMedia ??= (() => ({
@@ -39,13 +38,6 @@ const {
 		createListResourceMock: vi.fn(),
 		createResourceMock: vi.fn(),
 		createDocumentResourceMock: vi.fn(),
-		// Renders its label, as the real Combobox/Select/MultiSelect do: a stub
-		// that drops it makes "every field is labelled" pass by omission.
-		passthrough: {
-			inheritAttrs: false,
-			props: ['label'],
-			template: `<div><label v-if="label">{{ label }}</label><slot name="icon" /><slot /></div>`,
-		},
 	}
 })
 
@@ -75,9 +67,6 @@ const documentResourceStub = (doc: unknown) => (options: { name?: string }) =>
 	options.name ? { doc } : undefined
 createDocumentResourceMock.mockImplementation(documentResourceStub(null))
 
-// frappe-ui's internal module resolution doesn't work under vitest (see
-// FormShell.test.ts), so importActual() on it throws ERR_MODULE_NOT_FOUND.
-// Every export the form and FormShell pull in has to be stubbed by hand.
 // HeaderButton wraps frappe-ui's Button in a Tooltip below the mobile
 // breakpoint, and the hand-written frappe-ui mock here has no Tooltip. Stub it
 // down to the bare button so the fallthrough attrs the assertions use
@@ -89,11 +78,11 @@ vi.mock('@/components/HeaderButton.vue', () => ({
 	},
 }))
 
+// Only the exports the form and FormShell use; the real barrel never loads.
 vi.mock('frappe-ui', () => ({
 	createListResource: createListResourceMock,
 	createResource: createResourceMock,
 	createDocumentResource: createDocumentResourceMock,
-	call: vi.fn(),
 	toast: { success: vi.fn(), error: vi.fn(), warning: vi.fn() },
 	Dialog: {
 		name: 'Dialog',
@@ -102,22 +91,11 @@ vi.mock('frappe-ui', () => ({
 		template: `<div v-if="open" role="dialog"><h2>{{ title }}</h2><slot name="title" /><slot /><slot name="actions" /></div>`,
 	},
 	Badge: { template: `<span><slot /></span>` },
-	Button: {
-		inheritAttrs: false,
-		template: `<button v-bind="$attrs"><slot name="prefix" /><slot name="icon" /><slot /></button>`,
-	},
 	FormControl: {
 		props: ['modelValue', 'label', 'type', 'required', 'options'],
 		emits: ['update:modelValue'],
 		template: `<label>{{ label }}<input :value="modelValue" @input="$emit('update:modelValue', $event.target.value)" /></label>`,
 	},
-	FormLabel: {
-		props: ['label', 'required', 'id'],
-		template: `<label :for="id">{{ label }}</label>`,
-	},
-	Combobox: passthrough,
-	MultiSelect: passthrough,
-	Select: passthrough,
 }))
 
 // The rich text editor drags in ProseMirror; nothing under test involves it.

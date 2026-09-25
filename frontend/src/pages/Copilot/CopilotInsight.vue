@@ -36,7 +36,7 @@
 
 			<div class="grid gap-4 lg:grid-cols-2">
 				<section
-					class="min-w-0 space-y-4 rounded-lg border border-outline-gray-2 p-4"
+					class="min-w-0 space-y-4 rounded-6 border border-outline-gray-2 p-4"
 				>
 					<h2 class="text-base-semibold text-ink-gray-9">
 						{{ __('Where the class is stuck') }}
@@ -88,7 +88,7 @@
 					<div
 						v-for="(group, index) in groups"
 						:key="index"
-						class="space-y-2 rounded-lg border border-outline-gray-2 p-4"
+						class="space-y-2 rounded-6 border border-outline-gray-2 p-4"
 						data-testid="copilot-insight-group"
 					>
 						<div class="flex items-center gap-2">

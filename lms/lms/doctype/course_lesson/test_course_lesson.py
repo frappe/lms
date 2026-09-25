@@ -14,6 +14,8 @@ from lms.lms.doctype.course_lesson.course_lesson import (
 )
 from lms.lms.test_helpers import BaseTestUtils
 
+IGNORE_TEST_RECORD_DEPENDENCIES = ["Course Chapter", "LMS Course"]
+
 # One sample URL per embed service registered in the LMS EditorJS editor.
 # Source of truth: frontend/src/utils/index.js → getEditorTools() → embed.config.services.
 # Keep this in sync with that list when a service is added/removed.
@@ -102,36 +104,19 @@ class TestApplyEnforcementFlags(unittest.TestCase):
 			(True, False),
 		)
 
-	def test_quiz_off_returns_true_for_quiz(self):
-		self.assertEqual(
-			self._call(quiz_done=False, assignment_done=False, enforce_quiz=0, enforce_assignment=1),
-			(True, False),
-		)
 
-	def test_assignment_off_returns_true_for_assignment(self):
-		self.assertEqual(
-			self._call(quiz_done=False, assignment_done=False, enforce_quiz=1, enforce_assignment=0),
-			(False, True),
-		)
-
-	def test_both_off_returns_true_true(self):
-		self.assertEqual(
-			self._call(quiz_done=False, assignment_done=False, enforce_quiz=0, enforce_assignment=0),
-			(True, True),
-		)
-
-	def test_missing_settings_keys_treated_as_enforced(self):
-		from lms.lms.doctype.course_lesson.course_lesson import (
-			apply_enforcement_flags,
-		)
-
-		self.assertEqual(
-			apply_enforcement_flags(quiz_done=False, assignment_done=True, settings={}),
-			(False, True),
-		)
+class _DictSubclass(dict):
+	"""A frappe._dict-like subclass: the helper must duck-type, not isinstance-check."""
 
 
 class TestApplyEnforcementFlagsEdgeCases(unittest.TestCase):
+	QUIZ_OFF = {"enforce_quiz_completion": 0, "enforce_assignment_completion": 1}
+	ASSIGNMENT_OFF = {"enforce_quiz_completion": 1, "enforce_assignment_completion": 0}
+	BOTH_OFF = {"enforce_quiz_completion": 0, "enforce_assignment_completion": 0}
+	STRING_ZERO = {"enforce_quiz_completion": "0", "enforce_assignment_completion": "0"}
+	STRING_ONE = {"enforce_quiz_completion": "1", "enforce_assignment_completion": "1"}
+	NONE_QUIZ = {"enforce_quiz_completion": None, "enforce_assignment_completion": 1}
+
 	def setUp(self):
 		from lms.lms.doctype.course_lesson.course_lesson import (
 			apply_enforcement_flags,
@@ -139,70 +124,37 @@ class TestApplyEnforcementFlagsEdgeCases(unittest.TestCase):
 
 		self.fn = apply_enforcement_flags
 
-	def test_dict_subclass_input(self):
-		"""A frappe._dict-like subclass of dict should work via duck-typing."""
-
-		class _Dict(dict):
-			pass
-
-		settings = _Dict({"enforce_quiz_completion": 0, "enforce_assignment_completion": 1})
-		self.assertEqual(self.fn(quiz_done=False, assignment_done=False, settings=settings), (True, False))
-
-	def test_string_zero_is_truthy_treated_as_enforced(self):
-		"""Frappe may return '0' as a string from raw queries. `not '0'` is False, so it's still enforced.
-
-		Codifies current behavior. Callers that hit this should pass int(value) explicitly.
-		"""
-		settings = {"enforce_quiz_completion": "0", "enforce_assignment_completion": "0"}
-		# Both still treated as enforced because non-empty strings are truthy.
-		self.assertEqual(self.fn(quiz_done=False, assignment_done=False, settings=settings), (False, False))
-
-	def test_string_one_treated_as_enforced(self):
-		settings = {"enforce_quiz_completion": "1", "enforce_assignment_completion": "1"}
-		self.assertEqual(self.fn(quiz_done=True, assignment_done=True, settings=settings), (True, True))
-		self.assertEqual(self.fn(quiz_done=False, assignment_done=True, settings=settings), (False, True))
-
-	def test_none_for_flag_disables_enforcement(self):
-		"""Present-but-None: helper sees `not None == True`, treats as NOT enforced.
-
-		Distinct from missing key (which defaults to 1 / enforced via dict.get's default).
-		"""
-		settings = {"enforce_quiz_completion": None, "enforce_assignment_completion": 1}
-		self.assertEqual(self.fn(quiz_done=False, assignment_done=False, settings=settings), (True, False))
-
-	def test_both_int_zero_disabled(self):
-		settings = {"enforce_quiz_completion": 0, "enforce_assignment_completion": 0}
-		for quiz_done in (True, False):
-			for assignment_done in (True, False):
-				with self.subTest(quiz_done=quiz_done, assignment_done=assignment_done):
-					self.assertEqual(
-						self.fn(quiz_done=quiz_done, assignment_done=assignment_done, settings=settings),
-						(True, True),
-					)
-
-	def test_idempotent(self):
-		settings = {"enforce_quiz_completion": 1, "enforce_assignment_completion": 1}
-		first = self.fn(quiz_done=True, assignment_done=False, settings=settings)
-		second = self.fn(quiz_done=True, assignment_done=False, settings=settings)
-		self.assertEqual(first, second)
+	def test_a_flag_is_enforced_unless_it_is_explicitly_falsy(self):
+		"""Enforcement is the default: only a genuinely falsy flag turns it off, and a
+		missing key is not falsy because dict.get supplies 1."""
+		cases = [
+			# case, quiz_done, assignment_done, settings, expected
+			("quiz_off", False, False, self.QUIZ_OFF, (True, False)),
+			("assignment_off", False, False, self.ASSIGNMENT_OFF, (False, True)),
+			("missing_keys_stay_enforced", False, True, {}, (False, True)),
+			("both_off_and_both_done", True, True, self.BOTH_OFF, (True, True)),
+			("both_off_and_quiz_done", True, False, self.BOTH_OFF, (True, True)),
+			("both_off_and_assignment_done", False, True, self.BOTH_OFF, (True, True)),
+			("both_off_and_neither_done", False, False, self.BOTH_OFF, (True, True)),
+			# "0" is a non-empty string, so it is truthy and still reads as enforced.
+			# Callers that hit this should pass int(value) explicitly.
+			("string_zero_is_truthy", False, False, self.STRING_ZERO, (False, False)),
+			("string_one_both_done", True, True, self.STRING_ONE, (True, True)),
+			("string_one_quiz_undone", False, True, self.STRING_ONE, (False, True)),
+			# Present-but-None is falsy, unlike a missing key.
+			("none_disables", False, False, self.NONE_QUIZ, (True, False)),
+			("dict_subclass_is_duck_typed", False, False, _DictSubclass(self.QUIZ_OFF), (True, False)),
+		]
+		for case, quiz_done, assignment_done, settings, expected in cases:
+			with self.subTest(case=case):
+				got = self.fn(quiz_done=quiz_done, assignment_done=assignment_done, settings=settings)
+				self.assertEqual(got, expected)
 
 	def test_does_not_mutate_settings(self):
 		settings = {"enforce_quiz_completion": 1, "enforce_assignment_completion": 0}
 		snapshot = dict(settings)
 		self.fn(quiz_done=True, assignment_done=False, settings=settings)
 		self.assertEqual(settings, snapshot)
-
-	def test_keyword_argument_contract(self):
-		"""save_progress invokes with keyword args; the helper must accept them in any order."""
-		settings = {"enforce_quiz_completion": 1, "enforce_assignment_completion": 1}
-		self.assertEqual(
-			self.fn(settings=settings, quiz_done=True, assignment_done=False),
-			(True, False),
-		)
-		self.assertEqual(
-			self.fn(assignment_done=False, quiz_done=True, settings=settings),
-			(True, False),
-		)
 
 
 class TestServePrivateFileVersionSafe(unittest.TestCase):
@@ -361,19 +313,20 @@ class TestLessonBlockExtraction(unittest.TestCase):
 
 
 class TestRenameSettledUntitledLessons(BaseTestUtils):
+	"""Keep the scheduled job's commits inside the test transaction."""
+
 	def setUp(self):
 		super().setUp()
+		commit_patcher = patch.object(frappe.db, "commit")
+		commit_patcher.start()
+		self.addCleanup(commit_patcher.stop)
 		# _create_course() defaults instructor="frappe@example.com"; create it so the
 		# course's instructor Link resolves on a fresh DB (mirrors TestLMSCourse.setUp).
 		self.instructor = self._create_user(
 			"frappe@example.com", "Frappe", "Admin", ["Moderator", "Course Creator"]
 		)
-		self.course = self._create_course(title="Rename Untitled Course")
+		self.course = self._create_course(title=f"Rename Untitled Course {frappe.generate_hash(length=6)}")
 		self.chapter = self._create_chapter("Rename Chapter", self.course.name)
-
-	def tearDown(self):
-		frappe.set_user("Administrator")
-		super().tearDown()
 
 	def _make_untitled_lesson(self):
 		lesson = self._create_lesson(UNTITLED_LESSON_TITLE, self.chapter.name, self.course.name)
@@ -399,7 +352,6 @@ class TestRenameSettledUntitledLessons(BaseTestUtils):
 		expected = f"{prefix} Real Title"
 		self.assertFalse(frappe.db.exists("Course Lesson", lesson.name))
 		self.assertTrue(frappe.db.exists("Course Lesson", expected))
-		self.cleanup_items.append(("Course Lesson", expected))
 
 	def test_recently_modified_lesson_is_not_renamed(self):
 		lesson = self._make_untitled_lesson()
@@ -438,4 +390,201 @@ class TestRenameSettledUntitledLessons(BaseTestUtils):
 		expected = f"{prefix} Titre Réel"
 		self.assertFalse(frappe.db.exists("Course Lesson", lesson.name))
 		self.assertTrue(frappe.db.exists("Course Lesson", expected))
-		self.cleanup_items.append(("Course Lesson", expected))
+
+
+class TestLessonContentSurvivesSave(BaseTestUtils):
+	r"""`content` holds JSON, not HTML.
+
+	frappe's field-level `sanitize_html` used to run over the whole envelope and
+	rewrite every `\"` inside it to `\&quot;`, so any inline tool that emits an
+	attribute (link, inline code, colour) left the field unparseable and the
+	lesson body unreadable. `ignore_xss_filter` on the field stops that; the real
+	gate is `sanitize_editorjs`, which walks the parsed document string by string.
+	"""
+
+	# Kept verbatim by the sanitiser. A link is not here: nh3 deliberately adds
+	# rel="noopener noreferrer" to every <a>, so it is asserted separately below.
+	ATTRIBUTE_MARKUP = {
+		"inline_code": '<code class="inline-code">code</code>',
+		"colour": '<span class="lms-inline-color" style="color:rgb(255, 0, 0)">tint</span>',
+	}
+
+	def setUp(self):
+		super().setUp()
+		# _create_course() defaults instructor="frappe@example.com"; create it so the
+		# course's instructor Link resolves on a fresh DB.
+		self._create_user("frappe@example.com", "Frappe", "Admin", ["Moderator", "Course Creator"])
+		self.course = self._create_course(title="Inline Markup Course")
+		self.chapter = self._create_chapter("Inline Markup Chapter", self.course.name)
+
+	def _saved_text(self, markup, title):
+		content = _content({"id": "b1", "type": "paragraph", "data": {"text": markup}})
+		lesson = self._create_lesson(title, self.chapter.name, self.course.name, content)
+		stored = frappe.db.get_value("Course Lesson", lesson.name, "content")
+		return json.loads(stored)["blocks"][0]["data"]["text"]
+
+	def test_field_is_exempt_from_frappe_html_sanitiser(self):
+		"""Guards the docfield property the rest of this class depends on."""
+		meta = frappe.get_meta("Course Lesson")
+		for fieldname in ("content", "instructor_content"):
+			self.assertTrue(
+				meta.get_field(fieldname).get("ignore_xss_filter"),
+				f"{fieldname} must carry ignore_xss_filter; run bench migrate",
+			)
+
+	def test_attribute_bearing_inline_markup_round_trips(self):
+		for name, markup in self.ATTRIBUTE_MARKUP.items():
+			with self.subTest(markup=name):
+				self.assertEqual(self._saved_text(markup, f"Lesson {name}"), markup)
+
+	def test_link_keeps_its_href_and_gains_rel(self):
+		saved = self._saved_text('<a href="https://frappe.io/">here</a>', "Lesson link")
+		self.assertIn('href="https://frappe.io/"', saved)
+		self.assertIn('rel="noopener noreferrer"', saved)
+
+
+class TestServeResourceFileOwnership(BaseTestUtils):
+	"""Ticket 73894 finding E05. A lesson only vouches for a private file if the
+	file's OWNER authors that lesson's course.
+
+	Without that rule serve_resource served any private file the caller could *name*
+	from a lesson they control: paste the url into a lesson you author, or repoint the
+	File's attached_to_name at it, and the can_access_lesson gate then passes on your
+	own lesson (ticket 73894, finding E05).
+	"""
+
+	SERVED = "authz-passed"
+	DENIED = "permission-error"
+
+	def setUp(self):
+		super().setUp()
+		suffix = frappe.generate_hash(length=6)
+
+		self.author = self._creator(f"lesson-file-owner-{suffix}@example.com", "Owner", "A")
+		self.attacker = self._creator(f"lesson-file-attacker-{suffix}@example.com", "Attacker", "B")
+		self.outsider = self._creator(f"lesson-file-outsider-{suffix}@example.com", "Outsider", "C")
+		self.student = self._create_user(
+			f"lesson-file-student-{suffix}@example.com", "Enrolled", "Student", ["LMS Student"]
+		).name
+
+		self.course_a, self.lesson_a = self._course_with_lesson(f"Owner A {suffix}", self.author)
+		self.course_b, self.lesson_b = self._course_with_lesson(f"Attacker B {suffix}", self.attacker)
+		self._create_enrollment(self.student, self.course_a)
+
+		self.file_url = self._private_file(owner=self.author, lesson=self.lesson_a)
+		self._embed(self.lesson_a, self.file_url)
+
+	def _creator(self, email, first_name, last_name):
+		return self._create_user(email, first_name, last_name, ["Course Creator"]).name
+
+	def _course_with_lesson(self, label, instructor):
+		course = self._create_course(title=f"{label} Course", instructor=instructor).name
+		chapter = self._create_chapter(f"{label} Chapter", course).name
+		return course, self._create_lesson(f"{label} Lesson", chapter, course).name
+
+	def _private_file(self, owner, lesson):
+		"""A private File carrying real bytes, owned by `owner` and attached to `lesson`."""
+		frappe.set_user(owner)
+		try:
+			# Fixture setup, not the thing under test: this site's Course Creator
+			# DocPerm on Course Lesson is if_owner.
+			# nosemgrep: lms-unjustified-ignore-permissions
+			file = frappe.get_doc(
+				{
+					"doctype": "File",
+					"file_name": f"secret-{frappe.generate_hash(length=8)}.txt",
+					"is_private": 1,
+					"content": "owner-only bytes",
+					"attached_to_doctype": "Course Lesson",
+					"attached_to_name": lesson,
+					"attached_to_field": "content",
+				}
+			).insert(ignore_permissions=True)
+		finally:
+			frappe.set_user("Administrator")
+
+		self.assertEqual(file.owner, owner)
+		# The transaction rollback does not unlink what was written to disk.
+		self.addCleanup(self._unlink, file.get_full_path())
+		return file.file_url
+
+	@staticmethod
+	def _unlink(path):
+		import os
+
+		if os.path.exists(path):
+			os.remove(path)
+
+	def _embed(self, lesson, url):
+		"""Put the url in the lesson body, bypassing the form (fixture setup, not the
+		thing under test — on this site a Course Creator's DocPerm is if_owner)."""
+		content = _content({"type": "paragraph", "data": {"text": f'<img src="{url}">'}})
+		frappe.db.set_value("Course Lesson", lesson, "content", content, update_modified=False)
+
+	def _serve_as(self, user):
+		"""Run the endpoint in `user`'s own session and classify the outcome.
+
+		There is no request in a test runner, so a call that PASSES authorization dies
+		inside send_private_file with ``AttributeError: request``. Only
+		frappe.PermissionError is a denial.
+		"""
+		from lms.lms.doctype.course_lesson.course_lesson import serve_resource
+
+		frappe.set_user(user)
+		try:
+			serve_resource(self.file_url)
+			return self.SERVED
+		except frappe.PermissionError:
+			return self.DENIED
+		except AttributeError as e:
+			if "request" not in str(e):
+				raise
+			return self.SERVED
+		finally:
+			frappe.set_user("Administrator")
+
+	# --- the attacks ---------------------------------------------------------
+
+	def test_embedding_the_url_in_your_own_lesson_does_not_grant_access(self):
+		self._embed(self.lesson_b, self.file_url)
+		self.assertEqual(self._serve_as(self.attacker), self.DENIED)
+
+	def test_repointing_the_attachment_at_your_own_lesson_does_not_grant_access(self):
+		frappe.db.set_value("File", {"file_url": self.file_url}, "attached_to_name", self.lesson_b)
+		self.assertEqual(self._serve_as(self.attacker), self.DENIED)
+
+	def test_an_unrelated_course_creator_is_denied(self):
+		self.assertEqual(self._serve_as(self.outsider), self.DENIED)
+
+	# --- what must keep working ----------------------------------------------
+
+	def test_the_author_still_gets_their_own_file(self):
+		self.assertEqual(self._serve_as(self.author), self.SERVED)
+
+	def test_an_enrolled_student_still_gets_the_lesson_media(self):
+		self.assertEqual(self._serve_as(self.student), self.SERVED)
+
+	def test_a_preview_guest_still_gets_the_lesson_media(self):
+		frappe.db.set_value("Course Lesson", self.lesson_a, "include_in_preview", 1, update_modified=False)
+		frappe.db.set_value("LMS Course", self.course_a, "published", 1, update_modified=False)
+		previous = frappe.db.get_single_value("LMS Settings", "allow_guest_access")
+		frappe.db.set_single_value("LMS Settings", "allow_guest_access", 1)
+		self.addCleanup(frappe.db.set_single_value, "LMS Settings", "allow_guest_access", previous)
+		self.addCleanup(frappe.clear_cache)
+
+		self.assertEqual(self._serve_as("Guest"), self.SERVED)
+
+	def test_a_file_owned_by_a_moderator_resolves_in_any_lesson(self):
+		"""A moderator may legitimately place a file in any course, so their file is
+		vouched for by every lesson that references it."""
+		moderator = self._create_user(
+			f"lesson-file-mod-{frappe.generate_hash(length=6)}@example.com",
+			"Mod",
+			"Erator",
+			["Moderator", "Course Creator"],
+		).name
+		self.file_url = self._private_file(owner=moderator, lesson=self.lesson_b)
+		self._embed(self.lesson_b, self.file_url)
+
+		self.assertEqual(self._serve_as(self.attacker), self.SERVED)
+		self.assertEqual(self._serve_as(self.outsider), self.DENIED)

@@ -65,7 +65,6 @@
 				:placeholder="__('Search')"
 				:aria-label="__('Search')"
 				type="text"
-				@input="updateBatches()"
 			>
 				<template #prefix>
 					<span class="lucide-search size-4 text-ink-gray-5" />
@@ -114,7 +113,7 @@ import { computed, inject, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { sessionStore } from '@/stores/session'
 import BatchCard from '@/pages/Batches/components/BatchCard.vue'
-import ListPage from '@/components/Layouts/ListPage.vue'
+import ListPage from '@/components/Layouts/pages/ListPage.vue'
 import { openFormRoute } from '@/composables/useFormRoute'
 
 const user = inject('$user')
@@ -135,6 +134,8 @@ const router = useRouter()
 onMounted(() => {
 	setFiltersFromQuery()
 	updateBatches()
+	// TextInput emits on input and change; watched after query hydration to avoid a refetch.
+	watch(title, () => updateBatches())
 	categories.value = [
 		{
 			label: '',

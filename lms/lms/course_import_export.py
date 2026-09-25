@@ -13,7 +13,28 @@ from frappe.utils import escape_html, validate_email_address
 from frappe.utils.file_manager import is_safe_path
 
 from lms.lms.utils import create_user as create_lms_user
-from lms.lms.utils import get_editorjs_blocks
+from lms.lms.utils import get_editorjs_blocks, has_moderator_role
+
+# What a course legitimately embeds. Active-document types (.html, .xhtml, .js, .xsl)
+# would be written to /files/ and served inline, which is stored XSS on the LMS origin;
+# SVG is excluded for the same reason it is excluded from quiz answers (script-bearing).
+ALLOWED_ASSET_EXTENSIONS = {
+	".png",
+	".jpg",
+	".jpeg",
+	".gif",
+	".webp",
+	".avif",
+	".bmp",
+	".mp4",
+	".webm",
+	".ogg",
+	".mp3",
+	".wav",
+	".m4a",
+	".pdf",
+}
+MAX_IMPORTED_ASSET_BYTES = 200 * 1024 * 1024
 
 
 def export_course_zip(course_name):
@@ -498,9 +519,21 @@ def add_data_to_course(course_doc, course_data):
 
 
 def add_instructors_to_course(course_doc, course_data):
-	instructors = course_data.get("instructors", [])
+	instructors = [row["instructor"] for row in course_data.get("instructors", []) if row.get("instructor")]
+
+	# serve_resource only honours a lesson whose course the FILE'S OWNER authors, and
+	# every imported asset is owned by whoever ran the import -- so without this row
+	# the media is unreachable. Moderators/Administrator author every course already.
+	importer = frappe.session.user
+	if (
+		importer not in instructors
+		and importer not in ("Guest", "Administrator")
+		and not has_moderator_role(importer)
+	):
+		instructors.append(importer)
+
 	for instructor in instructors:
-		course_doc.append("instructors", {"instructor": instructor["instructor"]})
+		course_doc.append("instructors", {"instructor": instructor})
 
 
 def verify_category(category_name):
@@ -633,9 +666,23 @@ def create_lesson_docs(zip_file, course_name, chapter_docs):
 	return lesson_docs
 
 
+def drop_source_site_authors(data):
+	"""An imported row answers to whoever imported it, not to the site it came from.
+
+	`authors` names Users, and the export serialises those child rows. Carried
+	across, the Link either does not resolve here -- LinkValidationError out of
+	insert(), so no part of the course arrives -- or resolves to an unrelated
+	account that happens to share the email, handing it write on content it never
+	made while the importer who owns the row cannot edit it. Dropped, the
+	AuthoredDocument seed names the importer, the same as for any other new row.
+	"""
+	data.pop("authors", None)
+
+
 def create_question_doc(zip_file, file):
 	question_data = read_json_from_zip(zip_file, file)
 	if question_data:
+		drop_source_site_authors(question_data)
 		doc = frappe.new_doc("LMS Question")
 		doc.update(question_data)
 		doc.insert(ignore_permissions=True)
@@ -683,6 +730,7 @@ def build_assessment_doc(assessment_data):
 
 	questions = assessment_data.pop("questions", [])
 	test_cases = assessment_data.pop("test_cases", [])
+	drop_source_site_authors(assessment_data)
 	doc = frappe.new_doc(doctype)
 	doc.update(assessment_data)
 
@@ -712,30 +760,169 @@ def create_assessment_docs(zip_file):
 	create_main_assessment_docs(zip_file)
 
 
-def create_asset_doc(asset_name, content):
-	if frappe.db.exists("File", {"file_name": asset_name}):
+def base_name(path):
+	return path.split("/")[-1]
+
+
+def asset_file_url(asset_name, is_private):
+	"""Where frappe will serve this asset, which is the URL the content cites."""
+	# frappe applies the same rewrite in save_file_on_filesystem. Not imported from
+	# there, because get_safe_file_name only exists on develop and this backports.
+	safe_name = re.sub(r"[/\\%?#]", "_", asset_name)
+	return ("/private/files/" if is_private else "/files/") + safe_name
+
+
+def existing_asset_urls(file_urls):
+	"""Which of these URLs the site already serves, in one locking query.
+
+	Locking because the answer decides whether to insert, and under REPEATABLE READ
+	a plain read cannot see a row a concurrent import has already committed.
+	`file_url` is indexed; `file_name` is not, and would lock every row scanned.
+	Query builder rather than get_all, which would scope File by the caller's own
+	read permission and report a taken URL as free.
+	"""
+	if not file_urls:
+		return set()
+
+	File = frappe.qb.DocType("File")
+	query = (
+		frappe.qb.from_(File).select(File.file_url).where(File.file_url.isin(list(file_urls))).for_update()
+	)
+	return set(query.run(pluck=True))
+
+
+def create_asset_doc(asset_name, content, is_private, existing):
+	"""Create the File the content cites, unless the site already serves that URL."""
+	file_url = asset_file_url(asset_name, is_private)
+	if file_url in existing:
 		return
 	asset_doc = frappe.new_doc("File")
 	asset_doc.file_name = asset_name
 	asset_doc.content = content
+	# Explicit: File.set_is_private infers only from file_url, which this row has
+	# not got yet, so an unset flag silently means public.
+	asset_doc.is_private = is_private
 	asset_doc.insert()
 
 
-def process_asset_file(zip_file, file):
-	if not is_safe_path(file):
+def is_safe_zip_member(name: str) -> bool:
+	"""Whether an archive member name is safe to reduce to a file name.
+
+	`is_safe_path` cannot answer this -- it resolves against the process working
+	directory, the bench's `sites/`, so every member name it was handed came back
+	False and no imported asset was ever created.
+	"""
+	if not name or name.startswith("/") or "\\" in name:
+		return False
+	*directories, basename = name.split("/")
+	if any(part in ("", ".", "..") for part in directories):
+		return False
+	return basename not in ("", ".", "..")
+
+
+def get_referenced_asset_urls(zip_file):
+	"""Every asset URL the archive's own JSON points at."""
+	yield (read_json_from_zip(zip_file, "course.json") or {}).get("image")
+	for instructor in read_json_from_zip(zip_file, "instructors.json") or []:
+		yield instructor.get("user_image")
+	for member in zip_file.namelist():
+		if not member.startswith("lessons/") or not member.endswith(".json"):
+			continue
+		lesson = read_json_from_zip(zip_file, member) or {}
+		for block in get_editorjs_blocks(lesson.get("content")):
+			if block.get("type") == "upload":
+				yield block.get("data", {}).get("file_url")
+
+
+def get_asset_privacy(zip_file):
+	"""file name -> is_private, taken from the URLs the imported content references.
+
+	The archive stores bare bytes, so the referencing URL is the only surviving record
+	of an asset's privacy. Anything the content does not account for is private:
+	guessing that way costs a permission check, the other way publishes the file.
+	"""
+	privacy = {}
+	for url in get_referenced_asset_urls(zip_file):
+		if not isinstance(url, str) or not url:
+			continue
+		# Private wins a name collision: two URLs can share a basename.
+		name = base_name(url)
+		privacy[name] = privacy.get(name, 0) or int(url.startswith("/private/"))
+	return privacy
+
+
+def asset_is_private(privacy, asset_name):
+	return privacy.get(asset_name, 1)
+
+
+def process_asset_file(zip_file, file, privacy, existing):
+	if not is_safe_zip_member(file):
 		return
+	asset_name = base_name(file)
 	with zip_file.open(file) as f:
-		create_asset_doc(file.split("/")[-1], f.read())
+		create_asset_doc(asset_name, f.read(), asset_is_private(privacy, asset_name), existing)
+
+
+def validate_assets(members):
+	"""Bound what an uploaded archive may write, and to what.
+
+	Central-directory sizes only, so a compressible archive is turned away unread.
+	"""
+	for info in members:
+		if os.path.splitext(info.filename)[1].lower() not in ALLOWED_ASSET_EXTENSIONS:
+			frappe.throw(
+				_("Course asset {0} is not a supported image, video, audio or PDF file.").format(
+					escape_html(base_name(info.filename))
+				)
+			)
+
+	if sum(info.file_size for info in members) > MAX_IMPORTED_ASSET_BYTES:
+		frappe.throw(
+			_("The course's assets exceed the maximum import size of {0} MB").format(
+				MAX_IMPORTED_ASSET_BYTES // 1048576
+			)
+		)
+
+
+def asset_members(zip_file):
+	"""The assets/ members to create, one per file name, in archive order.
+
+	One per base name, because frappe renames a colliding upload instead of refusing
+	it and the extras would land as orphans no lesson references. Unsafe names are
+	dropped here, or assets/../x.png claims a name and takes assets/x.png down with it.
+	"""
+	members, seen = [], set()
+	for info in zip_file.infolist():
+		if not info.filename.startswith("assets/") or info.is_dir():
+			continue
+		if not is_safe_zip_member(info.filename):
+			continue
+		name = base_name(info.filename)
+		if name not in seen:
+			seen.add(name)
+			members.append(info)
+	return members
 
 
 def create_assets(zip_file):
-	for file in zip_file.namelist():
-		if not file.startswith("assets/") or file.endswith("/"):
-			continue
+	members = asset_members(zip_file)
+	validate_assets(members)
+	privacy = get_asset_privacy(zip_file)
+	asset_names = {base_name(info.filename) for info in members}
+	existing = existing_asset_urls(
+		{asset_file_url(name, asset_is_private(privacy, name)) for name in asset_names}
+	)
+	for info in members:
 		try:
-			process_asset_file(zip_file, file)
-		except Exception as e:
-			frappe.log_error(f"Error processing asset {file}: {e}")
+			process_asset_file(zip_file, info.filename, privacy, existing)
+		except Exception:
+			# One bad asset must not abort the import. The title stays constant because
+			# the member name is attacker-supplied and Error Log stores it in a Data
+			# field. No with_context, because the locals hold the asset bytes.
+			frappe.log_error(
+				title="Course import: asset skipped",
+				message=f"{info.filename}\n\n{frappe.get_traceback()}",
+			)
 
 
 def get_lesson_title(zip_file, lesson_name):

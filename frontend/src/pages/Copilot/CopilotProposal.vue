@@ -2,7 +2,7 @@
 	<TeacherPage :breadcrumbs="breadcrumbs" :state="page">
 		<section
 			v-if="detail"
-			class="space-y-4 rounded-lg border border-outline-gray-2 p-5"
+			class="space-y-4 rounded-6 border border-outline-gray-2 p-5"
 		>
 			<div class="flex flex-wrap items-center gap-2">
 				<h1 class="me-2 text-lg-semibold text-ink-gray-9">
@@ -52,7 +52,7 @@
 				<TeacherCourseDraftView :preview="preview" />
 				<div
 					v-if="open && preview.missing"
-					class="space-y-2 rounded-lg bg-surface-amber-2 p-3"
+					class="space-y-2 rounded-6 bg-surface-amber-2 p-3"
 				>
 					<label
 						for="copilot-missing"
@@ -143,7 +143,7 @@
 				/>
 				<div
 					v-else-if="params.reply"
-					class="whitespace-pre-wrap rounded-lg border border-outline-gray-2 p-3 text-p-base text-ink-gray-8"
+					class="whitespace-pre-wrap rounded-6 border border-outline-gray-2 p-3 text-p-base text-ink-gray-8"
 				>
 					{{ params.reply }}
 				</div>

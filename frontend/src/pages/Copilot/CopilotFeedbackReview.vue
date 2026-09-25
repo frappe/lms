@@ -53,7 +53,7 @@
 			</div>
 
 			<div class="grid gap-4 lg:grid-cols-2">
-				<section class="min-w-0 rounded-lg border border-outline-gray-2 p-4">
+				<section class="min-w-0 rounded-6 border border-outline-gray-2 p-4">
 					<TeacherEvidencePane
 						ref="evidence"
 						:key="review.draft"
@@ -63,7 +63,7 @@
 				</section>
 
 				<section
-					class="min-w-0 space-y-4 rounded-lg border border-outline-gray-2 p-4"
+					class="min-w-0 space-y-4 rounded-6 border border-outline-gray-2 p-4"
 				>
 					<div class="flex flex-wrap items-center gap-2">
 						<h2 class="text-base-semibold text-ink-gray-9">

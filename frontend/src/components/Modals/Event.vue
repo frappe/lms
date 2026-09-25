@@ -91,10 +91,10 @@
 						</Button>
 					</div>
 				</div>
-				<Tabs :tabs="tabs" as="div" v-model="tabIndex" class="border-s w-1/2">
+				<Tabs :tabs="tabs" v-model="activeTab" class="border-s w-1/2">
 					<template #tab-panel="{ tab }">
 						<div
-							v-if="tab.label == 'Evaluation'"
+							v-if="tab.value === 'evaluation'"
 							class="flex flex-col space-y-4 p-5"
 						>
 							<div class="flex items-center justify-between">
@@ -103,14 +103,15 @@
 									:label="__('Rating')"
 									:disabled="!userIsEvaluator()"
 								/>
-								<FormControl
-									type="select"
-									:options="statusOptions"
-									v-model="evaluation.status"
-									:label="__('Status')"
-									class="w-1/2"
-									:disabled="!userIsEvaluator()"
-								/>
+								<div class="w-1/2">
+									<FormControl
+										type="select"
+										:options="statusOptions"
+										v-model="evaluation.status"
+										:label="__('Status')"
+										:disabled="!userIsEvaluator()"
+									/>
+								</div>
 							</div>
 							<FormControl
 								type="textarea"
@@ -193,7 +194,7 @@ import { openExternal } from '@/utils/openExternal'
 const show = defineModel()
 const user = inject('$user')
 const dayjs = inject('$dayjs')
-const tabIndex = ref(0)
+const activeTab = ref('evaluation')
 const showCertification = ref(false)
 const evaluation = reactive({})
 const certificate = reactive({})
@@ -405,15 +406,17 @@ const statusOptions = computed(() => {
 const tabs = computed(() => {
 	const tabsArray = [
 		{
+			value: 'evaluation',
 			label: __('Evaluation'),
-			icon: 'lucide-clipboard-list',
+			iconLeft: 'lucide-clipboard-list',
 		},
 	]
 
 	if (showCertification.value) {
 		tabsArray.push({
+			value: 'certification',
 			label: __('Certification'),
-			icon: 'lucide-graduation-cap',
+			iconLeft: 'lucide-graduation-cap',
 		})
 	}
 

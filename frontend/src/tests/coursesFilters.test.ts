@@ -72,7 +72,6 @@ const { coursesResource, requests, mobile, countAborts } = vi.hoisted(() => ({
 }))
 
 vi.mock('frappe-ui', () => ({
-	call: vi.fn(() => Promise.resolve(0)),
 	usePageMeta: vi.fn(),
 	// The footer's total. It is aborted and resubmitted alongside the list, so
 	// the counter below is what proves the two stay in step.
@@ -93,8 +92,7 @@ vi.mock('frappe-ui', () => ({
 	Button: { template: '<button><slot /></button>' },
 	Dropdown: { template: '<div><slot :open="false" /></div>' },
 	Tooltip: { template: '<div><slot /></div>' },
-	// frappe-ui's Checkbox reports one click twice: onChange assigns its
-	// defineModel and then re-emits update:modelValue (Checkbox.vue:76-77).
+	// Emits the input's checked state once per change, as frappe-ui's does.
 	Checkbox: defineComponent({
 		props: {
 			modelValue: Boolean,
@@ -104,9 +102,11 @@ vi.mock('frappe-ui', () => ({
 		},
 		emits: ['update:modelValue'],
 		methods: {
-			onChange() {
-				this.$emit('update:modelValue', !this.modelValue)
-				this.$emit('update:modelValue', !this.modelValue)
+			onChange(event: Event) {
+				this.$emit(
+					'update:modelValue',
+					(event.target as HTMLInputElement).checked
+				)
 			},
 		},
 		template: `<input
@@ -116,6 +116,7 @@ vi.mock('frappe-ui', () => ({
 			@change="onChange"
 		/>`,
 	}),
+	// Like rc.1's TextInput, emits update:modelValue on input and on change.
 	FormControl: {
 		inheritAttrs: false,
 		props: ['modelValue', 'type', 'label', 'placeholder'],
@@ -125,6 +126,8 @@ vi.mock('frappe-ui', () => ({
 			:data-testid="'control-' + (label || type)"
 			:type="type"
 			:value="modelValue"
+			@input="$emit('update:modelValue', $event.target.value)"
+			@change="$emit('update:modelValue', $event.target.value)"
 		/>`,
 	},
 	TabButtons: {
@@ -159,7 +162,7 @@ vi.mock('@/components/CourseCard.vue', () => stub('<article />'))
 vi.mock('@/components/Controls/ClearableCombobox.vue', () => stub('<div />'))
 
 // Stands in for the whole page shell, so this file stays about filter state.
-vi.mock('@/components/Layouts/ListPage.vue', () => ({
+vi.mock('@/components/Layouts/pages/ListPage.vue', () => ({
 	default: {
 		props: ['rows', 'breadcrumbs', 'title'],
 		template: `<div>
@@ -191,12 +194,7 @@ async function mountCourses(user: { data: Record<string, unknown> | null }) {
 			// useRouter), so the outlet has to be stubbed or it stays an
 			// unresolved custom element and Vue warns on every mount.
 			stubs: {
-				'router-link': { template: '<a><slot /></a>' },
 				'router-view': true,
-				// Below `sm` the filters render inside PageBody's BottomSheet,
-				// which teleports to body — without this the sheet's contents
-				// leave the wrapper and no mobile filter is findable.
-				teleport: true,
 			},
 		},
 	})
@@ -276,11 +274,35 @@ describe('Courses list filters', () => {
 	it('sends one request with the new value from the desktop certification checkbox', async () => {
 		const wrapper = await mountCourses({ data: { ...MODERATOR } })
 
-		await wrapper.find('[data-testid="toggle-checkbox"]').trigger('change')
+		await wrapper.find('[data-testid="toggle-checkbox"]').setValue(true)
 		await nextTick()
 
 		expect(requests.current).toHaveLength(2)
 		expect(requests.current[1].filters).toMatchObject({ certification: 1 })
+	})
+
+	it('searches with the new title after one keystroke', async () => {
+		const wrapper = await mountCourses({ data: { ...MODERATOR } })
+
+		// setValue fires both events, so the same title arrives twice.
+		await wrapper.find('[data-testid="control-text"]').setValue('v')
+		await nextTick()
+
+		expect(requests.current).toHaveLength(2)
+		expect(requests.current[1].filters).toMatchObject({
+			title: ['like', '%v%'],
+		})
+	})
+
+	it('fetches once on mount when the title comes from the query string', async () => {
+		window.history.replaceState({}, '', '/lms/courses?title=vue')
+		await mountCourses({ data: { ...MODERATOR } })
+		await nextTick()
+
+		expect(requests.current).toHaveLength(1)
+		expect(requests.current[0].filters).toMatchObject({
+			title: ['like', '%vue%'],
+		})
 	})
 
 	// Same filter, same request, from the checkbox now inside the mobile
@@ -289,7 +311,7 @@ describe('Courses list filters', () => {
 		mobile.value = true
 		const wrapper = await mountCourses({ data: { ...MODERATOR } })
 
-		await wrapper.find('[data-testid="toggle-checkbox"]').trigger('change')
+		await wrapper.find('[data-testid="toggle-checkbox"]').setValue(true)
 		await nextTick()
 
 		expect(requests.current).toHaveLength(2)

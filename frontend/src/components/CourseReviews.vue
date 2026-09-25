@@ -2,7 +2,7 @@
 	<div v-if="reviews.data?.length || membership" class="mt-12">
 		<div class="flex items-center justify-between gap-3 mb-8">
 			<div class="flex items-center gap-2">
-				<LucideStar class="size-5 text-transparent fill-yellow-500" />
+				<LucideStar class="size-5 text-transparent fill-ink-amber-7" />
 				<span class="text-3xl-semibold text-ink-gray-9">
 					{{ avg_rating ? formatRating(avg_rating) : '0' }}
 				</span>
@@ -65,7 +65,7 @@
 							class="size-4 text-transparent"
 							:class="
 								i <= Math.ceil(review.rating)
-									? 'fill-yellow-500'
+									? 'fill-ink-amber-7'
 									: 'fill-surface-gray-3'
 							"
 						/>
@@ -151,12 +151,14 @@ const reviews = createResource({
 	makeParams() {
 		return { course: props.courseName }
 	},
-	auto: true,
+	auto: Boolean(props.courseName),
 }) as Resource<CourseReviewInfo[] | null>
 
 watch(
 	() => props.courseName,
-	() => reviews.reload()
+	() => {
+		if (props.courseName) reviews.reload()
+	}
 )
 
 const showReviewModal = ref(false)

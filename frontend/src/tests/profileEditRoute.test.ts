@@ -27,8 +27,7 @@ vi.mock('@/stores/session', () => ({
 	sessionStore: () => ({ user: {}, brand: {} }),
 }))
 
-// frappe-ui's ESM build does not resolve under vitest, so every export the two
-// components under test reach for is stubbed by hand.
+// Stubbed so tests control createResource/call responses without a network.
 vi.mock('frappe-ui', () => ({
 	createResource: createResourceMock,
 	call: vi.fn(),
@@ -63,7 +62,7 @@ const { stub } = vi.hoisted(() => ({
 vi.mock('@/components/Controls/Link.vue', stub)
 vi.mock('@/components/Controls/Uploader.vue', stub)
 vi.mock('@/components/RichTextEditor.vue', stub)
-vi.mock('@/components/Layouts/PageHeader.vue', stub)
+vi.mock('@/components/Layouts/pages/PageHeader.vue', stub)
 // Rendered rather than nulled: the form's Save carries its data-testid on this
 // component, so a null stub takes the button out of the DOM entirely.
 vi.mock('@/components/HeaderButton.vue', () => ({

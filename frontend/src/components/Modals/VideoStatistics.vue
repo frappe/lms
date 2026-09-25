@@ -19,7 +19,7 @@
 				>
 					<div class="grid grid-cols-1 gap-5 sm:grid-cols-[55%,40%]">
 						<div
-							class="space-y-5 border rounded-md p-2 pt-4 max-h-[50vh] sm:max-h-[70vh] overflow-y-auto"
+							class="space-y-5 border rounded-5 p-2 pt-4 max-h-[50vh] sm:max-h-[70vh] overflow-y-auto"
 						>
 							<div
 								class="grid grid-cols-[60%,40%] sm:grid-cols-[70%,30%] text-sm text-ink-gray-5"
@@ -34,10 +34,10 @@
 							<div
 								v-for="row in currentTabData"
 								:key="row.name"
-								class="hover:bg-surface-gray-2 cursor-pointer rounded-md"
+								class="hover:bg-surface-gray-2 cursor-pointer rounded-5"
 							>
 								<router-link
-									class="block rounded-md py-1 px-2"
+									class="block rounded-5 py-1 px-2"
 									:to="{
 										name: 'Profile',
 										params: { username: row.member_username },
@@ -96,14 +96,7 @@
 	</Dialog>
 </template>
 <script setup lang="ts">
-import {
-	Avatar,
-	createListResource,
-	Dialog,
-	FormControl,
-	NumberChart,
-	TabButtons,
-} from 'frappe-ui'
+import { Avatar, createListResource, Dialog, TabButtons } from 'frappe-ui'
 import { computed, ref, watch } from 'vue'
 import { enablePlyr, formatTimestamp } from '@/utils'
 import VideoBlock from '@/components/VideoBlock.vue'
@@ -247,29 +240,19 @@ const tabs = computed(() => {
 })
 </script>
 <style>
-.plyr__volume input[type='range'] {
-	display: none;
-}
-
-.plyr__control--overlaid {
-	background: radial-gradient(
-		circle,
-		rgba(0, 0, 0, 0.4) 0%,
-		rgba(0, 0, 0, 0.5) 50%
-	);
-}
-
 .plyr__control:hover {
 	background: none;
 }
 
 .plyr--video {
-	border: 1px solid theme('colors.gray.200');
+	border: 1px solid var(--outline-gray-2);
 	border-radius: 8px;
 }
 
+/* token-exempt-start: range fill on the video, not the page */
 :root {
 	--plyr-range-fill-background: white;
 	--plyr-video-control-background-hover: transparent;
 }
+/* token-exempt-end */
 </style>

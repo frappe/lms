@@ -1,10 +1,17 @@
 <template>
-	<Tooltip v-if="!isMobile" :text="tooltip" class="!w-fit shrink-0">
-		<Checkbox
-			:modelValue="modelValue"
-			:label="label"
-			@update:modelValue="set(Boolean($event))"
-		/>
+	<Tooltip v-if="!isMobile" :text="tooltip">
+		<span
+			class="inline-flex !w-fit shrink-0"
+			@focusin="relayFocus"
+			@focusout="relayFocus"
+		>
+			<Checkbox
+				:modelValue="modelValue"
+				:label="label"
+				:aria-description="tooltip || undefined"
+				@update:modelValue="emit('update:modelValue', Boolean($event))"
+			/>
+		</span>
 	</Tooltip>
 	<Checkbox
 		v-else
@@ -12,12 +19,11 @@
 		:label="mobileLabel || label"
 		:description="tooltip || undefined"
 		size="md"
-		@update:modelValue="set(Boolean($event))"
+		@update:modelValue="emit('update:modelValue', Boolean($event))"
 	/>
 </template>
 
 <script setup lang="ts">
-import { nextTick } from 'vue'
 import { Checkbox, Tooltip } from 'frappe-ui'
 import { useScreenSize } from '@/utils/composables'
 
@@ -37,8 +43,12 @@ import { useScreenSize } from '@/utils/composables'
 //
 // The desk's tooltip has nowhere to live on a phone, so it becomes the
 // checkbox's description instead of being dropped.
+//
+// The span is the Tooltip trigger. Checkbox passes fallthrough attrs to its
+// <input>, so the trigger's data-state/data-slot would overwrite the input's.
+// focus/blur do not bubble, so the span replays the input's focusin/focusout.
 
-const props = withDefaults(
+withDefaults(
 	defineProps<{
 		modelValue: boolean
 		label: string
@@ -58,19 +68,8 @@ const emit = defineEmits<{ 'update:modelValue': [value: boolean] }>()
 
 const { isMobile } = useScreenSize()
 
-// frappe-ui's Checkbox reports one click twice: onChange assigns its
-// defineModel and then re-emits update:modelValue (Checkbox.vue:76-77). Both
-// emits happen in the same tick, so `modelValue` has not round-tripped by the
-// second one and comparing against it alone lets the echo through, which
-// costs the page a second list request. Remember what was just sent instead.
-let sent: boolean | null = null
-
-function set(value: boolean): void {
-	if (value === props.modelValue || value === sent) return
-	sent = value
-	emit('update:modelValue', value)
-	nextTick(() => {
-		sent = null
-	})
+function relayFocus(event: FocusEvent): void {
+	const type = event.type === 'focusin' ? 'focus' : 'blur'
+	event.currentTarget?.dispatchEvent(new FocusEvent(type))
 }
 </script>

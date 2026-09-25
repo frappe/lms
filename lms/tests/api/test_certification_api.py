@@ -1,0 +1,149 @@
+# Copyright (c) 2026, Frappe and Contributors
+# See license.txt
+
+import frappe
+from frappe.utils import getdate
+
+from lms.lms.api import get_certification_details
+from lms.lms.test_helpers import BaseTestUtils
+
+UNPUBLISHED_COURSE_MESSAGE = "You do not have permission to view this course."
+
+
+class TestGetCertificationDetails(BaseTestUtils):
+	"""LMS Student has no read permission on LMS Course, so everything the
+	certification page needs about the course has to come from here."""
+
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
+		cls.instructor = cls._create_user(
+			"frappe@example.com", "Frappe", "Admin", ["Moderator", "Course Creator"]
+		)
+		cls.student = cls._create_user(
+			f"cert.learner.{frappe.generate_hash(length=8)}@example.com",
+			"Cert",
+			"Learner",
+			["LMS Student"],
+		)
+		cls.outsider = cls._create_user(
+			f"cert.outsider.{frappe.generate_hash(length=8)}@example.com",
+			"Cert",
+			"Outsider",
+			["LMS Student"],
+		)
+		cls.evaluator = cls._create_evaluator()
+		cls.course = cls._create_course()
+		frappe.db.set_value(
+			"LMS Course",
+			cls.course.name,
+			{"paid_certificate": 1, "evaluator": cls.evaluator.name},
+		)
+		cls._create_enrollment(cls.student.name, cls.course.name)
+		frappe.db.set_value(
+			"LMS Enrollment",
+			{"course": cls.course.name, "member": cls.student.name},
+			"purchased_certificate",
+			1,
+		)
+
+	def test_learner_gets_the_course_title_and_evaluator(self):
+		frappe.set_user(self.student.name)
+		# The gate this endpoint exists to get past.
+		self.assertFalse(frappe.has_permission("LMS Course", "read"))
+
+		details = get_certification_details(self.course.name)
+		self.assertEqual(details["title"], self.course.title)
+		self.assertEqual(details["evaluator"], self.evaluator.name)
+		self.assertEqual(details["paid_certificate"], 1)
+		self.assertEqual(details["membership"]["purchased_certificate"], 1)
+
+	def test_evaluator_is_withheld_from_someone_not_on_the_course(self):
+		frappe.set_user(self.outsider.name)
+
+		details = get_certification_details(self.course.name)
+
+		self.assertIsNone(details["membership"])
+		self.assertIsNone(details["evaluator"])
+		self.assertEqual(details["title"], self.course.title)
+
+	def test_a_guest_is_not_a_permitted_caller(self):
+		# allow_guest is what frappe checks at dispatch, and it records the
+		# function in frappe.guest_methods rather than tagging it.
+		self.assertNotIn(get_certification_details, frappe.guest_methods)
+		frappe.set_user("Guest")
+
+		details = get_certification_details(self.course.name)
+
+		self.assertIsNone(details["membership"])
+		self.assertIsNone(details["evaluator"])
+		self.assertIsNone(details["certificate"])
+
+	def test_a_user_with_no_lms_role_gets_no_evaluator(self):
+		stranger = self._create_user(
+			f"cert.stranger.{frappe.generate_hash(length=8)}@example.com", "Cert", "Stranger", []
+		)
+		frappe.set_user(stranger.name)
+
+		details = get_certification_details(self.course.name)
+
+		self.assertIsNone(details["membership"])
+		self.assertIsNone(details["evaluator"])
+
+	def test_evaluator_is_withheld_until_the_certificate_is_paid_for(self):
+		# Enrolment alone is self-service on a published course; the page only
+		# reads the evaluator past the purchase gate.
+		frappe.db.set_value(
+			"LMS Enrollment",
+			{"course": self.course.name, "member": self.student.name},
+			"purchased_certificate",
+			0,
+		)
+		frappe.set_user(self.student.name)
+
+		details = get_certification_details(self.course.name)
+		self.assertIsNotNone(details["membership"])
+		self.assertIsNone(details["evaluator"])
+
+	def test_certificate_carries_the_issue_date_the_page_renders(self):
+		certificate = self._create_certificate(self.course.name, self.student.name)
+		frappe.set_user(self.student.name)
+
+		details = get_certification_details(self.course.name)
+		self.assertEqual(details["certificate"]["name"], certificate.name)
+		self.assertEqual(getdate(details["certificate"]["issue_date"]), getdate(certificate.issue_date))
+
+	def test_unpublished_course_visibility_by_caller(self):
+		# get_course_details hides an unpublished course from anyone who isn't
+		# enrolled, modifying it, or staff; this endpoint skipped that check.
+		frappe.db.set_value("LMS Course", self.course.name, "published", 0)
+
+		with self.subTest(case="withheld_from_an_outsider"):
+			frappe.set_user(self.outsider.name)
+			with self.assertRaisesRegex(frappe.PermissionError, UNPUBLISHED_COURSE_MESSAGE):
+				get_certification_details(self.course.name)
+
+		with self.subTest(case="visible_to_the_enrolled_learner"):
+			frappe.set_user(self.student.name)
+			details = get_certification_details(self.course.name)
+			self.assertEqual(details["title"], self.course.title)
+
+		with self.subTest(case="visible_to_the_instructor"):
+			frappe.set_user(self.instructor.name)
+			details = get_certification_details(self.course.name)
+			self.assertEqual(details["title"], self.course.title)
+
+	def test_unknown_course_returns_no_details(self):
+		frappe.set_user(self.student.name)
+		details = get_certification_details(f"missing-{frappe.generate_hash(length=8)}")
+		self.assertIsNone(details["title"])
+		self.assertIsNone(details["evaluator"])
+		self.assertIsNone(details["certificate"])
+
+	def test_the_isinstance_guard_rejects_it_too(self):
+		# frappe coerces before the body runs, so the guard is only reachable
+		# undecorated. Without this it has no coverage and the test above passes on a
+		# commit that never had a guard.
+		frappe.set_user(self.student.name)
+		with self.assertRaises(frappe.ValidationError):
+			get_certification_details.__wrapped__(["!=", ""])

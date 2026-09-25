@@ -4,7 +4,7 @@
 		<div v-if="access.data?.access && orderSummary.data" class="px-5 pb-10">
 			<div class="flex flex-col lg:flex-row justify-between">
 				<div class="flex flex-col lg:order-last mb-10 lg:mt-10 lg:w-1/4">
-					<div class="h-fit bg-surface-gray-2 rounded-md p-5 space-y-4">
+					<div class="h-fit bg-surface-gray-2 rounded-5 p-5 space-y-4">
 						<div class="space-y-1">
 							<div class="text-ink-gray-5 uppercase text-xs">
 								{{ __('Payment for ') }} {{ type }}:
@@ -49,7 +49,7 @@
 						</div>
 					</div>
 
-					<div class="bg-surface-gray-2 rounded-md p-4 space-y-2 my-5">
+					<div class="bg-surface-gray-2 rounded-5 p-4 space-y-2 my-5">
 						<span class="text-ink-gray-5 uppercase text-xs">
 							{{ __('Enter a Coupon Code') }}:
 						</span>
@@ -58,11 +58,10 @@
 								v-model="appliedCoupon"
 								:disabled="orderSummary.data.discount_amount > 0"
 								:aria-label="__('Coupon Code')"
-								@input="appliedCoupon = $event.target.value.toUpperCase()"
 								@keydown.enter="applyCouponCode"
 								placeholder="COUPON2025"
 								autocomplete="off"
-								class="flex-1 [&_input]:bg-surface-base"
+								class="flex-1 [&_input]:bg-surface-base [&_input]:uppercase"
 							/>
 							<Button
 								v-if="!orderSummary.data.discount_amount"
@@ -85,7 +84,7 @@
 					</div>
 
 					<p
-						class="bg-surface-amber-2 text-ink-amber-5 text-sm leading-5 p-2 rounded-md"
+						class="bg-surface-amber-2 text-ink-amber-4 text-sm leading-5 p-2 rounded-5"
 					>
 						{{
 							__(
@@ -190,15 +189,14 @@
 								type="checkbox"
 								class="leading-6"
 								v-model="billingDetails.member_consent"
+								:error="
+									showConsentWarning
+										? __(
+												'Please provide your consent to proceed with the payment'
+										  )
+										: undefined
+								"
 							/>
-							<div
-								v-if="showConsentWarning"
-								class="mt-1 text-xs text-ink-red-6"
-							>
-								{{
-									__('Please provide your consent to proceed with the payment')
-								}}
-							</div>
 						</div>
 						<Button
 							variant="solid"
@@ -227,7 +225,7 @@
 		</div>
 		<div v-else-if="!user.data?.name">
 			<NotPermitted
-				text="Please login to access this page."
+				:text="__('Please login to access this page.')"
 				:buttonLink="`/login?redirect-to=${getLmsRoute(
 					`billing/${type}/${name}`
 				)}`"
@@ -243,15 +241,14 @@ import {
 	FormControl,
 	usePageMeta,
 	toast,
-	call,
 } from 'frappe-ui'
 import { reactive, inject, onMounted, computed, ref, watch } from 'vue'
-import PageHeader from '@/components/Layouts/PageHeader.vue'
-import PageBody from '@/components/Layouts/PageBody.vue'
+import PageHeader from '@/components/Layouts/pages/PageHeader.vue'
+import PageBody from '@/components/Layouts/pages/PageBody.vue'
 import { sessionStore } from '../stores/session'
 import Link from '@/components/Controls/Link.vue'
 import NotPermitted from '@/components/NotPermitted.vue'
-import { useTelemetry } from 'frappe-ui/frappe'
+import { useTelemetry } from '@framework/ui/telemetry/index'
 import { getLmsRoute } from '@/utils/basePath'
 import {
 	INDIAN_STATE_OPTIONS,
@@ -304,7 +301,7 @@ const orderSummary = createResource({
 			doctype: props.type == 'batch' ? 'LMS Batch' : 'LMS Course',
 			docname: props.name,
 			country: billingDetails.country,
-			coupon: appliedCoupon.value,
+			coupon: couponCode(),
 		}
 	},
 	onError(err) {
@@ -313,6 +310,7 @@ const orderSummary = createResource({
 })
 
 const appliedCoupon = ref(null)
+const couponCode = () => appliedCoupon.value?.trim().toUpperCase() || null
 const billingDetails = reactive({})
 const fieldMeta = reactive({})
 
@@ -352,7 +350,7 @@ const paymentLink = createResource({
 			docname: props.name,
 			address: billingDetails,
 			payment_for_certificate: props.type == 'certificate',
-			coupon_code: appliedCoupon.value,
+			coupon_code: couponCode(),
 			country: billingDetails.country,
 		}
 		return data
@@ -391,7 +389,7 @@ const generatePaymentLink = () => {
 }
 
 function applyCouponCode() {
-	if (!appliedCoupon.value) {
+	if (!couponCode()) {
 		toast.error(__('Please enter a coupon code'))
 		return
 	}

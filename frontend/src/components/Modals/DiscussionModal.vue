@@ -1,5 +1,6 @@
 <template>
 	<Dialog
+		v-model:open="open"
 		:title="singularize(props.title)"
 		size="2xl"
 		:actions="[
@@ -16,15 +17,18 @@
 					<FormControl v-model="topic.title" :label="__('Title')" type="text" />
 				</div>
 				<div>
-					<div class="mb-1.5 text-p-sm-medium text-ink-gray-7">
-						{{ __('Details') }}
-					</div>
+					<InputLabel
+						:id="detailsLabelId"
+						class="mb-1.5"
+						:label="__('Details')"
+					/>
 					<RichTextEditor
+						:ariaLabelledby="detailsLabelId"
 						:content="topic.reply"
 						@change="(val) => (topic.reply = val)"
 						:editable="true"
 						:fixedMenu="true"
-						editorClass="prose-sm max-w-none border-b border-x border-outline-elevation-2 bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[7rem]"
+						editorClass="prose-sm max-w-none border-b border-x border-outline-elevation-2 bg-surface-gray-2 rounded-b-5 py-1 px-2 min-h-[7rem]"
 					/>
 				</div>
 			</div>
@@ -33,14 +37,17 @@
 </template>
 <script setup>
 import { call, Dialog, FormControl, toast } from 'frappe-ui'
-import { reactive } from 'vue'
+import { reactive, useId } from 'vue'
+import { InputLabel } from 'frappe-ui/experimental'
 import { singularize } from '@/utils'
-import { useTelemetry } from 'frappe-ui/frappe'
+import { useTelemetry } from '@framework/ui/telemetry/index'
 import RichTextEditor from '@/components/RichTextEditor.vue'
 
+const open = defineModel('modelValue')
 const topics = defineModel('reloadTopics')
 const emit = defineEmits(['created'])
 const { capture } = useTelemetry()
+const detailsLabelId = useId()
 
 const props = defineProps({
 	title: {

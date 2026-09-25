@@ -15,7 +15,7 @@
 			</div>
 
 			<form
-				class="space-y-4 rounded-lg border border-outline-gray-2 p-5"
+				class="space-y-4 rounded-6 border border-outline-gray-2 p-5"
 				data-testid="copilot-import-form"
 				@submit.prevent="submit"
 			>
@@ -75,7 +75,7 @@
 				<h2 class="text-base-semibold text-ink-gray-9">
 					{{ __('Earlier imports') }}
 				</h2>
-				<div class="overflow-x-auto rounded-lg border border-outline-gray-2">
+				<div class="overflow-x-auto rounded-6 border border-outline-gray-2">
 					<table class="w-full text-p-base">
 						<tbody>
 							<tr

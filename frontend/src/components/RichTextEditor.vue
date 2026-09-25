@@ -1,5 +1,6 @@
 <template>
 	<Editor
+		ref="editorRef"
 		v-model="html"
 		:extensions="extensions"
 		:editable="editable"
@@ -7,22 +8,34 @@
 		:upload-function="uploadFile"
 		format="html"
 		@focus="hasFocus = true"
-		@blur="hasFocus = false"
+		@blur="onBlur"
 	>
 		<template #default>
 			<EditorFixedMenu
 				v-if="fixedMenu"
-				class="w-full overflow-x-auto rounded-t-lg border border-outline-elevation-2"
+				class="w-full flex-wrap rounded-t-5 border border-outline-elevation-2 p-1"
+				:class="menuClass"
 				:items="toolbar"
 			/>
-			<EditorContent :class="editorClass" />
+			<EditorContent
+				:id="id"
+				:class="editorClass"
+				:aria-labelledby="ariaLabelledby"
+				:aria-required="
+					ariaRequired === undefined ? undefined : String(ariaRequired)
+				"
+				:aria-invalid="
+					ariaInvalid === undefined ? undefined : String(ariaInvalid)
+				"
+			/>
 		</template>
 	</Editor>
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { ref, useTemplateRef, watch } from 'vue'
 import { useFileUpload } from 'frappe-ui'
+import type { UploadOptions } from 'frappe-ui'
 import {
 	AlignCenter,
 	AlignLeft,
@@ -50,31 +63,52 @@ import {
 	Strike,
 	Undo,
 } from 'frappe-ui/editor'
-
-type Mention = { value: string; label: string }
+import type { MentionSuggestionItem, UploadFunction } from 'frappe-ui/editor'
 
 const props = withDefaults(
 	defineProps<{
 		content?: string | null
 		editable?: boolean
 		fixedMenu?: boolean
+		menuClass?: string
 		editorClass?: string
 		placeholder?: string
-		mentions?: Mention[] | null
-		uploadArgs?: Record<string, unknown>
+		mentions?: MentionSuggestionItem[] | null
+		uploadArgs?: Pick<
+			UploadOptions,
+			'private' | 'folder' | 'doctype' | 'docname' | 'fieldname'
+		>
+		id?: string
+		ariaLabelledby?: string
+		ariaRequired?: boolean
+		ariaInvalid?: boolean
 	}>(),
 	{
 		content: '',
 		editable: true,
 		fixedMenu: false,
+		menuClass: '',
 		editorClass: 'prose-sm',
 		placeholder: '',
 		mentions: null,
 		uploadArgs: undefined,
+		id: undefined,
+		ariaLabelledby: undefined,
+		ariaRequired: undefined,
+		ariaInvalid: undefined,
 	}
 )
 
-const emit = defineEmits<{ change: [value: string] }>()
+const emit = defineEmits<{
+	change: [value: string]
+	blur: [event: FocusEvent]
+}>()
+
+const editorRef = useTemplateRef<InstanceType<typeof Editor>>('editorRef')
+
+defineExpose({
+	focus: () => editorRef.value?.editor?.commands.focus('end'),
+})
 
 const toolbar = [
 	HeadingGroup,
@@ -105,32 +139,33 @@ const toolbar = [
 	Redo,
 ]
 
-const extensions = computed(() => [
+// Editor reads extensions once at setup. The items getter lets a mention
+// list that loads later reach the @ menu.
+const extensions = [
 	RichTextKit.configure({
-		mention: props.mentions
-			? {
-					items: props.mentions.map((m) => ({
-						id: m.value,
-						label: m.label,
-					})),
-			  }
-			: false,
+		mention: props.mentions ? { items: () => props.mentions ?? [] } : false,
 	}),
-])
+]
 
 // Uploads default to private so editor images are not served from the
-// unauthenticated /files/ path, the default the old TextEditor applied.
+// unauthenticated /files/ path.
 const fileUpload = useFileUpload()
 
-function uploadFile(file: File) {
-	return fileUpload.upload(file, {
+const uploadFile: UploadFunction = (file, options) =>
+	fileUpload.upload(file, {
 		private: true,
-		...(props.uploadArgs || {}),
+		...props.uploadArgs,
+		signal: options?.signal,
+		onProgress: options?.onProgress,
 	})
-}
 
 const html = ref(props.content ?? '')
 const hasFocus = ref(false)
+
+function onBlur(event: FocusEvent) {
+	hasFocus.value = false
+	emit('blur', event)
+}
 
 watch(
 	() => props.content,

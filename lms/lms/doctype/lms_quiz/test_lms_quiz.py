@@ -1,10 +1,12 @@
 # Copyright (c) 2021, FOSS United and Contributors
 # See license.txt
 
-# import frappe
+# import json
+
 import base64
 import re
 import unittest
+from functools import partial
 
 import frappe
 from frappe.exceptions import ValidationError
@@ -20,10 +22,6 @@ IMAGE_DATA_URI_PATTERN = r'<img[^>]*src\s*=\s*["\'](?=data:)(.*?)["\']'
 
 
 class TestLMSQuiz(unittest.TestCase):
-	@classmethod
-	def setUpClass(cls) -> None:
-		frappe.get_doc({"doctype": "LMS Quiz", "title": "Test Quiz", "passing_percentage": 90}).save()
-
 	def test_with_multiple_options(self):
 		question = frappe.new_doc("LMS Question")
 		question.question = "Question Multiple"
@@ -35,47 +33,62 @@ class TestLMSQuiz(unittest.TestCase):
 		question.save()
 		self.assertTrue(question.multiple)
 
-	def test_with_no_correct_option(self):
-		question = frappe.new_doc("LMS Question")
-		question.question = "Question Multiple"
-		question.type = "Choices"
-		question.option_1 = "Option 1"
-		question.option_2 = "Option 2"
-		self.assertRaises(frappe.ValidationError, question.save)
+	def test_question_without_a_scorable_answer_is_rejected(self):
+		def no_correct_option():
+			question = frappe.new_doc("LMS Question")
+			question.question = "Question Multiple"
+			question.type = "Choices"
+			question.option_1 = "Option 1"
+			question.option_2 = "Option 2"
+			return question
 
-	def test_with_no_possible_answers(self):
-		question = frappe.new_doc("LMS Question")
-		question.question = "Question Multiple"
-		question.type = "User Input"
-		self.assertRaises(frappe.ValidationError, question.save)
+		def no_possible_answers():
+			question = frappe.new_doc("LMS Question")
+			question.question = "Question Multiple"
+			question.type = "User Input"
+			return question
 
-	def test_scores_question_with_ten_options(self):
+		cases = [
+			("no_correct_option", no_correct_option),
+			("no_possible_answers", no_possible_answers),
+		]
+		for case, build in cases:
+			with self.subTest(case=case):
+				question = build()
+				self.assertRaises(frappe.ValidationError, question.save)
+
+	def test_choice_scoring_true_and_false_for_ten_and_two_option_questions(self):
 		from lms.lms.doctype.lms_quiz.lms_quiz import verify_answer
 
-		q = frappe.new_doc("LMS Question")
-		q.question = "Ten option question"
-		q.type = "Choices"
-		for i in range(1, 11):
-			q.set(f"option_{i}", f"opt{i}")
-		q.is_correct_7 = 1
-		q.save()
+		def ten_options():
+			q = frappe.new_doc("LMS Question")
+			q.question = "Ten option question"
+			q.type = "Choices"
+			for i in range(1, 11):
+				q.set(f"option_{i}", f"opt{i}")
+			q.is_correct_7 = 1
+			q.save()
+			return q, "opt7", "opt3"
 
-		self.assertTrue(verify_answer(q.name, ["opt7"]))
-		self.assertFalse(verify_answer(q.name, ["opt3"]))
+		def legacy_two_options():
+			q = frappe.new_doc("LMS Question")
+			q.question = "Two option legacy"
+			q.type = "Choices"
+			q.option_1 = "yes"
+			q.is_correct_1 = 1
+			q.option_2 = "no"
+			q.save()
+			return q, "yes", "no"
 
-	def test_legacy_two_option_question_still_scores(self):
-		from lms.lms.doctype.lms_quiz.lms_quiz import verify_answer
-
-		q = frappe.new_doc("LMS Question")
-		q.question = "Two option legacy"
-		q.type = "Choices"
-		q.option_1 = "yes"
-		q.is_correct_1 = 1
-		q.option_2 = "no"
-		q.save()
-
-		self.assertTrue(verify_answer(q.name, ["yes"]))
-		self.assertFalse(verify_answer(q.name, ["no"]))
+		cases = [
+			("ten_options", ten_options),
+			("legacy_two_options", legacy_two_options),
+		]
+		for case, build in cases:
+			with self.subTest(case=case):
+				q, correct, incorrect = build()
+				self.assertTrue(verify_answer(q.name, [correct]))
+				self.assertFalse(verify_answer(q.name, [incorrect]))
 
 	def test_user_input_matches_seventh_possibility(self):
 		from lms.lms.doctype.lms_quiz.lms_quiz import check_input_answers
@@ -90,15 +103,10 @@ class TestLMSQuiz(unittest.TestCase):
 		self.assertTrue(bool(check_input_answers(q.name, "answer 7")))
 		self.assertFalse(bool(check_input_answers(q.name, "totally different")))
 
-	@classmethod
-	def tearDownClass(cls) -> None:
-		frappe.db.delete("LMS Quiz", "test-quiz")
-		frappe.db.delete("LMS Question")
-
 
 class TestQuizAnswerImageUpload(unittest.TestCase):
 	"""Open-ended quiz answers may embed inline images as data: URIs that get
-	written to the public /files/ directory. Only image types are allowed: an
+	written to the private files directory. Only image types are allowed: an
 	active-document extension (.xhtml, .js, ...) would be served inline and
 	enable stored XSS on the LMS origin.
 	"""
@@ -106,23 +114,31 @@ class TestQuizAnswerImageUpload(unittest.TestCase):
 	def save_answer_image(self, mime_type, filename, content=b"image-bytes"):
 		encoded = base64.b64encode(content).decode()
 		answer = f'<img src="data:{mime_type};filename={filename},{encoded}">'
-		return re.sub(IMAGE_DATA_URI_PATTERN, _save_file, answer)
+		self.created_files = []
+		return re.sub(IMAGE_DATA_URI_PATTERN, partial(_save_file, self.created_files), answer)
 
-	def test_rejects_active_document_extension(self):
-		with self.assertRaises(ValidationError):
-			self.save_answer_image("application/xhtml+xml", "attack.xhtml", b"<script>alert(1)</script>")
-
-	def test_rejects_non_image_mime_type(self):
-		with self.assertRaises(ValidationError):
-			self.save_answer_image("text/javascript", "attack.js", b"alert(1)")
-
-	def test_rejects_image_mime_with_active_document_extension(self):
-		with self.assertRaises(ValidationError):
-			self.save_answer_image("image/png", "spoof.xhtml")
+	def test_rejects_unsafe_mime_type_or_extension_combos(self):
+		cases = [
+			(
+				"active_document_extension",
+				"application/xhtml+xml",
+				"attack.xhtml",
+				b"<script>alert(1)</script>",
+			),
+			("non_image_mime_type", "text/javascript", "attack.js", b"alert(1)"),
+			("image_mime_with_active_document_extension", "image/png", "spoof.xhtml", b"image-bytes"),
+		]
+		for case, mime_type, filename, content in cases:
+			with self.subTest(case=case):
+				with self.assertRaises(ValidationError):
+					self.save_answer_image(mime_type, filename, content)
 
 	def test_accepts_genuine_image(self):
 		rendered = self.save_answer_image("image/png", "answer.png", ONE_PIXEL_PNG)
-		self.assertIn("/files/", rendered)
+		# "/private/files/" and not "/files/": the latter is a substring of the former,
+		# so the loose assertion passed either way and pinned nothing.
+		self.assertIn("/private/files/", rendered)
+		self.assertEqual(len(self.created_files), 1)
 
 	def tearDown(self):
 		for name in frappe.get_all("File", {"file_name": "answer.png"}, pluck="name"):
@@ -254,3 +270,263 @@ class TestQuizResultValidation(unittest.TestCase):
 			with self.subTest(results=results):
 				with self.assertRaises(ValidationError):
 					self.fn(results)
+
+
+# ---------------------------------------------------------------------------
+# Question bank and usage helpers
+# ---------------------------------------------------------------------------
+import json  # noqa: E402 (local re-import is fine; json is stdlib)
+
+from frappe.tests.utils import FrappeTestCase
+
+from lms.lms.doctype.lms_quiz.lms_quiz import (
+	get_question_bank,
+	get_question_meta,
+)
+
+
+class TestQuizAuthoringHelpers(FrappeTestCase):
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
+		frappe.set_user("Administrator")
+		cls.q1 = frappe.get_doc(
+			{
+				"doctype": "LMS Question",
+				"question": "Usage Q1",
+				"type": "Choices",
+				"option_1": "A",
+				"is_correct_1": 1,
+				"option_2": "B",
+			}
+		).insert()
+		cls.q2 = frappe.get_doc(
+			{
+				"doctype": "LMS Question",
+				"question": "Usage Q2",
+				"type": "Open Ended",
+			}
+		).insert()
+		cls.quiz_a = frappe.get_doc(
+			{
+				"doctype": "LMS Quiz",
+				"title": "Usage Quiz A",
+				"passing_percentage": 70,
+				"questions": [{"question": cls.q1.name, "marks": 2}],
+			}
+		).insert()
+		cls.quiz_b = frappe.get_doc(
+			{
+				"doctype": "LMS Quiz",
+				"title": "Usage Quiz B",
+				"passing_percentage": 70,
+				"questions": [{"question": cls.q1.name, "marks": 3}],
+			}
+		).insert()
+
+	def test_meta_counts_distinct_quizzes(self):
+		result = get_question_meta(json.dumps([self.q1.name, self.q2.name]))
+		self.assertEqual(result[self.q1.name]["quizzes"], 2)
+		# q2 is in no quiz, so it is still listed and reports none.
+		self.assertEqual(result[self.q2.name]["quizzes"], 0)
+
+	def test_meta_accepts_list_and_validates(self):
+		result = get_question_meta([self.q1.name])
+		self.assertEqual(result[self.q1.name]["quizzes"], 2)
+		self.assertEqual(get_question_meta([]), {})
+		with self.assertRaises(frappe.ValidationError):
+			get_question_meta("not-json-and-not-a-list")
+
+	def test_meta_reports_the_type_a_child_row_cannot(self):
+		# LMS Quiz Question has no `multiple` column, so a collapsed card reading
+		# the row alone badges a multiple choice question as single.
+		multi = frappe.get_doc(
+			{
+				"doctype": "LMS Question",
+				"question": "Pick two",
+				"type": "Choices",
+				"option_1": "A",
+				"is_correct_1": 1,
+				"option_2": "B",
+				"is_correct_2": 1,
+			}
+		).insert()
+		result = get_question_meta([multi.name, self.q1.name, self.q2.name])
+		self.assertEqual(result[multi.name]["type"], "Choices")
+		self.assertEqual(result[multi.name]["multiple"], 1)
+		self.assertEqual(result[self.q1.name]["multiple"], 0)
+		self.assertEqual(result[self.q2.name]["type"], "Open Ended")
+
+	def test_bank_lists_with_flags_and_default_marks(self):
+		bank = get_question_bank(quiz=self.quiz_a.name)
+		by_name = {row["name"]: row for row in bank}
+		self.assertIn(self.q1.name, by_name)
+		self.assertTrue(by_name[self.q1.name]["already_in_quiz"])
+		# Marks belong to the question now, so q1 reports its own 1 and neither
+		# quiz row's number (2 in quiz_a, 3 in quiz_b) leaks into the bank.
+		self.assertEqual(by_name[self.q1.name]["default_marks"], 1)
+		self.assertFalse(by_name[self.q2.name]["already_in_quiz"])
+		self.assertEqual(by_name[self.q2.name]["default_marks"], 1)
+
+	def test_bank_offers_the_questions_own_marks_including_zero(self):
+		# FrappeTestCase rolls back once at class teardown, so a write to the shared q1
+		# must restore itself. `marks` is non_negative, so 0 is a real choice; `or 1`
+		# used to read it as absent and offer the question as worth 1.
+		original_marks = frappe.db.get_value("LMS Question", self.q1.name, "marks")
+		self.addCleanup(frappe.db.set_value, "LMS Question", self.q1.name, "marks", original_marks)
+		cases = [("nonzero", 5), ("zero", 0)]
+		for case, marks in cases:
+			with self.subTest(case=case):
+				frappe.db.set_value("LMS Question", self.q1.name, "marks", marks)
+				bank = get_question_bank(quiz=self.quiz_a.name)
+				by_name = {row["name"]: row for row in bank}
+				self.assertEqual(by_name[self.q1.name]["default_marks"], marks)
+
+	def test_bank_excludes_the_names_it_is_given(self):
+		# The picker gets one page, so a quiz already holding the most recently
+		# modified questions used to draw an empty bank with the rest still there.
+		bank = get_question_bank(quiz=self.quiz_a.name, exclude=[self.q1.name])
+		names = [row["name"] for row in bank]
+		self.assertNotIn(self.q1.name, names)
+		self.assertIn(self.q2.name, names)
+
+	def test_bank_takes_the_exclusion_as_a_json_string(self):
+		# frappe hands a list argument over as JSON on some call paths.
+		bank = get_question_bank(quiz=self.quiz_a.name, exclude=json.dumps([self.q1.name]))
+		self.assertNotIn(self.q1.name, [row["name"] for row in bank])
+
+	def test_bank_narrows_to_the_types_the_quiz_can_take(self):
+		bank = get_question_bank(quiz=self.quiz_a.name, allowed_types=["Open Ended"])
+		self.assertTrue(all(row["type"] == "Open Ended" for row in bank))
+
+	def test_bank_ignores_an_unusable_exclusion(self):
+		full = get_question_bank(quiz=self.quiz_a.name)
+		self.assertEqual(
+			[row["name"] for row in get_question_bank(quiz=self.quiz_a.name, exclude="not json")],
+			[row["name"] for row in full],
+		)
+
+	def test_bank_intersects_an_explicit_type_with_what_the_quiz_takes(self):
+		# Answering with rows the picker then drops on the floor reads as a bug: the
+		# quiz's mixing constraint still applies to a type the author picked.
+		# Choices, because q1 is one: without the intersection the bank answers with it.
+		self.assertEqual(
+			get_question_bank(
+				quiz=self.quiz_a.name,
+				question_type="Choices",
+				allowed_types=["Open Ended"],
+			),
+			[],
+		)
+
+	def test_bank_filters_by_type_and_search(self):
+		open_only = get_question_bank(quiz=self.quiz_a.name, question_type="Open Ended")
+		self.assertTrue(all(r["type"] == "Open Ended" for r in open_only))
+		searched = get_question_bank(quiz=self.quiz_a.name, search="Usage Q1")
+		self.assertTrue(any(r["name"] == self.q1.name for r in searched))
+		self.assertFalse(any(r["name"] == self.q2.name for r in searched))
+
+	def test_question_meta_and_bank_endpoints_require_instructor(self):
+		# addCleanup, not a trailing set_user: if the endpoint ever stops raising, the
+		# assertion raises out of this method and every later test in the run would
+		# execute as Guest and fail for a reason that has nothing to do with it.
+		self.addCleanup(frappe.set_user, "Administrator")
+		frappe.set_user("Guest")
+		cases = [
+			("get_question_meta", lambda: get_question_meta([self.q1.name])),
+			("get_question_bank", lambda: get_question_bank(quiz=self.quiz_a.name)),
+		]
+		for case, action in cases:
+			with self.subTest(case=case):
+				with self.assertRaises(frappe.PermissionError):
+					action()
+
+
+from lms.patches.v2_0.set_question_marks_from_quizzes import PATCH as MARKS_PATCH  # noqa: E402
+from lms.patches.v2_0.set_question_marks_from_quizzes import (  # noqa: E402
+	execute as backfill_question_marks,
+)
+
+
+class TestQuestionMarksBackfill(FrappeTestCase):
+	def setUp(self):
+		frappe.set_user("Administrator")
+		# The site this runs on has already migrated, so the patch is recorded and
+		# its run-once guard would return before touching anything. Every test that
+		# exercises the backfill has to look like a site seeing it for the first
+		# time; the rollback puts the row back.
+		self._forget_the_patch_ran()
+
+	def _forget_the_patch_ran(self):
+		for row in frappe.get_all("Patch Log", filters={"patch": ("like", f"{MARKS_PATCH}%")}):
+			frappe.db.delete("Patch Log", {"name": row.name})
+
+	def _question(self, text):
+		return frappe.get_doc({"doctype": "LMS Question", "question": text, "type": "Open Ended"}).insert()
+
+	def _quiz(self, title, rows):
+		return frappe.get_doc(
+			{
+				"doctype": "LMS Quiz",
+				"title": title,
+				"passing_percentage": 70,
+				"questions": rows,
+			}
+		).insert()
+
+	def test_backfill_takes_the_highest_quiz_weight_and_leaves_authored_marks_alone(self):
+		def zero_weight():
+			# 0 is a weight an author can pick (`reqd` reads an Int through cstr, so "0"
+			# counts as content). Filtering on `marks > 1` left it on the default of 1.
+			question = self._question("Backfill zero")
+			self._quiz("Backfill Zero Quiz", [{"question": question.name, "marks": 0}])
+			frappe.db.set_value("LMS Question", question.name, "marks", 1, update_modified=False)
+			return question, 0
+
+		def highest_weight():
+			question = self._question("Backfill highest")
+			self._quiz("Backfill Highest A", [{"question": question.name, "marks": 2}])
+			self._quiz("Backfill Highest B", [{"question": question.name, "marks": 5}])
+			frappe.db.set_value("LMS Question", question.name, "marks", 1, update_modified=False)
+			return question, 5
+
+		def deliberate_zero():
+			# 0 is a weight, not an absent value. `marks <= 1` kept it permanently
+			# eligible, so a re-run read the author's 0 as unset and overwrote it.
+			question = self._question("Backfill deliberate zero")
+			self._quiz("Backfill Deliberate Zero Quiz", [{"question": question.name, "marks": 3}])
+			frappe.db.set_value("LMS Question", question.name, "marks", 0, update_modified=False)
+			return question, 0
+
+		def already_run():
+			# The only guard that can protect a deliberate 1: from the data alone it is
+			# indistinguishable from a question nobody has touched.
+			question = self._question("Backfill already run")
+			self._quiz("Backfill Already Run Quiz", [{"question": question.name, "marks": 6}])
+			frappe.db.set_value("LMS Question", question.name, "marks", 1, update_modified=False)
+			frappe.get_doc({"doctype": "Patch Log", "patch": f"{MARKS_PATCH} #05-09-2026"}).insert()
+			return question, 1
+
+		def set_by_hand():
+			question = self._question("Backfill manual")
+			self._quiz("Backfill Manual Quiz", [{"question": question.name, "marks": 4}])
+			frappe.db.set_value("LMS Question", question.name, "marks", 7, update_modified=False)
+			return question, 7
+
+		cases = [
+			("a_zero_weight_backfills_as_zero", zero_weight),
+			("takes_the_highest_weight_across_quizzes", highest_weight),
+			("leaves_a_weight_deliberately_set_to_zero", deliberate_zero),
+			("does_nothing_once_the_patch_is_recorded", already_run),
+			("leaves_a_weight_set_by_hand", set_by_hand),
+		]
+		for case, build in cases:
+			with self.subTest(case=case):
+				# Only "already_run" wants the patch marked recorded; forgetting it
+				# again here undoes that row's insert so later rows still backfill.
+				self._forget_the_patch_ran()
+				question, expected_marks = build()
+
+				backfill_question_marks()
+
+				self.assertEqual(frappe.db.get_value("LMS Question", question.name, "marks"), expected_marks)

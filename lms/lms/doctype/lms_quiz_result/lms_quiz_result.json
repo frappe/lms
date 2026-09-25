@@ -8,6 +8,7 @@
   "question",
   "section_break_fztv",
   "question_name",
+  "question_type",
   "answer",
   "column_break_flus",
   "marks",
@@ -45,6 +46,12 @@
    "fieldtype": "Link",
    "label": "Question Name",
    "options": "LMS Question"
+  },
+  {
+   "fieldname": "question_type",
+   "fieldtype": "Data",
+   "label": "Question Type",
+   "read_only": 1
   },
   {
    "fieldname": "column_break_flus",

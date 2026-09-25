@@ -11,12 +11,8 @@ const source = readFileSync(
 )
 
 describe('programming exercise submission editor', () => {
-	it('renders the editable Ace component instead of the auto-imported Code icon', () => {
-		expect(source).toContain(
-			"import CodeEditor from '@/components/Controls/CodeEditor.vue'"
-		)
-		expect(source).toMatch(/<CodeEditor[\s\S]*?v-model="code"[\s\S]*?\/>/)
-		expect(source).not.toMatch(/<Code\s/)
+	it('renders the editable CodeMirror editor bound to the code', () => {
+		expect(source).toMatch(/<Code\s[\s\S]*?v-model="code"[\s\S]*?\/>/)
 	})
 
 	it('does not override the solid Run button with dark-mode ink', () => {

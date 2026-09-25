@@ -109,7 +109,7 @@
 						rows="2"
 						maxlength="4000"
 						data-testid="tutor-input"
-						class="block min-h-[2.75rem] max-h-40 flex-1 resize-none rounded-md border border-outline-gray-2 bg-surface-gray-2 px-3 py-2 text-p-sm text-ink-gray-9 placeholder-ink-gray-4 focus:border-outline-gray-4 focus:ring-0"
+						class="block min-h-[2.75rem] max-h-40 flex-1 resize-none rounded-5 border border-outline-gray-2 bg-surface-gray-2 px-3 py-2 text-p-sm text-ink-gray-9 placeholder-ink-gray-4 focus:border-outline-gray-4 focus:ring-0"
 						:placeholder="__('Ask a question about this lesson')"
 						:aria-label="__('Your question')"
 						@keydown.enter.exact.prevent="send()"

@@ -2,7 +2,7 @@
 	<TeacherPage :breadcrumbs="breadcrumbs" :state="page">
 		<section
 			v-if="item"
-			class="space-y-4 rounded-lg border border-outline-gray-2 p-5"
+			class="space-y-4 rounded-6 border border-outline-gray-2 p-5"
 		>
 			<div class="flex flex-wrap items-center gap-2">
 				<h1 class="me-2 text-lg-semibold text-ink-gray-9">{{ item.title }}</h1>
@@ -26,7 +26,7 @@
 
 			<p
 				v-if="item.status === 'Queued'"
-				class="flex items-center gap-2 rounded-lg bg-surface-gray-2 px-3 py-2 text-p-base text-ink-gray-8"
+				class="flex items-center gap-2 rounded-6 bg-surface-gray-2 px-3 py-2 text-p-base text-ink-gray-8"
 				data-testid="copilot-import-queued"
 			>
 				<LoadingIndicator class="size-4 shrink-0" />

@@ -10,7 +10,7 @@
 		</div>
 		<div
 			v-else-if="details.error"
-			class="rounded-lg bg-surface-red-1 p-4 text-p-sm text-ink-red-6"
+			class="rounded-6 bg-surface-red-1 p-4 text-p-sm text-ink-red-6"
 			role="alert"
 		>
 			{{ errorText(details.error) }}
@@ -19,7 +19,7 @@
 			v-else-if="data"
 			class="grid gap-5 lg:grid-cols-[minmax(0,3fr),minmax(0,2fr)]"
 		>
-			<section class="space-y-5 rounded-lg border p-5">
+			<section class="space-y-5 rounded-6 border p-5">
 				<h1 class="text-xl font-semibold text-ink-gray-9">
 					{{ data.title }}
 				</h1>
@@ -76,7 +76,7 @@
 				</div>
 			</section>
 
-			<section class="space-y-5 rounded-lg border p-5" data-testid="status">
+			<section class="space-y-5 rounded-6 border p-5" data-testid="status">
 				<p v-if="!latest" class="text-p-sm text-ink-gray-5">
 					{{ __('You have not submitted this project yet.') }}
 				</p>
@@ -143,7 +143,7 @@
 
 					<p
 						v-if="latest.status === 'Error'"
-						class="rounded-md bg-surface-red-1 p-3 text-p-sm text-ink-red-6"
+						class="rounded-5 bg-surface-red-1 p-3 text-p-sm text-ink-red-6"
 						role="alert"
 					>
 						{{
@@ -211,7 +211,7 @@
 							</Badge>
 						</div>
 						<div
-							class="whitespace-pre-wrap break-words rounded-md bg-surface-gray-2 p-3 text-p-sm text-ink-gray-8"
+							class="whitespace-pre-wrap break-words rounded-5 bg-surface-gray-2 p-3 text-p-sm text-ink-gray-8"
 						>
 							{{ latest.feedback.message }}
 						</div>
@@ -228,7 +228,7 @@
 					</div>
 					<p
 						v-else-if="latest.tests"
-						class="rounded-md bg-surface-gray-2 p-3 text-p-sm text-ink-gray-7"
+						class="rounded-5 bg-surface-gray-2 p-3 text-p-sm text-ink-gray-7"
 					>
 						{{ __('While you wait, look at the tests that did not pass.') }}
 					</p>
@@ -249,7 +249,7 @@ import {
 	toast,
 	usePageMeta,
 } from 'frappe-ui'
-import PageHeader from '@/components/Layouts/PageHeader.vue'
+import PageHeader from '@/components/Layouts/pages/PageHeader.vue'
 import { COPILOT_API, copilotCall } from '@/copilot/api'
 import { sessionStore } from '@/stores/session'
 import { safeUrl } from '@/utils/safeUrl'

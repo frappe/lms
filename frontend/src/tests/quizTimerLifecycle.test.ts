@@ -103,11 +103,14 @@ vi.mock('frappe-ui', async () => {
 		},
 		Badge: passthrough,
 		Checkbox: passthrough,
+		Radio: { props: ['value'], template: '<div><slot name="label" /></div>' },
+		RadioGroup: {
+			props: ['modelValue', 'name'],
+			template: '<div><slot /></div>',
+		},
 		Dialog: { props: ['open'], template: '<div v-if="open"><slot /></div>' },
 		FormControl: passthrough,
-		ListView: passthrough,
 		LoadingIndicator: passthrough,
-		TextEditor: passthrough,
 	}
 })
 
@@ -223,7 +226,7 @@ describe('Quiz.vue state reset when the instance is reused', () => {
 		// reads — let it run before answering.
 		await flushPromises()
 		vm.markAnswer(1)
-		vm.markForReview({ target: { checked: true } }, 1)
+		vm.markForReview(true, 1)
 		await flushPromises()
 
 		expect(vm.activeQuestion).toBe(1)

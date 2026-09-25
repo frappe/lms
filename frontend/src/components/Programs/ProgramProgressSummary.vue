@@ -7,36 +7,29 @@
 		<template #default>
 			<div class="text-base">
 				<div class="flex items-center justify-between gap-x-4 mb-4">
-					<NumberChart
-						class="border rounded-md w-full"
-						:config="{
-							title: __('Enrollments'),
-							value: programMembers.length || 0,
-						}"
+					<NumberCard
+						class="w-full"
+						:title="__('Enrollments')"
+						:value="programMembers.length || 0"
+						:format="compactNumber"
 					/>
-					<NumberChart
-						class="border rounded-md w-full"
-						:config="{
-							title: __('Average Progress %'),
-							value: averageProgress || 0,
-						}"
+					<NumberCard
+						class="w-full"
+						:title="__('Average Progress %')"
+						:value="averageProgress || 0"
+						:format="compactNumber"
 					/>
 				</div>
-				<DonutChart
-					:config="{
-						data: progressDistribution || [],
-						title: __('Progress Distribution'),
-						categoryColumn: 'category',
-						valueColumn: 'count',
-						colors: [
-							'var(--red-400)',
-							'var(--amber-400)',
-							'var(--pink-400)',
-							'var(--blue-400)',
-							'var(--green-400)',
-						],
-					}"
-				/>
+				<ChartCard class="h-80">
+					<DonutChart
+						:data="progressDistribution || []"
+						category="category"
+						value="count"
+						:title="__('Progress Distribution')"
+						:palette="progressPalette"
+						:center-label="__('Members')"
+					/>
+				</ChartCard>
 
 				<div class="mt-10">
 					<FormControl
@@ -67,10 +60,12 @@
 	</Dialog>
 </template>
 <script setup lang="ts">
-import { Dialog, DonutChart, FormControl, NumberChart } from 'frappe-ui'
+import { Dialog, FormControl, useResolvedColorScheme } from 'frappe-ui'
+import { ChartCard, DonutChart, NumberCard } from 'frappe-ui/charts'
 import type { ListRow, ProgramMember } from '@/types'
 import { computed, ref, watch } from 'vue'
 import ResponsiveListView from '@/components/ResponsiveListView.vue'
+import { compactNumber } from '@/utils/numberCardFormat'
 
 const show = defineModel<boolean>({ default: false })
 const searchFilter = ref<string | null>(null)
@@ -79,6 +74,26 @@ const props = defineProps<{
 	programName: string
 	programMembers: ProgramMember[]
 }>()
+
+const PROGRESS_COLOR_TOKENS = [
+	'--surface-red-6',
+	'--surface-amber-6',
+	'--surface-yellow-6',
+	'--surface-blue-6',
+	'--surface-green-6',
+]
+
+const colorScheme = useResolvedColorScheme()
+
+const progressPalette = computed<string[]>(() => {
+	// echarts can't resolve var(), so read each token's value.
+	// Touching colorScheme reruns this on a theme switch.
+	void colorScheme.value
+	const styles = getComputedStyle(document.documentElement)
+	return PROGRESS_COLOR_TOKENS.map((token) =>
+		styles.getPropertyValue(token).trim()
+	)
+})
 
 const progressList = ref<ProgramMember[]>(props.programMembers || [])
 

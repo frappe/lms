@@ -2,54 +2,34 @@
 	<MultiSelect
 		v-model="value"
 		v-model:open="popoverOpen"
+		v-model:query="query"
 		:options="mergedOptions"
 		:placeholder="placeholder"
 		:emptyText="emptyText"
 		:variant="variant"
+		:disabled="disabled"
+		:loading="loading"
+		:filterable="false"
 		:label="label ? __(label) : undefined"
 		:description="description"
 		:error="error"
 		:required="required"
 		@update:open="onOpen"
-		@update:query="onQuery"
 		@update:modelValue="onChange"
 	>
-		<template #trigger="{ open, setOpen, selectedOptions }">
-			<button
-				type="button"
-				:class="[
-					triggerBaseClasses,
-					triggerVariantClasses[variant],
-					'min-h-7 rounded px-2 w-full justify-between text-base',
-					disabled && 'cursor-not-allowed opacity-60',
-				]"
-				:data-state="open ? 'open' : 'closed'"
-				:disabled="disabled"
-				@click="setOpen(!open)"
-			>
-				<span class="flex min-w-0 flex-1 items-center gap-2">
-					<slot name="prefix" :selected="selectedOptions" />
-					<span
-						class="min-w-0 flex-1 truncate text-start"
-						:class="!selectedOptions.length && 'text-ink-gray-4'"
-					>
-						<slot
-							name="summary"
-							:summary="triggerLabel(selectedOptions) || placeholder"
-							:selected="selectedOptions"
-						>
-							<template v-if="selectedOptions.length">{{
-								defaultSummary(selectedOptions)
-							}}</template>
-							<template v-else>{{ placeholder }}</template>
-						</slot>
-					</span>
-				</span>
-				<span
-					class="lucide-chevron-down size-4 shrink-0 text-ink-gray-4 transition-transform duration-200"
-					:class="open && 'rotate-180'"
-				/>
-			</button>
+		<template v-if="$slots.prefix" #prefix="slotProps">
+			<slot
+				name="prefix"
+				v-bind="slotProps"
+				:selected="slotProps.selectedOptions"
+			/>
+		</template>
+		<template v-if="$slots.summary" #summary="slotProps">
+			<slot
+				name="summary"
+				v-bind="slotProps"
+				:selected="slotProps.selectedOptions"
+			/>
 		</template>
 		<template v-if="$slots['item-prefix']" #item-prefix="slotProps">
 			<slot name="item-prefix" v-bind="slotProps" />
@@ -57,7 +37,7 @@
 		<template v-if="$slots['item-label']" #item-label="slotProps">
 			<slot name="item-label" v-bind="slotProps" />
 		</template>
-		<template #footer="{ clear }">
+		<template #footer="{ clear, selectAll }">
 			<slot name="footer" :close="closePopover">
 				<div
 					class="flex items-center justify-between gap-2 border-t border-outline-gray-1 px-2 py-1.5 mt-1"
@@ -70,18 +50,32 @@
 					>
 						{{ __('Clear') }}
 					</Button>
-					<Button
-						v-if="props.onCreate"
-						variant="ghost"
-						size="sm"
-						:aria-label="__(createLabel)"
-						@click="handleCreate"
+					<div
+						v-if="props.onCreate || allowSelectAll"
+						class="flex items-center gap-1"
 					>
-						<template #prefix>
-							<span class="lucide-plus size-4" />
-						</template>
-						{{ __(createLabel) }}
-					</Button>
+						<Button
+							v-if="props.onCreate"
+							variant="ghost"
+							size="sm"
+							:aria-label="__(createLabel)"
+							@click="handleCreate"
+						>
+							<template #prefix>
+								<span class="lucide-plus size-4" />
+							</template>
+							{{ __(createLabel) }}
+						</Button>
+						<Button
+							v-if="allowSelectAll"
+							variant="ghost"
+							size="sm"
+							:aria-label="__('Select all')"
+							@click="selectAll"
+						>
+							{{ __('Select all') }}
+						</Button>
+					</div>
 				</div>
 			</slot>
 		</template>
@@ -93,6 +87,24 @@ import { Button, MultiSelect, createResource } from 'frappe-ui'
 import { useDebounceFn } from '@vueuse/core'
 import { computed, ref, watch } from 'vue'
 import type { Resource } from '@/types'
+
+// The trigger is MultiSelect's own: it already carries the theme's focus ring,
+// the open/variant/size data attributes and the full aria wiring, none of which
+// a local button reproduced correctly. So `#trigger` is not overridden here and
+// `disabled` is handed to MultiSelect rather than to a button of ours.
+//
+// `#prefix` and `#summary` are forwarded only when a consumer supplies them.
+// Forwarding `#summary` unconditionally would suppress MultiSelect's own
+// summary, which collapses 2+ selections to "N selected", and with it the
+// phantom sizer that keeps the trigger from widening with the selection.
+// Both slots get MultiSelect's slot props plus `selected`, the name MultiLink's
+// own trigger used, so a consumer written against the old shape still works.
+//
+// Footer layout: Clear on the start edge, everything additive on the end edge,
+// so the one destructive action in the row is never adjacent to the ones that
+// add. Select all sits last because it is the end-edge action asked for; a
+// control that also passes `onCreate` puts Create New beside it rather than back
+// on the start edge, so Clear stays alone whatever the combination.
 
 interface SelectOption {
 	label: string
@@ -121,6 +133,12 @@ const props = withDefaults(
 		onCreate?: (close: CloseFn) => void
 		createLabel?: string
 		emptyText?: string
+		/** Offer a one-click select-all in the footer. Off unless asked for: on a
+		 *  picker whose list is one page of a server search, selecting everything
+		 *  is rarely what the reader means. What the button reaches is that page
+		 *  `page_length` defaults to 10 server-side, not every record of the
+		 *  doctype, which the label no longer says. */
+		allowSelectAll?: boolean
 	}>(),
 	{
 		filters: () => ({}),
@@ -130,28 +148,18 @@ const props = withDefaults(
 		variant: 'subtle',
 		createLabel: 'Create New',
 		emptyText: 'No results',
+		allowSelectAll: false,
 	}
 )
 
 const value = defineModel<string[]>({ default: () => [] })
 
 const popoverOpen = ref<boolean>(false)
+// Bound rather than left to MultiSelect, because the search runs on the server:
+// the typed text has to reach `reload()`. Binding also makes the query ours to
+// reset. See onOpen().
+const query = ref<string>('')
 let loaded = false
-
-const triggerBaseClasses =
-	'relative inline-flex items-center gap-2 text-start text-ink-gray-7 outline-none transition-[background-color,border-color,box-shadow] duration-150'
-
-const triggerVariantClasses: Record<
-	NonNullable<typeof props.variant>,
-	string
-> = {
-	subtle:
-		'border border-[--surface-gray-2] bg-surface-gray-2 hover:border-outline-elevation-2 hover:bg-surface-gray-3 focus-visible:bg-surface-base focus-visible:border-outline-gray-4 focus-visible:shadow-sm data-[state=open]:bg-surface-base data-[state=open]:border-outline-gray-4 data-[state=open]:shadow-sm',
-	outline:
-		'border border-outline-gray-2 bg-surface-base hover:border-outline-gray-3 hover:shadow-sm focus-visible:border-outline-gray-4 focus-visible:shadow-sm data-[state=open]:border-outline-gray-4 data-[state=open]:shadow-sm',
-	ghost:
-		'border border-transparent bg-transparent hover:bg-surface-gray-3 focus-within:bg-surface-gray-3',
-}
 
 function buildParams(txt: string) {
 	return {
@@ -185,14 +193,25 @@ function reload(txt: string = '') {
 	options.reload()
 }
 
+// Surfaced to MultiSelect so the list reads as pending rather than empty. Left
+// unset, the popover renders `emptyText` for the whole round trip, so every
+// dropdown opens on "No results" and only then fills in.
+const loading = computed<boolean>(() => !!options.loading)
+
 function onOpen(open: boolean) {
-	if (open && !loaded) reload()
+	if (open) {
+		if (!loaded) reload()
+		return
+	}
+	// MultiSelect never clears a bound query, so a control reopened after a
+	// fruitless search would still be showing that search's text over that
+	// search's (empty) results. Clearing runs the base search again.
+	query.value = ''
 }
 
-const onQuery = useDebounceFn(
-	(txt: unknown) => reload((txt as string) || ''),
-	300
-)
+const runQuery = useDebounceFn((txt: string) => reload(txt), 300)
+
+watch(query, (txt) => runQuery(txt))
 
 const emit = defineEmits<{
 	(e: 'change', value: string[]): void
@@ -301,18 +320,29 @@ function resolveMissing(vals: string[]): void {
 
 watch(value, (vals) => resolveMissing(vals || []), { immediate: true })
 
+// What this control is searching, as one comparable string. A Raven condition
+// row swaps its value cell's doctype in place when the rule type changes, and
+// Vue reuses this instance across that swap, so without this the picker would
+// go on offering the previous doctype's records, and would never re-query,
+// because `loaded` says it already has.
+const searchKey = computed<string>(() =>
+	JSON.stringify([props.url, props.doctype, props.filters, props.searchParams])
+)
+
+watch(searchKey, () => {
+	loaded = false
+	options.data = null
+	resolved.value = new Map()
+	requested.clear()
+	resolveMissing(value.value || [])
+	if (popoverOpen.value) reload(query.value)
+})
+
 const optionByValue = computed<Map<string, SelectOption>>(() => {
 	const map = new Map<string, SelectOption>()
 	mergedOptions.value.forEach((o) => map.set(o.value, o))
 	return map
 })
-
-function defaultSummary(selected: { label: string }[]) {
-	return selected.map((o) => o.label).join(', ')
-}
-
-const triggerLabel = (options: { label: string }[]) =>
-	options.map((option) => option.label).join(', ')
 
 defineExpose({ reload, options, optionByValue })
 </script>

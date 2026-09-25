@@ -59,13 +59,13 @@ vi.mock('frappe-ui', () => ({
 	},
 }))
 
-vi.mock('@/components/Layouts/PageHeader.vue', () => ({
+vi.mock('@/components/Layouts/pages/PageHeader.vue', () => ({
 	default: {
 		props: ['breadcrumbs'],
 		template: `<header><span v-for="crumb in breadcrumbs" class="crumb">{{ crumb.label }}</span><slot name="actions" /></header>`,
 	},
 }))
-vi.mock('@/components/Layouts/PageBody.vue', () => ({
+vi.mock('@/components/Layouts/pages/PageBody.vue', () => ({
 	default: { template: '<main><slot /></main>' },
 }))
 vi.mock('@/components/HeaderButton.vue', () => ({

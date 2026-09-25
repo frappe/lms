@@ -56,7 +56,7 @@
 
 			<p
 				v-if="!rows.length"
-				class="rounded-lg border border-outline-gray-2 px-5 py-10 text-center text-p-base text-ink-gray-5"
+				class="rounded-6 border border-outline-gray-2 px-5 py-10 text-center text-p-base text-ink-gray-5"
 				data-testid="copilot-queue-empty"
 			>
 				{{
@@ -67,7 +67,7 @@
 			</p>
 			<div
 				v-else
-				class="overflow-x-auto rounded-lg border border-outline-gray-2"
+				class="overflow-x-auto rounded-6 border border-outline-gray-2"
 			>
 				<table class="w-full text-p-base">
 					<thead>

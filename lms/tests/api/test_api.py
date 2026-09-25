@@ -1,6 +1,7 @@
 import glob
 import os
 import re
+import unittest
 import zipfile
 
 import frappe
@@ -19,9 +20,10 @@ from lms.lms.test_helpers import BaseTestUtils
 
 
 class TestLMSAPI(BaseTestUtils):
-	def setUp(self):
-		super().setUp()
-		self._setup_course_flow()
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
+		cls._setup_course_flow()
 
 	def test_student_can_self_enroll_through_lms_endpoint(self):
 		course = self._create_course(
@@ -161,7 +163,6 @@ class TestLMSAPI(BaseTestUtils):
 		original_first_lesson = frappe.get_doc("Course Lesson", original_first_chapter.lessons[0].lesson)
 		self.assertEqual(imported_first_lesson.title, original_first_lesson.title)
 		self.assertEqual(imported_first_lesson.content, original_first_lesson.content)
-		self.cleanup_imported_course(imported_course.name)
 
 	def get_imported_course(self):
 		latest_file = self.get_latest_zip_file()
@@ -171,26 +172,15 @@ class TestLMSAPI(BaseTestUtils):
 		imported_course = frappe.get_doc("LMS Course", imported_course_name)
 		return imported_course
 
-	def cleanup_imported_course(self, course_name):
-		self.cleanup_items.append(("LMS Course", course_name))
-		self.cleanup_imported_assessment("LMS Quiz", self.quiz)
-		self.cleanup_imported_assessment("LMS Assignment", self.assignment)
-		self.cleanup_imported_assessment("LMS Programming Exercise", self.programming_exercise)
 
-	def cleanup_imported_assessment(self, doctype, doc):
-		imported_assessment = frappe.db.get_value(
-			doctype, {"title": doc.title, "name": ["!=", doc.name]}, "name"
-		)
-		if imported_assessment:
-			self.cleanup_items.append((doctype, imported_assessment))
-
-	def test_sanitize_string_filename_behavior(self):
+class TestSanitizeString(unittest.TestCase):
+	def test_filename_behavior(self):
 		result = sanitize_string(
 			"my file@name!.txt", allow_spaces=False, replacement_char="_", escape_html_content=False
 		)
 		self.assertEqual(result, "my_file_name_.txt")
 
-	def test_sanitize_string_name_field_behavior(self):
+	def test_name_field_behavior(self):
 		result = sanitize_string(
 			"John#Doe$", allow_spaces=True, max_length=50, replacement_char=None, escape_html_content=True
 		)
@@ -198,24 +188,22 @@ class TestLMSAPI(BaseTestUtils):
 
 
 class TestTrackVideoWatchDuration(BaseTestUtils):
-	def setUp(self):
-		super().setUp()
-		self.instructor = self._create_user(
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
+		cls.instructor = cls._create_user(
 			"frappe@example.com", "Frappe", "Admin", ["Course Creator", "Moderator"]
 		)
-		self.student = self._create_user("student1@example.com", "Ashley", "Smith", ["LMS Student"])
-		self.course = self._create_course()
-		self.chapter = self._create_chapter("Chapter 1", self.course.name)
-		self.lesson = self._create_lesson("Lesson 1", self.chapter.name, self.course.name)
+		cls.student = cls._create_user("student1@example.com", "Ashley", "Smith", ["LMS Student"])
+		cls.course = cls._create_course()
+		cls.chapter = cls._create_chapter("Chapter 1", cls.course.name)
+		cls.lesson = cls._create_lesson("Lesson 1", cls.chapter.name, cls.course.name)
 		# track_video_watch_duration now requires lesson access; the student must be enrolled.
-		self._create_enrollment(self.student.email, self.course.name)
-		self._original_user = frappe.session.user
-		frappe.set_user(self.student.email)
+		cls._create_enrollment(cls.student.email, cls.course.name)
 
-	def tearDown(self):
-		frappe.set_user(self._original_user)
-		frappe.db.delete("LMS Video Watch Duration", {"member": self.student.email})
-		super().tearDown()
+	def setUp(self):
+		super().setUp()
+		frappe.set_user(self.student.email)
 
 	def _watch_rows(self, source=None):
 		filters = {"lesson": self.lesson.name, "member": self.student.email}
@@ -223,23 +211,19 @@ class TestTrackVideoWatchDuration(BaseTestUtils):
 			filters["source"] = source
 		return frappe.get_all("LMS Video Watch Duration", filters=filters, fields=["name", "watch_time"])
 
-	def test_creates_row_when_none_exists(self):
+	def test_updates_only_when_greater(self):
 		track_video_watch_duration(self.lesson.name, [{"source": "a.mp4", "watch_time": 12}])
 		rows = self._watch_rows("a.mp4")
 		self.assertEqual(len(rows), 1)
 		self.assertEqual(flt(rows[0].watch_time), 12)
 
-	def test_updates_only_when_greater(self):
-		track_video_watch_duration(self.lesson.name, [{"source": "a.mp4", "watch_time": 10}])
+		# A lower watch_time must not create a second row or move the value down.
 		track_video_watch_duration(self.lesson.name, [{"source": "a.mp4", "watch_time": 5}])
-		self.assertEqual(flt(self._watch_rows("a.mp4")[0].watch_time), 10)
+		self.assertEqual(len(self._watch_rows("a.mp4")), 1)
+		self.assertEqual(flt(self._watch_rows("a.mp4")[0].watch_time), 12)
+
 		track_video_watch_duration(self.lesson.name, [{"source": "a.mp4", "watch_time": 20}])
 		self.assertEqual(flt(self._watch_rows("a.mp4")[0].watch_time), 20)
-
-	def test_no_duplicate_on_repeat(self):
-		track_video_watch_duration(self.lesson.name, [{"source": "a.mp4", "watch_time": 10}])
-		track_video_watch_duration(self.lesson.name, [{"source": "a.mp4", "watch_time": 15}])
-		self.assertEqual(len(self._watch_rows("a.mp4")), 1)
 
 	def test_tracks_multiple_videos(self):
 		track_video_watch_duration(
@@ -251,8 +235,6 @@ class TestTrackVideoWatchDuration(BaseTestUtils):
 		)
 		self.assertEqual(len(self._watch_rows()), 2)
 
-
-import unittest  # noqa: E402
 
 from lms.lms.api import get_assessment_from_lesson  # noqa: E402
 

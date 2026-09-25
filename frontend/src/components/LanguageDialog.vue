@@ -20,7 +20,7 @@
 			>
 				{{ __('No languages found') }}
 			</div>
-			<div v-else class="max-h-80 overflow-y-auto rounded-md border border-outline-gray-2">
+			<div v-else class="max-h-80 overflow-y-auto rounded-5 border border-outline-gray-2">
 				<button
 					v-for="language in filteredLanguages"
 					:key="language.name"
