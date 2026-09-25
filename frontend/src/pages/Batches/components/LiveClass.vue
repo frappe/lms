@@ -6,7 +6,7 @@
 			class="mb-5"
 			:description="
 				__(
-					'Please select a conferencing provider and add an account to the batch to create live classes.'
+					'Add a conferencing account in Settings → Integrations, then select it in the batch Settings.',
 				)
 			"
 		/>
