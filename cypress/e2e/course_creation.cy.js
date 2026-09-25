@@ -1,18 +1,12 @@
 describe("Course Creation", () => {
-	const courseTitle = "Test Course";
-	const courseSlug = "test-course";
-
-	before(() => {
-		cy.login();
-		cy.request({
-			url: "/api/method/frappe.client.delete",
-			method: "POST",
-			body: { doctype: "LMS Course", name: courseSlug },
-			failOnStatusCode: false,
-		});
-	});
+	// A retry of the create test leaves the failed attempt's course behind and
+	// generate_slug() suffixes the next one, so the title is fresh per attempt
+	// and the slug is read from the redirect rather than hardcoded.
+	let courseTitle;
+	let courseSlug;
 
 	it("creates a new course with settings", () => {
+		courseTitle = `Test Course ${Date.now()}`;
 		cy.login();
 		cy.visit("/lms/courses");
 		cy.closeOnboardingModal();
@@ -76,10 +70,11 @@ describe("Course Creation", () => {
 		cy.get('[data-testid="new-course-save"]').click();
 
 		// Redirect to course settings
-		cy.url({ timeout: 10000 }).should(
-			"include",
-			`/lms/courses/${courseSlug}`
-		);
+		cy.location("pathname", { timeout: 10000 })
+			.should("match", /^\/lms\/courses\/test-course-\d+/)
+			.then((pathname) => {
+				courseSlug = pathname.split("/")[3];
+			});
 		cy.closeOnboardingModal();
 
 		// Configure settings
@@ -107,6 +102,11 @@ describe("Course Creation", () => {
 		cy.get("body").type("{esc}");
 
 		cy.button("Save").click();
+		// Publish is a second write to the same course; racing the save trips
+		// frappe's TimestampMismatchError.
+		cy.contains(/Course updated successfully/i, { timeout: 10000 }).should(
+			"exist"
+		);
 
 		// Publish
 		cy.get("header")
