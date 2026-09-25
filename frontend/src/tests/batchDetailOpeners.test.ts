@@ -123,7 +123,6 @@ const mountPage = async (router: Router) => {
 			provide: {
 				$user: { data: { name: 'mod@example.com', is_moderator: true } },
 			},
-			stubs: { teleport: true },
 			mocks: { __: (text: string) => text },
 		},
 	})

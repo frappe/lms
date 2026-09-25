@@ -5,16 +5,31 @@
 		v-bind="attachArgs"
 		:validateFile="validateFile"
 		@success="(data) => addFile(data)"
-		ref="fileUploader"
-		class="hide"
-	/>
+		v-slot="{ openFileSelector, uploading, progress, error }"
+	>
+		<div>
+			<AutoOpen :open="openFileSelector" />
+			<Button :loading="uploading" @click="openFileSelector">
+				{{
+					uploading ? __('Uploading {0}%').format(progress) : __('Upload File')
+				}}
+			</Button>
+			<ErrorMessage :message="error ?? undefined" class="mt-1" />
+		</div>
+	</FileUploader>
 </template>
 <script setup>
-import { FileUploader } from 'frappe-ui'
-import { onMounted, ref, nextTick, computed } from 'vue'
+import { Button, ErrorMessage, FileUploader } from 'frappe-ui'
+import { nextTick, computed } from 'vue'
 
-const fileUploader = ref(null)
-const emit = defineEmits(['fileUploaded'])
+const AutoOpen = {
+	props: { open: { type: Function, required: true } },
+	async mounted() {
+		await nextTick()
+		this.open()
+	},
+	render: () => null,
+}
 
 const props = defineProps({
 	onFileUploaded: {
@@ -40,14 +55,6 @@ const attachArgs = computed(() => {
 	}
 })
 
-onMounted(async () => {
-	await nextTick()
-	const fileInput = fileUploader.value.$el.querySelector('input[type="file"]')
-	if (fileInput) {
-		fileInput.click()
-	}
-})
-
 const addFile = (file) => {
 	props.onFileUploaded({
 		file_url: file.file_url,
@@ -58,7 +65,7 @@ const addFile = (file) => {
 const validateFile = (file) => {
 	let extension = file.name.split('.').pop().toLowerCase()
 	if (!['jpg', 'jpeg', 'png', 'mp4', 'mov', 'mp3', 'pdf'].includes(extension)) {
-		return 'Only image and video files are allowed.'
+		return __('Only image and video files are allowed.')
 	}
 }
 

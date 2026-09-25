@@ -12,31 +12,25 @@
 			<Badge v-if="tab?.key === 'settings' && instance?.isDirty" theme="amber">
 				{{ __('Not Saved') }}
 			</Badge>
+			<Dropdown
+				v-if="isAdmin && batchMenu(tab).length"
+				:options="batchMenu(tab)"
+				:button="{
+					icon: 'lucide-ellipsis',
+					variant: 'ghost',
+					label: __('Batch options'),
+				}"
+				side="bottom"
+				align="end"
+			/>
 			<Button
 				v-if="tab?.key === 'settings' && isAdmin && !isMobile"
-				:variant="batch.data?.published ? 'outline' : 'solid'"
+				:variant="batch.data?.published ? 'subtle' : 'solid'"
 				:theme="batch.data?.published ? 'red' : 'gray'"
 				@click="togglePublishBatch"
 			>
 				{{ batch.data?.published ? __('Unpublish') : __('Publish') }}
 			</Button>
-			<Dropdown
-				v-if="isAdmin && batchMenu(tab).length"
-				:options="batchMenu(tab)"
-				side="left"
-			>
-				<template v-slot="{ open }">
-					<Button
-						variant="ghost"
-						:label="__('Batch options')"
-						:aria-expanded="open"
-					>
-						<template #icon>
-							<span class="lucide-ellipsis-vertical w-4 h-4" />
-						</template>
-					</Button>
-				</template>
-			</Dropdown>
 			<HeaderButton
 				v-if="tab?.key === 'dashboard' && isAdmin"
 				:label="__('Enroll')"

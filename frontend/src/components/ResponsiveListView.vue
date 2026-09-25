@@ -51,7 +51,7 @@
 								size="md"
 								:model-value="isRowSelected(row)"
 								:aria-label="selectionLabel(row)"
-								@update:model-value="setRowSelected(row, $event)"
+								@update:model-value="toggleRowSelection(row)"
 							/>
 						</div>
 						<component
@@ -315,17 +315,14 @@ const bannerClass = computed(() =>
 	showCards.value ? CARD_BANNER_CLASS : undefined
 )
 
-// A row's own checkbox. The attribute is written on the box around it because
-// frappe-ui's Checkbox inherits attributes onto its root as well as onto the
-// input, and it is the input that takes focus.
+// Row checkbox. The attribute sits on the wrapper, but the input inside takes
+// focus.
 const SELECT_BOX = '[data-list-select] input'
 
 const NO_SELECTION: ReadonlySet<unknown> = new Set()
 
 // ListView owns the selection. Reading it back off the instance rather than
-// keeping a copy is what stops a card and the banner from ever disagreeing,
-// and it is live: a copy would still hold the old value on the second of the
-// two events one checkbox click sends.
+// keeping a copy stops a card and the banner from disagreeing.
 const selections = computed<ReadonlySet<unknown>>(
 	() => listView.value?.selections ?? NO_SELECTION
 )
@@ -358,13 +355,6 @@ const lastActedKey = ref<string | null>(null)
 function toggleRowSelection(row: ListRow) {
 	lastActedKey.value = String(row[props.rowKey])
 	listView.value?.toggleRow(row[props.rowKey])
-}
-
-// frappe-ui's Checkbox reports the same value twice per click, so this sets the
-// state that was asked for rather than flipping the current one.
-function setRowSelected(row: ListRow, selected: unknown) {
-	if (isRowSelected(row) === Boolean(selected)) return
-	toggleRowSelection(row)
 }
 
 // The card has to change element mid-selection rather than only its ARIA:

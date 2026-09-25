@@ -7,7 +7,7 @@
 		<button
 			v-if="!readOnly"
 			type="button"
-			class="absolute inset-0 rounded-6 focus:outline-none focus-visible:ring-2 focus-visible:ring-outline-gray-3"
+			class="absolute inset-0 rounded-6"
 			:aria-label="__('Edit question {0}').format(index + 1)"
 			@click="emit('edit')"
 		/>
@@ -52,14 +52,10 @@
 				{{ marksLabel(row.marks) }}
 			</Badge>
 		</span>
-		<Dropdown
-			v-if="!readOnly"
-			:options="rowMenu"
-			align="end"
-			class="relative z-10"
-		>
+		<Dropdown v-if="!readOnly" :options="rowMenu" align="end">
 			<Button
 				variant="ghost"
+				class="relative z-10"
 				icon="lucide-more-horizontal"
 				:label="__('More actions for question {0}').format(index + 1)"
 			/>

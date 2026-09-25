@@ -7,7 +7,7 @@
 		<template #default="{ progress, uploading, openFileSelector }">
 			<div class="flex items-end space-x-1 rtl:space-x-reverse">
 				<Button
-					:iconLeft="uploading ? 'cloud-upload' : 'lucide-image-up'"
+					iconLeft="lucide-image-up"
 					:label="
 						uploading
 							? __('Uploading {0}%').format(progress)

@@ -7,7 +7,6 @@
 			{
 				label: isEdit ? __('Save') : __('Create'),
 				variant: 'solid',
-				loading: submitting,
 				onClick: ({ close }: any) => submit(close),
 			},
 		]"

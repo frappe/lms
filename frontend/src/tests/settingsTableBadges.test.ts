@@ -48,7 +48,8 @@ vi.mock('frappe-ui/list', () => ({
 		template: `<div><template v-for="item in items" :key="item.name"><slot :item="item" /></template></div>`,
 	},
 	ListRow: {
-		template: `<div data-testid="row" @click="$emit('click')"><slot /></div>`,
+		props: ['onClick'],
+		template: `<div data-testid="row" @click="onClick?.($event)"><slot /></div>`,
 	},
 	ListCell: { template: `<div data-testid="cell"><slot /></div>` },
 }))

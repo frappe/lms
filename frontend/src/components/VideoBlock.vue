@@ -42,13 +42,13 @@
 				@click="playVideo"
 			>
 				<div class="video-play-scrim rounded-full p-4 ps-4.5">
-					<Play />
+					<Play :class="scrimInk" />
 				</div>
 			</button>
 			<div
-				class="flex items-center gap-x-2 py-2 px-1 text-ink-base bg-gradient-to-b from-transparent to-black/75 absolute bottom-0 start-0 end-0 mx-auto rounded-5"
+				class="flex items-center gap-x-2 py-2 px-1 bg-gradient-to-b from-transparent to-black-overlay-700 absolute bottom-0 start-0 end-0 mx-auto rounded-5"
 				:class="{
-					'invisible group-hover:visible': playing,
+					'invisible group-hover:visible [@media(hover:none)]:visible': playing,
 				}"
 			>
 				<Button
@@ -58,8 +58,8 @@
 					@click="togglePlay"
 				>
 					<template #icon>
-						<Play v-if="!playing" class="size-4 text-ink-gray-9" />
-						<span v-else class="lucide-pause size-5 text-ink-base" />
+						<Play v-if="!playing" class="size-4" :class="scrimInk" />
+						<span v-else class="lucide-pause size-5" :class="scrimInk" />
 					</template>
 				</Button>
 
@@ -84,7 +84,10 @@
 					</div>
 				</div>
 
-				<span class="text-sm-medium shrink-0 whitespace-nowrap">
+				<span
+					class="text-sm-medium shrink-0 whitespace-nowrap"
+					:class="scrimInk"
+				>
 					{{ formatSeconds(currentTime) }} / {{ formatSeconds(duration) }}
 				</span>
 
@@ -99,8 +102,12 @@
 					class="hover:bg-transparent"
 				>
 					<template #icon>
-						<span class="lucide-volume-2 size-5 text-ink-base" v-if="!muted" />
-						<span class="lucide-volume-x size-5 text-ink-base" v-else />
+						<span
+							class="lucide-volume-2 size-5"
+							:class="scrimInk"
+							v-if="!muted"
+						/>
+						<span class="lucide-volume-x size-5" :class="scrimInk" v-else />
 					</template>
 				</Button>
 				<Button
@@ -110,7 +117,7 @@
 					class="hover:bg-transparent"
 				>
 					<template #icon>
-						<span class="lucide-maximize size-5 text-ink-base" />
+						<span class="lucide-maximize size-5" :class="scrimInk" />
 					</template>
 				</Button>
 			</div>
@@ -158,6 +165,9 @@ import { useSettings } from '@/stores/settings'
 import Play from '@/components/Icons/Play.vue'
 import QuizInVideo from '@/components/Modals/QuizInVideo.vue'
 import { safeUrl } from '@/utils/safeUrl'
+
+// token-exempt: on the video scrim, which stays dark in either theme
+const scrimInk = 'text-white'
 
 /* The control bar is a fixed set of buttons plus an elapsed/duration readout,
    with the seek slider absorbing whatever is left. The slider is the only
@@ -352,7 +362,7 @@ const setPlaybackSpeed = (speed, label) => {
 const dropdownOptions = computed(() =>
 	playbackSpeeds.map((speed) => ({
 		label: speed.label,
-		active: playbackSpeed.value === speed.value,
+		selected: playbackSpeed.value === speed.value,
 		onClick: () => setPlaybackSpeed(speed.value, speed.label),
 	}))
 )

@@ -31,7 +31,6 @@ vi.mock('frappe-ui', () => ({
 	Button: passthrough,
 	Dropdown: passthrough,
 	Tooltip: passthrough,
-	Tabs: passthrough,
 }))
 
 // Mocks the specific `@framework/ui` submodules this file imports from — the

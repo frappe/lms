@@ -29,8 +29,6 @@
 					v-model="tagsArray"
 					:options="tagOptions"
 					:placeholder="__('Add tag')"
-					variant="outline"
-					class="w-full justify-between"
 					@update:query="tagQuery = $event"
 				>
 					<template #trigger="{ open, selectedOptions }">

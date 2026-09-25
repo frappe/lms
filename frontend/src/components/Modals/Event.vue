@@ -103,14 +103,15 @@
 									:label="__('Rating')"
 									:disabled="!userIsEvaluator()"
 								/>
-								<FormControl
-									type="select"
-									:options="statusOptions"
-									v-model="evaluation.status"
-									:label="__('Status')"
-									class="w-1/2"
-									:disabled="!userIsEvaluator()"
-								/>
+								<div class="w-1/2">
+									<FormControl
+										type="select"
+										:options="statusOptions"
+										v-model="evaluation.status"
+										:label="__('Status')"
+										:disabled="!userIsEvaluator()"
+									/>
+								</div>
 							</div>
 							<FormControl
 								type="textarea"
@@ -413,7 +414,7 @@ const tabs = computed(() => {
 		{
 			value: 'evaluation',
 			label: __('Evaluation'),
-			icon: 'lucide-clipboard-list',
+			iconLeft: 'lucide-clipboard-list',
 		},
 	]
 
@@ -421,7 +422,7 @@ const tabs = computed(() => {
 		tabsArray.push({
 			value: 'certification',
 			label: __('Certification'),
-			icon: 'lucide-graduation-cap',
+			iconLeft: 'lucide-graduation-cap',
 		})
 	}
 

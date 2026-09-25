@@ -47,11 +47,10 @@
 				group="chapters"
 				@end="updateChapterOrder"
 			>
-				<template #item="{ element: chapter, index }">
+				<template #item="{ element: chapter }">
 					<div class="chapter-item">
 						<ChapterRow
 							:chapter="chapter"
-							:index="index"
 							:courseName="courseName"
 							:allowEdit="allowEdit"
 							:inlineSelect="inlineSelect"
@@ -78,6 +77,8 @@
 
 <script setup lang="ts">
 import { Button, createResource, toast } from 'frappe-ui'
+import type { FrappeResourceError } from 'frappe-ui'
+import { resourceErrorMessage } from '@/utils/resource'
 import { ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import Draggable from 'vuedraggable'
@@ -193,10 +194,8 @@ const deleteLesson = createResource({
 		outline.reload()
 		toast.success(__('Lesson deleted successfully'))
 	},
-	onError(err: { messages?: string[] } | string) {
-		toast.error(
-			typeof err === 'string' ? err : err.messages?.[0] ?? __('Error')
-		)
+	onError(err: FrappeResourceError) {
+		toast.error(resourceErrorMessage(err, __('Error')))
 	},
 })
 
@@ -236,10 +235,8 @@ const deleteChapter = createResource({
 		outline.reload()
 		toast.success(__('Chapter deleted successfully'))
 	},
-	onError(err: { messages?: string[] } | string) {
-		toast.error(
-			typeof err === 'string' ? err : err.messages?.[0] ?? __('Error')
-		)
+	onError(err: FrappeResourceError) {
+		toast.error(resourceErrorMessage(err, __('Error')))
 	},
 })
 
@@ -258,9 +255,9 @@ const renameChapterResource = createResource({
 		outline.reload()
 		toast.success(__('Chapter renamed successfully'))
 	},
-	onError(err: { messages?: string[] } | string) {
+	onError(err: FrappeResourceError) {
 		outline.reload()
-		toast.error(typeof err === 'string' ? err : err.messages?.[0] ?? 'Error')
+		toast.error(resourceErrorMessage(err, 'Error'))
 	},
 })
 

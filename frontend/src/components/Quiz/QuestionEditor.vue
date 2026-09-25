@@ -79,16 +79,22 @@
 					:required="true"
 				/>
 			</div>
-			<TextEditor
-				ref="questionEditorRef"
-				:class="fillsHeight ? `${COLUMN} fills-height` : ''"
-				:content="question.question"
-				@change="(val) => (question.question = val)"
-				:editable="true"
-				:fixedMenu="true"
-				:placeholder="__('Type your question here')"
-				:editorClass="editorClass"
-			/>
+			<div :class="fillsHeight ? COLUMN : ''">
+				<RichTextEditor
+					ref="questionEditorRef"
+					:id="questionEditorId"
+					:ariaLabelledby="questionLabelId"
+					:ariaRequired="true"
+					:ariaInvalid="questionInvalid"
+					:content="question.question"
+					@change="(val) => (question.question = val)"
+					@blur="markEditorTouched"
+					:editable="true"
+					:fixedMenu="true"
+					:placeholder="__('Type your question here')"
+					:editorClass="editorClass"
+				/>
+			</div>
 		</div>
 		<QuestionAnswers
 			:key="answersKey"
@@ -102,8 +108,8 @@
 
 <script setup>
 import { Button, Badge, Dropdown, FormControl, FormLabel } from 'frappe-ui'
-import { TextEditor } from 'frappe-ui/experimental'
-import { ref, computed, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
+import { ref, computed, nextTick } from 'vue'
+import RichTextEditor from '@/components/RichTextEditor.vue'
 import QuestionAnswers from './QuestionAnswers.vue'
 import {
 	hasContent,
@@ -157,48 +163,19 @@ const questionInvalid = computed(
 
 // The shadow belongs to the field, never the card, or focus stacks two of them.
 // Progression copied from TextInput.vue's outline variant, with red swapped in for invalid.
-const editorClass = computed(() => [
-	'prose-sm max-w-none border-b border-x bg-surface-base rounded-b-5 py-2 px-3 transition-colors',
-	fillsHeight.value ? 'flex-1 overflow-y-auto min-h-[6rem]' : 'min-h-[5rem]',
-	questionInvalid.value
-		? 'border-outline-red-3 hover:border-outline-red-3 hover:shadow-sm focus-within:border-outline-red-4 focus-within:shadow-sm'
-		: 'border-outline-gray-2 hover:border-outline-gray-3 hover:shadow-sm focus-within:border-outline-gray-4 focus-within:shadow-sm',
-])
+const editorClass = computed(() =>
+	[
+		'prose-sm border-b border-x bg-surface-base rounded-b-5 py-2 px-3 transition-colors',
+		fillsHeight.value ? 'flex-1 overflow-y-auto min-h-[6rem]' : 'min-h-[5rem]',
+		questionInvalid.value
+			? 'border-outline-red-3 hover:border-outline-red-3 hover:shadow-sm focus-within:border-outline-red-4 focus-within:shadow-sm'
+			: 'border-outline-gray-2 hover:border-outline-gray-3 hover:shadow-sm focus-within:border-outline-gray-4 focus-within:shadow-sm',
+	].join(' ')
+)
 
-// Touched means focused and left. The listener sits on the ProseMirror node, which takes focus.
 const markEditorTouched = () => {
 	editorTouched.value = true
 }
-let blurBoundTo = null
-const unbindEditorBlur = () => {
-	if (!blurBoundTo) return
-	blurBoundTo.removeEventListener('blur', markEditorTouched)
-	blurBoundTo = null
-}
-const bindEditorBlur = (dom) => {
-	if (blurBoundTo === dom) return
-	unbindEditorBlur()
-	dom.addEventListener('blur', markEditorTouched)
-	blurBoundTo = dom
-}
-
-// TextEditor puts fallthrough attrs on its wrapper, so label the ProseMirror node by hand.
-const wireEditorLabel = () => {
-	const dom = questionEditorRef.value?.editor?.view?.dom
-	if (!dom) return
-	dom.setAttribute('id', questionEditorId.value)
-	dom.setAttribute('aria-labelledby', questionLabelId.value)
-	// A statement about the field, not an error, so it is unconditional.
-	dom.setAttribute('aria-required', 'true')
-	dom.setAttribute('aria-invalid', questionInvalid.value ? 'true' : 'false')
-	bindEditorBlur(dom)
-}
-
-onMounted(() => nextTick(wireEditorLabel))
-onBeforeUnmount(unbindEditorBlur)
-
-// The red border cannot be the only signal, and this node is written imperatively.
-watch(questionInvalid, () => wireEditorLabel())
 
 // Type switch.
 const allowedTypes = computed(() => {
@@ -274,7 +251,7 @@ defineExpose({
 		editorTouched.value = false
 	},
 	focus: () => {
-		questionEditorRef.value?.editor?.commands?.focus('end')
+		questionEditorRef.value?.focus()
 	},
 })
 </script>
@@ -290,14 +267,5 @@ defineExpose({
 .marks-input :deep(input[type='number']) {
 	-moz-appearance: textfield;
 	appearance: textfield;
-}
-
-/* tiptap's EditorContent renders an unstyled wrapper div between TextEditor's
-   root and the ProseMirror node, so `flex-1` on the field measured against a
-   content-height box. @tiptap/vue-3 does not resolve here, so no #editor slot. */
-.fills-height :deep(div:has(> .ProseMirror)) {
-	display: flex;
-	flex: 1 1 auto;
-	flex-direction: column;
 }
 </style>

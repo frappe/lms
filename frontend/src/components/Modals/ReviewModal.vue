@@ -26,6 +26,8 @@
 </template>
 <script setup lang="ts">
 import { Dialog, FormControl, createResource, toast, Rating } from 'frappe-ui'
+import type { FrappeResourceError } from 'frappe-ui'
+import { resourceErrorMessage, submitResource } from '@/utils/resource'
 import { reactive } from 'vue'
 import type { Resource } from '@/types'
 
@@ -58,7 +60,7 @@ const createReview = createResource({
 })
 
 function submitReview(close: () => void) {
-	createReview.submit(review, {
+	submitResource(createReview, review, {
 		validate() {
 			if (!review.rating) {
 				return 'Please enter a rating.'
@@ -69,9 +71,8 @@ function submitReview(close: () => void) {
 			hasReviewed.value?.reload()
 			close()
 		},
-		onError(err: { messages?: string[] } | string) {
-			const msg = typeof err === 'string' ? err : err.messages?.[0] ?? 'Error'
-			toast.error(msg)
+		onError(err: string | FrappeResourceError) {
+			toast.error(resourceErrorMessage(err, 'Error'))
 		},
 	})
 }

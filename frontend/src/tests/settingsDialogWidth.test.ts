@@ -17,6 +17,8 @@ const { slot } = vi.hoisted(() => ({
 }))
 
 vi.mock('frappe-ui', () => ({
+	Button: { template: `<button />` },
+	Dialog: { Close: { template: `<div><slot /></div>` } },
 	SettingsDialog: slot('dialog'),
 	SettingsSidebar: slot('sidebar'),
 	SettingsNavGroup: slot('nav-group'),

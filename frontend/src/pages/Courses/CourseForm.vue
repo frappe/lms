@@ -19,6 +19,8 @@
 
 <script setup lang="ts">
 import { createResource, createDocumentResource, toast } from 'frappe-ui'
+import type { FrappeResourceError } from 'frappe-ui'
+import { reportAutosaveError, resourceErrorMessage } from '@/utils/resource'
 import {
 	computed,
 	getCurrentInstance,
@@ -231,12 +233,8 @@ const updateCourse = (opts: { silent?: boolean } = {}): void => {
 				// Dashboard) reflect the saved changes without a page reload.
 				props.course.reload()
 			},
-			onError(err: { messages?: string[] } | string) {
-				const msg = typeof err === 'string' ? err : err.messages?.[0] ?? 'Error'
-				// Autosave failures stay quiet; the orange "unsaved" badge remains
-				// (isDirty is untouched) so the change isn't silently lost.
-				if (!opts.silent) toast.error(msg)
-				console.error(err)
+			onError(err: FrappeResourceError) {
+				reportAutosaveError(err, opts.silent)
 			},
 		}
 	)
@@ -252,10 +250,8 @@ const deleteCourse = createResource({
 		// Land on the creator's "Created" courses. Pick another course to edit.
 		router.push({ name: 'Courses', query: { tab: 'created' } })
 	},
-	onError(err: { messages?: string[] } | string) {
-		toast.error(
-			typeof err === 'string' ? err : err.messages?.[0] ?? __('Error')
-		)
+	onError(err: FrappeResourceError) {
+		toast.error(resourceErrorMessage(err, __('Error')))
 	},
 }) as Resource<unknown>
 

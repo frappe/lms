@@ -10,7 +10,7 @@
 		<FileUploader
 			:fileTypes="[fileType]"
 			:private="false"
-			:validateFile="(file: File) => validateFile(file, true, type)"
+			:validateFile="(file: File) => validateFile(file, false, type)"
 			@success="(file: { file_url: string }) => saveFile(file)"
 			@failure="onUploadFailure"
 		>
@@ -77,7 +77,7 @@
 
 <script setup lang="ts">
 import { validateFile } from '@/utils'
-import { Button, FileUploader, toast } from 'frappe-ui'
+import { Button, FileUploader, UploadError, toast } from 'frappe-ui'
 import {
 	InputDescription,
 	InputError,
@@ -136,13 +136,13 @@ const removeImage = () => {
 	emit('update:modelValue', '')
 }
 
-const onUploadFailure = (error: any) => {
-	let message = __('Error Uploading File')
-	if (error?._server_messages) {
-		message = JSON.parse(JSON.parse(error._server_messages)[0]).message
-	} else if (error?.exc) {
-		message = JSON.parse(error.exc)[0].split('\n').slice(-2, -1)[0]
-	}
-	toast.error(message)
+const uploadErrorMessage = (error: unknown): string => {
+	if (typeof error === 'string') return error
+	if (error instanceof UploadError) return error.messages[0] || error.message
+	return __('Error Uploading File')
+}
+
+const onUploadFailure = (error: unknown) => {
+	toast.error(uploadErrorMessage(error))
 }
 </script>

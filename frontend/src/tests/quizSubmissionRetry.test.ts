@@ -111,11 +111,6 @@ vi.mock('frappe-ui', async () => {
 	}
 })
 
-vi.mock('frappe-ui/experimental', () => ({
-	ListView: { template: '<div><slot /></div>' },
-	TextEditor: { template: '<div><slot /></div>' },
-}))
-
 vi.mock('@/components/ProctoringMonitor.vue', () => ({
 	default: { template: '<div />' },
 }))
@@ -144,7 +139,6 @@ const mountQuiz = () =>
 		global: {
 			provide: { $user: { data: { name: 'student@example.com' } } },
 			mocks: { __: (s: string) => s },
-			stubs: { teleport: true },
 		},
 	})
 

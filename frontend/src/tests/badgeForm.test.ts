@@ -58,12 +58,11 @@ vi.mock('@/components/Controls/BooleanSwitch.vue', () => ({
 		template: `<div data-testid="switch" />`,
 	},
 }))
-vi.mock('frappe-ui/experimental', async (importOriginal) => ({
-	...(await importOriginal<Record<string, unknown>>()),
-	// The real editor lazy-loads CodeMirror in onMounted, which jsdom has no
-	// reason to run here — this suite is about what the badge form sends.
+vi.mock('frappe-ui/code-editor', () => ({
+	// Real module pulls in CodeMirror. This suite only checks what the badge
+	// form sends.
 	CodeEditor: {
-		props: ['modelValue', 'language', 'required', 'disabled', 'size'],
+		props: ['modelValue', 'extensions', 'editable'],
 		emits: ['update:modelValue', 'change'],
 		template: `<button
 			data-testid="code"
@@ -71,6 +70,9 @@ vi.mock('frappe-ui/experimental', async (importOriginal) => ({
 			@click="$emit('update:modelValue', 'doc.progress == 100')"
 		/>`,
 	},
+	CodeEditorContent: { template: '<div />' },
+	CodeKit: { configure: () => ({}) },
+	loadLanguage: async () => ({}),
 }))
 vi.mock('@/components/Controls/Uploader.vue', () => ({
 	default: {

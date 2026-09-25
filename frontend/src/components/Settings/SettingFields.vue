@@ -82,29 +82,16 @@
 						</div>
 					</div>
 
-					<div v-else-if="field.type == 'Code'" class="code-field py-3">
-						<CodeEditor
+					<div v-else-if="field.type == 'Code'" class="py-3">
+						<SettingsCodeField
 							v-model="data[field.name]"
-							language="html"
-							size="sm"
-							class="shrink-0"
-							:style="{ '--cm-max-height': '250px' }"
-						>
-							<template #label>
-								<span class="text-p-base-medium text-ink-gray-7">
-									{{ __(field.label) }}
-								</span>
-							</template>
-							<template #description>
-								<span class="text-p-sm text-ink-gray-5">
-									{{
-										__(
-											'The HTML you add here will be shown on your sign up page.'
-										)
-									}}
-								</span>
-							</template>
-						</CodeEditor>
+							:field="{
+								...field,
+								mode: 'htmlmixed',
+								description:
+									'The HTML you add here will be shown on your sign up page.',
+							}"
+						/>
 					</div>
 
 					<div v-else-if="field.type == 'textarea'" class="py-3">
@@ -177,7 +164,7 @@
 </template>
 <script setup>
 import { Button, FileUploader, FormControl, Password, Select } from 'frappe-ui'
-import { CodeEditor } from 'frappe-ui/experimental'
+import SettingsCodeField from '@/components/Layouts/SettingsCodeField.vue'
 import BooleanSwitch from '@/components/Controls/BooleanSwitch.vue'
 import { watch } from 'vue'
 import { validateFile } from '@/utils'
@@ -242,12 +229,3 @@ watch(
 	{ immediate: true }
 )
 </script>
-
-<style scoped>
-/* Min and max on the same element pins the editor to exactly 250px.
-   `.cm-editor` is a column flexbox whose scroller grows, so the code scrolls
-   inside a box that never resizes. */
-.code-field :deep(.cm-editor) {
-	min-height: var(--cm-max-height);
-}
-</style>
