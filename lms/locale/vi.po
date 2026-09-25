@@ -10570,3 +10570,132 @@ msgstr "PDF có mật khẩu."
 
 msgid "No file received."
 msgstr "Chưa nhận được file."
+
+msgid "Please fill in this field."
+msgstr "Vui lòng điền vào ô này."
+
+msgid "Loading…"
+msgstr "Đang tải…"
+
+msgid "Only teachers can open this page."
+msgstr "Chỉ giảng viên mới mở được trang này."
+
+msgid "Draft"
+msgstr "Bản nháp"
+
+msgid "Learners"
+msgstr "Học viên"
+
+msgid "Approved feedback"
+msgstr "Nhận xét đã duyệt"
+
+msgid "Enter a course title."
+msgstr "Hãy nhập tên khóa học."
+
+msgid "Choose at least one document."
+msgstr "Hãy chọn ít nhất một tài liệu."
+
+msgid "Upload at most {0} files."
+msgstr "Chỉ tải lên tối đa {0} tệp."
+
+msgid "Suggestion:"
+msgstr "Gợi ý:"
+
+msgid "Weekly report"
+msgstr "Báo cáo tuần"
+
+msgid "Write a reply first."
+msgstr "Hãy viết câu trả lời trước."
+
+msgid "(done)"
+msgstr "(đã xong)"
+
+msgid "(in progress)"
+msgstr "(đang thực hiện)"
+
+msgid "AI answers can be wrong. Check the cited lessons."
+msgstr "Câu trả lời của AI có thể sai. Hãy kiểm tra các bài học được trích dẫn."
+
+msgid "Answers come from this course and cite their lessons."
+msgstr "Câu trả lời lấy từ khóa học này và trích dẫn bài học liên quan."
+
+msgid "Ask a question about this lesson"
+msgstr "Đặt câu hỏi về bài học này"
+
+msgid "Ask about this lesson. The tutor answers from your course material and links to the lessons it used."
+msgstr "Hãy hỏi về bài học này. Trợ giảng trả lời dựa trên tài liệu khóa học và dẫn link tới các bài học đã dùng."
+
+msgid "Ask the teacher"
+msgstr "Hỏi giáo viên"
+
+msgid "Ask the tutor"
+msgstr "Hỏi trợ giảng"
+
+msgid "Could not reach your teacher: {0}"
+msgstr "Chưa chuyển được cho giáo viên: {0}"
+
+msgid "Could not send your rating: {0}"
+msgstr "Chưa gửi được đánh giá: {0}"
+
+msgid "Explain this lesson simply"
+msgstr "Giải thích bài học này một cách dễ hiểu"
+
+msgid "Give me an example"
+msgstr "Cho tôi một ví dụ"
+
+msgid "Helpful"
+msgstr "Hữu ích"
+
+msgid "New conversation"
+msgstr "Cuộc trò chuyện mới"
+
+msgid "Not helpful"
+msgstr "Chưa hữu ích"
+
+msgid "Open lesson"
+msgstr "Mở bài học"
+
+msgid "Project"
+msgstr "Dự án"
+
+msgid "Sent to your teacher"
+msgstr "Đã gửi cho giáo viên"
+
+msgid "Something went wrong."
+msgstr "Đã có lỗi xảy ra."
+
+msgid "Sources in this course"
+msgstr "Nguồn trong khóa học"
+
+msgid "Submit project"
+msgstr "Nộp dự án"
+
+msgid "Thanks for your feedback"
+msgstr "Cảm ơn bạn đã đánh giá"
+
+msgid "The tutor could not answer: {0}"
+msgstr "Trợ giảng chưa trả lời được: {0}"
+
+msgid "The tutor is thinking…"
+msgstr "Trợ giảng đang suy nghĩ…"
+
+msgid "This is a GitHub project. Submit your repository to get automatic tests and feedback from your teacher."
+msgstr "Đây là dự án GitHub. Hãy nộp repository để được kiểm thử tự động và nhận nhận xét từ giáo viên."
+
+msgid "View project status"
+msgstr "Xem trạng thái dự án"
+
+msgid "What should I review before the next lesson?"
+msgstr "Tôi nên ôn lại gì trước bài học tiếp theo?"
+
+msgid "Your question"
+msgstr "Câu hỏi của bạn"
+
+msgid "Your teacher will answer from the class queue."
+msgstr "Giáo viên sẽ trả lời trong hàng chờ của lớp."
+
+msgid "Review Queue"
+msgstr "Hàng chờ duyệt"
+
+msgid "Course from Documents"
+msgstr "Tạo khóa từ tài liệu"

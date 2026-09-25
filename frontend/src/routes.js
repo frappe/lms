@@ -6,6 +6,46 @@
 // actually registers.
 export const routes = [
 	{
+		path: '/copilot',
+		name: 'CopilotQueue',
+		component: () => import('@/pages/Copilot/CopilotQueue.vue'),
+	},
+	{
+		path: '/copilot/review/:draft',
+		name: 'CopilotFeedbackReview',
+		component: () => import('@/pages/Copilot/CopilotFeedbackReview.vue'),
+		props: true,
+	},
+	{
+		path: '/copilot/proposal/:proposal',
+		name: 'CopilotProposal',
+		component: () => import('@/pages/Copilot/CopilotProposal.vue'),
+		props: true,
+	},
+	{
+		path: '/copilot/import',
+		name: 'CopilotImports',
+		component: () => import('@/pages/Copilot/CopilotImports.vue'),
+	},
+	{
+		path: '/copilot/import/:importName',
+		name: 'CopilotImportDetail',
+		component: () => import('@/pages/Copilot/CopilotImportDetail.vue'),
+		props: true,
+	},
+	{
+		path: '/copilot/insight/:course',
+		name: 'CopilotInsight',
+		component: () => import('@/pages/Copilot/CopilotInsight.vue'),
+		props: true,
+	},
+	{
+		path: '/copilot/submit/:assignment',
+		name: 'CopilotSubmit',
+		component: () => import('@/pages/Copilot/CopilotSubmit.vue'),
+		props: true,
+	},
+	{
 		path: '/',
 		name: 'Home',
 		component: () => import('@/pages/Home/Home.vue'),

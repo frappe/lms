@@ -360,6 +360,11 @@
 				@select-lesson="showChapters = false"
 			/>
 		</BottomSheet>
+		<TutorPanel
+			v-if="showTutor"
+			:course="courseName"
+			:lesson="lesson.data.name"
+		/>
 	</div>
 	<InlineLessonMenu
 		v-if="lesson.data?.name"
@@ -424,6 +429,7 @@ import Notes from '@/components/Notes/Notes.vue'
 import InlineLessonMenu from '@/components/Notes/InlineLessonMenu.vue'
 import { getLmsRoute } from '@/utils/basePath'
 import { provideStudentView } from '@/composables/useStudentView'
+import TutorPanel from '@/components/Copilot/TutorPanel.vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -478,6 +484,15 @@ const props = defineProps({
 let collapsedByLesson = false
 const isCourseAdmin = () =>
 	Boolean(user.data?.is_moderator || user.data?.is_instructor)
+
+// The panel itself also checks that the tutor is enabled in Copilot Settings.
+const showTutor = computed(
+	() =>
+		Boolean(user.data?.name) &&
+		!lesson.data?.no_preview &&
+		!lesson.data?.locked &&
+		Boolean(lesson.data?.membership || isCourseAdmin())
+)
 
 onMounted(() => {
 	startTimer()

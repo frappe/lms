@@ -131,6 +131,11 @@
 					</div>
 				</div>
 				<div v-else-if="assignment.data.type == 'URL'">
+					<CopilotProjectLink
+						v-if="!canGradeSubmission"
+						:assignment="assignmentID"
+						class="mb-4"
+					/>
 					<div class="text-p-sm-medium text-ink-gray-7 mb-1.5">
 						{{ __('Enter a URL') }}
 					</div>
@@ -230,6 +235,7 @@ import { useRouter } from 'vue-router'
 import { validateFile } from '@/utils'
 import RichTextEditor from '@/components/RichTextEditor.vue'
 import { safeUrl } from '@/utils/safeUrl'
+import CopilotProjectLink from '@/components/Copilot/CopilotProjectLink.vue'
 
 const answer = ref(null)
 const attachment = ref(null)
