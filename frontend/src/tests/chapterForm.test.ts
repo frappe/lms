@@ -11,10 +11,7 @@ import { defineComponent, h, nextTick, reactive } from 'vue'
 
 vi.stubGlobal('__', (text: string) => text)
 
-// frappe-ui's internal module resolution doesn't work under vitest (see
-// newBatchForm.test.ts, FormShell.test.ts), so importActual() on it throws
-// ERR_MODULE_NOT_FOUND: every export the form and FormShell pull in has to be
-// stubbed by hand.
+// Stubbed so tests control resource data and render light stand-ins.
 const { createResourceMock, getCachedResourceMock, passthrough } = vi.hoisted(
 	() => {
 		// @/utils pulls in plyr, which touches matchMedia at import time.
@@ -68,12 +65,7 @@ vi.mock('frappe-ui', () => ({
 		emits: ['update:modelValue'],
 		template: `<label>{{ label }}<input :value="modelValue" @input="$emit('update:modelValue', $event.target.value)" /></label>`,
 	},
-	FormLabel: {
-		props: ['label', 'required', 'id'],
-		template: `<label :for="id">{{ label }}</label>`,
-	},
 	FileUploader: passthrough,
-	Switch: passthrough,
 }))
 
 vi.mock('@framework/ui/telemetry/index', async (importOriginal) => ({

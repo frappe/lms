@@ -141,6 +141,7 @@ import {
 	createDocumentResource,
 	toast,
 	usePageMeta,
+	type FrappeResourceError,
 } from 'frappe-ui'
 import { computed, inject, onMounted, ref, watch } from 'vue'
 import PageHeader from '@/components/Layouts/pages/PageHeader.vue'
@@ -216,7 +217,6 @@ const fetchSubmission = (name: string = '') => {
 const exercise = createDocumentResource({
 	doctype: 'LMS Programming Exercise',
 	name: props.exerciseID,
-	cache: ['programmingExercise', props.exerciseID],
 	auto: true,
 })
 
@@ -224,14 +224,14 @@ const submission = createDocumentResource({
 	doctype: 'LMS Programming Exercise Submission',
 	name: props.submissionID,
 	auto: false,
-	onError(error: any) {
-		if (error.messages?.[0].includes('not found')) {
+	onError(error: FrappeResourceError) {
+		if (error.messages?.[0]?.includes('not found')) {
 			router.push({
 				name: 'ProgrammingExerciseSubmission',
 				params: { exerciseID: props.exerciseID, submissionID: 'new' },
 			})
 		} else {
-			toast.error(__(error.messages?.[0] || error))
+			toast.error(__(error.messages?.[0] || error.message))
 		}
 	},
 })

@@ -2,11 +2,7 @@
 	<div class="-mx-3 min-h-0 flex-1 overflow-y-auto" :style="scrollerStyle">
 		<List :columns="tracks" :row-height="ROW_HEIGHT_PX" class="list-row-px-3">
 			<ListHeader class="sticky top-0 z-10 bg-surface-elevation-1">
-				<ListHeaderCell
-					v-for="column in columns"
-					:key="column.key"
-					class="text-p-sm"
-				>
+				<ListHeaderCell v-for="column in columns" :key="column.key">
 					{{ column.label }}
 				</ListHeaderCell>
 			</ListHeader>

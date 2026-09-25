@@ -1,9 +1,11 @@
 import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { nextTick } from 'vue'
 import ChapterRow from '@/components/ChapterRow.vue'
 import type { OutlineChapter } from '@/types'
 
 const pushMock = vi.hoisted(() => vi.fn())
+const focusMock = vi.hoisted(() => vi.fn())
 
 vi.mock('vue-router', () => ({
 	useRoute: () => ({ params: {}, query: {} }),
@@ -17,6 +19,8 @@ vi.mock('frappe-ui', () => ({
 	TextInput: {
 		props: ['modelValue'],
 		emits: ['update:modelValue'],
+		expose: ['focus'],
+		methods: { focus: focusMock },
 		template: `
 			<div>
 				<input
@@ -57,13 +61,15 @@ const chapter: OutlineChapter = {
 	lessons: [{ name: 'LESSON-1', title: 'Lesson 1', number: '2-1' }],
 }
 
-const mountRow = (chapterOverride: OutlineChapter = chapter) =>
+const mountRow = (
+	chapterOverride: OutlineChapter = chapter,
+	allowEdit = true
+) =>
 	mount(ChapterRow, {
 		props: {
 			chapter: chapterOverride,
-			index: 1,
 			courseName: 'course-1',
-			allowEdit: true,
+			allowEdit,
 		},
 		global: {
 			mocks: { __: (s: string) => s },
@@ -76,9 +82,19 @@ const mountRow = (chapterOverride: OutlineChapter = chapter) =>
 
 beforeEach(() => {
 	pushMock.mockReset()
+	focusMock.mockReset()
 })
 
 describe('ChapterRow inline rename', () => {
+	it('focuses the rename input through its exposed focus()', async () => {
+		const wrapper = mountRow()
+
+		await wrapper.get('[title="Old Chapter"]').trigger('dblclick')
+		await nextTick()
+
+		expect(focusMock).toHaveBeenCalledTimes(1)
+	})
+
 	it('commits on Enter without toggling the chapter disclosure', async () => {
 		const wrapper = mountRow()
 
@@ -93,6 +109,25 @@ describe('ChapterRow inline rename', () => {
 			{ chapter, title: 'Renamed Chapter' },
 		])
 		expect(wrapper.text()).not.toContain('Lesson 1')
+	})
+})
+
+describe('ChapterRow lesson count', () => {
+	const count = (allowEdit: boolean) =>
+		mountRow(chapter, allowEdit).get('span.text-ink-gray-5').classes()
+
+	it('gives way to the delete action on hover and on touch', () => {
+		expect(count(true)).toEqual(
+			expect.arrayContaining([
+				'group-hover:hidden',
+				'[@media(hover:none)]:hidden',
+			])
+		)
+	})
+
+	it('stays visible when the chapter is not editable', () => {
+		expect(count(false)).not.toContain('group-hover:hidden')
+		expect(count(false)).not.toContain('[@media(hover:none)]:hidden')
 	})
 })
 
@@ -200,7 +235,6 @@ describe('ChapterRow locked lesson', () => {
 						},
 					],
 				},
-				index: 1,
 				courseName: 'course-1',
 				inlineSelect: true,
 			},

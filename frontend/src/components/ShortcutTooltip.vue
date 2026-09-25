@@ -5,7 +5,7 @@
 				<span>{{ label }}</span>
 				<KeyboardShortcut
 					bg
-					class="!bg-surface-gray-5 !text-ink-gray-2 px-1"
+					class="!bg-surface-gray-8 !text-ink-gray-2 px-1"
 					:combo="combo"
 				/>
 			</span>

@@ -237,6 +237,7 @@ import {
 	FormControl,
 	toast,
 } from 'frappe-ui'
+import type { FrappeResourceError } from 'frappe-ui'
 import {
 	ListSelectBanner,
 	ListView,
@@ -257,7 +258,7 @@ import Link from '@/components/Controls/Link.vue'
 import ResponsiveListView from '@/components/ResponsiveListView.vue'
 import Draggable from 'vuedraggable'
 import ProgramProgressSummary from '@/components/Programs/ProgramProgressSummary.vue'
-import { submitResource } from '@/utils/resource'
+import { resourceErrorMessage, submitResource } from '@/utils/resource'
 
 const showFormDialog = ref(false)
 const currentForm = ref<'course' | 'member'>('course')
@@ -339,8 +340,8 @@ const programDoc = createDocumentResource({
 	doctype: 'LMS Program',
 	name: isNew.value ? undefined : programId.value,
 	auto: !isNew.value,
-	onError(err: any) {
-		toast.warning(__(err.messages?.[0] || err))
+	onError(err: FrappeResourceError) {
+		toast.warning(resourceErrorMessage(err, __('Error')))
 	},
 })
 
@@ -449,8 +450,8 @@ const createNewProgram = () => {
 				toast.success(__('Program created successfully'))
 				afterSave()
 			},
-			onError(err: any) {
-				toast.warning(__(err.messages?.[0] || err))
+			onError(err: FrappeResourceError) {
+				toast.warning(resourceErrorMessage(err, __('Error')))
 			},
 		}
 	)
@@ -473,8 +474,8 @@ const updateProgram = () => {
 				toast.success(__('Program updated successfully'))
 				afterSave()
 			},
-			onError(err: any) {
-				toast.warning(__(err.messages?.[0] || err))
+			onError(err: FrappeResourceError) {
+				toast.warning(resourceErrorMessage(err, __('Error')))
 			},
 		}
 	)
@@ -560,8 +561,8 @@ const updateOrder = async (e: any) => {
 					idx: index + 1,
 				},
 				{
-					onError(err: any) {
-						toast.warning(__(err.messages?.[0] || err))
+					onError(err: FrappeResourceError) {
+						toast.warning(resourceErrorMessage(err, __('Error')))
 					},
 				}
 			)
@@ -611,8 +612,8 @@ const deleteProgram = () => {
 							closeDialog()
 							close()
 						},
-						onError(err: any) {
-							toast.warning(__(err.messages?.[0] || err))
+						onError(err: FrappeResourceError) {
+							toast.warning(resourceErrorMessage(err, __('Error')))
 							closeDialog()
 						},
 					})

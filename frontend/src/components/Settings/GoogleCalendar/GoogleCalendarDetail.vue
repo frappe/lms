@@ -41,7 +41,10 @@ import { Button, call, toast } from 'frappe-ui'
 import SettingsFields from '@/components/Layouts/settings/desktop/SettingsFields.vue'
 import SettingsLayout from '@/components/Layouts/settings/desktop/SettingsLayout.vue'
 import { useDirtyGuard } from '@/composables/useDirtyGuard'
-import { useSettingsSource } from '@/composables/useSettingsSource'
+import {
+	reportSaveFailure,
+	useSettingsSource,
+} from '@/composables/useSettingsSource'
 import { openExternal } from '@/utils/openExternal'
 import type { FieldsSection } from '@/types/settingsSchema'
 
@@ -113,10 +116,6 @@ watch(
 
 const saving = ref(false)
 
-const reportFailure = (error: { messages?: string[]; message?: string }) => {
-	toast.error(error?.messages?.[0] || error?.message || __('Save failed'))
-}
-
 const save = () => {
 	saving.value = true
 	const wasNew = source.isNew
@@ -135,7 +134,7 @@ const save = () => {
 			// enough to click.
 			if (wasNew) emit('back')
 		})
-		.catch(reportFailure)
+		.catch(reportSaveFailure)
 		.finally(() => (saving.value = false))
 }
 
@@ -156,7 +155,7 @@ const authorize = () => {
 			if (url) openExternal(url)
 			else toast.success(__('Google Calendar authorized'))
 		})
-		.catch(reportFailure)
+		.catch(reportSaveFailure)
 		.finally(() => (authorizing.value = false))
 }
 </script>

@@ -29,10 +29,6 @@ vi.mock('frappe-ui', () => ({
 			@click="$emit('click')"
 		>{{ label }}<slot /></button>`,
 	},
-	ErrorMessage: {
-		props: ['message'],
-		template: `<div data-testid="error">{{ message }}</div>`,
-	},
 	FileUploader: {
 		props: ['fileTypes', 'private', 'validateFile'],
 		emits: ['success'],
@@ -68,7 +64,6 @@ vi.mock('frappe-ui', () => ({
 			/>
 		</span>`,
 	},
-	LoadingIndicator: { template: `<span data-testid="spinner" />` },
 	Select: {
 		props: ['modelValue', 'label', 'options', 'required', 'ariaLabel'],
 		emits: ['update:modelValue'],
@@ -80,10 +75,6 @@ vi.mock('frappe-ui', () => ({
 	},
 }))
 
-// Imported by the schema renderer, drawn by no badge field.
-vi.mock('@/components/Controls/TextEditor.vue', () => ({
-	default: { template: `<div data-testid="richtext" />` },
-}))
 vi.mock('@/components/Controls/Link.vue', () => ({
 	default: { template: `<div data-testid="link" />` },
 }))
@@ -95,12 +86,11 @@ vi.mock('@/components/Controls/BooleanSwitch.vue', () => ({
 		template: `<div data-testid="switch" :data-value="String(modelValue)" />`,
 	},
 }))
-vi.mock('frappe-ui/experimental', async (importOriginal) => ({
-	...(await importOriginal<Record<string, unknown>>()),
-	// The real editor lazy-loads CodeMirror in onMounted, which jsdom has no
-	// reason to run here — this suite is about what the badge form sends.
+vi.mock('frappe-ui/code-editor', () => ({
+	// Real module pulls in CodeMirror. This suite only checks what the badge
+	// form sends.
 	CodeEditor: {
-		props: ['modelValue', 'language', 'required', 'disabled', 'size'],
+		props: ['modelValue', 'extensions', 'editable'],
 		emits: ['update:modelValue', 'change'],
 		template: `<button
 			data-testid="code"
@@ -108,6 +98,9 @@ vi.mock('frappe-ui/experimental', async (importOriginal) => ({
 			@click="$emit('update:modelValue', 'doc.progress == 100')"
 		/>`,
 	},
+	CodeEditorContent: { template: '<div />' },
+	CodeKit: { configure: () => ({}) },
+	loadLanguage: async () => ({}),
 }))
 vi.mock('@/components/Controls/Select.vue', () => ({
 	default: {

@@ -135,7 +135,13 @@
 </template>
 
 <script setup lang="ts">
-import { Button, FileUploader, FormControl, toast } from 'frappe-ui'
+import {
+	Button,
+	FileUploader,
+	FormControl,
+	UploadError,
+	toast,
+} from 'frappe-ui'
 import {
 	InputDescription,
 	InputError,
@@ -191,13 +197,15 @@ async function validatePlayableVideo(file: File): Promise<string | void> {
 	}
 }
 
+function uploadErrorMessage(error: unknown): string {
+	if (typeof error === 'string') return error
+	if (error instanceof UploadError) return error.messages[0] || error.message
+	if (error instanceof Error) return error.message || __('Upload failed')
+	return __('Upload failed')
+}
+
 function onUploadFailure(error: unknown) {
-	const e = error as { messages?: string[]; message?: string } | string
-	const msg =
-		typeof e === 'string'
-			? e
-			: e?.messages?.[0] || e?.message || __('Upload failed')
-	toast.error(msg)
+	toast.error(uploadErrorMessage(error))
 }
 
 const props = defineProps<{

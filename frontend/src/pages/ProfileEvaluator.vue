@@ -55,12 +55,11 @@
 						@update:modelValue="update(slot.name, 'day', $event)"
 						:disabled="!isSessionUser()"
 					/>
-					<label
-						:for="`start-time-${slot.name}`"
-						class="md:sr-only block text-xs text-ink-gray-5"
-					>
-						{{ __('Start Time') }}
-					</label>
+					<FormLabel
+						:id="`start-time-${slot.name}`"
+						:label="__('Start Time')"
+						class="md:sr-only"
+					/>
 					<FormControl
 						type="time"
 						:id="`start-time-${slot.name}`"
@@ -68,12 +67,11 @@
 						@update:modelValue="update(slot.name, 'start_time', $event)"
 						:disabled="!isSessionUser()"
 					/>
-					<label
-						:for="`end-time-${slot.name}`"
-						class="md:sr-only block text-xs text-ink-gray-5"
-					>
-						{{ __('End Time') }}
-					</label>
+					<FormLabel
+						:id="`end-time-${slot.name}`"
+						:label="__('End Time')"
+						class="md:sr-only"
+					/>
 					<FormControl
 						type="time"
 						:id="`end-time-${slot.name}`"
@@ -85,7 +83,7 @@
 						v-if="isSessionUser()"
 						type="button"
 						:aria-label="__('Delete slot')"
-						class="lucide-x size-6 text-ink-red-8 rounded-5 cursor-pointer p-1 bg-surface-red-2 md:sr-only md:group-hover:not-sr-only md:focus:not-sr-only"
+						class="lucide-x size-6 text-ink-red-8 rounded-5 cursor-pointer p-1 bg-surface-red-2 md:sr-only md:group-hover:not-sr-only md:focus:not-sr-only md:[@media(hover:none)]:not-sr-only"
 						@click="deleteRow(slot.name)"
 					/>
 				</div>
@@ -102,12 +100,11 @@
 						@update:modelValue="add()"
 						:disabled="!isSessionUser()"
 					/>
-					<label
-						for="new-slot-start-time"
-						class="md:sr-only block text-xs text-ink-gray-5"
-					>
-						{{ __('Start Time') }}
-					</label>
+					<FormLabel
+						id="new-slot-start-time"
+						:label="__('Start Time')"
+						class="md:sr-only"
+					/>
 					<FormControl
 						type="time"
 						id="new-slot-start-time"
@@ -115,12 +112,11 @@
 						@update:modelValue="add()"
 						:disabled="!isSessionUser()"
 					/>
-					<label
-						for="new-slot-end-time"
-						class="md:sr-only block text-xs text-ink-gray-5"
-					>
-						{{ __('End Time') }}
-					</label>
+					<FormLabel
+						id="new-slot-end-time"
+						:label="__('End Time')"
+						class="md:sr-only"
+					/>
 					<FormControl
 						type="time"
 						id="new-slot-end-time"
@@ -193,7 +189,13 @@
 <script setup>
 // The slots are stored as bare wall-clock times and read as system time
 // everywhere downstream, so the editor has to name the clock it means.
-import { createResource, FormControl, Button, Badge, toast } from 'frappe-ui'
+import {
+	createResource,
+	FormControl,
+	FormLabel,
+	Button,
+	toast,
+} from 'frappe-ui'
 import { computed, reactive, ref, onMounted, inject, watch } from 'vue'
 import { convertToTitleCase } from '@/utils'
 import { openExternal } from '@/utils/openExternal'

@@ -100,6 +100,7 @@
 </template>
 <script setup lang="ts">
 import { createResource, toast, Tooltip } from 'frappe-ui'
+import type { FrappeResourceError } from 'frappe-ui'
 import { computed, inject, onMounted } from 'vue'
 import FormShell from '@/components/FormShell.vue'
 import HeaderButton from '@/components/HeaderButton.vue'
@@ -183,11 +184,9 @@ const enrollInProgram = () => {
 					params: { programName: props.programName },
 				})
 			},
-			onError(err: { messages?: string[] } | string) {
+			onError(err: FrappeResourceError) {
 				toast.error(
-					__('Failed to enroll in program: {0}').format(
-						typeof err === 'string' ? err : err.messages?.[0] ?? ''
-					)
+					__('Failed to enroll in program: {0}').format(err.messages?.[0] ?? '')
 				)
 			},
 		}

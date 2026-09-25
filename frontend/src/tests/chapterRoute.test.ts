@@ -40,8 +40,7 @@ vi.mock('@/components/HeaderButton.vue', () => ({
 vi.mock('@/stores/settings', () => ({ useSettings: () => ({}) }))
 vi.mock('@/stores/user', () => ({ usersStore: () => ({ userResource: {} }) }))
 
-// frappe-ui's ESM build does not resolve under vitest, so every export
-// CourseOutline, ChapterForm and FormShell reach for is stubbed by hand.
+// Covers every export CourseOutline, ChapterForm and FormShell reach for.
 vi.mock('frappe-ui', () => ({
 	createResource: createResourceMock,
 	call: vi.fn(),
@@ -61,9 +60,7 @@ vi.mock('frappe-ui', () => ({
 		emits: ['update:modelValue'],
 		template: `<label>{{ label }}<input :value="modelValue" /></label>`,
 	},
-	FormLabel: { props: ['label'], template: `<label>{{ label }}</label>` },
 	FileUploader: passthrough,
-	Switch: passthrough,
 }))
 
 vi.mock('@framework/ui/telemetry/index', async (importOriginal) => ({

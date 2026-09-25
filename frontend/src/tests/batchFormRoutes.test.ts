@@ -4,10 +4,8 @@ import { createMemoryHistory, createRouter, type Router } from 'vue-router'
 
 vi.stubGlobal('__', (text: string) => text)
 
-// vue-router resolves a matched record's async component() during navigation
-// itself, and the real SFCs pull in frappe-ui, whose ESM build does not resolve
-// under plain Node module resolution (see newBatchRoute.test.ts). Stub the page
-// components; the route TABLE under test is still the genuine one.
+// Navigation imports each matched page SFC, so stub them; the route table
+// from @/routes stays real.
 // vi.hoisted: vi.mock's factory is hoisted above every top-level const, so a
 // plain `const stub = …` referenced inside one throws.
 const { stub } = vi.hoisted(() => ({

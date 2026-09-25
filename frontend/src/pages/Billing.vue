@@ -58,11 +58,10 @@
 								v-model="appliedCoupon"
 								:disabled="orderSummary.data.discount_amount > 0"
 								:aria-label="__('Coupon Code')"
-								@input="appliedCoupon = $event.target.value.toUpperCase()"
 								@keydown.enter="applyCouponCode"
 								placeholder="COUPON2025"
 								autocomplete="off"
-								class="flex-1 [&_input]:bg-surface-base"
+								class="flex-1 [&_input]:bg-surface-base [&_input]:uppercase"
 							/>
 							<Button
 								v-if="!orderSummary.data.discount_amount"
@@ -242,7 +241,6 @@ import {
 	FormControl,
 	usePageMeta,
 	toast,
-	call,
 } from 'frappe-ui'
 import { reactive, inject, onMounted, computed, ref, watch } from 'vue'
 import PageHeader from '@/components/Layouts/pages/PageHeader.vue'
@@ -303,7 +301,7 @@ const orderSummary = createResource({
 			doctype: props.type == 'batch' ? 'LMS Batch' : 'LMS Course',
 			docname: props.name,
 			country: billingDetails.country,
-			coupon: appliedCoupon.value,
+			coupon: couponCode(),
 		}
 	},
 	onError(err) {
@@ -312,6 +310,7 @@ const orderSummary = createResource({
 })
 
 const appliedCoupon = ref(null)
+const couponCode = () => appliedCoupon.value?.trim().toUpperCase() || null
 const billingDetails = reactive({})
 const fieldMeta = reactive({})
 
@@ -351,7 +350,7 @@ const paymentLink = createResource({
 			docname: props.name,
 			address: billingDetails,
 			payment_for_certificate: props.type == 'certificate',
-			coupon_code: appliedCoupon.value,
+			coupon_code: couponCode(),
 			country: billingDetails.country,
 		}
 		return data
@@ -390,7 +389,7 @@ const generatePaymentLink = () => {
 }
 
 function applyCouponCode() {
-	if (!appliedCoupon.value) {
+	if (!couponCode()) {
 		toast.error(__('Please enter a coupon code'))
 		return
 	}
