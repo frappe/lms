@@ -149,12 +149,14 @@
 							/>
 							<FormControl
 								type="date"
+								:format="dateFormat"
 								v-model="certificate.issue_date"
 								:disabled="!userIsEvaluator()"
 								:label="__('Issue Date')"
 							/>
 							<FormControl
 								type="date"
+								:format="dateFormat"
 								v-model="certificate.expiry_date"
 								:disabled="!userIsEvaluator()"
 								:label="__('Expiry Date')"
@@ -188,6 +190,7 @@ import BooleanSwitch from '@/components/Controls/BooleanSwitch.vue'
 import { inject, reactive, watch, ref, computed } from 'vue'
 import { formatTime } from '@/utils'
 import { formatTimezone } from '@/utils/timezone'
+import { getDateFormat } from '@/utils/format'
 import Link from '@/components/Controls/Link.vue'
 import { openExternal } from '@/utils/openExternal'
 
@@ -195,6 +198,7 @@ const show = defineModel()
 const user = inject('$user')
 const dayjs = inject('$dayjs')
 const activeTab = ref('evaluation')
+const dateFormat = getDateFormat()
 const showCertification = ref(false)
 const evaluation = reactive({})
 const certificate = reactive({})
@@ -294,7 +298,7 @@ const saveEvaluation = () => {
 			onError(err) {
 				toast.warning(__(err.messages?.[0] || err))
 			},
-		}
+		},
 	)
 }
 
@@ -354,7 +358,7 @@ const saveCertificate = () => {
 			onError(err) {
 				toast.error(__(err.messages?.[0] || err))
 			},
-		}
+		},
 	)
 }
 
@@ -378,7 +382,7 @@ const openCertificate = (certificate) => {
 	openExternal(
 		`/api/method/frappe.utils.print_format.download_pdf?doctype=LMS+Certificate&name=${
 			certificate.name
-		}&format=${encodeURIComponent(certificate.template)}`
+		}&format=${encodeURIComponent(certificate.template)}`,
 	)
 }
 

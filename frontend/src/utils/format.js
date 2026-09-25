@@ -4,6 +4,13 @@ export function timeAgo(date) {
 	return useTimeAgo(date).value
 }
 
+// Frappe stores the date format in System Settings (e.g. "dd-mm-yyyy"); convert it to the dayjs tokens the DatePicker expects.
+export function getDateFormat() {
+	const fmt = window.sysdefaults?.date_format
+	if (!fmt) return 'YYYY-MM-DD'
+	return fmt.replace('yyyy', 'YYYY').replace('mm', 'MM').replace('dd', 'DD')
+}
+
 export const formatSeconds = (time) => {
 	const minutes = Math.floor(time / 60)
 	const seconds = Math.floor(time % 60)

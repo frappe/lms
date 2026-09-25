@@ -15,11 +15,13 @@
 				/>
 				<FormControl
 					type="date"
+					:format="dateFormat"
 					v-model="details.issue_date"
 					:label="__('Issue Date')"
 				/>
 				<FormControl
 					type="date"
+					:format="dateFormat"
 					v-model="details.expiry_date"
 					:label="__('Expiry Date')"
 				/>
@@ -42,7 +44,7 @@
 					:label="__('Published')"
 					:description="
 						__(
-							'Enabling this will publish the certificate on the certified participants page.'
+							'Enabling this will publish the certificate on the certified participants page.',
 						)
 					"
 					v-model="details.published"
@@ -79,6 +81,7 @@ import {
 } from '@/composables/useBatchForms'
 import { useFormRoute } from '@/composables/useFormRoute'
 import { resourceErrorMessage, submitResource } from '@/utils/resource'
+import { getDateFormat } from '@/utils/format'
 
 const props = defineProps({
 	batchName: {
@@ -91,11 +94,12 @@ const dayjs = inject('$dayjs')
 const user = inject('$user')
 const route = useRoute()
 const readOnlyMode = window.read_only_mode
+const dateFormat = getDateFormat()
 
 // C2: close()'s pop branch restores the hash by itself; its deep-link branch
 // replaces to this literal location, so the tab hash has to be carried here.
 const { close } = useFormRoute(
-	batchRouteLocation('BatchDetail', props.batchName, route.hash)
+	batchRouteLocation('BatchDetail', props.batchName, route.hash),
 )
 
 // Parent context a URL cannot carry: `students` (who we mint certificates for)
@@ -106,7 +110,7 @@ const batch = useBatchDetails(() => props.batchName)
 const loadingBatch = computed(() => !batch.data && batch.loading)
 
 const isAdmin = computed(() =>
-	Boolean(user.data?.is_moderator || user.data?.is_evaluator)
+	Boolean(user.data?.is_moderator || user.data?.is_evaluator),
 )
 
 // Lifted off the opener in BatchDetail.vue — "Generate Certificates" only
@@ -187,12 +191,12 @@ const generateCertificates = async () => {
 						onError(err) {
 							failed += 1
 							toast.error(
-								resourceErrorMessage(err, __('Unable to generate certificate'))
+								resourceErrorMessage(err, __('Unable to generate certificate')),
 							)
 						},
-					}
-				)
-			)
+					},
+				),
+			),
 		)
 	} finally {
 		generating.value = false
@@ -206,6 +210,6 @@ const courseOptions = computed(() =>
 	(batch.data?.courses || []).map((course) => ({
 		label: course.course,
 		value: course.course,
-	}))
+	})),
 )
 </script>
