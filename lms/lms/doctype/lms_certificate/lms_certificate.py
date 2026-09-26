@@ -37,7 +37,9 @@ class LMSCertificate(Document):
 		args = {
 			"member_name": self.member_name,
 			"course_name": self.course,
-			"course_title": frappe.db.get_value("LMS Course", self.course, "title"),
+			"course_title": frappe.db.get_value("LMS Course", self.course, "title") if self.course else None,
+			"batch_name": self.batch_name,
+			"batch_title": frappe.db.get_value("LMS Batch", self.batch_name, "title") if self.batch_name else None,
 			"name": self.name,
 			"template": self.template,
 		}
@@ -59,7 +61,7 @@ class LMSCertificate(Document):
 		self.validate_role_of_owner()
 		if self.batch_name:
 			self.validate_batch_enrollment()
-		elif self.course:
+		if self.course:
 			self.validate_course_enrollment()
 
 	def validate_role_of_owner(self):
@@ -118,13 +120,14 @@ class LMSCertificate(Document):
 				)
 
 	def validate_batch_duplicates(self):
-		if self.batch_name:
+		if self.batch_name and not self.course:
 			batch_duplicates = frappe.get_all(
 				"LMS Certificate",
 				filters={
 					"member": self.member,
 					"name": ["!=", self.name],
 					"batch_name": self.batch_name,
+					"course": ["in", ["", None]],
 				},
 				fields=["name", "batch_name", "batch_title"],
 			)
@@ -173,15 +176,22 @@ def create_certificate(course: str):
 	else:
 		validate_certification_eligibility(course)
 		default_certificate_template = get_default_certificate_template()
-		certificate = frappe.get_doc(
-			{
-				"doctype": "LMS Certificate",
-				"member": frappe.session.user,
-				"course": course,
-				"issue_date": nowdate(),
-				"template": default_certificate_template,
-			}
+		certificate_data = {
+			"doctype": "LMS Certificate",
+			"member": frappe.session.user,
+			"course": course,
+			"issue_date": nowdate(),
+			"template": default_certificate_template,
+		}
+		enrollment_from_batch = frappe.db.get_value(
+			"LMS Enrollment",
+			{"course": course, "member": frappe.session.user},
+			"enrollment_from_batch",
 		)
+		if enrollment_from_batch:
+			certificate_data["batch_name"] = enrollment_from_batch
+
+		certificate = frappe.get_doc(certificate_data)
 		certificate.save(ignore_permissions=True)
 		return certificate
 
