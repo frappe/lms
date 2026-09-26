@@ -170,6 +170,18 @@ const rolesDirty = computed(() =>
 // The User document itself. NEW_RECORD yields a draft that `save()` inserts,
 // so New and edit share the same fields and handle. A member is dirty for two
 // reasons: the profile fields, and the roles, saved through their own endpoint.
+const insertMember = (doc: SettingsListRow) =>
+	call('lms.lms.api.create_member', {
+		email: doc.email,
+		first_name: doc.first_name,
+		last_name: doc.last_name,
+		username: doc.username,
+		phone: doc.phone,
+		mobile_no: doc.mobile_no,
+		location: doc.location,
+		bio: doc.bio,
+	})
+
 const {
 	source,
 	doc: member,
@@ -178,6 +190,7 @@ const {
 	doctype: MEMBERS_DOCTYPE,
 	record,
 	dirty: (s) => s.isDirty || rolesDirty.value,
+	insert: insertMember,
 })
 
 // get_member, not the list endpoint: that one hard-filters `enabled = 1` and

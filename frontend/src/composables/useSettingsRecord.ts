@@ -32,6 +32,7 @@ export interface UseSettingsRecordOptions {
 	 * satisfies the source's "holds anything at all" before being touched.
 	 */
 	dirty?: (source: SettingsSourceHandle) => boolean
+	insert?: (doc: SettingsListRow) => Promise<unknown>
 }
 
 export interface SettingsRecordHandle {
@@ -60,7 +61,11 @@ export function useSettingsRecord(
 ): SettingsRecordHandle {
 	const source = useSettingsSource(
 		{ doctype: options.doctype, record: 'route' },
-		{ record: options.record, renameField: options.renameField }
+		{
+			record: options.record,
+			renameField: options.renameField,
+			insert: options.insert,
+		}
 	)
 
 	const doc = computed(() => source.doc)

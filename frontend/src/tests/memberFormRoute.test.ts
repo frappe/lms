@@ -374,13 +374,10 @@ describe('the member form route', () => {
 			await save(wrapper).trigger('click')
 			await flushPromises()
 
-			expect(callMock).toHaveBeenCalledWith('frappe.client.insert', {
-				doc: {
-					doctype: 'User',
-					email: MEMBER,
-					first_name: undefined,
-					last_name: undefined,
-				},
+			expect(callMock).toHaveBeenCalledWith('lms.lms.api.create_member', {
+				email: MEMBER,
+				first_name: undefined,
+				last_name: undefined,
 			})
 			expect(callMock).toHaveBeenCalledWith('lms.lms.api.save_role', {
 				user: MEMBER,

@@ -2,7 +2,7 @@ from unittest.mock import patch
 
 import frappe
 
-from lms.lms.api import get_member, get_members
+from lms.lms.api import create_member, get_member, get_members
 from lms.lms.test_helpers import BaseTestUtils
 
 MEMBERS_PAGE_LENGTH = 3
@@ -170,3 +170,133 @@ class TestGetMember(BaseTestUtils):
 	def test_rejects_a_blank_member(self):
 		with self.assertRaises(frappe.ValidationError):
 			get_member("   ")
+
+
+class TestCreateMember(BaseTestUtils):
+	"""Settings > Users create path, the one that used to 500 as Internal Server Error
+	when the welcome email could not be sent (#2772).
+	"""
+
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
+		cls.moderator = cls._create_user("create-member-mod@example.com", "Mod", "Erator", ["Moderator"])
+		cls.student = cls._create_user("create-member-student@example.com", "Stu", "Dent", ["LMS Student"])
+
+	def setUp(self):
+		super().setUp()
+		frappe.set_user(self.moderator.name)
+
+	def tearDown(self):
+		frappe.set_user("Administrator")
+		super().tearDown()
+
+	def test_creates_a_website_user(self):
+		email = f"new-member-{frappe.generate_hash(length=8)}@example.com"
+
+		def send_mail(self):
+			self.flags.email_sent = 1
+
+		with patch(
+			"frappe.core.doctype.user.user.User.send_welcome_mail_to_user",
+			autospec=True,
+			side_effect=send_mail,
+		) as mocked:
+			created = create_member(email=email, first_name="Jane", last_name="Doe")
+			mocked.assert_called()
+
+		self.assertEqual(created.name, email)
+		self.assertEqual(frappe.db.get_value("User", email, "user_type"), "Website User")
+		self.assertEqual(frappe.db.get_value("User", email, "first_name"), "Jane")
+
+	def test_stores_names_as_entered(self):
+		email = f"named-member-{frappe.generate_hash(length=8)}@example.com"
+
+		def send_mail(self):
+			self.flags.email_sent = 1
+
+		with patch(
+			"frappe.core.doctype.user.user.User.send_welcome_mail_to_user",
+			autospec=True,
+			side_effect=send_mail,
+		):
+			create_member(email=email, first_name="Jane & Doe", last_name="O'Neil")
+
+		self.assertEqual(frappe.db.get_value("User", email, "first_name"), "Jane & Doe")
+		self.assertEqual(frappe.db.get_value("User", email, "last_name"), "O'Neil")
+
+	def test_names_a_welcome_email_failure_instead_of_a_bare_500(self):
+		email = f"mail-fail-{frappe.generate_hash(length=8)}@example.com"
+		with (
+			patch(
+				"frappe.core.doctype.user.user.User.send_welcome_mail_to_user",
+				side_effect=frappe.OutgoingEmailError("SMTP authentication failed"),
+			),
+			patch("lms.lms.api.frappe.log_error") as log_error,
+		):
+			with self.assertRaises(frappe.ValidationError) as ctx:
+				create_member(email=email, first_name="Jane")
+
+		log_error.assert_called()
+		self.assertEqual(log_error.call_args.kwargs["title"], "Failed to add LMS member")
+		message = log_error.call_args.kwargs["message"]
+		self.assertTrue(
+			"Welcome email was not sent" in message or "OutgoingEmailError" in message or "SMTP" in message,
+			message,
+		)
+
+		self.assertIn("welcome email", str(ctx.exception).lower())
+		self.assertIn("email account", str(ctx.exception).lower())
+
+	def test_names_an_uncaught_smtp_failure(self):
+		email = f"smtp-fail-{frappe.generate_hash(length=8)}@example.com"
+		with patch(
+			"frappe.core.doctype.user.user.User.send_welcome_mail_to_user",
+			side_effect=OSError("SMTP authentication failed"),
+		):
+			with self.assertRaises(frappe.ValidationError) as ctx:
+				create_member(email=email, first_name="Jane")
+
+		self.assertIn("welcome email", str(ctx.exception).lower())
+
+	def test_names_a_mail_validation_error(self):
+		email = f"mail-validation-{frappe.generate_hash(length=8)}@example.com"
+		with patch(
+			"frappe.core.doctype.user.user.User.send_welcome_mail_to_user",
+			side_effect=frappe.ValidationError("Please setup default outgoing Email Account"),
+		):
+			with self.assertRaises(frappe.ValidationError) as ctx:
+				create_member(email=email, first_name="Jane")
+
+		self.assertIn("welcome email", str(ctx.exception).lower())
+		self.assertIn("email account", str(ctx.exception).lower())
+
+	def test_preserves_unrelated_user_validation_errors(self):
+		email = f"user-validation-{frappe.generate_hash(length=8)}@example.com"
+		with patch(
+			"frappe.core.doctype.user.user.User.insert",
+			side_effect=frappe.ValidationError("First Name is mandatory"),
+		):
+			with self.assertRaises(frappe.ValidationError) as ctx:
+				create_member(email=email, first_name="Jane")
+
+		self.assertIn("first name", str(ctx.exception).lower())
+		self.assertNotIn("welcome email", str(ctx.exception).lower())
+
+	def test_refuses_a_non_moderator(self):
+		frappe.set_user(self.student.name)
+		with self.assertRaises(frappe.PermissionError):
+			create_member(email="nobody@example.com", first_name="No")
+
+	def test_refuses_a_blank_email_after_the_role_check(self):
+		frappe.set_user(self.student.name)
+		with self.assertRaises(frappe.PermissionError):
+			create_member(email="   ")
+
+	def test_rejects_a_blank_email_from_a_moderator(self):
+		with self.assertRaises(frappe.ValidationError):
+			create_member(email="   ")
+
+	def test_rejects_an_existing_email(self):
+		with self.assertRaises(frappe.ValidationError):
+			create_member(email=self.student.name, first_name="Dup")

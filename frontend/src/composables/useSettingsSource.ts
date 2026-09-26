@@ -60,6 +60,11 @@ export interface UseSettingsSourceOptions {
 	 * New reading "Not saved" before anything is typed.
 	 */
 	defaults?: () => Record<string, unknown>
+	/**
+	 * Replaces `frappe.client.insert` for a new record. Members use this so a
+	 * failed welcome email is named in the LMS UI instead of Internal Server Error.
+	 */
+	insert?: (doc: SettingsListRow) => Promise<unknown>
 }
 
 export interface SettingsSourceHandle {
@@ -196,9 +201,11 @@ export function useSettingsSource(
 
 	const save = async (): Promise<unknown> => {
 		if (isNew.value) {
-			const inserted = await call('frappe.client.insert', {
-				doc: { doctype, ...draft.value },
-			})
+			const inserted = options.insert
+				? await options.insert(draft.value)
+				: await call('frappe.client.insert', {
+						doc: { doctype, ...draft.value },
+					})
 			// The draft has been written, so it is no longer something to discard.
 			// Without this a create form navigates away still registered dirty and
 			// the guard prompts on top of its own success toast.

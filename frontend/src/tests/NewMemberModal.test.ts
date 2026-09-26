@@ -145,13 +145,10 @@ describe('NewMemberModal: add mode', () => {
 		await w.get('[data-testid="role-Moderator"]').trigger('click')
 		await clickAction(w, 'Add')
 
-		expect(callMock).toHaveBeenCalledWith('frappe.client.insert', {
-			doc: {
-				doctype: 'User',
-				email: 'jane@doe.com',
-				first_name: undefined,
-				last_name: undefined,
-			},
+		expect(callMock).toHaveBeenCalledWith('lms.lms.api.create_member', {
+			email: 'jane@doe.com',
+			first_name: undefined,
+			last_name: undefined,
 		})
 		const roleCalls = saveRoleCalls()
 		expect(roleCalls).toHaveLength(1)
@@ -196,6 +193,20 @@ describe('NewMemberModal: add mode', () => {
 		await w.get('[data-testid="field-Email"]').setValue('a@b.com')
 		await clickAction(w, 'Add')
 		expect(toastMock.error).toHaveBeenCalledWith('boom')
+		expect(closeMock).not.toHaveBeenCalled()
+	})
+
+	it('surfaces a welcome-email failure from create_member', async () => {
+		const w = mountModal()
+		await open(w)
+		callMock.mockRejectedValueOnce({
+			messages: [
+				'Could not finish adding this member. The welcome email failed to send, so the new user cannot log in. Open Settings > Email Account, fix the outgoing account, then try again. If the user already appears in the list, ask them to use Forgot Password after email is working.',
+			],
+		})
+		await w.get('[data-testid="field-Email"]').setValue('a@b.com')
+		await clickAction(w, 'Add')
+		expect(toastMock.error.mock.calls[0][0]).toMatch(/welcome email failed to send/i)
 		expect(closeMock).not.toHaveBeenCalled()
 	})
 })
