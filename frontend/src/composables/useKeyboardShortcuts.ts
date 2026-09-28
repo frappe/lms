@@ -2,6 +2,7 @@ import { onBeforeUnmount, onMounted, unref } from 'vue'
 import type { Ref } from 'vue'
 // @ts-expect-error utils/dialogs.js has no type declarations yet
 import { isDialogOpen } from '@/utils/dialogs'
+import { ASSESSMENT_BLOCK_SELECTOR } from '@/utils/blockMount'
 
 // Ported from apps/crm/frontend/src/composables/useKeyboardShortcuts.js
 // (typed for LMS). A shortcut is matched either by `keys` (KeyboardEvent.key,
@@ -101,5 +102,18 @@ export function saveShortcut(action: ShortcutAction): ShortcutDef {
 	return {
 		match: (e) => (e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 's',
 		action,
+	}
+}
+
+// Blocks in a lesson share its window, so every block's shortcuts hear every
+// keydown. This passes a key only when it was pressed inside the same
+// assessment block as `el`, and always passes outside any block.
+export function sameBlock(
+	el: Ref<HTMLElement | null>
+): (e: KeyboardEvent) => boolean {
+	return (e) => {
+		const home = el.value?.closest(ASSESSMENT_BLOCK_SELECTOR)
+		if (!home) return true
+		return e.target instanceof Node && home.contains(e.target)
 	}
 }

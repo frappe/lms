@@ -40,7 +40,7 @@ const INSTRUCTOR_ROLES = [
 	'System Manager',
 ]
 
-type UserResource = {
+export type UserResource = {
 	data?: Record<string, unknown> | null
 	reload?: () => unknown
 	[key: string]: unknown
