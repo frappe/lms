@@ -11,6 +11,8 @@ core (frappe/permissions.py), CRM (crm.permissions.*), and Raven (raven.permissi
 
 import frappe
 from frappe import _
+from frappe.query_builder import Bracket
+from pypika.terms import LiteralValue
 
 from lms.lms.utils import (
 	can_modify_batch,
@@ -22,6 +24,87 @@ from lms.lms.utils import (
 
 # File fields that hold instructor-only lesson media (never served to students).
 INSTRUCTOR_FIELDS = {"instructor_content", "instructor_notes"}
+
+# The ptypes the LMS Course read rule answers. Every other ptype is authoring: write,
+# delete and create, and also share, report, export and email, each of which either
+# moves authority or hands out a whole row.
+COURSE_READ_PTYPES = ("read", "select", "print")
+
+
+def can_author_course(course: str, *, user: str | None = None) -> bool:
+	"""``can_modify_course`` for an explicit user: a Moderator, or a Course Instructor row."""
+	if not isinstance(course, str) or not course:
+		return False
+
+	original_user = frappe.session.user
+	try:
+		# can_modify_course reads session.user and takes no user argument.
+		frappe.session.user = user or original_user
+		return bool(can_modify_course(course))
+	finally:
+		frappe.session.user = original_user
+
+
+def can_access_course(course: str, *, user: str | None = None) -> bool:
+	"""Who may read a course: it is published, they are enrolled, or they author it."""
+	if not isinstance(course, str) or not course:
+		return False
+
+	published = frappe.db.get_value("LMS Course", course, "published")
+	if published is None:
+		# A course that is not there is not readable, rather than not decided.
+		return False
+	if published:
+		return True
+	if can_author_course(course, user=user):
+		return True
+	return bool(get_membership(course, user or frappe.session.user))
+
+
+def course_has_permission(doc, ptype="read", user=None) -> bool:
+	"""Single-document counterpart of :func:`course_query_conditions`."""
+	user = user or frappe.session.user
+
+	if doc.is_new():
+		# frappe checks "create" at model/document.py:731, before set_new_name() at
+		# :735 -- there is no name and no Course Instructor row yet (that is written
+		# later, in validate()). Creation stays governed by the DocPerm grant.
+		return True
+
+	if ptype in COURSE_READ_PTYPES:
+		return can_access_course(doc.name, user=user)
+
+	if can_author_course(doc.name, user=user):
+		return True
+
+	frappe.logger("lms.security").warning(
+		"Course authoring denied: user=%s course=%s ptype=%s", user, doc.name, ptype
+	)
+	return False
+
+
+def course_query_conditions(user=None) -> str:
+	"""List-read counterpart of :func:`course_has_permission`'s read branch, as SQL."""
+	user = user or frappe.session.user
+	if user == "Administrator":
+		return ""
+
+	roles = frappe.get_roles(user)
+	if "Moderator" in roles:
+		return ""
+
+	course = frappe.qb.DocType("LMS Course")
+	instructor = frappe.qb.DocType("Course Instructor")
+	enrollment = frappe.qb.DocType("LMS Enrollment")
+	member = LiteralValue(frappe.db.escape(user))
+	taught = (
+		frappe.qb.from_(instructor)
+		.select(instructor.parent)
+		.where((instructor.instructor == member) & (instructor.parenttype == "LMS Course"))
+	)
+	enrolled = frappe.qb.from_(enrollment).select(enrollment.course).where(enrollment.member == member)
+	condition = Bracket((course.published == 1) | course.name.isin(taught) | course.name.isin(enrolled))
+	return condition.get_sql(with_namespace=True, quote_char="`" if frappe.db.db_type == "mariadb" else '"')
 
 
 def resolve_lesson_access(lesson: str, *, user: str | None = None) -> tuple[bool, bool]:
