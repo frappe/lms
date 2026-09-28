@@ -85,13 +85,14 @@ def course_has_permission(doc, ptype="read", user=None) -> bool:
 
 def course_query_conditions(user=None) -> str:
 	"""List-read counterpart of :func:`course_has_permission`'s read branch, as SQL."""
-	user = user or frappe.session.user
-	if user == "Administrator":
-		return ""
+	condition = _course_read_condition(user)
+	return _render(condition) if condition else ""
 
-	roles = frappe.get_roles(user)
-	if "Moderator" in roles:
-		return ""
+
+def _course_read_condition(user=None):
+	user = user or frappe.session.user
+	if user == "Administrator" or "Moderator" in frappe.get_roles(user):
+		return None
 
 	course = frappe.qb.DocType("LMS Course")
 	instructor = frappe.qb.DocType("Course Instructor")
@@ -103,8 +104,53 @@ def course_query_conditions(user=None) -> str:
 		.where((instructor.instructor == member) & (instructor.parenttype == "LMS Course"))
 	)
 	enrolled = frappe.qb.from_(enrollment).select(enrollment.course).where(enrollment.member == member)
-	condition = Bracket((course.published == 1) | course.name.isin(taught) | course.name.isin(enrolled))
+	return Bracket((course.published == 1) | course.name.isin(taught) | course.name.isin(enrolled))
+
+
+def _render(condition) -> str:
 	return condition.get_sql(with_namespace=True, quote_char="`" if frappe.db.db_type == "mariadb" else '"')
+
+
+def chapter_has_permission(doc, ptype="read", user=None) -> bool:
+	"""Single-document counterpart of :func:`chapter_query_conditions`: the
+	``LMS Course`` rule applied to ``doc.course``. Author is checked first so a
+	Moderator keeps access to a chapter whose course is gone."""
+	course = doc.get("course")
+	if not course:
+		# A new row defers to validate()'s mandatory check; a saved one is denied
+		# unless the list layer doesn't narrow this user either.
+		return doc.is_new() or not chapter_query_conditions(user)
+
+	# Authorise against the stored course too, or a submitted `course` moves the row.
+	stored = None if doc.is_new() else frappe.db.get_value("Course Chapter", doc.name, "course")
+	courses = (course, stored) if stored and stored != course else (course,)
+	if all(can_author_course(c, user=user) for c in courses):
+		return True
+
+	if ptype in COURSE_READ_PTYPES:
+		return can_access_course(stored or course, user=user)
+
+	frappe.logger("lms.security").warning(
+		"Chapter authoring denied: user=%s chapter=%s course=%s ptype=%s",
+		user or frappe.session.user,
+		doc.name,
+		course,
+		ptype,
+	)
+	return False
+
+
+def chapter_query_conditions(user=None) -> str:
+	"""List-read counterpart of :func:`chapter_has_permission`'s read branch, as SQL.
+	A chapter whose course row is gone matches nothing."""
+	condition = _course_read_condition(user)
+	if not condition:
+		return ""
+
+	chapter = frappe.qb.DocType("Course Chapter")
+	course = frappe.qb.DocType("LMS Course")
+	readable = frappe.qb.from_(course).select(course.name).where(condition)
+	return _render(chapter.course.isin(readable))
 
 
 def resolve_lesson_access(lesson: str, *, user: str | None = None) -> tuple[bool, bool]:
