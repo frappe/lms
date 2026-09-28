@@ -2,7 +2,6 @@ import frappe
 from frappe.model.naming import make_autoname
 from frappe.query_builder.functions import IfNull
 from frappe.utils import now
-from frappe.utils.synchronization import filelock
 
 FIELDS = [
 	"name",
@@ -20,11 +19,11 @@ FIELDS = [
 
 
 def execute():
-	# Commit before releasing the lock, or a run waiting on it can read the shares
-	# before this run's inserts are visible and add them a second time.
-	with filelock("lms_share_enrollment"):
-		share_missing_enrollments()
-		frappe.db.commit()
+	# The row lock lasts until execute_patch commits. An overlapping run blocks here
+	# before reading anything, so its snapshot then includes this run's shares.
+	DocType = frappe.qb.DocType("DocType")
+	frappe.qb.from_(DocType).select(DocType.name).where(DocType.name == "LMS Enrollment").for_update().run()
+	share_missing_enrollments()
 
 
 def share_missing_enrollments():
