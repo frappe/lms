@@ -4,8 +4,8 @@
  * Focus: every write goes through the ownership-checked `lms.lms.api`
  * endpoints. It used to call `frappe.client.insert` / `set_value` / `delete`
  * directly, which fall back to Course Evaluator's role permissions. Those
- * grant blanket write to Moderator, Batch Evaluator and Course Creator with no
- * owner condition, so any of them could edit any other evaluator's calendar.
+ * grant Moderator blanket write with no owner condition, so a Moderator could
+ * edit any other evaluator's calendar.
  *
  * Also guards the unavailability dates: they were wired with `@blur`, but the
  * date control renders as a popover, so the write has to hang off
