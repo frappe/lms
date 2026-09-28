@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2026-09-18 18:46+0000\n"
-"PO-Revision-Date: 2026-09-21 10:06\n"
+"PO-Revision-Date: 2026-09-28 10:40\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Bosnian\n"
 "MIME-Version: 1.0\n"
@@ -2276,7 +2276,7 @@ msgstr "Završeni Kursevi"
 
 #: frontend/src/pages/Courses/CourseOverview.vue:110
 msgid "Course content coming soon!"
-msgstr "Sadržaj kursa dolazi uskoro!"
+msgstr ""
 
 #. Label of the course_count (Int) field in DocType 'LMS Program'
 #: lms/lms/doctype/lms_program/lms_program.json
@@ -5252,11 +5252,11 @@ msgstr "Prezime"
 #. Label of the launch_file (Code) field in DocType 'Course Chapter'
 #: lms/lms/doctype/course_chapter/course_chapter.json
 msgid "Launch File"
-msgstr "Pokreni Datoteku"
+msgstr "Izvrši Datoteku"
 
 #: frontend/src/pages/Forms/PersonaForm.vue:166
 msgid "Launch a paid course"
-msgstr "Pokreni plaćeni kurs"
+msgstr "Izvrši plaćeni kurs"
 
 #: frontend/src/pages/Forms/PersonaForm.vue:118
 msgid "LearnDash"
@@ -5621,11 +5621,11 @@ msgstr ""
 
 #: frontend/src/components/Quiz.vue:439
 msgid "Mark"
-msgstr "Označi"
+msgstr "Odaberi"
 
 #: frontend/src/components/Notifications/NotificationPanel.vue:24
 msgid "Mark all as read"
-msgstr "Označi sve kao pročitano"
+msgstr "Odaberi sve kao pročitano"
 
 #: frontend/src/components/Quiz/QuestionAnswers.vue:72
 msgid "Mark at least two correct answers"
@@ -7313,7 +7313,7 @@ msgstr "Dajte svoju saglasnost za nastavak plaćanja."
 
 #: frontend/src/pages/ProgrammingExercises/ProgrammingExerciseSubmission.vue:130
 msgid "Please run the code to execute the test cases."
-msgstr "Pokreni kod za izvršavanje test slučajeva."
+msgstr "Izvrši kod za izvršavanje test slučajeva."
 
 #: lms/lms/doctype/lms_batch/lms_batch.py:138
 msgid "Please select a Google Meet account for this batch."
