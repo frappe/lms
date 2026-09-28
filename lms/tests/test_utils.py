@@ -731,6 +731,13 @@ class TestEditorJsSanitisation(unittest.TestCase):
 		out = self._text(self._payload("ok<script>alert(1)</script>"))
 		self.assertNotIn("<script", out)
 
+	def test_a_script_is_dropped_with_its_content(self):
+		self.assertEqual(self._text(self._payload("ok<script>alert(1)</script>")), "ok")
+
+	def test_every_link_carries_noopener_noreferrer(self):
+		out = self._text(self._payload('<a href="https://frappe.io/" rel="nofollow">here</a>'))
+		self.assertEqual(out, '<a href="https://frappe.io/" rel="noopener noreferrer">here</a>')
+
 	def test_returns_invalid_json_unchanged(self):
 		"""Byte-for-byte, markup or not.
 
