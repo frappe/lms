@@ -28,49 +28,29 @@
 					:style="{ gridTemplateColumns: getGridTemplateColumns() }"
 				>
 					<template v-for="key in Object.keys(row)" :key="key">
+						<Checkbox
+							v-if="showKey(key) && (checkboxKeys ?? []).includes(key)"
+							:model-value="!!row[key]"
+							:aria-label="columnLabel(key)"
+							@update:model-value="(checked) => (row[key] = !!checked)"
+						/>
 						<input
-							v-if="showKey(key)"
+							v-else-if="showKey(key)"
 							v-model="row[key]"
 							:aria-label="columnLabel(key)"
-							class="py-1.5 px-2 w-full border-none bg-transparent text-ink-gray-8 focus:ring-0 focus:border focus:border-outline-gray-3 focus:bg-surface-gray-2 rounded-5 text-sm focus:outline-none"
+							class="py-1.5 px-2 w-full rounded-5 border border-outline-gray-2 bg-surface-base text-sm text-ink-gray-8 placeholder-ink-gray-4 transition-colors hover:border-outline-gray-3 hover:shadow-sm focus:border-outline-gray-4 focus:shadow-sm focus:outline-none focus:ring-0"
 						/>
 					</template>
 
-					<div class="relative">
-						<Button
-							variant="ghost"
-							:label="__('Row actions')"
-							@click="(event: MouseEvent) => toggleMenu(rowIndex, event)"
-						>
-							<template #icon>
-								<span
-									class="lucide-ellipsis size-4 text-ink-gray-7 cursor-pointer"
-								/>
-							</template>
-						</Button>
-
-						<div
-							v-if="menuOpenIndex === rowIndex"
-							ref="menuRef"
-							class="absolute end-0 w-32 z-50 bg-surface-elevation-2 border border-outline-elevation-2 rounded-5 shadow-sm"
-							:class="
-								rowIndex == (rows?.length ?? 0) - 1
-									? 'bottom-full mb-1'
-									: 'top-full mt-1'
-							"
-						>
-							<button
-								type="button"
-								@click="deleteRow(rowIndex)"
-								class="flex items-center gap-x-2 w-full text-start px-3 py-2 text-sm text-ink-red-5"
-							>
-								<span class="lucide-trash-2 size-4" />
-								<span>
-									{{ __('Delete') }}
-								</span>
-							</button>
-						</div>
-					</div>
+					<Button
+						variant="ghost"
+						:label="__('Delete row {0}').format(rowIndex + 1)"
+						@click="deleteRow(rowIndex)"
+					>
+						<template #icon>
+							<span class="lucide-x size-4 text-ink-gray-7" />
+						</template>
+					</Button>
 				</div>
 			</div>
 		</div>
@@ -94,8 +74,7 @@
 
 <script setup lang="ts">
 import { nextTick, ref, watch } from 'vue'
-import { Button } from 'frappe-ui'
-import { onClickOutside } from '@vueuse/core'
+import { Button, Checkbox } from 'frappe-ui'
 import {
 	InputDescription,
 	InputError,
@@ -103,20 +82,17 @@ import {
 	useInputLabeling,
 } from 'frappe-ui/experimental'
 
-const rows = defineModel<Record<string, string>[]>()
-const menuRef = ref(null)
-const menuOpenIndex = ref<number | null>(null)
-const menuTopPosition = ref<string>('')
-const menuLeftPosition = ref('0px')
+const rows = defineModel<Record<string, string | boolean>[]>()
 
 const emit = defineEmits<{
-	(e: 'update:modelValue', value: Record<string, string>[]): void
+	(e: 'update:modelValue', value: Record<string, string | boolean>[]): void
 }>()
 
 const props = withDefaults(
 	defineProps<{
-		modelValue?: Record<string, string>[]
+		modelValue?: Record<string, string | boolean>[]
 		columns?: string[]
+		checkboxKeys?: string[]
 		label?: string
 		description?: string
 		error?: string
@@ -149,9 +125,10 @@ const addRow = () => {
 	if (!rows.value) {
 		rows.value = []
 	}
-	let newRow: { [key: string]: string } = {}
+	let newRow: { [key: string]: string | boolean } = {}
 	columns.value.forEach((column: any) => {
-		newRow[keyFor(column)] = ''
+		const key = keyFor(column)
+		newRow[key] = (props.checkboxKeys ?? []).includes(key) ? true : ''
 	})
 	rows.value.push(newRow)
 	focusNewRowInput()
@@ -175,17 +152,16 @@ const deleteRow = (index: number) => {
 	emit('update:modelValue', rows.value ?? [])
 }
 
+// A fixed actions track: a fraction took ~120px for a 28px button, and each row
+// computes its own grid, so a fixed width keeps the header aligned.
+const ACTIONS_COLUMN_WIDTH = '2.25rem'
+
 const getGridTemplateColumns = () => {
-	return [...Array(columns.value.length).fill('1fr'), '0.25fr'].join(' ')
+	return [
+		...Array(columns.value.length).fill('minmax(0, 1fr)'),
+		ACTIONS_COLUMN_WIDTH,
+	].join(' ')
 }
-
-const toggleMenu = (index: number, event: MouseEvent) => {
-	menuOpenIndex.value = menuOpenIndex.value === index ? null : index
-}
-
-onClickOutside(menuRef, () => {
-	menuOpenIndex.value = null
-})
 
 const keyFor = (column: string) => column.toLowerCase().split(' ').join('_')
 
