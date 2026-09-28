@@ -1467,6 +1467,13 @@ def get_course_outline(course: str, progress: bool = False) -> list:
 	if not chapters:
 		return []
 
+	# get_outline_chapter reads through frappe.qb, which consults no permission layer at
+	# all — not the DocPerm rows, not the permlevel — and this endpoint answers guests.
+	# can_modify_course is the predicate the only reader's own save is refused on.
+	if any(c.is_scorm_package and c.scorm_package for c in chapters) and not can_modify_course(course):
+		for chapter in chapters:
+			chapter.scorm_package = None
+
 	lesson_rows = get_outline_lessons([c.name for c in chapters])
 	files_by_name = get_scorm_files(chapters)
 	completed = get_completed_lessons(course, lesson_rows) if progress else set()
@@ -1508,7 +1515,6 @@ def get_outline_chapter(course: str) -> list:
 			CourseChapter.name.as_("name"),
 			CourseChapter.title.as_("title"),
 			CourseChapter.is_scorm_package.as_("is_scorm_package"),
-			CourseChapter.launch_file.as_("launch_file"),
 			CourseChapter.scorm_package.as_("scorm_package"),
 		)
 		.where(ChapterReference.parent == course)
@@ -1680,18 +1686,13 @@ def build_outline(
 			name=c.name,
 			title=c.title,
 			is_scorm_package=c.is_scorm_package,
-			launch_file=c.launch_file,
 			scorm_package=c.scorm_package,
 			idx=c.idx,
 			lessons=lessons,
 		)
-		# launch_file is the SCORM entry URL and scorm_package resolves to the package
-		# file. Handing either out for a chapter the student cannot open yet would let
-		# the outline itself route around the gate, so withhold both.
-		if lessons and all(lesson.get("locked") for lesson in lessons):
-			chapter.launch_file = None
-			chapter.scorm_package = None
-		elif c.is_scorm_package and c.scorm_package and c.scorm_package in files_by_name:
+		# The bare docname is what survives a deleted File row; the expansion is what
+		# ChapterForm renders.
+		if c.is_scorm_package and c.scorm_package and c.scorm_package in files_by_name:
 			chapter.scorm_package = files_by_name[c.scorm_package]
 		outline.append(chapter)
 	return outline
