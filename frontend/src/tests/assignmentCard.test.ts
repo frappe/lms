@@ -1,21 +1,36 @@
+<<<<<<< HEAD
+=======
+// Guards the assignment card: skeleton, brief, and the per-type answer input.
+// Came with this branch's assignment block restyle as an assessment card.
+// Added on feat/assessment-visual-redesign to pin the card's states.
+>>>>>>> 17b206e (feat(assignment): restyle the assignment as an assessment card)
 import { flushPromises, mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { defineComponent, h, reactive } from 'vue'
 
 const state = vi.hoisted(() => ({
 	assignment: null as Record<string, unknown> | null,
+<<<<<<< HEAD
 	submission: null as { doc: Record<string, unknown> | null } | null,
+=======
+	loading: false,
+>>>>>>> 17b206e (feat(assignment): restyle the assignment as an assessment card)
 }))
 
 vi.mock('frappe-ui', () => {
 	const passthrough = (tag: string) =>
 		defineComponent({
+<<<<<<< HEAD
+=======
+			inheritAttrs: true,
+>>>>>>> 17b206e (feat(assignment): restyle the assignment as an assessment card)
 			setup:
 				(_p, { slots }) =>
 				() =>
 					h(tag, slots.default?.()),
 		})
 	return {
+<<<<<<< HEAD
 		Alert: defineComponent({
 			props: ['title', 'description', 'theme'],
 			setup:
@@ -23,6 +38,8 @@ vi.mock('frappe-ui', () => {
 				() =>
 					h('div', [props.title, props.description, slots.default?.()]),
 		}),
+=======
+>>>>>>> 17b206e (feat(assignment): restyle the assignment as an assessment card)
 		Badge: passthrough('span'),
 		Button: defineComponent({
 			setup:
@@ -36,7 +53,10 @@ vi.mock('frappe-ui', () => {
 				() =>
 					h(
 						'div',
+<<<<<<< HEAD
 						{ 'data-testid': 'file-uploader' },
+=======
+>>>>>>> 17b206e (feat(assignment): restyle the assignment as an assessment card)
 						slots.default?.({
 							uploading: false,
 							progress: 0,
@@ -45,6 +65,7 @@ vi.mock('frappe-ui', () => {
 					),
 		}),
 		FormControl: defineComponent({
+<<<<<<< HEAD
 			props: ['modelValue', 'disabled'],
 			setup: (props) => () =>
 				h('input', {
@@ -54,11 +75,21 @@ vi.mock('frappe-ui', () => {
 				}),
 		}),
 		Tooltip: passthrough('div'),
+=======
+			props: ['placeholder'],
+			setup: (props) => () =>
+				h('input', { 'data-testid': 'url-input', ...props }),
+		}),
+		Skeleton: defineComponent({ render: () => h('div') }),
+		Tooltip: passthrough('div'),
+		KeyboardShortcut: passthrough('span'),
+>>>>>>> 17b206e (feat(assignment): restyle the assignment as an assessment card)
 		call: vi.fn(),
 		toast: { error: vi.fn(), success: vi.fn() },
 		createResource: () =>
 			reactive({
 				data: state.assignment,
+<<<<<<< HEAD
 				reload: vi.fn(),
 			}),
 		createDocumentResource: () => {
@@ -89,6 +120,24 @@ vi.mock('@/components/RichTextEditor.vue', () => ({
 				innerHTML: props.content,
 			}),
 	}),
+=======
+				loading: state.loading,
+				reload: vi.fn(),
+			}),
+		createDocumentResource: () =>
+			reactive({ doc: null, reload: vi.fn(), setValue: { submit: vi.fn() } }),
+	}
+})
+
+vi.mock('@/router', () => ({
+	default: {
+		push: vi.fn(),
+		currentRoute: { value: { name: 'Lesson', query: {} } },
+	},
+}))
+vi.mock('@/components/RichTextEditor.vue', () => ({
+	default: defineComponent({ render: () => h('div') }),
+>>>>>>> 17b206e (feat(assignment): restyle the assignment as an assessment card)
 }))
 vi.mock('@/utils', () => ({ validateFile: vi.fn() }))
 
@@ -102,6 +151,7 @@ const translate = (message: string) => {
 	}
 }
 
+<<<<<<< HEAD
 const learner = { name: 'learner@example.com' }
 const evaluator = { name: 'evaluator@example.com', is_evaluator: true }
 
@@ -121,10 +171,21 @@ const mountAssignment = async (
 		},
 	})
 	if (submission && state.submission) state.submission.doc = submission
+=======
+const mountAssignment = async () => {
+	const wrapper = mount(Assignment, {
+		props: { assignmentID: 'ASG-1', showTitle: false },
+		global: {
+			provide: { $user: { data: { name: 'learner@example.com' } } },
+			mocks: { __: translate },
+		},
+	})
+>>>>>>> 17b206e (feat(assignment): restyle the assignment as an assessment card)
 	await flushPromises()
 	return wrapper
 }
 
+<<<<<<< HEAD
 const ended = {
 	enable_scheduling: 1,
 	schedule_end: '2020-01-01T00:00:00Z',
@@ -217,5 +278,71 @@ describe('the assignment card', () => {
 			'The schedule for this assignment has ended.'
 		)
 		expect(wrapper.find('[data-testid="url-input"]').exists()).toBe(false)
+=======
+beforeEach(() => {
+	state.assignment = null
+	state.loading = false
+})
+
+describe('the assignment card', () => {
+	it('shows a skeleton card while the assignment loads', async () => {
+		state.loading = true
+		const wrapper = await mountAssignment()
+
+		expect(wrapper.find('[data-testid="assignment-skeleton"]').exists()).toBe(
+			true
+		)
+		expect(wrapper.text()).toContain('Assignment')
+	})
+
+	it('renders the brief and a drop zone for a file assignment', async () => {
+		state.assignment = {
+			title: 'Temperature Converter',
+			type: 'PDF',
+			question: '<p>Convert Celsius.</p>',
+		}
+		const wrapper = await mountAssignment()
+
+		expect(wrapper.find('[data-testid="assignment-skeleton"]').exists()).toBe(
+			false
+		)
+		expect(wrapper.text()).toContain('Temperature Converter')
+		expect(wrapper.text()).toContain('Brief')
+		expect(wrapper.text()).toContain('Convert Celsius.')
+		expect(wrapper.find('[data-testid="assignment-dropzone"]').exists()).toBe(
+			true
+		)
+		expect(wrapper.find('[data-testid="url-input"]').exists()).toBe(false)
+		const labels = wrapper.findAll('button').map((b) => b.text())
+		expect(labels).toContain('Submit')
+		expect(labels).not.toContain('Save')
+	})
+
+	it('draws the drop zone with the artboard 10px corners', async () => {
+		state.assignment = {
+			title: 'Temperature Converter',
+			type: 'PDF',
+			question: '<p>Convert Celsius.</p>',
+		}
+		const wrapper = await mountAssignment()
+
+		const zone = wrapper.get('[data-testid="assignment-dropzone"]')
+		expect(zone.classes()).toContain('rounded-5')
+		expect(zone.classes()).toContain('border-outline-gray-2')
+	})
+
+	it('renders only the URL input for a URL assignment', async () => {
+		state.assignment = {
+			title: 'Portfolio',
+			type: 'URL',
+			question: '<p>Link your repo.</p>',
+		}
+		const wrapper = await mountAssignment()
+
+		expect(wrapper.find('[data-testid="url-input"]').exists()).toBe(true)
+		expect(wrapper.find('[data-testid="assignment-dropzone"]').exists()).toBe(
+			false
+		)
+>>>>>>> 17b206e (feat(assignment): restyle the assignment as an assessment card)
 	})
 })
