@@ -13,7 +13,7 @@ from lms.lms.doctype.course_evaluator.course_evaluator import (
 	get_schedule_range_end_date,
 	group_slots_by_display_date,
 )
-from lms.lms.test_helpers import BaseTestUtils
+from lms.lms.test_helpers import BaseTestUtils, enforce_role_gates
 
 
 class TestCourseEvaluator(BaseTestUtils):
@@ -193,6 +193,7 @@ class TestSlotGrouping(FrappeTestCase):
 class TestEvaluatorRoleCRUD(BaseTestUtils):
 	def setUp(self):
 		super().setUp()
+		enforce_role_gates(self)
 		self.admin = self._create_user(
 			"frappe@example.com", "Frappe", "Admin", ["Moderator", "Course Creator", "Batch Evaluator"]
 		)

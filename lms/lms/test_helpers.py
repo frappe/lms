@@ -1,4 +1,5 @@
 import json
+from unittest.mock import patch
 
 import frappe
 from frappe.tests.utils import FrappeTestCase
@@ -6,6 +7,28 @@ from frappe.utils import add_days, nowdate
 
 from lms.lms.doctype.lms_certificate.lms_certificate import get_default_certificate_template
 from lms.lms.doctype.lms_quiz.lms_quiz import submit_quiz
+
+
+def enforce_role_gates(test_case):
+	"""Make `frappe.only_for` check roles for the rest of `test_case`.
+
+	frappe v15's `only_for` returns early whenever `flags.in_test` is set, so an
+	endpoint's role gate never fires under the test runner (develop dropped that
+	bypass). The real check runs, with only that flag lowered around it.
+	"""
+	only_for = frappe.only_for
+
+	def checked_only_for(*args, **kwargs):
+		in_test = frappe.flags.in_test
+		frappe.flags.in_test = False
+		try:
+			return only_for(*args, **kwargs)
+		finally:
+			frappe.flags.in_test = in_test
+
+	patcher = patch.object(frappe, "only_for", checked_only_for)
+	patcher.start()
+	test_case.addCleanup(patcher.stop)
 
 
 class BaseTestUtils(FrappeTestCase):
