@@ -111,6 +111,8 @@ vi.mock('frappe-ui', async () => {
 		},
 		FormControl: empty,
 		LoadingIndicator: empty,
+		Progress: empty,
+		Skeleton: empty,
 	}
 })
 
@@ -165,10 +167,14 @@ const quizResponse = () => ({
 	},
 })
 
+let mountedQuizzes = 0
+
+// A distinct idPrefix per mount, as mountBlock gives each lesson block.
 const mountQuiz = (props: Record<string, unknown> = {}) =>
 	mount(Quiz, {
 		props: { quizName: 'QUIZ-1', ...props },
 		global: {
+			config: { idPrefix: `quiz-${++mountedQuizzes}` },
 			provide: { $user: { data: { name: 'learner@example.com' } } },
 			mocks: { __: (value: string) => value },
 		},
@@ -302,7 +308,7 @@ describe('Quiz choices', () => {
 
 	const pickFirstAndCheck = async (wrapper: VueWrapper<any>) => {
 		await startQuiz(wrapper)
-		await wrapper.findAll('.radio-option')[0].trigger('click')
+		await wrapper.findAll('input[type="radio"]')[0].trigger('change')
 		const check = wrapper.findAll('button').find((b) => b.text() === 'Check')
 		expect(check).toBeDefined()
 		await check!.trigger('click')
@@ -316,7 +322,7 @@ describe('Quiz choices', () => {
 		await pickFirstAndCheck(wrapper)
 
 		// The warning toast instead of a request would mean getAnswers() saw
-		// nothing selected, i.e. RadioGroup never reached selectedOptions.
+		// nothing selected, i.e. the radio never reached selectedOptions.
 		expect(resourceState.request.mock.calls.map((call) => call[0])).toContain(
 			'lms.lms.doctype.lms_quiz.lms_quiz.check_answer'
 		)
@@ -331,7 +337,77 @@ describe('Quiz choices', () => {
 
 		expect(wrapper.text()).toContain('First option 1')
 		expect(wrapper.text()).toContain('Second option 1')
-		expect(wrapper.find('.lucide-check-circle').exists()).toBe(true)
+		const firstOption = wrapper.findAll('label')[0]
+		expect(firstOption.find('.lucide-check-circle').exists()).toBe(true)
 		wrapper.unmount()
+	})
+
+	// Guards two quizzes asking the same question sharing one radio group.
+	// Broke with this branch's quiz card restyle (radios named by question text).
+	// Added on feat/assessment-visual-redesign when quizzes became lesson blocks.
+	it('keeps two quizzes on one page in separate radio groups', async () => {
+		const first = mountQuiz()
+		const second = mountQuiz()
+		await flushPromises()
+		await startQuiz(first)
+		await startQuiz(second)
+
+		const nameOf = (wrapper: VueWrapper<any>) =>
+			wrapper.find('input[type="radio"]').attributes('name')
+		expect(nameOf(first)).not.toBe(nameOf(second))
+		first.unmount()
+		second.unmount()
+	})
+})
+
+// Guards the quiz card's skeleton, header summary, option rows and verdict.
+// Came with this branch's restyle of the quiz block as an assessment card.
+// Added on feat/assessment-visual-redesign to pin the new card's states.
+describe('Quiz card', () => {
+	it('shows a skeleton card until the quiz lands', async () => {
+		const wrapper = mountQuiz()
+		expect(wrapper.find('[data-testid="quiz-skeleton"]').exists()).toBe(true)
+
+		await flushPromises()
+		expect(wrapper.find('[data-testid="quiz-skeleton"]').exists()).toBe(false)
+		expect(wrapper.text()).toContain('Start Quiz')
+	})
+
+	it('summarises the quiz type, size and pass mark in the header', async () => {
+		resourceState.response = choicesQuizResponse(2)
+		const wrapper = mountQuiz()
+		await flushPromises()
+
+		expect(wrapper.text()).toContain(
+			'Multiple choice · 2 questions · pass at 70%'
+		)
+	})
+
+	it('renders one option row per option and a verdict after Check', async () => {
+		const response = choicesQuizResponse(1)
+		response.quiz.show_answers = 1
+		resourceState.response = response
+		resourceState.checkAnswer = [1, 0]
+		const wrapper = mountQuiz()
+		await flushPromises()
+		await startQuiz(wrapper)
+
+		expect(wrapper.text()).toContain('Question 1 of 1')
+		const options = wrapper.findAll('input[type="radio"]')
+		expect(options).toHaveLength(2)
+		expect(wrapper.find('[data-testid="quiz-feedback"]').exists()).toBe(false)
+
+		await options[0].trigger('change')
+		const check = wrapper
+			.findAll('button')
+			.find((button) => button.text() === 'Check')
+		await check!.trigger('click')
+		await flushPromises()
+
+		const feedback = wrapper.find('[data-testid="quiz-feedback"]')
+		expect(feedback.exists()).toBe(true)
+		expect(feedback.text()).toBe('Correct')
+		const firstOption = wrapper.findAll('label')[0]
+		expect(firstOption.find('.lucide-check-circle').exists()).toBe(true)
 	})
 })
