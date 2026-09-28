@@ -49,6 +49,8 @@
 					v-model="doc.expires_on"
 					:label="__('Expires On')"
 					type="date"
+					:format="dateFormat"
+					autocomplete="off"
 				/>
 				<FormControl
 					v-model="doc.usage_limit"
@@ -143,6 +145,7 @@
 import { Button, ErrorMessage, FormControl, LoadingIndicator } from 'frappe-ui'
 import { computed, ref, useId, watch } from 'vue'
 import { cleanError } from '@/utils'
+import { getDateFormat } from '@/utils/format'
 import { reloadSettingsLists } from '@/composables/useSettingsListResource'
 import { useSettingsRecord } from '@/composables/useSettingsRecord'
 import { runSave, useSaveState } from '@/composables/useSettingsSave'
@@ -168,6 +171,8 @@ const props = defineProps<{ name?: string | null }>()
 const emit = defineEmits<{ back: [] }>()
 
 const applicableLabelId = useId()
+
+const dateFormat = getDateFormat()
 
 const state = useSaveState()
 const saving = state.saving

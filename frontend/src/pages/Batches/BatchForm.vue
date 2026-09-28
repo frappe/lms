@@ -27,6 +27,7 @@
 							v-model="batchDetail.doc.start_date"
 							:label="__('Batch Start Date')"
 							type="date"
+							:format="dateFormat"
 							:required="true"
 							variant="outline"
 						/>
@@ -34,6 +35,7 @@
 							v-model="batchDetail.doc.end_date"
 							:label="__('Batch End Date')"
 							type="date"
+							:format="dateFormat"
 							:required="true"
 							variant="outline"
 						/>
@@ -129,6 +131,7 @@
 								v-model="batchDetail.doc.evaluation_end_date"
 								:label="__('Evaluation End Date')"
 								type="date"
+								:format="dateFormat"
 								variant="outline"
 							/>
 						</div>
@@ -316,6 +319,7 @@ import {
 	updateMetaInfo,
 } from '@/utils'
 import { validateBatch } from '@/utils/batchForm'
+import { getDateFormat } from '@/utils/format'
 import {
 	useKeyboardShortcuts,
 	saveShortcut,
@@ -355,6 +359,7 @@ const router = useRouter()
 const route = useRoute()
 const user = inject<SessionUser>('$user')!
 const instructors = ref<string[]>([])
+const dateFormat = getDateFormat()
 const app = getCurrentInstance()!
 const { $dialog } = app.appContext.config.globalProperties as {
 	$dialog: DialogFn
