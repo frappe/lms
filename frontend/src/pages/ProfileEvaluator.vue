@@ -20,7 +20,7 @@
 			<span>
 				{{
 					__(
-						'You cannot change the availability when the site is being updated.',
+						'You cannot change the availability when the site is being updated.'
 					)
 				}}
 			</span>
@@ -361,7 +361,7 @@ const update = (name, field, value) => {
 					return `Please enter a value for ${convertToTitleCase(field)}`
 				}
 			},
-		},
+		}
 	)
 }
 

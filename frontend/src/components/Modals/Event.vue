@@ -298,7 +298,7 @@ const saveEvaluation = () => {
 			onError(err) {
 				toast.warning(__(err.messages?.[0] || err))
 			},
-		},
+		}
 	)
 }
 
@@ -358,7 +358,7 @@ const saveCertificate = () => {
 			onError(err) {
 				toast.error(__(err.messages?.[0] || err))
 			},
-		},
+		}
 	)
 }
 
@@ -382,7 +382,7 @@ const openCertificate = (certificate) => {
 	openExternal(
 		`/api/method/frappe.utils.print_format.download_pdf?doctype=LMS+Certificate&name=${
 			certificate.name
-		}&format=${encodeURIComponent(certificate.template)}`,
+		}&format=${encodeURIComponent(certificate.template)}`
 	)
 }
 

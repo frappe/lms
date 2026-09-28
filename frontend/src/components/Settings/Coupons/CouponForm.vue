@@ -204,11 +204,11 @@ watch(
 		Object.assign(doc.value, newCoupon())
 		pristine.value = snapshot(doc.value)
 	},
-	{ flush: 'post', immediate: true },
+	{ flush: 'post', immediate: true }
 )
 
 const title = computed(() =>
-	isNew.value ? __('New Coupon') : doc.value?.code || __('Coupon'),
+	isNew.value ? __('New Coupon') : doc.value?.code || __('Coupon')
 )
 
 // Codes are typed in whatever case and redeemed in one.
@@ -227,7 +227,7 @@ const redeemed = computed(() => {
 })
 
 const items = computed<SettingsListRow[]>(
-	() => doc.value?.applicable_items ?? [],
+	() => doc.value?.applicable_items ?? []
 )
 
 const addItem = () => {

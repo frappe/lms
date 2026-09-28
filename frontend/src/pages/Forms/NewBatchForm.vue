@@ -194,8 +194,8 @@ const canCreateBatch = computed(() => {
 		return false
 	return Boolean(
 		user.data?.is_moderator ||
-		user.data?.is_instructor ||
-		user.data?.is_evaluator,
+			user.data?.is_instructor ||
+			user.data?.is_evaluator
 	)
 })
 
@@ -274,7 +274,7 @@ const saveBatch = () => {
 				toast.error(message ? cleanError(message) : __('Error creating batch'))
 				console.error(err)
 			},
-		},
+		}
 	)
 }
 
@@ -310,7 +310,7 @@ const timezoneResource = createResource({
 })
 
 const timezoneOptions = computed(() =>
-	(timezoneResource.data || []).map((tz: string) => ({ label: tz, value: tz })),
+	(timezoneResource.data || []).map((tz: string) => ({ label: tz, value: tz }))
 )
 
 const mediumOptions = computed(() => {
