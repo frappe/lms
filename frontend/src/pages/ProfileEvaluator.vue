@@ -265,8 +265,8 @@ const formatTime = (time) => {
 
 // Availability goes through lms.lms.api rather than frappe.client.*: the raw
 // framework endpoints fall back to Course Evaluator's role permissions, which
-// grant blanket write to Moderator, Batch Evaluator and Course Creator with no
-// owner condition, so anyone holding one could edit anyone else's calendar.
+// grant Moderator blanket write with no owner condition, so a Moderator could
+// edit anyone else's calendar.
 const createSlot = createResource({
 	url: 'lms.lms.api.add_evaluator_slot',
 	makeParams(values) {
