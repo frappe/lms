@@ -1,7 +1,6 @@
 import { call, toast } from 'frappe-ui'
 import type { FrappeResourceError } from 'frappe-ui'
 import { markRaw } from 'vue'
-// @ts-expect-error router.js is still plain JS, so it has no declarations
 import router from '@/router'
 // @ts-expect-error utils/dialogs.js is still plain JS, so it has no declarations
 import { createDialog } from '@/utils/dialogs'
