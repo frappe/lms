@@ -10,7 +10,7 @@ from frappe.tests.utils import FrappeTestCase
 from frappe.utils import get_system_timezone, getdate, to_timedelta
 
 from lms.lms.doctype.lms_certificate.lms_certificate import is_certified
-from lms.lms.test_helpers import BaseTestUtils
+from lms.lms.test_helpers import BaseTestUtils, normalise_inline_styles
 from lms.lms.utils import (
 	DEFAULT_PAGE_LENGTH,
 	MAX_PAGE_LENGTH,
@@ -708,10 +708,10 @@ class TestEditorJsSanitisation(unittest.TestCase):
 	def test_keeps_a_span_carrying_class_and_style(self):
 		# The align tool carries its whole payload in an attribute, so it is the
 		# one a tag-level allowlist can silently strip.
-		text = '<span class="lms-align" style="text-align: center; ' 'display: block;">mid</span>'
-		out = self._text(self._payload(text))
+		text = '<span class="lms-align" style="text-align: center; display: block;">mid</span>'
+		out = normalise_inline_styles(self._text(self._payload(text)))
 		self.assertIn("lms-align", out)
-		self.assertIn("text-align:center", out.replace(" ;", ";"))
+		self.assertIn("text-align:center", out)
 		self.assertIn("display:block", out)
 
 	def test_keeps_the_other_inline_tools(self):

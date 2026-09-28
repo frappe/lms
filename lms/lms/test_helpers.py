@@ -1,4 +1,5 @@
 import json
+import re
 from unittest.mock import patch
 
 import frappe
@@ -7,6 +8,8 @@ from frappe.utils import add_days, nowdate
 
 from lms.lms.doctype.lms_certificate.lms_certificate import get_default_certificate_template
 from lms.lms.doctype.lms_quiz.lms_quiz import submit_quiz
+
+STYLE_ATTRIBUTE = re.compile(r'style="([^"]*)"')
 
 
 def enforce_role_gates(test_case):
@@ -29,6 +32,20 @@ def enforce_role_gates(test_case):
 	patcher = patch.object(frappe, "only_for", checked_only_for)
 	patcher.start()
 	test_case.addCleanup(patcher.stop)
+
+
+def normalise_inline_styles(html):
+	"""Rewrite each style attribute as `prop:value;prop:value`.
+
+	frappe's sanitiser re-serialises inline CSS and the lines differ: nh3 (develop)
+	drops the spaces, bleach (v15) keeps them and appends a `;`. Same declarations.
+	"""
+
+	def canonical(match):
+		declarations = (d.split(":", 1) for d in match.group(1).split(";") if ":" in d)
+		return 'style="{}"'.format(";".join(f"{p.strip()}:{v.strip()}" for p, v in declarations))
+
+	return STYLE_ATTRIBUTE.sub(canonical, html)
 
 
 class BaseTestUtils(FrappeTestCase):
