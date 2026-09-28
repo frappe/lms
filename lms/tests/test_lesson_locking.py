@@ -387,18 +387,24 @@ class TestLessonLockingIntegration(BaseTestUtils):
 		renderer = SCORMRenderer(path=f"scorm/{self.course.name}/{chapter.title}/index.html")
 		self.assertIsNone(renderer._check_permission())
 
-	def test_outline_withholds_the_launch_file_of_a_locked_scorm_chapter(self):
+	def test_outline_withholds_the_package_of_a_locked_scorm_chapter(self):
+		"""The chapter row still carries launch_file in the database — _add_scorm_chapter
+		writes it — and the outline no longer selects it for anyone."""
 		self._enable()
 		chapter, _lesson = self._add_scorm_chapter()
 
 		from lms.lms.utils import get_course_outline
 
 		outline = get_course_outline(self.course.name, progress=True)
-		scorm = next(c for c in outline if c.name == chapter.name)
-		self.assertIsNone(scorm.launch_file)
+		scorm = next(chap for chap in outline if chap.name == chapter.name)
+
+		self.assertNotIn("launch_file", scorm)
 		self.assertIsNone(scorm.scorm_package)
 
-	def test_outline_serves_the_launch_file_once_the_chapter_is_unlocked(self):
+	def test_outline_still_withholds_the_package_once_the_chapter_is_unlocked(self):
+		"""The lock no longer withholds it, so finishing the course no longer opens it:
+		get_course_outline gates the package on can_modify_course, which this student fails
+		whatever their progress. The bytes still swing on the lock, measured above."""
 		self._enable()
 		chapter, _lesson = self._add_scorm_chapter()
 		for lesson in self.lessons:
@@ -407,8 +413,10 @@ class TestLessonLockingIntegration(BaseTestUtils):
 		from lms.lms.utils import get_course_outline
 
 		outline = get_course_outline(self.course.name, progress=True)
-		scorm = next(c for c in outline if c.name == chapter.name)
-		self.assertEqual(scorm.launch_file, "index.html")
+		scorm = next(chap for chap in outline if chap.name == chapter.name)
+
+		self.assertNotIn("launch_file", scorm)
+		self.assertIsNone(scorm.scorm_package)
 
 	def test_locked_lesson_quiz_is_not_readable(self):
 		self._enable()
