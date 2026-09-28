@@ -951,7 +951,7 @@ class TestStaffScopedToABatch(FrappeTestCase):
 		self.assertIn(self.instructor.name, members)
 
 
-class TestTriggersFireAtAll(UnitTestCase):
+class TestTriggersFireAtAll(FrappeTestCase):
 	"""Every declared trigger must be a doctype whose save runs doc_events.
 
 	raven_integration dispatches from a wildcard doc_events handler, which frappe
