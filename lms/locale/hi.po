@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2026-09-18 18:46+0000\n"
-"PO-Revision-Date: 2026-09-21 10:06\n"
+"PO-Revision-Date: 2026-09-28 10:40\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Hindi\n"
 "MIME-Version: 1.0\n"
@@ -9065,7 +9065,7 @@ msgstr ""
 
 #: frontend/src/pages/Forms/PersonaForm.vue:68
 msgid "Social media"
-msgstr ""
+msgstr "सोशल मीडिया"
 
 #: frontend/src/pages/Batches/components/BatchCard.vue:27
 #: frontend/src/pages/Batches/components/BatchOverlay.vue:30
