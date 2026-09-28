@@ -323,8 +323,8 @@ def get_meta_from_document(app_path):
 			"link": get_lms_route("assignments"),
 		}
 
-	if re.match(r"^assignments/[^/]+$", app_path):
-		assignment_name = app_path.split("/")[1]
+	if re.match(r"^assignments/edit/[^/]+$", app_path):
+		assignment_name = app_path.split("/")[2]
 		assignment = frappe.db.get_value(
 			"LMS Assignment",
 			assignment_name,
@@ -338,7 +338,7 @@ def get_meta_from_document(app_path):
 			return {
 				"title": assignment.title,
 				"keywords": assignment.title,
-				"link": get_lms_route(f"assignments/{assignment_name}"),
+				"link": get_lms_route(f"assignments/edit/{assignment_name}"),
 			}
 
 	if app_path == "programs":

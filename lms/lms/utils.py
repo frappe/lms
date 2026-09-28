@@ -100,6 +100,7 @@ def slugify(title: str, used_slugs: list = None):
 		count = count + 1
 
 
+<<<<<<< HEAD
 # A course and a batch answer at different routes, but both tag staff through
 # Course Instructor rows that several lookups key on `parent` alone, so the two
 # never take the same name.
@@ -111,6 +112,11 @@ def generate_slug(title: str, doctype: str, reserved: frozenset[str] = frozenset
 	for source in (doctype, SLUGS_SHARED_WITH.get(doctype)):
 		if source:
 			slugs |= set(frappe.get_all(source, pluck="name"))
+=======
+def generate_slug(title: str, doctype: str, reserved: frozenset[str] = frozenset()):
+	result = frappe.get_all(doctype, fields=["name"])
+	slugs = {row["name"] for row in result} | reserved
+>>>>>>> dab7e3c (feat(assessments): align assessment routes and share one submissions list)
 	return slugify(title, used_slugs=slugs)
 
 
@@ -2544,8 +2550,8 @@ def get_assignment_details(assessment: dict, member: str) -> dict:
 		assessment.status = "Not Attempted"
 		assessment.color = "red"
 
-	assessment.edit_url = f"/assignments/{assessment.assessment_name}"
-	submission_name = existing_submission if existing_submission else "new-submission"
+	assessment.edit_url = f"/assignments/edit/{assessment.assessment_name}"
+	submission_name = existing_submission if existing_submission else "new"
 	assessment.url = get_lms_route(f"assignment-submission/{assessment.assessment_name}/{submission_name}")
 
 	return assessment
@@ -2576,9 +2582,11 @@ def get_quiz_details(assessment: dict, member: str) -> dict:
 		assessment.color = "red"
 		assessment.completed = False
 
-	assessment.edit_url = f"/quizzes/{assessment.assessment_name}"
-	submission_name = existing_submission[0].name if len(existing_submission) else "new-submission"
-	assessment.url = f"/quiz-submission/{assessment.assessment_name}/{submission_name}"
+	assessment.edit_url = f"/quizzes/edit/{assessment.assessment_name}"
+	if len(existing_submission):
+		assessment.url = f"/quiz-submission/{existing_submission[0].name}"
+	else:
+		assessment.url = f"/quiz/{assessment.assessment_name}"
 
 	return assessment
 
@@ -2597,13 +2605,15 @@ def get_exercise_details(assessment: dict, member: str) -> dict:
 		assessment.completed = True
 		assessment.status = assessment.submission.status
 		assessment.edit_url = (
-			f"/exercises/{assessment.assessment_name}/submission/{assessment.submission.name}"
+			f"/programming-exercise-submission/{assessment.assessment_name}/{assessment.submission.name}"
 		)
 	else:
 		assessment.status = "Not Attempted"
 		assessment.color = "red"
 		assessment.completed = False
-		assessment.edit_url = f"/exercises/{assessment.assessment_name}/submission/new"
+		assessment.edit_url = f"/programming-exercise-submission/{assessment.assessment_name}/new"
+
+	return assessment
 
 
 @frappe.whitelist()

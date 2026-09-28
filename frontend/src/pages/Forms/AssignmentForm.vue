@@ -98,8 +98,8 @@
 				<HeaderButton
 					v-if="assignmentID !== 'new'"
 					:route="{
-						name: 'AssignmentSubmissionList',
-						query: { assignmentID: assignmentID },
+						name: 'AssignmentSubmissions',
+						query: { assignment: assignmentID },
 					}"
 					:label="__('Check Submissions')"
 					icon="lucide-clipboard-list"
