@@ -72,6 +72,7 @@ vi.mock('frappe-ui', async () => {
 		},
 		Badge: passthrough,
 		Checkbox: passthrough,
+<<<<<<< HEAD
 		RadioGroup: {
 			props: ['modelValue', 'name'],
 			emits: ['update:modelValue'],
@@ -88,6 +89,8 @@ vi.mock('frappe-ui', async () => {
 			template:
 				'<label><input type="radio" @change="pickRadio(value)" /><slot name="label" /></label>',
 		},
+=======
+>>>>>>> f396269 (feat(lesson): render quizzes, assignments and exercises inline)
 		Dialog: { props: ['open'], template: '<div v-if="open"><slot /></div>' },
 		FormControl: passthrough,
 		LoadingIndicator: passthrough,
@@ -101,10 +104,14 @@ vi.mock('@/stores/user', () => ({
 		userResource: { data: { name: 'student@example.com' } },
 	}),
 }))
+<<<<<<< HEAD
 // Quiz.vue guards navigation away from a proctored attempt on the app router.
 vi.mock('@/router', () => ({
 	default: { push: vi.fn(), beforeEach: () => () => {} },
 }))
+=======
+vi.mock('@/router', () => ({ default: { push: vi.fn() } }))
+>>>>>>> f396269 (feat(lesson): render quizzes, assignments and exercises inline)
 vi.mock('@/components/AssessmentPlugin.vue', () => ({ default: {} }))
 vi.mock('@/components/ProgressBar.vue', () => ({
 	default: { template: '<div />' },
@@ -135,6 +142,7 @@ const startButton = (tool: Quiz) =>
 		(button) => button.textContent?.trim() === 'Start Quiz'
 	)
 
+<<<<<<< HEAD
 const CSRF_TOKEN = 'test-csrf-token'
 
 const beaconOnPageHide = async (): Promise<[string, URLSearchParams]> => {
@@ -153,12 +161,18 @@ const beaconOnPageHide = async (): Promise<[string, URLSearchParams]> => {
 	return [url, body]
 }
 
+=======
+>>>>>>> f396269 (feat(lesson): render quizzes, assignments and exercises inline)
 beforeEach(() => {
 	submitted.length = 0
 	called.length = 0
 	sendBeacon.mockClear()
 	Object.assign(navigator, { sendBeacon })
+<<<<<<< HEAD
 	Object.assign(window, { translatedMessages: {}, csrf_token: CSRF_TOKEN })
+=======
+	Object.assign(window, { translatedMessages: {} })
+>>>>>>> f396269 (feat(lesson): render quizzes, assignments and exercises inline)
 	localStorage.clear()
 	vi.useFakeTimers()
 })
@@ -167,7 +181,10 @@ afterEach(() => {
 	for (const tool of tools) tool.destroy()
 	tools = []
 	document.body.replaceChildren()
+<<<<<<< HEAD
 	delete window.csrf_token
+=======
+>>>>>>> f396269 (feat(lesson): render quizzes, assignments and exercises inline)
 	vi.useRealTimers()
 })
 
@@ -195,6 +212,7 @@ describe('tearing down an inline quiz keeps the completion gate shut', () => {
 		expect(sendBeacon).not.toHaveBeenCalled()
 	})
 
+<<<<<<< HEAD
 	it('beacons a live attempt with the CSRF token in the body on pagehide', async () => {
 		const [url, body] = await beaconOnPageHide()
 
@@ -213,6 +231,8 @@ describe('tearing down an inline quiz keeps the completion gate shut', () => {
 		expect(body.has('csrf_token')).toBe(false)
 	})
 
+=======
+>>>>>>> f396269 (feat(lesson): render quizzes, assignments and exercises inline)
 	it('starts a remounted quiz from the beginning, with no result to show', async () => {
 		const first = await renderQuizBlock()
 		startButton(first)!.click()
@@ -223,7 +243,11 @@ describe('tearing down an inline quiz keeps the completion gate shut', () => {
 		const second = await renderQuizBlock()
 
 		expect(startButton(second)).toBeDefined()
+<<<<<<< HEAD
 		expect(second.wrapper.textContent).not.toContain('Quiz result')
+=======
+		expect(second.wrapper.textContent).not.toContain('Quiz Summary')
+>>>>>>> f396269 (feat(lesson): render quizzes, assignments and exercises inline)
 		expect(submitted).not.toContain(SUBMIT_URL)
 	})
 })
