@@ -12,7 +12,7 @@ from lms.lms.doctype.course_lesson.course_lesson import (
 	UNTITLED_LESSON_TITLE,
 	rename_settled_untitled_lessons,
 )
-from lms.lms.test_helpers import BaseTestUtils
+from lms.lms.test_helpers import BaseTestUtils, normalise_inline_styles
 
 # One sample URL per embed service registered in the LMS EditorJS editor.
 # Source of truth: frontend/src/utils/index.js → getEditorTools() → embed.config.services.
@@ -451,8 +451,9 @@ class TestLessonContentSurvivesSave(BaseTestUtils):
 	gate is `sanitize_editorjs`, which walks the parsed document string by string.
 	"""
 
-	# Kept verbatim by the sanitiser. A link is not here: nh3 deliberately adds
-	# rel="noopener noreferrer" to every <a>, so it is asserted separately below.
+	# Kept by the sanitiser, up to how it re-serialises inline CSS. A link is not
+	# here: every <a> gains rel="noopener noreferrer", so it is asserted separately
+	# below.
 	ATTRIBUTE_MARKUP = {
 		"inline_code": '<code class="inline-code">code</code>',
 		"colour": '<span class="lms-inline-color" style="color:rgb(255, 0, 0)">tint</span>',
@@ -484,7 +485,8 @@ class TestLessonContentSurvivesSave(BaseTestUtils):
 	def test_attribute_bearing_inline_markup_round_trips(self):
 		for name, markup in self.ATTRIBUTE_MARKUP.items():
 			with self.subTest(markup=name):
-				self.assertEqual(self._saved_text(markup, f"Lesson {name}"), markup)
+				saved = self._saved_text(markup, f"Lesson {name}")
+				self.assertEqual(normalise_inline_styles(saved), normalise_inline_styles(markup))
 
 	def test_link_keeps_its_href_and_gains_rel(self):
 		saved = self._saved_text('<a href="https://frappe.io/">here</a>', "Lesson link")

@@ -2,12 +2,12 @@
 # See license.txt
 
 import frappe
-from frappe.tests import UnitTestCase
+from frappe.tests.utils import FrappeTestCase
 
 from lms.lms.doctype.lms_video_watch_duration.lms_video_watch_duration import on_doctype_update
 
 
-class UnitTestLMSVideoWatchDuration(UnitTestCase):
+class UnitTestLMSVideoWatchDuration(FrappeTestCase):
 	"""Schema-level tests for LMS Video Watch Duration (no fixtures required)."""
 
 	def test_lookup_index_exists(self):

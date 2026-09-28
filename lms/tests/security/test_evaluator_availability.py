@@ -8,7 +8,7 @@ from lms.lms.api import (
 	set_evaluator_unavailability,
 	update_evaluator_slot,
 )
-from lms.lms.test_helpers import BaseTestUtils
+from lms.lms.test_helpers import BaseTestUtils, enforce_role_gates
 
 
 class TestEvaluatorAvailability(BaseTestUtils):
@@ -86,6 +86,7 @@ class TestEvaluatorAvailability(BaseTestUtils):
 
 	def setUp(self):
 		super().setUp()
+		enforce_role_gates(self)
 		self.schedule = self._reset_evaluator_doc(self.evaluator.email)
 		self.other_schedule = self._reset_evaluator_doc(self.other_evaluator.email)
 

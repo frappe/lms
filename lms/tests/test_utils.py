@@ -6,11 +6,11 @@ from datetime import datetime
 from unittest.mock import patch
 
 import frappe
-from frappe.tests import UnitTestCase
+from frappe.tests.utils import FrappeTestCase
 from frappe.utils import get_system_timezone, getdate, to_timedelta
 
 from lms.lms.doctype.lms_certificate.lms_certificate import is_certified
-from lms.lms.test_helpers import BaseTestUtils
+from lms.lms.test_helpers import BaseTestUtils, normalise_inline_styles
 from lms.lms.utils import (
 	DEFAULT_PAGE_LENGTH,
 	MAX_PAGE_LENGTH,
@@ -400,7 +400,7 @@ class TestGetLessonIcon(unittest.TestCase):
 				self.assertEqual(get_lesson_icon("", _content(block)), "icon-list")
 
 
-class TestResolvePageLength(UnitTestCase):
+class TestResolvePageLength(FrappeTestCase):
 	"""
 	`createListResource` sends `limit_page_length` and then advances `start` by
 	the same number. An endpoint that ignores it returns a page of a different
@@ -601,7 +601,7 @@ class TestListEndpointPaging(BaseTestUtils):
 			frappe.db.set_single_value("LMS Settings", "allow_guest_access", 1)
 
 
-class TestFormatTimezone(UnitTestCase):
+class TestFormatTimezone(FrappeTestCase):
 	def test_iana_zone_gains_its_offset(self):
 		self.assertEqual(format_timezone("Asia/Kolkata", "2026-08-03"), "Asia/Kolkata (GMT+5:30)")
 
@@ -624,7 +624,7 @@ class TestFormatTimezone(UnitTestCase):
 
 
 @patch("lms.lms.utils.get_system_timezone", return_value="Asia/Kolkata")
-class TestConvertFromSystemTimezone(UnitTestCase):
+class TestConvertFromSystemTimezone(FrappeTestCase):
 	def test_converts_the_wall_clock(self, _system_timezone):
 		date, time = convert_from_system_timezone("2026-08-03", "10:00:00", "Europe/Berlin")
 		self.assertEqual(date, getdate("2026-08-03"))
@@ -708,10 +708,10 @@ class TestEditorJsSanitisation(unittest.TestCase):
 	def test_keeps_a_span_carrying_class_and_style(self):
 		# The align tool carries its whole payload in an attribute, so it is the
 		# one a tag-level allowlist can silently strip.
-		text = '<span class="lms-align" style="text-align: center; ' 'display: block;">mid</span>'
-		out = self._text(self._payload(text))
+		text = '<span class="lms-align" style="text-align: center; display: block;">mid</span>'
+		out = normalise_inline_styles(self._text(self._payload(text)))
 		self.assertIn("lms-align", out)
-		self.assertIn("text-align:center", out.replace(" ;", ";"))
+		self.assertIn("text-align:center", out)
 		self.assertIn("display:block", out)
 
 	def test_keeps_the_other_inline_tools(self):
@@ -730,6 +730,13 @@ class TestEditorJsSanitisation(unittest.TestCase):
 	def test_still_strips_a_script(self):
 		out = self._text(self._payload("ok<script>alert(1)</script>"))
 		self.assertNotIn("<script", out)
+
+	def test_a_script_is_dropped_with_its_content(self):
+		self.assertEqual(self._text(self._payload("ok<script>alert(1)</script>")), "ok")
+
+	def test_every_link_carries_noopener_noreferrer(self):
+		out = self._text(self._payload('<a href="https://frappe.io/" rel="nofollow">here</a>'))
+		self.assertEqual(out, '<a href="https://frappe.io/" rel="noopener noreferrer">here</a>')
 
 	def test_returns_invalid_json_unchanged(self):
 		"""Byte-for-byte, markup or not.

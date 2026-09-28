@@ -7,6 +7,7 @@ from zoneinfo import ZoneInfo
 
 import frappe
 import requests
+from bs4 import BeautifulSoup
 from frappe import _
 from frappe.desk.doctype.dashboard_chart.dashboard_chart import get_result
 from frappe.desk.doctype.notification_log.notification_log import make_notification_logs
@@ -30,7 +31,12 @@ from frappe.utils import (
 	to_timedelta,
 	validate_email_address,
 )
-from frappe.utils.html_utils import sanitize_html
+from frappe.utils.html_utils import (
+	acceptable_elements,
+	mathml_elements,
+	sanitize_html,
+	svg_elements,
+)
 from pypika import Case
 from pypika import functions as fn
 
@@ -952,9 +958,13 @@ def get_course_count(filters: dict = None) -> int:
 
 
 def count_matching(doctype: str, filters: dict | list, or_filters: dict = None) -> int:
-	"""Row count for filters that include or_filters, which db.count cannot take."""
-	rows = frappe.get_all(doctype, filters=filters, or_filters=or_filters, fields=[{"COUNT": "*"}])
-	return cint(next(iter(rows[0].values()))) if rows else 0
+	"""Return row count for filters, including OR filters."""
+	if not or_filters:
+		return frappe.db.count(doctype, filters)
+	# db.count takes no or_filters. Counted in SQL: this backs a guest endpoint, so
+	# fetching every matching name just to len() it grows with the site.
+	rows = frappe.get_all(doctype, filters=filters, or_filters=or_filters, fields=["count(name) as total"])
+	return cint(rows[0].total) if rows else 0
 
 
 def as_filter_conditions(filters: dict) -> list:
@@ -3206,5 +3216,64 @@ def sanitize_json(node):
 	if isinstance(node, list):
 		return [sanitize_json(v) for v in node]
 	if isinstance(node, str) and ("<" in node or ">" in node):
-		return sanitize_html(node, always_sanitize=True)
+		return sanitize_markup(node)
 	return node
+
+
+# The tags frappe's sanitize_html keeps. html.parser lowercases names, so these are too.
+SANITISER_TAGS = frozenset(
+	tag.lower()
+	for tag in (
+		*acceptable_elements,
+		*svg_elements,
+		*mathml_elements,
+		"html",
+		"head",
+		"meta",
+		"link",
+		"body",
+		"o:p",
+	)
+)
+DROPPED_WITH_CONTENT = ("script", "style")
+LINK_REL = "noopener noreferrer"
+
+
+def sanitize_markup(html: str) -> str:
+	"""frappe's sanitize_html, with one result on nh3 (develop) and bleach (v15).
+
+	bleach escapes an unknown tag into text the reader sees, where nh3 unwraps it,
+	and only nh3 gives every link rel="noopener noreferrer". Both passes return
+	their input untouched when there is nothing to change.
+	"""
+	return add_link_rel(sanitize_html(unwrap_unknown_tags(html), always_sanitize=True))
+
+
+def unwrap_unknown_tags(html: str) -> str:
+	"""Drop script and style with their content, and unwrap any other unknown tag, as nh3 does."""
+	soup = BeautifulSoup(html, "html.parser")
+	dropped = soup.find_all(DROPPED_WITH_CONTENT)
+	for element in dropped:
+		element.decompose()
+
+	unknown = [element for element in soup.find_all(True) if element.name not in SANITISER_TAGS]
+	if not dropped and not unknown:
+		return html
+
+	for element in unknown:
+		element.unwrap()
+	return soup.decode(formatter="html5")
+
+
+def add_link_rel(html: str) -> str:
+	if "<a" not in html:
+		return html
+
+	soup = BeautifulSoup(html, "html.parser")
+	links = [link for link in soup.find_all("a") if link.get("rel") != LINK_REL.split()]
+	if not links:
+		return html
+
+	for link in links:
+		link["rel"] = LINK_REL
+	return soup.decode(formatter="html5")

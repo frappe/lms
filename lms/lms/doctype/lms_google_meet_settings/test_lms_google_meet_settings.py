@@ -2,10 +2,10 @@
 # See license.txt
 
 import frappe
-from frappe.tests import IntegrationTestCase, UnitTestCase
+from frappe.tests.utils import FrappeTestCase
 
 
-class UnitTestLMSGoogleMeetSettings(UnitTestCase):
+class UnitTestLMSGoogleMeetSettings(FrappeTestCase):
 	"""
 	Unit tests for LMSGoogleMeetSettings.
 	Use this class for testing individual functions and methods.
@@ -14,7 +14,7 @@ class UnitTestLMSGoogleMeetSettings(UnitTestCase):
 	pass
 
 
-class IntegrationTestLMSGoogleMeetSettings(IntegrationTestCase):
+class IntegrationTestLMSGoogleMeetSettings(FrappeTestCase):
 	"""
 	Integration tests for LMSGoogleMeetSettings.
 	"""
