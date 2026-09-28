@@ -722,6 +722,14 @@ def save_progress_after_quiz(quiz_details: dict, percentage: float):
 
 @frappe.whitelist()
 def check_answer(quiz: str, question: str, question_type: str, answers: str):
+	from lms.lms.permissions import can_access_quiz
+
+	if not can_access_quiz(quiz):
+		frappe.logger("lms.security").warning(
+			"Quiz answer check denied: user=%s quiz=%s", frappe.session.user, quiz
+		)
+		frappe.throw(_("You are not authorized to view this quiz."), frappe.PermissionError)
+
 	ADMIN_ROLES = ("System Manager", "Moderator", "Course Creator", "Batch Evaluator")
 	is_admin = any(role in ADMIN_ROLES for role in frappe.get_roles())
 
