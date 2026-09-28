@@ -101,6 +101,7 @@ import { computed, inject, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { onClickOutside } from '@vueuse/core'
 import { decodeEntities } from '@/utils'
+import { assignmentSubmissionFromLink } from '@/utils/notificationLinks'
 import { useSidebar } from '@/stores/sidebar'
 import { useScreenSize } from '@/utils/composables'
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
@@ -166,6 +167,11 @@ const onSelect = (n) => {
 
 const navigateToPage = (log) => {
 	if (!log.link) return
+	const submission = assignmentSubmissionFromLink(log.link)
+	if (submission) {
+		router.push({ name: 'AssignmentSubmission', params: submission })
+		return
+	}
 	let link = log.link.split('/')
 	if (link[2] == 'courses') {
 		router.push({ name: 'CourseDetail', params: { courseName: link[3] } })
@@ -176,11 +182,6 @@ const navigateToPage = (log) => {
 			name: 'BatchDetail',
 			params: { batchName },
 			hash: hashValue ? `#${hashValue}` : '',
-		})
-	} else if (link.includes('assignment-submission')) {
-		router.push({
-			name: 'AssignmentSubmission',
-			params: { submissionName: link[4], assignmentID: link[3] },
 		})
 	}
 }

@@ -1,4 +1,5 @@
 import { call, toast } from 'frappe-ui'
+import { ASSESSMENT_BLOCK_SELECTOR } from '@/utils/blockMount'
 import { Quiz } from '@/utils/quiz'
 import { Program } from '@/utils/program'
 import { Assignment } from '@/utils/assignment'
@@ -614,7 +615,7 @@ const getSidebarItems = (forMobile = false) => {
 					},
 					activeFor: [
 						'Assignments',
-						'AssignmentSubmissionList',
+						'AssignmentSubmissions',
 						'AssignmentSubmission',
 					],
 				},
@@ -937,9 +938,13 @@ const getRootNode = (selector = '#editor') => {
 	return root
 }
 
+// A saved highlight belongs to the lesson's own text, so text inside an inline
+// quiz, assignment or exercise is never a match.
 const createTextWalker = (root, phrase) => {
 	return document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
 		acceptNode(node) {
+			if (node.parentElement?.closest(ASSESSMENT_BLOCK_SELECTOR))
+				return NodeFilter.FILTER_SKIP
 			return node.nodeValue.toLowerCase().includes(phrase.toLowerCase())
 				? NodeFilter.FILTER_ACCEPT
 				: NodeFilter.FILTER_SKIP
