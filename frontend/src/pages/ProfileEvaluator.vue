@@ -141,6 +141,7 @@
 				<div class="grid grid-cols-1 md:grid-cols-4 gap-4">
 					<FormControl
 						type="date"
+						:format="dateFormat"
 						:label="__('From')"
 						v-model="from"
 						:disabled="!isSessionUser()"
@@ -155,6 +156,7 @@
 					/>
 					<FormControl
 						type="date"
+						:format="dateFormat"
 						:label="__('To')"
 						v-model="to"
 						:disabled="!isSessionUser()"
@@ -194,8 +196,10 @@ import { createResource, FormControl, Button, Badge, toast } from 'frappe-ui'
 import { computed, reactive, ref, onMounted, inject, watch } from 'vue'
 import { convertToTitleCase } from '@/utils'
 import { openExternal } from '@/utils/openExternal'
+import { getDateFormat } from '@/utils/format'
 
 const user = inject('$user')
+const dateFormat = getDateFormat()
 const readOnlyMode = window.read_only_mode
 
 const props = defineProps({
