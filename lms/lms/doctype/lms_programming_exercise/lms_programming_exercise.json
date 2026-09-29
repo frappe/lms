@@ -7,6 +7,7 @@
  "engine": "InnoDB",
  "field_order": [
   "title",
+  "authors",
   "column_break_jlzi",
   "language",
   "section_break_tjwv",
@@ -54,6 +55,12 @@
    "fieldtype": "Table",
    "label": "Test Cases",
    "options": "LMS Test Case"
+  },
+  {
+   "fieldname": "authors",
+   "fieldtype": "Table MultiSelect",
+   "label": "Authors",
+   "options": "LMS Content Author"
   }
  ],
  "grid_page_length": 50,
@@ -64,7 +71,7 @@
    "link_fieldname": "exercise"
   }
  ],
- "modified": "2026-02-03 10:45:23.687185",
+ "modified": "2026-09-08 02:30:00.000000",
  "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "LMS Programming Exercise",

@@ -19,6 +19,7 @@
 						<FormControl
 							v-model="liveClass.date"
 							type="date"
+							:format="dateFormat"
 							:label="__('Date')"
 							:required="true"
 						/>
@@ -106,6 +107,7 @@ import {
 } from '@/composables/useBatchForms'
 import { useFormRoute } from '@/composables/useFormRoute'
 import { submitResource } from '@/utils/resource'
+import { getDateFormat } from '@/utils/format'
 
 const props = defineProps({
 	batchName: {
@@ -118,6 +120,7 @@ const user = inject('$user')
 const dayjs = inject('$dayjs')
 const route = useRoute()
 const readOnlyMode = window.read_only_mode
+const dateFormat = getDateFormat()
 
 // C2: close()'s pop branch restores the hash by itself; its deep-link branch
 // replaces to this literal location, so the tab hash has to be carried here or

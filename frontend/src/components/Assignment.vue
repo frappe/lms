@@ -27,6 +27,12 @@
 
 		<div class="flex flex-col overflow-y-auto">
 			<div class="p-5 space-y-5">
+				<div
+					v-if="scheduleBlocked"
+					class="bg-surface-amber-1 text-ink-amber-6 p-3 rounded-md leading-5 text-sm"
+				>
+					{{ scheduleMessage }}
+				</div>
 				<div class="flex items-center justify-between">
 					<div class="font-semibold text-ink-gray-9">
 						{{ __('Submission') }}
@@ -43,13 +49,17 @@
 							{{ submissionResource.doc?.status }}
 						</Badge>
 						<ShortcutTooltip
-							v-if="canModifyAssignment || canGradeSubmission"
+							v-if="
+								(canModifyAssignment || canGradeSubmission) &&
+								(!scheduleBlocked || canGradeSubmission)
+							"
 							:label="__('Save')"
 							combo="Mod+S"
 						>
 							<Button
 								variant="solid"
 								:loading="isSubmitting"
+								:disabled="scheduleBlocked && !canGradeSubmission"
 								@click="submitAssignment()"
 							>
 								{{ __('Save') }}
@@ -73,7 +83,10 @@
 					}}
 					{{ __('Feel free to make edits to your submission if needed.') }}
 				</div>
-				<div v-if="showUploader()" class="border rounded-lg p-3">
+				<div
+					v-if="showUploader() && canModifyAssignment && !scheduleBlocked"
+					class="border rounded-lg p-3"
+				>
 					<div class="font-semibold mb-2">
 						{{ __('Upload Assignment') }}
 					</div>
@@ -130,7 +143,7 @@
 						</div>
 					</div>
 				</div>
-				<div v-else-if="assignment.data.type == 'URL'">
+				<div v-else-if="assignment.data.type == 'URL' && !scheduleBlocked">
 					<div class="text-p-sm-medium text-ink-gray-7 mb-1.5">
 						{{ __('Enter a URL') }}
 					</div>
@@ -138,16 +151,17 @@
 						v-model="answer"
 						type="text"
 						:aria-label="__('Enter a URL')"
+						:disabled="!canModifyAssignment"
 					/>
 				</div>
-				<div v-else>
+				<div v-else-if="!showUploader() && !scheduleBlocked">
 					<div class="text-sm mb-2 text-ink-gray-7">
 						{{ __('Write your answer here') }}
 					</div>
 					<RichTextEditor
 						:content="answer"
 						@change="(val) => (answer = val)"
-						:editable="true"
+						:editable="canModifyAssignment"
 						:fixedMenu="true"
 						:uploadArgs="{
 							private: true,
@@ -220,7 +234,7 @@ import {
 	FormControl,
 	toast,
 } from 'frappe-ui'
-import { computed, inject, ref, watch } from 'vue'
+import { computed, inject, onUnmounted, ref, watch } from 'vue'
 import ShortcutTooltip from '@/components/ShortcutTooltip.vue'
 import {
 	useKeyboardShortcuts,
@@ -230,6 +244,7 @@ import { useRouter } from 'vue-router'
 import { validateFile } from '@/utils'
 import RichTextEditor from '@/components/RichTextEditor.vue'
 import { safeUrl } from '@/utils/safeUrl'
+import { getScheduleBlockReason } from '@/utils/schedule'
 
 const answer = ref(null)
 const attachment = ref(null)
@@ -237,6 +252,8 @@ const comments = ref(null)
 const router = useRouter()
 const user = inject('$user')
 const isDirty = ref(false)
+const scheduleNow = ref(new Date())
+let scheduleClock = null
 
 const props = defineProps({
 	assignmentID: {
@@ -253,15 +270,29 @@ const props = defineProps({
 	},
 })
 
+const stopScheduleClock = () => {
+	if (scheduleClock) {
+		clearInterval(scheduleClock)
+		scheduleClock = null
+	}
+}
+
+const startScheduleClock = () => {
+	stopScheduleClock()
+	scheduleNow.value = new Date()
+	scheduleClock = setInterval(() => {
+		scheduleNow.value = new Date()
+	}, 15000)
+}
+
 useKeyboardShortcuts({
 	ignoreTyping: false,
 	shortcuts: [saveShortcut(() => submitAssignment())],
 })
 
 const assignment = createResource({
-	url: 'frappe.client.get',
+	url: 'lms.lms.utils.get_assignment',
 	params: {
-		doctype: 'LMS Assignment',
 		name: props.assignmentID,
 	},
 	auto: true,
@@ -298,6 +329,10 @@ const isSubmitting = ref(false)
 
 const submitAssignment = () => {
 	if (isSubmitting.value) return
+	if (scheduleBlocked.value && !canGradeSubmission.value) {
+		toast.error(scheduleMessage.value)
+		return
+	}
 	isSubmitting.value = true
 
 	if (props.submissionName != 'new') {
@@ -440,6 +475,9 @@ const canGradeSubmission = computed(() => {
 })
 
 const canModifyAssignment = computed(() => {
+	if (scheduleBlocked.value) {
+		return false
+	}
 	if (props.submissionName == 'new') {
 		return true
 	} else if (
@@ -449,6 +487,50 @@ const canModifyAssignment = computed(() => {
 		return true
 	}
 	return false
+})
+
+const scheduleBlockReason = computed(() =>
+	getScheduleBlockReason(
+		assignment.data?.enable_scheduling,
+		assignment.data?.schedule_start_iso || assignment.data?.schedule_start,
+		assignment.data?.schedule_end_iso || assignment.data?.schedule_end,
+		scheduleNow.value
+	)
+)
+
+const scheduleBlocked = computed(() => !!scheduleBlockReason.value)
+
+const scheduleMessage = computed(() => {
+	if (scheduleBlockReason.value === 'not_started') {
+		return __('This assignment opens on {0}.').format(
+			formatScheduleDate(
+				assignment.data?.schedule_start_iso || assignment.data?.schedule_start
+			)
+		)
+	}
+	if (scheduleBlockReason.value === 'ended') {
+		return __('The schedule for this assignment has ended.')
+	}
+	return ''
+})
+
+const formatScheduleDate = (value) => {
+	if (!value) return ''
+	const date = new Date(value)
+	if (Number.isNaN(date.getTime())) return String(value)
+	return date.toLocaleString()
+}
+
+watch(
+	() => assignment.data?.enable_scheduling,
+	(enabled) => {
+		if (enabled) startScheduleClock()
+		else stopScheduleClock()
+	}
+)
+
+onUnmounted(() => {
+	stopScheduleClock()
 })
 
 const submissionStatusOptions = computed(() => {

@@ -40,6 +40,7 @@ def get_boot():
 			"lms_path": get_lms_path(),
 			"lang": get_user_lang(),
 			"text_direction": "rtl" if is_rtl() else "ltr",
+			"date_format": frappe.get_system_settings("date_format"),
 		}
 	)
 

@@ -16,19 +16,6 @@ class TestUserPermissionsPayload(BaseTestUtils):
 		self.assertIn("LMS Course", info["permissions"])
 		self.assertEqual(info["permissions"]["LMS Course"]["read"], 1)
 
-	def test_payload_reflects_a_role_that_cannot_write(self):
-		# A fresh user, not one of the site's fixtures: the audit site's test
-		# users have been granted roles by earlier runs.
-		student = self._create_user(
-			f"permpayload-{frappe.generate_hash(length=6)}@example.com",
-			"Perm",
-			"Payload",
-			["LMS Student"],
-		)
-		frappe.set_user(student.name)
-		info = get_user_info()
-		self.assertEqual(info["permissions"].get("LMS Course", {}).get("write", 0), 0)
-
 	def test_a_student_has_no_docperm_read_on_courses_or_lessons(self):
 		"""Pinned because it is a trap for anything that drives UI off this
 		payload. LMS Student holds a read DocPerm on Course Chapter but not on
@@ -45,6 +32,7 @@ class TestUserPermissionsPayload(BaseTestUtils):
 		frappe.set_user(student.name)
 		perms = get_user_info()["permissions"]
 		self.assertEqual(perms["LMS Course"]["read"], 0)
+		self.assertEqual(perms["LMS Course"]["write"], 0)
 		self.assertEqual(perms["Course Lesson"]["read"], 0)
 		self.assertEqual(perms["Course Chapter"]["read"], 1)
 
