@@ -12,6 +12,7 @@ from frappe.desk.doctype.notification_log.notification_log import make_notificat
 from frappe.model.document import Document
 from frappe.utils import add_days, cint, format_datetime, get_time, nowdate
 
+from lms.lms.permissions import can_author_batch
 from lms.lms.utils import (
 	format_timezone,
 	generate_slug,
@@ -242,9 +243,12 @@ def create_live_class(
 	auto_recording: str,
 	description: str = None,
 ):
-	roles = frappe.get_roles()
-	if not any(role in roles for role in ["Moderator", "Batch Evaluator"]):
-		frappe.throw(_("You do not have permission to create a live class."))
+	if not can_author_batch(batch_name) or not frappe.has_permission("LMS Live Class", "create"):
+		# Checked before any Zoom call, or an unauthorised request still burns a
+		# real meeting that the later save() only orphans.
+		frappe.throw(
+			_("You do not have permission to create a live class for this batch."), frappe.PermissionError
+		)
 
 	payload = {
 		"topic": title,
@@ -303,7 +307,10 @@ def create_google_meet_live_class(
 	timezone: str,
 	description: str = None,
 ):
-	frappe.only_for(["Moderator", "Batch Evaluator"])
+	if not can_author_batch(batch_name) or not frappe.has_permission("LMS Live Class", "create"):
+		frappe.throw(
+			_("You do not have permission to create a live class for this batch."), frappe.PermissionError
+		)
 
 	google_meet_settings = frappe.get_doc("LMS Google Meet Settings", google_meet_account)
 	if not google_meet_settings.enabled:
@@ -502,11 +509,15 @@ def has_permission(doc, ptype="read", user=None):
 		return False
 
 	roles = frappe.get_roles(user)
-	if "Moderator" in roles or "Batch Evaluator" in roles:
+	if "Moderator" in roles:
 		return True
 
 	if ptype not in ("read", "select", "print"):
-		return False
+		# A new batch has no tags yet; creation stays governed by the DocPerm grant.
+		return doc.is_new() or can_author_batch(doc.name, user=user)
+
+	if "Batch Evaluator" in roles:
+		return True
 
 	is_enrolled = frappe.db.exists("LMS Batch Enrollment", {"batch": doc.name, "member": user})
 	if is_enrolled:

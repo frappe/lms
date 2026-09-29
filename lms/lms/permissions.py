@@ -165,6 +165,23 @@ def chapter_query_conditions(user=None) -> str:
 	return _render(chapter.course.isin(readable))
 
 
+def can_author_batch(batch: str | None, *, user: str | None = None) -> bool:
+	"""A site administrator, a Moderator, or a user the stored batch tags as an
+	instructor or as the evaluator of one of its courses."""
+	user = user or frappe.session.user
+	if is_site_administrator(user) or has_moderator_role(user):
+		return True
+	# A deleted batch leaves its Course Instructor / Batch Course rows behind.
+	if not isinstance(batch, str) or not batch or not frappe.db.exists("LMS Batch", batch):
+		return False
+
+	tagged = {"parent": batch, "parenttype": "LMS Batch"}
+	return bool(
+		frappe.db.exists("Course Instructor", {**tagged, "instructor": user})
+		or frappe.db.exists("Batch Course", {**tagged, "evaluator": user})
+	)
+
+
 def course_record_has_permission(doc, ptype="read", user=None) -> bool:
 	"""Single-document counterpart of :func:`course_record_query_conditions`: a
 	course progress, watch duration or review row belongs to its learner and to
