@@ -12,6 +12,8 @@ core (frappe/permissions.py), CRM (crm.permissions.*), and Raven (raven.permissi
 import frappe
 from frappe import _
 from frappe.query_builder import Bracket
+from pypika import Case
+from pypika import functions as fn
 from pypika.terms import LiteralValue
 
 from lms.lms.utils import (
@@ -30,11 +32,23 @@ INSTRUCTOR_FIELDS = {"instructor_content", "instructor_notes"}
 # moves authority or hands out a whole row.
 COURSE_READ_PTYPES = ("read", "select", "print")
 
+# Rows that belong to one learner and to the authors of one course. The value is the
+# field naming the learner. LMS Course Review has no member field; its controller keys
+# enrollment and uniqueness on `owner`, so the rule does too.
+COURSE_RECORD_MEMBER_FIELDS = {
+	"LMS Course Progress": "member",
+	"LMS Video Watch Duration": "member",
+	"LMS Course Review": "owner",
+}
+
 
 def can_author_course(course: str, *, user: str | None = None) -> bool:
-	"""``can_modify_course`` for an explicit user: a Moderator, or a Course Instructor row."""
+	"""``can_modify_course`` for an explicit user: a site administrator, a Moderator, or a
+	Course Instructor row."""
 	if not isinstance(course, str) or not course:
 		return False
+	if is_site_administrator(user):
+		return True
 
 	original_user = frappe.session.user
 	try:
@@ -85,13 +99,14 @@ def course_has_permission(doc, ptype="read", user=None) -> bool:
 
 def course_query_conditions(user=None) -> str:
 	"""List-read counterpart of :func:`course_has_permission`'s read branch, as SQL."""
-	user = user or frappe.session.user
-	if user == "Administrator":
-		return ""
+	condition = _course_read_condition(user)
+	return _render(condition) if condition else ""
 
-	roles = frappe.get_roles(user)
-	if "Moderator" in roles:
-		return ""
+
+def _course_read_condition(user=None):
+	user = user or frappe.session.user
+	if is_site_administrator(user) or "Moderator" in frappe.get_roles(user):
+		return None
 
 	course = frappe.qb.DocType("LMS Course")
 	instructor = frappe.qb.DocType("Course Instructor")
@@ -103,8 +118,233 @@ def course_query_conditions(user=None) -> str:
 		.where((instructor.instructor == member) & (instructor.parenttype == "LMS Course"))
 	)
 	enrolled = frappe.qb.from_(enrollment).select(enrollment.course).where(enrollment.member == member)
-	condition = Bracket((course.published == 1) | course.name.isin(taught) | course.name.isin(enrolled))
+	return Bracket((course.published == 1) | course.name.isin(taught) | course.name.isin(enrolled))
+
+
+def _render(condition) -> str:
 	return condition.get_sql(with_namespace=True, quote_char="`" if frappe.db.db_type == "mariadb" else '"')
+
+
+def chapter_has_permission(doc, ptype="read", user=None) -> bool:
+	"""Single-document counterpart of :func:`chapter_query_conditions`: the
+	``LMS Course`` rule applied to ``doc.course``. Author is checked first so a
+	Moderator keeps access to a chapter whose course is gone."""
+	course = doc.get("course")
+	if not course:
+		# A new row defers to validate()'s mandatory check; a saved one is denied
+		# unless the list layer doesn't narrow this user either.
+		return doc.is_new() or not chapter_query_conditions(user)
+
+	# Authorise against the stored course too, or a submitted `course` moves the row.
+	stored = None if doc.is_new() else frappe.db.get_value("Course Chapter", doc.name, "course")
+	courses = (course, stored) if stored and stored != course else (course,)
+	if all(can_author_course(c, user=user) for c in courses):
+		return True
+
+	if ptype in COURSE_READ_PTYPES:
+		return can_access_course(stored or course, user=user)
+
+	frappe.logger("lms.security").warning(
+		"Chapter authoring denied: user=%s chapter=%s course=%s ptype=%s",
+		user or frappe.session.user,
+		doc.name,
+		course,
+		ptype,
+	)
+	return False
+
+
+def chapter_query_conditions(user=None) -> str:
+	"""List-read counterpart of :func:`chapter_has_permission`'s read branch, as SQL.
+	A chapter whose course row is gone matches nothing."""
+	condition = _course_read_condition(user)
+	if not condition:
+		return ""
+
+	chapter = frappe.qb.DocType("Course Chapter")
+	course = frappe.qb.DocType("LMS Course")
+	readable = frappe.qb.from_(course).select(course.name).where(condition)
+	return _render(chapter.course.isin(readable))
+
+
+def course_record_has_permission(doc, ptype="read", user=None) -> bool:
+	"""Single-document counterpart of :func:`course_record_query_conditions`: a
+	course progress, watch duration or review row belongs to its learner and to
+	the authors of its course."""
+	user = user or frappe.session.user
+	if _course_read_condition(user) is None:
+		# Administrator or Moderator: the query side does not narrow them either.
+		return True
+
+	member_field = COURSE_RECORD_MEMBER_FIELDS.get(doc.doctype)
+	# A saved row is judged by its STORED values, or relabelling `member`/`course`
+	# in the same request would move it into the caller's reach.
+	stored = (
+		None
+		if doc.is_new()
+		else frappe.db.get_value(doc.doctype, doc.name, [member_field or "name", "course"], as_dict=True)
+	)
+	source = stored or doc
+	if member_field and source.get(member_field) == user and doc.get(member_field) == user:
+		# The learner's own row. DocPerm still decides whether they may write it.
+		return True
+
+	course = source.get("course") if stored else _course_of_new_record(doc)
+	if not course and doc.is_new():
+		# Let _validate_mandatory refuse it with a friendlier message.
+		return True
+
+	moved_to = doc.get("course") if stored and doc.get("course") != course else None
+	if course and all(can_author_course(c, user=user) for c in (course, moved_to) if c):
+		return True
+
+	frappe.logger("lms.security").warning(
+		"Course record denied: user=%s doctype=%s name=%s course=%s ptype=%s",
+		user,
+		doc.doctype,
+		doc.name,
+		course,
+		ptype,
+	)
+	return False
+
+
+def _course_of_new_record(doc) -> str | None:
+	if course := doc.get("course"):
+		return course
+	if lesson := doc.get("lesson"):
+		return frappe.db.get_value("Course Lesson", lesson, "course")
+	return None
+
+
+def course_record_query_conditions(user=None, doctype=None) -> str:
+	"""List-read counterpart of :func:`course_record_has_permission`, as SQL."""
+	member_field = COURSE_RECORD_MEMBER_FIELDS.get(doctype)
+	if not member_field:
+		# "" is the list engine's spelling of "no restriction", so a doctype this
+		# function does not gate has to refuse explicitly rather than by accident.
+		return "1 = 0"
+
+	user = user or frappe.session.user
+	if _course_read_condition(user) is None:
+		return ""
+
+	record = frappe.qb.DocType(doctype)
+	instructor = frappe.qb.DocType("Course Instructor")
+	member = LiteralValue(frappe.db.escape(user))
+	taught = (
+		frappe.qb.from_(instructor)
+		.select(instructor.parent)
+		.where((instructor.instructor == member) & (instructor.parenttype == "LMS Course"))
+	)
+	condition = Bracket((getattr(record, member_field) == member) | record.course.isin(taught))
+	return _render(condition)
+
+
+def _unrestricted_coupon_access(user: str) -> bool:
+	return is_site_administrator(user) or "Moderator" in frappe.get_roles(user)
+
+
+def coupon_has_permission(doc, ptype="read", user=None) -> bool:
+	"""A coupon belongs to whoever authors every course/batch its items name."""
+	user = user or frappe.session.user
+	if _unrestricted_coupon_access(user):
+		return True
+
+	incoming = doc.get("applicable_items") or []
+	if doc.is_new():
+		# reference_name is reqd; a half-filled row defers to _validate_mandatory.
+		incoming = [item for item in incoming if item.get("reference_name")]
+
+	targets = {(item.get("reference_doctype"), item.get("reference_name")) for item in incoming}
+	targets |= _stored_coupon_targets(doc)
+	if not targets:
+		# A saved coupon naming nothing is unresolvable; a new one defers to validate().
+		return doc.is_new()
+
+	denied = targets - _authored_coupon_targets(targets, user)
+	if denied:
+		frappe.logger("lms.security").warning(
+			"Coupon denied: user=%s coupon=%s targets=%s ptype=%s", user, doc.name, list(denied), ptype
+		)
+		return False
+
+	return True
+
+
+def _stored_coupon_targets(doc) -> set:
+	"""The coupon's rows as the database holds them, not the caller's in-memory ones --
+	or a write could repoint someone else's coupon at the caller's own course."""
+	if doc.is_new():
+		return set()
+
+	rows = frappe.get_all(
+		"LMS Coupon Item",
+		filters={"parent": doc.name, "parenttype": "LMS Coupon"},
+		fields=["reference_doctype", "reference_name"],
+	)
+	return {(row.reference_doctype, row.reference_name) for row in rows}
+
+
+COUPON_TARGET_DOCTYPES = ("LMS Course", "LMS Batch")
+
+
+def _taught(doctype: str, user: str):
+	"""Names of existing `doctype` rows `user` instructs. Joining the parent drops
+	Course Instructor rows a deleted course/batch left behind."""
+	instructor = frappe.qb.DocType("Course Instructor")
+	parent = frappe.qb.DocType(doctype)
+	return (
+		frappe.qb.from_(instructor)
+		.join(parent)
+		.on(parent.name == instructor.parent)
+		.select(instructor.parent)
+		.where(
+			(instructor.instructor == LiteralValue(frappe.db.escape(user)))
+			& (instructor.parenttype == doctype)
+		)
+	)
+
+
+def _authored_coupon_targets(targets: set, user: str) -> set:
+	authored = set()
+	for doctype in COUPON_TARGET_DOCTYPES:
+		names = [name for target_doctype, name in targets if target_doctype == doctype and name]
+		if names:
+			instructor = frappe.qb.DocType("Course Instructor")
+			rows = _taught(doctype, user).where(instructor.parent.isin(names)).run(pluck=True)
+			authored.update((doctype, name) for name in rows)
+	return authored
+
+
+def coupon_query_conditions(user=None) -> str:
+	"""List-read counterpart of :func:`coupon_has_permission`, as SQL. A coupon with
+	no items forms no group and is not listed -- the same fail-closed answer as above."""
+	user = user or frappe.session.user
+	if _unrestricted_coupon_access(user):
+		return ""
+
+	item = frappe.qb.DocType("LMS Coupon Item")
+	is_authored = (
+		Case()
+		.when(
+			(item.reference_doctype == "LMS Course") & item.reference_name.isin(_taught("LMS Course", user)),
+			1,
+		)
+		.when(
+			(item.reference_doctype == "LMS Batch") & item.reference_name.isin(_taught("LMS Batch", user)), 1
+		)
+		.else_(0)
+	)
+	authored_coupons = (
+		frappe.qb.from_(item)
+		.where(item.parenttype == "LMS Coupon")
+		.groupby(item.parent)
+		.having(fn.Count(item.name) == fn.Sum(is_authored))
+		.select(item.parent)
+	)
+	coupon = frappe.qb.DocType("LMS Coupon")
+	return _render(coupon.name.isin(authored_coupons))
 
 
 def resolve_lesson_access(lesson: str, *, user: str | None = None) -> tuple[bool, bool]:

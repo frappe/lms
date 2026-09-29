@@ -7,6 +7,21 @@ from lms.lms.test_helpers import BaseTestUtils
 from lms.patches.v2_0.share_enrollment import execute
 
 
+@contextmanager
+def second_connection():
+	# IntegrationTestCase.secondary_connection() leaves the new connection active and
+	# fully rolls back the primary on cleanup, which drops the setUpClass fixtures.
+	primary = frappe.local.db
+	frappe.connect()
+	second = frappe.local.db
+	try:
+		yield
+	finally:
+		second.rollback()
+		second.close()
+		frappe.local.db = primary
+
+
 class TestShareEnrollmentPatch(BaseTestUtils):
 	@classmethod
 	def setUpClass(cls):
@@ -20,13 +35,6 @@ class TestShareEnrollmentPatch(BaseTestUtils):
 		cls.course = cls._create_course(
 			title="Share Enrollment Patch Course", instructor=cls.instructor.email
 		)
-
-	def setUp(self):
-		super().setUp()
-		# The patch commits; keep that inside the test's rollback.
-		commit = patch.object(frappe.db, "commit")
-		self.commit = commit.start()
-		self.addCleanup(commit.stop)
 
 	def _enroll_new_student(self, index=0):
 		# before_insert now makes the member the owner, so only legacy rows still carry
@@ -104,12 +112,12 @@ class TestShareEnrollmentPatch(BaseTestUtils):
 
 	def test_reads_and_inserts_inside_the_lock(self):
 		events = []
+		sql = frappe.db.sql
 
-		@contextmanager
-		def lock(name, **kwargs):
-			events.append("lock")
-			yield
-			events.append("unlock")
+		def record_lock(query, *args, **kwargs):
+			if "for update" in str(query).lower():
+				events.append("lock")
+			return sql(query, *args, **kwargs)
 
 		def record(event, method):
 			def wrapper(*args, **kwargs):
@@ -119,13 +127,26 @@ class TestShareEnrollmentPatch(BaseTestUtils):
 			return wrapper
 
 		self._enroll_new_student()
-		self.commit.side_effect = lambda: events.append("commit")
 
 		with (
-			patch("lms.patches.v2_0.share_enrollment.filelock", lock),
+			patch.object(frappe.db, "sql", record_lock),
 			patch.object(frappe, "get_all", record("read", frappe.get_all)),
 			patch.object(frappe.db, "bulk_insert", record("insert", frappe.db.bulk_insert)),
+			patch.object(frappe.db, "commit") as commit,
 		):
 			execute()
 
-		self.assertEqual(events, ["lock", "read", "insert", "commit", "unlock"])
+		self.assertEqual(events, ["lock", "read", "insert"])
+		commit.assert_not_called()
+
+	def test_overlapping_run_waits_for_the_lock(self):
+		if frappe.db.db_type != "mariadb":
+			self.skipTest("uses innodb_lock_wait_timeout")
+
+		self._enroll_new_student()
+		execute()
+
+		# log_error would queue an Error Log for the shared site.
+		with second_connection(), patch.object(frappe, "log_error"):
+			frappe.db.sql("set session innodb_lock_wait_timeout = 1")
+			self.assertRaises(frappe.QueryTimeoutError, execute)

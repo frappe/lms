@@ -1,9 +1,12 @@
 import json
+from contextlib import contextmanager
+from unittest.mock import patch
 
 import frappe
 from frappe.cache_manager import user_cache_keys
 from frappe.tests import IntegrationTestCase
 from frappe.utils import add_days, nowdate
+from frappe.utils.html_utils import sanitize_html
 
 from lms.lms.doctype.lms_certificate.lms_certificate import get_default_certificate_template
 from lms.lms.doctype.lms_quiz.lms_quiz import submit_quiz
@@ -11,6 +14,26 @@ from lms.lms.doctype.lms_quiz.lms_quiz import submit_quiz
 # frappe keys cached documents as f"document_cache::{doctype}::{name}"
 # (frappe/model/document.py, get_document_cache_key).
 DOCUMENT_CACHE_PREFIX = "document_cache::"
+
+
+def released_sanitize_html(html, *args, always_sanitize=False, **kwargs):
+	"""frappe v15/v16 return any JSON-parseable string untouched unless always_sanitize is set."""
+	if not always_sanitize and isinstance(html, str):
+		try:
+			json.loads(html)
+			return html
+		except ValueError:
+			pass
+	return sanitize_html(html, *args, always_sanitize=always_sanitize, **kwargs)
+
+
+@contextmanager
+def released_frappe_sanitizer():
+	with (
+		patch("frappe.model.base_document.sanitize_html", released_sanitize_html),
+		patch("lms.lms.html_sanitizer.sanitize_html", released_sanitize_html),
+	):
+		yield
 
 
 class BaseTestUtils(IntegrationTestCase):
