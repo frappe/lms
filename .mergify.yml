@@ -49,16 +49,6 @@ pull_request_rules:
               assignees:
                   - "{{ author }}"
 
-    - name: backport to version-17-hotfix
-      conditions:
-          - label="backport version-17-hotfix"
-      actions:
-          backport:
-              branches:
-                  - version-17-hotfix
-              assignees:
-                  - "{{ author }}"
-
     - name: backport to all hotfix lines
       conditions:
           - label="backport all-hotfixes"
@@ -67,6 +57,5 @@ pull_request_rules:
               branches:
                   - version-15-hotfix
                   - version-16-hotfix
-                  - version-17-hotfix
               assignees:
                   - "{{ author }}"
