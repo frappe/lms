@@ -366,6 +366,7 @@ class BaseTestUtils(IntegrationTestCase):
 		"""Replace the stored `authors` rows outright, leaving `owner` untouched."""
 		doc = frappe.get_doc(doctype, name)
 		doc.set("authors", [{"author": user} for user in users])
+		# nosemgrep: lms-unjustified-ignore-permissions - fixture seeding, not the permission under test
 		doc.save(ignore_permissions=True)
 
 	@classmethod
