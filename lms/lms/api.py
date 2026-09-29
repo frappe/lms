@@ -1488,7 +1488,7 @@ def give_discussions_permission():
 				).save()
 
 
-@frappe.whitelist(methods=["POST"])
+@frappe.whitelist()
 def upsert_chapter(
 	title: str, course: str, is_scorm_package: bool, scorm_package: dict = None, name: str = None
 ):
