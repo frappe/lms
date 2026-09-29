@@ -25,3 +25,9 @@ export const attemptsLeftLabel = (attemptsLeft: number): string =>
 		attemptsLeft,
 		attemptsLeft == 1 ? __('attempt') : __('attempts')
 	)
+
+export const attemptsAllowedLabel = (maxAttempts: number): string =>
+	__('{0} {1} allowed').format(
+		maxAttempts,
+		maxAttempts == 1 ? __('attempt') : __('attempts')
+	)

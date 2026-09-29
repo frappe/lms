@@ -38,7 +38,7 @@
 				v-if="details.doc.max_attempts"
 				class="hidden text-xs text-ink-gray-5 sm:inline"
 			>
-				{{ attemptsLeftLabel(details.doc.max_attempts) }}
+				{{ attemptsAllowedLabel(details.doc.max_attempts) }}
 			</span>
 		</AssessmentCardHeader>
 		<div class="space-y-3.5 p-3.5">
@@ -49,7 +49,7 @@
 				:questions="quizSummary.questions"
 				:duration="quizSummary.duration"
 				:passingPercentage="details.doc.passing_percentage"
-				:attemptsLeft="details.doc.max_attempts || null"
+				:maxAttempts="details.doc.max_attempts || null"
 			/>
 			<div class="flex justify-end">
 				<Button variant="solid" disabled>{{ __('Start Quiz') }}</Button>
@@ -154,7 +154,7 @@ import AssessmentCard from '@/components/Assessment/AssessmentCard.vue'
 import AssessmentCardHeader from '@/components/Assessment/AssessmentCardHeader.vue'
 import AssignmentUploadPrompt from '@/components/Assessment/AssignmentUploadPrompt.vue'
 import QuizStats from '@/components/Assessment/QuizStats.vue'
-import { attemptsLeftLabel, formatQuizSubtitle } from '@/utils/quizSummary'
+import { attemptsAllowedLabel, formatQuizSubtitle } from '@/utils/quizSummary'
 import type { QuizDetails } from '@/types/quiz'
 
 export type PreviewKind = 'quiz' | 'assignment' | 'exercise'
