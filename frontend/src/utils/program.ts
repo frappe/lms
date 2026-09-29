@@ -5,8 +5,14 @@ import translationPlugin from '@/translation'
 import ProgrammingExerciseModal from '@/components/Modals/ProgrammingExerciseModal.vue'
 import { call } from 'frappe-ui'
 import { usersStore } from '@/stores/user'
+<<<<<<< HEAD
 import { getLmsRoute } from '@/utils/basePath'
 import { blockNotice, embedFrame } from '@/utils/blockDom'
+=======
+import { mountBlock, mountPreview } from '@/utils/blockMount'
+import AssessmentBlock from '@/components/Assessment/AssessmentBlock.vue'
+import ProgrammingExerciseSubmission from '@/pages/ProgrammingExercises/ProgrammingExerciseSubmission.vue'
+>>>>>>> 02ab813 (feat(lesson): preview assessment blocks as summary cards in the editor)
 
 export class Program {
 	data: any
@@ -109,6 +115,7 @@ export class Program {
 			})
 			return
 		}
+<<<<<<< HEAD
 		call('frappe.client.get_value', {
 			doctype: 'LMS Programming Exercise',
 			filters: {
@@ -121,6 +128,27 @@ export class Program {
 			)
 			return
 		})
+=======
+		this.app = mountPreview(this.wrapper, 'exercise', exercise)
+	}
+
+	mountSubmission(exercise: string, submissionID: string): void {
+		this.app = mountBlock(this.wrapper, AssessmentBlock, {
+			is: markRaw(ProgrammingExerciseSubmission),
+			props: {
+				exerciseID: exercise,
+				submissionID,
+				studentView: this.studentView,
+			},
+			studentView: this.studentView,
+		})
+	}
+
+	destroy(): void {
+		this.destroyed = true
+		this.app?.unmount()
+		this.app = null
+>>>>>>> 02ab813 (feat(lesson): preview assessment blocks as summary cards in the editor)
 	}
 
 	save() {

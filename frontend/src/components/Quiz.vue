@@ -3,6 +3,7 @@
 		v-if="quiz.loading && !quiz.data"
 		class="flex items-center justify-center py-12"
 	>
+<<<<<<< HEAD
 		<LoadingIndicator class="size-4 text-ink-gray-5" />
 	</div>
 	<div v-else-if="quiz.data">
@@ -16,6 +17,50 @@
 			class="flex items-center justify-between mb-4"
 		>
 			<!-- Timer pill -->
+=======
+		<AssessmentCardHeader icon="lucide-circle-help" :title="__('Quiz')" />
+		<div class="space-y-4 p-3.5">
+			<Skeleton class="h-5 w-1/3 rounded-4" />
+			<div class="grid grid-cols-2 gap-2 sm:grid-cols-4">
+				<Skeleton v-for="i in 4" :key="i" class="h-14 rounded-6" />
+			</div>
+			<div class="flex justify-end">
+				<Skeleton class="h-8 w-24 rounded-4" />
+			</div>
+		</div>
+	</AssessmentCard>
+	<div v-else-if="quiz.data" class="space-y-4">
+		<AssessmentCard>
+			<AssessmentCardHeader
+				icon="lucide-circle-help"
+				:title="__('Quiz')"
+				:subtitle="quizSubtitle"
+			>
+				<Badge v-if="quiz.data.enable_proctoring" theme="amber" size="sm">
+					{{ __('Proctored') }}
+				</Badge>
+				<span
+					v-if="attemptsLeft !== null"
+					class="hidden text-xs text-ink-gray-5 sm:inline"
+				>
+					{{ attemptsLeftLabel(attemptsLeft) }}
+				</span>
+				<Badge
+					v-if="
+						activeQuestion > 0 && !quizSubmission.data && quiz.data.duration
+					"
+					data-testid="quiz-timer"
+					size="sm"
+					:theme="timerTheme"
+				>
+					<template #prefix>
+						<span class="lucide-timer size-3" />
+					</template>
+					{{ formatTimer(timer) }}
+				</Badge>
+			</AssessmentCardHeader>
+
+>>>>>>> 02ab813 (feat(lesson): preview assessment blocks as summary cards in the editor)
 			<div
 				v-if="quiz.data.duration"
 				class="inline-flex items-center gap-1.5 text-sm font-medium px-3 py-1.5 rounded-full transition-colors"
@@ -49,8 +94,26 @@
 				<div class="px-5 pt-5 pb-4 space-y-3 text-center">
 					<h2 class="text-xl font-semibold text-ink-gray-9 leading-snug">
 						{{ quiz.data.title }}
+<<<<<<< HEAD
 					</h2>
 					<div class="flex flex-wrap gap-1.5 justify-center">
+=======
+					</div>
+					<QuizStats
+						:questions="questions.length"
+						:duration="quiz.data.duration"
+						:passingPercentage="quiz.data.passing_percentage"
+						:attemptsLeft="attemptsLeft"
+					/>
+
+					<div
+						v-if="
+							quiz.data.enable_scheduling &&
+							(quiz.data.schedule_start || quiz.data.schedule_end)
+						"
+						class="flex flex-wrap gap-x-4 gap-y-1 text-sm text-ink-gray-6"
+					>
+>>>>>>> 02ab813 (feat(lesson): preview assessment blocks as summary cards in the editor)
 						<span
 							class="inline-flex items-center gap-1.5 bg-surface-gray-3 text-ink-gray-7 text-xs font-medium px-2.5 py-1 rounded-full"
 						>
@@ -442,9 +505,174 @@
 							{{ __('Question {0}').format(activeQuestion) }} -
 							{{ getInstructions(questionDetails.data) }}
 						</div>
+<<<<<<< HEAD
 						<div class="shrink-0 text-ink-gray-9 text-sm-semibold">
 							{{ question.marks }}
 							{{ question.marks == 1 ? __('Mark') : __('Marks') }}
+=======
+
+						<div class="space-y-3 p-3.5">
+							<div class="space-y-1">
+								<div class="text-sm text-ink-gray-5">
+									{{
+										questionDetails.data.type == 'Open Ended'
+											? __('Written response')
+											: getInstructions(questionDetails.data)
+									}}
+								</div>
+								<div
+									class="text-p-base font-semibold text-ink-gray-9 break-words [&_img]:h-auto [&_img]:max-w-full"
+									v-safe-html:rich="questionDetails.data.question"
+								></div>
+							</div>
+
+							<div
+								v-if="questionDetails.data.type == 'Choices'"
+								class="flex flex-col gap-1.5"
+							>
+								<template v-for="index in MAX_OPTIONS" :key="index">
+									<template v-if="questionDetails.data[`option_${index}`]">
+										<OptionRow>
+											<template #control>
+												<input
+													:type="
+														questionDetails.data.multiple ? 'checkbox' : 'radio'
+													"
+													:name="`${optionGroup}-${activeQuestion}`"
+													class="size-3.5 shrink-0 text-ink-gray-9 focus:ring-outline-elevation-2"
+													:class="
+														questionDetails.data.multiple
+															? 'rounded-1'
+															: 'border-outline-gray-4 bg-surface-base checked:border-4 checked:border-[color:var(--ink-gray-9)] checked:bg-surface-base checked:bg-none'
+													"
+													:disabled="!!showAnswers.length"
+													:checked="!!selectedOptions[index - 1]"
+													@change="markAnswer(index)"
+												/>
+											</template>
+											<span
+												v-safe-html:rich="
+													questionDetails.data[`option_${index}`]
+												"
+											></span>
+											<template
+												v-if="showAnswers.length && quiz.data.show_answers"
+												#end
+											>
+												<span
+													v-if="showAnswers[index - 1] == 1"
+													class="lucide-check-circle size-4 shrink-0 text-ink-green-4"
+												/>
+												<span
+													v-else-if="showAnswers[index - 1] == 2"
+													class="lucide-minus-circle size-4 shrink-0 text-ink-green-4"
+												/>
+												<span
+													v-else-if="showAnswers[index - 1] == 0"
+													class="lucide-x-circle size-4 shrink-0 text-ink-red-5"
+												/>
+											</template>
+										</OptionRow>
+										<div
+											v-if="questionDetails.data[`explanation_${index}`]"
+											v-show="showAnswers.length"
+											class="break-words px-3 text-p-base text-ink-gray-7"
+										>
+											{{ questionDetails.data[`explanation_${index}`] }}
+										</div>
+									</template>
+								</template>
+								<FeedbackBanner
+									v-if="showAnswers.length && quiz.data.show_answers"
+									data-testid="quiz-feedback"
+									:correct="choiceCorrect"
+								>
+									{{ choiceCorrect ? __('Correct') : __('Incorrect') }}
+								</FeedbackBanner>
+							</div>
+							<div
+								v-else-if="questionDetails.data.type == 'User Input'"
+								class="space-y-3"
+							>
+								<FormControl
+									v-model="possibleAnswer"
+									type="textarea"
+									:disabled="showAnswers.length ? true : false"
+								/>
+								<FeedbackBanner
+									v-if="showAnswers.length"
+									data-testid="quiz-feedback"
+									:correct="!!showAnswers[0]"
+								>
+									{{ showAnswers[0] ? __('Correct') : __('Incorrect') }}
+								</FeedbackBanner>
+							</div>
+							<div v-else>
+								<RichTextEditor
+									:content="possibleAnswer"
+									@change="(val) => (possibleAnswer = val)"
+									:editable="true"
+									:fixedMenu="true"
+									editorClass="prose-sm max-w-none border-b border-x border-outline-elevation-2 bg-surface-gray-2 rounded-b-5 py-1 px-2 min-h-[7rem]"
+								/>
+							</div>
+
+							<div class="flex flex-wrap items-center gap-4 pt-2">
+								<div class="flex-1">
+									<Checkbox
+										v-if="!quiz.data.show_answers"
+										:label="__('Mark for review')"
+										:model-value="reviewQuestions.includes(activeQuestion)"
+										@update:model-value="
+											(checked) => markForReview(!!checked, activeQuestion)
+										"
+									/>
+									<span
+										v-else-if="questionDetails.data.type == 'Open Ended'"
+										class="text-sm text-ink-gray-5"
+									>
+										{{ __('Marked by your instructor') }}
+									</span>
+								</div>
+								<div class="flex flex-1 justify-end gap-2">
+									<Button
+										v-if="!quiz.data.show_answers && activeQuestion > 1"
+										@click="switchQuestion(activeQuestion - 1)"
+									>
+										<span>{{ __('Previous') }}</span>
+									</Button>
+									<Button
+										v-if="
+											quiz.data.show_answers &&
+											!showAnswers.length &&
+											questionDetails.data.type != 'Open Ended'
+										"
+										variant="solid"
+										@click="checkAnswer()"
+									>
+										<span>{{ __('Check') }}</span>
+									</Button>
+									<Button
+										v-else-if="activeQuestion != questions.length"
+										:variant="quiz.data.show_answers ? 'solid' : 'subtle'"
+										@click="
+											quiz.data.show_answers
+												? nextQuestion()
+												: switchQuestion(activeQuestion + 1)
+										"
+									>
+										<span>{{ __('Next') }}</span>
+									</Button>
+									<Button
+										v-else-if="!preview"
+										variant="solid"
+										@click="handleSubmitClick()"
+									>
+										<span>{{ __('Submit') }}</span>
+									</Button>
+								</div>
+							</div>
+>>>>>>> 02ab813 (feat(lesson): preview assessment blocks as summary cards in the editor)
 						</div>
 					</div>
 					<div
@@ -974,6 +1202,28 @@ import ProgressBar from '@/components/ProgressBar.vue'
 import ResponsiveListView from '@/components/ResponsiveListView.vue'
 import RichTextEditor from '@/components/RichTextEditor.vue'
 import ProctoringMonitor from '@/components/ProctoringMonitor.vue'
+<<<<<<< HEAD
+=======
+import AssessmentCard from '@/components/Assessment/AssessmentCard.vue'
+import AssessmentCardHeader from '@/components/Assessment/AssessmentCardHeader.vue'
+import OptionRow from '@/components/Assessment/OptionRow.vue'
+import FeedbackBanner from '@/components/Assessment/FeedbackBanner.vue'
+import QuizStats from '@/components/Assessment/QuizStats.vue'
+import { attemptsLeftLabel, formatQuizSubtitle } from '@/utils/quizSummary'
+import type {
+	AnswerVerdict,
+	QuizAttempt,
+	QuizDetails,
+	QuizQuestionDetails,
+	QuizQuestionRow,
+	QuizSubmissionResult,
+	QuizWithQuestions,
+	SavedAnswer,
+	SessionUser,
+	StoredViolationRow,
+	ViolationEvent,
+} from '@/types'
+>>>>>>> 02ab813 (feat(lesson): preview assessment blocks as summary cards in the editor)
 
 const user = inject('$user')
 const activeQuestion = ref(0)
@@ -1194,6 +1444,89 @@ const timerUrgency = computed(() => {
 	return 'normal'
 })
 
+<<<<<<< HEAD
+=======
+// frappe-ui 1.0 has no orange Badge theme; amber is the warning tone.
+const timerTheme = computed<'red' | 'amber' | 'gray'>(() => {
+	if (timerUrgency.value === 'critical') return 'red'
+	if (timerUrgency.value === 'warning') return 'amber'
+	return 'gray'
+})
+
+const attemptsLeft = computed(() => {
+	if (!quiz.data?.max_attempts) return null
+	return Math.max(quiz.data.max_attempts - (attempts.data?.length ?? 0), 0)
+})
+
+const quizSubtitle = computed(() =>
+	formatQuizSubtitle(
+		questions.value.map((row) => questionsByName.value[row.question]?.type),
+		quiz.data?.passing_percentage
+	)
+)
+
+const introTips = computed(() => {
+	if (!quiz.data) return []
+	const proctored = quiz.data.enable_proctoring
+	const tips: string[] = []
+	if (props.inVideo) tips.push(__('Complete the quiz to continue the video.'))
+	if (!proctored) {
+		tips.push(
+			__(
+				'Use "Mark for Review" to flag questions you want to revisit before submitting.'
+			),
+			__(
+				'Answer all questions before you submit. You can navigate freely between them.'
+			)
+		)
+	}
+	tips.push(
+		__('Closing or refreshing the page will submit your quiz automatically.')
+	)
+	if (!proctored && quiz.data.duration) {
+		tips.push(
+			__('The quiz will be submitted automatically when the timer runs out.')
+		)
+	}
+	if (quiz.data.enable_negative_marking) {
+		tips.push(
+			__('Wrong answers deduct {0} {1}.').format(
+				quiz.data.marks_to_cut,
+				quiz.data.marks_to_cut == 1 ? __('mark') : __('marks')
+			)
+		)
+	}
+	return tips
+})
+
+const proctoringRules = computed(() => [
+	{
+		icon: 'lucide-eye-off',
+		title: __('Face must be visible'),
+		hint: __('Looking away for too long counts as a violation.'),
+	},
+	{
+		icon: 'lucide-users',
+		title: __('One person only'),
+		hint: __('Multiple faces in the frame will be flagged.'),
+	},
+	{
+		icon: 'lucide-monitor-x',
+		title: __('Stay on this tab'),
+		hint: __('Switching tabs or minimizing the window is flagged immediately.'),
+	},
+	{
+		icon: 'lucide-camera-off',
+		title: __('Keep camera connected'),
+		hint: __('Disconnecting your camera counts as a violation.'),
+	},
+])
+
+const choiceCorrect = computed(
+	() => !showAnswers.some((answer) => answer == 0 || answer == 2)
+)
+
+>>>>>>> 02ab813 (feat(lesson): preview assessment blocks as summary cards in the editor)
 const attemptsExhausted = computed(
 	() =>
 		!!quiz.data?.max_attempts &&

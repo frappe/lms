@@ -13,8 +13,16 @@ declare module 'vue' {
   export interface GlobalComponents {
     AddressModal: typeof import('./src/components/Settings/Transactions/AddressModal.vue')['default']
     AppSidebar: typeof import('./src/components/Sidebar/AppSidebar.vue')['default']
+<<<<<<< HEAD
+=======
+    AssessmentBlock: typeof import('./src/components/Assessment/AssessmentBlock.vue')['default']
+    AssessmentBlockPreview: typeof import('./src/components/Assessment/AssessmentBlockPreview.vue')['default']
+    AssessmentCard: typeof import('./src/components/Assessment/AssessmentCard.vue')['default']
+    AssessmentCardHeader: typeof import('./src/components/Assessment/AssessmentCardHeader.vue')['default']
+>>>>>>> 02ab813 (feat(lesson): preview assessment blocks as summary cards in the editor)
     AssessmentPlugin: typeof import('./src/components/AssessmentPlugin.vue')['default']
     Assignment: typeof import('./src/components/Assignment.vue')['default']
+    AssignmentUploadPrompt: typeof import('./src/components/Assessment/AssignmentUploadPrompt.vue')['default']
     AudioBlock: typeof import('./src/components/AudioBlock.vue')['default']
     BadgeAssignmentForm: typeof import('./src/components/Settings/Badges/BadgeAssignmentForm.vue')['default']
     BadgeAssignments: typeof import('./src/components/Settings/Badges/BadgeAssignments.vue')['default']
@@ -138,6 +146,7 @@ declare module 'vue' {
     Quiz: typeof import('./src/components/Quiz.vue')['default']
     QuizBlock: typeof import('./src/components/QuizBlock.vue')['default']
     QuizInVideo: typeof import('./src/components/Modals/QuizInVideo.vue')['default']
+    QuizStats: typeof import('./src/components/Assessment/QuizStats.vue')['default']
     RavenSettings: typeof import('./src/components/Settings/Raven/RavenSettings.vue')['default']
     RavenSetupRow: typeof import('./src/components/Settings/Raven/RavenSetupRow.vue')['default']
     RelatedCourses: typeof import('./src/components/RelatedCourses.vue')['default']

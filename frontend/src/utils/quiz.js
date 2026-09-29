@@ -6,7 +6,13 @@ import { usersStore } from '../stores/user'
 import translationPlugin from '../translation'
 import { CircleHelp } from 'lucide-vue-next'
 import router from '@/router'
+<<<<<<< HEAD:frontend/src/utils/quiz.js
 import { blockNotice } from '@/utils/blockDom'
+=======
+import { mountBlock, mountPreview } from '@/utils/blockMount'
+
+type QuizData = { quiz?: string }
+>>>>>>> 02ab813 (feat(lesson): preview assessment blocks as summary cards in the editor):frontend/src/utils/quiz.ts
 
 export class Quiz {
 	constructor({ data, api, readOnly }) {
@@ -43,6 +49,7 @@ export class Quiz {
 		return this.wrapper
 	}
 
+<<<<<<< HEAD:frontend/src/utils/quiz.js
 	renderQuiz(quiz) {
 		if (this.readOnly) {
 			// Mount the quiz inline instead of loading the whole SPA in an iframe
@@ -66,6 +73,12 @@ export class Quiz {
 		}
 		this.wrapper.replaceChildren(blockNotice(`Quiz: ${quiz}`))
 		return
+=======
+	renderQuiz(quiz: string): void {
+		this.quizApp = this.readOnly
+			? mountBlock(this.wrapper, QuizBlock, { quiz })
+			: mountPreview(this.wrapper, 'quiz', quiz)
+>>>>>>> 02ab813 (feat(lesson): preview assessment blocks as summary cards in the editor):frontend/src/utils/quiz.ts
 	}
 
 	// Tear down the inline quiz app when EditorJS removes the block so the mount

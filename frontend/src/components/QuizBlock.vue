@@ -24,7 +24,15 @@ const props = defineProps({
 	},
 })
 
+<<<<<<< HEAD
 const redirectToLogin = () => {
+=======
+defineProps<{
+	quiz: string
+}>()
+
+const redirectToLogin = (): void => {
+>>>>>>> 02ab813 (feat(lesson): preview assessment blocks as summary cards in the editor)
 	window.location.href = `/login`
 }
 </script>

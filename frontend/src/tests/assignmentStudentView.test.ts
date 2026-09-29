@@ -76,8 +76,18 @@ describe('assignment iframe URL', () => {
 	it('omits the flag for a normal lesson view', async () => {
 		const src = await iframeSrc({ studentView: false })
 
+<<<<<<< HEAD
 		expect(src).toContain('fromLesson=1')
 		expect(src).not.toContain('studentView')
+=======
+		const { props } = mountedWith()
+		expect(props.is.name).toBe('Assignment')
+		expect(props.props).toEqual({
+			assignmentID: 'ASSIGN-1',
+			submissionName: 'SUB-0001',
+			showTitle: false,
+		})
+>>>>>>> 02ab813 (feat(lesson): preview assessment blocks as summary cards in the editor)
 	})
 
 	it('omits the flag when no config is passed at all', async () => {

@@ -1,4 +1,5 @@
 <template>
+<<<<<<< HEAD
 	<div
 		v-if="assignment.data"
 		class="grid grid-cols-2 h-full"
@@ -11,6 +12,54 @@
 			<div v-if="showTitle" class="text-lg-semibold mb-5 text-ink-gray-9">
 				<div v-if="submissionName === 'new'">
 					{{ __('Submission by') }} {{ user.data?.full_name }}
+=======
+	<div v-if="assignment.data" ref="root" :class="rootClass">
+		<div v-if="showTitle" class="mb-4 text-lg-semibold text-ink-gray-9">
+			<div v-if="currentSubmission === 'new'">
+				{{ __('Submission by') }} {{ user.data?.full_name }}
+			</div>
+			<div v-else>
+				{{ __('Submission by') }} {{ submissionDoc?.member_name }}
+			</div>
+		</div>
+		<AssessmentCard>
+			<AssessmentCardHeader
+				icon="lucide-notebook-pen"
+				:title="__('Assignment')"
+				:subtitle="assignment.data.title"
+			>
+				<ShortcutTooltip
+					v-if="
+						(canModifyAssignment || canGradeSubmission) &&
+						(!scheduleBlocked || canGradeSubmission)
+					"
+					:label="saveLabel"
+					combo="Mod+S"
+				>
+					<Button
+						variant="solid"
+						size="sm"
+						:loading="isSubmitting"
+						:disabled="scheduleBlocked && !canGradeSubmission"
+						@click="submitAssignment()"
+					>
+						{{ saveLabel }}
+					</Button>
+				</ShortcutTooltip>
+			</AssessmentCardHeader>
+
+			<div
+				class="grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_minmax(0,0.9fr)]"
+			>
+				<div
+					class="min-w-0 space-y-2 border-b border-outline-gray-1 p-3.5 md:border-b-0 md:border-e"
+				>
+					<div class="text-sm text-ink-gray-5">{{ __('Brief') }}</div>
+					<div
+						v-safe-html:rich="assignment.data.question"
+						class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2 prose-sm max-w-none !whitespace-normal"
+					></div>
+>>>>>>> 02ab813 (feat(lesson): preview assessment blocks as summary cards in the editor)
 				</div>
 				<div v-else>
 					{{ __('Submission by') }} {{ submissionResource.doc?.member_name }}
@@ -43,7 +92,112 @@
 						>
 							{{ submissionResource.doc?.status }}
 						</Badge>
+<<<<<<< HEAD
 						<ShortcutTooltip
+=======
+					</div>
+
+					<div class="space-y-3 p-3.5">
+						<Alert
+							v-if="scheduleBlocked"
+							theme="amber"
+							:title="scheduleMessage"
+						/>
+						<div
+							v-if="showUploader() && canModifyAssignment && !scheduleBlocked"
+						>
+							<AssignmentUploadPrompt
+								v-if="!attachment"
+								:type="assignment.data.type"
+							>
+								<FileUploader
+									:fileTypes="getType()"
+									:private="true"
+									:validateFile="
+										(file) =>
+											validateFile(
+												file,
+												true,
+												(assignment.data?.type ?? '').toLowerCase()
+											)
+									"
+									@success="(file) => saveSubmission(file)"
+								>
+									<template
+										#default="{ uploading, progress, openFileSelector }"
+									>
+										<Button
+											variant="outline"
+											size="sm"
+											:loading="uploading"
+											@click="openFileSelector"
+										>
+											{{
+												uploading
+													? __('Uploading {0}%').format(progress)
+													: __('Upload File')
+											}}
+										</Button>
+									</template>
+								</FileUploader>
+							</AssignmentUploadPrompt>
+							<div
+								v-else
+								data-testid="assignment-attachment"
+								class="flex h-9 items-center gap-x-2 rounded-4 border border-outline-gray-2 px-2.5"
+							>
+								<span
+									class="lucide-file-text size-4 shrink-0 text-ink-gray-6"
+								/>
+								<a
+									:href="safeUrl(attachment)"
+									v-external
+									class="min-w-0 flex-1 truncate text-base text-ink-gray-8 !no-underline"
+								>
+									{{ attachment.split('/').pop() }}
+								</a>
+								<Button
+									variant="ghost"
+									size="sm"
+									:aria-label="__('Remove submission')"
+									@click="removeSubmission()"
+								>
+									<template #icon>
+										<span class="lucide-x size-4" />
+									</template>
+								</Button>
+							</div>
+						</div>
+						<div v-else-if="assignment.data.type == 'URL' && !scheduleBlocked">
+							<FormControl
+								v-model="answer"
+								type="text"
+								placeholder="https://"
+								:label="__('Enter a URL')"
+								:disabled="!canModifyAssignment"
+							/>
+						</div>
+						<div v-else-if="!showUploader() && !scheduleBlocked">
+							<InputLabel
+								:id="answerLabelId"
+								:label="__('Write your answer here')"
+								class="mb-1.5"
+							/>
+							<RichTextEditor
+								:ariaLabelledby="answerLabelId"
+								:content="answer"
+								@change="(val) => (answer = val)"
+								:editable="canModifyAssignment"
+								:fixedMenu="true"
+								:uploadArgs="{
+									private: true,
+								}"
+								editorClass="prose-sm max-w-none border-b border-x border-outline-elevation-2 bg-surface-gray-2 rounded-b-5 py-1 px-2 min-h-[7rem]"
+							/>
+						</div>
+
+						<div
+>>>>>>> 02ab813 (feat(lesson): preview assessment blocks as summary cards in the editor)
 							v-if="
 								(canModifyAssignment || canGradeSubmission) &&
 								(!scheduleBlocked || canGradeSubmission)
@@ -243,7 +397,14 @@ import {
 	toast,
 } from 'frappe-ui'
 import { InputLabel } from 'frappe-ui/experimental'
+<<<<<<< HEAD
 import { computed, inject, onUnmounted, ref, useId, watch } from 'vue'
+=======
+import { computed, inject, ref, shallowRef, useId, watch } from 'vue'
+import AssessmentCard from '@/components/Assessment/AssessmentCard.vue'
+import AssessmentCardHeader from '@/components/Assessment/AssessmentCardHeader.vue'
+import AssignmentUploadPrompt from '@/components/Assessment/AssignmentUploadPrompt.vue'
+>>>>>>> 02ab813 (feat(lesson): preview assessment blocks as summary cards in the editor)
 import ShortcutTooltip from '@/components/ShortcutTooltip.vue'
 import {
 	useKeyboardShortcuts,
@@ -266,6 +427,7 @@ const isDirty = ref(false)
 const scheduleNow = ref(new Date())
 let scheduleClock = null
 
+<<<<<<< HEAD
 const props = defineProps({
 	assignmentID: {
 		type: String,
@@ -279,6 +441,34 @@ const props = defineProps({
 		type: Boolean,
 		default: true,
 	},
+=======
+const props = withDefaults(
+	defineProps<{
+		assignmentID: string
+		submissionName?: string
+		showTitle?: boolean
+		// Mounted inline in a lesson: no navigation, no grading, natural height.
+		embedded?: boolean
+	}>(),
+	{
+		submissionName: 'new',
+		showTitle: true,
+		embedded: false,
+	}
+)
+
+// Starts as the prop and becomes the real name after the first save, so the
+// next save updates it instead of inserting a duplicate (there is no route
+// push to remount the card inline).
+const currentSubmission = ref<string>(props.submissionName)
+const root = ref<HTMLElement | null>(null)
+
+const rootClass = computed<string>(() => {
+	if (props.embedded) return ''
+	return props.showTitle
+		? 'h-full overflow-y-auto p-5'
+		: 'h-full overflow-y-auto'
+>>>>>>> 02ab813 (feat(lesson): preview assessment blocks as summary cards in the editor)
 })
 
 const stopScheduleClock = () => {
