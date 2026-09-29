@@ -2,7 +2,7 @@
 	<CodeEditor v-model="code" :extensions="extensions">
 		<CodeEditorContent
 			data-testid="exercise-code-editor"
-			class="h-full min-h-[16rem]"
+			:class="['h-full', contentClass]"
 			:style="{ '--code-radius': '0', '--code-bg': 'var(--surface-base)' }"
 		/>
 	</CodeEditor>
@@ -23,10 +23,14 @@ import type { ExerciseLanguage } from '@/types'
 
 const code = defineModel<string>({ required: true })
 
-const props = defineProps<{
-	language: ExerciseLanguage
-	label: string
-}>()
+const props = withDefaults(
+	defineProps<{
+		language: ExerciseLanguage
+		label: string
+		contentClass?: string
+	}>(),
+	{ contentClass: 'min-h-[16rem]' }
+)
 
 const LANGUAGE_KEYS: Record<ExerciseLanguage, LanguageKey> = {
 	Python: 'python',
