@@ -8,12 +8,13 @@ from frappe.rate_limiter import rate_limit
 from frappe.utils import add_months, get_link_to_form, getdate, validate_url
 from frappe.utils.user import get_system_managers
 
-from lms.lms.utils import generate_slug, validate_image
+from lms.lms.utils import generate_slug, validate_attachable_file, validate_image
 
 
 class JobOpportunity(Document):
 	def validate(self):
 		self.validate_urls()
+		validate_attachable_file(self, "company_logo")
 		self.company_logo = validate_image(self.company_logo)
 
 	def validate_urls(self):
