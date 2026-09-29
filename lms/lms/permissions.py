@@ -12,6 +12,8 @@ core (frappe/permissions.py), CRM (crm.permissions.*), and Raven (raven.permissi
 import frappe
 from frappe import _
 from frappe.query_builder import Bracket
+from pypika import Case
+from pypika import functions as fn
 from pypika.terms import LiteralValue
 
 from lms.lms.utils import (
@@ -237,6 +239,112 @@ def course_record_query_conditions(user=None, doctype=None) -> str:
 	)
 	condition = Bracket((getattr(record, member_field) == member) | record.course.isin(taught))
 	return _render(condition)
+
+
+def _unrestricted_coupon_access(user: str) -> bool:
+	return is_site_administrator(user) or "Moderator" in frappe.get_roles(user)
+
+
+def coupon_has_permission(doc, ptype="read", user=None) -> bool:
+	"""A coupon belongs to whoever authors every course/batch its items name."""
+	user = user or frappe.session.user
+	if _unrestricted_coupon_access(user):
+		return True
+
+	incoming = doc.get("applicable_items") or []
+	if doc.is_new():
+		# reference_name is reqd; a half-filled row defers to _validate_mandatory.
+		incoming = [item for item in incoming if item.get("reference_name")]
+
+	targets = {(item.get("reference_doctype"), item.get("reference_name")) for item in incoming}
+	targets |= _stored_coupon_targets(doc)
+	if not targets:
+		# A saved coupon naming nothing is unresolvable; a new one defers to validate().
+		return doc.is_new()
+
+	denied = targets - _authored_coupon_targets(targets, user)
+	if denied:
+		frappe.logger("lms.security").warning(
+			"Coupon denied: user=%s coupon=%s targets=%s ptype=%s", user, doc.name, list(denied), ptype
+		)
+		return False
+
+	return True
+
+
+def _stored_coupon_targets(doc) -> set:
+	"""The coupon's rows as the database holds them, not the caller's in-memory ones --
+	or a write could repoint someone else's coupon at the caller's own course."""
+	if doc.is_new():
+		return set()
+
+	rows = frappe.get_all(
+		"LMS Coupon Item",
+		filters={"parent": doc.name, "parenttype": "LMS Coupon"},
+		fields=["reference_doctype", "reference_name"],
+	)
+	return {(row.reference_doctype, row.reference_name) for row in rows}
+
+
+COUPON_TARGET_DOCTYPES = ("LMS Course", "LMS Batch")
+
+
+def _taught(doctype: str, user: str):
+	"""Names of existing `doctype` rows `user` instructs. Joining the parent drops
+	Course Instructor rows a deleted course/batch left behind."""
+	instructor = frappe.qb.DocType("Course Instructor")
+	parent = frappe.qb.DocType(doctype)
+	return (
+		frappe.qb.from_(instructor)
+		.join(parent)
+		.on(parent.name == instructor.parent)
+		.select(instructor.parent)
+		.where(
+			(instructor.instructor == LiteralValue(frappe.db.escape(user)))
+			& (instructor.parenttype == doctype)
+		)
+	)
+
+
+def _authored_coupon_targets(targets: set, user: str) -> set:
+	authored = set()
+	for doctype in COUPON_TARGET_DOCTYPES:
+		names = [name for target_doctype, name in targets if target_doctype == doctype and name]
+		if names:
+			instructor = frappe.qb.DocType("Course Instructor")
+			rows = _taught(doctype, user).where(instructor.parent.isin(names)).run(pluck=True)
+			authored.update((doctype, name) for name in rows)
+	return authored
+
+
+def coupon_query_conditions(user=None) -> str:
+	"""List-read counterpart of :func:`coupon_has_permission`, as SQL. A coupon with
+	no items forms no group and is not listed -- the same fail-closed answer as above."""
+	user = user or frappe.session.user
+	if _unrestricted_coupon_access(user):
+		return ""
+
+	item = frappe.qb.DocType("LMS Coupon Item")
+	is_authored = (
+		Case()
+		.when(
+			(item.reference_doctype == "LMS Course") & item.reference_name.isin(_taught("LMS Course", user)),
+			1,
+		)
+		.when(
+			(item.reference_doctype == "LMS Batch") & item.reference_name.isin(_taught("LMS Batch", user)), 1
+		)
+		.else_(0)
+	)
+	authored_coupons = (
+		frappe.qb.from_(item)
+		.where(item.parenttype == "LMS Coupon")
+		.groupby(item.parent)
+		.having(fn.Count(item.name) == fn.Sum(is_authored))
+		.select(item.parent)
+	)
+	coupon = frappe.qb.DocType("LMS Coupon")
+	return _render(coupon.name.isin(authored_coupons))
 
 
 def resolve_lesson_access(lesson: str, *, user: str | None = None) -> tuple[bool, bool]:
