@@ -2,9 +2,7 @@
 # See license.txt
 import unittest
 
-import frappe
-
-from lms.widgets import Widget, Widgets
+from lms.widgets import Widgets
 
 
 class TestWidgets(unittest.TestCase):
@@ -12,7 +10,3 @@ class TestWidgets(unittest.TestCase):
 		widgets = Widgets()
 		assert widgets.Foo.name == "Foo"
 		assert widgets.Bar.name == "Bar"
-
-	def _test_Widget(self):
-		hello = Widget("HelloWorld")
-		assert hello(name="Test") == "Hello, Test"
