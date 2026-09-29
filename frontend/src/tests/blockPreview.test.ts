@@ -139,7 +139,8 @@ describe('assessment blocks in the lesson editor', () => {
 		expect(text).toContain('Weekly quiz')
 		expect(text).toContain('Multiple choice · 2 questions · pass at 70%')
 		expect(text).toContain('15 min')
-		expect(text).toContain('3 left')
+		expect(text).toContain('3 attempts allowed')
+		expect(text).not.toContain('left')
 		expect(wrapper.querySelector('table, [role="table"]')).toBeNull()
 		const start = Array.from(wrapper.querySelectorAll('button')).find(
 			(button) => button.textContent?.includes('Start Quiz')
