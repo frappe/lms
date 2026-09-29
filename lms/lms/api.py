@@ -1013,6 +1013,13 @@ def update_lesson_index(lesson: str, sourceChapter: str, targetChapter: str, idx
 	if not can_modify_course(course):
 		frappe.throw(_("You do not have permission to modify this lesson."), frappe.PermissionError)
 
+	if sourceChapter != targetChapter:
+		target_course = frappe.db.get_value("Course Chapter", targetChapter, "course")
+		if not target_course:
+			frappe.throw(_("Chapter {0} does not exist.").format(targetChapter), frappe.DoesNotExistError)
+		if not can_modify_course(target_course):
+			frappe.throw(_("You do not have permission to modify this lesson."), frappe.PermissionError)
+
 	hasMoved = sourceChapter == targetChapter
 	update_source_chapter(lesson, sourceChapter, idx, hasMoved)
 	if not hasMoved:
