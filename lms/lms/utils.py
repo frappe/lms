@@ -486,15 +486,92 @@ def get_courses_under_review():
 
 
 def validate_image(path: str) -> str:
-	if path and "/private" in path:
-		frappe.db.set_value(
-			"File",
-			{"file_url": path},
-			"is_private",
-			0,
+	"""Make the session user's own uploaded image public; leave anyone else's file private."""
+	if not path or "/private" not in path:
+		return path
+
+	own_files = [
+		row.name
+		for row in frappe.get_all(
+			"File", filters={"file_url": path, "owner": frappe.session.user}, fields=["name", "file_url"]
 		)
-		return path.replace("/private", "")
-	return path
+		if row.file_url == path
+	]
+	if not own_files:
+		return path
+
+	frappe.db.set_value("File", {"name": ["in", own_files]}, "is_private", 0)
+	return path.replace("/private", "")
+
+
+def get_attachable_files(file_urls: list[str], doc: Document, user: str) -> dict[str, "frappe._dict"]:
+	"""Each URL in `file_urls` mapped to the File row `user` may attach to `doc`, one query for all of them.
+
+	Eligible: attached to `doc` already, or unattached, owned by `user`, and `user` isn't Guest — that
+	owner match already implies read access (file.has_permission), so no per-row query is needed.
+	"""
+	urls = list(dict.fromkeys(file_urls))
+	if not urls:
+		return {}
+
+	rows = frappe.get_all(
+		"File",
+		filters={"file_url": ["in", urls]},
+		fields=["name", "file_url", "attached_to_doctype", "attached_to_name", "owner"],
+	)
+
+	resolved = {}
+	for file_url in urls:
+		# tabFile.file_url is case-insensitive, so the "in" filter can return rows for a
+		# different URL than the one requested; the exact match here is what decides.
+		candidates = [row for row in rows if row.file_url == file_url]
+
+		attached = next(
+			(
+				row
+				for row in candidates
+				if row.attached_to_doctype == doc.doctype and row.attached_to_name == doc.name
+			),
+			None,
+		)
+		if attached:
+			resolved[file_url] = attached
+			continue
+
+		candidate = next(
+			(
+				row
+				for row in candidates
+				if not row.attached_to_doctype
+				and not row.attached_to_name
+				and row.owner == user
+				and user != "Guest"
+			),
+			None,
+		)
+		if candidate:
+			resolved[file_url] = candidate
+
+	return resolved
+
+
+def get_attachable_file(file_url: str, doc: Document, user: str) -> "frappe._dict | None":
+	"""The File row at exactly `file_url` that `user` may attach to `doc`."""
+	return get_attachable_files([file_url], doc, user).get(file_url)
+
+
+def validate_attachable_file(doc: Document, fieldname: str) -> None:
+	"""Reject a private file URL in `fieldname` that the session user did not upload for `doc`."""
+	file_url = doc.get(fieldname)
+	if not (file_url or "").startswith("/private/") or not doc.has_value_changed(fieldname):
+		return
+	if not get_attachable_file(file_url, doc, frappe.session.user):
+		frappe.throw(
+			_("Please upload the file for {0} again. Only a file you uploaded can be attached.").format(
+				_(doc.meta.get_label(fieldname))
+			),
+			frappe.PermissionError,
+		)
 
 
 def handle_notifications(doc: Document, method: str):
