@@ -147,7 +147,11 @@
 						>
 							<span class="lucide-calendar size-3.5" />
 							{{ __('Opens') }}:
-							{{ formatScheduleDate(quiz.data.schedule_start) }}
+							{{
+								formatScheduleDate(
+									quiz.data.schedule_start_iso || quiz.data.schedule_start
+								)
+							}}
 						</span>
 						<span
 							v-if="quiz.data.schedule_end"
@@ -155,7 +159,11 @@
 						>
 							<span class="lucide-calendar-x size-3.5" />
 							{{ __('Closes') }}:
-							{{ formatScheduleDate(quiz.data.schedule_end) }}
+							{{
+								formatScheduleDate(
+									quiz.data.schedule_end_iso || quiz.data.schedule_end
+								)
+							}}
 						</span>
 					</div>
 
