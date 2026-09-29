@@ -1515,7 +1515,7 @@ def give_discussions_permission():
 				).save()
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def upsert_chapter(
 	title: str, course: str, is_scorm_package: bool, scorm_package: dict = None, name: str = None
 ):
@@ -1530,6 +1530,18 @@ def upsert_chapter(
 		frappe.throw(_("You do not have permission to modify this chapter."), frappe.PermissionError)
 
 	values = frappe._dict({"title": title, "course": course, "is_scorm_package": is_scorm_package})
+
+	if name:
+		chapter = frappe.get_doc("Course Chapter", name)
+	elif is_scorm_package:
+		# extract_package keys the extraction dir off this chapter's own docname
+		# (not its title, so two titles can't collide), which a fresh chapter needs
+		# first; the whole request rolls back if extraction throws below.
+		chapter = frappe.new_doc("Course Chapter")
+		chapter.update(values)
+		chapter.insert()
+	else:
+		chapter = None
 
 	if is_scorm_package:
 		scorm_package = frappe._dict(scorm_package or {})
@@ -1552,7 +1564,7 @@ def upsert_chapter(
 			values.update(stored)
 			values["scorm_package"] = None
 		else:
-			extract_path = extract_package(course, title, scorm_package)
+			extract_path = extract_package(course, chapter.name, scorm_package)
 			values.update(
 				{
 					"scorm_package": scorm_package.name,
@@ -1562,8 +1574,7 @@ def upsert_chapter(
 				}
 			)
 
-	if name:
-		chapter = frappe.get_doc("Course Chapter", name)
+	if chapter is not None:
 		chapter.update(values)
 		chapter.save()
 	else:
@@ -1571,6 +1582,7 @@ def upsert_chapter(
 		chapter.update(values)
 		chapter.save()
 
+	if not name:
 		# Link the new chapter into the outline here (was client-side frappe.client.insert in ChapterModal.vue, which didn't reliably persist on CI); keeps the Chapter Reference atomic with the chapter.
 		course_doc = frappe.get_doc("LMS Course", course)
 		course_doc.append("chapters", {"chapter": chapter.name})
@@ -1625,8 +1637,15 @@ def _scorm_extract_path(course: str, title: str) -> str:
 	if not course_root.startswith(scorm_root + os.sep):
 		frappe.throw(_("Invalid course or chapter name"))
 
-	# Must resolve strictly inside the course dir. A title of "."/""/"sub/.." collapses to course_root, whose rmtree would wipe every chapter.
-	extract_path = os.path.realpath(os.path.join(course_root, title))
+	# A "/" only joins segments; "", "." or ".." as one is a traversal attempt
+	# and must be rejected, not sanitised into something that merges two chapters.
+	segments = title.split("/")
+	if any(segment in ("", ".", "..") for segment in segments):
+		frappe.throw(_("Invalid course or chapter name"))
+
+	# Must resolve strictly inside the course dir; belt-and-suspenders against
+	# anything the segment check above didn't anticipate.
+	extract_path = os.path.realpath(os.path.join(course_root, "-".join(segments)))
 	if not extract_path.startswith(course_root + os.sep):
 		frappe.throw(_("Invalid course or chapter name"))
 
@@ -1638,24 +1657,35 @@ def extract_package(course: str, title: str, scorm_package: dict):
 	zip_path = package.get_full_path()
 	extract_path = _scorm_extract_path(course, title)
 
-	with zipfile.ZipFile(zip_path, "r") as zf:
-		validate_archive(zf)
+	# Extract to a sibling of the real dir and only swap it in once every check
+	# passes, so a rejected replacement never touches the chapter's working files.
+	tmp_path = f"{extract_path}.tmp-{frappe.generate_hash(length=8)}"
+	try:
+		with zipfile.ZipFile(zip_path, "r") as zf:
+			validate_archive(zf)
 
-		# Clear any previously extracted package so a re-upload doesn't leave stale files
-		# served (path confirmed under the course dir above). Only after validation, so a
-		# rejected replacement leaves the chapter serving its old extraction, not nothing.
+			dest = os.path.realpath(tmp_path)
+			for info in zf.infolist():
+				# Reject symlink entries outright: a symlink + a path through it could escape the course dir once materialised.
+				if stat.S_ISLNK(info.external_attr >> 16):
+					frappe.throw(_("Invalid file path in package"))
+				target = os.path.realpath(os.path.join(tmp_path, info.filename))
+				if not target.startswith(dest + os.sep) and target != dest:
+					frappe.throw(_("Invalid file path in package"))
+			zf.extractall(tmp_path)
+
+		# Resolve the manifest now, while a hostile/malformed one still leaves the
+		# chapter's existing package (at extract_path) untouched. A package with no
+		# manifest at all is unchanged behaviour: get_launch_file returns None for it.
+		get_launch_file(tmp_path)
+
 		if os.path.exists(extract_path):
 			shutil.rmtree(extract_path)
-
-		dest = os.path.realpath(extract_path)
-		for info in zf.infolist():
-			# Reject symlink entries outright: a symlink + a path through it could escape the course dir once materialised.
-			if stat.S_ISLNK(info.external_attr >> 16):
-				frappe.throw(_("Invalid file path in package"))
-			target = os.path.realpath(os.path.join(extract_path, info.filename))
-			if not target.startswith(dest + os.sep) and target != dest:
-				frappe.throw(_("Invalid file path in package"))
-		zf.extractall(extract_path)
+		shutil.move(tmp_path, extract_path)
+	except Exception:
+		if os.path.exists(tmp_path):
+			shutil.rmtree(tmp_path)
+		raise
 
 	return extract_path
 
@@ -1746,16 +1776,15 @@ def add_lesson(title: str, chapter: str, course: str, idx: int):
 
 @frappe.whitelist()
 def delete_chapter(chapter: str):
+	if not isinstance(chapter, str):
+		frappe.throw(_("chapter must be a string"))
+
 	course = frappe.db.get_value("Course Chapter", chapter, "course")
 	if not can_modify_course(course):
 		frappe.throw(_("You do not have permission to delete this chapter."), frappe.PermissionError)
 
-	chapterInfo = frappe.db.get_value(
-		"Course Chapter", chapter, ["is_scorm_package", "scorm_package_path"], as_dict=True
-	)
-
-	if chapterInfo.is_scorm_package:
-		delete_scorm_package(chapterInfo.scorm_package_path)
+	if frappe.db.get_value("Course Chapter", chapter, "is_scorm_package"):
+		delete_scorm_package(chapter)
 
 	course = frappe.db.get_value("Chapter Reference", {"chapter": chapter}, "parent")
 
@@ -1792,10 +1821,46 @@ def delete_chapter(chapter: str):
 			i += 1
 
 
-def delete_scorm_package(scorm_package_path: str):
-	scorm_package_path = frappe.get_site_path("public", scorm_package_path[1:])
-	if os.path.exists(scorm_package_path):
-		shutil.rmtree(scorm_package_path)
+def delete_scorm_package(chapter: str):
+	"""Remove the package this chapter extracted, and nothing else: scorm_package_path is a plain field any course writer can set."""
+	course, stored = frappe.db.get_value("Course Chapter", chapter, ["course", "scorm_package_path"])
+	if not stored:
+		return
+
+	# Packages extracted before 68e7b210e live under public/scorm, everything since under private/scorm.
+	dirs = {root: _scorm_package_dir(root, course, stored) for root in ("private", "public")}
+	if not any(dirs.values()):
+		return
+
+	# Compare resolved directories, not raw strings: "/scorm/C/Shared" and
+	# "/scorm/C/./Shared" name the same package but would not string-match.
+	sibling_paths = frappe.get_all(
+		"Course Chapter", filters={"course": course, "name": ["!=", chapter]}, pluck="scorm_package_path"
+	)
+	for sibling in sibling_paths:
+		if not sibling:
+			continue
+		sibling_dirs = {root: _scorm_package_dir(root, course, sibling) for root in dirs}
+		if any(package_dir and package_dir == sibling_dirs[root] for root, package_dir in dirs.items()):
+			return
+
+	for package_dir in dirs.values():
+		if package_dir and os.path.isdir(package_dir):
+			shutil.rmtree(package_dir)
+
+
+def _scorm_package_dir(root: str, course: str, stored: str) -> str | None:
+	"""The directory "/scorm/<course>/<title>" names under <site>/<root>/scorm, or None unless it is exactly one package of `course`."""
+	segments = [segment for segment in stored.strip("/").split("/") if segment not in ("", ".")]
+	if len(segments) != 3 or segments[0] != "scorm" or segments[1] != course:
+		return None
+
+	course_root = os.path.join(os.path.realpath(frappe.get_site_path(root, "scorm")), course)
+	package_dir = os.path.realpath(os.path.join(course_root, segments[2]))
+	# Checked after symlinks resolve, so neither segment can point the rmtree elsewhere.
+	if os.path.dirname(package_dir) != course_root:
+		return None
+	return package_dir
 
 
 @frappe.whitelist()
