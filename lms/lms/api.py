@@ -1008,14 +1008,23 @@ def create_lesson(chapter: str) -> str:
 
 @frappe.whitelist()
 def update_lesson_index(lesson: str, sourceChapter: str, targetChapter: str, idx: int):
-	course = frappe.db.get_value("Course Chapter", sourceChapter, "course")
-	if not can_modify_course(course):
+	source_course = frappe.db.get_value("Course Chapter", sourceChapter, "course")
+	if not can_modify_course(source_course):
 		frappe.throw(_("You do not have permission to modify this lesson."), frappe.PermissionError)
 
 	hasMoved = sourceChapter == targetChapter
+	target_course = source_course
+	if not hasMoved:
+		target_course = frappe.db.get_value("Course Chapter", targetChapter, "course")
+		if not can_modify_course(target_course):
+			frappe.throw(_("You do not have permission to modify this lesson."), frappe.PermissionError)
+
 	update_source_chapter(lesson, sourceChapter, idx, hasMoved)
 	if not hasMoved:
 		update_target_chapter(lesson, targetChapter, idx)
+		# The lesson's own chapter/course must follow it, or progress checks
+		# that read Course Lesson directly keep using the old course.
+		frappe.db.set_value("Course Lesson", lesson, {"chapter": targetChapter, "course": target_course})
 
 
 def update_source_chapter(lesson: str, chapter: str, idx: int, hasMoved: bool = False):
