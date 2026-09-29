@@ -10,6 +10,7 @@ from frappe.model.document import Document
 from frappe.utils import cint, format_date, format_time, get_datetime, nowdate
 
 from lms.lms.doctype.lms_batch.lms_batch import authenticate
+from lms.lms.permissions import can_author_batch
 
 
 class LMSLiveClass(Document):
@@ -253,11 +254,18 @@ def get_minutes(duration_in_seconds):
 def has_permission(doc, ptype="read", user=None):
 	user = user or frappe.session.user
 	roles = frappe.get_roles(user)
-	if "Moderator" in roles or "Batch Evaluator" in roles:
+	if "Moderator" in roles:
 		return True
 
 	if ptype not in ("read", "select", "print"):
-		return False
+		if not can_author_batch(doc.batch_name, user=user):
+			return False
+		# Authorise the stored batch too, or a submitted batch_name moves the class.
+		stored = None if doc.is_new() else frappe.db.get_value("LMS Live Class", doc.name, "batch_name")
+		return not stored or can_author_batch(stored, user=user)
+
+	if "Batch Evaluator" in roles:
+		return True
 
 	return frappe.db.exists(
 		"LMS Batch Enrollment",
