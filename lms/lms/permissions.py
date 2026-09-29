@@ -1030,6 +1030,76 @@ def _is_unrestricted(user: str) -> bool:
 	return is_site_administrator(user) or bool(has_moderator_role(user))
 
 
+# doctype -> (the assessment doctype it answers, the field naming it).
+SUBMISSION_ASSESSMENT_FIELDS = {
+	"LMS Quiz Submission": ("LMS Quiz", "quiz"),
+	"LMS Assignment Submission": ("LMS Assignment", "assignment"),
+	"LMS Programming Exercise Submission": ("LMS Programming Exercise", "exercise"),
+}
+
+
+def quiz_submission_query_conditions(user: str | None = None) -> str:
+	return _assessment_submission_query_conditions("LMS Quiz Submission", user)
+
+
+def assignment_submission_query_conditions(user: str | None = None) -> str:
+	return _assessment_submission_query_conditions("LMS Assignment Submission", user)
+
+
+def programming_exercise_submission_query_conditions(user: str | None = None) -> str:
+	return _assessment_submission_query_conditions("LMS Programming Exercise Submission", user)
+
+
+def _assessment_submission_query_conditions(doctype: str, user: str | None = None) -> str:
+	"""Own submissions, plus every submission of an assessment the caller administers.
+	administrable_assessment_names's own contract is a bare, pre-rendered ``select``,
+	nested here as a LiteralValue rather than re-derived through the query builder."""
+	assessment_doctype, field = SUBMISSION_ASSESSMENT_FIELDS[doctype]
+	user = user or frappe.session.user
+	if _is_unrestricted(user):
+		return ""
+	submission = frappe.qb.DocType(doctype)
+	member = LiteralValue(frappe.db.escape(user))
+	administrable = LiteralValue(f"({administrable_assessment_names(assessment_doctype, user)})")
+	condition = Bracket((submission.member == member) | getattr(submission, field).isin(administrable))
+	return _render(condition)
+
+
+def assessment_submission_has_permission(doc, ptype: str | None = None, user: str | None = None) -> bool:
+	"""Doc half of the submission pair: a submission belongs to its own member and to
+	whoever administers the assessment it answers.
+
+	Matches course_record_has_permission's stored-vs-submitted handling: `member`
+	must match in both the stored row and the value being saved, since reading only
+	the in-memory one would let a save claim someone else's row by naming them.
+	Administering requires both the stored assessment and the submitted one (when
+	the save repoints it), since reading only the submitted one would let a caller
+	borrow rights over an assessment they administer to reach a row that answers one
+	they do not.
+	"""
+	if doc is None or doc.get("__islocal") or not doc.get("name"):
+		return True
+	user = user or frappe.session.user
+	if _is_unrestricted(user):
+		return True
+	mapping = SUBMISSION_ASSESSMENT_FIELDS.get(doc.doctype)
+	if not mapping:
+		return False
+	assessment_doctype, field = mapping
+	stored = frappe.db.get_value(doc.doctype, doc.name, ["member", field], as_dict=True)
+	if not stored:
+		return False
+	if stored.member == user and doc.get("member") == user:
+		return True
+	name = stored.get(field)
+	moved_to = doc.get(field) if doc.get(field) != name else None
+	if name and all(
+		can_administer_assessment(assessment_doctype, n, user=user) for n in (name, moved_to) if n
+	):
+		return True
+	return False
+
+
 def _assessment_reach_condition(doctype: str, assessment, user: str, *, include_members: bool) -> Bracket:
 	"""The reach sentence as one bracketed OR. The administer reading shares this
 	builder with the access reading, just with the member branches left out, so
