@@ -285,8 +285,17 @@ class TestUpdateMetaInfo(BaseTestUtils):
 		cls.outsider = cls._create_user(
 			"meta-outsider@example.com", "Meta", "Outsider", ["Batch Evaluator", "Course Creator"]
 		)
+		# _create_batch defaults the batch course's evaluator to frappe@example.com,
+		# a Course Evaluator only a site with leftover fixtures has. Name one this
+		# class creates, so the link validates on a fresh site too.
+		cls._create_evaluator(cls.evaluator.email)
 		cls.course = cls._create_course(title="Meta Course", instructor=cls.evaluator.email)
-		cls.batch = cls._create_batch(cls.course.name, instructor=cls.evaluator.email, title="Meta Batch")
+		cls.batch = cls._create_batch(
+			cls.course.name,
+			instructor=cls.evaluator.email,
+			title="Meta Batch",
+			evaluator=cls.evaluator.email,
+		)
 
 	def tearDown(self):
 		frappe.set_user("Administrator")
