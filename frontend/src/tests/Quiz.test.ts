@@ -272,6 +272,19 @@ describe('Quiz in an author preview', () => {
 		resourceState.response = choicesQuizResponse(1)
 	})
 
+	// Guards the lesson-only "Preview only" badge leaking onto the quiz form.
+	// Came with this branch's quiz assessment card restyle.
+	// Added on feat/assessment-visual-redesign; the badge marks lesson embeds.
+	it('shows no Preview only badge on the authoring preview', async () => {
+		const wrapper = mountQuiz({ preview: true })
+		await flushPromises()
+
+		const header = wrapper.findComponent({ name: 'AssessmentCardHeader' })
+		expect(header.exists()).toBe(true)
+		expect(header.props('preview')).toBe(false)
+		wrapper.unmount()
+	})
+
 	// The quiz form's Preview mounts this as it ships, and the button is not the
 	// only way in: a timed quiz auto-submits and proctoring submits on a
 	// violation. That submission is real.

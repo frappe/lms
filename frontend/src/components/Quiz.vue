@@ -21,7 +21,6 @@
 				icon="lucide-circle-help"
 				:title="__('Quiz')"
 				:subtitle="quizSubtitle"
-				:preview="preview"
 			>
 				<Badge v-if="quiz.data.enable_proctoring" theme="amber" size="sm">
 					{{ __('Proctored') }}
@@ -30,12 +29,7 @@
 					v-if="attemptsLeft !== null"
 					class="hidden text-xs text-ink-gray-5 sm:inline"
 				>
-					{{
-						__('{0} {1} left').format(
-							attemptsLeft,
-							attemptsLeft == 1 ? __('attempt') : __('attempts')
-						)
-					}}
+					{{ attemptsLeftLabel(attemptsLeft) }}
 				</span>
 				<Badge
 					v-if="
@@ -97,42 +91,12 @@
 					<div class="text-base-semibold text-ink-gray-9">
 						{{ quiz.data.title }}
 					</div>
-					<dl
-						class="grid grid-cols-2 gap-px overflow-hidden rounded-6 border border-outline-gray-2 bg-surface-gray-3 sm:grid-cols-4"
-					>
-						<div class="space-y-0.5 bg-surface-base px-3 py-2">
-							<dt class="text-xs text-ink-gray-5">{{ __('Questions') }}</dt>
-							<dd class="text-base font-medium text-ink-gray-9">
-								{{ questions.length }}
-							</dd>
-						</div>
-						<div class="space-y-0.5 bg-surface-base px-3 py-2">
-							<dt class="text-xs text-ink-gray-5">{{ __('Time limit') }}</dt>
-							<dd class="text-base font-medium text-ink-gray-9">
-								{{
-									quiz.data.duration
-										? `${quiz.data.duration} ${__('min')}`
-										: __('None')
-								}}
-							</dd>
-						</div>
-						<div class="space-y-0.5 bg-surface-base px-3 py-2">
-							<dt class="text-xs text-ink-gray-5">{{ __('Pass mark') }}</dt>
-							<dd class="text-base font-medium text-ink-gray-9">
-								{{ quiz.data.passing_percentage || 0 }}%
-							</dd>
-						</div>
-						<div class="space-y-0.5 bg-surface-base px-3 py-2">
-							<dt class="text-xs text-ink-gray-5">{{ __('Attempts') }}</dt>
-							<dd class="text-base font-medium text-ink-gray-9">
-								{{
-									attemptsLeft !== null
-										? __('{0} left').format(attemptsLeft)
-										: __('Unlimited')
-								}}
-							</dd>
-						</div>
-					</dl>
+					<QuizStats
+						:questions="questions.length"
+						:duration="quiz.data.duration"
+						:passingPercentage="quiz.data.passing_percentage"
+						:attemptsLeft="attemptsLeft"
+					/>
 
 					<div
 						v-if="
@@ -432,14 +396,15 @@
 									{{ showAnswers[0] ? __('Correct') : __('Incorrect') }}
 								</FeedbackBanner>
 							</div>
-							<RichTextEditor
-								v-else
-								:content="possibleAnswer"
-								@change="(val) => (possibleAnswer = val)"
-								:editable="true"
-								:fixedMenu="true"
-								editorClass="prose-sm max-w-none border-b border-x border-outline-elevation-2 bg-surface-gray-2 rounded-b-5 py-1 px-2 min-h-[7rem]"
-							/>
+							<div v-else>
+								<RichTextEditor
+									:content="possibleAnswer"
+									@change="(val) => (possibleAnswer = val)"
+									:editable="true"
+									:fixedMenu="true"
+									editorClass="prose-sm max-w-none border-b border-x border-outline-elevation-2 bg-surface-gray-2 rounded-b-5 py-1 px-2 min-h-[7rem]"
+								/>
+							</div>
 
 							<div class="flex flex-wrap items-center gap-4 pt-2">
 								<div class="flex-1">
@@ -835,6 +800,8 @@ import AssessmentCard from '@/components/Assessment/AssessmentCard.vue'
 import AssessmentCardHeader from '@/components/Assessment/AssessmentCardHeader.vue'
 import OptionRow from '@/components/Assessment/OptionRow.vue'
 import FeedbackBanner from '@/components/Assessment/FeedbackBanner.vue'
+import QuizStats from '@/components/Assessment/QuizStats.vue'
+import { attemptsLeftLabel, formatQuizSubtitle } from '@/utils/quizSummary'
 import type {
 	AnswerVerdict,
 	QuizAttempt,
@@ -1063,23 +1030,12 @@ const attemptsLeft = computed(() => {
 	return Math.max(quiz.data.max_attempts - (attempts.data?.length ?? 0), 0)
 })
 
-const quizSubtitle = computed(() => {
-	const types = questions.value.map(
-		(row) => questionsByName.value[row.question]?.type
+const quizSubtitle = computed(() =>
+	formatQuizSubtitle(
+		questions.value.map((row) => questionsByName.value[row.question]?.type),
+		quiz.data?.passing_percentage
 	)
-	const parts: string[] = []
-	if (types.length && types.every((type) => type == 'Choices')) {
-		parts.push(__('Multiple choice'))
-	} else if (types.length && types.every((type) => type != 'Choices')) {
-		parts.push(__('Open ended'))
-	}
-	const count = questions.value.length
-	parts.push(`${count} ${count == 1 ? __('question') : __('questions')}`)
-	if (quiz.data?.passing_percentage) {
-		parts.push(__('pass at {0}%').format(quiz.data.passing_percentage))
-	}
-	return parts.join(' · ')
-})
+)
 
 const introTips = computed(() => {
 	if (!quiz.data) return []

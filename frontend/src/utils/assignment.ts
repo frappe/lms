@@ -6,7 +6,7 @@ import AssessmentPlugin from '@/components/AssessmentPlugin.vue'
 import translationPlugin from '../translation'
 import { call } from 'frappe-ui'
 import router from '@/router'
-import { mountBlock } from '@/utils/blockMount'
+import { mountBlock, mountPreview } from '@/utils/blockMount'
 import AssessmentBlock from '@/components/Assessment/AssessmentBlock.vue'
 import AssignmentCard from '@/components/Assignment.vue'
 
@@ -79,31 +79,21 @@ export class Assignment {
 				.catch(() => renderSubmission('new'))
 			return
 		}
-		this.mountSubmission(assignment, 'new', { preview: true })
+		this.app = mountPreview(this.wrapper, 'assignment', assignment)
 	}
 
-	mountSubmission(
-		assignment: string,
-		submissionName: string,
-		{ preview = false }: { preview?: boolean } = {}
-	): void {
-		this.app = mountBlock(
-			this.wrapper,
-			AssessmentBlock,
-			{
-				is: markRaw(AssignmentCard),
-				props: {
-					assignmentID: assignment,
-					submissionName,
-					showTitle: false,
-					preview,
-				},
-				// AssessmentBlock shadows $user for the card, which is how the
-				// card's instructor-only affordances stay hidden in Student View.
-				studentView: this.studentView,
+	mountSubmission(assignment: string, submissionName: string): void {
+		this.app = mountBlock(this.wrapper, AssessmentBlock, {
+			is: markRaw(AssignmentCard),
+			props: {
+				assignmentID: assignment,
+				submissionName,
+				showTitle: false,
 			},
-			{ preview }
-		)
+			// AssessmentBlock shadows $user for the card, which is how the
+			// card's instructor-only affordances stay hidden in Student View.
+			studentView: this.studentView,
+		})
 	}
 
 	destroy(): void {

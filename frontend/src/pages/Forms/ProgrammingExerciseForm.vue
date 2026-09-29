@@ -49,7 +49,7 @@
 			<div
 				v-if="previewing"
 				data-testid="programming-exercise-preview-pane"
-				class="h-[900px] w-full overflow-hidden rounded-5 border"
+				class="h-[900px] w-full"
 			>
 				<ProgrammingExerciseSubmission
 					:exerciseID="props.exerciseID"
@@ -64,15 +64,38 @@
 						:label="__('Problem Statement')"
 						:required="true"
 					/>
-					<RichTextEditor
-						:ariaLabelledby="problemStatementLabelId"
-						:ariaRequired="true"
-						:content="exercise.problem_statement"
-						@change="onProblemStatementChange"
-						:editable="true"
-						:fixedMenu="true"
-						menuClass="bg-surface-gray-2"
-						editorClass="prose-sm max-w-none border-b border-x border-outline-elevation-2 bg-surface-gray-2 rounded-b-5 py-2 px-3 min-h-[12rem]"
+					<div data-testid="programming-exercise-problem-statement">
+						<RichTextEditor
+							:ariaLabelledby="problemStatementLabelId"
+							:ariaRequired="true"
+							:content="exercise.problem_statement"
+							@change="onProblemStatementChange"
+							:editable="true"
+							:fixedMenu="true"
+							editorClass="prose-sm max-w-none border-b border-x border-outline-gray-2 hover:border-outline-gray-3 hover:shadow-sm focus-within:border-outline-gray-4 focus-within:shadow-sm rounded-b-5 py-1 px-2 min-h-[12rem] transition-colors"
+						/>
+					</div>
+				</div>
+				<div class="flex flex-col gap-1.5">
+					<InputLabel :id="starterCodeLabelId" :label="__('Starter Code')" />
+					<div
+						class="overflow-hidden rounded-5 border border-outline-gray-2"
+						data-testid="programming-exercise-starter-code"
+					>
+						<ExerciseCodeEditor
+							v-model="exercise.starter_code"
+							:language="exercise.language"
+							:label="__('Starter Code')"
+							contentClass="min-h-[24rem]"
+						/>
+					</div>
+					<InputDescription
+						:id="starterCodeDescriptionId"
+						:description="
+							__(
+								'Prefills the learner’s editor. Leave empty for the language default.'
+							)
+						"
 					/>
 				</div>
 				<div data-testid="programming-exercise-test-cases">
@@ -105,26 +128,13 @@
 				:options="languageOptions"
 				:required="true"
 			/>
-			<FormControl
-				v-model="exercise.starter_code"
-				type="textarea"
-				:rows="6"
-				variant="outline"
-				:label="__('Starter Code')"
-				:description="
-					__(
-						'Prefills the learner’s editor. Leave empty for the language default.'
-					)
-				"
-				class="font-mono"
-			/>
 		</div>
 	</div>
 </template>
 <script setup lang="ts">
 import { computed, inject, ref, shallowRef, useId, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { InputLabel } from 'frappe-ui/experimental'
+import { InputDescription, InputLabel } from 'frappe-ui/experimental'
 import { sanitizeOnWrite } from '@/utils/sanitizeOnWrite'
 import {
 	Badge,
@@ -137,6 +147,7 @@ import {
 import type { FrappeResourceError } from 'frappe-ui'
 import { ProgrammingExercise, TestCase } from '@/types'
 import ChildTable from '@/components/Controls/ChildTable.vue'
+import ExerciseCodeEditor from '@/components/ProgrammingExercises/ExerciseCodeEditor.vue'
 import HeaderButton from '@/components/HeaderButton.vue'
 import PageHeader from '@/components/Layouts/pages/PageHeader.vue'
 import ProgrammingExerciseSubmission from '@/pages/ProgrammingExercises/ProgrammingExerciseSubmission.vue'
@@ -151,6 +162,8 @@ import { resourceErrorMessage, submitResource } from '@/utils/resource'
 const user = inject<any>('$user')
 const router = useRouter()
 const problemStatementLabelId = useId()
+const starterCodeLabelId = useId()
+const starterCodeDescriptionId = useId()
 const previewing = ref(false)
 const committedTitle = ref('')
 const creating = ref(false)

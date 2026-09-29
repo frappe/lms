@@ -100,3 +100,63 @@ describe('ChildTable checkbox columns', () => {
 		expect(wrapper.findAll('input[type="checkbox"]')).toHaveLength(0)
 	})
 })
+
+// Guards the Hidden column taking an equal share of the test-case table, and
+// header and rows sizing max-content separately so the headings drift off the fields.
+// Added on feat/assessment-visual-redesign: one grid, rows on its subgrid.
+describe('ChildTable column widths', () => {
+	it('sizes a checkbox column to its label once for every row', () => {
+		const wrapper = mountTable({
+			modelValue: [{ input: '2 3', expected_output: '5', hidden: true }],
+			columns: ['Input', 'Expected Output', 'Hidden'],
+			checkboxKeys: ['hidden'],
+		})
+
+		const grid = wrapper.get('[data-testid="child-table-grid"]')
+		expect(grid.attributes('style')).toContain(
+			'grid-template-columns: minmax(8rem, 1fr) minmax(8rem, 1fr) max-content 2.25rem'
+		)
+		const rows = grid.element.querySelectorAll(':scope > div')
+		expect(rows).toHaveLength(2)
+		for (const row of Array.from(rows)) {
+			expect(row.classList.contains('grid-cols-subgrid')).toBe(true)
+			expect(row.hasAttribute('style')).toBe(false)
+		}
+		expect(rows[0].children[2].classList.contains('text-center')).toBe(true)
+	})
+})
+
+// Guards the test-case table reading as loose inputs and an unnamed "x" to screen
+// readers. Added on feat/assessment-visual-redesign with the remove-row tooltip.
+describe('ChildTable accessibility', () => {
+	it('exposes a table whose cells and remove buttons name their row', () => {
+		const wrapper = mountTable({
+			modelValue: [
+				{ input: '2 3', expected_output: '5', hidden: false },
+				{ input: '1 1', expected_output: '2', hidden: true },
+			],
+			columns: ['Input', 'Expected Output', 'Hidden'],
+			checkboxKeys: ['hidden'],
+		})
+
+		const table = wrapper.get('[role="table"]')
+		expect(table.findAll('[role="row"]')).toHaveLength(3)
+		expect(table.findAll('[role="columnheader"]')).toHaveLength(4)
+		expect(
+			table.findAll('[role="row"]')[2].findAll('[role="cell"]')
+		).toHaveLength(4)
+		expect(table.find('input[aria-label="Input, row 2"]').exists()).toBe(true)
+		expect(table.find('[aria-label="Expected Output, row 1"]').exists()).toBe(
+			true
+		)
+		expect(table.find('[aria-label="Hidden, row 2"]').exists()).toBe(true)
+
+		const remove = table.find('button[aria-label="Remove row 2"]')
+		expect(remove.exists()).toBe(true)
+		const tooltips = wrapper.findAllComponents({ name: 'Tooltip' })
+		expect(tooltips.map((t) => t.props('text'))).toEqual([
+			'Remove row',
+			'Remove row',
+		])
+	})
+})

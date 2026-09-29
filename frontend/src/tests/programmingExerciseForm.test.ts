@@ -311,6 +311,31 @@ describe('ProgrammingExerciseForm as a route', () => {
 		expect(fields.text()).toContain('Problem Statement')
 	})
 
+	// Guards the starter code clipping in a six-row sidebar textarea.
+	// Came with this branch's programming exercise authoring page.
+	// Added on feat/assessment-visual-redesign: the learner's code editor, tall.
+	it('edits the starter code in the code editor the learner uses', async () => {
+		createDocumentResourceMock.mockImplementation(
+			documentResourceStub({
+				name: 'EX-0001',
+				title: 'T',
+				language: 'Python',
+				starter_code: 'x = 1',
+				test_cases: [],
+			})
+		)
+		const router = makeRouter()
+		await router.push('/programming-exercises/edit/EX-0001')
+		const wrapper = await mountForm(router, moderator)
+
+		const field = wrapper.get(
+			'[data-testid="programming-exercise-starter-code"]'
+		)
+		const editor = field.get('[data-testid="exercise-code-editor"]')
+		expect(editor.classes()).toContain('min-h-[24rem]')
+		expect(field.find('textarea').exists()).toBe(false)
+	})
+
 	it('fetches its own record on a cold deep link into edit mode', async () => {
 		// C4 — edit mode used to be seeded from the list page's in-memory rows,
 		// which are empty when the route is opened cold.

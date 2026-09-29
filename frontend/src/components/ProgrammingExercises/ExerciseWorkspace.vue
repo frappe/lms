@@ -4,7 +4,6 @@
 			icon="lucide-code-xml"
 			:title="__('Programming Exercise')"
 			:subtitle="title"
-			:preview="preview"
 		>
 			<Button
 				variant="ghost"
@@ -122,7 +121,6 @@ const props = defineProps<{
 	running: boolean
 	canRun: boolean
 	saved: boolean
-	preview?: boolean
 }>()
 
 const emit = defineEmits<{
