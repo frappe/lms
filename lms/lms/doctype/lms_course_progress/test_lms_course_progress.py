@@ -7,24 +7,23 @@ from lms.lms.test_helpers import BaseTestUtils
 
 
 class TestLMSCourseProgress(BaseTestUtils):
-	def setUp(self):
-		super().setUp()
-		self.admin = self._create_user(
-			"frappe@example.com", "Frappe", "Admin", ["Moderator", "Course Creator"]
-		)
-		self.student = self._create_user("student@example.com", "Test", "Student", ["LMS Student"])
-		self.course = self._create_course()
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
+		cls.admin = cls._create_user("frappe@example.com", "Frappe", "Admin", ["Moderator", "Course Creator"])
+		cls.student = cls._create_user("student@example.com", "Test", "Student", ["LMS Student"])
+		cls.course = cls._create_course()
 
-		self.lessons = []
+		cls.lessons = []
 		for i in range(1, 3):
-			chapter = self._create_chapter(f"Chapter {i}", self.course.name)
-			self._create_chapter_reference(self.course.name, chapter.name, idx=i)
+			chapter = cls._create_chapter(f"Chapter {i}", cls.course.name)
+			cls._create_chapter_reference(cls.course.name, chapter.name, idx=i)
 			for j in range(1, 3):
-				lesson = self._create_lesson(f"Lesson {i}.{j}", chapter.name, self.course.name)
-				self._create_lesson_reference(chapter.name, lesson.name)
-				self.lessons.append(lesson)
+				lesson = cls._create_lesson(f"Lesson {i}.{j}", chapter.name, cls.course.name)
+				cls._create_lesson_reference(chapter.name, lesson.name)
+				cls.lessons.append(lesson)
 
-		self.enrollment = self._create_enrollment(self.student.email, self.course.name)
+		cls.enrollment = cls._create_enrollment(cls.student.email, cls.course.name)
 
 	def test_manual_progress_recalculates_enrollment(self):
 		"""Creating a course progress (desk) must update the enrollment progress"""

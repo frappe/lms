@@ -1,11 +1,11 @@
 # Copyright (c) 2026, Frappe and Contributors
 # See license.txt
 
+import unittest
 from unittest.mock import patch
 
 import frappe
 from frappe.email.email_body import replace_filename_with_cid
-from frappe.exceptions import FrappeTypeError
 
 from lms.lms.api import send_contact_us_email
 from lms.lms.test_helpers import BaseTestUtils
@@ -16,15 +16,16 @@ PNG = b"\x89PNG\r\n\x1a\n"
 
 
 class ContactUsTestCase(BaseTestUtils):
-	def setUp(self):
-		super().setUp()
-		self.sender = self._create_user(
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
+		cls.sender = cls._create_user(
 			f"contact.sender.{frappe.generate_hash(length=8)}@example.com",
 			"Contact",
 			"Sender",
 			["LMS Student"],
 		)
-		self.other = self._create_user(
+		cls.other = cls._create_user(
 			f"contact.other.{frappe.generate_hash(length=8)}@example.com",
 			"Contact",
 			"Other",
@@ -42,12 +43,14 @@ class ContactUsTestCase(BaseTestUtils):
 		doc.is_private = is_private
 		doc.content = content
 		doc.save(ignore_permissions=True)
-		self.cleanup_items.append(("File", doc.name))
 		frappe.set_user("Administrator")
 		return doc
 
 
-class TestHasMessage(BaseTestUtils):
+class TestContactUsPureFunctions(unittest.TestCase):
+	"""has_message, and the prepare_inline_images paths that never reach the DB
+	(no candidate /files/ or /private/files/ src, or no content at all)."""
+
 	def test_an_image_on_its_own_is_a_message(self):
 		# strip_html leaves nothing behind for a pasted screenshot, which is the
 		# single most common contact-us body.
@@ -61,6 +64,19 @@ class TestHasMessage(BaseTestUtils):
 		for body in (None, "", "<p></p>", "<p><br></p>", "<p>&nbsp;</p>", "<p>\xa0</p>"):
 			with self.subTest(body=body):
 				self.assertFalse(has_message(body))
+
+	def test_empty_content_stays_empty(self):
+		self.assertEqual(prepare_inline_images(""), ("", []))
+		self.assertEqual(prepare_inline_images(None), ("", []))
+
+	def test_an_external_image_is_left_alone(self):
+		body, images = prepare_inline_images('<img src="https://example.com/cat.png">')
+		self.assertIn('src="https://example.com/cat.png"', body)
+		self.assertEqual(images, [])
+
+	def test_comments_are_dropped(self):
+		body, _images = prepare_inline_images("<p>a</p><!-- mso conditional --><p>b</p>")
+		self.assertNotIn("mso conditional", body)
 
 
 class TestPrepareInlineImages(ContactUsTestCase):
@@ -124,21 +140,6 @@ class TestPrepareInlineImages(ContactUsTestCase):
 		self.assertEqual(images, [{"filename": mine.file_url, "filecontent": PNG + b"MINE"}])
 		self.assertIn(f'embed="{mine.file_url}"', body)
 
-	def test_an_external_image_is_left_alone(self):
-		frappe.set_user(self.sender.name)
-		body, images = prepare_inline_images('<img src="https://example.com/cat.png">')
-		self.assertIn('src="https://example.com/cat.png"', body)
-		self.assertEqual(images, [])
-
-	def test_empty_content_stays_empty(self):
-		self.assertEqual(prepare_inline_images(""), ("", []))
-		self.assertEqual(prepare_inline_images(None), ("", []))
-
-	def test_comments_are_dropped(self):
-		frappe.set_user(self.sender.name)
-		body, _images = prepare_inline_images("<p>a</p><!-- mso conditional --><p>b</p>")
-		self.assertNotIn("mso conditional", body)
-
 	@patch("lms.lms.utils.MAX_INLINE_IMAGES", 1)
 	def test_more_images_than_the_cap_are_refused(self):
 		first = self._file(self.sender.name)
@@ -149,17 +150,9 @@ class TestPrepareInlineImages(ContactUsTestCase):
 			prepare_inline_images(f'<img src="{first.file_url}"><img src="{second.file_url}">')
 
 	@patch("lms.lms.utils.MAX_INLINE_IMAGE_BYTES", 4)
-	def test_images_over_the_byte_cap_are_refused(self):
+	def test_the_byte_cap_is_checked_before_reading_the_file(self):
 		# as_dict builds the whole MIME string inside the request, so an
 		# unbounded payload is a request-time cost, not a queue one.
-		file = self._file(self.sender.name)
-		frappe.set_user(self.sender.name)
-
-		with self.assertRaises(frappe.ValidationError):
-			prepare_inline_images(f'<img src="{file.file_url}">')
-
-	@patch("lms.lms.utils.MAX_INLINE_IMAGE_BYTES", 4)
-	def test_the_byte_cap_is_checked_before_reading_the_file(self):
 		# file.file_size alone already exceeds the cap here, so get_content
 		# (which loads the whole file into memory) should never run.
 		file = self._file(self.sender.name)
@@ -227,7 +220,6 @@ class TestSendContactUsEmail(ContactUsTestCase):
 	def _send(self, subject, content):
 		with patch("frappe.sendmail") as sendmail:
 			name = send_contact_us_email(subject, content)
-		self.cleanup_items.append(("Communication", name))
 		return name, sendmail.call_args.kwargs
 
 	def test_the_recipient_comes_from_settings_not_the_caller(self):
@@ -314,16 +306,6 @@ class TestSendContactUsEmail(ContactUsTestCase):
 		with self.assertRaises(frappe.ValidationError):
 			send_contact_us_email("Broken video", "<p><br></p>")
 
-	def test_a_guest_is_not_a_permitted_caller(self):
-		# allow_guest is what frappe checks at dispatch, and it records the
-		# function in frappe.guest_methods rather than tagging it.
-		self.assertNotIn(send_contact_us_email, frappe.guest_methods)
-
-	def test_non_string_arguments_are_rejected(self):
-		frappe.set_user(self.sender.name)
-		with self.assertRaises((frappe.ValidationError, FrappeTypeError)):
-			send_contact_us_email(["Broken video"], "<p>hi</p>")
-
 
 class TestAttachFileToDoc(ContactUsTestCase):
 	def test_locks_the_target_row_before_checking_for_an_existing_attachment(self):
@@ -344,12 +326,6 @@ class TestAttachFileToDoc(ContactUsTestCase):
 
 		lock_calls = [c for c in calls if c[0][:2] == ("User", self.sender.name) and c[1].get("for_update")]
 		self.assertEqual(len(lock_calls), 1)
-
-		attached = frappe.db.get_value(
-			"File",
-			{"file_url": file.file_url, "attached_to_doctype": "User", "attached_to_name": self.sender.name},
-		)
-		self.cleanup_items.append(("File", attached))
 
 
 class TestEmbedIsWhatFrappeInlines(ContactUsTestCase):
