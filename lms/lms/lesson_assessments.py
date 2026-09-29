@@ -39,11 +39,24 @@ def lesson_assessment_rows(
 	"""One placement row per assessment this lesson embeds, ready to append. A
 	dangling reference is dropped: `assessment_name` is a Dynamic Link, so a row
 	naming a deleted assessment cannot be saved at all."""
+	placements = _placements(body, content, instructor_content)
+	existing = _existing_names(placements)
 	return [
 		{"assessment_type": doctype, "assessment_name": name, "instructor_only": instructor_only}
-		for (doctype, name), instructor_only in _placements(body, content, instructor_content).items()
-		if frappe.db.exists(doctype, name)
+		for (doctype, name), instructor_only in placements.items()
+		if name in existing.get(doctype, set())
 	]
+
+
+def _existing_names(placements: dict) -> dict[str, set]:
+	"""One query per doctype for every embedded assessment, not one per row."""
+	by_doctype: dict[str, set] = {}
+	for doctype, name in placements:
+		by_doctype.setdefault(doctype, set()).add(name)
+	return {
+		doctype: set(frappe.get_all(doctype, filters={"name": ("in", list(names))}, pluck="name"))
+		for doctype, names in by_doctype.items()
+	}
 
 
 def _placements(body, content, instructor_content) -> dict:
