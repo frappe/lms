@@ -282,26 +282,41 @@ class TestUpdateMetaInfo(BaseTestUtils):
 		cls.evaluator = cls._create_user(
 			"meta-evaluator@example.com", "Meta", "Evaluator", ["Batch Evaluator"]
 		)
-
-	def setUp(self):
-		super().setUp()
-		frappe.set_user(self.evaluator.email)
+		cls.outsider = cls._create_user(
+			"meta-outsider@example.com", "Meta", "Outsider", ["Batch Evaluator", "Course Creator"]
+		)
+		cls.course = cls._create_course(title="Meta Course", instructor=cls.evaluator.email)
+		cls.batch = cls._create_batch(cls.course.name, instructor=cls.evaluator.email, title="Meta Batch")
 
 	def tearDown(self):
 		frappe.set_user("Administrator")
 		super().tearDown()
 
-	def test_evaluator_can_create_batch_meta_tags(self):
-		route = f"meta-test-{frappe.generate_hash(length=6)}"
-		update_meta_info("batches", route, [{"key": "description", "value": "A batch"}])
+	def _description(self, parent):
+		return frappe.db.get_value("Website Meta Tag", {"parent": parent, "key": "description"}, "value")
 
-		self.assertEqual(
-			frappe.db.get_value(
-				"Website Meta Tag", {"parent": f"batches/{route}", "key": "description"}, "value"
-			),
-			"A batch",
-		)
+	def test_instructor_can_create_batch_meta_tags(self):
+		frappe.set_user(self.evaluator.email)
+		update_meta_info("batches", self.batch.name, [{"key": "description", "value": "A batch"}])
+		self.assertEqual(self._description(f"batches/{self.batch.name}"), "A batch")
+
+	def test_instructor_can_create_course_meta_tags(self):
+		frappe.set_user(self.evaluator.email)
+		update_meta_info("courses", self.course.name, [{"key": "description", "value": "A course"}])
+		self.assertEqual(self._description(f"courses/{self.course.name}"), "A course")
+
+	def test_rejects_batch_the_user_does_not_teach(self):
+		frappe.set_user(self.outsider.email)
+		with self.assertRaises(frappe.ValidationError):
+			update_meta_info("batches", self.batch.name, [{"key": "description", "value": "x"}])
+		self.assertIsNone(self._description(f"batches/{self.batch.name}"))
+
+	def test_rejects_course_the_user_does_not_teach(self):
+		frappe.set_user(self.outsider.email)
+		with self.assertRaises(frappe.ValidationError):
+			update_meta_info("courses", self.course.name, [{"key": "description", "value": "x"}])
 
 	def test_rejects_unknown_meta_type(self):
+		frappe.set_user(self.evaluator.email)
 		with self.assertRaises(frappe.ValidationError):
 			update_meta_info("about", "us", [{"key": "description", "value": "x"}])
