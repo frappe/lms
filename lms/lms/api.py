@@ -1515,7 +1515,10 @@ def give_discussions_permission():
 				).save()
 
 
-@frappe.whitelist()
+# Pinned to POST by .github/semgrep/security.yml's lms-mutating-whitelist-needs-post:
+# validate_csrf_token returns early on GET, and the SCORM extraction's writes to disk
+# outlive frappe's GET auto-rollback.
+@frappe.whitelist(methods=["POST"])
 def upsert_chapter(
 	title: str, course: str, is_scorm_package: bool, scorm_package: dict = None, name: str = None
 ):
