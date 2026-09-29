@@ -13,7 +13,6 @@
 				icon="lucide-notebook-pen"
 				:title="__('Assignment')"
 				:subtitle="assignment.data.title"
-				:preview="preview"
 			>
 				<ShortcutTooltip
 					v-if="
@@ -74,15 +73,10 @@
 						<div
 							v-if="showUploader() && canModifyAssignment && !scheduleBlocked"
 						>
-							<div
+							<AssignmentUploadPrompt
 								v-if="!attachment"
-								data-testid="assignment-dropzone"
-								class="flex flex-col items-center gap-2 rounded-5 border border-outline-gray-2 bg-surface-gray-1 px-4 py-5 text-center"
+								:type="assignment.data.type"
 							>
-								<span class="lucide-file-up size-5 text-ink-gray-5" />
-								<span class="text-base text-ink-gray-7">
-									{{ __('Upload Assignment') }}
-								</span>
 								<FileUploader
 									:fileTypes="getType()"
 									:private="true"
@@ -113,14 +107,7 @@
 										</Button>
 									</template>
 								</FileUploader>
-								<span class="text-xs text-ink-gray-5">
-									{{
-										__('You can only upload {0} files').format(
-											assignment.data.type
-										)
-									}}
-								</span>
-							</div>
+							</AssignmentUploadPrompt>
 							<div
 								v-else
 								data-testid="assignment-attachment"
@@ -305,6 +292,7 @@ import { InputLabel } from 'frappe-ui/experimental'
 import { computed, inject, ref, shallowRef, useId, watch } from 'vue'
 import AssessmentCard from '@/components/Assessment/AssessmentCard.vue'
 import AssessmentCardHeader from '@/components/Assessment/AssessmentCardHeader.vue'
+import AssignmentUploadPrompt from '@/components/Assessment/AssignmentUploadPrompt.vue'
 import ShortcutTooltip from '@/components/ShortcutTooltip.vue'
 import {
 	sameBlock,
@@ -361,14 +349,11 @@ const props = withDefaults(
 		showTitle?: boolean
 		// Mounted inline in a lesson: no navigation, no grading, natural height.
 		embedded?: boolean
-		// The lesson editor's preview: shown as the learner sees it, never saved.
-		preview?: boolean
 	}>(),
 	{
 		submissionName: 'new',
 		showTitle: true,
 		embedded: false,
-		preview: false,
 	}
 )
 
@@ -436,9 +421,6 @@ watch(
 const isSubmitting = ref(false)
 
 const submitAssignment = () => {
-	// A preview writes nothing, whichever way Save was reached; the lesson
-	// editor's own Mod+S shares this window.
-	if (props.preview) return
 	if (isSubmitting.value) return
 	if (scheduleBlocked.value && !canGradeSubmission.value) {
 		toast.error(scheduleMessage.value)

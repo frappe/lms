@@ -3,6 +3,8 @@ import type { App, Component } from 'vue'
 import { registerDirectives } from '@/directives'
 import { usersStore } from '@/stores/user'
 import translationPlugin from '@/translation'
+import AssessmentBlockPreview from '@/components/Assessment/AssessmentBlockPreview.vue'
+import type { PreviewKind } from '@/components/Assessment/AssessmentBlockPreview.vue'
 
 const ASSESSMENT_BLOCK_ATTRIBUTE = 'data-assessment-block'
 export const ASSESSMENT_BLOCK_SELECTOR = `[${ASSESSMENT_BLOCK_ATTRIBUTE}]`
@@ -16,20 +18,9 @@ let mountedBlocks = 0
 const markBlock = (el: HTMLElement, preview: boolean): void => {
 	el.setAttribute(ASSESSMENT_BLOCK_ATTRIBUTE, '')
 	el.classList.add('not-prose', 'my-5')
+	// An editor preview renders at full strength; `inert` keeps focus, clicks and
+	// shortcuts out of it.
 	el.toggleAttribute('inert', preview)
-}
-
-// An editor preview renders the block as the learner sees it, dimmed under an
-// overlay. `inert` on the wrapper keeps focus, clicks and shortcuts out of it.
-const previewHost = (el: HTMLElement): HTMLElement => {
-	el.classList.add('relative')
-	const host = document.createElement('div')
-	const overlay = document.createElement('div')
-	overlay.className = 'absolute inset-0 bg-surface-base opacity-50'
-	overlay.setAttribute('data-testid', 'block-preview-overlay')
-	overlay.setAttribute('aria-hidden', 'true')
-	el.replaceChildren(host, overlay)
-	return host
 }
 
 // EditorJS blocks render outside the lesson's Vue tree, so each is its own app
@@ -52,6 +43,15 @@ export function mountBlock(
 	app.config.errorHandler = (err: unknown) => {
 		console.error('[lms] in-lesson block failed to render', err)
 	}
-	app.mount(preview ? previewHost(el) : el)
+	app.mount(el)
 	return app
 }
+
+// The lesson editor shows a static summary of the block, not the learner's
+// component: no attempts, submissions or code runner to load.
+export const mountPreview = (
+	el: HTMLElement,
+	kind: PreviewKind,
+	name: string
+): App =>
+	mountBlock(el, AssessmentBlockPreview, { kind, name }, { preview: true })

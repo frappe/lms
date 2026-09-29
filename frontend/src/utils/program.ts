@@ -6,7 +6,7 @@ import translationPlugin from '@/translation'
 import ProgrammingExerciseModal from '@/components/Modals/ProgrammingExerciseModal.vue'
 import { call } from 'frappe-ui'
 import { usersStore } from '@/stores/user'
-import { mountBlock } from '@/utils/blockMount'
+import { mountBlock, mountPreview } from '@/utils/blockMount'
 import AssessmentBlock from '@/components/Assessment/AssessmentBlock.vue'
 import ProgrammingExerciseSubmission from '@/pages/ProgrammingExercises/ProgrammingExerciseSubmission.vue'
 
@@ -102,29 +102,19 @@ export class Program {
 				})
 			return
 		}
-		this.mountSubmission(exercise, 'new', { preview: true })
+		this.app = mountPreview(this.wrapper, 'exercise', exercise)
 	}
 
-	mountSubmission(
-		exercise: string,
-		submissionID: string,
-		{ preview = false }: { preview?: boolean } = {}
-	): void {
-		this.app = mountBlock(
-			this.wrapper,
-			AssessmentBlock,
-			{
-				is: markRaw(ProgrammingExerciseSubmission),
-				props: {
-					exerciseID: exercise,
-					submissionID,
-					studentView: this.studentView,
-					preview,
-				},
+	mountSubmission(exercise: string, submissionID: string): void {
+		this.app = mountBlock(this.wrapper, AssessmentBlock, {
+			is: markRaw(ProgrammingExerciseSubmission),
+			props: {
+				exerciseID: exercise,
+				submissionID,
 				studentView: this.studentView,
 			},
-			{ preview }
-		)
+			studentView: this.studentView,
+		})
 	}
 
 	destroy(): void {

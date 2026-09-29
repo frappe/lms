@@ -1,10 +1,12 @@
-// Guards assessment blocks in the lesson editor rendering as an inert preview.
+// Guards assessment blocks in the lesson editor rendering as a static summary card.
 // Came with this branch's lesson editor block preview (was a grey notice).
-// Added on feat/assessment-visual-redesign so nothing is submitted from it.
+// Added on feat/assessment-visual-redesign so the editor loads no learner component.
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { App } from 'vue'
 
-const { calls, received, recorder } = vi.hoisted(() => {
+type Call = { method: string; args: Record<string, unknown> }
+
+const { calls, received, recorder, responses, hold } = vi.hoisted(() => {
 	const received: Record<string, Record<string, unknown>> = {}
 	// Records the props it was mounted with, as attrs, and renders a marker.
 	const recorder = (name: string) => ({
@@ -16,18 +18,24 @@ const { calls, received, recorder } = vi.hoisted(() => {
 		template: `<div data-testid="${name}" />`,
 	})
 	return {
-		calls: [] as string[],
+		calls: [] as Call[],
 		received,
 		recorder,
+		responses: {} as Record<string, unknown>,
+		hold: { pending: false },
 	}
 })
 
-vi.mock('frappe-ui', () => ({
-	call: (method: string) => {
-		calls.push(method)
-		return Promise.resolve({ title: 'Weekly essay', name: null })
+vi.mock('frappe-ui', async (importOriginal) => ({
+	...(await importOriginal<typeof import('frappe-ui')>()),
+	call: (method: string, args: Record<string, unknown>) => {
+		calls.push({ method, args })
+		if (hold.pending) return new Promise(() => {})
+		const doc = responses[String(args?.doctype)]
+		return doc === 'missing'
+			? Promise.reject(new Error('DoesNotExistError'))
+			: Promise.resolve(doc ?? null)
 	},
-	toast: {},
 }))
 vi.mock('@/stores/user', () => ({
 	usersStore: () => ({
@@ -66,10 +74,41 @@ const renderInEditor = async (tool: Tool) => {
 	return wrapper
 }
 
+const quizTool = () =>
+	new Quiz({ data: { quiz: 'weekly-quiz' }, readOnly: false })
+const assignmentTool = () =>
+	new Assignment({ data: { assignment: 'ASG-1' }, readOnly: false })
+const exerciseTool = () =>
+	new Program({ data: { exercise: 'EX-1' }, api: {}, readOnly: false })
+
 beforeEach(() => {
 	Object.assign(window, { translatedMessages: {} })
 	calls.length = 0
+	hold.pending = false
 	for (const key of Object.keys(received)) delete received[key]
+	Object.assign(responses, {
+		'LMS Quiz': {
+			name: 'weekly-quiz',
+			title: 'Weekly quiz',
+			duration: '15',
+			passing_percentage: 70,
+			max_attempts: 3,
+			questions: [
+				{ question: 'Q-1', type: 'Choices' },
+				{ question: 'Q-2', type: 'Choices' },
+			],
+		},
+		'LMS Assignment': {
+			title: 'Weekly essay',
+			question: '<p>Write about your week.</p>',
+			type: 'PDF',
+		},
+		'LMS Programming Exercise': {
+			title: 'FizzBuzz',
+			problem_statement: '<p>Print the numbers.</p>',
+			language: 'Python',
+		},
+	})
 })
 
 afterEach(() => {
@@ -81,59 +120,114 @@ afterEach(() => {
 const expectPreview = (wrapper: HTMLDivElement) => {
 	expect(wrapper.hasAttribute('inert')).toBe(true)
 	expect(wrapper.hasAttribute('data-assessment-block')).toBe(true)
-	const overlay = wrapper.querySelector('[data-testid="block-preview-overlay"]')
-	expect(overlay?.className).toBe('absolute inset-0 bg-surface-base opacity-50')
-	expect(wrapper.classList.contains('relative')).toBe(true)
+	expect(wrapper.textContent).toContain('Preview only')
+	expect(Object.keys(received)).toEqual([])
 }
 
 describe('assessment blocks in the lesson editor', () => {
-	it('previews the quiz itself', async () => {
-		const wrapper = await renderInEditor(
-			new Quiz({ data: { quiz: 'weekly-quiz' }, readOnly: false })
-		)
+	it('summarises the quiz from one read of the quiz itself', async () => {
+		const wrapper = await renderInEditor(quizTool())
 
 		expectPreview(wrapper)
-		expect(received.quiz).toMatchObject({ quiz: 'weekly-quiz', preview: true })
+		expect(calls).toEqual([
+			{
+				method: 'frappe.client.get',
+				args: { doctype: 'LMS Quiz', name: 'weekly-quiz' },
+			},
+		])
+		const text = wrapper.textContent ?? ''
+		expect(text).toContain('Weekly quiz')
+		expect(text).toContain('Multiple choice · 2 questions · pass at 70%')
+		expect(text).toContain('15 min')
+		expect(text).toContain('3 left')
+		expect(wrapper.querySelector('table, [role="table"]')).toBeNull()
+		const start = Array.from(wrapper.querySelectorAll('button')).find(
+			(button) => button.textContent?.includes('Start Quiz')
+		)
+		expect(start?.disabled).toBe(true)
 	})
 
-	it('previews the assignment itself, with no submission lookup', async () => {
-		const wrapper = await renderInEditor(
-			new Assignment({ data: { assignment: 'ASG-1' }, readOnly: false })
-		)
-
-		expectPreview(wrapper)
-		expect(received.assignment).toMatchObject({
-			assignmentID: 'ASG-1',
-			submissionName: 'new',
-			preview: true,
-			embedded: true,
+	it('counts only the questions a shuffled, limited quiz serves', async () => {
+		Object.assign(responses['LMS Quiz'] as object, {
+			shuffle_questions: 1,
+			limit_questions_to: 1,
 		})
-		expect(calls).not.toContain('lms.lms.api.get_own_assignment_submission')
+		const wrapper = await renderInEditor(quizTool())
+
+		expect(wrapper.textContent).toContain('1 question')
 	})
 
-	it('previews the programming exercise itself, with no submission lookup', async () => {
-		const wrapper = await renderInEditor(
-			new Program({
-				data: { exercise: 'EX-1' },
-				api: {},
-				readOnly: false,
-			})
-		)
+	it('summarises the assignment without a submission lookup', async () => {
+		const wrapper = await renderInEditor(assignmentTool())
 
 		expectPreview(wrapper)
-		expect(received.exercise).toMatchObject({
-			exerciseID: 'EX-1',
-			submissionID: 'new',
-			preview: true,
-			embedded: true,
-		})
-		expect(calls).toEqual([])
+		expect(calls).toEqual([
+			{
+				method: 'frappe.client.get_value',
+				args: {
+					doctype: 'LMS Assignment',
+					filters: { name: 'ASG-1' },
+					fieldname: ['title', 'question', 'type'],
+				},
+			},
+		])
+		expect(wrapper.textContent).toContain('Write about your week.')
+		expect(wrapper.textContent).toContain('You can only upload PDF files')
+		expect(
+			wrapper.querySelector<HTMLButtonElement>(
+				'[data-testid="assignment-dropzone"] button'
+			)?.disabled
+		).toBe(true)
+	})
+
+	it('summarises the exercise without its test cases or the code runner', async () => {
+		const wrapper = await renderInEditor(exerciseTool())
+
+		expectPreview(wrapper)
+		expect(calls).toEqual([
+			{
+				method: 'frappe.client.get_value',
+				args: {
+					doctype: 'LMS Programming Exercise',
+					filters: { name: 'EX-1' },
+					fieldname: ['title', 'problem_statement', 'language'],
+				},
+			},
+		])
+		expect(wrapper.textContent).toContain('Print the numbers.')
+		expect(
+			wrapper.querySelector('[data-testid="block-preview-language"]')
+				?.textContent
+		).toContain('Python')
+		expect(document.querySelector('script[src*="livecode"]')).toBeNull()
+	})
+
+	it('shows a skeleton while the read is in flight', async () => {
+		hold.pending = true
+		for (const tool of [quizTool(), assignmentTool(), exerciseTool()]) {
+			const wrapper = await renderInEditor(tool)
+			expect(
+				wrapper.querySelector('[data-testid="block-preview-skeleton"]')
+			).not.toBeNull()
+			expect(wrapper.textContent).toContain('Preview only')
+		}
+	})
+
+	it('says so when the record is gone', async () => {
+		responses['LMS Quiz'] = 'missing'
+		responses['LMS Assignment'] = null
+		for (const tool of [quizTool(), assignmentTool()]) {
+			const wrapper = await renderInEditor(tool)
+			expect(
+				wrapper.querySelector('[data-testid="block-preview-missing"]')
+			).not.toBeNull()
+		}
 	})
 })
 
-// Guards the preview overlay staying hidden from assistive tech.
+// Guards the editor preview rendering the block undimmed but unreachable.
 // Came with this branch's lesson editor block preview.
-// Added on feat/assessment-visual-redesign next to the per-block previews.
+// Added on feat/assessment-visual-redesign after the dimming overlay was dropped.
 describe('mountBlock in preview', () => {
 	let app: App | null = null
 
@@ -142,13 +236,12 @@ describe('mountBlock in preview', () => {
 		app = null
 	})
 
-	it('keeps the block content under an overlay the reader cannot reach', () => {
+	it('renders the block undimmed inside an inert wrapper', () => {
 		const host = document.createElement('div')
 		document.body.append(host)
 		app = mountBlock(host, recorder('probe'), {}, { preview: true })
 
-		expect(host.querySelector('[data-testid="probe"]')).not.toBeNull()
-		const overlay = host.querySelector('[data-testid="block-preview-overlay"]')
-		expect(overlay?.getAttribute('aria-hidden')).toBe('true')
+		expect(host.querySelector(':scope > [data-testid="probe"]')).not.toBeNull()
+		expect(host.hasAttribute('inert')).toBe(true)
 	})
 })

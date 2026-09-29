@@ -17,6 +17,8 @@ export interface QuizQuestionRow {
 	name?: string
 	question: string
 	marks?: number
+	// Copied from the question when the quiz is saved.
+	type?: QuizQuestionType
 }
 
 export interface QuizDetails {

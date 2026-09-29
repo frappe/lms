@@ -6,7 +6,7 @@ import type { App } from 'vue'
 import translationPlugin from '../translation'
 import { CircleHelp } from 'lucide-vue-next'
 import router from '@/router'
-import { mountBlock } from '@/utils/blockMount'
+import { mountBlock, mountPreview } from '@/utils/blockMount'
 
 type QuizData = { quiz?: string }
 
@@ -52,13 +52,9 @@ export class Quiz {
 	}
 
 	renderQuiz(quiz: string): void {
-		const preview = !this.readOnly
-		this.quizApp = mountBlock(
-			this.wrapper,
-			QuizBlock,
-			{ quiz, preview },
-			{ preview }
-		)
+		this.quizApp = this.readOnly
+			? mountBlock(this.wrapper, QuizBlock, { quiz })
+			: mountPreview(this.wrapper, 'quiz', quiz)
 	}
 
 	// Tear down the inline quiz app when EditorJS removes the block so the mount

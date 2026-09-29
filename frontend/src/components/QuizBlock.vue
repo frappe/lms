@@ -1,5 +1,5 @@
 <template>
-	<Quiz v-if="user.data" :quizName="quiz" :preview="preview"></Quiz>
+	<Quiz v-if="user.data" :quizName="quiz"></Quiz>
 	<div v-else class="border rounded-5 text-center py-20">
 		<div>
 			{{ __('Please login to access the quiz.') }}
@@ -19,13 +19,9 @@ import type { SessionUser } from '@/types'
 
 const user = inject<SessionUser>('$user')!
 
-withDefaults(
-	defineProps<{
-		quiz: string
-		preview?: boolean
-	}>(),
-	{ preview: false }
-)
+defineProps<{
+	quiz: string
+}>()
 
 const redirectToLogin = (): void => {
 	window.location.href = `/login`
