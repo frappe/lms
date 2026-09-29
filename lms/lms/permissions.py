@@ -496,83 +496,10 @@ def resolve_lesson_course(lesson: str) -> str | None:
 
 
 def can_access_quiz(quiz: str, *, user: str | None = None) -> bool:
-	"""Single source of truth for who may read a quiz's questions/answers.
-
-	Access is granted to:
-	- global moderators and the quiz's own author (so an unlinked/newly-created quiz
-	  can still be edited before it is embedded anywhere),
-	- course authors / moderators of any course the quiz belongs to, plus enrolled
-	  members of that course,
-	- batch instructors / enrolled members of any batch whose assessment references it.
-
-	A quiz's owning course/lesson is read from LMS Quiz.course / LMS Quiz.lesson (set
-	automatically by Course Lesson.save_lesson_details_in_quiz when the quiz is embedded
-	in a lesson). Course Lesson.quiz_id is also honoured for lessons that set it manually.
-	"""
-	if not isinstance(quiz, str) or not quiz:
-		return False
-
-	quiz_row = frappe.db.get_value("LMS Quiz", quiz, ["course", "lesson", "owner"], as_dict=True)
-	if not quiz_row:
-		return False
-
-	original_user = frappe.session.user
-	user = user or original_user
-	try:
-		# The can_modify_* / get_membership helpers read session.user.
-		frappe.session.user = user
-
-		# Global admins and the quiz author may always reach it, even when unlinked.
-		if has_moderator_role(user) or quiz_row.owner == user:
-			return True
-
-		# Courses the quiz belongs to: the authoritative LMS Quiz.course link plus any
-		# lesson that references it via the manually-set quiz_id field. The owning
-		# lesson travels with the course so a sequential course can gate the quiz on
-		# the same rule as the lesson that embeds it — the quiz id is a bearer handle,
-		# so withholding it from the outline would not revoke it from a student who
-		# already saw it while the setting was off.
-		# Grouped by course, not held as flat (course, lesson) pairs: every check below
-		# except the last is course-level, and a quiz embedded in several lessons of one
-		# course would otherwise repeat the membership read and the whole lock chain per
-		# lesson for a set that cannot differ between them.
-		placements = {}
-		if quiz_row.course:
-			placements.setdefault(quiz_row.course, set()).add(quiz_row.lesson)
-		for row in frappe.get_all("Course Lesson", filters={"quiz_id": quiz}, fields=["course", "name"]):
-			if row.course:
-				placements.setdefault(row.course, set()).add(row.name)
-		for course, lessons in placements.items():
-			if can_modify_course(course):
-				return True
-			if not get_membership(course, user):
-				continue
-			locked = get_locked_lessons(course)
-			if not locked:
-				return True
-			# Under the gate a placement with no owning lesson cannot be checked against
-			# the lock set at all: cleanup_lesson_backreferences clears LMS Quiz.lesson
-			# and leaves .course standing, and `None not in locked` is true of every
-			# course, so such a placement used to grant any enrolled member access to a
-			# quiz whose lesson is still locked. It grants nothing now.
-			if any(lesson and lesson not in locked for lesson in lessons):
-				return True
-
-		assessment_batches = frappe.get_all(
-			"LMS Assessment",
-			filters={"assessment_type": "LMS Quiz", "assessment_name": quiz},
-			pluck="parent",
-		)
-		for batch in assessment_batches:
-			if batch and (
-				can_modify_batch(batch)
-				or frappe.db.exists("LMS Batch Enrollment", {"batch": batch, "member": user})
-			):
-				return True
-
-		return False
-	finally:
-		frappe.session.user = original_user
+	"""Who may read a quiz's questions and answers, for the two whitelisted endpoints.
+	Delegates to can_access_assessment so the endpoint and the has_permission hook
+	share one reading; kept as a name since lms_quiz.py and utils.py still call it."""
+	return can_access_assessment("LMS Quiz", quiz, user=user)
 
 
 def enforces_lesson_completion(course: str) -> bool:

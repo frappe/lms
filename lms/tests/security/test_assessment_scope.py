@@ -105,10 +105,10 @@ class TestAssessmentPlacementAccess(BaseTestUtils):
 		self.assertTrue(can_access_assessment("LMS Quiz", self.quiz.name, user=self.member.name))
 		self.assertFalse(can_access_assessment("LMS Quiz", self.quiz.name, user=self.outsider.name))
 
-	def test_the_old_quiz_gate_reads_one_placement_where_the_table_holds_many(self):
-		"""`can_access_quiz` is the develop-era gate, deliberately left alone here: its
-		`LMS Quiz.course` Link holds one course and the last lesson saved wins, while
-		the placement table holds one row per placement and has no winner."""
+	def test_the_quiz_endpoints_read_every_placement_the_table_holds(self):
+		"""`LMS Quiz.course` holds one value for a quiz that can sit in many courses,
+		with the last lesson saved winning. can_access_quiz now delegates to
+		can_access_assessment, which reads the placement table instead."""
 		other_course = self._create_course(
 			title=f"Second Gate {self.course.name}", instructor=self.author.name
 		)
@@ -122,12 +122,12 @@ class TestAssessmentPlacementAccess(BaseTestUtils):
 		)
 
 		self.assertTrue(can_access_assessment("LMS Quiz", self.quiz.name, user=self.instructor.name))
-		self.assertFalse(can_access_quiz(self.quiz.name, user=self.instructor.name))
+		self.assertTrue(can_access_quiz(self.quiz.name, user=self.instructor.name))
 
-	def test_the_old_quiz_gate_grants_an_instructor_only_quiz_this_one_refuses(self):
-		"""A live bug on develop, pinned rather than fixed here: `validate_quiz_id` stamps
-		`LMS Quiz.course` from `instructor_content` too, so `can_access_quiz` reads that
-		stamp as a student placement while `can_access_assessment` reads it as author-only."""
+	def test_the_quiz_endpoints_refuse_an_instructor_only_quiz(self):
+		"""`validate_quiz_id` stamps `LMS Quiz.course` from `instructor_content` too, so
+		every enrolled member used to reach a quiz embedded only in instructor notes.
+		can_access_assessment reads that stamp as author-only; the endpoints now agree."""
 		self._place_in_lesson(self.course.name, "LMS Quiz", self.quiz.name, instructor_only=True)
 		self.assertEqual(
 			frappe.db.get_value("LMS Quiz", self.quiz.name, "course"),
@@ -135,7 +135,7 @@ class TestAssessmentPlacementAccess(BaseTestUtils):
 			"the instructor-only save did not stamp the quiz, so this measures nothing",
 		)
 		self.assertFalse(can_access_assessment("LMS Quiz", self.quiz.name, user=self.member.name))
-		self.assertTrue(can_access_quiz(self.quiz.name, user=self.member.name))
+		self.assertFalse(can_access_quiz(self.quiz.name, user=self.member.name))
 
 	def test_an_assignment_placement_grants_an_enrolled_member(self):
 		self._place_in_lesson(self.course.name, "LMS Assignment", self.assignment.name)
