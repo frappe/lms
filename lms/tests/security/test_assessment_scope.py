@@ -57,6 +57,7 @@ class TestAssessmentPlacementAccess(BaseTestUtils):
 		self.assignment = self._create_assignment(title=f"Placement Assignment {suffix}")
 		self.exercise = self._create_programming_exercise(title=f"Placement Exercise {suffix}")
 		frappe.db.set_value("LMS Quiz", self.quiz.name, "owner", self.author.name)
+		self._set_authors("LMS Quiz", self.quiz.name, [self.author.name])
 		self._create_enrollment(self.member.name, self.course.name)
 
 	def tearDown(self):
@@ -80,6 +81,38 @@ class TestAssessmentPlacementAccess(BaseTestUtils):
 		self.assertTrue(can_access_assessment("LMS Quiz", self.quiz.name, user="Administrator"))
 		self.assertFalse(can_access_assessment("LMS Quiz", self.quiz.name, user=self.member.name))
 		self.assertFalse(can_access_assessment("LMS Quiz", self.quiz.name, user=self.instructor.name))
+
+	def test_a_handed_over_assessment_denies_its_original_owner(self):
+		"""`authors` is the record of who administers a row today; `owner` is only the
+		insert stamp. The owner fallback applies only when `authors` is empty, so once
+		the row is handed to somebody else the previous author loses it with it."""
+		successor = self._create_user(
+			f"aps-successor-{frappe.generate_hash(length=6)}@example.com",
+			"Sue",
+			"Successor",
+			["Course Creator"],
+		)
+		self._set_authors("LMS Quiz", self.quiz.name, [successor.name])
+		self.assertEqual(
+			frappe.db.get_value("LMS Quiz", self.quiz.name, "owner"),
+			self.author.name,
+			"the owner stamp changed, so this fixture no longer measures a handover",
+		)
+		self.assertFalse(can_access_assessment("LMS Quiz", self.quiz.name, user=self.author.name))
+		self.assertTrue(can_access_assessment("LMS Quiz", self.quiz.name, user=successor.name))
+
+	def test_an_unplaced_co_author_reaches_the_assessment(self):
+		"""A second name in `authors` is not a placement; it grants exactly the way a
+		sole author does."""
+		co_author = self._create_user(
+			f"aps-coauthor-{frappe.generate_hash(length=6)}@example.com",
+			"Cody",
+			"CoAuthor",
+			["Course Creator"],
+		)
+		self._set_authors("LMS Quiz", self.quiz.name, [self.author.name, co_author.name])
+		self.assertTrue(can_access_assessment("LMS Quiz", self.quiz.name, user=co_author.name))
+		self.assertFalse(can_access_assessment("LMS Quiz", self.quiz.name, user=self.outsider.name))
 
 	def test_a_system_manager_reaches_every_assessment(self):
 		"""The DocPerm every one of these doctypes grants System Manager; the predicate
@@ -424,6 +457,7 @@ class TestAssessmentListScope(BaseTestUtils):
 		self.assignment = self._create_assignment(title=f"List Assignment {self.suffix}")
 		self.exercise = self._create_programming_exercise(title=f"List Exercise {self.suffix}")
 		frappe.db.set_value("LMS Quiz", self.quiz.name, "owner", self.author.name)
+		self._set_authors("LMS Quiz", self.quiz.name, [self.author.name])
 		self._create_enrollment(self.member.name, self.course.name)
 
 	def tearDown(self):
@@ -725,6 +759,7 @@ class TestAssessmentAdministerScope(BaseTestUtils):
 		self.quiz = self._create_quiz(self.questions, title=f"Administer Quiz {self.suffix}")
 		self.assignment = self._create_assignment(title=f"Administer Assignment {self.suffix}")
 		frappe.db.set_value("LMS Quiz", self.quiz.name, "owner", self.author.name)
+		self._set_authors("LMS Quiz", self.quiz.name, [self.author.name])
 		self._create_enrollment(self.member.name, self.course.name)
 		self._place_in_lesson(self.course.name, "LMS Quiz", self.quiz.name)
 		self._place_in_lesson(self.course.name, "LMS Assignment", self.assignment.name)
@@ -834,7 +869,7 @@ class TestAssessmentAdministerScope(BaseTestUtils):
 		`in (...)` where it would mean "no restriction" at the top of a condition."""
 		self.assertFalse(can_administer_assessment("LMS Course", self.course.name, user="Administrator"))
 		self.assertEqual(administrable_assessment_names("LMS Course", "Administrator"), NO_ASSESSMENT_NAMES)
-		self.assertEqual(frappe.db.sql(f"select 1 where exists ({NO_ASSESSMENT_NAMES})"), ())
+		self.assertEqual(names_matching_subquery("LMS Quiz", NO_ASSESSMENT_NAMES, self.quiz.name), [])
 
 	def test_a_name_that_is_not_a_string_is_refused(self):
 		"""get_value's second argument is `filters`, so a mapping would be matched
