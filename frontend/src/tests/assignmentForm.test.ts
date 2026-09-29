@@ -118,6 +118,9 @@ vi.mock('@/components/Controls/Link.vue', () => ({
 		template: `<label>{{ label }}<input data-testid="assignment-course" :value="modelValue" /></label>`,
 	},
 }))
+vi.mock('@/components/Controls/BooleanSwitch.vue', () => ({
+	default: { props: ['modelValue', 'label'], template: `<div />` },
+}))
 
 import AssignmentForm from '@/pages/Forms/AssignmentForm.vue'
 
@@ -185,6 +188,9 @@ const RECORD = {
 	type: 'Text',
 	question: '<p>Why?</p>',
 	course: 'COURSE-1',
+	enable_scheduling: 0,
+	schedule_start: null,
+	schedule_end: null,
 }
 
 const inputs = (wrapper: any) =>
@@ -350,6 +356,9 @@ describe('AssignmentForm as a route', () => {
 				type: '',
 				question: '',
 				course: '',
+				enable_scheduling: 0,
+				schedule_start: null,
+				schedule_end: null,
 			},
 		})
 	})
@@ -370,6 +379,9 @@ describe('AssignmentForm as a route', () => {
 			type: 'Text',
 			question: '<p>Why?</p>',
 			course: 'COURSE-1',
+			enable_scheduling: 0,
+			schedule_start: null,
+			schedule_end: null,
 		})
 		expect(insertSubmit).not.toHaveBeenCalled()
 	})

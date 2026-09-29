@@ -141,6 +141,7 @@
 				<div class="grid grid-cols-1 md:grid-cols-4 gap-4">
 					<FormControl
 						type="date"
+						:format="dateFormat"
 						:label="__('From')"
 						v-model="from"
 						:disabled="!isSessionUser()"
@@ -155,6 +156,7 @@
 					/>
 					<FormControl
 						type="date"
+						:format="dateFormat"
 						:label="__('To')"
 						v-model="to"
 						:disabled="!isSessionUser()"
@@ -194,8 +196,10 @@ import { createResource, FormControl, Button, Badge, toast } from 'frappe-ui'
 import { computed, reactive, ref, onMounted, inject, watch } from 'vue'
 import { convertToTitleCase } from '@/utils'
 import { openExternal } from '@/utils/openExternal'
+import { getDateFormat } from '@/utils/format'
 
 const user = inject('$user')
+const dateFormat = getDateFormat()
 const readOnlyMode = window.read_only_mode
 
 const props = defineProps({
@@ -261,8 +265,8 @@ const formatTime = (time) => {
 
 // Availability goes through lms.lms.api rather than frappe.client.*: the raw
 // framework endpoints fall back to Course Evaluator's role permissions, which
-// grant blanket write to Moderator, Batch Evaluator and Course Creator with no
-// owner condition, so anyone holding one could edit anyone else's calendar.
+// grant Moderator blanket write with no owner condition, so a Moderator could
+// edit anyone else's calendar.
 const createSlot = createResource({
 	url: 'lms.lms.api.add_evaluator_slot',
 	makeParams(values) {

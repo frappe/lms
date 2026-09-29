@@ -10,6 +10,9 @@ core (frappe/permissions.py), CRM (crm.permissions.*), and Raven (raven.permissi
 """
 
 import frappe
+from frappe import _
+from frappe.query_builder import Bracket
+from pypika.terms import LiteralValue
 
 from lms.lms.utils import (
 	can_modify_batch,
@@ -21,6 +24,219 @@ from lms.lms.utils import (
 
 # File fields that hold instructor-only lesson media (never served to students).
 INSTRUCTOR_FIELDS = {"instructor_content", "instructor_notes"}
+
+# The ptypes the LMS Course read rule answers. Every other ptype is authoring: write,
+# delete and create, and also share, report, export and email, each of which either
+# moves authority or hands out a whole row.
+COURSE_READ_PTYPES = ("read", "select", "print")
+
+# Rows that belong to one learner and to the authors of one course. The value is the
+# field naming the learner. LMS Course Review has no member field; its controller keys
+# enrollment and uniqueness on `owner`, so the rule does too.
+COURSE_RECORD_MEMBER_FIELDS = {
+	"LMS Course Progress": "member",
+	"LMS Video Watch Duration": "member",
+	"LMS Course Review": "owner",
+}
+
+
+def can_author_course(course: str, *, user: str | None = None) -> bool:
+	"""``can_modify_course`` for an explicit user: a site administrator, a Moderator, or a
+	Course Instructor row."""
+	if not isinstance(course, str) or not course:
+		return False
+	if is_site_administrator(user):
+		return True
+
+	original_user = frappe.session.user
+	try:
+		# can_modify_course reads session.user and takes no user argument.
+		frappe.session.user = user or original_user
+		return bool(can_modify_course(course))
+	finally:
+		frappe.session.user = original_user
+
+
+def can_access_course(course: str, *, user: str | None = None) -> bool:
+	"""Who may read a course: it is published, they are enrolled, or they author it."""
+	if not isinstance(course, str) or not course:
+		return False
+
+	published = frappe.db.get_value("LMS Course", course, "published")
+	if published is None:
+		# A course that is not there is not readable, rather than not decided.
+		return False
+	if published:
+		return True
+	if can_author_course(course, user=user):
+		return True
+	return bool(get_membership(course, user or frappe.session.user))
+
+
+def course_has_permission(doc, ptype="read", user=None) -> bool:
+	"""Single-document counterpart of :func:`course_query_conditions`."""
+	user = user or frappe.session.user
+
+	if doc.is_new():
+		# frappe checks "create" at model/document.py:731, before set_new_name() at
+		# :735 -- there is no name and no Course Instructor row yet (that is written
+		# later, in validate()). Creation stays governed by the DocPerm grant.
+		return True
+
+	if ptype in COURSE_READ_PTYPES:
+		return can_access_course(doc.name, user=user)
+
+	if can_author_course(doc.name, user=user):
+		return True
+
+	frappe.logger("lms.security").warning(
+		"Course authoring denied: user=%s course=%s ptype=%s", user, doc.name, ptype
+	)
+	return False
+
+
+def course_query_conditions(user=None) -> str:
+	"""List-read counterpart of :func:`course_has_permission`'s read branch, as SQL."""
+	condition = _course_read_condition(user)
+	return _render(condition) if condition else ""
+
+
+def _course_read_condition(user=None):
+	user = user or frappe.session.user
+	if is_site_administrator(user) or "Moderator" in frappe.get_roles(user):
+		return None
+
+	course = frappe.qb.DocType("LMS Course")
+	instructor = frappe.qb.DocType("Course Instructor")
+	enrollment = frappe.qb.DocType("LMS Enrollment")
+	member = LiteralValue(frappe.db.escape(user))
+	taught = (
+		frappe.qb.from_(instructor)
+		.select(instructor.parent)
+		.where((instructor.instructor == member) & (instructor.parenttype == "LMS Course"))
+	)
+	enrolled = frappe.qb.from_(enrollment).select(enrollment.course).where(enrollment.member == member)
+	return Bracket((course.published == 1) | course.name.isin(taught) | course.name.isin(enrolled))
+
+
+def _render(condition) -> str:
+	return condition.get_sql(with_namespace=True, quote_char="`" if frappe.db.db_type == "mariadb" else '"')
+
+
+def chapter_has_permission(doc, ptype="read", user=None) -> bool:
+	"""Single-document counterpart of :func:`chapter_query_conditions`: the
+	``LMS Course`` rule applied to ``doc.course``. Author is checked first so a
+	Moderator keeps access to a chapter whose course is gone."""
+	course = doc.get("course")
+	if not course:
+		# A new row defers to validate()'s mandatory check; a saved one is denied
+		# unless the list layer doesn't narrow this user either.
+		return doc.is_new() or not chapter_query_conditions(user)
+
+	# Authorise against the stored course too, or a submitted `course` moves the row.
+	stored = None if doc.is_new() else frappe.db.get_value("Course Chapter", doc.name, "course")
+	courses = (course, stored) if stored and stored != course else (course,)
+	if all(can_author_course(c, user=user) for c in courses):
+		return True
+
+	if ptype in COURSE_READ_PTYPES:
+		return can_access_course(stored or course, user=user)
+
+	frappe.logger("lms.security").warning(
+		"Chapter authoring denied: user=%s chapter=%s course=%s ptype=%s",
+		user or frappe.session.user,
+		doc.name,
+		course,
+		ptype,
+	)
+	return False
+
+
+def chapter_query_conditions(user=None) -> str:
+	"""List-read counterpart of :func:`chapter_has_permission`'s read branch, as SQL.
+	A chapter whose course row is gone matches nothing."""
+	condition = _course_read_condition(user)
+	if not condition:
+		return ""
+
+	chapter = frappe.qb.DocType("Course Chapter")
+	course = frappe.qb.DocType("LMS Course")
+	readable = frappe.qb.from_(course).select(course.name).where(condition)
+	return _render(chapter.course.isin(readable))
+
+
+def course_record_has_permission(doc, ptype="read", user=None) -> bool:
+	"""Single-document counterpart of :func:`course_record_query_conditions`: a
+	course progress, watch duration or review row belongs to its learner and to
+	the authors of its course."""
+	user = user or frappe.session.user
+	if _course_read_condition(user) is None:
+		# Administrator or Moderator: the query side does not narrow them either.
+		return True
+
+	member_field = COURSE_RECORD_MEMBER_FIELDS.get(doc.doctype)
+	# A saved row is judged by its STORED values, or relabelling `member`/`course`
+	# in the same request would move it into the caller's reach.
+	stored = (
+		None
+		if doc.is_new()
+		else frappe.db.get_value(doc.doctype, doc.name, [member_field or "name", "course"], as_dict=True)
+	)
+	source = stored or doc
+	if member_field and source.get(member_field) == user and doc.get(member_field) == user:
+		# The learner's own row. DocPerm still decides whether they may write it.
+		return True
+
+	course = source.get("course") if stored else _course_of_new_record(doc)
+	if not course and doc.is_new():
+		# Let _validate_mandatory refuse it with a friendlier message.
+		return True
+
+	moved_to = doc.get("course") if stored and doc.get("course") != course else None
+	if course and all(can_author_course(c, user=user) for c in (course, moved_to) if c):
+		return True
+
+	frappe.logger("lms.security").warning(
+		"Course record denied: user=%s doctype=%s name=%s course=%s ptype=%s",
+		user,
+		doc.doctype,
+		doc.name,
+		course,
+		ptype,
+	)
+	return False
+
+
+def _course_of_new_record(doc) -> str | None:
+	if course := doc.get("course"):
+		return course
+	if lesson := doc.get("lesson"):
+		return frappe.db.get_value("Course Lesson", lesson, "course")
+	return None
+
+
+def course_record_query_conditions(user=None, doctype=None) -> str:
+	"""List-read counterpart of :func:`course_record_has_permission`, as SQL."""
+	member_field = COURSE_RECORD_MEMBER_FIELDS.get(doctype)
+	if not member_field:
+		# "" is the list engine's spelling of "no restriction", so a doctype this
+		# function does not gate has to refuse explicitly rather than by accident.
+		return "1 = 0"
+
+	user = user or frappe.session.user
+	if _course_read_condition(user) is None:
+		return ""
+
+	record = frappe.qb.DocType(doctype)
+	instructor = frappe.qb.DocType("Course Instructor")
+	member = LiteralValue(frappe.db.escape(user))
+	taught = (
+		frappe.qb.from_(instructor)
+		.select(instructor.parent)
+		.where((instructor.instructor == member) & (instructor.parenttype == "LMS Course"))
+	)
+	condition = Bracket((getattr(record, member_field) == member) | record.course.isin(taught))
+	return _render(condition)
 
 
 def resolve_lesson_access(lesson: str, *, user: str | None = None) -> tuple[bool, bool]:
@@ -75,6 +291,27 @@ def can_access_lesson(lesson: str, *, instructor_only: bool = False, user: str |
 	"""
 	is_instructor, can_access = resolve_lesson_access(lesson, user=user)
 	return is_instructor if instructor_only else can_access
+
+
+def courses_authored_by(user: str, courses) -> set[str]:
+	"""The subset of `courses` that `user` may author (a moderator authors every one).
+
+	can_modify_course only answers for frappe.session.user; this judges a third party --
+	a file's owner -- from the tables, for a whole set in one query."""
+	courses = {course for course in courses or [] if course}
+	if not courses or not user:
+		return set()
+
+	if user == "Administrator" or has_moderator_role(user):
+		return courses
+
+	return set(
+		frappe.db.get_all(
+			"Course Instructor",
+			filters={"instructor": user, "parent": ("in", list(courses)), "parenttype": "LMS Course"},
+			pluck="parent",
+		)
+	)
 
 
 def can_access_quiz(quiz: str, *, user: str | None = None) -> bool:
@@ -265,3 +502,141 @@ def file_has_permission(doc, ptype="read", user=None):
 		doc.attached_to_name,
 	)
 	return False
+
+
+# --- Authored content -------------------------------------------------------
+#
+# LMS Quiz, LMS Programming Exercise, LMS Assignment and LMS Question are one
+# shared library that no single course owns, so write narrows to the people named
+# in `authors` instead of to a course. Read stays wide: one library, both
+# authoring roles, and the student half of the read is a separate rule.
+
+SITE_ADMIN_ROLE = "System Manager"
+
+# `share`, `export` and `report` are deliberately absent: this field records who
+# may change the content, not who may pass it on. `create` is here because a child
+# row's insert is checked against its PARENT -- has_child_permission ends at
+# has_permission(parent, "create", doc=<the parent>) -- so without it any holder of
+# the role appends a question, or themselves, to another author's row. `None` is
+# absent because get_doc_permissions passes it for "no ptype asked", and refusing
+# that returns an empty permission map for a user who genuinely holds read.
+NARROWED_PTYPES = ("write", "delete", "create")
+
+
+def is_site_administrator(user: str | None = None) -> bool:
+	"""Whether `user` administers this site rather than authoring one row on it.
+
+	A has_permission hook can only subtract, so a role holding a DocPerm row and
+	absent from the predicate is denied silently. This app has locked its site
+	administrators out once already -- patches/v2_0/restore_system_manager_perms.py.
+	"""
+	user = user or frappe.session.user
+	return user == "Administrator" or SITE_ADMIN_ROLE in frappe.get_roles(user)
+
+
+def stored_authors(doctype: str, name: str) -> list[str]:
+	"""The `authors` rows as the database holds them, not as a save proposes them.
+
+	Gating on the submitted list would let anyone who can reach the form write
+	themselves into the list that decides whether they may write. A row whose
+	`author` is empty is dropped: it is still truthy, so it would skip the `owner`
+	fallback and lock the creator out of their own row.
+	"""
+	rows = frappe.get_all(
+		"LMS Content Author",
+		filters={"parent": name, "parenttype": doctype, "parentfield": "authors"},
+		pluck="author",
+	)
+	return [author for author in rows if author]
+
+
+def is_content_author(doctype: str, name: str, user: str | None = None) -> bool:
+	"""Whether `user` is one of the people responsible for this row.
+
+	The fallback to `owner` is what makes shipping no backfill patch safe: every row
+	written before the field existed carries an empty `authors`. It is a fallback
+	and not an addition -- once somebody is named, the row has been handed over.
+	"""
+	user = user or frappe.session.user
+	authors = stored_authors(doctype, name)
+	if authors:
+		return user in authors
+	return frappe.db.get_value(doctype, name, "owner") == user
+
+
+def has_authored_content_permission(doc, ptype: str | None = None, user: str | None = None) -> bool:
+	"""has_permission for every doctype carrying `authors`, registered in hooks.py.
+
+	A document with no name is a row being created, which is not scoped: insert
+	calls check_permission("create") before set_new_name.
+	"""
+	if ptype not in NARROWED_PTYPES:
+		return True
+	user = user or frappe.session.user
+	if is_site_administrator(user) or has_moderator_role(user):
+		return True
+	if doc is None or doc.get("__islocal") or not doc.get("name"):
+		return True
+	return is_content_author(doc.doctype, doc.name, user)
+
+
+def refuse_moving_child_rows_out_of_content_the_user_cannot_write(doc, method=None):
+	"""doc_events `validate` for the authored content family AND for its child tables.
+
+	One rule -- a row whose stored parent is not the one it is being saved under
+	answers to the parent it is leaving -- at the two entry points that reach a child
+	row, because neither sees the other's traffic. has_child_permission is only ever
+	shown the parent named on the row in hand, so a row saved on its own is checked
+	against the destination alone; and a child never fires doc_events when its parent
+	saves it, while Document.update_child_table db_updates every submitted row by name
+	with no ownership check, so the parent has to ask on the row's behalf.
+	"""
+	if doc.meta.istable:
+		refuse_rows_taken_from_a_parent_the_user_cannot_write(
+			doc.doctype, [doc.name], doc.parent, doc.parenttype
+		)
+		return
+	for field in doc.meta.get_table_fields():
+		submitted = [row.name for row in doc.get(field.fieldname) or [] if not row.is_new()]
+		refuse_rows_taken_from_a_parent_the_user_cannot_write(field.options, submitted, doc.name, doc.doctype)
+
+
+def refuse_rows_taken_from_a_parent_the_user_cannot_write(
+	child_doctype: str, row_names: list[str], parent: str, parenttype: str
+):
+	"""One SELECT per child table, and one permission check per parent being left."""
+	named = [name for name in row_names if name]
+	if not named:
+		return
+	stored_rows = frappe.get_all(
+		child_doctype, filters={"name": ("in", named)}, fields=["parent", "parenttype"]
+	)
+	checked = {}
+	for stored in stored_rows:
+		source = (stored.parenttype, stored.parent)
+		if source == (parenttype, parent):
+			continue
+		if source not in checked:
+			checked[source] = can_write_the_stored_parent(*source)
+		if checked[source]:
+			continue
+		frappe.throw(
+			_("You do not have permission to move this row out of {0} {1}").format(
+				_(stored.parenttype), stored.parent
+			),
+			frappe.PermissionError,
+		)
+
+
+def can_write_the_stored_parent(parenttype: str, parent: str) -> bool:
+	"""A stored parent that no longer exists is not one anybody may write through.
+
+	has_permission resolves a docname with get_lazy_doc, which throws
+	DoesNotExistError for a deleted parent -- so without this the caller gets a 404
+	naming somebody else's docname instead of the refusal.
+	"""
+	if not (parenttype and parent):
+		return False
+	if not frappe.db.exists(parenttype, parent):
+		return False
+	return frappe.has_permission(parenttype, "write", doc=parent)

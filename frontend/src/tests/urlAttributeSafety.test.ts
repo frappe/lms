@@ -27,7 +27,7 @@ describe('safeUrl', () => {
 	})
 
 	// The URL parser normalises a backslash to a slash for http(s), so `/\host`
-	// resolves off-origin while reading as a path — in an href it is a phishing
+	// resolves off-origin while reading as a path, in an href it is a phishing
 	// link that survives a glance at the status bar.
 	it('drops a URL whose leading slash is followed by a backslash', () => {
 		expect(safeUrl('/\\evil.example.com/p')).toBeUndefined()
@@ -48,7 +48,7 @@ describe('safeUrl', () => {
 
 	// The reason the reject value is undefined rather than ''. Vue only removes
 	// an attribute when the bound value is nullish; '' is set, and src=""
-	// resolves to the current page — an iframe would load the whole SPA inside
+	// resolves to the current page, an iframe would load the whole SPA inside
 	// itself and <a href=""> would stay focusable and go nowhere.
 	it('removes the attribute rather than emptying it', () => {
 		const wrapper = mount({
@@ -60,7 +60,7 @@ describe('safeUrl', () => {
 	})
 })
 
-// Vite's own loader rather than node:fs — it needs no @types/node, so the type
+// Vite's own loader rather than node:fs, it needs no @types/node, so the type
 // check stays clean, and it resolves the same tree the app builds from.
 const sources = import.meta.glob('../**/*.vue', {
 	query: '?raw',
@@ -86,10 +86,7 @@ const EXEMPT = new Map<string, string>([
 		'../components/Settings/EmailAccount/EmailProviderIcon.vue',
 		'logo comes from the services table in emailConfig.ts',
 	],
-	[
-		'../components/Settings/Raven/RavenNotInstalledBanner.vue',
-		'constant https literal',
-	],
+	['../components/Settings/Raven/RavenSetupRow.vue', 'constant https literal'],
 	[
 		'../pages/ProfileCertificates.vue',
 		'template literal rooted at /api/method/',

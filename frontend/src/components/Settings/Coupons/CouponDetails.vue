@@ -34,6 +34,8 @@
 					v-model="doc.expires_on"
 					:label="__('Expires On')"
 					type="date"
+					:format="dateFormat"
+					autocomplete="off"
 				/>
 
 				<FormControl
@@ -79,6 +81,7 @@ import type { Coupon, Coupons } from '@/types'
 import CouponItems from '@/components/Settings/Coupons/CouponItems.vue'
 import SettingsLayout from '@/components/Layouts/SettingsLayout.vue'
 import Select from '@/components/Controls/Select.vue'
+import { getDateFormat } from '@/utils/format'
 
 const emit = defineEmits(['updateStep'])
 
@@ -88,6 +91,8 @@ const props = defineProps<{
 }>()
 
 const isNew = !props.data?.name
+
+const dateFormat = getDateFormat()
 
 // New coupons edit a local object; existing ones load as a full document (child
 // table + `modified`) so one save persists all of it and `modified` stays in sync.

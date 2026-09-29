@@ -38,6 +38,14 @@ class LMSEnrollment(Document):
 	def on_update(self):
 		update_program_progress(self.member)
 
+	def after_insert(self):
+		if self.member_type == "Student":
+			_update_course_enrollments(self.course, increment=True)
+
+	def after_delete(self):
+		if self.member_type == "Student":
+			_update_course_enrollments(self.course, increment=False)
+
 	def validate_duplicate_enrollment(self):
 		# Lock the course row first: see the note in
 		# lms_batch_enrollment.validate_duplicate_members. Two concurrent
@@ -125,6 +133,14 @@ def update_program_progress(member):
 
 		average_progress = ceil(total_progress / len(courses))
 		frappe.db.set_value("LMS Program Member", program.name, "progress", average_progress)
+
+
+def _update_course_enrollments(course, increment=True):
+	LMSCourse = frappe.qb.DocType("LMS Course")
+	value = 1 if increment else -1
+	frappe.qb.update(LMSCourse).set(LMSCourse.enrollments, LMSCourse.enrollments + value).where(
+		LMSCourse.name == course
+	).run()
 
 
 @contextmanager
