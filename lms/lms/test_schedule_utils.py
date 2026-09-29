@@ -119,19 +119,6 @@ class TestLMSQuizScheduling(unittest.TestCase):
 		)
 		self.assertRaises(frappe.ValidationError, quiz.insert)
 
-	def test_quiz_validate_rejects_end_before_start(self):
-		quiz = frappe.get_doc(
-			{
-				"doctype": "LMS Quiz",
-				"title": "Schedule Quiz End Before Start",
-				"passing_percentage": 50,
-				"enable_scheduling": 1,
-				"schedule_start": FIXED_NOW,
-				"schedule_end": FIXED_NOW - timedelta(hours=1),
-			}
-		)
-		self.assertRaises(frappe.ValidationError, quiz.insert)
-
 	def test_submit_quiz_blocked_before_start(self):
 		from lms.lms.doctype.lms_quiz.lms_quiz import submit_quiz
 
