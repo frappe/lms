@@ -13,6 +13,7 @@ from lms.lms.api import (
 	get_course_assessment_progress,
 	import_course_from_zip,
 	track_video_watch_duration,
+	update_meta_info,
 )
 from lms.lms.course_import_export import sanitize_string
 from lms.lms.test_helpers import BaseTestUtils
@@ -272,3 +273,35 @@ class TestGetAssessmentFromLesson(unittest.TestCase):
 			]
 		)
 		self.assertEqual(get_assessment_from_lesson("c1", "program"), ["EX1"])
+
+
+class TestUpdateMetaInfo(BaseTestUtils):
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
+		cls.evaluator = cls._create_user(
+			"meta-evaluator@example.com", "Meta", "Evaluator", ["Batch Evaluator"]
+		)
+
+	def setUp(self):
+		super().setUp()
+		frappe.set_user(self.evaluator.email)
+
+	def tearDown(self):
+		frappe.set_user("Administrator")
+		super().tearDown()
+
+	def test_evaluator_can_create_batch_meta_tags(self):
+		route = f"meta-test-{frappe.generate_hash(length=6)}"
+		update_meta_info("batches", route, [{"key": "description", "value": "A batch"}])
+
+		self.assertEqual(
+			frappe.db.get_value(
+				"Website Meta Tag", {"parent": f"batches/{route}", "key": "description"}, "value"
+			),
+			"A batch",
+		)
+
+	def test_rejects_unknown_meta_type(self):
+		with self.assertRaises(frappe.ValidationError):
+			update_meta_info("about", "us", [{"key": "description", "value": "x"}])
