@@ -2285,13 +2285,13 @@ def create_meta(parent_name: str, tag_properties: dict):
 		}
 	)
 	route_meta.append("meta_tags", tag_properties)
-	route_meta.insert()
+	route_meta.insert(ignore_permissions=True)
 
 
 def create_meta_tag(tag_properties: dict):
 	new_tag = frappe.new_doc("Website Meta Tag")
 	new_tag.update(tag_properties)
-	new_tag.insert()
+	new_tag.insert(ignore_permissions=True)
 
 
 def validate_meta_data_permissions(meta_type: str):
@@ -2304,6 +2304,9 @@ def validate_meta_data_permissions(meta_type: str):
 	elif meta_type == "batches":
 		if not ("Batch Evaluator" in roles or "Moderator" in roles):
 			frappe.throw(_("You do not have permission to update meta tags."))
+
+	else:
+		frappe.throw(_("You do not have permission to update meta tags."))
 
 
 @frappe.whitelist()
