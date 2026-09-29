@@ -5,9 +5,35 @@
 				{{ __('Not Saved') }}
 			</Badge>
 		</template>
+<<<<<<< HEAD
 		<template #default>
 			<div v-if="!canManageExercise" class="p-4 text-base text-ink-gray-6">
 				{{ __('You are not permitted to manage programming exercises.') }}
+=======
+	</PageHeader>
+	<div v-if="!canManageExercise" class="p-5 text-base text-ink-gray-6">
+		{{ __('You are not permitted to manage programming exercises.') }}
+	</div>
+	<div
+		v-else
+		data-testid="programming-exercise-fields"
+		class="grid flex-1 grid-cols-1 lg:min-h-0 lg:grid-cols-[7fr,3fr]"
+	>
+		<div
+			class="flex min-h-0 flex-col gap-8 overflow-y-auto p-5"
+			@focusout="createIfReady()"
+		>
+			<div
+				v-if="previewing"
+				data-testid="programming-exercise-preview-pane"
+				class="h-[900px] w-full"
+			>
+				<ProgrammingExerciseSubmission
+					:exerciseID="props.exerciseID"
+					submissionID="new"
+					preview
+				/>
+>>>>>>> bbe7dd1 (fix(assessments): tidy the quiz and exercise authoring pages)
 			</div>
 			<fieldset
 				v-else
@@ -28,12 +54,47 @@
 						:label="__('Title')"
 						:required="true"
 					/>
+<<<<<<< HEAD
 					<FormControl
 						v-model="exercise.language"
 						:label="__('Language')"
 						type="select"
 						:options="languageOptions"
 						:required="true"
+=======
+					<div data-testid="programming-exercise-problem-statement">
+						<RichTextEditor
+							:ariaLabelledby="problemStatementLabelId"
+							:ariaRequired="true"
+							:content="exercise.problem_statement"
+							@change="onProblemStatementChange"
+							:editable="true"
+							:fixedMenu="true"
+							editorClass="prose-sm max-w-none border-b border-x border-outline-gray-2 hover:border-outline-gray-3 hover:shadow-sm focus-within:border-outline-gray-4 focus-within:shadow-sm rounded-b-5 py-1 px-2 min-h-[12rem] transition-colors"
+						/>
+					</div>
+				</div>
+				<div class="flex flex-col gap-1.5">
+					<InputLabel :id="starterCodeLabelId" :label="__('Starter Code')" />
+					<div
+						class="overflow-hidden rounded-5 border border-outline-gray-2"
+						data-testid="programming-exercise-starter-code"
+					>
+						<ExerciseCodeEditor
+							v-model="exercise.starter_code"
+							:language="exercise.language"
+							:label="__('Starter Code')"
+							contentClass="min-h-[24rem]"
+						/>
+					</div>
+					<InputDescription
+						:id="starterCodeDescriptionId"
+						:description="
+							__(
+								'Prefills the learner’s editor. Leave empty for the language default.'
+							)
+						"
+>>>>>>> bbe7dd1 (fix(assessments): tidy the quiz and exercise authoring pages)
 					/>
 					<ChildTable
 						v-model="testCases.data"
@@ -46,6 +107,7 @@
 						:placeholder="__('Add Test Case')"
 					/>
 				</div>
+<<<<<<< HEAD
 				<div>
 					<div class="space-y-1.5">
 						<InputLabel
@@ -121,6 +183,36 @@
 <script setup lang="ts">
 import { computed, inject, ref, watch, useId } from 'vue'
 import { InputLabel } from 'frappe-ui/experimental'
+=======
+			</template>
+		</div>
+		<div
+			class="order-first min-w-0 space-y-4 border-b p-5 lg:order-none lg:min-h-0 lg:overflow-y-auto lg:border-b-0 lg:border-s"
+		>
+			<FormControl
+				v-model="exercise.title"
+				data-testid="programming-exercise-title"
+				variant="outline"
+				:label="__('Title')"
+				:required="true"
+				@blur="onTitleBlur()"
+			/>
+			<FormControl
+				v-model="exercise.language"
+				:label="__('Language')"
+				variant="outline"
+				type="select"
+				:options="languageOptions"
+				:required="true"
+			/>
+		</div>
+	</div>
+</template>
+<script setup lang="ts">
+import { computed, inject, ref, shallowRef, useId, watch } from 'vue'
+import { useRouter } from 'vue-router'
+import { InputDescription, InputLabel } from 'frappe-ui/experimental'
+>>>>>>> bbe7dd1 (fix(assessments): tidy the quiz and exercise authoring pages)
 import { sanitizeOnWrite } from '@/utils/sanitizeOnWrite'
 import {
 	Badge,
@@ -133,7 +225,11 @@ import {
 import type { FrappeResourceError } from 'frappe-ui'
 import { ProgrammingExercise, TestCase } from '@/types'
 import ChildTable from '@/components/Controls/ChildTable.vue'
+<<<<<<< HEAD
 import FormShell from '@/components/FormShell.vue'
+=======
+import ExerciseCodeEditor from '@/components/ProgrammingExercises/ExerciseCodeEditor.vue'
+>>>>>>> bbe7dd1 (fix(assessments): tidy the quiz and exercise authoring pages)
 import HeaderButton from '@/components/HeaderButton.vue'
 import RichTextEditor from '@/components/RichTextEditor.vue'
 import { useCanWrite } from '@/composables/useCanWrite'
@@ -142,8 +238,16 @@ import { resourceErrorMessage, submitResource } from '@/utils/resource'
 
 const user = inject<any>('$user')
 const problemStatementLabelId = useId()
+<<<<<<< HEAD
 const isDirty = ref(false)
 const originalTestCaseCount = ref(0)
+=======
+const starterCodeLabelId = useId()
+const starterCodeDescriptionId = useId()
+const previewing = ref(false)
+const committedTitle = ref('')
+const creating = ref(false)
+>>>>>>> bbe7dd1 (fix(assessments): tidy the quiz and exercise authoring pages)
 
 const props = withDefaults(
 	defineProps<{

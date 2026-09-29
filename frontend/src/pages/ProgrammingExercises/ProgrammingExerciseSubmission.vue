@@ -24,6 +24,7 @@
 				class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2 prose-sm max-w-none !whitespace-normal"
 			></div>
 		</div>
+<<<<<<< HEAD
 		<div>
 			<div class="flex items-center justify-between p-2 bg-surface-gray-2">
 				<div class="font-semibold text-ink-gray-9">
@@ -71,6 +72,31 @@
 						:aria-label="__('Compiler Message')"
 						class="font-mono text-ink-red-5 bg-surface-gray-1 border-none text-sm h-32 leading-6"
 						readonly
+=======
+		<div class="min-h-0 flex-1">
+			<ExerciseWorkspaceSkeleton v-if="loading" />
+			<ExerciseWorkspace
+				v-else
+				ref="workspace"
+				:title="exercise?.title ?? ''"
+				:language="exercise?.language ?? ''"
+				:problemStatement="exercise?.problem_statement ?? ''"
+				:results="results"
+				:consoleLines="consoleLines"
+				:duration="duration"
+				:running="running"
+				:canRun="canRun"
+				:saved="saved"
+				@run="submitCode"
+				@reset="resetCode"
+			>
+				<template #editor>
+					<ExerciseCodeEditor
+						:modelValue="code"
+						@update:modelValue="editCode"
+						:language="editorLanguage"
+						:label="__('Your Code')"
+>>>>>>> bbe7dd1 (fix(assessments): tidy the quiz and exercise authoring pages)
 					/>
 				</div>
 			</div>
@@ -205,6 +231,32 @@ const checkIfInLesson = () => {
 	}
 }
 
+<<<<<<< HEAD
+=======
+// Starts as the prop and becomes the real name after the first save, so a
+// second Run updates it instead of inserting another submission.
+const submissionID = ref<string>(props.submissionID)
+
+watch(
+	() => props.submissionID,
+	(name) => {
+		if (name === submissionID.value) return
+		submissionID.value = name
+		results.value = []
+		consoleLines.value = []
+		duration.value = null
+		submission.value = name === 'new' ? null : submissionFor(name)
+		submission.value?.reload()
+	}
+)
+
+const rootClass = computed<string>(() => {
+	if (props.embedded) return 'h-[900px]'
+	if (props.preview) return 'h-full'
+	return 'h-[calc(100vh_-_3rem)] p-4'
+})
+
+>>>>>>> bbe7dd1 (fix(assessments): tidy the quiz and exercise authoring pages)
 const fetchSubmission = (name: string = '') => {
 	if (name) {
 		submission.name = name
