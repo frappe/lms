@@ -17,6 +17,7 @@
 						v-model="batch.start_date"
 						:label="__('Start Date')"
 						type="date"
+						:format="dateFormat"
 						:required="true"
 						variant="outline"
 					/>
@@ -24,6 +25,7 @@
 						v-model="batch.end_date"
 						:label="__('End Date')"
 						type="date"
+						:format="dateFormat"
 						:required="true"
 						variant="outline"
 					/>
@@ -146,6 +148,7 @@ import {
 import { useOnboarding, useTelemetry } from 'frappe-ui/frappe'
 import { computed, inject, onMounted, onBeforeUnmount, ref } from 'vue'
 import { createLMSCategory, cleanError } from '@/utils'
+import { getDateFormat } from '@/utils/format'
 import { sanitizeOnWrite } from '@/utils/sanitizeOnWrite'
 import FormShell from '@/components/FormShell.vue'
 import HeaderButton from '@/components/HeaderButton.vue'
@@ -160,6 +163,7 @@ import { submitResource } from '@/utils/resource'
 
 const { capture } = useTelemetry()
 const { updateOnboardingStep } = useOnboarding('learning')
+const dateFormat = getDateFormat()
 const user = inject<any>('$user')
 const showMemberModal = ref(false)
 const { inputId: batchDetailsId, labelId: batchDetailsLabelId } =
