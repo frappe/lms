@@ -789,15 +789,17 @@ def assessment_has_permission(doc, ptype="read", user=None):
 	an assignment and a programming exercise are one sentence here, and three wrappers
 	would be three places for it to drift.
 
-	`create` returns no opinion. An assessment's scope lives entirely in rows that name
-	it — LMS Lesson Assessment placements and a batch's LMS Assessment rows — and a
-	document being inserted has no name for them to point at, so the DocPerm grant
-	governs. LMS Programming Exercise carries no course field at all, so gating create
-	on the other two's legacy stamp would make the pair two rules instead of one.
+	A brand-new document returns no opinion: its scope lives entirely in rows that
+	name it — LMS Lesson Assessment placements and a batch's LMS Assessment rows —
+	and a document with no name yet has nothing for them to point at, so the
+	DocPerm grant governs. `ptype == "create"` alone is not that signal: inserting
+	a child row (a question, a test case, an `authors` entry) onto an *existing*
+	assessment reaches this same hook with ptype="create" and the existing parent
+	attached, and must be checked as administering that parent, not waved through.
 	"""
 	if doc.doctype not in ASSESSMENT_DOCTYPES:
 		return True
-	if ptype == "create" or doc.is_new():
+	if doc.is_new():
 		return True
 
 	user = user or frappe.session.user
@@ -1015,14 +1017,19 @@ def administrable_assessment_names(doctype: str, user: str | None = None) -> str
 	:func:`can_administer_assessment`."""
 	if doctype not in ASSESSMENT_DOCTYPES:
 		return NO_ASSESSMENT_NAMES
+	return _administrable_assessment_query(doctype, user).get_sql()
 
+
+def _administrable_assessment_query(doctype: str, user: str | None = None):
+	"""qb form of :func:`administrable_assessment_names`, kept as a query object
+	so a caller can nest it with ``isin`` instead of re-parsing rendered SQL."""
 	assessment = frappe.qb.DocType(doctype)
 	user = user or frappe.session.user
 	query = frappe.qb.from_(assessment).select(assessment.name)
 	if not _is_unrestricted(user):
 		condition = _assessment_reach_condition(doctype, assessment, user, include_members=False)
 		query = query.where(condition)
-	return query.get_sql()
+	return query
 
 
 def _is_unrestricted(user: str) -> bool:
@@ -1052,15 +1059,15 @@ def programming_exercise_submission_query_conditions(user: str | None = None) ->
 
 def _assessment_submission_query_conditions(doctype: str, user: str | None = None) -> str:
 	"""Own submissions, plus every submission of an assessment the caller administers.
-	administrable_assessment_names's own contract is a bare, pre-rendered ``select``,
-	nested here as a LiteralValue rather than re-derived through the query builder."""
+	Nests _administrable_assessment_query's builder object directly, so the whole
+	condition renders once, at the end."""
 	assessment_doctype, field = SUBMISSION_ASSESSMENT_FIELDS[doctype]
 	user = user or frappe.session.user
 	if _is_unrestricted(user):
 		return ""
 	submission = frappe.qb.DocType(doctype)
 	member = LiteralValue(frappe.db.escape(user))
-	administrable = LiteralValue(f"({administrable_assessment_names(assessment_doctype, user)})")
+	administrable = _administrable_assessment_query(assessment_doctype, user)
 	condition = Bracket((submission.member == member) | getattr(submission, field).isin(administrable))
 	return _render(condition)
 
@@ -1236,8 +1243,12 @@ def _legacy_stamp_condition(doctype: str, assessment, courses):
 
 def _batch_condition(doctype: str, assessment, user: str, *, include_members: bool):
 	"""Batches running this assessment, for their instructors, tagged evaluators
-	and (when include_members) enrolled students."""
+	and (when include_members) enrolled students. Joined against LMS Batch, like
+	:func:`_running_batches`, so a deleted batch's stray LMS Assessment row --
+	or a Batch Course/LMS Batch Enrollment row left behind with it -- grants
+	nothing here either."""
 	la = frappe.qb.DocType("LMS Assessment")
+	batch = frappe.qb.DocType("LMS Batch")
 	reach = la.parent.isin(_taught("LMS Batch", user)) | la.parent.isin(_evaluator_batches(user))
 	if include_members:
 		enrollment = frappe.qb.DocType("LMS Batch Enrollment")
@@ -1250,6 +1261,8 @@ def _batch_condition(doctype: str, assessment, user: str, *, include_members: bo
 
 	subquery = (
 		frappe.qb.from_(la)
+		.join(batch)
+		.on(batch.name == la.parent)
 		.select(la.assessment_name)
 		.where((la.assessment_type == LiteralValue(frappe.db.escape(doctype))) & reach)
 	)
