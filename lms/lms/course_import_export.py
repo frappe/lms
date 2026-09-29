@@ -35,6 +35,9 @@ ALLOWED_ASSET_EXTENSIONS = {
 	".pdf",
 }
 MAX_IMPORTED_ASSET_BYTES = 200 * 1024 * 1024
+# Archive root -> is_private, mirroring the URL the content cites. A course can embed
+# /files/x.png and /private/files/x.png at once: two files on the site, one base name.
+ASSET_MEMBER_ROOTS = {"assets/files/": 0, "assets/private/files/": 1}
 
 # Bounds on what an uploaded archive (course import or SCORM package) may expand to.
 # The upload cap only limits the compressed file, and deflate reaches ~1000:1.
@@ -278,6 +281,14 @@ def write_assessments_json(zip_file, assessments, questions, test_cases):
 		zip_file.writestr(f"assessments/{doctype}_{safe_name}.json", assessment_json)
 
 
+def asset_member_path(asset):
+	"""Where the archive stores an asset, under the root that records its privacy.
+	Flattened to one assets/<name>, a same-named public and private file would
+	share one entry and the import could only recreate one of the two URLs."""
+	root = "assets/private/files/" if asset.startswith("/private/") else "assets/files/"
+	return root + sanitize_string(os.path.basename(asset))
+
+
 def write_assets(zip_file, assets):
 	assets = list(set(assets))
 	for asset in assets:
@@ -288,8 +299,7 @@ def write_assets(zip_file, assets):
 		file_doc = frappe.get_doc("File", {"file_url": asset})
 		file_path = os.path.abspath(file_doc.get_full_path())
 
-		safe_filename = sanitize_string(os.path.basename(asset))
-		zip_file.write(file_path, f"assets/{safe_filename}")
+		zip_file.write(file_path, asset_member_path(asset))
 
 
 def move_zip_to_private(tmp_path, zip_filename):
@@ -876,33 +886,50 @@ def get_referenced_asset_urls(zip_file):
 				yield block.get("data", {}).get("file_url")
 
 
-def get_asset_privacy(zip_file):
-	"""file name -> is_private, taken from the URLs the imported content references.
-
-	The archive stores bare bytes, so the referencing URL is the only surviving record
-	of an asset's privacy. Anything the content does not account for is private:
-	guessing that way costs a permission check, the other way publishes the file.
+def get_asset_citations(zip_file):
+	"""What the content says about its assets, in one pass over the archive's JSON:
+	file name -> is_private, and the exact assets/<root>/<name> paths the citations
+	expect. The names are the fallback for a flat, pre-ASSET_MEMBER_ROOTS archive and
+	the tiebreaker when a name's own root is unconfirmed; anything uncited is private.
 	"""
-	privacy = {}
+	privacy, member_paths = {}, set()
 	for url in get_referenced_asset_urls(zip_file):
 		if not isinstance(url, str) or not url:
 			continue
-		# Private wins a name collision: two URLs can share a basename.
+		# Private wins a name collision. Such an archive cannot say which of the two
+		# same-named files its one entry holds, so it must not be published.
 		name = base_name(url)
 		privacy[name] = privacy.get(name, 0) or int(url.startswith("/private/"))
-	return privacy
+		member_paths.add(asset_member_path(url))
+	return privacy, member_paths
 
 
-def asset_is_private(privacy, asset_name):
-	return privacy.get(asset_name, 1)
+def member_asset_privacy(member):
+	"""The privacy the archive path records, or None when the path records none."""
+	for root, is_private in ASSET_MEMBER_ROOTS.items():
+		if member.startswith(root):
+			return is_private
+	return None
 
 
-def process_asset_file(zip_file, file, privacy, existing):
+def asset_is_private(privacy, member, referenced_paths):
+	"""Trusts the archive path only when a citation expects the asset there;
+	otherwise the citing URL wins, private by default -- except a private root,
+	which a same-named public citation can never publish."""
+	recorded = member_asset_privacy(member)
+	if recorded is not None and member in referenced_paths:
+		return recorded
+	if recorded == 1:
+		return 1
+	return privacy.get(base_name(member), 1)
+
+
+def process_asset_file(zip_file, file, is_private, existing):
 	if not is_safe_zip_member(file):
 		return
 	asset_name = base_name(file)
 	content = read_zip_member(zip_file, file, MAX_IMPORTED_ASSET_BYTES)
-	create_asset_doc(asset_name, content, asset_is_private(privacy, asset_name), existing)
+	create_asset_doc(asset_name, content, is_private, existing)
 
 
 def validate_assets(members):
@@ -926,37 +953,46 @@ def validate_assets(members):
 		)
 
 
-def asset_members(zip_file):
-	"""The assets/ members to create, one per file name, in archive order.
+def asset_member_priority(member, referenced_paths):
+	"""Lower wins a destination URL collision: a member a citation confirms at its
+	own path, then any rooted member, then a flat/legacy one -- never whichever
+	the zip happened to list first."""
+	if member in referenced_paths:
+		return 0
+	if member_asset_privacy(member) is not None:
+		return 1
+	return 2
 
-	One per base name, because frappe renames a colliding upload instead of refusing
-	it and the extras would land as orphans no lesson references. Unsafe names are
-	dropped here, or assets/../x.png claims a name and takes assets/x.png down with it.
-	"""
-	members, seen = [], set()
+
+def asset_members(zip_file, privacy, referenced_paths):
+	"""(member, is_private) pairs to create, one per destination URL. Two members
+	can resolve to the same URL (assets/x.png, assets/files/x.png); the
+	higher-priority one wins it, not whichever the archive lists first."""
+	best = {}
 	for info in zip_file.infolist():
 		if not info.filename.startswith("assets/") or info.is_dir():
 			continue
 		if not is_safe_zip_member(info.filename):
 			continue
-		name = base_name(info.filename)
-		if name not in seen:
-			seen.add(name)
-			members.append(info)
-	return members
+		is_private = asset_is_private(privacy, info.filename, referenced_paths)
+		url = asset_file_url(base_name(info.filename), is_private)
+		priority = asset_member_priority(info.filename, referenced_paths)
+		current = best.get(url)
+		if current is None or priority < current[0]:
+			best[url] = (priority, info, is_private)
+	return [(info, is_private) for _, info, is_private in best.values()]
 
 
 def create_assets(zip_file):
-	members = asset_members(zip_file)
-	validate_assets(members)
-	privacy = get_asset_privacy(zip_file)
-	asset_names = {base_name(info.filename) for info in members}
+	privacy, referenced_paths = get_asset_citations(zip_file)
+	members = asset_members(zip_file, privacy, referenced_paths)
+	validate_assets([info for info, _ in members])
 	existing = existing_asset_urls(
-		{asset_file_url(name, asset_is_private(privacy, name)) for name in asset_names}
+		{asset_file_url(base_name(info.filename), is_private) for info, is_private in members}
 	)
-	for info in members:
+	for info, is_private in members:
 		try:
-			process_asset_file(zip_file, info.filename, privacy, existing)
+			process_asset_file(zip_file, info.filename, is_private, existing)
 		except Exception:
 			# One bad asset must not abort the import. The title stays constant because
 			# the member name is attacker-supplied and Error Log stores it in a Data
