@@ -23,7 +23,7 @@ from frappe.utils.file_manager import safe_b64decode
 from frappe.utils.html_utils import sanitize_html
 from fuzzywuzzy import fuzz
 
-from lms.lms.doctype.course_lesson.course_lesson import save_progress
+from lms.lms.doctype.course_lesson.course_lesson import get_lesson_course, save_progress
 from lms.lms.doctype.lms_content_author.lms_content_author import AuthoredDocument
 from lms.lms.doctype.lms_question.lms_question import (
 	QUESTION_CORRECTNESS_FIELDS,
@@ -714,10 +714,11 @@ def save_progress_after_quiz(quiz_details: dict, percentage: float):
 	# direct-call bypass.
 	from lms.lms.permissions import get_locked_lessons
 
-	if quiz_details.lesson in get_locked_lessons(quiz_details.course):
+	course = get_lesson_course(quiz_details.lesson)
+	if not course or quiz_details.lesson in get_locked_lessons(course):
 		return
 
-	save_progress(quiz_details.lesson, quiz_details.course)
+	save_progress(quiz_details.lesson, course)
 
 
 @frappe.whitelist()
