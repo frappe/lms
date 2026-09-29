@@ -342,10 +342,22 @@ def apply_enforcement_flags(quiz_done: bool, assignment_done: bool, settings: di
 
 
 @frappe.whitelist()
-def save_progress(lesson: str, course: str, scorm_details: dict = None):
+def save_progress(lesson: str, course: str | None = None, scorm_details: dict = None):
 	"""
 	Note: Pass the argument scorm_details as a dict if it is SCORM related save_progress
 	"""
+	if not isinstance(lesson, str) or not isinstance(course, str | None):
+		frappe.throw(_("Lesson and course must be strings."))
+
+	# Enrollment and the lock are checked against the course the progress row is filed
+	# under, which is the lesson's own. `course` is kept for existing callers.
+	lesson_course = get_lesson_course(lesson)
+	if not lesson_course:
+		frappe.throw(_("Invalid lesson."))
+	if course and course != lesson_course:
+		frappe.throw(_("This lesson does not belong to the course."))
+	course = lesson_course
+
 	# The completion path writes the enrollment twice: LMS Course Progress.on_update
 	# recalculates progress, then this advances current_lesson. Batch them so the
 	# request emits a single on_update, as the pre-regression .save() did.
@@ -466,6 +478,12 @@ def _save_progress(lesson: str, course: str, scorm_details: dict = None):
 	)
 
 	return progress
+
+
+def get_lesson_course(lesson: str) -> str | None:
+	"""The course LMS Course Progress fetches for this lesson (lesson.chapter.course)."""
+	chapter = frappe.db.get_value("Course Lesson", lesson, "chapter")
+	return chapter and frappe.db.get_value("Course Chapter", chapter, "course")
 
 
 def get_next_lesson(course: str, lesson: str):
