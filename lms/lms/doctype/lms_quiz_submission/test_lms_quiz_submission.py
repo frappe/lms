@@ -7,7 +7,7 @@ from types import SimpleNamespace
 import frappe
 
 from lms.lms.doctype.lms_quiz_submission.lms_quiz_submission import LMSQuizSubmission
-from lms.lms.test_helpers import BaseTestUtils
+from lms.lms.test_helpers import BaseTestUtils, released_frappe_sanitizer, released_sanitize_html
 
 
 class TestSetPercentage(unittest.TestCase):
@@ -124,3 +124,12 @@ class TestQuizResultSanitization(BaseTestUtils):
 		stored = self._stored_row(doc).answer
 		for tag in ("<script", "<iframe", "onerror"):
 			self.assertNotIn(tag, stored)
+
+	def test_json_shaped_question_is_sanitised_on_released_frappe(self):
+		payload = '"<img src=x onerror=alert(1)>"'
+		self.assertEqual(released_sanitize_html(payload), payload)
+		with released_frappe_sanitizer():
+			doc = self._submission("plain answer", question=payload)
+		stored = self._stored_row(doc).question
+		self.assertNotIn("onerror", stored)
+		self.assertIn("<img", stored)
