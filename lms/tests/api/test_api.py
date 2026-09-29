@@ -320,3 +320,10 @@ class TestUpdateMetaInfo(BaseTestUtils):
 		frappe.set_user(self.evaluator.email)
 		with self.assertRaises(frappe.ValidationError):
 			update_meta_info("about", "us", [{"key": "description", "value": "x"}])
+
+	def test_rejects_non_string_route(self):
+		frappe.set_user(self.evaluator.email)
+		with self.assertRaisesRegex(frappe.ValidationError, "must be strings"):
+			update_meta_info.__wrapped__(
+				"batches", {"name": self.batch.name}, [{"key": "description", "value": "x"}]
+			)

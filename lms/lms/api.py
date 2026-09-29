@@ -2234,6 +2234,8 @@ def get_meta_info(type: str, route: str):
 @frappe.whitelist()
 def update_meta_info(meta_type: str, route: str, meta_tags: list):
 	frappe.only_for(["Course Creator", "Batch Evaluator", "Moderator"])
+	if not isinstance(meta_type, str) or not isinstance(route, str):
+		frappe.throw(_("Meta type and route must be strings."))
 	validate_meta_data_permissions(meta_type, route)
 	validate_meta_tags(meta_tags)
 
