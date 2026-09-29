@@ -8,6 +8,8 @@ from frappe import _
 from frappe.email.doctype.email_template.email_template import get_email_template
 from frappe.model.document import Document
 
+from lms.lms.doctype.lms_enrollment.lms_enrollment import validate_identity_unchanged
+
 
 class LMSBatchEnrollment(Document):
 	def after_insert(self):
@@ -15,6 +17,7 @@ class LMSBatchEnrollment(Document):
 		self.add_member_to_live_class()
 
 	def validate(self):
+		validate_identity_unchanged(self, ("batch", "member"))
 		self.validate_owner()
 		self.validate_duplicate_members()
 		self.validate_payment()

@@ -24,7 +24,8 @@
    "in_standard_filter": 1,
    "label": "Member",
    "options": "User",
-   "reqd": 1
+   "reqd": 1,
+   "set_only_once": 1
   },
   {
    "fetch_from": "member.full_name",
@@ -70,7 +71,8 @@
    "in_standard_filter": 1,
    "label": "Batch",
    "options": "LMS Batch",
-   "reqd": 1
+   "reqd": 1,
+   "set_only_once": 1
   },
   {
    "fetch_from": "member.user_image",
@@ -81,7 +83,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-02-10 16:07:28.315982",
+ "modified": "2026-09-29 12:00:00.000000",
  "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "LMS Batch Enrollment",
