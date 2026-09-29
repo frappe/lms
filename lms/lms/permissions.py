@@ -22,6 +22,7 @@ from lms.lms.utils import (
 	get_membership,
 	guest_access_allowed,
 	has_moderator_role,
+	moderators_among,
 )
 
 # File fields that hold instructor-only lesson media (never served to students).
@@ -420,6 +421,38 @@ def courses_authored_by(user: str, courses) -> set[str]:
 			pluck="parent",
 		)
 	)
+
+
+def courses_authored_by_each(users, courses) -> dict[str, set[str]]:
+	"""courses_authored_by for several users at once: a fixed two queries, not one per user.
+
+	serve_resource judges one owner per File row sharing a url, so calling the
+	single-user helper per owner puts a query in that loop."""
+	courses = {course for course in courses or [] if course}
+	users = {user for user in users or [] if user}
+	if not courses or not users:
+		return {}
+
+	# A moderator authors every course; so does Administrator (courses_authored_by).
+	authors_everything = moderators_among(users) | (users & {"Administrator"})
+	authored = {user: set(courses) for user in authors_everything}
+
+	rest = users - authors_everything
+	if not rest:
+		return authored
+
+	for row in frappe.db.get_all(
+		"Course Instructor",
+		filters={
+			"instructor": ("in", list(rest)),
+			"parent": ("in", list(courses)),
+			"parenttype": "LMS Course",
+		},
+		fields=["instructor", "parent"],
+	):
+		authored.setdefault(row.instructor, set()).add(row.parent)
+
+	return authored
 
 
 def can_access_quiz(quiz: str, *, user: str | None = None) -> bool:
