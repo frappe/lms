@@ -35,7 +35,7 @@ from frappe.utils import (
 from frappe.utils.response import Response
 from pypika import functions as fn
 
-from lms.lms.course_import_export import export_course_zip, import_course_zip
+from lms.lms.course_import_export import export_course_zip, import_course_zip, validate_archive
 from lms.lms.doctype.course_lesson.course_lesson import (
 	cleanup_lesson_backreferences,
 	save_progress,
@@ -1637,11 +1637,15 @@ def extract_package(course: str, title: str, scorm_package: dict):
 	zip_path = package.get_full_path()
 	extract_path = _scorm_extract_path(course, title)
 
-	# Clear any previously extracted package so a re-upload doesn't leave stale files served (path confirmed under the course dir above).
-	if os.path.exists(extract_path):
-		shutil.rmtree(extract_path)
-
 	with zipfile.ZipFile(zip_path, "r") as zf:
+		validate_archive(zf)
+
+		# Clear any previously extracted package so a re-upload doesn't leave stale files
+		# served (path confirmed under the course dir above). Only after validation, so a
+		# rejected replacement leaves the chapter serving its old extraction, not nothing.
+		if os.path.exists(extract_path):
+			shutil.rmtree(extract_path)
+
 		dest = os.path.realpath(extract_path)
 		for info in zf.infolist():
 			# Reject symlink entries outright: a symlink + a path through it could escape the course dir once materialised.
