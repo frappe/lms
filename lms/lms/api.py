@@ -21,6 +21,7 @@ from frappe.translate import get_all_translations
 from frappe.utils import (
 	add_days,
 	cint,
+	cstr,
 	date_diff,
 	flt,
 	format_date,
@@ -2304,6 +2305,82 @@ def validate_meta_data_permissions(meta_type: str):
 	elif meta_type == "batches":
 		if not ("Batch Evaluator" in roles or "Moderator" in roles):
 			frappe.throw(_("You do not have permission to update meta tags."))
+
+
+def can_read_expected_output(doc) -> bool:
+	return 1 in doc.get_permlevel_access("read")
+
+
+def _redact_expected(case, author: bool) -> str | None:
+	"""Withhold a hidden case's answer from a learner. Shared by both endpoints below."""
+	if case.hidden and not author:
+		return None
+	return case.expected_output
+
+
+@frappe.whitelist()
+def get_programming_exercise(exercise: str) -> dict:
+	"""Return an exercise with hidden cases' expected output blanked (not dropped, as
+	`frappe.client.get` would), so the frontend can tell withheld from absent."""
+	if not isinstance(exercise, str):
+		frappe.throw(_("exercise must be a string"))
+
+	doc = frappe.get_doc("LMS Programming Exercise", exercise)
+	doc.check_permission("read")
+	return _exercise_for_viewer(doc, can_read_expected_output(doc))
+
+
+def _exercise_for_viewer(doc, author: bool) -> dict:
+	return {
+		"name": doc.name,
+		"title": doc.title,
+		"language": doc.language,
+		"problem_statement": doc.problem_statement,
+		"starter_code": doc.starter_code,
+		"test_cases": [
+			{
+				"idx": case.idx,
+				"input": case.input,
+				"hidden": case.hidden,
+				"expected_output": _redact_expected(case, author),
+			}
+			for case in doc.test_cases
+		],
+	}
+
+
+@frappe.whitelist()
+def evaluate_programming_exercise(exercise: str, outputs: list) -> list[dict]:
+	"""Score a run server-side. The browser runs the code, so it holds each input,
+	but it must never hold a hidden case's expected output."""
+	if not isinstance(exercise, str):
+		frappe.throw(_("exercise must be a string"))
+	if not isinstance(outputs, list):
+		frappe.throw(_("outputs must be a list"))
+
+	doc = frappe.get_doc("LMS Programming Exercise", exercise)
+	doc.check_permission("read")
+
+	if len(outputs) != len(doc.test_cases):
+		frappe.throw(_("Expected {0} outputs, got {1}").format(len(doc.test_cases), len(outputs)))
+
+	author = can_read_expected_output(doc)
+	return [
+		_score_test_case(case, produced, author)
+		for case, produced in zip(doc.test_cases, outputs, strict=True)
+	]
+
+
+def _score_test_case(case, produced, author: bool) -> dict:
+	output = cstr(produced).strip()
+	expected = cstr(case.expected_output).strip()
+	return {
+		"idx": case.idx,
+		"status": "Passed" if output == expected else "Failed",
+		"hidden": case.hidden,
+		"output": output,
+		"expected_output": _redact_expected(case, author),
+	}
 
 
 @frappe.whitelist()

@@ -10,7 +10,7 @@ export type Note = {
 }
 
 export type Notes = {
-	data: Note[]
+	data: Note[] | null
 	reload: () => void
 	insert: {
 		submit: (

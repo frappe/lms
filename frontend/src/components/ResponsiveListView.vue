@@ -75,16 +75,26 @@
 							</div>
 							<div
 								v-if="detailColumns.length"
-								class="mt-0.5 flex min-w-0 flex-wrap items-baseline gap-x-1.5 text-p-sm text-ink-gray-6"
+								class="mt-0.5 flex min-w-0 items-baseline gap-x-1.5 overflow-hidden text-p-sm text-ink-gray-6"
 							>
 								<template
 									v-for="(column, index) in detailColumns"
 									:key="column.key"
 								>
-									<span v-if="index && !noDetailSeparator" aria-hidden="true"
-										>·</span
+									<span
+										v-if="index && !noDetailSeparator"
+										aria-hidden="true"
+										class="shrink-0"
 									>
-									<span class="min-w-0 truncate [&>*]:truncate">
+										·
+									</span>
+									<span
+										:class="
+											index === 0
+												? 'min-w-0 truncate [&>*]:truncate'
+												: 'shrink-0 truncate [&>*]:truncate'
+										"
+									>
 										<span class="sr-only">{{ column.label }}: </span>
 										<slot
 											name="cell"

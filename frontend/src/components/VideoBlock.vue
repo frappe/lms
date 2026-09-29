@@ -22,14 +22,14 @@
 		<div
 			v-if="!showQuiz"
 			ref="videoContainer"
-			class="video-block relative group"
+			class="video-block relative group overflow-hidden rounded-7 border border-outline-gray-2"
 		>
 			<video
 				@timeupdate="updateTime"
 				@ended="videoEnded"
 				@click="togglePlay"
 				oncontextmenu="return false"
-				class="rounded-5 border border-outline-gray-1 cursor-pointer"
+				class="block cursor-pointer"
 				ref="videoRef"
 				:src="safeUrl(fileURL)"
 				:type="type"
@@ -163,6 +163,7 @@ import { Button, Dialog, Dropdown } from 'frappe-ui'
 import { formatSeconds, formatTimestamp } from '@/utils/format'
 import { useSettings } from '@/stores/settings'
 import Play from '@/components/Icons/Play.vue'
+import Quiz from '@/components/Quiz.vue'
 import QuizInVideo from '@/components/Modals/QuizInVideo.vue'
 import { safeUrl } from '@/utils/safeUrl'
 

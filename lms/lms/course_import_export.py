@@ -738,7 +738,14 @@ def build_assessment_doc(assessment_data):
 		add_questions_to_quiz(doc, questions)
 	elif doctype == "LMS Programming Exercise":
 		for row in test_cases:
-			doc.append("test_cases", {"input": row["input"], "expected_output": row["expected_output"]})
+			doc.append(
+				"test_cases",
+				{
+					"input": row["input"],
+					"expected_output": row["expected_output"],
+					"hidden": row.get("hidden", 0),
+				},
+			)
 
 	doc.insert(ignore_permissions=True)
 

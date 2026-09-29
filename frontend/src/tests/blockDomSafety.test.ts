@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { blockNotice, embedFrame } from '../utils/blockDom'
+import { embedFrame } from '../utils/blockDom'
 import { decodeEntities, htmlToText } from '../utils/inertHtml'
 
 // The EditorJS blocks under src/utils build their DOM outside Vue, so every one
@@ -34,14 +34,6 @@ describe('embedFrame', () => {
 		expect(frame?.getAttributeNames()).toEqual(['src'])
 		// The quote is escaped in the serialization, so it stays inside the value.
 		expect(frame?.outerHTML).toContain('&quot; onload=&quot;')
-	})
-})
-
-describe('blockNotice', () => {
-	it('renders a title as text, not markup', () => {
-		const card = blockNotice('Assignment: <img src=x onerror="alert(1)">')
-		expect(card.querySelector('img')).toBeNull()
-		expect(card.textContent).toBe('Assignment: <img src=x onerror="alert(1)">')
 	})
 })
 

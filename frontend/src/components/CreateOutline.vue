@@ -21,6 +21,8 @@
 	</div>
 </template>
 <script setup>
+import { Button } from 'frappe-ui'
+
 const props = defineProps({
 	course: {
 		type: Object,

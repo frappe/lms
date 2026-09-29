@@ -12,6 +12,7 @@
   "language",
   "section_break_tjwv",
   "problem_statement",
+  "starter_code",
   "section_break_ftkh",
   "test_cases"
  ],
@@ -29,6 +30,12 @@
    "in_list_view": 1,
    "label": "Problem Statement",
    "reqd": 1
+  },
+  {
+   "description": "Prefills the learner's editor. Falls back to the language boilerplate when empty.",
+   "fieldname": "starter_code",
+   "fieldtype": "Code",
+   "label": "Starter Code"
   },
   {
    "default": "Python",
@@ -137,6 +144,30 @@
    "report": 1,
    "role": "LMS Student",
    "share": 1
+  },
+  {
+   "permlevel": 1,
+   "read": 1,
+   "role": "System Manager",
+   "write": 1
+  },
+  {
+   "permlevel": 1,
+   "read": 1,
+   "role": "Moderator",
+   "write": 1
+  },
+  {
+   "permlevel": 1,
+   "read": 1,
+   "role": "Course Creator",
+   "write": 1
+  },
+  {
+   "permlevel": 1,
+   "read": 1,
+   "role": "Batch Evaluator",
+   "write": 1
   }
  ],
  "row_format": "Dynamic",

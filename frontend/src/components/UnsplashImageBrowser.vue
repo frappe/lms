@@ -69,7 +69,13 @@
 
 <script setup>
 // import { Popover, PopoverButton, PopoverPanel } from '@headlessui/vue'
-import { Popover, FileUploader, Button, createResource } from 'frappe-ui'
+import {
+	Popover,
+	FileUploader,
+	Button,
+	TextInput,
+	createResource,
+} from 'frappe-ui'
 import { ref, watch } from 'vue'
 import { safeUrl } from '@/utils/safeUrl'
 

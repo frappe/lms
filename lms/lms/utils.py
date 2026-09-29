@@ -124,9 +124,9 @@ def slugify(title: str, used_slugs: list = None):
 		count = count + 1
 
 
-def generate_slug(title: str, doctype: str):
+def generate_slug(title: str, doctype: str, reserved: frozenset[str] = frozenset()):
 	result = frappe.get_all(doctype, fields=["name"])
-	slugs = {row["name"] for row in result}
+	slugs = {row["name"] for row in result} | reserved
 	return slugify(title, used_slugs=slugs)
 
 
@@ -2185,8 +2185,8 @@ def get_assignment_details(assessment: dict, member: str) -> dict:
 		assessment.status = "Not Attempted"
 		assessment.color = "red"
 
-	assessment.edit_url = f"/assignments/{assessment.assessment_name}"
-	submission_name = existing_submission if existing_submission else "new-submission"
+	assessment.edit_url = f"/assignments/edit/{assessment.assessment_name}"
+	submission_name = existing_submission if existing_submission else "new"
 	assessment.url = get_lms_route(f"assignment-submission/{assessment.assessment_name}/{submission_name}")
 
 	return assessment
@@ -2217,9 +2217,11 @@ def get_quiz_details(assessment: dict, member: str) -> dict:
 		assessment.color = "red"
 		assessment.completed = False
 
-	assessment.edit_url = f"/quizzes/{assessment.assessment_name}"
-	submission_name = existing_submission[0].name if len(existing_submission) else "new-submission"
-	assessment.url = f"/quiz-submission/{assessment.assessment_name}/{submission_name}"
+	assessment.edit_url = f"/quizzes/edit/{assessment.assessment_name}"
+	if len(existing_submission):
+		assessment.url = f"/quiz-submission/{existing_submission[0].name}"
+	else:
+		assessment.url = f"/quiz/{assessment.assessment_name}"
 
 	return assessment
 
@@ -2238,13 +2240,15 @@ def get_exercise_details(assessment: dict, member: str) -> dict:
 		assessment.completed = True
 		assessment.status = assessment.submission.status
 		assessment.edit_url = (
-			f"/exercises/{assessment.assessment_name}/submission/{assessment.submission.name}"
+			f"/programming-exercise-submission/{assessment.assessment_name}/{assessment.submission.name}"
 		)
 	else:
 		assessment.status = "Not Attempted"
 		assessment.color = "red"
 		assessment.completed = False
-		assessment.edit_url = f"/exercises/{assessment.assessment_name}/submission/new"
+		assessment.edit_url = f"/programming-exercise-submission/{assessment.assessment_name}/new"
+
+	return assessment
 
 
 @frappe.whitelist()
