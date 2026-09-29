@@ -12,7 +12,17 @@ applying, so nothing raises and nothing is logged. This has to be looked for.
 
 import click
 import frappe
-from frappe.modules.utils import get_module_list
+
+
+def get_module_list(app):
+	"""frappe moved this between releases: v15 and v16 expose it on `frappe`,
+	develop on `frappe.modules.utils`. This line installs on all three."""
+	getter = getattr(frappe, "get_module_list", None)
+	if getter is None:
+		from frappe.modules.utils import get_module_list as getter
+
+	return getter(app)
+
 
 ALERT_TITLE = "Custom DocPerm rows are shadowing the permlevel permissions LMS ships"
 
