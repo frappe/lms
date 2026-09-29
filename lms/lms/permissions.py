@@ -849,6 +849,36 @@ def can_administer_assessment(doctype: str, name: str, *, user: str | None = Non
 	return _assessment_answer(doctype, name, user, include_members=False)
 
 
+# The ptypes that read an assessment rather than author it, matching Course Lesson's
+# own hook. Everything else — write, delete, share, export, report, email — takes the
+# instructor reading, so an enrolled member reaches the content and nothing more.
+ASSESSMENT_READ_PTYPES = ("read", "select", "print")
+
+
+def assessment_has_permission(doc, ptype="read", user=None):
+	"""Document half of the assessment pair, registered for all three doctypes.
+
+	The doctype is read off the document rather than taken per registration: a quiz,
+	an assignment and a programming exercise are one sentence here, and three wrappers
+	would be three places for it to drift.
+
+	`create` returns no opinion. An assessment's scope lives entirely in rows that name
+	it — LMS Lesson Assessment placements and a batch's LMS Assessment rows — and a
+	document being inserted has no name for them to point at, so the DocPerm grant
+	governs. LMS Programming Exercise carries no course field at all, so gating create
+	on the other two's legacy stamp would make the pair two rules instead of one.
+	"""
+	if doc.doctype not in ASSESSMENT_DOCTYPES:
+		return True
+	if ptype == "create" or doc.is_new():
+		return True
+
+	user = user or frappe.session.user
+	if ptype in ASSESSMENT_READ_PTYPES:
+		return can_access_assessment(doc.doctype, doc.name, user=user)
+	return can_administer_assessment(doc.doctype, doc.name, user=user)
+
+
 def _assessment_answer(doctype: str, name: str, user: str | None, *, include_members: bool) -> bool:
 	"""Site admin, moderator or content author, then a course that places it, then
 	a batch that runs it."""

@@ -1,8 +1,6 @@
 # Copyright (c) 2026, Frappe and Contributors
 # For license information, please see license.txt
 
-from contextlib import contextmanager
-
 import frappe
 from frappe.query_builder import Bracket
 from pypika.terms import LiteralValue
@@ -18,43 +16,15 @@ from lms.lms.permissions import (
 )
 from lms.lms.test_helpers import BaseTestUtils
 
-# What a later commit will write into hooks.py. Held here so the list assertions
-# measure the SQL this commit writes without waiting on that registration.
-ASSESSMENT_QUERY_CONDITIONS = {
-	"LMS Quiz": ["lms.lms.permissions.quiz_query_conditions"],
-	"LMS Assignment": ["lms.lms.permissions.assignment_query_conditions"],
-	"LMS Programming Exercise": ["lms.lms.permissions.programming_exercise_query_conditions"],
-}
-
-
-@contextmanager
-def conditions_registered():
-	"""Apply the query conditions to frappe.get_list without touching hooks.py, by
-	overriding frappe.get_hooks for permission_query_conditions alone."""
-	real_get_hooks = frappe.get_hooks
-
-	def get_hooks(hook=None, default="_KEEP_DEFAULT_LIST", app_name=None):
-		hooks = real_get_hooks(hook, default, app_name)
-		if hook != "permission_query_conditions":
-			return hooks
-		return {**(hooks or {}), **ASSESSMENT_QUERY_CONDITIONS}
-
-	frappe.get_hooks = get_hooks
-	try:
-		yield
-	finally:
-		frappe.get_hooks = real_get_hooks
-
 
 def lists_for(doctype: str, name: str, user: str) -> bool:
-	"""Whether `user` finds `name` in the doctype's list, with the condition applied.
-	frappe.get_list, never frappe.get_all, which sets ignore_permissions=True and
-	would pass against a condition that does nothing."""
+	"""Whether `user` finds `name` in the doctype's list, through the real hooks.py
+	registration. frappe.get_list, never frappe.get_all, which bypasses permissions
+	and limit_page_length=0 since the shared site's default page could drop the row."""
 	original_user = frappe.session.user
 	frappe.set_user(user)
 	try:
-		with conditions_registered():
-			return name in frappe.get_list(doctype, pluck="name", limit_page_length=0)
+		return name in frappe.get_list(doctype, pluck="name", limit_page_length=0)
 	finally:
 		frappe.set_user(original_user)
 
@@ -468,22 +438,14 @@ class TestAssessmentListScope(BaseTestUtils):
 		self.assertEqual(frappe.db.get_value("LMS Quiz", self.quiz.name, "owner"), self.author.name)
 
 	def test_get_all_bypasses_the_condition_that_get_list_enforces(self):
-		"""Before the condition applies, an outsider lists the quiz -- so a refusal below
-		is the condition's doing, not a DocPerm's. With it applied, get_all still
-		returns the row, which is what makes a get_all assertion here worthless."""
+		"""The outsider holds LMS Student, which grants read site-wide; only the
+		registered query condition refuses them, and only get_list applies it.
+		get_all sets ignore_permissions=True and hands back the same row."""
 		self._place_in_lesson(self.course.name, "LMS Quiz", self.quiz.name)
 		frappe.set_user(self.outsider.name)
 		try:
-			self.assertIn(
-				self.quiz.name,
-				frappe.get_list("LMS Quiz", pluck="name", limit_page_length=0),
-				"the doctype refuses the outsider before any condition applies",
-			)
-			with conditions_registered():
-				self.assertNotIn(
-					self.quiz.name, frappe.get_list("LMS Quiz", pluck="name", limit_page_length=0)
-				)
-				self.assertIn(self.quiz.name, frappe.get_all("LMS Quiz", pluck="name", limit_page_length=0))
+			self.assertNotIn(self.quiz.name, frappe.get_list("LMS Quiz", pluck="name", limit_page_length=0))
+			self.assertIn(self.quiz.name, frappe.get_all("LMS Quiz", pluck="name", limit_page_length=0))
 		finally:
 			frappe.set_user("Administrator")
 
