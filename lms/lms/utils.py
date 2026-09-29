@@ -634,6 +634,10 @@ def get_lesson_count(course: str) -> int:
 	return frappe.db.count("Lesson Reference", {"parent": ("in", chapter_references)})
 
 
+STATISTICS_CHARTS = ("New Signups", "Course Enrollments", "Certification")
+
+
+# nosemgrep: security.guest-whitelisted-method - pre-existing grant; this branch narrows it to the Statistics charts. Flagged only because the body changed.
 @frappe.whitelist(allow_guest=True)
 @rate_limit(limit=500, seconds=60 * 60)
 def get_chart_data(
@@ -642,8 +646,19 @@ def get_chart_data(
 	from_date: str = None,
 	to_date: str = None,
 ):
+	if not isinstance(chart_name, str) or chart_name not in STATISTICS_CHARTS:
+		frappe.throw(_("This chart is not available."), frappe.PermissionError)
+
+	try:
+		chart = frappe.get_doc("Dashboard Chart", chart_name)
+	except frappe.DoesNotExistError:
+		frappe.clear_last_message()
+		frappe.throw(_("This chart is not available."), frappe.PermissionError)
+
+	if not chart.is_public and not frappe.has_permission("Dashboard Chart", "read", doc=chart):
+		frappe.throw(_("This chart is not available."), frappe.PermissionError)
+
 	from_date, to_date = get_chart_date_range(from_date, to_date)
-	chart = frappe.get_doc("Dashboard Chart", chart_name)
 	doctype = chart.document_type
 	datefield = chart.based_on
 	value_field = chart.value_based_on or "1"
