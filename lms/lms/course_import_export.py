@@ -36,6 +36,15 @@ ALLOWED_ASSET_EXTENSIONS = {
 }
 MAX_IMPORTED_ASSET_BYTES = 200 * 1024 * 1024
 
+# Bounds on what an uploaded archive (course import or SCORM package) may expand to.
+# The upload cap only limits the compressed file, and deflate reaches ~1000:1.
+MAX_ARCHIVE_BYTES = 1024 * 1024 * 1024
+MAX_ARCHIVE_MEMBERS = 10_000
+MAX_COMPRESSION_RATIO = 100
+# Small members cannot do harm however well they compress, so the ratio only applies above this.
+MIN_RATIO_CHECK_BYTES = 1024 * 1024
+MAX_ARCHIVE_JSON_BYTES = 10 * 1024 * 1024
+
 
 def export_course_zip(course_name):
 	course = frappe.get_doc("LMS Course", course_name)
@@ -354,6 +363,7 @@ def import_course_zip(zip_file_path):
 	validate_zip_file(actual_path)
 
 	with zipfile.ZipFile(actual_path, "r") as zip_file:
+		validate_archive(zip_file)
 		course_data = read_json_from_zip(zip_file, "course.json")
 		if not course_data:
 			frappe.throw(_("Invalid course ZIP: Missing course.json"))
@@ -369,10 +379,40 @@ def import_course_zip(zip_file_path):
 		return course_doc.name
 
 
+def validate_archive(zip_file):
+	"""Refuse an archive that would expand past the limits, judged from its central
+	directory before any member is read. zipfile stops each read at the declared
+	size, so the declared sizes bound what extraction can write."""
+	members = zip_file.infolist()
+	if len(members) > MAX_ARCHIVE_MEMBERS:
+		frappe.throw(_("The archive has more than {0} files").format(MAX_ARCHIVE_MEMBERS))
+
+	if sum(info.file_size for info in members) > MAX_ARCHIVE_BYTES:
+		frappe.throw(_("The archive expands to more than {0} MB").format(MAX_ARCHIVE_BYTES // 1048576))
+
+	for info in members:
+		if info.file_size > max(MIN_RATIO_CHECK_BYTES, MAX_COMPRESSION_RATIO * info.compress_size):
+			frappe.throw(
+				_("{0} in the archive is compressed too heavily to extract safely").format(
+					escape_html(info.filename)
+				)
+			)
+
+
+def read_zip_member(zip_file, name, limit):
+	"""A member's bytes, capped by what is actually read rather than by its header."""
+	with zip_file.open(name) as f:
+		data = f.read(limit + 1)
+	if len(data) > limit:
+		frappe.throw(_("{0} in the archive is too large to import").format(escape_html(name)))
+	return data
+
+
 def read_json_from_zip(zip_file, filename):
 	try:
-		with zip_file.open(filename) as f:
-			return json.load(f)
+		return json.loads(read_zip_member(zip_file, filename, MAX_ARCHIVE_JSON_BYTES))
+	except frappe.ValidationError:
+		raise
 	except Exception as e:
 		frappe.log_error(f"Error reading {filename} from ZIP: {e}")
 		return None
@@ -596,13 +636,8 @@ def get_assessment_title(zip_file, assessment_name, assessment_type):
 	doctype = "_".join(assessment_map.get(assessment_type).lower().split(" "))
 	assessment_name = "_".join(assessment_name.split(" "))
 	file_name = f"assessments/{doctype}_{assessment_name}.json"
-	try:
-		with zip_file.open(file_name) as f:
-			assessment_data = json.load(f)
-			return assessment_data.get("title")
-	except Exception as e:
-		frappe.log_error(f"Error reading {file_name} from ZIP: {e}")
-		return None
+	assessment_data = read_json_from_zip(zip_file, file_name)
+	return assessment_data.get("title") if assessment_data else None
 
 
 def replace_assessment_names(zip_file, content):
@@ -859,8 +894,8 @@ def process_asset_file(zip_file, file, privacy, existing):
 	if not is_safe_zip_member(file):
 		return
 	asset_name = base_name(file)
-	with zip_file.open(file) as f:
-		create_asset_doc(asset_name, f.read(), asset_is_private(privacy, asset_name), existing)
+	content = read_zip_member(zip_file, file, MAX_IMPORTED_ASSET_BYTES)
+	create_asset_doc(asset_name, content, asset_is_private(privacy, asset_name), existing)
 
 
 def validate_assets(members):
