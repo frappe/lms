@@ -12,7 +12,6 @@ applying, so nothing raises and nothing is logged. This has to be looked for.
 
 import click
 import frappe
-from frappe.modules.utils import get_module_list
 
 ALERT_TITLE = "Custom DocPerm rows are shadowing the permlevel permissions LMS ships"
 
@@ -74,7 +73,7 @@ def _get_lms_doctypes() -> set[str]:
 	# both "LMS" and "Job", and a "%LMS%" filter drops every Job doctype without saying so.
 	doctypes = frappe.get_all(
 		"DocType",
-		filters={"module": ("in", get_module_list("lms")), "custom": 0, "istable": 0},
+		filters={"module": ("in", frappe.get_module_list("lms")), "custom": 0, "istable": 0},
 		pluck="name",
 	)
 	return set(doctypes) - set(LMS_MANAGED_CUSTOM_DOCPERM_DOCTYPES)
