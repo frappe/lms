@@ -39,15 +39,10 @@ def execute():
 
 
 def backfill_all():
-	"""The unbounded path, for an operator to enqueue when execute() refuses the volume.
-	Commits per page so a job that dies part-way keeps the work it finished."""
-	written = 0
+	"""The unbounded path, for an operator to enqueue when execute() refuses the
+	volume. No intermediate commit: the caller's transaction commits it, atomically."""
 	for name, rows in _lessons_needing_placements():
 		_write_placements(name, rows)
-		written += 1
-		if written % PAGE_SIZE == 0:
-			frappe.db.commit()
-	frappe.db.commit()
 
 
 def _lessons_needing_placements(limit: int | None = None) -> list[tuple[str, list[dict]]]:
