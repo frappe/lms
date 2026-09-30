@@ -612,7 +612,11 @@ describe('Quiz for screen readers', () => {
 		const submission = (wrapper.vm as any).quizSubmission
 		submission.data = result
 		await flushPromises()
+<<<<<<< HEAD
 		expect(wrapper.text()).toContain('Quiz result')
+=======
+		expect(wrapper.text()).toContain('Quiz Summary')
+>>>>>>> 32cbf29 (fix: announce quiz questions, answers and feedback to screen readers)
 		expect(document.activeElement?.tagName).not.toBe('H2')
 
 		submission.submit.mockImplementation((_: unknown, callbacks: any) => {
@@ -621,6 +625,7 @@ describe('Quiz for screen readers', () => {
 		})
 		;(wrapper.vm as any).submitQuiz()
 		await flushPromises()
+<<<<<<< HEAD
 		expect(document.activeElement?.textContent?.trim()).toBe('Quiz result')
 	})
 })
@@ -702,5 +707,8 @@ describe('Quiz closed while submitting', () => {
 
 		expect(submitButton().attributes('disabled')).toBeDefined()
 		wrapper.unmount()
+=======
+		expect(document.activeElement?.textContent?.trim()).toBe('Quiz Summary')
+>>>>>>> 32cbf29 (fix: announce quiz questions, answers and feedback to screen readers)
 	})
 })
