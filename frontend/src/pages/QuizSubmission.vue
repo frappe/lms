@@ -151,6 +151,7 @@
 								v-if="isOpenEnded"
 								v-model="row.marks"
 								type="number"
+								:aria-label="__('Marks for question {0}').format(index + 1)"
 								class="w-20"
 							/>
 							<span

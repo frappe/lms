@@ -171,6 +171,7 @@
 									value != null && updateLessonProgress(String(value))
 							"
 							:placeholder="__('Sort by')"
+							:aria-label="__('Sort by')"
 							class="!w-32"
 						/>
 					</div>

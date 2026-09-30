@@ -53,17 +53,20 @@
 				doctype="Country"
 				v-model="country"
 				:placeholder="__('Country')"
+				:aria-label="__('Country')"
 			/>
 			<Select
 				v-model="jobType"
 				:options="jobTypes"
 				:placeholder="__('Type')"
+				:aria-label="__('Type')"
 				@update:modelValue="updateJobs"
 			/>
 			<Select
 				v-model="workMode"
 				:options="workModes"
 				:placeholder="__('Work Mode')"
+				:aria-label="__('Work Mode')"
 				@update:modelValue="updateJobs"
 			/>
 		</template>

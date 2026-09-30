@@ -110,6 +110,7 @@
 						>
 							<RichTextEditor
 								:id="batchDetailsId"
+								:ariaLabelledby="batchDetailsLabelId"
 								:content="batch.batch_details"
 								@change="(val: string) => (batch.batch_details = val)"
 								:editable="true"

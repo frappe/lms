@@ -45,6 +45,7 @@
 						:required="true"
 					/>
 					<RichTextEditor
+						:ariaLabelledby="contentLabelId"
 						:content="template.response"
 						:editable="true"
 						:fixedMenu="true"
