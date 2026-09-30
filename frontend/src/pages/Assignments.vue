@@ -58,6 +58,7 @@
 				v-model="typeFilter"
 				:options="assignmentTypes"
 				:placeholder="__('Type')"
+				:aria-label="__('Type')"
 			/>
 		</template>
 
