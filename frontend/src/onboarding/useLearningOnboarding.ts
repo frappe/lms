@@ -29,6 +29,7 @@ const facts = reactive<Partial<OnboardingFacts>>({})
 const handles = shallowReactive<Partial<Record<FlowId, UseOnboarding>>>({})
 const flowSteps: Partial<Record<FlowId, FlowStep[]>> = {}
 const isSetUp = ref(false)
+let flowNav: FlowNavigation | null = null
 let storedFlow: Ref<string | null> | null = null
 
 function sessionUser(): string {
@@ -155,15 +156,16 @@ type SidebarNavigation = Omit<FlowNavigation, 'facts' | 'complete'>
 /** Register every flow, so a form can complete a step whichever is active. */
 async function setUpAll(nav: SidebarNavigation): Promise<void> {
 	if (isSetUp.value) return
-	const flowNav: FlowNavigation = { ...nav, facts, complete: completeStep }
+	const stepNav: FlowNavigation = { ...nav, facts, complete: completeStep }
 	for (const flow of FLOWS) {
 		const handle = useOnboarding(flow.key)
 		if (!handle) return
-		const steps = flow.steps(flowNav)
+		const steps = flow.steps(stepNav)
 		handle.setUp(steps)
 		flowSteps[flow.id] = steps
 		handles[flow.id] = handle
 	}
+	flowNav = stepNav
 	isSetUp.value = true
 	// Each setUp() opened or closed the panel for its own key; only the active
 	// flow's checklist should open on load.
@@ -178,6 +180,10 @@ function setFlow(id: FlowId | null): void {
 	if (!id) return
 	minimize.value = false
 	showHelpModal.value = true
+}
+
+function runDoneAction(): void {
+	if (flowNav) activeFlow.value?.doneAction.run(flowNav)
 }
 
 function closePanel(): void {
@@ -199,5 +205,6 @@ export function useLearningOnboarding() {
 		completeStep,
 		applyFacts,
 		closePanel,
+		runDoneAction,
 	}
 }

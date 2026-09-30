@@ -319,3 +319,23 @@ describe('bannerFlow', () => {
 		expect(o.bannerFlow.value).toBeNull()
 	})
 })
+
+describe('runDoneAction', () => {
+	it('runs the active flow’s done action with the sidebar navigation', async () => {
+		callMock.mockResolvedValue({ first_batch: 'b1' })
+		const o = await load('live_class')
+		await o.setUpAll(nav)
+		o.runDoneAction()
+		expect(nav.openRoute).toHaveBeenCalledWith({
+			name: 'BatchDetail',
+			params: { batchName: 'b1' },
+		})
+	})
+
+	it('does nothing before set-up', async () => {
+		nav.openRoute.mockClear()
+		const o = await load('live_class')
+		o.runDoneAction()
+		expect(nav.openRoute).not.toHaveBeenCalled()
+	})
+})
