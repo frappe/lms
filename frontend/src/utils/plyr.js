@@ -45,6 +45,7 @@ const setupPlyrForVideo = (video, players) => {
 		'current-time',
 		'mute',
 		'volume',
+		'captions',
 		'settings',
 		'fullscreen',
 	]

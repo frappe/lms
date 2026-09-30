@@ -12,6 +12,7 @@
 			>
 				{{ __('{0} of {1} passed').format(passed, results.length) }}
 			</Badge>
+			<span role="status" class="sr-only">{{ resultStatus }}</span>
 		</div>
 
 		<div v-if="results.length" class="space-y-1.5">
@@ -29,7 +30,11 @@
 								? 'lucide-circle-check text-ink-green-5'
 								: 'lucide-circle-alert text-ink-red-5'
 						"
+						aria-hidden="true"
 					/>
+					<span class="sr-only">
+						{{ result.status === 'Passed' ? __('Passed') : __('Failed') }}
+					</span>
 					<span
 						class="min-w-0 flex-1 truncate font-mono text-base text-ink-gray-9"
 					>
@@ -85,6 +90,12 @@ const props = defineProps<{
 const visible = computed(() => props.results.filter((r) => !r.hidden))
 const passed = computed(
 	() => props.results.filter((r) => r.status === 'Passed').length
+)
+
+const resultStatus = computed(() =>
+	props.results.length
+		? __('{0} of {1} passed').format(passed.value, props.results.length)
+		: ''
 )
 
 const summary = computed(() => {

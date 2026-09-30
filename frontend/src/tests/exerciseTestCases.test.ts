@@ -96,3 +96,23 @@ describe('ExerciseTestCases', () => {
 		expect(wrapper.text()).not.toContain('SECRET_EXPECTED_VALUE')
 	})
 })
+
+describe('ExerciseTestCases announcements', () => {
+	// Guards: pass/fail shown by colour and icon alone, results not announced.
+	// Introduced in #2823; test added with the a11y audit remediation.
+	it('says each verdict in text and announces from a status region kept mounted', async () => {
+		const wrapper = mountTestCases({ results: [], duration: null })
+		const status = wrapper.get('[role="status"]')
+		const failed = { ...mixed[0], idx: 2, status: 'Failed' as const }
+
+		await wrapper.setProps({ results: [mixed[0], failed], duration: 0.4 })
+
+		expect(wrapper.get('[role="status"]').element).toBe(status.element)
+		expect(status.text()).toBe('1 of 2 passed')
+		const verdicts = wrapper.findAll('[data-testid="test-case-row"] .sr-only')
+		expect(verdicts.map((v) => v.text())).toEqual(['Passed', 'Failed'])
+		expect(wrapper.get('.lucide-circle-check').attributes('aria-hidden')).toBe(
+			'true'
+		)
+	})
+})
