@@ -141,7 +141,9 @@ const conferencingProvider = computed(
 )
 
 const isAdmin = computed(() =>
-	Boolean(user.data?.is_moderator || user.data?.is_evaluator)
+	Boolean(
+		user.data?.is_moderator || user.data?.is_evaluator || batch.data?.can_manage
+	)
 )
 
 // Copied from LiveClass.vue's canCreateClass()/hasProviderAccount(), which gate

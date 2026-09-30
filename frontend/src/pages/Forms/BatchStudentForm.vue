@@ -53,7 +53,10 @@ import { openSettings } from '@/utils'
 import Link from '@/components/Controls/Link.vue'
 import FormShell from '@/components/FormShell.vue'
 import HeaderButton from '@/components/HeaderButton.vue'
-import { batchRouteLocation } from '@/composables/useBatchForms'
+import {
+	batchRouteLocation,
+	useBatchDetails,
+} from '@/composables/useBatchForms'
 import { useFormRoute } from '@/composables/useFormRoute'
 import { submitResource } from '@/utils/resource'
 
@@ -68,6 +71,7 @@ const user = inject('$user')
 const route = useRoute()
 const readOnlyMode = window.read_only_mode
 const { updateOnboardingStep } = useOnboarding('learning')
+const batch = useBatchDetails(() => props.batchName)
 
 const student = ref(null)
 const payment = ref(null)
@@ -81,10 +85,14 @@ const { close, saveAndReplace } = useFormRoute(
 // converted form checks it and a read-only site cannot insert.
 //
 // UX gate, not an authorization boundary — validate_owner() on LMS Batch
-// Enrollment is, and it demands the same two roles.
+// Enrollment is, and it now also passes a tagged Course Creator via can_author_batch.
 const refusal = computed(() => {
 	if (readOnlyMode) return __('This site is in read-only mode.')
-	if (!user.data?.is_moderator && !user.data?.is_evaluator) {
+	if (
+		!user.data?.is_moderator &&
+		!user.data?.is_evaluator &&
+		!batch.data?.can_manage
+	) {
 		return __('You do not have permission to enroll students in this batch.')
 	}
 	return ''
