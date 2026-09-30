@@ -29,6 +29,7 @@ const router = useRouter()
 onMounted(() => {
 	if (!user.data?.is_instructor && !user.data?.is_moderator) {
 		router.push({ name: 'Courses' })
+		return
 	}
 })
 
