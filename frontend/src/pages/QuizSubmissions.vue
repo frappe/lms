@@ -45,7 +45,7 @@
 			<span v-else-if="column.key === 'percentage'">{{ value }}%</span>
 			<div
 				v-else-if="column.key === 'creation'"
-				class="text-sm text-ink-gray-5"
+				class="text-sm text-ink-gray-6"
 			>
 				{{ value }}
 			</div>

@@ -140,7 +140,7 @@
 					</template>
 				</Button>
 				<div
-					class="min-w-0 flex-1 text-center text-p-xs font-medium tabular-nums text-ink-gray-5"
+					class="min-w-0 flex-1 text-center text-p-xs font-medium tabular-nums text-ink-gray-6"
 				>
 					<span v-if="courseEditorRef?.lessonTotal">
 						{{ courseEditorRef?.lessonIndex }} /

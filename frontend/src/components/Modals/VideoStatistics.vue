@@ -22,7 +22,7 @@
 							class="space-y-5 border rounded-5 p-2 pt-4 max-h-[50vh] sm:max-h-[70vh] overflow-y-auto"
 						>
 							<div
-								class="grid grid-cols-[60%,40%] sm:grid-cols-[70%,30%] text-sm text-ink-gray-5"
+								class="grid grid-cols-[60%,40%] sm:grid-cols-[70%,30%] text-sm text-ink-gray-6"
 							>
 								<div class="px-4">
 									{{ __('Member') }}
@@ -88,7 +88,7 @@
 						</div>
 					</div>
 				</div>
-				<div v-else class="text-sm text-ink-gray-5">
+				<div v-else class="text-sm text-ink-gray-6">
 					{{ __('No statistics available for this video.') }}
 				</div>
 			</div>

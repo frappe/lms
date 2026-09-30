@@ -17,7 +17,7 @@
 			<div class="overflow-hidden rounded-4 border border-outline-elevation-2">
 				<div
 					data-testid="sidebar-grid-header"
-					class="flex items-center bg-surface-gray-2 text-p-sm text-ink-gray-5"
+					class="flex items-center bg-surface-gray-2 text-p-sm text-ink-gray-6"
 				>
 					<div class="h-8 w-8 shrink-0 border-e border-outline-gray-2" />
 					<div

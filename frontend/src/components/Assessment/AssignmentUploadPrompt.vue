@@ -8,7 +8,7 @@
 			{{ __('Upload Assignment') }}
 		</span>
 		<slot />
-		<span class="text-xs text-ink-gray-5">
+		<span class="text-xs text-ink-gray-6">
 			{{ __('You can only upload {0} files').format(type) }}
 		</span>
 	</div>

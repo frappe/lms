@@ -43,7 +43,7 @@
 				</div>
 				<span
 					v-if="!chapter.is_scorm_package && chapter.lessons?.length"
-					class="ms-3 shrink-0 text-sm text-ink-gray-5"
+					class="ms-3 shrink-0 text-sm text-ink-gray-6"
 					:class="{
 						'group-hover:hidden group-focus-within:hidden [@media(hover:none)]:hidden':
 							allowEdit,

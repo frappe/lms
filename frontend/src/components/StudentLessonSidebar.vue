@@ -44,7 +44,7 @@
 						</div>
 						<span
 							v-if="chapter.lessons?.length"
-							class="text-sm text-ink-gray-5 shrink-0"
+							class="text-sm text-ink-gray-6 shrink-0"
 						>
 							{{ chapter.lessons.length }}
 						</span>

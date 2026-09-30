@@ -68,7 +68,7 @@
 					<div class="text-p-base-medium text-ink-gray-7">
 						{{ __('Redeemed') }}
 					</div>
-					<div class="text-p-sm text-ink-gray-5">
+					<div class="text-p-sm text-ink-gray-6">
 						{{ __('How many times this code has been used so far') }}
 					</div>
 				</div>
@@ -87,7 +87,7 @@
 							color="gray-7"
 							class="font-medium leading-normal"
 						/>
-						<div class="text-p-sm text-ink-gray-5">
+						<div class="text-p-sm text-ink-gray-6">
 							{{ __('The courses and batches this coupon can be redeemed on') }}
 						</div>
 					</div>
@@ -128,7 +128,7 @@
 						</Button>
 					</div>
 				</div>
-				<p v-else class="text-p-sm text-ink-gray-5">
+				<p v-else class="text-p-sm text-ink-gray-6">
 					{{ __('Add at least one course or batch.') }}
 				</p>
 			</div>

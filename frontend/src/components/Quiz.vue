@@ -27,7 +27,7 @@
 				</Badge>
 				<span
 					v-if="attemptsLeft !== null"
-					class="hidden text-xs text-ink-gray-5 sm:inline"
+					class="hidden text-xs text-ink-gray-6 sm:inline"
 				>
 					{{ attemptsLeftLabel(attemptsLeft) }}
 				</span>
@@ -70,7 +70,7 @@
 					v-if="introTips.length && questions.length && !attemptsExhausted"
 					class="space-y-2 border-b border-outline-gray-1 p-3.5"
 				>
-					<div class="text-sm text-ink-gray-5">
+					<div class="text-sm text-ink-gray-6">
 						{{ __('Before you start') }}
 					</div>
 					<ol class="space-y-1.5">
@@ -132,7 +132,7 @@
 					</div>
 
 					<template v-if="!questions.length">
-						<p class="text-p-base text-ink-gray-5">
+						<p class="text-p-base text-ink-gray-6">
 							{{ __('This quiz has no questions available yet.') }}
 						</p>
 						<Button v-if="inVideo" @click="props.backToVideo()">{{
@@ -245,7 +245,7 @@
 										<div class="text-base text-ink-gray-8">
 											{{ rule.title }}
 										</div>
-										<div class="mt-0.5 text-p-sm text-ink-gray-5">
+										<div class="mt-0.5 text-p-sm text-ink-gray-6">
 											{{ rule.hint }}
 										</div>
 									</div>
@@ -281,7 +281,7 @@
 						<div
 							class="flex h-11 items-center gap-3 border-b border-outline-gray-1 bg-surface-gray-1 px-3.5"
 						>
-							<span class="shrink-0 text-sm text-ink-gray-5">
+							<span class="shrink-0 text-sm text-ink-gray-6">
 								{{
 									__('Question {0} of {1}').format(
 										activeQuestion,
@@ -309,7 +309,7 @@
 									:value="(activeQuestion / questions.length) * 100"
 								/>
 							</div>
-							<span class="shrink-0 text-sm text-ink-gray-5">
+							<span class="shrink-0 text-sm text-ink-gray-6">
 								{{ question.marks }}
 								{{ question.marks == 1 ? __('Mark') : __('Marks') }}
 							</span>
@@ -317,7 +317,7 @@
 
 						<div class="space-y-3 p-3.5">
 							<div class="space-y-1">
-								<div class="text-sm text-ink-gray-5">
+								<div class="text-sm text-ink-gray-6">
 									{{
 										questionDetails.data.type == 'Open Ended'
 											? __('Written response')
@@ -457,7 +457,7 @@
 									/>
 									<span
 										v-else-if="questionDetails.data.type == 'Open Ended'"
-										class="text-sm text-ink-gray-5"
+										class="text-sm text-ink-gray-6"
 									>
 										{{ __('Marked by your instructor') }}
 									</span>
@@ -606,7 +606,7 @@
 				<span class="text-xs font-semibold text-ink-gray-8">{{
 					__('Activity')
 				}}</span>
-				<span class="text-xs text-ink-gray-5"
+				<span class="text-xs text-ink-gray-6"
 					>{{ summaryLog.length }}
 					{{ summaryLog.length == 1 ? __('event') : __('events') }}</span
 				>
@@ -804,7 +804,7 @@
 							:class="
 								questions.length - attemptedQuestions.length > 0
 									? 'text-ink-orange-6 font-medium'
-									: 'text-ink-gray-5'
+									: 'text-ink-gray-6'
 							"
 						>
 							{{ questions.length - attemptedQuestions.length }}

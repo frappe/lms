@@ -74,7 +74,7 @@
 							<h1 class="text-xl text-ink-gray-9 font-semibold mb-1">
 								{{ job.data.job_title }}
 							</h1>
-							<div class="text-sm text-ink-gray-5 font-semibold">
+							<div class="text-sm text-ink-gray-6 font-semibold">
 								{{ job.data.company_name }} - {{ job.data.location }},
 								{{ job.data.country }}
 							</div>

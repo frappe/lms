@@ -50,7 +50,7 @@
 							>
 								{{ __('Include in preview') }}
 							</div>
-							<p class="mt-0.5 text-p-sm text-ink-gray-5">
+							<p class="mt-0.5 text-p-sm text-ink-gray-6">
 								{{
 									__(
 										'When on, anyone can preview this lesson without enrolling. Otherwise it is visible only to enrolled students.'
