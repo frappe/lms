@@ -1,21 +1,77 @@
 import frappe
 
+SAMPLE_COURSE_TITLE = "A guide to Frappe Learning"
+# lms/demo/demo_data.py creates these; clear_demo_data deletes the same list.
+DEMO_USERS = ["ash@ipp.com", "john.doe@example.com", "jane.smith@example.com", "jannat@example.com"]
+# Every new user gets LMS Student from a hook, so staff carry it too.
+STAFF_ROLES = ["System Manager", "Moderator", "Course Creator", "Batch Evaluator"]
 
-def get_first_course():
-	course = frappe.get_all(
-		"LMS Course",
-		fields=["name"],
-		order_by="creation",
-		limit=1,
+
+@frappe.whitelist()
+def get_onboarding_facts() -> dict[str, str | bool | None]:
+	"""What the site already has, so the onboarding flows can tick steps done before they shipped."""
+	frappe.only_for("System Manager")
+
+	first_course = _first("LMS Course", {"title": ["!=", SAMPLE_COURSE_TITLE]})
+	first_batch = _first("LMS Batch", {})
+
+	return {
+		"first_course": first_course,
+		"first_batch": first_batch,
+		"has_course": bool(first_course),
+		"has_chapter": _exists_for(first_course, "Course Chapter", {"course": first_course}),
+		"has_lesson": _exists_for(first_course, "Course Lesson", {"course": first_course}),
+		"has_course_image": _exists_for(
+			first_course, "LMS Course", {"name": first_course, "image": ["is", "set"]}
+		),
+		"has_published_course": _exists_for(
+			first_course, "LMS Course", {"name": first_course, "published": 1}
+		),
+		"has_invited_student": _has_invited_student(),
+		"has_batch": bool(first_batch),
+		"has_batch_course": _exists_for(
+			first_batch, "Batch Course", {"parent": first_batch, "parenttype": "LMS Batch"}
+		),
+		"has_batch_student": _exists_for(first_batch, "LMS Batch Enrollment", {"batch": first_batch}),
+		"has_conferencing_account": bool(
+			_first("LMS Zoom Settings", {}) or _first("LMS Google Meet Settings", {})
+		),
+		"has_live_class": _exists_for(first_batch, "LMS Live Class", {"batch_name": first_batch}),
+		"has_published_batch": _exists_for(first_batch, "LMS Batch", {"name": first_batch, "published": 1}),
+	}
+
+
+def _first(doctype: str, filters: dict) -> str | None:
+	rows = frappe.get_all(doctype, filters=filters, pluck="name", order_by="creation asc", limit=1)
+	return rows[0] if rows else None
+
+
+def _exists_for(target: str | None, doctype: str, filters: dict) -> bool:
+	return bool(target and frappe.db.exists(doctype, filters))
+
+
+def _has_invited_student() -> bool:
+	"""An enabled LMS Student somebody else created. Self sign-up inserts as Guest."""
+	User = frappe.qb.DocType("User")
+	HasRole = frappe.qb.DocType("Has Role")
+	staff = (
+		frappe.qb.from_(HasRole)
+		.select(HasRole.parent)
+		.where(HasRole.parenttype == "User")
+		.where(HasRole.role.isin(STAFF_ROLES))
 	)
-	return course[0].name if course else None
-
-
-def get_first_batch():
-	batch = frappe.get_all(
-		"LMS Batch",
-		fields=["name"],
-		order_by="creation",
-		limit=1,
+	rows = (
+		frappe.qb.from_(User)
+		.join(HasRole)
+		.on((HasRole.parent == User.name) & (HasRole.parenttype == "User"))
+		.select(User.name)
+		.where(HasRole.role == "LMS Student")
+		.where(User.enabled == 1)
+		.where(User.name.notin(["Administrator", "Guest", *DEMO_USERS]))
+		.where(User.name.notin(staff))
+		.where(User.owner != User.name)
+		.where(User.owner != "Guest")
+		.limit(1)
+		.run()
 	)
-	return batch[0].name if batch else None
+	return bool(rows)
