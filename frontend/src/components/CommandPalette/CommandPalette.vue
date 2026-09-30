@@ -29,7 +29,7 @@
 							<div v-safe-html:rich="item.title"></div>
 						</div>
 						<template v-if="item.modified" #suffix>
-							<div class="text-ink-gray-5">
+							<div class="text-ink-gray-6">
 								{{ dayjs.unix(item.modified).fromNow(true) }}
 							</div>
 						</template>
@@ -39,14 +39,14 @@
 
 			<p
 				v-if="showsErrorState"
-				class="px-4.5 py-2 text-ink-gray-5"
+				class="px-4.5 py-2 text-ink-gray-6"
 				role="status"
 			>
 				{{ __('Could not search just now. Try again.') }}
 			</p>
 			<p
 				v-if="showsEmptyState"
-				class="px-4.5 py-2 text-ink-gray-5"
+				class="px-4.5 py-2 text-ink-gray-6"
 				role="status"
 			>
 				{{ __('No results found') }}

@@ -13,7 +13,7 @@
 
 		<button
 			type="button"
-			class="absolute inset-x-0 bottom-0 py-4 text-center text-sm text-ink-gray-5 transition-colors hover:text-ink-gray-7"
+			class="absolute inset-x-0 bottom-0 py-4 text-center text-sm text-ink-gray-6 transition-colors hover:text-ink-gray-7"
 			@click="skipPersonaForm"
 		>
 			{{ __('Skip for now') }}

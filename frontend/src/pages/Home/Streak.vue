@@ -5,7 +5,7 @@
 				<div class="text-center">
 					<div class="text-[30px]">🔥</div>
 					<div class="mt-3">
-						<div class="text-ink-gray-5 mb-1">
+						<div class="text-ink-gray-6 mb-1">
 							{{
 								streakInfo.data?.current_streak < 1
 									? __('You can do better,')

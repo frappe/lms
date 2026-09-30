@@ -1,6 +1,6 @@
 <template>
 	<div v-if="instructors?.length" class="border-2 rounded-5 p-5">
-		<div class="uppercase text-ink-gray-5 text-xs-semibold tracking-wider mb-4">
+		<div class="uppercase text-ink-gray-6 text-xs-semibold tracking-wider mb-4">
 			{{ headerLabel }}
 		</div>
 
@@ -44,7 +44,7 @@
 
 			<div class="mt-4 pt-4 border-t border-outline-gray-2">
 				<div
-					class="uppercase text-ink-gray-5 text-xs-semibold tracking-wider mb-3"
+					class="uppercase text-ink-gray-6 text-xs-semibold tracking-wider mb-3"
 				>
 					{{ __('Also teaching') }}
 				</div>

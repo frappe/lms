@@ -72,7 +72,7 @@
 							{{ language }}
 						</span>
 					</div>
-					<span class="shrink-0 text-xs text-ink-gray-5">{{ status }}</span>
+					<span class="shrink-0 text-xs text-ink-gray-6">{{ status }}</span>
 				</div>
 				<div class="exercise-editor min-h-0 flex-1 overflow-y-auto">
 					<slot name="editor" />

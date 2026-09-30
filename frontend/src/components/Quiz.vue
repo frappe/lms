@@ -40,7 +40,11 @@
 				</Badge>
 				<!-- After a submit the result says it beside Try again. -->
 				<span
+<<<<<<< HEAD
 					v-if="attemptsLeft !== null && !quizSubmission.data"
+=======
+					v-if="attemptsLeft !== null"
+>>>>>>> 6a494cd (fix: raise secondary text to AA contrast)
 					class="hidden text-xs text-ink-gray-6 sm:inline"
 				>
 					{{ attemptsLeftLabel(attemptsLeft) }}
@@ -74,8 +78,33 @@
 			</div>
 
 			<div v-if="activeQuestion == 0">
+<<<<<<< HEAD
 				<!-- What the quiz is comes first, then the rules for taking it. -->
 				<div class="space-y-3.5 border-b border-outline-gray-1 p-3.5">
+=======
+				<div
+					v-if="introTips.length && questions.length && !attemptsExhausted"
+					class="space-y-2 border-b border-outline-gray-1 p-3.5"
+				>
+					<div class="text-sm text-ink-gray-6">
+						{{ __('Before you start') }}
+					</div>
+					<ol class="space-y-1.5">
+						<li
+							v-for="(tip, index) in introTips"
+							:key="index"
+							class="flex gap-x-2 text-p-base text-ink-gray-7"
+						>
+							<span class="shrink-0 font-mono text-ink-gray-4">
+								{{ index + 1 }}
+							</span>
+							<span>{{ tip }}</span>
+						</li>
+					</ol>
+				</div>
+
+				<div class="space-y-3.5 p-3.5">
+>>>>>>> 6a494cd (fix: raise secondary text to AA contrast)
 					<div class="text-base-semibold text-ink-gray-9">
 						{{ quiz.data.title }}
 					</div>
@@ -316,10 +345,14 @@
 								/>
 							</div>
 <<<<<<< HEAD
+<<<<<<< HEAD
 							<span class="shrink-0 text-sm text-ink-gray-6">
 =======
 							<span class="shrink-0 text-sm text-ink-gray-5">
 >>>>>>> 32cbf29 (fix: announce quiz questions, answers and feedback to screen readers)
+=======
+							<span class="shrink-0 text-sm text-ink-gray-6">
+>>>>>>> 6a494cd (fix: raise secondary text to AA contrast)
 								{{ question.marks }}
 								{{ question.marks == 1 ? __('Mark') : __('Marks') }}
 							</span>
@@ -677,7 +710,68 @@
 			"
 			class="rounded-6 border border-outline-gray-2 p-3.5"
 		>
+<<<<<<< HEAD
 			<QuizActivityLog :entries="summaryLog" />
+=======
+			<div
+				class="flex items-center justify-between border-b border-outline-gray-1 bg-surface-gray-1 px-3.5 py-2.5"
+			>
+				<span class="text-xs font-semibold text-ink-gray-8">{{
+					__('Activity')
+				}}</span>
+				<span class="text-xs text-ink-gray-6"
+					>{{ summaryLog.length }}
+					{{ summaryLog.length == 1 ? __('event') : __('events') }}</span
+				>
+			</div>
+			<div class="max-h-64 divide-y divide-outline-gray-1 overflow-y-auto">
+				<div
+					v-for="(entry, i) in summaryLog"
+					:key="i"
+					class="flex items-center gap-2.5 px-3.5 py-2.5"
+				>
+					<span
+						class="size-1.5 shrink-0 rounded-full"
+						:class="
+							entry.severity === 'violation'
+								? 'bg-surface-red-6'
+								: 'bg-surface-orange-6'
+						"
+					/>
+					<span class="flex-1 text-sm text-ink-gray-7">{{
+						violationEventLabels[entry.eventType] || entry.eventType
+					}}</span>
+					<a
+						v-if="safeUrl(entry.frame)"
+						v-external
+						:href="safeUrl(entry.frame)"
+						class="shrink-0"
+					>
+						<img
+							:src="safeUrl(entry.frame)"
+							:alt="
+								__('Camera at {0}').format(
+									violationEventLabels[entry.eventType] || entry.eventType
+								)
+							"
+							class="h-8 w-11 rounded-4 border object-cover"
+						/>
+					</a>
+					<span
+						class="shrink-0 text-xs font-medium uppercase tracking-wide"
+						:class="
+							entry.severity === 'violation'
+								? 'text-ink-red-5'
+								: 'text-ink-orange-5'
+						"
+					>
+						{{
+							entry.severity === 'violation' ? __('Violation') : __('Warning')
+						}}
+					</span>
+				</div>
+			</div>
+>>>>>>> 6a494cd (fix: raise secondary text to AA contrast)
 		</div>
 
 		<div

@@ -23,7 +23,7 @@
 				</div>
 			</a>
 		</div>
-		<div v-else class="text-sm italic text-ink-gray-5">
+		<div v-else class="text-sm italic text-ink-gray-6">
 			{{ __('You have not received any certificates yet.') }}
 		</div>
 	</div>

@@ -40,7 +40,7 @@
 				</div>
 
 				<div class="mt-5">
-					<div class="text-sm-semibold text-ink-gray-5">
+					<div class="text-sm-semibold text-ink-gray-6">
 						{{ __('Courses in this Program') }}
 					</div>
 					<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
@@ -54,7 +54,7 @@
 							</div>
 
 							<div
-								class="flex items-center gap-x-5 text-sm text-ink-gray-5 mb-8"
+								class="flex items-center gap-x-5 text-sm text-ink-gray-6 mb-8"
 							>
 								<Tooltip :text="__('Lessons')">
 									<span class="flex items-center gap-x-1">

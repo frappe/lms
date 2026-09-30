@@ -82,8 +82,13 @@
 							</div>
 							<div>
 								<div v-safe-html:basic="decodeEntities(n.subject)" />
+<<<<<<< HEAD
 								<div class="text-p-sm text-ink-gray-5">
 									{{ serverTime(n.creation).fromNow() }}
+=======
+								<div class="text-p-sm text-ink-gray-6">
+									{{ dayjs(n.creation).fromNow() }}
+>>>>>>> 6a494cd (fix: raise secondary text to AA contrast)
 								</div>
 							</div>
 						</component>

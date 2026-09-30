@@ -41,7 +41,7 @@
 		<template #item-label="{ item }">
 			<div class="min-w-0 flex justify-between gap-2">
 				<div class="truncate">{{ item.label }}</div>
-				<div class="truncate text-xs text-ink-gray-5">{{ item.value }}</div>
+				<div class="truncate text-xs text-ink-gray-6">{{ item.value }}</div>
 			</div>
 		</template>
 	</MultiLink>
