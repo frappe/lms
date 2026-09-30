@@ -185,6 +185,12 @@ def can_author_batch(batch: str | None, *, user: str | None = None) -> bool:
 	)
 
 
+def authored_batch_condition(field, user: str):
+	"""qb condition: `field` names a batch `user` is a tagged instructor or evaluator of.
+	Two IN subqueries rather than a UNION, which MariaDB rejects inside IN."""
+	return field.isin(_taught("LMS Batch", user)) | field.isin(_evaluator_batches(user))
+
+
 def course_record_has_permission(doc, ptype="read", user=None) -> bool:
 	"""Single-document counterpart of :func:`course_record_query_conditions`: a
 	course progress, watch duration or review row belongs to its learner and to
