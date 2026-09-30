@@ -76,11 +76,8 @@
 							</Button>
 						</div>
 					</div>
-					<span :id="`${replyLabelId}-${index}`" class="sr-only">
-						{{ __('Reply by {0}').format(reply.user.full_name) }}
-					</span>
 					<RichTextEditor
-						:ariaLabelledby="`${replyLabelId}-${index}`"
+						:ariaLabel="__('Reply by {0}').format(reply.user.full_name)"
 						:content="reply.reply"
 						@change="(val) => (reply.reply = val)"
 						:editable="reply.editable || false"
@@ -95,16 +92,9 @@
 			</li>
 		</ul>
 
-		<span
-			v-if="renderEditor && !readOnlyMode"
-			:id="newReplyLabelId"
-			class="sr-only"
-		>
-			{{ __('Your reply') }}
-		</span>
 		<RichTextEditor
 			v-if="renderEditor && !readOnlyMode"
-			:ariaLabelledby="newReplyLabelId"
+			:ariaLabel="__('Your reply')"
 			:content="newReply"
 			:mentions="mentionUsers"
 			@change="(val) => (newReply = val)"
@@ -126,14 +116,12 @@
 import { call, createResource, Button, Dropdown, toast } from 'frappe-ui'
 import { timeAgo } from '@/utils'
 import UserAvatar from '@/components/UserAvatar.vue'
-import { ref, inject, onMounted, onUnmounted, useId } from 'vue'
+import { ref, inject, onMounted, onUnmounted } from 'vue'
 import { useTelemetry } from '@framework/ui/telemetry/index'
 import RichTextEditor from '@/components/RichTextEditor.vue'
 
 const showTopics = defineModel('showTopics')
 const newReply = ref('')
-const replyLabelId = useId()
-const newReplyLabelId = useId()
 const socket = inject('$socket')
 const user = inject('$user')
 const allUsers = inject('$allUsers')

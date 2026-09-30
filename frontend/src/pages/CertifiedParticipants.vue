@@ -38,6 +38,7 @@
 				v-model="currentCategory"
 				:options="categories.data.filter((c) => c.value)"
 				:placeholder="__('Category')"
+				:ariaLabel="__('Category')"
 				@update:modelValue="updateParticipants()"
 			/>
 			<ToggleFilter
