@@ -25,6 +25,7 @@
    "label": "Member",
    "options": "User",
    "reqd": 1,
+   "search_index": 1,
    "set_only_once": 1
   },
   {
