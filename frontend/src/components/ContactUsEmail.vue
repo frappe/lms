@@ -35,7 +35,7 @@
 import { Button, call, Dialog, FormControl, toast } from 'frappe-ui'
 import { ref, useId } from 'vue'
 import { InputLabel } from '@/components/Form/labeling'
-import { useSettings } from '@/stores/settings'
+import { resourceErrorMessage } from '@/utils/resource'
 import RichTextEditor from '@/components/RichTextEditor.vue'
 
 const messageLabelId = useId()
@@ -43,14 +43,15 @@ const messageLabelId = useId()
 const show = defineModel<boolean>({ required: true, default: false })
 const subject = ref('')
 const message = ref('')
-const settingsStore = useSettings()
 
+/* Sent server-side so the recipient comes from LMS Settings rather than the
+   request, and so an image pasted into the message is embedded into the mail
+   itself. Its upload is private, and a /private/files/ URL in an email is
+   served to nobody. */
 const sendMail = (close: Function) => {
-	call('frappe.core.doctype.communication.email.make', {
-		recipients: settingsStore.settings?.data?.contact_us_email,
+	call('lms.lms.api.send_contact_us_email', {
 		subject: subject.value,
 		content: message.value,
-		send_email: true,
 	})
 		.then(() => {
 			toast.success(__('Email sent successfully'))
@@ -58,9 +59,10 @@ const sendMail = (close: Function) => {
 			subject.value = ''
 			message.value = ''
 		})
-		.catch(() => {
-			toast.error(__('Failed to send email'))
-			close()
+		.catch((error: unknown) => {
+			// The dialog stays open: the message is worth keeping when the
+			// failure is something the sender can fix.
+			toast.error(resourceErrorMessage(error, __('Failed to send email')))
 		})
 }
 </script>

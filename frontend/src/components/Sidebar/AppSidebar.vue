@@ -181,15 +181,6 @@
 							</div>
 						</template>
 					</Tooltip>
-					<Tooltip
-						v-if="showAppointmentIcon"
-						:text="__('Book a free onboarding session with the Frappe team')"
-					>
-						<span
-							class="lucide-phone size-4 text-ink-gray-7 cursor-pointer"
-							@click="redirectToAppointmentScreen()"
-						/>
-					</Tooltip>
 					<Tooltip v-if="showOnboarding" :text="__('Help')">
 						<span
 							class="lucide-circle-help size-4 text-ink-gray-7 cursor-pointer"
@@ -366,17 +357,20 @@ const updateSidebarLinksVisibility = () => {
 	})
 }
 
+const onKeyboardShortcut = (e) => {
+	if (
+		e.key === 'k' &&
+		(e.ctrlKey || e.metaKey) &&
+		!e.repeat &&
+		!e.target.classList.contains('ProseMirror')
+	) {
+		toggleCommandPalette()
+		e.preventDefault()
+	}
+}
+
 const addKeyboardShortcut = () => {
-	window.addEventListener('keydown', (e) => {
-		if (
-			e.key === 'k' &&
-			(e.ctrlKey || e.metaKey) &&
-			!e.target.classList.contains('ProseMirror')
-		) {
-			toggleCommandPalette()
-			e.preventDefault()
-		}
-	})
+	window.addEventListener('keydown', onKeyboardShortcut)
 }
 
 const toggleCommandPalette = () => {
@@ -685,36 +679,8 @@ const profileIsComplete = computed(() => {
 	)
 })
 
-const showAppointmentIcon = computed(() => {
-	let isTrialPlan = userResource.data?.site_info?.plan?.is_trial_plan
-	let trialEndDate = calculateTrialEndDays(
-		userResource.data?.site_info?.trial_end_date
-	)
-	return (
-		userResource.data?.is_system_manager &&
-		userResource.data?.is_fc_site &&
-		isTrialPlan &&
-		trialEndDate > 0
-	)
-})
-
-const calculateTrialEndDays = (trialEndDate) => {
-	if (!trialEndDate) return 0
-
-	trialEndDate = new Date(trialEndDate)
-	const today = new Date()
-	const diffTime = trialEndDate - today
-	const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-	return diffDays
-}
-
-const redirectToAppointmentScreen = () => {
-	openExternal(
-		'https://calendar.google.com/calendar/u/0/appointments/schedules/AcZssZ0c7Z3XIpW1WgbeIuktSaoX6qudoYuSdRbIlJty5TW7p4IZaOk5viHQGwTNi6HpNVqzOZOTHcle'
-	)
-}
-
 onUnmounted(() => {
 	socket.off('publish_lms_notifications')
+	window.removeEventListener('keydown', onKeyboardShortcut)
 })
 </script>

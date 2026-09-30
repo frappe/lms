@@ -148,12 +148,14 @@
 							/>
 							<FormControl
 								type="date"
+								:format="dateFormat"
 								v-model="certificate.issue_date"
 								:disabled="!userIsEvaluator()"
 								:label="__('Issue Date')"
 							/>
 							<FormControl
 								type="date"
+								:format="dateFormat"
 								v-model="certificate.expiry_date"
 								:disabled="!userIsEvaluator()"
 								:label="__('Expiry Date')"
@@ -187,6 +189,7 @@ import BooleanSwitch from '@/components/Controls/BooleanSwitch.vue'
 import { inject, reactive, watch, ref, computed } from 'vue'
 import { formatTime } from '@/utils'
 import { formatTimezone } from '@/utils/timezone'
+import { getDateFormat } from '@/utils/format'
 import Link from '@/components/Controls/Link.vue'
 import { openExternal } from '@/utils/openExternal'
 
@@ -194,6 +197,7 @@ const show = defineModel()
 const user = inject('$user')
 const dayjs = inject('$dayjs')
 const tabIndex = ref(0)
+const dateFormat = getDateFormat()
 const showCertification = ref(false)
 const evaluation = reactive({})
 const certificate = reactive({})

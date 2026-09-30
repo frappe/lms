@@ -6,14 +6,18 @@
 					<div class="flex items-center gap-2">
 						<!-- On a sub-page the title itself is the back control (CRM's
 						     EditEmailTemplate): no hover surface, just a chevron and the
-						     title, pulled left so the label keeps the header's left edge. -->
+						     title. The chevron is the header's left edge, and the page body
+						     lines up beneath it, the negative start margin is exactly the
+						     button's own inline padding at this size, so the glyph sits on
+						     the container's edge instead of inside it. CRM's own value is
+						     larger, leaving the glyph a few px short of that edge. -->
 						<Button
 							v-if="showBack"
 							variant="ghost"
 							size="md"
 							icon-left="lucide-chevron-left"
 							:label="title"
-							class="-ms-4 !max-w-96 !justify-start !pe-0 text-p-2xl-semibold cursor-pointer hover:bg-transparent hover:opacity-70 focus:bg-transparent focus:outline-none focus:ring-0 active:bg-transparent active:text-ink-gray-5"
+							class="-ms-2.5 !max-w-96 !justify-start !pe-0 text-p-2xl-semibold cursor-pointer hover:bg-transparent hover:opacity-70 focus:bg-transparent focus:outline-none focus:ring-0 active:bg-transparent active:text-ink-gray-5"
 							@click="emit('back')"
 						/>
 						<h2 v-else class="text-p-2xl-semibold text-ink-gray-8">

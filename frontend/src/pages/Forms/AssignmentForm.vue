@@ -23,6 +23,38 @@
 					doctype="LMS Course"
 					placeholder=" "
 				/>
+				<BooleanSwitch
+					v-model="assignment.enable_scheduling"
+					size="sm"
+					:label="__('Enable Scheduling')"
+					:description="
+						__('Restrict when learners can submit this assignment.')
+					"
+				/>
+				<FormControl
+					v-if="assignment.enable_scheduling"
+					type="datetime-local"
+					:model-value="toDatetimeLocal(assignment.schedule_start)"
+					@update:model-value="
+						(val) => (assignment.schedule_start = fromDatetimeLocal(val))
+					"
+					:label="__('Schedule Start')"
+					:required="true"
+				/>
+				<FormControl
+					v-if="assignment.enable_scheduling"
+					type="datetime-local"
+					:model-value="toDatetimeLocal(assignment.schedule_end)"
+					@update:model-value="
+						(val) => (assignment.schedule_end = fromDatetimeLocal(val))
+					"
+					:label="__('Schedule End')"
+					:description="
+						__(
+							'Optional. Leave empty to keep the assignment open after it starts.'
+						)
+					"
+				/>
 				<div
 					role="group"
 					:aria-labelledby="questionLabelId"
@@ -83,11 +115,13 @@ import { computed, inject, reactive, useId, watch } from 'vue'
 import { sanitizeOnWrite } from '@/utils/sanitizeOnWrite'
 import FormShell from '@/components/FormShell.vue'
 import HeaderButton from '@/components/HeaderButton.vue'
+import BooleanSwitch from '@/components/Controls/BooleanSwitch.vue'
 import { useFormRoute } from '@/composables/useFormRoute'
 import Link from '@/components/Controls/Link.vue'
 import RichTextEditor from '@/components/RichTextEditor.vue'
 import { InputLabel } from '@/components/Form/labeling'
 import { submitResource } from '@/utils/resource'
+import { toDatetimeLocal, fromDatetimeLocal } from '@/utils/schedule'
 
 const questionLabelId = useId()
 
@@ -127,6 +161,9 @@ interface AssignmentFields {
 	type: string
 	question: string
 	course: string
+	enable_scheduling: number
+	schedule_start: string | null
+	schedule_end: string | null
 }
 
 const assignment = reactive<AssignmentFields>({
@@ -134,6 +171,9 @@ const assignment = reactive<AssignmentFields>({
 	type: '',
 	question: '',
 	course: '',
+	enable_scheduling: 0,
+	schedule_start: null,
+	schedule_end: null,
 })
 
 // C4: edit mode used to copy its values out of the parent list's in-memory
@@ -169,6 +209,9 @@ watch(
 		assignment.type = doc.type
 		assignment.question = doc.question
 		assignment.course = doc.course || ''
+		assignment.enable_scheduling = doc.enable_scheduling ? 1 : 0
+		assignment.schedule_start = doc.schedule_start || null
+		assignment.schedule_end = doc.schedule_end || null
 	},
 	{ immediate: true }
 )
@@ -203,9 +246,26 @@ const saving = computed<boolean>(() =>
 	Boolean(newAssignment.loading || assignmentDoc?.setValue?.loading)
 )
 
-const validateFields = (): void => {
+const validateFields = (): boolean => {
 	assignment.title = sanitizeOnWrite(assignment.title.trim())
 	assignment.question = sanitizeOnWrite(assignment.question)
+	if (assignment.enable_scheduling) {
+		if (!assignment.schedule_start) {
+			toast.error(__('Schedule Start is required when scheduling is enabled.'))
+			return false
+		}
+		if (
+			assignment.schedule_end &&
+			new Date(assignment.schedule_end) <= new Date(assignment.schedule_start)
+		) {
+			toast.error(__('Schedule End must be after Schedule Start.'))
+			return false
+		}
+	} else {
+		assignment.schedule_start = null
+		assignment.schedule_end = null
+	}
+	return true
 }
 
 const updateAssignment = (): void => {
@@ -233,7 +293,7 @@ const updateAssignment = (): void => {
 
 const saveAssignment = (): void => {
 	if (!canManageAssignments.value) return
-	validateFields()
+	if (!validateFields()) return
 	if (isNew.value) newAssignment.submit()
 	else updateAssignment()
 }
