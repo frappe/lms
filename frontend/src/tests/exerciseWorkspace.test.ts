@@ -93,13 +93,16 @@ describe('ExerciseWorkspace', () => {
 		expect(wrapper.text()).toContain('autosaved')
 	})
 
-	it('marks the results pane as a live region', async () => {
+	// Guards: the whole results pane was a live region, announcing twice.
+	// Introduced in #2823; test added with the a11y audit remediation.
+	it('announces results from one status region, not the whole pane', async () => {
 		const wrapper = mountWorkspace()
 		wrapper.vm.showTab('tests')
 		await flushPromises()
 
 		const pane = wrapper.get('[data-testid="tests-pane"]')
-		expect(pane.attributes('role')).toBe('status')
-		expect(pane.attributes('aria-live')).toBe('polite')
+		expect(pane.attributes('role')).toBeUndefined()
+		expect(pane.attributes('aria-live')).toBeUndefined()
+		expect(pane.findAll('[role="status"]')).toHaveLength(1)
 	})
 })
