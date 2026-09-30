@@ -87,11 +87,10 @@
 		</template>
 
 		<template #card="{ row }">
-			<router-link
+			<BatchCard
+				:batch="row"
 				:to="{ name: 'BatchDetail', params: { batchName: row.name } }"
-			>
-				<BatchCard :batch="row" />
-			</router-link>
+			/>
 		</template>
 	</ListPage>
 
