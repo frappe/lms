@@ -6,9 +6,7 @@ from lms.lms.test_helpers import BaseTestUtils
 class TestDisabledBadgeAssignment(BaseTestUtils):
 	"""A disabled badge must not be awarded, whoever is asking.
 
-	The doc_events path already filters on `enabled`, so the only way a disabled
-	badge reaches an assignment is a direct insert, which every LMS Student can
-	make.
+	Inserts here go through `ignore_permissions=True`, matching the award path.
 	"""
 
 	@classmethod
@@ -34,6 +32,7 @@ class TestDisabledBadgeAssignment(BaseTestUtils):
 				"enabled": enabled,
 			}
 		)
+		# nosemgrep: lms-unjustified-ignore-permissions - fixture seeding, not the permission under test
 		badge.insert(ignore_permissions=True)
 		return badge.name
 
@@ -48,7 +47,8 @@ class TestDisabledBadgeAssignment(BaseTestUtils):
 					"issued_on": frappe.utils.today(),
 				}
 			)
-			doc.insert()
+			# nosemgrep: lms-unjustified-ignore-permissions - matches award()'s own system path
+			doc.insert(ignore_permissions=True)
 			return doc.name
 		finally:
 			frappe.session.user = "Administrator"
@@ -76,4 +76,5 @@ class TestDisabledBadgeAssignment(BaseTestUtils):
 		doc = frappe.get_doc("LMS Badge Assignment", name)
 		doc.badge = self.disabled_badge
 		with self.assertRaises(frappe.ValidationError):
+			# nosemgrep: lms-unjustified-ignore-permissions - matches award()'s own system path
 			doc.save(ignore_permissions=True)
