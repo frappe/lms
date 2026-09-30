@@ -12,6 +12,7 @@
 				<slot name="actions" :tab="activeTab" :instance="activeInstance" />
 			</template>
 		</PageHeader>
+		<h1 v-if="ownsHeading" class="sr-only">{{ pageTitle }}</h1>
 
 		<div v-if="!visibleTabs.length" class="min-h-0 flex-1">
 			<slot name="solo" />
@@ -70,6 +71,7 @@ export interface DetailTab {
 	component: Component
 	when?: boolean
 	flow?: boolean
+	rendersHeading?: boolean
 	props?: Record<string, unknown>
 }
 </script>
@@ -135,6 +137,19 @@ const activeInstance = computed<unknown>(() =>
 
 const flowsWithPage = computed<boolean>(
 	() => isMobile.value && Boolean(activeTab.value?.flow)
+)
+
+const pageTitle = computed<string>(
+	() => props.breadcrumbs[props.breadcrumbs.length - 1]?.label ?? ''
+)
+
+// The solo slot and a `rendersHeading` tab carry a visible <h1> of their own.
+const ownsHeading = computed<boolean>(
+	() =>
+		!props.loading &&
+		Boolean(pageTitle.value) &&
+		visibleTabs.value.length > 0 &&
+		!activeTab.value?.rendersHeading
 )
 
 const own = (data: unknown): DetailTab => data as DetailTab

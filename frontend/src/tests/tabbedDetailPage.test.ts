@@ -425,3 +425,36 @@ describe('TabbedDetailPage tab strip', () => {
 		expect(strip.find('.lucide-list').exists()).toBe(true)
 	})
 })
+
+describe('TabbedDetailPage heading', () => {
+	// Guards: detail pages with no h1, and a second h1 over a body that has its
+	// own. Introduced in #2637; test added with the a11y audit remediation.
+	const breadcrumbs = [{ label: 'Intro to Frappe', route: { name: 'X' } }]
+	const owns = tabs().map((t) => ({
+		...t,
+		rendersHeading: t.key === 'overview',
+	}))
+	const none = { when: false }
+	const hidden = {
+		overview: none,
+		dashboard: none,
+		editor: none,
+		settings: none,
+	}
+
+	it.each([
+		['a plain tab', tabs(), false, ['Intro to Frappe']],
+		['a tab with its own h1', owns, false, []],
+		['the solo view', tabs(hidden), false, []],
+		['a loading doc', tabs(), true, []],
+	])('sr-only h1 over %s', async (_, list, loading, expected) => {
+		const { wrapper } = await mountPage({
+			tabs: list,
+			slots: { solo },
+			props: { breadcrumbs, loading },
+		})
+		expect(wrapper.findAll('h1.sr-only').map((h1) => h1.text())).toEqual(
+			expected
+		)
+	})
+})

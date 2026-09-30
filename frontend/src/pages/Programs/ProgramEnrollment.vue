@@ -99,13 +99,14 @@
 	</FormShell>
 </template>
 <script setup lang="ts">
-import { createResource, toast, Tooltip } from 'frappe-ui'
+import { createResource, toast, Tooltip, usePageMeta } from 'frappe-ui'
 import type { FrappeResourceError } from 'frappe-ui'
-import { computed, inject, onMounted } from 'vue'
+import { computed, inject, onBeforeUnmount, onMounted } from 'vue'
 import FormShell from '@/components/FormShell.vue'
 import UserAvatar from '@/components/UserAvatar.vue'
 import HeaderButton from '@/components/HeaderButton.vue'
 import { useFormRoute } from '@/composables/useFormRoute'
+import { sessionStore } from '@/stores/session'
 import type { SessionUser } from '@/types'
 
 const props = defineProps<{
@@ -125,6 +126,15 @@ const parent = { name: 'Programs' }
 const { close, saveAndReplace } = useFormRoute(parent)
 
 const title = __('Enrollment for Program {0}').format(props.programName)
+
+const { brand } = sessionStore()
+// usePageMeta never restores on unmount, and the Programs list behind this
+// dialog stays mounted, so closing would leave this title on the list.
+const listTitle = document.title
+usePageMeta(() => ({ title, icon: brand.favicon }))
+onBeforeUnmount(() => {
+	if (document.title === title) document.title = listTitle
+})
 
 const program = createResource({
 	url: 'lms.lms.utils.get_program_details',
