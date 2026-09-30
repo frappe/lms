@@ -164,7 +164,11 @@ watch(
 provide('reloadBatchDetails', () => batch.reload())
 
 const isAdmin = computed(() => {
-	return Boolean(user.data?.is_moderator || user.data?.is_evaluator)
+	// is_moderator/is_evaluator are session-wide roles; can_manage is this
+	// batch's own tag, since a Course Creator only manages batches they author.
+	return Boolean(
+		user.data?.is_moderator || user.data?.is_evaluator || batch.data?.can_manage
+	)
 })
 
 const isStudent = computed(() => {
