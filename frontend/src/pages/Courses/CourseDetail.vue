@@ -424,6 +424,7 @@ const tabs = computed<DetailTab[]>(() => [
 		icon: 'lucide-list',
 		when: isAdmin.value,
 		flow: true,
+		rendersHeading: true,
 	},
 	{
 		key: 'dashboard',
