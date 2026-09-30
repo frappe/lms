@@ -134,5 +134,9 @@ describe('text-ink-gray-5 contrast ratchet', () => {
 			textUses(readFileSync(join(SRC, f), 'utf8')).map((u) => `${f} ${u}`)
 		)
 		expect(offenders).toEqual([])
+		const css = readFileSync(join(SRC, 'styles/blockEditor.css'), 'utf8')
+		expect(css).not.toMatch(
+			/(secondary:|found-message \{\s*color:)\s*var\(--ink-gray-5/
+		)
 	})
 })
