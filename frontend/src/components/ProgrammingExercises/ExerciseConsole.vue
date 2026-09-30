@@ -27,6 +27,7 @@
 				<KeyboardShortcut combo="Mod+`" class="shrink-0 opacity-60" />
 			</span>
 		</button>
+		<span role="status" class="sr-only">{{ runStatus }}</span>
 
 		<div v-if="open" class="min-h-0 flex-1 overflow-y-auto">
 			<div
@@ -71,14 +72,14 @@ export type ConsoleLine = {
 </script>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { KeyboardShortcut, Spinner } from 'frappe-ui'
 import {
 	sameBlock,
 	useKeyboardShortcuts,
 } from '@/composables/useKeyboardShortcuts'
 
-withDefaults(
+const props = withDefaults(
 	defineProps<{
 		lines: ConsoleLine[]
 		duration: number | null
@@ -88,6 +89,12 @@ withDefaults(
 )
 
 const open = ref(true)
+
+const runStatus = computed(() => {
+	if (props.running) return __('Running your code…')
+	if (props.duration === null) return ''
+	return __('Ran in {0}s').format(props.duration.toFixed(2))
+})
 const root = ref<HTMLElement | null>(null)
 
 useKeyboardShortcuts({
