@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { parse } from 'vue/compiler-sfc'
@@ -7,6 +7,11 @@ import { h } from 'vue'
 import { FormControl, Switch } from 'frappe-ui'
 import Select from '@/components/Controls/Select.vue'
 import RichTextEditor from '@/components/RichTextEditor.vue'
+import Link from '@/components/Controls/Link.vue'
+
+vi.mock('@/stores/settings', () => ({
+	useSettings: () => ({ isSettingsOpen: false }),
+}))
 
 const ELEMENT = 1
 const ATTRIBUTE = 6
@@ -238,6 +243,7 @@ const BILLING: Array<[string, string]> = [
 	['Address Line 2', 'address-line2'],
 	['City', 'address-level2'],
 	['State/Province', 'address-level1'],
+	['Country', 'country-name'],
 	['Postal Code', 'postal-code'],
 	['Phone Number', 'tel'],
 ]
@@ -260,6 +266,16 @@ describe('Billing autocomplete', () => {
 			attrs: { autocomplete: 'address-level2' },
 		})
 		expect(w.find('input').attributes('autocomplete')).toBe('address-level2')
+		w.unmount()
+	})
+
+	it('Link forwards autocomplete to the combobox input', () => {
+		const w = mount(Link, {
+			props: { doctype: 'Country', label: 'Country' },
+			attrs: { autocomplete: 'country-name' },
+			global: { mocks: { __: (s: string) => s } },
+		})
+		expect(w.find('input').attributes('autocomplete')).toBe('country-name')
 		w.unmount()
 	})
 })
