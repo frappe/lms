@@ -6,7 +6,7 @@
 				<div class="flex flex-col lg:order-last mb-10 lg:mt-10 lg:w-1/4">
 					<div class="h-fit bg-surface-gray-2 rounded-5 p-5 space-y-4">
 						<div class="space-y-1">
-							<div class="text-ink-gray-5 uppercase text-xs">
+							<div class="text-ink-gray-6 uppercase text-xs">
 								{{ __('Payment for ') }} {{ type }}:
 							</div>
 							<div class="leading-5 text-ink-gray-9">
@@ -20,7 +20,7 @@
 							"
 							class="space-y-1"
 						>
-							<div class="text-ink-gray-5 uppercase text-xs">
+							<div class="text-ink-gray-6 uppercase text-xs">
 								{{ __('Original Amount') }}:
 							</div>
 							<div class="text-ink-gray-9">
@@ -28,11 +28,11 @@
 							</div>
 						</div>
 						<div v-if="orderSummary.data.discount_amount" class="space-y-1">
-							<div class="text-ink-gray-5">{{ __('Discount') }}:</div>
+							<div class="text-ink-gray-6">{{ __('Discount') }}:</div>
 							<div>- {{ orderSummary.data.discount_amount_formatted }}</div>
 						</div>
 						<div v-if="orderSummary.data.gst_applied" class="space-y-1">
-							<div class="text-ink-gray-5 uppercase text-xs">
+							<div class="text-ink-gray-6 uppercase text-xs">
 								{{ __('GST Amount') }}:
 							</div>
 							<div class="text-ink-gray-9">
@@ -40,7 +40,7 @@
 							</div>
 						</div>
 						<div class="space-y-1 border-t border-outline-gray-3 pt-4 mt-2">
-							<div class="uppercase text-ink-gray-5 text-xs">
+							<div class="uppercase text-ink-gray-6 text-xs">
 								{{ __('Total') }}:
 							</div>
 							<div class="font-bold text-ink-gray-9">
@@ -50,7 +50,7 @@
 					</div>
 
 					<div class="bg-surface-gray-2 rounded-5 p-4 space-y-2 my-5">
-						<span class="text-ink-gray-5 uppercase text-xs">
+						<span class="text-ink-gray-6 uppercase text-xs">
 							{{ __('Enter a Coupon Code') }}:
 						</span>
 						<div class="flex items-center gap-x-2">

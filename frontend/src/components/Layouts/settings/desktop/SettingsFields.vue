@@ -208,6 +208,7 @@
 									"
 								/>
 							</div>
+<<<<<<< HEAD
 						</div>
 					</div>
 
@@ -259,6 +260,8 @@
 								</span>
 								<CautionIcon v-if="field.caution" :text="__(field.caution)" />
 							</div>
+=======
+>>>>>>> 6a494cd (fix: raise secondary text to AA contrast)
 							<div v-if="field.description" class="text-p-sm text-ink-gray-6">
 								{{ __(field.description) }}
 							</div>

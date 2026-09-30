@@ -86,7 +86,7 @@
 						name: 'Courses',
 					}"
 				>
-					<span class="flex items-center gap-x-1 text-ink-gray-5 text-xs">
+					<span class="flex items-center gap-x-1 text-ink-gray-6 text-xs">
 						<span>
 							{{ __('See all') }}
 						</span>
@@ -114,7 +114,7 @@
 						name: 'Batches',
 					}"
 				>
-					<span class="flex items-center gap-x-1 text-ink-gray-5 text-xs">
+					<span class="flex items-center gap-x-1 text-ink-gray-6 text-xs">
 						<span>
 							{{ __('See all') }}
 						</span>

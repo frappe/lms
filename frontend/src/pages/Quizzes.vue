@@ -53,7 +53,7 @@
 				:modelValue="Boolean(value)"
 				:disabled="true"
 			/>
-			<div v-else-if="column.key == 'modified'" class="text-sm text-ink-gray-5">
+			<div v-else-if="column.key == 'modified'" class="text-sm text-ink-gray-6">
 				{{ value }}
 			</div>
 			<div v-else class="truncate">{{ value }}</div>

@@ -28,7 +28,7 @@
 						<span v-if="selectedIcon" class="text-ink-gray-7">
 							{{ selectedIcon }}
 						</span>
-						<span v-else class="text-ink-gray-5">
+						<span v-else class="text-ink-gray-6">
 							{{ __('Choose an icon') }}
 						</span>
 					</button>

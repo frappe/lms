@@ -73,12 +73,32 @@
 				<SwitchRow
 					v-for="field in toggleFields"
 					:key="field.name"
+<<<<<<< HEAD
 					size="sm"
 					:label="__(field.label)"
 					:description="field.description ? __(field.description) : undefined"
 					:model-value="Boolean(doc[field.name])"
 					@update:model-value="(on: boolean) => setCheck(field, on)"
 				/>
+=======
+					class="flex items-center justify-between gap-8"
+				>
+					<div class="flex min-w-0 flex-col">
+						<div class="text-p-base-medium text-ink-gray-7">
+							{{ __(field.label) }}
+						</div>
+						<div v-if="field.description" class="text-p-sm text-ink-gray-6">
+							{{ __(field.description) }}
+						</div>
+					</div>
+					<Switch
+						size="sm"
+						:model-value="Boolean(doc[field.name])"
+						:aria-label="__(field.label)"
+						@update:model-value="(on: boolean) => setCheck(field, on)"
+					/>
+				</div>
+>>>>>>> 6a494cd (fix: raise secondary text to AA contrast)
 
 				<ImageUploadField
 					v-for="field in uploadFields"
