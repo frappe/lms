@@ -47,7 +47,7 @@ import {
 	getCachedResource,
 	toast,
 } from 'frappe-ui'
-import { useOnboarding } from '@framework/ui/components/Onboarding/index'
+import { useLearningOnboarding } from '@/onboarding/useLearningOnboarding'
 import { useRoute } from 'vue-router'
 import { openSettings } from '@/utils'
 import Link from '@/components/Controls/Link.vue'
@@ -70,7 +70,7 @@ const props = defineProps({
 const user = inject('$user')
 const route = useRoute()
 const readOnlyMode = window.read_only_mode
-const { updateOnboardingStep } = useOnboarding('learning')
+const { completeStep } = useLearningOnboarding()
 const batch = useBatchDetails(() => props.batchName)
 
 const student = ref(null)
@@ -156,9 +156,7 @@ const submit = () => {
 		{},
 		{
 			onSuccess() {
-				if (user.data?.is_system_manager) {
-					updateOnboardingStep('add_batch_student')
-				}
+				completeStep('add_batch_student')
 				reloadDashboard()
 				toast.success(__('Student enrolled successfully'))
 				saveAndReplace(

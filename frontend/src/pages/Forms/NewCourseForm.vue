@@ -128,7 +128,7 @@ import {
 	toast,
 } from 'frappe-ui'
 import type { FrappeResourceError } from 'frappe-ui'
-import { useOnboarding } from '@framework/ui/components/Onboarding/index'
+import { useLearningOnboarding } from '@/onboarding/useLearningOnboarding'
 import { useTelemetry } from '@framework/ui/telemetry/index'
 import { computed, inject, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import FormShell from '@/components/FormShell.vue'
@@ -160,7 +160,7 @@ interface RawUserHit {
 }
 
 const { capture } = useTelemetry()
-const { updateOnboardingStep } = useOnboarding('learning')
+const { completeStep } = useLearningOnboarding()
 const user = inject<any>('$user')
 const courseCreated = ref(false)
 const showMemberModal = ref<boolean>(false)
@@ -344,11 +344,7 @@ const saveCourse = () => {
 					params: { courseName: data.name },
 					hash: '#settings',
 				})
-				if (user.data?.is_system_manager) {
-					updateOnboardingStep('create_first_course', true, false, () => {
-						localStorage.setItem('firstCourse', data.name)
-					})
-				}
+				completeStep('create_first_course', { first_course: data.name })
 			},
 			onError(err: FrappeResourceError) {
 				toast.error(cleanError(err.messages?.[0]))

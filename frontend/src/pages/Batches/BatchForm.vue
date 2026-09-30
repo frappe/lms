@@ -341,6 +341,7 @@ import BatchCourses from '@/pages/Batches/components/BatchCourses.vue'
 import Assessments from '@/pages/Batches/components/Assessments.vue'
 import NewMemberModal from '@/components/Modals/NewMemberModal.vue'
 import { openBatchForm } from '@/composables/useBatchForms'
+import { useLearningOnboarding } from '@/onboarding/useLearningOnboarding'
 import type { LMSBatch } from '@/types/lms/LMSBatch'
 import type { CourseInstructor } from '@/types/lms/CourseInstructor'
 import type { Resource, BatchDetails, SessionUser } from '@/types'
@@ -365,6 +366,7 @@ const props = defineProps<{
 const router = useRouter()
 const route = useRoute()
 const user = inject<SessionUser>('$user')!
+const { completeStep } = useLearningOnboarding()
 const instructors = ref<string[]>([])
 const dateFormat = getDateFormat()
 const app = getCurrentInstance()!
@@ -540,6 +542,7 @@ const updateBatch = (opts: { silent?: boolean } = {}): void => {
 			onSuccess(data: LMSBatch) {
 				updateMetaInfo('batches', data.name, meta)
 				if (!opts.silent) toast.success(__('Batch updated successfully'))
+				if (data.published) completeStep('publish_batch')
 				nextTick(() => {
 					originalDoc.value = structuredClone(data)
 					isDirty.value = false

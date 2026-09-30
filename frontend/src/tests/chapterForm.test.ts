@@ -72,15 +72,10 @@ vi.mock('@framework/ui/telemetry/index', async (importOriginal) => ({
 	...(await importOriginal<typeof import('@framework/ui/telemetry/index')>()),
 	useTelemetry: () => ({ capture: vi.fn() }),
 }))
-vi.mock(
-	'@framework/ui/components/Onboarding/index',
-	async (importOriginal) => ({
-		...(await importOriginal<
-			typeof import('@framework/ui/components/Onboarding/index')
-		>()),
-		useOnboarding: () => ({ updateOnboardingStep: vi.fn() }),
-	})
-)
+const { completeStepMock } = vi.hoisted(() => ({ completeStepMock: vi.fn() }))
+vi.mock('@/onboarding/useLearningOnboarding', () => ({
+	useLearningOnboarding: () => ({ completeStep: completeStepMock }),
+}))
 
 vi.mock('@/components/Controls/BooleanSwitch.vue', () => ({
 	default: {
@@ -395,6 +390,25 @@ describe('ChapterForm as a route', () => {
 		])
 		expect(sharedOutline.reload).toHaveBeenCalledTimes(1)
 		expect(outlineResource.reload).not.toHaveBeenCalled()
+	})
+
+	it('completes the first-chapter onboarding step on a create', async () => {
+		completeStepMock.mockReset()
+		const router = makeRouter()
+		await openForm(router, 'new')
+		const wrapper = await mountForm(router)
+
+		upsertResource.submit.mockImplementation(
+			(_params: unknown, options: { onSuccess: () => void }) => {
+				options.onSuccess()
+			}
+		)
+		await wrapper
+			.find('[data-testid="chapter-fields"] input')
+			.setValue('Chapter One')
+		await wrapper.find('[data-testid="chapter-save"]').trigger('click')
+		await flushPromises()
+		expect(completeStepMock).toHaveBeenCalledWith('create_first_chapter')
 	})
 
 	it('replaces rather than pushes on save, so Back leaves the form behind', async () => {

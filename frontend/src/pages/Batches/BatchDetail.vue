@@ -91,6 +91,7 @@
 </template>
 <script setup>
 import { computed, inject, markRaw, provide, useTemplateRef, watch } from 'vue'
+import { useLearningOnboarding } from '@/onboarding/useLearningOnboarding'
 import { useRoute, useRouter } from 'vue-router'
 import {
 	Badge,
@@ -124,6 +125,7 @@ const route = useRoute()
 const { brand } = sessionStore()
 const { isMobile } = useScreenSize()
 const user = inject('$user')
+const { completeStep } = useLearningOnboarding()
 const page = useTemplateRef('page')
 const readOnlyMode = window.read_only_mode
 
@@ -255,6 +257,7 @@ const publishToggle = createResource({
 		toast.success(
 			batch.data?.published ? __('Batch unpublished') : __('Batch published')
 		)
+		if (!batch.data?.published) completeStep('publish_batch')
 		batch.reload()
 	},
 	onError(err) {

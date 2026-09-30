@@ -155,7 +155,7 @@ import { hasVideoContent } from '@/utils/video'
 import BlockEditor from '@/components/BlockEditor.vue'
 import BottomSheet from '@/components/BottomSheet.vue'
 import { useScreenSize } from '@/utils/composables'
-import { useOnboarding } from '@framework/ui/components/Onboarding/index'
+import { useLearningOnboarding } from '@/onboarding/useLearningOnboarding'
 import { useTelemetry } from '@framework/ui/telemetry/index'
 import {
 	useKeyboardShortcuts,
@@ -211,7 +211,7 @@ const instructorUploadContext = reactive({
 	fieldname: 'instructor_content',
 })
 const { capture } = useTelemetry()
-const { updateOnboardingStep } = useOnboarding('learning')
+const { completeStep } = useLearningOnboarding()
 
 const emit = defineEmits(['saved', 'created'])
 
@@ -674,9 +674,7 @@ const linkLesson = (lessonName) =>
 		{ lesson: lessonName },
 		{
 			onSuccess() {
-				if (user.data?.is_system_manager)
-					updateOnboardingStep('create_first_lesson')
-
+				completeStep('create_first_lesson')
 				capture('lesson_created')
 				toast.success(__('Lesson created successfully'))
 				isDirty.value = false

@@ -210,6 +210,7 @@
 <script setup lang="ts">
 import { computed, inject, markRaw, ref, useTemplateRef, watch } from 'vue'
 import type { ComputedRef } from 'vue'
+import { useLearningOnboarding } from '@/onboarding/useLearningOnboarding'
 import { useRoute, useRouter } from 'vue-router'
 import type { Router } from 'vue-router'
 import {
@@ -248,6 +249,7 @@ const { brand } = sessionStore() as { brand: Brand }
 const router: Router = useRouter()
 const route = useRoute()
 const user = inject<SessionUser>('$user')!
+const { completeStep } = useLearningOnboarding()
 const { isMobile } = useScreenSize()
 
 interface EditorSelection {
@@ -317,6 +319,7 @@ const publishToggle = createResource({
 		toast.success(
 			course.data?.published ? __('Course unpublished') : __('Course published')
 		)
+		if (!course.data?.published) completeStep('publish_course')
 		course.reload()
 	},
 	onError(err: FrappeResourceError) {

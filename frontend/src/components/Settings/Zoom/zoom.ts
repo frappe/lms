@@ -1,5 +1,6 @@
 import { toast } from 'frappe-ui'
 import { useTelemetry } from '@framework/ui/telemetry/index'
+import { useLearningOnboarding } from '@/onboarding/useLearningOnboarding'
 import {
 	deleteRow,
 	setRowField,
@@ -127,7 +128,10 @@ const form = recordForm({
 				? __('Zoom account created successfully')
 				: __('Zoom account updated successfully')
 		)
-		if (created) useTelemetry().capture('zoom_account_linked')
+		if (created) {
+			useTelemetry().capture('zoom_account_linked')
+			useLearningOnboarding().completeStep('connect_conferencing')
+		}
 		back()
 	},
 })

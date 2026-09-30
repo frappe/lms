@@ -1,5 +1,6 @@
 import { toast } from 'frappe-ui'
 import { useTelemetry } from '@framework/ui/telemetry/index'
+import { useLearningOnboarding } from '@/onboarding/useLearningOnboarding'
 import { usersStore } from '@/stores/user'
 import {
 	deleteRow,
@@ -158,7 +159,10 @@ const form = recordForm({
 				? __('Google Meet account created successfully')
 				: __('Google Meet account updated successfully')
 		)
-		if (created) useTelemetry().capture('google_meet_account_linked')
+		if (created) {
+			useTelemetry().capture('google_meet_account_linked')
+			useLearningOnboarding().completeStep('connect_conferencing')
+		}
 		back()
 	},
 })

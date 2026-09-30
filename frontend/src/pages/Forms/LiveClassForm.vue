@@ -108,6 +108,7 @@ import {
 import { useFormRoute } from '@/composables/useFormRoute'
 import { submitResource } from '@/utils/resource'
 import { getDateFormat } from '@/utils/format'
+import { useLearningOnboarding } from '@/onboarding/useLearningOnboarding'
 
 const props = defineProps({
 	batchName: {
@@ -117,6 +118,7 @@ const props = defineProps({
 })
 
 const user = inject('$user')
+const { completeStep } = useLearningOnboarding()
 const dayjs = inject('$dayjs')
 const route = useRoute()
 const readOnlyMode = window.read_only_mode
@@ -262,6 +264,7 @@ const submitLiveClass = () => {
 			validateFormFields()
 		},
 		onSuccess() {
+			completeStep('schedule_live_class')
 			reloadLiveClassList()
 			close()
 		},
