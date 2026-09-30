@@ -315,7 +315,11 @@
 									:value="(activeQuestion / questions.length) * 100"
 								/>
 							</div>
+<<<<<<< HEAD
 							<span class="shrink-0 text-sm text-ink-gray-6">
+=======
+							<span class="shrink-0 text-sm text-ink-gray-5">
+>>>>>>> 32cbf29 (fix: announce quiz questions, answers and feedback to screen readers)
 								{{ question.marks }}
 								{{ question.marks == 1 ? __('Mark') : __('Marks') }}
 							</span>
@@ -446,7 +450,11 @@
 									@change="(val) => (possibleAnswer = val)"
 									:editable="true"
 									:fixedMenu="true"
+<<<<<<< HEAD
 									editorClass="prose-sm max-w-none border-b border-x border-outline-elevation-2 bg-surface-gray-2 rounded-b-5 py-1 px-2 min-h-[7rem]"
+=======
+									minHeight="7rem"
+>>>>>>> 32cbf29 (fix: announce quiz questions, answers and feedback to screen readers)
 									:ariaLabelledby="questionTextId"
 								/>
 							</div>
@@ -589,11 +597,73 @@
 						</div>
 					</div>
 				</div>
+<<<<<<< HEAD
 				<div
 					v-if="quiz.data.enable_proctoring && summaryLog.length"
 					class="border-t border-outline-gray-1 p-3.5"
 				>
 					<QuizActivityLog :entries="summaryLog" />
+=======
+				<div class="space-y-3 p-3.5">
+					<h2
+						ref="summaryHeading"
+						tabindex="-1"
+						class="text-base-semibold text-ink-gray-9"
+					>
+						{{ __('Quiz Summary') }}
+					</h2>
+					<div
+						class="flex items-start gap-2 rounded-6 border border-outline-gray-2 bg-surface-gray-1 p-3"
+					>
+						<span
+							class="lucide-check-circle mt-0.5 size-4 shrink-0 text-ink-gray-6"
+						/>
+						<p
+							v-if="quizSubmission.data.is_open_ended"
+							class="text-p-base text-ink-gray-7"
+						>
+							{{
+								__(
+									"Your submission has been successfully saved. The instructor will review and grade it shortly, and you'll be notified of your final result."
+								)
+							}}
+						</p>
+						<p v-else class="text-p-base text-ink-gray-7">
+							{{
+								__(
+									'You got {0}% correct answers with a score of {1} out of {2}'
+								).format(
+									Math.ceil(quizSubmission.data.percentage),
+									quizSubmission.data.score,
+									quizSubmission.data.score_out_of
+								)
+							}}
+						</p>
+					</div>
+					<div
+						v-if="
+							!quiz.data.max_attempts ||
+							(attempts.data?.length ?? 0) < quiz.data.max_attempts ||
+							inVideo
+						"
+						class="flex items-center justify-end gap-x-2"
+					>
+						<Button v-if="inVideo" @click="props.backToVideo()">
+							{{ __('Resume Video') }}
+						</Button>
+						<Button
+							@click="resetQuiz()"
+							v-if="
+								!quiz.data.max_attempts ||
+								(attempts.data?.length ?? 0) < quiz.data.max_attempts
+							"
+						>
+							<span>
+								{{ __('Try Again') }}
+							</span>
+						</Button>
+					</div>
+>>>>>>> 32cbf29 (fix: announce quiz questions, answers and feedback to screen readers)
 				</div>
 			</div>
 		</AssessmentCard>

@@ -10,6 +10,7 @@
 		<span
 			:class="correct ? 'lucide-check-circle' : 'lucide-x-circle'"
 			class="mt-0.5 size-4 shrink-0"
+			aria-hidden="true"
 		/>
 		<span><slot /></span>
 	</div>
