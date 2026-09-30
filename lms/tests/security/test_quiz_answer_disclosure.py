@@ -58,10 +58,9 @@ class TestQuizAnswerDisclosure(BaseTestUtils):
 		cls.quiz.append("questions", {"question": cls.question.name, "marks": 5})
 		cls.quiz.save()
 
-		# Link the quiz to the course the way an embedded lesson would, without a
-		# Course Lesson: `can_access_quiz` reads LMS Quiz.course.
-		frappe.db.set_value("LMS Quiz", cls.quiz.name, "course", cls.course.name)
-		frappe.clear_document_cache("LMS Quiz", cls.quiz.name)
+		# `can_access_quiz` reaches a quiz only through a real placement now; the bare
+		# LMS Quiz.course stamp reads as author-only.
+		cls._place_in_lesson(cls.course.name, "LMS Quiz", cls.quiz.name)
 
 	def _row(self, user):
 		frappe.set_user(user)

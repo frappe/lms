@@ -1,7 +1,9 @@
 # Copyright (c) 2026, FOSS United and Contributors
 # See license.txt
 
-"""Write and delete on reusable content narrow to its `authors`. Read does not.
+"""Write and delete on reusable content narrow to its `authors` or, for the three
+assessment doctypes, to who administers the assessment. LMS Question's read stays
+wide; the assessment doctypes' read narrows to can_access_assessment.
 
 Every refusal here is asserted against the resulting state — the stored field is
 unchanged, the row is still there — because a bare assertRaises passes on any
@@ -22,6 +24,11 @@ from lms.lms.permissions import has_authored_content_permission, stored_authors
 from lms.lms.test_helpers import BaseTestUtils
 
 AUTHORED_DOCTYPES = ("LMS Quiz", "LMS Programming Exercise", "LMS Assignment", "LMS Question")
+
+# Registered on assessment_has_permission, which narrows read as well as write; the
+# rest of AUTHORED_DOCTYPES (LMS Question) keeps has_authored_content_permission,
+# whose read is unchanged.
+ASSESSMENT_DOCTYPES = ("LMS Quiz", "LMS Programming Exercise", "LMS Assignment")
 
 # LMS Program carries `authors` too and is deliberately NOT in the tuple above.
 # frappe allows one has_permission hook per doctype and LMS Program's own hook
@@ -46,6 +53,7 @@ EDITED_FIELD = {
 }
 
 GATE = "lms.lms.permissions.has_authored_content_permission"
+ASSESSMENT_GATE = "lms.lms.permissions.assessment_has_permission"
 
 
 class TestAuthoredContentScope(BaseTestUtils):
@@ -209,24 +217,29 @@ class TestAuthoredContentScope(BaseTestUtils):
 					frappe.delete_doc(doctype, name)
 				self.assertFalse(frappe.db.exists(doctype, name))
 
-	def test_read_is_unchanged_for_both_authoring_roles(self):
-		"""The regression that matters: the whole rule is read wide, write narrow.
+	def test_read_is_unchanged_for_lms_question(self):
+		"""LMS Question keeps has_authored_content_permission, whose read is wide."""
+		name = self._insert("LMS Question", self.author.name)
+		with self.subTest(reader=self.colleague.name):
+			self.assertTrue(frappe.has_permission("LMS Question", "read", doc=name, user=self.colleague.name))
+			with self._acting_as(self.colleague.name):
+				visible = frappe.get_list("LMS Question", pluck="name", limit_page_length=0)
+			self.assertIn(name, visible)
 
-		Both surfaces, because frappe.get_all sets ignore_permissions=True and only
-		frappe.get_list runs the list-read path a query condition would narrow.
-		"""
-		for doctype in AUTHORED_DOCTYPES:
+	def test_an_unplaced_assessment_is_read_only_by_its_author(self):
+		"""assessment_has_permission narrows read too: a Course Creator or Batch
+		Evaluator with no course/batch relationship to this row no longer reads it."""
+		for doctype in ASSESSMENT_DOCTYPES:
 			readers = [self.colleague] + ([self.evaluator] if doctype in EVALUATOR_DOCTYPES else [])
 			name = self._insert(doctype, self.author.name)
 			for reader in readers:
 				with self.subTest(doctype=doctype, reader=reader.name):
-					self.assertTrue(
-						frappe.has_permission(doctype, "read", doc=name, user=reader.name),
-						f"{doctype}: a non-author lost the single-doc read",
-					)
+					self.assertFalse(frappe.has_permission(doctype, "read", doc=name, user=reader.name))
 					with self._acting_as(reader.name):
 						visible = frappe.get_list(doctype, pluck="name", limit_page_length=0)
-					self.assertIn(name, visible, f"{doctype}: a non-author lost the list read")
+					self.assertNotIn(name, visible)
+			with self.subTest(doctype=doctype, reader=self.author.name):
+				self.assertTrue(frappe.has_permission(doctype, "read", doc=name, user=self.author.name))
 
 	def test_a_row_from_before_the_field_existed_answers_to_its_owner(self):
 		"""The assertion the no-backfill decision rests on.
@@ -310,8 +323,13 @@ class TestAuthoredContentScope(BaseTestUtils):
 
 		gated = {doctype for doctype, target in hooks.has_permission.items() if target == GATE}
 		self.assertEqual(
-			gated, set(AUTHORED_DOCTYPES), "a doctype carries the field without the gate that reads it"
+			gated, {"LMS Question"}, "a doctype carries the field without the gate that reads it"
 		)
+
+		assessment_gated = {
+			doctype for doctype, target in hooks.has_permission.items() if target == ASSESSMENT_GATE
+		}
+		self.assertEqual(assessment_gated, set(ASSESSMENT_DOCTYPES))
 
 		for doctype, target in COMPOSED_CARRIERS.items():
 			with self.subTest(doctype=doctype):
