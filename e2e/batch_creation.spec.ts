@@ -189,19 +189,22 @@ test.describe("Batch Creation", () => {
 		await expect(page).toHaveURL(/\/lms\/batches/);
 		await page.getByRole("radio", { name: "Upcoming" }).click();
 
+		// The card's title is its link, stretched over the card; the rest of the
+		// card's text sits beside the link, not inside it.
 		const batchLink = page.locator(`a[href='/lms/batches/${batchName}']`);
+		const batchCard = page.locator("div.isolate", { has: batchLink });
 		await expect(batchLink).toBeVisible({ timeout: 10000 });
-		await expect(batchLink.getByText("Test Batch").first()).toBeVisible();
+		await expect(batchLink).toHaveText("Test Batch");
 		await expect(
-			batchLink.getByText("Test Batch Short Description to test the UI")
+			batchCard.getByText("Test Batch Short Description to test the UI")
 		).toBeVisible();
 		await expect(
-			batchLink.getByText("01 Oct 2030 - 31 Oct 2030")
+			batchCard.getByText("01 Oct 2030 - 31 Oct 2030")
 		).toBeVisible();
-		await expect(batchLink.getByText("10:00 AM - 11:00 AM")).toBeVisible();
-		await expect(batchLink.getByText("Asia/Kolkata")).toBeVisible();
-		await expect(batchLink.getByText("Evaluator")).toBeVisible();
-		await expect(batchLink.getByText("10 Seats Left")).toBeVisible();
+		await expect(batchCard.getByText("10:00 AM - 11:00 AM")).toBeVisible();
+		await expect(batchCard.getByText("Asia/Kolkata")).toBeVisible();
+		await expect(batchCard.getByText("Evaluator")).toBeVisible();
+		await expect(batchCard.getByText("10 Seats Left")).toBeVisible();
 		await batchLink.click();
 
 		// Batch detail page

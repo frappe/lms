@@ -26,19 +26,19 @@
 
 		<div v-if="program.data" class="px-5 pb-10">
 			<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mb-5">
-				<component
-					:is="isLocked(course) ? 'div' : 'router-link'"
+				<div
 					v-for="(course, index) in program.data.courses"
 					:key="course.name"
-					:to="isLocked(course) ? undefined : courseRoute(course)"
 					:tabindex="isLocked(course) ? 0 : undefined"
 					:aria-describedby="
 						isLocked(course) ? `${lockNoteId}-${index}` : undefined
 					"
-					class="relative group block"
-					:class="isLocked(course) ? 'cursor-default' : 'cursor-pointer'"
+					class="relative group"
 				>
-					<CourseCard :course="course" />
+					<CourseCard
+						:course="course"
+						:to="isLocked(course) ? undefined : courseRoute(course)"
+					/>
 					<div
 						v-if="isLocked(course)"
 						:id="`${lockNoteId}-${index}`"
@@ -55,7 +55,7 @@
 							}}
 						</span>
 					</div>
-				</component>
+				</div>
 			</div>
 		</div>
 	</PageBody>

@@ -25,6 +25,7 @@ declare module 'vue' {
     BooleanSwitch: typeof import('./src/components/Controls/BooleanSwitch.vue')['default']
     BottomSheet: typeof import('./src/components/BottomSheet.vue')['default']
     BrandSettings: typeof import('./src/components/Settings/BrandSettings.vue')['default']
+    CardLink: typeof import('./src/components/CardLink.vue')['default']
     Categories: typeof import('./src/components/Settings/Categories.vue')['default']
     CertificationLinks: typeof import('./src/components/CertificationLinks.vue')['default']
     ChannelView: typeof import('./src/components/Settings/Raven/ChannelView.vue')['default']

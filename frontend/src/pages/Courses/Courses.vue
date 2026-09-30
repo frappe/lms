@@ -70,11 +70,10 @@
 		</template>
 
 		<template #card="{ row }">
-			<router-link
+			<CourseCard
+				:course="row"
 				:to="{ name: 'CourseDetail', params: { courseName: row.name } }"
-			>
-				<CourseCard :course="row" />
-			</router-link>
+			/>
 		</template>
 	</ListPage>
 
