@@ -6,10 +6,11 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest'
 import { flushPromises, mount } from '@vue/test-utils'
 
-const { callMock, captureMock, pushMock } = vi.hoisted(() => ({
+const { callMock, captureMock, pushMock, setFlowMock } = vi.hoisted(() => ({
 	callMock: vi.fn(() => Promise.resolve()),
 	captureMock: vi.fn(),
 	pushMock: vi.fn(),
+	setFlowMock: vi.fn(),
 }))
 
 vi.mock('frappe-ui', () => ({
@@ -22,6 +23,9 @@ vi.mock('@framework/ui/telemetry/index', async (importOriginal) => ({
 }))
 vi.mock('vue-router', () => ({
 	useRouter: () => ({ push: pushMock }),
+}))
+vi.mock('@/onboarding/useLearningOnboarding', () => ({
+	useLearningOnboarding: () => ({ setFlow: setFlowMock }),
 }))
 vi.mock('@/stores/session', () => ({
 	sessionStore: () => ({ brand: { favicon: '' } }),
@@ -81,6 +85,7 @@ beforeEach(() => {
 	callMock.mockClear()
 	captureMock.mockClear()
 	pushMock.mockClear()
+	setFlowMock.mockClear()
 	vi.useFakeTimers()
 })
 
@@ -149,6 +154,36 @@ describe('PersonaForm', () => {
 		await flushPromises()
 		expect(pushMock).toHaveBeenCalledWith({ name: 'Courses' })
 	})
+
+	it.each([
+		{ value: 'Publish my first course', flow: 'publish_course' },
+		{ value: 'Onboard my existing learners', flow: 'onboard_learners' },
+	])('choosing $value starts the $flow flow', async ({ value, flow }) => {
+		const wrapper = mountForm()
+		const card = wrapper.findComponent({ name: 'PersonaCard' })
+		const outcome = card.props('steps')[3]
+		const option = outcome.options.find((o: any) => o.value === value)
+		card.vm.$emit('choose', outcome, option)
+		await flushPromises()
+		expect(setFlowMock).toHaveBeenCalledWith(flow)
+	})
+
+	it.each([
+		{ value: 'Award my first certificate' },
+		{ value: 'Launch a paid course' },
+		{ value: 'Just exploring' },
+	])(
+		'choosing $value leaves the flow picker to the admin',
+		async ({ value }) => {
+			const wrapper = mountForm()
+			const card = wrapper.findComponent({ name: 'PersonaCard' })
+			const outcome = card.props('steps')[3]
+			const option = outcome.options.find((o: any) => o.value === value)
+			card.vm.$emit('choose', outcome, option)
+			await flushPromises()
+			expect(setFlowMock).not.toHaveBeenCalled()
+		}
+	)
 
 	it('ignores further choose/skip clicks while fading out', async () => {
 		const wrapper = mountForm()

@@ -29,11 +29,13 @@ import { BookOpen, Users, Award, Rocket, Compass } from 'lucide-vue-next'
 import { computed, inject, markRaw, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { sessionStore } from '@/stores/session'
+import { useLearningOnboarding } from '@/onboarding/useLearningOnboarding'
 
 const user = inject('$user')
 const router = useRouter()
 const { brand } = sessionStore()
 const { capture } = useTelemetry()
+const { setFlow } = useLearningOnboarding()
 
 const leaving = ref(false)
 const FADE_MS = 300
@@ -147,6 +149,7 @@ const steps = computed(() => [
 				description: __('Set up your first course and lessons.'),
 				icon: markRaw(BookOpen),
 				route: { name: 'Courses' },
+				flow: 'publish_course',
 			},
 			{
 				label: __('Onboard my existing learners'),
@@ -154,6 +157,7 @@ const steps = computed(() => [
 				description: __('Bring your learners into a batch.'),
 				icon: markRaw(Users),
 				route: { name: 'Batches' },
+				flow: 'onboard_learners',
 			},
 			{
 				label: __('Award my first certificate'),
@@ -205,6 +209,7 @@ const handleChoose = (step, option) => {
 	call('lms.lms.api.capture_user_persona', {
 		responses: JSON.stringify({ site: user.data?.sitename, ...answers }),
 	})
+	if (option.flow) setFlow(option.flow)
 	leaveTo(option.route ?? { name: 'Home' }, persistCaptured())
 }
 
