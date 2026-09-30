@@ -96,6 +96,7 @@
 						/>
 						<RichTextEditor
 							:id="descriptionId"
+							:ariaLabelledby="descriptionLabelId"
 							:content="course.description"
 							@change="(val: string) => (course.description = val)"
 							:editable="true"

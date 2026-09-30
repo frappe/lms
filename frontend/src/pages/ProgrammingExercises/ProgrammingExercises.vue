@@ -57,6 +57,7 @@
 				v-model="languageFilter"
 				:options="languages"
 				:placeholder="__('Type')"
+				:aria-label="__('Type')"
 				@update:modelValue="updateList"
 			/>
 		</template>

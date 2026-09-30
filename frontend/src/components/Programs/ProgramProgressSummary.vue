@@ -35,6 +35,7 @@
 					<FormControl
 						v-model="searchFilter"
 						:placeholder="__('Search')"
+						:aria-label="__('Search')"
 						class="mb-4"
 					>
 						<template #prefix>

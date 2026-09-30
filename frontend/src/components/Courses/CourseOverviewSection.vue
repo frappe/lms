@@ -15,6 +15,7 @@
 			>
 				<RichTextEditor
 					:id="descriptionId"
+					:ariaLabelledby="descriptionLabelId"
 					:content="doc.description"
 					@change="
 						(val) => {
