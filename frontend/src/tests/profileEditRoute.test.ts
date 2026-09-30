@@ -27,8 +27,7 @@ vi.mock('@/stores/session', () => ({
 	sessionStore: () => ({ user: {}, brand: {} }),
 }))
 
-// frappe-ui's ESM build does not resolve under vitest, so every export the two
-// components under test reach for is stubbed by hand.
+// Stubbed so tests control createResource/call responses without a network.
 vi.mock('frappe-ui', () => ({
 	createResource: createResourceMock,
 	call: vi.fn(),

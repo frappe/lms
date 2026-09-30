@@ -118,6 +118,7 @@ import {
 	createDocumentResource,
 	toast,
 } from 'frappe-ui'
+import type { FrappeResourceError } from 'frappe-ui'
 import { computed, reactive, ref, shallowRef, watch } from 'vue'
 import ImageUploadField from '@/components/Controls/ImageUploadField.vue'
 import SettingsLayout from '@/components/Layouts/settings/desktop/SettingsLayout.vue'
@@ -222,7 +223,7 @@ const seedDraft = () => {
 	for (const field of fields.value) draft[field.name] = field.default ?? ''
 }
 
-const reportError = (err: any, fallback: string) =>
+const reportError = (err: FrappeResourceError, fallback: string) =>
 	toast.error(cleanError(err?.messages?.[0] || err) || fallback)
 
 /**
@@ -249,7 +250,7 @@ const loadGateway = async (gateway: string) => {
 			// resource fetches on its own. frappe-ui nulls `doc` on a failed get,
 			// which `loading` reads as "still loading", so a deleted or
 			// unreadable record would otherwise spin forever.
-			onError: (err: any) => {
+			onError: (err: FrappeResourceError) => {
 				reportError(err, __('Error loading payment gateway'))
 				emit('back')
 			},

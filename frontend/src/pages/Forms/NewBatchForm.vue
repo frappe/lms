@@ -17,6 +17,7 @@
 						v-model="batch.start_date"
 						:label="__('Start Date')"
 						type="date"
+						:format="dateFormat"
 						:required="true"
 						variant="outline"
 					/>
@@ -24,6 +25,7 @@
 						v-model="batch.end_date"
 						:label="__('End Date')"
 						type="date"
+						:format="dateFormat"
 						:required="true"
 						variant="outline"
 					/>
@@ -143,11 +145,13 @@ import {
 	createResource,
 	toast,
 } from 'frappe-ui'
+import type { FrappeResourceError } from 'frappe-ui'
 import { useOnboarding } from '@framework/ui/components/Onboarding/index'
 import { useTelemetry } from '@framework/ui/telemetry/index'
 import { computed, inject, onMounted, onBeforeUnmount, ref } from 'vue'
 import { createLMSCategory, cleanError } from '@/utils'
-import { sanitizeOnWrite } from '@/utils/sanitizeOnWrite'
+import { getDateFormat } from '@/utils/format'
+import { sanitizeStringFields } from '@/utils/sanitizeOnWrite'
 import FormShell from '@/components/FormShell.vue'
 import HeaderButton from '@/components/HeaderButton.vue'
 import { useFormRoute } from '@/composables/useFormRoute'
@@ -161,6 +165,7 @@ import { submitResource } from '@/utils/resource'
 
 const { capture } = useTelemetry()
 const { updateOnboardingStep } = useOnboarding('learning')
+const dateFormat = getDateFormat()
 const user = inject<any>('$user')
 const showMemberModal = ref(false)
 const { inputId: batchDetailsId, labelId: batchDetailsLabelId } =
@@ -236,19 +241,9 @@ const onInstructorCreated = (user: any) => {
 	batch.value.instructors = [...batch.value.instructors, user.name]
 }
 
-const validateFields = () => {
-	const fields = batch.value as Record<string, unknown>
-	for (const key of Object.keys(fields)) {
-		const value = fields[key]
-		if (typeof value === 'string') {
-			fields[key] = sanitizeOnWrite(value)
-		}
-	}
-}
-
 const saveBatch = () => {
 	if (!canCreateBatch.value) return
-	validateFields()
+	sanitizeStringFields(batch.value as Record<string, unknown>)
 	submitResource(
 		batches.insert,
 		{
@@ -274,8 +269,8 @@ const saveBatch = () => {
 					})
 				}
 			},
-			onError(err: any) {
-				const message = err?.messages?.[0]
+			onError(err: FrappeResourceError) {
+				const message = err.messages?.[0]
 				toast.error(message ? cleanError(message) : __('Error creating batch'))
 				console.error(err)
 			},

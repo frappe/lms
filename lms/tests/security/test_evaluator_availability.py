@@ -12,16 +12,9 @@ from lms.lms.test_helpers import BaseTestUtils
 
 
 class TestEvaluatorAvailability(BaseTestUtils):
-	"""`ProfileEvaluator.vue` used to write availability through raw
-	`frappe.client.insert` / `set_value` / `delete`, which fall back to plain
-	doctype role permissions. `Course Evaluator` grants full write to Moderator,
-	Batch Evaluator *and* Course Creator with no row-level owner condition, so
-	any of them could add slots to, edit, or mark unavailability on any other
-	evaluator's calendar. A Course Creator can't even open the Slots tab, yet
-	could still write to it through the API.
-
-	The rule these endpoints enforce: you may edit your own availability, and a
-	Moderator may edit anyone's.
+	"""`ProfileEvaluator.vue` writes availability through `lms.lms.api`, not raw
+	`frappe.client.*` (would fall back to `Course Evaluator`'s role perms; see
+	`test_evaluator_self_grant.py`). Rule: edit your own, a Moderator edits anyone's.
 	"""
 
 	# Users are made once for the class: frappe throttles User creation, and

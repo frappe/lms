@@ -6,18 +6,6 @@ import { useDialogLayering } from '@/composables/dialogLayering'
 
 const settle = () => new Promise((resolve) => setTimeout(resolve, 0))
 
-const openOverlay = (): HTMLElement => {
-	const overlay = document.createElement('div')
-	overlay.className = 'dialog-overlay'
-	const content = document.createElement('div')
-	content.setAttribute('role', 'dialog')
-	overlay.appendChild(content)
-	document.body.appendChild(overlay)
-	return overlay
-}
-
-// frappe-ui 1.0.0-beta.29's shape: DialogContent lives in a sibling
-// `.dialog-scroll-container`, not inside the overlay itself.
 const openDialog = (): { overlay: HTMLElement; panel: HTMLElement } => {
 	const overlay = document.createElement('div')
 	overlay.className = 'dialog-overlay'
@@ -53,9 +41,9 @@ describe('dialog layering', () => {
 	})
 
 	it('stacks each dialog above the one opened before it', async () => {
-		const first = openOverlay()
+		const first = openDialog().overlay
 		await settle()
-		const second = openOverlay()
+		const second = openDialog().overlay
 		await settle()
 
 		expect(layerOf(second)).toBeGreaterThan(layerOf(first))
@@ -65,9 +53,9 @@ describe('dialog layering', () => {
 	// click landing on a covered overlay — see dialogLayering.ts's own
 	// comment. pointer-events is set explicitly, redundantly, alongside it.
 	it('sets pointer-events none on a covered overlay and auto on the top one', async () => {
-		const first = openOverlay()
+		const first = openDialog().overlay
 		await settle()
-		const second = openOverlay()
+		const second = openDialog().overlay
 		await settle()
 
 		expect(first.style.pointerEvents).toBe('none')
@@ -78,7 +66,7 @@ describe('dialog layering', () => {
 
 	it('records each restack in a bounded debug ring for forensics', async () => {
 		for (let i = 0; i < 60; i++) {
-			openOverlay()
+			openDialog()
 			await settle()
 		}
 
@@ -92,7 +80,7 @@ describe('dialog layering', () => {
 	})
 
 	it('keeps a stranded overlay below a dialog opened after it', async () => {
-		const stranded = openOverlay()
+		const stranded = openDialog().overlay
 		await settle()
 
 		// The dialog closes: its overlay leaves the DOM, and with nothing open the
@@ -103,7 +91,7 @@ describe('dialog layering', () => {
 		document.body.appendChild(stranded)
 		await settle()
 
-		const opened = openOverlay()
+		const opened = openDialog().overlay
 		await settle()
 
 		expect(layerOf(opened)).toBeGreaterThan(layerOf(stranded))
@@ -152,16 +140,16 @@ describe('dialog layering', () => {
 			await settle()
 
 			// The dialog it opened is a genuinely new, unrelated overlay.
-			const overlay = openOverlay()
+			const { panel } = openDialog()
 			await settle()
 
 			const done = escapeDispatched()
-			pointerdownInside(overlay.querySelector('[role="dialog"]')!)
+			pointerdownInside(panel.querySelector('[role="dialog"]')!)
 			expect(await done).toBe(false)
 		})
 
 		it('still fires for a popper genuinely opened from within the top dialog', async () => {
-			const overlay = openOverlay()
+			const { panel } = openDialog()
 			await settle()
 
 			// A Select/Combobox opened from inside the already-open dialog.
@@ -169,16 +157,14 @@ describe('dialog layering', () => {
 			await settle()
 
 			const done = escapeDispatched()
-			pointerdownInside(overlay.querySelector('[role="dialog"]')!)
+			pointerdownInside(panel.querySelector('[role="dialog"]')!)
 			expect(await done).toBe(true)
 		})
 	})
 
-	// beta.29 moved DialogContent out of the overlay into a sibling
-	// `.dialog-scroll-container` — see dialogLayering.ts's top comment. The
-	// overlay's own explicit z-index otherwise paints over that sibling,
-	// covering a dialog's content with its own overlay.
-	describe('the beta.29 sibling panel shape', () => {
+	// Without the same z-index on the panel, the overlay's explicit one paints
+	// over it and covers the dialog's content.
+	describe('the sibling panel', () => {
 		it("gives a dialog's panel the same z-index as its overlay", async () => {
 			openDialog()
 			await settle()

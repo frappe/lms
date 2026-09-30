@@ -3,7 +3,12 @@
 
 import frappe
 
-from lms.lms.test_helpers import BaseTestUtils, MemberOwnershipTestMixin
+from lms.lms.test_helpers import (
+	BaseTestUtils,
+	MemberOwnershipTestMixin,
+	released_frappe_sanitizer,
+	released_sanitize_html,
+)
 
 
 class TestLMSAssignmentSubmission(MemberOwnershipTestMixin, BaseTestUtils):
@@ -129,3 +134,43 @@ class TestLMSAssignmentSubmission(MemberOwnershipTestMixin, BaseTestUtils):
 		stored = self._stored(doc, "comments")
 		for tag in ("<script", "<iframe", "onerror"):
 			self.assertNotIn(tag, stored)
+
+	JSON_SHAPED_XSS = '"<img src=x onerror=alert(1)>"'
+
+	def _save_on_released_frappe(self, comments):
+		with released_frappe_sanitizer():
+			return self._graded_submission(comments=comments, status="Pass")
+
+	def test_json_shaped_comments_are_sanitised_on_released_frappe(self):
+		self.assertEqual(released_sanitize_html(self.JSON_SHAPED_XSS), self.JSON_SHAPED_XSS)
+		stored = self._stored(self._save_on_released_frappe(self.JSON_SHAPED_XSS), "comments")
+		self.assertNotIn("onerror", stored)
+		self.assertIn("<img", stored)
+
+	def test_plain_text_comments_are_stored_unchanged(self):
+		text = "Tom & Jerry: 5 > 3"
+		self.assertEqual(self._stored(self._save_on_released_frappe(text), "comments"), text)
+
+	# Guards the grading notification linking to the SPA's submission route.
+	# The link came in #1223; this branch's route moves had to keep it in step.
+	# Added on feat/assessment-visual-redesign with the assignment route changes.
+	def test_update_notification_links_to_the_submission_page(self):
+		frappe.set_user(self.moderator.name)
+		submission = self._new_submission(member=self.student_a.name)
+		submission.insert()
+
+		submission.comments = "Looks good"
+		submission.evaluator = "Administrator"
+		submission.trigger_update_notification()
+
+		log_name = frappe.db.get_value(
+			"Notification Log",
+			{"document_type": submission.doctype, "document_name": submission.name},
+			"name",
+		)
+
+		link = frappe.db.get_value("Notification Log", log_name, "link")
+		self.assertEqual(
+			link,
+			f"/lms/assignment-submission/{submission.assignment}/{submission.name}",
+		)

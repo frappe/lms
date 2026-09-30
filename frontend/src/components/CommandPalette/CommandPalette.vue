@@ -509,7 +509,7 @@ const accountItems = computed<PaletteItem[]>(() => {
 </script>
 <style>
 mark {
-	background-color: theme('colors.amber.100');
+	background-color: var(--surface-amber-2);
 	font-weight: 500;
 }
 </style>

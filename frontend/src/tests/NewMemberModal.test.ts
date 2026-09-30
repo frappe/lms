@@ -30,10 +30,7 @@ vi.mock('frappe-ui', () => ({
 	call: callMock,
 	toast: toastMock,
 	Dialog: {
-		// beta.7 Dialog contract: v-model:open (prop `open`), flat title/actions
-		// props, and the default slot for body content (#body-content is
-		// deprecated). Mirror that here. The old modelValue/options/body-content
-		// mock left `open` undefined, so the dialog rendered as <!--v-if-->.
+		// Mirrors Dialog. v-model:open, flat title/actions, body in default slot.
 		props: ['open', 'title', 'actions'],
 		setup() {
 			return { closeMock }

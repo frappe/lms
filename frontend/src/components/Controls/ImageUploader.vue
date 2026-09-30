@@ -9,7 +9,7 @@
 			<div class="flex items-end space-x-1 rtl:space-x-reverse">
 				<Button
 					:data-testid="testid ? `${testid}-upload` : undefined"
-					:iconLeft="uploading ? 'cloud-upload' : 'lucide-image-up'"
+					iconLeft="lucide-image-up"
 					:loading="uploading"
 					:disabled="disabled"
 					:label="

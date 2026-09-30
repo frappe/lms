@@ -4,7 +4,7 @@ authors = [
     { name = "Frappe Technologies Pvt Ltd", email = "developers@frappe.io"}
 ]
 description = "Easy to use, open source, Learning Management System"
-requires-python = ">=3.10"
+requires-python = ">=3.14,<3.15"
 readme = "README.md"
 dynamic = ["version"]
 dependencies = [

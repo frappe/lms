@@ -272,30 +272,3 @@ function submitCreate(): void {
 
 defineExpose({ reload })
 </script>
-
-<style scoped>
-/*
- * frappe-ui's Combobox trigger carries `focus-within:focus-ring` /
- * `data-[state=open]:focus-ring` UNCONDITIONALLY (triggerBaseClassesFocusWithin
- * in node_modules/frappe-ui/src/components/shared/selection/utils.ts:75-76;
- * Link never sets a button trigger or #trigger slot, so this always applies),
- * which paints an outline ring on focus/open. This project's field convention
- * is border+shadow with NO ring on fields. `focus-visible:ring` is reserved
- * for buttons/nav (see frappe-ui-beta7-field-focus-states). These rules exist
- * to CANCEL frappe-ui's ring and restore that field convention on the
- * trigger. They are NOT redundant with frappe-ui's own styling, so do not
- * delete them thinking they duplicate it.
- *
- * Written as a scoped :deep() selector on [data-slot="trigger"], not as a
- * plain `class` on <Combobox>, because Combobox routes a caller's `class` to
- * its LabelingWrapper (not the trigger) once a label is present. See
- * `hasLabeling` in node_modules/frappe-ui/src/components/Combobox/Combobox.vue.
- * Nearly every <Link> caller passes a label, so a plain class here would
- * silently stop reaching the trigger. Targeting the data-slot instead makes
- * it independent of that labeled/unlabeled routing.
- */
-:deep([data-slot='trigger']:focus-within),
-:deep([data-slot='trigger'][data-state='open']) {
-	@apply border-outline-gray-4 bg-surface-base shadow-sm outline-none;
-}
-</style>

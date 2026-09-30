@@ -66,7 +66,7 @@
 									tabindex="0"
 									role="button"
 									:aria-label="dragHandleLabel(element)"
-									class="lucide-grip-vertical size-4 cursor-grab rounded-4 text-ink-gray-5 focus:outline-none focus-visible:ring-2 focus-visible:ring-outline-gray-3"
+									class="lucide-grip-vertical size-4 cursor-grab rounded-4 text-ink-gray-5"
 									@keydown.up.prevent="moveRow(element, -1)"
 									@keydown.down.prevent="moveRow(element, 1)"
 								/>
@@ -85,10 +85,7 @@
 									/>
 									<span
 										v-else
-										:class="[
-											iconClass(element),
-											'size-4 shrink-0 text-ink-gray-7',
-										]"
+										class="lucide-link size-4 shrink-0 text-ink-gray-7"
 									/>
 									<span
 										class="min-w-0 flex-1 truncate text-p-sm text-ink-gray-8"
@@ -187,8 +184,6 @@ const { loadSidebarSettings } = useSettings()
 const settings = createDocumentResource({
 	doctype: 'LMS Settings',
 	name: 'LMS Settings',
-	fields: ['*'],
-	cache: 'LMS Settings',
 	auto: true,
 })
 
@@ -274,16 +269,6 @@ const iconComponent = (row: SidebarRowDraft) => {
 
 const pascal = (icon: string): string =>
 	icon.replace(/(^|[-_ ])([a-z])/g, (_match, _sep, char) => char.toUpperCase())
-
-// Kept for a stored name that resolves to no component.
-const iconClass = (row: SidebarRowDraft): string => {
-	const icon =
-		row.icon || (row.item_type === 'Built-in' && builtInIcon(row.name1 ?? ''))
-	return icon ? `lucide-${kebab(icon)}` : 'lucide-link'
-}
-
-const kebab = (icon: string): string =>
-	icon.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase()
 
 const rowName = (row: SidebarRowDraft): string => rowLabel(row) || __('link')
 

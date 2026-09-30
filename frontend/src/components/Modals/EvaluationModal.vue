@@ -128,7 +128,7 @@ const evaluation = ref({
 function submitEvaluation(close) {
 	if (!evaluation.value.date || !evaluation.value.start_time) {
 		toast.warning(__('Please select a slot for your evaluation.'), {
-			duration: 10,
+			duration: 10000,
 		})
 		return
 	}
@@ -145,7 +145,7 @@ function submitEvaluation(close) {
 		})
 		.catch((err) => {
 			console.log(err.messages?.[0] || err)
-			toast.warning(__(err.messages?.[0] || err), { duration: 20 })
+			toast.warning(__(err.messages?.[0] || err), { duration: 20000 })
 		})
 }
 

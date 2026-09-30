@@ -21,6 +21,7 @@ from frappe.translate import get_all_translations
 from frappe.utils import (
 	add_days,
 	cint,
+	cstr,
 	date_diff,
 	flt,
 	format_date,
@@ -35,7 +36,7 @@ from frappe.utils import (
 from frappe.utils.response import Response
 from pypika import functions as fn
 
-from lms.lms.course_import_export import export_course_zip, import_course_zip
+from lms.lms.course_import_export import export_course_zip, import_course_zip, validate_archive
 from lms.lms.doctype.course_lesson.course_lesson import (
 	cleanup_lesson_backreferences,
 	save_progress,
@@ -1008,14 +1009,30 @@ def create_lesson(chapter: str) -> str:
 
 @frappe.whitelist()
 def update_lesson_index(lesson: str, sourceChapter: str, targetChapter: str, idx: int):
-	course = frappe.db.get_value("Course Chapter", sourceChapter, "course")
-	if not can_modify_course(course):
+	source_course = frappe.db.get_value("Course Chapter", sourceChapter, "course")
+	if not can_modify_course(source_course):
 		frappe.throw(_("You do not have permission to modify this lesson."), frappe.PermissionError)
 
+	if sourceChapter != targetChapter:
+		target_course = frappe.db.get_value("Course Chapter", targetChapter, "course")
+		if not target_course:
+			frappe.throw(_("Chapter {0} does not exist.").format(targetChapter), frappe.DoesNotExistError)
+		if not can_modify_course(target_course):
+			frappe.throw(_("You do not have permission to modify this lesson."), frappe.PermissionError)
+
 	hasMoved = sourceChapter == targetChapter
+	target_course = source_course
+	if not hasMoved:
+		target_course = frappe.db.get_value("Course Chapter", targetChapter, "course")
+		if not can_modify_course(target_course):
+			frappe.throw(_("You do not have permission to modify this lesson."), frappe.PermissionError)
+
 	update_source_chapter(lesson, sourceChapter, idx, hasMoved)
 	if not hasMoved:
 		update_target_chapter(lesson, targetChapter, idx)
+		# The lesson's own chapter/course must follow it, or progress checks
+		# that read Course Lesson directly keep using the old course.
+		frappe.db.set_value("Course Lesson", lesson, {"chapter": targetChapter, "course": target_course})
 
 
 def update_source_chapter(lesson: str, chapter: str, idx: int, hasMoved: bool = False):
@@ -1514,7 +1531,10 @@ def give_discussions_permission():
 				).save()
 
 
-@frappe.whitelist()
+# Pinned to POST by .github/semgrep/security.yml's lms-mutating-whitelist-needs-post:
+# validate_csrf_token returns early on GET, and the SCORM extraction's writes to disk
+# outlive frappe's GET auto-rollback.
+@frappe.whitelist(methods=["POST"])
 def upsert_chapter(
 	title: str, course: str, is_scorm_package: bool, scorm_package: dict = None, name: str = None
 ):
@@ -1529,6 +1549,18 @@ def upsert_chapter(
 		frappe.throw(_("You do not have permission to modify this chapter."), frappe.PermissionError)
 
 	values = frappe._dict({"title": title, "course": course, "is_scorm_package": is_scorm_package})
+
+	if name:
+		chapter = frappe.get_doc("Course Chapter", name)
+	elif is_scorm_package:
+		# extract_package keys the extraction dir off this chapter's own docname
+		# (not its title, so two titles can't collide), which a fresh chapter needs
+		# first; the whole request rolls back if extraction throws below.
+		chapter = frappe.new_doc("Course Chapter")
+		chapter.update(values)
+		chapter.insert()
+	else:
+		chapter = None
 
 	if is_scorm_package:
 		scorm_package = frappe._dict(scorm_package or {})
@@ -1551,7 +1583,7 @@ def upsert_chapter(
 			values.update(stored)
 			values["scorm_package"] = None
 		else:
-			extract_path = extract_package(course, title, scorm_package)
+			extract_path = extract_package(course, chapter.name, scorm_package)
 			values.update(
 				{
 					"scorm_package": scorm_package.name,
@@ -1561,8 +1593,7 @@ def upsert_chapter(
 				}
 			)
 
-	if name:
-		chapter = frappe.get_doc("Course Chapter", name)
+	if chapter is not None:
 		chapter.update(values)
 		chapter.save()
 	else:
@@ -1570,6 +1601,7 @@ def upsert_chapter(
 		chapter.update(values)
 		chapter.save()
 
+	if not name:
 		# Link the new chapter into the outline here (was client-side frappe.client.insert in ChapterModal.vue, which didn't reliably persist on CI); keeps the Chapter Reference atomic with the chapter.
 		course_doc = frappe.get_doc("LMS Course", course)
 		course_doc.append("chapters", {"chapter": chapter.name})
@@ -1624,8 +1656,15 @@ def _scorm_extract_path(course: str, title: str) -> str:
 	if not course_root.startswith(scorm_root + os.sep):
 		frappe.throw(_("Invalid course or chapter name"))
 
-	# Must resolve strictly inside the course dir. A title of "."/""/"sub/.." collapses to course_root, whose rmtree would wipe every chapter.
-	extract_path = os.path.realpath(os.path.join(course_root, title))
+	# A "/" only joins segments; "", "." or ".." as one is a traversal attempt
+	# and must be rejected, not sanitised into something that merges two chapters.
+	segments = title.split("/")
+	if any(segment in ("", ".", "..") for segment in segments):
+		frappe.throw(_("Invalid course or chapter name"))
+
+	# Must resolve strictly inside the course dir; belt-and-suspenders against
+	# anything the segment check above didn't anticipate.
+	extract_path = os.path.realpath(os.path.join(course_root, "-".join(segments)))
 	if not extract_path.startswith(course_root + os.sep):
 		frappe.throw(_("Invalid course or chapter name"))
 
@@ -1637,20 +1676,35 @@ def extract_package(course: str, title: str, scorm_package: dict):
 	zip_path = package.get_full_path()
 	extract_path = _scorm_extract_path(course, title)
 
-	# Clear any previously extracted package so a re-upload doesn't leave stale files served (path confirmed under the course dir above).
-	if os.path.exists(extract_path):
-		shutil.rmtree(extract_path)
+	# Extract to a sibling of the real dir and only swap it in once every check
+	# passes, so a rejected replacement never touches the chapter's working files.
+	tmp_path = f"{extract_path}.tmp-{frappe.generate_hash(length=8)}"
+	try:
+		with zipfile.ZipFile(zip_path, "r") as zf:
+			validate_archive(zf)
 
-	with zipfile.ZipFile(zip_path, "r") as zf:
-		dest = os.path.realpath(extract_path)
-		for info in zf.infolist():
-			# Reject symlink entries outright: a symlink + a path through it could escape the course dir once materialised.
-			if stat.S_ISLNK(info.external_attr >> 16):
-				frappe.throw(_("Invalid file path in package"))
-			target = os.path.realpath(os.path.join(extract_path, info.filename))
-			if not target.startswith(dest + os.sep) and target != dest:
-				frappe.throw(_("Invalid file path in package"))
-		zf.extractall(extract_path)
+			dest = os.path.realpath(tmp_path)
+			for info in zf.infolist():
+				# Reject symlink entries outright: a symlink + a path through it could escape the course dir once materialised.
+				if stat.S_ISLNK(info.external_attr >> 16):
+					frappe.throw(_("Invalid file path in package"))
+				target = os.path.realpath(os.path.join(tmp_path, info.filename))
+				if not target.startswith(dest + os.sep) and target != dest:
+					frappe.throw(_("Invalid file path in package"))
+			zf.extractall(tmp_path)
+
+		# Resolve the manifest now, while a hostile/malformed one still leaves the
+		# chapter's existing package (at extract_path) untouched. A package with no
+		# manifest at all is unchanged behaviour: get_launch_file returns None for it.
+		get_launch_file(tmp_path)
+
+		if os.path.exists(extract_path):
+			shutil.rmtree(extract_path)
+		shutil.move(tmp_path, extract_path)
+	except Exception:
+		if os.path.exists(tmp_path):
+			shutil.rmtree(tmp_path)
+		raise
 
 	return extract_path
 
@@ -1741,16 +1795,15 @@ def add_lesson(title: str, chapter: str, course: str, idx: int):
 
 @frappe.whitelist()
 def delete_chapter(chapter: str):
+	if not isinstance(chapter, str):
+		frappe.throw(_("chapter must be a string"))
+
 	course = frappe.db.get_value("Course Chapter", chapter, "course")
 	if not can_modify_course(course):
 		frappe.throw(_("You do not have permission to delete this chapter."), frappe.PermissionError)
 
-	chapterInfo = frappe.db.get_value(
-		"Course Chapter", chapter, ["is_scorm_package", "scorm_package_path"], as_dict=True
-	)
-
-	if chapterInfo.is_scorm_package:
-		delete_scorm_package(chapterInfo.scorm_package_path)
+	if frappe.db.get_value("Course Chapter", chapter, "is_scorm_package"):
+		delete_scorm_package(chapter)
 
 	course = frappe.db.get_value("Chapter Reference", {"chapter": chapter}, "parent")
 
@@ -1787,10 +1840,46 @@ def delete_chapter(chapter: str):
 			i += 1
 
 
-def delete_scorm_package(scorm_package_path: str):
-	scorm_package_path = frappe.get_site_path("public", scorm_package_path[1:])
-	if os.path.exists(scorm_package_path):
-		shutil.rmtree(scorm_package_path)
+def delete_scorm_package(chapter: str):
+	"""Remove the package this chapter extracted, and nothing else: scorm_package_path is a plain field any course writer can set."""
+	course, stored = frappe.db.get_value("Course Chapter", chapter, ["course", "scorm_package_path"])
+	if not stored:
+		return
+
+	# Packages extracted before 68e7b210e live under public/scorm, everything since under private/scorm.
+	dirs = {root: _scorm_package_dir(root, course, stored) for root in ("private", "public")}
+	if not any(dirs.values()):
+		return
+
+	# Compare resolved directories, not raw strings: "/scorm/C/Shared" and
+	# "/scorm/C/./Shared" name the same package but would not string-match.
+	sibling_paths = frappe.get_all(
+		"Course Chapter", filters={"course": course, "name": ["!=", chapter]}, pluck="scorm_package_path"
+	)
+	for sibling in sibling_paths:
+		if not sibling:
+			continue
+		sibling_dirs = {root: _scorm_package_dir(root, course, sibling) for root in dirs}
+		if any(package_dir and package_dir == sibling_dirs[root] for root, package_dir in dirs.items()):
+			return
+
+	for package_dir in dirs.values():
+		if package_dir and os.path.isdir(package_dir):
+			shutil.rmtree(package_dir)
+
+
+def _scorm_package_dir(root: str, course: str, stored: str) -> str | None:
+	"""The directory "/scorm/<course>/<title>" names under <site>/<root>/scorm, or None unless it is exactly one package of `course`."""
+	segments = [segment for segment in stored.strip("/").split("/") if segment not in ("", ".")]
+	if len(segments) != 3 or segments[0] != "scorm" or segments[1] != course:
+		return None
+
+	course_root = os.path.join(os.path.realpath(frappe.get_site_path(root, "scorm")), course)
+	package_dir = os.path.realpath(os.path.join(course_root, segments[2]))
+	# Checked after symlinks resolve, so neither segment can point the rmtree elsewhere.
+	if os.path.dirname(package_dir) != course_root:
+		return None
+	return package_dir
 
 
 @frappe.whitelist()
@@ -2234,7 +2323,9 @@ def get_meta_info(type: str, route: str):
 @frappe.whitelist()
 def update_meta_info(meta_type: str, route: str, meta_tags: list):
 	frappe.only_for(["Course Creator", "Batch Evaluator", "Moderator"])
-	validate_meta_data_permissions(meta_type)
+	if not isinstance(meta_type, str) or not isinstance(route, str):
+		frappe.throw(_("Meta type and route must be strings."))
+	validate_meta_data_permissions(meta_type, route)
 	validate_meta_tags(meta_tags)
 
 	parent_name = f"{meta_type}/{route}"
@@ -2285,25 +2376,103 @@ def create_meta(parent_name: str, tag_properties: dict):
 		}
 	)
 	route_meta.append("meta_tags", tag_properties)
-	route_meta.insert()
+	# nosemgrep: lms-unjustified-ignore-permissions - only System Manager has DocPerms; caller can modify the course/batch
+	route_meta.insert(ignore_permissions=True)
 
 
 def create_meta_tag(tag_properties: dict):
 	new_tag = frappe.new_doc("Website Meta Tag")
 	new_tag.update(tag_properties)
-	new_tag.insert()
+	# nosemgrep: lms-unjustified-ignore-permissions - only System Manager has DocPerms; caller can modify the course/batch
+	new_tag.insert(ignore_permissions=True)
 
 
-def validate_meta_data_permissions(meta_type: str):
-	roles = frappe.get_roles()
-
+def validate_meta_data_permissions(meta_type: str, route: str):
 	if meta_type == "courses":
-		if not ("Course Creator" in roles or "Moderator" in roles):
-			frappe.throw(_("You do not have permission to update meta tags."))
-
+		allowed = can_modify_course(route)
 	elif meta_type == "batches":
-		if not ("Batch Evaluator" in roles or "Moderator" in roles):
-			frappe.throw(_("You do not have permission to update meta tags."))
+		allowed = can_modify_batch(route)
+	else:
+		allowed = False
+
+	if not allowed:
+		frappe.throw(_("You do not have permission to update meta tags."))
+
+
+def can_read_expected_output(doc) -> bool:
+	return 1 in doc.get_permlevel_access("read")
+
+
+def _redact_expected(case, author: bool) -> str | None:
+	"""Withhold a hidden case's answer from a learner. Shared by both endpoints below."""
+	if case.hidden and not author:
+		return None
+	return case.expected_output
+
+
+@frappe.whitelist()
+def get_programming_exercise(exercise: str) -> dict:
+	"""Return an exercise with hidden cases' expected output blanked (not dropped, as
+	`frappe.client.get` would), so the frontend can tell withheld from absent."""
+	if not isinstance(exercise, str):
+		frappe.throw(_("exercise must be a string"))
+
+	doc = frappe.get_doc("LMS Programming Exercise", exercise)
+	doc.check_permission("read")
+	return _exercise_for_viewer(doc, can_read_expected_output(doc))
+
+
+def _exercise_for_viewer(doc, author: bool) -> dict:
+	return {
+		"name": doc.name,
+		"title": doc.title,
+		"language": doc.language,
+		"problem_statement": doc.problem_statement,
+		"starter_code": doc.starter_code,
+		"test_cases": [
+			{
+				"idx": case.idx,
+				"input": case.input,
+				"hidden": case.hidden,
+				"expected_output": _redact_expected(case, author),
+			}
+			for case in doc.test_cases
+		],
+	}
+
+
+@frappe.whitelist()
+def evaluate_programming_exercise(exercise: str, outputs: list) -> list[dict]:
+	"""Score a run server-side. The browser runs the code, so it holds each input,
+	but it must never hold a hidden case's expected output."""
+	if not isinstance(exercise, str):
+		frappe.throw(_("exercise must be a string"))
+	if not isinstance(outputs, list):
+		frappe.throw(_("outputs must be a list"))
+
+	doc = frappe.get_doc("LMS Programming Exercise", exercise)
+	doc.check_permission("read")
+
+	if len(outputs) != len(doc.test_cases):
+		frappe.throw(_("Expected {0} outputs, got {1}").format(len(doc.test_cases), len(outputs)))
+
+	author = can_read_expected_output(doc)
+	return [
+		_score_test_case(case, produced, author)
+		for case, produced in zip(doc.test_cases, outputs, strict=True)
+	]
+
+
+def _score_test_case(case, produced, author: bool) -> dict:
+	output = cstr(produced).strip()
+	expected = cstr(case.expected_output).strip()
+	return {
+		"idx": case.idx,
+		"status": "Passed" if output == expected else "Failed",
+		"hidden": case.hidden,
+		"output": output,
+		"expected_output": _redact_expected(case, author),
+	}
 
 
 @frappe.whitelist()

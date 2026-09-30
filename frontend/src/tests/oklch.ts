@@ -1,7 +1,7 @@
 /**
- * frappe-ui's `tailwind/generated/colors.json` emits OKLCH strings
+ * `frappe-ui/tailwind/tokens` emits OKLCH strings
  * (`oklch(1 0 0)`), not hex. The theme-bootstrap and document-surface test
- * suites resolve a token straight out of that file and then compare it (or
+ * suites resolve a token straight out of that export and then compare it (or
  * feed it through hex-only helpers like `luma`/`relative`) as a hex string,
  * so every resolved value is normalized to hex here, once, at the source.
  *

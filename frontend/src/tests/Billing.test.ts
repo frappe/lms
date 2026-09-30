@@ -105,7 +105,6 @@ const createResourceMock = (opts: ResourceOptions) => {
 
 vi.mock('frappe-ui', () => ({
 	toast: toastMock,
-	call: vi.fn(),
 	usePageMeta: vi.fn(),
 	createResource: (opts: ResourceOptions) => createResourceMock(opts),
 	Breadcrumbs: { template: '<div />' },
@@ -125,11 +124,15 @@ vi.mock('frappe-ui', () => ({
 			// observable here; the real control renders it as InputError.
 			'error',
 		],
-		emits: ['update:modelValue', 'input'],
+		// As in rc.1, attrs land on the input; input and change emit the value.
+		inheritAttrs: false,
+		emits: ['update:modelValue'],
 		template: `<span><input
+			v-bind="$attrs"
 			:data-testid="'fc-' + label"
 			:type="type || 'text'"
 			:value="modelValue"
+			@input="$emit('update:modelValue', type === 'checkbox' ? $event.target.checked : $event.target.value)"
 			@change="$emit('update:modelValue', type === 'checkbox' ? $event.target.checked : $event.target.value)"
 		/><span v-if="error" data-slot="error">{{ error }}</span></span>`,
 	},
@@ -359,5 +362,37 @@ describe('Billing: checkout validation errors reach the user', () => {
 		expect(toastMock.error).toHaveBeenCalledWith(
 			expect.stringContaining('state')
 		)
+	})
+})
+
+describe('Billing: coupon field', () => {
+	beforeEach(() => {
+		submitted.length = 0
+		unhandled.length = 0
+		vi.clearAllMocks()
+	})
+
+	it('sends the typed coupon trimmed and upper-cased', async () => {
+		const wrapper = await mountBilling()
+		await wrapper
+			.find<HTMLInputElement>('input[aria-label="Coupon Code"]')
+			.setValue(' save10 ')
+		await consent(wrapper)
+		await proceed(wrapper)
+
+		expect(checkout()?.params.coupon_code).toBe('SAVE10')
+	})
+
+	it('treats a blank coupon as no coupon', async () => {
+		const wrapper = await mountBilling()
+		await wrapper
+			.find<HTMLInputElement>('input[aria-label="Coupon Code"]')
+			.setValue('   ')
+		await wrapper
+			.findAll('button')
+			.find((b) => b.text().includes('Apply'))!
+			.trigger('click')
+
+		expect(toastMock.error).toHaveBeenCalledWith('Please enter a coupon code')
 	})
 })

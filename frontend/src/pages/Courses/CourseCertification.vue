@@ -35,6 +35,7 @@ import { computed, inject, watch } from 'vue'
 import PageHeader from '@/components/Layouts/pages/PageHeader.vue'
 import PageBody from '@/components/Layouts/pages/PageBody.vue'
 import { createResource, toast, usePageMeta } from 'frappe-ui'
+import type { FrappeResourceError } from 'frappe-ui'
 import { useRouter } from 'vue-router'
 import { sessionStore } from '../../stores/session'
 import UpcomingEvaluations from '@/components/UpcomingEvaluations.vue'
@@ -67,7 +68,7 @@ const certification = createResource({
 			})
 		}
 	},
-	onError(error: unknown) {
+	onError(error: FrappeResourceError) {
 		toast.error(
 			resourceErrorMessage(error, __('Could not load this certification.'))
 		)

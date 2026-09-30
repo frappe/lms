@@ -159,9 +159,16 @@ test.describe("Quiz", () => {
 			await page.goto(`/lms/quiz/${quizName}`);
 			await closeOnboardingModal(page);
 
-			await expect(page.getByText("Cypress Test Quiz").first()).toBeVisible();
-			await expect(page.getByText("1 question")).toBeVisible();
-			await expect(page.getByText("Passing score: 60%")).toBeVisible();
+			await expect(page.getByText(quizTitle).first()).toBeVisible();
+
+			// The start screen's stats grid pairs each <dt> label with its <dd>.
+			const stat = (label: string) =>
+				page
+					.locator("dl > div")
+					.filter({ has: page.getByText(label, { exact: true }) })
+					.locator("dd");
+			await expect(stat("Questions")).toHaveText("1");
+			await expect(stat("Pass mark")).toHaveText("60%");
 		});
 
 		test("starts the quiz and shows the question with answer choices", async ({
@@ -177,7 +184,7 @@ test.describe("Quiz", () => {
 			await expect(page.getByText("What is 2 + 2?")).toBeVisible({
 				timeout: 10000,
 			});
-			await expect(page.locator('input[type="radio"]').first()).toBeVisible();
+			await expect(page.getByRole("radio").first()).toBeVisible();
 		});
 
 		test("submits the quiz and shows the result", async ({ page }) => {
@@ -186,11 +193,9 @@ test.describe("Quiz", () => {
 
 			await button(page, "Start Quiz").click();
 
-			// Select any answer
-			await page
-				.locator('input[type="radio"]')
-				.first()
-				.check({ force: true, timeout: 10000 });
+			// Select any answer. frappe-ui's Radio is a `role="radio"` button, not a
+			// native input, so `.check()` does not apply to it.
+			await page.getByRole("radio").first().click({ timeout: 10000 });
 
 			const submitQuiz = page.waitForResponse(
 				(res) =>

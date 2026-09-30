@@ -52,9 +52,7 @@ vi.mock('@/utils/sanitizeRichHTML', () => ({
 	sanitizeRichHTML: (h: string) => h,
 }))
 
-// shallowMount still *imports* every child; some pull in frappe-ui deep paths
-// that don't resolve under vitest. Stub them at the module level. (vi.mock is
-// hoisted, so each factory has to be inline.)
+// shallowMount still imports every child. Stub them so their imports stay out.
 vi.mock('@/components/CourseCardOverlay.vue', () => ({
 	default: { template: '<div />' },
 }))

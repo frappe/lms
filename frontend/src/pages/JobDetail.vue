@@ -6,32 +6,26 @@
 					v-if="user.data?.name && !readOnlyMode"
 					class="flex items-center gap-2"
 				>
-					<router-link
+					<HeaderButton
 						v-if="canManageJob && applicantCount > 0"
-						:to="{
+						:route="{
 							name: 'JobApplications',
 							params: { job: job.data?.name },
 						}"
-					>
-						<HeaderButton
-							:label="__('View Applications')"
-							icon="lucide-square-user-round"
-							variant="subtle"
-						/>
-					</router-link>
-					<router-link
+						:label="__('View Applications')"
+						icon="lucide-square-user-round"
+						variant="subtle"
+					/>
+					<HeaderButton
 						v-if="canManageJob"
-						:to="{
+						:route="{
 							name: 'JobForm',
 							params: { jobName: job.data?.name },
 						}"
-					>
-						<HeaderButton
-							:label="__('Edit')"
-							icon="lucide-pencil"
-							variant="subtle"
-						/>
-					</router-link>
+						:label="__('Edit')"
+						icon="lucide-pencil"
+						variant="subtle"
+					/>
 					<HeaderButton
 						:label="__('Visit Website')"
 						icon="lucide-square-arrow-out-up-right"

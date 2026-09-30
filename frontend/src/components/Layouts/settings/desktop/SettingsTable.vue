@@ -2,20 +2,13 @@
 	<div class="-mx-3 min-h-0 flex-1 overflow-y-auto" :style="scrollerStyle">
 		<List :columns="tracks" :row-height="ROW_HEIGHT_PX" class="list-row-px-3">
 			<ListHeader class="sticky top-0 z-10 bg-surface-elevation-1">
-				<ListHeaderCell
-					v-for="column in columns"
-					:key="column.key"
-					class="text-p-sm"
-				>
+				<ListHeaderCell v-for="column in columns" :key="column.key">
 					{{ column.label }}
 				</ListHeaderCell>
 			</ListHeader>
 			<div role="rowgroup">
 				<ListRows :items="rows" :row-key="rowKey" v-slot="{ item: row }">
-					<ListRow
-						class="dark:sm:hover:bg-surface-gray-2 [outline-offset:-3px]"
-						@click="emit('rowClick', row)"
-					>
+					<ListRow :class="ROW_CLASSES" @click="emit('rowClick', row)">
 						<ListCell
 							v-for="column in columns"
 							:key="column.key"
@@ -173,6 +166,11 @@ import type {
 	SettingsListColumn,
 	SettingsListRow,
 } from '@/types'
+
+// The outline sits inside the row; frappe-ui's hover wash equals the dialog
+// surface in dark mode. See settingsTableScroll.test.ts.
+// token-exempt: dark: selects a different token, not the same one twice
+const ROW_CLASSES = 'dark:sm:hover:bg-surface-gray-2 [outline-offset:-3px]'
 
 const props = withDefaults(
 	defineProps<{

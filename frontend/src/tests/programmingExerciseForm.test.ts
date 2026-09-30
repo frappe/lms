@@ -16,8 +16,6 @@ const insertSubmit = vi.fn()
 const setValueSubmit = vi.fn()
 const deleteSubmit = vi.fn()
 const exercisesReload = vi.fn()
-const testCasesUpdate = vi.fn()
-const testCasesReload = vi.fn()
 const countReload = vi.fn()
 
 // vi.hoisted because vi.mock's factory is hoisted above every top-level const,
@@ -27,7 +25,6 @@ const {
 	createListResourceMock,
 	createResourceMock,
 	createDocumentResourceMock,
-	passthrough,
 } = vi.hoisted(() => {
 	// @/utils pulls in plyr, which touches matchMedia at import time.
 	window.matchMedia ??= (() => ({
@@ -39,13 +36,6 @@ const {
 		createListResourceMock: vi.fn(),
 		createResourceMock: vi.fn(),
 		createDocumentResourceMock: vi.fn(),
-		// Renders its label, as the real Combobox/Select/MultiSelect do: a stub
-		// that drops it makes "every field is labelled" pass by omission.
-		passthrough: {
-			inheritAttrs: false,
-			props: ['label'],
-			template: `<div><label v-if="label">{{ label }}</label><slot name="icon" /><slot /></div>`,
-		},
 	}
 })
 
@@ -54,30 +44,18 @@ type Row = { name: string; input: string; expected_output: string }
 const exercisesResource = {
 	doctype: 'LMS Programming Exercise',
 	insert: { submit: insertSubmit },
-	setValue: { submit: setValueSubmit },
+	setValue: { submit: setValueSubmit, error: null as Error | null },
 	delete: { submit: deleteSubmit },
 	reload: exercisesReload,
 	data: [] as unknown[],
 }
-const testCasesResource = {
-	doctype: 'LMS Test Case',
-	update: testCasesUpdate,
-	reload: testCasesReload,
-	data: [] as Row[],
-}
-
-createListResourceMock.mockImplementation((options: { doctype: string }) =>
-	options.doctype === 'LMS Test Case' ? testCasesResource : exercisesResource
-)
+createListResourceMock.mockReturnValue(exercisesResource)
 createResourceMock.mockReturnValue({ reload: countReload, data: 0 })
 // Faithful to documentResource.js:15 — no doctype+name, no resource at all.
 const documentResourceStub = (doc: unknown) => (options: { name?: string }) =>
 	options.name ? { doc } : undefined
 createDocumentResourceMock.mockImplementation(documentResourceStub(null))
 
-// frappe-ui's internal module resolution doesn't work under vitest (see
-// FormShell.test.ts), so importActual() on it throws ERR_MODULE_NOT_FOUND.
-// Every export the form and FormShell pull in has to be stubbed by hand.
 // HeaderButton wraps frappe-ui's Button in a Tooltip below the mobile
 // breakpoint, and the hand-written frappe-ui mock here has no Tooltip. Stub it
 // down to the bare button so the fallthrough attrs the assertions use
@@ -89,11 +67,11 @@ vi.mock('@/components/HeaderButton.vue', () => ({
 	},
 }))
 
+// Only the exports the form and FormShell use; the real barrel never loads.
 vi.mock('frappe-ui', () => ({
 	createListResource: createListResourceMock,
 	createResource: createResourceMock,
 	createDocumentResource: createDocumentResourceMock,
-	call: vi.fn(),
 	toast: { success: vi.fn(), error: vi.fn(), warning: vi.fn() },
 	Dialog: {
 		name: 'Dialog',
@@ -102,36 +80,67 @@ vi.mock('frappe-ui', () => ({
 		template: `<div v-if="open" role="dialog"><h2>{{ title }}</h2><slot name="title" /><slot /><slot name="actions" /></div>`,
 	},
 	Badge: { template: `<span><slot /></span>` },
-	Button: {
-		inheritAttrs: false,
-		template: `<button v-bind="$attrs"><slot name="prefix" /><slot name="icon" /><slot /></button>`,
-	},
 	FormControl: {
 		props: ['modelValue', 'label', 'type', 'required', 'options'],
 		emits: ['update:modelValue'],
 		template: `<label>{{ label }}<input :value="modelValue" @input="$emit('update:modelValue', $event.target.value)" /></label>`,
 	},
-	FormLabel: {
-		props: ['label', 'required', 'id'],
-		template: `<label :for="id">{{ label }}</label>`,
+	Breadcrumbs: {
+		props: ['items'],
+		template: `<nav><span v-for="i in items" :key="i.label">{{ i.label }}</span></nav>`,
 	},
-	Combobox: passthrough,
-	MultiSelect: passthrough,
-	Select: passthrough,
+	LoadingIndicator: { template: `<span />` },
 }))
 
-// The rich text editor drags in ProseMirror; nothing under test involves it.
+// Preview mounts the learner's submission page, which pulls in the code
+// runner. Nothing here previews.
+vi.mock(
+	'@/pages/ProgrammingExercises/ProgrammingExerciseSubmission.vue',
+	() => ({
+		default: defineComponent({ render: () => h('div') }),
+	})
+)
+
+// The rich text editor drags in ProseMirror; a button stands in for typing.
 vi.mock('@/components/RichTextEditor.vue', () => ({
-	default: defineComponent({ render: () => h('div') }),
+	default: defineComponent({
+		emits: ['change'],
+		setup:
+			(_p, { emit }) =>
+			() =>
+				h('button', {
+					'data-testid': 'statement',
+					onClick: () => emit('change', '<p>Reverse it.</p>'),
+				}),
+	}),
 }))
 // Stubbed rather than mocked away entirely: the deep-link test needs to see
 // what rows the form actually handed the table, which is the whole point.
 vi.mock('@/components/Controls/ChildTable.vue', () => ({
 	default: defineComponent({
 		props: { modelValue: { type: Array, default: () => [] }, label: String },
-		render(this: { modelValue: Row[]; label: string }) {
+		emits: ['update:modelValue'],
+		render(this: {
+			modelValue: Row[]
+			label: string
+			$emit: (event: string, value: unknown) => void
+		}) {
 			return h('div', { 'data-testid': 'test-cases' }, [
 				h('label', this.label),
+				h('button', {
+					'data-testid': 'add-case',
+					onClick: () =>
+						this.$emit('update:modelValue', [
+							{ input: '"abc"', expected_output: '"cba"', hidden: true },
+						]),
+				}),
+				h('button', {
+					'data-testid': 'edit-case',
+					onClick: () =>
+						this.$emit('update:modelValue', [
+							{ input: '"abcd"', expected_output: '"dcba"', hidden: true },
+						]),
+				}),
 				...(this.modelValue || []).map((row: Row) =>
 					h('span', { class: 'test-case-row' }, row.input)
 				),
@@ -141,13 +150,11 @@ vi.mock('@/components/Controls/ChildTable.vue', () => ({
 }))
 
 import ProgrammingExerciseForm from '@/pages/Forms/ProgrammingExerciseForm.vue'
+import { toast } from 'frappe-ui'
 
-// The list page hosts the form as a child route, so the parent stub has to
-// render a nested RouterView or the child never mounts. RouterView is imported
-// rather than written as the string 'router-view', which h() would leave as an
-// unresolved custom element.
+// The form is its own page, so the list stub needs no nested RouterView.
 const List = defineComponent({
-	render: () => h('div', ['LIST', h(RouterView)]),
+	render: () => h('div', ['LIST']),
 })
 
 const makeRouter = (): Router =>
@@ -158,14 +165,17 @@ const makeRouter = (): Router =>
 				path: '/programming-exercises',
 				name: 'ProgrammingExercises',
 				component: List,
-				children: [
-					{
-						path: 'edit/:exerciseID',
-						name: 'ProgrammingExerciseForm',
-						component: ProgrammingExerciseForm,
-						props: true,
-					},
-				],
+			},
+			{
+				path: '/programming-exercises/new',
+				name: 'NewProgrammingExercise',
+				component: ProgrammingExerciseForm,
+			},
+			{
+				path: '/programming-exercises/edit/:exerciseID',
+				name: 'ProgrammingExerciseForm',
+				component: ProgrammingExerciseForm,
+				props: true,
 			},
 			{
 				path: '/programming-exercises/submissions',
@@ -195,6 +205,17 @@ const mountForm = async (router: Router, user: Record<string, unknown>) => {
 	return wrapper
 }
 
+const fillRequired = async (wrapper: ReturnType<typeof mount>) => {
+	await wrapper.get('[data-testid="statement"]').trigger('click')
+	await wrapper.get('[data-testid="add-case"]').trigger('click')
+	await flushPromises()
+}
+
+const leaveContent = async (wrapper: ReturnType<typeof mount>) => {
+	await wrapper.get('[data-testid="add-case"]').trigger('focusout')
+	await flushPromises()
+}
+
 const moderator = { name: 'mod@example.com', is_moderator: true }
 const student = {
 	name: 'student@example.com',
@@ -205,7 +226,13 @@ const student = {
 
 // Every field the exercise form is meant to collect. Pin the set: a field lost
 // in the modal→route move is otherwise invisible to the rest of the suite.
-const FIELD_LABELS = ['Title', 'Language', 'Test Cases', 'Problem Statement']
+const FIELD_LABELS = [
+	'Title',
+	'Language',
+	'Starter Code',
+	'Test Cases',
+	'Problem Statement',
+]
 
 describe('ProgrammingExerciseForm as a route', () => {
 	beforeEach(() => {
@@ -214,13 +241,11 @@ describe('ProgrammingExerciseForm as a route', () => {
 		deleteSubmit.mockReset()
 		exercisesReload.mockReset()
 		countReload.mockReset()
-		testCasesUpdate.mockReset()
-		testCasesReload.mockReset()
+		exercisesResource.setValue.error = null
 		createListResourceMock.mockClear()
 		createResourceMock.mockClear()
 		createDocumentResourceMock.mockClear()
 		createDocumentResourceMock.mockImplementation(documentResourceStub(null))
-		testCasesResource.data = []
 		Object.defineProperty(window, 'innerWidth', {
 			value: 1024,
 			writable: true,
@@ -230,9 +255,9 @@ describe('ProgrammingExerciseForm as a route', () => {
 
 	it('mounts straight from the URL with no parent list', async () => {
 		const router = makeRouter()
-		await router.push('/programming-exercises/edit/new')
+		await router.push('/programming-exercises/new')
 		const wrapper = await mountForm(router, moderator)
-		expect(wrapper.html()).toContain('Create Programming Exercise')
+		expect(wrapper.html()).toContain('New Programming Exercise')
 		expect(
 			wrapper.find('[data-testid="programming-exercise-fields"]').exists()
 		).toBe(true)
@@ -240,20 +265,28 @@ describe('ProgrammingExerciseForm as a route', () => {
 
 	it('refuses to render the form for a user who cannot manage exercises', async () => {
 		const router = makeRouter()
-		await router.push('/programming-exercises/edit/new')
+		await router.push('/programming-exercises/new')
 		const wrapper = await mountForm(router, student)
 		expect(
 			wrapper.find('[data-testid="programming-exercise-fields"]').exists()
 		).toBe(false)
 		expect(
-			wrapper.find('[data-testid="programming-exercise-save"]').exists()
+			wrapper.find('[data-testid="programming-exercise-delete"]').exists()
 		).toBe(false)
 		expect(wrapper.html()).toContain('not permitted')
 	})
 
 	it('carries every field of the exercise form', async () => {
+		createDocumentResourceMock.mockImplementation(
+			documentResourceStub({
+				name: 'EX-0001',
+				title: 'T',
+				language: 'Python',
+				test_cases: [],
+			})
+		)
 		const router = makeRouter()
-		await router.push('/programming-exercises/edit/new')
+		await router.push('/programming-exercises/edit/EX-0001')
 		const wrapper = await mountForm(router, moderator)
 
 		const fields = wrapper.find('[data-testid="programming-exercise-fields"]')
@@ -276,6 +309,31 @@ describe('ProgrammingExerciseForm as a route', () => {
 		expect(labels).toHaveLength(FIELD_LABELS.length)
 		// Problem Statement is a rich text editor, not a <label>.
 		expect(fields.text()).toContain('Problem Statement')
+	})
+
+	// Guards the starter code clipping in a six-row sidebar textarea.
+	// Came with this branch's programming exercise authoring page.
+	// Added on feat/assessment-visual-redesign: the learner's code editor, tall.
+	it('edits the starter code in the code editor the learner uses', async () => {
+		createDocumentResourceMock.mockImplementation(
+			documentResourceStub({
+				name: 'EX-0001',
+				title: 'T',
+				language: 'Python',
+				starter_code: 'x = 1',
+				test_cases: [],
+			})
+		)
+		const router = makeRouter()
+		await router.push('/programming-exercises/edit/EX-0001')
+		const wrapper = await mountForm(router, moderator)
+
+		const field = wrapper.get(
+			'[data-testid="programming-exercise-starter-code"]'
+		)
+		const editor = field.get('[data-testid="exercise-code-editor"]')
+		expect(editor.classes()).toContain('min-h-[24rem]')
+		expect(field.find('textarea').exists()).toBe(false)
 	})
 
 	it('fetches its own record on a cold deep link into edit mode', async () => {
@@ -310,7 +368,7 @@ describe('ProgrammingExerciseForm as a route', () => {
 		// falsy name (documentResource.js:15), so a form that constructs one
 		// unconditionally and then reads `.doc` off it throws on /edit/new.
 		const router = makeRouter()
-		await router.push('/programming-exercises/edit/new')
+		await router.push('/programming-exercises/new')
 		const wrapper = await mountForm(router, moderator)
 
 		expect(createDocumentResourceMock).not.toHaveBeenCalled()
@@ -319,37 +377,25 @@ describe('ProgrammingExerciseForm as a route', () => {
 		).toBe(true)
 	})
 
-	it('loads the test cases on a cold deep link, not an empty table', async () => {
-		// The subtlest half of C3: the test cases are a SECOND resource, and the
-		// watch that fetched them had no `immediate`, so a directly-mounted edit
-		// route showed an empty Test Cases table — and saving wrote that back.
-		testCasesReload.mockImplementation(() => {
-			testCasesResource.data = [
-				{ name: 'TC-1', input: '"abc"', expected_output: '"cba"' },
-			]
-		})
+	// Guards a deep-linked edit showing, then saving back, an empty case table.
+	// Broke in #2662 (deep-linked form, rows a second resource since #1593).
+	// Added on feat/assessment-visual-redesign, which reads rows off the record.
+	it('loads the test cases from the record on a cold deep link', async () => {
+		createDocumentResourceMock.mockImplementation(
+			documentResourceStub({
+				name: 'EX-0001',
+				title: 'T',
+				language: 'Python',
+				test_cases: [{ input: '"abc"', expected_output: '"cba"' }],
+			})
+		)
 		const router = makeRouter()
 		await router.push('/programming-exercises/edit/EX-0001')
 		const wrapper = await mountForm(router, moderator)
 
-		expect(testCasesUpdate).toHaveBeenCalledWith({
-			filters: {
-				parent: 'EX-0001',
-				parenttype: 'LMS Programming Exercise',
-				parentfield: 'test_cases',
-			},
-		})
-		expect(testCasesReload).toHaveBeenCalledTimes(1)
 		expect(wrapper.findAll('.test-case-row').map((r) => r.text())).toEqual([
 			'"abc"',
 		])
-	})
-
-	it('does not fetch test cases in create mode', async () => {
-		const router = makeRouter()
-		await router.push('/programming-exercises/edit/new')
-		await mountForm(router, moderator)
-		expect(testCasesReload).not.toHaveBeenCalled()
 	})
 
 	it('scopes its list resource to the SAME cache key ProgrammingExercises.vue uses', async () => {
@@ -359,7 +405,7 @@ describe('ProgrammingExerciseForm as a route', () => {
 		// key drifts from ProgrammingExercises.vue:133's, a save silently stops
 		// showing up with no other test failing.
 		const router = makeRouter()
-		await router.push('/programming-exercises/edit/new')
+		await router.push('/programming-exercises/new')
 		await mountForm(router, moderator)
 
 		expect(createListResourceMock).toHaveBeenCalledWith(
@@ -372,72 +418,232 @@ describe('ProgrammingExerciseForm as a route', () => {
 		)
 	})
 
-	it('inserts through its own resource, not a parent-supplied one', async () => {
+	// Guards a half-typed title naming the document for good (docname is a slug).
+	// Came with this branch's create-on-blur exercise change.
+	// Added on feat/assessment-visual-redesign to pin insert-on-blur only.
+	it('inserts through its own resource when the title loses focus', async () => {
+		insertSubmit.mockImplementation(
+			(_doc: unknown, options: { onSuccess: (d: { name: string }) => void }) =>
+				options.onSuccess({ name: 'reverse-a-string' })
+		)
 		const router = makeRouter()
-		await router.push('/programming-exercises/edit/new')
+		await router.push('/programming-exercises/new')
 		const wrapper = await mountForm(router, moderator)
 
-		await wrapper
-			.find('[data-testid="programming-exercise-save"]')
-			.trigger('click')
+		const title = wrapper.find('[data-testid="programming-exercise-title"]')
+		await title.find('input').setValue('Reverse a string')
+		await fillRequired(wrapper)
+		expect(insertSubmit).not.toHaveBeenCalled()
+
+		await title.trigger('blur')
+		await flushPromises()
 		expect(insertSubmit).toHaveBeenCalledTimes(1)
 		expect(setValueSubmit).not.toHaveBeenCalled()
 	})
 
-	it('updates through its own resource in edit mode and refreshes the count', async () => {
+	// Guards an edit being written without a Save button.
+	// Came with this branch's autosaving-document composable.
+	// Added on feat/assessment-visual-redesign when the Save button went away.
+	it('autosaves an edit through its own resource', async () => {
+		vi.useFakeTimers()
 		createDocumentResourceMock.mockImplementation(
-			documentResourceStub({ name: 'EX-0001', title: 'T', language: 'Python' })
+			documentResourceStub({
+				name: 'EX-0001',
+				title: 'T',
+				language: 'Python',
+				test_cases: [],
+			})
 		)
-		setValueSubmit.mockImplementation(
-			(_doc: unknown, options: { onSuccess: () => void }) => options.onSuccess()
-		)
+		setValueSubmit.mockResolvedValue({})
 		const router = makeRouter()
 		await router.push('/programming-exercises/edit/EX-0001')
 		const wrapper = await mountForm(router, moderator)
 
 		await wrapper
-			.find('[data-testid="programming-exercise-save"]')
-			.trigger('click')
+			.find('[data-testid="programming-exercise-title"] input')
+			.setValue('Renamed')
+		await vi.advanceTimersByTimeAsync(1500)
+
 		expect(setValueSubmit).toHaveBeenCalledTimes(1)
-		expect(setValueSubmit.mock.calls[0][0]).toMatchObject({ name: 'EX-0001' })
-		expect(exercisesReload).toHaveBeenCalledTimes(1)
+		expect(setValueSubmit.mock.calls[0][0]).toMatchObject({
+			name: 'EX-0001',
+			title: 'Renamed',
+		})
+		vi.useRealTimers()
+	})
+
+	// Guards a failed autosave being silently remembered and never retried.
+	// Came with this branch's autosaving-document composable.
+	// Added on feat/assessment-visual-redesign to pin the toast and Mod+S retry.
+	it('reports a failed autosave and retries it on Mod+S', async () => {
+		vi.useFakeTimers()
+		createDocumentResourceMock.mockImplementation(
+			documentResourceStub({ name: 'EX-0001', title: 'T', language: 'Python' })
+		)
+		setValueSubmit.mockImplementation(async () => {
+			exercisesResource.setValue.error = new Error('Not permitted')
+		})
+		const router = makeRouter()
+		await router.push('/programming-exercises/edit/EX-0001')
+		const wrapper = await mountForm(router, moderator)
+
+		await wrapper
+			.find('[data-testid="programming-exercise-title"] input')
+			.setValue('Renamed')
+		await vi.advanceTimersByTimeAsync(1500)
+		expect(toast.error).toHaveBeenCalled()
+
+		window.dispatchEvent(
+			new KeyboardEvent('keydown', { key: 's', ctrlKey: true })
+		)
+		await vi.advanceTimersByTimeAsync(0)
+		expect(setValueSubmit).toHaveBeenCalledTimes(2)
+		vi.useRealTimers()
+	})
+
+	// Guards a title-only insert, which the server refuses (statement and a case
+	// are required). Came with this branch's exercise-as-a-page change.
+	// Added on feat/assessment-visual-redesign to pin create-when-complete.
+	it('waits for a problem statement and a test case before creating', async () => {
+		const router = makeRouter()
+		await router.push('/programming-exercises/new')
+		const wrapper = await mountForm(router, moderator)
+
+		const title = wrapper.find('[data-testid="programming-exercise-title"]')
+		await title.find('input').setValue('Reverse a string')
+		await title.trigger('blur')
+		await flushPromises()
+		expect(insertSubmit).not.toHaveBeenCalled()
+
+		await fillRequired(wrapper)
+		expect(insertSubmit).not.toHaveBeenCalled()
+
+		await leaveContent(wrapper)
+		expect(insertSubmit).toHaveBeenCalledTimes(1)
+	})
+
+	// Guards a late keystroke naming the exercise after the title was left.
+	// Came with this branch's create-on-blur exercise change.
+	// Added on feat/assessment-visual-redesign to pin the blur-time title.
+	it('never names the exercise from a title typed after the title was left', async () => {
+		const router = makeRouter()
+		await router.push('/programming-exercises/new')
+		const wrapper = await mountForm(router, moderator)
+		const title = wrapper.find('[data-testid="programming-exercise-title"]')
+		await title.trigger('blur')
+		await fillRequired(wrapper)
+
+		await title.find('input').setValue('R')
+		await leaveContent(wrapper)
+
+		expect(insertSubmit).not.toHaveBeenCalled()
+	})
+
+	// Guards a landing create dragging an author back from the page they left.
+	// Came with this branch's create-on-blur exercise change.
+	// Added on feat/assessment-visual-redesign to pin no redirect after leaving.
+	it('stays on the page the author left for while the create lands', async () => {
+		let finishInsert: () => void = () => {}
+		insertSubmit.mockImplementation(
+			(
+				_doc: unknown,
+				options: { onSuccess: (d: { name: string }) => void }
+			) => {
+				finishInsert = () => options.onSuccess({ name: 'reverse-a-string' })
+			}
+		)
+		const router = makeRouter()
+		await router.push('/programming-exercises/new')
+		const wrapper = await mountForm(router, moderator)
+		const title = wrapper.find('[data-testid="programming-exercise-title"]')
+		await title.find('input').setValue('Reverse a string')
+		await fillRequired(wrapper)
+		await title.trigger('blur')
+
+		await router.push({ name: 'ProgrammingExercises' })
+		finishInsert()
+		await flushPromises()
+
+		expect(router.currentRoute.value.name).toBe('ProgrammingExercises')
+	})
+
+	// Guards an edit made during the insert being overwritten by the record.
+	// Came with this branch's create-on-blur exercise change.
+	// Added on feat/assessment-visual-redesign to pin edits kept across create.
+	it('keeps an edit made while the create is in flight', async () => {
+		let finishInsert: () => void = () => {}
+		insertSubmit.mockImplementation(
+			(
+				_doc: unknown,
+				options: { onSuccess: (d: { name: string }) => void }
+			) => {
+				finishInsert = () => options.onSuccess({ name: 'reverse-a-string' })
+			}
+		)
+		createDocumentResourceMock.mockImplementation(
+			documentResourceStub({
+				name: 'reverse-a-string',
+				title: 'Reverse a string',
+				language: 'Python',
+				problem_statement: '<p>Reverse it.</p>',
+				test_cases: [{ input: '"abc"', expected_output: '"cba"', hidden: 1 }],
+			})
+		)
+		const router = makeRouter()
+		await router.push('/programming-exercises/new')
+		const wrapper = await mountForm(router, moderator)
+		const title = wrapper.find('[data-testid="programming-exercise-title"]')
+		await title.find('input').setValue('Reverse a string')
+		await fillRequired(wrapper)
+		await title.trigger('blur')
+
+		await wrapper.get('[data-testid="edit-case"]').trigger('click')
+		finishInsert()
+		await flushPromises()
+
+		expect(wrapper.findAll('.test-case-row').map((r) => r.text())).toEqual([
+			'"abcd"',
+		])
 	})
 
 	it('reloads the header count after a create', async () => {
 		// The old form did this through a defineModel typed `number` that the
 		// parent filled with a resource. The model is gone; the refresh is not.
 		insertSubmit.mockImplementation(
-			(_doc: unknown, options: { onSuccess: () => void }) => options.onSuccess()
+			(_doc: unknown, options: { onSuccess: (d: { name: string }) => void }) =>
+				options.onSuccess({ name: 'reverse-a-string' })
 		)
 		const router = makeRouter()
-		await router.push('/programming-exercises/edit/new')
+		await router.push('/programming-exercises/new')
 		const wrapper = await mountForm(router, moderator)
 
-		await wrapper
-			.find('[data-testid="programming-exercise-save"]')
-			.trigger('click')
+		const title = wrapper.find('[data-testid="programming-exercise-title"]')
+		await title.find('input').setValue('Reverse a string')
+		await fillRequired(wrapper)
+		await title.trigger('blur')
+		await flushPromises()
 		expect(countReload).toHaveBeenCalledTimes(1)
 	})
 
-	it('replaces rather than pushes on save, so Back never reaches the form', async () => {
+	it('replaces onto the saved route, so Back never reaches the empty form', async () => {
 		insertSubmit.mockImplementation(
-			(_doc: unknown, options: { onSuccess: () => void }) => options.onSuccess()
+			(_doc: unknown, options: { onSuccess: (d: { name: string }) => void }) =>
+				options.onSuccess({ name: 'reverse-a-string' })
 		)
 		const router = makeRouter()
 		await router.push({ name: 'ProgrammingExercises' })
-		await router.push({
-			path: '/programming-exercises/edit/new',
-			state: { lmsFormEntry: true },
-		})
+		await router.push('/programming-exercises/new')
 		const wrapper = await mountForm(router, moderator)
 
-		await wrapper
-			.find('[data-testid="programming-exercise-save"]')
-			.trigger('click')
+		const title = wrapper.find('[data-testid="programming-exercise-title"]')
+		await title.find('input').setValue('Reverse a string')
+		await fillRequired(wrapper)
+		await title.trigger('blur')
 		await flushPromises()
-		expect(router.currentRoute.value.name).toBe('ProgrammingExercises')
+		expect(router.currentRoute.value.name).toBe('ProgrammingExerciseForm')
+		expect(router.currentRoute.value.params.exerciseID).toBe('reverse-a-string')
 
-		// A push would have left the form entry behind for Back to land on.
+		// A push would have left the unnamed form behind for Back to land on.
 		router.back()
 		await flushPromises()
 		expect(router.currentRoute.value.name).toBe('ProgrammingExercises')
@@ -445,17 +651,19 @@ describe('ProgrammingExerciseForm as a route', () => {
 
 	it('closes back to the list after a delete', async () => {
 		createDocumentResourceMock.mockImplementation(
-			documentResourceStub({ name: 'EX-0001', title: 'T', language: 'Python' })
+			documentResourceStub({
+				name: 'EX-0001',
+				title: 'T',
+				language: 'Python',
+				test_cases: [],
+			})
 		)
 		deleteSubmit.mockImplementation(
 			(_name: string, options: { onSuccess: () => void }) => options.onSuccess()
 		)
 		const router = makeRouter()
 		await router.push({ name: 'ProgrammingExercises' })
-		await router.push({
-			path: '/programming-exercises/edit/EX-0001',
-			state: { lmsFormEntry: true },
-		})
+		await router.push('/programming-exercises/edit/EX-0001')
 		const wrapper = await mountForm(router, moderator)
 
 		await wrapper
@@ -463,41 +671,6 @@ describe('ProgrammingExerciseForm as a route', () => {
 			.trigger('click')
 		await flushPromises()
 		expect(deleteSubmit.mock.calls[0][0]).toBe('EX-0001')
-		expect(router.currentRoute.value.name).toBe('ProgrammingExercises')
-	})
-
-	it('mobile: the back control pops the router back to the list', async () => {
-		const router = makeRouter()
-		await router.push({ name: 'ProgrammingExercises' })
-		await router.push({
-			path: '/programming-exercises/edit/new',
-			state: { lmsFormEntry: true },
-		})
-		Object.defineProperty(window, 'innerWidth', {
-			value: 390,
-			writable: true,
-			configurable: true,
-		})
-		const wrapper = await mountForm(router, moderator)
-
-		await wrapper.find('[data-testid="form-shell-back"]').trigger('click')
-		await flushPromises()
-		expect(router.currentRoute.value.name).toBe('ProgrammingExercises')
-	})
-
-	it('desktop: dismissing the Dialog (Escape/backdrop/X) pops the router', async () => {
-		const router = makeRouter()
-		await router.push({ name: 'ProgrammingExercises' })
-		await router.push({
-			path: '/programming-exercises/edit/new',
-			state: { lmsFormEntry: true },
-		})
-		const wrapper = await mountForm(router, moderator)
-
-		await wrapper
-			.findComponent({ name: 'Dialog' })
-			.vm.$emit('update:open', false)
-		await flushPromises()
 		expect(router.currentRoute.value.name).toBe('ProgrammingExercises')
 	})
 })

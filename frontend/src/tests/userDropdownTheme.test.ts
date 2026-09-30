@@ -11,8 +11,8 @@ import { mount } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 
 // Only what this suite controls is replaced; the rest of frappe-ui stays real.
-// Dropdown becomes a prop-capturing stub because the assertions are about the
-// menu's own data (which rows exist, what they call), not popover mechanics.
+// SidebarHeader becomes a prop-capturing stub because the assertions are about
+// the menu's own data (which rows exist, what they call), not popover mechanics.
 vi.mock('frappe-ui', async () => {
 	const actual = await vi.importActual<typeof import('frappe-ui')>('frappe-ui')
 	return {
@@ -20,10 +20,10 @@ vi.mock('frappe-ui', async () => {
 		call: vi.fn(),
 		createResource: () => ({ data: null, loading: false, submit: vi.fn() }),
 		toast: { success: vi.fn(), error: vi.fn() },
-		Dropdown: {
-			name: 'Dropdown',
-			props: ['options'],
-			template: `<div><slot :open="false" :close="() => {}" /></div>`,
+		SidebarHeader: {
+			name: 'SidebarHeader',
+			props: ['title', 'subtitle', 'menuItems'],
+			template: `<div><slot name="prefix" /></div>`,
 		},
 	}
 })
@@ -68,7 +68,9 @@ function build() {
 }
 
 function themeMenu(wrapper: ReturnType<typeof build>) {
-	const options = wrapper.findComponent({ name: 'Dropdown' }).props('options')
+	const options = wrapper
+		.findComponent({ name: 'SidebarHeader' })
+		.props('menuItems')
 	const group = options[0].options as any[]
 	return group.find((option) => option.label === 'Theme')
 }
@@ -96,6 +98,15 @@ describe('UserDropdown theme menu', () => {
 		const menu = themeMenu(build())
 		const selected = menu.submenu.filter((item: any) => item.selected)
 		expect(selected.map((item: any) => item.label)).toEqual(['Dark'])
+	})
+
+	it('draws a check beside the selected theme only', () => {
+		setThemePreference('light')
+		const menu = themeMenu(build())
+		const checks = menu.submenu.map((item: any) =>
+			item.slots.suffix({ selected: item.selected })
+		)
+		expect(checks.map(Boolean)).toEqual([true, false, false])
 	})
 
 	it('sets the preference when a theme is picked', () => {

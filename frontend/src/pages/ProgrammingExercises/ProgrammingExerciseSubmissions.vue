@@ -1,134 +1,60 @@
 <template>
-	<ListPage
-		:breadcrumbs="breadcrumbs"
-		:title="__('Submissions')"
-		layout="list"
-		:columns="submissionColumns"
-		:rows="submissions.data || []"
-		:loading="submissions.loading"
-		:has-next-page="submissions.hasNextPage"
-		:list-options="listOptions"
-		v-model:page-length="pageLength"
-		empty-name="Programming Exercise Submissions"
-		empty-icon="lucide-file-code"
-		@load-more="submissions.next()"
+	<SubmissionsPage
+		:config="config"
+		:locked-filters="lockedFilters"
+		:can-delete="!isStudent"
 	>
-		<template #filters>
-			<Link
-				doctype="LMS Programming Exercise"
-				v-model="filters.exercise"
-				:placeholder="__('Filter by Exercise')"
-			/>
-			<Link
-				doctype="User"
-				v-model="filters.member"
-				:placeholder="__('Filter by Member')"
-				:readonly="isStudent"
-			/>
-			<FormControl
-				v-model="filters.status"
-				type="select"
-				:options="[
-					{},
-					{ label: __('Passed'), value: 'Passed' },
-					{ label: __('Failed'), value: 'Failed' },
-				]"
-				:placeholder="__('Filter by Status')"
-			/>
-		</template>
-
 		<template #cell="{ column, row, value }">
-			<div v-if="column.key == 'member_name'" class="flex items-center gap-2">
+			<div v-if="column.key === 'member_name'" class="flex items-center gap-2">
 				<Avatar
-					:image="row.member_image as string"
+					:image="(row as ListRow).member_image as string"
 					:label="value as string"
 					size="sm"
 				/>
 				<span class="truncate">{{ value }}</span>
 			</div>
 			<Badge
-				v-else-if="column.key == 'status'"
+				v-else-if="column.key === 'status'"
 				:theme="value === 'Passed' ? 'green' : 'red'"
 			>
 				{{ value }}
 			</Badge>
-			<div v-else-if="column.key == 'modified'" class="text-sm text-ink-gray-5">
+			<div
+				v-else-if="column.key === 'modified'"
+				class="text-sm text-ink-gray-5"
+			>
 				{{ value }}
 			</div>
 			<div v-else>{{ value }}</div>
 		</template>
-
-		<template #selection-actions="{ unselectAll, selections }">
-			<Button
-				variant="ghost"
-				:label="__('Delete')"
-				@click="deleteExercises(selections, unselectAll)"
-			>
-				<template #icon>
-					<span class="lucide-trash-2 size-4" aria-hidden="true" />
-				</template>
-			</Button>
-		</template>
-	</ListPage>
+	</SubmissionsPage>
 </template>
+
 <script setup lang="ts">
-import {
-	Avatar,
-	Badge,
-	Button,
-	createListResource,
-	FormControl,
-	usePageMeta,
-	toast,
-} from 'frappe-ui'
-import type {
-	ProgrammingExerciseSubmission,
-	Filters,
-	ListRow,
-	ListViewOptions,
-} from '@/types'
-import { computed, inject, onMounted, ref, watch } from 'vue'
-import { sessionStore } from '@/stores/session'
-import { useRouter } from 'vue-router'
-import Link from '@/components/Controls/Link.vue'
-import ListPage from '@/components/Layouts/pages/ListPage.vue'
+import { Avatar, Badge } from 'frappe-ui'
+import type dayjsType from 'dayjs'
+import type {} from 'dayjs/plugin/relativeTime'
+import { computed, inject } from 'vue'
+import SubmissionsPage from '@/components/Submissions/SubmissionsPage.vue'
+import type { ListRow, SessionUser, SubmissionsConfig } from '@/types'
 
-const { brand } = sessionStore()
-const dayjs = inject('$dayjs') as any
-const user = inject('$user') as any
-const filterFields = ['exercise', 'member', 'status']
-const filters = ref<Filters>({
-	exercise: '',
-	member: '',
-	status: '',
-})
-const router = useRouter()
-const pageLength = ref<number>(24)
+const user = inject<SessionUser>('$user')!
+const dayjs = inject<typeof dayjsType>('$dayjs')!
 
-onMounted(() => {
-	setFiltersFromRoute()
-	fetchBasedOnRole()
+const isStudent = computed<boolean>(
+	() =>
+		!user.data?.is_instructor &&
+		!user.data?.is_moderator &&
+		!user.data?.is_evaluator
+)
+
+const lockedFilters = computed<Record<string, string>>(() => {
+	const locked: Record<string, string> = {}
+	if (isStudent.value && user.data?.name) locked.member = user.data.name
+	return locked
 })
 
-const setFiltersFromRoute = () => {
-	filterFields.forEach((field) => {
-		if (router.currentRoute.value.query[field]) {
-			filters.value[field as keyof Filters] = router.currentRoute.value.query[
-				field
-			] as string
-		}
-	})
-}
-
-const fetchBasedOnRole = () => {
-	if (isStudent.value) {
-		filters.value['member'] = user.data?.name
-	} else {
-		submissions.reload()
-	}
-}
-
-const submissions = createListResource({
+const config: SubmissionsConfig = {
 	doctype: 'LMS Programming Exercise Submission',
 	fields: [
 		'name',
@@ -140,70 +66,46 @@ const submissions = createListResource({
 		'modified',
 	],
 	orderBy: 'modified desc',
-	pageLength: 24,
-	transform(data: ProgrammingExercise[]) {
-		return data.map((submission: ProgrammingExerciseSubmission) => {
-			return {
-				...submission,
-				modified: dayjs(submission.modified).fromNow(),
-			}
-		})
-	},
-})
-
-watch(filters.value, () => {
-	let filtersToApply: Record<string, any> = {}
-	filterFields.forEach((field) => {
-		if (filters.value[field as keyof Filters]) {
-			filtersToApply[field] = filters.value[field as keyof Filters]
-			router.push({
-				query: {
-					...router.currentRoute.value.query,
-					[field]: filters.value[field as keyof Filters],
-				},
-			})
-		} else {
-			delete filtersToApply[field]
-			const query = { ...router.currentRoute.value.query }
-			delete query[field]
-			router.push({
-				query,
-			})
-		}
-	})
-
-	submissions.update({
-		filters: {
-			...filtersToApply,
+	columns: [
+		{ label: __('Member'), key: 'member_name', width: 2, icon: 'lucide-user' },
+		{
+			label: __('Exercise'),
+			key: 'exercise_title',
+			width: 2,
+			icon: 'lucide-code',
 		},
-	})
-	submissions.reload()
-})
-
-watch(pageLength, (value: number) => {
-	submissions.pageLength = value
-	submissions.reload()
-})
-
-const deleteExercises = (selections: Set<string>, unselectAll: () => void) => {
-	Array.from(selections).forEach(async (submission: string) => {
-		await submissions.delete.submit(submission)
-	})
-	unselectAll()
-	toast.success(__('Submissions deleted successfully'))
-}
-
-const isStudent = computed(() => {
-	return (
-		!user.data?.is_instructor &&
-		!user.data?.is_moderator &&
-		!user.data?.is_evaluator
-	)
-})
-
-const listOptions: ListViewOptions = {
-	selectable: true,
-	showTooltip: false,
+		{
+			label: __('Status'),
+			key: 'status',
+			width: 1,
+			align: 'left',
+			icon: 'lucide-check-circle',
+		},
+		{
+			label: __('Modified'),
+			key: 'modified',
+			width: 1,
+			align: 'left',
+			icon: 'lucide-clock',
+		},
+	],
+	filters: [
+		{
+			key: 'exercise',
+			doctype: 'LMS Programming Exercise',
+			placeholder: 'Filter by Exercise',
+		},
+		{ key: 'member', doctype: 'User', placeholder: 'Filter by Member' },
+		{
+			key: 'status',
+			placeholder: 'Filter by Status',
+			options: [
+				{ label: '', value: '' },
+				{ label: __('Passed'), value: 'Passed' },
+				{ label: __('Failed'), value: 'Failed' },
+			],
+		},
+	],
 	getRowRoute: (row: ListRow) => ({
 		name: 'ProgrammingExerciseSubmission',
 		params: {
@@ -211,52 +113,27 @@ const listOptions: ListViewOptions = {
 			submissionID: String(row.name),
 		},
 	}),
+	parentCrumb: {
+		label: __('Programming Exercises'),
+		route: { name: 'ProgrammingExercises' },
+	},
+	scopeCrumb: {
+		filterKey: 'exercise',
+		doctype: 'LMS Programming Exercise',
+		titleField: 'title',
+		route: (value: string) => ({
+			name: 'ProgrammingExerciseForm',
+			params: { exerciseID: value },
+		}),
+	},
+	title: 'Submissions',
+	pageTitle: 'Programming Exercise Submissions',
+	emptyName: 'Programming Exercise Submissions',
+	emptyIcon: 'lucide-file-code',
+	transform: (rows: ListRow[]) =>
+		rows.map((row) => ({
+			...row,
+			modified: dayjs(row.modified as string).fromNow(),
+		})),
 }
-
-const submissionColumns = computed(() => {
-	return [
-		{
-			label: __('Member'),
-			key: 'member_name',
-			width: '30%',
-			icon: 'lucide-user',
-		},
-		{
-			label: __('Exercise'),
-			key: 'exercise_title',
-			width: '30%',
-			icon: 'lucide-code',
-		},
-		{
-			label: __('Status'),
-			key: 'status',
-			width: '20%',
-			icon: 'lucide-check-circle',
-		},
-		{
-			label: __('Modified'),
-			key: 'modified',
-			width: '15%',
-			icon: 'lucide-clock',
-			align: 'left',
-		},
-	]
-})
-
-const breadcrumbs = computed(() => {
-	return [
-		{
-			label: __('Programming Exercises'),
-			route: { name: 'ProgrammingExercises' },
-		},
-		{ label: __('Submissions') },
-	]
-})
-
-usePageMeta(() => {
-	return {
-		title: __('Programming Exercises'),
-		icon: brand.favicon,
-	}
-})
 </script>

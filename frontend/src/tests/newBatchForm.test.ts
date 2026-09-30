@@ -32,10 +32,7 @@ const { createListResourceMock } = vi.hoisted(() => ({
 }))
 createListResourceMock.mockReturnValue(listResource)
 
-// frappe-ui's internal module resolution doesn't work under vitest (see
-// NewMemberModal.test.ts, FormShell.test.ts), so importActual() on it throws
-// ERR_MODULE_NOT_FOUND. Every export the form, FormShell and the Controls/*
-// wrappers pull in has to be stubbed here by hand.
+// Stubbed so tests control resource data and render light stand-ins.
 const { passthrough } = vi.hoisted(() => {
 	// @/utils pulls in plyr, which touches matchMedia at import time. hoisted so
 	// it lands before the (hoisted) component import runs.

@@ -34,13 +34,12 @@ const passthrough = (tag: string, testid?: string) => ({
 vi.mock('frappe-ui', () => ({
 	Breadcrumbs: { template: '<nav data-testid="breadcrumbs" />' },
 	Button: passthrough('button'),
-	// Reproduces the quirk that costs a page a duplicate request: onChange
-	// assigns the model and then re-emits, so one click notifies twice with
-	// the same value before the prop has round-tripped.
 	// Faithful to frappe-ui's Checkbox in the one structural respect the
 	// filters rely on: an <input> plus a <label for> pointing at it, so the
 	// label is part of the hit area. A stub that rendered only the input
 	// would let a label-association assertion pass vacuously.
+	// jsdom won't activate a label on a detached box, so the label emits the
+	// flipped state itself, once.
 	Checkbox: defineComponent({
 		props: {
 			modelValue: Boolean,
@@ -50,9 +49,11 @@ vi.mock('frappe-ui', () => ({
 		},
 		emits: ['update:modelValue'],
 		methods: {
-			onChange() {
-				this.$emit('update:modelValue', !this.modelValue)
-				this.$emit('update:modelValue', !this.modelValue)
+			onChange(event: Event) {
+				this.$emit(
+					'update:modelValue',
+					(event.target as HTMLInputElement).checked
+				)
 			},
 		},
 		template: `<div>
@@ -64,7 +65,11 @@ vi.mock('frappe-ui', () => ({
 				:checked="modelValue"
 				@change="onChange"
 			/>
-			<label data-testid="checkbox-label" for="cb" @click="onChange">
+			<label
+				data-testid="checkbox-label"
+				for="cb"
+				@click.prevent="$emit('update:modelValue', !modelValue)"
+			>
 				{{ label }}
 			</label>
 		</div>`,
@@ -73,48 +78,29 @@ vi.mock('frappe-ui', () => ({
 		props: ['text'],
 		template: '<div :data-tooltip="text"><slot /></div>',
 	},
-	// The v1 contract: an `options` array of `{ label, value }`, not the v0
-	// `:buttons` prop ListFooter's own dead fallback still passes. Reads
-	// `options` the same way the real component does, so a page that binds
-	// the wrong prop renders no tabs here either.
-	TabButtons: {
-		props: ['options', 'modelValue'],
-		emits: ['update:modelValue'],
-		template: `<div data-testid="tab-buttons">
-			<button
-				v-for="option in options"
-				:key="option.value"
-				type="button"
-				:data-testid="'page-length-' + option.value"
-				:data-state="option.value === modelValue ? 'checked' : 'unchecked'"
-				@click="$emit('update:modelValue', option.value)"
-			>{{ option.label }}</button>
-		</div>`,
-	},
 }))
 
-vi.mock('frappe-ui/experimental', () => ({
-	ListFooter: {
-		props: ['modelValue', 'options'],
-		template: `<div data-testid="footer">
-			<slot name="left" />
-			<slot name="right" />
-		</div>`,
-	},
-	ListView: {
-		name: 'ListView',
-		props: ['columns', 'rows', 'rowKey', 'options'],
-		template: '<div data-testid="listview"><slot /></div>',
-	},
-	ListHeader: passthrough('div', 'list-header'),
-	ListHeaderItem: {
-		props: ['item'],
-		template: '<div><slot name="prefix" :item="item" />{{ item.label }}</div>',
-	},
-	ListRows: { template: '<div data-testid="list-rows" />' },
-	ListRowItem: { template: '<div><slot /></div>' },
-	ListSelectBanner: { template: '<div><slot name="actions" /></div>' },
-}))
+// Real ListFooter. Its default `#left` builds the page-length tabs.
+vi.mock('frappe-ui/experimental', async (importOriginal) => {
+	const { ListFooter } = await importOriginal<any>()
+	return {
+		ListFooter,
+		ListView: {
+			name: 'ListView',
+			props: ['columns', 'rows', 'rowKey', 'options'],
+			template: '<div data-testid="listview"><slot /></div>',
+		},
+		ListHeader: passthrough('div', 'list-header'),
+		ListHeaderItem: {
+			props: ['item'],
+			template:
+				'<div><slot name="prefix" :item="item" />{{ item.label }}</div>',
+		},
+		ListRows: { template: '<div data-testid="list-rows" />' },
+		ListRowItem: { template: '<div><slot /></div>' },
+		ListSelectBanner: { template: '<div><slot name="actions" /></div>' },
+	}
+})
 
 const stub = (template: string) => ({ default: { template } })
 vi.mock('@/components/SkeletonLoader.vue', () =>
@@ -157,6 +143,8 @@ async function mountListPage(props: Record<string, unknown> = {}, slots = {}) {
 	return wrapper
 }
 
+const footerOf = (wrapper: any) => wrapper.getComponent({ name: 'ListFooter' })
+
 // Two things legitimately pin: PageHeader's own `<header>`, and the footer,
 // which holds the bottom edge so the page size and Load More stay put. What
 // must never come back is a pinned strip *above* the rows. That was the
@@ -164,7 +152,7 @@ async function mountListPage(props: Record<string, unknown> = {}, slots = {}) {
 // measurement and the app header's real height showed as a band of content
 // scrolling between the two.
 const pinnedAboveRows = (wrapper: any) => {
-	const footer = wrapper.get('[data-testid="footer"]').element
+	const footer = footerOf(wrapper).element
 	return wrapper
 		.findAll('*')
 		.filter(
@@ -219,40 +207,31 @@ describe('ListPage', () => {
 
 	it('gives every page the same footer, and asks for the next page from it', async () => {
 		const wrapper = await mountListPage({ hasNextPage: true })
-		expect(wrapper.find('[data-testid="footer"]').exists()).toBe(true)
 		// Scoped past the page-length tabs, which are buttons in the same footer.
-		await wrapper
-			.find('[data-testid="footer"] button[label="Load More"]')
-			.trigger('click')
+		await footerOf(wrapper).get('button[label="Load More"]').trigger('click')
 		expect(wrapper.emitted('loadMore')).toHaveLength(1)
 	})
 
 	it('renders real, clickable page-length options, not zero', async () => {
-		// ListFooter's own `#left` fallback passes v0's `:buttons` to v1
-		// TabButtons, which only reads `:options` — so unless ListPage overrides
-		// `#left` itself, this renders no tabs at all.
 		const wrapper = await mountListPage({}, { card: '<article />' })
-		const tabs = wrapper.findAll('[data-testid="footer"] [data-testid^="page-length-"]')
+		const tabs = footerOf(wrapper).findAll('button[data-value]')
 
-		expect(tabs).toHaveLength(3)
-		expect(tabs.map((tab) => tab.text())).toEqual(['24', '60', '120'])
+		expect(tabs.map((tab: any) => tab.text())).toEqual(['24', '60', '120'])
 	})
 
 	it('reacts to a page-length click by updating the pageLength model', async () => {
 		const wrapper = await mountListPage({}, { card: '<article />' })
-		await wrapper.get('[data-testid="page-length-60"]').trigger('click')
+		await footerOf(wrapper).get('button[data-value="60"]').trigger('click')
 
 		expect(wrapper.emitted('update:pageLength')?.at(-1)).toEqual([60])
 	})
 
 	it('says only the loaded count when the list has no total to compare against', async () => {
 		const withTotal = await mountListPage({ totalCount: 40 })
-		expect(withTotal.find('[data-testid="footer"]').text()).toContain('of')
+		expect(footerOf(withTotal).text()).toContain('of')
 
 		const withoutTotal = await mountListPage({})
-		expect(withoutTotal.find('[data-testid="footer"]').text()).not.toContain(
-			'of'
-		)
+		expect(footerOf(withoutTotal).text()).not.toContain('of')
 	})
 })
 
@@ -292,7 +271,7 @@ describe('PageBody', () => {
 	it('keeps the footer against the bottom edge while the rows scroll', async () => {
 		mobile.value = true
 		const wrapper = await mountListPage({ title: 'All Courses' })
-		const footer = wrapper.get('[data-testid="footer"]').element.parentElement!
+		const footer = footerOf(wrapper).element.parentElement!
 		const classes = footer.className.split(/\s+/)
 
 		expect(classes).toContain('sticky')
@@ -421,15 +400,18 @@ describe('ToggleFilter', () => {
 		).toBe('Certification')
 	})
 
-	it('reloads the list once per click even though the checkbox reports twice', async () => {
+	it('reloads the list on each toggle, on and then off', async () => {
 		mobile.value = false
 		const { wrapper, value, reloads } = await mountToggle()
+		const box = wrapper.find('[data-testid="checkbox"]')
 
-		await wrapper.find('[data-testid="checkbox"]').trigger('change')
-		await nextTick()
-
+		await box.setValue(true)
 		expect(value.value).toBe(true)
 		expect(reloads).toHaveBeenCalledTimes(1)
+
+		await box.setValue(false)
+		expect(value.value).toBe(false)
+		expect(reloads).toHaveBeenCalledTimes(2)
 	})
 })
 

@@ -1,19 +1,22 @@
-import { createApp, h } from 'vue'
+import { createApp, h, markRaw } from 'vue'
+import type { App } from 'vue'
 import { registerDirectives } from '@/directives'
 import { Code } from 'lucide-vue-next'
 import translationPlugin from '@/translation'
 import ProgrammingExerciseModal from '@/components/Modals/ProgrammingExerciseModal.vue'
 import { call } from 'frappe-ui'
 import { usersStore } from '@/stores/user'
-import { getLmsRoute } from '@/utils/basePath'
-import { blockNotice, embedFrame } from '@/utils/blockDom'
+import { mountBlock, mountPreview } from '@/utils/blockMount'
+import AssessmentBlock from '@/components/Assessment/AssessmentBlock.vue'
+import ProgrammingExerciseSubmission from '@/pages/ProgrammingExercises/ProgrammingExerciseSubmission.vue'
 
 export class Program {
 	data: any
 	api: any
 	readOnly: boolean
-	wrapper: HTMLDivElement
-
+	wrapper!: HTMLDivElement
+	app: App | null = null
+	destroyed = false
 	studentView: boolean
 
 	constructor({
@@ -30,9 +33,8 @@ export class Program {
 		this.data = data
 		this.api = api
 		this.readOnly = readOnly
-		// The submission renders in an iframe (its own Vue app), so the
-		// preview's provide/inject can't reach it. Same mechanism as the
-		// assignment tool: the flag travels in the URL.
+		// The block is its own Vue app, outside the lesson's provide/inject, so
+		// Student View reaches it through the tool config.
 		this.studentView = Boolean(config?.studentView)
 	}
 
@@ -57,6 +59,7 @@ export class Program {
 
 	render() {
 		this.wrapper = document.createElement('div')
+		this.wrapper.className = 'not-prose my-5'
 		if (Object.keys(this.data).length) {
 			this.renderExercise(this.data.exercise)
 		} else {
@@ -83,38 +86,41 @@ export class Program {
 	renderExercise(exercise: string) {
 		if (this.readOnly) {
 			const { userResource } = usersStore()
-			call('frappe.client.get_value', {
+			call<{ name?: string } | null>('frappe.client.get_value', {
 				doctype: 'LMS Programming Exercise Submission',
 				filters: {
 					exercise: exercise,
 					member: userResource.data?.name,
 				},
 				fieldname: ['name'],
-			}).then((data: { name: string }) => {
-				let submission = data.name || 'new'
-				const studentView = this.studentView ? '&studentView=1' : ''
-				const submissionPath = getLmsRoute(
-					`programming-exercises/${exercise}/submission/${submission}?fromLesson=1${studentView}`
-				)
-				const frame = embedFrame(submissionPath, {
-					class: 'w-full h-[900px] border rounded-5',
-				})
-				this.wrapper.replaceChildren(...(frame ? [frame] : []))
 			})
+				.catch(() => null)
+				.then((data) => {
+					// The block can be destroyed before the lookup answers.
+					if (this.destroyed) return
+					this.mountSubmission(exercise, data?.name || 'new')
+				})
 			return
 		}
-		call('frappe.client.get_value', {
-			doctype: 'LMS Programming Exercise',
-			filters: {
-				name: exercise,
+		this.app = mountPreview(this.wrapper, 'exercise', exercise)
+	}
+
+	mountSubmission(exercise: string, submissionID: string): void {
+		this.app = mountBlock(this.wrapper, AssessmentBlock, {
+			is: markRaw(ProgrammingExerciseSubmission),
+			props: {
+				exerciseID: exercise,
+				submissionID,
+				studentView: this.studentView,
 			},
-			fieldname: 'title',
-		}).then((data: { title: string }) => {
-			this.wrapper.replaceChildren(
-				blockNotice(`Programming Exercise: ${data.title}`)
-			)
-			return
+			studentView: this.studentView,
 		})
+	}
+
+	destroy(): void {
+		this.destroyed = true
+		this.app?.unmount()
+		this.app = null
 	}
 
 	save() {

@@ -1,27 +1,23 @@
 import { call, toast } from 'frappe-ui'
+import type { FrappeResourceError } from 'frappe-ui'
 import { computed, nextTick, ref } from 'vue'
 
-export interface DeleteError {
-	messages?: string[]
-	message?: string
-}
-
-export interface BulkDeleteResult {
+interface BulkDeleteResult {
 	deleted: number
 	failed: string[]
-	firstError?: DeleteError
+	firstError?: FrappeResourceError
 }
 
 // Frappe puts the readable half of a server error in `messages`; `message` carries
 // a network or client failure.
-export function deleteErrorMessage(error: DeleteError | undefined): string {
+function deleteErrorMessage(error: FrappeResourceError | undefined): string {
 	return error?.messages?.[0] || error?.message || String(error)
 }
 
 // One request per row, all in flight together, so the caller refetches once; a
 // list resource's own `delete` refetches inside every success. Settled, not
 // all: one rejection would take the reload.
-export async function bulkDeleteDocs(
+async function bulkDeleteDocs(
 	doctype: string,
 	selections: Set<string>
 ): Promise<BulkDeleteResult> {
@@ -33,13 +29,13 @@ export async function bulkDeleteDocs(
 	)
 
 	const failed: string[] = []
-	let firstError: DeleteError | undefined
+	let firstError: FrappeResourceError | undefined
 	results.forEach((result, index) => {
 		const name = names[index]
 		if (name === undefined) return
 		if (result.status === 'rejected') {
 			failed.push(name)
-			firstError = firstError ?? (result.reason as DeleteError)
+			firstError = firstError ?? (result.reason as FrappeResourceError)
 			console.error(`Error deleting ${doctype}:`, result.reason)
 			return
 		}

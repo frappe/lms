@@ -96,13 +96,7 @@
 	</Dialog>
 </template>
 <script setup lang="ts">
-import {
-	Avatar,
-	createListResource,
-	Dialog,
-	FormControl,
-	TabButtons,
-} from 'frappe-ui'
+import { Avatar, createListResource, Dialog, TabButtons } from 'frappe-ui'
 import { computed, ref, watch } from 'vue'
 import { enablePlyr, formatTimestamp } from '@/utils'
 import VideoBlock from '@/components/VideoBlock.vue'
@@ -246,25 +240,19 @@ const tabs = computed(() => {
 })
 </script>
 <style>
-.plyr__control--overlaid {
-	background: radial-gradient(
-		circle,
-		rgba(0, 0, 0, 0.4) 0%,
-		rgba(0, 0, 0, 0.5) 50%
-	);
-}
-
 .plyr__control:hover {
 	background: none;
 }
 
 .plyr--video {
-	border: 1px solid theme('colors.gray.200');
+	border: 1px solid var(--outline-gray-2);
 	border-radius: 8px;
 }
 
+/* token-exempt-start: range fill on the video, not the page */
 :root {
 	--plyr-range-fill-background: white;
 	--plyr-video-control-background-hover: transparent;
 }
+/* token-exempt-end */
 </style>

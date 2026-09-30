@@ -40,9 +40,6 @@ vi.mock('frappe-ui', async () => {
 		},
 		emits: ['update:modelValue'],
 		setup(props, { emit }) {
-			const defaultValue = computed(
-				() => (props.tabs[0] as { value: string }).value
-			)
 			const selected = computed(() => {
 				const items = props.tabs as { value: unknown }[]
 				const known = items.some((tab) => tab.value === props.modelValue)
@@ -55,11 +52,10 @@ vi.mock('frappe-ui', async () => {
 				},
 				{ immediate: true }
 			)
-			return { defaultValue, selected }
+			return { selected }
 		},
 		template: `<div
 			data-testid="tabs"
-			:data-default-value="defaultValue"
 			v-bind="$attrs"
 		>
 			<div role="tablist">
@@ -244,14 +240,6 @@ describe('TabbedDetailPage tab visibility', () => {
 
 		expect(shell(wrapper).exists()).toBe(false)
 		expect(wrapper.find('[data-testid="header"]').exists()).toBe(true)
-	})
-
-	it('is a TypeError the moment an empty list does reach the tabs', async () => {
-		const { Tabs } = (await import('frappe-ui')) as unknown as {
-			Tabs: Component
-		}
-
-		expect(() => mount(Tabs, { props: { tabs: [] } })).toThrow(TypeError)
 	})
 })
 

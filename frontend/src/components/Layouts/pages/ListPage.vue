@@ -75,15 +75,8 @@
 			<ListFooter
 				v-model="pageLength"
 				class="flex-wrap border-t px-5 py-2"
-				:options="{
-					rowCount: rows.length,
-					totalCount: resolvedCount,
-					pageLengthOptions,
-				}"
+				:options="{ pageLengthOptions }"
 			>
-				<template #left>
-					<TabButtons v-model="pageLength" :options="pageLengthTabs" />
-				</template>
 				<template #right>
 					<div class="flex items-center">
 						<Button
@@ -108,13 +101,8 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import {
-	Button,
-	createResource,
-	FormControl,
-	TabButtons,
-	toast,
-} from 'frappe-ui'
+import { Button, createResource, FormControl, toast } from 'frappe-ui'
+import type { FrappeResourceError } from 'frappe-ui'
 import { ListFooter } from 'frappe-ui/experimental'
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 import PageHeader from '@/components/Layouts/pages/PageHeader.vue'
@@ -201,13 +189,6 @@ const selecting = computed(() => Boolean(listView.value?.selections.size))
 
 const pageLength = defineModel<number>('pageLength', { default: 24 })
 
-// ListFooter's own `#left` fallback renders v0 TabButtons (`:buttons`), which
-// v1 TabButtons no longer accepts, so it silently renders nothing. This
-// overrides it with the same tabs, built the v1 way.
-const pageLengthTabs = computed(() =>
-	props.pageLengthOptions.map((option) => ({ label: option, value: option }))
-)
-
 // Bound, this renders the search box at the head of the filter strip. Left
 // unbound it is `undefined` and there is no box, so pages with nothing to
 // search are unchanged.
@@ -234,8 +215,8 @@ const countResource = props.listResource
 			// Without this the heading just reads zero, which is indistinguishable
 			// from an empty list. Each page used to carry its own; the count moved
 			// here, so the report of its failure has to move here too.
-			onError(error: { messages?: string[] }) {
-				toast.error(error?.messages?.[0] || __('Could not count the list'))
+			onError(error: FrappeResourceError) {
+				toast.error(error.messages?.[0] || __('Could not count the list'))
 			},
 	  })
 	: null

@@ -1,6 +1,6 @@
 <template>
 	<Popover bare>
-		<template #trigger="{ open, setOpen }" class="flex w-full">
+		<template #trigger="{ open, setOpen }">
 			<slot v-bind="{ open, setOpen }"></slot>
 		</template>
 		<template #default>
@@ -8,7 +8,7 @@
 				class="absolute start-1/2 mt-3 max-w-sm -translate-x-1/2 transform rounded-6 bg-surface-base px-4 sm:px-0 lg:max-w-3xl"
 			>
 				<div
-					class="overflow-hidden rounded-6 p-3 shadow-2xl ring-1 ring-black ring-opacity-5"
+					class="overflow-hidden rounded-6 p-3 shadow-2xl ring-1 ring-outline-gray-2"
 				>
 					<div class="flex items-center gap-x-2">
 						<div class="flex-1">
@@ -69,7 +69,13 @@
 
 <script setup>
 // import { Popover, PopoverButton, PopoverPanel } from '@headlessui/vue'
-import { Popover, FileUploader, Button, createResource } from 'frappe-ui'
+import {
+	Popover,
+	FileUploader,
+	Button,
+	TextInput,
+	createResource,
+} from 'frappe-ui'
 import { ref, watch } from 'vue'
 import { safeUrl } from '@/utils/safeUrl'
 

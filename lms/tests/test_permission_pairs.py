@@ -16,6 +16,16 @@ from lms.lms.test_helpers import BaseTestUtils
 PAIR_EXEMPT = {
 	# File is a framework doctype; its list surface is governed by frappe core.
 	"File",
+	# The four doctypes carrying `authors` narrow write, delete and child-row create
+	# to the people named on the row and pass every read ptype straight through, so
+	# there is no read rule for a query condition to mirror. Read is wide on purpose
+	# -- one shared library, both authoring roles -- and the student half of it is a
+	# different rule. Writing a PQC here to satisfy this test would be a second
+	# spelling of that one, and two gates on the same door drift.
+	"LMS Quiz",
+	"LMS Programming Exercise",
+	"LMS Assignment",
+	"LMS Question",
 }
 
 

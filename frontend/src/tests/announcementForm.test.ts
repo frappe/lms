@@ -41,8 +41,8 @@ vi.mock('@/components/HeaderButton.vue', () => ({
 }))
 
 // `FormLayout` (and its `TextField`/`TextInput`) is the real library now, so
-// only the pieces this suite controls or that FormShell needs a light stub for
-// (Dialog, Button) are replaced — everything else (Tabs, TextInput, …) is real.
+// only the pieces this suite controls, plus the Dialog FormShell needs a light
+// stub for, are replaced. Everything else (Tabs, TextInput, …) is real.
 vi.mock('frappe-ui', async () => {
 	const actual = await vi.importActual<typeof import('frappe-ui')>('frappe-ui')
 	return {
@@ -54,10 +54,6 @@ vi.mock('frappe-ui', async () => {
 			props: ['open', 'title', 'size'],
 			emits: ['update:open'],
 			template: `<div v-if="open" role="dialog"><slot name="title" /><slot /><slot name="actions" /></div>`,
-		},
-		Button: {
-			inheritAttrs: false,
-			template: `<button v-bind="$attrs"><slot name="icon" /><slot /></button>`,
 		},
 	}
 })

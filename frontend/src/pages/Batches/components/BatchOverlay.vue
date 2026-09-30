@@ -70,29 +70,26 @@
 			</div>
 
 			<div v-if="!readOnlyMode && !canAccessBatch">
-				<router-link
-					:to="{
-						name: 'Billing',
-						params: {
-							type: 'batch',
-							name: batch.data.name,
-						},
-					}"
+				<Button
 					v-if="
 						batch.data.paid_batch &&
 						batch.data.seats_left > 0 &&
 						batch.data.accept_enrollments
 					"
+					class="w-full mt-4"
+					variant="solid"
+					:route="{
+						name: 'Billing',
+						params: { type: 'batch', name: batch.data.name },
+					}"
 				>
-					<Button class="w-full mt-4" variant="solid">
-						<template #prefix>
-							<span class="lucide-credit-card size-4" />
-						</template>
-						<span>
-							{{ __('Register Now') }}
-						</span>
-					</Button>
-				</router-link>
+					<template #prefix>
+						<span class="lucide-credit-card size-4" />
+					</template>
+					<span>
+						{{ __('Register Now') }}
+					</span>
+				</Button>
 				<Button
 					variant="solid"
 					class="w-full mt-2"

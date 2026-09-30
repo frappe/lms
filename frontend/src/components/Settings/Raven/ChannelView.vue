@@ -124,6 +124,7 @@ import {
 	createResource,
 	toast,
 } from 'frappe-ui'
+import type { FrappeResourceError } from 'frappe-ui'
 import { computed, ref, watch } from 'vue'
 import SettingsLayout from '@/components/Layouts/settings/desktop/SettingsLayout.vue'
 import RuleConditions from './RuleConditions.vue'
@@ -200,7 +201,7 @@ const channelTypeOptions = CHANNEL_TYPES.map((type) => ({
 }))
 
 function onError(fallback: string) {
-	return (err: { messages?: string[] }): void => {
+	return (err: FrappeResourceError): void => {
 		toast.error(err?.messages?.[0] ?? fallback)
 		rules.reload()
 	}

@@ -207,7 +207,6 @@ const displayRows = computed(() =>
 	)
 )
 
-// Sets the state asked for, never flips it, because Checkbox reports a click twice.
 const setSelected = (row, value) => {
 	if (value) selected.add(row.name)
 	else selected.delete(row.name)

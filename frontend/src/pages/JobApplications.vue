@@ -83,10 +83,13 @@
 				:placeholder="__('Enter reply to email')"
 			/>
 			<div>
-				<div class="text-sm text-ink-gray-5 mb-1">
-					{{ __('Message') }}
-				</div>
+				<InputLabel
+					:id="messageLabelId"
+					:label="__('Message')"
+					class="mb-1.5"
+				/>
 				<RichTextEditor
+					:ariaLabelledby="messageLabelId"
 					:content="emailForm.message"
 					@change="(val) => (emailForm.message = val)"
 					:editable="true"
@@ -102,7 +105,6 @@
 import {
 	Avatar,
 	Button,
-	call,
 	Dialog,
 	Dropdown,
 	FormControl,
@@ -111,7 +113,8 @@ import {
 	usePageMeta,
 	toast,
 } from 'frappe-ui'
-import { computed, inject, ref, reactive, watch } from 'vue'
+import { computed, inject, ref, reactive, useId, watch } from 'vue'
+import { InputLabel } from 'frappe-ui/experimental'
 import { sessionStore } from '../stores/session'
 import ListPage from '@/components/Layouts/pages/ListPage.vue'
 import RichTextEditor from '@/components/RichTextEditor.vue'
@@ -120,6 +123,7 @@ import { openExternal } from '@/utils/openExternal'
 const dayjs = inject('$dayjs')
 const { brand } = sessionStore()
 const showEmailModal = ref(false)
+const messageLabelId = useId()
 const selectedApplicant = ref(null)
 const search = ref('')
 const pageLength = ref(24)

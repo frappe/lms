@@ -54,7 +54,7 @@ describe('BottomSheet', () => {
 	it('emits update:modelValue=false when the backdrop is tapped', async () => {
 		const wrapper = mountSheet({ modelValue: true })
 		// The backdrop is the first fixed-inset element.
-		await wrapper.find('.bg-black\\/40').trigger('click')
+		await wrapper.find('.bg-black-overlay-200').trigger('click')
 		expect(wrapper.emitted('update:modelValue')?.[0]).toEqual([false])
 	})
 

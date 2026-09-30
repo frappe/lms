@@ -20,7 +20,7 @@
 					v-if="course.featured"
 					class="flex items-center gap-x-1 text-xs text-ink-amber-5 bg-surface-base border border-outline-amber-1 px-2 py-0.5 rounded-5 me-1 mb-1"
 				>
-					<Star class="size-3 stroke-2" />
+					<LucideStar class="size-3 stroke-2" />
 					<span>
 						{{ __('Featured') }}
 					</span>
@@ -71,7 +71,7 @@
 					<Tooltip :text="__('Average Rating')">
 						<span class="flex items-center">
 							<LucideStar
-								class="size-4 me-1 text-transparent fill-yellow-500"
+								class="size-4 me-1 text-transparent fill-ink-amber-7"
 							/>
 							{{ formatRating(course.rating) }}
 						</span>
@@ -139,7 +139,6 @@
 import { sessionStore } from '@/stores/session'
 import { Tooltip } from 'frappe-ui'
 import { formatAmount, formatRating } from '@/utils'
-import { theme } from '@/utils/theme'
 import { computed, watch } from 'vue'
 import CourseInstructors from '@/components/CourseInstructors.vue'
 import UserAvatar from '@/components/UserAvatar.vue'
@@ -156,23 +155,11 @@ const props = defineProps({
 
 const gradientColor = computed(() => {
 	let color = props.course.card_gradient?.toLowerCase() || 'blue'
+	// token-exempt: card art stays dark in both themes.
 	return `linear-gradient(to top right, black, var(--${color}-400))`
 })
 </script>
 <style>
-.course-card-pills {
-	background: #ffffff;
-	margin-left: 0;
-	margin-right: 0.5rem;
-	padding: 3.5px 8px;
-	font-size: 11px;
-	text-align: center;
-	letter-spacing: 0.011em;
-	text-transform: uppercase;
-	font-weight: 600;
-	width: fit-content;
-}
-
 .avatar-group {
 	display: inline-flex;
 	align-items: center;

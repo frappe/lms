@@ -25,7 +25,6 @@
 				v-if="!isGroup && !readonly"
 				:options="menuFor(remove)"
 				align="end"
-				data-slot="condition-actions"
 			>
 				<Button variant="ghost" :aria-labelledby="actionsLabelledBy(path)">
 					<template #icon>

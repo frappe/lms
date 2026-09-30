@@ -60,10 +60,6 @@ vi.mock('frappe-ui', () => ({
 		emits: ['update:open'],
 		template: `<div v-if="open" role="dialog"><h2>{{ title }}</h2><slot /><slot name="actions" /></div>`,
 	},
-	Button: {
-		inheritAttrs: false,
-		template: `<button v-bind="$attrs"><slot name="icon" /><slot /></button>`,
-	},
 }))
 
 vi.mock(

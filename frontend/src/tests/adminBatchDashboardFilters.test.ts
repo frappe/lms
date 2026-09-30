@@ -29,6 +29,7 @@ interface FakeList {
 const h = vi.hoisted(() => ({
 	listCache: new Map<string, any>(),
 	reloads: [] as string[],
+	chartRows: [] as { task: string; value: number }[],
 }))
 
 // HeaderButton wraps frappe-ui's Button in a Tooltip below the mobile
@@ -72,7 +73,10 @@ vi.mock('frappe-ui', () => {
 		},
 		createResource: (options: any) =>
 			reactive({
-				data: options.doctype === 'LMS Batch Enrollment' ? 4 : null,
+				data:
+					options.url === 'lms.lms.utils.get_batch_chart_data'
+						? h.chartRows
+						: null,
 				loading: false,
 				reload: () => {},
 				update: () => {},
@@ -84,12 +88,13 @@ vi.mock('frappe-ui', () => {
 	}
 })
 
-vi.mock('frappe-ui/experimental', () => ({
-	AxisChart: {
-		name: 'AxisChart',
-		props: ['data', 'options'],
+vi.mock('frappe-ui/charts', () => ({
+	BarChart: {
+		name: 'BarChart',
+		props: ['data', 'x', 'y', 'title', 'subtitle', 'xAxis', 'yAxis'],
 		template: `<div />`,
 	},
+	ChartCard: { name: 'ChartCard', template: `<div><slot /></div>` },
 }))
 
 vi.mock('@/utils', () => ({ formatAmount: (v: unknown) => String(v) }))
@@ -116,13 +121,12 @@ import AdminBatchDashboard from '@/pages/Batches/components/AdminBatchDashboard.
 
 const BATCH = { data: { name: 'B1', title: 'Batch One', seat_count: 10 } }
 
-const mountDashboard = () =>
+const mountDashboard = (batch: object = BATCH) =>
 	mount(AdminBatchDashboard, {
-		props: { batch: BATCH },
+		props: { batch },
 		global: {
 			provide: { $dayjs: (v: unknown) => ({ format: () => String(v) }) },
 			mocks: { __: (s: string) => s },
-			stubs: { RouterLink: true },
 		},
 	})
 
@@ -133,6 +137,7 @@ describe('AdminBatchDashboard students filters', () => {
 	beforeEach(() => {
 		h.listCache.clear()
 		h.reloads.length = 0
+		h.chartRows = []
 	})
 
 	it('shares one cached resource across mounts', async () => {
@@ -171,5 +176,24 @@ describe('AdminBatchDashboard students filters', () => {
 		expect(cachedList().filters).toEqual({ batch: 'B1' })
 		expect(h.reloads).toContain(JSON.stringify({ batch: 'B1' }))
 		second.unmount()
+	})
+
+	it('hands the chart only the tasks some student has reached', async () => {
+		h.chartRows = [
+			{ task: 'Course A', value: 3 },
+			{ task: 'Quiz B', value: 0 },
+		]
+		const wrapper = mountDashboard({
+			data: { ...BATCH.data, courses: [{ course: 'Course A' }] },
+		})
+		await flushPromises()
+		cachedList().data = [{ name: 'E1', member: 'jane@example.com' }]
+		await flushPromises()
+
+		const chart = wrapper.findComponent({ name: 'BarChart' })
+		expect(chart.props('data')).toEqual([{ task: 'Course A', value: 3 }])
+		expect(chart.props('x')).toBe('task')
+		expect(chart.props('y')).toBe('value')
+		wrapper.unmount()
 	})
 })

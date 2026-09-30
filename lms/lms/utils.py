@@ -124,9 +124,9 @@ def slugify(title: str, used_slugs: list = None):
 		count = count + 1
 
 
-def generate_slug(title: str, doctype: str):
+def generate_slug(title: str, doctype: str, reserved: frozenset[str] = frozenset()):
 	result = frappe.get_all(doctype, fields=["name"])
-	slugs = {row["name"] for row in result}
+	slugs = {row["name"] for row in result} | reserved
 	return slugify(title, used_slugs=slugs)
 
 
@@ -426,6 +426,25 @@ def has_moderator_role(member: str = None):
 	)
 
 
+def moderators_among(members) -> set[str]:
+	"""has_moderator_role for a whole set of accounts, in one query.
+
+	Callers that judge a list of third parties (serve_resource weighs one per File row
+	sharing a url) would otherwise put a query inside their loop.
+	"""
+	members = {member for member in members or [] if member}
+	if not members:
+		return set()
+
+	return set(
+		frappe.db.get_all(
+			"Has Role",
+			filters={"parent": ("in", list(members)), "role": "Moderator"},
+			pluck="parent",
+		)
+	)
+
+
 def has_evaluator_role(member: str = None):
 	return frappe.db.get_value(
 		"Has Role",
@@ -462,15 +481,92 @@ def get_courses_under_review():
 
 
 def validate_image(path: str) -> str:
-	if path and "/private" in path:
-		frappe.db.set_value(
-			"File",
-			{"file_url": path},
-			"is_private",
-			0,
+	"""Make the session user's own uploaded image public; leave anyone else's file private."""
+	if not path or "/private" not in path:
+		return path
+
+	own_files = [
+		row.name
+		for row in frappe.get_all(
+			"File", filters={"file_url": path, "owner": frappe.session.user}, fields=["name", "file_url"]
 		)
-		return path.replace("/private", "")
-	return path
+		if row.file_url == path
+	]
+	if not own_files:
+		return path
+
+	frappe.db.set_value("File", {"name": ["in", own_files]}, "is_private", 0)
+	return path.replace("/private", "")
+
+
+def get_attachable_files(file_urls: list[str], doc: Document, user: str) -> dict[str, "frappe._dict"]:
+	"""Each URL in `file_urls` mapped to the File row `user` may attach to `doc`, one query for all of them.
+
+	Eligible: attached to `doc` already, or unattached, owned by `user`, and `user` isn't Guest — that
+	owner match already implies read access (file.has_permission), so no per-row query is needed.
+	"""
+	urls = list(dict.fromkeys(file_urls))
+	if not urls:
+		return {}
+
+	rows = frappe.get_all(
+		"File",
+		filters={"file_url": ["in", urls]},
+		fields=["name", "file_url", "attached_to_doctype", "attached_to_name", "owner"],
+	)
+
+	resolved = {}
+	for file_url in urls:
+		# tabFile.file_url is case-insensitive, so the "in" filter can return rows for a
+		# different URL than the one requested; the exact match here is what decides.
+		candidates = [row for row in rows if row.file_url == file_url]
+
+		attached = next(
+			(
+				row
+				for row in candidates
+				if row.attached_to_doctype == doc.doctype and row.attached_to_name == doc.name
+			),
+			None,
+		)
+		if attached:
+			resolved[file_url] = attached
+			continue
+
+		candidate = next(
+			(
+				row
+				for row in candidates
+				if not row.attached_to_doctype
+				and not row.attached_to_name
+				and row.owner == user
+				and user != "Guest"
+			),
+			None,
+		)
+		if candidate:
+			resolved[file_url] = candidate
+
+	return resolved
+
+
+def get_attachable_file(file_url: str, doc: Document, user: str) -> "frappe._dict | None":
+	"""The File row at exactly `file_url` that `user` may attach to `doc`."""
+	return get_attachable_files([file_url], doc, user).get(file_url)
+
+
+def validate_attachable_file(doc: Document, fieldname: str) -> None:
+	"""Reject a private file URL in `fieldname` that the session user did not upload for `doc`."""
+	file_url = doc.get(fieldname)
+	if not (file_url or "").startswith("/private/") or not doc.has_value_changed(fieldname):
+		return
+	if not get_attachable_file(file_url, doc, frappe.session.user):
+		frappe.throw(
+			_("Please upload the file for {0} again. Only a file you uploaded can be attached.").format(
+				_(doc.meta.get_label(fieldname))
+			),
+			frappe.PermissionError,
+		)
 
 
 def handle_notifications(doc: Document, method: str):
@@ -634,6 +730,10 @@ def get_lesson_count(course: str) -> int:
 	return frappe.db.count("Lesson Reference", {"parent": ("in", chapter_references)})
 
 
+STATISTICS_CHARTS = ("New Signups", "Course Enrollments", "Certification")
+
+
+# nosemgrep: security.guest-whitelisted-method - pre-existing grant; this branch narrows it to the Statistics charts. Flagged only because the body changed.
 @frappe.whitelist(allow_guest=True)
 @rate_limit(limit=500, seconds=60 * 60)
 def get_chart_data(
@@ -642,8 +742,19 @@ def get_chart_data(
 	from_date: str = None,
 	to_date: str = None,
 ):
+	if not isinstance(chart_name, str) or chart_name not in STATISTICS_CHARTS:
+		frappe.throw(_("This chart is not available."), frappe.PermissionError)
+
+	try:
+		chart = frappe.get_doc("Dashboard Chart", chart_name)
+	except frappe.DoesNotExistError:
+		frappe.clear_last_message()
+		frappe.throw(_("This chart is not available."), frappe.PermissionError)
+
+	if not chart.is_public and not frappe.has_permission("Dashboard Chart", "read", doc=chart):
+		frappe.throw(_("This chart is not available."), frappe.PermissionError)
+
 	from_date, to_date = get_chart_date_range(from_date, to_date)
-	chart = frappe.get_doc("Dashboard Chart", chart_name)
 	doctype = chart.document_type
 	datefield = chart.based_on
 	value_field = chart.value_based_on or "1"
@@ -1467,6 +1578,13 @@ def get_course_outline(course: str, progress: bool = False) -> list:
 	if not chapters:
 		return []
 
+	# get_outline_chapter reads through frappe.qb, which consults no permission layer at
+	# all — not the DocPerm rows, not the permlevel — and this endpoint answers guests.
+	# can_modify_course is the predicate the only reader's own save is refused on.
+	if any(c.is_scorm_package and c.scorm_package for c in chapters) and not can_modify_course(course):
+		for chapter in chapters:
+			chapter.scorm_package = None
+
 	lesson_rows = get_outline_lessons([c.name for c in chapters])
 	files_by_name = get_scorm_files(chapters)
 	completed = get_completed_lessons(course, lesson_rows) if progress else set()
@@ -1508,7 +1626,6 @@ def get_outline_chapter(course: str) -> list:
 			CourseChapter.name.as_("name"),
 			CourseChapter.title.as_("title"),
 			CourseChapter.is_scorm_package.as_("is_scorm_package"),
-			CourseChapter.launch_file.as_("launch_file"),
 			CourseChapter.scorm_package.as_("scorm_package"),
 		)
 		.where(ChapterReference.parent == course)
@@ -1680,18 +1797,13 @@ def build_outline(
 			name=c.name,
 			title=c.title,
 			is_scorm_package=c.is_scorm_package,
-			launch_file=c.launch_file,
 			scorm_package=c.scorm_package,
 			idx=c.idx,
 			lessons=lessons,
 		)
-		# launch_file is the SCORM entry URL and scorm_package resolves to the package
-		# file. Handing either out for a chapter the student cannot open yet would let
-		# the outline itself route around the gate, so withhold both.
-		if lessons and all(lesson.get("locked") for lesson in lessons):
-			chapter.launch_file = None
-			chapter.scorm_package = None
-		elif c.is_scorm_package and c.scorm_package and c.scorm_package in files_by_name:
+		# The bare docname is what survives a deleted File row; the expansion is what
+		# ChapterForm renders.
+		if c.is_scorm_package and c.scorm_package and c.scorm_package in files_by_name:
 			chapter.scorm_package = files_by_name[c.scorm_package]
 		outline.append(chapter)
 	return outline
@@ -2184,8 +2296,8 @@ def get_assignment_details(assessment: dict, member: str) -> dict:
 		assessment.status = "Not Attempted"
 		assessment.color = "red"
 
-	assessment.edit_url = f"/assignments/{assessment.assessment_name}"
-	submission_name = existing_submission if existing_submission else "new-submission"
+	assessment.edit_url = f"/assignments/edit/{assessment.assessment_name}"
+	submission_name = existing_submission if existing_submission else "new"
 	assessment.url = get_lms_route(f"assignment-submission/{assessment.assessment_name}/{submission_name}")
 
 	return assessment
@@ -2216,9 +2328,11 @@ def get_quiz_details(assessment: dict, member: str) -> dict:
 		assessment.color = "red"
 		assessment.completed = False
 
-	assessment.edit_url = f"/quizzes/{assessment.assessment_name}"
-	submission_name = existing_submission[0].name if len(existing_submission) else "new-submission"
-	assessment.url = f"/quiz-submission/{assessment.assessment_name}/{submission_name}"
+	assessment.edit_url = f"/quizzes/edit/{assessment.assessment_name}"
+	if len(existing_submission):
+		assessment.url = f"/quiz-submission/{existing_submission[0].name}"
+	else:
+		assessment.url = f"/quiz/{assessment.assessment_name}"
 
 	return assessment
 
@@ -2237,13 +2351,15 @@ def get_exercise_details(assessment: dict, member: str) -> dict:
 		assessment.completed = True
 		assessment.status = assessment.submission.status
 		assessment.edit_url = (
-			f"/exercises/{assessment.assessment_name}/submission/{assessment.submission.name}"
+			f"/programming-exercise-submission/{assessment.assessment_name}/{assessment.submission.name}"
 		)
 	else:
 		assessment.status = "Not Attempted"
 		assessment.color = "red"
 		assessment.completed = False
-		assessment.edit_url = f"/exercises/{assessment.assessment_name}/submission/new"
+		assessment.edit_url = f"/programming-exercise-submission/{assessment.assessment_name}/new"
+
+	return assessment
 
 
 @frappe.whitelist()

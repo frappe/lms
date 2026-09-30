@@ -125,6 +125,7 @@ import {
 	createResource,
 	toast,
 } from 'frappe-ui'
+import type { FrappeResourceError } from 'frappe-ui'
 import { useOnboarding } from '@framework/ui/components/Onboarding/index'
 import { useTelemetry } from '@framework/ui/telemetry/index'
 import { computed, inject, onBeforeUnmount, onMounted, ref, watch } from 'vue'
@@ -136,7 +137,7 @@ import MultiLink from '@/components/Controls/MultiLink.vue'
 import Uploader from '@/components/Controls/Uploader.vue'
 import NewMemberModal from '@/components/Modals/NewMemberModal.vue'
 import { canCreateCourse, cleanError, createLMSCategory } from '@/utils'
-import { sanitizeOnWrite } from '@/utils/sanitizeOnWrite'
+import { sanitizeStringFields } from '@/utils/sanitizeOnWrite'
 import type { Resource } from '@/types'
 import RichTextEditor from '@/components/RichTextEditor.vue'
 import { InputLabel, useInputLabeling } from 'frappe-ui/experimental'
@@ -318,19 +319,9 @@ const onInstructorCreated = (newUser: any) => {
 	instructorsRef.value?.reload()
 }
 
-const validateFields = () => {
-	const fields = course.value as Record<string, unknown>
-	for (const key of Object.keys(fields)) {
-		const value = fields[key]
-		if (typeof value === 'string') {
-			fields[key] = sanitizeOnWrite(value)
-		}
-	}
-}
-
 const saveCourse = () => {
 	if (!canCreate.value) return
-	validateFields()
+	sanitizeStringFields(course.value as Record<string, unknown>)
 	submitResource(
 		courses.insert,
 		{
@@ -357,7 +348,7 @@ const saveCourse = () => {
 					})
 				}
 			},
-			onError(err: any) {
+			onError(err: FrappeResourceError) {
 				toast.error(cleanError(err.messages?.[0]))
 				console.error(err)
 			},

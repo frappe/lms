@@ -1,16 +1,9 @@
 <template>
 	<div class="mt-7 mb-20">
 		<div class="flex h-dvh flex-col overflow-hidden">
-			<!-- The view switcher lives in Calendar's default header, which the
-			     #header below replaces, so nothing on screen can leave Week.
-			     `enableShortcuts: false` closes the other door: m/w/d would
-			     otherwise switch the view with no way back. -->
 			<Calendar
 				v-if="evaluations.data?.length"
-				:config="{
-					defaultMode: 'Week',
-					enableShortcuts: false,
-				}"
+				:config="calendarConfig"
 				:events="evaluations.data"
 				@click="(event) => openEvent(event)"
 			>
@@ -23,14 +16,12 @@
 							<Button
 								@click="decrement()"
 								variant="ghost"
-								class="h-4 w-4"
 								icon="lucide-chevron-left"
 								:label="__('Previous')"
 							/>
 							<Button
 								@click="increment()"
 								variant="ghost"
-								class="h-4 w-4"
 								icon="lucide-chevron-right"
 								:label="__('Next')"
 							/>
@@ -47,6 +38,9 @@ import { createListResource, Button } from 'frappe-ui'
 import { Calendar } from 'frappe-ui/experimental'
 import { inject, ref } from 'vue'
 import Event from '@/components/Modals/Event.vue'
+
+// #header hides the view switcher, so m/w/d would leave Week with no way back.
+const calendarConfig = { defaultMode: 'Week', enableShortcuts: false }
 
 const user = inject('$user')
 const currentEvent = ref(null)

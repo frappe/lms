@@ -41,8 +41,7 @@ vi.mock('@/components/HeaderButton.vue', () => ({
 vi.mock('@/stores/settings', () => ({ useSettings: () => ({}) }))
 vi.mock('@/stores/user', () => ({ usersStore: () => ({ userResource }) }))
 
-// frappe-ui's ESM build does not resolve under vitest, so every export the
-// form and FormShell pull in is stubbed by hand.
+// Stubbed so tests control call/resource responses without a network.
 vi.mock('frappe-ui', () => ({
 	call: callMock,
 	toast: { success: vi.fn(), error: vi.fn() },

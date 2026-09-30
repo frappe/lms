@@ -103,14 +103,15 @@
 									:label="__('Rating')"
 									:disabled="!userIsEvaluator()"
 								/>
-								<FormControl
-									type="select"
-									:options="statusOptions"
-									v-model="evaluation.status"
-									:label="__('Status')"
-									class="w-1/2"
-									:disabled="!userIsEvaluator()"
-								/>
+								<div class="w-1/2">
+									<FormControl
+										type="select"
+										:options="statusOptions"
+										v-model="evaluation.status"
+										:label="__('Status')"
+										:disabled="!userIsEvaluator()"
+									/>
+								</div>
 							</div>
 							<FormControl
 								type="textarea"
@@ -148,12 +149,14 @@
 							/>
 							<FormControl
 								type="date"
+								:format="dateFormat"
 								v-model="certificate.issue_date"
 								:disabled="!userIsEvaluator()"
 								:label="__('Issue Date')"
 							/>
 							<FormControl
 								type="date"
+								:format="dateFormat"
 								v-model="certificate.expiry_date"
 								:disabled="!userIsEvaluator()"
 								:label="__('Expiry Date')"
@@ -187,6 +190,7 @@ import BooleanSwitch from '@/components/Controls/BooleanSwitch.vue'
 import { inject, reactive, watch, ref, computed } from 'vue'
 import { formatTime } from '@/utils'
 import { formatTimezone } from '@/utils/timezone'
+import { getDateFormat } from '@/utils/format'
 import Link from '@/components/Controls/Link.vue'
 import { openExternal } from '@/utils/openExternal'
 
@@ -194,6 +198,7 @@ const show = defineModel()
 const user = inject('$user')
 const dayjs = inject('$dayjs')
 const activeTab = ref('evaluation')
+const dateFormat = getDateFormat()
 const showCertification = ref(false)
 const evaluation = reactive({})
 const certificate = reactive({})
@@ -407,7 +412,7 @@ const tabs = computed(() => {
 		{
 			value: 'evaluation',
 			label: __('Evaluation'),
-			icon: 'lucide-clipboard-list',
+			iconLeft: 'lucide-clipboard-list',
 		},
 	]
 
@@ -415,7 +420,7 @@ const tabs = computed(() => {
 		tabsArray.push({
 			value: 'certification',
 			label: __('Certification'),
-			icon: 'lucide-graduation-cap',
+			iconLeft: 'lucide-graduation-cap',
 		})
 	}
 
