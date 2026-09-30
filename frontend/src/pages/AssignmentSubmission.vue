@@ -59,6 +59,10 @@ onMounted(() => {
 	}
 })
 
+const assignmentTitle = computed<string>(
+	() => title.data?.title || __('Assignment')
+)
+
 const breadcrumbs = computed(() => {
 	const crumbs = [
 		{
@@ -70,7 +74,7 @@ const breadcrumbs = computed(() => {
 			route: { name: 'AssignmentSubmissions' },
 		},
 		{
-			label: title.data?.title ?? '',
+			label: assignmentTitle.value,
 			route: {
 				name: 'AssignmentSubmission',
 				params: {
@@ -84,7 +88,7 @@ const breadcrumbs = computed(() => {
 
 usePageMeta(() => {
 	return {
-		title: title.data?.title,
+		title: assignmentTitle.value,
 		icon: brand.favicon,
 	}
 })
