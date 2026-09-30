@@ -618,11 +618,18 @@ def create_chapter_docs(zip_file, course_name):
 			if chapter_data:
 				chapter_doc = frappe.new_doc("Course Chapter")
 				chapter_data.pop("lessons", None)
+				drop_scorm_fields(chapter_data)
 				chapter_doc.update(chapter_data)
 				chapter_doc.course = course_name
 				chapter_doc.insert(ignore_permissions=True)
 				chapter_docs.append(chapter_doc)
 	return chapter_docs
+
+
+def drop_scorm_fields(chapter_data):
+	"""The archive holds no SCORM package, only paths into the source site's, so an imported chapter arrives without one."""
+	for field in ("is_scorm_package", "scorm_package", "scorm_package_path", "manifest_file", "launch_file"):
+		chapter_data.pop(field, None)
 
 
 def get_chapter_name_for_lesson(zip_file, lesson_data, chapter_docs):
