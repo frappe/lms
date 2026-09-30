@@ -150,6 +150,7 @@
 								@change="(option) => changeCurrency(option)"
 								:label="__('Country')"
 								:required="!!fieldMeta.country?.reqd"
+								autocomplete="country-name"
 							/>
 							<FormControl
 								:label="__('Postal Code')"
