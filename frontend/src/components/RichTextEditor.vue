@@ -1,4 +1,5 @@
 <template>
+<<<<<<< HEAD
 	<Editor
 		ref="editorRef"
 		v-model="html"
@@ -30,6 +31,45 @@
 			/>
 		</template>
 	</Editor>
+=======
+	<div data-testid="rich-text-editor" :class="boxClasses">
+		<Editor
+			ref="editorRef"
+			v-model="html"
+			:extensions="extensions"
+			:editable="editable"
+			:placeholder="placeholder"
+			:upload-function="uploadFile"
+			format="html"
+			@focus="hasFocus = true"
+			@blur="onBlur"
+		>
+			<template #default>
+				<EditorFixedMenu
+					v-if="fixedMenu"
+					:class="toolbarClasses"
+					:items="toolbar"
+				/>
+				<EditorContent
+					:id="id"
+					:class="[
+						editorClass,
+						contentClasses,
+						'focus-visible:ring-2 focus-visible:ring-outline-gray-5',
+					]"
+					:aria-label="ariaLabel"
+					:aria-labelledby="ariaLabelledby"
+					:aria-required="
+						ariaRequired === undefined ? undefined : String(ariaRequired)
+					"
+					:aria-invalid="
+						ariaInvalid === undefined ? undefined : String(ariaInvalid)
+					"
+				/>
+			</template>
+		</Editor>
+	</div>
+>>>>>>> 7a078d3 (fix: name the category filters and show focus in rich text editors)
 </template>
 
 <script setup lang="ts">
@@ -79,6 +119,7 @@ const props = withDefaults(
 			'private' | 'folder' | 'doctype' | 'docname' | 'fieldname'
 		>
 		id?: string
+		ariaLabel?: string
 		ariaLabelledby?: string
 		ariaRequired?: boolean
 		ariaInvalid?: boolean
@@ -93,6 +134,7 @@ const props = withDefaults(
 		mentions: null,
 		uploadArgs: undefined,
 		id: undefined,
+		ariaLabel: undefined,
 		ariaLabelledby: undefined,
 		ariaRequired: undefined,
 		ariaInvalid: undefined,
