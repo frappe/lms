@@ -564,6 +564,7 @@ describe('QuizForm: page heading', () => {
 	})
 })
 
+<<<<<<< HEAD
 // Guards an author having no way to find the link to share with learners: the
 // learner page lived at /quiz/:id with nothing pointing at it. Added on
 // quiz-share-link with the Copy link button.
@@ -641,6 +642,8 @@ describe('QuizForm: copy link', () => {
 	})
 })
 
+=======
+>>>>>>> 5ba15f4 (fix: give detail pages a heading and small icon buttons a usable target)
 // frappe-ui's setValue.onError restores the doc by REPLACING the object
 // (documentResource.js:58), tripping the deep watcher, so the failed tick
 // re-arms every 1.2s. A mock leaving doc alone would pass with no guard at all.
