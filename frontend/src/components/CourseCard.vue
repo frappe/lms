@@ -1,7 +1,7 @@
 <template>
 	<div
 		v-if="course.title"
-		class="flex flex-col h-full rounded-5 overflow-auto text-ink-gray-9 bg-surface-elevation-1"
+		class="relative isolate flex flex-col h-full rounded-5 overflow-auto text-ink-gray-9 bg-surface-elevation-1"
 		style="min-height: 350px"
 	>
 		<div
@@ -44,14 +44,14 @@
 						: 'text-3xl'
 				"
 			>
-				{{ course.title }}
+				<CardLink :to="to" :external="external">{{ course.title }}</CardLink>
 			</div>
 		</div>
 		<div class="flex flex-col flex-auto p-4 border-x-2 border-b-2 rounded-b-5">
 			<div class="flex items-center justify-between mb-2">
 				<div v-if="course.lessons">
 					<Tooltip :text="__('Lessons')">
-						<span class="flex items-center">
+						<span class="relative z-10 flex items-center">
 							<span class="lucide-book-open size-4 me-1" aria-hidden="true" />
 							<span aria-hidden="true">{{ course.lessons }}</span>
 							<span class="sr-only">{{ lessonCount }}</span>
@@ -61,7 +61,7 @@
 
 				<div v-if="course.enrollments">
 					<Tooltip :text="__('Enrolled Students')">
-						<span class="flex items-center">
+						<span class="relative z-10 flex items-center">
 							<span class="lucide-users size-4 me-1" aria-hidden="true" />
 							<span aria-hidden="true">
 								{{ formatAmount(course.enrollments) }}
@@ -77,7 +77,7 @@
 
 				<div v-if="course.rating">
 					<Tooltip :text="__('Average Rating')">
-						<span class="flex items-center">
+						<span class="relative z-10 flex items-center">
 							<LucideStar
 								class="size-4 me-1 text-transparent fill-ink-amber-7"
 								aria-hidden="true"
@@ -93,7 +93,7 @@
 				</div>
 
 				<Tooltip v-if="course.featured" :text="__('Featured')">
-					<span class="flex">
+					<span class="relative z-10 flex">
 						<span
 							class="lucide-award size-4 text-ink-amber-5"
 							aria-hidden="true"
@@ -108,7 +108,7 @@
 				class="font-semibold leading-6"
 				:class="course.title.length > 32 ? 'text-lg' : 'text-2xl'"
 			>
-				{{ course.title }}
+				<CardLink :to="to" :external="external">{{ course.title }}</CardLink>
 			</div>
 
 			<div class="short-introduction text-sm">
@@ -128,7 +128,7 @@
 			<div class="flex items-center justify-between mt-auto">
 				<div class="flex avatar-group overlap">
 					<div
-						class="h-6 me-1"
+						class="relative z-10 h-6 me-1"
 						:class="{ 'avatar-group overlap': course.instructors.length > 1 }"
 					>
 						<UserAvatar
@@ -149,7 +149,7 @@
 						v-if="course.paid_certificate || course.enable_certification"
 						:text="__('Get Certified')"
 					>
-						<span class="flex">
+						<span class="relative z-10 flex">
 							<span
 								class="lucide-graduation-cap size-5 text-ink-gray-7"
 								aria-hidden="true"
@@ -167,6 +167,7 @@ import { sessionStore } from '@/stores/session'
 import { Tooltip } from 'frappe-ui'
 import { formatAmount, formatRating } from '@/utils'
 import { computed, watch } from 'vue'
+import CardLink from '@/components/CardLink.vue'
 import CourseInstructors from '@/components/CourseInstructors.vue'
 import UserAvatar from '@/components/UserAvatar.vue'
 import ProgressBar from '@/components/ProgressBar.vue'
@@ -177,6 +178,14 @@ const props = defineProps({
 	course: {
 		type: Object,
 		default: null,
+	},
+	to: {
+		type: [Object, String],
+		default: null,
+	},
+	external: {
+		type: Boolean,
+		default: false,
 	},
 })
 
