@@ -25,7 +25,8 @@
    "in_list_view": 1,
    "label": "Assessment Name",
    "options": "assessment_type",
-   "reqd": 1
+   "reqd": 1,
+   "search_index": 1
   },
   {
    "default": "0",
