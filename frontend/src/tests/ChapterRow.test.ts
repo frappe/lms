@@ -1,4 +1,4 @@
-import { mount } from '@vue/test-utils'
+import { mount, RouterLinkStub } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
 import ChapterRow from '@/components/ChapterRow.vue'
@@ -74,9 +74,7 @@ const mountRow = (
 		global: {
 			mocks: { __: (s: string) => s },
 			provide: { $user: { data: { name: 'admin@example.com' } } },
-			stubs: {
-				'router-link': { template: '<a><slot /></a>' },
-			},
+			stubs: { RouterLink: RouterLinkStub },
 		},
 	})
 
@@ -206,18 +204,14 @@ describe('ChapterRow locked lesson', () => {
 		expect(pushMock).not.toHaveBeenCalled()
 	})
 
-	it('still opens an unlocked SCORM chapter', async () => {
+	it('still opens an unlocked SCORM chapter', () => {
 		const wrapper = mountRow(scormChapter(0))
 
 		expect(wrapper.find('.lucide-lock-keyhole').exists()).toBe(false)
-
-		await wrapper.get('[title="Old Chapter"]').trigger('click')
-		expect(pushMock).toHaveBeenCalledWith(
-			expect.objectContaining({
-				name: 'SCORMChapter',
-				params: { courseName: 'course-1', chapterName: 'CH-2' },
-			})
-		)
+		expect(wrapper.getComponent(RouterLinkStub).props('to')).toEqual({
+			name: 'SCORMChapter',
+			params: { courseName: 'course-1', chapterName: 'CH-2' },
+		})
 	})
 
 	it('does not emit select-lesson when a locked inline row is clicked', async () => {
