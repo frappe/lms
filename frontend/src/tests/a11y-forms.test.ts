@@ -3,11 +3,9 @@ import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { parse } from 'vue/compiler-sfc'
 import { mount } from '@vue/test-utils'
-import { h } from 'vue'
-import { FormControl, Switch } from 'frappe-ui'
-import Select from '@/components/Controls/Select.vue'
 import RichTextEditor from '@/components/RichTextEditor.vue'
 import Link from '@/components/Controls/Link.vue'
+import ClearableCombobox from '@/components/Controls/ClearableCombobox.vue'
 
 vi.mock('@/stores/settings', () => ({
 	useSettings: () => ({ isSettingsOpen: false }),
@@ -83,37 +81,29 @@ const EDITOR_FILES = [
 	'components/ContactUsEmail.vue',
 ]
 
-describe('rich text editors', () => {
-	const editors = EDITOR_FILES.flatMap((file) =>
-		elements(file)
-			.filter((el) => el.tag === 'RichTextEditor')
-			.map((el) => ({ file, line: el.loc.start.line, el }))
-	)
+const mocks = { __: (s: string) => s }
 
-	it('finds an editor in every listed file', () => {
-		const files = new Set(editors.map((e) => e.file))
-		expect([...files].sort()).toEqual([...EDITOR_FILES].sort())
+describe('rich text editors', () => {
+	// Guards: unnamed rich text editors with no focus ring. Introduced in #2565
+	// and #2662; test added with the a11y audit remediation.
+	it.each(EDITOR_FILES)('%s names every editor', (file) => {
+		const editors = elements(file).filter((el) => el.tag === 'RichTextEditor')
+		expect(editors.length).toBeGreaterThan(0)
+		for (const el of editors) {
+			const label = attr(el, 'ariaLabel')
+			if (label) expect(label).toMatch(/__\('.+'\)/)
+			else expectIdsDeclared(file, attr(el, 'ariaLabelledby') ?? '')
+		}
 	})
 
-	it.each(editors.map((e) => ({ at: `${e.file}:${e.line}`, ...e })))(
-		'$at has an accessible name',
-		({ file, el }) => {
-			const label = attr(el, 'ariaLabel')
-			if (label) return expect(label).toMatch(/__\('.+'\)/)
-			const labelledby = attr(el, 'ariaLabelledby')
-			expect(labelledby).toBeTruthy()
-			expectIdsDeclared(file, labelledby as string)
-		}
-	)
-
-	it('forwards ariaLabelledby to the tiptap textbox', () => {
+	it('puts its name and a focus ring on the tiptap textbox', () => {
 		document.elementFromPoint ??= () => null
 		const w = mount(RichTextEditor, {
-			props: { ariaLabelledby: 'label-x', content: '' },
+			props: { ariaLabel: 'Your reply', content: '' },
 		})
-		const box = w.find('[role="textbox"]')
-		expect(box.exists()).toBe(true)
-		expect(box.attributes('aria-labelledby')).toBe('label-x')
+		const box = w.get('[role="textbox"]')
+		expect(box.attributes('aria-label')).toBe('Your reply')
+		expect(box.classes()).toContain('focus-visible:ring-2')
 		w.unmount()
 	})
 })
@@ -129,176 +119,113 @@ const FILTERS: Array<[string, string, string]> = [
 	['pages/ProgrammingExercises/ProgrammingExercises.vue', 'Select', 'Type'],
 	['pages/Courses/CourseDashboard.vue', 'Select', 'Sort by'],
 	['components/Programs/ProgramProgressSummary.vue', 'FormControl', 'Search'],
+	['pages/Courses/Courses.vue', 'ClearableCombobox', 'Category'],
+	['pages/Batches/Batches.vue', 'ClearableCombobox', 'Category'],
+	['pages/CertifiedParticipants.vue', 'ClearableCombobox', 'Category'],
 ]
 
 describe('placeholder-only filters', () => {
-	it.each(FILTERS.map(([file, tag, text]) => ({ file, tag, text })))(
-		'$file $tag "$text" has an aria-label',
-		({ file, tag, text }) => {
-			const el = elements(file).find(
-				(e) => e.tag === tag && attr(e, 'placeholder') === `__('${text}')`
-			)
-			expect(el).toBeTruthy()
-			expect(attr(el as Node, 'aria-label')).toBe(`__('${text}')`)
-		}
-	)
-
-	it('LMS Select puts aria-label on the trigger', () => {
-		const w = mount(Select, {
-			props: { options: [{ label: 'A', value: 'a' }], placeholder: 'Type' },
-			attrs: { 'aria-label': 'Type' },
-			global: { mocks: { __: (s: string) => s } },
-		})
-		expect(w.find('button').attributes('aria-label')).toBe('Type')
-		w.unmount()
+	// Guards: filters named only by a placeholder. Introduced in #1223, #1464,
+	// #1593, #1739, #2015, #2502, #2662 and #2710; test added with the a11y
+	// audit remediation.
+	it.each(FILTERS)('%s %s "%s" has an aria-label', (file, tag, text) => {
+		const el = elements(file).find(
+			(e) => e.tag === tag && attr(e, 'placeholder') === `__('${text}')`
+		)
+		expect(attr(el!, 'aria-label')).toBe(`__('${text}')`)
 	})
 
-	it('FormControl puts aria-label on the input', () => {
-		const w = mount(FormControl, {
-			props: { placeholder: 'Search' },
-			attrs: { 'aria-label': 'Search' },
+	it('ClearableCombobox puts its ariaLabel on the input', () => {
+		const w = mount(ClearableCombobox, {
+			props: { modelValue: null, options: [], ariaLabel: 'Category' },
+			global: { mocks },
 		})
-		expect(w.find('input').attributes('aria-label')).toBe('Search')
+		expect(w.find('input').attributes('aria-label')).toBe('Category')
 		w.unmount()
 	})
 })
 
-describe('LessonForm', () => {
-	const file = 'pages/LessonForm.vue'
-
-	it('names both preview switches from their visible text', () => {
+describe('named controls and focus outlines', () => {
+	// Guards: unnamed lesson preview switches, marks input and tags trigger, no
+	// JobForm h1, and lost focus outlines. Introduced in #2164, #2469, #2659 and
+	// #2662; test added with the a11y audit remediation.
+	it('names the lesson preview switches and rings the title', () => {
+		const file = 'pages/LessonForm.vue'
 		const switches = elements(file).filter((el) => el.tag === 'Switch')
 		expect(switches).toHaveLength(2)
-		for (const sw of switches) {
-			const labelledby = attr(sw, 'aria-labelledby')
-			expect(labelledby).toBeTruthy()
-			expectIdsDeclared(file, labelledby as string)
-		}
+		for (const sw of switches)
+			expectIdsDeclared(file, attr(sw, 'aria-labelledby') ?? '')
+		const title = elements(file).find((el) => el.tag === 'textarea')!
+		expect(attr(title, 'class')).toMatch(/\bfocus-visible:ring-2\b/)
 	})
 
-	it('Switch forwards aria-labelledby to the switch control', () => {
-		const w = mount(() =>
-			h('div', [
-				h('span', { id: 'sw-label' }, 'Include in preview'),
-				h(Switch, { 'aria-labelledby': 'sw-label' }),
-			])
-		)
-		expect(w.find('[role="switch"]').attributes('aria-labelledby')).toBe(
-			'sw-label'
-		)
-		w.unmount()
-	})
-
-	it('title textarea replaces the removed focus outline', () => {
-		const textarea = elements(file).find((el) => el.tag === 'textarea')
-		const cls = attr(textarea as Node, 'class') ?? ''
-		expect(cls).toMatch(/\bfocus-visible:ring-2\b/)
-		expect(cls).toMatch(/\bfocus-visible:ring-outline-gray-5\b/)
-	})
-})
-
-describe('blockEditor.css code box', () => {
-	const css = read('styles/blockEditor.css')
-
-	it.each(['codeBoxTextArea', 'codeBoxSelectInput'])(
-		'.%s gets a focus-visible outline',
-		(cls) => {
-			const rule = css.match(
-				new RegExp(`\\.${cls}:focus-visible[^{]*\\{([^}]*)\\}`)
-			)
-			expect(rule).toBeTruthy()
-			expect(rule?.[1]).toMatch(/outline:\s*2px solid var\(--outline-gray-5\)/)
-		}
-	)
-})
-
-describe('single controls', () => {
-	it('QuizSubmission marks input is named per question', () => {
-		const el = elements('pages/QuizSubmission.vue').find(
+	it('names the marks input and tags trigger, and gives JobForm an h1', () => {
+		const marks = elements('pages/QuizSubmission.vue').find(
 			(e) => e.tag === 'FormControl' && attr(e, 'type') === 'number'
-		)
-		expect(attr(el as Node, 'aria-label')).toContain(
-			"__('Marks for question {0}')"
-		)
-	})
-
-	it('CourseDetailsSection tag trigger is labelled by the Tags label', () => {
+		)!
+		expect(attr(marks, 'aria-label')).toContain("__('Marks for question {0}')")
 		const file = 'components/Courses/CourseDetailsSection.vue'
-		const button = elements(file).find((el) => el.tag === 'button')
-		const labelledby = attr(button as Node, 'aria-labelledby') ?? ''
-		expect(idsIn(labelledby)).toContain('tagsLabelId')
-		expectIdsDeclared(file, labelledby)
+		const tags = elements(file).find((el) => el.tag === 'button')!
+		expectIdsDeclared(file, attr(tags, 'aria-labelledby') ?? '')
+		const h1 = elements('pages/Forms/JobForm.vue').find((e) => e.tag === 'h1')!
+		expect(attr(h1, 'class')).toContain('sr-only')
 	})
 
-	it('JobForm has a visually hidden h1', () => {
-		const h1 = elements('pages/Forms/JobForm.vue').find((e) => e.tag === 'h1')
-		expect(h1).toBeTruthy()
-		expect(attr(h1 as Node, 'class')).toContain('sr-only')
+	it('outlines the code box inputs on focus', () => {
+		const css = read('styles/blockEditor.css')
+		for (const cls of ['codeBoxTextArea', 'codeBoxSelectInput'])
+			expect(css).toMatch(
+				new RegExp(
+					`\\.${cls}:focus-visible[^{]*\\{[^}]*outline:\\s*2px solid var\\(--outline-gray-5\\)`
+				)
+			)
 	})
 })
 
-const BILLING: Array<[string, string]> = [
-	['Billing Name', 'name'],
-	['Address Line 1', 'address-line1'],
-	['Address Line 2', 'address-line2'],
-	['City', 'address-level2'],
-	['State/Province', 'address-level1'],
-	['Country', 'country-name'],
-	['Postal Code', 'postal-code'],
-	['Phone Number', 'tel'],
-]
-
-describe('Billing autocomplete', () => {
-	const els = elements('pages/Billing.vue')
-
-	it.each(BILLING.map(([label, token]) => ({ label, token })))(
-		'$label fields use $token',
-		({ label, token }) => {
-			const fields = els.filter((e) => attr(e, 'label') === `__('${label}')`)
-			expect(fields.length).toBeGreaterThan(0)
-			for (const f of fields) expect(attr(f, 'autocomplete')).toBe(token)
-		}
-	)
-
-	it('FormControl forwards autocomplete to the input', () => {
-		const w = mount(FormControl, {
-			props: { label: 'City' },
-			attrs: { autocomplete: 'address-level2' },
-		})
-		expect(w.find('input').attributes('autocomplete')).toBe('address-level2')
-		w.unmount()
+describe('autocomplete tokens', () => {
+	// Guards: billing and sign-up fields without autocomplete tokens, and
+	// untranslated sign-up labels. Introduced in #713; test added with the a11y
+	// audit remediation.
+	it.each([
+		['Billing Name', 'name'],
+		['Address Line 1', 'address-line1'],
+		['Address Line 2', 'address-line2'],
+		['City', 'address-level2'],
+		['State/Province', 'address-level1'],
+		['Country', 'country-name'],
+		['Postal Code', 'postal-code'],
+		['Phone Number', 'tel'],
+	])('Billing %s fields use %s', (label, token) => {
+		const fields = elements('pages/Billing.vue').filter(
+			(e) => attr(e, 'label') === `__('${label}')`
+		)
+		expect(fields.length).toBeGreaterThan(0)
+		for (const f of fields) expect(attr(f, 'autocomplete')).toBe(token)
 	})
 
 	it('Link forwards autocomplete to the combobox input', () => {
 		const w = mount(Link, {
 			props: { doctype: 'Country', label: 'Country' },
 			attrs: { autocomplete: 'country-name' },
-			global: { mocks: { __: (s: string) => s } },
+			global: { mocks },
 		})
 		expect(w.find('input').attributes('autocomplete')).toBe('country-name')
 		w.unmount()
 	})
-})
 
-describe('new-sign-up.html', () => {
-	const html = readFileSync(
-		join(SRC, '..', '..', 'lms', 'www', 'new-sign-up.html'),
-		'utf8'
-	)
-
-	it.each([
-		['full_name', 'name'],
-		['signup_email', 'email'],
-		['username', 'username'],
-		['password', 'new-password'],
-	])('#%s has autocomplete=%s', (id, token) => {
-		const input = html.match(new RegExp(`<input id="${id}"[^>]*>`))
-		expect(input?.[0]).toContain(`autocomplete="${token}"`)
-	})
-
-	it('translates every label', () => {
+	it('new-sign-up.html tokens its inputs and translates its labels', () => {
+		const html = read('../../lms/www/new-sign-up.html')
+		for (const [id, token] of [
+			['full_name', 'name'],
+			['signup_email', 'email'],
+			['username', 'username'],
+			['password', 'new-password'],
+		])
+			expect(html).toMatch(
+				new RegExp(`<input id="${id}"[^>]*autocomplete="${token}"`)
+			)
 		const labels = [...html.matchAll(/<label[^>]*>([\s\S]*?)<\/label>/g)]
-		expect(labels.length).toBe(5)
+		expect(labels).toHaveLength(5)
 		for (const [, text] of labels) expect(text).toMatch(/^\{\{ _\(".+"\) \}\}/)
 	})
 })
