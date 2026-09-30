@@ -41,6 +41,7 @@ from lms.lms.doctype.course_lesson.course_lesson import (
 	cleanup_lesson_backreferences,
 	save_progress,
 )
+from lms.lms.doctype.lms_certificate.lms_certificate import evaluates_certificate, get_latest_certificate
 from lms.lms.sidebar import LEGACY_VISIBILITY_FIELDS, ROW_FIELDS, get_sidebar_rows
 from lms.lms.utils import (
 	LMS_ROLES,
@@ -1200,7 +1201,7 @@ def check_app_permission():
 	return has_lms_role()
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def save_evaluation_details(
 	member: str,
 	course: str,
@@ -1224,7 +1225,15 @@ def save_evaluation_details(
 		)
 	evaluator = assigned_evaluator or frappe.session.user
 
-	evaluation = frappe.db.exists("LMS Certificate Evaluation", {"member": member, "course": course})
+	# Serialise saves per member; the locking read below then sees rows another
+	# request committed after this one's snapshot.
+	frappe.db.get_value("User", member, "name", for_update=True)
+	evaluation = frappe.db.get_value(
+		"LMS Certificate Evaluation",
+		{"member": member, "course": course, "batch_name": batch_name or ("is", "not set")},
+		"name",
+		for_update=True,
+	)
 
 	details = {
 		"date": date_value,
@@ -1253,7 +1262,7 @@ def save_evaluation_details(
 		return doc.name
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def save_certificate_details(
 	member: str,
 	issue_date: str,
@@ -1267,15 +1276,22 @@ def save_certificate_details(
 	Save certificate details for a member against a course.
 	"""
 	frappe.only_for(["Batch Evaluator", "Moderator"])
-	assigned_evaluator = get_evaluator(course, batch_name)
-	if not has_moderator_role() and frappe.session.user != assigned_evaluator:
+	if not has_moderator_role() and not evaluates_certificate(
+		course, batch_name, member, frappe.session.user
+	):
 		frappe.throw(
 			_("You are not the assigned evaluator for this course and batch."),
 			frappe.PermissionError,
 		)
-	evaluator = assigned_evaluator or frappe.session.user
+	evaluator = get_evaluator(course, batch_name) or frappe.session.user
 
-	certificate = frappe.db.exists("LMS Certificate", {"member": member, "course": course})
+	frappe.db.get_value("User", member, "name", for_update=True)
+	certificate = frappe.db.get_value(
+		"LMS Certificate",
+		{"member": member, "course": course, "batch_name": batch_name or ("is", "not set")},
+		"name",
+		for_update=True,
+	)
 
 	details = {
 		"published": published,
@@ -2208,12 +2224,7 @@ def get_certification_details(course: str) -> dict:
 		)
 		or frappe._dict()
 	)
-	certificate = frappe.db.get_value(
-		"LMS Certificate",
-		{"member": frappe.session.user, "course": course},
-		["name", "template", "issue_date"],
-		as_dict=1,
-	)
+	certificate = get_latest_certificate(frappe.session.user, course)
 
 	return {
 		"title": details.title,

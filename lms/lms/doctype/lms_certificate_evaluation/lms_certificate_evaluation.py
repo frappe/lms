@@ -87,12 +87,24 @@ def create_lms_certificate(source_name: str, target_doc: dict = None):
 	if not isinstance(source_name, str):
 		frappe.throw(_("Evaluation must be a string."))
 
-	evaluator = frappe.db.get_value("LMS Certificate Evaluation", source_name, "evaluator")
-	if not is_evaluation_admin() and evaluator != frappe.session.user:
+	evaluation = (
+		frappe.db.get_value(
+			"LMS Certificate Evaluation", source_name, ["evaluator", "course", "batch_name"], as_dict=True
+		)
+		or frappe._dict()
+	)
+	if not is_evaluation_admin() and evaluation.evaluator != frappe.session.user:
 		frappe.throw(
 			_("You are not the assigned evaluator for this evaluation."),
 			frappe.PermissionError,
 		)
+
+	# get_mapped_doc checks create before it maps, so seed the scope that check reads.
+	target_doc = target_doc or {
+		"doctype": "LMS Certificate",
+		"course": evaluation.course,
+		"batch_name": evaluation.batch_name,
+	}
 
 	doc = get_mapped_doc(
 		"LMS Certificate Evaluation",
@@ -101,3 +113,8 @@ def create_lms_certificate(source_name: str, target_doc: dict = None):
 		target_doc,
 	)
 	return doc
+
+
+def on_doctype_update():
+	# Backs the locking (member, course, batch_name) read in api.save_*_details.
+	frappe.db.add_index("LMS Certificate Evaluation", ["member", "course", "batch_name"])

@@ -2,9 +2,10 @@
 # See license.txt
 
 import frappe
-from frappe.utils import getdate
+from frappe.utils import add_days, getdate, nowdate
 
 from lms.lms.api import get_certification_details
+from lms.lms.doctype.lms_certificate.lms_certificate import get_default_certificate_template
 from lms.lms.test_helpers import BaseTestUtils
 
 UNPUBLISHED_COURSE_MESSAGE = "You do not have permission to view this course."
@@ -139,6 +140,30 @@ class TestGetCertificationDetails(BaseTestUtils):
 		self.assertIsNone(details["title"])
 		self.assertIsNone(details["evaluator"])
 		self.assertIsNone(details["certificate"])
+
+	def _certificate(self, batch_name, issue_date):
+		# nosemgrep: lms-unjustified-ignore-permissions - seeding the row the endpoint is measured against
+		return frappe.get_doc(
+			{
+				"doctype": "LMS Certificate",
+				"member": self.student.name,
+				"course": self.course.name,
+				"batch_name": batch_name,
+				"issue_date": issue_date,
+				"template": get_default_certificate_template(),
+			}
+		).insert(ignore_permissions=True)
+
+	def test_certificate_prefers_the_course_level_one_over_a_newer_batch_certificate(self):
+		batch = self._create_batch(self.course.name, title=f"Cert Api Batch {frappe.generate_hash(length=6)}")
+		self._create_batch_enrollment(self.student.name, batch.name)
+		batch_certificate = self._certificate(batch.name, add_days(nowdate(), 1))
+		course_certificate = self._certificate(None, nowdate())
+		frappe.set_user(self.student.name)
+
+		details = get_certification_details(self.course.name)
+		self.assertEqual(details["certificate"]["name"], course_certificate.name)
+		self.assertNotEqual(details["certificate"]["name"], batch_certificate.name)
 
 	def test_the_isinstance_guard_rejects_it_too(self):
 		# frappe coerces before the body runs, so the guard is only reachable
