@@ -136,10 +136,30 @@ class TestPrivateFileReattach(BaseTestUtils):
 
 		self.assertEqual(submission.assignment_attachment, own.file_url)
 
-	def test_evaluator_can_grade_a_submission_with_an_attachment(self):
+	def _evaluator_for_the_assignment(self):
+		"""An evaluator the way production makes one: tagged on a batch that runs it.
+
+		The Batch Evaluator role tags nobody by itself -- a Course Evaluator insert is
+		what grants it -- and assessment_submission_has_permission reads the Batch
+		Course row rather than the role, so a bare role holder reaches no submission.
+		"""
 		evaluator = self._create_user(
 			f"pfr-e-{self.hash}@example.com", "Eva", "Luator", ["Batch Evaluator"]
 		).name
+		course = self._create_course(title=f"PFR Grading Course {self.hash}", instructor="Administrator")
+		self._create_evaluator(evaluator)
+		batch = self._create_batch(
+			course.name,
+			title=f"PFR Grading Batch {self.hash}",
+			instructor="Administrator",
+			evaluator=evaluator,
+		)
+		batch.append("assessment", {"assessment_type": "LMS Assignment", "assessment_name": self.assignment})
+		batch.save()
+		return evaluator
+
+	def test_evaluator_can_grade_a_submission_with_an_attachment(self):
+		evaluator = self._evaluator_for_the_assignment()
 		own = self._upload(self.student, f"essay-{self.hash}.txt")
 		submission = self._submit(assignment_attachment=own.file_url)
 

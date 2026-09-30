@@ -824,7 +824,25 @@
 		]
 	},
 	"LMS Quiz Submission": {
+		"Batch Evaluator#0": [
+			"read",
+			"share",
+			"report",
+			"export"
+		],
+		"Course Creator#0": [
+			"read",
+			"share",
+			"report",
+			"export"
+		],
 		"LMS Student#0#if_owner": [
+			"read",
+			"share",
+			"report",
+			"export"
+		],
+		"Moderator#0": [
 			"read",
 			"share",
 			"report",
