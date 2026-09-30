@@ -87,11 +87,7 @@
 				v-if="readOnlyMode && !sidebarStore.isSidebarCollapsed"
 				class="z-10 m-2 bg-surface-elevation-2 py-2.5 px-3 text-p-xs text-ink-gray-7 rounded-5"
 			>
-				{{
-					__(
-						'This site is being updated. You will not be able to make any changes. Full access will be restored shortly.'
-					)
-				}}
+				{{ readOnlyNotice }}
 			</div>
 			<div
 				v-if="
@@ -161,6 +157,7 @@
 					sidebarStore.isSidebarCollapsed ? 'flex-col space-y-3' : 'flex-row'
 				"
 			>
+<<<<<<< HEAD
 				<div
 					class="flex items-center flex-1 gap-3"
 					:class="sidebarStore.isSidebarCollapsed ? 'flex-col' : 'flex-row'"
@@ -207,6 +204,52 @@
 						}"
 						@click="toggleSidebar()"
 					/>
+=======
+				<template v-if="readOnlyMode && sidebarStore.isSidebarCollapsed">
+					<Tooltip>
+						<span
+							class="lucide-circle-alert size-4 text-ink-gray-7 cursor-pointer"
+							aria-hidden="true"
+						/>
+						<template #content>
+							<div class="max-w-[30ch] text-center text-p-xs">
+								{{ readOnlyNotice }}
+							</div>
+						</template>
+					</Tooltip>
+					<span class="sr-only">{{ readOnlyNotice }}</span>
+				</template>
+				<Tooltip v-if="showOnboarding" :text="__('Help')">
+					<button
+						type="button"
+						class="flex"
+						:aria-label="__('Help')"
+						@click="
+							() => {
+								showHelpModal = minimize ? true : !showHelpModal
+								minimize = !showHelpModal
+							}
+						"
+					>
+						<span
+							class="lucide-circle-help size-4 text-ink-gray-7 cursor-pointer"
+							aria-hidden="true"
+						/>
+					</button>
+				</Tooltip>
+				<Tooltip :text="__('Powered by Frappe Learning')">
+					<a
+						href="https://frappe.io/learning"
+						v-external
+						class="flex"
+						:aria-label="__('Powered by Frappe Learning')"
+					>
+						<span
+							class="lucide-zap size-4 text-ink-gray-7 cursor-pointer"
+							aria-hidden="true"
+						/>
+					</a>
+>>>>>>> da6c1f3 (fix: make course, video and sidebar controls reachable by keyboard)
 				</Tooltip>
 				<span class="sr-only">{{ readOnlyNotice }}</span>
 			</div>
@@ -285,7 +328,11 @@ import UserDropdown from '@/components/Sidebar/UserDropdown.vue'
 import CollapseSidebar from '@/components/Icons/CollapseSidebar.vue'
 import SidebarLink from '@/components/Sidebar/SidebarLink.vue'
 import CommandPalette from '@/components/CommandPalette/CommandPalette.vue'
+<<<<<<< HEAD
 import { openExternal } from '@/utils/openExternal'
+=======
+import { pushSettingsHash } from '@/composables/useSettingsHash'
+>>>>>>> da6c1f3 (fix: make course, video and sidebar controls reachable by keyboard)
 import {
 	loadUnreadCount,
 	unreadCount,
@@ -316,6 +363,7 @@ const router = useRouter()
 let onboardingDetails
 let isOnboardingStepsCompleted = false
 const readOnlyMode = window.read_only_mode
+<<<<<<< HEAD
 const isRtl = document.documentElement.dir === 'rtl'
 const openCourseForm = () => {
 	setFormSource('onboarding')
@@ -334,6 +382,11 @@ const toggleHelp = () => {
 		})
 	}
 }
+=======
+const readOnlyNotice = __(
+	'This site is being updated. You will not be able to make any changes. Full access will be restored shortly.'
+)
+>>>>>>> da6c1f3 (fix: make course, video and sidebar controls reachable by keyboard)
 const iconProps = {
 	strokeWidth: 1.5,
 	width: 16,
@@ -675,10 +728,6 @@ const updateSidebarLinks = () => {
 	sidebarLinks.value = getSidebarLinks()
 	updateSidebarLinksVisibility()
 	updateUnreadCount()
-}
-
-const redirectToWebsite = () => {
-	openExternal('https://frappe.io/learning')
 }
 
 const isStudent = computed(() => {

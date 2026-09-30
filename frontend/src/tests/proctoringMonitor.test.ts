@@ -79,7 +79,13 @@ const emittedTypes = (wrapper: any, name: string): string[] =>
 
 // ─── Mount helper ─────────────────────────────────────────────────────────────
 
+<<<<<<< HEAD
 const mountMonitor = (props: Partial<{ active: boolean }> = {}) =>
+=======
+const mountMonitor = (
+	props: Partial<{ active: boolean; violationCount: number }> = {}
+) =>
+>>>>>>> da6c1f3 (fix: make course, video and sidebar controls reachable by keyboard)
 	mount(ProctoringMonitor, {
 		props: { active: false, ...props },
 		global: { mocks: { __: (s: string) => s } },
@@ -111,6 +117,16 @@ describe('ProctoringMonitor — setup phase', () => {
 		expect(wrapper.text()).toContain('Camera access was denied')
 		expect(wrapper.emitted('camera-denied')).toBeTruthy()
 	})
+<<<<<<< HEAD
+=======
+
+	it('shows "Position your face" label after camera loads', async () => {
+		const wrapper = mountMonitor()
+		await flushPromises()
+		// Models loaded, interval started — setupStatus transitions to 'detecting'
+		expect(wrapper.text()).toContain('Position your face')
+	})
+>>>>>>> da6c1f3 (fix: make course, video and sidebar controls reachable by keyboard)
 })
 
 describe('ProctoringMonitor — monitoring phase', () => {
@@ -253,5 +269,51 @@ describe('ProctoringMonitor — floating camera', () => {
 		expect(document.body.textContent).not.toContain('Show camera')
 
 		wrapper.unmount()
+	})
+})
+
+describe('ProctoringMonitor — assistive tech', () => {
+	// Guards: lost focus on minimise, and face status and camera errors not
+	// announced. Introduced in #2659; test added with the a11y audit remediation.
+	beforeEach(() => {
+		document.body.innerHTML = ''
+	})
+
+	it('makes the minimised camera inert and moves focus to Show camera and back', async () => {
+		const wrapper = mountMonitor({ active: true })
+		await flushPromises()
+		const minimise = document.querySelector<HTMLElement>(
+			'[aria-label="Minimise camera"]'
+		)!
+		const panel = minimise.closest('.overflow-hidden')!
+
+		minimise.click()
+		await flushPromises()
+		expect(panel.hasAttribute('inert')).toBe(true)
+		const show = document.activeElement as HTMLElement
+		expect(show.getAttribute('aria-label')).toBe('Show camera')
+
+		show.click()
+		await flushPromises()
+		expect(panel.hasAttribute('inert')).toBe(false)
+		expect(document.activeElement).toBe(minimise)
+		wrapper.unmount()
+	})
+
+	it('keeps the face status region mounted and announces a camera error', async () => {
+		const wrapper = mountMonitor()
+		const region = wrapper.get('[role="status"]:not(.fui-spinner)').element
+		await flushPromises()
+		expect(wrapper.get('[role="status"]:not(.fui-spinner)').element).toBe(
+			region
+		)
+		expect(region.textContent).toContain('Position your face')
+
+		getUserMediaMock.mockRejectedValue(new Error('NotAllowedError'))
+		const denied = mountMonitor()
+		await flushPromises()
+		expect(denied.get('[role="alert"]').text()).toContain(
+			'Camera access was denied'
+		)
 	})
 })
