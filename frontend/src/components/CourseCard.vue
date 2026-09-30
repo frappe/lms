@@ -52,8 +52,9 @@
 				<div v-if="course.lessons">
 					<Tooltip :text="__('Lessons')">
 						<span class="flex items-center">
-							<span class="lucide-book-open size-4 me-1" />
-							{{ course.lessons }}
+							<span class="lucide-book-open size-4 me-1" aria-hidden="true" />
+							<span aria-hidden="true">{{ course.lessons }}</span>
+							<span class="sr-only">{{ lessonCount }}</span>
 						</span>
 					</Tooltip>
 				</div>
@@ -61,8 +62,15 @@
 				<div v-if="course.enrollments">
 					<Tooltip :text="__('Enrolled Students')">
 						<span class="flex items-center">
-							<span class="lucide-users size-4 me-1" />
-							{{ formatAmount(course.enrollments) }}
+							<span class="lucide-users size-4 me-1" aria-hidden="true" />
+							<span aria-hidden="true">
+								{{ formatAmount(course.enrollments) }}
+							</span>
+							<span class="sr-only">
+								{{
+									__('{0} enrolled').format(formatAmount(course.enrollments))
+								}}
+							</span>
 						</span>
 					</Tooltip>
 				</div>
@@ -72,14 +80,26 @@
 						<span class="flex items-center">
 							<LucideStar
 								class="size-4 me-1 text-transparent fill-ink-amber-7"
+								aria-hidden="true"
 							/>
-							{{ formatRating(course.rating) }}
+							<span aria-hidden="true">{{ formatRating(course.rating) }}</span>
+							<span class="sr-only">
+								{{
+									__('Rated {0} out of 5').format(formatRating(course.rating))
+								}}
+							</span>
 						</span>
 					</Tooltip>
 				</div>
 
 				<Tooltip v-if="course.featured" :text="__('Featured')">
-					<span class="lucide-award size-4 text-ink-amber-5" />
+					<span class="flex">
+						<span
+							class="lucide-award size-4 text-ink-amber-5"
+							aria-hidden="true"
+						/>
+						<span class="sr-only">{{ __('Featured') }}</span>
+					</span>
 				</Tooltip>
 			</div>
 
@@ -98,6 +118,7 @@
 			<ProgressBar
 				v-if="user && course.membership"
 				:progress="course.membership.progress"
+				:label="__('Course progress')"
 			/>
 
 			<div v-if="user && course.membership" class="text-sm mt-2 mb-4">
@@ -128,7 +149,13 @@
 						v-if="course.paid_certificate || course.enable_certification"
 						:text="__('Get Certified')"
 					>
-						<span class="lucide-graduation-cap size-5 text-ink-gray-7" />
+						<span class="flex">
+							<span
+								class="lucide-graduation-cap size-5 text-ink-gray-7"
+								aria-hidden="true"
+							/>
+							<span class="sr-only">{{ __('Get Certified') }}</span>
+						</span>
 					</Tooltip>
 				</div>
 			</div>
@@ -152,6 +179,12 @@ const props = defineProps({
 		default: null,
 	},
 })
+
+const lessonCount = computed(() =>
+	props.course.lessons == 1
+		? __('1 lesson')
+		: __('{0} lessons').format(props.course.lessons)
+)
 
 const gradientColor = computed(() => {
 	let color = props.course.card_gradient?.toLowerCase() || 'blue'
