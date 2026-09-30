@@ -55,8 +55,6 @@
 				<TabPanel value="tests">
 					<ExerciseTestCases
 						data-testid="tests-pane"
-						role="status"
-						aria-live="polite"
 						class="min-h-0 overflow-y-auto"
 						:results="results"
 						:duration="duration"
