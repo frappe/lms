@@ -105,27 +105,32 @@
 							<FormControl
 								:label="__('Billing Name')"
 								v-model="billingDetails.billing_name"
+								autocomplete="name"
 								:required="!!fieldMeta.billing_name?.reqd"
 							/>
 							<FormControl
 								:label="__('Address Line 1')"
 								v-model="billingDetails.address_line1"
+								autocomplete="address-line1"
 								:required="!!fieldMeta.address_line1?.reqd"
 							/>
 							<FormControl
 								:label="__('Address Line 2')"
 								v-model="billingDetails.address_line2"
+								autocomplete="address-line2"
 								:required="!!fieldMeta.address_line2?.reqd"
 							/>
 							<FormControl
 								:label="__('City')"
 								v-model="billingDetails.city"
+								autocomplete="address-level2"
 								:required="!!fieldMeta.city?.reqd"
 							/>
 							<Combobox
 								v-if="billingDetails.country == 'India'"
 								:label="__('State/Province')"
 								v-model="billingDetails.state"
+								autocomplete="address-level1"
 								:options="INDIAN_STATE_OPTIONS"
 								:placeholder="__('Select a state')"
 								:required="!!fieldMeta.state?.reqd"
@@ -134,6 +139,7 @@
 								v-else
 								:label="__('State/Province')"
 								v-model="billingDetails.state"
+								autocomplete="address-level1"
 								:required="!!fieldMeta.state?.reqd"
 							/>
 						</div>
@@ -148,11 +154,13 @@
 							<FormControl
 								:label="__('Postal Code')"
 								v-model="billingDetails.pincode"
+								autocomplete="postal-code"
 								:required="!!fieldMeta.pincode?.reqd"
 							/>
 							<FormControl
 								:label="__('Phone Number')"
 								v-model="billingDetails.phone"
+								autocomplete="tel"
 								:required="!!fieldMeta.phone?.reqd"
 							/>
 							<Link

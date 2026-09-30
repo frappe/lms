@@ -15,10 +15,14 @@
 				<div class="flex items-center gap-3">
 					<Switch
 						v-model="lesson.include_in_preview"
+						:aria-labelledby="previewLabelId"
 						@update:modelValue="markDirty"
 					/>
 					<div class="flex items-center gap-1.5">
-						<span class="text-p-base font-medium text-ink-gray-8">
+						<span
+							:id="previewLabelId"
+							class="text-p-base font-medium text-ink-gray-8"
+						>
 							{{ __('Include in preview') }}
 						</span>
 						<Tooltip
@@ -40,7 +44,10 @@
 				<div class="px-3 pb-2">
 					<div class="flex items-start justify-between gap-4 py-3">
 						<div class="min-w-0">
-							<div class="text-p-base font-medium text-ink-gray-8">
+							<div
+								:id="previewSheetLabelId"
+								class="text-p-base font-medium text-ink-gray-8"
+							>
 								{{ __('Include in preview') }}
 							</div>
 							<p class="mt-0.5 text-p-sm text-ink-gray-5">
@@ -53,6 +60,7 @@
 						</div>
 						<Switch
 							v-model="lesson.include_in_preview"
+							:aria-labelledby="previewSheetLabelId"
 							class="shrink-0"
 							@update:modelValue="markDirty"
 						/>
@@ -66,7 +74,7 @@
 				:placeholder="__('Lesson title')"
 				:aria-label="__('Lesson title')"
 				rows="1"
-				class="lesson-title block w-full resize-none overflow-hidden border-0 bg-transparent p-0 text-2xl font-bold leading-tight text-ink-gray-9 placeholder:text-ink-gray-4 focus:outline-none focus:ring-0"
+				class="lesson-title block w-full resize-none overflow-hidden border-0 bg-transparent p-0 text-2xl font-bold leading-tight text-ink-gray-9 placeholder:text-ink-gray-4 focus:outline-none focus:ring-0 focus-visible:ring-2 focus-visible:ring-outline-gray-5"
 				@input="onTitleInput"
 				@keydown.enter="onTitleEnter"
 			/>
@@ -129,6 +137,7 @@ import {
 	ref,
 	nextTick,
 	onBeforeUnmount,
+	useId,
 } from 'vue'
 import { ChevronRight, NotebookPen } from 'lucide-vue-next'
 import { useDebounceFn } from '@vueuse/core'
@@ -154,6 +163,8 @@ import {
 
 const { isMobile } = useScreenSize()
 const showLessonDetails = ref(false)
+const previewLabelId = useId()
+const previewSheetLabelId = useId()
 
 const editor = ref(null)
 const instructorEditor = ref(null)

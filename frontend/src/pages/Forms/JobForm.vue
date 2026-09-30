@@ -1,5 +1,8 @@
 <template>
 	<div class="">
+		<h1 class="sr-only">
+			{{ jobName == 'new' ? __('New Job') : jobDetails.doc?.job_title }}
+		</h1>
 		<PageHeader :breadcrumbs="breadcrumbs">
 			<template #actions>
 				<Badge v-if="isDirty" theme="amber">
@@ -48,6 +51,7 @@
 							:required="true"
 						/>
 						<RichTextEditor
+							:ariaLabelledby="descriptionLabelId"
 							:content="job.description"
 							@change="(val) => (job.description = val)"
 							:editable="true"

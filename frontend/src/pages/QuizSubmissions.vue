@@ -19,18 +19,21 @@
 				v-model="filters.quiz"
 				align="end"
 				:placeholder="__('Filter by Quiz')"
+				:aria-label="__('Filter by Quiz')"
 			/>
 			<Link
 				doctype="User"
 				v-model="filters.member"
 				align="end"
 				:placeholder="__('Filter by Member')"
+				:aria-label="__('Filter by Member')"
 			/>
 			<Link
 				doctype="LMS Course"
 				v-model="filters.course"
 				align="end"
 				:placeholder="__('Filter by Course')"
+				:aria-label="__('Filter by Course')"
 			/>
 		</template>
 
