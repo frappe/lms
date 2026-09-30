@@ -1,6 +1,6 @@
 <template>
 	<div class="border rounded-6 p-3 space-y-2">
-		<div class="text-ink-gray-5">
+		<div class="text-ink-gray-6">
 			{{ __(title) }}
 		</div>
 		<div class="flex items-center gap-x-2">

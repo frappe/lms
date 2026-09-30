@@ -52,7 +52,7 @@
 		</template>
 
 		<template #cell="{ column, value }">
-			<div v-if="column.key == 'modified'" class="text-sm text-ink-gray-5">
+			<div v-if="column.key == 'modified'" class="text-sm text-ink-gray-6">
 				{{ dayjs(value as string).format('MMM D, YYYY') }}
 			</div>
 			<div v-else>{{ value }}</div>

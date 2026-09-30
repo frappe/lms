@@ -81,7 +81,7 @@
 							</div>
 							<div>
 								<div v-safe-html:basic="decodeEntities(n.subject)" />
-								<div class="text-p-sm text-ink-gray-5">
+								<div class="text-p-sm text-ink-gray-6">
 									{{ dayjs(n.creation).fromNow() }}
 								</div>
 							</div>

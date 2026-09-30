@@ -25,7 +25,7 @@
 				:loading="authorizing"
 				@click="authorize"
 			/>
-			<p v-if="source.isNew" class="text-p-sm text-ink-gray-5 mt-2">
+			<p v-if="source.isNew" class="text-p-sm text-ink-gray-6 mt-2">
 				{{ __('Save the calendar before authorizing it.') }}
 			</p>
 		</div>

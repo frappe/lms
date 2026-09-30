@@ -21,7 +21,7 @@
 				}}</span>
 			</span>
 			<span class="flex items-center gap-x-2">
-				<span v-if="duration !== null" class="text-xs text-ink-gray-5">
+				<span v-if="duration !== null" class="text-xs text-ink-gray-6">
 					{{ __('Ran in {0}s').format(duration.toFixed(2)) }}
 				</span>
 				<KeyboardShortcut combo="Mod+`" class="shrink-0 opacity-60" />
@@ -112,7 +112,7 @@ useKeyboardShortcuts({
 
 const lineClass = (line: ConsoleLine) => {
 	if (line.stream === 'stderr') return 'text-ink-red-5'
-	if (line.stream === 'command') return 'text-ink-gray-5'
+	if (line.stream === 'command') return 'text-ink-gray-6'
 	return 'text-ink-gray-8'
 }
 </script>

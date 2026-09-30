@@ -33,7 +33,7 @@
 				</template>
 			</Button>
 			<div
-				class="min-w-0 flex-1 text-center text-p-xs font-medium tabular-nums text-ink-gray-5"
+				class="min-w-0 flex-1 text-center text-p-xs font-medium tabular-nums text-ink-gray-6"
 			>
 				{{ lessonIndex }} / {{ lessonTotal }}
 			</div>
@@ -205,7 +205,7 @@
 							"
 							class="bg-surface-gray-2 p-3 rounded-5 mt-6"
 						>
-							<h2 class="text-ink-gray-5 font-medium">
+							<h2 class="text-ink-gray-6 font-medium">
 								{{ __('Instructor Notes') }}
 							</h2>
 							<div

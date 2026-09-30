@@ -19,7 +19,7 @@
 					<div class="text-p-base-medium text-ink-gray-7">
 						{{ __('Provider') }}
 					</div>
-					<div class="text-p-sm text-ink-gray-5">
+					<div class="text-p-sm text-ink-gray-6">
 						{{ __('Choose a provider to configure its credentials.') }}
 					</div>
 				</div>
@@ -79,7 +79,7 @@
 						<div class="text-p-base-medium text-ink-gray-7">
 							{{ __(field.label) }}
 						</div>
-						<div v-if="field.description" class="text-p-sm text-ink-gray-5">
+						<div v-if="field.description" class="text-p-sm text-ink-gray-6">
 							{{ __(field.description) }}
 						</div>
 					</div>

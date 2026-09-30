@@ -15,7 +15,7 @@
 						<div class="font-semibold text-ink-gray-9 leading-5 mb-1">
 							{{ cls.title }}
 						</div>
-						<div class="text-ink-gray-5 leading-5 mb-4">
+						<div class="text-ink-gray-6 leading-5 mb-4">
 							{{ cls.description }}
 						</div>
 						<LiveClassCard
@@ -42,7 +42,7 @@
 						name: 'Courses',
 					}"
 				>
-					<span class="flex items-center gap-x-1 text-ink-gray-5 text-xs">
+					<span class="flex items-center gap-x-1 text-ink-gray-6 text-xs">
 						<span>
 							{{ __('See all') }}
 						</span>
@@ -74,7 +74,7 @@
 						name: 'Batches',
 					}"
 				>
-					<span class="flex items-center gap-x-1 text-ink-gray-5 text-xs">
+					<span class="flex items-center gap-x-1 text-ink-gray-6 text-xs">
 						<span>
 							{{ __('See all') }}
 						</span>

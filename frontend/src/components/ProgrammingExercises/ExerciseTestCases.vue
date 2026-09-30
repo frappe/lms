@@ -1,7 +1,7 @@
 <template>
 	<div class="space-y-2.5 p-3.5">
 		<div class="flex items-center justify-between gap-x-2">
-			<span class="text-base text-ink-gray-5">
+			<span class="text-base text-ink-gray-6">
 				{{ summary }}
 			</span>
 			<Badge
@@ -42,13 +42,13 @@
 					</span>
 					<span
 						v-if="result.elapsed !== null"
-						class="shrink-0 text-base text-ink-gray-5"
+						class="shrink-0 text-base text-ink-gray-6"
 					>
 						{{ __('{0}s').format(result.elapsed.toFixed(2)) }}
 					</span>
 				</div>
 				<div class="flex items-baseline gap-x-2 ms-6">
-					<span class="shrink-0 text-base text-ink-gray-5">
+					<span class="shrink-0 text-base text-ink-gray-6">
 						{{ __('Expected') }}
 					</span>
 					<span class="font-mono text-base text-ink-gray-8">

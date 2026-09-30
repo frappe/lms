@@ -40,7 +40,7 @@
 				<div
 					class="min-w-0 space-y-2 border-b border-outline-gray-1 p-3.5 md:border-b-0 md:border-e"
 				>
-					<div class="text-sm text-ink-gray-5">{{ __('Brief') }}</div>
+					<div class="text-sm text-ink-gray-6">{{ __('Brief') }}</div>
 					<div
 						v-safe-html:rich="assignment.data.question"
 						class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2 prose-sm max-w-none !whitespace-normal"
@@ -194,7 +194,7 @@
 							"
 							class="space-y-2 rounded-6 border border-outline-gray-2 bg-surface-gray-1 p-3"
 						>
-							<div class="text-sm text-ink-gray-5">
+							<div class="text-sm text-ink-gray-6">
 								{{ __('Comments by Evaluator') }}
 							</div>
 							<div
