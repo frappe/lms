@@ -8,6 +8,13 @@ from frappe import _
 from frappe.email.doctype.email_template.email_template import get_email_template
 from frappe.model.document import Document
 
+<<<<<<< HEAD
+=======
+from lms.lms.doctype.lms_enrollment.lms_enrollment import validate_identity_unchanged
+from lms.lms.permissions import can_author_batch, is_site_administrator
+from lms.lms.utils import has_moderator_role
+
+>>>>>>> 7779100 (fix(batch): scope who can enrol without payment)
 
 class LMSBatchEnrollment(Document):
 	def after_insert(self):
@@ -32,7 +39,7 @@ class LMSBatchEnrollment(Document):
 
 	def validate_payment(self):
 		paid_batch = frappe.db.get_value("LMS Batch", self.batch, "paid_batch")
-		if paid_batch and not self.is_admin():
+		if paid_batch and not self.can_skip_payment():
 			payment = frappe.db.exists(
 				"LMS Payment",
 				{
@@ -59,6 +66,13 @@ class LMSBatchEnrollment(Document):
 	def is_admin(self):
 		roles = frappe.get_roles(frappe.session.user)
 		return "Course Creator" in roles or "Moderator" in roles or "Batch Evaluator" in roles
+
+	def can_skip_payment(self):
+		"""Only a site admin or Moderator enrolls themselves without paying. The
+		batch's tagged instructors and evaluators may also enroll others free."""
+		if self.owner != self.member:
+			return can_author_batch(self.batch)
+		return is_site_administrator() or bool(has_moderator_role())
 
 	def validate_duplicate_members(self):
 		# Lock the batch row for the rest of this transaction before reading. The
