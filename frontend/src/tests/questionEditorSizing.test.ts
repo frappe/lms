@@ -1,6 +1,11 @@
 import { describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 
+<<<<<<< HEAD
+=======
+const stubProps = { current: {} as Record<string, unknown> }
+
+>>>>>>> 43fbfb0 (refactor(quiz): let RichTextEditor draw the question field's border)
 vi.mock('frappe-ui', () => ({
 	Button: { template: '<button><slot /></button>' },
 	Badge: { template: '<span><slot /></span>' },
@@ -13,7 +18,8 @@ vi.mock('@/components/RichTextEditor.vue', () => ({
 	default: {
 		name: 'RichTextEditorStub',
 		props: [
-			'editorClass',
+			'fill',
+			'minHeight',
 			'content',
 			'editable',
 			'fixedMenu',
@@ -24,6 +30,13 @@ vi.mock('@/components/RichTextEditor.vue', () => ({
 			'ariaInvalid',
 		],
 		emits: ['change', 'blur'],
+<<<<<<< HEAD
+=======
+		created() {
+			// @ts-expect-error - options API `this` inside a stub
+			stubProps.current = this.$props
+		},
+>>>>>>> 43fbfb0 (refactor(quiz): let RichTextEditor draw the question field's border)
 		template:
 			'<div class="text-editor-stub" :id="id" :aria-invalid="String(ariaInvalid)" />',
 	},
@@ -64,6 +77,50 @@ async function mountEditor(
 	})
 }
 
+<<<<<<< HEAD
+=======
+const classOf = (wrapper: ReturnType<typeof mount>) =>
+	wrapper.find('.text-editor-stub').element.parentElement!.className
+
+const sizing = () => stubProps.current
+
+describe('QuestionEditor fill', () => {
+	it('fills for an open ended question', async () => {
+		const wrapper = await mountEditor('open_ended', true)
+		expect(classOf(wrapper)).toContain('flex-1')
+		expect(sizing().fill).toBe(true)
+	})
+
+	it('fills for a choices question too', async () => {
+		const wrapper = await mountEditor('single', true)
+		expect(classOf(wrapper)).toContain('flex-1')
+		expect(sizing().fill).toBe(true)
+	})
+
+	it('keeps a floor so many options cannot squeeze it to nothing', async () => {
+		await mountEditor('single', true)
+		expect(sizing().fill).toBe(true)
+		expect(sizing().minHeight).toBe('6rem')
+	})
+
+	// A ten-option question needs more room than the dialog has. `min-h-0` let
+	// every ancestor shrink to nothing while the field kept its floor, so the
+	// toolbar rendered on top of the options.
+	it('never lets an ancestor shrink below the field it wraps', async () => {
+		const wrapper = await mountEditor('single', true)
+		expect(classOf(wrapper)).toContain('flex-1')
+		expect(classOf(wrapper)).not.toContain('min-h-0')
+	})
+
+	it('takes its natural height when the owner gives no height to fill', async () => {
+		const wrapper = await mountEditor('single', false)
+		expect(classOf(wrapper)).not.toContain('flex-1')
+		expect(sizing().fill).toBe(false)
+		expect(sizing().minHeight).toBe('5rem')
+	})
+})
+
+>>>>>>> 43fbfb0 (refactor(quiz): let RichTextEditor draw the question field's border)
 describe('QuestionEditor field labelling', () => {
 	const editorOf = (wrapper: ReturnType<typeof mount>) =>
 		wrapper.findComponent({ name: 'RichTextEditorStub' })
