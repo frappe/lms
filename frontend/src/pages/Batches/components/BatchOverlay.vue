@@ -180,7 +180,14 @@ const canAccessBatch = computed(() => {
 	if (!user.data) {
 		return false
 	}
-	return isModerator.value || isStudent.value || isEvaluator.value
+	// can_manage is per-batch: a Course Creator only manages a batch they are
+	// tagged an instructor/evaluator on, unlike the global isModerator/isEvaluator.
+	return (
+		isModerator.value ||
+		isStudent.value ||
+		isEvaluator.value ||
+		Boolean(props.batch.data?.can_manage)
+	)
 })
 
 const isAdmin = computed(() => {

@@ -10,9 +10,17 @@ import requests
 from frappe import _
 from frappe.desk.doctype.notification_log.notification_log import make_notification_logs
 from frappe.model.document import Document
+from frappe.query_builder import Bracket
 from frappe.utils import add_days, cint, format_datetime, get_time, nowdate
+from pypika.terms import LiteralValue
 
-from lms.lms.permissions import can_author_batch
+from lms.lms.permissions import (
+	administrable_assessment_names,
+	authored_batch_condition,
+	can_author_batch,
+	courses_authored_by,
+	is_site_administrator,
+)
 from lms.lms.utils import (
 	format_timezone,
 	generate_slug,
@@ -30,6 +38,7 @@ from lms.lms.utils import (
 class LMSBatch(Document):
 	def validate(self):
 		self._validate_mandatory()
+		self.validate_added_assessments_and_courses()
 		self.validate_seats_left()
 		self.validate_batch_end_date()
 		self.validate_batch_time()
@@ -48,6 +57,67 @@ class LMSBatch(Document):
 	def autoname(self):
 		if not self.name and self.title:
 			self.name = generate_slug(self.title, "LMS Batch")
+
+	def validate_added_assessments_and_courses(self):
+		"""A tagged Course Creator may add only assessments they administer and
+		courses they author. Checked against rows ADDED vs the stored batch, so
+		existing rows survive an edit made by someone else."""
+		user = frappe.session.user
+		roles = frappe.get_roles(user)
+		if is_site_administrator(user) or "Moderator" in roles or "Batch Evaluator" in roles:
+			return
+		if self.is_new():
+			return
+
+		stored_assessments = {
+			(row.assessment_type, row.assessment_name)
+			for row in frappe.get_all(
+				"LMS Assessment",
+				filters={"parent": self.name},
+				fields=["assessment_type", "assessment_name"],
+			)
+		}
+		added_assessments = [
+			row
+			for row in self.assessment
+			if (row.assessment_type, row.assessment_name) not in stored_assessments
+		]
+		self._validate_added_assessments(added_assessments, user)
+
+		stored_courses = set(frappe.get_all("Batch Course", filters={"parent": self.name}, pluck="course"))
+		added_courses = {row.course for row in self.courses if row.course not in stored_courses}
+		self._validate_added_courses(added_courses, user)
+
+	def _validate_added_assessments(self, added_assessments, user):
+		if not added_assessments:
+			return
+
+		by_type = {}
+		for row in added_assessments:
+			by_type.setdefault(row.assessment_type, set()).add(row.assessment_name)
+
+		for assessment_type, names in by_type.items():
+			# One query per assessment type in this batch, not one per row.
+			administrable = set(frappe.db.sql_list(administrable_assessment_names(assessment_type, user)))
+			unauthorised = names - administrable
+			if unauthorised:
+				frappe.throw(
+					_("You are not authorized to add {0} to this batch.").format(next(iter(unauthorised))),
+					frappe.PermissionError,
+				)
+
+	def _validate_added_courses(self, added_courses, user):
+		if not added_courses:
+			return
+
+		authored = courses_authored_by(user, added_courses)
+		unauthorised = added_courses - authored
+		if unauthorised:
+			title = frappe.db.get_value("LMS Course", next(iter(unauthorised)), "title")
+			frappe.throw(
+				_("You are not authorized to add {0} to this batch.").format(frappe.bold(title)),
+				frappe.PermissionError,
+			)
 
 	def validate_batch_end_date(self):
 		if self.end_date < self.start_date:
@@ -516,7 +586,9 @@ def has_permission(doc, ptype="read", user=None):
 		# A new batch has no tags yet; creation stays governed by the DocPerm grant.
 		return doc.is_new() or can_author_batch(doc.name, user=user)
 
-	if "Batch Evaluator" in roles:
+	# Batch Evaluator keeps its existing blanket read; any other tagged
+	# instructor/evaluator (e.g. Course Creator) is scoped to their own batch.
+	if "Batch Evaluator" in roles or can_author_batch(doc.name, user=user):
 		return True
 
 	is_enrolled = frappe.db.exists("LMS Batch Enrollment", {"batch": doc.name, "member": user})
@@ -531,9 +603,9 @@ def has_permission(doc, ptype="read", user=None):
 
 
 def get_permission_query_conditions(user=None):
-	"""List-read counterpart of has_permission above: published, or enrolled."""
+	"""List-read counterpart of has_permission above: published, enrolled, or authored."""
 	user = user or frappe.session.user
-	if user == "Administrator":
+	if is_site_administrator(user):
 		return ""
 
 	if user == "Guest" and not guest_access_allowed():
@@ -543,7 +615,11 @@ def get_permission_query_conditions(user=None):
 	if "Moderator" in roles or "Batch Evaluator" in roles:
 		return ""
 
-	escaped = frappe.db.escape(user)
-	return f"""(`tabLMS Batch`.published = 1 or `tabLMS Batch`.name in (
-		select batch from `tabLMS Batch Enrollment` where member = {escaped}
-	))"""
+	batch = frappe.qb.DocType("LMS Batch")
+	enrollment = frappe.qb.DocType("LMS Batch Enrollment")
+	member = LiteralValue(frappe.db.escape(user))
+	enrolled = frappe.qb.from_(enrollment).select(enrollment.batch).where(enrollment.member == member)
+	condition = Bracket(
+		(batch.published == 1) | batch.name.isin(enrolled) | authored_batch_condition(batch.name, user)
+	)
+	return condition.get_sql(with_namespace=True, quote_char="`" if frappe.db.db_type == "mariadb" else '"')

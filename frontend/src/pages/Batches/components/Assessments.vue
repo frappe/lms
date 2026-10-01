@@ -64,6 +64,12 @@ const props = defineProps({
 		type: String,
 		required: true,
 	},
+	// Per-batch: a Course Creator only manages a batch they author, unlike the
+	// session-wide user.data.is_instructor.
+	canManage: {
+		type: Boolean,
+		default: false,
+	},
 	rows: {
 		type: Array,
 	},
@@ -169,7 +175,7 @@ const getRowRoute = (row) => {
 
 const canAddAssessments = () => {
 	if (readOnlyMode) return false
-	return user.data?.is_moderator || user.data?.is_evaluator
+	return user.data?.is_moderator || user.data?.is_evaluator || props.canManage
 }
 
 const assessmentColumns = computed(() => {

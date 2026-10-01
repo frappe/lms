@@ -234,6 +234,13 @@
 			"report",
 			"export"
 		],
+		"Course Creator#0": [
+			"read",
+			"write",
+			"share",
+			"report",
+			"export"
+		],
 		"LMS Student#0": [
 			"read"
 		],
@@ -249,6 +256,15 @@
 	},
 	"LMS Batch Enrollment": {
 		"Batch Evaluator#0": [
+			"read",
+			"write",
+			"create",
+			"delete",
+			"share",
+			"report",
+			"export"
+		],
+		"Course Creator#0": [
 			"read",
 			"write",
 			"create",
@@ -605,6 +621,15 @@
 	},
 	"LMS Live Class": {
 		"Batch Evaluator#0": [
+			"read",
+			"write",
+			"create",
+			"delete",
+			"share",
+			"report",
+			"export"
+		],
+		"Course Creator#0": [
 			"read",
 			"write",
 			"create",
