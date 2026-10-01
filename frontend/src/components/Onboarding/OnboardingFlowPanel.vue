@@ -240,8 +240,8 @@
 			<Button
 				v-if="panelView === 'done'"
 				variant="ghost"
-				:label="text.later"
-				@click="closePanel"
+				:label="text.skipAll"
+				@click="skipAllFlows"
 			/>
 			<a
 				href="https://docs.frappe.io/learning"
@@ -276,6 +276,7 @@ const {
 	chooseCard,
 	cancelProvider,
 	closePanel,
+	skipAllFlows,
 	runDoneAction,
 	showAllFlows,
 	continueFlow,
@@ -297,7 +298,7 @@ const text = {
 	start: __('Start'),
 	pickerTitle: __('What do you want to do first?'),
 	pickerHint: __('Pick a goal and follow its checklist.'),
-	later: __('Maybe later'),
+	skipAll: __('Skip all'),
 	back: __('Back'),
 	allFlows: __('All flows'),
 	done: __('Done'),

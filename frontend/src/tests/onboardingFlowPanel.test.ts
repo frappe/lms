@@ -23,6 +23,7 @@ const {
 	runDoneAction,
 	showAllFlows,
 	continueFlow,
+	skipAllFlows,
 	progress,
 } = vi.hoisted(() => ({
 	state: {} as {
@@ -40,6 +41,7 @@ const {
 	runDoneAction: vi.fn(),
 	showAllFlows: vi.fn(),
 	continueFlow: vi.fn(),
+	skipAllFlows: vi.fn(),
 	progress: {
 		cards: {} as Record<string, { completed: number; total: number } | null>,
 		done: new Set<string>(),
@@ -56,6 +58,7 @@ vi.mock('@/onboarding/useLearningOnboarding', () => ({
 		runDoneAction,
 		showAllFlows,
 		continueFlow,
+		skipAllFlows,
 		cardProgress: (card: FlowCard) => progress.cards[card.id] ?? null,
 		flowProgress: () => ({ completed: 2, total: 4 }),
 		isCardComplete: (id: string) => progress.done.has(id),
@@ -109,6 +112,7 @@ beforeEach(() => {
 		closePanel,
 		showAllFlows,
 		continueFlow,
+		skipAllFlows,
 	])
 		fn.mockReset()
 	progress.cards = {}
@@ -142,9 +146,10 @@ describe('picker', () => {
 		expect(chooseCard).toHaveBeenCalledWith(id)
 	})
 
-	it('has no done title or Maybe later', () => {
+	it('has no done title or Skip all', () => {
 		const w = mountPanel()
 		expect(w.find('[data-testid="flow-done-title"]').exists()).toBe(false)
+		expect(w.text()).not.toContain('Skip all')
 		expect(w.text()).not.toContain('Maybe later')
 	})
 
@@ -192,11 +197,13 @@ describe('done view', () => {
 		)
 	})
 
-	it('closes on Maybe later', async () => {
+	it('offers Skip all instead of Maybe later', async () => {
 		const w = mountPanel()
-		const later = w.findAll('button').find((b) => b.text() === 'Maybe later')
-		await later?.trigger('click')
-		expect(closePanel).toHaveBeenCalledTimes(1)
+		expect(w.text()).not.toContain('Maybe later')
+		const skip = w.findAll('button').find((b) => b.text() === 'Skip all')
+		await skip?.trigger('click')
+		expect(skipAllFlows).toHaveBeenCalledTimes(1)
+		expect(closePanel).not.toHaveBeenCalled()
 	})
 
 	it('says so when nothing is left', () => {

@@ -10,6 +10,7 @@ type FakeStep = { name: string; completed: boolean }
 type FakeHandle = {
 	steps: FakeStep[]
 	updateOnboardingStep: ReturnType<typeof vi.fn>
+	skipAll: ReturnType<typeof vi.fn>
 	syncStatus: ReturnType<typeof vi.fn>
 	setUp: ReturnType<typeof vi.fn>
 	isOnboardingStepsCompleted: Ref<boolean>
@@ -58,6 +59,9 @@ function makeHandle() {
 			if (!state.steps.length) state.steps = steps
 		}),
 		syncStatus: vi.fn(),
+		skipAll: vi.fn(() => {
+			for (const step of state.steps) step.completed = true
+		}),
 		updateOnboardingStep: vi.fn((name: string) => {
 			const step = state.steps.find((s) => s.name === name)
 			if (step) step.completed = true
@@ -563,5 +567,31 @@ describe('cardProgress', () => {
 			completed: 1,
 			total: 6,
 		})
+	})
+})
+
+describe('skipAllFlows', () => {
+	it('skips exactly the unfinished flows and closes the panel', async () => {
+		const o = await load('publish_course')
+		await o.setUpAll(nav)
+		for (const step of handle('publish_course').steps) step.completed = true
+		handle('live_class_zoom').isOnboardingStepsCompleted.value = true
+		o.ui.showHelpModal.value = true
+
+		o.skipAllFlows()
+
+		expect(handle('publish_course').skipAll).not.toHaveBeenCalled()
+		expect(handle('live_class_zoom').skipAll).not.toHaveBeenCalled()
+		expect(handle('onboard_learners').skipAll).toHaveBeenCalledTimes(1)
+		expect(handle('live_class_meet').skipAll).toHaveBeenCalledTimes(1)
+		expect(o.ui.showHelpModal.value).toBe(false)
+	})
+
+	it('leaves nothing for the banner or the picker to offer', async () => {
+		const o = await load('publish_course')
+		await o.setUpAll(nav)
+		o.skipAllFlows()
+		expect(o.remainingCards.value).toHaveLength(0)
+		expect(o.panelView.value).toBe('done')
 	})
 })

@@ -284,6 +284,14 @@ function runDoneAction(): void {
 	if (flowNav) activeFlow.value?.doneAction.run(flowNav)
 }
 
+/** Skip every unfinished flow, both live class providers included, and close. */
+function skipAllFlows(): void {
+	for (const flow of FLOWS) {
+		if (!isFlowComplete(flow.id)) handles[flow.id]?.skipAll()
+	}
+	closePanel()
+}
+
 function closePanel(): void {
 	pendingCard.value = null
 	browsing.value = false
@@ -315,6 +323,7 @@ export function useLearningOnboarding() {
 		completeStep,
 		applyFacts,
 		closePanel,
+		skipAllFlows,
 		runDoneAction,
 	}
 }
