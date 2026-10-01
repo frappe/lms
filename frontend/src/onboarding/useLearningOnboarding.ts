@@ -35,6 +35,8 @@ const flowSteps: Partial<Record<FlowId, FlowStep[]>> = {}
 const isSetUp = ref(false)
 // A card with several flows waiting on a provider choice. Not persisted.
 const pendingCard = ref<CardId | null>(null)
+// "All flows" opened over an unfinished active flow. Not persisted.
+const browsing = ref(false)
 let flowNav: FlowNavigation | null = null
 let storedFlow: Ref<string | null> | null = null
 
@@ -87,9 +89,45 @@ const providerFlows = computed<OnboardingFlow[]>(
 	() => getCard(pendingCard.value)?.flows ?? []
 )
 
+export interface Progress {
+	completed: number
+	total: number
+}
+
+function flowProgress(id: FlowId): Progress {
+	const handle = handles[id]
+	return {
+		completed: handle?.stepsCompleted.value ?? 0,
+		total: handle?.totalSteps.value ?? 0,
+	}
+}
+
+/** The active flow while it still has steps to do; the picker pins it. */
+const resumableFlow = computed<OnboardingFlow | null>(() => {
+	const active = activeFlow.value
+	return active && !isFlowComplete(active.id) ? active : null
+})
+
+const pickerCards = computed<FlowCard[]>(() =>
+	CARDS.filter((card) => card.id !== resumableFlow.value?.card)
+)
+
+/**
+ * A card's step count: its only flow, the active provider, or a provider
+ * already started. Null when no provider has been picked or started yet.
+ */
+function cardProgress(card: FlowCard): Progress | null {
+	const flow =
+		card.flows.find((f) => f.id === activeFlowId.value) ??
+		(card.flows.length === 1
+			? card.flows[0]
+			: card.flows.find((f) => flowProgress(f.id).completed > 0))
+	return flow ? flowProgress(flow.id) : null
+}
+
 const panelView = computed<PanelView>(() => {
 	if (pendingCard.value) return 'provider'
-	if (!activeFlow.value) return 'picker'
+	if (browsing.value || !activeFlow.value) return 'picker'
 	return isFlowComplete(activeFlow.value.id) ? 'done' : 'checklist'
 })
 
@@ -224,8 +262,18 @@ function cancelProvider(): void {
 	pendingCard.value = null
 }
 
+function showAllFlows(): void {
+	pendingCard.value = null
+	browsing.value = true
+}
+
+function continueFlow(): void {
+	browsing.value = false
+}
+
 function setFlow(id: FlowId | null): void {
 	pendingCard.value = null
+	browsing.value = false
 	flowStorage().value = id
 	if (!id) return
 	minimize.value = false
@@ -238,6 +286,7 @@ function runDoneAction(): void {
 
 function closePanel(): void {
 	pendingCard.value = null
+	browsing.value = false
 	showHelpModal.value = false
 }
 
@@ -248,11 +297,17 @@ export function useLearningOnboarding() {
 		activeFlow,
 		activeFlowId,
 		remainingCards,
+		pickerCards,
+		resumableFlow,
 		providerFlows,
 		panelView,
 		bannerFlow,
 		isFlowComplete,
 		isCardComplete,
+		flowProgress,
+		cardProgress,
+		showAllFlows,
+		continueFlow,
 		setUpAll,
 		setFlow,
 		chooseCard,

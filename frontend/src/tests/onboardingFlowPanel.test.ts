@@ -21,10 +21,15 @@ const {
 	cancelProvider,
 	closePanel,
 	runDoneAction,
+	showAllFlows,
+	continueFlow,
+	progress,
 } = vi.hoisted(() => ({
 	state: {} as {
 		activeFlow: Ref<OnboardingFlow | null>
+		resumableFlow: Ref<OnboardingFlow | null>
 		remainingCards: Ref<FlowCard[]>
+		pickerCards: Ref<FlowCard[]>
 		providerFlows: Ref<OnboardingFlow[]>
 		panelView: Ref<'checklist' | 'picker' | 'done' | 'provider'>
 	},
@@ -33,6 +38,12 @@ const {
 	cancelProvider: vi.fn(),
 	closePanel: vi.fn(),
 	runDoneAction: vi.fn(),
+	showAllFlows: vi.fn(),
+	continueFlow: vi.fn(),
+	progress: {
+		cards: {} as Record<string, { completed: number; total: number } | null>,
+		done: new Set<string>(),
+	},
 }))
 
 vi.mock('@/onboarding/useLearningOnboarding', () => ({
@@ -43,10 +54,16 @@ vi.mock('@/onboarding/useLearningOnboarding', () => ({
 		cancelProvider,
 		closePanel,
 		runDoneAction,
+		showAllFlows,
+		continueFlow,
+		cardProgress: (card: FlowCard) => progress.cards[card.id] ?? null,
+		flowProgress: () => ({ completed: 2, total: 4 }),
+		isCardComplete: (id: string) => progress.done.has(id),
 	}),
 }))
 
 vi.mock('frappe-ui', () => ({
+	Badge: { props: ['label', 'theme'], template: '<span>{{ label }}</span>' },
 	Button: {
 		props: ['label', 'variant'],
 		emits: ['click'],
@@ -65,6 +82,13 @@ vi.mock('@framework/ui/components/Onboarding/index', async () => {
 	return { minimize: vueRef(false) }
 })
 
+vi.mock('@/components/Onboarding/OnboardingChecklist.vue', () => ({
+	default: {
+		props: ['flow'],
+		template: '<div data-testid="checklist" :data-key="flow.key" />',
+	},
+}))
+
 vi.mock('@/components/Icons/LMSLogo.vue', () => ({
 	default: { template: '<svg />' },
 }))
@@ -78,11 +102,22 @@ function mountPanel() {
 }
 
 beforeEach(() => {
-	for (const fn of [setFlow, chooseCard, cancelProvider, closePanel])
+	for (const fn of [
+		setFlow,
+		chooseCard,
+		cancelProvider,
+		closePanel,
+		showAllFlows,
+		continueFlow,
+	])
 		fn.mockReset()
+	progress.cards = {}
+	progress.done = new Set()
 	runDoneAction.mockReset()
 	state.activeFlow = ref(null)
 	state.remainingCards = ref([...CARDS])
+	state.pickerCards = ref([...CARDS])
+	state.resumableFlow = ref(null)
 	state.providerFlows = ref([])
 	state.panelView = ref('picker')
 })
@@ -199,5 +234,62 @@ describe('provider choice', () => {
 		await w.find('[data-testid="provider-back"]').trigger('click')
 		expect(cancelProvider).toHaveBeenCalledTimes(1)
 		expect(setFlow).not.toHaveBeenCalled()
+	})
+})
+
+describe('checklist view', () => {
+	beforeEach(() => {
+		state.activeFlow.value = meetFlow
+		state.panelView.value = 'checklist'
+	})
+
+	it('renders the checklist for the active flow', () => {
+		const w = mountPanel()
+		expect(w.find('[data-testid="checklist"]').attributes('data-key')).toBe(
+			'learning_live_class_meet'
+		)
+	})
+
+	it('goes back to all flows without dropping the active one', async () => {
+		const w = mountPanel()
+		await w.find('[data-testid="all-flows"]').trigger('click')
+		expect(showAllFlows).toHaveBeenCalledTimes(1)
+		expect(setFlow).not.toHaveBeenCalled()
+	})
+
+	it('has no back control outside the checklist', () => {
+		state.panelView.value = 'picker'
+		const w = mountPanel()
+		expect(w.find('[data-testid="all-flows"]').exists()).toBe(false)
+	})
+})
+
+describe('picker progress', () => {
+	it('pins the unfinished active flow as Continue, with its progress', async () => {
+		state.activeFlow.value = meetFlow
+		state.resumableFlow.value = meetFlow
+		state.pickerCards.value = [publishCourse, onboardLearners]
+		const w = mountPanel()
+		const resume = w.find('[data-testid="continue-flow"]')
+		expect(resume.text()).toContain(`Continue: ${meetFlow.title}`)
+		expect(resume.text()).toContain('2/4')
+		await resume.trigger('click')
+		expect(continueFlow).toHaveBeenCalledTimes(1)
+		expect(w.findAll('[data-testid="picker-flow"]')).toHaveLength(2)
+	})
+
+	it('has no Continue row without an unfinished active flow', () => {
+		const w = mountPanel()
+		expect(w.find('[data-testid="continue-flow"]').exists()).toBe(false)
+	})
+
+	it('shows each card’s progress or a done badge', () => {
+		progress.cards = { publish_course: { completed: 3, total: 6 } }
+		progress.done = new Set(['onboard_learners'])
+		const w = mountPanel()
+		const rows = w.findAll('[data-testid="picker-flow"]')
+		expect(rows[0].text()).toContain('3/6')
+		expect(rows[1].text()).toContain('Done')
+		expect(rows[2].text()).not.toMatch(/\d+\/\d+|Done/)
 	})
 })

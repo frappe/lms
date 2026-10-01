@@ -130,22 +130,7 @@
 				"
 			/>
 		</div>
-		<HelpModal
-			data-testid="onboarding-help-modal"
-			v-if="isSetUp && showHelpModal && panelView === 'checklist'"
-			:key="activeFlow.key"
-			v-model="showHelpModal"
-			v-model:articles="articles"
-			:appName="activeFlow.key"
-			title="Frappe Learning"
-			:logo="LMSLogo"
-			:afterSkip="(step) => capture('onboarding_step_skipped_' + step)"
-			:afterSkipAll="() => capture('onboarding_steps_skipped')"
-			:afterReset="(step) => capture('onboarding_step_reset_' + step)"
-			:afterResetAll="() => capture('onboarding_steps_reset')"
-			docsLink="https://docs.frappe.io/learning"
-		/>
-		<OnboardingFlowPanel v-else-if="isSetUp && showHelpModal" />
+		<OnboardingFlowPanel v-if="isSetUp && showHelpModal" />
 		<IntermediateStepModal
 			v-model="showIntermediateModal"
 			:currentStep="currentStep"
@@ -168,19 +153,16 @@ import {
 	Tooltip,
 } from 'frappe-ui'
 import { buildSidebarRows } from '@/utils/sidebarRows'
-import LMSLogo from '@/components/Icons/LMSLogo.vue'
 import { useRouter } from 'vue-router'
 import { openFormRoute } from '@/composables/useFormRoute'
 import { ref, onMounted, inject, watch, onUnmounted, computed } from 'vue'
 import { TrialBanner } from '@framework/ui/components/TrialBanner/index'
 import {
-	HelpModal,
 	GettingStartedBanner,
 	showHelpModal,
 	minimize,
 	IntermediateStepModal,
 } from '@framework/ui/components/Onboarding/index'
-import { useTelemetry } from '@framework/ui/telemetry/index'
 import UserDropdown from '@/components/Sidebar/UserDropdown.vue'
 import SidebarLink from '@/components/Sidebar/SidebarLink.vue'
 import CommandPalette from '@/components/CommandPalette/CommandPalette.vue'
@@ -197,7 +179,6 @@ const { userResource } = usersStore()
 let sidebarStore = useSidebar()
 const socket = inject('$socket')
 const sidebarLinks = ref(null)
-const { capture } = useTelemetry()
 const isInstructor = ref(false)
 const { sidebarSettings, programs, loadSidebarSettings } = useSettings()
 const settingsStore = useSettings()
@@ -208,8 +189,7 @@ const readOnlyMode = window.read_only_mode
 const readOnlyNotice = __(
 	'This site is being updated. You will not be able to make any changes. Full access will be restored shortly.'
 )
-const { isSetUp, activeFlow, panelView, bannerFlow, setUpAll } =
-	useLearningOnboarding()
+const { isSetUp, bannerFlow, setUpAll } = useLearningOnboarding()
 
 onMounted(() => {
 	setUpOnboarding()
@@ -263,73 +243,6 @@ const setCollapsed = (collapsed) => {
 	sidebarStore.isSidebarCollapsed = collapsed
 	localStorage.setItem('isSidebarCollapsed', JSON.stringify(collapsed))
 }
-
-const articles = ref([
-	{
-		title: __('Introduction'),
-		opened: false,
-		subArticles: [
-			{ name: 'introduction', title: __('Introduction') },
-			{ name: 'setting-up', title: __('Setting up') },
-		],
-	},
-	{
-		title: __('Creating a course'),
-		opened: false,
-		subArticles: [
-			{ name: 'create-a-course', title: __('Create a course') },
-			{ name: 'add-a-chapter', title: __('Add a chapter') },
-			{ name: 'add-a-lesson', title: __('Add a lesson') },
-		],
-	},
-	{
-		title: __('Creating a batch'),
-		opened: false,
-		subArticles: [
-			{ name: 'create-a-batch', title: __('Create a batch') },
-			{ name: 'create-a-live-class', title: __('Create a live class') },
-		],
-	},
-	{
-		title: __('Learning Paths'),
-		opened: false,
-		subArticles: [{ name: 'add-a-program', title: __('Add a program') }],
-	},
-	{
-		title: __('Assessments'),
-		opened: false,
-		subArticles: [
-			{ name: 'quizzes', title: __('Quizzes') },
-			{ name: 'assignments', title: __('Assignments') },
-		],
-	},
-	{
-		title: __('Certification'),
-		opened: false,
-		subArticles: [
-			{ name: 'issue-a-certificate', title: __('Issue a Certificate') },
-			{
-				name: 'custom-certificate-templates',
-				title: __('Custom Certificate Templates'),
-			},
-		],
-	},
-	{
-		title: __('Monetization'),
-		opened: false,
-		subArticles: [
-			{
-				name: 'setting-up-payment-gateway',
-				title: __('Setting up payment gateway'),
-			},
-		],
-	},
-	{
-		title: __('Settings'),
-		opened: false,
-		subArticles: [{ name: 'roles', title: __('Roles') }],
-	},
-])
 
 // Step clicks tuck the panel away so the page they open is visible.
 const flowNavigation = {

@@ -6,10 +6,31 @@
 		data-testid="onboarding-flow-panel"
 		@click.stop
 	>
-		<div class="flex items-center justify-between px-2 py-1.5">
-			<h2 :id="headingId" class="text-base font-medium">
-				{{ text.heading }}
-			</h2>
+		<div class="flex items-center justify-between gap-1 px-2 py-1.5">
+			<div class="flex min-w-0 items-center gap-1">
+				<Button
+					v-if="panelView === 'checklist'"
+					variant="ghost"
+					class="-ms-2"
+					data-testid="all-flows"
+					:label="text.allFlows"
+					@click="showAllFlows"
+				>
+					<template #prefix>
+						<LucideChevronLeft
+							class="size-4 rtl:rotate-180"
+							aria-hidden="true"
+						/>
+					</template>
+				</Button>
+				<h2
+					:id="headingId"
+					class="truncate text-base font-medium"
+					:class="{ 'sr-only': panelView === 'checklist' }"
+				>
+					{{ text.heading }}
+				</h2>
+			</div>
 			<div class="flex gap-1">
 				<Button
 					variant="ghost"
@@ -29,7 +50,13 @@
 		</div>
 
 		<div class="h-full overflow-y-auto flex flex-col gap-4">
-			<template v-if="panelView === 'done' && activeFlow">
+			<OnboardingChecklist
+				v-if="panelView === 'checklist' && activeFlow"
+				:key="activeFlow.key"
+				:flow="activeFlow"
+			/>
+
+			<template v-else-if="panelView === 'done' && activeFlow">
 				<div class="flex flex-col items-center gap-1 mt-4 px-2 text-center">
 					<span
 						class="flex size-10 items-center justify-center rounded-full bg-surface-green-2 text-ink-green-7 mb-3"
@@ -140,9 +167,35 @@
 						{{ remainingCards.length ? text.pickerHint : text.allDone }}
 					</p>
 				</div>
+				<button
+					v-if="resumableFlow"
+					type="button"
+					class="flex items-center gap-3 rounded-6 border border-outline-gray-2 px-2 py-2.5 text-start transition-colors hover:bg-surface-gray-2 focus-visible:bg-surface-gray-2"
+					data-testid="continue-flow"
+					@click="continueFlow"
+				>
+					<span
+						class="flex size-8 shrink-0 items-center justify-center rounded-5 bg-surface-gray-2 text-ink-gray-7"
+						aria-hidden="true"
+					>
+						<component :is="resumableFlow.icon" class="size-4" />
+					</span>
+					<span class="min-w-0 flex-1">
+						<span class="block text-p-sm font-medium text-ink-gray-9">
+							{{ continueLabel(resumableFlow.title) }}
+						</span>
+						<span class="block text-p-xs text-ink-gray-5">
+							{{ stepCount(flowProgress(resumableFlow.id)) }}
+						</span>
+					</span>
+					<LucideChevronRight
+						class="size-4 shrink-0 text-ink-gray-4 rtl:rotate-180"
+						aria-hidden="true"
+					/>
+				</button>
 				<div class="flex flex-col gap-0.5">
 					<button
-						v-for="card in remainingCards"
+						v-for="card in pickerCards"
 						:key="card.id"
 						type="button"
 						class="group flex items-center gap-3 rounded-6 px-2 py-2.5 text-start transition-colors hover:bg-surface-gray-2 focus-visible:bg-surface-gray-2"
@@ -162,6 +215,17 @@
 							<span class="block text-p-xs text-ink-gray-5">
 								{{ card.description }}
 							</span>
+						</span>
+						<Badge
+							v-if="isCardComplete(card.id)"
+							theme="green"
+							:label="text.done"
+						/>
+						<span
+							v-else-if="cardProgress(card)"
+							class="shrink-0 text-p-xs text-ink-gray-5"
+						>
+							{{ stepCount(cardProgress(card)!) }}
 						</span>
 						<LucideChevronRight
 							class="size-4 shrink-0 text-ink-gray-4 rtl:rotate-180"
@@ -193,15 +257,19 @@
 
 <script setup lang="ts">
 import { useId } from 'vue'
-import { Button } from 'frappe-ui'
+import { Badge, Button } from 'frappe-ui'
 import { HelpIcon, MaximizeIcon, MinimizeIcon } from 'frappe-ui/icons'
 import { minimize } from '@framework/ui/components/Onboarding/index'
 import LMSLogo from '@/components/Icons/LMSLogo.vue'
+import OnboardingChecklist from '@/components/Onboarding/OnboardingChecklist.vue'
+import type { Progress } from '@/onboarding/useLearningOnboarding'
 import { useLearningOnboarding } from '@/onboarding/useLearningOnboarding'
 
 const {
 	activeFlow,
+	resumableFlow,
 	remainingCards,
+	pickerCards,
 	providerFlows,
 	panelView,
 	setFlow,
@@ -209,6 +277,11 @@ const {
 	cancelProvider,
 	closePanel,
 	runDoneAction,
+	showAllFlows,
+	continueFlow,
+	flowProgress,
+	cardProgress,
+	isCardComplete,
 } = useLearningOnboarding()
 
 const headingId = useId()
@@ -226,9 +299,22 @@ const text = {
 	pickerHint: __('Pick a goal and follow its checklist.'),
 	later: __('Maybe later'),
 	back: __('Back'),
+	allFlows: __('All flows'),
+	done: __('Done'),
 	providerTitle: __('Which meeting tool do you use?'),
 	providerHint: __('The checklist depends on your choice.'),
 	helpCentre: __('Help centre'),
+}
+
+function continueLabel(title: string): string {
+	return __('Continue: {0}').format(title)
+}
+
+function stepCount(progress: Progress): string {
+	return __('{0}/{1} steps').format(
+		String(progress.completed),
+		String(progress.total)
+	)
 }
 
 function startLabel(title: string): string {

@@ -489,3 +489,79 @@ describe('runDoneAction', () => {
 		expect(nav.openRoute).not.toHaveBeenCalled()
 	})
 })
+
+describe('moving between all flows and the current one', () => {
+	it('shows all flows over an unfinished flow without dropping it', async () => {
+		const o = await load('onboard_learners')
+		await o.setUpAll(nav)
+		o.showAllFlows()
+		expect(o.panelView.value).toBe('picker')
+		expect(o.activeFlowId.value).toBe('onboard_learners')
+		expect(o.resumableFlow.value?.id).toBe('onboard_learners')
+	})
+
+	it('continue returns to the checklist', async () => {
+		const o = await load('onboard_learners')
+		await o.setUpAll(nav)
+		o.showAllFlows()
+		o.continueFlow()
+		expect(o.panelView.value).toBe('checklist')
+	})
+
+	it('picking another flow from all flows switches to it', async () => {
+		const o = await load('onboard_learners')
+		await o.setUpAll(nav)
+		o.showAllFlows()
+		o.chooseCard('publish_course')
+		expect(o.activeFlowId.value).toBe('publish_course')
+		expect(o.panelView.value).toBe('checklist')
+	})
+
+	it('lists every card but the one being continued', async () => {
+		const o = await load('onboard_learners')
+		await o.setUpAll(nav)
+		expect(o.pickerCards.value.map((c) => c.id)).toEqual([
+			'publish_course',
+			'live_class',
+		])
+		handle('onboard_learners').isOnboardingStepsCompleted.value = true
+		expect(o.resumableFlow.value).toBeNull()
+		expect(o.pickerCards.value).toHaveLength(3)
+	})
+
+	it('reopening the panel goes back to the checklist', async () => {
+		const o = await load('onboard_learners')
+		await o.setUpAll(nav)
+		o.showAllFlows()
+		o.closePanel()
+		expect(o.panelView.value).toBe('checklist')
+	})
+})
+
+describe('cardProgress', () => {
+	it('counts a single-flow card’s steps', async () => {
+		const o = await load()
+		await o.setUpAll(nav)
+		handle('publish_course').steps[0].completed = true
+		expect(o.cardProgress(o.pickerCards.value[0])).toEqual({
+			completed: 1,
+			total: 6,
+		})
+	})
+
+	it('has no count for a live class with no provider started', async () => {
+		const o = await load()
+		await o.setUpAll(nav)
+		expect(o.cardProgress(o.pickerCards.value[2])).toBeNull()
+	})
+
+	it('follows the provider that has been started', async () => {
+		const o = await load()
+		await o.setUpAll(nav)
+		handle('live_class_meet').steps[1].completed = true
+		expect(o.cardProgress(o.pickerCards.value[2])).toEqual({
+			completed: 1,
+			total: 6,
+		})
+	})
+})

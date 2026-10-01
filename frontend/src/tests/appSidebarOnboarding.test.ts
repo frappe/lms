@@ -160,20 +160,18 @@ describe('AppSidebar onboarding', () => {
 		expect(onboarding.setUpAll).toHaveBeenCalledTimes(1)
 	})
 
-	it('shows the flow panel, not the checklist, with no active flow', async () => {
+	it('shows the flow panel with no active flow', async () => {
 		const w = await build()
 		expect(w.find('[data-testid="flow-panel"]').exists()).toBe(true)
 		expect(w.find('[data-testid="onboarding-help-modal"]').exists()).toBe(false)
 	})
 
-	it('binds the checklist to the active flow', async () => {
+	it('shows the checklist in the LMS panel, never the framework modal', async () => {
 		onboarding.activeFlow.value = { key: 'learning_live_class_meet' }
 		onboarding.panelView.value = 'checklist'
 		const w = await build()
-		expect(
-			w.find('[data-testid="onboarding-help-modal"]').attributes('data-app')
-		).toBe('learning_live_class_meet')
-		expect(w.find('[data-testid="flow-panel"]').exists()).toBe(false)
+		expect(w.find('[data-testid="flow-panel"]').exists()).toBe(true)
+		expect(w.find('[data-testid="onboarding-help-modal"]').exists()).toBe(false)
 	})
 
 	it('shows the done panel once the active flow is complete', async () => {
