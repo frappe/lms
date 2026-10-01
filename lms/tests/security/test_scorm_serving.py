@@ -86,6 +86,7 @@ class TestScormServing(BaseTestUtils):
 	def test_asset_of_an_authorised_chapter_is_served(self):
 		response = self._render_as(self.learner.name, f"scorm/{self.course_a.name}/{self.dir_a}/res/app.js")
 		self.assertEqual(self._body(response), "var a = 1;")
+		self.assertEqual(response.headers.get("X-Content-Type-Options"), "nosniff")
 
 	def test_package_dir_serves_its_index(self):
 		response = self._render_as(self.learner.name, f"scorm/{self.course_a.name}/{self.dir_a}")

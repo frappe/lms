@@ -116,5 +116,6 @@ class SCORMRenderer(BaseRenderer):
 	def _serve_file(self, path):
 		f = open(path, "rb")
 		response = Response(wrap_file(frappe.local.request.environ, f), direct_passthrough=True)
-		response.mimetype = mimetypes.guess_type(path)[0]
+		response.mimetype = mimetypes.guess_type(path)[0] or "application/octet-stream"
+		response.headers["X-Content-Type-Options"] = "nosniff"
 		return response
