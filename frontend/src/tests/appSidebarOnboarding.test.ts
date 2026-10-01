@@ -223,8 +223,12 @@ describe('AppSidebar onboarding', () => {
 		})
 		stillOpen()
 
-		nav.openSettings('members')
-		expect(pushSettingsHash).toHaveBeenCalledWith(expect.anything(), 'members')
+		nav.openSettings('members', 'new')
+		expect(pushSettingsHash).toHaveBeenCalledWith(
+			expect.anything(),
+			'members',
+			'new'
+		)
 		stillOpen()
 
 		nav.openExternal('/app/user-invitation/new')

@@ -60,7 +60,8 @@ export interface FlowNavigation {
 	facts: Partial<OnboardingFacts>
 	openRoute: (to: RouteLocationRaw) => void
 	openForm: (to: RouteLocationRaw) => void
-	openSettings: (slug: string) => void
+	/** A settings page; `record` 'new' opens its create form. */
+	openSettings: (slug: string, record?: string) => void
 	/** A page outside the SPA, such as a desk form, in a new tab. */
 	openExternal: (url: string) => void
 	complete: (step: string) => void
@@ -118,6 +119,29 @@ function openCourse(nav: FlowNavigation, hash: string): void {
 	const courseName = nav.facts.first_course
 	if (!courseName) return nav.openRoute({ name: 'Courses' })
 	nav.openRoute({ name: 'CourseDetail', params: { courseName }, hash })
+}
+
+function openChapterForm(nav: FlowNavigation): void {
+	const courseName = nav.facts.first_course
+	if (!courseName) return nav.openRoute({ name: 'Courses' })
+	nav.openForm({
+		name: 'ChapterForm',
+		params: { courseName, chapterName: 'new' },
+		hash: '#editor',
+	})
+}
+
+// The course editor treats a lesson number that does not exist yet as a new
+// lesson and opens LessonForm in create mode, so 1-1 starts the first lesson.
+function openNewLesson(nav: FlowNavigation): void {
+	const courseName = nav.facts.first_course
+	if (!courseName) return nav.openRoute({ name: 'Courses' })
+	nav.openRoute({
+		name: 'CourseDetail',
+		params: { courseName },
+		query: { editLesson: '1-1' },
+		hash: '#editor',
+	})
 }
 
 function openBatchForm(
@@ -196,7 +220,7 @@ const publishCourseFlow: OnboardingFlow = {
 			completed: false,
 			dependsOn: 'create_first_course',
 			fact: 'has_chapter',
-			onClick: () => openCourse(nav, '#editor'),
+			onClick: () => openChapterForm(nav),
 		},
 		{
 			name: 'create_first_lesson',
@@ -206,7 +230,7 @@ const publishCourseFlow: OnboardingFlow = {
 			completed: false,
 			dependsOn: 'create_first_chapter',
 			fact: 'has_lesson',
-			onClick: () => openCourse(nav, '#editor'),
+			onClick: () => openNewLesson(nav),
 		},
 		{
 			name: 'add_quiz',
@@ -262,7 +286,7 @@ const onboardLearnersFlow: OnboardingFlow = {
 			icon: stepIcon(InviteIcon),
 			completed: false,
 			fact: 'has_invited_student',
-			onClick: () => nav.openSettings('members'),
+			onClick: () => nav.openSettings('members', 'new'),
 		},
 		{
 			// The SPA has no email-invite screen; frappe's own User Invitation
@@ -291,7 +315,7 @@ const liveClassZoomFlow: OnboardingFlow = {
 			icon: stepIcon(Video),
 			completed: false,
 			fact: 'has_zoom_account',
-			onClick: () => nav.openSettings('zoom'),
+			onClick: () => nav.openSettings('zoom', 'new'),
 		},
 		scheduleLiveClass(nav),
 		publishBatch(nav),
@@ -321,7 +345,7 @@ const liveClassMeetFlow: OnboardingFlow = {
 			completed: false,
 			dependsOn: 'setup_google_api',
 			fact: 'has_google_calendar',
-			onClick: () => nav.openSettings('google-calendar'),
+			onClick: () => nav.openSettings('google-calendar', 'new'),
 		},
 		{
 			name: 'add_meet_account',
@@ -331,7 +355,7 @@ const liveClassMeetFlow: OnboardingFlow = {
 			completed: false,
 			dependsOn: 'connect_google_calendar',
 			fact: 'has_meet_account',
-			onClick: () => nav.openSettings('google-meet'),
+			onClick: () => nav.openSettings('google-meet', 'new'),
 		},
 		scheduleLiveClass(nav),
 		publishBatch(nav),

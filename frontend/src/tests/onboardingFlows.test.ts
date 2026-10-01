@@ -217,8 +217,6 @@ describe('step targets', () => {
 	}
 
 	it.each([
-		{ name: 'create_first_chapter', hash: '#editor' },
-		{ name: 'create_first_lesson', hash: '#editor' },
 		{ name: 'set_course_pricing', hash: '#settings' },
 		{ name: 'publish_course', hash: '#settings' },
 	])('$name opens the first course at $hash', ({ name, hash }) => {
@@ -231,11 +229,40 @@ describe('step targets', () => {
 		})
 	})
 
-	it('falls back to the course list without a first course', () => {
-		const nav = fakeNav()
+	it('opens the new-chapter form on the first course', () => {
+		const nav = fakeNav(facts)
 		click('publish_course', 'create_first_chapter', nav)
-		expect(nav.openRoute).toHaveBeenCalledWith({ name: 'Courses' })
+		expect(nav.openForm).toHaveBeenCalledWith({
+			name: 'ChapterForm',
+			params: { courseName: 'my-course', chapterName: 'new' },
+			hash: '#editor',
+		})
 	})
+
+	it('opens a new lesson in the first chapter in the course editor', () => {
+		const nav = fakeNav(facts)
+		click('publish_course', 'create_first_lesson', nav)
+		expect(nav.openRoute).toHaveBeenCalledWith({
+			name: 'CourseDetail',
+			params: { courseName: 'my-course' },
+			query: { editLesson: '1-1' },
+			hash: '#editor',
+		})
+	})
+
+	it.each([
+		{ name: 'create_first_chapter' },
+		{ name: 'create_first_lesson' },
+		{ name: 'set_course_pricing' },
+	])(
+		'$name falls back to the course list without a first course',
+		({ name }) => {
+			const nav = fakeNav()
+			click('publish_course', name, nav)
+			expect(nav.openRoute).toHaveBeenCalledWith({ name: 'Courses' })
+			expect(nav.openForm).not.toHaveBeenCalled()
+		}
+	)
 
 	it.each([
 		{ name: 'create_first_course', to: { name: 'NewCourse' }, via: 'openForm' },
@@ -268,19 +295,41 @@ describe('step targets', () => {
 	})
 
 	it.each([
-		{ id: 'onboard_learners', name: 'add_learner', slug: 'members' },
-		{ id: 'live_class_zoom', name: 'connect_zoom', slug: 'zoom' },
-		{ id: 'live_class_meet', name: 'setup_google_api', slug: 'services' },
+		{
+			id: 'onboard_learners',
+			name: 'add_learner',
+			slug: 'members',
+			record: 'new',
+		},
+		{
+			id: 'live_class_zoom',
+			name: 'connect_zoom',
+			slug: 'zoom',
+			record: 'new',
+		},
+		{
+			id: 'live_class_meet',
+			name: 'setup_google_api',
+			slug: 'services',
+			record: undefined,
+		},
 		{
 			id: 'live_class_meet',
 			name: 'connect_google_calendar',
 			slug: 'google-calendar',
+			record: 'new',
 		},
-		{ id: 'live_class_meet', name: 'add_meet_account', slug: 'google-meet' },
-	])('$name opens the $slug settings page', ({ id, name, slug }) => {
+		{
+			id: 'live_class_meet',
+			name: 'add_meet_account',
+			slug: 'google-meet',
+			record: 'new',
+		},
+	])('$name opens $slug settings at $record', ({ id, name, slug, record }) => {
 		const nav = fakeNav()
 		click(id, name, nav)
-		expect(nav.openSettings).toHaveBeenCalledWith(slug)
+		const args = record ? [slug, record] : [slug]
+		expect(nav.openSettings).toHaveBeenCalledWith(...args)
 	})
 
 	it.each(['live_class_zoom', 'live_class_meet'].map((id) => ({ id })))(
