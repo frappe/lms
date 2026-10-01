@@ -5,12 +5,14 @@ from lms.lms.onboarding import get_onboarding_facts
 from lms.lms.test_helpers import BaseTestUtils
 
 SAMPLE_COURSE_TITLE = "A guide to Frappe Learning"
+DEMO_QUIZ_TITLE = "Do you know Frappe Learning?"
 
 FLAG_KEYS = {
 	"has_course",
 	"has_chapter",
 	"has_lesson",
-	"has_course_image",
+	"has_quiz",
+	"has_course_pricing",
 	"has_published_course",
 	"has_invited_student",
 	"has_batch",
@@ -44,6 +46,7 @@ class TestOnboardingFacts(BaseTestUtils):
 			"Course Lesson",
 			"Course Chapter",
 			"LMS Course",
+			"LMS Quiz",
 			"LMS Zoom Settings",
 			"LMS Google Meet Settings",
 			"Google Calendar",
@@ -103,26 +106,58 @@ class TestOnboardingFacts(BaseTestUtils):
 
 	def test_course_facts_follow_the_first_course(self):
 		course = self._create_course(title="Onboarding Course")
-		frappe.db.set_value("LMS Course", course.name, {"published": 0, "image": None})
+		frappe.db.set_value("LMS Course", course.name, {"published": 0, "paid_course": 0, "course_price": 0})
 
 		facts = self._facts()
 		self.assertEqual(facts["first_course"], course.name)
 		self.assertTrue(facts["has_course"])
 		self.assertFalse(facts["has_chapter"])
 		self.assertFalse(facts["has_lesson"])
-		self.assertFalse(facts["has_course_image"])
+		self.assertFalse(facts["has_course_pricing"])
 		self.assertFalse(facts["has_published_course"])
 
 		chapter = self._create_chapter("Onboarding chapter", course.name)
 		self._create_lesson("Onboarding lesson", chapter.name, course.name)
-		frappe.db.set_value("LMS Course", course.name, {"published": 1, "image": "/files/cover.png"})
+		frappe.db.set_value(
+			"LMS Course", course.name, {"published": 1, "paid_course": 1, "course_price": 499}
+		)
 
 		facts = self._facts()
 		self.assertTrue(facts["has_chapter"])
 		self.assertTrue(facts["has_lesson"])
-		self.assertTrue(facts["has_course_image"])
+		self.assertTrue(facts["has_course_pricing"])
 		self.assertTrue(facts["has_published_course"])
 
+	# Guards: Set pricing ticking when only one of paid_course and course_price is set. Introduced in this
+	# branch (feat/onboarding-flows, PR pending); test added there to require both.
+	def test_pricing_needs_a_paid_course_with_a_price(self):
+		course = self._create_course(title="Onboarding Course")
+		frappe.db.set_value("LMS Course", course.name, {"paid_course": 1, "course_price": 0})
+		self.assertFalse(self._facts()["has_course_pricing"])
+
+		frappe.db.set_value("LMS Course", course.name, {"paid_course": 0, "course_price": 499})
+		self.assertFalse(self._facts()["has_course_pricing"])
+
+	def test_quiz_counts_but_the_demo_quiz_does_not(self):
+		self._insert_quiz(DEMO_QUIZ_TITLE)
+		self.assertFalse(self._facts()["has_quiz"])
+
+		self._insert_quiz("Onboarding quiz")
+		self.assertTrue(self._facts()["has_quiz"])
+
+	def _insert_quiz(self, title):
+		frappe.get_doc(
+			{
+				"doctype": "LMS Quiz",
+				"name": frappe.generate_hash(length=10),
+				"title": title,
+				"passing_percentage": 50,
+				"total_marks": 1,
+			}
+		).db_insert()
+
+	# Guards: batch details, live class or published ticking before the batch has them. Introduced in this
+	# branch (feat/onboarding-flows, PR pending); test added there to follow one batch through each step.
 	def test_batch_facts_follow_the_first_batch(self):
 		course = self._create_course(title="Onboarding Course")
 		self._create_evaluator()

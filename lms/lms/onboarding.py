@@ -1,6 +1,8 @@
 import frappe
 
 SAMPLE_COURSE_TITLE = "A guide to Frappe Learning"
+# Seeded with the sample course and removed by api.clear_demo_data.
+DEMO_QUIZ_TITLE = "Do you know Frappe Learning?"
 # lms/demo/demo_data.py creates these; clear_demo_data deletes the same list.
 DEMO_USERS = ["ash@ipp.com", "john.doe@example.com", "jane.smith@example.com", "jannat@example.com"]
 # Every new user gets LMS Student from a hook, so staff carry it too.
@@ -21,8 +23,11 @@ def get_onboarding_facts() -> dict[str, str | bool | None]:
 		"has_course": bool(first_course),
 		"has_chapter": _exists_for(first_course, "Course Chapter", {"course": first_course}),
 		"has_lesson": _exists_for(first_course, "Course Lesson", {"course": first_course}),
-		"has_course_image": _exists_for(
-			first_course, "LMS Course", {"name": first_course, "image": ["is", "set"]}
+		"has_quiz": bool(_first("LMS Quiz", {"title": ["!=", DEMO_QUIZ_TITLE]})),
+		"has_course_pricing": _exists_for(
+			first_course,
+			"LMS Course",
+			{"name": first_course, "paid_course": 1, "course_price": [">", 0]},
 		),
 		"has_published_course": _exists_for(
 			first_course, "LMS Course", {"name": first_course, "published": 1}
