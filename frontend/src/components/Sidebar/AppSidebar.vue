@@ -244,24 +244,13 @@ const setCollapsed = (collapsed) => {
 	localStorage.setItem('isSidebarCollapsed', JSON.stringify(collapsed))
 }
 
-// Step clicks tuck the panel away so the page they open is visible.
+// Step clicks navigate behind the panel; it stays open so the admin can carry
+// on with the next step.
 const flowNavigation = {
-	openRoute: (to) => {
-		minimize.value = true
-		router.push(to)
-	},
-	openForm: (to) => {
-		minimize.value = true
-		openFormRoute(router, to)
-	},
-	openSettings: (slug) => {
-		minimize.value = true
-		pushSettingsHash(router, slug)
-	},
-	openExternal: (url) => {
-		minimize.value = true
-		openExternal(url)
-	},
+	openRoute: (to) => router.push(to),
+	openForm: (to) => openFormRoute(router, to),
+	openSettings: (slug) => pushSettingsHash(router, slug),
+	openExternal: (url) => openExternal(url),
 }
 
 const setUpOnboarding = () => {

@@ -362,3 +362,21 @@ describe('stale stored ids', () => {
 		expect(w.find('[data-testid="flow-step"]').exists()).toBe(false)
 	})
 })
+
+describe('staying open', () => {
+	// Guards: starting a step closing or minimising the panel. Introduced in this
+	// branch (feat/onboarding-flows, PR pending); test added there to keep the
+	// panel open while navigating.
+	it('clicking a step row or its action navigates behind an open panel', async () => {
+		const { w } = await setUp()
+		const ui = await import('@framework/ui/components/Onboarding/index')
+		await w.findAll('[data-testid="flow-row"]')[0].trigger('click')
+		await flushPromises()
+		await w.findAll('[data-testid="step-open"]')[0].trigger('click')
+		await w.findAll('[data-testid="step-action"]')[0].trigger('click')
+		expect(nav.openForm).toHaveBeenCalledWith({ name: 'NewCourse' })
+		expect(ui.showHelpModal.value).toBe(true)
+		expect(ui.minimize.value).toBe(false)
+		expect(w.find('[data-testid="flow-step"]').exists()).toBe(true)
+	})
+})

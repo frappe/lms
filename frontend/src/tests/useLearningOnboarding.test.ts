@@ -23,6 +23,8 @@ const { framework, callMock, statusResource } = vi.hoisted(() => ({
 	framework: {
 		handles: {} as Record<string, FakeHandle>,
 		guest: false,
+		// Keys whose stored completed flag is already set when the page loads.
+		completed: new Set<string>(),
 	},
 	callMock: vi.fn(),
 	statusResource: { current: null as { loading: boolean } | null },
@@ -40,13 +42,13 @@ vi.mock('@framework/ui/components/Onboarding/index', async () => {
 		minimize: vueRef(true),
 		useOnboarding: (key: string) => {
 			if (framework.guest) return undefined
-			framework.handles[key] ??= makeHandle()
+			framework.handles[key] ??= makeHandle(framework.completed.has(key))
 			return framework.handles[key]
 		},
 	}
 })
 
-function makeHandle(): FakeHandle {
+function makeHandle(storedComplete = false): FakeHandle {
 	const state = reactive({ steps: [] as FakeStep[] })
 	const mark = (name: string, value: boolean) => {
 		const step = state.steps.find((s) => s.name === name)
@@ -56,7 +58,7 @@ function makeHandle(): FakeHandle {
 		get steps() {
 			return state.steps
 		},
-		isOnboardingStepsCompleted: ref(false),
+		isOnboardingStepsCompleted: ref(storedComplete),
 		setUp: vi.fn((steps: FakeStep[]) => {
 			if (!state.steps.length) state.steps = steps
 		}),
@@ -140,6 +142,7 @@ beforeEach(() => {
 	document.cookie = `user_id=${encodeURIComponent(USER)}`
 	framework.handles = {}
 	framework.guest = false
+	framework.completed = new Set()
 	statusResource.current = null
 	callMock.mockReset()
 	callMock.mockResolvedValue({})
@@ -692,6 +695,89 @@ describe('facts', () => {
 	})
 })
 
+describe('a key the framework already marks complete', () => {
+	// On reload the framework's syncStatus returns early for a completed key, so
+	// its steps keep completed: false while the flag says done.
+	beforeEach(() => {
+		framework.completed = new Set(['learning_live_class_meet'])
+	})
+
+	// Guards: a reloaded complete key showing open rows against a full count.
+	// Introduced in this branch (feat/onboarding-flows, PR pending); test added
+	// there to keep rows and count agreeing.
+	it('shows every step resolved, matching the count', async () => {
+		const o = await ready({
+			card: 'live_class',
+			answers: { live_class: 'meet' },
+		})
+		const steps = o.stepsOf('live_class_meet')
+		expect(steps.every((s) => s.completed)).toBe(true)
+		expect(o.flowProgress('live_class_meet').resolved).toBe(steps.length)
+		expect(steps.map((s) => o.stepStatus('live_class_meet', s))).toEqual(
+			steps.map(() => 'done')
+		)
+	})
+
+	it('leaves no step blocked', async () => {
+		const o = await ready({
+			card: 'live_class',
+			answers: { live_class: 'meet' },
+		})
+		const steps = o.stepsOf('live_class_meet')
+		expect(steps.map((s) => o.blocker('live_class_meet', s))).toEqual(
+			steps.map(() => undefined)
+		)
+	})
+
+	// Guards: earlier skips turning into done rows on a completed key.
+	// Introduced in this branch (feat/onboarding-flows, PR pending); test added
+	// there to keep skipped rows skipped.
+	it('keeps steps skipped earlier showing as skipped', async () => {
+		localStorage.setItem(
+			'learningOnboardingSkipped' + USER,
+			JSON.stringify({ learning_live_class_meet: ['setup_google_api'] })
+		)
+		const o = await ready({
+			card: 'live_class',
+			answers: { live_class: 'meet' },
+		})
+		const api = o.stepsOf('live_class_meet')[1]
+		expect(o.stepStatus('live_class_meet', api)).toBe('skipped')
+	})
+})
+
+describe('after Skip all on a flow', () => {
+	// Guards: rows after Skip all disagreeing with the resolved count.
+	// Introduced in this branch (feat/onboarding-flows, PR pending); test added
+	// there to keep rows and count agreeing.
+	it('every row is resolved and the count agrees', async () => {
+		const o = await ready()
+		o.toggleStep('publish_course', 'create_first_course')
+		o.skipRemaining('publish_course')
+		const steps = o.stepsOf('publish_course')
+		expect(steps.map((s) => o.stepStatus('publish_course', s))).toEqual([
+			'done',
+			'skipped',
+			'skipped',
+			'skipped',
+			'skipped',
+			'skipped',
+		])
+		expect(o.flowProgress('publish_course').resolved).toBe(6)
+	})
+
+	// Guards: a fact completion showing done in the count but not on the row.
+	// Introduced in this branch (feat/onboarding-flows, PR pending); test added
+	// there to keep rows and count agreeing.
+	it('a fact completion agrees between row and count', async () => {
+		const o = await ready()
+		o.applyFacts({ has_course: true })
+		const steps = o.stepsOf('publish_course')
+		expect(o.stepStatus('publish_course', steps[0])).toBe('done')
+		expect(o.flowProgress('publish_course').resolved).toBe(1)
+	})
+})
+
 describe('bannerFlow', () => {
 	// Guards: the banner ignoring the active card. Introduced in this branch
 	// (feat/onboarding-flows, PR pending); test added there to pin the banner
@@ -704,10 +790,36 @@ describe('bannerFlow', () => {
 		expect(o.bannerFlow.value?.id).toBe('live_class_zoom')
 	})
 
-	it('moves to the first unfinished card once the active one is done', async () => {
-		const o = await ready({ card: 'publish_course' })
-		finish('publish_course')
-		expect(o.bannerFlow.value?.card).toBe('onboard_learners')
+	// Guards: the banner jumping to another card while the panel still shows the
+	// done flow. Introduced in this branch (feat/onboarding-flows, PR pending);
+	// test added there to keep banner and panel agreeing.
+	it('stays on the active flow once it is done, so it agrees with the panel', async () => {
+		const o = await ready({
+			card: 'live_class',
+			answers: { live_class: 'meet' },
+		})
+		finish('live_class_meet')
+		expect(o.bannerFlow.value?.id).toBe('live_class_meet')
+	})
+
+	// Guards: the banner staying up after the active flow is done and dismissed.
+	// Introduced in this branch (feat/onboarding-flows, PR pending); test added
+	// there to pin hiding it.
+	it('hides once the active flow is done and its completed flag is set', async () => {
+		framework.completed = new Set(['learning_live_class_meet'])
+		const o = await ready({
+			card: 'live_class',
+			answers: { live_class: 'meet' },
+		})
+		expect(o.bannerFlow.value).toBeNull()
+	})
+
+	// Guards: the banner showing nothing when no card is active. Introduced in
+	// this branch (feat/onboarding-flows, PR pending); test added there to pin
+	// the fallback card.
+	it('borrows the first unfinished card with no active one', async () => {
+		const o = await ready()
+		expect(o.bannerFlow.value?.id).toBe('publish_course')
 	})
 
 	// Guards: the banner showing after every card is done and dismissed.
@@ -723,5 +835,126 @@ describe('bannerFlow', () => {
 			handle(key).isOnboardingStepsCompleted.value = true
 		}
 		expect(o.bannerFlow.value).toBeNull()
+	})
+})
+
+describe('staying open and moving on', () => {
+	// Guards: a fact ticking a step while the panel stays minimised. Introduced
+	// in this branch (feat/onboarding-flows, PR pending); test added there to
+	// bring the panel back.
+	it('a fact completing a step while minimised brings the panel back', async () => {
+		const o = await ready()
+		o.ui.minimize.value = true
+		o.applyFacts({ has_course: true })
+		expect(o.ui.minimize.value).toBe(false)
+	})
+
+	// Guards: a fact that ticks nothing un-minimising the panel. Introduced in
+	// this branch (feat/onboarding-flows, PR pending); test added there to leave
+	// it alone.
+	it('a fact that ticks nothing new leaves the panel alone', async () => {
+		const o = await ready()
+		o.ui.minimize.value = true
+		o.applyFacts({ has_course: false })
+		expect(o.ui.minimize.value).toBe(true)
+	})
+
+	// Guards: a form ticking a step while the panel stays minimised. Introduced
+	// in this branch (feat/onboarding-flows, PR pending); test added there to
+	// bring the panel back.
+	it('a form completing a step brings the panel back too', async () => {
+		const o = await ready()
+		o.ui.minimize.value = true
+		o.completeStep('create_first_course')
+		expect(o.ui.minimize.value).toBe(false)
+	})
+
+	// Guards: Start closing or minimising the panel on a normal step. Introduced
+	// in this branch (feat/onboarding-flows, PR pending); test added there to
+	// keep it open.
+	it('starting a step keeps the panel open and unminimised', async () => {
+		const o = await ready()
+		o.ui.showHelpModal.value = true
+		o.ui.minimize.value = false
+		o.startStep('publish_course', 'create_first_course')
+		expect(nav.openForm).toHaveBeenCalledWith({ name: 'NewCourse' })
+		expect(o.ui.showHelpModal.value).toBe(true)
+		expect(o.ui.minimize.value).toBe(false)
+	})
+
+	// Guards: Next step picking a done or blocked step. Introduced in this
+	// branch (feat/onboarding-flows, PR pending); test added there to pin the
+	// pick.
+	it('the next step is the first open, unblocked one', async () => {
+		const o = await ready()
+		expect(o.nextStep('publish_course')?.name).toBe('create_first_course')
+		o.toggleStep('publish_course', 'create_first_course')
+		expect(o.nextStep('publish_course')?.name).toBe('create_first_chapter')
+		o.skipStep('publish_course', 'create_first_chapter')
+		// The lesson depends on the chapter, which is now resolved by the skip.
+		expect(o.nextStep('publish_course')?.name).toBe('create_first_lesson')
+	})
+
+	// Guards: Next step offering a step on a finished flow. Introduced in this
+	// branch (feat/onboarding-flows, PR pending); test added there to pin the
+	// empty case.
+	it('has no next step once the flow is done', async () => {
+		const o = await ready()
+		finish('publish_course')
+		expect(o.nextStep('publish_course')).toBeNull()
+	})
+
+	it('remembers the step just ticked in the open flow', async () => {
+		const o = await ready()
+		o.openCardScreen('publish_course')
+		o.toggleStep('publish_course', 'create_first_course')
+		expect(o.justCompleted.value).toEqual({
+			flow: 'publish_course',
+			step: 'create_first_course',
+		})
+	})
+
+	it('remembers a step a form or a fact completed in the open flow', async () => {
+		const o = await ready()
+		o.openCardScreen('publish_course')
+		o.completeStep('create_first_course')
+		expect(o.justCompleted.value?.step).toBe('create_first_course')
+		o.applyFacts({ has_chapter: true })
+		expect(o.justCompleted.value?.step).toBe('create_first_chapter')
+	})
+
+	it('a step another flow owns does not replace it', async () => {
+		const o = await ready()
+		o.openCardScreen('publish_course')
+		o.toggleStep('publish_course', 'create_first_course')
+		o.completeStep('add_learner')
+		expect(o.justCompleted.value?.step).toBe('create_first_course')
+	})
+
+	it('clears once dismissed, undone or reset', async () => {
+		const o = await ready()
+		o.openCardScreen('publish_course')
+		o.toggleStep('publish_course', 'create_first_course')
+		o.dismissCompleted()
+		expect(o.justCompleted.value).toBeNull()
+
+		o.toggleStep('publish_course', 'add_quiz')
+		o.undoStep('publish_course', 'add_quiz')
+		expect(o.justCompleted.value).toBeNull()
+
+		o.toggleStep('publish_course', 'add_quiz')
+		o.resetFlow('publish_course')
+		expect(o.justCompleted.value).toBeNull()
+	})
+
+	it('is not persisted', async () => {
+		const o = await ready()
+		o.openCardScreen('publish_course')
+		o.toggleStep('publish_course', 'create_first_course')
+		await nextTick()
+		const keys = Object.keys(localStorage)
+		expect(
+			keys.some((k) => /completed/i.test(k) && k.includes('learning'))
+		).toBe(false)
 	})
 })

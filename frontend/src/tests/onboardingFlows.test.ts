@@ -143,6 +143,24 @@ describe('flow registry', () => {
 		expect(stepsOf(id).map((s) => s.title)).toEqual(titles)
 	})
 
+	it.each([
+		{
+			id: 'publish_course',
+			actions: ['Create', 'Add', 'Add', 'Add', 'Set', 'Publish'],
+		},
+		{ id: 'onboard_learners', actions: ['Import', 'Add', 'Invite'] },
+		{
+			id: 'live_class_zoom',
+			actions: ['Create', 'Connect', 'Schedule', 'Publish'],
+		},
+		{
+			id: 'live_class_meet',
+			actions: ['Create', 'Set up', 'Connect', 'Add', 'Schedule', 'Publish'],
+		},
+	])('$id gives every step a short action verb', ({ id, actions }) => {
+		expect(stepsOf(id).map((s) => s.actionLabel)).toEqual(actions)
+	})
+
 	it.each(flowRows)('$id has unique step names', ({ id }) => {
 		const names = stepsOf(id).map((s) => s.name)
 		expect(new Set(names).size).toBe(names.length)

@@ -69,6 +69,8 @@ export interface FlowNavigation {
 export interface FlowStep extends OnboardingStep {
 	/** Fact that marks this step done for work finished before onboarding. */
 	fact?: FactKey
+	/** Short verb on the step's action button, e.g. "Create". */
+	actionLabel: string
 }
 
 export interface OnboardingFlow {
@@ -137,6 +139,7 @@ function openBatch(nav: FlowNavigation): void {
 function createBatch(nav: FlowNavigation): FlowStep {
 	return {
 		name: 'create_first_batch',
+		actionLabel: __('Create'),
 		title: __('Create a batch'),
 		icon: stepIcon(Users),
 		completed: false,
@@ -148,6 +151,7 @@ function createBatch(nav: FlowNavigation): FlowStep {
 function publishBatch(nav: FlowNavigation): FlowStep {
 	return {
 		name: 'publish_batch',
+		actionLabel: __('Publish'),
 		title: __('Publish the batch'),
 		icon: stepIcon(Globe),
 		completed: false,
@@ -160,6 +164,7 @@ function publishBatch(nav: FlowNavigation): FlowStep {
 function scheduleLiveClass(nav: FlowNavigation): FlowStep {
 	return {
 		name: 'schedule_live_class',
+		actionLabel: __('Schedule'),
 		title: __('Schedule a live class'),
 		icon: stepIcon(Laptop),
 		completed: false,
@@ -176,6 +181,7 @@ const publishCourseFlow: OnboardingFlow = {
 	steps: (nav) => [
 		{
 			name: 'create_first_course',
+			actionLabel: __('Create'),
 			title: __('Create a course'),
 			icon: stepIcon(BookOpen),
 			completed: false,
@@ -184,6 +190,7 @@ const publishCourseFlow: OnboardingFlow = {
 		},
 		{
 			name: 'create_first_chapter',
+			actionLabel: __('Add'),
 			title: __('Add a chapter'),
 			icon: stepIcon(FolderTree),
 			completed: false,
@@ -193,6 +200,7 @@ const publishCourseFlow: OnboardingFlow = {
 		},
 		{
 			name: 'create_first_lesson',
+			actionLabel: __('Add'),
 			title: __('Add a lesson'),
 			icon: stepIcon(FileText),
 			completed: false,
@@ -202,6 +210,7 @@ const publishCourseFlow: OnboardingFlow = {
 		},
 		{
 			name: 'add_quiz',
+			actionLabel: __('Add'),
 			title: __('Add a quiz'),
 			icon: stepIcon(CircleHelp),
 			completed: false,
@@ -210,6 +219,7 @@ const publishCourseFlow: OnboardingFlow = {
 		},
 		{
 			name: 'set_course_pricing',
+			actionLabel: __('Set'),
 			title: __('Set pricing'),
 			icon: stepIcon(Banknote),
 			completed: false,
@@ -219,6 +229,7 @@ const publishCourseFlow: OnboardingFlow = {
 		},
 		{
 			name: 'publish_course',
+			actionLabel: __('Publish'),
 			title: __('Publish the course'),
 			icon: stepIcon(Globe),
 			completed: false,
@@ -236,6 +247,7 @@ const onboardLearnersFlow: OnboardingFlow = {
 	steps: (nav) => [
 		{
 			name: 'import_learners',
+			actionLabel: __('Import'),
 			title: __('Import learners in bulk'),
 			icon: stepIcon(Upload),
 			completed: false,
@@ -245,6 +257,7 @@ const onboardLearnersFlow: OnboardingFlow = {
 		},
 		{
 			name: 'add_learner',
+			actionLabel: __('Add'),
 			title: __('Add a learner by email'),
 			icon: stepIcon(InviteIcon),
 			completed: false,
@@ -255,6 +268,7 @@ const onboardLearnersFlow: OnboardingFlow = {
 			// The SPA has no email-invite screen; frappe's own User Invitation
 			// form sends the invitation when it is saved.
 			name: 'invite_learners',
+			actionLabel: __('Invite'),
 			title: __('Invite learners by email'),
 			icon: stepIcon(Mail),
 			completed: false,
@@ -272,6 +286,7 @@ const liveClassZoomFlow: OnboardingFlow = {
 		createBatch(nav),
 		{
 			name: 'connect_zoom',
+			actionLabel: __('Connect'),
 			title: __('Connect a Zoom account'),
 			icon: stepIcon(Video),
 			completed: false,
@@ -291,6 +306,7 @@ const liveClassMeetFlow: OnboardingFlow = {
 		createBatch(nav),
 		{
 			name: 'setup_google_api',
+			actionLabel: __('Set up'),
 			title: __('Set up Google API'),
 			icon: stepIcon(KeyRound),
 			completed: false,
@@ -299,6 +315,7 @@ const liveClassMeetFlow: OnboardingFlow = {
 		},
 		{
 			name: 'connect_google_calendar',
+			actionLabel: __('Connect'),
 			title: __('Connect Google Calendar'),
 			icon: stepIcon(CalendarCheck),
 			completed: false,
@@ -308,6 +325,7 @@ const liveClassMeetFlow: OnboardingFlow = {
 		},
 		{
 			name: 'add_meet_account',
+			actionLabel: __('Add'),
 			title: __('Add a Google Meet account'),
 			icon: stepIcon(Video),
 			completed: false,

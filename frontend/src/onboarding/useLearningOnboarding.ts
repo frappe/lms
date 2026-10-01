@@ -45,6 +45,8 @@ const isSetUp = ref(false)
 // Which screen the panel shows, and for which card. Not persisted.
 const requestedScreen = ref<Screen>('list')
 const openCardId = ref<CardId | null>(null)
+// The step just completed in the open flow, for the "done, next" line.
+const justCompleted = ref<{ flow: FlowId; step: string } | null>(null)
 
 function sessionUser(): string {
 	const cookies = new URLSearchParams(document.cookie.split('; ').join('&'))
@@ -161,6 +163,40 @@ function blocker(id: FlowId, step: FlowStep): FlowStep | undefined {
 	return parent && !parent.completed ? parent : undefined
 }
 
+/** The step to do next: the first one neither resolved nor blocked. */
+function nextStep(id: FlowId): FlowStep | null {
+	return (
+		stepsOf(id).find((step) => !step.completed && !blocker(id, step)) ?? null
+	)
+}
+
+// Only the open flow's steps get the confirmation line; a form or fact ticking
+// another flow's step should not replace what the admin is looking at.
+function noteCompleted(id: FlowId, step: string): void {
+	if (openFlow.value?.id === id) justCompleted.value = { flow: id, step }
+}
+
+// Un-minimising on a tick is ours, not the admin reopening the panel, so it
+// must not trigger another facts fetch through the minimise watcher.
+let selfUnminimised = false
+let watchingReturns = false
+
+function showProgress(): void {
+	if (!minimize.value) return
+	selfUnminimised = watchingReturns
+	minimize.value = false
+}
+
+function dismissCompleted(): void {
+	justCompleted.value = null
+}
+
+function forget(id: FlowId, step?: string): void {
+	const last = justCompleted.value
+	if (last?.flow === id && (!step || last.step === step))
+		justCompleted.value = null
+}
+
 function stepStatus(id: FlowId, step: FlowStep): StepStatus {
 	const flow = getFlow(id)
 	if (step.completed)
@@ -227,19 +263,18 @@ function nextCard(card: FlowCard): FlowCard | null {
 	return null
 }
 
-// The banner opens the panel, so it borrows a count: the active card's flow
-// while unfinished, else the next unfinished card's. Once every card is done it
-// stays on the active flow so the framework's "You are all set" card shows.
 const bannerFlow = computed<OnboardingFlow | null>(() => {
 	if (!isSetUp.value) return null
 	const active = activeCard.value
 	const activeFlow = active ? cardFlow(active) : null
-	if (activeFlow && !isFlowComplete(activeFlow.id)) return activeFlow
+	// With an active flow the banner shows that flow, so it never disagrees
+	// with the panel. It hides once that flow is done and its flag is set.
+	if (activeFlow)
+		return handles[activeFlow.id]?.isOnboardingStepsCompleted.value
+			? null
+			: activeFlow
 	const pending = CARDS.find((card) => !isCardComplete(card))
-	if (pending) return cardFlow(pending) ?? pending.flows[0]
-	if (activeFlow && !handles[activeFlow.id]?.isOnboardingStepsCompleted.value)
-		return activeFlow
-	return null
+	return pending ? countedFlow(pending) : null
 })
 
 function flowsOwning(step: string): OnboardingFlow[] {
@@ -263,14 +298,19 @@ function completeStep(step: string, targets: FlowTargets = {}): void {
 		if (targets[key] && !facts[key]) facts[key] = targets[key]
 	}
 	if (!isSetUp.value) return
-	for (const flow of flowsOwning(step)) {
+	const owners = flowsOwning(step)
+	for (const flow of owners) {
 		setSkipped(flow, step, false)
 		handles[flow.id]?.updateOnboardingStep(step)
+		noteCompleted(flow.id, step)
 	}
+	// Bring the panel back so the admin sees the tick and what is next.
+	if (owners.length) showProgress()
 }
 
 /** Tick steps whose work exists, and un-skip them. Never un-ticks anything. */
 function applyFacts(next: Partial<OnboardingFacts>): void {
+	let ticked = false
 	for (const key of ['first_course', 'first_batch'] as const) {
 		if (next[key]) facts[key] = next[key]
 	}
@@ -279,16 +319,23 @@ function applyFacts(next: Partial<OnboardingFacts>): void {
 			if (!step.fact || next[step.fact] !== true) continue
 			facts[step.fact] = true
 			if (isSkipped(flow, step.name)) setSkipped(flow, step.name, false)
-			if (!step.completed) handles[flow.id]?.updateOnboardingStep(step.name)
+			if (step.completed) continue
+			handles[flow.id]?.updateOnboardingStep(step.name)
+			noteCompleted(flow.id, step.name)
+			ticked = true
 		}
 	}
+	if (ticked) showProgress()
 }
 
 function toggleStep(id: FlowId, name: string): void {
 	const flow = getFlow(id)
 	const step = stepsOf(id).find((s) => s.name === name)
 	if (!flow || !step || blocker(id, step)) return
-	if (!step.completed) return handles[id]?.updateOnboardingStep(name, true)
+	if (!step.completed) {
+		handles[id]?.updateOnboardingStep(name, true)
+		return noteCompleted(id, name)
+	}
 	if (isSkipped(flow, name)) return setSkipped(flow, name, false)
 	undoStep(id, name)
 }
@@ -304,6 +351,7 @@ function undoStep(id: FlowId, name: string): void {
 	const flow = getFlow(id)
 	if (!flow) return
 	setSkipped(flow, name, false)
+	forget(id, name)
 	reopen(flow)?.reset(name)
 }
 
@@ -335,6 +383,7 @@ function resetFlow(id: FlowId): void {
 	const flow = getFlow(id)
 	if (!flow) return
 	reopen(flow)?.resetAll()
+	forget(id)
 	storage().skipped.value = Object.fromEntries(
 		Object.entries(storage().skipped.value).filter(([key]) => key !== flow.key)
 	)
@@ -346,6 +395,7 @@ function resetEverything(): void {
 	storage().answers.value = {}
 	storage().skipped.value = {}
 	storage().activeCard.value = null
+	justCompleted.value = null
 	openCardId.value = null
 	requestedScreen.value = 'list'
 }
@@ -420,9 +470,25 @@ function refetchFacts(): void {
 }
 
 function watchForReturns(): void {
+	watchingReturns = true
 	window.addEventListener('focus', refetchFacts)
 	watch(showHelpModal, (open) => open && refetchFacts())
-	watch(minimize, (minimized) => !minimized && refetchFacts())
+	watch(minimize, (minimized) => {
+		if (minimized) return
+		if (selfUnminimised) {
+			selfUnminimised = false
+			return
+		}
+		refetchFacts()
+	})
+}
+
+// syncStatus returns early for a key whose completed flag is already set, so
+// on a reload its steps keep completed: false while the flag says done. Make
+// the steps agree, so the rows, counts, blocking and the banner read one state.
+function settleCompletedKey(flow: OnboardingFlow): void {
+	if (!handles[flow.id]?.isOnboardingStepsCompleted.value) return
+	for (const step of stepsOf(flow.id)) step.completed = true
 }
 
 type SidebarNavigation = Omit<FlowNavigation, 'facts' | 'complete'>
@@ -452,7 +518,10 @@ async function setUpAll(nav: SidebarNavigation): Promise<void> {
 	}
 	showHelpModal.value = resume
 	await statusSettled()
-	for (const flow of FLOWS) handles[flow.id]?.syncStatus()
+	for (const flow of FLOWS) {
+		handles[flow.id]?.syncStatus()
+		settleCompletedKey(flow)
+	}
 	await loadFacts()
 	watchForReturns()
 }
@@ -473,6 +542,9 @@ export function useLearningOnboarding() {
 		cardFlow,
 		stepsOf,
 		stepStatus,
+		nextStep,
+		justCompleted,
+		dismissCompleted,
 		blocker,
 		flowProgress,
 		cardProgress,

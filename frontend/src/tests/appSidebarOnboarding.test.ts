@@ -202,27 +202,41 @@ describe('AppSidebar onboarding', () => {
 		expect(w.find('[data-testid="banner"]').exists()).toBe(false)
 	})
 
-	it('hands the flows a navigation that tucks the panel away', async () => {
+	// Guards: a step click closing or minimising the panel as it navigates.
+	// Introduced in this branch (feat/onboarding-flows, PR pending); test added
+	// there to check each navigation.
+	it('hands the flows a navigation that leaves the panel open and full size', async () => {
 		await build()
 		const nav = onboarding.setUpAll.mock.calls[0][0]
+		const stillOpen = () => {
+			expect(ui.showHelpModal.value).toBe(true)
+			expect(ui.minimize.value).toBe(false)
+		}
 
 		nav.openRoute({ name: 'Courses' })
 		expect(push).toHaveBeenCalledWith({ name: 'Courses' })
-		expect(ui.minimize.value).toBe(true)
+		stillOpen()
 
-		ui.minimize.value = false
 		nav.openForm({ name: 'NewBatch' })
 		expect(openFormRoute).toHaveBeenCalledWith(expect.anything(), {
 			name: 'NewBatch',
 		})
-		expect(ui.minimize.value).toBe(true)
+		stillOpen()
 
 		nav.openSettings('members')
 		expect(pushSettingsHash).toHaveBeenCalledWith(expect.anything(), 'members')
+		stillOpen()
 
-		ui.minimize.value = false
 		nav.openExternal('/app/user-invitation/new')
 		expect(openExternalMock).toHaveBeenCalledWith('/app/user-invitation/new')
-		expect(ui.minimize.value).toBe(true)
+		stillOpen()
+	})
+
+	it('keeps the panel mounted across a route change', async () => {
+		const w = await build()
+		const nav = onboarding.setUpAll.mock.calls[0][0]
+		nav.openRoute({ name: 'Batches' })
+		await w.vm.$nextTick()
+		expect(w.find('[data-testid="flow-panel"]').exists()).toBe(true)
 	})
 })

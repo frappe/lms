@@ -20,6 +20,8 @@ const { state, actions } = vi.hoisted(() => ({
 		answer: null as string | null,
 		next: null as unknown,
 		nextProgress: null as unknown,
+		nextStepName: null as string | null,
+		justCompleted: null as { flow: string; step: string } | null,
 	},
 	actions: {
 		toggleStep: vi.fn(),
@@ -30,6 +32,7 @@ const { state, actions } = vi.hoisted(() => ({
 		resetFlow: vi.fn(),
 		answer: vi.fn(),
 		openCardScreen: vi.fn(),
+		dismissCompleted: vi.fn(),
 	},
 }))
 
@@ -45,6 +48,13 @@ vi.mock('@/onboarding/useLearningOnboarding', () => ({
 		answerOf: () => state.answer,
 		nextCard: () => state.next,
 		cardProgress: () => state.nextProgress,
+		nextStep: () =>
+			state.steps.find((step) => step.name === state.nextStepName) ?? null,
+		justCompleted: {
+			get value() {
+				return state.justCompleted
+			},
+		},
 	}),
 }))
 
@@ -54,9 +64,9 @@ vi.mock('frappe-ui', () => ({
 		template: '<span class="badge" :data-theme="theme">{{ label }}</span>',
 	},
 	Button: {
-		props: ['label', 'variant', 'size'],
+		props: ['label', 'variant', 'size', 'disabled'],
 		emits: ['click'],
-		template: `<button type="button" :data-variant="variant" @click="$emit('click', $event)">{{ label }}<slot /></button>`,
+		template: `<button type="button" :data-variant="variant" :disabled="disabled" @click="$emit('click', $event)">{{ label }}<slot /></button>`,
 	},
 	Dropdown: {
 		props: ['options'],
@@ -95,6 +105,8 @@ beforeEach(() => {
 	state.answer = 'meet'
 	state.next = null
 	state.nextProgress = null
+	state.nextStepName = 'connect_google_calendar'
+	state.justCompleted = null
 })
 
 function mountFlow() {
@@ -280,19 +292,122 @@ describe('step rows', () => {
 	})
 })
 
+describe('step action buttons', () => {
+	const action = (w: ReturnType<typeof mountFlow>, i: number) =>
+		rows(w)[i].find('[data-testid="step-action"]')
+
+	it('gives each open step its verb, and done steps none', () => {
+		const w = mountFlow()
+		expect(
+			[0, 1, 2, 3, 4, 5].map((i) => {
+				const b = action(w, i)
+				return b.exists() ? b.text() : null
+			})
+		).toEqual([null, 'Do it', 'Connect', 'Add', 'Schedule', 'Publish'])
+	})
+
+	it('keeps every action ghost and marks the current one by colour', () => {
+		const w = mountFlow()
+		expect(action(w, 2).attributes('data-variant')).toBe('ghost')
+		expect(action(w, 2).classes()).toContain('!text-ink-gray-9')
+		expect(action(w, 4).attributes('data-variant')).toBe('ghost')
+		expect(action(w, 4).classes()).toContain('!text-ink-gray-6')
+		expect(action(w, 1).attributes('data-variant')).toBe('ghost')
+	})
+
+	it('disables a blocked step’s action', () => {
+		expect(action(mountFlow(), 3).attributes('disabled')).toBeDefined()
+	})
+
+	it('runs the step from its action, the skipped one included', async () => {
+		const w = mountFlow()
+		await action(w, 2).trigger('click')
+		expect(actions.startStep).toHaveBeenCalledWith(
+			'live_class_meet',
+			'connect_google_calendar'
+		)
+		await action(w, 1).trigger('click')
+		expect(actions.startStep).toHaveBeenCalledWith(
+			'live_class_meet',
+			'setup_google_api'
+		)
+	})
+
+	it('reserves the hover Skip’s space before the action', () => {
+		const row = rows(mountFlow())[2]
+		const buttons = row.findAll('button').map((b) => b.text())
+		expect(buttons.indexOf('Skip')).toBeLessThan(buttons.indexOf('Connect'))
+		const skip = row.findAll('button').find((b) => b.text() === 'Skip')!
+		expect(skip.classes()).toContain('invisible')
+		expect(skip.classes()).not.toContain('hidden')
+	})
+})
+
+describe('after a step is completed', () => {
+	it('confirms it and offers the next step', async () => {
+		state.justCompleted = {
+			flow: 'live_class_meet',
+			step: 'create_first_batch',
+		}
+		const w = mountFlow()
+		const done = w.find('[data-testid="step-done"]')
+		expect(done.text()).toContain('Create a batch done')
+		const next = done
+			.findAll('button')
+			.find((b) => b.text().startsWith('Next:'))!
+		expect(next.text()).toBe('Next: Connect Google Calendar')
+		await next.trigger('click')
+		expect(actions.startStep).toHaveBeenCalledWith(
+			'live_class_meet',
+			'connect_google_calendar'
+		)
+		expect(actions.dismissCompleted).toHaveBeenCalled()
+	})
+
+	it('ignores a step completed in another flow', () => {
+		state.justCompleted = { flow: 'publish_course', step: 'add_quiz' }
+		expect(mountFlow().find('[data-testid="step-done"]').exists()).toBe(false)
+	})
+
+	it('offers the next flow once no step is left', async () => {
+		state.complete = true
+		state.nextStepName = null
+		state.next = getCard('onboard_learners')
+		state.justCompleted = { flow: 'live_class_meet', step: 'publish_batch' }
+		const done = mountFlow().find('[data-testid="step-done"]')
+		const tryIt = done.findAll('button').find((b) => b.text() === 'Try it')!
+		await tryIt.trigger('click')
+		expect(actions.openCardScreen).toHaveBeenCalledWith('onboard_learners')
+		expect(actions.dismissCompleted).toHaveBeenCalled()
+	})
+
+	it('offers nothing more when every flow is done', () => {
+		state.complete = true
+		state.nextStepName = null
+		state.justCompleted = { flow: 'live_class_meet', step: 'publish_batch' }
+		const done = mountFlow().find('[data-testid="step-done"]')
+		expect(done.text()).toContain('Publish the batch done')
+		expect(done.findAll('button').map((b) => b.text())).not.toContain('Try it')
+	})
+})
+
 describe('when the flow is complete', () => {
 	beforeEach(() => {
 		state.complete = true
+		state.nextStepName = null
 	})
 
-	it('suggests the next card as a compact row', async () => {
+	it('suggests the next card under Try next, untruncated, with a ghost Try it', async () => {
 		state.next = getCard('onboard_learners')
 		const w = mountFlow()
+		expect(w.text()).toContain('Try next')
 		const next = w.find('[data-testid="next-up"]')
-		expect(next.text()).toContain('Onboard my existing learners')
-		const start = buttonIn(next, 'Start')!
-		expect(start.attributes('data-variant')).toBe('solid')
-		await start.trigger('click')
+		const title = next.find('[data-testid="next-title"]')
+		expect(title.text()).toBe('Onboard my existing learners')
+		expect(title.classes()).not.toContain('truncate')
+		const tryIt = buttonIn(next, 'Try it')!
+		expect(tryIt.attributes('data-variant')).toBe('ghost')
+		await tryIt.trigger('click')
 		expect(actions.openCardScreen).toHaveBeenCalledWith('onboard_learners')
 	})
 
