@@ -238,10 +238,16 @@
 
 		<div class="flex flex-col gap-1.5">
 			<Button
-				v-if="panelView === 'done'"
+				v-if="panelView === 'done' && !allCardsComplete"
 				variant="ghost"
 				:label="text.skipAll"
 				@click="skipAllFlows"
+			/>
+			<Button
+				v-else-if="panelView === 'done'"
+				variant="ghost"
+				:label="text.restart"
+				@click="restartOnboarding"
 			/>
 			<a
 				href="https://docs.frappe.io/learning"
@@ -277,6 +283,8 @@ const {
 	cancelProvider,
 	closePanel,
 	skipAllFlows,
+	restartOnboarding,
+	allCardsComplete,
 	runDoneAction,
 	showAllFlows,
 	continueFlow,
@@ -299,6 +307,7 @@ const text = {
 	pickerTitle: __('What do you want to do first?'),
 	pickerHint: __('Pick a goal and follow its checklist.'),
 	skipAll: __('Skip all'),
+	restart: __('Restart onboarding'),
 	back: __('Back'),
 	allFlows: __('All flows'),
 	done: __('Done'),

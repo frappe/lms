@@ -5,7 +5,7 @@
  */
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
-import { ref, type Ref } from 'vue'
+import { computed, ref, type Ref } from 'vue'
 import {
 	CARDS,
 	getFlow,
@@ -24,6 +24,7 @@ const {
 	showAllFlows,
 	continueFlow,
 	skipAllFlows,
+	restartOnboarding,
 	progress,
 } = vi.hoisted(() => ({
 	state: {} as {
@@ -42,9 +43,11 @@ const {
 	showAllFlows: vi.fn(),
 	continueFlow: vi.fn(),
 	skipAllFlows: vi.fn(),
+	restartOnboarding: vi.fn(),
 	progress: {
 		cards: {} as Record<string, { completed: number; total: number } | null>,
 		done: new Set<string>(),
+		allDone: false,
 	},
 }))
 
@@ -59,6 +62,8 @@ vi.mock('@/onboarding/useLearningOnboarding', () => ({
 		showAllFlows,
 		continueFlow,
 		skipAllFlows,
+		restartOnboarding,
+		allCardsComplete: computed(() => progress.allDone),
 		cardProgress: (card: FlowCard) => progress.cards[card.id] ?? null,
 		flowProgress: () => ({ completed: 2, total: 4 }),
 		isCardComplete: (id: string) => progress.done.has(id),
@@ -113,10 +118,12 @@ beforeEach(() => {
 		showAllFlows,
 		continueFlow,
 		skipAllFlows,
+		restartOnboarding,
 	])
 		fn.mockReset()
 	progress.cards = {}
 	progress.done = new Set()
+	progress.allDone = false
 	runDoneAction.mockReset()
 	state.activeFlow = ref(null)
 	state.remainingCards = ref([...CARDS])
@@ -204,6 +211,24 @@ describe('done view', () => {
 		await skip?.trigger('click')
 		expect(skipAllFlows).toHaveBeenCalledTimes(1)
 		expect(closePanel).not.toHaveBeenCalled()
+	})
+
+	it('hides Skip all and offers Restart once everything is done', async () => {
+		progress.allDone = true
+		state.remainingCards.value = []
+		const w = mountPanel()
+		const labels = w.findAll('button').map((b) => b.text())
+		expect(labels).not.toContain('Skip all')
+		const restart = w
+			.findAll('button')
+			.find((b) => b.text() === 'Restart onboarding')
+		await restart?.trigger('click')
+		expect(restartOnboarding).toHaveBeenCalledTimes(1)
+	})
+
+	it('has no Restart while a flow is unfinished', () => {
+		const w = mountPanel()
+		expect(w.text()).not.toContain('Restart onboarding')
 	})
 
 	it('says so when nothing is left', () => {

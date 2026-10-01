@@ -11,6 +11,7 @@ type FakeHandle = {
 	steps: FakeStep[]
 	updateOnboardingStep: ReturnType<typeof vi.fn>
 	skipAll: ReturnType<typeof vi.fn>
+	resetAll: ReturnType<typeof vi.fn>
 	syncStatus: ReturnType<typeof vi.fn>
 	setUp: ReturnType<typeof vi.fn>
 	isOnboardingStepsCompleted: Ref<boolean>
@@ -61,6 +62,9 @@ function makeHandle() {
 		syncStatus: vi.fn(),
 		skipAll: vi.fn(() => {
 			for (const step of state.steps) step.completed = true
+		}),
+		resetAll: vi.fn(() => {
+			for (const step of state.steps) step.completed = false
 		}),
 		updateOnboardingStep: vi.fn((name: string) => {
 			const step = state.steps.find((s) => s.name === name)
@@ -593,5 +597,51 @@ describe('skipAllFlows', () => {
 		o.skipAllFlows()
 		expect(o.remainingCards.value).toHaveLength(0)
 		expect(o.panelView.value).toBe('done')
+	})
+})
+
+describe('restartOnboarding', () => {
+	const ALL = [
+		'publish_course',
+		'onboard_learners',
+		'live_class_zoom',
+		'live_class_meet',
+	]
+
+	async function allDone() {
+		const o = await load('publish_course')
+		await o.setUpAll(nav)
+		o.skipAllFlows()
+		for (const key of ALL) handle(key).isOnboardingStepsCompleted.value = true
+		return o
+	}
+
+	it('counts onboarding finished once every card is done', async () => {
+		const o = await load('publish_course')
+		await o.setUpAll(nav)
+		expect(o.allCardsComplete.value).toBe(false)
+		for (const key of ['publish_course', 'onboard_learners', 'live_class_zoom'])
+			handle(key).isOnboardingStepsCompleted.value = true
+		expect(o.allCardsComplete.value).toBe(true)
+	})
+
+	it('resets every flow key, both providers included', async () => {
+		const o = await allDone()
+		o.restartOnboarding()
+		for (const key of ALL) {
+			expect(handle(key).resetAll).toHaveBeenCalledTimes(1)
+			expect(handle(key).isOnboardingStepsCompleted.value).toBe(false)
+		}
+	})
+
+	it('lands on the picker with no active flow', async () => {
+		const o = await allDone()
+		o.ui.showHelpModal.value = true
+		o.restartOnboarding()
+		expect(o.activeFlowId.value).toBeNull()
+		expect(o.panelView.value).toBe('picker')
+		expect(o.remainingCards.value).toHaveLength(3)
+		expect(o.allCardsComplete.value).toBe(false)
+		expect(o.ui.showHelpModal.value).toBe(true)
 	})
 })

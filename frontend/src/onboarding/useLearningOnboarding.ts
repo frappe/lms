@@ -85,6 +85,11 @@ const remainingCards = computed<FlowCard[]>(() => {
 	).sort((a, b) => rank(a) - rank(b))
 })
 
+/** Every card done: nothing left to skip, only a restart to offer. */
+const allCardsComplete = computed<boolean>(() =>
+	CARDS.every((card) => isCardComplete(card.id))
+)
+
 const providerFlows = computed<OnboardingFlow[]>(
 	() => getCard(pendingCard.value)?.flows ?? []
 )
@@ -292,6 +297,24 @@ function skipAllFlows(): void {
 	closePanel()
 }
 
+/**
+ * Start onboarding over: what the framework's HelpModal does on "Reset
+ * onboarding steps", for every flow key. Clearing the stored completed flag
+ * matters, or the framework's syncStatus returns early on the next load.
+ * Facts then re-tick whatever work still exists.
+ */
+function restartOnboarding(): void {
+	for (const flow of FLOWS) {
+		const handle = handles[flow.id]
+		if (!handle) continue
+		handle.resetAll()
+		handle.isOnboardingStepsCompleted.value = false
+	}
+	browsing.value = false
+	pendingCard.value = null
+	flowStorage().value = null
+}
+
 function closePanel(): void {
 	pendingCard.value = null
 	browsing.value = false
@@ -324,6 +347,8 @@ export function useLearningOnboarding() {
 		applyFacts,
 		closePanel,
 		skipAllFlows,
+		restartOnboarding,
+		allCardsComplete,
 		runDoneAction,
 	}
 }
