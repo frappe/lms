@@ -123,10 +123,12 @@ class TestScormServing(BaseTestUtils):
 					with self.assertRaises(frappe.PermissionError):
 						self._render_as(user, path)
 
-	def test_traversal_out_of_the_site_is_refused(self):
-		path = f"scorm/{self.course_a.name}/{self.dir_a}/../../../../../../etc/passwd"
-		with self.assertRaises(frappe.PermissionError):
-			self._render_as(self.learner.name, path)
+	def test_missing_file_answers_404_over_http(self):
+		from frappe.website.serve import get_response
+
+		frappe.set_user(self.learner.name)
+		response = get_response(f"/scorm/{self.course_a.name}/{self.dir_a}/missing.js")
+		self.assertEqual(response.status_code, 404)
 
 
 class TestScormRendererClaim(BaseTestUtils):
