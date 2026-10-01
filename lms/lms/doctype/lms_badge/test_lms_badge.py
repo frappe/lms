@@ -1,5 +1,8 @@
+from unittest.mock import patch
+
 import frappe
 
+from lms.lms.doctype.lms_badge_assignment.lms_badge_assignment import LMSBadgeAssignment
 from lms.lms.test_helpers import BaseTestUtils
 
 
@@ -45,3 +48,105 @@ class TestBadgeOnCourseSave(BaseTestUtils):
 		course = self._create_course(title="Manual Badge Course")
 		self.assertFalse(badge.rule_condition_satisfied(course))
 		self.assertEqual(self._assignments(badge), [])
+
+
+class TestLMSBadge(BaseTestUtils):
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
+		cls.hash = frappe.generate_hash(length=6)
+		cls.student = cls._create_user(f"badge-{cls.hash}@example.com", "Bea", "Student", ["LMS Student"])
+
+	def setUp(self):
+		super().setUp()
+		# The badge map lives in redis, so it outlives the rolled-back badges of each test.
+		frappe.cache_manager.clear_doctype_map("LMS Badge", "ToDo")
+		self.addCleanup(frappe.cache_manager.clear_doctype_map, "LMS Badge", "ToDo")
+
+	def _create_badge(self, title, event, condition, **extra):
+		badge = frappe.get_doc(
+			{
+				"doctype": "LMS Badge",
+				"title": f"{title} {self.hash} {frappe.generate_hash(length=4)}",
+				"event": event,
+				"reference_doctype": "ToDo",
+				"user_field": "allocated_to",
+				"condition": condition,
+				"image": "/assets/lms/images/badge.png",
+				"description": "A badge for testing automatic awards",
+				"enabled": 1,
+				**extra,
+			}
+		)
+		# nosemgrep: lms-unjustified-ignore-permissions - fixture seeding, not the permission under test
+		badge.insert(ignore_permissions=True)
+		return badge
+
+	def _save_todo_as_student(self, **values):
+		frappe.set_user(self.student.name)
+		try:
+			todo = frappe.get_doc({"doctype": "ToDo", "allocated_to": self.student.name, **values})
+			todo.insert()
+			return todo
+		finally:
+			frappe.set_user("Administrator")
+
+	def _assignments(self, badge):
+		return frappe.db.count("LMS Badge Assignment", {"badge": badge.name, "member": self.student.name})
+
+	def test_failing_badge_condition_does_not_fail_the_save(self):
+		"""A badge error failed the save of any document since #795.
+		Added for audit finding #21."""
+		badge = self._create_badge("Broken", "New", "doc.description.missing_attribute.upper()")
+
+		todo = self._save_todo_as_student(description="broken badge")
+
+		self.assertTrue(frappe.db.exists("ToDo", todo.name))
+		self.assertEqual(self._assignments(badge), 0)
+		self.assertTrue(
+			frappe.db.exists(
+				"Error Log",
+				{
+					"method": ["like", f"%{badge.name}%"],
+					"reference_doctype": "ToDo",
+					"reference_name": todo.name,
+				},
+			)
+		)
+
+	def test_failed_award_leaves_no_half_written_assignment(self):
+		"""The savepoint also undoes a half-written assignment. Same regression (#795), audit finding #21."""
+		badge = self._create_badge("Half written", "New", "doc.description == 'half'")
+
+		with patch.object(
+			LMSBadgeAssignment, "after_insert", side_effect=frappe.ValidationError, create=True
+		):
+			todo = self._save_todo_as_student(description="half")
+
+		self.assertTrue(frappe.db.exists("ToDo", todo.name))
+		self.assertEqual(self._assignments(badge), 0)
+
+	def test_badge_disabled_behind_the_cached_map_is_skipped(self):
+		"""A disabled badge still ran from the cached badge map since #795.
+		Added for audit finding #21."""
+		badge = self._create_badge("Quietly disabled", "New", "doc.description == 'quiet'")
+		self._save_todo_as_student(description="warm the badge map")
+		frappe.db.set_value("LMS Badge", badge.name, "enabled", 0)
+
+		todo = self._save_todo_as_student(description="quiet")
+
+		self.assertTrue(frappe.db.exists("ToDo", todo.name))
+		self.assertEqual(self._assignments(badge), 0)
+		self.assertFalse(frappe.db.exists("Error Log", {"method": ["like", f"%{badge.name}%"]}))
+
+	def test_deleted_badge_is_dropped_from_the_map(self):
+		"""A deleted badge still ran from the cached badge map since #795.
+		Added for audit finding #21."""
+		badge = self._create_badge("Deleted", "New", "doc.description == 'deleted'")
+		self._save_todo_as_student(description="warm the badge map")
+		frappe.delete_doc("LMS Badge", badge.name)
+
+		todo = self._save_todo_as_student(description="deleted")
+
+		self.assertTrue(frappe.db.exists("ToDo", todo.name))
+		self.assertFalse(frappe.db.exists("Error Log", {"method": ["like", f"%{badge.name}%"]}))
