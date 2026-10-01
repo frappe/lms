@@ -1,4 +1,5 @@
 <template>
+<<<<<<< HEAD
 	<div class="p-2">
 		<Dropdown :options="userDropdownOptions">
 			<template v-slot="{ open, close }">
@@ -62,6 +63,28 @@
 		v-if="userResource.data?.is_moderator"
 		v-model="showSettingsModal"
 	/>
+=======
+	<div class="py-2">
+		<SidebarHeader
+			:title="appName"
+			:subtitle="
+				userResource.data ? convertToTitleCase(userResource.data.full_name) : ''
+			"
+			:menuItems="userDropdownOptions"
+		>
+			<template #prefix>
+				<img
+					v-if="branding.data?.banner_image"
+					:src="safeUrl(branding.data?.banner_image.file_url)"
+					alt=""
+					class="size-full object-cover"
+				/>
+				<LMSLogo v-else class="size-full" />
+			</template>
+		</SidebarHeader>
+	</div>
+	<SettingsModal v-if="userResource.data?.is_moderator" />
+>>>>>>> fa03875 (fix: add vertical padding around the sidebar user dropdown)
 </template>
 
 <script setup>
