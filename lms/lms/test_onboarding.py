@@ -14,10 +14,10 @@ FLAG_KEYS = {
 	"has_quiz",
 	"has_course_pricing",
 	"has_published_course",
+	"has_imported_learners",
 	"has_invited_student",
+	"has_sent_invitation",
 	"has_batch",
-	"has_batch_course",
-	"has_batch_student",
 	"has_zoom_account",
 	"has_google_api",
 	"has_google_calendar",
@@ -50,6 +50,8 @@ class TestOnboardingFacts(BaseTestUtils):
 			"LMS Zoom Settings",
 			"LMS Google Meet Settings",
 			"Google Calendar",
+			"Data Import",
+			"User Invitation",
 		):
 			frappe.db.delete(doctype)
 		self._set_google_settings(enable=0, client_id=None, client_secret=None)
@@ -167,28 +169,64 @@ class TestOnboardingFacts(BaseTestUtils):
 		facts = self._facts()
 		self.assertEqual(facts["first_batch"], batch.name)
 		self.assertTrue(facts["has_batch"])
-		self.assertTrue(facts["has_batch_course"])
-		self.assertFalse(facts["has_batch_student"])
 		self.assertFalse(facts["has_live_class"])
 		self.assertFalse(facts["has_published_batch"])
 
-		student = self._create_user("onboarding-student@example.com", "Onb", "Student", ["LMS Student"])
-		self._create_batch_enrollment(student.name, batch.name)
 		self._insert_live_class(batch.name)
 		frappe.db.set_value("LMS Batch", batch.name, "published", 1)
 
 		facts = self._facts()
-		self.assertTrue(facts["has_batch_student"])
 		self.assertTrue(facts["has_live_class"])
 		self.assertTrue(facts["has_published_batch"])
 
-	def test_batch_without_courses_has_no_batch_course(self):
-		course = self._create_course(title="Onboarding Course")
-		self._create_evaluator()
-		batch = self._create_batch(course.name, title="Onboarding Batch")
-		frappe.db.delete("Batch Course", {"parent": batch.name})
+	# Guards: a failed, pending or non-User import ticking Import learners. Introduced in this branch
+	# (feat/onboarding-flows, PR pending); test added there to count only User imports that wrote rows.
+	def test_imported_learners_need_a_finished_user_import(self):
+		for status in ("Pending", "Error", "Timed Out"):
+			self._insert_data_import("User", status)
+		self._insert_data_import("LMS Course", "Success")
+		self.assertFalse(self._facts()["has_imported_learners"])
 
-		self.assertFalse(self._facts()["has_batch_course"])
+		self._insert_data_import("User", "Partial Success")
+		self.assertTrue(self._facts()["has_imported_learners"])
+
+	def test_a_successful_user_import_counts(self):
+		self._insert_data_import("User", "Success")
+		self.assertTrue(self._facts()["has_imported_learners"])
+
+	def test_sent_invitation_counts_unless_cancelled_or_expired(self):
+		for status in ("Cancelled", "Expired"):
+			self._insert_invitation(status)
+		self.assertFalse(self._facts()["has_sent_invitation"])
+
+		self._insert_invitation("Pending")
+		self.assertTrue(self._facts()["has_sent_invitation"])
+
+	def test_accepted_invitation_counts(self):
+		self._insert_invitation("Accepted")
+		self.assertTrue(self._facts()["has_sent_invitation"])
+
+	def _insert_data_import(self, reference_doctype, status):
+		frappe.get_doc(
+			{
+				"doctype": "Data Import",
+				"name": frappe.generate_hash(length=10),
+				"reference_doctype": reference_doctype,
+				"import_type": "Insert New Records",
+				"status": status,
+			}
+		).db_insert()
+
+	def _insert_invitation(self, status):
+		frappe.get_doc(
+			{
+				"doctype": "User Invitation",
+				"name": frappe.generate_hash(length=10),
+				"email": f"{frappe.generate_hash(length=6)}@example.com",
+				"invited_by": "Administrator",
+				"status": status,
+			}
+		).db_insert()
 
 	def test_admin_created_student_counts_as_invited(self):
 		self._create_user("onboarding-student@example.com", "Onb", "Student", ["LMS Student"])

@@ -5,6 +5,10 @@ SAMPLE_COURSE_TITLE = "A guide to Frappe Learning"
 DEMO_QUIZ_TITLE = "Do you know Frappe Learning?"
 # lms/demo/demo_data.py creates these; clear_demo_data deletes the same list.
 DEMO_USERS = ["ash@ipp.com", "john.doe@example.com", "jane.smith@example.com", "jannat@example.com"]
+# Data Import statuses for an import that wrote rows.
+IMPORT_DONE = ["Success", "Partial Success"]
+# User Invitation statuses for an invitation whose email went out and still stands.
+INVITATION_SENT = ["Pending", "Accepted"]
 # Every new user gets LMS Student from a hook, so staff carry it too.
 STAFF_ROLES = ["System Manager", "Moderator", "Course Creator", "Batch Evaluator"]
 
@@ -32,12 +36,12 @@ def get_onboarding_facts() -> dict[str, str | bool | None]:
 		"has_published_course": _exists_for(
 			first_course, "LMS Course", {"name": first_course, "published": 1}
 		),
-		"has_invited_student": _has_invited_student(),
-		"has_batch": bool(first_batch),
-		"has_batch_course": _exists_for(
-			first_batch, "Batch Course", {"parent": first_batch, "parenttype": "LMS Batch"}
+		"has_imported_learners": bool(
+			_first("Data Import", {"reference_doctype": "User", "status": ["in", IMPORT_DONE]})
 		),
-		"has_batch_student": _exists_for(first_batch, "LMS Batch Enrollment", {"batch": first_batch}),
+		"has_invited_student": _has_invited_student(),
+		"has_sent_invitation": _has_sent_invitation(),
+		"has_batch": bool(first_batch),
 		"has_zoom_account": bool(_first("LMS Zoom Settings", {})),
 		"has_google_api": _has_google_api(),
 		"has_google_calendar": bool(
@@ -62,6 +66,13 @@ def _has_google_api() -> bool:
 	"""Enabled, with a Client ID and a stored Client Secret (the column holds a mask once set)."""
 	settings = frappe.db.get_singles_dict("Google Settings", cast=True)
 	return bool(settings.get("enable") and settings.get("client_id") and settings.get("client_secret"))
+
+
+def _has_sent_invitation() -> bool:
+	"""User Invitation ships with frappe develop only; a released frappe has no table for it."""
+	if not frappe.db.table_exists("User Invitation"):
+		return False
+	return bool(_first("User Invitation", {"status": ["in", INVITATION_SENT]}))
 
 
 def _has_invited_student() -> bool:
