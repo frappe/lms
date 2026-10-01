@@ -15,7 +15,7 @@ from werkzeug.wsgi import wrap_file
 
 class SCORMRenderer(BaseRenderer):
 	def can_render(self):
-		return "scorm/" in self.path
+		return self.path.startswith("scorm/")
 
 	# Disk roots tried, in order, to resolve SCORM bytes. New packages are extracted
 	# under private/scorm (gated: /private is always routed through Frappe, so this
