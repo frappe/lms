@@ -57,7 +57,6 @@
 							:inlineSelect="inlineSelect"
 							:editorLinks="editorLinks"
 							:selectedLessonNumber="selectedLessonNumber"
-							:creatingLesson="creatingLessonChapter === chapter.name"
 							@select-lesson="(payload) => emit('select-lesson', payload)"
 							@edit-chapter="openChapterForm"
 							@rename-chapter="renameChapter"
@@ -68,7 +67,7 @@
 									trashLesson(lesson, chapterName)
 							"
 							@move-lesson="updateOutline"
-							@create-lesson="createLessonInline"
+							@create-lesson="({ chapter }) => emit('add-lesson', { chapter })"
 						/>
 					</div>
 				</template>
@@ -123,11 +122,9 @@ const emit = defineEmits<{
 	// the wrong doc and an unrelated reload can't consume the signal.
 	'lesson-deleted': [{ lesson: string }]
 	'chapter-deleted': [{ chapter: string }]
+	// The parent opens a draft lesson; nothing is created until it has a title.
+	'add-lesson': [{ chapter: OutlineChapter }]
 }>()
-
-// The lesson currently being named inline (its docname), and the chapter whose
-// "Add Lesson" button is mid-create (for the button spinner).
-const creatingLessonChapter = ref<string>('')
 
 const props = withDefaults(
 	defineProps<{
@@ -271,6 +268,7 @@ function renameChapter(payload: { chapter: OutlineChapter; title: string }) {
 	renameChapterResource.submit(payload)
 }
 
+<<<<<<< HEAD
 const errorMessage = (err: { messages?: string[] } | string): string =>
 	typeof err === 'string' ? err : err.messages?.[0] ?? 'Error'
 
@@ -327,6 +325,8 @@ function navigateToLesson(lesson: OutlineLesson) {
 	}
 }
 
+=======
+>>>>>>> e54fcd0 (feat(course-editor): create a new lesson only once its title is typed)
 function trashLesson(lessonName: string, chapterName: string) {
 	$dialog({
 		title: __('Delete this lesson?'),

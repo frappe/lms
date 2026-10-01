@@ -31,6 +31,24 @@ export function lessonExistsByName(chapters: Chapters, name: string): boolean {
 export interface LessonSelection {
 	number?: string
 	name?: string | null
+	/** Set while the selection is a new lesson that does not exist yet. */
+	draftChapter?: string | null
+}
+
+/** The `?editLesson` number of a new, not yet created lesson in a chapter. */
+export function draftLessonNumber(chapterIdx: number | string): string {
+	return `${chapterIdx}-new`
+}
+
+export function findLessonNumberByName(
+	chapters: Chapters,
+	name: string
+): string | null {
+	for (const chapter of chapters ?? []) {
+		const lesson = chapter.lessons?.find((l) => l.name === name)
+		if (lesson) return lesson.number
+	}
+	return null
 }
 
 /**
@@ -44,6 +62,9 @@ export function isSelectionStale(
 	chapters: Chapters
 ): boolean {
 	if (!selected || !chapters) return false
+	if (selected.draftChapter) {
+		return !chapters.some((c) => c.name === selected.draftChapter)
+	}
 	return selected.name
 		? !lessonExistsByName(chapters, selected.name)
 		: !lessonExistsByNumber(chapters, selected.number ?? '')

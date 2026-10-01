@@ -18,11 +18,13 @@
 				<LessonForm
 					v-else
 					ref="lessonFormRef"
-					:key="`edit-${selected.number}`"
+					:key="`edit-${selected.formKey || selected.number}`"
 					:courseName="props.course.data.name"
 					:chapterNumber="selected.chapterNumber"
 					:lessonNumber="selected.lessonNumber"
+					:draftChapter="selected.draftChapter || ''"
 					@saved="onLessonSaved"
+					@created="onLessonCreated"
 				/>
 			</div>
 		</div>
@@ -44,6 +46,7 @@
 				@select-lesson="onSelectLesson"
 				@lesson-deleted="onLessonDeleted"
 				@chapter-deleted="onChapterDeleted"
+				@add-lesson="onAddLesson"
 			/>
 		</aside>
 
@@ -70,6 +73,7 @@
 				@select-lesson="onSelectLesson"
 				@lesson-deleted="onLessonDeleted"
 				@chapter-deleted="onChapterDeleted"
+				@add-lesson="onAddLesson"
 			/>
 		</BottomSheet>
 
@@ -93,7 +97,9 @@ import SkeletonLoader from '@/components/SkeletonLoader.vue'
 import LessonForm from '@/pages/LessonForm.vue'
 import VideoStatistics from '@/components/Modals/VideoStatistics.vue'
 import {
+	draftLessonNumber,
 	findLessonNameByNumber,
+	findLessonNumberByName,
 	lessonExistsByNumber,
 	isSelectionStale,
 	isLessonInChapter,
@@ -160,6 +166,11 @@ function storeLesson(courseName, number) {
 function setSelectedFromNumber(number) {
 	const [chapterNumber, lessonNumber] = number.split('-')
 	if (!chapterNumber || !lessonNumber) return
+	if (lessonNumber === 'new') {
+		const chapter = outline.data?.find((c) => String(c.idx) === chapterNumber)
+		if (chapter) selectDraft(chapter)
+		return
+	}
 	selected.value = {
 		chapterNumber,
 		lessonNumber,
@@ -168,6 +179,50 @@ function setSelectedFromNumber(number) {
 		title: '',
 	}
 	syncSelectedToUrl(number)
+}
+
+// "Add Lesson" opens an empty form; LessonForm creates the lesson once it has a
+// title. Each draft gets its own form key, which the created lesson keeps.
+let draftCount = 0
+function selectDraft(chapter) {
+	const number = draftLessonNumber(chapter.idx)
+	selected.value = {
+		chapterNumber: String(chapter.idx),
+		lessonNumber: 'new',
+		number,
+		name: null,
+		title: '',
+		draftChapter: chapter.name,
+		formKey: `draft-${++draftCount}`,
+	}
+	syncSelectedToUrl(number)
+}
+
+function onAddLesson({ chapter }) {
+	selectDraft(chapter)
+	showChapters.value = false
+}
+
+// Point the selection and URL at the created lesson without remounting the
+// form, so the title keeps its focus and caret.
+function onLessonCreated({ name, chapter }) {
+	outline.reload().then(() => {
+		const draft = selected.value
+		if (draft?.draftChapter !== chapter) return
+		const number = findLessonNumberByName(outline.data, name)
+		if (!number) return
+		const [chapterNumber, lessonNumber] = number.split('-')
+		selected.value = {
+			chapterNumber,
+			lessonNumber,
+			number,
+			name,
+			title: '',
+			formKey: draft.formKey,
+		}
+		if (props.course?.data?.name) storeLesson(props.course.data.name, number)
+		syncSelectedToUrl(number)
+	})
 }
 
 // Reflect an autosaved lesson title/preview-flag in the shared outline
@@ -201,6 +256,11 @@ function onLessonDeleted({ lesson }) {
 	}
 }
 function onChapterDeleted({ chapter }) {
+	// A draft in the deleted chapter must not create its lesson on unmount.
+	if (selected.value?.draftChapter === chapter) {
+		lessonFormRef.value?.markDeleted?.()
+		return
+	}
 	// Deleting a chapter takes its lessons too. Resolve membership against the
 	// still-current outline (the delete's reload hasn't applied yet).
 	const openLesson = lessonFormRef.value?.lessonName?.()
@@ -300,11 +360,12 @@ watch(
 
 // React to a deep-link change while the editor tab is already open.
 // Trust the query. A non-existent number means "new lesson", which
-// LessonForm renders in create mode.
+// LessonForm renders in create mode. Our own replace for the selection
+// already open is skipped, or it would remount the form.
 watch(
 	() => route.query.editLesson,
 	(number) => {
-		if (!number) return
+		if (!number || number === selected.value?.number) return
 		setSelectedFromNumber(number)
 	}
 )

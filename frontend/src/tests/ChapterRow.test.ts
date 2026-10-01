@@ -215,3 +215,77 @@ describe('ChapterRow locked lesson', () => {
 		expect(wrapper.emitted('select-lesson')).toBeUndefined()
 	})
 })
+<<<<<<< HEAD
+=======
+
+describe('ChapterRow keyboard access', () => {
+	// Guards: chapter and lesson actions were icon spans, nested in the header or
+	// lesson control, and completion was an icon alone. Introduced in #2424 and
+	// #2674; test added with the a11y audit remediation.
+	const done: OutlineChapter = {
+		...chapter,
+		idx: 1,
+		lessons: [
+			{ name: 'LESSON-1', title: 'Lesson 1', number: '2-1', is_complete: true },
+		],
+	}
+
+	it('makes delete a button outside the header and the lesson link', async () => {
+		const wrapper = mountRow(done)
+
+		for (const label of ['Delete Chapter', 'Delete Lesson']) {
+			const button = wrapper.get(`button[label="${label}"]`)
+			expect(button.element.parentElement!.closest('a, button')).toBeNull()
+		}
+		await wrapper.get('button[label="Delete Lesson"]').trigger('click')
+		expect(wrapper.emitted('delete-lesson')).toEqual([
+			[{ lesson: 'LESSON-1', chapter: 'CH-2' }],
+		])
+		expect(wrapper.get('a').get('.sr-only').text()).toBe('Completed')
+	})
+
+	it('renders an inline-select lesson as a button', async () => {
+		const wrapper = mount(ChapterRow, {
+			props: { chapter: done, courseName: 'course-1', inlineSelect: true },
+			global: { mocks: { __: (s: string) => s } },
+		})
+
+		await wrapper.get('[data-testid="outline-lesson"] button').trigger('click')
+		expect(wrapper.emitted('select-lesson')).toEqual([
+			[{ chapterNumber: '2', lessonNumber: '1' }],
+		])
+	})
+})
+
+describe('ChapterRow draft lesson', () => {
+	const mountInline = (selectedLessonNumber: string) =>
+		mount(ChapterRow, {
+			props: {
+				chapter,
+				courseName: 'course-1',
+				allowEdit: true,
+				inlineSelect: true,
+				selectedLessonNumber,
+			},
+			global: {
+				mocks: { __: (s: string) => s },
+				provide: { $user: { data: { name: 'admin@example.com' } } },
+			},
+		})
+
+	it('shows the open draft as the active row of its chapter', () => {
+		const row = mountInline('2-new').find(
+			'[data-testid="outline-draft-lesson"]'
+		)
+		expect(row.exists()).toBe(true)
+		expect(row.classes()).toContain('bg-surface-gray-3')
+	})
+
+	it('shows nothing for a draft in another chapter', () => {
+		const wrapper = mountInline('1-new')
+		expect(wrapper.find('[data-testid="outline-draft-lesson"]').exists()).toBe(
+			false
+		)
+	})
+})
+>>>>>>> e54fcd0 (feat(course-editor): create a new lesson only once its title is typed)
