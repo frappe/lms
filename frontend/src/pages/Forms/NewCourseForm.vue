@@ -100,7 +100,12 @@
 							@change="(val: string) => (course.description = val)"
 							:editable="true"
 							:fixedMenu="true"
+<<<<<<< HEAD
 							editorClass="prose-sm max-w-none border-b border-x border-outline-elevation-2 bg-surface-base rounded-b-5 py-1 px-2 min-h-[7rem] max-h-[17rem] overflow-auto"
+=======
+							minHeight="10rem"
+							maxHeight="17rem"
+>>>>>>> 76c5962 (refactor(editor): size form editors through RichTextEditor props)
 						/>
 					</div>
 				</div>
