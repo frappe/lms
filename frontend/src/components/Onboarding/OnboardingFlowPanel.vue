@@ -6,17 +6,18 @@
 		data-testid="onboarding-flow-panel"
 		@click.stop
 	>
-		<div class="flex h-12 shrink-0 items-center justify-between gap-1 px-1">
+		<div class="flex items-center justify-between px-2 py-1.5">
 			<div class="flex min-w-0 items-center gap-1">
 				<Button
 					v-if="screen !== 'list'"
 					variant="ghost"
+					class="-ms-2"
 					:aria-label="text.allFlows"
 					@click="showList"
 				>
 					<LucideChevronLeft class="size-4 rtl:rotate-180" aria-hidden="true" />
 				</Button>
-				<h2 :id="headingId" class="truncate px-1 text-base font-medium">
+				<h2 :id="headingId" class="truncate text-base font-medium">
 					{{ text.heading }}
 				</h2>
 			</div>
@@ -38,7 +39,20 @@
 			</div>
 		</div>
 
-		<div class="flex h-full min-h-0 flex-col gap-3 overflow-y-auto">
+		<div class="h-full overflow-hidden flex flex-col">
+			<div class="flex flex-col justify-center items-center gap-1 mt-4 mb-7">
+				<LMSLogo class="size-10 shrink-0 rounded-4 mb-4" aria-hidden="true" />
+				<div class="text-base font-medium" data-testid="hero-title">
+					{{ heroTitle }}
+				</div>
+				<div
+					class="text-p-base font-normal text-center"
+					data-testid="hero-count"
+				>
+					{{ heroCount }}
+				</div>
+			</div>
+
 			<OnboardingChecklist
 				v-if="screen === 'flow' && openCard && openFlow"
 				:key="openFlow.key"
@@ -46,54 +60,58 @@
 				:flow="openFlow"
 			/>
 
-			<template v-else-if="screen === 'question' && openCard?.question">
-				<h3
-					class="truncate px-2 text-base font-medium"
-					data-testid="question-title"
+			<div
+				v-else-if="screen === 'question' && openCard?.question"
+				class="flex flex-col gap-1.5 overflow-y-auto"
+			>
+				<Tooltip
+					v-for="option in openCard.question.options"
+					:key="option.value"
+					:text="option.description"
 				>
-					{{ openCard.question.title }}
-				</h3>
-				<div class="flex flex-col gap-0.5">
-					<Tooltip
-						v-for="option in openCard.question.options"
-						:key="option.value"
-						:text="option.description"
+					<button
+						type="button"
+						class="flex w-full items-center justify-between gap-2 rounded-4 px-2 py-1.5 text-start text-ink-gray-8 hover:bg-surface-gray-1 focus-visible:bg-surface-gray-1"
+						data-testid="question-option"
+						@click="answer(openCard.id, option.value)"
 					>
-						<button
-							type="button"
-							class="flex w-full items-center gap-3 rounded-6 px-2 py-2 text-start transition-colors hover:bg-surface-gray-2 focus-visible:bg-surface-gray-2"
-							data-testid="question-option"
-							@click="answer(openCard.id, option.value)"
+						<span class="min-w-0 truncate text-base">{{ option.label }}</span>
+						<span
+							class="flex shrink-0 items-center gap-1 text-p-sm text-ink-gray-5"
 						>
-							<span class="min-w-0 flex-1 truncate text-p-sm font-medium">
-								{{ option.label }}
-							</span>
-							<span class="shrink-0 text-p-xs tabular-nums text-ink-gray-5">
-								{{ stepCount(option.flow.id) }}
-							</span>
+							<span class="tabular-nums">{{ stepCount(option.flow.id) }}</span>
 							<LucideChevronRight
-								class="size-4 shrink-0 text-ink-gray-4 rtl:rotate-180"
+								class="size-4 rtl:rotate-180"
 								aria-hidden="true"
 							/>
-						</button>
-					</Tooltip>
-				</div>
-			</template>
+						</span>
+					</button>
+				</Tooltip>
+			</div>
 
-			<template v-else>
-				<div
-					class="flex items-center justify-between gap-2 px-2"
-					data-testid="list-heading"
-				>
-					<h3 class="truncate text-base font-medium">{{ listHeading }}</h3>
-					<span
-						v-if="listState !== 'fresh'"
-						class="shrink-0 text-p-xs tabular-nums text-ink-gray-5"
-					>
-						{{ completedCards }}/{{ CARDS.length }}
-					</span>
+			<div v-else class="flex min-h-0 flex-col gap-2.5">
+				<div class="flex items-center justify-between py-0.5">
+					<Badge
+						:label="percentLabel"
+						:theme="overallPercent === 100 ? 'green' : 'amber'"
+						size="lg"
+					/>
+					<div class="flex">
+						<Button
+							v-if="hasAnyProgress"
+							variant="ghost"
+							:label="text.resetAll"
+							@click="resetEverything"
+						/>
+						<Button
+							v-if="overallPercent !== 100"
+							variant="ghost"
+							:label="text.skipAll"
+							@click="skipEverything"
+						/>
+					</div>
 				</div>
-				<div class="flex flex-col gap-0.5">
+				<div class="flex flex-col gap-1.5 overflow-y-auto">
 					<Tooltip
 						v-for="card in CARDS"
 						:key="card.id"
@@ -101,41 +119,53 @@
 					>
 						<button
 							type="button"
-							class="flex w-full items-center gap-3 rounded-6 px-2 py-2 text-start transition-colors hover:bg-surface-gray-2 focus-visible:bg-surface-gray-2"
+							class="flex w-full items-center justify-between gap-2 rounded-4 px-2 py-1.5 text-start hover:bg-surface-gray-1 focus-visible:bg-surface-gray-1"
 							data-testid="flow-row"
 							@click="openCardScreen(card.id)"
 						>
+							<span class="flex min-w-0 items-center gap-2">
+								<LucideCircleCheck
+									v-if="isCardComplete(card)"
+									class="size-4 shrink-0 text-ink-green-7"
+									aria-hidden="true"
+								/>
+								<component
+									:is="card.icon"
+									v-else
+									class="h-4 shrink-0 text-ink-gray-8"
+									aria-hidden="true"
+								/>
+								<span
+									class="truncate text-base"
+									:class="
+										isCardComplete(card)
+											? 'text-ink-gray-5 line-through'
+											: 'text-ink-gray-8'
+									"
+									data-testid="row-title"
+								>
+									{{ card.title }}
+								</span>
+							</span>
 							<span
-								class="flex size-8 shrink-0 items-center justify-center rounded-5"
-								:class="
-									isCardComplete(card)
-										? 'bg-surface-green-2 text-ink-green-7'
-										: 'bg-surface-gray-2 text-ink-gray-7'
-								"
-								aria-hidden="true"
+								class="flex shrink-0 items-center gap-1 text-p-sm text-ink-gray-5"
 							>
-								<LucideCheck v-if="isCardComplete(card)" class="size-4" />
-								<component :is="card.icon" v-else class="size-4" />
+								<span class="tabular-nums">{{ rowMeta(card) }}</span>
+								<LucideChevronRight
+									class="size-4 rtl:rotate-180"
+									aria-hidden="true"
+								/>
 							</span>
-							<span class="min-w-0 flex-1 truncate text-p-sm font-medium">
-								{{ card.title }}
-							</span>
-							<span class="shrink-0 text-p-xs tabular-nums text-ink-gray-5">
-								{{ rowMeta(card) }}
-							</span>
-							<LucideChevronRight
-								class="size-4 shrink-0 text-ink-gray-4 rtl:rotate-180"
-								aria-hidden="true"
-							/>
 						</button>
 					</Tooltip>
 				</div>
-			</template>
+			</div>
 		</div>
 
-		<div class="flex shrink-0 items-center justify-between gap-2">
+		<div class="flex flex-col gap-1.5" data-testid="panel-footer">
 			<Button
 				variant="ghost"
+				class="justify-start"
 				href="https://docs.frappe.io/learning"
 				:label="text.helpCentre"
 			>
@@ -143,21 +173,16 @@
 					<HelpIcon class="h-4" aria-hidden="true" />
 				</template>
 			</Button>
-			<Button
-				v-if="screen === 'list' && hasAnyProgress"
-				variant="ghost"
-				:label="text.resetAll"
-				@click="resetEverything"
-			/>
 		</div>
 	</section>
 </template>
 
 <script setup lang="ts">
 import { computed, useId } from 'vue'
-import { Button, Tooltip } from 'frappe-ui'
+import { Badge, Button, Tooltip } from 'frappe-ui'
 import { HelpIcon, MaximizeIcon, MinimizeIcon } from 'frappe-ui/icons'
 import { minimize } from '@framework/ui/components/Onboarding/index'
+import LMSLogo from '@/components/Icons/LMSLogo.vue'
 import OnboardingChecklist from '@/components/Onboarding/OnboardingChecklist.vue'
 import { CARDS, type FlowCard, type FlowId } from '@/onboarding/flows'
 import { useLearningOnboarding } from '@/onboarding/useLearningOnboarding'
@@ -166,10 +191,11 @@ const {
 	screen,
 	openCard,
 	openFlow,
-	listState,
 	completedCards,
+	overallPercent,
 	hasAnyProgress,
 	stepsOf,
+	flowProgress,
 	cardProgress,
 	isCardComplete,
 	openCardScreen,
@@ -177,6 +203,7 @@ const {
 	showList,
 	closePanel,
 	resetEverything,
+	skipEverything,
 } = useLearningOnboarding()
 
 const headingId = useId()
@@ -189,13 +216,35 @@ const text = {
 	close: __('Close'),
 	helpCentre: __('Help centre'),
 	resetAll: __('Reset all'),
+	skipAll: __('Skip all'),
+	welcome: __('Welcome to Frappe Learning'),
 }
 
-const listHeading = computed<string>(() => {
-	if (listState.value === 'done') return __('You’re all set')
-	if (listState.value === 'progress') return __('Pick up where you left off')
-	return __('What do you want to do first?')
+// The framework OnboardingSteps hero: logo, a title, one count line.
+const heroTitle = computed<string>(() =>
+	screen.value === 'list' || !openCard.value
+		? text.welcome
+		: openCard.value.title
+)
+
+const heroCount = computed<string>(() => {
+	if (screen.value === 'question') return openCard.value?.question?.title ?? ''
+	if (screen.value === 'flow' && openFlow.value) {
+		const progress = flowProgress(openFlow.value.id)
+		return __('{0}/{1} steps completed').format(
+			String(progress.resolved),
+			String(progress.total)
+		)
+	}
+	return __('{0}/{1} flows completed').format(
+		String(completedCards.value),
+		String(CARDS.length)
+	)
 })
+
+const percentLabel = computed<string>(() =>
+	__('{0}% completed').format(String(overallPercent.value))
+)
 
 function rowMeta(card: FlowCard): string {
 	const progress = cardProgress(card)

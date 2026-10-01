@@ -24,7 +24,6 @@ import {
 
 export type Screen = 'list' | 'question' | 'flow'
 export type StepStatus = 'done' | 'skipped' | 'current' | 'upcoming'
-export type ListState = 'fresh' | 'progress' | 'done'
 
 export interface Progress {
 	resolved: number
@@ -170,9 +169,20 @@ function stepStatus(id: FlowId, step: FlowStep): StepStatus {
 	return current?.name === step.name ? 'current' : 'upcoming'
 }
 
+/** Done when its answered flow is done, or, unanswered, when any of its flows is. */
 function isCardComplete(card: FlowCard): boolean {
 	const flow = cardFlow(card)
-	return Boolean(flow && isFlowComplete(flow.id))
+	if (flow) return isFlowComplete(flow.id)
+	return card.flows.some((f) => isFlowComplete(f.id))
+}
+
+/** The flow a card's counts come from, answered or not. */
+function countedFlow(card: FlowCard): OnboardingFlow {
+	return (
+		cardFlow(card) ??
+		card.flows.find((f) => isFlowComplete(f.id)) ??
+		card.flows[0]
+	)
 }
 
 /** A card's "{resolved}/{total}", or null while its question is unanswered. */
@@ -191,9 +201,16 @@ const hasAnyProgress = computed<boolean>(
 		FLOWS.some((flow) => flowProgress(flow.id).resolved > 0)
 )
 
-const listState = computed<ListState>(() => {
-	if (completedCards.value === CARDS.length) return 'done'
-	return hasAnyProgress.value ? 'progress' : 'fresh'
+/** Resolved steps over all steps, across each card's counted flow. */
+const overallPercent = computed<number>(() => {
+	let resolved = 0
+	let total = 0
+	for (const card of CARDS) {
+		const progress = flowProgress(countedFlow(card).id)
+		resolved += progress.resolved
+		total += progress.total
+	}
+	return total ? Math.floor((resolved / total) * 100) : 0
 })
 
 /** The first unfinished card in this card's `next` order, then registry order. */
@@ -304,6 +321,13 @@ function skipRemaining(id: FlowId): void {
 		if (!step.completed) setSkipped(flow, step.name, true)
 	}
 	handles[id]?.skipAll()
+}
+
+/** Skip every unfinished flow, whichever answer it belongs to. */
+function skipEverything(): void {
+	for (const flow of FLOWS) {
+		if (!isFlowComplete(flow.id)) skipRemaining(flow.id)
+	}
 }
 
 /** Clear one flow's progress and skips. The card's answer stays. */
@@ -441,7 +465,7 @@ export function useLearningOnboarding() {
 		activeCard,
 		openCard,
 		openFlow,
-		listState,
+		overallPercent,
 		completedCards,
 		hasAnyProgress,
 		bannerFlow,
@@ -469,5 +493,6 @@ export function useLearningOnboarding() {
 		skipRemaining,
 		resetFlow,
 		resetEverything,
+		skipEverything,
 	}
 }

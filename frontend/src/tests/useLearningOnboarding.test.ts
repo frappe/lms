@@ -226,10 +226,14 @@ describe('setUpAll', () => {
 })
 
 describe('list', () => {
-	it('is fresh with nothing started', async () => {
+	// Guards: a fresh admin seeing non-zero progress on the list. Introduced in
+	// this branch (feat/onboarding-flows, PR pending); test added there to pin
+	// the empty-state numbers.
+	it('has no progress with nothing started', async () => {
 		const o = await ready()
-		expect(o.listState.value).toBe('fresh')
 		expect(o.hasAnyProgress.value).toBe(false)
+		expect(o.overallPercent.value).toBe(0)
+		expect(o.completedCards.value).toBe(0)
 	})
 
 	// Guards: an answered question not counting as progress. Introduced in this
@@ -238,7 +242,7 @@ describe('list', () => {
 	it('counts an answer as progress', async () => {
 		const o = await ready()
 		o.answer('live_class', 'zoom')
-		expect(o.listState.value).toBe('progress')
+		expect(o.hasAnyProgress.value).toBe(true)
 	})
 
 	// Guards: a ticked step not counting as progress. Introduced in this branch
@@ -247,10 +251,21 @@ describe('list', () => {
 	it('counts a ticked step as progress', async () => {
 		const o = await ready()
 		o.completeStep('create_first_course')
-		expect(o.listState.value).toBe('progress')
+		expect(o.hasAnyProgress.value).toBe(true)
 	})
 
-	it('is done once every card’s flow is done', async () => {
+	// Guards: the overall percent averaging cards instead of weighing their
+	// steps. Introduced in this branch (feat/onboarding-flows, PR pending); test
+	// added there to pin the step-weighted percent.
+	it('weighs the overall percent by steps across every card', async () => {
+		const o = await ready({ answers: { live_class: 'zoom' } })
+		// publish 6 + learners (unanswered, first option csv) 4 + zoom 4 = 14.
+		o.toggleStep('publish_course', 'create_first_course')
+		o.toggleStep('live_class_zoom', 'connect_zoom')
+		expect(o.overallPercent.value).toBe(Math.floor((2 / 14) * 100))
+	})
+
+	it('counts every card done once each card’s flow is done', async () => {
 		const o = await ready({
 			answers: { onboard_learners: 'csv', live_class: 'zoom' },
 		})
@@ -261,7 +276,13 @@ describe('list', () => {
 		])
 			finish(key)
 		expect(o.completedCards.value).toBe(3)
-		expect(o.listState.value).toBe('done')
+		expect(o.overallPercent.value).toBe(100)
+	})
+
+	it('counts an unanswered card done when any of its flows is done', async () => {
+		const o = await ready()
+		finish('live_class_meet')
+		expect(o.isCardComplete(card(o, 'live_class'))).toBe(true)
 	})
 
 	it('has no row count while a question is unanswered', async () => {
@@ -272,6 +293,20 @@ describe('list', () => {
 			total: 6,
 			skipped: 0,
 		})
+	})
+
+	// Guards: Skip all touching finished flows or leaving a card unfinished.
+	// Introduced in this branch (feat/onboarding-flows, PR pending); test added
+	// there to pin the bulk skip.
+	it('skip all skips every unfinished flow and finishes every card', async () => {
+		const o = await ready()
+		finish('publish_course')
+		o.skipEverything()
+		expect(handle('publish_course').skipAll).not.toHaveBeenCalled()
+		for (const key of ALL.slice(1))
+			expect(handle(key).skipAll).toHaveBeenCalledTimes(1)
+		expect(o.completedCards.value).toBe(3)
+		expect(o.overallPercent.value).toBe(100)
 	})
 })
 

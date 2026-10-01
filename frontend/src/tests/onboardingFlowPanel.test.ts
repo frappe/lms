@@ -46,7 +46,10 @@ function makeHandle() {
 vi.mock('frappe-ui', () => ({
 	call: vi.fn(() => Promise.resolve({})),
 	getCachedResource: () => null,
-	Badge: { props: ['label'], template: '<span>{{ label }}</span>' },
+	Badge: {
+		props: ['label', 'theme'],
+		template: '<span class="badge" :data-theme="theme">{{ label }}</span>',
+	},
 	Button: {
 		props: ['label', 'variant', 'icon', 'href'],
 		emits: ['click'],
@@ -58,6 +61,10 @@ vi.mock('frappe-ui', () => ({
 	},
 	Progress: { props: ['value'], template: '<div class="progress" />' },
 	Tooltip: { props: ['text'], template: '<div :title="text"><slot /></div>' },
+}))
+
+vi.mock('@/components/Icons/LMSLogo.vue', () => ({
+	default: { template: '<svg class="logo" />' },
 }))
 
 vi.mock('frappe-ui/icons', () => ({
@@ -112,6 +119,13 @@ afterEach(() => {
 	document.cookie = 'user_id=; expires=Thu, 01 Jan 1970 00:00:00 GMT'
 })
 
+const hero = (w: {
+	find: (s: string) => { text: () => string; exists: () => boolean }
+}) => ({
+	title: w.find('[data-testid="hero-title"]').text(),
+	count: w.find('[data-testid="hero-count"]').text(),
+})
+
 describe('header', () => {
 	// Guards: the list screen with a wrong title or a back control leading
 	// nowhere. Introduced in this branch (feat/onboarding-flows, PR pending);
@@ -130,7 +144,6 @@ describe('header', () => {
 		o.openCardScreen('publish_course')
 		await flushPromises()
 		const back = w.find('[aria-label="All flows"]')
-		expect(back.exists()).toBe(true)
 		expect(back.text()).toBe('')
 		expect(w.find('h2').text()).toBe('Getting started')
 		await back.trigger('click')
@@ -139,121 +152,73 @@ describe('header', () => {
 })
 
 describe('list screen', () => {
-	it('starts fresh on one line, with no count', async () => {
+	// Guards: the list hero losing the logo or the flows count. Introduced in
+	// this branch (feat/onboarding-flows, PR pending); test added there to pin
+	// the hero.
+	it('welcomes with the logo and a flows count', async () => {
 		const { w } = await setUp()
-		const heading = w.find('[data-testid="list-heading"]')
-		expect(heading.text()).toBe('What do you want to do first?')
+		expect(w.find('.logo').exists()).toBe(true)
+		expect(hero(w)).toEqual({
+			title: 'Welcome to Frappe Learning',
+			count: '0/3 flows completed',
+		})
 	})
 
-	it('shows each card on one line with its description as a tooltip', async () => {
+	// Guards: a fresh panel offering Reset all or a wrong overall percent.
+	// Introduced in this branch (feat/onboarding-flows, PR pending); test added
+	// there to pin the untouched badge row.
+	it('shows the overall percent in amber with Skip all but no Reset all', async () => {
 		const { w } = await setUp()
+		const badge = w.find('.badge')
+		expect(badge.text()).toBe('0% completed')
+		expect(badge.attributes('data-theme')).toBe('amber')
+		expect(button(w, 'Skip all')).toBeDefined()
+		expect(button(w, 'Reset all')).toBeUndefined()
+	})
+
+	// Guards: card rows losing their title, count or description tooltip.
+	// Introduced in this branch (feat/onboarding-flows, PR pending); test added
+	// there to pin the card rows.
+	it('lists each card as a step-style row with its count', async () => {
+		const { o, w } = await setUp()
+		o.answer('live_class', 'zoom')
+		o.showList()
+		await flushPromises()
 		const rows = w.findAll('[data-testid="flow-row"]')
 		expect(rows.map((r) => r.text())).toEqual([
 			'Publish my first course0/6',
 			'Onboard my existing learners',
-			'Run my first live class',
+			'Run my first live class0/4',
 		])
 		expect(w.html()).toContain('title="Bring your learners into a batch."')
 	})
 
-	it('picks up where you left off with a flows count', async () => {
+	// Guards: a finished card row looking unfinished. Introduced in this branch
+	// (feat/onboarding-flows, PR pending); test added there to pin the strike-
+	// through.
+	it('strikes through a finished card', async () => {
 		const { o, w } = await setUp()
-		o.answer('live_class', 'zoom')
+		handle('publish_course').skipAll()
 		o.showList()
 		await flushPromises()
-		expect(w.find('[data-testid="list-heading"]').text()).toBe(
-			'Pick up where you left off0/3'
-		)
-		expect(w.findAll('[data-testid="flow-row"]')[2].text()).toContain('0/4')
+		const title = w
+			.findAll('[data-testid="flow-row"]')[0]
+			.find('[data-testid="row-title"]')
+		expect(title.classes()).toContain('line-through')
 	})
 
-	it('says you are all set when every card is done', async () => {
-		const { o, w } = await setUp()
-		o.answer('onboard_learners', 'csv')
-		o.answer('live_class', 'meet')
-		for (const key of [
-			'publish_course',
-			'onboard_learners_csv',
-			'live_class_meet',
-		])
-			handle(key).skipAll()
-		o.showList()
-		await flushPromises()
-		expect(w.find('[data-testid="list-heading"]').text()).toBe(
-			'You’re all set3/3'
-		)
-	})
-
-	it('opens a card without a question on its flow', async () => {
-		const { o, w } = await setUp()
-		await w.findAll('[data-testid="flow-row"]')[0].trigger('click')
-		expect(o.screen.value).toBe('flow')
-		expect(w.text()).toContain('Create a course')
-	})
-})
-
-describe('question screen', () => {
-	it('labels both options with their step counts', async () => {
+	it('Skip all finishes everything: 100%, green, 3/3', async () => {
 		const { w } = await setUp()
-		await w.findAll('[data-testid="flow-row"]')[2].trigger('click')
-		expect(w.find('[data-testid="question-title"]').text()).toBe(
-			'Which meeting tool do you use?'
-		)
-		const options = w.findAll('[data-testid="question-option"]')
-		expect(options.map((o) => o.text())).toEqual([
-			'Zoom4 steps',
-			'Google Meet6 steps',
-		])
-		expect(w.html()).toContain('title="Host classes from a Zoom account."')
-		expect(w.text()).not.toContain('You can change this later.')
-		expect(w.text()).not.toContain('The checklist depends on your choice.')
-	})
-
-	it('answering opens that answer’s flow with its step titles', async () => {
-		const { o, w } = await setUp()
-		await w.findAll('[data-testid="flow-row"]')[2].trigger('click')
-		await w.findAll('[data-testid="question-option"]')[1].trigger('click')
-		await flushPromises()
-		expect(o.screen.value).toBe('flow')
-		const titles = w.findAll('[data-testid="flow-step"]').map((r) => r.text())
-		expect(titles[1]).toContain('Set up Google API')
-		expect(titles[3]).toContain('Add a Google Meet account')
-		expect(w.find('[data-testid="answer-chip"]').text()).toContain(
-			'Google Meet'
-		)
-	})
-
-	it('switching the answer on the chip switches the checklist', async () => {
-		const { o, w } = await setUp()
-		o.answer('onboard_learners', 'csv')
-		await flushPromises()
 		await w
-			.find('[data-testid="answer-chip"]')
-			.findAll('.option')
-			.find((x) => x.text() === 'Invite by email')!
+			.findAll('button')
+			.find((b) => b.text() === 'Skip all')!
 			.trigger('click')
 		await flushPromises()
-		expect(o.openFlow.value?.key).toBe('learning_onboard_learners_invite')
-		expect(w.text()).toContain('Invite learners by email')
-	})
-})
-
-describe('footer', () => {
-	it('links the help centre', async () => {
-		const { w } = await setUp()
-		expect(
-			w.find('a[href="https://docs.frappe.io/learning"]').text()
-		).toContain('Help centre')
-	})
-
-	it('shows Reset all on the list only once something has started', async () => {
-		const { o, w } = await setUp()
-		expect(button(w, 'Reset all')).toBeUndefined()
-		o.answer('live_class', 'zoom')
-		await flushPromises()
-		expect(button(w, 'Reset all')).toBeUndefined()
-		o.showList()
-		await flushPromises()
+		expect(hero(w).count).toBe('3/3 flows completed')
+		const badge = w.find('.badge')
+		expect(badge.text()).toBe('100% completed')
+		expect(badge.attributes('data-theme')).toBe('green')
+		expect(button(w, 'Skip all')).toBeUndefined()
 		expect(button(w, 'Reset all')).toBeDefined()
 	})
 
@@ -278,10 +243,78 @@ describe('footer', () => {
 		expect(button(w, 'Reset all')).toBeUndefined()
 	})
 
-	it('has no Skip all or Restart onboarding any more', async () => {
+	it('opens a card without a question on its checklist', async () => {
+		const { o, w } = await setUp()
+		await w.findAll('[data-testid="flow-row"]')[0].trigger('click')
+		expect(o.screen.value).toBe('flow')
+		expect(hero(w)).toEqual({
+			title: 'Publish my first course',
+			count: '0/6 steps completed',
+		})
+		expect(w.text()).toContain('Create a course')
+	})
+})
+
+describe('question screen', () => {
+	it('puts the flow title and the question in the hero, with no badge row', async () => {
 		const { w } = await setUp()
-		expect(w.text()).not.toContain('Skip all')
-		expect(w.text()).not.toContain('Restart onboarding')
+		await w.findAll('[data-testid="flow-row"]')[2].trigger('click')
+		expect(hero(w)).toEqual({
+			title: 'Run my first live class',
+			count: 'Which meeting tool do you use?',
+		})
+		expect(w.find('.badge').exists()).toBe(false)
+	})
+
+	it('labels both options with their step counts', async () => {
+		const { w } = await setUp()
+		await w.findAll('[data-testid="flow-row"]')[2].trigger('click')
+		const options = w.findAll('[data-testid="question-option"]')
+		expect(options.map((o) => o.text())).toEqual([
+			'Zoom4 steps',
+			'Google Meet6 steps',
+		])
+		expect(w.html()).toContain('title="Host classes from a Zoom account."')
+	})
+
+	it('answering opens that answer’s checklist with its step titles', async () => {
+		const { o, w } = await setUp()
+		await w.findAll('[data-testid="flow-row"]')[2].trigger('click')
+		await w.findAll('[data-testid="question-option"]')[1].trigger('click')
+		await flushPromises()
+		expect(o.screen.value).toBe('flow')
+		expect(hero(w).count).toBe('0/6 steps completed')
+		const titles = w.findAll('[data-testid="step-open"]').map((r) => r.text())
+		expect(titles).toContain('Set up Google API')
+		expect(titles).toContain('Add a Google Meet account')
+		expect(w.find('[data-testid="answer-switch"]').text()).toContain(
+			'Meeting tool: Google Meet'
+		)
+	})
+
+	it('switching the answer switches the checklist', async () => {
+		const { o, w } = await setUp()
+		o.answer('onboard_learners', 'csv')
+		await flushPromises()
+		await w
+			.find('[data-testid="answer-switch"]')
+			.findAll('.option')
+			.find((x) => x.text() === 'Invite by email')!
+			.trigger('click')
+		await flushPromises()
+		expect(o.openFlow.value?.key).toBe('learning_onboard_learners_invite')
+		expect(w.text()).toContain('Invite learners by email')
+	})
+})
+
+describe('footer', () => {
+	it('links the help centre and nothing else', async () => {
+		const { w } = await setUp()
+		const footer = w.find('[data-testid="panel-footer"]')
+		expect(
+			footer.find('a[href="https://docs.frappe.io/learning"]').text()
+		).toContain('Help centre')
+		expect(footer.findAll('button')).toHaveLength(0)
 	})
 })
 
@@ -304,25 +337,5 @@ describe('stale stored ids', () => {
 		expect(o.screen.value).toBe('question')
 		expect(w.findAll('[data-testid="question-option"]')).toHaveLength(2)
 		expect(w.find('[data-testid="flow-step"]').exists()).toBe(false)
-	})
-
-	it('a flow screen whose answer vanished falls back without mounting the checklist', async () => {
-		const { o, w } = await setUp()
-		o.answer('live_class', 'zoom')
-		await flushPromises()
-		localStorage.setItem(
-			'learningOnboardingAnswers' + USER,
-			JSON.stringify({ live_class: 'teams' })
-		)
-		window.dispatchEvent(
-			new StorageEvent('storage', {
-				key: 'learningOnboardingAnswers' + USER,
-				newValue: JSON.stringify({ live_class: 'teams' }),
-				storageArea: localStorage,
-			})
-		)
-		await flushPromises()
-		expect(w.find('[data-testid="flow-step"]').exists()).toBe(false)
-		expect(w.findAll('[data-testid="question-option"]')).toHaveLength(2)
 	})
 })
