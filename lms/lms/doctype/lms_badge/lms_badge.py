@@ -41,22 +41,25 @@ class LMSBadge(Document):
 			award(self, member)
 
 	def rule_condition_satisfied(self, doc):
-		if self.event == "Manual Assignment":
+		if self.event == "Manual Assignment" or not self.condition:
 			return False
 
 		doc_before_save = doc.get_doc_before_save()
-
 		if self.event == "New" and doc_before_save is not None:
 			return False
 
-		if self.condition:
-			return eval_condition(doc, self.condition)
+		if not eval_condition(doc, self.condition):
+			return False
 
-		return False
+		if self.event == "Value Change" and doc_before_save is not None:
+			return not eval_condition(doc_before_save, self.condition)
+
+		return True
 
 
 def award(doc, member):
-	if doc.grant_only_once:
+	if doc.grant_only_once or doc.event == "Value Change":
+		frappe.db.get_value("LMS Badge", doc.name, "name", for_update=True)
 		if frappe.db.exists(
 			"LMS Badge Assignment",
 			{"badge": doc.name, "member": member},
