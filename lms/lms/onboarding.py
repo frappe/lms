@@ -33,9 +33,12 @@ def get_onboarding_facts() -> dict[str, str | bool | None]:
 			first_batch, "Batch Course", {"parent": first_batch, "parenttype": "LMS Batch"}
 		),
 		"has_batch_student": _exists_for(first_batch, "LMS Batch Enrollment", {"batch": first_batch}),
-		"has_conferencing_account": bool(
-			_first("LMS Zoom Settings", {}) or _first("LMS Google Meet Settings", {})
+		"has_zoom_account": bool(_first("LMS Zoom Settings", {})),
+		"has_google_api": _has_google_api(),
+		"has_google_calendar": bool(
+			frappe.db.exists("Google Calendar", {"user": frappe.session.user, "refresh_token": ["is", "set"]})
 		),
+		"has_meet_account": bool(_first("LMS Google Meet Settings", {})),
 		"has_live_class": _exists_for(first_batch, "LMS Live Class", {"batch_name": first_batch}),
 		"has_published_batch": _exists_for(first_batch, "LMS Batch", {"name": first_batch, "published": 1}),
 	}
@@ -48,6 +51,12 @@ def _first(doctype: str, filters: dict) -> str | None:
 
 def _exists_for(target: str | None, doctype: str, filters: dict) -> bool:
 	return bool(target and frappe.db.exists(doctype, filters))
+
+
+def _has_google_api() -> bool:
+	"""Enabled, with a Client ID and a stored Client Secret (the column holds a mask once set)."""
+	settings = frappe.db.get_singles_dict("Google Settings", cast=True)
+	return bool(settings.get("enable") and settings.get("client_id") and settings.get("client_secret"))
 
 
 def _has_invited_student() -> bool:

@@ -8,8 +8,12 @@ import {
 	type UseOnboarding,
 } from '@framework/ui/components/Onboarding/index'
 import {
+	CARDS,
 	FLOWS,
+	getCard,
 	getFlow,
+	type CardId,
+	type FlowCard,
 	type FlowId,
 	type FlowNavigation,
 	type FlowStep,
@@ -17,7 +21,7 @@ import {
 	type OnboardingFlow,
 } from '@/onboarding/flows'
 
-export type PanelView = 'checklist' | 'picker' | 'done'
+export type PanelView = 'checklist' | 'picker' | 'done' | 'provider'
 
 type FlowTargets = Partial<
 	Pick<OnboardingFacts, 'first_course' | 'first_batch'>
@@ -29,6 +33,8 @@ const facts = reactive<Partial<OnboardingFacts>>({})
 const handles = shallowReactive<Partial<Record<FlowId, UseOnboarding>>>({})
 const flowSteps: Partial<Record<FlowId, FlowStep[]>> = {}
 const isSetUp = ref(false)
+// A card with several flows waiting on a provider choice. Not persisted.
+const pendingCard = ref<CardId | null>(null)
 let flowNav: FlowNavigation | null = null
 let storedFlow: Ref<string | null> | null = null
 
@@ -61,18 +67,28 @@ function isFlowComplete(id: FlowId): boolean {
 	)
 }
 
-const remainingFlows = computed<OnboardingFlow[]>(() => {
+function isCardComplete(id: CardId): boolean {
+	return Boolean(getCard(id)?.flows.some((flow) => isFlowComplete(flow.id)))
+}
+
+/** Unfinished cards other than the active one, in the active flow's order. */
+const remainingCards = computed<FlowCard[]>(() => {
 	const order = activeFlow.value?.next ?? []
-	const rank = (flow: OnboardingFlow): number => {
-		const index = order.indexOf(flow.id)
+	const rank = (card: FlowCard): number => {
+		const index = order.indexOf(card.id)
 		return index === -1 ? order.length : index
 	}
-	return FLOWS.filter(
-		(flow) => flow.id !== activeFlowId.value && !isFlowComplete(flow.id)
+	return CARDS.filter(
+		(card) => card.id !== activeFlow.value?.card && !isCardComplete(card.id)
 	).sort((a, b) => rank(a) - rank(b))
 })
 
+const providerFlows = computed<OnboardingFlow[]>(
+	() => getCard(pendingCard.value)?.flows ?? []
+)
+
 const panelView = computed<PanelView>(() => {
+	if (pendingCard.value) return 'provider'
 	if (!activeFlow.value) return 'picker'
 	return isFlowComplete(activeFlow.value.id) ? 'done' : 'checklist'
 })
@@ -84,7 +100,8 @@ const bannerFlow = computed<OnboardingFlow | null>(() => {
 	if (!isSetUp.value) return null
 	const active = activeFlow.value
 	if (active && !isFlowComplete(active.id)) return active
-	if (remainingFlows.value.length) return remainingFlows.value[0]
+	const [nextCard] = remainingCards.value
+	if (nextCard) return nextCard.flows[0]
 	if (active && !handles[active.id]?.isOnboardingStepsCompleted.value)
 		return active
 	return null
@@ -151,6 +168,23 @@ async function loadFacts(): Promise<void> {
 	}
 }
 
+const FACTS_REFETCH_DELAY = 500
+let refetchTimer: ReturnType<typeof setTimeout> | undefined
+
+// Some steps finish outside the SPA (Google's OAuth round trip) or in a
+// settings dialog that never calls completeStep, so look again whenever the
+// admin comes back to the window or reopens the panel.
+function refetchFacts(): void {
+	clearTimeout(refetchTimer)
+	refetchTimer = setTimeout(loadFacts, FACTS_REFETCH_DELAY)
+}
+
+function watchForReturns(): void {
+	window.addEventListener('focus', refetchFacts)
+	watch(showHelpModal, (open) => open && refetchFacts())
+	watch(minimize, (minimized) => !minimized && refetchFacts())
+}
+
 type SidebarNavigation = Omit<FlowNavigation, 'facts' | 'complete'>
 
 /** Register every flow, so a form can complete a step whichever is active. */
@@ -173,9 +207,25 @@ async function setUpAll(nav: SidebarNavigation): Promise<void> {
 	await statusSettled()
 	for (const flow of FLOWS) handles[flow.id]?.syncStatus()
 	await loadFacts()
+	watchForReturns()
+}
+
+/** Start a card's flow, or ask which provider first when it has several. */
+function chooseCard(id: CardId): void {
+	const card = getCard(id)
+	if (!card) return
+	if (card.flows.length === 1) return setFlow(card.flows[0].id)
+	pendingCard.value = id
+	minimize.value = false
+	showHelpModal.value = true
+}
+
+function cancelProvider(): void {
+	pendingCard.value = null
 }
 
 function setFlow(id: FlowId | null): void {
+	pendingCard.value = null
 	flowStorage().value = id
 	if (!id) return
 	minimize.value = false
@@ -187,6 +237,7 @@ function runDoneAction(): void {
 }
 
 function closePanel(): void {
+	pendingCard.value = null
 	showHelpModal.value = false
 }
 
@@ -196,12 +247,16 @@ export function useLearningOnboarding() {
 		isSetUp,
 		activeFlow,
 		activeFlowId,
-		remainingFlows,
+		remainingCards,
+		providerFlows,
 		panelView,
 		bannerFlow,
 		isFlowComplete,
+		isCardComplete,
 		setUpAll,
 		setFlow,
+		chooseCard,
+		cancelProvider,
 		completeStep,
 		applyFacts,
 		closePanel,

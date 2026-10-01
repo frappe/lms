@@ -161,7 +161,7 @@ const form = recordForm({
 		)
 		if (created) {
 			useTelemetry().capture('google_meet_account_linked')
-			useLearningOnboarding().completeStep('connect_conferencing')
+			useLearningOnboarding().completeStep('add_meet_account')
 		}
 		back()
 	},

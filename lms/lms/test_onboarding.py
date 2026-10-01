@@ -16,7 +16,10 @@ FLAG_KEYS = {
 	"has_batch",
 	"has_batch_course",
 	"has_batch_student",
-	"has_conferencing_account",
+	"has_zoom_account",
+	"has_google_api",
+	"has_google_calendar",
+	"has_meet_account",
 	"has_live_class",
 	"has_published_batch",
 }
@@ -43,8 +46,10 @@ class TestOnboardingFacts(BaseTestUtils):
 			"LMS Course",
 			"LMS Zoom Settings",
 			"LMS Google Meet Settings",
+			"Google Calendar",
 		):
 			frappe.db.delete(doctype)
+		self._set_google_settings(enable=0, client_id=None, client_secret=None)
 		frappe.db.delete("Has Role", {"role": "LMS Student", "parenttype": "User"})
 
 	def _facts(self):
@@ -181,7 +186,7 @@ class TestOnboardingFacts(BaseTestUtils):
 		frappe.db.set_value("User", student.name, "enabled", 0)
 		self.assertFalse(self._facts()["has_invited_student"])
 
-	def test_zoom_account_counts_as_conferencing(self):
+	def test_zoom_account(self):
 		frappe.get_doc(
 			{
 				"doctype": "LMS Zoom Settings",
@@ -192,9 +197,13 @@ class TestOnboardingFacts(BaseTestUtils):
 				"member": self.admin.name,
 			}
 		).db_insert()
-		self.assertTrue(self._facts()["has_conferencing_account"])
+		facts = self._facts()
+		self.assertTrue(facts["has_zoom_account"])
+		self.assertFalse(facts["has_meet_account"])
 
-	def test_google_meet_account_counts_as_conferencing(self):
+	# Guards: a Meet account not ticking its step, or ticking the Zoom one. Introduced in this branch
+	# (feat/onboarding-flows, PR pending); test added there to keep the providers apart.
+	def test_meet_account(self):
 		frappe.get_doc(
 			{
 				"doctype": "LMS Google Meet Settings",
@@ -203,7 +212,58 @@ class TestOnboardingFacts(BaseTestUtils):
 				"member": self.admin.name,
 			}
 		).db_insert()
-		self.assertTrue(self._facts()["has_conferencing_account"])
+		facts = self._facts()
+		self.assertTrue(facts["has_meet_account"])
+		self.assertFalse(facts["has_zoom_account"])
+
+	# Guards: Google API ticking with Google Settings disabled or missing a credential. Introduced in this
+	# branch (feat/onboarding-flows, PR pending); test added there to require all three.
+	def test_google_api_needs_enable_id_and_secret(self):
+		self._set_google_settings(enable=1, client_id="client", client_secret=None)
+		self.assertFalse(self._facts()["has_google_api"])
+
+		self._set_google_settings(enable=0, client_id="client", client_secret="secret")
+		self.assertFalse(self._facts()["has_google_api"])
+
+		self._set_google_settings(enable=1, client_id="client", client_secret="secret")
+		self.assertTrue(self._facts()["has_google_api"])
+
+	# Guards: a calendar that never finished OAuth ticking the calendar step. Introduced in this branch
+	# (feat/onboarding-flows, PR pending); test added there to require a refresh token.
+	def test_google_calendar_needs_a_refresh_token_for_this_user(self):
+		calendar = self._insert_google_calendar("Administrator")
+		self.assertFalse(self._facts()["has_google_calendar"])
+
+		frappe.db.set_value("Google Calendar", calendar, "refresh_token", "token")
+		self.assertTrue(self._facts()["has_google_calendar"])
+
+	# Guards: another user's authorised calendar ticking the admin's calendar step. Introduced in this
+	# branch (feat/onboarding-flows, PR pending); test added there to scope it to the session user.
+	def test_another_users_calendar_does_not_count(self):
+		calendar = self._insert_google_calendar(self.admin.name)
+		frappe.db.set_value("Google Calendar", calendar, "refresh_token", "token")
+		self.assertFalse(self._facts()["has_google_calendar"])
+
+	def _set_google_settings(self, enable, client_id, client_secret):
+		settings = frappe.get_single("Google Settings")
+		settings.enable = enable
+		settings.client_id = client_id
+		settings.client_secret = client_secret
+		settings.flags.ignore_mandatory = True
+		settings.save()
+
+	def _insert_google_calendar(self, user):
+		name = frappe.generate_hash(length=10)
+		frappe.get_doc(
+			{
+				"doctype": "Google Calendar",
+				"name": name,
+				"calendar_name": name,
+				"user": user,
+				"enable": 1,
+			}
+		).db_insert()
+		return name
 
 	def _insert_live_class(self, batch):
 		frappe.get_doc(

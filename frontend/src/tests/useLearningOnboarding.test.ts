@@ -96,8 +96,21 @@ beforeEach(() => {
 	callMock.mockResolvedValue({})
 })
 
+// vi.resetModules gives each test a fresh composable, but the focus listener
+// an earlier copy added to window outlives it. Drop them between tests.
+const focusListeners: EventListenerOrEventListenerObject[] = []
+const addListener = window.addEventListener.bind(window)
+vi.spyOn(window, 'addEventListener').mockImplementation(
+	(type: string, listener: EventListenerOrEventListenerObject, options?) => {
+		if (type === 'focus') focusListeners.push(listener)
+		addListener(type, listener, options)
+	}
+)
+
 afterEach(() => {
 	document.cookie = 'user_id=; expires=Thu, 01 Jan 1970 00:00:00 GMT'
+	for (const listener of focusListeners.splice(0))
+		window.removeEventListener('focus', listener)
 })
 
 describe('completeStep', () => {
@@ -114,10 +127,43 @@ describe('completeStep', () => {
 		expect(
 			handle('onboard_learners').updateOnboardingStep
 		).toHaveBeenCalledWith('create_first_batch')
-		expect(handle('live_class').updateOnboardingStep).toHaveBeenCalledWith(
+		expect(handle('live_class_zoom').updateOnboardingStep).toHaveBeenCalledWith(
+			'create_first_batch'
+		)
+		expect(handle('live_class_meet').updateOnboardingStep).toHaveBeenCalledWith(
 			'create_first_batch'
 		)
 		expect(handle('publish_course').updateOnboardingStep).not.toHaveBeenCalled()
+	})
+
+	it.each([{ step: 'schedule_live_class' }, { step: 'publish_batch' }])(
+		'$step completes in both live class provider flows',
+		async ({ step }) => {
+			const o = await load()
+			await o.setUpAll(nav)
+			o.completeStep(step)
+			expect(
+				handle('live_class_zoom').updateOnboardingStep
+			).toHaveBeenCalledWith(step)
+			expect(
+				handle('live_class_meet').updateOnboardingStep
+			).toHaveBeenCalledWith(step)
+			expect(
+				handle('onboard_learners').updateOnboardingStep
+			).not.toHaveBeenCalled()
+		}
+	)
+
+	it('completes a provider-only step in that provider alone', async () => {
+		const o = await load()
+		await o.setUpAll(nav)
+		o.completeStep('add_meet_account')
+		expect(handle('live_class_meet').updateOnboardingStep).toHaveBeenCalledWith(
+			'add_meet_account'
+		)
+		expect(
+			handle('live_class_zoom').updateOnboardingStep
+		).not.toHaveBeenCalled()
 	})
 
 	it('remembers a new course as the first course only when none is known', async () => {
@@ -174,8 +220,8 @@ describe('active flow', () => {
 	})
 
 	it('reads a known stored flow id', async () => {
-		const o = await load('live_class')
-		expect(o.activeFlowId.value).toBe('live_class')
+		const o = await load('live_class_meet')
+		expect(o.activeFlowId.value).toBe('live_class_meet')
 	})
 
 	it('setFlow stores the choice per user and opens the panel', async () => {
@@ -190,10 +236,10 @@ describe('active flow', () => {
 	})
 
 	it('shows the checklist until the active flow is done', async () => {
-		const o = await load('live_class')
+		const o = await load('live_class_zoom')
 		await o.setUpAll(nav)
 		expect(o.panelView.value).toBe('checklist')
-		for (const step of handle('live_class').steps) step.completed = true
+		for (const step of handle('live_class_zoom').steps) step.completed = true
 		expect(o.panelView.value).toBe('done')
 	})
 
@@ -205,31 +251,120 @@ describe('active flow', () => {
 	})
 })
 
-describe('remainingFlows', () => {
-	it('lists unfinished flows in the active flow’s next order', async () => {
-		const o = await load('live_class')
+describe('remainingCards', () => {
+	const ids = (o: Awaited<ReturnType<typeof load>>) =>
+		o.remainingCards.value.map((c) => c.id)
+
+	it('lists unfinished cards in the active flow’s next order', async () => {
+		const o = await load('live_class_zoom')
 		await o.setUpAll(nav)
-		expect(o.remainingFlows.value.map((f) => f.id)).toEqual([
-			'onboard_learners',
-			'publish_course',
-		])
+		expect(ids(o)).toEqual(['onboard_learners', 'publish_course'])
 	})
 
-	it('drops complete flows', async () => {
-		const o = await load('live_class')
+	it('drops complete cards', async () => {
+		const o = await load('live_class_zoom')
 		await o.setUpAll(nav)
 		handle('onboard_learners').isOnboardingStepsCompleted.value = true
-		expect(o.remainingFlows.value.map((f) => f.id)).toEqual(['publish_course'])
+		expect(ids(o)).toEqual(['publish_course'])
 	})
 
 	it('uses registry order with no active flow', async () => {
 		const o = await load()
 		await o.setUpAll(nav)
-		expect(o.remainingFlows.value.map((f) => f.id)).toEqual([
-			'publish_course',
-			'onboard_learners',
-			'live_class',
+		expect(ids(o)).toEqual(['publish_course', 'onboard_learners', 'live_class'])
+	})
+
+	it('counts the live class done once either provider is done', async () => {
+		const o = await load('publish_course')
+		await o.setUpAll(nav)
+		handle('live_class_meet').isOnboardingStepsCompleted.value = true
+		expect(ids(o)).toEqual(['onboard_learners'])
+		expect(o.isCardComplete('live_class')).toBe(true)
+	})
+})
+
+describe('choosing a card', () => {
+	it('starts a single-flow card straight away', async () => {
+		const o = await load()
+		await o.setUpAll(nav)
+		o.chooseCard('onboard_learners')
+		expect(o.activeFlowId.value).toBe('onboard_learners')
+		expect(o.panelView.value).toBe('checklist')
+	})
+
+	it('asks for a provider before starting the live class', async () => {
+		const o = await load()
+		await o.setUpAll(nav)
+		o.chooseCard('live_class')
+		expect(o.activeFlowId.value).toBeNull()
+		expect(o.panelView.value).toBe('provider')
+		expect(o.providerFlows.value.map((f) => f.id)).toEqual([
+			'live_class_zoom',
+			'live_class_meet',
 		])
+		expect(o.ui.showHelpModal.value).toBe(true)
+	})
+
+	it('picking a provider makes it the active flow', async () => {
+		const o = await load()
+		await o.setUpAll(nav)
+		o.chooseCard('live_class')
+		o.setFlow('live_class_meet')
+		expect(o.activeFlowId.value).toBe('live_class_meet')
+		expect(o.panelView.value).toBe('checklist')
+	})
+
+	it('going back from the provider choice keeps the active flow', async () => {
+		const o = await load('publish_course')
+		await o.setUpAll(nav)
+		for (const step of handle('publish_course').steps) step.completed = true
+		o.chooseCard('live_class')
+		o.cancelProvider()
+		expect(o.activeFlowId.value).toBe('publish_course')
+		expect(o.panelView.value).toBe('done')
+	})
+
+	it('closing the panel drops a half-made provider choice', async () => {
+		const o = await load()
+		await o.setUpAll(nav)
+		o.chooseCard('live_class')
+		o.closePanel()
+		expect(o.panelView.value).toBe('picker')
+	})
+})
+
+describe('refetching facts', () => {
+	afterEach(() => vi.useRealTimers())
+
+	it('refetches once after a burst of window focus events', async () => {
+		vi.useFakeTimers()
+		const o = await load()
+		await o.setUpAll(nav)
+		callMock.mockClear()
+		callMock.mockResolvedValue({ has_google_calendar: true })
+		window.dispatchEvent(new Event('focus'))
+		window.dispatchEvent(new Event('focus'))
+		expect(callMock).not.toHaveBeenCalled()
+		await vi.advanceTimersByTimeAsync(1000)
+		expect(callMock).toHaveBeenCalledTimes(1)
+		expect(handle('live_class_meet').updateOnboardingStep).toHaveBeenCalledWith(
+			'connect_google_calendar'
+		)
+	})
+
+	it('refetches when the panel opens again', async () => {
+		vi.useFakeTimers()
+		const o = await load()
+		await o.setUpAll(nav)
+		o.ui.showHelpModal.value = false
+		await nextTick()
+		callMock.mockClear()
+		o.ui.showHelpModal.value = true
+		await nextTick()
+		await vi.advanceTimersByTimeAsync(1000)
+		expect(callMock).toHaveBeenCalledWith(
+			'lms.lms.onboarding.get_onboarding_facts'
+		)
 	})
 })
 
@@ -238,7 +373,12 @@ describe('setUpAll', () => {
 		const o = await load()
 		await o.setUpAll(nav)
 		await o.setUpAll(nav)
-		for (const key of ['publish_course', 'onboard_learners', 'live_class'])
+		for (const key of [
+			'publish_course',
+			'onboard_learners',
+			'live_class_zoom',
+			'live_class_meet',
+		])
 			expect(handle(key).setUp).toHaveBeenCalledTimes(1)
 	})
 
@@ -268,12 +408,17 @@ describe('setUpAll', () => {
 		const o = await load()
 		const done = o.setUpAll(nav)
 		await nextTick()
-		expect(handle('live_class').syncStatus).not.toHaveBeenCalled()
+		expect(handle('live_class_zoom').syncStatus).not.toHaveBeenCalled()
 		expect(callMock).not.toHaveBeenCalled()
 
 		statusResource.current.loading = false
 		await done
-		for (const key of ['publish_course', 'onboard_learners', 'live_class'])
+		for (const key of [
+			'publish_course',
+			'onboard_learners',
+			'live_class_zoom',
+			'live_class_meet',
+		])
 			expect(handle(key).syncStatus).toHaveBeenCalledTimes(1)
 		expect(callMock).toHaveBeenCalledWith(
 			'lms.lms.onboarding.get_onboarding_facts'
@@ -308,13 +453,18 @@ describe('bannerFlow', () => {
 		const o = await load('onboard_learners')
 		await o.setUpAll(nav)
 		handle('onboard_learners').isOnboardingStepsCompleted.value = true
-		expect(o.bannerFlow.value?.id).toBe('live_class')
+		expect(o.bannerFlow.value?.id).toBe('live_class_zoom')
 	})
 
 	it('is hidden once every flow is done and dismissed', async () => {
 		const o = await load('publish_course')
 		await o.setUpAll(nav)
-		for (const key of ['publish_course', 'onboard_learners', 'live_class'])
+		for (const key of [
+			'publish_course',
+			'onboard_learners',
+			'live_class_zoom',
+			'live_class_meet',
+		])
 			handle(key).isOnboardingStepsCompleted.value = true
 		expect(o.bannerFlow.value).toBeNull()
 	})
@@ -323,7 +473,7 @@ describe('bannerFlow', () => {
 describe('runDoneAction', () => {
 	it('runs the active flow’s done action with the sidebar navigation', async () => {
 		callMock.mockResolvedValue({ first_batch: 'b1' })
-		const o = await load('live_class')
+		const o = await load('live_class_meet')
 		await o.setUpAll(nav)
 		o.runDoneAction()
 		expect(nav.openRoute).toHaveBeenCalledWith({
@@ -334,7 +484,7 @@ describe('runDoneAction', () => {
 
 	it('does nothing before set-up', async () => {
 		nav.openRoute.mockClear()
-		const o = await load('live_class')
+		const o = await load('live_class_zoom')
 		o.runDoneAction()
 		expect(nav.openRoute).not.toHaveBeenCalled()
 	})

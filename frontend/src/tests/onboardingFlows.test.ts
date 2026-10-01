@@ -4,8 +4,10 @@
  */
 import { describe, expect, it, vi } from 'vitest'
 import {
+	CARDS,
 	FACT_KEYS,
 	FLOWS,
+	getCard,
 	getFlow,
 	type FlowNavigation,
 	type OnboardingFacts,
@@ -28,11 +30,30 @@ function stepsOf(id: string, nav = fakeNav()) {
 }
 
 describe('flow registry', () => {
-	it('ships the three picker flows with their framework keys', () => {
+	it('ships four flows with their framework keys', () => {
 		expect(FLOWS.map((f) => [f.id, f.key])).toEqual([
 			['publish_course', 'learning_publish_course'],
 			['onboard_learners', 'learning_onboard_learners'],
-			['live_class', 'learning_live_class'],
+			['live_class_zoom', 'learning_live_class_zoom'],
+			['live_class_meet', 'learning_live_class_meet'],
+		])
+	})
+
+	it('groups them into three picker cards, live class by provider', () => {
+		expect(CARDS.map((c) => [c.id, c.flows.map((f) => f.id)])).toEqual([
+			['publish_course', ['publish_course']],
+			['onboard_learners', ['onboard_learners']],
+			['live_class', ['live_class_zoom', 'live_class_meet']],
+		])
+		expect(getCard('live_class')!.title).toBe('Run my first live class')
+	})
+
+	it('labels each provider flow and nothing else', () => {
+		expect(FLOWS.map((f) => f.provider?.label ?? null)).toEqual([
+			null,
+			null,
+			'Zoom',
+			'Google Meet',
 		])
 	})
 
@@ -58,10 +79,21 @@ describe('flow registry', () => {
 			],
 		},
 		{
-			id: 'live_class',
+			id: 'live_class_zoom',
 			names: [
 				'create_first_batch',
-				'connect_conferencing',
+				'connect_zoom',
+				'schedule_live_class',
+				'publish_batch',
+			],
+		},
+		{
+			id: 'live_class_meet',
+			names: [
+				'create_first_batch',
+				'setup_google_api',
+				'connect_google_calendar',
+				'add_meet_account',
 				'schedule_live_class',
 				'publish_batch',
 			],
@@ -91,16 +123,24 @@ describe('flow registry', () => {
 	)
 
 	it.each(FLOWS.map((f) => ({ id: f.id })))(
-		'$id offers only other known flows next',
+		'$id offers only other known cards next',
 		({ id }) => {
 			const flow = getFlow(id)!
 			expect(flow.next.length).toBeGreaterThan(0)
 			for (const next of flow.next) {
-				expect(next).not.toBe(id)
-				expect(getFlow(next)).toBeDefined()
+				expect(next).not.toBe(flow.card)
+				expect(getCard(next)).toBeDefined()
 			}
 		}
 	)
+
+	it('chains the Google Meet set-up steps', () => {
+		const steps = stepsOf('live_class_meet')
+		const dependsOn = (name: string) =>
+			steps.find((s) => s.name === name)?.dependsOn
+		expect(dependsOn('connect_google_calendar')).toBe('setup_google_api')
+		expect(dependsOn('add_meet_account')).toBe('connect_google_calendar')
+	})
 
 	it.each(FLOWS.map((f) => ({ id: f.id })))(
 		'$id steps start incomplete and name known facts',
@@ -170,15 +210,25 @@ describe('step targets', () => {
 		expect(nav.openSettings).toHaveBeenCalledWith('members')
 	})
 
-	it('opens zoom settings to connect conferencing', () => {
+	it.each([
+		{ id: 'live_class_zoom', name: 'connect_zoom', slug: 'zoom' },
+		{ id: 'live_class_meet', name: 'setup_google_api', slug: 'services' },
+		{
+			id: 'live_class_meet',
+			name: 'connect_google_calendar',
+			slug: 'google-calendar',
+		},
+		{ id: 'live_class_meet', name: 'add_meet_account', slug: 'google-meet' },
+	])('$name opens the $slug settings page', ({ id, name, slug }) => {
 		const nav = fakeNav()
-		click('live_class', 'connect_conferencing', nav)
-		expect(nav.openSettings).toHaveBeenCalledWith('zoom')
+		click(id, name, nav)
+		expect(nav.openSettings).toHaveBeenCalledWith(slug)
 	})
 
 	it.each([
 		{ id: 'onboard_learners', name: 'create_first_batch' },
-		{ id: 'live_class', name: 'create_first_batch' },
+		{ id: 'live_class_zoom', name: 'create_first_batch' },
+		{ id: 'live_class_meet', name: 'create_first_batch' },
 	])('$id opens the new batch form', ({ id, name }) => {
 		const nav = fakeNav()
 		click(id, name, nav)
@@ -199,7 +249,7 @@ describe('step targets', () => {
 			hash: '#dashboard',
 		},
 		{
-			id: 'live_class',
+			id: 'live_class_meet',
 			name: 'schedule_live_class',
 			form: 'NewLiveClass',
 			hash: '#classes',
@@ -216,7 +266,7 @@ describe('step targets', () => {
 
 	it('opens the first batch to publish it', () => {
 		const nav = fakeNav(facts)
-		click('live_class', 'publish_batch', nav)
+		click('live_class_zoom', 'publish_batch', nav)
 		expect(nav.openRoute).toHaveBeenCalledWith({
 			name: 'BatchDetail',
 			params: { batchName: 'my-batch' },
@@ -225,7 +275,7 @@ describe('step targets', () => {
 
 	it('falls back to the batch list without a first batch', () => {
 		const nav = fakeNav()
-		click('live_class', 'schedule_live_class', nav)
+		click('live_class_zoom', 'schedule_live_class', nav)
 		expect(nav.openRoute).toHaveBeenCalledWith({ name: 'Batches' })
 	})
 
@@ -239,12 +289,29 @@ describe('step targets', () => {
 			to: { name: 'BatchDetail', params: { batchName: 'my-batch' } },
 		},
 		{
-			id: 'live_class',
+			id: 'live_class_zoom',
+			to: { name: 'BatchDetail', params: { batchName: 'my-batch' } },
+		},
+		{
+			id: 'live_class_meet',
 			to: { name: 'BatchDetail', params: { batchName: 'my-batch' } },
 		},
 	])('$id done action opens its record', ({ id, to }) => {
 		const nav = fakeNav(facts)
 		getFlow(id)!.doneAction.run(nav)
 		expect(nav.openRoute).toHaveBeenCalledWith(to)
+	})
+})
+
+describe('loading the registry', () => {
+	it('does not translate before translation.js installs __', async () => {
+		const translate = globalThis.__
+		vi.stubGlobal('__', undefined)
+		vi.resetModules()
+		try {
+			await expect(import('@/onboarding/flows')).resolves.toBeDefined()
+		} finally {
+			vi.stubGlobal('__', translate)
+		}
 	})
 })

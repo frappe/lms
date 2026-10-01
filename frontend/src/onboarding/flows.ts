@@ -13,10 +13,19 @@ import {
 	UserPlus,
 	Users,
 	Video,
+	KeyRound,
+	CalendarCheck,
 } from 'lucide-vue-next'
 import InviteIcon from '@/components/Icons/InviteIcon.vue'
 
-export type FlowId = 'publish_course' | 'onboard_learners' | 'live_class'
+export type FlowId =
+	| 'publish_course'
+	| 'onboard_learners'
+	| 'live_class_zoom'
+	| 'live_class_meet'
+
+/** A picker entry. The live class card holds one flow per meeting provider. */
+export type CardId = 'publish_course' | 'onboard_learners' | 'live_class'
 
 export const FACT_KEYS = [
 	'has_course',
@@ -28,7 +37,10 @@ export const FACT_KEYS = [
 	'has_batch',
 	'has_batch_course',
 	'has_batch_student',
-	'has_conferencing_account',
+	'has_zoom_account',
+	'has_google_api',
+	'has_google_calendar',
+	'has_meet_account',
 	'has_live_class',
 	'has_published_batch',
 ] as const
@@ -58,6 +70,10 @@ export interface FlowStep extends OnboardingStep {
 
 export interface OnboardingFlow {
 	id: FlowId
+	/** The picker card this flow belongs to. */
+	card: CardId
+	/** Set on a card's provider flows: the choice shown before the checklist. */
+	provider?: { readonly label: string; readonly description: string }
 	/** `useOnboarding` key; progress is stored under `<key>_onboarding_status`. */
 	key: string
 	readonly title: string
@@ -65,8 +81,8 @@ export interface OnboardingFlow {
 	icon: Component
 	readonly doneTitle: string
 	doneAction: { readonly label: string; run: (nav: FlowNavigation) => void }
-	/** Flows to offer once this one is done, best first. */
-	next: FlowId[]
+	/** Cards to offer once this one is done, best first. */
+	next: CardId[]
 	/** Order is frozen once shipped: stored progress is matched by index. */
 	steps: (nav: FlowNavigation) => FlowStep[]
 }
@@ -112,6 +128,7 @@ function createFirstBatch(nav: FlowNavigation): FlowStep {
 
 const publishCourse: OnboardingFlow = {
 	id: 'publish_course',
+	card: 'publish_course',
 	key: 'learning_publish_course',
 	get title() {
 		return __('Publish my first course')
@@ -195,6 +212,7 @@ const publishCourse: OnboardingFlow = {
 
 const onboardLearners: OnboardingFlow = {
 	id: 'onboard_learners',
+	card: 'onboard_learners',
 	key: 'learning_onboard_learners',
 	get title() {
 		return __('Onboard my existing learners')
@@ -244,9 +262,9 @@ const onboardLearners: OnboardingFlow = {
 	],
 }
 
-const liveClass: OnboardingFlow = {
-	id: 'live_class',
-	key: 'learning_live_class',
+// Zoom and Google Meet need different set-up steps, and stored progress is
+// matched to steps by index, so each provider is its own flow and key.
+const liveClassCopy = {
 	get title() {
 		return __('Run my first live class')
 	},
@@ -263,17 +281,11 @@ const liveClass: OnboardingFlow = {
 		},
 		run: openBatch,
 	},
-	next: ['onboard_learners', 'publish_course'],
-	steps: (nav) => [
-		createFirstBatch(nav),
-		{
-			name: 'connect_conferencing',
-			title: __('Connect Zoom or Google Meet'),
-			icon: stepIcon(Video),
-			completed: false,
-			fact: 'has_conferencing_account',
-			onClick: () => nav.openSettings('zoom'),
-		},
+	next: ['onboard_learners', 'publish_course'] as CardId[],
+}
+
+function scheduleAndPublish(nav: FlowNavigation): FlowStep[] {
+	return [
 		{
 			name: 'schedule_live_class',
 			title: __('Schedule a live class'),
@@ -292,14 +304,130 @@ const liveClass: OnboardingFlow = {
 			fact: 'has_published_batch',
 			onClick: () => openBatch(nav),
 		},
-	],
+	]
 }
+
+// A spread would call the getters at import, before translation.js installs __.
+function withLiveClassCopy(
+	flow: Omit<OnboardingFlow, keyof typeof liveClassCopy>
+) {
+	return Object.defineProperties(
+		flow,
+		Object.getOwnPropertyDescriptors(liveClassCopy)
+	) as OnboardingFlow
+}
+
+const liveClassZoom = withLiveClassCopy({
+	id: 'live_class_zoom',
+	card: 'live_class',
+	key: 'learning_live_class_zoom',
+	provider: {
+		get label() {
+			return __('Zoom')
+		},
+		get description() {
+			return __('Host classes from a Zoom account.')
+		},
+	},
+	steps: (nav) => [
+		createFirstBatch(nav),
+		{
+			name: 'connect_zoom',
+			title: __('Connect a Zoom account'),
+			icon: stepIcon(Video),
+			completed: false,
+			fact: 'has_zoom_account',
+			onClick: () => nav.openSettings('zoom'),
+		},
+		...scheduleAndPublish(nav),
+	],
+})
+
+const liveClassMeet = withLiveClassCopy({
+	id: 'live_class_meet',
+	card: 'live_class',
+	key: 'learning_live_class_meet',
+	provider: {
+		get label() {
+			return __('Google Meet')
+		},
+		get description() {
+			return __('Set up Google API and Calendar, then a Meet account.')
+		},
+	},
+	steps: (nav) => [
+		createFirstBatch(nav),
+		{
+			name: 'setup_google_api',
+			title: __('Set up Google API'),
+			icon: stepIcon(KeyRound),
+			completed: false,
+			fact: 'has_google_api',
+			onClick: () => nav.openSettings('services'),
+		},
+		{
+			name: 'connect_google_calendar',
+			title: __('Connect Google Calendar'),
+			icon: stepIcon(CalendarCheck),
+			completed: false,
+			dependsOn: 'setup_google_api',
+			fact: 'has_google_calendar',
+			onClick: () => nav.openSettings('google-calendar'),
+		},
+		{
+			name: 'add_meet_account',
+			title: __('Add a Google Meet account'),
+			icon: stepIcon(Video),
+			completed: false,
+			dependsOn: 'connect_google_calendar',
+			fact: 'has_meet_account',
+			onClick: () => nav.openSettings('google-meet'),
+		},
+		...scheduleAndPublish(nav),
+	],
+})
 
 export const FLOWS: readonly OnboardingFlow[] = [
 	publishCourse,
 	onboardLearners,
-	liveClass,
+	liveClassZoom,
+	liveClassMeet,
 ]
+
+export interface FlowCard {
+	id: CardId
+	readonly title: string
+	readonly description: string
+	icon: Component
+	/** One flow, or one per provider to choose between. */
+	flows: OnboardingFlow[]
+}
+
+function card(id: CardId): FlowCard {
+	const flows = FLOWS.filter((flow) => flow.card === id)
+	const [first] = flows
+	return {
+		id,
+		get title() {
+			return first.title
+		},
+		get description() {
+			return first.description
+		},
+		icon: first.icon,
+		flows,
+	}
+}
+
+export const CARDS: readonly FlowCard[] = [
+	card('publish_course'),
+	card('onboard_learners'),
+	card('live_class'),
+]
+
+export function getCard(id: string | null | undefined): FlowCard | undefined {
+	return CARDS.find((c) => c.id === id)
+}
 
 export function getFlow(
 	id: string | null | undefined

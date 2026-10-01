@@ -167,17 +167,17 @@ describe('AppSidebar onboarding', () => {
 	})
 
 	it('binds the checklist to the active flow', async () => {
-		onboarding.activeFlow.value = { key: 'learning_live_class' }
+		onboarding.activeFlow.value = { key: 'learning_live_class_meet' }
 		onboarding.panelView.value = 'checklist'
 		const w = await build()
 		expect(
 			w.find('[data-testid="onboarding-help-modal"]').attributes('data-app')
-		).toBe('learning_live_class')
+		).toBe('learning_live_class_meet')
 		expect(w.find('[data-testid="flow-panel"]').exists()).toBe(false)
 	})
 
 	it('shows the done panel once the active flow is complete', async () => {
-		onboarding.activeFlow.value = { key: 'learning_live_class' }
+		onboarding.activeFlow.value = { key: 'learning_live_class_meet' }
 		onboarding.panelView.value = 'done'
 		const w = await build()
 		expect(w.find('[data-testid="flow-panel"]').exists()).toBe(true)

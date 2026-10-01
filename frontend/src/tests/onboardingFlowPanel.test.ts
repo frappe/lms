@@ -1,20 +1,36 @@
 /**
- * OnboardingFlowPanel: the picker (no active flow) and the done view (active
- * flow finished). The composable is replaced so each test sets the state.
+ * OnboardingFlowPanel: the picker (no active flow), the provider choice for the
+ * live class card, and the done view (active flow finished). The composable is
+ * replaced so each test sets the state.
  */
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { ref, type Ref } from 'vue'
-import { FLOWS, type OnboardingFlow } from '@/onboarding/flows'
+import {
+	CARDS,
+	getFlow,
+	type FlowCard,
+	type OnboardingFlow,
+} from '@/onboarding/flows'
 import OnboardingFlowPanel from '@/components/Onboarding/OnboardingFlowPanel.vue'
 
-const { state, setFlow, closePanel, runDoneAction } = vi.hoisted(() => ({
+const {
+	state,
+	setFlow,
+	chooseCard,
+	cancelProvider,
+	closePanel,
+	runDoneAction,
+} = vi.hoisted(() => ({
 	state: {} as {
 		activeFlow: Ref<OnboardingFlow | null>
-		remainingFlows: Ref<OnboardingFlow[]>
-		panelView: Ref<'checklist' | 'picker' | 'done'>
+		remainingCards: Ref<FlowCard[]>
+		providerFlows: Ref<OnboardingFlow[]>
+		panelView: Ref<'checklist' | 'picker' | 'done' | 'provider'>
 	},
 	setFlow: vi.fn(),
+	chooseCard: vi.fn(),
+	cancelProvider: vi.fn(),
 	closePanel: vi.fn(),
 	runDoneAction: vi.fn(),
 }))
@@ -23,6 +39,8 @@ vi.mock('@/onboarding/useLearningOnboarding', () => ({
 	useLearningOnboarding: () => ({
 		...state,
 		setFlow,
+		chooseCard,
+		cancelProvider,
 		closePanel,
 		runDoneAction,
 	}),
@@ -51,23 +69,26 @@ vi.mock('@/components/Icons/LMSLogo.vue', () => ({
 	default: { template: '<svg />' },
 }))
 
-const [publishCourse, onboardLearners, liveClass] = FLOWS
+const [publishCourse, onboardLearners, liveClass] = CARDS
+const zoomFlow = getFlow('live_class_zoom')!
+const meetFlow = getFlow('live_class_meet')!
 
 function mountPanel() {
 	return mount(OnboardingFlowPanel)
 }
 
 beforeEach(() => {
-	setFlow.mockReset()
-	closePanel.mockReset()
+	for (const fn of [setFlow, chooseCard, cancelProvider, closePanel])
+		fn.mockReset()
 	runDoneAction.mockReset()
 	state.activeFlow = ref(null)
-	state.remainingFlows = ref([...FLOWS])
+	state.remainingCards = ref([...CARDS])
+	state.providerFlows = ref([])
 	state.panelView = ref('picker')
 })
 
 describe('picker', () => {
-	it('lists every unfinished flow', () => {
+	it('lists every unfinished card, the live class once', () => {
 		const w = mountPanel()
 		const rows = w.findAll('[data-testid="picker-flow"]')
 		expect(rows.map((r) => r.text())).toEqual([
@@ -77,10 +98,13 @@ describe('picker', () => {
 		])
 	})
 
-	it('starts the chosen flow', async () => {
+	it.each([
+		{ index: 1, id: 'onboard_learners' },
+		{ index: 2, id: 'live_class' },
+	])('choosing row $index chooses the $id card', async ({ index, id }) => {
 		const w = mountPanel()
-		await w.findAll('[data-testid="picker-flow"]')[1].trigger('click')
-		expect(setFlow).toHaveBeenCalledWith('onboard_learners')
+		await w.findAll('[data-testid="picker-flow"]')[index].trigger('click')
+		expect(chooseCard).toHaveBeenCalledWith(id)
 	})
 
 	it('has no done title or Maybe later', () => {
@@ -99,8 +123,8 @@ describe('picker', () => {
 
 describe('done view', () => {
 	beforeEach(() => {
-		state.activeFlow.value = liveClass
-		state.remainingFlows.value = [onboardLearners, publishCourse]
+		state.activeFlow.value = zoomFlow
+		state.remainingCards.value = [onboardLearners, publishCourse]
 		state.panelView.value = 'done'
 	})
 
@@ -122,7 +146,7 @@ describe('done view', () => {
 			expect.stringContaining(publishCourse.title),
 		])
 		await rows[1].find('button').trigger('click')
-		expect(setFlow).toHaveBeenCalledWith('publish_course')
+		expect(chooseCard).toHaveBeenCalledWith('publish_course')
 	})
 
 	it('gives each Start a name that says which flow', () => {
@@ -141,9 +165,39 @@ describe('done view', () => {
 	})
 
 	it('says so when nothing is left', () => {
-		state.remainingFlows.value = []
+		state.remainingCards.value = []
 		const w = mountPanel()
 		expect(w.findAll('[data-testid="remaining-flow"]')).toHaveLength(0)
 		expect(w.text()).toContain('You have finished every getting started flow.')
+	})
+})
+
+describe('provider choice', () => {
+	beforeEach(() => {
+		state.providerFlows.value = [zoomFlow, meetFlow]
+		state.panelView.value = 'provider'
+	})
+
+	it('offers Zoom and Google Meet', () => {
+		const w = mountPanel()
+		const rows = w.findAll('[data-testid="provider-flow"]')
+		expect(rows.map((r) => r.text())).toEqual([
+			expect.stringContaining('Zoom'),
+			expect.stringContaining('Google Meet'),
+		])
+		expect(w.findAll('[data-testid="picker-flow"]')).toHaveLength(0)
+	})
+
+	it('starts the chosen provider’s flow', async () => {
+		const w = mountPanel()
+		await w.findAll('[data-testid="provider-flow"]')[1].trigger('click')
+		expect(setFlow).toHaveBeenCalledWith('live_class_meet')
+	})
+
+	it('goes back without choosing', async () => {
+		const w = mountPanel()
+		await w.find('[data-testid="provider-back"]').trigger('click')
+		expect(cancelProvider).toHaveBeenCalledTimes(1)
+		expect(setFlow).not.toHaveBeenCalled()
 	})
 })

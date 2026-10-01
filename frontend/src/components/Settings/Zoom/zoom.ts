@@ -130,7 +130,7 @@ const form = recordForm({
 		)
 		if (created) {
 			useTelemetry().capture('zoom_account_linked')
-			useLearningOnboarding().completeStep('connect_conferencing')
+			useLearningOnboarding().completeStep('connect_zoom')
 		}
 		back()
 	},

@@ -41,7 +41,7 @@
 						{{ activeFlow.doneTitle }}
 					</h3>
 					<p class="text-p-sm text-ink-gray-6">
-						{{ remainingFlows.length ? text.pickNext : text.allDone }}
+						{{ remainingCards.length ? text.pickNext : text.allDone }}
 					</p>
 					<Button
 						variant="solid"
@@ -51,13 +51,13 @@
 					/>
 				</div>
 				<ul
-					v-if="remainingFlows.length"
+					v-if="remainingCards.length"
 					class="flex flex-col gap-0.5"
 					:aria-label="text.nextFlows"
 				>
 					<li
-						v-for="flow in remainingFlows"
-						:key="flow.id"
+						v-for="card in remainingCards"
+						:key="card.id"
 						class="flex items-center gap-3 rounded-6 px-2 py-2.5"
 						data-testid="remaining-flow"
 					>
@@ -65,23 +65,69 @@
 							class="flex size-8 shrink-0 items-center justify-center rounded-5 bg-surface-gray-2 text-ink-gray-7"
 							aria-hidden="true"
 						>
-							<component :is="flow.icon" class="size-4" />
+							<component :is="card.icon" class="size-4" />
 						</span>
 						<span class="min-w-0 flex-1">
 							<span class="block text-p-sm font-medium text-ink-gray-9">
-								{{ flow.title }}
+								{{ card.title }}
 							</span>
 							<span class="block text-p-xs text-ink-gray-5">
-								{{ flow.description }}
+								{{ card.description }}
 							</span>
 						</span>
 						<Button
 							:label="text.start"
-							:aria-label="startLabel(flow.title)"
-							@click="setFlow(flow.id)"
+							:aria-label="startLabel(card.title)"
+							@click="chooseCard(card.id)"
 						/>
 					</li>
 				</ul>
+			</template>
+
+			<template v-else-if="panelView === 'provider'">
+				<div class="flex flex-col gap-3">
+					<Button
+						variant="ghost"
+						class="self-start"
+						data-testid="provider-back"
+						:label="text.back"
+						@click="cancelProvider"
+					>
+						<template #prefix>
+							<LucideChevronLeft
+								class="size-4 rtl:rotate-180"
+								aria-hidden="true"
+							/>
+						</template>
+					</Button>
+					<div class="flex flex-col gap-1 px-2">
+						<h3 class="text-base font-medium">{{ text.providerTitle }}</h3>
+						<p class="text-p-sm text-ink-gray-6">{{ text.providerHint }}</p>
+					</div>
+				</div>
+				<div class="flex flex-col gap-0.5">
+					<button
+						v-for="flow in providerFlows"
+						:key="flow.id"
+						type="button"
+						class="group flex items-center gap-3 rounded-6 px-2 py-2.5 text-start transition-colors hover:bg-surface-gray-2 focus-visible:bg-surface-gray-2"
+						data-testid="provider-flow"
+						@click="setFlow(flow.id)"
+					>
+						<span class="min-w-0 flex-1">
+							<span class="block text-p-sm font-medium text-ink-gray-9">
+								{{ flow.provider?.label }}
+							</span>
+							<span class="block text-p-xs text-ink-gray-5">
+								{{ flow.provider?.description }}
+							</span>
+						</span>
+						<LucideChevronRight
+							class="size-4 shrink-0 text-ink-gray-4 rtl:rotate-180"
+							aria-hidden="true"
+						/>
+					</button>
+				</div>
 			</template>
 
 			<template v-else>
@@ -91,30 +137,30 @@
 						{{ text.pickerTitle }}
 					</h3>
 					<p class="text-p-sm text-ink-gray-6">
-						{{ remainingFlows.length ? text.pickerHint : text.allDone }}
+						{{ remainingCards.length ? text.pickerHint : text.allDone }}
 					</p>
 				</div>
 				<div class="flex flex-col gap-0.5">
 					<button
-						v-for="flow in remainingFlows"
-						:key="flow.id"
+						v-for="card in remainingCards"
+						:key="card.id"
 						type="button"
 						class="group flex items-center gap-3 rounded-6 px-2 py-2.5 text-start transition-colors hover:bg-surface-gray-2 focus-visible:bg-surface-gray-2"
 						data-testid="picker-flow"
-						@click="setFlow(flow.id)"
+						@click="chooseCard(card.id)"
 					>
 						<span
 							class="flex size-8 shrink-0 items-center justify-center rounded-5 bg-surface-gray-2 text-ink-gray-7 transition-colors group-hover:bg-surface-base"
 							aria-hidden="true"
 						>
-							<component :is="flow.icon" class="size-4" />
+							<component :is="card.icon" class="size-4" />
 						</span>
 						<span class="min-w-0 flex-1">
 							<span class="block text-p-sm font-medium text-ink-gray-9">
-								{{ flow.title }}
+								{{ card.title }}
 							</span>
 							<span class="block text-p-xs text-ink-gray-5">
-								{{ flow.description }}
+								{{ card.description }}
 							</span>
 						</span>
 						<LucideChevronRight
@@ -155,9 +201,12 @@ import { useLearningOnboarding } from '@/onboarding/useLearningOnboarding'
 
 const {
 	activeFlow,
-	remainingFlows,
+	remainingCards,
+	providerFlows,
 	panelView,
 	setFlow,
+	chooseCard,
+	cancelProvider,
 	closePanel,
 	runDoneAction,
 } = useLearningOnboarding()
@@ -176,6 +225,9 @@ const text = {
 	pickerTitle: __('What do you want to do first?'),
 	pickerHint: __('Pick a goal and follow its checklist.'),
 	later: __('Maybe later'),
+	back: __('Back'),
+	providerTitle: __('Which meeting tool do you use?'),
+	providerHint: __('The checklist depends on your choice.'),
 	helpCentre: __('Help centre'),
 }
 

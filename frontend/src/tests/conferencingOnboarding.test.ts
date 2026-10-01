@@ -1,6 +1,6 @@
 /**
- * Linking a Zoom or Google Meet account completes the live-class flow's
- * "connect conferencing" step; editing an existing account does not.
+ * Linking a Zoom or Google Meet account completes that provider's account step
+ * in the live class flow; editing an existing account does not.
  */
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { FieldsPage } from '@/types/settingsSchema'
@@ -28,8 +28,12 @@ import { zoomSettingsPage } from '@/components/Settings/Zoom/zoom'
 import { googleMeetSettingsPage } from '@/components/Settings/GoogleMeet/googleMeet'
 
 const pages = [
-	{ name: 'Zoom', page: zoomSettingsPage },
-	{ name: 'Google Meet', page: googleMeetSettingsPage },
+	{ name: 'Zoom', page: zoomSettingsPage, step: 'connect_zoom' },
+	{
+		name: 'Google Meet',
+		page: googleMeetSettingsPage,
+		step: 'add_meet_account',
+	},
 ]
 
 function onSaved(page: typeof pages[number]['page']) {
@@ -40,10 +44,16 @@ function onSaved(page: typeof pages[number]['page']) {
 beforeEach(() => completeStepMock.mockReset())
 
 describe('conferencing account onboarding', () => {
-	it.each(pages)('$name: linking an account completes the step', ({ page }) => {
-		onSaved(page)({ created: true, back: vi.fn() } as never)
-		expect(completeStepMock).toHaveBeenCalledWith('connect_conferencing')
-	})
+	// Guards: linking Zoom or Meet not ticking its step. Introduced in this
+	// branch (feat/onboarding-flows, PR pending); test added there to cover
+	// both providers.
+	it.each(pages)(
+		'$name: linking an account completes $step',
+		({ page, step }) => {
+			onSaved(page)({ created: true, back: vi.fn() } as never)
+			expect(completeStepMock).toHaveBeenCalledWith(step)
+		}
+	)
 
 	// Guards: an edit to an existing account ticking the step. Introduced in
 	// this branch (feat/onboarding-flows, PR pending); test added there to
