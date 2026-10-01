@@ -2,36 +2,38 @@ import { h, markRaw, type Component } from 'vue'
 import type { RouteLocationRaw } from 'vue-router'
 import type { OnboardingStep } from '@framework/ui/components/Onboarding/index'
 import {
+	Banknote,
 	BookOpen,
 	BookText,
-	Eye,
+	CalendarCheck,
+	CircleHelp,
 	FileText,
 	FolderTree,
 	Globe,
-	Image,
+	KeyRound,
 	Laptop,
-	UserPlus,
+	Upload,
 	Users,
 	Video,
-	KeyRound,
-	CalendarCheck,
 } from 'lucide-vue-next'
 import InviteIcon from '@/components/Icons/InviteIcon.vue'
 
 export type FlowId =
 	| 'publish_course'
-	| 'onboard_learners'
+	| 'onboard_learners_invite'
+	| 'onboard_learners_csv'
 	| 'live_class_zoom'
 	| 'live_class_meet'
 
-/** A picker entry. The live class card holds one flow per meeting provider. */
+/** A list entry. A card with a question holds one flow per answer. */
 export type CardId = 'publish_course' | 'onboard_learners' | 'live_class'
 
 export const FACT_KEYS = [
 	'has_course',
 	'has_chapter',
 	'has_lesson',
-	'has_course_image',
+	'has_quiz',
+	'has_course_pricing',
 	'has_published_course',
 	'has_invited_student',
 	'has_batch',
@@ -70,21 +72,37 @@ export interface FlowStep extends OnboardingStep {
 
 export interface OnboardingFlow {
 	id: FlowId
-	/** The picker card this flow belongs to. */
+	/** The list card this flow belongs to. */
 	card: CardId
-	/** Set on a card's provider flows: the choice shown before the checklist. */
-	provider?: { readonly label: string; readonly description: string }
 	/** `useOnboarding` key; progress is stored under `<key>_onboarding_status`. */
 	key: string
+	/** Order is frozen once shipped: stored progress is matched by index. */
+	steps: (nav: FlowNavigation) => FlowStep[]
+}
+
+export interface QuestionOption {
+	value: string
+	readonly label: string
+	readonly description: string
+	flow: OnboardingFlow
+}
+
+export interface CardQuestion {
+	readonly label: string
+	readonly title: string
+	options: QuestionOption[]
+}
+
+export interface FlowCard {
+	id: CardId
 	readonly title: string
 	readonly description: string
 	icon: Component
-	readonly doneTitle: string
-	doneAction: { readonly label: string; run: (nav: FlowNavigation) => void }
+	/** Asked before the checklist; each answer has its own flow and key. */
+	question?: CardQuestion
 	/** Cards to offer once this one is done, best first. */
 	next: CardId[]
-	/** Order is frozen once shipped: stored progress is matched by index. */
-	steps: (nav: FlowNavigation) => FlowStep[]
+	flows: OnboardingFlow[]
 }
 
 const iconProps = { strokeWidth: 1.5, width: 16, height: 16 }
@@ -101,7 +119,7 @@ function openCourse(nav: FlowNavigation, hash: string): void {
 
 function openBatchForm(
 	nav: FlowNavigation,
-	name: 'NewBatchCourse' | 'NewBatchStudent' | 'NewLiveClass',
+	name: 'NewBatchCourse' | 'NewLiveClass',
 	hash: string
 ): void {
 	const batchName = nav.facts.first_batch
@@ -115,10 +133,10 @@ function openBatch(nav: FlowNavigation): void {
 	nav.openRoute({ name: 'BatchDetail', params: { batchName } })
 }
 
-function createFirstBatch(nav: FlowNavigation): FlowStep {
+function createBatch(nav: FlowNavigation): FlowStep {
 	return {
 		name: 'create_first_batch',
-		title: __('Create your first batch'),
+		title: __('Create a batch'),
 		icon: stepIcon(Users),
 		completed: false,
 		fact: 'has_batch',
@@ -126,35 +144,50 @@ function createFirstBatch(nav: FlowNavigation): FlowStep {
 	}
 }
 
-const publishCourse: OnboardingFlow = {
+function addBatchCourse(nav: FlowNavigation): FlowStep {
+	return {
+		name: 'add_batch_course',
+		title: __('Add a course to the batch'),
+		icon: stepIcon(BookText),
+		completed: false,
+		dependsOn: 'create_first_batch',
+		fact: 'has_batch_course',
+		onClick: () => openBatchForm(nav, 'NewBatchCourse', '#settings'),
+	}
+}
+
+function publishBatch(nav: FlowNavigation): FlowStep {
+	return {
+		name: 'publish_batch',
+		title: __('Publish the batch'),
+		icon: stepIcon(Globe),
+		completed: false,
+		dependsOn: 'create_first_batch',
+		fact: 'has_published_batch',
+		onClick: () => openBatch(nav),
+	}
+}
+
+function scheduleLiveClass(nav: FlowNavigation): FlowStep {
+	return {
+		name: 'schedule_live_class',
+		title: __('Schedule a live class'),
+		icon: stepIcon(Laptop),
+		completed: false,
+		dependsOn: 'create_first_batch',
+		fact: 'has_live_class',
+		onClick: () => openBatchForm(nav, 'NewLiveClass', '#classes'),
+	}
+}
+
+const publishCourseFlow: OnboardingFlow = {
 	id: 'publish_course',
 	card: 'publish_course',
 	key: 'learning_publish_course',
-	get title() {
-		return __('Publish my first course')
-	},
-	get description() {
-		return __('Set up your first course and lessons.')
-	},
-	icon: markRaw(BookOpen),
-	get doneTitle() {
-		return __('Course published')
-	},
-	doneAction: {
-		get label() {
-			return __('View course')
-		},
-		run: (nav) => {
-			const courseName = nav.facts.first_course
-			if (!courseName) return nav.openRoute({ name: 'Courses' })
-			nav.openRoute({ name: 'CourseDetail', params: { courseName } })
-		},
-	},
-	next: ['onboard_learners', 'live_class'],
 	steps: (nav) => [
 		{
 			name: 'create_first_course',
-			title: __('Create your first course'),
+			title: __('Create a course'),
 			icon: stepIcon(BookOpen),
 			completed: false,
 			fact: 'has_course',
@@ -162,7 +195,7 @@ const publishCourse: OnboardingFlow = {
 		},
 		{
 			name: 'create_first_chapter',
-			title: __('Add your first chapter'),
+			title: __('Add a chapter'),
 			icon: stepIcon(FolderTree),
 			completed: false,
 			dependsOn: 'create_first_course',
@@ -171,7 +204,7 @@ const publishCourse: OnboardingFlow = {
 		},
 		{
 			name: 'create_first_lesson',
-			title: __('Add your first lesson'),
+			title: __('Add a lesson'),
 			icon: stepIcon(FileText),
 			completed: false,
 			dependsOn: 'create_first_chapter',
@@ -179,28 +212,25 @@ const publishCourse: OnboardingFlow = {
 			onClick: () => openCourse(nav, '#editor'),
 		},
 		{
-			name: 'add_course_image',
-			title: __('Add a course image'),
-			icon: stepIcon(Image),
+			name: 'add_quiz',
+			title: __('Add a quiz'),
+			icon: stepIcon(CircleHelp),
+			completed: false,
+			fact: 'has_quiz',
+			onClick: () => nav.openRoute({ name: 'NewQuiz' }),
+		},
+		{
+			name: 'set_course_pricing',
+			title: __('Set pricing'),
+			icon: stepIcon(Banknote),
 			completed: false,
 			dependsOn: 'create_first_course',
-			fact: 'has_course_image',
+			fact: 'has_course_pricing',
 			onClick: () => openCourse(nav, '#settings'),
 		},
 		{
-			name: 'preview_course',
-			title: __('Preview your course'),
-			icon: stepIcon(Eye),
-			completed: false,
-			dependsOn: 'create_first_course',
-			onClick: () => {
-				nav.complete('preview_course')
-				openCourse(nav, '#overview')
-			},
-		},
-		{
 			name: 'publish_course',
-			title: __('Publish your course'),
+			title: __('Publish the course'),
 			icon: stepIcon(Globe),
 			completed: false,
 			dependsOn: 'create_first_course',
@@ -210,127 +240,55 @@ const publishCourse: OnboardingFlow = {
 	],
 }
 
-const onboardLearners: OnboardingFlow = {
-	id: 'onboard_learners',
+const learnersInviteFlow: OnboardingFlow = {
+	id: 'onboard_learners_invite',
 	card: 'onboard_learners',
-	key: 'learning_onboard_learners',
-	get title() {
-		return __('Onboard my existing learners')
-	},
-	get description() {
-		return __('Bring your learners into a batch.')
-	},
-	icon: markRaw(Users),
-	get doneTitle() {
-		return __('Learners onboarded')
-	},
-	doneAction: {
-		get label() {
-			return __('View batch')
-		},
-		run: openBatch,
-	},
-	next: ['live_class', 'publish_course'],
+	key: 'learning_onboard_learners_invite',
 	steps: (nav) => [
+		createBatch(nav),
 		{
 			name: 'invite_students',
-			title: __('Invite your team and students'),
+			title: __('Invite learners by email'),
 			icon: stepIcon(InviteIcon),
 			completed: false,
 			fact: 'has_invited_student',
 			onClick: () => nav.openSettings('members'),
 		},
-		createFirstBatch(nav),
-		{
-			name: 'add_batch_course',
-			title: __('Add courses to your batch'),
-			icon: stepIcon(BookText),
-			completed: false,
-			dependsOn: 'create_first_batch',
-			fact: 'has_batch_course',
-			onClick: () => openBatchForm(nav, 'NewBatchCourse', '#settings'),
-		},
-		{
-			name: 'add_batch_student',
-			title: __('Add students to your batch'),
-			icon: stepIcon(UserPlus),
-			completed: false,
-			dependsOn: 'create_first_batch',
-			fact: 'has_batch_student',
-			onClick: () => openBatchForm(nav, 'NewBatchStudent', '#dashboard'),
-		},
+		addBatchCourse(nav),
+		publishBatch(nav),
 	],
 }
 
-// Zoom and Google Meet need different set-up steps, and stored progress is
-// matched to steps by index, so each provider is its own flow and key.
-const liveClassCopy = {
-	get title() {
-		return __('Run my first live class')
-	},
-	get description() {
-		return __('Connect a meeting account and schedule a class.')
-	},
-	icon: markRaw(Video),
-	get doneTitle() {
-		return __('Live class scheduled')
-	},
-	doneAction: {
-		get label() {
-			return __('View batch')
-		},
-		run: openBatch,
-	},
-	next: ['onboard_learners', 'publish_course'] as CardId[],
-}
-
-function scheduleAndPublish(nav: FlowNavigation): FlowStep[] {
-	return [
+const learnersCsvFlow: OnboardingFlow = {
+	id: 'onboard_learners_csv',
+	card: 'onboard_learners',
+	key: 'learning_onboard_learners_csv',
+	steps: (nav) => [
+		createBatch(nav),
 		{
-			name: 'schedule_live_class',
-			title: __('Schedule a live class'),
-			icon: stepIcon(Laptop),
+			name: 'import_learners_csv',
+			title: __('Import learners from CSV'),
+			icon: stepIcon(Upload),
 			completed: false,
 			dependsOn: 'create_first_batch',
-			fact: 'has_live_class',
-			onClick: () => openBatchForm(nav, 'NewLiveClass', '#classes'),
+			fact: 'has_batch_student',
+			onClick: () =>
+				nav.openRoute({
+					name: 'NewDataImport',
+					params: { doctype: 'LMS Batch Enrollment' },
+				}),
 		},
-		{
-			name: 'publish_batch',
-			title: __('Publish your batch'),
-			icon: stepIcon(Globe),
-			completed: false,
-			dependsOn: 'create_first_batch',
-			fact: 'has_published_batch',
-			onClick: () => openBatch(nav),
-		},
-	]
+		addBatchCourse(nav),
+		publishBatch(nav),
+	],
 }
 
-// A spread would call the getters at import, before translation.js installs __.
-function withLiveClassCopy(
-	flow: Omit<OnboardingFlow, keyof typeof liveClassCopy>
-) {
-	return Object.defineProperties(
-		flow,
-		Object.getOwnPropertyDescriptors(liveClassCopy)
-	) as OnboardingFlow
-}
-
-const liveClassZoom = withLiveClassCopy({
+const liveClassZoomFlow: OnboardingFlow = {
 	id: 'live_class_zoom',
 	card: 'live_class',
 	key: 'learning_live_class_zoom',
-	provider: {
-		get label() {
-			return __('Zoom')
-		},
-		get description() {
-			return __('Host classes from a Zoom account.')
-		},
-	},
 	steps: (nav) => [
-		createFirstBatch(nav),
+		createBatch(nav),
 		{
 			name: 'connect_zoom',
 			title: __('Connect a Zoom account'),
@@ -339,24 +297,17 @@ const liveClassZoom = withLiveClassCopy({
 			fact: 'has_zoom_account',
 			onClick: () => nav.openSettings('zoom'),
 		},
-		...scheduleAndPublish(nav),
+		scheduleLiveClass(nav),
+		publishBatch(nav),
 	],
-})
+}
 
-const liveClassMeet = withLiveClassCopy({
+const liveClassMeetFlow: OnboardingFlow = {
 	id: 'live_class_meet',
 	card: 'live_class',
 	key: 'learning_live_class_meet',
-	provider: {
-		get label() {
-			return __('Google Meet')
-		},
-		get description() {
-			return __('Set up Google API and Calendar, then a Meet account.')
-		},
-	},
 	steps: (nav) => [
-		createFirstBatch(nav),
+		createBatch(nav),
 		{
 			name: 'setup_google_api',
 			title: __('Set up Google API'),
@@ -383,54 +334,135 @@ const liveClassMeet = withLiveClassCopy({
 			fact: 'has_meet_account',
 			onClick: () => nav.openSettings('google-meet'),
 		},
-		...scheduleAndPublish(nav),
+		scheduleLiveClass(nav),
+		publishBatch(nav),
 	],
-})
+}
 
 export const FLOWS: readonly OnboardingFlow[] = [
-	publishCourse,
-	onboardLearners,
-	liveClassZoom,
-	liveClassMeet,
+	publishCourseFlow,
+	learnersInviteFlow,
+	learnersCsvFlow,
+	liveClassZoomFlow,
+	liveClassMeetFlow,
 ]
 
-export interface FlowCard {
-	id: CardId
-	readonly title: string
-	readonly description: string
-	icon: Component
-	/** One flow, or one per provider to choose between. */
-	flows: OnboardingFlow[]
-}
-
-function card(id: CardId): FlowCard {
-	const flows = FLOWS.filter((flow) => flow.card === id)
-	const [first] = flows
-	return {
-		id,
+// Copy is read through getters: `__` is installed on window only after every
+// static import has been evaluated, so nothing here may call it at load.
+export const CARDS: readonly FlowCard[] = [
+	{
+		id: 'publish_course',
 		get title() {
-			return first.title
+			return __('Publish my first course')
 		},
 		get description() {
-			return first.description
+			return __('Set up your first course and lessons.')
 		},
-		icon: first.icon,
-		flows,
-	}
-}
-
-export const CARDS: readonly FlowCard[] = [
-	card('publish_course'),
-	card('onboard_learners'),
-	card('live_class'),
+		icon: markRaw(BookOpen),
+		next: ['onboard_learners', 'live_class'],
+		flows: [publishCourseFlow],
+	},
+	{
+		id: 'onboard_learners',
+		get title() {
+			return __('Onboard my existing learners')
+		},
+		get description() {
+			return __('Bring your learners into a batch.')
+		},
+		icon: markRaw(Users),
+		question: {
+			get label() {
+				return __('Learner source')
+			},
+			get title() {
+				return __('How will you add learners?')
+			},
+			options: [
+				{
+					value: 'csv',
+					get label() {
+						return __('Import a CSV')
+					},
+					get description() {
+						return __('Upload a spreadsheet of learners.')
+					},
+					flow: learnersCsvFlow,
+				},
+				{
+					value: 'invite',
+					get label() {
+						return __('Invite by email')
+					},
+					get description() {
+						return __('Send invites and let learners sign up.')
+					},
+					flow: learnersInviteFlow,
+				},
+			],
+		},
+		next: ['live_class', 'publish_course'],
+		flows: [learnersCsvFlow, learnersInviteFlow],
+	},
+	{
+		id: 'live_class',
+		get title() {
+			return __('Run my first live class')
+		},
+		get description() {
+			return __('Connect a meeting account and schedule a class.')
+		},
+		icon: markRaw(Video),
+		question: {
+			get label() {
+				return __('Meeting tool')
+			},
+			get title() {
+				return __('Which meeting tool do you use?')
+			},
+			options: [
+				{
+					value: 'zoom',
+					get label() {
+						return __('Zoom')
+					},
+					get description() {
+						return __('Host classes from a Zoom account.')
+					},
+					flow: liveClassZoomFlow,
+				},
+				{
+					value: 'meet',
+					get label() {
+						return __('Google Meet')
+					},
+					get description() {
+						return __('Set up Google API and Calendar, then a Meet account.')
+					},
+					flow: liveClassMeetFlow,
+				},
+			],
+		},
+		next: ['onboard_learners', 'publish_course'],
+		flows: [liveClassZoomFlow, liveClassMeetFlow],
+	},
 ]
 
 export function getCard(id: string | null | undefined): FlowCard | undefined {
-	return CARDS.find((c) => c.id === id)
+	return CARDS.find((card) => card.id === id)
 }
 
 export function getFlow(
 	id: string | null | undefined
 ): OnboardingFlow | undefined {
 	return FLOWS.find((flow) => flow.id === id)
+}
+
+/** The flow a card resolves to: its only flow, or its answer's. */
+export function flowForAnswer(
+	card: FlowCard,
+	answer: string | null | undefined
+): OnboardingFlow | null {
+	if (!card.question) return card.flows[0]
+	return card.question.options.find((o) => o.value === answer)?.flow ?? null
 }

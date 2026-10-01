@@ -1,82 +1,63 @@
 /**
- * OnboardingFlowPanel: the picker (no active flow), the provider choice for the
- * live class card, and the done view (active flow finished). The composable is
- * replaced so each test sets the state.
+ * OnboardingFlowPanel end to end: the real composable and registry, with the
+ * framework's useOnboarding replaced by an in-memory model. Labels come from
+ * the translation getters at render, through setup.ts's `__`, so an empty row
+ * here means a getter was read too early or copied away.
  */
-import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { mount } from '@vue/test-utils'
-import { computed, ref, type Ref } from 'vue'
-import {
-	CARDS,
-	getFlow,
-	type FlowCard,
-	type OnboardingFlow,
-} from '@/onboarding/flows'
-import OnboardingFlowPanel from '@/components/Onboarding/OnboardingFlowPanel.vue'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { flushPromises, mount } from '@vue/test-utils'
+import { reactive, ref } from 'vue'
 
-const {
-	state,
-	setFlow,
-	chooseCard,
-	cancelProvider,
-	closePanel,
-	runDoneAction,
-	showAllFlows,
-	continueFlow,
-	skipAllFlows,
-	restartOnboarding,
-	progress,
-} = vi.hoisted(() => ({
-	state: {} as {
-		activeFlow: Ref<OnboardingFlow | null>
-		resumableFlow: Ref<OnboardingFlow | null>
-		remainingCards: Ref<FlowCard[]>
-		pickerCards: Ref<FlowCard[]>
-		providerFlows: Ref<OnboardingFlow[]>
-		panelView: Ref<'checklist' | 'picker' | 'done' | 'provider'>
-	},
-	setFlow: vi.fn(),
-	chooseCard: vi.fn(),
-	cancelProvider: vi.fn(),
-	closePanel: vi.fn(),
-	runDoneAction: vi.fn(),
-	showAllFlows: vi.fn(),
-	continueFlow: vi.fn(),
-	skipAllFlows: vi.fn(),
-	restartOnboarding: vi.fn(),
-	progress: {
-		cards: {} as Record<string, { completed: number; total: number } | null>,
-		done: new Set<string>(),
-		allDone: false,
-	},
+type FakeStep = { name: string; completed: boolean }
+
+const { framework } = vi.hoisted(() => ({
+	framework: { handles: {} as Record<string, ReturnType<typeof makeHandle>> },
 }))
 
-vi.mock('@/onboarding/useLearningOnboarding', () => ({
-	useLearningOnboarding: () => ({
-		...state,
-		setFlow,
-		chooseCard,
-		cancelProvider,
-		closePanel,
-		runDoneAction,
-		showAllFlows,
-		continueFlow,
-		skipAllFlows,
-		restartOnboarding,
-		allCardsComplete: computed(() => progress.allDone),
-		cardProgress: (card: FlowCard) => progress.cards[card.id] ?? null,
-		flowProgress: () => ({ completed: 2, total: 4 }),
-		isCardComplete: (id: string) => progress.done.has(id),
-	}),
-}))
+function makeHandle() {
+	const state = reactive({ steps: [] as FakeStep[] })
+	const mark = (name: string, value: boolean) => {
+		const step = state.steps.find((s) => s.name === name)
+		if (step) step.completed = value
+	}
+	return {
+		get steps() {
+			return state.steps
+		},
+		isOnboardingStepsCompleted: ref(false),
+		setUp: (steps: FakeStep[]) => {
+			if (!state.steps.length) state.steps = steps
+		},
+		syncStatus: () => {},
+		updateOnboardingStep: vi.fn((name: string, value = true) =>
+			mark(name, value)
+		),
+		skip: vi.fn((name: string) => mark(name, true)),
+		reset: vi.fn((name: string) => mark(name, false)),
+		skipAll: vi.fn(() => {
+			for (const step of state.steps) step.completed = true
+		}),
+		resetAll: vi.fn(() => {
+			for (const step of state.steps) step.completed = false
+		}),
+	}
+}
 
 vi.mock('frappe-ui', () => ({
-	Badge: { props: ['label', 'theme'], template: '<span>{{ label }}</span>' },
+	call: vi.fn(() => Promise.resolve({})),
+	getCachedResource: () => null,
+	Badge: { props: ['label'], template: '<span>{{ label }}</span>' },
 	Button: {
-		props: ['label', 'variant'],
+		props: ['label', 'variant', 'icon', 'href'],
 		emits: ['click'],
-		template: `<button type="button" @click="$emit('click')">{{ label }}<slot /></button>`,
+		template: `<a v-if="href" :href="href">{{ label }}<slot name="prefix" /></a><button v-else type="button" @click="$emit('click', $event)"><slot name="prefix" />{{ label }}<slot /></button>`,
 	},
+	Dropdown: {
+		props: ['options'],
+		template: `<div><slot /><span v-for="o in options" :key="o.label" class="option" @click="o.onClick()">{{ o.label }}</span></div>`,
+	},
+	Progress: { props: ['value'], template: '<div class="progress" />' },
+	Tooltip: { props: ['text'], template: '<div :title="text"><slot /></div>' },
 }))
 
 vi.mock('frappe-ui/icons', () => ({
@@ -87,241 +68,261 @@ vi.mock('frappe-ui/icons', () => ({
 
 vi.mock('@framework/ui/components/Onboarding/index', async () => {
 	const { ref: vueRef } = await import('vue')
-	return { minimize: vueRef(false) }
+	return {
+		showHelpModal: vueRef(true),
+		minimize: vueRef(false),
+		useOnboarding: (key: string) => (framework.handles[key] ??= makeHandle()),
+	}
 })
 
-vi.mock('@/components/Onboarding/OnboardingChecklist.vue', () => ({
-	default: {
-		props: ['flow'],
-		template: '<div data-testid="checklist" :data-key="flow.key" />',
-	},
-}))
+const USER = 'admin@example.com'
+const nav = { openRoute: vi.fn(), openForm: vi.fn(), openSettings: vi.fn() }
 
-vi.mock('@/components/Icons/LMSLogo.vue', () => ({
-	default: { template: '<svg />' },
-}))
-
-const [publishCourse, onboardLearners, liveClass] = CARDS
-const zoomFlow = getFlow('live_class_zoom')!
-const meetFlow = getFlow('live_class_meet')!
-
-function mountPanel() {
-	return mount(OnboardingFlowPanel)
+async function setUp() {
+	vi.resetModules()
+	const { useLearningOnboarding } = await import(
+		'@/onboarding/useLearningOnboarding'
+	)
+	const { default: Panel } = await import(
+		'@/components/Onboarding/OnboardingFlowPanel.vue'
+	)
+	const o = useLearningOnboarding()
+	await o.setUpAll(nav)
+	const w = mount(Panel)
+	await flushPromises()
+	return { o, w }
 }
 
+function handle(key: string) {
+	return framework.handles['learning_' + key]
+}
+
+const button = (
+	w: { findAll: (s: string) => { text: () => string }[] },
+	label: string
+) => w.findAll('button').find((b) => b.text() === label)
+
 beforeEach(() => {
-	for (const fn of [
-		setFlow,
-		chooseCard,
-		cancelProvider,
-		closePanel,
-		showAllFlows,
-		continueFlow,
-		skipAllFlows,
-		restartOnboarding,
-	])
-		fn.mockReset()
-	progress.cards = {}
-	progress.done = new Set()
-	progress.allDone = false
-	runDoneAction.mockReset()
-	state.activeFlow = ref(null)
-	state.remainingCards = ref([...CARDS])
-	state.pickerCards = ref([...CARDS])
-	state.resumableFlow = ref(null)
-	state.providerFlows = ref([])
-	state.panelView = ref('picker')
+	localStorage.clear()
+	document.cookie = `user_id=${encodeURIComponent(USER)}`
+	framework.handles = {}
 })
 
-describe('picker', () => {
-	it('lists every unfinished card, the live class once', () => {
-		const w = mountPanel()
-		const rows = w.findAll('[data-testid="picker-flow"]')
-		expect(rows.map((r) => r.text())).toEqual([
-			expect.stringContaining(publishCourse.title),
-			expect.stringContaining(onboardLearners.title),
-			expect.stringContaining(liveClass.title),
-		])
+afterEach(() => {
+	document.cookie = 'user_id=; expires=Thu, 01 Jan 1970 00:00:00 GMT'
+})
+
+describe('header', () => {
+	// Guards: the list screen with a wrong title or a back control leading
+	// nowhere. Introduced in this branch (feat/onboarding-flows, PR pending);
+	// test added there to pin the list header.
+	it('titles the list Getting started, with no back control', async () => {
+		const { w } = await setUp()
+		expect(w.find('h2').text()).toBe('Getting started')
+		expect(w.find('[aria-label="All flows"]').exists()).toBe(false)
 	})
 
-	it.each([
-		{ index: 1, id: 'onboard_learners' },
-		{ index: 2, id: 'live_class' },
-	])('choosing row $index chooses the $id card', async ({ index, id }) => {
-		const w = mountPanel()
-		await w.findAll('[data-testid="picker-flow"]')[index].trigger('click')
-		expect(chooseCard).toHaveBeenCalledWith(id)
-	})
-
-	it('has no done title or Skip all', () => {
-		const w = mountPanel()
-		expect(w.find('[data-testid="flow-done-title"]').exists()).toBe(false)
-		expect(w.text()).not.toContain('Skip all')
-		expect(w.text()).not.toContain('Maybe later')
-	})
-
-	it('names the panel by its heading', () => {
-		const w = mountPanel()
-		const section = w.find('section')
-		const heading = w.find(`#${section.attributes('aria-labelledby')}`)
-		expect(heading.text()).toBe('Getting started')
+	// Guards: inner screens losing the way back to the list, or the back icon
+	// gaining text. Introduced in this branch (feat/onboarding-flows, PR
+	// pending); test added there to check it returns to the list.
+	it('puts an icon-only back control before the title on inner screens', async () => {
+		const { o, w } = await setUp()
+		o.openCardScreen('publish_course')
+		await flushPromises()
+		const back = w.find('[aria-label="All flows"]')
+		expect(back.exists()).toBe(true)
+		expect(back.text()).toBe('')
+		expect(w.find('h2').text()).toBe('Getting started')
+		await back.trigger('click')
+		expect(o.screen.value).toBe('list')
 	})
 })
 
-describe('done view', () => {
-	beforeEach(() => {
-		state.activeFlow.value = zoomFlow
-		state.remainingCards.value = [onboardLearners, publishCourse]
-		state.panelView.value = 'done'
+describe('list screen', () => {
+	it('starts fresh on one line, with no count', async () => {
+		const { w } = await setUp()
+		const heading = w.find('[data-testid="list-heading"]')
+		expect(heading.text()).toBe('What do you want to do first?')
 	})
 
-	it('shows the finished flow’s title and action', async () => {
-		const w = mountPanel()
-		expect(w.find('[data-testid="flow-done-title"]').text()).toBe(
-			'Live class scheduled'
-		)
-		const cta = w.findAll('button').find((b) => b.text() === 'View batch')
-		await cta?.trigger('click')
-		expect(runDoneAction).toHaveBeenCalledTimes(1)
-	})
-
-	it('offers the remaining flows in order, each with Start', async () => {
-		const w = mountPanel()
-		const rows = w.findAll('[data-testid="remaining-flow"]')
+	it('shows each card on one line with its description as a tooltip', async () => {
+		const { w } = await setUp()
+		const rows = w.findAll('[data-testid="flow-row"]')
 		expect(rows.map((r) => r.text())).toEqual([
-			expect.stringContaining(onboardLearners.title),
-			expect.stringContaining(publishCourse.title),
+			'Publish my first course0/6',
+			'Onboard my existing learners',
+			'Run my first live class',
 		])
-		await rows[1].find('button').trigger('click')
-		expect(chooseCard).toHaveBeenCalledWith('publish_course')
+		expect(w.html()).toContain('title="Bring your learners into a batch."')
 	})
 
-	it('gives each Start a name that says which flow', () => {
-		const w = mountPanel()
-		const start = w.findAll('[data-testid="remaining-flow"] button')[0]
-		expect(start.attributes('aria-label')).toBe(
-			`Start ${onboardLearners.title}`
+	it('picks up where you left off with a flows count', async () => {
+		const { o, w } = await setUp()
+		o.answer('live_class', 'zoom')
+		o.showList()
+		await flushPromises()
+		expect(w.find('[data-testid="list-heading"]').text()).toBe(
+			'Pick up where you left off0/3'
+		)
+		expect(w.findAll('[data-testid="flow-row"]')[2].text()).toContain('0/4')
+	})
+
+	it('says you are all set when every card is done', async () => {
+		const { o, w } = await setUp()
+		o.answer('onboard_learners', 'csv')
+		o.answer('live_class', 'meet')
+		for (const key of [
+			'publish_course',
+			'onboard_learners_csv',
+			'live_class_meet',
+		])
+			handle(key).skipAll()
+		o.showList()
+		await flushPromises()
+		expect(w.find('[data-testid="list-heading"]').text()).toBe(
+			'You’re all set3/3'
 		)
 	})
 
-	it('offers Skip all instead of Maybe later', async () => {
-		const w = mountPanel()
-		expect(w.text()).not.toContain('Maybe later')
-		const skip = w.findAll('button').find((b) => b.text() === 'Skip all')
-		await skip?.trigger('click')
-		expect(skipAllFlows).toHaveBeenCalledTimes(1)
-		expect(closePanel).not.toHaveBeenCalled()
+	it('opens a card without a question on its flow', async () => {
+		const { o, w } = await setUp()
+		await w.findAll('[data-testid="flow-row"]')[0].trigger('click')
+		expect(o.screen.value).toBe('flow')
+		expect(w.text()).toContain('Create a course')
+	})
+})
+
+describe('question screen', () => {
+	it('labels both options with their step counts', async () => {
+		const { w } = await setUp()
+		await w.findAll('[data-testid="flow-row"]')[2].trigger('click')
+		expect(w.find('[data-testid="question-title"]').text()).toBe(
+			'Which meeting tool do you use?'
+		)
+		const options = w.findAll('[data-testid="question-option"]')
+		expect(options.map((o) => o.text())).toEqual([
+			'Zoom4 steps',
+			'Google Meet6 steps',
+		])
+		expect(w.html()).toContain('title="Host classes from a Zoom account."')
+		expect(w.text()).not.toContain('You can change this later.')
+		expect(w.text()).not.toContain('The checklist depends on your choice.')
 	})
 
-	it('hides Skip all and offers Restart once everything is done', async () => {
-		progress.allDone = true
-		state.remainingCards.value = []
-		const w = mountPanel()
-		const labels = w.findAll('button').map((b) => b.text())
-		expect(labels).not.toContain('Skip all')
-		const restart = w
+	it('answering opens that answer’s flow with its step titles', async () => {
+		const { o, w } = await setUp()
+		await w.findAll('[data-testid="flow-row"]')[2].trigger('click')
+		await w.findAll('[data-testid="question-option"]')[1].trigger('click')
+		await flushPromises()
+		expect(o.screen.value).toBe('flow')
+		const titles = w.findAll('[data-testid="flow-step"]').map((r) => r.text())
+		expect(titles[1]).toContain('Set up Google API')
+		expect(titles[3]).toContain('Add a Google Meet account')
+		expect(w.find('[data-testid="answer-chip"]').text()).toContain(
+			'Google Meet'
+		)
+	})
+
+	it('switching the answer on the chip switches the checklist', async () => {
+		const { o, w } = await setUp()
+		o.answer('onboard_learners', 'csv')
+		await flushPromises()
+		await w
+			.find('[data-testid="answer-chip"]')
+			.findAll('.option')
+			.find((x) => x.text() === 'Invite by email')!
+			.trigger('click')
+		await flushPromises()
+		expect(o.openFlow.value?.key).toBe('learning_onboard_learners_invite')
+		expect(w.text()).toContain('Invite learners by email')
+	})
+})
+
+describe('footer', () => {
+	it('links the help centre', async () => {
+		const { w } = await setUp()
+		expect(
+			w.find('a[href="https://docs.frappe.io/learning"]').text()
+		).toContain('Help centre')
+	})
+
+	it('shows Reset all on the list only once something has started', async () => {
+		const { o, w } = await setUp()
+		expect(button(w, 'Reset all')).toBeUndefined()
+		o.answer('live_class', 'zoom')
+		await flushPromises()
+		expect(button(w, 'Reset all')).toBeUndefined()
+		o.showList()
+		await flushPromises()
+		expect(button(w, 'Reset all')).toBeDefined()
+	})
+
+	// Guards: Reset all missing a flow, keeping progress, or leaving the list.
+	// Introduced in this branch (feat/onboarding-flows, PR pending); test added
+	// there to check every flow resets.
+	it('Reset all starts everything over and stays on the list', async () => {
+		const { o, w } = await setUp()
+		o.answer('live_class', 'zoom')
+		o.completeStep('create_first_course')
+		o.showList()
+		await flushPromises()
+		await w
 			.findAll('button')
-			.find((b) => b.text() === 'Restart onboarding')
-		await restart?.trigger('click')
-		expect(restartOnboarding).toHaveBeenCalledTimes(1)
+			.find((b) => b.text() === 'Reset all')!
+			.trigger('click')
+		await flushPromises()
+		for (const key of Object.keys(framework.handles))
+			expect(framework.handles[key].resetAll).toHaveBeenCalledTimes(1)
+		expect(o.screen.value).toBe('list')
+		expect(o.hasAnyProgress.value).toBe(false)
+		expect(button(w, 'Reset all')).toBeUndefined()
 	})
 
-	it('has no Restart while a flow is unfinished', () => {
-		const w = mountPanel()
+	it('has no Skip all or Restart onboarding any more', async () => {
+		const { w } = await setUp()
+		expect(w.text()).not.toContain('Skip all')
 		expect(w.text()).not.toContain('Restart onboarding')
 	})
-
-	it('says so when nothing is left', () => {
-		state.remainingCards.value = []
-		const w = mountPanel()
-		expect(w.findAll('[data-testid="remaining-flow"]')).toHaveLength(0)
-		expect(w.text()).toContain('You have finished every getting started flow.')
-	})
 })
 
-describe('provider choice', () => {
-	beforeEach(() => {
-		state.providerFlows.value = [zoomFlow, meetFlow]
-		state.panelView.value = 'provider'
+describe('stale stored ids', () => {
+	it('an unknown stored card lands on the list without throwing', async () => {
+		localStorage.setItem('learningOnboardingCard' + USER, 'live_class_old')
+		localStorage.setItem('learningOnboardingFlow' + USER, 'live_class')
+		const { o, w } = await setUp()
+		expect(o.screen.value).toBe('list')
+		expect(w.findAll('[data-testid="flow-row"]')).toHaveLength(3)
 	})
 
-	it('offers Zoom and Google Meet', () => {
-		const w = mountPanel()
-		const rows = w.findAll('[data-testid="provider-flow"]')
-		expect(rows.map((r) => r.text())).toEqual([
-			expect.stringContaining('Zoom'),
-			expect.stringContaining('Google Meet'),
-		])
-		expect(w.findAll('[data-testid="picker-flow"]')).toHaveLength(0)
-	})
-
-	it('starts the chosen provider’s flow', async () => {
-		const w = mountPanel()
-		await w.findAll('[data-testid="provider-flow"]')[1].trigger('click')
-		expect(setFlow).toHaveBeenCalledWith('live_class_meet')
-	})
-
-	it('goes back without choosing', async () => {
-		const w = mountPanel()
-		await w.find('[data-testid="provider-back"]').trigger('click')
-		expect(cancelProvider).toHaveBeenCalledTimes(1)
-		expect(setFlow).not.toHaveBeenCalled()
-	})
-})
-
-describe('checklist view', () => {
-	beforeEach(() => {
-		state.activeFlow.value = meetFlow
-		state.panelView.value = 'checklist'
-	})
-
-	it('renders the checklist for the active flow', () => {
-		const w = mountPanel()
-		expect(w.find('[data-testid="checklist"]').attributes('data-key')).toBe(
-			'learning_live_class_meet'
+	it('an unknown stored answer asks the question again', async () => {
+		localStorage.setItem('learningOnboardingCard' + USER, 'live_class')
+		localStorage.setItem(
+			'learningOnboardingAnswers' + USER,
+			JSON.stringify({ live_class: 'teams' })
 		)
+		const { o, w } = await setUp()
+		expect(o.screen.value).toBe('question')
+		expect(w.findAll('[data-testid="question-option"]')).toHaveLength(2)
+		expect(w.find('[data-testid="flow-step"]').exists()).toBe(false)
 	})
 
-	it('goes back to all flows without dropping the active one', async () => {
-		const w = mountPanel()
-		await w.find('[data-testid="all-flows"]').trigger('click')
-		expect(showAllFlows).toHaveBeenCalledTimes(1)
-		expect(setFlow).not.toHaveBeenCalled()
-	})
-
-	it('has no back control outside the checklist', () => {
-		state.panelView.value = 'picker'
-		const w = mountPanel()
-		expect(w.find('[data-testid="all-flows"]').exists()).toBe(false)
-	})
-})
-
-describe('picker progress', () => {
-	it('pins the unfinished active flow as Continue, with its progress', async () => {
-		state.activeFlow.value = meetFlow
-		state.resumableFlow.value = meetFlow
-		state.pickerCards.value = [publishCourse, onboardLearners]
-		const w = mountPanel()
-		const resume = w.find('[data-testid="continue-flow"]')
-		expect(resume.text()).toContain(`Continue: ${meetFlow.title}`)
-		expect(resume.text()).toContain('2/4')
-		await resume.trigger('click')
-		expect(continueFlow).toHaveBeenCalledTimes(1)
-		expect(w.findAll('[data-testid="picker-flow"]')).toHaveLength(2)
-	})
-
-	it('has no Continue row without an unfinished active flow', () => {
-		const w = mountPanel()
-		expect(w.find('[data-testid="continue-flow"]').exists()).toBe(false)
-	})
-
-	it('shows each card’s progress or a done badge', () => {
-		progress.cards = { publish_course: { completed: 3, total: 6 } }
-		progress.done = new Set(['onboard_learners'])
-		const w = mountPanel()
-		const rows = w.findAll('[data-testid="picker-flow"]')
-		expect(rows[0].text()).toContain('3/6')
-		expect(rows[1].text()).toContain('Done')
-		expect(rows[2].text()).not.toMatch(/\d+\/\d+|Done/)
+	it('a flow screen whose answer vanished falls back without mounting the checklist', async () => {
+		const { o, w } = await setUp()
+		o.answer('live_class', 'zoom')
+		await flushPromises()
+		localStorage.setItem(
+			'learningOnboardingAnswers' + USER,
+			JSON.stringify({ live_class: 'teams' })
+		)
+		window.dispatchEvent(
+			new StorageEvent('storage', {
+				key: 'learningOnboardingAnswers' + USER,
+				newValue: JSON.stringify({ live_class: 'teams' }),
+				storageArea: localStorage,
+			})
+		)
+		await flushPromises()
+		expect(w.find('[data-testid="flow-step"]').exists()).toBe(false)
+		expect(w.findAll('[data-testid="question-option"]')).toHaveLength(2)
 	})
 })

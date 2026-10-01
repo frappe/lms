@@ -18,8 +18,6 @@ const { resource, onboarding, ui, push, openFormRoute, pushSettingsHash } =
 		}),
 		onboarding: {} as {
 			isSetUp: Ref<boolean>
-			activeFlow: Ref<{ key: string } | null>
-			panelView: Ref<'checklist' | 'picker' | 'done'>
 			bannerFlow: Ref<{ key: string } | null>
 			setUpAll: ReturnType<typeof vi.fn>
 		},
@@ -123,8 +121,6 @@ let wrapper: VueWrapper | undefined
 beforeEach(() => {
 	setActivePinia(createPinia())
 	onboarding.isSetUp = ref(true)
-	onboarding.activeFlow = ref(null)
-	onboarding.panelView = ref('picker')
 	onboarding.bannerFlow = ref(null)
 	onboarding.setUpAll = vi.fn()
 	ui.showHelpModal.value = true
@@ -160,23 +156,10 @@ describe('AppSidebar onboarding', () => {
 		expect(onboarding.setUpAll).toHaveBeenCalledTimes(1)
 	})
 
-	it('shows the flow panel with no active flow', async () => {
-		const w = await build()
-		expect(w.find('[data-testid="flow-panel"]').exists()).toBe(true)
-		expect(w.find('[data-testid="onboarding-help-modal"]').exists()).toBe(false)
-	})
-
-	it('shows the checklist in the LMS panel, never the framework modal', async () => {
-		onboarding.activeFlow.value = { key: 'learning_live_class_meet' }
-		onboarding.panelView.value = 'checklist'
-		const w = await build()
-		expect(w.find('[data-testid="flow-panel"]').exists()).toBe(true)
-		expect(w.find('[data-testid="onboarding-help-modal"]').exists()).toBe(false)
-	})
-
-	it('shows the done panel once the active flow is complete', async () => {
-		onboarding.activeFlow.value = { key: 'learning_live_class_meet' }
-		onboarding.panelView.value = 'done'
+	// Guards: the framework HelpModal showing in place of the LMS flow panel.
+	// Introduced in this branch (feat/onboarding-flows, PR pending); test added
+	// there to pin the panel.
+	it('renders the LMS panel while open, never the framework modal', async () => {
 		const w = await build()
 		expect(w.find('[data-testid="flow-panel"]').exists()).toBe(true)
 		expect(w.find('[data-testid="onboarding-help-modal"]').exists()).toBe(false)
@@ -196,10 +179,10 @@ describe('AppSidebar onboarding', () => {
 	// Introduced in this branch (feat/onboarding-flows, PR pending); test added
 	// there to pin its key.
 	it('binds the banner to the banner flow', async () => {
-		onboarding.bannerFlow.value = { key: 'learning_onboard_learners' }
+		onboarding.bannerFlow.value = { key: 'learning_onboard_learners_csv' }
 		const w = await build()
 		expect(w.find('[data-testid="banner"]').attributes('data-app')).toBe(
-			'learning_onboard_learners'
+			'learning_onboard_learners_csv'
 		)
 	})
 

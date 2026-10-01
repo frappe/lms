@@ -1,193 +1,317 @@
 /**
- * OnboardingChecklist: the framework's OnboardingSteps, copied into LMS so each
- * step's icon can be a tick toggle. State still lives in `useOnboarding`.
+ * OnboardingChecklist: the flow screen. Steps, status circles, hover actions,
+ * the ... menu, the answer chip, and what comes next. The composable is faked
+ * so each test sets the state it needs.
  */
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
-import { reactive } from 'vue'
-import { getFlow } from '@/onboarding/flows'
+import { getCard, getFlow, type FlowStep } from '@/onboarding/flows'
 import OnboardingChecklist from '@/components/Onboarding/OnboardingChecklist.vue'
 
-type FakeStep = {
-	name: string
-	title: string
-	completed: boolean
-	dependsOn?: string
-	onClick?: () => void
-}
+type Status = 'done' | 'skipped' | 'current' | 'upcoming'
 
-const { framework, capture } = vi.hoisted(() => ({
-	framework: {} as {
-		steps: FakeStep[]
-		updateOnboardingStep: ReturnType<typeof vi.fn>
-		reset: ReturnType<typeof vi.fn>
-		skip: ReturnType<typeof vi.fn>
-		skipAll: ReturnType<typeof vi.fn>
-		resetAll: ReturnType<typeof vi.fn>
-		key: string | null
+const { state, actions } = vi.hoisted(() => ({
+	state: {
+		steps: [] as FlowStep[],
+		status: {} as Record<string, Status>,
+		blocked: new Set<string>(),
+		progress: { resolved: 0, total: 0, skipped: 0 },
+		complete: false,
+		answer: null as string | null,
+		next: null as unknown,
+		nextProgress: null as unknown,
 	},
-	capture: vi.fn(),
+	actions: {
+		toggleStep: vi.fn(),
+		skipStep: vi.fn(),
+		undoStep: vi.fn(),
+		startStep: vi.fn(),
+		skipRemaining: vi.fn(),
+		resetFlow: vi.fn(),
+		answer: vi.fn(),
+		openCardScreen: vi.fn(),
+	},
 }))
 
-vi.mock('@framework/ui/components/Onboarding/index', async () => {
-	const { computed: vueComputed } = await import('vue')
-	return {
-		useOnboarding: (key: string) => {
-			framework.key = key
-			return {
-				steps: framework.steps,
-				stepsCompleted: vueComputed(
-					() => framework.steps.filter((s) => s.completed).length
-				),
-				totalSteps: vueComputed(() => framework.steps.length),
-				completedPercentage: vueComputed(() =>
-					Math.floor(
-						(framework.steps.filter((s) => s.completed).length /
-							framework.steps.length) *
-							100
-					)
-				),
-				updateOnboardingStep: framework.updateOnboardingStep,
-				reset: framework.reset,
-				skip: framework.skip,
-				skipAll: framework.skipAll,
-				resetAll: framework.resetAll,
-			}
-		},
-	}
-})
-
-vi.mock('@framework/ui/telemetry/index', () => ({
-	useTelemetry: () => ({ capture }),
+vi.mock('@/onboarding/useLearningOnboarding', () => ({
+	useLearningOnboarding: () => ({
+		...actions,
+		stepsOf: () => state.steps,
+		stepStatus: (_id: string, step: FlowStep) => state.status[step.name],
+		blocker: (_id: string, step: FlowStep) =>
+			state.blocked.has(step.name) ? { title: 'Set up Google API' } : undefined,
+		flowProgress: () => state.progress,
+		isFlowComplete: () => state.complete,
+		answerOf: () => state.answer,
+		nextCard: () => state.next,
+		cardProgress: () => state.nextProgress,
+	}),
 }))
 
 vi.mock('frappe-ui', () => ({
 	Badge: { props: ['label', 'theme'], template: '<span>{{ label }}</span>' },
 	Button: {
-		props: ['label', 'variant'],
+		props: ['label', 'variant', 'icon'],
 		emits: ['click'],
 		template: `<button type="button" @click="$emit('click', $event)">{{ label }}<slot /></button>`,
+	},
+	Dropdown: {
+		props: ['options'],
+		template: `<div class="dropdown"><slot /><span v-for="o in options" :key="o.label" class="option" :data-selected="o.selected ? 'yes' : 'no'" @click="o.onClick()">{{ o.label }}</span></div>`,
+	},
+	Progress: {
+		props: ['value'],
+		template: '<div class="progress" :data-value="value" />',
 	},
 	Tooltip: { props: ['text'], template: '<div :title="text"><slot /></div>' },
 }))
 
-vi.mock('@/components/Icons/LMSLogo.vue', () => ({
-	default: { template: '<svg />' },
-}))
+const meet = getFlow('live_class_meet')!
+const liveCard = getCard('live_class')!
 
-const flow = getFlow('live_class_meet')!
-const open = vi.fn()
-
-beforeEach(() => {
-	open.mockReset()
-	framework.key = null
-	framework.steps = reactive([
-		{ name: 'create_first_batch', title: 'Create', completed: true },
-		{
-			name: 'setup_google_api',
-			title: 'Google API',
-			completed: false,
-			onClick: open,
-		},
-		{
-			name: 'connect_google_calendar',
-			title: 'Calendar',
-			completed: false,
-			dependsOn: 'setup_google_api',
-			onClick: open,
-		},
-	])
-	for (const fn of [
-		'updateOnboardingStep',
-		'reset',
-		'skip',
-		'skipAll',
-		'resetAll',
-	] as const)
-		framework[fn] = vi.fn()
-})
-
-function mountChecklist() {
-	return mount(OnboardingChecklist, { props: { flow } })
+function steps(): FlowStep[] {
+	return meet.steps({
+		facts: {},
+		openRoute: vi.fn(),
+		openForm: vi.fn(),
+		openSettings: vi.fn(),
+		complete: vi.fn(),
+	})
 }
 
-const toggles = (w: ReturnType<typeof mountChecklist>) =>
-	w.findAll('[data-testid="step-toggle"]')
+beforeEach(() => {
+	for (const fn of Object.values(actions)) fn.mockReset()
+	state.steps = steps()
+	state.status = {
+		create_first_batch: 'done',
+		setup_google_api: 'skipped',
+		connect_google_calendar: 'current',
+		add_meet_account: 'upcoming',
+		schedule_live_class: 'upcoming',
+		publish_batch: 'upcoming',
+	}
+	state.blocked = new Set(['add_meet_account'])
+	state.progress = { resolved: 2, total: 6, skipped: 1 }
+	state.complete = false
+	state.answer = 'meet'
+	state.next = null
+	state.nextProgress = null
+})
 
-describe('OnboardingChecklist', () => {
-	it('reads the flow’s own framework key', () => {
-		mountChecklist()
-		expect(framework.key).toBe('learning_live_class_meet')
+function mountFlow() {
+	return mount(OnboardingChecklist, { props: { card: liveCard, flow: meet } })
+}
+
+const rows = (w: ReturnType<typeof mountFlow>) =>
+	w.findAll('[data-testid="flow-step"]')
+
+describe('flow header', () => {
+	it('puts title and meta on one line', () => {
+		const w = mountFlow()
+		const header = w.find('[data-testid="flow-header"]')
+		expect(header.text()).toContain('Run my first live class')
+		expect(header.text()).toContain('2/6 · 1 skipped')
+		expect(header.text()).not.toContain('Complete')
 	})
 
-	it('shows progress like the framework checklist', () => {
-		const w = mountChecklist()
-		expect(w.text()).toContain('1/3 steps completed')
-		expect(w.text()).toContain('33% completed')
-	})
-
-	it('ticks an incomplete step from its icon', async () => {
-		const w = mountChecklist()
-		await toggles(w)[1].trigger('click')
-		expect(framework.updateOnboardingStep).toHaveBeenCalledWith(
-			'setup_google_api',
-			true
-		)
-		expect(open).not.toHaveBeenCalled()
-	})
-
-	it('un-ticks a complete step from its icon', async () => {
-		const w = mountChecklist()
-		await toggles(w)[0].trigger('click')
-		expect(framework.reset).toHaveBeenCalledWith(
-			'create_first_batch',
-			expect.any(Function)
-		)
-	})
-
-	it('names and states each toggle', () => {
-		const w = mountChecklist()
-		expect(toggles(w)[0].attributes('aria-pressed')).toBe('true')
-		expect(toggles(w)[0].attributes('aria-label')).toBe(
-			'Mark Create as not done'
-		)
-		expect(toggles(w)[1].attributes('aria-pressed')).toBe('false')
-		expect(toggles(w)[1].attributes('aria-label')).toBe(
-			'Mark Google API as done'
+	it('says Complete once the flow is done', () => {
+		state.complete = true
+		state.progress = { resolved: 6, total: 6, skipped: 1 }
+		const w = mountFlow()
+		expect(w.find('[data-testid="flow-header"]').text()).toContain(
+			'6/6 · 1 skipped · Complete'
 		)
 	})
 
-	it('disables the icon of a blocked step', async () => {
-		const w = mountChecklist()
-		const blocked = toggles(w)[2]
-		expect(blocked.attributes('disabled')).toBeDefined()
-		await blocked.trigger('click')
-		expect(framework.updateOnboardingStep).not.toHaveBeenCalled()
+	it('shows progress as a percentage', () => {
+		const w = mountFlow()
+		expect(w.find('.progress').attributes('data-value')).toBe('33')
 	})
 
-	it('explains why a step is blocked', () => {
-		const w = mountChecklist()
-		expect(w.html()).toContain(
-			'You need to complete &quot;Google API&quot; first.'
+	it('offers Skip remaining and Reset this flow', async () => {
+		const w = mountFlow()
+		const menu = w.find('[data-testid="flow-menu"]')
+		const options = menu.findAll('.option')
+		expect(options.map((o) => o.text())).toEqual([
+			'Skip remaining',
+			'Reset this flow',
+		])
+		await options[0].trigger('click')
+		expect(actions.skipRemaining).toHaveBeenCalledWith('live_class_meet')
+		await options[1].trigger('click')
+		expect(actions.resetFlow).toHaveBeenCalledWith('live_class_meet')
+	})
+
+	it('drops Skip remaining once complete', () => {
+		state.complete = true
+		const w = mountFlow()
+		const labels = w
+			.find('[data-testid="flow-menu"]')
+			.findAll('.option')
+			.map((o) => o.text())
+		expect(labels).toEqual(['Reset this flow'])
+	})
+})
+
+describe('answer chip', () => {
+	it('shows the question label and current answer', () => {
+		const w = mountFlow()
+		const chip = w.find('[data-testid="answer-chip"]')
+		expect(chip.text()).toContain('Meeting tool')
+		const options = chip.findAll('.option')
+		expect(
+			options.map((o) => [o.text(), o.attributes('data-selected')])
+		).toEqual([
+			['Zoom', 'no'],
+			['Google Meet', 'yes'],
+		])
+	})
+
+	it('switches the answer', async () => {
+		const w = mountFlow()
+		await w
+			.find('[data-testid="answer-chip"]')
+			.findAll('.option')[0]
+			.trigger('click')
+		expect(actions.answer).toHaveBeenCalledWith('live_class', 'zoom')
+	})
+
+	it('is absent for a card with no question', () => {
+		const w = mount(OnboardingChecklist, {
+			props: {
+				card: getCard('publish_course')!,
+				flow: getFlow('publish_course')!,
+			},
+		})
+		expect(w.find('[data-testid="answer-chip"]').exists()).toBe(false)
+	})
+})
+
+describe('step rows', () => {
+	it('renders each status', () => {
+		const w = mountFlow()
+		expect(rows(w).map((r) => r.attributes('data-status'))).toEqual([
+			'done',
+			'skipped',
+			'current',
+			'upcoming',
+			'upcoming',
+			'upcoming',
+		])
+		expect(rows(w)[1].text()).toContain('Skipped')
+		expect(rows(w)[0].text()).not.toContain('Skipped')
+	})
+
+	it('makes each status circle a named, stateful toggle', async () => {
+		const w = mountFlow()
+		const toggles = w.findAll('[data-testid="step-toggle"]')
+		expect(toggles[0].attributes('aria-pressed')).toBe('true')
+		expect(toggles[0].attributes('aria-label')).toBe(
+			'Mark Create a batch as not done'
+		)
+		expect(toggles[2].attributes('aria-pressed')).toBe('false')
+		expect(toggles[2].attributes('aria-label')).toBe(
+			'Mark Connect Google Calendar as done'
+		)
+		await toggles[2].trigger('click')
+		expect(actions.toggleStep).toHaveBeenCalledWith(
+			'live_class_meet',
+			'connect_google_calendar'
 		)
 	})
 
-	it('opens an unblocked step from its title', async () => {
-		const w = mountChecklist()
-		const titles = w.findAll('[data-testid="step-open"]')
-		await titles[1].trigger('click')
-		expect(open).toHaveBeenCalledTimes(1)
-		await titles[2].trigger('click')
-		expect(open).toHaveBeenCalledTimes(1)
+	it('disables a blocked step’s toggle and explains why', () => {
+		const w = mountFlow()
+		expect(
+			w.findAll('[data-testid="step-toggle"]')[3].attributes('disabled')
+		).toBeDefined()
+		expect(rows(w)[3].html()).toContain(
+			'You need to complete &quot;Set up Google API&quot; first.'
+		)
 	})
 
-	it('skips and resets everything through the framework', async () => {
-		const w = mountChecklist()
+	it('offers Skip and Start on the current step', async () => {
+		const w = mountFlow()
+		const current = rows(w)[2]
 		const button = (label: string) =>
-			w.findAll('button').find((b) => b.text() === label)!
-		await button('Skip all').trigger('click')
-		expect(framework.skipAll).toHaveBeenCalledTimes(1)
-		await button('Reset all').trigger('click')
-		expect(framework.resetAll).toHaveBeenCalledTimes(1)
+			current.findAll('button').find((b) => b.text() === label)!
+		await button('Start').trigger('click')
+		expect(actions.startStep).toHaveBeenCalledWith(
+			'live_class_meet',
+			'connect_google_calendar'
+		)
+		await button('Skip').trigger('click')
+		expect(actions.skipStep).toHaveBeenCalledWith(
+			'live_class_meet',
+			'connect_google_calendar'
+		)
+	})
+
+	it('offers Undo on resolved steps only', async () => {
+		const w = mountFlow()
+		const has = (i: number) =>
+			rows(w)
+				[i].findAll('button')
+				.some((b) => b.text() === 'Undo')
+		expect([0, 1, 2, 3].map(has)).toEqual([true, true, false, false])
+		await rows(w)[1]
+			.findAll('button')
+			.find((b) => b.text() === 'Undo')!
+			.trigger('click')
+		expect(actions.undoStep).toHaveBeenCalledWith(
+			'live_class_meet',
+			'setup_google_api'
+		)
+	})
+
+	it('has no Start on upcoming steps', () => {
+		const w = mountFlow()
+		expect(
+			rows(w)[4]
+				.findAll('button')
+				.map((b) => b.text())
+		).not.toContain('Start')
+	})
+})
+
+describe('when the flow is complete', () => {
+	beforeEach(() => {
+		state.complete = true
+	})
+
+	it('suggests the next unfinished card', async () => {
+		state.next = getCard('onboard_learners')
+		const w = mountFlow()
+		const next = w.find('[data-testid="next-up"]')
+		expect(w.text()).toContain('Next up')
+		expect(next.text()).toContain('Onboard my existing learners')
+		const start = next.findAll('button').find((b) => b.text() === 'Start')!
+		await start.trigger('click')
+		expect(actions.openCardScreen).toHaveBeenCalledWith('onboard_learners')
+	})
+
+	it('says Continue when the next card has progress', () => {
+		state.next = getCard('publish_course')
+		state.nextProgress = { resolved: 2, total: 6, skipped: 0 }
+		const w = mountFlow()
+		const labels = w
+			.find('[data-testid="next-up"]')
+			.findAll('button')
+			.map((b) => b.text())
+		expect(labels).toContain('Continue')
+	})
+
+	it('says everything is complete when nothing is left', () => {
+		const w = mountFlow()
+		expect(w.find('[data-testid="next-up"]').exists()).toBe(false)
+		expect(w.text()).toContain('All flows complete')
+		expect(w.text()).toContain('You can revisit any flow from the list.')
+	})
+
+	it('shows nothing of the sort while unfinished', () => {
+		state.complete = false
+		const w = mountFlow()
+		expect(w.text()).not.toContain('All flows complete')
+		expect(w.find('[data-testid="next-up"]').exists()).toBe(false)
 	})
 })

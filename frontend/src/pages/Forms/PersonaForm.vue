@@ -35,7 +35,7 @@ const user = inject('$user')
 const router = useRouter()
 const { brand } = sessionStore()
 const { capture } = useTelemetry()
-const { setFlow } = useLearningOnboarding()
+const { openCardScreen } = useLearningOnboarding()
 
 const leaving = ref(false)
 const FADE_MS = 300
@@ -209,7 +209,7 @@ const handleChoose = (step, option) => {
 	call('lms.lms.api.capture_user_persona', {
 		responses: JSON.stringify({ site: user.data?.sitename, ...answers }),
 	})
-	if (option.flow) setFlow(option.flow)
+	if (option.flow) openCardScreen(option.flow)
 	leaveTo(option.route ?? { name: 'Home' }, persistCaptured())
 }
 

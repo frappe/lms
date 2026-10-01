@@ -6,28 +6,17 @@
 		data-testid="onboarding-flow-panel"
 		@click.stop
 	>
-		<div class="flex items-center justify-between gap-1 px-2 py-1.5">
+		<div class="flex h-12 shrink-0 items-center justify-between gap-1 px-1">
 			<div class="flex min-w-0 items-center gap-1">
 				<Button
-					v-if="panelView === 'checklist'"
+					v-if="screen !== 'list'"
 					variant="ghost"
-					class="-ms-2"
-					data-testid="all-flows"
-					:label="text.allFlows"
-					@click="showAllFlows"
+					:aria-label="text.allFlows"
+					@click="showList"
 				>
-					<template #prefix>
-						<LucideChevronLeft
-							class="size-4 rtl:rotate-180"
-							aria-hidden="true"
-						/>
-					</template>
+					<LucideChevronLeft class="size-4 rtl:rotate-180" aria-hidden="true" />
 				</Button>
-				<h2
-					:id="headingId"
-					class="truncate text-base font-medium"
-					:class="{ 'sr-only': panelView === 'checklist' }"
-				>
+				<h2 :id="headingId" class="truncate px-1 text-base font-medium">
 					{{ text.heading }}
 				</h2>
 			</div>
@@ -49,285 +38,171 @@
 			</div>
 		</div>
 
-		<div class="h-full overflow-y-auto flex flex-col gap-4">
+		<div class="flex h-full min-h-0 flex-col gap-3 overflow-y-auto">
 			<OnboardingChecklist
-				v-if="panelView === 'checklist' && activeFlow"
-				:key="activeFlow.key"
-				:flow="activeFlow"
+				v-if="screen === 'flow' && openCard && openFlow"
+				:key="openFlow.key"
+				:card="openCard"
+				:flow="openFlow"
 			/>
 
-			<template v-else-if="panelView === 'done' && activeFlow">
-				<div class="flex flex-col items-center gap-1 mt-4 px-2 text-center">
-					<span
-						class="flex size-10 items-center justify-center rounded-full bg-surface-green-2 text-ink-green-7 mb-3"
-						aria-hidden="true"
-					>
-						<LucideCheck class="size-5" />
-					</span>
-					<h3 class="text-base font-medium" data-testid="flow-done-title">
-						{{ activeFlow.doneTitle }}
-					</h3>
-					<p class="text-p-sm text-ink-gray-6">
-						{{ remainingCards.length ? text.pickNext : text.allDone }}
-					</p>
-					<Button
-						variant="solid"
-						class="mt-3"
-						:label="activeFlow.doneAction.label"
-						@click="runDoneAction"
-					/>
-				</div>
-				<ul
-					v-if="remainingCards.length"
-					class="flex flex-col gap-0.5"
-					:aria-label="text.nextFlows"
+			<template v-else-if="screen === 'question' && openCard?.question">
+				<h3
+					class="truncate px-2 text-base font-medium"
+					data-testid="question-title"
 				>
-					<li
-						v-for="card in remainingCards"
-						:key="card.id"
-						class="flex items-center gap-3 rounded-6 px-2 py-2.5"
-						data-testid="remaining-flow"
+					{{ openCard.question.title }}
+				</h3>
+				<div class="flex flex-col gap-0.5">
+					<Tooltip
+						v-for="option in openCard.question.options"
+						:key="option.value"
+						:text="option.description"
 					>
-						<span
-							class="flex size-8 shrink-0 items-center justify-center rounded-5 bg-surface-gray-2 text-ink-gray-7"
-							aria-hidden="true"
+						<button
+							type="button"
+							class="flex w-full items-center gap-3 rounded-6 px-2 py-2 text-start transition-colors hover:bg-surface-gray-2 focus-visible:bg-surface-gray-2"
+							data-testid="question-option"
+							@click="answer(openCard.id, option.value)"
 						>
-							<component :is="card.icon" class="size-4" />
-						</span>
-						<span class="min-w-0 flex-1">
-							<span class="block text-p-sm font-medium text-ink-gray-9">
-								{{ card.title }}
+							<span class="min-w-0 flex-1 truncate text-p-sm font-medium">
+								{{ option.label }}
 							</span>
-							<span class="block text-p-xs text-ink-gray-5">
-								{{ card.description }}
+							<span class="shrink-0 text-p-xs tabular-nums text-ink-gray-5">
+								{{ stepCount(option.flow.id) }}
 							</span>
-						</span>
-						<Button
-							:label="text.start"
-							:aria-label="startLabel(card.title)"
-							@click="chooseCard(card.id)"
-						/>
-					</li>
-				</ul>
-			</template>
-
-			<template v-else-if="panelView === 'provider'">
-				<div class="flex flex-col gap-3">
-					<Button
-						variant="ghost"
-						class="self-start"
-						data-testid="provider-back"
-						:label="text.back"
-						@click="cancelProvider"
-					>
-						<template #prefix>
-							<LucideChevronLeft
-								class="size-4 rtl:rotate-180"
+							<LucideChevronRight
+								class="size-4 shrink-0 text-ink-gray-4 rtl:rotate-180"
 								aria-hidden="true"
 							/>
-						</template>
-					</Button>
-					<div class="flex flex-col gap-1 px-2">
-						<h3 class="text-base font-medium">{{ text.providerTitle }}</h3>
-						<p class="text-p-sm text-ink-gray-6">{{ text.providerHint }}</p>
-					</div>
-				</div>
-				<div class="flex flex-col gap-0.5">
-					<button
-						v-for="flow in providerFlows"
-						:key="flow.id"
-						type="button"
-						class="group flex items-center gap-3 rounded-6 px-2 py-2.5 text-start transition-colors hover:bg-surface-gray-2 focus-visible:bg-surface-gray-2"
-						data-testid="provider-flow"
-						@click="setFlow(flow.id)"
-					>
-						<span class="min-w-0 flex-1">
-							<span class="block text-p-sm font-medium text-ink-gray-9">
-								{{ flow.provider?.label }}
-							</span>
-							<span class="block text-p-xs text-ink-gray-5">
-								{{ flow.provider?.description }}
-							</span>
-						</span>
-						<LucideChevronRight
-							class="size-4 shrink-0 text-ink-gray-4 rtl:rotate-180"
-							aria-hidden="true"
-						/>
-					</button>
+						</button>
+					</Tooltip>
 				</div>
 			</template>
 
 			<template v-else>
-				<div class="flex flex-col items-center gap-1 mt-4 px-2 text-center">
-					<LMSLogo class="size-10 shrink-0 rounded-4 mb-3" aria-hidden="true" />
-					<h3 class="text-base font-medium">
-						{{ text.pickerTitle }}
-					</h3>
-					<p class="text-p-sm text-ink-gray-6">
-						{{ remainingCards.length ? text.pickerHint : text.allDone }}
-					</p>
-				</div>
-				<button
-					v-if="resumableFlow"
-					type="button"
-					class="flex items-center gap-3 rounded-6 border border-outline-gray-2 px-2 py-2.5 text-start transition-colors hover:bg-surface-gray-2 focus-visible:bg-surface-gray-2"
-					data-testid="continue-flow"
-					@click="continueFlow"
+				<div
+					class="flex items-center justify-between gap-2 px-2"
+					data-testid="list-heading"
 				>
+					<h3 class="truncate text-base font-medium">{{ listHeading }}</h3>
 					<span
-						class="flex size-8 shrink-0 items-center justify-center rounded-5 bg-surface-gray-2 text-ink-gray-7"
-						aria-hidden="true"
+						v-if="listState !== 'fresh'"
+						class="shrink-0 text-p-xs tabular-nums text-ink-gray-5"
 					>
-						<component :is="resumableFlow.icon" class="size-4" />
+						{{ completedCards }}/{{ CARDS.length }}
 					</span>
-					<span class="min-w-0 flex-1">
-						<span class="block text-p-sm font-medium text-ink-gray-9">
-							{{ continueLabel(resumableFlow.title) }}
-						</span>
-						<span class="block text-p-xs text-ink-gray-5">
-							{{ stepCount(flowProgress(resumableFlow.id)) }}
-						</span>
-					</span>
-					<LucideChevronRight
-						class="size-4 shrink-0 text-ink-gray-4 rtl:rotate-180"
-						aria-hidden="true"
-					/>
-				</button>
+				</div>
 				<div class="flex flex-col gap-0.5">
-					<button
-						v-for="card in pickerCards"
+					<Tooltip
+						v-for="card in CARDS"
 						:key="card.id"
-						type="button"
-						class="group flex items-center gap-3 rounded-6 px-2 py-2.5 text-start transition-colors hover:bg-surface-gray-2 focus-visible:bg-surface-gray-2"
-						data-testid="picker-flow"
-						@click="chooseCard(card.id)"
+						:text="card.description"
 					>
-						<span
-							class="flex size-8 shrink-0 items-center justify-center rounded-5 bg-surface-gray-2 text-ink-gray-7 transition-colors group-hover:bg-surface-base"
-							aria-hidden="true"
+						<button
+							type="button"
+							class="flex w-full items-center gap-3 rounded-6 px-2 py-2 text-start transition-colors hover:bg-surface-gray-2 focus-visible:bg-surface-gray-2"
+							data-testid="flow-row"
+							@click="openCardScreen(card.id)"
 						>
-							<component :is="card.icon" class="size-4" />
-						</span>
-						<span class="min-w-0 flex-1">
-							<span class="block text-p-sm font-medium text-ink-gray-9">
+							<span
+								class="flex size-8 shrink-0 items-center justify-center rounded-5"
+								:class="
+									isCardComplete(card)
+										? 'bg-surface-green-2 text-ink-green-7'
+										: 'bg-surface-gray-2 text-ink-gray-7'
+								"
+								aria-hidden="true"
+							>
+								<LucideCheck v-if="isCardComplete(card)" class="size-4" />
+								<component :is="card.icon" v-else class="size-4" />
+							</span>
+							<span class="min-w-0 flex-1 truncate text-p-sm font-medium">
 								{{ card.title }}
 							</span>
-							<span class="block text-p-xs text-ink-gray-5">
-								{{ card.description }}
+							<span class="shrink-0 text-p-xs tabular-nums text-ink-gray-5">
+								{{ rowMeta(card) }}
 							</span>
-						</span>
-						<Badge
-							v-if="isCardComplete(card.id)"
-							theme="green"
-							:label="text.done"
-						/>
-						<span
-							v-else-if="cardProgress(card)"
-							class="shrink-0 text-p-xs text-ink-gray-5"
-						>
-							{{ stepCount(cardProgress(card)!) }}
-						</span>
-						<LucideChevronRight
-							class="size-4 shrink-0 text-ink-gray-4 rtl:rotate-180"
-							aria-hidden="true"
-						/>
-					</button>
+							<LucideChevronRight
+								class="size-4 shrink-0 text-ink-gray-4 rtl:rotate-180"
+								aria-hidden="true"
+							/>
+						</button>
+					</Tooltip>
 				</div>
 			</template>
 		</div>
 
-		<div class="flex flex-col gap-1.5">
+		<div class="flex shrink-0 items-center justify-between gap-2">
 			<Button
-				v-if="panelView === 'done' && !allCardsComplete"
 				variant="ghost"
-				:label="text.skipAll"
-				@click="skipAllFlows"
-			/>
-			<Button
-				v-else-if="panelView === 'done'"
-				variant="ghost"
-				:label="text.restart"
-				@click="restartOnboarding"
-			/>
-			<a
 				href="https://docs.frappe.io/learning"
-				v-external
-				class="w-full flex gap-2 items-center hover:bg-surface-gray-1 text-ink-gray-8 rounded-4 px-2 py-1.5"
+				:label="text.helpCentre"
 			>
-				<HelpIcon class="h-4" aria-hidden="true" />
-				<span class="text-base">{{ text.helpCentre }}</span>
-			</a>
+				<template #prefix>
+					<HelpIcon class="h-4" aria-hidden="true" />
+				</template>
+			</Button>
+			<Button
+				v-if="screen === 'list' && hasAnyProgress"
+				variant="ghost"
+				:label="text.resetAll"
+				@click="resetEverything"
+			/>
 		</div>
 	</section>
 </template>
 
 <script setup lang="ts">
-import { useId } from 'vue'
-import { Badge, Button } from 'frappe-ui'
+import { computed, useId } from 'vue'
+import { Button, Tooltip } from 'frappe-ui'
 import { HelpIcon, MaximizeIcon, MinimizeIcon } from 'frappe-ui/icons'
 import { minimize } from '@framework/ui/components/Onboarding/index'
-import LMSLogo from '@/components/Icons/LMSLogo.vue'
 import OnboardingChecklist from '@/components/Onboarding/OnboardingChecklist.vue'
-import type { Progress } from '@/onboarding/useLearningOnboarding'
+import { CARDS, type FlowCard, type FlowId } from '@/onboarding/flows'
 import { useLearningOnboarding } from '@/onboarding/useLearningOnboarding'
 
 const {
-	activeFlow,
-	resumableFlow,
-	remainingCards,
-	pickerCards,
-	providerFlows,
-	panelView,
-	setFlow,
-	chooseCard,
-	cancelProvider,
-	closePanel,
-	skipAllFlows,
-	restartOnboarding,
-	allCardsComplete,
-	runDoneAction,
-	showAllFlows,
-	continueFlow,
-	flowProgress,
+	screen,
+	openCard,
+	openFlow,
+	listState,
+	completedCards,
+	hasAnyProgress,
+	stepsOf,
 	cardProgress,
 	isCardComplete,
+	openCardScreen,
+	answer,
+	showList,
+	closePanel,
+	resetEverything,
 } = useLearningOnboarding()
 
 const headingId = useId()
 
 const text = {
 	heading: __('Getting started'),
+	allFlows: __('All flows'),
 	expand: __('Expand'),
 	minimize: __('Minimize'),
 	close: __('Close'),
-	pickNext: __('Pick what to set up next.'),
-	allDone: __('You have finished every getting started flow.'),
-	nextFlows: __('Next flows'),
-	start: __('Start'),
-	pickerTitle: __('What do you want to do first?'),
-	pickerHint: __('Pick a goal and follow its checklist.'),
-	skipAll: __('Skip all'),
-	restart: __('Restart onboarding'),
-	back: __('Back'),
-	allFlows: __('All flows'),
-	done: __('Done'),
-	providerTitle: __('Which meeting tool do you use?'),
-	providerHint: __('The checklist depends on your choice.'),
 	helpCentre: __('Help centre'),
+	resetAll: __('Reset all'),
 }
 
-function continueLabel(title: string): string {
-	return __('Continue: {0}').format(title)
+const listHeading = computed<string>(() => {
+	if (listState.value === 'done') return __('You’re all set')
+	if (listState.value === 'progress') return __('Pick up where you left off')
+	return __('What do you want to do first?')
+})
+
+function rowMeta(card: FlowCard): string {
+	const progress = cardProgress(card)
+	return progress ? `${progress.resolved}/${progress.total}` : ''
 }
 
-function stepCount(progress: Progress): string {
-	return __('{0}/{1} steps').format(
-		String(progress.completed),
-		String(progress.total)
-	)
-}
-
-function startLabel(title: string): string {
-	return __('Start {0}').format(title)
+function stepCount(id: FlowId): string {
+	return __('{0} steps').format(String(stepsOf(id).length))
 }
 </script>

@@ -1,15 +1,17 @@
 /**
- * useLearningOnboarding drives three framework onboarding keys at once. The
+ * useLearningOnboarding drives five framework onboarding keys at once. The
  * framework is replaced by a small in-memory model of `useOnboarding`, so each
  * test sees which keys were updated, synced, or left alone.
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { computed, nextTick, reactive, ref, type Ref } from 'vue'
+import { nextTick, reactive, ref, type Ref } from 'vue'
 
-type FakeStep = { name: string; completed: boolean }
+type FakeStep = { name: string; completed: boolean; onClick?: () => void }
 type FakeHandle = {
 	steps: FakeStep[]
 	updateOnboardingStep: ReturnType<typeof vi.fn>
+	skip: ReturnType<typeof vi.fn>
+	reset: ReturnType<typeof vi.fn>
 	skipAll: ReturnType<typeof vi.fn>
 	resetAll: ReturnType<typeof vi.fn>
 	syncStatus: ReturnType<typeof vi.fn>
@@ -44,65 +46,82 @@ vi.mock('@framework/ui/components/Onboarding/index', async () => {
 	}
 })
 
-function makeHandle() {
+function makeHandle(): FakeHandle {
 	const state = reactive({ steps: [] as FakeStep[] })
-	const isOnboardingStepsCompleted = ref(false)
-	const handle = {
+	const mark = (name: string, value: boolean) => {
+		const step = state.steps.find((s) => s.name === name)
+		if (step) step.completed = value
+	}
+	return {
 		get steps() {
 			return state.steps
 		},
-		isOnboardingStepsCompleted,
-		stepsCompleted: computed(
-			() => state.steps.filter((s) => s.completed).length
-		),
-		totalSteps: computed(() => state.steps.length),
+		isOnboardingStepsCompleted: ref(false),
 		setUp: vi.fn((steps: FakeStep[]) => {
 			if (!state.steps.length) state.steps = steps
 		}),
 		syncStatus: vi.fn(),
+		updateOnboardingStep: vi.fn((name: string, value = true) =>
+			mark(name, value)
+		),
+		skip: vi.fn((name: string) => mark(name, true)),
+		reset: vi.fn((name: string) => mark(name, false)),
 		skipAll: vi.fn(() => {
 			for (const step of state.steps) step.completed = true
 		}),
 		resetAll: vi.fn(() => {
 			for (const step of state.steps) step.completed = false
 		}),
-		updateOnboardingStep: vi.fn((name: string) => {
-			const step = state.steps.find((s) => s.name === name)
-			if (step) step.completed = true
-		}),
 	}
-	return handle
 }
 
 const USER = 'admin@example.com'
+const ALL = [
+	'publish_course',
+	'onboard_learners_invite',
+	'onboard_learners_csv',
+	'live_class_zoom',
+	'live_class_meet',
+]
 const nav = {
 	openRoute: vi.fn(),
 	openForm: vi.fn(),
 	openSettings: vi.fn(),
 }
 
-async function load(storedFlow?: string) {
-	if (storedFlow)
-		localStorage.setItem('learningOnboardingFlow' + USER, storedFlow)
+type Loaded = Awaited<ReturnType<typeof load>>
+
+async function load(
+	stored: { card?: string; answers?: Record<string, string> } = {}
+) {
+	if (stored.card)
+		localStorage.setItem('learningOnboardingCard' + USER, stored.card)
+	if (stored.answers)
+		localStorage.setItem(
+			'learningOnboardingAnswers' + USER,
+			JSON.stringify(stored.answers)
+		)
 	const mod = await import('@/onboarding/useLearningOnboarding')
-	const framework_ = await import('@framework/ui/components/Onboarding/index')
-	return { ...mod.useLearningOnboarding(), ui: framework_ }
+	const flows = await import('@/onboarding/flows')
+	const ui = await import('@framework/ui/components/Onboarding/index')
+	return { ...mod.useLearningOnboarding(), ui, flows }
+}
+
+async function ready(stored?: Parameters<typeof load>[0]): Promise<Loaded> {
+	const o = await load(stored)
+	await o.setUpAll(nav)
+	return o
 }
 
 function handle(key: string): FakeHandle {
 	return framework.handles['learning_' + key]
 }
 
-beforeEach(() => {
-	vi.resetModules()
-	localStorage.clear()
-	document.cookie = `user_id=${encodeURIComponent(USER)}`
-	framework.handles = {}
-	framework.guest = false
-	statusResource.current = null
-	callMock.mockReset()
-	callMock.mockResolvedValue({})
-})
+function finish(key: string): void {
+	for (const step of handle(key).steps) step.completed = true
+}
+
+const card = (o: Loaded, id: string) => o.flows.getCard(id)!
 
 // vi.resetModules gives each test a fresh composable, but the focus listener
 // an earlier copy added to window outlives it. Drop them between tests.
@@ -115,63 +134,457 @@ vi.spyOn(window, 'addEventListener').mockImplementation(
 	}
 )
 
+beforeEach(() => {
+	vi.resetModules()
+	localStorage.clear()
+	document.cookie = `user_id=${encodeURIComponent(USER)}`
+	framework.handles = {}
+	framework.guest = false
+	statusResource.current = null
+	callMock.mockReset()
+	callMock.mockResolvedValue({})
+	for (const fn of Object.values(nav)) fn.mockReset()
+})
+
 afterEach(() => {
 	document.cookie = 'user_id=; expires=Thu, 01 Jan 1970 00:00:00 GMT'
 	for (const listener of focusListeners.splice(0))
 		window.removeEventListener('focus', listener)
+	vi.useRealTimers()
+})
+
+describe('setUpAll', () => {
+	// Guards: a second setUpAll registering every flow again. Introduced in this
+	// branch (feat/onboarding-flows, PR pending); test added there to keep setup
+	// idempotent.
+	it('registers every flow once', async () => {
+		const o = await ready()
+		await o.setUpAll(nav)
+		for (const key of ALL) expect(handle(key).setUp).toHaveBeenCalledTimes(1)
+	})
+
+	// Guards: a guest running setup and firing a facts call that 403s.
+	// Introduced in this branch (feat/onboarding-flows, PR pending); test added
+	// there to keep onboarding off for guests.
+	it('does nothing for a guest', async () => {
+		framework.guest = true
+		const o = await ready()
+		expect(o.isSetUp.value).toBe(false)
+		expect(callMock).not.toHaveBeenCalled()
+	})
+
+	// Guards: a reload losing the card the admin had open. Introduced in this
+	// branch (feat/onboarding-flows, PR pending); test added there to pin
+	// reopening an answered card on load.
+	it('reopens an unfinished card on load', async () => {
+		const o = await ready({
+			card: 'live_class',
+			answers: { live_class: 'meet' },
+		})
+		expect(o.ui.showHelpModal.value).toBe(true)
+		expect(o.screen.value).toBe('flow')
+		expect(o.openFlow.value?.id).toBe('live_class_meet')
+	})
+
+	it('reopens on the question when the card is unanswered', async () => {
+		const o = await ready({ card: 'onboard_learners' })
+		expect(o.screen.value).toBe('question')
+	})
+
+	// Guards: the panel popping open for an admin who has not started.
+	// Introduced in this branch (feat/onboarding-flows, PR pending); test added
+	// there to keep a fresh load closed on the list.
+	it('stays closed on the list with nothing started', async () => {
+		const o = await ready()
+		expect(o.ui.showHelpModal.value).toBe(false)
+		expect(o.screen.value).toBe('list')
+	})
+
+	// Guards: flows syncing before the shared status fetch returns and reading
+	// stale flags. Introduced in this branch (feat/onboarding-flows, PR
+	// pending); test added there to hold the sync until that fetch settles.
+	it('syncs every flow once the shared status fetch settles', async () => {
+		statusResource.current = reactive({ loading: true })
+		const o = await load()
+		const done = o.setUpAll(nav)
+		await nextTick()
+		expect(handle('live_class_zoom').syncStatus).not.toHaveBeenCalled()
+		statusResource.current.loading = false
+		await done
+		for (const key of ALL)
+			expect(handle(key).syncStatus).toHaveBeenCalledTimes(1)
+	})
+
+	// Guards: a failed facts call aborting setup. Introduced in this branch
+	// (feat/onboarding-flows, PR pending); test added there to keep setup going
+	// without facts.
+	it('swallows a facts failure', async () => {
+		callMock.mockRejectedValue(new Error('403'))
+		const o = await ready()
+		expect(o.isSetUp.value).toBe(true)
+	})
+})
+
+describe('list', () => {
+	it('is fresh with nothing started', async () => {
+		const o = await ready()
+		expect(o.listState.value).toBe('fresh')
+		expect(o.hasAnyProgress.value).toBe(false)
+	})
+
+	// Guards: an answered question not counting as progress. Introduced in this
+	// branch (feat/onboarding-flows, PR pending); test added there to pin what
+	// counts as started.
+	it('counts an answer as progress', async () => {
+		const o = await ready()
+		o.answer('live_class', 'zoom')
+		expect(o.listState.value).toBe('progress')
+	})
+
+	// Guards: a ticked step not counting as progress. Introduced in this branch
+	// (feat/onboarding-flows, PR pending); test added there to pin what counts
+	// as started.
+	it('counts a ticked step as progress', async () => {
+		const o = await ready()
+		o.completeStep('create_first_course')
+		expect(o.listState.value).toBe('progress')
+	})
+
+	it('is done once every card’s flow is done', async () => {
+		const o = await ready({
+			answers: { onboard_learners: 'csv', live_class: 'zoom' },
+		})
+		for (const key of [
+			'publish_course',
+			'onboard_learners_csv',
+			'live_class_zoom',
+		])
+			finish(key)
+		expect(o.completedCards.value).toBe(3)
+		expect(o.listState.value).toBe('done')
+	})
+
+	it('has no row count while a question is unanswered', async () => {
+		const o = await ready()
+		expect(o.cardProgress(card(o, 'live_class'))).toBeNull()
+		expect(o.cardProgress(card(o, 'publish_course'))).toEqual({
+			resolved: 0,
+			total: 6,
+			skipped: 0,
+		})
+	})
+})
+
+describe('question and answer', () => {
+	it('opens the question for an unanswered card', async () => {
+		const o = await ready()
+		o.openCardScreen('onboard_learners')
+		expect(o.screen.value).toBe('question')
+		expect(o.ui.showHelpModal.value).toBe(true)
+	})
+
+	it('opens a card without a question straight on its flow', async () => {
+		const o = await ready()
+		o.openCardScreen('publish_course')
+		expect(o.screen.value).toBe('flow')
+		expect(o.openFlow.value?.id).toBe('publish_course')
+	})
+
+	// Guards: answers not being saved per user or not opening the flow.
+	// Introduced in this branch (feat/onboarding-flows, PR pending); test added
+	// there to pin the stored answer.
+	it('answering persists per user and shows the flow', async () => {
+		const o = await ready()
+		o.openCardScreen('onboard_learners')
+		o.answer('onboard_learners', 'invite')
+		expect(o.screen.value).toBe('flow')
+		expect(o.openFlow.value?.id).toBe('onboard_learners_invite')
+		await nextTick()
+		expect(
+			JSON.parse(localStorage.getItem('learningOnboardingAnswers' + USER)!)
+		).toEqual({ onboard_learners: 'invite' })
+	})
+
+	it('changing the answer switches the key, keeping each key’s progress', async () => {
+		const o = await ready()
+		o.answer('live_class', 'zoom')
+		o.toggleStep('live_class_zoom', 'connect_zoom')
+		o.answer('live_class', 'meet')
+		expect(o.openFlow.value?.key).toBe('learning_live_class_meet')
+		expect(o.flowProgress('live_class_meet').resolved).toBe(0)
+		o.answer('live_class', 'zoom')
+		expect(o.flowProgress('live_class_zoom').resolved).toBe(1)
+	})
+
+	// Guards: an unknown provider being stored as the answer. Introduced in this
+	// branch (feat/onboarding-flows, PR pending); test added there to reject
+	// answers outside the question.
+	it('ignores an answer the question does not offer', async () => {
+		const o = await ready()
+		o.answer('live_class', 'teams')
+		expect(o.answerOf(card(o, 'live_class'))).toBeNull()
+	})
+})
+
+describe('step status', () => {
+	// Guards: rows showing the wrong done, skipped, current or upcoming state.
+	// Introduced in this branch (feat/onboarding-flows, PR pending); test added
+	// there to pin the row states and count.
+	it('marks done, skipped, current and upcoming', async () => {
+		const o = await ready()
+		o.toggleStep('publish_course', 'create_first_course')
+		o.skipStep('publish_course', 'create_first_chapter')
+		const steps = o.stepsOf('publish_course')
+		expect(steps.map((s) => o.stepStatus('publish_course', s))).toEqual([
+			'done',
+			'skipped',
+			'current',
+			'upcoming',
+			'upcoming',
+			'upcoming',
+		])
+		expect(o.flowProgress('publish_course')).toEqual({
+			resolved: 2,
+			total: 6,
+			skipped: 1,
+		})
+	})
+
+	it('reports a blocked step’s blocker', async () => {
+		const o = await ready()
+		const meet = o.stepsOf('live_class_meet')
+		expect(o.blocker('live_class_meet', meet[2])?.name).toBe('setup_google_api')
+		expect(o.blocker('live_class_meet', meet[1])).toBeUndefined()
+	})
+})
+
+describe('step actions', () => {
+	// Guards: the checkbox failing to tick or to un-tick a step. Introduced in
+	// this branch (feat/onboarding-flows, PR pending); test added there to pin
+	// toggle both ways.
+	it('toggle ticks an open step and un-ticks a done one', async () => {
+		const o = await ready()
+		o.toggleStep('publish_course', 'add_quiz')
+		expect(handle('publish_course').updateOnboardingStep).toHaveBeenCalledWith(
+			'add_quiz',
+			true
+		)
+		o.toggleStep('publish_course', 'add_quiz')
+		expect(handle('publish_course').reset).toHaveBeenCalledWith('add_quiz')
+	})
+
+	// Guards: ticking a skipped step resetting it instead of marking it done.
+	// Introduced in this branch (feat/onboarding-flows, PR pending); test added
+	// there to pin toggle on a skip.
+	it('toggle on a skipped step marks it done', async () => {
+		const o = await ready()
+		o.skipStep('publish_course', 'add_quiz')
+		o.toggleStep('publish_course', 'add_quiz')
+		const quiz = o.stepsOf('publish_course')[3]
+		expect(o.stepStatus('publish_course', quiz)).toBe('done')
+		expect(handle('publish_course').reset).not.toHaveBeenCalled()
+	})
+
+	// Guards: a blocked step being ticked before its blocker. Introduced in this
+	// branch (feat/onboarding-flows, PR pending); test added there to pin the
+	// toggle guard.
+	it('toggle does nothing on a blocked step', async () => {
+		const o = await ready()
+		o.toggleStep('publish_course', 'create_first_chapter')
+		expect(handle('publish_course').updateOnboardingStep).not.toHaveBeenCalled()
+	})
+
+	// Guards: a skip not reaching the framework or not surviving a reload.
+	// Introduced in this branch (feat/onboarding-flows, PR pending); test added
+	// there to pin the stored skip.
+	it('skip tells the framework and remembers the skip', async () => {
+		const o = await ready()
+		o.skipStep('publish_course', 'add_quiz')
+		expect(handle('publish_course').skip).toHaveBeenCalledWith('add_quiz')
+		await nextTick()
+		expect(
+			JSON.parse(localStorage.getItem('learningOnboardingSkipped' + USER)!)
+		).toEqual({ learning_publish_course: ['add_quiz'] })
+	})
+
+	// Guards: undo leaving a step skipped or ticked. Introduced in this branch
+	// (feat/onboarding-flows, PR pending); test added there to pin undo.
+	it('undo resets the step and forgets the skip', async () => {
+		const o = await ready()
+		o.skipStep('publish_course', 'add_quiz')
+		o.undoStep('publish_course', 'add_quiz')
+		const quiz = o.stepsOf('publish_course')[3]
+		expect(handle('publish_course').reset).toHaveBeenCalledWith('add_quiz')
+		expect(o.flowProgress('publish_course').skipped).toBe(0)
+		expect(quiz.completed).toBe(false)
+	})
+
+	it('undo on a finished flow clears the framework’s completed flag first', async () => {
+		const o = await ready()
+		finish('publish_course')
+		handle('publish_course').isOnboardingStepsCompleted.value = true
+		o.undoStep('publish_course', 'publish_course')
+		expect(handle('publish_course').isOnboardingStepsCompleted.value).toBe(
+			false
+		)
+	})
+
+	it('start runs the step’s navigation without ticking it', async () => {
+		const o = await ready()
+		o.startStep('publish_course', 'add_quiz')
+		expect(nav.openRoute).toHaveBeenCalledWith({ name: 'NewQuiz' })
+		expect(o.stepsOf('publish_course')[3].completed).toBe(false)
+	})
+
+	// Guards: Start navigating for a blocked step. Introduced in this branch
+	// (feat/onboarding-flows, PR pending); test added there to pin the Start
+	// guard.
+	it('start does nothing on a blocked step', async () => {
+		const o = await ready()
+		o.startStep('publish_course', 'create_first_chapter')
+		expect(nav.openRoute).not.toHaveBeenCalled()
+	})
+})
+
+describe('flow menu', () => {
+	// Guards: Skip remaining re-skipping done steps or leaving the flow
+	// unfinished. Introduced in this branch (feat/onboarding-flows, PR pending);
+	// test added there to pin the per-flow skip.
+	it('skip remaining marks only open steps skipped', async () => {
+		const o = await ready()
+		o.toggleStep('publish_course', 'create_first_course')
+		o.skipRemaining('publish_course')
+		expect(handle('publish_course').skipAll).toHaveBeenCalledTimes(1)
+		expect(o.flowProgress('publish_course')).toEqual({
+			resolved: 6,
+			total: 6,
+			skipped: 5,
+		})
+		expect(o.isFlowComplete('publish_course')).toBe(true)
+	})
+
+	// Guards: resetting a flow leaving skips or the completed flag, or clearing
+	// the answer. Introduced in this branch (feat/onboarding-flows, PR pending);
+	// test added there to pin the per-flow reset.
+	it('reset this flow clears its steps and skips, keeping the answer', async () => {
+		const o = await ready()
+		o.answer('live_class', 'zoom')
+		o.skipStep('live_class_zoom', 'connect_zoom')
+		handle('live_class_zoom').isOnboardingStepsCompleted.value = true
+		o.resetFlow('live_class_zoom')
+		expect(handle('live_class_zoom').resetAll).toHaveBeenCalledTimes(1)
+		expect(handle('live_class_zoom').isOnboardingStepsCompleted.value).toBe(
+			false
+		)
+		expect(o.flowProgress('live_class_zoom').skipped).toBe(0)
+		expect(o.answerOf(card(o, 'live_class'))).toBe('zoom')
+	})
+})
+
+describe('next up', () => {
+	it('follows the card’s next order', async () => {
+		const o = await ready()
+		expect(o.nextCard(card(o, 'publish_course'))?.id).toBe('onboard_learners')
+		expect(o.nextCard(card(o, 'live_class'))?.id).toBe('onboard_learners')
+	})
+
+	// Guards: Next up pointing at a finished card. Introduced in this branch
+	// (feat/onboarding-flows, PR pending); test added there to skip finished
+	// cards.
+	it('skips finished cards', async () => {
+		const o = await ready({ answers: { onboard_learners: 'invite' } })
+		finish('onboard_learners_invite')
+		expect(o.nextCard(card(o, 'publish_course'))?.id).toBe('live_class')
+	})
+
+	// Guards: Next up offering a card when none is left. Introduced in this
+	// branch (feat/onboarding-flows, PR pending); test added there to pin the
+	// empty case.
+	it('is null once everything else is done', async () => {
+		const o = await ready({
+			answers: { onboard_learners: 'invite', live_class: 'meet' },
+		})
+		finish('onboard_learners_invite')
+		finish('live_class_meet')
+		expect(o.nextCard(card(o, 'publish_course'))).toBeNull()
+	})
+})
+
+describe('reset everything', () => {
+	// Guards: Reset all missing a key or leaving answers, skips or the open
+	// card. Introduced in this branch (feat/onboarding-flows, PR pending); test
+	// added there to pin the full reset.
+	it('resets every key and clears answers, skips and the open card', async () => {
+		const o = await ready()
+		o.answer('live_class', 'meet')
+		o.skipStep('live_class_meet', 'setup_google_api')
+		handle('publish_course').isOnboardingStepsCompleted.value = true
+		o.resetEverything()
+		for (const key of ALL) {
+			expect(handle(key).resetAll).toHaveBeenCalledTimes(1)
+			expect(handle(key).isOnboardingStepsCompleted.value).toBe(false)
+		}
+		expect(o.hasAnyProgress.value).toBe(false)
+		expect(o.screen.value).toBe('list')
+		expect(o.activeCard.value).toBeNull()
+	})
 })
 
 describe('completeStep', () => {
+	// Guards: a form completing a step before setup creating flows or throwing.
+	// Introduced in this branch (feat/onboarding-flows, PR pending); test added
+	// there to pin the early no-op.
 	it('does nothing before the flows are set up', async () => {
 		const o = await load()
 		expect(() => o.completeStep('create_first_course')).not.toThrow()
 		expect(Object.keys(framework.handles)).toHaveLength(0)
 	})
 
-	it('updates every flow that owns the step', async () => {
-		const o = await load()
-		await o.setUpAll(nav)
-		o.completeStep('create_first_batch')
-		expect(
-			handle('onboard_learners').updateOnboardingStep
-		).toHaveBeenCalledWith('create_first_batch')
-		expect(handle('live_class_zoom').updateOnboardingStep).toHaveBeenCalledWith(
-			'create_first_batch'
-		)
-		expect(handle('live_class_meet').updateOnboardingStep).toHaveBeenCalledWith(
-			'create_first_batch'
-		)
-		expect(handle('publish_course').updateOnboardingStep).not.toHaveBeenCalled()
+	// Guards: a shared step ticking in only one of the flows that own it.
+	// Introduced in this branch (feat/onboarding-flows, PR pending); test added
+	// there to pin each step's owners.
+	it.each([
+		{
+			step: 'create_first_batch',
+			owners: [
+				'onboard_learners_invite',
+				'onboard_learners_csv',
+				'live_class_zoom',
+				'live_class_meet',
+			],
+		},
+		{
+			step: 'publish_batch',
+			owners: [
+				'onboard_learners_invite',
+				'onboard_learners_csv',
+				'live_class_zoom',
+				'live_class_meet',
+			],
+		},
+		{
+			step: 'schedule_live_class',
+			owners: ['live_class_zoom', 'live_class_meet'],
+		},
+		{ step: 'add_meet_account', owners: ['live_class_meet'] },
+	])('$step completes in every owning flow', async ({ step, owners }) => {
+		const o = await ready()
+		o.completeStep(step)
+		for (const key of ALL) {
+			const calls = handle(key).updateOnboardingStep
+			if (owners.includes(key)) expect(calls).toHaveBeenCalledWith(step)
+			else expect(calls).not.toHaveBeenCalled()
+		}
 	})
 
-	it.each([{ step: 'schedule_live_class' }, { step: 'publish_batch' }])(
-		'$step completes in both live class provider flows',
-		async ({ step }) => {
-			const o = await load()
-			await o.setUpAll(nav)
-			o.completeStep(step)
-			expect(
-				handle('live_class_zoom').updateOnboardingStep
-			).toHaveBeenCalledWith(step)
-			expect(
-				handle('live_class_meet').updateOnboardingStep
-			).toHaveBeenCalledWith(step)
-			expect(
-				handle('onboard_learners').updateOnboardingStep
-			).not.toHaveBeenCalled()
-		}
-	)
-
-	it('completes a provider-only step in that provider alone', async () => {
-		const o = await load()
-		await o.setUpAll(nav)
-		o.completeStep('add_meet_account')
-		expect(handle('live_class_meet').updateOnboardingStep).toHaveBeenCalledWith(
-			'add_meet_account'
-		)
-		expect(
-			handle('live_class_zoom').updateOnboardingStep
-		).not.toHaveBeenCalled()
+	// Guards: a real completion leaving the step counted as skipped. Introduced
+	// in this branch (feat/onboarding-flows, PR pending); test added there to
+	// pin the skip clearing.
+	it('a real completion clears an earlier skip', async () => {
+		const o = await ready()
+		o.skipStep('publish_course', 'add_quiz')
+		o.completeStep('add_quiz')
+		expect(o.flowProgress('publish_course').skipped).toBe(0)
 	})
 
 	it('remembers a new course as the first course only when none is known', async () => {
@@ -182,172 +595,36 @@ describe('completeStep', () => {
 	})
 })
 
-describe('applyFacts', () => {
-	it('completes steps whose fact is true', async () => {
-		const o = await load()
-		await o.setUpAll(nav)
-		o.applyFacts({ has_course: true, has_chapter: false })
-		expect(handle('publish_course').updateOnboardingStep).toHaveBeenCalledTimes(
-			1
-		)
-		expect(handle('publish_course').updateOnboardingStep).toHaveBeenCalledWith(
-			'create_first_course'
-		)
+describe('facts', () => {
+	// Guards: facts failing to tick a step, or un-ticking a manual tick.
+	// Introduced in this branch (feat/onboarding-flows, PR pending); test added
+	// there to pin facts as tick-only.
+	it('tick steps whose fact is true and never un-tick', async () => {
+		const o = await ready()
+		o.toggleStep('publish_course', 'add_quiz')
+		o.applyFacts({ has_course: true, has_quiz: false })
+		const steps = o.stepsOf('publish_course')
+		expect(steps[0].completed).toBe(true)
+		expect(steps[3].completed).toBe(true)
 	})
 
-	it('never un-ticks a step whose fact is false', async () => {
-		const o = await load()
-		await o.setUpAll(nav)
-		handle('publish_course').steps[4].completed = true
-		o.applyFacts({ has_course: false })
-		expect(handle('publish_course').steps[4].completed).toBe(true)
-		expect(handle('publish_course').updateOnboardingStep).not.toHaveBeenCalled()
+	// Guards: a fact leaving a skipped step skipped. Introduced in this branch
+	// (feat/onboarding-flows, PR pending); test added there to pin facts over
+	// skips.
+	it('turn a skipped step into a done one', async () => {
+		const o = await ready()
+		o.skipStep('publish_course', 'add_quiz')
+		o.applyFacts({ has_quiz: true })
+		const quiz = o.stepsOf('publish_course')[3]
+		expect(o.stepStatus('publish_course', quiz)).toBe('done')
 	})
 
-	it('skips steps that are already complete', async () => {
-		const o = await load()
-		await o.setUpAll(nav)
-		handle('publish_course').steps[0].completed = true
-		o.applyFacts({ has_course: true })
-		expect(handle('publish_course').updateOnboardingStep).not.toHaveBeenCalled()
-	})
-
-	it('learns the navigation targets', async () => {
-		const o = await load()
-		o.applyFacts({ first_course: 'c1', first_batch: 'b1' })
-		expect(o.facts.first_course).toBe('c1')
-		expect(o.facts.first_batch).toBe('b1')
-	})
-})
-
-describe('active flow', () => {
-	it('reads an unknown stored flow id as no flow', async () => {
-		const o = await load('paid_course')
-		expect(o.activeFlowId.value).toBeNull()
-		expect(o.panelView.value).toBe('picker')
-	})
-
-	it('reads a known stored flow id', async () => {
-		const o = await load('live_class_meet')
-		expect(o.activeFlowId.value).toBe('live_class_meet')
-	})
-
-	it('setFlow stores the choice per user and opens the panel', async () => {
-		const o = await load()
-		o.setFlow('onboard_learners')
-		await nextTick()
-		expect(localStorage.getItem('learningOnboardingFlow' + USER)).toBe(
-			'onboard_learners'
-		)
-		expect(o.ui.showHelpModal.value).toBe(true)
-		expect(o.ui.minimize.value).toBe(false)
-	})
-
-	it('shows the checklist until the active flow is done', async () => {
-		const o = await load('live_class_zoom')
-		await o.setUpAll(nav)
-		expect(o.panelView.value).toBe('checklist')
-		for (const step of handle('live_class_zoom').steps) step.completed = true
-		expect(o.panelView.value).toBe('done')
-	})
-
-	it('treats a flow the framework marked complete as done', async () => {
-		const o = await load('publish_course')
-		await o.setUpAll(nav)
-		handle('publish_course').isOnboardingStepsCompleted.value = true
-		expect(o.panelView.value).toBe('done')
-	})
-})
-
-describe('remainingCards', () => {
-	const ids = (o: Awaited<ReturnType<typeof load>>) =>
-		o.remainingCards.value.map((c) => c.id)
-
-	it('lists unfinished cards in the active flow’s next order', async () => {
-		const o = await load('live_class_zoom')
-		await o.setUpAll(nav)
-		expect(ids(o)).toEqual(['onboard_learners', 'publish_course'])
-	})
-
-	it('drops complete cards', async () => {
-		const o = await load('live_class_zoom')
-		await o.setUpAll(nav)
-		handle('onboard_learners').isOnboardingStepsCompleted.value = true
-		expect(ids(o)).toEqual(['publish_course'])
-	})
-
-	it('uses registry order with no active flow', async () => {
-		const o = await load()
-		await o.setUpAll(nav)
-		expect(ids(o)).toEqual(['publish_course', 'onboard_learners', 'live_class'])
-	})
-
-	it('counts the live class done once either provider is done', async () => {
-		const o = await load('publish_course')
-		await o.setUpAll(nav)
-		handle('live_class_meet').isOnboardingStepsCompleted.value = true
-		expect(ids(o)).toEqual(['onboard_learners'])
-		expect(o.isCardComplete('live_class')).toBe(true)
-	})
-})
-
-describe('choosing a card', () => {
-	it('starts a single-flow card straight away', async () => {
-		const o = await load()
-		await o.setUpAll(nav)
-		o.chooseCard('onboard_learners')
-		expect(o.activeFlowId.value).toBe('onboard_learners')
-		expect(o.panelView.value).toBe('checklist')
-	})
-
-	it('asks for a provider before starting the live class', async () => {
-		const o = await load()
-		await o.setUpAll(nav)
-		o.chooseCard('live_class')
-		expect(o.activeFlowId.value).toBeNull()
-		expect(o.panelView.value).toBe('provider')
-		expect(o.providerFlows.value.map((f) => f.id)).toEqual([
-			'live_class_zoom',
-			'live_class_meet',
-		])
-		expect(o.ui.showHelpModal.value).toBe(true)
-	})
-
-	it('picking a provider makes it the active flow', async () => {
-		const o = await load()
-		await o.setUpAll(nav)
-		o.chooseCard('live_class')
-		o.setFlow('live_class_meet')
-		expect(o.activeFlowId.value).toBe('live_class_meet')
-		expect(o.panelView.value).toBe('checklist')
-	})
-
-	it('going back from the provider choice keeps the active flow', async () => {
-		const o = await load('publish_course')
-		await o.setUpAll(nav)
-		for (const step of handle('publish_course').steps) step.completed = true
-		o.chooseCard('live_class')
-		o.cancelProvider()
-		expect(o.activeFlowId.value).toBe('publish_course')
-		expect(o.panelView.value).toBe('done')
-	})
-
-	it('closing the panel drops a half-made provider choice', async () => {
-		const o = await load()
-		await o.setUpAll(nav)
-		o.chooseCard('live_class')
-		o.closePanel()
-		expect(o.panelView.value).toBe('picker')
-	})
-})
-
-describe('refetching facts', () => {
-	afterEach(() => vi.useRealTimers())
-
-	it('refetches once after a burst of window focus events', async () => {
+	// Guards: each focus event refetching facts instead of one debounced fetch.
+	// Introduced in this branch (feat/onboarding-flows, PR pending); test added
+	// there to pin the debounce.
+	it('are fetched again once after a burst of focus events', async () => {
 		vi.useFakeTimers()
-		const o = await load()
-		await o.setUpAll(nav)
+		const o = await ready()
 		callMock.mockClear()
 		callMock.mockResolvedValue({ has_google_calendar: true })
 		window.dispatchEvent(new Event('focus'))
@@ -360,10 +637,12 @@ describe('refetching facts', () => {
 		)
 	})
 
-	it('refetches when the panel opens again', async () => {
+	// Guards: opening the panel not refetching facts. Introduced in this branch
+	// (feat/onboarding-flows, PR pending); test added there to pin the refetch
+	// on open.
+	it('are fetched again when the panel opens', async () => {
 		vi.useFakeTimers()
-		const o = await load()
-		await o.setUpAll(nav)
+		const o = await ready()
 		o.ui.showHelpModal.value = false
 		await nextTick()
 		callMock.mockClear()
@@ -376,272 +655,36 @@ describe('refetching facts', () => {
 	})
 })
 
-describe('setUpAll', () => {
-	it('registers every flow once', async () => {
-		const o = await load()
-		await o.setUpAll(nav)
-		await o.setUpAll(nav)
-		for (const key of [
-			'publish_course',
-			'onboard_learners',
-			'live_class_zoom',
-			'live_class_meet',
-		])
-			expect(handle(key).setUp).toHaveBeenCalledTimes(1)
-	})
-
-	it('does nothing for a guest', async () => {
-		framework.guest = true
-		const o = await load()
-		await o.setUpAll(nav)
-		expect(o.isSetUp.value).toBe(false)
-		expect(callMock).not.toHaveBeenCalled()
-	})
-
-	it('opens the panel on load only for an unfinished active flow', async () => {
-		const withFlow = await load('publish_course')
-		await withFlow.setUpAll(nav)
-		expect(withFlow.ui.showHelpModal.value).toBe(true)
-
-		vi.resetModules()
-		framework.handles = {}
-		localStorage.clear()
-		const withoutFlow = await load()
-		await withoutFlow.setUpAll(nav)
-		expect(withoutFlow.ui.showHelpModal.value).toBe(false)
-	})
-
-	it('syncs every flow once the shared status fetch settles', async () => {
-		statusResource.current = reactive({ loading: true })
-		const o = await load()
-		const done = o.setUpAll(nav)
-		await nextTick()
-		expect(handle('live_class_zoom').syncStatus).not.toHaveBeenCalled()
-		expect(callMock).not.toHaveBeenCalled()
-
-		statusResource.current.loading = false
-		await done
-		for (const key of [
-			'publish_course',
-			'onboard_learners',
-			'live_class_zoom',
-			'live_class_meet',
-		])
-			expect(handle(key).syncStatus).toHaveBeenCalledTimes(1)
-		expect(callMock).toHaveBeenCalledWith(
-			'lms.lms.onboarding.get_onboarding_facts'
-		)
-	})
-
-	it('applies the fetched facts', async () => {
-		callMock.mockResolvedValue({ has_invited_student: true })
-		const o = await load()
-		await o.setUpAll(nav)
-		expect(
-			handle('onboard_learners').updateOnboardingStep
-		).toHaveBeenCalledWith('invite_students')
-	})
-
-	it('swallows a facts failure', async () => {
-		callMock.mockRejectedValue(new Error('403'))
-		const o = await load()
-		await expect(o.setUpAll(nav)).resolves.toBeUndefined()
-		expect(o.isSetUp.value).toBe(true)
-	})
-})
-
 describe('bannerFlow', () => {
-	it('follows the active flow while it is unfinished', async () => {
-		const o = await load('onboard_learners')
-		await o.setUpAll(nav)
-		expect(o.bannerFlow.value?.id).toBe('onboard_learners')
-	})
-
-	it('moves to the next unfinished flow once the active one is done', async () => {
-		const o = await load('onboard_learners')
-		await o.setUpAll(nav)
-		handle('onboard_learners').isOnboardingStepsCompleted.value = true
+	// Guards: the banner ignoring the active card. Introduced in this branch
+	// (feat/onboarding-flows, PR pending); test added there to pin the banner
+	// flow.
+	it('follows the active card while it is unfinished', async () => {
+		const o = await ready({
+			card: 'live_class',
+			answers: { live_class: 'zoom' },
+		})
 		expect(o.bannerFlow.value?.id).toBe('live_class_zoom')
 	})
 
-	it('is hidden once every flow is done and dismissed', async () => {
-		const o = await load('publish_course')
-		await o.setUpAll(nav)
-		for (const key of [
-			'publish_course',
-			'onboard_learners',
-			'live_class_zoom',
-			'live_class_meet',
-		])
-			handle(key).isOnboardingStepsCompleted.value = true
-		expect(o.bannerFlow.value).toBeNull()
+	it('moves to the first unfinished card once the active one is done', async () => {
+		const o = await ready({ card: 'publish_course' })
+		finish('publish_course')
+		expect(o.bannerFlow.value?.card).toBe('onboard_learners')
 	})
-})
 
-describe('runDoneAction', () => {
-	it('runs the active flow’s done action with the sidebar navigation', async () => {
-		callMock.mockResolvedValue({ first_batch: 'b1' })
-		const o = await load('live_class_meet')
-		await o.setUpAll(nav)
-		o.runDoneAction()
-		expect(nav.openRoute).toHaveBeenCalledWith({
-			name: 'BatchDetail',
-			params: { batchName: 'b1' },
+	// Guards: the banner showing after every card is done and dismissed.
+	// Introduced in this branch (feat/onboarding-flows, PR pending); test added
+	// there to pin hiding it.
+	it('is hidden once every card is done and dismissed', async () => {
+		const o = await ready({
+			card: 'publish_course',
+			answers: { onboard_learners: 'csv', live_class: 'zoom' },
 		})
-	})
-
-	it('does nothing before set-up', async () => {
-		nav.openRoute.mockClear()
-		const o = await load('live_class_zoom')
-		o.runDoneAction()
-		expect(nav.openRoute).not.toHaveBeenCalled()
-	})
-})
-
-describe('moving between all flows and the current one', () => {
-	it('shows all flows over an unfinished flow without dropping it', async () => {
-		const o = await load('onboard_learners')
-		await o.setUpAll(nav)
-		o.showAllFlows()
-		expect(o.panelView.value).toBe('picker')
-		expect(o.activeFlowId.value).toBe('onboard_learners')
-		expect(o.resumableFlow.value?.id).toBe('onboard_learners')
-	})
-
-	it('continue returns to the checklist', async () => {
-		const o = await load('onboard_learners')
-		await o.setUpAll(nav)
-		o.showAllFlows()
-		o.continueFlow()
-		expect(o.panelView.value).toBe('checklist')
-	})
-
-	it('picking another flow from all flows switches to it', async () => {
-		const o = await load('onboard_learners')
-		await o.setUpAll(nav)
-		o.showAllFlows()
-		o.chooseCard('publish_course')
-		expect(o.activeFlowId.value).toBe('publish_course')
-		expect(o.panelView.value).toBe('checklist')
-	})
-
-	it('lists every card but the one being continued', async () => {
-		const o = await load('onboard_learners')
-		await o.setUpAll(nav)
-		expect(o.pickerCards.value.map((c) => c.id)).toEqual([
-			'publish_course',
-			'live_class',
-		])
-		handle('onboard_learners').isOnboardingStepsCompleted.value = true
-		expect(o.resumableFlow.value).toBeNull()
-		expect(o.pickerCards.value).toHaveLength(3)
-	})
-
-	it('reopening the panel goes back to the checklist', async () => {
-		const o = await load('onboard_learners')
-		await o.setUpAll(nav)
-		o.showAllFlows()
-		o.closePanel()
-		expect(o.panelView.value).toBe('checklist')
-	})
-})
-
-describe('cardProgress', () => {
-	it('counts a single-flow card’s steps', async () => {
-		const o = await load()
-		await o.setUpAll(nav)
-		handle('publish_course').steps[0].completed = true
-		expect(o.cardProgress(o.pickerCards.value[0])).toEqual({
-			completed: 1,
-			total: 6,
-		})
-	})
-
-	it('has no count for a live class with no provider started', async () => {
-		const o = await load()
-		await o.setUpAll(nav)
-		expect(o.cardProgress(o.pickerCards.value[2])).toBeNull()
-	})
-
-	it('follows the provider that has been started', async () => {
-		const o = await load()
-		await o.setUpAll(nav)
-		handle('live_class_meet').steps[1].completed = true
-		expect(o.cardProgress(o.pickerCards.value[2])).toEqual({
-			completed: 1,
-			total: 6,
-		})
-	})
-})
-
-describe('skipAllFlows', () => {
-	it('skips exactly the unfinished flows and closes the panel', async () => {
-		const o = await load('publish_course')
-		await o.setUpAll(nav)
-		for (const step of handle('publish_course').steps) step.completed = true
-		handle('live_class_zoom').isOnboardingStepsCompleted.value = true
-		o.ui.showHelpModal.value = true
-
-		o.skipAllFlows()
-
-		expect(handle('publish_course').skipAll).not.toHaveBeenCalled()
-		expect(handle('live_class_zoom').skipAll).not.toHaveBeenCalled()
-		expect(handle('onboard_learners').skipAll).toHaveBeenCalledTimes(1)
-		expect(handle('live_class_meet').skipAll).toHaveBeenCalledTimes(1)
-		expect(o.ui.showHelpModal.value).toBe(false)
-	})
-
-	it('leaves nothing for the banner or the picker to offer', async () => {
-		const o = await load('publish_course')
-		await o.setUpAll(nav)
-		o.skipAllFlows()
-		expect(o.remainingCards.value).toHaveLength(0)
-		expect(o.panelView.value).toBe('done')
-	})
-})
-
-describe('restartOnboarding', () => {
-	const ALL = [
-		'publish_course',
-		'onboard_learners',
-		'live_class_zoom',
-		'live_class_meet',
-	]
-
-	async function allDone() {
-		const o = await load('publish_course')
-		await o.setUpAll(nav)
-		o.skipAllFlows()
-		for (const key of ALL) handle(key).isOnboardingStepsCompleted.value = true
-		return o
-	}
-
-	it('counts onboarding finished once every card is done', async () => {
-		const o = await load('publish_course')
-		await o.setUpAll(nav)
-		expect(o.allCardsComplete.value).toBe(false)
-		for (const key of ['publish_course', 'onboard_learners', 'live_class_zoom'])
-			handle(key).isOnboardingStepsCompleted.value = true
-		expect(o.allCardsComplete.value).toBe(true)
-	})
-
-	it('resets every flow key, both providers included', async () => {
-		const o = await allDone()
-		o.restartOnboarding()
 		for (const key of ALL) {
-			expect(handle(key).resetAll).toHaveBeenCalledTimes(1)
-			expect(handle(key).isOnboardingStepsCompleted.value).toBe(false)
+			finish(key)
+			handle(key).isOnboardingStepsCompleted.value = true
 		}
-	})
-
-	it('lands on the picker with no active flow', async () => {
-		const o = await allDone()
-		o.ui.showHelpModal.value = true
-		o.restartOnboarding()
-		expect(o.activeFlowId.value).toBeNull()
-		expect(o.panelView.value).toBe('picker')
-		expect(o.remainingCards.value).toHaveLength(3)
-		expect(o.allCardsComplete.value).toBe(false)
-		expect(o.ui.showHelpModal.value).toBe(true)
+		expect(o.bannerFlow.value).toBeNull()
 	})
 })
