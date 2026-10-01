@@ -63,7 +63,7 @@
 				"
 				:isSidebarCollapsed="sidebarStore.isSidebarCollapsed"
 			/>
-			<GettingStartedBanner
+			<OnboardingBanner
 				v-if="bannerFlow"
 				:key="bannerFlow.key"
 				:isSidebarCollapsed="sidebarStore.isSidebarCollapsed"
@@ -158,7 +158,6 @@ import { openFormRoute } from '@/composables/useFormRoute'
 import { ref, onMounted, inject, watch, onUnmounted, computed } from 'vue'
 import { TrialBanner } from '@framework/ui/components/TrialBanner/index'
 import {
-	GettingStartedBanner,
 	showHelpModal,
 	minimize,
 	IntermediateStepModal,
@@ -166,6 +165,7 @@ import {
 import UserDropdown from '@/components/Sidebar/UserDropdown.vue'
 import SidebarLink from '@/components/Sidebar/SidebarLink.vue'
 import CommandPalette from '@/components/CommandPalette/CommandPalette.vue'
+import OnboardingBanner from '@/components/Onboarding/OnboardingBanner.vue'
 import OnboardingFlowPanel from '@/components/Onboarding/OnboardingFlowPanel.vue'
 import { useLearningOnboarding } from '@/onboarding/useLearningOnboarding'
 import { pushSettingsHash } from '@/composables/useSettingsHash'

@@ -13,7 +13,7 @@
 			</TextInput>
 		</div>
 		<div
-			class="flex justify-between items-center text-base text-ink-gray-5 mx-2"
+			class="flex justify-between items-center text-p-sm text-ink-gray-5 mx-2"
 		>
 			<div>{{ text.allArticles }}</div>
 			<Button variant="ghost" :aria-label="text.openDocs" @click="openDocs">
@@ -44,7 +44,7 @@
 							class="size-4 text-ink-gray-5 rtl:rotate-180"
 							aria-hidden="true"
 						/>
-						<div class="text-base text-ink-gray-8">{{ a.title }}</div>
+						<div class="text-p-sm text-ink-gray-8">{{ a.title }}</div>
 					</div>
 				</button>
 				<div v-show="a.opened" class="flex flex-col gap-1.5 ms-5">
@@ -61,7 +61,7 @@
 								class="size-4 text-ink-gray-5"
 								aria-hidden="true"
 							/>
-							<div class="text-base text-ink-gray-8">
+							<div class="text-p-sm text-ink-gray-8">
 								{{ subArticle.title }}
 							</div>
 						</div>

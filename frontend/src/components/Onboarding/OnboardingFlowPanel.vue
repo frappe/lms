@@ -17,7 +17,7 @@
 				>
 					<LucideChevronLeft class="size-4 rtl:rotate-180" aria-hidden="true" />
 				</Button>
-				<h2 :id="headingId" class="truncate text-base font-medium">
+				<h2 :id="headingId" class="truncate text-p-sm font-medium">
 					{{ screen === 'help' ? text.helpHeading : text.heading }}
 				</h2>
 			</div>
@@ -48,11 +48,11 @@
 			<template v-else>
 				<div class="flex flex-col justify-center items-center gap-1 mt-4 mb-7">
 					<LMSLogo class="size-10 shrink-0 rounded-4 mb-4" aria-hidden="true" />
-					<div class="text-base font-medium" data-testid="hero-title">
+					<div class="text-p-sm font-medium" data-testid="hero-title">
 						{{ heroTitle }}
 					</div>
 					<div
-						class="text-p-base font-normal text-center"
+						class="text-p-sm font-normal text-center"
 						data-testid="hero-count"
 					>
 						{{ heroCount }}
@@ -81,7 +81,7 @@
 							data-testid="question-option"
 							@click="answer(openCard.id, option.value)"
 						>
-							<span class="min-w-0 truncate text-base">{{ option.label }}</span>
+							<span class="min-w-0 truncate text-p-sm">{{ option.label }}</span>
 							<span
 								class="flex shrink-0 items-center gap-1 text-p-sm text-ink-gray-5"
 							>
@@ -144,7 +144,7 @@
 										aria-hidden="true"
 									/>
 									<span
-										class="truncate text-base"
+										class="truncate text-p-sm"
 										:class="
 											isCardComplete(card)
 												? 'text-ink-gray-5 line-through'
@@ -182,7 +182,7 @@
 					class="h-4"
 					aria-hidden="true"
 				/>
-				<span class="text-base">
+				<span class="text-p-sm">
 					{{ screen === 'help' ? text.heading : text.helpCentre }}
 				</span>
 			</button>

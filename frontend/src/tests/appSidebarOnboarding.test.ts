@@ -61,11 +61,6 @@ vi.mock('@framework/ui/components/Onboarding/index', async () => {
 			props: ['appName'],
 			template: `<div :data-app="appName" />`,
 		},
-		GettingStartedBanner: {
-			name: 'GettingStartedBanner',
-			props: ['appName'],
-			template: `<div data-testid="banner" :data-app="appName" />`,
-		},
 		IntermediateStepModal: { template: `<div />` },
 		showHelpModal: ui.showHelpModal,
 		minimize: ui.minimize,
@@ -74,6 +69,14 @@ vi.mock('@framework/ui/components/Onboarding/index', async () => {
 
 vi.mock('@/onboarding/useLearningOnboarding', () => ({
 	useLearningOnboarding: () => onboarding,
+}))
+
+vi.mock('@/components/Onboarding/OnboardingBanner.vue', () => ({
+	default: {
+		name: 'OnboardingBanner',
+		props: ['appName'],
+		template: `<div data-testid="banner" :data-app="appName" />`,
+	},
 }))
 
 vi.mock('@/components/Onboarding/OnboardingFlowPanel.vue', () => ({

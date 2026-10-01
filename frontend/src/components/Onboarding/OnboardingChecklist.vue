@@ -78,7 +78,7 @@
 					>
 						<button
 							type="button"
-							class="block w-full truncate rounded-4 text-start text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-outline-gray-4"
+							class="block w-full truncate rounded-4 text-start text-p-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-outline-gray-4"
 							:class="titleClass(step)"
 							:aria-disabled="isResolved(step) || Boolean(blockerOf(step))"
 							data-testid="step-open"
@@ -89,7 +89,7 @@
 					</component>
 					<span
 						v-if="statusOf(step) === 'skipped'"
-						class="shrink-0 text-p-xs text-ink-gray-5"
+						class="shrink-0 text-p-sm text-ink-gray-5"
 					>
 						{{ text.skipped }}
 					</span>
@@ -98,13 +98,13 @@
 					<Button
 						v-if="!isResolved(step) && !blockerOf(step)"
 						:label="text.skip"
-						class="!h-4 text-xs !text-ink-gray-6 invisible group-hover:visible group-focus-within:visible"
+						class="!h-4 text-p-sm !text-ink-gray-6 invisible group-hover:visible group-focus-within:visible"
 						@click.stop="skipStep(flow.id, step.name)"
 					/>
 					<Button
 						v-else-if="isResolved(step)"
 						:label="text.reset"
-						class="!h-4 text-xs !text-ink-gray-6 invisible group-hover:visible group-focus-within:visible"
+						class="!h-4 text-p-sm !text-ink-gray-6 invisible group-hover:visible group-focus-within:visible"
 						@click.stop="undoStep(flow.id, step.name)"
 					/>
 					<Button
@@ -123,7 +123,7 @@
 
 		<template v-if="complete">
 			<div v-if="next" class="flex flex-col gap-1 pt-3">
-				<span class="px-2 text-p-xs text-ink-gray-5">{{ text.tryNext }}</span>
+				<span class="px-2 text-p-sm text-ink-gray-5">{{ text.tryNext }}</span>
 				<Tooltip :text="next.description">
 					<div
 						class="flex w-full items-center justify-between gap-2 rounded-4 px-2 py-1.5"
@@ -135,7 +135,7 @@
 								class="h-4 shrink-0"
 								aria-hidden="true"
 							/>
-							<span class="text-base" data-testid="next-title">
+							<span class="text-p-sm" data-testid="next-title">
 								{{ next.title }}
 							</span>
 						</div>
