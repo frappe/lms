@@ -37,7 +37,7 @@ class TestCourseProgress(BaseTestUtils):
 		# Regression: duplicate rows still pushed progress over 100% (#3006, fixed in #3042).
 		for lesson in self.lessons:
 			self._create_lesson_progress(self.student.name, self.course.name, lesson)
-		frappe.get_doc(
+		duplicate = frappe.get_doc(
 			{
 				"doctype": "LMS Course Progress",
 				"member": self.student.name,
@@ -45,6 +45,12 @@ class TestCourseProgress(BaseTestUtils):
 				"lesson": self.lessons[0],
 				"status": "Complete",
 			}
-		).db_insert()
+		)
+		# The unique (member, lesson) constraint refuses the duplicate where it exists.
+		# A site that could not add it yet still has to cap the count.
+		try:
+			duplicate.db_insert()
+		except frappe.UniqueValidationError:
+			pass
 
 		self.assertEqual(get_course_progress(self.course.name, self.student.name), 100)

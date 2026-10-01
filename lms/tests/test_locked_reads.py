@@ -1,10 +1,15 @@
 import threading
 from contextlib import contextmanager
-from unittest.mock import patch
+from unittest.mock import MagicMock, call, patch
 
 import frappe
+from frappe.tests import UnitTestCase
 from frappe.utils import add_days, nowdate
 
+from lms.install import ensure_course_progress_unique_constraint
+from lms.lms.doctype.course_lesson import course_lesson
+from lms.lms.doctype.course_lesson.course_lesson import save_progress
+from lms.lms.doctype.lms_course_progress.lms_course_progress import LMSCourseProgress
 from lms.lms.doctype.lms_enrollment.lms_enrollment import LMSEnrollment
 from lms.lms.enrollment_constraints import ensure_enrollment_unique_constraints
 from lms.lms.test_helpers import BaseTestUtils
@@ -165,6 +170,37 @@ class TestLockedReadsConcurrency(BaseTestUtils):
 		self.assertEqual(len(errors), 1, errors)
 		self.assertIn("already booked", str(errors[0][1]))
 
+	def test_concurrent_lesson_completions_count_every_lesson(self):
+		"""Regression as old as the app (#316): progress was recounted from a snapshot.
+		Added for audit finding #46."""
+		course, lessons = self._course_with_lessons(2)
+		member = self._member()
+		self._enrol_committed(course.name, member)
+
+		errors = self._in_parallel(lambda lesson: save_progress(lesson, course.name), lessons, member)
+
+		self.assertEqual(errors, [])
+		progress = frappe.db.get_value(
+			"LMS Enrollment", {"course": course.name, "member": member}, "progress"
+		)
+		self.assertEqual(progress, 100)
+
+	def test_different_members_complete_lessons_concurrently(self):
+		"""Guard for the audit finding #46 fix: the member-scoped lock must not deadlock two learners."""
+		course, lessons = self._course_with_lessons(1)
+		members = [self._member(), self._member()]
+		for member in members:
+			self._enrol_committed(course.name, member)
+
+		errors = self._in_parallel(lambda member: save_progress(lessons[0], course.name), members)
+
+		self.assertEqual(errors, [])
+		for member in members:
+			progress = frappe.db.get_value(
+				"LMS Enrollment", {"course": course.name, "member": member}, "progress"
+			)
+			self.assertEqual(progress, 100)
+
 	def _in_parallel(self, work, items, user=None) -> list:
 		"""Run work(item) once per item on its own connection, as `user` or as the
 		item itself. Each worker reads before the barrier, so its snapshot predates
@@ -229,6 +265,23 @@ class TestLockedReadsConcurrency(BaseTestUtils):
 		)
 		self.created.append(("LMS Course", course.name))
 		return course
+
+	def _course_with_lessons(self, count):
+		course = self._course()
+		chapter = self._create_chapter(f"Chapter {self.hash}", course.name)
+		self.created.append(("Course Chapter", chapter.name))
+		course.reload()
+		course.append("chapters", {"chapter": chapter.name})
+		course.save()
+		lessons = []
+		for index in range(count):
+			lesson = self._create_lesson(f"Lesson {index} {self.hash}", chapter.name, course.name)
+			self.created.append(("Course Lesson", lesson.name))
+			chapter.reload()
+			chapter.append("lessons", {"lesson": lesson.name})
+			chapter.save()
+			lessons.append(lesson.name)
+		return course, lessons
 
 	def _batch(self, courses, seat_count=0):
 		courses = courses if isinstance(courses, list) else [courses]
@@ -311,6 +364,88 @@ class TestLockedReadsConcurrency(BaseTestUtils):
 		frappe.get_doc(
 			{"doctype": "LMS Enrollment", "course": course, "member": frappe.session.user}
 		).insert()
+
+	def _enrol_committed(self, course, member):
+		self._create_enrollment(member, course)
+		frappe.db.commit()  # nosemgrep
+
+
+class TestCourseProgressLockOrder(BaseTestUtils):
+	def test_a_progress_row_locks_its_enrolment_before_it_is_written(self):
+		"""Review finding c5: on_update and after_delete locked the progress row, then the
+		enrolment; _save_progress takes them the other way round."""
+		self._create_user("frappe@example.com", "Frappe", "Admin", ["Course Creator", "Moderator"])
+		course = self._create_course(title=f"Lock Order {frappe.generate_hash(length=6)}")
+		chapter = self._create_chapter("Lock Order Chapter", course.name)
+		lesson = self._create_lesson("Lock Order Lesson", chapter.name, course.name)
+		student = self._create_user("lock-order@example.com", "Lock", "Order", ["LMS Student"])
+		self._create_enrollment(student.name, course.name)
+
+		log = []
+		real_get_value = frappe.db.get_value
+		real_insert, real_delete = LMSCourseProgress.db_insert, frappe.db.delete
+
+		def get_value(*args, **kwargs):
+			if kwargs.get("for_update") and args:
+				log.append(("lock", args[0]))
+			return real_get_value(*args, **kwargs)
+
+		def db_insert(doc, *args, **kwargs):
+			log.append(("write", doc.doctype))
+			return real_insert(doc, *args, **kwargs)
+
+		def delete(doctype, *args, **kwargs):
+			if doctype == "LMS Course Progress":
+				log.append(("write", doctype))
+			return real_delete(doctype, *args, **kwargs)
+
+		with (
+			patch.object(frappe.db, "get_value", get_value),
+			patch.object(frappe.db, "delete", delete),
+			patch.object(LMSCourseProgress, "db_insert", db_insert),
+		):
+			progress = self._create_progress(student.name, course.name, lesson.name)
+			inserted, log[:] = list(log), []
+			progress.delete()
+			deleted = list(log)
+
+		for case, events in (("insert", inserted), ("delete", deleted)):
+			with self.subTest(case=case):
+				self.assertLess(
+					events.index(("lock", "LMS Enrollment")), events.index(("write", "LMS Course Progress"))
+				)
+
+
+class TestRecountJobCommitsPerLearner(UnitTestCase):
+	def test_each_learner_is_committed_before_the_next(self):
+		"""Review finding c2: the job recounted every learner in one transaction, holding
+		each enrolment's lock until the last was done."""
+		events = MagicMock()
+		with (
+			patch.object(course_lesson, "recalculate_course_progress", events.recount),
+			patch.object(frappe.db, "commit", events.commit),
+		):
+			course_lesson.recalculate_progress("course", ["a@example.com", "b@example.com"])
+
+		self.assertEqual(
+			events.mock_calls,
+			[
+				call.recount("course", "a@example.com"),
+				call.commit(),
+				call.recount("course", "b@example.com"),
+				call.commit(),
+			],
+		)
+
+
+class TestCourseProgressUniqueOnInstall(UnitTestCase):
+	def test_fresh_installs_get_the_index_the_dedupe_patch_adds(self):
+		"""Regression from #2411: only that patch added the index, and fresh installs skip it.
+		Added for audit finding #42. Mocked: the shared site has
+		duplicates the index would refuse."""
+		with patch.object(frappe.db, "add_unique") as add_unique:
+			ensure_course_progress_unique_constraint()
+		add_unique.assert_called_once_with("LMS Course Progress", ["member", "lesson"])
 
 
 class TestSlotBookingLock(BaseTestUtils):

@@ -49,6 +49,7 @@ from lms.lms.doctype.lms_enrollment.lms_enrollment import (
 	update_program_progress,
 )
 from lms.lms.html_sanitizer import sanitize_rich_text
+from lms.lms.locking import locked_get_all
 from lms.lms.md import find_macros
 
 RE_SLUG_NOTALLOWED = re.compile("[^a-z0-9]+")
@@ -498,25 +499,34 @@ def get_progress(course: str, lesson: str, member: str = None):
 	)
 
 
-def get_course_progress(course: str, member: str = None):
-	"""Returns the course progress of the session user"""
+def get_course_progress(course: str, member: str = None, for_update: bool = False):
+	"""Returns the course progress of the session user. Pass for_update when the result is
+	written back, so the count sees lessons other requests completed meanwhile."""
 	chapters = frappe.get_all("Chapter Reference", {"parent": course}, pluck="chapter")
 	if not chapters:
 		return 0
 	lessons = frappe.get_all("Lesson Reference", {"parent": ("in", chapters)}, pluck="lesson")
 	if not lessons:
 		return 0
-	completed_lessons = frappe.db.count(
-		"LMS Course Progress",
-		{
-			"course": course,
-			"member": member or frappe.session.user,
-			"status": "Complete",
-			"lesson": ("in", lessons),
-		},
-	)
+	member = member or frappe.session.user
+	if for_update:
+		completed_lessons = count_completed_lessons_locked(course, member, lessons)
+	else:
+		completed_lessons = frappe.db.count(
+			"LMS Course Progress",
+			{"course": course, "member": member, "status": "Complete", "lesson": ("in", lessons)},
+		)
 	precision = cint(frappe.db.get_default("float_precision")) or 3
 	return flt(min(completed_lessons / len(lessons) * 100, 100), precision)
+
+
+def count_completed_lessons_locked(course: str, member: str, lessons: list[str]) -> int:
+	# Locked through the (member, course) index, so a recount locks only this
+	# enrolment's rows: two learners in one course, or one learner in two courses,
+	# lock disjoint ranges and cannot deadlock.
+	rows = locked_get_all("LMS Course Progress", {"member": member, "course": course}, ["lesson", "status"])
+	outline = set(lessons)
+	return sum(1 for row in rows if row.lesson in outline and row.status == "Complete")
 
 
 def is_instructor(course: str) -> bool:
@@ -4068,7 +4078,8 @@ def has_lms_role():
 
 
 def recalculate_course_progress(course: str, member: str):
-	progress = get_course_progress(course, member)
+	# Locked before counting, so two completions for one enrollment recompute one after
+	# the other and the second counts the first's lesson.
 	membership = frappe.db.get_value(
 		"LMS Enrollment",
 		{
@@ -4076,11 +4087,14 @@ def recalculate_course_progress(course: str, member: str):
 			"course": course,
 		},
 		"name",
+		for_update=True,
 	)
 	if not membership:
 		# No enrollment to write, but the member's programs still need rolling up.
 		update_program_progress(member)
 		return
+
+	progress = get_course_progress(course, member, for_update=True)
 
 	# A raw set_value here fired no doc events at all, so On Update webhooks and
 	# DocType Event scripts never ran. update_enrollment() writes outside the version

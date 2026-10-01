@@ -8,3 +8,10 @@ def locked_count(doctype: str, filters: dict) -> int:
 	after this transaction's own insert, or its gap lock can deadlock with a writer."""
 	query = frappe.qb.get_query(doctype, filters=filters, fields=Count("*"), for_update=True)
 	return query.run()[0][0]
+
+
+def locked_get_all(doctype: str, filters: dict, fields: list[str]) -> list[dict]:
+	"""locked_count's rows, for when the filters must stay narrow enough to pick one
+	index and the rest of the condition is applied in Python."""
+	query = frappe.qb.get_query(doctype, filters=filters, fields=fields, for_update=True)
+	return query.run(as_dict=True)

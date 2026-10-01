@@ -160,6 +160,9 @@ def enqueue_progress_recalculation(course: str):
 def recalculate_progress(course: str, members: list[str]):
 	for member in members:
 		recalculate_course_progress(course, member)
+		# A background job, so commit per learner: each enrolment and its progress rows
+		# stay locked only for that learner's recount, not the whole course's.
+		frappe.db.commit()  # nosemgrep
 
 
 def may_restamp_quiz(quiz: str, lesson: str) -> bool:
@@ -588,7 +591,11 @@ def save_progress(lesson: str, course: str | None = None, scorm_details: dict = 
 
 
 def _save_progress(lesson: str, course: str, scorm_details: dict = None):
-	membership = frappe.db.exists("LMS Enrollment", {"course": course, "member": frappe.session.user})
+	# Locked first, so completions for one enrollment run one after the other and the
+	# recount below sees the lessons the earlier ones recorded.
+	membership = frappe.db.get_value(
+		"LMS Enrollment", {"course": course, "member": frappe.session.user}, "name", for_update=True
+	)
 	if not membership:
 		return 0
 
@@ -660,7 +667,7 @@ def _save_progress(lesson: str, course: str, scorm_details: dict = None):
 	):
 		next_lesson = get_next_lesson(course, lesson)
 
-	progress = get_course_progress(course)
+	progress = get_course_progress(course, for_update=True)
 	if not is_demo_course(course):
 		capture("course_progress", "lms")
 
