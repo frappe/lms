@@ -212,8 +212,7 @@
 			"export"
 		],
 		"LMS Student#0#if_owner": [
-			"read",
-			"create"
+			"read"
 		],
 		"Moderator#0": [
 			"read",
