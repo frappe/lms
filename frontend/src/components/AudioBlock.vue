@@ -8,7 +8,7 @@
 		</audio>
 		<div
 			data-testid="audio-player"
-			class="flex items-center gap-x-2 rounded-7 overflow-hidden border border-outline-gray-2 p-1 w-1/2"
+			class="flex items-center gap-x-2 rounded-7 overflow-hidden p-1 w-1/2"
 		>
 			<Button
 				variant="ghost"

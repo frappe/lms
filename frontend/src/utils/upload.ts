@@ -32,10 +32,10 @@ interface UploadedFile {
 }
 
 // An iframe cannot clip its own corners in every browser, so it sits in a
-// wrapper drawn like the assessment cards.
+// rounded wrapper.
 const embedCard = (child: HTMLElement): HTMLDivElement => {
 	const card = document.createElement('div')
-	card.className = 'overflow-hidden rounded-7 border border-outline-gray-2'
+	card.className = 'overflow-hidden rounded-7'
 	card.append(child)
 	return card
 }
@@ -144,8 +144,7 @@ export class Upload {
 			if (src) {
 				const img = document.createElement('img')
 				img.setAttribute('src', src)
-				img.className =
-					'block w-full rounded-7 overflow-hidden border border-outline-gray-2'
+				img.className = 'block w-full rounded-7 overflow-hidden'
 				img.setAttribute('width', '100%')
 				this.wrapper.replaceChildren(img)
 			}

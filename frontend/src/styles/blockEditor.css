@@ -7,16 +7,14 @@
 	display: none;
 }
 
-/* Embeds and images are drawn like the assessment cards. The class goes on
-   the wrapper: Plyr replaces the element it initialises, and an iframe does not
-   clip its own corners everywhere. */
+/* Embeds and images get rounded corners, without the assessment cards' border.
+   The class goes on the wrapper: Plyr replaces the element it initialises, and
+   an iframe does not clip its own corners everywhere. */
 .embed-tool {
-	border: 1px solid var(--outline-gray-2);
 	border-radius: var(--radius-7);
 	overflow: hidden;
 }
 .cdx-simple-image__picture {
-	border: 1px solid var(--outline-gray-2);
 	border-radius: var(--radius-7);
 	overflow: hidden;
 }
@@ -218,7 +216,6 @@ iframe {
 }
 
 .plyr--video {
-	border: 1px solid var(--outline-gray-2);
 	border-radius: 8px;
 }
 
