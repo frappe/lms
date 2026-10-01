@@ -123,6 +123,46 @@ class TestLMSBadge(BaseTestUtils):
 		self.assertTrue(frappe.db.exists("ToDo", todo.name))
 		self.assertEqual(self._assignments(badge), 0)
 
+	def test_student_save_succeeds_with_a_manual_badge_on_the_doctype(self):
+		"""A manual badge blocked learner saves of its doctype since #2108.
+		Added for audit finding #63."""
+		badge = self._create_badge("Manual", "Manual Assignment", '{"status": "Open"}')
+
+		todo = self._save_todo_as_student(description="manual badge present")
+
+		self.assertTrue(frappe.db.exists("ToDo", todo.name))
+		self.assertEqual(self._assignments(badge), 0)
+
+	def test_value_change_badge_awards_once_on_the_transition(self):
+		"""A Value Change badge was re-awarded on every save since #795.
+		Added for audit finding #52."""
+		badge = self._create_badge("Closer", "Value Change", "doc.status == 'Closed'")
+		todo = self._save_todo_as_student(description="open task")
+		todo.save()
+		self.assertEqual(self._assignments(badge), 0)
+
+		todo.status = "Closed"
+		todo.save()
+		self.assertEqual(self._assignments(badge), 1)
+
+		todo.description = "still closed"
+		todo.save()
+		todo.db_set("description", "closed again")
+		self.assertEqual(self._assignments(badge), 1)
+
+	def test_value_change_badge_is_not_duplicated_when_the_condition_flips_back(self):
+		"""Each false-to-true flip re-awarded a Value Change badge since #795.
+		Added for audit finding #52."""
+		badge = self._create_badge("Flipper", "Value Change", "doc.status == 'Closed'")
+		todo = self._save_todo_as_student(description="flip", status="Closed")
+		self.assertEqual(self._assignments(badge), 1)
+
+		todo.status = "Open"
+		todo.save()
+		todo.status = "Closed"
+		todo.save()
+		self.assertEqual(self._assignments(badge), 1)
+
 	def test_badge_disabled_behind_the_cached_map_is_skipped(self):
 		"""A disabled badge still ran from the cached badge map since #795.
 		Added for audit finding #21."""
