@@ -1,7 +1,10 @@
+from contextlib import contextmanager
+from unittest.mock import patch
+
 import frappe
 from frappe.utils import add_days, nowdate
 
-from lms.lms.api import delete_category, delete_chapter, delete_course, delete_lesson
+from lms.lms.api import delete_batch, delete_category, delete_chapter, delete_course, delete_lesson
 from lms.lms.test_helpers import BaseTestUtils
 from lms.lms.utils import get_course_details
 
@@ -455,3 +458,188 @@ class TestStudentCannotDelete(DeletionTestBase):
 				with self.assertRaises(frappe.PermissionError):
 					action()
 				self.assertTrue(frappe.db.exists(doctype, name))
+
+
+@contextmanager
+def refusing_unscoped_deletes():
+	"""Contain the red phase: an empty name reaching frappe.db.delete empties the table."""
+	original = frappe.db.delete
+
+	def guarded(doctype, filters=None, *args, **kwargs):
+		if not filters:
+			raise AssertionError(f"unscoped delete of {doctype}")
+		return original(doctype, filters, *args, **kwargs)
+
+	with patch.object(frappe.db, "delete", guarded):
+		yield
+
+
+class EmptyOrUnknownNameMixin:
+	"""Every delete endpoint refuses a blank or missing name and deletes nothing."""
+
+	def assert_refuses_blank_and_unknown_names(self, endpoint, doctype, survivor):
+		for name in ("", f"no-such-{frappe.generate_hash(length=8)}"):
+			with self.subTest(name=name):
+				with refusing_unscoped_deletes(), self.assertRaises(frappe.DoesNotExistError):
+					endpoint(name)
+				self.assertTrue(frappe.db.exists(doctype, survivor))
+
+
+class TestBatchDeletion(EmptyOrUnknownNameMixin, DeletionTestBase):
+	def setUp(self):
+		super().setUp()
+		self._create_evaluator()
+		self.title = f"Deletion Batch {frappe.generate_hash(length=8)}"
+		self.batch = self._create_batch(self.course.name, title=self.title)
+		self.batch.append(
+			"timetable_legends", {"reference_doctype": "Course Lesson", "color": "Red", "label": "L"}
+		)
+		# nosemgrep: lms-unjustified-ignore-permissions - test fixture seeding, not the permission under test
+		self.batch.save(ignore_permissions=True)
+
+	def _seed_dependants(self):
+		enrollment = self._create_batch_enrollment(self.student.name, self.batch.name)
+		# nosemgrep: lms-unjustified-ignore-permissions - test fixture seeding, not the permission under test
+		feedback = frappe.get_doc(
+			{
+				"doctype": "LMS Batch Feedback",
+				"member": self.student.name,
+				"batch": self.batch.name,
+				"feedback": "Good batch.",
+			}
+		).insert(ignore_permissions=True)
+		topic, reply = self._create_discussion("LMS Batch", self.batch.name)
+		with patch("lms.lms.doctype.lms_live_class.lms_live_class.LMSLiveClass.create_calendar_event"):
+			# nosemgrep: lms-unjustified-ignore-permissions - test fixture seeding, not the permission under test
+			live_class = frappe.get_doc(
+				{
+					"doctype": "LMS Live Class",
+					"title": "Kick-off",
+					"date": nowdate(),
+					"time": "10:00:00",
+					"duration": 60,
+					"timezone": "Asia/Kolkata",
+					"host": self.instructor.name,
+					"batch_name": self.batch.name,
+				}
+			).insert(ignore_permissions=True)
+		certificate = self._create_certificate(self.course.name, self.student.name)
+		frappe.db.set_value("LMS Certificate", certificate.name, "batch_name", self.batch.name)
+		return {
+			"LMS Batch Enrollment": enrollment.name,
+			"LMS Batch Feedback": feedback.name,
+			"Discussion Topic": topic.name,
+			"Discussion Reply": reply.name,
+			"LMS Live Class": live_class.name,
+		}, certificate
+
+	def _assert_cascaded(self, dependants, certificate):
+		self.assertFalse(frappe.db.exists("LMS Batch", self.batch.name))
+		for child in ("Course Instructor", "LMS Timetable Legend", "Batch Course"):
+			with self.subTest(child=child):
+				self.assertFalse(
+					frappe.db.exists(child, {"parent": self.batch.name, "parenttype": "LMS Batch"})
+				)
+		for doctype, name in dependants.items():
+			with self.subTest(doctype=doctype):
+				self.assertFalse(frappe.db.exists(doctype, name))
+		self.assertTrue(frappe.db.exists("LMS Certificate", certificate.name))
+		self.assertIsNone(frappe.db.get_value("LMS Certificate", certificate.name, "batch_name"))
+
+	def test_the_endpoint_leaves_no_orphans(self):
+		"""Regression from #1631 (6f9f27c03): the raw delete left dependants behind. Added for
+		audit finding #60."""
+		dependants, certificate = self._seed_dependants()
+		frappe.set_user(self.instructor.name)
+
+		delete_batch(self.batch.name)
+
+		self._assert_cascaded(dependants, certificate)
+
+	def test_a_batch_with_payments_is_refused_before_anything_is_deleted(self):
+		"""Review finding c1: delete_doc's dynamic-link check refused the batch only after
+		on_trash had deleted its enrolments, and named one payment in a raw message."""
+		dependants, _certificate = self._seed_dependants()
+		for _ in range(2):
+			self._create_batch_payment()
+		frappe.set_user(self.instructor.name)
+
+		with self.assertRaises(frappe.LinkExistsError) as caught:
+			delete_batch(self.batch.name)
+
+		self.assertIn("This batch has 2 payments, so it can't be deleted.", str(caught.exception))
+		self.assertTrue(frappe.db.exists("LMS Batch", self.batch.name))
+		for doctype, name in dependants.items():
+			with self.subTest(doctype=doctype):
+				self.assertTrue(frappe.db.exists(doctype, name))
+
+	def test_a_coupon_keeps_its_other_items(self):
+		"""Review finding c1: a coupon item naming the batch blocked its delete."""
+		# nosemgrep: lms-unjustified-ignore-permissions - test fixture seeding, not the permission under test
+		coupon = frappe.get_doc(
+			{
+				"doctype": "LMS Coupon",
+				"code": f"DEL{frappe.generate_hash(length=6)}".upper(),
+				"discount_type": "Percentage",
+				"percentage_discount": 10,
+				"applicable_items": [
+					{"reference_doctype": "LMS Batch", "reference_name": self.batch.name},
+					{"reference_doctype": "LMS Course", "reference_name": self.course.name},
+				],
+			}
+		).insert(ignore_permissions=True)
+		frappe.set_user(self.instructor.name)
+
+		delete_batch(self.batch.name)
+
+		self.assertFalse(frappe.db.exists("LMS Batch", self.batch.name))
+		self.assertEqual(
+			frappe.get_all("LMS Coupon Item", {"parent": coupon.name}, pluck="reference_name"),
+			[self.course.name],
+		)
+
+	def _create_batch_payment(self):
+		# nosemgrep: lms-unjustified-ignore-permissions - test fixture seeding, not the permission under test
+		return frappe.get_doc(
+			{
+				"doctype": "LMS Payment",
+				"member": self.student.name,
+				"billing_name": "Batch Payer",
+				"amount": 100,
+				"currency": "INR",
+				"payment_for_document_type": "LMS Batch",
+				"payment_for_document": self.batch.name,
+			}
+		).insert(ignore_permissions=True, ignore_mandatory=True)
+
+	def test_a_same_titled_batch_does_not_inherit_the_old_instructors(self):
+		"""Regression from #1631 (6f9f27c03), audit finding #60."""
+		frappe.set_user(self.instructor.name)
+		delete_batch(self.batch.name)
+		frappe.set_user("Administrator")
+
+		newcomer = self._create_user(
+			f"batch-newcomer-{frappe.generate_hash(length=8)}@example.com", "New", "Comer", ["Course Creator"]
+		)
+		recreated = self._create_batch(self.course.name, instructor=newcomer.name, title=self.title)
+
+		self.assertEqual(recreated.name, self.batch.name)
+		self.assertEqual(
+			frappe.get_all(
+				"Course Instructor", {"parent": recreated.name, "parenttype": "LMS Batch"}, pluck="instructor"
+			),
+			[newcomer.name],
+		)
+
+	def test_a_student_cannot_delete(self):
+		"""Guards can_modify_batch now that delete_doc skips DocPerms (#1631). Audit finding #60."""
+		frappe.set_user(self.student.name)
+		with self.assertRaises(frappe.PermissionError):
+			delete_batch(self.batch.name)
+		self.assertTrue(frappe.db.exists("LMS Batch", self.batch.name))
+
+	def test_a_blank_or_unknown_name_is_refused(self):
+		"""Regression from #1631 (6f9f27c03): a blank name emptied the table. Added for audit
+		finding #19."""
+		frappe.set_user(self.instructor.name)
+		self.assert_refuses_blank_and_unknown_names(delete_batch, "LMS Batch", self.batch.name)

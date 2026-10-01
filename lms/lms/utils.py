@@ -4026,6 +4026,17 @@ def validate_batch_access(batch: str):
 		frappe.throw(_("You do not have access to this batch."))
 
 
+def delete_discussions(reference_doctype: str, reference_docname: str):
+	topics = frappe.get_all(
+		"Discussion Topic",
+		{"reference_doctype": reference_doctype, "reference_docname": reference_docname},
+		pluck="name",
+	)
+	if topics:
+		frappe.db.delete("Discussion Reply", {"topic": ("in", topics)})
+		frappe.db.delete("Discussion Topic", {"name": ("in", topics)})
+
+
 def can_modify_course(course: str) -> bool:
 	is_instructor = frappe.db.exists(
 		"Course Instructor",

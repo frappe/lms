@@ -76,6 +76,7 @@ from lms.lms.utils import (
 	can_modify_batch,
 	can_modify_course,
 	check_filter_value,
+	delete_discussions,
 	format_timezone,
 	get_batch_details,
 	get_course_details,
@@ -2202,30 +2203,25 @@ def delete_course(course: str):
 	frappe.delete_doc("LMS Course", course)
 
 
+def _validate_name_type(name: str):
+	if not isinstance(name, str):
+		frappe.throw(_("The name to delete must be a string."))
+
+
+def _require_existing(doctype: str, name: str):
+	"""An empty name would reach the delete as no filter at all and match every row."""
+	if not name or not frappe.db.exists(doctype, name):
+		frappe.throw(_("{0} {1} does not exist.").format(_(doctype), name), frappe.DoesNotExistError)
+
+
 @frappe.whitelist(methods=["POST"])
 def delete_batch(batch: str):
+	_validate_name_type(batch)
 	if not can_modify_batch(batch):
 		frappe.throw(_("You do not have permission to delete this batch."), frappe.PermissionError)
-
-	frappe.db.delete("LMS Batch Enrollment", {"batch": batch})
-	frappe.db.delete("Batch Course", {"parent": batch, "parenttype": "LMS Batch"})
-	frappe.db.delete("LMS Assessment", {"parent": batch, "parenttype": "LMS Batch"})
-	frappe.db.delete("LMS Batch Timetable", {"parent": batch, "parenttype": "LMS Batch"})
-	frappe.db.delete("LMS Batch Feedback", {"batch": batch})
-	delete_batch_discussions(batch)
-	frappe.db.delete("LMS Batch", batch)
-
-
-def delete_batch_discussions(batch: str):
-	topics = frappe.get_all(
-		"Discussion Topic",
-		{"reference_doctype": "LMS Batch", "reference_docname": batch},
-		pluck="name",
-	)
-
-	for topic in topics:
-		frappe.db.delete("Discussion Reply", {"topic": topic})
-		frappe.db.delete("Discussion Topic", topic)
+	_require_existing("LMS Batch", batch)
+	# nosemgrep: lms-unjustified-ignore-permissions - can_modify_batch is the gate; a tagged Course Creator holds no delete DocPerm
+	frappe.delete_doc("LMS Batch", batch, ignore_permissions=True)
 
 
 def give_discussions_permission():
