@@ -22,6 +22,21 @@ from ...utils import (
 	validate_image,
 )
 
+# Rows that die with the course; each one links it, so a leftover blocks the delete.
+COURSE_OWNED_DOCTYPES = (
+	"LMS Enrollment",
+	"LMS Course Progress",
+	"LMS Video Watch Duration",
+	"LMS Certificate",
+	"LMS Certificate Request",
+	"LMS Certificate Evaluation",
+	"LMS Course Interest",
+	"LMS Course Mentor Mapping",
+	"Batch Course",
+	"LMS Course Review",
+	"Related Courses",
+)
+
 
 class LMSCourse(Document):
 	def validate(self):
@@ -134,6 +149,37 @@ class LMSCourse(Document):
 	def on_update(self):
 		if not self.upcoming and self.has_value_changed("upcoming"):
 			self.send_email_to_interested_users()
+
+	def on_trash(self):
+		for doctype in COURSE_OWNED_DOCTYPES:
+			frappe.db.delete(doctype, {"course": self.name})
+		self._remove_from_programs()
+		self._unlink_authored_work()
+		self._delete_outline()
+
+	def _remove_from_programs(self):
+		# Child rows fire no doc_events and the program is not saved, so recount here.
+		programs = frappe.get_all(
+			"LMS Program Course", {"course": self.name, "parenttype": "LMS Program"}, pluck="parent"
+		)
+		frappe.db.delete("LMS Program Course", {"course": self.name})
+		for program in set(programs):
+			count = frappe.db.count("LMS Program Course", {"parent": program, "parenttype": "LMS Program"})
+			frappe.db.set_value("LMS Program", program, "course_count", count)
+
+	def _unlink_authored_work(self):
+		"""Authored assessments and graded work outlive the course."""
+		frappe.db.set_value("LMS Quiz", {"course": self.name}, {"course": None, "lesson": None})
+		frappe.db.set_value("LMS Quiz Submission", {"course": self.name}, "course", None)
+		frappe.db.set_value(
+			"LMS Assignment Submission", {"course": self.name}, {"course": None, "lesson": None}
+		)
+		frappe.db.set_value("LMS Assignment", {"course": self.name}, "course", None)
+
+	def _delete_outline(self):
+		for chapter in frappe.get_all("Course Chapter", {"course": self.name}, pluck="name"):
+			# nosemgrep: lms-unjustified-ignore-permissions - the course delete was authorised; its chapters go with it
+			frappe.delete_doc("Course Chapter", chapter, ignore_permissions=True)
 
 	def on_payment_authorized(self, payment_status):
 		if payment_status in ["Authorized", "Completed"]:

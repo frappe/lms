@@ -33,6 +33,7 @@ from lms.lms.permissions import (
 from lms.lms.utils import (
 	PRIVILEGED_ROLES,
 	compute_locked_lessons,
+	delete_discussions,
 	get_course_progress,
 	get_editorjs_blocks,
 	get_ordered_lesson_rows,
@@ -51,10 +52,16 @@ class CourseLesson(Document):
 		self.validate_progress_recalculation()
 
 	def on_trash(self):
+		# Runs before delete_doc's link check, so the discussion topics that link the
+		# lesson go first.
+		delete_discussions("Course Lesson", self.name)
+		frappe.db.delete("LMS Course Progress", {"lesson": self.name})
+		frappe.db.delete("LMS Video Watch Duration", {"lesson": self.name})
 		cleanup_lesson_backreferences(self.name)
 
 	def after_delete(self):
-		self.validate_progress_recalculation()
+		if not self.flags.in_chapter_delete:
+			self.validate_progress_recalculation()
 
 	def validate(self):
 		self.content = sanitize_editorjs(self.content)
@@ -106,20 +113,7 @@ class CourseLesson(Document):
 	def validate_progress_recalculation(self):
 		if not self.course or not self.chapter:
 			return
-
-		enrollments = frappe.db.get_all(
-			"LMS Enrollment",
-			filters={"course": self.course},
-			fields=["name", "member"],
-		)
-		if not len(enrollments):
-			return
-
-		frappe.enqueue(method=self.recalculate_progress, queue="long", is_async=True, enrollments=enrollments)
-
-	def recalculate_progress(self, enrollments):
-		for enrollment in enrollments:
-			recalculate_course_progress(self.course, enrollment.member)
+		enqueue_progress_recalculation(self.course)
 
 	def validate_quiz_id(self):
 		if self.quiz_id and not frappe.db.exists("LMS Quiz", self.quiz_id):
@@ -147,6 +141,25 @@ class CourseLesson(Document):
 						"lesson": self.name,
 					},
 				)
+
+
+def enqueue_progress_recalculation(course: str):
+	members = frappe.get_all("LMS Enrollment", filters={"course": course}, pluck="member")
+	if not members:
+		return
+	# After commit, so the job recounts against the outline this transaction leaves.
+	frappe.enqueue(
+		recalculate_progress,
+		queue="long",
+		course=course,
+		members=members,
+		enqueue_after_commit=True,
+	)
+
+
+def recalculate_progress(course: str, members: list[str]):
+	for member in members:
+		recalculate_course_progress(course, member)
 
 
 def may_restamp_quiz(quiz: str, lesson: str) -> bool:
@@ -182,6 +195,10 @@ def cleanup_lesson_backreferences(lesson: str):
 	frappe.db.set_value("LMS Quiz", {"lesson": lesson}, "lesson", None)
 	frappe.db.set_value("LMS Enrollment", {"current_lesson": lesson}, "current_lesson", None)
 	frappe.db.set_value("LMS Assignment Submission", {"lesson": lesson}, "lesson", None)
+	# Timetable rows, in batches and templates alike, schedule the lesson itself.
+	frappe.db.delete(
+		"LMS Batch Timetable", {"reference_doctype": "Course Lesson", "reference_docname": lesson}
+	)
 
 
 def has_permission(doc, ptype="read", user=None):

@@ -60,10 +60,7 @@ from lms.lms.course_import_export import (
 	import_course_zip,
 	validate_archive,
 )
-from lms.lms.doctype.course_lesson.course_lesson import (
-	cleanup_lesson_backreferences,
-	save_progress,
-)
+from lms.lms.doctype.course_lesson.course_lesson import save_progress
 from lms.lms.doctype.lms_certificate.lms_certificate import evaluates_certificate, get_latest_certificate
 from lms.lms.doctype.lms_certificate_evaluation.lms_certificate_evaluation import can_evaluate
 from lms.lms.html_sanitizer import sanitize_rich_text
@@ -76,7 +73,6 @@ from lms.lms.utils import (
 	can_modify_batch,
 	can_modify_course,
 	check_filter_value,
-	delete_discussions,
 	format_timezone,
 	get_batch_details,
 	get_course_details,
@@ -1559,20 +1555,7 @@ def delete_lesson(lesson: str, chapter: str):
 	lessons.remove(lesson)
 	frappe.db.delete("Lesson Reference", {"parent": chapter, "lesson": lesson})
 	update_index(lessons, chapter)
-
-	frappe.db.delete("LMS Course Progress", {"lesson": lesson})
-	frappe.db.delete("LMS Video Watch Duration", {"lesson": lesson})
-
-	# Discussion topics link to the lesson, so remove them (and their replies) first, else delete_doc raises LinkExistsError.
-	topics = frappe.get_all(
-		"Discussion Topic",
-		{"reference_doctype": "Course Lesson", "reference_docname": lesson},
-		pluck="name",
-	)
-	for topic in topics:
-		frappe.db.delete("Discussion Reply", {"topic": topic})
-		frappe.db.delete("Discussion Topic", topic)
-
+	# Its discussions, progress and watch time go in CourseLesson.on_trash.
 	frappe.delete_doc("Course Lesson", lesson)
 
 
@@ -2153,59 +2136,16 @@ def _insert_batch_certificate(batch: str, member: str, values: dict) -> str | No
 
 @frappe.whitelist(methods=["POST"])
 def delete_course(course: str):
+	_validate_name_type(course, _("Course"))
 	if not can_modify_course(course):
 		frappe.throw(_("You do not have permission to delete this course."), frappe.PermissionError)
-
-	frappe.db.delete("LMS Enrollment", {"course": course})
-	frappe.db.delete("LMS Course Progress", {"course": course})
-	frappe.db.delete("LMS Video Watch Duration", {"course": course})
-	frappe.db.delete("LMS Certificate", {"course": course})
-	frappe.db.delete("LMS Certificate Request", {"course": course})
-	frappe.db.delete("LMS Certificate Evaluation", {"course": course})
-	frappe.db.delete("LMS Course Interest", {"course": course})
-	frappe.db.delete("LMS Course Mentor Mapping", {"course": course})
-	frappe.db.delete("Batch Course", {"course": course})
-	frappe.db.delete("LMS Course Review", {"course": course})
-	# This course may appear in another parent's child table (another course's related
-	# list, a program's course list); remove those rows so the delete isn't blocked.
-	frappe.db.delete("Related Courses", {"course": course})
-	frappe.db.delete("LMS Program Course", {"course": course})
-	# Preserve authored assessments and graded work. Unlink from the course/lesson rather than delete.
-	frappe.db.set_value("LMS Quiz", {"course": course}, {"course": None, "lesson": None})
-	frappe.db.set_value("LMS Quiz Submission", {"course": course}, "course", None)
-	frappe.db.set_value("LMS Assignment Submission", {"course": course}, {"course": None, "lesson": None})
-	frappe.db.set_value("LMS Assignment", {"course": course}, "course", None)
-
-	chapters = frappe.get_all("Course Chapter", {"course": course}, pluck="name")
-	frappe.db.delete("Chapter Reference", {"parent": course})
-
-	for chapter in chapters:
-		lessons = frappe.get_all("Course Lesson", {"chapter": chapter}, pluck="name")
-
-		frappe.db.delete("Lesson Reference", {"parent": chapter})
-
-		for lesson in lessons:
-			topics = frappe.get_all(
-				"Discussion Topic",
-				{"reference_doctype": "Course Lesson", "reference_docname": lesson},
-				pluck="name",
-			)
-
-			for topic in topics:
-				frappe.db.delete("Discussion Reply", {"topic": topic})
-				frappe.db.delete("Discussion Topic", topic)
-
-			frappe.delete_doc("Course Lesson", lesson)
-
-	for chapter in chapters:
-		frappe.delete_doc("Course Chapter", chapter)
-
+	_require_existing("LMS Course", course)
 	frappe.delete_doc("LMS Course", course)
 
 
-def _validate_name_type(name: str):
+def _validate_name_type(name: str, label: str):
 	if not isinstance(name, str):
-		frappe.throw(_("The name to delete must be a string."))
+		frappe.throw(_("{0} must be a string.").format(label))
 
 
 def _require_existing(doctype: str, name: str):
@@ -2216,7 +2156,7 @@ def _require_existing(doctype: str, name: str):
 
 @frappe.whitelist(methods=["POST"])
 def delete_batch(batch: str):
-	_validate_name_type(batch)
+	_validate_name_type(batch, _("Batch"))
 	if not can_modify_batch(batch):
 		frappe.throw(_("You do not have permission to delete this batch."), frappe.PermissionError)
 	_require_existing("LMS Batch", batch)
@@ -2508,49 +2448,11 @@ def add_lesson(title: str, chapter: str, course: str, idx: int):
 
 @frappe.whitelist(methods=["POST"])
 def delete_chapter(chapter: str):
-	if not isinstance(chapter, str):
-		frappe.throw(_("chapter must be a string"))
-
-	course = frappe.db.get_value("Course Chapter", chapter, "course")
-	if not can_modify_course(course):
+	_validate_name_type(chapter, _("Chapter"))
+	_require_existing("Course Chapter", chapter)
+	if not can_modify_course(frappe.db.get_value("Course Chapter", chapter, "course")):
 		frappe.throw(_("You do not have permission to delete this chapter."), frappe.PermissionError)
-
-	if frappe.db.get_value("Course Chapter", chapter, "is_scorm_package"):
-		delete_scorm_package(chapter)
-
-	course = frappe.db.get_value("Chapter Reference", {"chapter": chapter}, "parent")
-
-	# Clean up per-lesson dependants before the raw lesson delete below, else discussions/progress orphan at the deleted lessons.
-	lessons = frappe.get_all("Course Lesson", {"chapter": chapter}, pluck="name")
-	for lesson in lessons:
-		topics = frappe.get_all(
-			"Discussion Topic",
-			{"reference_doctype": "Course Lesson", "reference_docname": lesson},
-			pluck="name",
-		)
-		for topic in topics:
-			frappe.db.delete("Discussion Reply", {"topic": topic})
-			frappe.db.delete("Discussion Topic", topic)
-		frappe.db.delete("LMS Course Progress", {"lesson": lesson})
-		frappe.db.delete("LMS Video Watch Duration", {"lesson": lesson})
-		# Raw db.delete below skips the controller's on_trash, so unlink back-references here.
-		cleanup_lesson_backreferences(lesson)
-
-	frappe.db.delete("Chapter Reference", {"chapter": chapter})
-	frappe.db.delete("Lesson Reference", {"parent": chapter})
-	frappe.db.delete("Course Lesson", {"chapter": chapter})
-	frappe.db.delete("Course Chapter", chapter)
-
-	# reset chapter reference index after deletion
-	if course:
-		chapters = frappe.get_all(
-			"Chapter Reference", filters={"parent": course}, fields=["name"], order_by="idx asc"
-		)
-
-		i = 1
-		for chapter in chapters:
-			frappe.db.set_value("Chapter Reference", chapter.name, "idx", i)
-			i += 1
+	frappe.delete_doc("Course Chapter", chapter)
 
 
 def delete_scorm_package(chapter: str):
@@ -2576,9 +2478,16 @@ def delete_scorm_package(chapter: str):
 		if any(package_dir and package_dir == sibling_dirs[root] for root, package_dir in dirs.items()):
 			return
 
-	for package_dir in dirs.values():
-		if package_dir and os.path.isdir(package_dir):
-			shutil.rmtree(package_dir)
+	# Removed once the delete commits, so a delete refused later in this transaction
+	# still finds its package.
+	package_dirs = [package_dir for package_dir in dirs.values() if package_dir]
+	frappe.db.after_commit.add(lambda: _remove_dirs(package_dirs))
+
+
+def _remove_dirs(dirs: list[str]):
+	for path in dirs:
+		if os.path.isdir(path):
+			shutil.rmtree(path)
 
 
 def _scorm_package_dir(root: str, course: str, stored: str) -> str | None:
