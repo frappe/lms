@@ -20,6 +20,7 @@ from frappe.utils import (
 	nowtime,
 )
 
+from lms.lms.locking import locked_count
 from lms.lms.utils import (
 	PRIVILEGED_ROLES,
 	convert_from_system_timezone,
@@ -60,6 +61,7 @@ class LMSCertificateRequest(Document):
 			frappe.throw(_("You are not enrolled in this course."), frappe.PermissionError)
 
 	def after_insert(self):
+		self.validate_slot_against_committed_rows()
 		self.send_notification()
 
 	def guard_server_fields(self):
@@ -109,17 +111,33 @@ class LMSCertificateRequest(Document):
 				)
 
 	def validate_slot(self):
-		if frappe.db.exists(
-			"LMS Certificate Request",
-			{
-				"evaluator": self.evaluator,
-				"date": self.date,
-				"status": ["!=", "Cancelled"],
-				"start_time": self.start_time,
-				"member": ["!=", self.member],
-			},
-		):
-			frappe.throw(_("The slot is already booked by another participant."))
+		if self.evaluator:
+			# One evaluator's bookings run one after the other from here on, which
+			# validate_slot_against_committed_rows relies on. Their Course Evaluator row,
+			# not the User row every request of theirs writes; User only if it is gone.
+			if not frappe.db.get_value("Course Evaluator", self.evaluator, "name", for_update=True):
+				frappe.db.get_value("User", self.evaluator, "name", for_update=True)
+
+		if frappe.db.exists("LMS Certificate Request", self.slot_filters()):
+			self.throw_slot_booked()
+
+	def validate_slot_against_committed_rows(self):
+		"""validate_slot reads a snapshot that misses a booking committed while this
+		request waited on the evaluator lock. Recheck, with this row in."""
+		if locked_count("LMS Certificate Request", self.slot_filters()):
+			self.throw_slot_booked()
+
+	def slot_filters(self):
+		return {
+			"evaluator": self.evaluator,
+			"date": self.date,
+			"status": ["!=", "Cancelled"],
+			"start_time": self.start_time,
+			"member": ["!=", self.member],
+		}
+
+	def throw_slot_booked(self):
+		frappe.throw(_("The slot is already booked by another participant."))
 
 	def validate_if_existing_requests(self):
 		existing_requests = frappe.get_all(
