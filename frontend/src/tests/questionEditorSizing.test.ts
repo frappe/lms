@@ -6,7 +6,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 
-const editorClassFor = { current: '' as unknown }
+const stubProps = { current: {} as Record<string, unknown> }
 
 vi.mock('frappe-ui', () => ({
 	Button: { template: '<button><slot /></button>' },
@@ -20,7 +20,8 @@ vi.mock('@/components/RichTextEditor.vue', () => ({
 	default: {
 		name: 'RichTextEditorStub',
 		props: [
-			'editorClass',
+			'fill',
+			'minHeight',
 			'content',
 			'editable',
 			'fixedMenu',
@@ -33,7 +34,7 @@ vi.mock('@/components/RichTextEditor.vue', () => ({
 		emits: ['change', 'blur'],
 		created() {
 			// @ts-expect-error - options API `this` inside a stub
-			editorClassFor.current = this.editorClass
+			stubProps.current = this.$props
 		},
 		template:
 			'<div class="text-editor-stub" :id="id" :aria-invalid="String(ariaInvalid)" />',
@@ -78,25 +79,25 @@ async function mountEditor(
 const classOf = (wrapper: ReturnType<typeof mount>) =>
 	wrapper.find('.text-editor-stub').element.parentElement!.className
 
-const editorClass = () => editorClassFor.current as string
+const sizing = () => stubProps.current
 
 describe('QuestionEditor fill', () => {
 	it('fills for an open ended question', async () => {
 		const wrapper = await mountEditor('open_ended', true)
 		expect(classOf(wrapper)).toContain('flex-1')
-		expect(editorClass()).toContain('flex-1')
+		expect(sizing().fill).toBe(true)
 	})
 
 	it('fills for a choices question too', async () => {
 		const wrapper = await mountEditor('single', true)
 		expect(classOf(wrapper)).toContain('flex-1')
-		expect(editorClass()).toContain('flex-1')
+		expect(sizing().fill).toBe(true)
 	})
 
 	it('keeps a floor so many options cannot squeeze it to nothing', async () => {
 		await mountEditor('single', true)
-		expect(editorClass()).toContain('flex-1')
-		expect(editorClass()).toMatch(/min-h-\[\d/)
+		expect(sizing().fill).toBe(true)
+		expect(sizing().minHeight).toBe('6rem')
 	})
 
 	// A ten-option question needs more room than the dialog has. `min-h-0` let
@@ -111,7 +112,8 @@ describe('QuestionEditor fill', () => {
 	it('takes its natural height when the owner gives no height to fill', async () => {
 		const wrapper = await mountEditor('single', false)
 		expect(classOf(wrapper)).not.toContain('flex-1')
-		expect(editorClass()).toContain('min-h-[5rem]')
+		expect(sizing().fill).toBe(false)
+		expect(sizing().minHeight).toBe('5rem')
 	})
 })
 
