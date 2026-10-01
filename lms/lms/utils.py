@@ -44,6 +44,7 @@ from pypika import functions as fn
 
 from lms.lms import telemetry
 from lms.lms.doctype.lms_enrollment.lms_enrollment import (
+	save_unless_enrolled,
 	update_enrollment,
 	update_program_progress,
 )
@@ -3560,12 +3561,9 @@ def get_payment_total(payment_doc: dict) -> float:
 
 
 def enroll_in_course(course: str, payment_name: str):
-	# The check below exists so a repeated payment callback is a no-op, and an
-	# unlocked check cannot deliver that: two callbacks arriving together both read
-	# "absent", and the loser then hits the controller's own duplicate error —
-	# failing a request that has already taken the learner's money. Locking the
-	# course row first makes the skip reliable. The controller locks the same row,
-	# so this adds no new lock ordering.
+	# A repeated payment callback is a no-op. The second of two concurrent callbacks
+	# waits on the course lock and misses the first's row in its snapshot, so the
+	# check below passes it; save_unless_enrolled then skips the duplicate.
 	frappe.db.get_value("LMS Course", course, "name", for_update=True)
 
 	if not frappe.db.exists("LMS Enrollment", {"member": frappe.session.user, "course": course}):
@@ -3579,7 +3577,7 @@ def enroll_in_course(course: str, payment_name: str):
 				"payment": payment.name,
 			}
 		)
-		enrollment.save(ignore_permissions=True)
+		save_unless_enrolled(enrollment, ignore_permissions=True)
 
 
 @frappe.whitelist(methods=["POST"])
@@ -3616,7 +3614,8 @@ def create_enrollment(batch: str, payment_doc: dict = None):
 				"source": payment_doc.source,
 			}
 		)
-	new_student.save()
+	# Enrolling twice, as two concurrent clicks do, is a no-op.
+	save_unless_enrolled(new_student)
 
 
 def update_certificate_purchase(course: str, payment_name: str):
