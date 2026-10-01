@@ -60,15 +60,24 @@ vi.mock('frappe-ui', () => ({
 		template: `<div><slot /><span v-for="o in options" :key="o.label" class="option" @click="o.onClick()">{{ o.label }}</span></div>`,
 	},
 	Progress: { props: ['value'], template: '<div class="progress" />' },
+	TextInput: {
+		props: ['modelValue', 'placeholder'],
+		emits: ['update:modelValue'],
+		template: `<input data-testid="help-search" :placeholder="placeholder" :value="modelValue" @input="$emit('update:modelValue', $event.target.value)" />`,
+	},
 	Tooltip: { props: ['text'], template: '<div :title="text"><slot /></div>' },
 }))
+
+const { openExternalMock } = vi.hoisted(() => ({ openExternalMock: vi.fn() }))
+vi.mock('@/utils/openExternal', () => ({ openExternal: openExternalMock }))
 
 vi.mock('@/components/Icons/LMSLogo.vue', () => ({
 	default: { template: '<svg class="logo" />' },
 }))
 
 vi.mock('frappe-ui/icons', () => ({
-	HelpIcon: { template: '<svg />' },
+	HelpIcon: { template: '<svg class="help-icon" />' },
+	StepsIcon: { template: '<svg class="steps-icon" />' },
 	MaximizeIcon: { template: '<svg />' },
 	MinimizeIcon: { template: '<svg />' },
 }))
@@ -330,14 +339,107 @@ describe('question screen', () => {
 	})
 })
 
-describe('footer', () => {
-	it('links the help centre and nothing else', async () => {
+describe('help centre', () => {
+	const footerRow = (w: Awaited<ReturnType<typeof setUp>>['w']) =>
+		w.find('[data-testid="panel-footer"]').find('button')
+
+	it('is a framework footer row on the start side, not a centred link', async () => {
 		const { w } = await setUp()
-		const footer = w.find('[data-testid="panel-footer"]')
+		const row = footerRow(w)
+		expect(row.text()).toBe('Help centre')
+		expect(row.find('.help-icon').exists()).toBe(true)
+		for (const cls of [
+			'w-full',
+			'flex',
+			'gap-2',
+			'items-center',
+			'hover:bg-surface-gray-1',
+			'text-ink-gray-8',
+			'rounded-4',
+			'px-2',
+			'py-1.5',
+		])
+			expect(row.classes()).toContain(cls)
+		expect(row.classes()).not.toContain('justify-center')
+	})
+
+	// Guards: Help center leaving the panel, losing article groups, or the footer
+	// not flipping back. Introduced in this branch (feat/onboarding-flows, PR
+	// pending); test added there to pin the help screen.
+	it('opens the in-panel help centre with the articles', async () => {
+		const { w } = await setUp()
+		await footerRow(w).trigger('click')
+		await flushPromises()
+		expect(w.find('h2').text()).toBe('Help center')
+		expect(w.find('[data-testid="hero-title"]').exists()).toBe(false)
+		expect(w.find('[data-testid="help-search"]').exists()).toBe(true)
+		expect(w.text()).toContain('All articles')
+		const groups = w
+			.findAll('[data-testid="help-article"]')
+			.map((g) => g.text())
+		expect(groups).toEqual([
+			'Introduction',
+			'Creating a course',
+			'Creating a batch',
+			'Learning Paths',
+			'Assessments',
+			'Certification',
+			'Monetization',
+			'Settings',
+		])
+		expect(footerRow(w).text()).toBe('Getting started')
+		expect(footerRow(w).find('.steps-icon').exists()).toBe(true)
+	})
+
+	// Guards: help sub-articles not opening their docs page. Introduced in this
+	// branch (feat/onboarding-flows, PR pending); test added there to check the
+	// docs URL.
+	it('opens an article on the docs site', async () => {
+		const { w } = await setUp()
+		await footerRow(w).trigger('click')
+		await w.findAll('[data-testid="help-article"]')[1].trigger('click')
+		const sub = w
+			.findAll('[data-testid="help-subarticle"]')
+			.filter((x) => x.isVisible())
+		expect(sub.map((x) => x.text())).toEqual([
+			'Create a course',
+			'Add a chapter',
+			'Add a lesson',
+		])
+		await sub[0].trigger('click')
+		expect(openExternalMock).toHaveBeenCalledWith(
+			'https://docs.frappe.io/learning/create-a-course'
+		)
+	})
+
+	// Guards: the help search not filtering articles. Introduced in this branch
+	// (feat/onboarding-flows, PR pending); test added there to pin the filter.
+	it('filters articles by the search', async () => {
+		const { w } = await setUp()
+		await footerRow(w).trigger('click')
+		await w.find('[data-testid="help-search"]').setValue('quiz')
+		await flushPromises()
 		expect(
-			footer.find('a[href="https://docs.frappe.io/learning"]').text()
-		).toContain('Help centre')
-		expect(footer.findAll('button')).toHaveLength(0)
+			w.findAll('[data-testid="help-article"]').map((g) => g.text())
+		).toEqual(['Assessments'])
+	})
+
+	// Guards: leaving the help centre dropping the card that was open. Introduced
+	// in this branch (feat/onboarding-flows, PR pending); test added there to
+	// check the card screen comes back.
+	it('Getting started returns to the flows', async () => {
+		const { o, w } = await setUp()
+		o.openCardScreen('publish_course')
+		await flushPromises()
+		await footerRow(w).trigger('click')
+		await flushPromises()
+		await footerRow(w).trigger('click')
+		await flushPromises()
+		expect(w.find('h2').text()).toBe('Getting started')
+		expect(w.find('[data-testid="hero-title"]').text()).toBe(
+			'Publish my first course'
+		)
+		expect(footerRow(w).text()).toBe('Help centre')
 	})
 })
 

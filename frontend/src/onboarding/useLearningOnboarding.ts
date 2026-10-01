@@ -22,7 +22,7 @@ import {
 	type OnboardingFlow,
 } from '@/onboarding/flows'
 
-export type Screen = 'list' | 'question' | 'flow'
+export type Screen = 'list' | 'question' | 'flow' | 'help'
 export type StepStatus = 'done' | 'skipped' | 'current' | 'upcoming'
 
 export interface Progress {
@@ -44,6 +44,8 @@ const isSetUp = ref(false)
 
 // Which screen the panel shows, and for which card. Not persisted.
 const requestedScreen = ref<Screen>('list')
+// Where the help centre returns to.
+let screenBeforeHelp: Screen = 'list'
 const openCardId = ref<CardId | null>(null)
 // The step just completed in the open flow, for the "done, next" line.
 const justCompleted = ref<{ flow: FlowId; step: string } | null>(null)
@@ -105,6 +107,7 @@ const openFlow = computed<OnboardingFlow | null>(() =>
 // What the panel shows. A stored card or answer that no longer resolves (a flow
 // renamed or removed later) falls back rather than mounting an empty screen.
 const screen = computed<Screen>(() => {
+	if (requestedScreen.value === 'help') return 'help'
 	const card = openCard.value
 	if (requestedScreen.value === 'list' || !card) return 'list'
 	if (requestedScreen.value === 'flow' && openFlow.value) return 'flow'
@@ -424,6 +427,16 @@ function answer(id: CardId, value: string): void {
 	requestedScreen.value = 'flow'
 }
 
+/** The help centre, as the framework's HelpModal shows it in place of steps. */
+function showHelp(): void {
+	if (requestedScreen.value !== 'help') screenBeforeHelp = requestedScreen.value
+	requestedScreen.value = 'help'
+}
+
+function hideHelp(): void {
+	requestedScreen.value = screenBeforeHelp
+}
+
 function showList(): void {
 	requestedScreen.value = 'list'
 }
@@ -555,6 +568,8 @@ export function useLearningOnboarding() {
 		openCardScreen,
 		answer,
 		showList,
+		showHelp,
+		hideHelp,
 		closePanel,
 		completeStep,
 		applyFacts,

@@ -958,3 +958,38 @@ describe('staying open and moving on', () => {
 		).toBe(false)
 	})
 })
+
+describe('help centre', () => {
+	// Guards: closing the help centre losing the flow it opened over. Introduced
+	// in this branch (feat/onboarding-flows, PR pending); test added there to
+	// pin the return.
+	it('opens over the current screen and returns to it', async () => {
+		const o = await ready()
+		o.openCardScreen('publish_course')
+		o.showHelp()
+		expect(o.screen.value).toBe('help')
+		o.hideHelp()
+		expect(o.screen.value).toBe('flow')
+		expect(o.openFlow.value?.id).toBe('publish_course')
+	})
+
+	// Guards: closing the help centre opened from the list landing elsewhere.
+	// Introduced in this branch (feat/onboarding-flows, PR pending); test added
+	// there to pin the return.
+	it('returns to the list when opened from the list', async () => {
+		const o = await ready()
+		o.showHelp()
+		o.hideHelp()
+		expect(o.screen.value).toBe('list')
+	})
+
+	// Guards: the help centre staying up when a card is opened. Introduced in
+	// this branch (feat/onboarding-flows, PR pending); test added there to leave
+	// it.
+	it('leaves the help centre when a card is opened', async () => {
+		const o = await ready()
+		o.showHelp()
+		o.openCardScreen('onboard_learners')
+		expect(o.screen.value).toBe('flow')
+	})
+})
