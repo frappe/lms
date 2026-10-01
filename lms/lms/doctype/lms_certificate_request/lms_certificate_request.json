@@ -49,7 +49,8 @@
    "fieldtype": "Link",
    "in_standard_filter": 1,
    "label": "Evaluator",
-   "options": "User"
+   "options": "User",
+   "search_index": 1
   },
   {
    "fieldname": "date",
@@ -157,7 +158,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-02-23 14:45:44.994705",
+ "modified": "2026-10-01 12:00:00.000000",
  "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "LMS Certificate Request",
