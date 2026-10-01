@@ -117,14 +117,17 @@ class LMSBatchEnrollment(Document):
 		frappe.throw(_("Member already enrolled in this batch"), AlreadyEnrolledError)
 
 	def validate_course_enrollment(self):
-		courses = frappe.get_all("Batch Course", filters={"parent": self.batch}, fields=["course"])
+		# Sorted, so two batches that share courses lock them in the same order.
+		courses = frappe.get_all(
+			"Batch Course", filters={"parent": self.batch}, fields=["course"], order_by="course asc"
+		)
 
 		for course in courses:
 			# Same reasoning as validate_duplicate_members, one level down: without
 			# the lock, two batches sharing a course can both read "absent" for the
 			# same member and the loser's inner insert throws, failing an enrolment
 			# that should have skipped. Batch row first, then course row, in that
-			# order everywhere — the reverse order exists nowhere, so no cycle.
+			# order everywhere, and the courses in name order, so no cycle.
 			frappe.db.get_value("LMS Course", course.course, "name", for_update=True)
 
 			if not frappe.db.exists(

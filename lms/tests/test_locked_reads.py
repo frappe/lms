@@ -1,9 +1,11 @@
 import threading
 from contextlib import contextmanager
+from unittest.mock import patch
 
 import frappe
 from frappe.utils import add_days, nowdate
 
+from lms.lms.doctype.lms_enrollment.lms_enrollment import LMSEnrollment
 from lms.lms.enrollment_constraints import ensure_enrollment_unique_constraints
 from lms.lms.test_helpers import BaseTestUtils
 from lms.lms.utils import create_enrollment, enroll_in_course
@@ -113,6 +115,34 @@ class TestLockedReadsConcurrency(BaseTestUtils):
 		self.assertEqual(count, 1)
 		self.assertEqual(errors, [])
 
+	def test_batches_sharing_courses_in_opposite_order_do_not_deadlock(self):
+		"""Regression from #2664: shared courses were locked in each batch's own order.
+		Added for audit finding #47."""
+		first, second = self._course(), self._course()
+		batches = [self._batch([first, second]), self._batch([second, first])]
+		members = [self._member(), self._member()]
+		self._order_batch_courses(batches[0], [first, second])
+		self._order_batch_courses(batches[1], [second, first])
+
+		rendezvous = threading.Barrier(2)
+		real_after_insert = LMSEnrollment.after_insert
+
+		def after_insert(doc):
+			real_after_insert(doc)
+			if not getattr(frappe.local, "lms_rendezvous_done", False):
+				frappe.local.lms_rendezvous_done = True
+				try:
+					rendezvous.wait(timeout=5)
+				except threading.BrokenBarrierError:
+					pass
+
+		with patch.object(LMSEnrollment, "after_insert", after_insert):
+			errors = self._in_parallel(
+				lambda member: create_enrollment(batches[members.index(member)].name), members
+			)
+
+		self.assertEqual(errors, [])
+
 	def _in_parallel(self, work, items, user=None) -> list:
 		"""Run work(item) once per item on its own connection, as `user` or as the
 		item itself. Each worker reads before the barrier, so its snapshot predates
@@ -200,6 +230,17 @@ class TestLockedReadsConcurrency(BaseTestUtils):
 		).insert()
 		self.created.append(("LMS Batch", batch.name))
 		return batch
+
+	def _order_batch_courses(self, batch, courses):
+		"""get_all returns child rows newest first, so the first course is the newest."""
+		for offset, course in enumerate(courses):
+			stamp = frappe.utils.add_to_date(None, minutes=-offset)
+			frappe.db.set_value(
+				"Batch Course",
+				{"parent": batch.name, "course": course.name},
+				{"creation": stamp, "modified": stamp},
+				update_modified=False,
+			)
 
 	def _parallel_payment_callbacks(self):
 		"""Two callbacks for one paid enrolment at once: (enrolments made, errors)."""
