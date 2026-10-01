@@ -40,6 +40,10 @@ class SCORMRenderer(BaseRenderer):
 			if path:
 				return self._serve_file(path)
 
+		# A cached 404 would outlive the package upload that adds this file.
+		frappe.local.no_cache = 1
+		raise frappe.PageDoesNotExistError
+
 	def _package_of(self, scorm_root, requested):
 		"""The <course>/<package> directory the resolved path sits in. Read off the
 		resolved path, so `..` segments cannot name one chapter and serve another."""
