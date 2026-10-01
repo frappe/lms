@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import {
+	draftLessonNumber,
 	findLessonNameByNumber,
+	findLessonNumberByName,
 	lessonExistsByNumber,
 	lessonExistsByName,
 	isSelectionStale,
@@ -85,6 +87,27 @@ describe('isSelectionStale (delete clears the editor)', () => {
 	it('is never stale with no selection or no outline', () => {
 		expect(isSelectionStale(null, outline)).toBe(false)
 		expect(isSelectionStale({ name: 'LESSON-A' }, null)).toBe(false)
+	})
+})
+
+describe('draft lesson selection', () => {
+	it('numbers a draft by its chapter', () => {
+		expect(draftLessonNumber(1)).toBe('1-new')
+	})
+
+	it('stays while its chapter is in the outline, though no lesson matches', () => {
+		const draft = { number: '1-new', name: null, draftChapter: 'CH-1' }
+		expect(isSelectionStale(draft, outline)).toBe(false)
+	})
+
+	it('goes stale once its chapter is deleted', () => {
+		const draft = { number: '1-new', name: null, draftChapter: 'CH-1' }
+		expect(isSelectionStale(draft, [])).toBe(true)
+	})
+
+	it('finds a created lesson number by its docname', () => {
+		expect(findLessonNumberByName(outline, 'LESSON-B')).toBe('1-2')
+		expect(findLessonNumberByName(outline, 'NOPE')).toBeNull()
 	})
 })
 
