@@ -71,8 +71,21 @@ const setupPlyrForVideo = (video, players) => {
 		},
 	})
 
+	keepFocusInPlayer(player)
 	video.plyrInstance = player
 	players.push(player)
+}
+
+// Plyr's Space/K shortcuts only fire while focus is inside the player, but a
+// click on the video (or on a control, in Safari) leaves focus on <body>.
+const keepFocusInPlayer = (player) => {
+	const { container } = player.elements
+	if (!container) return
+	container.setAttribute('tabindex', '-1')
+	container.addEventListener('click', () => {
+		if (container.contains(document.activeElement)) return
+		container.focus({ preventScroll: true })
+	})
 }
 
 const getTargetTime = (plyr, input) => {
