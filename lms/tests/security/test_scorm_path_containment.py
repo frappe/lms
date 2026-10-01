@@ -11,6 +11,7 @@ import os
 import shutil
 import tempfile
 import zipfile
+from unittest.mock import patch
 
 import frappe
 
@@ -116,6 +117,8 @@ class TestScormPackageDeletion(BaseTestUtils):
 		frappe.set_user(self.creator.name)
 		delete_chapter(chapter)
 		frappe.set_user("Administrator")
+		# The package goes once the delete commits.
+		frappe.db.after_commit.run()
 
 	def _assert_canary_intact(self):
 		self.assertTrue(os.path.isfile(os.path.join(self.public_files, "logo.png")))
@@ -124,6 +127,22 @@ class TestScormPackageDeletion(BaseTestUtils):
 		path = self._package("private", self.course.name, "Own")
 		self._delete_as_creator(self._scorm_chapter("Own", f"/scorm/{self.course.name}/Own"))
 		self.assertFalse(os.path.exists(path))
+
+	def test_a_refused_delete_keeps_the_package(self):
+		"""Review finding c1: on_trash removed the package before delete_doc's link check
+		could still refuse the delete."""
+		path = self._package("private", self.course.name, "Kept")
+		chapter = self._scorm_chapter("Kept", f"/scorm/{self.course.name}/Kept")
+		refusal = frappe.LinkExistsError("linked")
+		frappe.set_user(self.creator.name)
+		with (
+			patch("frappe.model.delete_doc.check_if_doc_is_dynamically_linked", side_effect=refusal),
+			self.assertRaises(frappe.LinkExistsError),
+		):
+			delete_chapter(chapter)
+		frappe.set_user("Administrator")
+
+		self.assertTrue(os.path.isfile(os.path.join(path, "index.html")))
 
 	def test_a_legacy_package_under_public_is_deleted(self):
 		path = self._package("public", self.course.name, "Legacy")
@@ -170,8 +189,9 @@ class TestScormPackageDeletion(BaseTestUtils):
 
 	def test_a_non_string_chapter_is_rejected_by_the_body(self):
 		# The whitelist wrapper coerces first, so only __wrapped__ reaches the guard.
-		with self.assertRaises(frappe.ValidationError):
+		with self.assertRaises(frappe.ValidationError) as caught:
 			delete_chapter.__wrapped__(["not", "a", "name"])
+		self.assertIn("Chapter must be a string.", str(caught.exception))
 
 	def test_a_dot_segment_variant_of_a_shared_path_survives(self):
 		shared = [self._package(root, self.course.name, "Shared") for root in ("private", "public")]
@@ -245,6 +265,7 @@ class TestScormExtractionDirIsUniquePerChapter(BaseTestUtils):
 		frappe.set_user(self.instructor.name)
 		delete_chapter(second.name)
 		frappe.set_user("Administrator")
+		frappe.db.after_commit.run()
 
 		first_dir = frappe.get_site_path("private", first.scorm_package_path.lstrip("/"))
 		self.assertTrue(os.path.isfile(os.path.join(first_dir, "index.html")))
@@ -257,6 +278,7 @@ class TestScormExtractionDirIsUniquePerChapter(BaseTestUtils):
 		frappe.set_user(self.instructor.name)
 		delete_chapter(chapter.name)
 		frappe.set_user("Administrator")
+		frappe.db.after_commit.run()
 
 		self.assertFalse(os.path.exists(package_dir), "package survived deleting its own chapter")
 
