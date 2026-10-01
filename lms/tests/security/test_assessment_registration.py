@@ -208,9 +208,11 @@ class TestAssessmentRegistrationAgreement(BaseTestUtils):
 		self.assertFalse(framework_allows("LMS Quiz", self.quiz.name, self.member.name, "delete"))
 		self.assertFalse(can_administer_assessment("LMS Quiz", self.quiz.name, user=self.member.name))
 
-	def test_the_course_instructor_writes_the_quiz_placed_in_their_course(self):
+	def test_placing_the_quiz_in_a_course_does_not_let_its_instructor_write_it(self):
+		"""Placement grants use only: the instructor reads it, its authors write it."""
 		self._place_in_lesson(self.course.name, "LMS Quiz", self.quiz.name)
-		self.assertTrue(framework_allows("LMS Quiz", self.quiz.name, self.instructor.name, "write"))
+		self.assertTrue(framework_allows("LMS Quiz", self.quiz.name, self.instructor.name, "read"))
+		self.assertFalse(framework_allows("LMS Quiz", self.quiz.name, self.instructor.name, "write"))
 
 	def test_a_course_creator_with_no_relationship_may_no_longer_write_it(self):
 		"""Course Creator holds write on all three site-wide; after registration it
