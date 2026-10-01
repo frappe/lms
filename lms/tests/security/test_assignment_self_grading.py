@@ -28,6 +28,8 @@ class TestAssignmentSelfGrading(BaseTestUtils):
 			"assessment", {"assessment_type": "LMS Assignment", "assessment_name": cls.assignment.name}
 		)
 		batch.save()
+		# Batch staff grade only the batch's own students.
+		cls._create_batch_enrollment(cls.student.name, batch.name)
 
 	def _make_submission(self, user, status="Not Graded"):
 		frappe.session.user = user

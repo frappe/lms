@@ -23,6 +23,7 @@ from lms.lms.lesson_assessments import lesson_assessment_rows
 from lms.lms.permissions import (
 	INSTRUCTOR_FIELDS,
 	can_access_lesson,
+	can_author_assessment,
 	courses_authored_by_each,
 	get_locked_lessons,
 )
@@ -99,6 +100,8 @@ class CourseLesson(Document):
 				quiz = (block.get("data") or {}).get("quiz")
 				if not frappe.db.exists("LMS Quiz", quiz):
 					frappe.throw(_("Invalid Quiz ID in content"))
+				if not may_restamp_quiz(quiz, self.name):
+					continue
 				frappe.db.set_value(
 					"LMS Quiz",
 					quiz,
@@ -107,6 +110,25 @@ class CourseLesson(Document):
 						"lesson": self.name,
 					},
 				)
+
+
+def may_restamp_quiz(quiz: str, lesson: str) -> bool:
+	"""Placing a quiz grants use only, so a lesson moves another author's quiz stamp
+	only when that stamp no longer names a lesson placing it."""
+	if can_author_assessment("LMS Quiz", quiz):
+		return True
+	stamped = frappe.db.get_value("LMS Quiz", quiz, "lesson")
+	if not stamped or stamped == lesson:
+		return True
+	return not frappe.db.exists(
+		"LMS Lesson Assessment",
+		{
+			"parent": stamped,
+			"parenttype": "Course Lesson",
+			"assessment_type": "LMS Quiz",
+			"assessment_name": quiz,
+		},
+	)
 
 
 def cleanup_lesson_backreferences(lesson: str):
