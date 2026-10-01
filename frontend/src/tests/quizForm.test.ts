@@ -147,6 +147,11 @@ createDocumentResourceMock.mockImplementation((options: any) => {
 	return resource
 })
 
+const { completeStepMock } = vi.hoisted(() => ({ completeStepMock: vi.fn() }))
+vi.mock('@/onboarding/useLearningOnboarding', () => ({
+	useLearningOnboarding: () => ({ completeStep: completeStepMock }),
+}))
+
 // QuizForm.vue's `useTelemetry()` needs a stub here.
 vi.mock('@framework/ui/telemetry/index', () => ({
 	useTelemetry: () => ({ capture: vi.fn() }),
@@ -704,10 +709,33 @@ describe('QuizForm: autosave', () => {
 	})
 })
 
-// The redirects run against the real route table, not a hand-made one: the whole
-// point is that vue-router scores these the way routes.js declares them. Components
-// are stubbed because a push resolves the target's lazy import, which would drag
-// every real page into this file.
+describe('QuizForm: onboarding', () => {
+	// Guards: the Add a quiz onboarding step never ticking. Introduced in this
+	// branch (feat/onboarding-flows, PR pending); test added there.
+	it('completes the quiz step once a new quiz is created', async () => {
+		completeStepMock.mockReset()
+		const { wrapper } = await mountNewQuiz()
+		wrapper.vm.newQuiz.title = 'First quiz'
+		await wrapper.vm.createIfNamed()
+		await flushPromises()
+		expect(calls.inserts.at(-1)).toMatchObject({
+			doc: { doctype: 'LMS Quiz', title: 'First quiz' },
+		})
+		expect(completeStepMock).toHaveBeenCalledWith('add_quiz')
+	})
+
+	// Guards: Add a quiz ticking when no quiz was created. Introduced in this
+	// branch (feat/onboarding-flows, PR pending); test added there.
+	it('leaves the step alone when there is no title to create from', async () => {
+		completeStepMock.mockReset()
+		const { wrapper } = await mountNewQuiz()
+		wrapper.vm.newQuiz.title = ''
+		await wrapper.vm.createIfNamed()
+		await flushPromises()
+		expect(completeStepMock).not.toHaveBeenCalled()
+	})
+})
+
 describe('legacy quiz URLs', () => {
 	const stub = { template: '<div />' }
 	type Rec = Record<string, unknown> & { children?: Rec[]; component?: unknown }

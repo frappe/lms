@@ -35,7 +35,7 @@ import {
 import { useDebounceFn } from '@vueuse/core'
 import { useRouter } from 'vue-router'
 import { getMetaInfo, updateMetaInfo } from '@/utils'
-import { validateCourse } from '@/utils/courseForm'
+import { isPricedCourse, validateCourse } from '@/utils/courseForm'
 import { useLearningOnboarding } from '@/onboarding/useLearningOnboarding'
 import {
 	useKeyboardShortcuts,
@@ -230,7 +230,8 @@ const updateCourse = (opts: { silent?: boolean } = {}): void => {
 				updateMetaInfo('courses', courseResource.doc?.name, meta)
 				if (!opts.silent) toast.success(__('Course updated successfully'))
 				isDirty.value = false
-				if (courseResource.doc?.image) completeStep('add_course_image')
+				if (isPricedCourse(courseResource.doc))
+					completeStep('set_course_pricing')
 				if (courseResource.doc?.published) completeStep('publish_course')
 				courseResource.reload()
 				// Refresh the shared course resource so sibling tabs (Overview,

@@ -410,6 +410,7 @@ import { useDebounceFn } from '@vueuse/core'
 import { onBeforeRouteLeave, useRouter } from 'vue-router'
 import { sanitizeOnWrite } from '@/utils/sanitizeOnWrite'
 import { useTelemetry } from '@framework/ui/telemetry/index'
+import { useLearningOnboarding } from '@/onboarding/useLearningOnboarding'
 import { resourceErrorMessage, submitResource } from '@/utils/resource'
 
 const { brand } = sessionStore()
@@ -460,6 +461,7 @@ const user = inject('$user')
 const router = useRouter()
 const readOnlyMode = window.read_only_mode
 const { capture } = useTelemetry()
+const { completeStep } = useLearningOnboarding()
 const { $dialog } = getCurrentInstance().appContext.config.globalProperties
 
 const deleteQuiz = () => {
@@ -854,6 +856,7 @@ const createIfNamed = async () => {
 			auto: false,
 		}).submit({ doc: { doctype: 'LMS Quiz', ...newQuiz } })
 		capture('quiz_created')
+		completeStep('add_quiz')
 		// The page is not remounted by this: the quizID watch above picks the quiz up.
 		router.replace({ name: 'QuizForm', params: { quizID: created.name } })
 	} catch (error) {

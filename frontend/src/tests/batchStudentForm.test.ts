@@ -20,7 +20,6 @@ const {
 	getCachedListResourceMock,
 	getCachedResourceMock,
 	openSettingsMock,
-	completeStepMock,
 	toastMock,
 } = vi.hoisted(() => {
 	window.matchMedia ??= (() => ({
@@ -33,7 +32,6 @@ const {
 		getCachedListResourceMock: vi.fn(),
 		getCachedResourceMock: vi.fn(),
 		openSettingsMock: vi.fn(),
-		completeStepMock: vi.fn(),
 		toastMock: { success: vi.fn(), error: vi.fn() },
 	}
 })
@@ -60,10 +58,6 @@ vi.mock('frappe-ui', () => ({
 		emits: ['update:open'],
 		template: `<div v-if="open" role="dialog"><h2>{{ title }}</h2><slot /><slot name="actions" /></div>`,
 	},
-}))
-
-vi.mock('@/onboarding/useLearningOnboarding', () => ({
-	useLearningOnboarding: () => ({ completeStep: completeStepMock }),
 }))
 
 // @/utils is the barrel that pulls in plyr and the settings store; only
@@ -208,7 +202,6 @@ describe('BatchStudentForm as a route', () => {
 		// openSettings reports whether the dialog is actually mounted; the form
 		// only leaves for it when it is. Desktop is the default here.
 		openSettingsMock.mockReturnValue(true)
-		completeStepMock.mockReset()
 		toastMock.success.mockReset()
 		toastMock.error.mockReset()
 		delete (window as Window & { read_only_mode?: boolean }).read_only_mode
@@ -362,21 +355,6 @@ describe('BatchStudentForm as a route', () => {
 
 		expect(list.reload).toHaveBeenCalledTimes(1)
 		expect(count.reload).toHaveBeenCalledTimes(1)
-	})
-
-	// Whether the step counts is the composable's call: it ignores steps until
-	// the sidebar set the flows up, which only happens for a System Manager.
-	it('hands the enrolment to the onboarding flows', async () => {
-		const router = makeRouter()
-		await openForm(router)
-		const wrapper = await mountForm(router)
-		await pickStudent(wrapper)
-		succeedOnSubmit()
-
-		await save(wrapper).trigger('click')
-		await flushPromises()
-
-		expect(completeStepMock).toHaveBeenCalledWith('add_batch_student')
 	})
 
 	it('returns to the tab it was opened from', async () => {
