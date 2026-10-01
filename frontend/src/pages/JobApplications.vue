@@ -94,7 +94,7 @@
 					@change="(val) => (emailForm.message = val)"
 					:editable="true"
 					:fixedMenu="true"
-					editorClass="prose-sm max-w-none border-b border-x border-outline-elevation-2 bg-surface-gray-2 rounded-b-5 py-1 px-2 min-h-[7rem]"
+					minHeight="7rem"
 				/>
 			</div>
 		</div>
