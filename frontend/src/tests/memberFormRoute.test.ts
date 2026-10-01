@@ -383,6 +383,7 @@ describe('the member form route', () => {
 				value: 1,
 			})
 			expect(toastMock.success).toHaveBeenCalled()
+			expect(completeStepMock).toHaveBeenCalledWith('add_learner')
 			expect(router.currentRoute.value.name).toBe('MobileYou')
 		})
 

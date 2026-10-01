@@ -78,8 +78,7 @@ function makeHandle(): FakeHandle {
 const USER = 'admin@example.com'
 const ALL = [
 	'publish_course',
-	'onboard_learners_invite',
-	'onboard_learners_csv',
+	'onboard_learners',
 	'live_class_zoom',
 	'live_class_meet',
 ]
@@ -87,6 +86,7 @@ const nav = {
 	openRoute: vi.fn(),
 	openForm: vi.fn(),
 	openSettings: vi.fn(),
+	openExternal: vi.fn(),
 }
 
 type Loaded = Awaited<ReturnType<typeof load>>
@@ -187,7 +187,7 @@ describe('setUpAll', () => {
 	})
 
 	it('reopens on the question when the card is unanswered', async () => {
-		const o = await ready({ card: 'onboard_learners' })
+		const o = await ready({ card: 'live_class' })
 		expect(o.screen.value).toBe('question')
 	})
 
@@ -259,21 +259,17 @@ describe('list', () => {
 	// added there to pin the step-weighted percent.
 	it('weighs the overall percent by steps across every card', async () => {
 		const o = await ready({ answers: { live_class: 'zoom' } })
-		// publish 6 + learners (unanswered, first option csv) 4 + zoom 4 = 14.
+		// publish 6 + learners 3 + zoom 4 = 13.
 		o.toggleStep('publish_course', 'create_first_course')
 		o.toggleStep('live_class_zoom', 'connect_zoom')
-		expect(o.overallPercent.value).toBe(Math.floor((2 / 14) * 100))
+		expect(o.overallPercent.value).toBe(Math.floor((2 / 13) * 100))
 	})
 
 	it('counts every card done once each card’s flow is done', async () => {
 		const o = await ready({
-			answers: { onboard_learners: 'csv', live_class: 'zoom' },
+			answers: { live_class: 'zoom' },
 		})
-		for (const key of [
-			'publish_course',
-			'onboard_learners_csv',
-			'live_class_zoom',
-		])
+		for (const key of ['publish_course', 'onboard_learners', 'live_class_zoom'])
 			finish(key)
 		expect(o.completedCards.value).toBe(3)
 		expect(o.overallPercent.value).toBe(100)
@@ -313,16 +309,31 @@ describe('list', () => {
 describe('question and answer', () => {
 	it('opens the question for an unanswered card', async () => {
 		const o = await ready()
-		o.openCardScreen('onboard_learners')
+		o.openCardScreen('live_class')
 		expect(o.screen.value).toBe('question')
 		expect(o.ui.showHelpModal.value).toBe(true)
 	})
 
-	it('opens a card without a question straight on its flow', async () => {
+	// Guards: cards without a question stopping on a question screen. Introduced
+	// in this branch (feat/onboarding-flows, PR pending); test added there to
+	// pin opening straight on the flow.
+	it.each([{ id: 'publish_course' }, { id: 'onboard_learners' }])(
+		'opens $id straight on its flow',
+		async ({ id }) => {
+			const o = await ready()
+			o.openCardScreen(id as 'publish_course' | 'onboard_learners')
+			expect(o.screen.value).toBe('flow')
+			expect(o.openFlow.value?.id).toBe(id)
+		}
+	)
+
+	// Guards: a card with no question storing a stray answer. Introduced in this
+	// branch (feat/onboarding-flows, PR pending); test added there to reject
+	// answers there.
+	it('ignores an answer for a card with no question', async () => {
 		const o = await ready()
-		o.openCardScreen('publish_course')
-		expect(o.screen.value).toBe('flow')
-		expect(o.openFlow.value?.id).toBe('publish_course')
+		o.answer('onboard_learners', 'csv')
+		expect(o.answerOf(card(o, 'onboard_learners'))).toBeNull()
 	})
 
 	// Guards: answers not being saved per user or not opening the flow.
@@ -330,14 +341,14 @@ describe('question and answer', () => {
 	// there to pin the stored answer.
 	it('answering persists per user and shows the flow', async () => {
 		const o = await ready()
-		o.openCardScreen('onboard_learners')
-		o.answer('onboard_learners', 'invite')
+		o.openCardScreen('live_class')
+		o.answer('live_class', 'meet')
 		expect(o.screen.value).toBe('flow')
-		expect(o.openFlow.value?.id).toBe('onboard_learners_invite')
+		expect(o.openFlow.value?.id).toBe('live_class_meet')
 		await nextTick()
 		expect(
 			JSON.parse(localStorage.getItem('learningOnboardingAnswers' + USER)!)
-		).toEqual({ onboard_learners: 'invite' })
+		).toEqual({ live_class: 'meet' })
 	})
 
 	it('changing the answer switches the key, keeping each key’s progress', async () => {
@@ -527,8 +538,8 @@ describe('next up', () => {
 	// (feat/onboarding-flows, PR pending); test added there to skip finished
 	// cards.
 	it('skips finished cards', async () => {
-		const o = await ready({ answers: { onboard_learners: 'invite' } })
-		finish('onboard_learners_invite')
+		const o = await ready()
+		finish('onboard_learners')
 		expect(o.nextCard(card(o, 'publish_course'))?.id).toBe('live_class')
 	})
 
@@ -537,9 +548,9 @@ describe('next up', () => {
 	// empty case.
 	it('is null once everything else is done', async () => {
 		const o = await ready({
-			answers: { onboard_learners: 'invite', live_class: 'meet' },
+			answers: { live_class: 'meet' },
 		})
-		finish('onboard_learners_invite')
+		finish('onboard_learners')
 		finish('live_class_meet')
 		expect(o.nextCard(card(o, 'publish_course'))).toBeNull()
 	})
@@ -581,27 +592,18 @@ describe('completeStep', () => {
 	it.each([
 		{
 			step: 'create_first_batch',
-			owners: [
-				'onboard_learners_invite',
-				'onboard_learners_csv',
-				'live_class_zoom',
-				'live_class_meet',
-			],
+			owners: ['live_class_zoom', 'live_class_meet'],
 		},
 		{
 			step: 'publish_batch',
-			owners: [
-				'onboard_learners_invite',
-				'onboard_learners_csv',
-				'live_class_zoom',
-				'live_class_meet',
-			],
+			owners: ['live_class_zoom', 'live_class_meet'],
 		},
 		{
 			step: 'schedule_live_class',
 			owners: ['live_class_zoom', 'live_class_meet'],
 		},
 		{ step: 'add_meet_account', owners: ['live_class_meet'] },
+		{ step: 'add_learner', owners: ['onboard_learners'] },
 	])('$step completes in every owning flow', async ({ step, owners }) => {
 		const o = await ready()
 		o.completeStep(step)
@@ -714,7 +716,7 @@ describe('bannerFlow', () => {
 	it('is hidden once every card is done and dismissed', async () => {
 		const o = await ready({
 			card: 'publish_course',
-			answers: { onboard_learners: 'csv', live_class: 'zoom' },
+			answers: { live_class: 'zoom' },
 		})
 		for (const key of ALL) {
 			finish(key)

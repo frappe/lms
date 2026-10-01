@@ -4,12 +4,12 @@ import type { OnboardingStep } from '@framework/ui/components/Onboarding/index'
 import {
 	Banknote,
 	BookOpen,
-	BookText,
 	CalendarCheck,
 	CircleHelp,
 	FileText,
 	FolderTree,
 	Globe,
+	Mail,
 	KeyRound,
 	Laptop,
 	Upload,
@@ -20,8 +20,7 @@ import InviteIcon from '@/components/Icons/InviteIcon.vue'
 
 export type FlowId =
 	| 'publish_course'
-	| 'onboard_learners_invite'
-	| 'onboard_learners_csv'
+	| 'onboard_learners'
 	| 'live_class_zoom'
 	| 'live_class_meet'
 
@@ -35,10 +34,10 @@ export const FACT_KEYS = [
 	'has_quiz',
 	'has_course_pricing',
 	'has_published_course',
+	'has_imported_learners',
 	'has_invited_student',
+	'has_sent_invitation',
 	'has_batch',
-	'has_batch_course',
-	'has_batch_student',
 	'has_zoom_account',
 	'has_google_api',
 	'has_google_calendar',
@@ -62,6 +61,8 @@ export interface FlowNavigation {
 	openRoute: (to: RouteLocationRaw) => void
 	openForm: (to: RouteLocationRaw) => void
 	openSettings: (slug: string) => void
+	/** A page outside the SPA, such as a desk form, in a new tab. */
+	openExternal: (url: string) => void
 	complete: (step: string) => void
 }
 
@@ -119,7 +120,7 @@ function openCourse(nav: FlowNavigation, hash: string): void {
 
 function openBatchForm(
 	nav: FlowNavigation,
-	name: 'NewBatchCourse' | 'NewLiveClass',
+	name: 'NewLiveClass',
 	hash: string
 ): void {
 	const batchName = nav.facts.first_batch
@@ -141,18 +142,6 @@ function createBatch(nav: FlowNavigation): FlowStep {
 		completed: false,
 		fact: 'has_batch',
 		onClick: () => nav.openForm({ name: 'NewBatch' }),
-	}
-}
-
-function addBatchCourse(nav: FlowNavigation): FlowStep {
-	return {
-		name: 'add_batch_course',
-		title: __('Add a course to the batch'),
-		icon: stepIcon(BookText),
-		completed: false,
-		dependsOn: 'create_first_batch',
-		fact: 'has_batch_course',
-		onClick: () => openBatchForm(nav, 'NewBatchCourse', '#settings'),
 	}
 }
 
@@ -240,46 +229,38 @@ const publishCourseFlow: OnboardingFlow = {
 	],
 }
 
-const learnersInviteFlow: OnboardingFlow = {
-	id: 'onboard_learners_invite',
+const onboardLearnersFlow: OnboardingFlow = {
+	id: 'onboard_learners',
 	card: 'onboard_learners',
-	key: 'learning_onboard_learners_invite',
+	key: 'learning_onboard_learners',
 	steps: (nav) => [
-		createBatch(nav),
 		{
-			name: 'invite_students',
-			title: __('Invite learners by email'),
+			name: 'import_learners',
+			title: __('Import learners in bulk'),
+			icon: stepIcon(Upload),
+			completed: false,
+			fact: 'has_imported_learners',
+			onClick: () =>
+				nav.openRoute({ name: 'NewDataImport', params: { doctype: 'User' } }),
+		},
+		{
+			name: 'add_learner',
+			title: __('Add a learner by email'),
 			icon: stepIcon(InviteIcon),
 			completed: false,
 			fact: 'has_invited_student',
 			onClick: () => nav.openSettings('members'),
 		},
-		addBatchCourse(nav),
-		publishBatch(nav),
-	],
-}
-
-const learnersCsvFlow: OnboardingFlow = {
-	id: 'onboard_learners_csv',
-	card: 'onboard_learners',
-	key: 'learning_onboard_learners_csv',
-	steps: (nav) => [
-		createBatch(nav),
 		{
-			name: 'import_learners_csv',
-			title: __('Import learners from CSV'),
-			icon: stepIcon(Upload),
+			// The SPA has no email-invite screen; frappe's own User Invitation
+			// form sends the invitation when it is saved.
+			name: 'invite_learners',
+			title: __('Invite learners by email'),
+			icon: stepIcon(Mail),
 			completed: false,
-			dependsOn: 'create_first_batch',
-			fact: 'has_batch_student',
-			onClick: () =>
-				nav.openRoute({
-					name: 'NewDataImport',
-					params: { doctype: 'LMS Batch Enrollment' },
-				}),
+			fact: 'has_sent_invitation',
+			onClick: () => nav.openExternal('/app/user-invitation/new'),
 		},
-		addBatchCourse(nav),
-		publishBatch(nav),
 	],
 }
 
@@ -341,8 +322,7 @@ const liveClassMeetFlow: OnboardingFlow = {
 
 export const FLOWS: readonly OnboardingFlow[] = [
 	publishCourseFlow,
-	learnersInviteFlow,
-	learnersCsvFlow,
+	onboardLearnersFlow,
 	liveClassZoomFlow,
 	liveClassMeetFlow,
 ]
@@ -371,46 +351,16 @@ export const CARDS: readonly FlowCard[] = [
 			return __('Bring your learners into a batch.')
 		},
 		icon: markRaw(Users),
-		question: {
-			get label() {
-				return __('Learner source')
-			},
-			get title() {
-				return __('How will you add learners?')
-			},
-			options: [
-				{
-					value: 'csv',
-					get label() {
-						return __('Import a CSV')
-					},
-					get description() {
-						return __('Upload a spreadsheet of learners.')
-					},
-					flow: learnersCsvFlow,
-				},
-				{
-					value: 'invite',
-					get label() {
-						return __('Invite by email')
-					},
-					get description() {
-						return __('Send invites and let learners sign up.')
-					},
-					flow: learnersInviteFlow,
-				},
-			],
-		},
 		next: ['live_class', 'publish_course'],
-		flows: [learnersCsvFlow, learnersInviteFlow],
+		flows: [onboardLearnersFlow],
 	},
 	{
 		id: 'live_class',
 		get title() {
-			return __('Run my first live class')
+			return __('Start a live class')
 		},
 		get description() {
-			return __('Connect a meeting account and schedule a class.')
+			return __('Create a batch, connect a meeting tool and schedule a class.')
 		},
 		icon: markRaw(Video),
 		question: {

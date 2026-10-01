@@ -244,7 +244,7 @@ const save = () => {
 			if (name && name !== NEW_RECORD) await saveRoles(name)
 
 			if (creating) {
-				completeStep('invite_students')
+				completeStep('add_learner')
 				capture('user_added')
 			}
 		},

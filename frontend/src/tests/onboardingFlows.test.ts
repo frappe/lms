@@ -20,6 +20,7 @@ function fakeNav(facts: Partial<OnboardingFacts> = {}): FlowNavigation {
 		openRoute: vi.fn(),
 		openForm: vi.fn(),
 		openSettings: vi.fn(),
+		openExternal: vi.fn(),
 		complete: vi.fn(),
 	}
 }
@@ -33,11 +34,10 @@ function stepsOf(id: string, nav = fakeNav()) {
 const flowRows = FLOWS.map((f) => ({ id: f.id }))
 
 describe('flow registry', () => {
-	it('ships five flows with their framework keys', () => {
+	it('ships four flows with their framework keys', () => {
 		expect(FLOWS.map((f) => [f.id, f.key])).toEqual([
 			['publish_course', 'learning_publish_course'],
-			['onboard_learners_invite', 'learning_onboard_learners_invite'],
-			['onboard_learners_csv', 'learning_onboard_learners_csv'],
+			['onboard_learners', 'learning_onboard_learners'],
 			['live_class_zoom', 'learning_live_class_zoom'],
 			['live_class_meet', 'learning_live_class_meet'],
 		])
@@ -57,30 +57,16 @@ describe('flow registry', () => {
 			],
 			[
 				'live_class',
-				'Run my first live class',
-				'Connect a meeting account and schedule a class.',
+				'Start a live class',
+				'Create a batch, connect a meeting tool and schedule a class.',
 			],
 		])
 	})
 
-	it('asks how learners are added', () => {
-		const q = getCard('onboard_learners')!.question!
-		expect([q.label, q.title]).toEqual([
-			'Learner source',
-			'How will you add learners?',
-		])
-		expect(q.options.map((o) => [o.label, o.description, o.flow.id])).toEqual([
-			[
-				'Import a CSV',
-				'Upload a spreadsheet of learners.',
-				'onboard_learners_csv',
-			],
-			[
-				'Invite by email',
-				'Send invites and let learners sign up.',
-				'onboard_learners_invite',
-			],
-		])
+	it('asks nothing before onboarding learners', () => {
+		const card = getCard('onboard_learners')!
+		expect(card.question).toBeUndefined()
+		expect(card.flows.map((f) => f.id)).toEqual(['onboard_learners'])
 	})
 
 	it('asks which meeting tool', () => {
@@ -126,21 +112,11 @@ describe('flow registry', () => {
 			],
 		},
 		{
-			id: 'onboard_learners_invite',
+			id: 'onboard_learners',
 			titles: [
-				'Create a batch',
+				'Import learners in bulk',
+				'Add a learner by email',
 				'Invite learners by email',
-				'Add a course to the batch',
-				'Publish the batch',
-			],
-		},
-		{
-			id: 'onboard_learners_csv',
-			titles: [
-				'Create a batch',
-				'Import learners from CSV',
-				'Add a course to the batch',
-				'Publish the batch',
 			],
 		},
 		{
@@ -252,17 +228,29 @@ describe('step targets', () => {
 		expect(nav[via]).toHaveBeenCalledWith(to)
 	})
 
-	it('opens the data import for batch enrolments to import learners', () => {
-		const nav = fakeNav(facts)
-		click('onboard_learners_csv', 'import_learners_csv', nav)
+	it('opens the data import for users to import learners in bulk', () => {
+		const nav = fakeNav()
+		click('onboard_learners', 'import_learners', nav)
 		expect(nav.openRoute).toHaveBeenCalledWith({
 			name: 'NewDataImport',
-			params: { doctype: 'LMS Batch Enrollment' },
+			params: { doctype: 'User' },
 		})
 	})
 
+	it('opens the desk User Invitation form to invite by email', () => {
+		const nav = fakeNav()
+		click('onboard_learners', 'invite_learners', nav)
+		expect(nav.openExternal).toHaveBeenCalledWith('/app/user-invitation/new')
+	})
+
+	it('has no batch steps for onboarding learners', () => {
+		const names = stepsOf('onboard_learners').map((s) => s.name)
+		expect(names).not.toContain('create_first_batch')
+		expect(names).not.toContain('add_batch_course')
+	})
+
 	it.each([
-		{ id: 'onboard_learners_invite', name: 'invite_students', slug: 'members' },
+		{ id: 'onboard_learners', name: 'add_learner', slug: 'members' },
 		{ id: 'live_class_zoom', name: 'connect_zoom', slug: 'zoom' },
 		{ id: 'live_class_meet', name: 'setup_google_api', slug: 'services' },
 		{
@@ -277,23 +265,16 @@ describe('step targets', () => {
 		expect(nav.openSettings).toHaveBeenCalledWith(slug)
 	})
 
-	it.each(
-		['onboard_learners_invite', 'onboard_learners_csv', 'live_class_zoom'].map(
-			(id) => ({ id })
-		)
-	)('$id opens the new batch form', ({ id }) => {
-		const nav = fakeNav()
-		click(id, 'create_first_batch', nav)
-		expect(nav.openForm).toHaveBeenCalledWith({ name: 'NewBatch' })
-	})
+	it.each(['live_class_zoom', 'live_class_meet'].map((id) => ({ id })))(
+		'$id opens the new batch form',
+		({ id }) => {
+			const nav = fakeNav()
+			click(id, 'create_first_batch', nav)
+			expect(nav.openForm).toHaveBeenCalledWith({ name: 'NewBatch' })
+		}
+	)
 
 	it.each([
-		{
-			id: 'onboard_learners_csv',
-			name: 'add_batch_course',
-			form: 'NewBatchCourse',
-			hash: '#settings',
-		},
 		{
 			id: 'live_class_meet',
 			name: 'schedule_live_class',

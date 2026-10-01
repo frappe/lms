@@ -157,7 +157,6 @@ describe('PersonaForm', () => {
 
 	it.each([
 		{ value: 'Publish my first course', flow: 'publish_course' },
-		// The learner source is unknown here, so the card opens on its question.
 		{ value: 'Onboard my existing learners', flow: 'onboard_learners' },
 	])('choosing $value opens the $flow card', async ({ value, flow }) => {
 		const wrapper = mountForm()

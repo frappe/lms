@@ -217,7 +217,7 @@ const addMember = async () => {
 
 		await assignRoles(created.name)
 
-		completeStep('invite_students')
+		completeStep('add_learner')
 		capture('user_added')
 		toast.success(__('Member added successfully'))
 		reloadMembers()

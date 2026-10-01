@@ -258,6 +258,10 @@ const flowNavigation = {
 		minimize.value = true
 		pushSettingsHash(router, slug)
 	},
+	openExternal: (url) => {
+		minimize.value = true
+		openExternal(url)
+	},
 }
 
 const setUpOnboarding = () => {

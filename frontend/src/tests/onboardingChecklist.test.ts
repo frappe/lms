@@ -78,6 +78,7 @@ beforeEach(() => {
 		openRoute: vi.fn(),
 		openForm: vi.fn(),
 		openSettings: vi.fn(),
+		openExternal: vi.fn(),
 		complete: vi.fn(),
 	})
 	state.status = {

@@ -83,7 +83,12 @@ vi.mock('@framework/ui/components/Onboarding/index', async () => {
 })
 
 const USER = 'admin@example.com'
-const nav = { openRoute: vi.fn(), openForm: vi.fn(), openSettings: vi.fn() }
+const nav = {
+	openRoute: vi.fn(),
+	openForm: vi.fn(),
+	openSettings: vi.fn(),
+	openExternal: vi.fn(),
+}
 
 async function setUp() {
 	vi.resetModules()
@@ -187,8 +192,8 @@ describe('list screen', () => {
 		const rows = w.findAll('[data-testid="flow-row"]')
 		expect(rows.map((r) => r.text())).toEqual([
 			'Publish my first course0/6',
-			'Onboard my existing learners',
-			'Run my first live class0/4',
+			'Onboard my existing learners0/3',
+			'Start a live class0/4',
 		])
 		expect(w.html()).toContain('title="Bring your learners into a batch."')
 	})
@@ -243,6 +248,24 @@ describe('list screen', () => {
 		expect(button(w, 'Reset all')).toBeUndefined()
 	})
 
+	it('opens the learners card on its three steps with no question', async () => {
+		const { o, w } = await setUp()
+		await w.findAll('[data-testid="flow-row"]')[1].trigger('click')
+		expect(o.screen.value).toBe('flow')
+		expect(hero(w)).toEqual({
+			title: 'Onboard my existing learners',
+			count: '0/3 steps completed',
+		})
+		expect(w.findAll('[data-testid="step-open"]').map((t) => t.text())).toEqual(
+			[
+				'Import learners in bulk',
+				'Add a learner by email',
+				'Invite learners by email',
+			]
+		)
+		expect(w.find('[data-testid="answer-switch"]').exists()).toBe(false)
+	})
+
 	it('opens a card without a question on its checklist', async () => {
 		const { o, w } = await setUp()
 		await w.findAll('[data-testid="flow-row"]')[0].trigger('click')
@@ -260,7 +283,7 @@ describe('question screen', () => {
 		const { w } = await setUp()
 		await w.findAll('[data-testid="flow-row"]')[2].trigger('click')
 		expect(hero(w)).toEqual({
-			title: 'Run my first live class',
+			title: 'Start a live class',
 			count: 'Which meeting tool do you use?',
 		})
 		expect(w.find('.badge').exists()).toBe(false)
@@ -294,16 +317,16 @@ describe('question screen', () => {
 
 	it('switching the answer switches the checklist', async () => {
 		const { o, w } = await setUp()
-		o.answer('onboard_learners', 'csv')
+		o.answer('live_class', 'zoom')
 		await flushPromises()
 		await w
 			.find('[data-testid="answer-switch"]')
 			.findAll('.option')
-			.find((x) => x.text() === 'Invite by email')!
+			.find((x) => x.text() === 'Google Meet')!
 			.trigger('click')
 		await flushPromises()
-		expect(o.openFlow.value?.key).toBe('learning_onboard_learners_invite')
-		expect(w.text()).toContain('Invite learners by email')
+		expect(o.openFlow.value?.key).toBe('learning_live_class_meet')
+		expect(w.text()).toContain('Connect Google Calendar')
 	})
 })
 
