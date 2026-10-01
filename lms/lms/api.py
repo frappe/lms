@@ -996,8 +996,11 @@ def delete_lesson(lesson: str, chapter: str):
 
 
 @frappe.whitelist()
-def create_lesson(chapter: str) -> str:
-	"""Create a draft "Untitled lesson" appended to the chapter, atomically via add_lesson() (inserts the Course Lesson + its Lesson Reference in one request that rolls back together; returns the new docname)."""
+def create_lesson(chapter: str, title: str | None = None) -> str:
+	"""Append a lesson to the chapter, titled `title` or "Untitled lesson", atomically via add_lesson() (inserts the Course Lesson + its Lesson Reference in one request that rolls back together; returns the new docname)."""
+	if not isinstance(chapter, str):
+		frappe.throw(_("Chapter must be a string."))
+	title = _clean_lesson_title(title)
 	course = frappe.db.get_value("Course Chapter", chapter, "course")
 	if not course:
 		frappe.throw(_("Invalid chapter."))
@@ -1005,7 +1008,30 @@ def create_lesson(chapter: str) -> str:
 		frappe.throw(_("You do not have permission to add a lesson."), frappe.PermissionError)
 
 	idx = frappe.db.count("Lesson Reference", {"parent": chapter}) + 1
-	return add_lesson(_("Untitled lesson"), chapter, course, idx)
+	return add_lesson(title or _("Untitled lesson"), chapter, course, idx)
+
+
+def _clean_lesson_title(title: str | None) -> str | None:
+	if title is None:
+		return None
+	if not isinstance(title, str):
+		frappe.throw(_("Lesson title must be a string."))
+	title = title.strip()
+	if not title:
+		frappe.throw(_("Lesson title cannot be empty."))
+	max_length = _new_lesson_title_max_length()
+	if len(title) > max_length:
+		frappe.throw(_("Lesson title cannot be longer than {0} characters.").format(max_length))
+	return title
+
+
+def _new_lesson_title_max_length() -> int:
+	"""Course Lesson autonames "{####} {title}" into a 140-character name column, so the
+	title gets whatever the next number of the shared "" series leaves."""
+	series = frappe.qb.DocType("Series")
+	current = frappe.qb.from_(series).select(series.current).where(series.name == "").run()
+	next_number = cint(current[0][0]) + 1 if current else 1
+	return 140 - len(f"{next_number:04d} ")
 
 
 @frappe.whitelist()
