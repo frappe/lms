@@ -34,8 +34,6 @@ vi.mock('@/onboarding/useLearningOnboarding', async () => {
 			nextCard: () => null,
 			cardProgress: () => null,
 			nextStep: () => null,
-			justCompleted: { value: null },
-			dismissCompleted: () => {},
 		}),
 	}
 })

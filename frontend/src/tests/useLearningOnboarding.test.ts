@@ -903,60 +903,6 @@ describe('staying open and moving on', () => {
 		finish('publish_course')
 		expect(o.nextStep('publish_course')).toBeNull()
 	})
-
-	it('remembers the step just ticked in the open flow', async () => {
-		const o = await ready()
-		o.openCardScreen('publish_course')
-		o.toggleStep('publish_course', 'create_first_course')
-		expect(o.justCompleted.value).toEqual({
-			flow: 'publish_course',
-			step: 'create_first_course',
-		})
-	})
-
-	it('remembers a step a form or a fact completed in the open flow', async () => {
-		const o = await ready()
-		o.openCardScreen('publish_course')
-		o.completeStep('create_first_course')
-		expect(o.justCompleted.value?.step).toBe('create_first_course')
-		o.applyFacts({ has_chapter: true })
-		expect(o.justCompleted.value?.step).toBe('create_first_chapter')
-	})
-
-	it('a step another flow owns does not replace it', async () => {
-		const o = await ready()
-		o.openCardScreen('publish_course')
-		o.toggleStep('publish_course', 'create_first_course')
-		o.completeStep('add_learner')
-		expect(o.justCompleted.value?.step).toBe('create_first_course')
-	})
-
-	it('clears once dismissed, undone or reset', async () => {
-		const o = await ready()
-		o.openCardScreen('publish_course')
-		o.toggleStep('publish_course', 'create_first_course')
-		o.dismissCompleted()
-		expect(o.justCompleted.value).toBeNull()
-
-		o.toggleStep('publish_course', 'add_quiz')
-		o.undoStep('publish_course', 'add_quiz')
-		expect(o.justCompleted.value).toBeNull()
-
-		o.toggleStep('publish_course', 'add_quiz')
-		o.resetFlow('publish_course')
-		expect(o.justCompleted.value).toBeNull()
-	})
-
-	it('is not persisted', async () => {
-		const o = await ready()
-		o.openCardScreen('publish_course')
-		o.toggleStep('publish_course', 'create_first_course')
-		await nextTick()
-		const keys = Object.keys(localStorage)
-		expect(
-			keys.some((k) => /completed/i.test(k) && k.includes('learning'))
-		).toBe(false)
-	})
 })
 
 describe('help centre', () => {

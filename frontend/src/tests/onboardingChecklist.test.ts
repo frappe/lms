@@ -21,7 +21,6 @@ const { state, actions } = vi.hoisted(() => ({
 		next: null as unknown,
 		nextProgress: null as unknown,
 		nextStepName: null as string | null,
-		justCompleted: null as { flow: string; step: string } | null,
 	},
 	actions: {
 		toggleStep: vi.fn(),
@@ -32,7 +31,6 @@ const { state, actions } = vi.hoisted(() => ({
 		resetFlow: vi.fn(),
 		answer: vi.fn(),
 		openCardScreen: vi.fn(),
-		dismissCompleted: vi.fn(),
 	},
 }))
 
@@ -50,11 +48,6 @@ vi.mock('@/onboarding/useLearningOnboarding', () => ({
 		cardProgress: () => state.nextProgress,
 		nextStep: () =>
 			state.steps.find((step) => step.name === state.nextStepName) ?? null,
-		justCompleted: {
-			get value() {
-				return state.justCompleted
-			},
-		},
 	}),
 }))
 
@@ -106,7 +99,6 @@ beforeEach(() => {
 	state.next = null
 	state.nextProgress = null
 	state.nextStepName = 'connect_google_calendar'
-	state.justCompleted = null
 })
 
 function mountFlow() {
@@ -340,54 +332,6 @@ describe('step action buttons', () => {
 		const skip = row.findAll('button').find((b) => b.text() === 'Skip')!
 		expect(skip.classes()).toContain('invisible')
 		expect(skip.classes()).not.toContain('hidden')
-	})
-})
-
-describe('after a step is completed', () => {
-	it('confirms it and offers the next step', async () => {
-		state.justCompleted = {
-			flow: 'live_class_meet',
-			step: 'create_first_batch',
-		}
-		const w = mountFlow()
-		const done = w.find('[data-testid="step-done"]')
-		expect(done.text()).toContain('Create a batch done')
-		const next = done
-			.findAll('button')
-			.find((b) => b.text().startsWith('Next:'))!
-		expect(next.text()).toBe('Next: Connect Google Calendar')
-		await next.trigger('click')
-		expect(actions.startStep).toHaveBeenCalledWith(
-			'live_class_meet',
-			'connect_google_calendar'
-		)
-		expect(actions.dismissCompleted).toHaveBeenCalled()
-	})
-
-	it('ignores a step completed in another flow', () => {
-		state.justCompleted = { flow: 'publish_course', step: 'add_quiz' }
-		expect(mountFlow().find('[data-testid="step-done"]').exists()).toBe(false)
-	})
-
-	it('offers the next flow once no step is left', async () => {
-		state.complete = true
-		state.nextStepName = null
-		state.next = getCard('onboard_learners')
-		state.justCompleted = { flow: 'live_class_meet', step: 'publish_batch' }
-		const done = mountFlow().find('[data-testid="step-done"]')
-		const tryIt = done.findAll('button').find((b) => b.text() === 'Try it')!
-		await tryIt.trigger('click')
-		expect(actions.openCardScreen).toHaveBeenCalledWith('onboard_learners')
-		expect(actions.dismissCompleted).toHaveBeenCalled()
-	})
-
-	it('offers nothing more when every flow is done', () => {
-		state.complete = true
-		state.nextStepName = null
-		state.justCompleted = { flow: 'live_class_meet', step: 'publish_batch' }
-		const done = mountFlow().find('[data-testid="step-done"]')
-		expect(done.text()).toContain('Publish the batch done')
-		expect(done.findAll('button').map((b) => b.text())).not.toContain('Try it')
 	})
 })
 

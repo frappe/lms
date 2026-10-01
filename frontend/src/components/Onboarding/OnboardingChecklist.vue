@@ -25,38 +25,6 @@
 			</div>
 		</div>
 
-		<div
-			v-if="completedStep"
-			class="flex items-center justify-between gap-2 rounded-4 px-2 py-1.5"
-			data-testid="step-done"
-		>
-			<div class="flex min-w-0 items-center gap-2">
-				<LucideCircleCheck
-					class="size-4 shrink-0 text-ink-green-7"
-					aria-hidden="true"
-				/>
-				<span class="truncate text-base text-ink-gray-8">
-					{{ doneLabel(completedStep) }}
-				</span>
-			</div>
-			<Button
-				v-if="upcoming"
-				variant="ghost"
-				size="sm"
-				class="min-w-0 max-w-[60%] shrink"
-				@click="runUpcoming"
-			>
-				<span class="block truncate">{{ nextLabel(upcoming) }}</span>
-			</Button>
-			<Button
-				v-else-if="next"
-				variant="ghost"
-				size="sm"
-				:label="nextStarted ? text.continue : text.tryIt"
-				@click="openNextCard"
-			/>
-		</div>
-
 		<Dropdown
 			v-if="card.question && currentOption"
 			:options="answerOptions"
@@ -213,8 +181,6 @@ const {
 	answer,
 	openCardScreen,
 	nextStep,
-	justCompleted,
-	dismissCompleted,
 } = useLearningOnboarding()
 
 const text = {
@@ -272,13 +238,6 @@ const nextStarted = computed<boolean>(() =>
 	Boolean(next.value && (cardProgress(next.value)?.resolved ?? 0) > 0)
 )
 
-/** The step a form, fact or tick just completed in this flow, if any. */
-const completedStep = computed<FlowStep | null>(() => {
-	const last = justCompleted.value
-	if (!last || last.flow !== props.flow.id) return null
-	return steps.value.find((step) => step.name === last.step) ?? null
-})
-
 const upcoming = computed<FlowStep | null>(() => nextStep(props.flow.id))
 
 function isNext(step: FlowStep): boolean {
@@ -289,22 +248,7 @@ function actionLabel(step: FlowStep): string {
 	return statusOf(step) === 'skipped' ? text.doIt : step.actionLabel
 }
 
-function doneLabel(step: FlowStep): string {
-	return __('{0} done').format(step.title ?? '')
-}
-
-function nextLabel(step: FlowStep): string {
-	return __('Next: {0}').format(step.title ?? '')
-}
-
-function runUpcoming(): void {
-	const step = upcoming.value
-	dismissCompleted()
-	if (step) startStep(props.flow.id, step.name)
-}
-
 function openNextCard(): void {
-	dismissCompleted()
 	if (next.value) openCardScreen(next.value.id)
 }
 

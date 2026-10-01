@@ -47,8 +47,6 @@ const requestedScreen = ref<Screen>('list')
 // Where the help centre returns to.
 let screenBeforeHelp: Screen = 'list'
 const openCardId = ref<CardId | null>(null)
-// The step just completed in the open flow, for the "done, next" line.
-const justCompleted = ref<{ flow: FlowId; step: string } | null>(null)
 
 function sessionUser(): string {
 	const cookies = new URLSearchParams(document.cookie.split('; ').join('&'))
@@ -173,12 +171,6 @@ function nextStep(id: FlowId): FlowStep | null {
 	)
 }
 
-// Only the open flow's steps get the confirmation line; a form or fact ticking
-// another flow's step should not replace what the admin is looking at.
-function noteCompleted(id: FlowId, step: string): void {
-	if (openFlow.value?.id === id) justCompleted.value = { flow: id, step }
-}
-
 // Un-minimising on a tick is ours, not the admin reopening the panel, so it
 // must not trigger another facts fetch through the minimise watcher.
 let selfUnminimised = false
@@ -188,16 +180,6 @@ function showProgress(): void {
 	if (!minimize.value) return
 	selfUnminimised = watchingReturns
 	minimize.value = false
-}
-
-function dismissCompleted(): void {
-	justCompleted.value = null
-}
-
-function forget(id: FlowId, step?: string): void {
-	const last = justCompleted.value
-	if (last?.flow === id && (!step || last.step === step))
-		justCompleted.value = null
 }
 
 function stepStatus(id: FlowId, step: FlowStep): StepStatus {
@@ -305,7 +287,6 @@ function completeStep(step: string, targets: FlowTargets = {}): void {
 	for (const flow of owners) {
 		setSkipped(flow, step, false)
 		handles[flow.id]?.updateOnboardingStep(step)
-		noteCompleted(flow.id, step)
 	}
 	// Bring the panel back so the admin sees the tick and what is next.
 	if (owners.length) showProgress()
@@ -324,7 +305,6 @@ function applyFacts(next: Partial<OnboardingFacts>): void {
 			if (isSkipped(flow, step.name)) setSkipped(flow, step.name, false)
 			if (step.completed) continue
 			handles[flow.id]?.updateOnboardingStep(step.name)
-			noteCompleted(flow.id, step.name)
 			ticked = true
 		}
 	}
@@ -335,10 +315,7 @@ function toggleStep(id: FlowId, name: string): void {
 	const flow = getFlow(id)
 	const step = stepsOf(id).find((s) => s.name === name)
 	if (!flow || !step || blocker(id, step)) return
-	if (!step.completed) {
-		handles[id]?.updateOnboardingStep(name, true)
-		return noteCompleted(id, name)
-	}
+	if (!step.completed) return handles[id]?.updateOnboardingStep(name, true)
 	if (isSkipped(flow, name)) return setSkipped(flow, name, false)
 	undoStep(id, name)
 }
@@ -354,7 +331,6 @@ function undoStep(id: FlowId, name: string): void {
 	const flow = getFlow(id)
 	if (!flow) return
 	setSkipped(flow, name, false)
-	forget(id, name)
 	reopen(flow)?.reset(name)
 }
 
@@ -386,7 +362,6 @@ function resetFlow(id: FlowId): void {
 	const flow = getFlow(id)
 	if (!flow) return
 	reopen(flow)?.resetAll()
-	forget(id)
 	storage().skipped.value = Object.fromEntries(
 		Object.entries(storage().skipped.value).filter(([key]) => key !== flow.key)
 	)
@@ -398,7 +373,6 @@ function resetEverything(): void {
 	storage().answers.value = {}
 	storage().skipped.value = {}
 	storage().activeCard.value = null
-	justCompleted.value = null
 	openCardId.value = null
 	requestedScreen.value = 'list'
 }
@@ -556,8 +530,6 @@ export function useLearningOnboarding() {
 		stepsOf,
 		stepStatus,
 		nextStep,
-		justCompleted,
-		dismissCompleted,
 		blocker,
 		flowProgress,
 		cardProgress,
