@@ -59,7 +59,7 @@ class LMSBatch(Document):
 
 	def on_update(self):
 		if self.has_value_changed("published") and self.published:
-			frappe.enqueue(send_notification_for_published_batch, batch=self)
+			frappe.enqueue(send_notification_for_published_batch, batch=self, enqueue_after_commit=True)
 
 	def on_trash(self):
 		"""Child tables (instructors, courses, timetable, legends) go with the batch itself."""
