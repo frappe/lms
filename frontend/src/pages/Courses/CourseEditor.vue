@@ -109,7 +109,12 @@ const props = defineProps({
 	course: { type: Object, required: true },
 })
 
-const selected = defineModel('selected', { default: null })
+// The parent binds the open lesson with v-model, and a model assigned here
+// reads back its old value until the parent re-renders. Work on a local ref
+// that mirrors into the model, so code reading it right after a write sees it.
+const selectedModel = defineModel('selected', { default: null })
+const selected = ref(selectedModel.value)
+watch(selected, (value) => (selectedModel.value = value), { flush: 'sync' })
 const route = useRoute()
 const router = useRouter()
 const { isMobile } = useScreenSize()
