@@ -17,13 +17,13 @@
 							<div class="font-semibold">
 								{{ student?.member_name }}
 							</div>
-							<div class="text-ink-gray-5">
+							<div class="text-ink-gray-6">
 								{{ student.member }}
 							</div>
 						</div>
 					</div>
 					<div class="w-25 space-y-2">
-						<div class="text-ink-gray-5 text-sm">
+						<div class="text-ink-gray-6 text-sm">
 							{{ Math.round(student.progress) }}% {{ __('completed') }}
 						</div>
 						<ProgressBar
@@ -38,7 +38,7 @@
 						v-if="lessons.data"
 						class="border border-outline-elevation-2 rounded-6 px-3 max-h-[60vh] overflow-y-auto"
 					>
-						<div class="sticky top-0 z-10 bg-surface-base py-3 text-ink-gray-5">
+						<div class="sticky top-0 z-10 bg-surface-base py-3 text-ink-gray-6">
 							{{ __('Lesson Progress') }}
 						</div>
 						<ul class="list-none">
@@ -76,7 +76,7 @@
 							v-if="assessmentProgress.data?.quizzes?.length"
 							class="border border-outline-elevation-2 rounded-6 px-3 pt-3 h-fit"
 						>
-							<div class="grid grid-cols-4 gap-5 text-ink-gray-5 mb-5">
+							<div class="grid grid-cols-4 gap-5 text-ink-gray-6 mb-5">
 								<div class="col-span-2">
 									{{ __('Quiz Progress') }}
 								</div>
@@ -107,7 +107,7 @@
 							class="border border-outline-elevation-2 rounded-6 px-3 pt-3 h-fit"
 						>
 							<div>
-								<div class="text-ink-gray-5 mb-5">
+								<div class="text-ink-gray-6 mb-5">
 									{{ __('Assignment Progress') }}
 								</div>
 							</div>
@@ -133,7 +133,7 @@
 							class="border border-outline-elevation-2 rounded-6 px-3 pt-3 h-fit"
 						>
 							<div>
-								<div class="text-ink-gray-5 mb-5">
+								<div class="text-ink-gray-6 mb-5">
 									{{ __('Programming Exercise Progress') }}
 								</div>
 							</div>

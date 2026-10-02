@@ -20,7 +20,7 @@
 					:aria-label="__('Livecode URL')"
 					@update:model-value="(value: string) => setLmsField('livecode_url', value)"
 				/>
-				<div class="text-p-sm text-ink-gray-5 mt-1">
+				<div class="text-p-sm text-ink-gray-6 mt-1">
 					{{
 						__(
 							"Address of the LiveCode server that runs the code learners write in programming exercises. Leave it blank to use Frappe's hosted server, or see https://docs.frappe.io/learning/falcon-self-hosting-guide to host your own."
@@ -40,7 +40,7 @@
 						(value: string) => setLmsField('unsplash_access_key', value)
 					"
 				/>
-				<div class="text-p-sm text-ink-gray-5 mt-1">
+				<div class="text-p-sm text-ink-gray-6 mt-1">
 					{{
 						__(
 							'Allows users to pick a profile cover image from Unsplash. https://unsplash.com/documentation#getting-started.'
@@ -60,7 +60,7 @@
 						<div class="text-p-base-medium text-ink-gray-7">
 							{{ __('Enable') }}
 						</div>
-						<div class="text-p-sm text-ink-gray-5">
+						<div class="text-p-sm text-ink-gray-6">
 							{{ __('Turns on Google API access for this site.') }}
 						</div>
 					</div>

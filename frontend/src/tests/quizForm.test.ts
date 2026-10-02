@@ -662,6 +662,17 @@ beforeEach(() => {
 	vi.mocked(toast.dismiss).mockClear()
 })
 
+describe('QuizForm: page heading', () => {
+	// Guards: QuizForm had no h1. Introduced in #2662; test added with the a11y
+	// audit remediation.
+	it('names an existing quiz with one sr-only h1', async () => {
+		const { host } = await mountForm()
+		const headings = host.findAll('h1')
+		expect(headings.map((h1) => h1.text())).toEqual(['Saved title'])
+		expect(headings[0].classes()).toContain('sr-only')
+	})
+})
+
 // frappe-ui's setValue.onError restores the doc by REPLACING the object
 // (documentResource.js:58), tripping the deep watcher, so the failed tick
 // re-arms every 1.2s. A mock leaving doc alone would pass with no guard at all.

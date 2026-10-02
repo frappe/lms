@@ -92,7 +92,7 @@
 						<h2 class="text-3xl-semibold text-ink-gray-9">
 							{{ __('Course content') }}
 						</h2>
-						<div class="text-base text-ink-gray-5">
+						<div class="text-base text-ink-gray-6">
 							{{ outlineStats }}
 						</div>
 					</div>
@@ -106,7 +106,7 @@
 							v-else-if="!hasCourseContent"
 							class="flex items-center justify-center px-4 py-10 text-center"
 						>
-							<span class="text-sm text-ink-gray-5">
+							<span class="text-sm text-ink-gray-6">
 								{{ __('Course content coming soon!') }}
 							</span>
 						</div>

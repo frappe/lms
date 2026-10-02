@@ -119,7 +119,7 @@
 					ref="progressSummary"
 					class="border rounded-6 p-4"
 				>
-					<div class="text-ink-gray-5 mb-4">
+					<div class="text-ink-gray-6 mb-4">
 						{{ __('Progress Summary') }}
 					</div>
 					<div
@@ -161,7 +161,7 @@
 					class="border rounded-6 pt-4 px-4"
 				>
 					<div class="flex items-center justify-between mb-4">
-						<div class="text-ink-gray-5">
+						<div class="text-ink-gray-6">
 							{{ __('Lesson Completion') }}
 						</div>
 						<Select
@@ -171,6 +171,7 @@
 									value != null && updateLessonProgress(String(value))
 							"
 							:placeholder="__('Sort by')"
+							:aria-label="__('Sort by')"
 							class="!w-32"
 						/>
 					</div>

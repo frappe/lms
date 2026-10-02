@@ -17,7 +17,7 @@
 				<div class="space-y-0.5 text-sm">
 					<div class="text-ink-gray-9 font-medium break-all leading-5">
 						{{ filename }}
-						<span class="ms-2 text-ink-gray-5 font-normal">
+						<span class="ms-2 text-ink-gray-6 font-normal">
 							{{ metaLabel }}
 						</span>
 					</div>
@@ -49,7 +49,7 @@
 						{{ __('Remove') }}
 					</Button>
 				</div>
-				<p class="text-p-xs text-ink-gray-5">
+				<p class="text-p-xs text-ink-gray-6">
 					{{ __('Remove the image to pick a color instead.') }}
 				</p>
 			</div>
@@ -78,7 +78,7 @@
 					>
 						<span
 							v-if="!doc?.card_gradient"
-							class="flex flex-col items-center gap-1 text-ink-gray-5"
+							class="flex flex-col items-center gap-1 text-ink-gray-6"
 						>
 							<span class="lucide-image size-5" aria-hidden="true" />
 							<span class="text-xs">{{ __('No thumbnail') }}</span>
@@ -88,7 +88,7 @@
 
 				<div class="min-w-0 space-y-3 sm:flex-1">
 					<div class="space-y-2">
-						<div class="text-xs text-ink-gray-5">
+						<div class="text-xs text-ink-gray-6">
 							{{ __('Color') }}
 						</div>
 						<div class="flex items-center gap-2 flex-wrap">
@@ -115,7 +115,7 @@
 							</template>
 							{{ uploading ? __('Uploading') : __('Upload image instead') }}
 						</Button>
-						<p class="text-p-xs text-ink-gray-5">
+						<p class="text-p-xs text-ink-gray-6">
 							{{ __('Upload an image to replace the color.') }}
 						</p>
 					</div>

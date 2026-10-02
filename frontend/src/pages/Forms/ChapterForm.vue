@@ -62,8 +62,13 @@
 							type="button"
 							:aria-label="__('Remove file')"
 							@click="() => (chapter.scorm_package = null)"
-							class="lucide-x bg-surface-gray-3 rounded-5 cursor-pointer w-5 h-5 p-1 ms-4 shrink-0"
-						/>
+							class="-m-0.5 ms-3.5 size-6 shrink-0 cursor-pointer p-0.5"
+						>
+							<span
+								class="lucide-x bg-surface-gray-3 rounded-5 w-5 h-5 p-1"
+								aria-hidden="true"
+							/>
+						</button>
 					</div>
 				</div>
 			</div>

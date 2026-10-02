@@ -125,6 +125,11 @@ body .codex-editor ::-moz-selection {
 	outline: none !important;
 }
 
+.codeBoxTextArea:focus-visible,
+.codeBoxSelectInput:focus-visible {
+	outline: 2px solid var(--outline-gray-5) !important;
+}
+
 .codeBoxSelectDropIcon {
 	position: absolute !important;
 	inset-inline-start: 10px !important;
@@ -190,7 +195,7 @@ iframe {
    per-rule overrides. */
 .tc-wrap {
 	--color-background: var(--surface-gray-2);
-	--color-text-secondary: var(--ink-gray-5);
+	--color-text-secondary: var(--ink-gray-6);
 	--color-border: var(--outline-gray-2);
 }
 
@@ -225,7 +230,7 @@ iframe {
 .ce-popover {
 	--color-background: var(--surface-base);
 	--color-text-primary: var(--ink-gray-9);
-	--color-text-secondary: var(--ink-gray-5);
+	--color-text-secondary: var(--ink-gray-6);
 	--color-border: var(--outline-gray-2);
 	--color-border-icon: var(--outline-gray-2);
 	--color-border-icon-disabled: var(--outline-gray-1);
@@ -239,7 +244,7 @@ iframe {
 	background: var(--surface-base);
 }
 .ce-popover__nothing-found-message {
-	color: var(--ink-gray-5);
+	color: var(--ink-gray-6);
 }
 
 .ce-popover__container {

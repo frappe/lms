@@ -96,7 +96,7 @@
 						color="gray-7"
 						class="font-medium leading-normal"
 					/>
-					<div class="text-p-sm text-ink-gray-5">
+					<div class="text-p-sm text-ink-gray-6">
 						{{ __('The user this payment is recorded against.') }}
 					</div>
 				</div>
@@ -123,7 +123,7 @@
 						color="gray-7"
 						class="font-medium leading-normal"
 					/>
-					<div class="text-p-sm text-ink-gray-5">
+					<div class="text-p-sm text-ink-gray-6">
 						{{ __('What this payment paid for.') }}
 					</div>
 				</div>
@@ -149,7 +149,7 @@
 						color="gray-7"
 						class="font-medium leading-normal"
 					/>
-					<div class="text-p-sm text-ink-gray-5">
+					<div class="text-p-sm text-ink-gray-6">
 						{{ __('The currency the amount above is in.') }}
 					</div>
 				</div>
@@ -175,7 +175,7 @@
 						color="gray-7"
 						class="font-medium leading-normal"
 					/>
-					<div class="text-p-sm text-ink-gray-5">
+					<div class="text-p-sm text-ink-gray-6">
 						{{ __('Where the learner came from.') }}
 					</div>
 				</div>
@@ -201,7 +201,7 @@
 						color="gray-7"
 						class="font-medium leading-normal"
 					/>
-					<div class="text-p-sm text-ink-gray-5">
+					<div class="text-p-sm text-ink-gray-6">
 						{{ __('The address this payment is billed to.') }}
 					</div>
 				</div>
@@ -230,7 +230,7 @@
 						color="gray-7"
 						class="font-medium leading-normal"
 					/>
-					<div class="text-p-sm text-ink-gray-5">
+					<div class="text-p-sm text-ink-gray-6">
 						{{ __('The coupon this payment was discounted by.') }}
 					</div>
 				</div>
@@ -250,7 +250,7 @@
 						<div class="text-p-base-medium text-ink-gray-7">
 							{{ __('Coupon Code') }}
 						</div>
-						<div class="text-p-sm text-ink-gray-5">
+						<div class="text-p-sm text-ink-gray-6">
 							{{ __('Read from the coupon above every time this is saved.') }}
 						</div>
 					</div>

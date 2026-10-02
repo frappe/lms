@@ -19,7 +19,11 @@
 			/>
 			<EditorContent
 				:id="id"
-				:class="editorClass"
+				:class="[
+					editorClass,
+					'focus-visible:ring-2 focus-visible:ring-outline-gray-5',
+				]"
+				:aria-label="ariaLabel"
 				:aria-labelledby="ariaLabelledby"
 				:aria-required="
 					ariaRequired === undefined ? undefined : String(ariaRequired)
@@ -79,6 +83,7 @@ const props = withDefaults(
 			'private' | 'folder' | 'doctype' | 'docname' | 'fieldname'
 		>
 		id?: string
+		ariaLabel?: string
 		ariaLabelledby?: string
 		ariaRequired?: boolean
 		ariaInvalid?: boolean
@@ -93,6 +98,7 @@ const props = withDefaults(
 		mentions: null,
 		uploadArgs: undefined,
 		id: undefined,
+		ariaLabel: undefined,
 		ariaLabelledby: undefined,
 		ariaRequired: undefined,
 		ariaInvalid: undefined,

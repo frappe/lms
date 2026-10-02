@@ -55,6 +55,21 @@ describe('UserAvatar indicator', () => {
 		expect(html).toContain('text-white')
 	})
 
+	// Guards: open-to-work and hiring told apart by colour alone. Introduced in
+	// #2468; test added with the a11y audit remediation.
+	it.each([
+		['Work', 'Open to Work', 'lucide-badge-check'],
+		['Hiring', 'Hiring', 'lucide-briefcase'],
+	])(
+		'names the %s chip in text and shape, not colour',
+		(openTo, label, icon) => {
+			const wrapper = indicator(openTo)
+
+			expect(wrapper.get('.sr-only').text()).toBe(label)
+			expect(wrapper.get(`.${icon}`).attributes('aria-hidden')).toBe('true')
+		}
+	)
+
 	it('uses no raw palette colour and no base ink on a tint', () => {
 		const html = indicator('Work').html() + indicator('Hiring').html()
 

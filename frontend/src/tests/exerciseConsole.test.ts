@@ -111,3 +111,22 @@ describe('ExerciseConsole', () => {
 		wrapper.unmount()
 	})
 })
+
+describe('ExerciseConsole announcements', () => {
+	// Guards: code runs not announced. Introduced in #2823; test added with the
+	// a11y audit remediation.
+	it('announces the run through a status region that survives collapsing', async () => {
+		const wrapper = mount(ExerciseConsole, {
+			props: { lines: [], duration: null, running: true },
+			global: { mocks: { __: translate } },
+		})
+		const status = wrapper.get('[role="status"]')
+		expect(status.text()).toBe('Running your code…')
+
+		await wrapper.get('[data-testid="console-toggle"]').trigger('click')
+		await wrapper.setProps({ running: false, duration: 0.42 })
+
+		expect(wrapper.get('[role="status"]').element).toBe(status.element)
+		expect(status.text()).toBe('Ran in 0.42s')
+	})
+})
