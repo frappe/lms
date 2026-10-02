@@ -41,7 +41,7 @@
 							:required="true"
 						/>
 					</div>
-					<div class="space-y-1.5">
+					<div class="mb-4 space-y-1.5">
 						<InputLabel
 							:id="descriptionLabelId"
 							:label="__('Description')"
@@ -52,7 +52,8 @@
 							@change="(val) => (job.description = val)"
 							:editable="true"
 							:fixedMenu="true"
-							editorClass="prose-sm max-w-none border-b border-x border-outline-elevation-2 bg-surface-gray-2 rounded-b-5 py-1 px-2 min-h-[20rem] max-h-[70vh] overflow-y-auto mb-4"
+							minHeight="20rem"
+							maxHeight="70vh"
 						/>
 					</div>
 				</div>

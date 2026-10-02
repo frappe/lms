@@ -10,7 +10,9 @@
 		:uploadArgs="{
 			private: true,
 		}"
-		editorClass="prose prose-sm min-h-[200px] max-w-none"
+		variant="ghost"
+		minHeight="200px"
+		editorClass="prose prose-sm max-w-none"
 	/>
 </template>
 <script setup lang="ts">

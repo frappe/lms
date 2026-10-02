@@ -201,7 +201,8 @@
 								@change="(val: string) => updateBatchDetails(val)"
 								:editable="true"
 								:fixedMenu="true"
-								editorClass="prose-sm max-w-none border-b border-x border-outline-gray-2 hover:border-outline-gray-3 hover:shadow-sm focus-within:border-outline-gray-4 focus-within:shadow-sm rounded-b-5 py-1 px-2 min-h-[7rem] max-h-[16rem] overflow-y-scroll transition-colors"
+								minHeight="7rem"
+								maxHeight="16rem"
 							/>
 						</div>
 					</div>

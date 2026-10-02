@@ -1,39 +1,40 @@
 <template>
-	<Editor
-		ref="editorRef"
-		v-model="html"
-		:extensions="extensions"
-		:editable="editable"
-		:placeholder="placeholder"
-		:upload-function="uploadFile"
-		format="html"
-		@focus="hasFocus = true"
-		@blur="onBlur"
-	>
-		<template #default>
-			<EditorFixedMenu
-				v-if="fixedMenu"
-				class="w-full flex-wrap rounded-t-5 border border-outline-elevation-2 p-1"
-				:class="menuClass"
-				:items="toolbar"
-			/>
-			<EditorContent
-				:id="id"
-				:class="editorClass"
-				:aria-labelledby="ariaLabelledby"
-				:aria-required="
-					ariaRequired === undefined ? undefined : String(ariaRequired)
-				"
-				:aria-invalid="
-					ariaInvalid === undefined ? undefined : String(ariaInvalid)
-				"
-			/>
-		</template>
-	</Editor>
+	<div data-testid="rich-text-editor" :class="boxClasses">
+		<Editor
+			ref="editorRef"
+			v-model="html"
+			:extensions="extensions"
+			:editable="editable"
+			:placeholder="placeholder"
+			:upload-function="uploadFile"
+			format="html"
+			@focus="hasFocus = true"
+			@blur="onBlur"
+		>
+			<template #default>
+				<EditorFixedMenu
+					v-if="fixedMenu"
+					:class="toolbarClasses"
+					:items="toolbar"
+				/>
+				<EditorContent
+					:id="id"
+					:class="[editorClass, contentClasses]"
+					:aria-labelledby="ariaLabelledby"
+					:aria-required="
+						ariaRequired === undefined ? undefined : String(ariaRequired)
+					"
+					:aria-invalid="
+						ariaInvalid === undefined ? undefined : String(ariaInvalid)
+					"
+				/>
+			</template>
+		</Editor>
+	</div>
 </template>
 
 <script setup lang="ts">
-import { ref, useTemplateRef, watch } from 'vue'
+import { computed, ref, useTemplateRef, watch } from 'vue'
 import { useFileUpload } from 'frappe-ui'
 import type { UploadOptions } from 'frappe-ui'
 import {
@@ -64,13 +65,26 @@ import {
 	Undo,
 } from 'frappe-ui/editor'
 import type { MentionSuggestionItem, UploadFunction } from 'frappe-ui/editor'
+import {
+	boxClass,
+	contentClass,
+	toolbarClass,
+} from '@/components/richTextEditorClasses'
+import type {
+	RichTextEditorMaxHeight,
+	RichTextEditorMinHeight,
+	RichTextEditorVariant,
+} from '@/components/richTextEditorClasses'
 
 const props = withDefaults(
 	defineProps<{
 		content?: string | null
 		editable?: boolean
 		fixedMenu?: boolean
-		menuClass?: string
+		variant?: RichTextEditorVariant
+		minHeight?: RichTextEditorMinHeight | null
+		maxHeight?: RichTextEditorMaxHeight | null
+		fill?: boolean
 		editorClass?: string
 		placeholder?: string
 		mentions?: MentionSuggestionItem[] | null
@@ -87,7 +101,10 @@ const props = withDefaults(
 		content: '',
 		editable: true,
 		fixedMenu: false,
-		menuClass: '',
+		variant: 'outline',
+		minHeight: null,
+		maxHeight: null,
+		fill: false,
 		editorClass: 'prose-sm',
 		placeholder: '',
 		mentions: null,
@@ -103,6 +120,14 @@ const emit = defineEmits<{
 	change: [value: string]
 	blur: [event: FocusEvent]
 }>()
+
+const boxClasses = computed(() =>
+	boxClass(props.variant, props.ariaInvalid === true, props.fill)
+)
+const toolbarClasses = computed(() => toolbarClass(props.variant))
+const contentClasses = computed(() =>
+	contentClass(props.variant, props.minHeight, props.maxHeight, props.fill)
+)
 
 const editorRef = useTemplateRef<InstanceType<typeof Editor>>('editorRef')
 
