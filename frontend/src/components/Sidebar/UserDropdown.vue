@@ -1,21 +1,23 @@
 <template>
-	<SidebarHeader
-		:title="appName"
-		:subtitle="
-			userResource.data ? convertToTitleCase(userResource.data.full_name) : ''
-		"
-		:menuItems="userDropdownOptions"
-	>
-		<template #prefix>
-			<img
-				v-if="branding.data?.banner_image"
-				:src="safeUrl(branding.data?.banner_image.file_url)"
-				alt=""
-				class="size-full object-cover"
-			/>
-			<LMSLogo v-else class="size-full" />
-		</template>
-	</SidebarHeader>
+	<div class="py-2">
+		<SidebarHeader
+			:title="appName"
+			:subtitle="
+				userResource.data ? convertToTitleCase(userResource.data.full_name) : ''
+			"
+			:menuItems="userDropdownOptions"
+		>
+			<template #prefix>
+				<img
+					v-if="branding.data?.banner_image"
+					:src="safeUrl(branding.data?.banner_image.file_url)"
+					alt=""
+					class="size-full object-cover"
+				/>
+				<LMSLogo v-else class="size-full" />
+			</template>
+		</SidebarHeader>
+	</div>
 	<SettingsModal v-if="userResource.data?.is_moderator" />
 </template>
 
