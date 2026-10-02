@@ -12,6 +12,7 @@
 		}"
 		variant="ghost"
 		minHeight="200px"
+		editorClass="prose prose-sm max-w-none"
 	/>
 </template>
 <script setup lang="ts">
