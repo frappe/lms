@@ -31,124 +31,149 @@
 			data-testid="answer-switch"
 		>
 			<Button variant="ghost" size="sm" class="self-start">
-				{{ switchLabel }}
+				<span :class="ROW_TEXT">{{ switchLabel }}</span>
 				<template #suffix>
-					<LucideChevronDown class="size-3.5" aria-hidden="true" />
+					<LucideChevronDown class="size-4" aria-hidden="true" />
 				</template>
 			</Button>
 		</Dropdown>
 
-		<div class="flex flex-col gap-1.5 overflow-y-auto">
+		<div class="flex flex-col gap-0.5 overflow-y-auto">
 			<div
 				v-for="step in steps"
 				:key="step.name"
-				class="group flex w-full items-center justify-between gap-2 rounded-4 px-2 py-1.5 hover:bg-surface-gray-1"
+				:class="SIDEBAR_ROW"
 				data-testid="flow-step"
 			>
-				<div class="flex min-w-0 flex-1 items-center gap-2">
+				<button
+					type="button"
+					class="grid h-full shrink-0 place-items-center rounded-4 ps-2 focus-visible:ring-0 focus-visible:focus-ring disabled:cursor-not-allowed"
+					:class="
+						statusOf(step) === 'done' ? 'text-ink-green-7' : 'text-ink-gray-6'
+					"
+					:disabled="Boolean(blockerOf(step))"
+					:aria-pressed="statusOf(step) === 'done'"
+					:aria-label="toggleLabel(step)"
+					data-testid="step-toggle"
+					@click.stop="toggleStep(flow.id, step.name)"
+				>
+					<LucideCircleCheck
+						v-if="statusOf(step) === 'done'"
+						:class="SIDEBAR_ICON"
+						aria-hidden="true"
+					/>
+					<component
+						:is="step.icon"
+						v-else
+						:class="[SIDEBAR_ICON, { 'opacity-50': blockerOf(step) }]"
+						aria-hidden="true"
+					/>
+				</button>
+				<component
+					:is="blockerOf(step) ? Tooltip : 'div'"
+					:text="blockedText(step)"
+					class="flex h-full min-w-0 flex-1"
+				>
 					<button
 						type="button"
-						class="flex size-5 shrink-0 items-center justify-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-outline-gray-4 disabled:cursor-not-allowed"
-						:class="
-							statusOf(step) === 'done' ? 'text-ink-green-7' : 'text-ink-gray-7'
-						"
-						:disabled="Boolean(blockerOf(step))"
-						:aria-pressed="statusOf(step) === 'done'"
-						:aria-label="toggleLabel(step)"
-						data-testid="step-toggle"
-						@click.stop="toggleStep(flow.id, step.name)"
+						class="ms-2 text-start"
+						:class="SIDEBAR_ROW_CONTROL"
+						:aria-disabled="isResolved(step) || Boolean(blockerOf(step))"
+						@click="startStep(flow.id, step.name)"
 					>
-						<LucideCircleCheck
-							v-if="statusOf(step) === 'done'"
-							class="size-4"
-							aria-hidden="true"
-						/>
-						<component
-							:is="step.icon"
-							v-else
-							class="h-4"
-							:class="{ 'opacity-50': blockerOf(step) }"
-							aria-hidden="true"
-						/>
-					</button>
-					<component
-						:is="blockerOf(step) ? Tooltip : 'div'"
-						:text="blockedText(step)"
-						class="min-w-0 flex-1"
-					>
-						<button
-							type="button"
-							class="block w-full truncate rounded-4 text-start text-p-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-outline-gray-4"
-							:class="titleClass(step)"
-							:aria-disabled="isResolved(step) || Boolean(blockerOf(step))"
+						<span
+							class="truncate"
+							:class="[ROW_TEXT, titleClass(step)]"
 							data-testid="step-open"
-							@click="startStep(flow.id, step.name)"
 						>
 							{{ step.title }}
-						</button>
-					</component>
+						</span>
+					</button>
+				</component>
+				<div class="flex shrink-0 items-center gap-1 pe-1">
 					<span
 						v-if="statusOf(step) === 'skipped'"
-						class="shrink-0 text-p-sm text-ink-gray-5"
+						class="text-ink-gray-5"
+						:class="ROW_TEXT"
 					>
 						{{ text.skipped }}
 					</span>
-				</div>
-				<div class="flex shrink-0 items-center gap-1">
 					<Button
 						v-if="!isResolved(step) && !blockerOf(step)"
-						:label="text.skip"
-						class="!h-4 text-p-sm !text-ink-gray-6 invisible group-hover:visible group-focus-within:visible"
+						variant="ghost"
+						size="sm"
+						class="!text-ink-gray-6 invisible group-hover/sidebar-item:visible group-focus-within/sidebar-item:visible"
 						@click.stop="skipStep(flow.id, step.name)"
-					/>
+					>
+						<span :class="ROW_TEXT">{{ text.skip }}</span>
+					</Button>
 					<Button
 						v-else-if="isResolved(step)"
-						:label="text.reset"
-						class="!h-4 text-p-sm !text-ink-gray-6 invisible group-hover:visible group-focus-within:visible"
+						variant="ghost"
+						size="sm"
+						class="!text-ink-gray-6 invisible group-hover/sidebar-item:visible group-focus-within/sidebar-item:visible"
 						@click.stop="undoStep(flow.id, step.name)"
-					/>
+					>
+						<span :class="ROW_TEXT">{{ text.reset }}</span>
+					</Button>
 					<Button
 						v-if="statusOf(step) !== 'done'"
 						variant="ghost"
 						size="sm"
 						:class="isNext(step) ? '!text-ink-gray-9' : '!text-ink-gray-6'"
 						:disabled="Boolean(blockerOf(step))"
-						:label="actionLabel(step)"
 						data-testid="step-action"
 						@click.stop="startStep(flow.id, step.name)"
-					/>
+					>
+						<span :class="ROW_TEXT">{{ actionLabel(step) }}</span>
+					</Button>
 				</div>
 			</div>
 		</div>
 
 		<template v-if="complete">
-			<div v-if="next" class="flex flex-col gap-1 pt-3">
-				<span class="px-2 text-p-sm text-ink-gray-5">{{ text.tryNext }}</span>
+			<div v-if="next" class="flex flex-col gap-0.5 pt-3">
+				<span class="px-2 text-ink-gray-5" :class="ROW_TEXT">
+					{{ text.tryNext }}
+				</span>
 				<Tooltip :text="next.description">
-					<div
-						class="flex w-full items-center justify-between gap-2 rounded-4 px-2 py-1.5"
+					<SidebarItem
+						:label="next.title"
 						data-testid="next-up"
+						@click="openNextCard"
 					>
-						<div class="flex min-w-0 items-center gap-2 text-ink-gray-8">
+						<template #prefix>
 							<component
 								:is="next.icon"
-								class="h-4 shrink-0"
+								class="text-ink-gray-6"
+								:class="SIDEBAR_ICON"
 								aria-hidden="true"
 							/>
-							<span class="text-p-sm" data-testid="next-title">
-								{{ next.title }}
-							</span>
-						</div>
-						<Button
-							variant="ghost"
-							size="sm"
-							:label="nextStarted ? text.continue : text.tryIt"
-							@click="openNextCard"
-						/>
-					</div>
+						</template>
+						<span
+							class="text-ink-gray-8"
+							:class="ROW_TEXT"
+							data-testid="next-title"
+						>
+							{{ next.title }}
+						</span>
+						<template #suffix>
+							<Button
+								variant="ghost"
+								size="sm"
+								class="me-1"
+								data-testid="next-action"
+								@click="openNextCard"
+							>
+								<span :class="ROW_TEXT">
+									{{ nextStarted ? text.continue : text.tryIt }}
+								</span>
+							</Button>
+						</template>
+					</SidebarItem>
 				</Tooltip>
 			</div>
-			<p v-else class="text-center text-p-sm text-ink-gray-5">
+			<p v-else class="text-center text-ink-gray-5" :class="ROW_TEXT">
 				{{ text.allDone }}
 			</p>
 		</template>
@@ -157,9 +182,15 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { Badge, Button, Dropdown, Tooltip } from 'frappe-ui'
+import { Badge, Button, Dropdown, SidebarItem, Tooltip } from 'frappe-ui'
 import type { FlowCard, FlowStep, OnboardingFlow } from '@/onboarding/flows'
 import { useLearningOnboarding } from '@/onboarding/useLearningOnboarding'
+import {
+	ROW_TEXT,
+	SIDEBAR_ICON,
+	SIDEBAR_ROW,
+	SIDEBAR_ROW_CONTROL,
+} from '@/onboarding/rowClasses'
 
 const props = defineProps<{ card: FlowCard; flow: OnboardingFlow }>()
 

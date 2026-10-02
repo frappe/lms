@@ -44,6 +44,11 @@ function makeHandle() {
 }
 
 vi.mock('frappe-ui', () => ({
+	SidebarItem: {
+		inheritAttrs: false,
+		props: ['label', 'icon', 'onClick'],
+		template: `<div class="sidebar-item"><button type="button" v-bind="$attrs" @click="onClick && onClick($event)"><slot name="prefix" /><slot>{{ label }}</slot></button><slot name="suffix" /></div>`,
+	},
 	call: vi.fn(() => Promise.resolve({})),
 	getCachedResource: () => null,
 	Badge: {
@@ -343,24 +348,16 @@ describe('help centre', () => {
 	const footerRow = (w: Awaited<ReturnType<typeof setUp>>['w']) =>
 		w.find('[data-testid="panel-footer"]').find('button')
 
-	it('is a framework footer row on the start side, not a centred link', async () => {
+	// Guards: the help footer drifting from the sidebar row look. Introduced in
+	// this branch (feat/onboarding-flows, PR pending); test added there to pin
+	// the footer row.
+	it('is a sidebar row with the help icon', async () => {
 		const { w } = await setUp()
+		const footer = w.find('[data-testid="panel-footer"]')
+		expect(footer.find('.sidebar-item').exists()).toBe(true)
 		const row = footerRow(w)
 		expect(row.text()).toBe('Help centre')
 		expect(row.find('.help-icon').exists()).toBe(true)
-		for (const cls of [
-			'w-full',
-			'flex',
-			'gap-2',
-			'items-center',
-			'hover:bg-surface-gray-1',
-			'text-ink-gray-8',
-			'rounded-4',
-			'px-2',
-			'py-1.5',
-		])
-			expect(row.classes()).toContain(cls)
-		expect(row.classes()).not.toContain('justify-center')
 	})
 
 	// Guards: Help center leaving the panel, losing article groups, or the footer
@@ -440,6 +437,21 @@ describe('help centre', () => {
 			'Publish my first course'
 		)
 		expect(footerRow(w).text()).toBe('Help centre')
+	})
+})
+
+describe('sidebar rows', () => {
+	it('renders list rows, question options and help rows as SidebarItems', async () => {
+		const { w } = await setUp()
+		const inSidebarItem = (selector: string) =>
+			w
+				.findAll(selector)
+				.every((el) => el.element.closest('.sidebar-item') !== null)
+		expect(inSidebarItem('[data-testid="flow-row"]')).toBe(true)
+		await w.findAll('[data-testid="flow-row"]')[2].trigger('click')
+		expect(inSidebarItem('[data-testid="question-option"]')).toBe(true)
+		await w.find('[data-testid="footer-row"]').trigger('click')
+		expect(inSidebarItem('[data-testid="help-article"]')).toBe(true)
 	})
 })
 

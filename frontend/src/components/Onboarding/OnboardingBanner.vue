@@ -1,15 +1,15 @@
 <template>
 	<div
 		v-if="!isSidebarCollapsed"
-		class="flex flex-col gap-3 shadow-sm rounded-6 py-2.5 px-3 bg-surface-elevation-2 text-p-sm"
+		class="flex flex-col gap-3 shadow-sm rounded-6 py-2.5 px-3 bg-surface-elevation-2 text-p-base"
 	>
 		<div v-if="!allDone" class="inline-flex text-ink-gray-9 gap-2">
-			<StepsIcon class="h-4 my-0.5 shrink-0" aria-hidden="true" />
+			<StepsIcon class="size-4 my-0.5 shrink-0" aria-hidden="true" />
 			<div class="flex flex-col gap-0.5">
-				<div class="text-p-sm font-medium" data-testid="banner-title">
+				<div class="text-p-base font-medium" data-testid="banner-title">
 					{{ text.title }}
 				</div>
-				<div class="text-p-sm text-ink-gray-7" data-testid="banner-count">
+				<div class="text-p-base text-ink-gray-7" data-testid="banner-count">
 					{{ countLabel }}
 				</div>
 			</div>
@@ -17,8 +17,8 @@
 		<div v-else class="flex flex-col gap-1">
 			<div class="flex items-center justify-between gap-1">
 				<div class="flex items-center gap-2 shrink-0">
-					<StepsIcon class="h-4 my-0.5" aria-hidden="true" />
-					<div class="text-p-sm text-ink-gray-9 font-medium">
+					<StepsIcon class="size-4 my-0.5" aria-hidden="true" />
+					<div class="text-p-base text-ink-gray-9 font-medium">
 						{{ text.allSet }}
 					</div>
 				</div>
@@ -31,7 +31,7 @@
 					<LucideX class="size-4" aria-hidden="true" />
 				</button>
 			</div>
-			<div class="text-p-sm text-ink-gray-7">{{ text.allDone }}</div>
+			<div class="text-p-base text-ink-gray-7">{{ text.allDone }}</div>
 		</div>
 		<Button
 			v-if="!allDone"
@@ -45,13 +45,13 @@
 		</Button>
 	</div>
 	<Button v-else-if="!allDone" :aria-label="text.title" @click="openOnboarding">
-		<StepsIcon class="h-4 my-0.5 shrink-0" aria-hidden="true" />
+		<StepsIcon class="size-4 my-0.5 shrink-0" aria-hidden="true" />
 	</Button>
 </template>
 
 <script setup lang="ts">
 // A copy of the framework's Onboarding/GettingStartedBanner.vue, at the LMS
-// text size (text-p-sm), with the dismiss control as a real button.
+// text size (text-p-base), with the dismiss control as a real button.
 import { computed } from 'vue'
 import { Button } from 'frappe-ui'
 import { StepsIcon } from 'frappe-ui/icons'

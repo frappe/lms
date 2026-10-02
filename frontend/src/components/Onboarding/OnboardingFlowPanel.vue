@@ -17,7 +17,7 @@
 				>
 					<LucideChevronLeft class="size-4 rtl:rotate-180" aria-hidden="true" />
 				</Button>
-				<h2 :id="headingId" class="truncate text-p-sm font-medium">
+				<h2 :id="headingId" class="truncate text-p-base font-medium">
 					{{ screen === 'help' ? text.helpHeading : text.heading }}
 				</h2>
 			</div>
@@ -29,12 +29,12 @@
 				>
 					<component
 						:is="minimize ? MaximizeIcon : MinimizeIcon"
-						class="h-3.5"
+						class="size-4"
 						aria-hidden="true"
 					/>
 				</Button>
 				<Button variant="ghost" :aria-label="text.close" @click="closePanel">
-					<LucideX class="size-3.5" aria-hidden="true" />
+					<LucideX class="size-4" aria-hidden="true" />
 				</Button>
 			</div>
 		</div>
@@ -48,11 +48,11 @@
 			<template v-else>
 				<div class="flex flex-col justify-center items-center gap-1 mt-4 mb-7">
 					<LMSLogo class="size-10 shrink-0 rounded-4 mb-4" aria-hidden="true" />
-					<div class="text-p-sm font-medium" data-testid="hero-title">
+					<div class="text-p-base font-medium" data-testid="hero-title">
 						{{ heroTitle }}
 					</div>
 					<div
-						class="text-p-sm font-normal text-center"
+						class="text-p-base font-normal text-center"
 						data-testid="hero-count"
 					>
 						{{ heroCount }}
@@ -75,25 +75,37 @@
 						:key="option.value"
 						:text="option.description"
 					>
-						<button
-							type="button"
-							class="flex w-full items-center justify-between gap-2 rounded-4 px-2 py-1.5 text-start text-ink-gray-8 hover:bg-surface-gray-1 focus-visible:bg-surface-gray-1"
+						<SidebarItem
+							:label="option.label"
 							data-testid="question-option"
 							@click="answer(openCard.id, option.value)"
 						>
-							<span class="min-w-0 truncate text-p-sm">{{ option.label }}</span>
-							<span
-								class="flex shrink-0 items-center gap-1 text-p-sm text-ink-gray-5"
-							>
-								<span class="tabular-nums">{{
-									stepCount(option.flow.id)
-								}}</span>
-								<LucideChevronRight
-									class="size-4 rtl:rotate-180"
+							<template #prefix>
+								<component
+									:is="openCard.icon"
+									class="size-4 text-ink-gray-6"
 									aria-hidden="true"
 								/>
+							</template>
+							<span
+								class="flex min-w-0 flex-1 items-center justify-between gap-2 pe-2"
+							>
+								<span class="truncate text-p-base text-ink-gray-8">
+									{{ option.label }}
+								</span>
+								<span
+									class="flex shrink-0 items-center gap-1 text-p-base text-ink-gray-5"
+								>
+									<span class="tabular-nums">{{
+										stepCount(option.flow.id)
+									}}</span>
+									<LucideChevronRight
+										class="size-4 rtl:rotate-180"
+										aria-hidden="true"
+									/>
+								</span>
 							</span>
-						</button>
+						</SidebarItem>
 					</Tooltip>
 				</div>
 
@@ -125,26 +137,29 @@
 							:key="card.id"
 							:text="card.description"
 						>
-							<button
-								type="button"
-								class="flex w-full items-center justify-between gap-2 rounded-4 px-2 py-1.5 text-start hover:bg-surface-gray-1 focus-visible:bg-surface-gray-1"
+							<SidebarItem
+								:label="card.title"
 								data-testid="flow-row"
 								@click="openCardScreen(card.id)"
 							>
-								<span class="flex min-w-0 items-center gap-2">
+								<template #prefix>
 									<LucideCircleCheck
 										v-if="isCardComplete(card)"
-										class="size-4 shrink-0 text-ink-green-7"
+										class="size-4 text-ink-green-7"
 										aria-hidden="true"
 									/>
 									<component
 										:is="card.icon"
 										v-else
-										class="h-4 shrink-0 text-ink-gray-8"
+										class="size-4 text-ink-gray-6"
 										aria-hidden="true"
 									/>
+								</template>
+								<span
+									class="flex min-w-0 flex-1 items-center justify-between gap-2 pe-2"
+								>
 									<span
-										class="truncate text-p-sm"
+										class="truncate text-p-base"
 										:class="
 											isCardComplete(card)
 												? 'text-ink-gray-5 line-through'
@@ -154,17 +169,17 @@
 									>
 										{{ card.title }}
 									</span>
+									<span
+										class="flex shrink-0 items-center gap-1 text-p-base text-ink-gray-5"
+									>
+										<span class="tabular-nums">{{ rowMeta(card) }}</span>
+										<LucideChevronRight
+											class="size-4 rtl:rotate-180"
+											aria-hidden="true"
+										/>
+									</span>
 								</span>
-								<span
-									class="flex shrink-0 items-center gap-1 text-p-sm text-ink-gray-5"
-								>
-									<span class="tabular-nums">{{ rowMeta(card) }}</span>
-									<LucideChevronRight
-										class="size-4 rtl:rotate-180"
-										aria-hidden="true"
-									/>
-								</span>
-							</button>
+							</SidebarItem>
 						</Tooltip>
 					</div>
 				</div>
@@ -172,27 +187,29 @@
 		</div>
 
 		<div class="flex flex-col gap-1.5" data-testid="panel-footer">
-			<button
-				type="button"
-				class="w-full flex gap-2 items-center hover:bg-surface-gray-1 text-ink-gray-8 rounded-4 px-2 py-1.5 cursor-pointer text-start"
+			<SidebarItem
+				:label="screen === 'help' ? text.heading : text.helpCentre"
+				data-testid="footer-row"
 				@click="screen === 'help' ? hideHelp() : showHelp()"
 			>
-				<component
-					:is="screen === 'help' ? StepsIcon : HelpIcon"
-					class="h-4"
-					aria-hidden="true"
-				/>
-				<span class="text-p-sm">
+				<template #prefix>
+					<component
+						:is="screen === 'help' ? StepsIcon : HelpIcon"
+						class="size-4 text-ink-gray-6"
+						aria-hidden="true"
+					/>
+				</template>
+				<span class="truncate text-p-base text-ink-gray-8">
 					{{ screen === 'help' ? text.heading : text.helpCentre }}
 				</span>
-			</button>
+			</SidebarItem>
 		</div>
 	</section>
 </template>
 
 <script setup lang="ts">
 import { computed, ref, useId } from 'vue'
-import { Badge, Button, Tooltip } from 'frappe-ui'
+import { Badge, Button, SidebarItem, Tooltip } from 'frappe-ui'
 import {
 	HelpIcon,
 	MaximizeIcon,

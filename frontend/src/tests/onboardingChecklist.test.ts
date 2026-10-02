@@ -52,6 +52,11 @@ vi.mock('@/onboarding/useLearningOnboarding', () => ({
 }))
 
 vi.mock('frappe-ui', () => ({
+	SidebarItem: {
+		inheritAttrs: false,
+		props: ['label', 'icon', 'onClick'],
+		template: `<div class="sidebar-item"><button type="button" v-bind="$attrs" @click="onClick && onClick($event)"><slot name="prefix" /><slot>{{ label }}</slot></button><slot name="suffix" /></div>`,
+	},
 	Badge: {
 		props: ['label', 'theme', 'size'],
 		template: '<span class="badge" :data-theme="theme">{{ label }}</span>',
@@ -349,7 +354,8 @@ describe('when the flow is complete', () => {
 		const title = next.find('[data-testid="next-title"]')
 		expect(title.text()).toBe('Onboard my existing learners')
 		expect(title.classes()).not.toContain('truncate')
-		const tryIt = buttonIn(next, 'Try it')!
+		const tryIt = w.find('[data-testid="next-action"]')
+		expect(tryIt.text()).toBe('Try it')
 		expect(tryIt.attributes('data-variant')).toBe('ghost')
 		await tryIt.trigger('click')
 		expect(actions.openCardScreen).toHaveBeenCalledWith('onboard_learners')
@@ -358,8 +364,8 @@ describe('when the flow is complete', () => {
 	it('says Continue when the next card has progress', () => {
 		state.next = getCard('publish_course')
 		state.nextProgress = { resolved: 2, total: 6, skipped: 0 }
-		const next = mountFlow().find('[data-testid="next-up"]')
-		expect(buttonIn(next, 'Continue')).toBeDefined()
+		const action = mountFlow().find('[data-testid="next-action"]')
+		expect(action.text()).toBe('Continue')
 	})
 
 	it('says all flows are complete when nothing is left', () => {

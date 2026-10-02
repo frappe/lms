@@ -8,68 +8,83 @@
 				:debounce="300"
 			>
 				<template #prefix>
-					<LucideSearch class="size-4 text-ink-gray-5" aria-hidden="true" />
+					<LucideSearch
+						class="text-ink-gray-5"
+						:class="SIDEBAR_ICON"
+						aria-hidden="true"
+					/>
 				</template>
 			</TextInput>
 		</div>
 		<div
-			class="flex justify-between items-center text-p-sm text-ink-gray-5 mx-2"
+			class="flex justify-between items-center text-ink-gray-5 mx-2"
+			:class="ROW_TEXT"
 		>
 			<div>{{ text.allArticles }}</div>
 			<Button variant="ghost" :aria-label="text.openDocs" @click="openDocs">
-				<LucideArrowUpRight class="size-4 text-ink-gray-5" aria-hidden="true" />
+				<LucideArrowUpRight
+					class="text-ink-gray-5"
+					:class="SIDEBAR_ICON"
+					aria-hidden="true"
+				/>
 			</Button>
 		</div>
-		<div class="flex flex-col gap-1.5 overflow-y-auto">
+		<div class="flex flex-col gap-0.5 overflow-y-auto">
 			<div
 				v-for="a in parsedArticles"
 				:key="a.title"
-				class="flex flex-col gap-1.5"
+				class="flex flex-col gap-0.5"
 			>
-				<button
-					type="button"
-					class="flex w-full items-center justify-between p-1.5 hover:bg-surface-gray-1 rounded-4 cursor-pointer text-start"
+				<SidebarItem
+					:label="a.title"
 					:aria-expanded="Boolean(a.opened)"
 					data-testid="help-article"
 					@click="a.opened = !a.opened"
 				>
-					<div class="flex items-center gap-2">
+					<template #prefix>
 						<LucideChevronDown
 							v-if="a.opened"
-							class="size-4 text-ink-gray-5"
+							class="text-ink-gray-6"
+							:class="SIDEBAR_ICON"
 							aria-hidden="true"
 						/>
 						<LucideChevronRight
 							v-else
-							class="size-4 text-ink-gray-5 rtl:rotate-180"
+							class="text-ink-gray-6 rtl:rotate-180"
+							:class="SIDEBAR_ICON"
 							aria-hidden="true"
 						/>
-						<div class="text-p-sm text-ink-gray-8">{{ a.title }}</div>
-					</div>
-				</button>
-				<div v-show="a.opened" class="flex flex-col gap-1.5 ms-5">
-					<button
+					</template>
+					<span class="truncate text-ink-gray-8" :class="ROW_TEXT">
+						{{ a.title }}
+					</span>
+				</SidebarItem>
+				<div v-show="a.opened" class="flex flex-col gap-0.5 ms-5">
+					<SidebarItem
 						v-for="subArticle in a.subArticles"
 						:key="subArticle.name"
-						type="button"
-						class="group flex w-full items-center justify-between gap-2 p-1.5 hover:bg-surface-gray-1 rounded-4 cursor-pointer text-start"
+						:label="subArticle.title"
 						data-testid="help-subarticle"
 						@click="openDoc(subArticle.name)"
 					>
-						<div class="flex items-center gap-2">
+						<template #prefix>
 							<LucideFileText
-								class="size-4 text-ink-gray-5"
+								class="text-ink-gray-6"
+								:class="SIDEBAR_ICON"
 								aria-hidden="true"
 							/>
-							<div class="text-p-sm text-ink-gray-8">
-								{{ subArticle.title }}
-							</div>
-						</div>
-						<LucideArrowUpRight
-							class="size-4 hidden group-hover:flex text-ink-gray-5"
-							aria-hidden="true"
-						/>
-					</button>
+						</template>
+						<span class="truncate text-ink-gray-8" :class="ROW_TEXT">
+							{{ subArticle.title }}
+						</span>
+						<template #suffix>
+							<LucideArrowUpRight
+								class="me-2 hidden text-ink-gray-5 group-hover/sidebar-item:flex"
+								:class="SIDEBAR_ICON"
+								aria-hidden="true"
+							/>
+						</template>
+					</SidebarItem>
 				</div>
 			</div>
 		</div>
@@ -78,11 +93,13 @@
 
 <script setup lang="ts">
 // A copy of the framework's Onboarding/HelpCenter.vue (not exported from
-// @framework/ui), with buttons for the clickable rows and openExternal for links.
+// @framework/ui). Its rows are the sidebar's SidebarItem rows, and links go
+// through openExternal.
 import { computed, ref } from 'vue'
-import { Button, TextInput } from 'frappe-ui'
+import { Button, SidebarItem, TextInput } from 'frappe-ui'
 import type { HelpArticle } from '@framework/ui/components/Onboarding/index'
 import { openExternal } from '@/utils/openExternal'
+import { ROW_TEXT, SIDEBAR_ICON } from '@/onboarding/rowClasses'
 
 const props = defineProps<{ docsLink: string }>()
 

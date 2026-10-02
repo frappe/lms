@@ -1,6 +1,6 @@
 /**
  * OnboardingBanner: the sidebar's "Getting started" card, an LMS copy of the
- * framework GettingStartedBanner at text-p-sm, driven by one flow's key.
+ * framework GettingStartedBanner at text-p-base, driven by one flow's key.
  */
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
@@ -84,14 +84,14 @@ describe('OnboardingBanner', () => {
 		expect(w.findAll('button').map((b) => b.text())).toContain('Start now')
 	})
 
-	it('uses text-p-sm for its text', () => {
+	it('uses text-p-base for its text', () => {
 		framework.counts.learning_publish_course = [1, 6]
 		const w = mountBanner('learning_publish_course')
 		expect(w.find('[data-testid="banner-title"]').classes()).toContain(
-			'text-p-sm'
+			'text-p-base'
 		)
 		expect(w.find('[data-testid="banner-count"]').classes()).toContain(
-			'text-p-sm'
+			'text-p-base'
 		)
 	})
 
