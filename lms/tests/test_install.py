@@ -126,3 +126,24 @@ class TestInstall(IntegrationTestCase):
 		for field in custom_fields["User"]:
 			self.assertFalse({"name", "doctype", "dt", "modified", "module"} & field.keys(), field)
 			self.assertNotIn(None, field.values(), field)
+
+	def test_uninstall_removes_only_lms_user_fields(self):
+		"""Regression: delete_custom_fields (#395) matched fieldnames on every doctype and missed three.
+		Added for audit findings #69 and #99."""
+		for dt, fieldname in (("ToDo", "city"), ("Note", "branch"), ("ToDo", "twitter")):
+			frappe.get_doc(
+				{
+					"doctype": "Custom Field",
+					"name": f"{dt}-{fieldname}",
+					"dt": dt,
+					"fieldname": fieldname,
+					"label": fieldname,
+					"fieldtype": "Data",
+				}
+			).db_insert()
+
+		install.delete_custom_fields()
+
+		self.assertEqual(user_field_names(), set())
+		for name in ("ToDo-city", "Note-branch", "ToDo-twitter"):
+			self.assertTrue(frappe.db.exists("Custom Field", name), name)

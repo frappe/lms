@@ -7,6 +7,8 @@ from lms.lms.api import give_discussions_permission
 from lms.lms.enrollment_constraints import ensure_enrollment_unique_constraints
 from lms.lms.sidebar import seed_sidebar_items
 
+LEGACY_USER_FIELDS = ["profile_complete"]
+
 
 def after_install():
 	create_default_records()
@@ -154,48 +156,10 @@ def create_user_custom_fields():
 
 
 def delete_custom_fields():
-	fields = [
-		"user_category",
-		"headline",
-		"college",
-		"city",
-		"verify_terms",
-		"country",
-		"preferred_location",
-		"preferred_functions",
-		"preferred_industries",
-		"work_environment_column",
-		"time",
-		"role",
-		"carrer_preference_details",
-		"skill",
-		"certification_details",
-		"internship",
-		"branch",
-		"github",
-		"medium",
-		"linkedin",
-		"profession",
-		"open_to",
-		"cover_image" "work_environment",
-		"dream_companies",
-		"career_preference_column",
-		"attire",
-		"collaboration",
-		"location_preference",
-		"company_type",
-		"skill_details",
-		"certification",
-		"education",
-		"work_experience",
-		"education_details",
-		"hide_private",
-		"work_experience_details",
-		"profile_complete",
-	]
-
-	for field in fields:
-		frappe.db.delete("Custom Field", {"fieldname": field})
+	for dt, fields in load_install_data("custom_field.json").items():
+		fieldnames = [field["fieldname"] for field in fields]
+		frappe.db.delete("Custom Field", {"dt": dt, "fieldname": ["in", fieldnames]})
+	frappe.db.delete("Custom Field", {"dt": "User", "fieldname": ["in", LEGACY_USER_FIELDS]})
 
 
 def create_batch_source():
