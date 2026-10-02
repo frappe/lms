@@ -71,6 +71,10 @@ export class Upload {
 				file: file.file_url,
 			})
 			registerDirectives(app)
+			// AudioBlock's template calls __() for its control labels, so without
+			// the translation plugin __ is undefined on this app and the render
+			// throws. The video and PDF branches already install it.
+			app.use(translationPlugin)
 			app.mount(this.wrapper)
 			return
 		} else if (file.file_type == 'PDF') {
