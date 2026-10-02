@@ -129,25 +129,33 @@ onBeforeUnmount(() => {
 // Keep ?editLesson in sync with what's selected so a refresh, tab-switch
 // round-trip, or shared URL lands on the same lesson. A draft also carries its
 // chapter's docname in ?draftChapter, since a chapter's index can change under
-// it. Guard against route-watcher → selected-watcher loops by comparing values
-// before replacing.
+// it. A just-created lesson has no confirmed position until the outline has
+// it, so meanwhile the URL names it by docname in ?editLessonName. Guard
+// against route-watcher → selected-watcher loops by comparing values before
+// replacing.
+const SELECTION_PARAMS = ['editLesson', 'draftChapter', 'editLessonName']
+
+function selectionQuery({ number, draftChapter, name }) {
+	if (!number) return name ? { editLessonName: name } : null
+	return draftChapter
+		? { editLesson: number, draftChapter }
+		: { editLesson: number }
+}
+
 function syncSelectedToUrl(selection) {
-	const { number, draftChapter } = selection
-	if (!number) return
-	const { editLesson, draftChapter: urlDraftChapter, ...rest } = route.query
-	if (
-		editLesson === number &&
-		(urlDraftChapter || null) === (draftChapter || null)
-	)
-		return
+	const next = selectionQuery(selection)
+	if (!next) return
+	if (SELECTION_PARAMS.every((key) => route.query[key] === next[key])) return
 	router.replace({
-		query: {
-			...rest,
-			editLesson: number,
-			...(draftChapter && { draftChapter }),
-		},
+		query: { ...withoutSelection(route.query), ...next },
 		hash: route.hash || '#editor',
 	})
+}
+
+function withoutSelection(query) {
+	return Object.fromEntries(
+		Object.entries(query).filter(([key]) => !SELECTION_PARAMS.includes(key))
+	)
 }
 
 const STORAGE_KEY = 'lms-course-editor-last-lesson'
@@ -216,28 +224,27 @@ function onAddLesson({ chapter }) {
 }
 
 // Point the selection and URL at the created lesson right away, without
-// remounting the form, so the title keeps its focus and caret. create_lesson
-// appends, so the lesson is the chapter's next one; the outline watcher below
-// corrects the number once the reload brings the lesson in.
+// remounting the form, so the title keeps its focus and caret. Its position is
+// left blank until the outline reload brings the lesson in: another author may
+// have added a lesson meanwhile, so a guessed number could name theirs.
 function onLessonCreated({ name, chapter }) {
 	const draft = selected.value
 	if (draft?.draftChapter !== chapter) return
-	const lessons = outline.data?.find((c) => c.name === chapter)?.lessons
-	const lessonNumber = String((lessons?.length ?? 0) + 1)
-	selectCreatedLesson(draft, name, `${draft.chapterNumber}-${lessonNumber}`)
-	outline.reload()
-}
-
-function selectCreatedLesson(draft, name, number) {
-	const [chapterNumber, lessonNumber] = number.split('-')
 	selected.value = {
-		chapterNumber,
-		lessonNumber,
-		number,
+		chapterNumber: draft.chapterNumber,
+		lessonNumber: '',
+		number: '',
 		name,
 		title: '',
 		formKey: draft.formKey,
 	}
+	syncSelectedToUrl(selected.value)
+	outline.reload()
+}
+
+function confirmCreatedLesson(created, number) {
+	const [chapterNumber, lessonNumber] = number.split('-')
+	selected.value = { ...created, chapterNumber, lessonNumber, number }
 	if (props.course?.data?.name) storeLesson(props.course.data.name, number)
 	syncSelectedToUrl(selected.value)
 }
@@ -260,8 +267,7 @@ function followDraftBornSelection(chapters) {
 		return
 	}
 	const number = findLessonNumberByName(chapters, current.name)
-	if (number && number !== current.number)
-		selectCreatedLesson(current, current.name, number)
+	if (number && number !== current.number) confirmCreatedLesson(current, number)
 }
 
 // Reflect an autosaved lesson title/preview-flag in the shared outline
@@ -320,7 +326,7 @@ function onSelectLesson({ chapterNumber, lessonNumber }) {
 	if (props.course?.data?.name) {
 		storeLesson(props.course.data.name, number)
 	}
-	syncSelectedToUrl(number)
+	syncSelectedToUrl(selected.value)
 	// On mobile the outline lives in a sheet; dismiss it once a lesson is picked.
 	showChapters.value = false
 }
@@ -355,6 +361,13 @@ function pickInitialLesson() {
 		setSelectedFromNumber(routeLesson)
 		return
 	}
+	const createdName = route.query.editLessonName
+	const createdNumber =
+		createdName && findLessonNumberByName(chapters, createdName)
+	if (createdNumber) {
+		setSelectedFromNumber(createdNumber)
+		return
+	}
 	if (selected.value) return
 	const courseName = props.course?.data?.name
 	const stored = courseName ? getStoredLesson(courseName) : null
@@ -379,10 +392,10 @@ watch(
 	(chapters) => {
 		if (isSelectionStale(selected.value, chapters)) {
 			selected.value = null
-			if (route.query.editLesson) {
-				const { editLesson, draftChapter, ...rest } = route.query
+			const query = withoutSelection(route.query)
+			if (Object.keys(query).length < Object.keys(route.query).length) {
 				router.replace({
-					query: rest,
+					query,
 					hash: route.hash || '#editor',
 				})
 			}
