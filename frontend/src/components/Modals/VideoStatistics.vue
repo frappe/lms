@@ -245,7 +245,6 @@ const tabs = computed(() => {
 }
 
 .plyr--video {
-	border: 1px solid var(--outline-gray-2);
 	border-radius: 8px;
 }
 

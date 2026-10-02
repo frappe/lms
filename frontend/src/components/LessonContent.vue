@@ -2,7 +2,7 @@
 	<div
 		v-if="youtubeEmbedId(youtube)"
 		:key="youtubeEmbedId(youtube)"
-		class="not-prose my-5 overflow-hidden rounded-7 border border-outline-gray-2"
+		class="not-prose my-5 overflow-hidden rounded-7"
 	>
 		<div
 			class="video-player"
@@ -22,7 +22,7 @@
 			<div
 				v-if="youtubeEmbedId(getId(block))"
 				:key="youtubeEmbedId(getId(block))"
-				class="not-prose my-5 overflow-hidden rounded-7 border border-outline-gray-2"
+				class="not-prose my-5 overflow-hidden rounded-7"
 			>
 				<div
 					class="video-player"
@@ -36,7 +36,7 @@
 		</div>
 		<div
 			v-else-if="block.includes('{{ Video')"
-			class="not-prose my-5 overflow-hidden rounded-7 border border-outline-gray-2"
+			class="not-prose my-5 overflow-hidden rounded-7"
 		>
 			<video
 				controls
@@ -50,10 +50,7 @@
 		</div>
 		<div v-else-if="block.includes('{{ PDF')">
 			<PdfBlock v-if="inlinePdf" :file="getId(block)" />
-			<div
-				v-else
-				class="not-prose my-5 overflow-hidden rounded-7 border border-outline-gray-2"
-			>
+			<div v-else class="not-prose my-5 overflow-hidden rounded-7">
 				<iframe
 					:src="safeUrl(getId(block))"
 					:title="__('PDF document')"
@@ -66,7 +63,7 @@
 		</div>
 		<div
 			v-else-if="block.includes('{{ Audio')"
-			class="not-prose my-5 overflow-hidden rounded-7 border border-outline-gray-2"
+			class="not-prose my-5 overflow-hidden rounded-7"
 		>
 			<audio
 				width="100%"
@@ -79,7 +76,7 @@
 		</div>
 		<div
 			v-else-if="block.includes('{{ Embed')"
-			class="not-prose my-5 overflow-hidden rounded-7 border border-outline-gray-2"
+			class="not-prose my-5 overflow-hidden rounded-7"
 		>
 			<iframe
 				width="100%"

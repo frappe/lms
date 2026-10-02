@@ -22,7 +22,7 @@
 		<div
 			v-if="!showQuiz"
 			ref="videoContainer"
-			class="video-block relative group overflow-hidden rounded-7 border border-outline-gray-2"
+			class="video-block relative group overflow-hidden rounded-7"
 		>
 			<video
 				@timeupdate="updateTime"
