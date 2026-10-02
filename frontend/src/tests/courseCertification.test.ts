@@ -62,7 +62,8 @@ const COURSE = 'python-basics'
 
 const ENROLLED: CertificationInfo = {
 	title: 'Python Basics',
-	evaluator: 'eval@example.com',
+	has_evaluator: true,
+	evaluator: null,
 	membership: { purchased_certificate: 1 },
 	certificate: null,
 }
@@ -161,12 +162,12 @@ describe('CourseCertification', () => {
 		expect(resource.fetch).toHaveBeenCalledTimes(1)
 	})
 
-	it('hands the evaluator it returns to the evaluation list', async () => {
+	it('tells the evaluation list the course has an evaluator', async () => {
 		const { wrapper, resource } = mountPage()
 		resource.data = ENROLLED
 		await flushPromises()
 		expect(evaluations(wrapper).props('courses')).toEqual([
-			{ course: COURSE, title: 'Python Basics', evaluator: 'eval@example.com' },
+			{ course: COURSE, title: 'Python Basics', has_evaluator: true },
 		])
 	})
 
@@ -179,10 +180,10 @@ describe('CourseCertification', () => {
 	// row is still passed down; it is that component's call what to show.
 	it('still lists a course whose evaluator is unset', async () => {
 		const { wrapper, resource } = mountPage()
-		resource.data = { ...ENROLLED, evaluator: null }
+		resource.data = { ...ENROLLED, has_evaluator: false }
 		await flushPromises()
 		expect(evaluations(wrapper).props('courses')).toEqual([
-			{ course: COURSE, title: 'Python Basics', evaluator: null },
+			{ course: COURSE, title: 'Python Basics', has_evaluator: false },
 		])
 	})
 

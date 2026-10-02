@@ -109,21 +109,25 @@ class TestLMSUtils(BaseTestUtils):
 			for review in reviews:
 				self.assertIsInstance(review.creation, datetime)
 
+		# `owner` is a login email, so no caller gets it; reviews are told apart by username.
+		def by(student):
+			return next(r for r in reviews if r.owner_details.username == student.username)
+
 		with self.subTest(case="scales_rating_to_display_range"):
 			# stored 0-1 fractions are returned on the 0-5 display scale (x out_of_ratings)
-			ratings_by_owner = {review.owner: review.rating for review in reviews}
-			self.assertEqual(ratings_by_owner[self.student1.email], 4.0)  # stored 0.8
-			self.assertEqual(ratings_by_owner[self.student2.email], 5.0)  # stored 1.0
+			self.assertEqual(by(self.student1).rating, 4.0)  # stored 0.8
+			self.assertEqual(by(self.student2).rating, 5.0)  # stored 1.0
 
 		with self.subTest(case="includes_owner_details"):
-			review = next(r for r in reviews if r.owner == self.student1.email)
-			self.assertIsNotNone(review.owner_details)
-			self.assertEqual(review.owner_details.full_name, self.student1.full_name)
+			self.assertEqual(by(self.student1).owner_details.full_name, self.student1.full_name)
+			self.assertNotIn("owner", by(self.student1))
 
 		with self.subTest(case="ordered_newest_first"):
 			# student2's review is added after student1's; order_by creation desc
-			self.assertEqual(reviews[0].owner, self.student2.email)
-			self.assertEqual(reviews[1].owner, self.student1.email)
+			self.assertEqual(
+				[r.owner_details.username for r in reviews],
+				[self.student2.username, self.student1.username],
+			)
 
 	def test_get_average_rating_none_without_reviews(self):
 		course = frappe.new_doc("LMS Course")
@@ -235,13 +239,15 @@ class TestLMSUtils(BaseTestUtils):
 			"evaluation_end_date",
 			"instructors",
 			"courses",
-			"students",
+			"student_count",
+			"is_student",
 		}
 		self.assertTrue(expected_keys.issubset(batch_details.keys()))
 		self.assertEqual(batch_details.name, self.batch.name)
 		self.assertEqual(len(batch_details.courses), len(self.batch.courses))
 		self.assertEqual(len(batch_details.instructors), len(self.batch.instructors))
-		self.assertEqual(len(batch_details.students), 2)
+		self.assertEqual(batch_details.student_count, 2)
+		self.assertNotIn("students", batch_details)
 
 	def test_course_categories_list_used_published_ones_with_a_clear_option(self):
 		with self.subTest(case="includes_used_category"):

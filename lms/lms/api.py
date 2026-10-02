@@ -69,8 +69,13 @@ from lms.lms.utils import (
 	has_lms_role,
 	has_message,
 	has_moderator_role,
+	hide_user_emails,
 	prepare_inline_images,
+<<<<<<< HEAD
 	resolve_page_length,
+=======
+	resolve_user,
+>>>>>>> cae0f68 (fix: send no caller another user's email)
 )
 
 
@@ -336,6 +341,7 @@ def get_job_details(job: str):
 		return None
 
 	job_details.applicants = frappe.db.count("LMS Job Application", {"job": job})
+	hide_user_emails([job_details], "owner")
 
 	return job_details
 
@@ -363,27 +369,57 @@ def get_own_assignment_submission(assignment: str):
 
 
 @frappe.whitelist()
-def get_application_users(user_names: list | str):
-	# temp function workaround:reverting once upstream restores dotted-field JOINs in `frappe.client.get_list`
-	if isinstance(user_names, str):
-		user_names = json.loads(user_names)
-	if not user_names:
+def get_application_users(applications: list | str) -> list:
+	"""Applicant display details per application the caller may read. Applicants are
+	identified by application, not by email; send_job_application_email reaches them."""
+	if isinstance(applications, str):
+		applications = json.loads(applications)
+	if not isinstance(applications, list) or not all(isinstance(name, str) for name in applications):
+		frappe.throw(_("Applications must be a list of names."))
+	if not applications:
 		return []
 
 	visible = frappe.get_list(
 		"LMS Job Application",
-		filters={"user": ["in", user_names]},
-		fields=["user"],
-		pluck="user",
+		filters={"name": ["in", applications]},
+		fields=["name", "user"],
 	)
-	visible_user_names = list(set(visible))
-	if not visible_user_names:
+	if not visible:
 		return []
 
-	return frappe.get_all(
-		"User",
-		filters={"name": ["in", visible_user_names]},
-		fields=["name", "user_image", "full_name", "email"],
+	users = {
+		user.pop("name"): user
+		for user in frappe.get_all(
+			"User",
+			filters={"name": ["in", list({row.user for row in visible})]},
+			fields=["name", "username", "full_name", "user_image"],
+		)
+	}
+	return [{"application": row.name, **users.get(row.user, {})} for row in visible]
+
+
+@frappe.whitelist(methods=["POST"])
+def send_job_application_email(application: str, subject: str, message: str, reply_to: str | None = None):
+	"""Email an applicant. The address is looked up here so the poster never holds it."""
+	from frappe.core.doctype.communication.email import make
+
+	for value in (application, subject, message):
+		if not isinstance(value, str):
+			frappe.throw(_("Application, subject and message must be strings."))
+	if reply_to is not None and not isinstance(reply_to, str):
+		frappe.throw(_("Reply To must be a string."))
+
+	frappe.has_permission("LMS Job Application", "read", doc=application, throw=True)
+	applicant = frappe.db.get_value("LMS Job Application", application, "user")
+	return make(
+		doctype="LMS Job Application",
+		name=application,
+		recipients=applicant,
+		cc=reply_to,
+		subject=subject,
+		content=message,
+		send_email=1,
+		now=True,
 	)
 
 
@@ -1720,7 +1756,71 @@ def get_announcements(batch: str):
 	for communication in communications:
 		communication.image = frappe.get_cached_value("User", communication.sender, "user_image")
 
-	return communications
+	return hide_user_emails(communications, "sender", "recipients", "cc")
+
+
+def get_batch_members(batch: str) -> list[str]:
+	return frappe.get_all("LMS Batch Enrollment", {"batch": batch}, pluck="member")
+
+
+@frappe.whitelist(methods=["POST"])
+def send_batch_announcement(batch: str, subject: str, content: str, reply_to: str):
+	"""BCC every student of the batch. Their addresses are looked up here, so the
+	author never holds them."""
+	from frappe.core.doctype.communication.email import make
+
+	for value in (batch, subject, content, reply_to):
+		if not isinstance(value, str):
+			frappe.throw(_("Batch, subject, content and reply-to must be strings."))
+
+	frappe.has_permission("LMS Batch", "email", doc=batch, throw=True)
+	students = get_batch_members(batch)
+	if not students:
+		frappe.throw(_("No students in this batch"))
+
+	return make(
+		doctype="LMS Batch",
+		name=batch,
+		recipients=reply_to,
+		bcc=", ".join(students),
+		subject=subject,
+		content=content,
+		send_email=1,
+	)
+
+
+@frappe.whitelist(methods=["POST"])
+def generate_batch_certificates(batch: str, details: dict) -> dict:
+	"""One certificate per student of the batch, inserted under the caller's own
+	LMS Certificate permissions. Returns the failures rather than stopping at one."""
+	if not isinstance(batch, str):
+		frappe.throw(_("Batch must be a string."))
+	if isinstance(details, str):
+		details = json.loads(details)
+	if not isinstance(details, dict):
+		frappe.throw(_("Details must be an object."))
+
+	frappe.has_permission("LMS Batch", "read", doc=batch, throw=True)
+	fields = ("issue_date", "expiry_date", "template", "published", "course", "evaluator")
+	values = {field: details.get(field) for field in fields}
+
+	results = [_insert_batch_certificate(batch, member, values) for member in get_batch_members(batch)]
+	errors = [error for error in results if error]
+	return {"created": len(results) - len(errors), "errors": errors}
+
+
+def _insert_batch_certificate(batch: str, member: str, values: dict) -> str | None:
+	"""The error message if the insert fails, else None."""
+	frappe.db.savepoint("batch_certificate")
+	try:
+		frappe.get_doc(
+			{"doctype": "LMS Certificate", "batch_name": batch, "member": member, **values}
+		).insert()
+	except (frappe.ValidationError, frappe.PermissionError) as e:
+		frappe.db.rollback(save_point="batch_certificate")
+		return str(e) or _("Unable to generate certificate")
+	finally:
+		frappe.clear_messages()
 
 
 @frappe.whitelist()
@@ -2318,14 +2418,14 @@ def get_notifications(filters: dict = None):
 		for sender in frappe.get_all(
 			"User",
 			filters={"name": ["in", sender_names]},
-			fields=["name", "full_name", "user_image"],
+			fields=["name", "full_name", "user_image", "username"],
 		):
-			senders[sender.name] = sender
+			senders[sender.pop("name")] = sender
 
 	for notification in notifications:
 		notification["from_user_details"] = senders.get(notification.from_user, {})
 
-	return notifications
+	return hide_user_emails(notifications, "from_user")
 
 
 @frappe.whitelist(allow_guest=True)
@@ -2499,14 +2599,16 @@ def get_certification_details(course: str) -> dict:
 		or frappe._dict()
 	)
 	certificate = get_latest_certificate(frappe.session.user, course)
+	# The page only needs to know an evaluator exists once the certificate has
+	# been paid for, so that is the gate rather than bare enrollment.
+	evaluator = details.evaluator if membership and membership.purchased_certificate else None
 
 	return {
 		"title": details.title,
 		"membership": membership,
 		"paid_certificate": details.paid_certificate,
-		# A staff email address. The page only reads it once the certificate has
-		# been paid for, so that is the gate rather than bare enrollment.
-		"evaluator": details.evaluator if membership and membership.purchased_certificate else None,
+		"has_evaluator": bool(evaluator),
+		"evaluator": evaluator if evaluator == frappe.session.user else None,
 		"certificate": certificate,
 	}
 
@@ -3030,6 +3132,7 @@ def get_profile_details(username: str):
 	if not is_own_profile and not has_moderator_role():
 		roles = [role for role in roles if role in LMS_ROLES]
 	details.roles = roles
+	hide_user_emails([details], "name")
 	return details
 
 
@@ -3205,7 +3308,7 @@ def get_my_live_classes():
 
 			my_live_classes.append(live_class)
 
-	return my_live_classes
+	return hide_user_emails(my_live_classes, "owner")
 
 
 @frappe.whitelist()
@@ -3315,8 +3418,7 @@ def get_admin_live_classes(start: int = 0, limit_page_length: int | str = None):
 		.limit(resolve_page_length(limit_page_length, default=4))
 		.offset(cint(start))
 	)
-	results = query.run(as_dict=True)
-	return results
+	return hide_user_emails(query.run(as_dict=True), "owner")
 
 
 @frappe.whitelist()
@@ -3349,7 +3451,7 @@ def get_admin_evals(start: int = 0, limit_page_length: int | str = None):
 	for evaluation in evals:
 		evaluation.course_title = frappe.db.get_value("LMS Course", evaluation.course, "title")
 
-	return evals
+	return hide_user_emails(evals, "member")
 
 
 @frappe.whitelist()
@@ -3618,8 +3720,15 @@ def get_assessment_from_lesson(course: str, assessment_type: str):
 
 @frappe.whitelist()
 def get_badges(member: str):
+	"""`member` is a User name or a username: profile pages only know the username."""
 	if not has_lms_role():
 		frappe.throw(_("You do not have permission to access badges."), frappe.PermissionError)
+	if not isinstance(member, str):
+		frappe.throw(_("Member must be a string."))
+
+	member = resolve_user(member)
+	if not member:
+		return []
 
 	badges = frappe.get_all(
 		"LMS Badge Assignment",
@@ -3627,7 +3736,24 @@ def get_badges(member: str):
 		["name", "member", "badge", "badge_image", "badge_description", "issued_on"],
 	)
 
-	return badges
+	return hide_user_emails(badges, "member")
+
+
+@frappe.whitelist()
+def get_user_certificates(username: str) -> list:
+	"""A profile's certificates, looked up by username so the page needs no email."""
+	if not isinstance(username, str):
+		frappe.throw(_("Username must be a string."))
+
+	member = frappe.db.get_value("User", {"username": username}, "name")
+	if not member:
+		return []
+
+	return frappe.get_list(
+		"LMS Certificate",
+		filters={"member": member},
+		fields=["name", "course_title", "batch_title", "issue_date", "template"],
+	)
 
 
 @frappe.whitelist()

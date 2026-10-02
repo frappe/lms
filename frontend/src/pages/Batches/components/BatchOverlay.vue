@@ -160,9 +160,7 @@ const enrollInBatch = () => {
 }
 
 const isStudent = computed(() => {
-	return user.data
-		? props.batch.data?.students?.includes(user.data?.name)
-		: false
+	return user.data ? Boolean(props.batch.data?.is_student) : false
 })
 
 const isModerator = computed(() => {

@@ -141,7 +141,15 @@
 					v-model="activeTab"
 				/>
 			</div>
+<<<<<<< HEAD
 			<router-view :profile="profile" :key="profile.data?.name" />
+=======
+			<router-view
+				v-if="!awaitingEmail"
+				:profile="profile"
+				:key="profile.data.username"
+			/>
+>>>>>>> cae0f68 (fix: send no caller another user's email)
 		</div>
 	</div>
 	<NotFound v-else-if="(profile.fetched || profile.error) && !profile.data" />
@@ -200,6 +208,52 @@ const profile = createResource({
 	},
 })
 
+// get_profile_details sends another user's email to no one. The moderator-only
+// tabs (Roles, Slots, Schedule) act on it, so a moderator reads it from User
+// under their own DocPerms, and the tabs wait for it.
+const resolvedEmail = ref(null)
+
+const applyResolvedEmail = () => {
+	const data = profile.data
+	if (data && !data.name && resolvedEmail.value?.username === data.username)
+		data.name = resolvedEmail.value.name
+}
+
+// A lookup can outlive a navigation to another profile, so each response is
+// bound to the username it asked about and dropped once that profile is gone.
+const settleEmail = (username, name) => {
+	if (username !== profile.data?.username) return
+	resolvedEmail.value = { username, name }
+	applyResolvedEmail()
+}
+
+const profileEmail = createResource({ url: 'frappe.client.get_value' })
+
+const awaitingEmail = computed(
+	() =>
+		Boolean($user.data?.is_moderator) &&
+		Boolean(profile.data) &&
+		!profile.data.name &&
+		resolvedEmail.value?.username !== profile.data.username
+)
+
+watch(
+	() => awaitingEmail.value && profile.data?.username,
+	(username) => {
+		if (!username) return
+		profileEmail.submit(
+			{ doctype: 'User', filters: { username }, fieldname: 'name' },
+			{
+				onSuccess: (data) => settleEmail(username, data?.name || null),
+				onError: () => settleEmail(username, null),
+			}
+		)
+	},
+	{ immediate: true }
+)
+
+watch(() => profile.data, applyResolvedEmail)
+
 const coverImage = createResource({
 	url: 'frappe.client.set_value',
 	makeParams(values) {
@@ -256,11 +310,17 @@ const editProfile = () => {
 }
 
 const isSessionUser = () => {
-	return $user.data?.name === profile.data?.name
+	return (
+		Boolean(profile.data?.username) &&
+		$user.data?.username === profile.data?.username
+	)
 }
 
-const currentUserHasHigherAccess = () => {
-	return $user.data?.is_evaluator || $user.data?.is_moderator
+// Another evaluator's slots and schedule are keyed on their email, which only a
+// moderator is sent; the endpoints refuse anyone else anyway.
+const canSeeEvaluatorTabs = () => {
+	if ($user.data?.is_moderator) return true
+	return $user.data?.is_evaluator && isSessionUser()
 }
 
 const isEvaluatorOrModerator = () => {
@@ -279,7 +339,7 @@ const getTabButtons = () => {
 		buttons.push({ label: __('Roles'), value: 'Roles' })
 	}
 
-	if (currentUserHasHigherAccess() && isEvaluatorOrModerator()) {
+	if (canSeeEvaluatorTabs() && isEvaluatorOrModerator()) {
 		buttons.push({ label: __('Slots'), value: 'Slots' })
 		buttons.push({ label: __('Schedule'), value: 'Schedule' })
 	}

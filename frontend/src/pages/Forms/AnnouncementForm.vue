@@ -116,7 +116,7 @@ const refusal = computed(() => {
 	if (readOnlyMode) return __('This site is in read-only mode.')
 	if (!isAdmin.value)
 		return __('You are not permitted to make an announcement for this batch.')
-	if (!batch.data?.students?.length)
+	if (!batch.data?.student_count)
 		return __('Add students to the batch to make an announcement')
 	return null
 })
@@ -129,10 +129,55 @@ const announcement = reactive({
 	announcement: '',
 })
 
+<<<<<<< HEAD
+=======
+const layout = [
+	{
+		sections: [
+			{
+				columns: [
+					{
+						fields: [
+							{
+								fieldname: 'subject',
+								fieldtype: 'Data',
+								label: __('Subject'),
+								reqd: true,
+							},
+							{
+								fieldname: 'replyTo',
+								fieldtype: 'Data',
+								label: __('Reply To'),
+								reqd: true,
+							},
+							{
+								fieldname: 'announcement',
+								fieldtype: 'Text Editor',
+								label: __('Announcement'),
+								reqd: true,
+								ui: {
+									component: RichTextEditorField,
+									props: {
+										fixedMenu: true,
+										minHeight: '200px',
+									},
+								},
+							},
+						],
+					},
+				],
+			},
+		],
+	},
+]
+
+// The students are BCC'd on the server; this form never holds their addresses.
+>>>>>>> cae0f68 (fix: send no caller another user's email)
 const announcementResource = createResource({
-	url: 'frappe.core.doctype.communication.email.make',
+	url: 'lms.lms.api.send_batch_announcement',
 	makeParams() {
 		return {
+<<<<<<< HEAD
 			recipients: announcement.replyTo,
 			bcc: (batch.data?.students || []).join(', '),
 			subject: announcement.subject,
@@ -140,6 +185,12 @@ const announcementResource = createResource({
 			doctype: 'LMS Batch',
 			name: props.batchName,
 			send_email: 1,
+=======
+			batch: props.batchName,
+			subject: doc.value.subject,
+			content: doc.value.announcement,
+			reply_to: doc.value.replyTo,
+>>>>>>> cae0f68 (fix: send no caller another user's email)
 		}
 	},
 })
@@ -151,7 +202,7 @@ const makeAnnouncement = () => {
 		{},
 		{
 			validate() {
-				if (!batch.data?.students?.length) {
+				if (!batch.data?.student_count) {
 					return __('No students in this batch')
 				}
 				if (!announcement.subject) {

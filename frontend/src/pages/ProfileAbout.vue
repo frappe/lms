@@ -60,7 +60,7 @@
 									{{ dayjs(badge.issued_on).format('DD MMM YYYY') }}
 								</div>
 								<div
-									v-if="user.data?.name == profile.data?.name"
+									v-if="user.data?.username == profile.data?.username"
 									class="flex flex-col mt-4"
 								>
 									<span class="text-xs-medium text-ink-gray-7 mb-1">
@@ -125,7 +125,7 @@ const props = defineProps({
 const badges = createResource({
 	url: 'lms.lms.api.get_badges',
 	params: {
-		member: props.profile.data.name,
+		member: props.profile.data.username,
 	},
 	auto: true,
 	transform(data) {

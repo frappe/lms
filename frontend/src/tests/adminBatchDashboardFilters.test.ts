@@ -164,4 +164,55 @@ describe('AdminBatchDashboard students filters', () => {
 		expect(h.reloads).toContain(JSON.stringify({ batch: 'B1' }))
 		second.unmount()
 	})
+<<<<<<< HEAD
+=======
+
+	it('hands the chart only the tasks some student has reached', async () => {
+		h.chartRows = [
+			{ task: 'Course A', value: 3 },
+			{ task: 'Quiz B', value: 0 },
+		]
+		const wrapper = mountDashboard({
+			data: { ...BATCH.data, courses: [{ course: 'Course A' }] },
+		})
+		await flushPromises()
+		cachedList().data = [{ name: 'E1', member: 'jane@example.com' }]
+		await flushPromises()
+
+		const chart = wrapper.findComponent({ name: 'BarChart' })
+		expect(chart.props('data')).toEqual([{ task: 'Course A', value: 3 }])
+		expect(chart.props('x')).toBe('task')
+		expect(chart.props('y')).toBe('value')
+		wrapper.unmount()
+	})
+
+	// A student's login email is sent to no one, and the username copied onto
+	// the enrollment goes stale on a rename, so the modal opens on the enrollment.
+	it("opens a student's progress by enrollment", async () => {
+		const wrapper = mountDashboard()
+		await flushPromises()
+		cachedList().data = [
+			{ name: 'E1', member_name: 'Sam Stud', member_username: 'sam' },
+		]
+		await flushPromises()
+
+		// The stub declares no props, so the bindings arrive as attrs.
+		const list = wrapper
+			.findAllComponents({ name: 'ResponsiveListView' })
+			.find((c) => (c.vm.$attrs.options as any)?.onRowClick)
+		expect(list).toBeDefined()
+		;(list?.vm.$attrs.options as any).onRowClick({
+			name: 'E1',
+			member_username: 'sam',
+		})
+		await flushPromises()
+
+		expect(
+			wrapper
+				.findComponent({ name: 'BatchStudentProgress' })
+				.attributes('student')
+		).toBe('E1')
+		wrapper.unmount()
+	})
+>>>>>>> cae0f68 (fix: send no caller another user's email)
 })

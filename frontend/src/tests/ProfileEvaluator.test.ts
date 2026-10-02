@@ -74,7 +74,11 @@ function findResource(url: string) {
 	return resources.value.find((r) => r.config.url === url)
 }
 
-async function mountPanel(sessionUser = EVALUATOR) {
+async function mountPanel(
+	sessionUser = EVALUATOR,
+	sessionUsername = 'eva',
+	isModerator = false
+) {
 	resources.value = []
 	const wrapper = mount(
 		await import('@/pages/ProfileEvaluator.vue').then((m) => m.default),
@@ -85,7 +89,13 @@ async function mountPanel(sessionUser = EVALUATOR) {
 			global: {
 				provide: {
 					$user: {
-						data: { name: sessionUser, email: sessionUser, is_evaluator: true },
+						data: {
+							name: sessionUser,
+							email: sessionUser,
+							username: sessionUsername,
+							is_evaluator: true,
+							is_moderator: isModerator,
+						},
 					},
 				},
 				mocks: { __: (s: string) => s },
@@ -264,7 +274,7 @@ describe('ProfileEvaluator calendar settings', () => {
 	})
 
 	it('hides the calendar from a Moderator viewing someone else', async () => {
-		const wrapper = await mountPanel('mod@example.com')
+		const wrapper = await mountPanel('mod@example.com', 'mod', true)
 		expect(wrapper.find('[data-testid="calendar"]').exists()).toBe(false)
 	})
 
@@ -276,5 +286,16 @@ describe('ProfileEvaluator calendar settings', () => {
 			expect.stringContaining('Try authorizing again')
 		)
 		expect(routerReplace).toHaveBeenCalled()
+	})
+
+	// The profile carries no email, so the owner check matches on username.
+	it('lets the evaluator edit their own slots, matched by username', async () => {
+		const wrapper = await mountPanel()
+		expect(wrapper.text()).toContain('Add slot')
+	})
+
+	it("keeps a moderator read-only on someone else's slots", async () => {
+		const wrapper = await mountPanel('mod@example.com', 'mod', true)
+		expect(wrapper.text()).not.toContain('Add slot')
 	})
 })

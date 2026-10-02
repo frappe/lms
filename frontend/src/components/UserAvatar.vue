@@ -35,7 +35,7 @@ import { computed } from 'vue'
 import type { UserInfo } from '@/types'
 
 const props = defineProps<{
-	user?: UserInfo | null
+	user?: Pick<UserInfo, 'full_name' | 'user_image' | 'open_to'> | null
 	size?: string
 }>()
 
