@@ -236,6 +236,18 @@ describe('CourseEditor draft lesson identity', () => {
 		expect(state.route.query.editLessonName).toBeUndefined()
 	})
 
+	it('follows a docname link while the editor is open', async () => {
+		wrapper = await mountEditor([chapterA(1), chapterB(2, ['L-B2'])])
+		expect(form(wrapper).props('chapterNumber')).toBe('1')
+
+		state.route.query = { editLessonName: 'L-B2' }
+		await flushPromises()
+
+		expect(form(wrapper).props('chapterNumber')).toBe('2')
+		expect(form(wrapper).props('lessonNumber')).toBe('2')
+		expect(state.route.query).toEqual({ editLesson: '2-2' })
+	})
+
 	it('puts a picked lesson in the URL, dropping the draft', async () => {
 		wrapper = await mountEditor([chapterA(1), chapterB(2)])
 		await addLesson(wrapper, chapterB(2))

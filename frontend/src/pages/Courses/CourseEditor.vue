@@ -366,13 +366,7 @@ function pickInitialLesson() {
 		setSelectedFromNumber(routeLesson)
 		return
 	}
-	const createdName = route.query.editLessonName
-	const createdNumber =
-		createdName && findLessonNumberByName(chapters, createdName)
-	if (createdNumber) {
-		setSelectedFromNumber(createdNumber)
-		return
-	}
+	if (selectByName(route.query.editLessonName)) return
 	if (selected.value) return
 	const courseName = props.course?.data?.name
 	const stored = courseName ? getStoredLesson(courseName) : null
@@ -416,15 +410,30 @@ watch(
 	{ immediate: true }
 )
 
+// ?editLessonName names a created lesson by docname; open it once the outline
+// has it, at the number the outline gives it.
+function selectByName(name) {
+	const number = name && findLessonNumberByName(outline.data, name)
+	if (number) setSelectedFromNumber(number)
+	return Boolean(number)
+}
+
 // React to a deep-link change while the editor tab is already open.
 // Trust the query. A non-existent number means "new lesson", which
 // LessonForm renders in create mode. Our own replace for the selection
 // already open is skipped, or it would remount the form.
 watch(
-	[() => route.query.editLesson, () => route.query.draftChapter],
-	([number, draftChapter]) => {
-		if (!number) return
+	[
+		() => route.query.editLesson,
+		() => route.query.draftChapter,
+		() => route.query.editLessonName,
+	],
+	([number, draftChapter, name]) => {
 		const current = selected.value
+		if (!number) {
+			if (name && name !== current?.name) selectByName(name)
+			return
+		}
 		if (
 			number === current?.number &&
 			(draftChapter || null) === (current?.draftChapter || null)
