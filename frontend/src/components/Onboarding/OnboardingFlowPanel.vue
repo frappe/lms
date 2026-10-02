@@ -17,7 +17,7 @@
 				>
 					<LucideChevronLeft class="size-4 rtl:rotate-180" aria-hidden="true" />
 				</Button>
-				<h2 :id="headingId" class="truncate text-p-base font-medium">
+				<h2 :id="headingId" class="truncate text-p-sm font-medium">
 					{{ screen === 'help' ? text.helpHeading : text.heading }}
 				</h2>
 			</div>
@@ -48,11 +48,11 @@
 			<template v-else>
 				<div class="flex flex-col justify-center items-center gap-1 mt-4 mb-7">
 					<LMSLogo class="size-10 shrink-0 rounded-4 mb-4" aria-hidden="true" />
-					<div class="text-p-base font-medium" data-testid="hero-title">
+					<div class="text-p-sm font-medium" data-testid="hero-title">
 						{{ heroTitle }}
 					</div>
 					<div
-						class="text-p-base font-normal text-center"
+						class="text-p-sm font-normal text-center"
 						data-testid="hero-count"
 					>
 						{{ heroCount }}
@@ -90,11 +90,11 @@
 							<span
 								class="flex min-w-0 flex-1 items-center justify-between gap-2 pe-2"
 							>
-								<span class="truncate text-p-base text-ink-gray-8">
+								<span class="truncate text-p-sm text-ink-gray-8">
 									{{ option.label }}
 								</span>
 								<span
-									class="flex shrink-0 items-center gap-1 text-p-base text-ink-gray-5"
+									class="flex shrink-0 items-center gap-1 text-p-sm text-ink-gray-5"
 								>
 									<span class="tabular-nums">{{
 										stepCount(option.flow.id)
@@ -159,7 +159,7 @@
 									class="flex min-w-0 flex-1 items-center justify-between gap-2 pe-2"
 								>
 									<span
-										class="truncate text-p-base"
+										class="truncate text-p-sm"
 										:class="
 											isCardComplete(card)
 												? 'text-ink-gray-5 line-through'
@@ -170,7 +170,7 @@
 										{{ card.title }}
 									</span>
 									<span
-										class="flex shrink-0 items-center gap-1 text-p-base text-ink-gray-5"
+										class="flex shrink-0 items-center gap-1 text-p-sm text-ink-gray-5"
 									>
 										<span class="tabular-nums">{{ rowMeta(card) }}</span>
 										<LucideChevronRight
@@ -199,7 +199,7 @@
 						aria-hidden="true"
 					/>
 				</template>
-				<span class="truncate text-p-base text-ink-gray-8">
+				<span class="truncate text-p-sm text-ink-gray-8">
 					{{ screen === 'help' ? text.heading : text.helpCentre }}
 				</span>
 			</SidebarItem>

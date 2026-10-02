@@ -14,4 +14,4 @@ export const SIDEBAR_ROW_CONTROL =
 export const SIDEBAR_ICON = 'size-4'
 
 /** Row and button label text in the onboarding panel. */
-export const ROW_TEXT = 'text-p-base'
+export const ROW_TEXT = 'text-p-sm'

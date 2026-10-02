@@ -1,6 +1,6 @@
 /**
  * OnboardingBanner: the sidebar's "Getting started" card, an LMS copy of the
- * framework GettingStartedBanner at text-p-base, driven by one flow's key.
+ * framework GettingStartedBanner at text-p-sm, driven by one flow's key.
  */
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
@@ -34,6 +34,7 @@ vi.mock('@framework/ui/components/Onboarding/index', async () => {
 
 vi.mock('frappe-ui', () => ({
 	Button: {
+		name: 'Button',
 		props: ['label', 'theme', 'variant'],
 		emits: ['click'],
 		template: `<button type="button" @click="$emit('click')">{{ label }}<slot name="prefix" /><slot /></button>`,
@@ -78,20 +79,35 @@ describe('OnboardingBanner', () => {
 		expect(ui.minimize.value).toBe(false)
 	})
 
+	it('uses ghost buttons, open and collapsed', () => {
+		framework.counts.learning_publish_course = [1, 6]
+		for (const collapsed of [false, true]) {
+			const w = mountBanner('learning_publish_course', collapsed)
+			for (const button of w.findAllComponents({ name: 'Button' }))
+				expect(button.props('variant')).toBe('ghost')
+		}
+	})
+
+	// Guards: a fresh banner saying Continue. Introduced in this branch
+	// (feat/onboarding-flows, PR pending); test added there to pin the Start now
+	// label.
 	it('says Start now before any step is done', () => {
 		framework.counts.learning_publish_course = [0, 6]
 		const w = mountBanner('learning_publish_course')
 		expect(w.findAll('button').map((b) => b.text())).toContain('Start now')
 	})
 
-	it('uses text-p-base for its text', () => {
+	// Guards: banner text off the sidebar's text-p-sm. Introduced in this branch
+	// (feat/onboarding-flows, PR pending); test added there to pin the title and
+	// count classes.
+	it('uses text-p-sm for its text', () => {
 		framework.counts.learning_publish_course = [1, 6]
 		const w = mountBanner('learning_publish_course')
 		expect(w.find('[data-testid="banner-title"]').classes()).toContain(
-			'text-p-base'
+			'text-p-sm'
 		)
 		expect(w.find('[data-testid="banner-count"]').classes()).toContain(
-			'text-p-base'
+			'text-p-sm'
 		)
 	})
 
