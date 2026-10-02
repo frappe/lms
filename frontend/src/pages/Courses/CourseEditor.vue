@@ -127,14 +127,25 @@ onBeforeUnmount(() => {
 })
 
 // Keep ?editLesson in sync with what's selected so a refresh, tab-switch
-// round-trip, or shared URL lands on the same lesson. Guard against
-// route-watcher → selected-watcher loops by comparing values before
-// replacing.
-function syncSelectedToUrl(number) {
+// round-trip, or shared URL lands on the same lesson. A draft also carries its
+// chapter's docname in ?draftChapter, since a chapter's index can change under
+// it. Guard against route-watcher → selected-watcher loops by comparing values
+// before replacing.
+function syncSelectedToUrl(selection) {
+	const { number, draftChapter } = selection
 	if (!number) return
-	if (route.query.editLesson === number) return
+	const { editLesson, draftChapter: urlDraftChapter, ...rest } = route.query
+	if (
+		editLesson === number &&
+		(urlDraftChapter || null) === (draftChapter || null)
+	)
+		return
 	router.replace({
-		query: { ...route.query, editLesson: number },
+		query: {
+			...rest,
+			editLesson: number,
+			...(draftChapter && { draftChapter }),
+		},
 		hash: route.hash || '#editor',
 	})
 }
@@ -167,7 +178,9 @@ function setSelectedFromNumber(number) {
 	const [chapterNumber, lessonNumber] = number.split('-')
 	if (!chapterNumber || !lessonNumber) return
 	if (lessonNumber === 'new') {
-		const chapter = outline.data?.find((c) => String(c.idx) === chapterNumber)
+		const chapter = outline.data?.find(
+			(c) => c.name === route.query.draftChapter
+		)
 		if (chapter) selectDraft(chapter)
 		return
 	}
@@ -178,24 +191,23 @@ function setSelectedFromNumber(number) {
 		name: findLessonNameByNumber(outline.data, number),
 		title: '',
 	}
-	syncSelectedToUrl(number)
+	syncSelectedToUrl(selected.value)
 }
 
 // "Add Lesson" opens an empty form; LessonForm creates the lesson once it has a
 // title. Each draft gets its own form key, which the created lesson keeps.
 let draftCount = 0
 function selectDraft(chapter) {
-	const number = draftLessonNumber(chapter.idx)
 	selected.value = {
 		chapterNumber: String(chapter.idx),
 		lessonNumber: 'new',
-		number,
+		number: draftLessonNumber(chapter.idx),
 		name: null,
 		title: '',
 		draftChapter: chapter.name,
 		formKey: `draft-${++draftCount}`,
 	}
-	syncSelectedToUrl(number)
+	syncSelectedToUrl(selected.value)
 }
 
 function onAddLesson({ chapter }) {
@@ -203,26 +215,53 @@ function onAddLesson({ chapter }) {
 	showChapters.value = false
 }
 
-// Point the selection and URL at the created lesson without remounting the
-// form, so the title keeps its focus and caret.
+// Point the selection and URL at the created lesson right away, without
+// remounting the form, so the title keeps its focus and caret. create_lesson
+// appends, so the lesson is the chapter's next one; the outline watcher below
+// corrects the number once the reload brings the lesson in.
 function onLessonCreated({ name, chapter }) {
-	outline.reload().then(() => {
-		const draft = selected.value
-		if (draft?.draftChapter !== chapter) return
-		const number = findLessonNumberByName(outline.data, name)
-		if (!number) return
-		const [chapterNumber, lessonNumber] = number.split('-')
+	const draft = selected.value
+	if (draft?.draftChapter !== chapter) return
+	const lessons = outline.data?.find((c) => c.name === chapter)?.lessons
+	const lessonNumber = String((lessons?.length ?? 0) + 1)
+	selectCreatedLesson(draft, name, `${draft.chapterNumber}-${lessonNumber}`)
+	outline.reload()
+}
+
+function selectCreatedLesson(draft, name, number) {
+	const [chapterNumber, lessonNumber] = number.split('-')
+	selected.value = {
+		chapterNumber,
+		lessonNumber,
+		number,
+		name,
+		title: '',
+		formKey: draft.formKey,
+	}
+	if (props.course?.data?.name) storeLesson(props.course.data.name, number)
+	syncSelectedToUrl(selected.value)
+}
+
+// A draft and the lesson it becomes are tracked by docname, not by position:
+// re-derive the number whenever the outline changes, keeping the form key so
+// nothing remounts.
+function followDraftBornSelection(chapters) {
+	const current = selected.value
+	if (!current?.formKey || !chapters) return
+	if (current.draftChapter) {
+		const chapter = chapters.find((c) => c.name === current.draftChapter)
+		if (!chapter || String(chapter.idx) === current.chapterNumber) return
 		selected.value = {
-			chapterNumber,
-			lessonNumber,
-			number,
-			name,
-			title: '',
-			formKey: draft.formKey,
+			...current,
+			chapterNumber: String(chapter.idx),
+			number: draftLessonNumber(chapter.idx),
 		}
-		if (props.course?.data?.name) storeLesson(props.course.data.name, number)
-		syncSelectedToUrl(number)
-	})
+		syncSelectedToUrl(selected.value)
+		return
+	}
+	const number = findLessonNumberByName(chapters, current.name)
+	if (number && number !== current.number)
+		selectCreatedLesson(current, current.name, number)
 }
 
 // Reflect an autosaved lesson title/preview-flag in the shared outline
@@ -330,6 +369,7 @@ function pickInitialLesson() {
 }
 
 watch(() => outline.data, pickInitialLesson, { immediate: true })
+watch(() => outline.data, followDraftBornSelection)
 
 // When the selected lesson disappears from the outline (e.g. it was just
 // deleted), drop back to the empty "choose a lesson" state instead of
@@ -340,7 +380,7 @@ watch(
 		if (isSelectionStale(selected.value, chapters)) {
 			selected.value = null
 			if (route.query.editLesson) {
-				const { editLesson, ...rest } = route.query
+				const { editLesson, draftChapter, ...rest } = route.query
 				router.replace({
 					query: rest,
 					hash: route.hash || '#editor',
@@ -363,9 +403,15 @@ watch(
 // LessonForm renders in create mode. Our own replace for the selection
 // already open is skipped, or it would remount the form.
 watch(
-	() => route.query.editLesson,
-	(number) => {
-		if (!number || number === selected.value?.number) return
+	[() => route.query.editLesson, () => route.query.draftChapter],
+	([number, draftChapter]) => {
+		if (!number) return
+		const current = selected.value
+		if (
+			number === current?.number &&
+			(draftChapter || null) === (current?.draftChapter || null)
+		)
+			return
 		setSelectedFromNumber(number)
 	}
 )
