@@ -187,10 +187,54 @@ describe('CourseEditor draft lesson identity', () => {
 		await created(wrapper, 'L-B2', 'CH-B')
 		await settleReload(null)
 
-		expect(state.route.query.editLesson).toBe('2-2')
+		expect(state.route.query.editLessonName).toBe('L-B2')
+		expect(state.route.query.editLesson).toBeUndefined()
 		expect(state.route.query.draftChapter).toBeUndefined()
-		expect(form(wrapper).props('lessonNumber')).toBe('2')
+		expect(form(wrapper).props('draftChapter')).toBe('')
 		expect(state.formMounts).toBe(1)
+	})
+
+	it('persists no guessed position before the outline has the lesson', async () => {
+		wrapper = await mountEditor([chapterA(1), chapterB(2)])
+		await addLesson(wrapper, chapterB(2))
+		await created(wrapper, 'L-B2', 'CH-B')
+
+		expect(state.route.query.editLesson).toBeUndefined()
+		expect(localStorage.getItem('lms-course-editor-last-lesson')).toBeNull()
+
+		await settleReload([chapterA(1), chapterB(2, ['L-OTHER', 'L-B2'])])
+
+		expect(state.route.query.editLesson).toBe('2-3')
+		expect(state.route.query.editLessonName).toBeUndefined()
+		expect(form(wrapper).props('lessonNumber')).toBe('3')
+		expect(
+			JSON.parse(localStorage.getItem('lms-course-editor-last-lesson')!)
+		).toEqual({ C1: '2-3' })
+		expect(state.formMounts).toBe(1)
+	})
+
+	it('reopens a created lesson by its docname after a refresh', async () => {
+		wrapper = await mountEditor(
+			[chapterA(1), chapterB(2, ['L-OTHER', 'L-B2'])],
+			{ editLessonName: 'L-B2' }
+		)
+
+		expect(form(wrapper).props('lessonNumber')).toBe('3')
+		expect(state.route.query.editLesson).toBe('2-3')
+		expect(state.route.query.editLessonName).toBeUndefined()
+	})
+
+	it('puts a picked lesson in the URL, dropping the draft', async () => {
+		wrapper = await mountEditor([chapterA(1), chapterB(2)])
+		await addLesson(wrapper, chapterB(2))
+		outline(wrapper).vm.$emit('select-lesson', {
+			chapterNumber: '1',
+			lessonNumber: '1',
+		})
+		await flushPromises()
+
+		expect(state.route.query.editLesson).toBe('1-1')
+		expect(state.route.query.draftChapter).toBeUndefined()
 	})
 
 	it('leaves a newer draft in the same chapter alone when the reload lands', async () => {
