@@ -2,6 +2,7 @@ import { Pencil } from 'lucide-vue-next'
 import { registerDirectives } from '@/directives'
 import { createApp, h, markRaw } from 'vue'
 import type { App } from 'vue'
+import type { BlockAPI } from '@editorjs/editorjs'
 import AssessmentPlugin from '@/components/AssessmentPlugin.vue'
 import translationPlugin from '../translation'
 import { call } from 'frappe-ui'
@@ -16,6 +17,7 @@ export class Assignment {
 	data: AssignmentData
 	readOnly: boolean
 	studentView: boolean
+	block?: BlockAPI
 	wrapper!: HTMLDivElement
 	app: App | null = null
 	destroyed = false
@@ -24,14 +26,17 @@ export class Assignment {
 		data,
 		readOnly,
 		config,
+		block,
 	}: {
 		data: AssignmentData
 		api?: unknown
 		readOnly: boolean
 		config?: { studentView?: boolean }
+		block?: BlockAPI
 	}) {
 		this.data = data
 		this.readOnly = readOnly
+		this.block = block
 		this.studentView = Boolean(config?.studentView)
 	}
 
@@ -110,13 +115,16 @@ export class Assignment {
 			type: 'assignment',
 			onAddition: (assignment: string) => {
 				this.data.assignment = assignment
+				this.app?.unmount()
 				this.renderAssignment(assignment)
+				this.block?.dispatchChange()
 			},
 		})
 		registerDirectives(app)
 		app.use(translationPlugin)
 		app.use(router)
 		app.mount(this.wrapper)
+		this.app = app
 	}
 
 	save(): AssignmentData {
