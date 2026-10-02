@@ -330,15 +330,29 @@ def get_instructors(doctype: str, docname: str):
 
 
 def get_average_rating(course: str):
-	ratings = [review.rating for review in get_reviews(course)]
+	ratings = [review.rating for review in _course_reviews(course)]
 	if not len(ratings):
 		return None
 	return sum(ratings) / len(ratings)
 
 
+# nosemgrep: security.guest-whitelisted-method - pre-existing grant, unchanged by this branch; the endpoint gates itself (guests get [] unless guest access is on and the course is published). Flagged only because semgrep ci re-scans the whole function when its body changes.
 @frappe.whitelist(allow_guest=True)
 @rate_limit(limit=500, seconds=60 * 60)
 def get_reviews(course: str):
+	if not guest_access_allowed():
+		return []
+
+	is_course_published = frappe.db.get_value("LMS Course", course, "published")
+	if not is_course_published and not can_modify_course(course) and not get_membership(course):
+		return []
+
+	return _course_reviews(course)
+
+
+def _course_reviews(course: str) -> list:
+	"""Every review row, ungated: the nightly statistics job averages courses whose
+	page nobody may open."""
 	reviews = frappe.get_all(
 		"LMS Course Review",
 		{"course": course},
