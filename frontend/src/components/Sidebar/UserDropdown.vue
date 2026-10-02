@@ -64,12 +64,26 @@ const themeCheck = {
 			: null,
 }
 
+function isSystemUser() {
+	let cookies = new URLSearchParams(document.cookie.split('; ').join('&'))
+	return cookies.get('system_user') === 'yes'
+}
+
 const apps = createResource({
 	url: 'frappe.apps.get_apps',
 	cache: 'apps',
-	auto: true,
+	auto: isSystemUser(),
 	transform: (data) => [deskApp(), ...siblingApps(data)],
 })
+
+watch(
+	() => isLoggedIn.value,
+	(loggedIn) => {
+		if (loggedIn && isSystemUser() && !apps.data) {
+			apps.reload()
+		}
+	}
+)
 
 function deskApp() {
 	return {
@@ -157,14 +171,7 @@ const userDropdownOptions = computed(() => {
 					icon: 'lucide-layout-grid',
 					label: __('Apps'),
 					submenu: appMenuItems.value,
-					condition: () => {
-						let cookies = new URLSearchParams(
-							document.cookie.split('; ').join('&')
-						)
-						let system_user = cookies.get('system_user')
-						if (system_user === 'yes') return true
-						else return false
-					},
+					condition: () => isSystemUser(),
 				},
 				{
 					icon: 'lucide-settings',
