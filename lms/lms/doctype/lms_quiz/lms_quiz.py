@@ -41,6 +41,7 @@ from lms.lms.doctype.lms_question.lms_question import (
 	QUESTION_OPTION_FIELDS,
 	QUESTION_POSSIBILITY_FIELDS,
 )
+from lms.lms.lesson_assessments import RenamableAssessment
 from lms.lms.schedule_utils import assert_within_schedule, validate_schedule_fields
 from lms.lms.utils import (
 	generate_slug,
@@ -68,7 +69,7 @@ MAX_VIOLATION_FRAME_BYTES = 250 * 1024
 MAX_VIOLATION_FRAMES = 40
 
 
-class LMSQuiz(AuthoredDocument, Document):
+class LMSQuiz(RenamableAssessment, AuthoredDocument, Document):
 	def throw_length_exceeded_error(self, df, max_length, value):
 		if df.fieldname == "title":
 			frappe.throw(
