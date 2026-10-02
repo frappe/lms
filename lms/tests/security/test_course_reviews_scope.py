@@ -103,7 +103,8 @@ class TestTheCourseReviewsScope(BaseTestUtils):
 		"""Widening the payload later is then a deliberate act that fails a test."""
 		self._as("Guest")
 		row = get_reviews(course=self.live)[0]
-		self.assertEqual(set(row), {"review", "rating", "owner", "creation", "owner_details"})
+		# No `owner`: it is the reviewer's login email, sent to staff only.
+		self.assertEqual(set(row), {"review", "rating", "creation", "owner_details"})
 		self.assertEqual(set(row["owner_details"]), {"username", "full_name", "user_image"})
 
 	def test_guest_access_off_shuts_the_reviews_too(self) -> None:

@@ -153,12 +153,8 @@ import { useRouter } from 'vue-router'
 import CertificationLinks from '@/components/CertificationLinks.vue'
 import VideoPreview from '@/components/VideoPreview.vue'
 import { openExternal } from '@/utils/openExternal'
-import type {
-	CourseDetails,
-	CourseInstructorInfo,
-	Resource,
-	SessionUser,
-} from '@/types'
+import type { CourseDetails, Resource, SessionUser } from '@/types'
+import { isInstructorOf } from '@/utils/instructors'
 
 const router = useRouter()
 const user = inject<SessionUser>('$user')!
@@ -209,15 +205,8 @@ function enrollStudent() {
 		})
 }
 
-const is_instructor = (): boolean => {
-	let user_is_instructor = false
-	props.course.data?.instructors.forEach((instructor: CourseInstructorInfo) => {
-		if (!user_is_instructor && instructor.name == user.data?.name) {
-			user_is_instructor = true
-		}
-	})
-	return user_is_instructor
-}
+const is_instructor = (): boolean =>
+	isInstructorOf(props.course.data?.instructors, user.data?.username)
 
 const priceLabel = computed<string>(() => {
 	if (props.course.data?.paid_course) return props.course.data?.price || ''

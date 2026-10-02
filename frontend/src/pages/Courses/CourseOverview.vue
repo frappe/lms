@@ -59,7 +59,7 @@
 							>
 								<UserAvatar
 									v-for="instructor in course.data.instructors"
-									:key="instructor.name"
+									:key="instructor.username"
 									:user="instructor"
 								/>
 							</span>

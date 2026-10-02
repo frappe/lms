@@ -152,7 +152,7 @@ function submitEvaluation(close) {
 const getCourses = () => {
 	const courses = []
 	for (const course of props.courses) {
-		if (course.evaluator) {
+		if (course.has_evaluator) {
 			courses.push({
 				label: course.title,
 				value: course.course,

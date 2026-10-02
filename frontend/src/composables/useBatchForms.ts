@@ -51,8 +51,10 @@ export type BatchDetails = {
 	title?: string
 	published?: number
 	certification?: number
-	/** Not on a plain `LMS Batch` fetch — assembled by the endpoint. */
-	students?: string[]
+	/** Not on a plain `LMS Batch` fetch — assembled by the endpoint. The
+	 * students themselves are never sent: their names are login emails. */
+	student_count?: number
+	is_student?: boolean
 	/** Per-batch, unlike the session-wide `user.data.is_instructor`: a tagged
 	 * instructor/evaluator on THIS batch, or a Moderator/Batch Evaluator. */
 	can_manage?: boolean
