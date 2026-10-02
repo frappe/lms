@@ -96,7 +96,7 @@ vi.mock('@/utils/composables', async () => {
 	return { useScreenSize: () => ({ isMobile: ref(false) }) }
 })
 
-import { reactive } from 'vue'
+import { defineComponent, h, reactive, ref } from 'vue'
 import CourseEditor from '@/pages/Courses/CourseEditor.vue'
 
 const chapterA = (idx: number, extra: string[] = []): Chapter => ({
@@ -118,8 +118,20 @@ const chapterB = (idx: number, extra: string[] = []): Chapter => ({
 
 async function mountEditor(chapters: Chapter[], query = {}) {
 	state.route = reactive({ query, hash: '#editor' })
-	const wrapper = mount(CourseEditor, {
-		props: { course: { data: { name: 'C1' } } },
+	// Bound with v-model as CourseDetail does: an assigned selection reads back
+	// the old value until the parent re-renders.
+	const Parent = defineComponent({
+		setup() {
+			const selected = ref(null)
+			return () =>
+				h(CourseEditor, {
+					course: { data: { name: 'C1' } },
+					selected: selected.value,
+					'onUpdate:selected': (value: any) => (selected.value = value),
+				})
+		},
+	})
+	const wrapper = mount(Parent, {
 		global: { mocks: { __: (s: string) => s } },
 	})
 	state.outline.data = chapters
