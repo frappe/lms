@@ -1,4 +1,5 @@
 import frappe
+from frappe.custom.doctype.custom_field.custom_field import create_custom_fields
 from frappe.permissions import add_permission, update_permission_property
 from frappe.search.sqlite_search import build_index_in_background
 
@@ -8,6 +9,8 @@ from lms.lms.sidebar import seed_sidebar_items
 
 
 def after_install():
+	create_default_records()
+	create_user_custom_fields()
 	create_batch_source()
 	give_discussions_permission()
 	give_user_list_permission()
@@ -134,6 +137,20 @@ def set_default_certificate_print_format():
 		doc = frappe.new_doc("Property Setter")
 		doc.update(filters)
 		doc.save()
+
+
+def load_install_data(filename):
+	return frappe.get_file_json(frappe.get_app_path("lms", "install_data", filename))
+
+
+def create_default_records():
+	for filename in ("lms_category.json", "function.json", "industry.json"):
+		for record in load_install_data(filename):
+			frappe.get_doc(record).insert(ignore_if_duplicate=True)
+
+
+def create_user_custom_fields():
+	create_custom_fields(load_install_data("custom_field.json"), update=False)
 
 
 def delete_custom_fields():
