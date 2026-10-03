@@ -200,26 +200,22 @@ test.describe("Course Creation", () => {
 		// Dismiss it before adding a lesson so it can't hijack the editor.
 		await closeOnboardingModal(page);
 
-		// "Add Lesson" creates an "Untitled lesson" and opens it in the editor
-		// with the title field focused (LessonForm focuses the title, not the
-		// block editor, for a new, empty lesson, so our keystrokes land in the
-		// title). Rename it inline; the debounced autosave persists via
-		// frappe.client.set_value.
+		// "Add Lesson" opens an empty draft with the title focused; nothing is
+		// created until a title is typed. The lesson is created after 3 s of
+		// idle typing (or on blur) and then shows in the outline.
 		await button(page, "Add Lesson").click({ timeout: 10000 });
 		const titleField = page.locator("textarea.lesson-title");
-		await expect(titleField).toHaveValue("Untitled lesson", {
+		await expect(page.getByTestId("outline-draft-lesson")).toBeVisible({
 			timeout: 15000,
 		});
-		const renameResponse = waitForApiCall(
+		await expect(titleField).toHaveValue("");
+		const createResponse = waitForApiCall(
 			page,
-			"/api/method/frappe.client.set_value",
+			"/api/method/lms.lms.api.create_lesson",
 			15000
 		);
-		await titleField.clear();
-		await expect(titleField).toHaveValue("");
 		await titleField.fill("Test Lesson");
-		await expect(titleField).toHaveValue("Test Lesson");
-		await renameResponse;
+		await createResponse;
 		await expect(
 			page.getByTestId("outline-lesson").filter({ hasText: "Test Lesson" })
 		).toBeVisible({ timeout: 15000 });
@@ -229,9 +225,18 @@ test.describe("Course Creation", () => {
 		// (the last row, just added), and assert the editor cleared and "Test
 		// Lesson" survived.
 		await button(page, "Add Lesson").click({ timeout: 10000 });
-		await expect(titleField).toHaveValue("Untitled lesson", {
-			timeout: 15000,
-		});
+		await expect(titleField).toHaveValue("");
+		const throwawayResponse = waitForApiCall(
+			page,
+			"/api/method/lms.lms.api.create_lesson",
+			15000
+		);
+		await titleField.fill("Throwaway lesson");
+		await titleField.blur();
+		await throwawayResponse;
+		await expect(
+			page.getByTestId("outline-lesson").filter({ hasText: "Throwaway lesson" })
+		).toBeVisible({ timeout: 15000 });
 		await page
 			.getByTestId("outline-lesson")
 			.last()

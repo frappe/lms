@@ -249,3 +249,35 @@ describe('ChapterRow locked lesson', () => {
 		expect(wrapper.emitted('select-lesson')).toBeUndefined()
 	})
 })
+
+describe('ChapterRow draft lesson', () => {
+	const mountInline = (selectedLessonNumber: string) =>
+		mount(ChapterRow, {
+			props: {
+				chapter,
+				courseName: 'course-1',
+				allowEdit: true,
+				inlineSelect: true,
+				selectedLessonNumber,
+			},
+			global: {
+				mocks: { __: (s: string) => s },
+				provide: { $user: { data: { name: 'admin@example.com' } } },
+			},
+		})
+
+	it('shows the open draft as the active row of its chapter', () => {
+		const row = mountInline('2-new').find(
+			'[data-testid="outline-draft-lesson"]'
+		)
+		expect(row.exists()).toBe(true)
+		expect(row.classes()).toContain('bg-surface-gray-3')
+	})
+
+	it('shows nothing for a draft in another chapter', () => {
+		const wrapper = mountInline('1-new')
+		expect(wrapper.find('[data-testid="outline-draft-lesson"]').exists()).toBe(
+			false
+		)
+	})
+})
