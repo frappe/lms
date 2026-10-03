@@ -2327,7 +2327,7 @@ def get_batch_details(batch: str):
 	if (
 		not batch_details.accept_enrollments
 		and batch_details.start_date == getdate()
-		and str(batch_details.start_time) > nowtime()
+		and get_time(batch_details.start_time) > get_time(nowtime())
 	):
 		batch_details.accept_enrollments = True
 

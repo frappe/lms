@@ -293,6 +293,24 @@ class TestLMSUtils(BaseTestUtils):
 		self.assertEqual(batch_details.student_count, 2)
 		self.assertNotIn("students", batch_details)
 
+	def _accepts_enrollments_at(self, moment):
+		frappe.db.set_value(
+			"LMS Batch", self.batch.name, {"start_date": "2030-01-15", "start_time": "09:30:00"}
+		)
+		# nowtime() and getdate() both read the clock through now_datetime.
+		with patch("frappe.utils.data.now_datetime", return_value=datetime.fromisoformat(moment)):
+			return get_batch_details(self.batch.name).accept_enrollments
+
+	def test_a_morning_batch_accepts_enrollments_until_it_starts(self):
+		"""Control for the test below (audit finding #56)."""
+		self.assertTrue(self._accepts_enrollments_at("2030-01-15 09:29:00"))
+
+	def test_a_morning_batch_stops_accepting_enrollments_once_it_starts(self):
+		"""Regression: 48eb2ff40 compared times as strings, and "9:30:00" > "10:00:00".
+		Added for audit finding #56."""
+		self.assertFalse(self._accepts_enrollments_at("2030-01-15 09:31:00"))
+		self.assertFalse(self._accepts_enrollments_at("2030-01-15 10:00:00"))
+
 	def test_course_categories_list_used_published_ones_with_a_clear_option(self):
 		with self.subTest(case="includes_used_category"):
 			labels = [category["label"] for category in get_course_categories()]
@@ -828,7 +846,7 @@ class TestEditorJsSanitisation(unittest.TestCase):
 	def test_keeps_a_span_carrying_class_and_style(self):
 		# The align tool carries its whole payload in an attribute, so it is the
 		# one a tag-level allowlist can silently strip.
-		text = '<span class="lms-align" style="text-align: center; ' 'display: block;">mid</span>'
+		text = '<span class="lms-align" style="text-align: center; display: block;">mid</span>'
 		out = self._text(self._payload(text))
 		self.assertIn("lms-align", out)
 		self.assertIn("text-align:center", out.replace(" ;", ";"))
