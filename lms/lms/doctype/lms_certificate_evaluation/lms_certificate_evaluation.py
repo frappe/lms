@@ -64,9 +64,15 @@ def has_permission(doc, ptype="read", user=None):
 			["evaluator", "member", "course", "batch_name"],
 			as_dict=True,
 		)
-		if not stored or not is_assigned_evaluator(stored, user):
+		if not stored:
 			return False
-		return ptype == "delete" or is_assigned_evaluator(doc, user)
+		if ptype == "delete":
+			return is_assigned_evaluator(stored, user)
+		# A write may come from whoever evaluates the stored row's course/batch now,
+		# not only its previous grader, so a reassigned evaluator can regrade it.
+		if not can_evaluate(user, stored.member, stored.course, stored.batch_name):
+			return False
+		return is_assigned_evaluator(doc, user)
 
 	return False
 
