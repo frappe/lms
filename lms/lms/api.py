@@ -1792,7 +1792,7 @@ def save_evaluation_details(
 	frappe.only_for(["Batch Evaluator", "Moderator"])
 	user = frappe.session.user
 	if has_moderator_role():
-		evaluator = get_evaluator(course, batch_name) or user
+		evaluator = get_evaluator(course, batch_name)
 	elif can_evaluate(user, member, course, batch_name):
 		evaluator = user
 	else:
@@ -1810,6 +1810,12 @@ def save_evaluation_details(
 		"name",
 		for_update=True,
 	)
+	if not evaluator:
+		# A Moderator correcting a row on a course with no assigned evaluator keeps
+		# its grader, who would otherwise lose the row.
+		evaluator = (
+			evaluation and frappe.db.get_value("LMS Certificate Evaluation", evaluation, "evaluator")
+		) or user
 
 	details = {
 		"date": date_value,
@@ -1819,18 +1825,22 @@ def save_evaluation_details(
 		"rating": rating / 5,
 		"summary": summary,
 		"batch_name": batch_name,
+		# Whoever grades now owns the row: a reassigned evaluator regrades their
+		# predecessor's evaluation, and the write check reads this field.
+		"evaluator": evaluator,
 	}
 
 	if evaluation:
-		frappe.db.set_value("LMS Certificate Evaluation", evaluation, details)
-		return evaluation
+		doc = frappe.get_doc("LMS Certificate Evaluation", evaluation, for_update=True)
+		doc.update(details)
+		doc.save()
+		return doc.name
 	else:
 		doc = frappe.new_doc("LMS Certificate Evaluation")
 		details.update(
 			{
 				"member": member,
 				"course": course,
-				"evaluator": evaluator,
 			}
 		)
 		doc.update(details)
@@ -1878,8 +1888,10 @@ def save_certificate_details(
 	}
 
 	if certificate:
-		frappe.db.set_value("LMS Certificate", certificate, details)
-		return certificate
+		doc = frappe.get_doc("LMS Certificate", certificate, for_update=True)
+		doc.update(details)
+		doc.save()
+		return doc.name
 	else:
 		doc = frappe.new_doc("LMS Certificate")
 		details.update(
