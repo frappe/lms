@@ -22,6 +22,7 @@
   "date",
   "day",
   "google_meet_link",
+  "event",
   "column_break_ddyh",
   "start_time",
   "end_time",
@@ -105,6 +106,14 @@
    "read_only": 1
   },
   {
+   "fieldname": "event",
+   "fieldtype": "Link",
+   "label": "Calendar Event",
+   "no_copy": 1,
+   "options": "Event",
+   "read_only": 1
+  },
+  {
    "fieldname": "batch_name",
    "fieldtype": "Link",
    "in_standard_filter": 1,
@@ -158,8 +167,8 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-10-01 12:00:00.000000",
- "modified_by": "sayali@frappe.io",
+ "modified": "2026-10-25 12:00:00.000000",
+ "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Certificate Request",
  "owner": "Administrator",

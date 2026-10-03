@@ -34,6 +34,8 @@ export interface LMSCertificateRequest {
 	member_name?: string
 	/**	Google Meet Link : Data	*/
 	google_meet_link?: string
+	/**	Calendar Event : Link - Event	*/
+	event?: string
 	/**	Batch : Link - LMS Batch	*/
 	batch_name?: string
 	/**	Course Title : Data	*/

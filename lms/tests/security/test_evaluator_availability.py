@@ -1138,9 +1138,12 @@ class TestEvaluatorCalendarSettings(BaseTestUtils):
 
 		frappe.db.set_value("Google Calendar", name, "enable", 1)
 		with (
-			patch(f"{module}.create_event") as create_event,
+			patch(
+				f"{module}.create_event", return_value=frappe._dict(name="evaluation-event")
+			) as create_event,
 			patch(f"{module}.add_participants"),
 			patch(f"{module}.update_meeting_details"),
+			patch.object(frappe.db, "commit"),
 		):
 			setup_calendar_event(booking.name)
 		create_event.assert_called_once()
