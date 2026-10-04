@@ -8,6 +8,7 @@ from frappe.translate import get_user_lang
 from frappe.utils.data import escape_html
 from frappe.utils.telemetry import capture
 
+from lms.lms.api import can_see_job
 from lms.lms.permissions import can_access_course, can_author_batch
 from lms.lms.utils import get_lms_path, get_lms_route, resolve_text_direction
 
@@ -218,11 +219,11 @@ def get_meta_from_document(app_path):
 		job_opening = frappe.db.get_value(
 			"Job Opportunity",
 			job_opening_name,
-			["job_title", "company_logo", "description"],
+			["job_title", "company_logo", "description", "status", "owner"],
 			as_dict=True,
 		)
 
-		if not job_opening:
+		if not job_opening or not can_see_job(job_opening.status, job_opening.owner):
 			return frappe._dict()
 
 		if job_opening.description:
