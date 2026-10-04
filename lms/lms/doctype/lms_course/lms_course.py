@@ -186,7 +186,9 @@ class LMSCourse(Document):
 			update_payment_record("LMS Course", self.name)
 
 	def send_email_to_interested_users(self):
-		interested_users = frappe.get_all("LMS Course Interest", {"course": self.name}, ["name", "user"])
+		interested_users = frappe.get_all(
+			"LMS Course Interest", {"course": self.name, "email_sent": 0}, ["name", "user"]
+		)
 		subject = self.title + " is available!"
 		args = {
 			"title": self.title,
@@ -196,16 +198,25 @@ class LMSCourse(Document):
 		}
 
 		for user in interested_users:
-			args["first_name"] = frappe.db.get_value("User", user.user, "first_name")
-			email_args = frappe._dict(
-				recipients=user.user,
-				subject=subject,
-				header=[subject, "green"],
-				template="lms_course_interest",
-				args=args,
-				now=True,
-			)
-			frappe.enqueue(method=frappe.sendmail, queue="short", timeout=300, is_async=True, **email_args)
+			# sendmail only writes the Email Queue row, so the email commits or rolls
+			# back together with email_sent below.
+			try:
+				frappe.sendmail(
+					recipients=user.user,
+					subject=subject,
+					header=[subject, "green"],
+					template="lms_course_interest",
+					args={**args, "first_name": frappe.db.get_value("User", user.user, "first_name")},
+				)
+			except frappe.OutgoingEmailError:
+				# No outgoing email account: launch the course anyway and leave the
+				# remaining users unmarked, so a later launch emails them.
+				frappe.log_error(
+					title=f"Could not email interested users about {self.name}",
+					reference_doctype=self.doctype,
+					reference_name=self.name,
+				)
+				return
 			frappe.db.set_value("LMS Course Interest", user.name, "email_sent", True)
 
 	def autoname(self):
