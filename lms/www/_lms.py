@@ -10,8 +10,12 @@ from frappe.utils.jinja_globals import is_rtl
 from frappe.utils.telemetry import capture
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 from lms.lms.utils import get_lms_path, get_lms_route
 =======
+=======
+from lms.lms.api import can_see_job
+>>>>>>> 3fb4b93 (fix: show closed job posts only to their poster and staff)
 from lms.lms.permissions import can_access_course, can_author_batch
 from lms.lms.utils import get_lms_path, get_lms_route, resolve_text_direction
 >>>>>>> 62a3d6e (fix: keep unpublished courses and batches out of the shell meta tags)
@@ -221,11 +225,11 @@ def get_meta_from_document(app_path):
 		job_opening = frappe.db.get_value(
 			"Job Opportunity",
 			job_opening_name,
-			["job_title", "company_logo", "description"],
+			["job_title", "company_logo", "description", "status", "owner"],
 			as_dict=True,
 		)
 
-		if not job_opening:
+		if not job_opening or not can_see_job(job_opening.status, job_opening.owner):
 			return frappe._dict()
 
 		if job_opening.description:

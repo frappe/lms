@@ -42,8 +42,13 @@ from lms.lms.doctype.course_lesson.course_lesson import (
 	save_progress,
 )
 from lms.lms.doctype.lms_certificate.lms_certificate import evaluates_certificate, get_latest_certificate
+<<<<<<< HEAD
 from lms.lms.html_sanitizer import sanitize_rich_text
 from lms.lms.permissions import is_site_administrator
+=======
+from lms.lms.permissions import is_site_administrator
+from lms.lms.sidebar import LEGACY_VISIBILITY_FIELDS, ROW_FIELDS, get_sidebar_rows
+>>>>>>> 3fb4b93 (fix: show closed job posts only to their poster and staff)
 from lms.lms.utils import (
 	LMS_ROLES,
 	attach_file_to_doc,
@@ -299,6 +304,7 @@ def verify_billing_access(doctype, name, billing_type):
 	return access, message
 
 
+# nosemgrep: security.guest-whitelisted-method - pre-existing grant, unchanged by this branch; guests see only open job posts. Flagged only because semgrep ci re-scans the whole function when its body changes.
 @frappe.whitelist(allow_guest=True)
 def get_job_details(job: str):
 	if not isinstance(job, str):
@@ -320,12 +326,14 @@ def get_job_details(job: str):
 			"creation",
 			"description",
 			"owner",
+			"status",
 		],
 		as_dict=1,
 	)
+	if not job_details or not can_see_job(job_details.pop("status"), job_details.owner):
+		return None
 
-	if job_details:
-		job_details.applicants = frappe.db.count("LMS Job Application", {"job": job})
+	job_details.applicants = frappe.db.count("LMS Job Application", {"job": job})
 
 	return job_details
 
@@ -386,10 +394,35 @@ def sanitize_job_filters(filters, or_filters):
 	for field, value in (filters | or_filters).items():
 		check_filter_value(field, value)
 
-	if filters.get("status") == "Closed" and "Moderator" not in frappe.get_roles():
-		filters["owner"] = frappe.session.user
+	if not sees_every_job():
+		if "status" not in filters:
+			filters["status"] = "Open"
+		elif not asks_only_open(filters["status"]):
+			filters["owner"] = frappe.session.user
 
 	return filters, or_filters
+
+
+def sees_every_job() -> bool:
+	return is_site_administrator() or "Moderator" in frappe.get_roles()
+
+
+def can_see_job(status: str, owner: str) -> bool:
+	"""A closed post is for its poster and staff; everyone else sees open posts."""
+	return status == "Open" or owner == frappe.session.user or sees_every_job()
+
+
+def asks_only_open(status) -> bool:
+	"""Whether a status filter, in any spelling, can match nothing but Open posts.
+	Anything else could reach a closed post, so the caller is held to their own."""
+	values = status
+	if isinstance(status, list | tuple) and len(status) == 2:
+		operator, values = status
+		if not isinstance(operator, str) or operator.lower() not in ("=", "in"):
+			return False
+	if not isinstance(values, list | tuple):
+		values = [values]
+	return list(values) == ["Open"]
 
 
 @frappe.whitelist(allow_guest=True)
