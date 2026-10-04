@@ -6,7 +6,7 @@ asked anything. What it puts into the page is readable without any permission.""
 import frappe
 
 from lms.lms.test_helpers import BaseTestUtils
-from lms.www._lms import get_meta_from_document
+from lms.www._lms import get_boot, get_meta_from_document
 
 
 class TestShellMetaScope(BaseTestUtils):
@@ -89,3 +89,21 @@ class TestShellMetaScope(BaseTestUtils):
 		for path in (f"batches/{self.live_batch.name}", f"batches/details/{self.live_batch.name}"):
 			with self.subTest(path=path):
 				self.assertEqual(self.meta_as("Guest", path).get("title"), self.live_batch.title)
+
+
+class TestShellBoot(BaseTestUtils):
+	"""Core withholds the framework version from Guest (/api/method/version needs a
+	login); the shell must not hand it out either. The SPA never reads it."""
+
+	def test_the_boot_carries_no_framework_version(self):
+		"""The boot carried frappe.__version__ to Guest since #1479.
+		Added for audit finding #90 on branch fix/draft-and-guest-disclosure."""
+		for user in ("Guest", "Administrator"):
+			frappe.set_user(user)
+			try:
+				boot = get_boot()
+			finally:
+				frappe.set_user("Administrator")
+			with self.subTest(user=user):
+				self.assertNotIn("frappe_version", boot)
+				self.assertNotIn(frappe.__version__, boot.values())
