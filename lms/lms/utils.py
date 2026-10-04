@@ -1869,6 +1869,14 @@ def get_lesson(course: str, chapter: int, lesson: int) -> dict:
 	if not guest_access_allowed():
 		return {}
 
+	# Local import: permissions imports from utils at module load.
+	from lms.lms.permissions import can_access_course
+
+	# An unpublished course is authoring-only: its lesson and course titles stay with
+	# its authors and learners, so the locked and no-preview answers below never run.
+	if not can_access_course(course):
+		return {}
+
 	ChapterReference = frappe.qb.DocType("Chapter Reference")
 	CourseChapter = frappe.qb.DocType("Course Chapter")
 
