@@ -16,6 +16,7 @@ required_apps = ["frappe/payments"]
 
 
 def get_lms_path():
+	"""Bench-wide: read once at import. Set lms_path in common_site_config.json."""
 	path = "lms"
 	if frappe.conf and frappe.conf.get("lms_path"):
 		path = frappe.conf.get("lms_path")
