@@ -37,6 +37,7 @@ from frappe.utils import (
 	to_timedelta,
 	validate_email_address,
 )
+from frappe.utils.caching import site_cache
 from frappe.utils.dateutils import get_period_ending
 from frappe.utils.html_utils import sanitize_html
 from pypika import Case
@@ -71,7 +72,31 @@ def get_lms_route(path=""):
 
 
 def extend_bootinfo(bootinfo: dict):
+	warn_if_lms_path_differs_from_routes()
 	bootinfo["lms_path"] = get_lms_path()
+
+
+@site_cache
+def warn_if_lms_path_differs_from_routes():
+	"""The route rules in lms/hooks.py read lms_path once, at import, so the value
+	is bench-wide and a per-site override is not routed. Warns once per site and process."""
+	site = frappe.local.site
+	routed = get_routed_lms_path()
+	if routed is None or routed == get_lms_path():
+		return
+
+	frappe.logger("lms", allow_site=True).warning(
+		f"lms_path for site {site} is '{get_lms_path()}' but routes are served at '/{routed}'. "
+		"lms_path is bench-wide: set it in common_site_config.json, not site_config.json, "
+		"and restart the bench."
+	)
+
+
+def get_routed_lms_path() -> str | None:
+	for rule in frappe.get_hooks("website_route_rules"):
+		if rule.get("to_route") == "_lms" and "<" not in rule["from_route"]:
+			return rule["from_route"].strip("/")
+	return None
 
 
 def resolve_text_direction(lang: str) -> str:
