@@ -3,7 +3,12 @@
 
 import frappe
 
-from lms.lms.test_helpers import BaseTestUtils, MemberOwnershipTestMixin
+from lms.lms.test_helpers import (
+	BaseTestUtils,
+	MemberOwnershipTestMixin,
+	released_frappe_sanitizer,
+	released_sanitize_html,
+)
 
 
 class TestLMSAssignmentSubmission(MemberOwnershipTestMixin, BaseTestUtils):
@@ -129,3 +134,19 @@ class TestLMSAssignmentSubmission(MemberOwnershipTestMixin, BaseTestUtils):
 		stored = self._stored(doc, "comments")
 		for tag in ("<script", "<iframe", "onerror"):
 			self.assertNotIn(tag, stored)
+
+	JSON_SHAPED_XSS = '"<img src=x onerror=alert(1)>"'
+
+	def _save_on_released_frappe(self, comments):
+		with released_frappe_sanitizer():
+			return self._graded_submission(comments=comments, status="Pass")
+
+	def test_json_shaped_comments_are_sanitised_on_released_frappe(self):
+		self.assertEqual(released_sanitize_html(self.JSON_SHAPED_XSS), self.JSON_SHAPED_XSS)
+		stored = self._stored(self._save_on_released_frappe(self.JSON_SHAPED_XSS), "comments")
+		self.assertNotIn("onerror", stored)
+		self.assertIn("<img", stored)
+
+	def test_plain_text_comments_are_stored_unchanged(self):
+		text = "Tom & Jerry: 5 > 3"
+		self.assertEqual(self._stored(self._save_on_released_frappe(text), "comments"), text)
