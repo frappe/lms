@@ -109,6 +109,21 @@ def _names_containing_url(file_url: str, fields: tuple[str, ...]) -> list[str]:
 	return frappe.qb.from_(question).select(question.name).where(criterion).run(pluck=True)
 
 
+def _attachment_is_explanation_only(attached_to_field: str | None) -> bool:
+	"""Whether a File attachment should be gated like answer-key media.
+
+	Empty/unknown field → explanation-only (fail closed). Only an explicit
+	prompt/option field marks the attachment as student-visible on its own.
+	"""
+	if not attached_to_field:
+		return True
+	if attached_to_field in QUESTION_EXPLANATION_FIELDS:
+		return True
+	if attached_to_field in STUDENT_QUESTION_FIELDS:
+		return False
+	return True
+
+
 def _resolve_question_references(file_url: str) -> list[_QuestionReference]:
 	"""Every LMS Question reference to file_url, from attachments and content search.
 
@@ -133,10 +148,11 @@ def _resolve_question_references(file_url: str) -> list[_QuestionReference]:
 	refs = [
 		_QuestionReference(
 			question=r.attached_to_name,
-			# Unknown / empty attachment field: treat as prompt media (the RichTextEditor
-			# upload path). Only an explicit explanation_* attachment is answer-key.
-			explanation_only=bool(r.attached_to_field)
-			and r.attached_to_field in QUESTION_EXPLANATION_FIELDS,
+			# Fail closed on empty/unknown attached_to_field: an explanation image
+			# that is also attached (with no field) must not clear explanation_only
+			# and skip can_view_quiz_answers. A genuine prompt cite still clears the
+			# flag via the student-field content search below.
+			explanation_only=_attachment_is_explanation_only(r.attached_to_field),
 			attached=True,
 			owner=r.owner,
 			canonical=r.owner == canonical_owner,
