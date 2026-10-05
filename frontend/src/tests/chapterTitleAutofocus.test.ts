@@ -43,10 +43,8 @@ vi.mock('@/components/HeaderButton.vue', () => ({
 vi.mock('@/components/Controls/BooleanSwitch.vue', () => ({
 	default: { props: ['modelValue', 'label', 'description', 'size'] },
 }))
-vi.mock('@framework/ui/telemetry/index', () => ({
+vi.mock('frappe-ui/frappe', () => ({
 	useTelemetry: () => ({ capture: vi.fn() }),
-}))
-vi.mock('@framework/ui/components/Onboarding/index', () => ({
 	useOnboarding: () => ({ updateOnboardingStep: vi.fn() }),
 }))
 
