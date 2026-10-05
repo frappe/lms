@@ -396,6 +396,25 @@ def has_moderator_role(member: str = None):
 	)
 
 
+def moderators_among(members) -> set[str]:
+	"""has_moderator_role for a whole set of accounts, in one query.
+
+	Callers that judge a list of third parties (serve_resource weighs one per File row
+	sharing a url) would otherwise put a query inside their loop.
+	"""
+	members = {member for member in members or [] if member}
+	if not members:
+		return set()
+
+	return set(
+		frappe.db.get_all(
+			"Has Role",
+			filters={"parent": ("in", list(members)), "role": "Moderator"},
+			pluck="parent",
+		)
+	)
+
+
 def has_evaluator_role(member: str = None):
 	return frappe.db.get_value(
 		"Has Role",
