@@ -12,7 +12,7 @@ from frappe.rate_limiter import rate_limit
 
 from lms.lms.doctype.lms_content_author.lms_content_author import AuthoredDocument
 from lms.lms.permissions import can_access_quiz, is_content_author
-from lms.lms.utils import has_moderator_role, moderators_among
+from lms.lms.utils import moderators_among
 
 # Each LMS Question carries up to 10 option/correctness/explanation/possibility
 # columns. Keep these lists as the single source of truth so any future change
@@ -22,10 +22,10 @@ QUESTION_CORRECTNESS_FIELDS = [f"is_correct_{i}" for i in range(1, 11)]
 QUESTION_EXPLANATION_FIELDS = [f"explanation_{i}" for i in range(1, 11)]
 QUESTION_POSSIBILITY_FIELDS = [f"possibility_{i}" for i in range(1, 11)]
 
-# HTML-bearing fields that may embed private editor uploads. Options and
-# explanations are usually plain text today; searching them keeps a future rich
-# option/explanation path from silently 403ing the same way lesson media once did.
-QUESTION_MEDIA_FIELDS = ("question", *QUESTION_OPTION_FIELDS, *QUESTION_EXPLANATION_FIELDS)
+# Prompt/options ship with the quiz attempt; explanations are answer-key material
+# and are gated harder (see can_view_quiz_answers).
+STUDENT_QUESTION_FIELDS = ("question", *QUESTION_OPTION_FIELDS)
+QUESTION_MEDIA_FIELDS = (*STUDENT_QUESTION_FIELDS, *QUESTION_EXPLANATION_FIELDS)
 
 
 class LMSQuestion(AuthoredDocument, Document):
@@ -91,10 +91,22 @@ class _QuestionReference(NamedTuple):
 	"""One claim that `question` uses the bytes, plus the evidence behind the claim."""
 
 	question: str
+	explanation_only: bool
 	attached: bool
 	owner: str | None
 	canonical: bool
 	untouched: bool
+
+
+def _names_containing_url(file_url: str, fields: tuple[str, ...]) -> list[str]:
+	"""Questions whose any of `fields` contain file_url, in one LOCATE query."""
+	if not fields:
+		return []
+	question = frappe.qb.DocType("LMS Question")
+	criterion = Locate(file_url, question[fields[0]]) > 0
+	for field in fields[1:]:
+		criterion |= Locate(file_url, question[field]) > 0
+	return frappe.qb.from_(question).select(question.name).where(criterion).run(pluck=True)
 
 
 def _resolve_question_references(file_url: str) -> list[_QuestionReference]:
@@ -112,6 +124,7 @@ def _resolve_question_references(file_url: str) -> list[_QuestionReference]:
 			"modified",
 			"attached_to_doctype",
 			"attached_to_name",
+			"attached_to_field",
 		],
 		order_by="creation asc, name asc",
 	)
@@ -120,6 +133,10 @@ def _resolve_question_references(file_url: str) -> list[_QuestionReference]:
 	refs = [
 		_QuestionReference(
 			question=r.attached_to_name,
+			# Unknown / empty attachment field: treat as prompt media (the RichTextEditor
+			# upload path). Only an explicit explanation_* attachment is answer-key.
+			explanation_only=bool(r.attached_to_field)
+			and r.attached_to_field in QUESTION_EXPLANATION_FIELDS,
 			attached=True,
 			owner=r.owner,
 			canonical=r.owner == canonical_owner,
@@ -129,30 +146,29 @@ def _resolve_question_references(file_url: str) -> list[_QuestionReference]:
 		if r.attached_to_doctype == "LMS Question" and r.attached_to_name
 	]
 
-	question = frappe.qb.DocType("LMS Question")
-	for field in QUESTION_MEDIA_FIELDS:
-		names = (
-			frappe.qb.from_(question)
-			.select(question.name)
-			.where(Locate(file_url, question[field]) > 0)
-			.run(pluck=True)
-		)
-		for name in names:
-			refs.append(_QuestionReference(name, False, canonical_owner, True, True))
+	for name in _names_containing_url(file_url, STUDENT_QUESTION_FIELDS):
+		refs.append(_QuestionReference(name, False, False, canonical_owner, True, True))
+	for name in _names_containing_url(file_url, tuple(QUESTION_EXPLANATION_FIELDS)):
+		refs.append(_QuestionReference(name, True, False, canonical_owner, True, True))
 
 	return refs
 
 
-def _questions_vouched_by_owner(references: list[_QuestionReference]) -> set[str]:
-	"""Question names entitled to speak for the bytes.
+def _questions_vouched_by_owner(references: list[_QuestionReference]) -> dict[str, bool]:
+	"""Vouched question names → whether only explanation fields cite the bytes.
 
 	A reference vouches only when its owner uploaded the bytes (canonical File row)
 	and currently authors the question — or, for an attachment they placed and never
-	edited, when they own the question document. Borrowed File rows (later inserts
-	that only name the url) are kept solely while their owner is still a Moderator.
+	edited, when they own the question document. Being a Moderator alone is not
+	enough: otherwise pasting an unrelated moderator-owned private URL into any
+	authored question would open that file to the quiz's learners.
+
+	Borrowed File rows (later inserts that only name the url) are kept solely while
+	their owner is still a Moderator, and still have to pass the author/placement
+	check above.
 	"""
 	if not references:
-		return set()
+		return {}
 
 	question_names = {ref.question for ref in references}
 	owners = frappe.db.get_all(
@@ -168,31 +184,58 @@ def _questions_vouched_by_owner(references: list[_QuestionReference]) -> set[str
 		moderators = moderators_among(borrowed)
 		trusted = [ref for ref in references if ref.canonical or ref.owner in moderators]
 
-	vouched = set()
+	# question → explanation_only. A student-visible cite clears the flag.
+	vouched: dict[str, bool] = {}
 	for ref in trusted:
 		if not ref.owner:
 			continue
-		if is_content_author("LMS Question", ref.question, ref.owner) or has_moderator_role(
-			ref.owner
-		):
-			vouched.add(ref.question)
-			continue
-		placed_by_uploader = (
-			ref.attached and ref.canonical and question_owner.get(ref.question) is not None
-		)
-		if placed_by_uploader and (question_owner[ref.question] == ref.owner or ref.untouched):
-			vouched.add(ref.question)
+		if not is_content_author("LMS Question", ref.question, ref.owner):
+			placed_by_uploader = (
+				ref.attached and ref.canonical and question_owner.get(ref.question) is not None
+			)
+			if not (
+				placed_by_uploader and (question_owner[ref.question] == ref.owner or ref.untouched)
+			):
+				continue
+		if ref.question not in vouched:
+			vouched[ref.question] = ref.explanation_only
+		elif not ref.explanation_only:
+			vouched[ref.question] = False
 	return vouched
 
 
-def _quizzes_for_questions(questions: set[str]) -> list[str]:
-	if not questions:
-		return []
-	return frappe.get_all(
-		"LMS Quiz Question",
-		filters={"question": ("in", list(questions))},
-		pluck="parent",
+def _learner_may_receive_question_media(quiz: str, *, explanation_only: bool) -> bool:
+	"""Same visibility rules as get_quiz_with_questions for the bytes in question.
+
+	`can_access_quiz` alone is not enough: scheduling withholds the question list,
+	and explanations are answer-key material gated by can_view_quiz_answers.
+	"""
+	from lms.lms.schedule_utils import get_schedule_block_reason
+	from lms.lms.utils import PRIVILEGED_ROLES, can_view_quiz_answers
+
+	if not can_access_quiz(quiz):
+		return False
+
+	row = frappe.db.get_value(
+		"LMS Quiz",
+		quiz,
+		["enable_scheduling", "schedule_start", "schedule_end", "show_answers"],
+		as_dict=True,
 	)
+	if not row:
+		return False
+
+	privileged = bool(PRIVILEGED_ROLES & set(frappe.get_roles()))
+	if (
+		get_schedule_block_reason(row.enable_scheduling, row.schedule_start, row.schedule_end)
+		and not privileged
+	):
+		return False
+
+	if explanation_only and not can_view_quiz_answers(quiz, row.show_answers):
+		return False
+
+	return True
 
 
 def _deny_question_resource(file_url, reason):
@@ -205,7 +248,7 @@ def _deny_question_resource(file_url, reason):
 
 
 # Same ceiling rationale as lesson serve_resource: charged per asset, shared NAT,
-# broken <img> on 429 with no toast. Enumeration is held off by can_access_quiz.
+# broken <img> on 429 with no toast. Enumeration is held off by the visibility gate.
 @frappe.whitelist()
 @rate_limit(limit=20000, seconds=60 * 60)
 def serve_question_resource(file_url: str):
@@ -214,7 +257,8 @@ def serve_question_resource(file_url: str):
 	Native /private/files/ needs a File read the learner does not hold, so
 	get_quiz_with_questions rewrites embedded URLs here. The owning question is
 	resolved from its HTML fields (and any File attachment), vouched to the
-	uploader/author, then gated by can_access_quiz on any quiz that includes it.
+	uploader/author, then gated by the same visibility rules that deliver the
+	question HTML (quiz access, schedule window, answer-key for explanations).
 	"""
 	# Local import: course_lesson imports from utils at module load in places that
 	# would cycle if lms_question imported _serve_private_file at the top.
@@ -240,18 +284,35 @@ def serve_question_resource(file_url: str):
 		_deny_question_resource(file_url, "file not referenced by any question")
 		raise frappe.PermissionError
 
-	questions = _questions_vouched_by_owner(references)
-	if not questions:
+	vouched = _questions_vouched_by_owner(references)
+	if not vouched:
 		_deny_question_resource(file_url, "no referencing question is authored by the file owner")
 		raise frappe.PermissionError
 
-	quizzes = _quizzes_for_questions(questions)
-	if not quizzes:
+	# A quiz that only cites the file via an explanation needs answer visibility;
+	# if any vouched question cites it from the prompt/options, treat as student media.
+	placements = frappe.get_all(
+		"LMS Quiz Question",
+		filters={"question": ("in", list(vouched))},
+		fields=["parent", "question"],
+	)
+	quiz_explanation_only: dict[str, bool] = {}
+	for row in placements:
+		explanation_only = vouched[row.question]
+		if row.parent not in quiz_explanation_only:
+			quiz_explanation_only[row.parent] = explanation_only
+		elif not explanation_only:
+			quiz_explanation_only[row.parent] = False
+
+	if not quiz_explanation_only:
 		_deny_question_resource(file_url, "question not placed in any quiz")
 		raise frappe.PermissionError
 
-	if not any(can_access_quiz(quiz) for quiz in quizzes):
-		_deny_question_resource(file_url, "can_access_quiz denied for all quizzes")
+	if not any(
+		_learner_may_receive_question_media(quiz, explanation_only=explanation_only)
+		for quiz, explanation_only in quiz_explanation_only.items()
+	):
+		_deny_question_resource(file_url, "question media visibility denied for all quizzes")
 		raise frappe.PermissionError
 
 	relative_path = file_url.split("/private", 1)[1] if "/private" in file_url else file_url

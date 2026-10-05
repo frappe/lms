@@ -6,8 +6,10 @@ serve endpoint, deny anyone who cannot take a quiz that includes the question.
 """
 
 import base64
+from datetime import timedelta
 
 import frappe
+from frappe.utils import now_datetime
 
 from lms.lms.doctype.course_lesson import course_lesson
 from lms.lms.doctype.lms_question.lms_question import (
@@ -151,6 +153,111 @@ class TestServeQuestionResource(BaseTestUtils):
 			frappe.set_user(self.instructor.email)
 			try:
 				self.question.question = original_html
+				self.question.save()
+			finally:
+				frappe.set_user("Administrator")
+
+	def test_unrelated_moderator_owned_file_pasted_by_author_is_denied(self):
+		"""A Moderator-owned private file is not open just because its owner is a Mod."""
+		h = frappe.generate_hash(length=6)
+		mod = self._create_user(
+			f"qmedia-mod-{h}@example.com", "Mo", "Derator", ["Course Creator", "Moderator"]
+		)
+		author = self._create_user(f"qmedia-auth-{h}@example.com", "Au", "Thor", ["Course Creator"])
+
+		frappe.set_user(mod.email)
+		try:
+			secret = frappe.get_doc(
+				{
+					"doctype": "File",
+					"file_name": f"mod_secret_{h}.png",
+					"is_private": 1,
+					"content": base64.b64encode(ONE_PIXEL_PNG).decode(),
+					"decode": True,
+				}
+			).insert(ignore_permissions=True)
+		finally:
+			frappe.set_user("Administrator")
+
+		frappe.set_user(author.email)
+		try:
+			question = frappe.new_doc("LMS Question")
+			question.update(
+				{
+					"question": f'<p><img src="{secret.file_url}"></p>',
+					"type": "Choices",
+					"option_1": "A",
+					"is_correct_1": 1,
+					"option_2": "B",
+					"is_correct_2": 0,
+				}
+			)
+			question.save()
+			quiz = self._create_quiz([question], title=f"Mod Paste Quiz {h}")
+		finally:
+			frappe.set_user("Administrator")
+
+		self._place_in_lesson(self.course.name, "LMS Quiz", quiz.name, title=f"Mod Paste Lesson {h}")
+
+		with self.assertRaises(frappe.PermissionError):
+			self._serve_as(self.student.email, file_url=secret.file_url)
+
+	def test_scheduled_quiz_withholds_media_until_window_opens(self):
+		frappe.db.set_value(
+			"LMS Quiz",
+			self.quiz.name,
+			{
+				"enable_scheduling": 1,
+				"schedule_start": now_datetime() + timedelta(days=1),
+				"schedule_end": now_datetime() + timedelta(days=2),
+			},
+		)
+		self.addCleanup(
+			frappe.db.set_value,
+			"LMS Quiz",
+			self.quiz.name,
+			{"enable_scheduling": 0, "schedule_start": None, "schedule_end": None},
+		)
+
+		with self.assertRaises(frappe.PermissionError):
+			self._serve_as(self.student.email)
+		# Authors/moderators still reach the media while authoring.
+		self.assertIsNotNone(self._serve_as(self.instructor.email))
+
+	def test_explanation_only_image_requires_answer_visibility(self):
+		h = frappe.generate_hash(length=6)
+		frappe.set_user(self.instructor.email)
+		try:
+			expl = frappe.get_doc(
+				{
+					"doctype": "File",
+					"file_name": f"expl_{h}.png",
+					"is_private": 1,
+					"content": base64.b64encode(ONE_PIXEL_PNG).decode(),
+					"decode": True,
+				}
+			).insert(ignore_permissions=True)
+			# Prompt has no image; only the explanation cites the private file.
+			self.question.question = f"<p>No image here {h}</p>"
+			self.question.explanation_1 = f'<p><img src="{expl.file_url}"></p>'
+			self.question.save()
+		finally:
+			frappe.set_user("Administrator")
+
+		frappe.db.set_value("LMS Quiz", self.quiz.name, "show_answers", 0)
+		self.addCleanup(frappe.db.set_value, "LMS Quiz", self.quiz.name, "show_answers", 1)
+
+		try:
+			with self.assertRaises(frappe.PermissionError):
+				self._serve_as(self.student.email, file_url=expl.file_url)
+
+			frappe.db.set_value("LMS Quiz", self.quiz.name, "show_answers", 1)
+			self.assertIsNotNone(self._serve_as(self.student.email, file_url=expl.file_url))
+		finally:
+			frappe.set_user(self.instructor.email)
+			try:
+				self.question.question = f'<p>Identify the shape</p><p><img src="{self.file_url}"></p>'
+				self.question.explanation_1 = None
 				self.question.save()
 			finally:
 				frappe.set_user("Administrator")
