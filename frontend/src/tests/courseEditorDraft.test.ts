@@ -120,12 +120,13 @@ async function mountEditor(chapters: Chapter[], query = {}) {
 	state.route = reactive({ query, hash: '#editor' })
 	// Bound with v-model as CourseDetail does: an assigned selection reads back
 	// the old value until the parent re-renders.
+	const course = { data: { name: 'C1' } }
 	const Parent = defineComponent({
 		setup() {
 			const selected = ref(null)
 			return () =>
 				h(CourseEditor, {
-					course: { data: { name: 'C1' } },
+					course,
 					selected: selected.value,
 					'onUpdate:selected': (value: any) => (selected.value = value),
 				})
@@ -212,7 +213,9 @@ describe('CourseEditor draft lesson identity', () => {
 		await created(wrapper, 'L-B2', 'CH-B')
 
 		expect(state.route.query.editLesson).toBeUndefined()
-		expect(localStorage.getItem('lms-course-editor-last-lesson')).toBeNull()
+		expect(
+			JSON.parse(localStorage.getItem('lms-course-editor-last-lesson')!)
+		).toEqual({ C1: '1-1' })
 
 		await settleReload([chapterA(1), chapterB(2, ['L-OTHER', 'L-B2'])])
 
@@ -246,6 +249,55 @@ describe('CourseEditor draft lesson identity', () => {
 		expect(form(wrapper).props('chapterNumber')).toBe('2')
 		expect(form(wrapper).props('lessonNumber')).toBe('2')
 		expect(state.route.query).toEqual({ editLesson: '2-2' })
+	})
+
+	it('opens a docname link once the outline catches up with it', async () => {
+		wrapper = await mountEditor([chapterA(1), chapterB(2)])
+
+		state.route.query = { editLessonName: 'L-B2' }
+		await flushPromises()
+		expect(form(wrapper).exists()).toBe(false)
+
+		state.outline.data = [chapterA(1), chapterB(2, ['L-B2'])]
+		await flushPromises()
+
+		expect(form(wrapper).props('lessonNumber')).toBe('2')
+		expect(state.route.query).toEqual({ editLesson: '2-2' })
+	})
+
+	it('clears the editor and the URL when the open lesson is deleted', async () => {
+		wrapper = await mountEditor([chapterA(1), chapterB(2)], {
+			editLesson: '2-1',
+		})
+		outline(wrapper).vm.$emit('lesson-deleted', { lesson: 'L-B1' })
+		await flushPromises()
+		state.outline.data = [chapterA(1), { ...chapterB(2), lessons: [] }]
+		await flushPromises()
+
+		expect(form(wrapper).exists()).toBe(false)
+		expect(state.route.query).toEqual({})
+	})
+
+	it('drops a draft whose chapter is deleted', async () => {
+		wrapper = await mountEditor([chapterA(1), chapterB(2)])
+		await addLesson(wrapper, chapterB(2))
+		outline(wrapper).vm.$emit('chapter-deleted', { chapter: 'CH-B' })
+		await flushPromises()
+
+		expect(form(wrapper).exists()).toBe(false)
+		expect(state.route.query).toEqual({})
+	})
+
+	it('reopens a lesson by number after a refresh, else the stored one', async () => {
+		wrapper = await mountEditor([chapterA(1), chapterB(2)], {
+			editLesson: '2-1',
+		})
+		expect(form(wrapper).props('chapterNumber')).toBe('2')
+		wrapper.unmount()
+
+		wrapper = await mountEditor([chapterA(1), chapterB(2)])
+		expect(form(wrapper).props('chapterNumber')).toBe('2')
+		expect(state.route.query).toEqual({ editLesson: '2-1' })
 	})
 
 	it('puts a picked lesson in the URL, dropping the draft', async () => {
