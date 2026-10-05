@@ -119,7 +119,7 @@ const isAdmin = computed(() =>
 		(role) => user.data?.[role]
 	)
 )
-const currentTab = ref('upcoming')
+const currentTab = ref(isAdmin.value ? 'active' : 'upcoming')
 const orderBy = ref('start_date')
 const readOnlyMode = window.read_only_mode
 const router = useRouter()
@@ -178,9 +178,9 @@ const setCategories = (data) => {
 	}
 }
 
-// Upcoming and Archived are settled against the current time in Python rather
-// than in the query, and `enrolled` is not a field, so only the endpoint that
-// resolves both can say how many batches a tab really holds.
+// Active, Upcoming and Archived are settled against the current time in Python
+// rather than in the query, and `enrolled` is not a field, so only the
+// endpoint that resolves both can say how many batches a tab really holds.
 const batchCountResource = createResource({
 	url: 'lms.lms.utils.get_batch_count',
 	makeParams: () => ({ filters: filters.value }),
@@ -252,19 +252,23 @@ const updateTabFilter = () => {
 	if (!user.data) {
 		return
 	}
-	if (currentTab.value == 'enrolled' && is_student.value) {
+	if (currentTab.value == 'enrolled') {
 		filters.value['enrolled'] = 1
 		delete filters.value['start_date']
 		delete filters.value['end_date']
 		delete filters.value['published']
 		orderBy.value = 'start_date desc'
-	} else if (is_student.value) {
+	} else if (isAdmin.value) {
 		delete filters.value['enrolled']
-	} else {
 		delete filters.value['start_date']
+		delete filters.value['end_date']
 		delete filters.value['published']
 		orderBy.value = 'start_date desc'
-		if (currentTab.value == 'upcoming') {
+		if (currentTab.value == 'active') {
+			filters.value['end_date'] = ['>=', dayjs().format('YYYY-MM-DD')]
+			filters.value['published'] = 1
+			orderBy.value = 'start_date'
+		} else if (currentTab.value == 'upcoming') {
 			filters.value['start_date'] = ['>=', dayjs().format('YYYY-MM-DD')]
 			filters.value['published'] = 1
 			orderBy.value = 'start_date'
@@ -273,6 +277,8 @@ const updateTabFilter = () => {
 		} else if (currentTab.value == 'unpublished') {
 			filters.value['published'] = 0
 		}
+	} else {
+		delete filters.value['enrolled']
 	}
 }
 
@@ -330,7 +336,7 @@ watch(currentTab, () => {
 const batchTabs = computed(() => {
 	if (isAdmin.value) {
 		return [
-			{ label: __('All'), value: 'all' },
+			{ label: __('Active'), value: 'active' },
 			{ label: __('Upcoming'), value: 'upcoming' },
 			{ label: __('Archived'), value: 'archived' },
 			{ label: __('Unpublished'), value: 'unpublished' },
@@ -341,6 +347,13 @@ const batchTabs = computed(() => {
 		tabs.push({ label: __('Enrolled'), value: 'enrolled' })
 	}
 	return tabs
+})
+
+// Roles can land after setup, leaving staff on a learner tab they do not have.
+watch(batchTabs, (tabs) => {
+	if (!tabs.some((tab) => tab.value === currentTab.value)) {
+		currentTab.value = tabs[0].value
+	}
 })
 
 const pageTitle = computed(() => {
