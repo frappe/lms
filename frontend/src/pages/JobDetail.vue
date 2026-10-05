@@ -6,32 +6,26 @@
 					v-if="user.data?.name && !readOnlyMode"
 					class="flex items-center gap-2"
 				>
-					<router-link
+					<HeaderButton
 						v-if="canManageJob && applicantCount > 0"
-						:to="{
+						:route="{
 							name: 'JobApplications',
 							params: { job: job.data?.name },
 						}"
-					>
-						<HeaderButton
-							:label="__('View Applications')"
-							icon="lucide-square-user-round"
-							variant="subtle"
-						/>
-					</router-link>
-					<router-link
+						:label="__('View Applications')"
+						icon="lucide-square-user-round"
+						variant="subtle"
+					/>
+					<HeaderButton
 						v-if="canManageJob"
-						:to="{
+						:route="{
 							name: 'JobForm',
 							params: { jobName: job.data?.name },
 						}"
-					>
-						<HeaderButton
-							:label="__('Edit')"
-							icon="lucide-pencil"
-							variant="subtle"
-						/>
-					</router-link>
+						:label="__('Edit')"
+						icon="lucide-pencil"
+						variant="subtle"
+					/>
 					<HeaderButton
 						:label="__('Visit Website')"
 						icon="lucide-square-arrow-out-up-right"
@@ -72,7 +66,7 @@
 						>
 							<img
 								:src="safeUrl(job.data.company_logo)"
-								class="size-10 rounded-lg object-contain cursor-pointer"
+								class="size-10 rounded-6 object-contain cursor-pointer"
 								:alt="job.data.company_name"
 							/>
 						</a>
@@ -143,7 +137,7 @@
 import { Badge, createResource, usePageMeta } from 'frappe-ui'
 import { inject, ref, computed, watch, nextTick } from 'vue'
 import { sessionStore } from '../stores/session'
-import PageHeader from '@/components/Layouts/PageHeader.vue'
+import PageHeader from '@/components/Layouts/pages/PageHeader.vue'
 import HeaderButton from '@/components/HeaderButton.vue'
 import JobApplicationModal from '@/components/Modals/JobApplicationModal.vue'
 import { safeUrl } from '@/utils/safeUrl'

@@ -5,6 +5,7 @@ import json
 import os
 import re
 from binascii import Error as BinasciiError
+from functools import partial
 
 import frappe
 from frappe import _, safe_decode
@@ -22,14 +23,18 @@ from frappe.utils.file_manager import safe_b64decode
 from frappe.utils.html_utils import sanitize_html
 from fuzzywuzzy import fuzz
 
-from lms.lms.doctype.course_lesson.course_lesson import save_progress
+from lms.lms.doctype.course_lesson.course_lesson import get_lesson_course, save_progress
+from lms.lms.doctype.lms_content_author.lms_content_author import AuthoredDocument
 from lms.lms.doctype.lms_question.lms_question import (
 	QUESTION_CORRECTNESS_FIELDS,
 	QUESTION_OPTION_FIELDS,
 	QUESTION_POSSIBILITY_FIELDS,
 )
+from lms.lms.schedule_utils import assert_within_schedule, validate_schedule_fields
 from lms.lms.utils import (
 	generate_slug,
+	has_course_instructor_role,
+	has_moderator_role,
 )
 
 # Quiz answers may embed inline images as data: URIs. Only raster image types are
@@ -52,12 +57,13 @@ MAX_VIOLATION_FRAME_BYTES = 250 * 1024
 MAX_VIOLATION_FRAMES = 40
 
 
-class LMSQuiz(Document):
+class LMSQuiz(AuthoredDocument, Document):
 	def validate(self):
 		self.validate_duplicate_questions()
 		self.validate_limit()
 		self.calculate_total_marks()
 		self.validate_open_ended_questions()
+		validate_schedule_fields(self)
 
 	def validate_duplicate_questions(self):
 		questions = [row.question for row in self.questions]
@@ -176,6 +182,7 @@ def submit_quiz(
 		quiz,
 		[
 			"name",
+			"title",
 			"total_marks",
 			"passing_percentage",
 			"lesson",
@@ -184,6 +191,9 @@ def submit_quiz(
 			"marks_to_cut",
 			"enable_proctoring",
 			"max_violations",
+			"enable_scheduling",
+			"schedule_start",
+			"schedule_end",
 		],
 		as_dict=1,
 	)
@@ -194,6 +204,13 @@ def submit_quiz(
 
 	if not can_access_quiz(quiz):
 		frappe.throw(_("You are not authorized to submit this quiz."), frappe.PermissionError)
+
+	assert_within_schedule(
+		quiz_details.enable_scheduling,
+		quiz_details.schedule_start,
+		quiz_details.schedule_end,
+		label=quiz_details.title or _("This quiz"),
+	)
 
 	data = process_results(results, quiz_details)
 	is_open_ended = data["is_open_ended"]
@@ -215,6 +232,7 @@ def submit_quiz(
 	save_progress_after_quiz(quiz_details, percentage)
 
 	_save_violation_events(submission.name, proctoring["events"])
+	_attach_answer_files(data["answer_files"], submission.name)
 
 	return {
 		"score": submission.score,
@@ -224,6 +242,25 @@ def submit_quiz(
 		"percentage": percentage,
 		"is_open_ended": is_open_ended,
 	}
+
+
+def _attach_answer_files(file_names: list[str], submission: str) -> None:
+	"""Bind a learner's inline answer images to the submission that carries them.
+
+	A private File with no attachment is readable by its owner alone, which would hide
+	the learner's evidence from the grader. Attaching defers to File.has_permission,
+	and so to LMS Quiz Submission's own read rule.
+	"""
+	if not file_names:
+		return
+
+	File = frappe.qb.DocType("File")
+	(
+		frappe.qb.update(File)
+		.set(File.attached_to_doctype, "LMS Quiz Submission")
+		.set(File.attached_to_name, submission)
+		.where(File.name.isin(file_names))
+	).run()
 
 
 def _build_proctoring_record(
@@ -501,6 +538,7 @@ def _attach_frame_urls(logs: list[dict]):
 
 def process_results(results: list, quiz_details: dict):
 	is_open_ended = False
+	answer_files: list[str] = []
 
 	for result in results:
 		question_details = frappe.db.get_value(
@@ -538,7 +576,11 @@ def process_results(results: list, quiz_details: dict):
 		else:
 			is_open_ended = True
 			result["is_correct"] = 0
-			answer = re.sub(r'<img[^>]*src\s*=\s*["\'](?=data:)(.*?)["\']', _save_file, result["answer"][0])
+			answer = re.sub(
+				r'<img[^>]*src\s*=\s*["\'](?=data:)(.*?)["\']',
+				partial(_save_file, answer_files),
+				result["answer"][0],
+			)
 			# Defense-in-depth: the answer is later rendered in the instructor's
 			# privileged grading view (QuizSubmission.vue). The frontend already
 			# wraps it in sanitizeRichHTML, but a student-controlled answer must
@@ -548,6 +590,7 @@ def process_results(results: list, quiz_details: dict):
 	return {
 		"results": results,
 		"is_open_ended": is_open_ended,
+		"answer_files": answer_files,
 	}
 
 
@@ -575,7 +618,7 @@ def verify_answer(question: str, answer: list):
 	return correct
 
 
-def _save_file(match: re.Match) -> str:
+def _save_file(created: list[str], match: re.Match) -> str:
 	data = match.group(1).split("data:")[1]
 	headers, content = data.split(",")
 	mtype = headers.split(";", 1)[0]
@@ -604,16 +647,20 @@ def _save_file(match: re.Match) -> str:
 	if os.path.splitext(filename)[1].lower() not in ALLOWED_DATAURL_IMAGE_EXTENSIONS:
 		frappe.throw(_("File type of {0} is not allowed in quiz answers.").format(escape_html(filename)))
 
+	# Private, not public: a /files/ answer image is readable by anyone holding the URL,
+	# including the other learners sitting the same quiz. submit_quiz then binds it to
+	# the submission, which is what lets the grader read it.
 	_file = frappe.get_doc(
 		{
 			"doctype": "File",
 			"file_name": filename,
 			"content": content,
 			"decode": False,
-			"is_private": False,
+			"is_private": True,
 		}
 	)
 	_file.save(ignore_permissions=True)
+	created.append(_file.name)
 	file_url = _file.unique_url
 	frappe.flags.has_dataurl = True
 
@@ -667,14 +714,23 @@ def save_progress_after_quiz(quiz_details: dict, percentage: float):
 	# direct-call bypass.
 	from lms.lms.permissions import get_locked_lessons
 
-	if quiz_details.lesson in get_locked_lessons(quiz_details.course):
+	course = get_lesson_course(quiz_details.lesson)
+	if not course or quiz_details.lesson in get_locked_lessons(course):
 		return
 
-	save_progress(quiz_details.lesson, quiz_details.course)
+	save_progress(quiz_details.lesson, course)
 
 
 @frappe.whitelist()
 def check_answer(quiz: str, question: str, question_type: str, answers: str):
+	from lms.lms.permissions import can_access_quiz
+
+	if not can_access_quiz(quiz):
+		frappe.logger("lms.security").warning(
+			"Quiz answer check denied: user=%s quiz=%s", frappe.session.user, quiz
+		)
+		frappe.throw(_("You are not authorized to view this quiz."), frappe.PermissionError)
+
 	ADMIN_ROLES = ("System Manager", "Moderator", "Course Creator", "Batch Evaluator")
 	is_admin = any(role in ADMIN_ROLES for role in frappe.get_roles())
 
@@ -729,3 +785,134 @@ def check_input_answers(question: str, answer: str):
 		if possibility and fuzz.token_sort_ratio(possibility, answer) > 85:
 			return 1
 	return 0
+
+
+@frappe.whitelist()
+def get_question_meta(questions: str | list):
+	"""Return {question_name: {quizzes, type, multiple}} for the authoring UI.
+
+	`multiple` comes from LMS Question because the quiz's own child row has no such
+	column, so a collapsed card reading the row alone badges every multiple choice
+	question as single until it is opened.
+	"""
+	if not (has_moderator_role() or has_course_instructor_role()):
+		frappe.throw(_("You are not permitted to read question details."), frappe.PermissionError)
+
+	if isinstance(questions, str):
+		try:
+			questions = json.loads(questions)
+		except (ValueError, TypeError):
+			frappe.throw(_("questions must be a JSON list of question names."))
+	if not isinstance(questions, list):
+		frappe.throw(_("questions must be a list."))
+	questions = [q for q in questions if isinstance(q, str) and q]
+	if not questions:
+		return {}
+
+	QQ = frappe.qb.DocType("LMS Quiz Question")
+	rows = (
+		frappe.qb.from_(QQ)
+		.select(QQ.question, QQ.parent)
+		.where(QQ.question.isin(questions))
+		.where(QQ.parenttype == "LMS Quiz")
+	).run(as_dict=True)
+
+	seen = {}
+	for row in rows:
+		seen.setdefault(row.question, set()).add(row.parent)
+
+	meta = {}
+	for question in frappe.get_all(
+		"LMS Question", filters={"name": ["in", questions]}, fields=["name", "type", "multiple"]
+	):
+		meta[question["name"]] = {
+			"quizzes": len(seen.get(question["name"], ())),
+			"type": question["type"],
+			"multiple": cint(question["multiple"]),
+		}
+	return meta
+
+
+QUESTION_BANK_TYPES = ("Choices", "User Input", "Open Ended")
+
+
+def _name_list(value):
+	"""Coerce a whitelisted list argument, which may arrive as a JSON string."""
+	if isinstance(value, str):
+		# parse_json raises on anything that is not JSON, and a filter narrowing the
+		# bank is not worth a 500: an unreadable one narrows nothing.
+		try:
+			value = frappe.parse_json(value)
+		except Exception:
+			return []
+	if not isinstance(value, list):
+		return []
+	return [item for item in value if isinstance(item, str) and item]
+
+
+@frappe.whitelist()
+def get_question_bank(
+	quiz: str | None = None,
+	search: str | None = None,
+	question_type: str | None = None,
+	exclude: list | str | None = None,
+	allowed_types: list | str | None = None,
+):
+	"""List reusable LMS Questions for the bank picker, flagged for `quiz`."""
+	if not (has_moderator_role() or has_course_instructor_role()):
+		frappe.throw(_("You are not permitted to access the question bank."), frappe.PermissionError)
+
+	filters = {}
+	# The types this quiz can still take. Applied here rather than after the fact: one
+	# page is all the picker gets, so a quiz holding the 100 most recently modified
+	# questions drew an empty bank with hundreds left to choose from.
+	offered = [t for t in _name_list(allowed_types) if t in QUESTION_BANK_TYPES]
+	if question_type in QUESTION_BANK_TYPES:
+		# Intersected, never replaced. A type the quiz cannot take has nothing to
+		# offer, and answering with rows the picker then drops reads as a bug.
+		if offered and question_type not in offered:
+			return []
+		filters["type"] = question_type
+	elif offered:
+		filters["type"] = ["in", offered]
+
+	# Same reason. The caller knows which questions the quiz holds, including the rows
+	# staged this session that no saved quiz row accounts for yet.
+	excluded = _name_list(exclude)
+	if excluded:
+		filters["name"] = ["not in", excluded]
+
+	or_filters = None
+	if search and isinstance(search, str):
+		like = f"%{search.strip()}%"
+		or_filters = {"question": ["like", like], "name": ["like", like]}
+
+	questions = frappe.get_all(
+		"LMS Question",
+		filters=filters,
+		or_filters=or_filters,
+		fields=["name", "question", "type", "multiple", "marks"],
+		order_by="modified desc",
+		limit_page_length=100,
+	)
+	if not questions:
+		return []
+
+	in_quiz = set()
+	if quiz and isinstance(quiz, str):
+		in_quiz = set(
+			frappe.get_all(
+				"LMS Quiz Question",
+				filters={"parent": quiz, "parenttype": "LMS Quiz"},
+				pluck="question",
+			)
+		)
+
+	# Marks belong to the question now. A quiz's own row can still carry a different
+	# number, but the bank offers the question's, which is what a new row starts on.
+	for q in questions:
+		q["already_in_quiz"] = q["name"] in in_quiz
+		# cint, not `or 1`: a question deliberately worth 0 marks (the field is
+		# non_negative, not > 0) would otherwise be offered to the quiz as worth 1.
+		q["default_marks"] = cint(q["marks"]) if q.get("marks") is not None else 1
+	return questions

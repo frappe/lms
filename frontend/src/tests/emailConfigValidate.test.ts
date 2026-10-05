@@ -1,16 +1,25 @@
 /**
- * Pure unit tests for emailConfig.validateInputs: the shared client-side guard
- * used by both EmailAdd (create) and EmailEdit (update, allowMissingPassword).
+ * Pure unit tests for validateInputs: the client-side guard the account form
+ * runs before a create and before an update (allowMissingPassword).
  */
 import { describe, expect, it, vi } from 'vitest'
 
 // validateEmail comes from @/utils (which pulls in heavy deps); stub it with a
 // minimal but real-ish email check so we exercise validateInputs' own branches.
 vi.mock('@/utils', () => ({
+	cleanError: (message: unknown) => message,
 	validateEmail: (e: string) => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e),
 }))
+// validateInputs moved into the page's config module, which also carries the
+// list's actions — so the modules those reach for are stubbed rather than
+// loaded.
+vi.mock('frappe-ui', () => ({ call: vi.fn(), toast: {} }))
+vi.mock('@/utils/dialogs', () => ({ createDialog: vi.fn() }))
+vi.mock('@/composables/useSettingsListResource', () => ({
+	reloadSettingsLists: vi.fn(),
+}))
 
-import { validateInputs } from '@/components/Settings/EmailAccount/emailConfig'
+import { validateInputs } from '@/components/Settings/EmailAccount/emailAccounts'
 
 const base = {
 	email_account_name: 'Support',

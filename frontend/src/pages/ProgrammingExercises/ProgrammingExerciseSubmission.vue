@@ -1,136 +1,54 @@
 <template>
-	<PageHeader v-if="!fromLesson" :breadcrumbs="breadcrumbs" />
+	<PageHeader
+		v-if="!fromLesson && !preview && !embedded"
+		:breadcrumbs="breadcrumbs"
+	/>
 	<div
 		v-if="falconError"
-		class="flex items-center justify-between p-3 text-sm bg-surface-amber-1 text-ink-amber-3"
+		class="flex items-center justify-between p-3 text-sm bg-surface-amber-1 text-ink-amber-2"
 	>
 		<span>
 			{{ falconError }}
 		</span>
-		<Button v-if="user.data?.is_moderator" @click="openSettings('General')">
+		<Button v-if="user.data?.is_moderator" @click="openSettings('general')">
 			<template #prefix>
 				<span class="lucide-settings size-4" />
 			</template>
 			{{ __('Settings') }}
 		</Button>
 	</div>
-	<div class="grid grid-cols-2 h-[calc(100vh_-_3rem)]">
-		<div class="border-e py-5 px-8 h-full">
-			<h2 class="font-semibold mb-2 text-ink-gray-9">
-				{{ __('Problem Statement') }}
-			</h2>
-			<div
-				v-safe-html:rich="exercise.doc?.problem_statement"
-				class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2 prose-sm max-w-none !whitespace-normal"
-			></div>
+	<div ref="root" class="flex flex-col" :class="rootClass">
+		<div v-if="submissionDoc?.status" class="mb-3">
+			<Badge :theme="submissionDoc.status == 'Passed' ? 'green' : 'red'">
+				{{ submissionDoc.status }}
+			</Badge>
 		</div>
-		<div>
-			<div class="flex items-center justify-between p-2 bg-surface-gray-2">
-				<div class="font-semibold text-ink-gray-9">
-					{{ exercise.doc?.language }}
-				</div>
-				<div class="flex items-center gap-x-2">
-					<Badge
-						v-if="submission.doc?.status"
-						:theme="submission.doc.status == 'Passed' ? 'green' : 'red'"
-					>
-						{{ submission.doc.status }}
-					</Badge>
-					<Button
-						v-if="
-							!falconError &&
-							(submissionID == 'new' ||
-								user.data?.name == submission.doc?.owner)
-						"
-						variant="solid"
-						@click="submitCode"
-						:loading="running"
-						:disabled="running"
-						class="text-ink-gray-9"
-					>
-						<template #prefix>
-							<span class="lucide-play size-3" />
-						</template>
-						{{ running ? __('Running') : __('Run') }}
-					</Button>
-				</div>
-			</div>
-			<div class="flex flex-col space-y-4 pt-5 border-b">
-				<Code
-					v-model="code"
-					:language="exercise.doc?.language.toLowerCase()"
-					height="400px"
-					maxHeight="1000px"
-				/>
-				<div class="flex flex-col space-y-1">
-					<span v-if="error" class="text-xs text-ink-gray-5 px-1">
-						{{ __('Compiler Message') }}:
-					</span>
-					<textarea
-						v-if="error"
-						v-model="errorMessage"
-						:aria-label="__('Compiler Message')"
-						class="font-mono text-ink-red-3 bg-surface-gray-1 border-none text-sm h-32 leading-6"
-						readonly
+		<div class="min-h-0 flex-1">
+			<ExerciseWorkspaceSkeleton v-if="loading" />
+			<ExerciseWorkspace
+				v-else
+				ref="workspace"
+				:title="exercise?.title ?? ''"
+				:language="exercise?.language ?? ''"
+				:problemStatement="exercise?.problem_statement ?? ''"
+				:results="results"
+				:consoleLines="consoleLines"
+				:duration="duration"
+				:running="running"
+				:canRun="canRun"
+				:saved="saved"
+				@run="submitCode"
+				@reset="resetCode"
+			>
+				<template #editor>
+					<ExerciseCodeEditor
+						:modelValue="code"
+						@update:modelValue="editCode"
+						:language="editorLanguage"
+						:label="__('Your Code')"
 					/>
-				</div>
-			</div>
-
-			<div ref="testCaseSection" class="p-5">
-				<h2 class="text-md font-semibold text-ink-gray-9">
-					{{ __('Test Cases') }}
-				</h2>
-				<div v-if="testCases.length" class="divide-y mt-5">
-					<div
-						v-for="(testCase, index) in testCases"
-						:key="testCase.input"
-						class="py-3"
-					>
-						<div class="flex items-center mb-3">
-							<span class="text-ink-gray-9">
-								{{ __('Test {0}').format(index + 1) }} -
-							</span>
-							<span
-								class="font-semibold ms-2 me-1"
-								:class="
-									testCase.status === 'Passed'
-										? 'text-ink-green-3'
-										: 'text-ink-red-3'
-								"
-							>
-								{{ testCase.status }}
-							</span>
-						</div>
-						<div class="flex items-center justify-between w-[60%]">
-							<div v-if="testCase.input" class="space-y-2">
-								<div class="text-xs text-ink-gray-7">
-									{{ __('Input') }}
-								</div>
-								<div class="text-ink-gray-9">{{ testCase.input }}</div>
-							</div>
-							<div class="space-y-2">
-								<div class="text-xs text-ink-gray-7">
-									{{ __('Your Output') }}
-								</div>
-								<div class="text-ink-gray-9">
-									{{ testCase.output }}
-								</div>
-							</div>
-							<div class="space-y-2">
-								<div class="text-xs text-ink-gray-7">
-									{{ __('Expected Output') }}
-								</div>
-								<div class="text-ink-gray-9">
-									{{ testCase.expected_output }}
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-				<div v-else class="text-sm text-ink-gray-6 mt-4">
-					{{ __('Please run the code to execute the test cases.') }}
-				</div>
-			</div>
+				</template>
+			</ExerciseWorkspace>
 		</div>
 	</div>
 </template>
@@ -142,61 +60,130 @@ import {
 	createDocumentResource,
 	toast,
 	usePageMeta,
+	type FrappeResourceError,
 } from 'frappe-ui'
-import { computed, inject, onMounted, ref, watch } from 'vue'
-import PageHeader from '@/components/Layouts/PageHeader.vue'
+import { computed, inject, onMounted, ref, shallowRef, watch } from 'vue'
+import { useDebounceFn } from '@vueuse/core'
+import PageHeader from '@/components/Layouts/pages/PageHeader.vue'
+import ExerciseCodeEditor from '@/components/ProgrammingExercises/ExerciseCodeEditor.vue'
+import ExerciseWorkspace from '@/components/ProgrammingExercises/ExerciseWorkspace.vue'
+import ExerciseWorkspaceSkeleton from '@/components/ProgrammingExercises/ExerciseWorkspaceSkeleton.vue'
+import type { TestCaseResult } from '@/components/ProgrammingExercises/ExerciseTestCases.vue'
+import type { ConsoleLine } from '@/components/ProgrammingExercises/ExerciseConsole.vue'
 import { sessionStore } from '@/stores/session'
-import { useRouter } from 'vue-router'
+import router from '@/router'
 import { openSettings } from '@/utils'
 import { useSettings } from '@/stores/settings'
 import { getLmsRoute } from '@/utils/basePath'
 import { provideStudentView } from '@/composables/useStudentView'
+import type { UserResource } from '@/composables/useStudentView'
+import { useExerciseDraft } from '@/composables/useExerciseDraft'
+import {
+	loadLiveCode,
+	runLiveCode,
+} from '@/pages/ProgrammingExercises/liveCode'
+import {
+	sameBlock,
+	useKeyboardShortcuts,
+} from '@/composables/useKeyboardShortcuts'
+import {
+	boilerplateFor,
+	collectOutputs,
+	draftWriter,
+	messageOf,
+	orderCasesForRun,
+	restoredResults,
+	runnerCommand,
+	sourceFilename,
+} from '@/pages/ProgrammingExercises/exerciseRunFlow'
+import type {
+	ExerciseTestCase,
+	StoredTestCase,
+} from '@/pages/ProgrammingExercises/exerciseRunFlow'
+import type { ExerciseLanguage } from '@/types'
+// @ts-expect-error utils/dialogs.js has no type declarations yet
+import { createDialog } from '@/utils/dialogs'
 
-const realUser = inject<any>('$user')
+type Exercise = {
+	name: string
+	title: string
+	language: string
+	problem_statement: string
+	starter_code: string | null
+	test_cases: ExerciseTestCase[]
+}
 
-// Rendered in an iframe from the lesson preview, so provide/inject can't reach
-// this app instance; Student View arrives as a query param instead, exactly as
-// it does for assignment submissions. Unlike AssignmentSubmission, this page
-// reads the instructor flags in its *own* template (the settings button, the
-// view-someone-else's-submission branch), so it uses the masked user itself
-// rather than only providing it to children.
-const studentView = ref(
-	new URLSearchParams(window.location.search).get('studentView') === '1'
-)
-const { mockedUser: user } = provideStudentView(
-	realUser,
-	() => studentView.value
-)
-const code = ref<string | null>('')
-const output = ref<string | null>(null)
-const error = ref<boolean | null>(null)
-const errorMessage = ref<string | null>(null)
-const testCaseSection = ref<HTMLElement | null>(null)
-const testCases = ref<TestCase[]>([])
-const boilerplate = ref<string>('')
-const { brand } = sessionStore()
-const { settings } = useSettings()
-const router = useRouter()
-const fromLesson = ref(false)
-const falconURL = ref<string>('https://falcon.frappe.io')
-const falconError = ref<string | null>(null)
-const running = ref<boolean>(false)
+type ScoredCase = Omit<TestCaseResult, 'input' | 'elapsed'>
 
 const props = withDefaults(
 	defineProps<{
 		exerciseID: string
 		submissionID?: string
+		preview?: boolean
+		// Mounted inline in a lesson: no page chrome, no navigation.
+		embedded?: boolean
+		studentView?: boolean
 	}>(),
 	{
 		submissionID: 'new',
+		preview: false,
+		embedded: false,
+		studentView: false,
 	}
 )
 
+const realUser = inject<UserResource>('$user')!
+
+// Student View arrives as a prop in a lesson, or in the URL on old links. The
+// page reads the masked user itself, since its own template checks roles.
+const studentViewInURL =
+	new URLSearchParams(window.location.search).get('studentView') === '1'
+const { mockedUser: user } = provideStudentView(
+	realUser,
+	() => props.studentView || studentViewInURL
+)
+const code = ref<string>('')
+const exercise = ref<Exercise | null>(null)
+const results = ref<TestCaseResult[]>([])
+const consoleLines = ref<ConsoleLine[]>([])
+const duration = ref<number | null>(null)
+const { brand } = sessionStore()
+const { settings } = useSettings()
+const fromLesson = ref(false)
+const root = ref<HTMLElement | null>(null)
+const falconURL = ref<string>('https://falcon.frappe.io')
+const falconError = ref<string | undefined>(undefined)
+const running = ref<boolean>(false)
+const workspace = ref<InstanceType<typeof ExerciseWorkspace> | null>(null)
+const exerciseLoading = ref<boolean>(true)
+const falconReady = ref<boolean>(false)
+
+const userName = computed<string>(() => String(user.data?.name ?? ''))
+const exerciseID = computed<string>(() => props.exerciseID)
+const {
+	draft,
+	save: saveDraft,
+	clear: clearDraft,
+	saved,
+} = useExerciseDraft(exerciseID, userName)
+
 onMounted(() => {
-	loadFalcon()
 	checkIfUserIsPermitted()
 	checkIfInLesson()
 	fetchSubmission()
+	loadExercise()
+	// falconError was declared, rendered and used to gate Run, but nothing ever
+	// assigned it: a runtime that failed to load said nothing at all, and the
+	// author found out twenty seconds later as "Execution timed out".
+	loadFalcon()
+		.then(() => {
+			falconReady.value = true
+		})
+		.catch(() => {
+			falconError.value = __(
+				'The code runner could not be loaded, so this exercise cannot be run.'
+			)
+		})
 })
 
 const checkIfInLesson = () => {
@@ -205,66 +192,182 @@ const checkIfInLesson = () => {
 	}
 }
 
+// Starts as the prop and becomes the real name after the first save, so a
+// second Run updates it instead of inserting another submission.
+const submissionID = ref<string>(props.submissionID)
+
+watch(
+	() => props.submissionID,
+	(name) => {
+		if (name === submissionID.value) return
+		submissionID.value = name
+		results.value = []
+		consoleLines.value = []
+		duration.value = null
+		submission.value = name === 'new' ? null : submissionFor(name)
+		submission.value?.reload()
+	}
+)
+
+const rootClass = computed<string>(() => {
+	if (props.embedded) return 'h-[900px]'
+	if (props.preview) return 'h-full'
+	return 'h-[calc(100vh_-_3rem)] p-4'
+})
+
 const fetchSubmission = (name: string = '') => {
-	if (name) {
-		submission.name = name
-		submission.reload()
-	} else if (props.submissionID != 'new') {
-		submission.reload()
+	if (name) submission.value = submissionFor(name)
+	submission.value?.reload()
+}
+
+// Not createDocumentResource: a learner must never receive a hidden case's
+// expected output, and only this endpoint withholds it.
+const loadExercise = async () => {
+	const requested = props.exerciseID
+	exerciseLoading.value = true
+	try {
+		const data: Exercise = await call('lms.lms.api.get_programming_exercise', {
+			exercise: requested,
+		})
+		// The page can be pointed at another exercise without remounting, so a
+		// late reply for the one the learner has left must not land.
+		if (requested !== props.exerciseID) return
+		exercise.value = data
+		applySourceCode()
+		restoreResults()
+	} catch (failure: unknown) {
+		if (requested !== props.exerciseID) return
+		toast.error(messageOf(failure))
+	}
+	if (requested === props.exerciseID) exerciseLoading.value = false
+}
+
+watch(exerciseID, () => {
+	// Cleared before the fetch: if it fails, stored rows would otherwise be
+	// mapped against the previous exercise and could show a hidden answer.
+	exercise.value = null
+	results.value = []
+	consoleLines.value = []
+	duration.value = null
+	loadExercise()
+})
+
+// Only the first load shows the skeleton: the resource reloads after every
+// submit, and swapping the workspace out then would reset its tab and editor.
+const submissionPending = ref<boolean>(props.submissionID != 'new')
+const loading = computed<boolean>(
+	() => exerciseLoading.value || submissionPending.value
+)
+
+const submissionFor = (name: string) =>
+	createDocumentResource({
+		doctype: 'LMS Programming Exercise Submission',
+		name,
+		auto: false,
+		onError: onSubmissionError,
+	})
+
+const onSubmissionError = (error: FrappeResourceError) => {
+	submissionPending.value = false
+	if (error.messages?.[0]?.includes('not found')) {
+		submissionID.value = 'new'
+		submission.value = null
+		if (props.embedded) return
+		router.push({
+			name: 'ProgrammingExerciseSubmission',
+			params: { exerciseID: props.exerciseID, submissionID: 'new' },
+		})
+	} else {
+		toast.error(__(error.messages?.[0] || error.message))
 	}
 }
 
-const exercise = createDocumentResource({
-	doctype: 'LMS Programming Exercise',
-	name: props.exerciseID,
-	cache: ['programmingExercise', props.exerciseID],
-	auto: true,
-})
+// frappe-ui caches document resources per name, so every block holding 'new'
+// would share one. A resource exists only for a real name.
+const submission = shallowRef(
+	props.submissionID === 'new' ? null : submissionFor(props.submissionID)
+)
+const submissionDoc = computed(() => submission.value?.doc ?? null)
 
-const submission = createDocumentResource({
-	doctype: 'LMS Programming Exercise Submission',
-	name: props.submissionID,
-	auto: false,
-	onError(error: any) {
-		if (error.messages?.[0].includes('not found')) {
-			router.push({
-				name: 'ProgrammingExerciseSubmission',
-				params: { exerciseID: props.exerciseID, submissionID: 'new' },
-			})
-		} else {
-			toast.error(__(error.messages?.[0] || error))
-		}
+// Viewing someone else's submission neither reads nor writes this viewer's draft.
+const ownsSubmission = computed<boolean>(
+	() =>
+		submissionID.value == 'new' || user.data?.name == submissionDoc.value?.owner
+)
+
+const boilerplate = computed<string>(() =>
+	boilerplateFor(exercise.value?.language)
+)
+
+const startingCode = computed<string>(
+	() => exercise.value?.starter_code || boilerplate.value
+)
+
+const editorLanguage = computed<ExerciseLanguage>(() =>
+	exercise.value?.language === 'JavaScript' ? 'JavaScript' : 'Python'
+)
+
+const runCommand = computed<string>(
+	() =>
+		`${runnerCommand(exercise.value?.language)} ${sourceFilename(
+			exercise.value?.language
+		)}`
+)
+
+// Submissions store the code minus the boilerplate. Starter code is stored whole.
+const storedPrefix = computed<string>(() =>
+	exercise.value?.starter_code ? '' : boilerplate.value
+)
+
+// Only the learner's own edits arm a draft; code the page puts in the editor does not.
+const editCode = (value: string) => {
+	code.value = value
+	if (ownsSubmission.value) writeDraft(draftGeneration.value, value)
+}
+
+const applySourceCode = () => {
+	if (ownsSubmission.value && draft.value !== null) {
+		code.value = draft.value
+		return
+	}
+	const submitted: string = submissionDoc.value?.code || ''
+	code.value = submitted
+		? `${storedPrefix.value}${submitted}`
+		: startingCode.value
+}
+
+// A draft that arrives later, or under a new exercise key, replaces the
+// editor. A draft going null does not: that is clear() after a submit.
+watch(
+	draft,
+	(value) => {
+		if (ownsSubmission.value && value !== null && value !== code.value)
+			code.value = value
 	},
+	{ immediate: true }
+)
+
+// save() reads the key when it fires, so a write armed under one exercise
+// could land under the next. The generation drops it; neither debounce has
+// cancel().
+const draftGeneration = ref(0)
+
+watch([exerciseID, userName], () => {
+	draftGeneration.value += 1
 })
 
-watch(exercise, () => {
-	updateCode()
-})
+const writeDraft = useDebounceFn(
+	draftWriter(saveDraft, () => draftGeneration.value),
+	800
+)
 
-const updateCode = (submissionCode = '') => {
-	updateBoilerPlate()
-	if (!code.value?.includes(boilerplate.value)) {
-		code.value = `${boilerplate.value}${code.value}`
-	}
-	if (submissionCode && !code.value?.includes(submissionCode)) {
-		code.value = `${code.value}${submissionCode}`
-	} else if (!submissionCode && !code.value) {
-		code.value = boilerplate.value
-	}
-}
-
-const updateBoilerPlate = () => {
-	if (exercise.doc?.language == 'Python') {
-		boilerplate.value = `with open("stdin", "r") as f:\n    data = f.read()\n\ninputs = data.split() if len(data) else []\n\n# inputs is a list of strings\n# write your code below\n\n`
-	} else if (exercise.doc?.language == 'JavaScript') {
-		boilerplate.value = `const fs = require('fs');\n\nlet input = fs.readFileSync('/app/stdin', 'utf8').trim();\nconst inputs = input.split("\\n");\n// inputs is an array of strings\n// write your code below\n`
-	}
-}
-
+// Inline, AssessmentBlock has already gated on a session, and moving the
+// lesson's own route to another page would take the learner off the lesson.
 const checkIfUserIsPermitted = (doc: any = null) => {
+	if (props.embedded) return
 	if (!user.data) {
 		const redirectPath = getLmsRoute(
-			`programming-exercises/${props.exerciseID}/submission/${props.submissionID}`
+			`programming-exercise-submission/${props.exerciseID}/${props.submissionID}`
 		)
 		window.location.href = `/login?redirect-to=${redirectPath}`
 	}
@@ -274,7 +377,7 @@ const checkIfUserIsPermitted = (doc: any = null) => {
 		doc.owner != user.data?.name &&
 		!user.data?.is_instructor &&
 		!user.data?.is_moderator &&
-		!user.data.is_evaluator
+		!user.data?.is_evaluator
 	) {
 		router.push({
 			name: 'Courses',
@@ -283,93 +386,177 @@ const checkIfUserIsPermitted = (doc: any = null) => {
 	}
 }
 
-const updateTestCases = (doc: any) => {
-	if (testCases.value.length === 0) {
-		testCases.value = doc.test_cases || []
-	}
+// Needs both resources: visibility of a stored row is read from the exercise.
+// A no-op until then, so the call after the exercise lands is not blocked.
+const restoreResults = () => {
+	if (results.value.length) return
+	if (!exercise.value) return
+	const stored: StoredTestCase[] = submissionDoc.value?.test_cases || []
+	if (!stored.length) return
+	results.value = restoredResults(stored, exercise.value.test_cases)
 }
 
 watch(
-	() => submission.doc,
+	submissionDoc,
 	(doc) => {
 		if (doc) {
+			submissionPending.value = false
 			checkIfUserIsPermitted(doc)
-			updateTestCases(doc)
-			updateCode(doc.code)
+			restoreResults()
+			applySourceCode()
 		}
 	},
 	{ immediate: true }
 )
 
-const loadFalcon = () => {
+const loadFalcon = async (): Promise<void> => {
+	// The settings resource is auto-fetched and has not necessarily landed by
+	// the time this page mounts. Reading livecode_url too early falls back to
+	// the public default and loads a runtime the site did not ask for.
+	if (!settings.data) await settings.promise
 	// An unset livecode_url leaves the default in place rather than building
 	// `undefined/static/livecode.js`.
 	if (settings.data?.livecode_url) {
 		falconURL.value = settings.data.livecode_url
 	}
-	return new Promise((resolve, reject) => {
-		const script = document.createElement('script')
-		script.src = `${falconURL.value}/static/livecode.js`
-		script.onload = resolve
-		script.onerror = reject
-		document.head.appendChild(script)
-	})
+	await loadLiveCode(`${falconURL.value}/static/livecode.js`)
 }
 
+const canRun = computed<boolean>(
+	() => falconReady.value && !falconError.value && ownsSubmission.value
+)
+
 const submitCode = async () => {
+	if (running.value || !canRun.value) return
 	running.value = true
-	await runCode()
-	createSubmission()
-	running.value = false
+	try {
+		await runCode()
+		await createSubmission()
+	} finally {
+		running.value = false
+	}
 }
 
 const runCode = async () => {
-	if (!exercise.doc?.test_cases?.length) return
+	// The endpoint wants one output per case in idx order, so the run and the
+	// merge below both walk this one ordered list.
+	const cases: ExerciseTestCase[] = orderCasesForRun(
+		exercise.value?.test_cases ?? []
+	)
+	if (!cases.length) return
 
-	testCases.value = []
-	if (testCaseSection.value) {
-		testCaseSection.value.scrollIntoView({ behavior: 'smooth' })
-	}
+	results.value = []
+	consoleLines.value = []
+	duration.value = null
+	const startedAt = performance.now()
 
-	for (const test_case of exercise.doc.test_cases) {
-		let result = await execute(test_case.input)
-		if (error.value) {
-			errorMessage.value = result
-			break
-		} else {
-			output.value = result
-		}
-		let status =
-			result.trim() === test_case.expected_output.trim() ? 'Passed' : 'Failed'
-		testCases.value.push({
-			input: test_case.input,
-			output: result,
-			expected_output: test_case.expected_output,
-			status: status,
+	const collected = await collectOutputs({
+		cases,
+		command: runCommand.value,
+		execute,
+		onLine: (line) => consoleLines.value.push(line),
+	})
+	if (!collected) return
+	const { outputs, elapsed } = collected
+
+	// Scored on the server: the browser holds each input by necessity, but it
+	// must never hold a hidden case's answer to compare against.
+	let scored: ScoredCase[]
+	try {
+		scored = await call('lms.lms.api.evaluate_programming_exercise', {
+			exercise: props.exerciseID,
+			outputs,
 		})
+	} catch (failure: unknown) {
+		consoleLines.value.push({ text: messageOf(failure), stream: 'stderr' })
+		toast.error(__('The run could not be scored. Please try again.'))
+		return
 	}
+
+	results.value = scored.map((row: ScoredCase, index: number) => ({
+		...row,
+		input: cases[index]?.input,
+		elapsed: elapsed[index] ?? null,
+	}))
+	duration.value = (performance.now() - startedAt) / 1000
+	workspace.value?.showTab('tests')
 }
 
-const createSubmission = () => {
-	if (!testCases.value.length) return
-	let codeToSave = code.value?.replace(boilerplate.value, '') || ''
-
-	call('lms.lms.api.create_programming_exercise_submission', {
-		exercise: props.exerciseID,
-		submission: props.submissionID,
-		code: codeToSave,
-		test_cases: testCases.value,
+const resetCode = () => {
+	if (code.value === startingCode.value) {
+		applyReset()
+		return
+	}
+	createDialog({
+		title: __('Start again?'),
+		message: __(
+			'This replaces what is in the editor with the starting code. Your run results are cleared too.'
+		),
+		actions: [
+			{
+				label: __('Reset'),
+				theme: 'red',
+				variant: 'solid',
+				onClick({ close }: { close: () => void }) {
+					applyReset()
+					close()
+				},
+			},
+		],
 	})
-		.then((data: any) => {
-			if (props.submissionID == 'new') {
+}
+
+const applyReset = () => {
+	clearDraft()
+	code.value = startingCode.value
+	results.value = []
+	consoleLines.value = []
+	duration.value = null
+	workspace.value?.showTab('problem')
+}
+
+const inThisBlock = sameBlock(root)
+
+useKeyboardShortcuts({
+	// The learner is typing in the editor when they reach for these, so the
+	// default "ignore keys pressed in an input" would swallow both.
+	ignoreTyping: false,
+	shortcuts: [
+		{
+			match: (e) =>
+				(e.metaKey || e.ctrlKey) && !e.shiftKey && e.key === 'Enter',
+			guard: inThisBlock,
+			action: () => {
+				submitCode()
+			},
+		},
+	],
+})
+
+const createSubmission = async () => {
+	// Guarded here, not on the button, because Mod+Enter reaches it too. A
+	// preview would otherwise write a real submission under the author's name.
+	if (props.preview) return
+	if (!results.value.length) return
+	const codeToSave = code.value.replace(storedPrefix.value, '')
+
+	return call<string>('lms.lms.api.create_programming_exercise_submission', {
+		exercise: props.exerciseID,
+		submission: submissionID.value,
+		code: codeToSave,
+		test_cases: results.value,
+	})
+		.then((name) => {
+			clearDraft()
+			const created = submissionID.value == 'new'
+			submissionID.value = name
+			if (created && !props.embedded) {
 				router.push({
 					name: 'ProgrammingExerciseSubmission',
-					params: { exerciseID: props.exerciseID, submissionID: data },
+					params: { exerciseID: props.exerciseID, submissionID: name },
 				})
-				fetchSubmission(data)
-			} else {
-				fetchSubmission(props.submissionID)
 			}
+			fetchSubmission(name)
 			toast.success(__('Submission saved!'))
 		})
 		.catch((error: any) => {
@@ -380,72 +567,36 @@ const createSubmission = () => {
 		})
 }
 
-const execute = (stdin = ''): Promise<string> => {
-	return new Promise((resolve, reject) => {
-		let outputChunks: string[] = []
-		let hasExited = false
-		let hasError = false
-
-		let session = new LiveCodeSession({
-			base_url: falconURL.value,
-			runtime: exercise.doc?.language.toLowerCase() || 'python',
-			code: code.value,
-			files: [{ filename: 'stdin', contents: stdin }],
-			onMessage: (msg: any) => {
-				console.log('msg', msg)
-
-				if (msg.msgtype === 'write' && msg.file === 'stdout') {
-					outputChunks.push(msg.data)
-				}
-
-				if (msg.msgtype === 'write' && msg.file === 'stderr') {
-					hasError = true
-					errorMessage.value = msg.data
-				}
-
-				if (msg.msgtype === 'exitstatus') {
-					hasExited = true
-					if (msg.exitstatus !== 0) {
-						error.value = true
-					} else {
-						error.value = false
-					}
-					resolve(outputChunks.join('').trim())
-				}
-			},
-		})
-
-		setTimeout(() => {
-			if (!hasExited) {
-				running.value = false
-				error.value = true
-				errorMessage.value = 'Execution timed out.'
-				reject('Execution timed out.')
-			}
-		}, 20000)
+const execute = (stdin = ''): Promise<string> =>
+	runLiveCode({
+		baseUrl: falconURL.value,
+		runtime: exercise.value?.language.toLowerCase() || 'python',
+		code: code.value,
+		stdin,
+		onStderr: (text) => consoleLines.value.push({ text, stream: 'stderr' }),
 	})
-}
 
 const breadcrumbs = computed(() => {
 	return [
 		{
-			label: __('Programming Exercise Submissions'),
+			label: __('Programming Exercises'),
+			route: { name: 'ProgrammingExercises' },
+		},
+		{
+			label: __('Submissions'),
 			route: { name: 'ProgrammingExerciseSubmissions' },
 		},
-		{ label: exercise.doc?.title },
+		{ label: exercise.value?.title ?? '' },
 	]
 })
 
-usePageMeta(() => {
-	return {
-		title: __('Programming Exercise Submission'),
-		icon: brand.favicon,
-	}
-})
-</script>
-<style>
-.ProseMirror pre {
-	background: theme('colors.gray.200');
-	color: theme('colors.gray.900');
+// Inline, the page title belongs to the lesson.
+if (!props.embedded && !props.preview) {
+	usePageMeta(() => {
+		return {
+			title: __('Programming Exercise Submission'),
+			icon: brand.favicon,
+		}
+	})
 }
-</style>
+</script>

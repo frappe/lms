@@ -1,11 +1,12 @@
 /** What a list page declares, shared by the layout components that render it. */
 
+import type { RouteDestination } from 'frappe-ui'
 import type { RouteLocationRaw } from 'vue-router'
 
 /** One crumb in a page's frappe-ui `Breadcrumbs` trail. */
 export interface Breadcrumb {
 	label: string
-	route?: RouteLocationRaw
+	route?: RouteDestination
 }
 
 /** One column of a `ResponsiveListView`: a desk column, and a card line. */

@@ -24,61 +24,67 @@ vi.mock('@/utils/composables', async () => {
 	}
 })
 
-vi.mock('frappe-ui', () => {
-	const passthrough = (tag: string, testid?: string) => ({
-		inheritAttrs: false,
-		template: `<${tag} v-bind="$attrs"${
-			testid ? ` data-testid="${testid}"` : ''
-		}><slot /></${tag}>`,
-	})
+const passthrough = (tag: string, testid?: string) => ({
+	inheritAttrs: false,
+	template: `<${tag} v-bind="$attrs"${
+		testid ? ` data-testid="${testid}"` : ''
+	}><slot /></${tag}>`,
+})
+
+vi.mock('frappe-ui', () => ({
+	Breadcrumbs: { template: '<nav data-testid="breadcrumbs" />' },
+	Button: passthrough('button'),
+	// Faithful to frappe-ui's Checkbox in the one structural respect the
+	// filters rely on: an <input> plus a <label for> pointing at it, so the
+	// label is part of the hit area. A stub that rendered only the input
+	// would let a label-association assertion pass vacuously.
+	// jsdom won't activate a label on a detached box, so the label emits the
+	// flipped state itself, once.
+	Checkbox: defineComponent({
+		props: {
+			modelValue: Boolean,
+			label: String,
+			description: String,
+			size: String,
+		},
+		emits: ['update:modelValue'],
+		methods: {
+			onChange(event: Event) {
+				this.$emit(
+					'update:modelValue',
+					(event.target as HTMLInputElement).checked
+				)
+			},
+		},
+		template: `<div>
+			<input
+				type="checkbox"
+				data-testid="checkbox"
+				id="cb"
+				:aria-label="label"
+				:checked="modelValue"
+				@change="onChange"
+			/>
+			<label
+				data-testid="checkbox-label"
+				for="cb"
+				@click.prevent="$emit('update:modelValue', !modelValue)"
+			>
+				{{ label }}
+			</label>
+		</div>`,
+	}),
+	Tooltip: {
+		props: ['text'],
+		template: '<div :data-tooltip="text"><slot /></div>',
+	},
+}))
+
+// Real ListFooter. Its default `#left` builds the page-length tabs.
+vi.mock('frappe-ui/experimental', async (importOriginal) => {
+	const { ListFooter } = await importOriginal<any>()
 	return {
-		Breadcrumbs: { template: '<nav data-testid="breadcrumbs" />' },
-		Button: passthrough('button'),
-		ListFooter: {
-			props: ['modelValue', 'options'],
-			template: `<div data-testid="footer">
-				<slot name="right" />
-			</div>`,
-		},
-		// Reproduces the quirk that costs a page a duplicate request: onChange
-		// assigns the model and then re-emits, so one click notifies twice with
-		// the same value before the prop has round-tripped.
-		// Faithful to frappe-ui's Checkbox in the one structural respect the
-		// filters rely on: an <input> plus a <label for> pointing at it, so the
-		// label is part of the hit area. A stub that rendered only the input
-		// would let a label-association assertion pass vacuously.
-		Checkbox: defineComponent({
-			props: {
-				modelValue: Boolean,
-				label: String,
-				description: String,
-				size: String,
-			},
-			emits: ['update:modelValue'],
-			methods: {
-				onChange() {
-					this.$emit('update:modelValue', !this.modelValue)
-					this.$emit('update:modelValue', !this.modelValue)
-				},
-			},
-			template: `<div>
-				<input
-					type="checkbox"
-					data-testid="checkbox"
-					id="cb"
-					:aria-label="label"
-					:checked="modelValue"
-					@change="onChange"
-				/>
-				<label data-testid="checkbox-label" for="cb" @click="onChange">
-					{{ label }}
-				</label>
-			</div>`,
-		}),
-		Tooltip: {
-			props: ['text'],
-			template: '<div :data-tooltip="text"><slot /></div>',
-		},
+		ListFooter,
 		ListView: {
 			name: 'ListView',
 			props: ['columns', 'rows', 'rowKey', 'options'],
@@ -118,7 +124,7 @@ const COLUMNS = [
 
 async function mountListPage(props: Record<string, unknown> = {}, slots = {}) {
 	const { default: ListPage } = await import(
-		'@/components/Layouts/ListPage.vue'
+		'@/components/Layouts/pages/ListPage.vue'
 	)
 	const wrapper = mount(ListPage, {
 		props: { breadcrumbs: [{ label: 'Courses' }], rows: ROWS, ...props },
@@ -137,6 +143,8 @@ async function mountListPage(props: Record<string, unknown> = {}, slots = {}) {
 	return wrapper
 }
 
+const footerOf = (wrapper: any) => wrapper.getComponent({ name: 'ListFooter' })
+
 // Two things legitimately pin: PageHeader's own `<header>`, and the footer,
 // which holds the bottom edge so the page size and Load More stay put. What
 // must never come back is a pinned strip *above* the rows. That was the
@@ -144,7 +152,7 @@ async function mountListPage(props: Record<string, unknown> = {}, slots = {}) {
 // measurement and the app header's real height showed as a band of content
 // scrolling between the two.
 const pinnedAboveRows = (wrapper: any) => {
-	const footer = wrapper.get('[data-testid="footer"]').element
+	const footer = footerOf(wrapper).element
 	return wrapper
 		.findAll('*')
 		.filter(
@@ -199,19 +207,31 @@ describe('ListPage', () => {
 
 	it('gives every page the same footer, and asks for the next page from it', async () => {
 		const wrapper = await mountListPage({ hasNextPage: true })
-		expect(wrapper.find('[data-testid="footer"]').exists()).toBe(true)
-		await wrapper.find('[data-testid="footer"] button').trigger('click')
+		// Scoped past the page-length tabs, which are buttons in the same footer.
+		await footerOf(wrapper).get('button[label="Load More"]').trigger('click')
 		expect(wrapper.emitted('loadMore')).toHaveLength(1)
+	})
+
+	it('renders real, clickable page-length options, not zero', async () => {
+		const wrapper = await mountListPage({}, { card: '<article />' })
+		const tabs = footerOf(wrapper).findAll('button[data-value]')
+
+		expect(tabs.map((tab: any) => tab.text())).toEqual(['24', '60', '120'])
+	})
+
+	it('reacts to a page-length click by updating the pageLength model', async () => {
+		const wrapper = await mountListPage({}, { card: '<article />' })
+		await footerOf(wrapper).get('button[data-value="60"]').trigger('click')
+
+		expect(wrapper.emitted('update:pageLength')?.at(-1)).toEqual([60])
 	})
 
 	it('says only the loaded count when the list has no total to compare against', async () => {
 		const withTotal = await mountListPage({ totalCount: 40 })
-		expect(withTotal.find('[data-testid="footer"]').text()).toContain('of')
+		expect(footerOf(withTotal).text()).toContain('of')
 
 		const withoutTotal = await mountListPage({})
-		expect(withoutTotal.find('[data-testid="footer"]').text()).not.toContain(
-			'of'
-		)
+		expect(footerOf(withoutTotal).text()).not.toContain('of')
 	})
 })
 
@@ -251,7 +271,7 @@ describe('PageBody', () => {
 	it('keeps the footer against the bottom edge while the rows scroll', async () => {
 		mobile.value = true
 		const wrapper = await mountListPage({ title: 'All Courses' })
-		const footer = wrapper.get('[data-testid="footer"]').element.parentElement!
+		const footer = footerOf(wrapper).element.parentElement!
 		const classes = footer.className.split(/\s+/)
 
 		expect(classes).toContain('sticky')
@@ -380,15 +400,18 @@ describe('ToggleFilter', () => {
 		).toBe('Certification')
 	})
 
-	it('reloads the list once per click even though the checkbox reports twice', async () => {
+	it('reloads the list on each toggle, on and then off', async () => {
 		mobile.value = false
 		const { wrapper, value, reloads } = await mountToggle()
+		const box = wrapper.find('[data-testid="checkbox"]')
 
-		await wrapper.find('[data-testid="checkbox"]').trigger('change')
-		await nextTick()
-
+		await box.setValue(true)
 		expect(value.value).toBe(true)
 		expect(reloads).toHaveBeenCalledTimes(1)
+
+		await box.setValue(false)
+		expect(value.value).toBe(false)
+		expect(reloads).toHaveBeenCalledTimes(2)
 	})
 })
 
@@ -498,7 +521,7 @@ describe('ResponsiveListView', () => {
 		expect(items[0].classes()).toContain('border-b')
 		expect(items[0].classes()).toContain('last:border-b-0')
 		// No card chrome: no rounding, no box.
-		expect(items[0].classes()).not.toContain('rounded-lg')
+		expect(items[0].classes()).not.toContain('rounded-6')
 		expect(items[0].classes()).not.toContain('border')
 	})
 

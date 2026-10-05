@@ -40,25 +40,23 @@ vi.mock('@/components/HeaderButton.vue', () => ({
 	},
 }))
 
-vi.mock('frappe-ui', () => ({
-	createResource: createResourceMock,
-	toast: { success: vi.fn(), error: vi.fn() },
-	Dialog: {
-		name: 'Dialog',
-		props: ['open', 'title', 'size'],
-		emits: ['update:open'],
-		template: `<div v-if="open" role="dialog"><slot name="title" /><slot /><slot name="actions" /></div>`,
-	},
-	Button: {
-		inheritAttrs: false,
-		template: `<button v-bind="$attrs"><slot name="icon" /><slot /></button>`,
-	},
-	FormControl: {
-		props: ['modelValue', 'label', 'type'],
-		emits: ['update:modelValue'],
-		template: `<label>{{ label }}<input :value="modelValue" @input="$emit('update:modelValue', $event.target.value)" /></label>`,
-	},
-}))
+// `FormLayout` (and its `TextField`/`TextInput`) is the real library now, so
+// only the pieces this suite controls, plus the Dialog FormShell needs a light
+// stub for, are replaced. Everything else (Tabs, TextInput, …) is real.
+vi.mock('frappe-ui', async () => {
+	const actual = await vi.importActual<typeof import('frappe-ui')>('frappe-ui')
+	return {
+		...actual,
+		createResource: createResourceMock,
+		toast: { success: vi.fn(), error: vi.fn() },
+		Dialog: {
+			name: 'Dialog',
+			props: ['open', 'title', 'size'],
+			emits: ['update:open'],
+			template: `<div v-if="open" role="dialog"><slot name="title" /><slot /><slot name="actions" /></div>`,
+		},
+	}
+})
 
 // The rich text editor drags in ProseMirror and is uncontrolled here by design.
 vi.mock('@/components/RichTextEditor.vue', () => ({

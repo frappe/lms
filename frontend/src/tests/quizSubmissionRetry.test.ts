@@ -100,11 +100,16 @@ vi.mock('frappe-ui', async () => {
 		},
 		Badge: passthrough,
 		Checkbox: passthrough,
+		Radio: { props: ['value'], template: '<div><slot name="label" /></div>' },
+		RadioGroup: {
+			props: ['modelValue', 'name'],
+			template: '<div><slot /></div>',
+		},
 		Dialog: { props: ['open'], template: '<div v-if="open"><slot /></div>' },
 		FormControl: passthrough,
-		ListView: passthrough,
 		LoadingIndicator: passthrough,
-		TextEditor: passthrough,
+		Progress: passthrough,
+		Skeleton: passthrough,
 	}
 })
 
@@ -136,7 +141,6 @@ const mountQuiz = () =>
 		global: {
 			provide: { $user: { data: { name: 'student@example.com' } } },
 			mocks: { __: (s: string) => s },
-			stubs: { teleport: true },
 		},
 	})
 

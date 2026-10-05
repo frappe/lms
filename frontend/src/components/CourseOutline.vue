@@ -37,7 +37,7 @@
 		<div
 			v-else
 			:class="{
-				'border-2 rounded-md py-2 px-2': showOutline && outline.data?.length,
+				'border-2 rounded-5 py-2 px-2': showOutline && outline.data?.length,
 			}"
 		>
 			<Draggable
@@ -47,11 +47,10 @@
 				group="chapters"
 				@end="updateChapterOrder"
 			>
-				<template #item="{ element: chapter, index }">
+				<template #item="{ element: chapter }">
 					<div class="chapter-item">
 						<ChapterRow
 							:chapter="chapter"
-							:index="index"
 							:courseName="courseName"
 							:allowEdit="allowEdit"
 							:inlineSelect="inlineSelect"
@@ -79,6 +78,8 @@
 
 <script setup lang="ts">
 import { Button, createResource, toast } from 'frappe-ui'
+import type { FrappeResourceError } from 'frappe-ui'
+import { resourceErrorMessage } from '@/utils/resource'
 import { ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import Draggable from 'vuedraggable'
@@ -98,7 +99,7 @@ interface DialogAction {
 	label: string
 	theme?: string
 	variant?: string
-	onClick: (close: () => void) => void
+	onClick: (context: { close: () => void }) => void
 }
 type DialogFn = (opts: {
 	title: string
@@ -163,12 +164,14 @@ const outline = createResource({
 	makeParams() {
 		return { course: props.courseName, progress: props.getProgress }
 	},
-	auto: true,
+	auto: Boolean(props.courseName),
 }) as Resource<OutlineChapter[] | null>
 
 watch(
 	() => props.courseName,
-	() => outline.reload()
+	() => {
+		if (props.courseName) outline.reload()
+	}
 )
 
 watch(
@@ -194,10 +197,8 @@ const deleteLesson = createResource({
 		outline.reload()
 		toast.success(__('Lesson deleted successfully'))
 	},
-	onError(err: { messages?: string[] } | string) {
-		toast.error(
-			typeof err === 'string' ? err : err.messages?.[0] ?? __('Error')
-		)
+	onError(err: FrappeResourceError) {
+		toast.error(resourceErrorMessage(err, __('Error')))
 	},
 })
 
@@ -237,10 +238,8 @@ const deleteChapter = createResource({
 		outline.reload()
 		toast.success(__('Chapter deleted successfully'))
 	},
-	onError(err: { messages?: string[] } | string) {
-		toast.error(
-			typeof err === 'string' ? err : err.messages?.[0] ?? __('Error')
-		)
+	onError(err: FrappeResourceError) {
+		toast.error(resourceErrorMessage(err, __('Error')))
 	},
 })
 
@@ -259,18 +258,15 @@ const renameChapterResource = createResource({
 		outline.reload()
 		toast.success(__('Chapter renamed successfully'))
 	},
-	onError(err: { messages?: string[] } | string) {
+	onError(err: FrappeResourceError) {
 		outline.reload()
-		toast.error(typeof err === 'string' ? err : err.messages?.[0] ?? 'Error')
+		toast.error(resourceErrorMessage(err, 'Error'))
 	},
 })
 
 function renameChapter(payload: { chapter: OutlineChapter; title: string }) {
 	renameChapterResource.submit(payload)
 }
-
-const errorMessage = (err: { messages?: string[] } | string): string =>
-	typeof err === 'string' ? err : err.messages?.[0] ?? 'Error'
 
 // Inserts the Course Lesson and its chapter reference in one request, so a
 // failure on either rolls back atomically: no orphaned lesson. Returns the
@@ -301,9 +297,9 @@ function createLessonInline(payload: {
 					if (created) navigateToLesson(created)
 				})
 			},
-			onError(err: { messages?: string[] } | string) {
+			onError(err: FrappeResourceError) {
 				creatingLessonChapter.value = ''
-				toast.error(errorMessage(err))
+				toast.error(resourceErrorMessage(err, 'Error'))
 			},
 		}
 	)
@@ -336,7 +332,7 @@ function trashLesson(lessonName: string, chapterName: string) {
 				label: __('Delete'),
 				theme: 'red',
 				variant: 'solid',
-				onClick(close) {
+				onClick({ close }) {
 					// Per-call onSuccess closes over this lessonName, so the editor is
 					// told exactly which lesson went: no shared slot to drift on
 					// concurrent deletes. Runs alongside the resource-level reload.
@@ -362,7 +358,7 @@ function trashChapter(chapterName: string) {
 				label: __('Delete'),
 				theme: 'red',
 				variant: 'solid',
-				onClick(close) {
+				onClick({ close }) {
 					deleteChapter.submit(
 						{ chapter: chapterName },
 						{

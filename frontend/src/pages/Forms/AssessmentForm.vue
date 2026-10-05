@@ -118,17 +118,17 @@ const reloadAssessments = () => {
 // close callback to invoke here.
 const createAssessment = () => {
 	if (assessmentType.value === 'LMS Quiz') {
-		router.push({ name: 'QuizForm', params: { quizID: 'new' } })
+		// NewQuiz, not QuizForm with a 'new' id: a quiz is not written until it is
+		// named, so the create route carries no param and QuizForm would look for a
+		// quiz literally called "new".
+		router.push({ name: 'NewQuiz' })
 	} else if (assessmentType.value === 'LMS Assignment') {
 		router.push({ name: 'Assignments' })
 	} else if (assessmentType.value === 'LMS Programming Exercise') {
 		// The third type the picker offers had no branch, so Link closed its
 		// dropdown and nothing else happened — a dead control on a form that
 		// advertises the option.
-		router.push({
-			name: 'ProgrammingExerciseForm',
-			params: { exerciseID: 'new' },
-		})
+		router.push({ name: 'NewProgrammingExercise' })
 	}
 }
 

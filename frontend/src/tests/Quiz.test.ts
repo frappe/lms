@@ -1,4 +1,5 @@
 import { flushPromises, mount } from '@vue/test-utils'
+import type { VueWrapper } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import Quiz from '@/components/Quiz.vue'
@@ -6,7 +7,11 @@ import Quiz from '@/components/Quiz.vue'
 const resourceState = vi.hoisted(() => ({
 	cache: new Map<string, any>(),
 	request: vi.fn(),
+	// Every resource submit, by url. `request` only records reads.
+	submits: [] as string[],
 	response: null as any,
+	// Per-option verdict check_answer returns: 1 correct, 2 partial, 0 wrong.
+	checkAnswer: [] as unknown[],
 }))
 
 vi.mock('frappe-ui', async () => {
@@ -28,14 +33,17 @@ vi.mock('frappe-ui', async () => {
 			resourceState.request(options.url, params)
 
 			if (options.url === 'lms.lms.utils.get_quiz_with_questions') {
-				// Match a real network response: let the remounted component finish
-				// setup before the cached resource's original callbacks run.
+				// Match a real network response: let the remounted component finish setup before the cached resource's original callbacks run.
 				await Promise.resolve()
 
 				const raw = structuredClone(resourceState.response)
 				const transformed = options.transform?.(raw)
 				resource.data = transformed == null ? raw : transformed
 				options.onSuccess?.(raw)
+			}
+
+			if (options.url === 'lms.lms.doctype.lms_quiz.lms_quiz.check_answer') {
+				options.onSuccess?.(resourceState.checkAnswer)
 			}
 
 			resource.loading = false
@@ -48,7 +56,9 @@ vi.mock('frappe-ui', async () => {
 			loading: false,
 			reload,
 			fetch: reload,
-			submit: vi.fn(),
+			submit: vi.fn(() => {
+				resourceState.submits.push(options.url)
+			}),
 			reset: vi.fn(() => {
 				resource.data = null
 			}),
@@ -66,21 +76,49 @@ vi.mock('frappe-ui', async () => {
 		call: vi.fn(),
 		toast: { warning: vi.fn(), error: vi.fn() },
 		Button: {
+			props: { disabled: { type: Boolean, default: false } },
 			emits: ['click'],
-			template: `<button @click="$emit('click')"><slot /></button>`,
+			template: `<button type="button" :disabled="disabled" @click="$emit('click')"><slot /></button>`,
 		},
 		Badge: empty,
-		Checkbox: empty,
+		// The option controls render their content through a `label` slot, so a
+		// bare `<slot />` stub would drop every answer from the markup.
+		Checkbox: {
+			props: ['modelValue'],
+			template: '<div><slot name="label" /><slot /></div>',
+		},
+		// `Radio` reaches its group through provide/inject and is meaningless
+		// outside one, so the stubs keep that contract rather than flattening it.
+		RadioGroup: {
+			props: ['modelValue', 'name'],
+			emits: ['update:modelValue'],
+			provide(this: any) {
+				return {
+					pickRadio: (value: unknown) => this.$emit('update:modelValue', value),
+				}
+			},
+			template: '<div><slot /></div>',
+		},
+		Radio: {
+			props: ['value'],
+			inject: ['pickRadio'],
+			template:
+				'<button type="button" class="radio-option" @click="pickRadio(value)"><slot name="label" /></button>',
+		},
 		Dialog: {
 			props: ['open'],
 			template: '<div v-if="open"><slot /></div>',
 		},
 		FormControl: empty,
-		ListView: empty,
 		LoadingIndicator: empty,
-		TextEditor: empty,
+		Progress: empty,
+		Skeleton: empty,
 	}
 })
+
+vi.mock('frappe-ui/experimental', () => ({
+	ListView: { template: '<div><slot /></div>' },
+}))
 
 vi.mock('@/components/ProgressBar.vue', () => ({
 	default: { template: '<div />' },
@@ -99,7 +137,7 @@ vi.stubGlobal('__', (value: string) => value)
 // `String.format` is supplied by Frappe in the browser runtime.
 String.prototype.format = function (...args: unknown[]) {
 	return this.replace(/\{(\d+)\}/g, (_match: string, index: number) =>
-		String(args[index]),
+		String(args[index])
 	)
 }
 
@@ -129,10 +167,14 @@ const quizResponse = () => ({
 	},
 })
 
-const mountQuiz = () =>
+let mountedQuizzes = 0
+
+// A distinct idPrefix per mount, as mountBlock gives each lesson block.
+const mountQuiz = (props: Record<string, unknown> = {}) =>
 	mount(Quiz, {
-		props: { quizName: 'QUIZ-1' },
+		props: { quizName: 'QUIZ-1', ...props },
 		global: {
+			config: { idPrefix: `quiz-${++mountedQuizzes}` },
 			provide: { $user: { data: { name: 'learner@example.com' } } },
 			mocks: { __: (value: string) => value },
 		},
@@ -141,7 +183,9 @@ const mountQuiz = () =>
 beforeEach(() => {
 	resourceState.cache.clear()
 	resourceState.request.mockReset()
+	resourceState.submits.length = 0
 	resourceState.response = quizResponse()
+	resourceState.checkAnswer = []
 	localStorage.clear()
 })
 
@@ -153,7 +197,7 @@ describe('Quiz remount', () => {
 		expect(first.text()).toContain('1 question')
 		expect(first.text()).toContain('Start')
 		expect(first.text()).not.toContain(
-			'This quiz has no questions available yet.',
+			'This quiz has no questions available yet.'
 		)
 		expect(resourceState.request).toHaveBeenCalledTimes(1)
 		first.unmount()
@@ -169,7 +213,7 @@ describe('Quiz remount', () => {
 		expect(second.text()).toContain('1 question')
 		expect(second.text()).toContain('Start')
 		expect(second.text()).not.toContain(
-			'This quiz has no questions available yet.',
+			'This quiz has no questions available yet.'
 		)
 
 		const start = second
@@ -182,5 +226,201 @@ describe('Quiz remount', () => {
 		expect(second.text()).toContain('Visible question body')
 		expect(resourceState.request).toHaveBeenCalledTimes(2)
 		second.unmount()
+	})
+})
+
+const choicesQuizResponse = (count: number) => ({
+	quiz: {
+		name: 'QUIZ-1',
+		title: 'Quiz pager states',
+		duration: 0,
+		passing_percentage: 70,
+		shuffle_questions: 0,
+		show_answers: 0,
+		show_submission_history: 0,
+		questions: Array.from({ length: count }, (_unused, index) => ({
+			question: `Q${index + 1}`,
+			marks: 1,
+		})),
+	},
+	questions_by_name: Object.fromEntries(
+		Array.from({ length: count }, (_unused, index) => [
+			`Q${index + 1}`,
+			{
+				name: `Q${index + 1}`,
+				question: `Question body ${index + 1}`,
+				type: 'Choices',
+				multiple: 0,
+				option_1: `First option ${index + 1}`,
+				is_correct_1: 1,
+				option_2: `Second option ${index + 1}`,
+			},
+		])
+	),
+})
+
+const startQuiz = async (wrapper: VueWrapper<any>) => {
+	const start = wrapper
+		.findAll('button')
+		.find((button) => button.text() === 'Start Quiz')
+	expect(start).toBeDefined()
+	await start!.trigger('click')
+	await flushPromises()
+}
+describe('Quiz in an author preview', () => {
+	beforeEach(() => {
+		resourceState.response = choicesQuizResponse(1)
+	})
+
+	// Guards the lesson-only "Preview only" badge leaking onto the quiz form.
+	// Came with this branch's quiz assessment card restyle.
+	// Added on feat/assessment-visual-redesign; the badge marks lesson embeds.
+	it('shows no Preview only badge on the authoring preview', async () => {
+		const wrapper = mountQuiz({ preview: true })
+		await flushPromises()
+
+		const header = wrapper.findComponent({ name: 'AssessmentCardHeader' })
+		expect(header.exists()).toBe(true)
+		expect(header.props('preview')).toBe(false)
+		wrapper.unmount()
+	})
+
+	// The quiz form's Preview mounts this as it ships, and the button is not the
+	// only way in: a timed quiz auto-submits and proctoring submits on a
+	// violation. That submission is real.
+	it('writes nothing when a submit is triggered anyway', async () => {
+		vi.useFakeTimers()
+		try {
+			const wrapper = mountQuiz({ preview: true })
+			await flushPromises()
+			await startQuiz(wrapper)
+			resourceState.submits.length = 0
+			;(wrapper.vm as any).submitQuiz('timeout')
+			await vi.advanceTimersByTimeAsync(1000)
+			await flushPromises()
+
+			expect(resourceState.submits).not.toContain(
+				'lms.lms.doctype.lms_quiz.lms_quiz.submit_quiz'
+			)
+			wrapper.unmount()
+		} finally {
+			vi.useRealTimers()
+		}
+	})
+})
+
+describe('Quiz choices', () => {
+	// `Check` only renders when the quiz shows answers, and it is the only
+	// caller of checkAnswer, so this is the one flow that reaches the verdict
+	// markup at all.
+	beforeEach(() => {
+		const response = choicesQuizResponse(1)
+		response.quiz.show_answers = 1
+		resourceState.response = response
+	})
+
+	const pickFirstAndCheck = async (wrapper: VueWrapper<any>) => {
+		await startQuiz(wrapper)
+		await wrapper.findAll('input[type="radio"]')[0].trigger('change')
+		const check = wrapper.findAll('button').find((b) => b.text() === 'Check')
+		expect(check).toBeDefined()
+		await check!.trigger('click')
+		await flushPromises()
+	}
+
+	it('sends the option the learner picks', async () => {
+		const wrapper = mountQuiz()
+		await flushPromises()
+		resourceState.checkAnswer = [1, 0]
+		await pickFirstAndCheck(wrapper)
+
+		// The warning toast instead of a request would mean getAnswers() saw
+		// nothing selected, i.e. the radio never reached selectedOptions.
+		expect(resourceState.request.mock.calls.map((call) => call[0])).toContain(
+			'lms.lms.doctype.lms_quiz.lms_quiz.check_answer'
+		)
+		wrapper.unmount()
+	})
+
+	it('marks each option right or wrong once checked, keeping the labels', async () => {
+		const wrapper = mountQuiz()
+		await flushPromises()
+		resourceState.checkAnswer = [1, 0]
+		await pickFirstAndCheck(wrapper)
+
+		expect(wrapper.text()).toContain('First option 1')
+		expect(wrapper.text()).toContain('Second option 1')
+		const firstOption = wrapper.findAll('label')[0]
+		expect(firstOption.find('.lucide-check-circle').exists()).toBe(true)
+		wrapper.unmount()
+	})
+
+	// Guards two quizzes asking the same question sharing one radio group.
+	// Broke with this branch's quiz card restyle (radios named by question text).
+	// Added on feat/assessment-visual-redesign when quizzes became lesson blocks.
+	it('keeps two quizzes on one page in separate radio groups', async () => {
+		const first = mountQuiz()
+		const second = mountQuiz()
+		await flushPromises()
+		await startQuiz(first)
+		await startQuiz(second)
+
+		const nameOf = (wrapper: VueWrapper<any>) =>
+			wrapper.find('input[type="radio"]').attributes('name')
+		expect(nameOf(first)).not.toBe(nameOf(second))
+		first.unmount()
+		second.unmount()
+	})
+})
+
+// Guards the quiz card's skeleton, header summary, option rows and verdict.
+// Came with this branch's restyle of the quiz block as an assessment card.
+// Added on feat/assessment-visual-redesign to pin the new card's states.
+describe('Quiz card', () => {
+	it('shows a skeleton card until the quiz lands', async () => {
+		const wrapper = mountQuiz()
+		expect(wrapper.find('[data-testid="quiz-skeleton"]').exists()).toBe(true)
+
+		await flushPromises()
+		expect(wrapper.find('[data-testid="quiz-skeleton"]').exists()).toBe(false)
+		expect(wrapper.text()).toContain('Start Quiz')
+	})
+
+	it('summarises the quiz type, size and pass mark in the header', async () => {
+		resourceState.response = choicesQuizResponse(2)
+		const wrapper = mountQuiz()
+		await flushPromises()
+
+		expect(wrapper.text()).toContain(
+			'Multiple choice · 2 questions · pass at 70%'
+		)
+	})
+
+	it('renders one option row per option and a verdict after Check', async () => {
+		const response = choicesQuizResponse(1)
+		response.quiz.show_answers = 1
+		resourceState.response = response
+		resourceState.checkAnswer = [1, 0]
+		const wrapper = mountQuiz()
+		await flushPromises()
+		await startQuiz(wrapper)
+
+		expect(wrapper.text()).toContain('Question 1 of 1')
+		const options = wrapper.findAll('input[type="radio"]')
+		expect(options).toHaveLength(2)
+		expect(wrapper.find('[data-testid="quiz-feedback"]').exists()).toBe(false)
+
+		await options[0].trigger('change')
+		const check = wrapper
+			.findAll('button')
+			.find((button) => button.text() === 'Check')
+		await check!.trigger('click')
+		await flushPromises()
+
+		const feedback = wrapper.find('[data-testid="quiz-feedback"]')
+		expect(feedback.exists()).toBe(true)
+		expect(feedback.text()).toBe('Correct')
+		const firstOption = wrapper.findAll('label')[0]
+		expect(firstOption.find('.lucide-check-circle').exists()).toBe(true)
 	})
 })

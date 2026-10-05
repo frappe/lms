@@ -38,10 +38,7 @@ const { userResource } = vi.hoisted(() => ({
 	userResource: { data: null as Record<string, unknown> | null },
 }))
 
-// frappe-ui's internal module resolution doesn't work under vitest (see
-// NewMemberModal.test.ts, FormShell.test.ts), so importActual() on it throws
-// ERR_MODULE_NOT_FOUND. Every export the form, FormShell and the Controls/*
-// wrappers pull in has to be stubbed here by hand.
+// Stubbed so tests control resource data and render light stand-ins.
 const { passthrough } = vi.hoisted(() => {
 	// @/utils pulls in plyr, which touches matchMedia at import time. hoisted so
 	// it lands before the (hoisted) component import runs.
@@ -110,10 +107,19 @@ vi.mock('frappe-ui', () => ({
 	Select: passthrough,
 }))
 
-vi.mock('frappe-ui/frappe', () => ({
+vi.mock('@framework/ui/telemetry/index', async (importOriginal) => ({
+	...(await importOriginal<typeof import('@framework/ui/telemetry/index')>()),
 	useTelemetry: () => ({ capture: vi.fn() }),
-	useOnboarding: () => ({ updateOnboardingStep: vi.fn() }),
 }))
+vi.mock(
+	'@framework/ui/components/Onboarding/index',
+	async (importOriginal) => ({
+		...(await importOriginal<
+			typeof import('@framework/ui/components/Onboarding/index')
+		>()),
+		useOnboarding: () => ({ updateOnboardingStep: vi.fn() }),
+	})
+)
 
 // The rich text editor drags in ProseMirror; the form's behaviour under test
 // does not involve it.

@@ -6,7 +6,7 @@
 		<div v-if="course.chapters.length">
 			{{ course.chapters }}
 		</div>
-		<div v-else class="border bg-surface-base rounded-md p-5 text-center mt-4">
+		<div v-else class="border bg-surface-base rounded-5 p-5 text-center mt-4">
 			<div>
 				{{
 					__(
@@ -21,6 +21,8 @@
 	</div>
 </template>
 <script setup>
+import { Button } from 'frappe-ui'
+
 const props = defineProps({
 	course: {
 		type: Object,

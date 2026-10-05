@@ -7,14 +7,14 @@
 
 				<Badge
 					v-if="program.data"
-					:theme="program.data.progress < 100 ? 'orange' : 'green'"
+					:theme="program.data.progress < 100 ? 'amber' : 'green'"
 				>
 					{{ program.data.progress }}% {{ __('completed') }}
 				</Badge>
 
 				<Tooltip
 					v-if="program.data?.enforce_course_order"
-					placement="right"
+					side="right"
 					:text="
 						__(
 							'Courses must be completed in order. You can only start the next course after completing the previous one.'
@@ -45,7 +45,7 @@
 					/>
 					<div
 						v-if="!course.eligible && program.data.enforce_course_order"
-						class="absolute inset-0 flex flex-col items-center justify-center space-y-2 text-ink-base rounded-md invisible group-hover:visible"
+						class="absolute inset-0 flex flex-col items-center justify-center space-y-2 text-ink-base rounded-5 invisible group-hover:visible [@media(hover:none)]:group-active:visible"
 						:style="{
 							background:
 								'radial-gradient(circle, darkgray 0%, lightgray 100%)',
@@ -65,8 +65,8 @@
 </template>
 <script setup lang="ts">
 import { computed, inject, onMounted } from 'vue'
-import PageHeader from '@/components/Layouts/PageHeader.vue'
-import PageBody from '@/components/Layouts/PageBody.vue'
+import PageHeader from '@/components/Layouts/pages/PageHeader.vue'
+import PageBody from '@/components/Layouts/pages/PageBody.vue'
 import { Badge, call, createResource, Tooltip, usePageMeta } from 'frappe-ui'
 import { sessionStore } from '@/stores/session'
 

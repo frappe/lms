@@ -25,7 +25,7 @@
 					</template>
 					<template #default>
 						<p
-							class="w-56 rounded-lg bg-surface-base p-3 text-sm leading-5 text-ink-gray-7 shadow-2xl ring-1 ring-black ring-opacity-5"
+							class="w-56 rounded-6 bg-surface-base p-3 text-sm leading-5 text-ink-gray-7 shadow-2xl ring-1 ring-outline-gray-2"
 						>
 							{{ ownSubmissionNotice }}
 						</p>
@@ -44,7 +44,7 @@
 					v-if="submissionDetails.isDirty"
 					:label="__('Not Saved')"
 					variant="subtle"
-					theme="orange"
+					theme="amber"
 				/>
 				<ShortcutTooltip :label="__('Save')" combo="Mod+S">
 					<HeaderButton
@@ -217,7 +217,7 @@
 							<div class="mb-0.5 text-xs text-ink-gray-5">
 								{{ __('Violations') }}
 							</div>
-							<div class="text-sm font-medium text-ink-red-6">
+							<div class="text-sm font-medium text-ink-red-5">
 								{{ submissionDetails.doc.violation_count }}
 							</div>
 						</div>
@@ -274,8 +274,8 @@
 									class="absolute -start-[21px] top-1 size-2 rounded-full"
 									:class="
 										entry.severity === 'violation'
-											? 'bg-ink-red-6'
-											: 'bg-ink-orange-6'
+											? 'bg-surface-red-6'
+											: 'bg-surface-orange-6'
 									"
 								/>
 								<div class="text-xs font-medium leading-5 text-ink-gray-7">
@@ -288,8 +288,8 @@
 										class="font-medium"
 										:class="
 											entry.severity === 'violation'
-												? 'text-ink-red-6'
-												: 'text-ink-orange-6'
+												? 'text-ink-red-5'
+												: 'text-ink-orange-5'
 										"
 									>
 										{{ severityLabel(entry.severity) }}
@@ -312,7 +312,7 @@
 									     reader, and swaps on open so the control still describes
 									     what it does. -->
 									<summary
-										class="w-fit cursor-pointer list-none text-xs text-ink-gray-5 underline decoration-outline-gray-2 underline-offset-2 hover:text-ink-gray-7 hover:decoration-ink-gray-7 [&::-webkit-details-marker]:hidden"
+										class="w-fit cursor-pointer list-none text-xs text-ink-gray-5 underline underline-offset-2 hover:text-ink-gray-7 [&::-webkit-details-marker]:hidden"
 									>
 										{{ __('Snapshot') }}
 									</summary>
@@ -329,7 +329,7 @@
 														entry.event_type
 												)
 											"
-											class="w-full rounded border"
+											class="w-full rounded-4 border"
 										/>
 									</a>
 								</details>
@@ -363,8 +363,8 @@ import {
 import { computed, inject, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useDebounceFn, useMediaQuery } from '@vueuse/core'
 import { safeUrl } from '@/utils/safeUrl'
-import PageHeader from '@/components/Layouts/PageHeader.vue'
-import PageBody from '@/components/Layouts/PageBody.vue'
+import PageHeader from '@/components/Layouts/pages/PageHeader.vue'
+import PageBody from '@/components/Layouts/pages/PageBody.vue'
 import HeaderButton from '@/components/HeaderButton.vue'
 import ShortcutTooltip from '@/components/ShortcutTooltip.vue'
 import {
@@ -498,33 +498,20 @@ const severityLabel = (severity) =>
 	severity === 'violation' ? __('Violation') : __('Warning')
 
 const markStatusClass = (row) => {
-	if (row.marks == row.marks_out_of) return 'bg-ink-green-6'
-	return row.marks > 0 ? 'bg-ink-orange-6' : 'bg-ink-red-6'
+	if (row.marks == row.marks_out_of) return 'bg-surface-green-6'
+	return row.marks > 0 ? 'bg-surface-orange-6' : 'bg-surface-red-6'
 }
 
-// The header renders before the doc lands. It used to be guarded by a `v-if`
-// on Breadcrumbs itself, and reading `.quiz` off an undefined doc threw during
-// render once the shared header took that guard away.
-//
-// The trail continues the submission list's own — Quizzes, the quiz, then its
-// submissions — so arriving here from that list adds a crumb rather than
-// replacing the path that led to it.
+// The header renders before the doc lands, so this must not read `.quiz` off an
+// undefined doc. Matches the list page: no quiz crumb, and no `?quiz=` back,
+// which used to relocate the list.
 const breadcrumbs = computed(() => {
-	const crumbs = [{ label: __('Quizzes'), route: { name: 'Quizzes' } }]
+	const crumbs = [
+		{ label: __('Quizzes'), route: { name: 'Quizzes' } },
+		{ label: __('Submissions'), route: { name: 'QuizSubmissions' } },
+	]
 	const doc = submissionDetails.doc
-	if (!doc) return crumbs
-
-	if (doc.quiz_title) {
-		crumbs.push({
-			label: doc.quiz_title,
-			route: { name: 'QuizForm', params: { quizID: doc.quiz } },
-		})
-	}
-	crumbs.push({
-		label: __('Submissions'),
-		route: { name: 'QuizSubmissionList', params: { quizID: doc.quiz } },
-	})
-	crumbs.push({ label: doc.member_name || doc.name })
+	if (doc) crumbs.push({ label: doc.member_name || doc.name })
 	return crumbs
 })
 
@@ -567,7 +554,7 @@ onBeforeUnmount(() => {
 })
 
 usePageMeta(() => ({
-	title: `${submissionDetails.doc?.quiz_title}`,
+	title: submissionDetails.doc?.quiz_title || __('Quiz Submission'),
 	icon: brand.favicon,
 }))
 </script>

@@ -10,7 +10,7 @@
 <script setup>
 import Quiz from '@/components/Quiz.vue'
 import { createResource, usePageMeta } from 'frappe-ui'
-import PageHeader from '@/components/Layouts/PageHeader.vue'
+import PageHeader from '@/components/Layouts/pages/PageHeader.vue'
 import { computed, inject, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { sessionStore } from '../stores/session'
