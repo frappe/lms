@@ -1,7 +1,5 @@
-/**
- * AppSidebar's onboarding wiring: which panel renders for each flow state, which
- * framework key the banner and checklist bind to, and what a step click does.
- */
+// AppSidebar's onboarding wiring: which panel renders, which key the banner
+// binds to, and what a step click does.
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { flushPromises, mount, type VueWrapper } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'

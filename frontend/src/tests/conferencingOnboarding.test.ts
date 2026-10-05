@@ -1,7 +1,5 @@
-/**
- * Linking a Zoom or Google Meet account completes that provider's account step
- * in the live class flow; editing an existing account does not.
- */
+// Linking a Zoom or Google Meet account completes that provider's step;
+// editing an existing account does not.
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { FieldsPage } from '@/types/settingsSchema'
 

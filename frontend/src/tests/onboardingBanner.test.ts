@@ -1,7 +1,5 @@
-/**
- * OnboardingBanner: the sidebar's "Getting started" card, an LMS copy of the
- * framework GettingStartedBanner at text-p-sm, driven by one flow's key.
- */
+// OnboardingBanner: the LMS copy of the framework GettingStartedBanner,
+// driven by one flow's key.
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { computed, ref } from 'vue'
@@ -58,7 +56,10 @@ function mountBanner(appName: string, isSidebarCollapsed = false) {
 }
 
 describe('OnboardingBanner', () => {
-	it('reads the given flow’s key and shows its count', () => {
+	// Guards: the banner reading another flow's progress. Introduced in this
+	// branch (feat/onboarding-flows, PR pending); test added there to pin the key
+	// and count.
+	it("reads the given flow's key and shows its count", () => {
 		framework.counts.learning_live_class_meet = [2, 6]
 		const w = mountBanner('learning_live_class_meet')
 		expect(framework.keys).toEqual(['learning_live_class_meet'])

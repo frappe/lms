@@ -1,7 +1,4 @@
-/**
- * When a saved course counts as priced, which completes the publish flow's
- * "Set pricing" step.
- */
+// When a saved course counts as priced for the "Set pricing" step.
 import { describe, expect, it } from 'vitest'
 import { isPricedCourse } from '@/utils/courseForm'
 

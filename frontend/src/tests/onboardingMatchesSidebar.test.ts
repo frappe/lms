@@ -1,8 +1,5 @@
-/**
- * The onboarding panel and the sidebar Getting started card must read like the
- * sidebar: the same label text class as a sidebar nav row, and ghost buttons
- * only. Read from the sources, so a change to either side shows up here.
- */
+// The panel and banner must use the sidebar nav label class and ghost buttons
+// only. Read from the sources, so a change on either side shows up here.
 import { describe, expect, it } from 'vitest'
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { join, resolve } from 'node:path'
@@ -30,7 +27,10 @@ describe('onboarding matches the sidebar', () => {
 		expect(onboardingFiles().length).toBeGreaterThanOrEqual(4)
 	})
 
-	it('uses the sidebar nav label’s text class', () => {
+	// Guards: ROW_TEXT drifting from SidebarLink's label class. Introduced in
+	// this branch (feat/onboarding-flows, PR pending); test added there to tie
+	// the onboarding text to the sidebar.
+	it("uses the sidebar nav label's text class", () => {
 		const source = readFileSync(SIDEBAR_LINK, 'utf8')
 		const label = source.match(/<span class="truncate (text-[\w-]+)">/)
 		expect(label?.[1]).toBe(ROW_TEXT)

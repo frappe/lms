@@ -1,9 +1,5 @@
-/**
- * When a saved batch counts as having its details filled in, which completes
- * the live class flow's "Fill in batch details" step. The image is the one
- * detail the new-batch form does not ask for, so creating a batch never
- * completes the step on its own.
- */
+// A saved batch counts as having details once it has an image, the one detail
+// the new-batch form never asks for.
 import { describe, expect, it } from 'vitest'
 import { hasBatchDetails } from '@/utils/batchForm'
 

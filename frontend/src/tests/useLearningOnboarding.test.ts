@@ -1,8 +1,5 @@
-/**
- * useLearningOnboarding drives five framework onboarding keys at once. The
- * framework is replaced by a small in-memory model of `useOnboarding`, so each
- * test sees which keys were updated, synced, or left alone.
- */
+// useLearningOnboarding drives five framework keys at once. useOnboarding is an
+// in-memory model, so each test sees which keys were updated or left alone.
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick, reactive, ref, type Ref } from 'vue'
 
@@ -279,7 +276,10 @@ describe('list', () => {
 		expect(o.overallPercent.value).toBe(Math.floor((2 / 14) * 100))
 	})
 
-	it('counts every card done once each card’s flow is done', async () => {
+	// Guards: a finished card not counting toward the done total. Introduced in
+	// this branch (feat/onboarding-flows, PR pending); test added there to pin
+	// the all-done numbers.
+	it("counts every card done once each card's flow is done", async () => {
 		const o = await ready({
 			answers: { live_class: 'zoom' },
 		})
@@ -388,7 +388,10 @@ describe('question and answer', () => {
 		).toEqual({ live_class: 'meet' })
 	})
 
-	it('changing the answer switches the key, keeping each key’s progress', async () => {
+	// Guards: switching provider wiping or merging the other provider's
+	// progress. Introduced in this branch (feat/onboarding-flows, PR pending);
+	// test added there to keep each key's progress apart.
+	it("changing the answer switches the key, keeping each key's progress", async () => {
 		const o = await ready()
 		o.answer('live_class', 'zoom')
 		o.toggleStep('live_class_zoom', 'connect_zoom')
@@ -451,7 +454,10 @@ describe('step status', () => {
 		})
 	})
 
-	it('reports a blocked step’s blocker', async () => {
+	// Guards: a blocked step naming the wrong blocker, or a free step showing
+	// one. Introduced in this branch (feat/onboarding-flows, PR pending); test
+	// added there to pin the blocker lookup.
+	it("reports a blocked step's blocker", async () => {
 		const o = await ready()
 		const meet = o.stepsOf('live_class_meet')
 		expect(o.blocker('live_class_meet', meet[4])?.name).toBe('setup_google_api')
@@ -520,7 +526,10 @@ describe('step actions', () => {
 		expect(quiz.completed).toBe(false)
 	})
 
-	it('undo on a finished flow clears the framework’s completed flag first', async () => {
+	// Guards: undo on a finished flow keeping the framework's completed flag
+	// set. Introduced in this branch (feat/onboarding-flows, PR pending); test
+	// added there to pin the flag reset.
+	it("undo on a finished flow clears the framework's completed flag first", async () => {
 		const o = await ready()
 		finish('publish_course')
 		handle('publish_course').isOnboardingStepsCompleted.value = true
@@ -530,7 +539,10 @@ describe('step actions', () => {
 		)
 	})
 
-	it('start runs the step’s navigation without ticking it', async () => {
+	// Guards: Start ticking the step it only navigates to. Introduced in this
+	// branch (feat/onboarding-flows, PR pending); test added there to pin Start
+	// as navigation only.
+	it("start runs the step's navigation without ticking it", async () => {
 		const o = await ready()
 		o.startStep('publish_course', 'add_quiz')
 		expect(nav.openRoute).toHaveBeenCalledWith({ name: 'NewQuiz' })
@@ -625,7 +637,9 @@ describe('telemetry', () => {
 })
 
 describe('next up', () => {
-	it('follows the card’s next order', async () => {
+	// Guards: Next up leaving the card order. Introduced in this branch
+	// (feat/onboarding-flows, PR pending); test added there to pin the order.
+	it("follows the card's next order", async () => {
 		const o = await ready()
 		expect(o.nextCard(card(o, 'publish_course'))?.id).toBe('live_class')
 		expect(o.nextCard(card(o, 'live_class'))?.id).toBe('onboard_learners')

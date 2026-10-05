@@ -1,9 +1,5 @@
-/**
- * OnboardingFlowPanel end to end: the real composable and registry, with the
- * framework's useOnboarding replaced by an in-memory model. Labels come from
- * the translation getters at render, through setup.ts's `__`, so an empty row
- * here means a getter was read too early or copied away.
- */
+// OnboardingFlowPanel with the real composable and an in-memory useOnboarding.
+// An empty label means a translation getter was read too early.
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { flushPromises, mount } from '@vue/test-utils'
 import { reactive, ref } from 'vue'
@@ -226,6 +222,8 @@ describe('list screen', () => {
 		expect(title.classes()).toContain('line-through')
 	})
 
+	// Regression: with every flow done the panel showed Skip all and no way back
+	// in. Introduced and fixed on this branch (feat/onboarding-flows, unpushed).
 	it('Skip all finishes everything: 100%, green, 3/3', async () => {
 		const { w } = await setUp()
 		await w
@@ -309,7 +307,10 @@ describe('run my first live class', () => {
 		expect(w.find('[data-testid="answer-switch"]').exists()).toBe(false)
 	})
 
-	it('picking a tool on the step opens that tool’s checklist with progress kept', async () => {
+	// Guards: picking a tool dropping the batch steps already done, or not
+	// switching checklists. Introduced in this branch (feat/onboarding-flows, PR
+	// pending); test added there to check the switch keeps progress.
+	it("picking a tool on the step opens that tool's checklist with progress kept", async () => {
 		const { o, w } = await setUp()
 		await w.findAll('[data-testid="flow-row"]')[1].trigger('click')
 		o.toggleStep('live_class', 'create_first_batch')

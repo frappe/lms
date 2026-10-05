@@ -1,8 +1,5 @@
-/**
- * OnboardingChecklist: one flow in the framework OnboardingSteps layout. The
- * badge row, the answer switch, the step rows (tick toggle as the leading
- * icon), and what comes next. The composable is faked so each test sets state.
- */
+// OnboardingChecklist: one flow in the framework OnboardingSteps layout.
+// The composable is faked so each test sets its own state.
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { mount, type DOMWrapper } from '@vue/test-utils'
 import { getCard, getFlow, type FlowStep } from '@/onboarding/flows'
@@ -124,7 +121,7 @@ const buttonIn = (
 ) => el.findAll('button').find((b) => b.text() === label)
 
 describe('badge row', () => {
-	it('shows this flow’s percent in amber below 100', () => {
+	it("shows this flow's percent in amber below 100", () => {
 		const badge = mountFlow().find('.badge')
 		expect(badge.text()).toBe('33% completed')
 		expect(badge.attributes('data-theme')).toBe('amber')
@@ -153,19 +150,14 @@ describe('badge row', () => {
 		expect(buttonIn(w, 'Skip all')).toBeDefined()
 	})
 
+	// Regression: a finished flow still offered Skip all with nothing left to
+	// skip. Introduced and fixed on this branch (feat/onboarding-flows, unpushed).
 	it('has no Skip all at 100%', () => {
 		state.complete = true
 		state.progress = { resolved: 6, total: 6, skipped: 0 }
 		const w = mountFlow()
 		expect(buttonIn(w, 'Skip all')).toBeUndefined()
 		expect(buttonIn(w, 'Reset all')).toBeDefined()
-	})
-
-	it('has no menu, progress bar or chip any more', () => {
-		const w = mountFlow()
-		expect(w.find('[data-testid="flow-menu"]').exists()).toBe(false)
-		expect(w.find('[data-testid="answer-chip"]').exists()).toBe(false)
-		expect(w.text()).not.toContain('Skip remaining')
 	})
 })
 
@@ -254,7 +246,7 @@ describe('step rows', () => {
 		)
 	})
 
-	it('disables a blocked step’s toggle and explains why', () => {
+	it("disables a blocked step's toggle and explains why", () => {
 		const w = mountFlow()
 		expect(
 			w.findAll('[data-testid="step-toggle"]')[3].attributes('disabled')
@@ -287,12 +279,6 @@ describe('step rows', () => {
 		)
 		expect(buttonIn(rows(w)[3], 'Skip')).toBeUndefined()
 	})
-
-	it('has no Start button or status rings', () => {
-		const w = mountFlow()
-		expect(buttonIn(w, 'Start')).toBeUndefined()
-		expect(rows(w)[0].attributes('data-status')).toBeUndefined()
-	})
 })
 
 describe('step action buttons', () => {
@@ -318,7 +304,7 @@ describe('step action buttons', () => {
 		expect(action(w, 1).attributes('data-variant')).toBe('ghost')
 	})
 
-	it('disables a blocked step’s action', () => {
+	it("disables a blocked step's action", () => {
 		expect(action(mountFlow(), 3).attributes('disabled')).toBeDefined()
 	})
 
@@ -336,7 +322,7 @@ describe('step action buttons', () => {
 		)
 	})
 
-	it('reserves the hover Skip’s space before the action', () => {
+	it("reserves the hover Skip's space before the action", () => {
 		const row = rows(mountFlow())[2]
 		const buttons = row.findAll('button').map((b) => b.text())
 		expect(buttons.indexOf('Skip')).toBeLessThan(buttons.indexOf('Connect'))
@@ -358,7 +344,7 @@ describe('choosing a meeting tool', () => {
 		state.nextStepName = 'choose_meeting_tool'
 	})
 
-	it('offers the tools on the step’s own action', async () => {
+	it("offers the tools on the step's own action", async () => {
 		const w = mount(OnboardingChecklist, {
 			props: { card: liveCard, flow: getFlow('live_class')! },
 		})

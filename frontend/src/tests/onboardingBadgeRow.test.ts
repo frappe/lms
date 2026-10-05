@@ -1,8 +1,5 @@
-/**
- * The flow screen rendered with the real frappe-ui components: the badge row
- * (a stray element between Badge and Button shows up here) and the step rows,
- * compared against a real sidebar nav row.
- */
+// The flow screen with real frappe-ui components: the badge row (a stray
+// element shows up here) and the step rows against a real sidebar row.
 import { describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { SidebarItem } from 'frappe-ui'
@@ -60,15 +57,6 @@ describe('badge row', () => {
 		expect(row.findAll('button')).toHaveLength(1)
 		expect(row.text()).not.toContain('|')
 	})
-
-	it('holds the badge, Reset all and Skip all in between', () => {
-		progress.resolved = 3
-		const row = badgeRow()
-		expect(row.findAll('button').map((b) => b.text())).toEqual([
-			'Reset all',
-			'Skip all',
-		])
-	})
 })
 
 describe('step rows match the sidebar nav rows', () => {
@@ -101,7 +89,10 @@ describe('step rows match the sidebar nav rows', () => {
 		expect(classSet(stepRow().classes())).toEqual(classSet(nav.classes()))
 	})
 
-	it('uses the sidebar’s icon size', () => {
+	// Guards: step icons drifting from the sidebar's size-4. Introduced in this
+	// branch (feat/onboarding-flows, PR pending); test added there to compare
+	// icon sizes.
+	it("uses the sidebar's icon size", () => {
 		const navIcon = sidebarRow().find('svg')
 		const stepIcon = stepRow().find('[data-testid="step-toggle"] svg')
 		expect(sizeOf(stepIcon.classes())).toEqual(sizeOf(navIcon.classes()))

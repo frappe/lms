@@ -1,7 +1,5 @@
-/**
- * The flow registry. Step order is frozen once shipped, because the framework
- * matches stored progress to steps by index.
- */
+// The flow registry. Step order is frozen once shipped: the framework matches
+// stored progress to steps by index.
 import { describe, expect, it, vi } from 'vitest'
 import {
 	CARDS,
@@ -331,7 +329,7 @@ describe('step targets', () => {
 		})
 	})
 
-	it('opens the first batch’s settings to fill in its details', () => {
+	it("opens the first batch's settings to fill in its details", () => {
 		const nav = fakeNav(facts)
 		click('live_class', 'fill_batch_details', nav)
 		expect(nav.openRoute).toHaveBeenCalledWith({
@@ -341,11 +339,9 @@ describe('step targets', () => {
 		})
 	})
 
-	it('has no invitation steps for onboarding users', () => {
+	it('onboards users through email set-up and a bulk import only', () => {
 		const names = stepsOf('onboard_learners').map((s) => s.name)
-		expect(names).not.toContain('add_learner')
-		expect(names).not.toContain('invite_learners')
-		expect(names).not.toContain('create_first_batch')
+		expect(names).toEqual(['setup_email', 'import_learners'])
 	})
 
 	it.each([
