@@ -158,9 +158,11 @@ function storeLesson(courseName, number) {
 // does. One watcher below writes the result back to the URL and the model.
 let draftCount = 0
 const nextDraftToken = () => `draft-${++draftCount}`
-const target = ref(
+// A URL that names no lesson opens the course default: the stored lesson,
+// else the first.
+const targetFromRoute = () =>
 	targetFromQuery(route.query, nextDraftToken) ?? { kind: 'default' }
-)
+const target = ref(targetFromRoute())
 
 const selected = computed(() =>
 	resolveTarget(
@@ -285,9 +287,7 @@ function writeSelectionToUrl(next) {
 watch(
 	() => selectionKey(route.query),
 	(key) => {
-		if (ownWrites.delete(key)) return
-		const next = targetFromQuery(route.query, nextDraftToken)
-		if (next) target.value = next
+		if (!ownWrites.delete(key)) target.value = targetFromRoute()
 	}
 )
 
@@ -311,7 +311,9 @@ watch(
 
 watch(
 	() => props.course?.data?.name,
-	(name) => {
+	(name, previous) => {
+		// A target belongs to its course: re-read it from the route on a switch.
+		if (previous && name !== previous) target.value = targetFromRoute()
 		if (name) outline.fetch()
 	},
 	{ immediate: true }
