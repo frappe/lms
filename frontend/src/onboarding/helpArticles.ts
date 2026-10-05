@@ -2,11 +2,8 @@ import type { HelpArticle } from '@framework/ui/components/Onboarding/index'
 
 export const HELP_DOCS_LINK = 'https://docs.frappe.io/learning'
 
-/**
- * The docs tree the sidebar handed the framework HelpModal before the flows
- * replaced it. A function, because `__` is only installed after every static
- * import has been evaluated.
- */
+// The sidebar's former HelpModal docs tree. A function, because `__` is only
+// installed after every static import has been evaluated.
 export function helpArticles(): HelpArticle[] {
 	return [
 		{

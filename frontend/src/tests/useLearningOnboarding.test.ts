@@ -817,6 +817,36 @@ describe('a key the framework already marks complete', () => {
 		)
 	})
 
+	// Guards: a reloaded complete key not finishing its flow and card.
+	// Introduced in this branch (feat/onboarding-flows, PR pending); test added
+	// there to pin completion from the stored flag.
+	it('counts the flow and its card complete', async () => {
+		const o = await ready({
+			card: 'live_class',
+			answers: { live_class: 'meet' },
+		})
+		expect(o.isFlowComplete('live_class_meet')).toBe(true)
+		expect(o.isCardComplete(card(o, 'live_class'))).toBe(true)
+	})
+
+	// Guards: a finished card reopening on load before the status fetch settles.
+	// Introduced in this branch (feat/onboarding-flows, PR pending); test added
+	// there to keep it closed.
+	it('does not reopen its card on load, before the status fetch settles', async () => {
+		statusResource.current = reactive({ loading: true })
+		const o = await load({
+			card: 'live_class',
+			answers: { live_class: 'meet' },
+		})
+		const settingUp = o.setUpAll(nav)
+		expect(o.ui.showHelpModal.value).toBe(false)
+		statusResource.current.loading = false
+		await settingUp
+	})
+
+	// Guards: a reloaded complete key showing blocked rows. Introduced in this
+	// branch (feat/onboarding-flows, PR pending); test added there to pin no
+	// blockers there.
 	it('leaves no step blocked', async () => {
 		const o = await ready({
 			card: 'live_class',

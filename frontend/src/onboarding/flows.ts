@@ -106,10 +106,7 @@ export interface FlowCard {
 	icon: Component
 	/** Each answer has its own flow and key. */
 	question?: CardQuestion
-	/**
-	 * The flow shown before the question is answered. Without one, the question
-	 * is asked up front; with one, a step in it asks the question.
-	 */
+	/** Shown until the question is answered; one of its steps asks it. */
 	defaultFlow?: OnboardingFlow
 	/** Cards to offer once this one is done, best first. */
 	next: CardId[]
@@ -122,49 +119,76 @@ function stepIcon(icon: Component): Component {
 	return markRaw(h(icon, iconProps))
 }
 
-function openCourse(nav: FlowNavigation, hash: string): void {
+// Steps that need the first course or batch open its list until one exists.
+function withCourse(nav: FlowNavigation, open: (courseName: string) => void) {
 	const courseName = nav.facts.first_course
 	if (!courseName) return nav.openRoute({ name: 'Courses' })
-	nav.openRoute({ name: 'CourseDetail', params: { courseName }, hash })
+	open(courseName)
+}
+
+function withBatch(nav: FlowNavigation, open: (batchName: string) => void) {
+	const batchName = nav.facts.first_batch
+	if (!batchName) return nav.openRoute({ name: 'Batches' })
+	open(batchName)
+}
+
+function openCourseSettings(nav: FlowNavigation): void {
+	withCourse(nav, (courseName) =>
+		nav.openRoute({
+			name: 'CourseDetail',
+			params: { courseName },
+			hash: '#settings',
+		})
+	)
 }
 
 function openChapterForm(nav: FlowNavigation): void {
-	const courseName = nav.facts.first_course
-	if (!courseName) return nav.openRoute({ name: 'Courses' })
-	nav.openForm({
-		name: 'ChapterForm',
-		params: { courseName, chapterName: 'new' },
-		hash: '#editor',
-	})
+	withCourse(nav, (courseName) =>
+		nav.openForm({
+			name: 'ChapterForm',
+			params: { courseName, chapterName: 'new' },
+			hash: '#editor',
+		})
+	)
 }
 
 // The course editor treats a lesson number that does not exist yet as a new
 // lesson and opens LessonForm in create mode, so 1-1 starts the first lesson.
 function openNewLesson(nav: FlowNavigation): void {
-	const courseName = nav.facts.first_course
-	if (!courseName) return nav.openRoute({ name: 'Courses' })
-	nav.openRoute({
-		name: 'CourseDetail',
-		params: { courseName },
-		query: { editLesson: '1-1' },
-		hash: '#editor',
-	})
+	withCourse(nav, (courseName) =>
+		nav.openRoute({
+			name: 'CourseDetail',
+			params: { courseName },
+			query: { editLesson: '1-1' },
+			hash: '#editor',
+		})
+	)
 }
 
-function openBatchForm(
-	nav: FlowNavigation,
-	name: 'NewLiveClass',
-	hash: string
-): void {
-	const batchName = nav.facts.first_batch
-	if (!batchName) return nav.openRoute({ name: 'Batches' })
-	nav.openForm({ name, params: { batchName }, hash })
+function openLiveClassForm(nav: FlowNavigation): void {
+	withBatch(nav, (batchName) =>
+		nav.openForm({
+			name: 'NewLiveClass',
+			params: { batchName },
+			hash: '#classes',
+		})
+	)
 }
 
 function openBatch(nav: FlowNavigation): void {
-	const batchName = nav.facts.first_batch
-	if (!batchName) return nav.openRoute({ name: 'Batches' })
-	nav.openRoute({ name: 'BatchDetail', params: { batchName } })
+	withBatch(nav, (batchName) =>
+		nav.openRoute({ name: 'BatchDetail', params: { batchName } })
+	)
+}
+
+function openBatchSettings(nav: FlowNavigation): void {
+	withBatch(nav, (batchName) =>
+		nav.openRoute({
+			name: 'BatchDetail',
+			params: { batchName },
+			hash: '#settings',
+		})
+	)
 }
 
 function createBatch(nav: FlowNavigation): FlowStep {
@@ -206,16 +230,6 @@ function liveClassHead(nav: FlowNavigation): FlowStep[] {
 	]
 }
 
-function openBatchSettings(nav: FlowNavigation): void {
-	const batchName = nav.facts.first_batch
-	if (!batchName) return nav.openRoute({ name: 'Batches' })
-	nav.openRoute({
-		name: 'BatchDetail',
-		params: { batchName },
-		hash: '#settings',
-	})
-}
-
 function publishBatch(nav: FlowNavigation): FlowStep {
 	return {
 		name: 'publish_batch',
@@ -238,7 +252,7 @@ function scheduleLiveClass(nav: FlowNavigation): FlowStep {
 		completed: false,
 		dependsOn: 'create_first_batch',
 		fact: 'has_live_class',
-		onClick: () => openBatchForm(nav, 'NewLiveClass', '#classes'),
+		onClick: () => openLiveClassForm(nav),
 	}
 }
 
@@ -293,7 +307,7 @@ const publishCourseFlow: OnboardingFlow = {
 			completed: false,
 			dependsOn: 'create_first_course',
 			fact: 'has_course_pricing',
-			onClick: () => openCourse(nav, '#settings'),
+			onClick: () => openCourseSettings(nav),
 		},
 		{
 			name: 'publish_course',
@@ -303,7 +317,7 @@ const publishCourseFlow: OnboardingFlow = {
 			completed: false,
 			dependsOn: 'create_first_course',
 			fact: 'has_published_course',
-			onClick: () => openCourse(nav, '#settings'),
+			onClick: () => openCourseSettings(nav),
 		},
 	],
 }

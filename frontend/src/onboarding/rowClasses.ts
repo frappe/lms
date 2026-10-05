@@ -1,9 +1,6 @@
-/**
- * frappe-ui SidebarItem's row, for the one onboarding row that cannot be a
- * SidebarItem: a step row, whose tick toggle would end up a button inside
- * SidebarItem's own button. Kept identical to SidebarItem.vue (a test compares
- * a rendered SidebarItem against these), with logical padding for RTL.
- */
+// SidebarItem's row classes for the step row, which cannot be a SidebarItem:
+// its tick toggle would nest a button in SidebarItem's own button. A test
+// keeps these equal to a rendered SidebarItem.
 export const SIDEBAR_ROW =
 	'group/sidebar-item flex h-7 items-center rounded-4 transition text-ink-gray-6 hover:bg-surface-gray-2'
 
