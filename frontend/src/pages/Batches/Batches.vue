@@ -55,7 +55,7 @@
 
 		<template #filters>
 			<TabButtons
-				v-if="batchTabs.length"
+				v-if="user.data"
 				:options="batchTabs"
 				v-model="currentTab"
 				class="!w-fit shrink-0"
@@ -126,10 +126,11 @@ const currentCategory = ref(null)
 const title = ref('')
 const certification = ref(false)
 const filters = ref({})
-const ADMIN_ROLES = new Set(['is_moderator', 'is_instructor', 'is_evaluator'])
 const is_student = computed(() => user.data?.is_student)
 const isAdmin = computed(() =>
-	Boolean(user.data && [...ADMIN_ROLES].some((role) => user.data[role]))
+	['is_moderator', 'is_instructor', 'is_evaluator'].some(
+		(role) => user.data?.[role]
+	)
 )
 const currentTab = ref(isAdmin.value ? 'active' : 'all')
 const orderBy = ref('start_date')
@@ -257,7 +258,6 @@ const updateTabFilter = () => {
 	if (currentTab.value == 'enrolled') {
 		filters.value['enrolled'] = 1
 		delete filters.value['start_date']
-		delete filters.value['end_date']
 		delete filters.value['published']
 		orderBy.value = 'start_date desc'
 	} else if (isAdmin.value) {
@@ -279,17 +279,13 @@ const updateTabFilter = () => {
 		} else if (currentTab.value == 'unpublished') {
 			filters.value['published'] = 0
 		}
-	} else if (is_student.value) {
+	} else {
 		delete filters.value['enrolled']
-		delete filters.value['end_date']
 	}
 }
 
 const updateStudentFilter = () => {
-	if (
-		!user.data ||
-		(is_student.value && !isAdmin.value && currentTab.value != 'enrolled')
-	) {
+	if (!user.data || (is_student.value && currentTab.value != 'enrolled')) {
 		filters.value['start_date'] = ['>=', dayjs().format('YYYY-MM-DD')]
 		filters.value['published'] = 1
 	}
@@ -336,32 +332,23 @@ watch(currentTab, () => {
 })
 
 const batchTabs = computed(() => {
-	if (!user.data) {
-		return []
-	}
-
-	const tabs = []
 	if (isAdmin.value) {
-		tabs.push(
+		return [
 			{ label: __('Active'), value: 'active' },
 			{ label: __('Upcoming'), value: 'upcoming' },
 			{ label: __('Archived'), value: 'archived' },
-			{ label: __('Unpublished'), value: 'unpublished' }
-		)
-	} else {
-		tabs.push({ label: __('All'), value: 'all' })
+			{ label: __('Unpublished'), value: 'unpublished' },
+		]
 	}
-	if (is_student.value) {
+	const tabs = [{ label: __('All'), value: 'all' }]
+	if (user.data) {
 		tabs.push({ label: __('Enrolled'), value: 'enrolled' })
 	}
 	return tabs
 })
 
-// user.data is empty at setup, so currentTab starts as `all`. Staff tabs do
-// not include `all`; without this, they keep an unselected tab and an
-// unfiltered list after roles land.
+// Roles can land after setup, leaving staff on `all`, which they have no tab for.
 watch(batchTabs, (tabs) => {
-	if (!tabs.length) return
 	if (!tabs.some((tab) => tab.value === currentTab.value)) {
 		currentTab.value = tabs[0].value
 	}
@@ -369,13 +356,10 @@ watch(batchTabs, (tabs) => {
 
 const pageTitle = computed(() => {
 	const tab = batchTabs.value.find((t) => t.value === currentTab.value)
-	return __('{0} Batches').format(tab?.label || __('All'))
+	return __('{0} Batches').format(tab?.label)
 })
 
-const canCreateBatch = () => {
-	if (readOnlyMode) return false
-	return isAdmin.value
-}
+const canCreateBatch = () => !readOnlyMode && isAdmin.value
 
 const breadcrumbs = computed(() => [
 	{

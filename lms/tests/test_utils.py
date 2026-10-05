@@ -557,23 +557,17 @@ class TestListEndpointPaging(BaseTestUtils):
 		self.assertEqual(get_batch_count(filters=filters.copy()), len(listed))
 
 	def test_the_active_tab_is_current_plus_upcoming(self):
-		"""Active is not-ended: running now and not started yet. The date-only
-		query cannot drop a batch that ended at 00:00:01 today."""
+		"""Active (#2711, PR #2727) is every batch not yet ended. The date-only query
+		keeps a batch that ended earlier today, so the list and count must drop it."""
 		with self._freeze_batch_clock():
-			self._create_today_batch(self.STARTED_TODAY, "00:00:00", "00:00:01", on_date=self.FROZEN_TODAY)
+			today = self.FROZEN_TODAY
+			self._create_today_batch("Paging Batch Ended Today", "00:00:00", "00:00:01", on_date=today)
+			self._create_today_batch("Paging Batch Still Running", "00:00:00", "23:59:59", on_date=today)
+			self._create_today_batch("Paging Batch Not Started", "23:00:00", "23:59:59", on_date=today)
 			self._create_today_batch(
-				"Paging Batch Still Running", "00:00:00", "23:59:59", on_date=self.FROZEN_TODAY
+				"Paging Batch Next Week", "10:00:00", "11:00:00", on_date=today + timedelta(days=7)
 			)
-			self._create_today_batch(
-				"Paging Batch Not Started", "23:00:00", "23:59:59", on_date=self.FROZEN_TODAY
-			)
-			self._create_today_batch(
-				"Paging Batch Next Week",
-				"10:00:00",
-				"11:00:00",
-				on_date=self.FROZEN_TODAY + timedelta(days=7),
-			)
-			filters = self._active_filters(on_date=self.FROZEN_TODAY)
+			filters = {"published": 1, "end_date": [">=", today]}
 
 			listed = get_batches(filters=filters.copy(), start=0, limit_page_length=MAX_PAGE_LENGTH)
 			titles = [batch.title for batch in listed]
@@ -581,20 +575,12 @@ class TestListEndpointPaging(BaseTestUtils):
 			self.assertIn("Paging Batch Still Running", titles)
 			self.assertIn("Paging Batch Not Started", titles)
 			self.assertIn("Paging Batch Next Week", titles)
-			self.assertNotIn(self.STARTED_TODAY, titles)
+			self.assertNotIn("Paging Batch Ended Today", titles)
 			self.assertEqual(get_batch_count(filters=filters.copy()), len(listed))
 
-	def test_the_active_count_never_walks_the_rows(self):
-		with self._freeze_batch_clock():
-			self._create_today_batch(self.STARTED_TODAY, "00:00:00", "00:00:01", on_date=self.FROZEN_TODAY)
-			filters = self._active_filters(on_date=self.FROZEN_TODAY)
-			expected = get_batch_count(filters=filters.copy())
-
-			with patch("lms.lms.utils.filter_batches_based_on_start_time") as walked:
-				walked.side_effect = AssertionError("the count fetched and filtered the rows")
-				self.assertEqual(get_batch_count(filters=filters.copy()), expected)
-
 	def test_active_filters_are_not_read_as_archived(self):
+		"""PR #2727 first shipped a `get_batch_type` that only read `end_date` when a
+		`start_date` filter was also set, so the Active tab kept ended batches."""
 		self.assertEqual(get_batch_type({"published": 1, "end_date": [">=", getdate()]}), "active")
 		self.assertEqual(get_batch_type({"start_date": ["<=", getdate()]}), "archived")
 		self.assertEqual(get_batch_type({"start_date": [">=", getdate()]}), "upcoming")
@@ -614,20 +600,10 @@ class TestListEndpointPaging(BaseTestUtils):
 			walked.side_effect = AssertionError("the count fetched and filtered the rows")
 			self.assertEqual(get_batch_count(filters=filters.copy()), expected)
 
-	def _active_filters(self, on_date=None):
-		on_date = on_date or getdate()
-		return {
-			"published": 1,
-			"end_date": [">=", on_date],
-		}
-
 	@contextmanager
 	def _freeze_batch_clock(self):
-		"""Pin `getdate()` / `nowtime()` where the list and count read them.
-
-		`getdate(value)` still parses; only the no-arg call is frozen, so a
-		fixture dated FROZEN_TODAY is "today" at noon regardless of the wall clock.
-		"""
+		"""Make FROZEN_TODAY at noon "now" for the list and count. Only no-arg
+		`getdate()` is frozen; `getdate(value)` still parses."""
 
 		def frozen_getdate(*args, **kwargs):
 			if not args and not kwargs:
