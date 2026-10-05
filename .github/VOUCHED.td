@@ -15,6 +15,7 @@ Bowrna
 bvnaik05
 FawazAlhafiz
 frappe-pr-bot
+harshpwctech
 mergify[bot]
 NagariaHussain
 sayali-fossist
