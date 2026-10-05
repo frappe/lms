@@ -12,6 +12,7 @@ const state = vi.hoisted(() => ({
 	route: null as any,
 	reloads: [] as Array<(chapters: Chapter[] | null) => void>,
 	formMounts: 0,
+	course: null as any,
 }))
 
 vi.mock('vue-router', () => ({
@@ -120,7 +121,8 @@ async function mountEditor(chapters: Chapter[], query = {}) {
 	state.route = reactive({ query, hash: '#editor' })
 	// Bound with v-model as CourseDetail does: an assigned selection reads back
 	// the old value until the parent re-renders.
-	const course = { data: { name: 'C1' } }
+	state.course = reactive({ data: { name: 'C1' } })
+	const course = state.course
 	const Parent = defineComponent({
 		setup() {
 			const selected = ref(null)
@@ -298,6 +300,33 @@ describe('CourseEditor draft lesson identity', () => {
 		wrapper = await mountEditor([chapterA(1), chapterB(2)])
 		expect(form(wrapper).props('chapterNumber')).toBe('2')
 		expect(state.route.query).toEqual({ editLesson: '2-1' })
+	})
+
+	it('falls back to the default lesson when the URL drops its params', async () => {
+		wrapper = await mountEditor([chapterA(1), chapterB(2)])
+		await addLesson(wrapper, chapterB(2))
+
+		state.route.query = {}
+		await flushPromises()
+
+		expect(form(wrapper).props('lessonNumber')).toBe('1')
+		expect(form(wrapper).props('draftChapter')).toBe('')
+		expect(state.route.query).toEqual({ editLesson: '1-1' })
+	})
+
+	it('re-reads the route when the course changes', async () => {
+		wrapper = await mountEditor([chapterA(1), chapterB(2)])
+		expect(state.route.query).toEqual({ editLesson: '1-1' })
+
+		state.course.data.name = 'C2'
+		state.outline.data = [
+			{ name: 'CH-X', idx: 1, lessons: [{ name: 'L-X1', number: '1-1' }] },
+		]
+		await flushPromises()
+
+		expect(form(wrapper).exists()).toBe(true)
+		expect(form(wrapper).props('courseName')).toBe('C2')
+		expect(state.route.query).toEqual({ editLesson: '1-1' })
 	})
 
 	it('puts a picked lesson in the URL, dropping the draft', async () => {
