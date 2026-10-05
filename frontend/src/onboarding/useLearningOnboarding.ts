@@ -1,5 +1,6 @@
 import { computed, reactive, ref, shallowReactive, watch, type Ref } from 'vue'
 import { useStorage } from '@vueuse/core'
+import { useTelemetry } from '@framework/ui/telemetry/index'
 import { call, getCachedResource } from 'frappe-ui'
 import {
 	minimize,
@@ -324,11 +325,16 @@ function toggleStep(id: FlowId, name: string): void {
 	undoStep(id, name)
 }
 
-function skipStep(id: FlowId, name: string): void {
+function markSkipped(id: FlowId, name: string): void {
 	const flow = getFlow(id)
 	if (!flow) return
 	setSkipped(flow, name, true)
 	handles[id]?.skip(name)
+}
+
+function skipStep(id: FlowId, name: string): void {
+	markSkipped(id, name)
+	useTelemetry().capture('onboarding_step_skipped_' + name)
 }
 
 function undoStep(id: FlowId, name: string): void {
@@ -336,6 +342,7 @@ function undoStep(id: FlowId, name: string): void {
 	if (!flow) return
 	setSkipped(flow, name, false)
 	reopen(flow)?.reset(name)
+	useTelemetry().capture('onboarding_step_reset_' + name)
 }
 
 /** Run a step's own navigation. It does not mark the step done. */
@@ -345,7 +352,7 @@ function startStep(id: FlowId, name: string): void {
 	step.onClick?.()
 }
 
-function skipRemaining(id: FlowId): void {
+function skipOpenSteps(id: FlowId): void {
 	const flow = getFlow(id)
 	if (!flow) return
 	for (const step of stepsOf(id)) {
@@ -354,11 +361,17 @@ function skipRemaining(id: FlowId): void {
 	handles[id]?.skipAll()
 }
 
+function skipRemaining(id: FlowId): void {
+	skipOpenSteps(id)
+	useTelemetry().capture('onboarding_steps_skipped')
+}
+
 /** Skip every unfinished flow, whichever answer it belongs to. */
 function skipEverything(): void {
 	for (const flow of FLOWS) {
-		if (!isFlowComplete(flow.id)) skipRemaining(flow.id)
+		if (!isFlowComplete(flow.id)) skipOpenSteps(flow.id)
 	}
+	useTelemetry().capture('onboarding_steps_skipped')
 }
 
 /** Clear one flow's progress and skips. The card's answer stays. */
@@ -369,11 +382,13 @@ function resetFlow(id: FlowId): void {
 	storage().skipped.value = Object.fromEntries(
 		Object.entries(storage().skipped.value).filter(([key]) => key !== flow.key)
 	)
+	useTelemetry().capture('onboarding_steps_reset')
 }
 
 /** Start onboarding over: every key, every answer, every skip. */
 function resetEverything(): void {
 	for (const flow of FLOWS) reopen(flow)?.resetAll()
+	useTelemetry().capture('onboarding_steps_reset')
 	storage().answers.value = {}
 	storage().skipped.value = {}
 	storage().activeCard.value = null
@@ -420,7 +435,7 @@ function carryOver(from: OnboardingFlow, to: OnboardingFlow): void {
 		if (!step.completed) continue
 		const target = stepsOf(to.id).find((s) => s.name === step.name)
 		if (!target || target.completed) continue
-		if (isSkipped(from, step.name)) skipStep(to.id, step.name)
+		if (isSkipped(from, step.name)) markSkipped(to.id, step.name)
 		else handles[to.id]?.updateOnboardingStep(step.name)
 	}
 }

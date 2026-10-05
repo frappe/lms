@@ -19,7 +19,7 @@ type FakeHandle = {
 	isOnboardingStepsCompleted: Ref<boolean>
 }
 
-const { framework, callMock, statusResource } = vi.hoisted(() => ({
+const { framework, callMock, captureMock, statusResource } = vi.hoisted(() => ({
 	framework: {
 		handles: {} as Record<string, FakeHandle>,
 		guest: false,
@@ -27,12 +27,17 @@ const { framework, callMock, statusResource } = vi.hoisted(() => ({
 		completed: new Set<string>(),
 	},
 	callMock: vi.fn(),
+	captureMock: vi.fn(),
 	statusResource: { current: null as { loading: boolean } | null },
 }))
 
 vi.mock('frappe-ui', () => ({
 	call: callMock,
 	getCachedResource: () => statusResource.current,
+}))
+
+vi.mock('@framework/ui/telemetry/index', () => ({
+	useTelemetry: () => ({ capture: captureMock }),
 }))
 
 vi.mock('@framework/ui/components/Onboarding/index', async () => {
@@ -147,6 +152,7 @@ beforeEach(() => {
 	statusResource.current = null
 	callMock.mockReset()
 	callMock.mockResolvedValue({})
+	captureMock.mockReset()
 	for (const fn of Object.values(nav)) fn.mockReset()
 })
 
@@ -573,6 +579,48 @@ describe('flow menu', () => {
 		)
 		expect(o.flowProgress('live_class_zoom').skipped).toBe(0)
 		expect(o.answerOf(card(o, 'live_class'))).toBe('zoom')
+	})
+})
+
+describe('telemetry', () => {
+	// Guards: skip and undo sending no telemetry (HelpModal sent it,
+	// frappe/lms#1399). Introduced in this branch (feat/onboarding-flows, PR
+	// pending); test added there to keep it sent.
+	it('captures a skipped and a reset step', async () => {
+		const o = await ready()
+		o.skipStep('publish_course', 'add_quiz')
+		o.undoStep('publish_course', 'add_quiz')
+		expect(captureMock.mock.calls).toEqual([
+			['onboarding_step_skipped_add_quiz'],
+			['onboarding_step_reset_add_quiz'],
+		])
+	})
+
+	// Guards: Skip all and Reset all sending no telemetry, or sending it per
+	// step. Introduced in this branch (feat/onboarding-flows, PR pending); test
+	// added there to keep one event each.
+	it('captures skip all and reset all once each', async () => {
+		const o = await ready()
+		o.skipRemaining('publish_course')
+		o.resetFlow('publish_course')
+		o.skipEverything()
+		o.resetEverything()
+		expect(captureMock.mock.calls).toEqual([
+			['onboarding_steps_skipped'],
+			['onboarding_steps_reset'],
+			['onboarding_steps_skipped'],
+			['onboarding_steps_reset'],
+		])
+	})
+
+	// Guards: a skip carried over to the picked provider being counted twice.
+	// Introduced in this branch (feat/onboarding-flows, PR pending); test added
+	// there to stop the duplicate event.
+	it('does not capture a skip carried over to the picked tool', async () => {
+		const o = await ready()
+		o.skipStep('live_class', 'fill_batch_details')
+		o.answer('live_class', 'zoom')
+		expect(captureMock).toHaveBeenCalledTimes(1)
 	})
 })
 
