@@ -185,6 +185,7 @@ const tabs = computed(() => {
 			icon: 'lucide-list',
 			when: enrolled,
 			flow: true,
+			rendersHeading: true,
 		},
 		{
 			key: 'dashboard',

@@ -6,7 +6,7 @@
 				<div class="flex flex-col lg:order-last mb-10 lg:mt-10 lg:w-1/4">
 					<div class="h-fit bg-surface-gray-2 rounded-5 p-5 space-y-4">
 						<div class="space-y-1">
-							<div class="text-ink-gray-5 uppercase text-xs">
+							<div class="text-ink-gray-6 uppercase text-xs">
 								{{ __('Payment for ') }} {{ type }}:
 							</div>
 							<div class="leading-5 text-ink-gray-9">
@@ -20,7 +20,7 @@
 							"
 							class="space-y-1"
 						>
-							<div class="text-ink-gray-5 uppercase text-xs">
+							<div class="text-ink-gray-6 uppercase text-xs">
 								{{ __('Original Amount') }}:
 							</div>
 							<div class="text-ink-gray-9">
@@ -28,11 +28,11 @@
 							</div>
 						</div>
 						<div v-if="orderSummary.data.discount_amount" class="space-y-1">
-							<div class="text-ink-gray-5">{{ __('Discount') }}:</div>
+							<div class="text-ink-gray-6">{{ __('Discount') }}:</div>
 							<div>- {{ orderSummary.data.discount_amount_formatted }}</div>
 						</div>
 						<div v-if="orderSummary.data.gst_applied" class="space-y-1">
-							<div class="text-ink-gray-5 uppercase text-xs">
+							<div class="text-ink-gray-6 uppercase text-xs">
 								{{ __('GST Amount') }}:
 							</div>
 							<div class="text-ink-gray-9">
@@ -40,7 +40,7 @@
 							</div>
 						</div>
 						<div class="space-y-1 border-t border-outline-gray-3 pt-4 mt-2">
-							<div class="uppercase text-ink-gray-5 text-xs">
+							<div class="uppercase text-ink-gray-6 text-xs">
 								{{ __('Total') }}:
 							</div>
 							<div class="font-bold text-ink-gray-9">
@@ -50,7 +50,7 @@
 					</div>
 
 					<div class="bg-surface-gray-2 rounded-5 p-4 space-y-2 my-5">
-						<span class="text-ink-gray-5 uppercase text-xs">
+						<span class="text-ink-gray-6 uppercase text-xs">
 							{{ __('Enter a Coupon Code') }}:
 						</span>
 						<div class="flex items-center gap-x-2">
@@ -105,27 +105,32 @@
 							<FormControl
 								:label="__('Billing Name')"
 								v-model="billingDetails.billing_name"
+								autocomplete="name"
 								:required="!!fieldMeta.billing_name?.reqd"
 							/>
 							<FormControl
 								:label="__('Address Line 1')"
 								v-model="billingDetails.address_line1"
+								autocomplete="address-line1"
 								:required="!!fieldMeta.address_line1?.reqd"
 							/>
 							<FormControl
 								:label="__('Address Line 2')"
 								v-model="billingDetails.address_line2"
+								autocomplete="address-line2"
 								:required="!!fieldMeta.address_line2?.reqd"
 							/>
 							<FormControl
 								:label="__('City')"
 								v-model="billingDetails.city"
+								autocomplete="address-level2"
 								:required="!!fieldMeta.city?.reqd"
 							/>
 							<Combobox
 								v-if="billingDetails.country == 'India'"
 								:label="__('State/Province')"
 								v-model="billingDetails.state"
+								autocomplete="address-level1"
 								:options="INDIAN_STATE_OPTIONS"
 								:placeholder="__('Select a state')"
 								:required="!!fieldMeta.state?.reqd"
@@ -134,6 +139,7 @@
 								v-else
 								:label="__('State/Province')"
 								v-model="billingDetails.state"
+								autocomplete="address-level1"
 								:required="!!fieldMeta.state?.reqd"
 							/>
 						</div>
@@ -144,15 +150,18 @@
 								@change="(option) => changeCurrency(option)"
 								:label="__('Country')"
 								:required="!!fieldMeta.country?.reqd"
+								autocomplete="country-name"
 							/>
 							<FormControl
 								:label="__('Postal Code')"
 								v-model="billingDetails.pincode"
+								autocomplete="postal-code"
 								:required="!!fieldMeta.pincode?.reqd"
 							/>
 							<FormControl
 								:label="__('Phone Number')"
 								v-model="billingDetails.phone"
+								autocomplete="tel"
 								:required="!!fieldMeta.phone?.reqd"
 							/>
 							<Link

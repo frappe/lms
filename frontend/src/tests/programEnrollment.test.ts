@@ -52,7 +52,14 @@ vi.mock('@/components/HeaderButton.vue', () => ({
 	},
 }))
 
+vi.mock('@/stores/session', () => ({
+	sessionStore: () => ({ brand: { favicon: '' } }),
+}))
+
 vi.mock('frappe-ui', () => ({
+	usePageMeta: (fn: () => { title: string }) => {
+		document.title = fn().title
+	},
 	createResource: createResourceMock,
 	toast: { success: toastSuccess, error: vi.fn() },
 	Dialog: {
@@ -308,5 +315,19 @@ describe('the program enrollment page', () => {
 		await flushPromises()
 
 		expect(router.currentRoute.value.name).toBe('Programs')
+	})
+
+	// Guards: the enrollment dialog left the window untitled. Introduced in
+	// #1686; test added with the a11y audit remediation.
+	it('titles the window while open and hands it back on close', async () => {
+		document.title = 'Programs'
+		const router = makeRouter()
+		await router.push('/programs/data-science/enroll')
+		await mountPage(router, student)
+		expect(document.title).toBe('Enrollment for Program data-science')
+
+		await router.push('/programs')
+		await flushPromises()
+		expect(document.title).toBe('Programs')
 	})
 })

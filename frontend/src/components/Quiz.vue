@@ -27,7 +27,7 @@
 				</Badge>
 				<span
 					v-if="attemptsLeft !== null"
-					class="hidden text-xs text-ink-gray-5 sm:inline"
+					class="hidden text-xs text-ink-gray-6 sm:inline"
 				>
 					{{ attemptsLeftLabel(attemptsLeft) }}
 				</span>
@@ -70,7 +70,7 @@
 					v-if="introTips.length && questions.length && !attemptsExhausted"
 					class="space-y-2 border-b border-outline-gray-1 p-3.5"
 				>
-					<div class="text-sm text-ink-gray-5">
+					<div class="text-sm text-ink-gray-6">
 						{{ __('Before you start') }}
 					</div>
 					<ol class="space-y-1.5">
@@ -132,7 +132,7 @@
 					</div>
 
 					<template v-if="!questions.length">
-						<p class="text-p-base text-ink-gray-5">
+						<p class="text-p-base text-ink-gray-6">
 							{{ __('This quiz has no questions available yet.') }}
 						</p>
 						<Button v-if="inVideo" @click="props.backToVideo()">{{
@@ -245,7 +245,7 @@
 										<div class="text-base text-ink-gray-8">
 											{{ rule.title }}
 										</div>
-										<div class="mt-0.5 text-p-sm text-ink-gray-5">
+										<div class="mt-0.5 text-p-sm text-ink-gray-6">
 											{{ rule.hint }}
 										</div>
 									</div>
@@ -281,7 +281,7 @@
 						<div
 							class="flex h-11 items-center gap-3 border-b border-outline-gray-1 bg-surface-gray-1 px-3.5"
 						>
-							<span class="shrink-0 text-sm text-ink-gray-5">
+							<span class="shrink-0 text-sm text-ink-gray-6">
 								{{
 									__('Question {0} of {1}').format(
 										activeQuestion,
@@ -289,12 +289,27 @@
 									)
 								}}
 							</span>
-							<Progress
+							<div
+								role="progressbar"
 								class="min-w-0 flex-1"
-								size="sm"
-								:value="(activeQuestion / questions.length) * 100"
-							/>
-							<span class="shrink-0 text-sm text-ink-gray-5">
+								:aria-label="__('Quiz progress')"
+								aria-valuemin="0"
+								:aria-valuemax="questions.length"
+								:aria-valuenow="activeQuestion"
+								:aria-valuetext="
+									__('Question {0} of {1}').format(
+										activeQuestion,
+										questions.length
+									)
+								"
+							>
+								<Progress
+									size="sm"
+									aria-hidden="true"
+									:value="(activeQuestion / questions.length) * 100"
+								/>
+							</div>
+							<span class="shrink-0 text-sm text-ink-gray-6">
 								{{ question.marks }}
 								{{ question.marks == 1 ? __('Mark') : __('Marks') }}
 							</span>
@@ -302,7 +317,7 @@
 
 						<div class="space-y-3 p-3.5">
 							<div class="space-y-1">
-								<div class="text-sm text-ink-gray-5">
+								<div class="text-sm text-ink-gray-6">
 									{{
 										questionDetails.data.type == 'Open Ended'
 											? __('Written response')
@@ -310,6 +325,7 @@
 									}}
 								</div>
 								<div
+									:id="questionTextId"
 									class="text-p-base font-semibold text-ink-gray-9 break-words [&_img]:h-auto [&_img]:max-w-full"
 									v-safe-html:rich="questionDetails.data.question"
 								></div>
@@ -317,6 +333,8 @@
 
 							<div
 								v-if="questionDetails.data.type == 'Choices'"
+								:role="questionDetails.data.multiple ? 'group' : 'radiogroup'"
+								:aria-labelledby="questionTextId"
 								class="flex flex-col gap-1.5"
 							>
 								<template v-for="index in MAX_OPTIONS" :key="index">
@@ -348,18 +366,33 @@
 												v-if="showAnswers.length && quiz.data.show_answers"
 												#end
 											>
-												<span
-													v-if="showAnswers[index - 1] == 1"
-													class="lucide-check-circle size-4 shrink-0 text-ink-green-4"
-												/>
-												<span
-													v-else-if="showAnswers[index - 1] == 2"
-													class="lucide-minus-circle size-4 shrink-0 text-ink-green-4"
-												/>
-												<span
-													v-else-if="showAnswers[index - 1] == 0"
-													class="lucide-x-circle size-4 shrink-0 text-ink-red-5"
-												/>
+												<template v-if="showAnswers[index - 1] == 1">
+													<span
+														class="lucide-check-circle size-4 shrink-0 text-ink-green-4"
+														aria-hidden="true"
+													/>
+													<span class="sr-only">
+														{{ __('Your answer, correct') }}
+													</span>
+												</template>
+												<template v-else-if="showAnswers[index - 1] == 2">
+													<span
+														class="lucide-minus-circle size-4 shrink-0 text-ink-green-4"
+														aria-hidden="true"
+													/>
+													<span class="sr-only">{{
+														__('Correct answer')
+													}}</span>
+												</template>
+												<template v-else-if="showAnswers[index - 1] == 0">
+													<span
+														class="lucide-x-circle size-4 shrink-0 text-ink-red-5"
+														aria-hidden="true"
+													/>
+													<span class="sr-only">
+														{{ __('Your answer, incorrect') }}
+													</span>
+												</template>
 											</template>
 										</OptionRow>
 										<div
@@ -371,13 +404,15 @@
 										</div>
 									</template>
 								</template>
-								<FeedbackBanner
-									v-if="showAnswers.length && quiz.data.show_answers"
-									data-testid="quiz-feedback"
-									:correct="choiceCorrect"
-								>
-									{{ choiceCorrect ? __('Correct') : __('Incorrect') }}
-								</FeedbackBanner>
+								<div role="status" class="empty:absolute">
+									<FeedbackBanner
+										v-if="showAnswers.length && quiz.data.show_answers"
+										data-testid="quiz-feedback"
+										:correct="choiceCorrect"
+									>
+										{{ choiceCorrect ? __('Correct') : __('Incorrect') }}
+									</FeedbackBanner>
+								</div>
 							</div>
 							<div
 								v-else-if="questionDetails.data.type == 'User Input'"
@@ -386,15 +421,18 @@
 								<FormControl
 									v-model="possibleAnswer"
 									type="textarea"
+									:aria-labelledby="questionTextId"
 									:disabled="showAnswers.length ? true : false"
 								/>
-								<FeedbackBanner
-									v-if="showAnswers.length"
-									data-testid="quiz-feedback"
-									:correct="!!showAnswers[0]"
-								>
-									{{ showAnswers[0] ? __('Correct') : __('Incorrect') }}
-								</FeedbackBanner>
+								<div role="status" class="empty:absolute">
+									<FeedbackBanner
+										v-if="showAnswers.length"
+										data-testid="quiz-feedback"
+										:correct="!!showAnswers[0]"
+									>
+										{{ showAnswers[0] ? __('Correct') : __('Incorrect') }}
+									</FeedbackBanner>
+								</div>
 							</div>
 							<div v-else>
 								<RichTextEditor
@@ -403,6 +441,7 @@
 									:editable="true"
 									:fixedMenu="true"
 									minHeight="7rem"
+									:ariaLabelledby="questionTextId"
 								/>
 							</div>
 
@@ -418,7 +457,7 @@
 									/>
 									<span
 										v-else-if="questionDetails.data.type == 'Open Ended'"
-										class="text-sm text-ink-gray-5"
+										class="text-sm text-ink-gray-6"
 									>
 										{{ __('Marked by your instructor') }}
 									</span>
@@ -493,9 +532,13 @@
 					</p>
 				</div>
 				<div class="space-y-3 p-3.5">
-					<div class="text-base-semibold text-ink-gray-9">
+					<h2
+						ref="summaryHeading"
+						tabindex="-1"
+						class="text-base-semibold text-ink-gray-9"
+					>
 						{{ __('Quiz Summary') }}
-					</div>
+					</h2>
 					<div
 						class="flex items-start gap-2 rounded-6 border border-outline-gray-2 bg-surface-gray-1 p-3"
 					>
@@ -563,7 +606,7 @@
 				<span class="text-xs font-semibold text-ink-gray-8">{{
 					__('Activity')
 				}}</span>
-				<span class="text-xs text-ink-gray-5"
+				<span class="text-xs text-ink-gray-6"
 					>{{ summaryLog.length }}
 					{{ summaryLog.length == 1 ? __('event') : __('events') }}</span
 				>
@@ -634,10 +677,15 @@
 					v-for="index in questions.length"
 					:key="index"
 					type="button"
-					:aria-label="__('Question {0}').format(index)"
-					:aria-current="activeQuestion == index ? 'page' : undefined"
+					:aria-label="
+						(attemptedQuestions.includes(index)
+							? __('Question {0}, answered')
+							: __('Question {0}, not answered')
+						).format(index)
+					"
+					:aria-current="activeQuestion == index ? 'step' : undefined"
 					@click="switchQuestion(index)"
-					class="flex h-6 w-6 cursor-pointer items-center justify-center rounded-full text-sm"
+					class="relative flex h-6 w-6 cursor-pointer items-center justify-center rounded-full text-sm"
 					:class="{
 						'bg-surface-gray-7 text-ink-base font-medium':
 							activeQuestion == index,
@@ -648,6 +696,11 @@
 					}"
 				>
 					{{ index }}
+					<CircleCheck
+						v-if="attemptedQuestions.includes(index)"
+						class="absolute -top-1.5 -end-1.5 size-4 stroke-1.5 shrink-0 rounded-full bg-surface-base text-ink-green-8 fill-none"
+						aria-hidden="true"
+					/>
 				</button>
 			</nav>
 		</div>
@@ -751,7 +804,7 @@
 							:class="
 								questions.length - attemptedQuestions.length > 0
 									? 'text-ink-orange-6 font-medium'
-									: 'text-ink-gray-5'
+									: 'text-ink-gray-6'
 							"
 						>
 							{{ questions.length - attemptedQuestions.length }}
@@ -776,9 +829,11 @@ import {
 	toast,
 } from 'frappe-ui'
 import type { FrappeResourceError } from 'frappe-ui'
+import { CircleCheck } from 'lucide-vue-next'
 import {
 	computed,
 	inject,
+	nextTick,
 	onMounted,
 	onUnmounted,
 	reactive,
@@ -921,6 +976,8 @@ const handleBeforeUnload = (event: BeforeUnloadEvent): void => {
 const questionsByName = ref<Record<string, QuizQuestionDetails>>({})
 // Native radios group by name across the page, and a lesson can show two quizzes.
 const optionGroup = useId()
+const questionTextId = useId()
+const summaryHeading = ref<HTMLElement | null>(null)
 
 const quiz = createResource<QuizDetails>({
 	url: 'lms.lms.utils.get_quiz_with_questions',
@@ -1293,6 +1350,18 @@ const storedViolationLog = createResource<StoredViolationRow[]>({
 		return { submission: quizSubmission.data?.submission }
 	},
 })
+
+// The summary replaces the question in place, so move focus onto it or a
+// screen reader user is left on a control that no longer exists. Only after a
+// submit here: a result that just loads should not pull focus.
+watch(
+	() => quizSubmission.data,
+	async (submission) => {
+		if (!submission || !submissionReason.value) return
+		await nextTick()
+		summaryHeading.value?.focus()
+	}
+)
 
 watch(
 	() => quizSubmission.data?.submission,

@@ -75,6 +75,7 @@
 				v-model="currentCategory"
 				:options="categories.filter((c) => c.value)"
 				:placeholder="__('Category')"
+				:ariaLabel="__('Category')"
 				@update:modelValue="updateBatches()"
 			/>
 			<ToggleFilter
@@ -87,11 +88,10 @@
 		</template>
 
 		<template #card="{ row }">
-			<router-link
+			<BatchCard
+				:batch="row"
 				:to="{ name: 'BatchDetail', params: { batchName: row.name } }"
-			>
-				<BatchCard :batch="row" />
-			</router-link>
+			/>
 		</template>
 	</ListPage>
 

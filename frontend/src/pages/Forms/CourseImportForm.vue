@@ -70,10 +70,12 @@
 						</div>
 						<button
 							type="button"
-							class="lucide-trash-2 size-4 text-ink-red-5 cursor-pointer"
+							class="-m-1 size-6 p-1 text-ink-red-5 cursor-pointer"
 							:aria-label="__('Remove file')"
 							@click="deleteFile"
-						/>
+						>
+							<span class="lucide-trash-2 size-4" aria-hidden="true" />
+						</button>
 					</div>
 				</div>
 			</div>

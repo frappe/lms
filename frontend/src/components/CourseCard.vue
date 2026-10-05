@@ -1,7 +1,7 @@
 <template>
 	<div
 		v-if="course.title"
-		class="flex flex-col h-full rounded-5 overflow-auto text-ink-gray-9 bg-surface-elevation-1"
+		class="relative isolate flex flex-col h-full rounded-5 overflow-auto text-ink-gray-9 bg-surface-elevation-1"
 		style="min-height: 350px"
 	>
 		<div
@@ -44,42 +44,62 @@
 						: 'text-3xl'
 				"
 			>
-				{{ course.title }}
+				<CardLink :to="to" :external="external">{{ course.title }}</CardLink>
 			</div>
 		</div>
 		<div class="flex flex-col flex-auto p-4 border-x-2 border-b-2 rounded-b-5">
 			<div class="flex items-center justify-between mb-2">
 				<div v-if="course.lessons">
 					<Tooltip :text="__('Lessons')">
-						<span class="flex items-center">
-							<span class="lucide-book-open size-4 me-1" />
-							{{ course.lessons }}
+						<span class="relative z-10 flex items-center">
+							<span class="lucide-book-open size-4 me-1" aria-hidden="true" />
+							<span aria-hidden="true">{{ course.lessons }}</span>
+							<span class="sr-only">{{ lessonCount }}</span>
 						</span>
 					</Tooltip>
 				</div>
 
 				<div v-if="course.enrollments">
 					<Tooltip :text="__('Enrolled Students')">
-						<span class="flex items-center">
-							<span class="lucide-users size-4 me-1" />
-							{{ formatAmount(course.enrollments) }}
+						<span class="relative z-10 flex items-center">
+							<span class="lucide-users size-4 me-1" aria-hidden="true" />
+							<span aria-hidden="true">
+								{{ formatAmount(course.enrollments) }}
+							</span>
+							<span class="sr-only">
+								{{
+									__('{0} enrolled').format(formatAmount(course.enrollments))
+								}}
+							</span>
 						</span>
 					</Tooltip>
 				</div>
 
 				<div v-if="course.rating">
 					<Tooltip :text="__('Average Rating')">
-						<span class="flex items-center">
+						<span class="relative z-10 flex items-center">
 							<LucideStar
 								class="size-4 me-1 text-transparent fill-ink-amber-7"
+								aria-hidden="true"
 							/>
-							{{ formatRating(course.rating) }}
+							<span aria-hidden="true">{{ formatRating(course.rating) }}</span>
+							<span class="sr-only">
+								{{
+									__('Rated {0} out of 5').format(formatRating(course.rating))
+								}}
+							</span>
 						</span>
 					</Tooltip>
 				</div>
 
 				<Tooltip v-if="course.featured" :text="__('Featured')">
-					<span class="lucide-award size-4 text-ink-amber-5" />
+					<span class="relative z-10 flex">
+						<span
+							class="lucide-award size-4 text-ink-amber-5"
+							aria-hidden="true"
+						/>
+						<span class="sr-only">{{ __('Featured') }}</span>
+					</span>
 				</Tooltip>
 			</div>
 
@@ -88,7 +108,7 @@
 				class="font-semibold leading-6"
 				:class="course.title.length > 32 ? 'text-lg' : 'text-2xl'"
 			>
-				{{ course.title }}
+				<CardLink :to="to" :external="external">{{ course.title }}</CardLink>
 			</div>
 
 			<div class="short-introduction text-sm">
@@ -98,6 +118,7 @@
 			<ProgressBar
 				v-if="user && course.membership"
 				:progress="course.membership.progress"
+				:label="__('Course progress')"
 			/>
 
 			<div v-if="user && course.membership" class="text-sm mt-2 mb-4">
@@ -107,7 +128,7 @@
 			<div class="flex items-center justify-between mt-auto">
 				<div class="flex avatar-group overlap">
 					<div
-						class="h-6 me-1"
+						class="relative z-10 h-6 me-1"
 						:class="{ 'avatar-group overlap': course.instructors.length > 1 }"
 					>
 						<UserAvatar
@@ -128,7 +149,13 @@
 						v-if="course.paid_certificate || course.enable_certification"
 						:text="__('Get Certified')"
 					>
-						<span class="lucide-graduation-cap size-5 text-ink-gray-7" />
+						<span class="relative z-10 flex">
+							<span
+								class="lucide-graduation-cap size-5 text-ink-gray-7"
+								aria-hidden="true"
+							/>
+							<span class="sr-only">{{ __('Get Certified') }}</span>
+						</span>
 					</Tooltip>
 				</div>
 			</div>
@@ -140,6 +167,7 @@ import { sessionStore } from '@/stores/session'
 import { Tooltip } from 'frappe-ui'
 import { formatAmount, formatRating } from '@/utils'
 import { computed, watch } from 'vue'
+import CardLink from '@/components/CardLink.vue'
 import CourseInstructors from '@/components/CourseInstructors.vue'
 import UserAvatar from '@/components/UserAvatar.vue'
 import ProgressBar from '@/components/ProgressBar.vue'
@@ -151,7 +179,21 @@ const props = defineProps({
 		type: Object,
 		default: null,
 	},
+	to: {
+		type: [Object, String],
+		default: null,
+	},
+	external: {
+		type: Boolean,
+		default: false,
+	},
 })
+
+const lessonCount = computed(() =>
+	props.course.lessons == 1
+		? __('1 lesson')
+		: __('{0} lessons').format(props.course.lessons)
+)
 
 const gradientColor = computed(() => {
 	let color = props.course.card_gradient?.toLowerCase() || 'blue'

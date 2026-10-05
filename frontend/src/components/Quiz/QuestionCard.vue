@@ -110,7 +110,7 @@
 				</Button>
 			</div>
 			<div class="flex items-center gap-3">
-				<span v-if="props.draft" class="text-p-sm text-ink-gray-5">
+				<span v-if="props.draft" class="text-p-sm text-ink-gray-6">
 					{{ __('Not saved yet') }}
 				</span>
 				<Button

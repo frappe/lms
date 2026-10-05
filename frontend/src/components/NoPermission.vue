@@ -1,11 +1,11 @@
 <template>
 	<div class="bg-surface-base w-full h-full">
 		<div class="w-fit mx-auto mt-56 text-center p-4">
-			<h1 class="text-4xl-semibold text-ink-gray-5 pb-4 mb-2 border-b">
+			<h1 class="text-4xl-semibold text-ink-gray-6 pb-4 mb-2 border-b">
 				{{ __('Not Permitted') }}
 			</h1>
 			<div v-if="user.data" class="px-5 py-3">
-				<div class="text-ink-gray-5">
+				<div class="text-ink-gray-6">
 					{{ __('You do not have permission to access this page.') }}
 				</div>
 				<Button
@@ -17,7 +17,7 @@
 				</Button>
 			</div>
 			<div class="px-5 py-3">
-				<div class="text-ink-gray-5">
+				<div class="text-ink-gray-6">
 					{{ __('You are not permitted to access this page.') }}
 				</div>
 				<Button @click="redirectToLogin()" class="mt-4 w-full" variant="solid">

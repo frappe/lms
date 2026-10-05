@@ -174,7 +174,7 @@
 									>*</span
 								>
 							</div>
-							<div v-if="field.description" class="text-p-sm text-ink-gray-5">
+							<div v-if="field.description" class="text-p-sm text-ink-gray-6">
 								{{ __(field.description) }}
 							</div>
 						</div>

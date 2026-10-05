@@ -8,7 +8,7 @@
 				/>
 				<div
 					v-else-if="!selected"
-					class="flex flex-col items-center justify-center h-full text-ink-gray-5"
+					class="flex flex-col items-center justify-center h-full text-ink-gray-6"
 				>
 					<span class="lucide-book-open size-8" />
 					<div>

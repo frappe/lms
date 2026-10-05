@@ -66,7 +66,7 @@
 					     box that reads as a broken picker. -->
 					<div
 						v-else-if="hasFetched && !images.loading"
-						class="mt-2 w-[25.5rem] rounded-4 border border-dashed p-4 text-center text-sm text-ink-gray-5"
+						class="mt-2 w-[25.5rem] rounded-4 border border-dashed p-4 text-center text-sm text-ink-gray-6"
 					>
 						<template v-if="search">
 							{{ __('No images found for "{0}".').format(search) }}
