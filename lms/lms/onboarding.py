@@ -1,4 +1,5 @@
 import frappe
+from frappe.utils import cint, flt
 
 SAMPLE_COURSE_TITLE = "A guide to Frappe Learning"
 # Seeded with the sample course and removed by api.clear_demo_data.
@@ -13,47 +14,67 @@ PLACEHOLDER_EMAIL_DOMAIN = "example.com"
 def get_onboarding_facts() -> dict[str, str | bool | None]:
 	"""What the site already has, so the onboarding flows can tick steps done before they shipped."""
 	frappe.only_for("System Manager")
+	return {**_course_facts(), **_learner_facts(), **_batch_facts(), **_meeting_facts()}
 
-	first_course = _first("LMS Course", {"title": ["!=", SAMPLE_COURSE_TITLE]})
-	first_batch = _first("LMS Batch", {})
 
+def _course_facts() -> dict[str, str | bool | None]:
+	course = _first_row(
+		"LMS Course",
+		{"title": ["!=", SAMPLE_COURSE_TITLE]},
+		["name", "paid_course", "course_price", "published"],
+	)
+	name = course.name if course else None
 	return {
-		"first_course": first_course,
-		"first_batch": first_batch,
-		"has_course": bool(first_course),
-		"has_chapter": _exists_for(first_course, "Course Chapter", {"course": first_course}),
-		"has_lesson": _exists_for(first_course, "Course Lesson", {"course": first_course}),
+		"first_course": name,
+		"has_course": bool(course),
+		"has_chapter": _exists_for(name, "Course Chapter", {"course": name}),
+		"has_lesson": _exists_for(name, "Course Lesson", {"course": name}),
 		"has_quiz": bool(_first("LMS Quiz", {"title": ["!=", DEMO_QUIZ_TITLE]})),
-		"has_course_pricing": _exists_for(
-			first_course,
-			"LMS Course",
-			{"name": first_course, "paid_course": 1, "course_price": [">", 0]},
-		),
-		"has_published_course": _exists_for(
-			first_course, "LMS Course", {"name": first_course, "published": 1}
-		),
+		"has_course_pricing": bool(course and cint(course.paid_course) and flt(course.course_price) > 0),
+		"has_published_course": bool(course and cint(course.published)),
+	}
+
+
+def _learner_facts() -> dict[str, bool]:
+	return {
 		"has_imported_learners": bool(
 			_first("Data Import", {"reference_doctype": "User", "status": ["in", IMPORT_DONE]})
 		),
 		"has_email_account": _has_email_account(),
-		"has_batch": bool(first_batch),
-		"has_batch_details": _exists_for(
-			first_batch, "LMS Batch", {"name": first_batch, "meta_image": ["is", "set"]}
-		),
+	}
+
+
+def _batch_facts() -> dict[str, str | bool | None]:
+	batch = _first_row("LMS Batch", {}, ["name", "meta_image", "published"])
+	name = batch.name if batch else None
+	return {
+		"first_batch": name,
+		"has_batch": bool(batch),
+		"has_batch_details": bool(batch and batch.meta_image),
+		"has_live_class": _exists_for(name, "LMS Live Class", {"batch_name": name}),
+		"has_published_batch": bool(batch and cint(batch.published)),
+	}
+
+
+def _meeting_facts() -> dict[str, bool]:
+	return {
 		"has_zoom_account": bool(_first("LMS Zoom Settings", {})),
 		"has_google_api": _has_google_api(),
 		"has_google_calendar": bool(
 			frappe.db.exists("Google Calendar", {"user": frappe.session.user, "refresh_token": ["is", "set"]})
 		),
 		"has_meet_account": bool(_first("LMS Google Meet Settings", {})),
-		"has_live_class": _exists_for(first_batch, "LMS Live Class", {"batch_name": first_batch}),
-		"has_published_batch": _exists_for(first_batch, "LMS Batch", {"name": first_batch, "published": 1}),
 	}
 
 
-def _first(doctype: str, filters: dict) -> str | None:
-	rows = frappe.get_all(doctype, filters=filters, pluck="name", order_by="creation asc", limit=1)
+def _first_row(doctype: str, filters: dict, fields: list[str]) -> frappe._dict | None:
+	rows = frappe.get_all(doctype, filters=filters, fields=fields, order_by="creation asc", limit=1)
 	return rows[0] if rows else None
+
+
+def _first(doctype: str, filters: dict) -> str | None:
+	row = _first_row(doctype, filters, ["name"])
+	return row.name if row else None
 
 
 def _exists_for(target: str | None, doctype: str, filters: dict) -> bool:

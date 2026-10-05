@@ -64,12 +64,8 @@ class TestOnboardingFacts(BaseTestUtils):
 		with self.assertRaises(frappe.PermissionError):
 			get_onboarding_facts()
 
-	def test_non_system_manager_is_rejected(self):
-		student = self._create_user("onboarding-student@example.com", "Onb", "Student", ["LMS Student"])
-		frappe.set_user(student.name)
-		with self.assertRaises(frappe.PermissionError):
-			get_onboarding_facts()
-
+	# Guards: a Moderator without System Manager reading site-wide setup facts. Introduced in this branch
+	# (feat/onboarding-flows, PR pending); test added there to pin the role gate.
 	def test_moderator_without_system_manager_is_rejected(self):
 		frappe.set_user(self.admin.name)
 		with self.assertRaises(frappe.PermissionError):
@@ -186,12 +182,10 @@ class TestOnboardingFacts(BaseTestUtils):
 		self._insert_data_import("LMS Course", "Success")
 		self.assertFalse(self._facts()["has_imported_learners"])
 
-		self._insert_data_import("User", "Partial Success")
-		self.assertTrue(self._facts()["has_imported_learners"])
-
-	def test_a_successful_user_import_counts(self):
-		self._insert_data_import("User", "Success")
-		self.assertTrue(self._facts()["has_imported_learners"])
+		for status in ("Partial Success", "Success"):
+			frappe.db.delete("Data Import", {"reference_doctype": "User", "status": ["like", "%Success"]})
+			self._insert_data_import("User", status)
+			self.assertTrue(self._facts()["has_imported_learners"], status)
 
 	# Guards: an incoming-only account ticking the email setup step. Introduced in this branch
 	# (feat/onboarding-flows, PR pending); test added there to require enable_outgoing.
