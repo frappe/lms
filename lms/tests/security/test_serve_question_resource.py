@@ -261,3 +261,41 @@ class TestServeQuestionResource(BaseTestUtils):
 				self.question.save()
 			finally:
 				frappe.set_user("Administrator")
+
+	def test_unclassified_attachment_of_explanation_image_stays_gated(self):
+		"""An empty attached_to_field must not reclassify explanation media as prompt."""
+		h = frappe.generate_hash(length=6)
+		frappe.set_user(self.instructor.email)
+		try:
+			expl = frappe.get_doc(
+				{
+					"doctype": "File",
+					"file_name": f"expl_attach_{h}.png",
+					"is_private": 1,
+					"content": base64.b64encode(ONE_PIXEL_PNG).decode(),
+					"decode": True,
+					"attached_to_doctype": "LMS Question",
+					"attached_to_name": self.question.name,
+					# Deliberately no attached_to_field — the Greptile bypass case.
+				}
+			).insert(ignore_permissions=True)
+			self.question.question = f"<p>No image here {h}</p>"
+			self.question.explanation_1 = f'<p><img src="{expl.file_url}"></p>'
+			self.question.save()
+		finally:
+			frappe.set_user("Administrator")
+
+		frappe.db.set_value("LMS Quiz", self.quiz.name, "show_answers", 0)
+		self.addCleanup(frappe.db.set_value, "LMS Quiz", self.quiz.name, "show_answers", 1)
+
+		try:
+			with self.assertRaises(frappe.PermissionError):
+				self._serve_as(self.student.email, file_url=expl.file_url)
+		finally:
+			frappe.set_user(self.instructor.email)
+			try:
+				self.question.question = f'<p>Identify the shape</p><p><img src="{self.file_url}"></p>'
+				self.question.explanation_1 = None
+				self.question.save()
+			finally:
+				frappe.set_user("Administrator")
