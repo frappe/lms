@@ -22,7 +22,6 @@ vi.mock('@/onboarding/useLearningOnboarding', async () => {
 			openRoute: () => {},
 			openForm: () => {},
 			openSettings: () => {},
-			openExternal: () => {},
 			complete: () => {},
 		})
 		.map((step) => ({ ...step, completed: true }))

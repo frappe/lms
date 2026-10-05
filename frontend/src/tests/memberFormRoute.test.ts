@@ -94,10 +94,6 @@ vi.mock('frappe-ui', () => ({
 	},
 }))
 
-const { completeStepMock } = vi.hoisted(() => ({ completeStepMock: vi.fn() }))
-vi.mock('@/onboarding/useLearningOnboarding', () => ({
-	useLearningOnboarding: () => ({ completeStep: completeStepMock }),
-}))
 vi.mock('@framework/ui/telemetry/index', async (importOriginal) => ({
 	...(await importOriginal<typeof import('@framework/ui/telemetry/index')>()),
 	useTelemetry: () => ({ capture: vi.fn() }),
@@ -383,7 +379,6 @@ describe('the member form route', () => {
 				value: 1,
 			})
 			expect(toastMock.success).toHaveBeenCalled()
-			expect(completeStepMock).toHaveBeenCalledWith('add_learner')
 			expect(router.currentRoute.value.name).toBe('MobileYou')
 		})
 

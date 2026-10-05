@@ -79,16 +79,18 @@ vi.mock('frappe-ui', () => ({
 const meet = getFlow('live_class_meet')!
 const liveCard = getCard('live_class')!
 
-beforeEach(() => {
-	for (const fn of Object.values(actions)) fn.mockReset()
-	state.steps = meet.steps({
+function flowSteps(id: string): FlowStep[] {
+	return getFlow(id)!.steps({
 		facts: {},
 		openRoute: vi.fn(),
 		openForm: vi.fn(),
 		openSettings: vi.fn(),
-		openExternal: vi.fn(),
 		complete: vi.fn(),
 	})
+}
+
+beforeEach(() => {
+	for (const fn of Object.values(actions)) fn.mockReset()
 	state.status = {
 		create_first_batch: 'done',
 		setup_google_api: 'skipped',
@@ -97,6 +99,10 @@ beforeEach(() => {
 		schedule_live_class: 'upcoming',
 		publish_batch: 'upcoming',
 	}
+	// Six of the Meet flow's steps, one per status, so rows index predictably.
+	state.steps = flowSteps('live_class_meet').filter(
+		(step) => step.name in state.status
+	)
 	state.blocked = new Set(['add_meet_account'])
 	state.progress = { resolved: 2, total: 6, skipped: 1 }
 	state.complete = false
@@ -340,6 +346,39 @@ describe('step action buttons', () => {
 	})
 })
 
+describe('choosing a meeting tool', () => {
+	beforeEach(() => {
+		state.steps = flowSteps('live_class')
+		state.status = {
+			create_first_batch: 'done',
+			fill_batch_details: 'done',
+			choose_meeting_tool: 'current',
+		}
+		state.answer = null
+		state.nextStepName = 'choose_meeting_tool'
+	})
+
+	it('offers the tools on the step’s own action', async () => {
+		const w = mount(OnboardingChecklist, {
+			props: { card: liveCard, flow: getFlow('live_class')! },
+		})
+		const choice = w.find('[data-testid="step-choice"]')
+		expect(choice.find('[data-testid="step-action"]').text()).toBe('Choose')
+		const options = choice.findAll('.option')
+		expect(options.map((o) => o.text())).toEqual(['Zoom', 'Google Meet'])
+		await options[1].trigger('click')
+		expect(actions.answer).toHaveBeenCalledWith('live_class', 'meet')
+		expect(actions.startStep).not.toHaveBeenCalled()
+	})
+
+	it('hides the answer switch until a tool is picked', () => {
+		const w = mount(OnboardingChecklist, {
+			props: { card: liveCard, flow: getFlow('live_class')! },
+		})
+		expect(w.find('[data-testid="answer-switch"]').exists()).toBe(false)
+	})
+})
+
 describe('when the flow is complete', () => {
 	beforeEach(() => {
 		state.complete = true
@@ -352,7 +391,7 @@ describe('when the flow is complete', () => {
 		expect(w.text()).toContain('Try next')
 		const next = w.find('[data-testid="next-up"]')
 		const title = next.find('[data-testid="next-title"]')
-		expect(title.text()).toBe('Onboard my existing learners')
+		expect(title.text()).toBe('Onboard existing users')
 		expect(title.classes()).not.toContain('truncate')
 		const tryIt = w.find('[data-testid="next-action"]')
 		expect(tryIt.text()).toBe('Try it')

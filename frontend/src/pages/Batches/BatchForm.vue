@@ -325,7 +325,7 @@ import {
 	openSettings,
 	updateMetaInfo,
 } from '@/utils'
-import { validateBatch } from '@/utils/batchForm'
+import { validateBatch, hasBatchDetails } from '@/utils/batchForm'
 import { getDateFormat } from '@/utils/format'
 import {
 	useKeyboardShortcuts,
@@ -543,6 +543,7 @@ const updateBatch = (opts: { silent?: boolean } = {}): void => {
 				updateMetaInfo('batches', data.name, meta)
 				if (!opts.silent) toast.success(__('Batch updated successfully'))
 				if (data.published) completeStep('publish_batch')
+				if (hasBatchDetails(data)) completeStep('fill_batch_details')
 				nextTick(() => {
 					originalDoc.value = structuredClone(data)
 					isDirty.value = false

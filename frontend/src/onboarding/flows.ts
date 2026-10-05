@@ -9,20 +9,22 @@ import {
 	FileText,
 	FolderTree,
 	Globe,
-	Mail,
+	ImagePlus,
 	KeyRound,
 	Laptop,
+	Mail,
+	MonitorPlay,
 	Upload,
 	Users,
 	Video,
 } from 'lucide-vue-next'
-import InviteIcon from '@/components/Icons/InviteIcon.vue'
 
 export type FlowId =
 	| 'publish_course'
-	| 'onboard_learners'
+	| 'live_class'
 	| 'live_class_zoom'
 	| 'live_class_meet'
+	| 'onboard_learners'
 
 /** A list entry. A card with a question holds one flow per answer. */
 export type CardId = 'publish_course' | 'onboard_learners' | 'live_class'
@@ -35,9 +37,9 @@ export const FACT_KEYS = [
 	'has_course_pricing',
 	'has_published_course',
 	'has_imported_learners',
-	'has_invited_student',
-	'has_sent_invitation',
+	'has_email_account',
 	'has_batch',
+	'has_batch_details',
 	'has_zoom_account',
 	'has_google_api',
 	'has_google_calendar',
@@ -62,8 +64,6 @@ export interface FlowNavigation {
 	openForm: (to: RouteLocationRaw) => void
 	/** A settings page; `record` 'new' opens its create form. */
 	openSettings: (slug: string, record?: string) => void
-	/** A page outside the SPA, such as a desk form, in a new tab. */
-	openExternal: (url: string) => void
 	complete: (step: string) => void
 }
 
@@ -72,6 +72,8 @@ export interface FlowStep extends OnboardingStep {
 	fact?: FactKey
 	/** Short verb on the step's action button, e.g. "Create". */
 	actionLabel: string
+	/** Completed by answering this card's question, offered on the step itself. */
+	chooses?: CardId
 }
 
 export interface OnboardingFlow {
@@ -102,8 +104,13 @@ export interface FlowCard {
 	readonly title: string
 	readonly description: string
 	icon: Component
-	/** Asked before the checklist; each answer has its own flow and key. */
+	/** Each answer has its own flow and key. */
 	question?: CardQuestion
+	/**
+	 * The flow shown before the question is answered. Without one, the question
+	 * is asked up front; with one, a step in it asks the question.
+	 */
+	defaultFlow?: OnboardingFlow
 	/** Cards to offer once this one is done, best first. */
 	next: CardId[]
 	flows: OnboardingFlow[]
@@ -170,6 +177,43 @@ function createBatch(nav: FlowNavigation): FlowStep {
 		fact: 'has_batch',
 		onClick: () => nav.openForm({ name: 'NewBatch' }),
 	}
+}
+
+// Shared by the live class keys: the pre-choice key and both providers start
+// with these three names, so their completions carry over when a tool is
+// picked (stored progress is matched by index, so the order is frozen).
+function liveClassHead(nav: FlowNavigation): FlowStep[] {
+	return [
+		createBatch(nav),
+		{
+			name: 'fill_batch_details',
+			actionLabel: __('Fill in'),
+			title: __('Fill in batch details'),
+			icon: stepIcon(ImagePlus),
+			completed: false,
+			dependsOn: 'create_first_batch',
+			fact: 'has_batch_details',
+			onClick: () => openBatchSettings(nav),
+		},
+		{
+			name: 'choose_meeting_tool',
+			actionLabel: __('Choose'),
+			title: __('Choose a meeting tool'),
+			icon: stepIcon(MonitorPlay),
+			completed: false,
+			chooses: 'live_class',
+		},
+	]
+}
+
+function openBatchSettings(nav: FlowNavigation): void {
+	const batchName = nav.facts.first_batch
+	if (!batchName) return nav.openRoute({ name: 'Batches' })
+	nav.openRoute({
+		name: 'BatchDetail',
+		params: { batchName },
+		hash: '#settings',
+	})
 }
 
 function publishBatch(nav: FlowNavigation): FlowStep {
@@ -264,42 +308,11 @@ const publishCourseFlow: OnboardingFlow = {
 	],
 }
 
-const onboardLearnersFlow: OnboardingFlow = {
-	id: 'onboard_learners',
-	card: 'onboard_learners',
-	key: 'learning_onboard_learners',
-	steps: (nav) => [
-		{
-			name: 'import_learners',
-			actionLabel: __('Import'),
-			title: __('Import learners in bulk'),
-			icon: stepIcon(Upload),
-			completed: false,
-			fact: 'has_imported_learners',
-			onClick: () =>
-				nav.openRoute({ name: 'NewDataImport', params: { doctype: 'User' } }),
-		},
-		{
-			name: 'add_learner',
-			actionLabel: __('Add'),
-			title: __('Add a learner by email'),
-			icon: stepIcon(InviteIcon),
-			completed: false,
-			fact: 'has_invited_student',
-			onClick: () => nav.openSettings('members', 'new'),
-		},
-		{
-			// The SPA has no email-invite screen; frappe's own User Invitation
-			// form sends the invitation when it is saved.
-			name: 'invite_learners',
-			actionLabel: __('Invite'),
-			title: __('Invite learners by email'),
-			icon: stepIcon(Mail),
-			completed: false,
-			fact: 'has_sent_invitation',
-			onClick: () => nav.openExternal('/app/user-invitation/new'),
-		},
-	],
+const liveClassFlow: OnboardingFlow = {
+	id: 'live_class',
+	card: 'live_class',
+	key: 'learning_live_class',
+	steps: (nav) => liveClassHead(nav),
 }
 
 const liveClassZoomFlow: OnboardingFlow = {
@@ -307,7 +320,7 @@ const liveClassZoomFlow: OnboardingFlow = {
 	card: 'live_class',
 	key: 'learning_live_class_zoom',
 	steps: (nav) => [
-		createBatch(nav),
+		...liveClassHead(nav),
 		{
 			name: 'connect_zoom',
 			actionLabel: __('Connect'),
@@ -327,7 +340,7 @@ const liveClassMeetFlow: OnboardingFlow = {
 	card: 'live_class',
 	key: 'learning_live_class_meet',
 	steps: (nav) => [
-		createBatch(nav),
+		...liveClassHead(nav),
 		{
 			name: 'setup_google_api',
 			actionLabel: __('Set up'),
@@ -362,11 +375,39 @@ const liveClassMeetFlow: OnboardingFlow = {
 	],
 }
 
+const onboardLearnersFlow: OnboardingFlow = {
+	id: 'onboard_learners',
+	card: 'onboard_learners',
+	key: 'learning_onboard_learners',
+	steps: (nav) => [
+		{
+			name: 'setup_email',
+			actionLabel: __('Set up'),
+			title: __('Set up email'),
+			icon: stepIcon(Mail),
+			completed: false,
+			fact: 'has_email_account',
+			onClick: () => nav.openSettings('email-accounts', 'new'),
+		},
+		{
+			name: 'import_learners',
+			actionLabel: __('Import'),
+			title: __('Import users in bulk'),
+			icon: stepIcon(Upload),
+			completed: false,
+			fact: 'has_imported_learners',
+			onClick: () =>
+				nav.openRoute({ name: 'NewDataImport', params: { doctype: 'User' } }),
+		},
+	],
+}
+
 export const FLOWS: readonly OnboardingFlow[] = [
 	publishCourseFlow,
-	onboardLearnersFlow,
+	liveClassFlow,
 	liveClassZoomFlow,
 	liveClassMeetFlow,
+	onboardLearnersFlow,
 ]
 
 // Copy is read through getters: `__` is installed on window only after every
@@ -381,28 +422,16 @@ export const CARDS: readonly FlowCard[] = [
 			return __('Set up your first course and lessons.')
 		},
 		icon: markRaw(BookOpen),
-		next: ['onboard_learners', 'live_class'],
+		next: ['live_class', 'onboard_learners'],
 		flows: [publishCourseFlow],
-	},
-	{
-		id: 'onboard_learners',
-		get title() {
-			return __('Onboard my existing learners')
-		},
-		get description() {
-			return __('Bring your learners into a batch.')
-		},
-		icon: markRaw(Users),
-		next: ['live_class', 'publish_course'],
-		flows: [onboardLearnersFlow],
 	},
 	{
 		id: 'live_class',
 		get title() {
-			return __('Start a live class')
+			return __('Run my first live class')
 		},
 		get description() {
-			return __('Create a batch, connect a meeting tool and schedule a class.')
+			return __('Create a batch, pick a meeting tool and schedule a class.')
 		},
 		icon: markRaw(Video),
 		question: {
@@ -435,8 +464,21 @@ export const CARDS: readonly FlowCard[] = [
 				},
 			],
 		},
+		defaultFlow: liveClassFlow,
 		next: ['onboard_learners', 'publish_course'],
-		flows: [liveClassZoomFlow, liveClassMeetFlow],
+		flows: [liveClassFlow, liveClassZoomFlow, liveClassMeetFlow],
+	},
+	{
+		id: 'onboard_learners',
+		get title() {
+			return __('Onboard existing users')
+		},
+		get description() {
+			return __('Set up email and bring your users in.')
+		},
+		icon: markRaw(Users),
+		next: ['publish_course', 'live_class'],
+		flows: [onboardLearnersFlow],
 	},
 ]
 
@@ -450,11 +492,12 @@ export function getFlow(
 	return FLOWS.find((flow) => flow.id === id)
 }
 
-/** The flow a card resolves to: its only flow, or its answer's. */
+/** The flow a card resolves to: its only flow, its answer's, or its default. */
 export function flowForAnswer(
 	card: FlowCard,
 	answer: string | null | undefined
 ): OnboardingFlow | null {
 	if (!card.question) return card.flows[0]
-	return card.question.options.find((o) => o.value === answer)?.flow ?? null
+	const chosen = card.question.options.find((o) => o.value === answer)?.flow
+	return chosen ?? card.defaultFlow ?? null
 }

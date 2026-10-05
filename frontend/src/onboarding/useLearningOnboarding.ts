@@ -22,7 +22,7 @@ import {
 	type OnboardingFlow,
 } from '@/onboarding/flows'
 
-export type Screen = 'list' | 'question' | 'flow' | 'help'
+export type Screen = 'list' | 'flow' | 'help'
 export type StepStatus = 'done' | 'skipped' | 'current' | 'upcoming'
 
 export interface Progress {
@@ -102,14 +102,12 @@ const openFlow = computed<OnboardingFlow | null>(() =>
 	openCard.value ? cardFlow(openCard.value) : null
 )
 
-// What the panel shows. A stored card or answer that no longer resolves (a flow
-// renamed or removed later) falls back rather than mounting an empty screen.
+// What the panel shows. A stored card that no longer resolves (a flow renamed
+// or removed later) falls back to the list rather than an empty screen.
 const screen = computed<Screen>(() => {
 	if (requestedScreen.value === 'help') return 'help'
-	const card = openCard.value
-	if (requestedScreen.value === 'list' || !card) return 'list'
 	if (requestedScreen.value === 'flow' && openFlow.value) return 'flow'
-	return card.question ? 'question' : 'list'
+	return 'list'
 })
 
 function stepsOf(id: FlowId): FlowStep[] {
@@ -190,19 +188,25 @@ function stepStatus(id: FlowId, step: FlowStep): StepStatus {
 	return current?.name === step.name ? 'current' : 'upcoming'
 }
 
-/** Done when its answered flow is done, or, unanswered, when any of its flows is. */
+// A card's pre-choice flow only leads to the choice; finishing it never
+// finishes the card. These are the flows that can.
+function answerFlows(card: FlowCard): OnboardingFlow[] {
+	return card.flows.filter((f) => f !== card.defaultFlow)
+}
+
+/** Done when its answered flow is done, or, unanswered, when any answer's is. */
 function isCardComplete(card: FlowCard): boolean {
 	const flow = cardFlow(card)
-	if (flow) return isFlowComplete(flow.id)
-	return card.flows.some((f) => isFlowComplete(f.id))
+	if (flow && flow !== card.defaultFlow) return isFlowComplete(flow.id)
+	return answerFlows(card).some((f) => isFlowComplete(f.id))
 }
 
 /** The flow a card's counts come from, answered or not. */
 function countedFlow(card: FlowCard): OnboardingFlow {
+	const flow = cardFlow(card)
+	if (flow && flow !== card.defaultFlow) return flow
 	return (
-		cardFlow(card) ??
-		card.flows.find((f) => isFlowComplete(f.id)) ??
-		card.flows[0]
+		answerFlows(card).find((f) => isFlowComplete(f.id)) ?? flow ?? card.flows[0]
 	)
 }
 
@@ -382,23 +386,43 @@ function showPanel(): void {
 	showHelpModal.value = true
 }
 
-/** Open a card: its question first if unanswered, else its checklist. */
+/** Open a card's checklist; an unanswered live class opens its pre-choice one. */
 function openCardScreen(id: CardId): void {
 	const card = getCard(id)
 	if (!card) return
 	storage().activeCard.value = id
 	openCardId.value = id
-	requestedScreen.value = cardFlow(card) ? 'flow' : 'question'
+	requestedScreen.value = 'flow'
 	showPanel()
 }
 
+/**
+ * Pick a card's answer: its flow becomes the open one, steps already resolved
+ * in the flow it replaces carry over by name, and the step that asks the
+ * question is ticked.
+ */
 function answer(id: CardId, value: string): void {
 	const card = getCard(id)
-	if (!card?.question?.options.some((o) => o.value === value)) return
+	const option = card?.question?.options.find((o) => o.value === value)
+	if (!card || !option) return
+	const before = cardFlow(card)
 	storage().answers.value = { ...storage().answers.value, [id]: value }
 	storage().activeCard.value = id
 	openCardId.value = id
 	requestedScreen.value = 'flow'
+	if (before && before.id !== option.flow.id) carryOver(before, option.flow)
+	const chooser = stepsOf(option.flow.id).find((step) => step.chooses === id)
+	if (chooser) completeStep(chooser.name)
+}
+
+function carryOver(from: OnboardingFlow, to: OnboardingFlow): void {
+	for (const step of stepsOf(from.id)) {
+		if (!step.completed) continue
+		const target = stepsOf(to.id).find((s) => s.name === step.name)
+		if (!target || target.completed) continue
+		if (isSkipped(from, step.name)) skipStep(to.id, step.name)
+		else handles[to.id]?.updateOnboardingStep(step.name)
+	}
 }
 
 /** The help centre, as the framework's HelpModal shows it in place of steps. */
@@ -501,7 +525,7 @@ async function setUpAll(nav: SidebarNavigation): Promise<void> {
 	const resume = Boolean(active && !isCardComplete(active))
 	if (active && resume) {
 		openCardId.value = active.id
-		requestedScreen.value = cardFlow(active) ? 'flow' : 'question'
+		requestedScreen.value = 'flow'
 	}
 	showHelpModal.value = resume
 	await statusSettled()

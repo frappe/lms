@@ -116,8 +116,23 @@
 					>
 						<span :class="ROW_TEXT">{{ text.reset }}</span>
 					</Button>
+					<Dropdown
+						v-if="step.chooses && statusOf(step) !== 'done'"
+						:options="choiceOptions"
+						data-testid="step-choice"
+					>
+						<Button
+							variant="ghost"
+							size="sm"
+							:class="isNext(step) ? '!text-ink-gray-9' : '!text-ink-gray-6'"
+							:disabled="Boolean(blockerOf(step))"
+							data-testid="step-action"
+						>
+							<span :class="ROW_TEXT">{{ actionLabel(step) }}</span>
+						</Button>
+					</Dropdown>
 					<Button
-						v-if="statusOf(step) !== 'done'"
+						v-else-if="statusOf(step) !== 'done'"
 						variant="ghost"
 						size="sm"
 						:class="isNext(step) ? '!text-ink-gray-9' : '!text-ink-gray-6'"
@@ -250,6 +265,16 @@ const switchLabel = computed<string>(() =>
 		props.card.question?.label ?? '',
 		currentOption.value?.label ?? ''
 	)
+)
+
+// The card's answers, offered on the step that asks the question. Picking one
+// answers the card, which ticks the step and opens that answer's flow.
+const choiceOptions = computed(() =>
+	(props.card.question?.options ?? []).map((option) => ({
+		label: option.label,
+		description: option.description,
+		onClick: () => answer(props.card.id, option.value),
+	}))
 )
 
 // Labels are read here, at render, so the translation getters always run.

@@ -250,7 +250,6 @@ const flowNavigation = {
 	openRoute: (to) => router.push(to),
 	openForm: (to) => openFormRoute(router, to),
 	openSettings: (slug, record) => pushSettingsHash(router, slug, record),
-	openExternal: (url) => openExternal(url),
 }
 
 const setUpOnboarding = () => {

@@ -80,9 +80,10 @@ function makeHandle(storedComplete = false): FakeHandle {
 const USER = 'admin@example.com'
 const ALL = [
 	'publish_course',
-	'onboard_learners',
+	'live_class',
 	'live_class_zoom',
 	'live_class_meet',
+	'onboard_learners',
 ]
 const nav = {
 	openRoute: vi.fn(),
@@ -189,9 +190,13 @@ describe('setUpAll', () => {
 		expect(o.openFlow.value?.id).toBe('live_class_meet')
 	})
 
-	it('reopens on the question when the card is unanswered', async () => {
+	// Guards: a reload with an unanswered live class opening no flow. Introduced
+	// in this branch (feat/onboarding-flows, PR pending); test added there to
+	// pin reopening on the pre-choice flow.
+	it('reopens an unanswered live class on its pre-choice flow', async () => {
 		const o = await ready({ card: 'live_class' })
-		expect(o.screen.value).toBe('question')
+		expect(o.screen.value).toBe('flow')
+		expect(o.openFlow.value?.id).toBe('live_class')
 	})
 
 	// Guards: the panel popping open for an admin who has not started.
@@ -262,10 +267,10 @@ describe('list', () => {
 	// added there to pin the step-weighted percent.
 	it('weighs the overall percent by steps across every card', async () => {
 		const o = await ready({ answers: { live_class: 'zoom' } })
-		// publish 6 + learners 3 + zoom 4 = 13.
+		// publish 6 + zoom 6 + users 2 = 14.
 		o.toggleStep('publish_course', 'create_first_course')
 		o.toggleStep('live_class_zoom', 'connect_zoom')
-		expect(o.overallPercent.value).toBe(Math.floor((2 / 13) * 100))
+		expect(o.overallPercent.value).toBe(Math.floor((2 / 14) * 100))
 	})
 
 	it('counts every card done once each card’s flow is done', async () => {
@@ -278,15 +283,34 @@ describe('list', () => {
 		expect(o.overallPercent.value).toBe(100)
 	})
 
-	it('counts an unanswered card done when any of its flows is done', async () => {
+	// Guards: a finished Zoom or Meet flow not finishing an unanswered live
+	// class card. Introduced in this branch (feat/onboarding-flows, PR pending);
+	// test added there to pin the provider fallback.
+	it('counts an unanswered live class done when a provider flow is done', async () => {
 		const o = await ready()
 		finish('live_class_meet')
 		expect(o.isCardComplete(card(o, 'live_class'))).toBe(true)
 	})
 
-	it('has no row count while a question is unanswered', async () => {
+	// Guards: the pre-choice live class flow alone marking the card done.
+	// Introduced in this branch (feat/onboarding-flows, PR pending); test added
+	// there to stop the card finishing before a provider is picked.
+	it('never counts the live class done on its pre-choice flow alone', async () => {
 		const o = await ready()
-		expect(o.cardProgress(card(o, 'live_class'))).toBeNull()
+		finish('live_class')
+		expect(o.isCardComplete(card(o, 'live_class'))).toBe(false)
+	})
+
+	// Guards: an unanswered live class showing no step count. Introduced in this
+	// branch (feat/onboarding-flows, PR pending); test added there to pin the
+	// pre-choice totals.
+	it('counts an unanswered live class on its pre-choice flow', async () => {
+		const o = await ready()
+		expect(o.cardProgress(card(o, 'live_class'))).toEqual({
+			resolved: 0,
+			total: 3,
+			skipped: 0,
+		})
 		expect(o.cardProgress(card(o, 'publish_course'))).toEqual({
 			resolved: 0,
 			total: 6,
@@ -310,10 +334,14 @@ describe('list', () => {
 })
 
 describe('question and answer', () => {
-	it('opens the question for an unanswered card', async () => {
+	// Guards: opening an unanswered live class card showing no flow. Introduced
+	// in this branch (feat/onboarding-flows, PR pending); test added there to
+	// pin the pre-choice flow on open.
+	it('opens an unanswered live class on its pre-choice flow', async () => {
 		const o = await ready()
 		o.openCardScreen('live_class')
-		expect(o.screen.value).toBe('question')
+		expect(o.screen.value).toBe('flow')
+		expect(o.openFlow.value?.id).toBe('live_class')
 		expect(o.ui.showHelpModal.value).toBe(true)
 	})
 
@@ -360,9 +388,27 @@ describe('question and answer', () => {
 		o.toggleStep('live_class_zoom', 'connect_zoom')
 		o.answer('live_class', 'meet')
 		expect(o.openFlow.value?.key).toBe('learning_live_class_meet')
-		expect(o.flowProgress('live_class_meet').resolved).toBe(0)
+		// Only the shared choose step carries over; Zoom's own step does not.
+		expect(o.flowProgress('live_class_meet').resolved).toBe(1)
 		o.answer('live_class', 'zoom')
-		expect(o.flowProgress('live_class_zoom').resolved).toBe(1)
+		expect(o.flowProgress('live_class_zoom').resolved).toBe(2)
+	})
+
+	// Guards: picking a provider dropping the pre-choice progress or leaving the
+	// choose step open. Introduced in this branch (feat/onboarding-flows, PR
+	// pending); test added there to pin the carry-over.
+	it('picking a tool carries the pre-choice progress over and ticks the choice', async () => {
+		const o = await ready()
+		o.openCardScreen('live_class')
+		o.toggleStep('live_class', 'create_first_batch')
+		o.skipStep('live_class', 'fill_batch_details')
+		o.answer('live_class', 'zoom')
+		const zoom = o.stepsOf('live_class_zoom')
+		expect(
+			zoom.slice(0, 3).map((s) => o.stepStatus('live_class_zoom', s))
+		).toEqual(['done', 'skipped', 'done'])
+		expect(o.stepsOf('live_class')[2].completed).toBe(true)
+		expect(o.openFlow.value?.id).toBe('live_class_zoom')
 	})
 
 	// Guards: an unknown provider being stored as the answer. Introduced in this
@@ -402,8 +448,8 @@ describe('step status', () => {
 	it('reports a blocked step’s blocker', async () => {
 		const o = await ready()
 		const meet = o.stepsOf('live_class_meet')
-		expect(o.blocker('live_class_meet', meet[2])?.name).toBe('setup_google_api')
-		expect(o.blocker('live_class_meet', meet[1])).toBeUndefined()
+		expect(o.blocker('live_class_meet', meet[4])?.name).toBe('setup_google_api')
+		expect(o.blocker('live_class_meet', meet[3])).toBeUndefined()
 	})
 })
 
@@ -533,17 +579,18 @@ describe('flow menu', () => {
 describe('next up', () => {
 	it('follows the card’s next order', async () => {
 		const o = await ready()
-		expect(o.nextCard(card(o, 'publish_course'))?.id).toBe('onboard_learners')
+		expect(o.nextCard(card(o, 'publish_course'))?.id).toBe('live_class')
 		expect(o.nextCard(card(o, 'live_class'))?.id).toBe('onboard_learners')
+		expect(o.nextCard(card(o, 'onboard_learners'))?.id).toBe('publish_course')
 	})
 
 	// Guards: Next up pointing at a finished card. Introduced in this branch
 	// (feat/onboarding-flows, PR pending); test added there to skip finished
 	// cards.
 	it('skips finished cards', async () => {
-		const o = await ready()
-		finish('onboard_learners')
-		expect(o.nextCard(card(o, 'publish_course'))?.id).toBe('live_class')
+		const o = await ready({ answers: { live_class: 'zoom' } })
+		finish('live_class_zoom')
+		expect(o.nextCard(card(o, 'publish_course'))?.id).toBe('onboard_learners')
 	})
 
 	// Guards: Next up offering a card when none is left. Introduced in this
@@ -595,7 +642,11 @@ describe('completeStep', () => {
 	it.each([
 		{
 			step: 'create_first_batch',
-			owners: ['live_class_zoom', 'live_class_meet'],
+			owners: ['live_class', 'live_class_zoom', 'live_class_meet'],
+		},
+		{
+			step: 'fill_batch_details',
+			owners: ['live_class', 'live_class_zoom', 'live_class_meet'],
 		},
 		{
 			step: 'publish_batch',
@@ -606,7 +657,7 @@ describe('completeStep', () => {
 			owners: ['live_class_zoom', 'live_class_meet'],
 		},
 		{ step: 'add_meet_account', owners: ['live_class_meet'] },
-		{ step: 'add_learner', owners: ['onboard_learners'] },
+		{ step: 'setup_email', owners: ['onboard_learners'] },
 	])('$step completes in every owning flow', async ({ step, owners }) => {
 		const o = await ready()
 		o.completeStep(step)
@@ -741,7 +792,7 @@ describe('a key the framework already marks complete', () => {
 			card: 'live_class',
 			answers: { live_class: 'meet' },
 		})
-		const api = o.stepsOf('live_class_meet')[1]
+		const api = o.stepsOf('live_class_meet')[3]
 		expect(o.stepStatus('live_class_meet', api)).toBe('skipped')
 	})
 })

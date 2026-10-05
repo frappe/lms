@@ -155,9 +155,43 @@ describe('PersonaForm', () => {
 		expect(pushMock).toHaveBeenCalledWith({ name: 'Courses' })
 	})
 
+	// Guards: the last persona question drifting from the three flow cards.
+	// Introduced in this branch (feat/onboarding-flows, PR pending); test added
+	// there to pin its options.
+	it('offers exactly the three onboarding flows as the last question', () => {
+		const wrapper = mountForm()
+		const outcome = wrapper
+			.findComponent({ name: 'PersonaCard' })
+			.props('steps')[3]
+		expect(outcome.key).toBe('first_milestone')
+		expect(outcome.options.map((o: any) => [o.label, o.value, o.flow])).toEqual(
+			[
+				[
+					'Publish my first course',
+					'Publish my first course',
+					'publish_course',
+				],
+				['Run my first live class', 'Run my first live class', 'live_class'],
+				[
+					'Onboard existing users',
+					'Onboard existing users',
+					'onboard_learners',
+				],
+			]
+		)
+		for (const option of outcome.options) {
+			expect(option.description).toBeTruthy()
+			expect(option.icon).toBeTruthy()
+		}
+	})
+
+	// Guards: a persona answer opening the wrong card, or none. Introduced in
+	// this branch (feat/onboarding-flows, PR pending); test added there to
+	// cover each answer.
 	it.each([
 		{ value: 'Publish my first course', flow: 'publish_course' },
-		{ value: 'Onboard my existing learners', flow: 'onboard_learners' },
+		{ value: 'Run my first live class', flow: 'live_class' },
+		{ value: 'Onboard existing users', flow: 'onboard_learners' },
 	])('choosing $value opens the $flow card', async ({ value, flow }) => {
 		const wrapper = mountForm()
 		const card = wrapper.findComponent({ name: 'PersonaCard' })
@@ -168,18 +202,18 @@ describe('PersonaForm', () => {
 		expect(openCardMock).toHaveBeenCalledWith(flow)
 	})
 
-	it.each([
-		{ value: 'Award my first certificate' },
-		{ value: 'Launch a paid course' },
-		{ value: 'Just exploring' },
-	])('choosing $value leaves the flow list to the admin', async ({ value }) => {
+	// Guards: the answer moving off the first_milestone telemetry key.
+	// Introduced in this branch (feat/onboarding-flows, PR pending); test added
+	// there to keep reporting stable.
+	it('sends the chosen flow under the same first_milestone key', async () => {
 		const wrapper = mountForm()
 		const card = wrapper.findComponent({ name: 'PersonaCard' })
 		const outcome = card.props('steps')[3]
-		const option = outcome.options.find((o: any) => o.value === value)
-		card.vm.$emit('choose', outcome, option)
+		card.vm.$emit('choose', outcome, outcome.options[1])
 		await flushPromises()
-		expect(openCardMock).not.toHaveBeenCalled()
+		expect(captureMock).toHaveBeenCalledWith('onboarding_persona', {
+			first_milestone: 'Run my first live class',
+		})
 	})
 
 	it('ignores further choose/skip clicks while fading out', async () => {

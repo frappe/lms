@@ -66,49 +66,6 @@
 					:flow="openFlow"
 				/>
 
-				<div
-					v-else-if="screen === 'question' && openCard?.question"
-					class="flex flex-col gap-1.5 overflow-y-auto"
-				>
-					<Tooltip
-						v-for="option in openCard.question.options"
-						:key="option.value"
-						:text="option.description"
-					>
-						<SidebarItem
-							:label="option.label"
-							data-testid="question-option"
-							@click="answer(openCard.id, option.value)"
-						>
-							<template #prefix>
-								<component
-									:is="openCard.icon"
-									class="size-4 text-ink-gray-6"
-									aria-hidden="true"
-								/>
-							</template>
-							<span
-								class="flex min-w-0 flex-1 items-center justify-between gap-2 pe-2"
-							>
-								<span class="truncate text-p-sm text-ink-gray-8">
-									{{ option.label }}
-								</span>
-								<span
-									class="flex shrink-0 items-center gap-1 text-p-sm text-ink-gray-5"
-								>
-									<span class="tabular-nums">{{
-										stepCount(option.flow.id)
-									}}</span>
-									<LucideChevronRight
-										class="size-4 rtl:rotate-180"
-										aria-hidden="true"
-									/>
-								</span>
-							</span>
-						</SidebarItem>
-					</Tooltip>
-				</div>
-
 				<div v-else class="flex min-h-0 flex-col gap-2.5">
 					<div class="flex items-center justify-between py-0.5">
 						<Badge
@@ -221,7 +178,7 @@ import LMSLogo from '@/components/Icons/LMSLogo.vue'
 import OnboardingChecklist from '@/components/Onboarding/OnboardingChecklist.vue'
 import OnboardingHelpCenter from '@/components/Onboarding/OnboardingHelpCenter.vue'
 import { HELP_DOCS_LINK, helpArticles } from '@/onboarding/helpArticles'
-import { CARDS, type FlowCard, type FlowId } from '@/onboarding/flows'
+import { CARDS, type FlowCard } from '@/onboarding/flows'
 import { useLearningOnboarding } from '@/onboarding/useLearningOnboarding'
 
 const {
@@ -231,12 +188,10 @@ const {
 	completedCards,
 	overallPercent,
 	hasAnyProgress,
-	stepsOf,
 	flowProgress,
 	cardProgress,
 	isCardComplete,
 	openCardScreen,
-	answer,
 	showList,
 	showHelp,
 	hideHelp,
@@ -270,7 +225,6 @@ const heroTitle = computed<string>(() =>
 )
 
 const heroCount = computed<string>(() => {
-	if (screen.value === 'question') return openCard.value?.question?.title ?? ''
 	if (screen.value === 'flow' && openFlow.value) {
 		const progress = flowProgress(openFlow.value.id)
 		return __('{0}/{1} steps completed').format(
@@ -291,9 +245,5 @@ const percentLabel = computed<string>(() =>
 function rowMeta(card: FlowCard): string {
 	const progress = cardProgress(card)
 	return progress ? `${progress.resolved}/${progress.total}` : ''
-}
-
-function stepCount(id: FlowId): string {
-	return __('{0} steps').format(String(stepsOf(id).length))
 }
 </script>

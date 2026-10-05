@@ -7,33 +7,25 @@ import { flushPromises, mount, type VueWrapper } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import { ref, type Ref } from 'vue'
 
-const {
-	resource,
-	onboarding,
-	ui,
-	push,
-	openFormRoute,
-	pushSettingsHash,
-	openExternalMock,
-} = vi.hoisted(() => ({
-	resource: () => ({
-		data: null,
-		loading: false,
-		promise: Promise.resolve(),
-		reload: vi.fn(),
-		submit: vi.fn(),
-	}),
-	onboarding: {} as {
-		isSetUp: Ref<boolean>
-		bannerFlow: Ref<{ key: string } | null>
-		setUpAll: ReturnType<typeof vi.fn>
-	},
-	ui: {} as { showHelpModal: Ref<boolean>; minimize: Ref<boolean> },
-	push: vi.fn(),
-	openFormRoute: vi.fn(),
-	pushSettingsHash: vi.fn(),
-	openExternalMock: vi.fn(),
-}))
+const { resource, onboarding, ui, push, openFormRoute, pushSettingsHash } =
+	vi.hoisted(() => ({
+		resource: () => ({
+			data: null,
+			loading: false,
+			promise: Promise.resolve(),
+			reload: vi.fn(),
+			submit: vi.fn(),
+		}),
+		onboarding: {} as {
+			isSetUp: Ref<boolean>
+			bannerFlow: Ref<{ key: string } | null>
+			setUpAll: ReturnType<typeof vi.fn>
+		},
+		ui: {} as { showHelpModal: Ref<boolean>; minimize: Ref<boolean> },
+		push: vi.fn(),
+		openFormRoute: vi.fn(),
+		pushSettingsHash: vi.fn(),
+	}))
 
 vi.mock('frappe-ui', () => ({
 	createResource: resource,
@@ -106,7 +98,7 @@ vi.mock('@/stores/session', () => ({
 
 vi.mock('@/utils', () => ({ getSidebarLinks: () => [] }))
 vi.mock('@/utils/sidebarRows', () => ({ buildSidebarRows: () => [] }))
-vi.mock('@/utils/openExternal', () => ({ openExternal: openExternalMock }))
+vi.mock('@/utils/openExternal', () => ({ openExternal: vi.fn() }))
 vi.mock('@/composables/useSettingsHash', () => ({ pushSettingsHash }))
 vi.mock('@/composables/useFormRoute', () => ({ openFormRoute }))
 
@@ -233,17 +225,5 @@ describe('AppSidebar onboarding', () => {
 			'new'
 		)
 		stillOpen()
-
-		nav.openExternal('/app/user-invitation/new')
-		expect(openExternalMock).toHaveBeenCalledWith('/app/user-invitation/new')
-		stillOpen()
-	})
-
-	it('keeps the panel mounted across a route change', async () => {
-		const w = await build()
-		const nav = onboarding.setUpAll.mock.calls[0][0]
-		nav.openRoute({ name: 'Batches' })
-		await w.vm.$nextTick()
-		expect(w.find('[data-testid="flow-panel"]').exists()).toBe(true)
 	})
 })

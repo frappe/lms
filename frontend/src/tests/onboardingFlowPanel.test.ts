@@ -206,10 +206,10 @@ describe('list screen', () => {
 		const rows = w.findAll('[data-testid="flow-row"]')
 		expect(rows.map((r) => r.text())).toEqual([
 			'Publish my first course0/6',
-			'Onboard my existing learners0/3',
-			'Start a live class0/4',
+			'Run my first live class1/6',
+			'Onboard existing users0/2',
 		])
-		expect(w.html()).toContain('title="Bring your learners into a batch."')
+		expect(w.html()).toContain('title="Set up email and bring your users in."')
 	})
 
 	// Guards: a finished card row looking unfinished. Introduced in this branch
@@ -262,20 +262,19 @@ describe('list screen', () => {
 		expect(button(w, 'Reset all')).toBeUndefined()
 	})
 
-	it('opens the learners card on its three steps with no question', async () => {
+	// Guards: the users card opening on the wrong steps or asking a question.
+	// Introduced in this branch (feat/onboarding-flows, PR pending); test added
+	// there to pin its checklist.
+	it('opens the users card on its two steps with no question', async () => {
 		const { o, w } = await setUp()
-		await w.findAll('[data-testid="flow-row"]')[1].trigger('click')
+		await w.findAll('[data-testid="flow-row"]')[2].trigger('click')
 		expect(o.screen.value).toBe('flow')
 		expect(hero(w)).toEqual({
-			title: 'Onboard my existing learners',
-			count: '0/3 steps completed',
+			title: 'Onboard existing users',
+			count: '0/2 steps completed',
 		})
 		expect(w.findAll('[data-testid="step-open"]').map((t) => t.text())).toEqual(
-			[
-				'Import learners in bulk',
-				'Add a learner by email',
-				'Invite learners by email',
-			]
+			['Set up email', 'Import users in bulk']
 		)
 		expect(w.find('[data-testid="answer-switch"]').exists()).toBe(false)
 	})
@@ -292,44 +291,48 @@ describe('list screen', () => {
 	})
 })
 
-describe('question screen', () => {
-	it('puts the flow title and the question in the hero, with no badge row', async () => {
-		const { w } = await setUp()
-		await w.findAll('[data-testid="flow-row"]')[2].trigger('click')
-		expect(hero(w)).toEqual({
-			title: 'Start a live class',
-			count: 'Which meeting tool do you use?',
-		})
-		expect(w.find('.badge').exists()).toBe(false)
-	})
-
-	it('labels both options with their step counts', async () => {
-		const { w } = await setUp()
-		await w.findAll('[data-testid="flow-row"]')[2].trigger('click')
-		const options = w.findAll('[data-testid="question-option"]')
-		expect(options.map((o) => o.text())).toEqual([
-			'Zoom4 steps',
-			'Google Meet6 steps',
-		])
-		expect(w.html()).toContain('title="Host classes from a Zoom account."')
-	})
-
-	it('answering opens that answer’s checklist with its step titles', async () => {
+describe('run my first live class', () => {
+	// Guards: the live class card asking for the tool up front, or showing the
+	// switch before a pick. Introduced in this branch (feat/onboarding-flows, PR
+	// pending); test added there to pin the pre-choice checklist.
+	it('opens on the batch steps and the tool choice, with no question first', async () => {
 		const { o, w } = await setUp()
-		await w.findAll('[data-testid="flow-row"]')[2].trigger('click')
-		await w.findAll('[data-testid="question-option"]')[1].trigger('click')
+		await w.findAll('[data-testid="flow-row"]')[1].trigger('click')
+		expect(o.openFlow.value?.id).toBe('live_class')
+		expect(hero(w)).toEqual({
+			title: 'Run my first live class',
+			count: '0/3 steps completed',
+		})
+		expect(w.findAll('[data-testid="step-open"]').map((t) => t.text())).toEqual(
+			['Create a batch', 'Fill in batch details', 'Choose a meeting tool']
+		)
+		expect(w.find('[data-testid="answer-switch"]').exists()).toBe(false)
+	})
+
+	it('picking a tool on the step opens that tool’s checklist with progress kept', async () => {
+		const { o, w } = await setUp()
+		await w.findAll('[data-testid="flow-row"]')[1].trigger('click')
+		o.toggleStep('live_class', 'create_first_batch')
 		await flushPromises()
-		expect(o.screen.value).toBe('flow')
-		expect(hero(w).count).toBe('0/6 steps completed')
-		const titles = w.findAll('[data-testid="step-open"]').map((r) => r.text())
+		await w
+			.find('[data-testid="step-choice"]')
+			.findAll('.option')
+			.find((x) => x.text() === 'Google Meet')!
+			.trigger('click')
+		await flushPromises()
+		expect(o.openFlow.value?.id).toBe('live_class_meet')
+		expect(hero(w).count).toBe('2/8 steps completed')
+		const titles = w.findAll('[data-testid="step-open"]').map((t) => t.text())
 		expect(titles).toContain('Set up Google API')
-		expect(titles).toContain('Add a Google Meet account')
 		expect(w.find('[data-testid="answer-switch"]').text()).toContain(
 			'Meeting tool: Google Meet'
 		)
 	})
 
-	it('switching the answer switches the checklist', async () => {
+	// Guards: the answer switch changing its label but not the checklist.
+	// Introduced in this branch (feat/onboarding-flows, PR pending); test added
+	// there to check the flow follows the answer.
+	it('switching the tool afterwards switches the checklist', async () => {
 		const { o, w } = await setUp()
 		o.answer('live_class', 'zoom')
 		await flushPromises()
@@ -441,21 +444,25 @@ describe('help centre', () => {
 })
 
 describe('sidebar rows', () => {
-	it('renders list rows, question options and help rows as SidebarItems', async () => {
+	// Guards: panel rows rebuilt from custom markup that drifts from the sidebar.
+	// Introduced in this branch (feat/onboarding-flows, PR pending); test added
+	// there to keep them SidebarItems.
+	it('renders list rows and help rows as SidebarItems', async () => {
 		const { w } = await setUp()
 		const inSidebarItem = (selector: string) =>
 			w
 				.findAll(selector)
 				.every((el) => el.element.closest('.sidebar-item') !== null)
 		expect(inSidebarItem('[data-testid="flow-row"]')).toBe(true)
-		await w.findAll('[data-testid="flow-row"]')[2].trigger('click')
-		expect(inSidebarItem('[data-testid="question-option"]')).toBe(true)
 		await w.find('[data-testid="footer-row"]').trigger('click')
 		expect(inSidebarItem('[data-testid="help-article"]')).toBe(true)
 	})
 })
 
 describe('stale stored ids', () => {
+	// Guards: a card id saved by an older build crashing the panel. Introduced in
+	// this branch (feat/onboarding-flows, PR pending); test added there to check
+	// the fallback to the list.
 	it('an unknown stored card lands on the list without throwing', async () => {
 		localStorage.setItem('learningOnboardingCard' + USER, 'live_class_old')
 		localStorage.setItem('learningOnboardingFlow' + USER, 'live_class')
@@ -464,16 +471,19 @@ describe('stale stored ids', () => {
 		expect(w.findAll('[data-testid="flow-row"]')).toHaveLength(3)
 	})
 
-	it('an unknown stored answer asks the question again', async () => {
+	// Guards: a stale saved answer crashing the live class card. Introduced in
+	// this branch (feat/onboarding-flows, PR pending); test added there to check
+	// the pre-choice fallback.
+	it('an unknown stored answer falls back to the pre-choice flow', async () => {
 		localStorage.setItem('learningOnboardingCard' + USER, 'live_class')
 		localStorage.setItem(
 			'learningOnboardingAnswers' + USER,
 			JSON.stringify({ live_class: 'teams' })
 		)
 		const { o, w } = await setUp()
-		expect(o.screen.value).toBe('question')
-		expect(w.findAll('[data-testid="question-option"]')).toHaveLength(2)
-		expect(w.find('[data-testid="flow-step"]').exists()).toBe(false)
+		expect(o.screen.value).toBe('flow')
+		expect(o.openFlow.value?.id).toBe('live_class')
+		expect(w.findAll('[data-testid="flow-step"]')).toHaveLength(3)
 	})
 })
 

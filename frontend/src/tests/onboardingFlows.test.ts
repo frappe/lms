@@ -20,7 +20,6 @@ function fakeNav(facts: Partial<OnboardingFacts> = {}): FlowNavigation {
 		openRoute: vi.fn(),
 		openForm: vi.fn(),
 		openSettings: vi.fn(),
-		openExternal: vi.fn(),
 		complete: vi.fn(),
 	}
 }
@@ -34,16 +33,17 @@ function stepsOf(id: string, nav = fakeNav()) {
 const flowRows = FLOWS.map((f) => ({ id: f.id }))
 
 describe('flow registry', () => {
-	it('ships four flows with their framework keys', () => {
+	it('ships five flows with their framework keys', () => {
 		expect(FLOWS.map((f) => [f.id, f.key])).toEqual([
 			['publish_course', 'learning_publish_course'],
-			['onboard_learners', 'learning_onboard_learners'],
+			['live_class', 'learning_live_class'],
 			['live_class_zoom', 'learning_live_class_zoom'],
 			['live_class_meet', 'learning_live_class_meet'],
+			['onboard_learners', 'learning_onboard_learners'],
 		])
 	})
 
-	it('groups them into three cards with the design copy', () => {
+	it('groups them into three cards in the persona order', () => {
 		expect(CARDS.map((c) => [c.id, c.title, c.description])).toEqual([
 			[
 				'publish_course',
@@ -51,25 +51,25 @@ describe('flow registry', () => {
 				'Set up your first course and lessons.',
 			],
 			[
-				'onboard_learners',
-				'Onboard my existing learners',
-				'Bring your learners into a batch.',
+				'live_class',
+				'Run my first live class',
+				'Create a batch, pick a meeting tool and schedule a class.',
 			],
 			[
-				'live_class',
-				'Start a live class',
-				'Create a batch, connect a meeting tool and schedule a class.',
+				'onboard_learners',
+				'Onboard existing users',
+				'Set up email and bring your users in.',
 			],
 		])
 	})
 
-	it('asks nothing before onboarding learners', () => {
+	it('asks nothing before onboarding users', () => {
 		const card = getCard('onboard_learners')!
 		expect(card.question).toBeUndefined()
 		expect(card.flows.map((f) => f.id)).toEqual(['onboard_learners'])
 	})
 
-	it('asks which meeting tool', () => {
+	it('offers the meeting tools as the live class choice', () => {
 		const q = getCard('live_class')!.question!
 		expect([q.label, q.title]).toEqual([
 			'Meeting tool',
@@ -85,15 +85,39 @@ describe('flow registry', () => {
 		])
 	})
 
+	it('runs the live class on its pre-choice flow until a tool is picked', () => {
+		const live = getCard('live_class')!
+		expect(flowForAnswer(live, null)?.id).toBe('live_class')
+		expect(flowForAnswer(live, 'teams')?.id).toBe('live_class')
+		expect(flowForAnswer(live, 'meet')?.id).toBe('live_class_meet')
+	})
+
+	it('starts every live class key with the same three steps', () => {
+		const head = [
+			'create_first_batch',
+			'fill_batch_details',
+			'choose_meeting_tool',
+		]
+		for (const id of ['live_class', 'live_class_zoom', 'live_class_meet'])
+			expect(
+				stepsOf(id)
+					.slice(0, 3)
+					.map((s) => s.name)
+			).toEqual(head)
+		expect(stepsOf('live_class')).toHaveLength(3)
+	})
+
+	it('marks the meeting tool step as the live class choice', () => {
+		const choose = stepsOf('live_class')[2]
+		expect(choose.chooses).toBe('live_class')
+		expect(choose.fact).toBeUndefined()
+	})
+
 	it('publish course has no question', () => {
 		expect(getCard('publish_course')!.question).toBeUndefined()
 	})
 
-	it('resolves a card to its answer’s flow', () => {
-		const live = getCard('live_class')!
-		expect(flowForAnswer(live, 'meet')?.id).toBe('live_class_meet')
-		expect(flowForAnswer(live, null)).toBeNull()
-		expect(flowForAnswer(live, 'teams')).toBeNull()
+	it('resolves a card without a question to its only flow', () => {
 		expect(flowForAnswer(getCard('publish_course')!, null)?.id).toBe(
 			'publish_course'
 		)
@@ -112,17 +136,19 @@ describe('flow registry', () => {
 			],
 		},
 		{
-			id: 'onboard_learners',
+			id: 'live_class',
 			titles: [
-				'Import learners in bulk',
-				'Add a learner by email',
-				'Invite learners by email',
+				'Create a batch',
+				'Fill in batch details',
+				'Choose a meeting tool',
 			],
 		},
 		{
 			id: 'live_class_zoom',
 			titles: [
 				'Create a batch',
+				'Fill in batch details',
+				'Choose a meeting tool',
 				'Connect a Zoom account',
 				'Schedule a live class',
 				'Publish the batch',
@@ -132,12 +158,18 @@ describe('flow registry', () => {
 			id: 'live_class_meet',
 			titles: [
 				'Create a batch',
+				'Fill in batch details',
+				'Choose a meeting tool',
 				'Set up Google API',
 				'Connect Google Calendar',
 				'Add a Google Meet account',
 				'Schedule a live class',
 				'Publish the batch',
 			],
+		},
+		{
+			id: 'onboard_learners',
+			titles: ['Set up email', 'Import users in bulk'],
 		},
 	])('$id keeps its step order', ({ id, titles }) => {
 		expect(stepsOf(id).map((s) => s.title)).toEqual(titles)
@@ -148,15 +180,32 @@ describe('flow registry', () => {
 			id: 'publish_course',
 			actions: ['Create', 'Add', 'Add', 'Add', 'Set', 'Publish'],
 		},
-		{ id: 'onboard_learners', actions: ['Import', 'Add', 'Invite'] },
+		{ id: 'live_class', actions: ['Create', 'Fill in', 'Choose'] },
 		{
 			id: 'live_class_zoom',
-			actions: ['Create', 'Connect', 'Schedule', 'Publish'],
+			actions: [
+				'Create',
+				'Fill in',
+				'Choose',
+				'Connect',
+				'Schedule',
+				'Publish',
+			],
 		},
 		{
 			id: 'live_class_meet',
-			actions: ['Create', 'Set up', 'Connect', 'Add', 'Schedule', 'Publish'],
+			actions: [
+				'Create',
+				'Fill in',
+				'Choose',
+				'Set up',
+				'Connect',
+				'Add',
+				'Schedule',
+				'Publish',
+			],
 		},
+		{ id: 'onboard_learners', actions: ['Set up', 'Import'] },
 	])('$id gives every step a short action verb', ({ id, actions }) => {
 		expect(stepsOf(id).map((s) => s.actionLabel)).toEqual(actions)
 	})
@@ -202,7 +251,7 @@ describe('flow registry', () => {
 	})
 
 	it('reads an unknown id as undefined', () => {
-		expect(getFlow('live_class')).toBeUndefined()
+		expect(getFlow('live_class_old')).toBeUndefined()
 		expect(getCard(null)).toBeUndefined()
 	})
 })
@@ -273,7 +322,7 @@ describe('step targets', () => {
 		expect(nav[via]).toHaveBeenCalledWith(to)
 	})
 
-	it('opens the data import for users to import learners in bulk', () => {
+	it('opens the data import for users to import them in bulk', () => {
 		const nav = fakeNav()
 		click('onboard_learners', 'import_learners', nav)
 		expect(nav.openRoute).toHaveBeenCalledWith({
@@ -282,23 +331,28 @@ describe('step targets', () => {
 		})
 	})
 
-	it('opens the desk User Invitation form to invite by email', () => {
-		const nav = fakeNav()
-		click('onboard_learners', 'invite_learners', nav)
-		expect(nav.openExternal).toHaveBeenCalledWith('/app/user-invitation/new')
+	it('opens the first batch’s settings to fill in its details', () => {
+		const nav = fakeNav(facts)
+		click('live_class', 'fill_batch_details', nav)
+		expect(nav.openRoute).toHaveBeenCalledWith({
+			name: 'BatchDetail',
+			params: { batchName: 'my-batch' },
+			hash: '#settings',
+		})
 	})
 
-	it('has no batch steps for onboarding learners', () => {
+	it('has no invitation steps for onboarding users', () => {
 		const names = stepsOf('onboard_learners').map((s) => s.name)
+		expect(names).not.toContain('add_learner')
+		expect(names).not.toContain('invite_learners')
 		expect(names).not.toContain('create_first_batch')
-		expect(names).not.toContain('add_batch_course')
 	})
 
 	it.each([
 		{
 			id: 'onboard_learners',
-			name: 'add_learner',
-			slug: 'members',
+			name: 'setup_email',
+			slug: 'email-accounts',
 			record: 'new',
 		},
 		{
