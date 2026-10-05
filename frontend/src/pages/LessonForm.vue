@@ -1,5 +1,5 @@
 <template>
-	<div class="py-6 sm:py-10">
+	<div ref="formRef" class="py-6 sm:py-10">
 		<div class="mx-0 space-y-6 px-4 sm:mx-10 sm:px-20">
 			<button
 				v-if="isMobile"
@@ -77,6 +77,7 @@
 				class="lesson-title block w-full resize-none overflow-hidden border-0 bg-transparent p-0 text-2xl font-bold leading-tight text-ink-gray-9 placeholder:text-ink-gray-4 focus:outline-none focus:ring-0 focus-visible:ring-2 focus-visible:ring-outline-gray-5"
 				@input="onTitleInput"
 				@keydown.enter="onTitleEnter"
+				@blur="onTitleBlur"
 			/>
 
 			<details
@@ -170,6 +171,7 @@ const editor = ref(null)
 const instructorEditor = ref(null)
 const user = inject('$user')
 const titleRef = ref(null)
+const formRef = ref(null)
 
 // A lesson title is one line. The field stays a textarea so a long title wraps
 // and grows; only the explicit break is refused.
@@ -184,6 +186,10 @@ function onTitleInput() {
 	lesson.title = toSingleLineTitle(lesson.title)
 	autoGrowTitle()
 	markDirty({ fromTitle: true })
+}
+
+function onTitleBlur() {
+	if (isDraft.value) createDraftLesson()
 }
 
 // EditorJS can't focus while the card is collapsed (display:none).
@@ -207,7 +213,7 @@ const instructorUploadContext = reactive({
 const { capture } = useTelemetry()
 const { updateOnboardingStep } = useOnboarding('learning')
 
-const emit = defineEmits(['saved'])
+const emit = defineEmits(['saved', 'created'])
 
 // True after initial render, so render()'s onChange doesn't autosave.
 let initialLoadComplete = false
@@ -256,7 +262,17 @@ const props = defineProps({
 		type: String,
 		required: true,
 	},
+	// A new lesson for this chapter (docname), created once its title is typed.
+	draftChapter: {
+		type: String,
+		default: '',
+	},
 })
+
+// Read once: the parent swaps the props to the created lesson's without
+// remounting, and that must not turn this form back into a draft.
+const draftChapter = props.draftChapter
+const isDraft = ref(Boolean(draftChapter))
 
 const isDirty = ref(false)
 // Set once the Course Lesson exists. Its Lesson Reference is a second request,
@@ -275,6 +291,7 @@ const autoSave = useDebounceFn(() => {
 
 function markDirty({ fromTitle = false } = {}) {
 	if (lessonDeleted) return
+	if (isDraft.value) return markDraftDirty(fromTitle)
 	if (!lessonDetails.data?.lesson) return
 	// render() fires onChange; gate non-title saves until loaded.
 	if (!fromTitle && !initialLoadComplete) return
@@ -299,7 +316,84 @@ onMounted(() => {
 	}
 	capture('lesson_form_opened')
 	enablePlyr()
+	if (isDraft.value) openDraft()
 })
+
+// A draft has nothing to load: arm the editors once they are ready and put the
+// caret in the title. Focus again after the editors settle, unless the author
+// has already moved on, in case closing the mobile outline sheet took it.
+function openDraft() {
+	titleRef.value?.focus()
+	Promise.all([
+		editor.value?.isReady(),
+		instructorEditor.value?.isReady(),
+	]).then(() => {
+		initialLoadComplete = true
+		if (!formRef.value?.contains(document.activeElement)) {
+			titleRef.value?.focus()
+		}
+	})
+}
+
+// Before the lesson exists, body edits are only captured; the title schedules
+// the create. The first save after the create writes the captured edits.
+function markDraftDirty(fromTitle) {
+	if (fromTitle) return createDraftAfterIdle()
+	if (!initialLoadComplete) return
+	isDirty.value = true
+	captureEditors()
+}
+
+const createLessonResource = createResource({
+	url: 'lms.lms.api.create_lesson',
+	makeParams: (values) => values,
+})
+
+// Guards the one create: idle ticks, blur and Ctrl+S during the request must
+// not insert a second lesson. Cleared only when the request fails.
+let creatingDraft = false
+let createdTitle = ''
+
+const createDraftAfterIdle = useDebounceFn(() => createDraftLesson(), 3000)
+
+function createDraftLesson({ flush = false } = {}) {
+	if (!isDraft.value || creatingDraft || lessonDeleted) return
+	if (isUnmounting && !flush) return
+	const title = lesson.title.trim()
+	if (!title) return
+	creatingDraft = true
+	createdTitle = title
+	return submitResource(
+		createLessonResource,
+		{ chapter: draftChapter, title },
+		{
+			onSuccess: promoteDraft,
+			onError(err) {
+				creatingDraft = false
+				toast.error(resourceErrorMessage(err))
+			},
+		}
+	)
+}
+
+// The form stays mounted, so the title keeps its focus and caret. From here on
+// it is an ordinary lesson and saves through the 800 ms autosave.
+function promoteDraft(name) {
+	isDraft.value = false
+	lessonDetails.data = {
+		chapter: { name: draftChapter },
+		lesson: { name, title: createdTitle },
+	}
+	contentUploadContext.docname = name
+	instructorUploadContext.docname = name
+	capture('lesson_created')
+	emit('created', { name, chapter: draftChapter })
+	// Typed while the create was in flight.
+	if (lesson.title.trim() !== createdTitle) isDirty.value = true
+	if (!isDirty.value) return
+	if (isUnmounting) saveLesson({ flush: true })
+	else autoSave()
+}
 
 // ignoreTyping:false enables Ctrl+S in title; guard spares ProseMirror.
 useKeyboardShortcuts({
@@ -329,7 +423,7 @@ const lessonDetails = createResource({
 		chapter: props.chapterNumber,
 		lesson: props.lessonNumber,
 	},
-	auto: true,
+	auto: !isDraft.value,
 	onSuccess(data) {
 		if (data.lesson) {
 			unreadable.content = false
@@ -352,10 +446,9 @@ const lessonDetails = createResource({
 						// Loaded content isn't user input; arm autosave after render.
 						isDirty.value = false
 						initialLoadComplete = true
-						// A freshly created lesson opens empty as "Untitled lesson".
-						// Focus the title so it can be named (and so the block editor
-						// doesn't grab the caret out from under the title). Existing
-						// lessons focus the body for content editing.
+						// An empty lesson focuses the title so it can be named (and so
+						// the block editor doesn't grab the caret out from under the
+						// title). Lessons with a body focus the body for editing.
 						if (!data.lesson.content && !data.lesson.body) {
 							titleRef.value?.focus()
 						} else {
@@ -410,6 +503,12 @@ onBeforeUnmount(() => {
 	isUnmounting = true
 	// Flush unsaved edits before teardown; skip if deleted.
 	if (lessonDeleted) return
+	if (isDraft.value) {
+		// Read the editors before they are destroyed; the create writes them after.
+		if (initialLoadComplete) captureEditors()
+		createDraftLesson({ flush: true })
+		return
+	}
 	if (isDirty.value && lessonDetails.data?.lesson) saveLesson({ flush: true })
 })
 
@@ -495,6 +594,7 @@ const captureEditors = async () => {
 }
 
 function saveLesson({ flush = false } = {}) {
+	if (isDraft.value) return createDraftLesson({ flush })
 	// foldEditorData skips unreadable fields, so `lesson` still holds their stored
 	// strings and the write puts them back unchanged rather than blanking them.
 	warnUnreadable()
