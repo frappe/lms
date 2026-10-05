@@ -1,7 +1,7 @@
 <template>
 	<FileUploader
 		:file-types="image_type"
-		:uploadArgs="{ private: is_private }"
+		:private="is_private"
 		:validateFile="validate"
 		@success="(file) => emit('upload', file.file_url)"
 	>
@@ -9,7 +9,7 @@
 			<div class="flex items-end space-x-1 rtl:space-x-reverse">
 				<Button
 					:data-testid="testid ? `${testid}-upload` : undefined"
-					:iconLeft="uploading ? 'cloud-upload' : 'lucide-image-up'"
+					iconLeft="lucide-image-up"
 					:loading="uploading"
 					:disabled="disabled"
 					:label="

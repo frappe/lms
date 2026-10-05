@@ -105,7 +105,6 @@ const createResourceMock = (opts: ResourceOptions) => {
 
 vi.mock('frappe-ui', () => ({
 	toast: toastMock,
-	call: vi.fn(),
 	usePageMeta: vi.fn(),
 	createResource: (opts: ResourceOptions) => createResourceMock(opts),
 	Breadcrumbs: { template: '<div />' },
@@ -121,14 +120,21 @@ vi.mock('frappe-ui', () => ({
 			'required',
 			'disabled',
 			'placeholder',
+			// Declared so a field-level error Billing hands the control is
+			// observable here; the real control renders it as InputError.
+			'error',
 		],
-		emits: ['update:modelValue', 'input'],
-		template: `<input
+		// As in rc.1, attrs land on the input; input and change emit the value.
+		inheritAttrs: false,
+		emits: ['update:modelValue'],
+		template: `<span><input
+			v-bind="$attrs"
 			:data-testid="'fc-' + label"
 			:type="type || 'text'"
 			:value="modelValue"
+			@input="$emit('update:modelValue', type === 'checkbox' ? $event.target.checked : $event.target.value)"
 			@change="$emit('update:modelValue', type === 'checkbox' ? $event.target.checked : $event.target.value)"
-		/>`,
+		/><span v-if="error" data-slot="error">{{ error }}</span></span>`,
 	},
 	Combobox: {
 		props: ['modelValue', 'options', 'label', 'required', 'placeholder'],
@@ -143,7 +149,8 @@ vi.mock('frappe-ui', () => ({
 	},
 }))
 
-vi.mock('frappe-ui/frappe', () => ({
+vi.mock('@framework/ui/telemetry/index', async (importOriginal) => ({
+	...(await importOriginal<typeof import('@framework/ui/telemetry/index')>()),
 	useTelemetry: () => ({ capture: vi.fn() }),
 }))
 vi.mock('@/stores/session', () => ({
@@ -319,6 +326,34 @@ describe('Billing: checkout validation errors reach the user', () => {
 		)
 	})
 
+	it('hands the consent error to the checkbox, not just the toast', async () => {
+		// The warning used to be a hand-rolled red div beside the control, so it
+		// was never tied to the checkbox for assistive tech. FormControl's own
+		// error region is, via aria-invalid / aria-errormessage.
+		const wrapper = await mountBilling()
+		await proceed(wrapper)
+
+		const error = wrapper
+			.findAll('[data-slot="error"]')
+			.find((node) => node.text().includes('consent'))
+		expect(error?.text()).toBe(
+			'Please provide your consent to proceed with the payment'
+		)
+	})
+
+	it('clears the consent error once the box is ticked', async () => {
+		const wrapper = await mountBilling()
+		await proceed(wrapper)
+		await consent(wrapper)
+		await proceed(wrapper)
+
+		expect(
+			wrapper
+				.findAll('[data-slot="error"]')
+				.some((node) => node.text().includes('consent'))
+		).toBe(false)
+	})
+
 	it('toasts readable text for an invalid state', async () => {
 		const wrapper = await mountBilling({ state: 'Gujrat' })
 		await consent(wrapper)
@@ -327,5 +362,37 @@ describe('Billing: checkout validation errors reach the user', () => {
 		expect(toastMock.error).toHaveBeenCalledWith(
 			expect.stringContaining('state')
 		)
+	})
+})
+
+describe('Billing: coupon field', () => {
+	beforeEach(() => {
+		submitted.length = 0
+		unhandled.length = 0
+		vi.clearAllMocks()
+	})
+
+	it('sends the typed coupon trimmed and upper-cased', async () => {
+		const wrapper = await mountBilling()
+		await wrapper
+			.find<HTMLInputElement>('input[aria-label="Coupon Code"]')
+			.setValue(' save10 ')
+		await consent(wrapper)
+		await proceed(wrapper)
+
+		expect(checkout()?.params.coupon_code).toBe('SAVE10')
+	})
+
+	it('treats a blank coupon as no coupon', async () => {
+		const wrapper = await mountBilling()
+		await wrapper
+			.find<HTMLInputElement>('input[aria-label="Coupon Code"]')
+			.setValue('   ')
+		await wrapper
+			.findAll('button')
+			.find((b) => b.text().includes('Apply'))!
+			.trigger('click')
+
+		expect(toastMock.error).toHaveBeenCalledWith('Please enter a coupon code')
 	})
 })

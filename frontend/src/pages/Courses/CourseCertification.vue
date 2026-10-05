@@ -12,7 +12,7 @@
 				</div>
 				<button
 					type="button"
-					class="border p-3 w-fit min-w-60 rounded-md space-y-2 hover:bg-surface-gray-1 cursor-pointer mt-5 text-start block"
+					class="border p-3 w-fit min-w-60 rounded-5 space-y-2 hover:bg-surface-gray-1 cursor-pointer mt-5 text-start block"
 					@click="openCertificate"
 				>
 					<div class="text-ink-gray-9 font-semibold">
@@ -35,6 +35,7 @@ import { computed, inject, watch } from 'vue'
 import PageHeader from '@/components/Layouts/pages/PageHeader.vue'
 import PageBody from '@/components/Layouts/pages/PageBody.vue'
 import { createResource, toast, usePageMeta } from 'frappe-ui'
+import type { FrappeResourceError } from 'frappe-ui'
 import { useRouter } from 'vue-router'
 import { sessionStore } from '../../stores/session'
 import UpcomingEvaluations from '@/components/UpcomingEvaluations.vue'
@@ -67,7 +68,7 @@ const certification = createResource({
 			})
 		}
 	},
-	onError(error: unknown) {
+	onError(error: FrappeResourceError) {
 		toast.error(
 			resourceErrorMessage(error, __('Could not load this certification.'))
 		)

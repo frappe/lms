@@ -33,7 +33,8 @@
    "label": "Member",
    "options": "User",
    "reqd": 1,
-   "search_index": 1
+   "search_index": 1,
+   "set_only_once": 1
   },
   {
    "default": "Student",
@@ -72,7 +73,8 @@
    "label": "Course",
    "options": "LMS Course",
    "reqd": 1,
-   "search_index": 1
+   "search_index": 1,
+   "set_only_once": 1
   },
   {
    "fieldname": "current_lesson",
@@ -135,13 +137,14 @@
    "fieldname": "enrollment_from_batch",
    "fieldtype": "Link",
    "label": "Enrollment from Batch",
-   "options": "LMS Batch"
+   "options": "LMS Batch",
+   "set_only_once": 1
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-01-28 18:07:58.529033",
+ "modified": "2026-09-29 12:00:00.000000",
  "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "LMS Enrollment",

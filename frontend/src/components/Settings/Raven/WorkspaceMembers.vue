@@ -88,8 +88,7 @@
 // workspace's channels, as many as the workspace has, and a list you may have
 // to type into is what a combobox is for. Same control CRM's GroupBy picker uses
 // (`apps/crm/frontend/src/components/GroupBy.vue`: frappe-ui `Combobox`, options
-// in memory, sitting in a list's control bar); frappe-ui's `Autocomplete` is
-// deprecated in favour of it.
+// in memory, sitting in a list's control bar).
 //
 // Filtering is client-side because the endpoint already returns the whole
 // membership in one call, it has to, since the channel list per member is
@@ -102,6 +101,7 @@
 // heading row stays put whatever is picked; frappe-ui truncates inside both
 // triggers already, so an overlong name ellipses rather than overflowing.
 import { Button, Combobox, Select, createResource, toast } from 'frappe-ui'
+import type { FrappeResourceError } from 'frappe-ui'
 import { computed, ref, watch } from 'vue'
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 import SettingsTable from '@/components/Layouts/settings/desktop/SettingsTable.vue'
@@ -132,7 +132,7 @@ const failed = ref(false)
 
 const resource = createResource<WorkspaceMember[]>({
 	url: 'raven_integration.api.list_workspace_members',
-	onError(err: { messages?: string[] }) {
+	onError(err: FrappeResourceError) {
 		failed.value = true
 		toast.error(err?.messages?.[0] ?? __('Could not load the members'))
 	},

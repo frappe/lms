@@ -8,9 +8,15 @@
  * reproduce that, which is why this file cannot merge into the other palette
  * suites — they stub the same module a different way.
  */
-import { describe, expect, it, vi } from 'vitest'
-import { mount } from '@vue/test-utils'
-import { nextTick, reactive } from 'vue'
+import { afterEach, describe, expect, it, vi } from 'vitest'
+import { reactive } from 'vue'
+import {
+	flush,
+	mountPalette,
+	paletteText,
+	type,
+	unmountPalette,
+} from './helpers/commandPalette'
 
 const resource: any = reactive({
 	loading: false,
@@ -18,11 +24,7 @@ const resource: any = reactive({
 })
 vi.mock('frappe-ui', () => ({
 	createResource: () => resource,
-	debounce: (fn: any) => fn,
-	Dialog: Object.assign(
-		{ props: ['open', 'size', 'bare'], template: `<div><slot /></div>` },
-		{ Title: { template: `<div><slot /></div>` } }
-	),
+	debounce: (fn: any) => Object.assign(fn, { cancel: () => {} }),
 }))
 vi.mock('vue-router', () => ({ useRouter: () => ({ push: vi.fn() }) }))
 vi.mock('@/stores/user', () => ({
@@ -54,37 +56,25 @@ vi.mock('@/stores/settings', () => ({
 }))
 vi.stubGlobal('__', (m: string) => (/{\d+}/.test(m) ? { format: () => m } : m))
 
-import CommandPalette from '@/components/CommandPalette/CommandPalette.vue'
+afterEach(unmountPalette)
 
 describe('typing with no results', () => {
 	it('does not claim "no results" before the first response lands', async () => {
-		const wrapper = mount(CommandPalette, {
-			props: { modelValue: true },
-			global: { mocks: { __: (globalThis as any).__ } },
-		})
+		await mountPalette()
 		resource.submit = vi.fn(() => {
 			resource.loading = true
 			return new Promise(() => {})
 		})
-		const input = wrapper.find('input')
-		await input.setValue('zz')
-		await input.trigger('input')
-		await nextTick()
+		await type('zz')
 
-		expect(wrapper.text()).not.toContain('No results')
+		expect(paletteText()).not.toContain('No results')
 	})
 
 	it('keeps the empty message steady across keystrokes', async () => {
-		const wrapper = mount(CommandPalette, {
-			props: { modelValue: true },
-			global: { mocks: { __: (globalThis as any).__ } },
-		})
-		const input = wrapper.find('input')
+		await mountPalette()
 		const frames: string[] = []
 		const snap = (label: string) =>
-			frames.push(
-				`${label}=${wrapper.text().includes('No results') ? 'MSG' : '---'}`
-			)
+			frames.push(`${label}=${paletteText().includes('No results') ? 'MSG' : '---'}`)
 
 		// A deliberate typist: each letter pauses long enough to fire its own request.
 		let release: (v: any) => void = () => {}
@@ -99,13 +89,10 @@ describe('typing with no results', () => {
 		})
 
 		for (const term of ['zz', 'zzq', 'zzqx']) {
-			await input.setValue(term)
-			await input.trigger('input')
-			await nextTick()
+			await type(term)
 			snap(`${term}:inflight`)
 			release([])
-			await nextTick()
-			await nextTick()
+			await flush()
 			snap(`${term}:settled`)
 		}
 		// Once it says "no results", it must not blink off while the next

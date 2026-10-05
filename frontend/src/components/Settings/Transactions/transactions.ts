@@ -1,6 +1,6 @@
 import { call, toast } from 'frappe-ui'
+import type { FrappeResourceError } from 'frappe-ui'
 import { markRaw } from 'vue'
-// @ts-expect-error router.js is still plain JS, so it has no declarations
 import router from '@/router'
 // @ts-expect-error utils/dialogs.js is still plain JS, so it has no declarations
 import { createDialog } from '@/utils/dialogs'
@@ -187,7 +187,7 @@ const removeTransaction = (name: string, close: () => void) => {
 			if (typeof close === 'function') close()
 			return reloadSettingsLists(DOCTYPE)
 		})
-		.catch((error: { messages?: string[] }) => {
+		.catch((error: FrappeResourceError) => {
 			toast.error(error?.messages?.[0] || __('Unable to delete transaction'))
 			console.error(error)
 		})
@@ -271,7 +271,7 @@ export const columns: SettingsListColumn[] = [
 			badges.push(
 				row.payment_received
 					? { label: __('Paid'), theme: 'green' as const }
-					: { label: __('Unpaid'), theme: 'orange' as const }
+					: { label: __('Unpaid'), theme: 'amber' as const }
 			)
 			if (row.payment_for_certificate)
 				badges.push({ label: __('Certificate'), theme: 'blue' as const })

@@ -42,11 +42,7 @@
 		class="grid flex-1 grid-cols-1 lg:min-h-0 lg:grid-cols-[7fr,3fr]"
 	>
 		<div class="flex min-h-0 flex-col overflow-y-auto px-5 py-5">
-			<div
-				v-if="previewing"
-				data-testid="quiz-preview"
-				class="mx-auto w-full max-w-2xl"
-			>
+			<div v-if="previewing" data-testid="quiz-preview" class="w-full">
 				<Quiz :quizName="quizDetails.doc.name" preview />
 			</div>
 			<template v-else>
@@ -106,7 +102,8 @@
 				<Alert
 					v-else-if="showOpenEndedNotice"
 					class="mb-5"
-					theme="yellow"
+					theme="amber"
+					dismissible
 					:title="__('Manual grading')"
 					@dismiss="dismissOpenEndedNotice"
 				>
@@ -411,7 +408,7 @@ import { useDebounceFn } from '@vueuse/core'
 
 import { onBeforeRouteLeave, useRouter } from 'vue-router'
 import { sanitizeOnWrite } from '@/utils/sanitizeOnWrite'
-import { useTelemetry } from 'frappe-ui/frappe'
+import { useTelemetry } from '@framework/ui/telemetry/index'
 import { resourceErrorMessage, submitResource } from '@/utils/resource'
 
 const { brand } = sessionStore()

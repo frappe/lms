@@ -75,11 +75,7 @@
 			<ListFooter
 				v-model="pageLength"
 				class="flex-wrap border-t px-5 py-2"
-				:options="{
-					rowCount: rows.length,
-					totalCount: resolvedCount,
-					pageLengthOptions,
-				}"
+				:options="{ pageLengthOptions }"
 			>
 				<template #right>
 					<div class="flex items-center">
@@ -105,13 +101,9 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import {
-	Button,
-	createResource,
-	FormControl,
-	ListFooter,
-	toast,
-} from 'frappe-ui'
+import { Button, createResource, FormControl, toast } from 'frappe-ui'
+import type { FrappeResourceError } from 'frappe-ui'
+import { ListFooter } from 'frappe-ui/experimental'
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 import PageHeader from '@/components/Layouts/pages/PageHeader.vue'
 import PageBody from '@/components/Layouts/pages/PageBody.vue'
@@ -223,8 +215,8 @@ const countResource = props.listResource
 			// Without this the heading just reads zero, which is indistinguishable
 			// from an empty list. Each page used to carry its own; the count moved
 			// here, so the report of its failure has to move here too.
-			onError(error: { messages?: string[] }) {
-				toast.error(error?.messages?.[0] || __('Could not count the list'))
+			onError(error: FrappeResourceError) {
+				toast.error(error.messages?.[0] || __('Could not count the list'))
 			},
 	  })
 	: null

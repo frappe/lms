@@ -7,6 +7,18 @@
 	display: none;
 }
 
+/* Embeds and images get rounded corners, without the assessment cards' border.
+   The class goes on the wrapper: Plyr replaces the element it initialises, and
+   an iframe does not clip its own corners everywhere. */
+.embed-tool {
+	border-radius: var(--radius-7);
+	overflow: hidden;
+}
+.cdx-simple-image__picture {
+	border-radius: var(--radius-7);
+	overflow: hidden;
+}
+
 /* Colors use frappe-ui (Espresso) design tokens, so the editor follows the
    app's light/dark theme automatically ([data-theme='dark'] flips them). */
 .ce-block__content {
@@ -25,6 +37,20 @@
 	background: var(--surface-gray-2) !important;
 	outline: 1px dotted var(--outline-gray-3);
 	border-radius: 6px;
+}
+
+/* Text selection: EditorJS injects `.codex-editor ::selection` with a fixed
+   #d4ecff and no text colour, so dark-mode ink became unreadable while dragging.
+   `body` outranks the injected rule, which lands later in <head>. The two
+   pseudo-elements stay separate rules: a browser drops a whole rule whose
+   selector list has one it does not know. */
+body .codex-editor ::selection {
+	background-color: var(--surface-blue-3);
+	color: var(--ink-gray-9);
+}
+body .codex-editor ::-moz-selection {
+	background-color: var(--surface-blue-3);
+	color: var(--ink-gray-9);
 }
 
 .ce-toolbar__actions,
@@ -114,7 +140,7 @@
 	justify-content: flex-start;
 	align-items: flex-start;
 	border-radius: 2px;
-	box-shadow: 0 3px 15px -3px rgba(13, 20, 33, 0.13);
+	box-shadow: var(--elevation-md);
 	position: absolute;
 	top: 100%;
 	margin: 5px 0;
@@ -139,6 +165,7 @@
 	display: flex !important;
 }
 
+/* token-exempt-start: highlight.js atom-one theme, own light/dark pair */
 .dark {
 	color: #abb2bf;
 	background-color: #282c34;
@@ -148,6 +175,7 @@
 	color: #383a42;
 	background-color: #fafafa;
 }
+/* token-exempt-end */
 
 .prose :where(pre):not(:where([class~='not-prose'], [class~='not-prose'] *)) {
 	overflow-x: unset;
@@ -183,20 +211,11 @@ iframe {
 	display: none !important;
 }
 
-.plyr__control--overlaid {
-	background: radial-gradient(
-		circle,
-		rgba(0, 0, 0, 0.4) 0%,
-		rgba(0, 0, 0, 0.5) 50%
-	);
-}
-
 .plyr__control:hover {
 	background: none;
 }
 
 .plyr--video {
-	border: 1px solid var(--outline-gray-2);
 	border-radius: 8px;
 }
 
@@ -212,6 +231,7 @@ iframe {
 	--color-border-icon-disabled: var(--outline-gray-1);
 	--color-background-item-hover: var(--surface-gray-3);
 	--color-background-item-focus: var(--surface-gray-2);
+	/* token-exempt: EditorJS builds its popover box-shadow around this colour, and --elevation-* are whole shadows */
 	--color-shadow: rgba(0, 0, 0, 0.12);
 }
 /* These default to a hardcoded #fff that doesn't flip in dark mode. */
@@ -293,7 +313,7 @@ iframe {
 }
 
 :root {
-	--plyr-range-fill-background: white;
+	--plyr-range-fill-background: white; /* token-exempt: range fill on the video, not the page */
 	--plyr-video-control-background-hover: transparent;
 }
 
@@ -315,7 +335,7 @@ iframe {
 	border: 1px solid var(--outline-gray-2);
 	border-radius: 8px;
 	background: var(--surface-elevation-2);
-	box-shadow: 0 8px 24px -6px rgba(0, 0, 0, 0.2);
+	box-shadow: var(--elevation-lg);
 	color: var(--ink-gray-7);
 }
 
@@ -373,7 +393,7 @@ iframe {
 	border: 1px solid var(--outline-gray-2);
 	border-radius: 8px;
 	background: var(--surface-elevation-2);
-	box-shadow: 0 8px 24px -6px rgba(0, 0, 0, 0.2);
+	box-shadow: var(--elevation-lg);
 }
 
 .ce-conversion-tool {

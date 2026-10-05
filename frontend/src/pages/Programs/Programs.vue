@@ -53,7 +53,7 @@
 			<button
 				type="button"
 				@click="openForm(row.name)"
-				class="block w-full cursor-pointer space-y-2 rounded-md border p-3 text-start hover:border-outline-gray-3"
+				class="block w-full cursor-pointer space-y-2 rounded-5 border p-3 text-start hover:border-outline-gray-3"
 			>
 				<div class="text-lg-semibold text-ink-gray-9">
 					{{ row.name }}

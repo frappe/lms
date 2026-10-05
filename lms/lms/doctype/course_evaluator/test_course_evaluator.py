@@ -19,6 +19,10 @@ EVALUATOR_NOWTIME = "lms.lms.doctype.course_evaluator.course_evaluator.nowtime"
 REQUEST_NOWTIME = "lms.lms.doctype.lms_certificate_request.lms_certificate_request.nowtime"
 EVALUATOR_GETDATE = "lms.lms.doctype.course_evaluator.course_evaluator.getdate"
 REQUEST_GETDATE = "lms.lms.doctype.lms_certificate_request.lms_certificate_request.getdate"
+# get_schedule anchors its window on nowdate() and then walks it with
+# getdate(). Pinning one clock and not the other leaves a test that starts
+# just before midnight asserting against two different days.
+EVALUATOR_NOWDATE = "lms.lms.doctype.course_evaluator.course_evaluator.nowdate"
 
 
 def _frozen_getdate(frozen_date):
@@ -32,14 +36,15 @@ def _frozen_getdate(frozen_date):
 
 
 class TestCourseEvaluator(BaseTestUtils):
-	def setUp(self):
-		super().setUp()
-		self.admin = self._create_user(
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
+		cls.admin = cls._create_user(
 			"frappe@example.com", "Frappe", "Admin", ["Moderator", "Course Creator", "Batch Evaluator"]
 		)
-		self.course = self._create_course()
-		self.evaluator = self._create_evaluator()
-		self.batch = self._create_batch(self.course.name)
+		cls.course = cls._create_course()
+		cls.evaluator = cls._create_evaluator()
+		cls.batch = cls._create_batch(cls.course.name)
 
 	def _slots(self, schedule):
 		"""Every slot, flattened. Groups are keyed by *display* date, so nothing
@@ -47,8 +52,18 @@ class TestCourseEvaluator(BaseTestUtils):
 		slot carries are what the booking is made of."""
 		return [slot for row in schedule for slot in row.get("slots")]
 
-	def test_schedule_day_and_time(self):
-		schedule = get_schedule(self.batch.courses[0].course, self.batch.name)
+	@patch(EVALUATOR_NOWTIME, return_value="00:00:00")
+	def test_schedule_day_and_time(self, _evaluator_nowtime):
+		# Every clock is pinned for the same reason test_schedule_dates pins
+		# them: unfrozen, today's own slot drops out of the schedule the moment
+		# its start time passes, taking the count below 14 for the rest of the
+		# day. That a started slot is withheld has its own tests.
+		today = getdate()
+		with (
+			patch(EVALUATOR_GETDATE, side_effect=_frozen_getdate(today)),
+			patch(EVALUATOR_NOWDATE, return_value=str(today)),
+		):
+			schedule = get_schedule(self.batch.courses[0].course, self.batch.name)
 		days = ["Monday", "Wednesday"]
 		self.assertGreaterEqual(len(schedule), 14)
 		for slot in self._slots(schedule):
@@ -63,7 +78,10 @@ class TestCourseEvaluator(BaseTestUtils):
 	@patch(EVALUATOR_NOWTIME, return_value="00:00:00")
 	def test_schedule_dates(self, _evaluator_nowtime):
 		today = getdate()
-		with patch(EVALUATOR_GETDATE, side_effect=_frozen_getdate(today)):
+		with (
+			patch(EVALUATOR_GETDATE, side_effect=_frozen_getdate(today)),
+			patch(EVALUATOR_NOWDATE, return_value=str(today)),
+		):
 			schedule = get_schedule(self.batch.courses[0].course, self.batch.name)
 			dates = sorted({getdate(slot.get("date")) for slot in self._slots(schedule)})
 		self.assertEqual(dates[0], self.calculated_first_date_of_schedule(today))
@@ -118,41 +136,42 @@ class TestTodaysSlots(BaseTestUtils):
 	today's slots are still bookable, or the picker offers one and the booking
 	throws."""
 
-	def setUp(self):
-		super().setUp()
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
 		# Frozen once, up front: get_schedule and LMSCertificateRequest.validate
-		# both call getdate() with no args to mean "today", and a midnight
-		# rollover mid-test must not let them disagree.
-		self.today = getdate()
-		for target in (EVALUATOR_GETDATE, REQUEST_GETDATE):
-			patcher = patch(target, side_effect=_frozen_getdate(self.today))
+		# both read "today" off the clock, and a midnight rollover mid-run must
+		# not let them disagree. _todays_slots asserts against cls.today, so the
+		# window get_schedule builds has to start on that date too.
+		cls.today = getdate()
+		frozen_getdate = _frozen_getdate(cls.today)
+		patchers = [
+			patch(EVALUATOR_GETDATE, side_effect=frozen_getdate),
+			patch(REQUEST_GETDATE, side_effect=frozen_getdate),
+			patch(EVALUATOR_NOWDATE, return_value=str(cls.today)),
+		]
+		for patcher in patchers:
 			patcher.start()
-			self.addCleanup(patcher.stop)
-		self.instructor = self._create_user(
+			cls.addClassCleanup(patcher.stop)
+		cls.instructor = cls._create_user(
 			"frappe@example.com", "Frappe", "Admin", ["Moderator", "Course Creator"]
 		)
-		self.course = self._create_course()
-		self.evaluator = self._create_evaluator_working_today()
-		self.previous_evaluator = frappe.db.get_value("LMS Course", self.course.name, "evaluator")
-		frappe.db.set_value("LMS Course", self.course.name, "evaluator", self.evaluator.name)
+		cls.course = cls._create_course()
+		cls.evaluator = cls._create_evaluator_working_today()
+		frappe.db.set_value("LMS Course", cls.course.name, "evaluator", cls.evaluator.name)
 
-	def tearDown(self):
-		frappe.set_user("Administrator")
-		frappe.db.set_value("LMS Course", self.course.name, "evaluator", self.previous_evaluator)
-		super().tearDown()
-
-	def _create_evaluator_working_today(self):
-		# Built fresh every run: the schedule is keyed to today's weekday, so a
+	@classmethod
+	def _create_evaluator_working_today(cls):
+		# Built once per class: the schedule is keyed to today's weekday, so a
 		# fixture left behind by an earlier day carries the wrong one.
 		email = f"today.evaluator.{frappe.generate_hash(length=8)}@example.com"
-		self._create_user(email, "Today", "Evaluator", ["Batch Evaluator"])
+		cls._create_user(email, "Today", "Evaluator", ["Batch Evaluator"])
 		evaluator = frappe.new_doc("Course Evaluator")
 		evaluator.evaluator = email
-		today = self.today.strftime("%A")
+		today = cls.today.strftime("%A")
 		evaluator.append("schedule", {"day": today, "start_time": "09:00:00", "end_time": "10:00:00"})
 		evaluator.append("schedule", {"day": today, "start_time": "16:00:00", "end_time": "17:00:00"})
 		evaluator.save()
-		self.cleanup_items.append(("Course Evaluator", evaluator.name))
 		return evaluator
 
 	def _todays_slots(self, schedule):
@@ -162,19 +181,17 @@ class TestTodaysSlots(BaseTestUtils):
 	def _start_times(self, slots):
 		return [format_time(slot["start_time"], "HH:mm:ss") for slot in slots]
 
-	@patch(EVALUATOR_NOWTIME, return_value="12:00:00")
-	def test_slot_that_already_started_today_is_not_offered(self, _evaluator_nowtime):
-		slots = self._todays_slots(get_schedule(self.course.name))
-		self.assertEqual(self._start_times(slots), ["16:00:00"])
-
-	@patch(EVALUATOR_NOWTIME, return_value="16:00:00")
-	def test_slot_starting_exactly_now_is_still_offered(self, _evaluator_nowtime):
-		slots = self._todays_slots(get_schedule(self.course.name))
-		self.assertEqual(self._start_times(slots), ["16:00:00"])
-
-	@patch(EVALUATOR_NOWTIME, return_value="18:00:00")
-	def test_no_slots_offered_for_today_once_all_have_started(self, _evaluator_nowtime):
-		self.assertEqual(self._todays_slots(get_schedule(self.course.name)), [])
+	def test_todays_slots_by_current_clock_time(self):
+		cases = [
+			("already_started_slot_not_offered", "12:00:00", ["16:00:00"]),
+			("slot_starting_exactly_now_still_offered", "16:00:00", ["16:00:00"]),
+			("no_slots_once_all_have_started", "18:00:00", []),
+		]
+		for case, now, expected_start_times in cases:
+			with self.subTest(case=case):
+				with patch(EVALUATOR_NOWTIME, return_value=now):
+					slots = self._todays_slots(get_schedule(self.course.name))
+					self.assertEqual(self._start_times(slots), expected_start_times)
 
 	@patch(REQUEST_NOWTIME, return_value="12:00:00")
 	@patch(EVALUATOR_NOWTIME, return_value="12:00:00")
@@ -201,7 +218,6 @@ class TestTodaysSlots(BaseTestUtils):
 				}
 			)
 			request.insert()
-			self.cleanup_items.append(("LMS Certificate Request", request.name))
 
 
 @patch("lms.lms.utils.get_system_timezone", return_value="Asia/Kolkata")
@@ -302,12 +318,13 @@ class TestSlotGrouping(UnitTestCase):
 
 
 class TestEvaluatorRoleCRUD(BaseTestUtils):
-	def setUp(self):
-		super().setUp()
-		self.admin = self._create_user(
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
+		cls.admin = cls._create_user(
 			"frappe@example.com", "Frappe", "Admin", ["Moderator", "Course Creator", "Batch Evaluator"]
 		)
-		self.test_user = self._create_user("eval_test@example.com", "Eval", "Tester", ["LMS Student"])
+		cls.test_user = cls._create_user("eval_test@example.com", "Eval", "Tester", ["LMS Student"])
 
 	def _has_batch_evaluator_role(self, user):
 		return frappe.db.exists("Has Role", {"parent": user, "role": "Batch Evaluator"})
@@ -323,8 +340,6 @@ class TestEvaluatorRoleCRUD(BaseTestUtils):
 
 		self.assertTrue(self._has_batch_evaluator_role(self.test_user.email))
 		self.assertTrue(self._has_course_evaluator(self.test_user.email))
-
-		self.cleanup_items.append(("Course Evaluator", self.test_user.email))
 
 	def test_remove_evaluator_role_removes_both(self):
 		"""save_role with value=0 should remove Has Role AND Course Evaluator."""

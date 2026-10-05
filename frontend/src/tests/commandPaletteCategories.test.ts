@@ -5,9 +5,17 @@
  * returns is decided by `get_grouped_results` on the server, which is where the
  * permission check that matters lives.
  */
-import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { mount } from '@vue/test-utils'
-import { nextTick } from 'vue'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import {
+	clickItem,
+	flush,
+	mountPalette,
+	paletteInput,
+	paletteItemValues,
+	type,
+	keydown,
+	unmountPalette,
+} from './helpers/commandPalette'
 
 const resource = {
 	next: null as unknown,
@@ -20,11 +28,8 @@ const resource = {
 
 vi.mock('frappe-ui', () => ({
 	createResource: () => resource,
-	debounce: (fn: (...args: unknown[]) => void) => fn,
-	Dialog: Object.assign(
-		{ props: ['open', 'size', 'bare'], template: `<div><slot /></div>` },
-		{ Title: { template: `<div><slot /></div>` } }
-	),
+	debounce: (fn: (...args: unknown[]) => void) =>
+		Object.assign(fn, { cancel: () => {} }),
 }))
 
 // Settings is addressed by the URL hash now, so opening it is a navigation:
@@ -36,10 +41,6 @@ const router = {
 	replace: vi.fn(),
 }
 vi.mock('vue-router', () => ({ useRouter: () => router }))
-
-vi.mock('@/components/CommandPalette/CommandPaletteGroup.vue', () => ({
-	default: { name: 'PaletteGroup', props: ['list'], template: `<div />` },
-}))
 
 const user = { data: {} as Record<string, unknown> }
 vi.mock('@/stores/user', () => ({ usersStore: () => ({ userResource: user }) }))
@@ -71,7 +72,7 @@ vi.stubGlobal('__', (message: string) => {
 	}
 })
 
-import CommandPalette from '@/components/CommandPalette/CommandPalette.vue'
+afterEach(unmountPalette)
 
 const links = (...routes: string[]) => [{ items: routes.map((to) => ({ to })) }]
 
@@ -106,43 +107,13 @@ const ADMIN = links(
 	'ProgrammingExercises'
 )
 
-function build() {
-	return mount(CommandPalette, {
-		props: { modelValue: true },
-		global: { mocks: { __: (globalThis as any).__ } },
-	})
+function titles() {
+	return paletteItemValues().map((item) => item.title)
 }
 
-function rows(wrapper: ReturnType<typeof build>) {
-	const list = wrapper
-		.findComponent({ name: 'PaletteGroup' })
-		.props('list') as any[]
-	return list.flatMap((group) => group.items)
-}
-
-function titles(wrapper: ReturnType<typeof build>) {
-	return rows(wrapper).map((item) => item.title)
-}
-
-function press(wrapper: ReturnType<typeof build>, key: string) {
-	return wrapper.find('input').trigger('keydown', { key })
-}
-
-/** Types `text` and lets the (undebounced) search settle. */
-async function type(wrapper: ReturnType<typeof build>, text: string) {
-	const input = wrapper.find('input')
-	await input.setValue(text)
-	await input.trigger('input')
-	await nextTick()
-}
-
-/** Arrows onto the row with `title` and opens it. */
-async function open(wrapper: ReturnType<typeof build>, title: string) {
-	const index = titles(wrapper).indexOf(title)
-	expect(index).toBeGreaterThanOrEqual(0)
-	for (let i = 0; i <= index; i++) await press(wrapper, 'ArrowDown')
-	await press(wrapper, 'Enter')
-	await nextTick()
+/** Clicks the row with `title` and opens it. */
+async function open(title: string) {
+	await clickItem((item) => item.title === title)
 }
 
 beforeEach(() => {
@@ -157,9 +128,9 @@ beforeEach(() => {
 })
 
 describe('command palette categories', () => {
-	it('offers a browse row for each category the user may see', () => {
-		const wrapper = build()
-		expect(titles(wrapper)).toEqual(
+	it('offers a browse row for each category the user may see', async () => {
+		await mountPalette()
+		expect(titles()).toEqual(
 			expect.arrayContaining(['Courses', 'Batches', 'Jobs', 'Programs'])
 		)
 	})
@@ -168,9 +139,10 @@ describe('command palette categories', () => {
 		{ who: 'guest', sidebar: GUEST, offered: false },
 		{ who: 'student', sidebar: STUDENT, offered: false },
 		{ who: 'admin', sidebar: ADMIN, offered: true },
-	])('offers Quizzes to a $who: $offered', ({ sidebar, offered }) => {
+	])('offers Quizzes to a $who: $offered', async ({ sidebar, offered }) => {
 		sidebarLinks.value = sidebar
-		expect(titles(build()).includes('Quizzes')).toBe(offered)
+		await mountPalette()
+		expect(titles().includes('Quizzes')).toBe(offered)
 	})
 
 	// The palette used to restate visibility itself and gave Programs no rule at
@@ -184,14 +156,16 @@ describe('command palette categories', () => {
 			offered: true,
 		},
 		{ who: 'admin', sidebar: ADMIN, offered: true },
-	])('offers Programs to a $who: $offered', ({ sidebar, offered }) => {
+	])('offers Programs to a $who: $offered', async ({ sidebar, offered }) => {
 		sidebarLinks.value = sidebar
-		expect(titles(build()).includes('Programs')).toBe(offered)
+		await mountPalette()
+		expect(titles().includes('Programs')).toBe(offered)
 	})
 
-	it('never offers a category the sidebar is withholding', () => {
+	it('never offers a category the sidebar is withholding', async () => {
 		sidebarLinks.value = GUEST
-		const offered = titles(build())
+		await mountPalette()
+		const offered = titles()
 		for (const hidden of ['Programs', 'Quizzes', 'Assignments']) {
 			expect(offered).not.toContain(hidden)
 		}
@@ -199,13 +173,9 @@ describe('command palette categories', () => {
 	})
 
 	it('scopes the search to the category that was opened', async () => {
-		const wrapper = build()
-		await open(wrapper, 'Batches')
-
-		const input = wrapper.find('input')
-		await input.setValue('autumn')
-		await input.trigger('input')
-		await nextTick()
+		await mountPalette()
+		await open('Batches')
+		await type('autumn')
 
 		expect(resource.params).toEqual(
 			expect.objectContaining({ query: 'autumn', category: 'batches' })
@@ -213,70 +183,65 @@ describe('command palette categories', () => {
 	})
 
 	it('leaves the search unscoped at the root', async () => {
-		const wrapper = build()
-		const input = wrapper.find('input')
-		await input.setValue('autumn')
-		await input.trigger('input')
-		await nextTick()
+		await mountPalette()
+		await type('autumn')
 
 		expect(resource.params.category).toBeUndefined()
 	})
 
 	it('backs out of a category on Backspace with an empty query', async () => {
-		const wrapper = build()
-		await open(wrapper, 'Courses')
-		expect(titles(wrapper)).not.toContain('Batches')
+		await mountPalette()
+		await open('Courses')
+		expect(titles()).not.toContain('Batches')
 
-		await press(wrapper, 'Backspace')
-		await nextTick()
+		await keydown(paletteInput(), 'Backspace')
 
-		expect(titles(wrapper)).toContain('Batches')
+		expect(titles()).toContain('Batches')
 	})
 
 	it('keeps a query intact when Backspace is a real edit', async () => {
-		const wrapper = build()
-		await open(wrapper, 'Courses')
-		const input = wrapper.find('input')
-		await input.setValue('kube')
-		await press(wrapper, 'Backspace')
-		await nextTick()
+		await mountPalette()
+		await open('Courses')
+		await type('kube')
+		await keydown(paletteInput(), 'Backspace')
 
-		expect(titles(wrapper)).not.toContain('Batches')
+		expect(titles()).not.toContain('Batches')
 	})
 
 	it.each([
 		{ role: 'student', data: { is_student: true }, visible: false },
 		{ role: 'instructor', data: { is_instructor: true }, visible: false },
 		{ role: 'moderator', data: { is_moderator: true }, visible: true },
-	])('shows Settings to a $role: $visible', ({ data, visible }) => {
+	])('shows Settings to a $role: $visible', async ({ data, visible }) => {
 		user.data = { ...data }
-		expect(titles(build()).includes('Settings')).toBe(visible)
+		await mountPalette()
+		expect(titles().includes('Settings')).toBe(visible)
 	})
 
 	// Settings is a dialog mounted by the desktop sidebar; on a phone nothing is
 	// listening to the flag, so the row would do nothing at all.
-	it('hides Settings when the settings dialog is not mounted', () => {
+	it('hides Settings when the settings dialog is not mounted', async () => {
 		settings.isSettingsMounted = false
-		expect(titles(build())).not.toContain('Settings')
+		await mountPalette()
+		expect(titles()).not.toContain('Settings')
 	})
 
 	// A scope that survived the close reopened the palette silently filtered.
 	it('forgets the category once the palette closes', async () => {
-		const wrapper = build()
-		await open(wrapper, 'Courses')
-		expect(titles(wrapper)).not.toContain('Batches')
+		const wrapper = await mountPalette()
+		await open('Courses')
+		expect(titles()).not.toContain('Batches')
 
 		await wrapper.setProps({ modelValue: false })
-		await nextTick()
 		await wrapper.setProps({ modelValue: true })
-		await nextTick()
+		await flush()
 
-		expect(titles(wrapper)).toContain('Batches')
+		expect(titles()).toContain('Batches')
 	})
 
 	it('opens the settings dialog rather than routing', async () => {
-		const wrapper = build()
-		await open(wrapper, 'Settings')
+		await mountPalette()
+		await open('Settings')
 
 		// The hash opens the dialog over whatever page is showing; a `name` here
 		// would mean the row had navigated away from it instead.
@@ -292,13 +257,14 @@ describe('command palette categories', () => {
  * rather than narrow the search to nothing.
  */
 describe('command palette jump-to targets', () => {
-	it('offers Statistics', () => {
-		expect(titles(build())).toContain('Statistics')
+	it('offers Statistics', async () => {
+		await mountPalette()
+		expect(titles()).toContain('Statistics')
 	})
 
 	it('navigates to Statistics rather than scoping the search', async () => {
-		const wrapper = build()
-		const row = rows(wrapper).find((item) => item.title === 'Statistics')
+		await mountPalette()
+		const row = paletteItemValues().find((item) => item.title === 'Statistics')
 		expect(row.category).toBeUndefined()
 		expect(row.route).toEqual(expect.objectContaining({ name: 'Statistics' }))
 	})
@@ -307,34 +273,37 @@ describe('command palette jump-to targets', () => {
 		{ label: 'Certifications', route: 'CertifiedParticipants' },
 		{ label: 'Programming Exercises', route: 'ProgrammingExercises' },
 		{ label: 'Home', route: 'Home' },
-	])('offers $label when the sidebar does', ({ label, route }) => {
+	])('offers $label when the sidebar does', async ({ label, route }) => {
 		sidebarLinks.value = links(route)
-		const row = rows(build()).find((item) => item.title === label)
+		await mountPalette()
+		const row = paletteItemValues().find((item) => item.title === label)
 		expect(row?.route).toEqual(expect.objectContaining({ name: route }))
 	})
 
 	// Contact Us's `to` is a URL or a mailto address, never a route name, so
 	// mapping sidebar entries blindly would push a garbage route.
-	it('never offers Contact Us', () => {
+	it('never offers Contact Us', async () => {
 		sidebarLinks.value = links(
 			'https://example.com/support',
 			'help@example.com'
 		)
-		expect(titles(build())).not.toContain('Contact Us')
-		expect(rows(build())).toHaveLength(1) // Settings, from the Account group
+		await mountPalette()
+		expect(titles()).not.toContain('Contact Us')
+		expect(paletteItemValues()).toHaveLength(1) // Settings, from the Account group
 	})
 
-	it('withholds a target the sidebar is withholding', () => {
+	it('withholds a target the sidebar is withholding', async () => {
 		sidebarLinks.value = links('Courses')
-		expect(titles(build())).not.toContain('Statistics')
+		await mountPalette()
+		expect(titles()).not.toContain('Statistics')
 	})
 
 	it.each(['Statistics', 'Certifications'])(
 		'finds %s by typing its name',
 		async (label) => {
-			const wrapper = build()
-			await type(wrapper, label.slice(0, 4).toLowerCase())
-			expect(titles(wrapper)).toContain(label)
+			await mountPalette()
+			await type(label.slice(0, 4).toLowerCase())
+			expect(titles()).toContain(label)
 		}
 	)
 })
@@ -345,16 +314,16 @@ describe('command palette jump-to targets', () => {
  */
 describe('command palette settings row', () => {
 	it('finds Settings by typing its name', async () => {
-		const wrapper = build()
-		await type(wrapper, 'sett')
+		await mountPalette()
+		await type('sett')
 
-		expect(titles(wrapper)).toContain('Settings')
+		expect(titles()).toContain('Settings')
 	})
 
 	it('still opens the dialog when reached by typing', async () => {
-		const wrapper = build()
-		await type(wrapper, 'sett')
-		await open(wrapper, 'Settings')
+		await mountPalette()
+		await type('sett')
+		await open('Settings')
 
 		const [to] = router.push.mock.calls[0]
 		expect(to.hash).toBe('#settings/general')
@@ -362,10 +331,10 @@ describe('command palette settings row', () => {
 
 	it('does not offer Settings to a searching student', async () => {
 		user.data = { is_student: true }
-		const wrapper = build()
-		await type(wrapper, 'sett')
+		await mountPalette()
+		await type('sett')
 
-		expect(titles(wrapper)).not.toContain('Settings')
+		expect(titles()).not.toContain('Settings')
 	})
 })
 
@@ -376,39 +345,44 @@ describe('command palette settings row', () => {
  * switched off was still offered a Jobs row.
  */
 describe('command palette site visibility flags', () => {
-	it('withholds a category the site has switched off', () => {
+	it('withholds a category the site has switched off', async () => {
 		settings.sidebarSettings.data = { jobs: 0 }
-		const offered = titles(build())
+		await mountPalette()
+		const offered = titles()
 		expect(offered).not.toContain('Jobs')
 		expect(offered).toContain('Courses')
 	})
 
-	it('withholds a nav target the site has switched off', () => {
+	it('withholds a nav target the site has switched off', async () => {
 		settings.sidebarSettings.data = { statistics: 0 }
-		expect(titles(build())).not.toContain('Statistics')
+		await mountPalette()
+		expect(titles()).not.toContain('Statistics')
 	})
 
 	// The flag key is the lowercased, underscored label, so a two-word target
 	// only matches if the label is converted the way AppSidebar converts it.
-	it('withholds a two-word nav target the site has switched off', () => {
+	it('withholds a two-word nav target the site has switched off', async () => {
 		settings.sidebarSettings.data = { programming_exercises: 0 }
-		expect(titles(build())).not.toContain('Programming Exercises')
+		await mountPalette()
+		expect(titles()).not.toContain('Programming Exercises')
 	})
 
-	it('keeps a row the flags say nothing about', () => {
+	it('keeps a row the flags say nothing about', async () => {
 		settings.sidebarSettings.data = { jobs: 0 }
-		expect(titles(build())).toContain('Quizzes')
+		await mountPalette()
+		expect(titles()).toContain('Quizzes')
 	})
 
-	it('offers everything while the flags are still unresolved', () => {
+	it('offers everything while the flags are still unresolved', async () => {
 		settings.sidebarSettings.data = null
-		expect(titles(build())).toContain('Jobs')
+		await mountPalette()
+		expect(titles()).toContain('Jobs')
 	})
 
 	it('withholds a switched-off category from a search too', async () => {
 		settings.sidebarSettings.data = { jobs: 0 }
-		const wrapper = build()
-		await type(wrapper, 'job')
-		expect(titles(wrapper)).not.toContain('Jobs')
+		await mountPalette()
+		await type('job')
+		expect(titles()).not.toContain('Jobs')
 	})
 })

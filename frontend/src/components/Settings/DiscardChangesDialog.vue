@@ -1,6 +1,6 @@
 <template>
 	<Dialog
-		v-model="open"
+		v-model:open="open"
 		:title="__('Discard changes?')"
 		:message="__('This form has unsaved changes. Leaving now discards them.')"
 		size="sm"

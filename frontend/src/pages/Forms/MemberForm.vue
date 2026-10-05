@@ -61,8 +61,10 @@
 </template>
 <script setup lang="ts">
 import { call, createResource, FormControl, toast } from 'frappe-ui'
+import type { FrappeResourceError } from 'frappe-ui'
 import { computed, inject, onMounted, reactive, ref, watch } from 'vue'
-import { useOnboarding, useTelemetry } from 'frappe-ui/frappe'
+import { useOnboarding } from '@framework/ui/components/Onboarding/index'
+import { useTelemetry } from '@framework/ui/telemetry/index'
 import RoleSwitches from '@/components/Controls/RoleSwitches.vue'
 import FormShell from '@/components/FormShell.vue'
 import HeaderButton from '@/components/HeaderButton.vue'
@@ -179,7 +181,7 @@ const reloadMembers = () => {
 	notifyMembersChanged()
 }
 
-const errorMessage = (err: { messages?: string[] }, fallback: string): string =>
+const errorMessage = (err: FrappeResourceError, fallback: string): string =>
 	cleanError(err.messages?.[0]) || fallback
 
 const assignRoles = async (userEmail: string) => {

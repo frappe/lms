@@ -17,13 +17,11 @@ const fillMemberField = async (page: Page, label: string, value: string) => {
 };
 
 const openUsersSettings = async (page: Page) => {
-	// Exact match, not a substring: on a fresh site with zero batches,
-	// EmptyStateLayout's "...fresh learning experiences are on the way!"
-	// also contains "learning" (hasText on a string is case-insensitive),
-	// so an unanchored match resolves to two elements.
+	// The header's title is the site's app name when one is set, so locate
+	// it by frappe-ui's slot marker instead.
 	await page
-		.locator("span")
-		.filter({ hasText: /^\s*Learning\s*$/ })
+		.getByRole("navigation", { name: "Main" })
+		.locator('[data-slot="sidebar-header"] button')
 		.click();
 	await page.getByRole("menuitem", { name: "Settings" }).click();
 	await page
@@ -220,7 +218,7 @@ test.describe("Batch Creation", () => {
 		// mobile copy, which is display:none on the desktop test viewport —
 		// scope these assertions to the visible overlay.
 		const overlay = page
-			.locator(".border-2.rounded-md.lg\\:w-72:visible")
+			.locator(".border-2.rounded-5.lg\\:w-72:visible")
 			.first();
 		await expect(overlay.getByText("01 Oct 2030 - 31 Oct 2030")).toBeVisible();
 		await expect(overlay.getByText("10:00 AM - 11:00 AM")).toBeVisible();
@@ -265,7 +263,7 @@ test.describe("Batch Creation", () => {
 			.filter({ hasText: "Overview" })
 			.click();
 		const overlayAfterEnroll = page
-			.locator(".border-2.rounded-md.lg\\:w-72:visible")
+			.locator(".border-2.rounded-5.lg\\:w-72:visible")
 			.first();
 		await expect(overlayAfterEnroll.getByText("9 Seats Left")).toBeVisible({
 			timeout: 10000,

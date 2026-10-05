@@ -1,18 +1,33 @@
 import frappe
-from frappe.tests.test_api import FrappeAPITestCase
 
 from lms.lms.test_helpers import BaseTestUtils
 
 
-class TestAssignmentSelfGrading(BaseTestUtils, FrappeAPITestCase):
+class TestAssignmentSelfGrading(BaseTestUtils):
 	"""A student must not be able to grade their own assignment submission."""
 
-	def setUp(self):
-		super().setUp()
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
 		hash = frappe.generate_hash(length=6)
-		self.student = self._create_user(f"astud-{hash}@example.com", "Ann", "Student", ["LMS Student"])
-		self.evaluator = self._create_user(f"aeval-{hash}@example.com", "Eve", "Aluator", ["Batch Evaluator"])
-		self.assignment = self._create_assignment(title=f"Grade Assignment {hash}")
+		cls.student = cls._create_user(f"astud-{hash}@example.com", "Ann", "Student", ["LMS Student"])
+		cls.evaluator = cls._create_user(f"aeval-{hash}@example.com", "Eve", "Aluator", ["Batch Evaluator"])
+		cls.assignment = cls._create_assignment(title=f"Grade Assignment {hash}")
+
+		# assessment_submission_has_permission requires an evaluator to be tagged on
+		# a batch that actually runs this assignment; a bystander role grants nothing.
+		course = cls._create_course(title=f"Grade Course {hash}", instructor="Administrator")
+		cls._create_evaluator(cls.evaluator.email)
+		batch = cls._create_batch(
+			course.name,
+			title=f"Grade Batch {hash}",
+			instructor="Administrator",
+			evaluator=cls.evaluator.email,
+		)
+		batch.append(
+			"assessment", {"assessment_type": "LMS Assignment", "assessment_name": cls.assignment.name}
+		)
+		batch.save()
 
 	def _make_submission(self, user, status="Not Graded"):
 		frappe.session.user = user
@@ -27,7 +42,6 @@ class TestAssignmentSelfGrading(BaseTestUtils, FrappeAPITestCase):
 				}
 			)
 			doc.insert()
-			self.cleanup_items.append(("LMS Assignment Submission", doc.name))
 			return doc.name
 		finally:
 			frappe.session.user = "Administrator"

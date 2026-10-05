@@ -27,39 +27,13 @@
 						/>
 					</div>
 
-					<div
-						v-else-if="field.type == 'code'"
-						class="py-3"
-						@input="report(field, 'typing')"
-						@focusout="report(field, 'now')"
-					>
-						<div
-							data-testid="code-field-label"
-							class="text-p-base-medium text-ink-gray-7 mb-2"
-						>
-							{{ __(field.label) }}
-							<span v-if="field.reqd" class="text-ink-red-6" aria-hidden="true"
-								>*</span
-							>
-						</div>
-						<CodeEditor
-							:type="codeType(field)"
+					<div v-else-if="field.type == 'code'" class="code-field py-3">
+						<SettingsCodeField
 							v-model="data[field.name]"
-							:height="codeHeight(field)"
-							class="shrink-0"
-							:required="field.reqd"
-							:readonly="field.disabled"
-							:showLineNumbers="true"
-							:aria-label="__(field.label)"
-						>
-						</CodeEditor>
-						<div
-							v-if="field.description"
-							data-testid="code-field-description"
-							class="text-p-sm text-ink-gray-5 mt-2"
-						>
-							{{ __(field.description) }}
-						</div>
+							:field="field"
+							@update:model-value="report(field, 'typing')"
+							@change="report(field, 'now')"
+						/>
 					</div>
 
 					<div
@@ -68,73 +42,78 @@
 						@input="report(field, 'typing')"
 						@focusout="report(field, 'now')"
 					>
-						<div class="text-p-base-medium text-ink-gray-7 mb-2">
-							{{ __(field.label) }}
-							<span v-if="field.reqd" class="text-ink-red-6" aria-hidden="true"
-								>*</span
-							>
-						</div>
-						<div :style="contentBox(section, field)">
+						<InputLabel
+							:id="labelId(field)"
+							:for-id="controlId(field)"
+							:label="__(field.label)"
+							:required="field.reqd"
+						/>
+						<div class="mt-1" :style="contentBox(section, field)">
 							<FormControl
 								type="textarea"
+								:id="controlId(field)"
 								:rows="field.rows || 3"
 								v-model="data[field.name]"
 								:disabled="field.disabled"
 								:required="field.reqd"
 								:aria-label="__(field.label)"
+								:aria-describedby="describedBy(field)"
 								:placeholder="field.placeholder || __(field.label)"
 							/>
 						</div>
-						<div
+						<InputDescription
 							v-if="field.description"
-							class="text-p-sm text-ink-gray-5 mt-2"
-						>
-							{{ __(field.description) }}
-						</div>
+							:id="descriptionId(field)"
+							:description="__(field.description)"
+							class="mt-1"
+						/>
 					</div>
 
 					<div v-else-if="field.type == 'richtext'" class="py-3">
-						<div class="text-p-base-medium text-ink-gray-7 mb-2">
-							{{ __(field.label) }}
-							<span v-if="field.reqd" class="text-ink-red-6" aria-hidden="true"
-								>*</span
-							>
-						</div>
-						<div :style="contentBox(section, field)">
+						<InputLabel
+							:id="labelId(field)"
+							:label="__(field.label)"
+							:required="field.reqd"
+						/>
+						<div class="mt-1" :style="contentBox(section, field)">
 							<RichTextEditor
 								:content="data[field.name]"
 								:editable="!field.disabled"
+								:aria-labelledby="labelId(field)"
+								:aria-required="field.reqd"
 								:fixed-menu="true"
 								:placeholder="field.placeholder || __(field.label)"
-								editor-class="prose-sm max-w-none border-b border-x border-outline-elevation-2 bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[7rem] max-h-[13rem] overflow-y-auto"
+								min-height="7rem"
+								max-height="13rem"
 								@change="(value) => onRichText(field, value)"
 							/>
 						</div>
-						<div
+						<InputDescription
 							v-if="field.description"
-							class="text-p-sm text-ink-gray-5 mt-2"
-						>
-							{{ __(field.description) }}
-						</div>
+							:id="descriptionId(field)"
+							:description="__(field.description)"
+							class="mt-1"
+						/>
 					</div>
 
 					<div
 						v-else-if="field.type == 'password' && field.secret"
 						class="py-3"
 					>
-						<div class="text-p-base-medium text-ink-gray-7 mb-2">
-							{{ __(field.label) }}
-							<span v-if="field.reqd" class="text-ink-red-6" aria-hidden="true"
-								>*</span
-							>
-						</div>
-						<FormControl
-							type="password"
-							class="w-full"
+						<InputLabel
+							:id="labelId(field)"
+							:for-id="controlId(field)"
+							:label="__(field.label)"
+							:required="field.reqd"
+						/>
+						<Password
+							class="mt-1 w-full"
+							:id="controlId(field)"
 							:model-value="secretValues[field.name] || ''"
 							:required="field.reqd"
 							:disabled="field.disabled"
 							:aria-label="__(field.label)"
+							:aria-describedby="describedBy(field)"
 							:placeholder="
 								hasStoredSecret(field)
 									? __('Saved, leave blank to keep it')
@@ -142,12 +121,12 @@
 							"
 							@update:model-value="(value) => setSecret(field, value)"
 						/>
-						<div
+						<InputDescription
 							v-if="field.description"
-							class="text-p-sm text-ink-gray-5 mt-2"
-						>
-							{{ __(field.description) }}
-						</div>
+							:id="descriptionId(field)"
+							:description="__(field.description)"
+							class="mt-1"
+						/>
 					</div>
 
 					<div
@@ -157,29 +136,31 @@
 						@input="onInput(field)"
 						@focusout="onSettle(field)"
 					>
-						<div class="text-p-base-medium text-ink-gray-7 mb-2">
-							{{ __(field.label) }}
-							<span v-if="field.reqd" class="text-ink-red-6" aria-hidden="true"
-								>*</span
-							>
-						</div>
-						<FormControl
+						<InputLabel
+							:id="labelId(field)"
+							:for-id="controlId(field)"
+							:label="__(field.label)"
+							:required="field.reqd"
+						/>
+						<component
+							:is="controlOf(field)"
 							:key="field.name"
 							v-model="data[field.name]"
-							:type="field.type"
+							v-bind="controlProps(field)"
+							:id="controlId(field)"
 							:required="field.reqd"
 							:disabled="field.disabled"
-							:min="field.min"
-							class="w-full"
+							class="mt-1 w-full"
 							:aria-label="__(field.label)"
+							:aria-describedby="describedBy(field)"
 							:placeholder="field.placeholder || __(field.label)"
 						/>
-						<div
+						<InputDescription
 							v-if="field.description"
-							class="text-p-sm text-ink-gray-5 mt-2"
-						>
-							{{ __(field.description) }}
-						</div>
+							:id="descriptionId(field)"
+							:description="__(field.description)"
+							class="mt-1"
+						/>
 					</div>
 
 					<div v-else class="flex items-center justify-between gap-4 py-3">
@@ -188,7 +169,7 @@
 								{{ __(field.label) }}
 								<span
 									v-if="field.reqd"
-									class="text-ink-red-6"
+									class="text-ink-red-5"
 									aria-hidden="true"
 									>*</span
 								>
@@ -203,6 +184,7 @@
 								size="sm"
 								:model-value="data[field.name]"
 								:disabled="field.disabled"
+								:aria-label="__(field.label)"
 								@update:model-value="(value) => onPick(field, value)"
 							/>
 							<Link
@@ -226,26 +208,31 @@
 								class="w-48"
 								@update:model-value="(value) => onPick(field, value)"
 							/>
-							<span
+							<div
 								v-else
-								class="contents"
+								class="w-48"
 								@input="onInput(field)"
 								@focusout="onSettle(field)"
 							>
-								<FormControl
+								<label
+									v-if="isPicker(field)"
+									:for="controlId(field)"
+									class="sr-only"
+									>{{ __(field.label) }}</label
+								>
+								<component
+									:is="controlOf(field)"
 									:key="field.name"
+									:id="controlId(field)"
 									v-model="data[field.name]"
-									:type="field.type"
-									:rows="field.rows"
-									:options="field.options"
+									v-bind="controlProps(field)"
 									:required="field.reqd"
 									:disabled="field.disabled"
-									:min="field.min"
-									class="w-48"
-									:aria-label="__(field.label)"
+									class="w-full"
+									:aria-label="isPicker(field) ? undefined : __(field.label)"
 									:placeholder="field.placeholder || __(field.label)"
 								/>
-							</span>
+							</div>
 						</div>
 					</div>
 				</template>
@@ -254,13 +241,14 @@
 	</div>
 </template>
 <script setup>
-import { FormControl, Select } from 'frappe-ui'
+import { FormControl, Password, Select } from 'frappe-ui'
+import { InputDescription, InputLabel } from 'frappe-ui/experimental'
 import BooleanSwitch from '@/components/Controls/BooleanSwitch.vue'
-import { reactive, watch } from 'vue'
+import { reactive, useId, watch } from 'vue'
 import Link from '@/components/Controls/Link.vue'
-import CodeEditor from '@/components/Controls/CodeEditor.vue'
 import ImageUploadField from '@/components/Controls/ImageUploadField.vue'
 import RichTextEditor from '@/components/RichTextEditor.vue'
+import SettingsCodeField from './SettingsCodeField.vue'
 import { seedCheckboxDefaults } from '@/components/Settings/Mobile/mobileRows'
 
 // is_private="!field.public" is written inline deliberately: privacy is the
@@ -299,6 +287,40 @@ const secretValues = reactive({})
 
 const hasStoredSecret = (field) => Boolean(props.data[field.name])
 
+// Every `password` field is a secret, whether or not it opts into `secret`
+// storage, so all of them get Password's masked box and reveal toggle rather
+// than a bare type="password". Password takes no `type` prop — handing it one
+// would land on the input and override its own show/hide.
+const controlOf = (field) =>
+	field.type === 'password' ? Password : FormControl
+
+const controlProps = (field) =>
+	field.type === 'password'
+		? {}
+		: {
+				type: field.type,
+				rows: field.rows,
+				options: field.options,
+				min: field.min,
+		  }
+
+// PickerShell's wrapper div swallows aria-label, so these get a <label for>
+// on the id PickerShell forwards to the input.
+const PICKER_TYPES = ['date', 'daterange', 'datetime', 'time']
+
+const isPicker = (field) => PICKER_TYPES.includes(field.type)
+
+const uid = useId()
+
+const controlId = (field) => `${uid}-${field.name}`
+
+const labelId = (field) => `${controlId(field)}-label`
+
+const descriptionId = (field) => `${controlId(field)}-description`
+
+const describedBy = (field) =>
+	field.description ? descriptionId(field) : undefined
+
 const setSecret = (field, value) => {
 	secretValues[field.name] = value
 	emit('secret', field.name, value)
@@ -313,7 +335,6 @@ const INSTANT_TYPES = [
 	'select',
 	'link',
 	'combobox',
-	'autocomplete',
 	'date',
 	'datetime',
 	'datetime-local',
@@ -325,18 +346,6 @@ const INSTANT_TYPES = [
 // validated. Only Transactions' coupon block uses this.
 const visibleFields = (section) =>
 	section.fields.filter((field) => !field.showIf || field.showIf(props.data))
-
-// The schema names a language like CodeMirror; CodeEditor names it like Ace.
-// Not derivable from each other, so the mapping is spelled out. Unmapped
-// falls back to HTML, matching every code field's prior default.
-const CODE_TYPES = { htmlmixed: 'HTML', javascript: 'JavaScript', json: 'JSON' }
-
-const codeType = (field) => CODE_TYPES[field.mode] || 'HTML'
-
-// 25px a line, which is what the one pre-existing code field's `rows: 10` was
-// already being drawn at back when the height was hardcoded to 250px. Its
-// height must not move because a second field finally reads the number.
-const codeHeight = (field) => `${(field.rows ?? 10) * 25}px`
 
 const CONTENT_TYPES = ['textarea', 'richtext']
 

@@ -8,6 +8,8 @@ from frappe import _
 from frappe.model.document import Document
 from frappe.utils import ceil
 
+IDENTITY_FIELDS = ("course", "member", "enrollment_from_batch")
+
 
 class LMSEnrollment(Document):
 	def before_insert(self):
@@ -16,6 +18,7 @@ class LMSEnrollment(Document):
 		self.validate_owner()
 
 	def validate(self):
+		validate_identity_unchanged(self, IDENTITY_FIELDS)
 		self.enforce_server_managed_fields()
 
 	def enforce_server_managed_fields(self):
@@ -108,6 +111,30 @@ class LMSEnrollment(Document):
 				frappe.throw(_("You need to complete the payment for this course before enrolling."))
 
 
+def validate_identity_unchanged(doc: Document, fields: tuple[str, ...]):
+	"""Eligibility and payment are checked on insert, so the fields they checked stay fixed."""
+	if doc.is_new():
+		return
+
+	stored = frappe.db.get_value(doc.doctype, doc.name, fields, as_dict=True)
+	for field in fields:
+		stored_value = stored.get(field)
+		attempted_value = doc.get(field)
+		if (attempted_value or None) != (stored_value or None):
+			_throw_identity_field_locked(
+				doc.name, _(doc.meta.get_label(field)), stored_value, attempted_value
+			)
+
+
+def _throw_identity_field_locked(row: str, field_label: str, stored_value, attempted_value):
+	frappe.throw(
+		_("{0}: {1} cannot be changed from {2} to {3} after enrollment.").format(
+			row, field_label, stored_value, attempted_value
+		),
+		frappe.CannotChangeConstantError,
+	)
+
+
 def is_admin():
 	roles = frappe.get_roles(frappe.session.user)
 	admin_roles = ["Moderator", "Course Creator", "Batch Evaluator"]
@@ -196,6 +223,13 @@ def _write_enrollment(name: str, values: dict):
 	for field in values:
 		if not enrollment.meta.get_field(field):
 			frappe.throw(_("{0} is not a field on LMS Enrollment").format(field))
+		if field in IDENTITY_FIELDS:
+			stored_value = enrollment.get(field)
+			attempted_value = values[field]
+			if (attempted_value or None) != (stored_value or None):
+				_throw_identity_field_locked(
+					enrollment.name, _(enrollment.meta.get_label(field)), stored_value, attempted_value
+				)
 
 	changed = {field: value for field, value in values.items() if enrollment.get(field) != value}
 	if not changed:

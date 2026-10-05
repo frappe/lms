@@ -40,7 +40,7 @@ vi.mock('frappe-ui', () => ({
 	// on a DOM node, so the stub has to expose `options` for the test to invoke.
 	Dropdown: {
 		name: 'Dropdown',
-		props: ['options', 'placement', 'side'],
+		props: ['options', 'side'],
 		template: `<div class="dropdown"><slot :open="false" /></div>`,
 	},
 }))
@@ -123,7 +123,6 @@ const mountPage = async (router: Router) => {
 			provide: {
 				$user: { data: { name: 'mod@example.com', is_moderator: true } },
 			},
-			stubs: { teleport: true },
 			mocks: { __: (text: string) => text },
 		},
 	})

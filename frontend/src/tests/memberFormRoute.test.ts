@@ -11,8 +11,7 @@ import { defineComponent, h, reactive } from 'vue'
 vi.stubGlobal('__', (text: string) => text)
 enableAutoUnmount(afterEach)
 
-// frappe-ui's ESM build doesn't resolve under vitest (see chapterForm.test.ts),
-// so every export the page and FormShell reach for is stubbed by hand.
+// Stubbed so tests control call/resource responses without a network.
 const {
 	callMock,
 	createResourceMock,
@@ -95,8 +94,17 @@ vi.mock('frappe-ui', () => ({
 	},
 }))
 
-vi.mock('frappe-ui/frappe', () => ({
-	useOnboarding: () => ({ updateOnboardingStep: vi.fn() }),
+vi.mock(
+	'@framework/ui/components/Onboarding/index',
+	async (importOriginal) => ({
+		...(await importOriginal<
+			typeof import('@framework/ui/components/Onboarding/index')
+		>()),
+		useOnboarding: () => ({ updateOnboardingStep: vi.fn() }),
+	})
+)
+vi.mock('@framework/ui/telemetry/index', async (importOriginal) => ({
+	...(await importOriginal<typeof import('@framework/ui/telemetry/index')>()),
 	useTelemetry: () => ({ capture: vi.fn() }),
 }))
 

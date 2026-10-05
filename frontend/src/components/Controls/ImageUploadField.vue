@@ -6,13 +6,13 @@
 	>
 		<div
 			:data-testid="testid"
-			class="flex size-20 shrink-0 items-center justify-center rounded border border-outline-elevation-2"
+			class="flex size-20 shrink-0 items-center justify-center rounded-4 border border-outline-elevation-2"
 		>
 			<img
 				v-if="image_url"
 				:src="safeUrl(image_url)"
 				:alt="label"
-				class="size-8 rounded"
+				class="size-8 rounded-4"
 			/>
 			<span
 				v-else
@@ -47,7 +47,7 @@
 <script setup lang="ts">
 import { useId } from 'vue'
 import ImageUploader from '@/components/Controls/ImageUploader.vue'
-import { InputLabel } from '@/components/Form/labeling'
+import { InputLabel } from 'frappe-ui/experimental'
 import { safeUrl } from '@/utils/safeUrl'
 
 /**

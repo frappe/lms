@@ -23,7 +23,7 @@
 	<Popover :open="iosInstallMessage" side="top" align="start" bare>
 		<template #default>
 			<div
-				class="fixed top-[20rem] translate-x-1/3 z-20 flex flex-col gap-3 rounded bg-surface-base py-5 drop-shadow-xl"
+				class="fixed top-[20rem] translate-x-1/3 z-20 flex flex-col gap-3 rounded-4 bg-surface-base py-5 drop-shadow-xl"
 			>
 				<div
 					class="mb-1 flex flex-row items-center justify-between px-3 text-center"
@@ -51,7 +51,7 @@
 						</span>
 						<span class="inline-flex items-start whitespace-nowrap">
 							<span>{{ __('Tap') }}&nbsp;</span>
-							<span class="lucide-share size-4 text-blue-600" />
+							<span class="lucide-share size-4 text-ink-blue-8" />
 							<span>&nbsp;{{ __("and then 'Add to Home Screen'") }}</span>
 						</span>
 					</span>

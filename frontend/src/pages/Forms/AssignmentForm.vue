@@ -67,11 +67,14 @@
 						:required="true"
 					/>
 					<RichTextEditor
+						:ariaLabelledby="questionLabelId"
+						:ariaRequired="true"
 						:content="assignment.question"
 						@change="(val: string) => (assignment.question = val)"
 						:editable="true"
 						:fixedMenu="true"
-						editorClass="prose-sm max-w-none border-b border-x border-outline-elevation-2 bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[10rem] max-h-[18rem] overflow-y-auto"
+						minHeight="10rem"
+						maxHeight="18rem"
 					/>
 				</div>
 			</div>
@@ -81,18 +84,15 @@
 				v-if="canManageAssignments"
 				class="flex items-center justify-end gap-2"
 			>
-				<router-link
+				<HeaderButton
 					v-if="assignmentID !== 'new'"
-					:to="{
-						name: 'AssignmentSubmissionList',
-						query: { assignmentID: assignmentID },
+					:route="{
+						name: 'AssignmentSubmissions',
+						query: { assignment: assignmentID },
 					}"
-				>
-					<HeaderButton
-						:label="__('Check Submissions')"
-						icon="lucide-clipboard-list"
-					/>
-				</router-link>
+					:label="__('Check Submissions')"
+					icon="lucide-clipboard-list"
+				/>
 				<HeaderButton
 					data-testid="assignment-save"
 					:label="__('Save')"
@@ -111,6 +111,7 @@ import {
 	createResource,
 	toast,
 } from 'frappe-ui'
+import type { FrappeResourceError } from 'frappe-ui'
 import { computed, inject, reactive, useId, watch } from 'vue'
 import { sanitizeOnWrite } from '@/utils/sanitizeOnWrite'
 import FormShell from '@/components/FormShell.vue'
@@ -119,8 +120,8 @@ import BooleanSwitch from '@/components/Controls/BooleanSwitch.vue'
 import { useFormRoute } from '@/composables/useFormRoute'
 import Link from '@/components/Controls/Link.vue'
 import RichTextEditor from '@/components/RichTextEditor.vue'
-import { InputLabel } from '@/components/Form/labeling'
-import { submitResource } from '@/utils/resource'
+import { InputLabel } from 'frappe-ui/experimental'
+import { resourceErrorMessage, submitResource } from '@/utils/resource'
 import { toDatetimeLocal, fromDatetimeLocal } from '@/utils/schedule'
 
 const questionLabelId = useId()
@@ -191,8 +192,8 @@ const assignmentDoc = createDocumentResource({
 	// JobForm.vue:184 already relies on. Cast rather than invent a name.
 	name: editingName as string,
 	auto: Boolean(editingName),
-	onError(err: any) {
-		toast.error(err.messages?.[0] || err)
+	onError(err: FrappeResourceError) {
+		toast.error(resourceErrorMessage(err, __('Error')))
 		console.error(err)
 	},
 })
@@ -236,8 +237,8 @@ const newAssignment = createResource({
 		// rather than a stale, already-saved form.
 		saveAndReplace({ name: 'Assignments' })
 	},
-	onError(err: any) {
-		toast.error(err.messages?.[0] || err)
+	onError(err: FrappeResourceError) {
+		toast.error(resourceErrorMessage(err, __('Error')))
 		console.error(err)
 	},
 })
@@ -283,8 +284,8 @@ const updateAssignment = (): void => {
 				// (documentResource.js:50). Only a create needs the signal above.
 				saveAndReplace({ name: 'Assignments' })
 			},
-			onError(err: any) {
-				toast.error(err.messages?.[0] || err)
+			onError(err: FrappeResourceError) {
+				toast.error(resourceErrorMessage(err, __('Error')))
 				console.error(err)
 			},
 		}

@@ -1,24 +1,14 @@
 <template>
-	<div
-		class="-mx-3 min-h-0 flex-1 overflow-y-auto [--list-row-height:3.5rem]"
-		:style="scrollerStyle"
-	>
-		<List :columns="tracks" class="list-row-px-3">
+	<div class="-mx-3 min-h-0 flex-1 overflow-y-auto" :style="scrollerStyle">
+		<List :columns="tracks" :row-height="ROW_HEIGHT_PX" class="list-row-px-3">
 			<ListHeader class="sticky top-0 z-10 bg-surface-elevation-1">
-				<ListHeaderCell
-					v-for="column in columns"
-					:key="column.key"
-					class="text-p-sm"
-				>
+				<ListHeaderCell v-for="column in columns" :key="column.key">
 					{{ column.label }}
 				</ListHeaderCell>
 			</ListHeader>
 			<div role="rowgroup">
 				<ListRows :items="rows" :row-key="rowKey" v-slot="{ item: row }">
-					<ListRow
-						class="dark:sm:hover:bg-surface-gray-2 [outline-offset:-3px]"
-						@click="emit('rowClick', row)"
-					>
+					<ListRow :class="ROW_CLASSES" @click="emit('rowClick', row)">
 						<ListCell
 							v-for="column in columns"
 							:key="column.key"
@@ -51,7 +41,7 @@
 									</div>
 									<Badge
 										v-if="rowStatus?.(row)"
-										theme="orange"
+										theme="amber"
 										class="ms-2 shrink-0"
 									>
 										{{ rowStatus(row) }}
@@ -117,7 +107,7 @@
 											? column.ariaLabel(row)
 											: __('More options'),
 									}"
-									placement="right"
+									align="end"
 								/>
 							</slot>
 						</ListCell>
@@ -177,6 +167,11 @@ import type {
 	SettingsListRow,
 } from '@/types'
 
+// The outline sits inside the row; frappe-ui's hover wash equals the dialog
+// surface in dark mode. See settingsTableScroll.test.ts.
+// token-exempt: dark: selects a different token, not the same one twice
+const ROW_CLASSES = 'dark:sm:hover:bg-surface-gray-2 [outline-offset:-3px]'
+
 const props = withDefaults(
 	defineProps<{
 		columns: SettingsListColumn[]
@@ -200,13 +195,20 @@ const props = withDefaults(
 	}
 )
 
+// v1 List sizes rows to content unless given `:row-height` (its own
+// `--_list-row-height`, internal and reset at every list root — not a public
+// hook). This is the one number both the prop and the ceiling below read, so
+// they can't drift apart the way the old `--list-row-height` var and the
+// prop-less <List> did.
+const ROW_HEIGHT_PX = 56
+
 // A ceiling, not a fixed height: a hard height clips on a short viewport.
-// Inline style because the row height is a custom property, and a Tailwind
-// class assembled from a prop is invisible to the JIT scan. `2rem` is the header.
+// Inline style because a Tailwind class assembled from a prop is invisible to
+// the JIT scan. `2rem` is the header.
 const scrollerStyle = computed(() =>
 	props.visibleRows
 		? {
-				maxHeight: `calc(var(--list-row-height) * ${props.visibleRows} + 2rem)`,
+				maxHeight: `calc(${ROW_HEIGHT_PX}px * ${props.visibleRows} + 2rem)`,
 		  }
 		: undefined
 )

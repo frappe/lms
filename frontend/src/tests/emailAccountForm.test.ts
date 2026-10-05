@@ -33,7 +33,8 @@ vi.mock('frappe-ui', () => ({
 		template: `<div data-testid="error">{{ message }}</div>`,
 	},
 }))
-vi.mock('frappe-ui/frappe', () => ({
+vi.mock('@framework/ui/telemetry/index', async (importOriginal) => ({
+	...(await importOriginal<typeof import('@framework/ui/telemetry/index')>()),
 	useTelemetry: () => ({ capture: vi.fn() }),
 }))
 vi.mock('@/components/Layouts/settings/desktop/SettingsLayout.vue', () => ({

@@ -221,6 +221,38 @@ describe('iconClass', () => {
 	it('has nothing to say about a link with no icon', () => {
 		expect(iconClass(undefined)).toBeUndefined()
 	})
+
+	it('draws the link icon for a name it does not spell out', () => {
+		expect(iconClass('Sparkles')).toBe('lucide-link')
+	})
+
+	it.each([
+		'Home',
+		'Search',
+		'BookOpen',
+		'Route',
+		'Users',
+		'GraduationCap',
+		'Briefcase',
+		'TrendingUp',
+		'Headset',
+		'Mail',
+		'CircleHelp',
+		'Pencil',
+		'Code',
+	])('spells out %s, a destination nav link icon', (icon) => {
+		const name = iconClass(icon)?.slice('lucide-'.length) ?? ''
+		expect(name).not.toBe('link')
+		expect(
+			existsSync(
+				resolve(
+					process.cwd(),
+					'node_modules/lucide-static/icons',
+					`${name}.svg`
+				)
+			)
+		).toBe(true)
+	})
 })
 
 describe('every icon the page can draw', () => {

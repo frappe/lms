@@ -1,5 +1,6 @@
 import { computed, reactive, ref, shallowRef, watch, type Ref } from 'vue'
-import { call, createDocumentResource } from 'frappe-ui'
+import { call, createDocumentResource, toast } from 'frappe-ui'
+import type { FrappeResourceError } from 'frappe-ui'
 import type { SettingsSource } from '@/types/settingsSchema'
 import type { SettingsListRow } from '@/types/settingsList'
 
@@ -7,6 +8,10 @@ import type { SettingsListRow } from '@/types/settingsList'
 export const NEW_RECORD = 'new'
 
 const LMS_SETTINGS = 'LMS Settings'
+
+export const reportSaveFailure = (error: FrappeResourceError) => {
+	toast.error(error?.messages?.[0] || error?.message || __('Save failed'))
+}
 
 /**
  * frappe-ui ships `DocumentResource` only as an internal .d.ts and does not
@@ -74,18 +79,15 @@ export interface SettingsSourceHandle {
 	loading: boolean
 }
 
-// createDocumentResource caches on [doctype, name] and ignores `options.cache`,
-// so callers naming the same document share one instance. `cache`/`fields` stay
-// here only to keep this call byte-identical to Settings.vue and Preferences.vue.
 const documentResource = (
 	doctype: string,
 	name: string
 ): SettingsDocumentResource => {
-	const options =
-		doctype === LMS_SETTINGS
-			? { doctype, name, fields: ['*'], cache: LMS_SETTINGS, auto: true }
-			: { doctype, name, auto: true }
-	return createDocumentResource(options) as unknown as SettingsDocumentResource
+	return createDocumentResource({
+		doctype,
+		name,
+		auto: true,
+	}) as unknown as SettingsDocumentResource
 }
 
 /**

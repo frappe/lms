@@ -63,6 +63,7 @@
    "fieldname": "manifest_file",
    "fieldtype": "Code",
    "label": "Manifest File",
+   "permlevel": 1,
    "read_only": 1
   },
   {
@@ -70,6 +71,7 @@
    "fieldname": "launch_file",
    "fieldtype": "Code",
    "label": "Launch File",
+   "permlevel": 1,
    "read_only": 1
   },
   {
@@ -82,6 +84,7 @@
    "fieldtype": "Link",
    "label": "SCORM Package",
    "options": "File",
+   "permlevel": 1,
    "read_only": 1
   },
   {
@@ -93,6 +96,7 @@
    "fieldname": "scorm_package_path",
    "fieldtype": "Code",
    "label": "SCORM Package Path",
+   "permlevel": 1,
    "read_only": 1
   },
   {
@@ -112,7 +116,7 @@
    "link_fieldname": "chapter"
   }
  ],
- "modified": "2025-05-29 12:38:26.266673",
+ "modified": "2026-09-20 00:00:00.000000",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "Course Chapter",
@@ -163,6 +167,24 @@
    "report": 1,
    "role": "Moderator",
    "share": 1,
+   "write": 1
+  },
+  {
+   "permlevel": 1,
+   "read": 1,
+   "role": "System Manager",
+   "write": 1
+  },
+  {
+   "permlevel": 1,
+   "read": 1,
+   "role": "Course Creator",
+   "write": 1
+  },
+  {
+   "permlevel": 1,
+   "read": 1,
+   "role": "Moderator",
    "write": 1
   }
  ],

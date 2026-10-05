@@ -46,13 +46,7 @@
 			/>
 		</template>
 		<template v-if="dependencyBanner" #banner>
-			<Alert
-				class="mb-4"
-				theme="yellow"
-				variant="subtle"
-				:dismissible="false"
-				:title="dependencyBanner"
-			/>
+			<Alert class="mb-4" theme="amber" :title="dependencyBanner" />
 		</template>
 	</SettingsList>
 </template>

@@ -54,10 +54,6 @@ const {
 }))
 
 vi.mock('frappe-ui', () => ({
-	Avatar: {
-		props: ['image', 'label', 'size'],
-		template: `<span data-testid="avatar" :data-image="image">{{ label }}</span>`,
-	},
 	usePageMeta: vi.fn(),
 }))
 

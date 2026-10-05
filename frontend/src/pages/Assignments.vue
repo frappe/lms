@@ -15,6 +15,11 @@
 		@load-more="assignments.next()"
 	>
 		<template #actions>
+			<HeaderButton
+				:route="{ name: 'AssignmentSubmissions' }"
+				:label="__('Submissions')"
+				icon="lucide-clipboard-list"
+			/>
 			<Button
 				v-if="!readOnlyMode"
 				variant="solid"
@@ -77,6 +82,7 @@ import {
 	usePageMeta,
 } from 'frappe-ui'
 import ListPage from '@/components/Layouts/pages/ListPage.vue'
+import HeaderButton from '@/components/HeaderButton.vue'
 import Select from '@/components/Controls/Select.vue'
 import { computed, inject, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
@@ -94,6 +100,7 @@ const readOnlyMode = window.read_only_mode
 onMounted(() => {
 	if (!user.data?.is_moderator && !user.data?.is_instructor) {
 		router.push({ name: 'Courses' })
+		return
 	}
 	titleFilter.value = router.currentRoute.value.query.title
 	typeFilter.value = router.currentRoute.value.query.type
@@ -102,7 +109,14 @@ onMounted(() => {
 // openFormRoute rather than a bare router.push: it stamps the history entry so
 // the form's own Back/Escape pops it instead of replacing the list.
 const openAssignmentForm = (assignmentID) => {
-	openFormRoute(router, { name: 'AssignmentForm', params: { assignmentID } })
+	// The create form is its own paramless route, so `new` cannot be carried
+	// as an assignmentID the way it used to be.
+	openFormRoute(
+		router,
+		assignmentID === 'new'
+			? { name: 'NewAssignment' }
+			: { name: 'AssignmentForm', params: { assignmentID } }
+	)
 }
 
 // The form does not share this page's list resource — see the comment in

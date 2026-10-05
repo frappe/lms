@@ -98,7 +98,6 @@ vi.mock('frappe-ui', () => ({
 			},
 			submit: vi.fn(),
 		}),
-	Breadcrumbs: { template: '<nav />' },
 	Button: { template: '<button><slot /></button>' },
 	FormControl: {
 		inheritAttrs: false,

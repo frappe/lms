@@ -1,28 +1,42 @@
 <template>
-	<Editor
-		v-model="html"
-		:extensions="extensions"
-		:editable="editable"
-		:placeholder="placeholder"
-		:upload-function="uploadFile"
-		format="html"
-		@focus="hasFocus = true"
-		@blur="hasFocus = false"
-	>
-		<template #default>
-			<EditorFixedMenu
-				v-if="fixedMenu"
-				class="w-full overflow-x-auto rounded-t-lg border border-outline-elevation-2"
-				:items="toolbar"
-			/>
-			<EditorContent :class="editorClass" />
-		</template>
-	</Editor>
+	<div data-testid="rich-text-editor" :class="boxClasses">
+		<Editor
+			ref="editorRef"
+			v-model="html"
+			:extensions="extensions"
+			:editable="editable"
+			:placeholder="placeholder"
+			:upload-function="uploadFile"
+			format="html"
+			@focus="hasFocus = true"
+			@blur="onBlur"
+		>
+			<template #default>
+				<EditorFixedMenu
+					v-if="fixedMenu"
+					:class="toolbarClasses"
+					:items="toolbar"
+				/>
+				<EditorContent
+					:id="id"
+					:class="[editorClass, contentClasses]"
+					:aria-labelledby="ariaLabelledby"
+					:aria-required="
+						ariaRequired === undefined ? undefined : String(ariaRequired)
+					"
+					:aria-invalid="
+						ariaInvalid === undefined ? undefined : String(ariaInvalid)
+					"
+				/>
+			</template>
+		</Editor>
+	</div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, ref, useTemplateRef, watch } from 'vue'
 import { useFileUpload } from 'frappe-ui'
+import type { UploadOptions } from 'frappe-ui'
 import {
 	AlignCenter,
 	AlignLeft,
@@ -50,31 +64,76 @@ import {
 	Strike,
 	Undo,
 } from 'frappe-ui/editor'
-
-type Mention = { value: string; label: string }
+import type { MentionSuggestionItem, UploadFunction } from 'frappe-ui/editor'
+import {
+	boxClass,
+	contentClass,
+	toolbarClass,
+} from '@/components/richTextEditorClasses'
+import type {
+	RichTextEditorMaxHeight,
+	RichTextEditorMinHeight,
+	RichTextEditorVariant,
+} from '@/components/richTextEditorClasses'
 
 const props = withDefaults(
 	defineProps<{
 		content?: string | null
 		editable?: boolean
 		fixedMenu?: boolean
+		variant?: RichTextEditorVariant
+		minHeight?: RichTextEditorMinHeight | null
+		maxHeight?: RichTextEditorMaxHeight | null
+		fill?: boolean
 		editorClass?: string
 		placeholder?: string
-		mentions?: Mention[] | null
-		uploadArgs?: Record<string, unknown>
+		mentions?: MentionSuggestionItem[] | null
+		uploadArgs?: Pick<
+			UploadOptions,
+			'private' | 'folder' | 'doctype' | 'docname' | 'fieldname'
+		>
+		id?: string
+		ariaLabelledby?: string
+		ariaRequired?: boolean
+		ariaInvalid?: boolean
 	}>(),
 	{
 		content: '',
 		editable: true,
 		fixedMenu: false,
+		variant: 'outline',
+		minHeight: null,
+		maxHeight: null,
+		fill: false,
 		editorClass: 'prose-sm',
 		placeholder: '',
 		mentions: null,
 		uploadArgs: undefined,
+		id: undefined,
+		ariaLabelledby: undefined,
+		ariaRequired: undefined,
+		ariaInvalid: undefined,
 	}
 )
 
-const emit = defineEmits<{ change: [value: string] }>()
+const emit = defineEmits<{
+	change: [value: string]
+	blur: [event: FocusEvent]
+}>()
+
+const boxClasses = computed(() =>
+	boxClass(props.variant, props.ariaInvalid === true, props.fill)
+)
+const toolbarClasses = computed(() => toolbarClass(props.variant))
+const contentClasses = computed(() =>
+	contentClass(props.variant, props.minHeight, props.maxHeight, props.fill)
+)
+
+const editorRef = useTemplateRef<InstanceType<typeof Editor>>('editorRef')
+
+defineExpose({
+	focus: () => editorRef.value?.editor?.commands.focus('end'),
+})
 
 const toolbar = [
 	HeadingGroup,
@@ -105,32 +164,33 @@ const toolbar = [
 	Redo,
 ]
 
-const extensions = computed(() => [
+// Editor reads extensions once at setup. The items getter lets a mention
+// list that loads later reach the @ menu.
+const extensions = [
 	RichTextKit.configure({
-		mention: props.mentions
-			? {
-					items: props.mentions.map((m) => ({
-						id: m.value,
-						label: m.label,
-					})),
-			  }
-			: false,
+		mention: props.mentions ? { items: () => props.mentions ?? [] } : false,
 	}),
-])
+]
 
 // Uploads default to private so editor images are not served from the
-// unauthenticated /files/ path, the default the old TextEditor applied.
+// unauthenticated /files/ path.
 const fileUpload = useFileUpload()
 
-function uploadFile(file: File) {
-	return fileUpload.upload(file, {
+const uploadFile: UploadFunction = (file, options) =>
+	fileUpload.upload(file, {
 		private: true,
-		...(props.uploadArgs || {}),
+		...props.uploadArgs,
+		signal: options?.signal,
+		onProgress: options?.onProgress,
 	})
-}
 
 const html = ref(props.content ?? '')
 const hasFocus = ref(false)
+
+function onBlur(event: FocusEvent) {
+	hasFocus.value = false
+	emit('blur', event)
+}
 
 watch(
 	() => props.content,

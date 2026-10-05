@@ -326,7 +326,7 @@ import {
 } from 'frappe-ui'
 import { computed, ref, useId } from 'vue'
 import AddressModal from '@/components/Settings/Transactions/AddressModal.vue'
-import { InputLabel } from '@/components/Form/labeling'
+import { InputLabel } from 'frappe-ui/experimental'
 import Link from '@/components/Controls/Link.vue'
 import SettingsLayout from '@/components/Layouts/settings/desktop/SettingsLayout.vue'
 import {
