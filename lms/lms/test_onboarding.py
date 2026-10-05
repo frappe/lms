@@ -15,9 +15,9 @@ FLAG_KEYS = {
 	"has_course_pricing",
 	"has_published_course",
 	"has_imported_learners",
-	"has_invited_student",
-	"has_sent_invitation",
+	"has_email_account",
 	"has_batch",
+	"has_batch_details",
 	"has_zoom_account",
 	"has_google_api",
 	"has_google_calendar",
@@ -30,8 +30,6 @@ FLAG_KEYS = {
 class TestOnboardingFacts(BaseTestUtils):
 	def setUp(self):
 		super().setUp()
-		# Every new user gets LMS Student from a hook, so the admin is created before
-		# the student roles are cleared, or it would count as an invited student.
 		self.admin = self._create_user(
 			"frappe@example.com", "Frappe", "Admin", ["Moderator", "Course Creator"]
 		)
@@ -51,11 +49,10 @@ class TestOnboardingFacts(BaseTestUtils):
 			"LMS Google Meet Settings",
 			"Google Calendar",
 			"Data Import",
-			"User Invitation",
+			"Email Account",
 		):
 			frappe.db.delete(doctype)
 		self._set_google_settings(enable=0, client_id=None, client_secret=None)
-		frappe.db.delete("Has Role", {"role": "LMS Student", "parenttype": "User"})
 
 	def _facts(self):
 		return get_onboarding_facts()
@@ -169,13 +166,15 @@ class TestOnboardingFacts(BaseTestUtils):
 		facts = self._facts()
 		self.assertEqual(facts["first_batch"], batch.name)
 		self.assertTrue(facts["has_batch"])
+		self.assertFalse(facts["has_batch_details"])
 		self.assertFalse(facts["has_live_class"])
 		self.assertFalse(facts["has_published_batch"])
 
 		self._insert_live_class(batch.name)
-		frappe.db.set_value("LMS Batch", batch.name, "published", 1)
+		frappe.db.set_value("LMS Batch", batch.name, {"published": 1, "meta_image": "/files/batch.png"})
 
 		facts = self._facts()
+		self.assertTrue(facts["has_batch_details"])
 		self.assertTrue(facts["has_live_class"])
 		self.assertTrue(facts["has_published_batch"])
 
@@ -194,17 +193,31 @@ class TestOnboardingFacts(BaseTestUtils):
 		self._insert_data_import("User", "Success")
 		self.assertTrue(self._facts()["has_imported_learners"])
 
-	def test_sent_invitation_counts_unless_cancelled_or_expired(self):
-		for status in ("Cancelled", "Expired"):
-			self._insert_invitation(status)
-		self.assertFalse(self._facts()["has_sent_invitation"])
+	# Guards: an incoming-only account ticking the email setup step. Introduced in this branch
+	# (feat/onboarding-flows, PR pending); test added there to require enable_outgoing.
+	def test_email_account_needs_outgoing_enabled(self):
+		self._insert_email_account("Support", "support@school.test", enable_outgoing=0)
+		self.assertFalse(self._facts()["has_email_account"])
 
-		self._insert_invitation("Pending")
-		self.assertTrue(self._facts()["has_sent_invitation"])
+		self._insert_email_account("Outgoing", "hello@school.test", enable_outgoing=1)
+		self.assertTrue(self._facts()["has_email_account"])
 
-	def test_accepted_invitation_counts(self):
-		self._insert_invitation("Accepted")
-		self.assertTrue(self._facts()["has_sent_invitation"])
+	# Guards: frappe's notifications@example.com fallback sender counting as an email setup. Introduced in
+	# this branch (feat/onboarding-flows, PR pending); test added there to ignore placeholder accounts.
+	def test_placeholder_notifications_account_does_not_count(self):
+		self._insert_email_account("Notifications", "notifications@example.com", enable_outgoing=1)
+		self.assertFalse(self._facts()["has_email_account"])
+
+	def _insert_email_account(self, name, email_id, enable_outgoing):
+		frappe.get_doc(
+			{
+				"doctype": "Email Account",
+				"name": name,
+				"email_account_name": name,
+				"email_id": email_id,
+				"enable_outgoing": enable_outgoing,
+			}
+		).db_insert()
 
 	def _insert_data_import(self, reference_doctype, status):
 		frappe.get_doc(
@@ -217,48 +230,8 @@ class TestOnboardingFacts(BaseTestUtils):
 			}
 		).db_insert()
 
-	def _insert_invitation(self, status):
-		frappe.get_doc(
-			{
-				"doctype": "User Invitation",
-				"name": frappe.generate_hash(length=10),
-				"email": f"{frappe.generate_hash(length=6)}@example.com",
-				"invited_by": "Administrator",
-				"status": status,
-			}
-		).db_insert()
-
-	def test_admin_created_student_counts_as_invited(self):
-		self._create_user("onboarding-student@example.com", "Onb", "Student", ["LMS Student"])
-		self.assertTrue(self._facts()["has_invited_student"])
-
-	def test_self_signed_up_student_is_not_invited(self):
-		student = self._create_user("onboarding-student@example.com", "Onb", "Student", ["LMS Student"])
-		frappe.db.set_value("User", student.name, "owner", "Guest")
-		self.assertFalse(self._facts()["has_invited_student"])
-
-		frappe.db.set_value("User", student.name, "owner", student.name)
-		self.assertFalse(self._facts()["has_invited_student"])
-
-	def _student(self, email, *roles):
-		user = self._create_user(email, "Onb", "User", [])
-		user.add_roles("LMS Student", *roles)
-		return user
-
-	def test_demo_students_are_not_invited(self):
-		self._student("john.doe@example.com")
-		self.assertFalse(self._facts()["has_invited_student"])
-
-	def test_staff_with_student_role_is_not_invited(self):
-		self._student("onboarding-admin@example.com", "System Manager")
-		self._student("onboarding-mod@example.com", "Moderator")
-		self.assertFalse(self._facts()["has_invited_student"])
-
-	def test_disabled_student_is_not_invited(self):
-		student = self._create_user("onboarding-student@example.com", "Onb", "Student", ["LMS Student"])
-		frappe.db.set_value("User", student.name, "enabled", 0)
-		self.assertFalse(self._facts()["has_invited_student"])
-
+	# Guards: a Zoom account not ticking its step, or ticking the Meet one. Introduced in this branch
+	# (feat/onboarding-flows, PR pending); test added there to keep the providers apart.
 	def test_zoom_account(self):
 		frappe.get_doc(
 			{

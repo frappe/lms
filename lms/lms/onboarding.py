@@ -3,14 +3,10 @@ import frappe
 SAMPLE_COURSE_TITLE = "A guide to Frappe Learning"
 # Seeded with the sample course and removed by api.clear_demo_data.
 DEMO_QUIZ_TITLE = "Do you know Frappe Learning?"
-# lms/demo/demo_data.py creates these; clear_demo_data deletes the same list.
-DEMO_USERS = ["ash@ipp.com", "john.doe@example.com", "jane.smith@example.com", "jannat@example.com"]
 # Data Import statuses for an import that wrote rows.
 IMPORT_DONE = ["Success", "Partial Success"]
-# User Invitation statuses for an invitation whose email went out and still stands.
-INVITATION_SENT = ["Pending", "Accepted"]
-# Every new user gets LMS Student from a hook, so staff carry it too.
-STAFF_ROLES = ["System Manager", "Moderator", "Course Creator", "Batch Evaluator"]
+# The domain of frappe's fallback sender and of placeholder accounts.
+PLACEHOLDER_EMAIL_DOMAIN = "example.com"
 
 
 @frappe.whitelist()
@@ -39,9 +35,11 @@ def get_onboarding_facts() -> dict[str, str | bool | None]:
 		"has_imported_learners": bool(
 			_first("Data Import", {"reference_doctype": "User", "status": ["in", IMPORT_DONE]})
 		),
-		"has_invited_student": _has_invited_student(),
-		"has_sent_invitation": _has_sent_invitation(),
+		"has_email_account": _has_email_account(),
 		"has_batch": bool(first_batch),
+		"has_batch_details": _exists_for(
+			first_batch, "LMS Batch", {"name": first_batch, "meta_image": ["is", "set"]}
+		),
 		"has_zoom_account": bool(_first("LMS Zoom Settings", {})),
 		"has_google_api": _has_google_api(),
 		"has_google_calendar": bool(
@@ -68,35 +66,12 @@ def _has_google_api() -> bool:
 	return bool(settings.get("enable") and settings.get("client_id") and settings.get("client_secret"))
 
 
-def _has_sent_invitation() -> bool:
-	"""User Invitation ships with frappe develop only; a released frappe has no table for it."""
-	if not frappe.db.table_exists("User Invitation"):
-		return False
-	return bool(_first("User Invitation", {"status": ["in", INVITATION_SENT]}))
-
-
-def _has_invited_student() -> bool:
-	"""An enabled LMS Student somebody else created. Self sign-up inserts as Guest."""
-	User = frappe.qb.DocType("User")
-	HasRole = frappe.qb.DocType("Has Role")
-	staff = (
-		frappe.qb.from_(HasRole)
-		.select(HasRole.parent)
-		.where(HasRole.parenttype == "User")
-		.where(HasRole.role.isin(STAFF_ROLES))
+def _has_email_account() -> bool:
+	"""An Email Account that sends. frappe falls back to notifications@example.com
+	when none is set up, so a row carrying a placeholder address does not count."""
+	return bool(
+		_first(
+			"Email Account",
+			{"enable_outgoing": 1, "email_id": ["not like", f"%@{PLACEHOLDER_EMAIL_DOMAIN}"]},
+		)
 	)
-	rows = (
-		frappe.qb.from_(User)
-		.join(HasRole)
-		.on((HasRole.parent == User.name) & (HasRole.parenttype == "User"))
-		.select(User.name)
-		.where(HasRole.role == "LMS Student")
-		.where(User.enabled == 1)
-		.where(User.name.notin(["Administrator", "Guest", *DEMO_USERS]))
-		.where(User.name.notin(staff))
-		.where(User.owner != User.name)
-		.where(User.owner != "Guest")
-		.limit(1)
-		.run()
-	)
-	return bool(rows)
