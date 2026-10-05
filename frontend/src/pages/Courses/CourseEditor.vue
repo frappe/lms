@@ -312,8 +312,12 @@ watch(
 watch(
 	() => props.course?.data?.name,
 	(name, previous) => {
-		// A target belongs to its course: re-read it from the route on a switch.
-		if (previous && name !== previous) target.value = targetFromRoute()
+		// A target belongs to its course: re-read it from the route on a switch,
+		// and drop the old outline so the default can't resolve against it.
+		if (previous && name !== previous) {
+			outline.reset()
+			target.value = targetFromRoute()
+		}
 		if (name) outline.fetch()
 	},
 	{ immediate: true }
