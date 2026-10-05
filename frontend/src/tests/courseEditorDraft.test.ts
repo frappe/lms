@@ -34,6 +34,7 @@ vi.mock('frappe-ui', async () => {
 		createResource: () => {
 			const r: any = reactive({ data: null, loading: false })
 			r.fetch = vi.fn()
+			r.reset = vi.fn(() => (r.data = null))
 			r.reload = vi.fn(
 				() =>
 					new Promise<void>((resolve) => {
@@ -314,11 +315,13 @@ describe('CourseEditor draft lesson identity', () => {
 		expect(state.route.query).toEqual({ editLesson: '1-1' })
 	})
 
-	it('re-reads the route when the course changes', async () => {
+	it('waits for the new course outline before opening its default', async () => {
+		// Guards: a course switch re-reads the route, but resolved the default
+		// against the old outline and pinned that lesson. Found on PR #2852.
 		wrapper = await mountEditor([chapterA(1), chapterB(2)])
-		expect(state.route.query).toEqual({ editLesson: '1-1' })
 
 		state.course.data.name = 'C2'
+		await flushPromises()
 		state.outline.data = [
 			{ name: 'CH-X', idx: 1, lessons: [{ name: 'L-X1', number: '1-1' }] },
 		]
